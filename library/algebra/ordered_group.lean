@@ -464,7 +464,7 @@ section
   theorem abs_pos_of_ne_zero (H : a ≠ 0) : |a| > 0 :=
   or.elim (lt_or_gt_of_ne H) abs_pos_of_neg abs_pos_of_pos
 
-  theorem abs_sub : |a - b| = |b - a| :=
+  theorem abs_sub (a b : A) : |a - b| = |b - a| :=
   calc
     |a - b| = |-(b - a)| : neg_sub
         ... = |b - a|    : abs_neg
@@ -481,7 +481,7 @@ section
   abs.by_cases H1 H2
 
   -- the triangle inequality
-  theorem abs_add_le_abs_add_abs : |a + b| ≤ |a| + |b| :=
+  theorem abs_add_le_abs_add_abs (a b : A) : |a + b| ≤ |a| + |b| :=
   have aux1 : ∀{a b}, a + b ≥ 0 → a ≥ 0 → |a + b| ≤ |a| + |b|,
   proof
     take a b,
@@ -535,14 +535,13 @@ section
               ... = |a| + |b|   : abs_neg)
   qed
 
-  theorem abs_sub_abs_le_abs_sub : |a| - |b| ≤ |a - b| :=
+  theorem abs_sub_abs_le_abs_sub (a b : A) : |a| - |b| ≤ |a - b| :=
   have H1 : |a| - |b| + |b| ≤ |a - b| + |b|, from
     calc
       |a| - |b| + |b| = |a| : sub_add_cancel
         ... = |a - b + b|   : sub_add_cancel
         ... ≤ |a - b| + |b| : algebra.abs_add_le_abs_add_abs,
   algebra.le_of_add_le_add_right H1
-
 end
 
 end algebra

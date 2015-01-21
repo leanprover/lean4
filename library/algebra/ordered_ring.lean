@@ -233,13 +233,16 @@ lt.by_cases
     lt.by_cases
       (assume Hb : 0 < b, absurd (H ▸ show 0 < a * b, from mul_pos Ha Hb) (lt.irrefl 0))
       (assume Hb : 0 = b, or.inr (Hb⁻¹))
-      (assume Hb : 0 > b, absurd (H ▸ show 0 > a * b, from mul_neg_of_pos_of_neg Ha Hb) (lt.irrefl 0)))
+      (assume Hb : 0 > b,
+        absurd (H ▸ show 0 > a * b, from mul_neg_of_pos_of_neg Ha Hb) (lt.irrefl 0)))
   (assume Ha : 0 = a, or.inl (Ha⁻¹))
   (assume Ha : 0 > a,
     lt.by_cases
-      (assume Hb : 0 < b, absurd (H ▸ show 0 > a * b, from mul_neg_of_neg_of_pos Ha Hb) (lt.irrefl 0))
+      (assume Hb : 0 < b,
+        absurd (H ▸ show 0 > a * b, from mul_neg_of_neg_of_pos Ha Hb) (lt.irrefl 0))
       (assume Hb : 0 = b, or.inr (Hb⁻¹))
-      (assume Hb : 0 > b, absurd (H ▸ show 0 < a * b, from mul_pos_of_neg_of_neg Ha Hb) (lt.irrefl 0)))
+      (assume Hb : 0 > b,
+        absurd (H ▸ show 0 < a * b, from mul_pos_of_neg_of_neg Ha Hb) (lt.irrefl 0)))
 
 -- Linearity implies no zero divisors. Doesn't need commutativity.
 definition linear_ordered_comm_ring.to_integral_domain [instance] [coercion]
@@ -282,15 +285,178 @@ section
         (assume Hb : b < 0, or.inr (and.intro Ha Hb)))
 end
 
-/-
-  Still left to do:
+/- TODO: Isabelle's library has all kinds of cancelation rules for the simplifier.
+   Search on mult_le_cancel_right1 in Rings.thy. -/
 
-  Isabelle's library has all kinds of cancelation rules for the simplifier, search on
-    mult_le_cancel_right1 in Rings.thy.
+structure decidable_linear_ordered_comm_ring [class] (A : Type) extends linear_ordered_comm_ring A,
+    decidable_linear_ordered_comm_group A
 
-  Properties of abs, sgn, and dvd.
+section
+  variable [s : decidable_linear_ordered_comm_ring A]
+  variables {a b c : A}
+  include s
 
-  Multiplication and one, starting with mult_right_le_one_le.
--/
+  definition sign (a : A) : A := lt.cases a 0 (-1) 0 1
+
+  theorem sign_of_neg (H : a < 0) : sign a = -1 := lt.cases_of_lt H
+
+  theorem sign_zero : sign 0 = 0 := lt.cases_of_eq rfl
+
+  theorem sign_of_pos (H : a > 0) : sign a = 1 := lt.cases_of_gt H
+
+  theorem sign_one : sign 1 = 1 := sign_of_pos zero_lt_one
+
+  theorem sign_neg_one : sign (-1) = -1 := sign_of_neg (neg_neg_of_pos zero_lt_one)
+
+  theorem sign_sign (a : A) : sign (sign a) = sign a :=
+  lt.by_cases
+    (assume H : a > 0,
+      calc
+        sign (sign a) = sign 1 : {sign_of_pos H}
+                  ... = 1      : sign_one
+                  ... = sign a : sign_of_pos H)
+    (assume H : 0 = a,
+      calc
+        sign (sign a) = sign (sign 0) : H
+                  ... = sign 0        : sign_zero
+                  ... = sign a        : H)
+    (assume H : a < 0,
+      calc
+        sign (sign a) = sign (-1)     : {sign_of_neg H}
+                  ... = -1            : sign_neg_one
+                  ... = sign a        : sign_of_neg H)
+
+  theorem pos_of_sign_eq_one (H : sign a = 1) : a > 0 :=
+  lt.by_cases
+    (assume H1 : 0 < a, H1)
+    (assume H1 : 0 = a, absurd (sign_zero⁻¹ ⬝ (H1⁻¹ ▸ H)) zero_ne_one)
+    (assume H1 : 0 > a,
+      have H2 : -1 = 1, from (sign_of_neg H1)⁻¹ ⬝ H,
+      absurd ((eq_zero_of_neg_eq H2)⁻¹) zero_ne_one)
+
+  theorem eq_zero_of_sign_eq_zero (H : sign a = 0) : a = 0 :=
+  lt.by_cases
+    (assume H1 : 0 < a, absurd (H⁻¹ ⬝ sign_of_pos H1) zero_ne_one)
+    (assume H1 : 0 = a, H1⁻¹)
+    (assume H1 : 0 > a,
+      have H2 : 0 = -1, from H⁻¹ ⬝ sign_of_neg H1,
+      have H3 : 1 = 0, from eq_neg_of_eq_neg H2 ⬝ neg_zero,
+      absurd (H3⁻¹) zero_ne_one)
+
+  theorem neg_of_sign_eq_neg_one (H : sign a = -1) : a < 0 :=
+  lt.by_cases
+    (assume H1 : 0 < a,
+      have H2 : -1 = 1, from H⁻¹ ⬝ (sign_of_pos H1),
+      absurd ((eq_zero_of_neg_eq H2)⁻¹) zero_ne_one)
+    (assume H1 : 0 = a,
+      have H2 : 0 = -1, from (H1 ▸ sign_zero)⁻¹ ⬝ H,
+      have H3 : 1 = 0, from eq_neg_of_eq_neg H2 ⬝ neg_zero,
+      absurd (H3⁻¹) zero_ne_one)
+    (assume H1 : 0 > a, H1)
+
+  theorem sign_neg (a : A) : sign (-a) = -(sign a) :=
+  lt.by_cases
+    (assume H1 : 0 < a,
+      calc
+        sign (-a) = -1        : sign_of_neg (neg_neg_of_pos H1)
+              ... = -(sign a) : {(sign_of_pos H1)⁻¹})
+    (assume H1 : 0 = a,
+      calc
+        sign (-a) = sign (-0) : H1
+              ... = sign 0    : {neg_zero} -- TODO: why do we need {}?
+              ... = 0         : sign_zero
+              ... = -0        : neg_zero
+              ... = -(sign 0) : sign_zero
+              ... = -(sign a) : H1)
+    (assume H1 : 0 > a,
+      calc
+        sign (-a) = 1         : sign_of_pos (neg_pos_of_neg H1)
+              ... = -(-1)     : neg_neg
+              ... = -(sign a) : {(sign_of_neg H1)⁻¹})
+
+  -- hopefully, will be quick with the simplifier
+  theorem sign_mul (a b : A) : sign (a * b) = sign a * sign b := sorry
+
+  theorem abs_eq_sign_mul (a : A) : |a| = sign a * a :=
+  lt.by_cases
+    (assume H1 : 0 < a,
+      calc
+        |a| = a          : abs_of_pos H1
+        ... = 1 * a      : one_mul
+        ... = sign a * a : {(sign_of_pos H1)⁻¹})
+    (assume H1 : 0 = a,
+      calc
+        |a| = |0|        : H1
+        ... = 0          : abs_zero
+        ... = 0 * a      : zero_mul
+        ... = sign 0 * a : sign_zero
+        ... = sign a * a : H1)
+    (assume H1 : a < 0,
+      calc
+        |a| = -a : abs_of_neg H1
+          ... = -1 * a : neg_eq_neg_one_mul
+          ... = sign a * a : {(sign_of_neg H1)⁻¹})
+
+  theorem eq_sign_mul_abs (a : A) : a = sign a * |a| :=
+  lt.by_cases
+    (assume H1 : 0 < a,
+      calc
+        a = |a|              : abs_of_pos H1
+          ... = 1 * |a|      : one_mul
+          ... = sign a * |a| : {(sign_of_pos H1)⁻¹})
+    (assume H1 : 0 = a,
+      calc
+        a = 0        : H1
+          ... = 0 * |a|      : zero_mul
+          ... = sign 0 * |a| : sign_zero
+          ... = sign a * |a| : H1)
+    (assume H1 : a < 0,
+      calc
+        a = -(-a)            : neg_neg
+          ... = -|a|         : {(abs_of_neg H1)⁻¹}
+          ... = -1 * |a|     : neg_eq_neg_one_mul
+          ... = sign a * |a| : {(sign_of_neg H1)⁻¹})
+
+  theorem abs_dvd_iff_dvd (a b : A) : |a| | b ↔ a | b :=
+  abs.by_cases !iff.refl !neg_dvd_iff_dvd
+
+  theorem dvd_abs_iff (a b : A) : a | |b| ↔ a | b :=
+  abs.by_cases !iff.refl !dvd_neg_iff_dvd
+
+  theorem abs_mul (a b : A) : |a * b| = |a| * |b| :=
+  or.elim (le.total 0 a)
+    (assume H1 : 0 ≤ a,
+      or.elim (le.total 0 b)
+        (assume H2 : 0 ≤ b,
+          calc
+            |a * b| = a * b     : abs_of_nonneg (mul_nonneg H1 H2)
+                ... = |a| * b   : {(abs_of_nonneg H1)⁻¹}
+                ... = |a| * |b| : {(abs_of_nonneg H2)⁻¹})
+        (assume H2 : b ≤ 0,
+          calc
+            |a * b| = -(a * b)  : abs_of_nonpos (mul_nonpos_of_nonneg_of_nonpos H1 H2)
+                ... = a * -b    : neg_mul_eq_mul_neg
+                ... = |a| * -b  : {(abs_of_nonneg H1)⁻¹}
+                ... = |a| * |b| : {(abs_of_nonpos H2)⁻¹}))
+    (assume H1 : a ≤ 0,
+      or.elim (le.total 0 b)
+        (assume H2 : 0 ≤ b,
+          calc
+            |a * b| = -(a * b)  : abs_of_nonpos (mul_nonpos_of_nonpos_of_nonneg H1 H2)
+                ... = -a * b    : neg_mul_eq_neg_mul
+                ... = |a| * b   : {(abs_of_nonpos H1)⁻¹}
+                ... = |a| * |b| : {(abs_of_nonneg H2)⁻¹})
+        (assume H2 : b ≤ 0,
+          calc
+            |a * b| = a * b     : abs_of_nonneg (mul_nonneg_of_nonpos_of_nonpos H1 H2)
+                ... = -a * -b   : neg_mul_neg
+                ... = |a| * -b  : {(abs_of_nonpos H1)⁻¹}
+                ... = |a| * |b| : {(abs_of_nonpos H2)⁻¹}))
+
+  theorem abs_mul_self (a : A) : |a| * |a| = a * a :=
+  abs.by_cases rfl !neg_mul_neg
+end
+
+/- TODO: Multiplication and one, starting with mult_right_le_one_le. -/
 
 end algebra

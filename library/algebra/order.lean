@@ -333,6 +333,22 @@ section
     (assume H : ¬ a ≤ b,
       (inr (assume H1 : a = b, H (H1 ▸ !le.refl))))
 
+  -- testing equality first may result in more definitional equalities
+  definition lt.cases {B : Type} (a b : A) (t_lt t_eq t_gt : B) : B :=
+  if a = b then t_eq else (if a < b then t_lt else t_gt)
+
+  theorem lt.cases_of_eq {B : Type} {a b : A} {t_lt t_eq t_gt : B} (H : a = b) :
+    lt.cases a b t_lt t_eq t_gt = t_eq := if_pos H
+
+  theorem lt.cases_of_lt {B : Type} {a b : A} {t_lt t_eq t_gt : B} (H : a < b) :
+    lt.cases a b t_lt t_eq t_gt = t_lt :=
+  if_neg (ne_of_lt H) ⬝ if_pos H
+
+  theorem lt.cases_of_gt {B : Type} {a b : A} {t_lt t_eq t_gt : B} (H : a > b) :
+    lt.cases a b t_lt t_eq t_gt = t_gt :=
+  if_neg (ne.symm (ne_of_lt H)) ⬝ if_neg (lt.asymm H)
+
+/-
   definition lt.by_cases' {a b : A} {P : Type}
     (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) : P :=
   if H4 : a < b then H1 H4 else
@@ -355,6 +371,7 @@ section
   have H5 [visible] : ¬ a < b, from lt.asymm H4,
   have H6 [visible] : a ≠ b, from (assume H7: a = b, lt.irrefl b (H7 ▸ H4)),
   dif_neg H6 ▸ dif_neg H5
+-/
 end
 
 end algebra

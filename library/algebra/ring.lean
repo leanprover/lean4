@@ -183,19 +183,24 @@ section
         ... = 0 : zero_mul)
 
   theorem neg_mul_eq_mul_neg : -(a * b) = a * -b :=
-  neg_eq_of_add_eq_zero
+   neg_eq_of_add_eq_zero
     (calc
       a * b + a * -b = a * (b + -b) : left_distrib
         ... = a * 0 : add.right_inv
         ... = 0 : mul_zero)
 
-  theorem neg_mul_neg_eq : -a * -b = a * b :=
+  theorem neg_mul_neg : -a * -b = a * b :=
   calc
      -a * -b = -(a * -b) : !neg_mul_eq_neg_mul⁻¹
        ... = - -(a * b) : neg_mul_eq_mul_neg
        ... = a * b : neg_neg
 
   theorem neg_mul_comm : -a * b = a * -b := !neg_mul_eq_neg_mul⁻¹ ⬝ !neg_mul_eq_mul_neg
+
+  theorem neg_eq_neg_one_mul : -a = -1 * a :=
+  calc
+    -a = -(1 * a)  : one_mul a ▸ rfl
+      ... = -1 * a : neg_mul_eq_neg_mul
 
   theorem mul_sub_left_distrib : a * (b - c) = a * b - a * c :=
   calc
@@ -270,7 +275,7 @@ section
         (take c, assume H' : a * c = b,
           dvd.intro
             (calc
-              -a * -c = a * c : neg_mul_neg_eq
+              -a * -c = a * c : neg_mul_neg
                 ... = b : H')))
 
   theorem dvd_sub (H₁ : a | b) (H₂ : a | c) : a | (b - c) :=

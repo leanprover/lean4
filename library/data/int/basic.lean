@@ -426,7 +426,7 @@ theorem padd_pneg (p : ℕ × ℕ) : padd p (pneg p) ≡ (0, 0) :=
 show pr1 p + pr2 p + 0 = pr2 p + pr1 p + 0, from !nat.add.comm ▸ rfl
 
 theorem padd_padd_pneg (p q : ℕ × ℕ) : padd (padd p q) (pneg q) ≡ p :=
-show pr1 p + pr1 q + pr2 q + pr2 p = pr2 p + pr2 q + pr1 q + pr1 p, by simp
+show pr1 p + pr1 q + pr2 q + pr2 p = pr2 p + pr2 q + pr1 q + pr1 p, from by simp
 
 theorem add.left_inv (a : ℤ) : -a + a = 0 :=
 have H : repr (-a + a) ≡ repr 0, from
@@ -718,8 +718,9 @@ section port_algebra
   theorem mul_zero : ∀a : ℤ, a * 0 = 0 := algebra.mul_zero
   theorem neg_mul_eq_neg_mul : ∀a b : ℤ, -(a * b) = -a * b := algebra.neg_mul_eq_neg_mul
   theorem neg_mul_eq_mul_neg : ∀a b : ℤ, -(a * b) = a * -b := algebra.neg_mul_eq_mul_neg
-  theorem neg_mul_neg_eq : ∀a b : ℤ, -a * -b = a * b := algebra.neg_mul_neg_eq
+  theorem neg_mul_neg : ∀a b : ℤ, -a * -b = a * b := algebra.neg_mul_neg
   theorem neg_mul_comm : ∀a b : ℤ, -a * b = a * -b := algebra.neg_mul_comm
+  theorem neg_eq_neg_one_mul : ∀a : ℤ, -a = -1 * a := algebra.neg_eq_neg_one_mul
   theorem mul_sub_left_distrib : ∀a b c : ℤ, a * (b - c) = a * b - a * c :=
     algebra.mul_sub_left_distrib
   theorem mul_sub_right_distrib : ∀a b c : ℤ, (a - b) * c = a * c - b * c :=

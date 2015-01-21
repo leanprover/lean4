@@ -219,6 +219,13 @@ section
     add.comm mul mul.assoc (of_num 1) one_mul mul_one mul.left_distrib mul.right_distrib
     zero_ne_one le le.refl @le.trans @le.antisymm lt lt_iff_le_and_ne @add_le_add_left
     @mul_nonneg @mul_pos le_iff_lt_or_eq le.total mul.comm
+
+
+  protected definition decidable_linear_ordered_comm_ring [instance] :
+    algebra.decidable_linear_ordered_comm_ring int :=
+  ⦃algebra.decidable_linear_ordered_comm_ring,
+    int.linear_ordered_comm_ring,
+    decidable_lt := decidable_lt⦄
 end
 
 /- instantiate ordered ring theorems to int -/
@@ -414,6 +421,36 @@ section port_algebra
   theorem sub_lt_sub_of_lt_of_le : ∀{a b c d : ℤ}, a < b → c ≤ d → a - d < b - c :=
     @algebra.sub_lt_sub_of_lt_of_le _ _
 
+  theorem eq_zero_of_neg_eq : ∀{a : ℤ}, -a = a → a = 0 := @algebra.eq_zero_of_neg_eq _ _
+  definition abs : ℤ → ℤ := algebra.abs
+  notation `|` a `|` := abs a
+  theorem abs_of_nonneg : ∀{a : ℤ}, a ≥ 0 → |a| = a := @algebra.abs_of_nonneg _ _
+  theorem abs_of_pos : ∀{a : ℤ}, a > 0 → |a| = a := @algebra.abs_of_pos _ _
+  theorem abs_of_neg : ∀{a : ℤ}, a < 0 → |a| = -a := @algebra.abs_of_neg _ _
+  theorem abs_zero : |0| = 0 := algebra.abs_zero
+  theorem abs_of_nonpos : ∀{a : ℤ}, a ≤ 0 → |a| = -a := @algebra.abs_of_nonpos _ _
+  theorem abs_neg : ∀a : ℤ, |-a| = |a| := algebra.abs_neg
+  theorem abs_nonneg : ∀a : ℤ, | a | ≥ 0 := algebra.abs_nonneg
+  theorem abs_abs : ∀a : ℤ, | |a| | = |a| := algebra.abs_abs
+  theorem le_abs_self : ∀a : ℤ, a ≤ |a| := algebra.le_abs_self
+  theorem neg_le_abs_self : ∀a : ℤ, -a ≤ |a| := algebra.neg_le_abs_self
+  theorem eq_zero_of_abs_eq_zero : ∀{a : ℤ}, |a| = 0 → a = 0 := @algebra.eq_zero_of_abs_eq_zero _ _
+  theorem abs_eq_zero_iff_eq_zero : ∀a : ℤ, |a| = 0 ↔ a = 0 := algebra.abs_eq_zero_iff_eq_zero
+  theorem abs_pos_of_pos : ∀{a : ℤ}, a > 0 → |a| > 0 := @algebra.abs_pos_of_pos _ _
+  theorem abs_pos_of_neg : ∀{a : ℤ}, a < 0 → |a| > 0 := @algebra.abs_pos_of_neg _ _
+  theorem abs_pos_of_ne_zero : ∀a : ℤ, a ≠ 0 → |a| > 0 := @algebra.abs_pos_of_ne_zero _ _
+  theorem abs_sub : ∀a b : ℤ, |a - b| = |b - a| := algebra.abs_sub
+  theorem abs.by_cases : ∀{P : ℤ → Prop}, ∀{a : ℤ}, P a → P (-a) → P (|a|) :=
+    @algebra.abs.by_cases _ _
+  theorem abs_le_of_le_of_neg_le : ∀{a b : ℤ}, a ≤ b → -a ≤ b → |a| ≤ b :=
+    @algebra.abs_le_of_le_of_neg_le _ _
+  theorem abs_lt_of_lt_of_neg_lt : ∀{a b : ℤ}, a < b → -a < b → |a| < b :=
+    @algebra.abs_lt_of_lt_of_neg_lt _ _
+  theorem abs_add_le_abs_add_abs : ∀a b : ℤ, |a + b| ≤ |a| + |b| :=
+    algebra.abs_add_le_abs_add_abs
+  theorem abs_sub_abs_le_abs_sub : ∀a b : ℤ, |a| - |b| ≤ |a - b| :=
+    algebra.abs_sub_abs_le_abs_sub
+
   theorem mul_le_mul_of_nonneg_left : ∀{a b c : ℤ}, a ≤ b → 0 ≤ c → c * a ≤ c * b :=
     @algebra.mul_le_mul_of_nonneg_left _ _
   theorem mul_le_mul_of_nonneg_right : ∀{a b c : ℤ}, a ≤ b → 0 ≤ c → a * c ≤ b * c :=
@@ -465,6 +502,27 @@ section port_algebra
   theorem zero_lt_one : #int 0 < 1 := trivial
   theorem pos_and_pos_or_neg_and_neg_of_mul_pos : ∀{a b : ℤ}, a * b > 0 →
     (a > 0 ∧ b > 0) ∨ (a < 0 ∧ b < 0) := @algebra.pos_and_pos_or_neg_and_neg_of_mul_pos _ _
+
+  definition sign : ∀a : ℤ, ℤ := algebra.sign
+  theorem sign_of_neg : ∀{a : ℤ}, a < 0 → sign a = -1 := @algebra.sign_of_neg _ _
+  theorem sign_zero : sign 0 = 0 := algebra.sign_zero
+  theorem sign_of_pos : ∀{a : ℤ}, a > 0 → sign a = 1 := @algebra.sign_of_pos _ _
+  theorem sign_one : sign 1 = 1 := algebra.sign_one
+  theorem sign_neg_one : sign (-1) = -1 := algebra.sign_neg_one
+  theorem sign_sign : ∀a : ℤ, sign (sign a) = sign a := algebra.sign_sign
+  theorem pos_of_sign_eq_one : ∀{a : ℤ}, sign a = 1 → a > 0 := @algebra.pos_of_sign_eq_one _ _
+  theorem eq_zero_of_sign_eq_zero : ∀{a : ℤ}, sign a = 0 → a = 0 :=
+    @algebra.eq_zero_of_sign_eq_zero _ _
+  theorem neg_of_sign_eq_neg_one : ∀{a : ℤ}, sign a = -1 → a < 0 :=
+    @algebra.neg_of_sign_eq_neg_one _ _
+  theorem sign_neg : ∀a : ℤ, sign (-a) = -(sign a) := algebra.sign_neg
+  theorem sign_mul : ∀a b : ℤ, sign (a * b) = sign a * sign b := algebra.sign_mul
+  theorem abs_eq_sign_mul : ∀a : ℤ, |a| = sign a * a := algebra.abs_eq_sign_mul
+  theorem eq_sign_mul_abs : ∀a : ℤ, a = sign a * |a| := algebra.eq_sign_mul_abs
+  theorem abs_dvd_iff_dvd : ∀a b : ℤ, |a| | b ↔ a | b := algebra.abs_dvd_iff_dvd
+  theorem dvd_abs_iff : ∀a b : ℤ, a | |b| ↔ a | b := algebra.dvd_abs_iff
+  theorem abs_mul : ∀a b : ℤ, |a * b| = |a| * |b| := algebra.abs_mul
+  theorem abs_mul_self : ∀a : ℤ, |a| * |a| = a * a := algebra.abs_mul_self
 end port_algebra
 
 /- more facts specific to int -/

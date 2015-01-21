@@ -1,3 +1,4 @@
 lean
 lean.exe
-six.pyc
+python_lib/six.pyc
+python_lib/__init__.pyc

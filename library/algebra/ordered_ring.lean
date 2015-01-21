@@ -154,7 +154,7 @@ have H1 : 0 < b - a, from iff.elim_right !sub_pos_iff_lt Hab,
 have H2 : 0 < (b - a) * c, from ordered_ring.mul_pos _ _ H1 Hc,
 iff.mp !sub_pos_iff_lt (!mul_sub_right_distrib ▸ H2)
 
-definition ordered_ring.to_ordered_semiring [instance] [coercion] [s : ordered_ring A] :
+definition ordered_ring.to_ordered_semiring [instance] [coercion] [reducible] [s : ordered_ring A] :
   ordered_semiring A :=
 ⦃ ordered_semiring, s,
   mul_zero                   := mul_zero,
@@ -209,7 +209,7 @@ structure linear_ordered_ring [class] (A : Type) extends ordered_ring A, linear_
 
 -- print fields linear_ordered_semiring
 
-definition linear_ordered_ring.to_linear_ordered_semiring [instance] [coercion]
+definition linear_ordered_ring.to_linear_ordered_semiring [instance] [coercion] [reducible]
     [s : linear_ordered_ring A] :
   linear_ordered_semiring A :=
 ⦃ linear_ordered_semiring, s,
@@ -245,7 +245,7 @@ lt.by_cases
         absurd (H ▸ show 0 < a * b, from mul_pos_of_neg_of_neg Ha Hb) (lt.irrefl 0)))
 
 -- Linearity implies no zero divisors. Doesn't need commutativity.
-definition linear_ordered_comm_ring.to_integral_domain [instance] [coercion]
+definition linear_ordered_comm_ring.to_integral_domain [instance] [coercion] [reducible]
     [s: linear_ordered_comm_ring A] : integral_domain A :=
 ⦃ integral_domain, s,
   eq_zero_or_eq_zero_of_mul_eq_zero :=
@@ -359,11 +359,11 @@ section
     (assume H1 : 0 < a,
       calc
         sign (-a) = -1        : sign_of_neg (neg_neg_of_pos H1)
-              ... = -(sign a) : {(sign_of_pos H1)⁻¹})
+              ... = -(sign a) : sign_of_pos H1)
     (assume H1 : 0 = a,
       calc
         sign (-a) = sign (-0) : H1
-              ... = sign 0    : {neg_zero} -- TODO: why do we need {}?
+              ... = sign 0    : neg_zero
               ... = 0         : sign_zero
               ... = -0        : neg_zero
               ... = -(sign 0) : sign_zero
@@ -372,7 +372,7 @@ section
       calc
         sign (-a) = 1         : sign_of_pos (neg_pos_of_neg H1)
               ... = -(-1)     : neg_neg
-              ... = -(sign a) : {(sign_of_neg H1)⁻¹})
+              ... = -(sign a) : sign_of_neg H1)
 
   -- hopefully, will be quick with the simplifier
   theorem sign_mul (a b : A) : sign (a * b) = sign a * sign b := sorry

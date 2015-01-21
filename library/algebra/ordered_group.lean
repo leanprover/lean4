@@ -203,7 +203,7 @@ theorem ordered_comm_group.le_of_add_le_add_left [s : ordered_comm_group A] {a b
 have H' : -a + (a + b) ≤ -a + (a + c), from ordered_comm_group.add_le_add_left _ _ H _,
 !neg_add_cancel_left ▸ !neg_add_cancel_left ▸ H'
 
-definition ordered_comm_group.to_ordered_cancel_comm_monoid [instance] [coercion]
+definition ordered_comm_group.to_ordered_cancel_comm_monoid [instance] [coercion] [reducible]
     [s : ordered_comm_group A] : ordered_cancel_comm_monoid A :=
 ⦃ ordered_cancel_comm_monoid, s,
   add_left_cancel       := @add.left_cancel A s,

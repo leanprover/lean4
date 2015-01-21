@@ -166,7 +166,7 @@ have H : 0 * a + 0 = 0 * a + 0 * a, from calc
         ... = 0 * a + 0 * a : ring.right_distrib,
 show 0 * a = 0, from  (add.left_cancel H)⁻¹
 
-definition ring.to_semiring [instance] [coercion] [s : ring A] : semiring A :=
+definition ring.to_semiring [instance] [coercion] [reducible] [s : ring A] : semiring A :=
 ⦃ semiring, s,
   mul_zero := ring.mul_zero,
   zero_mul := ring.zero_mul ⦄
@@ -199,7 +199,7 @@ section
 
   theorem neg_eq_neg_one_mul : -a = -1 * a :=
   calc
-    -a = -(1 * a)  : one_mul a ▸ rfl
+    -a = -(1 * a)  : one_mul
       ... = -1 * a : neg_mul_eq_neg_mul
 
   theorem mul_sub_left_distrib : a * (b - c) = a * b - a * c :=
@@ -228,7 +228,7 @@ end
 
 structure comm_ring [class] (A : Type) extends ring A, comm_semigroup A
 
-definition comm_ring.to_comm_semiring [instance] [coercion] [s : comm_ring A] : comm_semiring A :=
+definition comm_ring.to_comm_semiring [instance] [coercion] [reducible] [s : comm_ring A] : comm_semiring A :=
 ⦃ comm_semiring, s,
   mul_zero := mul_zero,
   zero_mul := zero_mul ⦄

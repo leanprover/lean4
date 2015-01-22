@@ -132,6 +132,13 @@ level mk_max(levels const & ls);
 
 expr mk_sigma_mk(type_checker & tc, buffer<expr> const & ts, buffer<expr> const & as, constraint_seq & cs);
 
+enum class implicit_infer_kind { Implicit, RelaxedImplicit, None };
+
+/** \brief Infer implicit parameter annotations for the first \c nparams using mode
+    specified by \c k.
+*/
+expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_kind k);
+
 void initialize_library_util();
 void finalize_library_util();
 }

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "library/util.h"
 
 namespace lean {
 class parser;
@@ -35,7 +36,6 @@ public:
 environment add_alias(parser & p, environment env, bool composite,
                       name const & full_id, levels const & ctx_levels, buffer<expr> const & ctx_params);
 
-enum class implicit_infer_kind { Implicit, RelaxedImplicit, None };
 /**
    \brief Parse implicit parameter inference modifiers.
 
@@ -44,9 +44,4 @@ enum class implicit_infer_kind { Implicit, RelaxedImplicit, None };
     Return implicit_infer_kind::Implicit, otherwise.
 */
 implicit_infer_kind parse_implicit_infer_modifier(parser & p);
-
-/** \brief Infer implicit parameter annotations for the first \c nparams using mode
-    specified by \c k.
-*/
-expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_kind k);
 }

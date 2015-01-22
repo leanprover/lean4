@@ -51,20 +51,4 @@ implicit_infer_kind parse_implicit_infer_modifier(parser & p) {
         return implicit_infer_kind::Implicit;
     }
 }
-
-expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_kind k) {
-    switch (k) {
-    case implicit_infer_kind::Implicit: {
-        bool strict = true;
-        return infer_implicit(type, nparams, strict);
-    }
-    case implicit_infer_kind::RelaxedImplicit: {
-        bool strict = false;
-        return infer_implicit(type, nparams, strict);
-    }
-    case implicit_infer_kind::None:
-        return type;
-    }
-    lean_unreachable(); // LCOV_EXCL_LINE
-}
 }

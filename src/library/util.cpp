@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/inductive/inductive.h"
 #include "library/locals.h"
+#include "library/util.h"
 
 namespace lean {
 bool is_def_app(environment const & env, expr const & e) {
@@ -504,4 +505,19 @@ expr mk_sigma_mk(type_checker & tc, buffer<expr> const & ts, buffer<expr> const 
     return mk_sigma_mk(tc, ts.size(), ts.data(), as.data(), cs);
 }
 
+expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_kind k) {
+    switch (k) {
+    case implicit_infer_kind::Implicit: {
+        bool strict = true;
+        return infer_implicit(type, nparams, strict);
+    }
+    case implicit_infer_kind::RelaxedImplicit: {
+        bool strict = false;
+        return infer_implicit(type, nparams, strict);
+    }
+    case implicit_infer_kind::None:
+        return type;
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+}
 }

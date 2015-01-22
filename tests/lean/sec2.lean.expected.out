@@ -1,0 +1,13 @@
+A ↣ B : f
+g a : B
+sec2.lean:13:6: error: type mismatch at application
+  g a
+term
+  a
+has type
+  A
+but is expected to have type
+  B
+A ↣ B : f
+g a : B
+g a : B

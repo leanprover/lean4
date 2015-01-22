@@ -7,10 +7,31 @@
 # Author: Soonho Kong
 #
 
+# This program contains code snippets from the Python six library
+# released under the following LICENSE:
+#
+# Copyright (c) 2010-2015 Benjamin Peterson
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 # Python 2/3 compatibility
 from __future__ import print_function
-import python_lib.six as six
-from python_lib.six.moves import filter, map
 
 import argparse
 import fnmatch
@@ -25,12 +46,36 @@ import subprocess
 import sys
 import tempfile
 import threading
-from python_lib.six.moves import urllib
 
-# Enforce subprocesses to use 'utf-8' in Python 2
-if six.PY2:
-    reload(sys)
-    sys.setdefaultencoding("utf-8")
+# Python 2/3 compatibility
+if sys.version_info[0] == 2:
+  def python_2_unicode_compatible(klass):
+      klass.__unicode__ = klass.__str__
+      klass.__str__ = lambda self: self.__unicode__().encode('utf-8')
+
+  # Enforce subprocesses to use 'utf-8' in Python 2
+  reload(sys)
+  sys.setdefaultencoding("utf-8")
+
+  # Aliases
+  text_type = unicode
+  import itertools
+  filter = itertools.ifilter
+  map = itertools.imap
+  iteritems = dict.iteritems
+
+  from urllib import urlretrieve
+elif sys.version_info[0] == 3:
+  def python_2_unicode_compatible(klass):
+      return klass
+
+  # Aliases
+  text_type = str
+  iteritems = dict.items
+
+  from urllib.request import urlretrieve
+else:
+  sys.exit('Unsupported Python version')
 
 # Fixate the path separator as '\' on Windows Platform
 # even if users are on CYGWIN/MSYS2 environment
@@ -60,7 +105,7 @@ g_flycheck_footer  = "FLYCHECK_END"
 g_logger = logging.getLogger('linja_logger')
 g_debug_mode = False
 
-@six.python_2_unicode_compatible
+@python_2_unicode_compatible
 class FlycheckItem:
     def __init__(self, filename, lineno, colno, ty, msg):
         self.filename = filename
@@ -93,12 +138,12 @@ class FlycheckItem:
         msg       = msg.strip()
         return cls(filename, lineno, colno, ty, msg)
 
-@six.python_2_unicode_compatible
+@python_2_unicode_compatible
 class FlycheckItemList:
     def __init__(self, items):
         self.items = items
     def __str__(self):
-        return "\n".join([six.text_type(item) for item in self.items])
+        return "\n".join([text_type(item) for item in self.items])
     def __getitem__(self, i):
         return self.items[i]
     def __len__(self):
@@ -231,7 +276,7 @@ def download_ninja_and_save_at(ninja_path):
     else:
         url = get_ninja_url()
         log("Downloading ninja: %s ===> %s\n" % (url, ninja_path))
-        urllib.request.urlretrieve(url, ninja_path, show_download_progress)
+        urlretrieve(url, ninja_path, show_download_progress)
         log("\n")
         if not os.path.isfile(ninja_path):
             error("failed to download ninja executable from %s" % url)
@@ -376,7 +421,7 @@ def parse_arg(argv):
 def debug_status(args):
     print("Working Directory =", os.getcwd())
     print("")
-    for key, val in six.iteritems(vars(args)):
+    for key, val in iteritems(vars(args)):
         print("Option[" + key + "] =", val)
     print("")
     print("linja path    =", g_linja_path)
@@ -616,7 +661,7 @@ def make_deps(lean_file, dlean_file, olean_file):
         for olean_file in output.strip().splitlines():
             if olean_file:
                 deps.append(normalize_drive_name(os.path.abspath(olean_file)))
-        deps_str = " " + (" \\\n ".join(deps))
+        deps_str = b" " + (b" \\\n ".join(deps))
         print(deps_str, file=f)
 
 def make_deps_all_files(args):

@@ -15,7 +15,6 @@
 #    * Neither the name of Google Inc. nor the names of its
 # contributors may be used to endorse or promote products derived from
 # this software without specific prior written permission.
-
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -76,10 +75,6 @@ We do a small hack, which is to ignore //'s with "'s after them on the
 same line, but it is far from perfect (in either direction).
 """
 
-# Python 2/3 compatibility
-import six
-from six.moves import range, xrange
-
 import codecs
 import copy
 import getopt
@@ -91,6 +86,28 @@ import string
 import sys
 import unicodedata
 
+# Python 2/3 compatibility
+if sys.version_info[0] == 2:
+  def fix_stream(stream):
+      return codecs.StreamReaderWriter(stream,
+                                       codecs.getreader('utf8'),
+                                       codecs.getwriter('utf8'),
+                                       'replace')
+
+  text_type = unicode
+  range = xrange
+  itervalues = dict.itervalues
+  iteritems = dict.iteritems
+elif sys.version_info[0] == 3:
+  def fix_stream(stream):
+      return stream
+
+  text_type = str
+  xrange = range
+  itervalues = dict.values
+  iteritems = dict.items
+else:
+  sys.exit('Unsupported Python version')
 
 # ===================================================
 # Added by Soonho Kong, 2013/09/12
@@ -673,7 +690,7 @@ class _CppLintState(object):
 
   def PrintErrorCounts(self):
     """Print a summary of errors by category, and the total."""
-    for category, count in six.iteritems(self.errors_by_category):
+    for category, count in iteritems(self.errors_by_category):
       sys.stderr.write('Category \'%s\' errors found: %d\n' %
                        (category, count))
     sys.stderr.write('Total errors found: %d\n' % self.error_count)
@@ -2842,7 +2859,7 @@ def GetLineWidth(line):
     The width of the line in column positions, accounting for Unicode
     combining characters and wide characters.
   """
-  if isinstance(line, six.string_types):
+  if isinstance(line, text_type):
     width = 0
     for uc in unicodedata.normalize('NFC', line):
       if unicodedata.east_asian_width(uc) in ('W', 'F'):
@@ -3177,7 +3194,7 @@ def _GetTextInside(text, start_pattern):
 
   # Give opening punctuations to get the matching close-punctuations.
   matching_punctuation = {'(': ')', '{': '}', '[': ']'}
-  closing_punctuation = set(six.itervalue(matching_punctuation))
+  closing_punctuation = set(itervalues(matching_punctuation))
 
   # Find the position to start extracting text.
   match = re.search(start_pattern, text, re.M)
@@ -4087,11 +4104,7 @@ def main():
 
   # Change stderr to write with replacement characters so we don't die
   # if we try to print something containing non-ASCII characters.
-  sys.stderr = codecs.StreamReaderWriter(sys.stderr,
-                                         codecs.getreader('utf8'),
-                                         codecs.getwriter('utf8'),
-                                         'replace')
-
+  sys.stderr = fix_stream(sys.stderr)
   _cpplint_state.ResetErrorCounts()
   for filename in filenames:
     ProcessFile(filename, _cpplint_state.verbose_level)

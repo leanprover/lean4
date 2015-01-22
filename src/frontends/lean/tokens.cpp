@@ -101,6 +101,7 @@ static name * g_persistent   = nullptr;
 static name * g_local        = nullptr;
 static name * g_root         = nullptr;
 static name * g_fields       = nullptr;
+static name * g_trust        = nullptr;
 
 void initialize_tokens() {
     g_period       = new name(".");
@@ -197,6 +198,7 @@ void initialize_tokens() {
     g_local        = new name("[local]");
     g_root         = new name("_root_");
     g_fields       = new name("fields");
+    g_trust        = new name("trust");
 }
 
 void finalize_tokens() {
@@ -204,6 +206,7 @@ void finalize_tokens() {
     delete g_local;
     delete g_root;
     delete g_fields;
+    delete g_trust;
     delete g_prev;
     delete g_scoped;
     delete g_foldr;
@@ -390,4 +393,5 @@ name const & get_persistent_tk() { return *g_persistent; }
 name const & get_local_tk() { return *g_local; }
 name const & get_root_tk() { return *g_root; }
 name const & get_fields_tk() { return *g_fields; }
+name const & get_trust_tk() { return *g_trust; }
 }

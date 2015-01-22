@@ -342,8 +342,8 @@ def get_lean_options(args):
         args.lean_options.append("--discard")
     if args.memory:
         args.lean_options += ["-M", args.memory]
-    if args.Trust:
-        args.lean_options.append("--Trust")
+    if args.trust:
+        args.lean_options += ["-t", args.trust]
     if args.to_axiom:
         args.lean_options.append("--to_axiom")
     if args.cache:
@@ -365,7 +365,7 @@ def parse_arg(argv):
     parser.add_argument('--keep-going', '-k', action='store', default=None, const=1, nargs='?', help="keep going until N jobs fail [default=1]")
     parser.add_argument('--discard', '-r', action='store_true', default=False, help="discard the proof of imported theorems after checking")
     parser.add_argument('--to_axiom', '-X', action='store_true', default=False, help="discard proofs of all theorems after checking them, i.e., theorems become axioms after checking")
-    parser.add_argument('--Trust', '-T', action='store_true', default=False, help="short-cut for maximum trust level (e.g., Lean will not type check imported files)")
+    parser.add_argument('--trust', '-t', action='store_true', default=False, help="trust level [default: max]")
     parser.add_argument('targets', nargs='*')
     args = parser.parse_args(argv)
     check_requirements()

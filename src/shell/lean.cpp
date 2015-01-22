@@ -98,8 +98,8 @@ static void display_help(std::ostream & out) {
     std::cout << "  --luahook=num -k  how often the Lua interpreter checks the interrupted flag,\n";
     std::cout << "                    it is useful for interrupting non-terminating user scripts,\n";
     std::cout << "                    0 means 'do not check'.\n";
-    std::cout << "  --trust=num -t    trust level (default: 0) \n";
-    std::cout << "  --Trust -T        short-cut for --trust=" << LEAN_BELIEVER_TRUST_LEVEL+1 << "\n";
+    std::cout << "  --trust=num -t    trust level (default: max) 0 means do not trust any macro, "
+              << "                    and type check all imported modules\n";
     std::cout << "  --discard -r      discard the proof of imported theorems after checking\n";
     std::cout << "  --to_axiom -X     discard proofs of all theorems after checking them, i.e.,\n";
     std::cout << "                    theorems become axioms after checking\n";
@@ -150,7 +150,6 @@ static struct option g_long_options[] = {
     {"cpp",          required_argument, 0, 'C'},
     {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
-    {"Trust",        no_argument,       0, 'T'},
     {"discard",      no_argument,       0, 'r'},
     {"to_axiom",     no_argument,       0, 'X'},
 #if defined(LEAN_MULTI_THREAD)
@@ -168,7 +167,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "HRXTFC:dD:qrlupgvhk:012t:012o:c:i:"
+#define OPT_STR "HRXFC:dD:qrlupgvhk:012t:012o:c:i:"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -270,7 +269,7 @@ private:
     set_io_state    set2;
 
 public:
-    emscripten_shell() : trust_lvl(10000), num_threads(1), opts("flycheck", true),
+    emscripten_shell() : trust_lvl(LEAN_BELIEVER_TRUST_LEVEL+1), num_threads(1), opts("flycheck", true),
         env(mk_environment(trust_lvl)), ios(opts, lean::mk_pretty_formatter_factory()),
         S(lean::get_thread_script_state()), set1(S, env), set2(S, ios) {
     }
@@ -333,7 +332,7 @@ int main() {
 int main(int argc, char ** argv) {
     lean::initializer init;
     bool export_objects     = false;
-    unsigned trust_lvl      = 0;
+    unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
     bool server             = false;
     bool only_deps          = false;
     unsigned num_threads    = 1;
@@ -408,9 +407,6 @@ int main(int argc, char ** argv) {
             break;
         case 't':
             trust_lvl = atoi(optarg);
-            break;
-        case 'T':
-            trust_lvl = LEAN_BELIEVER_TRUST_LEVEL+1;
             break;
         case 'r':
             tmode = keep_theorem_mode::DiscardImported;

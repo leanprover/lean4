@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # Copyright (c) 2009 Google Inc. All rights reserved.
 #
@@ -198,7 +198,7 @@ Syntax: cpplint.py [--verbose=#] [--output=vs7] [--filter=-x,+y,...]
       ignored.
 
       Examples:
-        Assuing that src/.git exists, the header guard CPP variables for
+        Assuming that src/.git exists, the header guard CPP variables for
         src/chrome/browser/ui/browser.h are:
 
         No flag => CHROME_BROWSER_UI_BROWSER_H_
@@ -439,7 +439,7 @@ def ParseNolintSuppressions(filename, raw_line, linenum, error):
 
 
 def ResetNolintSuppressions():
-  "Resets the set of NOLINT suppressions to empty."
+  """Resets the set of NOLINT suppressions to empty."""
   _error_suppressions.clear()
 
 
@@ -458,19 +458,20 @@ def IsErrorSuppressedByNolint(category, linenum):
   return (linenum in _error_suppressions.get(category, set()) or
           linenum in _error_suppressions.get(None, set()))
 
+
 def Match(pattern, s):
   """Matches the string with the pattern, caching the compiled regexp."""
   # The regexp compilation caching is inlined in both Match and Search for
   # performance reasons; factoring it out into a separate function turns out
   # to be noticeably expensive.
-  if not pattern in _regexp_compile_cache:
+  if pattern not in _regexp_compile_cache:
     _regexp_compile_cache[pattern] = sre_compile.compile(pattern)
   return _regexp_compile_cache[pattern].match(s)
 
 
 def Search(pattern, s):
   """Searches the string for the pattern, caching the compiled regexp."""
-  if not pattern in _regexp_compile_cache:
+  if pattern not in _regexp_compile_cache:
     _regexp_compile_cache[pattern] = sre_compile.compile(pattern)
   return _regexp_compile_cache[pattern].search(s)
 

@@ -81,34 +81,34 @@ struct structure_cmd_fn {
     typedef std::vector<unsigned>         field_map;
     typedef type_modifiers                modifiers;
 
-    parser &                   m_p;
-    environment                m_env;
-    name_generator             m_ngen;
-    type_checker_ptr           m_tc;
-    name                       m_namespace;
-    name                       m_name;
-    pos_info                   m_name_pos;
-    buffer<name>               m_level_names;
-    modifiers                  m_modifiers;
-    buffer<expr>               m_params;
-    expr                       m_type;
-    buffer<optional<name>>     m_parent_refs;
-    buffer<expr>               m_parents;
-    buffer<bool>               m_private_parents;
-    name                       m_mk;
-    name                       m_mk_short;
-    pos_info                   m_mk_pos;
-    implicit_infer_kind        m_mk_infer;
-    buffer<expr>               m_fields;
-    std::vector<rename_vector> m_renames;
-    std::vector<field_map>     m_field_maps;
-    bool                       m_infer_result_universe;
-    bool                       m_using_explicit_levels;
-    levels                     m_ctx_levels; // context levels for creating aliases
-    buffer<expr>               m_ctx_locals; // context local constants for creating aliases
+    parser &                    m_p;
+    environment                 m_env;
+    name_generator              m_ngen;
+    type_checker_ptr            m_tc;
+    name                        m_namespace;
+    name                        m_name;
+    pos_info                    m_name_pos;
+    buffer<name>                m_level_names;
+    modifiers                   m_modifiers;
+    buffer<expr>                m_params;
+    expr                        m_type;
+    buffer<optional<name>>      m_parent_refs;
+    buffer<expr>                m_parents;
+    buffer<bool>                m_private_parents;
+    name                        m_mk;
+    name                        m_mk_short;
+    pos_info                    m_mk_pos;
+    implicit_infer_kind         m_mk_infer;
+    buffer<expr>                m_fields;
+    std::vector<rename_vector>  m_renames;
+    std::vector<field_map>      m_field_maps;
+    bool                        m_infer_result_universe;
+    bool                        m_using_explicit_levels;
+    levels                      m_ctx_levels; // context levels for creating aliases
+    buffer<expr>                m_ctx_locals; // context local constants for creating aliases
 
-    bool                       m_gen_eta;
-    bool                       m_gen_proj_mk;
+    bool                        m_gen_eta;
+    bool                        m_gen_proj_mk;
 
     structure_cmd_fn(parser & p):m_p(p), m_env(p.env()), m_ngen(p.mk_ngen()), m_namespace(get_namespace(m_env)) {
         m_tc = mk_type_checker(m_env, m_p.mk_ngen(), false);
@@ -479,14 +479,40 @@ struct structure_cmd_fn {
         }
     }
 
+    void parse_field_block(buffer<expr> & new_fields, binder_info const & bi) {
+        buffer<pair<pos_info, name>> names;
+        while (m_p.curr_is_identifier()) {
+            auto p = m_p.pos();
+            names.emplace_back(p, m_p.check_atomic_id_next("invalid field, atomic identifier expected"));
+        }
+        if (names.empty())
+            throw parser_error("invalid field, identifier expected", m_p.pos());
+
+        m_p.check_token_next(get_colon_tk(), "invalid field, ':' expected");
+        expr type = m_p.parse_expr();
+
+        for (auto p : names) {
+            expr local = m_p.save_pos(mk_local(p.second, type, bi), p.first);
+            m_p.add_local(local);
+            new_fields.push_back(local);
+        }
+    }
+
     /** \brief Parse new fields declared in this structure */
     void parse_new_fields(buffer<expr> & new_fields) {
         parser::local_scope scope(m_p);
         add_locals();
-        m_p.parse_optional_binders(new_fields);
+        while (!m_p.curr_is_command_like()) {
+            if (m_p.curr_is_identifier()) {
+                parse_field_block(new_fields, binder_info());
+            } else {
+                binder_info bi = m_p.parse_binder_info();
+                parse_field_block(new_fields, bi);
+                m_p.parse_close_binder_info(bi);
+            }
+        }
         check_new_field_names(new_fields);
     }
-
 
     /** \brief Elaborate new fields, and copy them to m_fields */
     void elaborate_new_fields(buffer<expr> & new_fields) {
@@ -657,7 +683,7 @@ struct structure_cmd_fn {
     }
 
     void declare_projections() {
-        m_env = mk_projections(m_env, m_name, m_modifiers.is_class());
+        m_env = mk_projections(m_env, m_name, m_mk_infer, m_modifiers.is_class());
         for (expr const & field : m_fields) {
             name field_name = m_name + mlocal_name(field);
             save_proj_info(field_name);

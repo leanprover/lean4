@@ -273,7 +273,8 @@ static bool is_prop(expr type) {
     return is_sort(type) && is_zero(sort_level(type));
 }
 
-environment mk_projections(environment const & env, name const & n, buffer<name> const & proj_names, bool inst_implicit) {
+environment mk_projections(environment const & env, name const & n, buffer<name> const & proj_names,
+                           implicit_infer_kind infer_k, bool inst_implicit) {
     // Given an inductive datatype C A (where A represent parameters)
     //   intro : Pi A (x_1 : B_1[A]) (x_2 : B_2[A, x_1]) ..., C A
     //
@@ -335,8 +336,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         rec_args.push_back(major_premise);
         expr rec_app      = mk_app(rec, rec_args);
         expr proj_type    = Pi(proj_args, result_type);
-        bool strict       = true;
-        proj_type         = infer_implicit(proj_type, nparams, strict);
+        proj_type         = infer_implicit_params(proj_type, nparams, infer_k);
         expr proj_val     = Fun(proj_args, rec_app);
         bool opaque       = false;
         bool use_conv_opt = false;
@@ -364,7 +364,8 @@ static name mk_fresh_name(environment const & env, buffer<name> const & names, n
     }
 }
 
-environment mk_projections(environment const & env, name const & n, bool inst_implicit) {
+environment mk_projections(environment const & env, name const & n,
+                           implicit_infer_kind infer_k, bool inst_implicit) {
     auto p  = get_nparam_intro_rule(env, n);
     unsigned num_params = p.first;
     inductive::intro_rule ir = p.second;
@@ -377,6 +378,6 @@ environment mk_projections(environment const & env, name const & n, bool inst_im
         i++;
         type = binding_body(type);
     }
-    return mk_projections(env, n, proj_names, inst_implicit);
+    return mk_projections(env, n, proj_names, infer_k, inst_implicit);
 }
 }

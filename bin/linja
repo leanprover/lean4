@@ -251,7 +251,7 @@ def build_ninja_and_save_at(ninja_path, platform):
     built_ninja_path     = os.path.join(build_dir, "ninja")
     cmd_clone_ninja      = ["git", "clone", "git://github.com/martine/ninja.git"]
     cmd_checkout_release = ["git", "checkout", "release"]
-    cmd_bootstrap        = [os.path.join(build_dir, "bootstrap.py"), "--platform", platform]
+    cmd_bootstrap        = [os.path.join(build_dir, "configure.py"), "--bootstrap", "--platform", platform]
     try:
         os.chdir(tempdir)
         if subprocess.call(cmd_clone_ninja):

@@ -328,7 +328,11 @@ def which(program):
                 return exe_file
     return None
 
-def find_location(exec_name):
+def find_location(exec_name, findLocal=True):
+    if findLocal:
+        pathname = os.path.join(os.path.dirname(g_linja_path), exec_name)
+        if os.path.isfile(pathname):
+            return pathname
     pathname = which(exec_name) or os.path.join(g_lean_bin_dir, exec_name)
     pathname = os.path.abspath(pathname)
     return pathname
@@ -343,11 +347,11 @@ def check_requirements():
         ninja_exec_name = "ninja.exe"
 
     if g_lean_path == "USE DEFAULT":
-        g_lean_path = find_location(lean_exec_name)
+        g_lean_path = find_location(lean_exec_name, True)
     if g_leantags_path == "USE DEFAULT":
-        g_leantags_path = find_location(leantags_exec_name)
+        g_leantags_path = find_location(leantags_exec_name, True)
     if g_ninja_path == "USE DEFAULT":
-        g_ninja_path = find_location(ninja_exec_name)
+        g_ninja_path = find_location(ninja_exec_name, False)
     if not os.path.isfile(g_lean_path):
         error("cannot find lean executable at " + os.path.abspath(g_lean_path))
     if not os.path.isfile(g_leantags_path):

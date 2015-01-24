@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
+#include "library/constants.h"
 #include "library/replace_visitor.h"
 #include "library/tactic/unfold_tactic.h"
 #include "library/tactic/expr_to_tactic.h"
@@ -115,7 +116,7 @@ tactic unfold_tactic() {
 }
 
 void initialize_unfold_tactic() {
-    register_tac(name({"tactic", "unfold"}),
+    register_tac(get_tactic_unfold_name(),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      name const & id = tactic_expr_to_id(app_arg(e),
                                                          "invalid 'unfold' tactic, argument must be an identifier");

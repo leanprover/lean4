@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/constants.h"
 #include "library/reducible.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/elaborate.h"
@@ -32,7 +33,7 @@ tactic whnf_tactic(bool relax_main_opaque) {
 }
 
 void initialize_whnf_tactic() {
-    register_tac(name({"tactic", "whnf"}),
+    register_tac(get_tactic_whnf_name(),
                  [](type_checker &, elaborate_fn const &, expr const &, pos_info_provider const *) {
                      return whnf_tactic();
                  });

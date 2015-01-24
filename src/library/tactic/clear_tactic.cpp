@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/constants.h"
 #include "kernel/abstract.h"
 #include "library/locals.h"
 #include "library/tactic/tactic.h"
@@ -42,12 +43,12 @@ tactic clear_tactic(name const & n) {
 }
 
 void initialize_clear_tactic() {
-    register_tac(name({"tactic", "clear"}),
+    register_tac(get_tactic_clear_name(),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      name n = tactic_expr_to_id(app_arg(e), "invalid 'clear' tactic, argument must be an identifier");
                      return clear_tactic(n);
                  });
-    register_tac(name({"tactic", "clear_lst"}),
+    register_tac(get_tactic_clear_lst_name(),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      buffer<name> ns;
                      get_tactic_id_list_elements(app_arg(e), ns, "invalid 'clears' tactic, list of identifiers expected");

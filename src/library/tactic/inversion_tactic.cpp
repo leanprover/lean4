@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/locals.h"
 #include "library/util.h"
+#include "library/constants.h"
 #include "library/reducible.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
@@ -70,7 +71,7 @@ optional<expr> apply_eq_rec_eq(type_checker & tc, io_state const & ios, list<exp
     expr B    = Fun(a1, C);
     expr a    = args[1];
     expr b    = args[3];
-    expr r    = mk_constant("eq_rec_eq", {l1, l2});
+    expr r    = mk_constant(get_eq_rec_eq_name(), {l1, l2});
     return some_expr(mk_app({r, A, B, *is_hset_A, a, b, p}));
 }
 
@@ -130,9 +131,9 @@ class inversion_tac {
             return false;
         if (!inductive::is_inductive_decl(m_env, const_name(fn)))
             return false;
-        if (!m_env.find(name{const_name(fn), "cases_on"}) || !m_env.find(name("eq")))
+        if (!m_env.find(name{const_name(fn), "cases_on"}) || !m_env.find(get_eq_name()))
             return false;
-        if (m_proof_irrel && !m_env.find(name("heq")))
+        if (m_proof_irrel && !m_env.find(get_heq_name()))
             return false;
         init_inductive_info(const_name(fn));
         if (args.size() != m_nindices + m_nparams)
@@ -146,11 +147,11 @@ class inversion_tac {
         level l       = sort_level(m_tc.ensure_type(lhs_type).first);
         constraint_seq cs;
         if (m_tc.is_def_eq(lhs_type, rhs_type, justification(), cs) && !cs) {
-            return mk_pair(mk_app(mk_constant("eq", to_list(l)), lhs_type, lhs, rhs),
-                           mk_app(mk_constant({"eq", "refl"}, to_list(l)), rhs_type, rhs));
+            return mk_pair(mk_app(mk_constant(get_eq_name(), to_list(l)), lhs_type, lhs, rhs),
+                           mk_app(mk_constant(get_eq_refl_name(), to_list(l)), rhs_type, rhs));
         } else {
-            return mk_pair(mk_app(mk_constant("heq", to_list(l)), lhs_type, lhs, rhs_type, rhs),
-                           mk_app(mk_constant({"heq", "refl"}, to_list(l)), rhs_type, rhs));
+            return mk_pair(mk_app(mk_constant(get_heq_name(), to_list(l)), lhs_type, lhs, rhs_type, rhs),
+                           mk_app(mk_constant(get_heq_refl_name(), to_list(l)), rhs_type, rhs));
         }
     }
 
@@ -523,7 +524,7 @@ class inversion_tac {
         // old_eq : eq.rec A s C a s p = b
         expr old_eq      = mk_local(m_ngen.next(), binding_name(type), eq, binder_info());
         // aux_eq : a = eq.rec A s C a s p
-        expr trans_eq    = mk_app({mk_constant(name{"eq", "trans"}, {lvl}), A, reduced_lhs, lhs, rhs, *aux_eq, old_eq});
+        expr trans_eq    = mk_app({mk_constant(get_eq_trans_name(), {lvl}), A, reduced_lhs, lhs, rhs, *aux_eq, old_eq});
         // trans_eq : a = b
         expr val         = g.abstract(Fun(old_eq, mk_app(new_meta, trans_eq)));
         assign(g.get_name(), val);
@@ -540,14 +541,14 @@ class inversion_tac {
         lean_assert(m_proof_irrel);
         expr const & type   = g.get_type();
         expr eq             = binding_domain(type);
-        lean_assert(const_name(get_app_fn(eq)) == "heq");
+        lean_assert(const_name(get_app_fn(eq)) == get_heq_name());
         buffer<expr> args;
         expr const & heq_fn = get_app_args(eq, args);
         constraint_seq cs;
         if (m_tc.is_def_eq(args[0], args[2], justification(), cs) && !cs) {
             buffer<expr> hyps;
             g.get_hyps(hyps);
-            expr new_eq   = mk_app(mk_constant("eq", const_levels(heq_fn)), args[0], args[1], args[3]);
+            expr new_eq   = mk_app(mk_constant(get_eq_name(), const_levels(heq_fn)), args[0], args[1], args[3]);
             expr new_hyp  = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), new_eq, binder_info());
             expr new_type = instantiate(binding_body(type), new_hyp);
             hyps.push_back(new_hyp);
@@ -556,7 +557,7 @@ class inversion_tac {
             goal new_g(new_meta, new_type);
             hyps.pop_back();
             expr H        = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), binding_domain(type), binder_info());
-            expr to_eq    = mk_app(mk_constant({"heq", "to_eq"}, const_levels(heq_fn)), args[0], args[1], args[3], H);
+            expr to_eq    = mk_app(mk_constant(get_heq_to_eq_name(), const_levels(heq_fn)), args[0], args[1], args[3], H);
             expr val      = g.abstract(Fun(H, mk_app(mk_app(new_mvar, hyps), to_eq)));
             assign(g.get_name(), val);
             return new_g;
@@ -573,7 +574,7 @@ class inversion_tac {
     */
     goal intro_next_eq_simple(goal const & g, expr const & type) {
         expr eq            = binding_domain(type);
-        lean_assert(const_name(get_app_fn(eq)) == "eq");
+        lean_assert(const_name(get_app_fn(eq)) == get_eq_name());
         buffer<expr> hyps;
         g.get_hyps(hyps);
         expr new_hyp  = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), binding_domain(type), binder_info());
@@ -594,7 +595,7 @@ class inversion_tac {
         expr const & eq_fn = get_app_fn(eq);
         if (!is_constant(eq_fn))
             throw_ill_formed_goal();
-        if (const_name(eq_fn) == "eq") {
+        if (const_name(eq_fn) == get_eq_name()) {
             expr const & lhs = app_arg(app_fn(eq));
             expr const & rhs = app_arg(eq);
             expr new_lhs     = m_tc.whnf(lhs).first;
@@ -608,7 +609,7 @@ class inversion_tac {
             } else {
                 return intro_next_eq_simple(g, type);
             }
-        } else if (m_proof_irrel && const_name(eq_fn) == "heq") {
+        } else if (m_proof_irrel && const_name(eq_fn) == get_heq_name()) {
             return intro_next_heq(g);
         } else {
             throw_ill_formed_goal();
@@ -625,9 +626,9 @@ class inversion_tac {
             if (!is_app(v_type))
                 throw_unification_eq_rec_failure();
             expr const & lift = app_fn(v_type);
-            if (!is_constant(lift) || const_name(lift) != "lift")
+            if (!is_constant(lift) || const_name(lift) != get_lift_name())
                 throw_unification_eq_rec_failure();
-            return mk_app(mk_constant(name{"lift", "down"}, const_levels(lift)), app_arg(v_type), v);
+            return mk_app(mk_constant(get_lift_down_name(), const_levels(lift)), app_arg(v_type), v);
         } else {
             return v;
         }
@@ -759,7 +760,7 @@ class inversion_tac {
                     tformer = Fun(rhs, deps_g_type);
                 else
                     tformer = Fun(rhs, Fun(eq, deps_g_type));
-                expr eq_rec         = mk_constant(name{"eq", "rec"}, {eq_rec_lvl1, eq_rec_lvl2});
+                expr eq_rec         = mk_constant(get_eq_rec_name(), {eq_rec_lvl1, eq_rec_lvl2});
                 eq_rec              = mk_app(eq_rec, A, lhs, tformer);
                 buffer<expr> new_hyps;
                 new_hyps.append(non_deps);
@@ -800,7 +801,7 @@ class inversion_tac {
             expr new_meta = mk_app(new_mvar, hyps);
             goal new_g(new_meta, new_type);
             level eq_symm_lvl = sort_level(m_tc.ensure_type(A).first);
-            expr symm_pr  = mk_constant(name{"eq", "symm"}, {eq_symm_lvl});
+            expr symm_pr  = mk_constant(get_eq_symm_name(), {eq_symm_lvl});
             symm_pr       = mk_app(symm_pr, A, lhs, rhs, eq);
             expr val      = g.abstract(mk_app(new_meta, symm_pr));
             assign(g.get_name(), val);
@@ -954,12 +955,12 @@ tactic inversion_tactic(name const & n, list<name> const & ids) {
 }
 
 void initialize_inversion_tactic() {
-    register_tac(name({"tactic", "inversion"}),
+    register_tac(get_tactic_inversion_name(),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      name n = tactic_expr_to_id(app_arg(e), "invalid 'inversion/cases' tactic, argument must be an identifier");
                      return inversion_tactic(n, list<name>());
                  });
-    register_tac(name({"tactic", "inversion_with"}),
+    register_tac(get_tactic_inversion_with_name(),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      name n = tactic_expr_to_id(app_arg(app_fn(e)), "invalid 'cases-with' tactic, argument must be an identifier");
                      buffer<name> ids;

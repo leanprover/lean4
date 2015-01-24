@@ -1,0 +1,434 @@
+// Copyright (c) 2015 Microsoft Corporation. All rights reserved.
+// Released under Apache 2.0 license as described in the file LICENSE.
+// DO NOT EDIT, automatically generated file, generator scripts/gen_constants_cpp.py
+#include "util/name.h"
+namespace lean{
+name const * g_absurd = nullptr;
+name const * g_and = nullptr;
+name const * g_and_elim_left = nullptr;
+name const * g_and_elim_right = nullptr;
+name const * g_and_intro = nullptr;
+name const * g_bool = nullptr;
+name const * g_bool_ff = nullptr;
+name const * g_bool_tt = nullptr;
+name const * g_char = nullptr;
+name const * g_char_mk = nullptr;
+name const * g_dite = nullptr;
+name const * g_eq = nullptr;
+name const * g_eq_rec = nullptr;
+name const * g_eq_rec_eq = nullptr;
+name const * g_eq_refl = nullptr;
+name const * g_eq_symm = nullptr;
+name const * g_eq_trans = nullptr;
+name const * g_exists_elim = nullptr;
+name const * g_false = nullptr;
+name const * g_heq = nullptr;
+name const * g_heq_refl = nullptr;
+name const * g_heq_to_eq = nullptr;
+name const * g_ite = nullptr;
+name const * g_lift = nullptr;
+name const * g_lift_down = nullptr;
+name const * g_lift_up = nullptr;
+name const * g_nat = nullptr;
+name const * g_nat_of_num = nullptr;
+name const * g_nat_succ = nullptr;
+name const * g_nat_zero = nullptr;
+name const * g_not = nullptr;
+name const * g_num = nullptr;
+name const * g_num_zero = nullptr;
+name const * g_num_pos = nullptr;
+name const * g_or = nullptr;
+name const * g_or_elim = nullptr;
+name const * g_or_intro_left = nullptr;
+name const * g_or_intro_right = nullptr;
+name const * g_pos_num = nullptr;
+name const * g_pos_num_one = nullptr;
+name const * g_pos_num_bit0 = nullptr;
+name const * g_pos_num_bit1 = nullptr;
+name const * g_prod = nullptr;
+name const * g_prod_mk = nullptr;
+name const * g_prod_pr1 = nullptr;
+name const * g_prod_pr2 = nullptr;
+name const * g_sigma = nullptr;
+name const * g_sigma_mk = nullptr;
+name const * g_string = nullptr;
+name const * g_string_empty = nullptr;
+name const * g_string_str = nullptr;
+name const * g_tactic = nullptr;
+name const * g_tactic_apply = nullptr;
+name const * g_tactic_assert_hypothesis = nullptr;
+name const * g_tactic_fapply = nullptr;
+name const * g_tactic_rapply = nullptr;
+name const * g_tactic_eassumption = nullptr;
+name const * g_tactic_and_then = nullptr;
+name const * g_tactic_append = nullptr;
+name const * g_tactic_assumption = nullptr;
+name const * g_tactic_at_most = nullptr;
+name const * g_tactic_beta = nullptr;
+name const * g_tactic_builtin = nullptr;
+name const * g_tactic_clear = nullptr;
+name const * g_tactic_clear_lst = nullptr;
+name const * g_tactic_determ = nullptr;
+name const * g_tactic_discard = nullptr;
+name const * g_tactic_intro = nullptr;
+name const * g_tactic_intro_lst = nullptr;
+name const * g_tactic_inversion = nullptr;
+name const * g_tactic_inversion_with = nullptr;
+name const * g_tactic_exact = nullptr;
+name const * g_tactic_expr = nullptr;
+name const * g_tactic_expr_builtin = nullptr;
+name const * g_tactic_expr_list = nullptr;
+name const * g_tactic_expr_list_cons = nullptr;
+name const * g_tactic_expr_list_nil = nullptr;
+name const * g_tactic_fail = nullptr;
+name const * g_tactic_fixpoint = nullptr;
+name const * g_tactic_focus_at = nullptr;
+name const * g_tactic_generalize = nullptr;
+name const * g_tactic_generalize_lst = nullptr;
+name const * g_tactic_id = nullptr;
+name const * g_tactic_interleave = nullptr;
+name const * g_tactic_now = nullptr;
+name const * g_tactic_or_else = nullptr;
+name const * g_tactic_par = nullptr;
+name const * g_tactic_state = nullptr;
+name const * g_tactic_rename = nullptr;
+name const * g_tactic_repeat = nullptr;
+name const * g_tactic_revert = nullptr;
+name const * g_tactic_revert_lst = nullptr;
+name const * g_tactic_rotate_left = nullptr;
+name const * g_tactic_rotate_right = nullptr;
+name const * g_tactic_trace = nullptr;
+name const * g_tactic_try_for = nullptr;
+name const * g_tactic_unfold = nullptr;
+name const * g_tactic_whnf = nullptr;
+name const * g_true = nullptr;
+name const * g_true_intro = nullptr;
+name const * g_truncation = nullptr;
+name const * g_truncation_is_trunc = nullptr;
+name const * g_truncation_nat_to_trunc_index = nullptr;
+name const * g_unit = nullptr;
+name const * g_unit_star = nullptr;
+name const * g_well_founded = nullptr;
+void initialize_constants() {
+    g_absurd = new name{"absurd"};
+    g_and = new name{"and"};
+    g_and_elim_left = new name{"and", "elim_left"};
+    g_and_elim_right = new name{"and", "elim_right"};
+    g_and_intro = new name{"and", "intro"};
+    g_bool = new name{"bool"};
+    g_bool_ff = new name{"bool", "ff"};
+    g_bool_tt = new name{"bool", "tt"};
+    g_char = new name{"char"};
+    g_char_mk = new name{"char", "mk"};
+    g_dite = new name{"dite"};
+    g_eq = new name{"eq"};
+    g_eq_rec = new name{"eq", "rec"};
+    g_eq_rec_eq = new name{"eq_rec_eq"};
+    g_eq_refl = new name{"eq", "refl"};
+    g_eq_symm = new name{"eq", "symm"};
+    g_eq_trans = new name{"eq", "trans"};
+    g_exists_elim = new name{"exists", "elim"};
+    g_false = new name{"false"};
+    g_heq = new name{"heq"};
+    g_heq_refl = new name{"heq", "refl"};
+    g_heq_to_eq = new name{"heq", "to_eq"};
+    g_ite = new name{"ite"};
+    g_lift = new name{"lift"};
+    g_lift_down = new name{"lift", "down"};
+    g_lift_up = new name{"lift", "up"};
+    g_nat = new name{"nat"};
+    g_nat_of_num = new name{"nat", "of_num"};
+    g_nat_succ = new name{"nat", "succ"};
+    g_nat_zero = new name{"nat", "zero"};
+    g_not = new name{"not"};
+    g_num = new name{"num"};
+    g_num_zero = new name{"num", "zero"};
+    g_num_pos = new name{"num", "pos"};
+    g_or = new name{"or"};
+    g_or_elim = new name{"or", "elim"};
+    g_or_intro_left = new name{"or", "intro_left"};
+    g_or_intro_right = new name{"or", "intro_right"};
+    g_pos_num = new name{"pos_num"};
+    g_pos_num_one = new name{"pos_num", "one"};
+    g_pos_num_bit0 = new name{"pos_num", "bit0"};
+    g_pos_num_bit1 = new name{"pos_num", "bit1"};
+    g_prod = new name{"prod"};
+    g_prod_mk = new name{"prod", "mk"};
+    g_prod_pr1 = new name{"prod", "pr1"};
+    g_prod_pr2 = new name{"prod", "pr2"};
+    g_sigma = new name{"sigma"};
+    g_sigma_mk = new name{"sigma", "mk"};
+    g_string = new name{"string"};
+    g_string_empty = new name{"string", "empty"};
+    g_string_str = new name{"string", "str"};
+    g_tactic = new name{"tactic"};
+    g_tactic_apply = new name{"tactic", "apply"};
+    g_tactic_assert_hypothesis = new name{"tactic", "assert_hypothesis"};
+    g_tactic_fapply = new name{"tactic", "fapply"};
+    g_tactic_rapply = new name{"tactic", "rapply"};
+    g_tactic_eassumption = new name{"tactic", "eassumption"};
+    g_tactic_and_then = new name{"tactic", "and_then"};
+    g_tactic_append = new name{"tactic", "append"};
+    g_tactic_assumption = new name{"tactic", "assumption"};
+    g_tactic_at_most = new name{"tactic", "at_most"};
+    g_tactic_beta = new name{"tactic", "beta"};
+    g_tactic_builtin = new name{"tactic", "builtin"};
+    g_tactic_clear = new name{"tactic", "clear"};
+    g_tactic_clear_lst = new name{"tactic", "clear_lst"};
+    g_tactic_determ = new name{"tactic", "determ"};
+    g_tactic_discard = new name{"tactic", "discard"};
+    g_tactic_intro = new name{"tactic", "intro"};
+    g_tactic_intro_lst = new name{"tactic", "intro_lst"};
+    g_tactic_inversion = new name{"tactic", "inversion"};
+    g_tactic_inversion_with = new name{"tactic", "inversion_with"};
+    g_tactic_exact = new name{"tactic", "exact"};
+    g_tactic_expr = new name{"tactic", "expr"};
+    g_tactic_expr_builtin = new name{"tactic", "expr", "builtin"};
+    g_tactic_expr_list = new name{"tactic", "expr_list"};
+    g_tactic_expr_list_cons = new name{"tactic", "expr_list", "cons"};
+    g_tactic_expr_list_nil = new name{"tactic", "expr_list", "nil"};
+    g_tactic_fail = new name{"tactic", "fail"};
+    g_tactic_fixpoint = new name{"tactic", "fixpoint"};
+    g_tactic_focus_at = new name{"tactic", "focus_at"};
+    g_tactic_generalize = new name{"tactic", "generalize"};
+    g_tactic_generalize_lst = new name{"tactic", "generalize_lst"};
+    g_tactic_id = new name{"tactic", "id"};
+    g_tactic_interleave = new name{"tactic", "interleave"};
+    g_tactic_now = new name{"tactic", "now"};
+    g_tactic_or_else = new name{"tactic", "or_else"};
+    g_tactic_par = new name{"tactic", "par"};
+    g_tactic_state = new name{"tactic", "state"};
+    g_tactic_rename = new name{"tactic", "rename"};
+    g_tactic_repeat = new name{"tactic", "repeat"};
+    g_tactic_revert = new name{"tactic", "revert"};
+    g_tactic_revert_lst = new name{"tactic", "revert_lst"};
+    g_tactic_rotate_left = new name{"tactic", "rotate_left"};
+    g_tactic_rotate_right = new name{"tactic", "rotate_right"};
+    g_tactic_trace = new name{"tactic", "trace"};
+    g_tactic_try_for = new name{"tactic", "try_for"};
+    g_tactic_unfold = new name{"tactic", "unfold"};
+    g_tactic_whnf = new name{"tactic", "whnf"};
+    g_true = new name{"true"};
+    g_true_intro = new name{"true", "intro"};
+    g_truncation = new name{"truncation"};
+    g_truncation_is_trunc = new name{"truncation", "is_trunc"};
+    g_truncation_nat_to_trunc_index = new name{"truncation", "nat_to_trunc_index"};
+    g_unit = new name{"unit"};
+    g_unit_star = new name{"unit", "star"};
+    g_well_founded = new name{"well_founded"};
+}
+void finalize_constants() {
+    delete g_absurd;
+    delete g_and;
+    delete g_and_elim_left;
+    delete g_and_elim_right;
+    delete g_and_intro;
+    delete g_bool;
+    delete g_bool_ff;
+    delete g_bool_tt;
+    delete g_char;
+    delete g_char_mk;
+    delete g_dite;
+    delete g_eq;
+    delete g_eq_rec;
+    delete g_eq_rec_eq;
+    delete g_eq_refl;
+    delete g_eq_symm;
+    delete g_eq_trans;
+    delete g_exists_elim;
+    delete g_false;
+    delete g_heq;
+    delete g_heq_refl;
+    delete g_heq_to_eq;
+    delete g_ite;
+    delete g_lift;
+    delete g_lift_down;
+    delete g_lift_up;
+    delete g_nat;
+    delete g_nat_of_num;
+    delete g_nat_succ;
+    delete g_nat_zero;
+    delete g_not;
+    delete g_num;
+    delete g_num_zero;
+    delete g_num_pos;
+    delete g_or;
+    delete g_or_elim;
+    delete g_or_intro_left;
+    delete g_or_intro_right;
+    delete g_pos_num;
+    delete g_pos_num_one;
+    delete g_pos_num_bit0;
+    delete g_pos_num_bit1;
+    delete g_prod;
+    delete g_prod_mk;
+    delete g_prod_pr1;
+    delete g_prod_pr2;
+    delete g_sigma;
+    delete g_sigma_mk;
+    delete g_string;
+    delete g_string_empty;
+    delete g_string_str;
+    delete g_tactic;
+    delete g_tactic_apply;
+    delete g_tactic_assert_hypothesis;
+    delete g_tactic_fapply;
+    delete g_tactic_rapply;
+    delete g_tactic_eassumption;
+    delete g_tactic_and_then;
+    delete g_tactic_append;
+    delete g_tactic_assumption;
+    delete g_tactic_at_most;
+    delete g_tactic_beta;
+    delete g_tactic_builtin;
+    delete g_tactic_clear;
+    delete g_tactic_clear_lst;
+    delete g_tactic_determ;
+    delete g_tactic_discard;
+    delete g_tactic_intro;
+    delete g_tactic_intro_lst;
+    delete g_tactic_inversion;
+    delete g_tactic_inversion_with;
+    delete g_tactic_exact;
+    delete g_tactic_expr;
+    delete g_tactic_expr_builtin;
+    delete g_tactic_expr_list;
+    delete g_tactic_expr_list_cons;
+    delete g_tactic_expr_list_nil;
+    delete g_tactic_fail;
+    delete g_tactic_fixpoint;
+    delete g_tactic_focus_at;
+    delete g_tactic_generalize;
+    delete g_tactic_generalize_lst;
+    delete g_tactic_id;
+    delete g_tactic_interleave;
+    delete g_tactic_now;
+    delete g_tactic_or_else;
+    delete g_tactic_par;
+    delete g_tactic_state;
+    delete g_tactic_rename;
+    delete g_tactic_repeat;
+    delete g_tactic_revert;
+    delete g_tactic_revert_lst;
+    delete g_tactic_rotate_left;
+    delete g_tactic_rotate_right;
+    delete g_tactic_trace;
+    delete g_tactic_try_for;
+    delete g_tactic_unfold;
+    delete g_tactic_whnf;
+    delete g_true;
+    delete g_true_intro;
+    delete g_truncation;
+    delete g_truncation_is_trunc;
+    delete g_truncation_nat_to_trunc_index;
+    delete g_unit;
+    delete g_unit_star;
+    delete g_well_founded;
+}
+name const & get_absurd_name() { return *g_absurd; }
+name const & get_and_name() { return *g_and; }
+name const & get_and_elim_left_name() { return *g_and_elim_left; }
+name const & get_and_elim_right_name() { return *g_and_elim_right; }
+name const & get_and_intro_name() { return *g_and_intro; }
+name const & get_bool_name() { return *g_bool; }
+name const & get_bool_ff_name() { return *g_bool_ff; }
+name const & get_bool_tt_name() { return *g_bool_tt; }
+name const & get_char_name() { return *g_char; }
+name const & get_char_mk_name() { return *g_char_mk; }
+name const & get_dite_name() { return *g_dite; }
+name const & get_eq_name() { return *g_eq; }
+name const & get_eq_rec_name() { return *g_eq_rec; }
+name const & get_eq_rec_eq_name() { return *g_eq_rec_eq; }
+name const & get_eq_refl_name() { return *g_eq_refl; }
+name const & get_eq_symm_name() { return *g_eq_symm; }
+name const & get_eq_trans_name() { return *g_eq_trans; }
+name const & get_exists_elim_name() { return *g_exists_elim; }
+name const & get_false_name() { return *g_false; }
+name const & get_heq_name() { return *g_heq; }
+name const & get_heq_refl_name() { return *g_heq_refl; }
+name const & get_heq_to_eq_name() { return *g_heq_to_eq; }
+name const & get_ite_name() { return *g_ite; }
+name const & get_lift_name() { return *g_lift; }
+name const & get_lift_down_name() { return *g_lift_down; }
+name const & get_lift_up_name() { return *g_lift_up; }
+name const & get_nat_name() { return *g_nat; }
+name const & get_nat_of_num_name() { return *g_nat_of_num; }
+name const & get_nat_succ_name() { return *g_nat_succ; }
+name const & get_nat_zero_name() { return *g_nat_zero; }
+name const & get_not_name() { return *g_not; }
+name const & get_num_name() { return *g_num; }
+name const & get_num_zero_name() { return *g_num_zero; }
+name const & get_num_pos_name() { return *g_num_pos; }
+name const & get_or_name() { return *g_or; }
+name const & get_or_elim_name() { return *g_or_elim; }
+name const & get_or_intro_left_name() { return *g_or_intro_left; }
+name const & get_or_intro_right_name() { return *g_or_intro_right; }
+name const & get_pos_num_name() { return *g_pos_num; }
+name const & get_pos_num_one_name() { return *g_pos_num_one; }
+name const & get_pos_num_bit0_name() { return *g_pos_num_bit0; }
+name const & get_pos_num_bit1_name() { return *g_pos_num_bit1; }
+name const & get_prod_name() { return *g_prod; }
+name const & get_prod_mk_name() { return *g_prod_mk; }
+name const & get_prod_pr1_name() { return *g_prod_pr1; }
+name const & get_prod_pr2_name() { return *g_prod_pr2; }
+name const & get_sigma_name() { return *g_sigma; }
+name const & get_sigma_mk_name() { return *g_sigma_mk; }
+name const & get_string_name() { return *g_string; }
+name const & get_string_empty_name() { return *g_string_empty; }
+name const & get_string_str_name() { return *g_string_str; }
+name const & get_tactic_name() { return *g_tactic; }
+name const & get_tactic_apply_name() { return *g_tactic_apply; }
+name const & get_tactic_assert_hypothesis_name() { return *g_tactic_assert_hypothesis; }
+name const & get_tactic_fapply_name() { return *g_tactic_fapply; }
+name const & get_tactic_rapply_name() { return *g_tactic_rapply; }
+name const & get_tactic_eassumption_name() { return *g_tactic_eassumption; }
+name const & get_tactic_and_then_name() { return *g_tactic_and_then; }
+name const & get_tactic_append_name() { return *g_tactic_append; }
+name const & get_tactic_assumption_name() { return *g_tactic_assumption; }
+name const & get_tactic_at_most_name() { return *g_tactic_at_most; }
+name const & get_tactic_beta_name() { return *g_tactic_beta; }
+name const & get_tactic_builtin_name() { return *g_tactic_builtin; }
+name const & get_tactic_clear_name() { return *g_tactic_clear; }
+name const & get_tactic_clear_lst_name() { return *g_tactic_clear_lst; }
+name const & get_tactic_determ_name() { return *g_tactic_determ; }
+name const & get_tactic_discard_name() { return *g_tactic_discard; }
+name const & get_tactic_intro_name() { return *g_tactic_intro; }
+name const & get_tactic_intro_lst_name() { return *g_tactic_intro_lst; }
+name const & get_tactic_inversion_name() { return *g_tactic_inversion; }
+name const & get_tactic_inversion_with_name() { return *g_tactic_inversion_with; }
+name const & get_tactic_exact_name() { return *g_tactic_exact; }
+name const & get_tactic_expr_name() { return *g_tactic_expr; }
+name const & get_tactic_expr_builtin_name() { return *g_tactic_expr_builtin; }
+name const & get_tactic_expr_list_name() { return *g_tactic_expr_list; }
+name const & get_tactic_expr_list_cons_name() { return *g_tactic_expr_list_cons; }
+name const & get_tactic_expr_list_nil_name() { return *g_tactic_expr_list_nil; }
+name const & get_tactic_fail_name() { return *g_tactic_fail; }
+name const & get_tactic_fixpoint_name() { return *g_tactic_fixpoint; }
+name const & get_tactic_focus_at_name() { return *g_tactic_focus_at; }
+name const & get_tactic_generalize_name() { return *g_tactic_generalize; }
+name const & get_tactic_generalize_lst_name() { return *g_tactic_generalize_lst; }
+name const & get_tactic_id_name() { return *g_tactic_id; }
+name const & get_tactic_interleave_name() { return *g_tactic_interleave; }
+name const & get_tactic_now_name() { return *g_tactic_now; }
+name const & get_tactic_or_else_name() { return *g_tactic_or_else; }
+name const & get_tactic_par_name() { return *g_tactic_par; }
+name const & get_tactic_state_name() { return *g_tactic_state; }
+name const & get_tactic_rename_name() { return *g_tactic_rename; }
+name const & get_tactic_repeat_name() { return *g_tactic_repeat; }
+name const & get_tactic_revert_name() { return *g_tactic_revert; }
+name const & get_tactic_revert_lst_name() { return *g_tactic_revert_lst; }
+name const & get_tactic_rotate_left_name() { return *g_tactic_rotate_left; }
+name const & get_tactic_rotate_right_name() { return *g_tactic_rotate_right; }
+name const & get_tactic_trace_name() { return *g_tactic_trace; }
+name const & get_tactic_try_for_name() { return *g_tactic_try_for; }
+name const & get_tactic_unfold_name() { return *g_tactic_unfold; }
+name const & get_tactic_whnf_name() { return *g_tactic_whnf; }
+name const & get_true_name() { return *g_true; }
+name const & get_true_intro_name() { return *g_true_intro; }
+name const & get_truncation_name() { return *g_truncation; }
+name const & get_truncation_is_trunc_name() { return *g_truncation_is_trunc; }
+name const & get_truncation_nat_to_trunc_index_name() { return *g_truncation_nat_to_trunc_index; }
+name const & get_unit_name() { return *g_unit; }
+name const & get_unit_star_name() { return *g_unit_star; }
+name const & get_well_founded_name() { return *g_well_founded; }
+}

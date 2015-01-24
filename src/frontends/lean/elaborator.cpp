@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "library/deep_copy.h"
 #include "library/typed_expr.h"
 #include "library/local_context.h"
+#include "library/constants.h"
 #include "library/util.h"
 #include "library/choice_iterator.h"
 #include "library/pp_options.h"
@@ -1068,7 +1069,7 @@ expr elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
         new_R   = visit(equations_wf_rel(eqns), cs);
         new_Hwf = visit(equations_wf_proof(eqns), cs);
         expr Hwf_type   = infer_type(*new_Hwf, cs);
-        expr wf         = visit(mk_constant("well_founded"), cs);
+        expr wf         = visit(mk_constant(get_well_founded_name()), cs);
         wf              = ::lean::mk_app(wf, *new_R);
         justification j = mk_type_mismatch_jst(*new_Hwf, Hwf_type, wf, equations_wf_proof(eqns));
         auto new_Hwf_cs = ensure_has_type(*new_Hwf, Hwf_type, wf, j, m_relax_main_opaque);

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
+#include "library/constants.h"
 #include "library/locals.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
@@ -42,13 +43,13 @@ tactic revert_tactic(name const & n) {
 }
 
 void initialize_revert_tactic() {
-    register_tac(name({"tactic", "revert"}),
+    register_tac(get_tactic_revert_name(),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      name n = tactic_expr_to_id(app_arg(e), "invalid 'revert' tactic, argument must be an identifier");
                      return revert_tactic(n);
                  });
 
-    register_tac(name({"tactic", "revert_lst"}),
+    register_tac(get_tactic_revert_lst_name(),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      buffer<name> ns;
                      get_tactic_id_list_elements(app_arg(e), ns, "invalid 'reverts' tactic, list of identifiers expected");

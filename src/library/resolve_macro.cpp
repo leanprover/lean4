@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/kernel_serializer.h"
 #include "library/bin_app.h"
+#include "library/constants.h"
 
 namespace lean {
 static name * g_resolve_macro_name    = nullptr;
@@ -315,13 +316,13 @@ expr mk_resolve_macro(expr const & l, expr const & H1, expr const & H2) {
 void initialize_resolve_macro() {
     g_resolve_macro_name = new name("resolve");
     g_resolve_opcode = new std::string("Res");
-    g_or = new expr(Const("or"));
-    g_not = new expr(Const("not"));
-    g_false = new expr(Const("false"));
-    g_or_elim = new expr(Const(name("or", "elim")));
-    g_or_intro_left = new expr(Const(name("or", "intro_left")));
-    g_or_intro_right = new expr(Const(name("or", "intro_right")));
-    g_absurd_elim = new expr(Const("absurd_elim"));
+    g_or = new expr(Const(get_or_name()));
+    g_not = new expr(Const(get_not_name()));
+    g_false = new expr(Const(get_false_name()));
+    g_or_elim = new expr(Const(get_or_elim_name()));
+    g_or_intro_left = new expr(Const(get_or_intro_left_name()));
+    g_or_intro_right = new expr(Const(get_or_intro_right_name()));
+    g_absurd_elim = new expr(Const(get_absurd_name()));
     g_var_0 = new expr(mk_var(0));
     g_resolve_macro_definition = new macro_definition(new resolve_macro_definition_cell());
     register_macro_deserializer(*g_resolve_opcode,

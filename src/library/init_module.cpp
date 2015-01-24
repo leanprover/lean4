@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/constants.h"
 #include "library/unifier.h"
 #include "library/kernel_serializer.h"
 #include "library/let.h"
@@ -35,6 +36,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 void initialize_library_module() {
+    initialize_constants();
     initialize_fingerprint();
     initialize_print();
     initialize_placeholder();
@@ -94,5 +96,6 @@ void finalize_library_module() {
     finalize_placeholder();
     finalize_print();
     finalize_fingerprint();
+    finalize_constants();
 }
 }

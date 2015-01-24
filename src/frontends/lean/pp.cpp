@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/let.h"
 #include "library/print.h"
 #include "library/pp_options.h"
+#include "library/constants.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/builtin_exprs.h"
@@ -59,10 +60,11 @@ class nat_numeral_pp {
     expr m_succ;
 public:
     nat_numeral_pp():
-        m_num_type(mk_constant("num")), m_nat("nat"),
-        m_nat_of_num(mk_constant(name{"nat", "of_num"})),
-        m_zero(mk_constant(name{"nat", "zero"})),
-        m_succ(mk_constant(name{"nat", "succ"})) {
+        m_num_type(mk_constant(get_num_name())),
+        m_nat(get_nat_name()),
+        m_nat_of_num(mk_constant(get_nat_of_num_name())),
+        m_zero(mk_constant(get_nat_zero_name())),
+        m_succ(mk_constant(get_nat_succ_name())) {
     }
 
     // Return ture if the environment has a coercion from num->nat

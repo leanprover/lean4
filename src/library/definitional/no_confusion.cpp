@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/util.h"
 #include "library/reducible.h"
+#include "library/constants.h"
 
 namespace lean {
 static void throw_corrupted(name const & n) {
@@ -43,8 +44,6 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
         rlvl = mk_max(plvl, ind_lvl);
     if (length(ilvls) != length(ind_decl.get_univ_params()))
         return optional<environment>(); // type does not have only a restricted eliminator
-    name eq_name("eq");
-    name heq_name("heq");
     // All inductive datatype parameters and indices are arguments
     buffer<expr> args;
     ind_type = to_telescope(ngen, ind_type, args, some(mk_implicit_binder_info()));
@@ -67,7 +66,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     if (impredicative)
         Pres = P;
     else
-        Pres = mk_app(mk_constant("lift", {plvl, ind_lvl}), P);
+        Pres = mk_app(mk_constant(get_lift_name(), {plvl, ind_lvl}), P);
     name no_confusion_type_name{n, "no_confusion_type"};
     expr no_confusion_type_type = Pi(args, R);
     // Create type former
@@ -114,9 +113,9 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
                         level l       = sort_level(tc.ensure_type(lhs_type).first);
                         expr h_type;
                         if (tc.is_def_eq(lhs_type, rhs_type).first) {
-                            h_type = mk_app(mk_constant(eq_name, to_list(l)), lhs_type, lhs, rhs);
+                            h_type = mk_app(mk_constant(get_eq_name(), to_list(l)), lhs_type, lhs, rhs);
                         } else {
-                            h_type = mk_app(mk_constant(heq_name, to_list(l)), lhs_type, lhs, rhs_type, rhs);
+                            h_type = mk_app(mk_constant(get_heq_name(), to_list(l)), lhs_type, lhs, rhs_type, rhs);
                         }
                         rtype_hyp.push_back(mk_local(ngen.next(), local_pp_name(lhs).append_after("_eq"), h_type, binder_info()));
                     }
@@ -162,10 +161,6 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr ind_type                      = instantiate_type_univ_params(ind_decl, tail(ls));
     level ind_lvl                      = get_datatype_level(ind_type);
     expr no_confusion_type_type        = instantiate_type_univ_params(no_confusion_type_decl, ls);
-    name eq_name("eq");
-    name heq_name("heq");
-    name eq_refl_name{"eq", "refl"};
-    name heq_refl_name{"heq", "refl"};
     buffer<expr> args;
     expr type = no_confusion_type_type;
     type = to_telescope(ngen, type, args, some(mk_implicit_binder_info()));
@@ -178,12 +173,12 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr v_type       = mlocal_type(v1);
     expr lift_up;
     if (!impredicative) {
-        lift_up = mk_app(mk_constant(name{"lift", "up"}, {head(ls), ind_lvl}), P);
+        lift_up = mk_app(mk_constant(get_lift_up_name(), {head(ls), ind_lvl}), P);
     }
     level v_lvl       = sort_level(tc.ensure_type(v_type).first);
-    expr eq_v         = mk_app(mk_constant(eq_name, to_list(v_lvl)), v_type);
+    expr eq_v         = mk_app(mk_constant(get_eq_name(), to_list(v_lvl)), v_type);
     expr H12          = mk_local(ngen.next(), "H12", mk_app(eq_v, v1, v2), binder_info());
-    lean_assert(impredicative != inductive::has_dep_elim(env, eq_name));
+    lean_assert(impredicative != inductive::has_dep_elim(env, get_eq_name()));
     args.push_back(H12);
     name no_confusion_name{n, "no_confusion"};
     expr no_confusion_ty = Pi(args, range);
@@ -229,10 +224,10 @@ environment mk_no_confusion(environment const & env, name const & n) {
         while (is_pi(Ht)) {
             buffer<expr> eq_args;
             expr eq_fn = get_app_args(binding_domain(Ht), eq_args);
-            if (const_name(eq_fn) == eq_name) {
-                refl_args.push_back(mk_app(mk_constant(eq_refl_name, const_levels(eq_fn)), eq_args[0], eq_args[2]));
+            if (const_name(eq_fn) == get_eq_name()) {
+                refl_args.push_back(mk_app(mk_constant(get_eq_refl_name(), const_levels(eq_fn)), eq_args[0], eq_args[2]));
             } else {
-                refl_args.push_back(mk_app(mk_constant(heq_refl_name, const_levels(eq_fn)), eq_args[0], eq_args[1]));
+                refl_args.push_back(mk_app(mk_constant(get_heq_refl_name(), const_levels(eq_fn)), eq_args[0], eq_args[1]));
             }
             Ht = binding_body(Ht);
         }
@@ -249,13 +244,12 @@ environment mk_no_confusion(environment const & env, name const & n) {
     //
     //  eq.rec InductiveType v1 (fun (a : InductiveType), v1 = a -> no_confusion_type Params Indices v1 a) gen v2 H12 H12
     //
-    name eq_rec_name{"eq", "rec"};
     level eq_rec_l1;
     if (impredicative)
         eq_rec_l1 = head(ls);
     else
         eq_rec_l1 = mk_max(head(ls), ind_lvl);
-    expr eq_rec = mk_app(mk_constant(eq_rec_name, {eq_rec_l1, v_lvl}), v_type, v1);
+    expr eq_rec = mk_app(mk_constant(get_eq_rec_name(), {eq_rec_l1, v_lvl}), v_type, v1);
     // create eq_rec type_former
     //    (fun (a : InductiveType), v1 = a -> no_confusion_type Params Indices v1 a)
     expr a   = mk_local(ngen.next(), "a",   v_type, binder_info());

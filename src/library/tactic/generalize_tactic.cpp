@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/constants.h"
 #include "kernel/abstract.h"
 #include "library/reducible.h"
 #include "library/tactic/elaborate.h"
@@ -49,14 +50,14 @@ tactic generalize_tactic(elaborate_fn const & elab, expr const & e, name const &
 }
 
 void initialize_generalize_tactic() {
-    register_tac(name({"tactic", "generalize"}),
+    register_tac(get_tactic_generalize_name(),
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'generalize' tactic, invalid argument");
                      // TODO(Leo): allow user to provide name to abstract variable
                      return generalize_tactic(fn, get_tactic_expr_expr(app_arg(e)), "x");
                  });
 
-    register_tac(name({"tactic", "generalize_lst"}),
+    register_tac(get_tactic_generalize_lst_name(),
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      buffer<expr> args;
                      get_tactic_expr_list_elements(app_arg(e), args, "invalid 'generalizes' tactic, list of expressions expected");

@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/unifier.h"
 #include "library/occurs.h"
+#include "library/constants.h"
 #include "library/metavar_closure.h"
 #include "library/type_util.h"
 #include "library/tactic/expr_to_tactic.h"
@@ -186,25 +187,25 @@ void open_apply_tactic(lua_State * L) {
 }
 
 void initialize_apply_tactic() {
-    register_tac(name({"tactic", "apply"}),
+    register_tac(get_tactic_apply_name(),
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'apply' tactic, invalid argument");
                      return apply_tactic(fn, get_tactic_expr_expr(app_arg(e)));
                  });
 
-    register_tac(name({"tactic", "rapply"}),
+    register_tac(get_tactic_rapply_name(),
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'rapply' tactic, invalid argument");
                      return rapply_tactic(fn, get_tactic_expr_expr(app_arg(e)));
                  });
 
-    register_tac(name({"tactic", "fapply"}),
+    register_tac(get_tactic_fapply_name(),
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'fapply' tactic, invalid argument");
                      return fapply_tactic(fn, get_tactic_expr_expr(app_arg(e)));
                  });
 
-    register_simple_tac(name({"tactic", "eassumption"}),
+    register_simple_tac(get_tactic_eassumption_name(),
                         []() { return eassumption_tactic(); });
 }
 

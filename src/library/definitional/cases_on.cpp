@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/protected.h"
 #include "library/reducible.h"
+#include "library/constants.h"
 
 namespace lean {
 static void throw_corrupted(name const & n) {
@@ -81,8 +82,8 @@ environment mk_cases_on(environment const & env, name const & n) {
     optional<expr> star;
     // we use unit if num_types > 1
     if (num_types > 1) {
-        unit = mk_constant(name("unit"), to_list(elim_univ));
-        star = mk_constant(name({"unit", "star"}), to_list(elim_univ));
+        unit = mk_constant(get_unit_name(), to_list(elim_univ));
+        star = mk_constant(get_unit_star_name(), to_list(elim_univ));
     }
 
     // rec_params order

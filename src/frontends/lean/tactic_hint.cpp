@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/type_checker.h"
 #include "library/scoped_ext.h"
+#include "library/constants.h"
 #include "library/kernel_serializer.h"
 #include "library/tactic/tactic.h"
 #include "frontends/lean/tactic_hint.h"
@@ -77,7 +78,7 @@ expr parse_tactic_name(parser & p) {
     name pre_tac = p.check_constant_next("invalid tactic name, constant expected");
     auto decl    = p.env().get(pre_tac);
     expr pre_tac_type = decl.get_type();
-    if (!is_constant(pre_tac_type) || const_name(pre_tac_type) != name("tactic"))
+    if (!is_constant(pre_tac_type) || const_name(pre_tac_type) != get_tactic_name())
         throw parser_error(sstream() << "invalid tactic name, '" << pre_tac << "' is not a tactic", pos);
     buffer<level> ls;
     for (auto const & n : decl.get_univ_params())

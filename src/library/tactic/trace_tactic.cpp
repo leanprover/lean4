@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/sstream.h"
 #include "kernel/type_checker.h"
+#include "library/constants.h"
 #include "library/string.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
@@ -56,7 +57,7 @@ tactic suppress_trace(tactic const & t) {
 }
 
 void initialize_trace_tactic() {
-    register_tac(name({"tactic", "state"}),
+    register_tac(get_tactic_state_name(),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const * p) {
                      if (p)
                          if (auto it = p->get_pos_info(e))
@@ -64,7 +65,7 @@ void initialize_trace_tactic() {
                      return trace_state_tactic();
                  });
 
-    register_tac(name({"tactic", "trace"}),
+    register_tac(get_tactic_trace_name(),
                  [](type_checker & tc, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      buffer<expr> args;
                      get_app_args(e, args);

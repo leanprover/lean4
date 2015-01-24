@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/locals.h"
 #include "library/util.h"
+#include "library/constants.h"
 
 namespace lean {
 bool is_def_app(environment const & env, expr const & e) {
@@ -82,23 +83,23 @@ bool has_constructor(environment const & env, name const & c, name const & I, un
 }
 
 bool has_unit_decls(environment const & env) {
-    return has_constructor(env, name{"unit", "star"}, "unit", 0);
+    return has_constructor(env, get_unit_star_name(), get_unit_name(), 0);
 }
 
 bool has_eq_decls(environment const & env) {
-    return has_constructor(env, name{"eq", "refl"}, "eq", 2);
+    return has_constructor(env, get_eq_refl_name(), get_eq_name(), 2);
 }
 
 bool has_heq_decls(environment const & env) {
-    return has_constructor(env, name{"heq", "refl"}, "heq", 2);
+    return has_constructor(env, get_heq_refl_name(), get_heq_name(), 2);
 }
 
 bool has_prod_decls(environment const & env) {
-    return has_constructor(env, name{"prod", "mk"}, "prod", 4);
+    return has_constructor(env, get_prod_mk_name(), get_prod_name(), 4);
 }
 
 bool has_lift_decls(environment const & env) {
-    return has_constructor(env, name{"lift", "up"}, "lift", 2);
+    return has_constructor(env, get_lift_up_name(), get_lift_name(), 2);
 }
 
 bool is_recursive_datatype(environment const & env, name const & n) {
@@ -222,45 +223,13 @@ static expr * g_and_intro = nullptr;
 static expr * g_and_elim_left = nullptr;
 static expr * g_and_elim_right = nullptr;
 
-static name * g_unit_name = nullptr;
-static name * g_unit_mk_name = nullptr;
-static name * g_prod_name = nullptr;
-static name * g_prod_mk_name = nullptr;
-static name * g_pr1_name = nullptr;
-static name * g_pr2_name = nullptr;
-
-static name * g_eq_name = nullptr;
-static name * g_eq_refl_name = nullptr;
-static name * g_eq_rec_name = nullptr;
-
-static name * g_heq_name = nullptr;
-
-static name * g_sigma_name = nullptr;
-static name * g_sigma_mk_name = nullptr;
-
 void initialize_library_util() {
-    g_true           = new expr(mk_constant("true"));
-    g_true_intro     = new expr(mk_constant(name({"true", "intro"})));
-    g_and            = new expr(mk_constant("and"));
-    g_and_intro      = new expr(mk_constant(name({"and", "intro"})));
-    g_and_elim_left  = new expr(mk_constant(name({"and", "elim_left"})));
-    g_and_elim_right = new expr(mk_constant(name({"and", "elim_right"})));
-
-    g_unit_name      = new name("unit");
-    g_unit_mk_name   = new name{"unit", "star"};
-    g_prod_name      = new name("prod");
-    g_prod_mk_name   = new name{"prod", "mk"};
-    g_pr1_name       = new name{"prod", "pr1"};
-    g_pr2_name       = new name{"prod", "pr2"};
-
-    g_eq_name        = new name("eq");
-    g_eq_refl_name   = new name{"eq", "refl"};
-    g_eq_rec_name    = new name{"eq", "rec"};
-
-    g_heq_name       = new name("heq");
-
-    g_sigma_name     = new name("sigma");
-    g_sigma_mk_name  = new name{"sigma", "mk"};
+    g_true           = new expr(mk_constant(get_true_name()));
+    g_true_intro     = new expr(mk_constant(get_true_intro_name()));
+    g_and            = new expr(mk_constant(get_and_name()));
+    g_and_intro      = new expr(mk_constant(get_and_intro_name()));
+    g_and_elim_left  = new expr(mk_constant(get_and_elim_left_name()));
+    g_and_elim_right = new expr(mk_constant(get_and_elim_right_name()));
 }
 
 void finalize_library_util() {
@@ -270,18 +239,6 @@ void finalize_library_util() {
     delete g_and_intro;
     delete g_and_elim_left;
     delete g_and_elim_right;
-    delete g_unit_name;
-    delete g_unit_mk_name;
-    delete g_prod_name;
-    delete g_prod_mk_name;
-    delete g_pr1_name;
-    delete g_pr2_name;
-    delete g_eq_name;
-    delete g_eq_refl_name;
-    delete g_eq_rec_name;
-    delete g_heq_name;
-    delete g_sigma_name;
-    delete g_sigma_mk_name;
 }
 
 expr mk_true() {
@@ -311,17 +268,17 @@ expr mk_and_elim_right(type_checker & tc, expr const & H) {
 }
 
 expr mk_unit(level const & l) {
-    return mk_constant(*g_unit_name, {l});
+    return mk_constant(get_unit_name(), {l});
 }
 
 expr mk_unit_mk(level const & l) {
-    return mk_constant(*g_unit_mk_name, {l});
+    return mk_constant(get_unit_star_name(), {l});
 }
 
 expr mk_prod(type_checker & tc, expr const & A, expr const & B) {
     level l1 = sort_level(tc.ensure_type(A).first);
     level l2 = sort_level(tc.ensure_type(B).first);
-    return mk_app(mk_constant(*g_prod_name, {l1, l2}), A, B);
+    return mk_app(mk_constant(get_prod_name(), {l1, l2}), A, B);
 }
 
 expr mk_pair(type_checker & tc, expr const & a, expr const & b) {
@@ -329,21 +286,21 @@ expr mk_pair(type_checker & tc, expr const & a, expr const & b) {
     expr B = tc.infer(b).first;
     level l1 = sort_level(tc.ensure_type(A).first);
     level l2 = sort_level(tc.ensure_type(B).first);
-    return mk_app(mk_constant(*g_prod_mk_name, {l1, l2}), A, B, a, b);
+    return mk_app(mk_constant(get_prod_mk_name(), {l1, l2}), A, B, a, b);
 }
 
 expr mk_pr1(type_checker & tc, expr const & p) {
     expr AxB = tc.whnf(tc.infer(p).first).first;
     expr const & A = app_arg(app_fn(AxB));
     expr const & B = app_arg(AxB);
-    return mk_app(mk_constant(*g_pr1_name, const_levels(get_app_fn(AxB))), A, B, p);
+    return mk_app(mk_constant(get_prod_pr1_name(), const_levels(get_app_fn(AxB))), A, B, p);
 }
 
 expr mk_pr2(type_checker & tc, expr const & p) {
     expr AxB = tc.whnf(tc.infer(p).first).first;
     expr const & A = app_arg(app_fn(AxB));
     expr const & B = app_arg(AxB);
-    return mk_app(mk_constant(*g_pr2_name, const_levels(get_app_fn(AxB))), A, B, p);
+    return mk_app(mk_constant(get_prod_pr2_name(), const_levels(get_app_fn(AxB))), A, B, p);
 }
 
 expr mk_unit(level const & l, bool prop) { return prop ? mk_true() : mk_unit(l); }
@@ -358,30 +315,30 @@ expr mk_pr2(type_checker & tc, expr const & p, bool prop) { return prop ? mk_and
 expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs) {
     expr A    = tc.whnf(tc.infer(lhs).first).first;
     level lvl = sort_level(tc.ensure_type(A).first);
-    return mk_app(mk_constant(*g_eq_name, {lvl}), A, lhs, rhs);
+    return mk_app(mk_constant(get_eq_name(), {lvl}), A, lhs, rhs);
 }
 
 expr mk_refl(type_checker & tc, expr const & a) {
     expr A    = tc.whnf(tc.infer(a).first).first;
     level lvl = sort_level(tc.ensure_type(A).first);
-    return mk_app(mk_constant(*g_eq_refl_name, {lvl}), A, a);
+    return mk_app(mk_constant(get_eq_refl_name(), {lvl}), A, a);
 }
 
 expr mk_heq(type_checker & tc, expr const & lhs, expr const & rhs) {
     expr A    = tc.whnf(tc.infer(lhs).first).first;
     expr B    = tc.whnf(tc.infer(rhs).first).first;
     level lvl = sort_level(tc.ensure_type(A).first);
-    return mk_app(mk_constant(*g_heq_name, {lvl}), A, lhs, B, rhs);
+    return mk_app(mk_constant(get_heq_name(), {lvl}), A, lhs, B, rhs);
 }
 
 bool is_eq_rec(expr const & e) {
     expr const & fn = get_app_fn(e);
-    return is_constant(fn) && const_name(fn) == *g_eq_rec_name;
+    return is_constant(fn) && const_name(fn) == get_eq_rec_name();
 }
 
 bool is_eq(expr const & e) {
     expr const & fn = get_app_fn(e);
-    return is_constant(fn) && const_name(fn) == *g_eq_name;
+    return is_constant(fn) && const_name(fn) == get_eq_name();
 }
 
 bool is_eq_a_a(expr const & e) {
@@ -406,7 +363,7 @@ bool is_eq_a_a(type_checker & tc, expr const & e) {
 void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> const & s, buffer<expr> & eqs) {
     lean_assert(t.size() == s.size());
     lean_assert(std::all_of(s.begin(), s.end(), is_local));
-    lean_assert(inductive::has_dep_elim(tc.env(), *g_eq_name));
+    lean_assert(inductive::has_dep_elim(tc.env(), get_eq_name()));
     buffer<buffer<expr>> t_aux;
     name e_name("e");
     for (unsigned i = 0; i < t.size(); i++) {
@@ -435,7 +392,7 @@ void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> co
                 rec_args.push_back(eqs[j]);
                 level rec_l1 = sort_level(tc.ensure_type(s_i_ty).first);
                 level rec_l2 = sort_level(tc.ensure_type(mlocal_type(s[j])).first);
-                t_i = mk_app(mk_constant(*g_eq_rec_name, {rec_l1, rec_l2}), rec_args.size(), rec_args.data());
+                t_i = mk_app(mk_constant(get_eq_rec_name(), {rec_l1, rec_l2}), rec_args.size(), rec_args.data());
             }
             t_aux.back().push_back(t_i);
         }
@@ -446,7 +403,7 @@ void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> co
 
 void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> & eqs) {
     lean_assert(std::all_of(t.begin(), t.end(), is_local));
-    lean_assert(inductive::has_dep_elim(tc.env(), *g_eq_name));
+    lean_assert(inductive::has_dep_elim(tc.env(), get_eq_name()));
     buffer<expr> s;
     for (unsigned i = 0; i < t.size(); i++) {
         expr ty = mlocal_type(t[i]);
@@ -478,7 +435,7 @@ expr telescope_to_sigma(type_checker & tc, unsigned sz, expr const * ts, constra
         expr const & Ba = r;
         level l1        = sort_level(tc.ensure_type(A, cs));
         level l2        = sort_level(tc.ensure_type(Ba, cs));
-        r = mk_app(mk_constant(*g_sigma_name, {l1, l2}), A, Fun(a, Ba));
+        r = mk_app(mk_constant(get_sigma_name(), {l1, l2}), A, Fun(a, Ba));
     }
     return r;
 }
@@ -497,7 +454,7 @@ expr mk_sigma_mk(type_checker & tc, unsigned sz, expr const * ts, expr const * a
     expr arg4      = mk_sigma_mk(tc, sz-1, new_ts.data(), as+1, cs);
     level l1       = sort_level(tc.ensure_type(arg1, cs));
     level l2       = sort_level(tc.ensure_type(arg2_core, cs));
-    return mk_app(mk_constant(*g_sigma_mk_name, {l1, l2}), arg1, arg2, arg3, arg4);
+    return mk_app(mk_constant(get_sigma_mk_name(), {l1, l2}), arg1, arg2, arg3, arg4);
 }
 
 expr mk_sigma_mk(type_checker & tc, buffer<expr> const & ts, buffer<expr> const & as, constraint_seq & cs) {

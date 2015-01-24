@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/type_checker.h"
 #include "library/num.h"
+#include "library/constants.h"
 
 namespace lean {
 static expr * g_num     = nullptr;
@@ -17,13 +18,13 @@ static expr * g_bit0    = nullptr;
 static expr * g_bit1    = nullptr;
 
 void initialize_num() {
-    g_num = new expr(Const("num"));
-    g_pos_num = new expr(Const("pos_num"));
-    g_zero = new expr(Const({"num", "zero"}));
-    g_pos = new expr(Const({"num", "pos"}));
-    g_one = new expr(Const({"pos_num", "one"}));
-    g_bit0 = new expr(Const({"pos_num", "bit0"}));
-    g_bit1 = new expr(Const({"pos_num", "bit1"}));
+    g_num = new expr(Const(get_num_name()));
+    g_pos_num = new expr(Const(get_pos_num_name()));
+    g_zero = new expr(Const(get_num_zero_name()));
+    g_pos = new expr(Const(get_num_pos_name()));
+    g_one = new expr(Const(get_pos_num_one_name()));
+    g_bit0 = new expr(Const(get_pos_num_bit0_name()));
+    g_bit1 = new expr(Const(get_pos_num_bit1_name()));
 }
 
 void finalize_num() {

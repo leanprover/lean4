@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/constants.h"
 #include "kernel/type_checker.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/elaborate.h"
@@ -34,7 +35,7 @@ tactic exact_tactic(elaborate_fn const & elab, expr const & e) {
 static expr * g_exact_tac_fn      = nullptr;
 expr const & get_exact_tac_fn() { return *g_exact_tac_fn; }
 void initialize_exact_tactic() {
-    name exact_tac_name({"tactic", "exact"});
+    name const & exact_tac_name = get_tactic_exact_name();
     g_exact_tac_fn      = new expr(Const(exact_tac_name));
     register_tac(exact_tac_name,
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {

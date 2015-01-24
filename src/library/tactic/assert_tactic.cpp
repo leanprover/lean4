@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
+#include "library/constants.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/expr_to_tactic.h"
@@ -46,7 +47,7 @@ tactic assert_tactic(elaborate_fn const & elab, name const & id, expr const & e)
 }
 
 void initialize_assert_tactic() {
-    register_tac(name{"tactic", "assert_hypothesis"},
+    register_tac(get_tactic_assert_hypothesis_name(),
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      name id = tactic_expr_to_id(app_arg(app_fn(e)), "invalid 'assert' tactic, argument must be an identifier");
                      check_tactic_expr(app_arg(e), "invalid 'assert' tactic, argument must be an expression");

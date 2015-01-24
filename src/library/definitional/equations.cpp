@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/util.h"
 #include "library/locals.h"
+#include "library/constants.h"
 #include "library/normalize.h"
 #include "library/pp_options.h"
 #include "library/tactic/inversion_tactic.h"
@@ -1210,14 +1211,14 @@ class equation_compiler_fn {
         */
         optional<expr> to_below(expr const & d, expr const & a, expr const & b) {
             expr const & fn = get_app_fn(d);
-            if (is_constant(fn) && const_name(fn) == "prod") {
+            if (is_constant(fn) && const_name(fn) == get_prod_name()) {
                 if (auto r = to_below(app_arg(app_fn(d)), a, mk_pr1(m_main.m_tc, b)))
                     return r;
                 else if (auto r = to_below(app_arg(d), a, mk_pr2(m_main.m_tc, b)))
                     return r;
                 else
                     return none_expr();
-            } else if (is_constant(fn) && const_name(fn) == "and") {
+            } else if (is_constant(fn) && const_name(fn) == get_and_name()) {
                 // For ibelow, we use "and" instead of products
                 if (auto r = to_below(app_arg(app_fn(d)), a, mk_and_elim_left(m_main.m_tc, b)))
                     return r;
@@ -1523,7 +1524,7 @@ class equation_compiler_fn {
                 C = Fun(C_args, type);
             } else {
                 expr d    = binding_domain(C_type);
-                expr unit = mk_constant("unit", rlvl);
+                expr unit = mk_constant(get_unit_name(), rlvl);
                 to_telescope_ext(d, C_args);
                 C = Fun(C_args, unit);
             }
@@ -1566,7 +1567,7 @@ class equation_compiler_fn {
                 new_ctx.append(rest);
                 F               = compile_pat_match(program(prg_i, to_list(new_ctx)), *p_idx);
             } else {
-                expr star    = mk_constant(name{"unit", "star"}, rlvl);
+                expr star    = mk_constant(get_unit_star_name(), rlvl);
                 buffer<expr> F_args;
                 F_args.append(C_args);
                 below        = mk_app(below, F_args);

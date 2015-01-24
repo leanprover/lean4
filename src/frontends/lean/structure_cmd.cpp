@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/protected.h"
 #include "library/class.h"
+#include "library/constants.h"
 #include "library/util.h"
 #include "library/kernel_serializer.h"
 #include "library/definitional/rec_on.h"
@@ -821,13 +822,13 @@ struct structure_cmd_fn {
             expr proj = mk_app(mk_app(mk_constant(m_name + mlocal_name(field), st_ls), m_params), st);
             lhs       = mk_app(lhs, proj);
         }
-        expr eq                  = mk_app(mk_constant("eq", to_list(sort_level(m_type))), st_type, lhs, st);
+        expr eq                  = mk_app(mk_constant(get_eq_name(), to_list(sort_level(m_type))), st_type, lhs, st);
         level eq_lvl             = sort_level(m_tc->ensure_type(eq).first);
         levels rec_ls            = levels(eq_lvl, st_ls);
         expr rec                 = mk_app(mk_constant(inductive::get_elim_name(m_name), rec_ls), m_params);
         expr type_former         = Fun(st, eq);
         expr mk                  = mk_app(mk_app(mk_constant(m_mk, st_ls), m_params), m_fields);
-        expr refl                = mk_app(mk_constant(name{"eq", "refl"}, to_list(sort_level(m_type))), st_type, mk);
+        expr refl                = mk_app(mk_constant(get_eq_refl_name(), to_list(sort_level(m_type))), st_type, mk);
         refl                     = Fun(m_fields, refl);
         rec                      = mk_app(rec, type_former, refl, st);
         expr eta_type            = infer_implicit(Pi(m_params, Pi(st, eq)), true);
@@ -859,8 +860,8 @@ struct structure_cmd_fn {
             name proj_name          = m_name + field_name;
             expr lhs                = mk_app(mk_app(mk_constant(proj_name, st_ls), m_params), mk_fields);
             expr rhs                = field;
-            expr eq                 = mk_app(mk_constant("eq", to_list(field_level)), field_type, lhs, rhs);
-            expr refl               = mk_app(mk_constant(name{"eq", "refl"}, to_list(field_level)), field_type, lhs);
+            expr eq                 = mk_app(mk_constant(get_eq_name(), to_list(field_level)), field_type, lhs, rhs);
+            expr refl               = mk_app(mk_constant(get_eq_refl_name(), to_list(field_level)), field_type, lhs);
             name proj_over_name     = m_name + field_name + m_mk_short;
             expr proj_over_type     = infer_implicit(Pi(m_params, Pi(m_fields, eq)), m_params.size(), true);
             expr proj_over_value    = Fun(m_params, Fun(m_fields, refl));

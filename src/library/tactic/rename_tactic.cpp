@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/constants.h"
 #include "kernel/replace_fn.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
@@ -51,7 +52,7 @@ void initialize_rename_tactic() {
         return rename_tactic(get_rename_arg(app_arg(app_fn(e))),
                              get_rename_arg(app_arg(e)));
     };
-    register_tac(name({"tactic", "rename"}), fn);
+    register_tac(get_tactic_rename_name(), fn);
 }
 
 void finalize_rename_tactic() {

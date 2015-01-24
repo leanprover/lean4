@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/kernel_serializer.h"
 #include "library/string.h"
+#include "library/constants.h"
 
 namespace lean {
 static name * g_string_macro         = nullptr;
@@ -90,14 +91,14 @@ string_macro const & to_string_macro(expr const & e) {
 void initialize_string() {
     g_string_macro  = new name("string_macro");
     g_string_opcode = new std::string("Str");
-    g_bool          = new expr(Const(name("bool")));
-    g_ff            = new expr(Const(name("bool", "ff")));
-    g_tt            = new expr(Const(name("bool", "tt")));
-    g_char          = new expr(Const(name("char")));
-    g_ascii         = new expr(Const(name("char", "mk")));
-    g_string        = new expr(Const(name("string")));
-    g_empty         = new expr(Const(name("string", "empty")));
-    g_str           = new expr(Const(name("string", "str")));
+    g_bool          = new expr(Const(get_bool_name()));
+    g_ff            = new expr(Const(get_bool_ff_name()));
+    g_tt            = new expr(Const(get_bool_tt_name()));
+    g_char          = new expr(Const(get_char_name()));
+    g_ascii         = new expr(Const(get_char_mk_name()));
+    g_string        = new expr(Const(get_string_name()));
+    g_empty         = new expr(Const(get_string_empty_name()));
+    g_str           = new expr(Const(get_string_str_name()));
     register_macro_deserializer(*g_string_opcode,
                                 [](deserializer & d, unsigned num, expr const *) {
                                     if (num != 0)

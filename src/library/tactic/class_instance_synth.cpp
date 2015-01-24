@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/generic_exception.h"
 #include "library/util.h"
+#include "library/constants.h"
 #include "library/tactic/util.h"
 #include "library/tactic/class_instance_synth.h"
 
@@ -472,10 +473,9 @@ optional<expr> mk_class_instance(environment const & env, io_state const & ios, 
 }
 
 optional<expr> mk_hset_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type) {
-    name is_trunc{"truncation", "is_trunc"};
-    expr trunc_index = mk_app(mk_constant(name{"truncation", "nat_to_trunc_index"}), mk_constant(name{"nat", "zero"}));
+    expr trunc_index = mk_app(mk_constant(get_truncation_nat_to_trunc_index_name()), mk_constant(get_nat_zero_name()));
     level lvl        = sort_level(tc.ensure_type(type).first);
-    expr is_hset     = mk_app(mk_constant(name{"truncation", "is_trunc"}, {lvl}), trunc_index, type);
+    expr is_hset     = mk_app(mk_constant(get_truncation_is_trunc_name(), {lvl}), trunc_index, type);
     return mk_class_instance(tc.env(), ios, ctx, tc.mk_fresh_name(), is_hset);
 }
 }

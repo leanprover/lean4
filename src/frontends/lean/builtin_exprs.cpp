@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/typed_expr.h"
 #include "library/choice.h"
 #include "library/let.h"
+#include "library/constants.h"
 #include "library/definitional/equations.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/decl_cmds.h"
@@ -123,8 +124,8 @@ static expr parse_placeholder(parser & p, unsigned, expr const *, pos_info const
 
 static environment open_tactic_namespace(parser & p) {
     if (!is_tactic_namespace_open(p.env())) {
-        environment env = using_namespace(p.env(), p.ios(), "tactic");
-        env = add_aliases(env, name("tactic"), name());
+        environment env = using_namespace(p.env(), p.ios(), get_tactic_name());
+        env = add_aliases(env, get_tactic_name(), name());
         return env;
     } else {
         return p.env();
@@ -330,9 +331,8 @@ static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos)
     return p.save_pos(mk_show_annotation(r), pos);
 }
 
-static name * g_exists_elim = nullptr;
 static expr parse_obtain(parser & p, unsigned, expr const *, pos_info const & pos) {
-    if (!p.env().find(*g_exists_elim))
+    if (!p.env().find(get_exists_elim_name()))
         throw parser_error("invalid use of 'obtain' expression, environment does not contain 'exists.elim' theorem", pos);
     // exists_elim {A : Type} {P : A → Prop} {B : Prop} (H1 : ∃ x : A, P x) (H2 : ∀ (a : A) (H : P a), B)
     buffer<expr> ps;
@@ -364,28 +364,26 @@ static expr parse_obtain(parser & p, unsigned, expr const *, pos_info const & po
         expr a      = ps[i];
         expr H_aux  = mk_local(p.mk_fresh_name(), H_name.append_after(i), mk_expr_placeholder(), mk_contextual_info(false));
         expr  H2    = Fun({a, H}, b);
-        b = mk_app(mk_constant(*g_exists_elim), H_aux, H2);
+        b = mk_app(mk_constant(get_exists_elim_name()), H_aux, H2);
         H = H_aux;
     }
     expr a  = ps[0];
     expr H2 = Fun({a, H}, b);
-    expr r  = mk_app(mk_constant(*g_exists_elim), H1, H2);
+    expr r  = mk_app(mk_constant(get_exists_elim_name()), H1, H2);
     return p.rec_save_pos(r, pos);
 }
 
-static name * g_ite  = nullptr;
-static name * g_dite = nullptr;
 static expr * g_not  = nullptr;
 static unsigned g_then_else_prec = 45;
 
 static expr parse_ite(parser & p, expr const & c, pos_info const & pos) {
-    if (!p.env().find(*g_ite))
+    if (!p.env().find(get_ite_name()))
         throw parser_error("invalid use of 'if-then-else' expression, environment does not contain 'ite' definition", pos);
     p.check_token_next(get_then_tk(), "invalid 'if-then-else' expression, 'then' expected");
     expr t = p.parse_expr(g_then_else_prec);
     p.check_token_next(get_else_tk(), "invalid 'if-then-else' expression, 'else' expected");
     expr e = p.parse_expr(g_then_else_prec);
-    return p.save_pos(mk_app(mk_constant(*g_ite), c, t, e), pos);
+    return p.save_pos(mk_app(mk_constant(get_ite_name()), c, t, e), pos);
 }
 
 static expr parse_dite(parser & p, name const & H_name, expr const & c, pos_info const & pos) {
@@ -406,7 +404,7 @@ static expr parse_dite(parser & p, name const & H_name, expr const & c, pos_info
         auto pos = p.pos();
         e = p.save_pos(Fun(H, p.parse_expr(g_then_else_prec)), pos);
     }
-    return p.save_pos(mk_app(p.save_pos(mk_constant(*g_dite), pos), c, t, e), pos);
+    return p.save_pos(mk_app(p.save_pos(mk_constant(get_dite_name()), pos), c, t, e), pos);
 }
 
 static expr parse_if_then_else(parser & p, unsigned, expr const *, pos_info const & pos) {
@@ -523,10 +521,7 @@ parse_table get_builtin_led_table() {
 
 void initialize_builtin_exprs() {
     notation::H_show        = new name("H_show");
-    notation::g_exists_elim = new name{"exists", "elim"};
-    notation::g_ite         = new name("ite");
-    notation::g_dite        = new name("dite");
-    notation::g_not         = new expr(mk_constant("not"));
+    notation::g_not         = new expr(mk_constant(get_not_name()));
     g_nud_table             = new parse_table();
     *g_nud_table            = notation::init_nud_table();
     g_led_table             = new parse_table();
@@ -537,9 +532,6 @@ void finalize_builtin_exprs() {
     delete g_led_table;
     delete g_nud_table;
     delete notation::H_show;
-    delete notation::g_exists_elim;
-    delete notation::g_ite;
-    delete notation::g_dite;
     delete notation::g_not;
 }
 }

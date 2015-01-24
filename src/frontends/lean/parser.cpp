@@ -104,6 +104,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_scanner(strm, strm_name, s ? s->m_line : 1),
     m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0),
     m_snapshot_vector(sv), m_info_manager(im), m_cache(nullptr), m_index(nullptr) {
+    m_has_params = false;
     m_keep_theorem_mode = tmode;
     if (s) {
         m_local_level_decls  = s->m_lds;
@@ -438,7 +439,8 @@ void parser::push_local_scope(bool save_options) {
     optional<options> opts;
     if (save_options)
         opts = m_ios.get_options();
-    m_parser_scope_stack = cons(parser_scope_stack_elem(opts, m_level_variables, m_variables, m_include_vars, m_undef_ids.size()),
+    m_parser_scope_stack = cons(parser_scope_stack_elem(opts, m_level_variables, m_variables, m_include_vars,
+                                                        m_undef_ids.size(), m_has_params),
                                 m_parser_scope_stack);
 }
 
@@ -457,6 +459,7 @@ void parser::pop_local_scope() {
     m_level_variables    = s.m_level_variables;
     m_variables          = s.m_variables;
     m_include_vars       = s.m_include_vars;
+    m_has_params         = s.m_has_params;
     m_undef_ids.shrink(s.m_num_undef_ids);
     m_parser_scope_stack = tail(m_parser_scope_stack);
 }
@@ -479,6 +482,12 @@ void parser::add_local_expr(name const & n, expr const & p, bool is_variable) {
         lean_assert(is_local(p));
         m_variables.insert(local_pp_name(p));
     }
+}
+
+void parser::add_parameter(name const & n, expr const & p) {
+    lean_assert(is_local(p));
+    add_local_expr(n, p, false);
+    m_has_params = true;
 }
 
 unsigned parser::get_local_level_index(name const & n) const {

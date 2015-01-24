@@ -116,7 +116,7 @@ static environment declare_var(parser & p, environment env,
     if (_bi) bi = *_bi;
     if (k == variable_kind::Parameter || k == variable_kind::Variable) {
         if (k == variable_kind::Parameter) {
-            check_in_context(p);
+            check_in_context_or_section(p);
             check_parameter_type(p, n, type, pos);
         }
         if (p.get_local(n))
@@ -124,7 +124,10 @@ static environment declare_var(parser & p, environment env,
                                << n << "' has already been declared", pos);
         name u = p.mk_fresh_name();
         expr l = p.save_pos(mk_local(u, n, type, bi), pos);
-        p.add_local_expr(n, l, k == variable_kind::Variable);
+        if (k == variable_kind::Parameter)
+            p.add_parameter(n, l);
+        else
+            p.add_local_expr(n, l, k == variable_kind::Variable);
         return env;
     } else {
         lean_assert(k == variable_kind::Constant || k == variable_kind::Axiom);
@@ -162,10 +165,9 @@ static void check_variable_kind(parser & p, variable_kind k) {
         if (k == variable_kind::Axiom || k == variable_kind::Constant)
             throw parser_error("invalid declaration, 'constant/axiom' cannot be used in contexts",
                                p.pos());
-    } else {
-        if (k == variable_kind::Parameter)
-            throw parser_error("invalid declaration, 'parameter/hypothesis/conjecture' "
-                               "can only be used in contexts", p.pos());
+    } else if (!in_section(p.env()) && !in_context(p.env()) && k == variable_kind::Parameter) {
+        throw parser_error("invalid declaration, 'parameter/hypothesis/conjecture' "
+                           "can only be used in contexts and sections", p.pos());
     }
 }
 

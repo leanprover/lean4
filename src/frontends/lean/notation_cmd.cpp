@@ -629,6 +629,7 @@ struct notation_modifiers {
 };
 
 static environment notation_cmd_core(parser & p, bool overload, bool reserve) {
+    check_not_in_parametric_section(p);
     notation_modifiers mods;
     mods.parse(p);
     flet<bool> set_allow_local(g_allow_local, in_context(p.env()) || !mods.m_persistent);
@@ -642,6 +643,7 @@ static environment notation_cmd_core(parser & p, bool overload, bool reserve) {
 }
 
 static environment mixfix_cmd(parser & p, mixfix_kind k, bool overload, bool reserve) {
+    check_not_in_parametric_section(p);
     notation_modifiers mods;
     mods.parse(p);
     flet<bool> set_allow_local(g_allow_local, in_context(p.env()) || !mods.m_persistent);

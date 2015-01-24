@@ -1,2 +1,2 @@
 bad_coercions.lean:12:18: error: invalid '[coercion]' modifier, coercions cannot be defined in contexts
-bad_coercions.lean:18:11: error: invalid 'coercion' command, coercions cannot be defined in contexts
+bad_coercions.lean:18:11: error: invalid 'coercion' command, coercions cannot be defined in contexts or sections containing parameters

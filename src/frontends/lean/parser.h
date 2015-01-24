@@ -53,9 +53,11 @@ struct parser_scope_stack_elem {
     name_set           m_variables;
     name_set           m_include_vars;
     unsigned           m_num_undef_ids;
+    bool               m_has_params;
     parser_scope_stack_elem(optional<options> const & o, name_set const & lvs, name_set const & vs, name_set const & ivs,
-                            unsigned num_undef_ids):
-        m_options(o), m_level_variables(lvs), m_variables(vs), m_include_vars(ivs), m_num_undef_ids(num_undef_ids) {}
+                            unsigned num_undef_ids, bool has_params):
+        m_options(o), m_level_variables(lvs), m_variables(vs), m_include_vars(ivs),
+        m_num_undef_ids(num_undef_ids), m_has_params(has_params) {}
 };
 typedef list<parser_scope_stack_elem> parser_scope_stack;
 
@@ -97,6 +99,7 @@ class parser {
     scanner::token_kind     m_curr;
     local_level_decls       m_local_level_decls;
     local_expr_decls        m_local_decls;
+    bool                    m_has_params; // true context context contains parameters
     name_set                m_level_variables;
     name_set                m_variables; // subset of m_local_decls that is marked as variables
     name_set                m_include_vars; // subset of m_local_decls that is marked as include
@@ -383,7 +386,9 @@ public:
     bool has_locals() const { return !m_local_decls.empty() || !m_local_level_decls.empty(); }
     void add_local_level(name const & n, level const & l, bool is_variable = false);
     void add_local_expr(name const & n, expr const & p, bool is_variable = false);
+    void add_parameter(name const & n, expr const & p);
     void add_local(expr const & p) { return add_local_expr(local_pp_name(p), p); }
+    bool has_params() const { return m_has_params; }
     bool is_local_decl(expr const & l) const { return is_local(l) && m_local_decls.contains(local_pp_name(l)); }
     bool is_local_level_variable(name const & n) const { return m_level_variables.contains(n); }
     bool is_local_variable(name const & n) const { return m_variables.contains(n); }

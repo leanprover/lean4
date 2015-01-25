@@ -29,7 +29,7 @@ bool is_used_name(expr const & t, name const & n) {
                 return false; // do not search their types
             return true; // continue search
         });
-    return false;
+    return found;
 }
 
 name pick_unused_name(expr const & t, name const & s) {

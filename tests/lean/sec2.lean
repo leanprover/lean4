@@ -5,7 +5,7 @@ constant g : B → B
 constant a : A
 
 namespace foo
-  coercion f
+  attribute f [coercion]
   print coercions
   check g a
 end foo
@@ -13,7 +13,7 @@ end foo
 check g a -- Error
 
 section boo
-  coercion f
+  attribute f [coercion]
   print coercions
   check g a
 end boo

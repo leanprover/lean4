@@ -333,7 +333,7 @@ private definition pair_nat.lt : nat × nat → nat × nat → Prop := measure p
 private definition pair_nat.lt.wf : well_founded pair_nat.lt :=
 intro_k (measure.wf pr₂) 20  -- we use intro_k to be able to execute gcd efficiently in the kernel
 
-instance pair_nat.lt.wf      -- instance will not be saved in .olean
+attribute pair_nat.lt.wf [instance]      -- instance will not be saved in .olean
 infixl [local] `≺`:50 := pair_nat.lt
 
 private definition gcd.lt.dec (x y₁ : nat) : (succ y₁, x mod succ y₁) ≺ (x, succ y₁) :=

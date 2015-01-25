@@ -11,7 +11,7 @@ definition transport {A : Type} {a b : A} {P : A → Type} (p : a = b) (H : P a)
 theorem transport_refl {A : Type} {a : A} {P : A → Type} (H : P a) : transport (refl a) H = H
 := refl H
 
-reducible [off] transport
+attribute transport [irreducible]
 theorem transport_proof_irrel {A : Type} {a b : A} {P : A → Type} (p1 p2 : a = b) (H : P a) : transport p1 H = transport p2 H
 := refl (transport p1 H)
 

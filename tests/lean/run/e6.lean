@@ -13,7 +13,7 @@ namespace int
   constant add : int → int → int
   infixl + := add
   constant of_nat : nat → int
-  coercion [persistent] of_nat
+  persistent attribute of_nat [coercion]
 end int
 
 open int

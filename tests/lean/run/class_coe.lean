@@ -24,9 +24,9 @@ constants x y : real
 constant num_to_nat : num → nat
 constant nat_to_int : nat → int
 constant int_to_real : int → real
-coercion num_to_nat
-coercion nat_to_int
-coercion int_to_real
+attribute num_to_nat [coercion]
+attribute nat_to_int [coercion]
+attribute int_to_real [coercion]
 
 set_option pp.implicit true
 set_option pp.coercions true

@@ -21,9 +21,10 @@ structure functor (C D : Category) : Type :=
 infixl `⇒`:25 := functor
 
 namespace functor
-  coercion [persistent] object
-  coercion [persistent] morphism
-  irreducible [persistent] respect_id respect_comp
+  persistent attribute object [coercion]
+  persistent attribute morphism [coercion]
+  persistent attribute respect_id [irreducible]
+  persistent attribute respect_comp [irreducible]
 
   variables {A B C D : Category}
 
@@ -70,7 +71,7 @@ namespace category
 
   namespace ops
     notation `Cat`:max := Category_of_categories
-    instance [persistent] category_of_categories
+    persistent attribute category_of_categories [instance]
   end ops
 end category
 

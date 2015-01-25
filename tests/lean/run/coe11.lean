@@ -17,7 +17,7 @@ my_functor.rec (λ obF homF Hid Hcomp, homF) F
 constants obC obD : Type
 constants a b : obC
 constant C : category obC
-instance C
+attribute C [instance]
 constant D : category obD
 constant F : my_functor C D
 constant m : hom a b

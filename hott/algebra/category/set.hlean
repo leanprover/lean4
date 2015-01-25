@@ -29,7 +29,7 @@ end precategory
 namespace category
 
   universe variable l
-  instance precategory.set_precategory.{l+1 l}
+  attribute precategory.set_precategory.{l+1 l} [instance]
 
   definition set_category_equiv_iso (a b : (Σ (A : Type.{l}), is_hset A))
     : (a ≅ b) = (a.1 ≃ b.1) :=

@@ -89,12 +89,12 @@ void init_token_table(token_table & t) {
     char const * commands[] =
         {"theorem", "axiom", "variable", "protected", "private", "opaque", "definition", "example", "coercion",
          "variables", "parameter", "parameters", "constant", "constants", "[persistent]", "[visible]", "[instance]",
-         "[off]", "[on]", "[none]", "[class]", "[coercion]", "[reducible]", "[parsing-only]", "reducible", "irreducible",
+         "[off]", "[on]", "[none]", "[class]", "[coercion]", "[reducible]", "[irreducible]", "[parsing-only]", "[multiple-instances]",
          "evaluate", "check", "eval", "[wf]", "[whnf]", "[strict]", "[local]", "[priority", "print", "end", "namespace", "section", "prelude",
          "import", "inductive", "record", "structure", "module", "universe", "universes",
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation", "context",
          "exit", "set_option", "open", "export", "calc_subst", "calc_refl", "calc_trans", "calc_symm", "tactic_hint",
-         "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class", "multiple_instances", "find_decl",
+         "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class", "multiple_instances", "find_decl", "attribute", "persistent",
          "include", "omit", "#erase_cache", "#projections", "#telescope_eq", nullptr};
 
     pair<char const *, char const *> aliases[] =

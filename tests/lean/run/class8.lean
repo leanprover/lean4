@@ -4,7 +4,7 @@ open tactic prod
 inductive inh [class] (A : Type) : Prop :=
 intro : A -> inh A
 
-instance inh.intro
+attribute inh.intro [instance]
 
 theorem inh_elim {A : Type} {B : Prop} (H1 : inh A) (H2 : A → B) : B
 := inh.rec H2 H1

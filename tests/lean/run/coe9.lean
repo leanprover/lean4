@@ -11,10 +11,10 @@ constant to_row {A : Type} {n : nat} : vector A n → matrix A 1 n
 constant to_col {A : Type} {n : nat} : vector A n → matrix A n 1
 constant to_list {A : Type} {n : nat} : vector A n → list A
 
-coercion to_row
-coercion to_col
-coercion list_to_vec
-coercion to_list
+attribute to_row [coercion]
+attribute to_col [coercion]
+attribute list_to_vec [coercion]
+attribute to_list [coercion]
 
 constant f {A : Type} {n : nat} (M : matrix A n 1) : nat
 constant g {A : Type} {n : nat} (M : matrix A 1 n) : nat

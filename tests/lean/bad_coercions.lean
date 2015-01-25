@@ -15,5 +15,5 @@ context
   definition foo (v : vector A n) : list A :=
   nil A
 
-  coercion foo
+  attribute foo [coercion]
 end

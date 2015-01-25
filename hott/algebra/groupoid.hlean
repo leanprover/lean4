@@ -14,7 +14,7 @@ structure groupoid [class] (ob : Type) extends precategory ob :=
 
 namespace groupoid
 
-instance [persistent] all_iso
+persistent attribute all_iso [instance]
 
 --set_option pp.universes true
 --set_option pp.implicit true

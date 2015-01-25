@@ -77,10 +77,10 @@ namespace category
      (λ a b c d h g f, @subsingleton.elim (set_hom a d) _ _ _)
      (λ a b f, @subsingleton.elim (set_hom a b) _ _ _)
      (λ a b f, @subsingleton.elim (set_hom a b) _ _ _)
-  reducible discrete_category
+  attribute discrete_category [reducible]
   definition Discrete_category (A : Type) [H : decidable_eq A] := Mk (discrete_category A)
     context
-    instance discrete_category
+    attribute discrete_category [instance]
     include H
     theorem dicrete_category.endomorphism {a b : A} (f : a ⟶ b) : a = b :=
     decidable.rec_on (H a b) (λh f, h) (λh f, empty.rec _ f) f
@@ -125,8 +125,10 @@ namespace category
     notation 2 := Category_two
     postfix `ᵒᵖ`:max := opposite.Opposite
     infixr `×c`:30 := product.Prod_category
-    instance [persistent] type_category category_one
-                          category_two product.prod_category
+    persistent attribute type_category [instance]
+    persistent attribute category_one [instance]
+    persistent attribute category_two [instance]
+    persistent attribute product.prod_category [instance]
   end ops
 
   open ops
@@ -226,7 +228,7 @@ namespace category
 
   definition Slice_category [reducible] (C : Category) (c : C) := Mk (slice_category C c)
   open category.ops
-  instance [persistent] slice_category
+  persistent attribute slice_category [instance]
   variables {D : Category}
   definition forgetful (x : D) : (Slice_category D x) ⇒ D :=
   functor.mk (λ a, to_ob a)

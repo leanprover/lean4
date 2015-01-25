@@ -212,7 +212,7 @@ end is_equiv
 
 namespace equiv
 
-  instance [persistent] to_is_equiv
+  persistent attribute to_is_equiv [instance]
 
   infix `≃`:25 := equiv
 

@@ -11,7 +11,7 @@ mk : Π (id : Π (A : ob), mor A A),
 
 definition id (ob : Type) (mor : ob → ob → Type) (Cat : category ob mor) := category.rec (λ id idl, id) Cat
 
-reducible id
+attribute id [reducible]
 theorem id_left (ob : Type) (mor : ob → ob → Type) (Cat : category ob mor) (A : ob) (f : mor A A) :
      @eq (mor A A) (id ob mor Cat A) f :=
 @category.rec ob mor (λ (C : category ob mor), @eq (mor A A) (id ob mor C A) f)

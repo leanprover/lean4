@@ -6,7 +6,7 @@ context
   parameter {D₀ : Type}
   parameter (C  : precategory D₀)
   parameter (D₂ : Π ⦃a b c d : D₀⦄ (f : hom a b) (g : hom c d) (h : hom a c) (i : hom b d), Type)
-  reducible compose
+  attribute compose [reducible]
 
   definition comp₁_type [reducible]  : Type :=
   Π ⦃a b c₁ d₁ c₂ d₂ : D₀⦄

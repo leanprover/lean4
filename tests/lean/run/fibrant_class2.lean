@@ -3,13 +3,13 @@ fibrant_mk : fibrant T
 
 axiom pi_fibrant {A : Type} {B : A → Type} [C1 : fibrant A] [C2 : Πx : A, fibrant (B x)] :
   fibrant (Πx : A, B x)
-instance pi_fibrant
+attribute pi_fibrant [instance]
 
 inductive path {A : Type} [fA : fibrant A] (a : A) : A → Type :=
 idpath : path a a
 
 axiom path_fibrant {A : Type} [fA : fibrant A] (a b : A) : fibrant (path a b)
-instance [persistent] path_fibrant
+persistent attribute path_fibrant [instance]
 
 notation a ≈ b := path a b
 
@@ -26,7 +26,7 @@ definition test4 {A : Type} [fA : fibrant A] {x y z : A} :
   fibrant (x ≈ y → x ≈ z) := _
 
 axiom imp_fibrant {A : Type} {B : Type} [C1 : fibrant A] [C2 : fibrant B] : fibrant (A → B)
-instance imp_fibrant
+attribute imp_fibrant [instance]
 
 definition test5 {A : Type} [fA : fibrant A] {x y : A} :
 Π (z : A), y ≈ z → fibrant (x ≈ y → x ≈ z) := _

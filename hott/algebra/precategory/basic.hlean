@@ -14,13 +14,13 @@ structure precategory [class] (ob : Type) : Type :=
   (id_left : Π ⦃a b : ob⦄ (f : hom a b), comp !ID f = f)
   (id_right : Π ⦃a b : ob⦄ (f : hom a b), comp f !ID = f)
 
-multiple_instances [persistent] precategory
+persistent attribute precategory [multiple-instances]
 
 namespace precategory
   variables {ob : Type} [C : precategory ob]
   variables {a b c d : ob}
   include C
-  instance [persistent] homH
+  persistent attribute homH [instance]
 
   definition compose := comp
 

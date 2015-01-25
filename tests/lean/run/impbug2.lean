@@ -14,7 +14,7 @@ constant ob  : Type.{1}
 constant mor : ob → ob → Type.{1}
 constant Cat : category ob mor
 
-reducible id
+attribute id [reducible]
 theorem id_left (A : ob) (f : mor A A) : @eq (mor A A) (id ob mor Cat A) f :=
 @category.rec ob mor (λ (C : category ob mor), @eq (mor A A) (id ob mor C A) f)
   (λ (id  : Π (T : ob), mor T T)

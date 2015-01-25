@@ -1,6 +1,6 @@
 import data.nat.basic data.bool
 open bool nat
-reducible nat.rec_on
+attribute nat.rec_on [reducible]
 definition is_eq (a b : nat) : bool :=
 nat.rec_on a
   (λ b, nat.cases_on b tt (λb₁, ff))

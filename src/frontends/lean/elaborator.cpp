@@ -42,7 +42,6 @@ Author: Leonardo de Moura
 #include "library/definitional/equations.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/structure_cmd.h"
-#include "frontends/lean/class.h"
 #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/info_annotation.h"

@@ -3,7 +3,7 @@ prelude
 constant A : Type.{1}
 constant B : Type.{1}
 constant f : A → B
-coercion f
+attribute f [coercion]
 constant g : B → B → B
 constants a1 a2 a3 : A
 constants b1 b2 b3 : B

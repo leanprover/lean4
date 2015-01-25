@@ -17,7 +17,7 @@ definition pos_num_to_nat (n : pos_num) : nat
 := pos_num.rec one (λ n r, r + r) (λ n r, r + r + one) n
 definition num_to_nat (n : num) : nat
 := num.rec zero (λ n, pos_num_to_nat n) n
-coercion num_to_nat
+attribute num_to_nat [coercion]
 
 -- Now we can write 2 + 3, the coercion will be applied
 check 2 + 3

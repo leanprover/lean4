@@ -20,7 +20,7 @@ check foo a b
 check foo x y
 
 constant f : num → val
-coercion f
+attribute f [coercion]
 
 check foo a x
 check foo x y

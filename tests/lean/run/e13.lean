@@ -14,7 +14,7 @@ namespace int
   infixl + := add
   constant of_nat : nat → int
   namespace coercions
-    coercion of_nat
+attribute of_nat [coercion]
   end coercions
 end int
 

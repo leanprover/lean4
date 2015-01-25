@@ -42,7 +42,7 @@ inductive int : Type :=
   neg_succ_of_nat : nat → int
 
 notation `ℤ` := int
-coercion [persistent] int.of_nat
+persistent attribute int.of_nat [coercion]
 definition int.of_num [coercion] [reducible] (n : num) : ℤ := int.of_nat (nat.of_num n)
 
 namespace int
@@ -128,7 +128,7 @@ calc
     ... = of_nat (m - n) : rfl
 
 context
-reducible sub_nat_nat
+attribute sub_nat_nat [reducible]
 theorem sub_nat_nat_of_lt {m n : ℕ} (H : m < n) :
   sub_nat_nat m n = neg_succ_of_nat (pred (n - m)) :=
 have H1 : n - m = succ (pred (n - m)), from (succ_pred_of_pos (sub_pos_of_lt H))⁻¹,
@@ -282,7 +282,8 @@ calc
     ... = b : abstr_repr
 
 context
-reducible abstr dist
+attribute abstr [reducible]
+attribute dist [reducible]
 theorem nat_abs_abstr (p : ℕ × ℕ) : nat_abs (abstr p) = dist (pr1 p) (pr2 p) :=
 let m := pr1 p, n := pr2 p in
 or.elim (@le_or_gt n m)
@@ -463,7 +464,7 @@ have H3 : pabs (padd (repr a) (repr b)) ≤ pabs (repr a) + pabs (repr b),
 H⁻¹ ▸ H1⁻¹ ▸ H2⁻¹ ▸ H3
 
 context
-reducible nat_abs
+attribute nat_abs [reducible]
 theorem mul_nat_abs (a b : ℤ) : nat_abs (a * b) = #nat (nat_abs a) * (nat_abs b) :=
 cases_on a
   (take m,

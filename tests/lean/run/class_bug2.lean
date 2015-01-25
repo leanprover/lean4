@@ -8,7 +8,7 @@ mk : Π (comp : Π⦃A B C : ob⦄, mor B C → mor A B → mor A C)
            (Π {A B : ob} {f : mor A B}, comp f id = f) →
            (Π {A B : ob} {f : mor A B}, comp id f = f) →
             category ob mor
-class category
+attribute category [class]
 
 namespace category
 section sec_cat
@@ -16,7 +16,7 @@ section sec_cat
   inductive foo :=
   mk : A → foo
 
-  class foo
+  attribute foo [class]
   variables {ob : Type} {mor : ob → ob → Type} {Cat : category ob mor}
   definition compose := rec (λ comp id assoc idr idl, comp) Cat
   definition id := rec (λ comp id assoc idr idl, id) Cat

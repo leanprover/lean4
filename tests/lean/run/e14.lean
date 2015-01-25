@@ -31,7 +31,7 @@ check vector.rec
 definition vector_to_list {A : Type} {n : nat} (v : vector A n) : list A
 := vector.rec (@nil A) (fun (n : nat) (a : A) (v : vector A n) (l : list A), cons a l) v
 
-coercion vector_to_list
+attribute vector_to_list [coercion]
 
 constant f : forall {A : Type}, list A → nat
 

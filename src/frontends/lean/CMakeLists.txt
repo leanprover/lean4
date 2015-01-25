@@ -3,7 +3,7 @@ token_table.cpp scanner.cpp parse_table.cpp parser_config.cpp
 parser.cpp parser_pos_provider.cpp builtin_cmds.cpp builtin_exprs.cpp
 server.cpp notation_cmd.cpp calc.cpp decl_cmds.cpp util.cpp
 inductive_cmd.cpp elaborator.cpp dependencies.cpp parser_bindings.cpp
-begin_end_ext.cpp class.cpp tactic_hint.cpp pp.cpp theorem_queue.cpp
+begin_end_ext.cpp tactic_hint.cpp pp.cpp theorem_queue.cpp
 structure_cmd.cpp info_manager.cpp info_annotation.cpp find_cmd.cpp
 coercion_elaborator.cpp info_tactic.cpp proof_qed_elaborator.cpp
 init_module.cpp elaborator_context.cpp calc_proof_elaborator.cpp

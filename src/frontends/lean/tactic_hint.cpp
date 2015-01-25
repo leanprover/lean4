@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/cmd_table.h"
 #include "frontends/lean/parser.h"
-#include "frontends/lean/class.h"
 #include "frontends/lean/tokens.h"
 
 namespace lean {

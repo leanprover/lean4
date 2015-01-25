@@ -10,7 +10,7 @@ constant int_add : int → int → int
 infixl `+` := int_add
 
 constant of_nat : nat → int
-coercion of_nat
+attribute of_nat [coercion]
 
 constants a b : nat
 constants i j : int

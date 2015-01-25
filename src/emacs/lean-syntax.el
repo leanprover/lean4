@@ -8,15 +8,16 @@
 (require 'rx)
 
 (defconst lean-keywords
-  '("import" "prelude" "reducible" "irreducible" "tactic_hint" "protected" "private" "opaque" "definition" "renaming"
+  '("import" "prelude" "tactic_hint" "protected" "private" "opaque" "definition" "renaming"
     "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture" "constant" "constants"
     "hypothesis" "lemma" "corollary" "variable" "variables" "print" "theorem" "example"
     "context" "open" "as" "export" "axiom" "inductive" "with" "structure" "record" "universe" "universes"
     "alias" "help" "environment" "options" "precedence" "reserve" "postfix" "prefix"
     "calc_trans" "calc_subst" "calc_refl" "calc_symm" "match"
     "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end"
-    "using" "namespace" "instance" "class" "multiple_instances" "section" "fields" "find_decl"
-    "set_option" "add_rewrite" "extends" "include" "omit" "classes" "instances" "coercions" "raw")
+    "using" "namespace" "section" "fields" "find_decl"
+    "attribute" "persistent" "set_option" "add_rewrite" "extends" "include" "omit" "classes"
+    "instances" "coercions" "raw")
   "lean keywords")
 
 (defconst lean-syntax-table
@@ -116,7 +117,7 @@
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
      ;; modifiers
      (,(rx (or "\[persistent\]" "\[notation\]" "\[visible\]" "\[instance\]" "\[class\]" "\[parsing-only\]"
-               "\[coercion\]" "\[reducible\]" "\[off\]" "\[none\]" "\[on\]" "\[wf\]" "\[whnf\]"
+               "\[coercion\]" "\[reducible\]" "\[irreducible\]" "\[wf\]" "\[whnf\]" "\[multiple-instances\]"
                "\[decls\]" "\[strict\]" "\[local\]" "\[coercions\]" "\[classes\]" "\[notations\]" "\[tactic_hints\]" "\[reduce_hints\]"))
       . 'font-lock-doc-face)
      (,(rx "\[priority" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)

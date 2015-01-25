@@ -35,7 +35,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/find_cmd.h"
 #include "frontends/lean/begin_end_ext.h"
 #include "frontends/lean/decl_cmds.h"
-#include "frontends/lean/class.h"
 #include "frontends/lean/tactic_hint.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/parse_table.h"
@@ -536,72 +535,6 @@ environment open_export_cmd(parser & p, bool open) {
 environment open_cmd(parser & p) { return open_export_cmd(p, true); }
 environment export_cmd(parser & p) { return open_export_cmd(p, false); }
 
-environment coercion_cmd(parser & p) {
-    if (in_context_or_parametric_section(p))
-        throw parser_error("invalid 'coercion' command, coercions cannot be defined in contexts or "
-                           "sections containing parameters", p.pos());
-    bool persistent = false;
-    parse_persistent(p, persistent);
-    name f   = p.check_constant_next("invalid 'coercion' command, constant expected");
-    if (p.curr_is_token(get_colon_tk())) {
-        p.next();
-        name C = p.check_constant_next("invalid 'coercion' command, constant expected");
-        return add_coercion(p.env(), f, C, p.ios(), persistent);
-    } else {
-        return add_coercion(p.env(), f, p.ios(), persistent);
-    }
-}
-
-static void parse_reducible_modifiers(parser & p, reducible_status & status, bool & persistent) {
-    while (true) {
-        if (parse_persistent(p, persistent)) {
-        } else if (p.curr_is_token_or_id(get_on_tk())) {
-            p.next();
-            status = reducible_status::On;
-        } else if (p.curr_is_token_or_id(get_off_tk())) {
-            p.next();
-            status = reducible_status::Off;
-        } else if (p.curr_is_token_or_id(get_none_tk())) {
-            p.next();
-            status = reducible_status::None;
-        } else {
-            break;
-        }
-    }
-}
-
-environment reducible_cmd(parser & p) {
-    environment env         = p.env();
-    reducible_status status = reducible_status::On;
-    bool persistent         = false;
-    parse_reducible_modifiers(p, status, persistent);
-    bool found = false;
-    while (p.curr_is_identifier()) {
-        name c = p.check_constant_next("invalid 'reducible' command, constant expected");
-        found   = true;
-        env = set_reducible(env, c, status, persistent);
-    }
-    if (!found)
-        throw exception("invalid empty 'reducible' command");
-    return env;
-}
-
-environment irreducible_cmd(parser & p) {
-    environment env         = p.env();
-    reducible_status status = reducible_status::Off;
-    bool persistent         = false;
-    parse_persistent(p, persistent);
-    bool found = false;
-    while (p.curr_is_identifier()) {
-        name c = p.check_constant_next("invalid 'irreducible' command, constant expected");
-        found   = true;
-        env = set_reducible(env, c, status, persistent);
-    }
-    if (!found)
-        throw exception("invalid empty 'irreducible' command");
-    return env;
-}
-
 environment erase_cache_cmd(parser & p) {
     name n = p.check_id_next("invalid #erase_cache command, identifier expected");
     p.erase_cached_definition(n);
@@ -656,9 +589,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("end",           "close the current namespace/section", end_scoped_cmd));
     add_cmd(r, cmd_info("check",         "type check given expression, and display its type", check_cmd));
     add_cmd(r, cmd_info("eval",          "evaluate given expression", eval_cmd));
-    add_cmd(r, cmd_info("coercion",      "add a new coercion", coercion_cmd));
-    add_cmd(r, cmd_info("reducible",     "mark definitions as reducible/irreducible for automation", reducible_cmd));
-    add_cmd(r, cmd_info("irreducible",   "mark definitions as irreducible for automation", irreducible_cmd));
     add_cmd(r, cmd_info("find_decl",     "find definitions and/or theorems", find_cmd));
     add_cmd(r, cmd_info("#erase_cache",  "erase cached definition (for debugging purposes)", erase_cache_cmd));
     add_cmd(r, cmd_info("#projections",  "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
@@ -670,7 +600,6 @@ void init_cmd_table(cmd_table & r) {
     register_notation_cmds(r);
     register_calc_cmds(r);
     register_begin_end_cmds(r);
-    register_class_cmds(r);
     register_tactic_hint_cmd(r);
 }
 

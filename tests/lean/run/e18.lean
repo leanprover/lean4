@@ -11,7 +11,7 @@ inductive int : Type :=
 of_nat : nat → int,
 neg : nat → int
 
-coercion int.of_nat
+attribute int.of_nat [coercion]
 
 constants n m : nat
 constants i j : int

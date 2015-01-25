@@ -13,7 +13,8 @@ theorem inhabited_t1 : inhabited t1
 theorem inhabited_t2 : inhabited t2
 := inhabited.mk t2.mk2
 
-instance inhabited_t1 inhabited_t2
+attribute inhabited_t1 [instance]
+attribute inhabited_t2 [instance]
 
 theorem T : inhabited (t1 × t2)
 := _

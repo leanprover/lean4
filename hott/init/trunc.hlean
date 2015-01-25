@@ -188,7 +188,7 @@ namespace truncation
 
   structure trunctype (n : trunc_index) :=
   (trunctype_type : Type) (is_trunc_trunctype_type : is_trunc n trunctype_type)
-  coercion trunctype.trunctype_type
+  attribute trunctype.trunctype_type [coercion]
 
   notation n `-Type` := trunctype n
   notation `hprop` := -1-Type

@@ -14,7 +14,7 @@ open N1
 open N2
 constants a b : num
 constant f : num → val
-coercion f
+attribute f [coercion]
 
 definition aux2 := foo a b
 check aux2

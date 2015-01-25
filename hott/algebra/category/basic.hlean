@@ -12,7 +12,7 @@ open precategory morphism is_equiv eq truncation nat sigma sigma.ops
 structure category [class] (ob : Type) extends (precategory ob) :=
   (iso_of_path_equiv : Π {a b : ob}, is_equiv (@iso_of_path ob (precategory.mk hom _ comp ID assoc id_left id_right) a b))
 
-multiple_instances [persistent] category
+persistent attribute category [multiple-instances]
 
 namespace category
   variables {ob : Type} {C : category ob} {a b : ob}
@@ -20,7 +20,7 @@ namespace category
 
   -- Make iso_of_path_equiv a class instance
   -- TODO: Unsafe class instance?
-  instance [persistent] iso_of_path_equiv
+  persistent attribute iso_of_path_equiv [instance]
 
   definition path_of_iso {a b : ob} : a ≅ b → a = b :=
   iso_of_path⁻¹

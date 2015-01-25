@@ -21,7 +21,7 @@ mk : Π (A : Type), group_struct A → group
 definition carrier (g : group) : Type
 := group.rec (λ c s, c) g
 
-coercion carrier
+attribute carrier [coercion]
 
 definition group_to_struct [instance] (g : group) : group_struct (carrier g)
 := group.rec (λ (A : Type) (s : group_struct A), s) g

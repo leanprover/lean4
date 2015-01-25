@@ -10,7 +10,8 @@ import logic.eq
 open eq eq.ops decidable
 
 namespace bool
-  reducible bor band rec_on
+  attribute bor [reducible]
+  attribute band [reducible]
 
   theorem dichotomy (b : bool) : b = ff ∨ b = tt :=
   cases_on b (or.inl rfl) (or.inr rfl)

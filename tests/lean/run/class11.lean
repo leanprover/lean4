@@ -1,7 +1,7 @@
 import logic
 
 constant C {A : Type} : A → Prop
-class C
+attribute C [class]
 
 constant f {A : Type} (a : A) [H : C a] : Prop
 

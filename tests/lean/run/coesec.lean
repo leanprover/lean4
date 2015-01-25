@@ -5,5 +5,5 @@ section
   variables {A B : Type}
   definition to_function (F : func A B) : A → B :=
   func.rec (λf, f) F
-  coercion to_function
+  attribute to_function [coercion]
 end

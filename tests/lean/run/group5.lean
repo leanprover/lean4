@@ -78,26 +78,26 @@ structure comm_monoid [class] (A : Type) extends monoid A, comm_semigroup A
 structure Semigroup :=
 (carrier : Type) (struct : semigroup carrier)
 
-coercion [persistent] Semigroup.carrier
-instance [persistent] Semigroup.struct
+persistent attribute Semigroup.carrier [coercion]
+persistent attribute Semigroup.struct [instance]
 
 structure CommSemigroup :=
 (carrier : Type) (struct : comm_semigroup carrier)
 
-coercion [persistent] CommSemigroup.carrier
-instance [persistent] CommSemigroup.struct
+persistent attribute CommSemigroup.carrier [coercion]
+persistent attribute CommSemigroup.struct [instance]
 
 structure Monoid :=
 (carrier : Type) (struct : monoid carrier)
 
-coercion [persistent] Monoid.carrier
-instance [persistent] Monoid.struct
+persistent attribute Monoid.carrier [coercion]
+persistent attribute Monoid.struct [instance]
 
 structure CommMonoid :=
 (carrier : Type) (struct : comm_monoid carrier)
 
-coercion [persistent] CommMonoid.carrier
-instance [persistent] CommMonoid.struct
+persistent attribute CommMonoid.carrier [coercion]
+persistent attribute CommMonoid.struct [instance]
 
 end algebra
 

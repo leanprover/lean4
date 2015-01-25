@@ -61,7 +61,7 @@ list_induction_on t (refl _)
   (take (x : T) (l : list T) (H : concat l nil = l),
     H ▸ (refl (cons x (concat l nil))))
 
-reducible concat
+attribute concat [reducible]
 theorem concat_nil2 (t : list T) : t ++ nil = t :=
 list_induction_on t (refl _)
   (take (x : T) (l : list T) (H : concat l nil = l),

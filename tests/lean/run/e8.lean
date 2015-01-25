@@ -13,7 +13,7 @@ namespace int
   constant add : int → int → int
   infixl + := add
   constant of_nat : nat → int
-  coercion of_nat
+attribute of_nat [coercion]
 end int
 
 -- Open "only" the notation and declarations from the namespaces nat and int

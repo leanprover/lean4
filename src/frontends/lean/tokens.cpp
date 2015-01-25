@@ -81,9 +81,12 @@ static name * g_instance     = nullptr;
 static name * g_priority     = nullptr;
 static name * g_coercion     = nullptr;
 static name * g_reducible    = nullptr;
+static name * g_irreducible  = nullptr;
 static name * g_parsing_only = nullptr;
 static name * g_with         = nullptr;
 static name * g_class        = nullptr;
+static name * g_multiple_instances = nullptr;
+static name * g_attribute    = nullptr;
 static name * g_prev         = nullptr;
 static name * g_scoped       = nullptr;
 static name * g_foldr        = nullptr;
@@ -178,9 +181,12 @@ void initialize_tokens() {
     g_priority     = new name("[priority");
     g_coercion     = new name("[coercion]");
     g_reducible    = new name("[reducible]");
+    g_irreducible  = new name("[irreducible]");
     g_parsing_only = new name("[parsing-only]");
+    g_attribute    = new name("attribute");
     g_with         = new name("with");
     g_class        = new name("[class]");
+    g_multiple_instances = new name("[multiple-instances]");
     g_prev         = new name("prev");
     g_scoped       = new name("scoped");
     g_foldr        = new name("foldr");
@@ -234,6 +240,9 @@ void finalize_tokens() {
     delete g_priority;
     delete g_coercion;
     delete g_reducible;
+    delete g_irreducible;
+    delete g_multiple_instances;
+    delete g_attribute;
     delete g_parsing_only;
     delete g_in;
     delete g_assign;
@@ -373,6 +382,9 @@ name const & get_instance_tk() { return *g_instance; }
 name const & get_priority_tk() { return *g_priority; }
 name const & get_coercion_tk() { return *g_coercion; }
 name const & get_reducible_tk() { return *g_reducible; }
+name const & get_irreducible_tk() { return *g_irreducible; }
+name const & get_multiple_instances_tk() { return *g_multiple_instances; }
+name const & get_attribute_tk() { return *g_attribute; }
 name const & get_parsing_only_tk() { return *g_parsing_only; }
 name const & get_class_tk() { return *g_class; }
 name const & get_with_tk() { return *g_with; }

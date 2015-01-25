@@ -74,20 +74,20 @@ constant dvd : Π (x y : nat) {H : not_zero y}, nat
 constants a b : nat
 
 set_option pp.implicit true
-reducible add
+attribute add [reducible]
 check dvd a (succ b)
 check (λ H : not_zero b, dvd a b)
 check (succ zero)
 check a + (succ zero)
 check dvd a (a + (succ b))
 
-reducible [off] add
+attribute add [irreducible]
 check dvd a (a + (succ b))
 
-reducible add
+attribute add [reducible]
 check dvd a (a + (succ b))
 
-reducible [off] add
+attribute add [irreducible]
 check dvd a (a + (succ b))
 
 end nat

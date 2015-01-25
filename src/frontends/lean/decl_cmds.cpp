@@ -12,7 +12,9 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "library/scoped_ext.h"
 #include "library/aliases.h"
+#include "library/num.h"
 #include "library/private.h"
+#include "library/normalize.h"
 #include "library/protected.h"
 #include "library/placeholder.h"
 #include "library/locals.h"
@@ -23,7 +25,6 @@ Author: Leonardo de Moura
 #include "library/unfold_macros.h"
 #include "library/definitional/equations.h"
 #include "frontends/lean/parser.h"
-#include "frontends/lean/class.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
 
@@ -269,15 +270,45 @@ static environment constants_cmd(parser & p) {
     return variables_cmd_core(p, variable_kind::Constant);
 }
 
-struct decl_modifiers {
+struct decl_attributes {
+    bool               m_def_only; // if true only definition attributes are allowed
     bool               m_is_instance;
     bool               m_is_coercion;
     bool               m_is_reducible;
+    bool               m_is_irreducible;
+    bool               m_is_class;
+    bool               m_has_multiple_instances;
     optional<unsigned> m_priority;
-    decl_modifiers():m_priority() {
-        m_is_instance  = false;
-        m_is_coercion  = false;
-        m_is_reducible = false;
+
+    decl_attributes(bool def_only = true):m_priority() {
+        m_def_only               = def_only;
+        m_is_instance            = false;
+        m_is_coercion            = false;
+        m_is_reducible           = false;
+        m_is_irreducible         = false;
+        m_is_class               = false;
+        m_has_multiple_instances = false;
+    }
+
+    optional<unsigned> parse_instance_priority(parser & p) {
+        if (p.curr_is_token(get_priority_tk())) {
+            p.next();
+            auto pos = p.pos();
+            environment env = open_priority_aliases(open_num_notation(p.env()));
+            parser::local_scope scope(p, env);
+            expr val = p.parse_expr();
+            val = normalize(p.env(), val);
+            if (optional<mpz> mpz_val = to_num(val)) {
+                if (!mpz_val->is_unsigned_int())
+                    throw parser_error("invalid 'priority', argument does not fit in a machine integer", pos);
+                p.check_token_next(get_rbracket_tk(), "invalid 'priority', ']' expected");
+                return optional<unsigned>(mpz_val->get_unsigned_int());
+            } else {
+                throw parser_error("invalid 'priority', argument does not evaluate to a numeral", pos);
+            }
+        } else {
+            return optional<unsigned>();
+        }
     }
 
     void parse(parser & p) {
@@ -290,19 +321,60 @@ struct decl_modifiers {
                 auto pos = p.pos();
                 p.next();
                 if (in_context(p.env()))
-                    throw parser_error("invalid '[coercion]' modifier, coercions cannot be defined in contexts", pos);
+                    throw parser_error("invalid '[coercion]' attribute, coercions cannot be defined in contexts", pos);
                 m_is_coercion = true;
             } else if (p.curr_is_token(get_reducible_tk())) {
+                if (m_is_irreducible)
+                    throw parser_error("invalid '[reducible]' attribute, '[irreducible]' was already provided", pos);
                 m_is_reducible = true;
+                p.next();
+            } else if (p.curr_is_token(get_irreducible_tk())) {
+                if (m_is_reducible)
+                    throw parser_error("invalid '[irreducible]' attribute, '[reducible]' was already provided", pos);
+                m_is_irreducible = true;
+                p.next();
+            } else if (p.curr_is_token(get_class_tk())) {
+                if (m_def_only)
+                    throw parser_error("invalid '[class]' attribute, definitions cannot be marked as classes", pos);
+                m_is_class = true;
+                p.next();
+            } else if (p.curr_is_token(get_multiple_instances_tk())) {
+                if (m_def_only)
+                    throw parser_error("invalid '[multiple-instances]' attribute, only classes can have this attribute", pos);
+                m_has_multiple_instances = true;
                 p.next();
             } else if (auto it = parse_instance_priority(p)) {
                 m_priority = *it;
                 if (!m_is_instance)
-                    throw parser_error("invalid '[priority]' occurrence, declaration must be marked as an '[instance]'", pos);
+                    throw parser_error("invalid '[priority]' attribute, declaration must be marked as an '[instance]'", pos);
             } else {
                 break;
             }
         }
+    }
+
+    environment apply(environment env, io_state const & ios, name const & d, bool persistent) {
+        if (m_is_instance) {
+            if (m_priority) {
+                #if defined(__GNUC__) && !defined(__CLANG__)
+                #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+                #endif
+                env = add_instance(env, d, *m_priority, persistent);
+            } else {
+                env = add_instance(env, d, persistent);
+            }
+        }
+        if (m_is_coercion)
+            env = add_coercion(env, d, ios, persistent);
+        if (m_is_reducible)
+            env = set_reducible(env, d, reducible_status::On, persistent);
+        if (m_is_irreducible)
+            env = set_reducible(env, d, reducible_status::Off, persistent);
+        if (m_is_class)
+            env = add_class(env, d, persistent);
+        if (m_has_multiple_instances)
+            env = mark_multiple_instances(env, d, persistent);
+        return env;
     }
 };
 
@@ -519,7 +591,7 @@ class definition_cmd_fn {
     pos_info          m_pos;
 
     name              m_name;
-    decl_modifiers    m_modifiers;
+    decl_attributes   m_attributes;
     name              m_real_name; // real name for this declaration
     buffer<name>      m_ls_buffer;
     buffer<name>      m_aux_decls; // user provided names for aux_decls
@@ -550,7 +622,7 @@ class definition_cmd_fn {
         parse_univ_params(m_p, m_ls_buffer);
 
         // Parse modifiers
-        m_modifiers.parse(m_p);
+        m_attributes.parse(m_p);
 
         if (m_p.curr_is_token(get_assign_tk())) {
             auto pos = m_p.pos();
@@ -702,25 +774,12 @@ class definition_cmd_fn {
             // TODO(Leo): register aux_decls
             if (!m_is_private)
                 m_p.add_decl_index(real_n, m_pos, m_p.get_cmd_token(), type);
-            if (n != real_n)
-                m_env = add_expr_alias_rec(m_env, n, real_n);
-            if (m_modifiers.m_is_instance) {
-                bool persistent = true;
-                if (m_modifiers.m_priority) {
-                    #if defined(__GNUC__) && !defined(__CLANG__)
-                    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-                    #endif
-                    m_env = add_instance(m_env, real_n, *m_modifiers.m_priority, persistent);
-                } else {
-                    m_env = add_instance(m_env, real_n, persistent);
-                }
-            }
-            if (m_modifiers.m_is_coercion)
-                m_env = add_coercion(m_env, real_n, m_p.ios());
             if (m_is_protected)
                 m_env = add_protected(m_env, real_n);
-            if (m_modifiers.m_is_reducible)
-                m_env = set_reducible(m_env, real_n, reducible_status::On);
+            if (n != real_n)
+                m_env = add_expr_alias_rec(m_env, n, real_n);
+            bool persistent = true;
+            m_env = m_attributes.apply(m_env, m_p.ios(), real_n, persistent);
         }
     }
 
@@ -947,6 +1006,23 @@ static environment omit_cmd(parser & p) {
     return include_cmd_core(p, false);
 }
 
+static environment attribute_cmd_core(parser & p, bool persistent) {
+    name d          = p.check_constant_next("invalid 'attribute' command, constant expected");
+    bool decl_only  = false;
+    decl_attributes attributes(decl_only);
+    attributes.parse(p);
+    return attributes.apply(p.env(), p.ios(), d, persistent);
+}
+
+static environment attribute_cmd(parser & p) {
+    return attribute_cmd_core(p, false);
+}
+
+static environment persistent_attribute_cmd(parser & p) {
+    p.check_token_next(get_attribute_tk(), "invalid command, 'attribute' expected");
+    return attribute_cmd_core(p, true);
+}
+
 void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("universe",     "declare a universe level", universe_cmd));
     add_cmd(r, cmd_info("universes",    "declare universe levels", universes_cmd));
@@ -964,6 +1040,8 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("protected",    "add new protected definition/theorem", protected_definition_cmd));
     add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));
     add_cmd(r, cmd_info("include",      "force section parameter/variable to be included", include_cmd));
+    add_cmd(r, cmd_info("attribute",    "set declaration attributes", attribute_cmd));
+    add_cmd(r, cmd_info("persistent",   "set declaration attributes (the value is saved in .olean files)", persistent_attribute_cmd));
     add_cmd(r, cmd_info("omit",         "undo 'include' command", omit_cmd));
 }
 }

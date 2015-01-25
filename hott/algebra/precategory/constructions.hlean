@@ -110,7 +110,7 @@ namespace precategory
     infixr `×c`:30 := product.Prod_precategory
     --instance [persistent] type_category category_one
     --                      category_two product.prod_category
-    instance [persistent] product.prod_precategory
+    persistent attribute product.prod_precategory [instance]
 
   end ops
 

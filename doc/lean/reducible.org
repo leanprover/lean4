@@ -58,42 +58,28 @@ The following command declares a transparent definition =pr= and mark it as redu
 definition pr1 [reducible] (A : Type) (a b : A) : A := a
 #+END_SRC
 
-The =reducible= mark is saved in the compiled .olean files.  The user
-can temporarily change the =reducible= and =irreducible= marks using
-the following commands. The temporary modification is effective only in the
+The =reducible= attribute is saved in the compiled .olean files.  The user
+can temporarily change the =reducible= and =irreducible= attributes using
+the =attribute= command. The temporary modification is effective only in the
 current file, and is not saved in the produced .olean file.
 
 #+BEGIN_SRC lean
   definition id (A : Type) (a : A) : A := a
   definition pr2 (A : Type) (a b : A) : A := b
   -- mark pr2 as reducible
-  reducible pr2
+  attribute pr2 [reducible]
   -- ...
   -- mark id and pr2 as irreducible
-  irreducible id pr2
+  attribute id [irreducible]
+  attribute pr2 [irreducible]
 #+END_SRC
 
-The annotation =[persistent]= can be used to instruct Lean to make the
+The command =persistent attribute= can be used to instruct Lean to make the
 modification permanent, and save it in the .olean file.
 
 #+BEGIN_SRC lean
   definition pr2 (A : Type) (a b : A) : A := b
   -- Mark pr2 as irreducible.
   -- The modification will affect modules that import this one.
-  irreducible [persistent] pr2
+  persistent attribute pr2 [irreducible]
 #+END_SRC
-
-The reducible and irreducible annotations can be removed using the modifier =[none]=.
-
-#+BEGIN_SRC lean
-  definition pr2 (A : Type) (a b : A) : A := b
-
-  -- temporarily remove any reducible and irreducible annotation from pr2
-  reducible [none] pr2
-
-  -- permanently remove any reducible and irreducible annotation from pr2
-  reducible [persistent] [none] pr2
-#+END_SRC
-
-Finally, the command =irreducible= is syntax sugar for =reducible [off]=.
-The commands =reducible= and =reducible [on]= are equivalent.

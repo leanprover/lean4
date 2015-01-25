@@ -142,7 +142,7 @@ namespace sigma
     apply dpair_eq_dpair_pp_pp
   end
 
-  reducible dpair_eq_dpair
+  attribute dpair_eq_dpair [reducible]
   definition dpair_eq_dpair_p1_1p (p : a = a') (q : p ▹ b = b') :
       dpair_eq_dpair p q = dpair_eq_dpair p idp ⬝ dpair_eq_dpair idp q :=
   begin
@@ -285,7 +285,8 @@ namespace sigma
   equiv.mk (functor f g) !is_equiv_functor
 
   context --remove
-  irreducible inv function.compose --remove
+  attribute inv [irreducible]
+  attribute function.compose [irreducible] --remove
   definition equiv_functor (Hf : A ≃ A') (Hg : Π a, B a ≃ B' (to_fun Hf a)) :
       (Σa, B a) ≃ (Σa', B' a') :=
   equiv_functor_of_is_equiv (to_fun Hf) (λ a, to_fun (Hg a))

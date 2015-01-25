@@ -3,7 +3,7 @@ namespace experiment
 constant nat : Type.{1}
 constant int : Type.{1}
 constant of_nat : nat → int
-coercion of_nat
+attribute of_nat [coercion]
 
 theorem tst (n : nat) : n = n :=
 have H : true, from trivial,

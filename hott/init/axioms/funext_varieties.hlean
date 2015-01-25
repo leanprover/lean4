@@ -85,7 +85,7 @@ context
     @transport _ (λ gh, Q (pr1 gh) (pr2 gh)) (sigma.mk f idhtpy) (sigma.mk g h)
       (@path_contr _ contr_basedhtpy _ _) d
 
-  reducible htpy_ind
+  attribute htpy_ind [reducible]
   definition htpy_ind_beta : htpy_ind f idhtpy = d :=
     (@path2_contr _ _ _ _ !path_contr idp)⁻¹ ▹ idp
 

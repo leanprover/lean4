@@ -150,7 +150,8 @@ le.intro !zero_add
 section
   open [classes] algebra
 
-  protected definition linear_ordered_semiring [instance] : algebra.linear_ordered_semiring nat :=
+  protected definition linear_ordered_semiring [instance] [reducible] :
+    algebra.linear_ordered_semiring nat :=
   ⦃ algebra.linear_ordered_semiring, nat.comm_semiring,
     add_left_cancel            := @add.cancel_left,
     add_right_cancel           := @add.cancel_right,

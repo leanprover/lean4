@@ -214,14 +214,15 @@ lt.intro
 section
   open [classes] algebra
 
-  protected definition linear_ordered_comm_ring [instance] : algebra.linear_ordered_comm_ring int :=
+  protected definition linear_ordered_comm_ring [instance] [reducible] :
+    algebra.linear_ordered_comm_ring int :=
   algebra.linear_ordered_comm_ring.mk add add.assoc zero zero_add add_zero neg add.left_inv
     add.comm mul mul.assoc (of_num 1) one_mul mul_one mul.left_distrib mul.right_distrib
     zero_ne_one le le.refl @le.trans @le.antisymm lt lt_iff_le_and_ne @add_le_add_left
     @mul_nonneg @mul_pos le_iff_lt_or_eq le.total mul.comm
 
 
-  protected definition decidable_linear_ordered_comm_ring [instance] :
+  protected definition decidable_linear_ordered_comm_ring [instance] [reducible] :
     algebra.decidable_linear_ordered_comm_ring int :=
   ⦃algebra.decidable_linear_ordered_comm_ring,
     int.linear_ordered_comm_ring,

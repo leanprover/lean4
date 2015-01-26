@@ -611,7 +611,7 @@ or_of_or_of_imp_of_imp H3
 section
   open [classes] algebra
 
-  protected definition integral_domain [instance] : algebra.integral_domain int :=
+  protected definition integral_domain [instance] [reducible] : algebra.integral_domain int :=
   algebra.integral_domain.mk add add.assoc zero zero_add add_zero neg add.left_inv
   add.comm mul mul.assoc (of_num 1) one_mul mul_one mul.left_distrib mul.right_distrib
   zero_ne_one mul.comm @eq_zero_or_eq_zero_of_mul_eq_zero

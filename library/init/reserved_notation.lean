@@ -20,10 +20,19 @@ notation `take`   binders `,` r:(scoped f, f) := r
   When hovering over a symbol, use "C-u C-x =" to see how to input it.
 -/
 
-/- Logical operations and relations -/
-
-definition std.prec.max   : num := 1024 -- reflects max precedence used internally
+definition std.prec.max   : num := 1024 -- the strength of application, identifiers, (, [, etc.
 definition std.prec.arrow : num := 25
+
+/-
+The next definition is "max + 10". It can be used e.g. for postfix operations that should
+be stronger than application.
+-/
+
+definition std.prec.max_plus :=
+num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ
+  (num.succ std.prec.max)))))))))
+
+/- Logical operations and relations -/
 
 reserve prefix `¬`:40
 reserve prefix `~`:40
@@ -38,8 +47,9 @@ reserve infix `≠`:50
 reserve infix `≈`:50
 reserve infix `∼`:50
 
-reserve infixr `∘`:60      -- input with \comp
-reserve postfix `⁻¹`:100  --input with \sy or \-1 or \inv
+reserve infixr `∘`:60                   -- input with \comp
+reserve postfix `⁻¹`:std.prec.max_plus  -- input with \sy or \-1 or \inv
+
 reserve infixl `⬝`:75
 reserve infixr `▸`:75
 

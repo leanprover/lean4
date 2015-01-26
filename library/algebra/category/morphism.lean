@@ -96,7 +96,7 @@ namespace morphism
   theorem section_of_id : section_of (ID a) = id :=
   section_eq_intro !id_compose
 
-  theorem iso_of_id : ID a⁻¹ = id :=
+  theorem iso_of_id : (ID a)⁻¹ = id :=
   inverse_eq_intro_left !id_compose
 
   theorem composition_is_section [instance] [Hf : is_section f] [Hg : is_section g]
@@ -215,17 +215,17 @@ namespace morphism
       ... = g : id_left g
   theorem compose_pp_V : (r ∘ q) ∘ q⁻¹ = r :=
   calc
-    (r ∘ q) ∘ q⁻¹ = r ∘ q ∘ q⁻¹ : assoc r q (q⁻¹)⁻¹
+    (r ∘ q) ∘ q⁻¹ = r ∘ q ∘ q⁻¹ : (assoc r q (q⁻¹))⁻¹
       ... = r ∘ id : {compose_inverse q}
       ... = r : id_right r
   theorem compose_pV_p : (f ∘ q⁻¹) ∘ q = f :=
   calc
-    (f ∘ q⁻¹) ∘ q = f ∘ q⁻¹ ∘ q : assoc f (q⁻¹) q⁻¹
+    (f ∘ q⁻¹) ∘ q = f ∘ q⁻¹ ∘ q : (assoc f (q⁻¹) q)⁻¹
       ... = f ∘ id : {inverse_compose q}
       ... = f : id_right f
 
   theorem inv_pp [H' : is_iso p] : (q ∘ p)⁻¹ = p⁻¹ ∘ q⁻¹ :=
-  have H1 : (p⁻¹ ∘ q⁻¹) ∘ q ∘ p = p⁻¹ ∘ (q⁻¹ ∘ (q ∘ p)), from assoc (p⁻¹) (q⁻¹) (q ∘ p)⁻¹,
+  have H1 : (p⁻¹ ∘ q⁻¹) ∘ q ∘ p = p⁻¹ ∘ (q⁻¹ ∘ (q ∘ p)), from (assoc (p⁻¹) (q⁻¹) (q ∘ p))⁻¹,
   have H2 : (p⁻¹) ∘ (q⁻¹ ∘ (q ∘ p)) = p⁻¹ ∘ p, from congr_arg _ (compose_V_pp q p),
   have H3 : p⁻¹ ∘ p = id, from inverse_compose p,
   inverse_eq_intro_left (H1 ⬝ H2 ⬝ H3)
@@ -253,18 +253,18 @@ namespace morphism
   theorem moveR_pM (H : w = f ∘ q⁻¹) : w ∘ q = f := H⁻¹ ▸ compose_pV_p f q
   theorem moveR_Vp (H : z = q ∘ p) : q⁻¹ ∘ z = p := H⁻¹ ▸ compose_V_pp q p
   theorem moveR_pV (H : x = r ∘ q) : x ∘ q⁻¹ = r := H⁻¹ ▸ compose_pp_V r q
-  theorem moveL_Mp (H : q⁻¹ ∘ g = y) : g = q ∘ y := moveR_Mp (H⁻¹)⁻¹
-  theorem moveL_pM (H : f ∘ q⁻¹ = w) : f = w ∘ q := moveR_pM (H⁻¹)⁻¹
-  theorem moveL_Vp (H : q ∘ p = z) : p = q⁻¹ ∘ z := moveR_Vp (H⁻¹)⁻¹
-  theorem moveL_pV (H : r ∘ q = x) : r = x ∘ q⁻¹ := moveR_pV (H⁻¹)⁻¹
-  theorem moveL_1V (H : h ∘ q = id) : h = q⁻¹ := inverse_eq_intro_left H⁻¹
-  theorem moveL_V1 (H : q ∘ h = id) : h = q⁻¹ := inverse_eq_intro_right H⁻¹
+  theorem moveL_Mp (H : q⁻¹ ∘ g = y) : g = q ∘ y := (moveR_Mp (H⁻¹))⁻¹
+  theorem moveL_pM (H : f ∘ q⁻¹ = w) : f = w ∘ q := (moveR_pM (H⁻¹))⁻¹
+  theorem moveL_Vp (H : q ∘ p = z) : p = q⁻¹ ∘ z := (moveR_Vp (H⁻¹))⁻¹
+  theorem moveL_pV (H : r ∘ q = x) : r = x ∘ q⁻¹ := (moveR_pV (H⁻¹))⁻¹
+  theorem moveL_1V (H : h ∘ q = id) : h = q⁻¹ := (inverse_eq_intro_left H)⁻¹
+  theorem moveL_V1 (H : q ∘ h = id) : h = q⁻¹ := (inverse_eq_intro_right H)⁻¹
   theorem moveL_1M (H : i ∘ q⁻¹ = id) : i = q := moveL_1V H ⬝ inverse_involutive q
   theorem moveL_M1 (H : q⁻¹ ∘ i = id) : i = q := moveL_V1 H ⬝ inverse_involutive q
-  theorem moveR_1M (H : id = i ∘ q⁻¹) : q = i := moveL_1M (H⁻¹)⁻¹
-  theorem moveR_M1 (H : id = q⁻¹ ∘ i) : q = i := moveL_M1 (H⁻¹)⁻¹
-  theorem moveR_1V (H : id = h ∘ q) : q⁻¹ = h := moveL_1V (H⁻¹)⁻¹
-  theorem moveR_V1 (H : id = q ∘ h) : q⁻¹ = h := moveL_V1 (H⁻¹)⁻¹
+  theorem moveR_1M (H : id = i ∘ q⁻¹) : q = i := (moveL_1M (H⁻¹))⁻¹
+  theorem moveR_M1 (H : id = q⁻¹ ∘ i) : q = i := (moveL_M1 (H⁻¹))⁻¹
+  theorem moveR_1V (H : id = h ∘ q) : q⁻¹ = h := (moveL_1V (H⁻¹))⁻¹
+  theorem moveR_V1 (H : id = q ∘ h) : q⁻¹ = h := (moveL_V1 (H⁻¹))⁻¹
   end
   end iso
 

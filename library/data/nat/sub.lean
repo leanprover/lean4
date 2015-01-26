@@ -241,9 +241,9 @@ theorem sub_sub.cases {P : ℕ → ℕ → Prop} {n m : ℕ} (H1 : ∀k, n = m +
   (H2 : ∀k, m = n + k → P 0 k) : P (n - m) (m - n) :=
 or.elim !le.total
   (assume H3 : n ≤ m,
-    sub_eq_zero_of_le H3⁻¹ ▸  (H2 (m - n) (add_sub_of_le H3⁻¹)))
+    (sub_eq_zero_of_le H3)⁻¹ ▸  (H2 (m - n) (add_sub_of_le H3)⁻¹))
   (assume H3 : m ≤ n,
-    sub_eq_zero_of_le H3⁻¹ ▸ (H1 (n - m) (add_sub_of_le H3⁻¹)))
+    (sub_eq_zero_of_le H3)⁻¹ ▸ (H1 (n - m) (add_sub_of_le H3)⁻¹))
 
 theorem sub_eq_of_add_eq {n m k : ℕ} (H : n + m = k) : k - n = m :=
 have H2 : k - n + n = m + n, from

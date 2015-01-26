@@ -82,17 +82,17 @@ namespace category
     context
     local attribute discrete_category [instance]
     include H
-    theorem dicrete_category.endomorphism {a b : A} (f : a ⟶ b) : a = b :=
+    theorem discrete_category.endomorphism {a b : A} (f : a ⟶ b) : a = b :=
     decidable.rec_on (H a b) (λh f, h) (λh f, empty.rec _ f) f
 
-    theorem dicrete_category.discrete {a b : A} (f : a ⟶ b)
-      : eq.rec_on (dicrete_category.endomorphism f) f = (ID b) :=
+    theorem discrete_category.discrete {a b : A} (f : a ⟶ b)
+      : eq.rec_on (discrete_category.endomorphism f) f = (ID b) :=
     @subsingleton.elim _ !set_hom_subsingleton _ _
 
     definition discrete_category.rec_on {P : Πa b, a ⟶ b → Type} {a b : A} (f : a ⟶ b)
         (H : ∀a, P a a id) : P a b f :=
-    cast (dcongr_arg3 P rfl (dicrete_category.endomorphism f⁻¹)
-                            (@subsingleton.elim _ !set_hom_subsingleton _ _) ⁻¹) (H a)
+    cast (dcongr_arg3 P rfl (discrete_category.endomorphism f)⁻¹
+                            (@subsingleton.elim _ !set_hom_subsingleton _ _))⁻¹ (H a)
     end
   end
   section
@@ -241,7 +241,7 @@ namespace category
   functor.mk (λ a, sigma.mk (to_ob a) (h ∘ ob_hom a))
              (λ a b f, sigma.mk (hom_hom f)
        (calc
-         (h ∘ ob_hom b) ∘ hom_hom f = h ∘ (ob_hom b ∘ hom_hom f) : assoc h (ob_hom b) (hom_hom f)⁻¹
+         (h ∘ ob_hom b) ∘ hom_hom f = h ∘ (ob_hom b ∘ hom_hom f) : (assoc h (ob_hom b) (hom_hom f))⁻¹
            ... = h ∘ ob_hom a : congr_arg (λx, h ∘ x) (commute f)))
              (λ a, rfl)
              (λ a b c g f, dpair_eq rfl !proof_irrel)

@@ -17,10 +17,12 @@ class parser;
 */
 bool parse_univ_params(parser & p, buffer<name> & ps);
 expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos);
-/**
-   \brief Add universe levels from \c found_ls to \c ls_buffer (only the levels that do not already occur in \c ls_buffer are added).
+/**   \brief Add universe levels from \c found_ls to \c ls_buffer (only the levels that do not already occur in \c ls_buffer are added).
    Then sort \c ls_buffer (using the order in which the universe levels were declared).
 */
 void update_univ_parameters(buffer<name> & ls_buffer, name_set const & found_ls, parser const & p);
+
+/** \brief Parse a local attribute command */
+environment local_attribute_cmd(parser & p);
 void register_decl_cmds(cmd_table & r);
 }

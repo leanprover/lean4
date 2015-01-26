@@ -9,7 +9,7 @@ inductive path {A : Type} [fA : fibrant A] (a : A) : A → Type :=
 idpath : path a a
 
 axiom path_fibrant {A : Type} [fA : fibrant A] (a b : A) : fibrant (path a b)
-persistent attribute path_fibrant [instance]
+attribute path_fibrant [instance]
 
 notation a ≈ b := path a b
 

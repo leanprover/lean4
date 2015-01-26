@@ -685,6 +685,11 @@ static environment prefix_cmd(parser & p) {
     return mixfix_cmd(p, mixfix_kind::prefix, overload, reserve);
 }
 
+environment local_notation_cmd(parser & p) {
+    // TODO(Leo)
+    return p.env();
+}
+
 static environment reserve_cmd(parser & p) {
     bool overload = false;
     bool reserve  = true;

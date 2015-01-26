@@ -142,7 +142,7 @@ namespace sigma
     apply dpair_eq_dpair_pp_pp
   end
 
-  attribute dpair_eq_dpair [reducible]
+  local attribute dpair_eq_dpair [reducible]
   definition dpair_eq_dpair_p1_1p (p : a = a') (q : p ▹ b = b') :
       dpair_eq_dpair p q = dpair_eq_dpair p idp ⬝ dpair_eq_dpair idp q :=
   begin

@@ -19,8 +19,8 @@ infixl `⇒`:25 := functor
 namespace functor
   variables {C D E : Precategory}
 
-  persistent attribute obF [coercion]
-  persistent attribute homF [coercion]
+  attribute obF [coercion]
+  attribute homF [coercion]
 
   -- "functor C D" is equivalent to a certain sigma type
   set_option unifier.max_steps 38500
@@ -156,7 +156,7 @@ namespace precategory
   namespace ops
 
     notation `PreCat`:max := Precat_of_strict_cats
-    persistent attribute precat_of_strict_precats [instance]
+    attribute precat_of_strict_precats [instance]
 
   end ops
 

@@ -493,73 +493,73 @@ end add_comm_group
 structure Semigroup :=
 (carrier : Type) (struct : semigroup carrier)
 
-persistent attribute Semigroup.carrier [coercion]
-persistent attribute Semigroup.struct [instance]
+attribute Semigroup.carrier [coercion]
+attribute Semigroup.struct [instance]
 
 structure CommSemigroup :=
 (carrier : Type) (struct : comm_semigroup carrier)
 
-persistent attribute CommSemigroup.carrier [coercion]
-persistent attribute CommSemigroup.struct [instance]
+attribute CommSemigroup.carrier [coercion]
+attribute CommSemigroup.struct [instance]
 
 structure Monoid :=
 (carrier : Type) (struct : monoid carrier)
 
-persistent attribute Monoid.carrier [coercion]
-persistent attribute Monoid.struct [instance]
+attribute Monoid.carrier [coercion]
+attribute Monoid.struct [instance]
 
 structure CommMonoid :=
 (carrier : Type) (struct : comm_monoid carrier)
 
-persistent attribute CommMonoid.carrier [coercion]
-persistent attribute CommMonoid.struct [instance]
+attribute CommMonoid.carrier [coercion]
+attribute CommMonoid.struct [instance]
 
 structure Group :=
 (carrier : Type) (struct : group carrier)
 
-persistent attribute Group.carrier [coercion]
-persistent attribute Group.struct [instance]
+attribute Group.carrier [coercion]
+attribute Group.struct [instance]
 
 structure CommGroup :=
 (carrier : Type) (struct : comm_group carrier)
 
-persistent attribute CommGroup.carrier [coercion]
-persistent attribute CommGroup.struct [instance]
+attribute CommGroup.carrier [coercion]
+attribute CommGroup.struct [instance]
 
 structure AddSemigroup :=
 (carrier : Type) (struct : add_semigroup carrier)
 
-persistent attribute AddSemigroup.carrier [coercion]
-persistent attribute AddSemigroup.struct [instance]
+attribute AddSemigroup.carrier [coercion]
+attribute AddSemigroup.struct [instance]
 
 structure AddCommSemigroup :=
 (carrier : Type) (struct : add_comm_semigroup carrier)
 
-persistent attribute AddCommSemigroup.carrier [coercion]
-persistent attribute AddCommSemigroup.struct [instance]
+attribute AddCommSemigroup.carrier [coercion]
+attribute AddCommSemigroup.struct [instance]
 
 structure AddMonoid :=
 (carrier : Type) (struct : add_monoid carrier)
 
-persistent attribute AddMonoid.carrier [coercion]
-persistent attribute AddMonoid.struct [instance]
+attribute AddMonoid.carrier [coercion]
+attribute AddMonoid.struct [instance]
 
 structure AddCommMonoid :=
 (carrier : Type) (struct : add_comm_monoid carrier)
 
-persistent attribute AddCommMonoid.carrier [coercion]
-persistent attribute AddCommMonoid.struct [instance]
+attribute AddCommMonoid.carrier [coercion]
+attribute AddCommMonoid.struct [instance]
 
 structure AddGroup :=
 (carrier : Type) (struct : add_group carrier)
 
-persistent attribute AddGroup.carrier [coercion]
-persistent attribute AddGroup.struct [instance]
+attribute AddGroup.carrier [coercion]
+attribute AddGroup.struct [instance]
 
 structure AddCommGroup :=
 (carrier : Type) (struct : add_comm_group carrier)
 
-persistent attribute AddCommGroup.carrier [coercion]
-persistent attribute AddCommGroup.struct [instance]
+attribute AddCommGroup.carrier [coercion]
+attribute AddCommGroup.struct [instance]
 
 end path_algebra

@@ -84,14 +84,14 @@ void init_token_table(token_table & t) {
          {"(*", 0}, {"/-", 0}, {"begin", g_max_prec}, {"proof", g_max_prec}, {"qed", 0}, {"@", g_max_prec},
          {"sorry", g_max_prec}, {"+", g_plus_prec}, {g_cup, g_cup_prec}, {"->", g_arrow_prec},
          {"?(", g_max_prec}, {"⌞", g_max_prec}, {"⌟", 0}, {"match", 0},
-         {"<d", g_decreasing_prec}, {"local", 0}, {"renaming", 0}, {"extends", 0}, {nullptr, 0}};
+         {"<d", g_decreasing_prec}, {"renaming", 0}, {"extends", 0}, {nullptr, 0}};
 
     char const * commands[] =
         {"theorem", "axiom", "variable", "protected", "private", "opaque", "definition", "example", "coercion",
          "variables", "parameter", "parameters", "constant", "constants", "[persistent]", "[visible]", "[instance]",
          "[off]", "[on]", "[none]", "[class]", "[coercion]", "[reducible]", "[irreducible]", "[parsing-only]", "[multiple-instances]",
          "evaluate", "check", "eval", "[wf]", "[whnf]", "[strict]", "[local]", "[priority", "print", "end", "namespace", "section", "prelude",
-         "import", "inductive", "record", "structure", "module", "universe", "universes",
+         "import", "inductive", "record", "structure", "module", "universe", "universes", "local",
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation", "context",
          "exit", "set_option", "open", "export", "calc_subst", "calc_refl", "calc_trans", "calc_symm", "tactic_hint",
          "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class", "multiple_instances", "find_decl", "attribute", "persistent",

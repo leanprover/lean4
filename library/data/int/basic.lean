@@ -42,7 +42,7 @@ inductive int : Type :=
   neg_succ_of_nat : nat → int
 
 notation `ℤ` := int
-persistent attribute int.of_nat [coercion]
+attribute int.of_nat [coercion]
 definition int.of_num [coercion] [reducible] (n : num) : ℤ := int.of_nat (nat.of_num n)
 
 namespace int

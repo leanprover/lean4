@@ -16,7 +16,7 @@
     "calc_trans" "calc_subst" "calc_refl" "calc_symm" "match"
     "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end"
     "using" "namespace" "section" "fields" "find_decl"
-    "attribute" "persistent" "set_option" "add_rewrite" "extends" "include" "omit" "classes"
+    "attribute" "local" "set_option" "add_rewrite" "extends" "include" "omit" "classes"
     "instances" "coercions" "raw")
   "lean keywords")
 

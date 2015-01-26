@@ -17,5 +17,8 @@ bool curr_is_notation_decl(parser & p);
 */
 notation_entry parse_notation(parser & p, bool overload, buffer<token_entry> & new_tokens, bool allow_local);
 
+/** \brief Parse local notation */
+environment local_notation_cmd(parser & p);
+
 void register_notation_cmds(cmd_table & r);
 }

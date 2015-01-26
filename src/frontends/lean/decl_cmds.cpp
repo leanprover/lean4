@@ -1015,12 +1015,11 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
 }
 
 static environment attribute_cmd(parser & p) {
-    return attribute_cmd_core(p, false);
+    return attribute_cmd_core(p, true);
 }
 
-static environment persistent_attribute_cmd(parser & p) {
-    p.check_token_next(get_attribute_tk(), "invalid command, 'attribute' expected");
-    return attribute_cmd_core(p, true);
+environment local_attribute_cmd(parser & p) {
+    return attribute_cmd_core(p, false);
 }
 
 void register_decl_cmds(cmd_table & r) {
@@ -1041,7 +1040,6 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));
     add_cmd(r, cmd_info("include",      "force section parameter/variable to be included", include_cmd));
     add_cmd(r, cmd_info("attribute",    "set declaration attributes", attribute_cmd));
-    add_cmd(r, cmd_info("persistent",   "set declaration attributes (the value is saved in .olean files)", persistent_attribute_cmd));
     add_cmd(r, cmd_info("omit",         "undo 'include' command", omit_cmd));
 }
 }

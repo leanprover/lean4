@@ -16,7 +16,7 @@ namespace morphism
   inductive is_iso        [class] (f : a ⟶ b) : Type
   := mk : ∀{g}, g ∘ f = id → f ∘ g = id → is_iso f
 
-  persistent attribute is_iso [multiple-instances]
+  attribute is_iso [multiple-instances]
 
   definition retraction_of (f : a ⟶ b) [H : is_section f] : hom b a :=
   is_section.rec (λg h, g) H
@@ -133,7 +133,7 @@ namespace morphism
   namespace isomorphic
 
     -- openrelation
-    persistent attribute is_iso [instance]
+    attribute is_iso [instance]
 
     definition refl (a : ob) : a ≅ a :=
     mk id

@@ -80,26 +80,26 @@ print prefix algebra.comm_monoid
 structure Semigroup :=
 mk :: (carrier : Type) (struct : semigroup carrier)
 
-persistent attribute Semigroup.carrier [coercion]
-persistent attribute Semigroup.struct [instance]
+attribute Semigroup.carrier [coercion]
+attribute Semigroup.struct [instance]
 
 structure CommSemigroup :=
 mk :: (carrier : Type) (struct : comm_semigroup carrier)
 
-persistent attribute CommSemigroup.carrier [coercion]
-persistent attribute CommSemigroup.struct [instance]
+attribute CommSemigroup.carrier [coercion]
+attribute CommSemigroup.struct [instance]
 
 structure Monoid :=
 mk :: (carrier : Type) (struct : monoid carrier)
 
-persistent attribute Monoid.carrier [coercion]
-persistent attribute Monoid.struct [instance]
+attribute Monoid.carrier [coercion]
+attribute Monoid.struct [instance]
 
 structure CommMonoid :=
 mk :: (carrier : Type) (struct : comm_monoid carrier)
 
-persistent attribute CommMonoid.carrier [coercion]
-persistent attribute CommMonoid.struct [instance]
+attribute CommMonoid.carrier [coercion]
+attribute CommMonoid.struct [instance]
 
 end algebra
 

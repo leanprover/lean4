@@ -197,8 +197,8 @@ induction_on s
 theorem mem_concat (x : T) (s t : list T) : x ∈ s ++ t ↔ x ∈ s ∨ x ∈ t :=
 iff.intro mem_concat_imp_or mem_or_imp_concat
 
-attribute mem [reducible]
-attribute append [reducible]
+local attribute mem [reducible]
+local attribute append [reducible]
 theorem mem_split {x : T} {l : list T} : x ∈ l → ∃s t : list T, l = s ++ (x::t) :=
 induction_on l
   (take H : x ∈ nil, false.elim (iff.elim_left !mem_nil H))

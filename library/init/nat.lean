@@ -288,7 +288,7 @@ namespace nat
 
   notation a * b := mul a b
 
-  section
+  context
   attribute sub [reducible]
   definition succ_sub_succ_eq_sub (a b : nat) : succ a - succ b = a - b :=
   induction_on b

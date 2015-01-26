@@ -7,7 +7,7 @@ idpath : path a a
 notation a ≈ b := path a b
 
 axiom path_fibrant {A : Type'} [fA : fibrant A] (a b : A) : fibrant (path a b)
-persistent attribute path_fibrant [instance]
+attribute path_fibrant [instance]
 
 axiom imp_fibrant {A : Type'} {B : Type'} [C1 : fibrant A] [C2 : fibrant B] : fibrant (A → B)
 attribute imp_fibrant [instance]

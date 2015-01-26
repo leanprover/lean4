@@ -110,7 +110,7 @@ namespace precategory
     infixr `×c`:30 := product.Prod_precategory
     --instance [persistent] type_category category_one
     --                      category_two product.prod_category
-    persistent attribute product.prod_precategory [instance]
+    attribute product.prod_precategory [instance]
 
   end ops
 
@@ -218,7 +218,7 @@ namespace precategory
 exit
   definition Slice_category [reducible] (C : Category) (c : C) := Mk (slice_category C c)
   open category.ops
-  instance [persistent] slice_category
+  attribute slice_category [instance]
   variables {D : Category}
   definition forgetful (x : D) : (Slice_category D x) ⇒ D :=
   functor.mk (λ a, to_ob a)

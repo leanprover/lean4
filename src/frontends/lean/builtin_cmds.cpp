@@ -575,6 +575,15 @@ environment telescope_eq_cmd(parser & p) {
     return p.env();
 }
 
+environment local_cmd(parser & p) {
+    if (p.curr_is_token_or_id(get_attribute_tk())) {
+        p.next();
+        return local_attribute_cmd(p);
+    } else {
+        return local_notation_cmd(p);
+    }
+}
+
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",          "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -590,6 +599,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("check",         "type check given expression, and display its type", check_cmd));
     add_cmd(r, cmd_info("eval",          "evaluate given expression", eval_cmd));
     add_cmd(r, cmd_info("find_decl",     "find definitions and/or theorems", find_cmd));
+    add_cmd(r, cmd_info("local",         "define local attributes or notation", local_cmd));
     add_cmd(r, cmd_info("#erase_cache",  "erase cached definition (for debugging purposes)", erase_cache_cmd));
     add_cmd(r, cmd_info("#projections",  "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
     add_cmd(r, cmd_info("#telescope_eq", "(for debugging purposes)", telescope_eq_cmd));

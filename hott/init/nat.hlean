@@ -296,7 +296,7 @@ namespace nat
 
   notation a * b := mul a b
 
-  attribute sub [reducible]
+  local attribute sub [reducible]
   definition succ_sub_succ_eq_sub (a b : nat) : succ a - succ b = a - b :=
   rec_on b
     rfl

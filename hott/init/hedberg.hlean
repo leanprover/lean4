@@ -43,4 +43,4 @@ context
    ... = q                      : aux)
 end
 
-persistent attribute is_hset_of_decidable_eq [instance]
+attribute is_hset_of_decidable_eq [instance]

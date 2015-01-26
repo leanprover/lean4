@@ -59,9 +59,9 @@ definition pr1 [reducible] (A : Type) (a b : A) : A := a
 #+END_SRC
 
 The =reducible= attribute is saved in the compiled .olean files.  The user
-can temporarily change the =reducible= and =irreducible= attributes using
-the =attribute= command. The temporary modification is effective only in the
-current file, and is not saved in the produced .olean file.
+can change the =reducible= and =irreducible= attributes using
+the =attribute= command. The modification is saved in the
+produced .olean file.
 
 #+BEGIN_SRC lean
   definition id (A : Type) (a : A) : A := a
@@ -74,12 +74,13 @@ current file, and is not saved in the produced .olean file.
   attribute pr2 [irreducible]
 #+END_SRC
 
-The command =persistent attribute= can be used to instruct Lean to make the
-modification permanent, and save it in the .olean file.
+The command =local attribute= can be used to instruct Lean to not save
+the new attribute in the .olean file. If the =attibute= command is used
+inside of a =context=, then the scope of its effect is the current scope.
 
 #+BEGIN_SRC lean
   definition pr2 (A : Type) (a b : A) : A := b
   -- Mark pr2 as irreducible.
-  -- The modification will affect modules that import this one.
-  persistent attribute pr2 [irreducible]
+  -- The modification will not affect modules that import this one.
+  local attribute pr2 [irreducible]
 #+END_SRC

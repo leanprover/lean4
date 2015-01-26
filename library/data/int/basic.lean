@@ -151,7 +151,7 @@ cases_on a
 
 definition equiv (p q : ℕ × ℕ) : Prop :=  pr1 p + pr2 q = pr2 p + pr1 q
 
-notation [local] p `≡` q := equiv p q
+local notation p `≡` q := equiv p q
 
 theorem equiv.refl {p : ℕ × ℕ} : p ≡ p := !add.comm
 

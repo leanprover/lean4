@@ -11,7 +11,7 @@ import types.prod
 open eq sigma sigma.ops equiv is_equiv
 
 namespace sigma
-  infixr [local] ∘ := function.compose --remove
+  local infixr ∘ := function.compose --remove
   variables {A A' : Type} {B : A → Type} {B' : A' → Type} {C : Πa, B a → Type}
             {D : Πa b, C a b → Type}
             {a a' a'' : A} {b b₁ b₂ : B a} {b' : B a'} {b'' : B a''} {u v w : Σa, B a}

@@ -16,9 +16,9 @@ namespace binary
     variable {A : Type}
     variables (op₁ : A → A → A) (inv : A → A) (one : A)
 
-    notation [local] a * b := op₁ a b
-    notation [local] a ⁻¹  := inv a
-    notation [local] 1     := one
+    local notation a * b := op₁ a b
+    local notation a ⁻¹  := inv a
+    local notation 1     := one
 
     definition commutative := ∀a b, a * b = b * a
     definition associative := ∀a b c, (a * b) * c = a * (b * c)
@@ -36,7 +36,7 @@ namespace binary
 
     variable (op₂ : A → A → A)
 
-    notation [local] a + b := op₂ a b
+    local notation a + b := op₂ a b
 
     definition left_distributive := ∀a b c, a * (b + c) = a * b + a * c
     definition right_distributive := ∀a b c, (a + b) * c = a * c + b * c

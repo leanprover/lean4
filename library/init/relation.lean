@@ -12,7 +12,7 @@ import init.logic
 -- We need some of the following definitions asap when "initializing" Lean.
 
 variables {A B : Type} (R : B → B → Prop)
-infix [local] `≺`:50 := R
+local infix `≺`:50 := R
 
 definition reflexive := ∀x, x ≺ x
 

@@ -118,7 +118,7 @@
      ;; modifiers
      (,(rx (or "\[persistent\]" "\[notation\]" "\[visible\]" "\[instance\]" "\[class\]" "\[parsing-only\]"
                "\[coercion\]" "\[reducible\]" "\[irreducible\]" "\[wf\]" "\[whnf\]" "\[multiple-instances\]"
-               "\[decls\]" "\[strict\]" "\[local\]" "\[coercions\]" "\[classes\]" "\[notations\]" "\[tactic_hints\]" "\[reduce_hints\]"))
+               "\[decls\]" "\[strict\]" "\[coercions\]" "\[classes\]" "\[notations\]" "\[tactic_hints\]" "\[reduce_hints\]"))
       . 'font-lock-doc-face)
      (,(rx "\[priority" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      ;; tactics

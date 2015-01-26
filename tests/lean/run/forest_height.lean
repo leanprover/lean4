@@ -33,7 +33,7 @@ inv_image lt tree_forest_height
 definition tree_forest.subterm.wf [instance] (A : Type) : well_founded (@tree_forest.subterm A) :=
 inv_image.wf tree_forest_height lt.wf
 
-infix [local] `≺`:50 := tree_forest.subterm
+local infix `≺`:50 := tree_forest.subterm
 
 definition tree_forest.height_lt.node {A : Type} (a : A) (f : forest A) : sum.inr f ≺ sum.inl (tree.node a f) :=
 have aux : forest.height f < tree.height (tree.node a f), from

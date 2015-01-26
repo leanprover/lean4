@@ -640,7 +640,7 @@ section port_algebra
   theorem add.right_inv : ∀a : ℤ, a + -a = 0 := algebra.add.right_inv
   theorem add_neg_cancel_left : ∀a b : ℤ, a + (-a + b) = b := algebra.add_neg_cancel_left
   theorem add_neg_cancel_right : ∀a b : ℤ, a + b + -b = a := algebra.add_neg_cancel_right
-  theorem neg_add : ∀a b : ℤ, -(a + b) = -b + -a := algebra.neg_add
+  theorem neg_add_rev : ∀a b : ℤ, -(a + b) = -b + -a := algebra.neg_add_rev
   theorem eq_add_neg_of_add_eq : ∀{a b c : ℤ}, a + b = c → a = c + -b :=
     @algebra.eq_add_neg_of_add_eq _ _
   theorem eq_neg_add_of_add_eq : ∀{a b c : ℤ}, a + b = c → b = -a + c :=
@@ -681,7 +681,7 @@ section port_algebra
     @algebra.eq_iff_eq_of_sub_eq_sub _ _
   theorem sub_add_eq_sub_sub : ∀a b c : ℤ, a - (b + c) = a - b - c := algebra.sub_add_eq_sub_sub
   theorem neg_add_eq_sub : ∀a b : ℤ, -a + b = b - a := algebra.neg_add_eq_sub
-  theorem neg_add_distrib : ∀a b : ℤ, -(a + b) = -a + -b := algebra.neg_add_distrib
+  theorem neg_add : ∀a b : ℤ, -(a + b) = -a + -b := algebra.neg_add
   theorem sub_add_eq_add_sub : ∀a b c : ℤ, a - b + c = a + c - b := algebra.sub_add_eq_add_sub
   theorem sub_sub_ : ∀a b c : ℤ, a - b - c = a - (b + c) := algebra.sub_sub
   theorem add_sub_add_left_eq_sub : ∀a b c : ℤ, (c + a) - (c + b) = a - b :=

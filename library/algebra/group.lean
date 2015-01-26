@@ -341,7 +341,7 @@ section add_group
       ... = a + 0 : add.right_inv
       ... = a : add_zero
 
-  theorem neg_add (a b : A) : -(a + b) = -b + -a :=
+  theorem neg_add_rev (a b : A) : -(a + b) = -b + -a :=
   neg_eq_of_add_eq_zero
     (calc
       a + b + (-b + -a) = a + (b + (-b + -a)) : add.assoc
@@ -437,7 +437,7 @@ section add_group
 
   theorem sub_add_eq_sub_sub_swap (a b c : A) : a - (b + c) = a - c - b :=
   calc
-    a - (b + c) = a + (-c - b) : neg_add
+    a - (b + c) = a + (-c - b) : neg_add_rev
       ... = a - c - b : !add.assoc⁻¹
 
   theorem sub_eq_iff_eq_add (a b c : A) : a - b = c ↔ a = c + b :=
@@ -466,14 +466,14 @@ include s
 
   theorem neg_add_eq_sub (a b : A) : -a + b = b - a := !add.comm
 
-  theorem neg_add_distrib (a b : A) : -(a + b) = -a + -b := add.comm (-b) (-a) ▸ neg_add a b
+  theorem neg_add (a b : A) : -(a + b) = -a + -b := add.comm (-b) (-a) ▸ neg_add_rev a b
 
   theorem sub_add_eq_add_sub (a b c : A) : a - b + c = a + c - b := !add.right_comm
 
   theorem sub_sub (a b c : A) : a - b - c = a - (b + c) :=
   calc
     a - b - c = a + (-b + -c) : add.assoc
-      ... = a + -(b + c) : {(neg_add_distrib b c)⁻¹}
+      ... = a + -(b + c) : {(neg_add b c)⁻¹}
       ... = a - (b + c) : rfl
 
   theorem add_sub_add_left_eq_sub (a b c : A) : (c + a) - (c + b) = a - b :=

@@ -525,11 +525,11 @@ section
     or.elim (le.total 0 (a + b))
       (assume H2 : 0 ≤ a + b, aux2 H2)
       (assume H2 : a + b ≤ 0,
-        have H3 : -a + -b = -(a + b), from !neg_add_distrib⁻¹,
+        have H3 : -a + -b = -(a + b), from !neg_add⁻¹,
         have H4 : -(a + b) ≥ 0, from iff.mp' !neg_nonneg_iff_nonpos H2,
         calc
           |a + b| = |-(a + b)|  : abs_neg
-              ... = |-a + -b|   : neg_add_distrib
+              ... = |-a + -b|   : neg_add
               ... ≤ |-a| + |-b| : aux2 (H3⁻¹ ▸ H4)
               ... = |a| + |-b|  : abs_neg
               ... = |a| + |b|   : abs_neg)

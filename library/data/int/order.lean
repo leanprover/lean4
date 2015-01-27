@@ -232,8 +232,8 @@ end
 /- instantiate ordered ring theorems to int -/
 
 section port_algebra
-  definition ge (a b : ℤ) := algebra.has_le.ge a b
-  definition gt (a b : ℤ) := algebra.has_lt.gt a b
+  definition ge [reducible] (a b : ℤ) := algebra.has_le.ge a b
+  definition gt [reducible] (a b : ℤ) := algebra.has_lt.gt a b
   infix >= := int.ge
   infix ≥  := int.ge
   infix >  := int.gt
@@ -248,6 +248,19 @@ section port_algebra
   calc_trans int.le_of_le_of_eq
   calc_trans int.lt_of_eq_of_lt
   calc_trans int.lt_of_lt_of_eq
+
+  theorem ge_of_eq_of_ge : ∀{a b c : ℤ}, a = b → b ≥ c → a ≥ c := @algebra.ge_of_eq_of_ge _ _
+  theorem ge_of_ge_of_eq : ∀{a b c : ℤ}, a ≥ b → b = c → a ≥ c := @algebra.ge_of_ge_of_eq _ _
+  theorem gt_of_eq_of_gt : ∀{a b c : ℤ}, a = b → b > c → a > c := @algebra.gt_of_eq_of_gt _ _
+  theorem gt_of_gt_of_eq : ∀{a b c : ℤ}, a > b → b = c → a > c := @algebra.gt_of_gt_of_eq _ _
+  theorem ge.trans: ∀{a b c : ℤ}, a ≥ b → b ≥ c → a ≥ c := @algebra.ge.trans _ _
+  theorem gt.trans: ∀{a b c : ℤ}, a ≥ b → b ≥ c → a ≥ c := @algebra.ge.trans _ _
+  theorem gt_of_gt_of_ge : ∀{a b c : ℤ}, a > b → b ≥ c → a > c := @algebra.gt_of_gt_of_ge _ _
+  theorem gt_of_ge_of_gt : ∀{a b c : ℤ}, a ≥ b → b > c → a > c := @algebra.gt_of_ge_of_gt _ _
+  calc_trans int.ge_of_eq_of_ge
+  calc_trans int.ge_of_ge_of_eq
+  calc_trans int.gt_of_eq_of_gt
+  calc_trans int.gt_of_gt_of_eq
 
   theorem lt.asymm : ∀{a b : ℤ}, a < b → ¬ b < a := @algebra.lt.asymm _ _
   theorem lt_of_le_of_ne : ∀{a b : ℤ}, a ≤ b → a ≠ b → a < b := @algebra.lt_of_le_of_ne _ _

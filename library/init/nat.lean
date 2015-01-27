@@ -265,11 +265,11 @@ namespace nat
         have aux : a = max a b, from max.left_eq (lt.asymm h),
         eq.rec_on aux (le_of_lt h)))
 
-  definition gt a b := lt b a
+  definition gt [reducible] a b := lt b a
 
   notation a > b := gt a b
 
-  definition ge a b := le b a
+  definition ge [reducible] a b := le b a
 
   notation a ≥ b := ge a b
 

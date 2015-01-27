@@ -34,29 +34,45 @@ infixl `<=`   := has_le.le
 infixl `≤`   := has_le.le
 infixl `<`   := has_lt.lt
 
-definition has_le.ge {A : Type} [s : has_le A] (a b : A) := b ≤ a
+definition has_le.ge [reducible] {A : Type} [s : has_le A] (a b : A) := b ≤ a
 notation a ≥ b := has_le.ge a b
 notation a >= b := has_le.ge a b
 
-definition has_lt.gt {A : Type} [s : has_lt A] (a b : A) := b < a
+definition has_lt.gt [reducible] {A : Type} [s : has_lt A] (a b : A) := b < a
 notation a > b := has_lt.gt a b
 
-theorem le_of_eq_of_le {A : Type} [s : has_le A] {a b c : A} (H1 : a = b) (H2 : b ≤ c) :
-  a ≤ c := H1⁻¹ ▸ H2
+theorem le_of_eq_of_le {A : Type} [s : has_le A] {a b c : A} (H1 : a = b) (H2 : b ≤ c) : a ≤ c :=
+  H1⁻¹ ▸ H2
 
-theorem le_of_le_of_eq {A : Type} [s : has_le A] {a b c : A} (H1 : a ≤ b) (H2 : b = c) :
-  a ≤ c := H2 ▸ H1
+theorem le_of_le_of_eq {A : Type} [s : has_le A] {a b c : A} (H1 : a ≤ b) (H2 : b = c) : a ≤ c :=
+  H2 ▸ H1
 
-theorem lt_of_eq_of_lt {A : Type} [s : has_lt A] {a b c : A} (H1 : a = b) (H2 : b < c) :
-  a < c := H1⁻¹ ▸ H2
+theorem lt_of_eq_of_lt {A : Type} [s : has_lt A] {a b c : A} (H1 : a = b) (H2 : b < c) : a < c :=
+  H1⁻¹ ▸ H2
 
-theorem lt_of_lt_of_eq {A : Type} [s : has_lt A] {a b c : A} (H1 : a < b) (H2 : b = c) :
-  a < c := H2 ▸ H1
+theorem lt_of_lt_of_eq {A : Type} [s : has_lt A] {a b c : A} (H1 : a < b) (H2 : b = c) : a < c :=
+  H2 ▸ H1
+
+theorem ge_of_eq_of_ge {A : Type} [s : has_le A] {a b c : A} (H1 : a = b) (H2 : b ≥ c) : a ≥ c :=
+  H1⁻¹ ▸ H2
+
+theorem ge_of_ge_of_eq {A : Type} [s : has_le A] {a b c : A} (H1 : a ≥ b) (H2 : b = c) : a ≥ c :=
+  H2 ▸ H1
+
+theorem gt_of_eq_of_gt {A : Type} [s : has_lt A] {a b c : A} (H1 : a = b) (H2 : b > c) : a > c :=
+  H1⁻¹ ▸ H2
+
+theorem gt_of_gt_of_eq {A : Type} [s : has_lt A] {a b c : A} (H1 : a > b) (H2 : b = c) : a > c :=
+  H2 ▸ H1
 
 calc_trans le_of_eq_of_le
 calc_trans le_of_le_of_eq
 calc_trans lt_of_eq_of_lt
 calc_trans lt_of_lt_of_eq
+calc_trans ge_of_eq_of_ge
+calc_trans ge_of_ge_of_eq
+calc_trans gt_of_eq_of_gt
+calc_trans gt_of_gt_of_eq
 
 /- weak orders -/
 
@@ -73,6 +89,9 @@ section
 
   theorem le.trans {a b c : A} : a ≤ b → b ≤ c → a ≤ c := !weak_order.le_trans
   calc_trans le.trans
+
+  theorem ge.trans {a b c : A} (H1 : a ≥ b) (H2: b ≥ c) : a ≥ c := le.trans H2 H1
+  calc_trans ge.trans
 
   theorem le.antisymm {a b : A} : a ≤ b → b ≤ a → a = b := !weak_order.le_antisymm
 end
@@ -97,6 +116,9 @@ section
 
   theorem lt.trans {a b c : A} : a < b → b < c → a < c := !strict_order.lt_trans
   calc_trans lt.trans
+
+  theorem gt.trans {a b c : A} (H1 : a > b) (H2: b > c) : a > c := lt.trans H2 H1
+  calc_trans gt.trans
 
   theorem ne_of_lt {a b : A} : a < b → a ≠ b :=
   assume lt_ab : a < b, assume eq_ab : a = b,
@@ -182,8 +204,14 @@ section
     show false, from ne_of_lt lt_bc eq_bc,
   show a < c, from lt_of_le_of_ne le_ac ne_ac
 
+  theorem gt_of_gt_of_ge (H1 : a > b) (H2 : b ≥ c) : a > c := lt_of_le_of_lt H2 H1
+
+  theorem gt_of_ge_of_gt (H1 : a ≥ b) (H2 : b > c) : a > c := lt_of_lt_of_le H2 H1
+
   calc_trans lt_of_lt_of_le
   calc_trans lt_of_le_of_lt
+  calc_trans gt_of_gt_of_ge
+  calc_trans gt_of_ge_of_gt
 
   theorem not_le_of_lt (H : a < b) : ¬ b ≤ a :=
   assume H1 : b ≤ a,
@@ -347,31 +375,32 @@ section
   theorem lt.cases_of_gt {B : Type} {a b : A} {t_lt t_eq t_gt : B} (H : a > b) :
     lt.cases a b t_lt t_eq t_gt = t_gt :=
   if_neg (ne.symm (ne_of_lt H)) ⬝ if_neg (lt.asymm H)
-
-/-
-  definition lt.by_cases' {a b : A} {P : Type}
-    (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) : P :=
-  if H4 : a < b then H1 H4 else
-    (if H5 : a = b then H2 H5 else
-      H3 (lt_of_le_of_ne (le_of_not_lt H4) (ne.symm H5)))
-
-  definition lt.by_cases'_of_lt {a b : A} {P : Type}
-      (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) (H4 : a < b) :
-    lt.by_cases' H1 H2 H3 = H1 H4 := !dif_pos
-
-  theorem lt.by_cases'_of_eq {a b : A} {P : Type}
-      (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) (H4 : a = b) :
-    lt.by_cases' H1 H2 H3 = H2 H4 :=
-  have H5 [visible] : ¬ a < b, from assume H6 : a < b, ne_of_lt H6 H4,
-  dif_pos H4 ▸ dif_neg H5
-
-  theorem lt.by_cases'_of_gt {a b : A} {P : Type}
-      (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) (H4 : a > b) :
-    lt.by_cases' H1 H2 H3 = H3 H4 :=
-  have H5 [visible] : ¬ a < b, from lt.asymm H4,
-  have H6 [visible] : a ≠ b, from (assume H7: a = b, lt.irrefl b (H7 ▸ H4)),
-  dif_neg H6 ▸ dif_neg H5
--/
 end
 
 end algebra
+
+/-
+For reference, these are all the transitivity rules defined in this file:
+
+calc_trans le_of_eq_of_le
+calc_trans le_of_le_of_eq
+calc_trans lt_of_eq_of_lt
+calc_trans lt_of_lt_of_eq
+
+calc_trans le.trans
+calc_trans lt.trans
+
+calc_trans lt_of_lt_of_le
+calc_trans lt_of_le_of_lt
+
+calc_trans ge_of_eq_of_ge
+calc_trans ge_of_ge_of_eq
+calc_trans gt_of_eq_of_gt
+calc_trans gt_of_gt_of_eq
+
+calc_trans ge.trans
+calc_trans gt.trans
+
+calc_trans gt_of_gt_of_ge
+calc_trans gt_of_ge_of_gt
+-/

@@ -172,6 +172,19 @@ section
 end
 
 section port_algebra
+  theorem ge_of_eq_of_ge : ∀{a b c : ℕ}, a = b → b ≥ c → a ≥ c := @algebra.ge_of_eq_of_ge _ _
+  theorem ge_of_ge_of_eq : ∀{a b c : ℕ}, a ≥ b → b = c → a ≥ c := @algebra.ge_of_ge_of_eq _ _
+  theorem gt_of_eq_of_gt : ∀{a b c : ℕ}, a = b → b > c → a > c := @algebra.gt_of_eq_of_gt _ _
+  theorem gt_of_gt_of_eq : ∀{a b c : ℕ}, a > b → b = c → a > c := @algebra.gt_of_gt_of_eq _ _
+  theorem ge.trans: ∀{a b c : ℕ}, a ≥ b → b ≥ c → a ≥ c := @algebra.ge.trans _ _
+  theorem gt.trans: ∀{a b c : ℕ}, a ≥ b → b ≥ c → a ≥ c := @algebra.ge.trans _ _
+  theorem gt_of_gt_of_ge : ∀{a b c : ℕ}, a > b → b ≥ c → a > c := @algebra.gt_of_gt_of_ge _ _
+  theorem gt_of_ge_of_gt : ∀{a b c : ℕ}, a ≥ b → b > c → a > c := @algebra.gt_of_ge_of_gt _ _
+  calc_trans ge_of_eq_of_ge
+  calc_trans ge_of_ge_of_eq
+  calc_trans gt_of_eq_of_gt
+  calc_trans gt_of_gt_of_eq
+
   theorem ne_of_lt : ∀{a b : ℕ}, a < b → a ≠ b := @algebra.ne_of_lt _ _
   theorem lt_of_le_of_ne : ∀{a b : ℕ}, a ≤ b → a ≠ b → a < b :=
     @algebra.lt_of_le_of_ne _ _

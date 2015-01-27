@@ -82,5 +82,6 @@ void finalize_elaborator_context() {
     delete g_elaborator_local_instances;
     delete g_elaborator_ignore_instances;
     delete g_elaborator_flycheck_goals;
+    delete g_elaborator_fail_missing_field;
 }
 }

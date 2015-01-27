@@ -14,4 +14,7 @@ expr extension_context::whnf(expr const & e, constraint_seq & cs) {
 expr extension_context::infer_type(expr const & e, constraint_seq & cs) {
     auto p = infer_type(e); cs += p.second; return p.first;
 }
+bool extension_context::is_def_eq(expr const & e1, expr const & e2, delayed_justification & j, constraint_seq & cs) {
+    auto p = is_def_eq(e1, e2, j); cs += p.second; return p.first;
+}
 }

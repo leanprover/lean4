@@ -57,7 +57,7 @@ theorem zero_or_succ (n : ℕ) : n = 0 ∨ n = succ (pred n)
 := induction_on n
     (or.intro_left _ (refl 0))
     (take m IH, or.intro_right _
-      (show succ m = succ (pred (succ m)), from congr_arg succ (pred_succ m⁻¹)))
+      (show succ m = succ (pred (succ m)), from congr_arg succ ((pred_succ m)⁻¹)))
 
 theorem zero_or_succ2 (n : ℕ) : n = 0 ∨ ∃k, n = succ k
 := or_of_or_of_imp_of_imp (zero_or_succ n) (assume H, H) (assume H : n = succ (pred n), exists.intro (pred n) H)
@@ -72,7 +72,7 @@ theorem discriminate {B : Prop} {n : ℕ} (H1: n = 0 → B) (H2 : ∀m, n = succ
 
 theorem succ_inj {n m : ℕ} (H : succ n = succ m) : n = m
 := calc
-    n = pred (succ n) : pred_succ n⁻¹
+    n = pred (succ n) : (pred_succ n)⁻¹
   ... = pred (succ m) : {H}
   ... = m             : pred_succ m
 
@@ -473,7 +473,7 @@ theorem succ_le {n m : ℕ} (H : n ≤ m) : succ n ≤ succ m
 := add_one m ▸ add_one n ▸ add_le_right H 1
 
 theorem succ_le_cancel {n m : ℕ} (H : succ n ≤ succ m) :  n ≤ m
-:= add_le_right_inv (add_one m⁻¹ ▸ add_one n⁻¹ ▸ H)
+:= add_le_right_inv ((add_one m)⁻¹ ▸ (add_one n)⁻¹ ▸ H)
 
 theorem self_le_succ (n : ℕ) : n ≤ succ n
 := le_intro (add_one n)
@@ -757,7 +757,7 @@ theorem add_lt {n m k l : ℕ} (H1 : n < k) (H2 : m < l) : n + m < k + l
 := add_lt_le H1 (lt_imp_le H2)
 
 theorem add_lt_left_inv {n m k : ℕ} (H : k + n < k + m) : n < m
-:= add_le_left_inv (add_succ k n⁻¹ ▸ H)
+:= add_le_left_inv ((add_succ k n)⁻¹ ▸ H)
 
 theorem add_lt_right_inv {n m k : ℕ} (H : n + k < m + k) : n < m
 := add_lt_left_inv (add_comm m k ▸ add_comm n k ▸ H)
@@ -768,7 +768,7 @@ theorem succ_lt {n m : ℕ} (H : n < m) : succ n < succ m
 := add_one m ▸ add_one n ▸ add_lt_right H 1
 
 theorem succ_lt_inv {n m : ℕ} (H : succ n < succ m) :  n < m
-:= add_lt_right_inv (add_one m⁻¹ ▸ add_one n⁻¹ ▸ H)
+:= add_lt_right_inv ((add_one m)⁻¹ ▸ (add_one n)⁻¹ ▸ H)
 
 theorem lt_self_succ (n : ℕ) : n < succ n
 := le_refl (succ n)
@@ -1313,9 +1313,9 @@ theorem sub_sub_split {P : ℕ → ℕ → Prop} {n m : ℕ} (H1 : ∀k, n = m +
     (H2 : ∀k, m = n + k → P 0 k) : P (n - m) (m - n)
 := or.elim (le_total n m)
     (assume H3 : n ≤ m,
-      le_imp_sub_eq_zero H3⁻¹ ▸  (H2 (m - n) (add_sub_le H3⁻¹)))
+      (le_imp_sub_eq_zero H3)⁻¹ ▸  (H2 (m - n) ((add_sub_le H3)⁻¹)))
     (assume H3 : m ≤ n,
-      le_imp_sub_eq_zero H3⁻¹ ▸ (H1 (n - m) (add_sub_le H3⁻¹)))
+      (le_imp_sub_eq_zero H3)⁻¹ ▸ (H1 (n - m) ((add_sub_le H3)⁻¹)))
 
 theorem sub_intro {n m k : ℕ} (H : n + m = k) : k - n = m
 := have H2 : k - n + n = m + n, from

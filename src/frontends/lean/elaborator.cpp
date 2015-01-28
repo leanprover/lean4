@@ -1539,8 +1539,9 @@ void elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
     lean_assert(is_begin_end_annotation(pre_tac));
     buffer<expr> pre_tac_seq;
     extract_begin_end_tactics(get_annotation_arg(pre_tac), pre_tac_seq);
-    for (expr const & ptac : pre_tac_seq) {
-        if (auto tac = pre_tactic_to_tactic(ptac)) {
+    for (expr ptac : pre_tac_seq) {
+        expr new_ptac = subst.instantiate_all(ptac);
+        if (auto tac = pre_tactic_to_tactic(new_ptac)) {
             try {
                 proof_state_seq seq = (*tac)(env(), ios(), ps);
                 auto r = seq.pull();
@@ -1600,7 +1601,7 @@ void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set
             return;
         }
 
-        if (auto tac = pre_tactic_to_tactic(*pre_tac)) {
+        if (auto tac = pre_tactic_to_tactic(subst.instantiate_all(*pre_tac))) {
             bool show_failure = true;
             try_using(subst, mvar, ps, *tac, show_failure);
             return;

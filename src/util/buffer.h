@@ -151,7 +151,7 @@ public:
         lean_assert(idx < size());
         for (unsigned i = idx+1; i < size(); i++)
             m_buffer[i-1] = m_buffer[i];
-        m_pos--;
+        pop_back();
     }
 
     void erase_elem(T const & elem) {

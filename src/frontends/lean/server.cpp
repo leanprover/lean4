@@ -719,7 +719,7 @@ bool match_type(type_checker & tc, expr const & meta, expr const & expected_type
     name_generator ngen = tc.mk_ngen();
     goal g(meta, expected_type);
     buffer<level> ls;
-    unsigned num_ls = length(d.get_univ_params());
+    unsigned num_ls = d.get_num_univ_params();
     for (unsigned i = 0; i < num_ls; i++)
         ls.push_back(mk_meta_univ(ngen.next()));
     expr dt        = instantiate_type_univ_params(d, to_list(ls.begin(), ls.end()));

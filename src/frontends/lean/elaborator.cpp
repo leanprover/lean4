@@ -671,7 +671,7 @@ expr elaborator::visit_constant(expr const & e) {
     buffer<level> ls;
     for (level const & l : const_levels(e))
         ls.push_back(replace_univ_placeholder(l));
-    unsigned num_univ_params = length(d.get_univ_params());
+    unsigned num_univ_params = d.get_num_univ_params();
     if (num_univ_params < ls.size())
         throw_kernel_exception(env(), sstream() << "incorrect number of universe levels parameters for '"
                                << const_name(e) << "', #" << num_univ_params

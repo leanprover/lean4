@@ -42,7 +42,7 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
         rlvl = plvl;
     else
         rlvl = mk_max(plvl, ind_lvl);
-    if (length(ilvls) != length(ind_decl.get_univ_params()))
+    if (length(ilvls) != ind_decl.get_num_univ_params())
         return optional<environment>(); // type does not have only a restricted eliminator
     // All inductive datatype parameters and indices are arguments
     buffer<expr> args;

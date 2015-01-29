@@ -61,6 +61,7 @@ public:
 
     name const & get_name() const;
     level_param_names const & get_univ_params() const;
+    unsigned get_num_univ_params() const;
     expr const & get_type() const;
 
     expr const & get_value() const;

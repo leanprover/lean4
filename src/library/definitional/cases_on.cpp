@@ -75,7 +75,7 @@ environment mk_cases_on(environment const & env, name const & n) {
     }
 
     levels lvls       = param_names_to_levels(rec_decl.get_univ_params());
-    bool elim_to_prop = length(rec_decl.get_univ_params()) == length(ind_decl.get_univ_params());
+    bool elim_to_prop = rec_decl.get_num_univ_params() == ind_decl.get_num_univ_params();
     level elim_univ   = elim_to_prop ? mk_level_zero() : head(lvls);
 
     optional<expr> unit;

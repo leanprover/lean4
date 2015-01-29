@@ -56,6 +56,7 @@ bool declaration::is_theorem() const       { return is_definition() && m_ptr->m_
 
 name const & declaration::get_name() const { return m_ptr->m_name; }
 level_param_names const & declaration::get_univ_params() const { return m_ptr->m_params; }
+unsigned declaration::get_num_univ_params() const { return length(get_univ_params()); }
 expr const & declaration::get_type() const { return m_ptr->m_type; }
 
 bool declaration::is_opaque() const { return m_ptr->m_opaque; }

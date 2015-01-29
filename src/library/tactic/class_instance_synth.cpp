@@ -238,7 +238,7 @@ struct class_instance_elaborator : public choice_iterator {
         if (auto decl = env.find(inst)) {
             name_generator & ngen = m_C->m_ngen;
             buffer<level> ls_buffer;
-            unsigned num_univ_ps = length(decl->get_univ_params());
+            unsigned num_univ_ps = decl->get_num_univ_params();
             for (unsigned i = 0; i < num_univ_ps; i++)
                 ls_buffer.push_back(mk_meta_univ(ngen.next()));
             levels ls = to_list(ls_buffer.begin(), ls_buffer.end());

@@ -22,8 +22,8 @@ environment mk_induction_on(environment const & env, name const & n) {
     name induction_on_name(n, "induction_on");
     declaration rec_on_decl   = env.get(rec_on_name);
     declaration ind_decl      = env.get(n);
-    unsigned rec_on_num_univs = length(rec_on_decl.get_univ_params());
-    unsigned ind_num_univs    = length(ind_decl.get_univ_params());
+    unsigned rec_on_num_univs = rec_on_decl.get_num_univ_params();
+    unsigned ind_num_univs    = ind_decl.get_num_univ_params();
     bool opaque               = false;
     bool use_conv_opt         = true;
     environment new_env       = env;

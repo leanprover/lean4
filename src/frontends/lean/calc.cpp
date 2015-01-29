@@ -44,7 +44,7 @@ static pair<expr, unsigned> extract_arg_types_core(environment const & env, name
         arg_types.push_back(binding_domain(f_type));
         f_type = binding_body(f_type);
     }
-    return mk_pair(f_type, length(d.get_univ_params()));
+    return mk_pair(f_type, d.get_num_univ_params());
 }
 
 static expr extract_arg_types(environment const & env, name const & f, buffer<expr> & arg_types) {

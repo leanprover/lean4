@@ -62,10 +62,10 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
             name const & intro_name = inductive::intro_rule_name(intro);
             declaration intro_decl  = env.get(intro_name);
             levels intro_lvls;
-            if (length(intro_decl.get_univ_params()) == elim_num_lvls) {
+            if (intro_decl.get_num_univ_params() == elim_num_lvls) {
                 intro_lvls = elim_lvls;
             } else {
-                lean_assert(length(intro_decl.get_univ_params()) == elim_num_lvls - 1);
+                lean_assert(intro_decl.get_num_univ_params() == elim_num_lvls - 1);
                 intro_lvls = tail(elim_lvls);
             }
             expr intro_fn   = mk_constant(inductive::intro_rule_name(intro), intro_lvls);

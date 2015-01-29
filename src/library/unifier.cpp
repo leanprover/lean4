@@ -1330,7 +1330,7 @@ struct unifier_fn {
         levels lhs_lvls = const_levels(lhs_fn);
         levels rhs_lvls = const_levels(lhs_fn);
         if (length(lhs_lvls) != length(rhs_lvls) ||
-            length(d.get_univ_params()) != length(lhs_lvls)) {
+            d.get_num_univ_params() != length(lhs_lvls)) {
             // the constraint is not well-formed, this can happen when users are abusing the API
             set_conflict(j);
             return false;

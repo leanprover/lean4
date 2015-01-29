@@ -365,7 +365,7 @@ class inversion_tac {
         name const & I_name = const_name(I);
         expr g_type         = g.get_type();
         expr cases_on;
-        if (length(m_cases_on_decl.get_univ_params()) != length(m_I_decl.get_univ_params())) {
+        if (m_cases_on_decl.get_num_univ_params() != m_I_decl.get_num_univ_params()) {
             level g_lvl  = sort_level(m_tc.ensure_type(g_type).first);
             cases_on     = mk_constant({I_name, "cases_on"}, cons(g_lvl, const_levels(I)));
         } else {

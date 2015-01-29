@@ -54,7 +54,7 @@ bool get_find_expensive(options const & opts) {
 bool match_pattern(type_checker & tc, expr const & pattern, declaration const & d, unsigned max_steps, bool cheap) {
     name_generator ngen = tc.mk_ngen();
      buffer<level> ls;
-    unsigned num_ls = length(d.get_univ_params());
+    unsigned num_ls = d.get_num_univ_params();
     for (unsigned i = 0; i < num_ls; i++)
         ls.push_back(mk_meta_univ(ngen.next()));
     expr dt        = instantiate_type_univ_params(d, to_list(ls.begin(), ls.end()));

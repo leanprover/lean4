@@ -193,7 +193,7 @@ MK_THREAD_LOCAL_GET_DEF(instantiate_univ_cache, get_type_univ_cache);
 MK_THREAD_LOCAL_GET_DEF(instantiate_univ_cache, get_value_univ_cache);
 
 expr instantiate_type_univ_params(declaration const & d, levels const & ls) {
-    lean_assert(length(d.get_univ_params()) == length(ls));
+    lean_assert(d.get_num_univ_params() == length(ls));
     if (is_nil(ls) || !has_param_univ(d.get_type()))
         return d.get_type();
     instantiate_univ_cache & cache = get_type_univ_cache();
@@ -205,7 +205,7 @@ expr instantiate_type_univ_params(declaration const & d, levels const & ls) {
 }
 
 expr instantiate_value_univ_params(declaration const & d, levels const & ls) {
-    lean_assert(length(d.get_univ_params()) == length(ls));
+    lean_assert(d.get_num_univ_params() == length(ls));
     if (is_nil(ls) || !has_param_univ(d.get_value()))
         return d.get_value();
     instantiate_univ_cache & cache = get_value_univ_cache();

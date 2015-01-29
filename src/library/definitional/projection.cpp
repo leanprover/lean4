@@ -127,7 +127,7 @@ public:
         expr const & I = get_app_args(s_t, I_args);
         if (is_constant(I)) {
             declaration proj_decl = env.get(m_proj_name);
-            if (length(const_levels(I)) != length(proj_decl.get_univ_params()))
+            if (length(const_levels(I)) != proj_decl.get_num_univ_params())
                 throw_kernel_exception(env, sstream() << "invalid projection application '" << m_proj_name
                                        << "', incorrect number of universe parameters", m);
             expr t = instantiate_type_univ_params(proj_decl, const_levels(I));

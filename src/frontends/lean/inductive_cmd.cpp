@@ -663,7 +663,7 @@ struct inductive_cmd_fn {
     bool has_general_eliminator(environment const & env, name const & d_name) {
         declaration d = env.get(d_name);
         declaration r = env.get(mk_rec_name(d_name));
-        return length(d.get_univ_params()) != length(r.get_univ_params());
+        return d.get_num_univ_params() != r.get_num_univ_params();
     }
 
     /** \brief Add aliases for the inductive datatype, introduction and elimination rules */

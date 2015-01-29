@@ -1,3 +1,4 @@
+(source gnu)
 (source melpa)
 (package-file "lean-mode.el")
 (development

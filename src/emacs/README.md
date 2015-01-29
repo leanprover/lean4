@@ -14,7 +14,6 @@ packages which can be installed via <kbd>M-x package-install</kbd>.
  - [s][s]
 
 [emacs24]: http://www.gnu.org/software/emacs
-[MELPA]: http://melpa.milkbox.net
 [dash]: https://github.com/magnars/dash.el
 [f]: https://github.com/rejeep/f.el
 [s]: https://github.com/magnars/s.el
@@ -43,6 +42,7 @@ Put the following elisp code on your emacs setup
 ```elisp
 (require 'package)
 (add-to-list 'package-archives
+             '("gnu" . "http://elpa.gnu.org/packages/")
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 

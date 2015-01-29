@@ -75,9 +75,12 @@ match_plugin mk_whnf_match_plugin(type_checker & tc);
    the binder names used in \c t.
 
    If the plugin is provided, then it is invoked before a failure.
+
+   If \c assigned is provided, then it is set to true if \c esubst or \c lsubst is updated.
 */
 bool match(expr const & p, expr const & t, buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst,
-           name const * prefix = nullptr, name_map<name> * name_subst = nullptr, match_plugin const * plugin = nullptr);
+           name const * prefix = nullptr, name_map<name> * name_subst = nullptr, match_plugin const * plugin = nullptr,
+           bool * assigned = nullptr);
 void open_match(lua_State * L);
 void initialize_match();
 void finalize_match();

@@ -48,7 +48,7 @@ class match_fn : public match_context {
     match_plugin const *              m_plugin;
     buffer<pair<bool, unsigned>>      m_stack;
     buffer<unsigned>                  m_scopes;
-
+    bool *                            m_assigned; // mark if matcher assigned anything
     void push() {
         m_scopes.push_back(m_stack.size());
     }
@@ -85,6 +85,8 @@ class match_fn : public match_context {
         unsigned i    = sz - vidx - 1;
         m_stack.emplace_back(true, i);
         m_esubst[i] = t;
+        if (m_assigned)
+            *m_assigned = true;
     }
 
     void _assign(level const & p, level const & l) {
@@ -92,6 +94,8 @@ class match_fn : public match_context {
         unsigned i = to_meta_idx(p);
         m_stack.emplace_back(false, i);
         m_lsubst[i] = l;
+        if (m_assigned)
+            *m_assigned = true;
     }
 
     void throw_exception() const {
@@ -337,19 +341,20 @@ class match_fn : public match_context {
 
 public:
     match_fn(buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst, name_generator const & ngen,
-             name_map<name> * name_subst, match_plugin const * plugin):
-        m_esubst(esubst), m_lsubst(lsubst), m_ngen(ngen), m_name_subst(name_subst), m_plugin(plugin) {}
+             name_map<name> * name_subst, match_plugin const * plugin, bool * assigned):
+        m_esubst(esubst), m_lsubst(lsubst), m_ngen(ngen), m_name_subst(name_subst), m_plugin(plugin),
+        m_assigned(assigned) {}
 
     virtual bool match(expr const & p, expr const & t) { return _match(p, t); }
 };
 
 bool match(expr const & p, expr const & t, buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst,
-           name const * prefix, name_map<name> * name_subst, match_plugin const * plugin) {
+           name const * prefix, name_map<name> * name_subst, match_plugin const * plugin, bool * assigned) {
     lean_assert(closed(t));
     if (prefix)
-        return match_fn(esubst, lsubst, name_generator(*prefix), name_subst, plugin).match(p, t);
+        return match_fn(esubst, lsubst, name_generator(*prefix), name_subst, plugin, assigned).match(p, t);
     else
-        return match_fn(esubst, lsubst, name_generator(*g_tmp_prefix), name_subst, plugin).match(p, t);
+        return match_fn(esubst, lsubst, name_generator(*g_tmp_prefix), name_subst, plugin, assigned).match(p, t);
 }
 
 match_plugin mk_whnf_match_plugin(type_checker & tc) {

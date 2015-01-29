@@ -37,12 +37,12 @@ public:
 
         \remark This methods uses just higher-order pattern matching.
     */
-    optional<expr> mk_app(declaration const & d, unsigned nargs, expr const * args);
-    optional<expr> mk_app(name const & n, unsigned nargs, expr const * args);
-    optional<expr> mk_app(name const & n, std::initializer_list<expr> const & args);
-    optional<expr> mk_app(name const & n, expr const & a1);
-    optional<expr> mk_app(name const & n, expr const & a1, expr const & a2);
-    optional<expr> mk_app(name const & n, expr const & a1, expr const & a2, expr const & a3);
+    optional<expr> mk_app(declaration const & d, unsigned nargs, expr const * args, bool use_cache = true);
+    optional<expr> mk_app(name const & n, unsigned nargs, expr const * args, bool use_cache = true);
+    optional<expr> mk_app(name const & n, std::initializer_list<expr> const & args, bool use_cache = true);
+    optional<expr> mk_app(name const & n, expr const & a1, bool use_cache = true);
+    optional<expr> mk_app(name const & n, expr const & a1, expr const & a2, bool use_cache = true);
+    optional<expr> mk_app(name const & n, expr const & a1, expr const & a2, expr const & a3, bool use_cache = true);
     /** \brief Create a backtracking point for cached information.
         \remark This method does not invoke tc->push()
     */

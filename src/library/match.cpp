@@ -114,7 +114,7 @@ class match_fn : public match_context {
 
     optional<level> _get_subst(level const & x) const {
         unsigned i = to_meta_idx(x);
-        if (i > m_lsubst_sz)
+        if (i >= m_lsubst_sz)
             throw_exception();
         return m_lsubst[i];
     }

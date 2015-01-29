@@ -41,8 +41,10 @@ unsigned to_meta_idx(level const & l) {
 }
 
 class match_fn : public match_context {
-    buffer<optional<expr>> &          m_esubst;
-    buffer<optional<level>> &         m_lsubst;
+    unsigned                          m_esubst_sz;
+    optional<expr> *                  m_esubst;
+    unsigned                          m_lsubst_sz;
+    optional<level> *                 m_lsubst;
     name_generator                    m_ngen;
     name_map<name> *                  m_name_subst;
     match_plugin const *              m_plugin;
@@ -79,9 +81,9 @@ class match_fn : public match_context {
     };
 
     void _assign(expr const & p, expr const & t) {
-        lean_assert(var_idx(p) < m_esubst.size());
+        lean_assert(var_idx(p) < m_esubst_sz);
         unsigned vidx = var_idx(p);
-        unsigned sz   = m_esubst.size();
+        unsigned sz   = m_esubst_sz;
         unsigned i    = sz - vidx - 1;
         m_stack.emplace_back(true, i);
         m_esubst[i] = t;
@@ -90,7 +92,7 @@ class match_fn : public match_context {
     }
 
     void _assign(level const & p, level const & l) {
-        lean_assert(to_meta_idx(p) < m_lsubst.size());
+        lean_assert(to_meta_idx(p) < m_lsubst_sz);
         unsigned i = to_meta_idx(p);
         m_stack.emplace_back(false, i);
         m_lsubst[i] = l;
@@ -104,7 +106,7 @@ class match_fn : public match_context {
 
     optional<expr> _get_subst(expr const & x) const {
         unsigned vidx = var_idx(x);
-        unsigned sz = m_esubst.size();
+        unsigned sz = m_esubst_sz;
         if (vidx >= sz)
             throw_exception();
         return m_esubst[sz - vidx - 1];
@@ -112,7 +114,7 @@ class match_fn : public match_context {
 
     optional<level> _get_subst(level const & x) const {
         unsigned i = to_meta_idx(x);
-        if (i > m_lsubst.size())
+        if (i > m_lsubst_sz)
             throw_exception();
         return m_lsubst[i];
     }
@@ -340,21 +342,35 @@ class match_fn : public match_context {
     }
 
 public:
-    match_fn(buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst, name_generator const & ngen,
+    match_fn(unsigned esubst_sz, optional<expr> * esubst,
+             unsigned lsubst_sz, optional<level> * lsubst,
+             name_generator const & ngen,
              name_map<name> * name_subst, match_plugin const * plugin, bool * assigned):
-        m_esubst(esubst), m_lsubst(lsubst), m_ngen(ngen), m_name_subst(name_subst), m_plugin(plugin),
+        m_esubst_sz(esubst_sz), m_esubst(esubst),
+        m_lsubst_sz(lsubst_sz), m_lsubst(lsubst),
+        m_ngen(ngen), m_name_subst(name_subst), m_plugin(plugin),
         m_assigned(assigned) {}
 
     virtual bool match(expr const & p, expr const & t) { return _match(p, t); }
 };
 
-bool match(expr const & p, expr const & t, buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst,
+bool match(expr const & p, expr const & t,
+           unsigned esubst_sz, optional<expr> * esubst,
+           unsigned lsubst_sz, optional<level> * lsubst,
            name const * prefix, name_map<name> * name_subst, match_plugin const * plugin, bool * assigned) {
     lean_assert(closed(t));
     if (prefix)
-        return match_fn(esubst, lsubst, name_generator(*prefix), name_subst, plugin, assigned).match(p, t);
+        return match_fn(esubst_sz, esubst, lsubst_sz, lsubst, name_generator(*prefix),
+                        name_subst, plugin, assigned).match(p, t);
     else
-        return match_fn(esubst, lsubst, name_generator(*g_tmp_prefix), name_subst, plugin, assigned).match(p, t);
+        return match_fn(esubst_sz, esubst, lsubst_sz, lsubst,
+                        name_generator(*g_tmp_prefix), name_subst, plugin, assigned).match(p, t);
+}
+
+bool match(expr const & p, expr const & t, buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst,
+           name const * prefix, name_map<name> * name_subst, match_plugin const * plugin, bool * assigned) {
+    return match(p, t, esubst.size(), esubst.data(), lsubst.size(), lsubst.data(),
+                 prefix, name_subst, plugin, assigned);
 }
 
 match_plugin mk_whnf_match_plugin(type_checker & tc) {

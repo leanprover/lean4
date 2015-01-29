@@ -54,4 +54,6 @@ public:
     */
     void pop();
 };
+
+void open_app_builder(lua_State * L);
 }

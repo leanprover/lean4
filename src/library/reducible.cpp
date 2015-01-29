@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/kernel_serializer.h"
 #include "library/scoped_ext.h"
 #include "library/reducible.h"
+#include "library/kernel_bindings.h"
 
 namespace lean {
 struct reducible_entry {
@@ -143,5 +144,75 @@ std::unique_ptr<type_checker> mk_opaque_type_checker(environment const & env, na
     bool memoize = true;
     return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env, relax_main_opaque,
                                                                                           memoize, pred)));
+}
+
+static int mk_opaque_type_checker(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 0) {
+        type_checker_ref r(mk_opaque_type_checker(get_global_environment(L), name_generator()));
+        return push_type_checker_ref(L, r);
+    } else if (nargs == 1) {
+        type_checker_ref r(mk_opaque_type_checker(to_environment(L, 1), name_generator()));
+        return push_type_checker_ref(L, r);
+    } else {
+        type_checker_ref r(mk_opaque_type_checker(to_environment(L, 1), to_name_generator(L, 2)));
+        return push_type_checker_ref(L, r);
+    }
+}
+
+static int mk_reducible_checker_core(lua_State * L, reducible_behavior rb) {
+    int nargs = lua_gettop(L);
+    if (nargs == 0) {
+        type_checker_ref r(mk_type_checker(get_global_environment(L), name_generator(), false, rb));
+        return push_type_checker_ref(L, r);
+    } else if (nargs == 1) {
+        type_checker_ref r(mk_type_checker(to_environment(L, 1), name_generator(), false, rb));
+        return push_type_checker_ref(L, r);
+    } else {
+        type_checker_ref r(mk_type_checker(to_environment(L, 1), to_name_generator(L, 2), false, rb));
+        return push_type_checker_ref(L, r);
+    }
+}
+
+static int mk_reducible_type_checker(lua_State * L) {
+    return mk_reducible_checker_core(L, OpaqueIfNotReducibleOn);
+}
+
+static int mk_non_irreducible_type_checker(lua_State * L) {
+    return mk_reducible_checker_core(L, OpaqueIfReducibleOff);
+}
+
+static int is_reducible_on(lua_State * L) {
+    return push_boolean(L, is_reducible_on(to_environment(L, 1), to_name_ext(L, 2)));
+}
+
+static int is_reducible_off(lua_State * L) {
+    return push_boolean(L, is_reducible_off(to_environment(L, 1), to_name_ext(L, 2)));
+}
+
+static int set_reducible(lua_State * L) {
+    int nargs = lua_gettop(L);
+    if (nargs == 3) {
+        return push_environment(L, set_reducible(to_environment(L, 1), to_name_ext(L, 2),
+                                                 static_cast<reducible_status>(lua_tonumber(L, 3))));
+    } else {
+        return push_environment(L, set_reducible(to_environment(L, 1), to_name_ext(L, 2),
+                                                 static_cast<reducible_status>(lua_tonumber(L, 3)),
+                                                 lua_toboolean(L, 4)));
+    }
+}
+
+void open_reducible(lua_State * L) {
+    lua_newtable(L);
+    SET_ENUM("On",      reducible_status::On);
+    SET_ENUM("Off",     reducible_status::Off);
+    SET_ENUM("None",    reducible_status::None);
+    lua_setglobal(L, "reducible_status");
+    SET_GLOBAL_FUN(is_reducible_on,                 "is_reducible_on");
+    SET_GLOBAL_FUN(is_reducible_off,                "is_reducible_off");
+    SET_GLOBAL_FUN(set_reducible,                   "set_reducible");
+    SET_GLOBAL_FUN(mk_opaque_type_checker,          "opaque_type_checker");
+    SET_GLOBAL_FUN(mk_non_irreducible_type_checker, "non_irreducible_type_checker");
+    SET_GLOBAL_FUN(mk_reducible_type_checker,       "reducible_type_checker");
 }
 }

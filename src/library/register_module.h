@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 #include "library/scoped_ext.h"
 #include "library/match.h"
+#include "library/reducible.h"
 
 namespace lean {
 inline void open_core_module(lua_State * L) {
@@ -31,6 +32,7 @@ inline void open_core_module(lua_State * L) {
     open_unifier(L);
     open_explicit(L);
     open_match(L);
+    open_reducible(L);
 }
 inline void register_core_module() {
     script_state::register_module(open_core_module);

@@ -47,4 +47,5 @@ std::unique_ptr<type_checker> mk_opaque_type_checker(environment const & env, na
 
 void initialize_reducible();
 void finalize_reducible();
+void open_reducible(lua_State * L);
 }

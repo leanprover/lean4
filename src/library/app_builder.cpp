@@ -58,7 +58,9 @@ struct app_builder::imp {
     cache               m_cache;
     buffer<levels>      m_levels;
 
-    imp(type_checker & tc):m_tc(tc), m_plugin(mk_whnf_match_plugin(tc)) {}
+    imp(type_checker & tc):m_tc(tc), m_plugin(mk_whnf_match_plugin(tc)) {
+        m_levels.push_back(levels());
+    }
 
     // Make sure m_levels contains at least nlvls metavariable universe levels
     void ensure_levels(unsigned nlvls) {

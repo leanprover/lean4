@@ -352,6 +352,19 @@ bool match(expr const & p, expr const & t, buffer<optional<expr>> & esubst, buff
         return match_fn(esubst, lsubst, name_generator(*g_tmp_prefix), name_subst, plugin).match(p, t);
 }
 
+match_plugin mk_whnf_match_plugin(type_checker & tc) {
+    return [&](expr const & p, expr const & t, match_context & ctx) { // NOLINT
+        try {
+            constraint_seq cs;
+            expr p1 = tc.whnf(p, cs);
+            expr t1 = tc.whnf(t, cs);
+            return !cs && (p1 != p || t1 != t) && ctx.match(p1, t1);
+        } catch (exception&) {
+            return false;
+        }
+    };
+}
+
 match_plugin mk_whnf_match_plugin(std::shared_ptr<type_checker> tc) {
     return [=](expr const & p, expr const & t, match_context & ctx) { // NOLINT
         try {

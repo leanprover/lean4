@@ -50,6 +50,7 @@ typedef std::function<bool(expr const &, expr const &, match_context &)> match_p
 
 /** \brief Create a match_plugin that puts terms in weak-head-normal-form before failing */
 match_plugin mk_whnf_match_plugin(std::shared_ptr<type_checker> tc);
+match_plugin mk_whnf_match_plugin(type_checker & tc);
 
 /**
    \brief Matching for higher-order patterns. Return true iff \c t matches the higher-order pattern \c p.

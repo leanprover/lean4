@@ -43,9 +43,8 @@ Put the following elisp code on your emacs setup
 
 ```elisp
 (require 'package)
-(add-to-list 'package-archives
-             '("gnu" . "http://elpa.gnu.org/packages/")
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/") t)
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 
 ;; Install required/optional packages for lean-mode
@@ -94,7 +93,7 @@ Case 3: Install lean via homebrew on OS X
 
 ```elisp
 ;; Set up lean-root path
-(setq lean-rootdir "/usr")
+(setq lean-rootdir "/usr/local")
 (setq-local lean-emacs-path "/usr/local/share/emacs/site-lisp/lean")
 (add-to-list 'load-path (expand-file-name lean-emacs-path))
 (require 'lean-mode)

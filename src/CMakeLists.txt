@@ -33,12 +33,13 @@ option(CROSS_COMPILE      "CROSS_COMPILE"     OFF)
 option(CONSERVE_MEMORY    "CONSERVE_MEMORY"   OFF)
 # Include MSYS2 required DLLs and binaries in the binary distribution package
 option(INCLUDE_MSYS2_DLLS "INCLUDE_MSYS2_DLLS" OFF)
+# Directory that include lean emacs mode dependecies
+option(EMACS_DEPENDENCIES "EMACS_DEPENDENCIES" "${CMAKE_SOURCE_DIR}/emacs/dependencies")
 
 # emacs site-lisp dir
 set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-lisp dir")
 # library dir
 set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")
-
 
 message(STATUS "Lean emacs-mode will be installed at "
   ${CMAKE_INSTALL_PREFIX}/${EMACS_LISP_DIR})
@@ -292,6 +293,9 @@ configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 
+# leanemacs file
+configure_file("${LEAN_SOURCE_DIR}/../bin/leanemacs.in" "${LEAN_SOURCE_DIR}/../bin/leanemacs")
+
 include_directories("${LEAN_BINARY_DIR}")
 add_subdirectory(util)
 set(LEAN_LIBS ${LEAN_LIBS} util)
@@ -401,6 +405,10 @@ install(FILES ${CMAKE_SOURCE_DIR}/../bin/linja ${CMAKE_SOURCE_DIR}/../bin/leanta
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
+install(FILES ${CMAKE_SOURCE_DIR}/../bin/leanemacs ${CMAKE_SOURCE_DIR}/../bin/leanemacs
+  DESTINATION bin
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/../library DESTINATION ${LIBRARY_DIR}
         FILES_MATCHING PATTERN "*.lean")
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/../library DESTINATION ${LIBRARY_DIR}
@@ -419,8 +427,18 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/../hott DESTINATION ${LIBRARY_DIR}
         PATTERN ".project"
         PATTERN "TAGS")
 
-install(FILES ${CMAKE_SOURCE_DIR}/../doc/bin/README.md
-        DESTINATION .)
+install(FILES ${CMAKE_SOURCE_DIR}/../images/lean.png
+        DESTINATION ${EMACS_LISP_DIR})
+
+if(EXISTS "${EMACS_DEPENDENCIES}")
+  install(DIRECTORY ${EMACS_DEPENDENCIES}/ DESTINATION ${EMACS_LISP_DIR}/dependencies
+    FILES_MATCHING
+    PATTERN "*.el"
+    PATTERN "dir"
+    PATTERN "*.info*")
+else()
+  message(STATUS "Emacs dependencies directory does not exist. Therefore, they will not be included in the binary installation package. The Emacs packages required by Lean Emacs mode can be retrieved from the repository https://github.com/leanprover/emacs-dependencies. The cmake option EMACS_DEPENDENCIES can be used to specify where these files are located.")
+endif()
 
 if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")
   # TODO(Leo): do not use hardlinks to required DLLs.

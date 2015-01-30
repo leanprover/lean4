@@ -1,0 +1,45 @@
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGINWAIT
+-- INTERRUPTED
+-- ENDWAIT
+-- BEGININFO NAY
+-- TYPE|4|13
+Type₁
+-- ACK
+-- TYPE|4|16
+Prop
+-- ACK
+-- IDENTIFIER|4|16
+true
+-- ACK
+-- ENDINFO
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGININFO
+-- TYPE|4|13
+Type₁
+-- ACK
+-- TYPE|4|16
+Prop
+-- ACK
+-- IDENTIFIER|4|16
+true
+-- ACK
+-- ENDINFO
+-- BEGINFINDG
+add.assoc|∀ (n m k : ℕ), n + m + k = n + (m + k)
+-- ENDFINDG
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGINSHOW
+import logic data.nat.basic
+open nat eq.ops
+
+definition a := true
+
+theorem tst (a b c : nat) : a + b + c = a + c + b :=
+calc a + b + c = a + (b + c) : _
+         ...   = a + (c + b) : {!add.comm}
+         ...   = a + c + b   : (!add.assoc)⁻¹
+-- ENDSHOW

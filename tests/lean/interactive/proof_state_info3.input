@@ -1,0 +1,19 @@
+VISIT proof_state_info3.lean
+SYNC 11
+
+
+theorem tst (a b c : Prop) : a → b → a ∧ b :=
+begin
+  info,
+  intros (Ha, Hb),
+  info,
+  apply and.intro,
+  apply Ha,
+  apply Hb,
+end
+WAIT
+REPLACE 7
+  state,
+SHOW
+WAIT
+INFO 8 17

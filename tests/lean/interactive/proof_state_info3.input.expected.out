@@ -1,0 +1,30 @@
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGINSHOW
+
+
+theorem tst (a b c : Prop) : a → b → a ∧ b :=
+begin
+  info,
+  intros (Ha, Hb),
+  state,
+  apply and.intro,
+  apply Ha,
+  apply Hb,
+end
+-- ENDSHOW
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGININFO
+-- PROOF_STATE|8|17
+a b c : Prop,
+Ha : a,
+Hb : b
+⊢ a
+--
+a b c : Prop,
+Ha : a,
+Hb : b
+⊢ b
+-- ACK
+-- ENDINFO

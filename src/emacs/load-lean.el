@@ -8,7 +8,7 @@
     (setq-local lean-emacs-path (getenv "LEAN_EMACS_PATH"))
     (error "LEAN_EMACS_PATH environment variable must be set"))
 
-(setq lean-emacs-dependencies-path (format "%s/dependencies") lean-emacs-path)
+(setq lean-emacs-dependencies-path (format "%s/dependencies" lean-emacs-path))
 
 (setq lean-logo (create-image (format "%s/lean.png" lean-emacs-path)))
 (setq lean-required-packages '(company dash dash-functional f fill-column-indicator flycheck lua-mode mmm-mode s))

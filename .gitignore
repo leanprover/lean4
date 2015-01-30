@@ -21,3 +21,4 @@ CMakeFiles/
 .lean_options
 doc/html
 make.deps
+src/emacs/dependencies

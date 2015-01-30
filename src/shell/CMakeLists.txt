@@ -33,6 +33,7 @@ add_test(lean_unknown_file1 bash ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CM
 add_test(lean_unknown_file2 bash ${LEAN_SOURCE_DIR}/cmake/check_failure.sh "${CMAKE_CURRENT_BINARY_DIR}/lean" "boofoo.lua")
 add_test(lean_server_trace ${CMAKE_CURRENT_BINARY_DIR}/lean --server-trace "${LEAN_SOURCE_DIR}/../tests/lean/interactive/consume_args.input")
 add_test(lean_server_trace ${CMAKE_CURRENT_BINARY_DIR}/lean --server-trace "${LEAN_SOURCE_DIR}/../tests/lean/interactive/options_cmd.trace")
+add_test(lean_server_trace ${CMAKE_CURRENT_BINARY_DIR}/lean --server-trace "${LEAN_SOURCE_DIR}/../tests/lean/interactive/commands.trace")
 
 # LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")

@@ -11,11 +11,12 @@ calc a + b + c = a + (b + c) : _
          ...   = a + c + b   : (!add.assoc)⁻¹
 WAIT
 CLEAR_CACHE
-WAIT
+WAIT 100
 INFO 4
 WAIT
 INFO 4
 FINDG 7 31
 +assoc -symm
 WAIT
+SLEEP 20
 SHOW

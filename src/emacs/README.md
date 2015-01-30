@@ -63,8 +63,8 @@ Put the following elisp code on your emacs setup
 
 Please choose your installation method from the following scenarios, and add the elisp code to your emacs setup:
 
-Build lean from source
-----------------------
+Case 1: Build lean from source
+-----------------------------
 
 ```elisp
 ;; Set up lean-root path
@@ -77,8 +77,8 @@ Build lean from source
 (require 'lean-mode)
 ```
 
-Install lean via apt-get on Ubuntu
-----------------------------------
+Case 2: Install lean via apt-get on Ubuntu
+-------------------------------------------
 
 ```elisp
 ;; Set up lean-root path
@@ -89,8 +89,8 @@ Install lean via apt-get on Ubuntu
 ```
 
 
-Install lean via homebrew on OS X
-----------------------------------
+Case 3: Install lean via homebrew on OS X
+-----------------------------------------
 
 ```elisp
 ;; Set up lean-root path
@@ -105,9 +105,8 @@ location, please run `brew info lean` and it will tell you where
 lean-mode files are located. With that information, update
 `lean-emacs-path` variable accordingly.
 
-
-Install lean in Windows
-----------------------------------
+Case 4: Install lean in Windows
+-------------------------------
 ```
 ;; Set up lean-root path
 (setq lean-rootdir "\\lean-0.2.0-windows")

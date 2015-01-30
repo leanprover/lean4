@@ -31,7 +31,7 @@ option(CROSS_COMPILE      "CROSS_COMPILE"     OFF)
 # When ON we try to minimize the amount of memory needed to compile Lean using gcc.
 # We use this flag when compiling at Travis.
 option(CONSERVE_MEMORY    "CONSERVE_MEMORY"   OFF)
-# Include MSYS2 required DLLs in the binary distribution package
+# Include MSYS2 required DLLs and binaries in the binary distribution package
 option(INCLUDE_MSYS2_DLLS "INCLUDE_MSYS2_DLLS" OFF)
 
 # emacs site-lisp dir
@@ -430,6 +430,7 @@ if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")
          ${MINGW_LOCAL_DIR}/libgmp-10.dll
          ${MINGW_LOCAL_DIR}/libwinpthread-1.dll
          ${MINGW_LOCAL_DIR}/libgcc_s_seh-1.dll
-         ${MINGW_LOCAL_DIR}/libstdc++-6.dll)
+         ${MINGW_LOCAL_DIR}/libstdc++-6.dll
+	 ${CMAKE_SOURCE_DIR}/../bin/ninja.exe)
   install(PROGRAMS ${RUNTIME_LIBRARIES} DESTINATION bin)
 endif()

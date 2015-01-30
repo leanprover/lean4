@@ -10,7 +10,7 @@
 
 (setq lean-emacs-dependencies-path (format "%s/dependencies" lean-emacs-path))
 
-(setq lean-logo (create-image (format "%s/lean.png" lean-emacs-path)))
+(setq lean-logo (create-image (format "%s/lean.pgm" lean-emacs-path)))
 (setq lean-required-packages '(company dash dash-functional f fill-column-indicator flycheck lua-mode mmm-mode s))
 
 (setq load-path
@@ -38,6 +38,7 @@
     (insert "\n\nPlease check our website periodically for news of later versions")
     (insert "\nat http://leanprover.github.io")
     (insert "\n\nBug reports and suggestions for improvement should be posted at\nhttps://github.com/leanprover/lean/issues")
+    (insert "\n\nTo start using Lean, open a .lean or .hlean file")
     (set-buffer-modified-p nil)
     (text-mode)
     (toggle-read-only)

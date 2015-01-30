@@ -434,7 +434,7 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/../hott DESTINATION ${LIBRARY_DIR}
         PATTERN ".project"
         PATTERN "TAGS")
 
-install(FILES ${CMAKE_SOURCE_DIR}/../images/lean.png
+install(FILES ${CMAKE_SOURCE_DIR}/../images/lean.pgm
         DESTINATION ${EMACS_LISP_DIR})
 
 if(EXISTS "${EMACS_DEPENDENCIES}")

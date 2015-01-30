@@ -2,6 +2,7 @@ Emacs mode for [lean theorem prover][lean]
 
 [lean]: https://github.com/leanprover/lean
 
+
 Requirement
 ===========
 
@@ -33,6 +34,7 @@ to use full features of ``lean-mode``.
 [lua-mode]: http://immerrr.github.io/lua-mode/
 [mmm-mode]: https://github.com/purcell/mmm-mode
 
+
 Install
 =======
 
@@ -57,7 +59,14 @@ Put the following elisp code on your emacs setup
         (package-refresh-contents)
         (setq need-to-refresh nil))
       (package-install p))))
+```
 
+Please choose your installation method from the following scenarios, and add the elisp code to your emacs setup:
+
+Build lean from source
+----------------------
+
+```elisp
 ;; Set up lean-root path
 (setq lean-rootdir "~/projects/lean")  ;; <=== YOU NEED TO MODIFY THIS
 (setq-local lean-emacs-path
@@ -66,12 +75,47 @@ Put the following elisp code on your emacs setup
                     "emacs"))
 (add-to-list 'load-path (expand-file-name lean-emacs-path))
 (require 'lean-mode)
-
-;; Customization for lean-mode
-(customize-set-variable 'lean-delete-trailing-whitespace t)
-(customize-set-variable 'lean-flycheck-use t)
-(customize-set-variable 'lean-eldoc-use t)
 ```
+
+Install lean via apt-get on Ubuntu
+----------------------------------
+
+```elisp
+;; Set up lean-root path
+(setq lean-rootdir "/usr")
+(setq-local lean-emacs-path "/usr/share/emacs/site-lisp/lean")
+(add-to-list 'load-path (expand-file-name lean-emacs-path))
+(require 'lean-mode)
+```
+
+
+Install lean via homebrew on OS X
+----------------------------------
+
+```elisp
+;; Set up lean-root path
+(setq lean-rootdir "/usr")
+(setq-local lean-emacs-path "/usr/local/share/emacs/site-lisp/lean")
+(add-to-list 'load-path (expand-file-name lean-emacs-path))
+(require 'lean-mode)
+```
+
+Note: if you install homebrew not in the default location but a custom
+location, please run `brew info lean` and it will tell you where
+lean-mode files are located. With that information, update
+`lean-emacs-path` variable accordingly.
+
+
+Install lean in Windows
+----------------------------------
+```
+;; Set up lean-root path
+(setq lean-rootdir "\\lean-0.2.0-windows")
+(setq-local lean-emacs-path “\\lean-0.2.0-windows\\share\\emacs\\site-lisp\\lean")
+(add-to-list 'load-path (expand-file-name lean-emacs-path))
+(require 'lean-mode)
+```
+
 
 Key Bindings
 ============
@@ -104,6 +148,7 @@ first consider using a unicode-friendly font such as `DejaVu Sans Mono`:
 
 If you still experience rendering problem. Please consider trying
 [emacs-unicode-fonts](https://github.com/rolandwalker/unicode-fonts).
+
 
 Contribution
 ============

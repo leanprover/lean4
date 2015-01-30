@@ -295,6 +295,7 @@ configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 
 # leanemacs file
 configure_file("${LEAN_SOURCE_DIR}/../bin/leanemacs.in" "${LEAN_SOURCE_DIR}/../bin/leanemacs")
+configure_file("${LEAN_SOURCE_DIR}/../bin/leanemacs.bat.in" "${LEAN_SOURCE_DIR}/../bin/leanemacs.bat")
 
 include_directories("${LEAN_BINARY_DIR}")
 add_subdirectory(util)
@@ -405,9 +406,15 @@ install(FILES ${CMAKE_SOURCE_DIR}/../bin/linja ${CMAKE_SOURCE_DIR}/../bin/leanta
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
-install(FILES ${CMAKE_SOURCE_DIR}/../bin/leanemacs ${CMAKE_SOURCE_DIR}/../bin/leanemacs
-  DESTINATION bin
-  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  install(FILES ${CMAKE_SOURCE_DIR}/../bin/leanemacs.bat ${CMAKE_SOURCE_DIR}/../bin/leanemacs.bat
+    DESTINATION bin
+    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+else()
+  install(FILES ${CMAKE_SOURCE_DIR}/../bin/leanemacs ${CMAKE_SOURCE_DIR}/../bin/leanemacs
+    DESTINATION bin
+    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+endif()
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/../library DESTINATION ${LIBRARY_DIR}
         FILES_MATCHING PATTERN "*.lean")

@@ -176,9 +176,7 @@ enabled and disabled respectively.")
   (when lean-company-use
     (company-lean-hook))
   ;; mmm-lua-mode
-  (when (and (package-installed-p 'mmm-mode)
-             (package-installed-p 'lua-mode))
-    (lean-mmm-lua-hook)))
+  (lean-mmm-lua-hook))
 
 ;; Automode List
 ;;;###autoload

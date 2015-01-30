@@ -1,0 +1,57 @@
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGININFO
+-- TYPE|5|6
+ℕ
+-- ACK
+-- IDENTIFIER|5|6
+a
+-- ACK
+-- TYPE|5|8
+ℕ → ℕ → ℕ
+-- ACK
+-- OVERLOAD|5|8
+num.add #1 #0
+--
+nat.add #1 #0
+-- ACK
+-- SYMBOL|5|8
++
+-- ACK
+-- IDENTIFIER|5|8
+nat.add
+-- ACK
+-- TYPE|5|10
+num
+-- ACK
+-- COERCION|5|10
+of_num b
+--
+ℕ
+-- ACK
+-- IDENTIFIER|5|10
+b
+-- ACK
+-- ENDINFO
+-- BEGININFO STALE
+-- TYPE|6|6
+ℕ → ℕ → ℕ
+-- ACK
+-- OVERLOAD|6|6
+num.add
+--
+nat.add
+-- ACK
+-- TYPE|6|10
+ℕ
+-- ACK
+-- IDENTIFIER|6|10
+a
+-- ACK
+-- TYPE|6|12
+bool
+-- ACK
+-- IDENTIFIER|6|12
+c
+-- ACK
+-- ENDINFO

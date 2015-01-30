@@ -34,7 +34,9 @@ option(CONSERVE_MEMORY    "CONSERVE_MEMORY"   OFF)
 # Include MSYS2 required DLLs and binaries in the binary distribution package
 option(INCLUDE_MSYS2_DLLS "INCLUDE_MSYS2_DLLS" OFF)
 # Directory that include lean emacs mode dependecies
-option(EMACS_DEPENDENCIES "EMACS_DEPENDENCIES" "${CMAKE_SOURCE_DIR}/emacs/dependencies")
+set(EMACS_DEPENDENCIES "${CMAKE_SOURCE_DIR}/emacs/dependencies")
+
+message(STATUS "Emacs dependecies directory " ${EMACS_DEPENDENCIES})
 
 # emacs site-lisp dir
 set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-lisp dir")

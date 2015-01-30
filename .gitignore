@@ -22,3 +22,5 @@ CMakeFiles/
 doc/html
 make.deps
 src/emacs/dependencies
+bin/leanemacs
+bin/leanemacs.bat

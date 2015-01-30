@@ -431,6 +431,6 @@ if("${INCLUDE_MSYS2_DLLS}" MATCHES "ON")
          ${MINGW_LOCAL_DIR}/libwinpthread-1.dll
          ${MINGW_LOCAL_DIR}/libgcc_s_seh-1.dll
          ${MINGW_LOCAL_DIR}/libstdc++-6.dll
-	 ${CMAKE_SOURCE_DIR}/../bin/ninja.exe)
+         ${MINGW_LOCAL_DIR}/bin/ninja.exe)
   install(PROGRAMS ${RUNTIME_LIBRARIES} DESTINATION bin)
 endif()

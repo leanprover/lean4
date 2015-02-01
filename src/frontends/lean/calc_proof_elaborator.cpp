@@ -187,37 +187,63 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
             bool conservative = false;
             return try_alternative(e, e_type, new_cs, conservative);
         } else {
-            std::unique_ptr<throwable> saved_ex;
-            try {
-                bool conservative = false;
-                return try_alternative(e, e_type, new_cs, conservative);
-            } catch (exception & ex) {
-                saved_ex.reset(ex.clone());
-            }
+            // TODO(Leo): after we have the simplifier and rewriter tactic, we should revise
+            // this code. It is "abusing" the higher-order unifier.
 
-            constraint_seq symm_cs = new_cs;
-            auto symm  = apply_symmetry(env, ctx, ngen, tc, e, e_type, symm_cs, g);
-            if (symm) {
-                bool conservative = false;
-                try { return try_alternative(symm->first, symm->second, symm_cs, conservative); } catch (exception &) {}
-            }
+            {
+                // Try the following possible intrepretations using a "conservative" unification procedure.
+                // That is, we only unfold definitions marked as reducible.
+                // Assume pr is the proof provided.
 
-            constraint_seq subst_cs = new_cs;
-            if (auto subst = apply_subst(env, ctx, ngen, tc, e, e_type, meta_type, subst_cs, g)) {
+                // 1. pr
                 bool conservative = true;
-                try { return try_alternative(subst->first, subst->second, subst_cs, conservative); } catch (exception&) {}
-            }
+                try { return try_alternative(e, e_type, new_cs, conservative); } catch (exception & ex) {}
 
-            if (symm) {
-                constraint_seq subst_cs = symm_cs;
-                bool conservative = true;
-                if (auto subst = apply_subst(env, ctx, ngen, tc, symm->first, symm->second, meta_type, subst_cs, g)) {
+                // 2. eq.symm pr
+                constraint_seq symm_cs = new_cs;
+                auto symm  = apply_symmetry(env, ctx, ngen, tc, e, e_type, symm_cs, g);
+                if (symm) {
+                    try { return try_alternative(symm->first, symm->second, symm_cs, conservative); } catch (exception &) {}
+                }
+
+                // 3. subst pr (eq.refl lhs)
+                constraint_seq subst_cs = new_cs;
+                if (auto subst = apply_subst(env, ctx, ngen, tc, e, e_type, meta_type, subst_cs, g)) {
                     try { return try_alternative(subst->first, subst->second, subst_cs, conservative); } catch (exception&) {}
+                }
+
+                // 4. subst (eq.symm pr) (eq.refl lhs)
+                if (symm) {
+                    constraint_seq subst_cs = symm_cs;
+                    if (auto subst = apply_subst(env, ctx, ngen, tc, symm->first, symm->second, meta_type, subst_cs, g)) {
+                        try { return try_alternative(subst->first, subst->second, subst_cs, conservative); } catch (exception&) {}
+                    }
                 }
             }
 
-            saved_ex->rethrow();
-            lean_unreachable();
+            {
+                // Try the following possible insterpretations using the default unification procedure.
+
+                // 1. pr
+                bool conservative = false;
+                std::unique_ptr<throwable> saved_ex;
+                try {
+                    return try_alternative(e, e_type, new_cs, conservative);
+                } catch (exception & ex) {
+                    saved_ex.reset(ex.clone());
+                }
+
+                // 2. eq.symm pr
+                constraint_seq symm_cs = new_cs;
+                auto symm  = apply_symmetry(env, ctx, ngen, tc, e, e_type, symm_cs, g);
+                if (symm) {
+                    try { return try_alternative(symm->first, symm->second, symm_cs, conservative); } catch (exception &) {}
+                }
+
+                // We use the exception for the first alternative as the error message
+                saved_ex->rethrow();
+                lean_unreachable();
+            }
         }
     };
     bool owner = false;

@@ -7,10 +7,8 @@ Module: data.nat.sub
 
 Subtraction on the natural numbers, as well as min, max, and distance.
 -/
-
 import .order
 import tools.fake_simplifier
-
 open eq.ops
 open fake_simplifier
 
@@ -143,7 +141,7 @@ induction_on m
                    ... = n * k - (l * k + k)  : sub_sub
                    ... = n * k - (succ l * k) : succ_mul)
 
-theorem mul_sub_distr_left (n m k : ℕ) : n * (m - k) = n * m - n * k :=
+theorem mul_sub_left_distrib (n m k : ℕ) : n * (m - k) = n * m - n * k :=
 calc
   n * (m - k) = (m - k) * n   : !mul.comm
           ... = m * n - k * n : !mul_sub_right_distrib

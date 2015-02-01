@@ -7,8 +7,7 @@ Authors: Floris van Doorn, Leonardo de Moura, Jeremy Avigad
 
 The order relation on the natural numbers.
 -/
-
-import data.nat.basic data.nat.comm_semiring algebra.ordered_ring
+import data.nat.basic algebra.ordered_ring
 open eq.ops
 
 namespace nat

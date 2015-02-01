@@ -8,7 +8,7 @@ Authors: Jeremy Avigad, Leonardo de Moura
 Definitions of div, mod, and gcd on the natural numbers.
 -/
 
-import data.nat.sub data.nat.comm_semiring tools.fake_simplifier
+import data.nat.sub tools.fake_simplifier
 open eq.ops well_founded decidable fake_simplifier prod
 
 namespace nat
@@ -357,7 +357,7 @@ or.elim (eq_zero_or_pos k)
     calc
       m * n div k = m * n div 0   : H1
               ... = 0             : div_zero
-              ... = m * 0         : mul_zero m    -- TODO: why do we have to specify m here?
+              ... = m * 0         : mul_zero m
               ... = m * (n div 0) : div_zero
               ... = m * (n div k) : H1)
   (assume H1 : k > 0,

@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: data.prod
 Author: Leonardo de Moura, Jeremy Avigad
 -/
-
 import logic.eq
 open inhabited decidable eq.ops
 

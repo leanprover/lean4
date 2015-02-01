@@ -6,7 +6,7 @@ Module: init.prod
 Author: Leonardo de Moura, Jeremy Avigad
 -/
 prelude
-import init.wf
+import init.num init.wf
 
 definition pair := @prod.mk
 
@@ -23,6 +23,11 @@ namespace prod
 
   -- notation for n-ary tuples
   notation `(` h `,` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
+
+  namespace ops
+  postfix `.1`:(max+1) := pr1
+  postfix `.2`:(max+1) := pr2
+  end ops
 
   open well_founded
 

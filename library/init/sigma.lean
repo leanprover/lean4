@@ -11,6 +11,10 @@ import init.num init.wf init.logic init.tactic
 structure sigma {A : Type} (B : A → Type) :=
 mk :: (pr1 : A) (pr2 : B pr1)
 
+definition dpair := @sigma.mk
+definition dpr1 := @sigma.pr1
+definition dpr2 := @sigma.pr2
+
 notation `Σ` binders `,` r:(scoped P, sigma P) := r
 
 namespace sigma

@@ -10,9 +10,10 @@ The sum type, aka disjoint union.
 import logic.connectives
 open inhabited eq.ops
 
+notation A ⊎ B := sum A B
+notation A + B := sum A B
+
 namespace sum
-  notation A ⊎ B := sum A B
-  notation A + B := sum A B
   namespace low_precedence_plus
     reserve infixr `+`:25  -- conflicts with notation for addition
     infixr `+` := sum

@@ -326,7 +326,7 @@ or.elim (cases_of_nat_succ a)
 
 /- addition -/
 
-definition padd (p q : ℕ × ℕ) : ℕ × ℕ := map_pair2 nat.add p q
+definition padd (p q : ℕ × ℕ) : ℕ × ℕ := (pr1 p + pr1 q, pr2 p + pr2 q)
 
 theorem repr_add (a b : ℤ) :  repr (add a b) ≡ padd (repr a) (repr b) :=
 cases_on a

@@ -477,4 +477,22 @@ expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_k
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
+
+bool has_expr_metavar_relaxed(expr const & e) {
+    if (!has_expr_metavar(e))
+        return false;
+    bool found = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (found || !has_expr_metavar(e))
+                return false;
+            if (is_metavar(e)) {
+                found = true;
+                return false;
+            }
+            if (is_local(e))
+                return false; // do not visit type
+            return true;
+        });
+    return found;
+}
 }

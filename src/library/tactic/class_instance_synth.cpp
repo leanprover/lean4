@@ -302,26 +302,6 @@ pair<expr, constraint> mk_class_instance_elaborator(std::shared_ptr<class_instan
     return mk_pair(m, c);
 }
 
-/** \brief Similar to has_expr_metavar, but ignores metavariables occurring in the type
-    of local constants */
-static bool has_expr_metavar_relaxed(expr const & e) {
-    if (!has_expr_metavar(e))
-        return false;
-    bool found = false;
-    for_each(e, [&](expr const & e, unsigned) {
-            if (found || !has_expr_metavar(e))
-                return false;
-            if (is_metavar(e)) {
-                found = true;
-                return false;
-            }
-            if (is_local(e))
-                return false; // do not visit type
-            return true;
-        });
-    return found;
-}
-
 constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_context> const & C, local_context const & _ctx,
                                         expr const & m, bool is_strict, unifier_config const & cfg, delay_factor const & factor) {
     environment const & env = C->env();

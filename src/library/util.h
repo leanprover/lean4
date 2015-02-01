@@ -139,6 +139,10 @@ enum class implicit_infer_kind { Implicit, RelaxedImplicit, None };
 */
 expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_kind k);
 
+/** \brief Similar to has_expr_metavar, but ignores metavariables occurring in the type
+    of local constants */
+bool has_expr_metavar_relaxed(expr const & e);
+
 void initialize_library_util();
 void finalize_library_util();
 }

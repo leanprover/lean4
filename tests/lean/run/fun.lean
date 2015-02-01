@@ -8,7 +8,6 @@ constant g : num → num
 check f ∘ g ∘ g
 
 check typeof id : num → num
-check num → num ⟨is_typeof⟩ id
 
 constant h : num → bool → num
 

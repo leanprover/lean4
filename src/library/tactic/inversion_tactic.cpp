@@ -112,6 +112,9 @@ class inversion_tac {
     declaration                   m_I_decl;
     declaration                   m_cases_on_decl;
 
+    expr whnf(expr const & e) { return m_tc.whnf(e).first; }
+    expr infer_type(expr const & e) { return m_tc.infer(e).first; }
+
     void init_inductive_info(name const & n) {
         m_dep_elim       = inductive::has_dep_elim(m_env, n);
         m_nindices       = *inductive::get_num_indices(m_env, n);
@@ -142,8 +145,8 @@ class inversion_tac {
     }
 
     pair<expr, expr> mk_eq(expr const & lhs, expr const & rhs) {
-        expr lhs_type = m_tc.infer(lhs).first;
-        expr rhs_type = m_tc.infer(rhs).first;
+        expr lhs_type = infer_type(lhs);
+        expr rhs_type = infer_type(rhs);
         level l       = sort_level(m_tc.ensure_type(lhs_type).first);
         constraint_seq cs;
         if (m_tc.is_def_eq(lhs_type, rhs_type, justification(), cs) && !cs) {
@@ -239,7 +242,7 @@ class inversion_tac {
         buffer<expr> I_args;
         expr const & I    = get_app_args(h_type, I_args);
         expr h_new_type  = mk_app(I, I_args.size() - m_nindices, I_args.data());
-        expr d           = m_tc.whnf(m_tc.infer(h_new_type).first).first;
+        expr d           = whnf(infer_type(h_new_type));
         name t_prefix("t");
         unsigned nidx = 1;
         if (m_proof_irrel) {
@@ -359,7 +362,7 @@ class inversion_tac {
         buffer<expr> hyps;
         g.get_hyps(hyps);
         expr const & h      = hyps.back();
-        expr const & h_type = m_tc.whnf(mlocal_type(h)).first;
+        expr const & h_type = whnf(mlocal_type(h));
         buffer<expr> I_args;
         expr const & I      = get_app_args(h_type, I_args);
         name const & I_name = const_name(I);
@@ -389,7 +392,7 @@ class inversion_tac {
         buffer<expr> new_hyps;
         new_hyps.append(hyps.size() - m_nindices - 1, hyps.data());
         // add a subgoal for each minor premise of cases_on
-        expr cases_on_type = m_tc.whnf(m_tc.infer(cases_on).first).first;
+        expr cases_on_type = whnf(infer_type(cases_on));
         buffer<goal> new_goals;
         buffer<implementation_list> new_imps;
         for (unsigned i = 0; i < m_nminors; i++) {
@@ -398,7 +401,7 @@ class inversion_tac {
             goal new_g(new_meta, new_type);
             new_goals.push_back(new_g);
             cases_on      = mk_app(cases_on, new_meta);
-            cases_on_type = m_tc.whnf(binding_body(cases_on_type)).first; // the minor premises do not depend on each other
+            cases_on_type = whnf(binding_body(cases_on_type)); // the minor premises do not depend on each other
             name const & intro_name = intro_names[i];
             new_imps.push_back(filter(imps, [&](implementation_ptr const & imp) { return imp->get_constructor_name() == intro_name; }));
         }
@@ -519,7 +522,7 @@ class inversion_tac {
         expr new_meta    = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
         goal new_g(new_meta, new_type);
         // create assignment for g
-        expr A           = m_tc.infer(lhs).first;
+        expr A           = infer_type(lhs);
         level lvl        = sort_level(m_tc.ensure_type(A).first);
         // old_eq : eq.rec A s C a s p = b
         expr old_eq      = mk_local(m_ngen.next(), binding_name(type), eq, binder_info());
@@ -598,8 +601,8 @@ class inversion_tac {
         if (const_name(eq_fn) == get_eq_name()) {
             expr const & lhs = app_arg(app_fn(eq));
             expr const & rhs = app_arg(eq);
-            expr new_lhs     = m_tc.whnf(lhs).first;
-            expr new_rhs     = m_tc.whnf(rhs).first;
+            expr new_lhs     = whnf(lhs);
+            expr new_rhs     = whnf(rhs);
             if (lhs != new_lhs || rhs != new_rhs) {
                 eq   = mk_app(app_fn(app_fn(eq)), new_lhs, new_rhs);
                 type = update_binding(type, eq, binding_body(type));
@@ -622,7 +625,7 @@ class inversion_tac {
     */
     expr lift_down(expr const & v) {
         if (!m_proof_irrel) {
-            expr v_type       = m_tc.whnf(m_tc.infer(v).first).first;
+            expr v_type       = whnf(infer_type(v));
             if (!is_app(v_type))
                 throw_unification_eq_rec_failure();
             expr const & lift = app_fn(v_type);
@@ -666,9 +669,9 @@ class inversion_tac {
         expr eq = hyps.back();
         buffer<expr> eq_args;
         get_app_args(mlocal_type(eq), eq_args);
-        expr const & A   = m_tc.whnf(eq_args[0]).first;
-        expr lhs         = m_tc.whnf(eq_args[1]).first;
-        expr rhs         = m_tc.whnf(eq_args[2]).first;
+        expr const & A   = whnf(eq_args[0]);
+        expr lhs         = whnf(eq_args[1]);
+        expr rhs         = whnf(eq_args[2]);
         constraint_seq cs;
         if (m_proof_irrel && m_tc.is_def_eq(lhs, rhs, justification(), cs) && !cs) {
             // deletion transition: t == t
@@ -699,7 +702,7 @@ class inversion_tac {
             expr no_confusion = mk_app(mk_app(mk_constant(no_confusion_name, cons(g_lvl, const_levels(A_fn))), A_args), g_type, lhs, rhs, eq);
             if (const_name(lhs_fn) == const_name(rhs_fn)) {
                 // injectivity transition
-                expr new_type = binding_domain(m_tc.whnf(m_tc.infer(no_confusion).first).first);
+                expr new_type = binding_domain(whnf(infer_type(no_confusion)));
                 if (m_proof_irrel)
                     hyps.pop_back(); // remove processed equality
                 expr new_mvar = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
@@ -884,7 +887,7 @@ public:
 
     optional<result> execute(goal const & g, expr const & h, implementation_list const & imps) {
         try {
-            expr h_type                         = m_tc.whnf(mlocal_type(h)).first;
+            expr h_type                         = whnf(mlocal_type(h));
             if (!is_inversion_applicable(h_type))
                 return optional<result>();
             if (has_indep_indices(g, h, h_type)) {

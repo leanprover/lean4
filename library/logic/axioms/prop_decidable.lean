@@ -5,8 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: logic.axioms.prop_decidable
 Author: Leonardo de Moura
 -/
-
-import logic.axioms.classical logic.axioms.hilbert
+import logic.axioms.prop_complete logic.axioms.hilbert
 open decidable inhabited nonempty
 
 -- Excluded middle + Hilbert implies every proposition is decidable

@@ -1,14 +1,15 @@
--- Copyright (c) 2014 Microsoft Corporation. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Leonardo de Moura
+/-
+Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
 
--- logic.axioms.funext
--- ===================
+Module: logic.axioms.funext
+Author: Leonardo de Moura
 
+Function extensionality.
+-/
 import logic.cast algebra.function data.sigma
 open function eq.ops
 
--- Function extensionality
 axiom funext : ∀ {A : Type} {B : A → Type} {f g : Π a, B a} (H : ∀ a, f a = g a), f = g
 
 namespace function
@@ -30,5 +31,4 @@ namespace function
       (H : ∀ a, f a == g a) : f == g :=
   let HH : B = B' := (funext (λ x, heq.type_eq (H x))) in
   cast_to_heq (funext (λ a, heq.to_eq (heq.trans (cast_app HH f a) (H a))))
-
 end function

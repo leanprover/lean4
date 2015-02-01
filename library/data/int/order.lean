@@ -8,9 +8,7 @@ Authors: Floris van Doorn, Jeremy Avigad
 The order relation on the integers. We show that int is an instance of linear_comm_ordered_ring
 and transfer the results.
 -/
-
 import .basic algebra.ordered_ring
-
 open nat
 open decidable
 open fake_simplifier
@@ -216,11 +214,18 @@ section
 
   protected definition linear_ordered_comm_ring [instance] [reducible] :
     algebra.linear_ordered_comm_ring int :=
-  algebra.linear_ordered_comm_ring.mk add add.assoc zero zero_add add_zero neg add.left_inv
-    add.comm mul mul.assoc (of_num 1) one_mul mul_one mul.left_distrib mul.right_distrib
-    zero_ne_one le le.refl @le.trans @le.antisymm lt lt_iff_le_and_ne @add_le_add_left
-    @mul_nonneg @mul_pos le_iff_lt_or_eq le.total mul.comm
-
+  ⦃algebra.linear_ordered_comm_ring, int.integral_domain,
+    le               := le,
+    le_refl          := le.refl,
+    le_trans         := @le.trans,
+    le_antisymm      := @le.antisymm,
+    lt               := lt,
+    lt_iff_le_ne     := lt_iff_le_and_ne,
+    add_le_add_left  := @add_le_add_left,
+    mul_nonneg       := @mul_nonneg,
+    mul_pos          := @mul_pos,
+    le_iff_lt_or_eq  := le_iff_lt_or_eq,
+    le_total         := le.total⦄
 
   protected definition decidable_linear_ordered_comm_ring [instance] [reducible] :
     algebra.decidable_linear_ordered_comm_ring int :=

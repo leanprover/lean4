@@ -27,7 +27,6 @@ following:
   padd_congr (p p' q q' : ℕ × ℕ) (H1 : p ≡ p') (H2 : q ≡ q') : padd p q ≡ p' q'
 
 -/
-
 import data.nat.basic data.nat.order data.nat.sub data.prod
 import algebra.relation algebra.binary algebra.ordered_ring
 import tools.fake_simplifier
@@ -612,9 +611,25 @@ section
   open [classes] algebra
 
   protected definition integral_domain [instance] [reducible] : algebra.integral_domain int :=
-  algebra.integral_domain.mk add add.assoc zero zero_add add_zero neg add.left_inv
-  add.comm mul mul.assoc (of_num 1) one_mul mul_one mul.left_distrib mul.right_distrib
-  zero_ne_one mul.comm @eq_zero_or_eq_zero_of_mul_eq_zero
+  ⦃algebra.integral_domain,
+    add            := add,
+    add_assoc      := add.assoc,
+    zero           := zero,
+    zero_add       := zero_add,
+    add_zero       := add_zero,
+    neg            := neg,
+    add_left_inv   := add.left_inv,
+    add_comm       := add.comm,
+    mul            := mul,
+    mul_assoc      := mul.assoc,
+    one            := (of_num 1),
+    one_mul        := one_mul,
+    mul_one        := mul_one,
+    left_distrib   := mul.left_distrib,
+    right_distrib  := mul.right_distrib,
+    zero_ne_one    := zero_ne_one,
+    mul_comm       := mul.comm,
+    eq_zero_or_eq_zero_of_mul_eq_zero := @eq_zero_or_eq_zero_of_mul_eq_zero⦄
 end
 
 /- instantiate ring theorems to int -/

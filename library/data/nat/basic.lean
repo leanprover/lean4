@@ -291,9 +291,24 @@ section
   open [classes] algebra
 
   protected definition comm_semiring [instance] [reducible] : algebra.comm_semiring nat :=
-  algebra.comm_semiring.mk add add.assoc zero zero_add add_zero add.comm
-    mul mul.assoc (succ zero) one_mul mul_one mul.left_distrib mul.right_distrib
-    zero_mul mul_zero (ne.symm (succ_ne_zero zero)) mul.comm
+  ⦃algebra.comm_semiring,
+    add            := add,
+    add_assoc      := add.assoc,
+    zero           := zero,
+    zero_add       := zero_add,
+    add_zero       := add_zero,
+    add_comm       := add.comm,
+    mul            := mul,
+    mul_assoc      := mul.assoc,
+    one            := succ zero,
+    one_mul        := one_mul,
+    mul_one        := mul_one,
+    left_distrib   := mul.left_distrib,
+    right_distrib  := mul.right_distrib,
+    zero_mul       := zero_mul,
+    mul_zero       := mul_zero,
+    zero_ne_one    := ne.symm (succ_ne_zero zero),
+    mul_comm       := mul.comm⦄
 end
 
 section port_algebra

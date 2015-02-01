@@ -1007,11 +1007,19 @@ static environment omit_cmd(parser & p) {
 }
 
 static environment attribute_cmd_core(parser & p, bool persistent) {
+    buffer<name> ds;
     name d          = p.check_constant_next("invalid 'attribute' command, constant expected");
+    ds.push_back(d);
+    while (p.curr_is_identifier()) {
+        ds.push_back(p.check_constant_next("invalid 'attribute' command, constant expected"));
+    }
     bool decl_only  = false;
     decl_attributes attributes(decl_only);
     attributes.parse(p);
-    return attributes.apply(p.env(), p.ios(), d, persistent);
+    environment env = p.env();
+    for (name const & d : ds)
+        env = attributes.apply(env, p.ios(), d, persistent);
+    return env;
 }
 
 static environment attribute_cmd(parser & p) {

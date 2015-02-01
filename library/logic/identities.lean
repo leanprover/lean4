@@ -8,9 +8,7 @@ Authors: Jeremy Avigad, Leonardo de Moura
 Useful logical identities. Since we are not using propositional extensionality, some of the
 calculations use the type class support provided by logic.instances.
 -/
-
 import logic.connectives logic.instances logic.quantifiers logic.cast
-
 open relation decidable relation.iff_ops
 
 theorem or.right_comm (a b c : Prop) : (a ∨ b) ∨ c ↔ (a ∨ c) ∨ b :=
@@ -19,7 +17,7 @@ calc
     ... ↔ a ∨ (c ∨ b)       : {or.comm}
      ... ↔ (a ∨ c) ∨ b      : iff.symm or.assoc
 
-theorem or.left_comm (a b c : Prop) : a ∨ (b ∨ c)↔ b ∨ (a ∨ c) :=
+theorem or.left_comm (a b c : Prop) : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c) :=
 calc
   a ∨ (b ∨ c) ↔ (a ∨ b) ∨ c : iff.symm or.assoc
     ... ↔ (b ∨ a) ∨ c       : {or.comm}
@@ -31,12 +29,11 @@ calc
     ... ↔ a ∧ (c ∧ b)       : {and.comm}
      ... ↔ (a ∧ c) ∧ b      : iff.symm and.assoc
 
-theorem and.left_comm (a b c : Prop) : a ∧ (b ∧ c)↔ b ∧ (a ∧ c) :=
+theorem and.left_comm (a b c : Prop) : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
 calc
   a ∧ (b ∧ c) ↔ (a ∧ b) ∧ c : iff.symm and.assoc
     ... ↔ (b ∧ a) ∧ c       : {and.comm}
      ... ↔ b ∧ (a ∧ c)      : and.assoc
-
 
 theorem not_not_iff {a : Prop} [D : decidable a] : (¬¬a) ↔ a :=
 iff.intro

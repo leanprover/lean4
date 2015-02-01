@@ -5,9 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: logic.axioms.classical
 Author: Leonardo de Moura
 -/
-
 import logic.connectives logic.quantifiers logic.cast algebra.relation
-
 open eq.ops
 
 axiom prop_complete (a : Prop) : a = true ∨ a = false
@@ -27,6 +25,16 @@ theorem em (a : Prop) : a ∨ ¬a :=
 or.elim (prop_complete a)
   (assume Ht : a = true,  or.inl (of_eq_true Ht))
   (assume Hf : a = false, or.inr (not_of_eq_false Hf))
+
+-- this supercedes by_cases in decidable
+definition by_cases {p q : Prop} (Hpq : p → q) (Hnpq : ¬p → q) : q :=
+or.elim (em p) (assume Hp, Hpq Hp) (assume Hnp, Hnpq Hnp)
+
+-- this supercedes by_contradiction in decidable
+theorem by_contradiction {p : Prop} (H : ¬p → false) : p :=
+by_cases
+  (assume H1 : p, H1)
+  (assume H1 : ¬p, false.rec _ (H H1))
 
 theorem eq_false_or_eq_true (a : Prop) : a = false ∨ a = true :=
 cases (λ x, x = false ∨ x = true)

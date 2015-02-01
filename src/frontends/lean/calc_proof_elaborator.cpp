@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/calc.h"
 #include "frontends/lean/calc_proof_elaborator.h"
+#include "frontends/lean/elaborator_exception.h"
 
 #ifndef LEAN_DEFAULT_CALC_ASSISTANT
 #define LEAN_DEFAULT_CALC_ASSISTANT true
@@ -155,7 +156,7 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
         }
 
         auto try_alternative = [&](expr const & e, expr const & e_type, constraint_seq fcs, bool conservative) {
-            justification new_j            = mk_type_mismatch_jst(e, e_type, meta_type);
+            justification new_j = mk_type_mismatch_jst(e, e_type, meta_type);
             if (!tc->is_def_eq(e_type, meta_type, new_j, fcs))
                 throw unifier_exception(new_j, s);
             buffer<constraint> cs_buffer;
@@ -177,6 +178,8 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
                                              // we erase internal justifications
                                              return update_justification(c, j);
                                          });
+            if (conservative && has_expr_metavar_relaxed(new_s.instantiate_all(e)))
+                throw_elaborator_exception("solution contains metavariables", e);
             if (im)
                 im->instantiate(new_s);
             constraints r = cls.mk_constraints(new_s, j, relax);

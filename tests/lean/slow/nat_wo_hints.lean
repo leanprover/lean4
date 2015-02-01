@@ -36,9 +36,9 @@ theorem succ_ne_zero (n : ℕ) : succ n ≠ 0
 := assume H : succ n = 0,
      have H2 : true = false, from
      let f := (nat.rec false (fun a b, true)) in
-       calc true = f (succ n) : _
+       calc true = f (succ n) : rfl
              ... = f 0        : {H}
-             ... = false      : _,
+             ... = false      : rfl,
      absurd H2 true_ne_false
 
 definition pred (n : ℕ) := nat.rec 0 (fun m x, m) n

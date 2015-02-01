@@ -69,6 +69,9 @@ or.inl Ha
 definition or.intro_right (a : Prop) {b : Prop} (Hb : b) : or a b :=
 or.inr Hb
 
+structure sigma {A : Type} (B : A → Type) :=
+mk :: (pr1 : A) (pr2 : B pr1)
+
 -- pos_num and num are two auxiliary datatypes used when parsing numerals such as 13, 0, 26.
 -- The parser will generate the terms (pos (bit1 (bit1 (bit0 one)))), zero, and (pos (bit0 (bit1 (bit1 one)))).
 -- This representation can be coerced in whatever we want (e.g., naturals, integers, reals, etc).

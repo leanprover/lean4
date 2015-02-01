@@ -6,21 +6,16 @@ Module: init.sigma
 Author: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 -/
 prelude
-import init.num init.wf init.logic init.tactic
-
-structure sigma {A : Type} (B : A → Type) :=
-mk :: (pr1 : A) (pr2 : B pr1)
+import init.datatypes init.num init.wf init.logic init.tactic
 
 definition dpair := @sigma.mk
-definition dpr1 := @sigma.pr1
-definition dpr2 := @sigma.pr2
-
 notation `Σ` binders `,` r:(scoped P, sigma P) := r
+-- notation for n-ary tuples; input ⟨ ⟩ as \< \>
+notation `⟨`:max t:(foldr `,` (e r, sigma.mk e r)) `⟩`:0 := t
 
 namespace sigma
   notation `pr₁`  := pr1
   notation `pr₂`  := pr2
-  notation `⟨`:max t:(foldr `,` (e r, mk e r)) `⟩`:0 := t --input ⟨ ⟩ as \< \>
 
   namespace ops
   postfix `.1`:(max+1) := pr1

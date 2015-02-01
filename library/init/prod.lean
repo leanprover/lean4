@@ -9,20 +9,20 @@ prelude
 import init.num init.wf
 
 definition pair := @prod.mk
+notation A × B := prod A B
+-- notation for n-ary tuples
+notation `(` h `,` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
 
 namespace prod
   notation A * B := prod A B
-  notation A × B := prod A B
+  notation A × B := prod A B  -- repeat, so this takes precedence
   namespace low_precedence_times
-    reserve infixr `*`:30  -- conflicts with notation for multiplication
+    reserve infixr `*`:30     -- conflicts with notation for multiplication
     infixr `*` := prod
   end low_precedence_times
 
   notation `pr₁` := pr1
   notation `pr₂` := pr2
-
-  -- notation for n-ary tuples
-  notation `(` h `,` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
 
   namespace ops
   postfix `.1`:(max+1) := pr1

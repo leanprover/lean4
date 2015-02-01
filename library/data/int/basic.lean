@@ -692,11 +692,16 @@ section port_algebra
     @algebra.ne_zero_of_mul_ne_zero_left _ _
   definition dvd (a b : ℤ) : Prop := algebra.dvd a b
   infix `|` := dvd
-  theorem dvd.intro : ∀{a b c : ℤ} (H : a * b = c), a | c := @algebra.dvd.intro _ _
-  theorem dvd.intro_right : ∀{a b c : ℤ} (H : a * b = c), b | c := @algebra.dvd.intro_right _ _
-  theorem dvd.ex : ∀{a b : ℤ} (H : a | b), ∃c, a * c = b := @algebra.dvd.ex _ _
-  theorem dvd.elim : ∀{P : Prop} {a b : ℤ} (H₁ : a | b) (H₂ : ∀c, a * c = b → P), P :=
+  theorem dvd.intro : ∀{a b c : ℤ} (H : a * c = b), a | b := @algebra.dvd.intro _ _
+  theorem dvd.intro_left : ∀{a b c : ℤ} (H : c * a = b), a | b := @algebra.dvd.intro_left _ _
+  theorem exists_eq_mul_right_of_dvd : ∀{a b : ℤ} (H : a | b), ∃c, b = a * c :=
+    @algebra.exists_eq_mul_right_of_dvd _ _
+  theorem dvd.elim : ∀{P : Prop} {a b : ℤ} (H₁ : a | b) (H₂ : ∀c, b = a * c → P), P :=
     @algebra.dvd.elim _ _
+  theorem exists_eq_mul_left_of_dvd : ∀{a b : ℤ} (H : a | b), ∃c, b = c * a :=
+    @algebra.exists_eq_mul_left_of_dvd _ _
+  theorem dvd.elim_left : ∀{P : Prop} {a b : ℤ} (H₁ : a | b) (H₂ : ∀c, b = c * a → P), P :=
+    @algebra.dvd.elim_left _ _
   theorem dvd.refl : ∀a : ℤ, a | a := algebra.dvd.refl
   theorem dvd.trans : ∀{a b c : ℤ} (H₁ : a | b) (H₂ : b | c), a | c := @algebra.dvd.trans _ _
   theorem eq_zero_of_zero_dvd : ∀{a : ℤ} (H : 0 | a), a = 0 := @algebra.eq_zero_of_zero_dvd _ _

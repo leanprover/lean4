@@ -401,19 +401,25 @@ strong_induction_on a (
 theorem by_cases_zero_pos {P : ℕ → Prop} (y : ℕ) (H0 : P 0) (H1 : ∀ {y : nat}, y > 0 → P y) : P y :=
 cases_on y H0 (take y, H1 !succ_pos)
 
-theorem zero_or_pos {n : ℕ} : n = 0 ∨ n > 0 :=
+theorem eq_zero_or_pos (n : ℕ) : n = 0 ∨ n > 0 :=
 or_of_or_of_imp_left
   (or.swap (lt_or_eq_of_le !zero_le))
   (take H : 0 = n, H⁻¹)
 
 theorem pos_of_ne_zero {n : ℕ} (H : n ≠ 0) : n > 0 :=
-or.elim zero_or_pos (take H2 : n = 0, absurd H2 H) (take H2 : n > 0, H2)
+or.elim !eq_zero_or_pos (take H2 : n = 0, absurd H2 H) (take H2 : n > 0, H2)
 
 theorem ne_zero_of_pos {n : ℕ} (H : n > 0) : n ≠ 0 :=
 ne.symm (ne_of_lt H)
 
 theorem exists_eq_succ_of_pos {n : ℕ} (H : n > 0) : exists l, n = succ l :=
 exists_eq_succ_of_lt H
+
+theorem pos_of_dvd_of_pos {m n : ℕ} (H1 : m | n) (H2 : n > 0) : m > 0 :=
+pos_of_ne_zero
+  (assume H3 : m = 0,
+    have H4 : n = 0, from eq_zero_of_zero_dvd (H3 ▸ H1),
+    ne_of_lt H2 H4⁻¹)
 
 /- multiplication -/
 
@@ -441,7 +447,7 @@ theorem eq_of_mul_eq_mul_right {n m k : ℕ} (Hm : m > 0) (H : n * m = k * m) : 
 eq_of_mul_eq_mul_left Hm (!mul.comm ▸ !mul.comm ▸ H)
 
 theorem eq_zero_or_eq_of_mul_eq_mul_left {n m k : ℕ} (H : n * m = n * k) : n = 0 ∨ m = k :=
-or_of_or_of_imp_right zero_or_pos
+or_of_or_of_imp_right !eq_zero_or_pos
   (assume Hn : n > 0, eq_of_mul_eq_mul_left Hn H)
 
 theorem eq_zero_or_eq_of_mul_eq_mul_right  {n m k : ℕ} (H : n * m = k * m) : m = 0 ∨ n = k :=

@@ -71,35 +71,41 @@ section comm_semiring
   variables [s : comm_semiring A] (a b c : A)
   include s
 
-  definition dvd (a b : A) : Prop := ∃c, a * c = b
+  definition dvd (a b : A) : Prop := ∃c, b = a * c
   infix `|` := dvd
 
-  theorem dvd.intro {a b c : A} (H : a * b = c) : a | c :=
-  exists.intro _ H
+  theorem dvd.intro {a b c : A} (H : a * c = b) : a | b :=
+  exists.intro _ H⁻¹
 
-  theorem dvd.intro_right {a b c : A} (H : a * b = c) : b | c :=
+  theorem dvd.intro_left {a b c : A} (H : c * a = b) : a | b :=
   dvd.intro (!mul.comm ▸ H)
 
-  theorem dvd.ex {a b : A} (H : a | b) : ∃c, a * c = b := H
+  theorem exists_eq_mul_right_of_dvd {a b : A} (H : a | b) : ∃c, b = a * c := H
 
-  theorem dvd.elim {P : Prop} {a b : A} (H₁ : a | b) (H₂ : ∀c, a * c = b → P) : P :=
+  theorem dvd.elim {P : Prop} {a b : A} (H₁ : a | b) (H₂ : ∀c, b = a * c → P) : P :=
   exists.elim H₁ H₂
+
+  theorem exists_eq_mul_left_of_dvd {a b : A} (H : a | b) : ∃c, b = c * a :=
+  dvd.elim H (take c, assume H1 : b = a * c, exists.intro c (H1 ⬝ !mul.comm))
+
+  theorem dvd.elim_left {P : Prop} {a b : A} (H₁ : a | b) (H₂ : ∀c, b = c * a → P) : P :=
+  exists.elim (exists_eq_mul_left_of_dvd H₁) (take c, assume H₃ : b = c * a, H₂ c H₃)
 
   theorem dvd.refl : a | a := dvd.intro !mul_one
 
   theorem dvd.trans {a b c : A} (H₁ : a | b) (H₂ : b | c) : a | c :=
   dvd.elim H₁
-    (take d, assume H₃ : a * d = b,
+    (take d, assume H₃ : b = a * d,
       dvd.elim H₂
-        (take e, assume H₄ : b * e = c,
-          @dvd.intro _ _ _ (d * e) _
+        (take e, assume H₄ : c = b * e,
+          dvd.intro
             (calc
               a * (d * e) = (a * d) * e : mul.assoc
                 ... = b * e : H₃
                 ... = c : H₄)))
 
   theorem eq_zero_of_zero_dvd {a : A} (H : 0 | a) : a = 0 :=
-    dvd.elim H (take c, assume H' : 0 * c = a, (H')⁻¹ ⬝ !zero_mul)
+    dvd.elim H (take c, assume H' : a = 0 * c, H' ⬝ !zero_mul)
 
   theorem dvd_zero : a | 0 := dvd.intro !mul_zero
 
@@ -112,7 +118,7 @@ section comm_semiring
   theorem dvd_mul_of_dvd_left {a b : A} (H : a | b) (c : A) : a | b * c :=
   dvd.elim H
     (take d,
-      assume H₁ : a * d = b,
+      assume H₁ : b = a * d,
       dvd.intro
         (calc
           a * (d * c) = a * d * c : (!mul.assoc)⁻¹
@@ -123,9 +129,9 @@ section comm_semiring
 
   theorem mul_dvd_mul {a b c d : A} (dvd_ab : a | b) (dvd_cd : c | d) : a * c | b * d :=
   dvd.elim dvd_ab
-    (take e, assume Haeb : a * e = b,
+    (take e, assume Haeb : b = a * e,
       dvd.elim dvd_cd
-        (take f, assume Hcfd : c * f = d,
+        (take f, assume Hcfd : d = c * f,
           dvd.intro
             (calc
               a * c * (e * f) = a * (c * (e * f)) : mul.assoc
@@ -135,17 +141,17 @@ section comm_semiring
                 ... = b * d : Hcfd)))
 
   theorem dvd_of_mul_right_dvd {a b c : A} (H : a * b | c) : a | c :=
-  dvd.elim H (take d, assume Habdc : a * b * d = c, dvd.intro (!mul.assoc⁻¹ ⬝ Habdc))
+  dvd.elim H (take d, assume Habdc : c = a * b * d, dvd.intro (!mul.assoc⁻¹ ⬝ Habdc⁻¹))
 
   theorem dvd_of_mul_left_dvd {a b c : A} (H : a * b | c) : b | c :=
   dvd_of_mul_right_dvd (mul.comm a b ▸ H)
 
   theorem dvd_add {a b c : A} (Hab : a | b) (Hac : a | c) : a | b + c :=
   dvd.elim Hab
-    (take d, assume Hadb : a * d = b,
+    (take d, assume Hadb : b = a * d,
       dvd.elim Hac
-        (take e, assume Haec : a * e = c,
-          dvd.intro (show a * (d + e) = b + c, from Hadb ▸ Haec ▸ left_distrib a d e)))
+        (take e, assume Haec : c = a * e,
+          dvd.intro (show a * (d + e) = b + c, from Hadb⁻¹ ▸ Haec⁻¹ ▸ left_distrib a d e)))
 end comm_semiring
 
 /- ring -/
@@ -247,32 +253,32 @@ section
   iff.intro
     (assume H : a | -b,
       dvd.elim H
-        (take c, assume H' : a * c = -b,
+        (take c, assume H' : -b = a * c,
           dvd.intro
             (calc
               a * -c = -(a * c) : {!neg_mul_eq_mul_neg⁻¹}
-                ... = -(-b) : {H'}
+                ... = -(-b) : H'
                 ... = b : neg_neg)))
     (assume H : a | b,
       dvd.elim H
-        (take c, assume H' : a * c = b,
+        (take c, assume H' : b = a * c,
           dvd.intro
             (calc
               a * -c = -(a * c) : {!neg_mul_eq_mul_neg⁻¹}
-                ... = -b : {H'})))
+                ... = -b : H')))
 
   theorem neg_dvd_iff_dvd : -a | b ↔ a | b :=
   iff.intro
     (assume H : -a | b,
       dvd.elim H
-        (take c, assume H' : -a * c = b,
+        (take c, assume H' : b = -a * c,
           dvd.intro
             (calc
               a * -c = -a * c : !neg_mul_comm⁻¹
                 ... = b : H')))
     (assume H : a | b,
       dvd.elim H
-        (take c, assume H' : a * c = b,
+        (take c, assume H' : b = a * c,
           dvd.intro
             (calc
               -a * -c = a * c : neg_mul_neg
@@ -326,15 +332,15 @@ section
   theorem dvd_of_mul_dvd_mul_left {a b c : A} (Ha : a ≠ 0) (Hdvd : a * b | a * c) : b | c :=
   dvd.elim Hdvd
     (take d,
-      assume H : a * b * d = a * c,
-      have H1 : b * d = c, from mul.cancel_left Ha (mul.assoc a b d ▸ H),
+      assume H : a * c = a * b * d,
+      have H1 : b * d = c, from mul.cancel_left Ha (mul.assoc a b d ▸ H⁻¹),
       dvd.intro H1)
 
   theorem dvd_of_mul_dvd_mul_right {a b c : A} (Ha : a ≠ 0) (Hdvd : b * a | c * a) : b | c :=
   dvd.elim Hdvd
     (take d,
-      assume H : b * a * d = c * a,
-      have H1 : b * d * a = c * a, from eq.trans !mul.right_comm H,
+      assume H : c * a = b * a * d,
+      have H1 : b * d * a = c * a, from eq.trans !mul.right_comm H⁻¹,
       have H2 : b * d = c, from mul.cancel_right Ha H1,
       dvd.intro H2)
 end

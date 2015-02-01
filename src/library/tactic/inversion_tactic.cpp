@@ -359,7 +359,7 @@ class inversion_tac {
         buffer<expr> hyps;
         g.get_hyps(hyps);
         expr const & h      = hyps.back();
-        expr const & h_type = mlocal_type(h);
+        expr const & h_type = m_tc.whnf(mlocal_type(h)).first;
         buffer<expr> I_args;
         expr const & I      = get_app_args(h_type, I_args);
         name const & I_name = const_name(I);

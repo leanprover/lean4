@@ -1,0 +1,3 @@
+bad_print.lean:3:17: error: invalid 'print definition', 'boo' is not a definition
+bad_print.lean:5:6: error: invalid print command
+bad_print.lean:7:13: error: invalid 'print fields' command, 'nat' is not a structure

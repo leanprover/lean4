@@ -1,0 +1,2 @@
+bad_open.lean:1:5: error: invalid 'open/export' command, identifier expected
+bad_open.lean:3:15: error: invalid 'open/export' command, identifier expected

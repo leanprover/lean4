@@ -1,0 +1,1 @@
+bad_namespace.lean:1:10: error: invalid namespace name, '_root_' is reserved

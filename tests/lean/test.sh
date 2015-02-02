@@ -15,7 +15,9 @@ fi
 NUM_ERRORS=0
 for f in *.lean; do
     echo "-- testing $f"
-    $LEAN -t config.lean $f &> $f.produced.out
+    $LEAN -t config.lean $f &> $f.produced.out.1
+    sed "/warning: imported file uses 'sorry'/d" $f.produced.out.1 > $f.produced.out
+    rm -f $f.produced.out.1
     if test -f $f.expected.out; then
         if diff -I "executing external script" $f.produced.out $f.expected.out; then
             echo "-- checked"

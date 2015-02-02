@@ -1,4 +1,3 @@
-nonexhaustive.lean:2:0: warning: imported file uses 'sorry'
 nonexhaustive.lean:6:11: error: invalid non-exhaustive set of recursive equations, left-hand-side(s) after elaboration:
   @foo 0 (@nil A)
 

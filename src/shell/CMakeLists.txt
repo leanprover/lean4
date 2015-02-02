@@ -37,6 +37,9 @@ add_test(lean_server_trace ${CMAKE_CURRENT_BINARY_DIR}/lean --server-trace "${LE
 add_test(NAME "lean_eqn_macro"
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
          COMMAND bash "./test_eqn_macro.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
+add_test(NAME "lean_print_notation"
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
+         COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "print_tests.lean")
 
 # LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")

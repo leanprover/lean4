@@ -1,0 +1,2 @@
+bad_set_option.lean:1:11: error: unknown option 'boo', type 'help options.' for list of available options
+bad_set_option.lean:3:22: error: invalid Boolean option value, 'true' or 'false' expected

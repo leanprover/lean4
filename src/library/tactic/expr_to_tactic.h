@@ -39,6 +39,7 @@ expr const & get_tactic_expr_list_type();
 name const & tactic_expr_to_id(expr e, char const * error_msg);
 void get_tactic_expr_list_elements(expr l, buffer<expr> & r, char const * error_msg);
 void get_tactic_id_list_elements(expr l, buffer<name> & r, char const * error_msg);
+expr ids_to_tactic_expr(buffer<name> const & ids);
 
 /**
    \brief Create an expression `by t`, where \c t is an expression of type `tactic`.

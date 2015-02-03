@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/tactic/inversion_tactic.h"
 #include "library/tactic/assert_tactic.h"
 #include "library/tactic/class_instance_synth.h"
+#include "library/tactic/rewrite_tactic.h"
 
 namespace lean {
 void initialize_tactic_module() {
@@ -39,9 +40,11 @@ void initialize_tactic_module() {
     initialize_inversion_tactic();
     initialize_assert_tactic();
     initialize_class_instance_elaborator();
+    initialize_rewrite_tactic();
 }
 
 void finalize_tactic_module() {
+    finalize_rewrite_tactic();
     finalize_class_instance_elaborator();
     finalize_assert_tactic();
     finalize_inversion_tactic();

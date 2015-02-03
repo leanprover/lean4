@@ -28,6 +28,10 @@ to use full features of ``lean-mode``.
  - [lua-mode][lua-mode]
  - [mmm-mode][mmm-mode]
 
+Both the optional and required packages will be installed for you
+automatically the first time you use ``lean-mode``, if you follow the
+installation instructions below.
+
 [company]: http://company-mode.github.io/
 [flycheck]: http://flycheck.readthedocs.org/en/latest
 [fci]: https://github.com/alpaker/Fill-Column-Indicator

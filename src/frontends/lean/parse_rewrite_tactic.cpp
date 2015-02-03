@@ -25,7 +25,7 @@ static expr parse_rule(parser & p) {
     if (p.curr_is_token(get_lparen_tk())) {
         p.next();
         expr r = p.parse_expr();
-        p.check_token_next(get_rparen_tk(), "invalid rewrite pattern, ']' expected");
+        p.check_token_next(get_rparen_tk(), "invalid rewrite pattern, ')' expected");
         return r;
     } else {
         return p.parse_id();
@@ -51,18 +51,18 @@ expr parse_rewrite_element(parser & p) {
             optional<expr> pat = parse_pattern(p);
             expr H = parse_rule(p);
             location loc = parse_tactic_location(p);
-            return mk_rewrite_at_most_n(pat, H, n, symm, loc);
+            return mk_rewrite_at_most_n(pat, H, symm, n, loc);
         } else if (p.curr_is_token(get_bang_tk())) {
             p.next();
             optional<expr> pat = parse_pattern(p);
             expr H = parse_rule(p);
             location loc = parse_tactic_location(p);
-            return mk_rewrite_exactly_n(pat, H, n, symm, loc);
+            return mk_rewrite_exactly_n(pat, H, symm, n, loc);
         } else {
             optional<expr> pat = parse_pattern(p);
             expr H = parse_rule(p);
             location loc = parse_tactic_location(p);
-            return mk_rewrite_exactly_n(pat, H, n, symm, loc);
+            return mk_rewrite_exactly_n(pat, H, symm, n, loc);
         }
     } else if (p.curr_is_token(get_question_tk())) {
         p.next();
@@ -87,14 +87,8 @@ expr parse_rewrite_element(parser & p) {
 expr parse_rewrite_tactic(parser & p) {
     buffer<expr> elems;
     while (true) {
-        bool has_paren = false;
-        if (p.curr_is_token(get_lparen_tk())) {
-            has_paren = true;
-            p.next();
-        }
-        elems.push_back(parse_rewrite_element(p));
-        if (has_paren)
-            p.check_token_next(get_rparen_tk(), "invalid rewrite tactic element, ')' expected");
+        auto pos = p.pos();
+        elems.push_back(p.save_pos(parse_rewrite_element(p), pos));
         if (!p.curr_is_token(get_sub_tk()) &&
             !p.curr_is_numeral() &&
             !p.curr_is_token(get_bang_tk()) &&

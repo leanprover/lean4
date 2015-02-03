@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/expr_maps.h"
 #include "kernel/level.h"
 #include "kernel/cache_stack.h"
+#include "kernel/expr_cache.h"
 
 #ifndef LEAN_INSTANTIATE_METAVARS_CACHE_CAPACITY
 #define LEAN_INSTANTIATE_METAVARS_CACHE_CAPACITY 1024*8
@@ -98,41 +99,7 @@ pair<level, justification> substitution::instantiate_metavars(level const & l, b
     return mk_pair(r, j);
 }
 
-struct instantiate_metavars_cache {
-    struct entry {
-        optional<expr> m_expr;
-        expr           m_result;
-    };
-    unsigned              m_capacity;
-    std::vector<entry>    m_cache;
-    std::vector<unsigned> m_used;
-    instantiate_metavars_cache(unsigned c):m_capacity(c), m_cache(c) {}
-
-    expr * find(expr const & e) {
-        unsigned i = e.hash() % m_capacity;
-        if (m_cache[i].m_expr && is_bi_equal(*m_cache[i].m_expr, e))
-            return &m_cache[i].m_result;
-        else
-            return nullptr;
-    }
-
-    void insert(expr const & e, expr const & v) {
-        unsigned i = e.hash() % m_capacity;
-        if (!m_cache[i].m_expr)
-            m_used.push_back(i);
-        m_cache[i].m_expr   = e;
-        m_cache[i].m_result = v;
-    }
-
-    void clear() {
-        for (unsigned i : m_used) {
-            m_cache[i].m_expr   = none_expr();
-            m_cache[i].m_result = expr();
-        }
-        m_used.clear();
-    }
-};
-
+typedef expr_cache instantiate_metavars_cache;
 MK_CACHE_STACK(instantiate_metavars_cache, LEAN_INSTANTIATE_METAVARS_CACHE_CAPACITY)
 
 class instantiate_metavars_fn {

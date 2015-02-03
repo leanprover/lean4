@@ -108,6 +108,10 @@ location get_rewrite_location(expr const & e) {
     return static_cast<rewrite_elements_macro_cell const*>(macro_def(e).raw())->get_location();
 }
 
+expr mk_rewrite_tactic_expr(buffer<rewrite_element> const & elems, location const & loc) {
+    return mk_app(*g_rewrite_tac, mk_rewrite_elements(elems, loc));
+}
+
 tactic mk_rewrite_tactic(buffer<rewrite_element> const & elems, location const & loc) {
     // TODO(Leo)
     for (auto const & e : elems)
@@ -133,11 +137,13 @@ void initialize_rewrite_tactic() {
 
     register_tac(rewrite_tac_name,
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     if (!is_rewrite_elements(app_arg(e)))
-                         throw expr_to_tactic_exception(e, "invalid 'rewrite' tactic, argument is ill-formed");
+                     check_tactic_expr(app_arg(e), "invalid 'rewrite' tactic, invalid argument");
+                     expr arg = get_tactic_expr_expr(app_arg(e));
+                     if (!is_rewrite_elements(arg))
+                         throw expr_to_tactic_exception(e, "invalid 'rewrite' tactic, invalid argument");
                      buffer<rewrite_element> elems;
-                     get_rewrite_elements(app_arg(e), elems);
-                     location loc = get_rewrite_location(app_arg(e));
+                     get_rewrite_elements(arg, elems);
+                     location loc = get_rewrite_location(arg);
                      return mk_rewrite_tactic(elems, loc);
                  });
 }

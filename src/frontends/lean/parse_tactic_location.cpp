@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static occurrence parse_occurrence(parser & p) {
-    if (p.curr_is_token(get_at_tk())) {
+    if (p.curr_is_token(get_lcurly_tk())) {
         p.next();
         bool has_pos = false;
         bool has_neg = false;
@@ -30,9 +30,10 @@ static occurrence parse_occurrence(parser & p) {
                     throw parser_error("invalid tactic location, cannot mix positive and negative occurrences", pos);
                 has_pos = true;
             }
-            if (!p.curr_is_token(get_sub_tk()) && !p.curr_is_numeral())
+            if (p.curr_is_token(get_rcurly_tk()))
                 break;
         }
+        p.next();
         if (has_pos)
             return occurrence::mk_occurrences(occs);
         else
@@ -43,44 +44,42 @@ static occurrence parse_occurrence(parser & p) {
 }
 
 location parse_tactic_location(parser & p) {
-    if (p.curr_is_token(get_in_tk())) {
+    if (p.curr_is_token(get_at_tk())) {
         p.next();
         if (p.curr_is_token(get_star_tk())) {
             p.next();
             if (p.curr_is_token(get_turnstile_tk())) {
                 p.next();
                 if (p.curr_is_token(get_star_tk())) {
-                    // in * |- *
+                    // at * |- *
                     return location::mk_everywhere();
                 } else {
-                    // in * |-
+                    // at * |-
                     return location::mk_all_hypotheses();
                 }
             } else {
-                // in *
+                // at *
                 return location::mk_everywhere();
             }
         } else {
             buffer<name>       hyps;
             buffer<occurrence> hyp_occs;
-            while (true) {
+            while (p.curr_is_identifier()) {
                 hyps.push_back(p.get_name_val());
                 p.next();
                 hyp_occs.push_back(parse_occurrence(p));
-                if (!p.curr_is_token(get_comma_tk()))
-                    break;
-                p.next();
             }
-            if (p.curr_is_token(get_turnstile_tk())) {
+            if (hyps.empty()) {
+                occurrence o = parse_occurrence(p);
+                return location::mk_goal_at(o);
+            } else if (p.curr_is_token(get_turnstile_tk())) {
+                p.next();
                 occurrence goal_occ = parse_occurrence(p);
                 return location::mk_at(goal_occ, hyps, hyp_occs);
             } else {
                 return location::mk_hypotheses_at(hyps, hyp_occs);
             }
         }
-    } else if (p.curr_is_token(get_at_tk())) {
-        occurrence o = parse_occurrence(p);
-        return location::mk_goal_at(o);
     } else {
         return location::mk_goal_only();
     }

@@ -7,6 +7,7 @@ begin_end_ext.cpp tactic_hint.cpp pp.cpp theorem_queue.cpp
 structure_cmd.cpp info_manager.cpp info_annotation.cpp find_cmd.cpp
 coercion_elaborator.cpp info_tactic.cpp proof_qed_elaborator.cpp
 init_module.cpp elaborator_context.cpp calc_proof_elaborator.cpp
+parse_tactic_location.cpp parse_rewrite_tactic.cpp
 type_util.cpp elaborator_exception.cpp)
 
 target_link_libraries(lean_frontend ${LEAN_LIBS})

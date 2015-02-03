@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_tactic.h"
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/structure_cmd.h"
+#include "frontends/lean/parse_rewrite_tactic.h"
 
 namespace lean {
 namespace notation {
@@ -419,6 +420,10 @@ static expr parse_calc_expr(parser & p, unsigned, expr const *, pos_info const &
     return parse_calc(p);
 }
 
+static expr parse_rewrite_tactic_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return p.save_pos(parse_rewrite_tactic(p), pos);
+}
+
 static expr parse_overwrite_notation(parser & p, unsigned, expr const *, pos_info const &) {
     name n = p.check_id_next("invalid '#' local notation, identifier expected");
     environment env = overwrite_notation(p.env(), n);
@@ -488,6 +493,7 @@ parse_table init_nud_table() {
     r = r.add({transition("Type", mk_ext_action(parse_Type))}, x0);
     r = r.add({transition("let", mk_ext_action(parse_let_expr))}, x0);
     r = r.add({transition("calc", mk_ext_action(parse_calc_expr))}, x0);
+    r = r.add({transition("rewrite", mk_ext_action(parse_rewrite_tactic_expr))}, x0);
     r = r.add({transition("#", mk_ext_action(parse_overwrite_notation))}, x0);
     r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);
     r = r.add({transition("!", mk_ext_action(parse_consume_args_expr))}, x0);

@@ -25,6 +25,12 @@ static name * g_rbracket     = nullptr;
 static name * g_bar          = nullptr;
 static name * g_comma        = nullptr;
 static name * g_add          = nullptr;
+static name * g_sub          = nullptr;
+static name * g_question     = nullptr;
+static name * g_bang         = nullptr;
+static name * g_slash        = nullptr;
+static name * g_star         = nullptr;
+static name * g_turnstile    = nullptr;
 static name * g_max          = nullptr;
 static name * g_imax         = nullptr;
 static name * g_cup          = nullptr;
@@ -58,6 +64,7 @@ static name * g_whnf         = nullptr;
 static name * g_wf           = nullptr;
 static name * g_strict       = nullptr;
 static name * g_in           = nullptr;
+static name * g_at           = nullptr;
 static name * g_assign       = nullptr;
 static name * g_visible      = nullptr;
 static name * g_from         = nullptr;
@@ -124,6 +131,12 @@ void initialize_tokens() {
     g_bar          = new name("|");
     g_comma        = new name(",");
     g_add          = new name("+");
+    g_sub          = new name("-");
+    g_question     = new name("?");
+    g_bang         = new name("!");
+    g_slash        = new name("/");
+    g_star         = new name("*");
+    g_turnstile    = new name("⊢");
     g_max          = new name("max");
     g_imax         = new name("imax");
     g_cup          = new name("\u2294");
@@ -157,6 +170,7 @@ void initialize_tokens() {
     g_wf           = new name("[wf]");
     g_strict       = new name("[strict]");
     g_in           = new name("in");
+    g_at           = new name("at");
     g_assign       = new name(":=");
     g_visible      = new name("[visible]");
     g_from         = new name("from");
@@ -242,6 +256,7 @@ void finalize_tokens() {
     delete g_attribute;
     delete g_parsing_only;
     delete g_in;
+    delete g_at;
     delete g_assign;
     delete g_visible;
     delete g_from;
@@ -286,6 +301,12 @@ void finalize_tokens() {
     delete g_imax;
     delete g_max;
     delete g_add;
+    delete g_sub;
+    delete g_question;
+    delete g_bang;
+    delete g_slash;
+    delete g_star;
+    delete g_turnstile;
     delete g_comma;
     delete g_bar;
     delete g_rbracket;
@@ -323,6 +344,12 @@ name const & get_rbracket_tk() { return *g_rbracket; }
 name const & get_bar_tk() { return *g_bar; }
 name const & get_comma_tk() { return *g_comma; }
 name const & get_add_tk() { return *g_add; }
+name const & get_sub_tk() { return *g_sub; }
+name const & get_question_tk() { return *g_question; }
+name const & get_bang_tk() { return *g_bang; }
+name const & get_slash_tk() { return *g_slash; }
+name const & get_star_tk() { return *g_star; }
+name const & get_turnstile_tk() { return *g_turnstile; }
 name const & get_max_tk() { return *g_max; }
 name const & get_imax_tk() { return *g_imax; }
 name const & get_cup_tk() { return *g_cup; }
@@ -356,6 +383,7 @@ name const & get_whnf_tk() { return *g_whnf; }
 name const & get_wf_tk() { return *g_wf; }
 name const & get_strict_tk() { return *g_strict; }
 name const & get_in_tk() { return *g_in; }
+name const & get_at_tk() { return *g_at; }
 name const & get_assign_tk() { return *g_assign; }
 name const & get_visible_tk() { return *g_visible; }
 name const & get_from_tk() { return *g_from; }

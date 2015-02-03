@@ -185,7 +185,6 @@ class parser {
     expr parse_nud_notation();
     expr parse_led_notation(expr left);
     expr parse_nud();
-    expr parse_id();
     expr parse_numeral_expr();
     expr parse_decimal_expr();
     expr parse_string_expr();
@@ -367,6 +366,8 @@ public:
         Otherwise, parse the next expression and return (none, expr).
     */
     pair<optional<name>, expr> parse_optional_assignment(unsigned rbp = 0);
+
+    expr parse_id();
 
     expr parse_led(expr left);
     expr parse_scoped_expr(unsigned num_params, expr const * ps, local_environment const & lenv, unsigned rbp = 0);

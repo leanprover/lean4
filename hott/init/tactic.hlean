@@ -62,15 +62,16 @@ opaque definition unfold     (e : expr)   : tactic := builtin
 opaque definition exact      (e : expr)   : tactic := builtin
 opaque definition trace      (s : string) : tactic := builtin
 opaque definition inversion  (id : expr)  : tactic := builtin
--- rewrite_tac is just a marker for the builtin 'rewrite' notation
--- used to create instances of this tactic.
-opaque definition rewrite_tac (e : expr)  : tactic := builtin
 
 notation a `↦` b:max := rename a b
 
 inductive expr_list : Type :=
 nil  : expr_list,
 cons : expr → expr_list → expr_list
+
+-- rewrite_tac is just a marker for the builtin 'rewrite' notation
+-- used to create instances of this tactic.
+opaque definition rewrite_tac (e : expr_list)  : tactic := builtin
 
 opaque definition inversion_with  (id : expr) (ids : expr_list) : tactic := builtin
 notation `cases` a:max := inversion a

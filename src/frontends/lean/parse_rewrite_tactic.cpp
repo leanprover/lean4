@@ -10,16 +10,34 @@ Author: Leonardo de Moura
 #include "frontends/lean/parse_tactic_location.h"
 
 namespace lean {
-static name parse_rewrite_element_id(parser & p) {
-    return p.check_id_next("invalid rewrite tactic step, identifier expected");
+static optional<expr> parse_pattern(parser & p) {
+    if (p.curr_is_token(get_lbracket_tk())) {
+        p.next();
+        expr r = p.parse_expr();
+        p.check_token_next(get_rbracket_tk(), "invalid rewrite pattern, ']' expected");
+        return some_expr(r);
+    } else {
+        return none_expr();
+    }
 }
 
-rewrite_element parse_rewrite_element(parser & p) {
+static expr parse_rule(parser & p) {
+    if (p.curr_is_token(get_lparen_tk())) {
+        p.next();
+        expr r = p.parse_expr();
+        p.check_token_next(get_rparen_tk(), "invalid rewrite pattern, ']' expected");
+        return r;
+    } else {
+        return p.parse_id();
+    }
+}
+
+expr parse_rewrite_element(parser & p) {
     if (p.curr_is_token(get_slash_tk())) {
         p.next();
-        name id = p.check_id_next("invalid unfold rewrite step, identifier expected");
+        name n = p.check_id_next("invalid unfold rewrite step, identifier expected");
         location loc = parse_tactic_location(p);
-        return rewrite_element::mk_unfold(id, loc);
+        return mk_rewrite_unfold(n, loc);
     }
     bool symm = false;
     if (p.curr_is_token(get_sub_tk())) {
@@ -30,38 +48,44 @@ rewrite_element parse_rewrite_element(parser & p) {
         unsigned n = p.parse_small_nat();
         if (p.curr_is_token(get_question_tk())) {
             p.next();
-            name id = parse_rewrite_element_id(p);
+            optional<expr> pat = parse_pattern(p);
+            expr H = parse_rule(p);
             location loc = parse_tactic_location(p);
-            return rewrite_element::mk_at_most_n(id, n, symm, loc);
+            return mk_rewrite_at_most_n(pat, H, n, symm, loc);
         } else if (p.curr_is_token(get_bang_tk())) {
             p.next();
-            name id = parse_rewrite_element_id(p);
+            optional<expr> pat = parse_pattern(p);
+            expr H = parse_rule(p);
             location loc = parse_tactic_location(p);
-            return rewrite_element::mk_exactly_n(id, n, symm, loc);
+            return mk_rewrite_exactly_n(pat, H, n, symm, loc);
         } else {
-            name id = parse_rewrite_element_id(p);
+            optional<expr> pat = parse_pattern(p);
+            expr H = parse_rule(p);
             location loc = parse_tactic_location(p);
-            return rewrite_element::mk_exactly_n(id, n, symm, loc);
+            return mk_rewrite_exactly_n(pat, H, n, symm, loc);
         }
     } else if (p.curr_is_token(get_question_tk())) {
         p.next();
-        name id = parse_rewrite_element_id(p);
+        optional<expr> pat = parse_pattern(p);
+        expr H = parse_rule(p);
         location loc = parse_tactic_location(p);
-        return rewrite_element::mk_zero_or_more(id, symm, loc);
+        return mk_rewrite_zero_or_more(pat, H, symm, loc);
     } else if (p.curr_is_token(get_bang_tk())) {
         p.next();
-        name id = parse_rewrite_element_id(p);
+        optional<expr> pat = parse_pattern(p);
+        expr H = parse_rule(p);
         location loc = parse_tactic_location(p);
-        return rewrite_element::mk_one_or_more(id, symm, loc);
+        return mk_rewrite_one_or_more(pat, H, symm, loc);
     } else {
-        name id = parse_rewrite_element_id(p);
+        optional<expr> pat = parse_pattern(p);
+        expr H = parse_rule(p);
         location loc = parse_tactic_location(p);
-        return rewrite_element::mk_once(id, symm, loc);
+        return mk_rewrite_once(pat, H, symm, loc);
     }
 }
 
 expr parse_rewrite_tactic(parser & p) {
-    buffer<rewrite_element> elems;
+    buffer<expr> elems;
     while (true) {
         bool has_paren = false;
         if (p.curr_is_token(get_lparen_tk())) {
@@ -77,6 +101,7 @@ expr parse_rewrite_tactic(parser & p) {
             !p.curr_is_token(get_question_tk()) &&
             !p.curr_is_token(get_slash_tk()) &&
             !p.curr_is_identifier() &&
+            !p.curr_is_token(get_lbracket_tk()) &&
             !p.curr_is_token(get_lparen_tk()))
             break;
     }

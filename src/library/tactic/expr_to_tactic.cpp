@@ -121,6 +121,16 @@ name const & tactic_expr_to_id(expr e, char const * error_msg) {
 static expr * g_expr_list_cons = nullptr;
 static expr * g_expr_list_nil  = nullptr;
 
+expr mk_expr_list(unsigned num, expr const * args) {
+    expr r = *g_expr_list_nil;
+    unsigned i = num;
+    while (i > 0) {
+        --i;
+        r = mk_app(*g_expr_list_cons, args[i], r);
+    }
+    return r;
+}
+
 void get_tactic_expr_list_elements(expr l, buffer<expr> & r, char const * error_msg) {
     while (true) {
         if (l == *g_expr_list_nil)

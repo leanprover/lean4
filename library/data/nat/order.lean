@@ -473,4 +473,10 @@ eq_of_mul_eq_mul_right Hpos (H ⬝ !one_mul⁻¹)
 theorem eq_one_of_mul_eq_self_right {n m : ℕ} (Hpos : m > 0) (H : m * n = m) : n = 1 :=
 eq_one_of_mul_eq_self_left Hpos (!mul.comm ▸ H)
 
+theorem eq_one_of_dvd_one {n : ℕ} (H : n | 1) : n = 1 :=
+dvd.elim H
+  (take m,
+    assume H1 : 1 = n * m,
+    eq_one_of_mul_eq_one_right H1⁻¹)
+
 end nat

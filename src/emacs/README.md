@@ -1,13 +1,13 @@
-Emacs mode for [lean theorem prover][lean]
+Emacs mode for [lean theorem prover][Lean]
 
 [lean]: https://github.com/leanprover/lean
 
 
-Requirement
-===========
+Requirements
+============
 
-``lean-mode`` requires [Emacs 24][emacs24] and following
-packages which can be installed via <kbd>M-x package-install</kbd>.
+``lean-mode`` requires [Emacs 24][emacs24] and the following
+packages, which can be installed via <kbd>M-x package-install</kbd>.
 
  - [dash][dash]
  - [dash-functional][dash]
@@ -19,7 +19,7 @@ packages which can be installed via <kbd>M-x package-install</kbd>.
 [f]: https://github.com/rejeep/f.el
 [s]: https://github.com/magnars/s.el
 
-The following packages are *optional* but we recommend to install them
+The following packages are *optional*, but we recommend installing them
 to use full features of ``lean-mode``.
 
  - [company][company]
@@ -35,10 +35,10 @@ to use full features of ``lean-mode``.
 [mmm-mode]: https://github.com/purcell/mmm-mode
 
 
-Install
-=======
+Installation
+============
 
-Put the following elisp code on your emacs setup
+Put the following elisp code in your emacs setup
 (e.g. ``.emacs.d/init.el`` [GNU Emacs], ``~/Library/Preferences/Aquamacs Emacs/Preferences.el`` [Aquamacs]) :
 
 ```elisp
@@ -62,7 +62,7 @@ Put the following elisp code on your emacs setup
 
 Please choose your installation method from the following scenarios, and add the elisp code to your emacs setup:
 
-Case 1: Build lean from source
+Case 1: Build Lean from source
 -----------------------------
 
 ```elisp
@@ -76,7 +76,7 @@ Case 1: Build lean from source
 (require 'lean-mode)
 ```
 
-Case 2: Install lean via apt-get on Ubuntu
+Case 2: Install Lean via apt-get on Ubuntu
 -------------------------------------------
 
 ```elisp
@@ -88,7 +88,7 @@ Case 2: Install lean via apt-get on Ubuntu
 ```
 
 
-Case 3: Install lean via homebrew on OS X
+Case 3: Install Lean via homebrew on OS X
 -----------------------------------------
 
 ```elisp
@@ -99,12 +99,12 @@ Case 3: Install lean via homebrew on OS X
 (require 'lean-mode)
 ```
 
-Note: if you install homebrew not in the default location but a custom
-location, please run `brew info lean` and it will tell you where
-lean-mode files are located. With that information, update
+Note: if you install homebrew in a custom location that is not the default
+location, please run `brew info lean`, and it will tell you where the
+lean-mode files are located. With that information, update the
 `lean-emacs-path` variable accordingly.
 
-Case 4: Install lean in Windows
+Case 4: Install Lean in Windows
 -------------------------------
 ```
 ;; Set up lean-root path
@@ -144,14 +144,14 @@ first consider using a unicode-friendly font such as `DejaVu Sans Mono`:
   (set-face-attribute 'default nil :font "DejaVu Sans Mono-11"))
 ```
 
-If you still experience rendering problem. Please consider trying
+If you still experience a rendering problem, consider trying
 [emacs-unicode-fonts](https://github.com/rolandwalker/unicode-fonts).
 
 
-Contribution
-============
+Contributions
+=============
 
-Contribution is welcome!
+Contributions are welcome!
 
 If your contribution is a bug fix, create your topic branch from
 `master`. If it is a new feature, check if there exists a

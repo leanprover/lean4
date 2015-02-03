@@ -1,4 +1,4 @@
-import data.nat
+import data.nat.basic
 open nat
 
 definition two1 : nat := 2
@@ -22,11 +22,12 @@ function tst_match(p, t)
    end
 end
 
+local nat  = Const("nat")
 local f    = Const("f")
 local g    = Const("g")
 local a    = Const("a")
 local b    = Const("b")
-local x    = mk_var(0)
+local x    = mk_idx_meta(0, nat)
 local p    = g(x, f(x, a))
 local t    = g(a, f(b, a))
 tst_match(p, t)

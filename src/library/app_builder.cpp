@@ -103,11 +103,16 @@ struct app_builder::imp {
         buffer<expr>     used_types;
         buffer<bool>     explicit_mask;
         buffer<expr> domain_types;
+        unsigned idx = 0;
         while (is_pi(type)) {
             explicit_mask.push_back(is_explicit(binding_info(type)));
             esubst.push_back(none_expr());
             domain_types.push_back(binding_domain(type));
-            type = binding_body(type);
+            // TODO(Leo): perhaps, we should cache the result of this while-loop.
+            // The result of this computation can be reused in future calls.
+            expr meta = mk_idx_meta(idx, binding_domain(type));
+            idx++;
+            type = instantiate(binding_body(type), meta);
         }
         unsigned i = domain_types.size();
         unsigned j = nargs;
@@ -121,7 +126,7 @@ struct app_builder::imp {
                 if (cs)
                     return none_expr();
                 bool assigned = false;
-                if (!match(domain_types[i], arg_type, i, esubst.data(), lsubst.size(), lsubst.data(),
+                if (!match(domain_types[i], arg_type, lsubst, esubst,
                            nullptr, nullptr, &m_plugin, &assigned))
                     return none_expr();
                 if (assigned && use_cache) {
@@ -135,7 +140,7 @@ struct app_builder::imp {
                 expr arg_type = m_tc.infer(*esubst[i], cs);
                 if (cs)
                     return none_expr();
-                if (!match(domain_types[i], arg_type, i, esubst.data(), lsubst.size(), lsubst.data(),
+                if (!match(domain_types[i], arg_type, lsubst, esubst,
                            nullptr, nullptr, &m_plugin))
                     return none_expr();
             }

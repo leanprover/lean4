@@ -14,12 +14,19 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-/** \brief Create a universe level metavariable that can be used as a placeholder in #hop_match.
+/** \brief Create a universe level metavariable that can be used as a placeholder in #match.
 
     \remark The index \c i is encoded in the hierarchical name, and can be quickly accessed.
-    In hop_match the substitution is also efficiently represented as an array (aka buffer).
+    In the match procedure the substitution is also efficiently represented as an array (aka buffer).
 */
 level mk_idx_meta_univ(unsigned i);
+
+/** \brief Create a special metavariable that can be used as a placeholder in #match.
+
+    \remark The index \c i is encoded in the hierarchical name, and can be quickly accessed.
+    In the match procedure the substitution is also efficiently represented as an array (aka buffer).
+*/
+expr mk_idx_meta(unsigned i, expr const & type);
 
 /** \brief Context for match_plugins. */
 class match_context {
@@ -54,19 +61,22 @@ match_plugin mk_whnf_match_plugin(type_checker & tc);
 
 /**
    \brief Matching for higher-order patterns. Return true iff \c t matches the higher-order pattern \c p.
-   The substitution is stored in \c subst. Note that, this procedure treats free-variables as placholders
-   instead of meta-variables.
+   The substitution is stored in \c subst. Note that, this procedure treats "special" meta-variables
+   (created using #mk_idx_meta_univ and #mk_idx_meta) as placeholders. The substitution of these
+   metavariable can be quickly accessed using an index stored in them. The parameters
+   \c esubst and \c lsubst store the substitutions for them. There are just buffers.
 
-   \c subst is an assignment for the free variables occurring in \c p.
+   \pre \p and \c t must not contain free variables. Thus, free-variables must be replaced with local constants
+   before invoking this function.
 
-   \pre \c t must not contain free variables. If it does, they must be replaced with local constants
-   before invoking this functions.
+   Other (non special) meta-variables are treated as opaque constants.
 
    \c p is a higher-order pattern when in all applications in \c p
-      1- A free variable is not the function OR
-      2- A free variable is the function, but all other arguments are distinct local constants.
+      1- A special meta-variable is not the function OR
+      2- A special meta-variable is the function, but all other arguments are distinct local constants.
 
-   \pre \c subst must be big enough to store all free variables occurring in subst
+   \pre \c esubst and \c lsubst must be big enough to store the substitution.
+   That is, their size should be > than the index of any special metavariable occuring in p.
 
    If prefix is provided, then it is used for creating unique names.
 
@@ -78,13 +88,18 @@ match_plugin mk_whnf_match_plugin(type_checker & tc);
 
    If \c assigned is provided, then it is set to true if \c esubst or \c lsubst is updated.
 */
-bool match(expr const & p, expr const & t, buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst,
+bool match(expr const & p, expr const & t, buffer<optional<level>> & lsubst, buffer<optional<expr>> & esubst,
            name const * prefix = nullptr, name_map<name> * name_subst = nullptr, match_plugin const * plugin = nullptr,
            bool * assigned = nullptr);
-bool match(expr const & p, expr const & t, unsigned esubst_sz, optional<expr> * esubst,
+bool match(expr const & p, expr const & t,
            unsigned lsubst_sz, optional<level> * lsubst,
+           unsigned esubst_sz, optional<expr> * esubst,
            name const * prefix = nullptr, name_map<name> * name_subst = nullptr,
            match_plugin const * plugin = nullptr, bool * assigned = nullptr);
+
+/** \brief Replace special meta-variables (created using #mk_idx_meta_univ and #mk_idx_meta) with the values
+    provided in \c esubst and \c lsubst */
+expr substitute(expr const & e, buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst);
 
 void open_match(lua_State * L);
 void initialize_match();

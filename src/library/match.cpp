@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
 #include <utility>
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
@@ -28,6 +29,10 @@ level mk_idx_meta_univ(unsigned i) {
     return mk_meta_univ(name(*g_tmp_prefix, i));
 }
 
+expr mk_idx_meta(unsigned i, expr const & type) {
+    return mk_metavar(name(*g_tmp_prefix, i), type);
+}
+
 bool is_idx_meta_univ(level const & l) {
     if (!is_meta(l))
         return false;
@@ -38,6 +43,18 @@ bool is_idx_meta_univ(level const & l) {
 unsigned to_meta_idx(level const & l) {
     lean_assert(is_idx_meta_univ(l));
     return meta_id(l).get_numeral();
+}
+
+bool is_idx_meta(expr const & e) {
+    if (!is_metavar(e))
+        return false;
+    name const & n = mlocal_name(e);
+    return !n.is_atomic() && n.is_numeral() && n.get_prefix() == *g_tmp_prefix;
+}
+
+unsigned to_meta_idx(expr const & e) {
+    lean_assert(is_idx_meta(e));
+    return mlocal_name(e).get_numeral();
 }
 
 class match_fn : public match_context {
@@ -81,10 +98,8 @@ class match_fn : public match_context {
     };
 
     void _assign(expr const & p, expr const & t) {
-        lean_assert(var_idx(p) < m_esubst_sz);
-        unsigned vidx = var_idx(p);
-        unsigned sz   = m_esubst_sz;
-        unsigned i    = sz - vidx - 1;
+        lean_assert(to_meta_idx(p) < m_esubst_sz);
+        unsigned i  = to_meta_idx(p);
         m_stack.emplace_back(true, i);
         m_esubst[i] = t;
         if (m_assigned)
@@ -105,11 +120,11 @@ class match_fn : public match_context {
     }
 
     optional<expr> _get_subst(expr const & x) const {
-        unsigned vidx = var_idx(x);
+        unsigned i  = to_meta_idx(x);
         unsigned sz = m_esubst_sz;
-        if (vidx >= sz)
+        if (i >= sz)
             throw_exception();
-        return m_esubst[sz - vidx - 1];
+        return m_esubst[i];
     }
 
     optional<level> _get_subst(level const & x) const {
@@ -307,7 +322,7 @@ class match_fn : public match_context {
     }
 
     bool _match(expr const & p, expr const & t) {
-        if (is_var(p)) {
+        if (is_idx_meta(p)) {
             auto s = _get_subst(p);
             if (s) {
                 return match_core(*s, t);
@@ -318,7 +333,7 @@ class match_fn : public match_context {
         } else if (is_app(p)) {
             buffer<expr> args;
             expr const & f = get_app_rev_args(p, args);
-            if (is_var(f)) {
+            if (is_idx_meta(f)) {
                 // higher-order pattern case
                 auto s = _get_subst(f);
                 if (s) {
@@ -340,8 +355,8 @@ class match_fn : public match_context {
     }
 
 public:
-    match_fn(unsigned esubst_sz, optional<expr> * esubst,
-             unsigned lsubst_sz, optional<level> * lsubst,
+    match_fn(unsigned lsubst_sz, optional<level> * lsubst,
+             unsigned esubst_sz, optional<expr> * esubst,
              name_generator const & ngen,
              name_map<name> * name_subst, match_plugin const * plugin, bool * assigned):
         m_esubst_sz(esubst_sz), m_esubst(esubst),
@@ -353,21 +368,22 @@ public:
 };
 
 bool match(expr const & p, expr const & t,
-           unsigned esubst_sz, optional<expr> * esubst,
            unsigned lsubst_sz, optional<level> * lsubst,
+           unsigned esubst_sz, optional<expr> * esubst,
            name const * prefix, name_map<name> * name_subst, match_plugin const * plugin, bool * assigned) {
     lean_assert(closed(t));
+    lean_assert(closed(p));
     if (prefix)
-        return match_fn(esubst_sz, esubst, lsubst_sz, lsubst, name_generator(*prefix),
+        return match_fn(lsubst_sz, lsubst, esubst_sz, esubst, name_generator(*prefix),
                         name_subst, plugin, assigned).match(p, t);
     else
-        return match_fn(esubst_sz, esubst, lsubst_sz, lsubst,
+        return match_fn(lsubst_sz, lsubst, esubst_sz, esubst,
                         name_generator(*g_tmp_prefix), name_subst, plugin, assigned).match(p, t);
 }
 
-bool match(expr const & p, expr const & t, buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst,
+bool match(expr const & p, expr const & t, buffer<optional<level>> & lsubst, buffer<optional<expr>> & esubst,
            name const * prefix, name_map<name> * name_subst, match_plugin const * plugin, bool * assigned) {
-    return match(p, t, esubst.size(), esubst.data(), lsubst.size(), lsubst.data(),
+    return match(p, t, lsubst.size(), lsubst.data(), esubst.size(), esubst.data(),
                  prefix, name_subst, plugin, assigned);
 }
 
@@ -410,20 +426,28 @@ static unsigned updt_idx_meta_univ_range(level const & l, unsigned r) {
     return r;
 }
 
-static unsigned get_idx_meta_univ_range(expr const & e) {
-    if (!has_univ_metavar(e))
-        return 0;
-    unsigned r = 0;
+static pair<unsigned, unsigned> get_idx_meta_univ_ranges(expr const & e) {
+    if (!has_metavar(e))
+        return mk_pair(0, 0);
+    unsigned rlvl = 0;
+    unsigned rexp = 0;
     for_each(e, [&](expr const & e, unsigned) {
-            if (!has_univ_metavar(e)) return false;
+            if (!has_metavar(e)) return false;
             if (is_constant(e))
                 for (level const & l : const_levels(e))
-                    r = updt_idx_meta_univ_range(l, r);
+                    rlvl = updt_idx_meta_univ_range(l, rlvl);
             if (is_sort(e))
-                r = updt_idx_meta_univ_range(sort_level(e), r);
+                rlvl = updt_idx_meta_univ_range(sort_level(e), rlvl);
+            if (is_idx_meta(e))
+                rexp = std::max(to_meta_idx(e) + 1, rexp);
             return true;
         });
-    return r;
+    return mk_pair(rlvl, rexp);
+}
+
+expr substitute(expr const & e, buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst) {
+    // TODO(Leo)
+    return e;
 }
 
 DECL_UDATA(match_plugin)
@@ -446,12 +470,14 @@ static int match(lua_State * L) {
         plugin = &to_match_plugin(L, 3);
     if (!closed(t))
         throw exception("higher-order pattern matching failure, input term must not contain free variables");
-    unsigned r1 = get_free_var_range(p);
-    unsigned r2 = get_idx_meta_univ_range(p);
-    buffer<optional<expr>>  esubst;
+    unsigned r1, r2;
+    auto r1_r2 = get_idx_meta_univ_ranges(p);
+    r1 = r1_r2.first;
+    r2 = r1_r2.second;
     buffer<optional<level>> lsubst;
-    esubst.resize(r1); lsubst.resize(r2);
-    if (match(p, t, esubst, lsubst, nullptr, nullptr, plugin)) {
+    buffer<optional<expr>>  esubst;
+    lsubst.resize(r1); esubst.resize(r2);
+    if (match(p, t, lsubst, esubst, nullptr, nullptr, plugin)) {
         lua_newtable(L);
         int i = 1;
         for (auto s : esubst) {
@@ -483,6 +509,10 @@ static int mk_idx_meta_univ(lua_State * L) {
     return push_level(L, mk_idx_meta_univ(luaL_checkinteger(L, 1)));
 }
 
+static int mk_idx_meta(lua_State * L) {
+    return push_expr(L, mk_idx_meta(luaL_checkinteger(L, 1), to_expr(L, 2)));
+}
+
 void open_match(lua_State * L) {
     luaL_newmetatable(L, match_plugin_mt);
     lua_pushvalue(L, -1);
@@ -492,6 +522,7 @@ void open_match(lua_State * L) {
     SET_GLOBAL_FUN(mk_whnf_match_plugin, "whnf_match_plugin");
     SET_GLOBAL_FUN(match_plugin_pred,    "is_match_plugin");
     SET_GLOBAL_FUN(mk_idx_meta_univ,     "mk_idx_meta_univ");
+    SET_GLOBAL_FUN(mk_idx_meta,          "mk_idx_meta");
     SET_GLOBAL_FUN(match,                "match");
 }
 }

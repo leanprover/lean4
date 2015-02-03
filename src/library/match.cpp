@@ -311,8 +311,6 @@ class match_fn : public match_context {
             auto s = _get_subst(p);
             if (s) {
                 return match_core(*s, t);
-            } else if (has_local(t)) {
-                return false;
             } else {
                 _assign(p, t);
                 return true;

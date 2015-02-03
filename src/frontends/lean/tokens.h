@@ -29,6 +29,7 @@ name const & get_comma_tk();
 name const & get_add_tk();
 name const & get_sub_tk();
 name const & get_question_tk();
+name const & get_question_lp_tk();
 name const & get_bang_tk();
 name const & get_slash_tk();
 name const & get_star_tk();

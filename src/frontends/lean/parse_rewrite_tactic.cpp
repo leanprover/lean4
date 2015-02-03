@@ -52,6 +52,12 @@ expr parse_rewrite_element(parser & p) {
             expr H = parse_rule(p);
             location loc = parse_tactic_location(p);
             return mk_rewrite_at_most_n(pat, H, symm, n, loc);
+        } else if (p.curr_is_token(get_question_lp_tk())) {
+            p.next();
+            expr H = p.parse_expr();
+            p.check_token_next(get_rparen_tk(), "invalid rewrite pattern, ')' expected");
+            location loc = parse_tactic_location(p);
+            return mk_rewrite_at_most_n(optional<expr>(), H, symm, n, loc);
         } else if (p.curr_is_token(get_bang_tk())) {
             p.next();
             optional<expr> pat = parse_pattern(p);
@@ -70,6 +76,12 @@ expr parse_rewrite_element(parser & p) {
         expr H = parse_rule(p);
         location loc = parse_tactic_location(p);
         return mk_rewrite_zero_or_more(pat, H, symm, loc);
+    } else if (p.curr_is_token(get_question_lp_tk())) {
+        p.next();
+        expr H = p.parse_expr();
+        p.check_token_next(get_rparen_tk(), "invalid rewrite pattern, ')' expected");
+        location loc = parse_tactic_location(p);
+        return mk_rewrite_zero_or_more(optional<expr>(), H, symm, loc);
     } else if (p.curr_is_token(get_bang_tk())) {
         p.next();
         optional<expr> pat = parse_pattern(p);

@@ -27,6 +27,7 @@ static name * g_comma        = nullptr;
 static name * g_add          = nullptr;
 static name * g_sub          = nullptr;
 static name * g_question     = nullptr;
+static name * g_question_lp  = nullptr;
 static name * g_bang         = nullptr;
 static name * g_slash        = nullptr;
 static name * g_star         = nullptr;
@@ -133,6 +134,7 @@ void initialize_tokens() {
     g_add          = new name("+");
     g_sub          = new name("-");
     g_question     = new name("?");
+    g_question_lp  = new name("?(");
     g_bang         = new name("!");
     g_slash        = new name("/");
     g_star         = new name("*");
@@ -303,6 +305,7 @@ void finalize_tokens() {
     delete g_add;
     delete g_sub;
     delete g_question;
+    delete g_question_lp;
     delete g_bang;
     delete g_slash;
     delete g_star;
@@ -346,6 +349,7 @@ name const & get_comma_tk() { return *g_comma; }
 name const & get_add_tk() { return *g_add; }
 name const & get_sub_tk() { return *g_sub; }
 name const & get_question_tk() { return *g_question; }
+name const & get_question_lp_tk() { return *g_question_lp; }
 name const & get_bang_tk() { return *g_bang; }
 name const & get_slash_tk() { return *g_slash; }
 name const & get_star_tk() { return *g_star; }

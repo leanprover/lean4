@@ -10,14 +10,16 @@ Author: Leonardo de Moura
 #include "frontends/lean/parse_tactic_location.h"
 
 namespace lean {
-name parse_rewrite_element_id(parser & p) {
+static name parse_rewrite_element_id(parser & p) {
     return p.check_id_next("invalid rewrite tactic step, identifier expected");
 }
 
 rewrite_element parse_rewrite_element(parser & p) {
     if (p.curr_is_token(get_slash_tk())) {
         p.next();
-        return rewrite_element::mk_unfold(p.check_id_next("invalid unfold rewrite step, identifier expected"));
+        name id = p.check_id_next("invalid unfold rewrite step, identifier expected");
+        location loc = parse_tactic_location(p);
+        return rewrite_element::mk_unfold(id, loc);
     }
     bool symm = false;
     if (p.curr_is_token(get_sub_tk())) {
@@ -28,37 +30,56 @@ rewrite_element parse_rewrite_element(parser & p) {
         unsigned n = p.parse_small_nat();
         if (p.curr_is_token(get_question_tk())) {
             p.next();
-            return rewrite_element::mk_at_most_n(parse_rewrite_element_id(p), n, symm);
+            name id = parse_rewrite_element_id(p);
+            location loc = parse_tactic_location(p);
+            return rewrite_element::mk_at_most_n(id, n, symm, loc);
         } else if (p.curr_is_token(get_bang_tk())) {
             p.next();
-            return rewrite_element::mk_exactly_n(parse_rewrite_element_id(p), n, symm);
+            name id = parse_rewrite_element_id(p);
+            location loc = parse_tactic_location(p);
+            return rewrite_element::mk_exactly_n(id, n, symm, loc);
         } else {
-            return rewrite_element::mk_exactly_n(parse_rewrite_element_id(p), n, symm);
+            name id = parse_rewrite_element_id(p);
+            location loc = parse_tactic_location(p);
+            return rewrite_element::mk_exactly_n(id, n, symm, loc);
         }
     } else if (p.curr_is_token(get_question_tk())) {
         p.next();
-        return rewrite_element::mk_zero_or_more(parse_rewrite_element_id(p), symm);
+        name id = parse_rewrite_element_id(p);
+        location loc = parse_tactic_location(p);
+        return rewrite_element::mk_zero_or_more(id, symm, loc);
     } else if (p.curr_is_token(get_bang_tk())) {
         p.next();
-        return rewrite_element::mk_one_or_more(parse_rewrite_element_id(p), symm);
+        name id = parse_rewrite_element_id(p);
+        location loc = parse_tactic_location(p);
+        return rewrite_element::mk_one_or_more(id, symm, loc);
     } else {
-        return rewrite_element::mk_once(parse_rewrite_element_id(p), symm);
+        name id = parse_rewrite_element_id(p);
+        location loc = parse_tactic_location(p);
+        return rewrite_element::mk_once(id, symm, loc);
     }
 }
 
 expr parse_rewrite_tactic(parser & p) {
     buffer<rewrite_element> elems;
     while (true) {
+        bool has_paren = false;
+        if (p.curr_is_token(get_lparen_tk())) {
+            has_paren = true;
+            p.next();
+        }
         elems.push_back(parse_rewrite_element(p));
+        if (has_paren)
+            p.check_token_next(get_rparen_tk(), "invalid rewrite tactic element, ')' expected");
         if (!p.curr_is_token(get_sub_tk()) &&
             !p.curr_is_numeral() &&
             !p.curr_is_token(get_bang_tk()) &&
             !p.curr_is_token(get_question_tk()) &&
             !p.curr_is_token(get_slash_tk()) &&
-            !p.curr_is_identifier())
+            !p.curr_is_identifier() &&
+            !p.curr_is_token(get_lparen_tk()))
             break;
     }
-    location loc = parse_tactic_location(p);
-    return mk_rewrite_tactic_expr(elems, loc);
+    return mk_rewrite_tactic_expr(elems);
 }
 }

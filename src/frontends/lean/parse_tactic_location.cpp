@@ -61,24 +61,35 @@ location parse_tactic_location(parser & p) {
                 // at *
                 return location::mk_everywhere();
             }
-        } else {
+        } else if (p.curr_is_token(get_lparen_tk())) {
+            p.next();
             buffer<name>       hyps;
             buffer<occurrence> hyp_occs;
-            while (p.curr_is_identifier()) {
+            while (true) {
                 hyps.push_back(p.get_name_val());
                 p.next();
                 hyp_occs.push_back(parse_occurrence(p));
+                if (!p.curr_is_token(get_comma_tk()))
+                    break;
+                p.next();
             }
-            if (hyps.empty()) {
-                occurrence o = parse_occurrence(p);
-                return location::mk_goal_at(o);
-            } else if (p.curr_is_token(get_turnstile_tk())) {
+            p.check_token_next(get_rparen_tk(), "invalid tactic location, ')' expected");
+            if (p.curr_is_token(get_turnstile_tk())) {
                 p.next();
                 occurrence goal_occ = parse_occurrence(p);
                 return location::mk_at(goal_occ, hyps, hyp_occs);
             } else {
                 return location::mk_hypotheses_at(hyps, hyp_occs);
             }
+        } else if (p.curr_is_token(get_lcurly_tk())) {
+            occurrence o = parse_occurrence(p);
+            return location::mk_goal_at(o);
+        } else {
+            buffer<name>       hyps;
+            buffer<occurrence> hyp_occs;
+            hyps.push_back(p.check_id_next("invalid tactic location, identifier expected"));
+            hyp_occs.push_back(parse_occurrence(p));
+            return location::mk_hypotheses_at(hyps, hyp_occs);
         }
     } else {
         return location::mk_goal_only();

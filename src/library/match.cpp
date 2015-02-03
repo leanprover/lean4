@@ -445,11 +445,6 @@ static pair<unsigned, unsigned> get_idx_meta_univ_ranges(expr const & e) {
     return mk_pair(rlvl, rexp);
 }
 
-expr substitute(expr const & e, buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst) {
-    // TODO(Leo)
-    return e;
-}
-
 DECL_UDATA(match_plugin)
 
 static const struct luaL_Reg match_plugin_m[] = {

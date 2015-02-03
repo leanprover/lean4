@@ -97,10 +97,6 @@ bool match(expr const & p, expr const & t,
            name const * prefix = nullptr, name_map<name> * name_subst = nullptr,
            match_plugin const * plugin = nullptr, bool * assigned = nullptr);
 
-/** \brief Replace special meta-variables (created using #mk_idx_meta_univ and #mk_idx_meta) with the values
-    provided in \c esubst and \c lsubst */
-expr substitute(expr const & e, buffer<optional<expr>> & esubst, buffer<optional<level>> & lsubst);
-
 void open_match(lua_State * L);
 void initialize_match();
 void finalize_match();

@@ -254,10 +254,26 @@ public:
     virtual bool on_failure(expr const & p, expr const & t, match_context & ctx) const {
         try {
             constraint_seq cs;
+            // We do not unfold projections.
             expr p1 = is_projection_app(p) ? p : m_tc.whnf(p, cs);
             expr t1 = is_projection_app(t) ? t : m_tc.whnf(t, cs);
             return !cs && (p1 != p || t1 != t) && ctx.match(p1, t1);
         } catch (exception&) {
+            return false;
+        }
+    }
+
+    // Return true iff the given declaration contains inst_implicit arguments
+    bool has_inst_implicit_args(name const & d) const {
+        if (auto decl = m_tc.env().find(d)) {
+            expr const * it = &decl->get_type();
+            while (is_pi(*it)) {
+                if (binding_info(*it).is_inst_implicit())
+                    return true;
+                it = &binding_body(*it);
+            }
+            return false;
+        } else {
             return false;
         }
     }
@@ -267,27 +283,50 @@ public:
             return l_undef;
         expr const & p_fn = get_app_fn(p);
         if (!is_constant(p_fn))
-            return l_false;
+            return l_undef;
         expr const & t_fn = get_app_fn(t);
         if (!is_constant(t_fn))
-            return l_false;
+            return l_undef;
         if (!ctx.match(p_fn, t_fn))
-            return l_false;
+            return l_undef;
         projection_info const * info = get_projection_info(m_tc.env(), const_name(p_fn));
-        if (!info || !info->m_inst_implicit)
-            return l_undef; // use default matcher
-        buffer<expr> p_args, t_args;
-        get_app_args(p, p_args);
-        get_app_args(t, t_args);
-        if (p_args.size() != t_args.size())
-            return l_false;
-        for (unsigned i = 0; i < p_args.size(); i++) {
-            if (i == info->m_nparams)
-                continue; // skip structure
-            if (!ctx.match(p_args[i], t_args[i]))
+        if (info && info->m_inst_implicit) {
+            // Special support for projections
+            buffer<expr> p_args, t_args;
+            get_app_args(p, p_args);
+            get_app_args(t, t_args);
+            if (p_args.size() != t_args.size())
                 return l_false;
+            for (unsigned i = 0; i < p_args.size(); i++) {
+                if (i == info->m_nparams)
+                    continue; // skip structure
+                if (!ctx.match(p_args[i], t_args[i]))
+                    return l_false;
+            }
+            return l_true;
         }
-        return l_true;
+        if (has_inst_implicit_args(const_name(p_fn))) {
+            // Special support for declarations that contains inst_implicit arguments.
+            // The idea is to skip them during matching.
+            buffer<expr> p_args, t_args;
+            get_app_args(p, p_args);
+            get_app_args(t, t_args);
+            if (p_args.size() != t_args.size())
+                return l_false;
+            expr const * it = &m_tc.env().get(const_name(p_fn)).get_type();
+            for (unsigned i = 0; i < p_args.size(); i++) {
+                if (is_pi(*it) && binding_info(*it).is_inst_implicit()) {
+                    it = &binding_body(*it);
+                    continue; // skip argument
+                }
+                if (!ctx.match(p_args[i], t_args[i]))
+                    return to_lbool(on_failure(p, t, ctx)); // try to unfold if possible
+                if (is_pi(*it))
+                    it = &binding_body(*it);
+            }
+            return l_true;
+        }
+        return l_undef;
     }
 };
 

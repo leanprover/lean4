@@ -10,6 +10,7 @@ char
 char.mk
 dite
 eq
+eq.intro
 eq.rec
 eq_rec_eq
 eq.refl

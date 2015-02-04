@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "kernel/replace_fn.h"
 #include "library/kernel_serializer.h"
 #include "library/tactic/location.h"
 
@@ -109,5 +110,17 @@ deserializer & operator>>(deserializer & d, location & loc) {
     }
     loc.m_hyps = to_list(tmp);
     return d;
+}
+
+expr replace_occurrences(expr const & e, expr const & t, occurrence const & occ, unsigned idx) {
+    unsigned occ_idx = 0;
+    return replace(e, [&](expr const & e, unsigned offset) {
+            if (e == t) {
+                occ_idx++;
+                if (occ.contains(occ_idx))
+                    return some_expr(mk_var(offset+idx));
+            }
+            return none_expr();
+        });
 }
 }

@@ -49,6 +49,11 @@ public:
     friend deserializer & operator>>(deserializer & d, occurrence & o);
 };
 
+/** \brief Replace occurrences of \c t in \c e with the free variable #vidx.
+    The j-th occurrence is replaced iff occ.contains(j)
+*/
+expr replace_occurrences(expr const & e, expr const & t, occurrence const & occ, unsigned vidx);
+
 class location {
 public:
     enum kind { Everywhere, GoalOnly, AllHypotheses, Hypotheses, GoalHypotheses };

@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/local_context.h"
 #include "library/unifier.h"
-#include "library/util.h"
 #include "library/constants.h"
 #include "library/generic_exception.h"
 #include "library/tactic/rewrite_tactic.h"
@@ -615,7 +614,7 @@ class rewrite_fn {
         return std::make_tuple(Pb, M, H);
     }
 
-    bool process_rewrite_hypothesis(expr const & hyp, expr const & pre_elem, expr const & pattern, occurrence const & occ) {
+    bool process_rewrite_hypothesis(expr const & /*hyp*/, expr const & /*pre_elem*/, expr const & /*pattern*/, occurrence const & /*occ*/) {
         // TODO(Leo)
         return false;
     }

@@ -710,6 +710,27 @@ class rewrite_fn {
         }
     }
 
+    bool check_trivial_goal() {
+        expr type = m_g.get_type();
+        if (is_eq(type)) {
+            constraint_seq cs;
+            expr lhs = app_arg(app_fn(type));
+            expr rhs = app_arg(type);
+            if (m_tc->is_def_eq(lhs, rhs, justification(), cs) && !cs) {
+                expr H = mk_refl(*m_tc, lhs);
+                m_subst.assign(m_g.get_name(), m_g.abstract(H));
+                return true;
+            } else {
+                return false;
+            }
+        } else if (type == mk_true()) {
+            m_subst.assign(m_g.get_name(), mk_constant(get_eq_intro_name()));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 public:
     rewrite_fn(environment const & env, io_state const & ios, elaborate_fn const & elab, proof_state const & ps):
         m_env(env), m_ios(ios), m_elab(elab), m_ps(ps), m_ngen(ps.get_ngen()),
@@ -733,7 +754,11 @@ public:
             }
         }
 
-        goals new_gs = cons(m_g, tail(m_ps.get_goals()));
+        goals new_gs;
+        if (check_trivial_goal())
+            new_gs = tail(m_ps.get_goals());
+        else
+            new_gs = cons(m_g, tail(m_ps.get_goals()));
         proof_state new_ps(m_ps, new_gs, m_subst, m_ngen);
         return proof_state_seq(new_ps);
     }

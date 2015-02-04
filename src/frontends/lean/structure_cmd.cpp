@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/class.h"
 #include "library/constants.h"
 #include "library/util.h"
+#include "library/projection.h"
 #include "library/kernel_serializer.h"
 #include "library/definitional/rec_on.h"
 #include "library/definitional/induction_on.h"

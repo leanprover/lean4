@@ -29,40 +29,4 @@ environment mk_projections(environment const & env, name const & n,
     If not, generate an error message using \c pos.
 */
 bool is_structure(environment const & env, name const & S);
-
-/** \brief Auxiliary information attached to projections. This information
-    is used to simplify projection over constructor (efficiently)
-
-    That is, given a projection pr_i associated with the constructor mk
-    where A are parameters, we want to implement the following reduction
-    efficiently. The idea is to avoid unfolding pr_i.
-
-       pr_i A (mk A f_1 ... f_n) ==> f_i
-
-*/
-struct projection_info {
-    name     m_constructor; // mk in the rule above
-    unsigned m_nparams;     // number of parameters of the inductive datatype
-    unsigned m_i;           // i in the rule above
-    projection_info() {}
-    projection_info(name const & c, unsigned nparams, unsigned i):
-        m_constructor(c), m_nparams(nparams), m_i(i) {}
-};
-
-/** \brief If \c p is a projection in the given environment, then return the information
-    associated with it (constructor, number of parameters, and index).
-    If \c p is not a projection, then return nullptr.
-*/
-projection_info const * get_projection_info(environment const & env, name const & p);
-
-/** \brief Create a projection macro term that can peform the following reduction efficiently
-
-       pr_i A (mk A f_1 ... f_n) ==> f_i
-
-    \remark proj_name is the name of the definition that implements the actual projection.
-*/
-expr mk_projection_macro(name const & proj_name, expr const & e);
-
-void initialize_projection();
-void finalize_projection();
 }

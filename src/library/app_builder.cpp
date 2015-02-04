@@ -54,12 +54,12 @@ struct app_builder::imp {
     typedef scoped_map<cache_key, expr, cache_key_hash_fn, cache_key_equal_fn> cache;
 
     type_checker &      m_tc;
-    match_plugin        m_plugin;
+    whnf_match_plugin   m_plugin;
     name_map<decl_info> m_decl_info;
     cache               m_cache;
     buffer<levels>      m_levels;
 
-    imp(type_checker & tc):m_tc(tc), m_plugin(mk_whnf_match_plugin(tc)) {
+    imp(type_checker & tc):m_tc(tc), m_plugin(tc) {
         m_levels.push_back(levels());
     }
 

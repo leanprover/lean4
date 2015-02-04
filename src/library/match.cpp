@@ -159,7 +159,7 @@ class match_fn : public match_context {
     bool try_plugin(expr const & p, expr const & t) {
         if (!m_plugin)
             return false;
-        return (*m_plugin)(p, t, *this);
+        return m_plugin->on_failure(p, t, *this);
     }
 
     bool match_binding_core(expr p, expr t) {
@@ -314,6 +314,15 @@ class match_fn : public match_context {
     bool match_core(expr const & p, expr const & t) {
         if (p.kind() != t.kind())
             return try_plugin(p, t);
+
+        if (m_plugin) {
+            switch (m_plugin->pre(p, t, *this)) {
+            case l_true:  return true;
+            case l_false: return false;
+            case l_undef: break;
+            }
+        }
+
         switch (p.kind()) {
         case expr_kind::Local: case expr_kind::Meta:
             return mlocal_name(p) == mlocal_name(t);
@@ -399,30 +408,15 @@ bool match(expr const & p, expr const & t, buffer<optional<level>> & lsubst, buf
                  prefix, name_subst, plugin, assigned);
 }
 
-match_plugin mk_whnf_match_plugin(type_checker & tc) {
-    return [&](expr const & p, expr const & t, match_context & ctx) { // NOLINT
-        try {
-            constraint_seq cs;
-            expr p1 = tc.whnf(p, cs);
-            expr t1 = tc.whnf(t, cs);
-            return !cs && (p1 != p || t1 != t) && ctx.match(p1, t1);
-        } catch (exception&) {
-            return false;
-        }
-    };
-}
-
-match_plugin mk_whnf_match_plugin(std::shared_ptr<type_checker> tc) {
-    return [=](expr const & p, expr const & t, match_context & ctx) { // NOLINT
-        try {
-            constraint_seq cs;
-            expr p1 = tc->whnf(p, cs);
-            expr t1 = tc->whnf(t, cs);
-            return !cs && (p1 != p || t1 != t) && ctx.match(p1, t1);
-        } catch (exception&) {
-            return false;
-        }
-    };
+bool whnf_match_plugin::on_failure(expr const & p, expr const & t, match_context & ctx) const {
+    try {
+        constraint_seq cs;
+        expr p1 = m_tc.whnf(p, cs);
+        expr t1 = m_tc.whnf(t, cs);
+        return !cs && (p1 != p || t1 != t) && ctx.match(p1, t1);
+    } catch (exception&) {
+        return false;
+    }
 }
 
 static unsigned updt_idx_meta_univ_range(level const & l, unsigned r) {
@@ -457,15 +451,24 @@ static pair<unsigned, unsigned> get_idx_meta_univ_ranges(expr const & e) {
     return mk_pair(rlvl, rexp);
 }
 
-DECL_UDATA(match_plugin)
+typedef std::shared_ptr<match_plugin> match_plugin_ref;
+DECL_UDATA(match_plugin_ref)
 
-static const struct luaL_Reg match_plugin_m[] = {
-    {"__gc", match_plugin_gc},
+static const struct luaL_Reg match_plugin_ref_m[] = {
+    {"__gc", match_plugin_ref_gc},
     {0, 0}
 };
 
+// version of whnf_match_plugin for Lua
+class whnf_match_plugin2 : public whnf_match_plugin {
+    std::shared_ptr<type_checker> m_tc_ref;
+public:
+    whnf_match_plugin2(std::shared_ptr<type_checker> & tc):
+        whnf_match_plugin(*tc), m_tc_ref(tc) {}
+};
+
 static int mk_whnf_match_plugin(lua_State * L) {
-    return push_match_plugin(L, mk_whnf_match_plugin(to_type_checker_ref(L, 1)));
+    return push_match_plugin_ref(L, match_plugin_ref(new whnf_match_plugin2(to_type_checker_ref(L, 1))));
 }
 
 static int match(lua_State * L) {
@@ -474,7 +477,7 @@ static int match(lua_State * L) {
     expr t     = to_expr(L, 2);
     match_plugin * plugin = nullptr;
     if (nargs >= 3)
-        plugin = &to_match_plugin(L, 3);
+        plugin = to_match_plugin_ref(L, 3).get();
     if (!closed(t))
         throw exception("higher-order pattern matching failure, input term must not contain free variables");
     unsigned r1, r2;
@@ -521,15 +524,15 @@ static int mk_idx_meta(lua_State * L) {
 }
 
 void open_match(lua_State * L) {
-    luaL_newmetatable(L, match_plugin_mt);
+    luaL_newmetatable(L, match_plugin_ref_mt);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
-    setfuncs(L, match_plugin_m, 0);
+    setfuncs(L, match_plugin_ref_m, 0);
 
-    SET_GLOBAL_FUN(mk_whnf_match_plugin, "whnf_match_plugin");
-    SET_GLOBAL_FUN(match_plugin_pred,    "is_match_plugin");
-    SET_GLOBAL_FUN(mk_idx_meta_univ,     "mk_idx_meta_univ");
-    SET_GLOBAL_FUN(mk_idx_meta,          "mk_idx_meta");
-    SET_GLOBAL_FUN(match,                "match");
+    SET_GLOBAL_FUN(mk_whnf_match_plugin,  "whnf_match_plugin");
+    SET_GLOBAL_FUN(match_plugin_ref_pred, "is_match_plugin");
+    SET_GLOBAL_FUN(mk_idx_meta_univ,      "mk_idx_meta_univ");
+    SET_GLOBAL_FUN(mk_idx_meta,           "mk_idx_meta");
+    SET_GLOBAL_FUN(match,                 "match");
 }
 }

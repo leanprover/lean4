@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <functional>
 #include "util/lua.h"
 #include "util/optional.h"
+#include "util/lbool.h"
 #include "util/buffer.h"
 #include "util/name_map.h"
 #include "kernel/expr.h"
@@ -53,11 +54,35 @@ public:
 
     plugin(p, t, s) must return true iff for updated substitution s', s'(p) is definitionally equal to t.
 */
-typedef std::function<bool(expr const &, expr const &, match_context &)> match_plugin; // NOLINT
+class match_plugin {
+public:
+    virtual ~match_plugin() {}
+    /** \brief The following method is invoked before the matcher tries to process
+        \c p and \c t. The method is only invoked when \c p and \c t have the same kind,
+        \c p is not a special metavariable created using \c mk_idx_meta, and
+        \c p and \c t are not structurally identical.
 
-/** \brief Create a match_plugin that puts terms in weak-head-normal-form before failing */
-match_plugin mk_whnf_match_plugin(std::shared_ptr<type_checker> tc);
-match_plugin mk_whnf_match_plugin(type_checker & tc);
+        The result should be:
+        - l_false : did not match
+        - l_true  : matched
+        - l_undef : did not handled (i.e., default matcher should be used)
+    */
+    virtual lbool pre(expr const & /*p*/, expr const & /*t*/, match_context & /*ctx*/) const { return l_undef; }
+
+    /** \brief The following method is invoked when matcher doesn't have anything else to do.
+        This method is usually used to invoke expensive procedures such as the normalizer.
+        It should return true it the plugin did manage to match p and t.
+    */
+    virtual bool on_failure(expr const & p, expr const & t, match_context & ctx) const = 0;
+};
+
+/** \brief Simple plugin that just puts terms in whnf and tries again */
+class whnf_match_plugin : public match_plugin {
+    type_checker & m_tc;
+public:
+    whnf_match_plugin(type_checker & tc):m_tc(tc) {}
+    virtual bool on_failure(expr const & p, expr const & t, match_context & ctx) const;
+};
 
 /**
    \brief Matching for higher-order patterns. Return true iff \c t matches the higher-order pattern \c p.

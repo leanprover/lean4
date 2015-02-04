@@ -102,6 +102,7 @@ g_leantags_path    = "USE DEFAULT" # System will search automatically
 g_ninja_path       = "USE DEFAULT" # System will search automatically
 g_flycheck_header  = "FLYCHECK_BEGIN"
 g_flycheck_footer  = "FLYCHECK_END"
+g_lean_bin_dep_flag= "@LEAN_BIN_DEP@" == "ON"
 
 g_logger = logging.getLogger('linja_logger')
 g_debug_mode = False
@@ -609,9 +610,12 @@ def clear_cache(args):
 def build_olean(lean, olean, clean, dlean, ilean, base):
     (lean, olean, clean, dlean, ilean, base) = list(map(escape_ninja_char, (lean, olean, clean, dlean, ilean, base)))
     if clean.startswith(base):
-        str = """build %s %s %s: LEAN %s | %s\n""" % (olean, ilean, clean, lean, dlean)
+        str = """build %s %s %s: LEAN %s | %s""" % (olean, ilean, clean, lean, dlean)
     else:
-        str = """build %s %s: LEAN %s | %s\n""" % (olean, ilean, lean, dlean)
+        str = """build %s %s: LEAN %s | %s""" % (olean, ilean, lean, dlean)
+    if g_lean_bin_dep_flag:
+        str += " %s" % g_lean_path
+    str += "\n"
     str += "  DLEAN_FILE=%s\n" % dlean
     str += "  OLEAN_FILE=%s\n" % olean
     str += "  CLEAN_FILE=%s\n" % clean

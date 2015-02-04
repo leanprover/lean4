@@ -33,6 +33,8 @@ option(CROSS_COMPILE      "CROSS_COMPILE"     OFF)
 option(CONSERVE_MEMORY    "CONSERVE_MEMORY"   OFF)
 # Include MSYS2 required DLLs and binaries in the binary distribution package
 option(INCLUDE_MSYS2_DLLS "INCLUDE_MSYS2_DLLS" OFF)
+# When ON we add lean binary dependency to standard and HOTT libraries
+option(LEAN_BIN_DEP       "LEAN_BIN_DEP"      ON)
 # Directory that include lean emacs mode dependecies
 set(EMACS_DEPENDENCIES "${CMAKE_SOURCE_DIR}/emacs/dependencies")
 
@@ -298,6 +300,9 @@ configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 # leanemacs file
 configure_file("${LEAN_SOURCE_DIR}/../bin/leanemacs.in" "${LEAN_SOURCE_DIR}/../bin/leanemacs")
 configure_file("${LEAN_SOURCE_DIR}/../bin/leanemacs.bat.in" "${LEAN_SOURCE_DIR}/../bin/leanemacs.bat")
+
+# linja
+configure_file("${LEAN_SOURCE_DIR}/../bin/linja.in" "${LEAN_SOURCE_DIR}/../bin/linja" @ONLY)
 
 include_directories("${LEAN_BINARY_DIR}")
 add_subdirectory(util)

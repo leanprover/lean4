@@ -20,20 +20,22 @@ namespace lean {
     We also use this information in the rewriter/simplifier.
 */
 struct projection_info {
-    name     m_constructor; // mk in the rule above
-    unsigned m_nparams;     // number of parameters of the inductive datatype
-    unsigned m_i;           // i in the rule above
+    name     m_constructor;   // mk in the rule above
+    unsigned m_nparams;       // number of parameters of the inductive datatype
+    unsigned m_i;             // i in the rule above
+    bool     m_inst_implicit; // true if it is the projection of a "class"
 
     projection_info() {}
-    projection_info(name const & c, unsigned nparams, unsigned i):
-        m_constructor(c), m_nparams(nparams), m_i(i) {}
+    projection_info(name const & c, unsigned nparams, unsigned i, bool inst_implicit):
+        m_constructor(c), m_nparams(nparams), m_i(i), m_inst_implicit(inst_implicit) {}
 };
 
 /** \brief Mark \c p as a projection in the given environment and store that
     \c mk is the constructor associated with it, \c nparams is the number of parameters, and
     \c i says that \c p is the i-th projection.
 */
-environment save_projection_info(environment const & env, name const & p, name const & mk, unsigned nparams, unsigned i);
+environment save_projection_info(environment const & env, name const & p, name const & mk, unsigned nparams, unsigned i,
+                                 bool inst_implicit);
 
 /** \brief If \c p is a projection in the given environment, then return the information
     associated with it (constructor, number of parameters, and index).

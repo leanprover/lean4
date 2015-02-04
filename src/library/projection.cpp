@@ -39,15 +39,16 @@ static environment update(environment const & env, projection_ext const & ext) {
 
 static std::string * g_proj_key = nullptr;
 
-static environment save_projection_info_core(environment const & env, name const & p, name const & mk, unsigned nparams, unsigned i) {
+static environment save_projection_info_core(environment const & env, name const & p, name const & mk, unsigned nparams,
+                                             unsigned i, bool inst_implicit) {
     projection_ext ext = get_extension(env);
-    ext.m_info.insert(p, projection_info(mk, nparams, i));
+    ext.m_info.insert(p, projection_info(mk, nparams, i, inst_implicit));
     return update(env, ext);
 }
 
-environment save_projection_info(environment const & env, name const & p, name const & mk, unsigned nparams, unsigned i) {
-    environment new_env = save_projection_info_core(env, p, mk, nparams, i);
-    return module::add(new_env, *g_proj_key, [=](serializer & s) { s << p << mk << nparams << i; });
+environment save_projection_info(environment const & env, name const & p, name const & mk, unsigned nparams, unsigned i, bool inst_implicit) {
+    environment new_env = save_projection_info_core(env, p, mk, nparams, i, inst_implicit);
+    return module::add(new_env, *g_proj_key, [=](serializer & s) { s << p << mk << nparams << i << inst_implicit; });
 }
 
 projection_info const * get_projection_info(environment const & env, name const & p) {
@@ -58,10 +59,10 @@ projection_info const * get_projection_info(environment const & env, name const 
 static void projection_info_reader(deserializer & d, module_idx, shared_environment & senv,
                                    std::function<void(asynch_update_fn const &)> &,
                                    std::function<void(delayed_update_fn const &)> &) {
-    name p, mk; unsigned nparams, i;
-    d >> p >> mk >> nparams >> i;
+    name p, mk; unsigned nparams, i; bool inst_implicit;
+    d >> p >> mk >> nparams >> i >> inst_implicit;
     senv.update([=](environment const & env) -> environment {
-            return save_projection_info_core(env, p, mk, nparams, i);
+            return save_projection_info_core(env, p, mk, nparams, i, inst_implicit);
         });
 }
 

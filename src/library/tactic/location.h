@@ -71,6 +71,8 @@ public:
     static location mk_hypotheses_at(buffer<name> const & hs, buffer<occurrence> const & occs);
     static location mk_at(occurrence const & g_occs, buffer<name> const & hs, buffer<occurrence> const & hs_occs);
 
+    bool is_goal_only() const { return m_kind == GoalOnly; }
+
     optional<occurrence> includes_goal() const;
     optional<occurrence> includes_hypothesis(name const & h) const;
     void get_explicit_hypotheses_names(buffer<name> & r) const;

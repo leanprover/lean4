@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/type_util.h"
 #include "library/unifier.h"
 #include "library/reducible.h"
+#include "library/projection.h"
 #include "library/scoped_ext.h"
 #include "library/tactic/goal.h"
 #include "frontends/lean/server.h"
@@ -646,6 +647,8 @@ void server::find_pattern(unsigned line_num, std::string const & pattern) {
     std::vector<pair<std::string, name>> selected;
     bitap_fuzzy_search matcher(pattern, max_errors);
     env.for_each_declaration([&](declaration const & d) {
+            if (is_projection(env, d.get_name()))
+                return;
             if (auto it = exact_prefix_match(env, pattern, d)) {
                 exact_matches.emplace_back(*it, d.get_name());
             } else {
@@ -775,7 +778,8 @@ void server::find_goal_matches(unsigned line_num, unsigned col_num, std::string 
     if (is_meta(*meta)) {
     if (auto type = m_file->infom().get_type_at(line_num, col_num)) {
         env.for_each_declaration([&](declaration const & d) {
-                if (std::all_of(pos_names.begin(), pos_names.end(),
+                if (!is_projection(env, d.get_name()) &&
+                    std::all_of(pos_names.begin(), pos_names.end(),
                                 [&](std::string const & pos) { return is_part_of(pos, d.get_name()); }) &&
                     std::all_of(neg_names.begin(), neg_names.end(),
                                 [&](std::string const & neg) { return !is_part_of(neg, d.get_name()); }) &&

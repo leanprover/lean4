@@ -22,10 +22,17 @@ static occurrence parse_occurrence(parser & p) {
                     throw parser_error("invalid tactic location, cannot mix positive and negative occurrences", p.pos());
                 has_neg = true;
                 p.next();
-                occs.push_back(p.parse_small_nat());
+                auto pos   = p.pos();
+                unsigned i = p.parse_small_nat();
+                if (i == 0)
+                    throw parser_error("invalid tactic location, first occurrence is 1", pos);
+                occs.push_back(i);
             } else {
-                auto pos = p.pos();
-                occs.push_back(p.parse_small_nat());
+                auto pos   = p.pos();
+                unsigned i = p.parse_small_nat();
+                if (i == 0)
+                    throw parser_error("invalid tactic location, first occurrence is 1", pos);
+                occs.push_back(i);
                 if (has_neg)
                     throw parser_error("invalid tactic location, cannot mix positive and negative occurrences", pos);
                 has_pos = true;

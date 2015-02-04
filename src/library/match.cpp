@@ -219,7 +219,19 @@ class match_fn : public match_context {
     }
 
     bool match_app_core(expr const & p, expr const & t) {
-        return match_core(app_fn(p), app_fn(t)) && _match(app_arg(p), app_arg(t));
+        buffer<expr> p_args;
+        buffer<expr> t_args;
+        expr const & p_fn = get_app_args(p, p_args);
+        expr const & t_fn = get_app_args(t, t_args);
+        if (p_args.size() != t_args.size())
+            return false;
+        if (!match_core(p_fn, t_fn))
+            return false;
+        for (unsigned i = 0; i < p_args.size(); i++) {
+            if (!_match(p_args[i], t_args[i]))
+                return false;
+        }
+        return true;
     }
 
     bool match_app(expr const & p, expr const & t) {

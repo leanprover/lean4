@@ -324,6 +324,16 @@ expr mk_refl(type_checker & tc, expr const & a) {
     return mk_app(mk_constant(get_eq_refl_name(), {lvl}), A, a);
 }
 
+expr mk_symm(type_checker & tc, expr const & H) {
+    expr p    = tc.whnf(tc.infer(H).first).first;
+    lean_assert(is_eq(p));
+    expr lhs  = app_arg(app_fn(p));
+    expr rhs  = app_arg(p);
+    expr A    = tc.infer(lhs).first;
+    level lvl = sort_level(tc.ensure_type(A).first);
+    return mk_app(mk_constant(get_eq_symm_name(), {lvl}), A, lhs, rhs, H);
+}
+
 expr mk_heq(type_checker & tc, expr const & lhs, expr const & rhs) {
     expr A    = tc.whnf(tc.infer(lhs).first).first;
     expr B    = tc.whnf(tc.infer(rhs).first).first;

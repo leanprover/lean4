@@ -114,6 +114,7 @@ expr mk_pr2(type_checker & tc, expr const & p, bool prop);
 
 expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs);
 expr mk_refl(type_checker & tc, expr const & a);
+expr mk_symm(type_checker & tc, expr const & H);
 bool is_eq_rec(expr const & e);
 bool is_eq(expr const & e);
 /** \brief Return true iff \c e is of the form (eq A a a) */

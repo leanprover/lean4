@@ -212,7 +212,8 @@ class parser {
     void save_type_info(expr const & e);
     void save_pre_info_data();
     void save_identifier_info(pos_info const & p, name const & full_id);
-    void commit_info(unsigned line);
+    void commit_info(unsigned line, unsigned col);
+    void commit_info() { commit_info(m_scanner.get_line(), m_scanner.get_pos()); }
 
     elaborator_context mk_elaborator_context(pos_info_provider const & pp, bool check_unassigned = true);
     elaborator_context mk_elaborator_context(environment const & env, pos_info_provider const & pp);

@@ -303,13 +303,18 @@ struct info_manager::imp {
     */
     struct env_info {
         unsigned         m_line;
+        unsigned         m_column;
         mutable unsigned m_iteration;
         environment      m_env;
         options          m_options;
         env_info():m_line(0), m_iteration(0) {}
-        env_info(unsigned l, unsigned i, environment const & env, options const & o):
-            m_line(l), m_iteration(i), m_env(env), m_options(o) {}
-        friend bool operator<(env_info const & i1, env_info const & i2) { return i1.m_line < i2.m_line; }
+        env_info(unsigned l, unsigned c, unsigned i, environment const & env, options const & o):
+            m_line(l), m_column(c), m_iteration(i), m_env(env), m_options(o) {}
+        friend bool operator<(env_info const & i1, env_info const & i2) {
+            if (i1.m_line != i2.m_line)
+                return i1.m_line < i2.m_line;
+            return i1.m_column < i2.m_column;
+        }
     };
     mutex                      m_mutex;
     bool                       m_block_new_info;
@@ -334,23 +339,24 @@ struct info_manager::imp {
         }
     }
 
-    void save_environment_options(unsigned l, environment const & env, options const & o) {
+    void save_environment_options(unsigned l, unsigned c, environment const & env, options const & o) {
         lock_guard<mutex> lc(m_mutex);
         if (m_block_new_info)
             return;
-        // erase all entries in m_env_info such that e.m_line <= l and e.m_iteration < m_iteration
+        // erase all entries in m_env_info such that e.m_line <= l and e.m_column <= c and e.m_iteration < m_iteration
         auto it  = m_env_info.begin();
         auto end = m_env_info.end();
         while (it != end) {
-            if (it->m_line > l) {
+            if (it->m_line > l || (it->m_line == l && it->m_column > c)) {
                 break;
-            } else if (it->m_line <= l && it->m_iteration < m_iteration) {
+            } else if ((it->m_line < l || (it->m_line == l && it->m_column <= c)) &&
+                       it->m_iteration < m_iteration) {
                 m_env_info.erase(it++);
             } else {
                 ++it;
             }
         }
-        env_info info(l, m_iteration, env, o);
+        env_info info(l, c, m_iteration, env, o);
         m_env_info.erase(info);
         m_env_info.insert(info);
     }
@@ -746,8 +752,8 @@ void info_manager::invalidate_line_col(unsigned l, unsigned c) { m_ptr->invalida
 void info_manager::commit_upto(unsigned l, bool valid) { m_ptr->commit_upto(l, valid); }
 void info_manager::set_processed_upto(unsigned l) { m_ptr->set_processed_upto(l); }
 bool info_manager::is_invalidated(unsigned l) const { return m_ptr->is_invalidated(l); }
-void info_manager::save_environment_options(unsigned l, environment const & env, options const & o) {
-    m_ptr->save_environment_options(l, env, o);
+void info_manager::save_environment_options(unsigned l, unsigned c, environment const & env, options const & o) {
+    m_ptr->save_environment_options(l, c, env, o);
 }
 void info_manager::clear() { m_ptr->clear(); }
 optional<pair<environment, options>> info_manager::get_final_env_opts() const { return m_ptr->get_final_env_opts(); }

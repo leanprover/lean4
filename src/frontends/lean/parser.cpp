@@ -1415,13 +1415,13 @@ void parser::parse_imports() {
             });
     }
     if (imported)
-        commit_info(1);
+        commit_info(1, 0);
 }
 
-void parser::commit_info(unsigned line) {
+void parser::commit_info(unsigned line, unsigned col) {
     save_snapshot();
     if (m_info_manager) {
-        m_info_manager->save_environment_options(line, m_env, m_ios.get_options());
+        m_info_manager->save_environment_options(line, col, m_env, m_ios.get_options());
         m_info_manager->commit_upto(line, true);
     }
 }
@@ -1451,8 +1451,10 @@ bool parser::parse_commands() {
                     check_interrupted();
                     switch (curr()) {
                     case scanner::token_kind::CommandKeyword:
+                        if (curr_is_token(get_end_tk()))
+                            commit_info();
                         parse_command();
-                        commit_info(m_scanner.get_line());
+                        commit_info();
                         break;
                     case scanner::token_kind::ScriptBlock:
                         parse_script();
@@ -1480,10 +1482,11 @@ bool parser::parse_commands() {
                 throw_parser_exception("invalid end of module, expecting 'end'", pos());
         }
     } catch (interrupt_parser) {
+        commit_info();
         while (has_open_scopes(m_env))
             m_env = pop_scope_core(m_env);
     }
-    commit_info(m_scanner.get_line()+1);
+    commit_info(m_scanner.get_line()+1, 0);
     for (certified_declaration const & thm : m_theorem_queue.join()) {
         if (keep_new_thms())
             m_env.replace(thm);

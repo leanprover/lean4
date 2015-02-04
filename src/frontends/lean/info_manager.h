@@ -43,7 +43,7 @@ public:
     void commit_upto(unsigned l, bool valid);
     void set_processed_upto(unsigned l);
     bool is_invalidated(unsigned l) const;
-    void save_environment_options(unsigned l, environment const & env, options const & o);
+    void save_environment_options(unsigned l, unsigned col, environment const & env, options const & o);
     optional<pair<environment, options>> get_final_env_opts() const;
     optional<pair<environment, options>> get_closest_env_opts(unsigned linenum) const;
     optional<expr> get_type_at(unsigned line, unsigned col) const;

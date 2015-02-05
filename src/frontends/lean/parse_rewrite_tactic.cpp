@@ -33,7 +33,7 @@ static expr parse_rule(parser & p) {
 }
 
 expr parse_rewrite_element(parser & p) {
-    if (p.curr_is_token(get_slash_tk())) {
+    if (p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk())) {
         p.next();
         name n = p.check_id_next("invalid unfold rewrite step, identifier expected");
         location loc = parse_tactic_location(p);
@@ -80,7 +80,8 @@ expr parse_rewrite_element(parser & p) {
 
 expr parse_rewrite_tactic(parser & p) {
     buffer<expr> elems;
-    if (p.curr_is_token(get_lbracket_tk())) {
+    bool lbraket = p.curr_is_token(get_lbracket_tk());
+    if (lbraket || p.curr_is_token(get_langle_tk())) {
         p.next();
         while (true) {
             auto pos = p.pos();
@@ -89,7 +90,10 @@ expr parse_rewrite_tactic(parser & p) {
                 break;
             p.next();
         }
-        p.check_token_next(get_rbracket_tk(), "invalid rewrite tactic, ']' expected");
+        if (lbraket)
+            p.check_token_next(get_rbracket_tk(), "invalid rewrite tactic, ']' expected");
+        else
+            p.check_token_next(get_rangle_tk(), "invalid rewrite tactic, '⟩' expected");
     } else {
         auto pos = p.pos();
         elems.push_back(p.save_pos(parse_rewrite_element(p), pos));

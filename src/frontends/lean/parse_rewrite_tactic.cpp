@@ -35,7 +35,7 @@ static expr parse_rule(parser & p) {
 expr parse_rewrite_element(parser & p) {
     if (p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk())) {
         p.next();
-        name n = p.check_id_next("invalid unfold rewrite step, identifier expected");
+        name n = p.check_constant_next("invalid unfold rewrite step, constant expected");
         location loc = parse_tactic_location(p);
         return mk_rewrite_unfold(n, loc);
     }

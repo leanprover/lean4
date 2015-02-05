@@ -11,10 +11,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 static optional<expr> parse_pattern(parser & p) {
-    if (p.curr_is_token(get_lbracket_tk())) {
+    if (p.curr_is_token(get_lcurly_tk())) {
         p.next();
         expr r = p.parse_expr();
-        p.check_token_next(get_rbracket_tk(), "invalid rewrite pattern, ']' expected");
+        p.check_token_next(get_rcurly_tk(), "invalid rewrite pattern, '}' expected");
         return some_expr(r);
     } else {
         return none_expr();
@@ -80,18 +80,19 @@ expr parse_rewrite_element(parser & p) {
 
 expr parse_rewrite_tactic(parser & p) {
     buffer<expr> elems;
-    while (true) {
+    if (p.curr_is_token(get_lbracket_tk())) {
+        p.next();
+        while (true) {
+            auto pos = p.pos();
+            elems.push_back(p.save_pos(parse_rewrite_element(p), pos));
+            if (!p.curr_is_token(get_comma_tk()))
+                break;
+            p.next();
+        }
+        p.check_token_next(get_rbracket_tk(), "invalid rewrite tactic, ']' expected");
+    } else {
         auto pos = p.pos();
         elems.push_back(p.save_pos(parse_rewrite_element(p), pos));
-        if (!p.curr_is_token(get_sub_tk()) &&
-            !p.curr_is_numeral() &&
-            !p.curr_is_token(get_plus_tk()) &&
-            !p.curr_is_token(get_star_tk()) &&
-            !p.curr_is_token(get_slash_tk()) &&
-            !p.curr_is_identifier() &&
-            !p.curr_is_token(get_lbracket_tk()) &&
-            !p.curr_is_token(get_lparen_tk()))
-            break;
     }
     return mk_rewrite_tactic_expr(elems);
 }

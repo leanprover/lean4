@@ -151,32 +151,20 @@ section group
   theorem mul.left_inv (a : A) : a⁻¹ * a = 1 := !group.mul_left_inv
 
   theorem inv_mul_cancel_left (a b : A) : a⁻¹ * (a * b) = b :=
-  calc
-    a⁻¹ * (a * b) = a⁻¹ * a * b : !mul.assoc⁻¹
-      ... = 1 * b : mul.left_inv
-      ... = b : one_mul
+  by rewrite ⟨-mul.assoc, mul.left_inv, one_mul⟩
 
   theorem inv_mul_cancel_right (a b : A) : a * b⁻¹ * b = a :=
-  calc
-    a * b⁻¹ * b = a * (b⁻¹ * b) : mul.assoc
-      ... = a * 1 : mul.left_inv
-    ... = a : mul_one
+  by rewrite ⟨mul.assoc, mul.left_inv, mul_one⟩
 
   theorem inv_eq_of_mul_eq_one {a b : A} (H : a * b = 1) : a⁻¹ = b :=
-  calc
-    a⁻¹ = a⁻¹ * 1 : !mul_one⁻¹
-      ... = a⁻¹ * (a * b) : H
-      ... = b : inv_mul_cancel_left
+  by rewrite ⟨-(mul_one a⁻¹), -H, inv_mul_cancel_left⟩
 
   theorem inv_one : 1⁻¹ = 1 := inv_eq_of_mul_eq_one (one_mul 1)
 
   theorem inv_inv (a : A) : (a⁻¹)⁻¹ = a := inv_eq_of_mul_eq_one (mul.left_inv a)
 
   theorem inv.inj {a b : A} (H : a⁻¹ = b⁻¹) : a = b :=
-  calc
-    a = (a⁻¹)⁻¹ : !inv_inv⁻¹
-      ... = (b⁻¹)⁻¹ : H
-      ... = b  : inv_inv
+  by rewrite ⟨-inv_inv, H, inv_inv⟩
 
   theorem inv_eq_inv_iff_eq (a b : A) : a⁻¹ = b⁻¹ ↔ a = b :=
   iff.intro (assume H, inv.inj H) (assume H, congr_arg _ H)

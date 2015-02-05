@@ -458,37 +458,47 @@ class rewrite_fn {
         return some_expr(r);
     }
 
+    // Replace goal with definitionally equal one
+    void replace_goal(expr const & new_type) {
+        expr M = m_g.mk_meta(m_ngen.next(), new_type);
+        goal new_g(M, new_type);
+        expr val = m_g.abstract(M);
+        m_subst.assign(m_g.get_name(), val);
+        update_goal(new_g);
+    }
+
     bool process_reduce_goal(optional<name> const & to_unfold) {
         if (auto new_type = reduce(m_g.get_type(), to_unfold)) {
-            expr M = m_g.mk_meta(m_ngen.next(), *new_type);
-            goal new_g(M, *new_type);
-            expr val = m_g.abstract(M);
-            m_subst.assign(m_g.get_name(), val);
-            update_goal(new_g);
+            replace_goal(*new_type);
             return true;
         } else {
             return false;
         }
     }
 
+    // Replace hypothesis type with definitionally equal one
+    void replace_hypothesis(expr const & hyp, expr const & new_hyp_type) {
+        expr new_hyp = update_mlocal(hyp, new_hyp_type);
+        buffer<expr> new_hyps;
+        m_g.get_hyps(new_hyps);
+        for (expr & h : new_hyps) {
+            if (mlocal_name(h) == mlocal_name(hyp)) {
+                h = new_hyp;
+                break;
+            }
+        }
+        expr new_type = m_g.get_type();
+        expr new_mvar = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));
+        expr new_meta = mk_app(new_mvar, new_hyps);
+        goal new_g(new_meta, new_type);
+        expr val      = m_g.abstract(new_meta);
+        m_subst.assign(m_g.get_name(), val);
+        update_goal(new_g);
+    }
+
     bool process_reduce_hypothesis(expr const & hyp, optional<name> const & to_unfold) {
         if (auto new_hyp_type = reduce(mlocal_type(hyp), to_unfold)) {
-            expr new_hyp = update_mlocal(hyp, *new_hyp_type);
-            buffer<expr> new_hyps;
-            m_g.get_hyps(new_hyps);
-            for (expr & h : new_hyps) {
-                if (mlocal_name(h) == mlocal_name(hyp)) {
-                    h = new_hyp;
-                    break;
-                }
-            }
-            expr new_type = m_g.get_type();
-            expr new_mvar = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));
-            expr new_meta = mk_app(new_mvar, new_hyps);
-            goal new_g(new_meta, new_type);
-            expr val      = m_g.abstract(new_meta);
-            m_subst.assign(m_g.get_name(), val);
-            update_goal(new_g);
+            replace_hypothesis(hyp, *new_hyp_type);
             return true;
         } else {
             return false;
@@ -520,14 +530,76 @@ class rewrite_fn {
         return process_reduce_step(optional<name>(info.get_name()), info.get_location());
     }
 
+    optional<expr> unify_with(expr const & t, expr const & e) {
+        auto ecs       = m_elab(m_g, m_ngen.mk_child(), e, false);
+        expr new_e     = ecs.first;
+        buffer<constraint> cs;
+        to_buffer(ecs.second, cs);
+        constraint_seq cs_seq;
+        if (!m_tc->is_def_eq(t, new_e, justification(), cs_seq))
+            return none_expr();
+        cs_seq.linearize(cs);
+        unifier_config cfg;
+        unify_result_seq rseq = unify(m_env, cs.size(), cs.data(), m_ngen.mk_child(), m_subst, cfg);
+        if (auto p = rseq.pull()) {
+            substitution new_subst     = p->first.first;
+            constraints  new_postponed = p->first.second;
+            if (new_postponed)
+                return none_expr(); // all constraints must be solved
+            new_e   = new_subst.instantiate_all(new_e);
+            if (has_expr_metavar_strict(new_e))
+                return none_expr(); // new expressions was not completely instantiated
+            m_subst = new_subst;
+            return some_expr(new_e);
+        }
+        return none_expr();
+    }
+
+    bool process_reduce_to_goal(expr const & e) {
+        if (auto new_type = unify_with(m_g.get_type(), e)) {
+            replace_goal(*new_type);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool process_reduce_to_hypothesis(expr const & hyp, expr const & e) {
+        if (auto new_hyp_type = unify_with(mlocal_type(hyp), e)) {
+            replace_hypothesis(hyp, *new_hyp_type);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool process_reduce_to_step(expr const & e, location const & loc) {
+        if (loc.is_goal_only())
+            return process_reduce_to_goal(e);
+        bool progress = false;
+        buffer<expr> hyps;
+        m_g.get_hyps(hyps);
+        for (expr const & h : hyps) {
+            if (!loc.includes_hypothesis(local_pp_name(h)))
+                continue;
+            if (process_reduce_to_hypothesis(h, e))
+                progress = true;
+        }
+        if (loc.includes_goal()) {
+            if (process_reduce_to_goal(e))
+                progress = true;
+        }
+        return progress;
+    }
+
     bool process_reduce_step(expr const & elem) {
         lean_assert(is_rewrite_reduce_step(elem));
         if (macro_num_args(elem) == 0) {
             auto info = get_rewrite_reduce_info(elem);
             return process_reduce_step(optional<name>(), info.get_location());
         } else {
-            // TODO
-            return false;
+            auto info = get_rewrite_reduce_info(elem);
+            return process_reduce_to_step(macro_arg(elem, 0), info.get_location());
         }
     }
 
@@ -676,7 +748,7 @@ class rewrite_fn {
                 rule      = new_subst.instantiate_all(rule);
                 rule_type = new_subst.instantiate_all(rule_type);
                 if (has_expr_metavar_strict(rule) || has_expr_metavar_strict(rule_type))
-                    return unify_result(); // rule was not completely instantiate.
+                    return unify_result(); // rule was not completely instantiated.
                 m_subst = new_subst;
                 expr lhs = app_arg(app_fn(rule_type));
                 expr rhs = app_arg(rule_type);

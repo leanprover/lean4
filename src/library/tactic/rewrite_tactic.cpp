@@ -499,9 +499,9 @@ class rewrite_fn {
     // When successful, the result is the pair (H, new_t) where
     //   (H : new_t = t) if is_goal == true
     //   (H : t = new_t) if is_goal == false
-    unify_result unify_target(expr const & t, expr const & pre_elem, bool is_goal) {
+    unify_result unify_target(expr const & t, expr const & orig_elem, bool is_goal) {
         try {
-            expr rule         = get_rewrite_rule(pre_elem);
+            expr rule         = get_rewrite_rule(orig_elem);
             auto rcs          = m_elab(m_g, m_ngen.mk_child(), rule, false);
             rule              = rcs.first;
             buffer<constraint> cs;
@@ -521,7 +521,7 @@ class rewrite_fn {
                 rule       = mk_app(rule, meta);
             }
             lean_assert(is_eq(rule_type));
-            bool symm = get_rewrite_info(pre_elem).symm();
+            bool symm = get_rewrite_info(orig_elem).symm();
             expr src;
             if (symm)
                 src = app_arg(rule_type);
@@ -569,13 +569,13 @@ class rewrite_fn {
     typedef optional<std::tuple<expr, expr, expr>> find_result;
 
     // Search for \c pattern in \c e. If \c t is a match, then try to unify the type of the rule
-    // in the rewrite step \c pre_elem with \c t.
+    // in the rewrite step \c orig_elem with \c t.
     // When successful, this method returns the target \c t, the fully elaborated rule \c r,
     // and the new value \c new_t (i.e., the expression that will replace \c t).
     //
     // \remark is_goal == true if \c e is the type of a goal. Otherwise, it is assumed to be the type
     // of a hypothesis. This flag affects the equality proof built by this method.
-    find_result find_target(expr const & e, expr const & pattern, expr const & pre_elem, bool is_goal) {
+    find_result find_target(expr const & e, expr const & pattern, expr const & orig_elem, bool is_goal) {
         find_result result;
         for_each(e, [&](expr const & t, unsigned) {
                 if (result)
@@ -587,7 +587,7 @@ class rewrite_fn {
                     if (assigned)
                         reset_subst();
                     if (r) {
-                        if (auto p = unify_target(t, pre_elem, is_goal)) {
+                        if (auto p = unify_target(t, orig_elem, is_goal)) {
                             result = std::make_tuple(t, p->second, p->first);
                             return false;
                         }
@@ -598,10 +598,10 @@ class rewrite_fn {
         return result;
     }
 
-    bool process_rewrite_hypothesis(expr const & hyp, expr const & pre_elem, expr const & pattern, occurrence const & occ) {
+    bool process_rewrite_hypothesis(expr const & hyp, expr const & orig_elem, expr const & pattern, occurrence const & occ) {
         expr Pa = mlocal_type(hyp);
         bool is_goal = false;
-        if (auto it = find_target(Pa, pattern, pre_elem, is_goal)) {
+        if (auto it = find_target(Pa, pattern, orig_elem, is_goal)) {
             expr a, Heq, b; // Heq is a proof of a = b
             std::tie(a, b, Heq) = *it;
 
@@ -647,10 +647,10 @@ class rewrite_fn {
         return false;
     }
 
-    bool process_rewrite_goal(expr const & pre_elem, expr const & pattern, occurrence const & occ) {
+    bool process_rewrite_goal(expr const & orig_elem, expr const & pattern, occurrence const & occ) {
         expr Pa      = m_g.get_type();
         bool is_goal = true;
-        if (auto it = find_target(Pa, pattern, pre_elem, is_goal)) {
+        if (auto it = find_target(Pa, pattern, orig_elem, is_goal)) {
             expr a, Heq, b;
             std::tie(a, b, Heq) = *it;
 
@@ -684,12 +684,12 @@ class rewrite_fn {
         return false;
     }
 
-    bool process_rewrite_single_step(expr const & pre_elem, expr const & pattern) {
+    bool process_rewrite_single_step(expr const & orig_elem, expr const & pattern) {
         check_system("rewrite tactic");
-        rewrite_info const & info = get_rewrite_info(pre_elem);
+        rewrite_info const & info = get_rewrite_info(orig_elem);
         location const & loc      = info.get_location();
         if (loc.is_goal_only())
-            return process_rewrite_goal(pre_elem, pattern, *loc.includes_goal());
+            return process_rewrite_goal(orig_elem, pattern, *loc.includes_goal());
         bool progress = false;
         buffer<expr> hyps;
         m_g.get_hyps(hyps);
@@ -697,11 +697,11 @@ class rewrite_fn {
             auto occ = loc.includes_hypothesis(local_pp_name(h));
             if (!occ)
                 continue;
-            if (process_rewrite_hypothesis(h, pre_elem, pattern, *occ))
+            if (process_rewrite_hypothesis(h, orig_elem, pattern, *occ))
                 progress = true;
         }
         if (auto occ = loc.includes_goal()) {
-            if (process_rewrite_goal(pre_elem, pattern, *occ))
+            if (process_rewrite_goal(orig_elem, pattern, *occ))
                 progress = true;
         }
         return progress;
@@ -712,7 +712,7 @@ class rewrite_fn {
             throw_max_iter_exceeded();
     }
 
-    bool process_rewrite_step(expr const & elem, expr const & pre_elem) {
+    bool process_rewrite_step(expr const & elem, expr const & orig_elem) {
         lean_assert(is_rewrite_step(elem));
         expr pattern              = get_pattern(elem);
         // regular(m_env, m_ios) << "pattern: " << pattern << "\n";
@@ -720,11 +720,11 @@ class rewrite_fn {
         unsigned i, num;
         switch (info.get_multiplicity()) {
         case rewrite_info::Once:
-            return process_rewrite_single_step(pre_elem, pattern);
+            return process_rewrite_single_step(orig_elem, pattern);
         case rewrite_info::AtMostN:
             num = info.num();
             for (i = 0; i < std::min(num, m_max_iter); i++) {
-                if (!process_rewrite_single_step(pre_elem, pattern))
+                if (!process_rewrite_single_step(orig_elem, pattern))
                     return true;
             }
             check_max_iter(i);
@@ -732,22 +732,22 @@ class rewrite_fn {
         case rewrite_info::ExactlyN:
             num = info.num();
             for (i = 0; i < std::min(num, m_max_iter); i++) {
-                if (!process_rewrite_single_step(pre_elem, pattern))
+                if (!process_rewrite_single_step(orig_elem, pattern))
                     return false;
             }
             check_max_iter(i);
             return true;
         case rewrite_info::ZeroOrMore:
             for (i = 0; i < m_max_iter; i++) {
-                if (!process_rewrite_single_step(pre_elem, pattern))
+                if (!process_rewrite_single_step(orig_elem, pattern))
                     return true;
             }
             throw_max_iter_exceeded();
         case rewrite_info::OneOrMore:
-            if (!process_rewrite_single_step(pre_elem, pattern))
+            if (!process_rewrite_single_step(orig_elem, pattern))
                 return false;
             for (i = 0; i < m_max_iter; i++) {
-                if (!process_rewrite_single_step(pre_elem, pattern))
+                if (!process_rewrite_single_step(orig_elem, pattern))
                     return true;
             }
             throw_max_iter_exceeded();

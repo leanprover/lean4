@@ -70,6 +70,17 @@ expr parse_rewrite_element(parser & p) {
         expr H = parse_rule(p);
         location loc = parse_tactic_location(p);
         return mk_rewrite_one_or_more(pat, H, symm, loc);
+    } else if (p.curr_is_token(get_triangle_tk()) || p.curr_is_token(get_greater_tk())) {
+        p.next();
+        if (p.curr_is_token(get_star_tk())) {
+            p.next();
+            location loc = parse_tactic_location(p);
+            return mk_rewrite_reduce(loc);
+        } else {
+            expr e = p.parse_expr();
+            location loc = parse_tactic_location(p);
+            return mk_rewrite_reduce_to(e, loc);
+        }
     } else {
         optional<expr> pat = parse_pattern(p);
         expr H = parse_rule(p);

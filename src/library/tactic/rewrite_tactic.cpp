@@ -4,9 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
 #include <string>
 #include "util/interrupt.h"
 #include "util/list_fn.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
@@ -26,7 +28,17 @@ Author: Leonardo de Moura
 
 // #define TRACE_MATCH_PLUGIN
 
+#ifndef LEAN_DEFAULT_REWRITER_MAX_ITERATIONS
+#define LEAN_DEFAULT_REWRITER_MAX_ITERATIONS 200
+#endif
+
 namespace lean {
+static name * g_rewriter_max_iterations = nullptr;
+
+unsigned get_rewriter_max_iterations(options const & opts) {
+    return opts.get_unsigned(*g_rewriter_max_iterations, LEAN_DEFAULT_REWRITER_MAX_ITERATIONS);
+}
+
 class unfold_info {
     name      m_name;
     location  m_location;
@@ -348,6 +360,8 @@ class rewrite_fn {
     substitution         m_subst;
     expr                 m_expr_loc; // auxiliary expression used for error localization
 
+    unsigned             m_max_iter;
+
     buffer<optional<level>> m_lsubst; // auxiliary buffer for pattern matching
     buffer<optional<expr>>  m_esubst; // auxiliary buffer for pattern matching
 
@@ -357,6 +371,11 @@ class rewrite_fn {
 
     [[ noreturn ]] void throw_rewrite_exception(sstream const & strm) {
         throw_generic_exception(strm, m_expr_loc);
+    }
+
+    [[ noreturn ]] void throw_max_iter_exceeded() {
+        throw_rewrite_exception(sstream() << "rewrite tactic failed, maximum number of iterations exceeded (current threshold: "
+                                << m_max_iter << ", increase the threshold by setting option 'rewrite.max_iter')");
     }
 
     void update_goal(goal const & g) {
@@ -660,41 +679,50 @@ class rewrite_fn {
         return progress;
     }
 
+    void check_max_iter(unsigned i) {
+        if (i >= m_max_iter)
+            throw_max_iter_exceeded();
+    }
+
     bool process_rewrite_step(expr const & elem, expr const & pre_elem) {
         lean_assert(is_rewrite_step(elem));
         expr pattern              = get_pattern(elem);
         // regular(m_env, m_ios) << "pattern: " << pattern << "\n";
         rewrite_info const & info = get_rewrite_info(elem);
-        unsigned num;
+        unsigned i, num;
         switch (info.get_multiplicity()) {
         case rewrite_info::Once:
             return process_rewrite_single_step(pre_elem, pattern);
         case rewrite_info::AtMostN:
             num = info.num();
-            for (unsigned i = 0; i < num; i++) {
+            for (i = 0; i < std::min(num, m_max_iter); i++) {
                 if (!process_rewrite_single_step(pre_elem, pattern))
                     return true;
             }
+            check_max_iter(i);
             return true;
         case rewrite_info::ExactlyN:
             num = info.num();
-            for (unsigned i = 0; i < num; i++) {
+            for (i = 0; i < std::min(num, m_max_iter); i++) {
                 if (!process_rewrite_single_step(pre_elem, pattern))
                     return false;
             }
+            check_max_iter(i);
             return true;
         case rewrite_info::ZeroOrMore:
-            while (true) {
+            for (i = 0; i < m_max_iter; i++) {
                 if (!process_rewrite_single_step(pre_elem, pattern))
                     return true;
             }
+            throw_max_iter_exceeded();
         case rewrite_info::OneOrMore:
             if (!process_rewrite_single_step(pre_elem, pattern))
                 return false;
-            while (true) {
+            for (i = 0; i < m_max_iter; i++) {
                 if (!process_rewrite_single_step(pre_elem, pattern))
                     return true;
             }
+            throw_max_iter_exceeded();
         }
         lean_unreachable();
     }
@@ -739,6 +767,7 @@ public:
         lean_assert(gs);
         update_goal(head(gs));
         m_subst = m_ps.get_subst();
+        m_max_iter = get_rewriter_max_iterations(ios.get_options());
     }
 
     proof_state_seq operator()(buffer<expr> const & elems) {
@@ -773,6 +802,8 @@ tactic mk_rewrite_tactic(elaborate_fn const & elab, buffer<expr> const & elems) 
 }
 
 void initialize_rewrite_tactic() {
+    g_rewriter_max_iterations = new name{"rewriter", "max_iter"};
+    register_unsigned_option(*g_rewriter_max_iterations, LEAN_DEFAULT_REWRITER_MAX_ITERATIONS, "(rewriter tactic) maximum number of iterations");
     name rewrite_tac_name{"tactic", "rewrite_tac"};
     g_rewrite_tac           = new expr(Const(rewrite_tac_name));
     g_rewrite_unfold_name   = new name("rewrite_unfold");

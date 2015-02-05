@@ -390,29 +390,6 @@ class rewrite_fn {
         return m_g.mk_meta(m_ngen.next(), type);
     }
 
-    void elaborate_elems(buffer<expr> const & elems, buffer<expr> & new_elems) {
-        for (expr const & elem : elems) {
-            if (is_rewrite_unfold_step(elem)) {
-                // nothing to be done
-                new_elems.push_back(elem);
-            } else {
-                expr rule = get_rewrite_rule(elem);
-                auto rcs       = m_elab(m_g, m_ngen.mk_child(), rule, false);
-                rule           = rcs.first;
-                if (has_rewrite_pattern(elem)) {
-                    auto pcs     = m_elab(m_g, m_ngen.mk_child(), get_rewrite_pattern(elem), false);
-                    expr pattern = pcs.first;
-                    // We ignore any constraints generated when elaborating patterns.
-                    // The pattern is just a hint to locate positions where the rule should be applied.
-                    expr new_args[2] = { rule, pattern };
-                    new_elems.push_back(mk_macro(macro_def(elem), 2, new_args));
-                } else {
-                    new_elems.push_back(mk_macro(macro_def(elem), 1, &rule));
-                }
-            }
-        }
-    }
-
     bool process_unfold_step(expr const & elem) {
         lean_assert(is_rewrite_unfold_step(elem));
         // TODO(Leo)
@@ -780,11 +757,21 @@ class rewrite_fn {
 
     // Process the given rewrite element/step. This method destructively update
     // m_g, m_subst, m_ngen. It returns true if it succeeded and false otherwise.
-    bool process_step(expr const & elem, expr const & pre_elem) {
+    bool process_step(expr const & elem) {
         if (is_rewrite_unfold_step(elem)) {
             return process_unfold_step(elem);
         } else {
-            return process_rewrite_step(elem, pre_elem);
+            expr rule = get_rewrite_rule(elem);
+            expr new_elem;
+            if (has_rewrite_pattern(elem)) {
+                expr pattern     = m_elab(m_g, m_ngen.mk_child(), get_rewrite_pattern(elem), false).first;
+                expr new_args[2] = { rule, pattern };
+                new_elem         = mk_macro(macro_def(elem), 2, new_args);
+            } else {
+                rule     = m_elab(m_g, m_ngen.mk_child(), rule, false).first;
+                new_elem = mk_macro(macro_def(elem), 1, &rule);
+            }
+            return process_rewrite_step(new_elem, elem);
         }
     }
 
@@ -822,13 +809,9 @@ public:
     }
 
     proof_state_seq operator()(buffer<expr> const & elems) {
-        buffer<expr> new_elems;
-        elaborate_elems(elems, new_elems);
-
-        lean_assert(elems.size() == new_elems.size());
-        for (unsigned i = 0; i < new_elems.size(); i++) {
-            flet<expr> set1(m_expr_loc, elems[i]);
-            if (!process_step(new_elems[i], elems[i])) {
+        for (expr const & elem : elems) {
+            flet<expr> set1(m_expr_loc, elem);
+            if (!process_step(elem)) {
                 return proof_state_seq();
             }
         }

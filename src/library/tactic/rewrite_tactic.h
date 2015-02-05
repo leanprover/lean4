@@ -10,6 +10,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 expr mk_rewrite_unfold(name const & n, location const & loc);
+expr mk_rewrite_reduce(location const & loc);
+expr mk_rewrite_reduce_to(expr const & e, location const & loc);
 expr mk_rewrite_once(optional<expr> const & pattern, expr const & H, bool symm, location const & loc);
 expr mk_rewrite_zero_or_more(optional<expr> const & pattern, expr const & H, bool symm, location const & loc);
 expr mk_rewrite_one_or_more(optional<expr> const & pattern, expr const & H, bool symm, location const & loc);

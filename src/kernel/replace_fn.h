@@ -20,8 +20,8 @@ namespace lean {
    bindings operators that enclosing \c s. The replaces only visits children of \c e
    if f return none_expr.
 */
-expr replace(expr const & e, std::function<optional<expr>(expr const &, unsigned)> const & f);
-inline expr replace(expr const & e, std::function<optional<expr>(expr const &)> const & f) {
-    return replace(e, [&](expr const & e, unsigned) { return f(e); });
+expr replace(expr const & e, std::function<optional<expr>(expr const &, unsigned)> const & f, bool use_cache = true);
+inline expr replace(expr const & e, std::function<optional<expr>(expr const &)> const & f, bool use_cache = true) {
+    return replace(e, [&](expr const & e, unsigned) { return f(e); }, use_cache);
 }
 }

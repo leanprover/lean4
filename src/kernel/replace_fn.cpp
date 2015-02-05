@@ -84,6 +84,7 @@ class replace_fn {
     frame_stack                                           m_fs;
     result_stack                                          m_rs;
     replace_cache_ref                                     m_cache;
+    bool                                                  m_use_cache;
 
     void save_result(expr const & e, expr const & r, unsigned offset, bool shared) {
         if (shared)
@@ -98,7 +99,7 @@ class replace_fn {
     */
     bool visit(expr const & e, unsigned offset) {
         bool shared = false;
-        if (is_shared(e)) {
+        if (m_use_cache && is_shared(e)) {
             if (auto r = m_cache->find(e, offset)) {
                 m_rs.push_back(*r);
                 return true;
@@ -143,7 +144,7 @@ class replace_fn {
 
 public:
     template<typename F>
-    replace_fn(F const & f):m_f(f) {}
+    replace_fn(F const & f, bool use_cache):m_f(f), m_use_cache(use_cache) {}
 
     expr operator()(expr const & e) {
         expr r;
@@ -205,6 +206,7 @@ public:
 class replace_rec_fn {
     replace_cache_ref                                     m_cache;
     std::function<optional<expr>(expr const &, unsigned)> m_f;
+    bool                                                  m_use_cache;
 
     expr save_result(expr const & e, unsigned offset, expr const & r, bool shared) {
         if (shared)
@@ -214,7 +216,7 @@ class replace_rec_fn {
 
     expr apply(expr const & e, unsigned offset) {
         bool shared = false;
-        if (is_shared(e)) {
+        if (m_use_cache && is_shared(e)) {
             if (auto r = m_cache->find(e, offset))
                 return *r;
             shared = true;
@@ -254,15 +256,15 @@ class replace_rec_fn {
     }
 public:
     template<typename F>
-    replace_rec_fn(F const & f):m_f(f) {}
+    replace_rec_fn(F const & f, bool use_cache):m_f(f), m_use_cache(use_cache) {}
 
     expr operator()(expr const & e) { return apply(e, 0); }
 };
 
-expr replace(expr const & e, std::function<optional<expr>(expr const &, unsigned)> const & f) {
+expr replace(expr const & e, std::function<optional<expr>(expr const &, unsigned)> const & f, bool use_cache) {
     if (get_weight(e) < LEAN_REPLACE_SMALL_TERM_THRESHOLD)
-        return replace_rec_fn(f)(e);
+        return replace_rec_fn(f, use_cache)(e);
     else
-        return replace_fn(f)(e);
+        return replace_fn(f, use_cache)(e);
 }
 }

@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/inductive/inductive.h"
+#include "library/normalize.h"
 #include "library/kernel_serializer.h"
 #include "library/reducible.h"
 #include "library/util.h"
@@ -390,10 +391,89 @@ class rewrite_fn {
         return m_g.mk_meta(m_ngen.next(), type);
     }
 
+    optional<expr> reduce(expr const & e, optional<name> const & to_unfold) {
+        bool unfolded = !to_unfold;
+        extra_opaque_pred pred([&](name const & n) {
+                // everything is opaque but to_unfold
+                if (to_unfold && *to_unfold == n) {
+                    unfolded = true;
+                    return false;
+                } else {
+                    return true;
+                }
+            });
+        bool relax_main_opaque = false;
+        bool memoize           = true;
+        auto tc = new type_checker(m_env, m_ngen.mk_child(),
+                                   mk_default_converter(m_env, relax_main_opaque,
+                                                        memoize, pred));
+        constraint_seq cs;
+        expr r = normalize(*tc, e, cs);
+        if (!unfolded || cs) // FAIL if didn't unfolded or generated constraints
+            return none_expr();
+        return some_expr(r);
+    }
+
+    bool process_reduce_goal(optional<name> const & to_unfold) {
+        if (auto new_type = reduce(m_g.get_type(), to_unfold)) {
+            expr M = m_g.mk_meta(m_ngen.next(), *new_type);
+            goal new_g(M, *new_type);
+            expr val = m_g.abstract(M);
+            m_subst.assign(m_g.get_name(), val);
+            update_goal(new_g);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool process_reduce_hypothesis(expr const & hyp, optional<name> const & to_unfold) {
+        if (auto new_hyp_type = reduce(mlocal_type(hyp), to_unfold)) {
+            expr new_hyp = update_mlocal(hyp, *new_hyp_type);
+            buffer<expr> new_hyps;
+            m_g.get_hyps(new_hyps);
+            for (expr & h : new_hyps) {
+                if (mlocal_name(h) == mlocal_name(hyp)) {
+                    h = new_hyp;
+                    break;
+                }
+            }
+            expr new_type = m_g.get_type();
+            expr new_mvar = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));
+            expr new_meta = mk_app(new_mvar, new_hyps);
+            goal new_g(new_meta, new_type);
+            expr val      = m_g.abstract(new_meta);
+            m_subst.assign(m_g.get_name(), val);
+            update_goal(new_g);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool process_reduce_step(optional<name> const & to_unfold, location const & loc) {
+        if (loc.is_goal_only())
+            return process_reduce_goal(to_unfold);
+        bool progress = false;
+        buffer<expr> hyps;
+        m_g.get_hyps(hyps);
+        for (expr const & h : hyps) {
+            if (!loc.includes_hypothesis(local_pp_name(h)))
+                continue;
+            if (process_reduce_hypothesis(h, to_unfold))
+                progress = true;
+        }
+        if (loc.includes_goal()) {
+            if (process_reduce_goal(to_unfold))
+                progress = true;
+        }
+        return progress;
+    }
+
     bool process_unfold_step(expr const & elem) {
         lean_assert(is_rewrite_unfold_step(elem));
-        // TODO(Leo)
-        return false;
+        auto info = get_rewrite_unfold_info(elem);
+        return process_reduce_step(optional<name>(info.get_name()), info.get_location());
     }
 
     // Replace metavariables with special metavariables for the higher-order matcher. This is method is used when
@@ -630,7 +710,6 @@ class rewrite_fn {
                 if (mlocal_name(h) == mlocal_name(hyp)) {
                     h = new_hyp;
                     args.push_back(H);
-                    break;
                 } else {
                     args.push_back(h);
                 }

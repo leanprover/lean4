@@ -26,11 +26,13 @@ static name * g_bar          = nullptr;
 static name * g_comma        = nullptr;
 static name * g_add          = nullptr;
 static name * g_sub          = nullptr;
+static name * g_greater      = nullptr;
 static name * g_question     = nullptr;
 static name * g_question_lp  = nullptr;
 static name * g_bang         = nullptr;
 static name * g_slash        = nullptr;
 static name * g_star         = nullptr;
+static name * g_plus         = nullptr;
 static name * g_turnstile    = nullptr;
 static name * g_max          = nullptr;
 static name * g_imax         = nullptr;
@@ -133,10 +135,12 @@ void initialize_tokens() {
     g_comma        = new name(",");
     g_add          = new name("+");
     g_sub          = new name("-");
+    g_greater      = new name(">");
     g_question     = new name("?");
     g_question_lp  = new name("?(");
     g_bang         = new name("!");
     g_slash        = new name("/");
+    g_plus         = new name("+");
     g_star         = new name("*");
     g_turnstile    = new name("⊢");
     g_max          = new name("max");
@@ -304,10 +308,12 @@ void finalize_tokens() {
     delete g_max;
     delete g_add;
     delete g_sub;
+    delete g_greater;
     delete g_question;
     delete g_question_lp;
     delete g_bang;
     delete g_slash;
+    delete g_plus;
     delete g_star;
     delete g_turnstile;
     delete g_comma;
@@ -348,11 +354,13 @@ name const & get_bar_tk() { return *g_bar; }
 name const & get_comma_tk() { return *g_comma; }
 name const & get_add_tk() { return *g_add; }
 name const & get_sub_tk() { return *g_sub; }
+name const & get_greater_tk() { return *g_greater; }
 name const & get_question_tk() { return *g_question; }
 name const & get_question_lp_tk() { return *g_question_lp; }
 name const & get_bang_tk() { return *g_bang; }
 name const & get_slash_tk() { return *g_slash; }
 name const & get_star_tk() { return *g_star; }
+name const & get_plus_tk() { return *g_plus; }
 name const & get_turnstile_tk() { return *g_turnstile; }
 name const & get_max_tk() { return *g_max; }
 name const & get_imax_tk() { return *g_imax; }

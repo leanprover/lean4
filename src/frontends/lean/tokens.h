@@ -33,6 +33,8 @@ name const & get_question_lp_tk();
 name const & get_bang_tk();
 name const & get_slash_tk();
 name const & get_star_tk();
+name const & get_plus_tk();
+name const & get_greater_tk();
 name const & get_turnstile_tk();
 name const & get_max_tk();
 name const & get_imax_tk();

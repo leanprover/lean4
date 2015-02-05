@@ -46,43 +46,25 @@ expr parse_rewrite_element(parser & p) {
     }
     if (p.curr_is_numeral()) {
         unsigned n = p.parse_small_nat();
-        if (p.curr_is_token(get_question_tk())) {
+        if (p.curr_is_token(get_greater_tk())) {
             p.next();
             optional<expr> pat = parse_pattern(p);
             expr H = parse_rule(p);
             location loc = parse_tactic_location(p);
             return mk_rewrite_at_most_n(pat, H, symm, n, loc);
-        } else if (p.curr_is_token(get_question_lp_tk())) {
-            p.next();
-            expr H = p.parse_expr();
-            p.check_token_next(get_rparen_tk(), "invalid rewrite pattern, ')' expected");
-            location loc = parse_tactic_location(p);
-            return mk_rewrite_at_most_n(optional<expr>(), H, symm, n, loc);
-        } else if (p.curr_is_token(get_bang_tk())) {
-            p.next();
-            optional<expr> pat = parse_pattern(p);
-            expr H = parse_rule(p);
-            location loc = parse_tactic_location(p);
-            return mk_rewrite_exactly_n(pat, H, symm, n, loc);
         } else {
             optional<expr> pat = parse_pattern(p);
             expr H = parse_rule(p);
             location loc = parse_tactic_location(p);
             return mk_rewrite_exactly_n(pat, H, symm, n, loc);
         }
-    } else if (p.curr_is_token(get_question_tk())) {
+    } else if (p.curr_is_token(get_star_tk())) {
         p.next();
         optional<expr> pat = parse_pattern(p);
         expr H = parse_rule(p);
         location loc = parse_tactic_location(p);
         return mk_rewrite_zero_or_more(pat, H, symm, loc);
-    } else if (p.curr_is_token(get_question_lp_tk())) {
-        p.next();
-        expr H = p.parse_expr();
-        p.check_token_next(get_rparen_tk(), "invalid rewrite pattern, ')' expected");
-        location loc = parse_tactic_location(p);
-        return mk_rewrite_zero_or_more(optional<expr>(), H, symm, loc);
-    } else if (p.curr_is_token(get_bang_tk())) {
+    } else if (p.curr_is_token(get_plus_tk())) {
         p.next();
         optional<expr> pat = parse_pattern(p);
         expr H = parse_rule(p);
@@ -103,8 +85,8 @@ expr parse_rewrite_tactic(parser & p) {
         elems.push_back(p.save_pos(parse_rewrite_element(p), pos));
         if (!p.curr_is_token(get_sub_tk()) &&
             !p.curr_is_numeral() &&
-            !p.curr_is_token(get_bang_tk()) &&
-            !p.curr_is_token(get_question_tk()) &&
+            !p.curr_is_token(get_plus_tk()) &&
+            !p.curr_is_token(get_star_tk()) &&
             !p.curr_is_token(get_slash_tk()) &&
             !p.curr_is_identifier() &&
             !p.curr_is_token(get_lbracket_tk()) &&

@@ -61,9 +61,10 @@ private:
     kind                         m_kind;
     occurrence                   m_goal;
     list<pair<name, occurrence>> m_hyps;
-    location(kind k, occurrence const & g = occurrence(),
-             list<pair<name, occurrence>> const & hs = list<pair<name, occurrence>>()):
+    location(kind k, occurrence const & g, list<pair<name, occurrence>> const & hs):
         m_kind(k), m_goal(g), m_hyps(hs) {}
+    location(kind k, occurrence const & g):m_kind(k), m_goal(g) {}
+    location(kind k):location(k, occurrence()) {}
 public:
     location():m_kind(GoalOnly) {}
 

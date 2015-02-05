@@ -343,15 +343,6 @@ static expr parse_obtain(parser & p, unsigned, expr const *, pos_info const & po
     unsigned num_ps = ps.size();
     if (num_ps < 2)
         throw parser_error("invalid 'obtain' expression, at least 2 binders expected", b_pos);
-    bool is_visible = false;
-    if (p.curr_is_token(get_visible_tk())) {
-        p.next();
-        is_visible = true;
-    }
-    if (!is_visible) {
-        expr H = ps[num_ps-1];
-        ps[num_ps-1] = update_local(H, mlocal_type(H), local_info(H).update_contextual(false));
-    }
     p.check_token_next(get_comma_tk(), "invalid 'obtain' expression, ',' expected");
     p.check_token_next(get_from_tk(), "invalid 'obtain' expression, 'from' expected");
     expr H1 = p.parse_expr();

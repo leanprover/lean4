@@ -520,6 +520,17 @@ class rewrite_fn {
         return process_reduce_step(optional<name>(info.get_name()), info.get_location());
     }
 
+    bool process_reduce_step(expr const & elem) {
+        lean_assert(is_rewrite_reduce_step(elem));
+        if (macro_num_args(elem) == 0) {
+            auto info = get_rewrite_reduce_info(elem);
+            return process_reduce_step(optional<name>(), info.get_location());
+        } else {
+            // TODO
+            return false;
+        }
+    }
+
     // Replace metavariables with special metavariables for the higher-order matcher. This is method is used when
     // converting an expression into a pattern.
     expr to_meta_idx(expr const & e) {
@@ -883,6 +894,8 @@ class rewrite_fn {
     bool process_step(expr const & elem) {
         if (is_rewrite_unfold_step(elem)) {
             return process_unfold_step(elem);
+        } else if (is_rewrite_reduce_step(elem)) {
+            return process_reduce_step(elem);
         } else {
             expr rule = get_rewrite_rule(elem);
             expr new_elem;
@@ -973,7 +986,7 @@ void initialize_rewrite_tactic() {
                                 [](deserializer & d, unsigned num, expr const * args) {
                                     if (num > 1)
                                         throw corrupted_stream_exception();
-                                    unfold_info info;
+                                    reduce_info info;
                                     d >> info;
                                     if (num == 0)
                                         return mk_rewrite_reduce(info.get_location());
@@ -1003,7 +1016,7 @@ void initialize_rewrite_tactic() {
                      buffer<expr> args;
                      get_tactic_expr_list_elements(app_arg(e), args, "invalid 'rewrite' tactic, invalid argument");
                      for (expr const & arg : args) {
-                         if (!is_rewrite_step(arg) && !is_rewrite_unfold_step(arg))
+                         if (!is_rewrite_step(arg) && !is_rewrite_unfold_step(arg) && !is_rewrite_reduce_step(arg))
                              throw expr_to_tactic_exception(e, "invalid 'rewrite' tactic, invalid argument");
                      }
                      return mk_rewrite_tactic(elab, args);
@@ -1015,6 +1028,8 @@ void finalize_rewrite_tactic() {
     delete g_rewrite_tac;
     delete g_rewrite_unfold_name;
     delete g_rewrite_unfold_opcode;
+    delete g_rewrite_reduce_name;
+    delete g_rewrite_reduce_opcode;
     delete g_rewrite_elem_name;
     delete g_rewrite_elem_opcode;
 }

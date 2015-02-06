@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "util/list.h"
 #include "util/buffer.h"
 #include "util/int64.h"
+#include "util/optional.h"
 
 namespace lean {
 /**
@@ -99,5 +100,36 @@ list<T> read_list(deserializer & d, R && t_reader) {
 template<typename T>
 list<T> read_list(deserializer & d) {
     return read_list<T>(d, [](deserializer & d) { T r; d >> r; return r; });
+}
+
+template<typename T>
+serializer & write_optional(serializer & s, optional<T> const & a) {
+    if (a)
+        s << true << *a;
+    else
+        s << false;
+    return s;
+}
+
+template<typename T>
+optional<T> read_optional(deserializer & d) {
+    if (d.read_bool()) {
+        T r;
+        d >> r;
+        return optional<T>(r);
+    } else {
+        return optional<T>();
+    }
+}
+
+template<typename T>
+serializer & operator<<(serializer & s, optional<T> const & a) {
+    return write_optional<T>(s, a);
+}
+
+template<typename T>
+deserializer & operator>>(deserializer & d, optional<T> & a) {
+    a = read_optional<T>(d);
+    return d;
 }
 }

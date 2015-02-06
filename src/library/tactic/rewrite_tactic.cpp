@@ -119,7 +119,7 @@ public:
     }
 
     bool has_num() const {
-        return multiplicity() == AtMostN || multiplicity() == ExactlyN;
+        return get_multiplicity() == AtMostN || get_multiplicity() == ExactlyN;
     }
 
     unsigned num() const {

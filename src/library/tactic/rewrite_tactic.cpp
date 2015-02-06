@@ -540,12 +540,10 @@ class rewrite_fn {
             return none_expr();
         cs_seq.linearize(cs);
         unifier_config cfg;
+        cfg.m_discard = true;
         unify_result_seq rseq = unify(m_env, cs.size(), cs.data(), m_ngen.mk_child(), m_subst, cfg);
         if (auto p = rseq.pull()) {
             substitution new_subst     = p->first.first;
-            constraints  new_postponed = p->first.second;
-            if (new_postponed)
-                return none_expr(); // all constraints must be solved
             new_e   = new_subst.instantiate_all(new_e);
             if (has_expr_metavar_strict(new_e))
                 return none_expr(); // new expressions was not completely instantiated
@@ -738,13 +736,11 @@ class rewrite_fn {
                 return unify_result();
             cs_seq.linearize(cs);
             unifier_config cfg;
-            cfg.m_conservative    = false;
+            cfg.m_conservative = false;
+            cfg.m_discard      = true;
             unify_result_seq rseq = unify(m_env, cs.size(), cs.data(), m_ngen.mk_child(), m_subst, cfg);
             if (auto p = rseq.pull()) {
                 substitution new_subst     = p->first.first;
-                constraints  new_postponed = p->first.second;
-                if (new_postponed)
-                    return unify_result(); // all constraints must be solved
                 rule      = new_subst.instantiate_all(rule);
                 rule_type = new_subst.instantiate_all(rule_type);
                 if (has_expr_metavar_strict(rule) || has_expr_metavar_strict(rule_type))

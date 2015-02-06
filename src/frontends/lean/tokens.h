@@ -29,6 +29,7 @@ name const & get_rangle_tk();
 name const & get_triangle_tk();
 name const & get_caret_tk();
 name const & get_up_tk();
+name const & get_down_tk();
 name const & get_bar_tk();
 name const & get_comma_tk();
 name const & get_add_tk();

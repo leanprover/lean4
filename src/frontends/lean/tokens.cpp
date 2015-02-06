@@ -27,6 +27,7 @@ static name * g_rangle       = nullptr;
 static name * g_triangle     = nullptr;
 static name * g_caret        = nullptr;
 static name * g_up           = nullptr;
+static name * g_down         = nullptr;
 static name * g_bar          = nullptr;
 static name * g_comma        = nullptr;
 static name * g_add          = nullptr;
@@ -142,6 +143,7 @@ void initialize_tokens() {
     g_triangle     = new name("▸");
     g_caret        = new name("^");
     g_up           = new name("↑");
+    g_down         = new name("<d");
     g_bar          = new name("|");
     g_comma        = new name(",");
     g_add          = new name("+");
@@ -336,6 +338,7 @@ void finalize_tokens() {
     delete g_triangle;
     delete g_caret;
     delete g_up;
+    delete g_down;
     delete g_rbracket;
     delete g_lbracket;
     delete g_rdcurly;
@@ -362,6 +365,7 @@ name const & get_rangle_tk() { return *g_rangle; }
 name const & get_triangle_tk() { return *g_triangle; }
 name const & get_caret_tk() { return *g_caret; }
 name const & get_up_tk() { return *g_up; }
+name const & get_down_tk() { return *g_down; }
 name const & get_lparen_tk() { return *g_lparen; }
 name const & get_rparen_tk() { return *g_rparen; }
 name const & get_llevel_curly_tk() { return *g_llevel_curly; }

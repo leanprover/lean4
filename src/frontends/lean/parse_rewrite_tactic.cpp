@@ -55,6 +55,12 @@ static expr parse_rewrite_unfold(parser & p) {
 expr parse_rewrite_element(parser & p) {
     if (p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk()))
         return parse_rewrite_unfold(p);
+    if (p.curr_is_token(get_down_tk())) {
+        p.next();
+        expr e = p.parse_expr();
+        location loc = parse_tactic_location(p);
+        return mk_rewrite_fold(e, loc);
+    }
     bool symm = false;
     if (p.curr_is_token(get_sub_tk())) {
         p.next();

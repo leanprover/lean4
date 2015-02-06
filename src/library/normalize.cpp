@@ -11,8 +11,82 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/inductive/inductive.h"
 #include "library/reducible.h"
+#include "library/util.h"
+#include "library/scoped_ext.h"
+#include "library/kernel_serializer.h"
 
 namespace lean {
+/**
+   \brief c_unfold hint instructs the normalizer (and simplifier) that
+   a function application (f a_1 ... a_i ... a_n) should be unfolded
+   when argument a_i is a constructor.
+*/
+struct unfold_c_hint_entry {
+    name               m_decl_name;
+    optional<unsigned> m_arg_idx;
+    unfold_c_hint_entry() {}
+    unfold_c_hint_entry(name const & n, optional<unsigned> const & idx):m_decl_name(n), m_arg_idx(idx) {}
+};
+
+static name * g_unfold_c_hint_name = nullptr;
+static std::string * g_key = nullptr;
+
+struct unfold_c_hint_config {
+    typedef name_map<unsigned>  state;
+    typedef unfold_c_hint_entry entry;
+
+    static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
+        if (e.m_arg_idx)
+            s.insert(e.m_decl_name, *e.m_arg_idx);
+        else
+            s.erase(e.m_decl_name);
+    }
+    static name const & get_class_name() {
+        return *g_unfold_c_hint_name;
+    }
+    static std::string const & get_serialization_key() {
+        return *g_key;
+    }
+    static void  write_entry(serializer & s, entry const & e) {
+        s << e.m_decl_name << e.m_arg_idx;
+    }
+    static entry read_entry(deserializer & d) {
+        entry e;
+        d >> e.m_decl_name >> e.m_arg_idx;
+        return e;
+    }
+    static optional<unsigned> get_fingerprint(entry const & e) {
+        return some(e.m_decl_name.hash());
+    }
+};
+
+template class scoped_ext<unfold_c_hint_config>;
+typedef scoped_ext<unfold_c_hint_config> unfold_c_hint_ext;
+
+environment add_unfold_c_hint(environment const & env, name const & n, optional<unsigned> idx, bool persistent) {
+    return unfold_c_hint_ext::add_entry(env, get_dummy_ios(), unfold_c_hint_entry(n, idx), persistent);
+}
+
+optional<unsigned> has_unfold_c_hint(environment const & env, name const & d) {
+    name_map<unsigned> const & s = unfold_c_hint_ext::get_state(env);
+    if (auto it = s.find(d))
+        return optional<unsigned>(*it);
+    else
+        return optional<unsigned>();
+}
+
+void initialize_normalize() {
+    g_unfold_c_hint_name = new name("c-unfold");
+    g_key = new std::string("c-unfold");
+    unfold_c_hint_ext::initialize();
+}
+
+void finalize_normalize() {
+    unfold_c_hint_ext::finalize();
+    delete g_unfold_c_hint_name;
+    delete g_key;
+}
+
 class normalize_fn {
     type_checker   &                  m_tc;
     name_generator                    m_ngen;
@@ -27,6 +101,12 @@ class normalize_fn {
         return update_binding(e, d, b);
     }
 
+    optional<unsigned> has_unfold_c_hint(expr const & f) {
+        if (!is_constant(f))
+            return optional<unsigned>();
+        return ::lean::has_unfold_c_hint(m_tc.env(), const_name(f));
+    }
+
     expr normalize_app(expr const & e) {
         buffer<expr> args;
         bool modified = false;
@@ -36,6 +116,12 @@ class normalize_fn {
             if (new_a != a)
                 modified = true;
             a = new_a;
+        }
+        if (auto idx = has_unfold_c_hint(f)) {
+            if (*idx < args.size() && is_constructor_app(m_tc.env(), args[args.size() - *idx - 1])) {
+                if (optional<expr> r = unfold_app(m_tc.env(), mk_rev_app(f, args)))
+                    return normalize(*r);
+            }
         }
         if (!modified)
             return e;

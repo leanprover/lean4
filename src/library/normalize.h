@@ -30,4 +30,28 @@ expr normalize(type_checker & tc, expr const & e, constraint_seq & cs);
 */
 expr normalize(type_checker & tc, expr const & e, std::function<bool(expr const&)> const & pred, // NOLINT
                constraint_seq & cs);
+
+/** \brief c_unfold hint instructs the normalizer (and simplifier) that
+    a function application (f a_1 ... a_i ... a_n) should be unfolded
+    when argument a_i is a constructor.
+
+    The constant will be unfolded even if it the whnf procedure did not unfolded it.
+
+    Of course, kernel opaque constants are not unfolded.
+
+    \remark If idx is none, then the hint is removed.
+*/
+environment add_unfold_c_hint(environment const & env, name const & n, optional<unsigned> idx, bool persistent = true);
+inline environment add_unfold_c_hint(environment const & env, name const & n, unsigned idx, bool persistent = true) {
+    return add_unfold_c_hint(env, n, optional<unsigned>(idx), persistent);
+}
+inline environment erase_unfold_c_hint(environment const & env, name const & n, bool persistent = true) {
+    return add_unfold_c_hint(env, n, optional<unsigned>(), persistent);
+}
+
+/** \brief Retrieve the hint added with the procedure add_unfold_c_hint. */
+optional<unsigned> has_unfold_c_hint(environment const & env, name const & d);
+
+void initialize_normalize();
+void finalize_normalize();
 }

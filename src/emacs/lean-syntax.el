@@ -121,6 +121,7 @@
                "\[decls\]" "\[strict\]" "\[coercions\]" "\[classes\]" "\[notations\]" "\[tactic_hints\]" "\[reduce_hints\]"))
       . 'font-lock-doc-face)
      (,(rx "\[priority" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
+     (,(rx "\[unfold-c" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      ;; tactics
      ("cases[ \t\n]+[^ \t\n]+[ \t\n]+\\(with\\)" (1 'font-lock-constant-face))
      (,(rx (not (any "\.")) word-start

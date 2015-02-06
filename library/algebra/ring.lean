@@ -133,12 +133,8 @@ section comm_semiring
       dvd.elim dvd_cd
         (take f, assume Hcfd : d = c * f,
           dvd.intro
-            (calc
-              a * c * (e * f) = a * (c * (e * f)) : mul.assoc
-                ... = a * (e * (c * f)) : mul.left_comm
-                ... = a * e * (c * f) : (!mul.assoc)⁻¹
-                ... = b * (c * f) : Haeb
-                ... = b * d : Hcfd)))
+            (show a * c * (e * f) = b * d,
+             by rewrite [mul.assoc, {c*_}mul.left_comm, -mul.assoc, Haeb, Hcfd])))
 
   theorem dvd_of_mul_right_dvd {a b c : A} (H : a * b | c) : a | c :=
   dvd.elim H (take d, assume Habdc : c = a * b * d, dvd.intro (!mul.assoc⁻¹ ⬝ Habdc⁻¹))
@@ -151,7 +147,8 @@ section comm_semiring
     (take d, assume Hadb : b = a * d,
       dvd.elim Hac
         (take e, assume Haec : c = a * e,
-          dvd.intro (show a * (d + e) = b + c, from Hadb⁻¹ ▸ Haec⁻¹ ▸ left_distrib a d e)))
+          dvd.intro (show a * (d + e) = b + c,
+                     by rewrite [left_distrib, -Hadb, -Haec])))
 end comm_semiring
 
 /- ring -/

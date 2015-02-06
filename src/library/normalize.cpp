@@ -64,6 +64,9 @@ template class scoped_ext<unfold_c_hint_config>;
 typedef scoped_ext<unfold_c_hint_config> unfold_c_hint_ext;
 
 environment add_unfold_c_hint(environment const & env, name const & n, optional<unsigned> idx, bool persistent) {
+    declaration const & d = env.get(n);
+    if (!d.is_definition() || d.is_opaque())
+        throw exception("invalid unfold-c hint, declaration must be a non-opaque definition");
     return unfold_c_hint_ext::add_entry(env, get_dummy_ios(), unfold_c_hint_entry(n, idx), persistent);
 }
 

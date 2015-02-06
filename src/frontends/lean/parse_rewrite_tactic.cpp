@@ -35,9 +35,21 @@ static expr parse_rule(parser & p) {
 expr parse_rewrite_element(parser & p) {
     if (p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk())) {
         p.next();
-        name n = p.check_constant_next("invalid unfold rewrite step, constant expected");
+        buffer<name> to_unfold;
+        if (p.curr_is_token(get_lcurly_tk())) {
+            p.next();
+            while (true) {
+                to_unfold.push_back(p.check_constant_next("invalid unfold rewrite step, identifier expected"));
+                if (!p.curr_is_token(get_comma_tk()))
+                    break;
+                p.next();
+            }
+            p.check_token_next(get_rcurly_tk(), "invalid unfold rewrite step, ',' or '}' expected");
+        } else {
+            to_unfold.push_back(p.check_constant_next("invalid unfold rewrite step, identifier or '{' expected"));
+        }
         location loc = parse_tactic_location(p);
-        return mk_rewrite_unfold(n, loc);
+        return mk_rewrite_unfold(to_list(to_unfold), loc);
     }
     bool symm = false;
     if (p.curr_is_token(get_sub_tk())) {

@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "library/tactic/location.h"
 
 namespace lean {
-expr mk_rewrite_unfold(name const & n, location const & loc);
+expr mk_rewrite_unfold(list<name> const & ns, location const & loc);
 expr mk_rewrite_reduce(location const & loc);
 expr mk_rewrite_reduce_to(expr const & e, location const & loc);
 expr mk_rewrite_once(optional<expr> const & pattern, expr const & H, bool symm, location const & loc);

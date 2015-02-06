@@ -42,19 +42,21 @@ unsigned get_rewriter_max_iterations(options const & opts) {
 }
 
 class unfold_info {
-    name      m_name;
-    location  m_location;
+    list<name> m_names;
+    location   m_location;
 public:
     unfold_info() {}
-    unfold_info(name const & n, location const & loc):m_name(n), m_location(loc) {}
-    name const & get_name() const { return m_name; }
+    unfold_info(list<name> const & l, location const & loc):m_names(l), m_location(loc) {}
+    list<name> const & get_names() const { return m_names; }
     location const & get_location() const { return m_location; }
     friend serializer & operator<<(serializer & s, unfold_info const & e) {
-        s << e.m_name << e.m_location;
+        write_list<name>(s, e.m_names);
+        s << e.m_location;
         return s;
     }
     friend deserializer & operator>>(deserializer & d, unfold_info & e) {
-        d >> e.m_name >> e.m_location;
+        e.m_names = read_list<name>(d);
+        d >> e.m_location;
         return d;
     }
 };
@@ -204,8 +206,8 @@ public:
     unfold_info const & get_info() const { return m_info; }
 };
 
-expr mk_rewrite_unfold(name const & n, location const & loc) {
-    macro_definition def(new rewrite_unfold_macro_cell(unfold_info(n, loc)));
+expr mk_rewrite_unfold(list<name> const & ns, location const & loc) {
+    macro_definition def(new rewrite_unfold_macro_cell(unfold_info(ns, loc)));
     return mk_macro(def);
 }
 
@@ -435,11 +437,11 @@ class rewrite_fn {
         return m_g.mk_meta(m_ngen.next(), type);
     }
 
-    optional<expr> reduce(expr const & e, optional<name> const & to_unfold) {
+    optional<expr> reduce(expr const & e, list<name> const & to_unfold) {
         bool unfolded = !to_unfold;
         extra_opaque_pred pred([&](name const & n) {
                 // everything is opaque but to_unfold
-                if (to_unfold && *to_unfold == n) {
+                if (std::find(to_unfold.begin(), to_unfold.end(), n) != to_unfold.end()) {
                     unfolded = true;
                     return false;
                 } else {
@@ -467,7 +469,7 @@ class rewrite_fn {
         update_goal(new_g);
     }
 
-    bool process_reduce_goal(optional<name> const & to_unfold) {
+    bool process_reduce_goal(list<name> const & to_unfold) {
         if (auto new_type = reduce(m_g.get_type(), to_unfold)) {
             replace_goal(*new_type);
             return true;
@@ -496,7 +498,7 @@ class rewrite_fn {
         update_goal(new_g);
     }
 
-    bool process_reduce_hypothesis(expr const & hyp, optional<name> const & to_unfold) {
+    bool process_reduce_hypothesis(expr const & hyp, list<name> const & to_unfold) {
         if (auto new_hyp_type = reduce(mlocal_type(hyp), to_unfold)) {
             replace_hypothesis(hyp, *new_hyp_type);
             return true;
@@ -505,7 +507,7 @@ class rewrite_fn {
         }
     }
 
-    bool process_reduce_step(optional<name> const & to_unfold, location const & loc) {
+    bool process_reduce_step(list<name> const & to_unfold, location const & loc) {
         if (loc.is_goal_only())
             return process_reduce_goal(to_unfold);
         bool progress = false;
@@ -527,7 +529,7 @@ class rewrite_fn {
     bool process_unfold_step(expr const & elem) {
         lean_assert(is_rewrite_unfold_step(elem));
         auto info = get_rewrite_unfold_info(elem);
-        return process_reduce_step(optional<name>(info.get_name()), info.get_location());
+        return process_reduce_step(info.get_names(), info.get_location());
     }
 
     optional<expr> unify_with(expr const & t, expr const & e) {
@@ -594,7 +596,7 @@ class rewrite_fn {
         lean_assert(is_rewrite_reduce_step(elem));
         if (macro_num_args(elem) == 0) {
             auto info = get_rewrite_reduce_info(elem);
-            return process_reduce_step(optional<name>(), info.get_location());
+            return process_reduce_step(list<name>(), info.get_location());
         } else {
             auto info = get_rewrite_reduce_info(elem);
             return process_reduce_to_step(macro_arg(elem, 0), info.get_location());

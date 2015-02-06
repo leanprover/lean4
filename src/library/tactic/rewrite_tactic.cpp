@@ -1026,7 +1026,7 @@ class rewrite_fn {
 public:
     rewrite_fn(environment const & env, io_state const & ios, elaborate_fn const & elab, proof_state const & ps):
         m_env(env), m_ios(ios), m_elab(elab), m_ps(ps), m_ngen(ps.get_ngen()),
-        m_tc(mk_type_checker(m_env, m_ngen.mk_child(), ps.relax_main_opaque())),
+        m_tc(mk_type_checker(m_env, m_ngen.mk_child(), ps.relax_main_opaque(), OpaqueIfNotReducibleOn)),
         m_matcher_tc(mk_matcher_tc()),
         m_mplugin(m_ios, *m_matcher_tc) {
         goals const & gs = m_ps.get_goals();

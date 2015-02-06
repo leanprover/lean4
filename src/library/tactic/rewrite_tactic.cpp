@@ -34,11 +34,21 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_REWRITER_MAX_ITERATIONS 200
 #endif
 
+#ifndef LEAN_DEFAULT_REWRITER_SYNTACTIC
+#define LEAN_DEFAULT_REWRITER_SYNTACTIC false
+#endif
+
+
 namespace lean {
 static name * g_rewriter_max_iterations = nullptr;
+static name * g_rewriter_syntactic      = nullptr;
 
 unsigned get_rewriter_max_iterations(options const & opts) {
     return opts.get_unsigned(*g_rewriter_max_iterations, LEAN_DEFAULT_REWRITER_MAX_ITERATIONS);
+}
+
+bool get_rewriter_syntactic(options const & opts) {
+    return opts.get_bool(*g_rewriter_syntactic, LEAN_DEFAULT_REWRITER_SYNTACTIC);
 }
 
 class unfold_info {
@@ -395,12 +405,14 @@ public:
 };
 
 class rewrite_fn {
+    typedef std::shared_ptr<type_checker> type_checker_ptr;
     environment          m_env;
     io_state             m_ios;
     elaborate_fn         m_elab;
     proof_state          m_ps;
     name_generator       m_ngen;
     type_checker_ptr     m_tc;
+    type_checker_ptr     m_matcher_tc;
     rewrite_match_plugin m_mplugin;
     goal                 m_g;
     local_context        m_ctx;
@@ -1002,11 +1014,21 @@ class rewrite_fn {
         }
     }
 
+    type_checker_ptr mk_matcher_tc() {
+        if (get_rewriter_syntactic(m_ios.get_options())) {
+            // use an everything opaque converter
+            return mk_opaque_type_checker(m_env, m_ngen.mk_child());
+        } else {
+            return m_tc;
+        }
+    }
+
 public:
     rewrite_fn(environment const & env, io_state const & ios, elaborate_fn const & elab, proof_state const & ps):
         m_env(env), m_ios(ios), m_elab(elab), m_ps(ps), m_ngen(ps.get_ngen()),
         m_tc(mk_type_checker(m_env, m_ngen.mk_child(), ps.relax_main_opaque())),
-        m_mplugin(m_ios, *m_tc) {
+        m_matcher_tc(mk_matcher_tc()),
+        m_mplugin(m_ios, *m_matcher_tc) {
         goals const & gs = m_ps.get_goals();
         lean_assert(gs);
         update_goal(head(gs));
@@ -1044,6 +1066,8 @@ tactic mk_rewrite_tactic(elaborate_fn const & elab, buffer<expr> const & elems) 
 void initialize_rewrite_tactic() {
     g_rewriter_max_iterations = new name{"rewriter", "max_iter"};
     register_unsigned_option(*g_rewriter_max_iterations, LEAN_DEFAULT_REWRITER_MAX_ITERATIONS, "(rewriter tactic) maximum number of iterations");
+    g_rewriter_syntactic      = new name{"rewriter", "syntactic"};
+    register_bool_option(*g_rewriter_syntactic, LEAN_DEFAULT_REWRITER_SYNTACTIC, "(rewriter tactic) if true tactic will not unfold any constant when performing pattern matching");
     name rewrite_tac_name{"tactic", "rewrite_tac"};
     g_rewrite_tac           = new expr(Const(rewrite_tac_name));
     g_rewrite_reduce_name   = new name("rewrite_reduce");

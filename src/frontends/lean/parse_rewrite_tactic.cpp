@@ -32,25 +32,29 @@ static expr parse_rule(parser & p) {
     }
 }
 
-expr parse_rewrite_element(parser & p) {
-    if (p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk())) {
+static expr parse_rewrite_unfold(parser & p) {
+    lean_assert(p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk()));
+    p.next();
+    buffer<name> to_unfold;
+    if (p.curr_is_token(get_lcurly_tk())) {
         p.next();
-        buffer<name> to_unfold;
-        if (p.curr_is_token(get_lcurly_tk())) {
+        while (true) {
+            to_unfold.push_back(p.check_constant_next("invalid unfold rewrite step, identifier expected"));
+            if (!p.curr_is_token(get_comma_tk()))
+                break;
             p.next();
-            while (true) {
-                to_unfold.push_back(p.check_constant_next("invalid unfold rewrite step, identifier expected"));
-                if (!p.curr_is_token(get_comma_tk()))
-                    break;
-                p.next();
-            }
-            p.check_token_next(get_rcurly_tk(), "invalid unfold rewrite step, ',' or '}' expected");
-        } else {
-            to_unfold.push_back(p.check_constant_next("invalid unfold rewrite step, identifier or '{' expected"));
         }
-        location loc = parse_tactic_location(p);
-        return mk_rewrite_unfold(to_list(to_unfold), loc);
+        p.check_token_next(get_rcurly_tk(), "invalid unfold rewrite step, ',' or '}' expected");
+    } else {
+        to_unfold.push_back(p.check_constant_next("invalid unfold rewrite step, identifier or '{' expected"));
     }
+    location loc = parse_tactic_location(p);
+    return mk_rewrite_unfold(to_list(to_unfold), loc);
+}
+
+expr parse_rewrite_element(parser & p) {
+    if (p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk()))
+        return parse_rewrite_unfold(p);
     bool symm = false;
     if (p.curr_is_token(get_sub_tk())) {
         p.next();
@@ -120,6 +124,17 @@ expr parse_rewrite_tactic(parser & p) {
     } else {
         auto pos = p.pos();
         elems.push_back(p.save_pos(parse_rewrite_element(p), pos));
+    }
+    return mk_rewrite_tactic_expr(elems);
+}
+
+expr parse_esimp_tactic(parser & p) {
+    buffer<expr> elems;
+    if (p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk())) {
+        elems.push_back(parse_rewrite_unfold(p));
+    } else {
+        location loc = parse_tactic_location(p);
+        elems.push_back(mk_rewrite_reduce(loc));
     }
     return mk_rewrite_tactic_expr(elems);
 }

@@ -10,4 +10,5 @@ Author: Leonardo de Moura
 namespace lean {
 class parser;
 expr parse_rewrite_tactic(parser & p);
+expr parse_esimp_tactic(parser & p);
 }

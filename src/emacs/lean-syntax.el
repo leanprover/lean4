@@ -127,7 +127,7 @@
      (,(rx (not (any "\.")) word-start
            (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "eassumption" "rapply" "apply" "fapply" "rename" "intro" "intros"
                "generalize" "generalizes" "clear" "clears" "revert" "reverts" "back" "beta" "done" "exact" "repeat"
-               "whnf" "rotate" "rotate_left" "rotate_right" "inversion" "cases" "assert" "rewrite")
+               "whnf" "rotate" "rotate_left" "rotate_right" "inversion" "cases" "assert" "rewrite" "esimp" "unfold")
            word-end)
       . 'font-lock-constant-face)
      ;; Types

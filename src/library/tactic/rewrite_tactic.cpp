@@ -1121,6 +1121,7 @@ void initialize_rewrite_tactic() {
 
 void finalize_rewrite_tactic() {
     delete g_rewriter_max_iterations;
+    delete g_rewriter_syntactic;
     delete g_rewrite_tac;
     delete g_rewrite_unfold_name;
     delete g_rewrite_unfold_opcode;

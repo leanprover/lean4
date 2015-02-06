@@ -289,7 +289,7 @@ rewrite_info const & get_rewrite_info(expr const & e) {
 
 expr mk_rewrite_tactic_expr(buffer<expr> const & elems) {
     lean_assert(std::all_of(elems.begin(), elems.end(), [](expr const & e) {
-                return is_rewrite_step(e) || is_rewrite_unfold_step(e);
+                return is_rewrite_step(e) || is_rewrite_unfold_step(e) || is_rewrite_reduce_step(e);
             }));
     return mk_app(*g_rewrite_tac, mk_expr_list(elems.size(), elems.data()));
 }

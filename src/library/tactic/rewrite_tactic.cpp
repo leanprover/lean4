@@ -413,6 +413,7 @@ class rewrite_fn {
     name_generator       m_ngen;
     type_checker_ptr     m_tc;
     type_checker_ptr     m_matcher_tc;
+    type_checker_ptr     m_unifier_tc; // reduce_to and check_trivial
     rewrite_match_plugin m_mplugin;
     goal                 m_g;
     local_context        m_ctx;
@@ -550,7 +551,7 @@ class rewrite_fn {
         buffer<constraint> cs;
         to_buffer(ecs.second, cs);
         constraint_seq cs_seq;
-        if (!m_tc->is_def_eq(t, new_e, justification(), cs_seq))
+        if (!m_unifier_tc->is_def_eq(t, new_e, justification(), cs_seq))
             return none_expr();
         cs_seq.linearize(cs);
         unifier_config cfg;
@@ -999,7 +1000,7 @@ class rewrite_fn {
             constraint_seq cs;
             expr lhs = app_arg(app_fn(type));
             expr rhs = app_arg(type);
-            if (m_tc->is_def_eq(lhs, rhs, justification(), cs) && !cs) {
+            if (m_unifier_tc->is_def_eq(lhs, rhs, justification(), cs) && !cs) {
                 expr H = mk_refl(*m_tc, lhs);
                 m_subst.assign(m_g.get_name(), m_g.abstract(H));
                 return true;
@@ -1028,6 +1029,7 @@ public:
         m_env(env), m_ios(ios), m_elab(elab), m_ps(ps), m_ngen(ps.get_ngen()),
         m_tc(mk_type_checker(m_env, m_ngen.mk_child(), ps.relax_main_opaque(), OpaqueIfNotReducibleOn)),
         m_matcher_tc(mk_matcher_tc()),
+        m_unifier_tc(mk_type_checker(m_env, m_ngen.mk_child(), ps.relax_main_opaque())),
         m_mplugin(m_ios, *m_matcher_tc) {
         goals const & gs = m_ps.get_goals();
         lean_assert(gs);

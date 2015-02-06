@@ -94,6 +94,7 @@ static name * g_variables    = nullptr;
 static name * g_opaque       = nullptr;
 static name * g_instance     = nullptr;
 static name * g_priority     = nullptr;
+static name * g_unfold_c     = nullptr;
 static name * g_coercion     = nullptr;
 static name * g_reducible    = nullptr;
 static name * g_irreducible  = nullptr;
@@ -208,6 +209,7 @@ void initialize_tokens() {
     g_variables    = new name("variables");
     g_instance     = new name("[instance]");
     g_priority     = new name("[priority");
+    g_unfold_c     = new name("[unfold-c");
     g_coercion     = new name("[coercion]");
     g_reducible    = new name("[reducible]");
     g_irreducible  = new name("[irreducible]");
@@ -265,6 +267,7 @@ void finalize_tokens() {
     delete g_variable;
     delete g_instance;
     delete g_priority;
+    delete g_unfold_c;
     delete g_coercion;
     delete g_reducible;
     delete g_irreducible;
@@ -437,6 +440,7 @@ name const & get_variables_tk() { return *g_variables; }
 name const & get_opaque_tk() { return *g_opaque; }
 name const & get_instance_tk() { return *g_instance; }
 name const & get_priority_tk() { return *g_priority; }
+name const & get_unfold_c_tk() { return *g_unfold_c; }
 name const & get_coercion_tk() { return *g_coercion; }
 name const & get_reducible_tk() { return *g_reducible; }
 name const & get_irreducible_tk() { return *g_irreducible; }

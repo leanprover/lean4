@@ -279,6 +279,7 @@ struct decl_attributes {
     bool               m_is_class;
     bool               m_has_multiple_instances;
     optional<unsigned> m_priority;
+    optional<unsigned> m_unfold_c_hint;
 
     decl_attributes(bool def_only = true):m_priority() {
         m_def_only               = def_only;
@@ -347,6 +348,13 @@ struct decl_attributes {
                 m_priority = *it;
                 if (!m_is_instance)
                     throw parser_error("invalid '[priority]' attribute, declaration must be marked as an '[instance]'", pos);
+            } else if (p.curr_is_token(get_unfold_c_tk())) {
+                p.next();
+                unsigned r = p.parse_small_nat();
+                if (r == 0)
+                    throw parser_error("invalid '[unfold-c]' attribute, value must be greater than 0", pos);
+                m_unfold_c_hint = r - 1;
+                p.check_token_next(get_rbracket_tk(), "invalid 'unfold-c', ']' expected");
             } else {
                 break;
             }
@@ -374,6 +382,8 @@ struct decl_attributes {
             env = add_class(env, d, persistent);
         if (m_has_multiple_instances)
             env = mark_multiple_instances(env, d, persistent);
+        if (m_unfold_c_hint)
+            env = add_unfold_c_hint(env, d, m_unfold_c_hint, persistent);
         return env;
     }
 };

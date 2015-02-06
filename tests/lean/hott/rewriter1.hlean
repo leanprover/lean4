@@ -6,7 +6,7 @@ constant f {A : Type} : A → A → A
 theorem test1 {A : Type} [s : add_comm_group A] (a b c : A) : f (a + 0) (f (a + 0) (a + 0)) = f a (f (0 + a) a) :=
 begin
   rewrite [
-    add_right_id at {1 3}, -- rewrite 1st and 3rd occurrences
+    add_right_id at {1, 3}, -- rewrite 1st and 3rd occurrences
     {0 + _}add_comm]   -- apply commutativity to (0 + _)
 end
 

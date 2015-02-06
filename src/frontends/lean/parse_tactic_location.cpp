@@ -11,37 +11,28 @@ Author: Leonardo de Moura
 
 namespace lean {
 static occurrence parse_occurrence(parser & p) {
+    bool is_pos = true;
+    if (p.curr_is_token(get_sub_tk())) {
+        p.next();
+        is_pos = false;
+        if (!p.curr_is_token(get_lcurly_tk()))
+            throw parser_error("invalid tactic location, '{' expected", p.pos());
+    }
     if (p.curr_is_token(get_lcurly_tk())) {
         p.next();
-        bool has_pos = false;
-        bool has_neg = false;
         buffer<unsigned> occs;
         while (true) {
-            if (p.curr_is_token(get_sub_tk())) {
-                if (has_pos)
-                    throw parser_error("invalid tactic location, cannot mix positive and negative occurrences", p.pos());
-                has_neg = true;
-                p.next();
-                auto pos   = p.pos();
-                unsigned i = p.parse_small_nat();
-                if (i == 0)
-                    throw parser_error("invalid tactic location, first occurrence is 1", pos);
-                occs.push_back(i);
-            } else {
-                auto pos   = p.pos();
-                unsigned i = p.parse_small_nat();
-                if (i == 0)
-                    throw parser_error("invalid tactic location, first occurrence is 1", pos);
-                occs.push_back(i);
-                if (has_neg)
-                    throw parser_error("invalid tactic location, cannot mix positive and negative occurrences", pos);
-                has_pos = true;
-            }
-            if (p.curr_is_token(get_rcurly_tk()))
+            auto pos   = p.pos();
+            unsigned i = p.parse_small_nat();
+            if (i == 0)
+                throw parser_error("invalid tactic location, first occurrence is 1", pos);
+            occs.push_back(i);
+            if (!p.curr_is_token(get_comma_tk()))
                 break;
+            p.next();
         }
-        p.next();
-        if (has_pos)
+        p.check_token_next(get_rcurly_tk(), "invalid tactic location, '}' or ',' expected");
+        if (is_pos)
             return occurrence::mk_occurrences(occs);
         else
             return occurrence::mk_except_occurrences(occs);
@@ -88,7 +79,7 @@ location parse_tactic_location(parser & p) {
             } else {
                 return location::mk_hypotheses_at(hyps, hyp_occs);
             }
-        } else if (p.curr_is_token(get_lcurly_tk())) {
+        } else if (p.curr_is_token(get_lcurly_tk()) || p.curr_is_token(get_sub_tk())) {
             occurrence o = parse_occurrence(p);
             return location::mk_goal_at(o);
         } else {

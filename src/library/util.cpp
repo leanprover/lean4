@@ -169,6 +169,29 @@ void get_intro_rule_names(environment const & env, name const & n, buffer<name> 
     }
 }
 
+optional<name> is_constructor_app(environment const & env, expr const & e) {
+    expr const & fn = get_app_fn(e);
+    if (is_constant(fn))
+        if (auto I = inductive::is_intro_rule(env, const_name(fn)))
+            return optional<name>(const_name(fn));
+    return optional<name>();
+}
+
+optional<name> is_constructor_app_ext(environment const & env, expr const & e) {
+    if (auto r = is_constructor_app(env, e))
+        return r;
+    expr const & f = get_app_fn(e);
+    if (!is_constant(f))
+        return optional<name>();
+    auto decl = env.find(const_name(f));
+    if (!decl || !decl->is_definition() || decl->is_opaque())
+        return optional<name>();
+    expr const * it = &decl->get_value();
+    while (is_lambda(*it))
+        it = &binding_body(*it);
+    return is_constructor_app_ext(env, *it);
+}
+
 expr instantiate_univ_param (expr const & e, name const & p, level const & l) {
     return instantiate_univ_params(e, to_list(p), to_list(l));
 }

@@ -59,6 +59,17 @@ bool is_inductive_predicate(environment const & env, name const & n);
 */
 void get_intro_rule_names(environment const & env, name const & n, buffer<name> & result);
 
+/** \brief If \c e is a constructor application, then return the name of the constructor.
+    Otherwise, return none.
+*/
+optional<name> is_constructor_app(environment const & env, expr const & e);
+
+/** \brief If \c e is a constructor application, or a definition that wraps a
+    constructor application, then return the name of the constructor.
+    Otherwise, return none.
+*/
+optional<name> is_constructor_app_ext(environment const & env, expr const & e);
+
 /** \brief "Consume" Pi-type \c type. This procedure creates local constants based on the domain of \c type
     and store them in telescope. If \c binfo is provided, then the local constants are annoted with the given
     binder_info, otherwise the procedure uses the one attached in the domain.

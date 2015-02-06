@@ -181,7 +181,7 @@ section group
   theorem mul.right_inv (a : A) : a * a⁻¹ = 1 :=
   calc
     a * a⁻¹ = (a⁻¹)⁻¹ * a⁻¹ : inv_inv
-      ... = 1 : mul.left_inv
+        ... = 1 : mul.left_inv
 
   theorem mul_inv_cancel_left (a b : A) : a * (a⁻¹ * b) = b :=
   calc
@@ -240,14 +240,10 @@ section group
   iff.intro eq_mul_inv_of_mul_eq mul_eq_of_eq_mul_inv
 
   theorem mul_left_cancel {a b c : A} (H : a * b = a * c) : b = c :=
-  calc b = a⁻¹ * (a * b) : inv_mul_cancel_left
-     ... = a⁻¹ * (a * c) : H
-     ... = c : inv_mul_cancel_left
+  by rewrite ⟨-(inv_mul_cancel_left a b), H, inv_mul_cancel_left⟩
 
   theorem mul_right_cancel {a b c : A} (H : a * b = c * b) : a = c :=
-  calc a = (a * b) * b⁻¹ : mul_inv_cancel_right
-     ... = (c * b) * b⁻¹ : H
-     ... = c : mul_inv_cancel_right
+  by rewrite ⟨-(mul_inv_cancel_right a b), H, mul_inv_cancel_right⟩
 
   definition group.to_left_cancel_semigroup [instance] [coercion] [reducible] : left_cancel_semigroup A :=
   ⦃ left_cancel_semigroup, s,
@@ -274,22 +270,13 @@ section add_group
   theorem add.left_inv (a : A) : -a + a = 0 := !add_group.add_left_inv
 
   theorem neg_add_cancel_left (a b : A) : -a + (a + b) = b :=
-  calc
-    -a + (a + b) = -a + a + b : add.assoc
-      ... = 0 + b : add.left_inv
-      ... = b : zero_add
+  by rewrite ⟨-add.assoc, add.left_inv, zero_add⟩
 
   theorem neg_add_cancel_right (a b : A) : a + -b + b = a :=
-  calc
-    a + -b + b = a + (-b + b) : add.assoc
-      ... = a + 0 : add.left_inv
-      ... = a : add_zero
+  by rewrite ⟨add.assoc, add.left_inv, add_zero⟩
 
   theorem neg_eq_of_add_eq_zero {a b : A} (H : a + b = 0) : -a = b :=
-  calc
-    -a = -a + 0 : add_zero
-      ... = -a + (a + b) : H
-      ... = b : neg_add_cancel_left
+  by rewrite ⟨-add_zero, -H, neg_add_cancel_left⟩
 
   theorem neg_zero : -0 = 0 := neg_eq_of_add_eq_zero (zero_add 0)
 
@@ -318,23 +305,16 @@ section add_group
       ... = 0 : add.left_inv
 
   theorem add_neg_cancel_left (a b : A) : a + (-a + b) = b :=
-  calc
-    a + (-a + b) = a + -a + b : add.assoc
-      ... = 0 + b : add.right_inv
-      ... = b : zero_add
+  by rewrite ⟨-add.assoc, add.right_inv, zero_add⟩
 
   theorem add_neg_cancel_right (a b : A) : a + b + -b = a :=
-  calc
-    a + b + -b = a + (b + -b) : add.assoc
-      ... = a + 0 : add.right_inv
-      ... = a : add_zero
+  by rewrite ⟨add.assoc, add.right_inv, add_zero⟩
 
   theorem neg_add_rev (a b : A) : -(a + b) = -b + -a :=
   neg_eq_of_add_eq_zero
-    (calc
-      a + b + (-b + -a) = a + (b + (-b + -a)) : add.assoc
-        ... = a + -a : add_neg_cancel_left
-        ... = 0 : add.right_inv)
+    begin
+      rewrite ⟨add.assoc, add_neg_cancel_left, add.right_inv⟩
+    end
 
   theorem eq_add_neg_of_add_eq {a b c : A} (H : a + b = c) : a = c + -b :=
   H ▸ !add_neg_cancel_right⁻¹
@@ -459,16 +439,10 @@ include s
   theorem sub_add_eq_add_sub (a b c : A) : a - b + c = a + c - b := !add.right_comm
 
   theorem sub_sub (a b c : A) : a - b - c = a - (b + c) :=
-  calc
-    a - b - c = a + (-b + -c) : add.assoc
-      ... = a + -(b + c) : {(neg_add b c)⁻¹}
-      ... = a - (b + c) : rfl
+  by rewrite [▸ a + -b + -c = _, add.assoc, -neg_add]
 
   theorem add_sub_add_left_eq_sub (a b c : A) : (c + a) - (c + b) = a - b :=
-  calc
-    (c + a) - (c + b) = c + a - c - b : sub_add_eq_sub_sub
-      ... = a + c - c - b : add.comm c a
-      ... = a - b : add_sub_cancel
+  by rewrite ⟨sub_add_eq_sub_sub, (add.comm c a), add_sub_cancel⟩
 
 end add_comm_group
 

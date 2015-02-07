@@ -97,7 +97,8 @@ tactic then(tactic const & t1, tactic const & t2) {
 }
 
 tactic orelse(tactic const & t1, tactic const & t2) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & _s) -> proof_state_seq {
+            proof_state s = _s.update_report_failure(false);
             return orelse(t1(env, ios, s), t2(env, ios, s), "ORELSE tactical");
         });
 }
@@ -137,31 +138,36 @@ tactic rotate_right(unsigned n) {
 }
 
 tactic try_for(tactic const & t, unsigned ms, unsigned check_ms) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & _s) -> proof_state_seq {
+            proof_state s = _s.update_report_failure(false);
             return timeout(t(env, ios, s), ms, check_ms);
         });
 }
 
 tactic append(tactic const & t1, tactic const & t2) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & _s) -> proof_state_seq {
+            proof_state s = _s.update_report_failure(false);
             return append(t1(env, ios, s), t2(env, ios, s), "APPEND tactical");
         });
 }
 
 tactic interleave(tactic const & t1, tactic const & t2) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & _s) -> proof_state_seq {
+            proof_state s = _s.update_report_failure(false);
             return interleave(t1(env, ios, s), t2(env, ios, s), "INTERLEAVE tactical");
         });
 }
 
 tactic par(tactic const & t1, tactic const & t2, unsigned check_ms) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & _s) -> proof_state_seq {
+            proof_state s = _s.update_report_failure(false);
             return par(t1(env, ios, s), t2(env, ios, s), check_ms);
         });
 }
 
 tactic repeat(tactic const & t) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s1) -> proof_state_seq {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & _s1) -> proof_state_seq {
+            proof_state s1 = _s1.update_report_failure(false);
             return repeat(s1, [=](proof_state const & s2) {
                     return t(env, ios, s2);
                 }, "REPEAT tactical");
@@ -169,7 +175,8 @@ tactic repeat(tactic const & t) {
 }
 
 tactic repeat_at_most(tactic const & t, unsigned k) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s1) -> proof_state_seq {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & _s1) -> proof_state_seq {
+            proof_state s1 = _s1.update_report_failure(false);
             return repeat_at_most(s1, [=](proof_state const & s2) {
                     return t(env, ios, s2);
                 }, k, "REPEAT_AT_MOST tactical");
@@ -177,13 +184,15 @@ tactic repeat_at_most(tactic const & t, unsigned k) {
 }
 
 tactic take(tactic const & t, unsigned k) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & _s) -> proof_state_seq {
+            proof_state s = _s.update_report_failure(false);
             return take(k, t(env, ios, s));
         });
 }
 
 tactic discard(tactic const & t, unsigned k) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & _s) -> proof_state_seq {
+            proof_state s = _s.update_report_failure(false);
             auto r = t(env, ios, s);
             for (unsigned i = 0; i < k; i++) {
                 auto m = r.pull();

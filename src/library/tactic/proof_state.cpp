@@ -31,8 +31,9 @@ bool get_proof_state_goal_names(options const & opts) {
 }
 
 proof_state::proof_state(goals const & gs, substitution const & s, name_generator const & ngen,
-                         constraints const & postponed, bool relax_main_opaque):
-    m_goals(gs), m_subst(s), m_ngen(ngen), m_postponed(postponed), m_relax_main_opaque(relax_main_opaque) {
+                         constraints const & postponed, bool relax_main_opaque, bool report_failure):
+    m_goals(gs), m_subst(s), m_ngen(ngen), m_postponed(postponed), m_relax_main_opaque(relax_main_opaque),
+    m_report_failure(report_failure) {
     if (std::any_of(gs.begin(), gs.end(),
                     [&](goal const & g) { return s.is_assigned(g.get_mvar()); })) {
         m_goals = filter(gs, [&](goal const & g) { return !s.is_assigned(g.get_mvar()); });

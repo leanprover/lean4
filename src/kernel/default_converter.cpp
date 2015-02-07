@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/interrupt.h"
+#include "util/flet.h"
 #include "kernel/default_converter.h"
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
@@ -16,24 +17,26 @@ static expr * g_dont_care = nullptr;
 default_converter::default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize,
                                      extra_opaque_pred const & pred):
     m_env(env), m_module_idx(mod_idx), m_memoize(memoize), m_extra_pred(pred) {
+    m_tc  = nullptr;
+    m_jst = nullptr;
 }
 
 constraint default_converter::mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j) {
     return ::lean::mk_eq_cnstr(lhs, rhs, j, static_cast<bool>(m_module_idx));
 }
 
-optional<expr> default_converter::expand_macro(expr const & m, type_checker & c) {
+optional<expr> default_converter::expand_macro(expr const & m) {
     lean_assert(is_macro(m));
-    return macro_def(m).expand(m, get_extension(c));
+    return macro_def(m).expand(m, get_extension(*m_tc));
 }
 
 /** \brief Apply normalizer extensions to \c e. */
-optional<pair<expr, constraint_seq>> default_converter::norm_ext(expr const & e, type_checker & c) {
-    return m_env.norm_ext()(e, get_extension(c));
+optional<pair<expr, constraint_seq>> default_converter::norm_ext(expr const & e) {
+    return m_env.norm_ext()(e, get_extension(*m_tc));
 }
 
-optional<expr> default_converter::d_norm_ext(expr const & e, type_checker & c, constraint_seq & cs) {
-    if (auto r = norm_ext(e, c)) {
+optional<expr> default_converter::d_norm_ext(expr const & e, constraint_seq & cs) {
+    if (auto r = norm_ext(e)) {
         cs += r->second;
         return some_expr(r->first);
     } else {
@@ -42,12 +45,12 @@ optional<expr> default_converter::d_norm_ext(expr const & e, type_checker & c, c
 }
 
 /** \brief Return true if \c e may be reduced later after metavariables are instantiated. */
-bool default_converter::may_reduce_later(expr const & e, type_checker & c) {
-    return static_cast<bool>(m_env.norm_ext().may_reduce_later(e, get_extension(c)));
+bool default_converter::may_reduce_later(expr const & e) {
+    return static_cast<bool>(m_env.norm_ext().may_reduce_later(e, get_extension(*m_tc)));
 }
 
 /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */
-expr default_converter::whnf_core(expr const & e, type_checker & c) {
+expr default_converter::whnf_core(expr const & e) {
     check_system("whnf");
 
     // handle easy cases
@@ -73,15 +76,15 @@ expr default_converter::whnf_core(expr const & e, type_checker & c) {
     case expr_kind::Pi:   case expr_kind::Constant: case expr_kind::Lambda:
         lean_unreachable(); // LCOV_EXCL_LINE
     case expr_kind::Macro:
-        if (auto m = expand_macro(e, c))
-            r = whnf_core(*m, c);
+        if (auto m = expand_macro(e))
+            r = whnf_core(*m);
         else
             r = e;
         break;
     case expr_kind::App: {
         buffer<expr> args;
         expr f0 = get_app_rev_args(e, args);
-        expr f = whnf_core(f0, c);
+        expr f = whnf_core(f0);
         if (is_lambda(f)) {
             unsigned m = 1;
             unsigned num_args = args.size();
@@ -90,9 +93,9 @@ expr default_converter::whnf_core(expr const & e, type_checker & c) {
                 m++;
             }
             lean_assert(m <= num_args);
-            r = whnf_core(mk_rev_app(instantiate(binding_body(f), m, args.data() + (num_args - m)), num_args - m, args.data()), c);
+            r = whnf_core(mk_rev_app(instantiate(binding_body(f), m, args.data() + (num_args - m)), num_args - m, args.data()));
         } else {
-            r = f == f0 ? e : whnf_core(mk_rev_app(f, args.size(), args.data()), c);
+            r = f == f0 ? e : whnf_core(mk_rev_app(f, args.size(), args.data()));
         }
         break;
     }}
@@ -159,9 +162,9 @@ optional<declaration> default_converter::is_delta(expr const & e) {
 
    \remark This method does not use normalization extensions attached in the environment.
 */
-expr default_converter::whnf_core(expr e, unsigned w, type_checker & c) {
+expr default_converter::whnf_core(expr e, unsigned w) {
     while (true) {
-        expr new_e = unfold_names(whnf_core(e, c), w);
+        expr new_e = unfold_names(whnf_core(e), w);
         if (is_eqp(e, new_e))
             return e;
         e = new_e;
@@ -169,7 +172,7 @@ expr default_converter::whnf_core(expr e, unsigned w, type_checker & c) {
 }
 
 /** \brief Put expression \c t in weak head normal form */
-pair<expr, constraint_seq> default_converter::whnf(expr const & e_prime, type_checker & c) {
+pair<expr, constraint_seq> default_converter::whnf(expr const & e_prime) {
     // Do not cache easy cases
     switch (e_prime.kind()) {
     case expr_kind::Var: case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local: case expr_kind::Pi:
@@ -189,8 +192,8 @@ pair<expr, constraint_seq> default_converter::whnf(expr const & e_prime, type_ch
     expr t = e;
     constraint_seq cs;
     while (true) {
-        expr t1 = whnf_core(t, 0, c);
-        if (auto new_t = d_norm_ext(t1, c, cs)) {
+        expr t1 = whnf_core(t, 0);
+        if (auto new_t = d_norm_ext(t1, cs)) {
             t  = *new_t;
         } else {
             auto r = mk_pair(t1, cs);
@@ -201,8 +204,8 @@ pair<expr, constraint_seq> default_converter::whnf(expr const & e_prime, type_ch
     }
 }
 
-expr default_converter::whnf(expr const & e_prime, type_checker & c, constraint_seq & cs) {
-    auto r = whnf(e_prime, c);
+expr default_converter::whnf(expr const & e_prime, constraint_seq & cs) {
+    auto r = whnf(e_prime);
     cs += r.second;
     return r.first;
 }
@@ -216,7 +219,7 @@ expr default_converter::whnf(expr const & e_prime, type_checker & c, constraint_
         and
         body(t) is definitionally equal to body(s)
 */
-bool default_converter::is_def_eq_binding(expr t, expr s, type_checker & c, delayed_justification & jst, constraint_seq & cs) {
+bool default_converter::is_def_eq_binding(expr t, expr s, constraint_seq & cs) {
     lean_assert(t.kind() == s.kind());
     lean_assert(is_binding(t));
     expr_kind k = t.kind();
@@ -226,14 +229,14 @@ bool default_converter::is_def_eq_binding(expr t, expr s, type_checker & c, dela
         if (binding_domain(t) != binding_domain(s)) {
             var_s_type = instantiate_rev(binding_domain(s), subst.size(), subst.data());
             expr var_t_type = instantiate_rev(binding_domain(t), subst.size(), subst.data());
-            if (!is_def_eq(var_t_type, *var_s_type, c, jst, cs))
+            if (!is_def_eq(var_t_type, *var_s_type, cs))
                 return false;
         }
         if (!closed(binding_body(t)) || !closed(binding_body(s))) {
             // local is used inside t or s
             if (!var_s_type)
                 var_s_type = instantiate_rev(binding_domain(s), subst.size(), subst.data());
-            subst.push_back(mk_local(mk_fresh_name(c), binding_name(s), *var_s_type, binding_info(s)));
+            subst.push_back(mk_local(mk_fresh_name(*m_tc), binding_name(s), *var_s_type, binding_info(s)));
         } else {
             subst.push_back(*g_dont_care); // don't care
         }
@@ -241,47 +244,47 @@ bool default_converter::is_def_eq_binding(expr t, expr s, type_checker & c, dela
         s = binding_body(s);
     } while (t.kind() == k && s.kind() == k);
     return is_def_eq(instantiate_rev(t, subst.size(), subst.data()),
-                     instantiate_rev(s, subst.size(), subst.data()), c, jst, cs);
+                     instantiate_rev(s, subst.size(), subst.data()), cs);
 }
 
-bool default_converter::is_def_eq(level const & l1, level const & l2, delayed_justification & jst, constraint_seq & cs) {
+bool default_converter::is_def_eq(level const & l1, level const & l2, constraint_seq & cs) {
     if (is_equivalent(l1, l2)) {
         return true;
     } else if (has_meta(l1) || has_meta(l2)) {
-        cs += constraint_seq(mk_level_eq_cnstr(l1, l2, jst.get()));
+        cs += constraint_seq(mk_level_eq_cnstr(l1, l2, m_jst->get()));
         return true;
     } else {
         return false;
     }
 }
 
-bool default_converter::is_def_eq(levels const & ls1, levels const & ls2, type_checker & c, delayed_justification & jst, constraint_seq & cs) {
+bool default_converter::is_def_eq(levels const & ls1, levels const & ls2, constraint_seq & cs) {
     if (is_nil(ls1) && is_nil(ls2)) {
         return true;
     } else if (!is_nil(ls1) && !is_nil(ls2)) {
         return
-            is_def_eq(head(ls1), head(ls2), jst, cs) &&
-            is_def_eq(tail(ls1), tail(ls2), c, jst, cs);
+            is_def_eq(head(ls1), head(ls2), cs) &&
+            is_def_eq(tail(ls1), tail(ls2), cs);
     } else {
         return false;
     }
 }
 
 /** \brief This is an auxiliary method for is_def_eq. It handles the "easy cases". */
-lbool default_converter::quick_is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs) {
+lbool default_converter::quick_is_def_eq(expr const & t, expr const & s, constraint_seq & cs) {
     if (t == s)
         return l_true; // t and s are structurally equal
     if (is_meta(t) || is_meta(s)) {
         // if t or s is a metavariable (or the application of a metavariable), then add constraint
-        cs += constraint_seq(mk_eq_cnstr(t, s, jst.get()));
+        cs += constraint_seq(mk_eq_cnstr(t, s, m_jst->get()));
         return l_true;
     }
     if (t.kind() == s.kind()) {
         switch (t.kind()) {
         case expr_kind::Lambda: case expr_kind::Pi:
-            return to_lbool(is_def_eq_binding(t, s, c, jst, cs));
+            return to_lbool(is_def_eq_binding(t, s, cs));
         case expr_kind::Sort:
-            return to_lbool(is_def_eq(sort_level(t), sort_level(s), c, jst, cs));
+            return to_lbool(is_def_eq(sort_level(t), sort_level(s), cs));
         case expr_kind::Meta:
             lean_unreachable(); // LCOV_EXCL_LINE
         case expr_kind::Var: case expr_kind::Local: case expr_kind::App:
@@ -297,9 +300,9 @@ lbool default_converter::quick_is_def_eq(expr const & t, expr const & s, type_ch
    \brief Return true if arguments of \c t are definitionally equal to arguments of \c s.
    This method is used to implement an optimization in the method \c is_def_eq.
 */
-bool default_converter::is_def_eq_args(expr t, expr s, type_checker & c, delayed_justification & jst, constraint_seq & cs) {
+bool default_converter::is_def_eq_args(expr t, expr s, constraint_seq & cs) {
     while (is_app(t) && is_app(s)) {
-        if (!is_def_eq(app_arg(t), app_arg(s), c, jst, cs))
+        if (!is_def_eq(app_arg(t), app_arg(s), cs))
             return false;
         t = app_fn(t);
         s = app_fn(s);
@@ -314,15 +317,15 @@ bool default_converter::is_app_of(expr t, name const & f_name) {
 }
 
 /** \brief Try to solve (fun (x : A), B) =?= s by trying eta-expansion on s */
-bool default_converter::try_eta_expansion_core(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs) {
+bool default_converter::try_eta_expansion_core(expr const & t, expr const & s, constraint_seq & cs) {
     if (is_lambda(t) && !is_lambda(s)) {
-        auto tcs    = infer_type(c, s);
-        auto wcs    = whnf(tcs.first, c);
+        auto tcs    = infer_type(s);
+        auto wcs    = whnf(tcs.first);
         expr s_type = wcs.first;
         if (!is_pi(s_type))
             return false;
         expr new_s  = mk_lambda(binding_name(s_type), binding_domain(s_type), mk_app(s, Var(0)), binding_info(s_type));
-        auto dcs    = is_def_eq(t, new_s, c, jst);
+        auto dcs    = is_def_eq(t, new_s);
         if (!dcs.first)
             return false;
         cs += dcs.second + wcs.second + tcs.second;
@@ -336,8 +339,8 @@ bool default_converter::try_eta_expansion_core(expr const & t, expr const & s, t
 
     \remark Store in \c cs any generated constraints.
 */
-bool default_converter::is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs) {
-    auto bcs = is_def_eq(t, s, c, jst);
+bool default_converter::is_def_eq(expr const & t, expr const & s, constraint_seq & cs) {
+    auto bcs = is_def_eq(t, s);
     if (bcs.first) {
         cs += bcs.second;
         return true;
@@ -353,18 +356,17 @@ bool default_converter::is_def_eq(expr const & t, expr const & s, type_checker &
 
     \remark Store in \c cs any generated constraints
 */
-bool default_converter::is_def_eq_app(expr const & t, expr const & s, type_checker & c, delayed_justification & jst,
-                                      constraint_seq & cs) {
+bool default_converter::is_def_eq_app(expr const & t, expr const & s, constraint_seq & cs) {
     if (is_app(t) && is_app(s)) {
         buffer<expr> t_args;
         buffer<expr> s_args;
         expr t_fn = get_app_args(t, t_args);
         expr s_fn = get_app_args(s, s_args);
         constraint_seq cs_prime = cs;
-        if (is_def_eq(t_fn, s_fn, c, jst, cs_prime) && t_args.size() == s_args.size()) {
+        if (is_def_eq(t_fn, s_fn, cs_prime) && t_args.size() == s_args.size()) {
             unsigned i = 0;
             for (; i < t_args.size(); i++) {
-                if (!is_def_eq(t_args[i], s_args[i], c, jst, cs_prime))
+                if (!is_def_eq(t_args[i], s_args[i], cs_prime))
                     break;
             }
             if (i == t_args.size()) {
@@ -376,34 +378,43 @@ bool default_converter::is_def_eq_app(expr const & t, expr const & s, type_check
     return false;
 }
 
+/** \brief remark: is_prop returns true only if \c e is reducible to Prop.
+    If \c e contains metavariables, then reduction can get stuck, and is_prop will return false.
+*/
+pair<bool, constraint_seq> default_converter::is_prop(expr const & e) {
+    auto tcs = infer_type(e);
+    auto wcs = whnf(tcs.first);
+    if (wcs.first == mk_Prop())
+        return to_bcs(true, wcs.second + tcs.second);
+    else
+        return to_bcs(false);
+}
+
 /** \brief Return true if \c t and \c s are definitionally equal due to proof irrelevant.
     Return false otherwise.
 
     \remark Store in \c cs any generated constraints.
 */
-bool default_converter::is_def_eq_proof_irrel(expr const & t, expr const & s, type_checker & c, delayed_justification & jst,
-                                              constraint_seq & cs) {
+bool default_converter::is_def_eq_proof_irrel(expr const & t, expr const & s, constraint_seq & cs) {
     if (!m_env.prop_proof_irrel())
         return false;
     // Proof irrelevance support for Prop (aka Type.{0})
-    auto tcs    = infer_type(c, t);
-    auto scs    = infer_type(c, s);
+    auto tcs    = infer_type(t);
+    auto scs    = infer_type(s);
     expr t_type = tcs.first;
     expr s_type = scs.first;
-    // remark: is_prop returns true only if t_type reducible to Prop.
-    // If t_type contains metavariables, then reduction can get stuck, and is_prop will return false.
-    auto pcs    = is_prop(t_type, c);
+    auto pcs    = is_prop(t_type);
     if (pcs.first) {
-        auto dcs = is_def_eq(t_type, s_type, c, jst);
+        auto dcs = is_def_eq(t_type, s_type);
         if (dcs.first) {
             cs += dcs.second + scs.second + pcs.second + tcs.second;
             return true;
         }
     } else {
         // If we can't stablish whether t_type is Prop, we try s_type.
-        pcs = is_prop(s_type, c);
+        pcs = is_prop(s_type);
         if (pcs.first) {
-            auto dcs = is_def_eq(t_type, s_type, c, jst);
+            auto dcs = is_def_eq(t_type, s_type);
             if (dcs.first) {
                 cs += dcs.second + scs.second + pcs.second + tcs.second;
                 return true;
@@ -415,19 +426,18 @@ bool default_converter::is_def_eq_proof_irrel(expr const & t, expr const & s, ty
     return false;
 }
 
-/** Return true iff t is definitionally equal to s. */
-pair<bool, constraint_seq> default_converter::is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst) {
+pair<bool, constraint_seq> default_converter::is_def_eq(expr const & t, expr const & s) {
     check_system("is_definitionally_equal");
     constraint_seq cs;
-    lbool r = quick_is_def_eq(t, s, c, jst, cs);
+    lbool r = quick_is_def_eq(t, s, cs);
     if (r != l_undef) return to_bcs(r == l_true, cs);
 
     // apply whnf (without using delta-reduction or normalizer extensions)
-    expr t_n = whnf_core(t, c);
-    expr s_n = whnf_core(s, c);
+    expr t_n = whnf_core(t);
+    expr s_n = whnf_core(s);
 
     if (!is_eqp(t_n, t) || !is_eqp(s_n, s)) {
-        r = quick_is_def_eq(t_n, s_n, c, jst, cs);
+        r = quick_is_def_eq(t_n, s_n, cs);
         if (r != l_undef) return to_bcs(r == l_true, cs);
     }
 
@@ -440,13 +450,13 @@ pair<bool, constraint_seq> default_converter::is_def_eq(expr const & t, expr con
             if (!d_t && !d_s) {
                 break;
             } else if (d_t && !d_s) {
-                t_n = whnf_core(unfold_names(t_n, 0), c);
+                t_n = whnf_core(unfold_names(t_n, 0));
             } else if (!d_t && d_s) {
-                s_n = whnf_core(unfold_names(s_n, 0), c);
+                s_n = whnf_core(unfold_names(s_n, 0));
             } else if (d_t->get_weight() > d_s->get_weight()) {
-                t_n = whnf_core(unfold_names(t_n, d_s->get_weight() + 1), c);
+                t_n = whnf_core(unfold_names(t_n, d_s->get_weight() + 1));
             } else if (d_t->get_weight() < d_s->get_weight()) {
-                s_n = whnf_core(unfold_names(s_n, d_t->get_weight() + 1), c);
+                s_n = whnf_core(unfold_names(s_n, d_t->get_weight() + 1));
             } else {
                 lean_assert(d_t && d_s && d_t->get_weight() == d_s->get_weight());
                 if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
@@ -463,31 +473,31 @@ pair<bool, constraint_seq> default_converter::is_def_eq(expr const & t, expr con
                         // skip the delta-reduction step.
                         // If the flag use_conv_opt() is not true, then we skip this optimization
                         if (!is_opaque_core(*d_t) && d_t->use_conv_opt() &&
-                            is_def_eq_args(t_n, s_n, c, jst, cs))
+                            is_def_eq_args(t_n, s_n, cs))
                             return to_bcs(true, cs);
                     }
                 }
-                t_n = whnf_core(unfold_names(t_n, d_t->get_weight() - 1), c);
-                s_n = whnf_core(unfold_names(s_n, d_s->get_weight() - 1), c);
+                t_n = whnf_core(unfold_names(t_n, d_t->get_weight() - 1));
+                s_n = whnf_core(unfold_names(s_n, d_s->get_weight() - 1));
             }
-            r = quick_is_def_eq(t_n, s_n, c, jst, cs);
+            r = quick_is_def_eq(t_n, s_n, cs);
             if (r != l_undef) return to_bcs(r == l_true, cs);
         }
         // try normalizer extensions
-        auto new_t_n = d_norm_ext(t_n, c, cs);
-        auto new_s_n = d_norm_ext(s_n, c, cs);
+        auto new_t_n = d_norm_ext(t_n, cs);
+        auto new_s_n = d_norm_ext(s_n, cs);
         if (!new_t_n && !new_s_n)
             break; // t_n and s_n are in weak head normal form
         if (new_t_n)
-            t_n = whnf_core(*new_t_n, c);
+            t_n = whnf_core(*new_t_n);
         if (new_s_n)
-            s_n = whnf_core(*new_s_n, c);
-        r = quick_is_def_eq(t_n, s_n, c, jst, cs);
+            s_n = whnf_core(*new_s_n);
+        r = quick_is_def_eq(t_n, s_n, cs);
         if (r != l_undef) return to_bcs(r == l_true, cs);
     }
 
     if (is_constant(t_n) && is_constant(s_n) && const_name(t_n) == const_name(s_n) &&
-        is_def_eq(const_levels(t_n), const_levels(s_n), c, jst, cs))
+        is_def_eq(const_levels(t_n), const_levels(s_n), cs))
         return to_bcs(true, cs);
 
     if (is_local(t_n) && is_local(s_n) && mlocal_name(t_n) == mlocal_name(s_n))
@@ -500,36 +510,39 @@ pair<bool, constraint_seq> default_converter::is_def_eq(expr const & t, expr con
         d_s = is_delta(s_n);
         if (d_t && d_s && is_eqp(*d_t, *d_s))
             delay_check = true;
-        else if (may_reduce_later(t_n, c) && may_reduce_later(s_n, c))
+        else if (may_reduce_later(t_n) && may_reduce_later(s_n))
             delay_check = true;
     }
 
     // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)
-    if (!delay_check && is_def_eq_app(t_n, s_n, c, jst, cs))
+    if (!delay_check && is_def_eq_app(t_n, s_n, cs))
         return to_bcs(true, cs);
 
-    if (try_eta_expansion(t_n, s_n, c, jst, cs))
+    if (try_eta_expansion(t_n, s_n, cs))
         return to_bcs(true, cs);
 
     constraint_seq pi_cs;
-    if (is_def_eq_proof_irrel(t, s, c, jst, pi_cs))
+    if (is_def_eq_proof_irrel(t, s, pi_cs))
         return to_bcs(true, pi_cs);
 
-    if (may_reduce_later(t_n, c) || may_reduce_later(s_n, c) || delay_check) {
-        cs += constraint_seq(mk_eq_cnstr(t_n, s_n, jst.get()));
+    if (may_reduce_later(t_n) || may_reduce_later(s_n) || delay_check) {
+        cs += constraint_seq(mk_eq_cnstr(t_n, s_n, m_jst->get()));
         return to_bcs(true, cs);
     }
 
     return to_bcs(false);
 }
 
-pair<bool, constraint_seq> default_converter::is_prop(expr const & e, type_checker & c) {
-    auto tcs = infer_type(c, e);
-    auto wcs = whnf(tcs.first, c);
-    if (wcs.first == mk_Prop())
-        return to_bcs(true, wcs.second + tcs.second);
-    else
-        return to_bcs(false);
+/** Return true iff t is definitionally equal to s. */
+pair<bool, constraint_seq> default_converter::is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst) {
+    flet<type_checker*>          set_tc(m_tc, &c);
+    flet<delayed_justification*> set_js(m_jst, &jst);
+    return is_def_eq(t, s);
+}
+
+pair<expr, constraint_seq> default_converter::whnf(expr const & e, type_checker & c) {
+    flet<type_checker*>          set_tc(m_tc, &c);
+    return whnf(e);
 }
 
 void initialize_default_converter() {

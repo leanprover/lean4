@@ -22,28 +22,34 @@ protected:
     expr_struct_map<expr>                       m_whnf_core_cache;
     expr_struct_map<pair<expr, constraint_seq>> m_whnf_cache;
 
-    virtual bool may_reduce_later(expr const & e, type_checker & c);
+    // The two auxiliary fields are set when the public methods whnf and is_def_eq are invoked.
+    // The goal is to avoid to keep carrying them around.
+    type_checker *                              m_tc;
+    delayed_justification *                     m_jst;
 
+    virtual bool may_reduce_later(expr const & e);
+
+    pair<expr, constraint_seq> infer_type(expr const & e) { return converter::infer_type(*m_tc, e); }
     constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
-    optional<expr> expand_macro(expr const & m, type_checker & c);
-    optional<pair<expr, constraint_seq>> norm_ext(expr const & e, type_checker & c);
-    optional<expr> d_norm_ext(expr const & e, type_checker & c, constraint_seq & cs);
-    expr whnf_core(expr const & e, type_checker & c);
+    optional<expr> expand_macro(expr const & m);
+    optional<pair<expr, constraint_seq>> norm_ext(expr const & e);
+    optional<expr> d_norm_ext(expr const & e, constraint_seq & cs);
+    expr whnf_core(expr const & e);
     bool is_opaque_core(declaration const & d) const;
     expr unfold_name_core(expr e, unsigned w);
     expr unfold_names(expr const & e, unsigned w);
     optional<declaration> is_delta(expr const & e);
-    expr whnf_core(expr e, unsigned w, type_checker & c);
+    expr whnf_core(expr e, unsigned w);
 
-    expr whnf(expr const & e_prime, type_checker & c, constraint_seq & cs);
+    expr whnf(expr const & e_prime, constraint_seq & cs);
 
     pair<bool, constraint_seq> to_bcs(bool b) { return mk_pair(b, constraint_seq()); }
     pair<bool, constraint_seq> to_bcs(bool b, constraint const & c) { return mk_pair(b, constraint_seq(c)); }
     pair<bool, constraint_seq> to_bcs(bool b, constraint_seq const & cs) { return mk_pair(b, cs); }
 
-    bool is_def_eq_binding(expr t, expr s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
-    bool is_def_eq(level const & l1, level const & l2, delayed_justification & jst, constraint_seq & cs);
-    bool is_def_eq(levels const & ls1, levels const & ls2, type_checker & c, delayed_justification & jst, constraint_seq & cs);
+    bool is_def_eq_binding(expr t, expr s, constraint_seq & cs);
+    bool is_def_eq(level const & l1, level const & l2, constraint_seq & cs);
+    bool is_def_eq(levels const & ls1, levels const & ls2, constraint_seq & cs);
 
     static pair<lbool, constraint_seq> to_lbcs(lbool l) { return mk_pair(l, constraint_seq()); }
     static pair<lbool, constraint_seq> to_lbcs(lbool l, constraint const & c) { return mk_pair(l, constraint_seq(c)); }
@@ -51,18 +57,20 @@ protected:
         return mk_pair(to_lbool(bcs.first), bcs.second);
     }
 
-    lbool quick_is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
-    bool is_def_eq_args(expr t, expr s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
+    lbool quick_is_def_eq(expr const & t, expr const & s, constraint_seq & cs);
+    bool is_def_eq_args(expr t, expr s, constraint_seq & cs);
     bool is_app_of(expr t, name const & f_name);
-    bool try_eta_expansion_core(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
-    bool try_eta_expansion(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs) {
-        return try_eta_expansion_core(t, s, c, jst, cs) || try_eta_expansion_core(s, t, c, jst, cs);
+    bool try_eta_expansion_core(expr const & t, expr const & s, constraint_seq & cs);
+    bool try_eta_expansion(expr const & t, expr const & s, constraint_seq & cs) {
+        return try_eta_expansion_core(t, s, cs) || try_eta_expansion_core(s, t, cs);
     }
-    bool is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
-    bool is_def_eq_app(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
-    bool is_def_eq_proof_irrel(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
+    bool is_def_eq(expr const & t, expr const & s, constraint_seq & cs);
+    bool is_def_eq_app(expr const & t, expr const & s, constraint_seq & cs);
+    bool is_def_eq_proof_irrel(expr const & t, expr const & s, constraint_seq & cs);
 
-    pair<bool, constraint_seq> is_prop(expr const & e, type_checker & c);
+    pair<bool, constraint_seq> is_prop(expr const & e);
+    pair<expr, constraint_seq> whnf(expr const & e_prime);
+    pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s);
 
 public:
     default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize,

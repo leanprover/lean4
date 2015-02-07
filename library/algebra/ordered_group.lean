@@ -404,34 +404,19 @@ section
 
   theorem abs_of_nonpos (H : a ≤ 0) : |a| = -a :=
   decidable.by_cases
-    (assume H1 : a = 0,
-      calc
-        |a| = |0| : H1
-          ... = 0 : abs_zero
-          ... = -0 : neg_zero
-          ... = -a : H1)
+    (assume H1 : a = 0, by rewrite [H1, abs_zero, neg_zero])
     (assume H1 : a ≠ 0,
       have H2 : a < 0, from lt_of_le_of_ne H H1,
       abs_of_neg H2)
 
   theorem abs_neg (a : A) : |-a| = |a| :=
   or.elim (le.total 0 a)
-    (assume H1 : 0 ≤ a,
-      calc
-        |-a|  = -(-a) : abs_of_nonpos (neg_nonpos_of_nonneg H1)
-          ... = a     : neg_neg
-          ... = |a|   : abs_of_nonneg H1)
-    (assume H1 : a ≤ 0,
-      calc
-        |-a|  = -a     : abs_of_nonneg (neg_nonneg_of_nonpos H1)
-          ... = |a|    : abs_of_nonpos H1)
+    (assume H1 : 0 ≤ a, by rewrite [(abs_of_nonpos (neg_nonpos_of_nonneg H1)), neg_neg, (abs_of_nonneg H1)])
+    (assume H1 : a ≤ 0, by rewrite [(abs_of_nonneg (neg_nonneg_of_nonpos H1)), (abs_of_nonpos H1)])
 
   theorem abs_nonneg (a : A) : | a | ≥ 0 :=
   or.elim (le.total 0 a)
-    (assume H : 0 ≤ a,
-      calc
-          0 ≤ a   : H
-        ... = |a| : abs_of_nonneg H)
+    (assume H : 0 ≤ a, by rewrite (abs_of_nonneg H); exact H)
     (assume H : a ≤ 0,
       calc
           0 ≤ -a  : neg_nonneg_of_nonpos H
@@ -465,9 +450,7 @@ section
   or.elim (lt_or_gt_of_ne H) abs_pos_of_neg abs_pos_of_pos
 
   theorem abs_sub (a b : A) : |a - b| = |b - a| :=
-  calc
-    |a - b| = |-(b - a)| : neg_sub
-        ... = |b - a|    : abs_neg
+  by rewrite [-neg_sub, abs_neg]
 
   theorem abs.by_cases {P : A → Prop} {a : A} (H1 : P a) (H2 : P (-a)) : P |a| :=
   or.elim (le.total 0 a)
@@ -481,12 +464,8 @@ section
   abs.by_cases H1 H2
 
   -- the triangle inequality
-  theorem abs_add_le_abs_add_abs (a b : A) : |a + b| ≤ |a| + |b| :=
-  have aux1 : ∀{a b}, a + b ≥ 0 → a ≥ 0 → |a + b| ≤ |a| + |b|,
-  proof
-    take a b,
-    assume H1 : a + b ≥ 0,
-    assume H2 : a ≥ 0,
+  context
+    private lemma aux1 {a b : A} (H1 : a + b ≥ 0) (H2 : a ≥ 0) : |a + b| ≤ |a| + |b| :=
     decidable.by_cases
       (assume H3 : b ≥ 0,
           calc
@@ -502,38 +481,30 @@ section
               ... ≤ |a| + 0   : add_le_add_left H4
               ... ≤ |a| + -b  : add_le_add_left (neg_nonneg_of_nonpos H4)
               ... = |a| + |b| : abs_of_nonpos H4)
-  qed,
-  have aux2 : ∀{a b}, a + b ≥ 0 → |a + b| ≤ |a| + |b|,
-  proof
-    take a b,
-    assume H1 : a + b ≥ 0,
+
+    private lemma aux2 {a b : A} (H1 : a + b ≥ 0) : |a + b| ≤ |a| + |b| :=
     or.elim (le.total b 0)
       (assume H2 : b ≤ 0,
-        have H3 : ¬ a < 0,
-        proof
+        have H3 : ¬ a < 0, from
           assume H4 : a < 0,
           have H5 : a + b < 0, from !add_zero ▸ add_lt_add_of_lt_of_le H4 H2,
-          not_lt_of_le H1 H5
-        qed,
+          not_lt_of_le H1 H5,
         aux1 H1 (le_of_not_lt H3))
       (assume H2 : 0 ≤ b,
-        have H3 : |b + a| ≤ |b| + |a|, from aux1 (!add.comm ▸ H1) H2,
-        !add.comm ▸ !add.comm ▸ H3)
-  qed,
-  show |a + b| ≤ |a| + |b|,
-  proof
+        have H3 : |b + a| ≤ |b| + |a|, from aux1 (add.comm a b ▸ H1) H2,
+        add.comm b a ▸ (add.comm |b| |a|) ▸ H3)
+
+    theorem abs_add_le_abs_add_abs (a b : A) : |a + b| ≤ |a| + |b| :=
     or.elim (le.total 0 (a + b))
       (assume H2 : 0 ≤ a + b, aux2 H2)
       (assume H2 : a + b ≤ 0,
-        have H3 : -a + -b = -(a + b), from !neg_add⁻¹,
-        have H4 : -(a + b) ≥ 0, from iff.mp' !neg_nonneg_iff_nonpos H2,
+        have H3 : -a + -b = -(a + b), by rewrite neg_add,
+        have H4 : -(a + b) ≥ 0, from iff.mp' (neg_nonneg_iff_nonpos (a+b)) H2,
         calc
-          |a + b| = |-(a + b)|  : abs_neg
-              ... = |-a + -b|   : neg_add
+          |a + b| = |-a + -b|   : by rewrite [-abs_neg, neg_add]
               ... ≤ |-a| + |-b| : aux2 (H3⁻¹ ▸ H4)
-              ... = |a| + |-b|  : abs_neg
-              ... = |a| + |b|   : abs_neg)
-  qed
+              ... = |a| + |b|   : by rewrite *abs_neg)
+  end
 
   theorem abs_sub_abs_le_abs_sub (a b : A) : |a| - |b| ≤ |a - b| :=
   have H1 : |a| - |b| + |b| ≤ |a - b| + |b|, from

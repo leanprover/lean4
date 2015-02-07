@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
+#include <algorithm>
 #include "util/buffer.h"
 #include "util/sstream.h"
 #include "util/sexpr/option_declarations.h"
@@ -32,6 +33,13 @@ void finalize_goal() {
 }
 bool get_pp_compact_goals(options const & o) {
     return o.get_bool(*g_pp_compact_goals, LEAN_DEFAULT_PP_COMPACT_GOALS);
+}
+
+local_context goal::to_local_context() const {
+    buffer<expr> hyps;
+    get_hyps(hyps);
+    std::reverse(hyps.begin(), hyps.end());
+    return local_context(to_list(hyps));
 }
 
 format goal::pp(formatter const & fmt) const {

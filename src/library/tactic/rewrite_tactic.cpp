@@ -472,9 +472,7 @@ class rewrite_fn {
 
     void update_goal(goal const & g) {
         m_g   = g;
-        buffer<expr> hyps;
-        g.get_hyps(hyps);
-        m_ctx = local_context(to_list(hyps));
+        m_ctx = m_g.to_local_context();
     }
 
     expr mk_meta(expr const & type) {

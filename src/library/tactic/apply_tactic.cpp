@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/lazy_list_fn.h"
 #include "util/sstream.h"
 #include "util/name_map.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
@@ -25,7 +26,16 @@ Author: Leonardo de Moura
 #include "library/tactic/apply_tactic.h"
 #include "library/tactic/class_instance_synth.h"
 
+#ifndef LEAN_DEFAULT_APPLY_CLASS_INSTANCE
+#define LEAN_DEFAULT_APPLY_CLASS_INSTANCE true
+#endif
+
 namespace lean {
+static name * g_apply_class_instance = nullptr;
+bool get_apply_class_instance(options const & opts) {
+    return opts.get_bool(*g_apply_class_instance, LEAN_DEFAULT_APPLY_CLASS_INSTANCE);
+}
+
 /**
     \brief Given a sequence metas: <tt>(?m_1 ...) (?m_2 ... ) ... (?m_k ...)</tt>,
     we say ?m_i is "redundant" if it occurs in the type of some ?m_j.
@@ -56,12 +66,15 @@ static void remove_redundant_metas(buffer<expr> & metas) {
 
 enum subgoals_action_kind { IgnoreSubgoals, AddRevSubgoals, AddSubgoals, AddAllSubgoals };
 
+
+
 static proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s,
                                          expr const & _e, buffer<constraint> & cs,
                                          bool add_meta, subgoals_action_kind subgoals_action) {
     goals const & gs = s.get_goals();
     if (empty(gs))
         return proof_state_seq();
+    bool class_inst   = get_apply_class_instance(ios.get_options());
     name_generator ngen = s.get_ngen();
     bool relax_opaque = s.relax_main_opaque();
     std::shared_ptr<type_checker> tc(mk_type_checker(env, ngen.mk_child(), relax_opaque));
@@ -87,7 +100,7 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
             e_t_cs.second.linearize(cs);
             e_t        = e_t_cs.first;
             expr meta;
-            if (binding_info(e_t).is_inst_implicit()) {
+            if (class_inst && binding_info(e_t).is_inst_implicit()) {
                 if (!initialized_ctx) {
                     ctx = g.to_local_context();
                     initialized_ctx = true;
@@ -208,6 +221,11 @@ void open_apply_tactic(lua_State * L) {
 }
 
 void initialize_apply_tactic() {
+    g_apply_class_instance = new name{"apply", "class_instance"};
+    register_bool_option(*g_apply_class_instance, LEAN_DEFAULT_APPLY_CLASS_INSTANCE,
+                         "(apply tactic) if true apply tactic uses class-instances "
+                         "resolution for instance implicit arguments");
+
     register_tac(get_tactic_apply_name(),
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'apply' tactic, invalid argument");
@@ -231,5 +249,6 @@ void initialize_apply_tactic() {
 }
 
 void finalize_apply_tactic() {
+    delete g_apply_class_instance;
 }
 }

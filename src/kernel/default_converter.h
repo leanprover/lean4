@@ -54,8 +54,13 @@ protected:
     lbool quick_is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
     bool is_def_eq_args(expr t, expr s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
     bool is_app_of(expr t, name const & f_name);
-    bool try_eta_expansion(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
+    bool try_eta_expansion_core(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
+    bool try_eta_expansion(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs) {
+        return try_eta_expansion_core(t, s, c, jst, cs) || try_eta_expansion_core(s, t, c, jst, cs);
+    }
     bool is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
+    bool is_def_eq_app(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
+    bool is_def_eq_proof_irrel(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
 
     pair<bool, constraint_seq> is_prop(expr const & e, type_checker & c);
 
@@ -64,8 +69,9 @@ public:
                       extra_opaque_pred const & pred);
 
     virtual bool is_opaque(declaration const & d) const;
-    virtual pair<expr, constraint_seq> whnf(expr const & e_prime, type_checker & c);
     virtual optional<module_idx> get_module_idx() const { return m_module_idx; }
+
+    virtual pair<expr, constraint_seq> whnf(expr const & e_prime, type_checker & c);
     virtual pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst);
 };
 

@@ -34,7 +34,7 @@ optional<pair<expr, constraint_seq>> default_converter::norm_ext(expr const & e,
 
 optional<expr> default_converter::d_norm_ext(expr const & e, type_checker & c, constraint_seq & cs) {
     if (auto r = norm_ext(e, c)) {
-        cs = cs + r->second;
+        cs += r->second;
         return some_expr(r->first);
     } else {
         return none_expr();
@@ -203,10 +203,9 @@ pair<expr, constraint_seq> default_converter::whnf(expr const & e_prime, type_ch
 
 expr default_converter::whnf(expr const & e_prime, type_checker & c, constraint_seq & cs) {
     auto r = whnf(e_prime, c);
-    cs = cs + r.second;
+    cs += r.second;
     return r.first;
 }
-
 
 /**
    \brief Given lambda/Pi expressions \c t and \c s, return true iff \c t is def eq to \c s.
@@ -249,7 +248,7 @@ bool default_converter::is_def_eq(level const & l1, level const & l2, delayed_ju
     if (is_equivalent(l1, l2)) {
         return true;
     } else if (has_meta(l1) || has_meta(l2)) {
-        cs = cs + constraint_seq(mk_level_eq_cnstr(l1, l2, jst.get()));
+        cs += constraint_seq(mk_level_eq_cnstr(l1, l2, jst.get()));
         return true;
     } else {
         return false;
@@ -274,7 +273,7 @@ lbool default_converter::quick_is_def_eq(expr const & t, expr const & s, type_ch
         return l_true; // t and s are structurally equal
     if (is_meta(t) || is_meta(s)) {
         // if t or s is a metavariable (or the application of a metavariable), then add constraint
-        cs = cs + constraint_seq(mk_eq_cnstr(t, s, jst.get()));
+        cs += constraint_seq(mk_eq_cnstr(t, s, jst.get()));
         return l_true;
     }
     if (t.kind() == s.kind()) {
@@ -315,7 +314,7 @@ bool default_converter::is_app_of(expr t, name const & f_name) {
 }
 
 /** \brief Try to solve (fun (x : A), B) =?= s by trying eta-expansion on s */
-bool default_converter::try_eta_expansion(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs) {
+bool default_converter::try_eta_expansion_core(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs) {
     if (is_lambda(t) && !is_lambda(s)) {
         auto tcs    = infer_type(c, s);
         auto wcs    = whnf(tcs.first, c);
@@ -326,21 +325,94 @@ bool default_converter::try_eta_expansion(expr const & t, expr const & s, type_c
         auto dcs    = is_def_eq(t, new_s, c, jst);
         if (!dcs.first)
             return false;
-        cs = cs + dcs.second + wcs.second + tcs.second;
+        cs += dcs.second + wcs.second + tcs.second;
         return true;
     } else {
         return false;
     }
 }
 
+/** \brief Return true iff \c t and \c s are definitionally equal.
+
+    \remark Store in \c cs any generated constraints.
+*/
 bool default_converter::is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs) {
     auto bcs = is_def_eq(t, s, c, jst);
     if (bcs.first) {
-        cs = cs + bcs.second;
+        cs += bcs.second;
         return true;
     } else {
         return false;
     }
+}
+
+/** \brief Return true if \c t and \c s are definitionally equal because they are applications of the form
+    <tt>(f a_1 ... a_n)</tt> <tt>(g b_1 ... b_n)</tt>, and \c f and \c g are definitionally equal, and
+    \c a_i and \c b_i are also definitionally equal for every 1 <= i <= n.
+    Return false otherwise.
+
+    \remark Store in \c cs any generated constraints
+*/
+bool default_converter::is_def_eq_app(expr const & t, expr const & s, type_checker & c, delayed_justification & jst,
+                                      constraint_seq & cs) {
+    if (is_app(t) && is_app(s)) {
+        buffer<expr> t_args;
+        buffer<expr> s_args;
+        expr t_fn = get_app_args(t, t_args);
+        expr s_fn = get_app_args(s, s_args);
+        constraint_seq cs_prime = cs;
+        if (is_def_eq(t_fn, s_fn, c, jst, cs_prime) && t_args.size() == s_args.size()) {
+            unsigned i = 0;
+            for (; i < t_args.size(); i++) {
+                if (!is_def_eq(t_args[i], s_args[i], c, jst, cs_prime))
+                    break;
+            }
+            if (i == t_args.size()) {
+                cs = cs_prime;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/** \brief Return true if \c t and \c s are definitionally equal due to proof irrelevant.
+    Return false otherwise.
+
+    \remark Store in \c cs any generated constraints.
+*/
+bool default_converter::is_def_eq_proof_irrel(expr const & t, expr const & s, type_checker & c, delayed_justification & jst,
+                                              constraint_seq & cs) {
+    if (!m_env.prop_proof_irrel())
+        return false;
+    // Proof irrelevance support for Prop (aka Type.{0})
+    auto tcs    = infer_type(c, t);
+    auto scs    = infer_type(c, s);
+    expr t_type = tcs.first;
+    expr s_type = scs.first;
+    // remark: is_prop returns true only if t_type reducible to Prop.
+    // If t_type contains metavariables, then reduction can get stuck, and is_prop will return false.
+    auto pcs    = is_prop(t_type, c);
+    if (pcs.first) {
+        auto dcs = is_def_eq(t_type, s_type, c, jst);
+        if (dcs.first) {
+            cs += dcs.second + scs.second + pcs.second + tcs.second;
+            return true;
+        }
+    } else {
+        // If we can't stablish whether t_type is Prop, we try s_type.
+        pcs = is_prop(s_type, c);
+        if (pcs.first) {
+            auto dcs = is_def_eq(t_type, s_type, c, jst);
+            if (dcs.first) {
+                cs += dcs.second + scs.second + pcs.second + tcs.second;
+                return true;
+            }
+        }
+        // This procedure will miss the case where s_type and t_type cannot be reduced to Prop
+        // because they contain metavariables.
+    }
+    return false;
 }
 
 /** Return true iff t is definitionally equal to s. */
@@ -433,56 +505,18 @@ pair<bool, constraint_seq> default_converter::is_def_eq(expr const & t, expr con
     }
 
     // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)
-    if (!delay_check && is_app(t_n) && is_app(s_n)) {
-        buffer<expr> t_args;
-        buffer<expr> s_args;
-        expr t_fn = get_app_args(t_n, t_args);
-        expr s_fn = get_app_args(s_n, s_args);
-        constraint_seq cs_prime = cs;
-        if (is_def_eq(t_fn, s_fn, c, jst, cs_prime) && t_args.size() == s_args.size()) {
-            unsigned i = 0;
-            for (; i < t_args.size(); i++) {
-                if (!is_def_eq(t_args[i], s_args[i], c, jst, cs_prime))
-                    break;
-            }
-            if (i == t_args.size()) {
-                return to_bcs(true, cs_prime);
-            }
-        }
-    }
-
-    if (try_eta_expansion(t_n, s_n, c, jst, cs) ||
-        try_eta_expansion(s_n, t_n, c, jst, cs))
+    if (!delay_check && is_def_eq_app(t_n, s_n, c, jst, cs))
         return to_bcs(true, cs);
 
-    if (m_env.prop_proof_irrel()) {
-        // Proof irrelevance support for Prop (aka Type.{0})
-        auto tcs    = infer_type(c, t);
-        auto scs    = infer_type(c, s);
-        expr t_type = tcs.first;
-        expr s_type = scs.first;
-        // remark: is_prop returns true only if t_type reducible to Prop.
-        // If t_type contains metavariables, then reduction can get stuck, and is_prop will return false.
-        auto pcs    = is_prop(t_type, c);
-        if (pcs.first) {
-            auto dcs = is_def_eq(t_type, s_type, c, jst);
-            if (dcs.first)
-                return to_bcs(true, dcs.second + scs.second + pcs.second + tcs.second);
-        } else {
-            // If we can't stablish whether t_type is Prop, we try s_type.
-            pcs = is_prop(s_type, c);
-            if (pcs.first) {
-                auto dcs = is_def_eq(t_type, s_type, c, jst);
-                if (dcs.first)
-                    return to_bcs(true, dcs.second + scs.second + pcs.second + tcs.second);
-            }
-            // This procedure will miss the case where s_type and t_type cannot be reduced to Prop
-            // because they contain metavariables.
-        }
-    }
+    if (try_eta_expansion(t_n, s_n, c, jst, cs))
+        return to_bcs(true, cs);
+
+    constraint_seq pi_cs;
+    if (is_def_eq_proof_irrel(t, s, c, jst, pi_cs))
+        return to_bcs(true, pi_cs);
 
     if (may_reduce_later(t_n, c) || may_reduce_later(s_n, c) || delay_check) {
-        cs = cs + constraint_seq(mk_eq_cnstr(t_n, s_n, jst.get()));
+        cs += constraint_seq(mk_eq_cnstr(t_n, s_n, jst.get()));
         return to_bcs(true, cs);
     }
 

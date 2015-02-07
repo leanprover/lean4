@@ -26,11 +26,11 @@ namespace natural_transformation
     (λ a, η a ∘ θ a)
     (λ a b f,
       calc
-	H f ∘ (η a ∘ θ a) = (H f ∘ η a) ∘ θ a : assoc
-		      ... = (η b ∘ G f) ∘ θ a : naturality η f
-		      ... = η b ∘ (G f ∘ θ a) : assoc
-		      ... = η b ∘ (θ b ∘ F f) : naturality θ f
-		      ... = (η b ∘ θ b) ∘ F f : assoc)
+        H f ∘ (η a ∘ θ a) = (H f ∘ η a) ∘ θ a : assoc
+                      ... = (η b ∘ G f) ∘ θ a : naturality η f
+                      ... = η b ∘ (G f ∘ θ a) : assoc
+                      ... = η b ∘ (θ b ∘ F f) : naturality θ f
+                      ... = (η b ∘ θ b) ∘ F f : assoc)
 
   infixr `∘n`:60 := compose
 
@@ -47,6 +47,7 @@ namespace natural_transformation
     apply (dcongr_arg2 (@natural_transformation.mk C D F G) p₁ p₂),
   end
 
+  set_option apply.class_instance false -- disable class instance resolution in the apply tactic
 
   protected definition assoc (η₃ : H ⟹ I) (η₂ : G ⟹ H) (η₁ : F ⟹ G) :
       η₃ ∘n (η₂ ∘n η₁) = (η₃ ∘n η₂) ∘n η₁ :=

@@ -40,6 +40,8 @@ namespace morphism
     intro S, apply (sigma.rec_on S), intros (f, H), apply idp,
   end
 
+  set_option apply.class_instance false -- disable class instance resolution in the apply tactic
+
   -- The statement "f is an isomorphism" is a mere proposition
   definition is_hprop_of_is_iso : is_hset (is_iso f) :=
   begin

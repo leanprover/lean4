@@ -99,7 +99,7 @@ namespace pi
     apply (trunc_index.rec_on n),
       intros (B, H),
         fapply is_contr.mk,
-          intro a, apply center, apply H, --remove "apply H" when term synthesis works correctly
+          intro a, apply center,
           intro f, apply path_pi,
             intro x, apply (contr (f x)),
       intros (n, IH, B, H),
@@ -116,8 +116,7 @@ namespace pi
       [H : ∀a, is_trunc n (f a = g a)] : is_trunc n (f = g) :=
   begin
     apply trunc_equiv', apply equiv.symm,
-    apply path_equiv_homotopy,
-    apply trunc_pi, exact H,
+    apply path_equiv_homotopy
   end
 
 end pi

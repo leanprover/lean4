@@ -44,6 +44,8 @@ namespace functor
     apply (prod.rec_on P1), intros (d3, d4), apply idp,
   end
 
+  set_option apply.class_instance false -- disable class instance resolution in the apply tactic
+
   protected definition strict_cat_has_functor_hset
     [HD : is_hset (objects D)] : is_hset (functor C D) :=
   begin

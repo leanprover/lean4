@@ -451,14 +451,13 @@ namespace sigma
     intros (A, B, HA, HB),
       fapply trunc_equiv',
         apply equiv.symm,
-          apply equiv_center_of_contr, apply HA, --should be solved by term synthesis
-        apply HB,
+          apply equiv_center_of_contr,
      intros (n, IH, A, B, HA, HB),
        fapply is_trunc_succ, intros (u, v),
       fapply trunc_equiv',
          apply equiv_sigma_path,
          apply IH,
-           apply succ_is_trunc, assumption,
+           apply succ_is_trunc,
            intro p,
              show is_trunc n (p ▹ u .2 = v .2), from
              succ_is_trunc n (p ▹ u.2) (v.2),

@@ -25,6 +25,8 @@ namespace category
   definition path_of_iso {a b : ob} : a ≅ b → a = b :=
   iso_of_path⁻¹
 
+  set_option apply.class_instance false -- disable class instance resolution in the apply tactic
+
   definition ob_1_type : is_trunc nat.zero .+1 ob :=
   begin
     apply is_trunc_succ, intros (a, b),

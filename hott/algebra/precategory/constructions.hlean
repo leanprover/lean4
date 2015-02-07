@@ -28,6 +28,8 @@ namespace precategory
 
   variables {C : Precategory} {a b c : C}
 
+  set_option apply.class_instance false -- disable class instance resolution in the apply tactic
+
   theorem compose_op {f : hom a b} {g : hom b c} : f ∘op g = g ∘ f := idp
 
   -- TODO: Decide whether just to use funext for this theorem or

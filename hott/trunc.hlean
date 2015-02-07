@@ -28,9 +28,9 @@ namespace truncation
     (Π (x y : A), is_trunc n (x = y)) ≃ (is_trunc (n .+1) A) :=
   begin
     fapply equiv.mk,
-      intro H, apply is_trunc_succ, exact H,
+      intro H, apply is_trunc_succ,
     fapply is_equiv.adjointify,
-        intros (H, x, y), apply succ_is_trunc, exact H,
+        intros (H, x, y), apply succ_is_trunc,
       intro H, apply (is_trunc.rec_on H), intro Hint, apply idp,
     intro P,
    exact sorry,
@@ -56,9 +56,6 @@ namespace truncation
     apply trunc_equiv,
       apply equiv.to_is_equiv,
       apply is_trunc.pi_char,
-    apply trunc_pi, intro a,
-    apply trunc_pi, intro b,
-    apply (IH (a = b)),
   end
 
 end truncation

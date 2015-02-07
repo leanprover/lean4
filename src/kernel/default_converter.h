@@ -1,0 +1,74 @@
+/*
+Copyright (c) 2014-2015 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
+#pragma once
+#include "util/lbool.h"
+#include "kernel/justification.h"
+#include "kernel/environment.h"
+#include "kernel/converter.h"
+#include "kernel/expr_maps.h"
+
+namespace lean {
+/** \breif Converter used in the kernel */
+class default_converter : public converter {
+protected:
+    environment                                 m_env;
+    optional<module_idx>                        m_module_idx;
+    bool                                        m_memoize;
+    extra_opaque_pred                           m_extra_pred;
+    expr_struct_map<expr>                       m_whnf_core_cache;
+    expr_struct_map<pair<expr, constraint_seq>> m_whnf_cache;
+
+    virtual bool may_reduce_later(expr const & e, type_checker & c);
+
+    constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
+    optional<expr> expand_macro(expr const & m, type_checker & c);
+    optional<pair<expr, constraint_seq>> norm_ext(expr const & e, type_checker & c);
+    optional<expr> d_norm_ext(expr const & e, type_checker & c, constraint_seq & cs);
+    expr whnf_core(expr const & e, type_checker & c);
+    bool is_opaque_core(declaration const & d) const;
+    expr unfold_name_core(expr e, unsigned w);
+    expr unfold_names(expr const & e, unsigned w);
+    optional<declaration> is_delta(expr const & e);
+    expr whnf_core(expr e, unsigned w, type_checker & c);
+
+    expr whnf(expr const & e_prime, type_checker & c, constraint_seq & cs);
+
+    pair<bool, constraint_seq> to_bcs(bool b) { return mk_pair(b, constraint_seq()); }
+    pair<bool, constraint_seq> to_bcs(bool b, constraint const & c) { return mk_pair(b, constraint_seq(c)); }
+    pair<bool, constraint_seq> to_bcs(bool b, constraint_seq const & cs) { return mk_pair(b, cs); }
+
+    bool is_def_eq_binding(expr t, expr s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
+    bool is_def_eq(level const & l1, level const & l2, delayed_justification & jst, constraint_seq & cs);
+    bool is_def_eq(levels const & ls1, levels const & ls2, type_checker & c, delayed_justification & jst, constraint_seq & cs);
+
+    static pair<lbool, constraint_seq> to_lbcs(lbool l) { return mk_pair(l, constraint_seq()); }
+    static pair<lbool, constraint_seq> to_lbcs(lbool l, constraint const & c) { return mk_pair(l, constraint_seq(c)); }
+    static pair<lbool, constraint_seq> to_lbcs(pair<bool, constraint_seq> const & bcs) {
+        return mk_pair(to_lbool(bcs.first), bcs.second);
+    }
+
+    lbool quick_is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
+    bool is_def_eq_args(expr t, expr s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
+    bool is_app_of(expr t, name const & f_name);
+    bool try_eta_expansion(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
+    bool is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst, constraint_seq & cs);
+
+    pair<bool, constraint_seq> is_prop(expr const & e, type_checker & c);
+
+public:
+    default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize,
+                      extra_opaque_pred const & pred);
+
+    virtual bool is_opaque(declaration const & d) const;
+    virtual pair<expr, constraint_seq> whnf(expr const & e_prime, type_checker & c);
+    virtual optional<module_idx> get_module_idx() const { return m_module_idx; }
+    virtual pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst);
+};
+
+void initialize_default_converter();
+void finalize_default_converter();
+}

@@ -471,22 +471,21 @@ static void check_duplicated_params(environment const & env, declaration const &
     }
 }
 
-certified_declaration check(environment const & env, declaration const & d, name_generator const & g,
-                            extra_opaque_pred const & pred) {
+certified_declaration check(environment const & env, declaration const & d, name_generator const & g) {
     if (d.is_definition())
         check_no_mlocal(env, d.get_name(), d.get_value(), false);
     check_no_mlocal(env, d.get_name(), d.get_type(), true);
     check_name(env, d.get_name());
     check_duplicated_params(env, d);
     bool memoize = true;
-    type_checker checker1(env, g, mk_default_converter(env, optional<module_idx>(), memoize, pred));
+    type_checker checker1(env, g, mk_default_converter(env, optional<module_idx>(), memoize));
     expr sort = checker1.check(d.get_type(), d.get_univ_params()).first;
     checker1.ensure_sort(sort, d.get_type());
     if (d.is_definition()) {
         optional<module_idx> midx;
         if (d.is_opaque())
             midx = optional<module_idx>(d.get_module_idx());
-        type_checker checker2(env, g, mk_default_converter(env, midx, memoize, pred));
+        type_checker checker2(env, g, mk_default_converter(env, midx, memoize));
         expr val_type = checker2.check(d.get_value(), d.get_univ_params()).first;
         if (!checker2.is_def_eq(val_type, d.get_type()).first) {
             throw_kernel_exception(env, d.get_value(), [=](formatter const & fmt) {
@@ -497,16 +496,8 @@ certified_declaration check(environment const & env, declaration const & d, name
     return certified_declaration(env.get_id(), d);
 }
 
-certified_declaration check(environment const & env, declaration const & d, name_generator const & g) {
-    return check(env, d, g, no_extra_opaque());
-}
-
-certified_declaration check(environment const & env, declaration const & d, extra_opaque_pred const & pred) {
-    return check(env, d, name_generator(*g_tmp_prefix), pred);
-}
-
 certified_declaration check(environment const & env, declaration const & d) {
-    return check(env, d, no_extra_opaque());
+    return check(env, d, name_generator(*g_tmp_prefix));
 }
 
 void initialize_type_checker() {

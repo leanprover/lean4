@@ -228,10 +228,7 @@ void check_no_metavar(environment const & env, name const & n, expr const & e, b
    \brief Type check the given declaration, and return a certified declaration if it is type correct.
    Throw an exception if the declaration is type incorrect.
 */
-certified_declaration check(environment const & env, declaration const & d, name_generator const & g,
-                            extra_opaque_pred const & pred);
 certified_declaration check(environment const & env, declaration const & d, name_generator const & g);
-certified_declaration check(environment const & env, declaration const & d, extra_opaque_pred const & pred);
 certified_declaration check(environment const & env, declaration const & d);
 
 /**

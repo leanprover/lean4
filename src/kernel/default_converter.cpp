@@ -21,6 +21,9 @@ default_converter::default_converter(environment const & env, optional<module_id
     m_jst = nullptr;
 }
 
+default_converter::default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize):
+    default_converter(env, mod_idx, memoize, [](name const &) { return false; }) {}
+
 constraint default_converter::mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j) {
     return ::lean::mk_eq_cnstr(lhs, rhs, j, static_cast<bool>(m_module_idx));
 }
@@ -105,19 +108,20 @@ expr default_converter::whnf_core(expr const & e) {
     return r;
 }
 
-bool default_converter::is_opaque_core(declaration const & d) const {
-    return ::lean::is_opaque(d, m_extra_pred, m_module_idx);
-}
-
 bool default_converter::is_opaque(declaration const & d) const {
-    return is_opaque_core(d);
+    lean_assert(d.is_definition());
+    if (d.is_theorem()) return true;                               // theorems are always opaque
+    if (m_extra_pred(d.get_name())) return true;                   // extra_opaque predicate overrides opaque flag
+    if (!d.is_opaque()) return false;                              // d is a transparent definition
+    if (m_module_idx && d.get_module_idx() == *m_module_idx) return false; // the opaque definitions in mod_idx are considered transparent
+    return true;                                                   // d is opaque
 }
 
 /** \brief Expand \c e if it is non-opaque constant with weight >= w */
 expr default_converter::unfold_name_core(expr e, unsigned w) {
     if (is_constant(e)) {
         if (auto d = m_env.find(const_name(e))) {
-            if (d->is_definition() && !is_opaque_core(*d) && d->get_weight() >= w)
+            if (d->is_definition() && !is_opaque(*d) && d->get_weight() >= w)
                 return unfold_name_core(instantiate_value_univ_params(*d, const_levels(e)), w);
         }
     }
@@ -472,7 +476,7 @@ pair<bool, constraint_seq> default_converter::is_def_eq(expr const & t, expr con
                         // If they are, then t_n and s_n must be definitionally equal, and we can
                         // skip the delta-reduction step.
                         // If the flag use_conv_opt() is not true, then we skip this optimization
-                        if (!is_opaque_core(*d_t) && d_t->use_conv_opt() &&
+                        if (!is_opaque(*d_t) && d_t->use_conv_opt() &&
                             is_def_eq_args(t_n, s_n, cs))
                             return to_bcs(true, cs);
                     }

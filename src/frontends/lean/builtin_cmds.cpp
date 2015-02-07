@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
+#include "kernel/default_converter.h"
 #include "library/io_state_stream.h"
 #include "library/scoped_ext.h"
 #include "library/aliases.h"
@@ -322,15 +323,25 @@ environment check_cmd(parser & p) {
     return p.env();
 }
 
+class all_transparent_converter : public default_converter {
+public:
+    all_transparent_converter(environment const & env):
+        default_converter(env, optional<module_idx>(), true) {
+    }
+    virtual bool is_opaque(declaration const &) const {
+        return false;
+    }
+};
+
 environment eval_cmd(parser & p) {
     bool whnf   = false;
-    bool strict = false;
+    bool all_transparent = false;
     if (p.curr_is_token(get_whnf_tk())) {
         p.next();
         whnf = true;
-    } else if (p.curr_is_token(get_strict_tk())) {
+    } else if (p.curr_is_token(get_all_transparent_tk())) {
         p.next();
-        strict = true;
+        all_transparent = true;
     }
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
@@ -338,10 +349,11 @@ environment eval_cmd(parser & p) {
     if (whnf) {
         auto tc = mk_type_checker(p.env(), p.mk_ngen(), true);
         r = tc->whnf(e).first;
-    } else if (strict) {
-        r = normalize(p.env(), ls, e);
+    } else if (all_transparent) {
+        type_checker tc(p.env(), name_generator(),
+                        std::unique_ptr<converter>(new all_transparent_converter(p.env())));
+        r = normalize(tc, ls, e);
     } else {
-        transparent_scope scope;
         r = normalize(p.env(), ls, e);
     }
     flycheck_information info(p.regular_stream());

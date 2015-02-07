@@ -14,16 +14,6 @@ Author: Leonardo de Moura
 #include "kernel/default_converter.h"
 
 namespace lean {
-// Temporary hack for ignoring opaque annotations in the kernel
-LEAN_THREAD_VALUE(unsigned, g_everything_transparent, false);
-
-transparent_scope::transparent_scope():m_old_value(g_everything_transparent) {
-    g_everything_transparent = true;
-}
-transparent_scope::~transparent_scope() {
-    g_everything_transparent = m_old_value;
-}
-
 /**
    \brief Predicate for deciding whether \c d is an opaque definition or not.
 
@@ -46,7 +36,6 @@ transparent_scope::~transparent_scope() {
 */
 bool is_opaque(declaration const & d, extra_opaque_pred const & pred, optional<module_idx> const & mod_idx) {
     lean_assert(d.is_definition());
-    if (g_everything_transparent) return false; // temporary hack
     if (d.is_theorem()) return true;                               // theorems are always opaque
     if (pred(d.get_name())) return true;                           // extra_opaque predicate overrides opaque flag
     if (!d.is_opaque()) return false;                              // d is a transparent definition

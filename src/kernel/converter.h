@@ -25,14 +25,6 @@ public:
     pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s, type_checker & c);
 };
 
-/** \brief Temporary hack for creating a scope where the opaque annotations are ignored in the kernel. */
-class transparent_scope {
-    bool m_old_value;
-public:
-    transparent_scope();
-    ~transparent_scope();
-};
-
 std::unique_ptr<converter> mk_dummy_converter();
 std::unique_ptr<converter> mk_default_converter(environment const & env, optional<module_idx> mod_idx = optional<module_idx>(),
                                                 bool memoize = true);

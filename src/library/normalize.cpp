@@ -199,6 +199,11 @@ expr normalize(type_checker & tc, expr const & e) {
     return normalize_fn(tc, save_cnstrs)(e);
 }
 
+expr normalize(type_checker & tc, level_param_names const & ls, expr const & e) {
+    bool save_cnstrs = false;
+    return normalize_fn(tc, save_cnstrs)(ls, e);
+}
+
 expr normalize(type_checker & tc, expr const & e, constraint_seq & cs) {
     normalize_fn fn(tc);
     expr r = fn(e);

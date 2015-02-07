@@ -90,7 +90,7 @@ void init_token_table(token_table & t) {
         {"theorem", "axiom", "variable", "protected", "private", "opaque", "definition", "example", "coercion",
          "variables", "parameter", "parameters", "constant", "constants", "[persistent]", "[visible]", "[instance]",
          "[off]", "[on]", "[none]", "[class]", "[coercion]", "[reducible]", "[irreducible]", "[parsing-only]", "[multiple-instances]",
-         "evaluate", "check", "eval", "[wf]", "[whnf]", "[strict]", "[priority", "[unfold-c", "print", "end", "namespace", "section", "prelude",
+         "evaluate", "check", "eval", "[wf]", "[whnf]", "[all-transparent]", "[priority", "[unfold-c", "print", "end", "namespace", "section", "prelude",
          "import", "inductive", "record", "structure", "module", "universe", "universes", "local",
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation", "context",
          "exit", "set_option", "open", "export", "calc_subst", "calc_refl", "calc_trans", "calc_symm", "tactic_hint",

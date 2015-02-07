@@ -35,7 +35,6 @@ protected:
     optional<pair<expr, constraint_seq>> norm_ext(expr const & e);
     optional<expr> d_norm_ext(expr const & e, constraint_seq & cs);
     expr whnf_core(expr const & e);
-    bool is_opaque_core(declaration const & d) const;
     expr unfold_name_core(expr e, unsigned w);
     expr unfold_names(expr const & e, unsigned w);
     optional<declaration> is_delta(expr const & e);
@@ -75,6 +74,7 @@ protected:
 public:
     default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize,
                       extra_opaque_pred const & pred);
+    default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize);
 
     virtual bool is_opaque(declaration const & d) const;
     virtual optional<module_idx> get_module_idx() const { return m_module_idx; }

@@ -20,8 +20,10 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/metavar_closure.h"
 #include "library/type_util.h"
+#include "library/local_context.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/apply_tactic.h"
+#include "library/tactic/class_instance_synth.h"
 
 namespace lean {
 /**
@@ -61,15 +63,19 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
     if (empty(gs))
         return proof_state_seq();
     name_generator ngen = s.get_ngen();
-    std::shared_ptr<type_checker> tc(mk_type_checker(env, ngen.mk_child(), s.relax_main_opaque()));
-    goal  g          = head(gs);
-    goals tail_gs    = tail(gs);
-    expr  t          = g.get_type();
-    expr  e          = _e;
-    auto e_t_cs      = tc->infer(e);
+    bool relax_opaque = s.relax_main_opaque();
+    std::shared_ptr<type_checker> tc(mk_type_checker(env, ngen.mk_child(), relax_opaque));
+    goal  g           = head(gs);
+    goals tail_gs     = tail(gs);
+    expr  t           = g.get_type();
+    expr  e           = _e;
+    auto e_t_cs       = tc->infer(e);
     e_t_cs.second.linearize(cs);
-    expr  e_t        = e_t_cs.first;
+    expr  e_t         = e_t_cs.first;
     buffer<expr> metas;
+    local_context ctx;
+    bool initialized_ctx = false;
+    unifier_config cfg(ios.get_options());
     if (add_meta) {
         // unsigned num_t   = get_expect_num_args(*tc, t);
         unsigned num_e_t = get_expect_num_args(*tc, e_t);
@@ -80,19 +86,34 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
             auto e_t_cs = tc->whnf(e_t);
             e_t_cs.second.linearize(cs);
             e_t        = e_t_cs.first;
-            expr meta  = g.mk_meta(ngen.next(), binding_domain(e_t));
+            expr meta;
+            if (binding_info(e_t).is_inst_implicit()) {
+                if (!initialized_ctx) {
+                    ctx = g.to_local_context();
+                    initialized_ctx = true;
+                }
+                bool use_local_insts = true;
+                bool is_strict       = false;
+                auto mc = mk_class_instance_elaborator(
+                    env, ios, ctx, ngen.next(), optional<name>(),
+                    relax_opaque, use_local_insts, is_strict,
+                    some_expr(binding_domain(e_t)), e.get_tag(), cfg, nullptr);
+                meta    = mc.first;
+                cs.push_back(mc.second);
+            } else {
+                meta  = g.mk_meta(ngen.next(), binding_domain(e_t));
+            }
             e          = mk_app(e, meta);
             e_t        = instantiate(binding_body(e_t), meta);
             metas.push_back(meta);
         }
     }
     metavar_closure cls(t);
-    cls.mk_constraints(s.get_subst(), justification(), s.relax_main_opaque());
+    cls.mk_constraints(s.get_subst(), justification(), relax_opaque);
     pair<bool, constraint_seq> dcs = tc->is_def_eq(t, e_t);
     if (!dcs.first)
         return proof_state_seq();
     dcs.second.linearize(cs);
-    unifier_config cfg(ios.get_options());
     unify_result_seq rseq = unify(env, cs.size(), cs.data(), ngen.mk_child(), s.get_subst(), cfg);
     list<expr> meta_lst   = to_list(metas.begin(), metas.end());
     return map2<proof_state>(rseq, [=](pair<substitution, constraints> const & p) -> proof_state {

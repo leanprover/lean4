@@ -27,11 +27,11 @@ protected:
     delayed_justification *                     m_jst;
 
     virtual bool may_reduce_later(expr const & e);
+    virtual optional<pair<expr, constraint_seq>> norm_ext(expr const & e);
 
     pair<expr, constraint_seq> infer_type(expr const & e) { return converter::infer_type(*m_tc, e); }
     constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j);
     optional<expr> expand_macro(expr const & m);
-    optional<pair<expr, constraint_seq>> norm_ext(expr const & e);
     optional<expr> d_norm_ext(expr const & e, constraint_seq & cs);
     expr whnf_core(expr const & e);
     expr unfold_name_core(expr e, unsigned w);

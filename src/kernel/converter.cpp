@@ -103,25 +103,6 @@ name converter::mk_fresh_name(type_checker & tc) { return tc.mk_fresh_name(); }
 pair<expr, constraint_seq> converter::infer_type(type_checker & tc, expr const & e) { return tc.infer_type(e); }
 extension_context & converter::get_extension(type_checker & tc) { return tc.get_extension(); }
 
-std::unique_ptr<converter> mk_default_converter(environment const & env, optional<module_idx> mod_idx,
-                                                bool memoize, extra_opaque_pred const & pred) {
-    return std::unique_ptr<converter>(new default_converter(env, mod_idx, memoize, pred));
-}
-std::unique_ptr<converter> mk_default_converter(environment const & env, optional<module_idx> mod_idx,
-                                                bool memoize) {
-    return mk_default_converter(env, mod_idx, memoize, g_always_false);
-}
-std::unique_ptr<converter> mk_default_converter(environment const & env, bool unfold_opaque_main, bool memoize,
-                                                extra_opaque_pred const & pred) {
-    if (unfold_opaque_main)
-        return mk_default_converter(env, optional<module_idx>(0), memoize, pred);
-    else
-        return mk_default_converter(env, optional<module_idx>(), memoize, pred);
-}
-std::unique_ptr<converter> mk_default_converter(environment const & env, bool unfold_opaque_main, bool memoize) {
-    return mk_default_converter(env, unfold_opaque_main, memoize, g_always_false);
-}
-
 void initialize_converter() {
     g_opt_main_module_idx = new optional<module_idx>(g_main_module_idx);
     g_no_delayed_jst      = new no_delayed_justification();

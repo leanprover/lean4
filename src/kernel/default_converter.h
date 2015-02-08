@@ -18,7 +18,6 @@ protected:
     environment                                 m_env;
     optional<module_idx>                        m_module_idx;
     bool                                        m_memoize;
-    extra_opaque_pred                           m_extra_pred;
     expr_struct_map<expr>                       m_whnf_core_cache;
     expr_struct_map<pair<expr, constraint_seq>> m_whnf_cache;
 
@@ -72,8 +71,6 @@ protected:
     pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s);
 
 public:
-    default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize,
-                      extra_opaque_pred const & pred);
     default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize = true);
     default_converter(environment const & env, bool relax_main_opaque, bool memoize = true);
 

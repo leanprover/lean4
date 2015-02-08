@@ -14,15 +14,11 @@ Author: Leonardo de Moura
 namespace lean {
 static expr * g_dont_care = nullptr;
 
-default_converter::default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize,
-                                     extra_opaque_pred const & pred):
-    m_env(env), m_module_idx(mod_idx), m_memoize(memoize), m_extra_pred(pred) {
+default_converter::default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize):
+    m_env(env), m_module_idx(mod_idx), m_memoize(memoize) {
     m_tc  = nullptr;
     m_jst = nullptr;
 }
-
-default_converter::default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize):
-    default_converter(env, mod_idx, memoize, [](name const &) { return false; }) {}
 
 default_converter::default_converter(environment const & env, bool relax_main_opaque, bool memoize):
     default_converter(env, relax_main_opaque ? optional<module_idx>(0) : optional<module_idx>(), memoize) {}
@@ -114,7 +110,6 @@ expr default_converter::whnf_core(expr const & e) {
 bool default_converter::is_opaque(declaration const & d) const {
     lean_assert(d.is_definition());
     if (d.is_theorem()) return true;                               // theorems are always opaque
-    if (m_extra_pred(d.get_name())) return true;                   // extra_opaque predicate overrides opaque flag
     if (!d.is_opaque()) return false;                              // d is a transparent definition
     if (m_module_idx && d.get_module_idx() == *m_module_idx) return false; // the opaque definitions in mod_idx are considered transparent
     return true;                                                   // d is opaque

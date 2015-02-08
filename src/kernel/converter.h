@@ -27,9 +27,8 @@ public:
 
 std::unique_ptr<converter> mk_dummy_converter();
 
-bool is_opaque(declaration const & d, extra_opaque_pred const & pred, optional<module_idx> const & mod_idx);
-optional<declaration> is_delta(environment const & env, expr const & e, extra_opaque_pred const & pred, optional<module_idx> const & mod_idx);
-optional<declaration> is_delta(environment const & env, expr const & e, extra_opaque_pred const & pred);
+/** \brief Default procedure for deciding whether a declaration is opaque or not */
+bool is_opaque(declaration const & d, optional<module_idx> const & mod_idx);
 optional<declaration> is_delta(environment const & env, expr const & e);
 
 void initialize_converter();

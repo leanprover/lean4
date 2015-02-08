@@ -24,64 +24,43 @@ namespace lean {
    We also believe it increases the modularity of Lean developments by minimizing the dependency on how things are defined.
    We should view non-opaque definitions as "inline definitions" used in programming languages such as C++.
 
-   2) Whenever type checking an expression, the user can provide a predicate that is true for for additional definitions that
-   should be considered opaque. Note that, if \c t type checks when using predicate P, then t also type checks
-   (modulo resource constraints) without it. Again, the purpose of the predicate is to mimimize the number
-   of delta-reduction steps.
-
-   3) To be able to prove theorems about an opaque definition, we treat an opaque definition D in a module M as
+   2) To be able to prove theorems about an opaque definition, we treat an opaque definition D in a module M as
    transparent when we are type checking another definition/theorem D' also in M. This rule only applies if
    D is not a theorem, nor pred(D) is true. To implement this feature, this class has a field
    m_module_idx that is not none when this rule should be applied.
 */
-bool is_opaque(declaration const & d, extra_opaque_pred const & pred, optional<module_idx> const & mod_idx) {
+bool is_opaque(declaration const & d, optional<module_idx> const & mod_idx) {
     lean_assert(d.is_definition());
     if (d.is_theorem()) return true;                               // theorems are always opaque
-    if (pred(d.get_name())) return true;                           // extra_opaque predicate overrides opaque flag
     if (!d.is_opaque()) return false;                              // d is a transparent definition
     if (mod_idx && d.get_module_idx() == *mod_idx) return false;   // the opaque definitions in mod_idx are considered transparent
     return true;                                                   // d is opaque
 }
 
-extra_opaque_pred g_always_false([](name const &) { return false; });
-extra_opaque_pred const & no_extra_opaque() {
-    return g_always_false;
-}
+static optional<module_idx> * g_opt_main_module_idx = nullptr;
 
-/** \brief Auxiliary method for \c is_delta */
-static optional<declaration> is_delta_core(environment const & env, expr const & e, extra_opaque_pred const & pred,
-                                           optional<module_idx> const & mod_idx) {
-    if (is_constant(e)) {
-        if (auto d = env.find(const_name(e)))
-            if (d->is_definition() && !is_opaque(*d, pred, mod_idx))
+optional<declaration> is_delta(environment const & env, expr const & e) {
+    expr const & f = get_app_fn(e);
+    if (is_constant(f)) {
+        if (auto d = env.find(const_name(f)))
+            if (d->is_definition() && !is_opaque(*d, *g_opt_main_module_idx))
                 return d;
     }
     return none_declaration();
 }
 
-/**
-   \brief Return some definition \c d iff \c e is a target for delta-reduction, and the given definition is the one
-   to be expanded.
-*/
-optional<declaration> is_delta(environment const & env, expr const & e,
-                               extra_opaque_pred const & pred, optional<module_idx> const & mod_idx) {
-    return is_delta_core(env, get_app_fn(e), pred, mod_idx);
-}
-
-static optional<module_idx> * g_opt_main_module_idx = nullptr;
-optional<declaration> is_delta(environment const & env, expr const & e, extra_opaque_pred const & pred) {
-    return is_delta(env, e, pred, *g_opt_main_module_idx);
-}
-
-optional<declaration> is_delta(environment const & env, expr const & e) {
-    return is_delta(env, e, g_always_false);
-}
-
-
 static no_delayed_justification * g_no_delayed_jst = nullptr;
+
 pair<bool, constraint_seq> converter::is_def_eq(expr const & t, expr const & s, type_checker & c) {
     return is_def_eq(t, s, c, *g_no_delayed_jst);
 }
+
+name converter::mk_fresh_name(type_checker & tc) { return tc.mk_fresh_name(); }
+
+pair<expr, constraint_seq> converter::infer_type(type_checker & tc, expr const & e) { return tc.infer_type(e); }
+
+extension_context & converter::get_extension(type_checker & tc) { return tc.get_extension(); }
+
 
 /** \brief Do nothing converter */
 struct dummy_converter : public converter {
@@ -98,10 +77,6 @@ struct dummy_converter : public converter {
 std::unique_ptr<converter> mk_dummy_converter() {
     return std::unique_ptr<converter>(new dummy_converter());
 }
-
-name converter::mk_fresh_name(type_checker & tc) { return tc.mk_fresh_name(); }
-pair<expr, constraint_seq> converter::infer_type(type_checker & tc, expr const & e) { return tc.infer_type(e); }
-extension_context & converter::get_extension(type_checker & tc) { return tc.get_extension(); }
 
 void initialize_converter() {
     g_opt_main_module_idx = new optional<module_idx>(g_main_module_idx);

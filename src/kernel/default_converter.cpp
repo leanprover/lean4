@@ -158,7 +158,13 @@ expr default_converter::unfold_names(expr const & e, unsigned w) {
    to be expanded.
 */
 optional<declaration> default_converter::is_delta(expr const & e) {
-    return ::lean::is_delta(m_env, get_app_fn(e), m_extra_pred, m_module_idx);
+    expr const & f = get_app_fn(e);
+    if (is_constant(f)) {
+        if (auto d = m_env.find(const_name(f)))
+            if (d->is_definition() && !is_opaque(*d))
+                return d;
+    }
+    return none_declaration();
 }
 
 /**

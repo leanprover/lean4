@@ -24,6 +24,9 @@ default_converter::default_converter(environment const & env, optional<module_id
 default_converter::default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize):
     default_converter(env, mod_idx, memoize, [](name const &) { return false; }) {}
 
+default_converter::default_converter(environment const & env, bool relax_main_opaque, bool memoize):
+    default_converter(env, relax_main_opaque ? optional<module_idx>(0) : optional<module_idx>(), memoize) {}
+
 constraint default_converter::mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j) {
     return ::lean::mk_eq_cnstr(lhs, rhs, j, static_cast<bool>(m_module_idx));
 }

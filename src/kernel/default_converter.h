@@ -74,7 +74,8 @@ protected:
 public:
     default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize,
                       extra_opaque_pred const & pred);
-    default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize);
+    default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize = true);
+    default_converter(environment const & env, bool relax_main_opaque, bool memoize = true);
 
     virtual bool is_opaque(declaration const & d) const;
     virtual optional<module_idx> get_module_idx() const { return m_module_idx; }

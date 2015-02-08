@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/default_converter.h"
 #include "kernel/inductive/inductive.h"
 #include "library/normalize.h"
 #include "library/kernel_serializer.h"
@@ -479,22 +480,29 @@ class rewrite_fn {
         return m_g.mk_meta(m_ngen.next(), type);
     }
 
+    class rewriter_converter : public default_converter {
+        list<name> const & m_to_unfold;
+        bool             & m_unfolded;
+    public:
+        rewriter_converter(environment const & env, bool relax_main_opaque, list<name> const & to_unfold,
+                           bool & unfolded):
+            default_converter(env, relax_main_opaque),
+            m_to_unfold(to_unfold), m_unfolded(unfolded) {}
+        virtual bool is_opaque(declaration const & d) const {
+            if (std::find(m_to_unfold.begin(), m_to_unfold.end(), d.get_name()) != m_to_unfold.end()) {
+                m_unfolded = true;
+                return false;
+            } else {
+                return true;
+            }
+        }
+    };
+
     optional<expr> reduce(expr const & e, list<name> const & to_unfold) {
-        bool unfolded = !to_unfold;
-        extra_opaque_pred pred([&](name const & n) {
-                // everything is opaque but to_unfold
-                if (std::find(to_unfold.begin(), to_unfold.end(), n) != to_unfold.end()) {
-                    unfolded = true;
-                    return false;
-                } else {
-                    return true;
-                }
-            });
+        bool unfolded          = !to_unfold;
         bool relax_main_opaque = false;
-        bool memoize           = true;
         auto tc = new type_checker(m_env, m_ngen.mk_child(),
-                                   mk_default_converter(m_env, relax_main_opaque,
-                                                        memoize, pred));
+                                   std::unique_ptr<converter>(new rewriter_converter(m_env, relax_main_opaque, to_unfold, unfolded)));
         constraint_seq cs;
         expr r = normalize(*tc, e, cs);
         if (!unfolded || cs) // FAIL if didn't unfolded or generated constraints

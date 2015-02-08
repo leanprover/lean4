@@ -775,7 +775,10 @@ struct unifier_fn {
         lean_unreachable(); // LCOV_EXCL_LINE
     }
 
-    optional<declaration> is_delta(expr const & e) { return ::lean::is_delta(m_env, e); }
+    optional<declaration> is_delta(expr const & e) {
+        bool relax_opaque = true;
+        return m_tc[relax_opaque]->is_delta(e);
+    }
 
     /** \brief Return true if lhs and rhs are of the form (f ...) where f can be expanded */
     bool is_eq_deltas(expr const & lhs, expr const & rhs) {

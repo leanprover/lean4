@@ -213,6 +213,8 @@ public:
     /** \brief Return a metavariable that may be stucking the \c e's reduction. */
     optional<expr> is_stuck(expr const & e);
 
+    optional<declaration> is_delta(expr const & e) const { return m_conv->is_delta(e); }
+
     template<typename F>
     typename std::result_of<F()>::type with_params(level_param_names const & ps, F && f) {
         flet<level_param_names const *> updt(m_params, &ps);

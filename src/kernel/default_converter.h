@@ -36,7 +36,6 @@ protected:
     expr whnf_core(expr const & e);
     expr unfold_name_core(expr e, unsigned w);
     expr unfold_names(expr const & e, unsigned w);
-    optional<declaration> is_delta(expr const & e);
     expr whnf_core(expr e, unsigned w);
 
     expr whnf(expr const & e_prime, constraint_seq & cs);
@@ -74,6 +73,7 @@ public:
     default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize = true);
     default_converter(environment const & env, bool relax_main_opaque, bool memoize = true);
 
+    virtual optional<declaration> is_delta(expr const & e) const;
     virtual bool is_opaque(declaration const & d) const;
     virtual optional<module_idx> get_module_idx() const { return m_module_idx; }
 

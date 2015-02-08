@@ -22,14 +22,11 @@ public:
     virtual pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & j) = 0;
     virtual optional<module_idx> get_module_idx() const = 0;
     virtual bool is_opaque(declaration const & d) const = 0;
+    virtual optional<declaration> is_delta(expr const & e) const = 0;
     pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s, type_checker & c);
 };
 
 std::unique_ptr<converter> mk_dummy_converter();
-
-/** \brief Default procedure for deciding whether a declaration is opaque or not */
-bool is_opaque(declaration const & d, optional<module_idx> const & mod_idx);
-optional<declaration> is_delta(environment const & env, expr const & e);
 
 void initialize_converter();
 void finalize_converter();

@@ -108,7 +108,11 @@ expr default_converter::whnf_core(expr const & e) {
 }
 
 bool default_converter::is_opaque(declaration const & d) const {
-    return ::lean::is_opaque(d, m_module_idx);
+    lean_assert(d.is_definition());
+    if (d.is_theorem()) return true;                               // theorems are always opaque
+    if (!d.is_opaque()) return false;                              // d is a transparent definition
+    if (m_module_idx && d.get_module_idx() == *m_module_idx) return false; // the opaque definitions in mod_idx are considered transparent
+    return true;                                                   // d is opaque
 }
 
 /** \brief Expand \c e if it is non-opaque constant with weight >= w */
@@ -148,7 +152,7 @@ expr default_converter::unfold_names(expr const & e, unsigned w) {
    \brief Return some definition \c d iff \c e is a target for delta-reduction, and the given definition is the one
    to be expanded.
 */
-optional<declaration> default_converter::is_delta(expr const & e) {
+optional<declaration> default_converter::is_delta(expr const & e) const {
     expr const & f = get_app_fn(e);
     if (is_constant(f)) {
         if (auto d = m_env.find(const_name(f)))

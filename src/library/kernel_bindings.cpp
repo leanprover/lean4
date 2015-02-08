@@ -1814,26 +1814,12 @@ static void open_substitution(lua_State * L) {
 // type_checker
 DECL_UDATA(type_checker_ref)
 
-static void get_type_checker_args(lua_State * L, int idx, optional<module_idx> & mod_idx, bool & memoize, name_set & extra_opaque) {
-    mod_idx      = get_opt_uint_named_param(L, idx, "module_idx", optional<module_idx>());
-    memoize      = get_bool_named_param(L, idx, "memoize", true);
-    extra_opaque = get_name_set_named_param(L, idx, "extra_opaque", name_set());
-}
-
 static int mk_type_checker(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 1) {
         return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1)));
-    } else if (nargs == 2) {
-        return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2)));
     } else {
-        optional<module_idx> mod_idx; bool memoize; name_set extra_opaque;
-        get_type_checker_args(L, 3, mod_idx, memoize, extra_opaque);
-        extra_opaque_pred pred([=](name const & n) { return extra_opaque.contains(n); });
-        auto t = std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2),
-                                                mk_default_converter(to_environment(L, 1), mod_idx, memoize, pred),
-                                                memoize);
-        return push_type_checker_ref(L, t);
+        return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2)));
     }
 }
 static int type_checker_whnf(lua_State * L) { return push_ecs(L, to_type_checker_ref(L, 1)->whnf(to_expr(L, 2))); }

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
+#include "kernel/default_converter.h"
 #include "library/kernel_serializer.h"
 #include "library/scoped_ext.h"
 #include "library/reducible.h"
@@ -138,12 +139,15 @@ std::unique_ptr<type_checker> mk_type_checker(environment const & env, bool rela
     return mk_type_checker(env, name_generator(*g_tmp_prefix), relax_main_opaque, rb);
 }
 
+class opaque_converter : public default_converter {
+public:
+    opaque_converter(environment const & env): default_converter(env, true, true) {}
+    virtual bool is_opaque(declaration const &) const { return true; }
+};
+
 std::unique_ptr<type_checker> mk_opaque_type_checker(environment const & env, name_generator const & ngen) {
-    extra_opaque_pred pred([=](name const &) { return true; }); // everything is opaque
-    bool relax_main_opaque = false;
-    bool memoize = true;
-    return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env, relax_main_opaque,
-                                                                                          memoize, pred)));
+    return std::unique_ptr<type_checker>(new type_checker(env, ngen,
+                                                          std::unique_ptr<converter>(new opaque_converter(env))));
 }
 
 static int mk_opaque_type_checker(lua_State * L) {

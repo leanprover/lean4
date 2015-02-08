@@ -77,6 +77,7 @@ public:
     virtual bool is_opaque(declaration const & d) const;
     virtual optional<module_idx> get_module_idx() const { return m_module_idx; }
 
+    virtual bool may_reduce_later(expr const & e, type_checker & c);
     virtual pair<expr, constraint_seq> whnf(expr const & e_prime, type_checker & c);
     virtual pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst);
 };

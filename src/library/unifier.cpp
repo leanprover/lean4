@@ -940,7 +940,9 @@ struct unifier_fn {
             unsigned cidx = add_cnstr(c, cnstr_group::FlexFlex);
             add_meta_occ(lhs, cidx);
             add_meta_occ(rhs, cidx);
-        } else if (m_plugin->delay_constraint(*m_tc[relax], c)) {
+        } else if (m_tc[relax]->may_reduce_later(lhs) ||
+                   m_tc[relax]->may_reduce_later(rhs) ||
+                   m_plugin->delay_constraint(*m_tc[relax], c)) {
             unsigned cidx = add_cnstr(c, cnstr_group::PluginDelayed);
             add_meta_occs(lhs, cidx);
             add_meta_occs(rhs, cidx);

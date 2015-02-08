@@ -215,6 +215,8 @@ public:
 
     optional<declaration> is_delta(expr const & e) const { return m_conv->is_delta(e); }
 
+    bool may_reduce_later(expr const & e) { return m_conv->may_reduce_later(e, *this); }
+
     template<typename F>
     typename std::result_of<F()>::type with_params(level_param_names const & ps, F && f) {
         flet<level_param_names const *> updt(m_params, &ps);

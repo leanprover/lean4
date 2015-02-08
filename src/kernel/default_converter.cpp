@@ -51,6 +51,10 @@ bool default_converter::may_reduce_later(expr const & e) {
     return static_cast<bool>(m_env.norm_ext().may_reduce_later(e, get_extension(*m_tc)));
 }
 
+bool default_converter::may_reduce_later(expr const & e, type_checker & c) {
+    return static_cast<bool>(m_env.norm_ext().may_reduce_later(e, get_extension(c)));
+}
+
 /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */
 expr default_converter::whnf_core(expr const & e) {
     check_system("whnf");

@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
-#include "kernel/default_converter.h"
 #include "library/kernel_serializer.h"
 #include "library/scoped_ext.h"
 #include "library/reducible.h"
@@ -117,21 +116,35 @@ bool is_reducible_off(environment const & env, name const & n) {
     return s.m_reducible_off.contains(n);
 }
 
+reducible_on_converter::reducible_on_converter(environment const & env, bool relax_main_opaque, bool memoize):
+    default_converter(env, relax_main_opaque, memoize) {
+    m_reducible_on = reducible_ext::get_state(env).m_reducible_on;
+}
+
+bool reducible_on_converter::is_opaque(declaration const & d) const {
+    if (!m_reducible_on.contains(d.get_name())) return true;
+    return default_converter::is_opaque(d);
+}
+
+reducible_off_converter::reducible_off_converter(environment const & env, bool relax_main_opaque, bool memoize):
+    default_converter(env, relax_main_opaque, memoize) {
+    m_reducible_off = reducible_ext::get_state(env).m_reducible_off;
+}
+
+bool reducible_off_converter::is_opaque(declaration const & d) const {
+    if (m_reducible_off.contains(d.get_name())) return true;
+    return default_converter::is_opaque(d);
+}
+
 std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_generator const & ngen,
                                               bool relax_main_opaque, reducible_behavior rb,
                                               bool memoize) {
-    reducible_state const & s = reducible_ext::get_state(env);
     if (rb == OpaqueIfNotReducibleOn) {
-        name_set reducible_on  = s.m_reducible_on;
-        name_set reducible_off = s.m_reducible_off;
-        extra_opaque_pred pred([=](name const & n) { return !reducible_on.contains(n); });
-        return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env, relax_main_opaque,
-                                                                                              memoize, pred)));
+        return std::unique_ptr<type_checker>(new type_checker(env, ngen,
+               std::unique_ptr<converter>(new reducible_on_converter(env, relax_main_opaque, memoize))));
     } else {
-        name_set reducible_off = s.m_reducible_off;
-        extra_opaque_pred pred([=](name const & n) { return reducible_off.contains(n); });
-        return std::unique_ptr<type_checker>(new type_checker(env, ngen, mk_default_converter(env, relax_main_opaque,
-                                                                                              memoize, pred)));
+        return std::unique_ptr<type_checker>(new type_checker(env, ngen,
+               std::unique_ptr<converter>(new reducible_off_converter(env, relax_main_opaque, memoize))));
     }
 }
 

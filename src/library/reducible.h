@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include "kernel/type_checker.h"
+#include "kernel/default_converter.h"
 
 namespace lean {
 enum class reducible_status { On, Off, None };
@@ -32,6 +33,20 @@ bool is_reducible_on(environment const & env, name const & n);
     \see is_reducible_on
 */
 bool is_reducible_off(environment const & env, name const & n);
+
+class reducible_on_converter : public default_converter {
+    name_set m_reducible_on;
+public:
+    reducible_on_converter(environment const & env, bool relax_main_opaque, bool memoize);
+    virtual bool is_opaque(declaration const & d) const;
+};
+
+class reducible_off_converter : public default_converter {
+    name_set m_reducible_off;
+public:
+    reducible_off_converter(environment const & env, bool relax_main_opaque, bool memoize);
+    virtual bool is_opaque(declaration const & d) const;
+};
 
 enum reducible_behavior { OpaqueIfNotReducibleOn, OpaqueIfReducibleOff };
 

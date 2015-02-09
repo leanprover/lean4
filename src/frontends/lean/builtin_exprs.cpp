@@ -233,21 +233,28 @@ static expr parse_proof(parser & p, expr const & prop) {
         p.next();
         parser::local_scope scope(p);
         buffer<expr> locals;
+        buffer<expr> new_locals;
         while (!p.curr_is_token(get_comma_tk())) {
             auto id_pos = p.pos();
             expr l      = p.parse_expr();
             if (!is_local(l))
                 throw parser_error("invalid 'using' declaration for 'have', local expected", id_pos);
-            p.add_local(l);
+            expr new_l = l;
+            binder_info bi = local_info(l);
+            if (!bi.is_contextual())
+                new_l = update_local(l, bi.update_contextual(true));
+            p.add_local(new_l);
             locals.push_back(l);
+            new_locals.push_back(new_l);
         }
         p.next(); // consume ','
         expr pr = parse_proof(p, prop);
         unsigned i = locals.size();
         while (i > 0) {
             --i;
-            expr l = locals[i];
-            pr = p.save_pos(Fun(l, pr), using_pos);
+            expr l     = locals[i];
+            expr new_l = new_locals[i];
+            pr = p.save_pos(Fun(new_l, pr), using_pos);
             pr = p.save_pos(mk_app(pr, l), using_pos);
         }
         return pr;

@@ -335,6 +335,18 @@ expr mk_pair(type_checker & tc, expr const & a, expr const & b, bool prop) {
 expr mk_pr1(type_checker & tc, expr const & p, bool prop) { return prop ? mk_and_elim_left(tc, p) : mk_pr1(tc, p); }
 expr mk_pr2(type_checker & tc, expr const & p, bool prop) { return prop ? mk_and_elim_right(tc, p) : mk_pr2(tc, p); }
 
+bool is_iff(expr const & e) {
+    expr const & fn = get_app_fn(e);
+    return is_constant(fn) && const_name(fn) == get_iff_name();
+}
+expr mk_iff(expr const & lhs, expr const & rhs) {
+    return mk_app(mk_constant(get_iff_name()), lhs, rhs);
+}
+
+expr mk_iff_refl(expr const & a) {
+    return mk_app(mk_constant(get_iff_refl_name()), a);
+}
+
 expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs) {
     expr A    = tc.whnf(tc.infer(lhs).first).first;
     level lvl = sort_level(tc.ensure_type(A).first);

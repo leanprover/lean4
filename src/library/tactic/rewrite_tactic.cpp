@@ -1108,12 +1108,12 @@ class rewrite_fn {
 
     bool check_trivial_goal() {
         expr type = m_g.get_type();
-        if (is_eq(type)) {
+        if (is_eq(type) || (is_iff(type) && m_env.impredicative())) {
             constraint_seq cs;
             expr lhs = app_arg(app_fn(type));
             expr rhs = app_arg(type);
             if (m_unifier_tc->is_def_eq(lhs, rhs, justification(), cs) && !cs) {
-                expr H = mk_refl(*m_tc, lhs);
+                expr H = is_eq(type) ? mk_refl(*m_tc, lhs) : mk_iff_refl(lhs);
                 m_subst.assign(m_g.get_name(), m_g.abstract(H));
                 return true;
             } else {

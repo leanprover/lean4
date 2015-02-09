@@ -28,6 +28,8 @@ name const & get_false_name();
 name const & get_heq_name();
 name const & get_heq_refl_name();
 name const & get_heq_to_eq_name();
+name const & get_iff_name();
+name const & get_iff_refl_name();
 name const & get_ite_name();
 name const & get_lift_name();
 name const & get_lift_down_name();

@@ -133,6 +133,10 @@ bool is_eq_a_a(expr const & e);
 /** \brief Return true iff \c e is of the form (eq A a a') where \c a and \c a' are definitionally equal */
 bool is_eq_a_a(type_checker & tc, expr const & e);
 
+bool is_iff(expr const & e);
+expr mk_iff(expr const & lhs, expr const & rhs);
+expr mk_iff_refl(expr const & a);
+
 /** \brief Create a telescope equality for HoTT library.
     This procedure assumes eq supports dependent elimination.
     For HoTT, we can't use heterogeneous equality.

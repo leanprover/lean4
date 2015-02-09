@@ -21,6 +21,8 @@ false
 heq
 heq.refl
 heq.to_eq
+iff
+iff.refl
 ite
 lift
 lift.down

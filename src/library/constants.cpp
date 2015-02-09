@@ -26,6 +26,8 @@ name const * g_false = nullptr;
 name const * g_heq = nullptr;
 name const * g_heq_refl = nullptr;
 name const * g_heq_to_eq = nullptr;
+name const * g_iff = nullptr;
+name const * g_iff_refl = nullptr;
 name const * g_ite = nullptr;
 name const * g_lift = nullptr;
 name const * g_lift_down = nullptr;
@@ -134,6 +136,8 @@ void initialize_constants() {
     g_heq = new name{"heq"};
     g_heq_refl = new name{"heq", "refl"};
     g_heq_to_eq = new name{"heq", "to_eq"};
+    g_iff = new name{"iff"};
+    g_iff_refl = new name{"iff", "refl"};
     g_ite = new name{"ite"};
     g_lift = new name{"lift"};
     g_lift_down = new name{"lift", "down"};
@@ -243,6 +247,8 @@ void finalize_constants() {
     delete g_heq;
     delete g_heq_refl;
     delete g_heq_to_eq;
+    delete g_iff;
+    delete g_iff_refl;
     delete g_ite;
     delete g_lift;
     delete g_lift_down;
@@ -351,6 +357,8 @@ name const & get_false_name() { return *g_false; }
 name const & get_heq_name() { return *g_heq; }
 name const & get_heq_refl_name() { return *g_heq_refl; }
 name const & get_heq_to_eq_name() { return *g_heq_to_eq; }
+name const & get_iff_name() { return *g_iff; }
+name const & get_iff_refl_name() { return *g_iff_refl; }
 name const & get_ite_name() { return *g_ite; }
 name const & get_lift_name() { return *g_lift; }
 name const & get_lift_down_name() { return *g_lift_down; }

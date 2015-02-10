@@ -184,4 +184,14 @@
     (when lean-delete-trailing-whitespace
       (delete-trailing-whitespace)))
 
+(defun lean-choose-minor-mode-based-on-extension ()
+  ;; Based on the extension of buffer, return either 'hott or 'standard
+  (interactive)
+  (let ((file-name (buffer-file-name)))
+    (cond ((s-ends-with? ".lean" file-name)
+           'standard)
+          ((s-ends-with? ".hlean" file-name)
+           'hott)
+          (t 'standard))))
+
 (provide 'lean-util)

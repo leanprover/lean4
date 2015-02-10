@@ -152,16 +152,6 @@ enabled and disabled respectively.")
   (add-to-list 'lean-hooks-alist '(after-change-functions  . lean-after-change-function))
   (add-to-list 'lean-hooks-alist '(before-change-functions . lean-before-change-function)))
 
-(defun lean-choose-minor-mode-based-on-extension ()
-  ;; Based on the extension of buffer, return either 'HoTT or 'Standard
-  (interactive)
-  (let ((file-name (buffer-file-name)))
-    (cond ((s-ends-with? ".lean" file-name)
-           'Standard)
-          ((s-ends-with? ".hlean" file-name)
-           'HoTT)
-          (t 'Standard))))
-
 (defun lean-mode-setup ()
   "Default lean-mode setup"
   ;; Flycheck

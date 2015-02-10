@@ -70,8 +70,14 @@ elif sys.version_info[0] == 3:
   def python_2_unicode_compatible(klass):
       return klass
 
+  def my_str(a):
+      # The following is a Hack to avoid the following error on Python 3.4 for Windows.
+      #    UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position xxx:
+      #    character maps to <undefined>
+      return str(a).encode('utf-8').decode(sys.stdout.encoding, errors='replace')
+
   # Aliases
-  text_type = str
+  text_type = my_str
   iteritems = dict.items
 
   from urllib.request import urlretrieve
@@ -176,6 +182,8 @@ class FlycheckItemList:
         tmpBuffer = ""
         ignore = True
         for line in text.splitlines():
+            # I had to add the following line to avoid a crash on Python 3.4 for Windows
+            line = line.decode("utf-8")
             if line.startswith(g_flycheck_header):
                 tmpBuffer = tmpBuffer + line + "\n"
                 ignore = False

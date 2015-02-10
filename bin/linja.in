@@ -614,7 +614,7 @@ def build_olean(lean, olean, clean, dlean, ilean, base):
     else:
         str = """build %s %s: LEAN %s | %s""" % (olean, ilean, lean, dlean)
     if g_lean_bin_dep_flag:
-        str += " %s" % g_lean_path
+        str += " %s" % normalize_drive_name(g_lean_path)
     str += "\n"
     str += "  DLEAN_FILE=%s\n" % dlean
     str += "  OLEAN_FILE=%s\n" % olean

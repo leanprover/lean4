@@ -152,6 +152,16 @@ enabled and disabled respectively.")
   (add-to-list 'lean-hooks-alist '(after-change-functions  . lean-after-change-function))
   (add-to-list 'lean-hooks-alist '(before-change-functions . lean-before-change-function)))
 
+(defun lean-choose-minor-mode-based-on-extension ()
+  ;; Based on the extension of buffer, return either 'HoTT or 'Standard
+  (interactive)
+  (let ((file-name (buffer-file-name)))
+    (cond ((s-ends-with? ".lean" file-name)
+           'Standard)
+          ((s-ends-with? ".hlean" file-name)
+           'HoTT)
+          (t 'Standard))))
+
 (defun lean-mode-setup ()
   "Default lean-mode setup"
   ;; Flycheck
@@ -176,7 +186,29 @@ enabled and disabled respectively.")
   (when lean-company-use
     (company-lean-hook))
   ;; mmm-lua-mode
-  (lean-mmm-lua-hook))
+  (lean-mmm-lua-hook)
+  ;; choose minor mode -- Standard / HoTT
+  (let ((minor-mode (lean-choose-minor-mode-based-on-extension)))
+    (cond
+     ((eq minor-mode 'hott) (lean-hott-mode) )
+     ((eq minor-mode 'standard) (lean-standard-mode)))))
+
+;; Define Minor mode
+;;  - Standard
+;;  - HoTT
+(define-minor-mode lean-standard-mode
+  "Minor mode for standard Lean."
+  :init-value nil
+  :lighter " [Standard]"
+  :group 'lean
+  :require 'lean)
+
+(define-minor-mode lean-hott-mode
+  "Minor mode for HoTT Lean."
+  :init-value nil
+  :lighter " [HoTT]"
+  :group 'lean
+  :require 'lean)
 
 ;; Automode List
 ;;;###autoload
@@ -224,7 +256,6 @@ Invokes `lean-mode-hook'.
   (require 'flycheck)
   (eval-after-load 'flycheck
     '(lean-flycheck-init)))
-
 
 ;; Lean Info Mode (for "*lean-info*" buffer)
 ;; Automode List

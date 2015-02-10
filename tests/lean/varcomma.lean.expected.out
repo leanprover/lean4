@@ -1,0 +1,3 @@
+varcomma.lean:1:19: error: unexpected token, '.', command, Lua script, or end-of-file expected
+varcomma.lean:2:20: error: unexpected token, '(', '{', '[', '⦃', '.', command, Lua script, or end-of-file expected
+varcomma.lean:3:32: error: unexpected token, '(', '{', '[', '⦃', '.', command, Lua script, or end-of-file expected

@@ -197,6 +197,7 @@ static environment variable_cmd_core(parser & p, variable_kind k) {
         type = p.parse_expr();
     }
     p.parse_close_binder_info(bi);
+    check_command_period_or_eof(p);
     level_param_names ls;
     if (ls_buffer.empty()) {
         ls = to_level_param_names(collect_univ_params(type));
@@ -248,6 +249,7 @@ static environment variables_cmd_core(parser & p, variable_kind k) {
             // Alternative: elaborate once and copy types replacing universes in new_ls.
             level_param_names new_ls;
             expr new_type;
+            check_command_period_open_binder_or_eof(p);
             std::tie(new_type, new_ls) = p.elaborate_type(type, ctx);
             if (k == variable_kind::Variable || k == variable_kind::Parameter)
                 update_local_levels(p, new_ls, k == variable_kind::Variable);
@@ -710,6 +712,7 @@ class definition_cmd_fn {
     void parse() {
         parse_name();
         parse_type_value();
+        check_command_period_or_eof(m_p);
         if (m_p.used_sorry())
             m_p.declare_sorry();
         m_env = m_p.env();

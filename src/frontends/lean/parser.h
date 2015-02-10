@@ -290,6 +290,8 @@ public:
     bool curr_is_keyword() const { return curr() == scanner::token_kind::Keyword; }
     /** \brief Return true iff the current token is a keyword */
     bool curr_is_command() const { return curr() == scanner::token_kind::CommandKeyword; }
+    /** \brief Return true iff the current token is a Lua script block */
+    bool curr_is_script_block() const { return curr() == scanner::token_kind::ScriptBlock; }
     /** \brief Return true iff the current token is EOF */
     bool curr_is_eof() const { return curr() == scanner::token_kind::Eof; }
     /** \brief Return true iff the current token is a keyword */

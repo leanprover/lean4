@@ -19,6 +19,10 @@ class parser;
 */
 bool parse_persistent(parser & p, bool & persistent);
 
+/** \brief Throw and error if the current token is not a command, nor a '.', nor an end-of-file. */
+void check_command_period_or_eof(parser const & p);
+/** \brief Throw and error if the current token is not a command, nor an open binder, nor a '.', nor an end-of-file. */
+void check_command_period_open_binder_or_eof(parser const & p);
 void check_atomic(name const & n);
 void check_in_context(parser const & p);
 void check_in_context_or_section(parser const & p);

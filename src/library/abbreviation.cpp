@@ -16,16 +16,17 @@ namespace lean {
 typedef pair<name, bool> abbrev_entry;
 
 struct abbrev_state {
-    name_map<bool>                     m_abbrevs;
-    rb_map<expr, name, expr_quick_cmp> m_inv_map; // for pretty printer
+    name_map<bool>                               m_abbrevs;
+    rb_map<expr, name, expr_cmp_no_level_params> m_inv_map; // for pretty printer
 
     void add(environment const & env, name const & n, bool parsing_only) {
         declaration const & d = env.get(n);
         if (!d.is_definition())
             throw exception(sstream() << "invalid abbreviation '" << n << "', it is not a definition");
         m_abbrevs.insert(n, parsing_only);
-        if (!parsing_only)
+        if (!parsing_only) {
             m_inv_map.insert(d.get_value(), n);
+        }
     }
 
     bool is_abbreviation(name const & n) const { return m_abbrevs.contains(n); }

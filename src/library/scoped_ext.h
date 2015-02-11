@@ -45,6 +45,9 @@ bool has_open_scopes(environment const & env);
 /** \brief Store in \c r all metaobject classes available in Lean */
 void get_metaclasses(buffer<name> & r);
 
+/** \brief Return true iff \c n is the name of a metaobject class available in Lean */
+bool is_metaclass(name const & n);
+
 /** \brief Add a new namespace (if it does not exist) */
 environment add_namespace(environment const & env, name const & ns);
 

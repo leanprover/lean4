@@ -420,18 +420,25 @@ environment set_option_cmd(parser & p) {
     return update_fingerprint(env, p.get_options().hash());
 }
 
-static name parse_class(parser & p) {
+static name parse_metaclass(parser & p) {
     if (p.curr_is_token(get_lbracket_tk())) {
         p.next();
+        auto pos = p.pos();
         name n;
-        if (p.curr_is_identifier())
-            n = p.get_name_val();
-        else if (p.curr_is_keyword() || p.curr_is_command())
-            n = p.get_token_info().value();
-        else
-            throw parser_error("invalid 'open' command, identifier or symbol expected", p.pos());
-        p.next();
+        while (!p.curr_is_token(get_rbracket_tk())) {
+            if (p.curr_is_identifier())
+                n = n.append_after(p.get_name_val().to_string().c_str());
+            else if (p.curr_is_keyword() || p.curr_is_command())
+                n = n.append_after(p.get_token_info().value().to_string().c_str());
+            else if (p.curr_is_token(get_sub_tk()))
+                n = n.append_after("-");
+            else
+                throw parser_error("invalid 'open' command, identifier or symbol expected", pos);
+            p.next();
+        }
         p.check_token_next(get_rbracket_tk(), "invalid 'open' command, ']' expected");
+        if (!is_metaclass(n) && n != get_decls_tk() && n != get_declarations_tk())
+            throw parser_error(sstream() << "invalid metaclass name '[" << n << "]'", pos);
         return n;
     } else {
         return name();
@@ -466,7 +473,7 @@ static environment add_abbrev(parser & p, environment const & env, name const & 
 environment open_export_cmd(parser & p, bool open) {
     environment env = p.env();
     while (true) {
-        name cls = parse_class(p);
+        name cls = parse_metaclass(p);
         bool decls = cls.is_anonymous() || cls == get_decls_tk() || cls == get_declarations_tk();
         auto pos   = p.pos();
         name ns    = p.check_id_next("invalid 'open/export' command, identifier expected");

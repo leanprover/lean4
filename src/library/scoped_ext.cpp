@@ -72,6 +72,14 @@ void get_metaclasses(buffer<name> & r) {
     }
 }
 
+bool is_metaclass(name const & n) {
+    for (auto const & t : get_exts()) {
+        if (std::get<0>(t) == n)
+            return true;
+    }
+    return false;
+}
+
 environment using_namespace(environment const & env, io_state const & ios, name const & n, name const & c) {
     environment r = env;
     for (auto const & t : get_exts()) {

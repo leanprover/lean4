@@ -445,6 +445,24 @@ static name parse_metaclass(parser & p) {
     }
 }
 
+static void parse_metaclasses(parser & p, buffer<name> & r) {
+    if (p.curr_is_token(get_sub_tk())) {
+        p.next();
+        buffer<name> tmp;
+        get_metaclasses(tmp);
+        tmp.push_back(get_decls_tk());
+        while (p.curr_is_token(get_lbracket_tk())) {
+            name m = parse_metaclass(p);
+            tmp.erase_elem(m);
+        }
+        r.append(tmp);
+    } else {
+        while (p.curr_is_token(get_lbracket_tk())) {
+            r.push_back(parse_metaclass(p));
+        }
+    }
+}
+
 static void check_identifier(parser & p, environment const & env, name const & ns, name const & id) {
     name full_id = ns + id;
     if (!env.find(full_id))
@@ -473,8 +491,13 @@ static environment add_abbrev(parser & p, environment const & env, name const & 
 environment open_export_cmd(parser & p, bool open) {
     environment env = p.env();
     while (true) {
-        name cls = parse_metaclass(p);
-        bool decls = cls.is_anonymous() || cls == get_decls_tk() || cls == get_declarations_tk();
+        buffer<name> metacls;
+        parse_metaclasses(p, metacls);
+        bool decls = false;
+        if (metacls.empty() ||
+            std::find(metacls.begin(), metacls.end(), get_decls_tk()) != metacls.end() ||
+            std::find(metacls.begin(), metacls.end(), get_declarations_tk()) != metacls.end())
+            decls = true;
         auto pos   = p.pos();
         name ns    = p.check_id_next("invalid 'open/export' command, identifier expected");
         optional<name> real_ns = to_valid_namespace_name(env, ns);
@@ -487,9 +510,9 @@ environment open_export_cmd(parser & p, bool open) {
             as = p.check_id_next("invalid 'open/export' command, identifier expected");
         }
         if (open)
-            env = using_namespace(env, p.ios(), ns, cls);
+            env = using_namespace(env, p.ios(), ns, metacls);
         else
-            env = export_namespace(env, p.ios(), ns, cls);
+            env = export_namespace(env, p.ios(), ns, metacls);
         if (decls) {
             // Remark: we currently to not allow renaming and hiding of universe levels
             buffer<name> exceptions;

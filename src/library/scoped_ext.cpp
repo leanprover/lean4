@@ -80,22 +80,41 @@ bool is_metaclass(name const & n) {
     return false;
 }
 
-environment using_namespace(environment const & env, io_state const & ios, name const & n, name const & c) {
+environment using_namespace(environment const & env, io_state const & ios, name const & n, buffer<name> const & metaclasses) {
     environment r = env;
     for (auto const & t : get_exts()) {
-        if (c.is_anonymous() || c == std::get<0>(t))
+        if (metaclasses.empty() ||
+            std::find(metaclasses.begin(), metaclasses.end(), std::get<0>(t)) != metaclasses.end())
             r = std::get<1>(t)(r, ios, n);
     }
     return r;
 }
 
-environment export_namespace(environment const & env, io_state const & ios, name const & n, name const & c) {
+static environment using_namespace(environment const & env, io_state const & ios, name const & n, name const & metaclass) {
+    buffer<name> tmp;
+    if (!metaclass.is_anonymous())
+        tmp.push_back(metaclass);
+    return using_namespace(env, ios, n, tmp);
+}
+
+environment using_namespace(environment const & env, io_state const & ios, name const & n) {
+    buffer<name> metaclasses;
+    return using_namespace(env, ios, n, metaclasses);
+}
+
+environment export_namespace(environment const & env, io_state const & ios, name const & n, buffer<name> const & metaclasses) {
     environment r = env;
     for (auto const & t : get_exts()) {
-        if (c.is_anonymous() || c == std::get<0>(t))
+        if (metaclasses.empty() ||
+            std::find(metaclasses.begin(), metaclasses.end(), std::get<0>(t)) != metaclasses.end())
             r = std::get<2>(t)(r, ios, n);
     }
     return r;
+}
+
+environment export_namespace(environment const & env, io_state const & ios, name const & n) {
+    buffer<name> metaclasses;
+    return export_namespace(env, ios, n, metaclasses);
 }
 
 optional<name> to_valid_namespace_name(environment const & env, name const & n) {

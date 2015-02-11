@@ -23,11 +23,14 @@ typedef environment (*push_scope_fn)(environment const &, scope_kind);
 typedef environment (*pop_scope_fn)(environment const &, scope_kind);
 
 void register_scoped_ext(name const & n, using_namespace_fn use, export_namespace_fn ex, push_scope_fn push, pop_scope_fn pop);
-/** \brief Use objects defined in the namespace \c n. If \c c is not the anonymous name, then only objects from "class" \c c are considered. */
-environment using_namespace(environment const & env, io_state const & ios, name const & n, name const & c = name());
+/** \brief Use objects defined in the namespace \c n.
+    If \c metaclasses is not empty, then only objects in the given "metaclasses" \c c are considered. */
+environment using_namespace(environment const & env, io_state const & ios, name const & n, buffer<name> const & metaclasses);
+environment using_namespace(environment const & env, io_state const & ios, name const & n);
 /** \brief Export objects defined in the namespace \c n to current namespace.
-    If \c c is not the anonymous name, then only objects from "class" \c c are considered. */
-environment export_namespace(environment const & env, io_state const & ios, name const & n, name const & c = name());
+    If \c metaclasses is not empty, then only objects in the given "metaclasses" \c c are considered. */
+environment export_namespace(environment const & env, io_state const & ios, name const & n, buffer<name> const & metaclasses);
+environment export_namespace(environment const & env, io_state const & ios, name const & n);
 
 /** \brief Create a new scope, all scoped extensions are notified. */
 environment push_scope(environment const & env, io_state const & ios, scope_kind k, name const & n = name());

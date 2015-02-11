@@ -22,6 +22,9 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos);
 */
 void update_univ_parameters(buffer<name> & ls_buffer, name_set const & found_ls, parser const & p);
 
+/** \brief Parse a local abbreviation command */
+environment local_abbreviation_cmd(parser & p);
+
 /** \brief Parse a local attribute command */
 environment local_attribute_cmd(parser & p);
 void register_decl_cmds(cmd_table & r);

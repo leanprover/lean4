@@ -591,6 +591,9 @@ environment local_cmd(parser & p) {
     if (p.curr_is_token_or_id(get_attribute_tk())) {
         p.next();
         return local_attribute_cmd(p);
+    } else if (p.curr_is_token(get_abbreviation_tk())) {
+        p.next();
+        return local_abbreviation_cmd(p);
     } else {
         return local_notation_cmd(p);
     }

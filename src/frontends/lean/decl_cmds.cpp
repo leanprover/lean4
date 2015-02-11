@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/coercion.h"
 #include "library/class.h"
+#include "library/abbreviation.h"
 #include "library/unfold_macros.h"
 #include "library/definitional/equations.h"
 #include "frontends/lean/parser.h"
@@ -134,7 +135,7 @@ static environment declare_var(parser & p, environment env,
         lean_assert(k == variable_kind::Constant || k == variable_kind::Axiom);
         name const & ns = get_namespace(env);
         name full_n  = ns + n;
-        expr new_type = unfold_untrusted_macros(env, type);
+        expr new_type = expand_abbreviations(env, unfold_untrusted_macros(env, type));
         if (k == variable_kind::Axiom) {
             env = module::add(env, check(env, mk_axiom(full_n, ls, new_type)));
             p.add_decl_index(full_n, pos, get_axiom_tk(), new_type);
@@ -274,22 +275,26 @@ static environment constants_cmd(parser & p) {
 
 struct decl_attributes {
     bool               m_def_only; // if true only definition attributes are allowed
+    bool               m_is_abbrev; // if true only abbreviation attributes are allowed
     bool               m_is_instance;
     bool               m_is_coercion;
     bool               m_is_reducible;
     bool               m_is_irreducible;
     bool               m_is_class;
+    bool               m_is_parsing_only;
     bool               m_has_multiple_instances;
     optional<unsigned> m_priority;
     optional<unsigned> m_unfold_c_hint;
 
-    decl_attributes(bool def_only = true):m_priority() {
+    decl_attributes(bool def_only = true, bool is_abbrev=false):m_priority() {
         m_def_only               = def_only;
+        m_is_abbrev              = is_abbrev;
         m_is_instance            = false;
         m_is_coercion            = false;
-        m_is_reducible           = false;
+        m_is_reducible           = is_abbrev;
         m_is_irreducible         = false;
         m_is_class               = false;
+        m_is_parsing_only        = false;
         m_has_multiple_instances = false;
     }
 
@@ -350,6 +355,12 @@ struct decl_attributes {
                 m_priority = *it;
                 if (!m_is_instance)
                     throw parser_error("invalid '[priority]' attribute, declaration must be marked as an '[instance]'", pos);
+            } else if (p.curr_is_token(get_parsing_only_tk())) {
+                if (!m_is_abbrev)
+                    throw parser_error("invalid '[parsing-only]' attribute, only abbreviations can be "
+                                       "marked as '[parsing-only]'", pos);
+                m_is_parsing_only = true;
+                p.next();
             } else if (p.curr_is_token(get_unfold_c_tk())) {
                 p.next();
                 unsigned r = p.parse_small_nat();
@@ -591,7 +602,7 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
 }
 
 // An Lean example is not really a definition, but we use the definition infrastructure to simulate it.
-enum def_cmd_kind { Theorem, Definition, Example };
+enum def_cmd_kind { Theorem, Definition, Example, Abbreviation, LocalAbbreviation };
 
 class definition_cmd_fn {
     parser &          m_p;
@@ -617,7 +628,7 @@ class definition_cmd_fn {
     expr              m_pre_type;
     expr              m_pre_value;
 
-    bool is_definition() const { return m_kind == Definition; }
+    bool is_definition() const { return m_kind == Definition || m_kind == Abbreviation || m_kind == LocalAbbreviation; }
     unsigned start_line() const { return m_pos.first; }
     unsigned end_line() const { return m_end_pos.first; }
 
@@ -646,7 +657,8 @@ class definition_cmd_fn {
             auto pos = m_p.pos();
             m_type = m_p.parse_expr();
             if (is_curr_with_or_comma(m_p)) {
-                m_value = parse_equations(m_p, m_name, m_type, m_aux_decls, optional<local_environment>(), buffer<expr>(), m_pos);
+                m_value = parse_equations(m_p, m_name, m_type, m_aux_decls,
+                                          optional<local_environment>(), buffer<expr>(), m_pos);
             } else if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
                 check_end_of_theorem(m_p);
                 m_value = m_p.save_pos(mk_expr_placeholder(), pos);
@@ -761,8 +773,8 @@ class definition_cmd_fn {
                     level_param_names c_ls; expr c_type, c_value;
                     std::tie(c_ls, c_type, c_value) = *it;
                     // cache may have been created using a different trust level
-                    c_type  = unfold_untrusted_macros(m_env, c_type);
-                    c_value = unfold_untrusted_macros(m_env, c_value);
+                    c_type  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, c_type));
+                    c_value = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, c_value));
                     if (m_kind == Theorem) {
                         cd = check(m_env, mk_theorem(m_real_name, c_ls, c_type, c_value));
                         if (!m_p.keep_new_thms()) {
@@ -791,6 +803,10 @@ class definition_cmd_fn {
                 m_env = add_protected(m_env, real_n);
             if (n != real_n)
                 m_env = add_expr_alias_rec(m_env, n, real_n);
+            if (m_kind == Abbreviation || m_kind == LocalAbbreviation) {
+                bool persistent = m_kind == Abbreviation;
+                m_env = add_abbreviation(m_env, real_n, m_attributes.m_is_parsing_only, persistent);
+            }
             bool persistent = true;
             m_env = m_attributes.apply(m_env, m_p.ios(), real_n, persistent);
         }
@@ -847,11 +863,11 @@ class definition_cmd_fn {
         lean_assert(aux_values.size() == m_aux_types.size());
         if (aux_values.size() != m_real_aux_names.size())
             throw exception("invalid declaration, failed to compile auxiliary declarations");
-        m_type  = unfold_untrusted_macros(m_env, m_type);
-        m_value = unfold_untrusted_macros(m_env, m_value);
+        m_type  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
+        m_value = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_value));
         for (unsigned i = 0; i < aux_values.size(); i++) {
-            m_aux_types[i] = unfold_untrusted_macros(m_env, m_aux_types[i]);
-            aux_values[i]  = unfold_untrusted_macros(m_env, aux_values[i]);
+            m_aux_types[i] = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_aux_types[i]));
+            aux_values[i]  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, aux_values[i]));
         }
         if (is_definition()) {
             m_env = module::add(m_env, check(m_env, mk_definition(m_env, m_real_name, new_ls,
@@ -883,7 +899,7 @@ class definition_cmd_fn {
                 std::tie(m_type, new_ls) = m_p.elaborate_type(m_type, list<expr>(), clear_pre_info);
                 check_no_metavar(m_env, m_real_name, m_type, true);
                 m_ls = append(m_ls, new_ls);
-                m_type = unfold_untrusted_macros(m_env, m_type);
+                m_type = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
                 expr type_as_is = m_p.save_pos(mk_as_is(m_type), type_pos);
                 if (!m_p.collecting_info() && m_kind == Theorem && m_p.num_threads() > 1) {
                     // Add as axiom, and create a task to prove the theorem.
@@ -892,8 +908,8 @@ class definition_cmd_fn {
                     m_env = module::add(m_env, check(m_env, mk_axiom(m_real_name, m_ls, m_type)));
                 } else {
                     std::tie(m_type, m_value, new_ls) = m_p.elaborate_definition(m_name, type_as_is, m_value, m_is_opaque);
-                    m_type  = unfold_untrusted_macros(m_env, m_type);
-                    m_value = unfold_untrusted_macros(m_env, m_value);
+                    m_type  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
+                    m_value = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_value));
                     new_ls = append(m_ls, new_ls);
                     auto cd = check(m_env, mk_theorem(m_real_name, new_ls, m_type, m_value));
                     if (m_kind == Theorem) {
@@ -909,8 +925,8 @@ class definition_cmd_fn {
             } else {
                 std::tie(m_type, m_value, new_ls) = m_p.elaborate_definition(m_name, m_type, m_value, m_is_opaque);
                 new_ls = append(m_ls, new_ls);
-                m_type  = unfold_untrusted_macros(m_env, m_type);
-                m_value = unfold_untrusted_macros(m_env, m_value);
+                m_type  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
+                m_value = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_value));
                 m_env = module::add(m_env, check(m_env, mk_definition(m_env, m_real_name, new_ls,
                                                                       m_type, m_value, m_is_opaque)));
                 m_p.cache_definition(m_real_name, pre_type, pre_value, new_ls, m_type, m_value);
@@ -922,7 +938,7 @@ public:
     definition_cmd_fn(parser & p, def_cmd_kind kind, bool is_opaque, bool is_private, bool is_protected):
         m_p(p), m_env(m_p.env()), m_kind(kind), m_is_opaque(is_opaque),
         m_is_private(is_private), m_is_protected(is_protected),
-        m_pos(p.pos()) {
+        m_pos(p.pos()), m_attributes(true, kind == Abbreviation || kind == LocalAbbreviation) {
         lean_assert(!(!is_definition() && !m_is_opaque));
         lean_assert(!(m_is_private && m_is_protected));
     }
@@ -941,6 +957,12 @@ static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_op
 }
 static environment definition_cmd(parser & p) {
     return definition_cmd_core(p, Definition, false, false, false);
+}
+static environment abbreviation_cmd(parser & p) {
+    return definition_cmd_core(p, Abbreviation, false, false, false);
+}
+environment local_abbreviation_cmd(parser & p) {
+    return definition_cmd_core(p, LocalAbbreviation, false, true, false);
 }
 static environment opaque_definition_cmd(parser & p) {
     p.check_token_next(get_definition_tk(), "invalid 'opaque' definition, 'definition' expected");
@@ -961,6 +983,9 @@ static environment private_definition_cmd(parser & p) {
         p.check_token_next(get_definition_tk(), "invalid 'private' definition, 'definition' expected");
     } else if (p.curr_is_token_or_id(get_definition_tk())) {
         p.next();
+    } else if (p.curr_is_token_or_id(get_abbreviation_tk())) {
+        kind = Abbreviation;
+        p.next();
     } else if (p.curr_is_token_or_id(get_theorem_tk())) {
         p.next();
         kind = Theorem;
@@ -979,6 +1004,9 @@ static environment protected_definition_cmd(parser & p) {
         p.check_token_next(get_definition_tk(), "invalid 'protected' definition, 'definition' expected");
     } else if (p.curr_is_token_or_id(get_definition_tk())) {
         p.next();
+    } else if (p.curr_is_token_or_id(get_abbreviation_tk())) {
+        p.next();
+        kind = Abbreviation;
     } else if (p.curr_is_token_or_id(get_theorem_tk())) {
         p.next();
         kind       = Theorem;
@@ -1061,6 +1089,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));
     add_cmd(r, cmd_info("include",      "force section parameter/variable to be included", include_cmd));
     add_cmd(r, cmd_info("attribute",    "set declaration attributes", attribute_cmd));
+    add_cmd(r, cmd_info("abbreviation", "declare a new abbreviation", abbreviation_cmd));
     add_cmd(r, cmd_info("omit",         "undo 'include' command", omit_cmd));
 }
 }

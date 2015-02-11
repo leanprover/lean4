@@ -35,6 +35,7 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/projection.h"
 #include "library/normalize.h"
+#include "library/abbreviation.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -69,9 +70,11 @@ void initialize_library_module() {
     initialize_pp_options();
     initialize_projection();
     initialize_normalize();
+    initialize_abbreviation();
 }
 
 void finalize_library_module() {
+    finalize_abbreviation();
     finalize_normalize();
     finalize_projection();
     finalize_pp_options();

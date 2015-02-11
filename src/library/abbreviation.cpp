@@ -6,11 +6,11 @@ Author: Leonardo de Moura
 */
 #include "util/sstream.h"
 #include "kernel/find_fn.h"
+#include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
 #include "library/scoped_ext.h"
 #include "library/expr_lt.h"
 #include "library/util.h"
-#include "library/replace_visitor.h"
 
 namespace lean {
 typedef pair<name, bool> abbrev_entry;
@@ -103,48 +103,16 @@ bool contains_abbreviations(environment const & env, expr const & e) {
             }));
 }
 
-struct expand_abbrev_fn : public replace_visitor {
-    environment const &  m_env;
-    abbrev_state const & m_state;
-
-    virtual expr visit_app(expr const & e) {
-        buffer<expr> args;
-        expr const & f = get_app_args(e, args);
-        expr new_f     = visit(f);
-        bool modified  = !is_eqp(f, new_f);
-        for (expr & arg : args) {
-            expr new_arg = visit(arg);
-            if (!is_eqp(arg, new_arg))
-                modified = true;
-            arg = new_arg;
-        }
-        expr r;
-        if (modified)
-            r = mk_app(new_f, args);
-        else
-            r = e;
-        if (is_constant(new_f) && m_state.is_abbreviation(const_name(new_f)))
-            r = *unfold_app(m_env, r);
-        return r;
-    }
-
-    virtual expr visit_constant(expr const & e) {
-        if (m_state.is_abbreviation(const_name(e)))
-            return instantiate_value_univ_params(m_env.get(const_name(e)), const_levels(e));
-        else
-            return e;
-    }
-
-    expand_abbrev_fn(environment const & env):
-        m_env(env),
-        m_state(abbrev_ext::get_state(env)) {
-    }
-};
-
 expr expand_abbreviations(environment const & env, expr const & e) {
     if (!contains_abbreviations(env, e))
         return e;
-    return expand_abbrev_fn(env)(e);
+    abbrev_state const & s = abbrev_ext::get_state(env);
+    return replace(e, [&](expr const & e, unsigned) {
+            if (s.is_abbreviation(const_name(e)))
+                return some_expr(instantiate_value_univ_params(env.get(const_name(e)), const_levels(e)));
+            else
+                return none_expr();
+        });
 }
 
 void initialize_abbreviation() {

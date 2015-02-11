@@ -76,6 +76,7 @@ private:
     bool is_prop(expr const & e);
     bool has_implicit_args(expr const & f);
     optional<name> is_aliased(name const & n) const;
+    optional<name> is_abbreviated(expr const & e) const;
 
     format pp_binder_block(buffer<name> const & names, expr const & type, binder_info const & bi);
     format pp_binders(buffer<expr> const & locals);
@@ -105,7 +106,8 @@ private:
     result pp_explicit(expr const & e);
     result pp_let(expr e);
     result pp_num(mpz const & n);
-    result pp_abbreviation(expr const & e, name const & abbrev);
+    // If fn is true, then \c e is of the form (f a), and the abbreviation is \c f.
+    result pp_abbreviation(expr const & e, name const & abbrev, bool fn);
     void set_options_core(options const & o);
 
 public:

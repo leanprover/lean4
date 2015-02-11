@@ -1,0 +1,9 @@
+foo
+10 + 1
+abbrev2.lean:12:6: error: unknown identifier 'bla.foo'
+abbrev2.lean:14:6: error: unknown identifier 'foo'
+10 + 1
+foo2
+1
+foo2
+foo2

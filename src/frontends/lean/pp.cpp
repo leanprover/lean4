@@ -359,13 +359,19 @@ auto pretty_fn::pp_child_core(expr const & e, unsigned bp) -> result {
 }
 
 auto pretty_fn::pp_child(expr const & e, unsigned bp) -> result {
-    if (is_app(e) && is_implicit(app_fn(e))) {
-        return pp_child(app_fn(e), bp);
-    } else if (is_app(e) && !m_coercion && is_coercion(m_env, get_app_fn(e))) {
-        return pp_coercion(e, bp);
-    } else {
-        return pp_child_core(e, bp);
+    if (auto it = is_abbreviated(e))
+        return pp_abbreviation(e, *it, false);
+    if (is_app(e)) {
+        expr const & f = app_fn(e);
+        if (auto it = is_abbreviated(f)) {
+            return pp_abbreviation(e, *it, true);
+        } else if (is_implicit(f)) {
+            return pp_child(f, bp);
+        } else if (!m_coercion && is_coercion(m_env, f)) {
+            return pp_coercion(e, bp);
+        }
     }
+    return pp_child_core(e, bp);
 }
 
 auto pretty_fn::pp_var(expr const & e) -> result {
@@ -394,6 +400,12 @@ optional<name> pretty_fn::is_aliased(name const & n) const {
     } else {
         return optional<name>();
     }
+}
+
+optional<name> pretty_fn::is_abbreviated(expr const & e) const {
+    if (m_abbreviations)
+        return ::lean::is_abbreviated(m_env, e);
+    return optional<name>();
 }
 
 auto pretty_fn::pp_const(expr const & e) -> result {
@@ -472,11 +484,8 @@ bool pretty_fn::has_implicit_args(expr const & f) {
 
 auto pretty_fn::pp_app(expr const & e) -> result {
     expr const & fn = app_fn(e);
-    if (m_abbreviations)  {
-        if (auto it = is_abbreviated(m_env, fn)) {
-            return pp_abbreviation(e, *it);
-        }
-    }
+    if (auto it = is_abbreviated(fn))
+        return pp_abbreviation(e, *it, true);
     result res_fn = pp_child(fn, max_bp()-1);
     format fn_fmt = res_fn.fmt();
     if (m_implict && !is_app(fn) && has_implicit_args(fn))
@@ -797,17 +806,23 @@ static unsigned get_some_precedence(token_table const & t, name const & tk) {
 }
 
 auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) -> result {
-    if (is_app(e) && is_implicit(app_fn(e))) {
-        return pp_notation_child(app_fn(e), lbp, rbp);
-    } else if (is_app(e) && !m_coercion && is_coercion(m_env, get_app_fn(e))) {
-        return pp_coercion(e, rbp);
-    } else {
-        result r = pp(e);
-        if (r.rbp() < lbp || r.lbp() <= rbp) {
-            return result(paren(r.fmt()));
-        } else {
-            return r;
+    if (auto it = is_abbreviated(e))
+        return pp_abbreviation(e, *it, false);
+    if (is_app(e)) {
+        expr const & f = app_fn(e);
+        if (auto it = is_abbreviated(f)) {
+            return pp_abbreviation(e, *it, true);
+        } else if (is_implicit(f)) {
+            return pp_notation_child(f, lbp, rbp);
+        } else if (!m_coercion && is_coercion(m_env, f)) {
+            return pp_coercion(e, rbp);
         }
+    }
+    result r = pp(e);
+    if (r.rbp() < lbp || r.lbp() <= rbp) {
+        return result(paren(r.fmt()));
+    } else {
+        return r;
     }
 }
 
@@ -1037,14 +1052,15 @@ auto pretty_fn::pp_notation(expr const & e) -> optional<result> {
     return optional<result>();
 }
 
-auto pretty_fn::pp_abbreviation(expr const & e, name const & abbrev) -> result {
+auto pretty_fn::pp_abbreviation(expr const & e, name const & abbrev, bool fn) -> result {
     declaration const & d = m_env.get(abbrev);
     unsigned num_univs    = d.get_num_univ_params();
     buffer<level> ls;
     for (unsigned i = 0; i < num_univs; i++)
         ls.push_back(mk_meta_univ(name("?l", i+1)));
     buffer<expr> args;
-    get_app_args(e, args);
+    if (fn)
+        get_app_args(e, args);
     return pp(mk_app(mk_constant(abbrev, to_list(ls)), args));
 }
 
@@ -1053,6 +1069,9 @@ auto pretty_fn::pp(expr const & e) -> result {
         return result(m_unicode ? *g_ellipsis_n_fmt : *g_ellipsis_fmt);
     flet<unsigned> let_d(m_depth, m_depth+1);
     m_num_steps++;
+
+    if (auto n = is_abbreviated(e))
+        return pp_abbreviation(e, *n, false);
 
     if (auto r = pp_notation(e))
         return *r;
@@ -1063,9 +1082,6 @@ auto pretty_fn::pp(expr const & e) -> result {
     if (is_let(e))          return pp_let(e);
     if (is_typed_expr(e))   return pp(get_typed_expr_expr(e));
     if (is_let_value(e))    return pp(get_let_value_expr(e));
-    if (m_abbreviations)
-        if (auto n = is_abbreviated(m_env, e))
-            return pp_abbreviation(e, *n);
     if (m_numerals)
         if (auto n = to_num(e)) return pp_num(*n);
     if (m_num_nat_coe)

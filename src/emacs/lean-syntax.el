@@ -17,7 +17,7 @@
     "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end"
     "using" "namespace" "section" "fields" "find_decl"
     "attribute" "local" "set_option" "add_rewrite" "extends" "include" "omit" "classes"
-    "instances" "coercions" "raw")
+    "instances" "coercions" "metaclasses" "raw")
   "lean keywords")
 
 (defconst lean-syntax-table
@@ -118,7 +118,8 @@
      ;; modifiers
      (,(rx (or "\[persistent\]" "\[notation\]" "\[visible\]" "\[instance\]" "\[class\]" "\[parsing-only\]"
                "\[coercion\]" "\[reducible\]" "\[irreducible\]" "\[wf\]" "\[whnf\]" "\[multiple-instances\]"
-               "\[decls\]" "\[all-transparent\]" "\[coercions\]" "\[classes\]" "\[notations\]" "\[tactic_hints\]" "\[reduce_hints\]"))
+               "\[decls\]" "\[declarations\]" "\[all-transparent\]" "\[coercions\]" "\[classes\]"
+               "\[notations\]" "\[begin-end-hints\]" "\[tactic-hints\]" "\[reduce-hints\]"))
       . 'font-lock-doc-face)
      (,(rx "\[priority" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      (,(rx "\[unfold-c" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)

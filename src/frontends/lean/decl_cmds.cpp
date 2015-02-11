@@ -286,7 +286,7 @@ struct decl_attributes {
     optional<unsigned> m_priority;
     optional<unsigned> m_unfold_c_hint;
 
-    decl_attributes(bool def_only = true, bool is_abbrev=false):m_priority() {
+    decl_attributes(bool def_only = true, bool is_abbrev = false):m_priority() {
         m_def_only               = def_only;
         m_is_abbrev              = is_abbrev;
         m_is_instance            = false;

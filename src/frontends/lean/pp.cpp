@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/num.h"
 #include "library/let.h"
 #include "library/print.h"
+#include "library/abbreviation.h"
 #include "library/pp_options.h"
 #include "library/constants.h"
 #include "frontends/lean/pp.h"
@@ -274,6 +275,7 @@ void pretty_fn::set_options_core(options const & o) {
     m_purify_locals   = get_pp_purify_locals(o);
     m_beta            = get_pp_beta(o);
     m_numerals        = get_pp_numerals(o);
+    m_abbreviations   = get_pp_abbreviations(o);
     m_num_nat_coe     = m_numerals && !m_coercion && has_coercion_num_nat(m_env);
 }
 
@@ -470,6 +472,11 @@ bool pretty_fn::has_implicit_args(expr const & f) {
 
 auto pretty_fn::pp_app(expr const & e) -> result {
     expr const & fn = app_fn(e);
+    if (m_abbreviations)  {
+        if (auto it = is_abbreviated(m_env, fn)) {
+            return pp_abbreviation(e, *it);
+        }
+    }
     result res_fn = pp_child(fn, max_bp()-1);
     format fn_fmt = res_fn.fmt();
     if (m_implict && !is_app(fn) && has_implicit_args(fn))
@@ -1030,6 +1037,17 @@ auto pretty_fn::pp_notation(expr const & e) -> optional<result> {
     return optional<result>();
 }
 
+auto pretty_fn::pp_abbreviation(expr const & e, name const & abbrev) -> result {
+    declaration const & d = m_env.get(abbrev);
+    unsigned num_univs    = d.get_num_univ_params();
+    buffer<level> ls;
+    for (unsigned i = 0; i < num_univs; i++)
+        ls.push_back(mk_meta_univ(name("?l", i+1)));
+    buffer<expr> args;
+    get_app_args(e, args);
+    return pp(mk_app(mk_constant(abbrev, to_list(ls)), args));
+}
+
 auto pretty_fn::pp(expr const & e) -> result {
     if (m_depth > m_max_depth || m_num_steps > m_max_steps)
         return result(m_unicode ? *g_ellipsis_n_fmt : *g_ellipsis_fmt);
@@ -1045,6 +1063,9 @@ auto pretty_fn::pp(expr const & e) -> result {
     if (is_let(e))          return pp_let(e);
     if (is_typed_expr(e))   return pp(get_typed_expr_expr(e));
     if (is_let_value(e))    return pp(get_let_value_expr(e));
+    if (m_abbreviations)
+        if (auto n = is_abbreviated(m_env, e))
+            return pp_abbreviation(e, *n);
     if (m_numerals)
         if (auto n = to_num(e)) return pp_num(*n);
     if (m_num_nat_coe)

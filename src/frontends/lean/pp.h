@@ -66,6 +66,7 @@ private:
     bool                m_purify_locals;
     bool                m_beta;
     bool                m_numerals;
+    bool                m_abbreviations;
 
     name mk_metavar_name(name const & m);
     name mk_local_name(name const & n, name const & suggested);
@@ -104,6 +105,7 @@ private:
     result pp_explicit(expr const & e);
     result pp_let(expr e);
     result pp_num(mpz const & n);
+    result pp_abbreviation(expr const & e, name const & abbrev);
     void set_options_core(options const & o);
 
 public:

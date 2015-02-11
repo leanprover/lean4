@@ -59,6 +59,10 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_NUMERALS true
 #endif
 
+#ifndef LEAN_DEFAULT_PP_ABBREVIATIONS
+#define LEAN_DEFAULT_PP_ABBREVIATIONS true
+#endif
+
 namespace lean {
 static name * g_pp_max_depth       = nullptr;
 static name * g_pp_max_steps       = nullptr;
@@ -73,6 +77,7 @@ static name * g_pp_purify_metavars = nullptr;
 static name * g_pp_purify_locals   = nullptr;
 static name * g_pp_beta            = nullptr;
 static name * g_pp_numerals        = nullptr;
+static name * g_pp_abbreviations   = nullptr;
 static list<options> * g_distinguishing_pp_options = nullptr;
 
 void initialize_pp_options() {
@@ -89,6 +94,7 @@ void initialize_pp_options() {
     g_pp_purify_locals   = new name{"pp", "purify_locals"};
     g_pp_beta            = new name{"pp", "beta"};
     g_pp_numerals        = new name{"pp", "numerals"};
+    g_pp_abbreviations   = new name{"pp", "abbreviations"};
     register_unsigned_option(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH,
                              "(pretty printer) maximum expression depth, after that it will use ellipsis");
     register_unsigned_option(*g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS,
@@ -117,6 +123,8 @@ void initialize_pp_options() {
                          "(pretty printer) apply beta-reduction when pretty printing");
     register_bool_option(*g_pp_numerals, LEAN_DEFAULT_PP_NUMERALS,
                          "(pretty printer) display nat/num numerals in decimal notation");
+    register_bool_option(*g_pp_abbreviations, LEAN_DEFAULT_PP_ABBREVIATIONS,
+                         "(pretty printer) display abbreviations (i.e., revert abbreviation expansion when pretty printing)");
 
     options universes_true(*g_pp_universes, true);
     options full_names_true(*g_pp_full_names, true);
@@ -131,6 +139,7 @@ void initialize_pp_options() {
 }
 
 void finalize_pp_options() {
+    delete g_pp_abbreviations;
     delete g_pp_numerals;
     delete g_pp_max_depth;
     delete g_pp_max_steps;
@@ -169,5 +178,6 @@ bool     get_pp_purify_metavars(options const & opts) { return opts.get_bool(*g_
 bool     get_pp_purify_locals(options const & opts)   { return opts.get_bool(*g_pp_purify_locals, LEAN_DEFAULT_PP_PURIFY_LOCALS); }
 bool     get_pp_beta(options const & opts)            { return opts.get_bool(*g_pp_beta, LEAN_DEFAULT_PP_BETA); }
 bool     get_pp_numerals(options const & opts)        { return opts.get_bool(*g_pp_numerals, LEAN_DEFAULT_PP_NUMERALS); }
+bool     get_pp_abbreviations(options const & opts)   { return opts.get_bool(*g_pp_abbreviations, LEAN_DEFAULT_PP_ABBREVIATIONS); }
 list<options> const & get_distinguishing_pp_options() { return *g_distinguishing_pp_options; }
 }

@@ -16,10 +16,10 @@ namespace natural_transformation
   variables {C D : Precategory} {F G H I : functor C D}
 
   definition natural_map [coercion] (η : F ⟹ G) : Π (a : C), F a ⟶ G a :=
-  rec (λ x y, x) η
+  natural_transformation.rec (λ x y, x) η
 
   theorem naturality (η : F ⟹ G) : Π⦃a b : C⦄ (f : a ⟶ b), G f ∘ η a = η b ∘ F f :=
-  rec (λ x y, y) η
+  natural_transformation.rec (λ x y, y) η
 
   protected definition compose (η : G ⟹ H) (θ : F ⟹ G) : F ⟹ H :=
   natural_transformation.mk
@@ -52,9 +52,9 @@ namespace natural_transformation
   protected definition assoc (η₃ : H ⟹ I) (η₂ : G ⟹ H) (η₁ : F ⟹ G) :
       η₃ ∘n (η₂ ∘n η₁) = (η₃ ∘n η₂) ∘n η₁ :=
   begin
-    apply (rec_on η₃), intros (η₃1, η₃2),
-    apply (rec_on η₂), intros (η₂1, η₂2),
-    apply (rec_on η₁), intros (η₁1, η₁2),
+    apply (natural_transformation.rec_on η₃), intros (η₃1, η₃2),
+    apply (natural_transformation.rec_on η₂), intros (η₂1, η₂2),
+    apply (natural_transformation.rec_on η₁), intros (η₁1, η₁2),
     fapply natural_transformation.congr,
       apply funext.path_pi, intro a,
       apply assoc,
@@ -72,7 +72,7 @@ namespace natural_transformation
 
   protected definition id_left (η : F ⟹ G) : id ∘n η = η :=
   begin
-    apply (rec_on η), intros (η₁, nat₁),
+    apply (natural_transformation.rec_on η), intros (η₁, nat₁),
     fapply (natural_transformation.congr F G),
       apply funext.path_pi, intro a,
       apply id_left,
@@ -84,7 +84,7 @@ namespace natural_transformation
 
   protected definition id_right (η : F ⟹ G) : η ∘n id = η :=
   begin
-    apply (rec_on η), intros (η₁, nat₁),
+    apply (natural_transformation.rec_on η), intros (η₁, nat₁),
     fapply (natural_transformation.congr F G),
       apply funext.path_pi, intro a,
       apply id_right,

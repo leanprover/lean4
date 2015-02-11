@@ -57,30 +57,30 @@ nat.cases_on (n - m)
   (take k, neg_succ_of_nat k)                          -- m < n, and n - m = succ k
 
 definition neg (a : ℤ) : ℤ :=
-  cases_on a
+  int.cases_on a
     (take m,                                           -- a = of_nat m
       nat.cases_on m 0 (take m', neg_succ_of_nat m'))
     (take m, of_nat (succ m))                          -- a = neg_succ_of_nat m
 
 definition add (a b : ℤ) : ℤ :=
-  cases_on a
+  int.cases_on a
     (take m,                                           -- a = of_nat m
-      cases_on b
+      int.cases_on b
         (take n, of_nat (m + n))                         -- b = of_nat n
         (take n, sub_nat_nat m (succ n)))                -- b = neg_succ_of_nat n
     (take m,                                           -- a = neg_succ_of_nat m
-      cases_on b
+      int.cases_on b
         (take n, sub_nat_nat n (succ m))                 -- b = of_nat n
         (take n, neg_of_nat (succ m + succ n)))          -- b = neg_succ_of_nat n
 
 definition mul (a b : ℤ) : ℤ :=
-  cases_on a
+  int.cases_on a
     (take m,                                           -- a = of_nat m
-      cases_on b
+      int.cases_on b
         (take n, of_nat (m * n))                         -- b = of_nat n
         (take n, neg_of_nat (m * succ n)))               -- b = neg_succ_of_nat n
     (take m,                                           -- a = neg_succ_of_nat m
-      cases_on b
+      int.cases_on b
         (take n, neg_of_nat (succ m * n))                -- b = of_nat n
         (take n, of_nat (succ m * succ n)))              -- b = neg_succ_of_nat n
 
@@ -94,22 +94,22 @@ infix *  := int.mul
 /- some basic functions and properties -/
 
 theorem of_nat_inj {m n : ℕ} (H : of_nat m = of_nat n) : m = n :=
-no_confusion H (λe, e)
+int.no_confusion H (λe, e)
 
 theorem neg_succ_of_nat_inj {m n : ℕ} (H : neg_succ_of_nat m = neg_succ_of_nat n) : m = n :=
-no_confusion H (λe, e)
+int.no_confusion H (λe, e)
 
 definition has_decidable_eq [instance] : decidable_eq ℤ :=
 take a b,
-cases_on a
+int.cases_on a
   (take m,
-    cases_on b
+    int.cases_on b
       (take n,
         if H : m = n then inl (congr_arg of_nat H) else inr (take H1, H (of_nat_inj H1)))
-      (take n', inr (assume H, no_confusion H)))
+      (take n', inr (assume H, int.no_confusion H)))
   (take m',
-    cases_on b
-      (take n, inr (assume H, no_confusion H))
+    int.cases_on b
+      (take n, inr (assume H, int.no_confusion H))
       (take n',
         (if H : m' = n' then inl (congr_arg neg_succ_of_nat H) else
             inr (take H1, H (neg_succ_of_nat_inj H1)))))
@@ -137,12 +137,12 @@ calc
     ... = neg_succ_of_nat (pred (n - m)) : rfl
 end
 
-definition nat_abs (a : ℤ) : ℕ := cases_on a (take n, n) (take n', succ n')
+definition nat_abs (a : ℤ) : ℕ := int.cases_on a (take n, n) (take n', succ n')
 
 theorem nat_abs_of_nat (n : ℕ) : nat_abs (of_nat n) = n := rfl
 
 theorem nat_abs_eq_zero {a : ℤ} : nat_abs a = 0 → a = 0 :=
-cases_on a
+int.cases_on a
   (take m, assume H : nat_abs (of_nat m) = 0, congr_arg of_nat H)
   (take m', assume H : nat_abs (neg_succ_of_nat m') = 0, absurd H (succ_ne_zero _))
 
@@ -206,10 +206,10 @@ theorem abstr_of_lt {p : ℕ × ℕ} (H : pr1 p < pr2 p) :
   abstr p = neg_succ_of_nat (pred (pr2 p - pr1 p)) :=
 sub_nat_nat_of_lt H
 
-definition repr (a : ℤ) : ℕ × ℕ := cases_on a (take m, (m, 0)) (take m, (0, succ m))
+definition repr (a : ℤ) : ℕ × ℕ := int.cases_on a (take m, (m, 0)) (take m, (0, succ m))
 
 theorem abstr_repr (a : ℤ) : abstr (repr a) = a :=
-cases_on a (take m, (sub_nat_nat_of_ge (zero_le m))) (take m, rfl)
+int.cases_on a (take m, (sub_nat_nat_of_ge (zero_le m))) (take m, rfl)
 
 theorem repr_sub_nat_nat (m n : ℕ) : repr (sub_nat_nat m n) ≡ (m, n) :=
 or.elim (@le_or_gt n m)
@@ -299,7 +299,7 @@ or.elim (@le_or_gt n m)
 end
 
 theorem cases_of_nat (a : ℤ) : (∃n : ℕ, a = of_nat n) ∨ (∃n : ℕ, a = - of_nat n) :=
-cases_on a
+int.cases_on a
   (take n, or.inl (exists.intro n rfl))
   (take n', or.inr (exists.intro (succ n') rfl))
 
@@ -329,9 +329,9 @@ or.elim (cases_of_nat_succ a)
 definition padd (p q : ℕ × ℕ) : ℕ × ℕ := (pr1 p + pr1 q, pr2 p + pr2 q)
 
 theorem repr_add (a b : ℤ) :  repr (add a b) ≡ padd (repr a) (repr b) :=
-cases_on a
+int.cases_on a
   (take m,
-    cases_on b
+    int.cases_on b
       (take n, !equiv.refl)
       (take n',
         have H1 : equiv (repr (add (of_nat m) (neg_succ_of_nat n'))) (m, succ n'),
@@ -340,7 +340,7 @@ cases_on a
           from rfl,
         (!zero_add ▸ H2)⁻¹ ▸ H1))
   (take m',
-    cases_on b
+    int.cases_on b
       (take n,
         have H1 : equiv (repr (add (neg_succ_of_nat m') (of_nat n))) (n, succ m'),
           from !repr_sub_nat_nat,
@@ -394,7 +394,7 @@ begin
   apply H2
 end
 
-theorem add_zero (a : ℤ) : a + 0 = a := cases_on a (take m, rfl) (take m', rfl)
+theorem add_zero (a : ℤ) : a + 0 = a := int.cases_on a (take m, rfl) (take m', rfl)
 
 theorem zero_add (a : ℤ) : 0 + a = a := add.comm a 0 ▸ add_zero a
 
@@ -404,7 +404,7 @@ definition pneg (p : ℕ × ℕ) : ℕ × ℕ := (pr2 p, pr1 p)
 
 -- note: this is =, not just ≡
 theorem repr_neg (a : ℤ) : repr (- a) = pneg (repr a) :=
-cases_on a
+int.cases_on a
   (take m,
     nat.cases_on m rfl (take m', rfl))
   (take m', rfl)
@@ -465,13 +465,13 @@ H⁻¹ ▸ H1⁻¹ ▸ H2⁻¹ ▸ H3
 context
 attribute nat_abs [reducible]
 theorem mul_nat_abs (a b : ℤ) : nat_abs (a * b) = #nat (nat_abs a) * (nat_abs b) :=
-cases_on a
+int.cases_on a
   (take m,
-    cases_on b
+    int.cases_on b
       (take n, rfl)
       (take n', !nat_abs_neg ▸ rfl))
   (take m',
-    cases_on b
+    int.cases_on b
       (take n, !nat_abs_neg ▸ rfl)
       (take n', rfl))
 end
@@ -486,9 +486,9 @@ nat.cases_on m rfl (take m', rfl)
 
 -- note: we have =, not just ≡
 theorem repr_mul (a b : ℤ) :  repr (mul a b) = pmul (repr a) (repr b) :=
-cases_on a
+int.cases_on a
   (take m,
-    cases_on b
+    int.cases_on b
       (take n,
         (calc
           pmul (repr m) (repr n) = (m * n + 0 * 0, m * 0 + 0 * n) : rfl
@@ -500,7 +500,7 @@ cases_on a
             ... = (m * 0 + 0, m * succ n' + 0 * 0) : zero_mul
             ... = repr (mul m (neg_succ_of_nat n')) : repr_neg_of_nat)⁻¹))
   (take m',
-    cases_on b
+    int.cases_on b
       (take n,
         (calc
           pmul (repr (neg_succ_of_nat m')) (repr n) =

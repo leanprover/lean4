@@ -12,7 +12,7 @@ inductive subsingleton [class] (A : Type) : Prop :=
 intro : (∀ a b : A, a = b) → subsingleton A
 
 namespace subsingleton
-definition elim {A : Type} {H : subsingleton A} : ∀(a b : A), a = b := rec (fun p, p) H
+definition elim {A : Type} {H : subsingleton A} : ∀(a b : A), a = b := subsingleton.rec (fun p, p) H
 end subsingleton
 
 protected definition prop.subsingleton [instance] (P : Prop) : subsingleton P :=

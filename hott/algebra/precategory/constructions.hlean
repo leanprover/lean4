@@ -38,7 +38,7 @@ namespace precategory
   --       symmetric associativity proof.
   definition op_op' {ob : Type} (C : precategory ob) : opposite (opposite C) = C :=
   begin
-    apply (rec_on C), intros (hom', homH', comp', ID', assoc', id_left', id_right'),
+    apply (precategory.rec_on C), intros (hom', homH', comp', ID', assoc', id_left', id_right'),
     apply (ap (λassoc'', precategory.mk hom' @homH' comp' ID' assoc'' id_left' id_right')),
     repeat ( apply funext.path_pi ; intros ),
     apply ap,

@@ -19,7 +19,7 @@ axiom add_assoc (n m k : nat) : (n + m) + k = n + (m + k)
 axiom add_right_comm (n m k : nat) : n + m + k = n + k + m
 set_option unifier.max_steps 50000
 theorem mul_add_distr_left (n m k : nat) : (n + m) * k = n * k + m * k
-:= induction_on k
+:= nat.induction_on k
     (calc
       (n + m) * zero = zero : eq.refl _
         ...          = n * zero + m * zero : eq.refl _)

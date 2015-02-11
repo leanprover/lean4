@@ -44,7 +44,7 @@ if_neg H
 
 definition rec_measure_aux {dom codom : Type} (default : codom) (measure : dom → ℕ)
     (rec_val : dom → (dom → codom) → codom) : ℕ → dom → codom :=
-rec (λx, default) (λm g x, if measure x < succ m then rec_val x g else default)
+nat.rec (λx, default) (λm g x, if measure x < succ m then rec_val x g else default)
 
 definition rec_measure {dom codom : Type} (default : codom) (measure : dom → ℕ)
     (rec_val : dom → (dom → codom) → codom) (x : dom) : codom :=
@@ -62,7 +62,7 @@ theorem rec_measure_aux_spec {dom codom : Type} (default : codom) (measure : dom
   ∀x, f' m x = restrict default measure f m x :=
 let f' := rec_measure_aux default measure rec_val in
 let f  := rec_measure default measure rec_val in
-case_strong_induction_on m
+nat.case_strong_induction_on m
   (take x,
     have H1 : f' 0 x = default, from rfl,
     have H2 : ¬ measure x < 0, from !not_lt_zero,

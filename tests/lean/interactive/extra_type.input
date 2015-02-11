@@ -2,26 +2,26 @@ VISIT extra_type.lean
 SET
 pp.notation false
 SYNC 20
-import general_notation
-import logic.connectives logic.decidable logic.inhabited
-
-open eq eq.ops decidable
-
+prelude
+definition Prop := Type.{0}
+inductive eq {A : Type} (a : A) : A → Prop := refl : eq a a
+infix `=`:50 := eq
+definition rfl {A : Type} {a : A} := eq.refl a
+inductive or (A B : Prop) : Prop := inl {} : A → or A B, inr {} : B → or A B
+infix `∨`:35 := or
 inductive bool : Type :=
   ff : bool,
   tt : bool
 namespace bool
-  protected definition rec_on {C : bool → Type} (b : bool) (H₁ : C ff) (H₂ : C tt) : C b :=
-  rec H₁ H₂ b
-
-  protected definition cases_on {p : bool → Prop} (b : bool) (H₁ : p ff) (H₂ : p tt) : p b :=
-  rec H₁ H₂ b
-
+  protected definition rec_on2 {C : bool → Type} (b : bool) (H₁ : C ff) (H₂ : C tt) : C b :=
+  bool.rec H₁ H₂ b
+  protected definition cases_on2 {p : bool → Prop} (b : bool) (H₁ : p ff) (H₂ : p tt) : p b :=
+  bool.rec H₁ H₂ b
   definition cond {A : Type} (b : bool) (t e : A) :=
-  rec_on b e t
+  bool.rec_on b e t
 
   theorem dichotomy (b : bool) : b = ff ∨ b = tt :=
-  cases_on b (or.inl rfl) (or.inr rfl)
+  bool.cases_on2 b (or.inl rfl) (or.inr rfl)
 end bool
 WAIT
-INFO 20 13
+INFO 20 19

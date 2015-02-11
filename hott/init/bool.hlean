@@ -8,18 +8,18 @@ import init.datatypes init.reserved_notation
 
 namespace bool
   definition cond {A : Type} (b : bool) (t e : A) :=
-  rec_on b e t
+  bool.rec_on b e t
 
   definition bor (a b : bool) :=
-  rec_on a (rec_on b ff tt) tt
+  bool.rec_on a (bool.rec_on b ff tt) tt
 
   notation a || b := bor a b
 
   definition band (a b : bool) :=
-  rec_on a ff (rec_on b ff tt)
+  bool.rec_on a ff (bool.rec_on b ff tt)
 
   notation a && b := band a b
 
   definition bnot (a : bool) :=
-  rec_on a tt ff
+  bool.rec_on a tt ff
 end bool

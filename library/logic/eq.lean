@@ -22,17 +22,17 @@ namespace eq
   definition drec_on {B : Πa' : A, a = a' → Type} (H₁ : a = a') (H₂ : B a (refl a)) : B a' H₁ :=
   eq.rec (λH₁ : a = a, show B a H₁, from H₂) H₁ H₁
 
-  theorem rec_on_id {B : A → Type} (H : a = a) (b : B a) : rec_on H b = b :=
+  theorem rec_on_id {B : A → Type} (H : a = a) (b : B a) : eq.rec_on H b = b :=
   rfl
 
-  theorem rec_on_constant (H : a = a') {B : Type} (b : B) : rec_on H b = b :=
+  theorem rec_on_constant (H : a = a') {B : Type} (b : B) : eq.rec_on H b = b :=
   drec_on H rfl
 
-  theorem rec_on_constant2 (H₁ : a₁ = a₂) (H₂ : a₃ = a₄) (b : B) : rec_on H₁ b = rec_on H₂ b :=
+  theorem rec_on_constant2 (H₁ : a₁ = a₂) (H₂ : a₃ = a₄) (b : B) : eq.rec_on H₁ b = eq.rec_on H₂ b :=
   rec_on_constant H₁ b ⬝ (rec_on_constant H₂ b)⁻¹
 
   theorem rec_on_irrel_arg {f : A → B} {D : B → Type} (H : a = a') (H' : f a = f a') (b : D (f a)) :
-                       rec_on H b = rec_on H' b :=
+                       eq.rec_on H b = eq.rec_on H' b :=
   drec_on H (λ(H' : f a = f a), !rec_on_id⁻¹) H'
 
   theorem rec_on_irrel {a a' : A} {D : A → Type} (H H' : a = a') (b : D a) :
@@ -40,8 +40,8 @@ namespace eq
   proof_irrel H H' ▸ rfl
 
   theorem rec_on_compose {a b c : A} {P : A → Type} (H₁ : a = b) (H₂ : b = c)
-          (u : P a) : rec_on H₂ (rec_on H₁ u) = rec_on (trans H₁ H₂) u :=
-    (show ∀ H₂ : b = c, rec_on H₂ (rec_on H₁ u) = rec_on (trans H₁ H₂) u,
+          (u : P a) : eq.rec_on H₂ (eq.rec_on H₁ u) = eq.rec_on (trans H₁ H₂) u :=
+    (show ∀ H₂ : b = c, eq.rec_on H₂ (eq.rec_on H₁ u) = eq.rec_on (trans H₁ H₂) u,
       from drec_on H₂ (take (H₂ : b = b), rec_on_id H₂ _))
     H₂
 end eq

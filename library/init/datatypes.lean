@@ -82,7 +82,7 @@ bit0 : pos_num → pos_num
 
 namespace pos_num
   definition succ (a : pos_num) : pos_num :=
-  rec_on a (bit0 one) (λn r, bit0 r) (λn r, bit1 n)
+  pos_num.rec_on a (bit0 one) (λn r, bit0 r) (λn r, bit1 n)
 end pos_num
 
 inductive num : Type :=
@@ -92,7 +92,7 @@ pos   : pos_num → num
 namespace num
   open pos_num
   definition succ (a : num) : num :=
-  rec_on a (pos one) (λp, pos (succ p))
+  num.rec_on a (pos one) (λp, pos (succ p))
 end num
 
 inductive bool : Type :=

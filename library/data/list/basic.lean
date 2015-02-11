@@ -137,7 +137,7 @@ head (a :: l) := a
 theorem head_cons [h : inhabited T] (a : T) (l : list T) : head (a::l) = a
 
 theorem head_concat [h : inhabited T] {s : list T} (t : list T) : s ≠ nil → head (s ++ t) = head s :=
-cases_on s
+list.cases_on s
   (take H : nil ≠ nil, absurd rfl H)
   (take (x : T) (s : list T), take H : x::s ≠ nil,
     calc
@@ -154,7 +154,7 @@ theorem tail_nil : tail (@nil T) = nil
 theorem tail_cons (a : T) (l : list T) : tail (a::l) = l
 
 theorem cons_head_tail [h : inhabited T] {l : list T} : l ≠ nil → (head l)::(tail l) = l :=
-cases_on l
+list.cases_on l
   (assume H : nil ≠ nil, absurd rfl H)
   (take x l, assume H : x::l ≠ nil, rfl)
 
@@ -173,7 +173,7 @@ theorem mem_cons (x y : T) (l : list T) : x ∈ y::l ↔ (x = y ∨ x ∈ l) :=
 iff.rfl
 
 theorem mem_concat_imp_or {x : T} {s t : list T} : x ∈ s ++ t → x ∈ s ∨ x ∈ t :=
-induction_on s or.inr
+list.induction_on s or.inr
   (take y s,
     assume IH : x ∈ s ++ t → x ∈ s ∨ x ∈ t,
     assume H1 : x ∈ y::s ++ t,
@@ -182,7 +182,7 @@ induction_on s or.inr
     iff.elim_right or.assoc H3)
 
 theorem mem_or_imp_concat {x : T} {s t : list T} : x ∈ s ∨ x ∈ t → x ∈ s ++ t :=
-induction_on s
+list.induction_on s
   (take H, or.elim H false.elim (assume H, H))
   (take y s,
     assume IH : x ∈ s ∨ x ∈ t → x ∈ s ++ t,
@@ -200,7 +200,7 @@ iff.intro mem_concat_imp_or mem_or_imp_concat
 local attribute mem [reducible]
 local attribute append [reducible]
 theorem mem_split {x : T} {l : list T} : x ∈ l → ∃s t : list T, l = s ++ (x::t) :=
-induction_on l
+list.induction_on l
   (take H : x ∈ nil, false.elim (iff.elim_left !mem_nil H))
   (take y l,
     assume IH : x ∈ l → ∃s t : list T, l = s ++ (x::t),
@@ -216,7 +216,7 @@ induction_on l
         !exists.intro (!exists.intro H4)))
 
 definition mem.is_decidable [instance] (H : decidable_eq T) (x : T) (l : list T) : decidable (x ∈ l) :=
-rec_on l
+list.rec_on l
   (decidable.inr (not_of_iff_false !mem_nil))
   (take (h : T) (l : list T) (iH : decidable (x ∈ l)),
     show decidable (x ∈ h::l), from
@@ -255,7 +255,7 @@ theorem find_nil (x : T) : find x nil = 0
 theorem find_cons (x y : T) (l : list T) : find x (y::l) = if x = y then 0 else succ (find x l)
 
 theorem find.not_mem {l : list T} {x : T} : ¬x ∈ l → find x l = length l :=
-rec_on l
+list.rec_on l
    (assume P₁ : ¬x ∈ nil, _)
    (take y l,
       assume iH : ¬x ∈ l → find x l = length l,

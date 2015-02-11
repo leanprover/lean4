@@ -52,7 +52,7 @@ theorem add_div_self_left {x : ℕ} (z : ℕ) (H : x > 0) : (x + z) div x = succ
 !add.comm ▸ !add_div_self_right H
 
 theorem add_mul_div_self_right {x y z : ℕ} (H : z > 0) : (x + y * z) div z = x div z + y :=
-induction_on y
+nat.induction_on y
   (calc (x + zero * z) div z = (x + zero) div z : zero_mul
                        ...   = x div z          : add_zero
                        ...   = x div z + zero   : add_zero)
@@ -107,7 +107,7 @@ theorem add_mod_right {x z : ℕ} (H : x > 0) : (x + z) mod x = z mod x :=
 !add.comm ▸ add_mod_left H
 
 theorem add_mul_mod_self_right {x y z : ℕ} (H : z > 0) : (x + y * z) mod z = x mod z :=
-induction_on y
+nat.induction_on y
   (calc (x + zero * z) mod z = (x + zero) mod z : zero_mul
                          ... = x mod z          : add_zero)
   (take y,
@@ -131,7 +131,7 @@ theorem mul_mod_right {m n : ℕ} : (m * n) mod m = 0 :=
 !mul.comm ▸ !mul_mod_left
 
 theorem mod_lt {x y : ℕ} (H : y > 0) : x mod y < y :=
-case_strong_induction_on x
+nat.case_strong_induction_on x
   (show 0 mod y < y, from !zero_mod⁻¹ ▸ H)
   (take x,
     assume IH : ∀x', x' ≤ x → x' mod y < y,
@@ -160,7 +160,7 @@ by_cases_zero_pos y
   (take y,
     assume H : y > 0,
     show x = x div y * y + x mod y, from
-      case_strong_induction_on x
+      nat.case_strong_induction_on x
         (show 0 = (0 div y) * y + 0 mod y, by simp)
         (take x,
           assume IH : ∀x', x' ≤ x → x' = x' div y * y + x' mod y,
@@ -254,7 +254,7 @@ have H1 : n mod 1 < 1, from mod_lt !succ_pos,
 eq_zero_of_le_zero (le_of_lt_succ H1)
 
 theorem mod_self (n : ℕ) : n mod n = 0 :=
-cases_on n (by simp)
+nat.cases_on n (by simp)
   (take n,
     have H : (succ n * 1) mod (succ n * 1) = succ n * (1 mod 1),
       from !mul_mod_mul_left,
@@ -411,7 +411,7 @@ private definition gcd.lt.dec (x y₁ : nat) : (succ y₁, x mod succ y₁) ≺ 
 mod_lt (succ_pos y₁)
 
 definition gcd.F (p₁ : nat × nat) : (Π p₂ : nat × nat, p₂ ≺ p₁ → nat) → nat :=
-prod.cases_on p₁ (λx y, cases_on y
+prod.cases_on p₁ (λx y, nat.cases_on y
   (λ f, x)
   (λ y₁ (f : Πp₂, p₂ ≺ (x, succ y₁) → nat), f (succ y₁, x mod succ y₁) !gcd.lt.dec))
 
@@ -429,7 +429,7 @@ calc gcd n 1 = gcd 1 (n mod 1) : gcd_succ n zero
          ... = 1               : gcd_zero_right
 
 theorem gcd_def (x y : ℕ) : gcd x y = if y = 0 then x else gcd y (x mod y) :=
-cases_on y
+nat.cases_on y
   (calc gcd x 0 = x                                          : gcd_zero_right x
            ...  = if 0 = 0 then x else gcd zero (x mod zero) : (if_pos rfl)⁻¹)
   (λy₁, calc
@@ -437,7 +437,7 @@ cases_on y
       ... = if succ y₁ = 0 then x else gcd (succ y₁) (x mod succ y₁) : (if_neg (succ_ne_zero y₁))⁻¹)
 
 theorem gcd_self (n : ℕ) : gcd n n = n :=
-cases_on n
+nat.cases_on n
   rfl
   (λn₁, calc
     gcd (succ n₁) (succ n₁) = gcd (succ n₁) (succ n₁ mod succ n₁) : gcd_succ (succ n₁) n₁
@@ -445,7 +445,7 @@ cases_on n
                       ...   = succ n₁                             : gcd_zero_right)
 
 theorem gcd_zero_left (n : nat) : gcd 0 n = n :=
-cases_on n
+nat.cases_on n
   rfl
   (λ n₁, calc
     gcd 0 (succ n₁) = gcd (succ n₁) (0 mod succ n₁) : gcd_succ
@@ -471,7 +471,7 @@ theorem gcd.induction {P : ℕ → ℕ → Prop}
 let Q : nat × nat → Prop := λ p : nat × nat, P (pr₁ p) (pr₂ p) in
 have aux : Q (m, n), from
   well_founded.induction (m, n) (λp, prod.cases_on p
-    (λm n, cases_on n
+    (λm n, nat.cases_on n
       (λ ih, show P (pr₁ (m, 0)) (pr₂ (m, 0)), from H0 m)
       (λ n₁ (ih : ∀p₂, p₂ ≺ (m, succ n₁) → P (pr₁ p₂) (pr₂ p₂)),
         have hlt₁ : 0 < succ n₁, from succ_pos n₁,

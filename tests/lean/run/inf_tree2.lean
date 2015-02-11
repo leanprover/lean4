@@ -21,7 +21,7 @@ namespace inftree
 
   definition dsub.wf (A : Type) : well_founded (@dsub A) :=
   well_founded.intro (λ (t : inftree A),
-    rec_on t
+    inftree.rec_on t
       (λ a, dsub.leaf.acc a)
       (λ f t (ihf :∀a, acc dsub (f a)) (iht : acc dsub t), dsub.node.acc f ihf t iht))
 

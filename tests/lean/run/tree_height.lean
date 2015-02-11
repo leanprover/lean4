@@ -8,7 +8,7 @@ node : tree A → tree A → tree A
 namespace tree
 
 definition height {A : Type} (t : tree A) : nat :=
-rec_on t
+tree.rec_on t
   (λ a, zero)
   (λ t₁ t₂ h₁ h₂, succ (max h₁ h₂))
 

@@ -6,7 +6,7 @@ namespace sigma
   variables {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂}
 
   definition dpair.inj (H : ⟨a₁, b₁⟩ = ⟨a₂, b₂⟩) : Σ (e₁ : a₁ = a₂), eq.rec b₁ e₁ = b₂ :=
-  down (no_confusion H (λ e₁ e₂, ⟨e₁, e₂⟩))
+  down (sigma.no_confusion H (λ e₁ e₂, ⟨e₁, e₂⟩))
 
   definition dpair.inj₁ (H : ⟨a₁, b₁⟩ = ⟨a₂, b₂⟩) : a₁ = a₂ :=
   (dpair.inj H).1
@@ -29,7 +29,7 @@ namespace foo
 
   definition foo.inj (H : mk A₁ B₁ a₁ b₁ = mk A₂ B₂ a₂ b₂) :
     Σ (e₁ : A₁ = A₂) (e₂ : eq.rec B₁ e₁ = B₂) (e₃ : eq.rec a₁ e₁ = a₂), eq.rec (eq.rec (eq.rec b₁ e₁) e₂) e₃ = b₂ :=
-  down (no_confusion H (λ e₁ e₂ e₃ e₄, ⟨e₁, e₂, e₃, e₄⟩))
+  down (foo.no_confusion H (λ e₁ e₂ e₃ e₄, ⟨e₁, e₂, e₃, e₄⟩))
 
   definition foo.inj₁ (H : mk A₁ B₁ a₁ b₁ = mk A₂ B₂ a₂ b₂) : A₁ = A₂ :=
   (foo.inj H).1

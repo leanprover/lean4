@@ -12,7 +12,7 @@ namespace ftree
 namespace manual
 definition below.{l l₁ l₂} {A : Type.{l₁}} {B : Type.{l₂}} (C : ftree A B → Type.{l+1}) (t : ftree A B)
            : Type.{max l₁ l₂ (l+1)} :=
-@rec.{(max l₁ l₂ (l+1))+1 l₁ l₂}
+@ftree.rec.{(max l₁ l₂ (l+1))+1 l₁ l₂}
   A
   B
   (λ t : ftree A B,  Type.{max l₁ l₂ (l+1)})
@@ -32,7 +32,7 @@ definition below.{l l₁ l₂} {A : Type.{l₁}} {B : Type.{l₂}} (C : ftree A 
 
 definition pbelow.{l₁ l₂} {A : Type.{l₁}} {B : Type.{l₂}} (C : ftree A B → Prop) (t : ftree A B)
            : Prop :=
-@rec.{1 l₁ l₂}
+@ftree.rec.{1 l₁ l₂}
   A
   B
   (λ t : ftree A B,  Prop)
@@ -55,7 +55,7 @@ definition brec_on.{l l₁ l₂} {A : Type.{l₁}} {B : Type.{l₂}} {C : ftree 
                   (F : Π (t : ftree A B), @below A B C t → C t)
               : C t :=
 have gen : prod.{(l+1) (max l₁ l₂ (l+1))} (C t) (@below A B C t), from
-  @rec.{(max l₁ l₂ (l+1)) l₁ l₂}
+  @ftree.rec.{(max l₁ l₂ (l+1)) l₁ l₂}
     A
     B
     (λ t : ftree A B, prod.{(l+1) (max l₁ l₂ (l+1))} (C t) (@below A B C t))
@@ -82,27 +82,27 @@ prod.pr1 gen
 
 definition binduction_on.{l₁ l₂} {A : Type.{l₁}} {B : Type.{l₂}} {C : ftree A B → Prop}
                (t : ftree A B)
-               (F : Π (t : ftree A B), @ibelow A B C t → C t)
+               (F : Π (t : ftree A B), @ftree.ibelow A B C t → C t)
             : C t :=
-have gen : C t ∧ @ibelow A B C t, from
-  @rec.{0 l₁ l₂}
+have gen : C t ∧ @ftree.ibelow A B C t, from
+  @ftree.rec.{0 l₁ l₂}
     A
     B
-    (λ t : ftree A B, C t ∧ @ibelow A B C t)
-    (have b : @ibelow A B C (leafa A B), from
+    (λ t : ftree A B, C t ∧ @ftree.ibelow A B C t)
+    (have b : @ftree.ibelow A B C (leafa A B), from
        true.intro,
      have c : C (leafa A B), from
        F (leafa A B) b,
      and.intro c b)
     (λ (f₁ : A → B → ftree A B)
        (f₂ : B → ftree A B)
-       (r₁ : ∀ (a : A) (b : B), C (f₁ a b) ∧ @ibelow A B C (f₁ a b))
-       (r₂ : ∀ (b : B), C (f₂ b) ∧ @ibelow A B C (f₂ b)),
+       (r₁ : ∀ (a : A) (b : B), C (f₁ a b) ∧ @ftree.ibelow A B C (f₁ a b))
+       (r₂ : ∀ (b : B), C (f₂ b) ∧ @ftree.ibelow A B C (f₂ b)),
        let fc₁ : ∀ (a : A) (b : B), C (f₁ a b)        := λ (a : A) (b : B), and.elim_left  (r₁ a b) in
-       let fr₁ : ∀ (a : A) (b : B), @ibelow A B C (f₁ a b) := λ (a : A) (b : B), and.elim_right (r₁ a b) in
+       let fr₁ : ∀ (a : A) (b : B), @ftree.ibelow A B C (f₁ a b) := λ (a : A) (b : B), and.elim_right (r₁ a b) in
        let fc₂ : ∀ (b : B), C (f₂ b)                  := λ (b : B), and.elim_left  (r₂ b) in
-       let fr₂ : ∀ (b : B), @ibelow A B C (f₂ b)           := λ (b : B), and.elim_right (r₂ b) in
-       have b : @ibelow A B C (node f₁ f₂), from
+       let fr₂ : ∀ (b : B), @ftree.ibelow A B C (f₂ b)           := λ (b : B), and.elim_right (r₂ b) in
+       have b : @ftree.ibelow A B C (node f₁ f₂), from
          and.intro (and.intro fc₁ fr₁) (and.intro fc₂ fr₂),
        have c : C (node f₁ f₂), from
          F (node f₁ f₂) b,

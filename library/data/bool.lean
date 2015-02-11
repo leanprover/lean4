@@ -14,7 +14,7 @@ namespace bool
   local attribute band [reducible]
 
   theorem dichotomy (b : bool) : b = ff ∨ b = tt :=
-  cases_on b (or.inl rfl) (or.inr rfl)
+  bool.cases_on b (or.inl rfl) (or.inr rfl)
 
   theorem cond.ff {A : Type} (t e : A) : cond ff t e = e :=
   rfl
@@ -35,24 +35,24 @@ namespace bool
   notation a || b := bor a b
 
   theorem bor.tt_right (a : bool) : a || tt = tt :=
-  cases_on a rfl rfl
+  bool.cases_on a rfl rfl
 
   theorem bor.ff_left (a : bool) : ff || a = a :=
-  cases_on a rfl rfl
+  bool.cases_on a rfl rfl
 
   theorem bor.ff_right (a : bool) : a || ff = a :=
-  cases_on a rfl rfl
+  bool.cases_on a rfl rfl
 
   theorem bor.id (a : bool) : a || a = a :=
-  cases_on a rfl rfl
+  bool.cases_on a rfl rfl
 
   theorem bor.comm (a b : bool) : a || b = b || a :=
-  cases_on a
-    (cases_on b rfl rfl)
-    (cases_on b rfl rfl)
+  bool.cases_on a
+    (bool.cases_on b rfl rfl)
+    (bool.cases_on b rfl rfl)
 
   theorem bor.assoc (a b c : bool) : (a || b) || c = a || (b || c) :=
-  cases_on a
+  bool.cases_on a
     (calc (ff || b) || c = b || c         : {!bor.ff_left}
                    ...   = ff || (b || c) : !bor.ff_left⁻¹)
     (calc (tt || b) || c = tt || c        : {!bor.tt_left}
@@ -60,7 +60,7 @@ namespace bool
                    ...   = tt || (b || c) : !bor.tt_left⁻¹)
 
   theorem bor.to_or {a b : bool} : a || b = tt → a = tt ∨ b = tt :=
-  rec_on a
+  bool.rec_on a
     (assume H : ff || b = tt,
       have Hb : b = tt, from !bor.ff_left ▸ H,
       or.inr Hb)
@@ -70,24 +70,24 @@ namespace bool
   rfl
 
   theorem band.tt_left (a : bool) : tt && a = a :=
-  cases_on a rfl rfl
+  bool.cases_on a rfl rfl
 
   theorem band.ff_right (a : bool) : a && ff = ff :=
-  cases_on a rfl rfl
+  bool.cases_on a rfl rfl
 
   theorem band.tt_right (a : bool) : a && tt = a :=
-  cases_on a rfl rfl
+  bool.cases_on a rfl rfl
 
   theorem band.id (a : bool) : a && a = a :=
-  cases_on a rfl rfl
+  bool.cases_on a rfl rfl
 
   theorem band.comm (a b : bool) : a && b = b && a :=
-  cases_on a
-    (cases_on b rfl rfl)
-    (cases_on b rfl rfl)
+  bool.cases_on a
+    (bool.cases_on b rfl rfl)
+    (bool.cases_on b rfl rfl)
 
   theorem band.assoc (a b c : bool) : (a && b) && c = a && (b && c) :=
-  cases_on a
+  bool.cases_on a
     (calc (ff && b) && c = ff && c        : {!band.ff_left}
                     ...  = ff             : !band.ff_left
                     ...  = ff && (b && c) : !band.ff_left⁻¹)
@@ -108,7 +108,7 @@ namespace bool
   band.eq_tt_elim_left (!band.comm ⬝ H)
 
   theorem bnot.bnot (a : bool) : bnot (bnot a) = a :=
-  cases_on a rfl rfl
+  bool.cases_on a rfl rfl
 
   theorem bnot.false : bnot ff = tt :=
   rfl
@@ -116,13 +116,15 @@ namespace bool
   theorem bnot.true  : bnot tt = ff :=
   rfl
 
-  protected definition is_inhabited [instance] : inhabited bool :=
-  inhabited.mk ff
-
-  protected definition has_decidable_eq [instance] : decidable_eq bool :=
-  take a b : bool,
-    rec_on a
-      (rec_on b (inl rfl) (inr ff_ne_tt))
-      (rec_on b (inr (ne.symm ff_ne_tt)) (inl rfl))
-
 end bool
+
+open bool
+
+protected definition bool.inhabited [instance] : inhabited bool :=
+inhabited.mk ff
+
+protected definition bool.decidable_eq [instance] : decidable_eq bool :=
+take a b : bool,
+  bool.rec_on a
+    (bool.rec_on b (inl rfl) (inr ff_ne_tt))
+    (bool.rec_on b (inr (ne.symm ff_ne_tt)) (inl rfl))

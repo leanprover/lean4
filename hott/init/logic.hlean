@@ -46,7 +46,7 @@ namespace eq
   variables {a b c a' : A}
 
   definition subst {P : A → Type} (H₁ : a = b) (H₂ : P a) : P b :=
-  rec H₂ H₁
+  eq.rec H₂ H₁
 
   definition trans (H₁ : a = b) (H₂ : b = c) : a = c :=
   subst H₂ H₁
@@ -211,13 +211,13 @@ namespace decidable
   variables {p q : Type}
 
   definition pos_witness [C : decidable p] (H : p) : p :=
-  rec_on C (λ Hp, Hp) (λ Hnp, absurd H Hnp)
+  decidable.rec_on C (λ Hp, Hp) (λ Hnp, absurd H Hnp)
 
   definition neg_witness [C : decidable p] (H : ¬ p) : ¬ p :=
-  rec_on C (λ Hp, absurd Hp H) (λ Hnp, Hnp)
+  decidable.rec_on C (λ Hp, absurd Hp H) (λ Hnp, Hnp)
 
   definition by_cases {q : Type} [C : decidable p] (Hpq : p → q) (Hnpq : ¬p → q) : q :=
-  rec_on C (assume Hp, Hpq Hp) (assume Hnp, Hnpq Hnp)
+  decidable.rec_on C (assume Hp, Hpq Hp) (assume Hnp, Hnpq Hnp)
 
   definition em (p : Type) [H : decidable p] : sum p ¬p :=
   by_cases (λ Hp, sum.inl Hp) (λ Hnp, sum.inr Hnp)
@@ -228,7 +228,7 @@ namespace decidable
     (assume H₁ : ¬p, empty.rec (λ e, p) (H H₁))
 
   definition decidable_iff_equiv (Hp : decidable p) (H : p ↔ q) : decidable q :=
-  rec_on Hp
+  decidable.rec_on Hp
     (assume Hp : p,   inl (iff.elim_left H Hp))
     (assume Hnp : ¬p, inr (iff.elim_left (iff.flip_sign H) Hnp))
 

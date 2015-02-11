@@ -59,8 +59,8 @@ namespace prod
           (iHb : ∀y, Rb y xb → acc (lex Ra Rb) (xa, y)),
           acc.intro (xa, xb) (λp (lt : p ≺ (xa, xb)),
             have aux : xa = xa → xb = xb → acc (lex Ra Rb) p, from
-              @lex.rec_on A B Ra Rb (λp₁ p₂, pr₁ p₂ = xa → pr₂ p₂ = xb → acc (lex Ra Rb) p₁)
-                         p (xa, xb) lt
+              @prod.lex.rec_on A B Ra Rb (λp₁ p₂, pr₁ p₂ = xa → pr₂ p₂ = xb → acc (lex Ra Rb) p₁)
+                               p (xa, xb) lt
                 (λa₁ b₁ a₂ b₂ (H : Ra a₁ a₂) (eq₂ : a₂ = xa) (eq₃ : b₂ = xb),
                   show acc (lex Ra Rb) (a₁, b₁), from
                   have Ra₁  : Ra a₁ xa, from eq.rec_on eq₂ H,
@@ -78,7 +78,7 @@ namespace prod
 
   -- Relational product is a subrelation of the lex
   definition rprod.sub_lex : ∀ a b, rprod Ra Rb a b → lex Ra Rb a b :=
-  λa b H, rprod.rec_on H (λ a₁ b₁ a₂ b₂ H₁ H₂, lex.left Rb a₂ b₂ H₁)
+  λa b H, prod.rprod.rec_on H (λ a₁ b₁ a₂ b₂ H₁ H₂, lex.left Rb a₂ b₂ H₁)
 
   -- The relational product of well founded relations is well-founded
   definition rprod.wf (Ha : well_founded Ra) (Hb : well_founded Rb) : well_founded (rprod Ra Rb) :=

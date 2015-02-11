@@ -18,8 +18,8 @@ context sec_cat
 
   attribute foo [class]
   parameters {ob : Type} {mor : ob → ob → Type} {Cat : category ob mor}
-  definition compose := rec (λ comp id assoc idr idl, comp) Cat
-  definition id := rec (λ comp id assoc idr idl, id) Cat
+  definition compose := category.rec (λ comp id assoc idr idl, comp) Cat
+  definition id := category.rec (λ comp id assoc idr idl, id) Cat
   infixr ∘ := compose
   inductive is_section {A B : ob} (f : mor A B) : Type :=
   mk : ∀g, g ∘ f = id → is_section f

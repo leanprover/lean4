@@ -37,13 +37,13 @@ namespace eq
   variables {a b c a': A}
 
   theorem subst {P : A → Prop} (H₁ : a = b) (H₂ : P a) : P b :=
-  rec H₂ H₁
+  eq.rec H₂ H₁
 
   theorem trans (H₁ : a = b) (H₂ : b = c) : a = c :=
   subst H₂ H₁
 
   definition symm (H : a = b) : b = a :=
-  rec (refl a) H
+  eq.rec (refl a) H
 
   namespace ops
     notation H `⁻¹` := symm H --input with \sy or \-1 or \inv
@@ -124,10 +124,10 @@ namespace heq
   eq.rec_on (to_eq H₁) H₂
 
   theorem subst {P : ∀T : Type, T → Prop} (H₁ : a == b) (H₂ : P A a) : P B b :=
-  rec_on H₁ H₂
+  heq.rec_on H₁ H₂
 
   theorem symm (H : a == b) : b == a :=
-  rec_on H (refl a)
+  heq.rec_on H (refl a)
 
   theorem of_eq (H : a = a') : a == a' :=
   eq.subst H (refl a)
@@ -167,7 +167,7 @@ notation a ∨ b := or a b
 
 namespace or
   theorem elim (H₁ : a ∨ b) (H₂ : a → c) (H₃ : b → c) : c :=
-  rec H₂ H₃ H₁
+  or.rec H₂ H₃ H₁
 end or
 
 /- iff -/
@@ -254,15 +254,15 @@ namespace decidable
   variables {p q : Prop}
 
   definition rec_on_true [H : decidable p] {H1 : p → Type} {H2 : ¬p → Type} (H3 : p) (H4 : H1 H3)
-      : rec_on H H1 H2 :=
-  rec_on H (λh, H4) (λh, !false.rec (h H3))
+      : decidable.rec_on H H1 H2 :=
+  decidable.rec_on H (λh, H4) (λh, !false.rec (h H3))
 
   definition rec_on_false [H : decidable p] {H1 : p → Type} {H2 : ¬p → Type} (H3 : ¬p) (H4 : H2 H3)
-      : rec_on H H1 H2 :=
-  rec_on H (λh, false.rec _ (H3 h)) (λh, H4)
+      : decidable.rec_on H H1 H2 :=
+  decidable.rec_on H (λh, false.rec _ (H3 h)) (λh, H4)
 
   definition by_cases {q : Type} [C : decidable p] (Hpq : p → q) (Hnpq : ¬p → q) : q :=
-  rec_on C (assume Hp, Hpq Hp) (assume Hnp, Hnpq Hnp)
+  decidable.rec_on C (assume Hp, Hpq Hp) (assume Hnp, Hnpq Hnp)
 
   theorem em (p : Prop) [H : decidable p] : p ∨ ¬p :=
   by_cases (λ Hp, or.inl Hp) (λ Hnp, or.inr Hnp)

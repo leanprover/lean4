@@ -16,7 +16,7 @@ open int eq.ops
 
 namespace int
 
-private definition nonneg (a : ℤ) : Prop := cases_on a (take n, true) (take n, false)
+private definition nonneg (a : ℤ) : Prop := int.cases_on a (take n, true) (take n, false)
 definition le (a b : ℤ) : Prop := nonneg (sub b a)
 definition lt (a b : ℤ) : Prop := le (add a 1) b
 
@@ -25,15 +25,15 @@ infix <= := int.le
 infix ≤  := int.le
 infix <  := int.lt
 
-private definition decidable_nonneg [instance] (a : ℤ) : decidable (nonneg a) := cases_on a _ _
+private definition decidable_nonneg [instance] (a : ℤ) : decidable (nonneg a) := int.cases_on a _ _
 definition decidable_le [instance] (a b : ℤ) : decidable (a ≤ b) := decidable_nonneg _
 definition decidable_lt [instance] (a b : ℤ) : decidable (a < b) := decidable_nonneg _
 
 private theorem nonneg.elim {a : ℤ} : nonneg a → ∃n : ℕ, a = n :=
-cases_on a (take n H, exists.intro n rfl) (take n' H, false.elim H)
+int.cases_on a (take n H, exists.intro n rfl) (take n' H, false.elim H)
 
 private theorem nonneg_or_nonneg_neg (a : ℤ) : nonneg a ∨ nonneg (-a) :=
-cases_on a (take n, or.inl trivial) (take n, or.inr trivial)
+int.cases_on a (take n, or.inl trivial) (take n, or.inr trivial)
 
 theorem le.intro {a b : ℤ} {n : ℕ} (H : a + n = b) : a ≤ b :=
 have H1 : b - a = n, from (eq_add_neg_of_add_eq (!add.comm ▸ H))⁻¹,

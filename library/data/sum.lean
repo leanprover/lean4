@@ -22,16 +22,16 @@ namespace sum
   variables {A B : Type}
 
   definition inl_ne_inr (a : A) (b : B) : inl a ≠ inr b :=
-  assume H, no_confusion H
+  assume H, sum.no_confusion H
 
   definition inr_ne_inl (b : B) (a : A) : inr b ≠ inl a :=
-  assume H, no_confusion H
+  assume H, sum.no_confusion H
 
   definition inl_inj {a₁ a₂ : A} : intro_left B a₁ = intro_left B a₂ → a₁ = a₂ :=
-  assume H, no_confusion H (λe, e)
+  assume H, sum.no_confusion H (λe, e)
 
   definition inr_inj {b₁ b₂ : B} : intro_right A b₁ = intro_right A b₂ → b₁ = b₂ :=
-  assume H, no_confusion H (λe, e)
+  assume H, sum.no_confusion H (λe, e)
 
   protected definition is_inhabited_left [instance] : inhabited A → inhabited (A + B) :=
   assume H : inhabited A, inhabited.mk (inl (default A))

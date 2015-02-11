@@ -23,7 +23,7 @@ namespace nat
   notation a ≤ b := le a b
 
   definition pred (a : nat) : nat :=
-  cases_on a zero (λ a₁, a₁)
+  nat.cases_on a zero (λ a₁, a₁)
 
   protected definition is_inhabited [instance] : inhabited nat :=
   inhabited.mk zero
@@ -31,39 +31,39 @@ namespace nat
   protected definition has_decidable_eq [instance] : decidable_eq nat :=
   λn m : nat,
   have general : ∀n, decidable (n = m), from
-    rec_on m
-      (λ n, cases_on n
+    nat.rec_on m
+      (λ n, nat.cases_on n
         (inl rfl)
-        (λ m, inr (λ (e : succ m = zero), down (no_confusion e))))
-      (λ (m' : nat) (ih : ∀n, decidable (n = m')) (n : nat), cases_on n
-        (inr (λ h, down (no_confusion h)))
+        (λ m, inr (λ (e : succ m = zero), down (nat.no_confusion e))))
+      (λ (m' : nat) (ih : ∀n, decidable (n = m')) (n : nat), nat.cases_on n
+        (inr (λ h, down (nat.no_confusion h)))
         (λ (n' : nat),
           decidable.rec_on (ih n')
             (assume Heq : n' = m', inl (eq.rec_on Heq rfl))
             (assume Hne : n' ≠ m',
               have H1 : succ n' ≠ succ m', from
-                assume Heq, down (no_confusion Heq (λ e : n' = m', Hne e)),
+                assume Heq, down (nat.no_confusion Heq (λ e : n' = m', Hne e)),
               inr H1))),
   general n
 
   -- less-than is well-founded
   definition lt.wf [instance] : well_founded lt :=
-  well_founded.intro (λn, rec_on n
+  well_founded.intro (λn, nat.rec_on n
     (acc.intro zero (λ (y : nat) (hlt : y < zero),
       have aux : ∀ {n₁}, y < n₁ → zero = n₁ → acc lt y, from
         λ n₁ hlt, lt.cases_on hlt
-          (λ heq, down (no_confusion heq))
-          (λ b hlt heq, down (no_confusion heq)),
+          (λ heq, down (nat.no_confusion heq))
+          (λ b hlt heq, down (nat.no_confusion heq)),
       aux hlt rfl))
     (λ (n : nat) (ih : acc lt n),
       acc.intro (succ n) (λ (m : nat) (hlt : m < succ n),
         have aux : ∀ {n₁} (hlt : m < n₁), succ n = n₁ → acc lt m, from
           λ n₁ hlt, lt.cases_on hlt
             (λ (heq : succ n = succ m),
-              down (no_confusion heq (λ (e : n = m),
+              down (nat.no_confusion heq (λ (e : n = m),
                 eq.rec_on e ih)))
             (λ b (hlt : m < b) (heq : succ n = succ b),
-              down (no_confusion heq (λ (e : n = b),
+              down (nat.no_confusion heq (λ (e : n = b),
                 acc.inv (eq.rec_on e ih) hlt))),
         aux hlt rfl)))
 
@@ -76,12 +76,12 @@ namespace nat
   definition not_lt_zero (a : nat) : ¬ a < zero :=
   have aux : ∀ {b}, a < b → b = zero → empty, from
     λ b H, lt.cases_on H
-      (λ heq, down (no_confusion heq))
-      (λ b h₁ heq, down (no_confusion heq)),
+      (λ heq, down (nat.no_confusion heq))
+      (λ b h₁ heq, down (nat.no_confusion heq)),
   λ H, aux H rfl
 
   definition zero_lt_succ (a : nat) : zero < succ a :=
-  rec_on a
+  nat.rec_on a
     (lt.base zero)
     (λ a (hlt : zero < succ a), lt.step hlt)
 
@@ -114,9 +114,9 @@ namespace nat
   aux
 
   definition lt.is_decidable_rel [instance] : decidable_rel lt :=
-  λ a b, rec_on b
+  λ a b, nat.rec_on b
     (λ (a : nat), inr (not_lt_zero a))
-    (λ (b₁ : nat) (ih : ∀ a, decidable (a < b₁)) (a : nat), cases_on a
+    (λ (b₁ : nat) (ih : ∀ a, decidable (a < b₁)) (a : nat), nat.cases_on a
        (inl !zero_lt_succ)
        (λ a, decidable.rec_on (ih a)
          (λ h_pos : a < b₁, inl (lt.succ_of_lt h_pos))
@@ -135,8 +135,8 @@ namespace nat
   definition eq_or_lt_of_le {a b : nat} (H : a ≤ b) : sum (a = b) (a < b) :=
   have aux : Π (a₁ b₁ : nat) (hlt : a₁ < b₁), a₁ = a → b₁ = (succ b) → sum (a = b) (a < b), from
     λ a₁ b₁ hlt, lt.rec_on hlt
-      (λ h₁, eq.rec_on h₁ (λ h₂, down (no_confusion h₂ (λ h₃, eq.rec_on h₃ (sum.inl rfl)))))
-      (λ b₁ hlt ih h₁, eq.rec_on h₁ (λ h₂, down (no_confusion h₂ (λ h₃, eq.rec_on h₃ (sum.inr hlt))))),
+      (λ h₁, eq.rec_on h₁ (λ h₂, down (nat.no_confusion h₂ (λ h₃, eq.rec_on h₃ (sum.inl rfl)))))
+      (λ b₁ hlt ih h₁, eq.rec_on h₁ (λ h₂, down (nat.no_confusion h₂ (λ h₃, eq.rec_on h₃ (sum.inr hlt))))),
   aux a (succ b) H rfl rfl
 
   definition le.of_eq_or_lt {a b : nat} (H : sum (a = b) (a < b)) : a ≤ b :=
@@ -155,7 +155,7 @@ namespace nat
   end
 
   definition lt.irrefl (a : nat) : ¬ a < a :=
-  rec_on a
+  nat.rec_on a
     !not_lt_zero
     (λ (a : nat) (ih : ¬ a < a) (h : succ a < succ a),
       ih (lt.of_succ_lt_succ h))
@@ -166,11 +166,11 @@ namespace nat
     (λ b hlt (ih : ¬ b < a) (h : succ b < a), ih (lt.of_succ_lt h))
 
   definition lt.trichotomy (a b : nat) : a < b ⊎ a = b ⊎ b < a :=
-  rec_on b
-    (λa, cases_on a
+  nat.rec_on b
+    (λa, nat.cases_on a
        (sum.inr (sum.inl rfl))
        (λ a₁, sum.inr (sum.inr !zero_lt_succ)))
-    (λ b₁ (ih : ∀a, a < b₁ ⊎ a = b₁ ⊎ b₁ < a) (a : nat), cases_on a
+    (λ b₁ (ih : ∀a, a < b₁ ⊎ a = b₁ ⊎ b₁ < a) (a : nat), nat.cases_on a
        (sum.inl !zero_lt_succ)
        (λ a, sum.rec_on (ih a)
            (λ h : a < b₁, sum.inl (lt.succ_of_lt h))
@@ -282,23 +282,23 @@ namespace nat
   notation a ≥ b := ge a b
 
   definition add (a b : nat) : nat :=
-  rec_on b a (λ b₁ r, succ r)
+  nat.rec_on b a (λ b₁ r, succ r)
 
   notation a + b := add a b
 
   definition sub (a b : nat) : nat :=
-  rec_on b a (λ b₁ r, pred r)
+  nat.rec_on b a (λ b₁ r, pred r)
 
   notation a - b := sub a b
 
   definition mul (a b : nat) : nat :=
-  rec_on b zero (λ b₁ r, r + a)
+  nat.rec_on b zero (λ b₁ r, r + a)
 
   notation a * b := mul a b
 
   local attribute sub [reducible]
   definition succ_sub_succ_eq_sub (a b : nat) : succ a - succ b = a - b :=
-  rec_on b
+  nat.rec_on b
     rfl
     (λ b₁ (ih : succ a - succ b₁ = a - b₁),
       eq.rec_on ih (eq.refl (pred (succ a - succ b₁))))
@@ -307,7 +307,7 @@ namespace nat
   eq.rec_on (succ_sub_succ_eq_sub a b) rfl
 
   definition zero_sub_eq_zero (a : nat) : zero - a = zero :=
-  rec_on a
+  nat.rec_on a
     rfl
     (λ a₁ (ih : zero - a₁ = zero), calc
       zero - succ a₁ = pred (zero - a₁) : rfl
@@ -333,12 +333,12 @@ namespace nat
   λ h₁ h₂, aux h₁ h₂
 
   definition pred_le (a : nat) : pred a ≤ a :=
-  cases_on a
+  nat.cases_on a
     (le.refl zero)
     (λ a₁, le.of_lt (lt.base a₁))
 
   definition sub_le (a b : nat) : a - b ≤ a :=
-  rec_on b
+  nat.rec_on b
     (le.refl a)
     (λ b₁ ih, le.trans !pred_le ih)
 

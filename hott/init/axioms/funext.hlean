@@ -21,7 +21,7 @@ namespace funext
 
   include F
   protected definition ap [instance] (f g : Π x, P x) : is_equiv (@apD10 A P f g) :=
-    rec_on F (λ(H : Π A P f g, _), !H)
+    funext.rec_on F (λ(H : Π A P f g, _), !H)
 
   definition path_pi {f g : Π x, P x} : f ∼ g → f = g :=
   is_equiv.inv (@apD10 A P f g)

@@ -12,10 +12,10 @@ namespace unit
   notation `⋆` := star
 
   protected theorem equal (a b : unit) : a = b :=
-  rec_on a (rec_on b rfl)
+  unit.rec_on a (unit.rec_on b rfl)
 
   theorem eq_star (a : unit) : a = star :=
-  equal a star
+  unit.equal a star
 
   protected theorem subsingleton [instance] : subsingleton unit :=
   subsingleton.intro (λ a b, equal a b)

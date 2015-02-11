@@ -13,7 +13,7 @@ namespace acc
   variables {A : Type} {R : A → A → Type}
 
   definition inv {x y : A} (H₁ : acc R x) (H₂ : R y x) : acc R y :=
-  rec_on H₁ (λ x₁ ac₁ iH H₂, ac₁ y H₂) H₂
+  acc.rec_on H₁ (λ x₁ ac₁ iH H₂, ac₁ y H₂) H₂
 end acc
 
 inductive well_founded [class] {A : Type} (R : A → A → Type) : Type :=

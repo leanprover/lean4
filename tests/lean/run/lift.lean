@@ -6,14 +6,14 @@ up : A → lift A
 
 namespace lift
 definition down {A : Type} (a : lift A) : A :=
-rec (λ a, a) a
+lift.rec (λ a, a) a
 
 theorem down_up {A : Type} (a : A) : down (up a) = a :=
 rfl
 
 
 theorem up_down {A : Type} (a' : lift A) : up (down a') = a' :=
-induction_on a' (λ a, rfl)
+lift.induction_on a' (λ a, rfl)
 
 end lift
 

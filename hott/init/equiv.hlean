@@ -145,13 +145,15 @@ namespace is_equiv
   variables {B C : Type} (f : A → B) {f' : A → B} [Hf : is_equiv f]
   include Hf
 
+  variable (g : B → C)
+
   definition cancel_R (g : B → C) [Hgf : is_equiv (g ∘ f)] : (is_equiv g) :=
     have Hfinv [visible] : is_equiv (f⁻¹), from inv_closed f,
-    @homotopy_closed _ _ _ _ (compose (f⁻¹) (g ∘ f)) (λb, ap g (@retr _ _ f _ b))
+    @homotopy_closed _ _ _ _ (is_equiv.compose (f⁻¹) (g ∘ f)) (λb, ap g (@retr _ _ f _ b))
 
   definition cancel_L (g : C → A) [Hgf : is_equiv (f ∘ g)] : (is_equiv g) :=
     have Hfinv [visible] : is_equiv (f⁻¹), from inv_closed f,
-    @homotopy_closed _ _ _ _ (compose (f ∘ g) (f⁻¹)) (λa, sect f (g a))
+    @homotopy_closed _ _ _ _ (is_equiv.compose (f ∘ g) (f⁻¹)) (λa, sect f (g a))
 
   --Rewrite rules
   definition moveR_M {x : A} {y : B} (p : x = (inv f) y) : (f x = y) :=
@@ -260,8 +262,8 @@ namespace equiv
 
   -- calc enviroment
   -- Note: Calculating with substitutions needs univalence
-  calc_trans trans
-  calc_refl refl
-  calc_symm symm
+  calc_trans equiv.trans
+  calc_refl equiv.refl
+  calc_symm equiv.symm
 
 end equiv

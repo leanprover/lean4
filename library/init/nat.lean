@@ -24,7 +24,7 @@ namespace nat
   notation a ≤ b := le a b
 
   definition pred (a : nat) : nat :=
-  cases_on a zero (λ a₁, a₁)
+  nat.cases_on a zero (λ a₁, a₁)
 
   protected definition is_inhabited [instance] : inhabited nat :=
   inhabited.mk zero
@@ -40,17 +40,17 @@ namespace nat
 
   -- less-than is well-founded
   definition lt.wf [instance] : well_founded lt :=
-  well_founded.intro (λn, rec_on n
+  well_founded.intro (λn, nat.rec_on n
     (acc.intro zero (λ (y : nat) (hlt : y < zero),
       have aux : ∀ {n₁}, y < n₁ → zero = n₁ → acc lt y, from
-        λ n₁ hlt, lt.cases_on hlt
-          (λ heq, no_confusion heq)
-          (λ b hlt heq, no_confusion heq),
+        λ n₁ hlt, nat.lt.cases_on hlt
+          (λ heq, nat.no_confusion heq)
+          (λ b hlt heq, nat.no_confusion heq),
       aux hlt rfl))
     (λ (n : nat) (ih : acc lt n),
       acc.intro (succ n) (λ (m : nat) (hlt : m < succ n),
         have aux : ∀ {n₁} (hlt : m < n₁), succ n = n₁ → acc lt m, from
-          λ n₁ hlt, lt.cases_on hlt
+          λ n₁ hlt, nat.lt.cases_on hlt
             (λ (heq : succ n = succ m),
               nat.no_confusion heq (λ (e : n = m),
                 eq.rec_on e ih))
@@ -73,7 +73,7 @@ namespace nat
   λ H, aux H rfl
 
   definition zero_lt_succ (a : nat) : zero < succ a :=
-  rec_on a
+  nat.rec_on a
     (lt.base zero)
     (λ a (hlt : zero < succ a), lt.step hlt)
 
@@ -106,9 +106,9 @@ namespace nat
   aux
 
   definition lt.is_decidable_rel [instance] : decidable_rel lt :=
-  λ a b, rec_on b
+  λ a b, nat.rec_on b
     (λ (a : nat), inr (not_lt_zero a))
-    (λ (b₁ : nat) (ih : ∀ a, decidable (a < b₁)) (a : nat), cases_on a
+    (λ (b₁ : nat) (ih : ∀ a, decidable (a < b₁)) (a : nat), nat.cases_on a
        (inl !zero_lt_succ)
        (λ a, decidable.rec_on (ih a)
          (λ h_pos : a < b₁, inl (succ_lt_succ h_pos))
@@ -147,7 +147,7 @@ namespace nat
   end
 
   definition lt.irrefl (a : nat) : ¬ a < a :=
-  rec_on a
+  nat.rec_on a
     !not_lt_zero
     (λ (a : nat) (ih : ¬ a < a) (h : succ a < succ a),
       ih (lt_of_succ_lt_succ h))
@@ -158,11 +158,11 @@ namespace nat
     (λ b hlt (ih : ¬ b < a) (h : succ b < a), ih (lt_of_succ_lt h))
 
   definition lt.trichotomy (a b : nat) : a < b ∨ a = b ∨ b < a :=
-  rec_on b
-    (λa, cases_on a
+  nat.rec_on b
+    (λa, nat.cases_on a
        (or.inr (or.inl rfl))
        (λ a₁, or.inr (or.inr !zero_lt_succ)))
-    (λ b₁ (ih : ∀a, a < b₁ ∨ a = b₁ ∨ b₁ < a) (a : nat), cases_on a
+    (λ b₁ (ih : ∀a, a < b₁ ∨ a = b₁ ∨ b₁ < a) (a : nat), nat.cases_on a
        (or.inl !zero_lt_succ)
        (λ a, or.rec_on (ih a)
            (λ h : a < b₁, or.inl (succ_lt_succ h))
@@ -274,24 +274,24 @@ namespace nat
   notation a ≥ b := ge a b
 
   definition add (a b : nat) : nat :=
-  rec_on b a (λ b₁ r, succ r)
+  nat.rec_on b a (λ b₁ r, succ r)
 
   notation a + b := add a b
 
   definition sub (a b : nat) : nat :=
-  rec_on b a (λ b₁ r, pred r)
+  nat.rec_on b a (λ b₁ r, pred r)
 
   notation a - b := sub a b
 
   definition mul (a b : nat) : nat :=
-  rec_on b zero (λ b₁ r, r + a)
+  nat.rec_on b zero (λ b₁ r, r + a)
 
   notation a * b := mul a b
 
   context
   attribute sub [reducible]
   definition succ_sub_succ_eq_sub (a b : nat) : succ a - succ b = a - b :=
-  induction_on b
+  nat.induction_on b
     rfl
     (λ b₁ (ih : succ a - succ b₁ = a - b₁),
       eq.rec_on ih (eq.refl (pred (succ a - succ b₁))))
@@ -301,7 +301,7 @@ namespace nat
   eq.rec_on (succ_sub_succ_eq_sub a b) rfl
 
   definition zero_sub_eq_zero (a : nat) : zero - a = zero :=
-  induction_on a
+  nat.induction_on a
     rfl
     (λ a₁ (ih : zero - a₁ = zero),
       eq.rec_on ih (eq.refl (pred (zero - a₁))))
@@ -325,12 +325,12 @@ namespace nat
   λ h₁ h₂, aux h₁ h₂
 
   definition pred_le (a : nat) : pred a ≤ a :=
-  cases_on a
+  nat.cases_on a
     (le.refl zero)
     (λ a₁, le_of_lt (lt.base a₁))
 
   definition sub_le (a b : nat) : a - b ≤ a :=
-  induction_on b
+  nat.induction_on b
     (le.refl a)
     (λ b₁ ih, le.trans !pred_le ih)
 

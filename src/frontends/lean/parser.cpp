@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/parser_nested_exception.h"
 #include "library/aliases.h"
 #include "library/private.h"
+#include "library/protected.h"
 #include "library/choice.h"
 #include "library/placeholder.h"
 #include "library/deep_copy.h"
@@ -1086,7 +1087,8 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
 
     for (name const & ns : get_namespaces(m_env)) {
         auto new_id = ns + id;
-        if (!ns.is_anonymous() && m_env.find(new_id)) {
+        if (!ns.is_anonymous() && m_env.find(new_id) &&
+            (!id.is_atomic() || !is_protected(m_env, new_id))) {
             auto r = save_pos(mk_constant(new_id, ls), p);
             save_type_info(r);
             add_ref_index(new_id, p);

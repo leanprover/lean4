@@ -10,7 +10,7 @@ import logic.cast logic.subsingleton
 
 namespace empty
   protected theorem elim (A : Type) (H : empty) : A :=
-  rec (λe, A) H
+  empty.rec (λe, A) H
 
   protected theorem subsingleton [instance] : subsingleton empty :=
   subsingleton.intro (λ a b, !elim a)

@@ -54,7 +54,7 @@ theorem pred_zero : pred 0 = 0
 theorem pred_succ (n : ℕ) : pred (succ n) = n
 
 theorem zero_or_succ (n : ℕ) : n = 0 ∨ n = succ (pred n)
-:= induction_on n
+:= nat.induction_on n
     (or.intro_left _ (refl 0))
     (take m IH, or.intro_right _
       (show succ m = succ (pred (succ m)), from congr_arg succ ((pred_succ m)⁻¹)))
@@ -63,7 +63,7 @@ theorem zero_or_succ2 (n : ℕ) : n = 0 ∨ ∃k, n = succ k
 := or_of_or_of_imp_of_imp (zero_or_succ n) (assume H, H) (assume H : n = succ (pred n), exists.intro (pred n) H)
 
 theorem case {P : ℕ → Prop} (n : ℕ) (H1: P 0) (H2 : ∀m, P (succ m)) : P n
-:= induction_on n H1 (take m IH, H2 m)
+:= nat.induction_on n H1 (take m IH, H2 m)
 
 theorem discriminate {B : Prop} {n : ℕ} (H1: n = 0 → B) (H2 : ∀m, n = succ m → B) : B
 := or.elim (zero_or_succ n)
@@ -77,7 +77,7 @@ theorem succ_inj {n m : ℕ} (H : succ n = succ m) : n = m
   ... = m             : pred_succ m
 
 theorem succ_ne_self (n : ℕ) : succ n ≠ n
-:= induction_on n
+:= nat.induction_on n
     (take H : 1 = 0,
       have ne : 1 ≠ 0, from succ_ne_zero 0,
       absurd H ne)
@@ -85,13 +85,13 @@ theorem succ_ne_self (n : ℕ) : succ n ≠ n
 
 theorem decidable_eq [instance] (n m : ℕ) : decidable (n = m)
 := have general : ∀n, decidable (n = m), from
-     rec_on m
+     nat.rec_on m
        (take n,
-         rec_on n
+         nat.rec_on n
            (inl (refl 0))
            (λ m iH, inr (succ_ne_zero m)))
        (λ (m' : ℕ) (iH1 : ∀n, decidable (n = m')),
-         take n, rec_on n
+         take n, nat.rec_on n
            (inr (ne.symm (succ_ne_zero m')))
            (λ (n' : ℕ) (iH2 : decidable (n' = succ m')),
              have d1 : decidable (n' = m'), from iH1 n',
@@ -106,7 +106,7 @@ theorem decidable_eq [instance] (n m : ℕ) : decidable (n = m)
 theorem two_step_induction_on {P : ℕ → Prop} (a : ℕ) (H1 : P 0) (H2 : P 1)
     (H3 : ∀ (n : ℕ) (IH1 : P n) (IH2 : P (succ n)), P (succ (succ n))) : P a
 := have stronger : P a ∧ P (succ a), from
-    induction_on a
+    nat.induction_on a
       (and_intro H1 H2)
       (take k IH,
         have IH1 : P k, from and.elim_left IH,
@@ -116,7 +116,7 @@ theorem two_step_induction_on {P : ℕ → Prop} (a : ℕ) (H1 : P 0) (H2 : P 1)
 
 theorem sub_induction {P : ℕ → ℕ → Prop} (n m : ℕ) (H1 : ∀m, P 0 m)
    (H2 : ∀n, P (succ n) 0) (H3 : ∀n m, P n m → P (succ n) (succ m)) : P n m
-:= have general : ∀m, P n m, from induction_on n
+:= have general : ∀m, P n m, from nat.induction_on n
     (take m : ℕ, H1 m)
     (take k : ℕ,
       assume IH : ∀m, P k m,
@@ -137,7 +137,7 @@ theorem add_succ (n m : ℕ) : n + succ m = succ (n + m)
 ---------- comm, assoc
 
 theorem zero_add (n : ℕ) : 0 + n = n
-:= induction_on n
+:= nat.induction_on n
     (add_zero 0)
     (take m IH, show 0 + succ m = succ m, from
       calc
@@ -145,7 +145,7 @@ theorem zero_add (n : ℕ) : 0 + n = n
             ... = succ m : {IH})
 
 theorem succ_add (n m : ℕ) : (succ n) + m = succ (n + m)
-:= induction_on m
+:= nat.induction_on m
     (calc
       succ n + 0 = succ n : add_zero (succ n)
         ... = succ (n + 0) : {symm (add_zero n)})
@@ -156,7 +156,7 @@ theorem succ_add (n m : ℕ) : (succ n) + m = succ (n + m)
           ... = succ (n + succ k) : {symm (add_succ _ _)})
 
 theorem add_comm (n m : ℕ) : n + m = m + n
-:= induction_on m
+:= nat.induction_on m
     (trans (add_zero _) (symm (zero_add _)))
     (take k IH,
       calc
@@ -175,7 +175,7 @@ theorem add_comm_succ (n m : ℕ) : n + succ m = m + succ n
       ... = m + succ n : add_comm (succ n) m
 
 theorem add_assoc (n m k : ℕ) : (n + m) + k = n + (m + k)
-:= induction_on k
+:= nat.induction_on k
     (calc
       (n + m) + 0 = n + m : add_zero _
         ... = n + (m + 0) : {symm (add_zero m)})
@@ -197,7 +197,7 @@ theorem add_right_comm (n m k : ℕ) : n + m + k = n + k + m
 
 theorem add_cancel_left {n m k : ℕ} : n + m = n + k → m = k
 :=
-  induction_on n
+  nat.induction_on n
     (take H : 0 + m = 0 + k,
       calc
         m = 0 + m : symm (zero_add m)
@@ -224,7 +224,7 @@ theorem add_cancel_right {n m k : ℕ} (H : n + m = k + m) : n = k
 
 theorem eq_zero_of_add_eq_zero_right {n m : ℕ} : n + m = 0 → n = 0
 :=
-  induction_on n
+  nat.induction_on n
     (take (H : 0 + m = 0), refl 0)
     (take k IH,
       assume (H : succ k + m = 0),
@@ -273,7 +273,7 @@ set_option unifier.max_steps 100000
 ---------- comm, distr, assoc, identity
 
 theorem mul_zero_left (n:ℕ) : 0 * n = 0
-:= induction_on n
+:= nat.induction_on n
     (mul_zero_right 0)
     (take m IH,
       calc
@@ -282,7 +282,7 @@ theorem mul_zero_left (n:ℕ) : 0 * n = 0
           ... = 0 : IH)
 
 theorem mul_succ_left (n m:ℕ) : (succ n) * m = (n * m) + m
-:= induction_on m
+:= nat.induction_on m
     (calc
       succ n * 0 = 0     : mul_zero_right _
         ... = n * 0      : symm (mul_zero_right _)
@@ -297,7 +297,7 @@ theorem mul_succ_left (n m:ℕ) : (succ n) * m = (n * m) + m
             ... = (n * succ k) + succ k : {symm (mul_succ_right n k)})
 
 theorem mul_comm (n m:ℕ) : n * m = m * n
-:= induction_on m
+:= nat.induction_on m
     (trans (mul_zero_right _) (symm (mul_zero_left _)))
     (take k IH,
       calc
@@ -306,7 +306,7 @@ theorem mul_comm (n m:ℕ) : n * m = m * n
           ... = (succ k) * n : symm (mul_succ_left _ _))
 
 theorem mul_add_distr_left (n m k : ℕ) : (n + m) * k = n * k + m * k
-:= induction_on k
+:= nat.induction_on k
     (calc
       (n + m) * 0 = 0 : mul_zero_right _
         ... = 0 + 0 : symm (add_zero _)
@@ -329,7 +329,7 @@ theorem mul_add_distr_right (n m k : ℕ) : n * (m + k) = n * m + n * k
       ... = n * m + n * k : {mul_comm _ _}
 
 theorem mul_assoc (n m k:ℕ) : (n * m) * k = n * (m * k)
-:= induction_on k
+:= nat.induction_on k
     (calc
       (n * m) * 0 = 0 : mul_zero_right _
         ... = n * 0 : symm (mul_zero_right _)
@@ -629,7 +629,7 @@ theorem pred_le_imp_le_or_eq {n m : ℕ} (H : pred n ≤ m) : n ≤ m ∨ n = su
 theorem mul_le_left {n m : ℕ} (H : n ≤ m) (k : ℕ) : k * n ≤ k * m
 :=
   obtain (l : ℕ) (Hl : n + l = m), from (le_elim H),
-  induction_on k
+  nat.induction_on k
     (have H2 : 0 * n = 0 * m,
       from calc
         0 * n = 0 : mul_zero_left n
@@ -779,7 +779,7 @@ theorem succ_lt_right {n m : ℕ} (H : n < m) : n < succ m
 ---------- totality of lt and le
 
 theorem le_or_lt (n m : ℕ) : n ≤ m ∨ m < n
-:= induction_on n
+:= nat.induction_on n
     (or_intro_left _ (zero_le m))
     (take (k : ℕ),
       assume IH : k ≤ m ∨ m < k,
@@ -818,7 +818,7 @@ theorem le_total (n m : ℕ) : n ≤ m ∨ m ≤ n
 
 theorem strong_induction_on {P : ℕ → Prop} (n : ℕ) (IH : ∀n, (∀m, m < n → P m) → P n) : P n
 := have stronger : ∀k, k ≤ n → P k, from
-    induction_on n
+    nat.induction_on n
       (take (k : ℕ),
         assume H : k ≤ 0,
         have H2 : k = 0, from le_zero_inv H,
@@ -946,7 +946,7 @@ theorem mul_positive_inv_right {n m : ℕ} (H : n * m > 0) : m > 0
 theorem mul_left_inj {n m k : ℕ} (Hn : n > 0) (H : n * m = n * k) : m = k
 :=
   have general : ∀m, n * m = n * k → m = k, from
-    induction_on k
+    nat.induction_on k
       (take m:ℕ,
         assume H : n * m = n * 0,
         have H2 : n * m = 0,
@@ -1006,7 +1006,7 @@ theorem mul_lt {n m k l : ℕ} (H1 : n < k) (H2 : m < l) : n * m < k * l
 theorem mul_lt_left_inv {n m k : ℕ} (H : k * n < k * m) : n < m
 :=
   have general : ∀ m, k * n < k * m → n < m, from
-    induction_on n
+    nat.induction_on n
       (take m : ℕ,
         assume H2 : k * 0 < k * m,
         have H3 : 0 < k * m, from mul_zero_right k ▸ H2,
@@ -1067,7 +1067,7 @@ theorem sub_zero_right (n : ℕ) : n - 0 = n
 theorem sub_succ_right (n m : ℕ) : n - succ m = pred (n - m)
 
 theorem sub_zero_left (n : ℕ) : 0 - n = 0
-:= induction_on n (sub_zero_right 0)
+:= nat.induction_on n (sub_zero_right 0)
     (take k : ℕ,
       assume IH : 0 - k = 0,
       calc
@@ -1076,7 +1076,7 @@ theorem sub_zero_left (n : ℕ) : 0 - n = 0
           ... = 0 : pred_zero)
 
 theorem sub_succ_succ (n m : ℕ) : succ n - succ m = n - m
-:= induction_on m
+:= nat.induction_on m
     (calc
       succ n - 1 = pred (succ n - 0) : sub_succ_right (succ n) 0
         ... = pred (succ n) : {sub_zero_right (succ n)}
@@ -1095,10 +1095,10 @@ theorem sub_one (n : ℕ) : n - 1 = pred n
       ... = pred n : {sub_zero_right n}
 
 theorem sub_self (n : ℕ) : n - n = 0
-:= induction_on n (sub_zero_right 0) (take k IH, trans (sub_succ_succ k k) IH)
+:= nat.induction_on n (sub_zero_right 0) (take k IH, trans (sub_succ_succ k k) IH)
 
 theorem sub_add_add_right (n m k : ℕ) : (n + k) - (m + k) = n - m
-:= induction_on k
+:= nat.induction_on k
     (calc
       (n + 0) - (m + 0) = n - (m + 0) : {add_zero _}
         ... = n - m : {add_zero _})
@@ -1114,7 +1114,7 @@ theorem sub_add_add_left (n m k : ℕ) : (k + n) - (k + m) = n - m
 := subst (add_comm m k) (subst (add_comm n k) (sub_add_add_right n m k))
 
 theorem sub_add_left (n m : ℕ) : n + m - m = n
-:= induction_on m
+:= nat.induction_on m
     (subst (symm (add_zero n)) (sub_zero_right n))
     (take k : ℕ,
       assume IH : n + k - k = n,
@@ -1124,7 +1124,7 @@ theorem sub_add_left (n m : ℕ) : n + m - m = n
           ... = n : IH)
 
 theorem sub_sub (n m k : ℕ) : n - m - k = n - (m + k)
-:= induction_on k
+:= nat.induction_on k
     (calc
       n - m - 0 = n - m : sub_zero_right _
         ... =  n - (m + 0) : {symm (add_zero m)})
@@ -1161,7 +1161,7 @@ theorem succ_sub_one (n : ℕ) : succ n - 1 = n
 ---------- mul
 
 theorem mul_pred_left (n m : ℕ) : pred n * m = n * m - m
-:= induction_on n
+:= nat.induction_on n
     (calc
       pred 0 * m = 0 * m : {pred_zero}
         ... = 0 : mul_zero_left _
@@ -1180,7 +1180,7 @@ theorem mul_pred_right (n m : ℕ) : n * pred m = n * m - n
     ... = n * m - n : {mul_comm m n}
 
 theorem mul_sub_distr_left (n m k : ℕ) : (n - m) * k = n * k - m * k
-:= induction_on m
+:= nat.induction_on m
     (calc
       (n - 0) * k = n * k : {sub_zero_right n}
         ... = n * k - 0 : symm (sub_zero_right _)

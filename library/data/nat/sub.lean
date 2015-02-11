@@ -23,7 +23,7 @@ theorem sub_succ (n m : ℕ) : n - succ m = pred (n - m) :=
 rfl
 
 theorem zero_sub (n : ℕ) : 0 - n = 0 :=
-induction_on n !sub_zero
+nat.induction_on n !sub_zero
   (take k : nat,
     assume IH : 0 - k = 0,
     calc
@@ -35,10 +35,10 @@ theorem succ_sub_succ (n m : ℕ) : succ n - succ m = n - m :=
 succ_sub_succ_eq_sub n m
 
 theorem sub_self (n : ℕ) : n - n = 0 :=
-induction_on n !sub_zero (take k IH, !succ_sub_succ ⬝ IH)
+nat.induction_on n !sub_zero (take k IH, !succ_sub_succ ⬝ IH)
 
 theorem add_sub_add_right (n k m : ℕ) : (n + k) - (m + k) = n - m :=
-induction_on k
+nat.induction_on k
   (calc
     (n + 0) - (m + 0) = n - (m + 0) : {!add_zero}
                   ... = n - m       : {!add_zero})
@@ -54,7 +54,7 @@ theorem add_sub_add_left (k n m : ℕ) : (k + n) - (k + m) = n - m :=
 !add.comm ▸ !add.comm ▸ !add_sub_add_right
 
 theorem add_sub_cancel (n m : ℕ) : n + m - m = n :=
-induction_on m
+nat.induction_on m
   (!add_zero⁻¹ ▸ !sub_zero)
   (take k : ℕ,
     assume IH : n + k - k = n,
@@ -67,7 +67,7 @@ theorem add_sub_cancel_left (n m : ℕ) : n + m - n = m :=
 !add.comm ▸ !add_sub_cancel
 
 theorem sub_sub (n m k : ℕ) : n - m - k = n - (m + k) :=
-induction_on k
+nat.induction_on k
   (calc
     n - m - 0 = n - m        : sub_zero
           ... =  n - (m + 0) : add_zero)
@@ -107,7 +107,7 @@ rfl
 /- interaction with multiplication -/
 
 theorem mul_pred_left (n m : ℕ) : pred n * m = n * m - m :=
-induction_on n
+nat.induction_on n
   (calc
     pred 0 * m = 0 * m     : pred_zero
            ... = 0         : zero_mul
@@ -127,7 +127,7 @@ calc
          ... = n * m - n  : mul.comm
 
 theorem mul_sub_right_distrib (n m k : ℕ) : (n - m) * k = n * k - m * k :=
-induction_on m
+nat.induction_on m
   (calc
     (n - 0) * k = n * k         : sub_zero
             ... = n * k - 0     : sub_zero

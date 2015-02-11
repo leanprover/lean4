@@ -1,7 +1,7 @@
 VISIT eq2.lean
 WAIT
 REPLACE 134
-  (λ (b₂ : B a₁) (H₂ : b₁ = b₂) (c₂ : C a₁ b₂) (H₃ : (rec_on (congr_arg2_dep C (refl a₁) H₂) c₁) = c₂),
+  (λ (b₂ : B a₁) (H₂ : b₁ = b₂) (c₂ : C a₁ b₂) (H₃ : (eq.rec_on (congr_arg2_dep C (refl a₁) H₂) c₁) = c₂),
 WAIT
 REPLACE 134
   (λ (b₂ : B a₁) (H₂ : b₁ = b₂) (c₂ : C a₁ b₂) (H₃ : _ = c₂),

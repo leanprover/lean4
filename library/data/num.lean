@@ -11,10 +11,10 @@ open bool
 
 namespace pos_num
   theorem succ_not_is_one (a : pos_num) : is_one (succ a) = ff :=
-  induction_on a rfl (take n iH, rfl) (take n iH, rfl)
+  pos_num.induction_on a rfl (take n iH, rfl) (take n iH, rfl)
 
   theorem pred.succ (a : pos_num) : pred (succ a) = a :=
-  rec_on a
+  pos_num.rec_on a
     rfl
     (take (n : pos_num) (iH : pred (succ n) = n),
       calc
@@ -59,7 +59,7 @@ namespace pos_num
   rfl
 
   theorem mul.one_right (a : pos_num) : a * one = a :=
-  induction_on a
+  pos_num.induction_on a
     rfl
     (take (n : pos_num) (iH : n * one = n),
       calc bit1 n * one = bit0 (n * one) + one : rfl

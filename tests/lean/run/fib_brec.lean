@@ -3,12 +3,12 @@ open prod
 
 namespace nat
   namespace manual
-  definition brec_on {C : nat → Type} (n : nat) (F : Π (n : nat), @below C n → C n) : C n :=
-  have general : C n × @below C n, from
-    rec_on n
+  definition brec_on {C : nat → Type} (n : nat) (F : Π (n : nat), @nat.below C n → C n) : C n :=
+  have general : C n × @nat.below C n, from
+    nat.rec_on n
       (pair (F zero unit.star) unit.star)
-      (λ (n₁ : nat) (r₁ : C n₁ × @below C n₁),
-         have b : @below C (succ n₁), from
+      (λ (n₁ : nat) (r₁ : C n₁ × @nat.below C n₁),
+         have b : @nat.below C (succ n₁), from
            r₁,
          have c : C (succ n₁), from
            F (succ n₁) b,
@@ -17,12 +17,12 @@ namespace nat
   end manual
 
   definition fib (n : nat) :=
-  brec_on n (λ (n : nat),
-    cases_on n
-      (λ (b₀ : below zero), succ zero)
-      (λ (n₁ : nat), cases_on n₁
-          (λ b₁ : below (succ zero), succ zero)
-          (λ (n₂ : nat) (b₂ : below (succ (succ n₂))), pr₁ b₂ + pr₁ (pr₂ b₂))))
+  nat.brec_on n (λ (n : nat),
+    nat.cases_on n
+      (λ (b₀ : nat.below zero), succ zero)
+      (λ (n₁ : nat), nat.cases_on n₁
+          (λ b₁ : nat.below (succ zero), succ zero)
+          (λ (n₂ : nat) (b₂ : nat.below (succ (succ n₂))), pr₁ b₂ + pr₁ (pr₂ b₂))))
 
   theorem fib_0 : fib 0 = 1 :=
   rfl

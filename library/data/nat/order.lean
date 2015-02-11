@@ -43,7 +43,7 @@ iff.intro
   (take H, lt_of_le_and_ne (and.elim_left H) (and.elim_right H))
 
 theorem le_add_right (n k : ℕ) : n ≤ n + k :=
-induction_on k
+nat.induction_on k
   (calc n ≤ n        : le.refl n
      ...  = n + zero : add_zero)
   (λ k (ih : n ≤ n + k), calc
@@ -340,7 +340,7 @@ or_of_or_of_imp_left (succ_le_or_eq_of_le H)
    (take H2 : succ n ≤ succ m, show n ≤ m, from le_of_succ_le_succ H2)
 
 theorem le_pred_self (n : ℕ) : pred n ≤ n :=
-cases_on n
+nat.cases_on n
   (pred_zero⁻¹ ▸ !le.refl)
   (take k : ℕ, (!pred_succ)⁻¹ ▸ !self_le_succ)
 
@@ -367,7 +367,7 @@ protected theorem strong_induction_on {P : nat → Prop} (n : ℕ) (H : ∀n, (�
     P n :=
 have H1 : ∀ {n m : nat}, m < n → P m, from
   take n,
-  induction_on n
+  nat.induction_on n
     (show ∀m, m < 0 → P m, from take m H, absurd H !not_lt_zero)
     (take n',
       assume IH : ∀ {m : nat}, m < n' → P m,
@@ -385,7 +385,7 @@ protected theorem case_strong_induction_on {P : nat → Prop} (a : nat) (H0 : P 
 strong_induction_on a (
   take n,
   show (∀m, m < n → P m) → P n, from
-    cases_on n
+    nat.cases_on n
        (assume H : (∀m, m < 0 → P m), show P 0, from H0)
        (take n,
          assume H : (∀m, m < succ n → P m),
@@ -395,7 +395,7 @@ strong_induction_on a (
 /- pos -/
 
 theorem by_cases_zero_pos {P : ℕ → Prop} (y : ℕ) (H0 : P 0) (H1 : ∀ {y : nat}, y > 0 → P y) : P y :=
-cases_on y H0 (take y, H1 !succ_pos)
+nat.cases_on y H0 (take y, H1 !succ_pos)
 
 theorem eq_zero_or_pos (n : ℕ) : n = 0 ∨ n > 0 :=
 or_of_or_of_imp_left

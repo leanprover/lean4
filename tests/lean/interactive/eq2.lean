@@ -28,7 +28,7 @@ namespace eq
   proof_irrel
 
   theorem subst {A : Type} {a b : A} {P : A → Prop} (H1 : a = b) (H2 : P a) : P b :=
-  rec H2 H1
+  eq.rec H2 H1
 
   theorem trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c :=
   subst H2 H1
@@ -69,7 +69,7 @@ namespace eq
   theorem drec_on_irrel {A B : Type} {a a' : A} {f : A → B} {D : B → Type} (H : a = a') (H' : f a = f a') (b : D (f a)) : drec_on H b = drec_on H' b :=
   drec_on H (λ(H : a = a) (H' : f a = f a), drec_on_id H b ⬝ drec_on_id H' b⁻¹) H H'
 
-  theorem rec_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : rec b H = b :=
+  theorem rec_id {A : Type} {a : A} {B : A → Type} (H : a = a) (b : B a) : eq.rec b H = b :=
   id_refl H⁻¹ ▸ refl (eq.rec b (refl a))
 
   theorem drec_on_compose {A : Type} {a b c : A} {P : A → Type} (H1 : a = b) (H2 : b = c)

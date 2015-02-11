@@ -36,7 +36,7 @@ namespace heq
 
   theorem drec_on {C : Π {B : Type} (b : B), a == b → Type} (H₁ : a == b) (H₂ : C a (refl a)) :
     C b H₁ :=
-  rec (λ H₁ : a == a, show C a H₁, from H₂) H₁ H₁
+  heq.rec (λ H₁ : a == a, show C a H₁, from H₂) H₁ H₁
 
   theorem to_cast_eq (H : a == b) : cast (type_eq H) a = b :=
   drec_on H !cast_eq

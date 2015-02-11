@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/expr_pair.h"
 #include "library/placeholder.h"
 #include "library/private.h"
+#include "library/protected.h"
 #include "library/explicit.h"
 #include "library/typed_expr.h"
 #include "library/num.h"
@@ -418,7 +419,9 @@ auto pretty_fn::pp_const(expr const & e) -> result {
             for (name const & ns : get_namespaces(m_env)) {
                 if (!ns.is_anonymous()) {
                     name new_n = n.replace_prefix(ns, name());
-                    if (new_n != n && !new_n.is_anonymous()) {
+                    if (new_n != n &&
+                        !new_n.is_anonymous() &&
+                        (!new_n.is_atomic() || !is_protected(m_env, n))) {
                         n = new_n;
                         break;
                     }

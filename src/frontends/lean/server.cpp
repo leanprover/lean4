@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/type_util.h"
 #include "library/unifier.h"
+#include "library/protected.h"
 #include "library/reducible.h"
 #include "library/projection.h"
 #include "library/scoped_ext.h"
@@ -571,7 +572,7 @@ optional<name> is_essentially_atomic(environment const & env, name const & n) {
     for (name const & ns : ns_list) {
         if (is_prefix_of(ns, n)) {
             auto n_prime = n.replace_prefix(ns, name());
-            if (n_prime.is_atomic())
+            if (n_prime.is_atomic() && !is_protected(env, n))
                 return optional<name>(n_prime);
             break;
         }
@@ -586,8 +587,11 @@ void server::display_decl(name const & d, environment const & env, options const
     // using namespace override resolution rule
     list<name> const & ns_list = get_namespaces(env);
     for (name const & ns : ns_list) {
-        if (is_prefix_of(ns, d) && ns != d) {
-            display_decl(d.replace_prefix(ns, name()), d, env, o);
+        name new_d = d.replace_prefix(ns, name());
+        if (new_d != d &&
+            !new_d.is_anonymous() &&
+            (!new_d.is_atomic() || !is_protected(env, d))) {
+            display_decl(new_d, d, env, o);
             return;
         }
     }

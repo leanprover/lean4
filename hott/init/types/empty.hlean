@@ -11,7 +11,7 @@ import ..datatypes ..logic
 namespace empty
 
   protected theorem elim (A : Type) (H : empty) : A :=
-  rec (λe, A) H
+  empty.rec (λe, A) H
 
 end empty
 

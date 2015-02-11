@@ -18,8 +18,8 @@ section sec_cat
 
   attribute foo [class]
   variables {ob : Type} {mor : ob → ob → Type} {Cat : category ob mor}
-  definition compose := rec (λ comp id assoc idr idl, comp) Cat
-  definition id := rec (λ comp id assoc idr idl, id) Cat
+  definition compose := category.rec (λ comp id assoc idr idl, comp) Cat
+  definition id := category.rec (λ comp id assoc idr idl, id) Cat
   infixr ∘ := compose
 end sec_cat
 end category

@@ -42,6 +42,9 @@ environment pop_scope_core(environment const & env);
 /** \brief Return true iff there are open scopes */
 bool has_open_scopes(environment const & env);
 
+/** \brief Store in \c r all metaobject classes available in Lean */
+void get_metaclasses(buffer<name> & r);
+
 /** \brief Add a new namespace (if it does not exist) */
 environment add_namespace(environment const & env, name const & ns);
 

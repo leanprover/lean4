@@ -64,6 +64,14 @@ bool in_section(environment const & env) {
     return in_section_or_context(env) && !in_context(env);
 }
 
+void get_metaclasses(buffer<name> & r) {
+    for (auto const & t : get_exts()) {
+        name const & n = std::get<0>(t);
+        if (std::find(r.begin(), r.end(), n) == r.end())
+            r.push_back(n);
+    }
+}
+
 environment using_namespace(environment const & env, io_state const & ios, name const & n, name const & c) {
     environment r = env;
     for (auto const & t : get_exts()) {

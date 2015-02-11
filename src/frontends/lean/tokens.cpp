@@ -122,6 +122,7 @@ static name * g_persistent   = nullptr;
 static name * g_root         = nullptr;
 static name * g_fields       = nullptr;
 static name * g_trust        = nullptr;
+static name * g_metaclasses  = nullptr;
 
 void initialize_tokens() {
     g_period       = new name(".");
@@ -239,9 +240,11 @@ void initialize_tokens() {
     g_root         = new name("_root_");
     g_fields       = new name("fields");
     g_trust        = new name("trust");
+    g_metaclasses  = new name("metaclasses");
 }
 
 void finalize_tokens() {
+    delete g_metaclasses;
     delete g_persistent;
     delete g_root;
     delete g_fields;
@@ -359,6 +362,7 @@ void finalize_tokens() {
     delete g_period;
 }
 
+name const & get_metaclasses_tk() { return *g_metaclasses; }
 name const & get_period_tk() { return *g_period; }
 name const & get_placeholder_tk() { return *g_placeholder; }
 name const & get_colon_tk() { return *g_colon; }

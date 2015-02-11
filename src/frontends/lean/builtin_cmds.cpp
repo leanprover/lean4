@@ -156,6 +156,13 @@ static void print_notation(parser & p) {
         p.regular_stream() << "no notation" << endl;
 }
 
+static void print_metaclasses(parser & p) {
+    buffer<name> c;
+    get_metaclasses(c);
+    for (name const & n : c)
+        p.regular_stream() << "[" << n << "]" << endl;
+}
+
 environment print_cmd(parser & p) {
     flycheck_information info(p.regular_stream());
     if (info.enabled()) {
@@ -212,6 +219,9 @@ environment print_cmd(parser & p) {
         if (p.curr_is_identifier())
             C = p.check_constant_next("invalid 'print coercions', constant expected");
         print_coercions(p, C);
+    } else if (p.curr_is_token_or_id(get_metaclasses_tk())) {
+        p.next();
+        print_metaclasses(p);
     } else if (p.curr_is_token_or_id(get_axioms_tk())) {
         p.next();
         print_axioms(p);

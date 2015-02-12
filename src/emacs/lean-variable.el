@@ -15,11 +15,17 @@ where TYPE := INFO | SET | EVAL | OPTIONS | SHOW | FINDP | FINDG | ERROR,
       PRE is a server message comes before the message
       BODY is a body of the received message.")
 
-(defvar lean-global-server-process nil
-  "lean server process")
+(defvar lean-global-server-standard-process nil
+  "lean server process (standard)")
 
-(defvar lean-global-server-buffer nil
-  "Global buffer used to store messages sent by lean server")
+(defvar lean-global-server-standard-buffer nil
+  "Global buffer used to store messages sent by lean server (standard)")
+
+(defvar lean-global-server-hott-process nil
+  "lean server process (process)")
+
+(defvar lean-global-server-hott-buffer nil
+  "Global buffer used to store messages sent by lean server (hott)")
 
 (defvar lean-global-server-current-file-name nil
   "Current filename that lean server is processing")

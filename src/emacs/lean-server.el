@@ -16,10 +16,49 @@
 
 ;; Parameters
 ;; ==========
-(defvar lean-server-process-name      "lean-server")
-(defvar lean-server-buffer-name       "*lean-server*")
-(defvar lean-server-trace-buffer-name "*lean-server-trace*")
-(defvar lean-server-option            "--server")
+(defun lean-server-process-name (&optional type)
+  (let ((type (or type (lean-choose-minor-mode-based-on-extension))))
+    (pcase type
+      (`standard "lean-server-standard")
+      (`hott     "lean-server-hott"))))
+(defun lean-server-buffer-name (&optional type)
+  (let ((type (or type (lean-choose-minor-mode-based-on-extension))))
+    (pcase type
+      (`standard "*lean-server-standard*")
+      (`hott     "*lean-server-hott*"))))
+(defun lean-server-trace-buffer-name (&optional type)
+  (let ((type (or type (lean-choose-minor-mode-based-on-extension))))
+    (pcase type
+      (`standard "*lean-server-standard-trace*")
+      (`hott     "*lean-server-hott-trace*" ))))
+(defun lean-server-option-list (&optional type)
+  (let ((type (or type (lean-choose-minor-mode-based-on-extension))))
+    (pcase type
+      (`standard '("--lean"  "--server"))
+      (`hott     '("--hlean" "--server")))))
+(defun lean-server-process (&optional type)
+  (let ((type (or type (lean-choose-minor-mode-based-on-extension))))
+    (pcase type
+      (`standard lean-global-server-standard-process)
+      (`hott     lean-global-server-hott-process))))
+(defun lean-server-buffer (&optional type)
+  (let ((type (or type (lean-choose-minor-mode-based-on-extension))))
+    (pcase type
+      (`standard lean-global-server-standard-buffer)
+      (`hott     lean-global-server-hott-buffer))))
+(defun lean-server-set-buffer (str &optional type)
+  "Set server-buffer"
+  (let* ((type (or type (lean-choose-minor-mode-based-on-extension))))
+    (pcase type
+      (`standard (setq lean-global-server-standard-buffer str))
+      (`hott     (setq lean-global-server-hott-buffer str)))))
+(defun lean-server-set-process (p &optional type)
+  "Set server-process"
+  (let* ((type (or type (lean-choose-minor-mode-based-on-extension))))
+    (pcase type
+      (`standard (setq lean-global-server-standard-process p))
+      (`hott     (setq lean-global-server-hott-process p)))))
+
 
 ;; Log & Trace
 ;; ===========
@@ -40,8 +79,9 @@
                                     "SLEEP %i\n"
                                     `(,(truncate (* 1000 time-diff))))))
     (setq lean-global-server-last-time-sent (float-time))
-    (lean-output-to-buffer lean-server-trace-buffer-name
-                                format-string args)))
+    (lean-output-to-buffer (lean-server-trace-buffer-name)
+                           format-string
+                           args)))
 
 ;; How to read data from an async process
 ;; ======================================
@@ -96,7 +136,7 @@
   (lean-server-log "%s:\n%s\n"
                    (propertize "Received Message" 'face 'font-lock-variable-name-face)
                    str)
-  (setq lean-global-server-buffer (concat lean-global-server-buffer str)))
+  (lean-server-set-buffer (concat (lean-server-buffer) str)))
 
 (defun lean-server-output-filter (process string)
   "Filter function attached to lean-server process"
@@ -121,7 +161,7 @@
 
 (defun lean-server-initialize-global-vars ()
   "Initialize lean-server related global variables"
-  (setq lean-global-server-buffer nil)
+  (lean-server-set-buffer nil)
   (setq lean-global-server-current-file-name nil)
   (setq lean-global-server-message-to-process nil)
   (setq lean-global-server-last-time-sent nil)
@@ -130,68 +170,83 @@
   (setq lean-global-option-alist nil)
   (lean-server-cancel-retry-timer))
 
-(defun lean-server-create-process ()
-  "Create lean-server process."
-  (let ((process-connection-type nil)
-        (lean-server-process
-         (apply 'start-process
-                (append (list lean-server-process-name
-                              lean-server-buffer-name
-                              (lean-get-executable lean-executable-name)
-                              lean-server-option)
-                        lean-server-options))))
-    (set-process-coding-system lean-server-process 'utf-8 'utf-8)
-    (set-process-filter lean-server-process 'lean-server-output-filter)
-    (set-process-sentinel lean-server-process 'lean-server-handle-signal)
-    (set-process-query-on-exit-flag lean-server-process nil)
+(defun lean-server-create-process (&optional type)
+  "Create lean-server process. type can be either 'standard or 'hott"
+  ;; (message "lean-server-create-process")
+  (let* ((type (or type (lean-choose-minor-mode-based-on-extension)))
+         (process-connection-type nil)
+         (p (apply 'start-process
+                   (append (list (lean-server-process-name type)
+                                 (lean-server-buffer-name type)
+                                 (lean-get-executable lean-executable-name))
+                           (lean-server-option-list type)
+                           lean-server-options))))
+    (set-process-coding-system p 'utf-8 'utf-8)
+    (set-process-filter p 'lean-server-output-filter)
+    (set-process-sentinel p 'lean-server-handle-signal)
+    (set-process-query-on-exit-flag p nil)
     (lean-server-initialize-global-vars)
-    (setq lean-global-server-process lean-server-process)
-    (lean-debug "lean-server process %S is created" lean-server-process)
-    lean-server-process))
+    (lean-server-set-process p type)
+    (lean-debug "lean-server process [%S] %S is created" type p)
+    p))
 
-(defun lean-server-kill-process ()
+(defun lean-server-kill-process (&optional type)
   "Kill lean-server process. Return t if killed, nil if nothing to kill"
   (interactive)
-  (lean-server-initialize-global-vars)
-  (cond
-   ((and lean-global-server-process
-         (not (= 0 (process-exit-status lean-global-server-process))))
-    (setq lean-global-server-process nil) t)
-   (lean-global-server-process
-    (when (interactive-p)
-      (message "lean-server-kill-process: %S killed" lean-global-server-process))
-    (kill-process lean-global-server-process)
-    (setq lean-global-server-process nil) t)
-   (t
-    (when (interactive-p)
-      (message "lean-server-kill-process: no process to kill")) nil)))
+  ;; (message "lean-server-kill-process")
+  (let* ((type (or type (lean-choose-minor-mode-based-on-extension))))
+    (lean-server-initialize-global-vars)
+    (cond
+     ((and (lean-server-process type)
+           (not (= 0 (process-exit-status (lean-server-process type)))))
+      (setq lean-global-server-process nil) t)
+     ((lean-server-process type)
+      (when (interactive-p)
+        (message "lean-server-kill-process: %S killed" (lean-server-process type)))
+      (kill-process (lean-server-process type))
+      (setq lean-global-server-process nil) t)
+     (t
+      (when (interactive-p)
+        (message "lean-server-kill-process: no process to kill")) nil))))
 
-(defun lean-server-restart-process ()
+(defun lean-server-restart-process (&optional type)
   "Restart lean-server process."
   (interactive)
-  (and (lean-server-kill-process)
-       (lean-server-create-process)))
+  ;; (message "lean-server-restart-process")
+  (let* ((type (or type (lean-choose-minor-mode-based-on-extension))))
+    (and (lean-server-kill-process type)
+         (lean-server-create-process type))))
 
-(defun lean-server-process-exist-p ()
+(defun lean-server-restart-all-processes ()
+  "Restart All lean-server processes"
+  ;; (message "lean-server-restart-all-processes")
+  (lean-server-kill-process 'hott)
+  (lean-server-kill-process 'standard))
+
+(defun lean-server-process-exist-p (&optional type)
   "Return t if lean-server-process exists, otherwise return nil"
-  (if lean-global-server-process
-      t
-    nil))
+  ;; (message "lean-server-process-exist-p")
+  (let* ((type (or type (lean-choose-minor-mode-based-on-extension))))
+    (if (lean-server-process type) t nil)))
 
-(defun lean-server-get-process ()
+(defun lean-server-get-process (&optional type)
   "Get lean-server process. If needed, create a one."
-  (cond ((not lean-global-server-process)
-         (lean-server-create-process))
-        ((not (process-live-p lean-global-server-process))
-         (when (interactive-p)
-           (message "lean-server-get-process: %S is not live, kill it"
-                    lean-global-server-process))
-         (lean-server-restart-process))
-        (t lean-global-server-process)))
+  ;; (message "lean-server-get-process")
+  (let* ((type (or type (lean-choose-minor-mode-based-on-extension))))
+    (cond ((not (lean-server-process))
+           (lean-server-create-process))
+          ((not (process-live-p (lean-server-process)))
+           (when (interactive-p)
+             (message "lean-server-get-process: %S is not live, kill it"
+                      (lean-server-process)))
+           (lean-server-restart-process))
+          (t (lean-server-process type)))))
 
-(defun lean-server-get-buffer ()
+(defun lean-server-get-buffer (&optional type)
   "Get lean-server buffer."
-  (process-buffer (lean-server-get-process)))
+  ;; (message "lean-server-get-buffer")
+  (let* ((type (or type (lean-choose-minor-mode-based-on-extension))))
+    (process-buffer (lean-server-get-process))))
 
 ;; How to send data to an async process
 ;; ====================================
@@ -331,14 +386,14 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
 (defun lean-server-check-and-process-buffer-with-cont (cont cmd-type)
   "Check server-buffer and process the message with a continuation if it's ready."
   (let ((partition-result (lean-server-check-buffer-and-partition
-                           lean-global-server-buffer))
+                           (lean-server-buffer)))
         result)
     (condition-case err
         (pcase partition-result
           (`(,type (,pre ,body ,post))
            (lean-server-log "The following pre-message will be thrown away:")
            (lean-server-log "%s" pre)
-           (setq lean-global-server-buffer post)
+           (lean-server-set-buffer post)
            (setq result (lean-server-process-message-with-cont body type cont cmd-type))
            `(PROCESSED ,result))
           (`nil '(NOTREADY)))

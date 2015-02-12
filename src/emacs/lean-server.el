@@ -220,6 +220,7 @@
 (defun lean-server-restart-all-processes ()
   "Restart All lean-server processes"
   ;; (message "lean-server-restart-all-processes")
+  (interactive)
   (lean-server-kill-process 'hott)
   (lean-server-kill-process 'standard))
 

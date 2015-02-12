@@ -1079,7 +1079,10 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
 
     // locals
     if (auto it1 = m_local_decls.find(id)) {
-        auto r = copy_with_new_pos(propagate_levels(*it1, ls), p);
+        if (ls && m_undef_id_behavior != undef_id_behavior::AssumeConstant)
+            throw parser_error("invalid use of explicit universe parameter, identifier is a variable, "
+                               "parameter or a constant bound to parameters in a section/context", p);
+        auto r = copy_with_new_pos(*it1, p);
         save_type_info(r);
         save_identifier_info(p, id);
         return r;

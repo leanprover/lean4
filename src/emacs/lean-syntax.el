@@ -120,7 +120,7 @@
      (,(rx (or "\[persistent\]" "\[notation\]" "\[visible\]" "\[instance\]" "\[class\]" "\[parsing-only\]"
                "\[coercion\]" "\[reducible\]" "\[irreducible\]" "\[wf\]" "\[whnf\]" "\[multiple-instances\]"
                "\[decls\]" "\[declarations\]" "\[all-transparent\]" "\[coercions\]" "\[classes\]"
-               "\[notations\]" "\[begin-end-hints\]" "\[tactic-hints\]" "\[reduce-hints\]"))
+               "\[notations\]" "\[abbreviations\]" "\[begin-end-hints\]" "\[tactic-hints\]" "\[reduce-hints\]"))
       . 'font-lock-doc-face)
      (,(rx "\[priority" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      (,(rx "\[unfold-c" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)

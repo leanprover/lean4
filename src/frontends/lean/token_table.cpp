@@ -102,7 +102,8 @@ void init_token_table(token_table & t) {
          {g_qed_unicode, "qed"}, {nullptr, nullptr}};
 
     pair<char const *, char const *> cmd_aliases[] =
-        {{"lemma", "theorem"}, {"corollary", "theorem"}, {"hypothesis", "parameter"}, {"conjecture", "parameter"},
+        {{"lemma", "theorem"}, {"premise", "variable"}, {"premises", "variables"},
+         {"corollary", "theorem"}, {"hypothesis", "parameter"}, {"conjecture", "parameter"},
          {"record", "structure"}, {nullptr, nullptr}};
 
     auto it = builtin;

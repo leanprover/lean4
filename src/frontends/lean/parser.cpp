@@ -354,19 +354,6 @@ expr parser::copy_with_new_pos(expr const & e, pos_info p) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-/** \brief Add \c ls to constants occurring in \c e. */
-expr parser::propagate_levels(expr const & e, levels const & ls) {
-    if (is_nil(ls)) {
-        return e;
-    } else {
-        return replace(e, [&](expr const & e) {
-                if (is_constant(e))
-                    return some_expr(update_constant(e, ls));
-                return none_expr();
-            });
-    }
-}
-
 pos_info parser::pos_of(expr const & e, pos_info default_pos) const {
     tag t = e.get_tag();
     if (t == nulltag)

@@ -164,7 +164,6 @@ class parser {
 
     tag get_tag(expr e);
     expr copy_with_new_pos(expr const & e, pos_info p);
-    expr propagate_levels(expr const & e, levels const & ls);
 
     cmd_table const & cmds() const { return get_cmd_table(env()); }
     parse_table const & nud() const { return get_nud_table(env()); }

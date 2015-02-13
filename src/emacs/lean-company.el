@@ -10,6 +10,7 @@
 (require 'dash-functional)
 (require 'f)
 (require 's)
+(require 'lean-util)
 (require 'lean-tags)
 (require 'lean-server)
 
@@ -53,8 +54,11 @@
 
 (defun company-lean--import-candidates-main (root-dir)
   (when root-dir
-    (let* ((lean-files (f-files root-dir
-                                (lambda (file) (equal (f-ext file) "lean"))
+    (let* ((target-ext (pcase (lean-choose-minor-mode-based-on-extension)
+                         (`hott     "hlean")
+                         (`standard "lean")))
+           (lean-files (f-files root-dir
+                                (lambda (file) (equal (f-ext file) target-ext))
                                 t))
            ;; Relative to project root-dir
            (lean-files-r (--map (f-relative it root-dir) lean-files))

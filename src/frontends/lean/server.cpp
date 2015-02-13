@@ -34,12 +34,22 @@ Author: Leonardo de Moura
 #define DIAG(CODE)
 #endif
 
+#ifndef LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS
+#define LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS 100
+#endif
+
 #define LEAN_FUZZY_MAX_ERRORS        3
 #define LEAN_FUZZY_MAX_ERRORS_FACTOR 3
 #define LEAN_FIND_CONSUME_IMPLICIT   true // lean will add metavariables for implicit arguments when printing the type of declarations in FINDP and FINDG
 #define LEAN_FINDG_MAX_STEPS         128 // maximum number of steps per unification problem
 
 namespace lean {
+static name * g_auto_completion_max_results = nullptr;
+
+unsigned get_auto_completion_max_results(options const & o) {
+    return o.get_unsigned(*g_auto_completion_max_results, LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS);
+}
+
 server::file::file(std::istream & in, std::string const & fname):m_fname(fname) {
     for (std::string line; std::getline(in, line);) {
         m_lines.push_back(line);
@@ -645,6 +655,7 @@ void server::find_pattern(unsigned line_num, std::string const & pattern) {
         return;
     }
     opts = join(opts, m_ios.get_options());
+    unsigned max_results = get_auto_completion_max_results(opts);
     m_out << std::endl;
     unsigned max_errors = get_fuzzy_match_max_errors(pattern.size());
     std::vector<pair<name, name>> exact_matches;
@@ -661,6 +672,7 @@ void server::find_pattern(unsigned line_num, std::string const & pattern) {
                     selected.emplace_back(text, d.get_name());
             }
         });
+    unsigned num_results = 0;
     if (!exact_matches.empty()) {
         std::sort(exact_matches.begin(), exact_matches.end(),
                   [](pair<name, name> const & p1, pair<name, name> const & p2) {
@@ -668,6 +680,9 @@ void server::find_pattern(unsigned line_num, std::string const & pattern) {
                   });
         for (pair<name, name> const & p : exact_matches) {
             display_decl(p.first, p.second, env, opts);
+            num_results++;
+            if (num_results >= max_results)
+                break;
         }
     }
     unsigned sz = selected.size();
@@ -675,11 +690,14 @@ void server::find_pattern(unsigned line_num, std::string const & pattern) {
         display_decl(selected[0].second, env, opts);
     } else if (sz > 1) {
         std::vector<pair<std::string, name>> next_selected;
-        for (unsigned k = 0; k <= max_errors; k++) {
+        for (unsigned k = 0; k <= max_errors && num_results < max_results; k++) {
             bitap_fuzzy_search matcher(pattern, k);
             for (auto const & s : selected) {
                 if (matcher.match(s.first)) {
                     display_decl(s.second, env, opts);
+                    num_results++;
+                    if (num_results >= max_results)
+                        break;
                 } else {
                     next_selected.push_back(s);
                 }
@@ -912,6 +930,9 @@ bool parse_server_trace(environment const & env, io_state const & ios, char cons
 }
 
 void initialize_server() {
+    g_auto_completion_max_results = new name{"auto_completion", "max_results"};
+    register_unsigned_option(*g_auto_completion_max_results,  LEAN_DEFAULT_AUTO_COMPLETION_MAX_RESULTS,
+                             "(auto-completion) maximum number of results returned");
     g_tmp_prefix = new name(name::mk_internal_unique_name());
     g_load = new std::string("LOAD");
     g_save = new std::string("SAVE");
@@ -934,6 +955,7 @@ void initialize_server() {
     g_findg = new std::string("FINDG");
 }
 void finalize_server() {
+    delete g_auto_completion_max_results;
     delete g_tmp_prefix;
     delete g_load;
     delete g_save;

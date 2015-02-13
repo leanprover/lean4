@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/interrupt.h"
 #include "util/list_fn.h"
+#include "util/rb_map.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
@@ -19,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/kernel_serializer.h"
 #include "library/reducible.h"
 #include "library/util.h"
+#include "library/expr_lt.h"
 #include "library/match.h"
 #include "library/projection.h"
 #include "library/local_context.h"
@@ -730,7 +732,7 @@ class rewrite_fn {
     expr to_meta_idx(expr const & e) {
         m_lsubst.clear();
         m_esubst.clear();
-        name_map<expr>  emap;
+        rb_map<expr, expr, expr_quick_cmp>  emap;
         name_map<level> lmap;
 
         auto to_meta_idx = [&](level const & l) {
@@ -753,22 +755,27 @@ class rewrite_fn {
                 });
         };
 
+        // return true if the arguments of e are not metavar applications
+        auto no_meta_args = [&](expr const & e) {
+            buffer<expr> args;
+            get_app_args(e, args);
+            return !std::any_of(args.begin(), args.end(), [&](expr const & e) { return is_meta(e); });
+        };
+
         return replace(e, [&](expr const & e, unsigned) {
                 if (!has_metavar(e)) {
                     return some_expr(e); // done
                 } else if (is_binding(e)) {
                     throw_rewrite_exception("invalid rewrite tactic, pattern contains binders");
                 } else if (is_meta(e)) {
-                    expr const & fn = get_app_fn(e);
-                    lean_assert(is_metavar(fn));
-                    name const & n  = mlocal_name(fn);
-                    if (auto it = emap.find(n)) {
+                    if (auto it = emap.find(e)) {
                         return some_expr(*it);
                     } else {
                         unsigned next_idx = m_esubst.size();
                         expr r = mk_idx_meta(next_idx, m_tc->infer(e).first);
                         m_esubst.push_back(none_expr());
-                        emap.insert(n, r);
+                        if (no_meta_args(e))
+                            emap.insert(e, r); // cache only if arguments of e are not metavariables
                         return some_expr(r);
                     }
                 } else if (is_constant(e)) {

@@ -92,7 +92,7 @@ namespace morphism
   theorem section_of_id : section_of (ID a) = id :=
   section_eq_intro !id_compose
 
-  theorem iso_of_id : ID a⁻¹ = id :=
+  theorem iso_of_id [H : is_iso (ID a)] : (ID a)⁻¹ = id :=
   inverse_eq_intro_left !id_compose
 
   theorem composition_is_section [instance] [Hf : is_section f] [Hg : is_section g]
@@ -237,20 +237,27 @@ namespace morphism
       ... = f ∘ id : inverse_compose q
       ... = f : id_right f
 
-  theorem inv_pp [H' : is_iso p] : (q ∘ p)⁻¹ = p⁻¹ ∘ q⁻¹ :=
+  theorem inv_pp [H' : is_iso p] [Hpq : is_iso (q ∘ p)] : (q ∘ p)⁻¹ = p⁻¹ ∘ q⁻¹ :=
   have H1 : (p⁻¹ ∘ q⁻¹) ∘ q ∘ p = p⁻¹ ∘ (q⁻¹ ∘ (q ∘ p)), from assoc (p⁻¹) (q⁻¹) (q ∘ p)⁻¹,
   have H2 : (p⁻¹) ∘ (q⁻¹ ∘ (q ∘ p)) = p⁻¹ ∘ p, from ap _ (compose_V_pp q p),
   have H3 : p⁻¹ ∘ p = id, from inverse_compose p,
   inverse_eq_intro_left (H1 ⬝ H2 ⬝ H3)
+
   --the proof using calc is hard for the unifier (needs ~90k steps)
   -- inverse_eq_intro_left
   --   (calc
   --     (p⁻¹ ∘ (q⁻¹)) ∘ q ∘ p = p⁻¹ ∘ (q⁻¹ ∘ (q ∘ p)) : assoc (p⁻¹) (q⁻¹) (q ∘ p)⁻¹
   --     ... = (p⁻¹) ∘ p : congr_arg (λx, p⁻¹ ∘ x) (compose_V_pp q p)
   --     ... = id : inverse_compose p)
-  theorem inv_Vp [H' : is_iso g] : (q⁻¹ ∘ g)⁻¹ = g⁻¹ ∘ q := inverse_involutive q ▹ inv_pp (q⁻¹) g
-  theorem inv_pV [H' : is_iso f] : (q ∘ f⁻¹)⁻¹ = f ∘ q⁻¹ := inverse_involutive f ▹ inv_pp q (f⁻¹)
-  theorem inv_VV [H' : is_iso r] : (q⁻¹ ∘ r⁻¹)⁻¹ = r ∘ q := inverse_involutive r ▹ inv_Vp q (r⁻¹)
+  theorem inv_Vp [H' : is_iso g] : (q⁻¹ ∘ g)⁻¹ = g⁻¹ ∘ q :=
+  inverse_involutive q ▹ inv_pp (q⁻¹) g
+
+  theorem inv_pV [H' : is_iso f] : (q ∘ f⁻¹)⁻¹ = f ∘ q⁻¹ :=
+  inverse_involutive f ▹ inv_pp q (f⁻¹)
+
+  theorem inv_VV [H' : is_iso r] : (q⁻¹ ∘ r⁻¹)⁻¹ = r ∘ q :=
+  inverse_involutive r ▹ inv_Vp q (r⁻¹)
+
   end
   section
   variables {ob : Type} {C : precategory ob} include C

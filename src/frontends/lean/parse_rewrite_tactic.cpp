@@ -32,9 +32,7 @@ static expr parse_rule(parser & p) {
     }
 }
 
-static expr parse_rewrite_unfold(parser & p) {
-    lean_assert(p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk()));
-    p.next();
+static expr parse_rewrite_unfold_core(parser & p) {
     buffer<name> to_unfold;
     if (p.curr_is_token(get_lcurly_tk())) {
         p.next();
@@ -50,6 +48,12 @@ static expr parse_rewrite_unfold(parser & p) {
     }
     location loc = parse_tactic_location(p);
     return mk_rewrite_unfold(to_list(to_unfold), loc);
+}
+
+static expr parse_rewrite_unfold(parser & p) {
+    lean_assert(p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk()));
+    p.next();
+    return parse_rewrite_unfold_core(p);
 }
 
 expr parse_rewrite_element(parser & p) {
@@ -138,6 +142,8 @@ expr parse_esimp_tactic(parser & p) {
     buffer<expr> elems;
     if (p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk())) {
         elems.push_back(parse_rewrite_unfold(p));
+    } else if (p.curr_is_token(get_lcurly_tk())) {
+        elems.push_back(parse_rewrite_unfold_core(p));
     } else {
         location loc = parse_tactic_location(p);
         elems.push_back(mk_rewrite_reduce(loc));

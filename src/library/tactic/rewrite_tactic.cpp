@@ -993,7 +993,7 @@ class rewrite_fn {
             expr M   = m_g.mk_meta(m_ngen.next(), Pb);
             expr H;
             if (has_dep_elim) {
-                expr Haeqx = mk_app(mk_constant(get_eq_name(), {l1}), A, b, mk_var(0));
+                expr Haeqx = mk_app(mk_constant(get_eq_name(), {l2}), A, b, mk_var(0));
                 expr P     = mk_lambda("x", A, mk_lambda("H", Haeqx, Px));
                 H          = mk_app({mk_constant(get_eq_rec_name(), {l1, l2}), A, b, P, M, a, Heq});
             } else {

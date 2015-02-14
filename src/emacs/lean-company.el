@@ -116,17 +116,39 @@
   (when (looking-back (rx "set_option" (+ white) (* (or alnum digit "." "_"))))
     (company-grab-symbol)))
 
+(defun company-lean--option-make-candidate (arg)
+  (let* ((text   (car arg))
+         (option (cdr arg))
+         (type   (lean-option-record-type  option))
+         (value  (lean-option-record-value option))
+         (desc   (lean-option-record-desc  option)))
+    (propertize text
+                'type  type
+                'value value
+                'desc  desc)))
+
+(defun company-lean--option-name-meta (candidate)
+  (get-text-property 0 'desc candidate))
+
+(defun company-lean--option-name-annotation (candidate)
+  (let* ((type (get-text-property 0 'type candidate))
+         (value (get-text-property 0 'value candidate)))
+    (format " : %s = %s" type value)))
+
 (defun company-lean--option-name-candidates (prefix)
   (let ((candidates
          (lean-get-options-sync-with-cont
           (lambda (option-record-alist)
-            (-map 'car option-record-alist)))))
+            (-map 'company-lean--option-make-candidate option-record-alist)))))
     (--filter (s-starts-with? prefix it) candidates)))
 
 (defun company-lean--option-name (command &optional arg &rest ignored)
   (case command
     (prefix (company-lean--option-name-prefix))
     (candidates (company-lean--option-name-candidates arg))
+    (meta       (company-lean--option-name-meta arg))
+    (annotation (company-lean--option-name-annotation arg))
+    (no-cache t)
     (sorted t)))
 
 ;; FINDG

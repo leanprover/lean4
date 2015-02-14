@@ -452,8 +452,11 @@ environment open_prec_aliases(environment const & env) {
     return overwrite_aliases(env, prec, name());
 }
 
+name get_priority_namespace() {
+    return name("std", "priority");
+}
+
 environment open_priority_aliases(environment const & env) {
-    name prio("std", "priority");
-    return overwrite_aliases(env, prio, name());
+    return overwrite_aliases(env, get_priority_namespace(), name());
 }
 }

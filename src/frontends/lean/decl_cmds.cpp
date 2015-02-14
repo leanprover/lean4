@@ -21,6 +21,8 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/reducible.h"
 #include "library/coercion.h"
+#include "library/choice.h"
+#include "library/replace_visitor.h"
 #include "library/class.h"
 #include "library/abbreviation.h"
 #include "library/unfold_macros.h"
@@ -298,6 +300,24 @@ struct decl_attributes {
         m_has_multiple_instances = false;
     }
 
+    struct elim_choice_fn : public replace_visitor {
+        name m_prio_ns;
+        elim_choice_fn():m_prio_ns(get_priority_namespace()) {}
+
+        virtual expr visit_macro(expr const & e) {
+            if (is_choice(e)) {
+                for (unsigned i = 0; i < get_num_choices(e); i++) {
+                    expr const & c = get_choice(e, i);
+                    if (is_constant(c) && const_name(c).get_prefix() == m_prio_ns)
+                        return c;
+                }
+                throw exception("invalid priority expression, it contains overloaded symbols");
+            } else {
+                return replace_visitor::visit_macro(e);
+            }
+        }
+    };
+
     optional<unsigned> parse_instance_priority(parser & p) {
         if (p.curr_is_token(get_priority_tk())) {
             p.next();
@@ -305,6 +325,7 @@ struct decl_attributes {
             environment env = open_priority_aliases(open_num_notation(p.env()));
             parser::local_scope scope(p, env);
             expr val = p.parse_expr();
+            val = elim_choice_fn()(val);
             val = normalize(p.env(), val);
             if (optional<mpz> mpz_val = to_num(val)) {
                 if (!mpz_val->is_unsigned_int())

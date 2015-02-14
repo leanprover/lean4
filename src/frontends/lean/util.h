@@ -111,4 +111,5 @@ environment open_num_notation(environment const & env);
 environment open_prec_aliases(environment const & env);
 /** \brief Open 'std.priority' aliases */
 environment open_priority_aliases(environment const & env);
+name get_priority_namespace();
 }

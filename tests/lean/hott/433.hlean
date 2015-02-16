@@ -94,6 +94,7 @@ namespace pi
   definition transport_V [reducible] (P : A → Type) {x y : A} (p : x = y) (u : P y) : P x :=
   p⁻¹ ▹ u
 
+  open function
   protected definition functor_pi : (Π(a:A), B a) → (Π(a':A'), B' a') := (λg a', f1 a' (g (f0 a')))
   /- Equivalences -/
   definition isequiv_functor_pi [instance] (f0 : A' → A) (f1 : Π(a':A'), B (f0 a') → B' a')
@@ -109,8 +110,7 @@ namespace pi
   rewrite adj,
   rewrite -transport_compose,
   rewrite {f1 a' _}(ap_transport _ f1 _),
-  apply (transport_V (λx, sect f0 a' ▹ x = h a') (retr (f1 _) _)),
-  -- retr cannot be used as rewrite rule, the resulting type is not an equality
+  rewrite (retr (f1 _) _),
   apply apD,
   intro h, beta,
   apply path_pi, intro a, esimp,

@@ -1,20 +1,20 @@
-We provide a way to syntax-highlight Lean code in LaTeX documents. 
+We provide a way to syntax-highlight Lean code in LaTeX documents.
 It requires a Python package `Pygments` and a LaTeX package `minted`.
 
 
 Python Package: `Pygments`
 --------------------------
 
-Checkout [Pygments development repository][pygments-dev] and build Pygments:
+Checkout [Leanprover's Pygments repository][lean-pygments] and build Pygments:
 
 ```bash
-hg clone https://bitbucket.org/birkenfeld/pygments-main/
+hg clone https://bitbucket.org/leanprover/pygments-main
 cd pygments-main
 make mapfiles
 sudo ./setup.py install
 ````
 
-[pygments-dev]: https://bitbucket.org/birkenfeld/pygments-main
+[lean-pygments]: https://bitbucket.org/leanprover/pygments-main
 
 
 LaTeX package: `minted`
@@ -61,13 +61,11 @@ xelatex --shell-escape test
 
 Some remarks:
 
- - `xelatex` is required to handle unicode in LaTeX. 
+ - `xelatex` is required to handle unicode in LaTeX.
  - `--shell-escape` option is needed to allow `xelatex` to execute `pygmentize` in a shell.
 
- 
+
 Contribute
 ----------
 
-Please fork [Leonardo de Moura's Pygments repository][pygments-lean], improve it, and make a pull-request.
-
-[pygments-lean]: https://bitbucket.org/leodemoura/pygments-main
+Please fork [Leanprover's Pygments repository][lean-pygments], improve it, and make a pull-request.

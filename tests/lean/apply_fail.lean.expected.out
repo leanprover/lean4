@@ -1,0 +1,13 @@
+apply_fail.lean:3:2: error:invalid 'apply' tactic, failed to unify
+  a ∧ b
+with
+  ?M_1 ∨ ?M_2
+proof state:
+a b : Prop
+⊢ a ∧ b
+apply_fail.lean:4:0: error: don't know how to synthesize placeholder
+a b : Prop
+⊢ a ∧ b
+apply_fail.lean:4:0: error: failed to add declaration '14.0' to environment, value has metavariables
+  λ (a b : Prop),
+    ?M_1

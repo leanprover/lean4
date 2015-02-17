@@ -1,0 +1,22 @@
+assert_fail.lean:3:2: error:invalid 'assert' tactic, goal already has a hypothesis named 'H'
+proof state:
+a b : Prop,
+H : b ∧ a
+⊢ a ∧ b
+assert_fail.lean:4:0: error: don't know how to synthesize placeholder
+a b : Prop,
+H : b ∧ a
+⊢ a ∧ b
+assert_fail.lean:4:0: error: failed to add declaration '14.0' to environment, value has metavariables
+  λ (a b : Prop) (H : b ∧ a),
+    ?M_1
+assert_fail.lean:9:2: error:invalid tactic, there are no goals to be solved
+proof state:
+no goals
+assert_fail.lean:10:0: error: don't know how to synthesize placeholder
+a : Prop,
+Ha : a
+⊢ a
+assert_fail.lean:10:0: error: failed to add declaration '14.1' to environment, value has metavariables
+  λ (a : Prop) (Ha : a),
+    ?M_1

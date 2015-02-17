@@ -145,10 +145,11 @@ class elaborator : public coercion_info_manager {
     unify_result_seq solve(constraint_seq const & cs);
     void display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg, expr const & pos);
     void display_unsolved_proof_state(expr const & mvar, proof_state const & ps, char const * msg);
+    void display_tactic_exception(tactic_exception const & ex, proof_state const & ps, expr const & pre_tac);
     optional<expr> get_pre_tactic_for(expr const & mvar);
     optional<tactic> pre_tactic_to_tactic(expr const & pre_tac);
-    bool try_using(substitution & subst, expr const & mvar, proof_state const & ps, tactic const & tac,
-                   bool show_failure);
+    bool try_using(substitution & subst, expr const & mvar, proof_state const & ps,
+                   expr const & pre_tac, tactic const & tac, bool show_failure);
     void try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac);
     void solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited);
     expr solve_unassigned_mvars(substitution & subst, expr e, name_set & visited);

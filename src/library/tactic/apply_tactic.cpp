@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "kernel/error_msgs.h"
 #include "kernel/type_checker.h"
 #include "library/reducible.h"
 #include "library/kernel_bindings.h"
@@ -72,8 +73,10 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
                                          expr const & _e, buffer<constraint> & cs,
                                          bool add_meta, subgoals_action_kind subgoals_action) {
     goals const & gs = s.get_goals();
-    if (empty(gs))
+    if (empty(gs)) {
+        throw_no_goal_if_enabled(s);
         return proof_state_seq();
+    }
     bool class_inst   = get_apply_class_instance(ios.get_options());
     name_generator ngen = s.get_ngen();
     bool relax_opaque = s.relax_main_opaque();
@@ -124,8 +127,16 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
     metavar_closure cls(t);
     cls.mk_constraints(s.get_subst(), justification(), relax_opaque);
     pair<bool, constraint_seq> dcs = tc->is_def_eq(t, e_t);
-    if (!dcs.first)
+    if (!dcs.first) {
+        throw_tactic_exception_if_enabled(s, [=](formatter const & fmt) {
+                format r = format("invalid 'apply' tactic, failed to unify");
+                r       += pp_indent_expr(fmt, t);
+                r       += compose(line(), format("with"));
+                r       += pp_indent_expr(fmt, e_t);
+                return r;
+            });
         return proof_state_seq();
+    }
     dcs.second.linearize(cs);
     unify_result_seq rseq = unify(env, cs.size(), cs.data(), ngen.mk_child(), s.get_subst(), cfg);
     list<expr> meta_lst   = to_list(metas.begin(), metas.end());
@@ -172,14 +183,17 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
 tactic eassumption_tactic() {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             goals const & gs = s.get_goals();
-            if (empty(gs))
+            if (empty(gs)) {
+                throw_no_goal_if_enabled(s);
                 return proof_state_seq();
+            }
+            proof_state new_s = s.update_report_failure(false);
             proof_state_seq r;
             goal g = head(gs);
             buffer<expr> hs;
             get_app_args(g.get_meta(), hs);
             for (expr const & h : hs) {
-                r = append(r, apply_tactic_core(env, ios, s, h, false, IgnoreSubgoals));
+                r = append(r, apply_tactic_core(env, ios, new_s, h, false, IgnoreSubgoals));
             }
             return r;
         });
@@ -188,8 +202,10 @@ tactic eassumption_tactic() {
 tactic apply_tactic_core(elaborate_fn const & elab, expr const & e, subgoals_action_kind k) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             goals const & gs = s.get_goals();
-            if (empty(gs))
+            if (empty(gs)) {
+                throw_no_goal_if_enabled(s);
                 return proof_state_seq();
+            }
             goal const & g      = head(gs);
             name_generator ngen = s.get_ngen();
             expr       new_e;

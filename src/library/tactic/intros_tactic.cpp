@@ -15,8 +15,10 @@ tactic intros_tactic(list<name> _ns, bool relax_main_opaque) {
     auto fn = [=](environment const & env, io_state const &, proof_state const & s) {
         list<name> ns    = _ns;
         goals const & gs = s.get_goals();
-        if (empty(gs))
+        if (empty(gs)) {
+            throw_no_goal_if_enabled(s);
             return optional<proof_state>();
+        }
         goal const & g      = head(gs);
         name_generator ngen = s.get_ngen();
         auto tc             = mk_type_checker(env, ngen.mk_child(), relax_main_opaque);

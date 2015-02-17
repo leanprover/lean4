@@ -11,19 +11,31 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/lazy_list.h"
 #include "library/io_state.h"
+#include "library/generic_exception.h"
 #include "library/tactic/proof_state.h"
 
 namespace lean {
 /** \brief Throw an exception is \c v contains local constants, \c e is only used for position information. */
 void check_has_no_local(expr const & v, expr const & e, char const * tac_name);
 
-class tactic_exception : public exception {
-    expr m_expr;
+class tactic_exception : public generic_exception {
+    optional<proof_state> m_ps;
 public:
+    tactic_exception(char const * msg, optional<expr> const & m, pp_fn const & fn);
+    tactic_exception(char const * msg, optional<expr> const & m, proof_state const & ps, pp_fn const & fn);
+    tactic_exception(expr const & e, std::string const & msg);
     tactic_exception(expr const & e, char const * msg);
     tactic_exception(expr const & e, sstream const & strm);
-    expr const & get_expr() const { return m_expr; }
+    tactic_exception(expr const & e, pp_fn const & fn);
+    tactic_exception(std::string const & msg);
+    tactic_exception(char const * msg);
+    tactic_exception(sstream const & strm);
+    tactic_exception(pp_fn const & fn);
+    optional<proof_state> const & get_proof_state() const { return m_ps; }
 };
+
+#define throw_tactic_exception_if_enabled(ps, msg)  if (ps.report_failure()) throw tactic_exception(msg);
+void throw_no_goal_if_enabled(proof_state const & ps);
 
 typedef lazy_list<proof_state> proof_state_seq;
 

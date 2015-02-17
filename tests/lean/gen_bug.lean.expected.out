@@ -1,9 +1,23 @@
-gen_bug.lean:9:2: error: tactic failed
+gen_bug.lean:9:2: error:invalid 'generalize' tactic, type error
+type mismatch at application
+  @heq B b
+term
+  b
+has type
+  B_1
+but is expected to have type
+  B
+proof state:
 A B : Type,
 a : A,
 b : B,
 H : @heq A a B b
 ⊢ @heq B b A a
+gen_bug.lean:12:0: error: don't know how to synthesize placeholder
+A B : Type,
+a : A,
+b : B
+⊢ @heq A a B b → @heq B b A a
 gen_bug.lean:12:0: error: failed to add declaration 'tst' to environment, value has metavariables
   λ (A B : Type) (a : A) (b : B),
     ?M_1

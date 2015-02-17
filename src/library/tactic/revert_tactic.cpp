@@ -14,8 +14,10 @@ namespace lean {
 tactic revert_tactic(name const & n) {
     auto fn = [=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
         goals const & gs = s.get_goals();
-        if (empty(gs))
+        if (empty(gs)) {
+            throw_no_goal_if_enabled(s);
             return none_proof_state();
+        }
         goal  g          = head(gs);
         goals tail_gs    = tail(gs);
         if (auto p = g.find_hyp(n)) {
@@ -24,8 +26,11 @@ tactic revert_tactic(name const & n) {
             buffer<expr> hyps;
             g.get_hyps(hyps);
             hyps.erase(hyps.size() - i - 1);
-            if (depends_on(i, hyps.end() - i, h))
+            if (optional<expr> other_h = depends_on(i, hyps.end() - i, h)) {
+                throw_tactic_exception_if_enabled(s, sstream() << "invalid 'revert' tactic, hypothesis '" << local_pp_name(*other_h)
+                                                  << "' depends on '" << local_pp_name(h) << "'");
                 return none_proof_state(); // other hypotheses depend on h
+            }
             name_generator ngen = s.get_ngen();
             expr new_type = Pi(h, g.get_type());
             expr new_meta = mk_app(mk_metavar(ngen.next(), Pi(hyps, new_type)), hyps);
@@ -36,6 +41,7 @@ tactic revert_tactic(name const & n) {
             proof_state new_s(s, goals(new_g, tail_gs), new_subst, ngen);
             return some_proof_state(new_s);
         } else {
+            throw_tactic_exception_if_enabled(s, sstream() << "invalid 'revert' tactic, unknown hypothesis '" << n << "'");
             return none_proof_state();
         }
     };

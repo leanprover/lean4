@@ -1,4 +1,8 @@
-beginend_bug.lean:7:2: error: tactic failed
+beginend_bug.lean:7:2: error:invalid 'apply' tactic, failed to unify
+  a = ?M_1
+with
+  b = c
+proof state:
 A : Type,
 a b c : A,
 Hab : a = b,
@@ -10,6 +14,12 @@ a b c : A,
 Hab : a = b,
 Hbc : b = c
 ⊢ ?M_1 = c
+beginend_bug.lean:9:0: error: don't know how to synthesize placeholder
+A : Type,
+a b c : A,
+Hab : a = b,
+Hbc : b = c
+⊢ a = c
 beginend_bug.lean:9:0: error: failed to add declaration 'foo' to environment, value has metavariables
   λ (A : Type) (a b c : A) (Hab : a = b) (Hbc : b = c),
     ?M_1

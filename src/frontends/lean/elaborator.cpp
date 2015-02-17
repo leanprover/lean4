@@ -1480,14 +1480,30 @@ optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
     }
 }
 
+void elaborator::display_tactic_exception(tactic_exception const & ex, proof_state const & ps, expr const & pre_tac) {
+    auto out = regular(env(), ios());
+    flycheck_error err(out);
+    if (optional<expr> const & e = ex.get_main_expr())
+        display_error_pos(out, pip(), *e);
+    else
+        display_error_pos(out, pip(), pre_tac);
+    out << ex.pp(out.get_formatter()) << "\nproof state:\n";
+    if (auto curr_ps = ex.get_proof_state())
+        out << curr_ps->pp(env(), ios()) << "\n";
+    else
+        out << ps.pp(env(), ios()) << "\n";
+}
+
 /** \brief Try to instantiate meta-variable \c mvar (modulo its state ps) using the given tactic.
     If it succeeds, then update subst with the solution.
     Return true iff the metavariable \c mvar has been assigned.
 
     If \c show_failure == true, then display reason for failure.
+
+    \remark the argument \c pre_tac is only used for error localization.
 */
-bool elaborator::try_using(substitution & subst, expr const & mvar, proof_state const & ps, tactic const & tac,
-                           bool show_failure) {
+bool elaborator::try_using(substitution & subst, expr const & mvar, proof_state const & ps,
+                           expr const & pre_tac, tactic const & tac, bool show_failure) {
     lean_assert(length(ps.get_goals()) == 1);
     // make sure ps is a really a proof state for mvar.
     lean_assert(mlocal_name(get_app_fn(head(ps.get_goals()).get_meta())) == mlocal_name(mvar));
@@ -1511,11 +1527,8 @@ bool elaborator::try_using(substitution & subst, expr const & mvar, proof_state 
             return true;
         }
     } catch (tactic_exception & ex) {
-        if (show_failure) {
-            auto out = regular(env(), ios());
-            display_error_pos(out, pip(), ex.get_expr());
-            out << " tactic failed: " << ex.what() << "\n";
-        }
+        if (show_failure)
+            display_tactic_exception(ex, ps, pre_tac);
         return false;
     }
 }
@@ -1562,9 +1575,7 @@ void elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
                 }
                 ps = r->first;
             } catch (tactic_exception & ex) {
-                auto out = regular(env(), ios());
-                display_error_pos(out, pip(), ex.get_expr());
-                out << " tactic failed: " << ex.what() << "\n";
+                display_tactic_exception(ex, ps, ptac);
                 return;
             }
         } else {
@@ -1603,7 +1614,7 @@ void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set
 
         if (auto tac = pre_tactic_to_tactic(subst.instantiate_all(*pre_tac))) {
             bool show_failure = true;
-            try_using(subst, mvar, ps, *tac, show_failure);
+            try_using(subst, mvar, ps, *pre_tac, *tac, show_failure);
             return;
         }
     }
@@ -1613,7 +1624,7 @@ void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set
         for (expr const & pre_tac : get_tactic_hints(env())) {
             if (auto tac = pre_tactic_to_tactic(pre_tac)) {
                 bool show_failure = false;
-                if (try_using(subst, mvar, ps, *tac, show_failure))
+                if (try_using(subst, mvar, ps, pre_tac, *tac, show_failure))
                     return;
             }
         }

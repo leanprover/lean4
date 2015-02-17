@@ -15,8 +15,10 @@ tactic exact_tactic(elaborate_fn const & elab, expr const & e) {
     return tactic01([=](environment const & env, io_state const & ios, proof_state const & s) {
             proof_state new_s = s;
             goals const & gs  = new_s.get_goals();
-            if (!gs)
+            if (!gs) {
+                throw_no_goal_if_enabled(s);
                 return none_proof_state();
+            }
             expr t            = head(gs).get_type();
             bool report_unassigned = true;
             if (auto new_e = elaborate_with_respect_to(env, ios, elab, new_s, e, some_expr(t), report_unassigned)) {

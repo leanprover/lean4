@@ -15,13 +15,17 @@ tactic assert_tactic(elaborate_fn const & elab, name const & id, expr const & e)
     return tactic01([=](environment const & env, io_state const & ios, proof_state const & s) {
             proof_state new_s = s;
             goals const & gs  = new_s.get_goals();
-            if (!gs)
+            if (!gs) {
+                throw_no_goal_if_enabled(s);
                 return none_proof_state();
+            }
             bool report_unassigned = true;
             if (auto new_e = elaborate_with_respect_to(env, ios, elab, new_s, e, none_expr(), report_unassigned)) {
                 goals const & gs   = new_s.get_goals();
                 goal const & g     = head(gs);
                 if (g.find_hyp(id)) {
+                    throw_tactic_exception_if_enabled(s, sstream() << "invalid 'assert' tactic, goal already has a "
+                                                      "hypothesis named '" << id << "'");
                     // goal already has a hypothesis named id
                     return none_proof_state();
                 }

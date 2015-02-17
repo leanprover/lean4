@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "library/constants.h"
 #include "kernel/abstract.h"
+#include "kernel/kernel_exception.h"
 #include "library/reducible.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/expr_to_tactic.h"
@@ -21,8 +22,11 @@ tactic generalize_tactic(elaborate_fn const & elab, expr const & e, name const &
                 goal const & g      = head(gs);
                 auto tc     = mk_type_checker(env, ngen.mk_child());
                 auto e_t_cs = tc->infer(*new_e);
-                if (e_t_cs.second)
+                if (e_t_cs.second) {
+                    throw_tactic_exception_if_enabled(s, "invalid 'generalize' tactic, unification constraints "
+                                                      "have been generated when inferring type");
                     return none_proof_state(); // constraints were generated
+                }
                 expr e_t    = e_t_cs.first;
                 expr t      = subst.instantiate(g.get_type());
                 name n;
@@ -37,7 +41,14 @@ tactic generalize_tactic(elaborate_fn const & elab, expr const & e, name const &
                 expr new_v = g.abstract(mk_app(new_m, *new_e));
                 try {
                     tc->check_ignore_levels(g.abstract(new_t));
-                } catch (exception &) {
+                } catch (kernel_exception const & ex) {
+                    std::shared_ptr<kernel_exception> ex_ptr(static_cast<kernel_exception*>(ex.clone()));
+                    throw_tactic_exception_if_enabled(s, [=](formatter const & fmt) {
+                            format r = format("invalid 'generalize' tactic, type error");
+                            r       += line();
+                            r       += ex_ptr->pp(fmt);
+                            return r;
+                        });
                     return none_proof_state();
                 }
 

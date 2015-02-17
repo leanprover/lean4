@@ -13,8 +13,10 @@ namespace lean {
 tactic rename_tactic(name const & from, name const & to) {
     return tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             goals const & gs = s.get_goals();
-            if (empty(gs))
+            if (empty(gs)) {
+                throw_no_goal_if_enabled(s);
                 return none_proof_state();
+            }
             goal const & g        = head(gs);
             goals const & rest_gs = tail(gs);
             buffer<expr> locals;

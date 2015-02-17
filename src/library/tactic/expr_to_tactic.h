@@ -65,10 +65,12 @@ expr const & get_repeat_tac_fn();
 expr const & get_determ_tac_fn();
 
 /** \brief Exception used to report a problem when an expression is being converted into a tactic. */
-class expr_to_tactic_exception : public tactic_exception {
+class expr_to_tactic_exception : public exception {
+    expr m_expr;
 public:
-    expr_to_tactic_exception(expr const & e, char const * msg):tactic_exception(e, msg) {}
-    expr_to_tactic_exception(expr const & e, sstream const & strm):tactic_exception(e, strm) {}
+    expr_to_tactic_exception(expr const & e, char const * msg):exception(msg), m_expr(e) {}
+    expr_to_tactic_exception(expr const & e, sstream const & strm):exception(strm), m_expr(e) {}
+    expr const & get_expr() const { return m_expr; }
 };
 
 typedef std::function<tactic(type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *)>

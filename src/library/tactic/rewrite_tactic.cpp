@@ -1161,6 +1161,11 @@ public:
         for (expr const & elem : elems) {
             flet<expr> set1(m_expr_loc, elem);
             if (!process_step(elem)) {
+                if (m_ps.report_failure()) {
+                    proof_state curr_ps(m_ps, cons(m_g, tail(m_ps.get_goals())), m_subst, m_ngen);
+                    throw tactic_exception("rewrite step failed", some_expr(elem), curr_ps,
+                                           [](formatter const &) { return format("invalid 'rewrite' tactic, rewrite step failed"); });
+                }
                 return proof_state_seq();
             }
         }
@@ -1178,8 +1183,10 @@ public:
 tactic mk_rewrite_tactic(elaborate_fn const & elab, buffer<expr> const & elems) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             goals const & gs = s.get_goals();
-            if (empty(gs))
+            if (empty(gs)) {
+                throw_no_goal_if_enabled(s);
                 return proof_state_seq();
+            }
             return rewrite_fn(env, ios, elab, s)(elems);
         });
 }

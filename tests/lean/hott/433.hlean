@@ -94,7 +94,6 @@ namespace pi
   definition transport_V [reducible] (P : A → Type) {x y : A} (p : x = y) (u : P y) : P x :=
   p⁻¹ ▹ u
 
-  open function
   protected definition functor_pi : (Π(a:A), B a) → (Π(a':A'), B' a') := (λg a', f1 a' (g (f0 a')))
   /- Equivalences -/
   definition isequiv_functor_pi [instance] (f0 : A' → A) (f1 : Π(a':A'), B (f0 a') → B' a')

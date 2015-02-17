@@ -35,5 +35,5 @@ inline bool depends_on(expr const & e, expr const & h) {
 }
 
 /** \brief Return true iff one of \c es contains the local constant \c h */
-bool depends_on(unsigned sz, expr const * es, expr const & h);
+optional<expr> depends_on(unsigned sz, expr const * es, expr const & h);
 }

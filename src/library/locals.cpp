@@ -78,10 +78,10 @@ bool contains_local(expr const & e, name const & n) {
     return result;
 }
 
-bool depends_on(unsigned sz, expr const * es, expr const & h) {
+optional<expr> depends_on(unsigned sz, expr const * es, expr const & h) {
     for (unsigned i = 0; i < sz; i++)
         if (depends_on(es[i], h))
-            return true;
-    return false;
+            return some_expr(es[i]);
+    return none_expr();
 }
 }

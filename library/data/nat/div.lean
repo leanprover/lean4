@@ -310,31 +310,15 @@ calc
   n = n * k div k : mul_div_cancel _ H1
     ... = m div k : H2
 
-theorem dvd_of_dvd_add_left {m n1 n2 : ℕ} : m | (n1 + n2) → m | n1 → m | n2 :=
-by_cases_zero_pos m
-  (assume (H1 : 0 | n1 + n2) (H2 : 0 | n1),
-    have H3 : n1 + n2 = 0, from eq_zero_of_zero_dvd H1,
-    have H4 : n1 = 0, from eq_zero_of_zero_dvd H2,
-    have H5 : n2 = 0, from calc
-      n2   = 0  + n2 : zero_add
-       ... = n1 + n2 : H4
-       ... = 0       : H3,
-    show 0 | n2, from H5 ▸ dvd.refl n2)
-  (take m,
-    assume mpos : m > 0,
-    assume H1 : m | (n1 + n2),
-    assume H2 : m | n1,
-    have H3 : n1 + n2 = n1 + n2 div m * m, from calc
-      n1 + n2 = (n1 + n2) div m * m         : div_mul_cancel H1
-          ... = (n1 div m * m + n2) div m * m : div_mul_cancel H2
-          ... = (n2 + n1 div m * m) div m * m : add.comm
-          ... = (n2 div m + n1 div m) * m     : add_mul_div_self_right mpos
-          ... = n2 div m * m + n1 div m * m   : mul.right_distrib
-          ... = n1 div m * m + n2 div m * m   : add.comm
-          ... = n1 + n2 div m * m             : div_mul_cancel H2,
-    have H4 : n2 = n2 div m * m, from add.cancel_left H3,
-    have H5 : m * (n2 div m) = n2, from !mul.comm ▸ H4⁻¹,
-    dvd.intro H5)
+theorem dvd_of_dvd_add_left {m n₁ n₂ : ℕ} (H₁ : m | n₁ + n₂) (H₂ : m | n₁) : m | n₂ :=
+obtain (c₁ : nat) (Hc₁ : n₁ + n₂ = m * c₁), from H₁,
+obtain (c₂ : nat) (Hc₂ : n₁ = m * c₂), from H₂,
+have   aux : m * (c₁ - c₂) = n₂, from calc
+  m * (c₁ - c₂) = m * c₁  - m * c₂ : mul_sub_left_distrib
+           ...  = n₁ + n₂ - m * c₂ : Hc₁
+           ...  = n₁ + n₂ - n₁     : Hc₂
+           ...  = n₂               : add_sub_cancel_left,
+dvd.intro aux
 
 theorem dvd_of_dvd_add_right {m n1 n2 : ℕ} (H : m | (n1 + n2)) : m | n2 → m | n1 :=
 dvd_of_dvd_add_left (!add.comm ▸ H)

@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: algebra.field
 Authors: Robert Lewis
 
-Structures with multiplicative and additive components, including semirings, rings, and fields.
+Structures with multiplicative and additive components, including division rings and fields.
 The development is modeled after Isabelle's library.
 -/
 
@@ -225,6 +225,35 @@ section division_ring
       ... = a * c⁻¹ + b * c⁻¹ : rfl
       ... = (a + b) * c⁻¹ : right_distrib
       ... = (a + b) / c : rfl
+
+  theorem inv_mul_add_mul_inv_eq_inv_add_inv (Ha : a ≠ 0) (Hb : b ≠ 0) :
+          (1 / a) * (a + b) * (1 / b) = 1 / a + 1 / b :=
+    by rewrite [(left_distrib (1 / a)), (one_div_mul_cancel Ha), right_distrib, one_mul,
+      mul.assoc, (mul_one_div_cancel Hb), mul_one, add.comm]
+    /-calc
+      (1 / a) * (a + b) * (1 / b) = ((1 / a) * a + (1 / a) * b) * (1 / b) : left_distrib
+      ... = (1 + (1 / a) * b) * (1 / b) : one_div_mul_cancel Ha
+      ... = 1 * (1 / b) + (1 / a) * b * (1 / b) : right_distrib
+      ... = 1 / b + (1 / a) * b * (1 / b) : one_mul
+      ... = 1 / b + (1 / a) * (b * (1 / b)) : mul.assoc
+      ... = 1 / b + (1 / a) * 1 : mul_one_div_cancel Hb
+      ... = 1 / b + (1 / a) : mul_one
+      ... = 1 / a + 1 / b : add.comm-/
+
+  theorem inv_mul_sub_mul_inv_eq_inv_add_inv (Ha : a ≠ 0) (Hb : b ≠ 0) :
+          (1 / a) * (b - a) * (1 / b) = 1 / a - 1 / b :=
+    by rewrite [(mul_sub_left_distrib (1 / a)), (one_div_mul_cancel Ha), mul_sub_right_distrib,
+      one_mul, mul.assoc, (mul_one_div_cancel Hb), mul_one]
+
+  theorem div_eq_one_iff_eq (Hb : b ≠ 0) : a / b = 1 ↔ a = b := 
+    iff.intro
+    (assume H1 : a / b = 1, symm (calc
+      b = 1 * b : one_mul
+      ... = a / b * b : H1
+      ... = a : div_mul_cancel Hb))
+    (assume H2 : a = b, calc
+      a / b = b / b : H2
+      ... = 1 : div_self Hb)
 
 end division_ring
 

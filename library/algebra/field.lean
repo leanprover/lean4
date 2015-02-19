@@ -30,32 +30,26 @@ section division_ring
   definition divide (a b : A) : A := a * b⁻¹
   infix `/` := divide
 
+  -- only in this file
+  local attribute divide [reducible]
+
   theorem mul_inv_cancel (H : a ≠ 0) : a * a⁻¹ = 1 :=
   division_ring.mul_inv_cancel H
 
   theorem inv_mul_cancel (H : a ≠ 0) : a⁻¹ * a = 1 :=
   division_ring.inv_mul_cancel H
 
-  theorem inv_eq_one_div (H : a ≠ 0) : a⁻¹ = 1 / a := 
-    symm (calc
-      1 / a = 1 * a⁻¹ : rfl --div_is_mul _ _ H
-      ... = a⁻¹ : one_mul
-      )
+  theorem inv_eq_one_div : a⁻¹ = 1 / a := !one_mul⁻¹
 
   theorem mul_one_div_cancel (H : a ≠ 0) : a * (1 / a) = 1 :=
-    calc
-      a * (1 / a) = a * a⁻¹ : inv_eq_one_div H
-      ... = 1 : mul_inv_cancel H
+  by rewrite [-inv_eq_one_div, (mul_inv_cancel H)]
 
   theorem one_div_mul_cancel (H : a ≠ 0) : (1 / a) * a = 1 :=
     calc
-      (1 / a) * a = a⁻¹ * a : inv_eq_one_div H
+      (1 / a) * a = a⁻¹ * a : inv_eq_one_div
       ... = 1 : inv_mul_cancel H
 
-  theorem div_self (H : a ≠ 0) : a / a = 1 :=
-    calc
-      a / a = a * a⁻¹ : rfl
-      ... = 1 : mul_inv_cancel H
+  theorem div_self (H : a ≠ 0) : a / a = 1 := mul_inv_cancel H
 
   theorem mul_div_assoc (Hc : c ≠ 0) : (a * b) / c = a * (b / c) :=
     eq.symm (calc
@@ -79,8 +73,8 @@ section division_ring
 
   theorem div_one : a / 1 = a :=
     calc
-      a / 1 = a * 1⁻¹ : rfl
-      ... = a * 1 : inv_one_is_one
+      a / 1 = /- a * 1⁻¹ : rfl
+      ... = -/ a * 1 : inv_one_is_one
       ... = a : mul_one
 
   -- note: integral domain has a "mul_ne_zero". When we get to "field", show it is an
@@ -200,10 +194,10 @@ section division_ring
   theorem mul_inv (Ha : a ≠ 0) (Hb : b ≠ 0) : (b * a)⁻¹ = a⁻¹ * b⁻¹ :=
     have H1 : b * a ≠ 0, from mul_ne_zero' Hb Ha,
     eq.symm (calc
-      a⁻¹ * b⁻¹ = (1 / a) * b⁻¹ : inv_eq_one_div Ha
-      ... = (1 / a) * (1 / b) : inv_eq_one_div Hb
+      a⁻¹ * b⁻¹ = (1 / a) * b⁻¹ : inv_eq_one_div
+      ... = (1 / a) * (1 / b) : inv_eq_one_div
       ... = (1 / (b * a)) : one_div_mul_one_div Ha Hb
-      ... = (b * a)⁻¹ : inv_eq_one_div H1)
+      ... = (b * a)⁻¹ : inv_eq_one_div)
 
   theorem mul_div_cancel (Hb : b ≠ 0) : a * b / b = a :=
     calc
@@ -257,7 +251,7 @@ section division_ring
 
 end division_ring
 
-structure field [class] (A : Type) extends  division_ring A, comm_ring A
+structure field [class] (A : Type) extends division_ring A, comm_ring A
 
 section field
   variables [s : field A] {a b c d: A}
@@ -265,23 +259,23 @@ section field
 
   -- I think of "div_cancel" has being something like a * b / b = a or a / b * b = a. The name
   -- I chose is clunky, but it has the right prefix
-  theorem div_mul_self_left (Hb : b ≠ 0) (H : a * b ≠ 0) : a / (a * b) = 1 / b :=
+  theorem div_mul_right (Hb : b ≠ 0) (H : a * b ≠ 0) : a / (a * b) = 1 / b :=
     have Ha : a ≠ 0, from and.left (mul_ne_zero_imp_ne_zero H),
     symm (calc
       1 / b = 1 * (1 / b) : one_mul
       ... = (a * a⁻¹) * (1 / b) : mul_inv_cancel Ha
       ... = a * (a⁻¹ * (1 / b)) : mul.assoc
-      ... = a * ((1 / a) * (1 / b)) :inv_eq_one_div Ha
+      ... = a * ((1 / a) * (1 / b)) :inv_eq_one_div
       ... = a * (1 / (b * a)) : one_div_mul_one_div Ha Hb
       ... = a * (1 / (a * b)) : mul.comm
-      ... = a * (a * b)⁻¹ : inv_eq_one_div H
+      ... = a * (a * b)⁻¹ : inv_eq_one_div
       ... = a / (a * b) : rfl)
 
-  theorem div_mul_self_right (Ha : a ≠ 0) (H : a * b ≠ 0) : b / (a * b) = 1 / a :=
+  theorem div_mul_left (Ha : a ≠ 0) (H : a * b ≠ 0) : b / (a * b) = 1 / a :=
     have H1 : b * a ≠ 0, from mul_ne_zero_comm H,
     calc
       (b / (a * b)) = (b / (b * a)) : mul.comm
-      ... = 1 / a : div_mul_self_left Ha H1
+      ... = 1 / a : div_mul_right Ha H1
 
   theorem mul_div_cancel_left (Ha : a ≠ 0) : a * b / a = b :=
     calc
@@ -296,12 +290,12 @@ section field
   theorem one_div_add_one_div (Ha : a ≠ 0) (Hb : b ≠ 0) : 1 / a + 1 / b = (a + b) / (a * b) :=
     have H : a * b ≠ 0, from (mul_ne_zero' Ha Hb),
     symm (calc
-      (a + b) / (a * b) = (a + b) * (a * b)⁻¹ : rfl
-      ... = a * (a * b)⁻¹ + b * (a * b)⁻¹ : right_distrib
+      (a + b) / (a * b)/- = (a + b) * (a * b)⁻¹ : rfl
+      ...-/ = a * (a * b)⁻¹ + b * (a * b)⁻¹ : right_distrib
       ... = a / (a * b) + b * (a * b)⁻¹ : rfl
-      ... = 1 / b + b * (a * b)⁻¹ : div_mul_self_left Hb H
+      ... = 1 / b + b * (a * b)⁻¹ : div_mul_right Hb H
       ... = 1 / b + b / (a * b) : rfl
-      ... = 1 / b + 1 / a : div_mul_self_right Ha H
+      ... = 1 / b + 1 / a : div_mul_left Ha H
       ... = 1 / a + 1 / b : add.comm)
 
   theorem div_mul_div (Hb : b ≠ 0) (Hd : d ≠ 0) : (a / b) * (c / d) = (a * c) / (b * d) :=
@@ -368,5 +362,38 @@ section field
       ... = c * b : div_mul_cancel Hd
 
 end field
+
+structure discrete_field [class] (A : Type) extends field A :=
+(decidable_equality : ∀x y : A, decidable (x = y))
+
+section discrete_field
+  variable [s : discrete_field A]
+  include s
+  variables {a b c : A}
+
+  definition decidable_eq [instance] (a b : A) : decidable (a = b) :=
+  @discrete_field.decidable_equality A s a b
+
+  theorem discrete_field.eq_zero_or_eq_zero_of_mul_eq_zero
+    (x y : A) (H : x * y = 0) : x = 0 ∨ y = 0 :=
+  decidable.by_cases
+    (assume H : x = 0, or.inl H)
+    (assume H1 : x ≠ 0,
+      or.inr (calc
+        y = 1 * y             : one_mul
+          ... = x⁻¹ * x * y   : inv_mul_cancel H1
+          ... = x⁻¹ * (x * y) : mul.assoc
+          ... = x⁻¹ * 0       : H
+          ... = 0             : mul_zero))
+
+  definition discrete_field.to_integral_domain [instance] [reducible] [coercion] : 
+    integral_domain A :=
+  ⦃ integral_domain, s,
+    eq_zero_or_eq_zero_of_mul_eq_zero := discrete_field.eq_zero_or_eq_zero_of_mul_eq_zero⦄
+
+  example (H1 : a ≠ 0) (H2 : b ≠ 0) : a * b ≠ 0 :=
+  @mul_ne_zero A s a b H1 H2
+
+end discrete_field
 
 end algebra

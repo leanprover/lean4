@@ -14,6 +14,7 @@ section
   universe variable l
   variable A : Type.{l}
   variable Ha : decidable_eq A
+  include Ha
   variable E : Type₂
   include E
    -- include Ha

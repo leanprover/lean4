@@ -1,0 +1,15 @@
+438.lean:10:41: error: don't know how to synthesize placeholder
+P₀ : Type,
+P : group P₀
+⊢ Type
+438.lean:10:39: error: don't know how to synthesize placeholder
+P₀ : Type,
+P : group P₀
+⊢ ?M_1
+438.lean:10:43: error: don't know how to synthesize placeholder
+P₀ : Type,
+P : group P₀
+⊢ ?M_1
+438.lean:10:2: error: failed to add declaration 'lambda_morphism.mk' to environment, type has metavariables
+  Π {P₀ : Type} {P : group P₀},
+    ?M_2 = ?M_3 → lambda_morphism P₀ P

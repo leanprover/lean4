@@ -298,19 +298,27 @@ struct structure_cmd_fn {
         tmp_locals.append(m_params);
         for (expr const & parent : m_parents)
             tmp_locals.push_back(mk_local(m_ngen.next(), parent));
-        expr tmp       = Pi_as_is(include_vars, Pi(tmp_locals, m_type, m_p), m_p);
-        list<expr> ctx = m_p.locals_to_context();
+
+        expr_struct_set dep_set;
+        for (expr const & v : include_vars) {
+            ::lean::collect_locals(mlocal_type(v), dep_set);
+            dep_set.insert(v);
+        }
+        buffer<expr> all_include_vars;
+        sort_locals(dep_set, m_p, all_include_vars);
+
+        expr tmp       = Pi_as_is(all_include_vars, Pi(tmp_locals, m_type, m_p), m_p);
         level_param_names new_ls;
         expr new_tmp;
-        std::tie(new_tmp, new_ls) = m_p.elaborate_type(tmp, ctx);
+        std::tie(new_tmp, new_ls) = m_p.elaborate_type(tmp, list<expr>());
         levels new_meta_ls = map2<level>(new_ls, [](name const & n) { return mk_meta_univ(n); });
         new_tmp = instantiate_univ_params(new_tmp, new_ls, new_meta_ls);
-        new_tmp = update_locals(new_tmp, include_vars);
+        new_tmp = update_locals(new_tmp, all_include_vars);
         new_tmp = update_locals(new_tmp, m_params);
         buffer<expr> explicit_params;
         explicit_params.append(m_params);
         m_params.clear();
-        m_params.append(include_vars);
+        m_params.append(all_include_vars);
         m_params.append(explicit_params);
         new_tmp = update_parents(new_tmp);
         m_type = new_tmp;
@@ -518,7 +526,6 @@ struct structure_cmd_fn {
 
     /** \brief Elaborate new fields, and copy them to m_fields */
     void elaborate_new_fields(buffer<expr> & new_fields) {
-        list<expr> ctx = m_p.locals_to_context();
         expr dummy = mk_Prop();
         unsigned j = m_parents.size();
         while (j > 0) {
@@ -528,7 +535,7 @@ struct structure_cmd_fn {
         expr tmp = Pi_as_is(m_params, Pi_as_is(m_fields, Pi(new_fields, dummy, m_p), m_p), m_p);
         level_param_names new_ls;
         expr new_tmp;
-        std::tie(new_tmp, new_ls) = m_p.elaborate_type(tmp, ctx);
+        std::tie(new_tmp, new_ls) = m_p.elaborate_type(tmp, list<expr>());
         for (auto new_l : new_ls)
             m_level_names.push_back(new_l);
         new_tmp = update_locals(new_tmp, m_params);

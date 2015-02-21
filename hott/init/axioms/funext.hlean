@@ -10,25 +10,19 @@ open eq
 -- ------
 
 -- Define function extensionality as a type class
-inductive funext [class] : Type  :=
-  mk : (Π (A : Type) (P : A → Type ) (f g : Π x, P x), is_equiv (@apD10 A P f g))
-         → funext
+structure funext [class] : Type  :=
+(elim : Π (A : Type) (P : A → Type ) (f g : Π x, P x), is_equiv (@apD10 A P f g))
+
 
 namespace funext
 
-  universe variables l k
-  variables [F : funext.{l k}] {A : Type.{l}} {P : A → Type.{k}}
+  attribute elim [instance]
 
-  include F
-  protected definition ap [instance] (f g : Π x, P x) : is_equiv (@apD10 A P f g) :=
-    funext.rec_on F (λ(H : Π A P f g, _), !H)
-
-  definition path_pi {f g : Π x, P x} : f ∼ g → f = g :=
+  definition eq_of_homotopy [F : funext] {A : Type} {P : A → Type} {f g : Π x, P x} : f ∼ g → f = g :=
   is_equiv.inv (@apD10 A P f g)
 
-  omit F
-  definition path_pi2 [F : funext] {A B : Type} {P : A → B → Type}
+  definition eq_of_homotopy2 [F : funext] {A B : Type} {P : A → B → Type}
       (f g : Πx y, P x y) : (Πx y, f x y = g x y) → f = g :=
-    λ E, path_pi (λx, path_pi (E x))
+    λ E, eq_of_homotopy (λx, eq_of_homotopy (E x))
 
 end funext

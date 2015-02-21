@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Authors: Jakob von Raumer
 
-open truncation
+open is_trunc
 
 -- Axiomatize the truncation operator as long as we do not have
 -- Higher inductive types

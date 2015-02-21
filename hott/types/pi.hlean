@@ -12,7 +12,7 @@ open eq equiv is_equiv funext
 
 namespace pi
   universe variables l k
-  variables {A A' : Type.{l}} {B : A → Type.{k}} {C : Πa, B a → Type}
+  variables {A A' : Type.{l}} {B : A → Type.{k}} {B' : A' → Type.{k}} {C : Πa, B a → Type}
             {D : Πa b, C a b → Type}
             {a a' a'' : A} {b b₁ b₂ : B a} {b' : B a'} {b'' : B a''} {f g : Πa, B a}
 
@@ -24,75 +24,138 @@ namespace pi
 
   /- Now we show how these things compute. -/
 
-  definition apD10_path_pi [H : funext] (h : f ∼ g) : apD10 (path_pi h) ∼ h :=
+  definition apD10_eq_of_homotopy (h : f ∼ g) : apD10 (eq_of_homotopy h) ∼ h :=
   apD10 (retr apD10 h)
 
-  definition path_pi_eta [H : funext] (p : f = g) : path_pi (apD10 p) = p :=
+  definition eq_of_homotopy_eta (p : f = g) : eq_of_homotopy (apD10 p) = p :=
   sect apD10 p
 
-  definition path_pi_idp [H : funext] : path_pi (λx : A, refl (f x)) = refl f :=
-  !path_pi_eta
+  definition eq_of_homotopy_idp (f : Πa, B a) : eq_of_homotopy (λx : A, refl (f x)) = refl f :=
+  !eq_of_homotopy_eta
 
   /- The identification of the path space of a dependent function space, up to equivalence, is of course just funext. -/
 
-  definition path_equiv_homotopy [H : funext] (f g : Πx, B x) : (f = g) ≃ (f ∼ g) :=
-  equiv.mk _ !funext.ap
+  definition eq_equiv_homotopy (f g : Πx, B x) : (f = g) ≃ (f ∼ g) :=
+  equiv.mk _ !funext.elim
 
-  definition is_equiv_path_pi [instance] [H : funext] (f g : Πx, B x)
-      : is_equiv (@path_pi _ _ _ f g) :=
-  inv_closed apD10
+  definition is_equiv_eq_of_homotopy [instance] (f g : Πx, B x)
+      : is_equiv (@eq_of_homotopy _ _ _ f g) :=
+  is_equiv_inv apD10
 
-  definition homotopy_equiv_path [H : funext] (f g : Πx, B x) : (f ∼ g) ≃ (f = g) :=
-  equiv.mk _ !is_equiv_path_pi
+  definition homotopy_equiv_eq (f g : Πx, B x) : (f ∼ g) ≃ (f = g) :=
+  equiv.mk _ !is_equiv_eq_of_homotopy
 
 
   /- Transport -/
 
-  protected definition transport (p : a = a') (f : Π(b : B a), C a b)
+  definition pi_transport (p : a = a') (f : Π(b : B a), C a b)
     : (transport (λa, Π(b : B a), C a b) p f)
-      ∼ (λb, transport (C a') !transport_pV (transportD _ _ p _ (f (p⁻¹ ▹ b)))) :=
+      ∼ (λb, transport (C a') !tr_inv_tr (transportD _ _ p _ (f (p⁻¹ ▹ b)))) :=
   eq.rec_on p (λx, idp)
 
   /- A special case of [transport_pi] where the type [B] does not depend on [A],
       and so it is just a fixed type [B]. -/
-  definition transport_constant {C : A → A' → Type} (p : a = a') (f : Π(b : A'), C a b)
-    : (eq.transport (λa, Π(b : A'), C a b) p f) ∼ (λb, eq.transport (λa, C a b) p (f b)) :=
+  definition pi_transport_constant {C : A → A' → Type} (p : a = a') (f : Π(b : A'), C a b)
+    : (transport (λa, Π(b : A'), C a b) p f) ∼ (λb, transport (λa, C a b) p (f b)) :=
   eq.rec_on p (λx, idp)
 
   /- Maps on paths -/
 
   /- The action of maps given by lambda. -/
-  definition ap_lambdaD [H : funext] {C : A' → Type} (p : a = a') (f : Πa b, C b) :
-    ap (λa b, f a b) p = path_pi (λb, ap (λa, f a b) p) :=
+  definition ap_lambdaD {C : A' → Type} (p : a = a') (f : Πa b, C b) :
+    ap (λa b, f a b) p = eq_of_homotopy (λb, ap (λa, f a b) p) :=
   begin
     apply (eq.rec_on p),
     apply inverse,
-    apply path_pi_idp
+    apply eq_of_homotopy_idp
   end
 
   /- Dependent paths -/
 
   /- with more implicit arguments the conclusion of the following theorem is
-     (Π(b : B a), transportD B C p b (f b) = g (eq.transport B p b)) ≃
-     (eq.transport (λa, Π(b : B a), C a b) p f = g) -/
-  definition dpath_pi [H : funext] (p : a = a') (f : Π(b : B a), C a b) (g : Π(b' : B a'), C a' b')
-    : (Π(b : B a), p ▹D (f b) = g (p ▹ b)) ≃ (p ▹ f = g) :=
-  eq.rec_on p (λg, !homotopy_equiv_path) g
+     (Π(b : B a), transportD B C p b (f b) = g (transport B p b)) ≃
+     (transport (λa, Π(b : B a), C a b) p f = g) -/
+  definition heq_piD (p : a = a') (f : Π(b : B a), C a b)
+    (g : Π(b' : B a'), C a' b') : (Π(b : B a), p ▹D (f b) = g (p ▹ b)) ≃ (p ▹ f = g) :=
+  eq.rec_on p (λg, !homotopy_equiv_eq) g
 
-  section open sigma sigma.ops
+  definition heq_pi {C : A → Type.{k}} (p : a = a') (f : Π(b : B a), C a)
+    (g : Π(b' : B a'), C a') : (Π(b : B a), p ▹ (f b) = g (p ▹ b)) ≃ (p ▹ f = g) :=
+  eq.rec_on p (λg, !homotopy_equiv_eq) g
+
+
+  section
+  open sigma sigma.ops
   /- more implicit arguments:
-  (Π(b : B a), eq.transport C (sigma.path p idp) (f b) = g (p ▹ b)) ≃
-  (Π(b : B a), transportD B (λ(a : A) (b : B a), C ⟨a, b⟩) p b (f b) = g (eq.transport B p b)) -/
-  definition dpath_pi_sigma {C : (Σa, B a) → Type} (p : a = a')
+  (Π(b : B a), transport C (sigma_eq p idp) (f b) = g (p ▹ b)) ≃
+  (Π(b : B a), transportD B (λ(a : A) (b : B a), C ⟨a, b⟩) p b (f b) = g (transport B p b)) -/
+  definition heq_pi_sigma {C : (Σa, B a) → Type} (p : a = a')
     (f : Π(b : B a), C ⟨a, b⟩) (g : Π(b' : B a'), C ⟨a', b'⟩) :
-    (Π(b : B a), (sigma.path p idp) ▹ (f b) = g (p ▹ b)) ≃ (Π(b : B a), p ▹D (f b) = g (p ▹ b)) :=
+    (Π(b : B a), (sigma_eq p idp) ▹ (f b) = g (p ▹ b)) ≃ (Π(b : B a), p ▹D (f b) = g (p ▹ b)) :=
   eq.rec_on p (λg, !equiv.refl) g
   end
 
-  /- truncation -/
+  /- Functorial action -/
+  variables (f0 : A' → A) (f1 : Π(a':A'), B (f0 a') → B' a')
 
-  open truncation
-  definition trunc_pi [instance] [H : funext.{l k}] (B : A → Type.{k}) (n : trunc_index)
+  /- The functoriality of [forall] is slightly subtle: it is contravariant in the domain type and covariant in the codomain, but the codomain is dependent on the domain. -/
+
+  definition pi_functor : (Π(a:A), B a) → (Π(a':A'), B' a') := (λg a', f1 a' (g (f0 a')))
+
+  definition ap_pi_functor {g g' : Π(a:A), B a} (h : g ∼ g')
+      : ap (pi_functor f0 f1) (eq_of_homotopy h) = eq_of_homotopy (λa':A', (ap (f1 a') (h (f0 a')))) :=
+  begin
+  apply (equiv_rect (@apD10 A B g g')), intro p, clear h, --revert p, revert g',
+  apply (eq.rec_on p),
+  apply concat, --(@concat _ _ (refl (pi_functor f0 f1 g))),
+    exact (ap (ap (pi_functor f0 f1)) (eq_of_homotopy_idp g)),
+    apply symm, apply eq_of_homotopy_idp
+  end
+
+  /- Equivalences -/
+
+  definition is_equiv_pi_functor [instance] (f0 : A' → A) (f1 : Π(a':A'), B (f0 a') → B' a')
+    [H0 : is_equiv f0] [H1 : Πa', @is_equiv (B (f0 a')) (B' a') (f1 a')]
+      : is_equiv (pi_functor f0 f1) :=
+  begin
+  apply (adjointify (pi_functor f0 f1) (pi_functor (f0⁻¹)
+        (λ(a : A) (b' : B' (f0⁻¹ a)), transport B (retr f0 a) ((f1 (f0⁻¹ a))⁻¹ b')))),
+  intro h, apply eq_of_homotopy,
+  unfold pi_functor, unfold function.compose, unfold function.id,
+  --first subgoal
+  intro a',
+  beta,
+  apply (tr_inv _ (adj f0 a')),
+  apply (transport (λx, f1 a' x = h a') (transport_compose B f0 (sect f0 a') _)), beta,
+  apply (tr_inv (λx, x = h a') (fn_tr_eq_tr_fn _ f1 _)), beta, unfold function.compose,
+  apply (tr_inv (λx, sect f0 a' ▹ x = h a') (retr (f1 _) _)), beta, unfold function.id,
+  apply apD,
+  --second subgoal
+  intro h, beta,
+  apply eq_of_homotopy, intro a, beta,
+  apply (tr_inv (λx, retr f0 a ▹ x = h a) (sect (f1 _) _)), unfold function.id, beta,
+  apply apD
+  end
+
+
+  definition pi_equiv_pi_of_is_equiv [H : is_equiv f0] [H1 : Πa', @is_equiv (B (f0 a')) (B' a') (f1 a')]
+    : (Πa, B a) ≃ (Πa', B' a') :=
+  equiv.mk (pi_functor f0 f1) _
+
+  context
+  attribute inv [irreducible] --this is needed for the following class instance resolution
+  definition pi_equiv_pi (f0 : A' ≃ A) (f1 : Πa', (B (to_fun f0 a') ≃ B' a'))
+    : (Πa, B a) ≃ (Πa', B' a') :=
+  pi_equiv_pi_of_is_equiv (to_fun f0) (λa', to_fun (f1 a'))
+  end
+
+  definition pi_equiv_pi_id {P Q : A → Type} (g : Πa, P a ≃ Q a) : (Πa, P a) ≃ (Πa, Q a) :=
+  pi_equiv_pi equiv.refl g.
+
+  /- Truncatedness: any dependent product of n-types is an n-type -/
+
+  open is_trunc
+  definition is_trunc_pi [instance] [H : funext.{l k}] (B : A → Type.{k}) (n : trunc_index)
       [H : ∀a, is_trunc n (B a)] : is_trunc n (Πa, B a) :=
   begin
     reverts (B, H),
@@ -100,23 +163,37 @@ namespace pi
       intros (B, H),
         fapply is_contr.mk,
           intro a, apply center,
-          intro f, apply path_pi,
+          intro f, apply eq_of_homotopy,
             intro x, apply (contr (f x)),
       intros (n, IH, B, H),
-        fapply is_trunc_succ, intros (f, g),
-          fapply trunc_equiv',
-            apply equiv.symm, apply path_equiv_homotopy,
+        fapply is_trunc_succ_intro, intros (f, g),
+          fapply is_trunc_equiv_closed,
+            apply equiv.symm, apply eq_equiv_homotopy,
             apply IH,
               intro a,
               show is_trunc n (f a = g a), from
-              succ_is_trunc n (f a) (g a)
+              is_trunc_eq n (f a) (g a)
   end
 
-  definition trunc_path_pi [instance] [H : funext.{l k}] (n : trunc_index) (f g : Πa, B a)
+  definition is_trunc_eq_pi [instance] [H : funext.{l k}] (n : trunc_index) (f g : Πa, B a)
       [H : ∀a, is_trunc n (f a = g a)] : is_trunc n (f = g) :=
   begin
-    apply trunc_equiv', apply equiv.symm,
-    apply path_equiv_homotopy
+    apply is_trunc_equiv_closed, apply equiv.symm,
+    apply eq_equiv_homotopy
   end
 
+  /- Symmetry of Π -/
+
+  definition is_equiv_flip [instance] {P : A → A' → Type} : is_equiv (@function.flip _ _ P) :=
+  begin
+  fapply is_equiv.mk,
+  exact (@function.flip _ _ (function.flip P)),
+  repeat (intro f; apply idp)
+  end
+
+  definition pi_comm_equiv {P : A → A' → Type} : (Πa b, P a b) ≃ (Πb a, P a b) :=
+  equiv.mk (@function.flip _ _ P) _
+
 end pi
+
+attribute pi.is_trunc_pi [instance]

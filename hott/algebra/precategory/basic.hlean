@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Floris van Doorn
 
-open eq truncation
+open eq is_trunc
 
 structure precategory [class] (ob : Type) : Type :=
   (hom : ob → ob → Type)
@@ -26,14 +26,12 @@ namespace precategory
 
   definition id [reducible] {a : ob} : hom a a := ID a
 
-  infixr `∘` := compose
+  infixr `∘` := comp
   infixl `⟶`:25 := hom -- input ⟶ using \--> (this is a different arrow than \-> (→))
 
   variables {h : hom c d} {g : hom b c} {f : hom a b} {i : hom a a}
 
-
-  --the following is the only theorem for which "include C" is necessary if C is a variable (why?)
-  theorem id_compose (a : ob) : (ID a) ∘ id = id := !id_left
+  theorem id_compose (a : ob) : ID a ∘ ID a = ID a := !id_left
 
   theorem left_id_unique (H : Π{b} {f : hom b a}, i ∘ f = f) : i = id :=
   calc i = i ∘ id : id_right
@@ -42,23 +40,29 @@ namespace precategory
   theorem right_id_unique (H : Π{b} {f : hom a b}, f ∘ i = f) : i = id :=
   calc i = id ∘ i : id_left
      ... = id     : H
+
+  definition homset [reducible] (x y : ob) : hset :=
+  hset.mk (hom x y) _
+
 end precategory
 
-inductive Precategory : Type := mk : Π (ob : Type), precategory ob → Precategory
+structure Precategory : Type :=
+  (objects : Type)
+  (category_instance : precategory objects)
 
 namespace precategory
   definition Mk {ob} (C) : Precategory := Precategory.mk ob C
   definition MK (a b c d e f g h) : Precategory := Precategory.mk a (precategory.mk b c d e f g h)
 
-  definition objects [coercion] [reducible] (C : Precategory) : Type
-  := Precategory.rec (fun c s, c) C
-
-  definition category_instance [instance] [coercion] [reducible] (C : Precategory) : precategory (objects C)
-  := Precategory.rec (fun c s, s) C
+  definition objects [coercion] [reducible] := Precategory.objects
+  definition category_instance [instance] [coercion] [reducible] := Precategory.category_instance
+  notation g `∘⁅` C `⁆` f := @compose (objects C) (category_instance C) _ _ _ g f
+  -- TODO: make this left associative
+  -- TODO: change this notation?
 
 end precategory
 
 open precategory
 
-theorem Precategory.equal (C : Precategory) : Precategory.mk C C = C :=
-  Precategory.rec (λ ob c, idp) C
+protected definition Precategory.eta (C : Precategory) : Precategory.mk C C = C :=
+Precategory.rec (λob c, idp) C

@@ -4,7 +4,7 @@
 
 import .basic types.pi
 
-open function precategory eq prod equiv is_equiv sigma sigma.ops truncation
+open function precategory eq prod equiv is_equiv sigma sigma.ops is_trunc
 open pi
 
 structure functor (C D : Precategory) : Type :=
@@ -49,25 +49,25 @@ namespace functor
   protected definition strict_cat_has_functor_hset
     [HD : is_hset (objects D)] : is_hset (functor C D) :=
   begin
-    apply trunc_equiv, apply equiv.to_is_equiv,
+    apply is_trunc_is_equiv_closed, apply equiv.to_is_equiv,
       apply sigma_char,
-    apply trunc_sigma, apply trunc_pi, intros, exact HD, intro F,
-    apply trunc_sigma, apply trunc_pi, intro a,
-      apply trunc_pi, intro b,
-      apply trunc_pi, intro c, apply !homH,
-    intro H, apply trunc_prod,
-      apply trunc_pi, intro a,
-      apply succ_is_trunc, apply trunc_succ, apply !homH,
-    apply trunc_pi, intro a,
-    apply trunc_pi, intro b,
-    apply trunc_pi, intro c,
-    apply trunc_pi, intro g,
-    apply trunc_pi, intro f,
-      apply succ_is_trunc, apply trunc_succ, apply !homH,
+    apply is_trunc_sigma, apply is_trunc_pi, intros, exact HD, intro F,
+    apply is_trunc_sigma, apply is_trunc_pi, intro a,
+      apply is_trunc_pi, intro b,
+      apply is_trunc_pi, intro c, apply !homH,
+    intro H, apply is_trunc_prod,
+      apply is_trunc_pi, intro a,
+      apply is_trunc_eq, apply is_trunc_succ, apply !homH,
+    apply is_trunc_pi, intro a,
+    apply is_trunc_pi, intro b,
+    apply is_trunc_pi, intro c,
+    apply is_trunc_pi, intro g,
+    apply is_trunc_pi, intro f,
+      apply is_trunc_eq, apply is_trunc_succ, apply !homH,
   end
 
   -- The following lemmas will later be used to prove that the type of
-  -- precategories formes a precategory itself
+  -- precategories forms a precategory itself
   protected definition compose (G : functor D E) (F : functor C D) : functor C E :=
   functor.mk
     (λ x, G (F x))
@@ -106,10 +106,10 @@ namespace functor
     apply (functor.rec_on G), intros (G1, G2, G3, G4),
     apply (functor.rec_on F), intros (F1, F2, F3, F4),
     fapply functor.congr,
-      apply funext.path_pi, intro a,
+      apply funext.eq_of_homotopy, intro a,
       apply (@is_hset.elim), apply !homH,
-    apply funext.path_pi, intro a,
-    repeat (apply funext.path_pi; intros),
+    apply funext.eq_of_homotopy, intro a,
+    repeat (apply funext.eq_of_homotopy; intros),
     apply (@is_hset.elim), apply !homH,
   end
 
@@ -122,9 +122,9 @@ namespace functor
   begin
     apply (functor.rec_on F), intros (F1, F2, F3, F4),
     fapply functor.congr,
-      apply funext.path_pi, intro a,
+      apply funext.eq_of_homotopy, intro a,
       apply (@is_hset.elim), apply !homH,
-    repeat (apply funext.path_pi; intros),
+    repeat (apply funext.eq_of_homotopy; intros),
     apply (@is_hset.elim), apply !homH,
   end
 
@@ -132,9 +132,9 @@ namespace functor
   begin
     apply (functor.rec_on F), intros (F1, F2, F3, F4),
     fapply functor.congr,
-      apply funext.path_pi, intro a,
+      apply funext.eq_of_homotopy, intro a,
       apply (@is_hset.elim), apply !homH,
-    repeat (apply funext.path_pi; intros),
+    repeat (apply funext.eq_of_homotopy; intros),
     apply (@is_hset.elim), apply !homH,
   end
 

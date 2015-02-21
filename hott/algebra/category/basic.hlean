@@ -4,7 +4,7 @@
 
 import ..precategory.basic ..precategory.morphism ..precategory.iso
 
-open precategory morphism is_equiv eq truncation nat sigma sigma.ops
+open precategory morphism is_equiv eq is_trunc nat sigma sigma.ops
 
 -- A category is a precategory extended by a witness,
 -- that the function assigning to each isomorphism a path,
@@ -27,16 +27,33 @@ namespace category
 
   set_option apply.class_instance false -- disable class instance resolution in the apply tactic
 
-  definition ob_1_type : is_trunc nat.zero .+1 ob :=
+  definition ob_1_type : is_trunc (succ nat.zero) ob :=
   begin
-    apply is_trunc_succ, intros (a, b),
-    fapply trunc_equiv,
+    apply is_trunc_succ_intro, intros (a, b),
+    fapply is_trunc_is_equiv_closed,
           exact (@path_of_iso _ _ a b),
-        apply inv_closed,
+        apply is_equiv_inv,
     apply is_hset_iso,
   end
 
 end category
 
 -- Bundled version of categories
-inductive Category : Type := mk : Π (ob : Type), category ob → Category
+
+structure Category : Type :=
+  (objects : Type)
+  (category_instance : category objects)
+
+namespace category
+  definition Mk {ob} (C) : Category := Category.mk ob C
+  --definition MK (a b c d e f g h i) : Category := Category.mk a (category.mk b c d e f g h i)
+
+  definition objects [coercion] [reducible] := Category.objects
+  definition category_instance [instance] [coercion] [reducible] := Category.category_instance
+
+end category
+
+open category
+
+protected definition Category.eta (C : Category) : Category.mk C C = C :=
+Category.rec (λob c, idp) C

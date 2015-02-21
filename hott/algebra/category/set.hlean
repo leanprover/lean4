@@ -3,9 +3,9 @@
 -- Authors: Jakob von Raumer
 -- Category of sets
 
-import .basic types.pi trunc
+import .basic types.pi types.trunc
 
-open truncation sigma sigma.ops pi function eq morphism precategory
+open is_trunc sigma sigma.ops pi function eq morphism precategory
 open equiv
 
 namespace precategory
@@ -15,13 +15,13 @@ namespace precategory
   definition set_precategory : precategory.{l+1 l} (Σ (A : Type.{l}), is_hset A) :=
   begin
     fapply precategory.mk.{l+1 l},
-                  intros, apply (a.1 → a_1.1),
-                intros, apply trunc_pi, intros, apply b.2,
+                  intros (a, a_1), apply (a.1 → a_1.1),
+                intros, apply is_trunc_pi, intros, apply b.2,
               intros, intro x, exact (a_1 (a_2 x)),
             intros, exact (λ (x : a.1), x),
-          intros, apply funext.path_pi, intro x, apply idp,
-        intros, apply funext.path_pi, intro x, apply idp,
-      intros, apply funext.path_pi, intro x, apply idp,
+          intros, apply funext.eq_of_homotopy, intro x, apply idp,
+        intros, apply funext.eq_of_homotopy, intro x, apply idp,
+      intros, apply funext.eq_of_homotopy, intro x, apply idp,
   end
 
 end precategory
@@ -51,19 +51,19 @@ namespace category
     assert (C : precategory.{l+1 l} (Σ (A : Type.{l}), is_hset A)),
       apply precategory.set_precategory,
     apply category.mk,
-    assert (p : (λ A B p, (set_category_equiv_iso A B) ▹ iso_of_path p) = (λ A B p, @equiv_path A.1 B.1 p)),
+    assert (p : (λ A B p, (set_category_equiv_iso A B) ▹ iso_of_path p) = (λ A B p, @equiv_of_eq A.1 B.1 p)),
     apply is_equiv.adjointify,
         intros,
         apply (isomorphic.rec_on a_1), intros (iso', is_iso'),
         apply (is_iso.rec_on is_iso'), intros (f', f'sect, f'retr),
-        fapply sigma.path,
+        fapply sigma_eq,
           apply ua, fapply equiv.mk, exact iso',
           fapply is_equiv.adjointify,
               exact f',
             intros, apply (f'retr ▹ _),
           intros, apply (f'sect ▹ _),
         apply (@is_hprop.elim),
-        apply is_trunc_is_hprop,
+        apply is_hprop_is_trunc,
       intros,
   end -/ sorry
 

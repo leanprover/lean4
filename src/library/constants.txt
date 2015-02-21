@@ -101,9 +101,9 @@ tactic.unfold
 tactic.whnf
 true
 true.intro
-truncation
-truncation.is_trunc
-truncation.nat_to_trunc_index
+is_trunc
+is_trunc
+is_trunc.trunc_index.of_nat
 unit
 unit.star
 well_founded

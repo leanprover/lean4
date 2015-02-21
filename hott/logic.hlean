@@ -1,3 +1,4 @@
+exit
 --javra:        Maybe this should go somewhere else
 
 open eq

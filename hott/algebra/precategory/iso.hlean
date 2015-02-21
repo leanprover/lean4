@@ -4,7 +4,7 @@
 
 import .basic .morphism types.sigma
 
-open eq precategory sigma sigma.ops equiv is_equiv function truncation
+open eq precategory sigma sigma.ops equiv is_equiv function is_trunc
 open prod
 
 namespace morphism
@@ -45,20 +45,20 @@ namespace morphism
   -- The statement "f is an isomorphism" is a mere proposition
   definition is_hprop_of_is_iso : is_hset (is_iso f) :=
   begin
-    apply trunc_equiv,
+    apply is_trunc_is_equiv_closed,
       apply (equiv.to_is_equiv (!sigma_char)),
-    apply trunc_sigma,
+    apply is_trunc_sigma,
       apply (!homH),
-    intro g, apply trunc_prod,
-      repeat (apply succ_is_trunc; apply trunc_succ; apply (!homH)),
+    intro g, apply is_trunc_prod,
+      repeat (apply is_trunc_eq; apply is_trunc_succ; apply (!homH)),
   end
 
   -- The type of isomorphisms between two objects is a set
   definition is_hset_iso : is_hset (a ≅ b) :=
   begin
-    apply trunc_equiv,
+    apply is_trunc_is_equiv_closed,
       apply (equiv.to_is_equiv (!sigma_is_iso_equiv)),
-    apply trunc_sigma,
+    apply is_trunc_sigma,
       apply homH,
     intro f, apply is_hprop_of_is_iso,
   end

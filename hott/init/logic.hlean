@@ -2,6 +2,7 @@
 Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
+Module: init.logic
 Authors: Leonardo de Moura
 -/
 prelude
@@ -16,8 +17,7 @@ empty.rec (λ e, b) (H₂ H₁)
 definition mt {a b : Type} (H₁ : a → b) (H₂ : ¬b) : ¬a :=
 assume Ha : a, absurd (H₁ Ha) H₂
 
--- not
--- ---
+/- not -/
 
 protected definition not_empty : ¬ empty :=
 assume H : empty, H
@@ -35,8 +35,7 @@ assume Hna : ¬a, absurd (assume Ha : a, absurd Ha Hna) H
 definition not_of_not_implies {a b : Type} (H : ¬(a → b)) : ¬b :=
 assume Hb : b, absurd (assume Ha : a, Hb) H
 
--- eq
--- --
+/- eq -/
 
 notation a = b := eq a b
 definition rfl {A : Type} {a : A} := eq.refl a
@@ -74,8 +73,7 @@ namespace lift
   lift.rec_on a (λ d, rfl)
 end lift
 
--- ne
--- --
+/- ne -/
 
 definition ne {A : Type} (a b : A) := ¬(a = b)
 notation a ≠ b := ne a b
@@ -115,8 +113,7 @@ end
 calc_trans ne.of_eq_of_ne
 calc_trans ne.of_ne_of_eq
 
--- iff
--- ---
+/- iff -/
 
 definition iff (a b : Type) := prod (a → b) (b → a)
 
@@ -178,8 +175,7 @@ end iff
 calc_refl iff.refl
 calc_trans iff.trans
 
--- inhabited
--- ---------
+/- inhabited -/
 
 inductive inhabited [class] (A : Type) : Type :=
 mk : A → inhabited A
@@ -200,8 +196,7 @@ definition default (A : Type) [H : inhabited A] : A := destruct H (take a, a)
 
 end inhabited
 
--- decidable
--- ---------
+/- decidable -/
 
 inductive decidable.{l} [class] (p : Type.{l}) : Type.{l} :=
 inl :  p → decidable p,

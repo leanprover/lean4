@@ -22,10 +22,10 @@ namespace Wtype
   variables {A A' : Type.{u}} {B B' : A → Type.{v}} {C : Π(a : A), B a → Type}
             {a a' : A} {f : B a → W a, B a} {f' : B a' → W a, B a} {w w' : W(a : A), B a}
 
-  definition pr1 (w : W(a : A), B a) : A :=
+  protected definition pr1 (w : W(a : A), B a) : A :=
   Wtype.rec_on w (λa f IH, a)
 
-  definition pr2 (w : W(a : A), B a) : B (pr1 w) → W(a : A), B a :=
+  protected definition pr2 (w : W(a : A), B a) : B (pr1 w) → W(a : A), B a :=
   Wtype.rec_on w (λa f IH, f)
 
   namespace ops
@@ -38,28 +38,28 @@ namespace Wtype
   protected definition eta (w : W a, B a) : ⟨w.1 , w.2⟩ = w :=
   cases_on w (λa f, idp)
 
-  definition path_W_sup (p : a = a') (q : p ▹ f = f') : ⟨a, f⟩ = ⟨a', f'⟩ :=
+  definition sup_eq_sup (p : a = a') (q : p ▹ f = f') : ⟨a, f⟩ = ⟨a', f'⟩ :=
   path.rec_on p (λf' q, path.rec_on q idp) f' q
 
-  definition path_W (p : w.1 = w'.1) (q : p ▹ w.2 = w'.2) : w = w' :=
+  protected definition Wtype_eq (p : w.1 = w'.1) (q : p ▹ w.2 = w'.2) : w = w' :=
   cases_on w
-           (λw1 w2, cases_on w' (λ w1' w2', path_W_sup))
+           (λw1 w2, cases_on w' (λ w1' w2', sup_eq_sup))
            p q
 
-  definition pr1_path (p : w = w') : w.1 = w'.1 :=
+  protected definition Wtype_eq_pr1 (p : w = w') : w.1 = w'.1 :=
   path.rec_on p idp
 
-  definition pr2_path (p : w = w') : pr1_path p ▹ w.2 = w'.2 :=
+  protected definition Wtype_eq_pr2 (p : w = w') : Wtype_eq_pr1 p ▹ w.2 = w'.2 :=
   path.rec_on p idp
 
   namespace ops
-  postfix `..1`:(max+1) := pr1_path
-  postfix `..2`:(max+1) := pr2_path
+  postfix `..1`:(max+1) := Wtype_eq_pr1
+  postfix `..2`:(max+1) := Wtype_eq_pr2
   end ops
   open ops
 
   definition sup_path_W (p : w.1 = w'.1) (q : p ▹ w.2 = w'.2)
-      :  dpair (path_W p q)..1 (path_W p q)..2 = dpair p q :=
+      :  dpair (Wtype_eq p q)..1 (Wtype_eq p q)..2 = dpair p q :=
   begin
     reverts (p, q),
     apply (cases_on w), intros (w1, w2),
@@ -68,14 +68,14 @@ namespace Wtype
     apply (path.rec_on q), apply idp
   end
 
-  definition pr1_path_W (p : w.1 = w'.1) (q : p ▹ w.2 = w'.2) : (path_W p q)..1 = p :=
+  definition pr1_path_W (p : w.1 = w'.1) (q : p ▹ w.2 = w'.2) : (Wtype_eq p q)..1 = p :=
   (!sup_path_W)..1
 
   definition pr2_path_W (p : w.1 = w'.1) (q : p ▹ w.2 = w'.2)
-      : pr1_path_W p q ▹ (path_W p q)..2 = q :=
+      : pr1_path_W p q ▹ (Wtype_eq p q)..2 = q :=
   (!sup_path_W)..2
 
-  definition eta_path_W (p : w = w') : path_W (p..1) (p..2) = p :=
+  definition eta_path_W (p : w = w') : Wtype_eq (p..1) (p..2) = p :=
   begin
     apply (path.rec_on p),
     apply (cases_on w), intros (w1, w2),
@@ -83,7 +83,7 @@ namespace Wtype
   end
 
   definition transport_pr1_path_W {B' : A → Type} (p : w.1 = w'.1) (q : p ▹ w.2 = w'.2)
-      : transport (λx, B' x.1) (path_W p q) = transport B' p :=
+      : transport (λx, B' x.1) (Wtype_eq p q) = transport B' p :=
   begin
     reverts (p, q),
     apply (cases_on w), intros (w1, w2),
@@ -93,7 +93,7 @@ namespace Wtype
   end
 
   definition path_W_uncurried (pq : Σ(p : w.1 = w'.1), p ▹ w.2 = w'.2) : w = w' :=
-  destruct pq path_W
+  destruct pq Wtype_eq
 
   definition sup_path_W_uncurried (pq : Σ(p : w.1 = w'.1), p ▹ w.2 = w'.2)
       :  dpair (path_W_uncurried pq)..1 (path_W_uncurried pq)..2 = pq :=
@@ -137,18 +137,18 @@ namespace Wtype
 
   /- truncatedness -/
   open truncation
-  definition trunc_W [FUN : funext.{v (max 1 u v)}] (n : trunc_index) [HA : is_trunc (n.+1) A]
-    : is_trunc (n.+1) (W a, B a) :=
+  definition trunc_W [instance] [FUN : funext.{v (max 1 u v)}] (n : trunc_index)
+    [HA : is_trunc (n.+1) A] : is_trunc (n.+1) (W a, B a) :=
   begin
   fapply is_trunc_succ, intros (w, w'),
   apply (double_induction_on w w'), intros (a, a', f, f', IH),
-  fapply trunc_equiv',
+  fapply is_trunc_equiv_closed,
     apply equiv_path_W,
-    apply trunc_sigma,
-      fapply (succ_is_trunc n),
+    apply is_trunc_sigma,
+      fapply (is_trunc_eq n),
       intro p, revert IH, generalize f', --change to revert after simpl
       apply (path.rec_on p), intros (f', IH),
-      apply pi.trunc_path_pi, intro b,
+      apply pi.is_trunc_eq_pi, intro b,
       apply IH
   end
 

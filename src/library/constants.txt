@@ -102,7 +102,6 @@ tactic.whnf
 true
 true.intro
 is_trunc
-is_trunc
 is_trunc.trunc_index.of_nat
 unit
 unit.star

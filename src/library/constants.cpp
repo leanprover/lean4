@@ -106,9 +106,8 @@ name const * g_tactic_unfold = nullptr;
 name const * g_tactic_whnf = nullptr;
 name const * g_true = nullptr;
 name const * g_true_intro = nullptr;
-name const * g_truncation = nullptr;
-name const * g_truncation_is_trunc = nullptr;
-name const * g_truncation_nat_to_trunc_index = nullptr;
+name const * g_is_trunc = nullptr;
+name const * g_is_trunc_trunc_index_of_nat = nullptr;
 name const * g_unit = nullptr;
 name const * g_unit_star = nullptr;
 name const * g_well_founded = nullptr;
@@ -216,9 +215,8 @@ void initialize_constants() {
     g_tactic_whnf = new name{"tactic", "whnf"};
     g_true = new name{"true"};
     g_true_intro = new name{"true", "intro"};
-    g_truncation = new name{"truncation"};
-    g_truncation_is_trunc = new name{"truncation", "is_trunc"};
-    g_truncation_nat_to_trunc_index = new name{"truncation", "nat_to_trunc_index"};
+    g_is_trunc = new name{"is_trunc"};
+    g_is_trunc_trunc_index_of_nat = new name{"is_trunc", "trunc_index", "of_nat"};
     g_unit = new name{"unit"};
     g_unit_star = new name{"unit", "star"};
     g_well_founded = new name{"well_founded"};
@@ -327,9 +325,8 @@ void finalize_constants() {
     delete g_tactic_whnf;
     delete g_true;
     delete g_true_intro;
-    delete g_truncation;
-    delete g_truncation_is_trunc;
-    delete g_truncation_nat_to_trunc_index;
+    delete g_is_trunc;
+    delete g_is_trunc_trunc_index_of_nat;
     delete g_unit;
     delete g_unit_star;
     delete g_well_founded;
@@ -437,9 +434,8 @@ name const & get_tactic_unfold_name() { return *g_tactic_unfold; }
 name const & get_tactic_whnf_name() { return *g_tactic_whnf; }
 name const & get_true_name() { return *g_true; }
 name const & get_true_intro_name() { return *g_true_intro; }
-name const & get_truncation_name() { return *g_truncation; }
-name const & get_truncation_is_trunc_name() { return *g_truncation_is_trunc; }
-name const & get_truncation_nat_to_trunc_index_name() { return *g_truncation_nat_to_trunc_index; }
+name const & get_is_trunc_name() { return *g_is_trunc; }
+name const & get_is_trunc_trunc_index_of_nat_name() { return *g_is_trunc_trunc_index_of_nat; }
 name const & get_unit_name() { return *g_unit; }
 name const & get_unit_star_name() { return *g_unit_star; }
 name const & get_well_founded_name() { return *g_well_founded; }

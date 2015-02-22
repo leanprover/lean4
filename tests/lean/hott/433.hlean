@@ -24,23 +24,23 @@ namespace pi
 
   /- Now we show how these things compute. -/
 
-  definition apD10_path_pi [H : funext] (h : f ∼ g) : apD10 (path_pi h) ∼ h :=
+  definition apD10_path_pi [H : funext] (h : f ∼ g) : apD10 (eq_of_homotopy h) ∼ h :=
   apD10 (retr apD10 h)
 
-  definition path_pi_eta [H : funext] (p : f = g) : path_pi (apD10 p) = p :=
+  definition path_pi_eta [H : funext] (p : f = g) : eq_of_homotopy (apD10 p) = p :=
   sect apD10 p
 
-  definition path_pi_idp [H : funext] : path_pi (λx : A, refl (f x)) = refl f :=
+  definition path_pi_idp [H : funext] : eq_of_homotopy (λx : A, refl (f x)) = refl f :=
   !path_pi_eta
 
   /- The identification of the path space of a dependent function space, up to equivalence, is of course just funext. -/
 
   definition path_equiv_homotopy [H : funext] (f g : Πx, B x) : (f = g) ≃ (f ∼ g) :=
-  equiv.mk _ !funext.ap
+  equiv.mk _ !funext.elim
 
   definition is_equiv_path_pi [instance] [H : funext] (f g : Πx, B x)
-      : is_equiv (@path_pi _ _ _ f g) :=
-  inv_closed apD10
+      : is_equiv (@eq_of_homotopy _ _ _ f g) :=
+  is_equiv_inv apD10
 
   definition homotopy_equiv_path [H : funext] (f g : Πx, B x) : (f ∼ g) ≃ (f = g) :=
   equiv.mk _ !is_equiv_path_pi
@@ -50,7 +50,7 @@ namespace pi
 
   protected definition transport (p : a = a') (f : Π(b : B a), C a b)
     : (transport (λa, Π(b : B a), C a b) p f)
-      ∼ (λb, transport (C a') !transport_pV (transportD _ _ p _ (f (p⁻¹ ▹ b)))) :=
+      ∼ (λb, transport (C a') !tr_inv_tr (transportD _ _ p _ (f (p⁻¹ ▹ b)))) :=
   eq.rec_on p (λx, idp)
 
   /- A special case of [transport_pi] where the type [B] does not depend on [A],
@@ -63,7 +63,7 @@ namespace pi
 
   /- The action of maps given by lambda. -/
   definition ap_lambdaD [H : funext] {C : A' → Type} (p : a = a') (f : Πa b, C b) :
-    ap (λa b, f a b) p = path_pi (λb, ap (λa, f a b) p) :=
+    ap (λa b, f a b) p = eq_of_homotopy (λb, ap (λa, f a b) p) :=
   begin
     apply (eq.rec_on p),
     apply inverse,
@@ -85,7 +85,7 @@ namespace pi
   (Π(b : B a), transportD B (λ(a : A) (b : B a), C ⟨a, b⟩) p b (f b) = g (eq.transport B p b)) -/
   definition dpath_pi_sigma {C : (Σa, B a) → Type} (p : a = a')
     (f : Π(b : B a), C ⟨a, b⟩) (g : Π(b' : B a'), C ⟨a', b'⟩) :
-    (Π(b : B a), (sigma.path p idp) ▹ (f b) = g (p ▹ b)) ≃ (Π(b : B a), p ▹D (f b) = g (p ▹ b)) :=
+    (Π(b : B a), (sigma.sigma_eq p idp) ▹ (f b) = g (p ▹ b)) ≃ (Π(b : B a), p ▹D (f b) = g (p ▹ b)) :=
   eq.rec_on p (λg, !equiv.refl) g
   end
 
@@ -102,17 +102,17 @@ namespace pi
   begin
   apply (adjointify (functor_pi f0 f1) (functor_pi (f0⁻¹)
         (λ(a : A) (b' : B' (f0⁻¹ a)), transport B (retr f0 a) ((f1 (f0⁻¹ a))⁻¹ b')))),
-  intro h, apply path_pi,
+  intro h, apply eq_of_homotopy,
   esimp {functor_pi, function.compose}, -- simplify (and unfold function_pi and function.compose)
   --first subgoal
   intro a', esimp,
   rewrite adj,
   rewrite -transport_compose,
-  rewrite {f1 a' _}(ap_transport _ f1 _),
+  rewrite {f1 a' _}(fn_tr_eq_tr_fn _ f1 _),
   rewrite (retr (f1 _) _),
   apply apD,
   intro h, beta,
-  apply path_pi, intro a, esimp,
+  apply eq_of_homotopy, intro a, esimp,
   apply (transport_V (λx, retr f0 a ▹ x = h a) (sect (f1 _) _)),
   esimp {function.id},
   apply apD

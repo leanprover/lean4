@@ -1,4 +1,4 @@
-open truncation
+open is_trunc
 
 context
 parameters {P : Π(A : Type), A → Type}

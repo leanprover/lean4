@@ -1,4 +1,4 @@
-open truncation
+open is_trunc
 --structure is_contr [class] (A : Type) : Type
 
 context

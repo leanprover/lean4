@@ -274,7 +274,8 @@ struct structure_cmd_fn {
     */
     expr update_locals(expr new_tmp, buffer<expr> & locals) {
         for (unsigned i = 0; i < locals.size(); i++) {
-            expr new_local = mk_local(binding_name(new_tmp), binding_domain(new_tmp), binding_info(new_tmp));
+            expr new_local = mk_local(mlocal_name(locals[i]), binding_name(new_tmp), binding_domain(new_tmp),
+                                      binding_info(new_tmp));
             locals[i]      = new_local;
             new_tmp        = instantiate(binding_body(new_tmp), new_local);
         }

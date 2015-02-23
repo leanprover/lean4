@@ -6,19 +6,17 @@ Module: init.trunc
 Authors: Jeremy Avigad, Floris van Doorn
 
 Ported from Coq HoTT.
+
+TODO: can we replace some definitions with a hprop as codomain by theorems?
 -/
 
 prelude
-import .path .logic .datatypes .equiv .types.empty .types.sigma
+import .logic .equiv .types.empty .types.sigma
 open eq nat sigma unit
 
-/- Truncation levels -/
-
--- TODO: can we replace some definitions with a hprop as codomain by theorems?
-
-/- truncation indices -/
-
 namespace is_trunc
+
+ /- Truncation levels -/
 
   inductive trunc_index : Type₁ :=
   | minus_two : trunc_index
@@ -32,7 +30,7 @@ namespace is_trunc
   postfix `.+2`:(max+1) := λn, (n .+1 .+1)
   notation `-2` := trunc_index.minus_two
   notation `-1` := -2.+1
-  export [coercions] nat -- does this export
+  export [coercions] nat
 
   namespace trunc_index
   definition add (n m : trunc_index) : trunc_index :=
@@ -81,7 +79,7 @@ namespace is_trunc
 
   abbreviation is_contr := is_trunc -2
   abbreviation is_hprop := is_trunc -1
-  abbreviation is_hset  := is_trunc nat.zero
+  abbreviation is_hset  := is_trunc 0
 
   variables {A B : Type}
 

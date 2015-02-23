@@ -11,7 +11,6 @@ Properties of is_trunc
 import types.pi types.path
 
 open sigma sigma.ops pi function eq equiv path funext
-
 namespace is_trunc
 
   definition is_contr.sigma_char (A : Type) :
@@ -108,8 +107,9 @@ namespace is_trunc
 
   section
   open decidable
+  --this is proven differently in init.hedberg
   definition is_hset_of_decidable_eq (A : Type)
-    [H : Π(a b : A), decidable (a = b)] : is_hset A :=
+    [H : decidable_eq A] : is_hset A :=
   is_hset_of_double_neg_elim (λa b, by_contradiction)
   end
 

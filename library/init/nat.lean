@@ -334,7 +334,8 @@ namespace nat
     (le.refl a)
     (λ b₁ ih, le.trans !pred_le ih)
 
-  definition of_num [coercion] [reducible] (n : num) : ℕ :=
+  definition of_num [coercion] (n : num) : ℕ :=
   num.rec zero
     (λ n, pos_num.rec (succ zero) (λ n r, r + r + (succ zero)) (λ n r, r + r) n) n
 end nat
+attribute nat.of_num [reducible] -- of_num is also reducible if namespace "nat" is not opened

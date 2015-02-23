@@ -1,6 +1,8 @@
 /-
 Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
+
+Module init.nat
 Authors: Floris van Doorn, Leonardo de Moura
 -/
 
@@ -274,18 +276,15 @@ namespace nat
         have aux : a = max a b, from max.left_eq (lt.asymm h),
         eq.rec_on aux (le.of_lt h)))
 
-  definition gt a b := lt b a
+  abbreviation gt a b := lt b a
 
   notation a > b := gt a b
 
-  definition ge a b := le b a
+  abbreviation ge a b := le b a
 
   notation a ≥ b := ge a b
 
-  definition add (a b : nat) : nat :=
-  nat.rec_on b a (λ b₁ r, succ r)
-
-  notation a + b := add a b
+  -- add is defined in init.num
 
   definition sub (a b : nat) : nat :=
   nat.rec_on b a (λ b₁ r, pred r)
@@ -343,7 +342,4 @@ namespace nat
     (le.refl a)
     (λ b₁ ih, le.trans !pred_le ih)
 
-  definition of_num [coercion] [reducible] (n : num) : ℕ :=
-  num.rec zero
-    (λ n, pos_num.rec (succ zero) (λ n r, r + r + (succ zero)) (λ n r, r + r) n) n
 end nat

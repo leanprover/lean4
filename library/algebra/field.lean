@@ -8,7 +8,7 @@ Authors: Robert Lewis
 Structures with multiplicative and additive components, including division rings and fields.
 The development is modeled after Isabelle's library.
 -/
-
+----------------------------------------------------------------------------------------------------
 import logic.eq logic.connectives data.unit data.sigma data.prod
 import algebra.function algebra.binary algebra.group algebra.ring
 open eq eq.ops
@@ -20,8 +20,6 @@ variable {A : Type}
 structure division_ring [class] (A : Type) extends ring A, has_inv A :=
   (mul_inv_cancel : ∀{a}, a ≠ zero → mul a (inv a) = one)
   (inv_mul_cancel : ∀{a}, a ≠ zero → mul (inv a) a = one)
-
--- theorem div_is_mul [s : division_ring A] {a b : A} : a / b = a * b⁻¹ := rfl
 
 section division_ring
   variables [s : division_ring A] {a b c : A}
@@ -51,11 +49,7 @@ section division_ring
 
   theorem div_self (H : a ≠ 0) : a / a = 1 := mul_inv_cancel H
 
-  theorem mul_div_assoc (Hc : c ≠ 0) : (a * b) / c = a * (b / c) :=
-    eq.symm (calc
-      a * (b / c) = a * (b * c⁻¹) : rfl
-      ... = (a * b) * c⁻¹ : mul.assoc
-      ... = (a * b) / c : rfl)
+  theorem mul_div_assoc : (a * b) / c = a * (b / c) := !mul.assoc
 
   theorem one_div_ne_zero (H : a ≠ 0) : 1 / a ≠ 0 :=
     assume H2 : 1 / a = 0,
@@ -73,13 +67,12 @@ section division_ring
 
   theorem div_one : a / 1 = a :=
     calc
-      a / 1 = /- a * 1⁻¹ : rfl
-      ... = -/ a * 1 : inv_one_is_one
+      a / 1 = a * 1 : inv_one_is_one
       ... = a : mul_one
 
-  -- note: integral domain has a "mul_ne_zero". When we get to "field", show it is an
-  -- instance of an integral domain, so we can use that theorem.
-  -- check @mul_ne_zero
+  theorem zero_div : 0 / a = 0 := !zero_mul
+
+  -- note: integral domain has a "mul_ne_zero". Discrete fields are int domains.
   theorem mul_ne_zero' (Ha : a ≠ 0) (Hb : b ≠ 0) : a * b ≠ 0 :=
     assume H : a * b = 0,
     have C1 : a = 0, from (calc
@@ -90,6 +83,7 @@ section division_ring
       ... = 0 : zero_mul),
       absurd C1 Ha
 
+  -- this belongs in ring?
   theorem mul_ne_zero_imp_ne_zero (H : a * b ≠ 0) : a ≠ 0 ∧ b ≠ 0 :=
     have Ha : a ≠ 0, from
       (assume Ha1 : a = 0,
@@ -180,6 +174,25 @@ section division_ring
       ... = (1 / a) * (-1) : one_div_neg_one_eq_neg_one
       ... = - (1 / a) : mul_neg_one_eq_neg
 
+  theorem div_neg_eq_neg_div (Ha : a ≠ 0) : b / (- a) = - (b / a) :=
+    calc
+      b / (- a) = b * (1 / (- a)) : inv_eq_one_div
+      ... = b * -(1 / a) : one_div_neg_eq_neg_one_div Ha
+      ... = -(b * (1 / a)) : neg_mul_eq_mul_neg
+      ... = - (b * a⁻¹) : inv_eq_one_div
+
+  theorem neg_div (Ha : a ≠ 0) : (-b) / a = - (b / a) :=
+    calc
+      (-b) / a = (-1 * b) / a : neg_eq_neg_one_mul
+      ... = (-1) * (b / a) : mul_div_assoc
+      ... = - (b / a) : neg_eq_neg_one_mul
+
+  theorem neg_div_neg_eq_div (Hb : b ≠ 0) : (-a) / (-b) = a / b :=
+    calc
+      (-a) / (-b) = - ((-a) / b) : div_neg_eq_neg_div Hb
+      ... = - -(a / b) : neg_div Hb
+      ... = a / b : neg_neg
+
   theorem div_div (H : a ≠ 0) : 1 / (1 / a) = a :=
     symm (eq_one_div_of_mul_eq_one_left (mul_one_div_cancel H))
 
@@ -201,24 +214,17 @@ section division_ring
 
   theorem mul_div_cancel (Hb : b ≠ 0) : a * b / b = a :=
     calc
-      (a * b) / b = a * b * b⁻¹ : rfl
-      ... = a * (b * b⁻¹) : mul.assoc
+      (a * b) / b = a * (b * b⁻¹) : mul.assoc
       ... = a * 1 : mul_inv_cancel Hb
       ... = a : mul_one
 
   theorem div_mul_cancel (Hb : b ≠ 0) : a / b * b = a :=
     calc
-      (a / b) * b = (a * b⁻¹) * b : rfl
-      ... = a * (b⁻¹ * b) : mul.assoc
+      (a / b) * b = a * (b⁻¹ * b) : mul.assoc
       ... = a * 1 : inv_mul_cancel Hb
       ... = a : mul_one
 
-  theorem div_add_div_same (Hc : c ≠ 0) : a / c + b / c = (a + b) / c :=
-    calc
-      (a / c) + (b / c) = (a * c⁻¹) + (b / c) : rfl
-      ... = a * c⁻¹ + b * c⁻¹ : rfl
-      ... = (a + b) * c⁻¹ : right_distrib
-      ... = (a + b) / c : rfl
+  theorem div_add_div_same : a / c + b / c = (a + b) / c := !right_distrib⁻¹
 
   theorem inv_mul_add_mul_inv_eq_inv_add_inv (Ha : a ≠ 0) (Hb : b ≠ 0) :
           (1 / a) * (a + b) * (1 / b) = 1 / a + 1 / b :=
@@ -249,6 +255,21 @@ section division_ring
       a / b = b / b : H2
       ... = 1 : div_self Hb)
 
+  theorem eq_div_iff_mul_eq (Hc : c ≠ 0) : a = b / c ↔ a * c = b :=
+    iff.intro
+      (assume H : a = b / c, calc
+        a * c = b / c * c : H
+        ... = b : div_mul_cancel Hc)
+      (assume H : a * c = b, symm (calc
+        b / c = a * c / c : H
+        ... = a : mul_div_cancel Hc))
+
+  theorem add_div_eq_mul_add_div (Hc : c ≠ 0) : a + b / c = (a * c + b) / c :=
+    have H : (a + b / c) * c = a * c + b, from calc
+      (a + b / c) * c = a * c + (b / c) * c : right_distrib
+      ... = a * c + b : div_mul_cancel Hc,
+    (iff.elim_right (eq_div_iff_mul_eq Hc)) H
+
 end division_ring
 
 structure field [class] (A : Type) extends division_ring A, comm_ring A
@@ -256,6 +277,7 @@ structure field [class] (A : Type) extends division_ring A, comm_ring A
 section field
   variables [s : field A] {a b c d: A}
   include s
+  local attribute divide [reducible]
 
   -- I think of "div_cancel" has being something like a * b / b = a or a / b * b = a. The name
   -- I chose is clunky, but it has the right prefix
@@ -268,8 +290,7 @@ section field
       ... = a * ((1 / a) * (1 / b)) :inv_eq_one_div
       ... = a * (1 / (b * a)) : one_div_mul_one_div Ha Hb
       ... = a * (1 / (a * b)) : mul.comm
-      ... = a * (a * b)⁻¹ : inv_eq_one_div
-      ... = a / (a * b) : rfl)
+      ... = a * (a * b)⁻¹ : inv_eq_one_div)
 
   theorem div_mul_left (Ha : a ≠ 0) (H : a * b ≠ 0) : b / (a * b) = 1 / a :=
     have H1 : b * a ≠ 0, from mul_ne_zero_comm H,
@@ -290,21 +311,17 @@ section field
   theorem one_div_add_one_div (Ha : a ≠ 0) (Hb : b ≠ 0) : 1 / a + 1 / b = (a + b) / (a * b) :=
     have H : a * b ≠ 0, from (mul_ne_zero' Ha Hb),
     symm (calc
-      (a + b) / (a * b)/- = (a + b) * (a * b)⁻¹ : rfl
-      ...-/ = a * (a * b)⁻¹ + b * (a * b)⁻¹ : right_distrib
+      (a + b) / (a * b) = a * (a * b)⁻¹ + b * (a * b)⁻¹ : right_distrib
       ... = a / (a * b) + b * (a * b)⁻¹ : rfl
       ... = 1 / b + b * (a * b)⁻¹ : div_mul_right Hb H
-      ... = 1 / b + b / (a * b) : rfl
       ... = 1 / b + 1 / a : div_mul_left Ha H
       ... = 1 / a + 1 / b : add.comm)
 
   theorem div_mul_div (Hb : b ≠ 0) (Hd : d ≠ 0) : (a / b) * (c / d) = (a * c) / (b * d) :=
     calc
-      (a / b) * (c / d) = (a * b⁻¹) * (c / d) : rfl
-      ... = (a * b⁻¹) * (c * d⁻¹) : rfl
+      (a / b) * (c / d) = (a * b⁻¹) * (c * d⁻¹) : rfl
       ... = (a * c) * (d⁻¹ * b⁻¹) : by rewrite [2 mul.assoc, (mul.comm b⁻¹), mul.assoc]
       ... = (a * c) * (b * d)⁻¹ : mul_inv Hd Hb
-      ... = (a * c) / (b * d) : rfl
 
   theorem mul_div_mul_left (Hb : b ≠ 0) (Hc : c ≠ 0) : (c * a) / (c * b) = a / b :=
     have H : c * b ≠ 0, from mul_ne_zero' Hc Hb,
@@ -322,8 +339,7 @@ section field
   theorem div_mul_eq_mul_div (Hc : c ≠ 0) : (b / c) * a = (b * a) / c :=
     calc
       (b / c) * a = (b * c⁻¹) * a : rfl
-      ... = (b * a) * c⁻¹ : by rewrite [mul.assoc, (mul.comm c⁻¹), -mul.assoc ]
-      ... = (b * a) / c : rfl
+      ... = (b * a) * c⁻¹ : by rewrite [mul.assoc, (mul.comm c⁻¹), -mul.assoc]
 
   -- this one is odd -- I am not sure what to call it, but again, the prefix is right
   theorem div_mul_eq_mul_div_comm (Hc : c ≠ 0) : (b / c) * a = b * (a / c) :=
@@ -339,14 +355,14 @@ section field
     calc
       a / b + c / d = (a * d) / (b * d) + c / d : mul_div_mul_right Hb Hd
       ... = (a * d) / (b * d) + (b * c) / (b * d) : mul_div_mul_left Hd Hb
-      ... = ((a * d) + (b * c)) / (b * d) : div_add_div_same H
+      ... = ((a * d) + (b * c)) / (b * d) : div_add_div_same
 
 
   theorem div_sub_div (Hb : b ≠ 0) (Hd : d ≠ 0) :
       (a / b) - (c / d) = ((a * d) - (b * c)) / (b * d) :=
     calc
       (a / b) - (c / d) = (a / b) + -1 * (c / d) : neg_eq_neg_one_mul
-      ... = (a / b) + ((-1 * c) / d) : mul_div_assoc Hd
+      ... = (a / b) + ((-1 * c) / d) : mul_div_assoc
       ... = ((a * d) + (b * (-1 * c))) / (b * d) : div_add_div Hb Hd
       ... = ((a * d) + -1 * (b * c)) / (b * d) : by rewrite [-mul.assoc, (mul.comm b), mul.assoc]
       ... = ((a * d) + -(b * c)) / (b * d) : neg_eq_neg_one_mul

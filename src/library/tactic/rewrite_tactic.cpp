@@ -354,17 +354,11 @@ public:
         m_tc(tc) {}
 #endif
 
-    bool is_projection_app(expr const & e) const {
-        expr const & f = get_app_fn(e);
-        return is_constant(f) && is_projection(m_tc.env(), const_name(f));
-    }
-
     virtual bool on_failure(expr const & p, expr const & t, match_context & ctx) const {
         try {
             constraint_seq cs;
-            // We do not unfold projections.
-            expr p1 = is_projection_app(p) ? p : m_tc.whnf(p, cs);
-            expr t1 = is_projection_app(t) ? t : m_tc.whnf(t, cs);
+            expr p1 = m_tc.whnf(p, cs);
+            expr t1 = m_tc.whnf(t, cs);
             return !cs && (p1 != p || t1 != t) && ctx.match(p1, t1);
         } catch (exception&) {
             return false;
@@ -599,7 +593,7 @@ class rewrite_fn {
             replace(type, [&](expr const & t, unsigned) {
                     if (closed(t)) {
                         constraint_seq cs;
-                        if (m_matcher_tc->is_def_eq(t, *unfolded_e, justification(), cs) && !cs) {
+                        if (m_tc->is_def_eq(t, *unfolded_e, justification(), cs) && !cs) {
                             occ_idx++;
                             if (occ.contains(occ_idx)) {
                                 found = true;
@@ -1134,12 +1128,24 @@ class rewrite_fn {
         }
     }
 
+    class match_converter : public reducible_on_converter {
+    public:
+        match_converter(environment const & env, bool relax_main_opaque):
+            reducible_on_converter(env, relax_main_opaque, true) {}
+        virtual bool is_opaque(declaration const & d) const {
+            if (is_projection(m_env, d.get_name()))
+                return true;
+            return reducible_on_converter::is_opaque(d);
+        }
+    };
+
     type_checker_ptr mk_matcher_tc() {
         if (get_rewriter_syntactic(m_ios.get_options())) {
             // use an everything opaque converter
             return mk_opaque_type_checker(m_env, m_ngen.mk_child());
         } else {
-            return m_tc;
+            return std::unique_ptr<type_checker>(new type_checker(m_env, m_ngen.mk_child(),
+                   std::unique_ptr<converter>(new match_converter(m_env, m_ps.relax_main_opaque()))));
         }
     }
 

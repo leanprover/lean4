@@ -305,21 +305,23 @@ struct structure_cmd_fn {
             ::lean::collect_locals(mlocal_type(v), dep_set);
             dep_set.insert(v);
         }
-        buffer<expr> all_include_vars;
-        sort_locals(dep_set, m_p, all_include_vars);
+        for (expr const & p : m_params)
+            ::lean::collect_locals(mlocal_type(p), dep_set);
+        buffer<expr> ctx;
+        sort_locals(dep_set, m_p, ctx);
 
-        expr tmp       = Pi_as_is(all_include_vars, Pi(tmp_locals, m_type, m_p), m_p);
+        expr tmp       = Pi_as_is(ctx, Pi(tmp_locals, m_type, m_p), m_p);
         level_param_names new_ls;
         expr new_tmp;
         std::tie(new_tmp, new_ls) = m_p.elaborate_type(tmp, list<expr>());
         levels new_meta_ls = map2<level>(new_ls, [](name const & n) { return mk_meta_univ(n); });
         new_tmp = instantiate_univ_params(new_tmp, new_ls, new_meta_ls);
-        new_tmp = update_locals(new_tmp, all_include_vars);
+        new_tmp = update_locals(new_tmp, ctx);
         new_tmp = update_locals(new_tmp, m_params);
         buffer<expr> explicit_params;
         explicit_params.append(m_params);
         m_params.clear();
-        m_params.append(all_include_vars);
+        m_params.append(ctx);
         m_params.append(explicit_params);
         new_tmp = update_parents(new_tmp);
         m_type = new_tmp;

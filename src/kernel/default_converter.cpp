@@ -123,7 +123,8 @@ bool default_converter::is_opaque(declaration const & d) const {
 expr default_converter::unfold_name_core(expr e, unsigned w) {
     if (is_constant(e)) {
         if (auto d = m_env.find(const_name(e))) {
-            if (d->is_definition() && !is_opaque(*d) && d->get_weight() >= w)
+            if (d->is_definition() && !is_opaque(*d) && d->get_weight() >= w &&
+                length(const_levels(e)) == d->get_num_univ_params())
                 return unfold_name_core(instantiate_value_univ_params(*d, const_levels(e)), w);
         }
     }

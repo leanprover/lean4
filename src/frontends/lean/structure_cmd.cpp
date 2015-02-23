@@ -611,6 +611,17 @@ struct structure_cmd_fn {
         m_params.append(params);
     }
 
+    /** \brief Initialize m_ctx_locals field */
+    void set_ctx_locals() {
+        buffer<expr> new_ctx_locals;
+        collect_ctx_locals(new_ctx_locals);
+        add_ctx_locals(new_ctx_locals);
+        for (expr const & p : m_params) {
+            if (m_p.is_local_decl(p) && !m_p.is_local_variable(p))
+                m_ctx_locals.push_back(p);
+        }
+    }
+
     /** \brief Include in m_level_names any local level referenced m_type and m_fields */
     void include_ctx_levels() {
         name_set all_lvl_params;
@@ -920,8 +931,7 @@ struct structure_cmd_fn {
             process_empty_new_fields();
         }
         infer_resultant_universe();
-        collect_ctx_locals(m_ctx_locals);
-        add_ctx_locals(m_ctx_locals);
+        set_ctx_locals();
         include_ctx_levels();
         m_ctx_levels = collect_local_nonvar_levels(m_p, to_list(m_level_names.begin(), m_level_names.end()));
         declare_inductive_type();

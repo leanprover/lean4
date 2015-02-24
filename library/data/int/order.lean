@@ -25,6 +25,7 @@ infix <= := int.le
 infix ≤  := int.le
 infix <  := int.lt
 
+local attribute nonneg [reducible]
 private definition decidable_nonneg [instance] (a : ℤ) : decidable (nonneg a) := int.cases_on a _ _
 definition decidable_le [instance] (a b : ℤ) : decidable (a ≤ b) := decidable_nonneg _
 definition decidable_lt [instance] (a b : ℤ) : decidable (a < b) := decidable_nonneg _
@@ -242,8 +243,11 @@ section port_algebra
   infix >= := int.ge
   infix ≥  := int.ge
   infix >  := int.gt
-  definition decidable_ge [instance] (a b : ℤ) : decidable (a ≥ b) := _
-  definition decidable_gt [instance] (a b : ℤ) : decidable (a > b) := _
+
+  definition decidable_ge [instance] (a b : ℤ) : decidable (a ≥ b) :=
+  show decidable (b ≤ a), from _
+  definition decidable_gt [instance] (a b : ℤ) : decidable (a > b) :=
+  show decidable (b < a), from _
 
   theorem le_of_eq_of_le : ∀{a b c : ℤ}, a = b → b ≤ c → a ≤ c := @algebra.le_of_eq_of_le _ _
   theorem le_of_le_of_eq : ∀{a b c : ℤ}, a ≤ b → b = c → a ≤ c := @algebra.le_of_le_of_eq _ _

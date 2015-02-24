@@ -78,6 +78,8 @@ context
     @transport _ (λ gh, Q (pr1 gh) (pr2 gh)) (sigma.mk f (homotopy.refl f)) (sigma.mk g h)
       (@center_eq _ is_contr_sigma_homotopy _ _) d
 
+
+  local attribute weak_funext [reducible]
   local attribute homotopy_ind [reducible]
   definition homotopy_ind_comp : homotopy_ind f (homotopy.refl f) = d :=
     (@hprop_eq _ _ _ _ !center_eq idp)⁻¹ ▹ idp
@@ -87,6 +89,7 @@ end
 -- Now the proof is fairly easy; we can just use the same induction principle on both sides.
 universe variables l k
 
+local attribute weak_funext [reducible]
 theorem funext_of_weak_funext (wf : weak_funext.{l k}) : funext.{l k} :=
   funext.mk (λ A B f g,
     let eq_to_f := (λ g' x, f = g') in

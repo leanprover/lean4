@@ -37,10 +37,15 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32
 #endif
 
+#ifndef LEAN_DEFAULT_CLASS_CONSERVATIVE
+#define LEAN_DEFAULT_CLASS_CONSERVATIVE true
+#endif
+
 namespace lean {
 static name * g_class_unique_class_instances = nullptr;
 static name * g_class_trace_instances        = nullptr;
 static name * g_class_instance_max_depth     = nullptr;
+static name * g_class_conservative           = nullptr;
 
 [[ noreturn ]] void throw_class_exception(char const * msg, expr const & m) { throw_generic_exception(msg, m); }
 [[ noreturn ]] void throw_class_exception(expr const & m, pp_fn const & fn) { throw_generic_exception(m, fn); }
@@ -49,6 +54,7 @@ void initialize_class_instance_elaborator() {
     g_class_unique_class_instances = new name{"class", "unique_instances"};
     g_class_trace_instances        = new name{"class", "trace_instances"};
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
+    g_class_conservative           = new name{"class", "conservative"};
 
     register_bool_option(*g_class_unique_class_instances,  LEAN_DEFAULT_CLASS_UNIQUE_CLASS_INSTANCES,
                          "(class) generate an error if there is more than one solution "
@@ -59,12 +65,16 @@ void initialize_class_instance_elaborator() {
 
     register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,
                              "(class) max allowed depth in class-instance resolution");
+
+    register_bool_option(*g_class_conservative,  LEAN_DEFAULT_CLASS_CONSERVATIVE,
+                         "(class) use conservative unification (only unfold reducible definitions, and avoid delta-delta case splits)");
 }
 
 void finalize_class_instance_elaborator() {
     delete g_class_unique_class_instances;
     delete g_class_trace_instances;
     delete g_class_instance_max_depth;
+    delete g_class_conservative;
 }
 
 bool get_class_unique_class_instances(options const & o) {
@@ -79,6 +89,10 @@ unsigned get_class_instance_max_depth(options const & o) {
     return o.get_unsigned(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH);
 }
 
+bool get_class_conservative(options const & o) {
+    return o.get_bool(*g_class_conservative, LEAN_DEFAULT_CLASS_CONSERVATIVE);
+}
+
 /** \brief Context for handling class-instance metavariable choice constraint */
 struct class_instance_context {
     io_state                  m_ios;
@@ -88,6 +102,7 @@ struct class_instance_context {
     bool                      m_relax;
     bool                      m_use_local_instances;
     bool                      m_trace_instances;
+    bool                      m_conservative;
     unsigned                  m_max_depth;
     char const *              m_fname;
     optional<pos_info>        m_pos;
@@ -95,12 +110,16 @@ struct class_instance_context {
                            name const & prefix, bool relax, bool use_local_instances):
         m_ios(ios),
         m_ngen(prefix),
-        m_tc(mk_type_checker(env, m_ngen.mk_child(), relax)),
         m_relax(relax),
         m_use_local_instances(use_local_instances) {
         m_fname           = nullptr;
         m_trace_instances = get_class_trace_instances(ios.get_options());
         m_max_depth       = get_class_instance_max_depth(ios.get_options());
+        m_conservative    = get_class_conservative(ios.get_options());
+        if (m_conservative)
+            m_tc = mk_type_checker(env, m_ngen.mk_child(), false, OpaqueIfNotReducibleOn);
+        else
+            m_tc = mk_type_checker(env, m_ngen.mk_child(), m_relax);
         options opts      = m_ios.get_options();
         opts              = opts.update_if_undef(get_pp_purify_metavars_name(), false);
         opts              = opts.update_if_undef(get_pp_implicit_name(), true);
@@ -324,6 +343,7 @@ constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_context> 
         unifier_config new_cfg(cfg);
         new_cfg.m_discard        = false;
         new_cfg.m_use_exceptions = false;
+        new_cfg.m_conservative   = C->m_conservative;
 
         auto to_cnstrs_fn = [=](substitution const & subst, constraints const & cnstrs) -> constraints {
             substitution new_s = subst;
@@ -435,6 +455,7 @@ optional<expr> mk_class_instance(environment const & env, io_state const & ios, 
     unifier_config new_cfg(cfg);
     new_cfg.m_discard        = true;
     new_cfg.m_use_exceptions = true;
+    new_cfg.m_conservative   = C->m_conservative;
     try {
         auto p  = unify(env, 1, &c, C->m_ngen.mk_child(), substitution(), new_cfg).pull();
         lean_assert(p);

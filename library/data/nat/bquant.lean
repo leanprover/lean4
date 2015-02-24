@@ -19,10 +19,10 @@ More importantly, they can be reduced inside of the Lean kernel.
 import data.nat.order
 
 namespace nat
-  definition bex (n : nat) (P : nat → Prop) : Prop :=
+  definition bex [reducible] (n : nat) (P : nat → Prop) : Prop :=
   ∃ x, x < n ∧ P x
 
-  definition ball (n : nat) (P : nat → Prop) : Prop :=
+  definition ball [reducible] (n : nat) (P : nat → Prop) : Prop :=
   ∀ x, x < n → P x
 
   definition not_bex_zero (P : nat → Prop) : ¬ bex 0 P :=

@@ -19,7 +19,7 @@ namespace nat
 
   notation a < b := lt a b
 
-  definition le (a b : nat) : Type₀ := a < succ b
+  definition le [reducible] (a b : nat) : Type₀ := a < succ b
 
   notation a ≤ b := le a b
 

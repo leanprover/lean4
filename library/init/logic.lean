@@ -315,12 +315,16 @@ section
       (assume Hnq : ¬q, inr (assume H : p → q, absurd (H Hp) Hnq)))
     (assume Hnp : ¬p, inl (assume Hp, absurd Hp Hnp))
 
-  definition iff.decidable [instance] (Hp : decidable p) (Hq : decidable q) : decidable (p ↔ q) := _
+  definition iff.decidable [instance] (Hp : decidable p) (Hq : decidable q) : decidable (p ↔ q) :=
+  show decidable ((p → q) ∧ (q → p)), from _
+
 end
 
-definition decidable_pred {A : Type} (R : A   →   Prop) := Π (a   : A), decidable (R a)
-definition decidable_rel  {A : Type} (R : A → A → Prop) := Π (a b : A), decidable (R a b)
-definition decidable_eq   (A : Type) := decidable_rel (@eq A)
+definition decidable_pred [reducible] {A : Type} (R : A   →   Prop) := Π (a   : A), decidable (R a)
+definition decidable_rel  [reducible] {A : Type} (R : A → A → Prop) := Π (a b : A), decidable (R a b)
+definition decidable_eq   [reducible] (A : Type) := decidable_rel (@eq A)
+definition decidable_ne [instance] {A : Type} (H : decidable_eq A) : Π (a b : A), decidable (a ≠ b) :=
+show Π x y : A, decidable (x = y → false), from _
 
 inductive inhabited [class] (A : Type) : Type :=
 mk : A → inhabited A

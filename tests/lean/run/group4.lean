@@ -120,7 +120,7 @@ calc
               ... = a * b * (c * d) : mul_assoc
 
 -- for test4b to work, we need instances at the level of the bundled structures as well
-definition Monoid_Semigroup [coercion] (M : Monoid) : Semigroup :=
+definition Monoid_Semigroup [coercion] [reducible] (M : Monoid) : Semigroup :=
 Semigroup.mk (Monoid.carrier M) _
 
 theorem test4 {M : Monoid} (a b c d : M) : a * (b * c) * d = a * b * (c * d) :=

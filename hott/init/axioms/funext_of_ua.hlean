@@ -77,6 +77,7 @@ context
             (λ xy, prod.rec_on xy
               (λ b c p, eq.rec_on p idp))))
 
+  set_option class.conservative false
   theorem nondep_funext_from_ua {A : Type} {B : Type}
       : Π {f g : A → B}, f ∼ g → f = g :=
     (λ (f g : A → B) (p : f ∼ g),

@@ -53,7 +53,7 @@ namespace is_trunc
   definition minus_two_le (n : trunc_index) : -2 ≤ n := star
   definition empty_of_succ_le_minus_two {n : trunc_index} (H : n .+1 ≤ -2) : empty := H
   end trunc_index
-  definition trunc_index.of_nat [coercion] (n : nat) : trunc_index :=
+  definition trunc_index.of_nat [coercion] [reducible] (n : nat) : trunc_index :=
   nat.rec_on n (-1.+1) (λ n k, k.+1)
 
   /- truncated types -/

@@ -15,6 +15,8 @@ open is_trunc.trunctype funext precategory.ops prod.ops
 set_option pp.beta true
 
 namespace yoneda
+  set_option class.conservative false
+
   definition representable_functor_assoc [C : Precategory] {a1 a2 a3 a4 a5 a6 : C} (f1 : a5 ⟶ a6) (f2 : a4 ⟶ a5) (f3 : a3 ⟶ a4) (f4 : a2 ⟶ a3) (f5 : a1 ⟶ a2) : (f1 ∘ f2) ∘ f3 ∘ (f4 ∘ f5) = f1 ∘ (f2 ∘ f3 ∘ f4) ∘ f5 :=
   calc
     (f1 ∘ f2) ∘ f3 ∘ f4 ∘ f5 = f1 ∘ f2 ∘ f3 ∘ f4 ∘ f5 : assoc

@@ -99,6 +99,7 @@ namespace is_trunc
     imp
     (λp, p ▹ refl a)
 
+  local attribute not [reducible]
   definition is_hset_of_double_neg_elim {A : Type} (H : Π(a b : A), ¬¬a = b → a = b)
     : is_hset A :=
   is_hset_of_relation (λa b, ¬¬a = b) _ (λa n, n idp) H

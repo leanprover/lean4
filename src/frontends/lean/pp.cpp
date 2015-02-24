@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "library/abbreviation.h"
 #include "library/pp_options.h"
 #include "library/constants.h"
+#include "library/replace_visitor.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/builtin_exprs.h"
@@ -1114,10 +1115,36 @@ pretty_fn::pretty_fn(environment const & env, options const & o):
     m_next_meta_idx = 1;
 }
 
+// Custom beta reduction procedure for the pretty printer.
+// We don't want to reduce application in show annotations.
+class pp_beta_reduce_fn : public replace_visitor {
+    virtual expr visit_meta(expr const & e) { return e; }
+    virtual expr visit_local(expr const & e) { return e; }
+
+    virtual expr visit_macro(expr const & e) {
+        if (is_show_annotation(e) && is_app(get_annotation_arg(e))) {
+            expr const & n = get_annotation_arg(e);
+            expr new_fn  = visit(app_fn(n));
+            expr new_arg = visit(app_arg(n));
+            return mk_show_annotation(mk_app(new_fn, new_arg));
+        } else {
+            return replace_visitor::visit_macro(e);
+        }
+    }
+
+    virtual expr visit_app(expr const & e) {
+        expr new_e = replace_visitor::visit_app(e);
+        if (is_head_beta(new_e))
+            return visit(head_beta_reduce(new_e));
+        else
+            return new_e;
+    }
+};
+
 format pretty_fn::operator()(expr const & e) {
     m_depth = 0; m_num_steps = 0;
     if (m_beta)
-        return pp_child(purify(beta_reduce(e)), 0).fmt();
+        return pp_child(purify(pp_beta_reduce_fn()(e)), 0).fmt();
     else
         return pp_child(purify(e), 0).fmt();
 }

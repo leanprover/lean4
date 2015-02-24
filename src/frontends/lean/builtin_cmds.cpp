@@ -191,9 +191,13 @@ environment print_cmd(parser & p) {
         name c = p.check_constant_next("invalid 'print definition', constant expected");
         environment const & env = p.env();
         declaration d = env.get(c);
+        io_state_stream out = p.regular_stream();
+        options opts        = out.get_options();
+        opts                = opts.update_if_undef(get_pp_beta_name(), false);
+        io_state_stream new_out = out.update_options(opts);
         if (!d.is_definition())
             throw parser_error(sstream() << "invalid 'print definition', '" << c << "' is not a definition", pos);
-        p.regular_stream() << d.get_value() << endl;
+        new_out << d.get_value() << endl;
     } else if (p.curr_is_token_or_id(get_instances_tk())) {
         p.next();
         name c = p.check_constant_next("invalid 'print instances', constant expected");

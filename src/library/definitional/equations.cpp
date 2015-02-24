@@ -467,6 +467,8 @@ class equation_compiler_fn {
         for (expr const & fn : m_fns) {
             buffer<expr> args;
             expr r_type       = to_telescope(mlocal_type(fn), args);
+            for (expr & arg : args)
+                arg = update_mlocal(arg, whnf(mlocal_type(arg)));
             list<expr> ctx    = to_list(args);
             list<optional<name>> vstack = map2<optional<name>>(ctx, [](expr const & e) {
                     return optional<name>(mlocal_name(e));

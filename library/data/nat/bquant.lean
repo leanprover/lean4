@@ -63,7 +63,7 @@ end nat
 section
   open nat decidable
 
-  definition decidable_bex [instance] (n : nat) (P : nat → Prop) (H : decidable_pred P) : decidable (bex n P) :=
+  definition decidable_bex [instance] (n : nat) (P : nat → Prop) [H : decidable_pred P] : decidable (bex n P) :=
   nat.rec_on n
     (inr (not_bex_zero P))
     (λ a ih, decidable.rec_on ih
@@ -72,7 +72,7 @@ section
          (λ hpa : P a, inl (bex_succ_of_pred hpa))
          (λ hna : ¬ P a, inr (not_bex_succ hneg hna))))
 
-  definition decidable_ball [instance] (n : nat) (P : nat → Prop) (H : decidable_pred P) : decidable (ball n P) :=
+  definition decidable_ball [instance] (n : nat) (P : nat → Prop) [H : decidable_pred P] : decidable (ball n P) :=
   nat.rec_on n
     (inl (ball_zero P))
     (λ n₁ ih, decidable.rec_on ih

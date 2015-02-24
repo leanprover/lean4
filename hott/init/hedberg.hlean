@@ -17,7 +17,7 @@ private definition path_coll (A : Type) := ∀ x y : A, coll (x = y)
 
 context
   parameter  {A : Type}
-  hypothesis (h : decidable_eq A)
+  hypothesis [h : decidable_eq A]
   variables  {x y : A}
 
   private definition pc [reducible] : path_coll A :=

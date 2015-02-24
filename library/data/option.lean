@@ -28,7 +28,7 @@ namespace option
   protected definition is_inhabited [instance] (A : Type) : inhabited (option A) :=
   inhabited.mk none
 
-  protected definition has_decidable_eq [instance] {A : Type} (H : decidable_eq A) : decidable_eq (option A) :=
+  protected definition has_decidable_eq [instance] {A : Type} [H : decidable_eq A] : decidable_eq (option A) :=
   take o₁ o₂ : option A,
     option.rec_on o₁
       (option.rec_on o₂ (inl rfl) (take a₂, (inr (none_ne_some a₂))))

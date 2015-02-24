@@ -33,7 +33,7 @@ namespace sigma
     ∀(H₁ : p.1 == p'.1) (H₂ : p.2 == p'.2), p == p' :=
   destruct p (take a₁ b₁, destruct p' (take a₂ b₂ H₁ H₂, dpair_heq HB H₁ H₂))
 
-  protected definition is_inhabited [instance] (H₁ : inhabited A) (H₂ : inhabited (B (default A))) :
+  protected definition is_inhabited [instance] [H₁ : inhabited A] [H₂ : inhabited (B (default A))] :
     inhabited (sigma B) :=
   inhabited.destruct H₁ (λa, inhabited.destruct H₂ (λb, inhabited.mk ⟨default A, b⟩))
 

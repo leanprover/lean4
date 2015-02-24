@@ -1,4 +1,4 @@
 unique_instances.lean:6:0: error: ambiguous class-instance resolution, there is more than one solution
-  prod.is_inhabited H₂ H₂
+  @prod.is_inhabited A A H₂ H₂
 and
-  prod.is_inhabited H₂ H₁
+  @prod.is_inhabited A A H₂ H₁

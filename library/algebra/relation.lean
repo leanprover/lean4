@@ -78,7 +78,7 @@ namespace is_congruence
       {T3 : Type} {R3 : T3 → T3 → Prop}
       {g : T2 → T3} (C2 : is_congruence R2 R3 g)
       ⦃T1 : Type⦄ {R1 : T1 → T1 → Prop}
-      {f : T1 → T2} (C1 : is_congruence R1 R2 f) :
+      {f : T1 → T2} [C1 : is_congruence R1 R2 f] :
     is_congruence R1 R3 (λx, g (f x)) :=
   is_congruence.mk (λx1 x2 H, app C2 (app C1 H))
 
@@ -88,8 +88,8 @@ namespace is_congruence
       {T4 : Type} {R4 : T4 → T4 → Prop}
       {g : T2 → T3 → T4} (C3 : is_congruence2 R2 R3 R4 g)
       ⦃T1 : Type⦄ {R1 : T1 → T1 → Prop}
-      {f1 : T1 → T2} (C1 : is_congruence R1 R2 f1)
-      {f2 : T1 → T3} (C2 : is_congruence R1 R3 f2) :
+      {f1 : T1 → T2} [C1 : is_congruence R1 R2 f1]
+      {f2 : T1 → T3} [C2 : is_congruence R1 R3 f2] :
     is_congruence R1 R4 (λx, g (f1 x) (f2 x)) :=
   is_congruence.mk (λx1 x2 H, app2 C3 (app C1 H) (app C2 H))
 

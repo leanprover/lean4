@@ -33,13 +33,13 @@ namespace sum
   definition inr_inj {b₁ b₂ : B} : intro_right A b₁ = intro_right A b₂ → b₁ = b₂ :=
   assume H, sum.no_confusion H (λe, e)
 
-  protected definition is_inhabited_left [instance] : inhabited A → inhabited (A + B) :=
-  assume H : inhabited A, inhabited.mk (inl (default A))
+  protected definition is_inhabited_left [instance] [h : inhabited A] : inhabited (A + B) :=
+  inhabited.mk (inl (default A))
 
-  protected definition is_inhabited_right [instance] : inhabited B → inhabited (A + B) :=
-  assume H : inhabited B, inhabited.mk (inr (default B))
+  protected definition is_inhabited_right [instance] [h : inhabited B] : inhabited (A + B) :=
+  inhabited.mk (inr (default B))
 
-  protected definition has_eq_decidable [instance] (h₁ : decidable_eq A) (h₂ : decidable_eq B) : ∀ s₁ s₂ : A + B, decidable (s₁ = s₂),
+  protected definition has_eq_decidable [instance] [h₁ : decidable_eq A] [h₂ : decidable_eq B] : ∀ s₁ s₂ : A + B, decidable (s₁ = s₂),
   has_eq_decidable (inl a₁) (inl a₂) :=
     match h₁ a₁ a₂ with
       decidable.inl hp := decidable.inl (hp ▸ rfl),

@@ -20,13 +20,13 @@ measurable.rec_on s (λ f, f) a
 definition nat.measurable [instance] : measurable nat :=
 measurable.mk (λ a, a)
 
-definition option.measurable [instance] (A : Type) (s : measurable A) : measurable (option A) :=
+definition option.measurable [instance] (A : Type) [s : measurable A] : measurable (option A) :=
 measurable.mk (λ a, option.cases_on a zero (λ a, size_of a))
 
-definition prod.measurable [instance] (A B : Type) (sa : measurable A) (sb : measurable B) : measurable (prod A B) :=
+definition prod.measurable [instance] (A B : Type) [sa : measurable A] [sb : measurable B] : measurable (prod A B) :=
 measurable.mk (λ p, prod.cases_on p (λ a b, size_of a + size_of b))
 
-definition sum.measurable [instance] (A B : Type) (sa : measurable A) (sb : measurable B) : measurable (sum A B) :=
+definition sum.measurable [instance] (A B : Type) [sa : measurable A] [sb : measurable B] : measurable (sum A B) :=
 measurable.mk (λ s, sum.cases_on s (λ a, size_of a) (λ b, size_of b))
 
 definition bool.measurable [instance] : measurable bool :=

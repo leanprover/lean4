@@ -30,7 +30,7 @@ namespace subtype
   protected definition is_inhabited [instance] {a : A} (H : P a) : inhabited {x | P x} :=
   inhabited.mk (tag a H)
 
-  protected definition has_decidable_eq [instance] (H : decidable_eq A) : decidable_eq {x | P x} :=
+  protected definition has_decidable_eq [instance] [H : decidable_eq A] : decidable_eq {x | P x} :=
   take a1 a2 : {x | P x},
     have H1 : (a1 = a2) ↔ (elt_of a1 = elt_of a2), from
       iff.intro (assume H, eq.subst H rfl) (assume H, equal H),

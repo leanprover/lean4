@@ -33,6 +33,6 @@ subsingleton.intro (fun d1 d2,
 
 protected theorem rec_subsingleton [instance] {p : Prop} [H : decidable p]
     {H1 : p → Type} {H2 : ¬p → Type}
-    (H3 : Π(h : p), subsingleton (H1 h)) (H4 : Π(h : ¬p), subsingleton (H2 h))
+    [H3 : Π(h : p), subsingleton (H1 h)] [H4 : Π(h : ¬p), subsingleton (H2 h)]
   : subsingleton (decidable.rec_on H H1 H2) :=
 decidable.rec_on H (λh, H3 h) (λh, H4 h) --this can be proven using dependent version of "by_cases"

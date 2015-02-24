@@ -18,7 +18,7 @@ namespace vector
 
   variables {A B C : Type}
 
-  protected definition is_inhabited [instance] (h : inhabited A) : ∀ (n : nat), inhabited (vector A n),
+  protected definition is_inhabited [instance] [h : inhabited A] : ∀ (n : nat), inhabited (vector A n),
   is_inhabited 0     := inhabited.mk nil,
   is_inhabited (n+1) := inhabited.mk (inhabited.value h :: inhabited.value (is_inhabited n))
 

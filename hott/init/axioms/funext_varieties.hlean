@@ -48,7 +48,7 @@ definition weak_funext_of_naive_funext : naive_funext → weak_funext :=
 
 context
   universes l k
-  parameters (wf : weak_funext.{l k}) {A : Type.{l}} {B : A → Type.{k}} (f : Π x, B x)
+  parameters [wf : weak_funext.{l k}] {A : Type.{l}} {B : A → Type.{k}} (f : Π x, B x)
 
   definition is_contr_sigma_homotopy [instance] : is_contr (Σ (g : Π x, B x), f ∼ g) :=
     is_contr.mk (sigma.mk f (homotopy.refl f))
@@ -78,7 +78,6 @@ context
     @transport _ (λ gh, Q (pr1 gh) (pr2 gh)) (sigma.mk f (homotopy.refl f)) (sigma.mk g h)
       (@center_eq _ is_contr_sigma_homotopy _ _) d
 
-
   local attribute weak_funext [reducible]
   local attribute homotopy_ind [reducible]
   definition homotopy_ind_comp : homotopy_ind f (homotopy.refl f) = d :=
@@ -93,15 +92,15 @@ local attribute weak_funext [reducible]
 theorem funext_of_weak_funext (wf : weak_funext.{l k}) : funext.{l k} :=
   funext.mk (λ A B f g,
     let eq_to_f := (λ g' x, f = g') in
-    let sim2path := homotopy_ind _ f eq_to_f idp in
+    let sim2path := homotopy_ind f eq_to_f idp in
     have t1 : sim2path f (homotopy.refl f) = idp,
-      proof homotopy_ind_comp _ f eq_to_f idp qed,
+      proof homotopy_ind_comp f eq_to_f idp qed,
     have t2 : apD10 (sim2path f (homotopy.refl f)) = (homotopy.refl f),
       proof ap apD10 t1 qed,
     have sect : apD10 ∘ (sim2path g) ∼ id,
-      proof (homotopy_ind _ f (λ g' x, apD10 (sim2path g' x) = x) t2) g qed,
+      proof (homotopy_ind f (λ g' x, apD10 (sim2path g' x) = x) t2) g qed,
     have retr : (sim2path g) ∘ apD10 ∼ id,
-      from (λ h, eq.rec_on h (homotopy_ind_comp _ f _ idp)),
+      from (λ h, eq.rec_on h (homotopy_ind_comp f _ idp)),
     is_equiv.adjointify apD10 (sim2path g) sect retr)
 
 definition funext_from_naive_funext : naive_funext -> funext :=

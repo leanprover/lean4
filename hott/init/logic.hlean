@@ -185,10 +185,10 @@ namespace inhabited
 protected definition destruct {A : Type} {B : Type} (H1 : inhabited A) (H2 : A → B) : B :=
 inhabited.rec H2 H1
 
-definition fun_inhabited [instance] (A : Type) {B : Type} (H : inhabited B) : inhabited (A → B) :=
+definition fun_inhabited [instance] (A : Type) {B : Type} [H : inhabited B] : inhabited (A → B) :=
 destruct H (λb, mk (λa, b))
 
-definition dfun_inhabited [instance] (A : Type) {B : A → Type} (H : Πx, inhabited (B x)) :
+definition dfun_inhabited [instance] (A : Type) {B : A → Type} [H : Πx, inhabited (B x)] :
   inhabited (Πx, B x) :=
 mk (λa, destruct (H a) (λb, b))
 
@@ -241,40 +241,40 @@ section
   definition empty.decidable [instance] : decidable empty :=
   inr not_empty
 
-  definition prod.decidable [instance] (Hp : decidable p) (Hq : decidable q) : decidable (prod p q) :=
+  definition prod.decidable [instance] [Hp : decidable p] [Hq : decidable q] : decidable (prod p q) :=
   rec_on Hp
     (assume Hp  : p, rec_on Hq
       (assume Hq  : q,  inl (prod.mk Hp Hq))
       (assume Hnq : ¬q, inr (λ H : prod p q, prod.rec_on H (λ Hp Hq, absurd Hq Hnq))))
     (assume Hnp : ¬p, inr (λ H : prod p q, prod.rec_on H (λ Hp Hq, absurd Hp Hnp)))
 
-  definition sum.decidable [instance] (Hp : decidable p) (Hq : decidable q) : decidable (sum p q) :=
+  definition sum.decidable [instance] [Hp : decidable p] [Hq : decidable q] : decidable (sum p q) :=
   rec_on Hp
     (assume Hp  : p, inl (sum.inl Hp))
     (assume Hnp : ¬p, rec_on Hq
       (assume Hq  : q,  inl (sum.inr Hq))
       (assume Hnq : ¬q, inr (λ H : sum p q, sum.rec_on H (λ Hp, absurd Hp Hnp) (λ Hq, absurd Hq Hnq))))
 
-  definition not.decidable [instance] (Hp : decidable p) : decidable (¬p) :=
+  definition not.decidable [instance] [Hp : decidable p] : decidable (¬p) :=
   rec_on Hp
     (assume Hp,  inr (not_not_intro Hp))
     (assume Hnp, inl Hnp)
 
-  definition implies.decidable [instance] (Hp : decidable p) (Hq : decidable q) : decidable (p → q) :=
+  definition implies.decidable [instance] [Hp : decidable p] [Hq : decidable q] : decidable (p → q) :=
   rec_on Hp
     (assume Hp  : p, rec_on Hq
       (assume Hq  : q,  inl (assume H, Hq))
       (assume Hnq : ¬q, inr (assume H : p → q, absurd (H Hp) Hnq)))
     (assume Hnp : ¬p, inl (assume Hp, absurd Hp Hnp))
 
-  definition iff.decidable [instance] (Hp : decidable p) (Hq : decidable q) : decidable (p ↔ q) :=
+  definition iff.decidable [instance] [Hp : decidable p] [Hq : decidable q] : decidable (p ↔ q) :=
   show decidable (prod (p → q) (q → p)), from _
 end
 
 definition decidable_pred [reducible] {A : Type} (R : A   →   Type) := Π (a   : A), decidable (R a)
 definition decidable_rel  [reducible] {A : Type} (R : A → A → Type) := Π (a b : A), decidable (R a b)
 definition decidable_eq   [reducible] (A : Type) := decidable_rel (@eq A)
-definition decidable_ne [instance] {A : Type} (H : decidable_eq A) : decidable_rel (@ne A) :=
+definition decidable_ne [instance] {A : Type} [H : decidable_eq A] : decidable_rel (@ne A) :=
 show ∀ x y : A, decidable (x = y → empty), from _
 
 definition ite (c : Type) [H : decidable c] {A : Type} (t e : A) : A :=

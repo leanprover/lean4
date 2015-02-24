@@ -110,7 +110,7 @@ namespace morphism
         ... = retraction_of f ∘ f : {id_left f}
         ... = id : !retraction_compose)
 
-  theorem composition_is_retraction [instance] (Hf : is_retraction f) (Hg : is_retraction g)
+  theorem composition_is_retraction [instance] [Hf : is_retraction f] [Hg : is_retraction g]
       : is_retraction (g ∘ f) :=
   is_retraction.mk
     (calc
@@ -120,7 +120,7 @@ namespace morphism
         ... = g ∘ section_of g : {id_left (section_of g)}
         ... = id : !compose_section)
 
-  theorem composition_is_inverse [instance] (Hf : is_iso f) (Hg : is_iso g) : is_iso (g ∘ f) :=
+  theorem composition_is_inverse [instance] [Hf : is_iso f] [Hg : is_iso g] : is_iso (g ∘ f) :=
   !section_retraction_imp_iso
 
   structure isomorphic (a b : ob) :=

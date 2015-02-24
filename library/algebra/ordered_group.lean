@@ -411,8 +411,8 @@ section
 
   theorem abs_neg (a : A) : |-a| = |a| :=
   or.elim (le.total 0 a)
-    (assume H1 : 0 ≤ a, by rewrite [(abs_of_nonpos (neg_nonpos_of_nonneg H1)), neg_neg, (abs_of_nonneg H1)])
-    (assume H1 : a ≤ 0, by rewrite [(abs_of_nonneg (neg_nonneg_of_nonpos H1)), (abs_of_nonpos H1)])
+    (assume H1 : 0 ≤ a, by rewrite [abs_of_nonpos (neg_nonpos_of_nonneg H1), neg_neg, abs_of_nonneg H1])
+    (assume H1 : a ≤ 0, by rewrite [abs_of_nonneg (neg_nonneg_of_nonpos H1), abs_of_nonpos H1])
 
   theorem abs_nonneg (a : A) : | a | ≥ 0 :=
   or.elim (le.total 0 a)

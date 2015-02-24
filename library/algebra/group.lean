@@ -157,7 +157,7 @@ section group
   by rewrite ⟨mul.assoc, mul.left_inv, mul_one⟩
 
   theorem inv_eq_of_mul_eq_one {a b : A} (H : a * b = 1) : a⁻¹ = b :=
-  by rewrite ⟨-(mul_one a⁻¹), -H, inv_mul_cancel_left⟩
+  by rewrite ⟨-mul_one a⁻¹, -H, inv_mul_cancel_left⟩
 
   theorem inv_one : 1⁻¹ = 1 := inv_eq_of_mul_eq_one (one_mul 1)
 
@@ -240,10 +240,10 @@ section group
   iff.intro eq_mul_inv_of_mul_eq mul_eq_of_eq_mul_inv
 
   theorem mul_left_cancel {a b c : A} (H : a * b = a * c) : b = c :=
-  by rewrite ⟨-(inv_mul_cancel_left a b), H, inv_mul_cancel_left⟩
+  by rewrite ⟨-inv_mul_cancel_left a b, H, inv_mul_cancel_left⟩
 
   theorem mul_right_cancel {a b c : A} (H : a * b = c * b) : a = c :=
-  by rewrite ⟨-(mul_inv_cancel_right a b), H, mul_inv_cancel_right⟩
+  by rewrite ⟨-mul_inv_cancel_right a b, H, mul_inv_cancel_right⟩
 
   definition group.to_left_cancel_semigroup [instance] [coercion] [reducible] : left_cancel_semigroup A :=
   ⦃ left_cancel_semigroup, s,

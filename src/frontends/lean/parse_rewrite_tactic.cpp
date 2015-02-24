@@ -21,14 +21,18 @@ static optional<expr> parse_pattern(parser & p) {
     }
 }
 
-static expr parse_rule(parser & p) {
-    if (p.curr_is_token(get_lparen_tk())) {
-        p.next();
-        expr r = p.parse_expr();
-        p.check_token_next(get_rparen_tk(), "invalid rewrite pattern, ')' expected");
-        return r;
+static expr parse_rule(parser & p, bool use_paren) {
+    if (use_paren) {
+        if (p.curr_is_token(get_lparen_tk())) {
+            p.next();
+            expr r = p.parse_expr();
+            p.check_token_next(get_rparen_tk(), "invalid rewrite pattern, ')' expected");
+            return r;
+        } else {
+            return p.parse_id();
+        }
     } else {
-        return p.parse_id();
+        return p.parse_expr();
     }
 }
 
@@ -56,7 +60,8 @@ static expr parse_rewrite_unfold(parser & p) {
     return parse_rewrite_unfold_core(p);
 }
 
-expr parse_rewrite_element(parser & p) {
+// If use_paren is true, then lemmas must be identifiers or be wrapped with parenthesis
+static expr parse_rewrite_element(parser & p, bool use_paren) {
     if (p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk()))
         return parse_rewrite_unfold(p);
     if (p.curr_is_token(get_down_tk())) {
@@ -75,25 +80,25 @@ expr parse_rewrite_element(parser & p) {
         if (p.curr_is_token(get_greater_tk())) {
             p.next();
             optional<expr> pat = parse_pattern(p);
-            expr H = parse_rule(p);
+            expr H = parse_rule(p, use_paren);
             location loc = parse_tactic_location(p);
             return mk_rewrite_at_most_n(pat, H, symm, n, loc);
         } else {
             optional<expr> pat = parse_pattern(p);
-            expr H = parse_rule(p);
+            expr H = parse_rule(p, use_paren);
             location loc = parse_tactic_location(p);
             return mk_rewrite_exactly_n(pat, H, symm, n, loc);
         }
     } else if (p.curr_is_token(get_star_tk())) {
         p.next();
         optional<expr> pat = parse_pattern(p);
-        expr H = parse_rule(p);
+        expr H = parse_rule(p, use_paren);
         location loc = parse_tactic_location(p);
         return mk_rewrite_zero_or_more(pat, H, symm, loc);
     } else if (p.curr_is_token(get_plus_tk())) {
         p.next();
         optional<expr> pat = parse_pattern(p);
-        expr H = parse_rule(p);
+        expr H = parse_rule(p, use_paren);
         location loc = parse_tactic_location(p);
         return mk_rewrite_one_or_more(pat, H, symm, loc);
     } else if (p.curr_is_token(get_triangle_tk()) || p.curr_is_token(get_greater_tk())) {
@@ -109,7 +114,7 @@ expr parse_rewrite_element(parser & p) {
         }
     } else {
         optional<expr> pat = parse_pattern(p);
-        expr H = parse_rule(p);
+        expr H = parse_rule(p, use_paren);
         location loc = parse_tactic_location(p);
         return mk_rewrite_once(pat, H, symm, loc);
     }
@@ -122,7 +127,7 @@ expr parse_rewrite_tactic(parser & p) {
         p.next();
         while (true) {
             auto pos = p.pos();
-            elems.push_back(p.save_pos(parse_rewrite_element(p), pos));
+            elems.push_back(p.save_pos(parse_rewrite_element(p, false), pos));
             if (!p.curr_is_token(get_comma_tk()))
                 break;
             p.next();
@@ -133,7 +138,7 @@ expr parse_rewrite_tactic(parser & p) {
             p.check_token_next(get_rangle_tk(), "invalid rewrite tactic, '⟩' expected");
     } else {
         auto pos = p.pos();
-        elems.push_back(p.save_pos(parse_rewrite_element(p), pos));
+        elems.push_back(p.save_pos(parse_rewrite_element(p, true), pos));
     }
     return mk_rewrite_tactic_expr(elems);
 }

@@ -4,7 +4,7 @@
 
 import .basic types.pi
 
-open function precategory eq prod equiv is_equiv sigma sigma.ops is_trunc
+open function precategory eq prod equiv is_equiv sigma sigma.ops is_trunc funext
 open pi
 
 structure functor (C D : Precategory) : Type :=
@@ -14,14 +14,99 @@ structure functor (C D : Precategory) : Type :=
   (respect_comp : Π {a b c : C} (g : hom b c) (f : hom a b),
     homF (g ∘ f) = homF g ∘ homF f)
 
-infixl `⇒`:25 := functor
-
 namespace functor
+
+  infixl `⇒`:25 := functor
   variables {C D E : Precategory}
 
   attribute obF [coercion]
   attribute homF [coercion]
 
+  -- The following lemmas will later be used to prove that the type of
+  -- precategories forms a precategory itself
+  protected definition compose (G : functor D E) (F : functor C D) : functor C E :=
+  functor.mk
+    (λ x, G (F x))
+    (λ a b f, G (F f))
+    (λ a, calc
+      G (F (ID a)) = G (ID (F a)) : {respect_id F a}
+               ... = ID (G (F a)) : respect_id G (F a))
+    (λ a b c g f, calc
+      G (F (g ∘ f)) = G (F g ∘ F f)     : respect_comp F g f
+                ... = G (F g) ∘ G (F f) : respect_comp G (F g) (F f))
+
+  infixr `∘f`:60 := compose
+
+  definition functor_eq_mk'' {F₁ F₂ : C → D} {H₁ : Π(a b : C), hom a b → hom (F₁ a) (F₁ b)}
+    {H₂ : Π(a b : C), hom a b → hom (F₂ a) (F₂ b)} (id₁ id₂ comp₁ comp₂)
+    (pF : F₁ = F₂) (pH : pF ▹ H₁ = H₂)
+      : functor.mk F₁ H₁ id₁ comp₁ = functor.mk F₂ H₂ id₂ comp₂ :=
+  apD01111 functor.mk pF pH !is_hprop.elim !is_hprop.elim
+
+  definition functor_eq_mk' {F₁ F₂ : C → D} {H₁ : Π(a b : C), hom a b → hom (F₁ a) (F₁ b)}
+    {H₂ : Π(a b : C), hom a b → hom (F₂ a) (F₂ b)} (id₁ id₂ comp₁ comp₂)
+    (pF : F₁ ∼ F₂) (pH : Π(a b : C) (f : hom a b), eq_of_homotopy pF ▹ (H₁ a b f) = H₂ a b f)
+      : functor.mk F₁ H₁ id₁ comp₁ = functor.mk F₂ H₂ id₂ comp₂ :=
+  functor_eq_mk'' id₁ id₂ comp₁ comp₂ (eq_of_homotopy pF)
+    (eq_of_homotopy (λc, eq_of_homotopy (λc', eq_of_homotopy (λf,
+      begin
+       apply concat, rotate_left 1, exact (pH c c' f),
+       apply concat, rotate_left 1,
+       exact (pi_transport_constant (eq_of_homotopy pF) (H₁ c c') f),
+       apply (apD10' f),
+       apply concat, rotate_left 1,
+       exact (pi_transport_constant (eq_of_homotopy pF) (H₁ c) c'),
+       apply (apD10' c'),
+       apply concat, rotate_left 1,
+       exact (pi_transport_constant (eq_of_homotopy pF) H₁ c),
+       apply idp
+      end))))
+
+  definition functor_eq_mk_constant {F : C → D} {H₁ : Π(a b : C), hom a b → hom (F a) (F b)}
+    {H₂ : Π(a b : C), hom a b → hom (F a) (F b)} (id₁ id₂ comp₁ comp₂)
+    (pH : Π(a b : C) (f : hom a b), H₁ a b f = H₂ a b f)
+      : functor.mk F H₁ id₁ comp₁ = functor.mk F H₂ id₂ comp₂ :=
+  functor_eq_mk'' id₁ id₂ comp₁ comp₂ idp
+                  (eq_of_homotopy (λc, eq_of_homotopy (λc', eq_of_homotopy (λf, pH c c' f))))
+
+  definition functor_eq_mk {F₁ F₂ : C ⇒ D} : Π(p : obF F₁ ∼ obF F₂),
+    (Π(a b : C) (f : hom a b), transport (λF, hom (F a) (F b)) (eq_of_homotopy p) (F₁ f) = F₂ f)
+      → F₁ = F₂ :=
+  functor.rec_on F₁ (λO₁ H₁ id₁ comp₁, functor.rec_on F₂ (λO₂ H₂ id₂ comp₂ p q, !functor_eq_mk' q))
+
+  -- protected definition congr
+  --   {C : Precategory} {D : Precategory}
+  --   (F : C → D)
+  --   (foo2 : Π ⦃a b : C⦄, hom a b → hom (F a) (F b))
+  --   (foo3a foo3b : Π (a : C), foo2 (ID a) = ID (F a))
+  --   (foo4a foo4b : Π {a b c : C} (g : @hom C C b c) (f : @hom C C a b),
+  --     foo2 (g ∘ f) = foo2 g ∘ foo2 f)
+  --   (p3 : foo3a = foo3b) (p4 : @foo4a = @foo4b)
+  --     : functor.mk F foo2 foo3a @foo4a = functor.mk F foo2 foo3b @foo4b
+  -- :=
+  -- begin
+  --   apply (eq.rec_on p3), intros,
+  --   apply (eq.rec_on p4), intros,
+  --   apply idp,
+  -- end
+
+
+  protected definition assoc {A B C D : Precategory} (H : functor C D) (G : functor B C) (F : functor A B) :
+      H ∘f (G ∘f F) = (H ∘f G) ∘f F :=
+  !functor_eq_mk_constant (λa b f, idp)
+
+  protected definition id {C : Precategory} : functor C C :=
+  mk (λa, a) (λ a b f, f) (λ a, idp) (λ a b c f g, idp)
+
+  protected definition ID (C : Precategory) : functor C C := id
+
+  protected definition id_left  (F : functor C D) : id ∘f F = F :=
+  functor.rec_on F (λF1 F2 F3 F4, !functor_eq_mk_constant (λa b f, idp))
+
+  protected definition id_right (F : functor C D) : F ∘f id = F :=
+  functor.rec_on F (λF1 F2 F3 F4, !functor_eq_mk_constant (λa b f, idp))
+
+  set_option apply.class_instance false
   -- "functor C D" is equivalent to a certain sigma type
   set_option unifier.max_steps 38500
   protected definition sigma_char :
@@ -31,25 +116,22 @@ namespace functor
     (Π {a b c : C} (g : hom b c) (f : hom a b),
       homF (g ∘ f) = homF g ∘ homF f)) ≃ (functor C D) :=
   begin
-    fapply equiv.mk,
+    fapply equiv.MK,
       {intro S, fapply functor.mk,
         exact (S.1), exact (S.2.1),
         exact (pr₁ S.2.2), exact (pr₂ S.2.2)},
-      {fapply adjointify,
-        {intro F,
-         cases F with (d1, d2, d3, d4),
-         exact (sigma.mk d1 (sigma.mk d2 (pair d3 (@d4))))},
-        {intro F,
-         cases F,
-         apply idp},
-        {intro S,
-         cases S with (d1, S2),
-         cases S2 with (d2, P1),
-         cases P1,
-         apply idp}},
+      {intro F,
+        cases F with (d1, d2, d3, d4),
+        exact (sigma.mk d1 (sigma.mk d2 (pair d3 (@d4))))},
+      {intro F,
+        cases F,
+        apply idp},
+      {intro S,
+        cases S with (d1, S2),
+        cases S2 with (d2, P1),
+        cases P1,
+        apply idp},
   end
-
-  set_option apply.class_instance false -- disable class instance resolution in the apply tactic
 
   protected definition strict_cat_has_functor_hset
     [HD : is_hset (objects D)] : is_hset (functor C D) :=
@@ -67,74 +149,7 @@ namespace functor
        apply is_trunc_eq, apply is_trunc_succ, apply !homH},
   end
 
-  -- The following lemmas will later be used to prove that the type of
-  -- precategories forms a precategory itself
-  protected definition compose (G : functor D E) (F : functor C D) : functor C E :=
-  functor.mk
-    (λ x, G (F x))
-    (λ a b f, G (F f))
-    (λ a, calc
-      G (F (ID a)) = G (ID (F a)) : {respect_id F a}
-               ... = ID (G (F a)) : respect_id G (F a))
-    (λ a b c g f, calc
-      G (F (g ∘ f)) = G (F g ∘ F f)     : respect_comp F g f
-                ... = G (F g) ∘ G (F f) : respect_comp G (F g) (F f))
-
-  infixr `∘f`:60 := compose
-
-  protected theorem congr
-    {C : Precategory} {D : Precategory}
-    (F : C → D)
-    (foo2 : Π ⦃a b : C⦄, hom a b → hom (F a) (F b))
-    (foo3a foo3b : Π (a : C), foo2 (ID a) = ID (F a))
-    (foo4a foo4b : Π {a b c : C} (g : @hom C C b c) (f : @hom C C a b),
-      foo2 (g ∘ f) = foo2 g ∘ foo2 f)
-    (p3 : foo3a = foo3b) (p4 : @foo4a = @foo4b)
-      : functor.mk F foo2 foo3a @foo4a = functor.mk F foo2 foo3b @foo4b
-  :=
-  by cases p3; cases p4; apply idp
-
-  protected theorem assoc {A B C D : Precategory} (H : functor C D) (G : functor B C) (F : functor A B) :
-      H ∘f (G ∘f F) = (H ∘f G) ∘f F :=
-  begin
-    cases H with (H1, H2, H3, H4),
-    cases G with (G1, G2, G3, G4),
-    cases F with (F1, F2, F3, F4),
-    fapply functor.congr,
-      {apply funext.eq_of_homotopy, intro a,
-       apply (@is_hset.elim), apply !homH},
-      {apply funext.eq_of_homotopy, intro a,
-       repeat (apply funext.eq_of_homotopy; intros),
-       apply (@is_hset.elim), apply !homH},
-  end
-
-  protected definition id {C : Precategory} : functor C C :=
-  mk (λa, a) (λ a b f, f) (λ a, idp) (λ a b c f g, idp)
-
-  protected definition ID (C : Precategory) : functor C C := id
-
-  protected theorem id_left  (F : functor C D) : id ∘f F = F :=
-  begin
-    cases F with (F1, F2, F3, F4),
-    fapply functor.congr,
-      {apply funext.eq_of_homotopy, intro a,
-       apply (@is_hset.elim), apply !homH},
-      {repeat (apply funext.eq_of_homotopy; intros),
-       apply (@is_hset.elim), apply !homH},
-  end
-
-  protected theorem id_right (F : functor C D) : F ∘f id = F :=
-  begin
-    cases F with (F1, F2, F3, F4),
-    fapply functor.congr,
-      {apply funext.eq_of_homotopy, intro a,
-       apply (@is_hset.elim), apply !homH},
-      {repeat (apply funext.eq_of_homotopy; intros),
-       apply (@is_hset.elim), apply !homH},
-  end
-
 end functor
-
 
 namespace precategory
   open functor
@@ -152,78 +167,9 @@ namespace precategory
 
   namespace ops
 
-    notation `PreCat`:max := Precat_of_strict_cats
+    abbreviation PreCat := Precat_of_strict_cats
     attribute precat_of_strict_precats [instance]
 
   end ops
 
 end precategory
-
-namespace functor
---  open category.ops
---   universes l m
-   variables {C D : Precategory}
---   check hom C D
---   variables (F : C ⟶ D) (G : D ⇒ C)
---   check G ∘ F
---   check F ∘f G
---   variables (a b : C) (f : a ⟶ b)
---   check F a
---   check F b
---   check F f
---   check G (F f)
---   print "---"
--- --  check (G ∘ F) f --error
---   check (λ(x : functor C C), x) (G ∘ F) f
---   check (G ∘f F) f
---   print "---"
--- --  check (G ∘ F) a --error
---   check (G ∘f F) a
---   print "---"
--- --  check λ(H : hom C D) (x : C), H x  --error
---   check λ(H : @hom _ Cat C D) (x : C), H x
---   check λ(H : C ⇒ D) (x : C), H x
---   print "---"
---   -- variables {obF obG : C → D} (Hob : ∀x, obF x = obG x) (homF : Π(a b : C) (f : a ⟶ b), obF a ⟶ obF b) (homG : Π(a b : C) (f : a ⟶ b), obG a ⟶ obG b)
--- --  check eq.rec_on (funext Hob) homF = homG
-
-  /-theorem mk_heq {obF obG : C → D} {homF homG idF idG compF compG} (Hob : ∀x, obF x = obG x)
-     (Hmor : ∀(a b : C) (f : a ⟶ b), homF a b f == homG a b f)
-       : mk obF homF idF compF = mk obG homG idG compG :=
-  hddcongr_arg4 mk
-              (funext Hob)
-              (hfunext (λ a, hfunext (λ b, hfunext (λ f, !Hmor))))
-              !proof_irrel
-              !proof_irrel
-
-  protected theorem hequal {F G : C ⇒ D} : Π (Hob : ∀x, F x = G x)
-      (Hmor : ∀a b (f : a ⟶ b), F f == G f), F = G :=
-  functor.rec
-    (λ obF homF idF compF,
-      functor.rec
-        (λ obG homG idG compG Hob Hmor, mk_heq Hob Hmor)
-      G)
-    F-/
-
---   theorem mk_eq {obF obG : C → D} {homF homG idF idG compF compG} (Hob : ∀x, obF x = obG x)
---      (Hmor : ∀(a b : C) (f : a ⟶ b), cast (congr_arg (λ x, x a ⟶ x b) (funext Hob)) (homF a b f)
---                                        = homG a b f)
---        : mk obF homF idF compF = mk obG homG idG compG :=
---   dcongr_arg4 mk
---               (funext Hob)
---               (funext (λ a, funext (λ b, funext (λ f, sorry ⬝ Hmor a b f))))
--- -- to fill this sorry use (a generalization of) cast_pull
---               !proof_irrel
---               !proof_irrel
-
---   protected theorem equal {F G : C ⇒ D} : Π (Hob : ∀x, F x = G x)
---       (Hmor : ∀a b (f : a ⟶ b), cast (congr_arg (λ x, x a ⟶ x b) (funext Hob)) (F f) = G f), F = G :=
---   functor.rec
---     (λ obF homF idF compF,
---       functor.rec
---         (λ obG homG idG compG Hob Hmor, mk_eq Hob Hmor)
---       G)
---     F
-
-
-end functor

@@ -29,7 +29,7 @@ namespace is_trunc
   postfix `.+1`:(max+1) := trunc_index.succ
   postfix `.+2`:(max+1) := λn, (n .+1 .+1)
   notation `-2` := trunc_index.minus_two
-  notation `-1` := -2.+1
+  notation `-1` := -2.+1 -- ISSUE: -1 gets printed as -2.+1
   export [coercions] nat
 
   namespace trunc_index

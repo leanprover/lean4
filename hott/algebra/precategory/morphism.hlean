@@ -26,6 +26,8 @@ namespace morphism
   is_iso.rec (λg h1 h2, g) H
 
   postfix `⁻¹` := inverse
+  --a second notation for the inverse, which is not overloaded
+  postfix [parsing-only] `⁻¹ʰ`:100 := inverse
 
   theorem inverse_compose (f : a ⟶ b) [H : is_iso f] : f⁻¹ ∘ f = id :=
   is_iso.rec (λg h1 h2, h1) H

@@ -7,7 +7,7 @@ import ..path ..trunc ..equiv .funext
 
 open eq is_trunc sigma function
 
-/- In hott.axioms.funext, we defined function extensionality to be the assertion
+/- In init.axioms.funext, we defined function extensionality to be the assertion
    that the map apD10 is an equivalence.   We now prove that this follows
    from a couple of weaker-looking forms of function extensionality.  We do
    require eta conversion, which Coq 8.4+ has judgmentally.
@@ -15,19 +15,17 @@ open eq is_trunc sigma function
    This proof is originally due to Voevodsky; it has since been simplified
    by Peter Lumsdaine and Michael Shulman. -/
 
+definition funext.{l k} :=
+  Π ⦃A : Type.{l}⦄ {P : A → Type.{k}} (f g : Π x, P x), is_equiv (@apD10 A P f g)
+
 -- Naive funext is the simple assertion that pointwise equal functions are equal.
 -- TODO think about universe levels
 definition naive_funext :=
-  Π {A : Type} {P : A → Type} (f g : Πx, P x), (f ∼ g) → f = g
+  Π ⦃A : Type⦄ {P : A → Type} (f g : Πx, P x), (f ∼ g) → f = g
 
 -- Weak funext says that a product of contractible types is contractible.
 definition weak_funext :=
-  Π {A : Type} (P : A → Type) [H: Πx, is_contr (P x)], is_contr (Πx, P x)
-
--- The obvious implications are Funext -> NaiveFunext -> WeakFunext
--- TODO: Get class inference to work locally
-definition naive_funext_from_funext [F : funext] : naive_funext :=
-  (λ A P f g h, funext.eq_of_homotopy h)
+  Π ⦃A : Type⦄ (P : A → Type) [H: Πx, is_contr (P x)], is_contr (Πx, P x)
 
 definition weak_funext_of_naive_funext : naive_funext → weak_funext :=
   (λ nf A P (Pc : Πx, is_contr (P x)),
@@ -48,7 +46,7 @@ definition weak_funext_of_naive_funext : naive_funext → weak_funext :=
 
 context
   universes l k
-  parameters [wf : weak_funext.{l k}] {A : Type.{l}} {B : A → Type.{k}} (f : Π x, B x)
+  parameters (wf : weak_funext.{l k}) {A : Type.{l}} {B : A → Type.{k}} (f : Π x, B x)
 
   definition is_contr_sigma_homotopy [instance] : is_contr (Σ (g : Π x, B x), f ∼ g) :=
     is_contr.mk (sigma.mk f (homotopy.refl f))
@@ -90,7 +88,7 @@ universe variables l k
 
 local attribute weak_funext [reducible]
 theorem funext_of_weak_funext (wf : weak_funext.{l k}) : funext.{l k} :=
-  funext.mk (λ A B f g,
+  λ A B f g,
     let eq_to_f := (λ g' x, f = g') in
     let sim2path := homotopy_ind f eq_to_f idp in
     have t1 : sim2path f (homotopy.refl f) = idp,
@@ -101,7 +99,7 @@ theorem funext_of_weak_funext (wf : weak_funext.{l k}) : funext.{l k} :=
       proof (homotopy_ind f (λ g' x, apD10 (sim2path g' x) = x) t2) g qed,
     have retr : (sim2path g) ∘ apD10 ∼ id,
       from (λ h, eq.rec_on h (homotopy_ind_comp f _ idp)),
-    is_equiv.adjointify apD10 (sim2path g) sect retr)
+    is_equiv.adjointify apD10 (sim2path g) sect retr
 
 definition funext_from_naive_funext : naive_funext -> funext :=
   compose funext_of_weak_funext weak_funext_of_naive_funext

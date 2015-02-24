@@ -1,14 +1,17 @@
--- Copyright (c) 2014 Floris van Doorn. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Authors: Floris van Doorn, Jakob von Raumer
+/-
+Copyright (c) 2014 Floris van Doorn. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
 
--- This file contains basic constructions on precategories, including common precategories
+Module: algebra.precategory.constructions
+Authors: Floris van Doorn, Jakob von Raumer
 
+This file contains basic constructions on precategories, including common precategories
+-/
 
 import .nat_trans
 import types.prod types.sigma types.pi
 
-open eq prod eq eq.ops equiv is_trunc funext
+open eq prod eq eq.ops equiv is_trunc
 
 namespace precategory
   namespace opposite
@@ -40,7 +43,7 @@ namespace precategory
   begin
     apply (precategory.rec_on C), intros (hom', homH', comp', ID', assoc', id_left', id_right'),
     apply (ap (λassoc'', precategory.mk hom' @homH' comp' ID' assoc'' id_left' id_right')),
-    repeat ( apply funext.eq_of_homotopy ; intros ),
+    repeat (apply eq_of_homotopy ; intros ),
     apply ap,
     apply (@is_hset.elim), apply !homH',
   end
@@ -149,22 +152,65 @@ namespace precategory
   definition Precategory_hset [reducible] : Precategory :=
   Precategory.mk hset precategory_hset
 
+  section precategory_functor
+    open morphism functor nat_trans
+    definition precategory_functor [instance] [reducible] (C D : Precategory)
+      : precategory (functor C D) :=
+    mk (λa b, nat_trans a b)
+       (λ a b, @nat_trans.to_hset C D a b)
+       (λ a b c g f, nat_trans.compose g f)
+       (λ a, nat_trans.id)
+       (λ a b c d h g f, !nat_trans.assoc)
+       (λ a b f, !nat_trans.id_left)
+       (λ a b f, !nat_trans.id_right)
+
+    definition Precategory_functor [reducible] (C D : Precategory) : Precategory :=
+    Mk (precategory_functor C D)
+
+    definition Precategory_functor_rev [reducible] (C D : Precategory) : Precategory :=
+    Precategory_functor D C
+
+    /- we prove that if a natural transformation is pointwise an iso, then it is an iso -/
+    variables {C D : Precategory} {F G : C ⇒ D} (η : F ⟹ G) [iso : Π(a : C), is_iso (η a)]
+    include iso
+    definition nat_trans_inverse : G ⟹ F :=
+    nat_trans.mk
+      (λc, (η c)⁻¹)
+      (λc d f,
+      begin
+        apply iso.con_inv_eq_of_eq_con,
+        apply concat, rotate_left 1, apply assoc,
+        apply iso.eq_inv_con_of_con_eq,
+        apply inverse,
+        apply naturality,
+      end)
+    definition nat_trans_left_inverse : nat_trans_inverse η ∘n η = nat_trans.id :=
+    begin
+    fapply (apD011 nat_trans.mk),
+      apply eq_of_homotopy, intro c, apply inverse_compose,
+    apply eq_of_homotopy, intros, apply eq_of_homotopy, intros, apply eq_of_homotopy, intros,
+    apply is_hset.elim
+    end
+
+    definition nat_trans_right_inverse : η ∘n nat_trans_inverse η = nat_trans.id :=
+    begin
+    fapply (apD011 nat_trans.mk),
+      apply eq_of_homotopy, intro c, apply compose_inverse,
+    apply eq_of_homotopy, intros, apply eq_of_homotopy, intros, apply eq_of_homotopy, intros,
+    apply is_hset.elim
+    end
+
+    definition nat_trans_is_iso.mk : is_iso η :=
+    is_iso.mk (nat_trans_left_inverse η) (nat_trans_right_inverse η)
+
+  end precategory_functor
+
   namespace ops
-  infixr `×f`:30 := product.prod_functor
-  infixr `ᵒᵖᶠ`:max := opposite.opposite_functor
   abbreviation set := Precategory_hset
+  infixr `^c`:35 := Precategory_functor_rev
+  infixr `×f`:30 := product.prod_functor
+  infixr `ᵒᵖᶠ`:(max+1) := opposite.opposite_functor
   end ops
 
-  section precategory_functor
-  variables (C D : Precategory)
-  definition precategory_functor [reducible] : precategory (functor C D) :=
-  mk (λa b, nat_trans a b)
-     (λ a b, @nat_trans.to_hset C D a b)
-     (λ a b c g f, nat_trans.compose g f)
-     (λ a, nat_trans.id)
-     (λ a b c d h g f, !nat_trans.assoc)
-     (λ a b f, !nat_trans.id_left)
-     (λ a b f, !nat_trans.id_right)
-  end precategory_functor
 
 end precategory

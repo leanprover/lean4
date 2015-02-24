@@ -42,6 +42,9 @@ namespace eq
 
   notation p₁ ⬝ p₂ := concat p₁ p₂
   notation p ⁻¹ := inverse p
+  --a second notation for the inverse, which is not overloaded
+  postfix [parsing-only] `⁻¹ᵖ`:100 := inverse
+
 
   /- The 1-dimensional groupoid structure -/
 
@@ -207,6 +210,10 @@ namespace eq
 
   definition apD10 {f g : Πx, P x} (H : f = g) : f ∼ g :=
   λx, eq.rec_on H idp
+
+  --the next theorem is useful if you want to write "apply (apD10' a)"
+  definition apD10' {f g : Πx, P x} (a : A) (H : f = g) : f a = g a :=
+  eq.rec_on H idp
 
   definition ap10 {f g : A → B} (H : f = g) : f ∼ g := apD10 H
 
@@ -639,31 +646,40 @@ namespace eq
 end eq
 
 namespace eq
-variables {A B C D E : Type} {a a' : A} {b b' : B} {c c' : C} {d d' : D}
+  section
+    variables {A B C D E : Type} {a a' : A} {b b' : B} {c c' : C} {d d' : D}
 
-theorem ap011 (f : A → B → C) (Ha : a = a') (Hb : b = b') : f a b = f a' b' :=
-eq.rec_on Ha (eq.rec_on Hb idp)
+    definition ap011 (f : A → B → C) (Ha : a = a') (Hb : b = b') : f a b = f a' b' :=
+    eq.rec_on Ha (eq.rec_on Hb idp)
 
-theorem ap0111 (f : A → B → C → D) (Ha : a = a') (Hb : b = b') (Hc : c = c')
-    : f a b c = f a' b' c' :=
-eq.rec_on Ha (ap011 (f a) Hb Hc)
+    definition ap0111 (f : A → B → C → D) (Ha : a = a') (Hb : b = b') (Hc : c = c')
+        : f a b c = f a' b' c' :=
+    eq.rec_on Ha (ap011 (f a) Hb Hc)
 
-theorem ap01111 (f : A → B → C → D → E) (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d')
-    : f a b c d = f a' b' c' d' :=
-eq.rec_on Ha (ap0111 (f a) Hb Hc Hd)
+    definition ap01111 (f : A → B → C → D → E) (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d')
+        : f a b c d = f a' b' c' d' :=
+    eq.rec_on Ha (ap0111 (f a) Hb Hc Hd)
+  end
+  section
+    variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type}
+              {E : Πa b c, D a b c → Type} {F : Type}
+    variables {a a' : A}
+              {b : B a} {b' : B a'}
+              {c : C a b} {c' : C a' b'}
+              {d : D a b c} {d' : D a' b' c'}
 
-end eq
+    definition apD011 (f : Πa, B a → F) (Ha : a = a') (Hb : (Ha ▹ b) = b')
+        : f a b = f a' b' :=
+    eq.rec_on Hb (eq.rec_on Ha idp)
 
-namespace eq
-variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type}
-          {E : Πa b c, D a b c → Type} {F : Type}
-variables {a a' : A}
-          {b : B a} {b' : B a'}
-          {c : C a b} {c' : C a' b'}
-          {d : D a b c} {d' : D a' b' c'}
+    definition apD0111 (f : Πa b, C a b → F) (Ha : a = a') (Hb : (Ha ▹ b) = b')
+      (Hc : apD011 C Ha Hb ▹ c = c')
+        : f a b c = f a' b' c' :=
+    eq.rec_on Hc (eq.rec_on Hb (eq.rec_on Ha idp))
 
-theorem apD011 (f : Πa, B a → F) (Ha : a = a') (Hb : (Ha ▹ b) = b')
-    : f a b = f a' b' :=
-eq.rec_on Hb (eq.rec_on Ha idp)
-
+    definition apD01111 (f : Πa b c, D a b c → F) (Ha : a = a') (Hb : (Ha ▹ b) = b')
+      (Hc : apD011 C Ha Hb ▹ c = c') (Hd : apD0111 D Ha Hb Hc ▹ d = d')
+        : f a b c d = f a' b' c' d' :=
+    eq.rec_on Hd (eq.rec_on Hc (eq.rec_on Hb (eq.rec_on Ha idp)))
+  end
 end eq

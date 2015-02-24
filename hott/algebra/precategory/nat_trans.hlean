@@ -2,18 +2,18 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Floris van Doorn, Jakob von Raumer
 
-import .functor
-open eq precategory functor is_trunc equiv sigma.ops sigma is_equiv function pi
+import .functor .morphism
+open eq precategory functor is_trunc equiv sigma.ops sigma is_equiv function pi funext
 
 inductive nat_trans {C D : Precategory} (F G : C ⇒ D) : Type :=
 mk : Π (η : Π (a : C), hom (F a) (G a))
   (nat : Π {a b : C} (f : hom a b), G f ∘ η a = η b ∘ F f),
   nat_trans F G
 
-infixl `⟹`:25 := nat_trans -- \==>
-
 namespace nat_trans
-  variables {C D : Precategory} {F G H I : functor C D}
+
+  infixl `⟹`:25 := nat_trans -- \==>
+  variables {C D : Precategory} {F G H I : C ⇒ D}
 
   definition natural_map [coercion] (η : F ⟹ G) : Π (a : C), F a ⟶ G a :=
   nat_trans.rec (λ x y, x) η
@@ -34,58 +34,33 @@ namespace nat_trans
 
   infixr `∘n`:60 := compose
 
-  protected theorem congr
-    {C : Precategory} {D : Precategory}
-    (F G : C ⇒ D)
-    (η₁ η₂ : Π (a : C), hom (F a) (G a))
+  local attribute is_hprop_eq_hom [instance]
+  definition nat_trans_eq_mk' {η₁ η₂ : Π (a : C), hom (F a) (G a)}
     (nat₁ : Π (a b : C) (f : hom a b), G f ∘ η₁ a = η₁ b ∘ F f)
     (nat₂ : Π (a b : C) (f : hom a b), G f ∘ η₂ a = η₂ b ∘ F f)
-    (p₁ : η₁ = η₂) (p₂ : p₁ ▹ nat₁ = nat₂)
-    : @nat_trans.mk C D F G η₁ nat₁ = @nat_trans.mk C D F G η₂ nat₂
-  :=
-  begin
-    apply (apD011 (@nat_trans.mk C D F G) p₁ p₂),
-  end
+    (p : η₁ ∼ η₂)
+      : nat_trans.mk η₁ nat₁ = nat_trans.mk η₂ nat₂ :=
+  apD011 nat_trans.mk (eq_of_homotopy p) !is_hprop.elim
 
-  set_option apply.class_instance false -- disable class instance resolution in the apply tactic
+  definition nat_trans_eq_mk {η₁ η₂ : F ⟹ G} : natural_map η₁ ∼ natural_map η₂ → η₁ = η₂ :=
+  nat_trans.rec_on η₁ (λf₁ nat₁, nat_trans.rec_on η₂ (λf₂ nat₂ p, !nat_trans_eq_mk' p))
 
   protected definition assoc (η₃ : H ⟹ I) (η₂ : G ⟹ H) (η₁ : F ⟹ G) :
       η₃ ∘n (η₂ ∘n η₁) = (η₃ ∘n η₂) ∘n η₁ :=
-  begin
-    cases η₃, cases η₂, cases η₁,
-    fapply nat_trans.congr,
-      {apply funext.eq_of_homotopy, intro a,
-       apply assoc},
-      {repeat (apply funext.eq_of_homotopy; intros),
-       apply (@is_hset.elim), apply !homH},
-  end
+  nat_trans_eq_mk (λa, !assoc)
 
   protected definition id {C D : Precategory} {F : functor C D} : nat_trans F F :=
-  mk (λa, id) (λa b f, !id_right ⬝ (!id_left⁻¹))
+  mk (λa, id) (λa b f, !id_right ⬝ !id_left⁻¹)
 
   protected definition ID {C D : Precategory} (F : functor C D) : nat_trans F F :=
   id
 
   protected definition id_left (η : F ⟹ G) : id ∘n η = η :=
-  begin
-    cases η,
-    fapply (nat_trans.congr F G),
-      {apply funext.eq_of_homotopy, intro a,
-       apply id_left},
-      {repeat (apply funext.eq_of_homotopy; intros),
-       apply (@is_hset.elim), apply !homH},
-  end
+  nat_trans_eq_mk (λa, !id_left)
 
   protected definition id_right (η : F ⟹ G) : η ∘n id = η :=
-  begin
-    cases η,
-    fapply (nat_trans.congr F G),
-      {apply funext.eq_of_homotopy, intros, apply id_right},
-      {repeat (apply funext.eq_of_homotopy; intros),
-       apply (@is_hset.elim), apply !homH},
-  end
+  nat_trans_eq_mk (λa, !id_right)
 
-  --set_option pp.implicit true
   protected definition sigma_char (F G : C ⇒ D) :
     (Σ (η : Π (a : C), hom (F a) (G a)), Π (a b : C) (f : hom a b), G f ∘ η a = η b ∘ F f) ≃  (F ⟹ G) :=
   begin
@@ -96,20 +71,15 @@ namespace nat_trans
           fapply sigma.mk,
             intro a, exact (H a),
           intros (a, b, f), exact (naturality H f),
-    intro H, apply (nat_trans.rec_on H),
-    intros (eta, nat), unfold function.id,
-    fapply nat_trans.congr,
-        apply idp,
-      repeat ( apply funext.eq_of_homotopy ; intros ),
-      apply (@is_hset.elim), apply !homH,
+    intro η, apply nat_trans_eq_mk, intro a, apply idp,
     intro S,
     fapply sigma_eq,
-      apply funext.eq_of_homotopy, intro a,
+      apply eq_of_homotopy, intro a,
       apply idp,
-    repeat ( apply funext.eq_of_homotopy ; intros ),
-    apply (@is_hset.elim), apply !homH,
+    apply is_hprop.elim,
   end
 
+  set_option apply.class_instance false
   protected definition to_hset : is_hset (F ⟹ G) :=
   begin
     apply is_trunc_is_equiv_closed, apply (equiv.to_is_equiv !sigma_char),

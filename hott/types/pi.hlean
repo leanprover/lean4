@@ -11,8 +11,7 @@ import types.sigma
 open eq equiv is_equiv funext
 
 namespace pi
-  universe variables l k
-  variables {A A' : Type.{l}} {B : A → Type.{k}} {B' : A' → Type.{k}} {C : Πa, B a → Type}
+  variables {A A' : Type} {B : A → Type} {B' : A' → Type} {C : Πa, B a → Type}
             {D : Πa b, C a b → Type}
             {a a' a'' : A} {b b₁ b₂ : B a} {b' : B a'} {b'' : B a''} {f g : Πa, B a}
 
@@ -36,10 +35,10 @@ namespace pi
   /- The identification of the path space of a dependent function space, up to equivalence, is of course just funext. -/
 
   definition eq_equiv_homotopy (f g : Πx, B x) : (f = g) ≃ (f ∼ g) :=
-  equiv.mk _ !funext.elim
+  equiv.mk _ !is_equiv_apD
 
   definition is_equiv_eq_of_homotopy [instance] (f g : Πx, B x)
-      : is_equiv (@eq_of_homotopy _ _ _ f g) :=
+      : is_equiv (@eq_of_homotopy _ _ f g) :=
   is_equiv_inv apD10
 
   definition homotopy_equiv_eq (f g : Πx, B x) : (f ∼ g) ≃ (f = g) :=
@@ -56,7 +55,7 @@ namespace pi
   /- A special case of [transport_pi] where the type [B] does not depend on [A],
       and so it is just a fixed type [B]. -/
   definition pi_transport_constant {C : A → A' → Type} (p : a = a') (f : Π(b : A'), C a b)
-    : (transport (λa, Π(b : A'), C a b) p f) ∼ (λb, transport (λa, C a b) p (f b)) :=
+    : Π(b : A'), (transport (λa, Π(b : A'), C a b) p f) b = transport (λa, C a b) p (f b) :=
   eq.rec_on p (λx, idp)
 
   /- Maps on paths -/
@@ -79,7 +78,7 @@ namespace pi
     (g : Π(b' : B a'), C a' b') : (Π(b : B a), p ▹D (f b) = g (p ▹ b)) ≃ (p ▹ f = g) :=
   eq.rec_on p (λg, !homotopy_equiv_eq) g
 
-  definition heq_pi {C : A → Type.{k}} (p : a = a') (f : Π(b : B a), C a)
+  definition heq_pi {C : A → Type} (p : a = a') (f : Π(b : B a), C a)
     (g : Π(b' : B a'), C a') : (Π(b : B a), p ▹ (f b) = g (p ▹ b)) ≃ (p ▹ f = g) :=
   eq.rec_on p (λg, !homotopy_equiv_eq) g
 
@@ -155,7 +154,7 @@ namespace pi
   /- Truncatedness: any dependent product of n-types is an n-type -/
 
   open is_trunc
-  definition is_trunc_pi [instance] [H : funext.{l k}] (B : A → Type.{k}) (n : trunc_index)
+  definition is_trunc_pi [instance] (B : A → Type) (n : trunc_index)
       [H : ∀a, is_trunc n (B a)] : is_trunc n (Πa, B a) :=
   begin
     reverts (B, H),
@@ -175,7 +174,7 @@ namespace pi
               is_trunc_eq n (f a) (g a)}
   end
 
-  definition is_trunc_eq_pi [instance] [H : funext.{l k}] (n : trunc_index) (f g : Πa, B a)
+  definition is_trunc_eq_pi [instance] (n : trunc_index) (f g : Πa, B a)
       [H : ∀a, is_trunc n (f a = g a)] : is_trunc n (f = g) :=
   begin
     apply is_trunc_equiv_closed, apply equiv.symm,

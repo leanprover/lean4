@@ -9,7 +9,7 @@ Author: Floris van Doorn
 --note: modify definition in category.set
 import .constructions .morphism
 
-open eq precategory equiv is_equiv is_trunc
+open eq precategory functor is_trunc equiv is_equiv pi
 open is_trunc.trunctype funext precategory.ops prod.ops
 
 set_option pp.beta true
@@ -36,42 +36,63 @@ namespace yoneda
              end
 end yoneda
 
-attribute precategory_functor [instance] [reducible]
-namespace nat_trans
-  open morphism functor
-  variables {C D : Precategory} {F G : C ⇒ D} (η : F ⟹ G) (H : Π(a : C), is_iso (η a))
-  include H
-  definition nat_trans_inverse : G ⟹ F :=
-  nat_trans.mk
-    (λc, (η c)⁻¹)
-    (λc d f,
-    begin
-      apply iso.con_inv_eq_of_eq_con,
-      apply concat, rotate_left 1, apply assoc,
-      apply iso.eq_inv_con_of_con_eq,
-      apply inverse,
-      apply naturality,
-    end)
 
-  definition nat_trans_left_inverse : nat_trans_inverse η H ∘ η = nat_trans.id :=
-  begin
-  fapply (apD011 nat_trans.mk),
-    apply eq_of_homotopy, intro c, apply inverse_compose,
-  apply eq_of_homotopy, intros, apply eq_of_homotopy, intros, apply eq_of_homotopy, intros, fapply is_hset.elim
-  end
 
-  definition nat_trans_right_inverse : η ∘ nat_trans_inverse η H = nat_trans.id :=
-  begin
-  fapply (apD011 nat_trans.mk),
-    apply eq_of_homotopy, intro c, apply compose_inverse,
-  apply eq_of_homotopy, intros, apply eq_of_homotopy, intros, apply eq_of_homotopy, intros, fapply is_hset.elim
-  end
 
-  definition nat_trans_is_iso.mk : is_iso η :=
-  is_iso.mk (nat_trans_left_inverse η H) (nat_trans_right_inverse η H)
+namespace functor
+  open prod nat_trans
+  variables {C D E : Precategory}
 
-end nat_trans
+  definition functor_curry_ob (F : C ×c D ⇒ E) (c : C) : E ^c D :=
+  functor.mk (λd, F (c,d))
+             (λd d' g, F (id, g))
+             (λd, !respect_id)
+             (λd₁ d₂ d₃ g' g, proof calc
+               F (id, g' ∘ g) = F (id ∘ id, g' ∘ g) : {(id_compose c)⁻¹}
+                 ... = F ((id,g') ∘ (id, g)) : idp
+                 ... = F (id,g') ∘ F (id, g) : respect_comp F qed)
 
+  local abbreviation Fob := @functor_curry_ob
+  definition functor_curry_mor (F : C ×c D ⇒ E) ⦃c c' : C⦄ (f : c ⟶ c') : Fob F c ⟹ Fob F c'  :=
+  nat_trans.mk (λd, F (f, id))
+               (λd d' g, proof calc
+                 F (id, g) ∘ F (f, id) = F (id ∘ f, g ∘ id) : respect_comp F
+                   ... = F (f, g ∘ id) : {id_left f}
+                   ... = F (f, g) : {id_right g}
+                   ... = F (f ∘ id, g) : {(id_right f)⁻¹}
+                   ... = F (f ∘ id, id ∘ g) : {(id_left g)⁻¹}
+                   ... = F (f, id) ∘ F (id, g) :  (respect_comp F (f, id) (id, g))⁻¹ᵖ
+            qed)
+
+  local abbreviation Fmor := @functor_curry_mor
+  definition functor_curry_mor_def (F : C ×c D ⇒ E) ⦃c c' : C⦄ (f : c ⟶ c') (d : D) :
+    (Fmor F f) d = F (f, id) := idp
+
+  definition functor_curry_id (F : C ×c D ⇒ E) (c : C) : Fmor F (ID c) = nat_trans.id :=
+  nat_trans_eq_mk (λd, respect_id F _)
+
+  definition functor_curry_comp (F : C ×c D ⇒ E) ⦃c c' c'' : C⦄ (f' : c' ⟶ c'') (f : c ⟶ c')
+    : Fmor F (f' ∘ f) = Fmor F f' ∘n Fmor F f :=
+  nat_trans_eq_mk (λd, calc
+                    natural_map (Fmor F (f' ∘ f)) d = F (f' ∘ f, id) : functor_curry_mor_def
+                      ... = F (f' ∘ f, id ∘ id) : {(id_compose d)⁻¹}
+                      ... = F ((f',id) ∘ (f, id)) : idp
+                      ... = F (f',id) ∘ F (f, id) : respect_comp F
+                      ... = natural_map ((Fmor F f') ∘ (Fmor F f)) d : idp)
+
+--respect_comp F (g, id) (f, id)
+  definition functor_curry (F : C ×c D ⇒ E) : C ⇒ E ^c D :=
+  functor.mk (functor_curry_ob F)
+             (functor_curry_mor F)
+             (functor_curry_id F)
+             (functor_curry_comp F)
+
+
+  definition is_equiv_functor_curry : is_equiv (@functor_curry C D E) := sorry
+
+  definition equiv_functor_curry : (C ×c D ⇒ E) ≃ (C ⇒ E ^c D) :=
+  equiv.mk _ !is_equiv_functor_curry
+end functor
 -- Coq uses unit/counit definitions as basic
 
 -- open yoneda precategory.product precategory.opposite functor morphism

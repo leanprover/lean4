@@ -19,9 +19,9 @@ namespace precategory
                 intros, apply is_trunc_pi, intros, apply b.2,
               intros, intro x, exact (a_1 (a_2 x)),
             intros, exact (λ (x : a.1), x),
-          intros, apply funext.eq_of_homotopy, intro x, apply idp,
-        intros, apply funext.eq_of_homotopy, intro x, apply idp,
-      intros, apply funext.eq_of_homotopy, intro x, apply idp,
+          intros, apply eq_of_homotopy, intro x, apply idp,
+        intros, apply eq_of_homotopy, intro x, apply idp,
+      intros, apply eq_of_homotopy, intro x, apply idp,
   end
 
 end precategory

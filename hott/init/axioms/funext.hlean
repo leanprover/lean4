@@ -10,9 +10,12 @@ open eq
 -- ------
 
 -- Define function extensionality as a type class
-structure funext [class] : Type  :=
-(elim : Π (A : Type) (P : A → Type ) (f g : Π x, P x), is_equiv (@apD10 A P f g))
-
+-- structure funext [class] : Type  :=
+-- (elim : Π (A : Type) (P : A → Type ) (f g : Π x, P x), is_equiv (@apD10 A P f g))
+-- set_option pp.universes true
+-- check @funext.mk
+-- check @funext.elim
+exit
 
 namespace funext
 

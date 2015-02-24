@@ -200,7 +200,7 @@ order for the change to take effect."
   ("eqn" . ,(lean-input-to-string-list "≠≁ ≉     ≄  ≇≆  ≢                 ≭    "))
 
                     ("=n"  . ("≠"))
-  ("~"    . ("∼"))  ("~n"  . ("≁"))
+  ("~"    . ("∼"))  ("~n"  . ("≁")) ("homotopy"    . ("∼"))
   ("~~"   . ("≈"))  ("~~n" . ("≉"))
   ("~~~"  . ("≋"))
   (":~"   . ("∻"))
@@ -317,10 +317,15 @@ order for the change to take effect."
   ("clr" . ("⌟"))  ("clR" . ("⌋"))
 
   ;; Various operators/symbols.
-  ("tr"        . ("⬝"))
+  ("tr"        . ,(lean-input-to-string-list "⬝▹"))
+  ("con"       . ("⬝"))
+  ("cdot"      . ("⬝"))
   ("sy"        . ("⁻¹"))
   ("inv"       . ("⁻¹"))
-  ("-1"       . ("⁻¹"))
+  ("-1"        . ("⁻¹"))
+  ("-1p"       . ("⁻¹ᵖ"))
+  ("-1e"       . ("⁻¹ᵉ"))
+  ("-1h"       . ("⁻¹ʰ"))
   ("qed"       . ("∎"))
   ("x"         . ("×"))
   ("o"         . ("∘"))
@@ -373,7 +378,7 @@ order for the change to take effect."
 
   ;; Arrows.
 
-  ("l"  . ,(lean-input-to-string-list "←⇐⇚⇇⇆↤⇦↞↼↽⇠⇺↜⇽⟵⟸↚⇍⇷ ↹     ↢↩↫⇋⇜⇤⟻⟽⤆↶↺⟲                                     "))
+  ("l"  . ,(lean-input-to-string-list "λ←⇐⇚⇇⇆↤⇦↞↼↽⇠⇺↜⇽⟵⟸↚⇍⇷ ↹     ↢↩↫⇋⇜⇤⟻⟽⤆↶↺⟲                                     "))
   ("r"  . ,(lean-input-to-string-list "→⇒⇛⇉⇄↦⇨↠⇀⇁⇢⇻↝⇾⟶⟹↛⇏⇸⇶ ↴    ↣↪↬⇌⇝⇥⟼⟾⤇↷↻⟳⇰⇴⟴⟿ ➵➸➙➔➛➜➝➞➟➠➡➢➣➤➧➨➩➪➫➬➭➮➯➱➲➳➺➻➼➽➾⊸"))
   ("u"  . ,(lean-input-to-string-list "↑⇑⟰⇈⇅↥⇧↟↿↾⇡⇞          ↰↱➦ ⇪⇫⇬⇭⇮⇯                                           "))
   ("d"  . ,(lean-input-to-string-list "↓⇓⟱⇊⇵↧⇩↡⇃⇂⇣⇟         ↵↲↳➥ ↯                                                "))
@@ -442,6 +447,7 @@ order for the change to take effect."
 
   ("t" . ,(lean-input-to-string-list "▸▹►▻◂◃◄◅▴▵▾▿◢◿◣◺◤◸◥◹"))
   ("Tr" . ,(lean-input-to-string-list "◀◁▶▷▲△▼▽◬◭◮"))
+  ("transport" . ("▹"))
 
   ("tb" . ,(lean-input-to-string-list "◂▸▴▾◄►◢◣◤◥"))
   ("tw" . ,(lean-input-to-string-list "◃▹▵▿◅▻◿◺◸◹"))

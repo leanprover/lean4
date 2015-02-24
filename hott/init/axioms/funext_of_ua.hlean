@@ -126,5 +126,25 @@ theorem weak_funext_of_ua : weak_funext :=
 )
 
 -- In the following we will proof function extensionality using the univalence axiom
-definition funext_of_ua [instance] : funext :=
+definition funext_of_ua : funext :=
   funext_of_weak_funext (@weak_funext_of_ua)
+
+namespace funext
+definition is_equiv_apD [instance] {A : Type} {P : A → Type} (f g : Π x, P x)
+  : is_equiv (@apD10 A P f g) :=
+funext_of_ua f g
+end funext
+
+open funext
+
+definition eq_of_homotopy {A : Type} {P : A → Type} {f g : Π x, P x} : f ∼ g → f = g :=
+is_equiv.inv (@apD10 A P f g)
+
+definition eq_of_homotopy2 {A B : Type} {P : A → B → Type}
+  (f g : Πx y, P x y) : (Πx y, f x y = g x y) → f = g :=
+λ E, eq_of_homotopy (λx, eq_of_homotopy (E x))
+
+definition naive_funext_of_ua : naive_funext :=
+λ A P f g h, eq_of_homotopy h
+
+exit

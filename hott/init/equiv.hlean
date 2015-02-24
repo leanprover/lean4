@@ -32,6 +32,8 @@ structure equiv (A B : Type) :=
 namespace is_equiv
   /- Some instances and closure properties of equivalences -/
   postfix `⁻¹` := inv
+  --a second notation for the inverse, which is not overloaded
+  postfix [parsing-only] `⁻¹ᵉ`:100 := inv
 
   section
   variables {A B C : Type} (f : A → B) (g : B → C) {f' : A → B}

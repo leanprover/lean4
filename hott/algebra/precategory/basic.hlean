@@ -27,9 +27,12 @@ namespace precategory
   definition id [reducible] {a : ob} : hom a a := ID a
 
   infixr `∘` := comp
-  infixl `⟶`:25 := hom -- input ⟶ using \--> (this is a different arrow than \-> (→))
+  infixl [parsing-only] `⟶`:25 := hom -- input ⟶ using \--> (this is a different arrow than \-> (→))
+  namespace hom
+    infixl `⟶` := hom -- if you open this namespace, hom a b is printed as a ⟶ b
+  end hom
 
-  variables {h : hom c d} {g : hom b c} {f : hom a b} {i : hom a a}
+  variables {h : hom c d} {g : hom b c} {f f' : hom a b} {i : hom a a}
 
   theorem id_compose (a : ob) : ID a ∘ ID a = ID a := !id_left
 
@@ -43,6 +46,9 @@ namespace precategory
 
   definition homset [reducible] (x y : ob) : hset :=
   hset.mk (hom x y) _
+
+  definition is_hprop_eq_hom [instance] : is_hprop (f = f') :=
+  !is_trunc_eq
 
 end precategory
 

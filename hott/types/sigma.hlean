@@ -336,7 +336,6 @@ namespace sigma
   /- *** The positive universal property. -/
 
   section
-  open funext
   definition is_equiv_sigma_rec [instance] (C : (Σa, B a) → Type)
     : is_equiv (@sigma.rec _ _ C) :=
   adjointify _ (λ g a b, g ⟨a, b⟩)

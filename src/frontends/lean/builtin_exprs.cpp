@@ -143,7 +143,7 @@ static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     return p.mk_by(t, pos);
 }
 
-static expr parse_begin_end_core(parser & p, pos_info const & pos) {
+static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & end_token, bool nested = false) {
     if (!p.has_tactic_decls())
         throw parser_error("invalid 'begin-end' expression, tactic module has not been imported", pos);
     environment env = open_tactic_namespace(p);
@@ -153,7 +153,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos) {
     optional<expr> pre_tac = get_begin_end_pre_tactic(env);
     buffer<expr> tacs;
     bool first = true;
-    while (!p.curr_is_token(get_end_tk())) {
+    while (!p.curr_is_token(end_token)) {
         if (first) {
             first = false;
         } else {
@@ -164,19 +164,27 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos) {
                 tacs.push_back(mk_begin_end_element_annotation(info_tac));
             }
         }
-        if (p.curr_is_token(get_end_tk()))
+        if (p.curr_is_token(get_begin_tk())) {
+            auto pos = p.pos();
+            tacs.push_back(parse_begin_end_core(p, pos, get_end_tk(), true));
+        } else if (p.curr_is_token(get_lcurly_tk())) {
+            auto pos = p.pos();
+            tacs.push_back(parse_begin_end_core(p, pos, get_rcurly_tk(), true));
+        } else if (p.curr_is_token(end_token)) {
             break;
-        bool use_exact = (p.curr_is_token(get_have_tk()) || p.curr_is_token(get_show_tk()) ||
-                          p.curr_is_token(get_assume_tk()) || p.curr_is_token(get_take_tk()) ||
-                          p.curr_is_token(get_fun_tk()));
-        auto pos = p.pos();
-        expr tac = p.parse_expr();
-        if (use_exact)
-            tac = p.mk_app(get_exact_tac_fn(), tac, pos);
-        if (pre_tac)
-            tac = p.mk_app({get_and_then_tac_fn(), *pre_tac, tac}, pos);
-        tac = mk_begin_end_element_annotation(tac);
-        tacs.push_back(tac);
+        } else {
+            bool use_exact = (p.curr_is_token(get_have_tk()) || p.curr_is_token(get_show_tk()) ||
+                              p.curr_is_token(get_assume_tk()) || p.curr_is_token(get_take_tk()) ||
+                              p.curr_is_token(get_fun_tk()));
+            auto pos = p.pos();
+            expr tac = p.parse_expr();
+            if (use_exact)
+                tac = p.mk_app(get_exact_tac_fn(), tac, pos);
+            if (pre_tac)
+                tac = p.mk_app({get_and_then_tac_fn(), *pre_tac, tac}, pos);
+            tac = mk_begin_end_element_annotation(tac);
+            tacs.push_back(tac);
+        }
     }
     auto end_pos = p.pos();
     p.next();
@@ -196,11 +204,15 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos) {
     for (unsigned i = 1; i < tacs.size(); i++) {
         r = p.mk_app({get_and_then_tac_fn(), r, tacs[i]}, end_pos);
     }
-    return p.mk_by(mk_begin_end_annotation(r), end_pos);
+    r = p.save_pos(mk_begin_end_annotation(r), end_pos);
+    if (nested)
+        return r;
+    else
+        return p.mk_by(r, end_pos);
 }
 
 static expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos) {
-    return parse_begin_end_core(p, pos);
+    return parse_begin_end_core(p, pos, get_end_tk());
 }
 
 static expr parse_proof_qed_core(parser & p, pos_info const & pos) {
@@ -220,7 +232,7 @@ static expr parse_proof(parser & p, expr const & prop) {
         return parse_proof_qed_core(p, pos);
     } else if (p.curr_is_token(get_begin_tk())) {
         auto pos = p.pos();
-        return parse_begin_end_core(p, pos);
+        return parse_begin_end_core(p, pos, get_end_tk());
     } else if (p.curr_is_token(get_by_tk())) {
         // parse: 'by' tactic
         auto pos = p.pos();

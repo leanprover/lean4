@@ -150,7 +150,7 @@ class elaborator : public coercion_info_manager {
     optional<tactic> pre_tactic_to_tactic(expr const & pre_tac);
     bool try_using(substitution & subst, expr const & mvar, proof_state const & ps,
                    expr const & pre_tac, tactic const & tac, bool show_failure);
-    void try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac);
+    bool try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac);
     void solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited);
     expr solve_unassigned_mvars(substitution & subst, expr e, name_set & visited);
     expr solve_unassigned_mvars(substitution & subst, expr const & e);

@@ -1536,6 +1536,9 @@ bool elaborator::try_using(substitution & subst, expr const & mvar, proof_state 
 static void extract_begin_end_tactics(expr pre_tac, buffer<expr> & pre_tac_seq) {
     if (is_begin_end_element_annotation(pre_tac)) {
         pre_tac_seq.push_back(get_annotation_arg(pre_tac));
+    } else if (is_begin_end_annotation(pre_tac)) {
+        // nested begin-end block
+        pre_tac_seq.push_back(pre_tac);
     } else {
         buffer<expr> args;
         if (get_app_args(pre_tac, args) == get_and_then_tac_fn()) {
@@ -1548,47 +1551,64 @@ static void extract_begin_end_tactics(expr pre_tac, buffer<expr> & pre_tac_seq) 
     }
 }
 
-void elaborator::try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac) {
+bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac) {
     lean_assert(is_begin_end_annotation(pre_tac));
     buffer<expr> pre_tac_seq;
     extract_begin_end_tactics(get_annotation_arg(pre_tac), pre_tac_seq);
     for (expr ptac : pre_tac_seq) {
-        expr new_ptac = subst.instantiate_all(ptac);
-        if (auto tac = pre_tactic_to_tactic(new_ptac)) {
-            try {
-                proof_state_seq seq = (*tac)(env(), ios(), ps);
-                auto r = seq.pull();
-                if (!r) {
-                    // tactic failed to produce any result
-                    display_unsolved_proof_state(mvar, ps, "tactic failed", ptac);
-                    return;
-                }
-                if (m_ctx.m_flycheck_goals) {
-                    if (auto p = pip()->get_pos_info(ptac)) {
-                        auto out = regular(env(), ios());
-                        flycheck_information info(out);
-                        if (info.enabled()) {
-                            display_information_pos(out, pip()->get_file_name(), p->first, p->second);
-                            out << " proof state:\n" << ps.pp(env(), ios()) << "\n";
+        if (is_begin_end_annotation(ptac)) {
+            goals gs = ps.get_goals();
+            if (!gs)
+                throw_elaborator_exception("invalid nested begin-end block, there are no goals to be solved", ptac);
+            goal  g   = head(gs);
+            expr mvar = g.get_mvar();
+            proof_state focus_ps(ps, goals(g));
+            if (!try_using_begin_end(subst, mvar, focus_ps, ptac))
+                return false;
+            substitution ps_new_subst = ps.get_subst();
+            name const & mvar_name    = mlocal_name(mvar);
+            ps_new_subst.assign(mvar_name, *subst.get_expr(mvar_name));
+            ps = proof_state(ps, tail(gs), ps_new_subst);
+        } else {
+            expr new_ptac = subst.instantiate_all(ptac);
+            if (auto tac = pre_tactic_to_tactic(new_ptac)) {
+                try {
+                    proof_state_seq seq = (*tac)(env(), ios(), ps);
+                    auto r = seq.pull();
+                    if (!r) {
+                        // tactic failed to produce any result
+                        display_unsolved_proof_state(mvar, ps, "tactic failed", ptac);
+                        return false;
+                    }
+                    if (m_ctx.m_flycheck_goals) {
+                        if (auto p = pip()->get_pos_info(ptac)) {
+                            auto out = regular(env(), ios());
+                            flycheck_information info(out);
+                            if (info.enabled()) {
+                                display_information_pos(out, pip()->get_file_name(), p->first, p->second);
+                                out << " proof state:\n" << ps.pp(env(), ios()) << "\n";
+                            }
                         }
                     }
+                    ps = r->first;
+                } catch (tactic_exception & ex) {
+                    display_tactic_exception(ex, ps, ptac);
+                    return false;
                 }
-                ps = r->first;
-            } catch (tactic_exception & ex) {
-                display_tactic_exception(ex, ps, ptac);
-                return;
+            } else {
+                return false;
             }
-        } else {
-            return;
         }
     }
 
     if (!empty(ps.get_goals())) {
         display_unsolved_proof_state(mvar, ps, "unsolved subgoals", pre_tac);
+        return false;
     } else {
         subst = ps.get_subst();
         expr v = subst.instantiate(mvar);
         subst.assign(mlocal_name(mvar), v);
+        return true;
     }
 }
 

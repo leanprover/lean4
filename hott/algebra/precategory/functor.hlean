@@ -32,16 +32,21 @@ namespace functor
       homF (g ∘ f) = homF g ∘ homF f)) ≃ (functor C D) :=
   begin
     fapply equiv.mk,
-      intro S, fapply functor.mk,
+      {intro S, fapply functor.mk,
         exact (S.1), exact (S.2.1),
-        exact (pr₁ S.2.2), exact (pr₂ S.2.2),
-    fapply adjointify,
-      intro F, apply (functor.rec_on F), intros (d1, d2, d3, d4),
-      exact (sigma.mk d1 (sigma.mk d2 (pair d3 (@d4)))),
-    intro F, apply (functor.rec_on F), intros (d1, d2, d3, d4), apply idp,
-    intro S, apply (sigma.rec_on S), intros (d1, S2),
-    apply (sigma.rec_on S2), intros (d2, P1),
-    apply (prod.rec_on P1), intros (d3, d4), apply idp,
+        exact (pr₁ S.2.2), exact (pr₂ S.2.2)},
+      {fapply adjointify,
+        {intro F,
+         cases F with (d1, d2, d3, d4),
+         exact (sigma.mk d1 (sigma.mk d2 (pair d3 (@d4))))},
+        {intro F,
+         cases F,
+         apply idp},
+        {intro S,
+         cases S with (d1, S2),
+         cases S2 with (d2, P1),
+         cases P1,
+         apply idp}},
   end
 
   set_option apply.class_instance false -- disable class instance resolution in the apply tactic
@@ -53,17 +58,13 @@ namespace functor
       apply sigma_char,
     apply is_trunc_sigma, apply is_trunc_pi, intros, exact HD, intro F,
     apply is_trunc_sigma, apply is_trunc_pi, intro a,
-      apply is_trunc_pi, intro b,
-      apply is_trunc_pi, intro c, apply !homH,
+      {apply is_trunc_pi, intro b,
+       apply is_trunc_pi, intro c, apply !homH},
     intro H, apply is_trunc_prod,
-      apply is_trunc_pi, intro a,
-      apply is_trunc_eq, apply is_trunc_succ, apply !homH,
-    apply is_trunc_pi, intro a,
-    apply is_trunc_pi, intro b,
-    apply is_trunc_pi, intro c,
-    apply is_trunc_pi, intro g,
-    apply is_trunc_pi, intro f,
-      apply is_trunc_eq, apply is_trunc_succ, apply !homH,
+      {apply is_trunc_pi, intro a,
+       apply is_trunc_eq, apply is_trunc_succ, apply !homH},
+      {repeat (apply is_trunc_pi; intros),
+       apply is_trunc_eq, apply is_trunc_succ, apply !homH},
   end
 
   -- The following lemmas will later be used to prove that the type of
@@ -81,8 +82,6 @@ namespace functor
 
   infixr `∘f`:60 := compose
 
-
-
   protected theorem congr
     {C : Precategory} {D : Precategory}
     (F : C → D)
@@ -93,24 +92,20 @@ namespace functor
     (p3 : foo3a = foo3b) (p4 : @foo4a = @foo4b)
       : functor.mk F foo2 foo3a @foo4a = functor.mk F foo2 foo3b @foo4b
   :=
-  begin
-    apply (eq.rec_on p3), intros,
-    apply (eq.rec_on p4), intros,
-    apply idp,
-  end
+  by cases p3; cases p4; apply idp
 
   protected theorem assoc {A B C D : Precategory} (H : functor C D) (G : functor B C) (F : functor A B) :
       H ∘f (G ∘f F) = (H ∘f G) ∘f F :=
   begin
-    apply (functor.rec_on H), intros (H1, H2, H3, H4),
-    apply (functor.rec_on G), intros (G1, G2, G3, G4),
-    apply (functor.rec_on F), intros (F1, F2, F3, F4),
+    cases H with (H1, H2, H3, H4),
+    cases G with (G1, G2, G3, G4),
+    cases F with (F1, F2, F3, F4),
     fapply functor.congr,
-      apply funext.eq_of_homotopy, intro a,
-      apply (@is_hset.elim), apply !homH,
-    apply funext.eq_of_homotopy, intro a,
-    repeat (apply funext.eq_of_homotopy; intros),
-    apply (@is_hset.elim), apply !homH,
+      {apply funext.eq_of_homotopy, intro a,
+       apply (@is_hset.elim), apply !homH},
+      {apply funext.eq_of_homotopy, intro a,
+       repeat (apply funext.eq_of_homotopy; intros),
+       apply (@is_hset.elim), apply !homH},
   end
 
   protected definition id {C : Precategory} : functor C C :=
@@ -120,22 +115,22 @@ namespace functor
 
   protected theorem id_left  (F : functor C D) : id ∘f F = F :=
   begin
-    apply (functor.rec_on F), intros (F1, F2, F3, F4),
+    cases F with (F1, F2, F3, F4),
     fapply functor.congr,
-      apply funext.eq_of_homotopy, intro a,
-      apply (@is_hset.elim), apply !homH,
-    repeat (apply funext.eq_of_homotopy; intros),
-    apply (@is_hset.elim), apply !homH,
+      {apply funext.eq_of_homotopy, intro a,
+       apply (@is_hset.elim), apply !homH},
+      {repeat (apply funext.eq_of_homotopy; intros),
+       apply (@is_hset.elim), apply !homH},
   end
 
   protected theorem id_right (F : functor C D) : F ∘f id = F :=
   begin
-    apply (functor.rec_on F), intros (F1, F2, F3, F4),
+    cases F with (F1, F2, F3, F4),
     fapply functor.congr,
-      apply funext.eq_of_homotopy, intro a,
-      apply (@is_hset.elim), apply !homH,
-    repeat (apply funext.eq_of_homotopy; intros),
-    apply (@is_hset.elim), apply !homH,
+      {apply funext.eq_of_homotopy, intro a,
+       apply (@is_hset.elim), apply !homH},
+      {repeat (apply funext.eq_of_homotopy; intros),
+       apply (@is_hset.elim), apply !homH},
   end
 
 end functor

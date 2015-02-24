@@ -18,50 +18,48 @@ namespace is_trunc
     (Σ (center : A), Π (a : A), center = a) ≃ (is_contr A) :=
   begin
     fapply equiv.mk,
-      intro S, apply is_contr.mk, exact S.2,
-    fapply is_equiv.adjointify,
-        intro H, apply sigma.mk, exact (@contr A H),
-      intro H, apply (is_trunc.rec_on H), intro Hint,
-      apply (contr_internal.rec_on Hint), intros (H1, H2),
-      apply idp,
-    intro S, apply (sigma.rec_on S), intros (H1, H2),
-    apply idp,
+     {intro S, apply is_contr.mk, exact S.2},
+     {fapply is_equiv.adjointify,
+       {intro H, apply sigma.mk, exact (@contr A H)},
+       {intro H, apply (is_trunc.rec_on H), intro Hint,
+        apply (contr_internal.rec_on Hint), intros (H1, H2),
+        apply idp},
+       {intro S, cases S, apply idp}}
   end
 
-  set_option pp.implicit true
   definition is_trunc.pi_char (n : trunc_index) (A : Type) :
     (Π (x y : A), is_trunc n (x = y)) ≃ (is_trunc (n .+1) A) :=
   begin
     fapply equiv.mk,
-      intro H, apply is_trunc_succ_intro,
-    fapply is_equiv.adjointify,
-        intros (H, x, y), apply is_trunc_eq,
-      intro H, apply (is_trunc.rec_on H), intro Hint, apply idp,
-    intro P,
-    unfold compose, apply eq_of_homotopy,
-    exact sorry,
+      {intro H, apply is_trunc_succ_intro},
+      {fapply is_equiv.adjointify,
+        {intros (H, x, y), apply is_trunc_eq},
+        {intro H, apply (is_trunc.rec_on H), intro Hint, apply idp},
+        {intro P,
+         unfold compose, apply eq_of_homotopy,
+         exact sorry}},
   end
 
   definition is_hprop_is_trunc {n : trunc_index} :
     Π (A : Type), is_hprop (is_trunc n A) :=
   begin
     apply (trunc_index.rec_on n),
-      intro A,
-      apply is_trunc_is_equiv_closed, apply equiv.to_is_equiv,
-      apply is_contr.sigma_char,
-      apply (@is_hprop.mk), intros,
-      fapply sigma_eq, apply x.2,
-      apply (@is_hprop.elim),
-      apply is_trunc_pi, intro a,
-      apply is_hprop.mk, intros (w, z),
-      assert (H : is_hset A),
-        apply is_trunc_succ, apply is_trunc_succ,
-        apply is_contr.mk, exact y.2,
-      fapply (@is_hset.elim A _ _ _ w z),
-    intros (n', IH, A),
-    apply is_trunc_is_equiv_closed,
-      apply equiv.to_is_equiv,
-      apply is_trunc.pi_char,
+      {intro A,
+       apply is_trunc_is_equiv_closed, apply equiv.to_is_equiv,
+       apply is_contr.sigma_char,
+       apply (@is_hprop.mk), intros,
+       fapply sigma_eq, apply x.2,
+       apply (@is_hprop.elim),
+       apply is_trunc_pi, intro a,
+       apply is_hprop.mk, intros (w, z),
+       assert (H : is_hset A),
+         {apply is_trunc_succ, apply is_trunc_succ,
+          apply is_contr.mk, exact y.2},
+       fapply (@is_hset.elim A _ _ _ w z)},
+     {intros (n', IH, A),
+      apply is_trunc_is_equiv_closed,
+        apply equiv.to_is_equiv,
+        apply is_trunc.pi_char},
   end
 
   definition is_trunc_succ_of_imp_is_trunc_succ {A : Type} {n : trunc_index} (H : A → is_trunc (n.+1) A)

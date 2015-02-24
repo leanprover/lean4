@@ -118,25 +118,25 @@ namespace pi
     [H0 : is_equiv f0] [H1 : Πa', @is_equiv (B (f0 a')) (B' a') (f1 a')]
       : is_equiv (pi_functor f0 f1) :=
   begin
-  apply (adjointify (pi_functor f0 f1) (pi_functor (f0⁻¹)
-        (λ(a : A) (b' : B' (f0⁻¹ a)), transport B (retr f0 a) ((f1 (f0⁻¹ a))⁻¹ b')))),
-  intro h, apply eq_of_homotopy,
-  unfold pi_functor, unfold function.compose, unfold function.id,
-  --first subgoal
-  intro a',
-  beta,
-  apply (tr_inv _ (adj f0 a')),
-  apply (transport (λx, f1 a' x = h a') (transport_compose B f0 (sect f0 a') _)), beta,
-  apply (tr_inv (λx, x = h a') (fn_tr_eq_tr_fn _ f1 _)), beta, unfold function.compose,
-  apply (tr_inv (λx, sect f0 a' ▹ x = h a') (retr (f1 _) _)), beta, unfold function.id,
-  apply apD,
-  --second subgoal
-  intro h, beta,
-  apply eq_of_homotopy, intro a, beta,
-  apply (tr_inv (λx, retr f0 a ▹ x = h a) (sect (f1 _) _)), unfold function.id, beta,
-  apply apD
+    apply (adjointify (pi_functor f0 f1) (pi_functor (f0⁻¹)
+          (λ(a : A) (b' : B' (f0⁻¹ a)), transport B (retr f0 a) ((f1 (f0⁻¹ a))⁻¹ b')))),
+    intro h, apply eq_of_homotopy,
+    unfold pi_functor, unfold function.compose, unfold function.id,
+    begin
+      intro a',
+      apply (tr_inv _ (adj f0 a')),
+      apply (transport (λx, f1 a' x = h a') (transport_compose B f0 (sect f0 a') _)),
+      apply (tr_inv (λx, x = h a') (fn_tr_eq_tr_fn _ f1 _)), unfold function.compose,
+      apply (tr_inv (λx, sect f0 a' ▹ x = h a') (retr (f1 _) _)), unfold function.id,
+      apply apD
+    end,
+    begin
+      intro h,
+      apply eq_of_homotopy, intro a,
+      apply (tr_inv (λx, retr f0 a ▹ x = h a) (sect (f1 _) _)), unfold function.id,
+      apply apD
+    end
   end
-
 
   definition pi_equiv_pi_of_is_equiv [H : is_equiv f0] [H1 : Πa', @is_equiv (B (f0 a')) (B' a') (f1 a')]
     : (Πa, B a) ≃ (Πa', B' a') :=
@@ -160,19 +160,19 @@ namespace pi
   begin
     reverts (B, H),
     apply (trunc_index.rec_on n),
-      intros (B, H),
+      {intros (B, H),
         fapply is_contr.mk,
           intro a, apply center,
           intro f, apply eq_of_homotopy,
-            intro x, apply (contr (f x)),
-      intros (n, IH, B, H),
+            intro x, apply (contr (f x))},
+      {intros (n, IH, B, H),
         fapply is_trunc_succ_intro, intros (f, g),
           fapply is_trunc_equiv_closed,
             apply equiv.symm, apply eq_equiv_homotopy,
             apply IH,
               intro a,
               show is_trunc n (f a = g a), from
-              is_trunc_eq n (f a) (g a)
+              is_trunc_eq n (f a) (g a)}
   end
 
   definition is_trunc_eq_pi [instance] [H : funext.{l k}] (n : trunc_index) (f g : Πa, B a)
@@ -186,9 +186,9 @@ namespace pi
 
   definition is_equiv_flip [instance] {P : A → A' → Type} : is_equiv (@function.flip _ _ P) :=
   begin
-  fapply is_equiv.mk,
-  exact (@function.flip _ _ (function.flip P)),
-  repeat (intro f; apply idp)
+    fapply is_equiv.mk,
+    exact (@function.flip _ _ (function.flip P)),
+    repeat (intro f; apply idp)
   end
 
   definition pi_comm_equiv {P : A → A' → Type} : (Πa b, P a b) ≃ (Πb a, P a b) :=

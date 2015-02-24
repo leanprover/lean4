@@ -16,15 +16,15 @@ namespace prod
 
   -- prod.eta is already used for the eta rule for strict equality
   protected definition eta (u : A × B) : (pr₁ u , pr₂ u) = u :=
-  destruct u (λu1 u2, idp)
+  by cases u; apply idp
 
   definition pair_eq (pa : a = a') (pb : b = b') : (a , b) = (a' , b') :=
-  eq.rec_on pa (eq.rec_on pb idp)
+  by cases pa; cases pb; apply idp
 
-  definition prod_eq : (pr₁ u = pr₁ v) → (pr₂ u = pr₂ v) → u = v :=
+  definition prod_eq (H₁ : pr₁ u = pr₁ v) (H₂ : pr₂ u = pr₂ v) : u = v :=
   begin
-    apply (prod.rec_on u), intros (a₁, b₁),
-    apply (prod.rec_on v), intros (a₂, b₂, H₁, H₂),
+    cases u with (a₁, b₁),
+    cases v with (a₂, b₂),
     apply (transport _ (eta (a₁, b₁))),
     apply (transport _ (eta (a₂, b₂))),
     apply (pair_eq H₁ H₂),

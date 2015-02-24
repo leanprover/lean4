@@ -52,16 +52,12 @@ namespace nat_trans
   protected definition assoc (η₃ : H ⟹ I) (η₂ : G ⟹ H) (η₁ : F ⟹ G) :
       η₃ ∘n (η₂ ∘n η₁) = (η₃ ∘n η₂) ∘n η₁ :=
   begin
-    apply (nat_trans.rec_on η₃), intros (η₃1, η₃2),
-    apply (nat_trans.rec_on η₂), intros (η₂1, η₂2),
-    apply (nat_trans.rec_on η₁), intros (η₁1, η₁2),
+    cases η₃, cases η₂, cases η₁,
     fapply nat_trans.congr,
-      apply funext.eq_of_homotopy, intro a,
-      apply assoc,
-    apply funext.eq_of_homotopy, intro a,
-    apply funext.eq_of_homotopy, intro b,
-    apply funext.eq_of_homotopy, intro f,
-    apply (@is_hset.elim), apply !homH,
+      {apply funext.eq_of_homotopy, intro a,
+       apply assoc},
+      {repeat (apply funext.eq_of_homotopy; intros),
+       apply (@is_hset.elim), apply !homH},
   end
 
   protected definition id {C D : Precategory} {F : functor C D} : nat_trans F F :=
@@ -72,26 +68,21 @@ namespace nat_trans
 
   protected definition id_left (η : F ⟹ G) : id ∘n η = η :=
   begin
-    apply (nat_trans.rec_on η), intros (η₁, nat₁),
+    cases η,
     fapply (nat_trans.congr F G),
-      apply funext.eq_of_homotopy, intro a,
-      apply id_left,
-    apply funext.eq_of_homotopy, intro a,
-    apply funext.eq_of_homotopy, intro b,
-    apply funext.eq_of_homotopy, intro f,
-    apply (@is_hset.elim), apply !homH,
+      {apply funext.eq_of_homotopy, intro a,
+       apply id_left},
+      {repeat (apply funext.eq_of_homotopy; intros),
+       apply (@is_hset.elim), apply !homH},
   end
 
   protected definition id_right (η : F ⟹ G) : η ∘n id = η :=
   begin
-    apply (nat_trans.rec_on η), intros (η₁, nat₁),
+    cases η,
     fapply (nat_trans.congr F G),
-      apply funext.eq_of_homotopy, intro a,
-      apply id_right,
-    apply funext.eq_of_homotopy, intro a,
-    apply funext.eq_of_homotopy, intro b,
-    apply funext.eq_of_homotopy, intro f,
-    apply (@is_hset.elim), apply !homH,
+      {apply funext.eq_of_homotopy, intros, apply id_right},
+      {repeat (apply funext.eq_of_homotopy; intros),
+       apply (@is_hset.elim), apply !homH},
   end
 
   --set_option pp.implicit true
@@ -109,13 +100,13 @@ namespace nat_trans
     intros (eta, nat), unfold function.id,
     fapply nat_trans.congr,
         apply idp,
-      repeat ( apply funext.eq_of_homotopy ; intro a ),
+      repeat ( apply funext.eq_of_homotopy ; intros ),
       apply (@is_hset.elim), apply !homH,
     intro S,
     fapply sigma_eq,
       apply funext.eq_of_homotopy, intro a,
       apply idp,
-    repeat ( apply funext.eq_of_homotopy ; intro a ),
+    repeat ( apply funext.eq_of_homotopy ; intros ),
     apply (@is_hset.elim), apply !homH,
   end
 

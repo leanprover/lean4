@@ -28,15 +28,11 @@ namespace path
 
   definition transport_paths_l (p : a1 = a2) (q : a1 = a3)
     : transport (λx, x = a3) p q = p⁻¹ ⬝ q :=
-  begin
-  apply (eq.rec_on p), apply (eq.rec_on q), apply idp
-  end
+  by cases p; cases q; apply idp
 
   definition transport_paths_r (p : a2 = a3) (q : a1 = a2)
     : transport (λx, a1 = x) p q = q ⬝ p :=
-  begin
-  apply (eq.rec_on p), apply (eq.rec_on q), apply idp
-  end
+  by cases p; cases q; apply idp
 
   definition transport_paths_lr (p : a1 = a2) (q : a1 = a1)
     : transport (λx, x = x) p q = p⁻¹ ⬝ q ⬝ p :=
@@ -49,15 +45,11 @@ namespace path
 
   definition transport_paths_Fl (p : a1 = a2) (q : f a1 = b)
     : transport (λx, f x = b) p q = (ap f p)⁻¹ ⬝ q :=
-  begin
-  apply (eq.rec_on p), apply (eq.rec_on q), apply idp
-  end
+  by cases p; cases q; apply idp
 
   definition transport_paths_Fr (p : a1 = a2) (q : b = f a1)
     : transport (λx, b = f x) p q = q ⬝ (ap f p) :=
-  begin
-  apply (eq.rec_on p), apply idp
-  end
+  by cases p; apply idp
 
   definition transport_paths_FlFr (p : a1 = a2) (q : f a1 = g a1)
     : transport (λx, f x = g x) p q = (ap f p)⁻¹ ⬝ q ⬝ (ap g p) :=

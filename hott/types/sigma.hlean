@@ -17,23 +17,21 @@ namespace sigma
             {a a' a'' : A} {b b₁ b₂ : B a} {b' : B a'} {b'' : B a''} {u v w : Σa, B a}
 
   -- sigma.eta is already used for the eta rule for strict equality
-  protected definition eta (u : Σa, B a) : ⟨u.1 , u.2⟩ = u :=
-  destruct u (λu1 u2, idp)
+  protected definition eta : Π (u : Σa, B a), ⟨u.1 , u.2⟩ = u,
+  eta ⟨u₁, u₂⟩ := idp
 
-  definition eta2 (u : Σa b, C a b) : ⟨u.1, u.2.1, u.2.2⟩ = u :=
-  destruct u (λu1 u2, destruct u2 (λu21 u22, idp))
+  definition eta2 : Π (u : Σa b, C a b), ⟨u.1, u.2.1, u.2.2⟩ = u,
+  eta2 ⟨u₁, u₂, u₃⟩ := idp
 
-  definition eta3 (u : Σa b c, D a b c) : ⟨u.1, u.2.1, u.2.2.1, u.2.2.2⟩ = u :=
-  destruct u (λu1 u2, destruct u2 (λu21 u22, destruct u22 (λu221 u222, idp)))
+  definition eta3 : Π (u : Σa b c, D a b c), ⟨u.1, u.2.1, u.2.2.1, u.2.2.2⟩ = u,
+  eta3 ⟨u₁, u₂, u₃, u₄⟩ := idp
 
   definition dpair_eq_dpair (p : a = a') (q : p ▹ b = b') : ⟨a, b⟩ = ⟨a', b'⟩ :=
-  eq.rec_on p (λb b' q, eq.rec_on q idp) b b' q
+  by cases p; cases q; apply idp
 
   /- In Coq they often have to give u and v explicitly -/
   definition sigma_eq (p : u.1 = v.1) (q : p ▹ u.2 = v.2) : u = v :=
-  destruct u
-           (λu1 u2, destruct v (λ v1 v2, dpair_eq_dpair))
-           p q
+  by cases u; cases v; apply (dpair_eq_dpair p q)
 
   /- Projections of paths from a total space -/
 
@@ -43,7 +41,8 @@ namespace sigma
   postfix `..1`:(max+1) := eq_pr1
 
   definition eq_pr2 (p : u = v) : p..1 ▹ u.2 = v.2 :=
-  eq.rec_on p idp
+  by cases p; apply idp
+
   --Coq uses the following proof, which only computes if u,v are dpairs AND p is idp
   --(transport_compose B dpr1 p u.2)⁻¹ ⬝ apD dpr2 p
 
@@ -51,57 +50,41 @@ namespace sigma
 
   private definition dpair_sigma_eq (p : u.1 = v.1) (q : p ▹ u.2 = v.2)
       : ⟨(sigma_eq p q)..1, (sigma_eq p q)..2⟩ = ⟨p, q⟩ :=
-  begin
-    reverts (p, q),
-    apply (destruct u), intros (u1, u2),
-    apply (destruct v), intros (v1, v2, p), generalize v2, --change to revert
-    apply (eq.rec_on p), intros (v2, q),
-    apply (eq.rec_on q), apply idp
-  end
+  by cases u; cases v; cases p; cases q; apply idp
 
   definition sigma_eq_pr1 (p : u.1 = v.1) (q : p ▹ u.2 = v.2) : (sigma_eq p q)..1 = p :=
-  (!dpair_sigma_eq)..1
+  (dpair_sigma_eq p q)..1
 
   definition sigma_eq_pr2 (p : u.1 = v.1) (q : p ▹ u.2 = v.2)
       : sigma_eq_pr1 p q ▹ (sigma_eq p q)..2 = q :=
-  (!dpair_sigma_eq)..2
+  (dpair_sigma_eq p q)..2
 
   definition sigma_eq_eta (p : u = v) : sigma_eq (p..1) (p..2) = p :=
-  begin
-    apply (eq.rec_on p),
-    apply (destruct u), intros (u1, u2),
-    apply idp
-  end
+  by cases p; cases u; apply idp
 
   definition tr_pr1_sigma_eq {B' : A → Type} (p : u.1 = v.1) (q : p ▹ u.2 = v.2)
       : transport (λx, B' x.1) (sigma_eq p q) = transport B' p :=
-  begin
-    reverts (p, q),
-    apply (destruct u), intros (u1, u2),
-    apply (destruct v), intros (v1, v2, p), generalize v2,
-    apply (eq.rec_on p), intros (v2, q),
-    apply (eq.rec_on q), apply idp
-  end
+  by cases u; cases v; cases p; cases q; apply idp
 
   /- the uncurried version of sigma_eq. We will prove that this is an equivalence -/
 
-  definition sigma_eq_uncurried (pq : Σ(p : pr1 u = pr1 v), p ▹ (pr2 u) = pr2 v) : u = v :=
-  destruct pq sigma_eq
+  definition sigma_eq_uncurried : Π (pq : Σ(p : pr1 u = pr1 v), p ▹ (pr2 u) = pr2 v), u = v,
+  sigma_eq_uncurried ⟨pq₁, pq₂⟩ := sigma_eq pq₁ pq₂
 
-  definition dpair_sigma_eq_uncurried (pq : Σ(p : u.1 = v.1), p ▹ u.2 = v.2)
-      :  sigma.mk (sigma_eq_uncurried pq)..1 (sigma_eq_uncurried pq)..2 = pq :=
-  destruct pq dpair_sigma_eq
+  definition dpair_sigma_eq_uncurried : Π (pq : Σ(p : u.1 = v.1), p ▹ u.2 = v.2),
+        sigma.mk (sigma_eq_uncurried pq)..1 (sigma_eq_uncurried pq)..2 = pq,
+  dpair_sigma_eq_uncurried ⟨pq₁, pq₂⟩ := dpair_sigma_eq pq₁ pq₂
 
   definition sigma_eq_pr1_uncurried (pq : Σ(p : u.1 = v.1), p ▹ u.2 = v.2)
       : (sigma_eq_uncurried pq)..1 = pq.1 :=
-  (!dpair_sigma_eq_uncurried)..1
+  (dpair_sigma_eq_uncurried pq)..1
 
   definition sigma_eq_pr2_uncurried (pq : Σ(p : u.1 = v.1), p ▹ u.2 = v.2)
       : (sigma_eq_pr1_uncurried pq) ▹ (sigma_eq_uncurried pq)..2 = pq.2 :=
-  (!dpair_sigma_eq_uncurried)..2
+  (dpair_sigma_eq_uncurried pq)..2
 
   definition sigma_eq_eta_uncurried (p : u = v) : sigma_eq_uncurried (sigma.mk p..1 p..2) = p :=
-  !sigma_eq_eta
+  sigma_eq_eta p
 
   definition tr_sigma_eq_pr1_uncurried {B' : A → Type}
     (pq : Σ(p : u.1 = v.1), p ▹ u.2 = v.2)
@@ -122,34 +105,18 @@ namespace sigma
                                   (p2 : a' = a'') (q2 : p2 ▹ b' = b'') :
       dpair_eq_dpair (p1 ⬝ p2) (tr_con B p1 p2 b ⬝ ap (transport B p2) q1 ⬝ q2)
     = dpair_eq_dpair p1 q1 ⬝ dpair_eq_dpair  p2 q2 :=
-  begin
-    reverts (b', p2, b'', q1, q2),
-    apply (eq.rec_on p1), intros (b', p2),
-    apply (eq.rec_on p2), intros (b'', q1),
-    apply (eq.rec_on q1), intro q2,
-    apply (eq.rec_on q2), apply idp
-  end
+  by cases p1; cases p2; cases q1; cases q2; apply idp
 
   definition sigma_eq_con (p1 : u.1 = v.1) (q1 : p1 ▹ u.2 = v.2)
                               (p2 : v.1 = w.1) (q2 : p2 ▹ v.2 = w.2) :
       sigma_eq (p1 ⬝ p2) (tr_con B p1 p2 u.2 ⬝ ap (transport B p2) q1 ⬝ q2)
     = sigma_eq p1 q1 ⬝ sigma_eq p2 q2 :=
-  begin
-    reverts (p1, q1, p2, q2),
-    apply (destruct u), intros (u1, u2),
-    apply (destruct v), intros (v1, v2),
-    apply (destruct w), intros,
-    apply dpair_eq_dpair_con
-  end
+  by cases u; cases v; cases w; apply dpair_eq_dpair_con
 
   local attribute dpair_eq_dpair [reducible]
   definition dpair_eq_dpair_con_idp (p : a = a') (q : p ▹ b = b') :
       dpair_eq_dpair p q = dpair_eq_dpair p idp ⬝ dpair_eq_dpair idp q :=
-  begin
-    reverts (b', q),
-    apply (eq.rec_on p), intros (b', q),
-    apply (eq.rec_on q), apply idp
-  end
+  by cases p; cases q; apply idp
 
   /- eq_pr1 commutes with the groupoid structure. -/
 
@@ -160,34 +127,25 @@ namespace sigma
   /- Applying dpair to one argument is the same as dpair_eq_dpair with reflexivity in the first place. -/
 
   definition ap_dpair (q : b₁ = b₂) : ap (sigma.mk a) q = dpair_eq_dpair idp q :=
-  eq.rec_on q idp
+  by cases q; apply idp
 
   /- Dependent transport is the same as transport along a sigma_eq. -/
 
   definition transportD_eq_transport (p : a = a') (c : C a b) :
       p ▹D c = transport (λu, C (u.1) (u.2)) (dpair_eq_dpair p idp) c :=
-  eq.rec_on p idp
+  by cases p; apply idp
 
   definition sigma_eq_eq_sigma_eq {p1 q1 : a = a'} {p2 : p1 ▹ b = b'} {q2 : q1 ▹ b = b'}
       (r : p1 = q1) (s : r ▹ p2 = q2) : sigma_eq p1 p2 = sigma_eq q1 q2 :=
-  eq.rec_on r
-              proof (λq2 s, eq.rec_on s idp) qed
-              q2
-              s
-  -- begin
-  --   reverts (q2, s),
-  --   apply (eq.rec_on r), intros (q2, s),
-  --   apply (eq.rec_on s), apply idp
-  -- end
-
+  by cases r; cases s; apply idp
 
   /- A path between paths in a total space is commonly shown component wise. -/
   definition sigma_eq2 {p q : u = v} (r : p..1 = q..1) (s : r ▹ p..2 = q..2)
     : p = q :=
   begin
     reverts (q, r, s),
-    apply (eq.rec_on p),
-    apply (destruct u), intros (u1, u2, q, r, s),
+    cases p, cases u with (u1, u2),
+    intros (q, r, s),
     apply concat, rotate 1,
     apply sigma_eq_eta,
     apply (sigma_eq_eq_sigma_eq r s)
@@ -206,31 +164,20 @@ namespace sigma
 
   definition transport_eq (p : a = a') (bc : Σ(b : B a), C a b)
       : p ▹ bc = ⟨p ▹ bc.1, p ▹D bc.2⟩ :=
-  begin
-    apply (eq.rec_on p),
-    apply (destruct bc), intros (b, c),
-    apply idp
-  end
+  by cases p; cases bc; apply idp
 
   /- The special case when the second variable doesn't depend on the first is simpler. -/
   definition tr_eq_nondep {B : Type} {C : A → B → Type} (p : a = a') (bc : Σ(b : B), C a b)
       : p ▹ bc = ⟨bc.1, p ▹ bc.2⟩ :=
-  begin
-    apply (eq.rec_on p),
-    apply (destruct bc), intros (b, c),
-    apply idp
-  end
+  by cases p; cases bc; apply idp
 
   /- Or if the second variable contains a first component that doesn't depend on the first. -/
 
   definition tr_eq2_nondep {C : A → Type} {D : Π a:A, B a → C a → Type} (p : a = a')
       (bcd : Σ(b : B a) (c : C a), D a b c) : p ▹ bcd = ⟨p ▹ bcd.1, p ▹ bcd.2.1, p ▹D2 bcd.2.2⟩ :=
   begin
-    revert bcd,
-    apply (eq.rec_on p), intro bcd,
-    apply (destruct bcd), intros (b, cd),
-    apply (destruct cd), intros (c, d),
-    apply idp
+    cases p, cases bcd with (b, cd),
+    cases cd, apply idp
   end
 
   /- Functorial action -/
@@ -248,7 +195,7 @@ namespace sigma
                ((g (f⁻¹ a'))⁻¹ (transport B' (retr f a'⁻¹) b'))))
   begin
     intro u',
-    apply (destruct u'), intros (a', b'),
+    cases u' with (a', b'),
     apply (sigma_eq (retr f a')),
   --   rewrite retr,
   -- end
@@ -259,19 +206,19 @@ namespace sigma
   end
   begin
     intro u,
-    apply (destruct u), intros (a, b),
+    cases u with (a, b),
     apply (sigma_eq (sect f a)),
     show transport B (sect f a) (g (f⁻¹ (f a))⁻¹ (transport B' (retr f (f a)⁻¹) (g a b))) = b,
     from calc
       transport B (sect f a) (g (f⁻¹ (f a))⁻¹ (transport B' (retr f (f a)⁻¹) (g a b)))
           = g a⁻¹ (transport (B' ∘ f) (sect f a) (transport B' (retr f (f a)⁻¹) (g a b)))
-              : fn_tr_eq_tr_fn (sect f a) (λ a, g a⁻¹)
+              : by rewrite (fn_tr_eq_tr_fn (sect f a) (λ a, g a⁻¹))
       ... = g a⁻¹ (transport B' (ap f (sect f a)) (transport B' (retr f (f a)⁻¹) (g a b)))
               : ap (g a⁻¹) !transport_compose
       ... = g a⁻¹ (transport B' (ap f (sect f a)) (transport B' (ap f (sect f a)⁻¹) (g a b)))
            : ap (λ x, g a⁻¹ (transport B' (ap f (sect f a)) (transport B' (x⁻¹) (g a b)))) (adj f a)
       ... = g a⁻¹ (g a b) : {!tr_inv_tr}
-      ... = b : sect (g a) b
+      ... = b : by rewrite (sect (g a) b)
   end
     -- -- "rewrite fn_tr_eq_tr_fn"
     -- apply concat, apply inverse, apply (fn_tr_eq_tr_fn (sect f a) (λ a, g a⁻¹)),
@@ -301,23 +248,13 @@ namespace sigma
     : ap (sigma.sigma_functor f g) (sigma_eq p q)
     = sigma_eq (ap f p)
                  (transport_compose _ f p (g a b)⁻¹ ⬝ fn_tr_eq_tr_fn p g b⁻¹ ⬝ ap (g a') q) :=
-  begin
-    reverts (b', q),
-    apply (eq.rec_on p),
-    intros (b', q), apply (eq.rec_on q),
-    apply idp
-  end
+  by cases p; cases q; apply idp
 
   definition ap_sigma_functor_eq (p : u.1 = v.1) (q : p ▹ u.2 = v.2)
     : ap (sigma.sigma_functor f g) (sigma_eq p q)
     = sigma_eq (ap f p)
                  (transport_compose B' f p (g u.1 u.2)⁻¹ ⬝ fn_tr_eq_tr_fn p g u.2⁻¹ ⬝ ap (g v.1) q) :=
-  begin
-    reverts (p, q),
-    apply (destruct u), intros (a, b),
-    apply (destruct v), intros (a', b', p, q),
-    apply ap_sigma_functor_eq_dpair
-  end
+  by cases u; cases v; apply ap_sigma_functor_eq_dpair
 
   /- definition 3.11.9(i): Summing up a contractible family of types does nothing. -/
   open is_trunc

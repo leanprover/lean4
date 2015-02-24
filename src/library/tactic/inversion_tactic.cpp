@@ -358,7 +358,7 @@ class inversion_tac {
 
         \remark This method assumes the indices j are local constants, and only h and j may depend on j.
     */
-    std::pair<list<goal>, list<implementation_list>> apply_cases_on(goal const & g, implementation_list const & imps) {
+    std::pair<list<goal>, list<implementation_list>> apply_cases_on(goal const & g, implementation_list const & imps, bool has_indep_indices) {
         buffer<expr> hyps;
         g.get_hyps(hyps);
         expr const & h      = hyps.back();
@@ -390,7 +390,11 @@ class inversion_tac {
         get_intro_rule_names(m_env, I_name, intro_names);
         lean_assert(m_nminors == intro_names.size());
         buffer<expr> new_hyps;
-        new_hyps.append(hyps.size() - m_nindices - 1, hyps.data());
+        if (has_indep_indices)
+            new_hyps.append(hyps.size() - 1, hyps.data());
+        else
+            new_hyps.append(hyps.size() - m_nindices - 1, hyps.data());
+
         // add a subgoal for each minor premise of cases_on
         expr cases_on_type = whnf(infer_type(cases_on));
         buffer<goal> new_goals;
@@ -893,7 +897,7 @@ public:
             if (has_indep_indices(g, h, h_type)) {
                 buffer<expr> deps;
                 goal g1                             = generalize_dependecies(g, h, deps);
-                auto gs_imps_pair                   = apply_cases_on(g1, imps);
+                auto gs_imps_pair                   = apply_cases_on(g1, imps, true);
                 list<goal> gs2                      = gs_imps_pair.first;
                 list<implementation_list> new_imps  = gs_imps_pair.second;
                 auto gs_args_pair                   = intros_minors_args(gs2);
@@ -905,7 +909,7 @@ public:
                 return optional<result>(result(gs4, args, new_imps, rs, m_ngen, m_subst));
             } else {
                 goal g1                             = generalize_indices(g, h, h_type);
-                auto gs_imps_pair                   = apply_cases_on(g1, imps);
+                auto gs_imps_pair                   = apply_cases_on(g1, imps, false);
                 list<goal> gs2                      = gs_imps_pair.first;
                 list<implementation_list> new_imps  = gs_imps_pair.second;
                 auto gs_args_pair                   = intros_minors_args(gs2);

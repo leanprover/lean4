@@ -105,7 +105,7 @@ namespace nat
         lt_of_succ_lt hlt),
   aux
 
-  definition lt.is_decidable_rel [instance] : decidable_rel lt :=
+  definition decidable_lt [instance] : decidable_rel lt :=
   λ a b, nat.rec_on b
     (λ (a : nat), inr (not_lt_zero a))
     (λ (b₁ : nat) (ih : ∀ a, decidable (a < b₁)) (a : nat), nat.cases_on a
@@ -136,7 +136,7 @@ namespace nat
     (λ hl, eq.rec_on hl !le.refl)
     (λ hr, le_of_lt hr)
 
-  definition le.is_decidable_rel [instance] : decidable_rel le :=
+  definition decidable_le [instance] : decidable_rel le :=
   λ a b, decidable_of_decidable_of_iff _ (iff.intro le_of_eq_or_lt eq_or_lt_of_le)
 
   definition le.rec_on {a : nat} {P : nat → Prop} {b : nat} (H : a ≤ b) (H₁ : P a) (H₂ : ∀ b, a < b → P b) : P b :=

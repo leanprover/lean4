@@ -120,10 +120,10 @@ end bool
 
 open bool
 
-protected definition bool.inhabited [instance] : inhabited bool :=
+protected definition bool.is_inhabited [instance] : inhabited bool :=
 inhabited.mk ff
 
-protected definition bool.decidable_eq [instance] : decidable_eq bool :=
+protected definition bool.has_decidable_eq [instance] : decidable_eq bool :=
 take a b : bool,
   bool.rec_on a
     (bool.rec_on b (inl rfl) (inr ff_ne_tt))

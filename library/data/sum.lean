@@ -39,15 +39,15 @@ namespace sum
   protected definition is_inhabited_right [instance] [h : inhabited B] : inhabited (A + B) :=
   inhabited.mk (inr (default B))
 
-  protected definition has_eq_decidable [instance] [h₁ : decidable_eq A] [h₂ : decidable_eq B] : ∀ s₁ s₂ : A + B, decidable (s₁ = s₂),
-  has_eq_decidable (inl a₁) (inl a₂) :=
+  protected definition has_decidable_eq [instance] [h₁ : decidable_eq A] [h₂ : decidable_eq B] : ∀ s₁ s₂ : A + B, decidable (s₁ = s₂),
+  has_decidable_eq (inl a₁) (inl a₂) :=
     match h₁ a₁ a₂ with
       decidable.inl hp := decidable.inl (hp ▸ rfl),
       decidable.inr hn := decidable.inr (λ he, absurd (inl_inj he) hn)
     end,
-  has_eq_decidable (inl a₁) (inr b₂) := decidable.inr (λ e, sum.no_confusion e),
-  has_eq_decidable (inr b₁) (inl a₂) := decidable.inr (λ e, sum.no_confusion e),
-  has_eq_decidable (inr b₁) (inr b₂) :=
+  has_decidable_eq (inl a₁) (inr b₂) := decidable.inr (λ e, sum.no_confusion e),
+  has_decidable_eq (inr b₁) (inl a₂) := decidable.inr (λ e, sum.no_confusion e),
+  has_decidable_eq (inr b₁) (inr b₂) :=
     match h₂ b₁ b₂ with
       decidable.inl hp := decidable.inl (hp ▸ rfl),
       decidable.inr hn := decidable.inr (λ he, absurd (inr_inj he) hn)

@@ -106,7 +106,7 @@ theorem exists_not_of_not_forall {A : Type} {P : A → Prop} [D : ∀x, decidabl
     [D' : decidable (∃x, ¬P x)] (H : ¬∀x, P x) :
   ∃x, ¬P x :=
 @by_contradiction _ D' (assume H1 : ¬∃x, ¬P x,
-  have H2 : ∀x, ¬¬P x, from @forall_not_of_not_exists _ _ (take x, not.decidable) H1,
+  have H2 : ∀x, ¬¬P x, from @forall_not_of_not_exists _ _ (take x, decidable_not) H1,
   have H3 : ∀x, P x, from take x, @not_not_elim _ (D x) (H2 x),
   absurd H3 H)
 

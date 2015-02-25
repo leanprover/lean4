@@ -244,10 +244,10 @@ inductive decidable [class] (p : Prop) : Type :=
 inl :  p → decidable p,
 inr : ¬p → decidable p
 
-definition true.decidable [instance] : decidable true :=
+definition decidable_true [instance] : decidable true :=
 decidable.inl trivial
 
-definition false.decidable [instance] : decidable false :=
+definition decidable_false [instance] : decidable false :=
 decidable.inr not_false
 
 namespace decidable
@@ -289,33 +289,33 @@ section
   variables {p q : Prop}
   open decidable (rec_on inl inr)
 
-  definition and.decidable [instance] [Hp : decidable p] [Hq : decidable q] : decidable (p ∧ q) :=
+  definition decidable_and [instance] [Hp : decidable p] [Hq : decidable q] : decidable (p ∧ q) :=
   rec_on Hp
     (assume Hp  : p, rec_on Hq
       (assume Hq  : q,  inl (and.intro Hp Hq))
       (assume Hnq : ¬q, inr (assume H : p ∧ q, and.rec_on H (assume Hp Hq, absurd Hq Hnq))))
     (assume Hnp : ¬p, inr (assume H : p ∧ q, and.rec_on H (assume Hp Hq, absurd Hp Hnp)))
 
-  definition or.decidable [instance] [Hp : decidable p] [Hq : decidable q] : decidable (p ∨ q) :=
+  definition decidable_or [instance] [Hp : decidable p] [Hq : decidable q] : decidable (p ∨ q) :=
   rec_on Hp
     (assume Hp  : p, inl (or.inl Hp))
     (assume Hnp : ¬p, rec_on Hq
       (assume Hq  : q,  inl (or.inr Hq))
       (assume Hnq : ¬q, inr (assume H : p ∨ q, or.elim H (assume Hp, absurd Hp Hnp) (assume Hq, absurd Hq Hnq))))
 
-  definition not.decidable [instance] [Hp : decidable p] : decidable (¬p) :=
+  definition decidable_not [instance] [Hp : decidable p] : decidable (¬p) :=
   rec_on Hp
     (assume Hp,  inr (λ Hnp, absurd Hp Hnp))
     (assume Hnp, inl Hnp)
 
-  definition implies.decidable [instance] [Hp : decidable p] [Hq : decidable q] : decidable (p → q) :=
+  definition decidable_implies [instance] [Hp : decidable p] [Hq : decidable q] : decidable (p → q) :=
   rec_on Hp
     (assume Hp  : p, rec_on Hq
       (assume Hq  : q,  inl (assume H, Hq))
       (assume Hnq : ¬q, inr (assume H : p → q, absurd (H Hp) Hnq)))
     (assume Hnp : ¬p, inl (assume Hp, absurd Hp Hnp))
 
-  definition iff.decidable [instance] [Hp : decidable p] [Hq : decidable q] : decidable (p ↔ q) :=
+  definition decidable_iff [instance] [Hp : decidable p] [Hq : decidable q] : decidable (p ↔ q) :=
   show decidable ((p → q) ∧ (q → p)), from _
 
 end
@@ -341,13 +341,13 @@ inhabited.rec (λa, a) H
 opaque definition arbitrary (A : Type) [H : inhabited A] : A :=
 inhabited.rec (λa, a) H
 
-definition Prop_inhabited [instance] : inhabited Prop :=
+definition Prop.is_inhabited [instance] : inhabited Prop :=
 inhabited.mk true
 
-definition fun_inhabited [instance] (A : Type) {B : Type} [H : inhabited B] : inhabited (A → B) :=
+definition inhabited_fun [instance] (A : Type) {B : Type} [H : inhabited B] : inhabited (A → B) :=
 inhabited.rec_on H (λb, inhabited.mk (λa, b))
 
-definition dfun_inhabited [instance] (A : Type) {B : A → Type} [H : Πx, inhabited (B x)] :
+definition inhabited_Pi [instance] (A : Type) {B : A → Type} [H : Πx, inhabited (B x)] :
   inhabited (Πx, B x) :=
 inhabited.mk (λa, inhabited.rec_on (H a) (λb, b))
 

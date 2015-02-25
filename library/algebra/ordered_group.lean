@@ -370,6 +370,18 @@ section
 
   theorem sub_lt_sub_of_lt_of_le {a b c d : A} (Hab : a < b) (Hcd : c ≤ d) : a - d < b - c :=
   add_lt_add_of_lt_of_le Hab (neg_le_neg Hcd)
+
+  theorem sub_le_self (a : A) {b : A} (H : b ≥ 0) : a - b ≤ a :=
+  calc
+    a - b = a + -b : rfl
+      ... ≤ a + 0  : add_le_add_left (neg_nonpos_of_nonneg H)
+      ... = a      : add_zero
+
+  theorem sub_lt_self (a : A) {b : A} (H : b > 0) : a - b < a :=
+  calc
+    a - b = a + -b : rfl
+      ... < a + 0  : add_lt_add_left (neg_neg_of_pos H)
+      ... = a      : add_zero
 end
 
 structure decidable_linear_ordered_comm_group [class] (A : Type)

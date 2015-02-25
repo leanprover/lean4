@@ -93,11 +93,13 @@ infix *  := int.mul
 
 /- some basic functions and properties -/
 
-theorem of_nat_inj {m n : ℕ} (H : of_nat m = of_nat n) : m = n :=
+theorem of_nat.inj {m n : ℕ} (H : of_nat m = of_nat n) : m = n :=
 int.no_confusion H (λe, e)
 
-theorem neg_succ_of_nat_inj {m n : ℕ} (H : neg_succ_of_nat m = neg_succ_of_nat n) : m = n :=
+theorem neg_succ_of_nat.inj {m n : ℕ} (H : neg_succ_of_nat m = neg_succ_of_nat n) : m = n :=
 int.no_confusion H (λe, e)
+
+theorem neg_succ_of_nat_eq (n : ℕ) : -[n +1] = -(n + 1) := rfl
 
 definition has_decidable_eq [instance] : decidable_eq ℤ :=
 take a b,
@@ -105,20 +107,20 @@ int.cases_on a
   (take m,
     int.cases_on b
       (take n,
-        if H : m = n then inl (congr_arg of_nat H) else inr (take H1, H (of_nat_inj H1)))
+        if H : m = n then inl (congr_arg of_nat H) else inr (take H1, H (of_nat.inj H1)))
       (take n', inr (assume H, int.no_confusion H)))
   (take m',
     int.cases_on b
       (take n, inr (assume H, int.no_confusion H))
       (take n',
         (if H : m' = n' then inl (congr_arg neg_succ_of_nat H) else
-            inr (take H1, H (neg_succ_of_nat_inj H1)))))
+            inr (take H1, H (neg_succ_of_nat.inj H1)))))
 
-theorem add_of_nat (n m : nat) : of_nat n + of_nat m = #nat n + m := rfl
+theorem of_nat_add_of_nat (n m : nat) : of_nat n + of_nat m = #nat n + m := rfl
 
 theorem of_nat_succ (n : ℕ) : of_nat (succ n) = of_nat n + 1 := rfl
 
-theorem mul_of_nat (n m : ℕ) : of_nat n * of_nat m = n * m := rfl
+theorem of_nat_mul_of_nat (n m : ℕ) : of_nat n * of_nat m = n * m := rfl
 
 theorem sub_nat_nat_of_ge {m n : ℕ} (H : m ≥ n) : sub_nat_nat m n = of_nat (m - n) :=
 have H1 : n - m = 0, from sub_eq_zero_of_le H,
@@ -593,7 +595,7 @@ calc
 
 theorem zero_ne_one : (typeof 0 : int) ≠ 1 :=
 assume H : 0 = 1,
-show false, from succ_ne_zero 0 ((of_nat_inj H)⁻¹)
+show false, from succ_ne_zero 0 ((of_nat.inj H)⁻¹)
 
 theorem eq_zero_or_eq_zero_of_mul_eq_zero {a b : ℤ} (H : a * b = 0) : a = 0 ∨ b = 0 :=
 have H2 : (nat_abs a) * (nat_abs b) = nat.zero, from
@@ -678,6 +680,7 @@ section port_algebra
     @algebra.add_eq_iff_eq_add_neg _ _
   definition sub (a b : ℤ) : ℤ := algebra.sub a b
   infix - := int.sub
+  theorem sub_eq_add_neg : ∀a b : ℤ, a - b = a + -b := algebra.sub_eq_add_neg
   theorem sub_self : ∀a : ℤ, a - a = 0 := algebra.sub_self
   theorem sub_add_cancel : ∀a b : ℤ, a - b + b = a := algebra.sub_add_cancel
   theorem add_sub_cancel : ∀a b : ℤ, a + b - b = a := algebra.add_sub_cancel
@@ -778,5 +781,12 @@ section port_algebra
   theorem dvd_of_mul_dvd_mul_right : ∀{a b c : ℤ}, a ≠ 0 → b * a | c * a → b | c :=
     @algebra.dvd_of_mul_dvd_mul_right _ _
 end port_algebra
+
+/- additional properties -/
+
+theorem of_nat_sub_of_nat {m n : ℕ} (H : #nat m ≥ n) : of_nat m - of_nat n = of_nat (#nat m - n) :=
+have H1 : m = (#nat m - n + n), from (nat.sub_add_cancel H)⁻¹,
+have H2 : m = (#nat m - n) + n, from congr_arg of_nat H1,
+sub_eq_of_eq_add H2
 
 end int

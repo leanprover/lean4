@@ -53,16 +53,17 @@ or.elim (nonneg_or_nonneg_neg (b - a))
     have H1 : nonneg (a - b), from H0 ▸ H,    -- too bad: can't do it in one step
     or.inr H1)
 
-theorem of_nat_le_of_nat (n m : ℕ) : of_nat n ≤ of_nat m ↔ n ≤ m :=
-iff.intro
-  (assume H : of_nat n ≤ of_nat m,
-    obtain (k : ℕ) (Hk : of_nat n + of_nat k = of_nat m), from le.elim H,
-    have H2 : n + k = m, from of_nat_inj ((add_of_nat n k)⁻¹ ⬝ Hk),
-    nat.le.intro H2)
-  (assume H : n ≤ m,
-    obtain (k : ℕ) (Hk : n + k = m), from nat.le.elim H,
-    have H2 : of_nat n + of_nat k = of_nat m, from Hk ▸ add_of_nat n k,
-    le.intro H2)
+theorem of_nat_le_of_nat {m n : ℕ} (H : #nat m ≤ n) : of_nat m ≤ of_nat n :=
+obtain (k : ℕ) (Hk : m + k = n), from nat.le.elim H,
+le.intro (Hk ▸ of_nat_add_of_nat m k)
+
+theorem le_of_of_nat_le_of_nat {m n : ℕ} (H : of_nat m ≤ of_nat n) : (#nat m ≤ n) :=
+obtain (k : ℕ) (Hk : of_nat m + of_nat k = of_nat n), from le.elim H,
+have H1 : m + k = n, from of_nat.inj ((of_nat_add_of_nat m k)⁻¹ ⬝ Hk),
+nat.le.intro H1
+
+theorem of_nat_le_of_nat_iff (m n : ℕ) : of_nat m ≤ of_nat n ↔ m ≤ n :=
+iff.intro le_of_of_nat_le_of_nat of_nat_le_of_nat
 
 theorem lt_add_succ (a : ℤ) (n : ℕ) : a < a + succ n :=
 le.intro (show a + 1 + n = a + succ n, from
@@ -82,12 +83,18 @@ have H2 : a + succ n = b, from
       ... = b : Hn,
 exists.intro n H2
 
-theorem of_nat_lt_of_nat (n m : ℕ) : of_nat n < of_nat m ↔ n < m :=
+theorem of_nat_lt_of_nat_iff (n m : ℕ) : of_nat n < of_nat m ↔ n < m :=
 calc
   of_nat n < of_nat m ↔ of_nat n + 1 ≤ of_nat m : iff.refl
     ... ↔ of_nat (succ n) ≤ of_nat m            : of_nat_succ n ▸ !iff.refl
-    ... ↔ succ n ≤ m                            : of_nat_le_of_nat
+    ... ↔ succ n ≤ m                            : of_nat_le_of_nat_iff
     ... ↔ n < m                                 : iff.symm (lt_iff_succ_le _ _)
+
+theorem lt_of_of_nat_lt_of_nat {m n : ℕ} (H : of_nat m < of_nat n) : #nat m < n :=
+iff.mp !of_nat_lt_of_nat_iff H
+
+theorem of_nat_lt_of_nat {m n : ℕ} (H : #nat m < n) : of_nat m < of_nat n :=
+iff.mp' !of_nat_lt_of_nat_iff H
 
 /- show that the integers form an ordered additive group -/
 
@@ -99,7 +106,7 @@ obtain (n : ℕ) (Hn : a + n = b), from le.elim H1,
 obtain (m : ℕ) (Hm : b + m = c), from le.elim H2,
 have H3 : a + of_nat (n + m) = c, from
   calc
-    a + of_nat (n + m) = a + (of_nat n + m) : {(add_of_nat n m)⁻¹}
+    a + of_nat (n + m) = a + (of_nat n + m) : {(of_nat_add_of_nat n m)⁻¹}
       ... = a + n + m : (add.assoc a n m)⁻¹
       ... = b + m : {Hn}
       ... = c : Hm,
@@ -110,13 +117,13 @@ obtain (n : ℕ) (Hn : a + n = b), from le.elim H1,
 obtain (m : ℕ) (Hm : b + m = a), from le.elim H2,
 have H3 : a + of_nat (n + m) = a + 0, from
   calc
-    a + of_nat (n + m) = a + (of_nat n + m) : {(add_of_nat n m)⁻¹}
+    a + of_nat (n + m) = a + (of_nat n + m) : {(of_nat_add_of_nat n m)⁻¹}
       ... = a + n + m : (add.assoc a n m)⁻¹
       ... = b + m : {Hn}
       ... = a : Hm
       ... = a + 0 : (add_zero a)⁻¹,
 have H4 : of_nat (n + m) = of_nat 0, from add.left_cancel H3,
-have H5 : n + m = 0, from of_nat_inj H4,
+have H5 : n + m = 0, from of_nat.inj H4,
 have H6 : n = 0, from nat.eq_zero_of_add_eq_zero_right H5,
 show a = b, from
   calc
@@ -132,7 +139,7 @@ theorem lt.irrefl (a : ℤ) : ¬ a < a :=
       a + succ n = a : Hn
         ... = a + 0 : by simp,
   have H3 : succ n = 0, from add.left_cancel H2,
-  have H4 : succ n = 0, from of_nat_inj H3,
+  have H4 : succ n = 0, from of_nat.inj H3,
   absurd H4 !succ_ne_zero)
 
 theorem ne_of_lt {a b : ℤ} (H : a < b) : a ≠ b :=
@@ -205,7 +212,7 @@ lt.intro
         ... = succ n * b                       : nat.zero_add
         ... = succ n * (0 + succ m)            : {Hm⁻¹}
         ... = succ n * succ m                  : nat.zero_add
-        ... = of_nat (succ n * succ m)         : mul_of_nat
+        ... = of_nat (succ n * succ m)         : of_nat_mul_of_nat
         ... = of_nat (succ n * m + succ n)     : nat.mul_succ
         ... = of_nat (succ (succ n * m + n))   : nat.add_succ
         ... = 0 + succ (succ n * m + n)        : zero_add))
@@ -443,6 +450,8 @@ section port_algebra
     @algebra.sub_lt_sub_of_le_of_lt _ _
   theorem sub_lt_sub_of_lt_of_le : ∀{a b c d : ℤ}, a < b → c ≤ d → a - d < b - c :=
     @algebra.sub_lt_sub_of_lt_of_le _ _
+  theorem sub_le_self : ∀(a : ℤ) {b : ℤ}, b ≥ 0 → a - b ≤ a := algebra.sub_le_self
+  theorem sub_lt_self : ∀(a : ℤ) {b : ℤ}, b > 0 → a - b < a := algebra.sub_lt_self
 
   theorem eq_zero_of_neg_eq : ∀{a : ℤ}, -a = a → a = 0 := @algebra.eq_zero_of_neg_eq _ _
   definition abs : ℤ → ℤ := algebra.abs
@@ -461,7 +470,7 @@ section port_algebra
   theorem abs_eq_zero_iff_eq_zero : ∀a : ℤ, |a| = 0 ↔ a = 0 := algebra.abs_eq_zero_iff_eq_zero
   theorem abs_pos_of_pos : ∀{a : ℤ}, a > 0 → |a| > 0 := @algebra.abs_pos_of_pos _ _
   theorem abs_pos_of_neg : ∀{a : ℤ}, a < 0 → |a| > 0 := @algebra.abs_pos_of_neg _ _
-  theorem abs_pos_of_ne_zero : ∀a : ℤ, a ≠ 0 → |a| > 0 := @algebra.abs_pos_of_ne_zero _ _
+  theorem abs_pos_of_ne_zero : ∀{a : ℤ}, a ≠ 0 → |a| > 0 := @algebra.abs_pos_of_ne_zero _ _
   theorem abs_sub : ∀a b : ℤ, |a - b| = |b - a| := algebra.abs_sub
   theorem abs.by_cases : ∀{P : ℤ → Prop}, ∀{a : ℤ}, P a → P (-a) → P (|a|) :=
     @algebra.abs.by_cases _ _
@@ -570,5 +579,33 @@ have H1 : (-a) ≥ 0, from iff.mp' !neg_nonneg_iff_nonpos H,
 calc
   of_nat (nat_abs a) = of_nat (nat_abs (-a)) : nat_abs_neg
                  ... = -a                    : of_nat_nat_abs_of_nonneg H1
+
+theorem of_nat_nat_abs (b : ℤ) : nat_abs b = |b| :=
+or.elim (le.total 0 b)
+  (assume H : b ≥ 0, of_nat_nat_abs_of_nonneg H ⬝ (abs_of_nonneg H)⁻¹)
+  (assume H : b ≤ 0, of_nat_nat_abs_of_nonpos H ⬝ (abs_of_nonpos H)⁻¹)
+
+theorem lt_of_add_one_le {a b : ℤ} (H : a + 1 ≤ b) : a < b :=
+obtain n (H1 : a + 1 + n = b), from le.elim H,
+have H2 : a + succ n = b, by rewrite [-H1, add.assoc, (add.comm 1)],
+lt.intro H2
+
+theorem add_one_le_of_lt {a b : ℤ} (H : a < b) : a + 1 ≤ b :=
+obtain n (H1 : a + succ n = b), from lt.elim H,
+have H2 : a + 1 + n = b, by rewrite [-H1, add.assoc, (add.comm 1)],
+le.intro H2
+
+theorem of_nat_nonneg (n : ℕ) : of_nat n ≥ 0 := trivial
+
+theorem of_nat_pos {n : ℕ} (Hpos : #nat n > 0) : of_nat n > 0 :=
+of_nat_lt_of_nat Hpos
+
+theorem sign_of_succ (n : nat) : sign (succ n) = 1 :=
+sign_of_pos (of_nat_pos !nat.succ_pos)
+
+theorem exists_eq_neg_succ_of_nat {a : ℤ} : a < 0 → ∃m : ℕ, a = -[m +1] :=
+int.cases_on a
+  (take m H, absurd (of_nat_nonneg m) (not_le_of_lt H))
+  (take m H, exists.intro m rfl)
 
 end int

@@ -373,6 +373,8 @@ section add_group
 
   infix `-` := sub
 
+  theorem sub_eq_add_neg (a b : A) : a - b = a + -b := rfl
+
   theorem sub_self (a : A) : a - a = 0 := !add.right_inv
 
   theorem sub_add_cancel (a b : A) : a - b + b = a := !neg_add_cancel_right

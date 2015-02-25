@@ -133,7 +133,7 @@ nat.induction_on m
                ... = succ (k + n) : IH
                ... = succ k + n   : add.succ_left)
 
-theorem succ_add_eq_add_succ (n m : ℕ) : succ n + m = n + succ m :=
+theorem succ_add_eq_succ_add (n m : ℕ) : succ n + m = n + succ m :=
 !add.succ_left ⬝ !add_succ⁻¹
 
 theorem add.assoc (n m k : ℕ) : (n + m) + k = n + (m + k) :=
@@ -215,7 +215,7 @@ nat.induction_on m
                 ... = n * k + k + succ n    : IH
                 ... = n * k + (k + succ n)  : add.assoc
                 ... = n * k + (succ n + k)  : add.comm
-                ... = n * k + (n + succ k)  : succ_add_eq_add_succ
+                ... = n * k + (n + succ k)  : succ_add_eq_succ_add
                 ... = n * k + n + succ k    : add.assoc
                 ... = n * succ k + succ k   : mul_succ)
 

@@ -277,6 +277,51 @@ theorem div_mul_cancel_of_mod_eq_zero {m n : ℕ} (H : m mod n = 0) : m div n * 
 theorem mul_div_cancel_of_mod_eq_zero {m n : ℕ} (H : m mod n = 0) : n * (m div n) = m :=
 !mul.comm ▸ div_mul_cancel_of_mod_eq_zero H
 
+theorem div_lt_of_lt_mul {m n k : ℕ} (H : m < k * n) : m div k < n :=
+lt_of_mul_lt_mul_right (calc
+  m div k * k ≤ m div k * k + m mod k : le_add_right
+    ... = m                           : eq_div_mul_add_mod
+    ... < k * n                       : H
+    ... = n * k                       : nat.mul.comm)
+
+theorem div_le_of_le_mul {m n k : ℕ} (H : m ≤ k * n) : m div k ≤ n :=
+or.elim (eq_zero_or_pos k)
+  (assume H1 : k = 0,
+    calc
+      m div k = m div 0 : H1
+          ... = 0       : div_zero
+          ... ≤ n       : zero_le)
+  (assume H1 : k > 0,
+    le_of_mul_le_mul_right (calc
+      m div k * k ≤ m div k * k + m mod k : le_add_right
+        ... = m                           : eq_div_mul_add_mod
+        ... ≤ k * n                       : H
+        ... = n * k                       : nat.mul.comm) H1)
+
+theorem mul_sub_div_of_lt {m n k : ℕ} (H : k < m * n) :
+  (m * n - (k + 1)) div m = n - k div m - 1 :=
+have H1 : k div m < n, from div_lt_of_lt_mul H,
+have H2 : n - k div m ≥ 1, from
+  le_sub_of_add_le (calc
+    1 + k div m = succ (k div m) : add.comm
+            ... ≤ n              : succ_le_of_lt H1),
+have H3 [visible] : n - k div m = n - k div m - 1 + 1, from (sub_add_cancel H2)⁻¹,
+have H4 [visible] : m > 0, from pos_of_ne_zero (assume H': m = 0, not_lt_zero _ (!zero_mul ▸ H' ▸ H)),
+have H5 : k mod m + 1 ≤ m, from succ_le_of_lt (mod_lt H4),
+have H6 [visible] : m - (k mod m + 1) < m, from sub_lt_self H4 !succ_pos,
+calc
+  (m * n - (k + 1)) div m = (m * n - (k div m * m + k mod m + 1)) div m : eq_div_mul_add_mod
+     ... = (m * n - k div m * m - (k mod m + 1)) div m                  : by rewrite [*sub_sub]
+     ... = ((n - k div m) * m - (k mod m + 1)) div m                    :
+               by rewrite [(mul.comm m), mul_sub_right_distrib]
+     ... = ((n - k div m - 1) * m + m - (k mod m + 1)) div m            :
+               by rewrite [H3 at {1}, mul.right_distrib, nat.one_mul]
+     ... = ((n - k div m - 1) * m + (m - (k mod m + 1))) div m          : {add_sub_assoc H5 _}
+     ... = (m - (k mod m + 1)) div m + (n - k div m - 1)                :
+               by rewrite [add.comm, (add_mul_div_self_right H4)]
+     ... = n - k div m - 1                                              :
+               by rewrite [(div_eq_zero_of_lt H6), zero_add]
+
 /- divides -/
 
 theorem dvd_of_mod_eq_zero {m n : ℕ} (H : n mod m = 0) : m | n :=

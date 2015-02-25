@@ -269,7 +269,7 @@ theorem lt_elim {n m : ℕ} (H : n < m) : ∃k, succ n + k = m :=
 le.elim (succ_le_of_lt H)
 
 theorem lt_add_succ (n m : ℕ) : n < n + succ m :=
-lt_intro !succ_add_eq_add_succ
+lt_intro !succ_add_eq_succ_add
 
 theorem eq_zero_of_le_zero {n : ℕ} (H : n ≤ 0) : n = 0 :=
 obtain (k : ℕ) (Hk : n + k = 0), from le.elim H,
@@ -355,7 +355,7 @@ discriminate
   (take (Hm : m = 0), absurd (Hm ▸ H) !not_lt_zero)
   (take (l : ℕ) (Hm : m = succ l), exists.intro l Hm)
 
-theorem self_lt_succ (n : ℕ) : n < succ n :=
+theorem lt_succ_self (n : ℕ) : n < succ n :=
 lt.base n
 
 theorem le_of_lt_succ {n m : ℕ} (H : n < succ m) : n ≤ m :=
@@ -378,7 +378,7 @@ have H1 : ∀ {n m : nat}, m < n → P m, from
         or.elim (lt_or_eq_of_le (le_of_lt_succ H3))
           (assume H4: m < n', IH H4)
           (assume H4: m = n', H4⁻¹ ▸ H2)),
-H1 !self_lt_succ
+H1 !lt_succ_self
 
 protected theorem case_strong_induction_on {P : nat → Prop} (a : nat) (H0 : P 0)
   (Hind : ∀(n : nat), (∀m, m ≤ n → P m) → P (succ n)) : P a :=
@@ -459,7 +459,7 @@ or.elim (le_or_gt n 1)
   (assume H5 : n > 1,
     have H6 : n * m ≥ 2 * 1, from mul_le_mul (succ_le_of_lt H5) (succ_le_of_lt H4),
     have H7 : 1 ≥ 2, from !mul_one ▸ H ▸ H6,
-    absurd !self_lt_succ (not_lt_of_le H7))
+    absurd !lt_succ_self (not_lt_of_le H7))
 
 theorem eq_one_of_mul_eq_one_left {n m : ℕ} (H : n * m = 1) : m = 1 :=
 eq_one_of_mul_eq_one_right (!mul.comm ▸ H)

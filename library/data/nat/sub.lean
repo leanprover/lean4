@@ -325,6 +325,25 @@ sub.cases
         have H2 : n - k = mn + km, from sub_eq_of_add_eq H,
         H2 ▸ !le.refl))
 
+theorem sub_lt_self {m n : ℕ} (H1 : m > 0) (H2 : n > 0) : m - n < m :=
+calc
+  m - n = succ (pred m) - n             : succ_pred_of_pos H1
+    ... = succ (pred m) - succ (pred n) : succ_pred_of_pos H2
+    ... = pred m - pred n               : succ_sub_succ
+    ... ≤ pred m                        : sub_le
+    ... < succ (pred m)                 : lt_succ_self
+    ... = m                             : succ_pred_of_pos H1
+
+theorem le_sub_of_add_le {m n k : ℕ} (H : m + k ≤ n) : m ≤ n - k :=
+calc
+  m = m + k - k : add_sub_cancel
+    ... ≤ n - k : sub_le_sub_right H k
+
+theorem lt_sub_of_add_lt {m n k : ℕ} (H : m + k < n) (H2 : k ≤ n) : m < n - k :=
+lt_of_succ_le (le_sub_of_add_le (calc
+    succ m + k = succ (m + k) : succ_add_eq_succ_add
+           ... ≤ n            : succ_le_of_lt H))
+
 /- distance -/
 
 definition dist [reducible] (n m : ℕ) := (n - m) + (m - n)

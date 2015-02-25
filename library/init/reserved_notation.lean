@@ -89,8 +89,7 @@ reserve infixl `∪`:65
 
 /- other symbols -/
 
-precedence `|`:55
-reserve notation | a:55 |
+reserve notation `(` a `|` b `)`
 reserve infixl `++`:65
 reserve infixr `::`:65
 

@@ -1,5 +1,6 @@
-import data.prod data.num
-
+prelude
+definition Prop := Type.{0} inductive true : Prop := intro : true inductive false : Prop constant num : Type
+inductive prod (A B : Type) := mk : A → B → prod A B infixl `×`:30 := prod
 variables a b c : num
 
 context

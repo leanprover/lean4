@@ -455,32 +455,32 @@ section port_algebra
 
   theorem eq_zero_of_neg_eq : ∀{a : ℤ}, -a = a → a = 0 := @algebra.eq_zero_of_neg_eq _ _
   definition abs : ℤ → ℤ := algebra.abs
-  notation `|` a `|` := abs a
-  theorem abs_of_nonneg : ∀{a : ℤ}, a ≥ 0 → |a| = a := @algebra.abs_of_nonneg _ _
-  theorem abs_of_pos : ∀{a : ℤ}, a > 0 → |a| = a := @algebra.abs_of_pos _ _
-  theorem abs_of_neg : ∀{a : ℤ}, a < 0 → |a| = -a := @algebra.abs_of_neg _ _
-  theorem abs_zero : |0| = 0 := algebra.abs_zero
-  theorem abs_of_nonpos : ∀{a : ℤ}, a ≤ 0 → |a| = -a := @algebra.abs_of_nonpos _ _
-  theorem abs_neg : ∀a : ℤ, |-a| = |a| := algebra.abs_neg
-  theorem abs_nonneg : ∀a : ℤ, | a | ≥ 0 := algebra.abs_nonneg
-  theorem abs_abs : ∀a : ℤ, | |a| | = |a| := algebra.abs_abs
-  theorem le_abs_self : ∀a : ℤ, a ≤ |a| := algebra.le_abs_self
-  theorem neg_le_abs_self : ∀a : ℤ, -a ≤ |a| := algebra.neg_le_abs_self
-  theorem eq_zero_of_abs_eq_zero : ∀{a : ℤ}, |a| = 0 → a = 0 := @algebra.eq_zero_of_abs_eq_zero _ _
-  theorem abs_eq_zero_iff_eq_zero : ∀a : ℤ, |a| = 0 ↔ a = 0 := algebra.abs_eq_zero_iff_eq_zero
-  theorem abs_pos_of_pos : ∀{a : ℤ}, a > 0 → |a| > 0 := @algebra.abs_pos_of_pos _ _
-  theorem abs_pos_of_neg : ∀{a : ℤ}, a < 0 → |a| > 0 := @algebra.abs_pos_of_neg _ _
-  theorem abs_pos_of_ne_zero : ∀{a : ℤ}, a ≠ 0 → |a| > 0 := @algebra.abs_pos_of_ne_zero _ _
-  theorem abs_sub : ∀a b : ℤ, |a - b| = |b - a| := algebra.abs_sub
-  theorem abs.by_cases : ∀{P : ℤ → Prop}, ∀{a : ℤ}, P a → P (-a) → P (|a|) :=
+
+  theorem abs_of_nonneg : ∀{a : ℤ}, a ≥ 0 → abs a = a := @algebra.abs_of_nonneg _ _
+  theorem abs_of_pos : ∀{a : ℤ}, a > 0 → abs a = a := @algebra.abs_of_pos _ _
+  theorem abs_of_neg : ∀{a : ℤ}, a < 0 → abs a = -a := @algebra.abs_of_neg _ _
+  theorem abs_zero : abs 0 = 0 := algebra.abs_zero
+  theorem abs_of_nonpos : ∀{a : ℤ}, a ≤ 0 → abs a = -a := @algebra.abs_of_nonpos _ _
+  theorem abs_neg : ∀a : ℤ, abs (-a) = abs a := algebra.abs_neg
+  theorem abs_nonneg : ∀a : ℤ, abs a ≥ 0 := algebra.abs_nonneg
+  theorem abs_abs : ∀a : ℤ, abs (abs a) = abs a := algebra.abs_abs
+  theorem le_abs_self : ∀a : ℤ, a ≤ abs a := algebra.le_abs_self
+  theorem neg_le_abs_self : ∀a : ℤ, -a ≤ abs a := algebra.neg_le_abs_self
+  theorem eq_zero_of_abs_eq_zero : ∀{a : ℤ}, abs a = 0 → a = 0 := @algebra.eq_zero_of_abs_eq_zero _ _
+  theorem abs_eq_zero_iff_eq_zero : ∀a : ℤ, abs a = 0 ↔ a = 0 := algebra.abs_eq_zero_iff_eq_zero
+  theorem abs_pos_of_pos : ∀{a : ℤ}, a > 0 → abs a > 0 := @algebra.abs_pos_of_pos _ _
+  theorem abs_pos_of_neg : ∀{a : ℤ}, a < 0 → abs a > 0 := @algebra.abs_pos_of_neg _ _
+  theorem abs_pos_of_ne_zero : ∀{a : ℤ}, a ≠ 0 → abs a > 0 := @algebra.abs_pos_of_ne_zero _ _
+  theorem abs_sub : ∀a b : ℤ, abs (a - b) = abs (b - a) := algebra.abs_sub
+  theorem abs.by_cases : ∀{P : ℤ → Prop}, ∀{a : ℤ}, P a → P (-a) → P (abs a) :=
     @algebra.abs.by_cases _ _
-  theorem abs_le_of_le_of_neg_le : ∀{a b : ℤ}, a ≤ b → -a ≤ b → |a| ≤ b :=
+  theorem abs_le_of_le_of_neg_le : ∀{a b : ℤ}, a ≤ b → -a ≤ b → abs a ≤ b :=
     @algebra.abs_le_of_le_of_neg_le _ _
-  theorem abs_lt_of_lt_of_neg_lt : ∀{a b : ℤ}, a < b → -a < b → |a| < b :=
+  theorem abs_lt_of_lt_of_neg_lt : ∀{a b : ℤ}, a < b → -a < b → abs a < b :=
     @algebra.abs_lt_of_lt_of_neg_lt _ _
-  theorem abs_add_le_abs_add_abs : ∀a b : ℤ, |a + b| ≤ |a| + |b| :=
+  theorem abs_add_le_abs_add_abs : ∀a b : ℤ, abs (a + b) ≤ abs a + abs b :=
     algebra.abs_add_le_abs_add_abs
-  theorem abs_sub_abs_le_abs_sub : ∀a b : ℤ, |a| - |b| ≤ |a - b| :=
+  theorem abs_sub_abs_le_abs_sub : ∀a b : ℤ, abs a - abs b ≤ abs (a - b) :=
     algebra.abs_sub_abs_le_abs_sub
 
   theorem mul_le_mul_of_nonneg_left : ∀{a b c : ℤ}, a ≤ b → 0 ≤ c → c * a ≤ c * b :=
@@ -549,12 +549,12 @@ section port_algebra
     @algebra.neg_of_sign_eq_neg_one _ _
   theorem sign_neg : ∀a : ℤ, sign (-a) = -(sign a) := algebra.sign_neg
   theorem sign_mul : ∀a b : ℤ, sign (a * b) = sign a * sign b := algebra.sign_mul
-  theorem abs_eq_sign_mul : ∀a : ℤ, |a| = sign a * a := algebra.abs_eq_sign_mul
-  theorem eq_sign_mul_abs : ∀a : ℤ, a = sign a * |a| := algebra.eq_sign_mul_abs
-  theorem abs_dvd_iff_dvd : ∀a b : ℤ, |a| | b ↔ a | b := algebra.abs_dvd_iff_dvd
-  theorem dvd_abs_iff : ∀a b : ℤ, a | |b| ↔ a | b := algebra.dvd_abs_iff
-  theorem abs_mul : ∀a b : ℤ, |a * b| = |a| * |b| := algebra.abs_mul
-  theorem abs_mul_self : ∀a : ℤ, |a| * |a| = a * a := algebra.abs_mul_self
+  theorem abs_eq_sign_mul : ∀a : ℤ, abs a = sign a * a := algebra.abs_eq_sign_mul
+  theorem eq_sign_mul_abs : ∀a : ℤ, a = sign a * abs a := algebra.eq_sign_mul_abs
+  theorem abs_dvd_iff_dvd : ∀a b : ℤ, (abs a | b) ↔ (a | b) := algebra.abs_dvd_iff_dvd
+  theorem dvd_abs_iff : ∀a b : ℤ, (a | abs b) ↔ (a | b) := algebra.dvd_abs_iff
+  theorem abs_mul : ∀a b : ℤ, abs (a * b) = abs a * abs b := algebra.abs_mul
+  theorem abs_mul_self : ∀a : ℤ, abs a * abs a = a * a := algebra.abs_mul_self
 end port_algebra
 
 /- more facts specific to int -/
@@ -580,7 +580,7 @@ calc
   of_nat (nat_abs a) = of_nat (nat_abs (-a)) : nat_abs_neg
                  ... = -a                    : of_nat_nat_abs_of_nonneg H1
 
-theorem of_nat_nat_abs (b : ℤ) : nat_abs b = |b| :=
+theorem of_nat_nat_abs (b : ℤ) : nat_abs b = abs b :=
 or.elim (le.total 0 b)
   (assume H : b ≥ 0, of_nat_nat_abs_of_nonneg H ⬝ (abs_of_nonneg H)⁻¹)
   (assume H : b ≤ 0, of_nat_nat_abs_of_nonpos H ⬝ (abs_of_nonpos H)⁻¹)

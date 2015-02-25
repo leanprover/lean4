@@ -377,83 +377,83 @@ section
   -- hopefully, will be quick with the simplifier
   theorem sign_mul (a b : A) : sign (a * b) = sign a * sign b := sorry
 
-  theorem abs_eq_sign_mul (a : A) : |a| = sign a * a :=
+  theorem abs_eq_sign_mul (a : A) : abs a = sign a * a :=
   lt.by_cases
     (assume H1 : 0 < a,
       calc
-        |a| = a          : abs_of_pos H1
+        abs a = a          : abs_of_pos H1
         ... = 1 * a      : one_mul
         ... = sign a * a : {(sign_of_pos H1)⁻¹})
     (assume H1 : 0 = a,
       calc
-        |a| = |0|        : H1
+        abs a = abs 0    : H1
         ... = 0          : abs_zero
         ... = 0 * a      : zero_mul
         ... = sign 0 * a : sign_zero
         ... = sign a * a : H1)
     (assume H1 : a < 0,
       calc
-        |a| = -a : abs_of_neg H1
+        abs a = -a : abs_of_neg H1
           ... = -1 * a : neg_eq_neg_one_mul
           ... = sign a * a : {(sign_of_neg H1)⁻¹})
 
-  theorem eq_sign_mul_abs (a : A) : a = sign a * |a| :=
+  theorem eq_sign_mul_abs (a : A) : a = sign a * abs a :=
   lt.by_cases
     (assume H1 : 0 < a,
       calc
-        a = |a|              : abs_of_pos H1
-          ... = 1 * |a|      : one_mul
-          ... = sign a * |a| : {(sign_of_pos H1)⁻¹})
+        a = abs a              : abs_of_pos H1
+          ... = 1 * abs a      : one_mul
+          ... = sign a * abs a : {(sign_of_pos H1)⁻¹})
     (assume H1 : 0 = a,
       calc
         a = 0        : H1
-          ... = 0 * |a|      : zero_mul
-          ... = sign 0 * |a| : sign_zero
-          ... = sign a * |a| : H1)
+          ... = 0 * abs a      : zero_mul
+          ... = sign 0 * abs a : sign_zero
+          ... = sign a * abs a : H1)
     (assume H1 : a < 0,
       calc
         a = -(-a)            : neg_neg
-          ... = -|a|         : {(abs_of_neg H1)⁻¹}
-          ... = -1 * |a|     : neg_eq_neg_one_mul
-          ... = sign a * |a| : {(sign_of_neg H1)⁻¹})
+          ... = -abs a         : {(abs_of_neg H1)⁻¹}
+          ... = -1 * abs a     : neg_eq_neg_one_mul
+          ... = sign a * abs a : {(sign_of_neg H1)⁻¹})
 
-  theorem abs_dvd_iff_dvd (a b : A) : |a| | b ↔ a | b :=
+  theorem abs_dvd_iff_dvd (a b : A) : (abs a | b) ↔ (a | b) :=
   abs.by_cases !iff.refl !neg_dvd_iff_dvd
 
-  theorem dvd_abs_iff (a b : A) : a | |b| ↔ a | b :=
+  theorem dvd_abs_iff (a b : A) : (a | abs b) ↔ (a | b) :=
   abs.by_cases !iff.refl !dvd_neg_iff_dvd
 
-  theorem abs_mul (a b : A) : |a * b| = |a| * |b| :=
+  theorem abs_mul (a b : A) : abs (a * b) = abs a * abs b :=
   or.elim (le.total 0 a)
     (assume H1 : 0 ≤ a,
       or.elim (le.total 0 b)
         (assume H2 : 0 ≤ b,
           calc
-            |a * b| = a * b     : abs_of_nonneg (mul_nonneg H1 H2)
-                ... = |a| * b   : {(abs_of_nonneg H1)⁻¹}
-                ... = |a| * |b| : {(abs_of_nonneg H2)⁻¹})
+            abs (a * b) = a * b     : abs_of_nonneg (mul_nonneg H1 H2)
+                    ... = abs a * b   : {(abs_of_nonneg H1)⁻¹}
+                    ... = abs a * abs b : {(abs_of_nonneg H2)⁻¹})
         (assume H2 : b ≤ 0,
           calc
-            |a * b| = -(a * b)  : abs_of_nonpos (mul_nonpos_of_nonneg_of_nonpos H1 H2)
-                ... = a * -b    : neg_mul_eq_mul_neg
-                ... = |a| * -b  : {(abs_of_nonneg H1)⁻¹}
-                ... = |a| * |b| : {(abs_of_nonpos H2)⁻¹}))
+            abs (a * b) = -(a * b)  : abs_of_nonpos (mul_nonpos_of_nonneg_of_nonpos H1 H2)
+                    ... = a * -b    : neg_mul_eq_mul_neg
+                    ... = abs a * -b  : {(abs_of_nonneg H1)⁻¹}
+                    ... = abs a * abs b : {(abs_of_nonpos H2)⁻¹}))
     (assume H1 : a ≤ 0,
       or.elim (le.total 0 b)
         (assume H2 : 0 ≤ b,
           calc
-            |a * b| = -(a * b)  : abs_of_nonpos (mul_nonpos_of_nonpos_of_nonneg H1 H2)
-                ... = -a * b    : neg_mul_eq_neg_mul
-                ... = |a| * b   : {(abs_of_nonpos H1)⁻¹}
-                ... = |a| * |b| : {(abs_of_nonneg H2)⁻¹})
+            abs (a * b) = -(a * b)  : abs_of_nonpos (mul_nonpos_of_nonpos_of_nonneg H1 H2)
+                    ... = -a * b    : neg_mul_eq_neg_mul
+                    ... = abs a * b   : {(abs_of_nonpos H1)⁻¹}
+                    ... = abs a * abs b : {(abs_of_nonneg H2)⁻¹})
         (assume H2 : b ≤ 0,
           calc
-            |a * b| = a * b     : abs_of_nonneg (mul_nonneg_of_nonpos_of_nonpos H1 H2)
-                ... = -a * -b   : neg_mul_neg
-                ... = |a| * -b  : {(abs_of_nonpos H1)⁻¹}
-                ... = |a| * |b| : {(abs_of_nonpos H2)⁻¹}))
+            abs (a * b) = a * b     : abs_of_nonneg (mul_nonneg_of_nonpos_of_nonpos H1 H2)
+                    ... = -a * -b   : neg_mul_neg
+                    ... = abs a * -b  : {(abs_of_nonpos H1)⁻¹}
+                    ... = abs a * abs b : {(abs_of_nonpos H2)⁻¹}))
 
-  theorem abs_mul_self (a : A) : |a| * |a| = a * a :=
+  theorem abs_mul_self (a : A) : abs a * abs a = a * a :=
   abs.by_cases rfl !neg_mul_neg
 end
 

@@ -404,97 +404,95 @@ section
 
   definition abs (a : A) : A := if 0 ≤ a then a else -a
 
-  notation `|` a `|` := abs a
+  theorem abs_of_nonneg (H : a ≥ 0) : abs a = a := if_pos H
 
-  theorem abs_of_nonneg (H : a ≥ 0) : |a| = a := if_pos H
+  theorem abs_of_pos (H : a > 0) : abs a = a := if_pos (le_of_lt H)
 
-  theorem abs_of_pos (H : a > 0) : |a| = a := if_pos (le_of_lt H)
+  theorem abs_of_neg (H : a < 0) : abs a = -a := if_neg (not_le_of_lt H)
 
-  theorem abs_of_neg (H : a < 0) : |a| = -a := if_neg (not_le_of_lt H)
+  theorem abs_zero : abs 0 = 0 := abs_of_nonneg (le.refl _)
 
-  theorem abs_zero : |0| = 0 := abs_of_nonneg (le.refl _)
-
-  theorem abs_of_nonpos (H : a ≤ 0) : |a| = -a :=
+  theorem abs_of_nonpos (H : a ≤ 0) : abs a = -a :=
   decidable.by_cases
     (assume H1 : a = 0, by rewrite [H1, abs_zero, neg_zero])
     (assume H1 : a ≠ 0,
       have H2 : a < 0, from lt_of_le_of_ne H H1,
       abs_of_neg H2)
 
-  theorem abs_neg (a : A) : |-a| = |a| :=
+  theorem abs_neg (a : A) : abs (-a) = abs a :=
   or.elim (le.total 0 a)
     (assume H1 : 0 ≤ a, by rewrite [abs_of_nonpos (neg_nonpos_of_nonneg H1), neg_neg, abs_of_nonneg H1])
     (assume H1 : a ≤ 0, by rewrite [abs_of_nonneg (neg_nonneg_of_nonpos H1), abs_of_nonpos H1])
 
-  theorem abs_nonneg (a : A) : | a | ≥ 0 :=
+  theorem abs_nonneg (a : A) : abs a ≥ 0 :=
   or.elim (le.total 0 a)
     (assume H : 0 ≤ a, by rewrite (abs_of_nonneg H); exact H)
     (assume H : a ≤ 0,
       calc
-          0 ≤ -a  : neg_nonneg_of_nonpos H
-        ... = |a| : abs_of_nonpos H)
+          0 ≤ -a    : neg_nonneg_of_nonpos H
+        ... = abs a : abs_of_nonpos H)
 
-  theorem abs_abs (a : A) : | |a| | = |a| := abs_of_nonneg !abs_nonneg
+  theorem abs_abs (a : A) : abs (abs a) = abs a := abs_of_nonneg !abs_nonneg
 
-  theorem le_abs_self (a : A) : a ≤ |a| :=
+  theorem le_abs_self (a : A) : a ≤ abs a :=
   or.elim (le.total 0 a)
     (assume H : 0 ≤ a, abs_of_nonneg H ▸ !le.refl)
     (assume H : a ≤ 0, le.trans H !abs_nonneg)
 
-  theorem neg_le_abs_self (a : A) : -a ≤ |a| :=
+  theorem neg_le_abs_self (a : A) : -a ≤ abs a :=
   !abs_neg ▸ !le_abs_self
 
-  theorem eq_zero_of_abs_eq_zero (H : |a| = 0) : a = 0 :=
+  theorem eq_zero_of_abs_eq_zero (H : abs a = 0) : a = 0 :=
   have H1 : a ≤ 0, from H ▸ le_abs_self a,
   have H2 : -a ≤ 0, from H ▸ abs_neg a ▸ le_abs_self (-a),
   le.antisymm H1 (nonneg_of_neg_nonpos H2)
 
-  theorem abs_eq_zero_iff_eq_zero (a : A) : |a| = 0 ↔ a = 0 :=
+  theorem abs_eq_zero_iff_eq_zero (a : A) : abs a = 0 ↔ a = 0 :=
   iff.intro eq_zero_of_abs_eq_zero (assume H, congr_arg abs H ⬝ !abs_zero)
 
-  theorem abs_pos_of_pos (H : a > 0) : |a| > 0 :=
+  theorem abs_pos_of_pos (H : a > 0) : abs a > 0 :=
   (abs_of_pos H)⁻¹ ▸ H
 
-  theorem abs_pos_of_neg (H : a < 0) : |a| > 0 :=
+  theorem abs_pos_of_neg (H : a < 0) : abs a > 0 :=
   !abs_neg ▸ abs_pos_of_pos (neg_pos_of_neg H)
 
-  theorem abs_pos_of_ne_zero (H : a ≠ 0) : |a| > 0 :=
+  theorem abs_pos_of_ne_zero (H : a ≠ 0) : abs a > 0 :=
   or.elim (lt_or_gt_of_ne H) abs_pos_of_neg abs_pos_of_pos
 
-  theorem abs_sub (a b : A) : |a - b| = |b - a| :=
+  theorem abs_sub (a b : A) : abs (a - b) = abs (b - a) :=
   by rewrite [-neg_sub, abs_neg]
 
-  theorem abs.by_cases {P : A → Prop} {a : A} (H1 : P a) (H2 : P (-a)) : P |a| :=
+  theorem abs.by_cases {P : A → Prop} {a : A} (H1 : P a) (H2 : P (-a)) : P (abs a) :=
   or.elim (le.total 0 a)
     (assume H : 0 ≤ a, (abs_of_nonneg H)⁻¹ ▸ H1)
     (assume H : a ≤ 0, (abs_of_nonpos H)⁻¹ ▸ H2)
 
-  theorem abs_le_of_le_of_neg_le (H1 : a ≤ b) (H2 : -a ≤ b) : |a| ≤ b :=
+  theorem abs_le_of_le_of_neg_le (H1 : a ≤ b) (H2 : -a ≤ b) : abs a ≤ b :=
   abs.by_cases H1 H2
 
-  theorem abs_lt_of_lt_of_neg_lt (H1 : a < b) (H2 : -a < b) : |a| < b :=
+  theorem abs_lt_of_lt_of_neg_lt (H1 : a < b) (H2 : -a < b) : abs a < b :=
   abs.by_cases H1 H2
 
   -- the triangle inequality
   context
-    private lemma aux1 {a b : A} (H1 : a + b ≥ 0) (H2 : a ≥ 0) : |a + b| ≤ |a| + |b| :=
+    private lemma aux1 {a b : A} (H1 : a + b ≥ 0) (H2 : a ≥ 0) : abs (a + b) ≤ abs a + abs b :=
     decidable.by_cases
       (assume H3 : b ≥ 0,
           calc
-            |a + b| ≤ |a + b|   : le.refl
-                ... = a + b     : abs_of_nonneg H1
-                ... = |a| + b   : abs_of_nonneg H2
-                ... = |a| + |b| : abs_of_nonneg H3)
+            abs (a + b) ≤ abs (a + b)   : le.refl
+                ... = a + b         : abs_of_nonneg H1
+                ... = abs a + b     : abs_of_nonneg H2
+                ... = abs a + abs b : abs_of_nonneg H3)
       (assume H3 : ¬ b ≥ 0,
         have H4 : b ≤ 0, from le_of_lt (lt_of_not_le H3),
         calc
-          |a + b| = a + b     : abs_of_nonneg H1
-              ... = |a| + b   : abs_of_nonneg H2
-              ... ≤ |a| + 0   : add_le_add_left H4
-              ... ≤ |a| + -b  : add_le_add_left (neg_nonneg_of_nonpos H4)
-              ... = |a| + |b| : abs_of_nonpos H4)
+          abs (a + b) = a + b     : abs_of_nonneg H1
+              ... = abs a + b     : abs_of_nonneg H2
+              ... ≤ abs a + 0     : add_le_add_left H4
+              ... ≤ abs a + -b    : add_le_add_left (neg_nonneg_of_nonpos H4)
+              ... = abs a + abs b : abs_of_nonpos H4)
 
-    private lemma aux2 {a b : A} (H1 : a + b ≥ 0) : |a + b| ≤ |a| + |b| :=
+    private lemma aux2 {a b : A} (H1 : a + b ≥ 0) : abs (a + b) ≤ abs a + abs b :=
     or.elim (le.total b 0)
       (assume H2 : b ≤ 0,
         have H3 : ¬ a < 0, from
@@ -503,27 +501,27 @@ section
           not_lt_of_le H1 H5,
         aux1 H1 (le_of_not_lt H3))
       (assume H2 : 0 ≤ b,
-        have H3 : |b + a| ≤ |b| + |a|, from aux1 (add.comm a b ▸ H1) H2,
-        add.comm b a ▸ (add.comm |b| |a|) ▸ H3)
+        have H3 : abs (b + a) ≤ abs b + abs a, from aux1 (add.comm a b ▸ H1) H2,
+        add.comm b a ▸ (add.comm (abs b) (abs a)) ▸ H3)
 
-    theorem abs_add_le_abs_add_abs (a b : A) : |a + b| ≤ |a| + |b| :=
+    theorem abs_add_le_abs_add_abs (a b : A) : abs (a + b) ≤ abs a + abs b :=
     or.elim (le.total 0 (a + b))
       (assume H2 : 0 ≤ a + b, aux2 H2)
       (assume H2 : a + b ≤ 0,
         have H3 : -a + -b = -(a + b), by rewrite neg_add,
         have H4 : -(a + b) ≥ 0, from iff.mp' (neg_nonneg_iff_nonpos (a+b)) H2,
         calc
-          |a + b| = |-a + -b|   : by rewrite [-abs_neg, neg_add]
-              ... ≤ |-a| + |-b| : aux2 (H3⁻¹ ▸ H4)
-              ... = |a| + |b|   : by rewrite *abs_neg)
+          abs (a + b) = abs (-a + -b)   : by rewrite [-abs_neg, neg_add]
+              ... ≤ abs (-a) + abs (-b) : aux2 (H3⁻¹ ▸ H4)
+              ... = abs a + abs b       : by rewrite *abs_neg)
   end
 
-  theorem abs_sub_abs_le_abs_sub (a b : A) : |a| - |b| ≤ |a - b| :=
-  have H1 : |a| - |b| + |b| ≤ |a - b| + |b|, from
+  theorem abs_sub_abs_le_abs_sub (a b : A) : abs a - abs b ≤ abs (a - b) :=
+  have H1 : abs a - abs b + abs b ≤ abs (a - b) + abs b, from
     calc
-      |a| - |b| + |b| = |a| : sub_add_cancel
-        ... = |a - b + b|   : sub_add_cancel
-        ... ≤ |a - b| + |b| : algebra.abs_add_le_abs_add_abs,
+      abs a - abs b + abs b = abs a : sub_add_cancel
+        ... = abs (a - b + b)       : sub_add_cancel
+        ... ≤ abs (a - b) + abs b   : algebra.abs_add_le_abs_add_abs,
   algebra.le_of_add_le_add_right H1
 end
 

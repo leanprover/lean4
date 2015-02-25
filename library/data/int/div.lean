@@ -100,7 +100,7 @@ calc
        ... = a - a div b * b     : neg_mul_neg
        ... = a mod b             : rfl
 
-theorem mod_abs (a b : ℤ) : a mod |b| = a mod b :=
+theorem mod_abs (a b : ℤ) : a mod (abs b) = a mod b :=
 abs.by_cases rfl !mod_neg
 
 theorem zero_mod (b : ℤ) : 0 mod b = 0 :=
@@ -109,44 +109,44 @@ by rewrite [↑modulo, zero_div, zero_mul, sub_zero]
 theorem mod_zero (a : ℤ) : a mod 0 = a :=
 by rewrite [↑modulo, mul_zero, sub_zero]
 
-private lemma of_nat_mod_abs (m : ℕ) (b : ℤ) : m mod |b| = (#nat m mod (nat_abs b)) :=
+private lemma of_nat_mod_abs (m : ℕ) (b : ℤ) : m mod (abs b) = (#nat m mod (nat_abs b)) :=
 calc
-  m mod |b| = m mod (nat_abs b)        : of_nat_nat_abs
-        ... = (#nat m mod (nat_abs b)) : of_nat_mod_of_nat
+  m mod (abs b) = m mod (nat_abs b)        : of_nat_nat_abs
+            ... = (#nat m mod (nat_abs b)) : of_nat_mod_of_nat
 
-private lemma of_nat_mod_abs_lt (m : ℕ) {b : ℤ} (H : b ≠ 0) : m mod |b| < |b| :=
-have H1 : |b| > 0, from abs_pos_of_ne_zero H,
+private lemma of_nat_mod_abs_lt (m : ℕ) {b : ℤ} (H : b ≠ 0) : m mod (abs b) < (abs b) :=
+have H1 : abs b > 0, from abs_pos_of_ne_zero H,
 have H2 : (#nat nat_abs b > 0), from lt_of_of_nat_lt_of_nat (!of_nat_nat_abs⁻¹ ▸ H1),
 calc
-  m mod |b| = (#nat m mod (nat_abs b)) : of_nat_mod_abs m b
+  m mod (abs b) = (#nat m mod (nat_abs b)) : of_nat_mod_abs m b
         ... < nat_abs b : of_nat_lt_of_nat (nat.mod_lt H2)
-        ... = |b|       : of_nat_nat_abs _
+        ... = abs b       : of_nat_nat_abs _
 
 theorem mod_nonneg (a : ℤ) {b : ℤ} (H : b ≠ 0) : a mod b ≥ 0 :=
-have H1 : |b| > 0, from abs_pos_of_ne_zero H,
-have H2 : a mod |b| ≥ 0, from
+have H1 : abs b > 0, from abs_pos_of_ne_zero H,
+have H2 : a mod (abs b) ≥ 0, from
   int.cases_on a
     (take m, (of_nat_mod_abs m b)⁻¹ ▸ !of_nat_nonneg)
     (take m,
-      have H3 : 1 + m mod |b| ≤ |b|, from (!add.comm ▸ add_one_le_of_lt (of_nat_mod_abs_lt m H)),
+      have H3 : 1 + m mod (abs b) ≤ (abs b), from (!add.comm ▸ add_one_le_of_lt (of_nat_mod_abs_lt m H)),
       calc
-        -[ m +1] mod |b| = |b| - 1 - m mod |b| : neg_succ_of_nat_mod _ H1
-          ... = |b| - (1 + m mod |b|)          : by rewrite [*sub_eq_add_neg, neg_add, add.assoc]
+        -[ m +1] mod (abs b) = abs b - 1 - m mod (abs b) : neg_succ_of_nat_mod _ H1
+          ... = abs b - (1 + m mod (abs b))    : by rewrite [*sub_eq_add_neg, neg_add, add.assoc]
           ... ≥ 0                              : iff.mp' !sub_nonneg_iff_le H3),
 !mod_abs ▸ H2
 
-theorem mod_lt (a : ℤ) {b : ℤ} (H : b ≠ 0) : a mod b < |b| :=
-have H1 : |b| > 0, from abs_pos_of_ne_zero H,
-have H2 : a mod |b| < |b|, from
+theorem mod_lt (a : ℤ) {b : ℤ} (H : b ≠ 0) : a mod b < (abs b) :=
+have H1 : abs b > 0, from abs_pos_of_ne_zero H,
+have H2 : a mod (abs b) < abs b, from
   int.cases_on a
     (take m, of_nat_mod_abs_lt m H)
     (take m,
-      have H3 : |b| ≠ 0, from assume H', H (eq_zero_of_abs_eq_zero H'),
-      have H4 : 1 + m mod |b| > 0, from add_pos_of_pos_of_nonneg dec_trivial (mod_nonneg _ H3),
+      have H3 : abs b ≠ 0, from assume H', H (eq_zero_of_abs_eq_zero H'),
+      have H4 : 1 + m mod (abs b) > 0, from add_pos_of_pos_of_nonneg dec_trivial (mod_nonneg _ H3),
       calc
-        -[ m +1] mod |b| = |b| - 1 - m mod |b| : neg_succ_of_nat_mod _ H1
-          ... = |b| - (1 + m mod |b|)          : by rewrite [*sub_eq_add_neg, neg_add, add.assoc]
-          ... < |b|                            : sub_lt_self _ H4),
+        -[ m +1] mod (abs b) = abs b - 1 - m mod (abs b) : neg_succ_of_nat_mod _ H1
+          ... = abs b - (1 + m mod (abs b))      : by rewrite [*sub_eq_add_neg, neg_add, add.assoc]
+          ... < abs b                            : sub_lt_self _ H4),
 !mod_abs ▸ H2
 
 /- both div and mod -/

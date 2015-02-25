@@ -57,12 +57,7 @@ namespace morphism
 
   theorem left_inverse_eq_right_inverse {f : a ⟶ b} {g g' : hom b a}
       (Hl : g ∘ f = id) (Hr : f ∘ g' = id) : g = g' :=
-  calc
-    g = g ∘ id : symm !id_right
-     ... = g ∘ f ∘ g' : {symm Hr}
-     ... = (g ∘ f) ∘ g' : !assoc
-     ... = id ∘ g' : {Hl}
-     ... = g' : !id_left
+  by rewrite [-(id_right g), -Hr, assoc, Hl, id_left]
 
   theorem retraction_eq_intro [H : is_section f] (H2 : f ∘ h = id) : retraction_of f = h
   := left_inverse_eq_right_inverse !retraction_compose H2
@@ -104,21 +99,21 @@ namespace morphism
   is_section.mk
     (calc
       (retraction_of f ∘ retraction_of g) ∘ g ∘ f
-            = retraction_of f ∘ retraction_of g ∘ g ∘ f : symm (assoc _ _ (g ∘ f))
-        ... = retraction_of f ∘ (retraction_of g ∘ g) ∘ f : {assoc _ g f}
-        ... = retraction_of f ∘ id ∘ f : {retraction_compose g}
-        ... = retraction_of f ∘ f : {id_left f}
-        ... = id : !retraction_compose)
+            = retraction_of f ∘ retraction_of g ∘ g ∘ f   : by rewrite -assoc
+        ... = retraction_of f ∘ (retraction_of g ∘ g) ∘ f : by rewrite (assoc _ g f)
+        ... = retraction_of f ∘ id ∘ f                    : by rewrite retraction_compose
+        ... = retraction_of f ∘ f                         : by rewrite id_left
+        ... = id                                          : by rewrite retraction_compose)
 
   theorem composition_is_retraction [instance] [Hf : is_retraction f] [Hg : is_retraction g]
       : is_retraction (g ∘ f) :=
   is_retraction.mk
     (calc
       (g ∘ f) ∘ section_of f ∘ section_of g = g ∘ f ∘ section_of f ∘ section_of g : symm !assoc
-        ... = g ∘ (f ∘ section_of f) ∘ section_of g : {assoc f _ _}
-        ... = g ∘ id ∘ section_of g : {compose_section f}
-        ... = g ∘ section_of g : {id_left (section_of g)}
-        ... = id : !compose_section)
+        ... = g ∘ (f ∘ section_of f) ∘ section_of g : by rewrite -assoc
+        ... = g ∘ id ∘ section_of g                 : by rewrite compose_section
+        ... = g ∘ section_of g                      : by rewrite id_left
+        ... = id                                    : by rewrite compose_section)
 
   theorem composition_is_inverse [instance] [Hf : is_iso f] [Hg : is_iso g] : is_iso (g ∘ f) :=
   !section_retraction_imp_iso
@@ -154,25 +149,25 @@ namespace morphism
   is_mono.mk
     (λ c g h H,
       calc
-        g = id ∘ g : symm !id_left
-      ... = (retraction_of f ∘ f) ∘ g : {symm (retraction_compose f)}
-      ... = retraction_of f ∘ f ∘ g : symm !assoc
-      ... = retraction_of f ∘ f ∘ h : {H}
-      ... = (retraction_of f ∘ f) ∘ h : !assoc
-      ... = id ∘ h : {retraction_compose f}
-      ... = h : !id_left)
+        g = id ∘ g                    : symm (id_left g)
+      ... = (retraction_of f ∘ f) ∘ g : by rewrite -retraction_compose
+      ... = retraction_of f ∘ f ∘ g   : by rewrite assoc
+      ... = retraction_of f ∘ f ∘ h   : by rewrite H
+      ... = (retraction_of f ∘ f) ∘ h : by rewrite -assoc
+      ... = id ∘ h                    : by rewrite retraction_compose
+      ... = h                         : by rewrite id_left)
 
   theorem retraction_is_epi [instance] (f : a ⟶ b) [H : is_retraction f] : is_epi f :=
   is_epi.mk
     (λ c g h H,
       calc
-        g = g ∘ id : symm !id_right
-      ... = g ∘ f ∘ section_of f : {symm (compose_section f)}
-      ... = (g ∘ f) ∘ section_of f : !assoc
-      ... = (h ∘ f) ∘ section_of f : {H}
-      ... = h ∘ f ∘ section_of f : symm !assoc
-      ... = h ∘ id : {compose_section f}
-      ... = h : !id_right)
+        g = g ∘ id                 : symm (id_right g)
+      ... = g ∘ f ∘ section_of f   : by rewrite -(compose_section f)
+      ... = (g ∘ f) ∘ section_of f : by rewrite assoc
+      ... = (h ∘ f) ∘ section_of f : by rewrite H
+      ... = h ∘ f ∘ section_of f   : by rewrite -assoc
+      ... = h ∘ id                 : by rewrite compose_section
+      ... = h                      : by rewrite id_right)
 
   --these theorems are now proven automatically using type classes
   --should they be instances?
@@ -204,37 +199,22 @@ namespace morphism
   theorem compose_pV : q ∘ q⁻¹ = id := !compose_inverse
   theorem compose_Vp : q⁻¹ ∘ q = id := !inverse_compose
   theorem compose_V_pp : q⁻¹ ∘ (q ∘ p) = p :=
-  calc
-    q⁻¹ ∘ (q ∘ p) = (q⁻¹ ∘ q) ∘ p : assoc (q⁻¹) q p
-      ... = id ∘ p : {inverse_compose q}
-      ... = p : id_left p
+  by rewrite [assoc, inverse_compose, id_left]
+
   theorem compose_p_Vp : q ∘ (q⁻¹ ∘ g) = g :=
-  calc
-     q ∘ (q⁻¹ ∘ g)  = (q ∘ q⁻¹) ∘ g : assoc q (q⁻¹) g
-      ... = id ∘ g : {compose_inverse q}
-      ... = g : id_left g
+  by rewrite [assoc, compose_inverse, id_left]
+
   theorem compose_pp_V : (r ∘ q) ∘ q⁻¹ = r :=
-  calc
-    (r ∘ q) ∘ q⁻¹ = r ∘ q ∘ q⁻¹ : (assoc r q (q⁻¹))⁻¹
-      ... = r ∘ id : {compose_inverse q}
-      ... = r : id_right r
+  by rewrite [-assoc, compose_inverse, id_right]
+
   theorem compose_pV_p : (f ∘ q⁻¹) ∘ q = f :=
-  calc
-    (f ∘ q⁻¹) ∘ q = f ∘ q⁻¹ ∘ q : (assoc f (q⁻¹) q)⁻¹
-      ... = f ∘ id : {inverse_compose q}
-      ... = f : id_right f
+  by rewrite [-assoc, inverse_compose, id_right]
 
   theorem inv_pp [H' : is_iso p] : (q ∘ p)⁻¹ = p⁻¹ ∘ q⁻¹ :=
-  have H1 : (p⁻¹ ∘ q⁻¹) ∘ q ∘ p = p⁻¹ ∘ (q⁻¹ ∘ (q ∘ p)), from (assoc (p⁻¹) (q⁻¹) (q ∘ p))⁻¹,
-  have H2 : (p⁻¹) ∘ (q⁻¹ ∘ (q ∘ p)) = p⁻¹ ∘ p, from congr_arg _ (compose_V_pp q p),
-  have H3 : p⁻¹ ∘ p = id, from inverse_compose p,
-  inverse_eq_intro_left (H1 ⬝ H2 ⬝ H3)
-  --the proof using calc is hard for the unifier (needs ~90k steps)
-  -- inverse_eq_intro_left
-  --   (calc
-  --     (p⁻¹ ∘ (q⁻¹)) ∘ q ∘ p = p⁻¹ ∘ (q⁻¹ ∘ (q ∘ p)) : assoc (p⁻¹) (q⁻¹) (q ∘ p)⁻¹
-  --     ... = (p⁻¹) ∘ p : congr_arg (λx, p⁻¹ ∘ x) (compose_V_pp q p)
-  --     ... = id : inverse_compose p)
+  inverse_eq_intro_left
+    (show (p⁻¹ ∘ (q⁻¹)) ∘ q ∘ p = id, from
+     by rewrite [-assoc, compose_V_pp, inverse_compose])
+
   theorem inv_Vp [H' : is_iso g] : (q⁻¹ ∘ g)⁻¹ = g⁻¹ ∘ q := inverse_involutive q ▸ inv_pp (q⁻¹) g
   theorem inv_pV [H' : is_iso f] : (q ∘ f⁻¹)⁻¹ = f ∘ q⁻¹ := inverse_involutive f ▸ inv_pp q (f⁻¹)
   theorem inv_VV [H' : is_iso r] : (q⁻¹ ∘ r⁻¹)⁻¹ = r ∘ q := inverse_involutive r ▸ inv_Vp q (r⁻¹)

@@ -68,7 +68,7 @@ theorem lt_add_succ (a : ℤ) (n : ℕ) : a < a + succ n :=
 le.intro (show a + 1 + n = a + succ n, from
   calc
     a + 1 + n = a + (1 + n) : add.assoc
-      ... = a + (n + 1)     : add.comm
+      ... = a + (n + 1)     : nat.add.comm
       ... = a + succ n      : rfl)
 
 theorem lt.intro {a b : ℤ} {n : ℕ} (H : a + succ n = b) : a < b :=
@@ -190,9 +190,9 @@ le.intro
   (eq.symm
     (calc
       a * b = (0 + n) * b : Hn
-        ... = n * b       : zero_add
-        ... = n * (0 + m) : Hm
-        ... = n * m       : zero_add
+        ... = n * b       : nat.zero_add
+        ... = n * (0 + m) : {Hm⁻¹}
+        ... = n * m       : nat.zero_add
         ... = 0 + n * m   : zero_add))
 
 theorem mul_pos {a b : ℤ} (Ha : 0 < a) (Hb : 0 < b) : 0 < a * b :=
@@ -202,9 +202,9 @@ lt.intro
   (eq.symm
     (calc
       a * b = (0 + succ n) * b                 : Hn
-        ... = succ n * b                       : zero_add
-        ... = succ n * (0 + succ m)            : Hm
-        ... = succ n * succ m                  : zero_add
+        ... = succ n * b                       : nat.zero_add
+        ... = succ n * (0 + succ m)            : {Hm⁻¹}
+        ... = succ n * succ m                  : nat.zero_add
         ... = of_nat (succ n * succ m)         : mul_of_nat
         ... = of_nat (succ n * m + succ n)     : nat.mul_succ
         ... = of_nat (succ (succ n * m + n))   : nat.add_succ

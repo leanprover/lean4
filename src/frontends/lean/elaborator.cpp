@@ -65,14 +65,14 @@ struct elaborator::choice_expr_elaborator : public choice_iterator {
     local_context m_context;
     local_context m_full_context;
     expr          m_meta;
+    expr          m_type;
     expr          m_choice;
     unsigned      m_idx;
     bool          m_relax_main_opaque;
     choice_expr_elaborator(elaborator & elab, local_context const & ctx, local_context const & full_ctx,
-                           expr const & meta, expr const & c, bool relax):
-        m_elab(elab), m_context(ctx), m_full_context(full_ctx), m_meta(meta), m_choice(c),
-        m_idx(get_num_choices(m_choice)),
-        m_relax_main_opaque(relax) {
+                           expr const & meta, expr const & type, expr const & c, bool relax):
+        m_elab(elab), m_context(ctx), m_full_context(full_ctx), m_meta(meta),
+        m_type(type), m_choice(c), m_idx(get_num_choices(m_choice)), m_relax_main_opaque(relax) {
     }
 
     virtual optional<constraints> next() {
@@ -85,8 +85,21 @@ struct elaborator::choice_expr_elaborator : public choice_iterator {
                 flet<local_context> set1(m_elab.m_context,      m_context);
                 flet<local_context> set2(m_elab.m_full_context, m_full_context);
                 pair<expr, constraint_seq> rcs = m_elab.visit(c);
-                expr r = rcs.first;
-                constraint_seq cs = mk_eq_cnstr(m_meta, r, justification(), m_relax_main_opaque) + rcs.second;
+                expr r                         = rcs.first;
+                constraint_seq cs              = rcs.second;
+                if (!has_expr_metavar_relaxed(m_type)) {
+                    // we only try coercions here if the m_type and r_type do not contain metavariables.
+                    constraint_seq new_cs      = cs;
+                    expr r_type                = m_elab.infer_type(r, new_cs);
+                    if (!has_expr_metavar_relaxed(r_type)) {
+                        cs = new_cs;
+                        auto new_rcs                   = m_elab.ensure_has_type(r, r_type, m_type, justification(),
+                                                                                m_relax_main_opaque);
+                        r                              = new_rcs.first;
+                        cs                            += new_rcs.second;
+                    }
+                }
+                cs = mk_eq_cnstr(m_meta, r, justification(), m_relax_main_opaque) + cs;
                 return optional<constraints>(cs.to_list());
             } catch (exception &) {}
         }
@@ -289,9 +302,9 @@ expr elaborator::visit_choice(expr const & e, optional<expr> const & t, constrai
     bool relax             = m_relax_main_opaque;
     local_context ctx      = m_context;
     local_context full_ctx = m_full_context;
-    auto fn = [=](expr const & meta, expr const & /* type */, substitution const & /* s */,
+    auto fn = [=](expr const & meta, expr const & type, substitution const & /* s */,
                   name_generator const & /* ngen */) {
-        return choose(std::make_shared<choice_expr_elaborator>(*this, ctx, full_ctx, meta, e, relax));
+        return choose(std::make_shared<choice_expr_elaborator>(*this, ctx, full_ctx, meta, type, e, relax));
     };
     justification j = mk_justification("none of the overloads is applicable", some_expr(e));
     cs += mk_choice_cnstr(m, fn, to_delay_factor(cnstr_group::Basic), true, j, m_relax_main_opaque);

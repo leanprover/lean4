@@ -8,11 +8,11 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 
 #ifndef LEAN_DEFAULT_PP_MAX_DEPTH
-#define LEAN_DEFAULT_PP_MAX_DEPTH 1000000
+#define LEAN_DEFAULT_PP_MAX_DEPTH 100
 #endif
 
 #ifndef LEAN_DEFAULT_PP_MAX_STEPS
-#define LEAN_DEFAULT_PP_MAX_STEPS 10000000
+#define LEAN_DEFAULT_PP_MAX_STEPS 500
 #endif
 
 #ifndef LEAN_DEFAULT_PP_NOTATION

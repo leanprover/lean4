@@ -75,8 +75,8 @@
   (when lean-debug-mode
     (when lean-global-server-last-time-sent
       (let ((time-diff (- (float-time) lean-global-server-last-time-sent)))
-        (lean-output-to-buffer lean-server-trace-buffer-name
-                                    "SLEEP %i\n"
+        (lean-output-to-buffer (lean-server-trace-buffer-name)
+                               "SLEEP %i\n"
                                     `(,(truncate (* 1000 time-diff))))))
     (setq lean-global-server-last-time-sent (float-time))
     (lean-output-to-buffer (lean-server-trace-buffer-name)

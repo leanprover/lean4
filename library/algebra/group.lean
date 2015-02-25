@@ -208,29 +208,28 @@ section group
       ... = 1 * b : H
       ... = b : one_mul
 
-  -- TODO: better names for the next eight theorems? (Also for additive ones.)
-  theorem eq_mul_inv_of_mul_eq {a b c : A} (H : a * b = c) : a = c * b⁻¹ :=
+  theorem eq_mul_inv_of_mul_eq {a b c : A} (H : a * c = b) : a = b * c⁻¹ :=
   H ▸ !mul_inv_cancel_right⁻¹
 
-  theorem eq_inv_mul_of_mul_eq {a b c : A} (H : a * b = c) : b = a⁻¹ * c :=
+  theorem eq_inv_mul_of_mul_eq {a b c : A} (H : b * a = c) : a = b⁻¹ * c :=
   H ▸ !inv_mul_cancel_left⁻¹
 
-  theorem inv_mul_eq_of_eq_mul {a b c : A} (H : a = b * c) : b⁻¹ * a = c :=
+  theorem inv_mul_eq_of_eq_mul {a b c : A} (H : b = a * c) : a⁻¹ * b = c :=
   H⁻¹ ▸ !inv_mul_cancel_left
 
-  theorem mul_inv_eq_of_eq_mul {a b c : A} (H : a = b * c) : a * c⁻¹ = b :=
+  theorem mul_inv_eq_of_eq_mul {a b c : A} (H : a = c * b) : a * b⁻¹ = c :=
   H⁻¹ ▸ !mul_inv_cancel_right
 
-  theorem eq_mul_of_mul_inv_eq {a b c : A} (H : a * b⁻¹ = c) : a = c * b :=
+  theorem eq_mul_of_mul_inv_eq {a b c : A} (H : a * c⁻¹ = b) : a = b * c :=
   !inv_inv ▸ (eq_mul_inv_of_mul_eq H)
 
-  theorem eq_mul_of_inv_mul_eq {a b c : A} (H : a⁻¹ * b = c) : b = a * c :=
+  theorem eq_mul_of_inv_mul_eq {a b c : A} (H : b⁻¹ * a = c) : a = b * c :=
   !inv_inv ▸ (eq_inv_mul_of_mul_eq H)
 
-  theorem mul_eq_of_eq_inv_mul {a b c : A} (H : a = b⁻¹ * c) : b * a = c :=
+  theorem mul_eq_of_eq_inv_mul {a b c : A} (H : b = a⁻¹ * c) : a * b = c :=
   !inv_inv ▸ (inv_mul_eq_of_eq_mul H)
 
-  theorem mul_eq_of_eq_mul_inv {a b c : A} (H : a = b * c⁻¹) : a * c = b :=
+  theorem mul_eq_of_eq_mul_inv {a b c : A} (H : a = c * b⁻¹) : a * b = c :=
   !inv_inv ▸ (mul_inv_eq_of_eq_mul H)
 
   theorem mul_eq_iff_eq_inv_mul (a b c : A) : a * b = c ↔ b = a⁻¹ * c :=
@@ -316,28 +315,29 @@ section add_group
       rewrite ⟨add.assoc, add_neg_cancel_left, add.right_inv⟩
     end
 
-  theorem eq_add_neg_of_add_eq {a b c : A} (H : a + b = c) : a = c + -b :=
+  -- TODO: delete these in favor of sub rules?
+  theorem eq_add_neg_of_add_eq {a b c : A} (H : a + c = b) : a = b + -c :=
   H ▸ !add_neg_cancel_right⁻¹
 
-  theorem eq_neg_add_of_add_eq {a b c : A} (H : a + b = c) : b = -a + c :=
+  theorem eq_neg_add_of_add_eq {a b c : A} (H : b + a = c) : a = -b + c :=
   H ▸ !neg_add_cancel_left⁻¹
 
-  theorem neg_add_eq_of_eq_add {a b c : A} (H : a = b + c) : -b + a = c :=
+  theorem neg_add_eq_of_eq_add {a b c : A} (H : b = a + c) : -a + b = c :=
   H⁻¹ ▸ !neg_add_cancel_left
 
-  theorem add_neg_eq_of_eq_add {a b c : A} (H : a = b + c) : a + -c = b :=
+  theorem add_neg_eq_of_eq_add {a b c : A} (H : a = c + b) : a + -b = c :=
   H⁻¹ ▸ !add_neg_cancel_right
 
-  theorem eq_add_of_add_neg_eq {a b c : A} (H : a + -b = c) : a = c + b :=
+  theorem eq_add_of_add_neg_eq {a b c : A} (H : a + -c = b) : a = b + c :=
   !neg_neg ▸ (eq_add_neg_of_add_eq H)
 
-  theorem eq_add_of_neg_add_eq {a b c : A} (H : -a + b = c) : b = a + c :=
+  theorem eq_add_of_neg_add_eq {a b c : A} (H : -b + a = c) : a = b + c :=
   !neg_neg ▸ (eq_neg_add_of_add_eq H)
 
-  theorem add_eq_of_eq_neg_add {a b c : A} (H : a = -b + c) : b + a = c :=
+  theorem add_eq_of_eq_neg_add {a b c : A} (H : b = -a + c) : a + b = c :=
   !neg_neg ▸ (neg_add_eq_of_eq_add H)
 
-  theorem add_eq_of_eq_add_neg {a b c : A} (H : a = b + -c) : a + c = b :=
+  theorem add_eq_of_eq_add_neg {a b c : A} (H : a = c + -b) : a + b = c :=
   !neg_neg ▸ (add_neg_eq_of_eq_add H)
 
   theorem add_eq_iff_eq_neg_add (a b c : A) : a + b = c ↔ b = -a + c :=
@@ -420,14 +420,24 @@ section add_group
       ... ↔ c - d = 0 : H ▸ !iff.refl
       ... ↔ c = d : iff.symm (eq_iff_sub_eq_zero c d)
 
+  theorem eq_sub_of_add_eq {a b c : A} (H : a + c = b) : a = b - c :=
+  !eq_add_neg_of_add_eq H
+
+  theorem sub_eq_of_eq_add {a b c : A} (H : a = c + b) : a - b = c :=
+  !add_neg_eq_of_eq_add H
+
+  theorem eq_add_of_sub_eq {a b c : A} (H : a - c = b) : a = b + c :=
+  eq_add_of_add_neg_eq H
+
+  theorem add_eq_of_eq_sub {a b c : A} (H : a = c - b) : a + b = c :=
+  add_eq_of_eq_add_neg H
 end add_group
 
 structure add_comm_group [class] (A : Type) extends add_group A, add_comm_monoid A
 
 section add_comm_group
-
-variable [s : add_comm_group A]
-include s
+  variable [s : add_comm_group A]
+  include s
 
   theorem sub_add_eq_sub_sub (a b c : A) : a - (b + c) = a - b - c :=
   !add.comm ▸ !sub_add_eq_sub_sub_swap
@@ -444,6 +454,17 @@ include s
   theorem add_sub_add_left_eq_sub (a b c : A) : (c + a) - (c + b) = a - b :=
   by rewrite ⟨sub_add_eq_sub_sub, (add.comm c a), add_sub_cancel⟩
 
+  theorem eq_sub_of_add_eq' {a b c : A} (H : c + a = b) : a = b - c :=
+  !eq_sub_of_add_eq (!add.comm ▸ H)
+
+  theorem sub_eq_of_eq_add' {a b c : A} (H : a = b + c) : a - b = c :=
+  !sub_eq_of_eq_add (!add.comm ▸ H)
+
+  theorem eq_add_of_sub_eq' {a b c : A} (H : a - b = c) : a = b + c :=
+  !add.comm ▸ eq_add_of_sub_eq H
+
+  theorem add_eq_of_eq_sub' {a b c : A} (H : b = c - a) : a + b = c :=
+  !add.comm ▸ add_eq_of_eq_sub H
 end add_comm_group
 
 /- bundled structures -/

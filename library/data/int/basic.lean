@@ -656,21 +656,21 @@ section port_algebra
   theorem add_neg_cancel_left : ∀a b : ℤ, a + (-a + b) = b := algebra.add_neg_cancel_left
   theorem add_neg_cancel_right : ∀a b : ℤ, a + b + -b = a := algebra.add_neg_cancel_right
   theorem neg_add_rev : ∀a b : ℤ, -(a + b) = -b + -a := algebra.neg_add_rev
-  theorem eq_add_neg_of_add_eq : ∀{a b c : ℤ}, a + b = c → a = c + -b :=
+  theorem eq_add_neg_of_add_eq : ∀{a b c : ℤ}, a + c = b → a = b + -c :=
     @algebra.eq_add_neg_of_add_eq _ _
-  theorem eq_neg_add_of_add_eq : ∀{a b c : ℤ}, a + b = c → b = -a + c :=
+  theorem eq_neg_add_of_add_eq : ∀{a b c : ℤ}, b + a = c → a = -b + c :=
     @algebra.eq_neg_add_of_add_eq _ _
-  theorem neg_add_eq_of_eq_add : ∀{a b c : ℤ}, a = b + c → -b + a = c :=
+  theorem neg_add_eq_of_eq_add : ∀{a b c : ℤ}, b = a + c → -a + b = c :=
     @algebra.neg_add_eq_of_eq_add _ _
-  theorem add_neg_eq_of_eq_add : ∀{a b c : ℤ}, a = b + c → a + -c = b :=
+  theorem add_neg_eq_of_eq_add : ∀{a b c : ℤ}, a = c + b → a + -b = c :=
     @algebra.add_neg_eq_of_eq_add _ _
-  theorem eq_add_of_add_neg_eq : ∀{a b c : ℤ}, a + -b = c → a = c + b :=
+  theorem eq_add_of_add_neg_eq : ∀{a b c : ℤ}, a + -c = b → a = b + c :=
     @algebra.eq_add_of_add_neg_eq _ _
-  theorem eq_add_of_neg_add_eq : ∀{a b c : ℤ}, -a + b = c → b = a + c :=
+  theorem eq_add_of_neg_add_eq : ∀{a b c : ℤ}, -b + a = c → a = b + c :=
     @algebra.eq_add_of_neg_add_eq _ _
-  theorem add_eq_of_eq_neg_add : ∀{a b c : ℤ}, a = -b + c → b + a = c :=
+  theorem add_eq_of_eq_neg_add : ∀{a b c : ℤ}, b = -a + c → a + b = c :=
     @algebra.add_eq_of_eq_neg_add _ _
-  theorem add_eq_of_eq_add_neg : ∀{a b c : ℤ}, a = b + -c → a + c = b :=
+  theorem add_eq_of_eq_add_neg : ∀{a b c : ℤ}, a = c + -b → a + b = c :=
     @algebra.add_eq_of_eq_add_neg _ _
   theorem add_eq_iff_eq_neg_add : ∀a b c : ℤ, a + b = c ↔ b = -a + c :=
     @algebra.add_eq_iff_eq_neg_add _ _
@@ -694,6 +694,10 @@ section port_algebra
   theorem eq_sub_iff_add_eq : ∀a b c : ℤ, a = b - c ↔ a + c = b := algebra.eq_sub_iff_add_eq
   theorem eq_iff_eq_of_sub_eq_sub : ∀{a b c d : ℤ}, a - b = c - d → a = b ↔ c = d :=
     @algebra.eq_iff_eq_of_sub_eq_sub _ _
+  theorem eq_sub_of_add_eq : ∀{a b c : ℤ}, a + c = b → a = b - c := @algebra.eq_sub_of_add_eq _ _
+  theorem sub_eq_of_eq_add : ∀{a b c : ℤ}, a = c + b → a - b = c := @algebra.sub_eq_of_eq_add _ _
+  theorem eq_add_of_sub_eq : ∀{a b c : ℤ}, a - c = b → a = b + c := @algebra.eq_add_of_sub_eq _ _
+  theorem add_eq_of_eq_sub : ∀{a b c : ℤ}, a = c - b → a + b = c := @algebra.add_eq_of_eq_sub _ _
   theorem sub_add_eq_sub_sub : ∀a b c : ℤ, a - (b + c) = a - b - c := algebra.sub_add_eq_sub_sub
   theorem neg_add_eq_sub : ∀a b : ℤ, -a + b = b - a := algebra.neg_add_eq_sub
   theorem neg_add : ∀a b : ℤ, -(a + b) = -a + -b := algebra.neg_add
@@ -701,6 +705,10 @@ section port_algebra
   theorem sub_sub_ : ∀a b c : ℤ, a - b - c = a - (b + c) := algebra.sub_sub
   theorem add_sub_add_left_eq_sub : ∀a b c : ℤ, (c + a) - (c + b) = a - b :=
     algebra.add_sub_add_left_eq_sub
+  theorem eq_sub_of_add_eq' : ∀{a b c : ℤ}, c + a = b → a = b - c := @algebra.eq_sub_of_add_eq' _ _
+  theorem sub_eq_of_eq_add' : ∀{a b c : ℤ}, a = b + c → a - b = c := @algebra.sub_eq_of_eq_add' _ _
+  theorem eq_add_of_sub_eq' : ∀{a b c : ℤ}, a - b = c → a = b + c := @algebra.eq_add_of_sub_eq' _ _
+  theorem add_eq_of_eq_sub' : ∀{a b c : ℤ}, b = c - a → a + b = c := @algebra.add_eq_of_eq_sub' _ _
   theorem ne_zero_of_mul_ne_zero_right : ∀{a b : ℤ}, a * b ≠ 0 → a ≠ 0 :=
     @algebra.ne_zero_of_mul_ne_zero_right _ _
   theorem ne_zero_of_mul_ne_zero_left : ∀{a b : ℤ}, a * b ≠ 0 → b ≠ 0 :=

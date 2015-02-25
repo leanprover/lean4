@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/let.h"
 #include "library/constants.h"
 #include "library/definitional/equations.h"
+#include "library/tactic/assert_tactic.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/token_table.h"
@@ -153,6 +154,14 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
     optional<expr> pre_tac = get_begin_end_pre_tactic(env);
     buffer<expr> tacs;
     bool first = true;
+
+    auto add_tac = [&](expr tac, pos_info const & pos) {
+        if (pre_tac)
+            tac = p.mk_app({get_and_then_tac_fn(), *pre_tac, tac}, pos);
+        tac = mk_begin_end_element_annotation(tac);
+        tacs.push_back(tac);
+    };
+
     while (!p.curr_is_token(end_token)) {
         if (first) {
             first = false;
@@ -172,18 +181,52 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
             tacs.push_back(parse_begin_end_core(p, pos, get_rcurly_tk(), true));
         } else if (p.curr_is_token(end_token)) {
             break;
-        } else {
-            bool use_exact = (p.curr_is_token(get_have_tk()) || p.curr_is_token(get_show_tk()) ||
-                              p.curr_is_token(get_assume_tk()) || p.curr_is_token(get_take_tk()) ||
-                              p.curr_is_token(get_fun_tk()));
+        } else if (p.curr_is_token(get_have_tk())) {
             auto pos = p.pos();
-            expr tac = p.parse_expr();
-            if (use_exact)
-                tac = p.mk_app(get_exact_tac_fn(), tac, pos);
-            if (pre_tac)
-                tac = p.mk_app({get_and_then_tac_fn(), *pre_tac, tac}, pos);
-            tac = mk_begin_end_element_annotation(tac);
-            tacs.push_back(tac);
+            p.next();
+            name id  = p.check_id_next("invalid 'have' tactic, identifier expected");
+            p.check_token_next(get_colon_tk(), "invalid 'have' tactic, ':' expected");
+            expr A   = p.parse_expr();
+            p.check_token_next(get_comma_tk(), "invalid 'have' tactic, ',' expected");
+            expr assert_tac = p.save_pos(mk_assert_tactic_expr(id, A), pos);
+            tacs.push_back(mk_begin_end_element_annotation(assert_tac));
+            if (p.curr_is_token(get_from_tk())) {
+                // parse: 'from' expr
+                p.next();
+                auto pos = p.pos();
+                expr t = p.parse_expr();
+                t      = p.mk_app(get_exact_tac_fn(), t, pos);
+                add_tac(t, pos);
+            } else if (p.curr_is_token(get_proof_tk())) {
+                auto pos = p.pos();
+                p.next();
+                expr t = p.parse_expr();
+                p.check_token_next(get_qed_tk(), "invalid proof-qed, 'qed' expected");
+                t      = p.mk_app(get_exact_tac_fn(), t, pos);
+                add_tac(t, pos);
+            } else if (p.curr_is_token(get_begin_tk())) {
+                auto pos = p.pos();
+                tacs.push_back(parse_begin_end_core(p, pos, get_end_tk(), true));
+            } else if (p.curr_is_token(get_by_tk())) {
+                // parse: 'by' tactic
+                auto pos = p.pos();
+                p.next();
+                expr t = p.parse_expr();
+                add_tac(t, pos);
+            } else {
+                throw parser_error("invalid 'have' tactic, 'by', 'begin', 'proof', or 'from' expected", p.pos());
+            }
+        } else if (p.curr_is_token(get_show_tk()) ||
+                   p.curr_is_token(get_assume_tk()) || p.curr_is_token(get_take_tk()) ||
+                   p.curr_is_token(get_fun_tk())) {
+            auto pos = p.pos();
+            expr t = p.parse_expr();
+            t      = p.mk_app(get_exact_tac_fn(), t, pos);
+            add_tac(t, pos);
+        } else {
+            auto pos = p.pos();
+            expr t   = p.parse_expr();
+            add_tac(t, pos);
         }
     }
     auto end_pos = p.pos();
@@ -271,7 +314,7 @@ static expr parse_proof(parser & p, expr const & prop) {
         }
         return pr;
     } else {
-        throw parser_error("invalid expression, 'by', 'using' or 'from' expected", p.pos());
+        throw parser_error("invalid expression, 'by', 'begin', 'proof', 'using' or 'from' expected", p.pos());
     }
 }
 

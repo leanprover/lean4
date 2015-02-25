@@ -11,6 +11,11 @@ Author: Leonardo de Moura
 #include "library/tactic/expr_to_tactic.h"
 
 namespace lean {
+expr mk_assert_tactic_expr(name const & id, expr const & e) {
+    return mk_app(mk_constant(get_tactic_assert_hypothesis_name()),
+                  mk_constant(id), e);
+}
+
 tactic assert_tactic(elaborate_fn const & elab, name const & id, expr const & e) {
     return tactic01([=](environment const & env, io_state const & ios, proof_state const & s) {
             proof_state new_s = s;

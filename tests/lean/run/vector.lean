@@ -115,7 +115,7 @@ namespace vector
          begin
            cases v with (n₂, h₂, t₂),
            have r : vector B n₂ → vector C n₂, from pr₁ b,
-           (f h₁ h₂) :: r t₂,
+           exact ((f h₁ h₂) :: r t₂),
          end
      end) v
 

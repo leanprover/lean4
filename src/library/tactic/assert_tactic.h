@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic.h"
 
 namespace lean {
+expr mk_assert_tactic_expr(name const & id, expr const & e);
 tactic assert_tactic(elaborate_fn const & elab, name const & id, expr const & e);
 void initialize_assert_tactic();
 void finalize_assert_tactic();

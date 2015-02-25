@@ -104,7 +104,7 @@ nat.case_strong_induction_on m
               restrict default measure f (succ m) x = f x : if_pos H1
                 ... = f' (succ m') x : !eq.refl
                 ... = if measure x < succ m' then rec_val x (f' m') else default : rfl
-                ... = rec_val x (f' m') : if_pos !self_lt_succ
+                ... = rec_val x (f' m') : if_pos !lt_succ_self
                 ... = rec_val x f : rec_decreasing _ _ _ H3a
           qed,
           show f' (succ m) x = restrict default measure f (succ m) x,

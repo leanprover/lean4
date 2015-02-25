@@ -15,10 +15,10 @@ theorem inh_exists {A : Type} {P : A → Prop} (H : ∃x, P x) : inh A
 theorem inh_bool [instance] : inh Prop
 := inh.intro true
 
-theorem inh_fun [instance] {A B : Type} (H : inh B) : inh (A → B)
+theorem inh_fun [instance] {A B : Type} [H : inh B] : inh (A → B)
 := inh.rec (λb, inh.intro (λa : A, b)) H
 
-theorem pair_inh [instance] {A : Type} {B : Type} (H1 : inh A) (H2 : inh B) : inh (prod A B)
+theorem pair_inh [instance] {A : Type} {B : Type} [H1 : inh A] [H2 : inh B] : inh (prod A B)
 := inh_elim H1 (λa, inh_elim H2 (λb, inh.intro (pair a b)))
 
 definition assump := eassumption

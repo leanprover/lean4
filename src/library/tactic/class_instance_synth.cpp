@@ -236,9 +236,15 @@ struct class_instance_elaborator : public choice_iterator {
                 type = tc.whnf(type).first;
                 if (!is_pi(type))
                     break;
-                pair<expr, constraint> ac = mk_class_instance_elaborator(m_C, m_ctx, some_expr(binding_domain(type)), g, m_depth+1);
-                expr arg = ac.first;
-                cs.push_back(ac.second);
+                expr arg;
+                if (binding_info(type).is_inst_implicit()) {
+                    pair<expr, constraint> ac = mk_class_instance_elaborator(m_C, m_ctx, some_expr(binding_domain(type)),
+                                                                             g, m_depth+1);
+                    arg = ac.first;
+                    cs.push_back(ac.second);
+                } else {
+                    arg = m_ctx.mk_meta(m_C->m_ngen, some_expr(binding_domain(type)), g);
+                }
                 r    = mk_app(r, arg, g);
                 type = instantiate(binding_body(type), arg);
             }

@@ -9,7 +9,7 @@ theorem inh_bool [instance] : inh Prop
 
 set_option class.trace_instances true
 
-theorem inh_fun [instance] {A B : Type} (H : inh B) : inh (A → B)
+theorem inh_fun [instance] {A B : Type} [H : inh B] : inh (A → B)
 := inh.rec (λ b, inh.intro (λ a : A, b)) H
 
 theorem tst {A B : Type} (H : inh B) : inh (A → B → B)

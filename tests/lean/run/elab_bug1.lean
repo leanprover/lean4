@@ -42,19 +42,19 @@ theorem congr_const_iff [instance] (T1 : Type) (R1 : T1 → T1 → Prop) (c : Pr
   congruence R1 iff (const T1 c) := congr_const iff iff.refl T1 R1 c
 
 theorem congr_or [instance] (T : Type) (R : T → T → Prop) (f1 f2 : T → Prop)
-    (H1 : congruence R iff f1) (H2 : congruence R iff f2) :
+    [H1 : congruence R iff f1] [H2 : congruence R iff f2] :
   congruence R iff (λx, f1 x ∨ f2 x) := sorry
 
 theorem congr_implies [instance] (T : Type) (R : T → T → Prop) (f1 f2 : T → Prop)
-    (H1 : congruence R iff f1) (H2 : congruence R iff f2) :
+    [H1 : congruence R iff f1] [H2 : congruence R iff f2] :
   congruence R iff (λx, f1 x → f2 x) := sorry
 
 theorem congr_iff [instance] (T : Type) (R : T → T → Prop) (f1 f2 : T → Prop)
-    (H1 : congruence R iff f1) (H2 : congruence R iff f2) :
+    [H1 : congruence R iff f1] [H2 : congruence R iff f2] :
   congruence R iff (λx, f1 x ↔ f2 x) := sorry
 
 theorem congr_not [instance] (T : Type) (R : T → T → Prop) (f : T → Prop)
-    (H : congruence R iff f) :
+    [H : congruence R iff f] :
   congruence R iff (λx, ¬ f x) := sorry
 
 theorem subst_iff {T : Type} {R : T → T → Prop} {P : T → Prop} [C : congruence R iff P]

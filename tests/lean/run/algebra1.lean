@@ -65,7 +65,7 @@ namespace semigroup
   definition assoc  {A : Type} (s : semigroup_struct A) : is_assoc (mul s)
   := semigroup_struct.rec (fun f h, h) s
 
-  definition is_mul_struct  [instance] (A : Type) (s : semigroup_struct A) : mul_struct A
+  definition is_mul_struct  [instance] (A : Type) [s : semigroup_struct A] : mul_struct A
   := mul_struct.mk (mul s)
 
   inductive semigroup : Type :=
@@ -74,7 +74,7 @@ namespace semigroup
   definition carrier  [coercion] (g : semigroup)
   := semigroup.rec (fun c s, c) g
 
-  definition is_semigroup  [instance] (g : semigroup) : semigroup_struct (carrier g)
+  definition is_semigroup  [instance] [g : semigroup] : semigroup_struct (carrier g)
   := semigroup.rec (fun c s, s) g
 end semigroup
 
@@ -91,7 +91,7 @@ namespace monoid
   := monoid_struct.rec (fun mul id a i, a) s
 
   open semigroup
-  definition is_semigroup_struct  [instance] (A : Type) (s : monoid_struct A) : semigroup_struct A
+  definition is_semigroup_struct  [instance] (A : Type) [s : monoid_struct A] : semigroup_struct A
   := semigroup_struct.mk (mul s) (assoc s)
 
   inductive monoid : Type :=

@@ -121,9 +121,9 @@ theorem comp {A B : Type} {R : A → A → Prop} {abs : A → B} {rep : B → A}
   (Q : is_quotient R abs rep) {C : B → Type} {f : forall (a : A), C (abs a)}
   (H : forall (r s : A) (H' : R r s), eq.rec_on (eq_abs Q H') (f r) = f s)
   {a : A} (Ha : R a a) : rec Q f (abs a) = f a :=
-have H2  [visible] : R a (rep (abs a)), from
+assert H2  : R a (rep (abs a)), from
   R_rep_abs Q Ha,
-have Heq [visible] : abs (rep (abs a)) = abs a, from
+assert Heq : abs (rep (abs a)) = abs a, from
   abs_rep Q (abs a),
 calc
   rec Q f (abs a) =  eq.rec_on Heq (f (rep (abs a))) : rfl

@@ -4,7 +4,7 @@ variables {A : Type} {a a' : A}
 
 definition to_eq₁ (H : a == a') : a = a' :=
 begin
-  assert (H₁ : ∀ (Ht : A = A), eq.rec_on Ht a = a),
+  assert H₁ : ∀ (Ht : A = A), eq.rec_on Ht a = a,
   intro Ht,
     exact (eq.refl (eq.rec_on Ht a)),
   show a = a', from

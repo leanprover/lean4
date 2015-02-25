@@ -52,9 +52,11 @@ namespace is_trunc
        apply (@is_hprop.elim),
        apply is_trunc_pi, intro a,
        apply is_hprop.mk, intros (w, z),
-       assert (H : is_hset A),
-         {apply is_trunc_succ, apply is_trunc_succ,
-          apply is_contr.mk, exact y.2},
+       have H : is_hset A,
+       begin
+         apply is_trunc_succ, apply is_trunc_succ,
+         apply is_contr.mk, exact y.2
+       end,
        fapply (@is_hset.elim A _ _ _ w z)},
      {intros (n', IH, A),
       apply is_trunc_is_equiv_closed,

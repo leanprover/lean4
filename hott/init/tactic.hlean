@@ -92,7 +92,6 @@ opaque definition revert_lst (ids : expr_list) : tactic := builtin
 notation `reverts` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` := revert_lst l
 
 opaque definition assert_hypothesis (id : expr) (e : expr) : tactic := builtin
-notation `assert` `(` id `:` ty `)` := assert_hypothesis id ty
 
 infixl `;`:15 := and_then
 notation `[` h:10 `|`:10 r:(foldl:10 `|` (e r, or_else r e) h) `]` := r

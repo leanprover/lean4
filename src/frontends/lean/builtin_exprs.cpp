@@ -181,6 +181,14 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
             tacs.push_back(parse_begin_end_core(p, pos, get_rcurly_tk(), true));
         } else if (p.curr_is_token(end_token)) {
             break;
+        } else if (p.curr_is_token(get_assert_tk())) {
+            auto pos = p.pos();
+            p.next();
+            name id  = p.check_id_next("invalid 'assert' tactic, identifier expected");
+            p.check_token_next(get_colon_tk(), "invalid 'assert' tactic, ':' expected");
+            expr A   = p.parse_expr();
+            expr assert_tac = p.save_pos(mk_assert_tactic_expr(id, A), pos);
+            tacs.push_back(mk_begin_end_element_annotation(assert_tac));
         } else if (p.curr_is_token(get_have_tk())) {
             auto pos = p.pos();
             p.next();
@@ -318,9 +326,8 @@ static expr parse_proof(parser & p, expr const & prop) {
     }
 }
 
-static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> const & prev_local) {
+static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> const & prev_local, bool is_visible) {
     auto id_pos       = p.pos();
-    bool is_visible   = false;
     name id;
     expr prop;
     if (p.curr_is_token(get_visible_tk())) {
@@ -333,7 +340,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
         p.next();
         if (p.curr_is_token(get_visible_tk())) {
             p.next();
-            p.check_token_next(get_colon_tk(), "invalid 'have' declaration, ':' expected");
+            p.check_token_next(get_colon_tk(), "invalid 'have/assert' declaration, ':' expected");
             is_visible = true;
             prop       = p.parse_expr();
         } else if (p.curr_is_token(get_colon_tk())) {
@@ -348,7 +355,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
         id            = p.mk_fresh_name();
         prop          = p.parse_expr();
     }
-    p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
+    p.check_token_next(get_comma_tk(), "invalid 'have/assert' declaration, ',' expected");
     expr proof;
     if (prev_local) {
         parser::local_scope scope(p);
@@ -360,7 +367,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
     } else {
         proof = parse_proof(p, prop);
     }
-    p.check_token_next(get_comma_tk(), "invalid 'have' declaration, ',' expected");
+    p.check_token_next(get_comma_tk(), "invalid 'have/assert' declaration, ',' expected");
     parser::local_scope scope(p);
     binder_info bi = mk_contextual_info(is_visible);
     expr l = p.save_pos(mk_local(id, prop, bi), pos);
@@ -369,8 +376,14 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
     if (p.curr_is_token(get_then_tk())) {
         auto then_pos = p.pos();
         p.next();
-        p.check_token_next(get_have_tk(), "invalid 'then have' declaration, 'have' expected");
-        body  = parse_have_core(p, then_pos, some_expr(l));
+        if (p.curr_is_token(get_assert_tk())) {
+            p.next();
+            is_visible = true;
+        } else {
+            p.check_token_next(get_have_tk(), "invalid 'then' declaration, 'have' or 'assert' expected");
+            is_visible = false;
+        }
+        body  = parse_have_core(p, then_pos, some_expr(l), is_visible);
     } else {
         body  = p.parse_expr();
     }
@@ -381,7 +394,11 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
 }
 
 static expr parse_have(parser & p, unsigned, expr const *, pos_info const & pos) {
-    return parse_have_core(p, pos, none_expr());
+    return parse_have_core(p, pos, none_expr(), false);
+}
+
+static expr parse_assert(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return parse_have_core(p, pos, none_expr(), true);
 }
 
 static name * H_show = nullptr;
@@ -539,6 +556,7 @@ parse_table init_nud_table() {
     r = r.add({transition("_", mk_ext_action(parse_placeholder))}, x0);
     r = r.add({transition("by", mk_ext_action_core(parse_by))}, x0);
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
+    r = r.add({transition("assert", mk_ext_action(parse_assert))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
     r = r.add({transition("obtain", mk_ext_action(parse_obtain))}, x0);
     r = r.add({transition("if", mk_ext_action(parse_if_then_else))}, x0);

@@ -49,6 +49,7 @@ name const & get_import_tk();
 name const & get_prelude_tk();
 name const & get_show_tk();
 name const & get_have_tk();
+name const & get_assert_tk();
 name const & get_assume_tk();
 name const & get_take_tk();
 name const & get_fun_tk();

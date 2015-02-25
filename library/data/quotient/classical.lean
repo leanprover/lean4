@@ -35,7 +35,7 @@ have H3 : ∀c, R a c ↔ R b c, from
       (assume H4 : R b c, transR H2 H4),
 have H4 : (fun c, R a c) = (fun c, R b c), from
   funext (take c, eq.of_iff (H3 c)),
-have H5 [visible] : nonempty A, from
+assert H5 : nonempty A, from
   nonempty.intro a,
 show epsilon (λc, R a c) = epsilon (λc, R b c), from
   congr_arg _ H4

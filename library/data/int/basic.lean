@@ -383,9 +383,9 @@ begin
 end
 
 theorem add.assoc (a b c : ℤ) : a + b + c = a + (b + c) :=
-have H1 [visible]: repr (a + b + c) ≡ padd (padd (repr a) (repr b)) (repr c), from
+assert H1 : repr (a + b + c) ≡ padd (padd (repr a) (repr b)) (repr c), from
   equiv.trans (repr_add (a + b) c) (padd_congr !repr_add !equiv.refl),
-have H2 [visible]: repr (a + (b + c)) ≡ padd (repr a) (padd (repr b) (repr c)), from
+assert H2 : repr (a + (b + c)) ≡ padd (repr a) (padd (repr b) (repr c)), from
   equiv.trans (repr_add a (b + c)) (padd_congr !equiv.refl !repr_add),
 begin
   apply eq_of_repr_equiv_repr,

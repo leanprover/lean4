@@ -305,10 +305,10 @@ have H2 : n - k div m ≥ 1, from
   le_sub_of_add_le (calc
     1 + k div m = succ (k div m) : add.comm
             ... ≤ n              : succ_le_of_lt H1),
-have H3 [visible] : n - k div m = n - k div m - 1 + 1, from (sub_add_cancel H2)⁻¹,
-have H4 [visible] : m > 0, from pos_of_ne_zero (assume H': m = 0, not_lt_zero _ (!zero_mul ▸ H' ▸ H)),
-have H5 : k mod m + 1 ≤ m, from succ_le_of_lt (mod_lt H4),
-have H6 [visible] : m - (k mod m + 1) < m, from sub_lt_self H4 !succ_pos,
+assert H3 : n - k div m = n - k div m - 1 + 1, from (sub_add_cancel H2)⁻¹,
+assert H4 : m > 0, from pos_of_ne_zero (assume H': m = 0, not_lt_zero _ (!zero_mul ▸ H' ▸ H)),
+have H5   : k mod m + 1 ≤ m, from succ_le_of_lt (mod_lt H4),
+assert H6 : m - (k mod m + 1) < m, from sub_lt_self H4 !succ_pos,
 calc
   (m * n - (k + 1)) div m = (m * n - (k div m * m + k mod m + 1)) div m : eq_div_mul_add_mod
      ... = (m * n - k div m * m - (k mod m + 1)) div m                  : by rewrite [*sub_sub]

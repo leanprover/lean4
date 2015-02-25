@@ -98,7 +98,7 @@
 (defconst lean-font-lock-defaults
   `((;; Keywords
      (,(rx word-start (or "calc" "have" "obtains" "show" "by" "in" "at" "let" "forall" "fun"
-                            "exists" "if" "dif" "then" "else" "assume" "take" "obtain" "from") word-end)
+                            "exists" "if" "dif" "then" "else" "assume" "assert" "take" "obtain" "from") word-end)
       . font-lock-keyword-face)
      ;; String
      ("\"[^\"]*\"" . 'font-lock-string-face)
@@ -131,7 +131,7 @@
             (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "eassumption" "rapply"
                 "apply" "fapply" "rename" "intro" "intros"
                 "generalize" "generalizes" "clear" "clears" "revert" "reverts" "back" "beta" "done" "exact" "repeat"
-                "whnf" "rotate" "rotate_left" "rotate_right" "inversion" "cases" "assert" "rewrite" "esimp" "unfold"))
+                "whnf" "rotate" "rotate_left" "rotate_right" "inversion" "cases" "rewrite" "esimp" "unfold"))
            word-end)
       (1 'font-lock-constant-face))
      ;; Types

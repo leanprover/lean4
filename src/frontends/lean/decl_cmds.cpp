@@ -232,36 +232,44 @@ static environment variables_cmd_core(parser & p, variable_kind k) {
     check_variable_kind(p, k);
     auto pos = p.pos();
     environment env = p.env();
-    while (true) {
-        optional<binder_info> bi = parse_binder_info(p, k);
-        buffer<name> ids;
-        while (!p.curr_is_token(get_colon_tk())) {
-            name id = p.check_id_next("invalid parameters declaration, identifier expected");
-            ids.push_back(id);
+
+    optional<binder_info> bi = parse_binder_info(p, k);
+    buffer<name> ids;
+    while (!p.curr_is_token(get_colon_tk())) {
+        name id = p.check_id_next("invalid parameters declaration, identifier expected");
+        ids.push_back(id);
+    }
+    p.next();
+    optional<parser::local_scope> scope1;
+    if (k == variable_kind::Constant || k == variable_kind::Axiom)
+        scope1.emplace(p);
+    expr type = p.parse_expr();
+    p.parse_close_binder_info(bi);
+    level_param_names ls = to_level_param_names(collect_univ_params(type));
+    list<expr> ctx = p.locals_to_context();
+    for (auto id : ids) {
+        // Hack: to make sure we get different universe parameters for each parameter.
+        // Alternative: elaborate once and copy types replacing universes in new_ls.
+        level_param_names new_ls;
+        expr new_type;
+        check_command_period_open_binder_or_eof(p);
+        std::tie(new_type, new_ls) = p.elaborate_type(type, ctx);
+        if (k == variable_kind::Variable || k == variable_kind::Parameter)
+            update_local_levels(p, new_ls, k == variable_kind::Variable);
+        new_ls = append(ls, new_ls);
+        env = declare_var(p, env, id, new_ls, new_type, k, bi, pos);
+    }
+    if (p.curr_is_token(get_lparen_tk()) || p.curr_is_token(get_lcurly_tk()) ||
+        p.curr_is_token(get_ldcurly_tk()) || p.curr_is_token(get_lbracket_tk())) {
+        if (k == variable_kind::Constant || k == variable_kind::Axiom) {
+            // Hack: temporarily update the parser environment.
+            // We must do that to be able to process
+            //    constants (A : Type) (a : A)
+            parser::local_scope scope2(p, env);
+            return variables_cmd_core(p, k);
+        } else {
+            return variables_cmd_core(p, k);
         }
-        p.next();
-        optional<parser::local_scope> scope1;
-        if (k == variable_kind::Constant || k == variable_kind::Axiom)
-            scope1.emplace(p);
-        expr type = p.parse_expr();
-        p.parse_close_binder_info(bi);
-        level_param_names ls = to_level_param_names(collect_univ_params(type));
-        list<expr> ctx = p.locals_to_context();
-        for (auto id : ids) {
-            // Hack: to make sure we get different universe parameters for each parameter.
-            // Alternative: elaborate once and copy types replacing universes in new_ls.
-            level_param_names new_ls;
-            expr new_type;
-            check_command_period_open_binder_or_eof(p);
-            std::tie(new_type, new_ls) = p.elaborate_type(type, ctx);
-            if (k == variable_kind::Variable || k == variable_kind::Parameter)
-                update_local_levels(p, new_ls, k == variable_kind::Variable);
-            new_ls = append(ls, new_ls);
-            env = declare_var(p, env, id, new_ls, new_type, k, bi, pos);
-        }
-        if (!p.curr_is_token(get_lparen_tk()) && !p.curr_is_token(get_lcurly_tk()) &&
-            !p.curr_is_token(get_ldcurly_tk()) && !p.curr_is_token(get_lbracket_tk()))
-            break;
     }
     return env;
 }

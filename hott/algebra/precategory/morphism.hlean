@@ -53,12 +53,7 @@ namespace morphism
 
   theorem left_inverse_eq_right_inverse {f : a ⟶ b} {g g' : hom b a}
       (Hl : g ∘ f = id) (Hr : f ∘ g' = id) : g = g' :=
-  calc
-    g = g ∘ id : !id_right
-     ... = g ∘ f ∘ g' : Hr
-     ... = (g ∘ f) ∘ g' : !assoc
-     ... = id ∘ g' : Hl
-     ... = g' : id_left
+  by rewrite [-(id_right g), -Hr, assoc, Hl, id_left]
 
   theorem retraction_eq_intro [H : is_section f] (H2 : f ∘ h = id) : retraction_of f = h
   := left_inverse_eq_right_inverse !retraction_compose H2
@@ -97,29 +92,15 @@ namespace morphism
 
   theorem is_section_comp [instance] [Hf : is_section f] [Hg : is_section g]
       : is_section (g ∘ f) :=
-  have aux : retraction_of g ∘ g ∘ f = (retraction_of g ∘ g) ∘ f,
-    from !assoc,
   is_section.mk
-    (calc
-      (retraction_of f ∘ retraction_of g) ∘ g ∘ f
-            = retraction_of f ∘ retraction_of g ∘ g ∘ f : assoc
-        ... = retraction_of f ∘ ((retraction_of g ∘ g) ∘ f) : aux
-        ... = retraction_of f ∘ id ∘ f : {retraction_compose g}
-        ... = retraction_of f ∘ f : {id_left f}
-        ... = id : retraction_compose f)
+    (show (retraction_of f ∘ retraction_of g) ∘ g ∘ f = id,
+     by rewrite [-assoc, assoc _ g f, retraction_compose, id_left, retraction_compose])
 
   theorem is_retraction_comp [instance] [Hf : is_retraction f] [Hg : is_retraction g]
       : is_retraction (g ∘ f) :=
-  have aux : f ∘ section_of f ∘ section_of g = (f ∘ section_of f) ∘ section_of g,
-    from !assoc,
   is_retraction.mk
-    (calc
-      (g ∘ f) ∘ section_of f ∘ section_of g
-            = g ∘ f ∘ section_of f ∘ section_of g : assoc
-        ... = g ∘ (f ∘ section_of f) ∘ section_of g : aux
-        ... = g ∘ id ∘ section_of g : compose_section f
-        ... = g ∘ section_of g : {id_left (section_of g)}
-        ... = id : compose_section)
+    (show (g ∘ f) ∘ section_of f ∘ section_of g = id,
+     by rewrite [-assoc, {f ∘ _}assoc, compose_section, id_left, compose_section])
 
   theorem is_inverse_comp [instance] [Hf : is_iso f] [Hg : is_iso g] : is_iso (g ∘ f) :=
   !is_iso_of_is_retraction_of_is_section
@@ -158,41 +139,40 @@ namespace morphism
   is_mono.mk
     (λ c g h H,
       calc
-        g = id ∘ g : id_left
-      ... = (retraction_of f ∘ f) ∘ g : retraction_compose f
-      ... = retraction_of f ∘ f ∘ g : assoc
-      ... = retraction_of f ∘ f ∘ h : H
-      ... = (retraction_of f ∘ f) ∘ h : assoc
-      ... = id ∘ h : retraction_compose f
-      ... = h : id_left)
+        g = id ∘ g                    : by rewrite id_left
+      ... = (retraction_of f ∘ f) ∘ g : by rewrite -retraction_compose
+      ... = (retraction_of f ∘ f) ∘ h : by rewrite [-assoc, H, -assoc]
+      ... = id ∘ h                    : by rewrite retraction_compose
+      ... = h                         : by rewrite id_left)
 
   theorem is_epi_of_is_retraction [instance] (f : a ⟶ b) [H : is_retraction f] : is_epi f :=
   is_epi.mk
     (λ c g h H,
       calc
-        g = g ∘ id : id_right
-      ... = g ∘ f ∘ section_of f : compose_section f
-      ... = (g ∘ f) ∘ section_of f : assoc
-      ... = (h ∘ f) ∘ section_of f : H
-      ... = h ∘ f ∘ section_of f : assoc
-      ... = h ∘ id : compose_section f
-      ... = h : id_right)
+        g = g ∘ id                 : by rewrite id_right
+      ... = g ∘ f ∘ section_of f   : by rewrite -compose_section
+      ... = h ∘ f ∘ section_of f   : by rewrite [assoc, H, -assoc]
+      ... = h ∘ id                 : by rewrite compose_section
+      ... = h                      : by rewrite id_right)
 
   theorem is_mono_comp [instance] [Hf : is_mono f] [Hg : is_mono g] : is_mono (g ∘ f) :=
   is_mono.mk
     (λ d h₁ h₂ H,
-      have H2 : g ∘ (f ∘ h₁) = g ∘ (f ∘ h₂),
-        from calc g ∘ (f ∘ h₁) = (g ∘ f) ∘ h₁ : !assoc
-                          ... = (g ∘ f) ∘ h₂ : H
-                          ... = g ∘ (f ∘ h₂) : !assoc, is_mono.elim (is_mono.elim H2))
+    have H2 : g ∘ (f ∘ h₁) = g ∘ (f ∘ h₂),
+    begin
+      rewrite *assoc, exact H
+    end,
+    is_mono.elim (is_mono.elim H2))
+
 
   theorem is_epi_comp  [instance] [Hf : is_epi f] [Hg : is_epi g] : is_epi  (g ∘ f) :=
   is_epi.mk
     (λ d h₁ h₂ H,
-      have H2 : (h₁ ∘ g) ∘ f = (h₂ ∘ g) ∘ f,
-        from calc (h₁ ∘ g) ∘ f = h₁ ∘ g ∘ f : !assoc
-                          ... = h₂ ∘ g ∘ f : H
-                          ... = (h₂ ∘ g) ∘ f: !assoc, is_epi.elim (is_epi.elim H2))
+    have H2 : (h₁ ∘ g) ∘ f = (h₂ ∘ g) ∘ f,
+    begin
+      rewrite -*assoc, exact H
+    end,
+    is_epi.elim (is_epi.elim H2))
 
 end morphism
 
@@ -209,31 +189,21 @@ namespace morphism
   theorem compose_pV : q ∘ q⁻¹ = id := !compose_inverse
   theorem compose_Vp : q⁻¹ ∘ q = id := !inverse_compose
   theorem compose_V_pp : q⁻¹ ∘ (q ∘ p) = p :=
-  calc
-    q⁻¹ ∘ (q ∘ p) = (q⁻¹ ∘ q) ∘ p : assoc (q⁻¹) q p
-      ... = id ∘ p : inverse_compose q
-      ... = p : id_left p
+  by rewrite [assoc, inverse_compose, id_left]
+
   theorem compose_p_Vp : q ∘ (q⁻¹ ∘ g) = g :=
-  calc
-     q ∘ (q⁻¹ ∘ g)  = (q ∘ q⁻¹) ∘ g : assoc q (q⁻¹) g
-      ... = id ∘ g : compose_inverse q
-      ... = g : id_left g
+  by rewrite [assoc, compose_inverse, id_left]
+
   theorem compose_pp_V : (r ∘ q) ∘ q⁻¹ = r :=
-  calc
-    (r ∘ q) ∘ q⁻¹ = r ∘ q ∘ q⁻¹ : assoc r q (q⁻¹)⁻¹
-      ... = r ∘ id : compose_inverse q
-      ... = r : id_right r
+  by rewrite [-assoc, compose_inverse, id_right]
+
   theorem compose_pV_p : (f ∘ q⁻¹) ∘ q = f :=
-  calc
-    (f ∘ q⁻¹) ∘ q = f ∘ q⁻¹ ∘ q : assoc f (q⁻¹) q⁻¹
-      ... = f ∘ id : inverse_compose q
-      ... = f : id_right f
+  by rewrite [-assoc, inverse_compose, id_right]
 
   theorem con_inv [H' : is_iso p] [Hpq : is_iso (q ∘ p)] : (q ∘ p)⁻¹ = p⁻¹ ∘ q⁻¹ :=
-  have H1 : (p⁻¹ ∘ q⁻¹) ∘ q ∘ p = p⁻¹ ∘ (q⁻¹ ∘ (q ∘ p)), from assoc (p⁻¹) (q⁻¹) (q ∘ p)⁻¹,
-  have H2 : (p⁻¹) ∘ (q⁻¹ ∘ (q ∘ p)) = p⁻¹ ∘ p, from ap _ (compose_V_pp q p),
-  have H3 : p⁻¹ ∘ p = id, from inverse_compose p,
-  inverse_eq_intro_left (H1 ⬝ H2 ⬝ H3)
+  inverse_eq_intro_left
+    (show (p⁻¹ ∘ (q⁻¹)) ∘ q ∘ p = id, from
+     by rewrite [-assoc, compose_V_pp, inverse_compose])
 
   --the proof using calc is hard for the unifier (needs ~90k steps)
   -- inverse_eq_intro_left

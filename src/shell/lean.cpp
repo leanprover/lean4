@@ -382,6 +382,8 @@ int main(int argc, char ** argv) {
             script_state::set_check_interrupt_freq(atoi(optarg));
             break;
         case 'p':
+            if (default_k == input_kind::HLean)
+                lean::initialize_lean_path(true);
             std::cout << lean::get_lean_path() << "\n";
             return 0;
         case 's':

@@ -196,7 +196,7 @@ namespace is_trunc
 
   notation n `-Type` := trunctype n
   abbreviation hprop := -1-Type
-  abbreviation hset := (-1.+1)-Type
+  abbreviation hset := 0-Type
 
   protected definition hprop.mk := @trunctype.mk -1
   protected definition hset.mk := @trunctype.mk (-1.+1)

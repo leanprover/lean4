@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module init.num
 Authors: Leonardo de Moura
 -/
+
 prelude
 import init.logic init.bool
 open bool

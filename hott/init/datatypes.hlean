@@ -7,6 +7,7 @@ Authors: Leonardo de Moura, Jakob von Raumer
 
 Basic datatypes
 -/
+
 prelude
 notation [parsing-only] `Type'` := Type.{_+1}
 notation [parsing-only] `Type₊` := Type.{_+1}

@@ -1,11 +1,14 @@
 /-
 Copyright (c) 2014 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Floris van Doorn
-Ported from Coq HoTT
 
+Module: types.sigma
+Author: Floris van Doorn
+
+Ported from Coq HoTT
 Theorems about sigma-types (dependent sums)
 -/
+
 import types.prod
 
 open eq sigma sigma.ops equiv is_equiv

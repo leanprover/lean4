@@ -1,9 +1,11 @@
 /-
 Copyright (c) 2014 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Floris van Doorn
-Ported from Coq HoTT
 
+Module: types.path
+Author: Floris van Doorn
+
+Ported from Coq HoTT
 Theorems about path types (identity types)
 -/
 
@@ -133,11 +135,18 @@ namespace path
   equiv.trans (equiv_concat_l p a3) (equiv_concat_r q a2)
 
 /- BELOW STILL NEEDS TO BE PORTED FROM COQ HOTT -/
-
-  -- definition isequiv_whiskerL [instance] (p : a1 = a2) (q r : a2 = a3)
-  -- : is_equiv (@whisker_left A a1 a2 a3 p q r) :=
-  -- begin
-
+--   set_option pp.beta true
+--   check @cancel_left
+--   set_option pp.full_names true
+--   definition isequiv_whiskerL [instance] (p : a1 = a2) (q r : a2 = a3)
+--   : is_equiv (@whisker_left A a1 a2 a3 p q r) :=
+--   begin
+--   fapply adjointify,
+--   intro H, apply (!cancel_left H),
+--   intro s, esimp {function.compose, function.id}, unfold eq.cancel_left,
+-- --  reverts (q,r,a),  apply (eq.rec_on p), esimp {whisker_left,concat2, idp, cancel_left, eq.rec_on}, intros, esimp,
+--   end
+--  check @whisker_right_con_whisker_left
   -- end
   -- /-begin
   --   refine (isequiv_adjointify _ _ _ _).

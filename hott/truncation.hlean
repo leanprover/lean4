@@ -1,6 +1,10 @@
--- Copyright (c) 2014 Jakob von Raumer. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Authors: Jakob von Raumer
+/-
+Copyright (c) 2014 Jakob von Raumer. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: truncation
+Authors: Jakob von Raumer
+-/
 
 open is_trunc
 

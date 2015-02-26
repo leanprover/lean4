@@ -218,37 +218,45 @@ end is_equiv
 
 open is_equiv
 namespace equiv
-
+  namespace ops
+    attribute to_fun [coercion]
+  end ops
+  open equiv.ops
   attribute to_is_equiv [instance]
 
   infix `≃`:25 := equiv
 
-  context
-  parameters {A B C : Type} (eqf : A ≃ B)
+  variables {A B C : Type}
 
-  private definition f : A → B := to_fun eqf
-  private definition Hf [instance] : is_equiv f := to_is_equiv eqf
+  protected definition MK (f : A → B) (g : B → A) (retr : f ∘ g ∼ id) (sect : g ∘ f ∼ id) : A ≃ B :=
+  equiv.mk f (adjointify f g retr sect)
+  definition to_inv (f : A ≃ B) : B → A :=
+  f⁻¹
 
-  protected definition refl : A ≃ A := equiv.mk id is_equiv.is_equiv_id
+  protected definition refl : A ≃ A :=
+  equiv.mk id !is_equiv_id
 
-  definition trans (eqg: B ≃ C) : A ≃ C :=
-    equiv.mk ((to_fun eqg) ∘ f)
-             (is_equiv_compose f (to_fun eqg))
+  protected definition symm (f : A ≃ B) : B ≃ A :=
+  equiv.mk (f⁻¹) !is_equiv_inv
 
-  definition equiv_of_eq_of_equiv (f' : A → B) (Heq : to_fun eqf = f') : A ≃ B :=
-    equiv.mk f' (is_equiv.is_equiv_eq_closed f Heq)
+  protected definition trans (f : A ≃ B) (g: B ≃ C) : A ≃ C :=
+  equiv.mk (g ∘ f) !is_equiv_compose
 
-  definition symm : B ≃ A :=
-    equiv.mk (is_equiv.inv f) !is_equiv.is_equiv_inv
+  definition equiv_of_eq_of_equiv (f : A ≃ B) (f' : A → B) (Heq : f = f') : A ≃ B :=
+  equiv.mk f' (is_equiv_eq_closed f Heq)
 
-  definition equiv_ap (P : A → Type) {x y : A} {p : x = y} : (P x) ≃ (P y) :=
-    equiv.mk (eq.transport P p) (is_equiv_tr P p)
+  definition eq_equiv_fn_eq (f : A → B) [H : is_equiv f] (a b : A) : (a = b) ≃ (f a = f b) :=
+  equiv.mk (ap f) !is_equiv_ap
 
-  end
+  definition eq_equiv_fn_eq_of_equiv (f : A ≃ B) (a b : A) : (a = b) ≃ (f a = f b) :=
+  equiv.mk (ap f) !is_equiv_ap
+
+  definition equiv_ap (P : A → Type) {a b : A} (p : a = b) : (P a) ≃ (P b) :=
+  equiv.mk (transport P p) !is_equiv_tr
 
   --we need this theorem for the funext_of_ua proof
   theorem inv_eq {A B : Type} (eqf eqg : A ≃ B) (p : eqf = eqg) : (to_fun eqf)⁻¹ = (to_fun eqg)⁻¹ :=
-    eq.rec_on p idp
+  eq.rec_on p idp
 
   -- calc enviroment
   -- Note: Calculating with substitutions needs univalence

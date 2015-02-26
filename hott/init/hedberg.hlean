@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 
 Hedberg's Theorem: every type with decidable equality is a hset
 -/
+
 prelude
 import init.trunc
 open eq eq.ops nat is_trunc sigma

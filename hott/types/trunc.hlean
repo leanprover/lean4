@@ -29,17 +29,16 @@ namespace is_trunc
   definition is_trunc.pi_char (n : trunc_index) (A : Type) :
     (Π (x y : A), is_trunc n (x = y)) ≃ (is_trunc (n .+1) A) :=
   begin
-    fapply equiv.mk,
+    fapply equiv.MK,
       {intro H, apply is_trunc_succ_intro},
-      {fapply is_equiv.adjointify,
-        {intros (H, x, y), apply is_trunc_eq},
-        {intro H, apply (is_trunc.rec_on H), intro Hint, apply idp},
-        {intro P,
-         unfold compose, apply eq_of_homotopy,
-         exact sorry}},
+      {intros (H, x, y), apply is_trunc_eq},
+      {intro H, apply (is_trunc.rec_on H), intro Hint, apply idp},
+      {intro P, apply eq_of_homotopy, intro a, apply eq_of_homotopy, intro b,
+    esimp {function.id,compose,is_trunc_succ_intro,is_trunc_eq},
+    generalize (P a b), intro H, apply (is_trunc.rec_on H), intro H', apply idp},
   end
 
-  definition is_hprop_is_trunc {n : trunc_index} :
+  definition is_hprop_is_trunc [instance] (n : trunc_index) :
     Π (A : Type), is_hprop (is_trunc n A) :=
   begin
     apply (trunc_index.rec_on n),
@@ -84,7 +83,7 @@ namespace is_trunc
       have H2 : transport (λx, R a x → a = x) p (@imp a a) = @imp a a, from !apD,
       have H3 : Π(r : R a a), transport (λx, a = x) p (imp r)
                               = imp (transport (λx, R a x) p r), from
-        to_fun (symm !heq_pi) H2,
+        to_fun (equiv.symm !heq_pi) H2,
       have H4 : imp (refl a) ⬝ p = imp (refl a), from
         calc
           imp (refl a) ⬝ p = transport (λx, a = x) p (imp (refl a)) : transport_paths_r
@@ -116,5 +115,26 @@ namespace is_trunc
   definition is_trunc_of_axiom_K_of_leq {A : Type} (n : trunc_index) (H : -1 ≤ n)
     (K : Π(a : A), is_trunc n (a = a)) : is_trunc (n.+1) A :=
   @is_trunc_succ_intro _ _ (λa b, is_trunc_of_imp_is_trunc_of_leq H (λp, eq.rec_on p !K))
+
+  open trunctype equiv equiv.ops
+
+  protected definition trunctype.sigma_char.{l} (n : trunc_index) :
+    (trunctype.{l} n) ≃ (Σ (A : Type.{l}), is_trunc n A) :=
+  begin
+    fapply equiv.MK,
+    /--/  intro A, exact (⟨trunctype_type A, is_trunc_trunctype_type A⟩),
+    /--/  intro S, exact (trunctype.mk S.1 S.2),
+    /--/  intro S, apply (sigma.rec_on S), intros (S1, S2), apply idp,
+    intro A, apply (trunctype.rec_on A), intros (A1, A2), apply idp,
+  end
+
+--  set_option pp.notation false
+  protected definition trunctype.eq (n : trunc_index) (A B : n-Type) :
+    (A = B) ≃ (trunctype_type A = trunctype_type B) :=
+  calc
+    (A = B) ≃ (trunctype.sigma_char n A = trunctype.sigma_char n B) : eq_equiv_fn_eq_of_equiv
+      ... ≃ ((trunctype.sigma_char n A).1 = (trunctype.sigma_char n B).1) : equiv.symm (!equiv_subtype)
+      ... ≃ (trunctype_type A = trunctype_type B) : equiv.refl
+
 
 end is_trunc

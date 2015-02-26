@@ -1,10 +1,16 @@
--- Copyright (c) 2014 Jakob von Raumer. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Jakob von Raumer
--- Ported from Coq HoTT
+/-
+Copyright (c) 2014 Jakob von Raumer. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: init.axioms.funext_of_ua
+Author: Jakob von Raumer
+
+Ported from Coq HoTT
+-/
+
 prelude
 import ..equiv ..datatypes ..types.prod
-import .funext_varieties .ua .funext
+import .funext_varieties .ua
 
 open eq function prod is_trunc sigma equiv is_equiv unit
 

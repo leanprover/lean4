@@ -7,7 +7,8 @@ Author: Jakob von Raumer
 
 Ported from Coq HoTT
 -/
-exit
+
+-- This file is nowhere used. Do we want to keep it?
 open eq function funext
 
 namespace is_equiv

@@ -7,22 +7,23 @@ Author: Floris van Doorn
 -/
 
 --note: modify definition in category.set
-import .constructions .morphism
+import algebra.category.constructions .morphism
 
-open eq precategory functor is_trunc equiv is_equiv pi
-open is_trunc.trunctype funext precategory.ops prod.ops
+open category eq category.ops functor prod.ops is_trunc
 
 set_option pp.beta true
-
 namespace yoneda
   set_option class.conservative false
 
-  definition representable_functor_assoc [C : Precategory] {a1 a2 a3 a4 a5 a6 : C} (f1 : a5 ⟶ a6) (f2 : a4 ⟶ a5) (f3 : a3 ⟶ a4) (f4 : a2 ⟶ a3) (f5 : a1 ⟶ a2) : (f1 ∘ f2) ∘ f3 ∘ (f4 ∘ f5) = f1 ∘ (f2 ∘ f3 ∘ f4) ∘ f5 :=
+  --TODO: why does this take so much steps? (giving more information than "assoc" hardly helps)
+  definition representable_functor_assoc [C : Precategory] {a1 a2 a3 a4 a5 a6 : C}
+    (f1 : hom a5 a6) (f2 : hom a4 a5) (f3 : hom a3 a4) (f4 : hom a2 a3) (f5 : hom a1 a2)
+      : (f1 ∘ f2) ∘ f3 ∘ (f4 ∘ f5) = f1 ∘ (f2 ∘ f3 ∘ f4) ∘ f5 :=
   calc
-    (f1 ∘ f2) ∘ f3 ∘ f4 ∘ f5 = f1 ∘ f2 ∘ f3 ∘ f4 ∘ f5 : assoc
-    ... = f1 ∘ (f2 ∘ f3) ∘ f4 ∘ f5 : assoc
-    ... = f1 ∘ ((f2 ∘ f3) ∘ f4) ∘ f5 : assoc
-    ... = f1 ∘ (f2 ∘ f3 ∘ f4) ∘ f5 : assoc
+        _ = f1 ∘ f2 ∘ f3 ∘ f4 ∘ f5 : assoc
+      ... = f1 ∘ (f2 ∘ f3) ∘ f4 ∘ f5 : assoc
+      ... = f1 ∘ ((f2 ∘ f3) ∘ f4) ∘ f5 : assoc
+      ... = _ : assoc
 
   --disturbing behaviour: giving the type of f "(x ⟶ y)" explicitly makes the unifier loop
   definition representable_functor (C : Precategory) : Cᵒᵖ ×c C ⇒ set :=
@@ -37,7 +38,7 @@ namespace yoneda
 end yoneda
 
 
-
+open is_equiv equiv
 
 namespace functor
   open prod nat_trans

@@ -13,27 +13,27 @@ import types.prod types.sigma types.pi
 
 open eq prod eq eq.ops equiv is_trunc
 
-namespace precategory
+namespace category
   namespace opposite
 
   definition opposite [reducible] {ob : Type} (C : precategory ob) : precategory ob :=
-  mk (λ a b, hom b a)
-     (λ b a, !homH)
-     (λ a b c f g, g ∘ f)
-     (λ a, id)
-     (λ a b c d f g h, !assoc⁻¹)
-     (λ a b f, !id_right)
-     (λ a b f, !id_left)
+  precategory.mk (λ a b, hom b a)
+                 (λ a b, !homH)
+                 (λ a b c f g, g ∘ f)
+                 (λ a, id)
+                 (λ a b c d f g h, !assoc⁻¹)
+                 (λ a b f, !id_right)
+                 (λ a b f, !id_left)
 
-  definition Opposite [reducible] (C : Precategory) : Precategory := Mk (opposite C)
+  definition Opposite [reducible] (C : Precategory) : Precategory := precategory.Mk (opposite C)
 
-  infixr `∘op`:60 := @compose _ (opposite _) _ _ _
+  infixr `∘op`:60 := @comp _ (opposite _) _ _ _
 
   variables {C : Precategory} {a b c : C}
 
   set_option apply.class_instance false -- disable class instance resolution in the apply tactic
 
-  theorem compose_op {f : hom a b} {g : hom b c} : f ∘op g = g ∘ f := idp
+  definition compose_op {f : hom a b} {g : hom b c} : f ∘op g = g ∘ f := idp
 
   -- TODO: Decide whether just to use funext for this theorem or
   --       take the trick they use in Coq-HoTT, and introduce a further
@@ -91,17 +91,18 @@ namespace precategory
   section
   open prod is_trunc
 
-  definition prod_precategory [reducible] [instance] {obC obD : Type} (C : precategory obC) (D : precategory obD)
+  definition prod_precategory [reducible] {obC obD : Type} (C : precategory obC) (D : precategory obD)
       : precategory (obC × obD) :=
-  mk (λ a b, hom (pr1 a) (pr1 b) × hom (pr2 a) (pr2 b))
-     (λ a b, !is_trunc_prod)
-     (λ a b c g f, (pr1 g ∘ pr1 f , pr2 g ∘ pr2 f) )
-     (λ a, (id, id))
-     (λ a b c d h g f, pair_eq  !assoc    !assoc   )
-     (λ a b f,         prod_eq  !id_left  !id_left )
-     (λ a b f,         prod_eq  !id_right !id_right)
+  precategory.mk (λ a b, hom (pr1 a) (pr1 b) × hom (pr2 a) (pr2 b))
+                 (λ a b, !is_trunc_prod)
+                 (λ a b c g f, (pr1 g ∘ pr1 f , pr2 g ∘ pr2 f) )
+                 (λ a, (id, id))
+                 (λ a b c d h g f, pair_eq  !assoc    !assoc   )
+                 (λ a b f,         prod_eq  !id_left  !id_left )
+                 (λ a b f,         prod_eq  !id_right !id_right)
 
-  definition Prod_precategory [reducible] (C D : Precategory) : Precategory := Mk (prod_precategory C D)
+  definition Prod_precategory [reducible] (C D : Precategory) : Precategory :=
+  precategory.Mk (prod_precategory C D)
 
   end
   end product
@@ -113,8 +114,6 @@ namespace precategory
     infixr `×c`:30 := product.Prod_precategory
     --instance [persistent] type_category category_one
     --                      category_two product.prod_category
-    attribute product.prod_precategory [instance]
-
   end ops
 
   open ops
@@ -156,16 +155,16 @@ namespace precategory
     open morphism functor nat_trans
     definition precategory_functor [instance] [reducible] (C D : Precategory)
       : precategory (functor C D) :=
-    mk (λa b, nat_trans a b)
-       (λ a b, @nat_trans.to_hset C D a b)
-       (λ a b c g f, nat_trans.compose g f)
-       (λ a, nat_trans.id)
-       (λ a b c d h g f, !nat_trans.assoc)
-       (λ a b f, !nat_trans.id_left)
-       (λ a b f, !nat_trans.id_right)
+    precategory.mk (λa b, nat_trans a b)
+                   (λ a b, @nat_trans.to_hset C D a b)
+                   (λ a b c g f, nat_trans.compose g f)
+                   (λ a, nat_trans.id)
+                   (λ a b c d h g f, !nat_trans.assoc)
+                   (λ a b f, !nat_trans.id_left)
+                   (λ a b f, !nat_trans.id_right)
 
     definition Precategory_functor [reducible] (C D : Precategory) : Precategory :=
-    Mk (precategory_functor C D)
+    precategory.Mk (precategory_functor C D)
 
     definition Precategory_functor_rev [reducible] (C D : Precategory) : Precategory :=
     Precategory_functor D C
@@ -206,11 +205,10 @@ namespace precategory
   end precategory_functor
 
   namespace ops
-  abbreviation set := Precategory_hset
   infixr `^c`:35 := Precategory_functor_rev
   infixr `×f`:30 := product.prod_functor
   infixr `ᵒᵖᶠ`:(max+1) := opposite.opposite_functor
   end ops
 
 
-end precategory
+end category

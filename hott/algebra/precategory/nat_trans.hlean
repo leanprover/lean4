@@ -1,25 +1,24 @@
--- Copyright (c) 2014 Floris van Doorn. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Floris van Doorn, Jakob von Raumer
+/-
+Copyright (c) 2014 Floris van Doorn. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: algebra.precategory.nat_trans
+Author: Floris van Doorn, Jakob von Raumer
+-/
 
 import .functor .morphism
-open eq precategory functor is_trunc equiv sigma.ops sigma is_equiv function pi funext
+open eq category functor is_trunc equiv sigma.ops sigma is_equiv function pi funext
 
-inductive nat_trans {C D : Precategory} (F G : C ⇒ D) : Type :=
-mk : Π (η : Π (a : C), hom (F a) (G a))
-  (nat : Π {a b : C} (f : hom a b), G f ∘ η a = η b ∘ F f),
-  nat_trans F G
+structure nat_trans {C D : Precategory} (F G : C ⇒ D) :=
+ (natural_map : Π (a : C), hom (F a) (G a))
+ (naturality : Π {a b : C} (f : hom a b), G f ∘ natural_map a = natural_map b ∘ F f)
 
 namespace nat_trans
 
   infixl `⟹`:25 := nat_trans -- \==>
   variables {C D : Precategory} {F G H I : C ⇒ D}
 
-  definition natural_map [coercion] (η : F ⟹ G) : Π (a : C), F a ⟶ G a :=
-  nat_trans.rec (λ x y, x) η
-
-  theorem naturality (η : F ⟹ G) : Π⦃a b : C⦄ (f : a ⟶ b), G f ∘ η a = η b ∘ F f :=
-  nat_trans.rec (λ x y, y) η
+  attribute natural_map [coercion]
 
   protected definition compose (η : G ⟹ H) (θ : F ⟹ G) : F ⟹ H :=
   nat_trans.mk
@@ -84,10 +83,10 @@ namespace nat_trans
   begin
     apply is_trunc_is_equiv_closed, apply (equiv.to_is_equiv !sigma_char),
     apply is_trunc_sigma,
-      apply is_trunc_pi, intro a, exact (@homH (objects D) _ (F a) (G a)),
+      apply is_trunc_pi, intro a, exact (@homH (Precategory.carrier D) _ (F a) (G a)),
     intro η, apply is_trunc_pi, intro a,
     apply is_trunc_pi, intro b, apply is_trunc_pi, intro f,
-    apply is_trunc_eq, apply is_trunc_succ, exact (@homH (objects D) _ (F a) (G b)),
+    apply is_trunc_eq, apply is_trunc_succ, exact (@homH (Precategory.carrier D) _ (F a) (G b)),
   end
 
 end nat_trans

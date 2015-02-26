@@ -3,7 +3,7 @@ Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Module: init.path
-Author: Jeremy Avigad, Jakob von Raumer
+Author: Jeremy Avigad, Jakob von Raumer, Floris van Doorn
 
 Ported from Coq HoTT
 -/
@@ -549,10 +549,10 @@ namespace eq
   -- Unwhiskering, a.k.a. cancelling
 
   definition cancel_left {x y z : A} (p : x = y) (q r : y = z) : (p ⬝ q = p ⬝ r) → (q = r) :=
-  eq.rec_on p (take r, eq.rec_on r (take q a, (idp_con q)⁻¹ ⬝ a)) r q
+  eq.rec_on p (λq r s, !idp_con⁻¹ ⬝ s ⬝ !idp_con) q r
 
   definition cancel_right {x y z : A} (p q : x = y) (r : y = z) : (p ⬝ r = q ⬝ r) → (p = q) :=
-  eq.rec_on r (eq.rec_on p (take q a, a ⬝ con_idp q)) q
+  eq.rec_on r (λs, !con_idp⁻¹ ⬝ s ⬝ !con_idp)
 
   -- Whiskering and identity paths.
 
@@ -580,7 +580,6 @@ namespace eq
     idp ◾ h = whisker_left idp h :> (idp ⬝ p = idp ⬝ q) :=
   eq.rec_on h idp
 
-  -- TODO: note, 4 inductions
   -- The interchange law for concatenation.
   definition con2_con_con2 {p p' p'' : x = y} {q q' q'' : y = z}
       (a : p = p') (b : p' = p'') (c : q = q') (d : q' = q'') :

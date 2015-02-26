@@ -1,10 +1,14 @@
--- Copyright (c) 2014 Floris van Doorn. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Authors: Floris van Doorn, Jakob von Raumer
+/-
+Copyright (c) 2014 Floris van Doorn. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: algebra.precategory.functor
+Authors: Floris van Doorn, Jakob von Raumer
+-/
 
 import .basic types.pi
 
-open function precategory eq prod equiv is_equiv sigma sigma.ops is_trunc funext
+open function category eq prod equiv is_equiv sigma sigma.ops is_trunc funext
 open pi
 
 structure functor (C D : Precategory) : Type :=
@@ -134,7 +138,7 @@ namespace functor
   end
 
   protected definition strict_cat_has_functor_hset
-    [HD : is_hset (objects D)] : is_hset (functor C D) :=
+    [HD : is_hset D] : is_hset (functor C D) :=
   begin
     apply is_trunc_is_equiv_closed, apply equiv.to_is_equiv,
       apply sigma_char,
@@ -151,10 +155,12 @@ namespace functor
 
 end functor
 
-namespace precategory
+
+namespace category
   open functor
 
-  definition precat_of_strict_precats : precategory (Σ (C : Precategory), is_hset (objects C)) :=
+  --TODO: make this a structure
+  definition precat_of_strict_precats : precategory (Σ (C : Precategory), is_hset C) :=
   precategory.mk (λ a b, functor a.1 b.1)
      (λ a b, @functor.strict_cat_has_functor_hset a.1 b.1 b.2)
      (λ a b c g f, functor.compose g f)
@@ -163,13 +169,13 @@ namespace precategory
      (λ a b f, !functor.id_left)
      (λ a b f, !functor.id_right)
 
-  definition Precat_of_strict_cats := Mk precat_of_strict_precats
+  definition Precat_of_strict_cats := precategory.Mk precat_of_strict_precats
 
   namespace ops
 
     abbreviation PreCat := Precat_of_strict_cats
-    attribute precat_of_strict_precats [instance]
+    --attribute precat_of_strict_precats [instance]
 
   end ops
 
-end precategory
+end category

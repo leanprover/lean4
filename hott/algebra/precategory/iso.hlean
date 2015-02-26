@@ -1,10 +1,14 @@
--- Copyright (c) 2014 Jakob von Raumer. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Authors: Floris van Doorn, Jakob von Raumer
+/-
+Copyright (c) 2014 Jakob von Raumer. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: algebra.precategory.iso
+Authors: Floris van Doorn, Jakob von Raumer
+-/
 
 import .basic .morphism types.sigma
 
-open eq precategory sigma sigma.ops equiv is_equiv function is_trunc
+open eq category sigma sigma.ops equiv is_equiv function is_trunc
 open prod
 
 namespace morphism
@@ -62,7 +66,7 @@ namespace morphism
   end
 
   -- In a precategory, equal objects are isomorphic
-  definition iso_of_path (p : a = b) : isomorphic a b :=
+  definition iso_of_path (p : a = b) : a ≅ b :=
   eq.rec_on p (isomorphic.mk id)
 
 end morphism

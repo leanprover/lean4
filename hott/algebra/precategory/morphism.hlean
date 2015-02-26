@@ -1,14 +1,20 @@
--- Copyright (c) 2014 Floris van Doorn. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Authors: Floris van Doorn, Jakob von Raumer
+/-
+Copyright (c) 2014 Floris van Doorn. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: algebra.precategory.morphism
+Authors: Floris van Doorn, Jakob von Raumer
+-/
 
 import .basic
 
-open eq precategory sigma sigma.ops equiv is_equiv function is_trunc
+open eq category sigma sigma.ops equiv is_equiv function is_trunc
 
 namespace morphism
-  variables {ob : Type} [C : precategory ob] include C
+  variables {ob : Type} [C : precategory ob]
   variables {a b c : ob} {g : b ⟶ c} {f : a ⟶ b} {h : b ⟶ a}
+  include C
+
   inductive is_section    [class] (f : a ⟶ b) : Type
   := mk : ∀{g}, g ∘ f = id → is_section f
   inductive is_retraction [class] (f : a ⟶ b) : Type
@@ -80,7 +86,7 @@ namespace morphism
   theorem inverse_unique (H H' : is_iso f) : @inverse _ _ _ _ f H = @inverse _ _ _ _ f H' :=
   inverse_eq_intro_left !inverse_compose
 
-  theorem inverse_involutive (f : a ⟶ b) [H : is_iso f] : (f⁻¹)⁻¹ = f :=
+  theorem inverse_involutive (f : a ⟶ b) [H1 : is_iso f] [H2 : is_iso (f⁻¹)] : (f⁻¹)⁻¹ = f :=
   inverse_eq_intro_right !inverse_compose
 
   theorem retraction_of_id : retraction_of (ID a) = id :=

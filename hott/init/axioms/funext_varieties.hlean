@@ -1,9 +1,15 @@
--- Copyright (c) 2014 Jakob von Raumer. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Authors: Jakob von Raumer
--- Ported from Coq HoTT
+/-
+Copyright (c) 2014 Jakob von Raumer. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: init.axioms.funext_varieties
+Authors: Jakob von Raumer
+
+Ported from Coq HoTT
+-/
+
 prelude
-import ..path ..trunc ..equiv .funext
+import ..path ..trunc ..equiv
 
 open eq is_trunc sigma function
 
@@ -46,7 +52,7 @@ definition weak_funext_of_naive_funext : naive_funext → weak_funext :=
 
 context
   universes l k
-  parameters (wf : weak_funext.{l k}) {A : Type.{l}} {B : A → Type.{k}} (f : Π x, B x)
+  parameters [wf : weak_funext.{l k}] {A : Type.{l}} {B : A → Type.{k}} (f : Π x, B x)
 
   definition is_contr_sigma_homotopy [instance] : is_contr (Σ (g : Π x, B x), f ∼ g) :=
     is_contr.mk (sigma.mk f (homotopy.refl f))

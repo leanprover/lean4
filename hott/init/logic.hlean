@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: init.logic
 Authors: Leonardo de Moura
 -/
+
 prelude
 import init.datatypes init.reserved_notation
 

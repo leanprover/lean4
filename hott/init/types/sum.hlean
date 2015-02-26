@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: init.types.sum
 Author: Leonardo de Moura, Jeremy Avigad
 -/
+
 prelude
 import init.datatypes init.reserved_notation
 

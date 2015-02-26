@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 
 General operations on functions.
 -/
+
 prelude
 import init.reserved_notation
 

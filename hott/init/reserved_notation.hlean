@@ -7,6 +7,7 @@ Authors: Leonardo de Moura
 
 Basic datatypes
 -/
+
 prelude
 import init.datatypes
 

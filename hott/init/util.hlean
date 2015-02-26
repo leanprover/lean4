@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 
 Auxiliary definitions used by automation
 -/
+
 prelude
 import init.trunc
 

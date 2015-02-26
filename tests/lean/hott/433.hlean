@@ -24,27 +24,28 @@ namespace pi
 
   /- Now we show how these things compute. -/
 
-  definition apD10_path_pi [H : funext] (h : f ∼ g) : apD10 (eq_of_homotopy h) ∼ h :=
+  definition apD10_path_pi (H : funext) (h : f ∼ g) : apD10 (eq_of_homotopy h) ∼ h :=
   apD10 (retr apD10 h)
 
-  definition path_pi_eta [H : funext] (p : f = g) : eq_of_homotopy (apD10 p) = p :=
+  definition path_pi_eta (H : funext) (p : f = g) : eq_of_homotopy (apD10 p) = p :=
   sect apD10 p
 
-  definition path_pi_idp [H : funext] : eq_of_homotopy (λx : A, refl (f x)) = refl f :=
-  !path_pi_eta
+  print classes
+
+  definition path_pi_idp (H : funext) : eq_of_homotopy (λx : A, refl (f x)) = refl f :=
+  path_pi_eta H _
 
   /- The identification of the path space of a dependent function space, up to equivalence, is of course just funext. -/
 
-  definition path_equiv_homotopy [H : funext] (f g : Πx, B x) : (f = g) ≃ (f ∼ g) :=
-  equiv.mk _ !funext.elim
+  definition path_equiv_homotopy (H : funext) (f g : Πx, B x) : (f = g) ≃ (f ∼ g) :=
+  equiv.mk _ !is_equiv_apD
 
-  definition is_equiv_path_pi [instance] [H : funext] (f g : Πx, B x)
-      : is_equiv (@eq_of_homotopy _ _ _ f g) :=
+  definition is_equiv_path_pi [instance] (H : funext) (f g : Πx, B x)
+      : is_equiv (@eq_of_homotopy _ _ f g) :=
   is_equiv_inv apD10
 
-  definition homotopy_equiv_path [H : funext] (f g : Πx, B x) : (f ∼ g) ≃ (f = g) :=
-  equiv.mk _ !is_equiv_path_pi
-
+  definition homotopy_equiv_path (H : funext) (f g : Πx, B x) : (f ∼ g) ≃ (f = g) :=
+  equiv.mk _ (is_equiv_path_pi H f g)
 
   /- Transport -/
 
@@ -62,12 +63,12 @@ namespace pi
   /- Maps on paths -/
 
   /- The action of maps given by lambda. -/
-  definition ap_lambdaD [H : funext] {C : A' → Type} (p : a = a') (f : Πa b, C b) :
+  definition ap_lambdaD (H : funext) {C : A' → Type} (p : a = a') (f : Πa b, C b) :
     ap (λa b, f a b) p = eq_of_homotopy (λb, ap (λa, f a b) p) :=
   begin
     apply (eq.rec_on p),
     apply inverse,
-    apply path_pi_idp
+    apply (path_pi_idp H)
   end
 
   /- Dependent paths -/
@@ -75,9 +76,9 @@ namespace pi
   /- with more implicit arguments the conclusion of the following theorem is
      (Π(b : B a), transportD B C p b (f b) = g (eq.transport B p b)) ≃
      (eq.transport (λa, Π(b : B a), C a b) p f = g) -/
-  definition dpath_pi [H : funext] (p : a = a') (f : Π(b : B a), C a b) (g : Π(b' : B a'), C a' b')
+  definition dpath_pi (H : funext) (p : a = a') (f : Π(b : B a), C a b) (g : Π(b' : B a'), C a' b')
     : (Π(b : B a), p ▹D (f b) = g (p ▹ b)) ≃ (p ▹ f = g) :=
-  eq.rec_on p (λg, !homotopy_equiv_path) g
+  eq.rec_on p (λg, homotopy_equiv_path H f g) g
 
   section open sigma sigma.ops
   /- more implicit arguments:

@@ -1,6 +1,6 @@
 import algebra.group algebra.precategory.basic algebra.precategory.morphism
 
-open eq sigma unit precategory morphism path_algebra
+open eq sigma unit category morphism path_algebra
 
 context
   parameters {P₀ : Type} [P : precategory P₀]

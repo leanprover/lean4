@@ -1,6 +1,6 @@
 import algebra.groupoid algebra.group
 
-open eq sigma unit precategory morphism path_algebra equiv
+open eq sigma unit category morphism path_algebra equiv
 
 set_option pp.implicit true
 set_option pp.universes true

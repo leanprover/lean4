@@ -440,8 +440,8 @@ static void erase_local_binder_info(buffer<expr> & ps) {
         p = update_local(p, binder_info());
 }
 
-static bool is_curr_with_or_comma(parser & p) {
-    return p.curr_is_token(get_with_tk()) || p.curr_is_token(get_comma_tk());
+static bool is_curr_with_or_comma_or_bar(parser & p) {
+    return p.curr_is_token(get_with_tk()) || p.curr_is_token(get_comma_tk()) || p.curr_is_token(get_bar_tk());
 }
 
 /**
@@ -515,6 +515,16 @@ static void throw_invalid_equation_lhs(name const & n, pos_info const & p) {
                        << n << "' in the left-hand-side does not correspond to function(s) being defined", p);
 }
 
+static bool is_eqn_prefix(parser & p) {
+    return p.curr_is_token(get_bar_tk()) || p.curr_is_token(get_comma_tk());
+}
+
+static void check_eqn_prefix(parser & p) {
+    if (!is_eqn_prefix(p))
+        throw parser_error("invalid declaration, ',' or '|' expected", p.pos());
+    p.next();
+}
+
 expr parse_equations(parser & p, name const & n, expr const & type, buffer<name> & auxs,
                      optional<local_environment> const & lenv, buffer<expr> const & ps,
                      pos_info const & def_pos) {
@@ -524,7 +534,7 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
         parser::local_scope scope1(p, lenv);
         for (expr const & param : ps)
             p.add_local(param);
-        lean_assert(is_curr_with_or_comma(p));
+        lean_assert(is_curr_with_or_comma_or_bar(p));
         fns.push_back(mk_local(n, type));
         if (p.curr_is_token(get_with_tk())) {
             while (p.curr_is_token(get_with_tk())) {
@@ -538,7 +548,7 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
                 fns.push_back(g);
             }
         }
-        p.check_token_next(get_comma_tk(), "invalid declaration, ',' expected");
+        check_eqn_prefix(p);
         for (expr const & fn : fns)
             p.add_local(fn);
         while (true) {
@@ -574,7 +584,7 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
                 expr rhs = p.parse_expr();
                 eqns.push_back(Fun(fns, Fun(locals, p.save_pos(mk_equation(lhs, rhs), assign_pos), p)));
             }
-            if (!p.curr_is_token(get_comma_tk()))
+            if (!is_eqn_prefix(p))
                 break;
             p.next();
         }
@@ -594,6 +604,8 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
 expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr t  = p.parse_expr();
     p.check_token_next(get_with_tk(), "invalid 'match' expression, 'with' expected");
+    if (is_eqn_prefix(p))
+        p.next();
     buffer<expr> eqns;
     expr fn = mk_local(p.mk_fresh_name(), "match", mk_expr_placeholder(), binder_info());
     while (true) {
@@ -621,7 +633,7 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
             expr rhs = p.parse_expr();
             eqns.push_back(Fun(fn, Fun(locals, p.save_pos(mk_equation(lhs, rhs), assign_pos), p)));
         }
-        if (!p.curr_is_token(get_comma_tk()))
+        if (!is_eqn_prefix(p))
             break;
         p.next();
     }
@@ -685,7 +697,7 @@ class definition_cmd_fn {
             m_p.next();
             auto pos = m_p.pos();
             m_type = m_p.parse_expr();
-            if (is_curr_with_or_comma(m_p)) {
+            if (is_curr_with_or_comma_or_bar(m_p)) {
                 m_value = parse_equations(m_p, m_name, m_type, m_aux_decls,
                                           optional<local_environment>(), buffer<expr>(), m_pos);
             } else if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
@@ -704,7 +716,7 @@ class definition_cmd_fn {
             if (m_p.curr_is_token(get_colon_tk())) {
                 m_p.next();
                 m_type = m_p.parse_scoped_expr(ps, *lenv);
-                if (is_curr_with_or_comma(m_p)) {
+                if (is_curr_with_or_comma_or_bar(m_p)) {
                     m_value = parse_equations(m_p, m_name, m_type, m_aux_decls, lenv, ps, m_pos);
                 } else if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
                     check_end_of_theorem(m_p);

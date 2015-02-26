@@ -3,12 +3,12 @@ open nat eq.ops
 
 theorem lcm_dvd {m n k : nat} (H1 : (m | k)) (H2 : (n | k)) : (lcm m n | k) :=
 match eq_zero_or_pos k with
-  @or.inl _ _ kzero :=
+| @or.inl _ _ kzero :=
     begin
       rewrite kzero,
       apply dvd_zero
-    end,
-  @or.inr _ _ kpos  :=
+    end
+| @or.inr _ _ kpos  :=
     obtain (p : nat) (km : k = m * p), from exists_eq_mul_right_of_dvd H1,
     obtain (q : nat) (kn : k = n * q), from exists_eq_mul_right_of_dvd H2,
     begin

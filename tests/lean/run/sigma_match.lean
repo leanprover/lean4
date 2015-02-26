@@ -10,8 +10,8 @@ match x with
   ⟨a, b, h⟩ := a
 end
 
-definition src2 {A B : Type} : arrow_ob A B → A,
-src2 ⟨a, _, _⟩ := a
+definition src2 {A B : Type} : arrow_ob A B → A
+| src2 ⟨a, _, _⟩ := a
 
 definition src3 {A B : Type} (x : arrow_ob A B) : A :=
 match x with

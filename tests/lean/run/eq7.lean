@@ -1,9 +1,9 @@
 import data.vector
 open nat vector
 
-definition diag {A : Type} : Π {n}, vector (vector A n) n → vector A n,
-diag nil               := nil,
-diag ((a :: va) :: vs) := a :: diag (map tail vs)
+definition diag {A : Type} : Π {n}, vector (vector A n) n → vector A n
+| diag nil               := nil
+| diag ((a :: va) :: vs) := a :: diag (map tail vs)
 
 theorem diag_nil (A : Type) : diag (@nil (vector A 0)) = nil :=
 rfl

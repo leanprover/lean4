@@ -4,9 +4,9 @@ open list
 variable {A : Type}
 set_option pp.implicit true
 
-definition append : list A → list A → list A,
-append nil      l := l,
-append (h :: t) l := h :: (append t l)
+definition append : list A → list A → list A
+| append nil      l := l
+| append (h :: t) l := h :: (append t l)
 
 theorem append_nil (l : list A) : append nil l = l :=
 rfl

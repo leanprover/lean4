@@ -94,7 +94,7 @@ notation `reverts` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)`
 opaque definition assert_hypothesis (id : expr) (e : expr) : tactic := builtin
 
 infixl `;`:15 := and_then
-notation `[` h:10 `|`:10 r:(foldl:10 `|` (e r, or_else r e) h) `]` := r
+notation `[` h `|` r:(foldl `|` (e r, or_else r e) h) `]` := r
 
 definition try         (t : tactic) : tactic := [t | id]
 definition repeat1     (t : tactic) : tactic := t ; repeat t

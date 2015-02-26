@@ -6,6 +6,6 @@ definition Nat := N
 
 open N
 
-definition add : Nat → Nat → Nat,
-add O     b := b,
-add (S a) b := S (add a b)
+definition add : Nat → Nat → Nat
+| add O     b := b
+| add (S a) b := S (add a b)

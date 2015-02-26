@@ -1,10 +1,10 @@
 open nat bool inhabited
 
-definition diag : bool → bool → bool → nat,
-diag _  tt ff := 1,
-diag ff _  tt := 2,
-diag tt ff _  := 3,
-diag _  _  _  := arbitrary nat
+definition diag : bool → bool → bool → nat
+| diag _  tt ff := 1
+| diag ff _  tt := 2
+| diag tt ff _  := 3
+| diag _  _  _  := arbitrary nat
 
 theorem diag1 (a : bool) : diag a tt ff = 1 :=
 bool.cases_on a rfl rfl

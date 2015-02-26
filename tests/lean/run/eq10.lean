@@ -9,13 +9,13 @@ allf : (nat → formula) → formula
 namespace formula
   definition implies (a b : Prop) : Prop := a → b
 
-  definition denote : formula → Prop,
-  denote (eqf n1 n2)  := n1 = n2,
-  denote (andf f1 f2) := denote f1 ∧ denote f2,
-  denote (impf f1 f2) := implies (denote f1) (denote f2),
-  denote (orf f1 f2)  := denote f1 ∨ denote f2,
-  denote (notf f)     := ¬ denote f,
-  denote (allf f)     := ∀ n : nat, denote (f n)
+  definition denote : formula → Prop
+  | denote (eqf n1 n2)  := n1 = n2
+  | denote (andf f1 f2) := denote f1 ∧ denote f2
+  | denote (impf f1 f2) := implies (denote f1) (denote f2)
+  | denote (orf f1 f2)  := denote f1 ∨ denote f2
+  | denote (notf f)     := ¬ denote f
+  | denote (allf f)     := ∀ n : nat, denote (f n)
 
   theorem denote_eqf (n1 n2 : nat) : denote (eqf n1 n2) = (n1 = n2) :=
   rfl

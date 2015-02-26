@@ -7,9 +7,9 @@ context
   parameter [H : decidable_pred p]
   include H
 
-  definition filter : list A → list A,
-  filter nil      := nil,
-  filter (a :: l) := if p a then a :: filter l else filter l
+  definition filter : list A → list A
+  | filter nil      := nil
+  | filter (a :: l) := if p a then a :: filter l else filter l
 
   theorem filter_nil : filter nil = nil :=
   rfl

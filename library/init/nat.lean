@@ -29,14 +29,14 @@ namespace nat
   protected definition is_inhabited [instance] : inhabited nat :=
   inhabited.mk zero
 
-  protected definition has_decidable_eq [instance] : ∀ x y : nat, decidable (x = y),
-  has_decidable_eq zero     zero     := inl rfl,
-  has_decidable_eq (succ x) zero     := inr (λ h, nat.no_confusion h),
-  has_decidable_eq zero     (succ y) := inr (λ h, nat.no_confusion h),
-  has_decidable_eq (succ x) (succ y) :=
-    if H : x = y
-    then inl (eq.rec_on H rfl)
-    else inr (λ h : succ x = succ y, nat.no_confusion h (λ heq : x = y, absurd heq H))
+  protected definition has_decidable_eq [instance] : ∀ x y : nat, decidable (x = y)
+  | has_decidable_eq zero     zero     := inl rfl
+  | has_decidable_eq (succ x) zero     := inr (λ h, nat.no_confusion h)
+  | has_decidable_eq zero     (succ y) := inr (λ h, nat.no_confusion h)
+  | has_decidable_eq (succ x) (succ y) :=
+      if H : x = y
+      then inl (eq.rec_on H rfl)
+      else inr (λ h : succ x = succ y, nat.no_confusion h (λ heq : x = y, absurd heq H))
 
   -- less-than is well-founded
   definition lt.wf [instance] : well_founded lt :=

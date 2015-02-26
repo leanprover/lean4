@@ -17,14 +17,14 @@ namespace sigma
             {a a' a'' : A} {b b₁ b₂ : B a} {b' : B a'} {b'' : B a''} {u v w : Σa, B a}
 
   -- sigma.eta is already used for the eta rule for strict equality
-  protected definition eta : Π (u : Σa, B a), ⟨u.1 , u.2⟩ = u,
-  eta ⟨u₁, u₂⟩ := idp
+  protected definition eta : Π (u : Σa, B a), ⟨u.1 , u.2⟩ = u
+  | eta ⟨u₁, u₂⟩ := idp
 
-  definition eta2 : Π (u : Σa b, C a b), ⟨u.1, u.2.1, u.2.2⟩ = u,
-  eta2 ⟨u₁, u₂, u₃⟩ := idp
+  definition eta2 : Π (u : Σa b, C a b), ⟨u.1, u.2.1, u.2.2⟩ = u
+  | eta2 ⟨u₁, u₂, u₃⟩ := idp
 
-  definition eta3 : Π (u : Σa b c, D a b c), ⟨u.1, u.2.1, u.2.2.1, u.2.2.2⟩ = u,
-  eta3 ⟨u₁, u₂, u₃, u₄⟩ := idp
+  definition eta3 : Π (u : Σa b c, D a b c), ⟨u.1, u.2.1, u.2.2.1, u.2.2.2⟩ = u
+  | eta3 ⟨u₁, u₂, u₃, u₄⟩ := idp
 
   definition dpair_eq_dpair (p : a = a') (q : p ▹ b = b') : ⟨a, b⟩ = ⟨a', b'⟩ :=
   by cases p; cases q; apply idp
@@ -68,12 +68,12 @@ namespace sigma
 
   /- the uncurried version of sigma_eq. We will prove that this is an equivalence -/
 
-  definition sigma_eq_uncurried : Π (pq : Σ(p : pr1 u = pr1 v), p ▹ (pr2 u) = pr2 v), u = v,
-  sigma_eq_uncurried ⟨pq₁, pq₂⟩ := sigma_eq pq₁ pq₂
+  definition sigma_eq_uncurried : Π (pq : Σ(p : pr1 u = pr1 v), p ▹ (pr2 u) = pr2 v), u = v
+  | sigma_eq_uncurried ⟨pq₁, pq₂⟩ := sigma_eq pq₁ pq₂
 
   definition dpair_sigma_eq_uncurried : Π (pq : Σ(p : u.1 = v.1), p ▹ u.2 = v.2),
-        sigma.mk (sigma_eq_uncurried pq)..1 (sigma_eq_uncurried pq)..2 = pq,
-  dpair_sigma_eq_uncurried ⟨pq₁, pq₂⟩ := dpair_sigma_eq pq₁ pq₂
+        sigma.mk (sigma_eq_uncurried pq)..1 (sigma_eq_uncurried pq)..2 = pq
+  | dpair_sigma_eq_uncurried ⟨pq₁, pq₂⟩ := dpair_sigma_eq pq₁ pq₂
 
   definition sigma_eq_pr1_uncurried (pq : Σ(p : u.1 = v.1), p ▹ u.2 = v.2)
       : (sigma_eq_uncurried pq)..1 = pq.1 :=

@@ -24,8 +24,8 @@ namespace int
 definition divide (a b : ℤ) : ℤ :=
 sign b *
   (match a with
-    of_nat m := #nat m div (nat_abs b),
-    -[ m +1] := -[ (#nat m div (nat_abs b)) +1]
+    | of_nat m := #nat m div (nat_abs b)
+    | -[ m +1] := -[ (#nat m div (nat_abs b)) +1]
   end)
 
 notation a div b := divide a b

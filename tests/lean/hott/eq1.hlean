@@ -6,8 +6,8 @@ cons   : Π {n}, A → vector A n → vector A (succ n)
 
 infixr `::` := vector.cons
 
-definition swap {A : Type} : Π {n}, vector A (succ (succ n)) → vector A (succ (succ n)),
-swap (a :: b :: vs) := b :: a :: vs
+definition swap {A : Type} : Π {n}, vector A (succ (succ n)) → vector A (succ (succ n))
+| swap (a :: b :: vs) := b :: a :: vs
 
 -- Remark: in the current approach for HoTT, the equation
 --    swap (a :: b :: v) = b :: a :: v

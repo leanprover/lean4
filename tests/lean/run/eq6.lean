@@ -1,9 +1,9 @@
 import data.list
 open list
 
-definition append {A : Type} : list A → list A → list A,
-append nil      l := l,
-append (h :: t) l := h :: (append t l)
+definition append {A : Type} : list A → list A → list A
+| append nil      l := l
+| append (h :: t) l := h :: (append t l)
 
 theorem append_nil {A : Type} (l : list A) : append nil l = l :=
 rfl

@@ -3,9 +3,9 @@ open nat vector prod
 
 variables {A B : Type}
 
-definition unzip : Π {n : nat}, vector (A × B) n → vector A n × vector B n,
-unzip  nil          := (nil, nil),
-unzip ((a, b) :: v) :=
+definition unzip : Π {n : nat}, vector (A × B) n → vector A n × vector B n
+| unzip  nil          := (nil, nil)
+| unzip ((a, b) :: v) :=
   match unzip v with
     (va, vb) := (a :: va, b :: vb)
   end

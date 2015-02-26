@@ -1405,6 +1405,7 @@ struct unifier_fn {
         justification         j;
         bool                  relax;
         buffer<constraints> & alts; // result: alternatives
+        bool                  imitation_only; // if true, then only imitation step is used
 
         optional<bool>        _has_meta_args;
 
@@ -1810,8 +1811,10 @@ struct unifier_fn {
 
     public:
         flex_rigid_core_fn(unifier_fn & _u, expr const & _lhs, expr const & _rhs,
-                           justification const & _j, bool _relax, buffer<constraints> & _alts):
-            u(_u), lhs(_lhs), m(get_app_args(lhs, margs)), rhs(_rhs), j(_j), relax(_relax), alts(_alts) {}
+                           justification const & _j, bool _relax, buffer<constraints> & _alts,
+                           bool _imitation_only):
+            u(_u), lhs(_lhs), m(get_app_args(lhs, margs)), rhs(_rhs), j(_j), relax(_relax), alts(_alts),
+            imitation_only(_imitation_only) {}
 
         void operator()() {
             switch (rhs.kind()) {
@@ -1821,19 +1824,20 @@ struct unifier_fn {
                 mk_simple_projections();
                 break;
             case expr_kind::Sort: case expr_kind::Constant:
-                if (!u.m_pattern && !cheap())
+                if (!u.m_pattern && !cheap() && !imitation_only)
                     mk_simple_projections();
                 mk_simple_imitation();
                 break;
             case expr_kind::Pi: case expr_kind::Lambda:
-                if (!u.m_pattern && !cheap())
+                if (!u.m_pattern && !cheap() && !imitation_only)
                     mk_simple_projections();
                 mk_bindings_imitation();
                 break;
             case expr_kind::Macro:
                 lean_unreachable(); // LCOV_EXCL_LINE
             case expr_kind::App:
-                mk_app_projections();
+                if (!imitation_only)
+                    mk_app_projections();
                 mk_app_imitation();
                 break;
             }
@@ -1841,8 +1845,8 @@ struct unifier_fn {
     };
 
     void process_flex_rigid_core(expr const & lhs, expr const & rhs, justification const & j, bool relax,
-                                 buffer<constraints> & alts) {
-        flex_rigid_core_fn(*this, lhs, rhs, j, relax, alts)();
+                                 buffer<constraints> & alts, bool imitation_only) {
+        flex_rigid_core_fn(*this, lhs, rhs, j, relax, alts, imitation_only)();
     }
 
     /** \brief When lhs is an application (f ...), make sure that if any argument that is reducible to a
@@ -1937,7 +1941,7 @@ struct unifier_fn {
         buffer<constraint> aux;
         lhs = expose_local_args(lhs, j, relax, aux);
         buffer<constraints> alts;
-        process_flex_rigid_core(lhs, rhs, j, relax, alts);
+        process_flex_rigid_core(lhs, rhs, j, relax, alts, false);
         append_auxiliary_constraints(alts, to_list(aux.begin(), aux.end()));
         if (use_flex_rigid_whnf_split(lhs, rhs)) {
             expr rhs_whnf = flex_rigid_whnf(rhs, j, relax, aux);
@@ -1947,7 +1951,7 @@ struct unifier_fn {
                     alts.push_back(constraints(mk_eq_cnstr(lhs, rhs_whnf, j, relax)));
                 } else {
                     buffer<constraints> alts2;
-                    process_flex_rigid_core(lhs, rhs_whnf, j, relax, alts2);
+                    process_flex_rigid_core(lhs, rhs_whnf, j, relax, alts2, true);
                     append_auxiliary_constraints(alts2, to_list(aux.begin(), aux.end()));
                     alts.append(alts2);
                 }

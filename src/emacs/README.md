@@ -149,7 +149,15 @@ first consider using a unicode-friendly font such as `DejaVu Sans Mono`:
 ```
 
 If you still experience a rendering problem, consider trying
-[emacs-unicode-fonts](https://github.com/rolandwalker/unicode-fonts).
+[emacs-unicode-fonts](https://github.com/rolandwalker/unicode-fonts):
+
+ - Install `unicode-fonts` package by running `M-x package-refresh-contents` and `M-x package-install`.
+ - Add the following lines in your emacs setup:
+   ```lisp
+(require 'unicode-fonts)
+(unicode-fonts-setup)
+
+   ```
 
 
 Contributions

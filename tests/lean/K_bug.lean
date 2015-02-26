@@ -1,7 +1,7 @@
 open eq.ops
 
 inductive Nat : Type :=
-zero : Nat,
+zero : Nat |
 succ : Nat → Nat
 
 namespace Nat

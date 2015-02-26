@@ -9,8 +9,8 @@ import logic.inhabited
 -- The parser will generate the terms (pos (bit1 (bit1 (bit0 one)))), zero, and (pos (bit0 (bit1 (bit1 one)))).
 -- This representation can be coerced in whatever we want (e.g., naturals, integers, reals, etc).
 inductive pos_num : Type :=
-one  : pos_num,
-bit1 : pos_num → pos_num,
+one  : pos_num|
+bit1 : pos_num → pos_num|
 bit0 : pos_num → pos_num
 
 theorem pos_num.is_inhabited [instance] : inhabited pos_num :=

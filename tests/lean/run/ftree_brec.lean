@@ -1,8 +1,8 @@
 import data.unit data.prod
 
 inductive ftree (A : Type) (B : Type) : Type :=
-leafa : ftree A B,
-node  : (A → B → ftree A B) → (B → ftree A B) → ftree A B
+| leafa : ftree A B
+| node  : (A → B → ftree A B) → (B → ftree A B) → ftree A B
 
 set_option pp.universes true
 check @ftree

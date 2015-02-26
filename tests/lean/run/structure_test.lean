@@ -4,7 +4,7 @@ inductive point (A B : Type) :=
 mk : Π (x : A) (y : B), point A B
 
 inductive color [class] :=
-red, green, blue
+red | green | blue
 
 constant foo.{l} (A : Type.{l}) [H : decidable_eq A] : Type.{l}
 

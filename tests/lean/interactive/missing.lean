@@ -1,7 +1,7 @@
 import logic
 
 inductive tree (A : Type) :=
-leaf : A → tree A,
+leaf : A → tree A|
 node : tree A → tree A → tree A
 
 namespace tree

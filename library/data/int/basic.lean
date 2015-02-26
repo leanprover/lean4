@@ -37,8 +37,8 @@ open decidable binary fake_simplifier
 /- the type of integers -/
 
 inductive int : Type :=
-  of_nat : nat → int,
-  neg_succ_of_nat : nat → int
+| of_nat : nat → int
+| neg_succ_of_nat : nat → int
 
 notation `ℤ` := int
 attribute int.of_nat [coercion]

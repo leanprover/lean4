@@ -2,8 +2,8 @@ import logic data.nat.basic data.sigma
 open nat eq.ops sigma
 
 inductive vector (A : Type) : nat → Type :=
-nil  : vector A zero,
-cons : A → (Π{n}, vector A n → vector A (succ n))
+| nil  : vector A zero
+| cons : A → (Π{n}, vector A n → vector A (succ n))
 
 namespace vector
 

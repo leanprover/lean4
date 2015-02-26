@@ -2,8 +2,8 @@ import data.nat.basic data.empty data.prod
 open nat eq.ops prod
 
 inductive vector (T : Type) : ℕ → Type :=
-  nil {} : vector T 0,
-  cons : T → ∀{n}, vector T n → vector T (succ n)
+| nil {} : vector T 0
+| cons : T → ∀{n}, vector T n → vector T (succ n)
 
 set_option pp.metavar_args true
 set_option pp.implicit true

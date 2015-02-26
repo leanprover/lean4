@@ -1,8 +1,8 @@
 import logic
 
 inductive vector (T : Type) : nat → Type :=
-  nil {} : vector T nat.zero,
-  cons : T → ∀{n}, vector T n → vector T (nat.succ n)
+| nil {} : vector T nat.zero
+| cons : T → ∀{n}, vector T n → vector T (nat.succ n)
 
 #projections or
 #projections and

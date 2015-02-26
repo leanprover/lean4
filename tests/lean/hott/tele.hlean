@@ -5,8 +5,8 @@
 open nat
 
 inductive vec (A : Type) : nat → Type :=
-nil {} : vec A zero,
-cons   : Π {n}, A → vec A n → vec A (succ n)
+| nil {} : vec A zero
+| cons   : Π {n}, A → vec A n → vec A (succ n)
 
 structure S (A : Type) (a : A) (n : nat) (v : vec A n) :=
 mk :: (fa : A)

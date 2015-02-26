@@ -3,8 +3,8 @@ open decidable
 open eq
 namespace experiment
 inductive nat : Type :=
-zero : nat,
-succ : nat → nat
+| zero : nat
+| succ : nat → nat
 definition refl := @eq.refl
 namespace nat
 

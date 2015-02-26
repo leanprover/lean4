@@ -2,8 +2,8 @@ import logic data.nat.basic
 open nat
 
 inductive inftree (A : Type) :=
-leaf : A → inftree A,
-node : (nat → inftree A) → inftree A
+| leaf : A → inftree A
+| node : (nat → inftree A) → inftree A
 
 namespace inftree
   inductive dsub {A : Type} : inftree A → inftree A → Prop :=

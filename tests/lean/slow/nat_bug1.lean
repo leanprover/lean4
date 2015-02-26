@@ -8,8 +8,8 @@ open tactic
 
 namespace foo
 inductive nat : Type :=
-zero : nat,
-succ : nat → nat
+| zero : nat
+| succ : nat → nat
 
 notation `ℕ`:max := nat
 

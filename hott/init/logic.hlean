@@ -199,8 +199,8 @@ end inhabited
 /- decidable -/
 
 inductive decidable.{l} [class] (p : Type.{l}) : Type.{l} :=
-inl :  p → decidable p,
-inr : ¬p → decidable p
+| inl :  p → decidable p
+| inr : ¬p → decidable p
 
 namespace decidable
   variables {p q : Type}

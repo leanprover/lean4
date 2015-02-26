@@ -2,20 +2,20 @@ import data.prod data.unit
 open prod
 
 inductive tree (A : Type) : Type :=
-node : A → forest A → tree A
+| node : A → forest A → tree A
 with forest : Type :=
-nil  : forest A,
-cons : tree A → forest A → forest A
+| nil  : forest A
+| cons : tree A → forest A → forest A
 
 namespace solution1
 
 inductive tree_forest (A : Type) :=
-of_tree   : tree A   → tree_forest A,
-of_forest : forest A → tree_forest A
+| of_tree   : tree A   → tree_forest A
+| of_forest : forest A → tree_forest A
 
 inductive same_kind {A : Type} : tree_forest A → tree_forest A → Type :=
-is_tree   : Π (t₁ t₂ : tree A),   same_kind (tree_forest.of_tree t₁)   (tree_forest.of_tree t₂),
-is_forest : Π (f₁ f₂ : forest A), same_kind (tree_forest.of_forest f₁) (tree_forest.of_forest f₂)
+| is_tree   : Π (t₁ t₂ : tree A),   same_kind (tree_forest.of_tree t₁)   (tree_forest.of_tree t₂)
+| is_forest : Π (f₁ f₂ : forest A), same_kind (tree_forest.of_forest f₁) (tree_forest.of_forest f₂)
 
 definition to_tree {A : Type} (tf : tree_forest A) (t : tree A) : same_kind tf (tree_forest.of_tree t) → tree A :=
 tree_forest.cases_on tf
@@ -29,8 +29,8 @@ namespace solution2
 variables {A B : Type}
 
 inductive same_kind : sum A B → sum A B → Prop :=
-isl : Π (a₁ a₂ : A), same_kind (sum.inl a₁) (sum.inl a₂),
-isr : Π (b₁ b₂ : B), same_kind (sum.inr b₁) (sum.inr b₂)
+| isl : Π (a₁ a₂ : A), same_kind (sum.inl a₁) (sum.inl a₂)
+| isr : Π (b₁ b₂ : B), same_kind (sum.inr b₁) (sum.inr b₂)
 
 definition to_left (s : sum A B) (a : A) : same_kind s (sum.inl a) → A :=
 sum.cases_on s

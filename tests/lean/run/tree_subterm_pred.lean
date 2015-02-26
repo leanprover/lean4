@@ -2,14 +2,14 @@ import logic
 open eq.ops
 
 inductive tree (A : Type) :=
-leaf : A → tree A,
-node : tree A → tree A → tree A
+| leaf : A → tree A
+| node : tree A → tree A → tree A
 
 namespace tree
 
 inductive direct_subterm {A : Type} : tree A → tree A → Prop :=
-node_l : Π (l r : tree A), direct_subterm l (node l r),
-node_r : Π (l r : tree A), direct_subterm r (node l r)
+| node_l : Π (l r : tree A), direct_subterm l (node l r)
+| node_r : Π (l r : tree A), direct_subterm r (node l r)
 
 definition direct_subterm.wf {A : Type} : well_founded (@direct_subterm A) :=
 well_founded.intro (λ t : tree A,

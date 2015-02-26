@@ -1,6 +1,6 @@
 inductive N :=
-O : N,
-S : N → N
+| O : N
+| S : N → N
 
 definition Nat := N
 

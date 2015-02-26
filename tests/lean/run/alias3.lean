@@ -17,8 +17,8 @@ namespace N2
   context
     parameter A : Type
     inductive list : Type :=
-    nil {} : list,
-    cons   : A → list → list
+    | nil {} : list
+    | cons   : A → list → list
     check list
   end
   check list

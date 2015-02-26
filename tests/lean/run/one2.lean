@@ -7,8 +7,8 @@ inductive pone : Type.{0} :=
 unit : pone
 
 inductive two.{l} : Type.{max 1 l} :=
-o : two,
-u : two
+| o : two
+| u : two
 
 inductive wrap.{l} : Type.{max 1 l} :=
 mk : true → wrap

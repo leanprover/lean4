@@ -1,8 +1,8 @@
 section
   variable A : Type
   inductive list : Type :=
-  nil  : list,
-  cons : A → list → list
+  | nil  : list
+  | cons : A → list → list
 end
 
 check list.{1}
@@ -11,10 +11,10 @@ check list.cons.{1}
 section
   variable A : Type
   inductive tree : Type :=
-  node : A → forest → tree
+  | node : A → forest → tree
   with forest : Type :=
-  fnil  : forest,
-  fcons : tree → forest → forest
+  | fnil  : forest
+  | fcons : tree → forest → forest
   check tree
   check forest
 end

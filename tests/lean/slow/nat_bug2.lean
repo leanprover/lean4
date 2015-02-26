@@ -13,8 +13,8 @@ definition or_intro_left := @or.intro_left
 definition or_intro_right := @or.intro_right
 
 inductive nat : Type :=
-zero : nat,
-succ : nat → nat
+| zero : nat
+| succ : nat → nat
 
 namespace nat
 

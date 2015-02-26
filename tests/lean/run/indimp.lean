@@ -2,16 +2,16 @@ prelude
 definition Prop := Type.{0}
 
 inductive nat :=
-zero : nat,
-succ : nat → nat
+| zero : nat
+| succ : nat → nat
 
 inductive list (A : Type) :=
-nil {} : list A,
-cons   : A → list A → list A
+| nil {} : list A
+| cons   : A → list A → list A
 
 inductive list2 (A : Type) : Type :=
-nil2 {} : list2 A,
-cons2   : A → list2 A → list2 A
+| nil2 {} : list2 A
+| cons2   : A → list2 A → list2 A
 
 inductive and (A B : Prop) : Prop :=
 and_intro : A → B → and A B

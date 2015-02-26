@@ -2,10 +2,10 @@ import data.nat.basic data.sum data.sigma data.bool
 open nat sigma
 
 inductive tree (A : Type) : Type :=
-node : A → forest A → tree A
+| node : A → forest A → tree A
 with forest : Type :=
-nil  : forest A,
-cons : tree A → forest A → forest A
+| nil  : forest A
+| cons : tree A → forest A → forest A
 
 namespace manual
 check tree.rec_on

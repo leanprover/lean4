@@ -1,6 +1,6 @@
 inductive formula :=
-eqf  : nat → nat → formula,
-impf : formula → formula → formula
+| eqf  : nat → nat → formula
+| impf : formula → formula → formula
 
 namespace formula
   definition denote : formula → Prop

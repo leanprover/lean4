@@ -17,8 +17,8 @@ open nat
 open eq.ops eq
 
 inductive list (T : Type) : Type :=
-nil {} : list T,
-cons : T → list T → list T
+| nil {} : list T
+| cons : T → list T → list T
 
 definition refl := @eq.refl
 

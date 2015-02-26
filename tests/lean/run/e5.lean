@@ -33,8 +33,8 @@ theorem trans {A : Type} {a b c : A} (H1 : a = b) (H2 : b = c) : a = c
 := subst H2 H1
 
 inductive nat : Type :=
-zero : nat,
-succ : nat → nat
+| zero : nat
+| succ : nat → nat
 namespace nat end nat open nat
 
 print "using strict implicit arguments"

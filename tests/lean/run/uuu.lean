@@ -8,16 +8,16 @@ inductive unit : Type :=
 tt : unit
 definition tt := @unit.tt
 inductive nat : Type :=
-O : nat,
-S : nat → nat
+| O : nat
+| S : nat → nat
 
 inductive paths {A : Type} (a : A) : A → Type :=
 idpath : paths a a
 definition idpath := @paths.idpath
 
 inductive sum (A : Type) (B : Type) : Type :=
-inl : A -> sum A B,
-inr : B -> sum A B
+| inl : A -> sum A B
+| inr : B -> sum A B
 
 definition coprod := sum
 definition ii1fun {A : Type} (B : Type) (a : A) := sum.inl B a

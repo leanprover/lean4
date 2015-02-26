@@ -14,8 +14,8 @@ namespace nat
   notation `ℕ` := nat
 
   inductive lt (a : nat) : nat → Type :=
-  base : lt a (succ a),
-  step : Π {b}, lt a b → lt a (succ b)
+  | base : lt a (succ a)
+  | step : Π {b}, lt a b → lt a (succ b)
 
   notation a < b := lt a b
 

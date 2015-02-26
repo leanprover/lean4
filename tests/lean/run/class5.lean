@@ -13,8 +13,8 @@ end algebra
 open algebra
 namespace nat
   inductive nat : Type :=
-  zero : nat,
-  succ : nat → nat
+  | zero : nat
+  | succ : nat → nat
 
   constant mul : nat → nat → nat
   constant add : nat → nat → nat

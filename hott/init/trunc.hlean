@@ -21,8 +21,8 @@ open eq nat sigma unit
 namespace is_trunc
 
   inductive trunc_index : Type₁ :=
-  minus_two : trunc_index,
-  succ : trunc_index → trunc_index
+  | minus_two : trunc_index
+  | succ : trunc_index → trunc_index
 
   /-
      notation for trunc_index is -2, -1, 0, 1, ...

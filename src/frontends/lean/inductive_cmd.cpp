@@ -234,6 +234,10 @@ struct inductive_cmd_fn {
             m_p.add_local(l);
     }
 
+    bool curr_is_intro_prefix() const {
+        return m_p.curr_is_token(get_bar_tk()) || m_p.curr_is_token(get_comma_tk());
+    }
+
     /** \brief Parse introduction rules in the scope of m_params.
 
         Introduction rules with the annotation '{}' are marked for relaxed (aka non-strict) implicit parameter inference.
@@ -241,6 +245,8 @@ struct inductive_cmd_fn {
     */
     list<intro_rule> parse_intro_rules(name const & ind_name) {
         buffer<intro_rule> intros;
+        if (m_p.curr_is_token(get_bar_tk()))
+            m_p.next();
         while (true) {
             name intro_name = parse_intro_decl_name(ind_name);
             implicit_infer_kind k = parse_implicit_infer_modifier(m_p);
@@ -253,7 +259,7 @@ struct inductive_cmd_fn {
                 expr intro_type = mk_constant(ind_name);
                 intros.push_back(intro_rule(intro_name, intro_type));
             }
-            if (!m_p.curr_is_token(get_comma_tk()))
+            if (!curr_is_intro_prefix())
                 break;
             m_p.next();
         }

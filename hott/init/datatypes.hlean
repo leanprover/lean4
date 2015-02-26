@@ -36,8 +36,8 @@ structure prod (A B : Type) :=
 mk :: (pr1 : A) (pr2 : B)
 
 inductive sum (A B : Type) : Type :=
-inl {} : A → sum A B,
-inr {} : B → sum A B
+| inl {} : A → sum A B
+| inr {} : B → sum A B
 
 definition sum.intro_left [reducible] {A : Type} (B : Type) (a : A) : sum A B :=
 sum.inl a
@@ -49,29 +49,29 @@ sum.inr b
 -- The parser will generate the terms (pos (bit1 (bit1 (bit0 one)))), zero, and (pos (bit0 (bit1 (bit1 one)))).
 -- This representation can be coerced in whatever we want (e.g., naturals, integers, reals, etc).
 inductive pos_num : Type :=
-one  : pos_num,
-bit1 : pos_num → pos_num,
-bit0 : pos_num → pos_num
+| one  : pos_num
+| bit1 : pos_num → pos_num
+| bit0 : pos_num → pos_num
 
 inductive num : Type :=
-zero  : num,
-pos   : pos_num → num
+| zero  : num
+| pos   : pos_num → num
 
 inductive bool : Type :=
-ff : bool,
-tt : bool
+| ff : bool
+| tt : bool
 
 inductive char : Type :=
 mk : bool → bool → bool → bool → bool → bool → bool → bool → char
 
 inductive string : Type :=
-empty : string,
-str   : char → string → string
+| empty : string
+| str   : char → string → string
 
 inductive nat :=
-zero : nat,
-succ : nat → nat
+| zero : nat
+| succ : nat → nat
 
 inductive option (A : Type) : Type :=
-none {} : option A,
-some    : A → option A
+| none {} : option A
+| some    : A → option A

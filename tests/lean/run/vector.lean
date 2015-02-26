@@ -2,8 +2,8 @@ import logic data.nat.basic data.prod data.unit
 open nat prod
 
 inductive vector (A : Type) : nat → Type :=
-vnil {} : vector A zero,
-vcons   : Π {n : nat}, A → vector A n → vector A (succ n)
+| vnil {} : vector A zero
+| vcons   : Π {n : nat}, A → vector A n → vector A (succ n)
 
 namespace vector
   -- print definition no_confusion

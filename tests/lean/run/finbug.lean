@@ -10,8 +10,8 @@ Finite ordinals.
 open nat
 
 inductive fin : nat → Type :=
-fz : Π n, fin (succ n),
-fs : Π {n}, fin n → fin (succ n)
+| fz : Π n, fin (succ n)
+| fs : Π {n}, fin n → fin (succ n)
 
 namespace fin
   definition to_nat : Π {n}, fin n → nat

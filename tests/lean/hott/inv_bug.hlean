@@ -2,10 +2,10 @@ open nat
 open eq.ops
 
 inductive even : nat → Type :=
-even_zero        : even zero,
-even_succ_of_odd : ∀ {a}, odd a  → even (succ a)
+| even_zero        : even zero
+| even_succ_of_odd : ∀ {a}, odd a  → even (succ a)
 with odd : nat → Type :=
-odd_succ_of_even : ∀ {a}, even a → odd (succ a)
+| odd_succ_of_even : ∀ {a}, even a → odd (succ a)
 
 example : even 1 → empty :=
 begin

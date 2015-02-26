@@ -1,6 +1,6 @@
 inductive list (A : Type) : Type :=
-nil {} : list A,
-cons   : A → list A → list A
+| nil {} : list A
+| cons   : A → list A → list A
 
 namespace list
   open lift

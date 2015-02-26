@@ -12,11 +12,11 @@ definition foo : nat → nat → nat
 | foo ⌞x⌟ x := x
 
 inductive tree (A : Type) :=
-node   : tree_list A → tree A,
-leaf   : A → tree A
+| node   : tree_list A → tree A
+| leaf   : A → tree A
 with tree_list :=
-nil {} : tree_list A,
-cons   : tree A → tree_list A → tree_list A
+| nil {} : tree_list A
+| cons   : tree A → tree_list A → tree_list A
 
 definition is_leaf {A : Type} : tree A → bool
 with is_leaf_aux : tree_list A → bool

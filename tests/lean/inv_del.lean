@@ -2,8 +2,8 @@ import logic
 open nat
 
 inductive vec (A : Type) : nat → Type :=
-vnil : vec A zero,
-vone : A → vec A (succ zero),
+vnil : vec A zero |
+vone : A → vec A (succ zero) |
 vtwo : A → A → vec A (succ (succ zero))
 
 namespace vec

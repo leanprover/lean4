@@ -38,5 +38,5 @@ definition inv_image.irreflexive (f : A → B) (H : irreflexive R) : irreflexive
 λ (a : A) (H₁ : inv_image R f a a), H (f a) H₁
 
 inductive tc {A : Type} (R : A → A → Type) : A → A → Type :=
-base  : ∀a b, R a b → tc R a b,
-trans : ∀a b c, tc R a b → tc R b c → tc R a c
+| base  : ∀a b, R a b → tc R a b
+| trans : ∀a b c, tc R a b → tc R b c → tc R a c

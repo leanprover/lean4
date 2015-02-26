@@ -47,8 +47,8 @@ namespace prod
 
   -- Lexicographical order based on Ra and Rb
   inductive lex : A × B → A × B → Type :=
-  left  : ∀{a₁ b₁} a₂ b₂, Ra a₁ a₂ → lex (a₁, b₁) (a₂, b₂),
-  right : ∀a {b₁ b₂},     Rb b₁ b₂ → lex (a, b₁)  (a, b₂)
+  | left  : ∀{a₁ b₁} a₂ b₂, Ra a₁ a₂ → lex (a₁, b₁) (a₂, b₂)
+  | right : ∀a {b₁ b₂},     Rb b₁ b₂ → lex (a, b₁)  (a, b₂)
 
   -- Relational product based on Ra and Rb
   inductive rprod : A × B → A × B → Type :=

@@ -9,8 +9,8 @@ open decidable
 
 namespace experiment
 inductive nat : Type :=
-zero : nat,
-succ : nat → nat
+| zero : nat
+| succ : nat → nat
 
 
 namespace nat

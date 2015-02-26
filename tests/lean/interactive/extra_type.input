@@ -7,10 +7,10 @@ definition Prop := Type.{0}
 inductive eq {A : Type} (a : A) : A → Prop := refl : eq a a
 infix `=`:50 := eq
 definition rfl {A : Type} {a : A} := eq.refl a
-inductive or (A B : Prop) : Prop := inl {} : A → or A B, inr {} : B → or A B
+inductive or (A B : Prop) : Prop := inl {} : A → or A B | inr {} : B → or A B
 infix `∨`:35 := or
 inductive bool : Type :=
-  ff : bool,
+  ff : bool|
   tt : bool
 namespace bool
   protected definition rec_on2 {C : bool → Type} (b : bool) (H₁ : C ff) (H₂ : C tt) : C b :=

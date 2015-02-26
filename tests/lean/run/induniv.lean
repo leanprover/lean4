@@ -1,23 +1,23 @@
 prelude
 inductive list (A : Type) : Type :=
-nil {} : list A,
-cons   : A → list A → list A
+| nil {} : list A
+| cons   : A → list A → list A
 
 section
   variable A : Type
   inductive list2 : Type :=
-  nil2 {} : list2,
-  cons2   : A → list2 → list2
+  | nil2 {} : list2
+  | cons2   : A → list2 → list2
 end
 
 constant num : Type.{1}
 
 namespace Tree
 inductive tree (A : Type) : Type :=
-node : A → forest A → tree A
+| node : A → forest A → tree A
 with forest : Type :=
-nil  : forest A,
-cons : tree A → forest A → forest A
+| nil  : forest A
+| cons : tree A → forest A → forest A
 end Tree
 
 inductive group_struct (A : Type) : Type :=

@@ -1,9 +1,9 @@
 import logic
 
 inductive Three :=
-zero : Three,
-one  : Three,
-two  : Three
+| zero : Three
+| one  : Three
+| two  : Three
 
 namespace Three
 

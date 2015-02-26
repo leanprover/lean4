@@ -2,8 +2,8 @@ import logic data.nat.basic
 open nat
 
 inductive vector (A : Type) : nat → Type :=
-vnil  : vector A zero,
-vcons : Π {n : nat}, A → vector A n → vector A (succ n)
+| vnil  : vector A zero
+| vcons : Π {n : nat}, A → vector A n → vector A (succ n)
 
 namespace vector
   definition no_confusion2 {A : Type} {n : nat} {P : Type} {v₁ v₂ : vector A n} : v₁ = v₂ → vector.no_confusion_type P v₁ v₂ :=

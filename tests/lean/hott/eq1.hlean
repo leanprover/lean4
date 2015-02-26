@@ -1,8 +1,8 @@
 open nat
 
 inductive vector (A : Type) : nat → Type :=
-nil {} : vector A zero,
-cons   : Π {n}, A → vector A n → vector A (succ n)
+| nil {} : vector A zero
+| cons   : Π {n}, A → vector A n → vector A (succ n)
 
 infixr `::` := vector.cons
 

@@ -67,8 +67,8 @@ opaque definition inversion  (id : expr)  : tactic := builtin
 notation a `↦` b:max := rename a b
 
 inductive expr_list : Type :=
-nil  : expr_list,
-cons : expr → expr_list → expr_list
+| nil  : expr_list
+| cons : expr → expr_list → expr_list
 
 -- rewrite_tac is just a marker for the builtin 'rewrite' notation
 -- used to create instances of this tactic.

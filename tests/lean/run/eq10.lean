@@ -1,10 +1,10 @@
 inductive formula :=
-eqf  : nat → nat → formula,
-andf : formula → formula → formula,
-impf : formula → formula → formula,
-notf : formula → formula,
-orf  : formula → formula → formula,
-allf : (nat → formula) → formula
+| eqf  : nat → nat → formula
+| andf : formula → formula → formula
+| impf : formula → formula → formula
+| notf : formula → formula
+| orf  : formula → formula → formula
+| allf : (nat → formula) → formula
 
 namespace formula
   definition implies (a b : Prop) : Prop := a → b

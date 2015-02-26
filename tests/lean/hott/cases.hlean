@@ -1,8 +1,8 @@
 open nat
 
 inductive vec (A : Type) : nat → Type :=
-nil {} : vec A zero,
-cons   : Π {n}, A → vec A n → vec A (succ n)
+| nil {} : vec A zero
+| cons   : Π {n}, A → vec A n → vec A (succ n)
 
 namespace vec
   variables {A B C : Type}

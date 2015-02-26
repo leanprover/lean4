@@ -1,8 +1,8 @@
 import logic
 namespace experiment
 inductive nat : Type :=
-zero : nat,
-succ : nat → nat
+| zero : nat
+| succ : nat → nat
 
 namespace nat
 definition add (x y : nat) : nat := nat.rec x (λn r, succ r) y

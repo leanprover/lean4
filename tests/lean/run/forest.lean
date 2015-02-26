@@ -2,10 +2,10 @@ import data.prod data.unit
 open prod
 
 inductive tree (A : Type) : Type :=
-node : A → forest A → tree A
+| node : A → forest A → tree A
 with forest : Type :=
-nil  : forest A,
-cons : tree A → forest A → forest A
+| nil  : forest A
+| cons : tree A → forest A → forest A
 
 namespace manual
 definition tree.below.{l₁ l₂}

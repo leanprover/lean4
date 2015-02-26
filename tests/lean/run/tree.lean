@@ -2,8 +2,8 @@ import logic data.prod
 open eq.ops prod
 
 inductive tree (A : Type) :=
-leaf : A → tree A,
-node : tree A → tree A → tree A
+| leaf : A → tree A
+| node : tree A → tree A → tree A
 
 inductive one.{l} : Type.{max 1 l} :=
 star : one

@@ -13,8 +13,8 @@ import logic tools.helper_tactics data.nat.basic
 open eq.ops helper_tactics nat
 
 inductive list (T : Type) : Type :=
-nil {} : list T,
-cons   : T → list T → list T
+| nil {} : list T
+| cons   : T → list T → list T
 
 namespace list
 notation h :: t  := cons h t

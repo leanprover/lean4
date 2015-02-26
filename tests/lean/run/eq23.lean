@@ -1,11 +1,11 @@
 open nat
 
 inductive tree (A : Type) :=
-leaf : A → tree A,
-node : tree_list A → tree A
+| leaf : A → tree A
+| node : tree_list A → tree A
 with tree_list :=
-nil  : tree_list A,
-cons : tree A → tree_list A → tree_list A
+| nil  : tree_list A
+| cons : tree A → tree_list A → tree_list A
 
 namespace tree_list
 

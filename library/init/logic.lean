@@ -241,8 +241,8 @@ theorem exists.elim {A : Type} {p : A → Prop} {B : Prop} (H1 : ∃x, p x) (H2 
 Exists.rec H2 H1
 
 inductive decidable [class] (p : Prop) : Type :=
-inl :  p → decidable p,
-inr : ¬p → decidable p
+| inl :  p → decidable p
+| inr : ¬p → decidable p
 
 definition decidable_true [instance] : decidable true :=
 decidable.inl trivial

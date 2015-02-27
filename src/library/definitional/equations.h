@@ -18,6 +18,10 @@ expr mk_equation(expr const & lhs, expr const & rhs);
 /** \brief Return true if e is of the form <tt>fun a_1 ... a_n, equation</tt> */
 bool is_lambda_equation(expr const & e);
 
+/** \brief Placeholder to indicate no equations were provided (e.g., to a match-with expression) */
+expr mk_no_equation();
+bool is_no_equation(expr const & e);
+
 bool is_decreasing(expr const & e);
 expr const & decreasing_app(expr const & e);
 expr const & decreasing_proof(expr const & e);

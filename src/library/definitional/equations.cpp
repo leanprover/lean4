@@ -29,11 +29,13 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_equations_name                 = nullptr;
 static name * g_equation_name                  = nullptr;
+static name * g_no_equation_name               = nullptr;
 static name * g_decreasing_name                = nullptr;
 static name * g_inaccessible_name              = nullptr;
 static name * g_equations_result_name          = nullptr;
 static std::string * g_equations_opcode        = nullptr;
 static std::string * g_equation_opcode         = nullptr;
+static std::string * g_no_equation_opcode      = nullptr;
 static std::string * g_decreasing_opcode       = nullptr;
 static std::string * g_equations_result_opcode = nullptr;
 
@@ -50,9 +52,8 @@ public:
     unsigned get_num_fns() const { return m_num_fns; }
 };
 
-class equation_macro_cell : public macro_definition_cell {
+class equation_base_macro_cell : public macro_definition_cell {
 public:
-    virtual name get_name() const { return *g_equation_name; }
     virtual pair<expr, constraint_seq> get_type(expr const &, extension_context &) const {
         expr dummy = mk_Prop();
         return mk_pair(dummy, constraint_seq());
@@ -61,7 +62,19 @@ public:
         expr dummy = mk_Type();
         return some_expr(dummy);
     }
+};
+
+class equation_macro_cell : public equation_base_macro_cell {
+public:
+    virtual name get_name() const { return *g_equation_name; }
     virtual void write(serializer & s) const { s.write_string(*g_equation_opcode); }
+};
+
+// This is just a placeholder to indicate no equations were provided
+class no_equation_macro_cell : public equation_base_macro_cell {
+public:
+    virtual name get_name() const { return *g_no_equation_name; }
+    virtual void write(serializer & s) const { s.write_string(*g_no_equation_opcode); }
 };
 
 class decreasing_macro_cell : public macro_definition_cell {
@@ -83,8 +96,9 @@ public:
     virtual void write(serializer & s) const { s.write_string(*g_decreasing_opcode); }
 };
 
-static macro_definition * g_equation   = nullptr;
-static macro_definition * g_decreasing = nullptr;
+static macro_definition * g_equation    = nullptr;
+static macro_definition * g_no_equation = nullptr;
+static macro_definition * g_decreasing  = nullptr;
 
 bool is_equation(expr const & e) { return is_macro(e) && macro_def(e) == *g_equation; }
 
@@ -100,6 +114,15 @@ expr const & equation_rhs(expr const & e) { lean_assert(is_equation(e)); return 
 expr mk_equation(expr const & lhs, expr const & rhs) {
     expr args[2] = { lhs, rhs };
     return mk_macro(*g_equation, 2, args);
+}
+expr mk_no_equation() { return mk_macro(*g_no_equation); }
+bool is_no_equation(expr const & e) { return is_macro(e) && macro_def(e) == *g_no_equation; }
+
+bool is_lambda_no_equation(expr const & e) {
+    if (is_lambda(e))
+        return is_lambda_no_equation(binding_body(e));
+    else
+        return is_no_equation(e);
 }
 
 bool is_decreasing(expr const & e) { return is_macro(e) && macro_def(e) == *g_decreasing; }
@@ -144,7 +167,9 @@ void to_equations(expr const & e, buffer<expr> & eqns) {
 expr mk_equations(unsigned num_fns, unsigned num_eqs, expr const * eqs) {
     lean_assert(num_fns > 0);
     lean_assert(num_eqs > 0);
-    lean_assert(std::all_of(eqs, eqs+num_eqs, is_lambda_equation));
+    lean_assert(std::all_of(eqs, eqs+num_eqs, [](expr const & e) {
+                return is_lambda_equation(e) || is_lambda_no_equation(e);
+            }));
     macro_definition def(new equations_macro_cell(num_fns));
     return mk_macro(def, num_eqs, eqs);
 }
@@ -201,14 +226,17 @@ expr const & get_equations_result(expr const & e, unsigned i) { return macro_arg
 void initialize_equations() {
     g_equations_name          = new name("equations");
     g_equation_name           = new name("equation");
+    g_no_equation_name        = new name("no_equation");
     g_decreasing_name         = new name("decreasing");
     g_inaccessible_name       = new name("innaccessible");
     g_equations_result_name   = new name("equations_result");
     g_equation                = new macro_definition(new equation_macro_cell());
+    g_no_equation             = new macro_definition(new no_equation_macro_cell());
     g_decreasing              = new macro_definition(new decreasing_macro_cell());
     g_equations_result        = new macro_definition(new equations_result_macro_cell());
     g_equations_opcode        = new std::string("Eqns");
     g_equation_opcode         = new std::string("Eqn");
+    g_no_equation_opcode      = new std::string("NEqn");
     g_decreasing_opcode       = new std::string("Decr");
     g_equations_result_opcode = new std::string("EqnR");
     register_annotation(*g_inaccessible_name);
@@ -218,7 +246,7 @@ void initialize_equations() {
                                     d >> num_fns;
                                     if (num == 0 || num_fns == 0)
                                         throw corrupted_stream_exception();
-                                    if (!is_lambda_equation(args[num-1])) {
+                                    if (!is_lambda_equation(args[num-1]) && !is_lambda_no_equation(args[num-1])) {
                                         if (num <= 2)
                                             throw corrupted_stream_exception();
                                         return mk_equations(num_fns, num-2, args, args[num-2], args[num-1]);
@@ -231,6 +259,12 @@ void initialize_equations() {
                                     if (num != 2)
                                         throw corrupted_stream_exception();
                                     return mk_equation(args[0], args[1]);
+                                });
+    register_macro_deserializer(*g_no_equation_opcode,
+                                [](deserializer &, unsigned num, expr const *) {
+                                    if (num != 0)
+                                        throw corrupted_stream_exception();
+                                    return mk_no_equation();
                                 });
     register_macro_deserializer(*g_decreasing_opcode,
                                 [](deserializer &, unsigned num, expr const * args) {
@@ -247,14 +281,17 @@ void initialize_equations() {
 void finalize_equations() {
     delete g_equations_result_opcode;
     delete g_equation_opcode;
+    delete g_no_equation_opcode;
     delete g_equations_opcode;
     delete g_decreasing_opcode;
     delete g_equations_result;
     delete g_equation;
+    delete g_no_equation;
     delete g_decreasing;
     delete g_equations_result_name;
     delete g_equations_name;
     delete g_equation_name;
+    delete g_no_equation_name;
     delete g_decreasing_name;
     delete g_inaccessible_name;
 }
@@ -549,6 +586,8 @@ class equation_compiler_fn {
         buffer<buffer<eqn>> res_eqns;
         res_eqns.resize(m_fns.size());
         for (expr eq : eqs) {
+            if (is_lambda_no_equation(eq))
+                continue; // skip marker
             for (expr const & fn : m_fns)
                 eq = instantiate(binding_body(eq), fn);
             buffer<expr> local_ctx;

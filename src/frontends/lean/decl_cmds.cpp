@@ -603,11 +603,18 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
 /** \brief Use equations compiler infrastructure to implement match-with */
 expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr t  = p.parse_expr();
-    p.check_token_next(get_with_tk(), "invalid 'match' expression, 'with' expected");
-    if (is_eqn_prefix(p))
-        p.next();
     buffer<expr> eqns;
+    p.check_token_next(get_with_tk(), "invalid 'match' expression, 'with' expected");
     expr fn = mk_local(p.mk_fresh_name(), "match", mk_expr_placeholder(), binder_info());
+    if (p.curr_is_token(get_end_tk())) {
+        p.next();
+        // empty match-with
+        eqns.push_back(Fun(fn, mk_no_equation()));
+        expr f = p.save_pos(mk_equations(1, eqns.size(), eqns.data()), pos);
+        return p.mk_app(f, t, pos);
+    }
+    if (is_eqn_prefix(p))
+        p.next(); // optional '|' in the first case
     while (true) {
         expr lhs;
         unsigned prev_num_undef_ids = p.get_num_undef_ids();

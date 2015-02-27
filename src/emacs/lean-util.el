@@ -51,10 +51,15 @@
   (interactive)
   (let* ((lean-path-env-list
           (parse-colon-path (getenv "LEAN_PATH")))
+         (lean-mode-option
+          (pcase (lean-choose-minor-mode-based-on-extension)
+            (`standard "--lean")
+            (`hott     "--hlean")))
          (lean--path-list
           (parse-colon-path
            (ignore-errors
              (car (process-lines (lean-get-executable lean-executable-name)
+                                 lean-mode-option
                                  "--path")))))
          (project-dir (f--traverse-upwards (f-exists? (f-expand ".project" it))
                                            (f-dirname (buffer-file-name))))

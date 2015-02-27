@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/standard_kernel.h"
 #include "library/hott_kernel.h"
 #include "library/module.h"
+#include "library/flycheck.h"
 #include "library/io_state_stream.h"
 #include "library/definition_cache.h"
 #include "library/declaration_index.h"
@@ -487,9 +488,17 @@ int main(int argc, char ** argv) {
             if (!in.bad() && !in.fail())
                 cache.load(in);
         } catch (lean::throwable & ex) {
-            lean::display_error(diagnostic(env, ios), nullptr, ex);
-            std::cerr << "Failed to load cache file '" << cache_name << "'\n";
-            return 1;
+            cache_ptr = nullptr;
+            auto out = regular(env, ios);
+            // I'm using flycheck_error instead off flycheck_warning because
+            // the :error-patterns at lean-flycheck.el do not work after
+            // I add a rule for FLYCHECK_WARNING.
+            // Same for display_error_pos vs display_warning_pos.
+            lean::flycheck_error warn(out);
+            if (optind < argc)
+                display_error_pos(out, argv[optind], 1, 0);
+            out << "failed to load cache file '" << cache_name << "', "
+                << ex.what() << ". cache is going to be ignored\n";
         }
     }
     declaration_index index;

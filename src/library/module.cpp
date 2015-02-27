@@ -32,7 +32,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 corrupted_file_exception::corrupted_file_exception(std::string const & fname):
-    exception(sstream() << "failed to import '" << fname << "', file is corrupted") {
+    exception(sstream() << "failed to import '" << fname << "', file is corrupted, please regenerate the file from sources") {
 }
 
 typedef pair<std::string, std::function<void(serializer &)>> writer;

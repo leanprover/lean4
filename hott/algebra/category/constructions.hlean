@@ -22,8 +22,7 @@ namespace category
   definition Category_hset [reducible] : Category :=
   Category.mk hset category_hset
 
-  --RENAME AND CLEANUP
-  definition set_category_equiv_iso (a b : Category_hset) : (a ≅ b) = (a ≃ b) := sorry
+  definition isomorphic_hset_eq_equiv (a b : Category_hset) : (a ≅ b) = (a ≃ b) := sorry
 
   end hset
   namespace ops

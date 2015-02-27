@@ -27,7 +27,7 @@ namespace category
   -- input ⟶ using \--> (this is a different arrow than \-> (→))
   infixl [parsing-only] `⟶`:25 := precategory.hom
   namespace hom
-    infixl `⟶` := precategory.hom -- if you open this namespace, hom a b is printed as a ⟶ b
+    infixl `⟶`:25 := precategory.hom -- if you open this namespace, hom a b is printed as a ⟶ b
   end hom
 
   abbreviation hom      := @precategory.hom
@@ -39,28 +39,83 @@ namespace category
   abbreviation id_right := @precategory.id_right
 
   section basic_lemmas
-  variables {ob : Type} [C : precategory ob]
-  variables {a b c d : ob} {h : c ⟶ d} {g : hom b c} {f f' : hom a b} {i : a ⟶ a}
-  include C
+    variables {ob : Type} [C : precategory ob]
+    variables {a b c d : ob} {h : c ⟶ d} {g : hom b c} {f f' : hom a b} {i : a ⟶ a}
+    include C
 
-  definition id [reducible] := ID a
+    definition id [reducible] := ID a
 
-  definition id_compose (a : ob) : ID a ∘ ID a = ID a := !id_left
+    definition id_compose (a : ob) : ID a ∘ ID a = ID a := !id_left
 
-  definition left_id_unique (H : Π{b} {f : hom b a}, i ∘ f = f) : i = id :=
-  calc i = i ∘ id : id_right
-     ... = id     : H
+    definition left_id_unique (H : Π{b} {f : hom b a}, i ∘ f = f) : i = id :=
+    calc i = i ∘ id : id_right
+       ... = id     : H
 
-  definition right_id_unique (H : Π{b} {f : hom a b}, f ∘ i = f) : i = id :=
-  calc i = id ∘ i : id_left
-     ... = id     : H
+    definition right_id_unique (H : Π{b} {f : hom a b}, f ∘ i = f) : i = id :=
+    calc i = id ∘ i : id_left
+       ... = id     : H
 
-  definition homset [reducible] (x y : ob) : hset :=
-  hset.mk (hom x y) _
+    definition homset [reducible] (x y : ob) : hset :=
+    hset.mk (hom x y) _
 
-  definition is_hprop_eq_hom [instance] : is_hprop (f = f') :=
-  !is_trunc_eq
+    definition is_hprop_eq_hom [instance] : is_hprop (f = f') :=
+    !is_trunc_eq
+
+
   end basic_lemmas
+  context squares
+    parameters {ob : Type} [C : precategory ob]
+    local infixl `⟶`:25 := @precategory.hom ob C
+    local infixr `∘`    := @precategory.comp ob C _ _ _
+    definition compose_squares {xa xb xc ya yb yc : ob}
+      {xg : xb ⟶ xc} {xf : xa ⟶ xb} {yg : yb ⟶ yc} {yf : ya ⟶ yb}
+      {wa : xa ⟶ ya} {wb : xb ⟶ yb} {wc : xc ⟶ yc}
+      (xyab : wb ∘ xf = yf ∘ wa) (xybc : wc ∘ xg = yg ∘ wb)
+        : wc ∘ (xg ∘ xf) = (yg ∘ yf) ∘ wa :=
+    calc
+      wc ∘ (xg ∘ xf) = (wc ∘ xg) ∘ xf : assoc
+        ... = (yg ∘ wb) ∘ xf : xybc
+        ... = yg ∘ (wb ∘ xf) : assoc
+        ... = yg ∘ (yf ∘ wa) : xyab
+        ... = (yg ∘ yf) ∘ wa : assoc
+
+    set_option unifier.max_steps 30000
+    definition compose_squares_2x2 {xa xb xc ya yb yc za zb zc : ob}
+      {xg : xb ⟶ xc} {xf : xa ⟶ xb} {yg : yb ⟶ yc} {yf : ya ⟶ yb} {zg : zb ⟶ zc} {zf : za ⟶ zb}
+      {va : ya ⟶ za} {vb : yb ⟶ zb} {vc : yc ⟶ zc} {wa : xa ⟶ ya} {wb : xb ⟶ yb} {wc : xc ⟶ yc}
+      (xyab : wb ∘ xf = yf ∘ wa) (xybc : wc ∘ xg = yg ∘ wb)
+      (yzab : vb ∘ yf = zf ∘ va) (yzbc : vc ∘ yg = zg ∘ vb)
+        : (vc ∘ wc) ∘ (xg ∘ xf) = (zg ∘ zf) ∘ (va ∘ wa) :=
+    calc
+      (vc ∘ wc) ∘ (xg ∘ xf) = vc ∘ (wc ∘ (xg ∘ xf)) : (assoc vc wc (xg ∘ xf))⁻¹ᵖ
+        ... = vc ∘ ((yg ∘ yf) ∘ wa) : {compose_squares xyab xybc}
+        ... = (vc ∘ (yg ∘ yf)) ∘ wa : assoc vc (yg ∘ yf) wa
+        ... = ((zg ∘ zf) ∘ va) ∘ wa : {compose_squares yzab yzbc}
+        ... = (zg ∘ zf) ∘ (va ∘ wa) : (assoc (zg ∘ zf) va wa)⁻¹ᵖ
+    set_option unifier.max_steps 20000
+
+    definition square_precompose {xa xb xc yb yc : ob}
+      {xg : xb ⟶ xc} {yg : yb ⟶ yc} {wb : xb ⟶ yb} {wc : xc ⟶ yc}
+      (H : wc ∘ xg = yg ∘ wb) (xf : xa ⟶ xb) : wc ∘ xg ∘ xf = yg ∘ wb ∘ xf :=
+    calc
+      wc ∘ xg ∘ xf = (wc ∘ xg) ∘ xf : assoc
+        ... = (yg ∘ wb) ∘ xf        : H
+        ... = yg ∘ wb ∘ xf          : assoc
+
+    definition square_postcompose {xb xc yb yc yd : ob}
+      {xg : xb ⟶ xc} {yg : yb ⟶ yc} {wb : xb ⟶ yb} {wc : xc ⟶ yc}
+      (H : wc ∘ xg = yg ∘ wb) (yh : yc ⟶ yd) : (yh ∘ wc) ∘ xg = (yh ∘ yg) ∘ wb :=
+    calc
+      (yh ∘ wc) ∘ xg = yh ∘ wc ∘ xg : assoc
+        ... = yh ∘ yg ∘ wb          : H
+        ... = (yh ∘ yg) ∘ wb        : assoc
+
+    definition square_prepostcompose {xa xb xc yb yc yd : ob}
+      {xg : xb ⟶ xc} {yg : yb ⟶ yc} {wb : xb ⟶ yb} {wc : xc ⟶ yc}
+      (H : wc ∘ xg = yg ∘ wb) (yh : yc ⟶ yd) (xf : xa ⟶ xb)
+        : (yh ∘ wc) ∘ (xg ∘ xf) = (yh ∘ yg) ∘ (wb ∘ xf)  :=
+    square_precompose (square_postcompose H yh) xf
+  end squares
 
   structure Precategory : Type :=
     (carrier : Type)

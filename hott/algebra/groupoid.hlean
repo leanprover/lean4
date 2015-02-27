@@ -25,7 +25,7 @@ namespace category
   precategory.rec_on C groupoid.mk H
 
   definition groupoid_of_1_type.{l} (A : Type.{l})
-      [H : is_trunc (succ zero) A] : groupoid.{l l} A :=
+      [H : is_trunc 1 A] : groupoid.{l l} A :=
   groupoid.mk
     (λ (a b : A), a = b)
     (λ (a b : A), have ish : is_hset (a = b), from is_trunc_eq nat.zero a b, ish)

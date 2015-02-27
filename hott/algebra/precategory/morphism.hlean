@@ -63,17 +63,17 @@ namespace morphism
       (Hl : g ∘ f = id) (Hr : f ∘ g' = id) : g = g' :=
   by rewrite [-(id_right g), -Hr, assoc, Hl, id_left]
 
-  theorem retraction_eq_intro [H : is_section f] (H2 : f ∘ h = id) : retraction_of f = h
-  := left_inverse_eq_right_inverse !retraction_compose H2
+  theorem retraction_eq_intro [H : is_section f] (H2 : f ∘ h = id) : retraction_of f = h :=
+  left_inverse_eq_right_inverse !retraction_compose H2
 
-  theorem section_eq_intro [H : is_retraction f] (H2 : h ∘ f = id) : section_of f = h
-  := (left_inverse_eq_right_inverse H2 !compose_section)⁻¹
+  theorem section_eq_intro [H : is_retraction f] (H2 : h ∘ f = id) : section_of f = h :=
+  (left_inverse_eq_right_inverse H2 !compose_section)⁻¹
 
-  theorem inverse_eq_intro_right [H : is_iso f] (H2 : f ∘ h = id) : f⁻¹ = h
-  := left_inverse_eq_right_inverse !inverse_compose H2
+  theorem inverse_eq_intro_right [H : is_iso f] (H2 : f ∘ h = id) : f⁻¹ = h :=
+  left_inverse_eq_right_inverse !inverse_compose H2
 
-  theorem inverse_eq_intro_left [H : is_iso f] (H2 : h ∘ f = id) : f⁻¹ = h
-  := (left_inverse_eq_right_inverse H2 !compose_inverse)⁻¹
+  theorem inverse_eq_intro_left [H : is_iso f] (H2 : h ∘ f = id) : f⁻¹ = h :=
+  (left_inverse_eq_right_inverse H2 !compose_inverse)⁻¹
 
   theorem section_of_eq_retraction_of (f : a ⟶ b) [Hl : is_section f] [Hr : is_retraction f] :
       retraction_of f = section_of f :=

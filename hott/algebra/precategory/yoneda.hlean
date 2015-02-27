@@ -42,9 +42,8 @@ open is_equiv equiv
 
 namespace functor
   open prod nat_trans
-  variables {C D E : Precategory}
-
-  definition functor_curry_ob (F : C ×c D ⇒ E) (c : C) : E ^c D :=
+  variables {C D E : Precategory} (F : C ×c D ⇒ E) (G : C ⇒ E ^c D)
+  definition functor_curry_ob [reducible] (c : C) : E ^c D :=
   functor.mk (λd, F (c,d))
              (λd d' g, F (id, g))
              (λd, !respect_id)
@@ -52,9 +51,9 @@ namespace functor
                F (id, g' ∘ g) = F (id ∘ id, g' ∘ g) : {(id_compose c)⁻¹}
                  ... = F ((id,g') ∘ (id, g)) : idp
                  ... = F (id,g') ∘ F (id, g) : respect_comp F qed)
-
   local abbreviation Fob := @functor_curry_ob
-  definition functor_curry_mor (F : C ×c D ⇒ E) ⦃c c' : C⦄ (f : c ⟶ c') : Fob F c ⟹ Fob F c'  :=
+
+  definition functor_curry_hom ⦃c c' : C⦄ (f : c ⟶ c') : Fob F c ⟹ Fob F c' :=
   nat_trans.mk (λd, F (f, id))
                (λd d' g, proof calc
                  F (id, g) ∘ F (f, id) = F (id ∘ f, g ∘ id) : respect_comp F
@@ -64,36 +63,146 @@ namespace functor
                    ... = F (f ∘ id, id ∘ g) : {(id_left g)⁻¹}
                    ... = F (f, id) ∘ F (id, g) :  (respect_comp F (f, id) (id, g))⁻¹ᵖ
             qed)
+  local abbreviation Fhom := @functor_curry_hom
 
-  local abbreviation Fmor := @functor_curry_mor
-  definition functor_curry_mor_def (F : C ×c D ⇒ E) ⦃c c' : C⦄ (f : c ⟶ c') (d : D) :
-    (Fmor F f) d = F (f, id) := idp
+  definition functor_curry_hom_def ⦃c c' : C⦄ (f : c ⟶ c') (d : D) :
+    (Fhom F f) d = homF F (f, id) := idp
 
-  definition functor_curry_id (F : C ×c D ⇒ E) (c : C) : Fmor F (ID c) = nat_trans.id :=
+  definition functor_curry_id (c : C) : Fhom F (ID c) = nat_trans.id :=
   nat_trans_eq_mk (λd, respect_id F _)
 
-  definition functor_curry_comp (F : C ×c D ⇒ E) ⦃c c' c'' : C⦄ (f' : c' ⟶ c'') (f : c ⟶ c')
-    : Fmor F (f' ∘ f) = Fmor F f' ∘n Fmor F f :=
+  definition functor_curry_comp ⦃c c' c'' : C⦄ (f' : c' ⟶ c'') (f : c ⟶ c')
+    : Fhom F (f' ∘ f) = Fhom F f' ∘n Fhom F f :=
   nat_trans_eq_mk (λd, calc
-                    natural_map (Fmor F (f' ∘ f)) d = F (f' ∘ f, id) : functor_curry_mor_def
-                      ... = F (f' ∘ f, id ∘ id) : {(id_compose d)⁻¹}
-                      ... = F ((f',id) ∘ (f, id)) : idp
-                      ... = F (f',id) ∘ F (f, id) : respect_comp F
-                      ... = natural_map ((Fmor F f') ∘ (Fmor F f)) d : idp)
+    natural_map (Fhom F (f' ∘ f)) d = F (f' ∘ f, id) : functor_curry_hom_def
+      ... = F (f' ∘ f, id ∘ id) : {(id_compose d)⁻¹}
+      ... = F ((f',id) ∘ (f, id)) : idp
+      ... = F (f',id) ∘ F (f, id) : respect_comp F
+      ... = natural_map ((Fhom F f') ∘ (Fhom F f)) d : idp)
 
---respect_comp F (g, id) (f, id)
-  definition functor_curry (F : C ×c D ⇒ E) : C ⇒ E ^c D :=
+  definition functor_curry [reducible] : C ⇒ E ^c D :=
   functor.mk (functor_curry_ob F)
-             (functor_curry_mor F)
+             (functor_curry_hom F)
              (functor_curry_id F)
              (functor_curry_comp F)
 
+  definition functor_uncurry_ob [reducible] (p : C ×c D) : E :=
+  obF (G p.1) p.2
+  local abbreviation Gob := @functor_uncurry_ob
 
-  definition is_equiv_functor_curry : is_equiv (@functor_curry C D E) := sorry
+  definition functor_uncurry_hom ⦃p p' : C ×c D⦄ (f : hom p p') : Gob G p ⟶ Gob G p'  :=
+  homF (obF G p'.1) f.2 ∘ natural_map (homF G f.1) p.2
+  local abbreviation Ghom := @functor_uncurry_hom
+
+  definition functor_uncurry_id (p : C ×c D) : Ghom G (ID p) = id :=
+  calc
+    Ghom G (ID p) = homF (obF G p.1) id ∘ natural_map (homF G id) p.2 : idp
+      ... = id ∘ natural_map (homF G id) p.2 : ap (λx, x ∘ _) (respect_id (obF G p.1) p.2)
+      ... = id ∘ natural_map nat_trans.id p.2 : {respect_id G p.1}
+      ... = id : id_compose
+
+  definition functor_uncurry_comp ⦃p p' p'' : C ×c D⦄ (f' : p' ⟶ p'') (f : p ⟶ p')
+    : Ghom G (f' ∘ f) = Ghom G f' ∘ Ghom G f :=
+  calc
+    Ghom G (f' ∘ f)
+          = homF (obF G p''.1) (f'.2 ∘ f.2) ∘ natural_map (homF G (f'.1 ∘ f.1)) p.2 : idp
+      ... = (homF (obF G p''.1) f'.2 ∘ homF (obF G p''.1) f.2)
+              ∘ natural_map (homF G (f'.1 ∘ f.1)) p.2 : {respect_comp (obF G p''.1) f'.2 f.2}
+      ... = (homF (obF G p''.1) f'.2 ∘ homF (obF G p''.1) f.2)
+              ∘ natural_map (homF G f'.1 ∘ homF G f.1) p.2 : {respect_comp G f'.1 f.1}
+      ... = (homF (obF G p''.1) f'.2 ∘ homF (obF G p''.1) f.2)
+              ∘ (natural_map (homF G f'.1) p.2 ∘ natural_map (homF G f.1) p.2) : idp
+      ... = (homF (obF G p''.1) f'.2 ∘ homF (obF G p''.1) f.2)
+              ∘ (natural_map (homF G f'.1) p.2 ∘ natural_map (homF G f.1) p.2) : idp
+      ... = (homF (obF G p''.1) f'.2 ∘ natural_map (homF G f'.1) p'.2)
+              ∘ (homF (obF G p'.1) f.2 ∘ natural_map (homF G f.1) p.2) :
+                  square_prepostcompose (!naturality⁻¹ᵖ) _ _
+      ... = Ghom G f' ∘ Ghom G f : idp
+
+  definition functor_uncurry [reducible] : C ×c D ⇒ E :=
+  functor.mk (functor_uncurry_ob G)
+             (functor_uncurry_hom G)
+             (functor_uncurry_id G)
+             (functor_uncurry_comp G)
+  -- open pi
+  -- definition functor_eq_mk'1 {F₁ F₂ : C → D} {H₁ : Π(a b : C), hom a b → hom (F₁ a) (F₁ b)}
+  --   {H₂ : Π(a b : C), hom a b → hom (F₂ a) (F₂ b)} (id₁ id₂ comp₁ comp₂)
+  --   (pF : F₁ = F₂) (pH : Π(a b : C) (f : hom a b), pF ▹ (H₁ a b f) = H₂ a b f)
+  --     : functor.mk F₁ H₁ id₁ comp₁ = functor.mk F₂ H₂ id₂ comp₂ :=
+  -- functor_eq_mk'' id₁ id₂ comp₁ comp₂ pF
+  --   (eq_of_homotopy (λc, eq_of_homotopy (λc', eq_of_homotopy (λf,
+  --     begin
+  --      apply concat, rotate_left 1, exact (pH c c' f),
+  --      apply concat, rotate_left 1,
+  --      exact (pi_transport_constant pF (H₁ c c') f),
+  --      apply (apD10' f),
+  --      apply concat, rotate_left 1,
+  --      exact (pi_transport_constant pF (H₁ c) c'),
+  --      apply (apD10' c'),
+  --      apply concat, rotate_left 1,
+  --      exact (pi_transport_constant pF H₁ c),
+  --      apply idp
+  --     end))))
+
+  -- definition functor_eq_mk1 {F₁ F₂ : C ⇒ D} : Π(p : obF F₁ = obF F₂),
+  --   (Π(a b : C) (f : hom a b), transport (λF, hom (F a) (F b)) p (F₁ f) = F₂ f)
+  --     → F₁ = F₂ :=
+  -- functor.rec_on F₁ (λO₁ H₁ id₁ comp₁, functor.rec_on F₂ (λO₂ H₂ id₂ comp₂ p, !functor_eq_mk'1))
+
+  --set_option pp.notation false
+  definition functor_uncurry_functor_curry : functor_uncurry (functor_curry F) = F :=
+  functor_eq_mk (λp, ap (obF F) !prod.eta)
+  begin
+    intros (cd, cd', fg),
+    cases cd with (c,d), cases cd' with (c',d'), cases fg with (f,g),
+    have H : (functor_uncurry (functor_curry F)) (f, g) = F (f,g),
+      from calc
+        (functor_uncurry (functor_curry F)) (f, g) = homF F (id, g) ∘ homF F (f, id) : idp
+          ... = F (id ∘ f, g ∘ id) : respect_comp F (id,g) (f,id)
+          ... = F (f, g ∘ id) : {id_left f}
+          ... = F (f,g) : {id_right g},
+    rewrite H,
+    apply sorry
+  end
+  --set_option pp.implicit true
+  definition functor_curry_functor_uncurry : functor_curry (functor_uncurry G) = G :=
+  begin
+    fapply functor_eq_mk,
+     {intro c,
+      fapply functor_eq_mk,
+       {intro d, apply idp},
+       {intros (d, d', g),
+        have H : homF (functor_curry (functor_uncurry G) c) g = homF (G c) g,
+        from calc
+          homF (functor_curry (functor_uncurry G) c) g
+                = homF (G c) g ∘ natural_map (homF G (ID c)) d : idp
+            ... = homF (G c) g ∘ natural_map (ID (G c)) d
+                   : ap (λx, homF (G c) g ∘ natural_map x d) (respect_id G c)
+            ... = homF (G c) g : id_right,
+        rewrite H,
+--        esimp {idp},
+        apply sorry
+       }
+     },
+    apply sorry
+  end
 
   definition equiv_functor_curry : (C ×c D ⇒ E) ≃ (C ⇒ E ^c D) :=
-  equiv.mk _ !is_equiv_functor_curry
+  equiv.MK functor_curry
+           functor_uncurry
+           functor_curry_functor_uncurry
+           functor_uncurry_functor_curry
+
+
+  definition functor_prod_flip_ob : C ×c D ⇒ D ×c C :=
+  functor.mk sorry sorry sorry sorry
+
+
+  definition contravariant_yoneda_embedding : Cᵒᵖ ⇒ set ^c C :=
+  functor_curry !yoneda.representable_functor
+
 end functor
+
 -- Coq uses unit/counit definitions as basic
 
 -- open yoneda precategory.product precategory.opposite functor morphism

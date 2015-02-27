@@ -95,7 +95,7 @@ namespace category
       : precategory (obC × obD) :=
   precategory.mk (λ a b, hom (pr1 a) (pr1 b) × hom (pr2 a) (pr2 b))
                  (λ a b, !is_trunc_prod)
-                 (λ a b c g f, (pr1 g ∘ pr1 f , pr2 g ∘ pr2 f) )
+                 (λ a b c g f, (pr1 g ∘ pr1 f , pr2 g ∘ pr2 f))
                  (λ a, (id, id))
                  (λ a b c d h g f, pair_eq  !assoc    !assoc   )
                  (λ a b f,         prod_eq  !id_left  !id_left )
@@ -153,21 +153,21 @@ namespace category
 
   section precategory_functor
     open morphism functor nat_trans
-    definition precategory_functor [instance] [reducible] (C D : Precategory)
+    definition precategory_functor [instance] [reducible] (D C : Precategory)
       : precategory (functor C D) :=
     precategory.mk (λa b, nat_trans a b)
-                   (λ a b, @nat_trans.to_hset C D a b)
+                   (λ a b, @is_hset_nat_trans C D a b)
                    (λ a b c g f, nat_trans.compose g f)
                    (λ a, nat_trans.id)
                    (λ a b c d h g f, !nat_trans.assoc)
                    (λ a b f, !nat_trans.id_left)
                    (λ a b f, !nat_trans.id_right)
 
-    definition Precategory_functor [reducible] (C D : Precategory) : Precategory :=
-    precategory.Mk (precategory_functor C D)
+    definition Precategory_functor [reducible] (D C : Precategory) : Precategory :=
+    precategory.Mk (precategory_functor D C)
 
-    definition Precategory_functor_rev [reducible] (C D : Precategory) : Precategory :=
-    Precategory_functor D C
+    -- definition Precategory_functor_rev [reducible] (C D : Precategory) : Precategory :=
+    -- Precategory_functor D C
 
     /- we prove that if a natural transformation is pointwise an iso, then it is an iso -/
     variables {C D : Precategory} {F G : C ⇒ D} (η : F ⟹ G) [iso : Π(a : C), is_iso (η a)]
@@ -199,13 +199,13 @@ namespace category
     apply is_hset.elim
     end
 
-    definition nat_trans_is_iso.mk : is_iso η :=
+    definition nat_trans_iso.mk : is_iso η :=
     is_iso.mk (nat_trans_left_inverse η) (nat_trans_right_inverse η)
 
   end precategory_functor
 
   namespace ops
-  infixr `^c`:35 := Precategory_functor_rev
+  infixr `^c`:35 := Precategory_functor
   infixr `×f`:30 := product.prod_functor
   infixr `ᵒᵖᶠ`:(max+1) := opposite.opposite_functor
   end ops

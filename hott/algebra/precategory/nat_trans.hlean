@@ -20,7 +20,7 @@ namespace nat_trans
 
   attribute natural_map [coercion]
 
-  protected definition compose (η : G ⟹ H) (θ : F ⟹ G) : F ⟹ H :=
+  protected definition compose [reducible] (η : G ⟹ H) (θ : F ⟹ G) : F ⟹ H :=
   nat_trans.mk
     (λ a, η a ∘ θ a)
     (λ a b f,
@@ -32,6 +32,12 @@ namespace nat_trans
                       ... = (η b ∘ θ b) ∘ F f : assoc)
 
   infixr `∘n`:60 := compose
+
+  protected definition id [reducible] {C D : Precategory} {F : functor C D} : nat_trans F F :=
+  mk (λa, id) (λa b f, !id_right ⬝ !id_left⁻¹)
+
+  protected definition ID [reducible] {C D : Precategory} (F : functor C D) : nat_trans F F :=
+  id
 
   local attribute is_hprop_eq_hom [instance]
   definition nat_trans_eq_mk' {η₁ η₂ : Π (a : C), hom (F a) (G a)}
@@ -47,12 +53,6 @@ namespace nat_trans
   protected definition assoc (η₃ : H ⟹ I) (η₂ : G ⟹ H) (η₁ : F ⟹ G) :
       η₃ ∘n (η₂ ∘n η₁) = (η₃ ∘n η₂) ∘n η₁ :=
   nat_trans_eq_mk (λa, !assoc)
-
-  protected definition id {C D : Precategory} {F : functor C D} : nat_trans F F :=
-  mk (λa, id) (λa b f, !id_right ⬝ !id_left⁻¹)
-
-  protected definition ID {C D : Precategory} (F : functor C D) : nat_trans F F :=
-  id
 
   protected definition id_left (η : F ⟹ G) : id ∘n η = η :=
   nat_trans_eq_mk (λa, !id_left)
@@ -79,7 +79,7 @@ namespace nat_trans
   end
 
   set_option apply.class_instance false
-  protected definition to_hset : is_hset (F ⟹ G) :=
+  definition is_hset_nat_trans : is_hset (F ⟹ G) :=
   begin
     apply is_trunc_is_equiv_closed, apply (equiv.to_is_equiv !sigma_char),
     apply is_trunc_sigma,

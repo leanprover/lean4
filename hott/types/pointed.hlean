@@ -17,24 +17,24 @@ namespace is_pointed
   variables {A B : Type} (f : A → B)
 
   -- Any contractible type is pointed
-  protected definition contr [instance] [H : is_contr A] : is_pointed A :=
+  definition is_pointed_of_is_contr [instance] [H : is_contr A] : is_pointed A :=
     is_pointed.mk !center
 
   -- A pi type with a pointed target is pointed
-  protected definition pi [instance] {P : A → Type} [H : Πx, is_pointed (P x)]
+  definition is_pointed_pi [instance] {P : A → Type} [H : Πx, is_pointed (P x)]
       : is_pointed (Πx, P x) :=
     is_pointed.mk (λx, point (P x))
 
   -- A sigma type of pointed components is pointed
-  protected definition sigma [instance] {P : A → Type} [G : is_pointed A]
+  definition is_pointed_sigma [instance] {P : A → Type} [G : is_pointed A]
       [H : is_pointed (P !point)] : is_pointed (Σx, P x) :=
     is_pointed.mk ⟨!point,!point⟩
 
-  protected definition prod [H1 : is_pointed A] [H2 : is_pointed B]
+  definition is_pointed_prod [H1 : is_pointed A] [H2 : is_pointed B]
       : is_pointed (A × B) :=
     is_pointed.mk (!point,!point)
 
-  protected definition loop_space (a : A) : is_pointed (a = a) :=
+  definition is_pointed_loop_space (a : A) : is_pointed (a = a) :=
     is_pointed.mk idp
 
 end is_pointed

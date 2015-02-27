@@ -28,7 +28,7 @@ namespace functor
 
   -- The following lemmas will later be used to prove that the type of
   -- precategories forms a precategory itself
-  protected definition compose (G : functor D E) (F : functor C D) : functor C E :=
+  protected definition compose [reducible] (G : functor D E) (F : functor C D) : functor C E :=
   functor.mk
     (λ x, G (F x))
     (λ a b f, G (F f))
@@ -40,6 +40,11 @@ namespace functor
                 ... = G (F g) ∘ G (F f) : respect_comp G (F g) (F f))
 
   infixr `∘f`:60 := compose
+
+  protected definition id [reducible] {C : Precategory} : functor C C :=
+  mk (λa, a) (λ a b f, f) (λ a, idp) (λ a b c f g, idp)
+
+  protected definition ID [reducible] (C : Precategory) : functor C C := id
 
   definition functor_eq_mk'' {F₁ F₂ : C → D} {H₁ : Π(a b : C), hom a b → hom (F₁ a) (F₁ b)}
     {H₂ : Π(a b : C), hom a b → hom (F₂ a) (F₂ b)} (id₁ id₂ comp₁ comp₂)
@@ -71,38 +76,16 @@ namespace functor
     (pH : Π(a b : C) (f : hom a b), H₁ a b f = H₂ a b f)
       : functor.mk F H₁ id₁ comp₁ = functor.mk F H₂ id₂ comp₂ :=
   functor_eq_mk'' id₁ id₂ comp₁ comp₂ idp
-                  (eq_of_homotopy (λc, eq_of_homotopy (λc', eq_of_homotopy (λf, pH c c' f))))
+                  (eq_of_homotopy (λc, eq_of_homotopy (λc', eq_of_homotopy (pH c c'))))
 
   definition functor_eq_mk {F₁ F₂ : C ⇒ D} : Π(p : obF F₁ ∼ obF F₂),
     (Π(a b : C) (f : hom a b), transport (λF, hom (F a) (F b)) (eq_of_homotopy p) (F₁ f) = F₂ f)
       → F₁ = F₂ :=
-  functor.rec_on F₁ (λO₁ H₁ id₁ comp₁, functor.rec_on F₂ (λO₂ H₂ id₂ comp₂ p q, !functor_eq_mk' q))
-
-  -- protected definition congr
-  --   {C : Precategory} {D : Precategory}
-  --   (F : C → D)
-  --   (foo2 : Π ⦃a b : C⦄, hom a b → hom (F a) (F b))
-  --   (foo3a foo3b : Π (a : C), foo2 (ID a) = ID (F a))
-  --   (foo4a foo4b : Π {a b c : C} (g : @hom C C b c) (f : @hom C C a b),
-  --     foo2 (g ∘ f) = foo2 g ∘ foo2 f)
-  --   (p3 : foo3a = foo3b) (p4 : @foo4a = @foo4b)
-  --     : functor.mk F foo2 foo3a @foo4a = functor.mk F foo2 foo3b @foo4b
-  -- :=
-  -- begin
-  --   apply (eq.rec_on p3), intros,
-  --   apply (eq.rec_on p4), intros,
-  --   apply idp,
-  -- end
-
+  functor.rec_on F₁ (λO₁ H₁ id₁ comp₁, functor.rec_on F₂ (λO₂ H₂ id₂ comp₂ p, !functor_eq_mk'))
 
   protected definition assoc {A B C D : Precategory} (H : functor C D) (G : functor B C) (F : functor A B) :
       H ∘f (G ∘f F) = (H ∘f G) ∘f F :=
   !functor_eq_mk_constant (λa b f, idp)
-
-  protected definition id {C : Precategory} : functor C C :=
-  mk (λa, a) (λ a b f, f) (λ a, idp) (λ a b c f g, idp)
-
-  protected definition ID (C : Precategory) : functor C C := id
 
   protected definition id_left  (F : functor C D) : id ∘f F = F :=
   functor.rec_on F (λF1 F2 F3 F4, !functor_eq_mk_constant (λa b f, idp))
@@ -173,7 +156,7 @@ namespace category
 
   namespace ops
 
-    abbreviation PreCat := Precat_of_strict_cats
+    abbreviation SPreCat := Precat_of_strict_cats
     --attribute precat_of_strict_precats [instance]
 
   end ops

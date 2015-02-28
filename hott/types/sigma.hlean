@@ -194,8 +194,8 @@ namespace sigma
   definition is_equiv_sigma_functor [H1 : is_equiv f] [H2 : Π a, is_equiv (g a)]
       : is_equiv (sigma_functor f g) :=
   adjointify (sigma_functor f g)
-             (sigma_functor (f⁻¹) (λ(a' : A') (b' : B' a'),
-               ((g (f⁻¹ a'))⁻¹ (transport B' (retr f a'⁻¹) b'))))
+             (sigma_functor f⁻¹ (λ(a' : A') (b' : B' a'),
+               ((g (f⁻¹ a'))⁻¹ (transport B' (retr f a')⁻¹ b'))))
   begin
     intro u',
     cases u' with (a', b'),
@@ -204,33 +204,25 @@ namespace sigma
   -- end
     -- "rewrite retr (g (f⁻¹ a'))"
     apply concat, apply (ap (λx, (transport B' (retr f a') x))), apply (retr (g (f⁻¹ a'))),
-    show retr f a' ▹ (((retr f a') ⁻¹) ▹ b') = b',
+    show retr f a' ▹ ((retr f a')⁻¹ ▹ b') = b',
     from tr_inv_tr B' (retr f a') b'
   end
   begin
     intro u,
     cases u with (a, b),
     apply (sigma_eq (sect f a)),
-    show transport B (sect f a) (g (f⁻¹ (f a))⁻¹ (transport B' (retr f (f a)⁻¹) (g a b))) = b,
+    show transport B (sect f a) ((g (f⁻¹ (f a)))⁻¹ (transport B' (retr f (f a))⁻¹ (g a b))) = b,
     from calc
-      transport B (sect f a) (g (f⁻¹ (f a))⁻¹ (transport B' (retr f (f a)⁻¹) (g a b)))
-          = g a⁻¹ (transport (B' ∘ f) (sect f a) (transport B' (retr f (f a)⁻¹) (g a b)))
-              : by rewrite (fn_tr_eq_tr_fn (sect f a) (λ a, g a⁻¹))
-      ... = g a⁻¹ (transport B' (ap f (sect f a)) (transport B' (retr f (f a)⁻¹) (g a b)))
-              : ap (g a⁻¹) !transport_compose
-      ... = g a⁻¹ (transport B' (ap f (sect f a)) (transport B' (ap f (sect f a)⁻¹) (g a b)))
-           : ap (λ x, g a⁻¹ (transport B' (ap f (sect f a)) (transport B' (x⁻¹) (g a b)))) (adj f a)
-      ... = g a⁻¹ (g a b) : {!tr_inv_tr}
+      transport B (sect f a) ((g (f⁻¹ (f a)))⁻¹ (transport B' (retr f (f a))⁻¹ (g a b)))
+          = (g a)⁻¹ (transport (B' ∘ f) (sect f a) (transport B' (retr f (f a))⁻¹ (g a b)))
+              : by rewrite (fn_tr_eq_tr_fn (sect f a) (λ a, (g a)⁻¹))
+      ... = (g a)⁻¹ (transport B' (ap f (sect f a)) (transport B' (retr f (f a))⁻¹ (g a b)))
+              : ap (g a)⁻¹ !transport_compose
+      ... = (g a)⁻¹ (transport B' (ap f (sect f a)) (transport B' (ap f (sect f a))⁻¹ (g a b)))
+           : ap (λ x, (g a)⁻¹ (transport B' (ap f (sect f a)) (transport B' x⁻¹ (g a b)))) (adj f a)
+      ... = (g a)⁻¹ (g a b) : {!tr_inv_tr}
       ... = b : by rewrite (sect (g a) b)
   end
-    -- -- "rewrite fn_tr_eq_tr_fn"
-    -- apply concat, apply inverse, apply (fn_tr_eq_tr_fn (sect f a) (λ a, g a⁻¹)),
-    -- apply concat, apply (ap (g a⁻¹)),
-    --   -- "rewrite transport_compose"
-    --   apply concat, apply transport_compose,
-    --   -- "rewrite adj"
-    --   -- "rewrite tr_inv_tr"
-    -- apply sect,
 
   definition sigma_equiv_sigma_of_is_equiv [H1 : is_equiv f] [H2 : Π a, is_equiv (g a)]
     : (Σa, B a) ≃ (Σa', B' a') :=
@@ -250,13 +242,13 @@ namespace sigma
   definition ap_sigma_functor_eq_dpair (p : a = a') (q : p ▹ b = b')
     : ap (sigma.sigma_functor f g) (sigma_eq p q)
     = sigma_eq (ap f p)
-                 (transport_compose _ f p (g a b)⁻¹ ⬝ fn_tr_eq_tr_fn p g b⁻¹ ⬝ ap (g a') q) :=
+                 ((transport_compose _ f p (g a b))⁻¹ ⬝ (fn_tr_eq_tr_fn p g b)⁻¹ ⬝ ap (g a') q) :=
   by cases p; cases q; apply idp
 
   definition ap_sigma_functor_eq (p : u.1 = v.1) (q : p ▹ u.2 = v.2)
-    : ap (sigma.sigma_functor f g) (sigma_eq p q)
-    = sigma_eq (ap f p)
-                 (transport_compose B' f p (g u.1 u.2)⁻¹ ⬝ fn_tr_eq_tr_fn p g u.2⁻¹ ⬝ ap (g v.1) q) :=
+    : ap (sigma.sigma_functor f g) (sigma_eq p q) =
+      sigma_eq (ap f p)
+       ((transport_compose B' f p (g u.1 u.2))⁻¹ ⬝ (fn_tr_eq_tr_fn p g u.2)⁻¹ ⬝ ap (g v.1) q) :=
   by cases u; cases v; apply ap_sigma_functor_eq_dpair
 
   /- definition 3.11.9(i): Summing up a contractible family of types does nothing. -/
@@ -276,7 +268,7 @@ namespace sigma
   definition sigma_equiv_of_is_contr_pr1 (B : A → Type) [H : is_contr A] : (Σa, B a) ≃ B (center A)
   :=
   equiv.mk _ (adjointify
-    (λu, contr u.1⁻¹ ▹ u.2)
+    (λu, (contr u.1)⁻¹ ▹ u.2)
     (λb, ⟨!center, b⟩)
     (λb, ap (λx, x ▹ b) !hprop_eq)
     (λu, sigma_eq !contr !tr_inv_tr))

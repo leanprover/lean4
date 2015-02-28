@@ -3,7 +3,7 @@ Copyright (c) 2014 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Module: algebra.precategory.yoneda
-Author: Floris van Doorn
+Authors: Floris van Doorn
 -/
 
 --note: modify definition in category.set

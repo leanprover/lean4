@@ -127,7 +127,7 @@ theorem weak_funext_of_ua : weak_funext :=
   have tU : is_contr (Π x, U x),
     from tU',
   have tlast : is_contr (Πx, P x),
-    from eq.transport _ (p⁻¹) tU,
+    from eq.transport _ p⁻¹ tU,
   tlast
 )
 

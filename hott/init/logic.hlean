@@ -94,7 +94,7 @@ namespace ne
   assume H, H rfl
 
   definition symm : a ≠ b → b ≠ a :=
-  assume (H : a ≠ b) (H₁ : b = a), H (H₁⁻¹)
+  assume (H : a ≠ b) (H₁ : b = a), H H₁⁻¹
 end ne
 
 section

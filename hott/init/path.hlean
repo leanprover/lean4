@@ -43,7 +43,7 @@ namespace eq
   notation p₁ ⬝ p₂ := concat p₁ p₂
   notation p ⁻¹ := inverse p
   --a second notation for the inverse, which is not overloaded
-  postfix [parsing-only] `⁻¹ᵖ`:100 := inverse
+  postfix [parsing-only] `⁻¹ᵖ`:std.prec.max_plus := inverse
 
 
   /- The 1-dimensional groupoid structure -/
@@ -272,10 +272,10 @@ namespace eq
   eq.rec_on q (eq.rec_on p (take r, con.assoc _ _ _)) r
 
   -- Functions commute with path inverses.
-  definition ap_inv' (f : A → B) {x y : A} (p : x = y) : (ap f p)⁻¹ = ap f (p⁻¹) :=
+  definition ap_inv' (f : A → B) {x y : A} (p : x = y) : (ap f p)⁻¹ = ap f p⁻¹ :=
   eq.rec_on p idp
 
-  definition ap_inv {A B : Type} (f : A → B) {x y : A} (p : x = y) : ap f (p⁻¹) = (ap f p)⁻¹ :=
+  definition ap_inv {A B : Type} (f : A → B) {x y : A} (p : x = y) : ap f p⁻¹ = (ap f p)⁻¹ :=
   eq.rec_on p idp
 
   -- [ap] itself is functorial in the first argument.
@@ -380,7 +380,7 @@ namespace eq
   eq.rec_on h (take h', eq.rec_on h' idp) h'
 
   definition apD10_inv {f g : Πx : A, P x} (h : f = g) (x : A) :
-    apD10 (h⁻¹) x = (apD10 h x)⁻¹ :=
+    apD10 h⁻¹ x = (apD10 h x)⁻¹ :=
   eq.rec_on h idp
 
   definition ap10_idp {f : A → B} (x : A) : ap10 (refl f) x = idp := idp
@@ -388,7 +388,7 @@ namespace eq
   definition ap10_con {f f' f'' : A → B} (h : f = f') (h' : f' = f'') (x : A) :
   ap10 (h ⬝ h') x = ap10 h x ⬝ ap10 h' x := apD10_con h h' x
 
-  definition ap10_inv {f g : A → B} (h : f = g) (x : A) : ap10 (h⁻¹) x = (ap10 h x)⁻¹ :=
+  definition ap10_inv {f g : A → B} (h : f = g) (x : A) : ap10 h⁻¹ x = (ap10 h x)⁻¹ :=
   apD10_inv h x
 
   -- [ap10] also behaves nicely on paths produced by [ap]
@@ -408,11 +408,11 @@ namespace eq
 
   definition tr_inv_tr (P : A → Type) {x y : A} (p : x = y) (z : P y) :
     p ▹ p⁻¹ ▹ z = z :=
-  (tr_con P (p⁻¹) p z)⁻¹ ⬝ ap (λr, transport P r z) (con.right_inv p)
+  (tr_con P p⁻¹ p z)⁻¹ ⬝ ap (λr, transport P r z) (con.right_inv p)
 
   definition inv_tr_tr (P : A → Type) {x y : A} (p : x = y) (z : P x) :
     p⁻¹ ▹ p ▹ z = z :=
-  (tr_con P p (p⁻¹) z)⁻¹ ⬝ ap (λr, transport P r z) (con.left_inv p)
+  (tr_con P p p⁻¹ z)⁻¹ ⬝ ap (λr, transport P r z) (con.left_inv p)
 
   definition tr_con_lemma (P : A → Type)
       {x y z w : A} (p : x = y) (q : y = z) (r : z = w) (u : P x) :
@@ -454,7 +454,7 @@ namespace eq
   eq.rec_on r1 (eq.rec_on r2 idp)
 
   definition tr2_inv (Q : A → Type) {x y : A} {p q : x = y} (r : p = q) (z : Q x) :
-    transport2 Q (r⁻¹) z = ((transport2 Q r z)⁻¹) :=
+    transport2 Q r⁻¹ z = (transport2 Q r z)⁻¹ :=
   eq.rec_on r idp
 
   definition transportD2 (B C : A → Type) (D : Π(a:A), B a → C a → Type)
@@ -640,7 +640,7 @@ namespace eq
     apD02 f (r1 ⬝ r2) = apD02 f r1
       ⬝ whisker_left (transport2 P r1 (f x)) (apD02 f r2)
       ⬝ con.assoc' _ _ _
-      ⬝ (whisker_right ((tr2_con P r1 r2 (f x))⁻¹) (apD f p3)) :=
+      ⬝ (whisker_right (tr2_con P r1 r2 (f x))⁻¹ (apD f p3)) :=
   eq.rec_on r2 (eq.rec_on r1 (eq.rec_on p1 idp))
 end eq
 

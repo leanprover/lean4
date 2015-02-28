@@ -42,6 +42,9 @@ prefix `-`   := has_neg.neg
 notation 1   := !has_one.one
 notation 0   := !has_zero.zero
 
+--a second notation for the inverse, which is not overloaded
+postfix [parsing-only] `⁻¹ᵍ`:std.prec.max_plus := has_inv.inv
+
 
 /- semigroup -/
 
@@ -425,7 +428,7 @@ section add_group
 
   theorem zero_sub (a : A) : 0 - a = -a := !zero_add
 
-  theorem sub_zero (a : A) : a - 0 = a := (neg_zero⁻¹) ▹ !add_zero
+  theorem sub_zero (a : A) : a - 0 = a := neg_zero⁻¹ ▹ !add_zero
 
   theorem sub_neg_eq_add (a b : A) : a - (-b) = a + b := !neg_neg ▹ idp
 

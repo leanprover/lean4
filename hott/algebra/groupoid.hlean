@@ -34,7 +34,7 @@ namespace category
     (λ (a b c d : A) (p : c = d) (q : b = c) (r : a = b), con.assoc r q p)
     (λ (a b : A) (p : a = b), con_idp p)
     (λ (a b : A) (p : a = b), idp_con p)
-    (λ (a b : A) (p : a = b), @is_iso.mk A _ a b p (p⁻¹)
+    (λ (a b : A) (p : a = b), @is_iso.mk A _ a b p p⁻¹
       !con.left_inv !con.right_inv)
 
   -- A groupoid with a contractible carrier is a group
@@ -44,7 +44,7 @@ namespace category
     fapply group.mk,
       intros (f, g), apply (comp f g),
       apply homH,
-      intros (f, g, h), apply ((assoc f g h)⁻¹),
+      intros (f, g, h), apply (assoc f g h)⁻¹,
       apply (ID (center ob)),
       intro f, apply id_left,
       intro f, apply id_right,
@@ -57,7 +57,7 @@ namespace category
     fapply group.mk,
       intros (f, g), apply (comp f g),
       apply homH,
-      intros (f, g, h), apply ((assoc f g h)⁻¹),
+      intros (f, g, h), apply (assoc f g h)⁻¹,
       apply (ID ⋆),
       intro f, apply id_left,
       intro f, apply id_right,
@@ -73,7 +73,7 @@ namespace category
       intros, apply (@group.carrier_hset A G),
       intros (a, b, c, g, h), exact (@group.mul A G g h),
       intro a, exact (@group.one A G),
-      intros, exact ((@group.mul_assoc A G h g f)⁻¹),
+      intros, exact (@group.mul_assoc A G h g f)⁻¹,
       intros, exact (@group.one_mul A G f),
       intros, exact (@group.mul_one A G f),
       intros, apply is_iso.mk,
@@ -87,7 +87,7 @@ namespace category
     fapply group.mk,
       intros (f, g), apply (comp f g),
       apply homH,
-      intros (f, g, h), apply ((assoc f g h)⁻¹),
+      intros (f, g, h), apply (assoc f g h)⁻¹,
       apply (ID a),
       intro f, apply id_left,
       intro f, apply id_right,

@@ -112,13 +112,13 @@ namespace path
 
   definition isequiv_concat_l [instance] (p : a1 = a2) (a3 : A)
     : is_equiv (@concat _ a1 a2 a3 p) :=
-  is_equiv.mk (concat (p⁻¹))
+  is_equiv.mk (concat p⁻¹)
               (con_inv_cancel_left p)
               (inv_con_cancel_left p)
               (eq.rec_on p (λq, eq.rec_on q idp))
 
   definition equiv_concat_l (p : a1 = a2) (a3 : A) : (a1 = a3) ≃ (a2 = a3) :=
-  equiv.mk (concat (p⁻¹)) _
+  equiv.mk (concat p⁻¹) _
 
   definition isequiv_concat_r [instance] (p : a2 = a3) (a1 : A)
     : is_equiv (λq : a1 = a2, q ⬝ p) :=

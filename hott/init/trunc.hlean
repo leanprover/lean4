@@ -102,11 +102,11 @@ namespace is_trunc
   @contr_internal.contr A !is_trunc.to_internal a
 
   definition center_eq [H : is_contr A] (x y : A) : x = y :=
-  contr x⁻¹ ⬝ (contr y)
+  (contr x)⁻¹ ⬝ (contr y)
 
   definition hprop_eq {A : Type} [H : is_contr A] {x y : A} (p q : x = y) : p = q :=
   have K : ∀ (r : x = y), center_eq x y = r, from (λ r, eq.rec_on r !con.right_inv),
-  K p⁻¹ ⬝ K q
+  (K p)⁻¹ ⬝ K q
 
   definition is_contr_eq [instance] {A : Type} [H : is_contr A] (x y : A) : is_contr (x = y)
   :=
@@ -224,7 +224,7 @@ namespace is_trunc
   trunc_index.rec_on n
     (λA (HA : is_contr A) B f (H : is_equiv f), !is_contr_is_equiv_closed)
     (λn IH A (HA : is_trunc n.+1 A) B f (H : is_equiv f), @is_trunc_succ_intro _ _ (λ x y : B,
-      IH (f⁻¹ x = f⁻¹ y) !is_trunc_eq (x = y) ((ap (f⁻¹))⁻¹) !is_equiv_inv))
+      IH (f⁻¹ x = f⁻¹ y) !is_trunc_eq (x = y) (ap f⁻¹)⁻¹ !is_equiv_inv))
     A HA B f H
 
   definition is_trunc_equiv_closed (n : trunc_index) (f : A ≃ B) [HA : is_trunc n A]
@@ -252,7 +252,7 @@ namespace is_trunc
       (is_equiv.mk (λ (u : unit), center A)
         (λ (u : unit), unit.rec_on u idp)
         (λ (x : A), contr x)
-        (λ (x : A), (!ap_constant)⁻¹))
+        (λ (x : A), !ap_constant⁻¹))
 
   -- TODO: port "Truncated morphisms"
 

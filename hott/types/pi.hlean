@@ -120,7 +120,7 @@ namespace pi
     [H0 : is_equiv f0] [H1 : Πa', @is_equiv (B (f0 a')) (B' a') (f1 a')]
       : is_equiv (pi_functor f0 f1) :=
   begin
-    apply (adjointify (pi_functor f0 f1) (pi_functor (f0⁻¹)
+    apply (adjointify (pi_functor f0 f1) (pi_functor f0⁻¹
           (λ(a : A) (b' : B' (f0⁻¹ a)), transport B (retr f0 a) ((f1 (f0⁻¹ a))⁻¹ b')))),
     intro h, apply eq_of_homotopy,
     unfold pi_functor, unfold function.compose, unfold function.id,

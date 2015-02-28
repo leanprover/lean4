@@ -99,7 +99,10 @@ bool is_tactic_expr(expr const & e) {
 
 expr const & get_tactic_expr_expr(expr const & e) {
     lean_assert(is_tactic_expr(e));
-    return macro_arg(e, 0);
+    expr const * it = &e;
+    while (is_tactic_expr(*it))
+        it = &macro_arg(*it, 0);
+    return *it;
 }
 
 void check_tactic_expr(expr const & e, char const * error_msg) {

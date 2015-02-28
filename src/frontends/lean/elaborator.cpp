@@ -617,7 +617,12 @@ expr elaborator::visit_app(expr const & e, constraint_seq & cs) {
     constraint_seq a_cs;
     expr d_type = binding_domain(f_type);
     if (d_type == get_tactic_expr_type()) {
-        expr r = mk_app(f, mk_tactic_expr(app_arg(e)), e.get_tag());
+        expr const & a = app_arg(e);
+        expr r;
+        if (is_local(a) && (mlocal_type(a) == get_tactic_expr_type() || m_in_equation_lhs))
+            r = mk_app(f, a, e.get_tag());
+        else
+            r = mk_app(f, mk_tactic_expr(a), e.get_tag());
         cs += f_cs + a_cs;
         return r;
     } else {

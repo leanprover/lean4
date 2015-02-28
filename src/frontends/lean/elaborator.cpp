@@ -1578,15 +1578,13 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
             goals gs = ps.get_goals();
             if (!gs)
                 throw_elaborator_exception("invalid nested begin-end block, there are no goals to be solved", ptac);
-            goal  g   = head(gs);
-            expr mvar = g.get_mvar();
-            proof_state focus_ps(ps, goals(g));
+            goal  g             = head(gs);
+            expr mvar           = g.get_mvar();
+            name_generator ngen = ps.get_ngen();
+            proof_state focus_ps(ps, goals(g), ngen.mk_child());
             if (!try_using_begin_end(subst, mvar, focus_ps, ptac))
                 return false;
-            substitution ps_new_subst = ps.get_subst();
-            name const & mvar_name    = mlocal_name(mvar);
-            ps_new_subst.assign(mvar_name, *subst.get_expr(mvar_name));
-            ps = proof_state(ps, tail(gs), ps_new_subst);
+            ps = proof_state(ps, tail(gs), subst, ngen);
         } else {
             expr new_ptac = subst.instantiate_all(ptac);
             if (auto tac = pre_tactic_to_tactic(new_ptac)) {

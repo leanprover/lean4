@@ -45,7 +45,7 @@ namespace category
 
     definition id [reducible] := ID a
 
-    definition id_compose (a : ob) : ID a ∘ ID a = ID a := !id_left
+    definition id_comp (a : ob) : ID a ∘ ID a = ID a := !id_left
 
     definition left_id_unique (H : Π{b} {f : hom b a}, i ∘ f = f) : i = id :=
     calc i = i ∘ id : id_right

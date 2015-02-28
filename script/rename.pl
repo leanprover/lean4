@@ -65,7 +65,7 @@ sub rename_in_file {
 	foreach my $key (keys %renamings) {
 	    # replace instances of key, not preceeded by a letter, and not
 	    # followed by a letter, number, ', or .
-	    s/(?<![a-zA-z])$key(?![w'.])/$renamings{$key}/g;
+	    s/(?<![a-zA-z])$key(?![\w'])/$renamings{$key}/g;
 	}
 	print;
     }

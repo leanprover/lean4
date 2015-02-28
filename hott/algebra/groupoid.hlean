@@ -35,7 +35,7 @@ namespace category
     (λ (a b : A) (p : a = b), con_idp p)
     (λ (a b : A) (p : a = b), idp_con p)
     (λ (a b : A) (p : a = b), @is_iso.mk A _ a b p p⁻¹
-      !con.left_inv !con.right_inv)
+      !con.right_inv !con.left_inv)
 
   -- A groupoid with a contractible carrier is a group
   definition group_of_is_contr_groupoid {ob : Type} [H : is_contr ob]
@@ -49,10 +49,10 @@ namespace category
       intro f, apply id_left,
       intro f, apply id_right,
       intro f, exact (morphism.inverse f),
-      intro f, exact (morphism.inverse_compose f),
+      intro f, exact (morphism.inverse_comp f),
   end
 
-  definition group_of_unit_groupoid [G : groupoid unit] : group (hom ⋆ ⋆) :=
+  definition group_of_groupoid_unit [G : groupoid unit] : group (hom ⋆ ⋆) :=
   begin
     fapply group.mk,
       intros (f, g), apply (comp f g),
@@ -62,11 +62,11 @@ namespace category
       intro f, apply id_left,
       intro f, apply id_right,
       intro f, exact (morphism.inverse f),
-      intro f, exact (morphism.inverse_compose f),
+      intro f, exact (morphism.inverse_comp f),
   end
 
   -- Conversely we can turn each group into a groupoid on the unit type
-  definition of_group.{l} (A : Type.{l}) [G : group A] : groupoid.{l l} unit :=
+  definition groupoid_of_group.{l} (A : Type.{l}) [G : group A] : groupoid.{l l} unit :=
   begin
     fapply groupoid.mk,
       intros, exact A,
@@ -92,7 +92,7 @@ namespace category
       intro f, apply id_left,
       intro f, apply id_right,
       intro f, exact (morphism.inverse f),
-      intro f, exact (morphism.inverse_compose f),
+      intro f, exact (morphism.inverse_comp f),
   end
 
   -- Bundled version of categories

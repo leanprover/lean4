@@ -105,7 +105,7 @@ namespace is_trunc
   (contr x)⁻¹ ⬝ (contr y)
 
   definition hprop_eq {A : Type} [H : is_contr A] {x y : A} (p q : x = y) : p = q :=
-  have K : ∀ (r : x = y), center_eq x y = r, from (λ r, eq.rec_on r !con.right_inv),
+  have K : ∀ (r : x = y), center_eq x y = r, from (λ r, eq.rec_on r !con.left_inv),
   (K p)⁻¹ ⬝ K q
 
   definition is_contr_eq [instance] {A : Type} [H : is_contr A] (x y : A) : is_contr (x = y)

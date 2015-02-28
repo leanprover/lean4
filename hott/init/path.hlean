@@ -66,11 +66,11 @@ namespace eq
   eq.rec_on r (eq.rec_on q idp)
 
   -- The left inverse law.
-  definition con.left_inv (p : x = y) : p ⬝ p⁻¹ = idp :=
+  definition con.right_inv (p : x = y) : p ⬝ p⁻¹ = idp :=
   eq.rec_on p idp
 
   -- The right inverse law.
-  definition con.right_inv (p : x = y) : p⁻¹ ⬝ p = idp :=
+  definition con.left_inv (p : x = y) : p⁻¹ ⬝ p = idp :=
   eq.rec_on p idp
 
   /- Several auxiliary theorems about canceling inverses across associativity. These are somewhat
@@ -408,11 +408,11 @@ namespace eq
 
   definition tr_inv_tr (P : A → Type) {x y : A} (p : x = y) (z : P y) :
     p ▹ p⁻¹ ▹ z = z :=
-  (tr_con P p⁻¹ p z)⁻¹ ⬝ ap (λr, transport P r z) (con.right_inv p)
+  (tr_con P p⁻¹ p z)⁻¹ ⬝ ap (λr, transport P r z) (con.left_inv p)
 
   definition inv_tr_tr (P : A → Type) {x y : A} (p : x = y) (z : P x) :
     p⁻¹ ▹ p ▹ z = z :=
-  (tr_con P p p⁻¹ z)⁻¹ ⬝ ap (λr, transport P r z) (con.left_inv p)
+  (tr_con P p p⁻¹ z)⁻¹ ⬝ ap (λr, transport P r z) (con.right_inv p)
 
   definition tr_con_lemma (P : A → Type)
       {x y z w : A} (p : x = y) (q : y = z) (r : z = w) (u : P x) :

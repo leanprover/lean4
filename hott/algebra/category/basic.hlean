@@ -16,14 +16,14 @@ open morphism is_equiv eq is_trunc
 namespace category
 
   structure category [class] (ob : Type) extends parent : precategory ob :=
-    (iso_of_path_equiv : Π (a b : ob), is_equiv (@iso_of_path ob parent a b))
+    (iso_of_path_equiv : Π (a b : ob), is_equiv (@iso_of_eq ob parent a b))
 
   attribute category [multiple-instances]
 
   abbreviation iso_of_path_equiv := @category.iso_of_path_equiv
 
   definition category.mk' [reducible] (ob : Type) (C : precategory ob)
-    (H : Π (a b : ob), is_equiv (@iso_of_path ob C a b)) : category ob :=
+    (H : Π (a b : ob), is_equiv (@iso_of_eq ob C a b)) : category ob :=
   precategory.rec_on C category.mk H
 
   section basic
@@ -34,18 +34,18 @@ namespace category
   -- TODO: Unsafe class instance?
   attribute iso_of_path_equiv [instance]
 
-  definition path_of_iso (a b : ob) : a ≅ b → a = b :=
-  iso_of_path⁻¹
+  definition eq_of_iso (a b : ob) : a ≅ b → a = b :=
+  iso_of_eq⁻¹ᵉ
 
   set_option apply.class_instance false -- disable class instance resolution in the apply tactic
 
-  definition ob_1_type : is_trunc 1 ob :=
+  definition is_trunc_1_ob : is_trunc 1 ob :=
   begin
     apply is_trunc_succ_intro, intros (a, b),
     fapply is_trunc_is_equiv_closed,
-          exact (@path_of_iso _ _ a b),
+          exact (@eq_of_iso _ _ a b),
         apply is_equiv_inv,
-    apply is_hset_iso,
+    apply is_hset_isomorphic,
   end
   end basic
 
@@ -64,7 +64,7 @@ namespace category
 
   definition category.Mk [reducible] := Category.mk
   definition category.MK [reducible] (C : Precategory)
-    (H : Π (a b : C), is_equiv (@iso_of_path C C a b)) : Category :=
+    (H : Π (a b : C), is_equiv (@iso_of_eq C C a b)) : Category :=
   Category.mk C (category.mk' C C H)
 
   definition Category.eta (C : Category) : Category.mk C C = C :=

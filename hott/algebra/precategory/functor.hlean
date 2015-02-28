@@ -12,19 +12,19 @@ open function category eq prod equiv is_equiv sigma sigma.ops is_trunc funext
 open pi
 
 structure functor (C D : Precategory) : Type :=
-  (obF : C → D)
-  (homF : Π ⦃a b : C⦄, hom a b → hom (obF a) (obF b))
-  (respect_id : Π (a : C), homF (ID a) = ID (obF a))
+  (to_fun_ob : C → D)
+  (to_fun_hom : Π ⦃a b : C⦄, hom a b → hom (to_fun_ob a) (to_fun_ob b))
+  (respect_id : Π (a : C), to_fun_hom (ID a) = ID (to_fun_ob a))
   (respect_comp : Π {a b c : C} (g : hom b c) (f : hom a b),
-    homF (g ∘ f) = homF g ∘ homF f)
+    to_fun_hom (g ∘ f) = to_fun_hom g ∘ to_fun_hom f)
 
 namespace functor
 
   infixl `⇒`:25 := functor
   variables {C D E : Precategory}
 
-  attribute obF [coercion]
-  attribute homF [coercion]
+  attribute to_fun_ob [coercion]
+  attribute to_fun_hom [coercion]
 
   -- The following lemmas will later be used to prove that the type of
   -- precategories forms a precategory itself
@@ -78,7 +78,7 @@ namespace functor
   functor_eq_mk'' id₁ id₂ comp₁ comp₂ idp
                   (eq_of_homotopy (λc, eq_of_homotopy (λc', eq_of_homotopy (pH c c'))))
 
-  definition functor_eq_mk {F₁ F₂ : C ⇒ D} : Π(p : obF F₁ ∼ obF F₂),
+  definition functor_eq_mk {F₁ F₂ : C ⇒ D} : Π(p : to_fun_ob F₁ ∼ to_fun_ob F₂),
     (Π(a b : C) (f : hom a b), transport (λF, hom (F a) (F b)) (eq_of_homotopy p) (F₁ f) = F₂ f)
       → F₁ = F₂ :=
   functor.rec_on F₁ (λO₁ H₁ id₁ comp₁, functor.rec_on F₂ (λO₂ H₂ id₂ comp₂ p, !functor_eq_mk'))
@@ -97,11 +97,11 @@ namespace functor
   -- "functor C D" is equivalent to a certain sigma type
   set_option unifier.max_steps 38500
   protected definition sigma_char :
-    (Σ (obF : C → D)
-    (homF : Π ⦃a b : C⦄, hom a b → hom (obF a) (obF b)),
-    (Π (a : C), homF (ID a) = ID (obF a)) ×
+    (Σ (to_fun_ob : C → D)
+    (to_fun_hom : Π ⦃a b : C⦄, hom a b → hom (to_fun_ob a) (to_fun_ob b)),
+    (Π (a : C), to_fun_hom (ID a) = ID (to_fun_ob a)) ×
     (Π {a b c : C} (g : hom b c) (f : hom a b),
-      homF (g ∘ f) = homF g ∘ homF f)) ≃ (functor C D) :=
+      to_fun_hom (g ∘ f) = to_fun_hom g ∘ to_fun_hom f)) ≃ (functor C D) :=
   begin
     fapply equiv.MK,
       {intro S, fapply functor.mk,
@@ -120,7 +120,7 @@ namespace functor
         apply idp},
   end
 
-  protected definition strict_cat_has_functor_hset
+  protected definition is_hset_functor
     [HD : is_hset D] : is_hset (functor C D) :=
   begin
     apply is_trunc_is_equiv_closed, apply equiv.to_is_equiv,
@@ -143,21 +143,21 @@ namespace category
   open functor
 
   --TODO: make this a structure
-  definition precat_of_strict_precats : precategory (Σ (C : Precategory), is_hset C) :=
+  definition precat_strict_precat : precategory (Σ (C : Precategory), is_hset C) :=
   precategory.mk (λ a b, functor a.1 b.1)
-     (λ a b, @functor.strict_cat_has_functor_hset a.1 b.1 b.2)
+     (λ a b, @functor.is_hset_functor a.1 b.1 b.2)
      (λ a b c g f, functor.compose g f)
      (λ a, functor.id)
      (λ a b c d h g f, !functor.assoc)
      (λ a b f, !functor.id_left)
      (λ a b f, !functor.id_right)
 
-  definition Precat_of_strict_cats := precategory.Mk precat_of_strict_precats
+  definition Precat_of_strict_cats := precategory.Mk precat_strict_precat
 
   namespace ops
 
     abbreviation SPreCat := Precat_of_strict_cats
-    --attribute precat_of_strict_precats [instance]
+    --attribute precat_strict_precat [instance]
 
   end ops
 

@@ -109,7 +109,7 @@ namespace is_equiv
       have eq1 : ap f (sec a) = _,
         from calc ap f (sec a)
               = idp ⬝ ap f (sec a) : !idp_con⁻¹
-          ... = (ret (f a) ⬝ (ret (f a))⁻¹) ⬝ ap f (sec a) : {!con.left_inv⁻¹}
+          ... = (ret (f a) ⬝ (ret (f a))⁻¹) ⬝ ap f (sec a) : {!con.right_inv⁻¹}
           ... = ((ret fgfa)⁻¹ ⬝ ap (f ∘ g) (ret (f a))) ⬝ ap f (sec a) : {!con_ap_eq_con⁻¹}
           ... = ((ret fgfa)⁻¹ ⬝ fgretrfa) ⬝ ap f (sec a) : {ap_compose g f _}
           ... = (ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a)) : !con.assoc,
@@ -180,11 +180,11 @@ namespace is_equiv
           ◾ (inverse (ap_compose f⁻¹ f _))
           ◾ (adj f _)⁻¹)
         ⬝ con_ap_con_eq_con_con (retr f) _ _
-        ⬝ whisker_right !con.right_inv _
+        ⬝ whisker_right !con.left_inv _
         ⬝ !idp_con)
       (λp, whisker_right (whisker_left _ (ap_compose f f⁻¹ _)⁻¹) _
         ⬝ con_ap_con_eq_con_con (sect f) _ _
-        ⬝ whisker_right !con.right_inv _
+        ⬝ whisker_right !con.left_inv _
         ⬝ !idp_con)
 
   -- The function equiv_rect says that given an equivalence f : A → B,

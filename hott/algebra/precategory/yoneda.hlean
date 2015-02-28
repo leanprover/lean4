@@ -26,7 +26,7 @@ namespace yoneda
       ... = _ : assoc
 
   --disturbing behaviour: giving the type of f "(x ⟶ y)" explicitly makes the unifier loop
-  definition representable_functor (C : Precategory) : Cᵒᵖ ×c C ⇒ set :=
+  definition hom_functor (C : Precategory) : Cᵒᵖ ×c C ⇒ set :=
   functor.mk (λ(x : Cᵒᵖ ×c C), homset x.1 x.2)
              (λ(x y : Cᵒᵖ ×c C) (f : _) (h : homset x.1 x.2), f.2 ∘⁅ C ⁆ (h ∘⁅ C ⁆ f.1))
              proof (λ(x : Cᵒᵖ ×c C), eq_of_homotopy (λ(h : homset x.1 x.2), !id_left ⬝ !id_right)) qed
@@ -48,7 +48,7 @@ namespace functor
              (λd d' g, F (id, g))
              (λd, !respect_id)
              (λd₁ d₂ d₃ g' g, proof calc
-               F (id, g' ∘ g) = F (id ∘ id, g' ∘ g) : {(id_compose c)⁻¹}
+               F (id, g' ∘ g) = F (id ∘ id, g' ∘ g) : {(id_comp c)⁻¹}
                  ... = F ((id,g') ∘ (id, g)) : idp
                  ... = F (id,g') ∘ F (id, g) : respect_comp F qed)
   local abbreviation Fob := @functor_curry_ob
@@ -66,7 +66,7 @@ namespace functor
   local abbreviation Fhom := @functor_curry_hom
 
   definition functor_curry_hom_def ⦃c c' : C⦄ (f : c ⟶ c') (d : D) :
-    (Fhom F f) d = homF F (f, id) := idp
+    (Fhom F f) d = to_fun_hom F (f, id) := idp
 
   definition functor_curry_id (c : C) : Fhom F (ID c) = nat_trans.id :=
   nat_trans_eq_mk (λd, respect_id F _)
@@ -75,7 +75,7 @@ namespace functor
     : Fhom F (f' ∘ f) = Fhom F f' ∘n Fhom F f :=
   nat_trans_eq_mk (λd, calc
     natural_map (Fhom F (f' ∘ f)) d = F (f' ∘ f, id) : functor_curry_hom_def
-      ... = F (f' ∘ f, id ∘ id) : {(id_compose d)⁻¹}
+      ... = F (f' ∘ f, id ∘ id) : {(id_comp d)⁻¹}
       ... = F ((f',id) ∘ (f, id)) : idp
       ... = F (f',id) ∘ F (f, id) : respect_comp F
       ... = natural_map ((Fhom F f') ∘ (Fhom F f)) d : idp)
@@ -87,35 +87,35 @@ namespace functor
              (functor_curry_comp F)
 
   definition functor_uncurry_ob [reducible] (p : C ×c D) : E :=
-  obF (G p.1) p.2
+  to_fun_ob (G p.1) p.2
   local abbreviation Gob := @functor_uncurry_ob
 
   definition functor_uncurry_hom ⦃p p' : C ×c D⦄ (f : hom p p') : Gob G p ⟶ Gob G p'  :=
-  homF (obF G p'.1) f.2 ∘ natural_map (homF G f.1) p.2
+  to_fun_hom (to_fun_ob G p'.1) f.2 ∘ natural_map (to_fun_hom G f.1) p.2
   local abbreviation Ghom := @functor_uncurry_hom
 
   definition functor_uncurry_id (p : C ×c D) : Ghom G (ID p) = id :=
   calc
-    Ghom G (ID p) = homF (obF G p.1) id ∘ natural_map (homF G id) p.2 : idp
-      ... = id ∘ natural_map (homF G id) p.2 : ap (λx, x ∘ _) (respect_id (obF G p.1) p.2)
+    Ghom G (ID p) = to_fun_hom (to_fun_ob G p.1) id ∘ natural_map (to_fun_hom G id) p.2 : idp
+      ... = id ∘ natural_map (to_fun_hom G id) p.2 : ap (λx, x ∘ _) (respect_id (to_fun_ob G p.1) p.2)
       ... = id ∘ natural_map nat_trans.id p.2 : {respect_id G p.1}
-      ... = id : id_compose
+      ... = id : id_comp
 
   definition functor_uncurry_comp ⦃p p' p'' : C ×c D⦄ (f' : p' ⟶ p'') (f : p ⟶ p')
     : Ghom G (f' ∘ f) = Ghom G f' ∘ Ghom G f :=
   calc
     Ghom G (f' ∘ f)
-          = homF (obF G p''.1) (f'.2 ∘ f.2) ∘ natural_map (homF G (f'.1 ∘ f.1)) p.2 : idp
-      ... = (homF (obF G p''.1) f'.2 ∘ homF (obF G p''.1) f.2)
-              ∘ natural_map (homF G (f'.1 ∘ f.1)) p.2 : {respect_comp (obF G p''.1) f'.2 f.2}
-      ... = (homF (obF G p''.1) f'.2 ∘ homF (obF G p''.1) f.2)
-              ∘ natural_map (homF G f'.1 ∘ homF G f.1) p.2 : {respect_comp G f'.1 f.1}
-      ... = (homF (obF G p''.1) f'.2 ∘ homF (obF G p''.1) f.2)
-              ∘ (natural_map (homF G f'.1) p.2 ∘ natural_map (homF G f.1) p.2) : idp
-      ... = (homF (obF G p''.1) f'.2 ∘ homF (obF G p''.1) f.2)
-              ∘ (natural_map (homF G f'.1) p.2 ∘ natural_map (homF G f.1) p.2) : idp
-      ... = (homF (obF G p''.1) f'.2 ∘ natural_map (homF G f'.1) p'.2)
-              ∘ (homF (obF G p'.1) f.2 ∘ natural_map (homF G f.1) p.2) :
+          = to_fun_hom (to_fun_ob G p''.1) (f'.2 ∘ f.2) ∘ natural_map (to_fun_hom G (f'.1 ∘ f.1)) p.2 : idp
+      ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)
+              ∘ natural_map (to_fun_hom G (f'.1 ∘ f.1)) p.2 : {respect_comp (to_fun_ob G p''.1) f'.2 f.2}
+      ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)
+              ∘ natural_map (to_fun_hom G f'.1 ∘ to_fun_hom G f.1) p.2 : {respect_comp G f'.1 f.1}
+      ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)
+              ∘ (natural_map (to_fun_hom G f'.1) p.2 ∘ natural_map (to_fun_hom G f.1) p.2) : idp
+      ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)
+              ∘ (natural_map (to_fun_hom G f'.1) p.2 ∘ natural_map (to_fun_hom G f.1) p.2) : idp
+      ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ natural_map (to_fun_hom G f'.1) p'.2)
+              ∘ (to_fun_hom (to_fun_ob G p'.1) f.2 ∘ natural_map (to_fun_hom G f.1) p.2) :
                   square_prepostcompose (!naturality⁻¹ᵖ) _ _
       ... = Ghom G f' ∘ Ghom G f : idp
 
@@ -144,20 +144,20 @@ namespace functor
   --      apply idp
   --     end))))
 
-  -- definition functor_eq_mk1 {F₁ F₂ : C ⇒ D} : Π(p : obF F₁ = obF F₂),
+  -- definition functor_eq_mk1 {F₁ F₂ : C ⇒ D} : Π(p : to_fun_ob F₁ = to_fun_ob F₂),
   --   (Π(a b : C) (f : hom a b), transport (λF, hom (F a) (F b)) p (F₁ f) = F₂ f)
   --     → F₁ = F₂ :=
   -- functor.rec_on F₁ (λO₁ H₁ id₁ comp₁, functor.rec_on F₂ (λO₂ H₂ id₂ comp₂ p, !functor_eq_mk'1))
 
   --set_option pp.notation false
   definition functor_uncurry_functor_curry : functor_uncurry (functor_curry F) = F :=
-  functor_eq_mk (λp, ap (obF F) !prod.eta)
+  functor_eq_mk (λp, ap (to_fun_ob F) !prod.eta)
   begin
     intros (cd, cd', fg),
     cases cd with (c,d), cases cd' with (c',d'), cases fg with (f,g),
     have H : (functor_uncurry (functor_curry F)) (f, g) = F (f,g),
       from calc
-        (functor_uncurry (functor_curry F)) (f, g) = homF F (id, g) ∘ homF F (f, id) : idp
+        (functor_uncurry (functor_curry F)) (f, g) = to_fun_hom F (id, g) ∘ to_fun_hom F (f, id) : idp
           ... = F (id ∘ f, g ∘ id) : respect_comp F (id,g) (f,id)
           ... = F (f, g ∘ id) : {id_left f}
           ... = F (f,g) : {id_right g},
@@ -172,13 +172,13 @@ namespace functor
       fapply functor_eq_mk,
        {intro d, apply idp},
        {intros (d, d', g),
-        have H : homF (functor_curry (functor_uncurry G) c) g = homF (G c) g,
+        have H : to_fun_hom (functor_curry (functor_uncurry G) c) g = to_fun_hom (G c) g,
         from calc
-          homF (functor_curry (functor_uncurry G) c) g
-                = homF (G c) g ∘ natural_map (homF G (ID c)) d : idp
-            ... = homF (G c) g ∘ natural_map (ID (G c)) d
-                   : ap (λx, homF (G c) g ∘ natural_map x d) (respect_id G c)
-            ... = homF (G c) g : id_right,
+          to_fun_hom (functor_curry (functor_uncurry G) c) g
+                = to_fun_hom (G c) g ∘ natural_map (to_fun_hom G (ID c)) d : idp
+            ... = to_fun_hom (G c) g ∘ natural_map (ID (G c)) d
+                   : ap (λx, to_fun_hom (G c) g ∘ natural_map x d) (respect_id G c)
+            ... = to_fun_hom (G c) g : id_right,
         rewrite H,
 --        esimp {idp},
         apply sorry
@@ -199,7 +199,7 @@ namespace functor
 
 
   definition contravariant_yoneda_embedding : Cᵒᵖ ⇒ set ^c C :=
-  functor_curry !yoneda.representable_functor
+  functor_curry !yoneda.hom_functor
 
 end functor
 
@@ -209,8 +209,8 @@ end functor
 --   --universe levels are given explicitly because Lean uses 6 variables otherwise
 
 --   structure adjoint.{u v} [C D : Precategory.{u v}] (F : C ⇒ D) (G : D ⇒ C) : Type.{max u v} :=
---   (nat_iso : (representable_functor D) ∘f (prod_functor (opposite_functor F) (functor.ID D)) ⟹
---              (representable_functor C) ∘f (prod_functor (functor.ID (Cᵒᵖ)) G))
+--   (nat_iso : (hom_functor D) ∘f (prod_functor (opposite_functor F) (functor.ID D)) ⟹
+--              (hom_functor C) ∘f (prod_functor (functor.ID (Cᵒᵖ)) G))
 --   (is_iso_nat_iso : is_iso nat_iso)
 
 --   infix `⊣`:55 := adjoint

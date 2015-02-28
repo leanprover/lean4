@@ -2,7 +2,7 @@
 Copyright (c) 2014 Jakob von Raumer. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Module: algebra.precategory.iso
+Module: algebra.precategory.to_fun
 Authors: Floris van Doorn, Jakob von Raumer
 -/
 
@@ -32,7 +32,7 @@ namespace morphism
 
   -- The structure for isomorphism can be characterized up to equivalence
   -- by a sigma type.
-  definition sigma_is_iso_equiv ⦃a b : ob⦄ : (Σ (f : hom a b), is_iso f) ≃ (a ≅ b) :=
+  definition isomorphic.sigma_char ⦃a b : ob⦄ : (Σ (f : hom a b), is_iso f) ≃ (a ≅ b) :=
   begin
     fapply (equiv.mk),
       {intro S, apply isomorphic.mk, apply (S.2)},
@@ -45,7 +45,7 @@ namespace morphism
   set_option apply.class_instance false -- disable class instance resolution in the apply tactic
 
   -- The statement "f is an isomorphism" is a mere proposition
-  definition is_hprop_of_is_iso : is_hset (is_iso f) :=
+  definition is_hset_iso : is_hset (is_iso f) :=
   begin
     apply is_trunc_is_equiv_closed,
       apply (equiv.to_is_equiv (!sigma_char)),
@@ -56,17 +56,17 @@ namespace morphism
   end
 
   -- The type of isomorphisms between two objects is a set
-  definition is_hset_iso : is_hset (a ≅ b) :=
+  definition is_hset_isomorphic : is_hset (a ≅ b) :=
   begin
     apply is_trunc_is_equiv_closed,
-      apply (equiv.to_is_equiv (!sigma_is_iso_equiv)),
+      apply (equiv.to_is_equiv (!isomorphic.sigma_char)),
       apply is_trunc_sigma,
        apply homH,
-       {intro f, apply is_hprop_of_is_iso},
+       {intro f, apply is_hset_iso},
   end
 
   -- In a precategory, equal objects are isomorphic
-  definition iso_of_path (p : a = b) : a ≅ b :=
+  definition iso_of_eq (p : a = b) : a ≅ b :=
   eq.rec_on p (isomorphic.mk id)
 
 end morphism

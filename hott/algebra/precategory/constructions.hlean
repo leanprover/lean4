@@ -39,7 +39,7 @@ namespace category
   --       take the trick they use in Coq-HoTT, and introduce a further
   --       axiom in the definition of precategories that provides thee
   --       symmetric associativity proof.
-  definition op_op' {ob : Type} (C : precategory ob) : opposite (opposite C) = C :=
+  definition opposite_opposite' {ob : Type} (C : precategory ob) : opposite (opposite C) = C :=
   begin
     apply (precategory.rec_on C), intros (hom', homH', comp', ID', assoc', id_left', id_right'),
     apply (ap (λassoc'', precategory.mk hom' @homH' comp' ID' assoc'' id_left' id_right')),
@@ -48,8 +48,8 @@ namespace category
     apply (@is_hset.elim), apply !homH',
   end
 
-  definition op_op : Opposite (Opposite C) = C :=
-  (ap (Precategory.mk C) (op_op' C)) ⬝ !Precategory.eta
+  definition opposite_opposite : Opposite (Opposite C) = C :=
+  (ap (Precategory.mk C) (opposite_opposite' C)) ⬝ !Precategory.eta
 
   end opposite
 
@@ -91,7 +91,7 @@ namespace category
   section
   open prod is_trunc
 
-  definition prod_precategory [reducible] {obC obD : Type} (C : precategory obC) (D : precategory obD)
+  definition precategory_prod [reducible] {obC obD : Type} (C : precategory obC) (D : precategory obD)
       : precategory (obC × obD) :=
   precategory.mk (λ a b, hom (pr1 a) (pr1 b) × hom (pr2 a) (pr2 b))
                  (λ a b, !is_trunc_prod)
@@ -101,8 +101,8 @@ namespace category
                  (λ a b f,         prod_eq  !id_left  !id_left )
                  (λ a b f,         prod_eq  !id_right !id_right)
 
-  definition Prod_precategory [reducible] (C D : Precategory) : Precategory :=
-  precategory.Mk (prod_precategory C D)
+  definition Precategory_prod [reducible] (C D : Precategory) : Precategory :=
+  precategory.Mk (precategory_prod C D)
 
   end
   end product
@@ -111,7 +111,7 @@ namespace category
     --notation 1 := Category_one
     --notation 2 := Category_two
     postfix `ᵒᵖ`:max := opposite.Opposite
-    infixr `×c`:30 := product.Prod_precategory
+    infixr `×c`:30 := product.Precategory_prod
     --instance [persistent] type_category category_one
     --                      category_two product.prod_category
   end ops
@@ -169,7 +169,7 @@ namespace category
     -- definition Precategory_functor_rev [reducible] (C D : Precategory) : Precategory :=
     -- Precategory_functor D C
 
-    /- we prove that if a natural transformation is pointwise an iso, then it is an iso -/
+    /- we prove that if a natural transformation is pointwise an to_fun, then it is an to_fun -/
     variables {C D : Precategory} {F G : C ⇒ D} (η : F ⟹ G) [iso : Π(a : C), is_iso (η a)]
     include iso
     definition nat_trans_inverse : G ⟹ F :=
@@ -177,16 +177,16 @@ namespace category
       (λc, (η c)⁻¹)
       (λc d f,
       begin
-        apply iso.con_inv_eq_of_eq_con,
+        apply to_fun.comp_inverse_eq_of_eq_comp,
         apply concat, rotate_left 1, apply assoc,
-        apply iso.eq_inv_con_of_con_eq,
+        apply to_fun.eq_inverse_comp_of_comp_eq,
         apply inverse,
         apply naturality,
       end)
     definition nat_trans_left_inverse : nat_trans_inverse η ∘n η = nat_trans.id :=
     begin
     fapply (apD011 nat_trans.mk),
-      apply eq_of_homotopy, intro c, apply inverse_compose,
+      apply eq_of_homotopy, intro c, apply inverse_comp,
     apply eq_of_homotopy, intros, apply eq_of_homotopy, intros, apply eq_of_homotopy, intros,
     apply is_hset.elim
     end
@@ -194,7 +194,7 @@ namespace category
     definition nat_trans_right_inverse : η ∘n nat_trans_inverse η = nat_trans.id :=
     begin
     fapply (apD011 nat_trans.mk),
-      apply eq_of_homotopy, intro c, apply compose_inverse,
+      apply eq_of_homotopy, intro c, apply comp_inverse,
     apply eq_of_homotopy, intros, apply eq_of_homotopy, intros, apply eq_of_homotopy, intros,
     apply is_hset.elim
     end

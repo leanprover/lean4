@@ -13,11 +13,11 @@ open eq prod eq eq.ops equiv is_trunc funext pi category.ops morphism category
 namespace category
 
   section hset
-  definition is_category_hset (a b : Precategory_hset) : is_equiv (@iso_of_path _ _ a b) :=
+  definition is_univalent_hset (a b : Precategory_hset) : is_equiv (@iso_of_eq _ _ a b) :=
   sorry
 
   definition category_hset [reducible] [instance] : category hset :=
-  category.mk' hset precategory_hset is_category_hset
+  category.mk' hset precategory_hset is_univalent_hset
 
   definition Category_hset [reducible] : Category :=
   Category.mk hset category_hset

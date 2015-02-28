@@ -500,7 +500,7 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
           (-take (- (length str-list) 2)
                  (-drop 1 str-list)))
     (--map
-     (let ((items (split-string it "|")))
+     (let ((items (s-split-up-to "|" it 1)))
        `(,(cl-first items) . ,(cl-second items))) str-list)))
 
 (defun lean-findg-parse-string (str)

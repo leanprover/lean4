@@ -152,7 +152,7 @@ namespace category
   Precategory.mk hset precategory_hset
 
   section precategory_functor
-    open morphism functor nat_trans
+    open iso functor nat_trans
     definition precategory_functor [instance] [reducible] (D C : Precategory)
       : precategory (functor C D) :=
     precategory.mk (λa b, nat_trans a b)
@@ -177,16 +177,16 @@ namespace category
       (λc, (η c)⁻¹)
       (λc d f,
       begin
-        apply to_fun.comp_inverse_eq_of_eq_comp,
+        apply comp_inverse_eq_of_eq_comp,
         apply concat, rotate_left 1, apply assoc,
-        apply to_fun.eq_inverse_comp_of_comp_eq,
+        apply eq_inverse_comp_of_comp_eq,
         apply inverse,
         apply naturality,
       end)
     definition nat_trans_left_inverse : nat_trans_inverse η ∘n η = nat_trans.id :=
     begin
     fapply (apD011 nat_trans.mk),
-      apply eq_of_homotopy, intro c, apply inverse_comp,
+      apply eq_of_homotopy, intro c, apply left_inverse,
     apply eq_of_homotopy, intros, apply eq_of_homotopy, intros, apply eq_of_homotopy, intros,
     apply is_hset.elim
     end
@@ -194,7 +194,7 @@ namespace category
     definition nat_trans_right_inverse : η ∘n nat_trans_inverse η = nat_trans.id :=
     begin
     fapply (apD011 nat_trans.mk),
-      apply eq_of_homotopy, intro c, apply comp_inverse,
+      apply eq_of_homotopy, intro c, apply right_inverse,
     apply eq_of_homotopy, intros, apply eq_of_homotopy, intros, apply eq_of_homotopy, intros,
     apply is_hset.elim
     end

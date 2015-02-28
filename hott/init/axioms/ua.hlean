@@ -30,7 +30,7 @@ axiom univalence (A B : Type) : is_equiv (@equiv_of_eq A B)
 attribute univalence [instance]
 
 -- This is the version of univalence axiom we will probably use most often
-definition ua {A B : Type} : A ≃ B →  A = B :=
+definition ua {A B : Type} : A ≃ B → A = B :=
 (@equiv_of_eq A B)⁻¹
 
 -- One consequence of UA is that we can transport along equivalencies of types

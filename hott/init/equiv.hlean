@@ -228,9 +228,11 @@ namespace equiv
 
   variables {A B C : Type}
 
-  protected definition MK (f : A → B) (g : B → A) (retr : f ∘ g ∼ id) (sect : g ∘ f ∼ id) : A ≃ B :=
+  protected definition MK [reducible] (f : A → B) (g : B → A)
+    (retr : f ∘ g ∼ id) (sect : g ∘ f ∼ id) : A ≃ B :=
   equiv.mk f (adjointify f g retr sect)
-  definition to_inv (f : A ≃ B) : B → A :=
+
+  definition to_inv [reducible] (f : A ≃ B) : B → A :=
   f⁻¹
 
   protected definition refl : A ≃ A :=

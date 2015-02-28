@@ -8,9 +8,9 @@ Author: Jakob von Raumer
 Ported from Coq HoTT
 -/
 
-import .precategory.morphism .group
+import .precategory.iso .group
 
-open eq is_trunc morphism category path_algebra nat unit
+open eq is_trunc iso category path_algebra nat unit
 
 namespace category
 
@@ -48,8 +48,8 @@ namespace category
       apply (ID (center ob)),
       intro f, apply id_left,
       intro f, apply id_right,
-      intro f, exact (morphism.inverse f),
-      intro f, exact (morphism.inverse_comp f),
+      intro f, exact (iso.inverse f),
+      intro f, exact (iso.left_inverse f),
   end
 
   definition group_of_groupoid_unit [G : groupoid unit] : group (hom ⋆ ⋆) :=
@@ -61,8 +61,8 @@ namespace category
       apply (ID ⋆),
       intro f, apply id_left,
       intro f, apply id_right,
-      intro f, exact (morphism.inverse f),
-      intro f, exact (morphism.inverse_comp f),
+      intro f, exact (iso.inverse f),
+      intro f, exact (iso.left_inverse f),
   end
 
   -- Conversely we can turn each group into a groupoid on the unit type
@@ -91,8 +91,8 @@ namespace category
       apply (ID a),
       intro f, apply id_left,
       intro f, apply id_right,
-      intro f, exact (morphism.inverse f),
-      intro f, exact (morphism.inverse_comp f),
+      intro f, exact (iso.inverse f),
+      intro f, exact (iso.left_inverse f),
   end
 
   -- Bundled version of categories

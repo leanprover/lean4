@@ -29,8 +29,9 @@ namespace yoneda
   definition hom_functor (C : Precategory) : Cᵒᵖ ×c C ⇒ set :=
   functor.mk (λ(x : Cᵒᵖ ×c C), homset x.1 x.2)
              (λ(x y : Cᵒᵖ ×c C) (f : _) (h : homset x.1 x.2), f.2 ∘⁅ C ⁆ (h ∘⁅ C ⁆ f.1))
-             proof (λ(x : Cᵒᵖ ×c C), eq_of_homotopy (λ(h : homset x.1 x.2), !id_left ⬝ !id_right)) qed
-             -- (λ(x y z : Cᵒᵖ ×c C) (g : y ⟶ z) (f : x ⟶ y), eq_of_homotopy (λ(h : hom x.1 x.2), representable_functor_assoc g.2 f.2 h f.1 g.1))
+             proof
+               (λ(x : Cᵒᵖ ×c C), eq_of_homotopy (λ(h : homset x.1 x.2), !id_left ⬝ !id_right))
+             qed
              begin
                intros (x, y, z, g, f), apply eq_of_homotopy, intro h,
                exact (representable_functor_assoc g.2 f.2 h f.1 g.1),
@@ -68,10 +69,10 @@ namespace functor
   definition functor_curry_hom_def ⦃c c' : C⦄ (f : c ⟶ c') (d : D) :
     (Fhom F f) d = to_fun_hom F (f, id) := idp
 
-  definition functor_curry_id (c : C) : Fhom F (ID c) = nat_trans.id :=
+  theorem functor_curry_id (c : C) : Fhom F (ID c) = nat_trans.id :=
   nat_trans_eq_mk (λd, respect_id F _)
 
-  definition functor_curry_comp ⦃c c' c'' : C⦄ (f' : c' ⟶ c'') (f : c ⟶ c')
+  theorem functor_curry_comp ⦃c c' c'' : C⦄ (f' : c' ⟶ c'') (f : c ⟶ c')
     : Fhom F (f' ∘ f) = Fhom F f' ∘n Fhom F f :=
   nat_trans_eq_mk (λd, calc
     natural_map (Fhom F (f' ∘ f)) d = F (f' ∘ f, id) : functor_curry_hom_def
@@ -94,14 +95,14 @@ namespace functor
   to_fun_hom (to_fun_ob G p'.1) f.2 ∘ natural_map (to_fun_hom G f.1) p.2
   local abbreviation Ghom := @functor_uncurry_hom
 
-  definition functor_uncurry_id (p : C ×c D) : Ghom G (ID p) = id :=
+  theorem functor_uncurry_id (p : C ×c D) : Ghom G (ID p) = id :=
   calc
     Ghom G (ID p) = to_fun_hom (to_fun_ob G p.1) id ∘ natural_map (to_fun_hom G id) p.2 : idp
       ... = id ∘ natural_map (to_fun_hom G id) p.2 : ap (λx, x ∘ _) (respect_id (to_fun_ob G p.1) p.2)
       ... = id ∘ natural_map nat_trans.id p.2 : {respect_id G p.1}
       ... = id : id_comp
 
-  definition functor_uncurry_comp ⦃p p' p'' : C ×c D⦄ (f' : p' ⟶ p'') (f : p ⟶ p')
+  theorem functor_uncurry_comp ⦃p p' p'' : C ×c D⦄ (f' : p' ⟶ p'') (f : p ⟶ p')
     : Ghom G (f' ∘ f) = Ghom G f' ∘ Ghom G f :=
   calc
     Ghom G (f' ∘ f)

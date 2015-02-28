@@ -19,8 +19,8 @@ namespace morphism
     (comp_section : f ∘ section_of = id)
   structure is_iso [class] {ob : Type} [C : precategory ob] {a b : ob} (f : a ⟶ b) :=
     {inverse : b ⟶ a}
-    (inverse_comp : inverse ∘ f = id)
-    (comp_inverse : f ∘ inverse = id)
+    (left_inverse : inverse ∘ f = id)
+    (right_inverse : f ∘ inverse = id)
 
   attribute is_iso [multiple-instances]
   open split_mono split_epi is_iso
@@ -29,8 +29,8 @@ namespace morphism
   definition section_of [reducible] := @split_epi.section_of
   definition comp_section [reducible] := @split_epi.comp_section
   definition inverse [reducible] := @is_iso.inverse
-  definition inverse_comp [reducible] := @is_iso.inverse_comp
-  definition comp_inverse [reducible] := @is_iso.comp_inverse
+  definition left_inverse [reducible] := @is_iso.left_inverse
+  definition right_inverse [reducible] := @is_iso.right_inverse
   postfix `⁻¹` := inverse
   --a second notation for the inverse, which is not overloaded
   postfix [parsing-only] `⁻¹ʰ`:std.prec.max_plus := inverse
@@ -41,17 +41,17 @@ namespace morphism
 
   definition iso_imp_retraction [instance] [priority 300] [reducible]
     (f : a ⟶ b) [H : is_iso f] : split_mono f :=
-  split_mono.mk !inverse_comp
+  split_mono.mk !left_inverse
 
   definition iso_imp_section [instance] [priority 300] [reducible]
     (f : a ⟶ b) [H : is_iso f] : split_epi f :=
-  split_epi.mk !comp_inverse
+  split_epi.mk !right_inverse
 
   definition is_iso_id [instance] [priority 500] (a : ob) : is_iso (ID a) :=
   is_iso.mk !id_comp !id_comp
 
   definition is_iso_inverse [instance] [priority 200] (f : a ⟶ b) [H : is_iso f] : is_iso f⁻¹ :=
-  is_iso.mk !comp_inverse !inverse_comp
+  is_iso.mk !right_inverse !left_inverse
 
   definition left_inverse_eq_right_inverse {f : a ⟶ b} {g g' : hom b a}
       (Hl : g ∘ f = id) (Hr : f ∘ g' = id) : g = g' :=
@@ -64,10 +64,10 @@ namespace morphism
   (left_inverse_eq_right_inverse H2 !comp_section)⁻¹
 
   definition inverse_eq_right [H : is_iso f] (H2 : f ∘ h = id) : f⁻¹ = h :=
-  left_inverse_eq_right_inverse !inverse_comp H2
+  left_inverse_eq_right_inverse !left_inverse H2
 
   definition inverse_eq_left [H : is_iso f] (H2 : h ∘ f = id) : f⁻¹ = h :=
-  (left_inverse_eq_right_inverse H2 !comp_inverse)⁻¹
+  (left_inverse_eq_right_inverse H2 !right_inverse)⁻¹
 
   definition retraction_eq_section (f : a ⟶ b) [Hl : split_mono f] [Hr : split_epi f] :
       retraction_of f = section_of f :=
@@ -78,10 +78,10 @@ namespace morphism
   is_iso.mk ((retraction_eq_section f) ▹ (retraction_comp f)) (comp_section f)
 
   definition inverse_unique (H H' : is_iso f) : @inverse _ _ _ _ f H = @inverse _ _ _ _ f H' :=
-  inverse_eq_left !inverse_comp
+  inverse_eq_left !left_inverse
 
   definition inverse_involutive (f : a ⟶ b) [H : is_iso f] : (f⁻¹)⁻¹ = f :=
-  inverse_eq_right !inverse_comp
+  inverse_eq_right !left_inverse
 
   definition retraction_id (a : ob) : retraction_of (ID a) = id :=
   retraction_eq !id_comp
@@ -188,27 +188,27 @@ namespace morphism
                            (r : c ⟶ d) (q : b ⟶ c) (p : a ⟶ b)
                            (g : d ⟶ c)
   variable [Hq : is_iso q] include Hq
-  definition comp.right_inverse : q ∘ q⁻¹ = id := !comp_inverse
-  definition comp.left_inverse : q⁻¹ ∘ q = id := !inverse_comp
+  definition comp.right_inverse : q ∘ q⁻¹ = id := !right_inverse
+  definition comp.left_inverse : q⁻¹ ∘ q = id := !left_inverse
   definition inverse_comp_cancel_left : q⁻¹ ∘ (q ∘ p) = p :=
-   by rewrite [assoc, inverse_comp, id_left]
+   by rewrite [assoc, left_inverse, id_left]
   definition comp_inverse_cancel_left : q ∘ (q⁻¹ ∘ g) = g :=
-   by rewrite [assoc, comp_inverse, id_left]
+   by rewrite [assoc, right_inverse, id_left]
   definition comp_inverse_cancel_right : (r ∘ q) ∘ q⁻¹ = r :=
-  by rewrite [-assoc, comp_inverse, id_right]
+  by rewrite [-assoc, right_inverse, id_right]
   definition inverse_comp_cancel_right : (f ∘ q⁻¹) ∘ q = f :=
-  by rewrite [-assoc, inverse_comp, id_right]
+  by rewrite [-assoc, left_inverse, id_right]
 
-  definition comp_inverse [Hp : is_iso p] [Hpq : is_iso (q ∘ p)] : (q ∘ p)⁻¹ʰ = p⁻¹ʰ ∘ q⁻¹ʰ :=
+  definition right_inverse [Hp : is_iso p] [Hpq : is_iso (q ∘ p)] : (q ∘ p)⁻¹ʰ = p⁻¹ʰ ∘ q⁻¹ʰ :=
   inverse_eq_left
     (show (p⁻¹ʰ ∘ q⁻¹ʰ) ∘ q ∘ p = id, from
-     by rewrite [-assoc, inverse_comp_cancel_left, inverse_comp])
+     by rewrite [-assoc, inverse_comp_cancel_left, left_inverse])
 
   definition inverse_comp_inverse_left [H' : is_iso g] : (q⁻¹ ∘ g)⁻¹ = g⁻¹ ∘ q :=
-  inverse_involutive q ▹ comp_inverse q⁻¹ g
+  inverse_involutive q ▹ right_inverse q⁻¹ g
 
   definition inverse_comp_inverse_right [H' : is_iso f] : (q ∘ f⁻¹)⁻¹ = f ∘ q⁻¹ :=
-  inverse_involutive f ▹ comp_inverse q f⁻¹
+  inverse_involutive f ▹ right_inverse q f⁻¹
 
   definition inverse_comp_inverse_inverse [H' : is_iso r] : (q⁻¹ ∘ r⁻¹)⁻¹ = r ∘ q :=
   inverse_involutive r ▹ inverse_comp_inverse_left q r⁻¹

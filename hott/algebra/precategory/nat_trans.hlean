@@ -6,7 +6,7 @@ Module: algebra.precategory.nat_trans
 Author: Floris van Doorn, Jakob von Raumer
 -/
 
-import .functor .morphism
+import .functor .iso
 open eq category functor is_trunc equiv sigma.ops sigma is_equiv function pi funext
 
 structure nat_trans {C D : Precategory} (F G : C ⇒ D) :=
@@ -39,7 +39,6 @@ namespace nat_trans
   protected definition ID [reducible] {C D : Precategory} (F : functor C D) : nat_trans F F :=
   id
 
-  local attribute is_hprop_eq_hom [instance]
   definition nat_trans_eq_mk' {η₁ η₂ : Π (a : C), hom (F a) (G a)}
     (nat₁ : Π (a b : C) (f : hom a b), G f ∘ η₁ a = η₁ b ∘ F f)
     (nat₂ : Π (a b : C) (f : hom a b), G f ∘ η₂ a = η₂ b ∘ F f)

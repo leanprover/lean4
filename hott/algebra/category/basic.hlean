@@ -8,7 +8,7 @@ Author: Jakob von Raumer
 
 import algebra.precategory.iso
 
-open morphism is_equiv eq is_trunc
+open iso is_equiv eq is_trunc
 
 -- A category is a precategory extended by a witness
 -- that the function from paths to isomorphisms,
@@ -45,7 +45,7 @@ namespace category
     fapply is_trunc_is_equiv_closed,
           exact (@eq_of_iso _ _ a b),
         apply is_equiv_inv,
-    apply is_hset_isomorphic,
+    apply is_hset_iso,
   end
   end basic
 

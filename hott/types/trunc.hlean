@@ -122,7 +122,7 @@ namespace is_trunc
     (trunctype.{l} n) ≃ (Σ (A : Type.{l}), is_trunc n A) :=
   begin
     fapply equiv.MK,
-    /--/  intro A, exact (⟨trunctype_type A, is_trunc_trunctype_type A⟩),
+    /--/  intro A, exact (⟨carrier A, struct A⟩),
     /--/  intro S, exact (trunctype.mk S.1 S.2),
     /--/  intro S, apply (sigma.rec_on S), intros (S1, S2), apply idp,
     intro A, apply (trunctype.rec_on A), intros (A1, A2), apply idp,
@@ -130,11 +130,11 @@ namespace is_trunc
 
 --  set_option pp.notation false
   protected definition trunctype.eq (n : trunc_index) (A B : n-Type) :
-    (A = B) ≃ (trunctype_type A = trunctype_type B) :=
+    (A = B) ≃ (carrier A = carrier B) :=
   calc
     (A = B) ≃ (trunctype.sigma_char n A = trunctype.sigma_char n B) : eq_equiv_fn_eq_of_equiv
       ... ≃ ((trunctype.sigma_char n A).1 = (trunctype.sigma_char n B).1) : equiv.symm (!equiv_subtype)
-      ... ≃ (trunctype_type A = trunctype_type B) : equiv.refl
+      ... ≃ (carrier A = carrier B) : equiv.refl
 
 
 end is_trunc

@@ -136,9 +136,9 @@ definition funext_of_ua : funext :=
   funext_of_weak_funext (@weak_funext_of_ua)
 
 namespace funext
-definition is_equiv_apD [instance] {A : Type} {P : A → Type} (f g : Π x, P x)
-  : is_equiv (@apD10 A P f g) :=
-funext_of_ua f g
+  definition is_equiv_apD [instance] {A : Type} {P : A → Type} (f g : Π x, P x)
+    : is_equiv (@apD10 A P f g) :=
+  funext_of_ua f g
 end funext
 
 open funext

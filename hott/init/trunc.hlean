@@ -108,14 +108,16 @@ namespace is_trunc
   have K : ∀ (r : x = y), center_eq x y = r, from (λ r, eq.rec_on r !con.left_inv),
   (K p)⁻¹ ⬝ K q
 
-  definition is_contr_eq [instance] {A : Type} [H : is_contr A] (x y : A) : is_contr (x = y)
+  definition is_contr_eq {A : Type} [H : is_contr A] (x y : A) : is_contr (x = y)
   :=
   is_contr.mk !center_eq (λ p, !hprop_eq)
+  local attribute is_contr_eq [instance]
 
   /- truncation is upward close -/
 
   -- n-types are also (n+1)-types
-  definition is_trunc_succ [instance] (A : Type) (n : trunc_index) [H : is_trunc n A] : is_trunc (n.+1) A :=
+  definition is_trunc_succ [instance] [priority 100] (A : Type) (n : trunc_index)
+    [H : is_trunc n A] : is_trunc (n.+1) A :=
   trunc_index.rec_on n
     (λ A (H : is_contr A), !is_trunc_succ_intro)
     (λ n IH A (H : is_trunc (n.+1) A), @is_trunc_succ_intro _ _ (λ x y, IH _ !is_trunc_eq))
@@ -190,9 +192,9 @@ namespace is_trunc
   /- truncated universe -/
 
   structure trunctype (n : trunc_index) :=
-  (trunctype_type : Type) (is_trunc_trunctype_type : is_trunc n trunctype_type)
-  attribute trunctype.trunctype_type [coercion]
-  attribute trunctype.is_trunc_trunctype_type [instance]
+  (carrier : Type) (struct : is_trunc n carrier)
+  attribute trunctype.carrier [coercion]
+  attribute trunctype.struct [instance]
 
   notation n `-Type` := trunctype n
   abbreviation hprop := -1-Type

@@ -1,4 +1,4 @@
-<p align=center><img src="https://leanprover.github.io/images/lean_logo.svg" alt="logo" width="300px"/></p>
+<p align=center><a href="https://leanprover.github.io"><img src="https://leanprover.github.io/images/lean_logo.svg" alt="logo" width="300px"/></a></p>
 <table>
   <tr>
     <th>License</th><th>Windows</th><th>Ubuntu</th><th>OS X</th><th>Coverage</th><th>Builds/Tests</th><th>Static Analysis</th>
@@ -20,9 +20,10 @@
 About
 -----
 
+- [Homepage](https://leanprover.github.io)
 - Theorem Proving in Lean: [HTML](https://leanprover.github.io/tutorial/index.html), [PDF](http://leanprover.github.io/tutorial/tutorial.pdf)
 - [Authors](doc/authors.md)
-- [Library](library/library.md)
+- [Standard Library](library/library.md)
 - [Short Tutorial](doc/lean/tutorial.org)
 - [To Do list](doc/todo.md)
 

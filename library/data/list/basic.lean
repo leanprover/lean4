@@ -43,10 +43,11 @@ theorem append_nil_right : ∀ (t : list T), t ++ nil = t
 
 theorem append.assoc : ∀ (s t u : list T), s ++ t ++ u = s ++ (t ++ u)
 | append.assoc nil t u      := rfl
-| append.assoc (a :: l) t u := calc
-  (a :: l) ++ t ++ u = a :: (l ++ t ++ u)   : rfl
-                 ... = a :: (l ++ (t ++ u)) : append.assoc
-                 ... = (a :: l) ++ (t ++ u) : rfl
+| append.assoc (a :: l) t u :=
+  begin
+    change a :: (l ++ t ++ u) = (a :: l) ++ (t ++ u),
+    rewrite append.assoc
+  end
 
 /- length -/
 
@@ -82,10 +83,11 @@ theorem concat_cons (x y : T) (l : list T) : concat x (y::l)  = y::(concat x l)
 
 theorem concat_eq_append (a : T) : ∀ (l : list T), concat a l = l ++ [a]
 | concat_eq_append nil      := rfl
-| concat_eq_append (b :: l) := calc
-    concat a (b :: l) = b :: (concat a l) : rfl
-                 ...  = b :: (l ++ [a])   : concat_eq_append
-                 ...  = (b :: l) ++ [a]   : rfl
+| concat_eq_append (b :: l) :=
+  begin
+    change b :: (concat a l) = (b :: l) ++ (a :: nil),
+    rewrite concat_eq_append
+  end
 
 -- add_rewrite append_nil append_cons
 
@@ -136,14 +138,13 @@ definition head [h : inhabited T] : list T → T
 
 theorem head_cons [h : inhabited T] (a : T) (l : list T) : head (a::l) = a
 
-theorem head_concat [h : inhabited T] {s : list T} (t : list T) : s ≠ nil → head (s ++ t) = head s :=
-list.cases_on s
-  (take H : nil ≠ nil, absurd rfl H)
-  (take (x : T) (s : list T), take H : x::s ≠ nil,
-    calc
-      head ((x::s) ++ t) = head (x::(s ++ t)) : rfl
-                   ... = x                    : head_cons
-                   ... = head (x::s)          : rfl)
+theorem head_concat [h : inhabited T] (t : list T) : ∀ {s : list T}, s ≠ nil → head (s ++ t) = head s
+| @head_concat nil      H := absurd rfl H
+| @head_concat (a :: s) H :=
+  begin
+    change head (a :: (s ++ t)) = head (a :: s),
+    rewrite head_cons
+  end
 
 definition tail : list T → list T
 | tail nil      := nil

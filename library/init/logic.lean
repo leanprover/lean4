@@ -226,8 +226,16 @@ iff.mp (iff.symm H) trivial
 theorem not_of_iff_false (H : a ↔ false) : ¬a :=
 assume Ha : a, iff.mp H Ha
 
+theorem iff_of_eq_of_iff (H₁ : a = b) (H₂ : b ↔ c) : a ↔ c :=
+H₁⁻¹ ▸ H₂
+
+theorem iff_of_iff_of_eq (H₁ : a ↔ b) (H₂ : b = c) : a ↔ c :=
+H₂ ▸ H₁
+
 calc_refl iff.refl
 calc_trans iff.trans
+calc_trans iff_of_eq_of_iff
+calc_trans iff_of_iff_of_eq
 
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 intro : ∀ (a : A), P a → Exists P

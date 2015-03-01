@@ -336,18 +336,17 @@ section
   !add.comm ▸ !lt_add_iff_sub_lt_left
 
   -- TODO: the Isabelle library has varations on a + b ≤ b ↔ a ≤ 0
-
   theorem le_iff_le_of_sub_eq_sub {a b c d : A} (H : a - b = c - d) : a ≤ b ↔ c ≤ d :=
   calc
-    a ≤ b ↔ a - b ≤ 0 : iff.symm (sub_nonpos_iff_le a b)
-      ... ↔ c - d ≤ 0 : H ▸ !iff.refl
-      ... ↔ c ≤ d : sub_nonpos_iff_le c d
+    a ≤ b ↔ a - b ≤ 0   : iff.symm (sub_nonpos_iff_le a b)
+      ... = (c - d ≤ 0) : H
+      ... ↔ c ≤ d       : sub_nonpos_iff_le c d
 
   theorem lt_iff_lt_of_sub_eq_sub {a b c d : A} (H : a - b = c - d) : a < b ↔ c < d :=
   calc
-    a < b ↔ a - b < 0 : iff.symm (sub_neg_iff_lt a b)
-      ... ↔ c - d < 0 : H ▸ !iff.refl
-      ... ↔ c < d : sub_neg_iff_lt c d
+    a < b ↔ a - b < 0   : iff.symm (sub_neg_iff_lt a b)
+      ... = (c - d < 0) : H
+      ... ↔ c < d       : sub_neg_iff_lt c d
 
   theorem sub_le_sub_left {a b : A} (H : a ≤ b) (c : A) : c - b ≤ c - a :=
   add_le_add_left (neg_le_neg H) c

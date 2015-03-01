@@ -204,6 +204,8 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
                 auto pos = p.pos();
                 expr t = p.parse_expr();
                 t      = p.mk_app(get_exact_tac_fn(), t, pos);
+                t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
+                t      = p.save_pos(mk_begin_end_annotation(t), pos);
                 add_tac(t, pos);
             } else if (p.curr_is_token(get_proof_tk())) {
                 auto pos = p.pos();
@@ -211,6 +213,8 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
                 expr t = p.parse_expr();
                 p.check_token_next(get_qed_tk(), "invalid proof-qed, 'qed' expected");
                 t      = p.mk_app(get_exact_tac_fn(), t, pos);
+                t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
+                t      = p.save_pos(mk_begin_end_annotation(t), pos);
                 add_tac(t, pos);
             } else if (p.curr_is_token(get_begin_tk())) {
                 auto pos = p.pos();

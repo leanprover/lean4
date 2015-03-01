@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "kernel/error_msgs.h"
 #include "library/reducible.h"
 #include "library/unifier.h"
 #include "library/tactic/elaborate.h"
@@ -53,8 +54,18 @@ optional<expr> elaborate_with_respect_to(environment const & env, io_state const
             expr t       = subst.instantiate(*expected_type);
             e_t_cs.second.linearize(cs);
             auto d_cs    = tc->is_def_eq(e_t_cs.first, t);
-            if (!d_cs.first)
+            if (!d_cs.first) {
+                throw_tactic_exception_if_enabled(s, [=](formatter const & fmt) {
+                        format r = format("invalid tactic, term");
+                        r       += pp_indent_expr(fmt, new_e);
+                        r       += compose(line(), format("has type"));
+                        r       += pp_indent_expr(fmt, e_t_cs.first);
+                        r       += compose(line(), format("but is expected to have type"));
+                        r       += pp_indent_expr(fmt, t);
+                        return r;
+                    });
                 return none_expr();
+            }
             d_cs.second.linearize(cs);
         }
         unifier_config cfg(ios.get_options());

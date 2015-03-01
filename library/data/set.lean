@@ -5,96 +5,113 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: data.set
 Author: Jeremy Avigad, Leonardo de Moura
 -/
-
-import data.bool
-open eq.ops bool
+import logic
+open eq.ops
 
 namespace set
 definition set (T : Type) :=
-T → bool
+T → Prop
 definition mem [reducible] {T : Type} (x : T) (s : set T) :=
-(s x) = tt
+s x
 notation e ∈ s := mem e s
 
-definition eqv {T : Type} (A B : set T) : Prop :=
+variable {T : Type}
+definition eqv (A B : set T) : Prop :=
 ∀x, x ∈ A ↔ x ∈ B
 notation a ∼ b := eqv a b
 
-theorem eqv_refl {T : Type} (A : set T) : A ∼ A :=
+theorem eqv_refl (A : set T) : A ∼ A :=
 take x, iff.rfl
 
-theorem eqv_symm {T : Type} {A B : set T} (H : A ∼ B) : B ∼ A :=
+theorem eqv_symm {A B : set T} (H : A ∼ B) : B ∼ A :=
 take x, iff.symm (H x)
 
-theorem eqv_trans {T : Type} {A B C : set T} (H1 : A ∼ B) (H2 : B ∼ C) : A ∼ C :=
+theorem eqv_trans {A B C : set T} (H1 : A ∼ B) (H2 : B ∼ C) : A ∼ C :=
 take x, iff.trans (H1 x) (H2 x)
 
-definition empty [reducible] {T : Type} : set T :=
-λx, ff
+definition empty [reducible] : set T :=
+λx, false
 notation `∅` := empty
 
-theorem mem_empty {T : Type} (x : T) : ¬ (x ∈ ∅) :=
-assume H : x ∈ ∅, absurd H ff_ne_tt
+theorem mem_empty (x : T) : ¬ (x ∈ ∅) :=
+assume H : x ∈ ∅, H
 
-definition univ {T : Type} : set T :=
-λx, tt
+definition univ : set T :=
+λx, true
 
-theorem mem_univ {T : Type} (x : T) : x ∈ univ :=
-rfl
+theorem mem_univ (x : T) : x ∈ univ :=
+trivial
 
-definition inter [reducible] {T : Type} (A B : set T) : set T :=
-λx, A x && B x
+definition inter [reducible] (A B : set T) : set T :=
+λx, x ∈ A ∧ x ∈ B
 notation a ∩ b := inter a b
 
-theorem mem_inter {T : Type} (x : T) (A B : set T) : x ∈ A ∩ B ↔ (x ∈ A ∧ x ∈ B) :=
-iff.intro
-  (assume H, and.intro (band.eq_tt_elim_left H) (band.eq_tt_elim_right H))
-  (assume H,
-    have e1 : A x = tt, from and.elim_left H,
-    have e2 : B x = tt, from and.elim_right H,
-    show A x && B x = tt, from e1⁻¹ ▸ e2⁻¹ ▸ band.tt_left tt)
+theorem mem_inter (x : T) (A B : set T) : x ∈ A ∩ B ↔ (x ∈ A ∧ x ∈ B) :=
+!iff.refl
 
-theorem inter_id {T : Type} (A : set T) : A ∩ A ∼ A :=
-take x, band.id (A x) ▸ iff.rfl
+theorem inter_id (A : set T) : A ∩ A ∼ A :=
+take x, iff.intro
+  (assume H, and.elim_left H)
+  (assume H, and.intro H H)
 
-theorem inter_empty_right {T : Type} (A : set T) : A ∩ ∅ ∼ ∅ :=
-take x, band.ff_right (A x) ▸ iff.rfl
+theorem inter_empty_right (A : set T) : A ∩ ∅ ∼ ∅ :=
+take x, iff.intro
+  (assume H, and.elim_right H)
+  (assume H, false.elim H)
 
-theorem inter_empty_left {T : Type} (A : set T) : ∅ ∩ A ∼ ∅ :=
-take x, band.ff_left (A x) ▸ iff.rfl
+theorem inter_empty_left (A : set T) : ∅ ∩ A ∼ ∅ :=
+take x, iff.intro
+  (assume H, and.elim_left H)
+  (assume H, false.elim H)
 
-theorem inter_comm {T : Type} (A B : set T) : A ∩ B ∼ B ∩ A :=
-take x, band.comm (A x) (B x) ▸ iff.rfl
+theorem inter_comm (A B : set T) : A ∩ B ∼ B ∩ A :=
+take x, !and.comm
 
-theorem inter_assoc {T : Type} (A B C : set T) : (A ∩ B) ∩ C ∼ A ∩ (B ∩ C) :=
-take x, band.assoc (A x) (B x) (C x) ▸ iff.rfl
+theorem inter_assoc (A B C : set T) : (A ∩ B) ∩ C ∼ A ∩ (B ∩ C) :=
+take x, !and.assoc
 
-definition union [reducible] {T : Type} (A B : set T) : set T :=
-λx, A x || B x
+definition union [reducible] (A B : set T) : set T :=
+λx, x ∈ A ∨ x ∈ B
 notation a ∪ b := union a b
 
-theorem mem_union {T : Type} (x : T) (A B : set T) : x ∈ A ∪ B ↔ (x ∈ A ∨ x ∈ B) :=
-iff.intro
-  (assume H, bor.to_or H)
-  (assume H, or.elim H
-    (assume Ha : A x = tt,
-      show A x || B x = tt, from Ha⁻¹ ▸ bor.tt_left (B x))
-    (assume Hb : B x = tt,
-      show A x || B x = tt, from Hb⁻¹ ▸ bor.tt_right (A x)))
+theorem mem_union (x : T) (A B : set T) : x ∈ A ∪ B ↔ (x ∈ A ∨ x ∈ B) :=
+!iff.refl
 
-theorem union_id {T : Type} (A : set T) : A ∪ A ∼ A :=
-take x, bor.id (A x) ▸ iff.rfl
+theorem union_id (A : set T) : A ∪ A ∼ A :=
+take x, iff.intro
+  (assume H,
+    match H with
+    | or.inl H₁ := H₁
+    | or.inr H₂ := H₂
+    end)
+  (assume H, or.inl H)
 
-theorem union_empty_right {T : Type} (A : set T) : A ∪ ∅ ∼ A :=
-take x, bor.ff_right (A x) ▸ iff.rfl
+theorem union_empty_right (A : set T) : A ∪ ∅ ∼ A :=
+take x, iff.intro
+  (assume H, match H with
+             | or.inl H₁ := H₁
+             | or.inr H₂ := false.elim H₂
+             end)
+  (assume H, or.inl H)
 
-theorem union_empty_left {T : Type} (A : set T) : ∅ ∪ A ∼ A :=
-take x, bor.ff_left (A x) ▸ iff.rfl
+theorem union_empty_left (A : set T) : ∅ ∪ A ∼ A :=
+take x, iff.intro
+  (assume H, match H with
+             | or.inl H₁ := false.elim H₁
+             | or.inr H₂ := H₂
+             end)
+  (assume H, or.inr H)
 
-theorem union_comm {T : Type} (A B : set T) : A ∪ B ∼ B ∪ A :=
-take x, bor.comm (A x) (B x) ▸ iff.rfl
+theorem union_comm (A B : set T) : A ∪ B ∼ B ∪ A :=
+take x, or.comm
 
-theorem union_assoc {T : Type} (A B C : set T) : (A ∪ B) ∪ C ∼ A ∪ (B ∪ C) :=
-take x, bor.assoc (A x) (B x) (C x) ▸ iff.rfl
+theorem union_assoc (A B C : set T) : (A ∪ B) ∪ C ∼ A ∪ (B ∪ C) :=
+take x, or.assoc
+
+definition subset (A B : set T) := ∀ x, x ∈ A → x ∈ B
+infix `⊆`:50 := subset
+
+definition eqv_of_subset (A B : set T) : A ⊆ B → B ⊆ A → A ∼ B :=
+assume H₁ H₂, take x, iff.intro (H₁ x) (H₂ x)
 
 end set

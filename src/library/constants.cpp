@@ -69,6 +69,8 @@ name const * g_tactic_assumption = nullptr;
 name const * g_tactic_at_most = nullptr;
 name const * g_tactic_beta = nullptr;
 name const * g_tactic_builtin = nullptr;
+name const * g_tactic_change_goal = nullptr;
+name const * g_tactic_change_hypothesis = nullptr;
 name const * g_tactic_clear = nullptr;
 name const * g_tactic_clear_lst = nullptr;
 name const * g_tactic_determ = nullptr;
@@ -178,6 +180,8 @@ void initialize_constants() {
     g_tactic_at_most = new name{"tactic", "at_most"};
     g_tactic_beta = new name{"tactic", "beta"};
     g_tactic_builtin = new name{"tactic", "builtin"};
+    g_tactic_change_goal = new name{"tactic", "change_goal"};
+    g_tactic_change_hypothesis = new name{"tactic", "change_hypothesis"};
     g_tactic_clear = new name{"tactic", "clear"};
     g_tactic_clear_lst = new name{"tactic", "clear_lst"};
     g_tactic_determ = new name{"tactic", "determ"};
@@ -288,6 +292,8 @@ void finalize_constants() {
     delete g_tactic_at_most;
     delete g_tactic_beta;
     delete g_tactic_builtin;
+    delete g_tactic_change_goal;
+    delete g_tactic_change_hypothesis;
     delete g_tactic_clear;
     delete g_tactic_clear_lst;
     delete g_tactic_determ;
@@ -397,6 +403,8 @@ name const & get_tactic_assumption_name() { return *g_tactic_assumption; }
 name const & get_tactic_at_most_name() { return *g_tactic_at_most; }
 name const & get_tactic_beta_name() { return *g_tactic_beta; }
 name const & get_tactic_builtin_name() { return *g_tactic_builtin; }
+name const & get_tactic_change_goal_name() { return *g_tactic_change_goal; }
+name const & get_tactic_change_hypothesis_name() { return *g_tactic_change_hypothesis; }
 name const & get_tactic_clear_name() { return *g_tactic_clear; }
 name const & get_tactic_clear_lst_name() { return *g_tactic_clear_lst; }
 name const & get_tactic_determ_name() { return *g_tactic_determ; }

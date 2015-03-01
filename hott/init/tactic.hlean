@@ -92,6 +92,9 @@ notation `clears` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` 
 opaque definition revert_lst (ids : expr_list) : tactic := builtin
 notation `reverts` `(` l:(foldr `,` (h t, expr_list.cons h t) expr_list.nil) `)` := revert_lst l
 
+opaque definition change_goal (e : expr) : tactic := builtin
+notation `change` e := change_goal e
+
 opaque definition assert_hypothesis (id : expr) (e : expr) : tactic := builtin
 
 infixl `;`:15 := and_then

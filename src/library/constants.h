@@ -71,6 +71,8 @@ name const & get_tactic_assumption_name();
 name const & get_tactic_at_most_name();
 name const & get_tactic_beta_name();
 name const & get_tactic_builtin_name();
+name const & get_tactic_change_goal_name();
+name const & get_tactic_change_hypothesis_name();
 name const & get_tactic_clear_name();
 name const & get_tactic_clear_lst_name();
 name const & get_tactic_determ_name();

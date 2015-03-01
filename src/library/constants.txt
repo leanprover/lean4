@@ -64,6 +64,8 @@ tactic.assumption
 tactic.at_most
 tactic.beta
 tactic.builtin
+tactic.change_goal
+tactic.change_hypothesis
 tactic.clear
 tactic.clear_lst
 tactic.determ

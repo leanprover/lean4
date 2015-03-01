@@ -48,13 +48,24 @@ section
   lt_of_le_of_ne H1 H2
 
   theorem add_lt_add_right (H : a < b) (c : A) : a + c < b + c :=
-  (add.comm c a) ▸ (add.comm c b) ▸ (add_lt_add_left H c)
+  begin
+    rewrite [add.comm, {b + _}add.comm],
+    exact (add_lt_add_left H c)
+  end
 
   theorem le_add_of_nonneg_right (H : b ≥ 0) : a ≤ a + b :=
-    !add_zero ▸ add_le_add_left H a
+  begin
+    have H1 : a + b ≥ a + 0, from add_le_add_left H a,
+    rewrite add_zero at H1,
+    exact H1
+  end
 
   theorem le_add_of_nonneg_left (H : b ≥ 0) : a ≤ b + a :=
-    !zero_add ▸ add_le_add_right H a
+  begin
+    have H1 : 0 + a ≤ b + a, from add_le_add_right H a,
+    rewrite zero_add at H1,
+    exact H1
+  end
 
   theorem add_lt_add (Hab : a < b) (Hcd : c < d) : a + c < b + d :=
   lt.trans (add_lt_add_right Hab c) (add_lt_add_left Hcd b)
@@ -74,7 +85,7 @@ section
   !ordered_cancel_comm_monoid.le_of_add_le_add_left H
 
   theorem le_of_add_le_add_right (H : a + b ≤ c + b) : a ≤ c :=
-  le_of_add_le_add_left ((add.comm a b) ▸ (add.comm c b) ▸ H)
+  le_of_add_le_add_left (show b + a ≤ b + c, begin rewrite [add.comm, {b + _}add.comm], exact H end)
 
   theorem lt_of_add_lt_add_left (H : a + b < a + c) : b < c :=
   have H1 : b ≤ c, from le_of_add_le_add_left (le_of_lt H),
@@ -129,19 +140,21 @@ section
     (assume Hab : a + b = 0,
       have Ha' : a ≤ 0, from
         calc
-          a = a + 0 : add_zero
+          a     = a + 0 : by rewrite add_zero
             ... ≤ a + b : add_le_add_left Hb
-            ... = 0 : Hab,
+            ... = 0     : Hab,
       have Haz : a = 0, from le.antisymm Ha' Ha,
       have Hb' : b ≤ 0, from
         calc
-          b = 0 + b : zero_add
+          b     = 0 + b : by rewrite zero_add
             ... ≤ a + b : add_le_add_right Ha
-            ... = 0 : Hab,
+            ... = 0     : Hab,
       have Hbz : b = 0, from le.antisymm Hb' Hb,
       and.intro Haz Hbz)
     (assume Hab : a = 0 ∧ b = 0,
-      and.elim Hab (λ Ha Hb, by rewrite [Ha, Hb, add_zero]))
+      match Hab with
+      | and.intro Ha' Hb' := by rewrite [Ha', Hb', add_zero]
+      end)
 
   theorem le_add_of_nonneg_of_le (Ha : 0 ≤ a) (Hbc : b ≤ c) : b ≤ a + c :=
   !zero_add ▸ add_le_add Ha Hbc
@@ -291,61 +304,64 @@ section
   !neg_add_cancel_left ▸ H
 
   theorem add_le_iff_le_sub_left : a + b ≤ c ↔ b ≤ c - a :=
-  !add.comm ▸ !add_le_iff_le_neg_add
+  by rewrite [sub_eq_add_neg, {c+_}add.comm]; apply add_le_iff_le_neg_add
 
   theorem add_le_iff_le_sub_right : a + b ≤ c ↔ a ≤ c - b :=
   have H: a + b ≤ c ↔ a + b - b ≤ c - b, from iff.symm (!add_le_add_right_iff),
   !add_neg_cancel_right ▸ H
 
   theorem le_add_iff_neg_add_le : a ≤ b + c ↔ -b + a ≤ c :=
-  have H: a ≤ b + c ↔ -b + a ≤ -b + (b + c), from iff.symm (!add_le_add_left_iff),
-  !neg_add_cancel_left ▸ H
+  assert H: a ≤ b + c ↔ -b + a ≤ -b + (b + c), from iff.symm (!add_le_add_left_iff),
+  by rewrite neg_add_cancel_left at H; exact H
 
   theorem le_add_iff_sub_left_le : a ≤ b + c ↔ a - b ≤ c :=
-  !add.comm ▸ !le_add_iff_neg_add_le
+  by rewrite [sub_eq_add_neg, {a+_}add.comm]; apply le_add_iff_neg_add_le
 
   theorem le_add_iff_sub_right_le : a ≤ b + c ↔ a - c ≤ b :=
-  have H: a ≤ b + c ↔ a - c ≤ b + c - c, from iff.symm (!add_le_add_right_iff),
-  !add_neg_cancel_right ▸ H
+  assert H: a ≤ b + c ↔ a - c ≤ b + c - c, from iff.symm (!add_le_add_right_iff),
+  by rewrite add_neg_cancel_right at H; exact H
 
   theorem add_lt_iff_lt_neg_add_left : a + b < c ↔ b < -a + c :=
-  have H: a + b < c ↔ -a + (a + b) < -a + c, from iff.symm (!add_lt_add_left_iff),
-  !neg_add_cancel_left ▸ H
+  assert H: a + b < c ↔ -a + (a + b) < -a + c, from iff.symm (!add_lt_add_left_iff),
+  begin rewrite neg_add_cancel_left at H, exact H end
 
   theorem add_lt_iff_lt_neg_add_right : a + b < c ↔ a < -b + c :=
-  !add.comm ▸ !add_lt_iff_lt_neg_add_left
+  by rewrite add.comm; apply add_lt_iff_lt_neg_add_left
 
   theorem add_lt_iff_lt_sub_left : a + b < c ↔ b < c - a :=
-  !add.comm ▸ !add_lt_iff_lt_neg_add_left
+  begin
+    rewrite [sub_eq_add_neg, {c+_}add.comm],
+    apply add_lt_iff_lt_neg_add_left
+  end
 
   theorem add_lt_add_iff_lt_sub_right : a + b < c ↔ a < c - b :=
-  have H: a + b < c ↔ a + b - b < c - b, from iff.symm (!add_lt_add_right_iff),
-  !add_neg_cancel_right ▸ H
+  assert H: a + b < c ↔ a + b - b < c - b, from iff.symm (!add_lt_add_right_iff),
+  by rewrite add_neg_cancel_right at H; exact H
 
   theorem lt_add_iff_neg_add_lt_left : a < b + c ↔ -b + a < c :=
-  have H: a < b + c ↔ -b + a < -b + (b + c), from iff.symm (!add_lt_add_left_iff),
-  !neg_add_cancel_left ▸ H
+  assert H: a < b + c ↔ -b + a < -b + (b + c), from iff.symm (!add_lt_add_left_iff),
+  by rewrite neg_add_cancel_left at H; exact H
 
   theorem lt_add_iff_neg_add_lt_right : a < b + c ↔ -c + a < b :=
-  !add.comm ▸ !lt_add_iff_neg_add_lt_left
+  by rewrite add.comm; apply lt_add_iff_neg_add_lt_left
 
   theorem lt_add_iff_sub_lt_left : a < b + c ↔ a - b < c :=
-  !add.comm ▸ !lt_add_iff_neg_add_lt_left
+  by rewrite [sub_eq_add_neg, {a + _}add.comm]; apply lt_add_iff_neg_add_lt_left
 
   theorem lt_add_iff_sub_lt_right : a < b + c ↔ a - c < b :=
-  !add.comm ▸ !lt_add_iff_sub_lt_left
+  by rewrite add.comm; apply lt_add_iff_sub_lt_left
 
   -- TODO: the Isabelle library has varations on a + b ≤ b ↔ a ≤ 0
   theorem le_iff_le_of_sub_eq_sub {a b c d : A} (H : a - b = c - d) : a ≤ b ↔ c ≤ d :=
   calc
     a ≤ b ↔ a - b ≤ 0   : iff.symm (sub_nonpos_iff_le a b)
-      ... = (c - d ≤ 0) : H
+      ... = (c - d ≤ 0) : by rewrite H
       ... ↔ c ≤ d       : sub_nonpos_iff_le c d
 
   theorem lt_iff_lt_of_sub_eq_sub {a b c d : A} (H : a - b = c - d) : a < b ↔ c < d :=
   calc
     a < b ↔ a - b < 0   : iff.symm (sub_neg_iff_lt a b)
-      ... = (c - d < 0) : H
+      ... = (c - d < 0) : by rewrite H
       ... ↔ c < d       : sub_neg_iff_lt c d
 
   theorem sub_le_sub_left {a b : A} (H : a ≤ b) (c : A) : c - b ≤ c - a :=
@@ -374,13 +390,13 @@ section
   calc
     a - b = a + -b : rfl
       ... ≤ a + 0  : add_le_add_left (neg_nonpos_of_nonneg H)
-      ... = a      : add_zero
+      ... = a      : by rewrite add_zero
 
   theorem sub_lt_self (a : A) {b : A} (H : b > 0) : a - b < a :=
   calc
     a - b = a + -b : rfl
       ... < a + 0  : add_lt_add_left (neg_neg_of_pos H)
-      ... = a      : add_zero
+      ... = a      : by rewrite add_zero
 end
 
 structure decidable_linear_ordered_comm_group [class] (A : Type)
@@ -450,7 +466,7 @@ section
   iff.intro eq_zero_of_abs_eq_zero (assume H, congr_arg abs H ⬝ !abs_zero)
 
   theorem abs_pos_of_pos (H : a > 0) : abs a > 0 :=
-  (abs_of_pos H)⁻¹ ▸ H
+  by rewrite (abs_of_pos H); exact H
 
   theorem abs_pos_of_neg (H : a < 0) : abs a > 0 :=
   !abs_neg ▸ abs_pos_of_pos (neg_pos_of_neg H)
@@ -479,17 +495,17 @@ section
       (assume H3 : b ≥ 0,
           calc
             abs (a + b) ≤ abs (a + b)   : le.refl
-                ... = a + b         : abs_of_nonneg H1
-                ... = abs a + b     : abs_of_nonneg H2
-                ... = abs a + abs b : abs_of_nonneg H3)
+                ... = a + b             : by rewrite (abs_of_nonneg H1)
+                ... = abs a + b         : by rewrite (abs_of_nonneg H2)
+                ... = abs a + abs b     : by rewrite (abs_of_nonneg H3))
       (assume H3 : ¬ b ≥ 0,
-        have H4 : b ≤ 0, from le_of_lt (lt_of_not_le H3),
+        assert H4 : b ≤ 0, from le_of_lt (lt_of_not_le H3),
         calc
-          abs (a + b) = a + b     : abs_of_nonneg H1
-              ... = abs a + b     : abs_of_nonneg H2
+          abs (a + b) = a + b     : by rewrite (abs_of_nonneg H1)
+              ... = abs a + b     : by rewrite (abs_of_nonneg H2)
               ... ≤ abs a + 0     : add_le_add_left H4
               ... ≤ abs a + -b    : add_le_add_left (neg_nonneg_of_nonpos H4)
-              ... = abs a + abs b : abs_of_nonpos H4)
+              ... = abs a + abs b : by rewrite (abs_of_nonpos H4))
 
     private lemma aux2 {a b : A} (H1 : a + b ≥ 0) : abs (a + b) ≤ abs a + abs b :=
     or.elim (le.total b 0)
@@ -500,27 +516,35 @@ section
           not_lt_of_le H1 H5,
         aux1 H1 (le_of_not_lt H3))
       (assume H2 : 0 ≤ b,
-        have H3 : abs (b + a) ≤ abs b + abs a, from aux1 (add.comm a b ▸ H1) H2,
-        add.comm b a ▸ (add.comm (abs b) (abs a)) ▸ H3)
+        begin
+          have H3 : abs (b + a) ≤ abs b + abs a,
+          begin
+            rewrite add.comm at H1,
+            exact (aux1 H1 H2)
+          end,
+          rewrite [add.comm, {abs a + _}add.comm],
+          exact H3
+        end)
 
     theorem abs_add_le_abs_add_abs (a b : A) : abs (a + b) ≤ abs a + abs b :=
     or.elim (le.total 0 (a + b))
       (assume H2 : 0 ≤ a + b, aux2 H2)
       (assume H2 : a + b ≤ 0,
-        have H3 : -a + -b = -(a + b), by rewrite neg_add,
-        have H4 : -(a + b) ≥ 0, from iff.mp' (neg_nonneg_iff_nonpos (a+b)) H2,
+        assert H3 : -a + -b = -(a + b), by rewrite neg_add,
+        assert H4 : -(a + b) ≥ 0, from iff.mp' (neg_nonneg_iff_nonpos (a+b)) H2,
+        have H5   : -a + -b ≥ 0, begin rewrite -H3 at H4, exact H4 end,
         calc
           abs (a + b) = abs (-a + -b)   : by rewrite [-abs_neg, neg_add]
-              ... ≤ abs (-a) + abs (-b) : aux2 (H3⁻¹ ▸ H4)
+              ... ≤ abs (-a) + abs (-b) : aux2 H5
               ... = abs a + abs b       : by rewrite *abs_neg)
   end
 
   theorem abs_sub_abs_le_abs_sub (a b : A) : abs a - abs b ≤ abs (a - b) :=
   have H1 : abs a - abs b + abs b ≤ abs (a - b) + abs b, from
     calc
-      abs a - abs b + abs b = abs a : sub_add_cancel
-        ... = abs (a - b + b)       : sub_add_cancel
-        ... ≤ abs (a - b) + abs b   : algebra.abs_add_le_abs_add_abs,
+      abs a - abs b + abs b = abs a : by rewrite sub_add_cancel
+        ... = abs (a - b + b)       : by rewrite sub_add_cancel
+        ... ≤ abs (a - b) + abs b   : abs_add_le_abs_add_abs,
   algebra.le_of_add_le_add_right H1
 end
 

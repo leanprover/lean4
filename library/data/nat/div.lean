@@ -313,14 +313,14 @@ calc
   (m * n - (k + 1)) div m = (m * n - (k div m * m + k mod m + 1)) div m : eq_div_mul_add_mod
      ... = (m * n - k div m * m - (k mod m + 1)) div m                  : by rewrite [*sub_sub]
      ... = ((n - k div m) * m - (k mod m + 1)) div m                    :
-               by rewrite [(mul.comm m), mul_sub_right_distrib]
+               by rewrite [mul.comm m, mul_sub_right_distrib]
      ... = ((n - k div m - 1) * m + m - (k mod m + 1)) div m            :
                by rewrite [H3 at {1}, mul.right_distrib, nat.one_mul]
      ... = ((n - k div m - 1) * m + (m - (k mod m + 1))) div m          : {add_sub_assoc H5 _}
      ... = (m - (k mod m + 1)) div m + (n - k div m - 1)                :
                by rewrite [add.comm, (add_mul_div_self_right H4)]
      ... = n - k div m - 1                                              :
-               by rewrite [(div_eq_zero_of_lt H6), zero_add]
+               by rewrite [div_eq_zero_of_lt H6, zero_add]
 
 /- divides -/
 

@@ -587,12 +587,12 @@ or.elim (le.total 0 b)
 
 theorem lt_of_add_one_le {a b : ℤ} (H : a + 1 ≤ b) : a < b :=
 obtain n (H1 : a + 1 + n = b), from le.elim H,
-have H2 : a + succ n = b, by rewrite [-H1, add.assoc, (add.comm 1)],
+have H2 : a + succ n = b, by rewrite [-H1, add.assoc, add.comm 1],
 lt.intro H2
 
 theorem add_one_le_of_lt {a b : ℤ} (H : a < b) : a + 1 ≤ b :=
 obtain n (H1 : a + succ n = b), from lt.elim H,
-have H2 : a + 1 + n = b, by rewrite [-H1, add.assoc, (add.comm 1)],
+have H2 : a + 1 + n = b, by rewrite [-H1, add.assoc, add.comm 1],
 le.intro H2
 
 theorem of_nat_nonneg (n : ℕ) : of_nat n ≥ 0 := trivial

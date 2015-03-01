@@ -45,8 +45,8 @@ theorem neg_succ_of_nat_div (m : nat) {b : ℤ} (H : b > 0) :
   -[m +1] div b = -(m div b + 1) :=
 calc
   -[m +1] div b = sign b * _              : rfl
-     ... = -[(#nat m div (nat_abs b)) +1] : by rewrite [(sign_of_pos H), one_mul]
-     ... = -(m div b + 1)                 : by rewrite [↑divide, (sign_of_pos H), one_mul]
+     ... = -[(#nat m div (nat_abs b)) +1] : by rewrite [sign_of_pos H, one_mul]
+     ... = -(m div b + 1)                 : by rewrite [↑divide, sign_of_pos H, one_mul]
 
 theorem div_neg (a b : ℤ) : a div -b = -(a div b) :=
 calc
@@ -89,7 +89,7 @@ calc
               by rewrite [neg_add, -neg_mul_eq_neg_mul, sub_neg_eq_add, mul.right_distrib,
                                  one_mul, (add.comm b)]
     ... = b + -1 + (-m + m div b * b)           :
-              by rewrite [-*add.assoc, (add.comm (-m)), (add.right_comm (-1)), (add.comm b)]
+              by rewrite [-*add.assoc, add.comm (-m), add.right_comm (-1), (add.comm b)]
     ... = b - 1 - m mod b                :
               by rewrite [↑modulo, *sub_eq_add_neg, neg_add, neg_neg]
 

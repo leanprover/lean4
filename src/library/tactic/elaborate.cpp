@@ -38,7 +38,7 @@ optional<expr> elaborate_with_respect_to(environment const & env, io_state const
     goals const & gs    = s.get_goals();
     if (empty(gs))
         return none_expr();
-    auto ecs = elab(head(gs), ngen.mk_child(), e, report_unassigned);
+    auto ecs   = elab(head(gs), ngen.mk_child(), e, report_unassigned);
     expr new_e = ecs.first;
     buffer<constraint> cs;
     to_buffer(ecs.second, cs);

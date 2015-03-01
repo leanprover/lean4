@@ -1586,7 +1586,7 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
                 return false;
             ps = proof_state(ps, tail(gs), subst, ngen);
         } else {
-            expr new_ptac = subst.instantiate_all(ptac);
+            expr new_ptac = ptac;
             if (auto tac = pre_tactic_to_tactic(new_ptac)) {
                 try {
                     proof_state_seq seq = (*tac)(env(), ios(), ps);
@@ -1648,7 +1648,7 @@ void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set
             return;
         }
 
-        if (auto tac = pre_tactic_to_tactic(subst.instantiate_all(*pre_tac))) {
+        if (auto tac = pre_tactic_to_tactic(*pre_tac)) {
             bool show_failure = true;
             try_using(subst, mvar, ps, *pre_tac, *tac, show_failure);
             return;

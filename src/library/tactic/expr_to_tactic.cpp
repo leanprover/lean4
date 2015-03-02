@@ -171,7 +171,7 @@ static bool is_builtin_tactic(expr const & v) {
 }
 
 tactic expr_to_tactic(type_checker & tc, elaborate_fn const & fn, expr e, pos_info_provider const * p) {
-    e = tc.whnf(e).first;
+    e = copy_tag(e, tc.whnf(e).first);
     expr f = get_app_fn(e);
     if (!is_constant(f))
         throw_failed(e);

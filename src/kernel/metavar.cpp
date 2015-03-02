@@ -185,7 +185,7 @@ protected:
         if (!modified)
             return e;
         else
-            return mk_rev_app(new_f, new_args);
+            return mk_rev_app(new_f, new_args, e.get_tag());
     }
 
     expr save_result(expr const & e, expr && r) {

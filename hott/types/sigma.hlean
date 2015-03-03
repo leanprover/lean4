@@ -344,8 +344,8 @@ namespace sigma
   /- *** The negative universal property. -/
 
   protected definition coind_uncurried (fg : Σ(f : Πa, B a), Πa, C a (f a)) (a : A)
-    : Σ(b : B a), C a b
-  := ⟨fg.1 a, fg.2 a⟩
+    : Σ(b : B a), C a b :=
+  ⟨fg.1 a, fg.2 a⟩
 
   protected definition coind (f : Π a, B a) (g : Π a, C a (f a)) (a : A) : Σ(b : B a), C a b :=
   coind_uncurried ⟨f, g⟩ a
@@ -368,12 +368,12 @@ namespace sigma
   definition subtype_eq [H : Πa, is_hprop (B a)] (u v : Σa, B a) : u.1 = v.1 → u = v :=
   (sigma_eq_uncurried ∘ (@inv _ _ pr1 (@is_equiv_pr1 _ _ (λp, !is_trunc.is_trunc_eq))))
 
-  definition is_equiv_subtype_eq [instance] [H : Πa, is_hprop (B a)] (u v : Σa, B a)
+  definition is_equiv_subtype_eq [H : Πa, is_hprop (B a)] (u v : Σa, B a)
       : is_equiv (subtype_eq u v) :=
   !is_equiv_compose
+  local attribute is_equiv_subtype_eq [instance]
 
-  definition equiv_subtype [H : Πa, is_hprop (B a)] (u v : Σa, B a) : (u.1 = v.1) ≃ (u = v)
-  :=
+  definition equiv_subtype [H : Πa, is_hprop (B a)] (u v : Σa, B a) : (u.1 = v.1) ≃ (u = v) :=
   equiv.mk !subtype_eq _
 
   /- truncatedness -/

@@ -315,8 +315,9 @@ section discrete_field
   include s
   variables {a b c : A}
 
-  definition decidable_eq [instance] (a b : A) : decidable (a = b) :=
-  @discrete_field.decidable_equality A s a b
+  -- name clash with order
+  definition decidable_eq' [instance] (a b : A) : decidable (a = b) :=
+    @discrete_field.decidable_equality A s a b
 
   theorem discrete_field.eq_zero_or_eq_zero_of_mul_eq_zero
     (x y : A) (H : x * y = 0) : x = 0 ∨ y = 0 :=

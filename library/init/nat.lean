@@ -6,7 +6,7 @@ Module: init.nat
 Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
-import init.wf init.tactic
+import init.wf init.tactic init.num
 
 open eq.ops decidable
 
@@ -273,10 +273,7 @@ namespace nat
 
   notation a ≥ b := ge a b
 
-  definition add (a b : nat) : nat :=
-  nat.rec_on b a (λ b₁ r, succ r)
-
-  notation a + b := add a b
+  -- add is defined in init.num
 
   definition sub (a b : nat) : nat :=
   nat.rec_on b a (λ b₁ r, pred r)
@@ -334,8 +331,4 @@ namespace nat
     (le.refl a)
     (λ b₁ ih, le.trans !pred_le ih)
 
-  definition of_num [coercion] (n : num) : ℕ :=
-  num.rec zero
-    (λ n, pos_num.rec (succ zero) (λ n r, r + r + (succ zero)) (λ n r, r + r) n) n
 end nat
-attribute nat.of_num [reducible] -- of_num is also reducible if namespace "nat" is not opened

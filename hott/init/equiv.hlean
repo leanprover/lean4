@@ -39,10 +39,11 @@ namespace is_equiv
   variables {A B C : Type} (f : A → B) (g : B → C) {f' : A → B}
 
   -- The identity function is an equivalence.
+  -- TODO: make A explicit
   definition is_equiv_id : (@is_equiv A A id) := is_equiv.mk id (λa, idp) (λa, idp) (λa, idp)
 
   -- The composition of two equivalences is, again, an equivalence.
-  definition is_equiv_compose [Hf : is_equiv f] [Hg : is_equiv g] : (is_equiv (g ∘ f)) :=
+  definition is_equiv_compose [Hf : is_equiv f] [Hg : is_equiv g] : is_equiv (g ∘ f) :=
     is_equiv.mk ((inv f) ∘ (inv g))
                (λc, ap g (retr f (g⁻¹ c)) ⬝ retr g c)
                (λa, ap (inv f) (sect g (f a)) ⬝ sect f a)
@@ -244,7 +245,7 @@ namespace equiv
   protected definition trans (f : A ≃ B) (g: B ≃ C) : A ≃ C :=
   equiv.mk (g ∘ f) !is_equiv_compose
 
-  definition equiv_of_eq_of_equiv (f : A ≃ B) (f' : A → B) (Heq : f = f') : A ≃ B :=
+  definition equiv_of_eq_fn_of_equiv (f : A ≃ B) (f' : A → B) (Heq : f = f') : A ≃ B :=
   equiv.mk f' (is_equiv_eq_closed f Heq)
 
   definition eq_equiv_fn_eq (f : A → B) [H : is_equiv f] (a b : A) : (a = b) ≃ (f a = f b) :=
@@ -262,8 +263,13 @@ namespace equiv
 
   -- calc enviroment
   -- Note: Calculating with substitutions needs univalence
+  definition equiv_of_equiv_of_eq {A B C : Type} (p : A = B) (q : B ≃ C) : A ≃ C := p⁻¹ ▹ q
+  definition equiv_of_eq_of_equiv {A B C : Type} (p : A ≃ B) (q : B = C) : A ≃ C := q   ▹ p
+
   calc_trans equiv.trans
   calc_refl equiv.refl
   calc_symm equiv.symm
+  calc_trans equiv_of_equiv_of_eq
+  calc_trans equiv_of_eq_of_equiv
 
 end equiv

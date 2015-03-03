@@ -12,7 +12,7 @@ definitions that are actually implemented in C++
 -/
 
 prelude
-import init.datatypes init.reserved_notation
+import init.datatypes init.reserved_notation init.num
 
 inductive tactic :
 Type := builtin : tactic
@@ -104,5 +104,8 @@ definition try         (t : tactic) : tactic := [t | id]
 definition repeat1     (t : tactic) : tactic := t ; repeat t
 definition focus       (t : tactic) : tactic := focus_at t 0
 definition determ      (t : tactic) : tactic := at_most t 1
+
+definition do (n : num) (t : tactic) : tactic :=
+nat.rec id (λn t', (t;t')) (nat.of_num n)
 
 end tactic

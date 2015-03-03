@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: init.num
 Authors: Leonardo de Moura
 -/
+
 prelude
 import init.logic init.bool
 open bool
@@ -118,3 +119,18 @@ namespace num
   notation a ≤ b := le a b
   notation a - b := sub a b
 end num
+
+-- the coercion from num to nat is defined here,
+-- so that it can already be used in init.tactic
+namespace nat
+
+  definition add (a b : nat) : nat :=
+  nat.rec_on b a (λ b₁ r, succ r)
+
+  notation a + b := add a b
+
+  definition of_num [coercion] (n : num) : nat :=
+  num.rec zero
+    (λ n, pos_num.rec (succ zero) (λ n r, r + r + (succ zero)) (λ n r, r + r) n) n
+end nat
+attribute nat.of_num [reducible] -- of_num is also reducible if namespace "nat" is not opened

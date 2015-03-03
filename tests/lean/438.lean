@@ -1,4 +1,4 @@
-import algebra.group
+import algebra.bundled
 open algebra
 
 attribute Group.struct [coercion]

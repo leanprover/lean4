@@ -57,7 +57,7 @@ environment mk_rec_on(environment const & env, name const & n) {
                                       check(env, mk_definition(env, rec_on_name, rec_decl.get_univ_params(),
                                                                rec_on_type, rec_on_val,
                                                                opaque, rec_decl.get_module_idx(), use_conv_opt)));
-    new_env = set_reducible(new_env, rec_on_name, reducible_status::On);
+    new_env = set_reducible(new_env, rec_on_name, reducible_status::Reducible);
     return add_protected(new_env, rec_on_name);
 }
 }

@@ -722,7 +722,7 @@ struct structure_cmd_fn {
                                              rec_on_decl.get_type(), rec_on_decl.get_value(),
                                              opaque);
         m_env = module::add(m_env, check(m_env, new_decl));
-        m_env = set_reducible(m_env, n, reducible_status::On);
+        m_env = set_reducible(m_env, n, reducible_status::Reducible);
         save_def_info(n);
         add_alias(n);
     }
@@ -817,7 +817,7 @@ struct structure_cmd_fn {
             declaration coercion_decl      = mk_definition(m_env, coercion_name, lnames, coercion_type, coercion_value,
                                                            opaque);
             m_env = module::add(m_env, check(m_env, coercion_decl));
-            m_env = set_reducible(m_env, coercion_name, reducible_status::On);
+            m_env = set_reducible(m_env, coercion_name, reducible_status::Reducible);
             save_def_info(coercion_name);
             add_alias(coercion_name);
             if (!m_private_parents[i]) {

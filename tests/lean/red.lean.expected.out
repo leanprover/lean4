@@ -1,0 +1,20 @@
+red.lean:9:19: error: type mismatch at definition '14.1', has type
+  f = f
+but is expected to have type
+  f = g
+red.lean:12:0: error: type mismatch at application
+  eq.subst H rfl
+term
+  rfl
+has type
+  f ?M_1 = f ?M_1
+but is expected to have type
+  f ?M_1 = a
+red.lean:17:0: error: type mismatch at application
+  eq.subst H rfl
+term
+  rfl
+has type
+  f ?M_1 = f ?M_1
+but is expected to have type
+  f ?M_1 = a

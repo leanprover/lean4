@@ -100,6 +100,7 @@ static name * g_priority     = nullptr;
 static name * g_unfold_c     = nullptr;
 static name * g_coercion     = nullptr;
 static name * g_reducible    = nullptr;
+static name * g_semireducible = nullptr;
 static name * g_irreducible  = nullptr;
 static name * g_parsing_only = nullptr;
 static name * g_with         = nullptr;
@@ -219,6 +220,7 @@ void initialize_tokens() {
     g_unfold_c     = new name("[unfold-c");
     g_coercion     = new name("[coercion]");
     g_reducible    = new name("[reducible]");
+    g_semireducible = new name("[semireducible]");
     g_irreducible  = new name("[irreducible]");
     g_parsing_only = new name("[parsing-only]");
     g_attribute    = new name("attribute");
@@ -280,6 +282,7 @@ void finalize_tokens() {
     delete g_unfold_c;
     delete g_coercion;
     delete g_reducible;
+    delete g_semireducible;
     delete g_irreducible;
     delete g_multiple_instances;
     delete g_attribute;
@@ -459,6 +462,7 @@ name const & get_priority_tk() { return *g_priority; }
 name const & get_unfold_c_tk() { return *g_unfold_c; }
 name const & get_coercion_tk() { return *g_coercion; }
 name const & get_reducible_tk() { return *g_reducible; }
+name const & get_semireducible_tk() { return *g_semireducible; }
 name const & get_irreducible_tk() { return *g_irreducible; }
 name const & get_multiple_instances_tk() { return *g_multiple_instances; }
 name const & get_attribute_tk() { return *g_attribute; }

@@ -17,7 +17,7 @@ namespace lean {
 struct reducible_entry {
     reducible_status m_status;
     name             m_name;
-    reducible_entry():m_status(reducible_status::None) {}
+    reducible_entry():m_status(reducible_status::Semireducible) {}
     reducible_entry(reducible_status s, name const & n):m_status(s), m_name(n) {}
 };
 
@@ -27,15 +27,15 @@ struct reducible_state {
 
     void add(reducible_entry const & e) {
         switch (e.m_status) {
-        case reducible_status::On:
+        case reducible_status::Reducible:
             m_reducible_on.insert(e.m_name);
             m_reducible_off.erase(e.m_name);
             break;
-        case reducible_status::Off:
+        case reducible_status::Irreducible:
             m_reducible_on.erase(e.m_name);
             m_reducible_off.insert(e.m_name);
             break;
-        case reducible_status::None:
+        case reducible_status::Semireducible:
             m_reducible_on.erase(e.m_name);
             m_reducible_off.erase(e.m_name);
             break;
@@ -221,9 +221,9 @@ static int set_reducible(lua_State * L) {
 
 void open_reducible(lua_State * L) {
     lua_newtable(L);
-    SET_ENUM("On",      reducible_status::On);
-    SET_ENUM("Off",     reducible_status::Off);
-    SET_ENUM("None",    reducible_status::None);
+    SET_ENUM("On",      reducible_status::Reducible);
+    SET_ENUM("Off",     reducible_status::Irreducible);
+    SET_ENUM("None",    reducible_status::Semireducible);
     lua_setglobal(L, "reducible_status");
     SET_GLOBAL_FUN(is_reducible_on,                 "is_reducible_on");
     SET_GLOBAL_FUN(is_reducible_off,                "is_reducible_off");

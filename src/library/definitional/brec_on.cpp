@@ -145,7 +145,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     declaration new_d = mk_definition(env, below_name, blvls, below_type, below_value,
                                       opaque, rec_decl.get_module_idx(), use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
-    new_env = set_reducible(new_env, below_name, reducible_status::On);
+    new_env = set_reducible(new_env, below_name, reducible_status::Reducible);
     return add_protected(new_env, below_name);
 }
 
@@ -330,7 +330,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     declaration new_d = mk_definition(env, brec_on_name, blps, brec_on_type, brec_on_value,
                                       opaque, rec_decl.get_module_idx(), use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
-    new_env = set_reducible(new_env, brec_on_name, reducible_status::On);
+    new_env = set_reducible(new_env, brec_on_name, reducible_status::Reducible);
     return add_protected(new_env, brec_on_name);
 }
 

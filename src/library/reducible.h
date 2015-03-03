@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/default_converter.h"
 
 namespace lean {
-enum class reducible_status { On, Off, None };
+enum class reducible_status { Reducible, Irreducible, Semireducible };
 /** \brief Mark the definition named \c n as reducible or not.
 
     The method throws an exception if \c n is

@@ -102,6 +102,7 @@ name const & get_priority_tk();
 name const & get_unfold_c_tk();
 name const & get_coercion_tk();
 name const & get_reducible_tk();
+name const & get_semireducible_tk();
 name const & get_irreducible_tk();
 name const & get_multiple_instances_tk();
 name const & get_attribute_tk();

@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/aliases.h"
 #include "library/placeholder.h"
+#include "library/replace_visitor.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
@@ -317,7 +318,7 @@ bool occurs(level const & u, level const & l) {
     The substitution is updated with the mapping metavar -> new param.
     The set of parameter names m_params and the buffer m_new_params are also updated.
 */
-class univ_metavars_to_params_fn {
+class univ_metavars_to_params_fn : public replace_visitor {
     environment const &        m_env;
     local_decls<level> const & m_lls;
     substitution &             m_subst;
@@ -364,26 +365,14 @@ public:
             });
     }
 
-    expr apply(expr const & e) {
-        if (!has_univ_metavar(e)) {
-            return e;
-        } else {
-            return replace(e, [&](expr const & e) {
-                    if (!has_univ_metavar(e)) {
-                        return some_expr(e);
-                    } else if (is_sort(e)) {
-                        return some_expr(update_sort(e, apply(sort_level(e))));
-                    } else if (is_constant(e)) {
-                        levels ls = map(const_levels(e), [&](level const & l) { return apply(l); });
-                        return some_expr(update_constant(e, ls));
-                    } else {
-                        return none_expr();
-                    }
-                });
-        }
+    virtual expr visit_sort(expr const & e) {
+        return update_sort(e, apply(sort_level(e)));
     }
 
-    expr operator()(expr const & e) { return apply(e); }
+    virtual expr visit_constant(expr const & e) {
+        levels ls = map(const_levels(e), [&](level const & l) { return apply(l); });
+        return update_constant(e, ls);
+    }
 };
 
 expr univ_metavars_to_params(environment const & env, local_decls<level> const & lls, substitution & s,

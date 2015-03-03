@@ -118,9 +118,10 @@ bool context_check(expr const & e, buffer<expr> const & locals) {
     for_each(e, [&](expr const & e, unsigned) {
             if (failed)
                 return false;
-            if (is_local(e) && !contains_local(e, locals)) {
-                failed = true;
-                return false;
+            if (is_local(e)) {
+                if (!contains_local(e, locals))
+                    failed = true;
+                return false; // do not visit type
             }
             if (is_metavar(e))
                 return false; // do not visit type

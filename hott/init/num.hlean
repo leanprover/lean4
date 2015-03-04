@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: init.num
 Authors: Leonardo de Moura
 -/
-
 prelude
 import init.logic init.bool
 open bool
@@ -46,6 +45,28 @@ namespace pos_num
 
   notation a * b := mul a b
 
+  definition lt (a b : pos_num) : bool :=
+  pos_num.rec_on a
+    (λ b, pos_num.cases_on b
+      ff
+      (λm, tt)
+      (λm, tt))
+    (λn f b, pos_num.cases_on b
+      ff
+      (λm, f m)
+      (λm, f m))
+    (λn f b, pos_num.cases_on b
+      ff
+      (λm, f (succ m))
+      (λm, f m))
+    b
+
+  definition le (a b : pos_num) : bool :=
+  lt a (succ b)
+
+  definition equal (a b : pos_num) : bool :=
+  le a b && le b a
+
 end pos_num
 
 definition num.is_inhabited [instance] : inhabited num :=
@@ -53,6 +74,7 @@ inhabited.mk num.zero
 
 namespace num
   open pos_num
+
   definition pred (a : num) : num :=
   num.rec_on a zero (λp, cond (is_one p) zero (pos (pred p)))
 
@@ -60,23 +82,49 @@ namespace num
   num.rec_on a (pos one) (λp, pos (size p))
 
   definition add (a b : num) : num :=
-  num.rec_on a b (λp_a, num.rec_on b (pos p_a) (λp_b, pos (pos_num.add p_a p_b)))
+  num.rec_on a b (λpa, num.rec_on b (pos pa) (λpb, pos (pos_num.add pa pb)))
 
   definition mul (a b : num) : num :=
-  num.rec_on a zero (λp_a, num.rec_on b zero (λp_b, pos (pos_num.mul p_a p_b)))
+  num.rec_on a zero (λpa, num.rec_on b zero (λpb, pos (pos_num.mul pa pb)))
 
   notation a + b := add a b
   notation a * b := mul a b
+
+  definition le (a b : num) : bool :=
+  num.rec_on a tt (λpa, num.rec_on b ff (λpb, pos_num.le pa pb))
+
+  private definition psub (a b : pos_num) : num :=
+  pos_num.rec_on a
+    (λb, zero)
+    (λn f b,
+      cond (pos_num.le (bit1 n) b)
+        zero
+        (pos_num.cases_on b
+           (pos (bit0 n))
+           (λm, 2 * f m)
+           (λm, 2 * f m + 1)))
+    (λn f b,
+      cond (pos_num.le (bit0 n) b)
+        zero
+        (pos_num.cases_on b
+           (pos (pos_num.pred (bit0 n)))
+           (λm, pred (2 * f m))
+           (λm, 2 * f m)))
+    b
+
+  definition sub (a b : num) : num :=
+  num.rec_on a zero (λpa, num.rec_on b a (λpb, psub pa pb))
+
+  notation a ≤ b := le a b
+  notation a - b := sub a b
 end num
 
--- the coercion from num to nat is defined here, so that it can already be used in init.trunc
+--- the coercion from num to nat is defined here, so that it can already be used in init.trunc
 namespace nat
+definition add (a b : nat) : nat :=
+nat.rec_on b a (λ b₁ r, succ r)
 
-  definition add (a b : nat) : nat :=
-  nat.rec_on b a (λ b₁ r, succ r)
-
-  notation a + b := add a b
-
+notation a + b := add a b
   definition of_num [coercion] (n : num) : nat :=
   num.rec zero
     (λ n, pos_num.rec (succ zero) (λ n r, r + r + (succ zero)) (λ n r, r + r) n) n

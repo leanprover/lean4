@@ -306,7 +306,7 @@ section
     (assume H, or.elim H (assume H', H2 H') (assume H', H3 H'))
 
   definition linear_strong_order_pair.to_linear_order_pair [instance] [coercion] [reducible]
-     [s : linear_strong_order_pair A] : linear_order_pair A :=
+     : linear_order_pair A :=
   ⦃ linear_order_pair, s ⦄
 
   theorem le_of_not_lt {a b : A} (H : ¬ a < b) : b ≤ a :=

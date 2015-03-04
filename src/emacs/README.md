@@ -113,7 +113,7 @@ Case 4: Install Lean in Windows
 ```
 ;; Set up lean-root path
 (setq lean-rootdir "\\lean-0.2.0-windows")
-(setq-local lean-emacs-path “\\lean-0.2.0-windows\\share\\emacs\\site-lisp\\lean")
+(setq-local lean-emacs-path "\\lean-0.2.0-windows\\share\\emacs\\site-lisp\\lean")
 (add-to-list 'load-path (expand-file-name lean-emacs-path))
 (require 'lean-mode)
 ```

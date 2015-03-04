@@ -2238,9 +2238,6 @@ struct unifier_fn {
             postpone(c);
             return true;
         }
-        // The following condition is "dead-code"
-        if (!m_config.m_expensive_classes && cidx >= get_group_first_index(cnstr_group::ClassInstance))
-            m_pattern = true; // use only higher-order (pattern) matching after we start processing class-instance constraints
         // std::cout << "process_next: " << c << "\n";
         m_cnstrs.erase_min();
         if (is_choice_cnstr(c)) {

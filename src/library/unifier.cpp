@@ -78,7 +78,8 @@ unifier_config::unifier_config(bool use_exceptions, bool discard):
     m_expensive_classes(LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES),
     m_discard(discard),
     m_conservative(LEAN_DEFAULT_UNIFIER_CONSERVATIVE) {
-    m_cheap = false;
+    m_pattern = false;
+    m_cheap   = false;
     m_ignore_context_check = false;
 }
 
@@ -89,7 +90,8 @@ unifier_config::unifier_config(options const & o, bool use_exceptions, bool disc
     m_expensive_classes(get_unifier_expensive_classes(o)),
     m_discard(discard),
     m_conservative(get_unifier_conservative(o)) {
-    m_cheap = false;
+    m_cheap   = false;
+    m_pattern = false;
     m_ignore_context_check = false;
 }
 
@@ -321,7 +323,6 @@ struct unifier_fn {
                                       // only the definitions from the main module are treated as transparent.
     unifier_config   m_config;
     unsigned         m_num_steps;
-    bool             m_pattern; //!< If true, then only higher-order (pattern) matching is used
     bool             m_first; //!< True if we still have to generate the first solution.
     unsigned         m_next_assumption_idx; //!< Next assumption index.
     unsigned         m_next_cidx; //!< Next constraint index.
@@ -366,13 +367,12 @@ struct unifier_fn {
         expr_map         m_type_map;
         name_to_cnstrs   m_mvar_occs;
         owned_map        m_owned_map;
-        bool             m_pattern;
 
         /** \brief Save unifier's state */
         case_split(unifier_fn & u, justification const & j):
             m_assumption_idx(u.m_next_assumption_idx), m_jst(j), m_subst(u.m_subst),
             m_postponed(u.m_postponed), m_cnstrs(u.m_cnstrs), m_type_map(u.m_type_map),
-            m_mvar_occs(u.m_mvar_occs), m_owned_map(u.m_owned_map), m_pattern(u.m_pattern) {
+            m_mvar_occs(u.m_mvar_occs), m_owned_map(u.m_owned_map) {
             u.m_next_assumption_idx++;
         }
 
@@ -384,7 +384,6 @@ struct unifier_fn {
             u.m_cnstrs    = m_cnstrs;
             u.m_mvar_occs = m_mvar_occs;
             u.m_owned_map = m_owned_map;
-            u.m_pattern   = m_pattern;
             u.m_type_map  = m_type_map;
             m_assumption_idx = u.m_next_assumption_idx;
             m_failed_justifications = mk_composite1(m_failed_justifications, *u.m_conflict);
@@ -425,7 +424,7 @@ struct unifier_fn {
                name_generator const & ngen, substitution const & s,
                unifier_config const & cfg):
         m_env(env), m_ngen(ngen), m_subst(s), m_plugin(get_unifier_plugin(env)),
-        m_config(cfg), m_num_steps(0), m_pattern(false) {
+        m_config(cfg), m_num_steps(0) {
         if (m_config.m_cheap) {
             m_tc[0] = mk_opaque_type_checker(env, m_ngen.mk_child());
             m_tc[1] = m_tc[0];
@@ -1411,6 +1410,7 @@ struct unifier_fn {
         optional<bool>        _has_meta_args;
 
         bool cheap() const { return u.m_config.m_cheap; }
+        bool pattern() const { return u.m_config.m_pattern; }
 
         type_checker & tc() {
             return *u.m_tc[relax];
@@ -1628,7 +1628,7 @@ struct unifier_fn {
         void mk_app_projections() {
             lean_assert(is_metavar(m));
             lean_assert(is_app(rhs));
-            if (!u.m_pattern && !cheap()) {
+            if (!pattern() && !cheap()) {
                 expr const & f = get_app_fn(rhs);
                 lean_assert(is_constant(f) || is_local(f));
                 if (is_local(f)) {
@@ -1825,12 +1825,12 @@ struct unifier_fn {
                 mk_simple_projections();
                 break;
             case expr_kind::Sort: case expr_kind::Constant:
-                if (!u.m_pattern && !cheap() && !imitation_only)
+                if (!pattern() && !cheap() && !imitation_only)
                     mk_simple_projections();
                 mk_simple_imitation();
                 break;
             case expr_kind::Pi: case expr_kind::Lambda:
-                if (!u.m_pattern && !cheap() && !imitation_only)
+                if (!pattern() && !cheap() && !imitation_only)
                     mk_simple_projections();
                 mk_bindings_imitation();
                 break;

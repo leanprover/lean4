@@ -47,6 +47,9 @@ struct unifier_config {
     //     - Disables reduction case-split on flex-rigid constraints.
     // Default is m_conservative == false
     bool     m_conservative;
+    // If m_pattern is true, then we restrict the number of cases splits on
+    // flex-rigid constraints that are *not* in the higher-order pattern case.
+    bool     m_pattern;
     // If m_cheap is true, then expensive case-analysis is not performed (e.g., delta).
     // It is more restrictive than m_conservative
     // Default is m_cheap == false

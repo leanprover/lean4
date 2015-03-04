@@ -9,5 +9,5 @@ Type₁ : Type₂
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGINEVAL
-tst.foo.{l_2 l_1} : ?A → ?B → ?A
+tst.foo.{l_1 l_2} : ?A → ?B → ?A
 -- ENDEVAL

@@ -26,3 +26,18 @@ foo.mk 4 4
 
 example : foo.a = 3 :=
 rfl
+
+attribute i4 [priority default+2]
+
+example : foo.a = 4 :=
+rfl
+
+attribute i1 [priority default+3]
+
+example : foo.a = 1 :=
+rfl
+
+attribute i2 [instance] [priority default+4]
+
+example : foo.a = 2 :=
+rfl

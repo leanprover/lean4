@@ -46,6 +46,10 @@ struct class_state {
             return LEAN_INSTANCE_DEFAULT_PRIORITY;
     }
 
+    bool is_instance(name const & i) const {
+        return m_priorities.contains(i);
+    }
+
     bool try_multiple_instances(name const & c) const {
         return m_multiple.contains(c);
     }
@@ -73,8 +77,7 @@ struct class_state {
             auto lst = filter(*it, [&](name const & i1) { return i1 != i; });
             m_instances.insert(c, insert(i, p, lst));
         }
-        if (p != LEAN_INSTANCE_DEFAULT_PRIORITY)
-            m_priorities.insert(i, p);
+        m_priorities.insert(i, p);
     }
 
     void add_multiple(name const & c) {
@@ -213,6 +216,11 @@ bool try_multiple_instances(environment const & env, name const & n) {
 bool is_class(environment const & env, name const & c) {
     class_state const & s = class_ext::get_state(env);
     return s.m_instances.contains(c);
+}
+
+bool is_instance(environment const & env, name const & i) {
+    class_state const & s = class_ext::get_state(env);
+    return s.is_instance(i);
 }
 
 list<name> get_class_instances(environment const & env, name const & c) {

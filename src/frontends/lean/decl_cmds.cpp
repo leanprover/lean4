@@ -297,7 +297,8 @@ struct decl_attributes {
     optional<unsigned> m_priority;
     optional<unsigned> m_unfold_c_hint;
 
-    decl_attributes(bool def_only = true, bool is_abbrev = false):m_priority() {
+    decl_attributes(bool def_only = true, bool is_abbrev = false):
+        m_priority() {
         m_def_only               = def_only;
         m_is_abbrev              = is_abbrev;
         m_is_instance            = false;
@@ -350,7 +351,7 @@ struct decl_attributes {
         }
     }
 
-    void parse(parser & p) {
+    void parse(buffer<name> const & ns, parser & p) {
         while (true) {
             auto pos = p.pos();
             if (p.curr_is_token(get_instance_tk())) {
@@ -389,8 +390,18 @@ struct decl_attributes {
                 p.next();
             } else if (auto it = parse_instance_priority(p)) {
                 m_priority = *it;
-                if (!m_is_instance)
-                    throw parser_error("invalid '[priority]' attribute, declaration must be marked as an '[instance]'", pos);
+                if (!m_is_instance) {
+                    if (ns.empty()) {
+                        throw parser_error("invalid '[priority]' attribute, declaration must be marked as an '[instance]'", pos);
+                    } else {
+                        for (name const & n : ns) {
+                            if (!is_instance(p.env(), n))
+                                throw parser_error(sstream() << "invalid '[priority]' attribute, declaration '" << n
+                                                   << "' must be marked as an '[instance]'", pos);
+                        }
+                        m_is_instance = true;
+                    }
+                }
             } else if (p.curr_is_token(get_parsing_only_tk())) {
                 if (!m_is_abbrev)
                     throw parser_error("invalid '[parsing-only]' attribute, only abbreviations can be "
@@ -408,6 +419,17 @@ struct decl_attributes {
                 break;
             }
         }
+    }
+
+    void parse(name const & n, parser & p) {
+        buffer<name> ns;
+        ns.push_back(n);
+        parse(ns, p);
+    }
+
+    void parse(parser & p) {
+        buffer<name> ns;
+        parse(ns, p);
     }
 
     environment apply(environment env, io_state const & ios, name const & d, bool persistent) {
@@ -1113,7 +1135,7 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
     }
     bool decl_only  = false;
     decl_attributes attributes(decl_only);
-    attributes.parse(p);
+    attributes.parse(ds, p);
     environment env = p.env();
     for (name const & d : ds)
         env = attributes.apply(env, p.ios(), d, persistent);

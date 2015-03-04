@@ -18,9 +18,9 @@ structure fiber {A B : Type} (f : A → B) (b : B) :=
 open equiv sigma sigma.ops eq
 
 namespace fiber
-  variables {A B : Type} (f : A → B) (b : B)
+  variables {A B : Type} {f : A → B} {b : B}
 
-  definition sigma_char : fiber f b ≃ (Σ(a : A), f a = b) :=
+  definition sigma_char (f : A → B) (b : B) : fiber f b ≃ (Σ(a : A), f a = b) :=
   begin
   fapply equiv.MK,
     {intro x, exact ⟨point x, point_eq x⟩},
@@ -41,44 +41,13 @@ namespace fiber
     apply sigma_equiv_sigma_id,
     intro p,
     apply equiv_of_equiv_of_eq,
-      {apply (ap (λx, x = _)), apply transport_paths_Fl}
-
-    -- apply equiv_of_eq,
-    -- fapply (apD011 @sigma),
-    --   {apply idp},
-    -- esimp
+      {apply (ap (λx, x = _)), apply transport_eq_Fl},
+    apply inv_con_eq_equiv_eq_con,
   end
 
-  definition fiber_eq : (p : u.1 = v.1) (q : p ▹ u.2 = v.2) : u = v :=
-  by cases u; cases v; apply (dpair_eq_dpair p q)
+  definition eq_mk {x y : fiber f b} (p : point x = point y) (q : point_eq x = ap f p ⬝ point_eq y)
+    : x = y :=
+  to_inv !equiv_fiber_eq ⟨p, q⟩
+
 
 end fiber
-
-
-
-namespace is_equiv
-  open equiv
-  context
-    parameters {A B : Type} (f : A → B) [H : is_equiv f]
-    include H
-
-
-  end
-  variables {A B : Type} (f : A → B)
-
-  theorem is_hprop_is_equiv [instance] : is_hprop (is_equiv f) :=
-  sorry
-
-end is_equiv
-
-namespace equiv
-  open is_equiv
-  variables {A B : Type}
-
-  protected definition eq_mk' {f f' : A → B} [H : is_equiv f] [H' : is_equiv f'] (p : f = f')
-      : equiv.mk f H = equiv.mk f' H' :=
-  apD011 equiv.mk p !is_hprop.elim
-
-  protected definition eq_mk {f f' : A ≃ B} (p : to_fun f = to_fun f') : f = f' :=
-  by (cases f; cases f'; apply (equiv.eq_mk' p))
-end equiv

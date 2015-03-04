@@ -7,7 +7,7 @@ Authors: Floris van Doorn
 -/
 
 --note: modify definition in category.set
-import algebra.category.constructions .morphism
+import algebra.category.constructions .iso
 
 open category eq category.ops functor prod.ops is_trunc
 

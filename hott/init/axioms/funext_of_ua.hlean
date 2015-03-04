@@ -143,6 +143,9 @@ end funext
 
 open funext
 
+definition eq_equiv_homotopy {A : Type} {P : A → Type} {f g : Π x, P x} : (f = g) ≃ (f ∼ g) :=
+equiv.mk apD10 _
+
 definition eq_of_homotopy {A : Type} {P : A → Type} {f g : Π x, P x} : f ∼ g → f = g :=
 (@apD10 A P f g)⁻¹
 

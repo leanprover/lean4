@@ -8,9 +8,9 @@ Authors: Jakob von Raumer, Floris van Doorn
 Properties of is_trunc
 -/
 
-import types.pi types.path
+import types.pi types.eq
 
-open sigma sigma.ops pi function eq equiv path funext
+open sigma sigma.ops pi function eq equiv eq funext
 namespace is_trunc
 
   definition is_contr.sigma_char (A : Type) :
@@ -86,7 +86,7 @@ namespace is_trunc
         to_fun (equiv.symm !heq_pi) H2,
       have H4 : imp (refl a) ⬝ p = imp (refl a), from
         calc
-          imp (refl a) ⬝ p = transport (λx, a = x) p (imp (refl a)) : transport_paths_r
+          imp (refl a) ⬝ p = transport (λx, a = x) p (imp (refl a)) : transport_eq_r
             ... = imp (transport (λx, R a x) p (refl a)) : H3
             ... = imp (refl a) : is_hprop.elim,
       cancel_left (imp (refl a)) _ _ H4)

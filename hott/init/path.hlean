@@ -549,10 +549,10 @@ namespace eq
   -- Unwhiskering, a.k.a. cancelling
 
   definition cancel_left {x y z : A} (p : x = y) (q r : y = z) : (p ⬝ q = p ⬝ r) → (q = r) :=
-  eq.rec_on p (λq r s, !idp_con⁻¹ ⬝ s ⬝ !idp_con) q r
+  λs, !inv_con_cancel_left⁻¹ ⬝ whisker_left p⁻¹ s ⬝ !inv_con_cancel_left
 
   definition cancel_right {x y z : A} (p q : x = y) (r : y = z) : (p ⬝ r = q ⬝ r) → (p = q) :=
-  eq.rec_on r (λs, !con_idp⁻¹ ⬝ s ⬝ !con_idp)
+  λs, !con_inv_cancel_right⁻¹ ⬝ whisker_right s r⁻¹ ⬝ !con_inv_cancel_right
 
   -- Whiskering and identity paths.
 
@@ -574,11 +574,11 @@ namespace eq
 
   definition con2_idp {p q : x = y} (h : p = q) :
     h ◾ idp = whisker_right h idp :> (p ⬝ idp = q ⬝ idp) :=
-  eq.rec_on h idp
+  idp
 
   definition idp_con2 {p q : x = y} (h : p = q) :
     idp ◾ h = whisker_left idp h :> (idp ⬝ p = idp ⬝ q) :=
-  eq.rec_on h idp
+  idp
 
   -- The interchange law for concatenation.
   definition con2_con_con2 {p p' p'' : x = y} {q q' q'' : y = z}
@@ -589,6 +589,8 @@ namespace eq
   definition whisker_right_con_whisker_left {x y z : A} (p p' : x = y) (q q' : y = z) (a : p = p') (b : q = q') :
     (whisker_right a q) ⬝ (whisker_left p' b) = (whisker_left p b) ⬝ (whisker_right a q') :=
   eq.rec_on b (eq.rec_on a (idp_con _)⁻¹)
+
+
 
   -- Structure corresponding to the coherence equations of a bicategory.
 

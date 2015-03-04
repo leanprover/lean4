@@ -277,22 +277,11 @@ namespace sigma
 
   --this proof is harder than in Coq because we don't have eta definitionally for sigma
   definition sigma_assoc_equiv (C : (Σa, B a) → Type) : (Σa b, C ⟨a, b⟩) ≃ (Σu, C u) :=
-  -- begin
-  --   apply equiv.mk,
-  --   apply (adjointify (λav, ⟨⟨av.1, av.2.1⟩, av.2.2⟩)
-  --                     (λuc, ⟨uc.1.1, uc.1.2, !eta⁻¹ ▹ uc.2⟩)),
-  --     intro uc, apply (destruct uc), intro u,
-  --               apply (destruct u), intros (a, b, c),
-  --               apply idp,
-  --     intro av, apply (destruct av), intros (a, v),
-  --               apply (destruct v), intros (b, c),
-  --               apply idp,
-  -- end
   equiv.mk _ (adjointify
     (λav, ⟨⟨av.1, av.2.1⟩, av.2.2⟩)
     (λuc, ⟨uc.1.1, uc.1.2, !eta⁻¹ ▹ uc.2⟩)
-    proof (λuc, destruct uc (λu, destruct u (λa b c, idp))) qed
-    proof (λav, destruct av (λa v, destruct v (λb c, idp))) qed)
+    begin intro uc; cases uc with (u, c); cases u; apply idp end
+    begin intro av; cases av with (a, v); cases v; apply idp end)
 
   open prod
   definition assoc_equiv_prod (C : (A × A') → Type) : (Σa a', C (a,a')) ≃ (Σu, C u) :=
@@ -358,7 +347,7 @@ namespace sigma
                (λ h, proof eq_of_homotopy (λu, !eta) qed)
                (λfg, destruct fg (λ(f : Π (a : A), B a) (g : Π (x : A), C x (f x)), proof idp qed))
 
-  definition equiv_coind : (Σ(f : Πa, B a), Πa, C a (f a)) ≃ (Πa, Σb, C a b) :=
+  definition sigma_pi_equiv_pi_sigma : (Σ(f : Πa, B a), Πa, C a (f a)) ≃ (Πa, Σb, C a b) :=
   equiv.mk coind_uncurried _
   end
 

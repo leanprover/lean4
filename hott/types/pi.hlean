@@ -107,16 +107,16 @@ namespace pi
   definition ap_pi_functor {g g' : Π(a:A), B a} (h : g ∼ g')
       : ap (pi_functor f0 f1) (eq_of_homotopy h) = eq_of_homotopy (λa':A', (ap (f1 a') (h (f0 a')))) :=
   begin
-  apply (equiv_rect (@apD10 A B g g')), intro p, clear h, --revert p, revert g',
-  apply (eq.rec_on p),
-  apply concat, --(@concat _ _ (refl (pi_functor f0 f1 g))),
+  apply (equiv_rect (@apD10 A B g g')), intro p, clear h,
+  cases p,
+  apply concat,
     exact (ap (ap (pi_functor f0 f1)) (eq_of_homotopy_idp g)),
     apply symm, apply eq_of_homotopy_idp
   end
 
   /- Equivalences -/
 
-  definition is_equiv_pi_functor [instance] (f0 : A' → A) (f1 : Π(a':A'), B (f0 a') → B' a')
+  definition is_equiv_pi_functor [instance]
     [H0 : is_equiv f0] [H1 : Πa', @is_equiv (B (f0 a')) (B' a') (f1 a')]
       : is_equiv (pi_functor f0 f1) :=
   begin
@@ -144,15 +144,12 @@ namespace pi
     : (Πa, B a) ≃ (Πa', B' a') :=
   equiv.mk (pi_functor f0 f1) _
 
-  context
-  attribute inv [irreducible] --this is needed for the following class instance resolution
   definition pi_equiv_pi (f0 : A' ≃ A) (f1 : Πa', (B (to_fun f0 a') ≃ B' a'))
     : (Πa, B a) ≃ (Πa', B' a') :=
   pi_equiv_pi_of_is_equiv (to_fun f0) (λa', to_fun (f1 a'))
-  end
 
   definition pi_equiv_pi_id {P Q : A → Type} (g : Πa, P a ≃ Q a) : (Πa, P a) ≃ (Πa, Q a) :=
-  pi_equiv_pi equiv.refl g.
+  pi_equiv_pi equiv.refl g
 
   /- Truncatedness: any dependent product of n-types is an n-type -/
 

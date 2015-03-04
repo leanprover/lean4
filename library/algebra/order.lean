@@ -162,12 +162,12 @@ section
   theorem lt_of_le_of_ne (H1 : a ≤ b) (H2 : a ≠ b) : a < b :=
   iff.mp (iff.symm lt_iff_le_and_ne) (and.intro H1 H2)
 
-  private theorem lt_irrefl (s : order_pair A) (a : A) : ¬ a < a :=
+  private theorem lt_irrefl (s' : order_pair A) (a : A) : ¬ a < a :=
   assume H : a < a,
   have H1 : a ≠ a, from and.elim_right (iff.mp !lt_iff_le_and_ne H),
   H1 rfl
 
-  private theorem lt_trans (s : order_pair A) (a b c: A) (lt_ab : a < b) (lt_bc : b < c) : a < c :=
+  private theorem lt_trans (s' : order_pair A) (a b c: A) (lt_ab : a < b) (lt_bc : b < c) : a < c :=
   have le_ab : a ≤ b, from le_of_lt lt_ab,
   have le_bc : b ≤ c, from le_of_lt lt_bc,
   have le_ac : a ≤ c, from le.trans le_ab le_bc,
@@ -179,7 +179,7 @@ section
       ne_ab eq_ab,
   show a < c, from lt_of_le_of_ne le_ac ne_ac
 
-  definition order_pair.to_strict_order [instance] [coercion] [reducible] [s : order_pair A] : strict_order A :=
+  definition order_pair.to_strict_order [instance] [coercion] [reducible] : strict_order A :=
   ⦃ strict_order, s, lt_irrefl := lt_irrefl s, lt_trans := lt_trans s ⦄
 
   theorem lt_of_lt_of_le : a < b → b ≤ c → a < c :=

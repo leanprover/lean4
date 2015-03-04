@@ -133,8 +133,9 @@ class FlycheckItem:
         return (self.filename, self.ty, self.lineno, self.colno)
     @classmethod
     def fromString(cls, text):
+        # Filter out empty lines
+        lines     = [line for line in text.splitlines() if len(line) > 0]
         # Throw the first and last lines (header/footer)
-        lines     = text.splitlines()
         lines     = lines[1:-1]
         firstLine = lines[0]
         items     = [item.strip() for item in firstLine.split(":")]

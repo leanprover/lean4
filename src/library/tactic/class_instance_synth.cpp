@@ -349,6 +349,7 @@ constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_context> 
         unifier_config new_cfg(cfg);
         new_cfg.m_discard        = false;
         new_cfg.m_use_exceptions = false;
+        new_cfg.m_pattern        = true;
         new_cfg.m_conservative   = C->m_conservative;
 
         auto to_cnstrs_fn = [=](substitution const & subst, constraints const & cnstrs) -> constraints {
@@ -461,6 +462,7 @@ optional<expr> mk_class_instance(environment const & env, io_state const & ios, 
     unifier_config new_cfg(cfg);
     new_cfg.m_discard        = true;
     new_cfg.m_use_exceptions = true;
+    new_cfg.m_pattern        = true;
     new_cfg.m_conservative   = C->m_conservative;
     try {
         auto p  = unify(env, 1, &c, C->m_ngen.mk_child(), substitution(), new_cfg).pull();

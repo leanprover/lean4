@@ -986,44 +986,48 @@ static expr assign_equation_lhs_metas(type_checker & tc, expr const & eqns) {
         if (!has_metavar(eq)) {
             new_eqs.push_back(eq);
         } else {
-            name x("x");
             buffer<expr> locals;
             name_generator ngen = tc.mk_ngen();
             eq = fun_to_telescope(ngen, eq, locals, optional<binder_info>());
-            lean_assert(num_fns <= locals.size());
-            lean_assert(is_equation(eq));
-            unsigned idx = 1;
-            while (true) {
-                expr lhs = equation_lhs(eq);
-                auto r = find_lhs_meta(tc, lhs);
-                if (r.first == None) {
-                    break;
-                } else if (r.first == Accessible) {
-                    expr const & meta = r.second;
-                    expr meta_type    = tc.infer(meta).first;
-                    expr new_local    = mk_local(tc.mk_fresh_name(), x.append_after(idx), meta_type, binder_info());
-                    for (expr & local : locals)
-                        local = update_mlocal(local, replace_meta(mlocal_type(local), meta, new_local));
-                    eq  = replace_meta(eq, meta, new_local);
-                    unsigned i = num_fns;
-                    for (; i < locals.size(); i++) {
-                        if (depends_on(mlocal_type(locals[i]), new_local))
-                            break;
+            if (is_equation(eq)) {
+                name x("x");
+                lean_assert(num_fns <= locals.size());
+                lean_assert(is_equation(eq));
+                unsigned idx = 1;
+                while (true) {
+                    expr lhs = equation_lhs(eq);
+                    auto r = find_lhs_meta(tc, lhs);
+                    if (r.first == None) {
+                        break;
+                    } else if (r.first == Accessible) {
+                        expr const & meta = r.second;
+                        expr meta_type    = tc.infer(meta).first;
+                        expr new_local    = mk_local(tc.mk_fresh_name(), x.append_after(idx), meta_type, binder_info());
+                        for (expr & local : locals)
+                            local = update_mlocal(local, replace_meta(mlocal_type(local), meta, new_local));
+                        eq  = replace_meta(eq, meta, new_local);
+                        unsigned i = num_fns;
+                        for (; i < locals.size(); i++) {
+                            if (depends_on(mlocal_type(locals[i]), new_local))
+                                break;
+                        }
+                        locals.insert(i, new_local);
+                        idx++;
+                    } else {
+                        lean_assert(r.first == Inaccessible);
+                        throw_elaborator_exception(eqns, [=](formatter const & fmt) {
+                                options o = fmt.get_options().update_if_undef(get_pp_implicit_name(), true);
+                                o = o.update_if_undef(get_pp_notation_option_name(), false);
+                                formatter new_fmt = fmt.update_options(o);
+                                format r("invalid recursive equation, left-hand-side contains meta-variable");
+                                r += format(" (possible solution: provide implicit parameters occurring in left-hand-side explicitly)");
+                                r += pp_indent_expr(new_fmt, lhs);
+                                return r;
+                            });
                     }
-                    locals.insert(i, new_local);
-                    idx++;
-                } else {
-                    lean_assert(r.first == Inaccessible);
-                    throw_elaborator_exception(eqns, [=](formatter const & fmt) {
-                            options o = fmt.get_options().update_if_undef(get_pp_implicit_name(), true);
-                            o = o.update_if_undef(get_pp_notation_option_name(), false);
-                            formatter new_fmt = fmt.update_options(o);
-                            format r("invalid recursive equation, left-hand-side contains meta-variable");
-                            r += format(" (possible solution: provide implicit parameters occurring in left-hand-side explicitly)");
-                            r += pp_indent_expr(new_fmt, lhs);
-                            return r;
-                        });
                 }
+            } else {
+                lean_assert(is_no_equation(eq));
             }
             new_eqs.push_back(Fun(locals, eq));
         }

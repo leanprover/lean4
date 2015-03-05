@@ -40,25 +40,4 @@ opaque definition w        := 40
  assert(tc:whnf(w) == w)
 *)
 
-(*
-  local env = get_env()
-  assert(is_reducible_on(env, "x"))
-  assert(not is_reducible_on(env, "y"))
-  assert(not is_reducible_on(env, "z"))
-  assert(not is_reducible_off(env, "x"))
-  assert(not is_reducible_off(env, "y"))
-  assert(is_reducible_off(env, "z"))
-  env = set_reducible(env, "x", reducible_status.Off)
-  assert(not is_reducible_on(env, "x"))
-  assert(is_reducible_off(env, "x"))
-  env = set_reducible(env, "x", reducible_status.None)
-  assert(not is_reducible_on(env, "x"))
-  assert(not is_reducible_off(env, "x"))
-  env = set_reducible(env, "x", reducible_status.On)
-  assert(is_reducible_on(env, "x"))
-  assert(not is_reducible_off(env, "x"))
-  env = set_reducible(env, "x", reducible_status.Off)
-  set_env(env)
-*)
-
 eval [whnf] x

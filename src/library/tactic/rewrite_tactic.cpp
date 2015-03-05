@@ -815,7 +815,7 @@ class rewrite_fn {
 
     pair<expr, constraint> mk_class_instance_elaborator(expr const & type) {
         unifier_config cfg;
-        cfg.m_conservative       = true;
+        cfg.m_kind               = unifier_kind::VeryConservative;
         bool use_local_instances = true;
         bool is_strict           = false;
         return ::lean::mk_class_instance_elaborator(m_env, m_ios, m_ctx, m_ngen.next(), optional<name>(),
@@ -861,7 +861,7 @@ class rewrite_fn {
                 return unify_result();
             cs_seq.linearize(cs);
             unifier_config cfg;
-            cfg.m_conservative = false;
+            cfg.m_kind         = unifier_kind::Liberal;
             cfg.m_discard      = true;
             unify_result_seq rseq = unify(m_env, cs.size(), cs.data(), m_ngen.mk_child(), m_subst, cfg);
             if (auto p = rseq.pull()) {
@@ -1128,14 +1128,14 @@ class rewrite_fn {
         }
     }
 
-    class match_converter : public reducible_on_converter {
+    class match_converter : public unfold_reducible_converter {
     public:
         match_converter(environment const & env, bool relax_main_opaque):
-            reducible_on_converter(env, relax_main_opaque, true) {}
+            unfold_reducible_converter(env, relax_main_opaque, true) {}
         virtual bool is_opaque(declaration const & d) const {
             if (is_projection(m_env, d.get_name()))
                 return true;
-            return reducible_on_converter::is_opaque(d);
+            return unfold_reducible_converter::is_opaque(d);
         }
     };
 
@@ -1152,7 +1152,7 @@ class rewrite_fn {
 public:
     rewrite_fn(environment const & env, io_state const & ios, elaborate_fn const & elab, proof_state const & ps):
         m_env(env), m_ios(ios), m_elab(elab), m_ps(ps), m_ngen(ps.get_ngen()),
-        m_tc(mk_type_checker(m_env, m_ngen.mk_child(), ps.relax_main_opaque(), OpaqueIfNotReducibleOn)),
+        m_tc(mk_type_checker(m_env, m_ngen.mk_child(), ps.relax_main_opaque(), UnfoldQuasireducible)),
         m_matcher_tc(mk_matcher_tc()),
         m_unifier_tc(mk_type_checker(m_env, m_ngen.mk_child(), ps.relax_main_opaque())),
         m_mplugin(m_ios, *m_matcher_tc) {

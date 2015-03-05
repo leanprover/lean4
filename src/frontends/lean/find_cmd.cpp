@@ -71,7 +71,7 @@ bool match_pattern(type_checker & tc, expr const & pattern, declaration const & 
     try {
         unifier_config cfg;
         cfg.m_max_steps            = max_steps;
-        cfg.m_cheap                = cheap;
+        cfg.m_kind                 = cheap ? unifier_kind::Cheap : unifier_kind::Liberal;
         cfg.m_ignore_context_check = true;
         auto r = unify(tc.env(), pattern, dt, tc.mk_ngen(), true, substitution(), cfg);
         return static_cast<bool>(r.pull());

@@ -76,10 +76,9 @@ unifier_config::unifier_config(bool use_exceptions, bool discard):
     m_max_steps(LEAN_DEFAULT_UNIFIER_MAX_STEPS),
     m_computation(LEAN_DEFAULT_UNIFIER_COMPUTATION),
     m_expensive_classes(LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES),
-    m_discard(discard),
-    m_conservative(LEAN_DEFAULT_UNIFIER_CONSERVATIVE) {
+    m_discard(discard) {
+    m_kind    = unifier_kind::Liberal;
     m_pattern = false;
-    m_cheap   = false;
     m_ignore_context_check = false;
 }
 
@@ -88,9 +87,11 @@ unifier_config::unifier_config(options const & o, bool use_exceptions, bool disc
     m_max_steps(get_unifier_max_steps(o)),
     m_computation(get_unifier_computation(o)),
     m_expensive_classes(get_unifier_expensive_classes(o)),
-    m_discard(discard),
-    m_conservative(get_unifier_conservative(o)) {
-    m_cheap   = false;
+    m_discard(discard) {
+    if (get_unifier_conservative(o))
+        m_kind = unifier_kind::Conservative;
+    else
+        m_kind = unifier_kind::Liberal;
     m_pattern = false;
     m_ignore_context_check = false;
 }
@@ -425,21 +426,33 @@ struct unifier_fn {
                unifier_config const & cfg):
         m_env(env), m_ngen(ngen), m_subst(s), m_plugin(get_unifier_plugin(env)),
         m_config(cfg), m_num_steps(0) {
-        if (m_config.m_cheap) {
+        switch (m_config.m_kind) {
+        case unifier_kind::Cheap:
             m_tc[0] = mk_opaque_type_checker(env, m_ngen.mk_child());
             m_tc[1] = m_tc[0];
             m_flex_rigid_tc = m_tc[0];
             m_config.m_computation = false;
-        } else if (m_config.m_conservative) {
-            m_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false, OpaqueIfNotReducibleOn);
+            break;
+        case unifier_kind::VeryConservative:
+            m_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false, UnfoldReducible);
             m_tc[1] = m_tc[0];
             m_flex_rigid_tc = m_tc[0];
             m_config.m_computation = false;
-        } else {
+            break;
+        case unifier_kind::Conservative:
+            m_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false, UnfoldQuasireducible);
+            m_tc[1] = m_tc[0];
+            m_flex_rigid_tc = m_tc[0];
+            m_config.m_computation = false;
+            break;
+        case unifier_kind::Liberal:
             m_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false);
             m_tc[1] = mk_type_checker(env, m_ngen.mk_child(), true);
             if (!cfg.m_computation)
-                m_flex_rigid_tc = mk_type_checker(env, m_ngen.mk_child(), false, OpaqueIfNotReducibleOn);
+                m_flex_rigid_tc = mk_type_checker(env, m_ngen.mk_child(), false, UnfoldQuasireducible);
+            break;
+        default:
+            lean_unreachable();
         }
         m_next_assumption_idx = 0;
         m_next_cidx = 0;
@@ -1346,8 +1359,8 @@ struct unifier_fn {
 
         justification a;
         bool relax = relax_main_opaque(c);
-        if (!m_config.m_cheap && !m_config.m_conservative &&
-            (m_config.m_computation || module::is_definition(m_env, d.get_name()) || is_reducible_on(m_env, d.get_name()))) {
+        if (m_config.m_kind == unifier_kind::Liberal &&
+            (m_config.m_computation || module::is_definition(m_env, d.get_name()) || is_at_least_quasireducible(m_env, d.get_name()))) {
             // add case_split for t =?= s
             a = mk_assumption_justification(m_next_assumption_idx);
             add_case_split(std::unique_ptr<case_split>(new delta_unfold_case_split(*this, j, c)));
@@ -1409,7 +1422,7 @@ struct unifier_fn {
 
         optional<bool>        _has_meta_args;
 
-        bool cheap() const { return u.m_config.m_cheap; }
+        bool cheap() const { return u.m_config.m_kind == unifier_kind::Cheap; }
         bool pattern() const { return u.m_config.m_pattern; }
 
         type_checker & tc() {
@@ -1898,7 +1911,7 @@ struct unifier_fn {
     */
     bool use_flex_rigid_whnf_split(expr const & lhs, expr const & rhs) {
         lean_assert(is_meta(lhs));
-        if (m_config.m_cheap || m_config.m_conservative)
+        if (m_config.m_kind != unifier_kind::Liberal)
             return false;
         if (m_config.m_computation)
             return true; // if unifier.computation is true, we always consider the additional whnf split

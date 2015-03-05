@@ -766,7 +766,7 @@ bool match_type(type_checker & tc, expr const & meta, expr const & expected_type
     try {
         unifier_config cfg;
         cfg.m_max_steps = LEAN_FINDG_MAX_STEPS;
-        cfg.m_cheap     = true;
+        cfg.m_kind      = unifier_kind::Cheap;
         auto r = unify(tc.env(), dt, expected_type, tc.mk_ngen(), true, substitution(), cfg);
         return static_cast<bool>(r.pull());
     } catch (exception&) {

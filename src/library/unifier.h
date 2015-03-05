@@ -32,6 +32,8 @@ unify_status unify_simple(substitution & s, expr const & lhs, expr const & rhs, 
 unify_status unify_simple(substitution & s, level const & lhs, level const & rhs, justification const & j);
 unify_status unify_simple(substitution & s, constraint const & c);
 
+enum class unifier_kind { Cheap, VeryConservative, Conservative, Liberal };
+
 struct unifier_config {
     bool     m_use_exceptions;
     unsigned m_max_steps;
@@ -40,20 +42,25 @@ struct unifier_config {
     // If m_discard is true, then constraints that cannot be solved are discarded (or incomplete methods are used)
     // If m_discard is false, unify returns the set of constraints that could not be handled.
     bool     m_discard;
-    // If m_conservative is true, then the following restrictions are imposed:
-    //     - All constants that are not marked as reducible as treated as
+    // If m_mind == Conservative, then the following restrictions are imposed:
+    //     - All constants that are not at least marked as Quasireducible as treated as
     //       opaque.
     //     - Disables case-split on delta-delta constraints.
     //     - Disables reduction case-split on flex-rigid constraints.
-    // Default is m_conservative == false
-    bool     m_conservative;
+    //
+    // If m_kind == VeryConservative, then
+    //     - More restrictive than Conservative,
+    //     - All constants that are not at least marked as Reducible as treated as
+    //       opaque.
+    //
+    // If m_kind == Cheap is true, then expensive case-analysis is not performed (e.g., delta).
+    // It is more restrictive than VeryConservative
+    //
+    // Default is Liberal
+    unifier_kind m_kind;
     // If m_pattern is true, then we restrict the number of cases splits on
     // flex-rigid constraints that are *not* in the higher-order pattern case.
     bool     m_pattern;
-    // If m_cheap is true, then expensive case-analysis is not performed (e.g., delta).
-    // It is more restrictive than m_conservative
-    // Default is m_cheap == false
-    bool     m_cheap;
     // If m_ignore_context_check == true, then occurs-check is skipped.
     // Default is m_ignore_context_check == false
     bool     m_ignore_context_check;

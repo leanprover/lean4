@@ -117,7 +117,7 @@ struct class_instance_context {
         m_max_depth       = get_class_instance_max_depth(ios.get_options());
         m_conservative    = get_class_conservative(ios.get_options());
         if (m_conservative)
-            m_tc = mk_type_checker(env, m_ngen.mk_child(), false, OpaqueIfNotReducibleOn);
+            m_tc = mk_type_checker(env, m_ngen.mk_child(), false, UnfoldReducible);
         else
             m_tc = mk_type_checker(env, m_ngen.mk_child(), m_relax);
         options opts      = m_ios.get_options();
@@ -350,7 +350,7 @@ constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_context> 
         new_cfg.m_discard        = false;
         new_cfg.m_use_exceptions = false;
         new_cfg.m_pattern        = true;
-        new_cfg.m_conservative   = C->m_conservative;
+        new_cfg.m_kind           = C->m_conservative ? unifier_kind::VeryConservative : unifier_kind::Liberal;
 
         auto to_cnstrs_fn = [=](substitution const & subst, constraints const & cnstrs) -> constraints {
             substitution new_s = subst;
@@ -463,7 +463,7 @@ optional<expr> mk_class_instance(environment const & env, io_state const & ios, 
     new_cfg.m_discard        = true;
     new_cfg.m_use_exceptions = true;
     new_cfg.m_pattern        = true;
-    new_cfg.m_conservative   = C->m_conservative;
+    new_cfg.m_kind           = C->m_conservative ? unifier_kind::VeryConservative : unifier_kind::Liberal;
     try {
         auto p  = unify(env, 1, &c, C->m_ngen.mk_child(), substitution(), new_cfg).pull();
         lean_assert(p);

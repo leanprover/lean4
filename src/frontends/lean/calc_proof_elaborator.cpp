@@ -168,7 +168,7 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
 
             unifier_config new_cfg(cfg);
             new_cfg.m_discard      = false;
-            new_cfg.m_conservative = conservative;
+            new_cfg.m_kind         = conservative ? unifier_kind::Conservative : unifier_kind::Liberal;
             unify_result_seq seq   = unify(env, cs_buffer.size(), cs_buffer.data(), ngen, substitution(), new_cfg);
             auto p = seq.pull();
             lean_assert(p);

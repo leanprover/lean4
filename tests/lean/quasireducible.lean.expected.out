@@ -1,0 +1,24 @@
+quasireducible.lean:11:11: error:invalid 'rewrite' tactic, rewrite step failed
+proof state:
+a : nat,
+H : f a = a
+⊢ g a = a
+quasireducible.lean:11:3: error: don't know how to synthesize placeholder
+a : nat,
+H : f a = a
+⊢ g a = a
+quasireducible.lean:11:3: error: failed to add declaration '14.1' to environment, value has metavariables
+  λ (a : nat) (H : f a = a),
+    ?M_1
+quasireducible.lean:16:11: error:invalid 'rewrite' tactic, rewrite step failed
+proof state:
+a : nat,
+H : f a = a
+⊢ g a = a
+quasireducible.lean:16:3: error: don't know how to synthesize placeholder
+a : nat,
+H : f a = a
+⊢ g a = a
+quasireducible.lean:16:3: error: failed to add declaration '14.2' to environment, value has metavariables
+  λ (a : nat) (H : f a = a),
+    ?M_1

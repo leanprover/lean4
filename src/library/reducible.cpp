@@ -21,27 +21,16 @@ struct reducible_entry {
     reducible_entry(reducible_status s, name const & n):m_status(s), m_name(n) {}
 };
 
-struct reducible_state {
-    name_set m_reducible_on;
-    name_set m_reducible_off;
+void reducible_state::add(reducible_entry const & e) {
+    m_status.insert(e.m_name, e.m_status);
+}
 
-    void add(reducible_entry const & e) {
-        switch (e.m_status) {
-        case reducible_status::Reducible:
-            m_reducible_on.insert(e.m_name);
-            m_reducible_off.erase(e.m_name);
-            break;
-        case reducible_status::Irreducible:
-            m_reducible_on.erase(e.m_name);
-            m_reducible_off.insert(e.m_name);
-            break;
-        case reducible_status::Semireducible:
-            m_reducible_on.erase(e.m_name);
-            m_reducible_off.erase(e.m_name);
-            break;
-        }
-    }
-};
+reducible_status reducible_state::get_status(name const & n) const {
+    if (auto it = m_status.find(n))
+        return *it;
+    else
+        return reducible_status::Semireducible;
+}
 
 static name * g_class_name = nullptr;
 static std::string * g_key = nullptr;
@@ -106,46 +95,64 @@ environment set_reducible(environment const & env, name const & n, reducible_sta
     return reducible_ext::add_entry(env, get_dummy_ios(), reducible_entry(s, n), persistent);
 }
 
-bool is_reducible_on(environment const & env, name const & n) {
+reducible_status get_reducible_status(environment const & env, name const & n) {
     reducible_state const & s = reducible_ext::get_state(env);
-    return s.m_reducible_on.contains(n);
+    return s.get_status(n);
 }
 
-bool is_reducible_off(environment const & env, name const & n) {
-    reducible_state const & s = reducible_ext::get_state(env);
-    return s.m_reducible_off.contains(n);
+bool is_at_least_quasireducible(environment const & env, name const & n) {
+    reducible_status r = get_reducible_status(env, n);
+    return r == reducible_status::Reducible || r == reducible_status::Quasireducible;
 }
 
-reducible_on_converter::reducible_on_converter(environment const & env, bool relax_main_opaque, bool memoize):
+unfold_reducible_converter::unfold_reducible_converter(environment const & env, bool relax_main_opaque, bool memoize):
     default_converter(env, relax_main_opaque, memoize) {
-    m_reducible_on = reducible_ext::get_state(env).m_reducible_on;
+    m_state = reducible_ext::get_state(env);
 }
 
-bool reducible_on_converter::is_opaque(declaration const & d) const {
-    if (!m_reducible_on.contains(d.get_name())) return true;
+bool unfold_reducible_converter::is_opaque(declaration const & d) const {
+    auto r = m_state.get_status(d.get_name());
+    if (r != reducible_status::Reducible) return true;
     return default_converter::is_opaque(d);
 }
 
-reducible_off_converter::reducible_off_converter(environment const & env, bool relax_main_opaque, bool memoize):
+unfold_quasireducible_converter::unfold_quasireducible_converter(environment const & env, bool relax_main_opaque, bool memoize):
     default_converter(env, relax_main_opaque, memoize) {
-    m_reducible_off = reducible_ext::get_state(env).m_reducible_off;
+    m_state = reducible_ext::get_state(env);
 }
 
-bool reducible_off_converter::is_opaque(declaration const & d) const {
-    if (m_reducible_off.contains(d.get_name())) return true;
+bool unfold_quasireducible_converter::is_opaque(declaration const & d) const {
+    auto r = m_state.get_status(d.get_name());
+    if (r != reducible_status::Reducible && r != reducible_status::Quasireducible) return true;
+    return default_converter::is_opaque(d);
+}
+
+unfold_semireducible_converter::unfold_semireducible_converter(environment const & env, bool relax_main_opaque, bool memoize):
+    default_converter(env, relax_main_opaque, memoize) {
+    m_state = reducible_ext::get_state(env);
+}
+
+bool unfold_semireducible_converter::is_opaque(declaration const & d) const {
+    auto r = m_state.get_status(d.get_name());
+    if (r == reducible_status::Irreducible) return true;
     return default_converter::is_opaque(d);
 }
 
 std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_generator const & ngen,
                                               bool relax_main_opaque, reducible_behavior rb,
                                               bool memoize) {
-    if (rb == OpaqueIfNotReducibleOn) {
+    switch (rb) {
+    case UnfoldReducible:
         return std::unique_ptr<type_checker>(new type_checker(env, ngen,
-               std::unique_ptr<converter>(new reducible_on_converter(env, relax_main_opaque, memoize))));
-    } else {
+               std::unique_ptr<converter>(new unfold_reducible_converter(env, relax_main_opaque, memoize))));
+    case UnfoldQuasireducible:
         return std::unique_ptr<type_checker>(new type_checker(env, ngen,
-               std::unique_ptr<converter>(new reducible_off_converter(env, relax_main_opaque, memoize))));
+               std::unique_ptr<converter>(new unfold_quasireducible_converter(env, relax_main_opaque, memoize))));
+    case UnfoldSemireducible:
+        return std::unique_ptr<type_checker>(new type_checker(env, ngen,
+               std::unique_ptr<converter>(new unfold_semireducible_converter(env, relax_main_opaque, memoize))));
     }
+    lean_unreachable();
 }
 
 std::unique_ptr<type_checker> mk_type_checker(environment const & env, bool relax_main_opaque, reducible_behavior rb) {
@@ -192,19 +199,11 @@ static int mk_reducible_checker_core(lua_State * L, reducible_behavior rb) {
 }
 
 static int mk_reducible_type_checker(lua_State * L) {
-    return mk_reducible_checker_core(L, OpaqueIfNotReducibleOn);
+    return mk_reducible_checker_core(L, UnfoldReducible);
 }
 
 static int mk_non_irreducible_type_checker(lua_State * L) {
-    return mk_reducible_checker_core(L, OpaqueIfReducibleOff);
-}
-
-static int is_reducible_on(lua_State * L) {
-    return push_boolean(L, is_reducible_on(to_environment(L, 1), to_name_ext(L, 2)));
-}
-
-static int is_reducible_off(lua_State * L) {
-    return push_boolean(L, is_reducible_off(to_environment(L, 1), to_name_ext(L, 2)));
+    return mk_reducible_checker_core(L, UnfoldSemireducible);
 }
 
 static int set_reducible(lua_State * L) {
@@ -221,12 +220,11 @@ static int set_reducible(lua_State * L) {
 
 void open_reducible(lua_State * L) {
     lua_newtable(L);
-    SET_ENUM("On",      reducible_status::Reducible);
-    SET_ENUM("Off",     reducible_status::Irreducible);
-    SET_ENUM("None",    reducible_status::Semireducible);
+    SET_ENUM("Reducible",      reducible_status::Reducible);
+    SET_ENUM("QuasiReducible", reducible_status::Quasireducible);
+    SET_ENUM("SemiReducible",  reducible_status::Semireducible);
+    SET_ENUM("Irreducible",    reducible_status::Irreducible);
     lua_setglobal(L, "reducible_status");
-    SET_GLOBAL_FUN(is_reducible_on,                 "is_reducible_on");
-    SET_GLOBAL_FUN(is_reducible_off,                "is_reducible_off");
     SET_GLOBAL_FUN(set_reducible,                   "set_reducible");
     SET_GLOBAL_FUN(mk_opaque_type_checker,          "opaque_type_checker");
     SET_GLOBAL_FUN(mk_non_irreducible_type_checker, "non_irreducible_type_checker");

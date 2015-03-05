@@ -191,12 +191,12 @@ install:
        sudo pip install dropbox;
     fi
   - if [[ $TESTCOV == ON ]]; then
-       wget http://downloads.sourceforge.net/ltp/lcov-1.10.tar.gz;
-       tar xvfz lcov-1.10.tar.gz;
-       sudo cp -v lcov-1.10/bin/{lcov,genpng,gendesc,genhtml,geninfo} /usr/bin/;
-       sudo chmod 777 /usr/bin/lcov /usr/bin/genhtml /usr/bin/geninfo /usr/bin/genpng /usg/bin/gendesc;
-       rm -rf lcov-1.10.tar.gz lcov-1.10;
-       sudo mv -v `which gcov-4.8` `which gcov`;
+       wget http://downloads.sourceforge.net/ltp/lcov-1.11.tar.gz;
+       tar xvfz lcov-1.11.tar.gz;
+       sudo cp -v lcov-1.11/bin/{lcov,genpng,gendesc,genhtml,geninfo} /usr/bin/;
+       sudo chmod 777 /usr/bin/lcov /usr/bin/genhtml /usr/bin/geninfo /usr/bin/genpng /usr/bin/gendesc;
+       rm -rf lcov-1.11.tar.gz lcov-1.11;
+       sudo cp -v `which gcov-4.8` `which gcov`;
     fi
 
 before_script:

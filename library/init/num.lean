@@ -64,10 +64,6 @@ namespace pos_num
 
   definition le (a b : pos_num) : bool :=
   lt a (succ b)
-
-  definition equal (a b : pos_num) : bool :=
-  le a b && le b a
-
 end pos_num
 
 definition num.is_inhabited [instance] : inhabited num :=

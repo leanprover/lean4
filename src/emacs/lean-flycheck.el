@@ -7,6 +7,13 @@
 (require 'lean-settings)
 (require 'lean-option)
 
+(defun lean-toggle-flycheck-mode ()
+  "Toggle flycheck-mode"
+  (interactive)
+  (cond
+   (flycheck-mode (flycheck-mode -1))
+   (t             (flycheck-mode  1))))
+
 (defun lean-flycheck-command ()
   "Concat lean-flychecker-checker-name with options"
   (let ((command

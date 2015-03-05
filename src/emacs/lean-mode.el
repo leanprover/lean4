@@ -107,20 +107,23 @@
     ["Execute lean"         lean-execute                      t]
     ["Create a new project" (call-interactively 'lean-project-create) (not (lean-project-inside-p))]
     "-----------------"
-    ["Show type info"       lean-show-type lean-eldoc-use]
+    ["Show type info"       lean-show-type                    (and lean-eldoc-use eldoc-mode)]
     ["Fill a placeholder"   lean-fill-placeholder             (looking-at  (rx symbol-start "_"))]
     ["Find tag at point"    lean-find-tag                     t]
     ["Global tag search"    lean-global-search                t]
     "-----------------"
-    ["Run flycheck"         flycheck-compile                  lean-flycheck-use]
-    ["List of errors"       flycheck-list-errors              lean-flycheck-use]
+    ["Run flycheck"         flycheck-compile                  (and lean-flycheck-use flycheck-mode)]
+    ["List of errors"       flycheck-list-errors              (and lean-flycheck-use flycheck-mode)]
     "-----------------"
     ["Clear all cache"      lean-clear-cache                  t]
     ["Kill lean process"    lean-server-kill-process          t]
     ["Restart lean process" lean-server-restart-process       t]
     "-----------------"
     ("Configuration"
-     ["Show type at point" lean-toggle-eldoc-mode :active t :style toggle :selected eldoc-mode])
+     ["Use flycheck (on-the-fly syntax check)"
+      lean-toggle-flycheck-mode :active t :style toggle :selected flycheck-mode]
+     ["Show type at point"
+      lean-toggle-eldoc-mode :active t :style toggle :selected eldoc-mode])
     "-----------------"
     ["Customize lean-mode" (customize-group 'lean)            t]))
 

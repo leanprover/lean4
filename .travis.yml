@@ -89,43 +89,6 @@ env:
      LUA=52
      CONSERVE_MEMORY=ON
    # =======================================================
-   # MEMCHECK Build
-   # =======================================================
-   # M1-1. clang++-3.3 | DEBUG    | MEMCHECK       | CDASH
-   - CMAKE_CXX_COMPILER=clang++-3.3
-     CMAKE_BUILD_TYPE=DEBUG
-     TCMALLOC=OFF
-     MEMCHECK=TRUE
-     MEMCHECK_RANGE=1,40
-     PUSH_TO_CDASH=TRUE
-     LUA=52
-   # M1-2. clang++-3.3 | DEBUG    | MEMCHECK       | CDASH
-   - CMAKE_CXX_COMPILER=clang++-3.3
-     CMAKE_BUILD_TYPE=DEBUG
-     TCMALLOC=OFF
-     MEMCHECK=TRUE
-     MEMCHECK_RANGE=40,80
-     PUSH_TO_CDASH=TRUE
-     LUA=52
-   # M2-1. g++-4.8     | DEBUG    | MEMCHECK       | CDASH
-   - CMAKE_CXX_COMPILER=g++-4.8
-     CMAKE_BUILD_TYPE=DEBUG
-     TCMALLOC=OFF
-     MEMCHECK=TRUE
-     MEMCHECK_RANGE=1,40
-     PUSH_TO_CDASH=TRUE
-     LUA=52
-     CONSERVE_MEMORY=ON
-    # M2-2. g++-4.8     | DEBUG    | MEMCHECK       | CDASH
-   - CMAKE_CXX_COMPILER=g++-4.8
-     CMAKE_BUILD_TYPE=DEBUG
-     TCMALLOC=OFF
-     MEMCHECK=TRUE
-     MEMCHECK_RANGE=40,80
-     PUSH_TO_CDASH=TRUE
-     LUA=52
-     CONSERVE_MEMORY=ON
-   # =======================================================
    # DOXYGEN Build
    # =======================================================
    # DOC. g++-4.8      | DEBUG   | TCMALLOC      | DOXYGEN=>DROPBOX

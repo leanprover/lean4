@@ -281,4 +281,21 @@ theorem nth_zero [h : inhabited T] (a : T) (l : list T) : nth (a :: l) 0 = a
 
 theorem nth_succ [h : inhabited T] (a : T) (l : list T) (n : nat) : nth (a::l) (n+1) = nth l n
 
+open decidable
+theorem decidable_eq {A : Type} [H : decidable_eq A] : ∀ l₁ l₂ : list A, decidable (l₁ = l₂)
+| decidable_eq nil     nil     := inl rfl
+| decidable_eq nil     (b::l₂) := inr (λ H, list.no_confusion H)
+| decidable_eq (a::l₁) nil     := inr (λ H, list.no_confusion H)
+| decidable_eq (a::l₁) (b::l₂) :=
+  match H a b with
+  | inl Hab  :=
+    match decidable_eq l₁ l₂ with
+    | inl He := inl (eq.rec_on Hab (eq.rec_on He rfl))
+    | inr Hn := inr (λ H, list.no_confusion H (λ Hab Ht, absurd Ht Hn))
+    end
+  | inr Hnab := inr (λ H, list.no_confusion H (λ Hab Ht, absurd Hab Hnab))
+  end
 end list
+
+attribute list.decidable_eq [instance]
+attribute list.decidable_mem [instance]

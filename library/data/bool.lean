@@ -29,6 +29,17 @@ namespace bool
             ... = false              : cond.ff)
     true_ne_false
 
+  theorem eq_tt_of_ne_ff : ∀ {a : bool}, a ≠ ff → a = tt
+  | @eq_tt_of_ne_ff tt H := rfl
+  | @eq_tt_of_ne_ff ff H := absurd rfl H
+
+  theorem eq_ff_of_ne_tt : ∀ {a : bool}, a ≠ tt → a = ff
+  | @eq_ff_of_ne_tt tt H := absurd rfl H
+  | @eq_ff_of_ne_tt ff H := rfl
+
+  theorem absurd_of_eq_ff_of_eq_tt {B : Prop} {a : bool} (H₁ : a = ff) (H₂ : a = tt) : B :=
+  absurd (H₁⁻¹ ⬝ H₂) ff_ne_tt
+
   theorem bor.tt_left (a : bool) : bor tt a = tt :=
   rfl
 

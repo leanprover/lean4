@@ -604,58 +604,64 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
             }
         }
         check_eqn_prefix(p);
-        for (expr const & fn : fns)
-            p.add_local(fn);
-        while (true) {
-            expr lhs;
-            unsigned prev_num_undef_ids = p.get_num_undef_ids();
-            buffer<expr> locals;
-            {
-                parser::undef_id_to_local_scope scope2(p);
-                buffer<expr> lhs_args;
-                auto lhs_pos = p.pos();
-                if (p.curr_is_token(get_explicit_tk())) {
-                    p.next();
-                    name fn_name = p.check_id_next("invalid recursive equation, identifier expected");
-                    lhs_args.push_back(p.save_pos(mk_explicit(get_equation_fn(fns, fn_name, lhs_pos)), lhs_pos));
-                } else {
-                    expr first = p.parse_expr(get_max_prec());
-                    expr fn    = first;
-                    if (is_explicit(fn))
-                        fn = get_explicit_arg(fn);
-                    if (is_local(fn) && is_equation_fn(fns, local_pp_name(fn))) {
-                        lhs_args.push_back(first);
-                    } else if (fns.size() == 1) {
-                        lhs_args.push_back(p.save_pos(mk_explicit(fns[0]), lhs_pos));
-                        lhs_args.push_back(first);
+        if (p.curr_is_token(get_none_tk())) {
+            // no equations have been provided
+            p.next();
+            eqns.push_back(Fun(fns, mk_no_equation(), p));
+        } else {
+            for (expr const & fn : fns)
+                p.add_local(fn);
+            while (true) {
+                expr lhs;
+                unsigned prev_num_undef_ids = p.get_num_undef_ids();
+                buffer<expr> locals;
+                {
+                    parser::undef_id_to_local_scope scope2(p);
+                    buffer<expr> lhs_args;
+                    auto lhs_pos = p.pos();
+                    if (p.curr_is_token(get_explicit_tk())) {
+                        p.next();
+                        name fn_name = p.check_id_next("invalid recursive equation, identifier expected");
+                        lhs_args.push_back(p.save_pos(mk_explicit(get_equation_fn(fns, fn_name, lhs_pos)), lhs_pos));
                     } else {
-                        throw parser_error("invalid recursive equation, head symbol in left-hand-side is not a constant",
-                                           lhs_pos);
+                        expr first = p.parse_expr(get_max_prec());
+                        expr fn    = first;
+                        if (is_explicit(fn))
+                            fn = get_explicit_arg(fn);
+                        if (is_local(fn) && is_equation_fn(fns, local_pp_name(fn))) {
+                            lhs_args.push_back(first);
+                        } else if (fns.size() == 1) {
+                            lhs_args.push_back(p.save_pos(mk_explicit(fns[0]), lhs_pos));
+                            lhs_args.push_back(first);
+                        } else {
+                            throw parser_error("invalid recursive equation, head symbol in left-hand-side is not a constant",
+                                               lhs_pos);
+                        }
+                    }
+                    while (!p.curr_is_token(get_assign_tk()))
+                        lhs_args.push_back(p.parse_expr(get_max_prec()));
+                    lhs = p.save_pos(mk_app(lhs_args.size(), lhs_args.data()), lhs_pos);
+
+                    unsigned num_undef_ids = p.get_num_undef_ids();
+                    for (unsigned i = prev_num_undef_ids; i < num_undef_ids; i++) {
+                        locals.push_back(p.get_undef_id(i));
                     }
                 }
-                while (!p.curr_is_token(get_assign_tk()))
-                    lhs_args.push_back(p.parse_expr(get_max_prec()));
-                lhs = p.save_pos(mk_app(lhs_args.size(), lhs_args.data()), lhs_pos);
-
-                unsigned num_undef_ids = p.get_num_undef_ids();
-                for (unsigned i = prev_num_undef_ids; i < num_undef_ids; i++) {
-                    locals.push_back(p.get_undef_id(i));
+                validate_equation_lhs(p, lhs, locals);
+                lhs = merge_equation_lhs_vars(lhs, locals);
+                auto assign_pos = p.pos();
+                p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
+                {
+                    parser::local_scope scope2(p);
+                    for (expr const & local : locals)
+                        p.add_local(local);
+                    expr rhs = p.parse_expr();
+                    eqns.push_back(Fun(fns, Fun(locals, p.save_pos(mk_equation(lhs, rhs), assign_pos), p)));
                 }
+                if (!is_eqn_prefix(p))
+                    break;
+                p.next();
             }
-            validate_equation_lhs(p, lhs, locals);
-            lhs = merge_equation_lhs_vars(lhs, locals);
-            auto assign_pos = p.pos();
-            p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
-            {
-                parser::local_scope scope2(p);
-                for (expr const & local : locals)
-                    p.add_local(local);
-                expr rhs = p.parse_expr();
-                eqns.push_back(Fun(fns, Fun(locals, p.save_pos(mk_equation(lhs, rhs), assign_pos), p)));
-            }
-            if (!is_eqn_prefix(p))
-                break;
-            p.next();
         }
     }
     if (p.curr_is_token(get_wf_tk())) {

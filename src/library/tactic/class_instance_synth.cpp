@@ -316,7 +316,7 @@ constraint mk_class_instance_cnstr(std::shared_ptr<class_instance_context> const
     };
     bool owner      = false;
     bool relax      = C->m_relax;
-    return mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::ClassInstance),
+    return mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::Basic),
                            owner, j, relax);
 }
 

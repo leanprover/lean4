@@ -22,6 +22,7 @@ structure is_equiv [class] {A B : Type} (f : A → B) :=
   (sect : (inv ∘ f) ∼ id)
   (adj : Πx, retr (f x) = ap f (sect x))
 
+attribute is_equiv.inv [quasireducible]
 
 -- A more bundled version of equivalence
 structure equiv (A B : Type) :=

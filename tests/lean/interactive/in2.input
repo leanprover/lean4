@@ -6,5 +6,7 @@ EVAL
 check Type.{1}
 VISIT simple.lean
 WAIT
+SET
+pp.universes false
 EVAL
 check tst.foo

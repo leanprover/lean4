@@ -8,6 +8,8 @@ Type₁ : Type₂
 -- ENDEVAL
 -- BEGINWAIT
 -- ENDWAIT
+-- BEGINSET
+-- ENDSET
 -- BEGINEVAL
-tst.foo.{l_1 l_2} : ?A → ?B → ?A
+tst.foo : ?A → ?B → ?A
 -- ENDEVAL

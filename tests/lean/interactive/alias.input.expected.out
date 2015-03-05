@@ -10,7 +10,10 @@ bool.band.eq_tt_elim_left|eq (bool.band ?a ?b) bool.tt → eq ?a bool.tt
 bool.band.tt_right|∀ (a : bool), eq (bool.band a bool.tt) a
 bool.bor.tt_right|∀ (a : bool), eq (bool.bor a bool.tt) bool.tt
 bool.bor.tt_left|∀ (a : bool), eq (bool.bor bool.tt a) bool.tt
+bool.absurd_of_eq_ff_of_eq_tt|eq ?a bool.ff → eq ?a bool.tt → ?B
+bool.eq_tt_of_ne_ff|ne ?a bool.ff → eq ?a bool.tt
 bool.ff_ne_tt|not (eq bool.ff bool.tt)
+bool.eq_ff_of_ne_tt|ne ?a bool.tt → eq ?a bool.ff
 bool.cond.tt|∀ (t e : ?A), eq (bool.cond bool.tt t e) t
 -- ENDFINDP
 -- BEGINWAIT
@@ -23,6 +26,9 @@ band.eq_tt_elim_left|eq (band ?a ?b) tt → eq ?a tt
 band.tt_right|∀ (a : bool), eq (band a tt) a
 bor.tt_right|∀ (a : bool), eq (bor a tt) tt
 bor.tt_left|∀ (a : bool), eq (bor tt a) tt
+absurd_of_eq_ff_of_eq_tt|eq ?a ff → eq ?a tt → ?B
+eq_tt_of_ne_ff|ne ?a ff → eq ?a tt
 ff_ne_tt|not (eq ff tt)
+eq_ff_of_ne_tt|ne ?a tt → eq ?a ff
 cond.tt|∀ (t e : ?A), eq (cond tt t e) t
 -- ENDFINDP

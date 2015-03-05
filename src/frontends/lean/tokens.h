@@ -70,8 +70,6 @@ name const & get_exposing_tk();
 name const & get_renaming_tk();
 name const & get_extends_tk();
 name const & get_as_tk();
-name const & get_on_tk();
-name const & get_off_tk();
 name const & get_none_tk();
 name const & get_whnf_tk();
 name const & get_wf_tk();

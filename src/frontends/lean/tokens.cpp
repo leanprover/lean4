@@ -68,8 +68,6 @@ static name * g_exposing     = nullptr;
 static name * g_renaming     = nullptr;
 static name * g_extends      = nullptr;
 static name * g_as           = nullptr;
-static name * g_on           = nullptr;
-static name * g_off          = nullptr;
 static name * g_none         = nullptr;
 static name * g_whnf         = nullptr;
 static name * g_wf           = nullptr;
@@ -190,8 +188,6 @@ void initialize_tokens() {
     g_renaming     = new name("renaming");
     g_extends      = new name("extends");
     g_as           = new name("as");
-    g_on           = new name("[on]");
-    g_off          = new name("[off]");
     g_none         = new name("[none]");
     g_whnf         = new name("[whnf]");
     g_wf           = new name("[wf]");
@@ -320,8 +316,6 @@ void finalize_tokens() {
     delete g_renaming;
     delete g_extends;
     delete g_as;
-    delete g_on;
-    delete g_off;
     delete g_none;
     delete g_whnf;
     delete g_wf;
@@ -436,8 +430,6 @@ name const & get_exposing_tk() { return *g_exposing; }
 name const & get_renaming_tk() { return *g_renaming; }
 name const & get_extends_tk() { return *g_extends; }
 name const & get_as_tk() { return *g_as; }
-name const & get_on_tk() { return *g_on; }
-name const & get_off_tk() { return *g_off; }
 name const & get_none_tk() { return *g_none; }
 name const & get_whnf_tk() { return *g_whnf; }
 name const & get_wf_tk() { return *g_wf; }

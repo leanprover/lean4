@@ -1,7 +1,7 @@
-The Lean Library
-================
+The Lean Standard Library
+=========================
 
-The Lean library is contained in the following modules and directories:
+The Lean standard library is contained in the following modules and directories:
 
 * [init](init/init.md) : constants and theorems needed for low-level system operations
 * [logic](logic/logic.md) : logical constructs and axioms
@@ -29,5 +29,5 @@ lists, and so on.
 The `classical` library imports the law of the excluded middle, choice functions,
 and propositional extensionality. See `logic/axioms` for details.
 
-See also the `hott` library, a library for homotopy type theory based on a predicative 
-foundation.
+See also the [hott library](../hott/hott.md), a library for homotopy
+type theory based on a predicative foundation.

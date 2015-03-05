@@ -1,5 +1,5 @@
-category
-=======
+algebra.category
+================
 
 Algebraic structures.
 

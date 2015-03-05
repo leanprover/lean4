@@ -11,5 +11,6 @@ Algebraic structures.
 * [ring](ring.lean)
 * [ordered_group](ordered_group.lean)
 * [ordered_ring](ordered_ring.lean)
+* [field](field.lean)
 * [category](category/category.md) : category theory
 

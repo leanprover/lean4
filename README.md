@@ -24,6 +24,7 @@ About
 - Theorem Proving in Lean: [HTML](https://leanprover.github.io/tutorial/index.html), [PDF](http://leanprover.github.io/tutorial/tutorial.pdf)
 - [Authors](doc/authors.md)
 - [Standard Library](library/library.md)
+- [HoTT Library](hott/hott.md)
 - [Short Tutorial](doc/lean/tutorial.org)
 - [To Do list](doc/todo.md)
 

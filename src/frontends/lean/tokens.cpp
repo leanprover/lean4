@@ -40,6 +40,7 @@ static name * g_slash        = nullptr;
 static name * g_star         = nullptr;
 static name * g_plus         = nullptr;
 static name * g_turnstile    = nullptr;
+static name * g_explicit     = nullptr;
 static name * g_max          = nullptr;
 static name * g_imax         = nullptr;
 static name * g_cup          = nullptr;
@@ -161,6 +162,7 @@ void initialize_tokens() {
     g_plus         = new name("+");
     g_star         = new name("*");
     g_turnstile    = new name("⊢");
+    g_explicit     = new name("@");
     g_max          = new name("max");
     g_imax         = new name("imax");
     g_cup          = new name("\u2294");
@@ -346,6 +348,7 @@ void finalize_tokens() {
     delete g_plus;
     delete g_star;
     delete g_turnstile;
+    delete g_explicit;
     delete g_comma;
     delete g_bar;
     delete g_langle;
@@ -405,6 +408,7 @@ name const & get_slash_tk() { return *g_slash; }
 name const & get_star_tk() { return *g_star; }
 name const & get_plus_tk() { return *g_plus; }
 name const & get_turnstile_tk() { return *g_turnstile; }
+name const & get_explicit_tk() { return *g_explicit; }
 name const & get_max_tk() { return *g_max; }
 name const & get_imax_tk() { return *g_imax; }
 name const & get_cup_tk() { return *g_cup; }

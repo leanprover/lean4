@@ -550,7 +550,7 @@ static expr merge_equation_lhs_vars(expr const & lhs, buffer<expr> & locals) {
         });
 }
 
-static void throw_invalid_equation_lhs(name const & n, pos_info const & p) {
+[[ noreturn ]] static void throw_invalid_equation_lhs(name const & n, pos_info const & p) {
     throw parser_error(sstream() << "invalid recursive equation, head symbol '"
                        << n << "' in the left-hand-side does not correspond to function(s) being defined", p);
 }
@@ -563,6 +563,21 @@ static void check_eqn_prefix(parser & p) {
     if (!is_eqn_prefix(p))
         throw parser_error("invalid declaration, ',' or '|' expected", p.pos());
     p.next();
+}
+
+static optional<expr> is_equation_fn(buffer<expr> const & fns, name const & fn_name) {
+    for (expr const & fn : fns) {
+        if (local_pp_name(fn) == fn_name)
+            return some_expr(fn);
+    }
+    return none_expr();
+}
+
+
+static expr get_equation_fn(buffer<expr> const & fns, name const & fn_name, pos_info const & lhs_pos) {
+    if (auto it = is_equation_fn(fns, fn_name))
+        return *it;
+    throw_invalid_equation_lhs(fn_name, lhs_pos);
 }
 
 expr parse_equations(parser & p, name const & n, expr const & type, buffer<name> & auxs,
@@ -597,17 +612,31 @@ expr parse_equations(parser & p, name const & n, expr const & type, buffer<name>
             buffer<expr> locals;
             {
                 parser::undef_id_to_local_scope scope2(p);
+                buffer<expr> lhs_args;
                 auto lhs_pos = p.pos();
-                lhs = p.parse_expr();
-                expr lhs_fn = get_app_fn(lhs);
-                if (is_explicit(lhs_fn))
-                    lhs_fn = get_explicit_arg(lhs_fn);
-                if (is_constant(lhs_fn))
-                    throw_invalid_equation_lhs(const_name(lhs_fn), lhs_pos);
-                if (is_local(lhs_fn) && std::all_of(fns.begin(), fns.end(), [&](expr const & fn) { return fn != lhs_fn; }))
-                    throw_invalid_equation_lhs(local_pp_name(lhs_fn), lhs_pos);
-                if (!is_local(lhs_fn))
-                    throw parser_error("invalid recursive equation, head symbol in left-hand-side is not a constant", lhs_pos);
+                if (p.curr_is_token(get_explicit_tk())) {
+                    p.next();
+                    name fn_name = p.check_id_next("invalid recursive equation, identifier expected");
+                    lhs_args.push_back(p.save_pos(mk_explicit(get_equation_fn(fns, fn_name, lhs_pos)), lhs_pos));
+                } else {
+                    expr first = p.parse_expr(get_max_prec());
+                    expr fn    = first;
+                    if (is_explicit(fn))
+                        fn = get_explicit_arg(fn);
+                    if (is_local(fn) && is_equation_fn(fns, local_pp_name(fn))) {
+                        lhs_args.push_back(first);
+                    } else if (fns.size() == 1) {
+                        lhs_args.push_back(p.save_pos(mk_explicit(fns[0]), lhs_pos));
+                        lhs_args.push_back(first);
+                    } else {
+                        throw parser_error("invalid recursive equation, head symbol in left-hand-side is not a constant",
+                                           lhs_pos);
+                    }
+                }
+                while (!p.curr_is_token(get_assign_tk()))
+                    lhs_args.push_back(p.parse_expr(get_max_prec()));
+                lhs = p.save_pos(mk_app(lhs_args.size(), lhs_args.data()), lhs_pos);
+
                 unsigned num_undef_ids = p.get_num_undef_ids();
                 for (unsigned i = prev_num_undef_ids; i < num_undef_ids; i++) {
                     locals.push_back(p.get_undef_id(i));

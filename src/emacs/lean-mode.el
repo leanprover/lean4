@@ -107,7 +107,7 @@
     ["Execute lean"         lean-execute                      t]
     ["Create a new project" (call-interactively 'lean-project-create) (not (lean-project-inside-p))]
     "-----------------"
-    ["Show type info"       lean-eldoc-documentation-function lean-eldoc-use]
+    ["Show type info"       lean-show-type lean-eldoc-use]
     ["Fill a placeholder"   lean-fill-placeholder             (looking-at  (rx symbol-start "_"))]
     ["Find tag at point"    lean-find-tag                     t]
     ["Global tag search"    lean-global-search                t]
@@ -118,6 +118,9 @@
     ["Clear all cache"      lean-clear-cache                  t]
     ["Kill lean process"    lean-server-kill-process          t]
     ["Restart lean process" lean-server-restart-process       t]
+    "-----------------"
+    ("Configuration"
+     ["Show type at point" lean-toggle-eldoc-mode :active t :style toggle :selected eldoc-mode])
     "-----------------"
     ["Customize lean-mode" (customize-group 'lean)            t]))
 

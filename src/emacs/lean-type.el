@@ -16,6 +16,13 @@
 (require 'lean-debug)
 (require 'flymake)
 
+(defun lean-toggle-eldoc-mode ()
+  "Toggle eldoc-mode"
+  (interactive)
+  (cond
+   (eldoc-mode (eldoc-mode -1))
+   (t          (eldoc-mode  1))))
+
 (defun lean-fill-placeholder-cont (info-record)
   "Continuation for lean-fill-placeholder"
   (let ((synth (and info-record (cl-first (lean-info-record-synth info-record)))))

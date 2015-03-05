@@ -43,10 +43,8 @@ theorem append_nil_right : ∀ (t : list T), t ++ nil = t
 theorem append.assoc : ∀ (s t u : list T), s ++ t ++ u = s ++ (t ++ u)
 | append.assoc nil t u      := rfl
 | append.assoc (a :: l) t u :=
-  begin
-    change a :: (l ++ t ++ u) = (a :: l) ++ (t ++ u),
-    rewrite append.assoc
-  end
+  show a :: (l ++ t ++ u) = (a :: l) ++ (t ++ u),
+  by rewrite (append.assoc l t u)
 
 /- length -/
 
@@ -83,10 +81,8 @@ theorem concat_cons (x y : T) (l : list T) : concat x (y::l)  = y::(concat x l)
 theorem concat_eq_append (a : T) : ∀ (l : list T), concat a l = l ++ [a]
 | concat_eq_append nil      := rfl
 | concat_eq_append (b :: l) :=
-  begin
-    change b :: (concat a l) = (b :: l) ++ (a :: nil),
-    rewrite concat_eq_append
-  end
+  show b :: (concat a l) = (b :: l) ++ (a :: nil),
+  by rewrite concat_eq_append
 
 -- add_rewrite append_nil append_cons
 
@@ -140,10 +136,8 @@ theorem head_cons [h : inhabited T] (a : T) (l : list T) : head (a::l) = a
 theorem head_concat [h : inhabited T] (t : list T) : ∀ {s : list T}, s ≠ nil → head (s ++ t) = head s
 | @head_concat nil      H := absurd rfl H
 | @head_concat (a :: s) H :=
-  begin
-    change head (a :: (s ++ t)) = head (a :: s),
-    rewrite head_cons
-  end
+  show head (a :: (s ++ t)) = head (a :: s),
+  by  rewrite head_cons
 
 definition tail : list T → list T
 | tail nil      := nil
@@ -309,17 +303,14 @@ theorem map_cons (f : A → B) (a : A) (l : list A) : map f (a :: l) = f a :: ma
 theorem map_map (g : B → C) (f : A → B) : ∀ l : list A, map g (map f l) = map (g ∘ f) l
 | map_map nil      := rfl
 | map_map (a :: l) :=
-  begin
-    rewrite [▸ (g ∘ f) a :: map g (map f l) = _, map_map l]
-  end
+  show (g ∘ f) a :: map g (map f l) = map (g ∘ f) (a :: l),
+  by rewrite (map_map l)
 
 theorem len_map (f : A → B) : ∀ l : list A, length (map f l) = length l
 | len_map nil      := rfl
 | len_map (a :: l) :=
-  begin
-    rewrite ▸ length (map f l) + 1 = length l + 1,
-    rewrite (len_map l)
-  end
+  show length (map f l) + 1 = length l + 1,
+  by rewrite (len_map l)
 
 definition foldl (f : A → B → A) : A → list B → A
 | foldl a nil      := a
@@ -375,7 +366,8 @@ definition unzip : list (A × B) → list A × list B
 
 theorem unzip_nil : unzip (@nil (A × B)) = (nil, nil)
 
-theorem unzip_cons (a : A) (b : B) (l : list (A × B)) : unzip ((a, b) :: l) = match unzip l with (la, lb) := (a :: la, b :: lb) end
+theorem unzip_cons (a : A) (b : B) (l : list (A × B)) :
+   unzip ((a, b) :: l) = match unzip l with (la, lb) := (a :: la, b :: lb) end
 
 theorem zip_unzip : ∀ (l : list (A × B)), zip (pr₁ (unzip l)) (pr₂ (unzip l)) = l
 | zip_unzip nil           := rfl
@@ -393,7 +385,7 @@ end combinators
 
 end list
 
-attribute list.decidable_eq [instance]
+attribute list.decidable_eq  [instance]
 attribute list.decidable_mem [instance]
 attribute list.decidable_any [instance]
 attribute list.decidable_all [instance]

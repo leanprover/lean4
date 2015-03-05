@@ -74,7 +74,7 @@ nat.case_strong_induction_on m
     show f' (succ m) x = restrict default measure f (succ m) x, from
       by_cases -- (measure x < succ m)
         (assume H1 : measure x < succ m,
-          have H2a : ∀z, measure z < measure x → f' m z = f z,
+          assert H2a : ∀z, measure z < measure x → f' m z = f z,
           proof
             take z,
               assume Hzx : measure z < measure x,
@@ -90,7 +90,7 @@ nat.case_strong_induction_on m
                 ... = rec_val x f : rec_decreasing (f' m) f x H2a
           ∎,
           let m' := measure x in
-          have H3a : ∀z, measure z < m' → f' m' z = f z,
+          assert H3a : ∀z, measure z < m' → f' m' z = f z,
           proof
             take z,
               assume Hzx : measure z < measure x,

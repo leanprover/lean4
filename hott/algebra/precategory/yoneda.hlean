@@ -20,18 +20,18 @@ namespace yoneda
     (f1 : hom a5 a6) (f2 : hom a4 a5) (f3 : hom a3 a4) (f4 : hom a2 a3) (f5 : hom a1 a2)
       : (f1 ∘ f2) ∘ f3 ∘ (f4 ∘ f5) = f1 ∘ (f2 ∘ f3 ∘ f4) ∘ f5 :=
   calc
-        _ = f1 ∘ f2 ∘ f3 ∘ f4 ∘ f5 : assoc
-      ... = f1 ∘ (f2 ∘ f3) ∘ f4 ∘ f5 : assoc
-      ... = f1 ∘ ((f2 ∘ f3) ∘ f4) ∘ f5 : assoc
-      ... = _ : assoc
+        _ = f1 ∘ f2 ∘ f3 ∘ f4 ∘ f5     : by rewrite -assoc
+      ... = f1 ∘ (f2 ∘ f3) ∘ f4 ∘ f5   : by rewrite -assoc
+      ... = f1 ∘ ((f2 ∘ f3) ∘ f4) ∘ f5 : by rewrite -(assoc (f2 ∘ f3) _ _)
+      ... = _                          : by rewrite (assoc f2 f3 f4)
 
   --disturbing behaviour: giving the type of f "(x ⟶ y)" explicitly makes the unifier loop
   definition hom_functor (C : Precategory) : Cᵒᵖ ×c C ⇒ set :=
   functor.mk (λ(x : Cᵒᵖ ×c C), homset x.1 x.2)
              (λ(x y : Cᵒᵖ ×c C) (f : _) (h : homset x.1 x.2), f.2 ∘⁅ C ⁆ (h ∘⁅ C ⁆ f.1))
-             proof
-               (λ(x : Cᵒᵖ ×c C), eq_of_homotopy (λ(h : homset x.1 x.2), !id_left ⬝ !id_right))
-             qed
+             begin
+               intro x, apply eq_of_homotopy, intro h, exact (!id_left ⬝ !id_right)
+             end
              begin
                intros (x, y, z, g, f), apply eq_of_homotopy, intro h,
                exact (representable_functor_assoc g.2 f.2 h f.1 g.1),
@@ -48,22 +48,23 @@ namespace functor
   functor.mk (λd, F (c,d))
              (λd d' g, F (id, g))
              (λd, !respect_id)
-             (λd₁ d₂ d₃ g' g, proof calc
+             (λd₁ d₂ d₃ g' g, calc
                F (id, g' ∘ g) = F (id ∘ id, g' ∘ g) : {(id_comp c)⁻¹}
                  ... = F ((id,g') ∘ (id, g)) : idp
-                 ... = F (id,g') ∘ F (id, g) : respect_comp F qed)
+                 ... = F (id,g') ∘ F (id, g) : by rewrite (respect_comp F))
+
   local abbreviation Fob := @functor_curry_ob
 
   definition functor_curry_hom ⦃c c' : C⦄ (f : c ⟶ c') : Fob F c ⟹ Fob F c' :=
   nat_trans.mk (λd, F (f, id))
-               (λd d' g, proof calc
+               (λd d' g, calc
                  F (id, g) ∘ F (f, id) = F (id ∘ f, g ∘ id) : respect_comp F
-                   ... = F (f, g ∘ id) : {id_left f}
-                   ... = F (f, g) : {id_right g}
-                   ... = F (f ∘ id, g) : {(id_right f)⁻¹}
-                   ... = F (f ∘ id, id ∘ g) : {(id_left g)⁻¹}
-                   ... = F (f, id) ∘ F (id, g) :  (respect_comp F (f, id) (id, g))⁻¹ᵖ
-            qed)
+                   ... = F (f, g ∘ id)      : by rewrite id_left
+                   ... = F (f, g)           : by rewrite id_right
+                   ... = F (f ∘ id, g)      : by rewrite id_right
+                   ... = F (f ∘ id, id ∘ g) : by rewrite id_left
+                   ... = F (f, id) ∘ F (id, g) :  (respect_comp F (f, id) (id, g))⁻¹ᵖ)
+
   local abbreviation Fhom := @functor_curry_hom
 
   definition functor_curry_hom_def ⦃c c' : C⦄ (f : c ⟶ c') (d : D) :

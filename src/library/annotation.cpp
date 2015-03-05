@@ -125,14 +125,11 @@ expr copy_annotations(expr const & from, expr const & to) {
 
 static name * g_have = nullptr;
 static name * g_show = nullptr;
-static name * g_proof_qed = nullptr;
 
 expr mk_have_annotation(expr const & e) { return mk_annotation(*g_have, e); }
 expr mk_show_annotation(expr const & e) { return mk_annotation(*g_show, e); }
-expr mk_proof_qed_annotation(expr const & e) { return mk_annotation(*g_proof_qed, e); }
 bool is_have_annotation(expr const & e) { return is_annotation(e, *g_have); }
 bool is_show_annotation(expr const & e) { return is_annotation(e, *g_show); }
-bool is_proof_qed_annotation(expr const & e) { return is_annotation(e, *g_proof_qed); }
 
 void initialize_annotation() {
     g_annotation = new name("annotation");
@@ -140,11 +137,9 @@ void initialize_annotation() {
     g_annotation_macros = new annotation_macros();
     g_have = new name("have");
     g_show = new name("show");
-    g_proof_qed = new name("proof-qed");
 
     register_annotation(*g_have);
     register_annotation(*g_show);
-    register_annotation(*g_proof_qed);
 
     register_macro_deserializer(get_annotation_opcode(),
                                 [](deserializer & d, unsigned num, expr const * args) {
@@ -157,7 +152,6 @@ void initialize_annotation() {
 }
 
 void finalize_annotation() {
-    delete g_proof_qed;
     delete g_show;
     delete g_have;
     delete g_annotation_macros;

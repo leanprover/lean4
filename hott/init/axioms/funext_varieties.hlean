@@ -97,9 +97,9 @@ theorem funext_of_weak_funext (wf : weak_funext.{l k}) : funext.{l k} :=
   λ A B f g,
     let eq_to_f := (λ g' x, f = g') in
     let sim2path := homotopy_ind f eq_to_f idp in
-    have t1 : sim2path f (homotopy.refl f) = idp,
+    assert t1 : sim2path f (homotopy.refl f) = idp,
       proof homotopy_ind_comp f eq_to_f idp qed,
-    have t2 : apD10 (sim2path f (homotopy.refl f)) = (homotopy.refl f),
+    assert t2 : apD10 (sim2path f (homotopy.refl f)) = (homotopy.refl f),
       proof ap apD10 t1 qed,
     have sect : apD10 ∘ (sim2path g) ∼ id,
       proof (homotopy_ind f (λ g' x, apD10 (sim2path g' x) = x) t2) g qed,

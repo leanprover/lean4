@@ -57,14 +57,10 @@ expr copy_annotations(expr const & from, expr const & to);
 expr mk_have_annotation(expr const & e);
 /** \brief Tag \c e as a 'show'-expression. 'show' is a pre-registered annotation. */
 expr mk_show_annotation(expr const & e);
-/** \brief Tag \c e as a 'proof-qed'-expression. 'proof-qed' is a pre-registered annotation. */
-expr mk_proof_qed_annotation(expr const & e);
 /** \brief Return true iff \c e was created using #mk_have_annotation. */
 bool is_have_annotation(expr const & e);
 /** \brief Return true iff \c e was created using #mk_show_annotation. */
 bool is_show_annotation(expr const & e);
-/** \brief Return true iff \c e was created using #mk_proof_qed_annotation. */
-bool is_proof_qed_annotation(expr const & e);
 
 /** \brief Return the serialization 'opcode' for annotation macros. */
 std::string const & get_annotation_opcode();

@@ -46,7 +46,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/elaborator.h"
-#include "frontends/lean/proof_qed_elaborator.h"
 #include "frontends/lean/calc_proof_elaborator.h"
 #include "frontends/lean/info_tactic.h"
 #include "frontends/lean/begin_end_ext.h"
@@ -287,8 +286,6 @@ expr elaborator::visit_expecting_type_of(expr const & e, expr const & t, constra
         return visit_by(e, some_expr(t), cs);
     } else if (is_calc_annotation(e)) {
         return visit_calc_proof(e, some_expr(t), cs);
-    } else if (is_proof_qed_annotation(e)) {
-        return visit_proof_qed(e, some_expr(t), cs);
     } else {
         return visit(e, cs);
     }
@@ -332,20 +329,6 @@ expr elaborator::visit_calc_proof(expr const & e, optional<expr> const & t, cons
     constraint c                   = mk_calc_proof_cnstr(env(), ios().get_options(),
                                                          m_context, m, ecs.first, ecs.second, m_unifier_config,
                                                          im, m_relax_main_opaque, fn);
-    cs += c;
-    return m;
-}
-
-expr elaborator::visit_proof_qed(expr const & e, optional<expr> const & t, constraint_seq & cs) {
-    lean_assert(is_proof_qed_annotation(e));
-    info_manager * im = nullptr;
-    if (infom())
-        im = &m_pre_info_data;
-    pair<expr, constraint_seq> ecs = visit(get_annotation_arg(e));
-    expr m                         = m_full_context.mk_meta(m_ngen, t, e.get_tag());
-    register_meta(m);
-    constraint c                   = mk_proof_qed_cnstr(env(), m, ecs.first, ecs.second, m_unifier_config,
-                                                        im, m_relax_main_opaque);
     cs += c;
     return m;
 }
@@ -1329,8 +1312,6 @@ expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
         return visit_by(e, none_expr(), cs);
     } else if (is_calc_annotation(e)) {
         return visit_calc_proof(e, none_expr(), cs);
-    } else if (is_proof_qed_annotation(e)) {
-        return visit_proof_qed(e, none_expr(), cs);
     } else if (is_no_info(e)) {
         flet<bool> let(m_no_info, true);
         return visit(get_annotation_arg(e), cs);

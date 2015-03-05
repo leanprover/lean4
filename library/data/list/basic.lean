@@ -7,10 +7,9 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura
 
 Basic properties of lists.
 -/
-
 import logic tools.helper_tactics data.nat.basic
 
-open eq.ops helper_tactics nat
+open eq.ops helper_tactics nat prod function
 
 inductive list (T : Type) : Type :=
 | nil {} : list T
@@ -282,7 +281,7 @@ theorem nth_zero [h : inhabited T] (a : T) (l : list T) : nth (a :: l) 0 = a
 theorem nth_succ [h : inhabited T] (a : T) (l : list T) (n : nat) : nth (a::l) (n+1) = nth l n
 
 open decidable
-theorem decidable_eq {A : Type} [H : decidable_eq A] : ∀ l₁ l₂ : list A, decidable (l₁ = l₂)
+definition decidable_eq {A : Type} [H : decidable_eq A] : ∀ l₁ l₂ : list A, decidable (l₁ = l₂)
 | decidable_eq nil     nil     := inl rfl
 | decidable_eq nil     (b::l₂) := inr (λ H, list.no_confusion H)
 | decidable_eq (a::l₁) nil     := inr (λ H, list.no_confusion H)
@@ -295,7 +294,106 @@ theorem decidable_eq {A : Type} [H : decidable_eq A] : ∀ l₁ l₂ : list A, d
     end
   | inr Hnab := inr (λ H, list.no_confusion H (λ Hab Ht, absurd Hab Hnab))
   end
+
+section combinators
+variables {A B C : Type}
+
+definition map (f : A → B) : list A → list B
+| map nil      := nil
+| map (a :: l) := f a :: map l
+
+theorem map_nil (f : A → B) : map f nil = nil
+
+theorem map_cons (f : A → B) (a : A) (l : list A) : map f (a :: l) = f a :: map f l
+
+theorem map_map (g : B → C) (f : A → B) : ∀ l : list A, map g (map f l) = map (g ∘ f) l
+| map_map nil      := rfl
+| map_map (a :: l) :=
+  begin
+    rewrite [▸ (g ∘ f) a :: map g (map f l) = _, map_map l]
+  end
+
+theorem len_map (f : A → B) : ∀ l : list A, length (map f l) = length l
+| len_map nil      := rfl
+| len_map (a :: l) :=
+  begin
+    rewrite ▸ length (map f l) + 1 = length l + 1,
+    rewrite (len_map l)
+  end
+
+definition foldl (f : A → B → A) : A → list B → A
+| foldl a nil      := a
+| foldl a (b :: l) := foldl (f a b) l
+
+definition foldr (f : A → B → B) : B → list A → B
+| foldr b nil      := b
+| foldr b (a :: l) := f a (foldr b l)
+
+definition all (p : A → Prop) : list A → Prop
+| all nil      := true
+| all (a :: l) := p a ∧ all l
+
+definition any (p : A → Prop) : list A → Prop
+| any nil      := false
+| any (a :: l) := p a ∨ any l
+
+definition decidable_all (p : A → Prop) [H : decidable_pred p] : ∀ l, decidable (all p l)
+| decidable_all nil      := decidable_true
+| decidable_all (a :: l) :=
+  match H a with
+  | inl Hp₁ :=
+    match decidable_all l with
+    | inl Hp₂ := inl (and.intro Hp₁ Hp₂)
+    | inr Hn₂ := inr (not_and_of_not_right (p a) Hn₂)
+    end
+  | inr Hn := inr (not_and_of_not_left (all p l) Hn)
+  end
+
+definition decidable_any (p : A → Prop) [H : decidable_pred p] : ∀ l, decidable (any p l)
+| decidable_any nil      := decidable_false
+| decidable_any (a :: l) :=
+  match H a with
+  | inl Hp := inl (or.inl Hp)
+  | inr Hn₁ :=
+    match decidable_any l with
+    | inl Hp₂ := inl (or.inr Hp₂)
+    | inr Hn₂ := inr (not_or Hn₁ Hn₂)
+    end
+  end
+
+definition zip : list A → list B → list (A × B)
+| zip nil       _         := nil
+| zip _         nil       := nil
+| zip (a :: la) (b :: lb) := (a, b) :: zip la lb
+
+definition unzip : list (A × B) → list A × list B
+| unzip nil           := (nil, nil)
+| unzip ((a, b) :: l) :=
+  match unzip l with
+  | (la, lb) := (a :: la, b :: lb)
+  end
+
+theorem unzip_nil : unzip (@nil (A × B)) = (nil, nil)
+
+theorem unzip_cons (a : A) (b : B) (l : list (A × B)) : unzip ((a, b) :: l) = match unzip l with (la, lb) := (a :: la, b :: lb) end
+
+theorem zip_unzip : ∀ (l : list (A × B)), zip (pr₁ (unzip l)) (pr₂ (unzip l)) = l
+| zip_unzip nil           := rfl
+| zip_unzip ((a, b) :: l) :=
+  begin
+    rewrite unzip_cons,
+    have r : zip (pr₁ (unzip l)) (pr₂ (unzip l)) = l, from zip_unzip l,
+    revert r,
+    apply (prod.cases_on (unzip l)),
+    intros (la, lb, r),
+    rewrite -r
+  end
+
+end combinators
+
 end list
 
 attribute list.decidable_eq [instance]
 attribute list.decidable_mem [instance]
+attribute list.decidable_any [instance]
+attribute list.decidable_all [instance]

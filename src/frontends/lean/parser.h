@@ -165,7 +165,6 @@ class parser {
     tag get_tag(expr e);
     expr copy_with_new_pos(expr const & e, pos_info p);
 
-    cmd_table const & cmds() const { return get_cmd_table(env()); }
     parse_table const & nud() const { return get_nud_table(env()); }
     parse_table const & led() const { return get_led_table(env()); }
 
@@ -230,6 +229,8 @@ public:
            snapshot const * s = nullptr, snapshot_vector * sv = nullptr,
            info_manager * im = nullptr, keep_theorem_mode tmode = keep_theorem_mode::All);
     ~parser();
+
+    cmd_table const & cmds() const { return get_cmd_table(env()); }
 
     void set_cache(definition_cache * c) { m_cache = c; }
     void cache_definition(name const & n, expr const & pre_type, expr const & pre_value,

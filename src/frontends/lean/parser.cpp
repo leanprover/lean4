@@ -213,7 +213,7 @@ expr parser::mk_by(expr const & t, pos_info const & pos) {
 }
 
 void parser::updt_options() {
-    m_verbose = get_verbose(m_ios.get_options());
+    m_verbose     = get_verbose(m_ios.get_options());
     m_show_errors = get_parser_show_errors(m_ios.get_options());
 }
 

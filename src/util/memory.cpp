@@ -8,6 +8,15 @@ Author: Leonardo de Moura
 #include <cstdlib>
 #include <iostream>
 #include "util/exception.h"
+#include "util/memory.h"
+
+namespace lean {
+void set_max_memory_megabyte(unsigned max) {
+    size_t m = max;
+    m *= 1024 * 1024;
+    set_max_memory(m);
+}
+}
 
 #if !defined(LEAN_TRACK_MEMORY)
 namespace lean {

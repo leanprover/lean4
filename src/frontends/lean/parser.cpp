@@ -215,6 +215,17 @@ expr parser::mk_by(expr const & t, pos_info const & pos) {
 void parser::updt_options() {
     m_verbose     = get_verbose(m_ios.get_options());
     m_show_errors = get_parser_show_errors(m_ios.get_options());
+    try {
+        set_max_memory_megabyte(get_max_memory(m_ios.get_options()));
+    } catch (exception&) {
+        if (m_ios.get_options().contains(get_max_memory_opt_name())) {
+            static bool m_already_reported = false;
+            if (!m_already_reported) {
+                m_already_reported = true;
+                throw;
+            }
+        }
+    }
 }
 
 void parser::display_warning_pos(unsigned line, unsigned pos) {

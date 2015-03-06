@@ -15,20 +15,41 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_VERBOSE true
 #endif
 
+#ifndef LEAN_DEFAULT_MAX_MEMORY
+#define LEAN_DEFAULT_MAX_MEMORY 512 // 512Mb
+#endif
+
+
 namespace lean {
-static name * g_verbose = nullptr;
+static name * g_verbose    = nullptr;
+static name * g_max_memory = nullptr;
 
 void initialize_options() {
-    g_verbose = new name("verbose");
+    g_verbose    = new name("verbose");
+    g_max_memory = new name("max_memory");
     register_bool_option(*g_verbose, LEAN_DEFAULT_VERBOSE, "disable/enable verbose messages");
+    register_unsigned_option(*g_max_memory, LEAN_DEFAULT_MAX_MEMORY, "maximum amount of memory available for Lean in megabytes");
 }
 
 void finalize_options() {
     delete g_verbose;
+    delete g_max_memory;
+}
+
+name const & get_verbose_opt_name() {
+    return *g_verbose;
+}
+
+name const & get_max_memory_opt_name() {
+    return *g_max_memory;
 }
 
 bool get_verbose(options const & opts) {
     return opts.get_bool(*g_verbose, LEAN_DEFAULT_VERBOSE);
+}
+
+unsigned get_max_memory(options const & opts) {
+    return opts.get_unsigned(*g_max_memory, LEAN_DEFAULT_MAX_MEMORY);
 }
 
 std::ostream & operator<<(std::ostream & out, option_kind k) {

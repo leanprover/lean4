@@ -406,7 +406,8 @@ int main(int argc, char ** argv) {
             index_name = optarg;
             gen_index  = true;
         case 'M':
-            lean::set_max_memory(atoi(optarg)*1024*1024);
+            lean::set_max_memory_megabyte(atoi(optarg));
+            opts = opts.update(lean::get_max_memory_opt_name(), atoi(optarg));
             break;
         case 't':
             trust_lvl = atoi(optarg);
@@ -418,7 +419,7 @@ int main(int argc, char ** argv) {
             tmode = keep_theorem_mode::DiscardAll;
             break;
         case 'q':
-            opts = opts.update("verbose", false);
+            opts = opts.update(lean::get_verbose_opt_name(), false);
             break;
         case 'd':
             only_deps = true;

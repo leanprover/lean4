@@ -289,7 +289,7 @@ static expr parse_proof(parser & p, expr const & prop) {
         buffer<expr> new_locals;
         while (!p.curr_is_token(get_comma_tk())) {
             auto id_pos = p.pos();
-            expr l      = p.parse_expr();
+            expr l      = p.parse_id();
             if (!is_local(l))
                 throw parser_error("invalid 'using' declaration for 'have', local expected", id_pos);
             expr new_l = l;

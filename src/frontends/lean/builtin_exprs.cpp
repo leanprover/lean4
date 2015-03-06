@@ -124,34 +124,19 @@ static expr parse_placeholder(parser & p, unsigned, expr const *, pos_info const
     return p.save_pos(mk_explicit_expr_placeholder(), pos);
 }
 
-static environment open_tactic_namespace(parser & p) {
-    if (!is_tactic_namespace_open(p.env())) {
-        environment env = using_namespace(p.env(), p.ios(), get_tactic_name());
-        env = add_aliases(env, get_tactic_name(), name());
-        return env;
-    } else {
-        return p.env();
-    }
-}
-
 static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
-    environment env = open_tactic_namespace(p);
     parser::undef_id_to_local_scope scope(p);
-    parser::local_scope scope2(p, env);
-    parser::undef_id_to_local_scope scope1(p);
     p.next();
-    expr t = p.parse_expr();
+    expr t = p.parse_tactic();
     return p.mk_by(t, pos);
 }
 
 static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & end_token, bool nested = false) {
     if (!p.has_tactic_decls())
         throw parser_error("invalid 'begin-end' expression, tactic module has not been imported", pos);
-    environment env = open_tactic_namespace(p);
-    parser::local_scope scope2(p, env);
     parser::undef_id_to_local_scope scope1(p);
     p.next();
-    optional<expr> pre_tac = get_begin_end_pre_tactic(env);
+    optional<expr> pre_tac = get_begin_end_pre_tactic(p.env());
     buffer<expr> tacs;
     bool first = true;
 
@@ -223,7 +208,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
                 // parse: 'by' tactic
                 auto pos = p.pos();
                 p.next();
-                expr t = p.parse_expr();
+                expr t = p.parse_tactic();
                 add_tac(t, pos);
             } else {
                 throw parser_error("invalid 'have' tactic, 'by', 'begin', 'proof', or 'from' expected", p.pos());
@@ -237,7 +222,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
             add_tac(t, pos);
         } else {
             auto pos = p.pos();
-            expr t   = p.parse_expr();
+            expr t   = p.parse_tactic();
             add_tac(t, pos);
         }
     }
@@ -293,7 +278,7 @@ static expr parse_proof(parser & p, expr const & prop) {
         // parse: 'by' tactic
         auto pos = p.pos();
         p.next();
-        expr t = p.parse_expr();
+        expr t = p.parse_tactic();
         return p.mk_by(t, pos);
     } else if (p.curr_is_token(get_using_tk())) {
         // parse: 'using' locals* ',' proof

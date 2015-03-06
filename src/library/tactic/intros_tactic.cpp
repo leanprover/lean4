@@ -65,7 +65,7 @@ void initialize_intros_tactic() {
                      name const & id = tactic_expr_to_id(app_arg(e), "invalid 'intro' tactic, argument must be an identifier");
                      return intros_tactic(to_list(id));
                  });
-    register_tac(get_tactic_intro_lst_name(),
+    register_tac(get_tactic_intros_name(),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      buffer<name> ns;
                      get_tactic_id_list_elements(app_arg(e), ns, "invalid 'intros' tactic, arguments must be identifiers");

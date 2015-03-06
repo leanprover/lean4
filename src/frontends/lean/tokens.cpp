@@ -10,6 +10,7 @@ namespace lean {
 static name * g_period       = nullptr;
 static name * g_placeholder  = nullptr;
 static name * g_colon        = nullptr;
+static name * g_semicolon    = nullptr;
 static name * g_dcolon       = nullptr;
 static name * g_lparen       = nullptr;
 static name * g_rparen       = nullptr;
@@ -81,6 +82,7 @@ static name * g_using        = nullptr;
 static name * g_then         = nullptr;
 static name * g_else         = nullptr;
 static name * g_by           = nullptr;
+static name * g_rewrite      = nullptr;
 static name * g_proof        = nullptr;
 static name * g_qed          = nullptr;
 static name * g_begin        = nullptr;
@@ -130,6 +132,7 @@ void initialize_tokens() {
     g_period       = new name(".");
     g_placeholder  = new name("_");
     g_colon        = new name(":");
+    g_semicolon    = new name(";");
     g_dcolon       = new name("::");
     g_lparen       = new name("(");
     g_rparen       = new name(")");
@@ -201,6 +204,7 @@ void initialize_tokens() {
     g_then         = new name("then");
     g_else         = new name("else");
     g_by           = new name("by");
+    g_rewrite      = new name("rewrite");
     g_proof        = new name("proof");
     g_qed          = new name("qed");
     g_begin        = new name("begin");
@@ -297,6 +301,7 @@ void finalize_tokens() {
     delete g_then;
     delete g_else;
     delete g_by;
+    delete g_rewrite;
     delete g_proof;
     delete g_qed;
     delete g_begin;
@@ -363,6 +368,7 @@ void finalize_tokens() {
     delete g_rparen;
     delete g_lparen;
     delete g_colon;
+    delete g_semicolon;
     delete g_dcolon;
     delete g_placeholder;
     delete g_period;
@@ -372,6 +378,7 @@ name const & get_metaclasses_tk() { return *g_metaclasses; }
 name const & get_period_tk() { return *g_period; }
 name const & get_placeholder_tk() { return *g_placeholder; }
 name const & get_colon_tk() { return *g_colon; }
+name const & get_semicolon_tk() { return *g_semicolon; }
 name const & get_dcolon_tk() { return *g_dcolon; }
 name const & get_langle_tk() { return *g_langle; }
 name const & get_rangle_tk() { return *g_rangle; }
@@ -443,6 +450,7 @@ name const & get_using_tk() { return *g_using; }
 name const & get_then_tk() { return *g_then; }
 name const & get_else_tk() { return *g_else; }
 name const & get_by_tk() { return *g_by; }
+name const & get_rewrite_tk() { return *g_rewrite; }
 name const & get_proof_tk() { return *g_proof; }
 name const & get_qed_tk() { return *g_qed; }
 name const & get_begin_tk() { return *g_begin; }

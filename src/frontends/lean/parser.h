@@ -217,6 +217,12 @@ class parser {
     elaborator_context mk_elaborator_context(environment const & env, pos_info_provider const & pp);
     elaborator_context mk_elaborator_context(environment const & env, local_level_decls const & lls, pos_info_provider const & pp);
 
+    optional<expr> is_tactic_command(name & id);
+    expr parse_tactic_led(expr left);
+    expr parse_tactic_nud();
+    expr parse_tactic_expr_list();
+    expr parse_tactic_opt_expr_list();
+
 public:
     parser(environment const & env, io_state const & ios,
            std::istream & strm, char const * str_name,
@@ -379,6 +385,8 @@ public:
         return parse_scoped_expr(num_params, ps, local_environment(m_env), rbp);
     }
     expr parse_scoped_expr(buffer<expr> const & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
+
+    expr parse_tactic(unsigned rbp = 0);
 
     struct local_scope { parser & m_p; environment m_env;
         local_scope(parser & p, bool save_options = false);

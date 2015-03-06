@@ -14,7 +14,7 @@ namespace inftree
                                       (t : inftree A) (ht : acc dsub t) : acc dsub (node f t) :=
   acc.intro (node f t) (λ (y : inftree A) (hlt : dsub y (node f t)),
     begin
-      inversion hlt,
+      cases hlt,
       apply (hf a),
       apply ht
     end)

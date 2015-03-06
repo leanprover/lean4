@@ -12,13 +12,13 @@ axiom prop_complete (a : Prop) : a = true ∨ a = false
 
 definition eq_true_or_eq_false := prop_complete
 
-theorem cases (P : Prop → Prop) (H1 : P true) (H2 : P false) (a : Prop) : P a :=
+theorem cases_true_false (P : Prop → Prop) (H1 : P true) (H2 : P false) (a : Prop) : P a :=
 or.elim (prop_complete a)
   (assume Ht : a = true,  Ht⁻¹ ▸ H1)
   (assume Hf : a = false, Hf⁻¹ ▸ H2)
 
 theorem cases_on (a : Prop) {P : Prop → Prop} (H1 : P true) (H2 : P false) : P a :=
-cases P H1 H2 a
+cases_true_false P H1 H2 a
 
 -- this supercedes the em in decidable
 theorem em (a : Prop) : a ∨ ¬a :=
@@ -37,7 +37,7 @@ by_cases
   (assume H1 : ¬p, false.rec _ (H H1))
 
 theorem eq_false_or_eq_true (a : Prop) : a = false ∨ a = true :=
-cases (λ x, x = false ∨ x = true)
+cases_true_false (λ x, x = false ∨ x = true)
   (or.inr rfl)
   (or.inl rfl)
   a

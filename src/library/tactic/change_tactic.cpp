@@ -45,7 +45,7 @@ tactic change_goal_tactic(elaborate_fn const & elab, expr const & e) {
 }
 
 void initialize_change_tactic() {
-    register_tac(get_tactic_change_goal_name(),
+    register_tac(get_tactic_change_name(),
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'change' tactic, invalid argument");
                      return change_goal_tactic(fn, get_tactic_expr_expr(app_arg(e)));

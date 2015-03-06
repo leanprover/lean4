@@ -48,7 +48,7 @@ void initialize_clear_tactic() {
                      name n = tactic_expr_to_id(app_arg(e), "invalid 'clear' tactic, argument must be an identifier");
                      return clear_tactic(n);
                  });
-    register_tac(get_tactic_clear_lst_name(),
+    register_tac(get_tactic_clears_name(),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      buffer<name> ns;
                      get_tactic_id_list_elements(app_arg(e), ns, "invalid 'clears' tactic, list of identifiers expected");

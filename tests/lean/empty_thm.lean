@@ -1,7 +1,7 @@
 import logic
 open tactic
 
-definition simple := apply trivial
+definition simple := apply _root_.trivial
 
 tactic_hint simple
 

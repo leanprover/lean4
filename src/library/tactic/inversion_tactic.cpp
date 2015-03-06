@@ -962,16 +962,11 @@ tactic inversion_tactic(name const & n, list<name> const & ids) {
 }
 
 void initialize_inversion_tactic() {
-    register_tac(get_tactic_inversion_name(),
+    register_tac(get_tactic_cases_name(),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     name n = tactic_expr_to_id(app_arg(e), "invalid 'inversion/cases' tactic, argument must be an identifier");
-                     return inversion_tactic(n, list<name>());
-                 });
-    register_tac(get_tactic_inversion_with_name(),
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     name n = tactic_expr_to_id(app_arg(app_fn(e)), "invalid 'cases-with' tactic, argument must be an identifier");
+                     name n = tactic_expr_to_id(app_arg(app_fn(e)), "invalid 'cases' tactic, argument must be an identifier");
                      buffer<name> ids;
-                     get_tactic_id_list_elements(app_arg(e), ids, "invalid 'cases-with' tactic, list of identifiers expected");
+                     get_tactic_id_list_elements(app_arg(e), ids, "invalid 'cases' tactic, list of identifiers expected");
                      return inversion_tactic(n, to_list(ids.begin(), ids.end()));
                  });
 }

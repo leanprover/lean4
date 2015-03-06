@@ -55,7 +55,7 @@ void initialize_revert_tactic() {
                      return revert_tactic(n);
                  });
 
-    register_tac(get_tactic_revert_lst_name(),
+    register_tac(get_tactic_reverts_name(),
                  [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
                      buffer<name> ns;
                      get_tactic_id_list_elements(app_arg(e), ns, "invalid 'reverts' tactic, list of identifiers expected");

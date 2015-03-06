@@ -69,16 +69,14 @@ name const * g_tactic_assumption = nullptr;
 name const * g_tactic_at_most = nullptr;
 name const * g_tactic_beta = nullptr;
 name const * g_tactic_builtin = nullptr;
-name const * g_tactic_change_goal = nullptr;
-name const * g_tactic_change_hypothesis = nullptr;
+name const * g_tactic_cases = nullptr;
+name const * g_tactic_change = nullptr;
 name const * g_tactic_clear = nullptr;
-name const * g_tactic_clear_lst = nullptr;
+name const * g_tactic_clears = nullptr;
 name const * g_tactic_determ = nullptr;
 name const * g_tactic_discard = nullptr;
 name const * g_tactic_intro = nullptr;
-name const * g_tactic_intro_lst = nullptr;
-name const * g_tactic_inversion = nullptr;
-name const * g_tactic_inversion_with = nullptr;
+name const * g_tactic_intros = nullptr;
 name const * g_tactic_exact = nullptr;
 name const * g_tactic_expr = nullptr;
 name const * g_tactic_expr_builtin = nullptr;
@@ -89,17 +87,18 @@ name const * g_tactic_fail = nullptr;
 name const * g_tactic_fixpoint = nullptr;
 name const * g_tactic_focus_at = nullptr;
 name const * g_tactic_generalize = nullptr;
-name const * g_tactic_generalize_lst = nullptr;
+name const * g_tactic_generalizes = nullptr;
 name const * g_tactic_id = nullptr;
 name const * g_tactic_interleave = nullptr;
 name const * g_tactic_now = nullptr;
+name const * g_tactic_opt_expr_list = nullptr;
 name const * g_tactic_or_else = nullptr;
 name const * g_tactic_par = nullptr;
 name const * g_tactic_state = nullptr;
 name const * g_tactic_rename = nullptr;
 name const * g_tactic_repeat = nullptr;
 name const * g_tactic_revert = nullptr;
-name const * g_tactic_revert_lst = nullptr;
+name const * g_tactic_reverts = nullptr;
 name const * g_tactic_rotate_left = nullptr;
 name const * g_tactic_rotate_right = nullptr;
 name const * g_tactic_trace = nullptr;
@@ -180,16 +179,14 @@ void initialize_constants() {
     g_tactic_at_most = new name{"tactic", "at_most"};
     g_tactic_beta = new name{"tactic", "beta"};
     g_tactic_builtin = new name{"tactic", "builtin"};
-    g_tactic_change_goal = new name{"tactic", "change_goal"};
-    g_tactic_change_hypothesis = new name{"tactic", "change_hypothesis"};
+    g_tactic_cases = new name{"tactic", "cases"};
+    g_tactic_change = new name{"tactic", "change"};
     g_tactic_clear = new name{"tactic", "clear"};
-    g_tactic_clear_lst = new name{"tactic", "clear_lst"};
+    g_tactic_clears = new name{"tactic", "clears"};
     g_tactic_determ = new name{"tactic", "determ"};
     g_tactic_discard = new name{"tactic", "discard"};
     g_tactic_intro = new name{"tactic", "intro"};
-    g_tactic_intro_lst = new name{"tactic", "intro_lst"};
-    g_tactic_inversion = new name{"tactic", "inversion"};
-    g_tactic_inversion_with = new name{"tactic", "inversion_with"};
+    g_tactic_intros = new name{"tactic", "intros"};
     g_tactic_exact = new name{"tactic", "exact"};
     g_tactic_expr = new name{"tactic", "expr"};
     g_tactic_expr_builtin = new name{"tactic", "expr", "builtin"};
@@ -200,17 +197,18 @@ void initialize_constants() {
     g_tactic_fixpoint = new name{"tactic", "fixpoint"};
     g_tactic_focus_at = new name{"tactic", "focus_at"};
     g_tactic_generalize = new name{"tactic", "generalize"};
-    g_tactic_generalize_lst = new name{"tactic", "generalize_lst"};
+    g_tactic_generalizes = new name{"tactic", "generalizes"};
     g_tactic_id = new name{"tactic", "id"};
     g_tactic_interleave = new name{"tactic", "interleave"};
     g_tactic_now = new name{"tactic", "now"};
+    g_tactic_opt_expr_list = new name{"tactic", "opt_expr_list"};
     g_tactic_or_else = new name{"tactic", "or_else"};
     g_tactic_par = new name{"tactic", "par"};
     g_tactic_state = new name{"tactic", "state"};
     g_tactic_rename = new name{"tactic", "rename"};
     g_tactic_repeat = new name{"tactic", "repeat"};
     g_tactic_revert = new name{"tactic", "revert"};
-    g_tactic_revert_lst = new name{"tactic", "revert_lst"};
+    g_tactic_reverts = new name{"tactic", "reverts"};
     g_tactic_rotate_left = new name{"tactic", "rotate_left"};
     g_tactic_rotate_right = new name{"tactic", "rotate_right"};
     g_tactic_trace = new name{"tactic", "trace"};
@@ -292,16 +290,14 @@ void finalize_constants() {
     delete g_tactic_at_most;
     delete g_tactic_beta;
     delete g_tactic_builtin;
-    delete g_tactic_change_goal;
-    delete g_tactic_change_hypothesis;
+    delete g_tactic_cases;
+    delete g_tactic_change;
     delete g_tactic_clear;
-    delete g_tactic_clear_lst;
+    delete g_tactic_clears;
     delete g_tactic_determ;
     delete g_tactic_discard;
     delete g_tactic_intro;
-    delete g_tactic_intro_lst;
-    delete g_tactic_inversion;
-    delete g_tactic_inversion_with;
+    delete g_tactic_intros;
     delete g_tactic_exact;
     delete g_tactic_expr;
     delete g_tactic_expr_builtin;
@@ -312,17 +308,18 @@ void finalize_constants() {
     delete g_tactic_fixpoint;
     delete g_tactic_focus_at;
     delete g_tactic_generalize;
-    delete g_tactic_generalize_lst;
+    delete g_tactic_generalizes;
     delete g_tactic_id;
     delete g_tactic_interleave;
     delete g_tactic_now;
+    delete g_tactic_opt_expr_list;
     delete g_tactic_or_else;
     delete g_tactic_par;
     delete g_tactic_state;
     delete g_tactic_rename;
     delete g_tactic_repeat;
     delete g_tactic_revert;
-    delete g_tactic_revert_lst;
+    delete g_tactic_reverts;
     delete g_tactic_rotate_left;
     delete g_tactic_rotate_right;
     delete g_tactic_trace;
@@ -403,16 +400,14 @@ name const & get_tactic_assumption_name() { return *g_tactic_assumption; }
 name const & get_tactic_at_most_name() { return *g_tactic_at_most; }
 name const & get_tactic_beta_name() { return *g_tactic_beta; }
 name const & get_tactic_builtin_name() { return *g_tactic_builtin; }
-name const & get_tactic_change_goal_name() { return *g_tactic_change_goal; }
-name const & get_tactic_change_hypothesis_name() { return *g_tactic_change_hypothesis; }
+name const & get_tactic_cases_name() { return *g_tactic_cases; }
+name const & get_tactic_change_name() { return *g_tactic_change; }
 name const & get_tactic_clear_name() { return *g_tactic_clear; }
-name const & get_tactic_clear_lst_name() { return *g_tactic_clear_lst; }
+name const & get_tactic_clears_name() { return *g_tactic_clears; }
 name const & get_tactic_determ_name() { return *g_tactic_determ; }
 name const & get_tactic_discard_name() { return *g_tactic_discard; }
 name const & get_tactic_intro_name() { return *g_tactic_intro; }
-name const & get_tactic_intro_lst_name() { return *g_tactic_intro_lst; }
-name const & get_tactic_inversion_name() { return *g_tactic_inversion; }
-name const & get_tactic_inversion_with_name() { return *g_tactic_inversion_with; }
+name const & get_tactic_intros_name() { return *g_tactic_intros; }
 name const & get_tactic_exact_name() { return *g_tactic_exact; }
 name const & get_tactic_expr_name() { return *g_tactic_expr; }
 name const & get_tactic_expr_builtin_name() { return *g_tactic_expr_builtin; }
@@ -423,17 +418,18 @@ name const & get_tactic_fail_name() { return *g_tactic_fail; }
 name const & get_tactic_fixpoint_name() { return *g_tactic_fixpoint; }
 name const & get_tactic_focus_at_name() { return *g_tactic_focus_at; }
 name const & get_tactic_generalize_name() { return *g_tactic_generalize; }
-name const & get_tactic_generalize_lst_name() { return *g_tactic_generalize_lst; }
+name const & get_tactic_generalizes_name() { return *g_tactic_generalizes; }
 name const & get_tactic_id_name() { return *g_tactic_id; }
 name const & get_tactic_interleave_name() { return *g_tactic_interleave; }
 name const & get_tactic_now_name() { return *g_tactic_now; }
+name const & get_tactic_opt_expr_list_name() { return *g_tactic_opt_expr_list; }
 name const & get_tactic_or_else_name() { return *g_tactic_or_else; }
 name const & get_tactic_par_name() { return *g_tactic_par; }
 name const & get_tactic_state_name() { return *g_tactic_state; }
 name const & get_tactic_rename_name() { return *g_tactic_rename; }
 name const & get_tactic_repeat_name() { return *g_tactic_repeat; }
 name const & get_tactic_revert_name() { return *g_tactic_revert; }
-name const & get_tactic_revert_lst_name() { return *g_tactic_revert_lst; }
+name const & get_tactic_reverts_name() { return *g_tactic_reverts; }
 name const & get_tactic_rotate_left_name() { return *g_tactic_rotate_left; }
 name const & get_tactic_rotate_right_name() { return *g_tactic_rotate_right; }
 name const & get_tactic_trace_name() { return *g_tactic_trace; }

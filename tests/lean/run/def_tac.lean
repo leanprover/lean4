@@ -1,15 +1,15 @@
 context
   open tactic
   definition cases_refl (e : expr) : tactic :=
-  cases e; apply rfl
+  cases e expr_list.nil; apply rfl
 
   definition cases_lst_refl : expr_list → tactic
   | cases_lst_refl expr_list.nil        := apply rfl
-  | cases_lst_refl (expr_list.cons a l) := cases a; cases_lst_refl l
+  | cases_lst_refl (expr_list.cons a l) := cases a expr_list.nil; cases_lst_refl l
 
   -- Similar to cases_refl, but make sure the argument is not an arbitrary expression.
   definition eq_rec {A : Type} {a b : A} (e : a = b) : tactic :=
-  cases e; apply rfl
+  cases e expr_list.nil; apply rfl
 end
 
 notation `cases_lst` l:(foldr `,` (h t, tactic.expr_list.cons h t) tactic.expr_list.nil) := cases_lst_refl l

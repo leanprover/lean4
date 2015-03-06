@@ -151,6 +151,10 @@ namespace functor
   --     → F₁ = F₂ :=
   -- functor.rec_on F₁ (λO₁ H₁ id₁ comp₁, functor.rec_on F₂ (λO₂ H₂ id₂ comp₂ p, !functor_eq_mk'1))
 
+
+  set_option pp.full_names true
+  open tactic
+  print raw id
   --set_option pp.notation false
   definition functor_uncurry_functor_curry : functor_uncurry (functor_curry F) = F :=
   functor_eq_mk (λp, ap (to_fun_ob F) !prod.eta)

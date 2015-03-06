@@ -53,6 +53,7 @@ static name * g_assert       = nullptr;
 static name * g_assume       = nullptr;
 static name * g_take         = nullptr;
 static name * g_fun          = nullptr;
+static name * g_match        = nullptr;
 static name * g_ellipsis     = nullptr;
 static name * g_raw          = nullptr;
 static name * g_true         = nullptr;
@@ -176,6 +177,7 @@ void initialize_tokens() {
     g_assume       = new name("assume");
     g_take         = new name("take");
     g_fun          = new name("fun");
+    g_match        = new name("match");
     g_ellipsis     = new name("...");
     g_raw          = new name("raw");
     g_true         = new name("true");
@@ -329,6 +331,7 @@ void finalize_tokens() {
     delete g_wf;
     delete g_all_transparent;
     delete g_ellipsis;
+    delete g_match;
     delete g_fun;
     delete g_take;
     delete g_assume;
@@ -424,6 +427,7 @@ name const & get_assert_tk() { return *g_assert; }
 name const & get_assume_tk() { return *g_assume; }
 name const & get_take_tk() { return *g_take; }
 name const & get_fun_tk() { return *g_fun; }
+name const & get_match_tk() { return *g_match; }
 name const & get_ellipsis_tk() { return *g_ellipsis; }
 name const & get_raw_tk() { return *g_raw; }
 name const & get_true_tk() { return *g_true; }

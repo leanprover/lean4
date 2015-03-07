@@ -84,8 +84,8 @@ namespace vector
 
   -- Remark: why do we need to provide indices?
   definition append : Π {n m : nat}, vector A n → vector A m → vector A (n ⊕ m)
-  | @append 0        m nil    w := w
-  | @append (succ n) m (a::v) w := a :: (append v w)
+  | 0        m nil    w := w
+  | (succ n) m (a::v) w := a :: (append v w)
 
   theorem append_nil {n : nat} (v : vector A n) : append nil v = v :=
   rfl
@@ -117,16 +117,16 @@ namespace vector
   rfl
 
   theorem unzip_zip : ∀ {n : nat} (v₁ : vector A n) (v₂ : vector B n), unzip (zip v₁ v₂) = (v₁, v₂)
-  | @unzip_zip 0        nil     nil     := rfl
-  | @unzip_zip (succ n) (a::va) (b::vb) := calc
+  | 0        nil     nil     := rfl
+  | (succ n) (a::va) (b::vb) := calc
        unzip (zip (a :: va) (b :: vb))
              = (a :: pr₁ (unzip (zip va vb)), b :: pr₂ (unzip (zip va vb))) : rfl
         ...  = (a :: pr₁ (va, vb), b :: pr₂ (va, vb))                       : {unzip_zip va vb}
         ...  = (a :: va, b :: vb)                                           : rfl
 
   theorem zip_unzip : ∀ {n : nat} (v : vector (A × B) n), zip (pr₁ (unzip v)) (pr₂ (unzip v)) = v
-  | @zip_unzip 0        nil            := rfl
-  | @zip_unzip (succ n) ((a, b) :: v)  := calc
+  | 0        nil            := rfl
+  | (succ n) ((a, b) :: v)  := calc
     zip (pr₁ (unzip ((a, b) :: v))) (pr₂ (unzip ((a, b) :: v)))
          = (a, b) :: zip (pr₁ (unzip v)) (pr₂ (unzip v)) : rfl
      ... = (a, b) :: v                                   : {zip_unzip v}
@@ -144,8 +144,8 @@ namespace vector
   rfl
 
   theorem last_concat : ∀ {n : nat} (v : vector A n) (a : A), last (concat v a) = a
-  | @last_concat 0        nil    a := rfl
-  | @last_concat (succ n) (b::v) a := calc
+  | 0        nil    a := rfl
+  | (succ n) (b::v) a := calc
     last (concat (b::v) a) = last (concat v a) : rfl
                     ...    = a                 : last_concat v a
 end vector

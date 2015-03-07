@@ -17,6 +17,8 @@ class parser;
 */
 bool parse_univ_params(parser & p, buffer<name> & ps);
 expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos);
+expr parse_local_equations(parser & p, expr const & fn);
+
 /**   \brief Add universe levels from \c found_ls to \c ls_buffer (only the levels that do not already occur in \c ls_buffer are added).
    Then sort \c ls_buffer (using the order in which the universe levels were declared).
 */

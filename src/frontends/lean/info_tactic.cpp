@@ -36,7 +36,7 @@ tactic mk_info_tactic(elaborate_fn const & fn, expr const & e) {
             // create dummy variable just to communicate position to the elaborator
             expr dummy = mk_sort(mk_level_zero(), e.get_tag());
             scoped_info_tactic_proof_state scope(ps);
-            fn(goal(), name_generator("dummy"), dummy, false);
+            fn(goal(), name_generator("dummy"), dummy, none_expr(), false);
             return ps;
         });
 }

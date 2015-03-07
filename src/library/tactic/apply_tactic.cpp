@@ -210,7 +210,7 @@ tactic apply_tactic_core(elaborate_fn const & elab, expr const & e, subgoals_act
             name_generator ngen = s.get_ngen();
             expr       new_e;
             buffer<constraint> cs;
-            auto ecs = elab(g, ngen.mk_child(), e, false);
+            auto ecs = elab(g, ngen.mk_child(), e, none_expr(), false);
             new_e    = ecs.first;
             to_buffer(ecs.second, cs);
             to_buffer(s.get_postponed(), cs);

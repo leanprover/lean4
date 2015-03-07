@@ -579,7 +579,7 @@ class rewrite_fn {
     }
 
     optional<expr> fold(expr const & type, expr const & e, occurrence const & occ) {
-        auto ecs       = m_elab(m_g, m_ngen.mk_child(), e, false);
+        auto ecs       = m_elab(m_g, m_ngen.mk_child(), e, none_expr(), false);
         expr new_e     = ecs.first;
         if (ecs.second)
             return none_expr(); // contain constraints...
@@ -651,7 +651,7 @@ class rewrite_fn {
     }
 
     optional<expr> unify_with(expr const & t, expr const & e) {
-        auto ecs       = m_elab(m_g, m_ngen.mk_child(), e, false);
+        auto ecs       = m_elab(m_g, m_ngen.mk_child(), e, none_expr(), false);
         expr new_e     = ecs.first;
         buffer<constraint> cs;
         to_buffer(ecs.second, cs);
@@ -832,7 +832,7 @@ class rewrite_fn {
     unify_result unify_target(expr const & t, expr const & orig_elem, bool is_goal) {
         try {
             expr rule         = get_rewrite_rule(orig_elem);
-            auto rcs          = m_elab(m_g, m_ngen.mk_child(), rule, false);
+            auto rcs          = m_elab(m_g, m_ngen.mk_child(), rule, none_expr(), false);
             rule              = rcs.first;
             buffer<constraint> cs;
             to_buffer(rcs.second, cs);
@@ -1096,11 +1096,11 @@ class rewrite_fn {
             expr rule = get_rewrite_rule(elem);
             expr new_elem;
             if (has_rewrite_pattern(elem)) {
-                expr pattern     = m_elab(m_g, m_ngen.mk_child(), get_rewrite_pattern(elem), false).first;
+                expr pattern     = m_elab(m_g, m_ngen.mk_child(), get_rewrite_pattern(elem), none_expr(), false).first;
                 expr new_args[2] = { rule, pattern };
                 new_elem         = mk_macro(macro_def(elem), 2, new_args);
             } else {
-                rule     = m_elab(m_g, m_ngen.mk_child(), rule, false).first;
+                rule     = m_elab(m_g, m_ngen.mk_child(), rule, none_expr(), false).first;
                 new_elem = mk_macro(macro_def(elem), 1, &rule);
             }
             return process_rewrite_step(new_elem, elem);

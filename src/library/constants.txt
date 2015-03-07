@@ -89,6 +89,7 @@ tactic.now
 tactic.opt_expr_list
 tactic.or_else
 tactic.par
+tactic.sexact
 tactic.state
 tactic.rename
 tactic.repeat

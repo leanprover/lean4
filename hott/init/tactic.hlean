@@ -62,6 +62,8 @@ opaque definition clear      (e : expr)   : tactic := builtin
 opaque definition revert     (e : expr)   : tactic := builtin
 opaque definition unfold     (e : expr)   : tactic := builtin
 opaque definition exact      (e : expr)   : tactic := builtin
+-- rexact is similar to exact, but the goal type is enforced during elaboration
+opaque definition sexact     (e : expr)   : tactic := builtin
 opaque definition trace      (s : string) : tactic := builtin
 
 inductive expr_list : Type :=

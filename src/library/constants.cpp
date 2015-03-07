@@ -94,6 +94,7 @@ name const * g_tactic_now = nullptr;
 name const * g_tactic_opt_expr_list = nullptr;
 name const * g_tactic_or_else = nullptr;
 name const * g_tactic_par = nullptr;
+name const * g_tactic_sexact = nullptr;
 name const * g_tactic_state = nullptr;
 name const * g_tactic_rename = nullptr;
 name const * g_tactic_repeat = nullptr;
@@ -204,6 +205,7 @@ void initialize_constants() {
     g_tactic_opt_expr_list = new name{"tactic", "opt_expr_list"};
     g_tactic_or_else = new name{"tactic", "or_else"};
     g_tactic_par = new name{"tactic", "par"};
+    g_tactic_sexact = new name{"tactic", "sexact"};
     g_tactic_state = new name{"tactic", "state"};
     g_tactic_rename = new name{"tactic", "rename"};
     g_tactic_repeat = new name{"tactic", "repeat"};
@@ -315,6 +317,7 @@ void finalize_constants() {
     delete g_tactic_opt_expr_list;
     delete g_tactic_or_else;
     delete g_tactic_par;
+    delete g_tactic_sexact;
     delete g_tactic_state;
     delete g_tactic_rename;
     delete g_tactic_repeat;
@@ -425,6 +428,7 @@ name const & get_tactic_now_name() { return *g_tactic_now; }
 name const & get_tactic_opt_expr_list_name() { return *g_tactic_opt_expr_list; }
 name const & get_tactic_or_else_name() { return *g_tactic_or_else; }
 name const & get_tactic_par_name() { return *g_tactic_par; }
+name const & get_tactic_sexact_name() { return *g_tactic_sexact; }
 name const & get_tactic_state_name() { return *g_tactic_state; }
 name const & get_tactic_rename_name() { return *g_tactic_rename; }
 name const & get_tactic_repeat_name() { return *g_tactic_repeat; }

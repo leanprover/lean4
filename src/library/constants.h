@@ -96,6 +96,7 @@ name const & get_tactic_now_name();
 name const & get_tactic_opt_expr_list_name();
 name const & get_tactic_or_else_name();
 name const & get_tactic_par_name();
+name const & get_tactic_sexact_name();
 name const & get_tactic_state_name();
 name const & get_tactic_rename_name();
 name const & get_tactic_repeat_name();

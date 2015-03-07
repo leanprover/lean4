@@ -157,7 +157,7 @@ class elaborator : public coercion_info_manager {
     void check_sort_assignments(substitution const & s);
     expr apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params);
     std::tuple<expr, level_param_names> apply(substitution & s, expr const & e);
-    pair<expr, constraints> elaborate_nested(list<expr> const & g, expr const & e,
+    pair<expr, constraints> elaborate_nested(list<expr> const & ctx, optional<expr> const & expected_type, expr const & e,
                                              bool relax, bool use_tactic_hints, bool report_unassigned);
 
     expr const & get_equation_fn(expr const & eq) const;

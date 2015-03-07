@@ -1464,12 +1464,14 @@ optional<expr> elaborator::get_pre_tactic_for(expr const & mvar) {
 optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
     try {
         bool relax = m_relax_main_opaque;
-        auto fn = [=](goal const & g, name_generator const & ngen, expr const & e, bool report_unassigned) {
+        auto fn = [=](goal const & g, name_generator const & ngen, expr const & e, optional<expr> const & expected_type,
+                      bool report_unassigned) {
             elaborator aux_elaborator(m_ctx, ngen);
             // Disable tactic hints when processing expressions nested in tactics.
             // We must do it otherwise, it is easy to make the system loop.
             bool use_tactic_hints = false;
-            return aux_elaborator.elaborate_nested(g.to_context(), e, relax, use_tactic_hints, report_unassigned);
+            return aux_elaborator.elaborate_nested(g.to_context(), expected_type, e,
+                                                   relax, use_tactic_hints, report_unassigned);
         };
         return optional<tactic>(expr_to_tactic(env(), fn, pre_tac, pip()));
     } catch (expr_to_tactic_exception & ex) {
@@ -1870,14 +1872,18 @@ static expr translate(environment const & env, list<expr> const & ctx, expr cons
 }
 
 /** \brief Elaborate expression \c e in context \c ctx. */
-pair<expr, constraints> elaborator::elaborate_nested(list<expr> const & ctx, expr const & n,
-                                                     bool relax, bool use_tactic_hints, bool report_unassigned) {
+pair<expr, constraints> elaborator::elaborate_nested(list<expr> const & ctx, optional<expr> const & expected_type,
+                                                     expr const & n, bool relax, bool use_tactic_hints,
+                                                     bool report_unassigned) {
     if (infom()) {
         if (auto ps = get_info_tactic_proof_state()) {
             save_proof_state_info(*ps, n);
         }
     }
     expr e = translate(env(), ctx, n);
+    if (expected_type)
+        e = copy_tag(e, mk_typed_expr(mk_as_is(*expected_type), e));
+    m_context.set_ctx(ctx);
     m_context.set_ctx(ctx);
     m_full_context.set_ctx(ctx);
     flet<bool> set_relax(m_relax_main_opaque, relax);

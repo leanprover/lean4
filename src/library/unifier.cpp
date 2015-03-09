@@ -49,11 +49,16 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_UNIFIER_CONSERVATIVE false
 #endif
 
+#ifndef LEAN_DEFAULT_UNIFIER_NONCHRONOLOGICAL
+#define LEAN_DEFAULT_UNIFIER_NONCHRONOLOGICAL true
+#endif
+
 namespace lean {
 static name * g_unifier_max_steps               = nullptr;
 static name * g_unifier_computation             = nullptr;
 static name * g_unifier_expensive_classes       = nullptr;
 static name * g_unifier_conservative            = nullptr;
+static name * g_unifier_nonchronological        = nullptr;
 
 unsigned get_unifier_max_steps(options const & opts) {
     return opts.get_unsigned(*g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS);
@@ -71,12 +76,17 @@ bool get_unifier_conservative(options const & opts) {
     return opts.get_bool(*g_unifier_conservative, LEAN_DEFAULT_UNIFIER_CONSERVATIVE);
 }
 
+bool get_unifier_nonchronological(options const & opts) {
+    return opts.get_bool(*g_unifier_nonchronological, LEAN_DEFAULT_UNIFIER_NONCHRONOLOGICAL);
+}
+
 unifier_config::unifier_config(bool use_exceptions, bool discard):
     m_use_exceptions(use_exceptions),
     m_max_steps(LEAN_DEFAULT_UNIFIER_MAX_STEPS),
     m_computation(LEAN_DEFAULT_UNIFIER_COMPUTATION),
     m_expensive_classes(LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES),
-    m_discard(discard) {
+    m_discard(discard),
+    m_nonchronological(LEAN_DEFAULT_UNIFIER_NONCHRONOLOGICAL) {
     m_kind    = unifier_kind::Liberal;
     m_pattern = false;
     m_ignore_context_check = false;
@@ -87,7 +97,8 @@ unifier_config::unifier_config(options const & o, bool use_exceptions, bool disc
     m_max_steps(get_unifier_max_steps(o)),
     m_computation(get_unifier_computation(o)),
     m_expensive_classes(get_unifier_expensive_classes(o)),
-    m_discard(discard) {
+    m_discard(discard),
+    m_nonchronological(get_unifier_nonchronological(o)) {
     if (get_unifier_conservative(o))
         m_kind = unifier_kind::Conservative;
     else
@@ -1160,7 +1171,7 @@ struct unifier_fn {
         while (!m_case_splits.empty()) {
             justification conflict = *m_conflict;
             std::unique_ptr<case_split> & d = m_case_splits.back();
-            if (depends_on(conflict, d->m_assumption_idx)) {
+            if (!m_config.m_nonchronological || depends_on(conflict, d->m_assumption_idx)) {
                 d->m_failed_justifications = mk_composite1(d->m_failed_justifications, conflict);
                 if (d->next(*this)) {
                     reset_conflict();
@@ -2552,6 +2563,7 @@ void initialize_unifier() {
     g_unifier_computation       = new name{"unifier", "computation"};
     g_unifier_expensive_classes = new name{"unifier", "expensive_classes"};
     g_unifier_conservative      = new name{"unifier", "conservative"};
+    g_unifier_nonchronological  = new name{"unifier", "nonchronological"};
 
     register_unsigned_option(*g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS, "(unifier) maximum number of steps");
     register_bool_option(*g_unifier_computation, LEAN_DEFAULT_UNIFIER_COMPUTATION,
@@ -2560,6 +2572,8 @@ void initialize_unifier() {
                          "(unifier) use \"full\" higher-order unification when solving class instances");
     register_bool_option(*g_unifier_conservative, LEAN_DEFAULT_UNIFIER_CONSERVATIVE,
                          "(unifier) unfolds only constants marked as reducible, avoid expensive case-splits (it is faster but less complete)");
+    register_bool_option(*g_unifier_nonchronological, LEAN_DEFAULT_UNIFIER_NONCHRONOLOGICAL,
+                         "(unifier) enable/disable nonchronological backtracking in the unifier (this option is only available for debugging and benchmarking purposes, and running experiments)");
 
     g_dont_care_cnstr = new constraint(mk_eq_cnstr(expr(), expr(), justification(), false));
     g_tmp_prefix      = new name(name::mk_internal_unique_name());
@@ -2572,5 +2586,6 @@ void finalize_unifier() {
     delete g_unifier_computation;
     delete g_unifier_expensive_classes;
     delete g_unifier_conservative;
+    delete g_unifier_nonchronological;
 }
 }

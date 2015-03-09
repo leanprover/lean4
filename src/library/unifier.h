@@ -64,6 +64,9 @@ struct unifier_config {
     // If m_ignore_context_check == true, then occurs-check is skipped.
     // Default is m_ignore_context_check == false
     bool     m_ignore_context_check;
+    // If m_nonchronological is true, then nonchronological backtracking is used in the unifier.
+    // Default is true
+    bool     m_nonchronological;
     unifier_config(bool use_exceptions = false, bool discard = false);
     explicit unifier_config(options const & o, bool use_exceptions = false, bool discard = false);
 };

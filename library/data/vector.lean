@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: data.vector
 Author: Floris van Doorn, Leonardo de Moura
 -/
-import data.nat data.list
-open nat prod
+import data.nat data.list data.fin
+open nat prod fin
 
 inductive vector (A : Type) : nat → Type :=
 | nil {} : vector A zero
@@ -61,6 +61,22 @@ namespace vector
   | last_const 0        a := rfl
   | last_const (succ n) a := last_const n a
 
+  definition nth : Π {n : nat}, vector A n → fin n → A
+  | ⌞succ n⌟ (h :: t) (fz n) := h
+  | ⌞succ n⌟ (h :: t) (fs f) := nth t f
+
+  definition tabulate : Π {n : nat}, (fin n → A) → vector A n
+  | 0         f  :=  nil
+  | (succ n)  f  :=  f (fz n) :: tabulate (λ i : fin n, f (fs i))
+
+  theorem nth_tabulate : ∀ {n : nat} (f : fin n → A) (i : fin n), nth (tabulate f) i = f i
+  | (succ n) f (fz n) := rfl
+  | (succ n) f (fs i) :=
+    begin
+      change (nth (tabulate (λ i : fin n, f (fs i))) i = f (fs i)),
+      rewrite nth_tabulate
+    end
+
   definition map (f : A → B) : Π {n : nat}, vector A n → vector B n
   | map nil    := nil
   | map (a::v) := f a :: map v
@@ -70,6 +86,14 @@ namespace vector
 
   theorem map_cons {n : nat} (f : A → B) (h : A) (t : vector A n) : map f (h :: t) =  f h :: map f t :=
   rfl
+
+  theorem nth_map (f : A → B) : ∀ {n : nat} (v : vector A n) (i : fin n), nth (map f v) i = f (nth v i)
+  | (succ n) (h :: t) (fz n) := rfl
+  | (succ n) (h :: t) (fs i) :=
+    begin
+      change (nth (map f t) i = f (nth t i)),
+      rewrite nth_map
+    end
 
   definition map2 (f : A → B → C) : Π {n : nat}, vector A n → vector B n → vector C n
   | map2 nil     nil     := nil
@@ -231,5 +255,19 @@ namespace vector
       rewrite H₂,
       apply heq.refl
    end
+
+   /- decidable equality -/
+  open decidable
+  definition decidable_eq [H : decidable_eq A] : ∀ {n : nat} (v₁ v₂ : vector A n), decidable (v₁ = v₂)
+  | ⌞zero⌟   nil     nil     := inl rfl
+  | ⌞succ n⌟ (a::v₁) (b::v₂) :=
+    match H a b with
+    | inl Hab  :=
+      match decidable_eq v₁ v₂ with
+      | inl He := inl (eq.rec_on Hab (eq.rec_on He rfl))
+      | inr Hn := inr (λ H₁, vector.no_confusion H₁ (λ e₁ e₂ e₃, absurd (heq.to_eq e₃) Hn))
+      end
+    | inr Hnab := inr (λ H₁, vector.no_confusion H₁ (λ e₁ e₂ e₃, absurd e₂ Hnab))
+  end
 
 end vector

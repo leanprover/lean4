@@ -1616,39 +1616,6 @@ struct unifier_fn {
             }
         }
 
-        /**
-           \see mk_flex_rigid_app_cnstrs
-           When using "imitation" for solving a constraint
-                ?m l_1 ... l_k =?= f a_1 ... a_n
-           We say argument a_i is "easy" if
-                 1) it is a local constant
-                 2) there is only one l_j equal to a_i.
-                 3) none of the l_j's is of the form (?m ...)
-           In our experiments, the vast majority (> 2/3 of all cases) of the arguments are easy.
-
-           margs contains l_1 ... l_k
-           arg is the argument we are testing
-
-           Result: none if it is not an easy argument, and variable #k-i-1 if it is easy.
-           The variable is the "solution".
-        */
-        optional<expr> is_easy_flex_rigid_arg(expr const & arg) {
-            if (!is_local(arg))
-                return none_expr();
-            optional<expr> v;
-            unsigned num_margs = margs.size();
-            for (unsigned j = 0; j < num_margs; j++) {
-                if (is_meta(margs[j]))
-                    return none_expr();
-                if (is_local(margs[j]) && mlocal_name(arg) == mlocal_name(margs[j])) {
-                    if (v)
-                        return none_expr(); // failed, there is more than one possibility
-                    v = mk_var(num_margs - j - 1);
-                }
-            }
-            return v;
-        }
-
         void mk_app_projections() {
             lean_assert(is_metavar(m));
             lean_assert(is_app(rhs));
@@ -1879,8 +1846,6 @@ struct unifier_fn {
 
         \remark We store auxiliary constraints created in the reductions in \c aux. We return the new
         "reduce" application.
-
-        \remark We need this step because of the optimization based on is_easy_flex_rigid_arg
     */
     expr expose_local_args(expr const & lhs, justification const & j, bool relax, buffer<constraint> & aux) {
         buffer<expr> margs;
@@ -1888,7 +1853,6 @@ struct unifier_fn {
         bool modified = false;
         for (expr & marg : margs) {
             // Make sure that if marg is reducible to a local constant, then it is replaced with it.
-            // We need that because of the optimization based on is_easy_flex_rigid_arg
             if (!is_local(marg)) {
                 expr new_marg = whnf(marg, j, relax, aux);
                 if (is_local(new_marg)) {

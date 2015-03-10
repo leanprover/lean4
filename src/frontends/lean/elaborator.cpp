@@ -434,7 +434,7 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
 
 bool elaborator::has_coercions_from(expr const & a_type) {
     try {
-        expr const & a_cls = get_app_fn(whnf(a_type).first);
+        expr a_cls = get_app_fn(whnf(a_type).first);
         return is_constant(a_cls) && ::lean::has_coercions_from(env(), const_name(a_cls));
     } catch (exception&) {
         return false;

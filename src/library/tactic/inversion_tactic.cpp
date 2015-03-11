@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
+#include "kernel/error_msgs.h"
 #include "library/io_state_stream.h"
 #include "library/locals.h"
 #include "library/util.h"
@@ -111,6 +112,8 @@ class inversion_tac {
     unsigned                      m_nminors;
     declaration                   m_I_decl;
     declaration                   m_cases_on_decl;
+
+    bool                          m_throw_tactic_exception; // if true, then throw tactic_exception in case of failure, instead of returning none
 
     expr whnf(expr const & e) { return m_tc.whnf(e).first; }
     expr infer_type(expr const & e) { return m_tc.infer(e).first; }
@@ -480,21 +483,42 @@ class inversion_tac {
         return mk_pair(to_list(new_gs), to_list(new_args));
     }
 
-    struct inversion_exception : public exception {
-        inversion_exception(char const * msg):exception(msg) {}
-        inversion_exception(sstream const & strm):exception(strm) {}
-    };
+    // auxiliary exception used to interrupt execution
+    struct inversion_exception {};
 
     [[ noreturn ]] void throw_ill_formed_goal() {
-        throw inversion_exception("ill-formed goal");
+        if (m_throw_tactic_exception)
+            throw tactic_exception("invalid 'cases' tactic, ill-formed goal");
+        else
+            throw inversion_exception();
     }
 
     [[ noreturn ]] void throw_ill_typed_goal() {
-        throw inversion_exception("ill-typed goal");
+        if (m_throw_tactic_exception)
+            throw tactic_exception("invalid 'cases' tactic, ill-typed goal");
+        else
+            throw inversion_exception();
     }
 
-    void throw_unification_eq_rec_failure() {
-        throw inversion_exception("unification failed to eliminate eq.rec in homogeneous equality");
+    void throw_lift_down_failure() {
+        if (m_throw_tactic_exception)
+            throw tactic_exception("invalid 'cases' tactic, lift.down failed");
+        else
+            throw inversion_exception();
+    }
+
+    void throw_unification_eq_rec_failure(goal const & g, expr const & eq) {
+        if (m_throw_tactic_exception) {
+            throw tactic_exception([=](formatter const & fmt) {
+                    format r("invalid 'cases' tactic, unification failed to eliminate eq.rec in the homogeneous equality");
+                    r += pp_indent_expr(fmt, eq);
+                    r += compose(line(), format("auxiliary goal at time of failure"));
+                    r += nest(get_pp_indent(fmt.get_options()), compose(line(), g.pp(fmt)));
+                    return r;
+                });
+        } else {
+            throw inversion_exception();
+        }
     }
 
     /** \brief Process goal of the form:  Pi (H : eq.rec A s C a s p = b), R
@@ -516,8 +540,9 @@ class inversion_tac {
         // lhs is of the form  (eq.rec A s C a s p)
         // aux_eq is a term of type ((eq.rec A s C a s p) = a)
         auto aux_eq = apply_eq_rec_eq(m_tc, m_ios, to_list(hyps), lhs);
-        if (!aux_eq)
-            throw_unification_eq_rec_failure();
+        if (!aux_eq || has_expr_metavar_relaxed(*aux_eq)) {
+            throw_unification_eq_rec_failure(g, eq);
+        }
         buffer<expr> lhs_args;
         get_app_args(lhs, lhs_args);
         expr const & reduced_lhs = lhs_args[3];
@@ -569,7 +594,11 @@ class inversion_tac {
             assign(g.get_name(), val);
             return new_g;
         } else {
-            throw inversion_exception("unification failed to reduce heterogeneous equality into homogeneous one");
+            if (m_throw_tactic_exception) {
+                throw tactic_exception("invalid 'cases' tactic, unification failed to reduce heterogeneous equality into homogeneous one");
+            } else {
+                throw inversion_exception();
+            }
         }
     }
 
@@ -630,11 +659,13 @@ class inversion_tac {
     expr lift_down(expr const & v) {
         if (!m_proof_irrel) {
             expr v_type       = whnf(infer_type(v));
-            if (!is_app(v_type))
-                throw_unification_eq_rec_failure();
+            if (!is_app(v_type)) {
+                throw_lift_down_failure();
+            }
             expr const & lift = app_fn(v_type);
-            if (!is_constant(lift) || const_name(lift) != get_lift_name())
-                throw_unification_eq_rec_failure();
+            if (!is_constant(lift) || const_name(lift) != get_lift_name()) {
+                throw_lift_down_failure();
+            }
             return mk_app(mk_constant(get_lift_down_name(), const_levels(lift)), app_arg(v_type), v);
         } else {
             return v;
@@ -701,8 +732,12 @@ class inversion_tac {
             if (!is_constant(A_fn) || !inductive::is_inductive_decl(m_env, const_name(A_fn)))
                 throw_ill_typed_goal();
             name no_confusion_name(const_name(A_fn), "no_confusion");
-            if (!m_env.find(no_confusion_name))
-                throw inversion_exception(sstream() << "construction '" << no_confusion_name << "' is not available in the environment");
+            if (!m_env.find(no_confusion_name)) {
+                if (m_throw_tactic_exception)
+                    throw tactic_exception(sstream() << "invalid 'cases' tactic, construction '" << no_confusion_name << "' is not available in the environment");
+                else
+                    throw inversion_exception();
+            }
             expr no_confusion = mk_app(mk_app(mk_constant(no_confusion_name, cons(g_lvl, const_levels(A_fn))), A_args), g_type, lhs, rhs, eq);
             if (const_name(lhs_fn) == const_name(rhs_fn)) {
                 // injectivity transition
@@ -814,7 +849,16 @@ class inversion_tac {
             assign(g.get_name(), val);
             return unify_eqs(new_g, neqs);
         }
-        throw inversion_exception("unification failed");
+        if (m_throw_tactic_exception) {
+            throw tactic_exception([=](formatter const & fmt) {
+                    format r("invalid 'cases' tactic, unification failed");
+                    r += compose(line(), format("auxiliary goal at time of failure"));
+                    r += nest(get_pp_indent(fmt.get_options()), compose(line(), g.pp(fmt)));
+                    return r;
+                });
+        } else {
+            throw inversion_exception();
+        }
     }
 
     auto unify_eqs(list<goal> const & gs, list<list<expr>> args, list<implementation_list> imps) ->
@@ -878,14 +922,15 @@ class inversion_tac {
 
 public:
     inversion_tac(environment const & env, io_state const & ios, name_generator const & ngen,
-                  type_checker & tc, substitution const & subst, list<name> const & ids):
+                  type_checker & tc, substitution const & subst, list<name> const & ids,
+                  bool throw_tactic_ex):
         m_env(env), m_ios(ios), m_tc(tc), m_ids(ids),
-        m_ngen(ngen), m_subst(subst) {
+        m_ngen(ngen), m_subst(subst), m_throw_tactic_exception(throw_tactic_ex) {
         m_proof_irrel = m_env.prop_proof_irrel();
     }
 
     inversion_tac(environment const & env, io_state const & ios, type_checker & tc):
-        inversion_tac(env, ios, tc.mk_ngen(), tc, substitution(), list<name>()) {}
+        inversion_tac(env, ios, tc.mk_ngen(), tc, substitution(), list<name>(), false) {}
 
     typedef inversion::result result;
 
@@ -950,7 +995,7 @@ tactic inversion_tactic(name const & n, list<name> const & ids) {
         goals tail_gs     = tail(gs);
         name_generator ngen              = ps.get_ngen();
         std::unique_ptr<type_checker> tc = mk_type_checker(env, ngen.mk_child(), ps.relax_main_opaque());
-        inversion_tac tac(env, ios, ngen, *tc, ps.get_subst(), ids);
+        inversion_tac tac(env, ios, ngen, *tc, ps.get_subst(), ids, ps.report_failure());
         if (auto res = tac.execute(g, n, implementation_list())) {
             proof_state new_s(ps, append(res->m_goals, tail_gs), res->m_subst, res->m_ngen);
             return some_proof_state(new_s);

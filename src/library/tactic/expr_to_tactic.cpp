@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/annotation.h"
 #include "library/string.h"
+#include "library/explicit.h"
 #include "library/num.h"
 #include "library/constants.h"
 #include "library/kernel_serializer.h"
@@ -113,12 +114,19 @@ void check_tactic_expr(expr const & e, char const * error_msg) {
 name const & tactic_expr_to_id(expr e, char const * error_msg) {
     if (is_tactic_expr(e))
         e = get_tactic_expr_expr(e);
-    if (is_constant(e))
+
+    if (is_constant(e)) {
         return const_name(e);
-    else if (is_local(e))
+    } else if (is_local(e)) {
         return local_pp_name(e);
-    else
+    } else if (is_as_atomic(e)) {
+        e = get_app_fn(get_as_atomic_arg(e));
+        if (is_explicit(e))
+            e = get_explicit_arg(e);
+        return tactic_expr_to_id(e, error_msg);
+    } else {
         throw expr_to_tactic_exception(e, error_msg);
+    }
 }
 
 static expr * g_expr_list_cons = nullptr;

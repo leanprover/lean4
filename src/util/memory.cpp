@@ -68,8 +68,8 @@ void free(void * ptr) {
 namespace lean {
 inline size_t malloc_size(void * ptr)             { return malloc_usable_size(ptr); }
 inline void * malloc_core(size_t sz)              { return ::malloc(sz); }
-inline void * realloc_core(void * ptr, size_t sz) { return realloc(ptr, sz); }
-inline void   free_core(void * ptr)               { free(ptr); }
+inline void * realloc_core(void * ptr, size_t sz) { return ::realloc(ptr, sz); }
+inline void   free_core(void * ptr)               { ::free(ptr); }
 }
 // REMARK: We commented the following piece of code because tc_malloc_size is hanging
 
@@ -86,16 +86,16 @@ inline void   free_core(void * ptr)               { free(ptr); }
 namespace lean {
 inline size_t malloc_size(void * ptr)             { return ::malloc_size(ptr); }
 inline void * malloc_core(size_t sz)              { return ::malloc(sz); }
-inline void * realloc_core(void * ptr, size_t sz) { return realloc(ptr, sz); }
-inline void   free_core(void * ptr)               { free(ptr); }
+inline void * realloc_core(void * ptr, size_t sz) { return ::realloc(ptr, sz); }
+inline void   free_core(void * ptr)               { ::free(ptr); }
 }
 #elif defined(HAS_MSIZE)
 #include <malloc.h> // NOLINT
 namespace lean {
 inline size_t malloc_size(void * ptr)             { return _msize(ptr); }
 inline void * malloc_core(size_t sz)              { return ::malloc(sz); }
-inline void * realloc_core(void * ptr, size_t sz) { return realloc(ptr, sz); }
-inline void   free_core(void * ptr)               { free(ptr); }
+inline void * realloc_core(void * ptr, size_t sz) { return ::realloc(ptr, sz); }
+inline void   free_core(void * ptr)               { ::free(ptr); }
 }
 #else
 namespace lean {

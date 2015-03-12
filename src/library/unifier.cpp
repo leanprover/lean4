@@ -211,8 +211,7 @@ unify_status unify_simple_core(substitution & s, expr const & lhs, expr const & 
         case occurs_check_status::Maybe:
             return unify_status::Unsupported;
         case occurs_check_status::Ok: {
-            expr v = Fun(args, rhs);
-            s.assign(mlocal_name(*m), v, j);
+            s.assign(*m, args, rhs, j);
             return unify_status::Solved;
         }}
     }
@@ -670,17 +669,17 @@ struct unifier_fn {
     }
 
     /**
-       \brief Assign \c v to metavariable \c m with justification \c j.
-       The type of v and m are inferred, and is_def_eq is invoked.
-       Any constraint that contains \c m is revisited.
+       \brief Given lhs of the form (m args), assign (m args) := rhs with justification j.
+       The type of lhs and rhs are inferred, and is_def_eq is invoked.
+
+       Any other constraint that contains \c m is revisited
 
        \remark If relax is true then opaque definitions from the main module are treated as transparent.
     */
-    bool assign(expr const & m, expr const & v, justification const & j, bool relax,
-                expr const & lhs, expr const & rhs) {
+    bool assign(expr const & lhs, expr const & m, buffer<expr> const & args, expr const & rhs, justification const & j, bool relax) {
         lean_assert(is_metavar(m));
         lean_assert(!in_conflict());
-        m_subst.assign(m, v, j);
+        m_subst.assign(m, args, rhs, j);
         constraint_seq cs;
         auto lhs_type = infer(lhs, relax, cs);
         auto rhs_type = infer(rhs, relax, cs);
@@ -790,7 +789,7 @@ struct unifier_fn {
             return Continue;
         case occurs_check_status::Ok:
             lean_assert(!m_subst.is_assigned(*m));
-            if (assign(*m, Fun(locals, rhs), j, relax, lhs, rhs)) {
+            if (assign(lhs, *m, locals, rhs, j, relax)) {
                 return Solved;
             } else {
                 return Failed;
@@ -2011,12 +2010,10 @@ struct unifier_fn {
             if (mlocal_name(lhs_args[i]) != mlocal_name(rhs_args[i]))
                 break;
         if (i == min_sz) {
-            if (lhs_args.size() == rhs_args.size()) {
-                return assign(ml, mr, c.get_justification(), relax_main_opaque(c), lhs, rhs);
-            } else if (lhs_args.size() < rhs_args.size()) {
-                return assign(mr, Fun(rhs_args, lhs), c.get_justification(), relax_main_opaque(c), rhs, lhs);
+            if (lhs_args.size() >= rhs_args.size()) {
+                return assign(lhs, ml, lhs_args, rhs, c.get_justification(), relax_main_opaque(c));
             } else {
-                return assign(ml, Fun(lhs_args, rhs), c.get_justification(), relax_main_opaque(c), lhs, rhs);
+                return assign(rhs, mr, rhs_args, lhs, c.get_justification(), relax_main_opaque(c));
             }
         } else {
             discard(c);

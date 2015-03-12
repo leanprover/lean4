@@ -466,10 +466,16 @@ optional<expr> mk_class_instance(environment const & env, io_state const & ios, 
     new_cfg.m_pattern        = true;
     new_cfg.m_kind           = C->m_conservative ? unifier_kind::VeryConservative : unifier_kind::Liberal;
     try {
-        auto p  = unify(env, 1, &c, C->m_ngen.mk_child(), substitution(), new_cfg).pull();
-        lean_assert(p);
-        substitution s = p->first.first;
-        return some_expr(s.instantiate_all(meta));
+        auto seq = unify(env, 1, &c, C->m_ngen.mk_child(), substitution(), new_cfg);
+        while (true) {
+            auto p = seq.pull();
+            lean_assert(p);
+            substitution s = p->first.first;
+            expr r = s.instantiate_all(meta);
+            if (!has_expr_metavar_relaxed(r))
+                return some_expr(r);
+            seq = p->second;
+        }
     } catch (exception &) {
         return none_expr();
     }

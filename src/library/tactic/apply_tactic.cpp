@@ -146,9 +146,7 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
             name_generator new_ngen(ngen);
             substitution new_subst = subst;
             expr new_e = new_subst.instantiate_all(e);
-            expr new_p = g.abstract(new_e);
-            check_has_no_local(new_p, _e, "apply");
-            new_subst.assign(g.get_name(), new_p);
+            assign(new_subst, g, new_e);
             goals new_gs = tail_gs;
             if (subgoals_action != IgnoreSubgoals) {
                 buffer<expr> metas;

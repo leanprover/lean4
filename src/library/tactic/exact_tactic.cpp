@@ -25,10 +25,8 @@ tactic exact_tactic(elaborate_fn const & elab, expr const & e, bool enforce_type
                                                        report_unassigned, enforce_type_during_elaboration)) {
                 goals const & gs   = new_s.get_goals();
                 goal const & g     = head(gs);
-                expr new_p         = g.abstract(*new_e);
                 substitution subst = new_s.get_subst();
-                check_has_no_local(new_p, e, "exact");
-                subst.assign(g.get_name(), new_p);
+                assign(subst, g, *new_e);
                 return some(proof_state(new_s, tail(gs), subst));
             }
             return none_proof_state();

@@ -172,6 +172,12 @@ void goal::get_hyps(buffer<expr> & r) const {
     get_app_args(m_meta, r);
 }
 
+void assign(substitution & s, goal const & g, expr const & v) {
+    buffer<expr> hyps;
+    expr const & mvar = get_app_args(g.get_meta(), hyps);
+    s.assign(mvar, hyps, v);
+}
+
 static bool uses_name(name const & n, buffer<expr> const & locals) {
     for (expr const & local : locals) {
         if (is_local(local) && local_pp_name(local) == n)

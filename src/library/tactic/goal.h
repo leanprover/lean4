@@ -103,6 +103,8 @@ public:
     format pp(formatter const & fmt) const;
 };
 
+void assign(substitution & s, goal const & g, expr const & v);
+
 name get_unused_name(name const & prefix, unsigned & idx, buffer<expr> const & locals);
 name get_unused_name(name const & prefix, buffer<expr> const & locals);
 name get_unused_name(name const & prefix, unsigned & idx, expr const & meta);

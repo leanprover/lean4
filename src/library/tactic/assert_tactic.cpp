@@ -46,9 +46,8 @@ tactic assert_tactic(elaborate_fn const & elab, name const & id, expr const & e)
                 expr new_meta2_core = mk_app(new_mvar2, hyps);
                 expr new_meta2      = mk_app(new_meta2_core, new_local);
                 goal new_goal2(new_meta2, g.get_type());
-                expr val            = g.abstract(mk_app(new_meta2_core, new_meta1));
                 substitution new_subst = new_s.get_subst();
-                new_subst.assign(g.get_name(), val);
+                assign(new_subst, g, mk_app(new_meta2_core, new_meta1));
                 return some_proof_state(proof_state(new_s, cons(new_goal1, cons(new_goal2, tail(gs))), new_subst, ngen));
             }
             return none_proof_state();

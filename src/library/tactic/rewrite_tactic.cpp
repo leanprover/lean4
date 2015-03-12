@@ -511,8 +511,7 @@ class rewrite_fn {
     void replace_goal(expr const & new_type) {
         expr M = m_g.mk_meta(m_ngen.next(), new_type);
         goal new_g(M, new_type);
-        expr val = m_g.abstract(M);
-        m_subst.assign(m_g.get_name(), val);
+        assign(m_subst, m_g, M);
         update_goal(new_g);
     }
 
@@ -540,8 +539,7 @@ class rewrite_fn {
         expr new_mvar = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));
         expr new_meta = mk_app(new_mvar, new_hyps);
         goal new_g(new_meta, new_type);
-        expr val      = m_g.abstract(new_meta);
-        m_subst.assign(m_g.get_name(), val);
+        assign(m_subst, m_g, new_meta);
         update_goal(new_g);
     }
 
@@ -968,8 +966,7 @@ class rewrite_fn {
             expr new_mvar = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));
             expr new_meta = mk_app(new_mvar, new_hyps);
             goal new_g(new_meta, new_type);
-            expr val      = m_g.abstract(mk_app(new_mvar, args));
-            m_subst.assign(m_g.get_name(), val);
+            assign(m_subst, m_g, mk_app(new_mvar, args));
             update_goal(new_g);
             return true;
         }
@@ -1003,8 +1000,7 @@ class rewrite_fn {
             }
 
             goal new_g(M, Pb);
-            expr val = m_g.abstract(H);
-            m_subst.assign(m_g.get_name(), val);
+            assign(m_subst, m_g, H);
             update_goal(new_g);
             // regular(m_env, m_ios) << "FOUND\n" << a << "\n==>\n" << b << "\nWITH\n" << Heq << "\n";
             // regular(m_env, m_ios) << H << "\n";
@@ -1116,13 +1112,13 @@ class rewrite_fn {
             expr rhs = app_arg(type);
             if (m_unifier_tc->is_def_eq(lhs, rhs, justification(), cs) && !cs) {
                 expr H = is_eq(type) ? mk_refl(*m_tc, lhs) : mk_iff_refl(lhs);
-                m_subst.assign(m_g.get_name(), m_g.abstract(H));
+                assign(m_subst, m_g, H);
                 return true;
             } else {
                 return false;
             }
         } else if (type == mk_true()) {
-            m_subst.assign(m_g.get_name(), mk_constant(get_eq_intro_name()));
+            assign(m_subst, m_g, mk_constant(get_eq_intro_name()));
             return true;
         } else {
             return false;

@@ -227,16 +227,16 @@ tactic assumption_tactic() {
             goals new_gs = map_goals(s, [&](goal const & g) -> optional<goal> {
                     expr const & t  = g.get_type();
                     optional<expr> h;
-                    buffer<expr> locals;
-                    get_app_args(g.get_meta(), locals);
-                    for (auto const & l : locals) {
+                    buffer<expr> hyps;
+                    g.get_hyps(hyps);
+                    for (auto const & l : hyps) {
                         if (mlocal_type(l) == t) {
                             h = l;
                             break;
                         }
                     }
                     if (h) {
-                        subst.assign(g.get_mvar(), g.abstract(*h), justification());
+                        assign(subst, g, *h);
                         solved = true;
                         return optional<goal>();
                     } else {

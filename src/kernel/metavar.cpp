@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/level.h"
 #include "kernel/cache_stack.h"
 #include "kernel/expr_cache.h"
+#include "kernel/abstract.h"
 
 #ifndef LEAN_INSTANTIATE_METAVARS_CACHE_CAPACITY
 #define LEAN_INSTANTIATE_METAVARS_CACHE_CAPACITY 1024*8
@@ -56,6 +57,10 @@ optional<expr> substitution::get_expr(name const & m) const {
 optional<level> substitution::get_level(name const & m) const {
     auto it = m_level_subst.find(m);
     return it ? some_level(*it) : none_level();
+}
+
+void substitution::assign(expr const & mvar, buffer<expr> const & locals, expr const & v, justification const & j) {
+    assign(mlocal_name(mvar), Fun(locals, v), j);
 }
 
 void substitution::assign(name const & m, expr const & t, justification const & j) {

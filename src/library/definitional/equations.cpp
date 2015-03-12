@@ -925,7 +925,7 @@ class equation_compiler_fn {
                 imps_list                 = tail(imps_list);
                 rn_maps                   = tail(rn_maps);
                 expr t                    = compile_core(new_p);
-                subst.assign(new_g.get_name(), new_g.abstract(t));
+                assign(subst, new_g, t);
             }
             expr t = subst.instantiate_all(g.get_meta());
             return some_expr(t);

@@ -162,8 +162,8 @@ class inversion_tac {
         }
     }
 
-    void assign(name const & n, expr const & val) {
-        m_subst.assign(n, val);
+    void assign(goal const & g, expr const & val) {
+        ::lean::assign(m_subst, g, val);
     }
 
     /** \brief We say h has independent indices IF
@@ -286,9 +286,9 @@ class inversion_tac {
             expr new_type = Pi(eqs, g.get_type());
             expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
             goal new_g(new_meta, new_type);
-            expr val      = g.abstract(mk_app(mk_app(mk_app(Fun(ts, Fun(h_new, new_meta)), m_nindices, I_args.end() - m_nindices), h),
-                                              refls));
-            assign(g.get_name(), val);
+            expr val      = mk_app(mk_app(mk_app(Fun(ts, Fun(h_new, new_meta)), m_nindices, I_args.end() - m_nindices), h),
+                                   refls);
+            assign(g, val);
             return new_g;
         } else {
             // proof relevant version
@@ -316,9 +316,9 @@ class inversion_tac {
             expr new_type = Pi(eqs, g.get_type());
             expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
             goal new_g(new_meta, new_type);
-            expr val      = g.abstract(mk_app(mk_app(mk_app(Fun(ts, Fun(h_new, new_meta)), m_nindices, I_args.end() - m_nindices), h),
-                                              refls));
-            assign(g.get_name(), val);
+            expr val      = mk_app(mk_app(mk_app(Fun(ts, Fun(h_new, new_meta)), m_nindices, I_args.end() - m_nindices), h),
+                                   refls);
+            assign(g, val);
             return new_g;
         }
     }
@@ -340,8 +340,8 @@ class inversion_tac {
         expr new_type = Pi(deps, g.get_type());
         expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(new_hyps, new_type)), new_hyps);
         goal new_g(new_meta, new_type);
-        expr val      = g.abstract(mk_app(new_meta, deps));
-        assign(g.get_name(), val);
+        expr val      = mk_app(new_meta, deps);
+        assign(g, val);
         return new_g;
     }
 
@@ -420,8 +420,7 @@ class inversion_tac {
             name const & intro_name = intro_names[i];
             new_imps.push_back(filter(imps, [&](implementation_ptr const & imp) { return imp->get_constructor_name() == intro_name; }));
         }
-        expr val        = g.abstract(cases_on);
-        assign(g.get_name(), val);
+        assign(g, cases_on);
         return mk_pair(to_list(new_goals), to_list(new_imps));
     }
 
@@ -484,8 +483,8 @@ class inversion_tac {
             expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(new_hyps, g_type)), new_hyps);
             goal new_g(new_meta, g_type);
             new_gs.push_back(new_g);
-            expr val      = g.abstract(Fun(nargs, new_hyps.end() - nargs, new_meta));
-            assign(g.get_name(), val);
+            expr val      = Fun(nargs, new_hyps.end() - nargs, new_meta);
+            assign(g, val);
             gs = tail(gs);
         }
         return mk_pair(to_list(new_gs), to_list(new_args));
@@ -566,8 +565,8 @@ class inversion_tac {
         // aux_eq : a = eq.rec A s C a s p
         expr trans_eq    = mk_app({mk_constant(get_eq_trans_name(), {lvl}), A, reduced_lhs, lhs, rhs, *aux_eq, old_eq});
         // trans_eq : a = b
-        expr val         = g.abstract(Fun(old_eq, mk_app(new_meta, trans_eq)));
-        assign(g.get_name(), val);
+        expr val         = Fun(old_eq, mk_app(new_meta, trans_eq));
+        assign(g, val);
         return intro_next_eq(new_g);
     }
 
@@ -598,8 +597,8 @@ class inversion_tac {
             hyps.pop_back();
             expr H        = mk_local(m_ngen.next(), g.get_unused_name(binding_name(type)), binding_domain(type), binder_info());
             expr to_eq    = mk_app(mk_constant(get_heq_to_eq_name(), const_levels(heq_fn)), args[0], args[1], args[3], H);
-            expr val      = g.abstract(Fun(H, mk_app(mk_app(new_mvar, hyps), to_eq)));
-            assign(g.get_name(), val);
+            expr val      = Fun(H, mk_app(mk_app(new_mvar, hyps), to_eq));
+            assign(g, val);
             return new_g;
         } else {
             if (m_throw_tactic_exception) {
@@ -626,8 +625,8 @@ class inversion_tac {
         hyps.push_back(new_hyp);
         expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
         goal new_g(new_meta, new_type);
-        expr val      = g.abstract(Fun(new_hyp, new_meta));
-        assign(g.get_name(), val);
+        expr val      = Fun(new_hyp, new_meta);
+        assign(g, val);
         return new_g;
     }
 
@@ -722,8 +721,7 @@ class inversion_tac {
             expr new_type = g.get_type();
             expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
             goal new_g(new_meta, new_type);
-            expr val      = g.abstract(new_meta);
-            assign(g.get_name(), val);
+            assign(g, new_meta);
             return unify_eqs(new_g, neqs-1);
         }
         buffer<expr> lhs_args, rhs_args;
@@ -755,15 +753,15 @@ class inversion_tac {
                 expr new_mvar = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
                 expr new_meta = mk_app(new_mvar, hyps);
                 goal new_g(new_meta, new_type);
-                expr val      = g.abstract(lift_down(mk_app(no_confusion, new_meta)));
-                assign(g.get_name(), val);
+                expr val      = lift_down(mk_app(no_confusion, new_meta));
+                assign(g, val);
                 unsigned A_nparams = *inductive::get_num_params(m_env, const_name(A_fn));
                 lean_assert(lhs_args.size() >= A_nparams);
                 return unify_eqs(new_g, neqs - 1 + lhs_args.size() - A_nparams);
             } else {
                 // conflict transition, eq is of the form c_1 ... = c_2 ..., where c_1 and c_2 are different constructors/intro rules.
-                expr val      = g.abstract(lift_down(no_confusion));
-                assign(g.get_name(), val);
+                expr val      = lift_down(no_confusion);
+                assign(g, val);
                 return optional<goal>(); // goal has been solved
             }
         }
@@ -798,8 +796,7 @@ class inversion_tac {
                 expr new_mvar           = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));
                 expr new_meta           = mk_app(new_mvar, new_hyps);
                 goal new_g(new_meta, new_type);
-                expr val                = g.abstract(new_meta);
-                assign(g.get_name(), val);
+                assign(g, new_meta);
                 return unify_eqs(new_g, neqs-1);
             } else {
                 expr deps_g_type    = Pi(deps, g_type);
@@ -837,8 +834,8 @@ class inversion_tac {
                 goal new_g(new_meta, new_type);
                 expr eq_rec_minor   = mk_app(new_mvar, non_deps);
                 eq_rec              = mk_app(eq_rec, eq_rec_minor, rhs, eq);
-                expr val            = g.abstract(mk_app(eq_rec, deps));
-                assign(g.get_name(), val);
+                expr val            = mk_app(eq_rec, deps);
+                assign(g, val);
                 return unify_eqs(new_g, neqs-1);
             }
         } else if (is_local(lhs)) {
@@ -853,8 +850,8 @@ class inversion_tac {
             level eq_symm_lvl = sort_level(m_tc.ensure_type(A).first);
             expr symm_pr  = mk_constant(get_eq_symm_name(), {eq_symm_lvl});
             symm_pr       = mk_app(symm_pr, A, lhs, rhs, eq);
-            expr val      = g.abstract(mk_app(new_meta, symm_pr));
-            assign(g.get_name(), val);
+            expr val      = mk_app(new_meta, symm_pr);
+            assign(g, val);
             return unify_eqs(new_g, neqs);
         }
         if (m_throw_tactic_exception) {
@@ -912,8 +909,8 @@ class inversion_tac {
         expr new_meta  = mk_app(mk_metavar(m_ngen.next(), Pi(new_hyps, g_type)), new_hyps);
         goal new_g(new_meta, g_type);
         unsigned ndeps = deps.size();
-        expr val       = g.abstract(Fun(ndeps, new_hyps.end() - ndeps, new_meta));
-        assign(g.get_name(), val);
+        expr val       = Fun(ndeps, new_hyps.end() - ndeps, new_meta);
+        assign(g, val);
         return mk_pair(new_g, rs);
     }
 
@@ -941,8 +938,7 @@ class inversion_tac {
             expr new_type = g.get_type();
             expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
             goal new_g(new_meta, new_type);
-            expr val      = g.abstract(new_meta);
-            assign(g.get_name(), val);
+            assign(g, new_meta);
             return new_g;
         } else {
             return g;

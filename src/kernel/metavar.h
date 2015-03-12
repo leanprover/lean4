@@ -60,6 +60,9 @@ public:
     bool is_expr_assigned(name const & m) const;
     bool is_level_assigned(name const & m) const;
 
+    void assign(expr const & mvar, buffer<expr> const & locals, expr const & v, justification const & j);
+    void assign(expr const & mvar, buffer<expr> const & locals, expr const & v) { return assign(mvar, locals, v, justification()); }
+
     void assign(name const & m, expr const & t, justification const & j);
     void assign(name const & m, expr const & t) { assign(m, t, justification()); }
     void assign(expr const & m, expr const & t, justification const & j) { assign(mlocal_name(m), t, j); }

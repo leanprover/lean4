@@ -85,6 +85,9 @@ public:
     */
     optional<pair<expr, unsigned>> find_hyp(name const & uname) const;
 
+    /** \brief Similar to find_hyp but use internal name */
+    optional<pair<expr, unsigned>> find_hyp_from_internal_name(name const & hname) const;
+
     /** \brief Store hypotheses in the given buffer.
 
         \remark The hypotheses are stored from left to right.

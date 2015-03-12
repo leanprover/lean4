@@ -146,17 +146,26 @@ list<expr> goal::to_context() const {
     return to_list(locals.begin(), locals.end());
 }
 
-optional<pair<expr, unsigned>> goal::find_hyp(name const & uname) const {
-    expr const * it = &m_meta;
+template<typename F>
+static optional<pair<expr, unsigned>> find_hyp_core(expr const & meta, F && pred) {
+    expr const * it = &meta;
     unsigned i = 0;
     while (is_app(*it)) {
         expr const & h = app_arg(*it);
-        if (local_pp_name(h) == uname)
+        if (pred(h))
             return some(mk_pair(h, i));
         i++;
         it = &app_fn(*it);
     }
     return optional<pair<expr, unsigned>>();
+}
+
+optional<pair<expr, unsigned>> goal::find_hyp(name const & uname) const {
+    return find_hyp_core(m_meta, [&](expr const & h) { return local_pp_name(h) == uname; });
+}
+
+optional<pair<expr, unsigned>> goal::find_hyp_from_internal_name(name const & n) const {
+    return find_hyp_core(m_meta, [&](expr const & h) { return mlocal_name(h) == n; });
 }
 
 void goal::get_hyps(buffer<expr> & r) const {

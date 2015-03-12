@@ -500,7 +500,8 @@ class rewrite_fn {
         auto tc = new type_checker(m_env, m_ngen.mk_child(),
                                    std::unique_ptr<converter>(new rewriter_converter(m_env, relax_main_opaque, to_unfold, unfolded)));
         constraint_seq cs;
-        expr r = normalize(*tc, e, cs);
+        bool use_eta = true;
+        expr r = normalize(*tc, e, cs, use_eta);
         if (!unfolded || cs) // FAIL if didn't unfolded or generated constraints
             return none_expr();
         return some_expr(r);

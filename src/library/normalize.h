@@ -14,23 +14,23 @@ namespace lean {
 
     \remark Unification constraints are only generated if \c e contains meta-variables.
 */
-expr normalize(environment const & env, expr const & e);
-expr normalize(environment const & env, level_param_names const & ls, expr const & e);
+expr normalize(environment const & env, expr const & e, bool eta = false);
+expr normalize(environment const & env, level_param_names const & ls, expr const & e, bool eta = false);
 /** \brief Similar to <tt>expr normalize(environment const & env, expr const & e)</tt>, but
     uses the converter associated with \c tc. */
-expr normalize(type_checker & tc, expr const & e);
-expr normalize(type_checker & tc, level_param_names const & ls, expr const & e);
+expr normalize(type_checker & tc, expr const & e, bool eta = false);
+expr normalize(type_checker & tc, level_param_names const & ls, expr const & e, bool eta = false);
 /** \brief Return the \c e normal form with respect to \c tc, and store generated constraints
     into \c cs.
 */
-expr normalize(type_checker & tc, expr const & e, constraint_seq & cs);
+expr normalize(type_checker & tc, expr const & e, constraint_seq & cs, bool eta = false);
 /** \brief Return the \c e normal form with respect to \c tc, and store generated constraints
     into \c cs.
 
     \remark A sub-expression is evaluated only if \c pred returns true.
 */
 expr normalize(type_checker & tc, expr const & e, std::function<bool(expr const&)> const & pred, // NOLINT
-               constraint_seq & cs);
+               constraint_seq & cs, bool eta = false);
 
 /** \brief c_unfold hint instructs the normalizer (and simplifier) that
     a function application (f a_1 ... a_i ... a_n) should be unfolded

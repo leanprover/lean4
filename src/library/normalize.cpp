@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "kernel/free_vars.h"
 #include "kernel/inductive/inductive.h"
 #include "library/reducible.h"
 #include "library/util.h"
@@ -97,6 +98,7 @@ class normalize_fn {
     std::function<bool(expr const &)> m_pred;  // NOLINT
     bool                              m_save_cnstrs;
     constraint_seq                    m_cnstrs;
+    bool                              m_use_eta;
 
     expr normalize_binding(expr const & e) {
         expr d = normalize(binding_domain(e));
@@ -137,6 +139,25 @@ class normalize_fn {
         }
     }
 
+    expr try_eta(expr const & e) {
+        lean_assert(is_lambda(e));
+        expr const & b = binding_body(e);
+        if (is_lambda(b)) {
+            expr new_b = try_eta(b);
+            if (is_eqp(b, new_b)) {
+                return e;
+            } else if (is_app(new_b) && is_var(app_arg(new_b), 0) && !has_free_var(app_fn(new_b), 0)) {
+                return lower_free_vars(app_fn(new_b), 1);
+            } else {
+                return update_binding(e, binding_domain(e), new_b);
+            }
+        } else if (is_app(b) && is_var(app_arg(b), 0) && !has_free_var(app_fn(b), 0)) {
+            return lower_free_vars(app_fn(b), 1);
+        } else {
+            return e;
+        }
+    }
+
     expr normalize(expr e) {
         check_system("normalize");
         if (!m_pred(e))
@@ -149,7 +170,14 @@ class normalize_fn {
         case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
         case expr_kind::Meta: case expr_kind::Local: case expr_kind::Macro:
             return e;
-        case expr_kind::Lambda: case expr_kind::Pi:
+        case expr_kind::Lambda: {
+            e = normalize_binding(e);
+            if (m_use_eta)
+                return try_eta(e);
+            else
+                return e;
+        }
+        case expr_kind::Pi:
             return normalize_binding(e);
         case expr_kind::App:
             return normalize_app(e);
@@ -158,14 +186,14 @@ class normalize_fn {
     }
 
 public:
-    normalize_fn(type_checker & tc, bool save = true):
+    normalize_fn(type_checker & tc, bool save, bool eta):
         m_tc(tc), m_ngen(m_tc.mk_ngen()),
         m_pred([](expr const &) { return true; }),
-        m_save_cnstrs(save) {}
+        m_save_cnstrs(save), m_use_eta(eta) {}
 
-    normalize_fn(type_checker & tc, std::function<bool(expr const &)> const & fn): // NOLINT
+    normalize_fn(type_checker & tc, std::function<bool(expr const &)> const & fn, bool eta): // NOLINT
         m_tc(tc), m_ngen(m_tc.mk_ngen()),
-        m_pred(fn), m_save_cnstrs(true) {}
+        m_pred(fn), m_save_cnstrs(true), m_use_eta(eta) {}
 
     expr operator()(expr const & e) {
         m_cnstrs = constraint_seq();
@@ -182,38 +210,39 @@ public:
     constraint_seq get_cnstrs() const { return m_cnstrs; }
 };
 
-expr normalize(environment const & env, expr const & e) {
+expr normalize(environment const & env, expr const & e, bool eta) {
     auto tc          = mk_type_checker(env, true);
     bool save_cnstrs = false;
-    return normalize_fn(*tc, save_cnstrs)(e);
+    return normalize_fn(*tc, save_cnstrs, eta)(e);
 }
 
-expr normalize(environment const & env, level_param_names const & ls, expr const & e) {
+expr normalize(environment const & env, level_param_names const & ls, expr const & e, bool eta) {
     auto tc          = mk_type_checker(env, true);
     bool save_cnstrs = false;
-    return normalize_fn(*tc, save_cnstrs)(ls, e);
+    return normalize_fn(*tc, save_cnstrs, eta)(ls, e);
 }
 
-expr normalize(type_checker & tc, expr const & e) {
+expr normalize(type_checker & tc, expr const & e, bool eta) {
     bool save_cnstrs = false;
-    return normalize_fn(tc, save_cnstrs)(e);
+    return normalize_fn(tc, save_cnstrs, eta)(e);
 }
 
-expr normalize(type_checker & tc, level_param_names const & ls, expr const & e) {
+expr normalize(type_checker & tc, level_param_names const & ls, expr const & e, bool eta) {
     bool save_cnstrs = false;
-    return normalize_fn(tc, save_cnstrs)(ls, e);
+    return normalize_fn(tc, save_cnstrs, eta)(ls, e);
 }
 
-expr normalize(type_checker & tc, expr const & e, constraint_seq & cs) {
-    normalize_fn fn(tc);
+expr normalize(type_checker & tc, expr const & e, constraint_seq & cs, bool eta) {
+    bool save_cnstrs = false;
+    normalize_fn fn(tc, save_cnstrs, eta);
     expr r = fn(e);
     cs += fn.get_cnstrs();
     return r;
 }
 
 expr normalize(type_checker & tc, expr const & e, std::function<bool(expr const &)> const & pred, // NOLINT
-               constraint_seq & cs) {
-    normalize_fn fn(tc, pred);
+               constraint_seq & cs, bool eta) {
+    normalize_fn fn(tc, pred, eta);
     expr r = fn(e);
     cs += fn.get_cnstrs();
     return r;

@@ -942,6 +942,26 @@ class inversion_tac {
         }
     }
 
+    // Remove hypothesis of the form (H : a = a)
+    goal remove_eq_refl_hypotheses(goal g) {
+        buffer<name> to_remove;
+        buffer<expr> hyps;
+        g.get_hyps(hyps);
+        for (expr const & h : hyps) {
+            expr const & h_type = mlocal_type(h);
+            if (!is_eq(h_type))
+                continue;
+            expr const & lhs = app_arg(app_fn(h_type));
+            expr const & rhs = app_arg(h_type);
+            if (lhs == rhs)
+                to_remove.push_back(mlocal_name(h));
+        }
+        for (name const & h : to_remove) {
+            g = clear_hypothesis(g, h);
+        }
+        return g;
+    }
+
     list<goal> clear_hypothesis(list<goal> const & gs, list<rename_map> rs, name const & h_name, expr const & h_type) {
         buffer<goal> new_gs;
         optional<name> lhs_name; // If h_type is of the form lhs = rhs, and lhs is also a hypothesis, then we also remove it.
@@ -953,6 +973,8 @@ class inversion_tac {
             goal new_g = clear_hypothesis(g, m.find(h_name));
             if (lhs_name)
                 new_g = clear_hypothesis(new_g, *lhs_name);
+            if (!m_proof_irrel)
+                new_g = remove_eq_refl_hypotheses(new_g);
             new_gs.push_back(new_g);
             rs = tail(rs);
         }

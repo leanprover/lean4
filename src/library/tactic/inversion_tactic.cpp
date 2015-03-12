@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/class_instance_synth.h"
 #include "library/tactic/inversion_tactic.h"
+#include "library/tactic/clear_tactic.h"
 
 namespace lean {
 namespace inversion {
@@ -920,6 +921,44 @@ class inversion_tac {
         return mk_pair(to_list(new_goals), to_list(new_rs));
     }
 
+    goal clear_hypothesis(goal const & g, name const & h) {
+        if (auto p = g.find_hyp_from_internal_name(h)) {
+            expr const & h = p->first;
+            unsigned i     = p->second;
+            buffer<expr> hyps;
+            g.get_hyps(hyps);
+            hyps.erase(hyps.size() - i - 1);
+            if (depends_on(g.get_type(), h) || depends_on(i, hyps.end() - i, h)) {
+                return g; // other hypotheses or result type depend on h
+            }
+            expr new_type = g.get_type();
+            expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);
+            goal new_g(new_meta, new_type);
+            expr val      = g.abstract(new_meta);
+            assign(g.get_name(), val);
+            return new_g;
+        } else {
+            return g;
+        }
+    }
+
+    list<goal> clear_hypothesis(list<goal> const & gs, list<rename_map> rs, name const & h_name, expr const & h_type) {
+        buffer<goal> new_gs;
+        optional<name> lhs_name; // If h_type is of the form lhs = rhs, and lhs is also a hypothesis, then we also remove it.
+        if (is_eq(h_type) && is_local(app_arg(app_fn(h_type)))) {
+            lhs_name = mlocal_name(app_arg(app_fn(h_type)));
+        }
+        for (goal const & g : gs) {
+            rename_map const & m = head(rs);
+            goal new_g = clear_hypothesis(g, m.find(h_name));
+            if (lhs_name)
+                new_g = clear_hypothesis(new_g, *lhs_name);
+            new_gs.push_back(new_g);
+            rs = tail(rs);
+        }
+        return to_list(new_gs);
+    }
+
 public:
     inversion_tac(environment const & env, io_state const & ios, name_generator const & ngen,
                   type_checker & tc, substitution const & subst, list<name> const & ids,
@@ -963,6 +1002,7 @@ public:
                 list<goal> gs4;
                 list<rename_map> rs;
                 std::tie(gs4, args, new_imps, rs)   = unify_eqs(gs3, args, new_imps);
+                gs4 = clear_hypothesis(gs4, rs, mlocal_name(h), h_type);
                 return optional<result>(result(gs4, args, new_imps, rs, m_ngen, m_subst));
             }
         } catch (inversion_exception & ex) {

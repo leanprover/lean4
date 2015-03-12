@@ -15,6 +15,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 class substitution {
+public:
+    typedef optional<pair<expr,  justification>> opt_expr_jst;
+    typedef optional<pair<level, justification>> opt_level_jst;
+private:
     typedef name_map<expr>                 expr_map;
     typedef name_map<level>                level_map;
     typedef name_map<justification>        jst_map;
@@ -37,25 +41,24 @@ class substitution {
     pair<expr, justification> instantiate_metavars_core(expr const & e, bool inst_local_types);
     bool occurs_expr_core(name const & m, expr const & e, name_set & visited) const;
     name_set get_occs(name const & m, name_set & fresh);
-public:
-    substitution();
-    typedef optional<pair<expr,  justification>> opt_expr_jst;
-    typedef optional<pair<level, justification>> opt_level_jst;
 
-    bool is_expr_assigned(name const & m) const;
     opt_expr_jst get_expr_assignment(name const & m) const;
-
-    bool is_level_assigned(name const & m) const;
+    optional<expr> get_expr(name const & m) const;
     opt_level_jst get_level_assignment(name const & m) const;
 
-    optional<expr> get_expr(name const & m) const;
-    optional<level> get_level(name const & m) const;
     justification get_expr_jst(name const & m) const {
         if (auto it = m_expr_jsts.find(m)) return *it; else return justification();
     }
     justification get_level_jst(name const & m) const {
         if (auto it = m_level_jsts.find(m)) return *it; else return justification();
     }
+
+public:
+    substitution();
+
+    optional<level> get_level(name const & m) const;
+    bool is_expr_assigned(name const & m) const;
+    bool is_level_assigned(name const & m) const;
 
     void assign(name const & m, expr const & t, justification const & j);
     void assign(name const & m, expr const & t) { assign(m, t, justification()); }
@@ -65,6 +68,9 @@ public:
     void assign(name const & m, level const & t) { assign(m, t, justification ()); }
     void assign(level const & m, level const & t, justification const & j) { assign(meta_id(m), t, j); }
     void assign(level const & m, level const & t) { assign(m, t, justification ()); }
+
+    /** \brief Given e of the form <tt>?m t1 ... t2</tt>, expand ?m and apply beta-reduction */
+    opt_expr_jst expand_metavar_app(expr const & e);
 
     pair<level, justification> instantiate_metavars(level const & l) { return instantiate_metavars(l, true); }
     level instantiate(level const & l) { return instantiate_metavars(l, false).first; }

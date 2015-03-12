@@ -1646,18 +1646,6 @@ static void open_constraint(lua_State * L) {
 // Substitution
 DECL_UDATA(substitution)
 static int mk_substitution(lua_State * L) { return push_substitution(L, substitution()); }
-static int subst_get_expr(lua_State * L) {
-    if (is_expr(L, 2))
-        return push_optional_expr(L, to_substitution(L, 1).get_expr(to_expr(L, 2)));
-    else
-        return push_optional_expr(L, to_substitution(L, 1).get_expr(to_name_ext(L, 2)));
-}
-static int subst_get_level(lua_State * L) {
-    if (is_level(L, 2))
-        return push_optional_level(L, to_substitution(L, 1).get_level(to_level(L, 2)));
-    else
-        return push_optional_level(L, to_substitution(L, 1).get_level(to_name_ext(L, 2)));
-}
 static int subst_assign(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 3) {
@@ -1697,46 +1685,6 @@ static int subst_is_expr_assigned(lua_State * L) { return push_boolean(L, to_sub
 static int subst_is_level_assigned(lua_State * L) { return push_boolean(L, to_substitution(L, 1).is_level_assigned(to_name_ext(L, 2))); }
 static int subst_occurs(lua_State * L) { return push_boolean(L, to_substitution(L, 1).occurs(to_expr(L, 2), to_expr(L, 3))); }
 static int subst_occurs_expr(lua_State * L) { return push_boolean(L, to_substitution(L, 1).occurs_expr(to_name_ext(L, 2), to_expr(L, 3))); }
-static int subst_get_expr_assignment(lua_State * L) {
-    auto r = to_substitution(L, 1).get_expr_assignment(to_name_ext(L, 2));
-    if (r) {
-        push_expr(L, r->first);
-        push_justification(L, r->second);
-    } else {
-        push_nil(L); push_nil(L);
-    }
-    return 2;
-}
-static int subst_get_level_assignment(lua_State * L) {
-    auto r = to_substitution(L, 1).get_level_assignment(to_name_ext(L, 2));
-    if (r) {
-        push_level(L, r->first);
-        push_justification(L, r->second);
-    } else {
-        push_nil(L); push_nil(L);
-    }
-    return 2;
-}
-static int subst_get_assignment(lua_State * L) {
-    if (is_expr(L, 2)) {
-        auto r = to_substitution(L, 1).get_assignment(to_expr(L, 2));
-        if (r) {
-            push_expr(L, r->first);
-            push_justification(L, r->second);
-        } else {
-            push_nil(L); push_nil(L);
-        }
-    } else {
-        auto r = to_substitution(L, 1).get_assignment(to_level(L, 2));
-        if (r) {
-            push_level(L, r->first);
-            push_justification(L, r->second);
-        } else {
-            push_nil(L); push_nil(L);
-        }
-    }
-    return 2;
-}
 static int subst_instantiate(lua_State * L) {
     if (is_expr(L, 2)) {
         auto r = to_substitution(L, 1).instantiate_metavars(to_expr(L, 2));
@@ -1783,17 +1731,12 @@ static int subst_copy(lua_State * L) {
 static const struct luaL_Reg substitution_m[] = {
     {"__gc",                   substitution_gc},
     {"copy",                   safe_function<subst_copy>},
-    {"get_expr",               safe_function<subst_get_expr>},
-    {"get_level",              safe_function<subst_get_level>},
     {"assign",                 safe_function<subst_assign>},
     {"is_assigned",            safe_function<subst_is_assigned>},
     {"is_expr_assigned",       safe_function<subst_is_expr_assigned>},
     {"is_level_assigned",      safe_function<subst_is_level_assigned>},
     {"occurs",                 safe_function<subst_occurs>},
     {"occurs_expr",            safe_function<subst_occurs_expr>},
-    {"get_expr_assignment",    safe_function<subst_get_expr_assignment>},
-    {"get_level_assignment",   safe_function<subst_get_level_assignment>},
-    {"get_assignment",         safe_function<subst_get_assignment>},
     {"instantiate",            safe_function<subst_instantiate>},
     {"instantiate_all",        safe_function<subst_instantiate_all>},
     {"for_each_expr",          safe_function<subst_for_each_expr>},

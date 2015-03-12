@@ -255,6 +255,20 @@ expr substitution::instantiate_metavars_wo_jst(expr const & e, bool inst_local_t
     return instantiate_metavars_fn(*this, false, inst_local_types)(e);
 }
 
+auto substitution::expand_metavar_app(expr const & e) -> opt_expr_jst {
+    expr const & f = get_app_fn(e);
+    if (!is_metavar(f))
+        return opt_expr_jst();
+    name const & f_name = mlocal_name(f);
+    auto f_value = get_expr(f_name);
+    if (!f_value)
+        return opt_expr_jst();
+    buffer<expr> args;
+    get_app_rev_args(e, args);
+    expr new_e = apply_beta(*f_value, args.size(), args.data());
+    return opt_expr_jst(new_e, get_expr_jst(f_name));
+}
+
 static name_set merge(name_set s1, name_set const & s2) {
     s2.for_each([&](name const & n) { s1.insert(n); });
     return s1;

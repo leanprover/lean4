@@ -311,9 +311,38 @@ class match_fn : public match_context {
             return try_plugin(p, t);
     }
 
+    static expr eta(expr const & e) {
+        unsigned num = 0;
+        expr it = e;
+        while (is_lambda(it)) {
+            num++;
+            it = binding_body(it);
+        }
+        if (num == 0)
+            return e;
+        for (unsigned i = 0; i < num; i++) {
+            if (!is_app(it))
+                return e;
+            if (!is_var(app_arg(it), i)) {
+                return e;
+            }
+            it = app_fn(it);
+        }
+        if (!closed(it))
+            return e;
+        return it;
+    }
+
     bool match_core(expr const & p, expr const & t) {
-        if (p.kind() != t.kind())
+        if (p.kind() != t.kind()) {
+            if (is_lambda(p) != is_lambda(t)) {
+                expr new_p = eta(p);
+                expr new_t = eta(t);
+                if (is_lambda(new_p) == is_lambda(new_t))
+                    return _match(new_p, new_t);
+            }
             return try_plugin(p, t);
+        }
 
         if (m_plugin) {
             switch (m_plugin->pre(p, t, *this)) {

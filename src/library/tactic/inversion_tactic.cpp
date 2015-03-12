@@ -170,6 +170,7 @@ class inversion_tac {
         1- it is *not* an indexed inductive family, OR
         2- it is an indexed inductive family, but all indices are distinct local constants,
         and all hypotheses of g different from h and indices, do not depend on the indices.
+        3- if not m_dep_elim, then the conclusion does not depend on the indices.
     */
     bool has_indep_indices(goal const & g, expr const & h, expr const & h_type) {
         if (m_nindices == 0)
@@ -186,12 +187,18 @@ class inversion_tac {
                     return false; // the indices must be distinct local constants
             }
         }
+        if (!m_dep_elim) {
+            expr const & g_type = g.get_type();
+            if (std::any_of(args.end() - m_nindices, args.end(), [&](expr const & arg) { return depends_on(g_type, arg); }))
+                return false;
+        }
         buffer<expr> hyps;
         g.get_hyps(hyps);
         for (expr const & h1 : hyps) {
             if (mlocal_name(h1) == mlocal_name(h))
                 continue;
-            if (std::any_of(args.end() - m_nindices, args.end(), [&](expr const & arg) { return mlocal_name(arg) == mlocal_name(h1); }))
+            if (std::any_of(args.end() - m_nindices, args.end(),
+                            [&](expr const & arg) { return mlocal_name(arg) == mlocal_name(h1); }))
                 continue;
             // h1 is not h nor any of the indices
             // Thus, it must not depend on the indices

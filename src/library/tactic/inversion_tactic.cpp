@@ -742,7 +742,7 @@ class inversion_tac {
             if (const_name(lhs_fn) == const_name(rhs_fn)) {
                 // injectivity transition
                 expr new_type = binding_domain(whnf(infer_type(no_confusion)));
-                if (m_proof_irrel)
+                if (m_proof_irrel || !depends_on(g_type, hyps.back()))
                     hyps.pop_back(); // remove processed equality
                 expr new_mvar = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
                 expr new_meta = mk_app(new_mvar, hyps);
@@ -835,7 +835,7 @@ class inversion_tac {
             }
         } else if (is_local(lhs)) {
             // flip equation and reduce to previous case
-            if (m_proof_irrel)
+            if (m_proof_irrel || !depends_on(g_type, hyps.back()))
                 hyps.pop_back(); // remove processed equality
             expr symm_eq   = mk_eq(rhs, lhs).first;
             expr new_type  = mk_arrow(symm_eq, g_type);

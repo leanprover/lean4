@@ -1037,8 +1037,11 @@ public:
 
     optional<result> execute(goal const & g, name const & n, implementation_list const & imps) {
         auto p         = g.find_hyp(n);
-        if (!p)
+        if (!p) {
+            if (m_throw_tactic_exception)
+                throw tactic_exception(sstream() << "invalid 'cases' tactic, unknown hypothesis '" << n << "'");
             return optional<result>();
+        }
         expr const & h = p->first;
         return execute(g, h, imps);
     }

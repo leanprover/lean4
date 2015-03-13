@@ -58,7 +58,7 @@ namespace morphism
   theorem left_inverse_eq_right_inverse {f : a ⟶ b} {g g' : hom b a}
       (Hl : g ∘ f = id) (Hr : f ∘ g' = id) : g = g' :=
   calc
-      g = g ∘ id        : (id_right g)⁻¹
+      g = g ∘ id        : by rewrite id_right
     ... = g ∘ f ∘ g'    : by rewrite -Hr
     ... = (g ∘ f) ∘ g'  : by rewrite assoc
     ... = id ∘ g'       : by rewrite Hl

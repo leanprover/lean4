@@ -48,12 +48,12 @@ namespace category
     definition id_comp (a : ob) : ID a ∘ ID a = ID a := !id_left
 
     definition left_id_unique (H : Π{b} {f : hom b a}, i ∘ f = f) : i = id :=
-    calc i = i ∘ id : id_right
-       ... = id     : H
+    calc i = i ∘ id : by rewrite id_right
+       ... = id     : by rewrite H
 
     definition right_id_unique (H : Π{b} {f : hom a b}, f ∘ i = f) : i = id :=
-    calc i = id ∘ i : id_left
-       ... = id     : H
+    calc i = id ∘ i : by rewrite id_left
+       ... = id     : by rewrite H
 
     definition homset [reducible] (x y : ob) : hset :=
     hset.mk (hom x y) _
@@ -73,11 +73,11 @@ namespace category
       (xyab : wb ∘ xf = yf ∘ wa) (xybc : wc ∘ xg = yg ∘ wb)
         : wc ∘ (xg ∘ xf) = (yg ∘ yf) ∘ wa :=
     calc
-      wc ∘ (xg ∘ xf) = (wc ∘ xg) ∘ xf : assoc
-        ... = (yg ∘ wb) ∘ xf : xybc
-        ... = yg ∘ (wb ∘ xf) : assoc
-        ... = yg ∘ (yf ∘ wa) : xyab
-        ... = (yg ∘ yf) ∘ wa : assoc
+      wc ∘ (xg ∘ xf) = (wc ∘ xg) ∘ xf : by rewrite assoc
+        ... = (yg ∘ wb) ∘ xf : by rewrite xybc
+        ... = yg ∘ (wb ∘ xf) : by rewrite assoc
+        ... = yg ∘ (yf ∘ wa) : by rewrite xyab
+        ... = (yg ∘ yf) ∘ wa : by rewrite assoc
 
     set_option unifier.max_steps 30000
     definition compose_squares_2x2 {xa xb xc ya yb yc za zb zc : ob}
@@ -87,28 +87,28 @@ namespace category
       (yzab : vb ∘ yf = zf ∘ va) (yzbc : vc ∘ yg = zg ∘ vb)
         : (vc ∘ wc) ∘ (xg ∘ xf) = (zg ∘ zf) ∘ (va ∘ wa) :=
     calc
-      (vc ∘ wc) ∘ (xg ∘ xf) = vc ∘ (wc ∘ (xg ∘ xf)) : (assoc vc wc (xg ∘ xf))⁻¹ᵖ
-        ... = vc ∘ ((yg ∘ yf) ∘ wa) : {compose_squares xyab xybc}
-        ... = (vc ∘ (yg ∘ yf)) ∘ wa : assoc vc (yg ∘ yf) wa
-        ... = ((zg ∘ zf) ∘ va) ∘ wa : {compose_squares yzab yzbc}
-        ... = (zg ∘ zf) ∘ (va ∘ wa) : (assoc (zg ∘ zf) va wa)⁻¹ᵖ
+      (vc ∘ wc) ∘ (xg ∘ xf) = vc ∘ (wc ∘ (xg ∘ xf)) : by rewrite (assoc vc wc _)
+        ... = vc ∘ ((yg ∘ yf) ∘ wa) : by rewrite (compose_squares xyab xybc)
+        ... = (vc ∘ (yg ∘ yf)) ∘ wa : by rewrite assoc
+        ... = ((zg ∘ zf) ∘ va) ∘ wa : by rewrite (compose_squares yzab yzbc)
+        ... = (zg ∘ zf) ∘ (va ∘ wa) : by rewrite assoc
     set_option unifier.max_steps 20000
 
     definition square_precompose {xa xb xc yb yc : ob}
       {xg : xb ⟶ xc} {yg : yb ⟶ yc} {wb : xb ⟶ yb} {wc : xc ⟶ yc}
       (H : wc ∘ xg = yg ∘ wb) (xf : xa ⟶ xb) : wc ∘ xg ∘ xf = yg ∘ wb ∘ xf :=
     calc
-      wc ∘ xg ∘ xf = (wc ∘ xg) ∘ xf : assoc
-        ... = (yg ∘ wb) ∘ xf        : H
-        ... = yg ∘ wb ∘ xf          : assoc
+      wc ∘ xg ∘ xf = (wc ∘ xg) ∘ xf : by rewrite assoc
+        ... = (yg ∘ wb) ∘ xf        : by rewrite H
+        ... = yg ∘ wb ∘ xf          : by rewrite assoc
 
     definition square_postcompose {xb xc yb yc yd : ob}
       {xg : xb ⟶ xc} {yg : yb ⟶ yc} {wb : xb ⟶ yb} {wc : xc ⟶ yc}
       (H : wc ∘ xg = yg ∘ wb) (yh : yc ⟶ yd) : (yh ∘ wc) ∘ xg = (yh ∘ yg) ∘ wb :=
     calc
-      (yh ∘ wc) ∘ xg = yh ∘ wc ∘ xg : assoc
-        ... = yh ∘ yg ∘ wb          : H
-        ... = (yh ∘ yg) ∘ wb        : assoc
+      (yh ∘ wc) ∘ xg = yh ∘ wc ∘ xg : by rewrite assoc
+        ... = yh ∘ yg ∘ wb          : by rewrite H
+        ... = (yh ∘ yg) ∘ wb        : by rewrite assoc
 
     definition square_prepostcompose {xa xb xc yb yc yd : ob}
       {xg : xb ⟶ xc} {yg : yb ⟶ yc} {wb : xb ⟶ yb} {wc : xc ⟶ yc}

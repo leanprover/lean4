@@ -73,24 +73,24 @@ namespace is_equiv
       let retrf'a := retr f (f' a) in
       have eq1 : _ = _,
         from calc ap f secta ⬝ ff'a
-              = retrfa ⬝ ff'a : ap _ (@adj _ _ f _ _)
-          ... = ap (f ∘ invf) ff'a ⬝ retrf'a : ap_con_eq_con
-          ... = ap f (ap invf ff'a) ⬝ retrf'a : ap_compose invf f,
+              = retrfa ⬝ ff'a                 : by rewrite adj
+          ... = ap (f ∘ invf) ff'a ⬝ retrf'a  : by rewrite ap_con_eq_con
+          ... = ap f (ap invf ff'a) ⬝ retrf'a : by rewrite ap_compose,
       have eq2 : _ = _,
         from calc retrf'a
-              = (ap f (ap invf ff'a))⁻¹ ⬝ (ap f secta ⬝ ff'a) : eq_inv_con_of_con_eq _ _ _ eq1⁻¹
+              = (ap f (ap invf ff'a))⁻¹ ⬝ (ap f secta ⬝ ff'a)   : eq_inv_con_of_con_eq _ _ _ eq1⁻¹
           ... = (ap f (ap invf ff'a))⁻¹ ⬝ (ap f secta ⬝ Hty a) : ap_inv invf ff'a
-          ... = (ap f (ap invf ff'a))⁻¹ ⬝ (Hty (invf (f a)) ⬝ ap f' secta) : ap_con_eq_con_ap
-          ... = ((ap f (ap invf ff'a))⁻¹ ⬝ Hty (invf (f a))) ⬝ ap f' secta : con.assoc
-          ... = (ap f (ap invf ff'a)⁻¹ ⬝ Hty (invf (f a))) ⬝ ap f' secta : ap_inv
-          ... = (Hty (invf (f' a)) ⬝ ap f' (ap invf ff'a)⁻¹) ⬝ ap f' secta : ap_con_eq_con_ap
-          ... = (Hty (invf (f' a)) ⬝ (ap f' (ap invf ff'a))⁻¹) ⬝ ap f' secta : ap_inv
-          ... = Hty (invf (f' a)) ⬝ ((ap f' (ap invf ff'a))⁻¹ ⬝ ap f' secta) : con.assoc,
+          ... = (ap f (ap invf ff'a))⁻¹ ⬝ (Hty (invf (f a)) ⬝ ap f' secta) : by rewrite ap_con_eq_con_ap
+          ... = ((ap f (ap invf ff'a))⁻¹ ⬝ Hty (invf (f a))) ⬝ ap f' secta : by rewrite con.assoc
+          ... = (ap f (ap invf ff'a)⁻¹ ⬝ Hty (invf (f a))) ⬝ ap f' secta   : by rewrite ap_inv
+          ... = (Hty (invf (f' a)) ⬝ ap f' (ap invf ff'a)⁻¹) ⬝ ap f' secta : by rewrite ap_con_eq_con_ap
+          ... = (Hty (invf (f' a)) ⬝ (ap f' (ap invf ff'a))⁻¹) ⬝ ap f' secta : by rewrite ap_inv
+          ... = Hty (invf (f' a)) ⬝ ((ap f' (ap invf ff'a))⁻¹ ⬝ ap f' secta) : by rewrite con.assoc,
       have eq3 : _ = _,
         from calc (Hty (invf (f' a)))⁻¹ ⬝ retrf'a
               = (ap f' (ap invf ff'a))⁻¹ ⬝ ap f' secta : inv_con_eq_of_eq_con _ _ _ eq2
-          ... = (ap f' (ap invf ff'a)⁻¹) ⬝ ap f' secta : ap_inv
-          ... = ap f' ((ap invf ff'a)⁻¹ ⬝ secta) : ap_con,
+          ... = (ap f' (ap invf ff'a)⁻¹) ⬝ ap f' secta : by rewrite ap_inv
+          ... = ap f' ((ap invf ff'a)⁻¹ ⬝ secta)       : by rewrite ap_con,
     eq3) in
   is_equiv.mk (inv f) sect' retr' adj'
   end
@@ -110,25 +110,25 @@ namespace is_equiv
       let retrfa := ret (f a) in
       have eq1 : ap f (sec a) = _,
         from calc ap f (sec a)
-              = idp ⬝ ap f (sec a) : !idp_con⁻¹
-          ... = (ret (f a) ⬝ (ret (f a))⁻¹) ⬝ ap f (sec a) : {!con.right_inv⁻¹}
-          ... = ((ret fgfa)⁻¹ ⬝ ap (f ∘ g) (ret (f a))) ⬝ ap f (sec a) : {!con_ap_eq_con⁻¹}
-          ... = ((ret fgfa)⁻¹ ⬝ fgretrfa) ⬝ ap f (sec a) : {ap_compose g f _}
-          ... = (ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a)) : !con.assoc,
+              = idp ⬝ ap f (sec a)                                     : by rewrite idp_con
+          ... = (ret (f a) ⬝ (ret (f a))⁻¹) ⬝ ap f (sec a)             : by rewrite con.right_inv
+          ... = ((ret fgfa)⁻¹ ⬝ ap (f ∘ g) (ret (f a))) ⬝ ap f (sec a) : by rewrite con_ap_eq_con
+          ... = ((ret fgfa)⁻¹ ⬝ fgretrfa) ⬝ ap f (sec a)               : by rewrite ap_compose
+          ... = (ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a))               : by rewrite con.assoc,
       have eq2 : ap f (sec a) ⬝ idp = (ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a)),
         from !con_idp ⬝ eq1,
       have eq3 : idp = _,
         from calc idp
               = (ap f (sec a))⁻¹ ⬝ ((ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a))) : eq_inv_con_of_con_eq _ _ _ eq2
-          ... = ((ap f (sec a))⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ (fgretrfa ⬝ ap f (sec a)) : !con.assoc'
-          ... = (ap f (sec a)⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ (fgretrfa ⬝ ap f (sec a)) : {!ap_inv⁻¹}
-          ... = ((ap f (sec a)⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ fgretrfa) ⬝ ap f (sec a) : !con.assoc'
-          ... = ((retrfa⁻¹ ⬝ ap (f ∘ g) (ap f (sec a)⁻¹)) ⬝ fgretrfa) ⬝ ap f (sec a) : {!con_ap_eq_con⁻¹}
-          ... = ((retrfa⁻¹ ⬝ fgfinvsect) ⬝ fgretrfa) ⬝ ap f (sec a) : {ap_compose g f _}
-          ... = (retrfa⁻¹ ⬝ (fgfinvsect ⬝ fgretrfa)) ⬝ ap f (sec a) : {!con.assoc'⁻¹}
-          ... = retrfa⁻¹ ⬝ ap f (ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ ap f (sec a) : {!ap_con⁻¹}
-          ... = retrfa⁻¹ ⬝ (ap f (ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ ap f (sec a)) : !con.assoc'⁻¹
-          ... = retrfa⁻¹ ⬝ ap f ((ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ sec a) : {!ap_con⁻¹},
+          ... = ((ap f (sec a))⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ (fgretrfa ⬝ ap f (sec a)) : by rewrite con.assoc'
+          ... = (ap f (sec a)⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ (fgretrfa ⬝ ap f (sec a))   : by rewrite ap_inv
+          ... = ((ap f (sec a)⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ fgretrfa) ⬝ ap f (sec a)   : by rewrite con.assoc'
+          ... = ((retrfa⁻¹ ⬝ ap (f ∘ g) (ap f (sec a)⁻¹)) ⬝ fgretrfa) ⬝ ap f (sec a) : by rewrite con_ap_eq_con
+          ... = ((retrfa⁻¹ ⬝ fgfinvsect) ⬝ fgretrfa) ⬝ ap f (sec a)           : by rewrite ap_compose
+          ... = (retrfa⁻¹ ⬝ (fgfinvsect ⬝ fgretrfa)) ⬝ ap f (sec a)           : by rewrite con.assoc'
+          ... = retrfa⁻¹ ⬝ ap f (ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ ap f (sec a)   : by rewrite ap_con
+          ... = retrfa⁻¹ ⬝ (ap f (ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ ap f (sec a)) : by rewrite con.assoc'
+          ... = retrfa⁻¹ ⬝ ap f ((ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ sec a)        : by rewrite -ap_con,
       have eq4 : ret (f a) = ap f ((ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ sec a),
         from eq_of_idp_eq_inv_con _ _ eq3,
       eq4)
@@ -204,10 +204,10 @@ namespace is_equiv
   definition equiv_rect_comp (P : B → Type)
       (df : Π (x : A), P (f x)) (x : A) : equiv_rect f P df (f x) = df x :=
     calc equiv_rect f P df (f x)
-          = transport P (retr f (f x)) (df (f⁻¹ (f x))) : idp
-      ... = transport P (eq.ap f (sect f x)) (df (f⁻¹ (f x))) : adj f
-      ... = transport (P ∘ f) (sect f x) (df (f⁻¹ (f x))) : transport_compose
-      ... = df x : apD df (sect f x)
+          = transport P (retr f (f x)) (df (f⁻¹ (f x)))       : by esimp
+      ... = transport P (eq.ap f (sect f x)) (df (f⁻¹ (f x))) : by rewrite adj
+      ... = transport (P ∘ f) (sect f x) (df (f⁻¹ (f x)))     : by rewrite -transport_compose
+      ... = df x                                              : by rewrite (apD df (sect f x))
 
   end
 

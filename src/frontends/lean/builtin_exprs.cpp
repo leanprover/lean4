@@ -147,98 +147,113 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
         tacs.push_back(tac);
     };
 
-    while (!p.curr_is_token(end_token)) {
-        if (first) {
-            first = false;
-        } else {
-            auto pos = p.pos();
-            p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
-            if (p.collecting_info()) {
-                expr info_tac = p.save_pos(mk_info_tactic_expr(), pos);
-                tacs.push_back(mk_begin_end_element_annotation(info_tac));
-            }
-        }
-        if (p.curr_is_token(get_begin_tk())) {
-            auto pos = p.pos();
-            tacs.push_back(parse_begin_end_core(p, pos, get_end_tk(), true));
-        } else if (p.curr_is_token(get_lcurly_tk())) {
-            auto pos = p.pos();
-            tacs.push_back(parse_begin_end_core(p, pos, get_rcurly_tk(), true));
-        } else if (p.curr_is_token(end_token)) {
-            break;
-        } else if (p.curr_is_token(get_assert_tk())) {
-            auto pos = p.pos();
-            p.next();
-            name id  = p.check_id_next("invalid 'assert' tactic, identifier expected");
-            p.check_token_next(get_colon_tk(), "invalid 'assert' tactic, ':' expected");
-            expr A   = p.parse_expr();
-            expr assert_tac = p.save_pos(mk_assert_tactic_expr(id, A), pos);
-            tacs.push_back(mk_begin_end_element_annotation(assert_tac));
-        } else if (p.curr_is_token(get_have_tk())) {
-            auto pos = p.pos();
-            p.next();
-            auto id_pos = p.pos();
-            name id  = p.check_id_next("invalid 'have' tactic, identifier expected");
-            p.check_token_next(get_colon_tk(), "invalid 'have' tactic, ':' expected");
-            expr A   = p.parse_expr();
-            expr assert_tac = p.save_pos(mk_assert_tactic_expr(id, A), pos);
-            tacs.push_back(mk_begin_end_element_annotation(assert_tac));
-            if (p.curr_is_token(get_bar_tk())) {
-                expr local = p.save_pos(mk_local(id, A), id_pos);
-                expr t     = parse_local_equations(p, local);
-                t      = p.mk_app(get_exact_tac_fn(), t, pos);
-                t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
-                t      = p.save_pos(mk_begin_end_annotation(t), pos);
-                add_tac(t, pos);
+    try {
+        while (!p.curr_is_token(end_token)) {
+            if (first) {
+                first = false;
             } else {
-                p.check_token_next(get_comma_tk(), "invalid 'have' tactic, ',' expected");
-                if (p.curr_is_token(get_from_tk())) {
-                    // parse: 'from' expr
-                    p.next();
-                    auto pos = p.pos();
-                    expr t = p.parse_expr();
-                    t      = p.mk_app(get_exact_tac_fn(), t, pos);
-                    t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
-                    t      = p.save_pos(mk_begin_end_annotation(t), pos);
-                    add_tac(t, pos);
-                } else if (p.curr_is_token(get_proof_tk())) {
-                    auto pos = p.pos();
-                    p.next();
-                    expr t = p.parse_expr();
-                    p.check_token_next(get_qed_tk(), "invalid proof-qed, 'qed' expected");
-                    t      = p.mk_app(get_exact_tac_fn(), t, pos);
-                    t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
-                    t      = p.save_pos(mk_begin_end_annotation(t), pos);
-                    add_tac(t, pos);
-                } else if (p.curr_is_token(get_begin_tk())) {
-                    auto pos = p.pos();
-                    tacs.push_back(parse_begin_end_core(p, pos, get_end_tk(), true));
-                } else if (p.curr_is_token(get_by_tk())) {
-                    // parse: 'by' tactic
-                    auto pos = p.pos();
-                    p.next();
-                    expr t = p.parse_tactic();
-                    add_tac(t, pos);
-                } else {
-                    throw parser_error("invalid 'have' tactic, 'by', 'begin', 'proof', or 'from' expected", p.pos());
+                auto pos = p.pos();
+                p.check_token_next(get_comma_tk(), "invalid 'begin-end' expression, ',' expected");
+                if (p.collecting_info()) {
+                    expr info_tac = p.save_pos(mk_info_tactic_expr(), pos);
+                    tacs.push_back(mk_begin_end_element_annotation(info_tac));
                 }
             }
-        } else if (p.curr_is_token(get_show_tk())) {
-            auto pos = p.pos();
-            expr t = p.parse_expr();
-            t      = p.mk_app(get_exact_tac_fn(), t, pos);
-            add_tac(t, pos);
-        } else if (p.curr_is_token(get_match_tk()) || p.curr_is_token(get_assume_tk()) ||
-                   p.curr_is_token(get_take_tk())  || p.curr_is_token(get_fun_tk())) {
-            auto pos = p.pos();
-            expr t = p.parse_expr();
-            t      = p.mk_app(get_sexact_tac_fn(), t, pos);
-            add_tac(t, pos);
-        } else {
-            auto pos = p.pos();
-            expr t   = p.parse_tactic();
-            add_tac(t, pos);
+            if (p.curr_is_token(get_begin_tk())) {
+                auto pos = p.pos();
+                tacs.push_back(parse_begin_end_core(p, pos, get_end_tk(), true));
+            } else if (p.curr_is_token(get_lcurly_tk())) {
+                auto pos = p.pos();
+                tacs.push_back(parse_begin_end_core(p, pos, get_rcurly_tk(), true));
+            } else if (p.curr_is_token(end_token)) {
+                break;
+            } else if (p.curr_is_token(get_assert_tk())) {
+                auto pos = p.pos();
+                p.next();
+                name id  = p.check_id_next("invalid 'assert' tactic, identifier expected");
+                p.check_token_next(get_colon_tk(), "invalid 'assert' tactic, ':' expected");
+                expr A   = p.parse_expr();
+                expr assert_tac = p.save_pos(mk_assert_tactic_expr(id, A), pos);
+                tacs.push_back(mk_begin_end_element_annotation(assert_tac));
+            } else if (p.curr_is_token(get_have_tk())) {
+                auto pos = p.pos();
+                p.next();
+                auto id_pos = p.pos();
+                name id  = p.check_id_next("invalid 'have' tactic, identifier expected");
+                p.check_token_next(get_colon_tk(), "invalid 'have' tactic, ':' expected");
+                expr A   = p.parse_expr();
+                expr assert_tac = p.save_pos(mk_assert_tactic_expr(id, A), pos);
+                tacs.push_back(mk_begin_end_element_annotation(assert_tac));
+                if (p.curr_is_token(get_bar_tk())) {
+                    expr local = p.save_pos(mk_local(id, A), id_pos);
+                    expr t     = parse_local_equations(p, local);
+                    t      = p.mk_app(get_exact_tac_fn(), t, pos);
+                    t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
+                    t      = p.save_pos(mk_begin_end_annotation(t), pos);
+                    add_tac(t, pos);
+                } else {
+                    p.check_token_next(get_comma_tk(), "invalid 'have' tactic, ',' expected");
+                    if (p.curr_is_token(get_from_tk())) {
+                        // parse: 'from' expr
+                        p.next();
+                        auto pos = p.pos();
+                        expr t = p.parse_expr();
+                        t      = p.mk_app(get_exact_tac_fn(), t, pos);
+                        t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
+                        t      = p.save_pos(mk_begin_end_annotation(t), pos);
+                        add_tac(t, pos);
+                    } else if (p.curr_is_token(get_proof_tk())) {
+                        auto pos = p.pos();
+                        p.next();
+                        expr t = p.parse_expr();
+                        p.check_token_next(get_qed_tk(), "invalid proof-qed, 'qed' expected");
+                        t      = p.mk_app(get_exact_tac_fn(), t, pos);
+                        t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
+                        t      = p.save_pos(mk_begin_end_annotation(t), pos);
+                        add_tac(t, pos);
+                    } else if (p.curr_is_token(get_begin_tk())) {
+                        auto pos = p.pos();
+                        tacs.push_back(parse_begin_end_core(p, pos, get_end_tk(), true));
+                    } else if (p.curr_is_token(get_by_tk())) {
+                        // parse: 'by' tactic
+                        auto pos = p.pos();
+                        p.next();
+                        expr t = p.parse_tactic();
+                        add_tac(t, pos);
+                    } else {
+                        throw parser_error("invalid 'have' tactic, 'by', 'begin', 'proof', or 'from' expected", p.pos());
+                    }
+                }
+            } else if (p.curr_is_token(get_show_tk())) {
+                auto pos = p.pos();
+                expr t = p.parse_expr();
+                t      = p.mk_app(get_exact_tac_fn(), t, pos);
+                add_tac(t, pos);
+            } else if (p.curr_is_token(get_match_tk()) || p.curr_is_token(get_assume_tk()) ||
+                       p.curr_is_token(get_take_tk())  || p.curr_is_token(get_fun_tk())) {
+                auto pos = p.pos();
+                expr t = p.parse_expr();
+                t      = p.mk_app(get_sexact_tac_fn(), t, pos);
+                add_tac(t, pos);
+            } else {
+                auto pos = p.pos();
+                expr t   = p.parse_tactic();
+                add_tac(t, pos);
+            }
         }
+    } catch (exception & ex) {
+        if (end_token == get_end_tk()) {
+            // When the end_token is 'end', the default parser
+            // sync_command does not work well because it will
+            // interpret 'end' as a synchronization point because 'end' is also a command.
+            while (!p.curr_is_token(get_end_tk())) {
+                if (p.curr() == scanner::token_kind::Eof)
+                    ex.rethrow();
+                p.next();
+            }
+            p.next(); // consume 'end'
+        }
+        ex.rethrow();
     }
     auto end_pos = p.pos();
     p.next();

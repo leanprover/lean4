@@ -238,13 +238,15 @@ namespace category
 
   definition postcomposition_functor {x y : D} (h : x ⟶ y)
       : Slice_category D x ⇒ Slice_category D y :=
-  functor.mk (λ a, sigma.mk (to_ob a) (h ∘ ob_hom a))
-             (λ a b f, sigma.mk (hom_hom f)
-       (calc
-         (h ∘ ob_hom b) ∘ hom_hom f = h ∘ (ob_hom b ∘ hom_hom f) : (assoc h (ob_hom b) (hom_hom f))⁻¹
-           ... = h ∘ ob_hom a : congr_arg (λx, h ∘ x) (commute f)))
-             (λ a, rfl)
-             (λ a b c g f, dpair_eq rfl !proof_irrel)
+  functor.mk
+       (λ a, sigma.mk (to_ob a) (h ∘ ob_hom a))
+       (λ a b f,
+         ⟨hom_hom f,
+          calc
+            (h ∘ ob_hom b) ∘ hom_hom f = h ∘ (ob_hom b ∘ hom_hom f) : by rewrite assoc
+                                   ... = h ∘ ob_hom a               : by rewrite commute⟩)
+       (λ a, rfl)
+       (λ a b c g f, dpair_eq rfl !proof_irrel)
 
   -- -- in the following comment I tried to have (A = B) in the type of a == b, but that doesn't solve the problems
   -- definition heq2 {A B : Type} (H : A = B) (a : A) (b : B) := a == b
@@ -347,15 +349,15 @@ namespace category
         (show to_hom c ∘ (hom_src g ∘ hom_src f) = (hom_dst g ∘ hom_dst f) ∘ to_hom a,
          proof
          calc
-         to_hom c ∘ (hom_src g ∘ hom_src f) = (to_hom c ∘ hom_src g) ∘ hom_src f : !assoc
-           ... = (hom_dst g ∘ to_hom b) ∘ hom_src f  : {commute g}
-           ... = hom_dst g ∘ (to_hom b ∘ hom_src f)  : symm !assoc
-           ... = hom_dst g ∘ (hom_dst f ∘ to_hom a)  : {commute f}
-           ... = (hom_dst g ∘ hom_dst f) ∘ to_hom a  : !assoc
+         to_hom c ∘ (hom_src g ∘ hom_src f) = (to_hom c ∘ hom_src g) ∘ hom_src f : by rewrite assoc
+           ... = (hom_dst g ∘ to_hom b) ∘ hom_src f                              : by rewrite commute
+           ... = hom_dst g ∘ (to_hom b ∘ hom_src f)                              : by rewrite assoc
+           ... = hom_dst g ∘ (hom_dst f ∘ to_hom a)                              : by rewrite commute
+           ... = (hom_dst g ∘ hom_dst f) ∘ to_hom a                              : by rewrite assoc
          qed)
        ))
      (λ a, sigma.mk id (sigma.mk id (!id_right ⬝ (symm !id_left))))
-     (λ a b c d h g f, ndtrip_eq       !assoc    !assoc    !proof_irrel)
+     (λ a b c d h g f, ndtrip_eq    !assoc    !assoc    !proof_irrel)
      (λ a b f,         ndtrip_equal !id_left  !id_left  !proof_irrel)
      (λ a b f,         ndtrip_equal !id_right !id_right !proof_irrel)
 

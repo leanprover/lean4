@@ -312,8 +312,8 @@ namespace sigma
 
   definition comm_equiv_nondep (A B : Type) : (Σ(a : A), B) ≃ Σ(b : B), A :=
   calc
-    (Σ(a : A), B) ≃ A × B : equiv_prod
-              ... ≃ B × A : prod_comm_equiv
+    (Σ(a : A), B) ≃ A × B       : equiv_prod
+              ... ≃ B × A       : prod_comm_equiv
               ... ≃ Σ(b : B), A : equiv_prod
 
   /- ** Universal mapping properties -/

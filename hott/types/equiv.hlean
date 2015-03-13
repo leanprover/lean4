@@ -23,13 +23,13 @@ namespace is_equiv
     is_contr.mk
       (fiber.mk (f⁻¹ b) (retr f b))
       (λz, fiber.rec_on z (λa p, fiber.eq_mk ((ap f⁻¹ p)⁻¹ ⬝ sect f a) (calc
-        retr f b = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ((ap (f ∘ f⁻¹) p) ⬝ retr f b) : inv_con_cancel_left
-             ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (retr f (f a) ⬝ p) : by rewrite ap_con_eq_con
-             ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (ap f (sect f a) ⬝ p) : by rewrite adj
-             ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ap f (sect f a) ⬝ p : con.assoc
-             ... = (ap f (ap f⁻¹ p))⁻¹ ⬝ ap f (sect f a) ⬝ p : by rewrite ap_compose
-             ... = ap f (ap f⁻¹ p)⁻¹ ⬝ ap f (sect f a) ⬝ p : by rewrite ap_inv
-             ... = ap f ((ap f⁻¹ p)⁻¹ ⬝ sect f a) ⬝ p : by rewrite ap_con)))
+        retr f b = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ((ap (f ∘ f⁻¹) p) ⬝ retr f b) : by rewrite inv_con_cancel_left
+             ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (retr f (f a) ⬝ p)       : by rewrite ap_con_eq_con
+             ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (ap f (sect f a) ⬝ p)    : by rewrite adj
+             ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ap f (sect f a) ⬝ p      : by rewrite con.assoc
+             ... = (ap f (ap f⁻¹ p))⁻¹ ⬝ ap f (sect f a) ⬝ p     : by rewrite ap_compose
+             ... = ap f (ap f⁻¹ p)⁻¹ ⬝ ap f (sect f a) ⬝ p       : by rewrite ap_inv
+             ... = ap f ((ap f⁻¹ p)⁻¹ ⬝ sect f a) ⬝ p            : by rewrite ap_con)))
 
     definition is_contr_right_inverse : is_contr (Σ(g : B → A), f ∘ g ∼ id) :=
     begin

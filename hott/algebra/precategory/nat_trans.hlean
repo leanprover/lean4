@@ -25,11 +25,11 @@ namespace nat_trans
     (λ a, η a ∘ θ a)
     (λ a b f,
       calc
-        H f ∘ (η a ∘ θ a) = (H f ∘ η a) ∘ θ a : assoc
-                      ... = (η b ∘ G f) ∘ θ a : naturality η f
-                      ... = η b ∘ (G f ∘ θ a) : assoc
-                      ... = η b ∘ (θ b ∘ F f) : naturality θ f
-                      ... = (η b ∘ θ b) ∘ F f : assoc)
+        H f ∘ (η a ∘ θ a) = (H f ∘ η a) ∘ θ a : by rewrite assoc
+                      ... = (η b ∘ G f) ∘ θ a : by rewrite naturality
+                      ... = η b ∘ (G f ∘ θ a) : by rewrite assoc
+                      ... = η b ∘ (θ b ∘ F f) : by rewrite naturality
+                      ... = (η b ∘ θ b) ∘ F f : by rewrite assoc)
 
   infixr `∘n`:60 := compose
 

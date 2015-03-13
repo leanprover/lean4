@@ -759,7 +759,10 @@ class rewrite_fn {
                 if (!has_metavar(e)) {
                     return some_expr(e); // done
                 } else if (is_binding(e)) {
-                    throw_rewrite_exception("invalid rewrite tactic, pattern contains binders");
+                    unsigned next_idx = m_esubst.size();
+                    expr r = mk_idx_meta(next_idx, m_tc->infer(e).first);
+                    m_esubst.push_back(none_expr());
+                    return some_expr(r);
                 } else if (is_meta(e)) {
                     if (auto it = emap.find(e)) {
                         return some_expr(*it);

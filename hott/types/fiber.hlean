@@ -28,8 +28,6 @@ namespace fiber
     {intro x, cases x, apply idp},
     {intro x, cases x, apply idp},
   end
-  --set_option pp.notation false
-
 
   definition equiv_fiber_eq (x y : fiber f b)
     : (x = y) ≃ (Σ(p : point x = point y), point_eq x = ap f p ⬝ point_eq y) :=
@@ -41,13 +39,13 @@ namespace fiber
     apply sigma_equiv_sigma_id,
     intro p,
     apply equiv_of_equiv_of_eq,
-      {apply (ap (λx, x = _)), apply transport_eq_Fl},
+    rotate 1,
     apply inv_con_eq_equiv_eq_con,
+    {apply (ap (λx, x = _)), rewrite transport_eq_Fl}
   end
 
   definition eq_mk {x y : fiber f b} (p : point x = point y) (q : point_eq x = ap f p ⬝ point_eq y)
     : x = y :=
   to_inv !equiv_fiber_eq ⟨p, q⟩
-
 
 end fiber

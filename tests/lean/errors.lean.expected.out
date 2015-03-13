@@ -1,0 +1,8 @@
+errors.lean:4:0: error: unknown identifier 'a'
+tst1 : nat → nat → nat
+errors.lean:12:12: error: invalid tactic expression
+errors.lean:22:12: error: unknown identifier 'b'
+tst3 A : A → A → A
+foo.tst1 : ℕ → ℕ → ℕ
+foo.tst2 : ℕ → ℕ → ℕ
+foo.tst3 : Π (A : Type), A → A → A

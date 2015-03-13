@@ -44,4 +44,8 @@ namespace equiv
   -- We can use this for calculation evironments
   calc_subst transport_of_equiv
 
+  definition rec_on_of_equiv_of_eq {A B : Type} {P : (A ≃ B) → Type}
+    (p : A ≃ B) (H : Π(q : A = B), P (equiv_of_eq q)) : P p :=
+  retr equiv_of_eq p ▹ H (ua p)
+
 end equiv

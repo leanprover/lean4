@@ -151,7 +151,7 @@ namespace category
   definition Precategory_hset [reducible] : Precategory :=
   Precategory.mk hset precategory_hset
 
-  section precategory_functor
+  section
     open iso functor nat_trans
     definition precategory_functor [instance] [reducible] (D C : Precategory)
       : precategory (functor C D) :=
@@ -168,7 +168,13 @@ namespace category
 
     -- definition Precategory_functor_rev [reducible] (C D : Precategory) : Precategory :=
     -- Precategory_functor D C
+  end
+  namespace ops
+    infixr `^c`:35 := Precategory_functor
+  end ops
 
+  section
+    open iso functor nat_trans
     /- we prove that if a natural transformation is pointwise an to_fun, then it is an to_fun -/
     variables {C D : Precategory} {F G : C ⇒ D} (η : F ⟹ G) [iso : Π(a : C), is_iso (η a)]
     include iso
@@ -199,13 +205,56 @@ namespace category
     apply is_hset.elim
     end
 
-    definition nat_trans_iso.mk : is_iso η :=
+    definition is_iso_nat_trans : is_iso η :=
     is_iso.mk (nat_trans_left_inverse η) (nat_trans_right_inverse η)
 
-  end precategory_functor
+    omit iso
+    -- local attribute is_iso_nat_trans [instance]
+    -- definition functor_iso_functor (H : Π(a : C), F a ≅ G a) : F ≅ G := -- is this true?
+    -- iso.mk _
+    end
+
+    section
+    open iso functor category.ops nat_trans iso.iso
+    /- and conversely, if a natural transformation is an iso, it is componentwise an iso -/
+    variables {C D : Precategory} {F G : D ^c C} (η : hom F G) [isoη : is_iso η] (c : C)
+    include isoη
+    definition componentwise_is_iso : is_iso (η c) :=
+    @is_iso.mk _ _ _ _ _ (natural_map η⁻¹ c) (ap010 natural_map ( left_inverse η) c)
+                                             (ap010 natural_map (right_inverse η) c)
+
+    local attribute componentwise_is_iso [instance]
+
+    definition natural_map_inverse : natural_map η⁻¹ c = (η c)⁻¹ := idp
+
+    definition naturality_iso {c c' : C} (f : c ⟶ c') : G f = η c' ∘ F f ∘ (η c)⁻¹ :=
+    calc
+      G f = (G f ∘ η c) ∘ (η c)⁻¹ : comp_inverse_cancel_right
+      ... = (η c' ∘ F f) ∘ (η c)⁻¹ : {naturality η f}
+      ... = η c' ∘ F f ∘ (η c)⁻¹ : assoc
+
+    definition naturality_iso' {c c' : C} (f : c ⟶ c') : (η c')⁻¹ ∘ G f ∘ η c = F f :=
+    calc
+     (η c')⁻¹ ∘ G f ∘ η c = (η c')⁻¹ ∘ η c' ∘ F f : {naturality η f}
+       ... = F f : inverse_comp_cancel_left
+
+    omit isoη
+
+    definition componentwise_iso (η : F ≅ G) (c : C) : F c ≅ G c :=
+    @iso.mk _ _ _ _ (natural_map (to_hom η) c)
+                    (@componentwise_is_iso _ _ _ _ (to_hom η) (struct η) c)
+
+    definition natural_map_hom_of_eq (p : F = G) (c : C)
+      : natural_map (hom_of_eq p) c = hom_of_eq (ap010 to_fun_ob p c) :=
+    eq.rec_on p idp
+
+    definition natural_map_inv_of_eq (p : F = G) (c : C)
+      : natural_map (inv_of_eq p) c = hom_of_eq (ap010 to_fun_ob p c)⁻¹ :=
+    eq.rec_on p idp
+
+    end
 
   namespace ops
-  infixr `^c`:35 := Precategory_functor
   infixr `×f`:30 := product.prod_functor
   infixr `ᵒᵖᶠ`:(max+1) := opposite.opposite_functor
   end ops

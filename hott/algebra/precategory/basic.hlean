@@ -47,6 +47,8 @@ namespace category
 
     definition id_comp (a : ob) : ID a ∘ ID a = ID a := !id_left
 
+    definition id_leftright (f : hom a b) : id ∘ f ∘ id = f := !id_left ⬝ !id_right
+
     definition left_id_unique (H : Π{b} {f : hom b a}, i ∘ f = f) : i = id :=
     calc i = i ∘ id : by rewrite id_right
        ... = id     : by rewrite H
@@ -60,7 +62,6 @@ namespace category
 
     definition is_hprop_eq_hom [instance] : is_hprop (f = f') :=
     !is_trunc_eq
-
 
   end basic_lemmas
   context squares

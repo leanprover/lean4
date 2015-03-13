@@ -149,13 +149,14 @@ equiv.mk apD10 _
 definition eq_of_homotopy {A : Type} {P : A → Type} {f g : Π x, P x} : f ∼ g → f = g :=
 (@apD10 A P f g)⁻¹
 
+--rename to eq_of_homotopy_idp
 definition eq_of_homotopy_id {A : Type} {P : A → Type} (f : Π x, P x)
   : eq_of_homotopy (λx : A, idpath (f x)) = idpath f :=
 is_equiv.sect apD10 idp
 
-definition eq_of_homotopy2 {A B : Type} {P : A → B → Type}
-  (f g : Πx y, P x y) : (Πx y, f x y = g x y) → f = g :=
-λ E, eq_of_homotopy (λx, eq_of_homotopy (E x))
-
 definition naive_funext_of_ua : naive_funext :=
 λ A P f g h, eq_of_homotopy h
+
+protected definition homotopy.rec_on {A : Type} {B : A → Type} {f g : Πa, B a} {P : (f ∼ g) → Type}
+  (p : f ∼ g) (H : Π(q : f = g), P (apD10 q)) : P p :=
+retr apD10 p ▹ H (eq_of_homotopy p)

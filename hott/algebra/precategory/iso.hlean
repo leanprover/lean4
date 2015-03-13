@@ -191,7 +191,37 @@ namespace iso
   end
 
   definition iso_of_eq (p : a = b) : a ≅ b :=
-  eq.rec_on p (iso.mk id)
+  eq.rec_on p (iso.refl a)
+
+  definition hom_of_eq (p : a = b) : a ⟶ b :=
+  iso.to_hom (iso_of_eq p)
+
+  definition inv_of_eq (p : a = b) : b ⟶ a :=
+  iso.to_inv (iso_of_eq p)
+
+  definition iso_of_eq_inv (p : a = b) : iso_of_eq p⁻¹ = iso.symm (iso_of_eq p) :=
+  eq.rec_on p idp
+
+  definition iso_of_eq_con (p : a = b) (q : b = c)
+    : iso_of_eq (p ⬝ q) = iso.trans (iso_of_eq p) (iso_of_eq q) :=
+  eq.rec_on q (eq.rec_on p (iso.eq_mk !id_comp⁻¹))
+
+
+  section
+    open funext
+    variables {X : Type} {x y : X} {F G : X → ob}
+    definition transport_hom_of_eq (p : F = G) (f : hom (F x) (F y))
+      : p ▹ f = hom_of_eq (apD10 p y) ∘ f ∘ inv_of_eq (apD10 p x) :=
+    eq.rec_on p !id_leftright⁻¹
+
+    definition transport_hom (p : F ∼ G) (f : hom (F x) (F y))
+      : eq_of_homotopy p ▹ f = hom_of_eq (p y) ∘ f ∘ inv_of_eq (p x) :=
+    calc
+      eq_of_homotopy p ▹ f =
+        hom_of_eq (apD10 (eq_of_homotopy p) y) ∘ f ∘ inv_of_eq (apD10 (eq_of_homotopy p) x)
+          : transport_hom_of_eq
+        ... = hom_of_eq (p y) ∘ f ∘ inv_of_eq (p x) : {retr apD10 p}
+  end
 
   structure mono [class] (f : a ⟶ b) :=
     (elim : ∀c (g h : hom c a), f ∘ g = f ∘ h → g = h)

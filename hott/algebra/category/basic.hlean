@@ -14,9 +14,11 @@ open iso is_equiv eq is_trunc
 -- that the function from paths to isomorphisms,
 -- is an equivalecnce.
 namespace category
+  definition is_univalent [reducible] {ob : Type} (C : precategory ob) :=
+  Π(a b : ob), is_equiv (@iso_of_eq ob C a b)
 
   structure category [class] (ob : Type) extends parent : precategory ob :=
-    (iso_of_path_equiv : Π (a b : ob), is_equiv (@iso_of_eq ob parent a b))
+    (iso_of_path_equiv : is_univalent parent)
 
   attribute category [multiple-instances]
 
@@ -34,7 +36,7 @@ namespace category
   -- TODO: Unsafe class instance?
   attribute iso_of_path_equiv [instance]
 
-  definition eq_of_iso (a b : ob) : a ≅ b → a = b :=
+  definition eq_of_iso {a b : ob} : a ≅ b → a = b :=
   iso_of_eq⁻¹ᵉ
 
   set_option apply.class_instance false -- disable class instance resolution in the apply tactic
@@ -64,8 +66,7 @@ namespace category
 
   definition category.Mk [reducible] := Category.mk
   definition category.MK [reducible] (C : Precategory)
-    (H : Π (a b : C), is_equiv (@iso_of_eq C C a b)) : Category :=
-  Category.mk C (category.mk' C C H)
+    (H : is_univalent C) : Category := Category.mk C (category.mk' C C H)
 
   definition Category.eta (C : Category) : Category.mk C C = C :=
   Category.rec (λob c, idp) C

@@ -660,6 +660,9 @@ namespace eq
     definition ap01111 (f : A → B → C → D → E) (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d')
         : f a b c d = f a' b' c' d' :=
     eq.rec_on Ha (ap0111 (f a) Hb Hc Hd)
+
+    definition ap010 {C : B → Type} (f : A → Π(b : B), C b) (Ha : a = a') (b : B) : f a b = f a' b :=
+    eq.rec_on Ha idp
   end
   section
     variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type}

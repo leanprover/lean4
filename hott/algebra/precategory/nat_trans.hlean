@@ -7,7 +7,7 @@ Author: Floris van Doorn, Jakob von Raumer
 -/
 
 import .functor .iso
-open eq category functor is_trunc equiv sigma.ops sigma is_equiv function pi funext
+open eq category functor is_trunc equiv sigma.ops sigma is_equiv function pi funext iso
 
 structure nat_trans {C D : Precategory} (F G : C ⇒ D) :=
  (natural_map : Π (a : C), hom (F a) (G a))
@@ -16,7 +16,7 @@ structure nat_trans {C D : Precategory} (F G : C ⇒ D) :=
 namespace nat_trans
 
   infixl `⟹`:25 := nat_trans -- \==>
-  variables {C D : Precategory} {F G H I : C ⇒ D}
+  variables {C D E : Precategory} {F G H I : C ⇒ D} {F' G' : D ⇒ E}
 
   attribute natural_map [coercion]
 
@@ -88,4 +88,27 @@ namespace nat_trans
     apply is_trunc_eq, apply is_trunc_succ, exact (@homH (Precategory.carrier D) _ (F a) (G b)),
   end
 
+  definition nat_trans_functor_compose [reducible] (η : G ⟹ H) (F : E ⇒ C) : G ∘f F ⟹ H ∘f F :=
+  nat_trans.mk
+    (λ a, η (F a))
+    (λ a b f, naturality η (F f))
+
+  definition functor_nat_trans_compose [reducible] (F : D ⇒ E) (η : G ⟹ H) : F ∘f G ⟹ F ∘f H :=
+  nat_trans.mk
+    (λ a, F (η a))
+    (λ a b f, calc
+      F (H f) ∘ F (η a) = F (H f ∘ η a) : respect_comp
+        ... = F (η b ∘ G f) : by rewrite (naturality η f)
+        ... = F (η b) ∘ F (G f) : respect_comp)
+
+  infixr `∘nf`:60 := nat_trans_functor_compose
+  infixr `∘fn`:60 := functor_nat_trans_compose
+
+  definition functor_nat_trans_compose_commute (η : F ⟹ G) (θ : F' ⟹ G')
+    : (θ ∘nf G) ∘n (F' ∘fn η) = (G' ∘fn η) ∘n (θ ∘nf F) :=
+  nat_trans_eq_mk (λc, (naturality θ (η c))⁻¹)
+
+  definition nat_trans_of_eq [reducible] (p : F = G) : F ⟹ G :=
+  nat_trans.mk (λc, hom_of_eq (ap010 to_fun_ob p c))
+               (λa b f, eq.rec_on p (!id_right ⬝ !id_left⁻¹))
 end nat_trans

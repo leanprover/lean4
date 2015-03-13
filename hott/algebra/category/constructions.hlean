@@ -93,9 +93,9 @@ namespace category
 
     definition eq_of_iso_functor (η : F ≅ G) : F = G :=
     begin
-    fapply functor_eq_mk,
+    fapply functor_eq,
       {exact (eq_of_iso_functor_ob η)},
-      {intros (c, c', f),
+      {intros (c, c', f), --unfold eq_of_iso_functor_ob, --TODO: report: this fails
         apply concat,
           {apply (ap (λx, to_hom x ∘ to_fun_hom F f ∘ _)), apply (retr iso_of_eq)},
         apply concat,
@@ -107,33 +107,42 @@ namespace category
     -- definition is_univalent_functor (C : Precategory) (D : Category) : is_univalent (D ^c C) :=
     -- λ(F G : D ^c C), adjointify _ eq_of_iso_functor sorry sorry
 
---    definition iso_of_hom
-
     definition iso_of_eq_eq_of_iso_functor (η : F ≅ G) : iso_of_eq (eq_of_iso_functor η) = η :=
     begin
     apply iso.eq_mk,
     apply nat_trans_eq_mk,
     intro c,
-    apply concat, apply natural_map_hom_of_eq,
-    apply concat, {apply (ap hom_of_eq), apply ap010_functor_eq_mk},
-    apply concat, {apply (ap to_hom), apply (retr iso_of_eq)},
-    apply idp
-    end
---check natural_map_
-    definition eq_of_iso_functor_iso_of_eq (p : F = G) : eq_of_iso_functor (iso_of_eq p) = p :=
-    begin
-    apply sorry
+    rewrite natural_map_hom_of_eq, esimp {eq_of_iso_functor},
+    rewrite ap010_functor_eq, esimp {hom_of_eq,eq_of_iso_functor_ob},
+    rewrite (retr iso_of_eq),
     end
 
-    definition is_univalent_functor (C : Precategory) (D : Category) : is_univalent (D ^c C) :=
+    definition eq_of_iso_functor_iso_of_eq (p : F = G) : eq_of_iso_functor (iso_of_eq p) = p :=
+    begin
+    apply functor_eq2,
+    intro c,
+    esimp {eq_of_iso_functor},
+    rewrite ap010_functor_eq,
+    esimp {eq_of_iso_functor_ob},
+    rewrite componentwise_iso_iso_of_eq,
+    rewrite (sect iso_of_eq)
+    end
+
+    definition is_univalent_functor (D : Category) (C : Precategory) : is_univalent (D ^c C) :=
     λF G, adjointify _ eq_of_iso_functor
                        iso_of_eq_eq_of_iso_functor
                        eq_of_iso_functor_iso_of_eq
 
   end functor
 
+  definition Category_functor_of_precategory (D : Category) (C : Precategory) : Category :=
+  category.MK (D ^c C) (is_univalent_functor D C)
 
-  definition category_functor (C : Precategory) (D : Category) : Category :=
-  category.MK (D ^c C) (is_univalent_functor C D)
+  definition Category_functor (D : Category) (C : Category) : Category :=
+  Category_functor_of_precategory D C
+
+  namespace ops
+    infixr `^c2`:35 := Category_functor
+  end ops
 
 end category

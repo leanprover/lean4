@@ -10,6 +10,8 @@ import algebra.precategory.basic types.sigma arity
 
 open eq category prod equiv is_equiv sigma sigma.ops is_trunc
 
+
+
 namespace iso
   structure split_mono [class] {ob : Type} [C : precategory ob] {a b : ob} (f : a ⟶ b) :=
     {retraction_of : b ⟶ a}
@@ -193,10 +195,10 @@ namespace iso
   definition iso_of_eq (p : a = b) : a ≅ b :=
   eq.rec_on p (iso.refl a)
 
-  definition hom_of_eq (p : a = b) : a ⟶ b :=
+  definition hom_of_eq [reducible] (p : a = b) : a ⟶ b :=
   iso.to_hom (iso_of_eq p)
 
-  definition inv_of_eq (p : a = b) : b ⟶ a :=
+  definition inv_of_eq [reducible] (p : a = b) : b ⟶ a :=
   iso.to_inv (iso_of_eq p)
 
   definition iso_of_eq_inv (p : a = b) : iso_of_eq p⁻¹ = iso.symm (iso_of_eq p) :=
@@ -205,7 +207,6 @@ namespace iso
   definition iso_of_eq_con (p : a = b) (q : b = c)
     : iso_of_eq (p ⬝ q) = iso.trans (iso_of_eq p) (iso_of_eq q) :=
   eq.rec_on q (eq.rec_on p (iso.eq_mk !id_comp⁻¹))
-
 
   section
     open funext

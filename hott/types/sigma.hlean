@@ -270,7 +270,7 @@ namespace sigma
   equiv.mk _ (adjointify
     (λu, (contr u.1)⁻¹ ▹ u.2)
     (λb, ⟨!center, b⟩)
-    (λb, ap (λx, x ▹ b) !hprop_eq)
+    (λb, ap (λx, x ▹ b) !hprop_eq_of_is_contr)
     (λu, sigma_eq !contr !tr_inv_tr))
 
   /- Associativity -/

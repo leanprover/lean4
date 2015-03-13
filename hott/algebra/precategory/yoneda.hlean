@@ -128,7 +128,7 @@ namespace functor
              (functor_uncurry_comp G)
 
   theorem functor_uncurry_functor_curry : functor_uncurry (functor_curry F) = F :=
-  functor_eq_mk (λp, ap (to_fun_ob F) !prod.eta)
+  functor_eq (λp, ap (to_fun_ob F) !prod.eta)
   begin
     intros (cd, cd', fg),
     cases cd with (c,d), cases cd' with (c',d'), cases fg with (f,g),
@@ -144,7 +144,7 @@ namespace functor
   definition functor_curry_functor_uncurry_ob (c : C)
     : functor_curry (functor_uncurry G) c = G c :=
   begin
-  fapply functor_eq_mk,
+  fapply functor_eq,
    {intro d, apply idp},
    {intros (d, d', g),
      apply concat, apply id_leftright,
@@ -159,17 +159,17 @@ namespace functor
 
   theorem functor_curry_functor_uncurry : functor_curry (functor_uncurry G) = G :=
   begin
-  fapply functor_eq_mk, exact (functor_curry_functor_uncurry_ob G),
+  fapply functor_eq, exact (functor_curry_functor_uncurry_ob G),
   intros (c, c', f),
   fapply nat_trans_eq_mk,
   intro d,
   apply concat,
     {apply (ap (λx, x ∘ _)),
-      apply concat, apply natural_map_hom_of_eq, apply (ap hom_of_eq), apply ap010_functor_eq_mk},
+      apply concat, apply natural_map_hom_of_eq, apply (ap hom_of_eq), apply ap010_functor_eq},
    apply concat,
      {apply (ap (λx, _ ∘ x)), apply (ap (λx, _ ∘ x)),
        apply concat, apply natural_map_inv_of_eq,
-       apply (ap (λx, hom_of_eq x⁻¹)), apply ap010_functor_eq_mk},
+       apply (ap (λx, hom_of_eq x⁻¹)), apply ap010_functor_eq},
   apply concat, apply id_leftright,
   apply concat, apply (ap (λx, x ∘ _)), apply respect_id,
   apply id_left
@@ -192,7 +192,7 @@ namespace functor
   definition functor_prod_flip_functor_prod_flip (C D : Precategory)
     : functor_prod_flip D C ∘f (functor_prod_flip C D) = functor.id :=
   begin
-  fapply functor_eq_mk, {intro p, apply prod.eta},
+  fapply functor_eq, {intro p, apply prod.eta},
   intros (p, p', h), cases p with (c, d), cases p' with (c', d'),
   apply id_leftright,
   end

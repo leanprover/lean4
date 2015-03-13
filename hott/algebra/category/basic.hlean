@@ -36,7 +36,7 @@ namespace category
   -- TODO: Unsafe class instance?
   attribute iso_of_path_equiv [instance]
 
-  definition eq_of_iso {a b : ob} : a ≅ b → a = b :=
+  definition eq_of_iso [reducible] {a b : ob} : a ≅ b → a = b :=
   iso_of_eq⁻¹ᵉ
 
   set_option apply.class_instance false -- disable class instance resolution in the apply tactic

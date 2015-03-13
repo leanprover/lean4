@@ -244,6 +244,13 @@ namespace category
     @iso.mk _ _ _ _ (natural_map (to_hom η) c)
                     (@componentwise_is_iso _ _ _ _ (to_hom η) (struct η) c)
 
+    definition componentwise_iso_id (c : C) : componentwise_iso (iso.refl F) c = iso.refl (F c) :=
+    iso.eq_mk (idpath id)
+
+    definition componentwise_iso_iso_of_eq (p : F = G) (c : C)
+      : componentwise_iso (iso_of_eq p) c = iso_of_eq (ap010 to_fun_ob p c) :=
+    eq.rec_on p !componentwise_iso_id
+
     definition natural_map_hom_of_eq (p : F = G) (c : C)
       : natural_map (hom_of_eq p) c = hom_of_eq (ap010 to_fun_ob p c) :=
     eq.rec_on p idp

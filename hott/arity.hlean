@@ -10,7 +10,7 @@ Theorems about functions with multiple arguments
 
 variables {A U V W X Y Z : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type}
           {E : Πa b c, D a b c → Type}
-variables {a a' : A} {u u' : U} {v v' : V} {w w' : W} {x x' : X} {y y' : Y}
+variables {a a' : A} {u u' : U} {v v' : V} {w w' : W} {x x' x'' : X} {y y' : Y}
           {b : B a} {b' : B a'}
           {c : C a b} {c' : C a' b'}
           {d : D a b c} {d' : D a' b' c'}
@@ -88,6 +88,18 @@ namespace eq
   definition apD1000 {f g : Πa b c, D a b c} (p : f = g) : f ∼3 g :=
   λa b c, apD100 (apD10 p a) b c
 
+  /- some properties of these variants of ap -/
+
+  -- we only prove what is needed somewhere
+
+  definition ap010_con (f : X → Πa, B a) (p : x = x') (q : x' = x'') :
+    ap010 f (p ⬝ q) a = ap010 f p a ⬝ ap010 f q a :=
+  eq.rec_on q (eq.rec_on p idp)
+
+  definition ap010_ap (f : X → Πa, B a) (g : Y → X) (p : y = y') :
+    ap010 f (ap g p) a = ap010 (λy, f (g y)) p a :=
+  eq.rec_on p idp
+
   /- the following theorems are function extentionality for functions with multiple arguments -/
 
   definition eq_of_homotopy2 {f g : Πa b, C a b} (H : f ∼2 g) : f = g :=
@@ -111,9 +123,10 @@ namespace eq
       {apply (ap (λx, eq_of_homotopy x)), apply eq_of_homotopy, intro a, apply eq_of_homotopy2_id},
     apply eq_of_homotopy_id
   end
+
 end eq
 
-open is_equiv eq
+open eq is_equiv
 namespace funext
   definition is_equiv_apD100 [instance] (f g : Πa b, C a b) : is_equiv (@apD100 A B C f g) :=
   adjointify _
@@ -156,4 +169,20 @@ namespace eq
   protected definition homotopy3.rec_on {f g : Πa b c, D a b c} {P : (f ∼3 g) → Type}
     (p : f ∼3 g) (H : Π(q : f = g), P (apD1000 q)) : P p :=
   retr apD1000 p ▹ H (eq_of_homotopy3 p)
+
+  definition apD10_ap (f : X → Πa, B a) (p : x = x')
+    : apD10 (ap f p) = ap010 f p :=
+  eq.rec_on p idp
+
+  definition eq_of_homotopy_ap010 (f : X → Πa, B a) (p : x = x')
+    : eq_of_homotopy (ap010 f p) = ap f p :=
+  inv_eq_of_eq !apD10_ap⁻¹
+
+  definition ap_eq_ap_of_homotopy {f : X → Πa, B a} {p q : x = x'} (H : ap010 f p ∼ ap010 f q)
+    : ap f p = ap f q :=
+  calc
+    ap f p = eq_of_homotopy (ap010 f p) : eq_of_homotopy_ap010
+       ... = eq_of_homotopy (ap010 f q) : eq_of_homotopy H
+       ... = ap f q                     : eq_of_homotopy_ap010
+
 end eq

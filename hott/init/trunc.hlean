@@ -101,16 +101,16 @@ namespace is_trunc
   definition contr [H : is_contr A] (a : A) : !center = a :=
   @contr_internal.contr A !is_trunc.to_internal a
 
+  --TODO: rename
   definition center_eq [H : is_contr A] (x y : A) : x = y :=
   (contr x)⁻¹ ⬝ (contr y)
 
-  definition hprop_eq {A : Type} [H : is_contr A] {x y : A} (p q : x = y) : p = q :=
+  definition hprop_eq_of_is_contr {A : Type} [H : is_contr A] {x y : A} (p q : x = y) : p = q :=
   have K : ∀ (r : x = y), center_eq x y = r, from (λ r, eq.rec_on r !con.left_inv),
   (K p)⁻¹ ⬝ K q
 
-  definition is_contr_eq {A : Type} [H : is_contr A] (x y : A) : is_contr (x = y)
-  :=
-  is_contr.mk !center_eq (λ p, !hprop_eq)
+  definition is_contr_eq {A : Type} [H : is_contr A] (x y : A) : is_contr (x = y) :=
+  is_contr.mk !center_eq (λ p, !hprop_eq_of_is_contr)
   local attribute is_contr_eq [instance]
 
   /- truncation is upward close -/
@@ -210,11 +210,12 @@ namespace is_trunc
 
   --should we remove the following two theorems as they are special cases of
   --"is_trunc_is_equiv_closed"
-  definition is_contr_is_equiv_closed (f : A → B) [Hf : is_equiv f] [HA: is_contr A] : (is_contr B) :=
-    is_contr.mk (f (center A)) (λp, eq_of_eq_inv f !contr)
+  definition is_contr_is_equiv_closed (f : A → B) [Hf : is_equiv f] [HA: is_contr A]
+    : (is_contr B) :=
+  is_contr.mk (f (center A)) (λp, eq_of_eq_inv !contr)
 
   theorem is_contr_equiv_closed (H : A ≃ B) [HA: is_contr A] : is_contr B :=
-    @is_contr_is_equiv_closed _ _ (to_fun H) (to_is_equiv H) _
+  @is_contr_is_equiv_closed _ _ (to_fun H) (to_is_equiv H) _
 
   definition equiv_of_is_contr_of_is_contr [HA : is_contr A] [HB : is_contr B] : A ≃ B :=
   equiv.mk

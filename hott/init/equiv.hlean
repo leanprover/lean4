@@ -139,39 +139,20 @@ namespace is_equiv
   end
 
   section
-  variables {A B: Type} (f : A → B)
-
-  --The inverse of an equivalence is, again, an equivalence.
-  definition is_equiv_inv [instance] [Hf : is_equiv f] : (is_equiv (inv f)) :=
-    adjointify (inv f) f (sect f) (retr f)
-  end
-
-  section
-  variables {A B C : Type} (f : A → B) {f' : A → B} [Hf : is_equiv f]
+  variables {A B C : Type} (f : A → B) {f' : A → B} [Hf : is_equiv f] (g : B → C)
   include Hf
 
-  variable (g : B → C)
+  --The inverse of an equivalence is, again, an equivalence.
+  definition is_equiv_inv [instance] : (is_equiv f⁻¹) :=
+  adjointify f⁻¹ f (sect f) (retr f)
 
   definition cancel_right (g : B → C) [Hgf : is_equiv (g ∘ f)] : (is_equiv g) :=
-    have Hfinv [visible] : is_equiv f⁻¹, from is_equiv_inv f,
-    @homotopy_closed _ _ _ _ (is_equiv_compose f⁻¹ (g ∘ f)) (λb, ap g (@retr _ _ f _ b))
+  have Hfinv [visible] : is_equiv f⁻¹, from is_equiv_inv f,
+  @homotopy_closed _ _ _ _ (is_equiv_compose f⁻¹ (g ∘ f)) (λb, ap g (@retr _ _ f _ b))
 
   definition cancel_left (g : C → A) [Hgf : is_equiv (f ∘ g)] : (is_equiv g) :=
-    have Hfinv [visible] : is_equiv f⁻¹, from is_equiv_inv f,
-    @homotopy_closed _ _ _ _ (is_equiv_compose (f ∘ g) f⁻¹) (λa, sect f (g a))
-
-  --Rewrite rules
-  definition eq_of_eq_inv {x : A} {y : B} (p : x = (inv f) y) : (f x = y) :=
-    (ap f p) ⬝ (@retr _ _ f _ y)
-
-  definition eq_of_inv_eq {x : A} {y : B} (p : (inv f) y = x) : (y = f x) :=
-    (eq_of_eq_inv f p⁻¹)⁻¹
-
-  definition inv_eq_of_eq {x : B} {y : A} (p : x = f y) : (inv f) x = y :=
-    ap f⁻¹ p ⬝ sect f y
-
-  definition eq_inv_of_eq {x : B} {y : A} (p : f y = x) : y = (inv f) x :=
-    (inv_eq_of_eq f p⁻¹)⁻¹
+  have Hfinv [visible] : is_equiv f⁻¹, from is_equiv_inv f,
+  @homotopy_closed _ _ _ _ (is_equiv_compose (f ∘ g) f⁻¹) (λa, sect f (g a))
 
   definition is_equiv_ap [instance] (x y : A) : is_equiv (ap f) :=
     adjointify (ap f)
@@ -208,6 +189,25 @@ namespace is_equiv
       ... = transport P (eq.ap f (sect f x)) (df (f⁻¹ (f x))) : by rewrite adj
       ... = transport (P ∘ f) (sect f x) (df (f⁻¹ (f x)))     : by rewrite -transport_compose
       ... = df x                                              : by rewrite (apD df (sect f x))
+
+  end
+
+  section
+  variables {A B : Type} {f : A → B} [Hf : is_equiv f] {a : A} {b : B}
+  include Hf
+
+  --Rewrite rules
+  definition eq_of_eq_inv (p : a = f⁻¹ b) : f a = b :=
+  ap f p ⬝ retr f b
+
+  definition eq_of_inv_eq (p : f⁻¹ b = a) : b = f a :=
+  (eq_of_eq_inv p⁻¹)⁻¹
+
+  definition inv_eq_of_eq (p : b = f a) : f⁻¹ b = a :=
+  ap f⁻¹ p ⬝ sect f a
+
+  definition eq_inv_of_eq (p : f a = b) : a = f⁻¹ b :=
+  (inv_eq_of_eq p⁻¹)⁻¹
 
   end
 

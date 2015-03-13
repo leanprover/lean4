@@ -85,7 +85,7 @@ context
   local attribute weak_funext [reducible]
   local attribute homotopy_ind [reducible]
   definition homotopy_ind_comp : homotopy_ind f (homotopy.refl f) = d :=
-    (@hprop_eq _ _ _ _ !center_eq idp)⁻¹ ▹ idp
+    (@hprop_eq_of_is_contr _ _ _ _ !center_eq idp)⁻¹ ▹ idp
 
 end
 

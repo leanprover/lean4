@@ -9,7 +9,7 @@ Ported from Coq HoTT
 Theorems about the types equiv and is_equiv
 -/
 
-import types.fiber types.arrow
+import types.fiber types.arrow arity
 
 open eq is_trunc sigma sigma.ops arrow pi
 

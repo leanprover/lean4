@@ -11,91 +11,6 @@ import .basic types.pi .iso
 open function category eq prod equiv is_equiv sigma sigma.ops is_trunc funext iso
 open pi
 
-
-
-
-  section
-
-  variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type}
-
-  definition homotopy2 [reducible] (f g : Πa b, C a b) : Type :=
-  Πa b, f a b = g a b
-
-  definition homotopy3 [reducible] (f g : Πa b c, D a b c) : Type :=
-  Πa b c, f a b c = g a b c
-  notation f `∼2`:50 g := homotopy2 f g
-  notation f `∼3`:50 g := homotopy3 f g
-
-  -- definition apD100 {f g : Πa b, C a b} (p : f = g) : f ∼2 g :=
-  -- λa b, eq.rec_on p idp
-
-  definition apD100 {f g : Πa b, C a b} (p : f = g) : f ∼2 g :=
-  λa b, apD10 (apD10 p a) b
-
-  definition apD1000 {f g : Πa b c, D a b c} (p : f = g) : f ∼3 g :=
-  λa b c, apD100 (apD10 p a) b c
-
-  definition eq_of_homotopy2 {f g : Πa b, C a b} (H : f ∼2 g) : f = g :=
-  eq_of_homotopy (λa, eq_of_homotopy (H a))
-
-  definition eq_of_homotopy3 {f g : Πa b c, D a b c} (H : f ∼3 g) : f = g :=
-  eq_of_homotopy (λa, eq_of_homotopy2 (H a))
-
-  definition eq_of_homotopy2_id (f : Πa b, C a b)
-    : eq_of_homotopy2 (λa b, idpath (f a b)) = idpath f :=
-  begin
-    apply concat,
-      {apply (ap (λx, eq_of_homotopy x)), apply eq_of_homotopy, intro a, apply eq_of_homotopy_id},
-    apply eq_of_homotopy_id
-  end
-
-  definition eq_of_homotopy3_id (f : Πa b c, D a b c)
-    : eq_of_homotopy3 (λa b c, idpath (f a b c)) = idpath f :=
-  begin
-    apply concat,
-      {apply (ap (λx, eq_of_homotopy x)), apply eq_of_homotopy, intro a, apply eq_of_homotopy2_id},
-    apply eq_of_homotopy_id
-  end
-
-  --TODO: put in namespace funext
-  definition is_equiv_apD100 [instance] (f g : Πa b, C a b) : is_equiv (@apD100 A B C f g) :=
-  adjointify _
-             eq_of_homotopy2
-             begin
-               intro H, esimp {apD100,eq_of_homotopy2, function.compose},
-               apply eq_of_homotopy, intro a,
-               apply concat, apply (ap (λx, @apD10 _ (λb : B a, _) _ _ (x a))), apply (retr apD10),
---TODO: remove implicit argument after #469 is closed
-               apply (retr apD10)
-             end
-             begin
-               intro p, cases p, apply eq_of_homotopy2_id
-             end
-
-  definition is_equiv_apD1000 [instance] (f g : Πa b c, D a b c) : is_equiv (@apD1000 A B C D f g) :=
-  adjointify _
-             eq_of_homotopy3
-             begin
-               intro H, apply eq_of_homotopy, intro a,
-               apply concat, {apply (ap (λx, @apD100 _ _ (λ(b : B a)(c : C a b), _) _ _ (x a))), apply (retr apD10)},
---TODO: remove implicit argument after #469 is closed
-               apply (@retr _ _ apD100 !is_equiv_apD100) --is explicit argument needed here?
-             end
-             begin
-               intro p, cases p, apply eq_of_homotopy3_id
-             end
-
-  protected definition homotopy2.rec_on {f g : Πa b, C a b} {P : (f ∼2 g) → Type}
-    (p : f ∼2 g) (H : Π(q : f = g), P (apD100 q)) : P p :=
-  retr apD100 p ▹ H (eq_of_homotopy2 p)
-
-  protected definition homotopy3.rec_on {f g : Πa b c, D a b c} {P : (f ∼3 g) → Type}
-    (p : f ∼3 g) (H : Π(q : f = g), P (apD1000 q)) : P p :=
-  retr apD1000 p ▹ H (eq_of_homotopy3 p)
-  end
-
-
-
 structure functor (C D : Precategory) : Type :=
   (to_fun_ob : C → D)
   (to_fun_hom : Π ⦃a b : C⦄, hom a b → hom (to_fun_ob a) (to_fun_ob b))
@@ -221,20 +136,39 @@ namespace functor
        apply is_trunc_eq, apply is_trunc_succ, apply !homH},
   end
 
+  definition functor_eq_eta' {ob₁ ob₂ : C → D} {hom₁ hom₂ id₁ id₂ comp₁ comp₂}
+    (p : functor.mk ob₁ hom₁ id₁ comp₁ = functor.mk ob₂ hom₂ id₂ comp₂)
+      : p = p := --functor_eq_mk' _ _ _ _ (ap010 to_fun_ob p) _ :=
+  sorry
   --set_option pp.universes true
   -- set_option pp.notation false
   -- set_option pp.implicit true
-  definition functor_eq2' {obF obF' : C → D} {homF homF' idF idF' compF compF'}
-    (p q : functor.mk obF homF idF compF = functor.mk obF' homF' idF' compF') (r : obF = obF')
-    : p = q :=
+  -- TODO: REMOVE?
+  definition functor_eq2'' {ob₁ ob₂ : C → D} {hom₁ hom₂ id₁ id₂ comp₁ comp₂}
+    {pob₁ pob₂ : ob₁ = ob₂} (phom₁ : pob₁ ▹ hom₁ = hom₂) (phom₂ : pob₂ ▹ hom₁ = hom₂)
+    (r : pob₁ = pob₂) : functor_eq_mk'' id₁ id₂ comp₁ comp₂ pob₁ phom₁
+                      = functor_eq_mk'' id₁ id₂ comp₁ comp₂ pob₂ phom₂ :=
   begin
     cases r,
+    apply (ap (functor_eq_mk'' id₁ id₂ @comp₁ @comp₂ pob₂)),
+    apply is_hprop.elim
+  end
+
+  definition functor_eq2' {ob₁ ob₂ : C → D} {hom₁ hom₂ id₁ id₂ comp₁ comp₂} {pob₁ pob₂ : ob₁ ∼ ob₂}
+(phom₁ : Π(a b : C) (f : hom a b), hom_of_eq (pob₁ b) ∘ hom₁ a b f ∘ inv_of_eq (pob₁ a) = hom₂ a b f)
+(phom₂ : Π(a b : C) (f : hom a b), hom_of_eq (pob₂ b) ∘ hom₁ a b f ∘ inv_of_eq (pob₂ a) = hom₂ a b f)
+    (r : pob₁ = pob₂) : functor_eq_mk' id₁ id₂ comp₁ comp₂ pob₁ phom₁
+                      = functor_eq_mk' id₁ id₂ comp₁ comp₂ pob₂ phom₂ :=
+  begin
+    cases r,
+    apply (ap (functor_eq_mk' id₁ id₂ @comp₁ @comp₂ pob₂)),
+    apply is_hprop.elim
   end
 
   definition functor_eq2 {F₁ F₂ : C ⇒ D} (p q : F₁ = F₂) (r : ap010 to_fun_ob p ∼ ap010 to_fun_ob q)
     : p = q :=
   begin
-
+    apply sorry
   end
 
   -- definition ap010_functor_eq_mk' {F₁ F₂ : C ⇒ D} (p : to_fun_ob F₁ = to_fun_ob F₂)

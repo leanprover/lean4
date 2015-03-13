@@ -3,7 +3,7 @@ Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Module: init.path
-Author: Jeremy Avigad, Jakob von Raumer, Floris van Doorn
+Authors: Jeremy Avigad, Jakob von Raumer, Floris van Doorn
 
 Ported from Coq HoTT
 -/
@@ -186,7 +186,7 @@ namespace eq
   definition ap ⦃A B : Type⦄ (f : A → B) {x y:A} (p : x = y) : f x = f y :=
   eq.rec_on p idp
 
-  definition ap01 := ap
+  definition ap01 [reducible] := ap
 
   definition homotopy [reducible] (f g : Πx, P x) : Type :=
   Πx : A, f x = g x
@@ -590,8 +590,6 @@ namespace eq
     (whisker_right a q) ⬝ (whisker_left p' b) = (whisker_left p b) ⬝ (whisker_right a q') :=
   eq.rec_on b (eq.rec_on a (idp_con _)⁻¹)
 
-
-
   -- Structure corresponding to the coherence equations of a bicategory.
 
   -- The "pentagonator": the 3-cell witnessing the associativity pentagon.
@@ -630,7 +628,6 @@ namespace eq
                         ⬝ (ap02 f r  ◾  ap02 f s)
                         ⬝ (ap_con f p' q')⁻¹ :=
   eq.rec_on r (eq.rec_on s (eq.rec_on q (eq.rec_on p idp)))
-  -- eq.rec_on r (eq.rec_on s (eq.rec_on p (eq.rec_on q idp)))
 
   definition apD02 {p q : x = y} (f : Π x, P x) (r : p = q) :
     apD f p = transport2 P r (f x) ⬝ apD f q :=
@@ -644,46 +641,4 @@ namespace eq
       ⬝ con.assoc' _ _ _
       ⬝ (whisker_right (tr2_con P r1 r2 (f x))⁻¹ (apD f p3)) :=
   eq.rec_on r2 (eq.rec_on r1 (eq.rec_on p1 idp))
-end eq
-
-namespace eq
-  section
-    variables {A B C D E : Type} {a a' : A} {b b' : B} {c c' : C} {d d' : D}
-
-    definition ap011 (f : A → B → C) (Ha : a = a') (Hb : b = b') : f a b = f a' b' :=
-    eq.rec_on Ha (eq.rec_on Hb idp)
-
-    definition ap0111 (f : A → B → C → D) (Ha : a = a') (Hb : b = b') (Hc : c = c')
-        : f a b c = f a' b' c' :=
-    eq.rec_on Ha (ap011 (f a) Hb Hc)
-
-    definition ap01111 (f : A → B → C → D → E) (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d')
-        : f a b c d = f a' b' c' d' :=
-    eq.rec_on Ha (ap0111 (f a) Hb Hc Hd)
-
-    definition ap010 {C : B → Type} (f : A → Π(b : B), C b) (Ha : a = a') (b : B) : f a b = f a' b :=
-    eq.rec_on Ha idp
-  end
-  section
-    variables {A : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type}
-              {E : Πa b c, D a b c → Type} {F : Type}
-    variables {a a' : A}
-              {b : B a} {b' : B a'}
-              {c : C a b} {c' : C a' b'}
-              {d : D a b c} {d' : D a' b' c'}
-
-    definition apD011 (f : Πa, B a → F) (Ha : a = a') (Hb : (Ha ▹ b) = b')
-        : f a b = f a' b' :=
-    eq.rec_on Hb (eq.rec_on Ha idp)
-
-    definition apD0111 (f : Πa b, C a b → F) (Ha : a = a') (Hb : (Ha ▹ b) = b')
-      (Hc : apD011 C Ha Hb ▹ c = c')
-        : f a b c = f a' b' c' :=
-    eq.rec_on Hc (eq.rec_on Hb (eq.rec_on Ha idp))
-
-    definition apD01111 (f : Πa b c, D a b c → F) (Ha : a = a') (Hb : (Ha ▹ b) = b')
-      (Hc : apD011 C Ha Hb ▹ c = c') (Hd : apD0111 D Ha Hb Hc ▹ d = d')
-        : f a b c d = f a' b' c' d' :=
-    eq.rec_on Hd (eq.rec_on Hc (eq.rec_on Hb (eq.rec_on Ha idp)))
-  end
 end eq

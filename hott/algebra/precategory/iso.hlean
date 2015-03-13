@@ -6,7 +6,7 @@ Module: algebra.precategory.iso
 Author: Floris van Doorn, Jakob von Raumer
 -/
 
-import algebra.precategory.basic types.sigma
+import algebra.precategory.basic types.sigma arity
 
 open eq category prod equiv is_equiv sigma sigma.ops is_trunc
 

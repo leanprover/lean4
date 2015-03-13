@@ -135,28 +135,28 @@ theorem weak_funext_of_ua : weak_funext :=
 definition funext_of_ua : funext :=
   funext_of_weak_funext (@weak_funext_of_ua)
 
+variables {A : Type} {P : A → Type} {f g : Π x, P x}
+
 namespace funext
-  definition is_equiv_apD [instance] {A : Type} {P : A → Type} (f g : Π x, P x)
-    : is_equiv (@apD10 A P f g) :=
+  definition is_equiv_apD [instance] (f g : Π x, P x) : is_equiv (@apD10 A P f g) :=
   funext_of_ua f g
 end funext
 
 open funext
 
-definition eq_equiv_homotopy {A : Type} {P : A → Type} {f g : Π x, P x} : (f = g) ≃ (f ∼ g) :=
+definition eq_equiv_homotopy : (f = g) ≃ (f ∼ g) :=
 equiv.mk apD10 _
 
-definition eq_of_homotopy {A : Type} {P : A → Type} {f g : Π x, P x} : f ∼ g → f = g :=
+definition eq_of_homotopy [reducible] : f ∼ g → f = g :=
 (@apD10 A P f g)⁻¹
 
---rename to eq_of_homotopy_idp
-definition eq_of_homotopy_id {A : Type} {P : A → Type} (f : Π x, P x)
-  : eq_of_homotopy (λx : A, idpath (f x)) = idpath f :=
+--TODO: rename to eq_of_homotopy_idp
+definition eq_of_homotopy_id (f : Π x, P x) : eq_of_homotopy (λx : A, idpath (f x)) = idpath f :=
 is_equiv.sect apD10 idp
 
 definition naive_funext_of_ua : naive_funext :=
 λ A P f g h, eq_of_homotopy h
 
-protected definition homotopy.rec_on {A : Type} {B : A → Type} {f g : Πa, B a} {P : (f ∼ g) → Type}
-  (p : f ∼ g) (H : Π(q : f = g), P (apD10 q)) : P p :=
+protected definition homotopy.rec_on {Q : (f ∼ g) → Type} (p : f ∼ g)
+  (H : Π(q : f = g), Q (apD10 q)) : Q p :=
 retr apD10 p ▹ H (eq_of_homotopy p)

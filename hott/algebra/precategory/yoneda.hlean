@@ -125,6 +125,7 @@ namespace functor
   functor.mk (functor_uncurry_ob G)
              (functor_uncurry_hom G)
              (functor_uncurry_id G)
+             (functor_uncurry_comp G)
 
   theorem functor_uncurry_functor_curry : functor_uncurry (functor_curry F) = F :=
   functor_eq_mk (λp, ap (to_fun_ob F) !prod.eta)

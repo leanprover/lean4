@@ -1,4 +1,6 @@
-rewrite_fail.lean:5:15: error:invalid 'rewrite' tactic, rewrite step failed
+rewrite_fail.lean:5:15: error:invalid 'rewrite' tactic, rewrite step failed using pattern
+  a
+no subterm in the goal matched the pattern
 proof state:
 a b : ℕ,
 Ha : a = 0,

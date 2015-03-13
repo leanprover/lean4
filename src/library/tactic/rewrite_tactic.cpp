@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "util/rb_map.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
+#include "kernel/error_msgs.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
 #include "kernel/for_each_fn.h"
@@ -41,10 +42,14 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_REWRITER_SYNTACTIC false
 #endif
 
+#ifndef LEAN_DEFAULT_REWRITER_TRACE
+#define LEAN_DEFAULT_REWRITER_TRACE true
+#endif
 
 namespace lean {
 static name * g_rewriter_max_iterations = nullptr;
 static name * g_rewriter_syntactic      = nullptr;
+static name * g_rewriter_trace          = nullptr;
 
 unsigned get_rewriter_max_iterations(options const & opts) {
     return opts.get_unsigned(*g_rewriter_max_iterations, LEAN_DEFAULT_REWRITER_MAX_ITERATIONS);
@@ -52,6 +57,10 @@ unsigned get_rewriter_max_iterations(options const & opts) {
 
 bool get_rewriter_syntactic(options const & opts) {
     return opts.get_bool(*g_rewriter_syntactic, LEAN_DEFAULT_REWRITER_SYNTACTIC);
+}
+
+bool get_rewriter_trace(options const & opts) {
+    return opts.get_bool(*g_rewriter_trace, LEAN_DEFAULT_REWRITER_TRACE);
 }
 
 class unfold_info {
@@ -448,6 +457,7 @@ class rewrite_fn {
     substitution         m_subst;
     expr                 m_expr_loc; // auxiliary expression used for error localization
 
+    bool                 m_use_trace;
     unsigned             m_max_iter;
 
     buffer<optional<level>> m_lsubst; // auxiliary buffer for pattern matching
@@ -825,6 +835,135 @@ class rewrite_fn {
                                                     some_expr(type), m_expr_loc.get_tag(), cfg, nullptr);
     }
 
+    // target, new_target, H  : represents the rewrite (H : target = new_target) for hypothesis
+    // and (H : new_target = target) for goals
+    typedef optional<std::tuple<expr, expr, expr>> find_result;
+
+    struct failure {
+        enum kind { Unification, Exception, HasMetavars };
+        expr m_elab_lemma;
+        expr m_subterm;
+        kind m_kind;
+        failure(expr const & elab_lemma, expr const & subterm, kind k):
+            m_elab_lemma(elab_lemma), m_subterm(subterm), m_kind(k) {}
+
+        format pp(formatter const & fmt) const {
+            format r;
+            switch (m_kind) {
+            case Unification:
+                r  = compose(line(), format("-fail to unify equation source"));
+                r += pp_indent_expr(fmt, m_elab_lemma);
+                r += compose(line(), format("with subterm"));
+                r += pp_indent_expr(fmt, m_subterm);
+                return r;
+            case Exception:
+                r  = compose(line(), format("-an exception occurred when unifying the subterm"));
+                r += pp_indent_expr(fmt, m_subterm);
+                return r;
+            case HasMetavars:
+                r  = compose(line(), format("-lemma still contains meta-variables"));
+                r += pp_indent_expr(fmt, m_elab_lemma);
+                r += compose(line(), format("after the equation source has been unified with subterm"));
+                r += pp_indent_expr(fmt, m_subterm);
+                return r;
+            }
+            lean_unreachable();
+        }
+    };
+
+    // Store information for a goal or hypothesis being rewritten
+    struct target_trace {
+        bool           m_is_hypothesis;
+        expr           m_target;        // term being rewritten
+        list<failure>  m_failures;      // sub-terms that matched but failed to unify
+        optional<expr> m_matched;       // sub-term  that matched and unified
+
+        target_trace(expr const & t, bool is_hyp): m_is_hypothesis(is_hyp), m_target(t) {}
+
+        format pp(formatter const & fmt) const {
+            if (m_matched)
+                return format();
+            if (!m_failures) {
+                if (m_is_hypothesis)
+                    return line() + format("no subterm in the hypothesis '") + fmt(m_target) + format("' matched the pattern");
+                else
+                    return line() + format("no subterm in the goal matched the pattern");
+            }
+            format r;
+            if (m_is_hypothesis)
+                r = line() + format("matching failures in the hypothesis '") + fmt(m_target) + format("'");
+            else
+                r = line() + format("matching failures in the goal");
+            buffer<failure> b;
+            unsigned indent = get_pp_indent(fmt.get_options());
+            to_buffer(m_failures, b);
+            unsigned i = b.size();
+            while (i > 0) {
+                --i;
+                r += nest(indent, b[i].pp(fmt));
+            }
+            return r;
+        }
+    };
+
+    struct trace {
+        expr                 m_lemma;    // lemma being used for rewriting
+        expr                 m_pattern;  // extracted or given pattern
+        buffer<target_trace> m_targets;  // trace for each element we tried to rewrite using m_lemma
+
+        format pp(formatter const & fmt) const {
+            format r("rewrite step failed using pattern");
+            r += pp_indent_expr(fmt, m_pattern);
+            for (target_trace const & t : m_targets) {
+                r += t.pp(fmt);
+            }
+            return r;
+        }
+    };
+
+    bool  m_trace_initialized;
+    trace m_trace; // temporary object used to store execution trace for a rewrite step
+
+    void clear_trace() {
+        m_trace_initialized = false;
+    }
+
+    void init_trace(expr const & lemma, expr const & pattern) {
+        if (m_use_trace) {
+            m_trace_initialized = true;
+            m_trace.m_lemma     = lemma;
+            m_trace.m_pattern   = pattern;
+            m_trace.m_targets.clear();
+        }
+    }
+
+    void add_target(expr const & t, bool is_hyp) {
+        if (m_use_trace)
+            m_trace.m_targets.push_back(target_trace(t, is_hyp));
+    }
+
+    target_trace & latest_target() {
+        lean_assert(m_use_trace);
+        lean_assert(!m_trace.m_targets.empty());
+        return m_trace.m_targets.back();
+    }
+
+    void add_target_failure(expr const & elab_term, expr const & subterm, failure::kind k) {
+        if (m_use_trace) {
+            target_trace & tt = latest_target();
+            lean_assert(!tt.m_matched);
+            tt.m_failures     = cons(failure(elab_term, subterm, k), tt.m_failures);
+        }
+    }
+
+    void add_target_match(expr const & m) {
+        if (m_use_trace) {
+            target_trace & tt = latest_target();
+            lean_assert(!tt.m_matched);
+            tt.m_matched = m;
+        }
+    }
+
     // rule, new_t
     typedef optional<pair<expr, expr>> unify_result;
 
@@ -859,8 +998,10 @@ class rewrite_fn {
                 src = app_arg(rule_type);
             else
                 src = app_arg(app_fn(rule_type));
-            if (!m_tc->is_def_eq(t, src, justification(), cs_seq))
+            if (!m_tc->is_def_eq(t, src, justification(), cs_seq)) {
+                add_target_failure(src, t, failure::Unification);
                 return unify_result();
+            }
             cs_seq.linearize(cs);
             unifier_config cfg;
             cfg.m_kind         = unifier_kind::Liberal;
@@ -870,11 +1011,14 @@ class rewrite_fn {
                 substitution new_subst     = p->first.first;
                 rule      = new_subst.instantiate_all(rule);
                 rule_type = new_subst.instantiate_all(rule_type);
-                if (has_expr_metavar_strict(rule) || has_expr_metavar_strict(rule_type))
+                if (has_expr_metavar_strict(rule) || has_expr_metavar_strict(rule_type)) {
+                    add_target_failure(rule, t, failure::HasMetavars);
                     return unify_result(); // rule was not completely instantiated.
+                }
                 m_subst = new_subst;
                 expr lhs = app_arg(app_fn(rule_type));
                 expr rhs = app_arg(rule_type);
+                add_target_match(t);
                 if (is_goal) {
                     if (symm) {
                         return unify_result(rule, lhs);
@@ -890,14 +1034,14 @@ class rewrite_fn {
                         return unify_result(rule, rhs);
                     }
                 }
+            } else {
+                add_target_failure(src, t, failure::Unification);
+                return unify_result();
             }
         } catch (exception&) {}
+        add_target_failure(orig_elem, t, failure::Exception);
         return unify_result();
     }
-
-    // target, new_target, H  : represents the rewrite (H : target = new_target) for hypothesis
-    // and (H : new_target = target) for goals
-    typedef optional<std::tuple<expr, expr, expr>> find_result;
 
     // Search for \c pattern in \c e. If \c t is a match, then try to unify the type of the rule
     // in the rewrite step \c orig_elem with \c t.
@@ -930,6 +1074,7 @@ class rewrite_fn {
     }
 
     bool process_rewrite_hypothesis(expr const & hyp, expr const & orig_elem, expr const & pattern, occurrence const & occ) {
+        add_target(hyp, true);
         expr Pa = mlocal_type(hyp);
         bool is_goal = false;
         if (auto it = find_target(Pa, pattern, orig_elem, is_goal)) {
@@ -978,6 +1123,7 @@ class rewrite_fn {
 
     bool process_rewrite_goal(expr const & orig_elem, expr const & pattern, occurrence const & occ) {
         expr Pa      = m_g.get_type();
+        add_target(Pa, false);
         bool is_goal = true;
         if (auto it = find_target(Pa, pattern, orig_elem, is_goal)) {
             expr a, Heq, b;
@@ -1043,6 +1189,7 @@ class rewrite_fn {
     bool process_rewrite_step(expr const & elem, expr const & orig_elem) {
         lean_assert(is_rewrite_step(elem));
         expr pattern              = get_pattern(elem);
+        init_trace(orig_elem, pattern);
         // regular(m_env, m_ios) << "pattern: " << pattern << "\n";
         rewrite_info const & info = get_rewrite_info(elem);
         unsigned i, num;
@@ -1086,6 +1233,7 @@ class rewrite_fn {
     // Process the given rewrite element/step. This method destructively update
     // m_g, m_subst, m_ngen. It returns true if it succeeded and false otherwise.
     bool process_step(expr const & elem) {
+        clear_trace();
         if (is_rewrite_unfold_step(elem)) {
             return process_unfold_step(elem);
         } else if (is_rewrite_fold_step(elem)) {
@@ -1160,7 +1308,8 @@ public:
         lean_assert(gs);
         update_goal(head(gs));
         m_subst = m_ps.get_subst();
-        m_max_iter = get_rewriter_max_iterations(ios.get_options());
+        m_max_iter  = get_rewriter_max_iterations(ios.get_options());
+        m_use_trace = get_rewriter_trace(ios.get_options());
     }
 
     proof_state_seq operator()(buffer<expr> const & elems) {
@@ -1169,8 +1318,18 @@ public:
             if (!process_step(elem)) {
                 if (m_ps.report_failure()) {
                     proof_state curr_ps(m_ps, cons(m_g, tail(m_ps.get_goals())), m_subst, m_ngen);
-                    throw tactic_exception("rewrite step failed", some_expr(elem), curr_ps,
-                                           [](formatter const &) { return format("invalid 'rewrite' tactic, rewrite step failed"); });
+                    if (!m_use_trace || !m_trace_initialized) {
+                        throw tactic_exception("rewrite step failed", some_expr(elem), curr_ps,
+                                               [](formatter const &) { return format("invalid 'rewrite' tactic, rewrite step failed"); });
+                    } else {
+                        trace saved_trace = m_trace;
+                        throw tactic_exception("rewrite step failed", some_expr(elem), curr_ps,
+                                               [=](formatter const & fmt) {
+                                                   format r = format("invalid 'rewrite' tactic, ");
+                                                   r       += saved_trace.pp(fmt);
+                                                   return r;
+                                               });
+                    }
                 }
                 return proof_state_seq();
             }
@@ -1204,6 +1363,9 @@ void initialize_rewrite_tactic() {
     g_rewriter_syntactic      = new name{"rewriter", "syntactic"};
     register_bool_option(*g_rewriter_syntactic, LEAN_DEFAULT_REWRITER_SYNTACTIC,
                          "(rewriter tactic) if true tactic will not unfold any constant when performing pattern matching");
+    g_rewriter_trace          = new name{"rewriter", "trace"};
+    register_bool_option(*g_rewriter_trace, LEAN_DEFAULT_REWRITER_TRACE,
+                         "(rewriter tactic) if true tactic will generate a trace for rewrite step failures");
     name rewrite_tac_name{"tactic", "rewrite_tac"};
     g_rewrite_tac           = new expr(Const(rewrite_tac_name));
     g_rewrite_reduce_name   = new name("rewrite_reduce");

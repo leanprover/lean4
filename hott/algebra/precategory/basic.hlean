@@ -79,7 +79,6 @@ namespace category
         ... = yg ∘ (yf ∘ wa) : by rewrite xyab
         ... = (yg ∘ yf) ∘ wa : by rewrite assoc
 
-    set_option unifier.max_steps 30000
     definition compose_squares_2x2 {xa xb xc ya yb yc za zb zc : ob}
       {xg : xb ⟶ xc} {xf : xa ⟶ xb} {yg : yb ⟶ yc} {yf : ya ⟶ yb} {zg : zb ⟶ zc} {zf : za ⟶ zb}
       {va : ya ⟶ za} {vb : yb ⟶ zb} {vc : yc ⟶ zc} {wa : xa ⟶ ya} {wb : xb ⟶ yb} {wc : xc ⟶ yc}
@@ -92,7 +91,6 @@ namespace category
         ... = (vc ∘ (yg ∘ yf)) ∘ wa : by rewrite assoc
         ... = ((zg ∘ zf) ∘ va) ∘ wa : by rewrite (compose_squares yzab yzbc)
         ... = (zg ∘ zf) ∘ (va ∘ wa) : by rewrite assoc
-    set_option unifier.max_steps 20000
 
     definition square_precompose {xa xb xc yb yc : ob}
       {xg : xb ⟶ xc} {yg : yb ⟶ yc} {wb : xb ⟶ yb} {wc : xc ⟶ yc}

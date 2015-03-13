@@ -1,9 +1,9 @@
 bad_eqns.lean:4:2: error: invalid argument, it is not a constructor, variable, nor it is marked as an inaccessible pattern
   0 + x
 in the following equation left-hand-side
-  foo (0 + x)
+  foo1 (0 + x)
 bad_eqns.lean:8:2: error: invalid equation left-hand-side, variable 'y' only occurs in inaccessible terms in the following equation left-hand-side
-  foo x y
-bad_eqns.lean:10:11: error: invalid recursive equations for 'foo', inconsistent use of inaccessible term annotation, in some equations a pattern is a constructor, and in another it is an inaccessible term
+  foo2 x y
+bad_eqns.lean:10:11: error: invalid recursive equations for 'foo3', inconsistent use of inaccessible term annotation, in some equations a pattern is a constructor, and in another it is an inaccessible term
 bad_eqns.lean:21:11: error: mutual recursion is not needed when defining non-recursive functions
 bad_eqns.lean:34:11: error: invalid recursive equations, failed to find recursive arguments that are structurally smaller (possible solution: use well-founded recursion)

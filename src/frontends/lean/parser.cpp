@@ -46,6 +46,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/parse_rewrite_tactic.h"
+#include "frontends/lean/update_environment_exception.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -264,7 +265,7 @@ void parser::throw_parser_exception(char const * msg, pos_info p) {
     throw parser_exception(msg, get_stream_name().c_str(), p.first, p.second);
 }
 
-void parser::throw_nested_exception(throwable & ex, pos_info p) {
+void parser::throw_nested_exception(throwable const & ex, pos_info p) {
     throw parser_nested_exception(std::shared_ptr<throwable>(ex.clone()),
                                   std::make_shared<parser_pos_provider>(m_pos_table, get_stream_name(), p));
 }
@@ -278,7 +279,12 @@ if (m_use_exceptions) { ThrowError ; }
 
 void parser::protected_call(std::function<void()> && f, std::function<void()> && sync) {
     try {
-        f();
+        try {
+            f();
+        } catch (update_environment_exception & ex) {
+            m_env = ex.get_env();
+            ex.get_exception().rethrow();
+        }
     } catch (parser_exception & ex) {
         CATCH(flycheck_error err(regular_stream()); regular_stream() << ex.what() << endl,
               throw);

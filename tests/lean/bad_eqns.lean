@@ -1,15 +1,15 @@
 open nat
 
-definition foo : nat → nat
-| foo (0 + x) := x
+definition foo1 : nat → nat
+| foo1 (0 + x) := x
 
-definition foo : nat → nat → nat
-| foo 0 _   := 0
-| foo x ⌞y⌟ := x
+definition foo2 : nat → nat → nat
+| foo2 0 _   := 0
+| foo2 x ⌞y⌟ := x
 
-definition foo : nat → nat → nat
-| foo 0   _ := 0
-| foo ⌞x⌟ x := x
+definition foo3 : nat → nat → nat
+| foo3 0   _ := 0
+| foo3 ⌞x⌟ x := x
 
 inductive tree (A : Type) :=
 | node   : tree_list A → tree A

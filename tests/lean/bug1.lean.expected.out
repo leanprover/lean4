@@ -1,19 +1,19 @@
-bug1.lean:9:7: error: type mismatch at definition 'and_intro', has type
+bug1.lean:9:7: error: type mismatch at definition 'and_intro1', has type
   ∀ (p q : bool),
     p → q → (∀ (c : bool), (p → q → c) → c)
 but is expected to have type
   ∀ (p q : bool),
     p → q → a
-bug1.lean:13:7: error: type mismatch at definition 'and_intro', has type
+bug1.lean:13:7: error: type mismatch at definition 'and_intro2', has type
   ∀ (p q : bool),
     p → q → (∀ (c : bool), (p → q → c) → c)
 but is expected to have type
   ∀ (p q : bool),
     p → q → p ∧ p
-bug1.lean:17:7: error: type mismatch at definition 'and_intro', has type
+bug1.lean:17:7: error: type mismatch at definition 'and_intro3', has type
   ∀ (p q : bool),
     p → q → (∀ (c : bool), (p → q → c) → c)
 but is expected to have type
   ∀ (p q : bool),
     p → q → q ∧ p
-and_intro : ∀ (p q : bool), p → q → p ∧ q
+and_intro4 : ∀ (p q : bool), p → q → p ∧ q

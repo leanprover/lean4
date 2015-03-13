@@ -11,7 +11,7 @@ begin
   apply (heq.symm H),
 end
 
-theorem tst (A B : Type) (a : A) (b : B) : a == b → b == a :=
+theorem tst2 (A B : Type) (a : A) (b : B) : a == b → b == a :=
 begin
   generalize a,
   generalize b,

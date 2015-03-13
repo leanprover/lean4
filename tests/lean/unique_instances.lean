@@ -6,5 +6,5 @@ theorem tst (A : Type) (H₁ : inhabited A) (H₂ : inhabited A) : inhabited (A 
 _
 
 set_option class.unique_instances false
-theorem tst (A : Type) (H₁ : inhabited A) (H₂ : inhabited A) : inhabited (A × A) :=
+theorem tst2 (A : Type) (H₁ : inhabited A) (H₂ : inhabited A) : inhabited (A × A) :=
 _

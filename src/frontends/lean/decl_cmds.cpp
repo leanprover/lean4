@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
+#include "frontends/lean/update_environment_exception.h"
 
 namespace lean {
 static environment declare_universe(parser & p, environment env, name const & n, bool local) {
@@ -452,20 +453,23 @@ struct decl_attributes {
         }
         if (m_is_coercion)
             env = add_coercion(env, d, ios, persistent);
-        if (m_is_reducible)
-            env = set_reducible(env, d, reducible_status::Reducible, persistent);
-        if (m_is_irreducible)
-            env = set_reducible(env, d, reducible_status::Irreducible, persistent);
-        if (m_is_semireducible)
-            env = set_reducible(env, d, reducible_status::Semireducible, persistent);
-        if (m_is_quasireducible)
-            env = set_reducible(env, d, reducible_status::Quasireducible, persistent);
+        auto decl = env.find(d);
+        if (decl && decl->is_definition()) {
+            if (m_is_reducible)
+                env = set_reducible(env, d, reducible_status::Reducible, persistent);
+            if (m_is_irreducible)
+                env = set_reducible(env, d, reducible_status::Irreducible, persistent);
+            if (m_is_semireducible)
+                env = set_reducible(env, d, reducible_status::Semireducible, persistent);
+            if (m_is_quasireducible)
+                env = set_reducible(env, d, reducible_status::Quasireducible, persistent);
+            if (m_unfold_c_hint)
+                env = add_unfold_c_hint(env, d, m_unfold_c_hint, persistent);
+        }
         if (m_is_class)
             env = add_class(env, d, persistent);
         if (m_has_multiple_instances)
             env = mark_multiple_instances(env, d, persistent);
-        if (m_unfold_c_hint)
-            env = add_unfold_c_hint(env, d, m_unfold_c_hint, persistent);
         return env;
     }
 };
@@ -768,6 +772,18 @@ class definition_cmd_fn {
     expr              m_pre_type;
     expr              m_pre_value;
 
+    // Checkpoint for processing definition/theorem as axiom in case of
+    // failure
+    optional<expr>        m_type_checkpoint;
+    optional<environment> m_env_checkpoint;
+    buffer<name>          m_ls_buffer_checkpoint;
+
+    void save_checkpoint() {
+        m_type_checkpoint      = m_type;
+        m_env_checkpoint       = m_env;
+        m_ls_buffer_checkpoint = m_ls_buffer;
+    }
+
     bool is_definition() const { return m_kind == Definition || m_kind == Abbreviation || m_kind == LocalAbbreviation; }
     unsigned start_line() const { return m_pos.first; }
     unsigned end_line() const { return m_end_pos.first; }
@@ -796,6 +812,7 @@ class definition_cmd_fn {
             m_p.next();
             auto pos = m_p.pos();
             m_type = m_p.parse_expr();
+            save_checkpoint();
             if (is_curr_with_or_comma_or_bar(m_p)) {
                 m_value = parse_equations(m_p, m_name, m_type, m_aux_decls,
                                           optional<local_environment>(), buffer<expr>(), m_pos);
@@ -814,9 +831,11 @@ class definition_cmd_fn {
             auto pos = m_p.pos();
             if (m_p.curr_is_token(get_colon_tk())) {
                 m_p.next();
-                m_type = m_p.parse_scoped_expr(ps, *lenv);
+                expr type  = m_p.parse_scoped_expr(ps, *lenv);
+                m_type     = Pi(ps, type, m_p);
+                save_checkpoint();
                 if (is_curr_with_or_comma_or_bar(m_p)) {
-                    m_value = parse_equations(m_p, m_name, m_type, m_aux_decls, lenv, ps, m_pos);
+                    m_value = parse_equations(m_p, m_name, type, m_aux_decls, lenv, ps, m_pos);
                 } else if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
                     check_end_of_theorem(m_p);
                     m_value = m_p.save_pos(mk_expr_placeholder(), pos);
@@ -831,11 +850,12 @@ class definition_cmd_fn {
                                        "(solution: put parentheses around parameters)",
                                        pos);
                 }
-                m_type = m_p.save_pos(mk_expr_placeholder(), m_p.pos());
+                m_type  = m_p.save_pos(mk_expr_placeholder(), m_p.pos());
+                m_type  = Pi(ps, m_type, m_p);
+                save_checkpoint();
                 m_p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
                 m_value = m_p.parse_scoped_expr(ps, *lenv);
             }
-            m_type  = Pi(ps, m_type, m_p);
             erase_local_binder_info(ps);
             m_value = Fun(ps, m_value, m_p);
         }
@@ -1074,6 +1094,30 @@ class definition_cmd_fn {
         }
     }
 
+    void process_as_axiom() {
+        lean_assert(m_type_checkpoint);
+        m_type      = *m_type_checkpoint;
+        m_env       = *m_env_checkpoint;
+        m_ls_buffer = m_ls_buffer_checkpoint;
+        m_aux_decls.clear();
+        m_real_aux_names.clear();
+
+        expr dummy  = mk_Prop();
+        m_value     = dummy;
+
+        process_locals();
+        mk_real_name();
+
+        bool clear_pre_info      = false;
+        level_param_names new_ls;
+        std::tie(m_type, new_ls) = m_p.elaborate_type(m_type, list<expr>(), clear_pre_info);
+        check_no_metavar(m_env, m_real_name, m_type, true);
+        m_ls = append(m_ls, new_ls);
+        m_type = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
+        m_env = module::add(m_env, check(m_env, mk_axiom(m_real_name, m_ls, m_type)));
+        register_decl(m_name, m_real_name, m_type);
+    }
+
 public:
     definition_cmd_fn(parser & p, def_cmd_kind kind, bool is_opaque, bool is_private, bool is_protected):
         m_p(p), m_env(m_p.env()), m_kind(kind), m_is_opaque(is_opaque),
@@ -1084,11 +1128,24 @@ public:
     }
 
     environment operator()() {
-        parse();
-        process_locals();
-        elaborate();
-        register_decl();
-        return m_env;
+        try {
+            parse();
+            process_locals();
+            elaborate();
+            register_decl();
+            return m_env;
+        } catch (exception & ex) {
+            if (m_type_checkpoint) {
+                try {
+                    process_as_axiom();
+                } catch (exception & ex2) {
+                    ex.rethrow();
+                }
+                throw update_environment_exception(m_env, std::shared_ptr<throwable>(ex.clone()));
+            }
+            ex.rethrow();
+            lean_unreachable();
+        }
     }
 };
 

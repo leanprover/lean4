@@ -7,6 +7,38 @@ pos_num.size|pos_num → pos_num
 pos_num.bit0|pos_num → pos_num
 pos_num.is_inhabited|inhabited pos_num
 pos_num.is_one|pos_num → bool
+pos_num.inc|pos_num → pos_num
+pos_num.ibelow|pos_num → Prop
+pos_num.binduction_on|Π (n : pos_num), (Π (n : pos_num), pos_num.ibelow n → ?C n) → ?C n
+pos_num.induction_on|Π (n : pos_num), ?C pos_num.one → (Π (a : pos_num), ?C a → ?C (pos_num.bit1 a)) → (Π (a : pos_num), ?C a → ?C (pos_num.bit0 a)) → ?C n
+pos_num.succ|pos_num → pos_num
+pos_num.bit1|pos_num → pos_num
+pos_num.rec|?C pos_num.one → (Π (a : pos_num), ?C a → ?C (pos_num.bit1 a)) → (Π (a : pos_num), ?C a → ?C (pos_num.bit0 a)) → (Π (n : pos_num), ?C n)
+pos_num.one|pos_num
+pos_num.below|pos_num → Type
+pos_num.le|pos_num → pos_num → bool
+pos_num.cases_on|Π (n : pos_num), ?C pos_num.one → (Π (a : pos_num), ?C (pos_num.bit1 a)) → (Π (a : pos_num), ?C (pos_num.bit0 a)) → ?C n
+pos_num.pred|pos_num → pos_num
+pos_num.mul|pos_num → pos_num → pos_num
+pos_num.no_confusion_type|Type → pos_num → pos_num → Type
+pos_num.num_bits|pos_num → pos_num
+pos_num.no_confusion|eq ?v1 ?v2 → pos_num.no_confusion_type ?P ?v1 ?v2
+pos_num.lt|pos_num → pos_num → bool
+pos_num.rec_on|Π (n : pos_num), ?C pos_num.one → (Π (a : pos_num), ?C a → ?C (pos_num.bit1 a)) → (Π (a : pos_num), ?C a → ?C (pos_num.bit0 a)) → ?C n
+pos_num.brec_on|Π (n : pos_num), (Π (n : pos_num), pos_num.below n → ?C n) → ?C n
+pos_num.add|pos_num → pos_num → pos_num
+pos_num|Type
+-- ENDFINDP
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGINFINDP
+pos_num.size|pos_num → pos_num
+pos_num.bit0|pos_num → pos_num
+pos_num.is_inhabited|inhabited pos_num
+pos_num.is_one|pos_num → bool
+pos_num.inc|pos_num → pos_num
 pos_num.ibelow|pos_num → Prop
 pos_num.binduction_on|Π (n : pos_num), (Π (n : pos_num), pos_num.ibelow n → ?C n) → ?C n
 pos_num.induction_on|Π (n : pos_num), ?C pos_num.one → (Π (a : pos_num), ?C a → ?C (pos_num.bit1 a)) → (Π (a : pos_num), ?C a → ?C (pos_num.bit0 a)) → ?C n
@@ -27,40 +59,12 @@ pos_num.brec_on|Π (n : pos_num), (Π (n : pos_num), pos_num.below n → ?C n) �
 pos_num.add|pos_num → pos_num → pos_num
 pos_num|Type
 -- ENDFINDP
--- BEGINWAIT
--- ENDWAIT
--- BEGINWAIT
--- ENDWAIT
 -- BEGINFINDP
 pos_num.size|pos_num → pos_num
 pos_num.bit0|pos_num → pos_num
 pos_num.is_inhabited|inhabited pos_num
 pos_num.is_one|pos_num → bool
-pos_num.ibelow|pos_num → Prop
-pos_num.binduction_on|Π (n : pos_num), (Π (n : pos_num), pos_num.ibelow n → ?C n) → ?C n
-pos_num.induction_on|Π (n : pos_num), ?C pos_num.one → (Π (a : pos_num), ?C a → ?C (pos_num.bit1 a)) → (Π (a : pos_num), ?C a → ?C (pos_num.bit0 a)) → ?C n
-pos_num.succ|pos_num → pos_num
-pos_num.bit1|pos_num → pos_num
-pos_num.rec|?C pos_num.one → (Π (a : pos_num), ?C a → ?C (pos_num.bit1 a)) → (Π (a : pos_num), ?C a → ?C (pos_num.bit0 a)) → (Π (n : pos_num), ?C n)
-pos_num.one|pos_num
-pos_num.below|pos_num → Type
-pos_num.le|pos_num → pos_num → bool
-pos_num.cases_on|Π (n : pos_num), ?C pos_num.one → (Π (a : pos_num), ?C (pos_num.bit1 a)) → (Π (a : pos_num), ?C (pos_num.bit0 a)) → ?C n
-pos_num.pred|pos_num → pos_num
-pos_num.mul|pos_num → pos_num → pos_num
-pos_num.no_confusion_type|Type → pos_num → pos_num → Type
-pos_num.no_confusion|eq ?v1 ?v2 → pos_num.no_confusion_type ?P ?v1 ?v2
-pos_num.lt|pos_num → pos_num → bool
-pos_num.rec_on|Π (n : pos_num), ?C pos_num.one → (Π (a : pos_num), ?C a → ?C (pos_num.bit1 a)) → (Π (a : pos_num), ?C a → ?C (pos_num.bit0 a)) → ?C n
-pos_num.brec_on|Π (n : pos_num), (Π (n : pos_num), pos_num.below n → ?C n) → ?C n
-pos_num.add|pos_num → pos_num → pos_num
-pos_num|Type
--- ENDFINDP
--- BEGINFINDP
-pos_num.size|pos_num → pos_num
-pos_num.bit0|pos_num → pos_num
-pos_num.is_inhabited|inhabited pos_num
-pos_num.is_one|pos_num → bool
+pos_num.inc|pos_num → pos_num
 pos_num.ibelow|pos_num → Prop
 pos_num.binduction_on|Π (n : pos_num), (Π (n : pos_num), pos_num.ibelow n → ?C n) → ?C n
 pos_num.induction_on|Π (n : pos_num), ?C pos_num.one → (Π (a : pos_num), ?C a → ?C (pos_num.bit1 a)) → (Π (a : pos_num), ?C a → ?C (pos_num.bit0 a)) → ?C n

@@ -42,16 +42,16 @@ divide_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt_of_lt_of_le l 
 theorem div_eq_succ_sub_div {a b : ℕ} (h₁ : b > 0) (h₂ : a ≥ b) : a div b = succ ((a - b) div b) :=
 divide_def a b ⬝ if_pos (and.intro h₁ h₂)
 
-theorem add_div_self_right (x : ℕ) {z : ℕ} (H : z > 0) : (x + z) div z = succ (x div z) :=
+theorem add_div_self (x : ℕ) {z : ℕ} (H : z > 0) : (x + z) div z = succ (x div z) :=
 calc
   (x + z) div z = if 0 < z ∧ z ≤ x + z then (x + z - z) div z + 1 else 0 : !divide_def
             ... = (x + z - z) div z + 1 : if_pos (and.intro H (le_add_left z x))
             ... = succ (x div z)        : {!add_sub_cancel}
 
 theorem add_div_self_left {x : ℕ} (z : ℕ) (H : x > 0) : (x + z) div x = succ (z div x) :=
-!add.comm ▸ !add_div_self_right H
+!add.comm ▸ !add_div_self H
 
-theorem add_mul_div_self_right {x y z : ℕ} (H : z > 0) : (x + y * z) div z = x div z + y :=
+theorem add_mul_div_self {x y z : ℕ} (H : z > 0) : (x + y * z) div z = x div z + y :=
 nat.induction_on y
   (calc (x + zero * z) div z = (x + zero) div z : zero_mul
                        ...   = x div z          : add_zero
@@ -59,16 +59,16 @@ nat.induction_on y
   (take y,
     assume IH : (x + y * z) div z = x div z + y, calc
       (x + succ y * z) div z = (x + y * z + z) div z    : by simp
-                         ... = succ ((x + y * z) div z) : !add_div_self_right H
+                         ... = succ ((x + y * z) div z) : !add_div_self H
                          ... = x div z + succ y         : by simp)
 
 theorem add_mul_div_self_left (x z : ℕ) {y : ℕ} (H : y > 0) : (x + y * z) div y = x div y + z :=
-!mul.comm ▸ add_mul_div_self_right H
+!mul.comm ▸ add_mul_div_self H
 
 theorem mul_div_cancel (m : ℕ) {n : ℕ} (H : n > 0) : m * n div n = m :=
 calc
   m * n div n = (0 + m * n) div n : zero_add
-          ... = 0 div n + m       : add_mul_div_self_right H
+          ... = 0 div n + m       : add_mul_div_self H
           ... = 0 + m             : zero_div
           ... = m                 : zero_add
 
@@ -97,16 +97,16 @@ modulo_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt_of_lt_of_le l 
 theorem mod_eq_sub_mod {a b : ℕ} (h₁ : b > 0) (h₂ : a ≥ b) : a mod b = (a - b) mod b :=
 modulo_def a b ⬝ if_pos (and.intro h₁ h₂)
 
-theorem add_mod_left {x z : ℕ} (H : z > 0) : (x + z) mod z = x mod z :=
+theorem add_mod_self {x z : ℕ} (H : z > 0) : (x + z) mod z = x mod z :=
 calc
   (x + z) mod z = if 0 < z ∧ z ≤ x + z then (x + z - z) mod z else _ : modulo_def
             ... = (x + z - z) mod z   : if_pos (and.intro H (le_add_left z x))
             ... = x mod z             : add_sub_cancel
 
-theorem add_mod_right {x z : ℕ} (H : x > 0) : (x + z) mod x = z mod x :=
-!add.comm ▸ add_mod_left H
+theorem add_mod_self_left {x z : ℕ} (H : x > 0) : (x + z) mod x = z mod x :=
+!add.comm ▸ add_mod_self H
 
-theorem add_mul_mod_self_right {x y z : ℕ} (H : z > 0) : (x + y * z) mod z = x mod z :=
+theorem add_mul_mod_self {x y z : ℕ} (H : z > 0) : (x + y * z) mod z = x mod z :=
 nat.induction_on y
   (calc (x + zero * z) mod z = (x + zero) mod z : zero_mul
                          ... = x mod z          : add_zero)
@@ -115,17 +115,17 @@ nat.induction_on y
     calc
       (x + succ y * z) mod z = (x + (y * z + z)) mod z : succ_mul
                          ... = (x + y * z + z) mod z   : add.assoc
-                         ... = (x + y * z) mod z       : add_mod_left H
+                         ... = (x + y * z) mod z       : add_mod_self H
                          ... = x mod z                 : IH)
 
 theorem add_mul_mod_self_left {x y z : ℕ} (H : y > 0) : (x + y * z) mod y = x mod y :=
-!mul.comm ▸ add_mul_mod_self_right H
+!mul.comm ▸ add_mul_mod_self H
 
 theorem mul_mod_left {m n : ℕ} : (m * n) mod n = 0 :=
 by_cases_zero_pos n (by simp)
   (take n,
     assume npos : n > 0,
-    (by simp) ▸ (@add_mul_mod_self_right 0 m _ npos))
+    (by simp) ▸ (@add_mul_mod_self 0 m _ npos))
 
 theorem mul_mod_right {m n : ℕ} : (m * n) mod m = 0 :=
 !mul.comm ▸ !mul_mod_left
@@ -192,10 +192,10 @@ theorem eq_remainder {y : ℕ} (H : y > 0) {q1 r1 q2 r2 : ℕ} (H1 : r1 < y) (H2
   (H3 : q1 * y + r1 = q2 * y + r2) : r1 = r2 :=
 calc
   r1 = r1 mod y : by simp
-    ... = (r1 + q1 * y) mod y : (add_mul_mod_self_right H)⁻¹
+    ... = (r1 + q1 * y) mod y : (add_mul_mod_self H)⁻¹
     ... = (q1 * y + r1) mod y : add.comm
     ... = (r2 + q2 * y) mod y : by simp
-    ... = r2 mod y            : add_mul_mod_self_right H
+    ... = r2 mod y            : add_mul_mod_self H
     ... = r2                  : by simp
 
 theorem eq_quotient {y : ℕ} (H : y > 0) {q1 r1 q2 r2 : ℕ} (H1 : r1 < y) (H2 : r2 < y)
@@ -298,6 +298,14 @@ or.elim (eq_zero_or_pos k)
         ... ≤ k * n                       : H
         ... = n * k                       : nat.mul.comm) H1)
 
+theorem div_le (m n : ℕ) : m div n ≤ m :=
+nat.cases_on n (!div_zero⁻¹ ▸ !zero_le)
+  take n,
+  have H : m ≤ succ n * m, from calc
+        m = 1 * m      : one_mul
+      ... ≤ succ n * m : mul_le_mul_right (succ_le_succ !zero_le),
+  div_le_of_le_mul H
+
 theorem mul_sub_div_of_lt {m n k : ℕ} (H : k < m * n) :
   (m * n - (k + 1)) div m = n - k div m - 1 :=
 have H1 : k div m < n, from div_lt_of_lt_mul H,
@@ -318,7 +326,7 @@ calc
                by rewrite [H3 at {1}, mul.right_distrib, nat.one_mul]
      ... = ((n - k div m - 1) * m + (m - (k mod m + 1))) div m          : {add_sub_assoc H5 _}
      ... = (m - (k mod m + 1)) div m + (n - k div m - 1)                :
-               by rewrite [add.comm, (add_mul_div_self_right H4)]
+               by rewrite [add.comm, (add_mul_div_self H4)]
      ... = n - k div m - 1                                              :
                by rewrite [div_eq_zero_of_lt H6, zero_add]
 

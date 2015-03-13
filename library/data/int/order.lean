@@ -595,6 +595,25 @@ obtain n (H1 : a + succ n = b), from lt.elim H,
 have H2 : a + 1 + n = b, by rewrite [-H1, add.assoc, add.comm 1],
 le.intro H2
 
+theorem lt_add_one_of_le {a b : ℤ} (H : a ≤ b) : a < b + 1 :=
+lt_add_of_le_of_pos H trivial
+
+theorem le_of_lt_add_one {a b : ℤ} (H : a < b + 1) : a ≤ b :=
+have H1 : a + 1 ≤ b + 1, from add_one_le_of_lt H,
+le_of_add_le_add_right H1
+
+theorem sub_one_le_of_lt {a b : ℤ} (H : a ≤ b) : a - 1 < b :=
+lt_of_add_one_le (!sub_add_cancel⁻¹ ▸ H)
+
+theorem lt_of_sub_one_le {a b : ℤ} (H : a - 1 < b) : a ≤ b :=
+!sub_add_cancel ▸ add_one_le_of_lt H
+
+theorem le_sub_one_of_lt {a b : ℤ} (H : a < b) : a ≤ b - 1 :=
+le_of_lt_add_one (!sub_add_cancel⁻¹ ▸ H)
+
+theorem lt_of_le_sub_one {a b : ℤ} (H : a ≤ b - 1) : a < b :=
+!sub_add_cancel ▸ (lt_add_one_of_le H)
+
 theorem of_nat_nonneg (n : ℕ) : of_nat n ≥ 0 := trivial
 
 theorem of_nat_pos {n : ℕ} (Hpos : #nat n > 0) : of_nat n > 0 :=

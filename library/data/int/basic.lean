@@ -789,4 +789,7 @@ have H1 : m = (#nat m - n + n), from (nat.sub_add_cancel H)⁻¹,
 have H2 : m = (#nat m - n) + n, from congr_arg of_nat H1,
 sub_eq_of_eq_add H2
 
+theorem neg_succ_of_nat_eq' (m : ℕ) : -[m +1] = -m - 1 :=
+by rewrite [neg_succ_of_nat_eq, -of_nat_add_of_nat, neg_add]
+
 end int

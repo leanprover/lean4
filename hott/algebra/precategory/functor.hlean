@@ -36,8 +36,8 @@ namespace functor
       G (F (ID a)) = G (ID (F a)) : {respect_id F a}
                ... = ID (G (F a)) : respect_id G (F a))
     (λ a b c g f, calc
-      G (F (g ∘ f)) = G (F g ∘ F f)     : respect_comp F g f
-                ... = G (F g) ∘ G (F f) : respect_comp G (F g) (F f))
+      G (F (g ∘ f)) = G (F g ∘ F f)     : by rewrite respect_comp
+                ... = G (F g) ∘ G (F f) : by rewrite respect_comp)
 
   infixr `∘f`:60 := compose
 

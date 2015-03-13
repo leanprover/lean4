@@ -49,9 +49,9 @@ namespace functor
              (λd d' g, F (id, g))
              (λd, !respect_id)
              (λd₁ d₂ d₃ g' g, calc
-               F (id, g' ∘ g) = F (id ∘ id, g' ∘ g) : {(id_comp c)⁻¹}
-                 ... = F ((id,g') ∘ (id, g)) : idp
-                 ... = F (id,g') ∘ F (id, g) : by rewrite (respect_comp F))
+               F (id, g' ∘ g) = F (id ∘ id, g' ∘ g) : by rewrite id_comp
+                 ... = F ((id,g') ∘ (id, g))        : by esimp
+                 ... = F (id,g') ∘ F (id, g)        : by rewrite (respect_comp F))
 
   local abbreviation Fob := @functor_curry_ob
 
@@ -59,10 +59,10 @@ namespace functor
   nat_trans.mk (λd, F (f, id))
                (λd d' g, calc
                  F (id, g) ∘ F (f, id) = F (id ∘ f, g ∘ id) : respect_comp F
-                   ... = F (f, g ∘ id)      : by rewrite id_left
-                   ... = F (f, g)           : by rewrite id_right
-                   ... = F (f ∘ id, g)      : by rewrite id_right
-                   ... = F (f ∘ id, id ∘ g) : by rewrite id_left
+                   ... = F (f, g ∘ id)         : by rewrite id_left
+                   ... = F (f, g)              : by rewrite id_right
+                   ... = F (f ∘ id, g)         : by rewrite id_right
+                   ... = F (f ∘ id, id ∘ g)    : by rewrite id_left
                    ... = F (f, id) ∘ F (id, g) :  (respect_comp F (f, id) (id, g))⁻¹ᵖ)
 
   local abbreviation Fhom := @functor_curry_hom
@@ -77,10 +77,10 @@ namespace functor
     : Fhom F (f' ∘ f) = Fhom F f' ∘n Fhom F f :=
   nat_trans_eq_mk (λd, calc
     natural_map (Fhom F (f' ∘ f)) d = F (f' ∘ f, id) : functor_curry_hom_def
-      ... = F (f' ∘ f, id ∘ id) : {(id_comp d)⁻¹}
-      ... = F ((f',id) ∘ (f, id)) : idp
-      ... = F (f',id) ∘ F (f, id) : respect_comp F
-      ... = natural_map ((Fhom F f') ∘ (Fhom F f)) d : idp)
+      ... = F (f' ∘ f, id ∘ id)                      : by rewrite id_comp
+      ... = F ((f',id) ∘ (f, id))                    : by esimp
+      ... = F (f',id) ∘ F (f, id)                    : respect_comp F
+      ... = natural_map ((Fhom F f') ∘ (Fhom F f)) d : by esimp)
 
   definition functor_curry [reducible] : C ⇒ E ^c D :=
   functor.mk (functor_curry_ob F)
@@ -98,28 +98,28 @@ namespace functor
 
   theorem functor_uncurry_id (p : C ×c D) : Ghom G (ID p) = id :=
   calc
-    Ghom G (ID p) = to_fun_hom (to_fun_ob G p.1) id ∘ natural_map (to_fun_hom G id) p.2 : idp
-      ... = id ∘ natural_map (to_fun_hom G id) p.2 : ap (λx, x ∘ _) (respect_id (to_fun_ob G p.1) p.2)
-      ... = id ∘ natural_map nat_trans.id p.2 : {respect_id G p.1}
-      ... = id : id_comp
+    Ghom G (ID p) = to_fun_hom (to_fun_ob G p.1) id ∘ natural_map (to_fun_hom G id) p.2 : by esimp
+      ... = id ∘ natural_map (to_fun_hom G id) p.2 : by rewrite respect_id
+      ... = id ∘ natural_map nat_trans.id p.2      : by rewrite respect_id
+      ... = id                                     : id_comp
 
   theorem functor_uncurry_comp ⦃p p' p'' : C ×c D⦄ (f' : p' ⟶ p'') (f : p ⟶ p')
     : Ghom G (f' ∘ f) = Ghom G f' ∘ Ghom G f :=
   calc
     Ghom G (f' ∘ f)
-          = to_fun_hom (to_fun_ob G p''.1) (f'.2 ∘ f.2) ∘ natural_map (to_fun_hom G (f'.1 ∘ f.1)) p.2 : idp
+          = to_fun_hom (to_fun_ob G p''.1) (f'.2 ∘ f.2) ∘ natural_map (to_fun_hom G (f'.1 ∘ f.1)) p.2 : by esimp
       ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)
-              ∘ natural_map (to_fun_hom G (f'.1 ∘ f.1)) p.2 : {respect_comp (to_fun_ob G p''.1) f'.2 f.2}
+              ∘ natural_map (to_fun_hom G (f'.1 ∘ f.1)) p.2                   : by rewrite (respect_comp (to_fun_ob G p''.1) f'.2 f.2)
       ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)
-              ∘ natural_map (to_fun_hom G f'.1 ∘ to_fun_hom G f.1) p.2 : {respect_comp G f'.1 f.1}
+              ∘ natural_map (to_fun_hom G f'.1 ∘ to_fun_hom G f.1) p.2        : by rewrite (respect_comp G f'.1 f.1)
       ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)
-              ∘ (natural_map (to_fun_hom G f'.1) p.2 ∘ natural_map (to_fun_hom G f.1) p.2) : idp
+              ∘ (natural_map (to_fun_hom G f'.1) p.2 ∘ natural_map (to_fun_hom G f.1) p.2) : by esimp
       ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)
-              ∘ (natural_map (to_fun_hom G f'.1) p.2 ∘ natural_map (to_fun_hom G f.1) p.2) : idp
+              ∘ (natural_map (to_fun_hom G f'.1) p.2 ∘ natural_map (to_fun_hom G f.1) p.2) : by esimp
       ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ natural_map (to_fun_hom G f'.1) p'.2)
               ∘ (to_fun_hom (to_fun_ob G p'.1) f.2 ∘ natural_map (to_fun_hom G f.1) p.2) :
                   square_prepostcompose (!naturality⁻¹ᵖ) _ _
-      ... = Ghom G f' ∘ Ghom G f : idp
+      ... = Ghom G f' ∘ Ghom G f : by esimp
 
   definition functor_uncurry [reducible] : C ×c D ⇒ E :=
   functor.mk (functor_uncurry_ob G)
@@ -151,10 +151,6 @@ namespace functor
   --     → F₁ = F₂ :=
   -- functor.rec_on F₁ (λO₁ H₁ id₁ comp₁, functor.rec_on F₂ (λO₂ H₂ id₂ comp₂ p, !functor_eq_mk'1))
 
-
-  set_option pp.full_names true
-  open tactic
-  print raw id
   --set_option pp.notation false
   definition functor_uncurry_functor_curry : functor_uncurry (functor_curry F) = F :=
   functor_eq_mk (λp, ap (to_fun_ob F) !prod.eta)
@@ -163,10 +159,10 @@ namespace functor
     cases cd with (c,d), cases cd' with (c',d'), cases fg with (f,g),
     have H : (functor_uncurry (functor_curry F)) (f, g) = F (f,g),
       from calc
-        (functor_uncurry (functor_curry F)) (f, g) = to_fun_hom F (id, g) ∘ to_fun_hom F (f, id) : idp
+        (functor_uncurry (functor_curry F)) (f, g) = to_fun_hom F (id, g) ∘ to_fun_hom F (f, id) : by esimp
           ... = F (id ∘ f, g ∘ id) : respect_comp F (id,g) (f,id)
-          ... = F (f, g ∘ id) : {id_left f}
-          ... = F (f,g) : {id_right g},
+          ... = F (f, g ∘ id)      : by rewrite id_left
+          ... = F (f,g)            : by rewrite id_right,
     rewrite H,
     apply sorry
   end
@@ -181,12 +177,11 @@ namespace functor
         have H : to_fun_hom (functor_curry (functor_uncurry G) c) g = to_fun_hom (G c) g,
         from calc
           to_fun_hom (functor_curry (functor_uncurry G) c) g
-                = to_fun_hom (G c) g ∘ natural_map (to_fun_hom G (ID c)) d : idp
-            ... = to_fun_hom (G c) g ∘ natural_map (ID (G c)) d
-                   : ap (λx, to_fun_hom (G c) g ∘ natural_map x d) (respect_id G c)
+                = to_fun_hom (G c) g ∘ natural_map (to_fun_hom G (ID c)) d : by esimp
+            ... = to_fun_hom (G c) g ∘ natural_map (ID (G c)) d            : by rewrite respect_id
             ... = to_fun_hom (G c) g : id_right,
         rewrite H,
---        esimp {idp},
+        -- esimp {idp},
         apply sorry
        }
      },

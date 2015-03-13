@@ -202,7 +202,7 @@ namespace iso
     (λ c g h H,
       calc
         g = id ∘ g                    : by rewrite id_left
-      ... = (retraction_of f ∘ f) ∘ g : by rewrite -retraction_comp
+      ... = (retraction_of f ∘ f) ∘ g : by rewrite retraction_comp
       ... = (retraction_of f ∘ f) ∘ h : by rewrite [-assoc, H, -assoc]
       ... = id ∘ h                    : by rewrite retraction_comp
       ... = h                         : by rewrite id_left)

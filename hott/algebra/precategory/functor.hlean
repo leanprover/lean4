@@ -33,8 +33,8 @@ namespace functor
     (λ x, G (F x))
     (λ a b f, G (F f))
     (λ a, calc
-      G (F (ID a)) = G (ID (F a)) : {respect_id F a}
-               ... = ID (G (F a)) : respect_id G (F a))
+      G (F (ID a)) = G (ID (F a)) : by rewrite respect_id
+               ... = ID (G (F a)) : by rewrite respect_id)
     (λ a b c g f, calc
       G (F (g ∘ f)) = G (F g ∘ F f)     : by rewrite respect_comp
                 ... = G (F g) ∘ G (F f) : by rewrite respect_comp)

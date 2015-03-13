@@ -51,7 +51,7 @@ namespace functor
              (λd₁ d₂ d₃ g' g, calc
                F (id, g' ∘ g) = F (id ∘ id, g' ∘ g) : by rewrite id_comp
                  ... = F ((id,g') ∘ (id, g))        : by esimp
-                 ... = F (id,g') ∘ F (id, g)        : by rewrite (respect_comp F))
+                 ... = F (id,g') ∘ F (id, g)        : by rewrite respect_comp)
 
   local abbreviation Fob := @functor_curry_ob
 
@@ -109,9 +109,9 @@ namespace functor
     Ghom G (f' ∘ f)
           = to_fun_hom (to_fun_ob G p''.1) (f'.2 ∘ f.2) ∘ natural_map (to_fun_hom G (f'.1 ∘ f.1)) p.2 : by esimp
       ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)
-              ∘ natural_map (to_fun_hom G (f'.1 ∘ f.1)) p.2                   : by rewrite (respect_comp (to_fun_ob G p''.1) f'.2 f.2)
+              ∘ natural_map (to_fun_hom G (f'.1 ∘ f.1)) p.2                   : by rewrite respect_comp
       ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)
-              ∘ natural_map (to_fun_hom G f'.1 ∘ to_fun_hom G f.1) p.2        : by rewrite (respect_comp G f'.1 f.1)
+              ∘ natural_map (to_fun_hom G f'.1 ∘ to_fun_hom G f.1) p.2        : by rewrite respect_comp
       ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)
               ∘ (natural_map (to_fun_hom G f'.1) p.2 ∘ natural_map (to_fun_hom G f.1) p.2) : by esimp
       ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)

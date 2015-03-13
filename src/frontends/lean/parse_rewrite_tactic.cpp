@@ -145,13 +145,14 @@ expr parse_rewrite_tactic(parser & p) {
 
 expr parse_esimp_tactic(parser & p) {
     buffer<expr> elems;
+    auto pos = p.pos();
     if (p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk())) {
-        elems.push_back(parse_rewrite_unfold(p));
+        elems.push_back(p.save_pos(parse_rewrite_unfold(p), pos));
     } else if (p.curr_is_token(get_lcurly_tk())) {
-        elems.push_back(parse_rewrite_unfold_core(p));
+        elems.push_back(p.save_pos(parse_rewrite_unfold_core(p), pos));
     } else {
         location loc = parse_tactic_location(p);
-        elems.push_back(mk_rewrite_reduce(loc));
+        elems.push_back(p.save_pos(mk_rewrite_reduce(loc), pos));
     }
     return mk_rewrite_tactic_expr(elems);
 }

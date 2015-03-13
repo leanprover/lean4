@@ -10,7 +10,8 @@ n : nat,
 v : vector A n
 ⊢ v = v
 revert_fail.lean:6:0: error: failed to add declaration '14.0' to environment, value has metavariables
-  λ (A : Type) (n : nat) (v : vector A n),
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  λ (A : Type) (n : nat) (v : …),
     ?M_1
 revert_fail.lean:11:2: error:invalid tactic, there are no goals to be solved
 proof state:
@@ -19,6 +20,7 @@ revert_fail.lean:12:0: error: don't know how to synthesize placeholder
 n : nat
 ⊢ n = n
 revert_fail.lean:12:0: error: failed to add declaration '14.1' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (n : nat),
     ?M_1
 revert_fail.lean:16:2: error:invalid 'revert' tactic, unknown hypothesis 'm'
@@ -29,5 +31,6 @@ revert_fail.lean:17:0: error: don't know how to synthesize placeholder
 n : nat
 ⊢ n = n
 revert_fail.lean:17:0: error: failed to add declaration '14.2' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (n : nat),
     ?M_1

@@ -91,7 +91,9 @@ format pp_def_type_mismatch(formatter const & fmt, name const & n, expr const & 
 }
 
 static format pp_until_meta_visible(formatter const & fmt, expr const & e, list<options> extra) {
-    formatter fmt1 = fmt;
+    options o = fmt.get_options();
+    o = o.update_if_undef(get_formatter_hide_full_terms_name(), true);
+    formatter fmt1 = fmt.update_options(o);
     while (true) {
         format r = pp_indent_expr(fmt1, e);
         std::ostringstream out;
@@ -99,9 +101,10 @@ static format pp_until_meta_visible(formatter const & fmt, expr const & e, list<
         if (out.str().find("?M") != std::string::npos)
             return r;
         if (!extra)
-            return pp_indent_expr(fmt, e);
-        options o = join(head(extra), fmt.get_options());
-        fmt1  = fmt.update_options(o);
+            return pp_indent_expr(fmt.update_options(o), e);
+        options o2 = join(head(extra), fmt.get_options());
+        o2    = o2.update_if_undef(get_formatter_hide_full_terms_name(), true);
+        fmt1  = fmt.update_options(o2);
         extra = tail(extra);
     }
 }
@@ -119,6 +122,9 @@ format pp_decl_has_metavars(formatter const & fmt, name const & n, expr const & 
     else
         r += format("value");
     r += format(" has metavariables");
+    options const & o = fmt.get_options();
+    if (!o.contains(get_formatter_hide_full_terms_name()))
+        r += line() + format("remark: set 'formatter.hide_full_terms' to false to see the complete term");
     r += pp_until_meta_visible(fmt, e);
     return r;
 }

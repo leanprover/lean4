@@ -13,6 +13,9 @@ namespace lean {
 class expr;
 class environment;
 
+name const & get_formatter_hide_full_terms_name();
+bool get_formatter_hide_full_terms(options const & opts);
+
 class formatter {
     std::function<format(expr const &, options const &)> m_fn;
     options                             m_options;

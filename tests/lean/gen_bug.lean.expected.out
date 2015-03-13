@@ -19,5 +19,6 @@ a : A,
 b : B
 ⊢ @heq A a B b → @heq B b A a
 gen_bug.lean:12:0: error: failed to add declaration 'tst' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (A B : Type) (a : A) (b : B),
     ?M_1

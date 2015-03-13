@@ -10,7 +10,8 @@ a : nat,
 H : f a = a
 ⊢ g a = a
 quasireducible.lean:11:3: error: failed to add declaration '14.1' to environment, value has metavariables
-  λ (a : nat) (H : f a = a),
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  λ (a : nat) (H : …),
     ?M_1
 quasireducible.lean:16:11: error:invalid 'rewrite' tactic, rewrite step failed using pattern
   f a
@@ -24,5 +25,6 @@ a : nat,
 H : f a = a
 ⊢ g a = a
 quasireducible.lean:16:3: error: failed to add declaration '14.2' to environment, value has metavariables
-  λ (a : nat) (H : f a = a),
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  λ (a : nat) (H : …),
     ?M_1

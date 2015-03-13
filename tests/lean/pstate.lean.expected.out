@@ -5,5 +5,6 @@ h₁ : a = b,
 h₂ : b = c
 ⊢ b = c
 pstate.lean:4:7: error: failed to add declaration 'foo' to environment, value has metavariables
-  λ (A : Type) (a b c : A) (h₁ : a = b) (h₂ : b = c),
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  λ (A : Type) (a b c : A) (h₁ : …) (h₂ : …),
     eq.trans h₁ ?M_1

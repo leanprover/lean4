@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/typed_expr.h"
 #include "library/num.h"
+#include "library/util.h"
 #include "library/let.h"
 #include "library/print.h"
 #include "library/abbreviation.h"
@@ -278,6 +279,7 @@ void pretty_fn::set_options_core(options const & o) {
     m_beta            = get_pp_beta(o);
     m_numerals        = get_pp_numerals(o);
     m_abbreviations   = get_pp_abbreviations(o);
+    m_hide_full_terms = get_formatter_hide_full_terms(o);
     m_num_nat_coe     = m_numerals && !m_coercion && has_coercion_num_nat(m_env);
 }
 
@@ -314,35 +316,35 @@ bool pretty_fn::is_prop(expr const & e) {
     }
 }
 
-auto pretty_fn::pp_coercion_fn(expr const & e, unsigned sz) -> result {
+auto pretty_fn::pp_coercion_fn(expr const & e, unsigned sz, bool ignore_hide) -> result {
     if (sz == 1) {
-        return pp_child(app_arg(e), max_bp()-1);
+        return pp_child(app_arg(e), max_bp()-1, ignore_hide);
     } else if (is_app(e) && is_implicit(app_fn(e))) {
-        return pp_coercion_fn(app_fn(e), sz-1);
+        return pp_coercion_fn(app_fn(e), sz-1, ignore_hide);
     } else {
         expr const & fn = app_fn(e);
-        result res_fn   = pp_coercion_fn(fn, sz-1);
+        result res_fn   = pp_coercion_fn(fn, sz-1, ignore_hide);
         format fn_fmt   = res_fn.fmt();
         if (m_implict && sz == 2 && has_implicit_args(fn))
             fn_fmt = compose(*g_explicit_fmt, fn_fmt);
-        result res_arg  = pp_child(app_arg(e), max_bp());
+        result res_arg  = pp_child(app_arg(e), max_bp(), ignore_hide);
         return result(max_bp()-1, group(compose(fn_fmt, nest(m_indent, compose(line(), res_arg.fmt())))));
     }
 }
 
-auto pretty_fn::pp_coercion(expr const & e, unsigned bp) -> result {
+auto pretty_fn::pp_coercion(expr const & e, unsigned bp, bool ignore_hide) -> result {
     buffer<expr> args;
     expr const & f = get_app_args(e, args);
     optional<pair<name, unsigned>> r = is_coercion(m_env, f);
     lean_assert(r);
     if (r->second >= args.size()) {
-        return pp_child_core(e, bp);
+        return pp_child_core(e, bp, ignore_hide);
     } else if (r->second == args.size() - 1) {
-        return pp_child(args.back(), bp);
+        return pp_child(args.back(), bp, ignore_hide);
     } else {
         unsigned sz = args.size() - r->second;
         lean_assert(sz >= 2);
-        auto r = pp_coercion_fn(e, sz);
+        auto r = pp_coercion_fn(e, sz, ignore_hide);
         if (r.rbp() < bp) {
             return result(paren(r.fmt()));
         } else {
@@ -351,8 +353,8 @@ auto pretty_fn::pp_coercion(expr const & e, unsigned bp) -> result {
     }
 }
 
-auto pretty_fn::pp_child_core(expr const & e, unsigned bp) -> result {
-    result r = pp(e);
+auto pretty_fn::pp_child_core(expr const & e, unsigned bp, bool ignore_hide) -> result {
+    result r = pp(e, ignore_hide);
     if (r.rbp() < bp) {
         return result(paren(r.fmt()));
     } else {
@@ -360,20 +362,20 @@ auto pretty_fn::pp_child_core(expr const & e, unsigned bp) -> result {
     }
 }
 
-auto pretty_fn::pp_child(expr const & e, unsigned bp) -> result {
+auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> result {
     if (auto it = is_abbreviated(e))
-        return pp_abbreviation(e, *it, false);
+        return pp_abbreviation(e, *it, false, ignore_hide);
     if (is_app(e)) {
         expr const & f = app_fn(e);
         if (auto it = is_abbreviated(f)) {
-            return pp_abbreviation(e, *it, true);
+            return pp_abbreviation(e, *it, true, ignore_hide);
         } else if (is_implicit(f)) {
-            return pp_child(f, bp);
+            return pp_child(f, bp, ignore_hide);
         } else if (!m_coercion && is_coercion(m_env, f)) {
-            return pp_coercion(e, bp);
+            return pp_coercion(e, bp, ignore_hide);
         }
     }
-    return pp_child_core(e, bp);
+    return pp_child_core(e, bp, ignore_hide);
 }
 
 auto pretty_fn::pp_var(expr const & e) -> result {
@@ -490,8 +492,13 @@ auto pretty_fn::pp_app(expr const & e) -> result {
     expr const & fn = app_fn(e);
     if (auto it = is_abbreviated(fn))
         return pp_abbreviation(e, *it, true);
-    result res_fn = pp_child(fn, max_bp()-1);
-    format fn_fmt = res_fn.fmt();
+    // If the application contains a metavariable, then we want to
+    // show the function, otherwise it would be hard to understand the
+    // context where the metavariable occurs. This is hack to implement
+    // formatter.hide_full_terms
+    bool ignore_hide = true;
+    result res_fn    = pp_child(fn, max_bp()-1, ignore_hide);
+    format fn_fmt    = res_fn.fmt();
     if (m_implict && !is_app(fn) && has_implicit_args(fn))
         fn_fmt = compose(*g_explicit_fmt, fn_fmt);
     result res_arg = pp_child(app_arg(e), max_bp());
@@ -1056,7 +1063,7 @@ auto pretty_fn::pp_notation(expr const & e) -> optional<result> {
     return optional<result>();
 }
 
-auto pretty_fn::pp_abbreviation(expr const & e, name const & abbrev, bool fn) -> result {
+auto pretty_fn::pp_abbreviation(expr const & e, name const & abbrev, bool fn, bool ignore_hide) -> result {
     declaration const & d = m_env.get(abbrev);
     unsigned num_univs    = d.get_num_univ_params();
     buffer<level> ls;
@@ -1065,12 +1072,28 @@ auto pretty_fn::pp_abbreviation(expr const & e, name const & abbrev, bool fn) ->
     buffer<expr> args;
     if (fn)
         get_app_args(e, args);
-    return pp(mk_app(mk_constant(abbrev, to_list(ls)), args));
+    return pp(mk_app(mk_constant(abbrev, to_list(ls)), args), ignore_hide);
 }
 
-auto pretty_fn::pp(expr const & e) -> result {
-    if (m_depth > m_max_depth || m_num_steps > m_max_steps)
+static bool is_pp_atomic(expr const & e) {
+    switch (e.kind()) {
+    case expr_kind::App:
+    case expr_kind::Lambda:
+    case expr_kind::Pi:
+    case expr_kind::Macro:
+        return false;
+    default:
+        return true;
+    }
+}
+
+auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
+    if ((m_depth >= m_max_depth ||
+         m_num_steps > m_max_steps ||
+         (m_hide_full_terms && !ignore_hide && !has_expr_metavar_relaxed(e))) &&
+        !is_pp_atomic(e)) {
         return result(m_unicode ? *g_ellipsis_n_fmt : *g_ellipsis_fmt);
+    }
     flet<unsigned> let_d(m_depth, m_depth+1);
     m_num_steps++;
 

@@ -21,5 +21,6 @@ Hab : a = b,
 Hbc : b = c
 ⊢ a = c
 beginend_bug.lean:9:0: error: failed to add declaration 'foo' to environment, value has metavariables
-  λ (A : Type) (a b c : A) (Hab : a = b) (Hbc : b = c),
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  λ (A : Type) (a b c : A) (Hab : …) (Hbc : …),
     ?M_1

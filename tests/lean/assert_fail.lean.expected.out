@@ -8,7 +8,8 @@ a b : Prop,
 H : b ∧ a
 ⊢ a ∧ b
 assert_fail.lean:4:0: error: failed to add declaration '14.0' to environment, value has metavariables
-  λ (a b : Prop) (H : b ∧ a),
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  λ (a b : Prop) (H : …),
     ?M_1
 assert_fail.lean:9:2: error:invalid tactic, there are no goals to be solved
 proof state:
@@ -18,5 +19,6 @@ a : Prop,
 Ha : a
 ⊢ a
 assert_fail.lean:10:0: error: failed to add declaration '14.1' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (a : Prop) (Ha : a),
     ?M_1

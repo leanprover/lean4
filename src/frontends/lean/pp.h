@@ -67,6 +67,7 @@ private:
     bool                m_beta;
     bool                m_numerals;
     bool                m_abbreviations;
+    bool                m_hide_full_terms;
 
     name mk_metavar_name(name const & m);
     name mk_local_name(name const & n, name const & suggested);
@@ -88,10 +89,10 @@ private:
     optional<result> pp_notation(notation_entry const & entry, buffer<optional<expr>> & args);
     optional<result> pp_notation(expr const & e);
 
-    result pp_coercion_fn(expr const & e, unsigned sz);
-    result pp_coercion(expr const & e, unsigned bp);
-    result pp_child_core(expr const & e, unsigned bp);
-    result pp_child(expr const & e, unsigned bp);
+    result pp_coercion_fn(expr const & e, unsigned sz, bool ignore_hide = false);
+    result pp_coercion(expr const & e, unsigned bp, bool ignore_hide = false);
+    result pp_child_core(expr const & e, unsigned bp, bool ignore_hide = false);
+    result pp_child(expr const & e, unsigned bp, bool ignore_hide = false);
     result pp_var(expr const & e);
     result pp_sort(expr const & e);
     result pp_const(expr const & e);
@@ -107,12 +108,12 @@ private:
     result pp_let(expr e);
     result pp_num(mpz const & n);
     // If fn is true, then \c e is of the form (f a), and the abbreviation is \c f.
-    result pp_abbreviation(expr const & e, name const & abbrev, bool fn);
+    result pp_abbreviation(expr const & e, name const & abbrev, bool fn, bool ignore_hide = false);
     void set_options_core(options const & o);
 
 public:
     pretty_fn(environment const & env, options const & o);
-    result pp(expr const & e);
+    result pp(expr const & e, bool ignore_hide = false);
     void set_options(options const & o);
     options const & get_options() const { return m_options; }
     format operator()(expr const & e);

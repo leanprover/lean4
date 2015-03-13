@@ -16,5 +16,6 @@ n : ℕ,
 v : vector ℕ n
 ⊢ v = v
 gen_fail.lean:7:0: error: failed to add declaration 'tst' to environment, value has metavariables
-  λ (n : ℕ) (v : vector ℕ n),
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  λ (n : ℕ) (v : …),
     ?M_1

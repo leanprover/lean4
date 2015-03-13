@@ -17,6 +17,7 @@ open_tst.lean:22:2: error: don't know how to synthesize placeholder
 
 ⊢ inhabited ℕ
 open_tst.lean:22:2: error: failed to add declaration 'foo1' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
   ?M_1
 a + a : ℕ
 open_tst.lean:29:8: error: unknown identifier 'add'
@@ -25,5 +26,6 @@ open_tst.lean:32:2: error: don't know how to synthesize placeholder
 
 ⊢ inhabited ℕ
 open_tst.lean:32:2: error: failed to add declaration 'foo2' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
   ?M_1
 open_tst.lean:41:10: error: invalid expression

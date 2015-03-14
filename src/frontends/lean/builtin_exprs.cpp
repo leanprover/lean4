@@ -242,17 +242,8 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
             }
         }
     } catch (exception & ex) {
-        if (end_token == get_end_tk()) {
-            // When the end_token is 'end', the default parser
-            // sync_command does not work well because it will
-            // interpret 'end' as a synchronization point because 'end' is also a command.
-            while (!p.curr_is_token(get_end_tk())) {
-                if (p.curr() == scanner::token_kind::Eof)
-                    ex.rethrow();
-                p.next();
-            }
-            p.next(); // consume 'end'
-        }
+        if (end_token == get_end_tk())
+            consume_until_end(p);
         ex.rethrow();
     }
     auto end_pos = p.pos();

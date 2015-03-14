@@ -14,6 +14,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 class parser;
+/** \brief Consume tokes until 'end' token is consumed */
+void consume_until_end(parser & p);
+
 /** \brief Parse optional '[persistent]' modifier.
     return true if it is was found, and paremeter \c persistent to true.
 */

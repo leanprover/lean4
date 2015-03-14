@@ -22,6 +22,15 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 
 namespace lean {
+void consume_until_end(parser & p) {
+    while (!p.curr_is_token(get_end_tk())) {
+        if (p.curr() == scanner::token_kind::Eof)
+            return;
+        p.next();
+    }
+    p.next();
+}
+
 bool parse_persistent(parser & p, bool & persistent) {
     if (p.curr_is_token_or_id(get_persistent_tk())) {
         p.next();

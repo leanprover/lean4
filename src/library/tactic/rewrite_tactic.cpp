@@ -81,6 +81,9 @@ public:
         d >> e.m_location;
         return d;
     }
+
+    bool operator==(unfold_info const & i) const { return m_names == i.m_names && m_location == i.m_location; }
+    bool operator!=(unfold_info const & i) const { return !operator==(i); }
 };
 
 class reduce_info {
@@ -97,6 +100,9 @@ public:
         d >> e.m_location;
         return d;
     }
+
+    bool operator==(reduce_info const & i) const { return m_location == i.m_location; }
+    bool operator!=(reduce_info const & i) const { return !operator==(i); }
 };
 
 class rewrite_info {
@@ -131,6 +137,13 @@ public:
     static rewrite_info mk_one_or_more(bool symm, location const & loc) {
         return rewrite_info(symm, OneOrMore, optional<unsigned>(), loc);
     }
+
+    bool operator==(rewrite_info const & i) const {
+        return
+            m_symm == i.m_symm && m_multiplicity == i.m_multiplicity &&
+            m_num  == i.m_num  && m_location == i.m_location;
+    }
+    bool operator!=(rewrite_info const & i) const { return !operator==(i); }
 
     bool symm() const {
         return m_symm;
@@ -199,6 +212,12 @@ public:
         s << *g_rewrite_reduce_opcode << m_info;
     }
     reduce_info const & get_info() const { return m_info; }
+
+    virtual bool operator==(macro_definition_cell const & other) const {
+        if (auto o = dynamic_cast<rewrite_reduce_macro_cell const *>(&other))
+            return m_info == o->m_info;
+        return false;
+    }
 };
 
 expr mk_rewrite_reduce(location const & loc) {
@@ -231,6 +250,12 @@ public:
         s << *g_rewrite_fold_opcode << m_info;
     }
     fold_info const & get_info() const { return m_info; }
+
+    virtual bool operator==(macro_definition_cell const & other) const {
+        if (auto o = dynamic_cast<rewrite_fold_macro_cell const *>(&other))
+            return m_info == o->m_info;
+        return false;
+    }
 };
 
 expr mk_rewrite_fold(expr const & e, location const & loc) {
@@ -256,6 +281,12 @@ public:
         s << *g_rewrite_unfold_opcode << m_info;
     }
     unfold_info const & get_info() const { return m_info; }
+
+    virtual bool operator==(macro_definition_cell const & other) const {
+        if (auto o = dynamic_cast<rewrite_unfold_macro_cell const *>(&other))
+            return m_info == o->m_info;
+        return false;
+    }
 };
 
 expr mk_rewrite_unfold(list<name> const & ns, location const & loc) {
@@ -281,6 +312,12 @@ public:
         s << *g_rewrite_elem_opcode << m_info;
     }
     rewrite_info const & get_info() const { return m_info; }
+
+    virtual bool operator==(macro_definition_cell const & other) const {
+        if (auto o = dynamic_cast<rewrite_element_macro_cell const *>(&other))
+            return m_info == o->m_info;
+        return false;
+    }
 };
 
 expr mk_rw_macro(macro_definition const & def, optional<expr> const & pattern, expr const & H) {

@@ -47,6 +47,9 @@ public:
     unsigned contains(unsigned occ_idx) const;
     friend serializer & operator<<(serializer & s, occurrence const & o);
     friend deserializer & operator>>(deserializer & d, occurrence & o);
+
+    bool operator==(occurrence const & o) const { return m_kind == o.m_kind && m_occs == o.m_occs; }
+    bool operator!=(occurrence const & o) const { return !operator==(o); }
 };
 
 /** \brief Replace occurrences of \c t in \c e with the free variable #vidx.
@@ -82,6 +85,9 @@ public:
     optional<occurrence> includes_goal() const;
     optional<occurrence> includes_hypothesis(name const & h) const;
     void get_explicit_hypotheses_names(buffer<name> & r) const;
+
+    bool operator==(location const & l) const { return m_kind == l.m_kind && m_goal == l.m_goal && m_hyps == l.m_hyps; }
+    bool operator!=(location const & l) const { return !operator==(l); }
 
     friend serializer & operator<<(serializer & s, location const & loc);
     friend deserializer & operator>>(deserializer & d, location & loc);

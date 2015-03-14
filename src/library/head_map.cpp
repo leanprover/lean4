@@ -5,10 +5,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/head_map.h"
+#include "library/explicit.h"
 
 namespace lean {
 head_index::head_index(expr const & e) {
-    expr const & f = get_app_fn(e);
+    expr f = get_app_fn(e);
+    while (true) {
+        if (is_explicit(f))
+            f = get_explicit_arg(f);
+        else if (is_consume_args(f))
+            f = get_consume_args_arg(f);
+        else
+            break;
+    }
     m_kind = f.kind();
     if (is_constant(f))
         m_const_name = const_name(f);

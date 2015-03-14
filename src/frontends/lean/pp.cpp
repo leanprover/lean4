@@ -767,12 +767,14 @@ bool pretty_fn::match(expr const & p, expr const & e, buffer<optional<expr>> & a
         return match(sort_level(p), sort_level(e));
     } else if (is_app(e)) {
         buffer<expr> p_args, e_args;
-        expr const & p_fn = get_app_args(p, p_args);
-        expr const & e_fn = get_app_args(e, e_args);
+        expr p_fn    = get_app_args(p, p_args);
+        bool consume = is_consume_args(p_fn);
+        if (consume)
+            p_fn     = get_consume_args_arg(p_fn);
+        expr e_fn    = get_app_args(e, e_args);
         if (!match(p_fn, e_fn, args))
             return false;
-        bool expl   = is_explicit(p);
-        if (expl) {
+        if (is_explicit(p)) {
             if (p_args.size() != e_args.size())
                 return false;
             for (unsigned i = 0; i < p_args.size(); i++) {
@@ -785,15 +787,17 @@ bool pretty_fn::match(expr const & p, expr const & e, buffer<optional<expr>> & a
                 expr fn_type = m_tc.infer(e_fn).first;
                 unsigned j = 0;
                 for (unsigned i = 0; i < e_args.size(); i++) {
-                    fn_type = m_tc.ensure_pi(fn_type).first;
-                    if (is_explicit(binding_info(fn_type))) {
+                    fn_type                  = m_tc.ensure_pi(fn_type).first;
+                    expr const & body        = binding_body(fn_type);
+                    binder_info const & info = binding_info(fn_type);
+                    if ((!consume || closed(body)) && is_explicit(info)) {
                         if (j >= p_args.size())
                             return false;
                         if (!match(p_args[j], e_args[i], args))
                             return false;
                         j++;
                     }
-                    fn_type = instantiate(binding_body(fn_type), e_args[i]);
+                    fn_type = instantiate(body, e_args[i]);
                 }
                 return j == p_args.size();
             } catch (exception&) {

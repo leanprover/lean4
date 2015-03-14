@@ -1,0 +1,4 @@
+1 * 1 * a : A
+has_mul.mul (has_one.one A) a : A
+0 + a : A
+has_add.add (has_zero.zero A) a : A

@@ -133,7 +133,7 @@ definition head [h : inhabited T] : list T → T
 
 theorem head_cons [h : inhabited T] (a : T) (l : list T) : head (a::l) = a
 
-theorem head_concat [h : inhabited T] (t : list T) : ∀ {s : list T}, s ≠ [] → head (s ++ t) = head s
+theorem head_append [h : inhabited T] (t : list T) : ∀ {s : list T}, s ≠ [] → head (s ++ t) = head s
 | []       H := absurd rfl H
 | (a :: s) H :=
   show head (a :: (s ++ t)) = head (a :: s),
@@ -166,7 +166,7 @@ iff.rfl
 theorem mem_cons (x y : T) (l : list T) : x ∈ y::l ↔ (x = y ∨ x ∈ l) :=
 iff.rfl
 
-theorem mem_concat_imp_or {x : T} {s t : list T} : x ∈ s ++ t → x ∈ s ∨ x ∈ t :=
+theorem mem_or_mem_of_mem_append {x : T} {s t : list T} : x ∈ s ++ t → x ∈ s ∨ x ∈ t :=
 list.induction_on s or.inr
   (take y s,
     assume IH : x ∈ s ++ t → x ∈ s ∨ x ∈ t,
@@ -175,7 +175,7 @@ list.induction_on s or.inr
     have H3 : x = y ∨ x ∈ s ∨ x ∈ t, from or_of_or_of_imp_right H2 IH,
     iff.elim_right or.assoc H3)
 
-theorem mem_or_imp_concat {x : T} {s t : list T} : x ∈ s ∨ x ∈ t → x ∈ s ++ t :=
+theorem mem_append_of_mem_or_mem {x : T} {s t : list T} : x ∈ s ∨ x ∈ t → x ∈ s ++ t :=
 list.induction_on s
   (take H, or.elim H false.elim (assume H, H))
   (take y s,
@@ -188,8 +188,8 @@ list.induction_on s
             (take H2 : x ∈ s, or.inr (IH (or.inl H2))))
         (assume H1 : x ∈ t, or.inr (IH (or.inr H1))))
 
-theorem mem_concat (x : T) (s t : list T) : x ∈ s ++ t ↔ x ∈ s ∨ x ∈ t :=
-iff.intro mem_concat_imp_or mem_or_imp_concat
+theorem mem_append_iff (x : T) (s t : list T) : x ∈ s ++ t ↔ x ∈ s ∨ x ∈ t :=
+iff.intro mem_or_mem_of_mem_append mem_append_of_mem_or_mem
 
 local attribute mem [reducible]
 local attribute append [reducible]
@@ -312,6 +312,11 @@ theorem len_map (f : A → B) : ∀ l : list A, length (map f l) = length l
   show length (map f l) + 1 = length l + 1,
   by rewrite (len_map l)
 
+definition map₂ (f : A → B → C) : list A → list B → list C
+| []      _       := []
+| _       []      := []
+| (x::xs) (y::ys) := f x y :: map₂ xs ys
+
 definition foldl (f : A → B → A) : A → list B → A
 | a []       := a
 | a (b :: l) := foldl (f a b) l
@@ -320,13 +325,40 @@ definition foldr (f : A → B → B) : B → list A → B
 | b []       := b
 | b (a :: l) := f a (foldr b l)
 
-definition all (p : A → Prop) : list A → Prop
-| []       := true
-| (a :: l) := p a ∧ all l
+section foldl_eq_foldr
+  -- foldl and foldr coincide when f is commutative and associative
+  parameters {α : Type} {f : α → α → α}
+  hypothesis (Hcomm  : ∀ a b, f a b = f b a)
+  hypothesis (Hassoc : ∀ a b c, f a (f b c) = f (f a b) c)
+  include Hcomm Hassoc
 
-definition any (p : A → Prop) : list A → Prop
-| []       := false
-| (a :: l) := p a ∨ any l
+  theorem foldl_eq_of_comm_of_assoc : ∀ a b l, foldl f a (b::l) = f b (foldl f a l)
+  | a b  nil    := Hcomm a b
+  | a b  (c::l) :=
+    begin
+      change (foldl f (f (f a b) c) l = f b (foldl f (f a c) l)),
+      rewrite -foldl_eq_of_comm_of_assoc,
+      change (foldl f (f (f a b) c) l = foldl f (f (f a c) b) l),
+      have H₁ : f (f a b) c = f (f a c) b, by rewrite [-Hassoc, -Hassoc, Hcomm b c],
+      rewrite H₁
+    end
+
+  theorem foldl_eq_foldr : ∀ a l, foldl f a l = foldr f a l
+  | a nil      := rfl
+  | a (b :: l) :=
+    begin
+      rewrite foldl_eq_of_comm_of_assoc,
+      esimp,
+      change (f b (foldl f a l) = f b (foldr f a l)),
+      rewrite foldl_eq_foldr
+    end
+end foldl_eq_foldr
+
+definition all (p : A → Prop) (l : list A) : Prop :=
+foldr (λ a r, p a ∧ r) true l
+
+definition any (p : A → Prop) (l : list A) : Prop :=
+foldr (λ a r, p a ∨ r) false l
 
 definition decidable_all (p : A → Prop) [H : decidable_pred p] : ∀ l, decidable (all p l)
 | []       := decidable_true
@@ -352,10 +384,8 @@ definition decidable_any (p : A → Prop) [H : decidable_pred p] : ∀ l, decida
     end
   end
 
-definition zip : list A → list B → list (A × B)
-| []        _         := []
-| _         []        := []
-| (a :: la) (b :: lb) := (a, b) :: zip la lb
+definition zip (l₁ : list A) (l₂ : list B) : list (A × B) :=
+map₂ (λ a b, (a, b)) l₁ l₂
 
 definition unzip : list (A × B) → list A × list B
 | []            := ([], [])
@@ -382,6 +412,12 @@ theorem zip_unzip : ∀ (l : list (A × B)), zip (pr₁ (unzip l)) (pr₂ (unzip
   end
 
 end combinators
+
+/- flat -/
+variable {A : Type}
+
+definition flat (l : list (list A)) : list A :=
+foldl append nil l
 
 end list
 

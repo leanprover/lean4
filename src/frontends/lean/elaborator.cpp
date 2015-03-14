@@ -365,6 +365,13 @@ expr elaborator::add_implict_args(expr e, constraint_seq & cs, bool relax) {
     }
 }
 
+static expr mk_coercion_app(expr const & coe, expr const & a) {
+    if (is_inaccessible(a))
+        return copy_tag(a, mk_inaccessible(mk_app(coe, get_annotation_arg(a), a.get_tag())));
+    else
+        return mk_app(coe, a, a.get_tag());
+}
+
 /** \brief Make sure \c f is really a function, if it is not, try to apply coercions.
     The result is a pair <tt>new_f, f_type</tt>, where new_f is the new value for \c f,
     and \c f_type is its type (and a Pi-expression)
@@ -392,7 +399,7 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
         } else if (is_nil(tail(coes))) {
             expr old_f = f;
             bool relax = m_relax_main_opaque;
-            f = mk_app(head(coes), f, f.get_tag());
+            f = mk_coercion_app(head(coes), f);
             f = add_implict_args(f, cs, relax);
             f_type = infer_type(f, cs);
             save_coercion_info(old_f, f);
@@ -408,7 +415,7 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
                 flet<local_context> save1(m_context,      ctx);
                 flet<local_context> save2(m_full_context, full_ctx);
                 list<constraints> choices = map2<constraints>(coes, [&](expr const & coe) {
-                        expr new_f      = copy_tag(f, ::lean::mk_app(coe, f));
+                        expr new_f      = mk_coercion_app(coe, f);
                         constraint_seq cs;
                         new_f = add_implict_args(new_f, cs, relax);
                         cs += mk_eq_cnstr(meta, new_f, j, relax);
@@ -467,12 +474,12 @@ expr elaborator::apply_coercion(expr const & a, expr a_type, expr d_type) {
         erase_coercion_info(a);
         return a;
     } else if (is_nil(tail(coes))) {
-        expr r = mk_app(head(coes), a, a.get_tag());
+        expr r = mk_coercion_app(head(coes), a);
         save_coercion_info(a, r);
         return r;
     } else {
         for (expr const & coe : coes) {
-            expr r = mk_app(coe, a, a.get_tag());
+            expr r = mk_coercion_app(coe, a);
             expr r_type = infer_type(r).first;
             try {
                 if (m_tc[m_relax_main_opaque]->is_def_eq(r_type, d_type).first) {
@@ -708,7 +715,7 @@ expr elaborator::ensure_type(expr const & e, constraint_seq & cs) {
         throw_kernel_exception(env(), e, [=](formatter const & fmt) { return pp_type_expected(fmt, e); });
     } else {
         // Remark: we ignore other coercions to sort
-        expr r = mk_app(head(coes), e, e.get_tag());
+        expr r = mk_coercion_app(head(coes), e);
         save_coercion_info(e, r);
         return r;
     }

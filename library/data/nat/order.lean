@@ -165,92 +165,38 @@ section
     mul_le_mul_of_nonneg_right := (take a b c H1 H2, mul_le_mul_right H1 c),
     mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left,
     mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right ⦄
+
+  migrate from algebra with nat
+    replacing has_le.ge → ge, has_lt.gt → gt
+    hiding pos_of_mul_pos_left, pos_of_mul_pos_right, lt_of_mul_lt_mul_left, lt_of_mul_lt_mul_right
 end
 
+calc_trans ge_of_eq_of_ge
+calc_trans ge_of_ge_of_eq
+calc_trans gt_of_eq_of_gt
+calc_trans gt_of_gt_of_eq
+
 section port_algebra
-  theorem ge_of_eq_of_ge : ∀{a b c : ℕ}, a = b → b ≥ c → a ≥ c := @algebra.ge_of_eq_of_ge _ _
-  theorem ge_of_ge_of_eq : ∀{a b c : ℕ}, a ≥ b → b = c → a ≥ c := @algebra.ge_of_ge_of_eq _ _
-  theorem gt_of_eq_of_gt : ∀{a b c : ℕ}, a = b → b > c → a > c := @algebra.gt_of_eq_of_gt _ _
-  theorem gt_of_gt_of_eq : ∀{a b c : ℕ}, a > b → b = c → a > c := @algebra.gt_of_gt_of_eq _ _
-  theorem ge.trans: ∀{a b c : ℕ}, a ≥ b → b ≥ c → a ≥ c := @algebra.ge.trans _ _
-  theorem gt.trans: ∀{a b c : ℕ}, a ≥ b → b ≥ c → a ≥ c := @algebra.ge.trans _ _
-  theorem gt_of_gt_of_ge : ∀{a b c : ℕ}, a > b → b ≥ c → a > c := @algebra.gt_of_gt_of_ge _ _
-  theorem gt_of_ge_of_gt : ∀{a b c : ℕ}, a ≥ b → b > c → a > c := @algebra.gt_of_ge_of_gt _ _
-  calc_trans ge_of_eq_of_ge
-  calc_trans ge_of_ge_of_eq
-  calc_trans gt_of_eq_of_gt
-  calc_trans gt_of_gt_of_eq
-
-  theorem ne_of_lt : ∀{a b : ℕ}, a < b → a ≠ b := @algebra.ne_of_lt _ _
-  theorem lt_of_le_of_ne : ∀{a b : ℕ}, a ≤ b → a ≠ b → a < b :=
-    @algebra.lt_of_le_of_ne _ _
-
-  theorem not_le_of_lt : ∀{a b : ℕ}, a < b → ¬ b ≤ a := @algebra.not_le_of_lt _ _
-  theorem not_lt_of_le : ∀{a b : ℕ}, a ≤ b → ¬ b < a := @algebra.not_lt_of_le _ _
-
-  theorem le_of_not_lt : ∀{a b : ℕ}, ¬ a < b → b ≤ a := @algebra.le_of_not_lt _ _
-  theorem lt_of_not_le : ∀{a b : ℕ}, ¬ a ≤ b → b < a := @algebra.lt_of_not_le _ _
-  theorem lt_or_ge : ∀a b : ℕ, a < b ∨ a ≥ b := @algebra.lt_or_ge _ _
-  theorem le_or_gt : ∀a b : ℕ, a ≤ b ∨ a > b := @algebra.le_or_gt _ _
-  theorem lt_or_gt_of_ne : ∀{a b : ℕ}, a ≠ b → a < b ∨ a > b := @algebra.lt_or_gt_of_ne _ _
-
-  theorem add_le_add : ∀{a b c d : ℕ}, a ≤ b → c ≤ d → a + c ≤ b + d := @algebra.add_le_add _ _
-  theorem add_lt_add : ∀{a b c d : ℕ}, a < b → c < d → a + c < b + d := @algebra.add_lt_add _ _
-  theorem add_lt_add_of_le_of_lt : ∀{a b c d : ℕ}, a ≤ b → c < d → a + c < b + d :=
-    @algebra.add_lt_add_of_le_of_lt _ _
-  theorem add_lt_add_of_lt_of_le : ∀{a b c d : ℕ}, a < b → c ≤ d → a + c < b + d :=
-    @algebra.add_lt_add_of_lt_of_le _ _
-  theorem lt_add_of_pos_left : ∀{a b : ℕ}, b > 0 → a < b + a := @algebra.lt_add_of_pos_left _ _
-
-  theorem le_of_add_le_add_right : ∀{a b c : ℕ}, a + b ≤ c + b → a ≤ c :=
-    @algebra.le_of_add_le_add_right _ _
-  theorem lt_of_add_lt_add_left : ∀{a b c : ℕ}, a + b < a + c → b < c :=
-    @algebra.lt_of_add_lt_add_left _ _
-  theorem lt_of_add_lt_add_right : ∀{a b c : ℕ}, a + b < c + b → a < c :=
-    @algebra.lt_of_add_lt_add_right _ _
-  theorem add_le_add_left_iff : ∀a b c : ℕ, a + b ≤ a + c ↔ b ≤ c := algebra.add_le_add_left_iff
-  theorem add_le_add_right_iff : ∀a b c : ℕ, a + b ≤ c + b ↔ a ≤ c := algebra.add_le_add_right_iff
-  theorem add_lt_add_left_iff : ∀a b c : ℕ, a + b < a + c ↔ b < c := algebra.add_lt_add_left_iff
-  theorem add_lt_add_right_iff : ∀a b c : ℕ, a + b < c + b ↔ a < c := algebra.add_lt_add_right_iff
-
   theorem add_pos_left : ∀{a : ℕ}, 0 < a → ∀b : ℕ, 0 < a + b :=
     take a H b, @algebra.add_pos_of_pos_of_nonneg _ _ a b H !zero_le
   theorem add_pos_right : ∀{a : ℕ}, 0 < a → ∀b : ℕ, 0 < b + a :=
     take a H b, !add.comm ▸ add_pos_left H b
-
   theorem add_eq_zero_iff_eq_zero_and_eq_zero : ∀{a b : ℕ},
     a + b = 0 ↔ a = 0 ∧ b = 0 :=
     take a b : ℕ,
       @algebra.add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg _ _ a b !zero_le !zero_le
-
   theorem le_add_of_le_left : ∀{a b c : ℕ}, b ≤ c → b ≤ a + c :=
     take a b c H, @algebra.le_add_of_nonneg_of_le _ _ a b c !zero_le H
   theorem le_add_of_le_right : ∀{a b c : ℕ}, b ≤ c → b ≤ c + a :=
     take a b c H, @algebra.le_add_of_le_of_nonneg _ _ a b c H !zero_le
-  theorem lt_add_of_pos_of_le : ∀{a b c : ℕ}, 0 < a → b ≤ c → b < a + c :=
-    @algebra.lt_add_of_pos_of_le _ _
-  theorem lt_add_of_le_of_pos : ∀{a b c : ℕ}, b ≤ c → 0 < a → b < c + a :=
-    @algebra.lt_add_of_le_of_pos _ _
-
   theorem lt_add_of_lt_left : ∀{b c : ℕ}, b < c → ∀a, b < a + c :=
     take b c H a, @algebra.lt_add_of_nonneg_of_lt _ _ a b c !zero_le H
   theorem lt_add_of_lt_right : ∀{b c : ℕ}, b < c → ∀a, b < c + a :=
     take b c H a, @algebra.lt_add_of_lt_of_nonneg _ _ a b c H !zero_le
-  theorem lt_add_of_pos_of_lt : ∀{a b c : ℕ}, 0 < a → b < c → b < a + c :=
-    @algebra.lt_add_of_pos_of_lt _ _
-  theorem lt_add_of_lt_of_pos : ∀{a b c : ℕ}, b < c → 0 < a → b < c + a :=
-    @algebra.lt_add_of_lt_of_pos _ _
-
-  theorem mul_pos : ∀{a b : ℕ}, 0 < a → 0 < b → 0 < a * b := @algebra.mul_pos _ _
-
   theorem lt_of_mul_lt_mul_left : ∀{a b c : ℕ}, c * a < c * b → a < b :=
     take a b c H, @algebra.lt_of_mul_lt_mul_left _ _ a b c H !zero_le
   theorem lt_of_mul_lt_mul_right : ∀{a b c : ℕ}, a * c < b * c → a < b :=
     take a b c H, @algebra.lt_of_mul_lt_mul_right _ _ a b c H !zero_le
-  theorem le_of_mul_le_mul_left : ∀{a b c : ℕ}, c * a ≤ c * b → c > 0 → a ≤ b :=
-    @algebra.le_of_mul_le_mul_left _ _
-  theorem le_of_mul_le_mul_right : ∀{a b c : ℕ}, a * c ≤ b * c → c > 0 → a ≤ b :=
-    @algebra.le_of_mul_le_mul_right _ _
   theorem pos_of_mul_pos_left : ∀{a b : ℕ}, 0 < a * b → 0 < b :=
     take a b H, @algebra.pos_of_mul_pos_left _ _ a b H !zero_le
   theorem pos_of_mul_pos_right : ∀{a b : ℕ}, 0 < a * b → 0 < a :=

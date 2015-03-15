@@ -18,7 +18,7 @@
     "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end"
     "using" "namespace" "section" "fields" "find_decl"
     "attribute" "local" "set_option" "add_rewrite" "extends" "include" "omit" "classes"
-    "instances" "coercions" "metaclasses" "raw")
+    "instances" "coercions" "metaclasses" "raw" "migrate" "replacing")
   "lean keywords")
 
 (defconst lean-syntax-table

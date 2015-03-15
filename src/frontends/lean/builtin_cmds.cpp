@@ -33,6 +33,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/notation_cmd.h"
 #include "frontends/lean/inductive_cmd.h"
 #include "frontends/lean/structure_cmd.h"
+#include "frontends/lean/migrate_cmd.h"
 #include "frontends/lean/find_cmd.h"
 #include "frontends/lean/begin_end_ext.h"
 #include "frontends/lean/decl_cmds.h"
@@ -701,6 +702,7 @@ void init_cmd_table(cmd_table & r) {
     register_decl_cmds(r);
     register_inductive_cmd(r);
     register_structure_cmd(r);
+    register_migrate_cmd(r);
     register_notation_cmds(r);
     register_calc_cmds(r);
     register_begin_end_cmds(r);

@@ -71,6 +71,7 @@ name const & get_decls_tk();
 name const & get_hiding_tk();
 name const & get_exposing_tk();
 name const & get_renaming_tk();
+name const & get_replacing_tk();
 name const & get_extends_tk();
 name const & get_as_tk();
 name const & get_none_tk();

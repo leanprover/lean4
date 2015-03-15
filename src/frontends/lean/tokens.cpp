@@ -69,6 +69,7 @@ static name * g_decls        = nullptr;
 static name * g_hiding       = nullptr;
 static name * g_exposing     = nullptr;
 static name * g_renaming     = nullptr;
+static name * g_replacing    = nullptr;
 static name * g_extends      = nullptr;
 static name * g_as           = nullptr;
 static name * g_none         = nullptr;
@@ -193,6 +194,7 @@ void initialize_tokens() {
     g_hiding       = new name("hiding");
     g_exposing     = new name("exposing");
     g_renaming     = new name("renaming");
+    g_replacing    = new name("replacing");
     g_extends      = new name("extends");
     g_as           = new name("as");
     g_none         = new name("[none]");
@@ -324,6 +326,7 @@ void finalize_tokens() {
     delete g_hiding;
     delete g_exposing;
     delete g_renaming;
+    delete g_replacing;
     delete g_extends;
     delete g_as;
     delete g_none;
@@ -443,6 +446,7 @@ name const & get_decls_tk() { return *g_decls; }
 name const & get_hiding_tk() { return *g_hiding; }
 name const & get_exposing_tk() { return *g_exposing; }
 name const & get_renaming_tk() { return *g_renaming; }
+name const & get_replacing_tk() { return *g_replacing; }
 name const & get_extends_tk() { return *g_extends; }
 name const & get_as_tk() { return *g_as; }
 name const & get_none_tk() { return *g_none; }

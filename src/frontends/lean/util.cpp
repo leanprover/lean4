@@ -404,11 +404,14 @@ justification mk_type_mismatch_jst(expr const & v, expr const & v_type, expr con
         });
 }
 
-std::tuple<expr, level_param_names> parse_local_expr(parser & p) {
+std::tuple<expr, level_param_names> parse_local_expr(parser & p, bool relaxed) {
     expr e   = p.parse_expr();
     list<expr> ctx = p.locals_to_context();
     level_param_names new_ls;
-    std::tie(e, new_ls) = p.elaborate_relaxed(e, ctx);
+    if (relaxed)
+        std::tie(e, new_ls) = p.elaborate_relaxed(e, ctx);
+    else
+        std::tie(e, new_ls) = p.elaborate(e, ctx);
     level_param_names ls = to_level_param_names(collect_univ_params(e));
     return std::make_tuple(e, ls);
 }

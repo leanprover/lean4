@@ -17,9 +17,11 @@ namespace algebra
 
 variable {A : Type}
 
+-- in division rings, 1 / 0 = 0
 structure division_ring [class] (A : Type) extends ring A, has_inv A, zero_ne_one_class A :=
   (mul_inv_cancel : ∀{a}, a ≠ zero → mul a (inv a) = one)
   (inv_mul_cancel : ∀{a}, a ≠ zero → mul (inv a) a = one)
+  (inv_zero : inv zero = zero)
 
 section division_ring
   variables [s : division_ring A] {a b c : A}
@@ -39,8 +41,18 @@ section division_ring
 
   theorem inv_eq_one_div : a⁻¹ = 1 / a := !one_mul⁻¹
 
+  theorem inv_zero : 0⁻¹ = 0 := !division_ring.inv_zero
+
+  theorem one_div_zero : 1 / 0 = 0 :=
+    calc
+      1 / 0 = 1 * 0⁻¹ : refl
+        ... = 1 * 0 : division_ring.inv_zero A
+        ... = 0 : mul_zero
+
   theorem div_eq_mul_one_div : a / b = a * (1 / b) :=
     by rewrite [↑divide, one_mul]
+
+  theorem div_zero : a / 0 = 0 := by rewrite [div_eq_mul_one_div, one_div_zero, mul_zero]
 
   theorem mul_one_div_cancel (H : a ≠ 0) : a * (1 / a) = 1 :=
     by rewrite [-inv_eq_one_div, (mul_inv_cancel H)]
@@ -56,6 +68,9 @@ section division_ring
     assume H2 : 1 / a = 0,
     have C1 : 0 = 1, from symm (by rewrite [-(mul_one_div_cancel H), H2, mul_zero]),
     absurd C1 zero_ne_one
+
+  theorem ne_zero_of_one_div_ne_zero (H : 1 / a ≠ 0) : a ≠ 0 :=
+    assume Ha : a = 0, absurd (Ha⁻¹ ▸ one_div_zero) H
 
   -- the analogue in group is called inv_one
   theorem inv_one_is_one : 1⁻¹ = 1 :=
@@ -120,6 +135,7 @@ section division_ring
         ... = b * 1             : mul_one_div_cancel H2
         ... = b                 : mul_one)
 
+  -- with 1 / 0 = 0, this should be provable without Ha and Hb. Needs decidable =?
   theorem one_div_mul_one_div (Ha : a ≠ 0) (Hb : b ≠ 0) : (1 / a) * (1 / b) = 1 / (b * a) :=
     have H : (b * a) * ((1 / a) * (1 / b)) = 1, by
       rewrite [mul.assoc, -(mul.assoc a), (mul_one_div_cancel Ha), one_mul, (mul_one_div_cancel Hb)],
@@ -157,6 +173,7 @@ section division_ring
             ... = -(b * (1 / a))  : neg_mul_eq_mul_neg
             ... = - (b * a⁻¹)     : inv_eq_one_div
 
+  -- can lose Ha
   theorem neg_div (Ha : a ≠ 0) : (-b) / a = - (b / a) :=
     by rewrite [neg_eq_neg_one_mul, mul_div_assoc, -neg_eq_neg_one_mul]
 
@@ -266,12 +283,12 @@ section field
   theorem mul_div_mul_right (Hb : b ≠ 0) (Hc : c ≠ 0) : (a * c) / (b * c) = a / b :=
     by rewrite [(mul.comm a), (mul.comm b), (mul_div_mul_left Hb Hc)]
 
-  theorem div_mul_eq_mul_div (Hc : c ≠ 0) : (b / c) * a = (b * a) / c :=
+  theorem div_mul_eq_mul_div : (b / c) * a = (b * a) / c :=
     by rewrite [↑divide, mul.assoc, (mul.comm c⁻¹), -mul.assoc]
 
   -- this one is odd -- I am not sure what to call it, but again, the prefix is right
   theorem div_mul_eq_mul_div_comm (Hc : c ≠ 0) : (b / c) * a = b * (a / c) :=
-    by rewrite [(div_mul_eq_mul_div Hc), -(one_mul c), -(div_mul_div (ne.symm zero_ne_one) Hc), div_one, one_mul]
+    by rewrite [(div_mul_eq_mul_div), -(one_mul c), -(div_mul_div (ne.symm zero_ne_one) Hc), div_one, one_mul]
 
   theorem div_add_div (Hb : b ≠ 0) (Hd : d ≠ 0) :
       (a / b) + (c / d) = ((a * d) + (b * c)) / (b * d) :=
@@ -285,7 +302,7 @@ section field
 
   theorem mul_eq_mul_of_div_eq_div (Hb : b ≠ 0) (Hd : d ≠ 0) (H : a / b = c / d) : a * d = c * b :=
     by rewrite [-mul_one, mul.assoc, (mul.comm d), -mul.assoc, -(div_self Hb),
-         -(div_mul_eq_mul_div_comm Hb), H, (div_mul_eq_mul_div Hd), (div_mul_cancel Hd)]
+         -(div_mul_eq_mul_div_comm Hb), H, (div_mul_eq_mul_div), (div_mul_cancel Hd)]
 
   theorem one_div_div (Ha : a ≠ 0) (Hb : b ≠ 0) : 1 / (a / b) = b / a :=
     have H : (a / b) * (b / a) = 1, from calc
@@ -301,7 +318,7 @@ section field
     by rewrite [div_eq_mul_one_div, (div_mul_div Hb Hc), mul_one]
 
   theorem div_div_div_div (Hb : b ≠ 0) (Hc : c ≠ 0) (Hd : d ≠ 0) : (a / b) / (c / d) = (a * d) / (b * c) :=
-    by rewrite [(div_div_eq_mul_div Hc Hd), (div_mul_eq_mul_div Hb), (div_div_eq_div_mul Hb Hc)]
+    by rewrite [(div_div_eq_mul_div Hc Hd), (div_mul_eq_mul_div), (div_div_eq_div_mul Hb Hc)]
 
   -- remaining to transfer from Isabelle fields: ordered fields
 
@@ -313,7 +330,7 @@ structure discrete_field [class] (A : Type) extends field A :=
 section discrete_field
   variable [s : discrete_field A]
   include s
-  variables {a b c : A}
+  variables {a b c d : A}
 
   -- name clash with order
   definition decidable_eq' [instance] (a b : A) : decidable (a = b) :=
@@ -331,14 +348,117 @@ section discrete_field
   ⦃ integral_domain, s,
     eq_zero_or_eq_zero_of_mul_eq_zero := discrete_field.eq_zero_or_eq_zero_of_mul_eq_zero⦄
 
-  example (H1 : a ≠ 0) (H2 : b ≠ 0) : a * b ≠ 0 :=
-  @mul_ne_zero A s a b H1 H2
-
   theorem inv_zero_imp_zero (H : 1 / a = 0) : a = 0 :=
     decidable.by_cases
       (assume Ha : a = 0, Ha)
       (assume Ha: a ≠ 0, false.elim ((one_div_ne_zero Ha) H))
 
+-- the following could all go in "discrete_division_ring"
+  theorem one_div_mul_one_div'' : (1 / a) * (1 / b) = 1 / (b * a) :=
+    decidable.by_cases
+      (assume Ha : a = 0,
+        by rewrite [Ha, div_zero, zero_mul, -(@div_zero A s 1), mul_zero b])
+      (assume Ha : a ≠ 0,
+        decidable.by_cases
+          (assume Hb : b = 0,
+            by rewrite [Hb, div_zero, mul_zero, -(@div_zero A s 1), zero_mul a])
+          (assume Hb : b ≠ 0, one_div_mul_one_div Ha Hb))
+
+  theorem one_div_neg_eq_neg_one_div' : 1 / (- a) = - (1 / a) :=
+    decidable.by_cases
+      (assume Ha : a = 0, by rewrite [Ha, neg_zero, div_zero, -neg_zero, -(@div_zero A s 1)])
+      (assume Ha : a ≠ 0, one_div_neg_eq_neg_one_div Ha)
+
+  theorem neg_div' : (-b) / a = - (b / a) :=
+    decidable.by_cases
+      (assume Ha : a = 0, by rewrite [Ha, div_zero, -neg_zero, -(@div_zero A s b)])
+      (assume Ha : a ≠ 0, neg_div Ha)
+
+  theorem neg_div_neg_eq_div' : (-a) / (-b) = a / b :=
+    decidable.by_cases
+      (assume Hb : b = 0, by rewrite [Hb, neg_zero, div_zero, -(@div_zero A s a)])
+      (assume Hb : b ≠ 0, neg_div_neg_eq_div Hb)
+
+  theorem div_div' : 1 / (1 / a) = a :=
+    decidable.by_cases
+      (assume Ha : a = 0, by rewrite [Ha, 2 div_zero])
+      (assume Ha : a ≠ 0, div_div Ha)
+
+  theorem eq_of_invs_eq' (H : 1 / a = 1 / b) : a = b :=
+    decidable.by_cases
+      (assume Ha : a = 0,
+      have Hb : b = 0, from inv_zero_imp_zero (by rewrite [-H, Ha, div_zero]),
+      Hb⁻¹ ▸ Ha)
+      (assume Ha : a ≠ 0,
+      have Hb : b ≠ 0, from ne_zero_of_one_div_ne_zero (H ▸ (one_div_ne_zero Ha)),
+      eq_of_invs_eq Ha Hb H)
+
+  theorem mul_inv' : (b * a)⁻¹ = a⁻¹ * b⁻¹ :=
+    decidable.by_cases
+      (assume Ha : a = 0, by rewrite [Ha, mul_zero, inv_zero, -(zero_mul b⁻¹), -inv_zero])
+      (assume Ha : a ≠ 0,
+        decidable.by_cases
+          (assume Hb : b = 0, by rewrite [Hb, zero_mul, inv_zero, -(mul_zero a⁻¹), -inv_zero])
+          (assume Hb : b ≠ 0, mul_inv Ha Hb))
+
+-- the following are specifically for fields
+  theorem one_div_mul_one_div''' : (1 / a) * (1 / b) =  1 / (a * b) :=
+     by rewrite [(one_div_mul_one_div''), mul.comm b]
+
+  theorem div_mul_right' (Ha : a ≠ 0) : a / (a * b) = 1 / b :=
+    decidable.by_cases
+      (assume Hb : b = 0, by rewrite [Hb, mul_zero, div_zero, -(@div_zero A s 1)])
+      (assume Hb : b ≠ 0, div_mul_right Hb (mul_ne_zero Ha Hb))
+
+  theorem div_mul_left' (Hb : b ≠ 0) : b / (a * b) = 1 / a :=
+    by rewrite [mul.comm a, div_mul_right' Hb]
+
+  theorem div_mul_div' : (a / b) * (c / d) = (a * c) / (b * d) :=
+    decidable.by_cases
+      (assume Hb : b = 0, by rewrite [Hb, div_zero, zero_mul, -(@div_zero A s (a * c)), zero_mul])
+      (assume Hb : b ≠ 0,
+        decidable.by_cases
+          (assume Hd : d = 0, by rewrite [Hd, div_zero, mul_zero, -(@div_zero A s (a * c)), mul_zero])
+          (assume Hd : d ≠ 0, div_mul_div Hb Hd))
+
+  theorem mul_div_mul_left' (Hc : c ≠ 0) : (c * a) / (c * b) = a / b :=
+    decidable.by_cases
+      (assume Hb : b = 0, by rewrite [Hb, mul_zero, div_zero, -(@div_zero A s a)])
+      (assume Hb : b ≠ 0, mul_div_mul_left Hb Hc)
+
+  theorem mul_div_mul_right' (Hc : c ≠ 0) : (a * c) / (b * c) = a / b :=
+    by rewrite [(mul.comm a), (mul.comm b), (mul_div_mul_left' Hc)]
+
+  -- this one is odd -- I am not sure what to call it, but again, the prefix is right
+  theorem div_mul_eq_mul_div_comm' : (b / c) * a = b * (a / c) :=
+    decidable.by_cases
+      (assume Hc : c = 0, by rewrite [Hc, div_zero, zero_mul, -(mul_zero b), -(@div_zero A s a)])
+      (assume Hc : c ≠ 0, div_mul_eq_mul_div_comm Hc)
+
+ theorem one_div_div' : 1 / (a / b) = b / a :=
+    decidable.by_cases
+      (assume Ha : a = 0, by rewrite [Ha, zero_div, div_zero, -(@div_zero A s b)])
+      (assume Ha : a ≠ 0,
+      decidable.by_cases
+        (assume Hb : b = 0, by rewrite [Hb, 2 div_zero, -(@zero_div A s a)])
+        (assume Hb : b ≠ 0, one_div_div Ha Hb))
+
+  theorem div_div_eq_mul_div' : a / (b / c) = (a * c) / b :=
+    by rewrite [div_eq_mul_one_div, one_div_div', -mul_div_assoc]
+
+  theorem div_div_eq_div_mul' : (a / b) / c = a / (b * c) :=
+    by rewrite [div_eq_mul_one_div, div_mul_div', mul_one]
+
+  theorem div_div_div_div' : (a / b) / (c / d) = (a * d) / (b * c) :=
+    by rewrite [div_div_eq_mul_div', div_mul_eq_mul_div, div_div_eq_div_mul']
+
 end discrete_field
 
 end algebra
+
+
+/-
+    decidable.by_cases
+      (assume Ha : a = 0, sorry)
+      (assume Ha : a ≠ 0, sorry)
+-/

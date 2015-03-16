@@ -1,3 +1,11 @@
+/-
+Copyright (c) 2015 Jakob von Raumer. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: algebra.precategory.functor
+Authors: Floris van Doorn, Jakob von Raumer
+-/
+
 import .basic .functor
 
 open category is_trunc eq function sigma sigma.ops

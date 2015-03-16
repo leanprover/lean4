@@ -186,4 +186,47 @@ namespace category
     apply precategory_eq_mk, apply q, apply r,
   end
 
+  definition precategory_eq_mk'' (ob : Type)
+    (hom1 : ob → ob → Type)
+    (hom2 : ob → ob → Type)
+    (homH1 : Π(a b : ob), is_hset (hom1 a b))
+    (homH2 : Π(a b : ob), is_hset (hom2 a b))
+    (comp1 : Π⦃a b c : ob⦄, hom1 b c → hom1 a b → hom1 a c)
+    (comp2 : Π⦃a b c : ob⦄, hom2 b c → hom2 a b → hom2 a c)
+    (ID1 : Π (a : ob), hom1 a a)
+    (ID2 : Π (a : ob), hom2 a a)
+    (assoc1 : Π ⦃a b c d : ob⦄ (h : hom1 c d) (g : hom1 b c) (f : hom1 a b),
+       comp1 h (comp1 g f) = comp1 (comp1 h g) f)
+    (assoc2 : Π ⦃a b c d : ob⦄ (h : hom2 c d) (g : hom2 b c) (f : hom2 a b),
+       comp2 h (comp2 g f) = comp2 (comp2 h g) f)
+    (id_left1 : Π ⦃a b : ob⦄ (f : hom1 a b), comp1 !ID1 f = f)
+    (id_left2 : Π ⦃a b : ob⦄ (f : hom2 a b), comp2 !ID2 f = f)
+    (id_right1 : Π ⦃a b : ob⦄ (f : hom1 a b), comp1 f !ID1 = f)
+    (id_right2 : Π ⦃a b : ob⦄ (f : hom2 a b), comp2 f !ID2 = f)
+    (p : Π (a b : ob), hom1 a b = hom2 a b)
+    (q : transport (λ x, Π a b c, x b c → x a b → x a c)
+      (eq_of_homotopy (λ a, eq_of_homotopy (λ b, p a b))) @comp1 = @comp2)
+    (r : transport (λ x, Π a, x a a)
+      (eq_of_homotopy (λ (x : ob), eq_of_homotopy (λ (x_1 : ob), p x x_1)))
+         ID1 = ID2) :
+    precategory.mk hom1 homH1 comp1 ID1 assoc1 id_left1 id_right1
+    = precategory.mk hom2 homH2 comp2 ID2 assoc2 id_left2 id_right2 :=
+  begin
+    fapply precategory_eq_mk,
+        apply eq_of_homotopy, intros,
+        apply eq_of_homotopy, intros,
+        exact (p _ _),
+      exact q,
+    exact r,
+  end
+
+  definition Precategory_eq_mk (C D : Precategory)
+    (p : carrier C = carrier D)
+    (q : p ▹ (Precategory.struct C) = Precategory.struct D) :  C = D :=
+  begin
+    cases C, cases D,
+    cases p, cases q,
+    apply idp,
+  end
+
 end category

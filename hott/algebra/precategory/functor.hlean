@@ -102,6 +102,7 @@ namespace functor
 
   set_option apply.class_instance false
   -- "functor C D" is equivalent to a certain sigma type
+  set_option unifier.max_steps 38500
   protected definition sigma_char :
     (Σ (to_fun_ob : C → D)
     (to_fun_hom : Π ⦃a b : C⦄, hom a b → hom (to_fun_ob a) (to_fun_ob b)),
@@ -227,27 +228,3 @@ namespace functor
   -- end
 
 end functor
-
-namespace category
-  open functor
-
-  --TODO: make this a structure
-  definition precat_strict_precat : precategory (Σ (C : Precategory), is_hset C) :=
-  precategory.mk (λ a b, functor a.1 b.1)
-     (λ a b, @functor.is_hset_functor a.1 b.1 b.2)
-     (λ a b c g f, functor.compose g f)
-     (λ a, functor.id)
-     (λ a b c d h g f, !functor.assoc)
-     (λ a b f, !functor.id_left)
-     (λ a b f, !functor.id_right)
-
-  definition Precat_of_strict_cats := precategory.Mk precat_strict_precat
-
-  namespace ops
-
-    abbreviation SPreCat := Precat_of_strict_cats
-    --attribute precat_strict_precat [instance]
-
-  end ops
-
-end category

@@ -364,11 +364,11 @@ auto pretty_fn::pp_child_core(expr const & e, unsigned bp, bool ignore_hide) -> 
 
 auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> result {
     if (auto it = is_abbreviated(e))
-        return pp_abbreviation(e, *it, false, ignore_hide);
+        return pp_abbreviation(e, *it, false, bp, ignore_hide);
     if (is_app(e)) {
         expr const & f = app_fn(e);
         if (auto it = is_abbreviated(f)) {
-            return pp_abbreviation(e, *it, true, ignore_hide);
+            return pp_abbreviation(e, *it, true, bp, ignore_hide);
         } else if (is_implicit(f)) {
             return pp_child(f, bp, ignore_hide);
         } else if (!m_coercion && is_coercion(m_env, f)) {
@@ -822,11 +822,11 @@ static unsigned get_some_precedence(token_table const & t, name const & tk) {
 
 auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) -> result {
     if (auto it = is_abbreviated(e))
-        return pp_abbreviation(e, *it, false);
+        return pp_abbreviation(e, *it, false, rbp);
     if (is_app(e)) {
         expr const & f = app_fn(e);
         if (auto it = is_abbreviated(f)) {
-            return pp_abbreviation(e, *it, true);
+            return pp_abbreviation(e, *it, true, rbp);
         } else if (is_implicit(f)) {
             return pp_notation_child(f, lbp, rbp);
         } else if (!m_coercion && is_coercion(m_env, f)) {
@@ -1067,7 +1067,7 @@ auto pretty_fn::pp_notation(expr const & e) -> optional<result> {
     return optional<result>();
 }
 
-auto pretty_fn::pp_abbreviation(expr const & e, name const & abbrev, bool fn, bool ignore_hide) -> result {
+auto pretty_fn::pp_abbreviation(expr const & e, name const & abbrev, bool fn, unsigned bp, bool ignore_hide) -> result {
     declaration const & d = m_env.get(abbrev);
     unsigned num_univs    = d.get_num_univ_params();
     buffer<level> ls;
@@ -1076,7 +1076,7 @@ auto pretty_fn::pp_abbreviation(expr const & e, name const & abbrev, bool fn, bo
     buffer<expr> args;
     if (fn)
         get_app_args(e, args);
-    return pp(mk_app(mk_constant(abbrev, to_list(ls)), args), ignore_hide);
+    return pp_child(mk_app(mk_constant(abbrev, to_list(ls)), args), bp, ignore_hide);
 }
 
 static bool is_pp_atomic(expr const & e) {

@@ -6,14 +6,22 @@ fi
 ulimit -s 8192
 LEAN=$1
 export LEAN_PATH=../../library:.
+export HLEAN_PATH=../../hott:.
 if [ $# -ne 3 ]; then
     INTERACTIVE=no
 else
     INTERACTIVE=$3
 fi
 f=$2
+
+if [ ${f: -6} == ".hlean" ]; then
+    CONFIG="config.hlean"
+else
+    CONFIG="config.lean"
+fi
+
 echo "-- testing $f"
-$LEAN config.lean $f &> $f.produced.out.1
+$LEAN $CONFIG $f &> $f.produced.out.1
 sed "/warning: imported file uses 'sorry'/d" $f.produced.out.1 > $f.produced.out
 rm -f $f.produced.out.1
 if test -f $f.expected.out; then

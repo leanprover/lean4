@@ -108,7 +108,7 @@ private:
     result pp_let(expr e);
     result pp_num(mpz const & n);
     // If fn is true, then \c e is of the form (f a), and the abbreviation is \c f.
-    result pp_abbreviation(expr const & e, name const & abbrev, bool fn, bool ignore_hide = false);
+    result pp_abbreviation(expr const & e, name const & abbrev, bool fn, unsigned bp = 0, bool ignore_hide = false);
     void set_options_core(options const & o);
 
 public:

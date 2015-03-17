@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2014 Floris van Doorn. All rights reserved.
+Copyright (c) 2015 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Module: algebra.precategory.yoneda
@@ -15,7 +15,6 @@ set_option pp.beta true
 namespace yoneda
   set_option class.conservative false
 
-  --TODO: why does this take so much steps? (giving more information than "assoc" hardly helps)
   definition representable_functor_assoc [C : Precategory] {a1 a2 a3 a4 a5 a6 : C}
     (f1 : hom a5 a6) (f2 : hom a4 a5) (f3 : hom a3 a4) (f4 : hom a2 a3) (f5 : hom a1 a2)
       : (f1 ∘ f2) ∘ f3 ∘ (f4 ∘ f5) = f1 ∘ (f2 ∘ f3 ∘ f4) ∘ f5 :=
@@ -25,7 +24,6 @@ namespace yoneda
       ... = f1 ∘ ((f2 ∘ f3) ∘ f4) ∘ f5 : by rewrite -(assoc (f2 ∘ f3) _ _)
       ... = _                          : by rewrite (assoc f2 f3 f4)
 
-  --disturbing behaviour: giving the type of f "(x ⟶ y)" explicitly makes the unifier loop
   definition hom_functor (C : Precategory) : Cᵒᵖ ×c C ⇒ set :=
   functor.mk (λ(x : Cᵒᵖ ×c C), homset x.1 x.2)
              (λ(x y : Cᵒᵖ ×c C) (f : _) (h : homset x.1 x.2), f.2 ∘⁅ C ⁆ (h ∘⁅ C ⁆ f.1))
@@ -200,7 +198,7 @@ end functor
 open functor
 
 namespace yoneda
-  -- or should this be defined as "yoneda_embedding Cᵒᵖ"?
+  --should this be defined as "yoneda_embedding Cᵒᵖ"?
   definition contravariant_yoneda_embedding (C : Precategory) : Cᵒᵖ ⇒ set ^c C :=
   functor_curry !hom_functor
 
@@ -208,23 +206,3 @@ namespace yoneda
   functor_curry (!hom_functor ∘f !functor_prod_flip)
 
 end yoneda
-
--- Coq uses unit/counit definitions as basic
-
--- open yoneda precategory.product precategory.opposite functor morphism
---   --universe levels are given explicitly because Lean uses 6 variables otherwise
-
---   structure adjoint.{u v} [C D : Precategory.{u v}] (F : C ⇒ D) (G : D ⇒ C) : Type.{max u v} :=
---   (nat_iso : (hom_functor D) ∘f (prod_functor (opposite_functor F) (functor.ID D)) ⟹
---              (hom_functor C) ∘f (prod_functor (functor.ID (Cᵒᵖ)) G))
---   (is_iso_nat_iso : is_iso nat_iso)
-
---   infix `⊣`:55 := adjoint
-
--- namespace adjoint
---   universe variables l1 l2
---   variables [C D : Precategory.{l1 l2}] (F : C ⇒ D) (G : D ⇒ C)
-
-
-
--- end adjoint

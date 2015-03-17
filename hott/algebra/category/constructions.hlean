@@ -103,10 +103,6 @@ namespace category
         apply inverse, apply naturality_iso}
     end
 
-    --the following error is a bug?
-    -- definition is_univalent_functor (C : Precategory) (D : Category) : is_univalent (D ^c C) :=
-    -- λ(F G : D ^c C), adjointify _ eq_of_iso_functor sorry sorry
-
     definition iso_of_eq_eq_of_iso_functor (η : F ≅ G) : iso_of_eq (eq_of_iso_functor η) = η :=
     begin
     apply iso.eq_mk,

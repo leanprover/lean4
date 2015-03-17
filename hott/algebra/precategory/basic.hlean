@@ -139,5 +139,3 @@ namespace category
   Precategory.rec (λob c, idp) C
 
 end category
-
-open category

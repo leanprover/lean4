@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2014 Floris van Doorn. All rights reserved.
+Copyright (c) 2015 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Module: algebra.precategory.yoneda
@@ -68,6 +68,8 @@ structure isomorphism (C D : Precategory) :=
   (struct : is_isomorphism to_functor)
 
 namespace category
+
+  --   infix `⊣`:55 := adjoint
 
   infix `⋍`:25 := equivalence -- \backsimeq
   infix `≌`:25 := isomorphism -- \backcong

@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2014 Floris van Doorn. All rights reserved.
+Copyright (c) 2015 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Module: algebra.precategory.functor
@@ -77,13 +77,6 @@ namespace functor
         apply idp
       end))))
 
-  -- definition functor_mk_eq_constant {F : C → D} {H₁ : Π(a b : C), hom a b → hom (F a) (F b)}
-  --   {H₂ : Π(a b : C), hom a b → hom (F a) (F b)} (id₁ id₂ comp₁ comp₂)
-  --   (pH : Π(a b : C) (f : hom a b), H₁ a b f = H₂ a b f)
-  --     : functor.mk F H₁ id₁ comp₁ = functor.mk F H₂ id₂ comp₂ :=
-  -- functor_mk_eq' id₁ id₂ comp₁ comp₂ idp
-  --                 (eq_of_homotopy (λc, eq_of_homotopy (λc', eq_of_homotopy (pH c c'))))
-
   definition functor_eq {F₁ F₂ : C ⇒ D} : Π(p : to_fun_ob F₁ ∼ to_fun_ob F₂),
     (Π(a b : C) (f : hom a b), hom_of_eq (p b) ∘ F₁ f ∘ inv_of_eq (p a) = F₂ f) → F₁ = F₂ :=
   functor.rec_on F₁ (λO₁ H₁ id₁ comp₁, functor.rec_on F₂ (λO₂ H₂ id₂ comp₂ p, !functor_mk_eq))
@@ -109,7 +102,6 @@ namespace functor
 
   set_option apply.class_instance false
   -- "functor C D" is equivalent to a certain sigma type
-  set_option unifier.max_steps 38500
   protected definition sigma_char :
     (Σ (to_fun_ob : C → D)
     (to_fun_hom : Π ⦃a b : C⦄, hom a b → hom (to_fun_ob a) (to_fun_ob b)),
@@ -123,7 +115,7 @@ namespace functor
         exact (pr₁ S.2.2), exact (pr₂ S.2.2)},
       {intro F,
         cases F with (d1, d2, d3, d4),
-        exact (sigma.mk d1 (sigma.mk d2 (pair d3 (@d4))))},
+        exact ⟨d1, d2, (d3, @d4)⟩},
       {intro F,
         cases F,
         apply idp},
@@ -150,11 +142,6 @@ namespace functor
        apply is_trunc_eq, apply is_trunc_succ, apply !homH},
   end
 
---STRANGE ERROR:
-  -- definition functor_mk_eq'_idp {F₁ : C → D} {H₁ : Π(a b : C), hom a b → hom (F₁ a) (F₁ b)}
-  --   (id₁ id₂ comp₁ comp₂) : functor_mk_eq' id₁ id₂ comp₁ comp₂ idp idp = idp :=
-  -- sorry
-
   definition functor_mk_eq'_idp (F : C → D) (H : Π(a b : C), hom a b → hom (F a) (F b))
     (id comp) : functor_mk_eq' id id comp comp (idpath F) (idpath H) = idp :=
   begin
@@ -166,7 +153,6 @@ namespace functor
   definition functor_eq'_idp (F : C ⇒ D) : functor_eq' idp idp = (idpath F) :=
   by (cases F; apply functor_mk_eq'_idp)
 
-  --TODO: do we want a similar theorem for functor_eq?
   definition functor_eq_eta' {F₁ F₂ : C ⇒ D} (p : F₁ = F₂)
       : functor_eq' (ap to_fun_ob p) (!transport_compose⁻¹ ⬝ apD to_fun_hom p) = p :=
   begin
@@ -175,36 +161,6 @@ namespace functor
     apply (ap (functor_eq' idp)),
     apply idp_con,
   end
-
-  -- definition functor_eq_eta {ob₁ ob₂ : C → D} {hom₁ hom₂ id₁ id₂ comp₁ comp₂}
-  --   (p : functor.mk ob₁ hom₁ id₁ comp₁ = functor.mk ob₂ hom₂ id₂ comp₂)
-  --     : functor_mk_eq' _ _ _ _ (ap010 to_fun_ob p) _ = p :=
-  -- sorry
-  --set_option pp.universes true
-  -- set_option pp.notation false
-  -- set_option pp.implicit true
-
-  -- TODO: REMOVE?
---   definition functor_mk_eq'2 {ob₁ ob₂ : C → D} {hom₁ hom₂ id₁ id₂ comp₁ comp₂}
---     {pob₁ pob₂ : ob₁ = ob₂} (phom₁ : pob₁ ▹ hom₁ = hom₂) (phom₂ : pob₂ ▹ hom₁ = hom₂)
---     (r : pob₁ = pob₂) : functor_mk_eq' id₁ id₂ comp₁ comp₂ pob₁ phom₁
---                       = functor_mk_eq' id₁ id₂ comp₁ comp₂ pob₂ phom₂ :=
---   begin
---     cases r,
---     apply (ap (functor_mk_eq' id₁ id₂ @comp₁ @comp₂ pob₂)),
---     apply is_hprop.elim
---   end
-
---   definition functor_mk_eq2 {ob₁ ob₂ : C → D} {hom₁ hom₂ id₁ id₂ comp₁ comp₂} {pob₁ pob₂ : ob₁ ∼ ob₂}
--- (phom₁ : Π(a b : C) (f : hom a b), hom_of_eq (pob₁ b) ∘ hom₁ a b f ∘ inv_of_eq (pob₁ a) = hom₂ a b f)
--- (phom₂ : Π(a b : C) (f : hom a b), hom_of_eq (pob₂ b) ∘ hom₁ a b f ∘ inv_of_eq (pob₂ a) = hom₂ a b f)
---     (r : pob₁ = pob₂) : functor_mk_eq id₁ id₂ comp₁ comp₂ pob₁ phom₁
---                       = functor_mk_eq id₁ id₂ comp₁ comp₂ pob₂ phom₂ :=
---   begin
---     cases r,
---     apply (ap (functor_mk_eq id₁ id₂ @comp₁ @comp₂ pob₂)),
---     apply is_hprop.elim
---   end
 
   definition functor_eq2' {F₁ F₂ : C ⇒ D} {p₁ p₂ : to_fun_ob F₁ = to_fun_ob F₂} (q₁ q₂)
     (r : p₁ = p₂) : functor_eq' p₁ q₁ = functor_eq' p₂ q₂ :=

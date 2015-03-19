@@ -87,6 +87,30 @@ namespace functor
       : functor.mk F H₁ id₁ comp₁ = functor.mk F H₂ id₂ comp₂ :=
   functor_eq (λc, idp) (λa b f, !id_leftright ⬝ !pH)
 
+  protected definition preserve_iso (F : C ⇒ D) {a b : C} (f : hom a b) [H : is_iso f] :
+    is_iso (F f) :=
+  begin
+    fapply @is_iso.mk, apply (F (f⁻¹)),
+    repeat (apply concat ; apply inverse ;  apply (respect_comp F) ;
+      apply concat ; apply (ap (λ x, to_fun_hom F x)) ;
+      [apply left_inverse | apply right_inverse] ;
+      apply (respect_id F) ),
+  end
+
+  attribute preserve_iso [instance]
+
+  protected definition respect_inv (F : C ⇒ D) {a b : C} (f : hom a b) [H : is_iso f] :
+    F (f⁻¹) = (F f)⁻¹ :=
+  begin
+    fapply @left_inverse_eq_right_inverse, apply (F f),
+      apply concat, apply inverse, apply (respect_comp F),
+      apply concat, apply (ap (λ x, to_fun_hom F x)),
+      apply left_inverse, apply respect_id,
+    apply concat, apply inverse, apply (respect_comp F),
+    apply concat, apply (ap (λ x, to_fun_hom F x)),
+    apply right_inverse, apply respect_id,
+  end
+
   protected definition assoc (H : C ⇒ D) (G : B ⇒ C) (F : A ⇒ B) :
       H ∘f (G ∘f F) = (H ∘f G) ∘f F :=
   !functor_mk_eq_constant (λa b f, idp)

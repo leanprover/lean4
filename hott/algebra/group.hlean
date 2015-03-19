@@ -52,6 +52,8 @@ structure semigroup [class] (A : Type) extends has_mul A :=
 (carrier_hset : is_hset A)
 (mul_assoc : ∀a b c, mul (mul a b) c = mul a (mul b c))
 
+attribute semigroup.carrier_hset [instance]
+
 theorem mul_assoc [s : semigroup A] (a b c : A) : a * b * c = a * (b * c) :=
 !semigroup.mul_assoc
 

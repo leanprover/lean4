@@ -99,16 +99,15 @@ namespace functor
 
   attribute preserve_iso [instance]
 
-  protected definition respect_inv (F : C ⇒ D) {a b : C} (f : hom a b) [H : is_iso f] :
+  protected definition respect_inv (F : C ⇒ D) {a b : C} (f : hom a b)
+    [H : is_iso f] [H' : is_iso (F f)] :
     F (f⁻¹) = (F f)⁻¹ :=
   begin
     fapply @left_inverse_eq_right_inverse, apply (F f),
       apply concat, apply inverse, apply (respect_comp F),
       apply concat, apply (ap (λ x, to_fun_hom F x)),
       apply left_inverse, apply respect_id,
-    apply concat, apply inverse, apply (respect_comp F),
-    apply concat, apply (ap (λ x, to_fun_hom F x)),
-    apply right_inverse, apply respect_id,
+    apply right_inverse,
   end
 
   protected definition assoc (H : C ⇒ D) (G : B ⇒ C) (F : A ⇒ B) :

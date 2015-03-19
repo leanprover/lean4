@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: algebra.precategory.basic
 Authors: Floris van Doorn
 -/
-import types.trunc types.pi
+import types.trunc types.pi arity
 
 open eq is_trunc pi
 

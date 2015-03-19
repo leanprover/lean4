@@ -62,6 +62,8 @@ section division_ring
 
   theorem div_self (H : a ≠ 0) : a / a = 1 := mul_inv_cancel H
 
+  theorem one_div_one : 1 / 1 = 1 := div_self (ne.symm zero_ne_one)
+
   theorem mul_div_assoc : (a * b) / c = a * (b / c) := !mul.assoc
 
   theorem one_div_ne_zero (H : a ≠ 0) : 1 / a ≠ 0 :=

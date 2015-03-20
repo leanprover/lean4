@@ -23,14 +23,13 @@ section linear_ordered_field
   -- ordered ring theorem?
   -- split H3 into its own lemma
   theorem gt_of_mul_lt_mul_neg_left (H : c * a < c * b) (Hc : c ≤ 0) : a > b :=
-  have nhc : -c ≥ 0, from neg_nonneg_of_nonpos Hc,
-  have H2 : -(c * b) < -(c * a), from (iff.mp' (neg_lt_neg_iff_lt _ _) H),
-  have H3 : (-c) * b < (-c) * a, from (calc
-    (-c) * b = - (c * b)    : neg_mul_eq_neg_mul
-         ... < -(c * a)     : H2
-         ... = (-c) * a     : neg_mul_eq_neg_mul
-  ),
-  lt_of_mul_lt_mul_left H3 nhc
+    have nhc : -c ≥ 0, from neg_nonneg_of_nonpos Hc,
+    have H2 : -(c * b) < -(c * a), from iff.mp' (neg_lt_neg_iff_lt _ _) H,
+    have H3 : (-c) * b < (-c) * a, from calc
+      (-c) * b = - (c * b)    : neg_mul_eq_neg_mul
+           ... < -(c * a)     : H2
+           ... = (-c) * a     : neg_mul_eq_neg_mul,
+    lt_of_mul_lt_mul_left H3 nhc
 
   -- helpers for following
   theorem mul_zero_lt_mul_inv_of_pos (H : 0 < a) : a * 0 < a * (1 / a) :=
@@ -69,10 +68,10 @@ section linear_ordered_field
     neg_of_neg_pos H3
 
   theorem le_mul_of_ge_one_right (Hb : b ≥ 0) (H : a ≥ 1) : b ≤ b * a :=
-      mul_one _ ▸ (mul_le_mul_of_nonneg_left H  Hb)
+      mul_one _ ▸ (mul_le_mul_of_nonneg_left H Hb)
 
   theorem lt_mul_of_gt_one_right (Hb : b > 0) (H : a > 1) : b < b * a :=
-      mul_one _ ▸ (mul_lt_mul_of_pos_left H  Hb)
+      mul_one _ ▸ (mul_lt_mul_of_pos_left H Hb)
 
   theorem one_le_div_iff_le (Hb : b > 0) : 1 ≤ a / b ↔ b ≤ a := 
     have Hb' : b ≠ 0, from ne.symm (ne_of_lt Hb),
@@ -202,27 +201,44 @@ section linear_ordered_field
   theorem neg_one_le_div_neg (H1 : a < 0) (H2 : -1 ≤ a) : 1 / a ≤ -1 :=
     one_div_neg_one_eq_neg_one ▸ div_le_div_of_le_neg H1 H2
 
+
+  -- the following theorems amount to four iffs, for <, ≤, ≥, >. 
+
   theorem mul_le_of_le_div (Hc : 0 < c) (H : a ≤ b / c) : a * c ≤ b := 
     div_mul_cancel (ne.symm (ne_of_lt Hc)) ▸ mul_le_mul_of_nonneg_right H (le_of_lt Hc)
-  
+ 
   theorem le_div_of_mul_le (Hc : 0 < c) (H : a * c ≤ b) : a ≤ b / c :=
     calc
-      a   = a * 1             : mul_one
-      ... = a * (c * (1 / c)) : mul_one_div_cancel (ne.symm (ne_of_lt Hc))
-      ... = a * c * (1 / c)   : mul.assoc
-      ... ≤ b * (1 / c)       : mul_le_mul_of_nonneg_right H (le_of_lt (div_pos_of_pos Hc))
-      ... = b / c             : div_eq_mul_one_div
+      a   = a * c * (1 / c) : mul_mul_div (ne.symm (ne_of_lt Hc))
+      ... ≤ b * (1 / c)     : mul_le_mul_of_nonneg_right H (le_of_lt (div_pos_of_pos Hc))
+      ... = b / c           : div_eq_mul_one_div
 
   theorem mul_lt_of_lt_div (Hc : 0 < c) (H : a < b / c) : a * c < b :=
     div_mul_cancel (ne.symm (ne_of_lt Hc)) ▸ mul_lt_mul_of_pos_right H Hc
 
   theorem lt_div_of_mul_lt (Hc : 0 < c) (H : a * c < b) : a < b / c :=
     calc
-      a   = a * 1             : mul_one
-      ... = a * (c * (1 / c)) : mul_one_div_cancel (ne.symm (ne_of_lt Hc))
-      ... = a * c * (1 / c)   : mul.assoc
-      ... < b * (1 / c)       : mul_lt_mul_of_pos_right H (div_pos_of_pos Hc)
-      ... = b / c             : div_eq_mul_one_div
+      a   = a * c * (1 / c) : mul_mul_div (ne.symm (ne_of_lt Hc))
+      ... < b * (1 / c)     : mul_lt_mul_of_pos_right H (div_pos_of_pos Hc)
+      ... = b / c           : div_eq_mul_one_div
+
+  theorem mul_le_of_ge_div_neg (Hc : c < 0) (H : a ≥ b / c) : a * c ≤ b :=
+    div_mul_cancel (ne_of_lt Hc) ▸ mul_le_mul_of_nonpos_right H (le_of_lt Hc)
+
+  theorem ge_div_of_mul_le_neg (Hc : c < 0) (H : a * c ≤ b) : a ≥ b / c := 
+    calc
+      a   = a * c * (1 / c) : mul_mul_div (ne_of_lt Hc)
+      ... ≥ b * (1 / c)     : mul_le_mul_of_nonpos_right H (le_of_lt (div_neg_of_neg Hc))
+      ... = b / c           : div_eq_mul_one_div
+ 
+  theorem mul_lt_of_gt_div_neg (Hc : c < 0) (H : a > b / c) : a * c < b :=
+    div_mul_cancel (ne_of_lt Hc) ▸ mul_lt_mul_of_neg_right H Hc
+
+  theorem gt_div_of_mul_gt_neg (Hc : c < 0) (H : a * c < b) : a > b / c :=
+    calc
+      a   = a * c * (1 / c) : mul_mul_div (ne_of_lt Hc)
+      ... > b * (1 / c)     : mul_lt_mul_of_neg_right H (div_neg_of_neg Hc)
+      ... = b / c           : div_eq_mul_one_div
 
 end linear_ordered_field
 

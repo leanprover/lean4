@@ -235,6 +235,12 @@ section division_ring
     have H : (a + b / c) * c = a * c + b, by rewrite [right_distrib, (div_mul_cancel Hc)],
     (iff.elim_right (eq_div_iff_mul_eq Hc)) H
 
+  theorem mul_mul_div (Hc : c ≠ 0) : a = a * c * (1 / c) := 
+    calc
+      a   = a * 1             : mul_one
+      ... = a * (c * (1 / c)) : mul_one_div_cancel Hc
+      ... = a * c * (1 / c)   : mul.assoc
+
   -- There are many similar rules to these last two in the Isabelle library
   -- that haven't been ported yet. Do as necessary.
 
@@ -352,8 +358,8 @@ section discrete_field
 
   theorem inv_zero_imp_zero (H : 1 / a = 0) : a = 0 :=
     decidable.by_cases
-      (assume Ha : a = 0, Ha)
-      (assume Ha: a ≠ 0, false.elim ((one_div_ne_zero Ha) H))
+      (assume Ha, Ha)
+      (assume Ha, false.elim ((one_div_ne_zero Ha) H))
 
 -- the following could all go in "discrete_division_ring"
   theorem one_div_mul_one_div'' : (1 / a) * (1 / b) = 1 / (b * a) :=

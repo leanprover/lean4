@@ -1073,10 +1073,10 @@ auto pretty_fn::pp_abbreviation(expr const & e, name const & abbrev, bool fn, un
     buffer<level> ls;
     for (unsigned i = 0; i < num_univs; i++)
         ls.push_back(mk_meta_univ(name("?l", i+1)));
-    buffer<expr> args;
+    expr r = mk_constant(abbrev, to_list(ls));
     if (fn)
-        get_app_args(e, args);
-    return pp_child(mk_app(mk_constant(abbrev, to_list(ls)), args), bp, ignore_hide);
+        r = mk_app(r, app_arg(e));
+    return pp_child(r, bp, ignore_hide);
 }
 
 static bool is_pp_atomic(expr const & e) {

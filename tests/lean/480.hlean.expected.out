@@ -1,0 +1,1 @@
+is_contr.mk : Π (center : ?A), (Π (a : ?A), center = a) → is_contr ?A

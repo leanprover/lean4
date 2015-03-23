@@ -68,6 +68,9 @@ public:
     format pp(formatter const & fmt) const;
 };
 
+/** \brief Apply substitution stored in \c s to main goal */
+proof_state apply_substitution(proof_state const & s);
+
 inline optional<proof_state> some_proof_state(proof_state const & s) { return some(s); }
 inline optional<proof_state> none_proof_state() { return optional<proof_state> (); }
 

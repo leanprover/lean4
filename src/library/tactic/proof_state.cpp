@@ -90,6 +90,16 @@ proof_state to_proof_state(expr const & meta, expr const & type, name_generator 
     return to_proof_state(meta, type, substitution(), ngen, relax_main_opaque);
 }
 
+proof_state apply_substitution(proof_state const & s) {
+    if (!s.get_goals())
+        return s;
+    substitution subst = s.get_subst();
+    goal  g  = head(s.get_goals());
+    goals gs = tail(s.get_goals());
+    goal new_g(subst.instantiate_all(g.get_meta()), subst.instantiate_all(g.get_type()));
+    return proof_state(s, goals(new_g, gs), subst);
+}
+
 DECL_UDATA(goals)
 
 static int mk_goals(lua_State * L) {

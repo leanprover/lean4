@@ -12,10 +12,13 @@ Author: Leonardo de Moura
 
 namespace lean {
 tactic clear_tactic(name const & n) {
-    auto fn = [=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
-        goals const & gs = s.get_goals();
-        if (empty(gs))
+    auto fn = [=](environment const &, io_state const &, proof_state const & _s) -> optional<proof_state> {
+        if (!_s.get_goals()) {
+            throw_no_goal_if_enabled(_s);
             return none_proof_state();
+        }
+        proof_state s    = apply_substitution(_s);
+        goals const & gs = s.get_goals();
         goal  g          = head(gs);
         goals tail_gs    = tail(gs);
         if (auto p = g.find_hyp(n)) {
@@ -24,8 +27,16 @@ tactic clear_tactic(name const & n) {
             buffer<expr> hyps;
             g.get_hyps(hyps);
             hyps.erase(hyps.size() - i - 1);
-            if (depends_on(g.get_type(), h) || depends_on(i, hyps.end() - i, h))
-                return none_proof_state(); // other hypotheses or result type depend on h
+            if (depends_on(g.get_type(), h)) {
+                throw_tactic_exception_if_enabled(s, sstream() << "invalid 'clear' tactic, conclusion depends on '"
+                                                  << n << "'");
+                return none_proof_state();
+            }
+            if (auto h2 = depends_on(i, hyps.end() - i, h)) {
+                throw_tactic_exception_if_enabled(s, sstream() << "invalid 'clear' tactic, hypothesis '" << *h2
+                                                  << "' depends on '" << n << "'");
+                return none_proof_state();
+            }
             name_generator ngen = s.get_ngen();
             expr new_type = g.get_type();
             expr new_meta = mk_app(mk_metavar(ngen.next(), Pi(hyps, new_type)), hyps);
@@ -35,6 +46,8 @@ tactic clear_tactic(name const & n) {
             proof_state new_s(s, goals(new_g, tail_gs), new_subst, ngen);
             return some_proof_state(new_s);
         } else {
+            throw_tactic_exception_if_enabled(s, sstream() << "invalid 'clear' tactic, goal does not have a hypothesis "
+                                              << " named '" << n << "'");
             return none_proof_state();
         }
     };

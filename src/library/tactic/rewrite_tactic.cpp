@@ -1341,6 +1341,7 @@ public:
         m_matcher_tc(mk_matcher_tc()),
         m_unifier_tc(mk_type_checker(m_env, m_ngen.mk_child(), ps.relax_main_opaque())),
         m_mplugin(m_ios, *m_matcher_tc) {
+        m_ps = apply_substitution(m_ps);
         goals const & gs = m_ps.get_goals();
         lean_assert(gs);
         update_goal(head(gs));

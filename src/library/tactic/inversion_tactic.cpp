@@ -844,13 +844,11 @@ class inversion_tac {
                 hyps.pop_back(); // remove processed equality
             expr symm_eq   = mk_eq(rhs, lhs).first;
             expr new_type  = mk_arrow(symm_eq, g_type);
-            expr new_mvar = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
-            expr new_meta = mk_app(new_mvar, hyps);
+            expr new_mvar  = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
+            expr new_meta  = mk_app(new_mvar, hyps);
             goal new_g(new_meta, new_type);
-            level eq_symm_lvl = sort_level(m_tc.ensure_type(A).first);
-            expr symm_pr  = mk_constant(get_eq_symm_name(), {eq_symm_lvl});
-            symm_pr       = mk_app(symm_pr, A, lhs, rhs, eq);
-            expr val      = mk_app(new_meta, symm_pr);
+            expr eq_inv    = mk_symm(m_tc, eq);
+            expr val       = mk_app(new_meta, eq_inv);
             assign(g, val);
             return unify_eqs(new_g, neqs);
         }

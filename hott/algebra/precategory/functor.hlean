@@ -123,9 +123,7 @@ namespace functor
   protected definition comp_id_eq_id_comp (F : C ⇒ D) : F ∘f functor.id = functor.id ∘f F :=
   !functor.id_right ⬝ !functor.id_left⁻¹
 
-  set_option apply.class_instance false
   -- "functor C D" is equivalent to a certain sigma type
-  set_option unifier.max_steps 38500
   protected definition sigma_char :
     (Σ (to_fun_ob : C → D)
     (to_fun_hom : Π ⦃a b : C⦄, hom a b → hom (to_fun_ob a) (to_fun_ob b)),
@@ -150,6 +148,7 @@ namespace functor
         apply idp},
   end
 
+  set_option apply.class_instance false
   protected definition is_hset_functor
     [HD : is_hset D] : is_hset (functor C D) :=
   begin

@@ -53,6 +53,55 @@
               (or arg "")
               target-file-name))))
 
+(defun lean-exec-at-pos (process-name process-buffer-name &rest options)
+  "Execute Lean by providing current position with optional
+agruments. The output goes to 'process-buffer-name' buffer, which
+will be flushed everytime it's executed."
+  ;; Kill process-name if exists
+  (let ((current-process (get-process process-name)))
+    (when current-process
+      (kill-process)))
+  ;; Flush process-buffer
+  (let ((process-buffer (get-buffer process-buffer-name)))
+    (when process-buffer
+      (with-current-buffer process-buffer
+        (erase-buffer))))
+  ;; Ask to save current buffer
+  (when (buffer-file-name)
+    (save-some-buffers nil `(lambda () (s-equals? (buffer-file-name) ,(buffer-file-name)))))
+  ;; Start process
+  (let* ((target-file-name
+          (or
+           ;; Only use file-name if the current buffer is not modified
+           (and (not (buffer-modified-p)) (buffer-file-name))
+           (flymake-init-create-temp-buffer-copy 'lean-create-temp-in-system-tempdir)))
+         (cache-file-name
+          (s-concat (f-no-ext target-file-name)
+                    ".clean"))
+         (cache-option
+          ;; Cache is only used when we use a non-temporary file
+          (if (s-equals? (buffer-file-name) target-file-name)
+              `("--cache" ,cache-file-name)
+            '()))
+         (lean-mode-option
+          (pcase (lean-choose-minor-mode-based-on-extension)
+            (`standard "--lean")
+            (`hott     "--hlean")))
+         (process-args (append `(,process-name
+                                 ,process-buffer-name
+                                 ,(lean-get-executable lean-executable-name)
+                                 ,lean-mode-option
+                                 "--line"
+                                 ,(int-to-string (line-number-at-pos))
+                                 "--col"
+                                 ,(int-to-string (current-column)))
+                               options
+                               cache-option
+                               `(,target-file-name)))
+         (p (apply 'start-process process-args)))
+    (set-process-coding-system p 'utf-8 'utf-8)
+    (set-process-query-on-exit-flag p nil)))
+
 (defun lean-std-exe ()
   (interactive)
   (lean-execute))
@@ -94,6 +143,9 @@
   (local-set-key "\C-c\C-r"  'lean-server-restart-process)
   (local-set-key "\M-."      'lean-find-tag)
   (local-set-key (kbd "TAB") 'lean-tab-indent-or-complete))
+
+(defun lean-define-key-binding (key cmd)
+  (local-set-key key `(lambda () (interactive) ,cmd)))
 
 (define-abbrev-table 'lean-abbrev-table
   '())

@@ -106,6 +106,10 @@ namespace eq
   definition inv_inv (p : x = y) : p⁻¹⁻¹ = p :=
   eq.rec_on p idp
 
+  -- auxiliary definition used by 'cases' tactic
+  definition elim_inv_inv {A : Type} {a b : A} {C : a = b → Type} (H₁ : a = b) (H₂ : C (H₁⁻¹⁻¹)) : C H₁ :=
+  eq.rec_on (inv_inv H₁) H₂
+
   /- Theorems for moving things around in equations -/
 
   definition con_eq_of_eq_inv_con (p : x = z) (q : y = z) (r : y = x) :

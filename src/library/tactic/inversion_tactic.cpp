@@ -708,12 +708,12 @@ class inversion_tac {
         buffer<expr> hyps;
         g.get_hyps(hyps);
         lean_assert(!hyps.empty());
-        expr eq = hyps.back();
-        buffer<expr> eq_args;
-        get_app_args(mlocal_type(eq), eq_args);
-        expr const & A   = whnf(eq_args[0]);
-        expr lhs         = whnf(eq_args[1]);
-        expr rhs         = whnf(eq_args[2]);
+        expr Heq = hyps.back();
+        buffer<expr> Heq_args;
+        get_app_args(mlocal_type(Heq), Heq_args);
+        expr const & A   = whnf(Heq_args[0]);
+        expr lhs         = whnf(Heq_args[1]);
+        expr rhs         = whnf(Heq_args[2]);
         constraint_seq cs;
         if (m_proof_irrel && m_tc.is_def_eq(lhs, rhs, justification(), cs) && !cs) {
             // deletion transition: t == t
@@ -744,7 +744,7 @@ class inversion_tac {
                 else
                     throw inversion_exception();
             }
-            expr no_confusion = mk_app(mk_app(mk_constant(no_confusion_name, cons(g_lvl, const_levels(A_fn))), A_args), g_type, lhs, rhs, eq);
+            expr no_confusion = mk_app(mk_app(mk_constant(no_confusion_name, cons(g_lvl, const_levels(A_fn))), A_args), g_type, lhs, rhs, Heq);
             if (const_name(lhs_fn) == const_name(rhs_fn)) {
                 // injectivity transition
                 expr new_type = binding_domain(whnf(infer_type(no_confusion)));
@@ -759,14 +759,14 @@ class inversion_tac {
                 lean_assert(lhs_args.size() >= A_nparams);
                 return unify_eqs(new_g, neqs - 1 + lhs_args.size() - A_nparams);
             } else {
-                // conflict transition, eq is of the form c_1 ... = c_2 ..., where c_1 and c_2 are different constructors/intro rules.
+                // conflict transition, Heq is of the form c_1 ... = c_2 ..., where c_1 and c_2 are different constructors/intro rules.
                 expr val      = lift_down(no_confusion);
                 assign(g, val);
                 return optional<goal>(); // goal has been solved
             }
         }
         if (is_local(rhs)) {
-            // solution transition, eq is of the form t = y, where y is a local constant
+            // solution transition, Heq is of the form t = y, where y is a local constant
 
             // assume the current goal is of the form
             //
@@ -806,7 +806,7 @@ class inversion_tac {
                 if (m_proof_irrel)
                     tformer = Fun(rhs, deps_g_type);
                 else
-                    tformer = Fun(rhs, Fun(eq, deps_g_type));
+                    tformer = Fun(rhs, Fun(Heq, deps_g_type));
                 expr eq_rec         = mk_constant(get_eq_rec_name(), {eq_rec_lvl1, eq_rec_lvl2});
                 eq_rec              = mk_app(eq_rec, A, lhs, tformer);
                 buffer<expr> new_hyps;
@@ -815,7 +815,7 @@ class inversion_tac {
                 store_rename(rhs, lhs);
                 replace(m_imps, rhs, lhs);
                 if (!m_proof_irrel) {
-                    new_type = abstract_local(new_type, eq);
+                    new_type = abstract_local(new_type, Heq);
                     new_type = instantiate(new_type, mk_refl(m_tc, lhs));
                 }
                 buffer<expr> new_deps;
@@ -833,24 +833,49 @@ class inversion_tac {
                 expr new_meta       = mk_app(new_mvar, new_hyps);
                 goal new_g(new_meta, new_type);
                 expr eq_rec_minor   = mk_app(new_mvar, non_deps);
-                eq_rec              = mk_app(eq_rec, eq_rec_minor, rhs, eq);
+                eq_rec              = mk_app(eq_rec, eq_rec_minor, rhs, Heq);
                 expr val            = mk_app(eq_rec, deps);
                 assign(g, val);
                 return unify_eqs(new_g, neqs-1);
             }
         } else if (is_local(lhs)) {
             // flip equation and reduce to previous case
-            if (m_proof_irrel || !depends_on(g_type, hyps.back()))
-                hyps.pop_back(); // remove processed equality
             expr symm_eq   = mk_eq(rhs, lhs).first;
-            expr new_type  = mk_arrow(symm_eq, g_type);
-            expr new_mvar  = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
-            expr new_meta  = mk_app(new_mvar, hyps);
-            goal new_g(new_meta, new_type);
-            expr eq_inv    = mk_symm(m_tc, eq);
-            expr val       = mk_app(new_meta, eq_inv);
-            assign(g, val);
-            return unify_eqs(new_g, neqs);
+            hyps.pop_back(); // remove processed equality
+            if (!depends_on(g_type, Heq)) {
+                expr new_type  = mk_arrow(symm_eq, g_type);
+                expr new_mvar  = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
+                expr new_meta  = mk_app(new_mvar, hyps);
+                goal new_g(new_meta, new_type);
+                expr Heq_inv   = mk_symm(m_tc, Heq);
+                expr val       = mk_app(new_meta, Heq_inv);
+                assign(g, val);
+                return unify_eqs(new_g, neqs);
+            } else {
+                // Let C[Heq] be the original conclusion which depends on the equality eq being processed.
+                expr new_Heq     = update_mlocal(Heq, symm_eq);
+                expr new_Heq_inv = mk_symm(m_tc, new_Heq);
+                expr new_type    = Pi(new_Heq, instantiate(abstract_local(g_type, Heq), new_Heq_inv));
+                expr new_mvar    = mk_metavar(m_ngen.next(), Pi(hyps, new_type));
+                expr new_meta    = mk_app(new_mvar, hyps);
+                goal new_g(new_meta, new_type);
+                // Then, we have
+                // new_meta : Pi (new_Heq : rhs = lhs), C[symm new_Heq]
+                expr Heq_inv   = mk_symm(m_tc, Heq);
+                expr val       = mk_app(new_meta, Heq_inv);
+                // val      : C[symm (symm Heq)]
+                // Remark: in proof irrelevant mode (symm (symm Heq)) is definitionally equal to Heq
+                if (!m_proof_irrel) {
+                    expr C      = Fun(Heq, g_type);
+                    level A_lvl = sort_level(m_tc.ensure_type(A).first);
+                    level g_lvl = sort_level(m_tc.ensure_type(g_type).first);
+                    expr elim_inv_inv = mk_constant(get_eq_elim_inv_inv_name(), {A_lvl, g_lvl});
+                    val         = mk_app({elim_inv_inv, A, lhs, rhs, C, Heq, val});
+                    // val : C[Heq] as we wanted
+                }
+                assign(g, val);
+                return unify_eqs(new_g, neqs);
+            }
         }
         if (m_throw_tactic_exception) {
             throw tactic_exception([=](formatter const & fmt) {

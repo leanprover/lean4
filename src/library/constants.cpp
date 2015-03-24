@@ -15,6 +15,7 @@ name const * g_char = nullptr;
 name const * g_char_mk = nullptr;
 name const * g_dite = nullptr;
 name const * g_eq = nullptr;
+name const * g_eq_elim_inv_inv = nullptr;
 name const * g_eq_intro = nullptr;
 name const * g_eq_rec = nullptr;
 name const * g_eq_rec_eq = nullptr;
@@ -126,6 +127,7 @@ void initialize_constants() {
     g_char_mk = new name{"char", "mk"};
     g_dite = new name{"dite"};
     g_eq = new name{"eq"};
+    g_eq_elim_inv_inv = new name{"eq", "elim_inv_inv"};
     g_eq_intro = new name{"eq", "intro"};
     g_eq_rec = new name{"eq", "rec"};
     g_eq_rec_eq = new name{"eq_rec_eq"};
@@ -238,6 +240,7 @@ void finalize_constants() {
     delete g_char_mk;
     delete g_dite;
     delete g_eq;
+    delete g_eq_elim_inv_inv;
     delete g_eq_intro;
     delete g_eq_rec;
     delete g_eq_rec_eq;
@@ -349,6 +352,7 @@ name const & get_char_name() { return *g_char; }
 name const & get_char_mk_name() { return *g_char_mk; }
 name const & get_dite_name() { return *g_dite; }
 name const & get_eq_name() { return *g_eq; }
+name const & get_eq_elim_inv_inv_name() { return *g_eq_elim_inv_inv; }
 name const & get_eq_intro_name() { return *g_eq_intro; }
 name const & get_eq_rec_name() { return *g_eq_rec; }
 name const & get_eq_rec_eq_name() { return *g_eq_rec_eq; }

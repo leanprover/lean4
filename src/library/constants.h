@@ -17,6 +17,7 @@ name const & get_char_name();
 name const & get_char_mk_name();
 name const & get_dite_name();
 name const & get_eq_name();
+name const & get_eq_elim_inv_inv_name();
 name const & get_eq_intro_name();
 name const & get_eq_rec_name();
 name const & get_eq_rec_eq_name();

@@ -121,6 +121,10 @@ static void display_help(std::ostream & out) {
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
     std::cout << "  -D name=value     set a configuration option (see set_option command)\n";
+    std::cout << "Frontend query interface:\n";
+    std::cout << "  --line=value      line number for query\n";
+    std::cout << "  --col=value       column number for query\n";
+    std::cout << "  --goal            display goal at close to given position\n";
 }
 
 static char const * get_file_extension(char const * fname) {
@@ -165,10 +169,13 @@ static struct option g_long_options[] = {
 #if defined(LEAN_USE_BOOST)
     {"tstack",       required_argument, 0, 's'},
 #endif
+    {"line",         required_argument, 0, 'L'},
+    {"col",          required_argument, 0, 'O'},
+    {"goal",         no_argument,       0, 'G'},
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "HRXFC:dD:qrlupgvhk:012t:012o:c:i:"
+#define OPT_STR "HRXFC:dD:qrlupgvhk:012t:012o:c:i:L:012O:012G"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -346,6 +353,9 @@ int main(int argc, char ** argv) {
     std::string cpp_output;
     std::string cache_name;
     std::string index_name;
+    optional<unsigned> line;
+    optional<unsigned> column;
+    bool show_goal;
     input_kind default_k = input_kind::Unspecified;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
@@ -435,11 +445,25 @@ int main(int argc, char ** argv) {
         case 'F':
             opts = opts.update("flycheck", true);
             break;
+        case 'L':
+            line = atoi(optarg);
+            break;
+        case 'O':
+            column = atoi(optarg);
+            break;
+        case 'G':
+            show_goal = true;
+            break;
         default:
             std::cerr << "Unknown command line option\n";
             display_help(std::cerr);
             return 1;
         }
+    }
+
+    if (show_goal) {
+        std::cout << "SHOW GOAL @ " << *line << " : " << *column << "\n";
+        exit(0);
     }
 
     #if !defined(LEAN_MULTI_THREAD)

@@ -24,10 +24,14 @@ tactic exact_tactic(elaborate_fn const & elab, expr const & e, bool enforce_type
             if (auto new_e = elaborate_with_respect_to(env, ios, elab, new_s, e, some_expr(t),
                                                        report_unassigned, enforce_type_during_elaboration)) {
                 goals const & gs   = new_s.get_goals();
-                goal const & g     = head(gs);
-                substitution subst = new_s.get_subst();
-                assign(subst, g, *new_e);
-                return some(proof_state(new_s, tail(gs), subst));
+                if (gs) {
+                    goal const & g     = head(gs);
+                    substitution subst = new_s.get_subst();
+                    assign(subst, g, *new_e);
+                    return some(proof_state(new_s, tail(gs), subst));
+                } else {
+                    return some_proof_state(new_s);
+                }
             }
             return none_proof_state();
         });

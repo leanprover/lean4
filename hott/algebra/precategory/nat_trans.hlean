@@ -97,9 +97,9 @@ namespace nat_trans
   nat_trans.mk
     (λ a, F (η a))
     (λ a b f, calc
-      F (H f) ∘ F (η a) = F (H f ∘ η a) : respect_comp
-        ... = F (η b ∘ G f) : by rewrite (naturality η f)
-        ... = F (η b) ∘ F (G f) : respect_comp)
+      F (H f) ∘ F (η a) = F (H f ∘ η a) : by rewrite respect_comp
+        ... = F (η b ∘ G f)             : by rewrite (naturality η f)
+        ... = F (η b) ∘ F (G f)         : by rewrite respect_comp)
 
   infixr `∘nf`:60 := nat_trans_functor_compose
   infixr `∘fn`:60 := functor_nat_trans_compose

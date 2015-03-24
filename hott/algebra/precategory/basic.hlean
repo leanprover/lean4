@@ -141,6 +141,10 @@ namespace category
 
   /-Characterization of paths between precategories-/
 
+  -- auxiliary definition for speeding up precategory_eq_mk
+  private definition is_hprop_pi (A : Type) (B : A → Type) (H : Π (a : A), is_hprop (B a)) : is_hprop (Π (x : A), B x) :=
+  is_trunc_pi B (-2 .+1)
+
   definition precategory_eq_mk (ob : Type)
     (hom1 : ob → ob → Type)
     (hom2 : ob → ob → Type)
@@ -169,10 +173,10 @@ namespace category
       apply is_hprop.elim,
     cases PhomH,
     apply (ap0111 (precategory.mk hom2 homH1 comp2 ID2)),
-    repeat (
-      apply @is_hprop.elim ;
-      repeat (apply is_trunc_pi ; intros) ;
-      apply is_trunc_eq ),
+    repeat
+      (apply @is_hprop.elim;
+       repeat (apply is_hprop_pi; intros);
+       apply is_trunc_eq)
   end
 
   definition precategory_eq_mk' (ob : Type)

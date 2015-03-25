@@ -365,7 +365,7 @@ intro : A → nonempty A
 protected definition nonempty.elim {A : Type} {B : Prop} (H1 : nonempty A) (H2 : A → B) : B :=
 nonempty.rec H2 H1
 
-theorem inhabited_imp_nonempty [instance] {A : Type} [H : inhabited A] : nonempty A :=
+theorem nonempty_of_inhabited [instance] {A : Type} [H : inhabited A] : nonempty A :=
 nonempty.intro (default A)
 
 definition ite (c : Prop) [H : decidable c] {A : Type} (t e : A) : A :=

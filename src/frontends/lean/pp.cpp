@@ -279,6 +279,7 @@ void pretty_fn::set_options_core(options const & o) {
     m_beta            = get_pp_beta(o);
     m_numerals        = get_pp_numerals(o);
     m_abbreviations   = get_pp_abbreviations(o);
+    m_extra_spaces    = get_pp_extra_spaces(o);
     m_hide_full_terms = get_formatter_hide_full_terms(o);
     m_num_nat_coe     = m_numerals && !m_coercion && has_coercion_num_nat(m_env);
 }
@@ -880,6 +881,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
         unsigned last_rbp  = inf_bp()-1;
         unsigned token_lbp = 0;
         bool extra_space   = false;
+        bool last_is_skip  = false;
         bool last          = true;
         while (i > 0) {
             --i;
@@ -889,8 +891,10 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
             switch (a.kind()) {
             case notation::action_kind::Skip:
                 curr = format(tk);
-                if (last)
-                    last_rbp = inf_bp();
+                if (last) {
+                    last_rbp     = inf_bp();
+                    last_is_skip = true;
+                }
                 break;
             case notation::action_kind::Expr:
                 if (args.empty() || !args.back()) {
@@ -901,7 +905,10 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                     result e_r   = pp_notation_child(e, token_lbp, a.rbp());
                     format e_fmt = e_r.fmt();
                     curr = format(tk);
-                    if (add_extra_space(tk))
+                    // we add space after the token only when
+                    // 1- add_extra_space(tk) is true AND
+                    // 2- tk is the first token in a nud notation
+                    if (add_extra_space(tk) && (!entry.is_nud() || i != 0 || m_extra_spaces))
                         curr = curr + space();
                     curr = curr + e_fmt;
                     if (last)
@@ -959,7 +966,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                         --i;
                         result arg_res = pp_notation_child(rec_args[i], curr_lbp, a.rbp());
                         if (i == 0) {
-                            if (add_extra_space_first(tk))
+                            if (m_extra_spaces && add_extra_space_first(tk))
                                 curr = format(tk) + space() + arg_res.fmt() + curr;
                             else
                                 curr = format(tk) + arg_res.fmt() + curr;
@@ -1044,7 +1051,10 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
             expr e = *args.back();
             args.pop_back();
             format e_fmt = pp_notation_child(e, token_lbp, 0).fmt();
-            fmt = e_fmt + space() + fmt;
+            if (m_extra_spaces || !last_is_skip)
+                fmt = e_fmt + space() + fmt;
+            else
+                fmt = e_fmt + fmt;
         }
         return optional<result>(result(first_lbp, last_rbp, fmt));
     }

@@ -395,8 +395,14 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
   (let ((info-list (lean-info-list-parse-string str))
         start-column)
     (cond
+     ;; Proof State Case
      ((and column-number (or (looking-at ",") (looking-back (rx "," (* white)))))
-      info-list)
+      ;; Find a position of "," and filter the info-list to extract proofstate info
+      (lean-info-list-filter info-list
+                             (save-excursion
+                               (unless (looking-at ",")
+                                 (search-backward ","))
+                               (current-column))))
      ;; When file-name/column-number is specified, try to start-column of id/symbol
      ((and file-name column-number)
       (setq start-column (lean-info-list-find-start-column info-list file-name column-number))

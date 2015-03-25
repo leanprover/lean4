@@ -1,0 +1,1 @@
+match_bug.lean:3:6: error: invalid occurrence of variable 'bar' in the left-hand-side of recursive equation

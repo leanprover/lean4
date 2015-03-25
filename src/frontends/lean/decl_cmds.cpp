@@ -510,7 +510,7 @@ static void validate_equation_lhs(parser const & p, expr const & lhs, buffer<exp
                     std::any_of(locals.begin(), locals.end(), [&](expr const & local) {
                             return mlocal_name(e) == mlocal_name(local);
                         })) {
-                    throw parser_error(sstream() << "invalid occurrence of variable '" << mlocal_name(lhs) <<
+                    throw parser_error(sstream() << "invalid occurrence of variable '" << mlocal_name(e) <<
                                        "' in the left-hand-side of recursive equation", p.pos_of(lhs));
                 }
                 return has_local(e);

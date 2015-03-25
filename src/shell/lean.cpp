@@ -355,7 +355,7 @@ int main(int argc, char ** argv) {
     std::string index_name;
     optional<unsigned> line;
     optional<unsigned> column;
-    bool show_goal;
+    bool show_goal = false;
     input_kind default_k = input_kind::Unspecified;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);

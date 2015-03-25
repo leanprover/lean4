@@ -100,7 +100,8 @@ will be flushed everytime it's executed."
                                `(,target-file-name)))
          (p (apply 'start-process process-args)))
     (set-process-coding-system p 'utf-8 'utf-8)
-    (set-process-query-on-exit-flag p nil)))
+    (set-process-query-on-exit-flag p nil)
+    (display-buffer process-buffer-name)))
 
 (defun lean-std-exe ()
   (interactive)

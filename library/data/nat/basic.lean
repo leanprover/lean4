@@ -307,7 +307,6 @@ section
     right_distrib  := mul.right_distrib,
     zero_mul       := zero_mul,
     mul_zero       := mul_zero,
-    zero_ne_one    := ne.symm (succ_ne_zero zero),
     mul_comm       := mul.comm⦄
 end
 

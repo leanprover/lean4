@@ -44,7 +44,7 @@ theorem zero_ne_one [s: zero_ne_one_class A] : 0 ≠ 1 := @zero_ne_one_class.zer
 /- semiring -/
 
 structure semiring [class] (A : Type) extends add_comm_monoid A, monoid A, distrib A,
-    mul_zero_class A, zero_ne_one_class A
+    mul_zero_class A
 
 section semiring
   variables [s : semiring A] (a b c : A)
@@ -148,7 +148,7 @@ end comm_semiring
 
 /- ring -/
 
-structure ring [class] (A : Type) extends add_comm_group A, monoid A, distrib A, zero_ne_one_class A
+structure ring [class] (A : Type) extends add_comm_group A, monoid A, distrib A
 
 theorem ring.mul_zero [s : ring A] (a : A) : a * 0 = 0 :=
 have H : a * 0 + 0 = a * 0 + a * 0, from calc

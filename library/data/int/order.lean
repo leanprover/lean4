@@ -233,7 +233,8 @@ section
     mul_nonneg       := @mul_nonneg,
     mul_pos          := @mul_pos,
     le_iff_lt_or_eq  := le_iff_lt_or_eq,
-    le_total         := le.total⦄
+    le_total         := le.total,
+    zero_ne_one      := zero_ne_one⦄
 
   protected definition decidable_linear_ordered_comm_ring [instance] [reducible] :
     algebra.decidable_linear_ordered_comm_ring int :=

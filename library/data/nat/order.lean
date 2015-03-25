@@ -161,6 +161,7 @@ section
     lt_iff_le_ne               := lt_iff_le_and_ne,
     add_le_add_left            := @add_le_add_left,
     le_of_add_le_add_left      := @le_of_add_le_add_left,
+    zero_ne_one                := ne.symm (succ_ne_zero zero),
     mul_le_mul_of_nonneg_left  := (take a b c H1 H2, mul_le_mul_left H1 c),
     mul_le_mul_of_nonneg_right := (take a b c H1 H2, mul_le_mul_right H1 c),
     mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left,

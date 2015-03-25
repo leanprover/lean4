@@ -22,7 +22,7 @@ absurd H (lt.irrefl a)
 
 structure ordered_semiring [class] (A : Type)
   extends has_mul A, has_zero A, has_lt A, -- TODO: remove hack for improving performance
-    semiring A, ordered_cancel_comm_monoid A :=
+    semiring A, ordered_cancel_comm_monoid A, zero_ne_one_class A :=
 (mul_le_mul_of_nonneg_left: ∀a b c, le a b → le zero c → le (mul c a) (mul c b))
 (mul_le_mul_of_nonneg_right: ∀a b c, le a b → le zero c → le (mul a c) (mul b c))
 (mul_lt_mul_of_pos_left: ∀a b c, lt a b → lt zero c → lt (mul c a) (mul c b))
@@ -147,7 +147,7 @@ section
       not_lt_of_le H3 H)
 end
 
-structure ordered_ring [class] (A : Type) extends ring A, ordered_comm_group A :=
+structure ordered_ring [class] (A : Type) extends ring A, ordered_comm_group A, zero_ne_one_class A :=
 (mul_nonneg : ∀a b, le zero a → le zero b → le zero (mul a b))
 (mul_pos : ∀a b, lt zero a → lt zero b → lt zero (mul a b))
 

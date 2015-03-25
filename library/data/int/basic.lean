@@ -629,7 +629,6 @@ section
     mul_one        := mul_one,
     left_distrib   := mul.left_distrib,
     right_distrib  := mul.right_distrib,
-    zero_ne_one    := zero_ne_one,
     mul_comm       := mul.comm,
     eq_zero_or_eq_zero_of_mul_eq_zero := @eq_zero_or_eq_zero_of_mul_eq_zero⦄
 end

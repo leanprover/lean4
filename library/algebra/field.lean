@@ -17,7 +17,7 @@ namespace algebra
 
 variable {A : Type}
 
-structure division_ring [class] (A : Type) extends ring A, has_inv A :=
+structure division_ring [class] (A : Type) extends ring A, has_inv A, zero_ne_one_class A :=
   (mul_inv_cancel : ∀{a}, a ≠ zero → mul a (inv a) = one)
   (inv_mul_cancel : ∀{a}, a ≠ zero → mul (inv a) a = one)
 
@@ -40,21 +40,21 @@ section division_ring
   theorem inv_eq_one_div : a⁻¹ = 1 / a := !one_mul⁻¹
 
   theorem div_eq_mul_one_div : a / b = a * (1 / b) :=
-    by rewrite [↑divide, one_mul] 
+    by rewrite [↑divide, one_mul]
 
   theorem mul_one_div_cancel (H : a ≠ 0) : a * (1 / a) = 1 :=
     by rewrite [-inv_eq_one_div, (mul_inv_cancel H)]
 
   theorem one_div_mul_cancel (H : a ≠ 0) : (1 / a) * a = 1 :=
     by rewrite [-inv_eq_one_div, (inv_mul_cancel H)]
- 
+
   theorem div_self (H : a ≠ 0) : a / a = 1 := mul_inv_cancel H
 
   theorem mul_div_assoc : (a * b) / c = a * (b / c) := !mul.assoc
 
   theorem one_div_ne_zero (H : a ≠ 0) : 1 / a ≠ 0 :=
     assume H2 : 1 / a = 0,
-    have C1 : 0 = 1, from symm (by rewrite [-(mul_one_div_cancel H), H2, mul_zero]), 
+    have C1 : 0 = 1, from symm (by rewrite [-(mul_one_div_cancel H), H2, mul_zero]),
     absurd C1 zero_ne_one
 
   -- the analogue in group is called inv_one
@@ -93,7 +93,7 @@ section division_ring
 
   -- make "left" and "right" versions?
   theorem eq_one_div_of_mul_eq_one (H : a * b = 1) : b = 1 / a :=
-    have H2 : a ≠ 0, from 
+    have H2 : a ≠ 0, from
       (assume A : a = 0,
       have B : 0 = 1, by rewrite [-(zero_mul b), -A, H],
       absurd B zero_ne_one),
@@ -106,7 +106,7 @@ section division_ring
 
   -- which one is left and which is right?
   theorem eq_one_div_of_mul_eq_one_left (H : b * a = 1) : b = 1 / a :=
-    have H2 : a ≠ 0, from 
+    have H2 : a ≠ 0, from
       (assume A : a = 0,
       have B : 0 = 1, from symm (calc
         1 = b * a : symm H
@@ -121,9 +121,9 @@ section division_ring
         ... = b                 : mul_one)
 
   theorem one_div_mul_one_div (Ha : a ≠ 0) (Hb : b ≠ 0) : (1 / a) * (1 / b) = 1 / (b * a) :=
-    have H : (b * a) * ((1 / a) * (1 / b)) = 1, by 
+    have H : (b * a) * ((1 / a) * (1 / b)) = 1, by
       rewrite [mul.assoc, -(mul.assoc a), (mul_one_div_cancel Ha), one_mul, (mul_one_div_cancel Hb)],
-    eq_one_div_of_mul_eq_one H 
+    eq_one_div_of_mul_eq_one H
 
   theorem one_div_neg_one_eq_neg_one : 1 / (-1) = -1 :=
     have H : (-1) * (-1) = 1, by rewrite [-neg_eq_neg_one_mul, neg_neg],
@@ -135,10 +135,10 @@ section division_ring
       a + a * -1 = a * 1 + a * -1 : mul_one
              ... = a * (1 + -1)   : left_distrib
              ... = a * 0          : add.right_inv
-             ... = 0              : mul_zero, 
+             ... = 0              : mul_zero,
     symm (neg_eq_of_add_eq_zero H)
 
-  theorem one_div_neg_eq_neg_one_div (H : a ≠ 0) : 1 / (- a) = - (1 / a) := 
+  theorem one_div_neg_eq_neg_one_div (H : a ≠ 0) : 1 / (- a) = - (1 / a) :=
     have H1 : -1 ≠ 0, from
       (assume H2 : -1 = 0, absurd (symm (calc
           1 = -(-1) : neg_neg
@@ -146,7 +146,7 @@ section division_ring
         ... = 0     : neg_zero)) zero_ne_one),
     calc
       1 / (- a) = 1 / ((-1) * a)        : neg_eq_neg_one_mul
-            ... = (1 / a) * (1 / (- 1)) : one_div_mul_one_div H H1 
+            ... = (1 / a) * (1 / (- 1)) : one_div_mul_one_div H H1
             ... = (1 / a) * (-1)        : one_div_neg_one_eq_neg_one
             ... = - (1 / a)             : mul_neg_one_eq_neg
 
@@ -184,7 +184,7 @@ section division_ring
 
   theorem div_mul_cancel (Hb : b ≠ 0) : a / b * b = a :=
     by rewrite [↑divide, mul.assoc, (inv_mul_cancel Hb), mul_one]
- 
+
   theorem div_add_div_same : a / c + b / c = (a + b) / c := !right_distrib⁻¹
 
   theorem inv_mul_add_mul_inv_eq_inv_add_inv (Ha : a ≠ 0) (Hb : b ≠ 0) :
@@ -197,7 +197,7 @@ section division_ring
     by rewrite [(mul_sub_left_distrib (1 / a)), (one_div_mul_cancel Ha), mul_sub_right_distrib,
       one_mul, mul.assoc, (mul_one_div_cancel Hb), mul_one, one_mul]
 
-  theorem div_eq_one_iff_eq (Hb : b ≠ 0) : a / b = 1 ↔ a = b := 
+  theorem div_eq_one_iff_eq (Hb : b ≠ 0) : a / b = 1 ↔ a = b :=
     iff.intro
     (assume H1 : a / b = 1, symm (calc
       b   = 1 * b     : one_mul
@@ -268,10 +268,10 @@ section field
 
   theorem div_mul_eq_mul_div (Hc : c ≠ 0) : (b / c) * a = (b * a) / c :=
     by rewrite [↑divide, mul.assoc, (mul.comm c⁻¹), -mul.assoc]
-  
+
   -- this one is odd -- I am not sure what to call it, but again, the prefix is right
   theorem div_mul_eq_mul_div_comm (Hc : c ≠ 0) : (b / c) * a = b * (a / c) :=
-    by rewrite [(div_mul_eq_mul_div Hc), -(one_mul c), -(div_mul_div (ne.symm zero_ne_one) Hc), div_one, one_mul] 
+    by rewrite [(div_mul_eq_mul_div Hc), -(one_mul c), -(div_mul_div (ne.symm zero_ne_one) Hc), div_one, one_mul]
 
   theorem div_add_div (Hb : b ≠ 0) (Hd : d ≠ 0) :
       (a / b) + (c / d) = ((a * d) + (b * c)) / (b * d) :=
@@ -282,7 +282,7 @@ section field
       (a / b) - (c / d) = ((a * d) - (b * c)) / (b * d) :=
       by rewrite [↑sub, neg_eq_neg_one_mul, -mul_div_assoc, (div_add_div Hb Hd),
          -mul.assoc, (mul.comm b), mul.assoc, -neg_eq_neg_one_mul]
-   
+
   theorem mul_eq_mul_of_div_eq_div (Hb : b ≠ 0) (Hd : d ≠ 0) (H : a / b = c / d) : a * d = c * b :=
     by rewrite [-mul_one, mul.assoc, (mul.comm d), -mul.assoc, -(div_self Hb),
          -(div_mul_eq_mul_div_comm Hb), H, (div_mul_eq_mul_div Hd), (div_mul_cancel Hd)]
@@ -323,9 +323,9 @@ section discrete_field
   decidable.by_cases
     (assume H : x = 0, or.inl H)
     (assume H1 : x ≠ 0,
-      or.inr (by rewrite [-one_mul, -(inv_mul_cancel H1), mul.assoc, H, mul_zero])) 
+      or.inr (by rewrite [-one_mul, -(inv_mul_cancel H1), mul.assoc, H, mul_zero]))
 
-  definition discrete_field.to_integral_domain [instance] [reducible] [coercion] : 
+  definition discrete_field.to_integral_domain [instance] [reducible] [coercion] :
     integral_domain A :=
   ⦃ integral_domain, s,
     eq_zero_or_eq_zero_of_mul_eq_zero := discrete_field.eq_zero_or_eq_zero_of_mul_eq_zero⦄

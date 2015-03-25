@@ -105,7 +105,6 @@ struct structure_cmd_fn {
     std::vector<rename_vector>  m_renames;
     std::vector<field_map>      m_field_maps;
     bool                        m_infer_result_universe;
-    bool                        m_using_explicit_levels;
     levels                      m_ctx_levels; // context levels for creating aliases
     buffer<expr>                m_ctx_locals; // context local constants for creating aliases
 
@@ -115,7 +114,6 @@ struct structure_cmd_fn {
     structure_cmd_fn(parser & p):m_p(p), m_env(p.env()), m_ngen(p.mk_ngen()), m_namespace(get_namespace(m_env)) {
         m_tc = mk_type_checker(m_env, m_p.mk_ngen(), false);
         m_infer_result_universe = false;
-        m_using_explicit_levels = false;
         m_gen_eta     = get_structure_eta_thm(p.get_options());
         m_gen_proj_mk = get_structure_proj_mk_thm(p.get_options());
     }
@@ -454,6 +452,10 @@ struct structure_cmd_fn {
 
     /** \brief Add params, fields and references to parent structures into parser local scope */
     void add_locals() {
+        if (!m_infer_result_universe) {
+            for (name const & l : m_level_names)
+                m_p.add_local_level(l, mk_param_univ(l));
+        }
         for (expr const & param : m_params)
             m_p.add_local(param);
         for (expr const & field : m_fields)

@@ -132,20 +132,23 @@ class FlycheckItem:
     def loc(self):
         return (self.filename, self.ty, self.lineno, self.colno)
     @classmethod
-    def fromString(cls, text):
+    def fromString(cls, target, text):
         # Filter out empty lines
         lines     = [line for line in text.splitlines() if len(line) > 0]
         # Throw the first and last lines (header/footer)
         lines     = lines[1:-1]
-        firstLine = lines[0]
-        items     = [item.strip() for item in firstLine.split(":")]
-        filename  = items[0]
-        lineno    = int(items[1])
-        colno     = int(items[2])
-        ty        = items[3]
-        msg       = ":".join(items[4:]) + "\n" + "\n".join(lines[1:])
-        msg       = msg.strip()
-        return cls(filename, lineno, colno, ty, msg)
+        try:
+          firstLine = lines[0]
+          items     = [item.strip() for item in firstLine.split(":")]
+          filename  = items[0]
+          lineno    = int(items[1])
+          colno     = int(items[2])
+          ty        = items[3]
+          msg       = ":".join(items[4:]) + "\n" + "\n".join(lines[1:])
+          msg       = msg.strip()
+          return cls(filename, lineno, colno, ty, msg)
+        except:
+          return cls(target, 1, 0, "error", " ".join(lines))
 
 @python_2_unicode_compatible
 class FlycheckItemList:
@@ -178,7 +181,7 @@ class FlycheckItemList:
         self.items = newItems
 
     @classmethod
-    def fromString(cls, text):
+    def fromString(cls, target, text):
         items = []
         tmpBuffer = ""
         ignore = True
@@ -190,7 +193,7 @@ class FlycheckItemList:
                 ignore = False
             elif line.startswith(g_flycheck_footer):
                 tmpBuffer = tmpBuffer + line + "\n"
-                items.append(FlycheckItem.fromString(tmpBuffer.strip()))
+                items.append(FlycheckItem.fromString(target, tmpBuffer.strip()))
                 tmpBuffer = ""
                 ignore = True
             elif not ignore:
@@ -481,7 +484,7 @@ def process_lean_output(target, out, args, using_hlean):
         print(out)
         return
     # Parse, filter, and remove extra items
-    flycheckItemList = FlycheckItemList.fromString(out)
+    flycheckItemList = FlycheckItemList.fromString(target, out)
     flycheckItemList.filter(lambda item: item.filename == target)
     flycheckItemList.removeExtraItemsStartswith("failed to add declaration")
     # Only keep n items in the list.

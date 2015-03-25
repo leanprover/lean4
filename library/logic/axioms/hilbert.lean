@@ -48,13 +48,18 @@ epsilon_spec_aux (nonempty_of_exists Hex) P Hex
 theorem epsilon_singleton {A : Type} (a : A) : @epsilon A (nonempty.intro a) (λx, x = a) = a :=
 epsilon_spec (exists.intro a (eq.refl a))
 
+definition some {A : Type} {P : A → Prop} (H : ∃x, P x) : A :=
+@epsilon A (nonempty_of_exists H) P
+
+theorem some_spec {A : Type} {P : A → Prop} (H : ∃x, P x) : P (some H) :=
+epsilon_spec H
+
 /- the axiom of choice -/
 
 theorem axiom_of_choice {A : Type} {B : A → Type} {R : Πx, B x → Prop} (H : ∀x, ∃y, R x y) :
   ∃f, ∀x, R x (f x) :=
-let f := λx, @epsilon _ (nonempty_of_exists (H x)) (λy, R x y),
-    H := take x, epsilon_spec (H x)
-in exists.intro f H
+have H : ∀x, R x (some (H x)), from take x, some_spec (H x),
+exists.intro _ H
 
 theorem skolem {A : Type} {B : A → Type} {P : Πx, B x → Prop} :
   (∀x, ∃y, P x y) ↔ ∃f, (∀x, P x (f x)) :=

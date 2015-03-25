@@ -97,3 +97,4 @@ reserve infixr `::`:65
 definition is_typeof (A : Type) (a : A) : A := a
 
 notation `typeof` t `:` T  := is_typeof T t
+notation `(` t `:` T `)`  := is_typeof T t

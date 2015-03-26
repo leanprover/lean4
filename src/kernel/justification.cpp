@@ -296,7 +296,7 @@ justification mk_composite(justification const & j1, justification const & j2, o
     return justification(new (get_ext_composite_allocator().allocate()) ext_composite_cell(j1, j2, fn, s));
 }
 justification mk_composite1(justification const & j1, justification const & j2) {
-    if (j1.is_none())
+    if (j1.is_none() || j1.raw() == j2.raw())
         return j2;
     if (j2.is_none())
         return j1;

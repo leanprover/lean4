@@ -1112,13 +1112,13 @@ leanprover.github.io/js/input-method.js"
       (let* ((input (substring (car it) 1))
              (outputs (cdr it)))
 
-        (insert (format "{%s:\"" (prin1-to-string input)))
+        (insert (format "%s:\"" (prin1-to-string input)))
 
         (cond ((vectorp outputs)
                (insert (elt outputs 0)))
               (t (insert-char outputs)))
 
-        (insert (format "\"},\n" input))))
+        (insert (format "\",\n" input))))
     (insert "};")))
 
 (defun lean-input-export-translations-to-stdout ()

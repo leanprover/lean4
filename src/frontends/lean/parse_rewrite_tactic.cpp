@@ -156,4 +156,27 @@ expr parse_esimp_tactic(parser & p) {
     }
     return mk_rewrite_tactic_expr(elems);
 }
+
+expr parse_fold_tactic(parser & p) {
+    buffer<expr> elems;
+    auto pos = p.pos();
+    if (p.curr_is_token(get_lcurly_tk())) {
+        p.next();
+        while (true) {
+            auto pos = p.pos();
+            expr e = p.parse_expr();
+            location loc = parse_tactic_location(p);
+            elems.push_back(p.save_pos(mk_rewrite_fold(e, loc), pos));
+            if (!p.curr_is_token(get_comma_tk()))
+                break;
+            p.next();
+        }
+        p.check_token_next(get_rcurly_tk(), "invalid 'fold' tactic, '}' expected");
+    } else {
+        expr e = p.parse_expr();
+        location loc = parse_tactic_location(p);
+        elems.push_back(p.save_pos(mk_rewrite_fold(e, loc), pos));;
+    }
+    return mk_rewrite_tactic_expr(elems);
+}
 }

@@ -130,7 +130,7 @@
      (,(rx (not (any "\.")) word-start
            (group
             (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "eassumption" "rapply"
-                "apply" "fapply" "rename" "intro" "intros" "all_goals"
+                "apply" "fapply" "rename" "intro" "intros" "all_goals" "fold"
                 "generalize" "generalizes" "clear" "clears" "revert" "reverts" "back" "beta" "done" "exact" "repeat"
                 "whnf" "rotate" "rotate_left" "rotate_right" "inversion" "cases" "rewrite" "esimp" "unfold" "change"))
            word-end)

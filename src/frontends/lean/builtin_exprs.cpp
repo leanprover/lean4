@@ -518,6 +518,10 @@ static expr parse_esimp_tactic_expr(parser & p, unsigned, expr const *, pos_info
     return p.save_pos(parse_esimp_tactic(p), pos);
 }
 
+static expr parse_fold_tactic_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return p.save_pos(parse_fold_tactic(p), pos);
+}
+
 static expr parse_overwrite_notation(parser & p, unsigned, expr const *, pos_info const &) {
     name n = p.check_id_next("invalid '#' local notation, identifier expected");
     environment env = overwrite_notation(p.env(), n);
@@ -590,6 +594,7 @@ parse_table init_nud_table() {
     r = r.add({transition("calc", mk_ext_action(parse_calc_expr))}, x0);
     r = r.add({transition("rewrite", mk_ext_action(parse_rewrite_tactic_expr))}, x0);
     r = r.add({transition("esimp", mk_ext_action(parse_esimp_tactic_expr))}, x0);
+    r = r.add({transition("fold", mk_ext_action(parse_fold_tactic_expr))}, x0);
     r = r.add({transition("#", mk_ext_action(parse_overwrite_notation))}, x0);
     r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);
     r = r.add({transition("!", mk_ext_action(parse_consume_args_expr))}, x0);

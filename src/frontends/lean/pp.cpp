@@ -955,25 +955,25 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                     unsigned curr_lbp = token_lbp;
                     if (auto t = a.get_terminator()) {
                         curr = format(*t);
-                        if (add_extra_space(*t))
+                        if (add_extra_space(*t) && m_extra_spaces)
                             curr = space() + curr;
                         curr_lbp = get_some_precedence(m_token_table, *t);
                     }
-                    unsigned i       = rec_args.size();
+                    unsigned j       = rec_args.size();
                     format sep_fmt   = format(a.get_sep());
                     unsigned sep_lbp = get_some_precedence(m_token_table, a.get_sep());
-                    while (i > 0) {
-                        --i;
-                        result arg_res = pp_notation_child(rec_args[i], curr_lbp, a.rbp());
-                        if (i == 0) {
-                            if (m_extra_spaces && add_extra_space_first(tk))
+                    while (j > 0) {
+                        --j;
+                        result arg_res = pp_notation_child(rec_args[j], curr_lbp, a.rbp());
+                        if (j == 0) {
+                            if (add_extra_space_first(tk) && (!entry.is_nud() || i != 0 || m_extra_spaces))
                                 curr = format(tk) + space() + arg_res.fmt() + curr;
                             else
                                 curr = format(tk) + arg_res.fmt() + curr;
                         } else {
                             curr = sep_fmt + space() + arg_res.fmt() + curr;
                         }
-                        if (i > 0 && add_extra_space(a.get_sep()))
+                        if (j > 0 && add_extra_space(a.get_sep()))
                             curr = space() + curr;
                         curr_lbp = sep_lbp;
                     }

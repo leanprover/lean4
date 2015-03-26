@@ -32,6 +32,7 @@ opaque definition at_most     (t : tactic) (k : num)  : tactic := builtin
 opaque definition discard     (t : tactic) (k : num)  : tactic := builtin
 opaque definition focus_at    (t : tactic) (i : num)  : tactic := builtin
 opaque definition try_for     (t : tactic) (ms : num) : tactic := builtin
+opaque definition all_goals   (t : tactic) : tactic := builtin
 opaque definition now         : tactic := builtin
 opaque definition assumption  : tactic := builtin
 opaque definition eassumption : tactic := builtin

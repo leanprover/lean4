@@ -54,6 +54,7 @@ string
 string.empty
 string.str
 tactic
+tactic.all_goals
 tactic.apply
 tactic.assert_hypothesis
 tactic.fapply

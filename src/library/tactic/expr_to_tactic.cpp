@@ -368,6 +368,8 @@ void initialize_expr_to_tactic() {
                      [](tactic const & t1, tactic const & t2) { return orelse(t1, t2); });
     register_unary_tac(get_tactic_repeat_name(),
                        [](tactic const & t1) { return repeat(t1); });
+    register_unary_tac(get_tactic_all_goals_name(),
+                       [](tactic const & t1) { return all_goals(t1); });
     register_unary_num_tac(get_tactic_at_most_name(),
                            [](tactic const & t, unsigned k) { return take(t, k); });
     register_unary_num_tac(get_tactic_discard_name(),

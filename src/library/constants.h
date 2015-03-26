@@ -61,6 +61,7 @@ name const & get_string_name();
 name const & get_string_empty_name();
 name const & get_string_str_name();
 name const & get_tactic_name();
+name const & get_tactic_all_goals_name();
 name const & get_tactic_apply_name();
 name const & get_tactic_assert_hypothesis_name();
 name const & get_tactic_fapply_name();

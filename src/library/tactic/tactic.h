@@ -146,9 +146,11 @@ inline tactic when(proof_state_pred p, tactic const & t) { return cond(p, t, id_
    The tactic fails if the input state does have at least i goals.
 */
 tactic focus(tactic const & t, unsigned i);
-inline tactic focus(tactic const & t) { return focus(t, 1); }
+inline tactic focus(tactic const & t) { return focus(t, 0); }
 /** \brief Return a tactic that applies beta-reduction. */
 tactic beta_tactic();
+/** \brief Apply \c t to all goals in the proof state */
+tactic all_goals(tactic const & t);
 
 UDATA_DEFS_CORE(proof_state_seq)
 UDATA_DEFS_CORE(tactic);

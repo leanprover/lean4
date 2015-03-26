@@ -59,6 +59,7 @@ name const * g_string = nullptr;
 name const * g_string_empty = nullptr;
 name const * g_string_str = nullptr;
 name const * g_tactic = nullptr;
+name const * g_tactic_all_goals = nullptr;
 name const * g_tactic_apply = nullptr;
 name const * g_tactic_assert_hypothesis = nullptr;
 name const * g_tactic_fapply = nullptr;
@@ -171,6 +172,7 @@ void initialize_constants() {
     g_string_empty = new name{"string", "empty"};
     g_string_str = new name{"string", "str"};
     g_tactic = new name{"tactic"};
+    g_tactic_all_goals = new name{"tactic", "all_goals"};
     g_tactic_apply = new name{"tactic", "apply"};
     g_tactic_assert_hypothesis = new name{"tactic", "assert_hypothesis"};
     g_tactic_fapply = new name{"tactic", "fapply"};
@@ -284,6 +286,7 @@ void finalize_constants() {
     delete g_string_empty;
     delete g_string_str;
     delete g_tactic;
+    delete g_tactic_all_goals;
     delete g_tactic_apply;
     delete g_tactic_assert_hypothesis;
     delete g_tactic_fapply;
@@ -396,6 +399,7 @@ name const & get_string_name() { return *g_string; }
 name const & get_string_empty_name() { return *g_string_empty; }
 name const & get_string_str_name() { return *g_string_str; }
 name const & get_tactic_name() { return *g_tactic; }
+name const & get_tactic_all_goals_name() { return *g_tactic_all_goals; }
 name const & get_tactic_apply_name() { return *g_tactic_apply; }
 name const & get_tactic_assert_hypothesis_name() { return *g_tactic_assert_hypothesis; }
 name const & get_tactic_fapply_name() { return *g_tactic_fapply; }

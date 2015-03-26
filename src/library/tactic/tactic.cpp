@@ -289,6 +289,18 @@ tactic focus(tactic const & t, unsigned i) {
         });
 }
 
+tactic all_goals(tactic const & t) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) -> proof_state_seq {
+            tactic r   = id_tactic();
+            unsigned i = length(s.get_goals());
+            while (i > 0) {
+                --i;
+                r = then(r, focus(t, i));
+            }
+            return r(env, ios, s);
+        });
+}
+
 DECL_UDATA(proof_state_seq)
 static const struct luaL_Reg proof_state_seq_m[] = {
     {"__gc",            proof_state_seq_gc}, // never throws

@@ -1432,7 +1432,7 @@ expr parser::parse_tactic_led(expr left) {
         expr right = parse_tactic();
         return mk_app({save_pos(mk_constant(get_tactic_and_then_name()), p), left, right}, p);
     } else {
-        throw parser_error("invalid tactic expression", p);
+        return parse_led(left);
     }
 }
 

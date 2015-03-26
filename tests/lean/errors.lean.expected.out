@@ -1,6 +1,7 @@
 errors.lean:4:0: error: unknown identifier 'a'
 tst1 : nat → nat → nat
-errors.lean:12:12: error: invalid tactic expression
+errors.lean:12:2: error: function expected at
+  tactic.cases [tactic.expr add] tactic.expr_list.nil
 errors.lean:22:12: error: unknown identifier 'b'
 tst3 A : A → A → A
 foo.tst1 : ℕ → ℕ → ℕ

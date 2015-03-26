@@ -1120,3 +1120,8 @@ leanprover.github.io/js/input-method.js"
 
         (insert (format "\"},\n" input))))
     (insert "};")))
+
+(defun lean-input-export-translations-to-stdout ()
+  (lean-input-export-translations)
+  (with-current-buffer "*lean-translations*"
+    (princ (buffer-string))))

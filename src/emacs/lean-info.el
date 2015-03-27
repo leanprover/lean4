@@ -396,7 +396,10 @@ Take out \"BEGININFO\" and \"ENDINFO\" and Use \"ACK\" as a delim."
         start-column)
     (cond
      ;; Proof State Case
-     ((and column-number (or (looking-at ",") (looking-back (rx "," (* white)))))
+     ((and column-number (or (looking-at ",")
+                             (and
+                              (looking-at (rx white))
+                              (looking-back (rx "," (* white))))))
       ;; Find a position of "," and filter the info-list to extract proofstate info
       (lean-info-list-filter info-list
                              (save-excursion

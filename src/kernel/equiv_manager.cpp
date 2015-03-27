@@ -56,7 +56,7 @@ auto equiv_manager::to_node(expr const & e) -> node_ref {
 bool equiv_manager::is_equiv_core(expr const & a, expr const & b) {
     if (is_eqp(a, b))                       return true;
     if (m_use_hash && a.hash() != b.hash()) return false;
-    if (is_var(a))                          return var_idx(a) == var_idx(b);
+    if (is_var(a) && is_var(b))             return var_idx(a) == var_idx(b);
     node_ref r1 = find(to_node(a));
     node_ref r2 = find(to_node(b));
     if (r1 == r2)

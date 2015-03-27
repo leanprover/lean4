@@ -100,6 +100,7 @@ section
     rewrite zero_mul at  H,
     exact H
   end
+
 end
 
 structure linear_ordered_semiring [class] (A : Type)
@@ -258,6 +259,7 @@ section
     rewrite zero_mul at H,
     exact H
   end
+
 end
 
 -- TODO: we can eliminate mul_pos_of_pos, but now it is not worth the effort to redeclare the
@@ -366,6 +368,19 @@ section
             apply (absurd_a_lt_a Hab)
           end)
         (assume Hb : b < 0, or.inr (and.intro Ha Hb)))
+
+  theorem gt_of_mul_lt_mul_neg_left {a b c} (H : c * a < c * b) (Hc : c ≤ 0) : a > b :=
+    have nhc : -c ≥ 0, from neg_nonneg_of_nonpos Hc,
+    have H2 : -(c * b) < -(c * a), from iff.mp' (neg_lt_neg_iff_lt _ _) H,
+    have H3 : (-c) * b < (-c) * a, from calc
+      (-c) * b = - (c * b)    : neg_mul_eq_neg_mul
+           ... < -(c * a)     : H2
+           ... = (-c) * a     : neg_mul_eq_neg_mul,
+    lt_of_mul_lt_mul_left H3 nhc
+
+  theorem zero_gt_neg_one : -1 < 0 :=
+    neg_zero ▸ (neg_lt_neg zero_lt_one)
+
 end
 
 /- TODO: Isabelle's library has all kinds of cancelation rules for the simplifier.

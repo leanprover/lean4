@@ -220,6 +220,25 @@ section
       ... ↔ a * e + c - b * e = d : iff.symm !sub_eq_iff_eq_add
       ... ↔ a * e - b * e + c = d : by rewrite sub_add_eq_add_sub
       ... ↔ (a - b) * e + c = d   : by rewrite mul_sub_right_distrib
+
+  theorem mul_neg_one_eq_neg : a * (-1) = -a :=
+    have H : a + a * -1 = 0, from calc
+      a + a * -1 = a * 1 + a * -1 : mul_one
+             ... = a * (1 + -1)   : left_distrib
+             ... = a * 0          : add.right_inv
+             ... = 0              : mul_zero,
+    symm (neg_eq_of_add_eq_zero H)
+
+  theorem mul_ne_zero_imp_ne_zero {a b} (H : a * b ≠ 0) : a ≠ 0 ∧ b ≠ 0 :=
+    have Ha : a ≠ 0, from
+      (assume Ha1 : a = 0,
+        have H1 : a * b = 0, by rewrite [Ha1, zero_mul],
+        absurd H1 H),
+    have Hb : b ≠ 0, from
+      (assume Hb1 : b = 0,
+        have H1 : a * b = 0, by rewrite [Hb1, mul_zero],
+        absurd H1 H),
+    and.intro Ha Hb
 end
 
 structure comm_ring [class] (A : Type) extends ring A, comm_semigroup A

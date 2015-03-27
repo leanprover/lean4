@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/converter.h"
 #include "kernel/expr_maps.h"
+#include "kernel/equiv_manager.h"
 
 namespace lean {
 /** \breif Converter used in the kernel */
@@ -20,6 +21,7 @@ protected:
     bool                                        m_memoize;
     expr_struct_map<expr>                       m_whnf_core_cache;
     expr_struct_map<pair<expr, constraint_seq>> m_whnf_cache;
+    equiv_manager                               m_eqv_manager;
 
     // The two auxiliary fields are set when the public methods whnf and is_def_eq are invoked.
     // The goal is to avoid to keep carrying them around.
@@ -54,7 +56,7 @@ protected:
         return mk_pair(to_lbool(bcs.first), bcs.second);
     }
 
-    lbool quick_is_def_eq(expr const & t, expr const & s, constraint_seq & cs);
+    lbool quick_is_def_eq(expr const & t, expr const & s, constraint_seq & cs, bool use_hash = false);
     bool is_def_eq_args(expr t, expr s, constraint_seq & cs);
     bool is_app_of(expr t, name const & f_name);
     bool try_eta_expansion_core(expr const & t, expr const & s, constraint_seq & cs);
@@ -67,6 +69,7 @@ protected:
 
     pair<bool, constraint_seq> is_prop(expr const & e);
     pair<expr, constraint_seq> whnf(expr const & e_prime);
+    pair<bool, constraint_seq> is_def_eq_core(expr const & t, expr const & s);
     pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s);
 
 public:

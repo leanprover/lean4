@@ -284,9 +284,9 @@ bool default_converter::is_def_eq(levels const & ls1, levels const & ls2, constr
 }
 
 /** \brief This is an auxiliary method for is_def_eq. It handles the "easy cases". */
-lbool default_converter::quick_is_def_eq(expr const & t, expr const & s, constraint_seq & cs) {
-    if (t == s)
-        return l_true; // t and s are structurally equal
+lbool default_converter::quick_is_def_eq(expr const & t, expr const & s, constraint_seq & cs, bool use_hash) {
+    if (m_eqv_manager.is_equiv(t, s, use_hash))
+        return l_true;
     if (is_meta(t) || is_meta(s)) {
         // if t or s is a metavariable (or the application of a metavariable), then add constraint
         cs += constraint_seq(mk_eq_cnstr(t, s, m_jst->get()));
@@ -439,10 +439,11 @@ bool default_converter::is_def_eq_proof_irrel(expr const & t, expr const & s, co
     return false;
 }
 
-pair<bool, constraint_seq> default_converter::is_def_eq(expr const & t, expr const & s) {
+pair<bool, constraint_seq> default_converter::is_def_eq_core(expr const & t, expr const & s) {
     check_system("is_definitionally_equal");
     constraint_seq cs;
-    lbool r = quick_is_def_eq(t, s, cs);
+    bool use_hash = true;
+    lbool r = quick_is_def_eq(t, s, cs, use_hash);
     if (r != l_undef) return to_bcs(r == l_true, cs);
 
     // apply whnf (without using delta-reduction or normalizer extensions)
@@ -544,6 +545,13 @@ pair<bool, constraint_seq> default_converter::is_def_eq(expr const & t, expr con
     }
 
     return to_bcs(false);
+}
+
+pair<bool, constraint_seq> default_converter::is_def_eq(expr const & t, expr const & s) {
+    auto r = is_def_eq_core(t, s);
+    if (r.first && !r.second)
+        m_eqv_manager.add_equiv(t, s);
+    return r;
 }
 
 /** Return true iff t is definitionally equal to s. */

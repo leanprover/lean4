@@ -1506,6 +1506,19 @@ void elaborator::display_tactic_exception(tactic_exception const & ex, proof_sta
         out << ps.pp(env(), ios()) << "\n";
 }
 
+void elaborator::display_unsolved_subgoals(expr const & mvar, proof_state const & ps, expr const & pos) {
+    unsigned ngoals = length(ps.get_goals());
+    sstream s;
+    s << ngoals << " unsolved subgoal";
+    if (ngoals > 1) s << "s";
+    display_unsolved_proof_state(mvar, ps, s.str().c_str(), pos);
+}
+
+void elaborator::display_unsolved_subgoals(expr const & mvar, proof_state const & ps) {
+    display_unsolved_subgoals(mvar, ps, mvar);
+}
+
+
 /** \brief Try to instantiate meta-variable \c mvar (modulo its state ps) using the given tactic.
     If it succeeds, then update subst with the solution.
     Return true iff the metavariable \c mvar has been assigned.
@@ -1530,7 +1543,7 @@ bool elaborator::try_using(substitution & subst, expr const & mvar, proof_state 
         } else if (!empty(r->first.get_goals())) {
             // tactic contains unsolved subgoals
             if (show_failure)
-                display_unsolved_proof_state(mvar, r->first, "unsolved subgoals");
+                display_unsolved_subgoals(mvar, r->first);
             return false;
         } else {
             subst = r->first.get_subst();
@@ -1612,7 +1625,7 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
     }
 
     if (!empty(ps.get_goals())) {
-        display_unsolved_proof_state(mvar, ps, "unsolved subgoals", pre_tac);
+        display_unsolved_subgoals(mvar, ps, pre_tac);
         return false;
     } else {
         subst = ps.get_subst();

@@ -1,4 +1,4 @@
-inv_del.lean:15:2: error: unsolved subgoals
+inv_del.lean:15:2: error: 1 unsolved subgoal
 A : Type,
 P : vec A 1 → Type,
 H : Π (a : A), P (vone a),

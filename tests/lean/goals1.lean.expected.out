@@ -1,4 +1,4 @@
-goals1.lean:9:0: error: unsolved subgoals
+goals1.lean:9:0: error: 1 unsolved subgoal
 A : Type,
 a b c : A,
 Hab : eq a b,

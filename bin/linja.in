@@ -306,7 +306,7 @@ def find_file_upward(name, path = os.getcwd()):
     return None
 
 def escape_ninja_char(name):
-    return name.replace(":", "$:")
+    return name.replace("$", "$$").replace(":", "$:").replace(" ", "$ ")
 
 def normalize_drive_name(name):
     if platform.system() == "Windows":
@@ -679,10 +679,11 @@ def make_deps(lean_file, dlean_file, olean_file):
         deps = []
         proc = subprocess.Popen([g_lean_path, "--deps", lean_file], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         output = proc.communicate()[0]
-        print(olean_file + ": \\", file=f)
+        print(escape_ninja_char(olean_file) + ": \\", file=f)
         for olean_file in output.strip().splitlines():
             if olean_file:
                 deps.append(normalize_drive_name(os.path.abspath(olean_file)))
+        deps = map(escape_ninja_char, deps)
         deps_str = b" " + (b" \\\n ".join(deps))
         print(deps_str, file=f)
 

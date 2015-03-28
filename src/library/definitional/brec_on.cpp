@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/bin_app.h"
 #include "library/util.h"
+#include "library/normalize.h"
 
 namespace lean {
 static void throw_corrupted(name const & n) {
@@ -146,6 +147,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
                                       opaque, rec_decl.get_module_idx(), use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
     new_env = set_reducible(new_env, below_name, reducible_status::Reducible);
+    new_env = add_unfold_c_hint(new_env, below_name, nparams + nindices + ntypeformers);
     return add_protected(new_env, below_name);
 }
 
@@ -331,6 +333,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
                                       opaque, rec_decl.get_module_idx(), use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
     new_env = set_reducible(new_env, brec_on_name, reducible_status::Reducible);
+    new_env = add_unfold_c_hint(new_env, brec_on_name, nparams + nindices + ntypeformers);
     return add_protected(new_env, brec_on_name);
 }
 

@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/reducible.h"
 #include "library/protected.h"
+#include "library/normalize.h"
 
 namespace lean {
 environment mk_rec_on(environment const & env, name const & n) {
@@ -43,6 +44,7 @@ environment mk_rec_on(environment const & env, name const & n) {
         new_locals.push_back(locals[i]);
     for (unsigned i = 0; i < idx_major_sz; i++)
         new_locals.push_back(locals[AC_sz + minor_sz + i]);
+    unsigned rec_on_major_idx = new_locals.size() - 1;
     for (unsigned i = 0; i < minor_sz; i++)
         new_locals.push_back(locals[AC_sz + i]);
     expr rec_on_type = Pi(new_locals, rec_type);
@@ -58,6 +60,7 @@ environment mk_rec_on(environment const & env, name const & n) {
                                                                rec_on_type, rec_on_val,
                                                                opaque, rec_decl.get_module_idx(), use_conv_opt)));
     new_env = set_reducible(new_env, rec_on_name, reducible_status::Reducible);
+    new_env = add_unfold_c_hint(new_env, rec_on_name, rec_on_major_idx);
     return add_protected(new_env, rec_on_name);
 }
 }

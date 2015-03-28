@@ -46,14 +46,14 @@ set(EMACS_LISP_DIR        "share/emacs/site-lisp/lean" CACHE STRING "emacs site-
 set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")
 
 message(STATUS "Lean emacs-mode will be installed at "
-  ${CMAKE_INSTALL_PREFIX}/${EMACS_LISP_DIR})
+  "${CMAKE_INSTALL_PREFIX}/${EMACS_LISP_DIR}")
 message(STATUS "Lean library will be installed at "
-  ${CMAKE_INSTALL_PREFIX}/${LIBRARY_DIR})
+  "${CMAKE_INSTALL_PREFIX}/${LIBRARY_DIR}")
 
 # Added for CTest
 include(CTest)
-configure_file(${LEAN_SOURCE_DIR}/CTestCustom.cmake.in
-  ${LEAN_BINARY_DIR}/CTestCustom.cmake @ONLY)
+configure_file("${LEAN_SOURCE_DIR}/CTestCustom.cmake.in"
+  "${LEAN_BINARY_DIR}/CTestCustom.cmake" @ONLY)
 
 set(LEAN_EXTRA_LINKER_FLAGS "")
 set(LEAN_EXTRA_CXX_FLAGS "")
@@ -98,7 +98,7 @@ if("${CMAKE_C_COMPILER}" MATCHES "emcc")
 endif()
 
 # Set Module Path
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 # Initialize CXXFLAGS.
 set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++11 ${LEAN_EXTRA_CXX_FLAGS} -DLEAN_BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\"")
@@ -131,14 +131,14 @@ endif()
 if("${TESTCOV}" MATCHES "ON")
   include(CodeCoverage)
   message(STATUS "Enable test-coverage")
-  set(CMAKE_CXX_FLAGS_DEBUG        "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fprofile-arcs -ftest-coverage --coverage")
-  setup_target_for_coverage(cov ${LEAN_SOURCE_DIR}/../script/run_tests.sh coverage)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fprofile-arcs -ftest-coverage --coverage")
+  setup_target_for_coverage(cov "${LEAN_SOURCE_DIR}/../script/run_tests.sh" coverage)
 endif()
 
 # Compiler-specific C++11 activation.
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
     execute_process(
-        COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
+        COMMAND "${CMAKE_CXX_COMPILER}" -dumpversion OUTPUT_VARIABLE GCC_VERSION)
     if (NOT (GCC_VERSION VERSION_GREATER 4.8 OR GCC_VERSION VERSION_EQUAL 4.8))
         message(FATAL_ERROR "${PROJECT_NAME} requires g++ 4.8 or greater.")
     endif ()
@@ -274,7 +274,7 @@ include(CPack)
 # Examples
 file(GLOB LEANLIB "${LEAN_SOURCE_DIR}/../examples/*.lean")
 FOREACH(FILE ${LEANLIB})
-   install_files(/examples FILES ${FILE})
+   install_files(/examples FILES "${FILE}")
 ENDFOREACH(FILE)
 
 include_directories(${LEAN_SOURCE_DIR})
@@ -349,11 +349,11 @@ add_subdirectory(tests/frontends/lean)
 # Include style check
 include(StyleCheck)
 file(GLOB_RECURSE LEAN_SOURCES
-         ${LEAN_SOURCE_DIR}
-         ${LEAN_SOURCE_DIR}/[A-Za-z]*.cpp
-         ${LEAN_SOURCE_DIR}/[A-Za-z]*.h)
+  "${LEAN_SOURCE_DIR}"
+  "${LEAN_SOURCE_DIR}/[A-Za-z]*.cpp"
+  "${LEAN_SOURCE_DIR}/[A-Za-z]*.h")
 add_style_check_target(style "${LEAN_SOURCES}")
-add_test(NAME style_check COMMAND ${PYTHON_EXECUTABLE} ${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py ${LEAN_SOURCES})
+add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
 
 # Set PROCESSOR_COUNT
 if(NOT DEFINED PROCESSOR_COUNT)
@@ -384,68 +384,68 @@ if("${CROSS_COMPILE}" MATCHES "ON" OR "${CMAKE_C_COMPILER}" MATCHES "emcc")
 else()
   add_custom_target(
     standard_lib ALL
-    COMMAND ${PYTHON_EXECUTABLE} ${LEAN_SOURCE_DIR}/../bin/linja all tags
-    DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
-    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
+    COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/../bin/linja" all tags
+    DEPENDS "${CMAKE_BINARY_DIR}/shell/lean"
+    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
     )
   add_custom_target(
     hott_lib ALL
-    COMMAND ${PYTHON_EXECUTABLE} ${LEAN_SOURCE_DIR}/../bin/linja all tags
-    DEPENDS ${CMAKE_BINARY_DIR}/shell/lean
-    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../hott
+    COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/../bin/linja" all tags
+    DEPENDS "${CMAKE_BINARY_DIR}/shell/lean"
+    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../hott"
     )
 endif()
 
 add_custom_target(clean-std-lib
-  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../library
-  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_MODULE_PATH}CleanOlean.cmake
+  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
+  COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_MODULE_PATH}/CleanOlean.cmake"
   )
 
 add_custom_target(clean-hott-lib
-  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}/../hott
-  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_MODULE_PATH}CleanOlean.cmake
+  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../hott"
+  COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_MODULE_PATH}/CleanOlean.cmake"
   )
 
 add_custom_target(clean-olean
   DEPENDS clean-std-lib clean-hott-lib)
 
-install(FILES ${CMAKE_SOURCE_DIR}/../bin/linja ${CMAKE_SOURCE_DIR}/../bin/leantags
+install(FILES "${CMAKE_SOURCE_DIR}/../bin/linja" "${CMAKE_SOURCE_DIR}/../bin/leantags"
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  install(FILES ${CMAKE_SOURCE_DIR}/../bin/leanemacs.bat ${CMAKE_SOURCE_DIR}/../bin/leanemacs.bat
+  install(FILES "${CMAKE_SOURCE_DIR}/../bin/leanemacs.bat" "${CMAKE_SOURCE_DIR}/../bin/leanemacs.bat"
     DESTINATION bin
     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 else()
-  install(FILES ${CMAKE_SOURCE_DIR}/../bin/leanemacs ${CMAKE_SOURCE_DIR}/../bin/leanemacs
+  install(FILES "${CMAKE_SOURCE_DIR}/../bin/leanemacs" "${CMAKE_SOURCE_DIR}/../bin/leanemacs"
     DESTINATION bin
     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 endif()
 
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/../library DESTINATION ${LIBRARY_DIR}
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/../library" DESTINATION "${LIBRARY_DIR}"
         FILES_MATCHING PATTERN "*.lean")
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/../library DESTINATION ${LIBRARY_DIR}
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/../library" DESTINATION "${LIBRARY_DIR}"
         FILES_MATCHING
         PATTERN "*.lean"
         PATTERN "*.olean"
         PATTERN ".project"
         PATTERN "TAGS")
 
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/../hott DESTINATION ${LIBRARY_DIR}
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/../hott" DESTINATION "${LIBRARY_DIR}"
         FILES_MATCHING PATTERN "*.hlean")
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/../hott DESTINATION ${LIBRARY_DIR}
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/../hott" DESTINATION "${LIBRARY_DIR}"
         FILES_MATCHING
         PATTERN "*.lean"
         PATTERN "*.olean"
         PATTERN ".project"
         PATTERN "TAGS")
 
-install(FILES ${CMAKE_SOURCE_DIR}/../src/emacs/lean.pgm
-        DESTINATION ${EMACS_LISP_DIR})
+install(FILES "${CMAKE_SOURCE_DIR}/../src/emacs/lean.pgm"
+        DESTINATION "${EMACS_LISP_DIR}")
 
 if(EXISTS "${EMACS_DEPENDENCIES}")
-  install(DIRECTORY ${EMACS_DEPENDENCIES}/ DESTINATION ${EMACS_LISP_DIR}/dependencies
+  install(DIRECTORY "${EMACS_DEPENDENCIES}/" DESTINATION "${EMACS_LISP_DIR}/dependencies"
     FILES_MATCHING
     PATTERN "*.el"
     PATTERN "dir"

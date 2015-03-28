@@ -28,8 +28,7 @@ void initialize_trace() {
 }
 
 void finalize_trace() {
-    if (g_enabled_trace_tags)
-        delete g_enabled_trace_tags;
+    delete g_enabled_trace_tags;
 }
 
 void enable_trace(char const * tag) {

@@ -172,10 +172,8 @@ public:
 #define MK_THREAD_LOCAL_GET(T, GETTER_NAME, DEF_VALUE)          \
 LEAN_THREAD_PTR(T, GETTER_NAME ## _tlocal);                     \
 static void finalize_ ## GETTER_NAME() {                        \
-    if (GETTER_NAME ## _tlocal) {                               \
-        delete GETTER_NAME ## _tlocal;                          \
-        GETTER_NAME ## _tlocal = nullptr;                       \
-    }                                                           \
+    delete GETTER_NAME ## _tlocal;                              \
+    GETTER_NAME ## _tlocal = nullptr;                           \
 }                                                               \
 static T & GETTER_NAME() {                                      \
     if (!GETTER_NAME ## _tlocal) {                              \
@@ -188,10 +186,8 @@ static T & GETTER_NAME() {                                      \
 #define MK_THREAD_LOCAL_GET_DEF(T, GETTER_NAME)                 \
 LEAN_THREAD_PTR(T, GETTER_NAME ## _tlocal);                     \
 static void finalize_ ## GETTER_NAME() {                        \
-    if (GETTER_NAME ## _tlocal) {                               \
-        delete GETTER_NAME ## _tlocal;                          \
-        GETTER_NAME ## _tlocal = nullptr;                       \
-    }                                                           \
+    delete GETTER_NAME ## _tlocal;                              \
+    GETTER_NAME ## _tlocal = nullptr;                           \
 }                                                               \
 static T & GETTER_NAME() {                                      \
     if (!GETTER_NAME ## _tlocal) {                              \

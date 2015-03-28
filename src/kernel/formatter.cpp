@@ -21,8 +21,7 @@ bool get_formatter_hide_full_terms(options const & opts) { return opts.get_bool(
 static std::function<void(std::ostream &, expr const & e)> * g_print = nullptr;
 
 void set_print_fn(std::function<void(std::ostream &, expr const &)> const & fn) {
-    if (g_print)
-        delete g_print;
+    delete g_print;
     g_print = new std::function<void(std::ostream &, expr const &)>(fn);
 }
 
@@ -45,7 +44,6 @@ void initialize_formatter() {
 
 void finalize_formatter() {
     delete g_formatter_hide_full;
-    if (g_print)
-        delete g_print;
+    delete g_print;
 }
 }

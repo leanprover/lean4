@@ -18,10 +18,8 @@ using namespace lean;
 #if defined(LEAN_MULTI_THREAD) && !defined(__APPLE__)
 LEAN_THREAD_PTR(std::vector<int>, g_v);
 void finalize_vector() {
-    if (g_v) {
-        delete g_v;
-        g_v = nullptr;
-    }
+    delete g_v;
+    g_v = nullptr;
 }
 void foo() {
     if (!g_v) {

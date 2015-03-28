@@ -26,8 +26,7 @@ void initialize_debug() {
 }
 
 void finalize_debug() {
-    if (g_enabled_debug_tags)
-        delete g_enabled_debug_tags;
+    delete g_enabled_debug_tags;
 }
 
 bool has_violations() {

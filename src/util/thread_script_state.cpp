@@ -124,14 +124,10 @@ LEAN_THREAD_PTR(bool, g_registered);
 LEAN_THREAD_PTR(script_state_ref, g_thread_state_ref);
 
 static void finalize_thread_state_ref() {
-    if (g_thread_state_ref) {
-        delete g_thread_state_ref;
-        g_thread_state_ref = nullptr;
-    }
-    if (g_registered) {
-        delete g_registered;
-        g_registered = nullptr;
-    }
+    delete g_thread_state_ref;
+    g_thread_state_ref = nullptr;
+    delete g_registered;
+    g_registered = nullptr;
 }
 
 script_state get_thread_script_state() {
@@ -146,9 +142,7 @@ script_state get_thread_script_state() {
 }
 
 void release_thread_script_state() {
-    if (g_thread_state_ref) {
-        delete g_thread_state_ref;
-        g_thread_state_ref = nullptr;
-    }
+    delete g_thread_state_ref;
+    g_thread_state_ref = nullptr;
 }
 }

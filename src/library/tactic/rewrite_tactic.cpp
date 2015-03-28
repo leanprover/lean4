@@ -1467,13 +1467,14 @@ void initialize_rewrite_tactic() {
 void finalize_rewrite_tactic() {
     delete g_rewriter_max_iterations;
     delete g_rewriter_syntactic;
+    delete g_rewriter_trace;
     delete g_rewrite_tac;
+    delete g_rewrite_reduce_name;
+    delete g_rewrite_reduce_opcode;
     delete g_rewrite_unfold_name;
     delete g_rewrite_unfold_opcode;
     delete g_rewrite_fold_name;
     delete g_rewrite_fold_opcode;
-    delete g_rewrite_reduce_name;
-    delete g_rewrite_reduce_opcode;
     delete g_rewrite_elem_name;
     delete g_rewrite_elem_opcode;
 }

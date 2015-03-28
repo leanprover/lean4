@@ -59,5 +59,6 @@ void initialize_exact_tactic() {
 }
 void finalize_exact_tactic() {
     delete g_exact_tac_fn;
+    delete g_sexact_tac_fn;
 }
 }

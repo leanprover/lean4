@@ -112,24 +112,25 @@ have H3 : a + of_nat (n + m) = c, from
       ... = c : Hm,
 le.intro H3
 
-theorem le.antisymm {a b : ℤ} (H1 : a ≤ b) (H2 : b ≤ a) : a = b :=
-obtain (n : ℕ) (Hn : a + n = b), from le.elim H1,
-obtain (m : ℕ) (Hm : b + m = a), from le.elim H2,
-have H3 : a + of_nat (n + m) = a + 0, from
+theorem le.antisymm : ∀ {a b : ℤ}, a ≤ b → b ≤ a → a = b :=
+take a b : ℤ, assume (H₁ : a ≤ b) (H₂ : b ≤ a),
+obtain (n : ℕ) (Hn : a + n = b), from le.elim H₁,
+obtain (m : ℕ) (Hm : b + m = a), from le.elim H₂,
+have H₃ : a + of_nat (n + m) = a + 0, from
   calc
-    a + of_nat (n + m) = a + (of_nat n + m) : {(of_nat_add_of_nat n m)⁻¹}
-      ... = a + n + m : (add.assoc a n m)⁻¹
-      ... = b + m : {Hn}
-      ... = a : Hm
-      ... = a + 0 : (add_zero a)⁻¹,
-have H4 : of_nat (n + m) = of_nat 0, from add.left_cancel H3,
-have H5 : n + m = 0, from of_nat.inj H4,
-have H6 : n = 0, from nat.eq_zero_of_add_eq_zero_right H5,
+    a + of_nat (n + m) = a + (of_nat n + m) : of_nat_add_of_nat
+      ... = a + n + m                       : add.assoc
+      ... = b + m                           : Hn
+      ... = a                               : Hm
+      ... = a + 0                           : add_zero,
+have H₄ : of_nat (n + m) = of_nat 0, from add.left_cancel H₃,
+have H₅ : n + m = 0, from of_nat.inj H₄,
+have H₆ : n = 0, from nat.eq_zero_of_add_eq_zero_right H₅,
 show a = b, from
   calc
-    a = a + of_nat 0 : (add_zero a)⁻¹
-      ... = a + n : {H6⁻¹}
-      ... = b : Hn
+    a = a + 0        : add_zero
+      ... = a + n    : H₆
+      ... = b        : Hn
 
 theorem lt.irrefl (a : ℤ) : ¬ a < a :=
 (assume H : a < a,

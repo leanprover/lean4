@@ -498,7 +498,7 @@ namespace pos_num
 
   theorem le_trans {a b c : pos_num} : a ≤ b → b ≤ c → a ≤ c :=
   begin
-    intros (H₁, H₂),
+    intros [H₁, H₂],
     rewrite [le_eq_lt_succ at *],
     apply (@by_cases (a = b)),
     begin

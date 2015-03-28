@@ -68,7 +68,7 @@ namespace nat_trans
       intro H,
           fapply sigma.mk,
             intro a, exact (H a),
-          intros (a, b, f), exact (naturality H f),
+          intros [a, b, f], exact (naturality H f),
     intro η, apply nat_trans_eq_mk, intro a, apply idp,
     intro S,
     fapply sigma_eq,

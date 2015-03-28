@@ -18,7 +18,7 @@ end
 
 theorem tst4 (a b : Prop) : a → b → a ∧ b :=
 begin
-  intros (Ha, Hb),
+  intros [Ha, Hb],
   rapply and.intro,
   apply Hb,
   apply Ha

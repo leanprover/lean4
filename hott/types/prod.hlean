@@ -25,8 +25,8 @@ namespace prod
 
   definition prod_eq (H₁ : pr₁ u = pr₁ v) (H₂ : pr₂ u = pr₂ v) : u = v :=
   begin
-    cases u with (a₁, b₁),
-    cases v with (a₂, b₂),
+    cases u with [a₁, b₁],
+    cases v with [a₂, b₂],
     apply (transport _ (eta (a₁, b₁))),
     apply (transport _ (eta (a₂, b₂))),
     apply (pair_eq H₁ H₂),

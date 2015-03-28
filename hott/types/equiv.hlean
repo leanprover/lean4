@@ -62,9 +62,9 @@ namespace is_equiv
   equiv.MK (λH, ⟨inv f, retr f, sect f, adj f⟩)
            (λp, is_equiv.mk p.1 p.2.1 p.2.2.1 p.2.2.2)
            (λp, begin
-                  cases p with (p1, p2),
-                  cases p2 with (p21, p22),
-                  cases p22 with (p221, p222),
+                  cases p with [p1, p2],
+                  cases p2 with [p21, p22],
+                  cases p22 with [p221, p222],
                   apply idp
                 end)
            (λH, is_equiv.rec_on H (λH1 H2 H3 H4, idp))

@@ -152,7 +152,7 @@ namespace nat
 
   definition le.rec_on {a : nat} {P : nat → Type} {b : nat} (H : a ≤ b) (H₁ : P a) (H₂ : ∀ b, a < b → P b) : P b :=
   begin
-    cases H with (b', hlt),
+    cases H with [b', hlt],
       apply H₁,
       apply (H₂ b hlt)
   end
@@ -201,21 +201,21 @@ namespace nat
 
   definition le.trans {a b c : nat} (h₁ : a ≤ b) (h₂ : b ≤ c) : a ≤ c :=
   begin
-    cases h₁ with (b', hlt),
+    cases h₁ with [b', hlt],
       apply h₂,
       apply (lt.trans hlt h₂)
   end
 
   definition lt.of_le_of_lt {a b c : nat} (h₁ : a ≤ b) (h₂ : b < c) : a < c :=
   begin
-    cases h₁ with (b', hlt),
+    cases h₁ with [b', hlt],
       apply h₂,
       apply (lt.trans hlt h₂)
   end
 
   definition lt.of_lt_of_le {a b c : nat} (h₁ : a < b) (h₂ : b ≤ c) : a < c :=
   begin
-    cases h₁ with (b', hlt),
+    cases h₁ with [b', hlt],
       apply (lt.of_succ_lt_succ h₂),
       apply (lt.trans hlt (lt.of_succ_lt_succ h₂))
   end

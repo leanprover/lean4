@@ -18,6 +18,6 @@ namespace vector
 
   protected definition destruct (v : vector A (succ n)) {P : Π {n : nat}, vector A (succ n) → Type}
                       (H : Π {n : nat} (h : A) (t : vector A n), P (cons h t)) : P v :=
-  by cases v with (h', n', t'); apply (H h' t')
+  by cases v with [h', n', t']; apply (H h' t')
 
 end vector

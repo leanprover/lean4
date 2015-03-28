@@ -15,6 +15,6 @@ example (a b c : nat) : (a + 0 = 0 + a ∧ b + 0 = 0 + b) ∧ c = c :=
 
 begin
   apply and.intro,
-  apply and.intro ;; (esimp{of_num}; state; rewrite zero_add),
+  apply and.intro ;; (esimp[of_num]; state; rewrite zero_add),
   apply rfl
 end

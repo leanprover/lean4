@@ -95,7 +95,7 @@ namespace category
     begin
     fapply functor_eq,
       {exact (eq_of_iso_functor_ob η)},
-      {intros (c, c', f), --unfold eq_of_iso_functor_ob, --TODO: report: this fails
+      {intros [c, c', f], --unfold eq_of_iso_functor_ob, --TODO: report: this fails
         apply concat,
           {apply (ap (λx, to_hom x ∘ to_fun_hom F f ∘ _)), apply (retr iso_of_eq)},
         apply concat,
@@ -108,8 +108,8 @@ namespace category
     apply iso.eq_mk,
     apply nat_trans_eq_mk,
     intro c,
-    rewrite natural_map_hom_of_eq, esimp {eq_of_iso_functor},
-    rewrite ap010_functor_eq, esimp {hom_of_eq,eq_of_iso_functor_ob},
+    rewrite natural_map_hom_of_eq, esimp [eq_of_iso_functor],
+    rewrite ap010_functor_eq, esimp [hom_of_eq,eq_of_iso_functor_ob],
     rewrite (retr iso_of_eq),
     end
 
@@ -117,9 +117,9 @@ namespace category
     begin
     apply functor_eq2,
     intro c,
-    esimp {eq_of_iso_functor},
+    esimp [eq_of_iso_functor],
     rewrite ap010_functor_eq,
-    esimp {eq_of_iso_functor_ob},
+    esimp [eq_of_iso_functor_ob],
     rewrite componentwise_iso_iso_of_eq,
     rewrite (sect iso_of_eq)
     end

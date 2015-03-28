@@ -132,7 +132,7 @@ namespace funext
   adjointify _
              eq_of_homotopy2
              begin
-               intro H, esimp {apD100,eq_of_homotopy2, function.compose},
+               intro H, esimp [apD100, eq_of_homotopy2, function.compose],
                apply eq_of_homotopy, intro a,
                apply concat, apply (ap (λx, @apD10 _ (λb : B a, _) _ _ (x a))), apply (retr apD10),
 --TODO: remove implicit argument after #469 is closed

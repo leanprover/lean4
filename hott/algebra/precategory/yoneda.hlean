@@ -31,7 +31,7 @@ namespace yoneda
                intro x, apply eq_of_homotopy, intro h, exact (!id_left ⬝ !id_right)
              end
              begin
-               intros (x, y, z, g, f), apply eq_of_homotopy, intro h,
+               intros [x, y, z, g, f], apply eq_of_homotopy, intro h,
                exact (representable_functor_assoc g.2 f.2 h f.1 g.1),
              end
 end yoneda
@@ -128,8 +128,8 @@ namespace functor
   theorem functor_uncurry_functor_curry : functor_uncurry (functor_curry F) = F :=
   functor_eq (λp, ap (to_fun_ob F) !prod.eta)
   begin
-    intros (cd, cd', fg),
-    cases cd with (c,d), cases cd' with (c',d'), cases fg with (f,g),
+    intros [cd, cd', fg],
+    cases cd with [c,d], cases cd' with [c',d'], cases fg with [f, g],
     apply concat, apply id_leftright,
     show (functor_uncurry (functor_curry F)) (f, g) = F (f,g),
       from calc
@@ -144,7 +144,7 @@ namespace functor
   begin
   fapply functor_eq,
    {intro d, apply idp},
-   {intros (d, d', g),
+   {intros [d, d', g],
      apply concat, apply id_leftright,
       show to_fun_hom (functor_curry (functor_uncurry G) c) g = to_fun_hom (G c) g,
       from calc
@@ -158,7 +158,7 @@ namespace functor
   theorem functor_curry_functor_uncurry : functor_curry (functor_uncurry G) = G :=
   begin
   fapply functor_eq, exact (functor_curry_functor_uncurry_ob G),
-  intros (c, c', f),
+  intros [c, c', f],
   fapply nat_trans_eq_mk,
   intro d,
   apply concat,
@@ -191,7 +191,7 @@ namespace functor
     : functor_prod_flip D C ∘f (functor_prod_flip C D) = functor.id :=
   begin
   fapply functor_eq, {intro p, apply prod.eta},
-  intros (p, p', h), cases p with (c, d), cases p' with (c', d'),
+  intros [p, p', h], cases p with [c, d], cases p' with [c', d'],
   apply id_leftright,
   end
 end functor

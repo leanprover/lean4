@@ -136,14 +136,14 @@ namespace functor
         exact (S.1), exact (S.2.1),
         exact (pr₁ S.2.2), exact (pr₂ S.2.2)},
       {intro F,
-        cases F with (d1, d2, d3, d4),
+        cases F with [d1, d2, d3, d4],
         exact ⟨d1, d2, (d3, @d4)⟩},
       {intro F,
         cases F,
         apply idp},
       {intro S,
-        cases S with (d1, S2),
-        cases S2 with (d2, P1),
+        cases S with [d1, S2],
+        cases S2 with [d2, P1],
         cases P1,
         apply idp},
   end
@@ -192,8 +192,8 @@ namespace functor
   definition functor_eq2 {F₁ F₂ : C ⇒ D} (p q : F₁ = F₂) (r : ap010 to_fun_ob p ∼ ap010 to_fun_ob q)
     : p = q :=
   begin
-    cases F₁ with (ob₁, hom₁, id₁, comp₁),
-    cases F₂ with (ob₂, hom₂, id₂, comp₂),
+    cases F₁ with [ob₁, hom₁, id₁, comp₁],
+    cases F₂ with [ob₂, hom₂, id₂, comp₂],
     rewrite [-functor_eq_eta' p, -functor_eq_eta' q],
     apply functor_eq2',
     apply ap_eq_ap_of_homotopy,
@@ -213,7 +213,7 @@ namespace functor
     (q : (λ(a b : C) (f : hom a b), hom_of_eq (p b) ∘ F₁ f ∘ inv_of_eq (p a)) ∼3 to_fun_hom F₂) (c : C) :
     ap010 to_fun_ob (functor_eq p q) c = p c :=
   begin
-    cases F₂, revert q, apply (homotopy.rec_on p), clear p, esimp, intros (p, q),
+    cases F₂, revert q, apply (homotopy.rec_on p), clear p, esimp, intros [p, q],
     apply sorry,
     --apply (homotopy3.rec_on q), clear q, intro q,
     --cases p, --TODO: report: this fails

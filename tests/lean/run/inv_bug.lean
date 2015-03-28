@@ -10,15 +10,15 @@ with odd : nat → Prop :=
 example : even 1 → false :=
 begin
   intro He1,
-  cases He1 with (a, Ho0),
+  cases He1 with [a, Ho0],
   cases Ho0
 end
 
 example : even 3 → false :=
 begin
   intro He3,
-  cases He3 with (a, Ho2),
-  cases Ho2 with (a, He1),
-  cases He1 with (a, Ho0),
+  cases He3 with [a, Ho2],
+  cases Ho2 with [a, He1],
+  cases He1 with [a, Ho0],
   cases Ho0
 end

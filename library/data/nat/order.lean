@@ -105,7 +105,7 @@ theorem lt_add_of_pos_right {n k : ℕ} (H : k > 0) : n < n + k :=
 
 theorem mul_le_mul_left {n m : ℕ} (H : n ≤ m) (k : ℕ) : k * n ≤ k * m :=
 obtain (l : ℕ) (Hl : n + l = m), from le.elim H,
-have H2 : k * n + k * l = k * m, by rewrite ⟨-mul.left_distrib, Hl⟩,
+have H2 : k * n + k * l = k * m, by rewrite [-mul.left_distrib, Hl],
 le.intro H2
 
 theorem mul_le_mul_right {n m : ℕ} (H : n ≤ m) (k : ℕ) : n * k ≤ m * k :=

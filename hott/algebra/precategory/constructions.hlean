@@ -41,7 +41,7 @@ namespace category
   --       symmetric associativity proof.
   definition opposite_opposite' {ob : Type} (C : precategory ob) : opposite (opposite C) = C :=
   begin
-    apply (precategory.rec_on C), intros (hom', homH', comp', ID', assoc', id_left', id_right'),
+    apply (precategory.rec_on C), intros [hom', homH', comp', ID', assoc', id_left', id_right'],
     apply (ap (λassoc'', precategory.mk hom' @homH' comp' ID' assoc'' id_left' id_right')),
     repeat (apply eq_of_homotopy ; intros ),
     apply ap,

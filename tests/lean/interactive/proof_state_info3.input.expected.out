@@ -6,7 +6,7 @@
 theorem tst (a b c : Prop) : a → b → a ∧ b :=
 begin
   info,
-  intros (Ha, Hb),
+  intros [Ha, Hb],
   state,
   apply and.intro,
   apply Ha,

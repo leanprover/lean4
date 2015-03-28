@@ -21,7 +21,7 @@ namespace is_trunc
      {fapply is_equiv.adjointify,
        {intro H, apply sigma.mk, exact (@contr A H)},
        {intro H, apply (is_trunc.rec_on H), intro Hint,
-        apply (contr_internal.rec_on Hint), intros (H1, H2),
+        apply (contr_internal.rec_on Hint), intros [H1, H2],
         apply idp},
        {intro S, cases S, apply idp}}
   end
@@ -31,10 +31,10 @@ namespace is_trunc
   begin
     fapply equiv.MK,
       {intro H, apply is_trunc_succ_intro},
-      {intros (H, x, y), apply is_trunc_eq},
+      {intros [H, x, y], apply is_trunc_eq},
       {intro H, apply (is_trunc.rec_on H), intro Hint, apply idp},
       {intro P, apply eq_of_homotopy, intro a, apply eq_of_homotopy, intro b,
-    esimp {function.id,compose,is_trunc_succ_intro,is_trunc_eq},
+    esimp [function.id,compose,is_trunc_succ_intro,is_trunc_eq],
     generalize (P a b), intro H, apply (is_trunc.rec_on H), intro H', apply idp},
   end
 
@@ -49,14 +49,14 @@ namespace is_trunc
        fapply sigma_eq, apply x.2,
        apply (@is_hprop.elim),
        apply is_trunc_pi, intro a,
-       apply is_hprop.mk, intros (w, z),
+       apply is_hprop.mk, intros [w, z],
        have H : is_hset A,
        begin
          apply is_trunc_succ, apply is_trunc_succ,
          apply is_contr.mk, exact y.2
        end,
        fapply (@is_hset.elim A _ _ _ w z)},
-     {intros (n', IH, A),
+     {intros [n', IH, A],
       apply is_trunc_is_equiv_closed,
         apply equiv.to_is_equiv,
         apply is_trunc.pi_char},
@@ -124,8 +124,8 @@ namespace is_trunc
     fapply equiv.MK,
     /--/  intro A, exact (⟨carrier A, struct A⟩),
     /--/  intro S, exact (trunctype.mk S.1 S.2),
-    /--/  intro S, apply (sigma.rec_on S), intros (S1, S2), apply idp,
-    intro A, apply (trunctype.rec_on A), intros (A1, A2), apply idp,
+    /--/  intro S, apply (sigma.rec_on S), intros [S1, S2], apply idp,
+    intro A, apply (trunctype.rec_on A), intros [A1, A2], apply idp,
   end
 
 --  set_option pp.notation false

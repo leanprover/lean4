@@ -4,7 +4,7 @@ import logic
 open tactic
 theorem tst (a b c : Prop) : a → b → a ∧ b :=
 begin
-  intros (Ha, Hb),
+  intros [Ha, Hb],
   apply and.intro,
   apply Ha,
   apply Hb,

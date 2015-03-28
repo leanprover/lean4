@@ -12,7 +12,7 @@ definition parity : Π (n : nat), Parity n
 | parity (n+1) :=
   begin
     have aux : Parity n, from parity n,
-    cases aux with (k, k),
+    cases aux with [k, k],
     begin
       apply (odd k)
     end,

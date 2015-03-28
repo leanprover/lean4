@@ -104,7 +104,7 @@ namespace pi
   apply (adjointify (functor_pi f0 f1) (functor_pi (f0⁻¹)
         (λ(a : A) (b' : B' (f0⁻¹ a)), transport B (retr f0 a) ((f1 (f0⁻¹ a))⁻¹ b')))),
   intro h, apply eq_of_homotopy,
-  esimp {functor_pi, function.compose}, -- simplify (and unfold function_pi and function.compose)
+  esimp [functor_pi, function.compose], -- simplify (and unfold function_pi and function.compose)
   --first subgoal
   intro a', esimp,
   rewrite adj,
@@ -115,7 +115,7 @@ namespace pi
   intro h, beta,
   apply eq_of_homotopy, intro a, esimp,
   apply (transport_V (λx, retr f0 a ▹ x = h a) (sect (f1 _) _)),
-  esimp {function.id},
+  esimp [function.id],
   apply apD
   end
 

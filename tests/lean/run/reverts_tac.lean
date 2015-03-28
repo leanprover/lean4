@@ -2,16 +2,16 @@ import logic
 
 theorem tst {a b c : Prop} : a → b → c → a ∧ b :=
 begin
-  intros (Ha, Hb, Hc),
-  reverts (Hb, Ha),
-  intros (Hb2, Ha2),
+  intros [Ha, Hb, Hc],
+  reverts [Hb, Ha],
+  intros [Hb2, Ha2],
   apply (and.intro Ha2 Hb2),
 end
 
 theorem foo1 {A : Type} (a b c : A) (P : A → Prop) : P a → a = b → P b :=
 begin
-  intros  (Hp, Heq),
-  reverts (Heq, Hp),
+  intros  [Hp, Heq],
+  reverts [Heq, Hp],
   intro Heq,
   apply (eq.rec_on Heq),
   intro Pa,
@@ -20,7 +20,7 @@ end
 
 theorem foo2 {A : Type} (a b c : A) (P : A → Prop) : P a → a = b → P b :=
 begin
-  intros (Hp, Heq),
+  intros [Hp, Heq],
   apply (eq.rec_on Heq Hp)
 end
 

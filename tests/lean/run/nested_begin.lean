@@ -16,7 +16,7 @@ namespace vector
             apply (vector.cases_on v₁),
               exact (assume h : P, h),
 
-              intros (n, a, v, h),
+              intros [n, a, v, h],
               apply (h rfl),
               repeat (apply rfl),
               repeat (apply heq.refl)

@@ -146,9 +146,9 @@ namespace sigma
   definition sigma_eq2 {p q : u = v} (r : p..1 = q..1) (s : r ▹ p..2 = q..2)
     : p = q :=
   begin
-    reverts (q, r, s),
-    cases p, cases u with (u1, u2),
-    intros (q, r, s),
+    reverts [q, r, s],
+    cases p, cases u with [u1, u2],
+    intros [q, r, s],
     apply concat, rotate 1,
     apply sigma_eq_eta,
     apply (sigma_eq_eq_sigma_eq r s)
@@ -179,7 +179,7 @@ namespace sigma
   definition tr_eq2_nondep {C : A → Type} {D : Π a:A, B a → C a → Type} (p : a = a')
       (bcd : Σ(b : B a) (c : C a), D a b c) : p ▹ bcd = ⟨p ▹ bcd.1, p ▹ bcd.2.1, p ▹D2 bcd.2.2⟩ :=
   begin
-    cases p, cases bcd with (b, cd),
+    cases p, cases bcd with [b, cd],
     cases cd, apply idp
   end
 
@@ -198,7 +198,7 @@ namespace sigma
                ((g (f⁻¹ a'))⁻¹ (transport B' (retr f a')⁻¹ b'))))
   begin
     intro u',
-    cases u' with (a', b'),
+    cases u' with [a', b'],
     apply (sigma_eq (retr f a')),
   --   rewrite retr,
   -- end
@@ -209,7 +209,7 @@ namespace sigma
   end
   begin
     intro u,
-    cases u with (a, b),
+    cases u with [a, b],
     apply (sigma_eq (sect f a)),
     show transport B (sect f a) ((g (f⁻¹ (f a)))⁻¹ (transport B' (retr f (f a))⁻¹ (g a b))) = b,
     from calc
@@ -280,8 +280,8 @@ namespace sigma
   equiv.mk _ (adjointify
     (λav, ⟨⟨av.1, av.2.1⟩, av.2.2⟩)
     (λuc, ⟨uc.1.1, uc.1.2, !eta⁻¹ ▹ uc.2⟩)
-    begin intro uc; cases uc with (u, c); cases u; apply idp end
-    begin intro av; cases av with (a, v); cases v; apply idp end)
+    begin intro uc; cases uc with [u, c]; cases u; apply idp end
+    begin intro av; cases av with [a, v]; cases v; apply idp end)
 
   open prod
   definition assoc_equiv_prod (C : (A × A') → Type) : (Σa a', C (a,a')) ≃ (Σu, C u) :=
@@ -369,14 +369,14 @@ namespace sigma
   definition is_trunc_sigma (B : A → Type) (n : trunc_index)
       [HA : is_trunc n A] [HB : Πa, is_trunc n (B a)] : is_trunc n (Σa, B a) :=
   begin
-  reverts (A, B, HA, HB),
+  reverts [A, B, HA, HB],
   apply (trunc_index.rec_on n),
-    intros (A, B, HA, HB),
+    intros [A, B, HA, HB],
       fapply is_trunc.is_trunc_equiv_closed,
         apply equiv.symm,
           apply sigma_equiv_of_is_contr_pr1,
-     intros (n, IH, A, B, HA, HB),
-       fapply is_trunc.is_trunc_succ_intro, intros (u, v),
+     intros [n, IH, A, B, HA, HB],
+       fapply is_trunc.is_trunc_succ_intro, intros [u, v],
       fapply is_trunc.is_trunc_equiv_closed,
          apply equiv_sigma_eq,
          apply IH,

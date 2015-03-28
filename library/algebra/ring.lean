@@ -99,7 +99,7 @@ section comm_semiring
       dvd.elim H₂
         (take e, assume H₄ : c = b * e,
           dvd.intro
-            (show a * (d * e) = c, by rewrite ⟨-mul.assoc, -H₃, H₄⟩)))
+            (show a * (d * e) = c, by rewrite [-mul.assoc, -H₃, H₄])))
 
   theorem eq_zero_of_zero_dvd {a : A} (H : (0 | a)) : a = 0 :=
     dvd.elim H (take c, assume H' : a = 0 * c, H' ⬝ !zero_mul)
@@ -117,7 +117,7 @@ section comm_semiring
     (take d,
       assume H₁ : b = a * d,
       dvd.intro
-        (show a * (d * c) = b * c, from by rewrite ⟨-mul.assoc, H₁⟩))
+        (show a * (d * c) = b * c, from by rewrite [-mul.assoc, H₁]))
 
   theorem dvd_mul_of_dvd_right {a b : A} (H : (a | b)) (c : A) : (a | c * b) :=
   !mul.comm ▸ (dvd_mul_of_dvd_left H _)

@@ -12,7 +12,7 @@ namespace vec
   protected definition destruct (v : vec A (succ n)) {P : Π {n : nat}, vec A (succ n) → Type}
                       (H : Π {n : nat} (h : A) (t : vec A n), P (h :: t)) : P v :=
   begin
-    cases v with (n', h', t'),
+    cases v with [n', h', t'],
     apply (H h' t')
   end
 

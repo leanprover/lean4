@@ -1346,15 +1346,15 @@ optional<expr> parser::is_tactic_command(name & id) {
 
 expr parser::parse_tactic_expr_list() {
     auto p = pos();
-    check_token_next(get_lparen_tk(), "invalid tactic, '(' expected");
+    check_token_next(get_lbracket_tk(), "invalid tactic, '[' expected");
     buffer<expr> args;
-    while (!curr_is_token(get_rparen_tk())) {
+    while (true) {
         args.push_back(parse_expr());
         if (!curr_is_token(get_comma_tk()))
             break;
         next();
     }
-    check_token_next(get_rparen_tk(), "invalid tactic, ',' or ')' expected");
+    check_token_next(get_rbracket_tk(), "invalid tactic, ',' or ']' expected");
     unsigned i = args.size();
     expr r = save_pos(mk_constant(get_tactic_expr_list_nil_name()), p);
     while (i > 0) {
@@ -1365,7 +1365,7 @@ expr parser::parse_tactic_expr_list() {
 }
 
 expr parser::parse_tactic_opt_expr_list() {
-    if (curr_is_token(get_lparen_tk())) {
+    if (curr_is_token(get_lbracket_tk())) {
         return parse_tactic_expr_list();
     } else if (curr_is_token(get_with_tk())) {
         next();

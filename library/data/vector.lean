@@ -125,7 +125,7 @@ namespace vector
       have H₁ : append t [] == t, from append_nil t,
       revert H₁, generalize (append t []),
       rewrite [-add_eq_addl, add_zero],
-      intros (w, H₁),
+      intros [w, H₁],
       rewrite [heq.to_eq H₁],
       apply heq.refl
     end

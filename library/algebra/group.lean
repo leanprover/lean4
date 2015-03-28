@@ -151,20 +151,20 @@ section group
   theorem mul.left_inv (a : A) : a⁻¹ * a = 1 := !group.mul_left_inv
 
   theorem inv_mul_cancel_left (a b : A) : a⁻¹ * (a * b) = b :=
-  by rewrite ⟨-mul.assoc, mul.left_inv, one_mul⟩
+  by rewrite [-mul.assoc, mul.left_inv, one_mul]
 
   theorem inv_mul_cancel_right (a b : A) : a * b⁻¹ * b = a :=
-  by rewrite ⟨mul.assoc, mul.left_inv, mul_one⟩
+  by rewrite [mul.assoc, mul.left_inv, mul_one]
 
   theorem inv_eq_of_mul_eq_one {a b : A} (H : a * b = 1) : a⁻¹ = b :=
-  by rewrite ⟨-mul_one a⁻¹, -H, inv_mul_cancel_left⟩
+  by rewrite [-mul_one a⁻¹, -H, inv_mul_cancel_left]
 
   theorem inv_one : 1⁻¹ = 1 := inv_eq_of_mul_eq_one (one_mul 1)
 
   theorem inv_inv (a : A) : (a⁻¹)⁻¹ = a := inv_eq_of_mul_eq_one (mul.left_inv a)
 
   theorem inv.inj {a b : A} (H : a⁻¹ = b⁻¹) : a = b :=
-  by rewrite ⟨-inv_inv, H, inv_inv⟩
+  by rewrite [-inv_inv, H, inv_inv]
 
   theorem inv_eq_inv_iff_eq (a b : A) : a⁻¹ = b⁻¹ ↔ a = b :=
   iff.intro (assume H, inv.inj H) (assume H, congr_arg _ H)
@@ -239,10 +239,10 @@ section group
   iff.intro eq_mul_inv_of_mul_eq mul_eq_of_eq_mul_inv
 
   theorem mul_left_cancel {a b c : A} (H : a * b = a * c) : b = c :=
-  by rewrite ⟨-inv_mul_cancel_left a b, H, inv_mul_cancel_left⟩
+  by rewrite [-inv_mul_cancel_left a b, H, inv_mul_cancel_left]
 
   theorem mul_right_cancel {a b c : A} (H : a * b = c * b) : a = c :=
-  by rewrite ⟨-mul_inv_cancel_right a b, H, mul_inv_cancel_right⟩
+  by rewrite [-mul_inv_cancel_right a b, H, mul_inv_cancel_right]
 
   definition group.to_left_cancel_semigroup [instance] [coercion] [reducible] : left_cancel_semigroup A :=
   ⦃ left_cancel_semigroup, s,
@@ -269,13 +269,13 @@ section add_group
   theorem add.left_inv (a : A) : -a + a = 0 := !add_group.add_left_inv
 
   theorem neg_add_cancel_left (a b : A) : -a + (a + b) = b :=
-  by rewrite ⟨-add.assoc, add.left_inv, zero_add⟩
+  by rewrite [-add.assoc, add.left_inv, zero_add]
 
   theorem neg_add_cancel_right (a b : A) : a + -b + b = a :=
-  by rewrite ⟨add.assoc, add.left_inv, add_zero⟩
+  by rewrite [add.assoc, add.left_inv, add_zero]
 
   theorem neg_eq_of_add_eq_zero {a b : A} (H : a + b = 0) : -a = b :=
-  by rewrite ⟨-add_zero, -H, neg_add_cancel_left⟩
+  by rewrite [-add_zero, -H, neg_add_cancel_left]
 
   theorem neg_zero : -0 = 0 := neg_eq_of_add_eq_zero (zero_add 0)
 
@@ -304,15 +304,15 @@ section add_group
       ... = 0 : add.left_inv
 
   theorem add_neg_cancel_left (a b : A) : a + (-a + b) = b :=
-  by rewrite ⟨-add.assoc, add.right_inv, zero_add⟩
+  by rewrite [-add.assoc, add.right_inv, zero_add]
 
   theorem add_neg_cancel_right (a b : A) : a + b + -b = a :=
-  by rewrite ⟨add.assoc, add.right_inv, add_zero⟩
+  by rewrite [add.assoc, add.right_inv, add_zero]
 
   theorem neg_add_rev (a b : A) : -(a + b) = -b + -a :=
   neg_eq_of_add_eq_zero
     begin
-      rewrite ⟨add.assoc, add_neg_cancel_left, add.right_inv⟩
+      rewrite [add.assoc, add_neg_cancel_left, add.right_inv]
     end
 
   -- TODO: delete these in favor of sub rules?
@@ -454,7 +454,7 @@ section add_comm_group
   by rewrite [▸ a + -b + -c = _, add.assoc, -neg_add]
 
   theorem add_sub_add_left_eq_sub (a b c : A) : (c + a) - (c + b) = a - b :=
-  by rewrite ⟨sub_add_eq_sub_sub, (add.comm c a), add_sub_cancel⟩
+  by rewrite [sub_add_eq_sub_sub, (add.comm c a), add_sub_cancel]
 
   theorem eq_sub_of_add_eq' {a b c : A} (H : c + a = b) : a = b - c :=
   !eq_sub_of_add_eq (!add.comm ▸ H)

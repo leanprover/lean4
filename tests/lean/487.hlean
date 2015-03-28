@@ -15,5 +15,5 @@ definition foo
 begin
   fapply is_retraction.mk,
     {exact (@ap B A g b b') },
-    {intro p, cases p, esimp {eq.ap, eq.rec_on, eq.idp} }
+    {intro p, cases p, esimp [eq.ap, eq.rec_on, eq.idp] }
 end

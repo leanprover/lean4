@@ -107,13 +107,13 @@ namespace vector
   @vector.brec_on A P n w
   (λ (n : nat) (w : vector A n),
      begin
-       cases w with (n₁, h₁, t₁),
+       cases w with [n₁, h₁, t₁],
        show @below A P zero vnil → vector B zero → vector C zero, from
          λ b v, vnil,
        show @below A P (succ n₁) (h₁ :: t₁) → vector B (succ n₁) → vector C (succ n₁), from
          λ b v,
          begin
-           cases v with (n₂, h₂, t₂),
+           cases v with [n₂, h₂, t₂],
            have r : vector B n₂ → vector C n₂, from pr₁ b,
            exact ((f h₁ h₂) :: r t₂),
          end

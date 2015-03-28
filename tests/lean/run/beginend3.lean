@@ -3,7 +3,7 @@ open tactic
 
 theorem foo (A : Type) (a b c : A) : a = b → b = c → a = c ∧ c = a :=
 begin
-  intros (Hab, Hbc),
+  intros [Hab, Hbc],
   apply and.intro,
   apply eq.trans,
   rotate 2,

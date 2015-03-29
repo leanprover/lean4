@@ -245,6 +245,7 @@ struct inductive_cmd_fn {
     */
     list<intro_rule> parse_intro_rules(name const & ind_name) {
         buffer<intro_rule> intros;
+        m_p.parse_local_notation_decl();
         if (m_p.curr_is_token(get_bar_tk()))
             m_p.next();
         while (true) {

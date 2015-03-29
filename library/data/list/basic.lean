@@ -163,7 +163,10 @@ notation e ∈ s := mem e s
 theorem mem_nil (x : T) : x ∈ [] ↔ false :=
 iff.rfl
 
-theorem mem_cons (x y : T) (l : list T) : x ∈ y::l ↔ (x = y ∨ x ∈ l) :=
+theorem mem_cons (x : T) (l : list T) : x ∈ x :: l :=
+or.inl rfl
+
+theorem mem_cons_iff (x y : T) (l : list T) : x ∈ y::l ↔ (x = y ∨ x ∈ l) :=
 iff.rfl
 
 theorem mem_or_mem_of_mem_append {x : T} {s t : list T} : x ∈ s ++ t → x ∈ s ∨ x ∈ t :=
@@ -231,7 +234,7 @@ list.rec_on l
                 (assume Heq, absurd Heq Hne)
                 (assume Hp,  absurd Hp Hn),
             have H2 : ¬x ∈ h::l, from
-              iff.elim_right (not_iff_not_of_iff !mem_cons) H1,
+              iff.elim_right (not_iff_not_of_iff !mem_cons_iff) H1,
             decidable.inr H2)))
 
 /- find -/
@@ -254,7 +257,7 @@ list.rec_on l
    (take y l,
       assume iH : ¬x ∈ l → find x l = length l,
       assume P₁ : ¬x ∈ y::l,
-      have P₂ : ¬(x = y ∨ x ∈ l), from iff.elim_right (not_iff_not_of_iff !mem_cons) P₁,
+      have P₂ : ¬(x = y ∨ x ∈ l), from iff.elim_right (not_iff_not_of_iff !mem_cons_iff) P₁,
       have P₃ : ¬x = y ∧ ¬x ∈ l, from (iff.elim_left not_or_iff_not_and_not P₂),
       calc
         find x (y::l) = if x = y then 0 else succ (find x l) : !find_cons

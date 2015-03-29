@@ -9,8 +9,8 @@ LEAN=$1
 NUM_ERRORS=0
 for f in `ls *.md`; do
     echo "-- testing $f"
-    awk 'BEGIN{ in_block = 0 } !/```/{ if (in_block == 1) print $0; else print "" } /```/ && !/```lua/{ in_block = 0; print "" } /```lua/{ in_block = 1; print "" }' $f > $f.lua
-    if $LEAN $f.lua > $f.produced.out; then
+    awk 'BEGIN{ in_block = 0 } !/```/{ if (in_block == 1) print $0; else print "" } /```/ && !/```lua/{ in_block = 0; print "" } /```lua/{ in_block = 1; print "" }' "$f" > "$f.lua"
+    if "$LEAN" "$f.lua" > "$f.produced.out"; then
         echo "-- worked"
     else
         echo "ERROR executing $f.lua, produced output is at $f.produced.out"

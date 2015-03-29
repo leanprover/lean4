@@ -6,8 +6,8 @@ if [ -x "$DEST/lean.sh" ]; then
     # Nothing to be done, file already exists
     exit 0
 else
-    cat > $DEST/lean.sh <<EOF
-if ! $DEST/lean \$* ; then echo "FAILED: \$*"; exit 1; fi
+    cat > "$DEST/lean.sh" <<EOF
+if ! "$DEST/lean" \$* ; then echo "FAILED: \$*"; exit 1; fi
 EOF
-    chmod +x $DEST/lean.sh
+    chmod +x "$DEST/lean.sh"
 fi

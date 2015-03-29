@@ -9,7 +9,7 @@ LEAN=$1
 NUM_ERRORS=0
 for f in *.lua; do
     echo "-- testing $f"
-    if $LEAN extra.lua $f > $f.produced.out; then
+    if "$LEAN" "extra.lua" "$f" > "$f.produced.out"; then
         echo "-- worked"
     else
         echo "ERROR executing $f, produced output is at $f.produced.out"

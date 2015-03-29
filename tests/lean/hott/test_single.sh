@@ -8,7 +8,7 @@ LEAN=$1
 export HLEAN_PATH=../../../hott:.
 f=$2
 echo "-- testing $f"
-if $LEAN $f; then
+if "$LEAN" "$f"; then
    echo "-- checked"
 else
    echo "failed $f"

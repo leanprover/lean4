@@ -6,5 +6,5 @@ if [ $# -ne 1 ]; then
 fi
 LEAN=$1
 export LEAN_PATH=../../../library:.
-$LEAN -o eqn_macro1.olean eqn_macro1.lean
-$LEAN eqn_macro2.lean
+"$LEAN" -o eqn_macro1.olean eqn_macro1.lean
+"$LEAN" eqn_macro2.lean

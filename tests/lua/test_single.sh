@@ -7,11 +7,11 @@ ulimit -s unlimited
 LEAN=$1
 f=$2
 echo "-- testing $f"
-if $LEAN extra.lua $f > $f.produced.out; then
+if "$LEAN" extra.lua "$f" > "$f.produced.out"; then
     echo "-- worked"
     exit 0
 else
     echo "ERROR executing $f, produced output:"
-    cat $f.produced.out
+    cat "$f.produced.out"
     exit 1
 fi

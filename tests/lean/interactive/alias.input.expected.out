@@ -10,7 +10,7 @@ bool.absurd_of_eq_ff_of_eq_tt|eq ?a bool.ff → eq ?a bool.tt → ?B
 bool.eq_tt_of_ne_ff|ne ?a bool.ff → eq ?a bool.tt
 bool.tt_band|∀ (a : bool), eq (bool.band bool.tt a) a
 bool.cond_tt|∀ (t e : ?A), eq (bool.cond bool.tt t e) t
-bool.ff_ne_tt|not (eq bool.ff bool.tt)
+bool.ff_ne_tt|eq bool.ff bool.tt → false
 bool.eq_ff_of_ne_tt|ne ?a bool.tt → eq ?a bool.ff
 bool.tt_bor|∀ (a : bool), eq (bool.bor bool.tt a) bool.tt
 -- ENDFINDP
@@ -25,6 +25,6 @@ band_tt|∀ (a : bool), eq (band a tt) a
 absurd_of_eq_ff_of_eq_tt|eq ?a ff → eq ?a tt → ?B
 eq_tt_of_ne_ff|ne ?a ff → eq ?a tt
 cond_tt|∀ (t e : ?A), eq (cond tt t e) t
-ff_ne_tt|not (eq ff tt)
+ff_ne_tt|eq ff tt → false
 eq_ff_of_ne_tt|ne ?a tt → eq ?a ff
 -- ENDFINDP

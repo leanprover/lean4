@@ -248,6 +248,8 @@ notation `∃` binders `,` r:(scoped P, Exists P) := r
 theorem exists.elim {A : Type} {p : A → Prop} {B : Prop} (H1 : ∃x, p x) (H2 : ∀ (a : A) (H : p a), B) : B :=
 Exists.rec H2 H1
 
+/- decidable -/
+
 inductive decidable [class] (p : Prop) : Type :=
 | inl :  p → decidable p
 | inr : ¬p → decidable p
@@ -334,6 +336,29 @@ definition decidable_eq   [reducible] (A : Type) := decidable_rel (@eq A)
 definition decidable_ne [instance] {A : Type} [H : decidable_eq A] : Π (a b : A), decidable (a ≠ b) :=
 show Π x y : A, decidable (x = y → false), from _
 
+namespace bool
+  definition ff_ne_tt : ff = tt → false
+  | [none]
+end bool
+
+open bool
+definition is_dec_eq {A : Type} (p : A → A → bool) : Prop   := ∀ ⦃x y : A⦄, p x y = tt → x = y
+definition is_dec_refl {A : Type} (p : A → A → bool) : Prop := ∀x, p x x = tt
+
+open decidable
+protected definition bool.has_decidable_eq [instance] : ∀a b : bool, decidable (a = b)
+| ff ff := inl rfl
+| ff tt := inr ff_ne_tt
+| tt ff := inr (ne.symm ff_ne_tt)
+| tt tt := inl rfl
+
+definition decidable_eq_of_bool_pred {A : Type} {p : A → A → bool} (H₁ : is_dec_eq p) (H₂ : is_dec_refl p) : decidable_eq A :=
+take x y : A, by_cases
+ (assume Hp : p x y = tt,   inl (H₁ Hp))
+ (assume Hn : ¬ p x y = tt, inr (assume Hxy : x = y, absurd (H₂ y) (eq.rec_on Hxy Hn)))
+
+/- inhabited -/
+
 inductive inhabited [class] (A : Type) : Type :=
 mk : A → inhabited A
 
@@ -358,6 +383,9 @@ inhabited.rec_on H (λb, inhabited.mk (λa, b))
 definition inhabited_Pi [instance] (A : Type) {B : A → Type} [H : Πx, inhabited (B x)] :
   inhabited (Πx, B x) :=
 inhabited.mk (λa, inhabited.rec_on (H a) (λb, b))
+
+protected definition bool.is_inhabited [instance] : inhabited bool :=
+inhabited.mk ff
 
 inductive nonempty [class] (A : Type) : Prop :=
 intro : A → nonempty A

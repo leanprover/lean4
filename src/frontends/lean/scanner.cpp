@@ -54,6 +54,7 @@ bool is_greek_unicode(unsigned u) { return 0x391 <= u && u <= 0x3DD; }
 bool is_letter_like_unicode(unsigned u) {
     return
         (0x3b1  <= u && u <= 0x3c9 && u != 0x3bb) || // Lower greek, but lambda
+        (0x391  <= u && u <= 0x3A9 && u != 0x3A0 && u != 0x3A3) || // Upper greek, but Pi and Sigma
         (0x3ca  <= u && u <= 0x3fb) ||               // Coptic letters
         (0x1f00 <= u && u <= 0x1ffe) ||              // Polytonic Greek Extended Character Set
         (0x2100 <= u && u <= 0x214f);                // Letter like block

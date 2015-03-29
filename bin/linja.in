@@ -627,7 +627,7 @@ def build_olean(lean, olean, clean, dlean, ilean, base):
     else:
         str = """build %s %s: LEAN %s | %s""" % (olean, ilean, lean, dlean)
     if g_lean_bin_dep_flag:
-        str += " %s" % normalize_drive_name(g_lean_path)
+        str += " %s" % escape_ninja_char(normalize_drive_name(g_lean_path))
     str += "\n"
     str += "  DLEAN_FILE=%s\n" % dlean
     str += "  OLEAN_FILE=%s\n" % olean
@@ -646,7 +646,7 @@ def make_build_ninja(args):
 
         print("""rule LEAN""", file=f)
         print("""  depfile = ${DLEAN_FILE}""", file=f)
-        print("""  command = "%s" %s "$in" -o "${OLEAN_FILE}" -c "${CLEAN_FILE}" -i "${ILEAN_FILE}" """ \
+        print("""  command = "%s" %s $in -o "${OLEAN_FILE}" -c "${CLEAN_FILE}" -i "${ILEAN_FILE}" """ \
             % (g_lean_path, " ".join(args.lean_options)), file=f)
 
         print("""rule LEANTAGS""", file=f)
@@ -674,16 +674,19 @@ def make_build_ninja(args):
 
         print("""default all""", file=f)
 
+def escape_dep(s):
+  return s.replace(" ", "\\ ")
+
 def make_deps(lean_file, dlean_file, olean_file):
     with open(dlean_file, "w") as f:
         deps = []
         proc = subprocess.Popen([g_lean_path, "--deps", lean_file], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         output = proc.communicate()[0]
-        print(escape_ninja_char(olean_file) + ": \\", file=f)
+        print(escape_dep(olean_file) + ": \\", file=f)
         for olean_file in output.strip().splitlines():
             if olean_file:
                 deps.append(normalize_drive_name(os.path.abspath(olean_file)))
-        deps = map(escape_ninja_char, deps)
+        deps = list(map(escape_dep, deps))
         deps_str = b" " + (b" \\\n ".join(deps))
         print(deps_str, file=f)
 

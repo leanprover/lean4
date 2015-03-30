@@ -24,7 +24,7 @@ namespace PropF
   notation `#`:max P:max := Var P
   notation A ∨ B         := Disj A B
   notation A ∧ B         := Conj A B
-  infixr `⇒`:25          := Impl
+  infixr `⇒`:27          := Impl
   notation `⊥`           := Bot
 
   definition Neg A       := A ⇒ ⊥
@@ -32,7 +32,7 @@ namespace PropF
   definition Top         := ~⊥
   notation `⊤`           := Top
   definition BiImpl A B  := A ⇒ B ∧ B ⇒ A
-  infixr `⇔`:25          := BiImpl
+  infixr `⇔`:27          := BiImpl
 
   definition valuation   := PropVar → bool
 
@@ -53,22 +53,22 @@ namespace PropF
   infix `⊨`:80 := Models
 
   definition Valid p := [] ⊨ p
-  reserve infix `⊢`:80
+  reserve infix `⊢`:26
 
   /- Provability -/
 
   inductive Nc : list PropF → PropF → Prop :=
   infix ⊢ := Nc
-  | Nax   : ∀ Γ A,   A ∈ Γ →               Γ ⊢ A
-  | ImpI  : ∀ Γ A B, (A::Γ) ⊢ B →          Γ ⊢ (A ⇒ B)
-  | ImpE  : ∀ Γ A B, Γ ⊢ (A ⇒ B) → Γ ⊢ A → Γ ⊢ B
-  | BotC  : ∀ Γ A,   ((~A)::Γ) ⊢ ⊥       → Γ ⊢ A
-  | AndI  : ∀ Γ A B, Γ ⊢ A → Γ ⊢ B       → Γ ⊢ (A ∧ B)
-  | AndE₁ : ∀ Γ A B, Γ ⊢ (A ∧ B)         → Γ ⊢ A
-  | AndE₂ : ∀ Γ A B, Γ ⊢ (A ∧ B)         → Γ ⊢ B
-  | OrI₁  : ∀ Γ A B, Γ ⊢ A               → Γ ⊢ (A ∨ B)
-  | OrI₂  : ∀ Γ A B, Γ ⊢ B               → Γ ⊢ (A ∨ B)
-  | OrE   : ∀ Γ A B C, Γ ⊢ (A ∨ B) → (A :: Γ) ⊢ C → (B :: Γ) ⊢ C → Γ ⊢ C
+  | Nax   : ∀ Γ A,   A ∈ Γ →             Γ ⊢ A
+  | ImpI  : ∀ Γ A B, A::Γ ⊢ B →          Γ ⊢ A ⇒ B
+  | ImpE  : ∀ Γ A B, Γ ⊢ A ⇒ B → Γ ⊢ A → Γ ⊢ B
+  | BotC  : ∀ Γ A,   (~A)::Γ ⊢ ⊥ →       Γ ⊢ A
+  | AndI  : ∀ Γ A B, Γ ⊢ A → Γ ⊢ B →     Γ ⊢ A ∧ B
+  | AndE₁ : ∀ Γ A B, Γ ⊢ A ∧ B →         Γ ⊢ A
+  | AndE₂ : ∀ Γ A B, Γ ⊢ A ∧ B →         Γ ⊢ B
+  | OrI₁  : ∀ Γ A B, Γ ⊢ A →             Γ ⊢ A ∨ B
+  | OrI₂  : ∀ Γ A B, Γ ⊢ B →             Γ ⊢ A ∨ B
+  | OrE   : ∀ Γ A B C, Γ ⊢ A ∨ B → A::Γ ⊢ C → B::Γ ⊢ C → Γ ⊢ C
 
   infix ⊢ := Nc
 
@@ -93,10 +93,10 @@ namespace PropF
     (λ Γ A B H w Δ Hs,                 !OrI₂ (w _ Hs))
     (λ Γ A B C H₁ H₂ H₃ w₁ w₂ w₃ Δ Hs, !OrE (w₁ _ Hs) (w₂ _ (cons_sub_cons A Hs)) (w₃ _ (cons_sub_cons B Hs)))
 
-  lemma weakening : ∀ Γ Δ A, Γ ⊢ A → (Γ++Δ) ⊢ A :=
+  lemma weakening : ∀ Γ Δ A, Γ ⊢ A → Γ++Δ ⊢ A :=
   λ Γ Δ A H, weakening2 Γ A H (Γ++Δ) (sub_append_left Γ Δ)
 
-  lemma deduction : ∀ Γ A B, Γ ⊢ (A ⇒ B) → (A::Γ) ⊢ B :=
+  lemma deduction : ∀ Γ A B, Γ ⊢ A ⇒ B → A::Γ ⊢ B :=
   λ Γ A B H, ImpE _ A _ (!weakening2 H _ (sub_cons A Γ)) (!Nax (mem_cons A Γ))
 
   lemma prov_impl : ∀ A B, Provable (A ⇒ B) → ∀ Γ, Γ ⊢ A → Γ ⊢ B :=

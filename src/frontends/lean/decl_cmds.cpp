@@ -616,7 +616,10 @@ static void parse_equations_core(parser & p, buffer<expr> const & fns, buffer<ex
             }
             while (!p.curr_is_token(get_assign_tk()))
                 lhs_args.push_back(p.parse_expr(get_max_prec()));
-            lhs = p.save_pos(mk_app(lhs_args.size(), lhs_args.data()), lhs_pos);
+            lean_assert(lhs_args.size() > 0);
+            lhs = lhs_args[0];
+            for (unsigned i = 1; i < lhs_args.size(); i++)
+                lhs = copy_tag(lhs_args[i], mk_app(lhs, lhs_args[i]));
 
             unsigned num_undef_ids = p.get_num_undef_ids();
             for (unsigned i = prev_num_undef_ids; i < num_undef_ids; i++) {

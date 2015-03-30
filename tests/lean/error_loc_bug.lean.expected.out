@@ -1,0 +1,8 @@
+error_loc_bug.lean:74:17: error: type mismatch at application
+  weakening2 (OrI₁ Γ A B H)
+term
+  OrI₁ Γ A B H
+has type
+  Γ ⊢ A ∨ B
+but is expected to have type
+  Γ ⊢ A ∧ B

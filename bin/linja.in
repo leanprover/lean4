@@ -289,10 +289,13 @@ def download_ninja_and_save_at(ninja_path):
     else:
         url = get_ninja_url()
         log("Downloading ninja: %s ===> %s\n" % (url, ninja_path))
-        urlretrieve(url, ninja_path, show_download_progress)
+        tempdir = tempfile.mkdtemp()
+        temp_download_path = os.path.join(tempdir, os.path.split(ninja_path)[1])
+        urlretrieve(url, temp_download_path, show_download_progress)
         log("\n")
-        if not os.path.isfile(ninja_path):
+        if not os.path.isfile(temp_download_path):
             error("failed to download ninja executable from %s" % url)
+        shutil.copy2(temp_download_path, ninja_path)
         give_exec_permission(ninja_path)
         return ninja_path
 

@@ -19,7 +19,7 @@ env:
    # TC. g++-4.8      | DEBUG                   | CDASH
    - CMAKE_CXX_COMPILER=g++-4.8
      CMAKE_BUILD_TYPE=Debug
-     TESTCOV=ON
+     TESTCOV=OFF
      PUSH_TO_CDASH=TRUE
      TCMALLOC=OFF
      LUA=52
@@ -29,13 +29,13 @@ env:
    # =======================================================
    # D1. clang++-3.3  | DEBUG   | TCMALLOC       | CDASH
    - CMAKE_CXX_COMPILER=clang++-3.3
-     CMAKE_BUILD_TYPE=DEBUG
+     CMAKE_BUILD_TYPE=Debug
      TCMALLOC=ON
      PUSH_TO_CDASH=TRUE
      LUA=52
    # D2. g++-4.8     | DEBUG    | TCMALLOC       | CDASH + TRIGGERS
    - CMAKE_CXX_COMPILER=g++-4.8
-     CMAKE_BUILD_TYPE=DEBUG
+     CMAKE_BUILD_TYPE=Debug
      TRIGGER_BB=TRUE
      TRIGGER_OSX=TRUE
      TRIGGER_WINDOWS=TRUE
@@ -45,13 +45,13 @@ env:
      CONSERVE_MEMORY=ON
    # D3. clang++-3.3 | DEBUG
    - CMAKE_CXX_COMPILER=clang++-3.3
-     CMAKE_BUILD_TYPE=DEBUG
+     CMAKE_BUILD_TYPE=Debug
      TCMALLOC=OFF
      PUSH_TO_CDASH=TRUE
      LUA=52
    # D4. g++-4.8     | DEBUG
    - CMAKE_CXX_COMPILER=g++-4.8
-     CMAKE_BUILD_TYPE=DEBUG
+     CMAKE_BUILD_TYPE=Debug
      TCMALLOC=OFF
      PUSH_TO_CDASH=TRUE
      LUA=52
@@ -61,13 +61,13 @@ env:
    # =======================================================
    # R1. clang++-3.3 | RELEASE | TCMALLOC        | CDASH
    - CMAKE_CXX_COMPILER=clang++-3.3
-     CMAKE_BUILD_TYPE=RELEASE
+     CMAKE_BUILD_TYPE=Release
      TCMALLOC=ON
      PUSH_TO_CDASH=TRUE
      LUA=52
    # R2. g++-4.8     | RELEASE | TCMALLOC        | CDASH + UPLOAD=>DROPBOX
    - CMAKE_CXX_COMPILER=g++-4.8
-     CMAKE_BUILD_TYPE=RELEASE
+     CMAKE_BUILD_TYPE=Release
      TCMALLOC=ON
      UPLOAD=linux_tcmalloc
      PUSH_TO_CDASH=TRUE
@@ -76,13 +76,13 @@ env:
      CONSERVE_MEMORY=ON
    # R3. clang++-3.3 | RELEASE
    - CMAKE_CXX_COMPILER=clang++-3.3
-     CMAKE_BUILD_TYPE=RELEASE
+     CMAKE_BUILD_TYPE=Release
      TCMALLOC=OFF
      PUSH_TO_CDASH=TRUE
      LUA=52
    # R4. g++-4.8    | RELEASE                    | UPLOAD=>DROPBOX
    - CMAKE_CXX_COMPILER=g++-4.8
-     CMAKE_BUILD_TYPE=RELEASE
+     CMAKE_BUILD_TYPE=Release
      TCMALLOC=OFF
      UPLOAD=linux
      PUSH_TO_CDASH=TRUE
@@ -103,7 +103,7 @@ env:
    # =======================================================
    # L51. g++-4.8     | RELEASE |                | CDASH
    - CMAKE_CXX_COMPILER=g++-4.8
-     CMAKE_BUILD_TYPE=RELEASE
+     CMAKE_BUILD_TYPE=Release
      TCMALLOC=OFF
      UPLOAD=linux
      PUSH_TO_CDASH=TRUE
@@ -111,7 +111,7 @@ env:
      CONSERVE_MEMORY=ON
    # LJIT. g++-4.8     | RELEASE |                | CDASH
    - CMAKE_CXX_COMPILER=g++-4.8
-     CMAKE_BUILD_TYPE=RELEASE
+     CMAKE_BUILD_TYPE=Release
      TCMALLOC=OFF
      UPLOAD=linux
      PUSH_TO_CDASH=TRUE
@@ -156,8 +156,7 @@ install:
   - if [[ $TESTCOV == ON ]]; then
        wget http://downloads.sourceforge.net/ltp/lcov-1.11.tar.gz;
        tar xvfz lcov-1.11.tar.gz;
-       sudo cp -v lcov-1.11/bin/{lcov,genpng,gendesc,genhtml,geninfo} /usr/bin/;
-       sudo chmod 777 /usr/bin/lcov /usr/bin/genhtml /usr/bin/geninfo /usr/bin/genpng /usr/bin/gendesc;
+       sudo make -C lcov-1.11 install
        rm -rf lcov-1.11.tar.gz lcov-1.11;
        sudo cp -v `which gcov-4.8` `which gcov`;
     fi
@@ -195,7 +194,7 @@ before_script:
 script:
   - mkdir -p build
   - cd build
-  - if [[ $CMAKE_BUILD_TYPE == RELEASE && $CMAKE_CXX_COMPILER=clang++-3.3 ]]; then
+  - if [[ $CMAKE_BUILD_TYPE == Release && $CMAKE_CXX_COMPILER=clang++-3.3 ]]; then
        GENERATOR=;
     else
        GENERATOR=-GNinja;
@@ -204,9 +203,9 @@ script:
        TESTCOV=OFF;
     fi
   - /usr/bin/cmake -DIGNORE_SORRY=ON -DCONSERVE_MEMORY=${CONSERVE_MEMORY} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTESTCOV=${TESTCOV} -DTCMALLOC=${TCMALLOC} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ${GENERATOR} -DCMAKE_PROGRAM_PATH=/usr/bin ../src;
-  - if [[ $CMAKE_BUILD_TYPE == DEBUG || $CMAKE_BUILD_TYPE == RELEASE || $TESTCOV == ON ]]; then
+  - if [[ $CMAKE_BUILD_TYPE == Debug || $CMAKE_BUILD_TYPE == Release || $TESTCOV == ON ]]; then
        SITE=Ubuntu12.04@Travis;
-       if [[ $CMAKE_BUILD_TYPE == RELEASE ]]; then
+       if [[ $CMAKE_BUILD_TYPE == Release ]]; then
            BUILD_TYPE=Release;
        else
            BUILD_TYPE=Debug;
@@ -292,5 +291,5 @@ notifications:
   email:
     recipients:
      - lean-build@googlegroups.com
-    on_success: always
+    on_success: change
     on_failure: always

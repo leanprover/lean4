@@ -130,5 +130,5 @@ notifications:
   email:
     recipients:
     - lean-build@googlegroups.com
-    on_success: always
+    on_success: change
     on_failure: always

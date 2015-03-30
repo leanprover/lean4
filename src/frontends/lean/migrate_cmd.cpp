@@ -204,7 +204,9 @@ struct migrate_cmd_fn {
             expr new_type  = Pi(m_params, t);
             expr new_value = Fun(m_params, v);
             try {
-                if (d.is_theorem())
+                if (d.is_axiom())
+                    m_env = module::add(m_env, check(m_env, mk_theorem(full_name, ls, new_type, new_value)));
+                else if (d.is_theorem())
                     m_env = module::add(m_env, check(m_env, mk_theorem(full_name, ls, new_type, new_value)));
                 else
                     m_env = module::add(m_env, check(m_env, mk_definition(m_env, full_name, ls,
@@ -414,7 +416,7 @@ struct migrate_cmd_fn {
 
         environment env = m_env;
         env.for_each_declaration([&](declaration const & d) {
-                if (!d.is_definition() && !d.is_theorem())
+                if (!d.is_definition() && !d.is_theorem() && !d.is_axiom())
                     return;
                 if (std::find(m_hiding.begin(), m_hiding.end(), d.get_name()) != m_hiding.end())
                     return;

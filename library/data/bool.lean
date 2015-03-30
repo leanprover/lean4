@@ -68,6 +68,12 @@ namespace bool
       or.inr Hb)
     (assume H, or.inl rfl)
 
+  theorem bor_inl {a b : bool} (H : a = tt) : a || b = tt :=
+  by rewrite H
+
+  theorem bor_inr {a b : bool} (H : b = tt) : a || b = tt :=
+  bool.rec_on a (by rewrite H) (by rewrite H)
+
   theorem ff_band (a : bool) : ff && a = ff :=
   rfl
 
@@ -103,6 +109,9 @@ namespace bool
              ... = tt      : H)
         ff_ne_tt)
     (assume H1 : a = tt, H1)
+
+  theorem band_intro {a b : bool} (H₁ : a = tt) (H₂ : b = tt) : a && b = tt :=
+  by rewrite [H₁, H₂]
 
   theorem band_elim_right {a b : bool} (H : a && b = tt) : b = tt :=
   band_elim_left (!band.comm ⬝ H)

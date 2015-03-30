@@ -481,8 +481,28 @@ section
               ... = -(-1)     : by rewrite neg_neg
               ... = -(sign a) : sign_of_neg H1)
 
-  -- hopefully, will be quick with the simplifier
-  theorem sign_mul (a b : A) : sign (a * b) = sign a * sign b := sorry
+  theorem sign_mul (a b : A) : sign (a * b) = sign a * sign b :=
+  lt.by_cases
+    (assume z_lt_a : 0 < a,
+      lt.by_cases
+       (assume z_lt_b : 0 < b,
+         by rewrite [sign_of_pos z_lt_a, sign_of_pos z_lt_b,
+                     sign_of_pos (mul_pos z_lt_a z_lt_b), one_mul])
+       (assume z_eq_b : 0 = b, by rewrite [-z_eq_b, mul_zero, *sign_zero, mul_zero])
+       (assume z_gt_b : 0 > b,
+         by rewrite [sign_of_pos z_lt_a, sign_of_neg z_gt_b,
+                     sign_of_neg (mul_neg_of_pos_of_neg z_lt_a z_gt_b), one_mul]))
+    (assume z_eq_a : 0 = a, by rewrite [-z_eq_a, zero_mul, *sign_zero, zero_mul])
+    (assume z_gt_a : 0 > a,
+      lt.by_cases
+       (assume z_lt_b : 0 < b,
+         by rewrite [sign_of_neg z_gt_a, sign_of_pos z_lt_b,
+                     sign_of_neg (mul_neg_of_neg_of_pos z_gt_a z_lt_b), mul_one])
+       (assume z_eq_b : 0 = b, by rewrite [-z_eq_b, mul_zero, *sign_zero, mul_zero])
+       (assume z_gt_b : 0 > b,
+         by rewrite [sign_of_neg z_gt_a, sign_of_neg z_gt_b,
+                     sign_of_pos (mul_pos_of_neg_of_neg z_gt_a z_gt_b),
+                     neg_mul_neg, one_mul]))
 
   theorem abs_eq_sign_mul (a : A) : abs a = sign a * a :=
   lt.by_cases

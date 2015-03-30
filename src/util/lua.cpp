@@ -43,10 +43,10 @@ bool testudata(lua_State * L, int ud, char const * tname) {
             if (!lua_rawequal(L, -1, -2))
                 p = nullptr;
             lua_pop(L, 2);
-            return p;
+            return p != nullptr;
         }
     }
-    return nullptr;  // value is not a userdata with a metatable
+    return false;  // value is not a userdata with a metatable
 }
 
 int load(lua_State * L, lua_Reader reader, void * data, char const * source) {

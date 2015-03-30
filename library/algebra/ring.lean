@@ -252,8 +252,9 @@ section
   variables [s : comm_ring A] (a b c d e : A)
   include s
 
-  -- TODO: wait for the simplifier
-  theorem mul_self_sub_mul_self_eq : a * a - b * b = (a + b) * (a - b) := sorry
+  theorem mul_self_sub_mul_self_eq : a * a - b * b = (a + b) * (a - b) :=
+  by rewrite [left_distrib, *right_distrib, add.assoc, -{b*a + _}add.assoc,
+              -*neg_mul_eq_mul_neg, {a*b}mul.comm, add.right_inv, zero_add]
 
   theorem mul_self_sub_one_eq : a * a - 1 = (a + 1) * (a - 1) :=
   mul_one 1 ▸ mul_self_sub_mul_self_eq a 1
@@ -302,7 +303,6 @@ theorem eq_zero_or_eq_zero_of_mul_eq_zero {A : Type} [s : no_zero_divisors A] {a
 structure integral_domain [class] (A : Type) extends comm_ring A, no_zero_divisors A
 
 section
-
   variables [s : integral_domain A] (a b c d e : A)
   include s
 
@@ -324,10 +324,22 @@ section
 
   -- TODO: do we want the iff versions?
 
-  -- TODO: wait for simplifier
-  theorem mul_self_eq_mul_self_iff (a b : A) : a * a = b * b ↔ a = b ∨ a = -b := sorry
+  theorem mul_self_eq_mul_self_iff (a b : A) : a * a = b * b ↔ a = b ∨ a = -b :=
+  iff.intro
+    (λ H : a * a = b * b,
+      have aux₁ : (a - b) * (a + b) = 0,
+        by rewrite [mul.comm, -mul_self_sub_mul_self_eq, H, sub_self],
+      assert aux₂ : a - b = 0 ∨ a + b = 0, from !eq_zero_or_eq_zero_of_mul_eq_zero aux₁,
+      or.elim aux₂
+        (λ H : a - b = 0, or.inl (eq_of_sub_eq_zero H))
+        (λ H : a + b = 0, or.inr (eq_neg_of_add_eq_zero H)))
+    (λ H : a = b ∨ a = -b, or.elim H
+      (λ a_eq_b,  by rewrite a_eq_b)
+      (λ a_eq_mb, by rewrite [a_eq_mb, neg_mul_neg]))
 
-  theorem mul_self_eq_one_iff (a : A) : a * a = 1 ↔ a = 1 ∨ a = -1 := sorry
+  theorem mul_self_eq_one_iff (a : A) : a * a = 1 ↔ a = 1 ∨ a = -1 :=
+  assert aux : a * a = 1 * 1 ↔ a = 1 ∨ a = -1, from mul_self_eq_mul_self_iff a 1,
+  by rewrite mul_one at aux; exact aux
 
   -- TODO: c - b * c → c = 0 ∨ b = 1 and variants
 

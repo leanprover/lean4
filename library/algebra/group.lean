@@ -281,6 +281,9 @@ section add_group
 
   theorem neg_neg (a : A) : -(-a) = a := neg_eq_of_add_eq_zero (add.left_inv a)
 
+  theorem eq_neg_of_add_eq_zero {a b : A} (H : a + b = 0) : a = -b :=
+  by rewrite [-neg_eq_of_add_eq_zero H, neg_neg]
+
   theorem neg.inj {a b : A} (H : -a = -b) : a = b :=
   calc
     a = -(-a) : neg_neg

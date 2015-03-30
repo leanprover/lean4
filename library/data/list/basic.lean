@@ -237,6 +237,36 @@ list.rec_on l
               iff.elim_right (not_iff_not_of_iff !mem_cons_iff) H1,
             decidable.inr H2)))
 
+theorem mem_of_ne_of_mem {x y : T} {l : list T} (H₁ : x ≠ y) (H₂ : x ∈ y :: l) : x ∈ l :=
+or.elim H₂ (λe, absurd e H₁) (λr, r)
+
+definition sublist (l₁ l₂ : list T) := ∀ ⦃a : T⦄, a ∈ l₁ → a ∈ l₂
+
+infix `⊆`:50 := sublist
+
+lemma nil_sub (l : list T) : [] ⊆ l :=
+λ b i, false.elim (iff.mp (mem_nil b) i)
+
+lemma sub.refl (l : list T) : l ⊆ l :=
+λ b i, i
+
+lemma sub.trans {l₁ l₂ l₃ : list T} (H₁ : l₁ ⊆ l₂) (H₂ : l₂ ⊆ l₃) : l₁ ⊆ l₃ :=
+λ b i, H₂ (H₁ i)
+
+lemma sub_cons (a : T) (l : list T) : l ⊆ a::l :=
+λ b i, or.inr i
+
+lemma cons_sub_cons  {l₁ l₂ : list T} (a : T) (s : l₁ ⊆ l₂) : (a::l₁) ⊆ (a::l₂) :=
+λ b Hin, or.elim Hin
+  (λ e : b = a,  or.inl e)
+  (λ i : b ∈ l₁, or.inr (s i))
+
+lemma sub_append_left (l₁ l₂ : list T) : l₁ ⊆ l₁++l₂ :=
+λ b i, iff.mp' (mem_append_iff b l₁ l₂) (or.inl i)
+
+lemma sub_append_right (l₁ l₂ : list T) : l₂ ⊆ l₁++l₂ :=
+λ b i, iff.mp' (mem_append_iff b l₁ l₂) (or.inr i)
+
 /- find -/
 
 section

@@ -1040,7 +1040,8 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                     curr = curr + space();
                 fmt = curr + fmt;
             }
-            extra_space = add_extra_space(tk);
+            if (m_extra_spaces || !last_is_skip)
+                extra_space = add_extra_space(tk);
         }
         unsigned first_lbp = inf_bp();
         if (!entry.is_nud()) {

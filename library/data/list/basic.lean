@@ -159,12 +159,19 @@ definition mem : T → list T → Prop
 | a (b :: l) := a = b ∨ mem a l
 
 notation e ∈ s := mem e s
+notation e ∉ s := ¬ e ∈ s
 
 theorem mem_nil (x : T) : x ∈ [] ↔ false :=
 iff.rfl
 
+theorem not_mem_nil (x : T) : x ∉ [] :=
+iff.mp !mem_nil
+
 theorem mem_cons (x : T) (l : list T) : x ∈ x :: l :=
 or.inl rfl
+
+theorem mem_cons_of_mem (x : T) {y : T} {l : list T} : x ∈ l → x ∈ y :: l :=
+assume H, or.inr H
 
 theorem mem_cons_iff (x y : T) (l : list T) : x ∈ y::l ↔ (x = y ∨ x ∈ l) :=
 iff.rfl

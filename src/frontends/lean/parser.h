@@ -137,6 +137,9 @@ class parser {
 
     buffer<expr>           m_undef_ids;
 
+    // profiling
+    bool                   m_profile;
+
     void display_warning_pos(unsigned line, unsigned pos);
     void display_warning_pos(pos_info p);
     void display_error_pos(unsigned line, unsigned pos);
@@ -458,6 +461,9 @@ public:
 
     parser_pos_provider get_pos_provider() const { return parser_pos_provider(m_pos_table, get_stream_name(), m_last_cmd_pos); }
     void display_information_pos(pos_info p);
+
+    /** return true iff profiling is enabled */
+    bool profiling() const { return m_profile; }
 
     /** parse all commands in the input stream */
     bool operator()() { return parse_commands(); }

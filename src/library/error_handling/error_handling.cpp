@@ -18,9 +18,9 @@ Author: Leonardo de Moura
 #include "library/error_handling/error_handling.h"
 
 namespace lean {
-void display_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos) {
-    ios << strm_name << ":";
-    if (ios.get_options().get_bool("flycheck", false)) {
+void display_pos(std::ostream & out, options const & o, char const * strm_name, unsigned line, unsigned pos) {
+    out << strm_name << ":";
+    if (o.get_bool("flycheck", false)) {
         // generate valid line and column for flycheck mode
         if (line == static_cast<unsigned>(-1))
             line = 1;
@@ -28,9 +28,17 @@ void display_pos(io_state_stream const & ios, char const * strm_name, unsigned l
             pos = 0;
     }
     if (line != static_cast<unsigned>(-1))
-        ios << line << ":";
+        out << line << ":";
     if (pos != static_cast<unsigned>(-1))
-        ios << pos << ":";
+        out << pos << ":";
+}
+
+void display_pos(std::ostream & out, char const * strm_name, unsigned line, unsigned pos) {
+    display_pos(out, options(), strm_name, line, pos);
+}
+
+void display_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos) {
+    display_pos(ios.get_stream(), ios.get_options(), strm_name, line, pos);
 }
 
 void display_error_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos) {

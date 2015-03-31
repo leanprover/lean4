@@ -108,6 +108,9 @@ parser::parser(environment const & env, io_state const & ios,
     m_scanner(strm, strm_name, s ? s->m_line : 1),
     m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0),
     m_snapshot_vector(sv), m_info_manager(im), m_cache(nullptr), m_index(nullptr) {
+    m_profile    = ios.get_options().get_bool("profile", false);
+    if (num_threads > 1)
+        throw exception("option --profile cannot be used when theorems are compiled in parallel");
     m_has_params = false;
     m_keep_theorem_mode = tmode;
     if (s) {

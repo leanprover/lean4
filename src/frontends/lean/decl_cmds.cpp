@@ -4,8 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <iostream>
 #include <algorithm>
 #include "util/sstream.h"
+#include "util/timeit.h"
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
@@ -27,6 +29,7 @@ Author: Leonardo de Moura
 #include "library/abbreviation.h"
 #include "library/unfold_macros.h"
 #include "library/definitional/equations.h"
+#include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
@@ -900,6 +903,22 @@ class definition_cmd_fn {
         mk_real_name();
     }
 
+    void display_pos(std::ostream & out) {
+        ::lean::display_pos(out, m_p.get_stream_name().c_str(), m_pos.first, m_pos.second);
+    }
+
+    certified_declaration check(declaration const & d) {
+        if (m_p.profiling()) {
+            std::ostringstream msg;
+            display_pos(msg);
+            msg << " type checking time for " << m_name;
+            timeit timer(m_p.diagnostic_stream().get_stream(), msg.str().c_str());
+            return ::lean::check(m_env, d);
+        } else {
+            return ::lean::check(m_env, d);
+        }
+    }
+
     void process_locals() {
         if (m_p.has_locals()) {
             buffer<expr> locals;
@@ -945,13 +964,13 @@ class definition_cmd_fn {
                     c_type  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, c_type));
                     c_value = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, c_value));
                     if (m_kind == Theorem) {
-                        cd = check(m_env, mk_theorem(m_real_name, c_ls, c_type, c_value));
+                        cd = check(mk_theorem(m_real_name, c_ls, c_type, c_value));
                         if (!m_p.keep_new_thms()) {
                             // discard theorem
-                            cd = check(m_env, mk_axiom(m_real_name, c_ls, c_type));
+                            cd = check(mk_axiom(m_real_name, c_ls, c_type));
                         }
                     } else {
-                        cd = check(m_env, mk_definition(m_env, m_real_name, c_ls, c_type, c_value, m_is_opaque));
+                        cd = check(mk_definition(m_env, m_real_name, c_ls, c_type, c_value, m_is_opaque));
                     }
                     if (!m_is_private)
                         m_p.add_decl_index(m_real_name, m_pos, m_p.get_cmd_token(), c_type);
@@ -1018,13 +1037,38 @@ class definition_cmd_fn {
         }
     }
 
+    std::tuple<expr, level_param_names> elaborate_type(expr const & e) {
+        bool clear_pre_info = false; // we don't want to clear pre_info data until we process the proof.
+        if (m_p.profiling()) {
+            std::ostringstream msg;
+            display_pos(msg);
+            msg << " type elaboration time for " << m_name;
+            timeit timer(m_p.diagnostic_stream().get_stream(), msg.str().c_str());
+            return m_p.elaborate_type(e, list<expr>(), clear_pre_info);
+        } else {
+            return m_p.elaborate_type(e, list<expr>(), clear_pre_info);
+        }
+    }
+
+    std::tuple<expr, expr, level_param_names> elaborate_definition(expr const & type, expr const & value, bool is_opaque) {
+        if (m_p.profiling()) {
+            std::ostringstream msg;
+            display_pos(msg);
+            msg << " elaboration time for " << m_name;
+            timeit timer(m_p.diagnostic_stream().get_stream(), msg.str().c_str());
+            return m_p.elaborate_definition(m_name, type, value, is_opaque);
+        } else {
+            return m_p.elaborate_definition(m_name, type, value, is_opaque);
+        }
+    }
+
     // Elaborate definitions that contain auxiliary ones nested inside.
     // Remark: we do not cache this kind of definition.
     // This method will also initialize m_aux_types
     void elaborate_multi() {
         lean_assert(!m_aux_decls.empty());
         level_param_names new_ls;
-        std::tie(m_type, m_value, new_ls) = m_p.elaborate_definition(m_name, m_type, m_value, m_is_opaque);
+        std::tie(m_type, m_value, new_ls) = elaborate_definition(m_type, m_value, m_is_opaque);
         new_ls = append(m_ls, new_ls);
         lean_assert(m_aux_types.empty());
         buffer<expr> aux_values;
@@ -1039,16 +1083,16 @@ class definition_cmd_fn {
             aux_values[i]  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, aux_values[i]));
         }
         if (is_definition()) {
-            m_env = module::add(m_env, check(m_env, mk_definition(m_env, m_real_name, new_ls,
-                                                                  m_type, m_value, m_is_opaque)));
+            m_env = module::add(m_env, check(mk_definition(m_env, m_real_name, new_ls,
+                                                           m_type, m_value, m_is_opaque)));
             for (unsigned i = 0; i < aux_values.size(); i++)
-                m_env = module::add(m_env, check(m_env, mk_definition(m_env, m_real_aux_names[i], new_ls,
-                                                                      m_aux_types[i], aux_values[i], m_is_opaque)));
+                m_env = module::add(m_env, check(mk_definition(m_env, m_real_aux_names[i], new_ls,
+                                                               m_aux_types[i], aux_values[i], m_is_opaque)));
         } else {
-            m_env = module::add(m_env, check(m_env, mk_theorem(m_real_name, new_ls, m_type, m_value)));
+            m_env = module::add(m_env, check(mk_theorem(m_real_name, new_ls, m_type, m_value)));
             for (unsigned i = 0; i < aux_values.size(); i++)
-                m_env = module::add(m_env, check(m_env, mk_theorem(m_real_aux_names[i], new_ls,
-                                                                   m_aux_types[i], aux_values[i])));
+                m_env = module::add(m_env, check(mk_theorem(m_real_aux_names[i], new_ls,
+                                                            m_aux_types[i], aux_values[i])));
         }
     }
 
@@ -1064,8 +1108,7 @@ class definition_cmd_fn {
             } else if (!is_definition()) {
                 // Theorems and Examples
                 auto type_pos = m_p.pos_of(m_type);
-                bool clear_pre_info = false; // we don't want to clear pre_info data until we process the proof.
-                std::tie(m_type, new_ls) = m_p.elaborate_type(m_type, list<expr>(), clear_pre_info);
+                std::tie(m_type, new_ls) = elaborate_type(m_type);
                 check_no_metavar(m_env, m_real_name, m_type, true);
                 m_ls = append(m_ls, new_ls);
                 m_type = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
@@ -1074,30 +1117,30 @@ class definition_cmd_fn {
                     // Add as axiom, and create a task to prove the theorem.
                     // Remark: we don't postpone the "proof" of Examples.
                     m_p.add_delayed_theorem(m_env, m_real_name, m_ls, type_as_is, m_value);
-                    m_env = module::add(m_env, check(m_env, mk_axiom(m_real_name, m_ls, m_type)));
+                    m_env = module::add(m_env, check(mk_axiom(m_real_name, m_ls, m_type)));
                 } else {
-                    std::tie(m_type, m_value, new_ls) = m_p.elaborate_definition(m_name, type_as_is, m_value, m_is_opaque);
+                    std::tie(m_type, m_value, new_ls) = elaborate_definition(type_as_is, m_value, m_is_opaque);
                     m_type  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
                     m_value = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_value));
                     new_ls = append(m_ls, new_ls);
-                    auto cd = check(m_env, mk_theorem(m_real_name, new_ls, m_type, m_value));
+                    auto cd = check(mk_theorem(m_real_name, new_ls, m_type, m_value));
                     if (m_kind == Theorem) {
                         // Remark: we don't keep examples
                         if (!m_p.keep_new_thms()) {
                             // discard theorem
-                            cd = check(m_env, mk_axiom(m_real_name, new_ls, m_type));
+                            cd = check(mk_axiom(m_real_name, new_ls, m_type));
                         }
                         m_env = module::add(m_env, cd);
                         m_p.cache_definition(m_real_name, pre_type, pre_value, new_ls, m_type, m_value);
                     }
                 }
             } else {
-                std::tie(m_type, m_value, new_ls) = m_p.elaborate_definition(m_name, m_type, m_value, m_is_opaque);
+                std::tie(m_type, m_value, new_ls) = elaborate_definition(m_type, m_value, m_is_opaque);
                 new_ls = append(m_ls, new_ls);
                 m_type  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
                 m_value = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_value));
-                m_env = module::add(m_env, check(m_env, mk_definition(m_env, m_real_name, new_ls,
-                                                                      m_type, m_value, m_is_opaque)));
+                m_env = module::add(m_env, check(mk_definition(m_env, m_real_name, new_ls,
+                                                               m_type, m_value, m_is_opaque)));
                 m_p.cache_definition(m_real_name, pre_type, pre_value, new_ls, m_type, m_value);
             }
         }
@@ -1117,13 +1160,12 @@ class definition_cmd_fn {
         process_locals();
         mk_real_name();
 
-        bool clear_pre_info      = false;
         level_param_names new_ls;
-        std::tie(m_type, new_ls) = m_p.elaborate_type(m_type, list<expr>(), clear_pre_info);
+        std::tie(m_type, new_ls) = elaborate_type(m_type);
         check_no_metavar(m_env, m_real_name, m_type, true);
         m_ls = append(m_ls, new_ls);
         m_type = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
-        m_env = module::add(m_env, check(m_env, mk_axiom(m_real_name, m_ls, m_type)));
+        m_env = module::add(m_env, check(mk_axiom(m_real_name, m_ls, m_type)));
         register_decl(m_name, m_real_name, m_type);
     }
 

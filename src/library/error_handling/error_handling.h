@@ -10,6 +10,9 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 
 namespace lean {
+void display_pos(std::ostream & out, options const & o, char const * strm_name, unsigned line, unsigned pos);
+void display_pos(std::ostream & out, char const * strm_name, unsigned line, unsigned pos);
+void display_pos(io_state_stream const & ios, char const * strm_name, unsigned line, unsigned pos);
 /**
    \brief Display position information associated with \c e (IF avaiable).
    If it is not available, it just displays "error:"

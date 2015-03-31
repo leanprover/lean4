@@ -117,6 +117,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --flycheck        print structured error message for flycheck\n";
     std::cout << "  --cache=file -c   load/save cached definitions from/to the given file\n";
     std::cout << "  --index=file -i   store index for declared symbols in the given file\n";
+    std::cout << "  --profile         display elaboration/type checking time for each definition/theorem\n";
 #if defined(LEAN_USE_BOOST)
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
@@ -157,6 +158,7 @@ static struct option g_long_options[] = {
     {"trust",        required_argument, 0, 't'},
     {"discard",      no_argument,       0, 'r'},
     {"to_axiom",     no_argument,       0, 'X'},
+    {"profile",      no_argument,       0, 'P'},
 #if defined(LEAN_MULTI_THREAD)
     {"server",       no_argument,       0, 'S'},
     {"threads",      required_argument, 0, 'j'},
@@ -175,7 +177,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "HRXFC:dD:qrlupgvhk:012t:012o:c:i:L:012O:012G"
+#define OPT_STR "PHRXFC:dD:qrlupgvhk:012t:012o:c:i:L:012O:012G"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -444,6 +446,9 @@ int main(int argc, char ** argv) {
             break;
         case 'F':
             opts = opts.update("flycheck", true);
+            break;
+        case 'P':
+            opts = opts.update("profile", true);
             break;
         case 'L':
             line = atoi(optarg);

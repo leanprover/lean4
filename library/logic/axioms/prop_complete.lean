@@ -6,9 +6,13 @@ Module: logic.axioms.classical
 Author: Leonardo de Moura
 -/
 import logic.connectives logic.quantifiers logic.cast algebra.relation
+import logic.axioms.propext logic.axioms.em
 open eq.ops
 
-axiom prop_complete (a : Prop) : a = true ∨ a = false
+theorem prop_complete (a : Prop) : a = true ∨ a = false :=
+or.elim (em a)
+  (λ t, or.inl (propext (iff.intro (λ h, trivial) (λ h, t))))
+  (λ f, or.inr (propext (iff.intro (λ h, absurd h f) (λ h, false.elim h))))
 
 definition eq_true_or_eq_false := prop_complete
 
@@ -19,12 +23,6 @@ or.elim (prop_complete a)
 
 theorem cases_on (a : Prop) {P : Prop → Prop} (H1 : P true) (H2 : P false) : P a :=
 cases_true_false P H1 H2 a
-
--- this supercedes the em in decidable
-theorem em (a : Prop) : a ∨ ¬a :=
-or.elim (prop_complete a)
-  (assume Ht : a = true,  or.inl (of_eq_true Ht))
-  (assume Hf : a = false, or.inr (not_of_eq_false Hf))
 
 -- this supercedes by_cases in decidable
 definition by_cases {p q : Prop} (Hpq : p → q) (Hnpq : ¬p → q) : q :=
@@ -42,22 +40,13 @@ cases_true_false (λ x, x = false ∨ x = true)
   (or.inl rfl)
   a
 
-theorem propext {a b : Prop} (Hab : a → b) (Hba : b → a) : a = b :=
-or.elim (prop_complete a)
-  (assume Hat,  or.elim (prop_complete b)
-    (assume Hbt,  Hat ⬝ Hbt⁻¹)
-    (assume Hbf, false.elim (Hbf ▸ (Hab (of_eq_true Hat)))))
-  (assume Haf, or.elim (prop_complete b)
-    (assume Hbt,  false.elim (Haf ▸ (Hba (of_eq_true Hbt))))
-    (assume Hbf, Haf ⬝ Hbf⁻¹))
-
 theorem eq.of_iff {a b : Prop} (H : a ↔ b) : a = b :=
-iff.elim (assume H1 H2, propext H1 H2) H
+iff.elim (assume H1 H2, propext (iff.intro H1 H2)) H
 
 theorem iff_eq_eq {a b : Prop} : (a ↔ b) = (a = b) :=
-propext
+propext (iff.intro
   (assume H, eq.of_iff H)
-  (assume H, iff.of_eq H)
+  (assume H, iff.of_eq H))
 
 open relation
 theorem iff_congruence [instance] (P : Prop → Prop) : is_congruence iff iff P :=

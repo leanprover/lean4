@@ -20,6 +20,8 @@ definition symmetric := ∀⦃x y⦄, x ≺ y → y ≺ x
 
 definition transitive := ∀⦃x y z⦄, x ≺ y → y ≺ z → x ≺ z
 
+definition equivalence := reflexive R ∧ symmetric R ∧ transitive R
+
 definition irreflexive := ∀x, ¬ x ≺ x
 
 definition anti_symmetric := ∀⦃x y⦄, x ≺ y → y ≺ x → x = y

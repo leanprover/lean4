@@ -29,6 +29,13 @@ namespace sigma
   variable  (Ra  : A → A → Prop)
   variable  (Rb  : ∀ a, B a → B a → Prop)
 
+  theorem dpair_eq : ∀ {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂), eq.rec_on H₁ b₁ = b₂ → ⟨a₁, b₁⟩ = ⟨a₂, b₂⟩
+  | a₁ a₁ b₁ b₁ rfl rfl := rfl
+
+  protected theorem equal {p₁ p₂ : Σa : A, B a} :
+    ∀(H₁ : p₁.1 = p₂.1) (H₂ : eq.rec_on H₁ p₁.2 = p₂.2), p₁ = p₂ :=
+  destruct p₁ (take a₁ b₁, destruct p₂ (take a₂ b₂ H₁ H₂, dpair_eq H₁ H₂))
+
   -- Lexicographical order based on Ra and Rb
   inductive lex : sigma B → sigma B → Prop :=
   | left  : ∀{a₁ b₁} a₂ b₂, Ra a₁ a₂   → lex ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
@@ -59,6 +66,5 @@ namespace sigma
   -- The lexicographical order of well founded relations is well-founded
   definition lex.wf (Ha : well_founded Ra) (Hb : ∀ x, well_founded (Rb x)) : well_founded (lex Ra Rb) :=
   well_founded.intro (λp, destruct p (λa b, lex.accessible (Ha a) Hb b))
-
   end
 end sigma

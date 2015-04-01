@@ -17,17 +17,9 @@ namespace sigma
   definition unpack {C : (Σa, B a) → Type} {u : Σa, B a} (H : C ⟨u.1 , u.2⟩) : C u :=
   destruct u (λx y H, H) H
 
-  theorem dpair_eq {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂) (H₂ : eq.rec_on H₁ b₁ = b₂) :
-    ⟨a₁, b₁⟩ = ⟨a₂, b₂⟩ :=
-  dcongr_arg2 mk H₁ H₂
-
   theorem dpair_heq {a : A} {a' : A'} {b : B a} {b' : B' a'}
       (HB : B == B') (Ha : a == a') (Hb : b == b') : ⟨a, b⟩ == ⟨a', b'⟩ :=
   hcongr_arg4 @mk (heq.type_eq Ha) HB Ha Hb
-
-  protected theorem equal {p₁ p₂ : Σa : A, B a} :
-    ∀(H₁ : p₁.1 = p₂.1) (H₂ : eq.rec_on H₁ p₁.2 = p₂.2), p₁ = p₂ :=
-  destruct p₁ (take a₁ b₁, destruct p₂ (take a₂ b₂ H₁ H₂, dpair_eq H₁ H₂))
 
   protected theorem hequal {p : Σa : A, B a} {p' : Σa' : A', B' a'} (HB : B == B') :
     ∀(H₁ : p.1 == p'.1) (H₂ : p.2 == p'.2), p == p' :=

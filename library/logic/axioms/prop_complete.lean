@@ -6,7 +6,7 @@ Module: logic.axioms.classical
 Author: Leonardo de Moura
 -/
 import logic.connectives logic.quantifiers logic.cast algebra.relation
-import logic.axioms.propext logic.axioms.em
+import logic.axioms.em
 open eq.ops
 
 theorem prop_complete (a : Prop) : a = true ∨ a = false :=

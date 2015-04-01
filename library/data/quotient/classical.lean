@@ -1,8 +1,7 @@
 -- Copyright (c) 2014 Floris van Doorn. All rights reserved.
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Floris van Doorn
-
-import algebra.relation data.subtype logic.axioms.classical logic.axioms.hilbert logic.axioms.funext
+import algebra.relation data.subtype logic.axioms.classical logic.axioms.hilbert
 import .basic
 
 namespace quotient

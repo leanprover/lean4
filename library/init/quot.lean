@@ -11,6 +11,8 @@ import init.sigma init.setoid
 open sigma.ops setoid
 
 constant quot.{l}   : Π {A : Type.{l}}, setoid A → Type.{l}
+-- Remark: if we do not use propext here, then we would need a quot.lift for propositions.
+constant propext {a b : Prop} : a ↔ b → a = b
 
 namespace quot
   constant mk        : Π {A : Type}   [s : setoid A], A → quot s

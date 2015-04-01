@@ -5,9 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: algebra.category.basic
 Author: Floris van Doorn
 -/
-
-import logic.axioms.funext
-
 open eq eq.ops
 
 structure category [class] (ob : Type) : Type :=

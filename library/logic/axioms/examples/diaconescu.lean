@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Leonardo de Moura
 
-import logic.axioms.hilbert logic.axioms.funext
+import logic.axioms.hilbert logic.eq
 open eq.ops nonempty inhabited
 
 -- Diaconescu’s theorem

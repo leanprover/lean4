@@ -60,7 +60,7 @@ namespace category
   variables {A : Type} [H : decidable_eq A]
   include H
   definition set_hom [reducible] (a b : A) := decidable.rec_on (H a b) (λh, unit) (λh, empty)
-  theorem set_hom_subsingleton [instance] (a b : A) : subsingleton (set_hom a b) := _
+  theorem set_hom_subsingleton [instance] (a b : A) : subsingleton (set_hom a b) := rec_subsingleton
   definition set_compose [reducible] {a b c : A} (g : set_hom b c) (f : set_hom a b) : set_hom a c :=
   decidable.rec_on
     (H b c)

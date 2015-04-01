@@ -11,15 +11,9 @@ Quotient types for kernels with proof irrelevance.
 #include "kernel/environment.h"
 #include "kernel/quotient/quotient.h"
 
-// Hash code used to identify expected declarations
-#define QUOT_MK_HASH    1806675635
-#define QUOT_SOUND_HASH 392276735
-#define QUOT_EXACT_HASH 843388255
-#define QUOT_LIFT_HASH  3998074667
-#define QUOT_IND_HASH   2559759863
-
 namespace lean {
 static name * g_quotient_extension = nullptr;
+static name * g_propext        = nullptr;
 static name * g_quotient       = nullptr;
 static name * g_quotient_lift  = nullptr;
 static name * g_quotient_ind   = nullptr;
@@ -50,21 +44,7 @@ static environment update(environment const & env, quotient_env_ext const & ext)
     return env.update(g_ext->m_ext_id, std::make_shared<quotient_env_ext>(ext));
 }
 
-static void check_type_hash(environment const & env, name const & d, unsigned hash) {
-    auto decl = env.find(d);
-    if (!decl)
-        throw kernel_exception(env, sstream() << "failed to initialize quotient type, declaration '" << d << "' is missing");
-    if (decl->get_type().hash() != hash)
-        throw kernel_exception(env, sstream() << "invalid quotient builtin declaration '" << d << "', hash code does not match"
-                               << ", expected: " << hash << ", got: " << decl->get_type().hash());
-}
-
 environment declare_quotient(environment const & env) {
-    check_type_hash(env, name{"quot", "mk"},    QUOT_MK_HASH);
-    check_type_hash(env, name{"quot", "sound"}, QUOT_SOUND_HASH);
-    check_type_hash(env, name{"quot", "exact"}, QUOT_EXACT_HASH);
-    check_type_hash(env, name{"quot", "lift"},  QUOT_LIFT_HASH);
-    check_type_hash(env, name{"quot", "ind"},   QUOT_IND_HASH);
     quotient_env_ext ext = get_extension(env);
     ext.m_initialized = true;
     return update(env, ext);
@@ -140,12 +120,13 @@ bool is_quotient_decl(environment const & env, name const & n) {
     if (!get_extension(env).m_initialized)
         return false;
     return
-        n == *g_quotient || n == *g_quotient_lift || n == *g_quotient_ind || n == *g_quotient_mk ||
+        n == *g_propext || n == *g_quotient || n == *g_quotient_lift || n == *g_quotient_ind || n == *g_quotient_mk ||
         n == *g_quotient_sound || n == *g_quotient_exact;
 }
 
 void initialize_quotient_module() {
     g_quotient_extension = new name("quotient_extension");
+    g_propext            = new name{"propext"};
     g_quotient           = new name{"quot"};
     g_quotient_lift      = new name{"quot", "lift"};
     g_quotient_ind       = new name{"quot", "ind"};
@@ -157,6 +138,7 @@ void initialize_quotient_module() {
 
 void finalize_quotient_module() {
     delete g_ext;
+    delete g_propext;
     delete g_quotient_extension;
     delete g_quotient;
     delete g_quotient_lift;

@@ -63,6 +63,10 @@ namespace quot
   protected definition rec_on [reducible]
      (q : quot s) (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b) : B q :=
   rec f H q
+
+  protected definition rec_on_subsingleton [reducible]
+     [H : ∀ a, subsingleton (B ⟦a⟧)] (q : quot s) (f : Π a, B ⟦a⟧) : B q :=
+  rec f (λ a b h, !subsingleton.elim) q
   end
 
   section

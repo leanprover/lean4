@@ -219,6 +219,12 @@ list.induction_on l
           from H3 ▸ rfl,
         !exists.intro (!exists.intro H4)))
 
+theorem mem_append_left {a : T} {l₁ : list T} (l₂ : list T) : a ∈ l₁ → a ∈ l₁ ++ l₂ :=
+assume ainl₁, mem_append_of_mem_or_mem (or.inl ainl₁)
+
+theorem mem_append_right {a : T} (l₁ : list T) {l₂ : list T} : a ∈ l₂ → a ∈ l₁ ++ l₂ :=
+assume ainl₂, mem_append_of_mem_or_mem (or.inr ainl₂)
+
 definition decidable_mem [instance] [H : decidable_eq T] (x : T) (l : list T) : decidable (x ∈ l) :=
 list.rec_on l
   (decidable.inr (not_of_iff_false !mem_nil))

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 Quotient types
 -/
 prelude
-import init.sigma init.setoid
+import init.sigma init.setoid init.logic
 open sigma.ops setoid
 
 constant quot.{l}   : Π {A : Type.{l}}, setoid A → Type.{l}
@@ -91,7 +91,23 @@ namespace quot
   protected theorem ind₂ {C : quot s₁ → quot s₂ → Prop} (H : ∀ a b, C ⟦a⟧ ⟦b⟧) (q₁ : quot s₁) (q₂ : quot s₂) : C q₁ q₂ :=
   quot.ind (λ a₁, quot.ind (λ a₂, H a₁ a₂) q₂) q₁
 
-  protected theorem induction_on₂ {C : quot s₁ → quot s₂ → Prop} (q₁ : quot s₁) (q₂ : quot s₂) (H : ∀ a b, C ⟦a⟧ ⟦b⟧) : C q₁ q₂ :=
+  protected theorem induction_on₂
+     {C : quot s₁ → quot s₂ → Prop} (q₁ : quot s₁) (q₂ : quot s₂) (H : ∀ a b, C ⟦a⟧ ⟦b⟧) : C q₁ q₂ :=
   quot.ind (λ a₁, quot.ind (λ a₂, H a₁ a₂) q₂) q₁
+
+  end
+
+  section
+  variables {A B : Type}
+  variables [s₁ : setoid A] [s₂ : setoid B]
+  include s₁ s₂
+  variable {C : quot s₁ → quot s₂ → Type}
+
+  protected definition rec_on_subsingleton₂ [reducible]
+     {C : quot s₁ → quot s₂ → Type₁} [H : ∀ a b, subsingleton (C ⟦a⟧ ⟦b⟧)]
+     (q₁ : quot s₁) (q₂ : quot s₂) (f : Π a b, C ⟦a⟧ ⟦b⟧) : C q₁ q₂:=
+  @quot.rec_on_subsingleton _ _ _
+    (λ a, quot.ind _ _)
+    q₁ (λ a, quot.rec_on_subsingleton q₂ (λ b, f a b))
   end
 end quot

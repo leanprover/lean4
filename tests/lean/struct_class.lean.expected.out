@@ -3,10 +3,12 @@ inhabited : Type → Type
 measurable : Type → Type
 nonempty : Type → Prop
 point : Type → Type → Type
+setoid : Type → Type
 well_founded : Π {A : Type}, (A → A → Prop) → Prop
 decidable : Prop → Type₁
 inhabited : Type → Type
 measurable : Type → Type
 nonempty : Type → Prop
 point : Type → Type → Type
+setoid : Type → Type
 well_founded : Π {A : Type}, (A → A → Prop) → Prop

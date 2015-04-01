@@ -7,8 +7,9 @@ Author: Jeremy Avigad
 function extensionality from quotients
 -/
 prelude
-import init.quot
+import init.quot init.logic
 
+/- function extensionality follows from quotients -/
 section
   open quot
   variables {A : Type} {B : A → Type}
@@ -49,3 +50,9 @@ section
     ... = extfun_app ⟦f₂⟧      : {sound H}
     ... = f₂                   : rfl
 end
+
+definition subsingleton_pi [instance] {A : Type} {B : A → Type} (H : ∀ a, subsingleton (B a)) : subsingleton (Π a, B a) :=
+subsingleton.intro (take f₁ f₂,
+  have eqv : f₁ ~ f₂, from
+    take a, subsingleton.elim (f₁ a) (f₂ a),
+  funext eqv)

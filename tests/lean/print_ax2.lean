@@ -1,3 +1,3 @@
-import logic.axioms.hilbert logic.axioms.funext
+import logic.axioms.hilbert logic.axioms.em
 
 print axioms

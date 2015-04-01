@@ -396,6 +396,40 @@ nonempty.rec H2 H1
 theorem nonempty_of_inhabited [instance] {A : Type} [H : inhabited A] : nonempty A :=
 nonempty.intro (default A)
 
+/- subsingleton -/
+
+inductive subsingleton [class] (A : Type) : Prop :=
+intro : (∀ a b : A, a = b) → subsingleton A
+
+protected definition subsingleton.elim {A : Type} [H : subsingleton A] : ∀(a b : A), a = b :=
+subsingleton.rec (fun p, p) H
+
+definition subsingleton_prop [instance] (p : Prop) : subsingleton p :=
+subsingleton.intro (λa b, !proof_irrel)
+
+definition subsingleton_decidable [instance] (p : Prop) : subsingleton (decidable p) :=
+subsingleton.intro (λ d₁,
+  match d₁ with
+  | inl t₁ := (λ d₂,
+    match d₂ with
+    | inl t₂ := eq.rec_on (proof_irrel t₁ t₂) rfl
+    | inr f₂ := absurd t₁ f₂
+    end)
+  | inr f₁ := (λ d₂,
+    match d₂ with
+    | inl t₂ := absurd t₂ f₁
+    | inr f₂ := eq.rec_on (proof_irrel f₁ f₂) rfl
+    end)
+  end)
+
+protected theorem rec_subsingleton {p : Prop} [H : decidable p]
+    {H1 : p → Type} {H2 : ¬p → Type}
+    [H3 : Π(h : p), subsingleton (H1 h)] [H4 : Π(h : ¬p), subsingleton (H2 h)]
+  : subsingleton (decidable.rec_on H H1 H2) :=
+decidable.rec_on H (λh, H3 h) (λh, H4 h) --this can be proven using dependent version of "by_cases"
+
+/- if-then-else -/
+
 definition ite (c : Prop) [H : decidable c] {A : Type} (t e : A) : A :=
 decidable.rec_on H (λ Hc, t) (λ Hnc, e)
 

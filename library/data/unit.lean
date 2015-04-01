@@ -5,8 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: data.unit
 Author: Leonardo de Moura
 -/
-
-import logic.eq logic.subsingleton
+import logic.eq
 
 namespace unit
   notation `⋆` := star

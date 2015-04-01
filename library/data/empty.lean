@@ -5,8 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: data.empty
 Author: Jeremy Avigad, Floris van Doorn
 -/
-
-import logic.cast logic.subsingleton
+import logic.cast
 
 namespace empty
   protected theorem elim (A : Type) (H : empty) : A :=

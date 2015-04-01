@@ -175,4 +175,19 @@ namespace finset
   example : to_finset [(1:nat), 1, 4, 2, 3] ≠ to_finset [2, 3, 1, 2, 2, 3] :=
   dec_trivial
 
+  definition clean {A : Type} [H : decidable_eq A] (s : finset A) : finset A :=
+  quot.lift_on s (λ l, ⟦norep l⟧)
+   (λ l₁ l₂ e, calc
+     ⟦norep l₁⟧  = ⟦l₁⟧       : quot.sound (eqv_norep l₁)
+            ...  = ⟦l₂⟧       : quot.sound e
+            ...  = ⟦norep l₂⟧ : quot.sound (eqv_norep l₂))
+
+  theorem eq_clean {A : Type} [H : decidable_eq A] : ∀ s : finset A, clean s = s :=
+  take s, quot.induction_on s (λ l, eq.symm (quot.sound (eqv_norep l)))
+
+  theorem eq_of_clean_eq_clean {A : Type} [H : decidable_eq A] : ∀ s₁ s₂, clean s₁ = clean s₂ → s₁ = s₂ :=
+  take s₁ s₂, by rewrite *eq_clean; intro H; apply H
+
+  example : to_finset [(1:nat), 1, 2, 3] = to_finset [1, 2, 2, 2, 3, 3] :=
+  !eq_of_clean_eq_clean rfl
 end finset

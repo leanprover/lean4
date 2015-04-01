@@ -8,4 +8,4 @@ Authors: Leonardo de Moura
 prelude
 import init.datatypes init.reserved_notation init.tactic init.logic
 import init.relation init.wf init.nat init.wf_k init.prod init.priority
-import init.bool init.num init.sigma init.measurable init.setoid
+import init.bool init.num init.sigma init.measurable init.setoid init.quot

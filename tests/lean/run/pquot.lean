@@ -86,7 +86,7 @@ mk :: (refl  : ∀x, R x x)
       (trans : ∀{x y z}, R x y → R y z → R x z)
 
 -- Definiable quotients are exact if R is an equivalence relation
-theorem quot.exact {A : Type} {R : A → A → Prop} (eqv : is_equiv R) (q : dquot R) : pquot.exact R :=
+theorem quot_exact {A : Type} {R : A → A → Prop} (eqv : is_equiv R) (q : dquot R) : pquot.exact R :=
 λ (a b : A) (H : pquot.abs R a = pquot.abs R b),
   have H₁ : pquot.abs R a = pquot.abs R a → R (dquot.rep q (pquot.abs R a)) (dquot.rep q (pquot.abs R a)),
     from λH, is_equiv.refl eqv _,

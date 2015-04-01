@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "util/name_map.h"
 #include "kernel/type_checker.h"
+#include "kernel/quotient/quotient.h"
 #include "library/module.h"
 #include "library/sorry.h"
 #include "library/kernel_serializer.h"
@@ -159,9 +160,10 @@ void register_module_object_reader(std::string const & k, module_object_reader r
     readers[k] = r;
 }
 
-static std::string * g_glvl_key = nullptr;
-static std::string * g_decl_key = nullptr;
+static std::string * g_glvl_key  = nullptr;
+static std::string * g_decl_key  = nullptr;
 static std::string * g_inductive = nullptr;
+static std::string * g_quotient  = nullptr;
 
 namespace module {
 environment add(environment const & env, std::string const & k, std::function<void(serializer &)> const & wr) {
@@ -201,6 +203,19 @@ environment add(environment const & env, declaration const & d) {
 bool is_definition(environment const & env, name const & n) {
     module_ext const & ext = get_extension(env);
     return ext.m_module_defs.contains(n);
+}
+
+environment declare_quotient(environment const & env) {
+    environment new_env = ::lean::declare_quotient(env);
+    return add(new_env, *g_quotient, [=](serializer &) {});
+}
+
+static void quotient_reader(deserializer &, module_idx, shared_environment & senv,
+                            std::function<void(asynch_update_fn const &)>  &,
+                            std::function<void(delayed_update_fn const &)> &) {
+    senv.update([&](environment const & env) {
+            return ::lean::declare_quotient(env);
+        });
 }
 
 environment add_inductive(environment                  env,
@@ -560,11 +575,14 @@ void initialize_module() {
     g_glvl_key       = new std::string("glvl");
     g_decl_key       = new std::string("decl");
     g_inductive      = new std::string("ind");
+    g_quotient       = new std::string("quot");
     register_module_object_reader(*g_inductive, module::inductive_reader);
+    register_module_object_reader(*g_quotient, module::quotient_reader);
 }
 
 void finalize_module() {
     delete g_inductive;
+    delete g_quotient;
     delete g_decl_key;
     delete g_glvl_key;
     delete g_object_readers;

@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
+#include "kernel/quotient/quotient.h"
 #include "kernel/default_converter.h"
 #include "library/io_state_stream.h"
 #include "library/scoped_ext.h"
@@ -68,6 +69,7 @@ static void print_axioms(parser & p) {
     env.for_each_declaration([&](declaration const & d) {
             name const & n = d.get_name();
             if (!d.is_definition() &&
+                !is_quotient_decl(env, n) &&
                 !inductive::is_inductive_decl(env, n) &&
                 !inductive::is_elim_rule(env, n) &&
                 !inductive::is_intro_rule(env, n)) {
@@ -678,6 +680,10 @@ static environment help_cmd(parser & p) {
     return p.env();
 }
 
+environment init_quotient_cmd(parser & p) {
+    return module::declare_quotient(p.env());
+}
+
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",          "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -695,6 +701,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("find_decl",     "find definitions and/or theorems", find_cmd));
     add_cmd(r, cmd_info("local",         "define local attributes or notation", local_cmd));
     add_cmd(r, cmd_info("help",          "brief description of available commands and options", help_cmd));
+    add_cmd(r, cmd_info("init_quotient", "initialize quotient type computational rules", init_quotient_cmd));
     add_cmd(r, cmd_info("#erase_cache",  "erase cached definition (for debugging purposes)", erase_cache_cmd));
     add_cmd(r, cmd_info("#projections",  "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
     add_cmd(r, cmd_info("#telescope_eq", "(for debugging purposes)", telescope_eq_cmd));

@@ -27,7 +27,7 @@ section
   λH₁ H₂ x, eq.trans (H₁ x) (H₂ x)
 
   private theorem fun_eqv.is_equivalence (A : Type) (B : A → Type) : equivalence (@fun_eqv A B) :=
-  and.intro (@fun_eqv.refl A B) (and.intro (@fun_eqv.symm A B) (@fun_eqv.trans A B))
+  mk_equivalence (@fun_eqv A B) (@fun_eqv.refl A B) (@fun_eqv.symm A B) (@fun_eqv.trans A B)
 
   definition fun_setoid [instance] (A : Type) (B : A → Type) : setoid (Πx : A, B x) :=
   setoid.mk (@fun_eqv A B) (fun_eqv.is_equivalence A B)

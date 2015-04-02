@@ -22,6 +22,9 @@ definition transitive := ∀⦃x y z⦄, x ≺ y → y ≺ z → x ≺ z
 
 definition equivalence := reflexive R ∧ symmetric R ∧ transitive R
 
+definition mk_equivalence (r : reflexive R) (s : symmetric R) (t : transitive R) : equivalence R :=
+and.intro r (and.intro s t)
+
 definition irreflexive := ∀x, ¬ x ≺ x
 
 definition anti_symmetric := ∀⦃x y⦄, x ≺ y → y ≺ x → x = y

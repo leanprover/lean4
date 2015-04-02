@@ -148,4 +148,30 @@ theorem perm_rev : ∀ (l : list A), l ~ (reverse l)
   x::xs ~ xs++[x]           : perm_cons_app x xs
     ... ~ reverse xs ++ [x] : perm_app_left [x] (perm_rev xs)
     ... = reverse (x::xs)   : by rewrite [reverse_cons, concat_eq_append]
+
+theorem perm_middle (a : A) (l₁ l₂ : list A) : (a::l₁)++l₂ ~ l₁++(a::l₂) :=
+calc
+  (a::l₁) ++ l₂ = a::(l₁++l₂)   : rfl
+           ...  ~ l₁++l₂++[a]   : perm_cons_app
+           ...  = l₁++(l₂++[a]) : append.assoc
+           ...  ~ l₁++(a::l₂)   : perm_app_right l₁ (symm (perm_cons_app a l₂))
+
+theorem perm_cons_app_cons {l l₁ l₂ : list A} (a : A) : l ~ l₁++l₂ → a::l ~ l₁++(a::l₂) :=
+assume p, calc
+  a::l ~ l++[a]        : perm_cons_app
+   ... ~ l₁++l₂++[a]   : perm_app_left [a] p
+   ... = l₁++(l₂++[a]) : append.assoc
+   ... ~ l₁++(a::l₂)   : perm_app_right l₁ (symm (perm_cons_app a l₂))
+
+theorem perm_indunction_on {P : list A → list A → Prop} {l₁ l₂ : list A} (p : l₁ ~ l₂)
+   (h₁ : P [] [])
+   (h₂ : ∀ x l₁ l₂, l₁ ~ l₂ → P l₁ l₂ → P (x::l₁) (x::l₂))
+   (h₃ : ∀ x y l₁ l₂, l₁ ~ l₂ → P l₁ l₂ → P (y::x::l₁) (x::y::l₂))
+   (h₄ : ∀ l₁ l₂ l₃, l₁ ~ l₂ → l₂ ~ l₃ → P l₁ l₂ → P l₂ l₃ → P l₁ l₃)
+   : P l₁ l₂ :=
+have P_refl : ∀ l, P l l
+  | []      := h₁
+  | (x::xs) := h₂ x xs xs !refl (P_refl xs),
+perm.induction_on p h₁ h₂ (λ x y l, h₃ x y l l !refl !P_refl) h₄
+
 end perm

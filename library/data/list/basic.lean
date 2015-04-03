@@ -280,6 +280,30 @@ lemma sub_append_left (l₁ l₂ : list T) : l₁ ⊆ l₁++l₂ :=
 lemma sub_append_right (l₁ l₂ : list T) : l₂ ⊆ l₁++l₂ :=
 λ b i, iff.mp' (mem_append_iff b l₁ l₂) (or.inr i)
 
+lemma sub_cons_of_sub (a : T) {l₁ l₂ : list T} : l₁ ⊆ l₂ → l₁ ⊆ (a::l₂) :=
+λ (s : l₁ ⊆ l₂) (x : T) (i : x ∈ l₁), or.inr (s i)
+
+lemma sub_app_of_sub_left (l l₁ l₂ : list T) : l ⊆ l₁ → l ⊆ l₁++l₂ :=
+λ (s : l ⊆ l₁) (x : T) (xinl : x ∈ l),
+  have xinl₁ : x ∈ l₁, from s xinl,
+  mem_append_of_mem_or_mem (or.inl xinl₁)
+
+lemma sub_app_of_sub_right (l l₁ l₂ : list T) : l ⊆ l₂ → l ⊆ l₁++l₂ :=
+λ (s : l ⊆ l₂) (x : T) (xinl : x ∈ l),
+  have xinl₁ : x ∈ l₂, from s xinl,
+  mem_append_of_mem_or_mem (or.inr xinl₁)
+
+lemma cons_sub_of_sub_of_mem {a : T} {l m : list T} : a ∈ m → l ⊆ m → a::l ⊆ m :=
+λ (ainm : a ∈ m) (lsubm : l ⊆ m) (x : T) (xinal : x ∈ a::l), or.elim xinal
+  (assume xeqa : x = a, eq.rec_on (eq.symm xeqa) ainm)
+  (assume xinl : x ∈ l, lsubm xinl)
+
+lemma app_sub_of_sub_of_sub {l₁ l₂ l : list T} : l₁ ⊆ l → l₂ ⊆ l → l₁++l₂ ⊆ l :=
+λ (l₁subl : l₁ ⊆ l) (l₂subl : l₂ ⊆ l) (x : T) (xinl₁l₂ : x ∈ l₁++l₂),
+  or.elim (mem_or_mem_of_mem_append xinl₁l₂)
+    (λ xinl₁ : x ∈ l₁, l₁subl xinl₁)
+    (λ xinl₂ : x ∈ l₂, l₂subl xinl₂)
+
 /- find -/
 
 section
@@ -465,6 +489,81 @@ variable {A : Type}
 definition flat (l : list (list A)) : list A :=
 foldl append nil l
 
+/- quasiequal a l l' means that l' is exactly l, with a added
+   once somewhere -/
+inductive qeq (a : A) : list A → list A → Prop :=
+| qhead : ∀ l, qeq a l (a::l)
+| qcons : ∀ (b : A) {l l' : list A}, qeq a l l' → qeq a (b::l) (b::l')
+
+open qeq
+
+notation l' `≈`:50 a `|` l:50 := qeq a l l'
+
+lemma qeq_app : ∀ (l₁ : list A) (a : A) (l₂ : list A), l₁++(a::l₂) ≈ a|l₁++l₂
+| []      a l₂ := qhead a l₂
+| (x::xs) a l₂ := qcons x (qeq_app xs a l₂)
+
+lemma mem_head_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → a ∈ l₁ :=
+take q, qeq.induction_on q
+  (λ l, !mem_cons)
+  (λ b l l' q r, or.inr r)
+
+lemma mem_tail_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → ∀ x, x ∈ l₂ → x ∈ l₁ :=
+take q, qeq.induction_on q
+  (λ l x i, or.inr i)
+  (λ b l l' q r x xinbl, or.elim xinbl
+     (λ xeqb : x = b, xeqb ▸ mem_cons x l')
+     (λ xinl : x ∈ l, or.inr (r x xinl)))
+
+lemma mem_cons_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → ∀ x, x ∈ l₁ → x ∈ a::l₂ :=
+take q, qeq.induction_on q
+  (λ l x i, i)
+  (λ b l l' q r x xinbl', or.elim xinbl'
+    (λ xeqb  : x = b, xeqb ▸ or.inr (mem_cons x l))
+    (λ xinl' : x ∈ l', or.elim (r x xinl')
+      (λ xeqa : x = a, xeqa ▸ mem_cons x (b::l))
+      (λ xinl : x ∈ l, or.inr (or.inr xinl))))
+
+lemma length_eq_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → length l₁ = succ (length l₂) :=
+take q, qeq.induction_on q
+  (λ l, rfl)
+  (λ b l l' q r, by rewrite [*length_cons, r])
+
+lemma qeq_of_mem {a : A} {l : list A} : a ∈ l → (∃l', l≈a|l') :=
+list.induction_on l
+  (λ h : a ∈ nil, absurd h (not_mem_nil a))
+  (λ x xs r ainxxs, or.elim ainxxs
+    (λ aeqx  : a = x,
+       assert aux : ∃ l, x::xs≈x|l, from
+         exists.intro xs (qhead x xs),
+       by rewrite aeqx; exact aux)
+    (λ ainxs : a ∈ xs,
+       have ex : ∃l', xs ≈ a|l', from r ainxs,
+       obtain (l' : list A) (q : xs ≈ a|l'), from ex,
+       have q₂ : x::xs ≈ a | x::l', from qcons x q,
+       exists.intro (x::l') q₂))
+
+lemma qeq_split {a : A} {l l' : list A} : l'≈a|l → ∃l₁ l₂, l = l₁++l₂ ∧ l' = l₁++(a::l₂) :=
+take q, qeq.induction_on q
+  (λ t,
+    have aux : t = []++t ∧ a::t = []++(a::t), from and.intro rfl rfl,
+    exists.intro [] (exists.intro t aux))
+  (λ b t t' q r,
+    obtain (l₁ l₂ : list A) (h : t = l₁++l₂ ∧ t' = l₁++(a::l₂)), from r,
+    have aux : b::t = (b::l₁)++l₂ ∧ b::t' = (b::l₁)++(a::l₂),
+      begin
+        rewrite [and.elim_right h, and.elim_left h],
+        exact (and.intro rfl rfl)
+      end,
+    exists.intro (b::l₁) (exists.intro l₂ aux))
+
+lemma sub_of_mem_of_sub_of_qeq {a : A} {l : list A} {u v : list A} : a ∉ l → a::l ⊆ v → v≈a|u → l ⊆ u :=
+λ (nainl : a ∉ l) (s : a::l ⊆ v) (q : v≈a|u) (x : A) (xinl : x ∈ l),
+  have xinv : x ∈ v, from s (or.inr xinl),
+  have xinau : x ∈ a::u, from mem_cons_of_qeq q x xinv,
+  or.elim xinau
+    (λ xeqa : x = a, absurd (xeqa ▸ xinl) nainl)
+    (λ xinu : x ∈ u, xinu)
 end list
 
 attribute list.decidable_eq  [instance]

@@ -258,6 +258,12 @@ list.rec_on l
 theorem mem_of_ne_of_mem {x y : T} {l : list T} (H₁ : x ≠ y) (H₂ : x ∈ y :: l) : x ∈ l :=
 or.elim H₂ (λe, absurd e H₁) (λr, r)
 
+theorem not_eq_of_not_mem {a b : T} {l : list T} : a ∉ b::l → a ≠ b :=
+assume nin aeqb, absurd (or.inl aeqb) nin
+
+theorem not_mem_of_not_mem {a b : T} {l : list T} : a ∉ b::l → a ∉ l :=
+assume nin nainl, absurd (or.inr nainl) nin
+
 definition sublist (l₁ l₂ : list T) := ∀ ⦃a : T⦄, a ∈ l₁ → a ∈ l₂
 
 infix `⊆`:50 := sublist
@@ -618,6 +624,39 @@ lemma length_erase_of_not_mem (a : A) : ∀ l, a ∉ l → length (erase a l) = 
   assert anex   : a ≠ x,  from λ aeqx  : a = x,  absurd (or.inl aeqx) h,
   assert aninxs : a ∉ xs, from λ ainxs : a ∈ xs, absurd (or.inr ainxs) h,
   by rewrite [erase_cons_tail _ anex, length_cons, length_erase_of_not_mem xs aninxs]
+
+lemma erase_append_left {a : A} : ∀ {l₁} (l₂), a ∈ l₁ → erase a (l₁++l₂) = erase a l₁ ++ l₂
+| []      l₂  h := absurd h !not_mem_nil
+| (x::xs) l₂  h :=
+  by_cases
+   (λ aeqx : a = x, by rewrite [aeqx, append_cons, *erase_cons_head])
+   (λ anex : a ≠ x,
+    assert ainxs : a ∈ xs, from mem_of_ne_of_mem anex h,
+    by rewrite [append_cons, *erase_cons_tail _ anex, erase_append_left l₂ ainxs])
+
+lemma erase_append_right {a : A} : ∀ {l₁} (l₂), a ∉ l₁ → erase a (l₁++l₂) = l₁ ++ erase a l₂
+| []      l₂ h := _
+| (x::xs) l₂ h :=
+  by_cases
+   (λ aeqx : a = x, by rewrite aeqx at h; exact (absurd !mem_cons h))
+   (λ anex : a ≠ x,
+    assert nainxs : a ∉ xs, from not_mem_of_not_mem h,
+    by rewrite [append_cons, *erase_cons_tail _ anex, erase_append_right l₂ nainxs])
+
+lemma erase_sub (a : A) : ∀ l, erase a l ⊆ l
+| []      := λ x xine, xine
+| (x::xs) := λ y xine,
+  by_cases
+    (λ aeqx : a = x, by rewrite [aeqx at xine, erase_cons_head at xine]; exact (or.inr xine))
+    (λ anex : a ≠ x,
+      assert yinxe : y ∈ x :: erase a xs, by rewrite [erase_cons_tail _ anex at xine]; exact xine,
+      assert subxs : erase a xs ⊆ xs, from erase_sub xs,
+      by_cases
+        (λ yeqx : y = x, by rewrite yeqx; apply mem_cons)
+        (λ ynex : y ≠ x,
+          assert yine  : y ∈ erase a xs, from mem_of_ne_of_mem ynex yinxe,
+          assert yinxs : y ∈ xs, from subxs yine,
+          or.inr yinxs))
 
 end erase
 end list

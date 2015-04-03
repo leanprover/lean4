@@ -8,9 +8,9 @@ Author: Leonardo de Moura
 List permutations
 -/
 import data.list
-open list setoid
+open list setoid nat
 
-variable {A : Type}
+variables {A B : Type}
 
 inductive perm : list A → list A → Prop :=
 | nil   : perm [] []
@@ -163,7 +163,7 @@ assume p, calc
    ... = l₁++(l₂++[a]) : append.assoc
    ... ~ l₁++(a::l₂)   : perm_app_right l₁ (symm (perm_cons_app a l₂))
 
-theorem perm_indunction_on {P : list A → list A → Prop} {l₁ l₂ : list A} (p : l₁ ~ l₂)
+theorem perm_induction_on {P : list A → list A → Prop} {l₁ l₂ : list A} (p : l₁ ~ l₂)
    (h₁ : P [] [])
    (h₂ : ∀ x l₁ l₂, l₁ ~ l₂ → P l₁ l₂ → P (x::l₁) (x::l₂))
    (h₃ : ∀ x y l₁ l₂, l₁ ~ l₂ → P l₁ l₂ → P (y::x::l₁) (x::y::l₂))
@@ -174,4 +174,22 @@ have P_refl : ∀ l, P l l
   | (x::xs) := h₂ x xs xs !refl (P_refl xs),
 perm.induction_on p h₁ h₂ (λ x y l, h₃ x y l l !refl !P_refl) h₄
 
+theorem xswap {l₁ l₂ : list A} (x y : A) : l₁ ~ l₂ → x::y::l₁ ~ y::x::l₂ :=
+assume p, calc
+  x::y::l₁  ~  y::x::l₁  : swap
+        ... ~  y::x::l₂  : skip y (skip x p)
+
+theorem perm_map (f : A → B) {l₁ l₂ : list A} : l₁ ~ l₂ → map f l₁ ~ map f l₂ :=
+assume p, perm_induction_on p
+  nil
+  (λ x l₁ l₂ p r, skip (f x) r)
+  (λ x y l₁ l₂ p r, xswap (f y) (f x) r)
+  (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, trans r₁ r₂)
+
+lemma perm_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → l₁~a::l₂ :=
+assume q, qeq.induction_on q
+  (λ h, !refl)
+  (λ b t₁ t₂ q₁ r₁, calc
+     b::t₂ ~ b::a::t₁ : skip b r₁
+       ... ~ a::b::t₁ : swap)
 end perm

@@ -170,6 +170,11 @@ iff.mp !mem_nil
 theorem mem_cons (x : T) (l : list T) : x ∈ x :: l :=
 or.inl rfl
 
+theorem mem_singleton {x a : T} : x ∈ [a] → x = a :=
+assume h : x ∈ [a], or.elim h
+  (λ xeqa : x = a, xeqa)
+  (λ xinn : x ∈ [], absurd xinn !not_mem_nil)
+
 theorem mem_cons_of_mem (x : T) {y : T} {l : list T} : x ∈ l → x ∈ y :: l :=
 assume H, or.inr H
 
@@ -345,14 +350,14 @@ theorem nth_zero [h : inhabited T] (a : T) (l : list T) : nth (a :: l) 0 = a
 theorem nth_succ [h : inhabited T] (a : T) (l : list T) (n : nat) : nth (a::l) (n+1) = nth l n
 
 open decidable
-definition decidable_eq {A : Type} [H : decidable_eq A] : ∀ l₁ l₂ : list A, decidable (l₁ = l₂)
+definition has_decidable_eq {A : Type} [H : decidable_eq A] : ∀ l₁ l₂ : list A, decidable (l₁ = l₂)
 | []      []      := inl rfl
 | []      (b::l₂) := inr (λ H, list.no_confusion H)
 | (a::l₁) []      := inr (λ H, list.no_confusion H)
 | (a::l₁) (b::l₂) :=
   match H a b with
   | inl Hab  :=
-    match decidable_eq l₁ l₂ with
+    match has_decidable_eq l₁ l₂ with
     | inl He := inl (eq.rec_on Hab (eq.rec_on He rfl))
     | inr Hn := inr (λ H, list.no_confusion H (λ Hab Ht, absurd Ht Hn))
     end
@@ -467,7 +472,8 @@ definition unzip : list (A × B) → list A × list B
 theorem unzip_nil : unzip (@nil (A × B)) = ([], [])
 
 theorem unzip_cons (a : A) (b : B) (l : list (A × B)) :
-   unzip ((a, b) :: l) = match unzip l with (la, lb) := (a :: la, b :: lb) end
+   unzip ((a, b) :: l) = match unzip l with (la, lb) := (a :: la, b :: lb) end :=
+rfl
 
 theorem zip_unzip : ∀ (l : list (A × B)), zip (pr₁ (unzip l)) (pr₂ (unzip l)) = l
 | []            := rfl
@@ -484,13 +490,17 @@ theorem zip_unzip : ∀ (l : list (A × B)), zip (pr₁ (unzip l)) (pr₂ (unzip
 end combinators
 
 /- flat -/
+section
 variable {A : Type}
 
 definition flat (l : list (list A)) : list A :=
 foldl append nil l
+end
 
 /- quasiequal a l l' means that l' is exactly l, with a added
    once somewhere -/
+section qeq
+variable {A : Type}
 inductive qeq (a : A) : list A → list A → Prop :=
 | qhead : ∀ l, qeq a l (a::l)
 | qcons : ∀ (b : A) {l l' : list A}, qeq a l l' → qeq a (b::l) (b::l')
@@ -564,9 +574,55 @@ lemma sub_of_mem_of_sub_of_qeq {a : A} {l : list A} {u v : list A} : a ∉ l →
   or.elim xinau
     (λ xeqa : x = a, absurd (xeqa ▸ xinl) nainl)
     (λ xinu : x ∈ u, xinu)
+end qeq
+
+section erase
+variable {A : Type}
+variable [H : decidable_eq A]
+include H
+
+
+definition erase (a : A) : list A → list A
+| []     := []
+| (b::l) :=
+  match H a b with
+  | inl e := l
+  | inr n := b :: erase l
+  end
+
+lemma erase_nil (a : A) : erase a [] = [] :=
+rfl
+
+lemma erase_cons_head (a : A) (l : list A) : erase a (a :: l) = l :=
+show match H a a with | inl e := l | inr n := a :: erase a l end = l,
+by rewrite decidable_eq_inl_refl
+
+lemma erase_cons_tail {a b : A} (l : list A) : a ≠ b → erase a (b::l) = b :: erase a l :=
+assume h : a ≠ b,
+show match H a b with | inl e := l | inr n₁ := b :: erase a l end = b :: erase a l,
+by rewrite (decidable_eq_inr_neg h)
+
+lemma length_erase_of_mem (a : A) : ∀ l, a ∈ l → length (erase a l) = pred (length l)
+| []         h := rfl
+| [x]        h := by rewrite [mem_singleton h, erase_cons_head]
+| (x::y::xs) h :=
+  by_cases
+   (λ aeqx : a = x, by rewrite [aeqx, erase_cons_head])
+   (λ anex : a ≠ x,
+    assert ainyxs : a ∈ y::xs, from or_resolve_right h anex,
+    by rewrite [erase_cons_tail _ anex, *length_cons, length_erase_of_mem (y::xs) ainyxs])
+
+lemma length_erase_of_not_mem (a : A) : ∀ l, a ∉ l → length (erase a l) = length l
+| []      h   := rfl
+| (x::xs) h   :=
+  assert anex   : a ≠ x,  from λ aeqx  : a = x,  absurd (or.inl aeqx) h,
+  assert aninxs : a ∉ xs, from λ ainxs : a ∈ xs, absurd (or.inr ainxs) h,
+  by rewrite [erase_cons_tail _ anex, length_cons, length_erase_of_not_mem xs aninxs]
+
+end erase
 end list
 
-attribute list.decidable_eq  [instance]
+attribute list.has_decidable_eq  [instance]
 attribute list.decidable_mem [instance]
 attribute list.decidable_any [instance]
 attribute list.decidable_all [instance]

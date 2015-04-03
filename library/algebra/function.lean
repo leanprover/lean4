@@ -46,6 +46,18 @@ infixl  on                 := on_fun
 infixr  $                  := app
 notation f `-[` op `]-` g  := combine f op g
 
+lemma left_inv_eq {finv : B → A} {f : A → B} (linv : finv ∘ f = id) : ∀ x, finv (f x) = x :=
+take x, show (finv ∘ f) x = x, by rewrite linv
+
+definition injective (f : A → B) : Prop := ∃ finv : B → A, finv ∘ f = id
+
+lemma injective_def {f : A → B} (h : injective f) : ∀ a b, f a = f b → a = b :=
+take a b, assume faeqfb,
+obtain (finv : B → A) (inv : finv ∘ f = id), from h,
+calc a = finv (f a) : by rewrite (left_inv_eq inv)
+   ... = finv (f b) : faeqfb
+   ... = b          : by rewrite (left_inv_eq inv)
+
 end function
 
 -- copy reducible annotations to top-level

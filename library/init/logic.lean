@@ -357,6 +357,19 @@ take x y : A, by_cases
  (assume Hp : p x y = tt,   inl (H₁ Hp))
  (assume Hn : ¬ p x y = tt, inr (assume Hxy : x = y, absurd (H₂ y) (eq.rec_on Hxy Hn)))
 
+theorem decidable_eq_inl_refl {A : Type} [H : decidable_eq A] (a : A) : H a a = inl (eq.refl a) :=
+match H a a with
+| inl e := rfl
+| inr n := absurd rfl n
+end
+
+theorem decidable_eq_inr_neg {A : Type} [H : decidable_eq A] {a b : A} : Π n : a ≠ b, H a b = inr n :=
+assume n,
+match H a b with
+| inl e  := absurd e n
+| inr n₁ := proof_irrel n n₁ ▸ rfl
+end
+
 /- inhabited -/
 
 inductive inhabited [class] (A : Type) : Type :=

@@ -1053,7 +1053,8 @@ constraint elaborator::mk_equations_cnstr(expr const & m, expr const & eqns) {
         substitution new_s  = s;
         expr new_eqns       = new_s.instantiate_all(eqns);
         new_eqns            = solve_unassigned_mvars(new_s, new_eqns);
-        display_unassigned_mvars(new_eqns, new_s);
+        if (display_unassigned_mvars(new_eqns, new_s))
+            return lazy_list<constraints>();
         type_checker_ptr tc = mk_type_checker(_env, ngen, relax);
         new_eqns            = assign_equation_lhs_metas(*tc, new_eqns);
         expr val            = compile_equations(*tc, _ios, new_eqns, meta, meta_type, relax);
@@ -1746,7 +1747,8 @@ expr elaborator::solve_unassigned_mvars(substitution & subst, expr const & e) {
     return solve_unassigned_mvars(subst, e, visited);
 }
 
-void elaborator::display_unassigned_mvars(expr const & e, substitution const & s) {
+bool elaborator::display_unassigned_mvars(expr const & e, substitution const & s) {
+    bool r = false;
     if (check_unassigned() && has_metavar(e)) {
         substitution tmp_s(s);
         visit_unassigned_mvars(e, [&](expr const & mvar) {
@@ -1757,9 +1759,11 @@ void elaborator::display_unassigned_mvars(expr const & e, substitution const & s
                     bool relax     = true;
                     proof_state ps(goals(g), s, m_ngen, constraints(), relax);
                     display_unsolved_proof_state(mvar, ps, "don't know how to synthesize placeholder");
+                    r = true;
                 }
             });
     }
+    return r;
 }
 
 /** \brief Check whether the solution found by the elaborator is producing too specific

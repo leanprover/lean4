@@ -5,8 +5,6 @@ place_eqn.lean:5:18: error: don't know how to synthesize placeholder
 foo : ℕ → ℕ,
 a : ℕ
 ⊢ ℕ
-place_eqn.lean:3:0: error: failed to add declaration 'foo' to environment, value has metavariables
-remark: set 'formatter.hide_full_terms' to false to see the complete term
-  λ (a : ℕ),
-    nat.brec_on a
-      (λ (a_1 : ℕ) (b : …), nat.cases_on a_1 (λ (b_1 : …), ?M_1) (λ (a_2 : ℕ) (b_1 : …), ?M_2) b)
+place_eqn.lean:3:11: error: failed to synthesize placeholder
+
+⊢ ℕ → ℕ

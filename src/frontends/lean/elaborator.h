@@ -155,7 +155,7 @@ class elaborator : public coercion_info_manager {
     void solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited);
     expr solve_unassigned_mvars(substitution & subst, expr e, name_set & visited);
     expr solve_unassigned_mvars(substitution & subst, expr const & e);
-    void display_unassigned_mvars(expr const & e, substitution const & s);
+    bool display_unassigned_mvars(expr const & e, substitution const & s);
     void check_sort_assignments(substitution const & s);
     expr apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params);
     std::tuple<expr, level_param_names> apply(substitution & s, expr const & e);

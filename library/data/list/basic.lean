@@ -7,7 +7,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura
 
 Basic properties of lists.
 -/
-import logic tools.helper_tactics data.nat.basic
+import logic tools.helper_tactics data.nat.basic algebra.function
 
 open eq.ops helper_tactics nat prod function
 
@@ -206,6 +206,12 @@ list.induction_on s
 theorem mem_append_iff (x : T) (s t : list T) : x ∈ s ++ t ↔ x ∈ s ∨ x ∈ t :=
 iff.intro mem_or_mem_of_mem_append mem_append_of_mem_or_mem
 
+theorem not_mem_of_not_mem_append_left {x : T} {s t : list T} : x ∉ s++t → x ∉ s :=
+λ nxinst xins, absurd (mem_append_of_mem_or_mem (or.inl xins)) nxinst
+
+theorem not_mem_of_not_mem_append_right {x : T} {s t : list T} : x ∉ s++t → x ∉ t :=
+λ nxinst xint, absurd (mem_append_of_mem_or_mem (or.inr xint)) nxinst
+
 local attribute mem [reducible]
 local attribute append [reducible]
 theorem mem_split {x : T} {l : list T} : x ∈ l → ∃s t : list T, l = s ++ (x::t) :=
@@ -381,7 +387,11 @@ theorem map_nil (f : A → B) : map f [] = []
 
 theorem map_cons (f : A → B) (a : A) (l : list A) : map f (a :: l) = f a :: map f l
 
-theorem map_map (g : B → C) (f : A → B) : ∀ l : list A, map g (map f l) = map (g ∘ f) l
+theorem map_id : ∀ l : list A, map id l = l
+| []      := rfl
+| (x::xs) := begin rewrite [map_cons, map_id] end
+
+theorem map_map (g : B → C) (f : A → B) : ∀ l, map g (map f l) = map (g ∘ f) l
 | []       := rfl
 | (a :: l) :=
   show (g ∘ f) a :: map g (map f l) = map (g ∘ f) (a :: l),
@@ -392,6 +402,12 @@ theorem len_map (f : A → B) : ∀ l : list A, length (map f l) = length l
 | (a :: l) :=
   show length (map f l) + 1 = length l + 1,
   by rewrite (len_map l)
+
+theorem mem_map {A B : Type} (f : A → B) : ∀ {a l}, a ∈ l → f a ∈ map f l
+| a []      i := absurd i !not_mem_nil
+| a (x::xs) i := or.elim i
+   (λ aeqx  : a = x, by rewrite [aeqx, map_cons]; apply mem_cons)
+   (λ ainxs : a ∈ xs, or.inr (mem_map ainxs))
 
 definition map₂ (f : A → B → C) : list A → list B → list C
 | []      _       := []
@@ -659,6 +675,96 @@ lemma erase_sub (a : A) : ∀ l, erase a l ⊆ l
           or.inr yinxs))
 
 end erase
+
+/- disjoint -/
+section disjoint
+variable {A : Type}
+
+definition disjoint (l₁ l₂ : list A) : Prop := ∀ a, (a ∈ l₁ → a ∉ l₂) ∧ (a ∈ l₂ → a ∉ l₁)
+
+lemma disjoint_left {l₁ l₂ : list A} : disjoint l₁ l₂ → ∀ a, a ∈ l₁ → a ∉ l₂ :=
+λ d a, and.elim_left (d a)
+
+lemma disjoint_right {l₁ l₂ : list A} : disjoint l₁ l₂ → ∀ a, a ∈ l₂ → a ∉ l₁ :=
+λ d a, and.elim_right (d a)
+
+lemma disjoint.comm {l₁ l₂ : list A} : disjoint l₁ l₂ → disjoint l₂ l₁ :=
+λ d a, and.intro
+  (λ ainl₂ : a ∈ l₂, disjoint_right d a ainl₂)
+  (λ ainl₁ : a ∈ l₁, disjoint_left d a ainl₁)
+
+lemma disjoint_of_disjoint_cons_left {a : A} {l₁ l₂} : disjoint (a::l₁) l₂ → disjoint l₁ l₂ :=
+λ d x, and.intro
+  (λ xinl₁ : x ∈ l₁, disjoint_left d x (or.inr xinl₁))
+  (λ xinl₂ : x ∈ l₂,
+    have nxinal₁ : x ∉ a::l₁, from disjoint_right d x xinl₂,
+    not_mem_of_not_mem nxinal₁)
+
+lemma disjoint_of_disjoint_cons_right {a : A} {l₁ l₂} : disjoint l₁ (a::l₂) → disjoint l₁ l₂ :=
+λ d, disjoint.comm (disjoint_of_disjoint_cons_left (disjoint.comm d))
+
+lemma disjoint_nil_left (l : list A) : disjoint [] l :=
+λ a, and.intro
+  (λ ab   : a ∈ nil, absurd ab !not_mem_nil)
+  (λ ainl : a ∈ l, !not_mem_nil)
+
+lemma disjoint_nil_right (l : list A) : disjoint l [] :=
+disjoint.comm (disjoint_nil_left l)
+end disjoint
+
+/- no duplicates predicate -/
+
+inductive nodup {A : Type} : list A → Prop :=
+| ndnil  : nodup []
+| ndcons : ∀ {a l}, a ∉ l → nodup l → nodup (a::l)
+
+section nodup
+open nodup
+variables {A B : Type}
+
+lemma nodup_nil : @nodup A [] :=
+ndnil
+
+lemma nodup_cons {a : A} {l : list A} : a ∉ l → nodup l → nodup (a::l)  :=
+λ i n, ndcons i n
+
+lemma nodup_of_nodup_cons : ∀ {a : A} {l : list A}, nodup (a::l) → nodup l
+| a xs (ndcons i n) := n
+
+lemma not_mem_of_nodup_cons : ∀ {a : A} {l : list A}, nodup (a::l) → a ∉ l
+| a xs (ndcons i n) := i
+
+lemma nodup_of_nodup_append_left : ∀ {l₁ l₂ : list A}, nodup (l₁++l₂) → nodup l₁
+| []      l₂ n := nodup_nil
+| (x::xs) l₂ n :=
+  have ndxs     : nodup xs,   from nodup_of_nodup_append_left (nodup_of_nodup_cons n),
+  have nxinxsl₂ : x ∉ xs++l₂, from not_mem_of_nodup_cons n,
+  have nxinxs   : x ∉ xs,     from not_mem_of_not_mem_append_left nxinxsl₂,
+  nodup_cons nxinxs ndxs
+
+lemma nodup_of_nodup_append_right : ∀ {l₁ l₂ : list A}, nodup (l₁++l₂) → nodup l₂
+| []      l₂ n := n
+| (x::xs) l₂ n := nodup_of_nodup_append_right (nodup_of_nodup_cons n)
+
+lemma nodup_map {f : A → B} (inj : injective f) : ∀ {l : list A}, nodup l → nodup (map f l)
+| []      n := begin rewrite [map_nil], apply nodup_nil end
+| (x::xs) n :=
+  assert nxinxs : x ∉ xs,           from not_mem_of_nodup_cons n,
+  assert ndxs   : nodup xs,         from nodup_of_nodup_cons n,
+  assert ndmfxs : nodup (map f xs), from nodup_map ndxs,
+  assert nfxinm : f x ∉ map f xs,   from
+    λ ab : f x ∈ map f xs,
+      obtain (finv : B → A) (isinv : finv ∘ f = id), from inj,
+      assert finvfxin : finv (f x) ∈ map finv (map f xs), from mem_map finv ab,
+      assert xinxs : x ∈ xs,
+        begin
+          rewrite [map_map at finvfxin, isinv at finvfxin, left_inv_eq isinv at finvfxin],
+          rewrite [map_id at finvfxin],
+          exact finvfxin
+        end,
+      absurd xinxs nxinxs,
+  nodup_cons nfxinm ndmfxs
+end nodup
 end list
 
 attribute list.has_decidable_eq  [instance]

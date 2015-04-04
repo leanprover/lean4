@@ -290,6 +290,7 @@ static environment constants_cmd(parser & p) {
 struct decl_attributes {
     bool               m_def_only; // if true only definition attributes are allowed
     bool               m_is_abbrev; // if true only abbreviation attributes are allowed
+    bool               m_persistent;
     bool               m_is_instance;
     bool               m_is_coercion;
     bool               m_is_reducible;
@@ -302,10 +303,11 @@ struct decl_attributes {
     optional<unsigned> m_priority;
     optional<unsigned> m_unfold_c_hint;
 
-    decl_attributes(bool def_only = true, bool is_abbrev = false):
+    decl_attributes(bool def_only = true, bool is_abbrev = false, bool persistent = true):
         m_priority() {
         m_def_only               = def_only;
         m_is_abbrev              = is_abbrev;
+        m_persistent             = persistent;
         m_is_instance            = false;
         m_is_coercion            = false;
         m_is_reducible           = is_abbrev;
@@ -366,8 +368,8 @@ struct decl_attributes {
             } else if (p.curr_is_token(get_coercion_tk())) {
                 auto pos = p.pos();
                 p.next();
-                if (in_context(p.env()))
-                    throw parser_error("invalid '[coercion]' attribute, coercions cannot be defined in contexts", pos);
+                if (in_context(p.env()) && m_persistent)
+                    throw parser_error("invalid '[coercion]' attribute, (non local) coercions cannot be defined in contexts", pos);
                 m_is_coercion = true;
             } else if (p.curr_is_token(get_reducible_tk())) {
                 if (m_is_irreducible || m_is_semireducible || m_is_quasireducible)
@@ -443,36 +445,36 @@ struct decl_attributes {
         parse(ns, p);
     }
 
-    environment apply(environment env, io_state const & ios, name const & d, bool persistent) {
+    environment apply(environment env, io_state const & ios, name const & d) {
         if (m_is_instance) {
             if (m_priority) {
                 #if defined(__GNUC__) && !defined(__CLANG__)
                 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
                 #endif
-                env = add_instance(env, d, *m_priority, persistent);
+                env = add_instance(env, d, *m_priority, m_persistent);
             } else {
-                env = add_instance(env, d, persistent);
+                env = add_instance(env, d, m_persistent);
             }
         }
         if (m_is_coercion)
-            env = add_coercion(env, d, ios, persistent);
+            env = add_coercion(env, d, ios, m_persistent);
         auto decl = env.find(d);
         if (decl && decl->is_definition()) {
             if (m_is_reducible)
-                env = set_reducible(env, d, reducible_status::Reducible, persistent);
+                env = set_reducible(env, d, reducible_status::Reducible, m_persistent);
             if (m_is_irreducible)
-                env = set_reducible(env, d, reducible_status::Irreducible, persistent);
+                env = set_reducible(env, d, reducible_status::Irreducible, m_persistent);
             if (m_is_semireducible)
-                env = set_reducible(env, d, reducible_status::Semireducible, persistent);
+                env = set_reducible(env, d, reducible_status::Semireducible, m_persistent);
             if (m_is_quasireducible)
-                env = set_reducible(env, d, reducible_status::Quasireducible, persistent);
+                env = set_reducible(env, d, reducible_status::Quasireducible, m_persistent);
             if (m_unfold_c_hint)
-                env = add_unfold_c_hint(env, d, m_unfold_c_hint, persistent);
+                env = add_unfold_c_hint(env, d, m_unfold_c_hint, m_persistent);
         }
         if (m_is_class)
-            env = add_class(env, d, persistent);
+            env = add_class(env, d, m_persistent);
         if (m_has_multiple_instances)
-            env = mark_multiple_instances(env, d, persistent);
+            env = mark_multiple_instances(env, d, m_persistent);
         return env;
     }
 };
@@ -995,8 +997,7 @@ class definition_cmd_fn {
                 bool persistent = m_kind == Abbreviation;
                 m_env = add_abbreviation(m_env, real_n, m_attributes.m_is_parsing_only, persistent);
             }
-            bool persistent = true;
-            m_env = m_attributes.apply(m_env, m_p.ios(), real_n, persistent);
+            m_env = m_attributes.apply(m_env, m_p.ios(), real_n);
         }
     }
 
@@ -1303,11 +1304,12 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
         ds.push_back(p.check_constant_next("invalid 'attribute' command, constant expected"));
     }
     bool decl_only  = false;
-    decl_attributes attributes(decl_only);
+    bool abbrev     = false;
+    decl_attributes attributes(decl_only, abbrev, persistent);
     attributes.parse(ds, p);
     environment env = p.env();
     for (name const & d : ds)
-        env = attributes.apply(env, p.ios(), d, persistent);
+        env = attributes.apply(env, p.ios(), d);
     return env;
 }
 

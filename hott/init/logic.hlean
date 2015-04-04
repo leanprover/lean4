@@ -61,6 +61,17 @@ namespace eq
   end ops
 end eq
 
+section
+  variables {A : Type} {a b c: A}
+  open eq.ops
+
+  definition trans_rel_left (R : A → A → Type) (H₁ : R a b) (H₂ : b = c) : R a c :=
+  H₂ ▸ H₁
+
+  definition trans_rel_right (R : A → A → Type) (H₁ : a = b) (H₂ : R b c) : R a c :=
+  H₁⁻¹ ▸ H₂
+end
+
 calc_subst eq.subst
 calc_refl  eq.refl
 calc_trans eq.trans

@@ -41,39 +41,6 @@ notation a >= b := has_le.ge a b
 definition has_lt.gt [reducible] {A : Type} [s : has_lt A] (a b : A) := b < a
 notation a > b := has_lt.gt a b
 
-theorem le_of_eq_of_le {A : Type} [s : has_le A] {a b c : A} (H1 : a = b) (H2 : b ≤ c) : a ≤ c :=
-  H1⁻¹ ▸ H2
-
-theorem le_of_le_of_eq {A : Type} [s : has_le A] {a b c : A} (H1 : a ≤ b) (H2 : b = c) : a ≤ c :=
-  H2 ▸ H1
-
-theorem lt_of_eq_of_lt {A : Type} [s : has_lt A] {a b c : A} (H1 : a = b) (H2 : b < c) : a < c :=
-  H1⁻¹ ▸ H2
-
-theorem lt_of_lt_of_eq {A : Type} [s : has_lt A] {a b c : A} (H1 : a < b) (H2 : b = c) : a < c :=
-  H2 ▸ H1
-
-theorem ge_of_eq_of_ge {A : Type} [s : has_le A] {a b c : A} (H1 : a = b) (H2 : b ≥ c) : a ≥ c :=
-  H1⁻¹ ▸ H2
-
-theorem ge_of_ge_of_eq {A : Type} [s : has_le A] {a b c : A} (H1 : a ≥ b) (H2 : b = c) : a ≥ c :=
-  H2 ▸ H1
-
-theorem gt_of_eq_of_gt {A : Type} [s : has_lt A] {a b c : A} (H1 : a = b) (H2 : b > c) : a > c :=
-  H1⁻¹ ▸ H2
-
-theorem gt_of_gt_of_eq {A : Type} [s : has_lt A] {a b c : A} (H1 : a > b) (H2 : b = c) : a > c :=
-  H2 ▸ H1
-
-calc_trans le_of_eq_of_le
-calc_trans le_of_le_of_eq
-calc_trans lt_of_eq_of_lt
-calc_trans lt_of_lt_of_eq
-calc_trans ge_of_eq_of_ge
-calc_trans ge_of_ge_of_eq
-calc_trans gt_of_eq_of_gt
-calc_trans gt_of_gt_of_eq
-
 /- weak orders -/
 
 structure weak_order [class] (A : Type) extends has_le A :=
@@ -381,22 +348,11 @@ end algebra
 
 /-
 For reference, these are all the transitivity rules defined in this file:
-
-calc_trans le_of_eq_of_le
-calc_trans le_of_le_of_eq
-calc_trans lt_of_eq_of_lt
-calc_trans lt_of_lt_of_eq
-
 calc_trans le.trans
 calc_trans lt.trans
 
 calc_trans lt_of_lt_of_le
 calc_trans lt_of_le_of_lt
-
-calc_trans ge_of_eq_of_ge
-calc_trans ge_of_ge_of_eq
-calc_trans gt_of_eq_of_gt
-calc_trans gt_of_gt_of_eq
 
 calc_trans ge.trans
 calc_trans gt.trans

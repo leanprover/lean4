@@ -209,26 +209,10 @@ namespace nat
       apply (lt.trans hlt (lt_of_succ_lt_succ h₂))
   end
 
-  definition lt_of_lt_of_eq {a b c : nat} (h₁ : a < b) (h₂ : b = c) : a < c :=
-  eq.rec_on h₂ h₁
-
-  definition le_of_le_of_eq {a b c : nat} (h₁ : a ≤ b) (h₂ : b = c) : a ≤ c :=
-  eq.rec_on h₂ h₁
-
-  definition lt_of_eq_of_lt {a b c : nat} (h₁ : a = b) (h₂ : b < c) : a < c :=
-  eq.rec_on (eq.rec_on h₁ rfl) h₂
-
-  definition le_of_eq_of_le {a b c : nat} (h₁ : a = b) (h₂ : b ≤ c) : a ≤ c :=
-  eq.rec_on (eq.rec_on h₁ rfl) h₂
-
   calc_trans lt.trans
   calc_trans lt_of_le_of_lt
   calc_trans lt_of_lt_of_le
-  calc_trans lt_of_lt_of_eq
-  calc_trans lt_of_eq_of_lt
   calc_trans le.trans
-  calc_trans le_of_le_of_eq
-  calc_trans le_of_eq_of_le
 
   definition max (a b : nat) : nat :=
   if a < b then b else a

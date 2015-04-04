@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "kernel/environment.h"
 #include "library/module.h"
+#include "library/constants.h"
 #include "library/choice.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
@@ -297,6 +298,10 @@ static void collect_rhss(std::vector<calc_step> const & steps, buffer<expr> & rh
     lean_assert(!rhss.empty());
 }
 
+static unsigned get_arity_of(parser & p, name const & op) {
+    return get_arity(p.env().get(op).get_type());
+}
+
 static void join(parser & p, std::vector<calc_step> const & steps1, std::vector<calc_step> const & steps2,
                  std::vector<calc_step> & res_steps, pos_info const & pos) {
     res_steps.clear();
@@ -311,11 +316,21 @@ static void join(parser & p, std::vector<calc_step> const & steps1, std::vector<
             if (!is_eqp(pred_rhs(pred1), pred_lhs(pred2)))
                 continue;
             auto trans_it = state.m_trans_table.find(name_pair(pred_op(pred1), pred_op(pred2)));
-            if (!trans_it)
-                continue;
-            expr trans    = mk_op_fn(p, std::get<0>(*trans_it), std::get<2>(*trans_it)-5, pos);
-            expr trans_pr = p.mk_app({trans, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), pr1, pr2}, pos);
-            res_steps.emplace_back(calc_pred(std::get<1>(*trans_it), pred_lhs(pred1), pred_rhs(pred2)), trans_pr);
+            if (trans_it) {
+                expr trans    = mk_op_fn(p, std::get<0>(*trans_it), std::get<2>(*trans_it)-5, pos);
+                expr trans_pr = p.mk_app({trans, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), pr1, pr2}, pos);
+                res_steps.emplace_back(calc_pred(std::get<1>(*trans_it), pred_lhs(pred1), pred_rhs(pred2)), trans_pr);
+            } else if (pred_op(pred1) == get_eq_name()) {
+                expr trans_right = mk_op_fn(p, get_trans_rel_right_name(), 1, pos);
+                expr R           = mk_op_fn(p, pred_op(pred2), get_arity_of(p, pred_op(pred2))-2, pos);
+                expr trans_pr    = p.mk_app({trans_right, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), R, pr1, pr2}, pos);
+                res_steps.emplace_back(calc_pred(pred_op(pred2), pred_lhs(pred1), pred_rhs(pred2)), trans_pr);
+            } else if (pred_op(pred2) == get_eq_name()) {
+                expr trans_left = mk_op_fn(p, get_trans_rel_left_name(), 1, pos);
+                expr R          = mk_op_fn(p, pred_op(pred1), get_arity_of(p, pred_op(pred1))-2, pos);
+                expr trans_pr   = p.mk_app({trans_left, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), R, pr1, pr2}, pos);
+                res_steps.emplace_back(calc_pred(pred_op(pred1), pred_lhs(pred1), pred_rhs(pred2)), trans_pr);
+            }
         }
     }
 }

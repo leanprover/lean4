@@ -172,11 +172,6 @@ section
     hiding pos_of_mul_pos_left, pos_of_mul_pos_right, lt_of_mul_lt_mul_left, lt_of_mul_lt_mul_right
 end
 
-calc_trans ge_of_eq_of_ge
-calc_trans ge_of_ge_of_eq
-calc_trans gt_of_eq_of_gt
-calc_trans gt_of_gt_of_eq
-
 section port_algebra
   theorem add_pos_left : ∀{a : ℕ}, 0 < a → ∀b : ℕ, 0 < a + b :=
     take a H b, @algebra.add_pos_of_pos_of_nonneg _ _ a b H !zero_le

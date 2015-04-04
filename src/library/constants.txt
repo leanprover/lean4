@@ -103,6 +103,8 @@ tactic.trace
 tactic.try_for
 tactic.unfold
 tactic.whnf
+trans_rel_left
+trans_rel_right
 true
 true.intro
 is_trunc

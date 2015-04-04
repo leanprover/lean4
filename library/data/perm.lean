@@ -64,14 +64,6 @@ calc_refl  perm.refl
 calc_symm  perm.symm
 calc_trans perm.trans
 
--- TODO: remove this theorems after we improve calc
-theorem perm_of_eq_of_perm (l₁ l₂ l₃ : list A) : l₁ = l₂ → l₂ ~ l₃ → l₁ ~ l₃ :=
-assume e p, eq.rec_on (eq.symm e) p
-theorem perm_of_perm_of_eq (l₁ l₂ l₃ : list A) : l₁ ~ l₂ → l₂ = l₃ → l₁ ~ l₃ :=
-assume p e, eq.rec_on e p
-calc_trans perm_of_perm_of_eq
-calc_trans perm_of_eq_of_perm
-
 theorem mem_perm (a : A) (l₁ l₂ : list A) : l₁ ~ l₂ → a ∈ l₁ → a ∈ l₂ :=
 assume p, perm.induction_on p
   (λ h, h)

@@ -66,7 +66,7 @@ obtain (m : ℕ) (Hm : a = m), from exists_eq_of_nat Ha,
 obtain (n : ℕ) (Hn : b = n), from exists_eq_of_nat Hb,
 calc
   a div b = (#nat m div n) : by rewrite [Hm, Hn, of_nat_div_of_nat]
-      ... ≥ 0              : trivial
+      ... ≥ 0              : begin change (0 ≤ #nat m div n), apply trivial end
 
 theorem div_nonpos {a b : ℤ} (Ha : a ≥ 0) (Hb : b ≤ 0) : a div b ≤ 0 :=
 calc
@@ -396,7 +396,7 @@ have H : ∀a b, b > 0 → abs (a div b) ≤ abs a, from
                   ... = abs a   : abs_of_nonneg H2)
     (assume H2 : a < 0,
       have H3 : -a - 1 ≥ 0, from le_sub_one_of_lt (neg_pos_of_neg H2),
-      have H4 : (-a - 1) div b + 1 ≥ 0, from add_nonneg (div_nonneg H3 (le_of_lt H1)) trivial,
+      have H4 : (-a - 1) div b + 1 ≥ 0, from add_nonneg (div_nonneg H3 (le_of_lt H1)) (of_nat_le_of_nat !nat.zero_le),
       have H5 : (-a - 1) div b ≤ -a - 1, from div_le_of_nonneg_of_nonneg H3 (le_of_lt H1),
       calc
         abs (a div b) = abs ((-a - 1) div b + 1) : by rewrite [div_of_neg_of_pos H2 H1, abs_neg]

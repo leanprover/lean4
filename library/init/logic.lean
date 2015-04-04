@@ -50,8 +50,18 @@ namespace eq
     notation H1 ⬝ H2 := trans H1 H2
     notation H1 ▸ H2 := subst H1 H2
   end ops
-
 end eq
+
+section
+  variables {A : Type} {a b c: A}
+  open eq.ops
+
+  definition trans_rel_left (R : A → A → Prop) (H₁ : R a b) (H₂ : b = c) : R a c :=
+  H₂ ▸ H₁
+
+  definition trans_rel_right (R : A → A → Prop) (H₁ : a = b) (H₂ : R b c) : R a c :=
+  H₁⁻¹ ▸ H₂
+end
 
 section
   variable {p : Prop}
@@ -98,16 +108,7 @@ section
 
   theorem false.of_ne : a ≠ a → false :=
   assume H, H rfl
-
-  theorem ne.of_eq_of_ne : a = b → b ≠ c → a ≠ c :=
-  assume H₁ H₂, H₁⁻¹ ▸ H₂
-
-  theorem ne.of_ne_of_eq : a ≠ b → b = c → a ≠ c :=
-  assume H₁ H₂, H₂ ▸ H₁
 end
-
-calc_trans ne.of_eq_of_ne
-calc_trans ne.of_ne_of_eq
 
 infixl `==`:50 := heq
 
@@ -226,16 +227,8 @@ iff.mp (iff.symm H) trivial
 theorem not_of_iff_false (H : a ↔ false) : ¬a :=
 assume Ha : a, iff.mp H Ha
 
-theorem iff_of_eq_of_iff (H₁ : a = b) (H₂ : b ↔ c) : a ↔ c :=
-H₁⁻¹ ▸ H₂
-
-theorem iff_of_iff_of_eq (H₁ : a ↔ b) (H₂ : b = c) : a ↔ c :=
-H₂ ▸ H₁
-
 calc_refl iff.refl
 calc_trans iff.trans
-calc_trans iff_of_eq_of_iff
-calc_trans iff_of_iff_of_eq
 
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 intro : ∀ (a : A), P a → Exists P

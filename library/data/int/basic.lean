@@ -187,15 +187,9 @@ or.elim (@le_or_gt (pr2 p) (pr1 p))
 
 theorem equiv_of_eq {p q : ℕ × ℕ} (H : p = q) : p ≡ q := H ▸ equiv.refl
 
-theorem equiv_of_eq_of_equiv {p q r : ℕ × ℕ} (H1 : p = q) (H2 : q ≡ r) : p ≡ r := H1⁻¹ ▸ H2
-
-theorem equiv_of_equiv_of_eq {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q = r) : p ≡ r := H2 ▸ H1
-
 calc_trans equiv.trans
 calc_refl equiv.refl
 calc_symm equiv.symm
-calc_trans equiv_of_eq_of_equiv
-calc_trans equiv_of_equiv_of_eq
 
 /- the representation and abstraction functions -/
 

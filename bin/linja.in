@@ -682,7 +682,7 @@ def make_build_ninja(args):
         print("""default all""", file=f)
 
 def escape_dep(s):
-  return s.replace(" ", "\\ ")
+    return s.replace(" ", "\\ ")
 
 def make_deps(lean_file, dlean_file, olean_file):
     with open(dlean_file, "w") as f:

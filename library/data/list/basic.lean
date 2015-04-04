@@ -682,22 +682,22 @@ variable {A : Type}
 
 definition disjoint (l₁ l₂ : list A) : Prop := ∀ a, (a ∈ l₁ → a ∉ l₂) ∧ (a ∈ l₂ → a ∉ l₁)
 
-lemma disjoint_left {l₁ l₂ : list A} : disjoint l₁ l₂ → ∀ a, a ∈ l₁ → a ∉ l₂ :=
+lemma disjoint_left {l₁ l₂ : list A} : disjoint l₁ l₂ → ∀ {a}, a ∈ l₁ → a ∉ l₂ :=
 λ d a, and.elim_left (d a)
 
-lemma disjoint_right {l₁ l₂ : list A} : disjoint l₁ l₂ → ∀ a, a ∈ l₂ → a ∉ l₁ :=
+lemma disjoint_right {l₁ l₂ : list A} : disjoint l₁ l₂ → ∀ {a}, a ∈ l₂ → a ∉ l₁ :=
 λ d a, and.elim_right (d a)
 
 lemma disjoint.comm {l₁ l₂ : list A} : disjoint l₁ l₂ → disjoint l₂ l₁ :=
 λ d a, and.intro
-  (λ ainl₂ : a ∈ l₂, disjoint_right d a ainl₂)
-  (λ ainl₁ : a ∈ l₁, disjoint_left d a ainl₁)
+  (λ ainl₂ : a ∈ l₂, disjoint_right d ainl₂)
+  (λ ainl₁ : a ∈ l₁, disjoint_left d ainl₁)
 
 lemma disjoint_of_disjoint_cons_left {a : A} {l₁ l₂} : disjoint (a::l₁) l₂ → disjoint l₁ l₂ :=
 λ d x, and.intro
-  (λ xinl₁ : x ∈ l₁, disjoint_left d x (or.inr xinl₁))
+  (λ xinl₁ : x ∈ l₁, disjoint_left d (or.inr xinl₁))
   (λ xinl₂ : x ∈ l₂,
-    have nxinal₁ : x ∉ a::l₁, from disjoint_right d x xinl₂,
+    have nxinal₁ : x ∉ a::l₁, from disjoint_right d xinl₂,
     not_mem_of_not_mem nxinal₁)
 
 lemma disjoint_of_disjoint_cons_right {a : A} {l₁ l₂} : disjoint l₁ (a::l₂) → disjoint l₁ l₂ :=
@@ -710,6 +710,36 @@ lemma disjoint_nil_left (l : list A) : disjoint [] l :=
 
 lemma disjoint_nil_right (l : list A) : disjoint l [] :=
 disjoint.comm (disjoint_nil_left l)
+
+lemma disjoint_cons_of_not_mem_of_disjoint {a : A} {l₁ l₂} : a ∉ l₂ → disjoint l₁ l₂ → disjoint (a::l₁) l₂ :=
+λ nainl₂ d x, and.intro
+  (λ xinal₁ : x ∈ a::l₁, or.elim xinal₁
+    (λ xeqa  : x = a, xeqa⁻¹ ▸ nainl₂)
+    (λ xinl₁ : x ∈ l₁, disjoint_left d xinl₁))
+  (λ (xinl₂ : x ∈ l₂) (xinal₁ : x ∈ a::l₁), or.elim xinal₁
+    (λ xeqa  : x = a, absurd (xeqa ▸ xinl₂) nainl₂)
+    (λ xinl₁ : x ∈ l₁, absurd xinl₁ (disjoint_right d xinl₂)))
+
+lemma disjoint_of_disjoint_append_left_left : ∀ {l₁ l₂ l : list A}, disjoint (l₁++l₂) l → disjoint l₁ l
+| []      l₂ l d := disjoint_nil_left l
+| (x::xs) l₂ l d :=
+  have nxinl : x ∉ l, from disjoint_left d !mem_cons,
+  have d₁    : disjoint (xs++l₂) l, from disjoint_of_disjoint_cons_left d,
+  have d₂    : disjoint xs l, from disjoint_of_disjoint_append_left_left d₁,
+  disjoint_cons_of_not_mem_of_disjoint nxinl d₂
+
+lemma disjoint_of_disjoint_append_left_right : ∀ {l₁ l₂ l : list A}, disjoint (l₁++l₂) l → disjoint l₂ l
+| []      l₂ l d := d
+| (x::xs) l₂ l d :=
+  have d₁  : disjoint (xs++l₂) l, from disjoint_of_disjoint_cons_left d,
+  disjoint_of_disjoint_append_left_right d₁
+
+lemma disjoint_of_disjoint_append_right_left : ∀ {l₁ l₂ l : list A}, disjoint l (l₁++l₂) → disjoint l l₁ :=
+λ l₁ l₂ l d, disjoint.comm (disjoint_of_disjoint_append_left_left (disjoint.comm d))
+
+lemma disjoint_of_disjoint_append_right_right : ∀ {l₁ l₂ l : list A}, disjoint l (l₁++l₂) → disjoint l l₂ :=
+λ l₁ l₂ l d, disjoint.comm (disjoint_of_disjoint_append_left_right (disjoint.comm d))
+
 end disjoint
 
 /- no duplicates predicate -/

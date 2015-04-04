@@ -12,4 +12,4 @@ import init.bool init.num init.priority init.relation init.wf
 import init.types.sigma init.types.prod init.types.empty
 import init.trunc init.path init.equiv init.util
 import init.axioms.ua init.axioms.funext_of_ua
-import init.hedberg init.nat
+import init.hedberg init.nat init.hit

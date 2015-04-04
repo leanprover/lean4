@@ -282,6 +282,43 @@ static expr parse_proof_qed_core(parser & p, pos_info const & pos) {
     return r;
 }
 
+static expr parse_proof(parser & p, expr const & prop);
+
+static expr parse_using_expr(parser & p, expr const & prop, pos_info const & using_pos) {
+    parser::local_scope scope(p);
+    buffer<expr> locals;
+    buffer<expr> new_locals;
+    while (!p.curr_is_token(get_comma_tk())) {
+        auto id_pos = p.pos();
+        expr l      = p.parse_id();
+        if (!is_local(l))
+            throw parser_error("invalid 'using' declaration for 'have', local expected", id_pos);
+        expr new_l = l;
+        binder_info bi = local_info(l);
+        if (!bi.is_contextual())
+            new_l = update_local(l, bi.update_contextual(true));
+        p.add_local(new_l);
+        locals.push_back(l);
+        new_locals.push_back(new_l);
+    }
+    p.next(); // consume ','
+    expr pr = parse_proof(p, prop);
+    unsigned i = locals.size();
+    while (i > 0) {
+        --i;
+        expr l     = locals[i];
+        expr new_l = new_locals[i];
+        pr = p.save_pos(Fun(new_l, pr), using_pos);
+        pr = p.save_pos(mk_app(pr, l), using_pos);
+    }
+    return pr;
+}
+
+static expr parse_using(parser & p, unsigned, expr const *, pos_info const & pos) {
+    expr prop = p.save_pos(mk_expr_placeholder(), pos);
+    return parse_using_expr(p, prop, pos);
+}
+
 static expr parse_proof(parser & p, expr const & prop) {
     if (p.curr_is_token(get_from_tk())) {
         // parse: 'from' expr
@@ -304,33 +341,7 @@ static expr parse_proof(parser & p, expr const & prop) {
         // parse: 'using' locals* ',' proof
         auto using_pos = p.pos();
         p.next();
-        parser::local_scope scope(p);
-        buffer<expr> locals;
-        buffer<expr> new_locals;
-        while (!p.curr_is_token(get_comma_tk())) {
-            auto id_pos = p.pos();
-            expr l      = p.parse_id();
-            if (!is_local(l))
-                throw parser_error("invalid 'using' declaration for 'have', local expected", id_pos);
-            expr new_l = l;
-            binder_info bi = local_info(l);
-            if (!bi.is_contextual())
-                new_l = update_local(l, bi.update_contextual(true));
-            p.add_local(new_l);
-            locals.push_back(l);
-            new_locals.push_back(new_l);
-        }
-        p.next(); // consume ','
-        expr pr = parse_proof(p, prop);
-        unsigned i = locals.size();
-        while (i > 0) {
-            --i;
-            expr l     = locals[i];
-            expr new_l = new_locals[i];
-            pr = p.save_pos(Fun(new_l, pr), using_pos);
-            pr = p.save_pos(mk_app(pr, l), using_pos);
-        }
-        return pr;
+        return parse_using_expr(p, prop, using_pos);
     } else {
         throw parser_error("invalid expression, 'by', 'begin', 'proof', 'using' or 'from' expected", p.pos());
     }
@@ -600,6 +611,7 @@ parse_table init_nud_table() {
     r = r.add({transition("!", mk_ext_action(parse_consume_args_expr))}, x0);
     r = r.add({transition("begin", mk_ext_action_core(parse_begin_end))}, x0);
     r = r.add({transition("proof", mk_ext_action(parse_proof_qed))}, x0);
+    r = r.add({transition("using", mk_ext_action(parse_using))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
     r = r.add({transition("match", mk_ext_action(parse_match))}, x0);
     init_structure_instance_parsing_rules(r);

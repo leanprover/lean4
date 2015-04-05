@@ -23,5 +23,5 @@ Constructors:
 * [subtype](subtype.lean)
 * [quotient](quotient/quotient.md)
 * [list](list/list.md)
-* [set](set.lean)
+* [set](set/set.md)
 * [vector](vector.lean)

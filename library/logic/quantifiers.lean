@@ -83,3 +83,19 @@ section
        obtain (w : A) (Hw : w = a ∧ P w), from h,
        absurd (and.rec_on Hw (λ h₁ h₂, h₁ ▸ h₂)) npa))
 end
+
+/- exists_unique -/
+
+definition exists_unique {A : Type} (p : A → Prop) :=
+∃x, p x ∧ ∀y, p y → y = x
+
+notation `∃!` binders `,` r:(scoped P, exists_unique P) := r
+
+theorem exists_unique.intro {A : Type} {p : A → Prop} (w : A) (H1 : p w) (H2 : ∀y, p y → y = w) :
+  ∃!x, p x :=
+exists.intro w (and.intro H1 H2)
+
+theorem exists_unique.elim {A : Type} {p : A → Prop} {b : Prop}
+    (H2 : ∃!x, p x) (H1 : ∀x, p x → (∀y, p y → y = x) → b) : b :=
+obtain w Hw, from H2,
+H1 w (and.elim_left Hw) (and.elim_right Hw)

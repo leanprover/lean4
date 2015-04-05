@@ -10,6 +10,11 @@ The propositional connectives. See also init.datatypes and init.logic.
 
 variables {a b c d : Prop}
 
+/- false -/
+
+theorem false.elim {c : Prop} (H : false) : c :=
+false.rec c H
+
 /- implies -/
 
 definition imp (a b : Prop) : Prop := a → b
@@ -17,10 +22,16 @@ definition imp (a b : Prop) : Prop := a → b
 theorem mt (H1 : a → b) (H2 : ¬b) : ¬a :=
 assume Ha : a, absurd (H1 Ha) H2
 
-/- false -/
+theorem imp_true (a : Prop) : (a → true) ↔ true :=
+iff.intro (assume H, trivial) (assume H H1, trivial)
 
-theorem false.elim {c : Prop} (H : false) : c :=
-false.rec c H
+theorem true_imp (a : Prop) : (true → a) ↔ a :=
+iff.intro (assume H, H trivial) (assume H H1, H)
+
+theorem imp_false (a : Prop) : (a → false) ↔ ¬ a := iff.rfl
+
+theorem false_imp (a : Prop) : (false → a) ↔ true :=
+iff.intro (assume H, trivial) (assume H H1, false.elim H1)
 
 /- not -/
 
@@ -42,6 +53,12 @@ assume not_em : ¬(a ∨ ¬a),
 have Hnp : ¬a, from
   assume Hp : a, absurd (or.inl Hp) not_em,
 absurd (or.inr Hnp) not_em
+
+theorem not_true : ¬ true ↔ false :=
+iff.intro (assume H, H trivial) (assume H, false.elim H)
+
+theorem not_false_iff : ¬ false ↔ true :=
+iff.intro (assume H, trivial) (assume H H1, H1)
 
 /- and -/
 
@@ -74,6 +91,21 @@ iff.intro
   (assume H, and.intro
     (and.intro (and.elim_left H) (and.elim_left (and.elim_right H)))
     (and.elim_right (and.elim_right H)))
+
+theorem and_true (a : Prop) : a ∧ true ↔ a :=
+iff.intro (assume H, and.left H) (assume H, and.intro H trivial)
+
+theorem true_and (a : Prop) : true ∧ a ↔ a :=
+iff.intro (assume H, and.right H) (assume H, and.intro trivial H)
+
+theorem and_false (a : Prop) : a ∧ false ↔ false :=
+iff.intro (assume H, and.right H) (assume H, false.elim H)
+
+theorem false_and (a : Prop) : false ∧ a ↔ false :=
+iff.intro (assume H, and.left H) (assume H, false.elim H)
+
+theorem and_self (a : Prop) : a ∧ a ↔ a :=
+iff.intro (assume H, and.left H) (assume H, and.intro H H)
 
 /- or -/
 
@@ -125,26 +157,57 @@ iff.intro
       (assume Hb, or.inl (or.inr Hb))
       (assume Hc, or.inr Hc)))
 
+theorem or_true (a : Prop) : a ∨ true ↔ true :=
+iff.intro (assume H, trivial) (assume H, or.inr H)
+
+theorem true_or (a : Prop) : true ∨ a ↔ true :=
+iff.intro (assume H, trivial) (assume H, or.inl H)
+
+theorem or_false (a : Prop) : a ∨ false ↔ a :=
+iff.intro
+  (assume H, or.elim H (assume H1 : a, H1) (assume H1 : false, false.elim H1))
+  (assume H, or.inl H)
+
+theorem false_or (a : Prop) : false ∨ a ↔ a :=
+iff.intro
+  (assume H, or.elim H (assume H1 : false, false.elim H1) (assume H1 : a, H1))
+  (assume H, or.inr H)
+
+theorem or_self (a : Prop) : a ∨ a ↔ a :=
+iff.intro
+  (assume H, or.elim H (assume H1, H1) (assume H1, H1))
+  (assume H, or.inl H)
+
 /- iff -/
 
 definition iff.def : (a ↔ b) = ((a → b) ∧ (b → a)) :=
 !eq.refl
 
-/- exists_unique -/
+theorem iff_true (a : Prop) : (a ↔ true) ↔ a :=
+iff.intro
+  (assume H, iff.mp' H trivial)
+  (assume H, iff.intro (assume H1, trivial) (assume H1, H))
 
-definition exists_unique {A : Type} (p : A → Prop) :=
-∃x, p x ∧ ∀y, p y → y = x
+theorem true_iff (a : Prop) : (true ↔ a) ↔ a :=
+iff.intro
+  (assume H, iff.mp H trivial)
+  (assume H, iff.intro (assume H1, H) (assume H1, trivial))
 
-notation `∃!` binders `,` r:(scoped P, exists_unique P) := r
+theorem iff_false (a : Prop) : (a ↔ false) ↔ ¬ a :=
+iff.intro
+  (assume H, and.left H)
+  (assume H, and.intro H (assume H1, false.elim H1))
 
-theorem exists_unique.intro {A : Type} {p : A → Prop} (w : A) (H1 : p w) (H2 : ∀y, p y → y = w) :
-  ∃!x, p x :=
-exists.intro w (and.intro H1 H2)
+theorem false_iff (a : Prop) : (false ↔ a) ↔ ¬ a :=
+iff.intro
+  (assume H, and.right H)
+  (assume H, and.intro (assume H1, false.elim H1) H)
 
-theorem exists_unique.elim {A : Type} {p : A → Prop} {b : Prop}
-    (H2 : ∃!x, p x) (H1 : ∀x, p x → (∀y, p y → y = x) → b) : b :=
-obtain w Hw, from H2,
-H1 w (and.elim_left Hw) (and.elim_right Hw)
+theorem iff_true_of_self (Ha : a) : a ↔ true :=
+iff.intro (assume H, trivial) (assume H, Ha)
+
+theorem iff_self (a : Prop) : (a ↔ a) ↔ true :=
+iff_true_of_self !iff.refl
 
 /- if-then-else -/
 

@@ -2,21 +2,21 @@
 Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
+Module: init.funext
 Author: Jeremy Avigad
 
-function extensionality from quotients
+Function extensionality follows from quotients.
 -/
 prelude
 import init.quot init.logic
 
-/- function extensionality follows from quotients -/
 section
   open quot
   variables {A : Type} {B : A → Type}
 
   private definition fun_eqv (f₁ f₂ : Πx : A, B x) : Prop := ∀x, f₁ x = f₂ x
 
-  infix `~` := fun_eqv    -- this is "~"
+  infix `~` := fun_eqv
 
   private theorem fun_eqv.refl (f : Πx : A, B x) : f ~ f := take x, rfl
 

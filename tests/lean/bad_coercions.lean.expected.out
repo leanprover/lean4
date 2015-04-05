@@ -1,2 +1,2 @@
-bad_coercions.lean:12:18: error: invalid '[coercion]' attribute, coercions cannot be defined in contexts
-bad_coercions.lean:18:16: error: invalid '[coercion]' attribute, coercions cannot be defined in contexts
+bad_coercions.lean:12:18: error: invalid '[coercion]' attribute, (non local) coercions cannot be defined in contexts
+bad_coercions.lean:18:16: error: invalid '[coercion]' attribute, (non local) coercions cannot be defined in contexts

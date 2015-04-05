@@ -2,12 +2,12 @@
 Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Module: data.perm
+Module: data.list.perm
 Author: Leonardo de Moura
 
 List permutations
 -/
-import data.list
+import data.list.basic
 open list setoid nat
 
 variables {A B : Type}

@@ -44,7 +44,7 @@ parameters {TL BL TR : Type.{u}} (f : TL → BL) (g : TL → TR)
   definition pushout := colimit pushout_diag
   local attribute pushout_diag [instance]
 
-  definition inl (x : BL) : pushout :=
+ definition inl (x : BL) : pushout :=
   @ι _ _ x
 
   definition inr (x : TR) : pushout :=

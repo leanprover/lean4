@@ -104,6 +104,7 @@ name const & get_opaque_tk();
 name const & get_instance_tk();
 name const & get_priority_tk();
 name const & get_unfold_c_tk();
+name const & get_unfold_f_tk();
 name const & get_coercion_tk();
 name const & get_reducible_tk();
 name const & get_semireducible_tk();

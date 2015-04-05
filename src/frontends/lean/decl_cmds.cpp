@@ -300,6 +300,7 @@ struct decl_attributes {
     bool               m_is_class;
     bool               m_is_parsing_only;
     bool               m_has_multiple_instances;
+    bool               m_unfold_f_hint;
     optional<unsigned> m_priority;
     optional<unsigned> m_unfold_c_hint;
 
@@ -317,6 +318,7 @@ struct decl_attributes {
         m_is_class               = false;
         m_is_parsing_only        = false;
         m_has_multiple_instances = false;
+        m_unfold_f_hint          = false;
     }
 
     struct elim_choice_fn : public replace_visitor {
@@ -421,6 +423,9 @@ struct decl_attributes {
                                        "marked as '[parsing-only]'", pos);
                 m_is_parsing_only = true;
                 p.next();
+            } else if (p.curr_is_token(get_unfold_f_tk())) {
+                p.next();
+                m_unfold_f_hint = true;
             } else if (p.curr_is_token(get_unfold_c_tk())) {
                 p.next();
                 unsigned r = p.parse_small_nat();
@@ -469,7 +474,9 @@ struct decl_attributes {
             if (m_is_quasireducible)
                 env = set_reducible(env, d, reducible_status::Quasireducible, m_persistent);
             if (m_unfold_c_hint)
-                env = add_unfold_c_hint(env, d, m_unfold_c_hint, m_persistent);
+                env = add_unfold_c_hint(env, d, *m_unfold_c_hint, m_persistent);
+            if (m_unfold_f_hint)
+                env = add_unfold_f_hint(env, d, m_persistent);
         }
         if (m_is_class)
             env = add_class(env, d, m_persistent);

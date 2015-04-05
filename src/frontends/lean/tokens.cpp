@@ -102,6 +102,7 @@ static name * g_opaque       = nullptr;
 static name * g_instance     = nullptr;
 static name * g_priority     = nullptr;
 static name * g_unfold_c     = nullptr;
+static name * g_unfold_f     = nullptr;
 static name * g_coercion     = nullptr;
 static name * g_reducible    = nullptr;
 static name * g_quasireducible = nullptr;
@@ -227,6 +228,7 @@ void initialize_tokens() {
     g_instance     = new name("[instance]");
     g_priority     = new name("[priority");
     g_unfold_c     = new name("[unfold-c");
+    g_unfold_f     = new name("[unfold-f]");
     g_coercion     = new name("[coercion]");
     g_reducible    = new name("[reducible]");
     g_quasireducible = new name("[quasireducible]");
@@ -290,6 +292,7 @@ void finalize_tokens() {
     delete g_instance;
     delete g_priority;
     delete g_unfold_c;
+    delete g_unfold_f;
     delete g_coercion;
     delete g_reducible;
     delete g_quasireducible;
@@ -479,6 +482,7 @@ name const & get_opaque_tk() { return *g_opaque; }
 name const & get_instance_tk() { return *g_instance; }
 name const & get_priority_tk() { return *g_priority; }
 name const & get_unfold_c_tk() { return *g_unfold_c; }
+name const & get_unfold_f_tk() { return *g_unfold_f; }
 name const & get_coercion_tk() { return *g_coercion; }
 name const & get_reducible_tk() { return *g_reducible; }
 name const & get_quasireducible_tk() { return *g_quasireducible; }

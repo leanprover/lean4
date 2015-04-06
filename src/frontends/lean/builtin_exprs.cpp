@@ -187,7 +187,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
                 if (p.curr_is_token(get_bar_tk())) {
                     expr local = p.save_pos(mk_local(id, A), id_pos);
                     expr t     = parse_local_equations(p, local);
-                    t      = p.mk_app(get_exact_tac_fn(), t, pos);
+                    t      = p.mk_app(get_rexact_tac_fn(), t, pos);
                     t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
                     t      = p.save_pos(mk_begin_end_annotation(t), pos);
                     add_tac(t, pos);
@@ -198,7 +198,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
                         p.next();
                         auto pos = p.pos();
                         expr t = p.parse_expr();
-                        t      = p.mk_app(get_exact_tac_fn(), t, pos);
+                        t      = p.mk_app(get_rexact_tac_fn(), t, pos);
                         t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
                         t      = p.save_pos(mk_begin_end_annotation(t), pos);
                         add_tac(t, pos);
@@ -207,7 +207,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
                         p.next();
                         expr t = p.parse_expr();
                         p.check_token_next(get_qed_tk(), "invalid proof-qed, 'qed' expected");
-                        t      = p.mk_app(get_exact_tac_fn(), t, pos);
+                        t      = p.mk_app(get_rexact_tac_fn(), t, pos);
                         t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
                         t      = p.save_pos(mk_begin_end_annotation(t), pos);
                         add_tac(t, pos);
@@ -227,13 +227,13 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
             } else if (p.curr_is_token(get_show_tk())) {
                 auto pos = p.pos();
                 expr t = p.parse_expr();
-                t      = p.mk_app(get_exact_tac_fn(), t, pos);
+                t      = p.mk_app(get_rexact_tac_fn(), t, pos);
                 add_tac(t, pos);
             } else if (p.curr_is_token(get_match_tk()) || p.curr_is_token(get_assume_tk()) ||
                        p.curr_is_token(get_take_tk())  || p.curr_is_token(get_fun_tk())) {
                 auto pos = p.pos();
                 expr t = p.parse_expr();
-                t      = p.mk_app(get_sexact_tac_fn(), t, pos);
+                t      = p.mk_app(get_exact_tac_fn(), t, pos);
                 add_tac(t, pos);
             } else {
                 auto pos = p.pos();
@@ -278,7 +278,7 @@ static expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const &
 static expr parse_proof_qed_core(parser & p, pos_info const & pos) {
     expr r = p.parse_expr();
     p.check_token_next(get_qed_tk(), "invalid proof-qed, 'qed' expected");
-    r      = p.mk_by(p.mk_app(get_exact_tac_fn(), r, pos), pos);
+    r      = p.mk_by(p.mk_app(get_rexact_tac_fn(), r, pos), pos);
     return r;
 }
 

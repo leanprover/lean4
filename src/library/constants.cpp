@@ -96,14 +96,15 @@ name const * g_tactic_now = nullptr;
 name const * g_tactic_opt_expr_list = nullptr;
 name const * g_tactic_or_else = nullptr;
 name const * g_tactic_par = nullptr;
-name const * g_tactic_sexact = nullptr;
-name const * g_tactic_state = nullptr;
+name const * g_tactic_refine = nullptr;
 name const * g_tactic_rename = nullptr;
 name const * g_tactic_repeat = nullptr;
 name const * g_tactic_revert = nullptr;
 name const * g_tactic_reverts = nullptr;
+name const * g_tactic_rexact = nullptr;
 name const * g_tactic_rotate_left = nullptr;
 name const * g_tactic_rotate_right = nullptr;
+name const * g_tactic_state = nullptr;
 name const * g_tactic_trace = nullptr;
 name const * g_tactic_try_for = nullptr;
 name const * g_tactic_unfold = nullptr;
@@ -211,14 +212,15 @@ void initialize_constants() {
     g_tactic_opt_expr_list = new name{"tactic", "opt_expr_list"};
     g_tactic_or_else = new name{"tactic", "or_else"};
     g_tactic_par = new name{"tactic", "par"};
-    g_tactic_sexact = new name{"tactic", "sexact"};
-    g_tactic_state = new name{"tactic", "state"};
+    g_tactic_refine = new name{"tactic", "refine"};
     g_tactic_rename = new name{"tactic", "rename"};
     g_tactic_repeat = new name{"tactic", "repeat"};
     g_tactic_revert = new name{"tactic", "revert"};
     g_tactic_reverts = new name{"tactic", "reverts"};
+    g_tactic_rexact = new name{"tactic", "rexact"};
     g_tactic_rotate_left = new name{"tactic", "rotate_left"};
     g_tactic_rotate_right = new name{"tactic", "rotate_right"};
+    g_tactic_state = new name{"tactic", "state"};
     g_tactic_trace = new name{"tactic", "trace"};
     g_tactic_try_for = new name{"tactic", "try_for"};
     g_tactic_unfold = new name{"tactic", "unfold"};
@@ -327,14 +329,15 @@ void finalize_constants() {
     delete g_tactic_opt_expr_list;
     delete g_tactic_or_else;
     delete g_tactic_par;
-    delete g_tactic_sexact;
-    delete g_tactic_state;
+    delete g_tactic_refine;
     delete g_tactic_rename;
     delete g_tactic_repeat;
     delete g_tactic_revert;
     delete g_tactic_reverts;
+    delete g_tactic_rexact;
     delete g_tactic_rotate_left;
     delete g_tactic_rotate_right;
+    delete g_tactic_state;
     delete g_tactic_trace;
     delete g_tactic_try_for;
     delete g_tactic_unfold;
@@ -442,14 +445,15 @@ name const & get_tactic_now_name() { return *g_tactic_now; }
 name const & get_tactic_opt_expr_list_name() { return *g_tactic_opt_expr_list; }
 name const & get_tactic_or_else_name() { return *g_tactic_or_else; }
 name const & get_tactic_par_name() { return *g_tactic_par; }
-name const & get_tactic_sexact_name() { return *g_tactic_sexact; }
-name const & get_tactic_state_name() { return *g_tactic_state; }
+name const & get_tactic_refine_name() { return *g_tactic_refine; }
 name const & get_tactic_rename_name() { return *g_tactic_rename; }
 name const & get_tactic_repeat_name() { return *g_tactic_repeat; }
 name const & get_tactic_revert_name() { return *g_tactic_revert; }
 name const & get_tactic_reverts_name() { return *g_tactic_reverts; }
+name const & get_tactic_rexact_name() { return *g_tactic_rexact; }
 name const & get_tactic_rotate_left_name() { return *g_tactic_rotate_left; }
 name const & get_tactic_rotate_right_name() { return *g_tactic_rotate_right; }
+name const & get_tactic_state_name() { return *g_tactic_state; }
 name const & get_tactic_trace_name() { return *g_tactic_trace; }
 name const & get_tactic_try_for_name() { return *g_tactic_try_for; }
 name const & get_tactic_unfold_name() { return *g_tactic_unfold; }

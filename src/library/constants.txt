@@ -91,14 +91,15 @@ tactic.now
 tactic.opt_expr_list
 tactic.or_else
 tactic.par
-tactic.sexact
-tactic.state
+tactic.refine
 tactic.rename
 tactic.repeat
 tactic.revert
 tactic.reverts
+tactic.rexact
 tactic.rotate_left
 tactic.rotate_right
+tactic.state
 tactic.trace
 tactic.try_for
 tactic.unfold

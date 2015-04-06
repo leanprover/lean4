@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: algebra.precategory.nat_trans
 Author: Floris van Doorn, Jakob von Raumer
 -/
-
 import .functor .iso
 open eq category functor is_trunc equiv sigma.ops sigma is_equiv function pi funext iso
 
@@ -63,7 +62,8 @@ namespace nat_trans
     (Σ (η : Π (a : C), hom (F a) (G a)), Π (a b : C) (f : hom a b), G f ∘ η a = η b ∘ F f) ≃  (F ⟹ G) :=
   begin
     fapply equiv.mk,
-      intro S, apply nat_trans.mk, exact (S.2),
+      -- TODO(Leo): investigate why we need to use rexact in the following line
+      {intro S, apply nat_trans.mk, rexact (S.2)},
     fapply adjointify,
       intro H,
           fapply sigma.mk,

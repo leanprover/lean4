@@ -535,8 +535,8 @@ section port_algebra
   theorem sign_mul : ∀a b : ℤ, sign (a * b) = sign a * sign b := algebra.sign_mul
   theorem abs_eq_sign_mul : ∀a : ℤ, abs a = sign a * a := algebra.abs_eq_sign_mul
   theorem eq_sign_mul_abs : ∀a : ℤ, a = sign a * abs a := algebra.eq_sign_mul_abs
-  theorem abs_dvd_iff_dvd : ∀a b : ℤ, (abs a | b) ↔ (a | b) := algebra.abs_dvd_iff_dvd
-  theorem dvd_abs_iff : ∀a b : ℤ, (a | abs b) ↔ (a | b) := algebra.dvd_abs_iff
+  theorem abs_dvd_iff_dvd : ∀a b : ℤ, abs a ∣ b ↔ a ∣ b := algebra.abs_dvd_iff_dvd
+  theorem dvd_abs_iff : ∀a b : ℤ, a ∣ abs b ↔ a ∣ b := algebra.dvd_abs_iff
   theorem abs_mul : ∀a b : ℤ, abs (a * b) = abs a * abs b := algebra.abs_mul
   theorem abs_mul_self : ∀a : ℤ, abs a * abs a = a * a := algebra.abs_mul_self
 end port_algebra

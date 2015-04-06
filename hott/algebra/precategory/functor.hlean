@@ -93,7 +93,7 @@ namespace functor
     fapply @is_iso.mk, apply (F (f⁻¹)),
     repeat (apply concat ; apply inverse ;  apply (respect_comp F) ;
       apply concat ; apply (ap (λ x, to_fun_hom F x)) ;
-      [apply left_inverse | apply right_inverse] ;
+      (apply left_inverse | apply right_inverse);
       apply (respect_id F) ),
   end
 

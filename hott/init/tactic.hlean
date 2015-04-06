@@ -92,13 +92,13 @@ opaque definition change (e : expr) : tactic := builtin
 opaque definition assert_hypothesis (id : expr) (e : expr) : tactic := builtin
 
 infixl `;`:15 := and_then
-notation `[` h:10 `|`:10 r:(foldl:10 `|` (e r, or_else r e) h) `]` := r
+notation `(` h `|` r:(foldl `|` (e r, or_else r e) h) `)` := r
 
-definition try         (t : tactic) : tactic := [t | id]
+definition try         (t : tactic) : tactic := (t | id)
 definition repeat1     (t : tactic) : tactic := t ; repeat t
 definition focus       (t : tactic) : tactic := focus_at t 0
 definition determ      (t : tactic) : tactic := at_most t 1
-definition trivial                  : tactic := [ apply eq.refl | assumption ]
+definition trivial                  : tactic := ( apply eq.refl | assumption )
 definition do (n : num) (t : tactic) : tactic :=
 nat.rec id (λn t', (t;t')) (nat.of_num n)
 

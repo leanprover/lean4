@@ -15,6 +15,6 @@ theorem inh_fun [instance] {A B : Type} [H : inh B] : inh (A → B)
 theorem tst {A B : Type} (H : inh B) : inh (A → B → B)
 
 theorem T1 {A : Type} (a : A) : inh A :=
-by repeat [apply @inh.intro | eassumption]
+by repeat (apply @inh.intro | eassumption)
 
 theorem T2 : inh Prop

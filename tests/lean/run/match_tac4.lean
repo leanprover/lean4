@@ -16,7 +16,7 @@ begin
     match H with
     | ⟪ H₁, H₂, H₃, H₄ ⟫ :=
       begin
-        repeat [apply and.intro | assumption]
+        repeat (apply and.intro | assumption)
       end
     end
   end
@@ -27,7 +27,7 @@ print definition tst
 theorem tst2 (a b c d : Prop) : a ∧ b ∧ c ∧ d ↔ d ∧ c ∧ b ∧ a :=
 begin
   apply iff.intro,
-  repeat (intro H;  repeat [cases H with [H', H] | apply and.intro | assumption])
+  repeat (intro H;  repeat (cases H with [H', H] | apply and.intro | assumption))
 end
 
 print definition tst2

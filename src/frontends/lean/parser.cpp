@@ -1403,7 +1403,11 @@ expr parser::parse_tactic_nud() {
         } else {
             return parse_expr();
         }
-    } else if (curr_is_token(get_lbracket_tk())) {
+    } else if (curr_is_token_or_id(get_rewrite_tk())) {
+        auto p = pos();
+        next();
+        return save_pos(parse_rewrite_tactic(*this), p);
+    } else if (curr_is_token(get_lparen_tk())) {
         next();
         expr r = parse_tactic();
         while (curr_is_token(get_bar_tk())) {
@@ -1412,15 +1416,6 @@ expr parser::parse_tactic_nud() {
             expr n = parse_tactic();
             r = mk_app({save_pos(mk_constant(get_tactic_or_else_name()), bar_pos), r, n}, bar_pos);
         }
-        check_token_next(get_rbracket_tk(), "invalid or-else tactic, ']' expected");
-        return r;
-    } else if (curr_is_token_or_id(get_rewrite_tk())) {
-        auto p = pos();
-        next();
-        return save_pos(parse_rewrite_tactic(*this), p);
-    } else if (curr_is_token(get_lparen_tk())) {
-        next();
-        expr r = parse_tactic();
         check_token_next(get_rparen_tk(), "invalid tactic, ')' expected");
         return r;
     } else {

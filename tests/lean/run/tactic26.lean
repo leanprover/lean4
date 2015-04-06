@@ -12,10 +12,10 @@ theorem inl_inhabited {A : Type} (B : Type) (H : inhabited A) : inhabited (sum A
 theorem inr_inhabited (A : Type) {B : Type} (H : inhabited B) : inhabited (sum A B)
 := inhabited.destruct H (λ b, inhabited.mk (sum.inr A b))
 
-definition my_tac := fixpoint (λ t, [ apply @inl_inhabited; t
+definition my_tac := fixpoint (λ t, ( apply @inl_inhabited; t
                                     | apply @inr_inhabited; t
                                     | apply @num.is_inhabited
-                                    ])
+                                    ))
 
 tactic_hint my_tac
 

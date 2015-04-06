@@ -1,7 +1,7 @@
 import data.nat
 open nat eq.ops
 
-theorem lcm_dvd {m n k : nat} (H1 : (m | k)) (H2 : (n | k)) : (lcm m n | k) :=
+theorem lcm_dvd {m n k : nat} (H1 : m ∣ k) (H2 : (n ∣ k)) : (lcm m n ∣ k) :=
 match eq_zero_or_pos k with
 | @or.inl _ _ kzero :=
     begin

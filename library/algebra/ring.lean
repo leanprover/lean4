@@ -72,28 +72,28 @@ section comm_semiring
   include s
 
   definition dvd (a b : A) : Prop := ∃c, b = a * c
-  notation ( a | b ) := dvd a b
+  notation a ∣ b := dvd a b
 
-  theorem dvd.intro {a b c : A} (H : a * c = b) : (a | b) :=
+  theorem dvd.intro {a b c : A} (H : a * c = b) : a ∣ b :=
   exists.intro _ H⁻¹
 
-  theorem dvd.intro_left {a b c : A} (H : c * a = b) : (a | b) :=
+  theorem dvd.intro_left {a b c : A} (H : c * a = b) : a ∣ b :=
   dvd.intro (!mul.comm ▸ H)
 
-  theorem exists_eq_mul_right_of_dvd {a b : A} (H : (a | b)) : ∃c, b = a * c := H
+  theorem exists_eq_mul_right_of_dvd {a b : A} (H : a ∣ b) : ∃c, b = a * c := H
 
-  theorem dvd.elim {P : Prop} {a b : A} (H₁ : (a | b)) (H₂ : ∀c, b = a * c → P) : P :=
+  theorem dvd.elim {P : Prop} {a b : A} (H₁ : a ∣ b) (H₂ : ∀c, b = a * c → P) : P :=
   exists.elim H₁ H₂
 
-  theorem exists_eq_mul_left_of_dvd {a b : A} (H : (a | b)) : ∃c, b = c * a :=
+  theorem exists_eq_mul_left_of_dvd {a b : A} (H : a ∣ b) : ∃c, b = c * a :=
   dvd.elim H (take c, assume H1 : b = a * c, exists.intro c (H1 ⬝ !mul.comm))
 
-  theorem dvd.elim_left {P : Prop} {a b : A} (H₁ : (a | b)) (H₂ : ∀c, b = c * a → P) : P :=
+  theorem dvd.elim_left {P : Prop} {a b : A} (H₁ : a ∣ b) (H₂ : ∀c, b = c * a → P) : P :=
   exists.elim (exists_eq_mul_left_of_dvd H₁) (take c, assume H₃ : b = c * a, H₂ c H₃)
 
-  theorem dvd.refl : (a | a) := dvd.intro !mul_one
+  theorem dvd.refl : a ∣ a := dvd.intro !mul_one
 
-  theorem dvd.trans {a b c : A} (H₁ : (a | b)) (H₂ : (b | c)) : (a | c) :=
+  theorem dvd.trans {a b c : A} (H₁ : a ∣ b) (H₂ : b ∣ c) : a ∣ c :=
   dvd.elim H₁
     (take d, assume H₃ : b = a * d,
       dvd.elim H₂
@@ -101,28 +101,28 @@ section comm_semiring
           dvd.intro
             (show a * (d * e) = c, by rewrite [-mul.assoc, -H₃, H₄])))
 
-  theorem eq_zero_of_zero_dvd {a : A} (H : (0 | a)) : a = 0 :=
+  theorem eq_zero_of_zero_dvd {a : A} (H : 0 ∣ a) : a = 0 :=
     dvd.elim H (take c, assume H' : a = 0 * c, H' ⬝ !zero_mul)
 
-  theorem dvd_zero : (a | 0) := dvd.intro !mul_zero
+  theorem dvd_zero : a ∣ 0 := dvd.intro !mul_zero
 
-  theorem one_dvd : (1 | a) := dvd.intro !one_mul
+  theorem one_dvd : 1 ∣ a := dvd.intro !one_mul
 
-  theorem dvd_mul_right : (a | a * b) := dvd.intro rfl
+  theorem dvd_mul_right : a ∣ a * b := dvd.intro rfl
 
-  theorem dvd_mul_left : (a | b * a) := mul.comm a b ▸ dvd_mul_right a b
+  theorem dvd_mul_left : a ∣ b * a := mul.comm a b ▸ dvd_mul_right a b
 
-  theorem dvd_mul_of_dvd_left {a b : A} (H : (a | b)) (c : A) : (a | b * c) :=
+  theorem dvd_mul_of_dvd_left {a b : A} (H : a ∣ b) (c : A) : a ∣ b * c :=
   dvd.elim H
     (take d,
       assume H₁ : b = a * d,
       dvd.intro
         (show a * (d * c) = b * c, from by rewrite [-mul.assoc, H₁]))
 
-  theorem dvd_mul_of_dvd_right {a b : A} (H : (a | b)) (c : A) : (a | c * b) :=
+  theorem dvd_mul_of_dvd_right {a b : A} (H : a ∣ b) (c : A) : a ∣ c * b :=
   !mul.comm ▸ (dvd_mul_of_dvd_left H _)
 
-  theorem mul_dvd_mul {a b c d : A} (dvd_ab : (a | b)) (dvd_cd : (c | d)) : (a * c | b * d) :=
+  theorem mul_dvd_mul {a b c d : A} (dvd_ab : (a ∣ b)) (dvd_cd : c ∣ d) : a * c ∣ b * d :=
   dvd.elim dvd_ab
     (take e, assume Haeb : b = a * e,
       dvd.elim dvd_cd
@@ -131,13 +131,13 @@ section comm_semiring
             (show a * c * (e * f) = b * d,
              by rewrite [mul.assoc, {c*_}mul.left_comm, -mul.assoc, Haeb, Hcfd])))
 
-  theorem dvd_of_mul_right_dvd {a b c : A} (H : (a * b | c)) : (a | c) :=
+  theorem dvd_of_mul_right_dvd {a b c : A} (H : a * b ∣ c) : a ∣ c :=
   dvd.elim H (take d, assume Habdc : c = a * b * d, dvd.intro (!mul.assoc⁻¹ ⬝ Habdc⁻¹))
 
-  theorem dvd_of_mul_left_dvd {a b c : A} (H : (a * b | c)) : (b | c) :=
+  theorem dvd_of_mul_left_dvd {a b c : A} (H : a * b ∣ c) : b ∣ c :=
   dvd_of_mul_right_dvd (mul.comm a b ▸ H)
 
-  theorem dvd_add {a b c : A} (Hab : (a | b)) (Hac : (a | c)) : (a | b + c) :=
+  theorem dvd_add {a b c : A} (Hab : a ∣ b) (Hac : a ∣ c) : a ∣ b + c :=
   dvd.elim Hab
     (take d, assume Hadb : b = a * d,
       dvd.elim Hac
@@ -259,35 +259,35 @@ section
   theorem mul_self_sub_one_eq : a * a - 1 = (a + 1) * (a - 1) :=
   mul_one 1 ▸ mul_self_sub_mul_self_eq a 1
 
-  theorem dvd_neg_iff_dvd : (a | -b) ↔ (a | b) :=
+  theorem dvd_neg_iff_dvd : (a ∣ -b) ↔ (a ∣ b) :=
   iff.intro
-    (assume H : (a | -b),
+    (assume H : (a ∣ -b),
       dvd.elim H
         (take c, assume H' : -b = a * c,
           dvd.intro
             (show a * -c = b,
              by rewrite [-neg_mul_eq_mul_neg, -H', neg_neg])))
-    (assume H : (a | b),
+    (assume H : (a ∣ b),
       dvd.elim H
         (take c, assume H' : b = a * c,
           dvd.intro
             (show a * -c = -b,
              by rewrite [-neg_mul_eq_mul_neg, -H'])))
 
-  theorem neg_dvd_iff_dvd : (-a | b) ↔ (a | b) :=
+  theorem neg_dvd_iff_dvd : (-a ∣ b) ↔ (a ∣ b) :=
   iff.intro
-    (assume H : (-a | b),
+    (assume H : (-a ∣ b),
       dvd.elim H
         (take c, assume H' : b = -a * c,
           dvd.intro
             (show a * -c = b, by rewrite [-neg_mul_comm, H'])))
-    (assume H : (a | b),
+    (assume H : (a ∣ b),
       dvd.elim H
         (take c, assume H' : b = a * c,
           dvd.intro
             (show -a * -c = b, by rewrite [neg_mul_neg, H'])))
 
-  theorem dvd_sub (H₁ : (a | b)) (H₂ : (a | c)) : (a | b - c) :=
+  theorem dvd_sub (H₁ : (a ∣ b)) (H₂ : (a ∣ c)) : (a ∣ b - c) :=
   dvd_add H₁ (iff.elim_right !dvd_neg_iff_dvd H₂)
 end
 
@@ -343,14 +343,14 @@ section
 
   -- TODO: c - b * c → c = 0 ∨ b = 1 and variants
 
-  theorem dvd_of_mul_dvd_mul_left {a b c : A} (Ha : a ≠ 0) (Hdvd : (a * b | a * c)) : (b | c) :=
+  theorem dvd_of_mul_dvd_mul_left {a b c : A} (Ha : a ≠ 0) (Hdvd : (a * b ∣ a * c)) : (b ∣ c) :=
   dvd.elim Hdvd
     (take d,
       assume H : a * c = a * b * d,
       have H1 : b * d = c, from mul.cancel_left Ha (mul.assoc a b d ▸ H⁻¹),
       dvd.intro H1)
 
-  theorem dvd_of_mul_dvd_mul_right {a b c : A} (Ha : a ≠ 0) (Hdvd : (b * a | c * a)) : (b | c) :=
+  theorem dvd_of_mul_dvd_mul_right {a b c : A} (Ha : a ≠ 0) (Hdvd : (b * a ∣ c * a)) : (b ∣ c) :=
   dvd.elim Hdvd
     (take d,
       assume H : c * a = b * a * d,

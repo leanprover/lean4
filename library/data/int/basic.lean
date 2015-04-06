@@ -710,35 +710,35 @@ section port_algebra
   theorem ne_zero_of_mul_ne_zero_left : ∀{a b : ℤ}, a * b ≠ 0 → b ≠ 0 :=
     @algebra.ne_zero_of_mul_ne_zero_left _ _
   definition dvd (a b : ℤ) : Prop := algebra.dvd a b
-  notation (a | b) := dvd a b
-  theorem dvd.intro : ∀{a b c : ℤ} (H : a * c = b), (a | b) := @algebra.dvd.intro _ _
-  theorem dvd.intro_left : ∀{a b c : ℤ} (H : c * a = b), (a | b) := @algebra.dvd.intro_left _ _
-  theorem exists_eq_mul_right_of_dvd : ∀{a b : ℤ} (H : (a | b)), ∃c, b = a * c :=
+  notation a ∣ b := dvd a b
+  theorem dvd.intro : ∀{a b c : ℤ} (H : a * c = b), a ∣ b := @algebra.dvd.intro _ _
+  theorem dvd.intro_left : ∀{a b c : ℤ} (H : c * a = b), a ∣ b := @algebra.dvd.intro_left _ _
+  theorem exists_eq_mul_right_of_dvd : ∀{a b : ℤ} (H : a ∣ b), ∃c, b = a * c :=
     @algebra.exists_eq_mul_right_of_dvd _ _
-  theorem dvd.elim : ∀{P : Prop} {a b : ℤ} (H₁ : (a | b)) (H₂ : ∀c, b = a * c → P), P :=
+  theorem dvd.elim : ∀{P : Prop} {a b : ℤ} (H₁ : a ∣ b) (H₂ : ∀c, b = a * c → P), P :=
     @algebra.dvd.elim _ _
-  theorem exists_eq_mul_left_of_dvd : ∀{a b : ℤ} (H : (a | b)), ∃c, b = c * a :=
+  theorem exists_eq_mul_left_of_dvd : ∀{a b : ℤ} (H : a ∣ b), ∃c, b = c * a :=
     @algebra.exists_eq_mul_left_of_dvd _ _
-  theorem dvd.elim_left : ∀{P : Prop} {a b : ℤ} (H₁ : (a | b)) (H₂ : ∀c, b = c * a → P), P :=
+  theorem dvd.elim_left : ∀{P : Prop} {a b : ℤ} (H₁ : a ∣ b) (H₂ : ∀c, b = c * a → P), P :=
     @algebra.dvd.elim_left _ _
-  theorem dvd.refl : ∀a : ℤ, (a | a) := algebra.dvd.refl
-  theorem dvd.trans : ∀{a b c : ℤ} (H₁ : (a | b)) (H₂ : (b | c)), (a | c) := @algebra.dvd.trans _ _
-  theorem eq_zero_of_zero_dvd : ∀{a : ℤ} (H : (0 | a)), a = 0 := @algebra.eq_zero_of_zero_dvd _ _
-  theorem dvd_zero : ∀a : ℤ, (a | 0) := algebra.dvd_zero
-  theorem one_dvd : ∀a : ℤ, (1 | a) := algebra.one_dvd
-  theorem dvd_mul_right : ∀a b : ℤ, (a | a * b) := algebra.dvd_mul_right
-  theorem dvd_mul_left : ∀a b : ℤ, (a | b * a) := algebra.dvd_mul_left
-  theorem dvd_mul_of_dvd_left : ∀{a b : ℤ} (H : (a | b)) (c : ℤ), (a | b * c) :=
+  theorem dvd.refl : ∀a : ℤ, (a ∣ a) := algebra.dvd.refl
+  theorem dvd.trans : ∀{a b c : ℤ} (H₁ : a ∣ b) (H₂ : b ∣ c), a ∣ c := @algebra.dvd.trans _ _
+  theorem eq_zero_of_zero_dvd : ∀{a : ℤ} (H : 0 ∣ a), a = 0 := @algebra.eq_zero_of_zero_dvd _ _
+  theorem dvd_zero : ∀a : ℤ, a ∣ 0 := algebra.dvd_zero
+  theorem one_dvd : ∀a : ℤ, 1 ∣ a := algebra.one_dvd
+  theorem dvd_mul_right : ∀a b : ℤ, a ∣ a * b := algebra.dvd_mul_right
+  theorem dvd_mul_left : ∀a b : ℤ, a ∣ b * a := algebra.dvd_mul_left
+  theorem dvd_mul_of_dvd_left : ∀{a b : ℤ} (H : a ∣ b) (c : ℤ), a ∣ b * c :=
     @algebra.dvd_mul_of_dvd_left _ _
-  theorem dvd_mul_of_dvd_right : ∀{a b : ℤ} (H : (a | b)) (c : ℤ), (a | c * b) :=
+  theorem dvd_mul_of_dvd_right : ∀{a b : ℤ} (H : a ∣ b) (c : ℤ), a ∣ c * b :=
     @algebra.dvd_mul_of_dvd_right _ _
-  theorem mul_dvd_mul : ∀{a b c d : ℤ}, (a | b) → (c | d) → (a * c | b * d) :=
+  theorem mul_dvd_mul : ∀{a b c d : ℤ}, a ∣ b → c ∣ d → a * c ∣ b * d :=
     @algebra.mul_dvd_mul _ _
-  theorem dvd_of_mul_right_dvd : ∀{a b c : ℤ}, (a * b | c) → (a | c) :=
+  theorem dvd_of_mul_right_dvd : ∀{a b c : ℤ}, a * b ∣ c → a ∣ c :=
     @algebra.dvd_of_mul_right_dvd _ _
-  theorem dvd_of_mul_left_dvd : ∀{a b c : ℤ}, (a * b | c) → (b | c) :=
+  theorem dvd_of_mul_left_dvd : ∀{a b c : ℤ}, a * b ∣ c → b ∣ c :=
     @algebra.dvd_of_mul_left_dvd _ _
-  theorem dvd_add : ∀{a b c : ℤ}, (a | b) → (a | c) → (a | b + c) := @algebra.dvd_add _ _
+  theorem dvd_add : ∀{a b c : ℤ}, a ∣ b → a ∣ c → a ∣ b + c := @algebra.dvd_add _ _
   theorem zero_mul : ∀a : ℤ, 0 * a = 0 := algebra.zero_mul
   theorem mul_zero : ∀a : ℤ, a * 0 = 0 := algebra.mul_zero
   theorem neg_mul_eq_neg_mul : ∀a b : ℤ, -(a * b) = -a * b := algebra.neg_mul_eq_neg_mul
@@ -757,9 +757,9 @@ section port_algebra
     algebra.mul_self_sub_mul_self_eq
   theorem mul_self_sub_one_eq : ∀a : ℤ, a * a - 1 = (a + 1) * (a - 1) :=
     algebra.mul_self_sub_one_eq
-  theorem dvd_neg_iff_dvd : ∀a b : ℤ, (a | -b) ↔ (a | b) := algebra.dvd_neg_iff_dvd
-  theorem neg_dvd_iff_dvd : ∀a b : ℤ, (-a | b) ↔ (a | b) := algebra.neg_dvd_iff_dvd
-  theorem dvd_sub : ∀a b c : ℤ, (a | b) → (a | c) → (a | b - c) := algebra.dvd_sub
+  theorem dvd_neg_iff_dvd : ∀a b : ℤ, a ∣ -b ↔ a ∣ b := algebra.dvd_neg_iff_dvd
+  theorem neg_dvd_iff_dvd : ∀a b : ℤ, -a ∣ b ↔ a ∣ b := algebra.neg_dvd_iff_dvd
+  theorem dvd_sub : ∀a b c : ℤ, a ∣ b → a ∣ c → a ∣ b - c := algebra.dvd_sub
   theorem mul_ne_zero : ∀{a b : ℤ}, a ≠ 0 → b ≠ 0 → a * b ≠ 0 := @algebra.mul_ne_zero _ _
   theorem mul.cancel_right : ∀{a b c : ℤ}, a ≠ 0 → b * a = c * a → b = c :=
     @algebra.mul.cancel_right _ _
@@ -769,9 +769,9 @@ section port_algebra
     algebra.mul_self_eq_mul_self_iff
   theorem mul_self_eq_one_iff : ∀a : ℤ, a * a = 1 ↔ a = 1 ∨ a = -1 :=
     algebra.mul_self_eq_one_iff
-  theorem dvd_of_mul_dvd_mul_left : ∀{a b c : ℤ}, a ≠ 0 → (a * b | a * c) → (b | c) :=
+  theorem dvd_of_mul_dvd_mul_left : ∀{a b c : ℤ}, a ≠ 0 → a*b ∣ a*c → b ∣ c :=
     @algebra.dvd_of_mul_dvd_mul_left _ _
-  theorem dvd_of_mul_dvd_mul_right : ∀{a b c : ℤ}, a ≠ 0 → (b * a | c * a) → (b | c) :=
+  theorem dvd_of_mul_dvd_mul_right : ∀{a b c : ℤ}, a ≠ 0 → b*a ∣ c*a → b ∣ c :=
     @algebra.dvd_of_mul_dvd_mul_right _ _
 end port_algebra
 

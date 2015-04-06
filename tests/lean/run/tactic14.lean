@@ -2,7 +2,7 @@ import logic
 open tactic
 
 definition basic_tac : tactic
-:= repeat [apply @and.intro | assumption]
+:= repeat (apply @and.intro | assumption)
 
 set_begin_end_tactic basic_tac -- basic_tac is automatically applied to each element of a proof-qed block
 

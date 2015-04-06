@@ -332,28 +332,28 @@ calc
 
 /- divides -/
 
-theorem dvd_of_mod_eq_zero {m n : ℕ} (H : n mod m = 0) : (m | n) :=
+theorem dvd_of_mod_eq_zero {m n : ℕ} (H : n mod m = 0) : m ∣ n :=
 dvd.intro (!mul.comm ▸ div_mul_cancel_of_mod_eq_zero H)
 
-theorem mod_eq_zero_of_dvd {m n : ℕ} (H : (m | n)) : n mod m = 0 :=
+theorem mod_eq_zero_of_dvd {m n : ℕ} (H : m ∣ n) : n mod m = 0 :=
 dvd.elim H
   (take z,
     assume H1 : n = m * z,
     H1⁻¹ ▸ !mul_mod_right)
 
-theorem dvd_iff_mod_eq_zero (m n : ℕ) : (m | n) ↔ n mod m = 0 :=
+theorem dvd_iff_mod_eq_zero (m n : ℕ) : m ∣ n ↔ n mod m = 0 :=
 iff.intro mod_eq_zero_of_dvd dvd_of_mod_eq_zero
 
 definition dvd.decidable_rel [instance] : decidable_rel dvd :=
 take m n, decidable_of_decidable_of_iff _ (iff.symm !dvd_iff_mod_eq_zero)
 
-theorem div_mul_cancel {m n : ℕ} (H : (n | m)) : m div n * n = m :=
+theorem div_mul_cancel {m n : ℕ} (H : n ∣ m) : m div n * n = m :=
 div_mul_cancel_of_mod_eq_zero (mod_eq_zero_of_dvd H)
 
-theorem mul_div_cancel' {m n : ℕ} (H : (n | m)) : n * (m div n) = m :=
+theorem mul_div_cancel' {m n : ℕ} (H : n ∣ m) : n * (m div n) = m :=
 !mul.comm ▸ div_mul_cancel H
 
-theorem eq_mul_of_div_eq {m n k : ℕ} (H1 : (m | n)) (H2 : n div m = k) : n = m * k :=
+theorem eq_mul_of_div_eq {m n k : ℕ} (H1 : m ∣ n) (H2 : n div m = k) : n = m * k :=
 eq.symm (calc
   m * k = m * (n div m) : H2
     ... = n             : mul_div_cancel' H1)
@@ -363,7 +363,7 @@ calc
   n = n * k div k : mul_div_cancel _ H1
     ... = m div k : H2
 
-theorem dvd_of_dvd_add_left {m n₁ n₂ : ℕ} (H₁ : (m | n₁ + n₂)) (H₂ : (m | n₁)) : (m | n₂) :=
+theorem dvd_of_dvd_add_left {m n₁ n₂ : ℕ} (H₁ : m ∣ n₁ + n₂) (H₂ : m ∣ n₁) : m ∣ n₂ :=
 obtain (c₁ : nat) (Hc₁ : n₁ + n₂ = m * c₁), from H₁,
 obtain (c₂ : nat) (Hc₂ : n₁ = m * c₂), from H₂,
 have   aux : m * (c₁ - c₂) = n₂, from calc
@@ -373,25 +373,25 @@ have   aux : m * (c₁ - c₂) = n₂, from calc
            ...  = n₂               : add_sub_cancel_left,
 dvd.intro aux
 
-theorem dvd_of_dvd_add_right {m n1 n2 : ℕ} (H : (m | (n1 + n2))) : (m | n2) → (m | n1) :=
+theorem dvd_of_dvd_add_right {m n1 n2 : ℕ} (H : m ∣ (n1 + n2)) : m ∣ n2 → m ∣ n1 :=
 dvd_of_dvd_add_left (!add.comm ▸ H)
 
-theorem dvd_sub {m n1 n2 : ℕ} (H1 : (m | n1)) (H2 : (m | n2)) : (m | n1 - n2) :=
+theorem dvd_sub {m n1 n2 : ℕ} (H1 : m ∣ n1) (H2 : m ∣ n2) : m ∣ n1 - n2 :=
 by_cases
   (assume H3 : n1 ≥ n2,
     have H4 : n1 = n1 - n2 + n2, from (sub_add_cancel H3)⁻¹,
-    show (m | n1 - n2), from dvd_of_dvd_add_right (H4 ▸ H1) H2)
+    show m ∣ n1 - n2, from dvd_of_dvd_add_right (H4 ▸ H1) H2)
   (assume H3 : ¬ (n1 ≥ n2),
     have H4 : n1 - n2 = 0, from sub_eq_zero_of_le (le_of_lt (lt_of_not_le H3)),
-    show (m | n1 - n2), from H4⁻¹ ▸ dvd_zero _)
+    show m ∣ n1 - n2, from H4⁻¹ ▸ dvd_zero _)
 
-theorem dvd.antisymm {m n : ℕ} : (m | n) → (n | m) → m = n :=
+theorem dvd.antisymm {m n : ℕ} : m ∣ n → n ∣ m → m = n :=
 by_cases_zero_pos n
-  (assume H1, assume H2 : (0 | m), eq_zero_of_zero_dvd H2)
+  (assume H1, assume H2 : 0 ∣ m, eq_zero_of_zero_dvd H2)
   (take n,
     assume Hpos : n > 0,
-    assume H1 : (m | n),
-    assume H2 : (n | m),
+    assume H1 : m ∣ n,
+    assume H2 : n ∣ m,
     obtain k (Hk : n = m * k), from exists_eq_mul_right_of_dvd H1,
     obtain l (Hl : m = n * l), from exists_eq_mul_right_of_dvd H2,
     have H3 : n * (l * k) = n, from !mul.assoc ▸ Hl ▸ Hk⁻¹,
@@ -399,7 +399,7 @@ by_cases_zero_pos n
     have H5 : k = 1, from eq_one_of_mul_eq_one_left H4,
     show m = n, from (mul_one m)⁻¹ ⬝ (H5 ▸ Hk⁻¹))
 
-theorem mul_div_assoc (m : ℕ) {n k : ℕ} (H : (k | n)) : m * n div k = m * (n div k) :=
+theorem mul_div_assoc (m : ℕ) {n k : ℕ} (H : k ∣ n) : m * n div k = m * (n div k) :=
 or.elim (eq_zero_or_pos k)
   (assume H1 : k = 0,
     calc
@@ -415,17 +415,17 @@ or.elim (eq_zero_or_pos k)
                 ... = m * (n div k) * k div k : mul.assoc
                 ... = m * (n div k)           : mul_div_cancel _ H1)
 
-theorem dvd_of_mul_dvd_mul_left {m n k : ℕ} (kpos : k > 0) (H : (k * m | k * n)) : (m | n) :=
+theorem dvd_of_mul_dvd_mul_left {m n k : ℕ} (kpos : k > 0) (H : k * m ∣ k * n) : m ∣ n :=
 dvd.elim H
   (take l,
     assume H1 : k * n = k * m * l,
     have H2 : n = m * l, from eq_of_mul_eq_mul_left kpos (H1 ⬝ !mul.assoc),
     dvd.intro H2⁻¹)
 
-theorem dvd_of_mul_dvd_mul_right {m n k : ℕ} (kpos : k > 0) (H : (m * k | n * k)) : (m | n) :=
+theorem dvd_of_mul_dvd_mul_right {m n k : ℕ} (kpos : k > 0) (H : m * k ∣ n * k) : m ∣ n :=
 dvd_of_mul_dvd_mul_left kpos (!mul.comm ▸ !mul.comm ▸ H)
 
-theorem div_dvd_div {k m n : ℕ} (H1 : (k | m)) (H2 : (m | n)) : (m div k | n div k) :=
+theorem div_dvd_div {k m n : ℕ} (H1 : k ∣ m) (H2 : m ∣ n) : m div k ∣ n div k :=
 have H3 : m = m div k * k, from (div_mul_cancel H1)⁻¹,
 have H4 : n = n div k * k, from (div_mul_cancel (dvd.trans H1 H2))⁻¹,
 or.elim (eq_zero_or_pos k)
@@ -518,36 +518,36 @@ have aux : Q (m, n), from
           H1 m (succ n₁) hlt₁ hp))),
 aux
 
-theorem gcd_dvd (m n : ℕ) : (gcd m n | m) ∧ (gcd m n | n) :=
+theorem gcd_dvd (m n : ℕ) : (gcd m n ∣ m) ∧ (gcd m n ∣ n) :=
 gcd.induction m n
   (take m,
-    show (gcd m 0 | m) ∧ (gcd m 0 | 0), by simp)
+    show (gcd m 0 ∣ m) ∧ (gcd m 0 ∣ 0), by simp)
   (take m n,
     assume npos : 0 < n,
-    assume IH : (gcd n (m mod n) | n) ∧ (gcd n (m mod n) | (m mod n)),
-    have H : (gcd n (m mod n) | (m div n * n + m mod n)), from
+    assume IH : (gcd n (m mod n) ∣ n) ∧ (gcd n (m mod n) ∣ (m mod n)),
+    have H : (gcd n (m mod n) ∣ (m div n * n + m mod n)), from
       dvd_add (dvd.trans (and.elim_left IH) !dvd_mul_left) (and.elim_right IH),
-    have H1 : (gcd n (m mod n) | m), from eq_div_mul_add_mod⁻¹ ▸ H,
+    have H1 : (gcd n (m mod n) ∣ m), from eq_div_mul_add_mod⁻¹ ▸ H,
     have gcd_eq : gcd n (m mod n) = gcd m n, from !gcd_rec⁻¹,
-    show (gcd m n | m) ∧ (gcd m n | n), from gcd_eq ▸ (and.intro H1 (and.elim_left IH)))
+    show (gcd m n ∣ m) ∧ (gcd m n ∣ n), from gcd_eq ▸ (and.intro H1 (and.elim_left IH)))
 
-theorem gcd_dvd_left (m n : ℕ) : (gcd m n | m) := and.elim_left !gcd_dvd
+theorem gcd_dvd_left (m n : ℕ) : gcd m n ∣ m := and.elim_left !gcd_dvd
 
-theorem gcd_dvd_right (m n : ℕ) : (gcd m n | n) := and.elim_right !gcd_dvd
+theorem gcd_dvd_right (m n : ℕ) : gcd m n ∣ n := and.elim_right !gcd_dvd
 
-theorem dvd_gcd {m n k : ℕ} : (k | m) → (k | n) → (k | gcd m n) :=
+theorem dvd_gcd {m n k : ℕ} : k ∣ m → k ∣ n → k ∣ gcd m n :=
 gcd.induction m n
-  (take m, assume (h₁ : (k | m)) (h₂ : (k | 0)),
-   show (k | gcd m 0), from !gcd_zero_right⁻¹ ▸ h₁)
+  (take m, assume (h₁ : k ∣ m) (h₂ : k ∣ 0),
+   show k ∣ gcd m 0, from !gcd_zero_right⁻¹ ▸ h₁)
   (take m n,
     assume npos : n > 0,
-    assume IH : (k | n) → (k | m mod n) → (k | gcd n (m mod n)),
-    assume H1 : (k | m),
-    assume H2 : (k | n),
-    have H3 : (k | m div n * n + m mod n), from eq_div_mul_add_mod ▸ H1,
-    have H4 : (k | m mod n), from nat.dvd_of_dvd_add_left H3 (dvd.trans H2 (by simp)),
+    assume IH : k ∣ n → k ∣ m mod n → k ∣ gcd n (m mod n),
+    assume H1 : k ∣ m,
+    assume H2 : k ∣ n,
+    have H3 : k ∣ m div n * n + m mod n, from eq_div_mul_add_mod ▸ H1,
+    have H4 : k ∣ m mod n, from nat.dvd_of_dvd_add_left H3 (dvd.trans H2 (by simp)),
     have gcd_eq : gcd n (m mod n) = gcd m n, from !gcd_rec⁻¹,
-    show (k | gcd m n), from gcd_eq ▸ IH H2 H4)
+    show k ∣ gcd m n, from gcd_eq ▸ IH H2 H4)
 
 theorem gcd.comm (m n : ℕ) : gcd m n = gcd n m :=
 dvd.antisymm
@@ -603,7 +603,7 @@ or.elim (eq_zero_or_pos m)
 theorem eq_zero_of_gcd_eq_zero_right {m n : ℕ} (H : gcd m n = 0) : n = 0 :=
 eq_zero_of_gcd_eq_zero_left (!gcd.comm ▸ H)
 
-theorem gcd_div {m n k : ℕ} (H1 : (k | m)) (H2 : (k | n)) : gcd (m div k) (n div k) = gcd m n div k :=
+theorem gcd_div {m n k : ℕ} (H1 : (k ∣ m)) (H2 : (k ∣ n)) : gcd (m div k) (n div k) = gcd m n div k :=
 or.elim (eq_zero_or_pos k)
   (assume H3 : k = 0,
     calc
@@ -621,16 +621,16 @@ or.elim (eq_zero_or_pos k)
                                 ... = gcd m (n div k * k)             : div_mul_cancel H1
                                 ... = gcd m n                         : div_mul_cancel H2))
 
-theorem gcd_dvd_gcd_mul_left (m n k : ℕ) : (gcd m n | gcd (k * m) n) :=
+theorem gcd_dvd_gcd_mul_left (m n k : ℕ) : gcd m n ∣ gcd (k * m) n :=
 dvd_gcd (dvd.trans !gcd_dvd_left !dvd_mul_left) !gcd_dvd_right
 
-theorem gcd_dvd_gcd_mul_right (m n k : ℕ) : (gcd m n | gcd (m * k) n) :=
+theorem gcd_dvd_gcd_mul_right (m n k : ℕ) : gcd m n ∣ gcd (m * k) n :=
 !mul.comm ▸ !gcd_dvd_gcd_mul_left
 
-theorem gcd_dvd_gcd_mul_left_right (m n k : ℕ) : (gcd m n | gcd m (k * n)) :=
+theorem gcd_dvd_gcd_mul_left_right (m n k : ℕ) : gcd m n ∣ gcd m (k * n) :=
 dvd_gcd  !gcd_dvd_left (dvd.trans !gcd_dvd_right !dvd_mul_left)
 
-theorem gcd_dvd_gcd_mul_right_right (m n k : ℕ) : (gcd m n | gcd m (n * k)) :=
+theorem gcd_dvd_gcd_mul_right_right (m n k : ℕ) : gcd m n ∣ gcd m (n * k) :=
 !mul.comm ▸ !gcd_dvd_gcd_mul_left_right
 
 /- lcm -/
@@ -669,17 +669,17 @@ calc
       ... = m * m div m       : gcd_self
       ... = m                 : H
 
-theorem dvd_lcm_left (m n : ℕ) : (m | lcm m n) :=
+theorem dvd_lcm_left (m n : ℕ) : m ∣ lcm m n :=
 have H : lcm m n = m * (n div gcd m n), from mul_div_assoc _ !gcd_dvd_right,
 dvd.intro H⁻¹
 
-theorem dvd_lcm_right (m n : ℕ) : (n | lcm m n) :=
+theorem dvd_lcm_right (m n : ℕ) : n ∣ lcm m n :=
 !lcm.comm ▸ !dvd_lcm_left
 
 theorem gcd_mul_lcm (m n : ℕ) : gcd m n * lcm m n = m * n :=
 eq.symm (eq_mul_of_div_eq (dvd.trans !gcd_dvd_left !dvd_mul_right) rfl)
 
-theorem lcm_dvd {m n k : ℕ} (H1 : (m | k)) (H2 : (n | k)) : (lcm m n | k) :=
+theorem lcm_dvd {m n k : ℕ} (H1 : m ∣ k) (H2 : n ∣ k) : lcm m n ∣ k :=
 or.elim (eq_zero_or_pos k)
   (assume kzero : k = 0, !kzero⁻¹ ▸ !dvd_zero)
   (assume kpos : k > 0,
@@ -736,16 +736,16 @@ definition coprime [reducible] (m n : ℕ) : Prop := gcd m n = 1
 theorem coprime_swap {m n : ℕ} (H : coprime n m) : coprime m n :=
 !gcd.comm ▸ H
 
-theorem dvd_of_coprime_of_dvd_mul_right {m n k : ℕ} (H1 : coprime k n) (H2 : (k | m * n)) : (k | m) :=
+theorem dvd_of_coprime_of_dvd_mul_right {m n k : ℕ} (H1 : coprime k n) (H2 : k ∣ m * n) : k ∣ m :=
 have H3 : gcd (m * k) (m * n) = m, from
   calc
     gcd (m * k) (m * n) = m * gcd k n : gcd_mul_left
                     ... = m * 1       : H1
                     ... = m           : mul_one,
-have H4 : (k | gcd (m * k) (m * n)), from dvd_gcd !dvd_mul_left H2,
+have H4 : (k ∣ gcd (m * k) (m * n)), from dvd_gcd !dvd_mul_left H2,
 H3 ▸ H4
 
-theorem dvd_of_coprime_of_dvd_mul_left {m n k : ℕ} (H1 : coprime k m) (H2 : (k | m * n)) : (k | n) :=
+theorem dvd_of_coprime_of_dvd_mul_left {m n k : ℕ} (H1 : coprime k m) (H2 : k ∣ m * n) : k ∣ n :=
 dvd_of_coprime_of_dvd_mul_right H1 (!mul.comm ▸ H2)
 
 theorem gcd_mul_left_cancel_of_coprime {k : ℕ} (m : ℕ) {n : ℕ} (H : coprime k n) :
@@ -796,7 +796,7 @@ theorem coprime_mul_right {k m n : ℕ} (H1 : coprime k m) (H2 : coprime k n) : 
 coprime_swap (coprime_mul (coprime_swap H1) (coprime_swap H2))
 
 theorem coprime_of_coprime_mul_left {k m n : ℕ} (H : coprime (k * m) n) : coprime m n :=
-have H1 : (gcd m n | gcd (k * m) n), from !gcd_dvd_gcd_mul_left,
+have H1 : (gcd m n ∣ gcd (k * m) n), from !gcd_dvd_gcd_mul_left,
 eq_one_of_dvd_one (H ▸ H1)
 
 theorem coprime_of_coprime_mul_right {k m n : ℕ} (H : coprime (m * k) n) : coprime m n :=
@@ -808,27 +808,27 @@ coprime_swap (coprime_of_coprime_mul_left (coprime_swap H))
 theorem coprime_of_coprime_mul_right_right {k m n : ℕ} (H : coprime m (n * k)) : coprime m n :=
 coprime_of_coprime_mul_left_right (!mul.comm ▸ H)
 
-theorem exists_eq_prod_and_dvd_and_dvd {m n k} (H : (k | m * n)) :
-  ∃ m' n', k = m' * n' ∧ (m' | m) ∧ (n' | n) :=
+theorem exists_eq_prod_and_dvd_and_dvd {m n k} (H : k ∣ m * n) :
+  ∃ m' n', k = m' * n' ∧ m' ∣ m ∧ n' ∣ n :=
 or.elim (eq_zero_or_pos (gcd k m))
  (assume H1 : gcd k m = 0,
     have H2 : k = 0, from eq_zero_of_gcd_eq_zero_left H1,
     have H3 : m = 0, from eq_zero_of_gcd_eq_zero_right H1,
     have H4 : k = 0 * n, from H2 ⬝ !zero_mul⁻¹,
-    have H5 : (0 | m), from H3⁻¹ ▸ !dvd.refl,
-    have H6 : (n | n), from !dvd.refl,
+    have H5 : 0 ∣ m, from H3⁻¹ ▸ !dvd.refl,
+    have H6 : n ∣ n, from !dvd.refl,
     exists.intro _ (exists.intro _ (and.intro H4 (and.intro H5 H6))))
   (assume H1 : gcd k m > 0,
-    have H2 : (gcd k m | k), from !gcd_dvd_left,
-    have H3 : (k div gcd k m | (m * n) div gcd k m), from div_dvd_div H2 H,
+    have H2 : gcd k m ∣ k, from !gcd_dvd_left,
+    have H3 : k div gcd k m ∣ (m * n) div gcd k m, from div_dvd_div H2 H,
     have H4 : (m * n) div gcd k m = (m div gcd k m) * n, from
       calc
         m * n div gcd k m = n * m div gcd k m   : mul.comm
                       ... = n * (m div gcd k m) : !mul_div_assoc !gcd_dvd_right
                       ... = m div gcd k m * n   : mul.comm,
-    have H5 : (k div gcd k m | (m div gcd k m) * n), from H4 ▸ H3,
+    have H5 : k div gcd k m ∣ (m div gcd k m) * n, from H4 ▸ H3,
     have H6 : coprime (k div gcd k m) (m div gcd k m), from coprime_div_gcd_div_gcd H1,
-    have H7 : (k div gcd k m | n), from dvd_of_coprime_of_dvd_mul_left H6 H5,
+    have H7 : k div gcd k m ∣ n, from dvd_of_coprime_of_dvd_mul_left H6 H5,
     have H8 : k = gcd k m * (k div gcd k m), from (mul_div_cancel' H2)⁻¹,
     exists.intro _ (exists.intro _ (and.intro H8 (and.intro !gcd_dvd_right H7))))
 

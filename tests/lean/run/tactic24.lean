@@ -13,9 +13,9 @@ theorem T1 {A : Type.{2}} (a : A) : a = a
 theorem T2 {a b c : Prop} (Ha : a) (Hb : b) (Hc : c) : a ∧ b ∧ c
 := _
 
-definition my_tac3 := fixpoint (λ f, [apply @or.intro_left; f  |
+definition my_tac3 := fixpoint (λ f, (apply @or.intro_left; f  |
                                       apply @or.intro_right; f |
-                                      assumption])
+                                      assumption))
 
 tactic_hint my_tac3
 

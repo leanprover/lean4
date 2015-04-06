@@ -353,7 +353,7 @@ ne.symm (ne_of_lt H)
 theorem exists_eq_succ_of_pos {n : ℕ} (H : n > 0) : exists l, n = succ l :=
 exists_eq_succ_of_lt H
 
-theorem pos_of_dvd_of_pos {m n : ℕ} (H1 : (m | n)) (H2 : n > 0) : m > 0 :=
+theorem pos_of_dvd_of_pos {m n : ℕ} (H1 : m ∣ n) (H2 : n > 0) : m > 0 :=
 pos_of_ne_zero
   (assume H3 : m = 0,
     have H4 : n = 0, from eq_zero_of_zero_dvd (H3 ▸ H1),
@@ -412,7 +412,7 @@ eq_of_mul_eq_mul_right Hpos (H ⬝ !one_mul⁻¹)
 theorem eq_one_of_mul_eq_self_right {n m : ℕ} (Hpos : m > 0) (H : m * n = m) : n = 1 :=
 eq_one_of_mul_eq_self_left Hpos (!mul.comm ▸ H)
 
-theorem eq_one_of_dvd_one {n : ℕ} (H : (n | 1)) : n = 1 :=
+theorem eq_one_of_dvd_one {n : ℕ} (H : n ∣ 1) : n = 1 :=
 dvd.elim H
   (take m,
     assume H1 : 1 = n * m,

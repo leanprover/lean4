@@ -1,6 +1,6 @@
 /-
-copyright (c) 2014 Jeremy Avigad. All rights reserved.
-Released under Apache 2.0 license as described in the file LIcENSE.
+Copyright (c) 2014 Jeremy Avigad. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
 
 Module: data.set.basic
 Author: Jeremy Avigad, Leonardo de Moura
@@ -22,16 +22,16 @@ notation e ∈ a := mem e a
 theorem setext {a b : set T} (H : ∀x, x ∈ a ↔ x ∈ b) : a = b :=
 funext (take x, propext (H x))
 
-definition subset (a b : set T) := ∀ x, x ∈ a → x ∈ b
+definition subset (a b : set T) := ∀⦃x⦄, x ∈ a → x ∈ b
 infix `⊆`:50 := subset
 
 /- bounded quantification -/
 
-abbreviation bounded_forall (a : set T) (P : T → Prop) := ∀x, x ∈ a → P x
+abbreviation bounded_forall (a : set T) (P : T → Prop) := ∀⦃x⦄, x ∈ a → P x
 notation `forallb` binders `∈` a `,` r:(scoped:1 P, P) := bounded_forall a r
 notation `∀₀` binders `∈` a `,` r:(scoped:1 P, P) := bounded_forall a r
 
-abbreviation bounded_exists (a : set T) (P : T → Prop) := ∃x, x ∈ a ∧ P x
+abbreviation bounded_exists (a : set T) (P : T → Prop) := ∃⦃x⦄, x ∈ a ∧ P x
 notation `existsb` binders `∈` a `,` r:(scoped:1 P, P) := bounded_exists a r
 notation `∃₀` binders `∈` a `,` r:(scoped:1 P, P) := bounded_exists a r
 

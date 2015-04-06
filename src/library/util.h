@@ -159,6 +159,13 @@ expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_k
     of local constants */
 bool has_expr_metavar_relaxed(expr const & e);
 
+/** \brief Instantiate metavariables occurring in the expressions nested in \c c.
+
+    \remark The justification associated with each assignment are *not* propagaged.
+    We assume this is not a problem since we only used this procedure when connecting the
+    elaborator with the tactic framework. */
+constraint instantiate_metavars(constraint const & c, substitution & s);
+
 void initialize_library_util();
 void finalize_library_util();
 }

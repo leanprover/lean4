@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "library/flycheck.h"
 #include "library/deep_copy.h"
 #include "library/typed_expr.h"
+#include "library/metavar_closure.h"
 #include "library/local_context.h"
 #include "library/constants.h"
 #include "library/util.h"
@@ -1905,8 +1906,11 @@ pair<expr, constraints> elaborator::elaborate_nested(list<expr> const & ctx, opt
         }
     }
     expr e = translate(env(), ctx, n);
-    if (expected_type)
+    metavar_closure cls;
+    if (expected_type) {
         e = copy_tag(e, mk_typed_expr(mk_as_is(*expected_type), e));
+        cls.add(*expected_type);
+    }
     m_context.set_ctx(ctx);
     m_context.set_ctx(ctx);
     m_full_context.set_ctx(ctx);
@@ -1921,9 +1925,14 @@ pair<expr, constraints> elaborator::elaborate_nested(list<expr> const & ctx, opt
     constraints rcs = p->first.second;
     r = s.instantiate_all(r);
     r = solve_unassigned_mvars(s, r);
+    rcs = map(rcs, [&](constraint const & c) { return instantiate_metavars(c, s); });
     copy_info_to_manager(s);
     if (report_unassigned)
         display_unassigned_mvars(r, s);
+    if (expected_type) {
+        justification j;
+        rcs = append(rcs, cls.mk_constraints(s, j, relax));
+    }
     return mk_pair(r, rcs);
 }
 

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
+#include "kernel/metavar.h"
 #include "kernel/inductive/inductive.h"
 #include "library/locals.h"
 #include "library/util.h"
@@ -539,5 +540,30 @@ bool has_expr_metavar_relaxed(expr const & e) {
             return true;
         });
     return found;
+}
+
+constraint instantiate_metavars(constraint const & c, substitution & s) {
+    switch (c.kind()) {
+    case constraint_kind::Eq:
+        return mk_eq_cnstr(s.instantiate_all(cnstr_lhs_expr(c)),
+                           s.instantiate_all(cnstr_rhs_expr(c)),
+                           c.get_justification(),
+                           relax_main_opaque(c));
+    case constraint_kind::LevelEq:
+        return mk_level_eq_cnstr(s.instantiate(cnstr_lhs_level(c)), s.instantiate(cnstr_rhs_level(c)), c.get_justification());
+    case constraint_kind::Choice: {
+        expr m = cnstr_expr(c);
+        lean_assert(is_meta(m));
+        buffer<expr> args;
+        expr mvar = get_app_args(m, args);
+        mvar = update_mlocal(mvar, s.instantiate_all(mlocal_type(mvar)));
+        for (expr & arg : args)
+            arg = s.instantiate_all(arg);
+        return mk_choice_cnstr(mk_app(mvar, args),
+                               cnstr_choice_fn(c),
+                               cnstr_delay_factor_core(c),
+                               cnstr_is_owner(c), c.get_justification(), relax_main_opaque(c));
+    }}
+    lean_unreachable(); // LCOV_EXCL_LINE
 }
 }

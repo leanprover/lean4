@@ -129,6 +129,7 @@ choice_fn const & cnstr_choice_fn(constraint const & c);
 /** \brief Return true iff the choice constraint should be solved as soon the type does not contains type variables */
 bool cnstr_on_demand(constraint const & c);
 /** \brief Return the choice constraint delay factor */
+delay_factor const & cnstr_delay_factor_core(constraint const & c);
 unsigned cnstr_delay_factor(constraint const & c);
 /** \brief Return true iff the given choice constraints owns the right to assign the metavariable in \c c. */
 bool cnstr_is_owner(constraint const & c);

@@ -105,9 +105,12 @@ bool cnstr_on_demand(constraint const & c) {
     lean_assert(is_choice_cnstr(c));
     return static_cast<choice_constraint_cell*>(c.raw())->m_delay_factor.on_demand();
 }
-unsigned cnstr_delay_factor(constraint const & c) {
+delay_factor const & cnstr_delay_factor_core(constraint const & c) {
     lean_assert(is_choice_cnstr(c));
-    return static_cast<choice_constraint_cell*>(c.raw())->m_delay_factor.explict_value();
+    return static_cast<choice_constraint_cell*>(c.raw())->m_delay_factor;
+}
+unsigned cnstr_delay_factor(constraint const & c) {
+    return cnstr_delay_factor_core(c).explict_value();
 }
 bool cnstr_is_owner(constraint const & c) {
     lean_assert(is_choice_cnstr(c)); return static_cast<choice_constraint_cell*>(c.raw())->m_owner;

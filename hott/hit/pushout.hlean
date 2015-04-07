@@ -8,6 +8,8 @@ Authors: Floris van Doorn
 Declaration of pushout
 -/
 
+import .colimit
+
 open colimit bool eq
 
 namespace pushout
@@ -41,7 +43,7 @@ parameters {TL BL TR : Type.{u}} (f : TL → BL) (g : TL → TR)
   --            (λj, match j with | tt := bl | ff := tr end)
   --            (λj, match j with | tt := f  | ff := g  end)
 
-  definition pushout := colimit pushout_diag
+  definition pushout := colimit pushout_diag -- TODO: define this in root namespace
   local attribute pushout_diag [instance]
 
  definition inl (x : BL) : pushout :=
@@ -77,48 +79,63 @@ parameters {TL BL TR : Type.{u}} (f : TL → BL) (g : TL → TR)
       rewrite -Pglue}
   end
 
-  protected definition rec_on {P : pushout → Type} (y : pushout) (Pinl : Π(x : BL), P (inl x))
-    (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x)) : P y :=
+  protected definition rec_on [reducible] {P : pushout → Type} (y : pushout)
+    (Pinl : Π(x : BL), P (inl x)) (Pinr : Π(x : TR), P (inr x))
+    (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x)) : P y :=
   rec Pinl Pinr Pglue y
 
-  definition comp_inl {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
+  definition rec_inl {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
     (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x))
       (x : BL) : rec Pinl Pinr Pglue (inl x) = Pinl x :=
-  @colimit.comp_incl _ _ _ _ _ _ --idp
+  @colimit.rec_incl _ _ _ _ _ _ --idp
 
-  definition comp_inr {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
+  definition rec_inr {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
     (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x))
       (x : TR) : rec Pinl Pinr Pglue (inr x) = Pinr x :=
-  @colimit.comp_incl _ _ _ _ _ _ --idp
+  @colimit.rec_incl _ _ _ _ _ _ --idp
 
-  definition comp_glue {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
+  protected definition elim {P : Type} (Pinl : BL → P) (Pinr : TR → P)
+    (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) (y : pushout) : P :=
+  rec Pinl Pinr (λx, !tr_constant ⬝ Pglue x) y
+
+  protected definition elim_on [reducible] {P : Type} (Pinl : BL → P) (y : pushout)
+    (Pinr : TR → P) (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) : P :=
+  elim Pinl Pinr Pglue y
+
+  definition rec_glue {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
     (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x))
       (x : TL) : apD (rec Pinl Pinr Pglue) (glue x) = sorry ⬝ Pglue x ⬝ sorry :=
   sorry
 
+  definition elim_glue {P : Type} (Pinl : BL → P) (Pinr : TR → P)
+    (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) (y : pushout) (x : TL)
+    : ap (elim Pinl Pinr Pglue) (glue x) = sorry ⬝ Pglue x ⬝ sorry :=
+  sorry
+
+
 end
+
+  open pushout equiv is_equiv unit
+
+  namespace test
+    definition unit_of_empty (u : empty) : unit := star
+
+    example : pushout unit_of_empty unit_of_empty ≃ bool :=
+    begin
+      fapply equiv.MK,
+      { intro x, fapply (pushout.rec_on _ _ x),
+          intro u, exact ff,
+          intro u, exact tt,
+          intro c, cases c},
+      { intro b, cases b,
+          exact (inl _ _ ⋆),
+          exact (inr _ _ ⋆)},
+      { intro b, cases b, apply rec_inl, apply rec_inr},
+      { intro x, fapply (pushout.rec_on _ _ x),
+          intro u, cases u, rewrite [↑function.compose,↑pushout.rec_on,rec_inl],
+          intro u, cases u, rewrite [↑function.compose,↑pushout.rec_on,rec_inr],
+          intro c, cases c},
+    end
+
+  end test
 end pushout
-
-open pushout equiv is_equiv unit
-
-namespace test
-  definition foo (u : empty) : unit := star
-
-  example : pushout foo foo ≃ bool :=
-  begin
-    fapply equiv.MK,
-    { intro x, fapply (pushout.rec_on _ _ x),
-      { intro u, exact ff},
-      { intro u, exact tt},
-      { intro c, cases c}},
-    { intro b, cases b,
-      { exact (inl _ _ ⋆)},
-      { exact (inr _ _ ⋆)},},
-    { intro b, cases b, apply comp_inl, apply comp_inr},
-    { intro x, fapply (pushout.rec_on _ _ x),
-      { intro u, cases u, rewrite [↑function.compose,↑pushout.rec_on,comp_inl]},
-      { intro u, cases u, rewrite [↑function.compose,↑pushout.rec_on,comp_inr]},
-      { intro c, cases c}},
-  end
-
-end test

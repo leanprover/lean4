@@ -5,14 +5,25 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/type_checker.h"
+#include "kernel/for_each_fn.h"
 #include "kernel/error_msgs.h"
 #include "library/util.h"
 #include "library/constants.h"
+#include "library/reducible.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/expr_to_tactic.h"
 
 namespace lean {
+// Return true iff \c e is of the form (?m l_1 ... l_n), where ?m is a metavariable and l_i's local constants
+bool is_meta_placeholder(expr const & e) {
+    if (!is_meta(e))
+        return false;
+    buffer<expr> args;
+    get_app_args(e, args);
+    return std::all_of(args.begin(), args.end(), is_local);
+}
+
 tactic exact_tactic(elaborate_fn const & elab, expr const & e, bool enforce_type_during_elaboration, bool allow_metavars) {
     return tactic01([=](environment const & env, io_state const & ios, proof_state const & s) {
             proof_state new_s = s;
@@ -39,7 +50,24 @@ tactic exact_tactic(elaborate_fn const & elab, expr const & e, bool enforce_type
                     }
                     substitution subst = new_s.get_subst();
                     assign(subst, g, *new_e);
-                    return some(proof_state(new_s, tail(gs), subst));
+                    if (allow_metavars) {
+                        buffer<goal> new_goals;
+                        name_generator ngen = new_s.get_ngen();
+                        auto tc             = mk_type_checker(env, ngen.mk_child(), new_s.relax_main_opaque());
+                        for_each(*new_e, [&](expr const & m, unsigned) {
+                                if (!has_expr_metavar(m))
+                                    return false;
+                                if (is_meta_placeholder(m)) {
+                                    new_goals.push_back(goal(m, tc->infer(m).first));
+                                    return false;
+                                }
+                                return !is_metavar(m) && !is_local(m);
+                            });
+                        goals new_gs = to_list(new_goals.begin(), new_goals.end(), tail(gs));
+                        return some(proof_state(new_s, new_gs, subst, ngen));
+                    } else {
+                        return some(proof_state(new_s, tail(gs), subst));
+                    }
                 } else {
                     return some_proof_state(new_s);
                 }

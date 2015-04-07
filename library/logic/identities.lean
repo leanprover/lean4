@@ -110,16 +110,6 @@ theorem exists_not_of_not_forall {A : Type} {P : A → Prop} [D : ∀x, decidabl
   have H3 : ∀x, P x, from take x, @not_not_elim _ (D x) (H2 x),
   absurd H3 H)
 
-theorem iff_true_intro {a : Prop} (H : a) : a ↔ true :=
-iff.intro
-  (assume H1 : a,    trivial)
-  (assume H2 : true, H)
-
-theorem iff_false_intro {a : Prop} (H : ¬a) : a ↔ false :=
-iff.intro
-  (assume H1 : a,     absurd H1 H)
-  (assume H2 : false, false.elim H2)
-
 theorem ne_self_iff_false {A : Type} (a : A) : (a ≠ a) ↔ false :=
 iff.intro
   (assume H, false.of_ne H)

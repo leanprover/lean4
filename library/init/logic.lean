@@ -23,6 +23,11 @@ false.rec b (H2 H1)
 theorem not_false : ¬false :=
 assume H : false, H
 
+definition non_contradictory (a : Prop) : Prop := ¬¬a
+
+theorem non_contradictory_intro {a : Prop} (Ha : a) : ¬¬a :=
+assume Hna : ¬a, absurd Ha Hna
+
 /- eq -/
 
 notation a = b := eq a b
@@ -171,6 +176,12 @@ namespace or
   or.rec H₂ H₃ H₁
 end or
 
+theorem non_contradictory_em (a : Prop) : ¬¬(a ∨ ¬a) :=
+assume not_em : ¬(a ∨ ¬a),
+  have neg_a : ¬a, from
+    assume pos_a : a, absurd (or.inl pos_a) not_em,
+  absurd (or.inr neg_a) not_em
+
 /- iff -/
 
 definition iff (a b : Prop) := (a → b) ∧ (b → a)
@@ -226,6 +237,23 @@ iff.mp (iff.symm H) trivial
 
 theorem not_of_iff_false (H : a ↔ false) : ¬a :=
 assume Ha : a, iff.mp H Ha
+
+theorem iff_true_intro (H : a) : a ↔ true :=
+iff.intro
+  (λ Hl, trivial)
+  (λ Hr, H)
+
+theorem iff_false_intro (H : ¬a) : a ↔ false :=
+iff.intro
+  (λ Hl, absurd Hl H)
+  (λ Hr, false.rec _ Hr)
+
+theorem not_non_contradictory_iff_absurd (a : Prop) : ¬¬¬a ↔ ¬a :=
+iff.intro
+  (assume Hl : ¬¬¬a,
+    assume Ha : a, absurd (non_contradictory_intro Ha) Hl)
+  (assume Hr : ¬a,
+    assume Hnna : ¬¬a, absurd Hr Hnna)
 
 calc_refl iff.refl
 calc_trans iff.trans

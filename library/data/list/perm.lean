@@ -155,33 +155,37 @@ assume p, calc
    ... = l₁++(l₂++[a]) : append.assoc
    ... ~ l₁++(a::l₂)   : perm_app_right l₁ (symm (perm_cons_app a l₂))
 
+open decidable
 theorem perm_erase [H : decidable_eq A] {a : A} : ∀ {l : list A}, a ∈ l → l ~ a::(erase a l)
 | []     h := absurd h !not_mem_nil
 | (x::t) h :=
-  if Heq : a = x then
-    by rewrite [Heq, erase_cons_head]; exact !perm.refl
-  else
-    have aint : a ∈ t,             from mem_of_ne_of_mem Heq h,
-    have aux : t ~ a :: erase a t, from perm_erase aint,
-    calc x::t ~ x::a::(erase a t)   : skip x aux
-          ... ~ a::x::(erase a t)   : swap
-          ... = a::(erase a (x::t)) : by rewrite [!erase_cons_tail Heq]
+  by_cases
+    (assume aeqx  : a = x, by rewrite [aeqx, erase_cons_head]; exact !perm.refl)
+    (assume naeqx : a ≠ x,
+      have aint : a ∈ t,             from mem_of_ne_of_mem naeqx h,
+      have aux : t ~ a :: erase a t, from perm_erase aint,
+      calc x::t ~ x::a::(erase a t)   : skip x aux
+            ... ~ a::x::(erase a t)   : swap
+            ... = a::(erase a (x::t)) : by rewrite [!erase_cons_tail naeqx])
 
 theorem erase_perm_erase_of_perm [H : decidable_eq A] (a : A) {l₁ l₂ : list A} : l₁ ~ l₂ → erase a l₁ ~ erase a l₂ :=
 assume p, perm.induction_on p
   nil
   (λ x t₁ t₂ p r,
-    if Hax : a = x
-    then by rewrite [Hax, *erase_cons_head]; exact p
-    else by rewrite [*erase_cons_tail _ Hax]; exact (skip x r))
+    by_cases
+      (assume aeqx  : a = x, by rewrite [aeqx, *erase_cons_head]; exact p)
+      (assume naeqx : a ≠ x, by rewrite [*erase_cons_tail _ naeqx]; exact (skip x r)))
   (λ x y l,
-    if Hax : a = x
-    then (if Hay : a = y
-          then by rewrite [-Hax, -Hay]; exact !perm.refl
-          else by rewrite [-Hax, erase_cons_tail _ Hay, *erase_cons_head]; exact !perm.refl)
-    else (if Hay : a = y
-          then by rewrite [-Hay, erase_cons_tail _ Hax, *erase_cons_head]; exact !perm.refl
-          else by rewrite[erase_cons_tail _ Hax, *erase_cons_tail _ Hay, erase_cons_tail _ Hax]; exact !swap))
+    by_cases
+      (assume aeqx : a = x,
+        by_cases
+          (assume aeqy  : a = y, by rewrite [-aeqx, -aeqy]; exact !perm.refl)
+          (assume naeqy : a ≠ y, by rewrite [-aeqx, erase_cons_tail _ naeqy, *erase_cons_head]; exact !perm.refl))
+      (assume naeqx : a ≠ x,
+        by_cases
+          (assume aeqy  : a = y, by rewrite [-aeqy, erase_cons_tail _ naeqx, *erase_cons_head]; exact !perm.refl)
+          (assume naeqy : a ≠ y, by rewrite[erase_cons_tail _ naeqx, *erase_cons_tail _ naeqy, erase_cons_tail _ naeqx];
+                                    exact !swap)))
   (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, trans r₁ r₂)
 
 theorem perm_induction_on {P : list A → list A → Prop} {l₁ l₂ : list A} (p : l₁ ~ l₂)
@@ -226,29 +230,30 @@ definition decidable_perm_aux : ∀ (n : nat) (l₁ l₂ : list A), length l₁ 
   assert l₂n : l₂ = [], from eq_nil_of_length_eq_zero H₂,
   by rewrite [l₁n, l₂n]; exact (inl perm.nil)
 | (n+1) (x::t₁) l₂ H₁ H₂ :=
-  if xinl₂ : x ∈ l₂ then
-    let t₂ : list A := erase x l₂ in
-    have len_t₁       : length t₁ = n,                from nat.no_confusion H₁ (λ e, e),
-    assert len_t₂_aux : length t₂ = pred (length l₂), from length_erase_of_mem x l₂ xinl₂,
-    assert len_t₂     : length t₂ = n,                by rewrite [len_t₂_aux, H₂],
-    match decidable_perm_aux n t₁ t₂ len_t₁ len_t₂ with
-    | inl p  := inl (calc
-       x::t₁ ~ x::(erase x l₂) : skip x p
-        ...  ~ l₂              : perm_erase xinl₂)
-    | inr np := inr (λ p : x::t₁ ~ l₂,
-      assert p₁ : erase x (x::t₁) ~ erase x l₂, from erase_perm_erase_of_perm x p,
-      have p₂ : t₁ ~ erase x l₂, by rewrite [erase_cons_head at p₁]; exact p₁,
-      absurd p₂ np)
-    end
-  else
-    inr (λ p : x::t₁ ~ l₂, absurd (mem_perm x (x::t₁) l₂ p !mem_cons) xinl₂)
+  by_cases
+    (assume xinl₂ : x ∈ l₂,
+      let t₂ : list A := erase x l₂ in
+      have len_t₁       : length t₁ = n,                from nat.no_confusion H₁ (λ e, e),
+      assert len_t₂_aux : length t₂ = pred (length l₂), from length_erase_of_mem x l₂ xinl₂,
+      assert len_t₂     : length t₂ = n,                by rewrite [len_t₂_aux, H₂],
+      match decidable_perm_aux n t₁ t₂ len_t₁ len_t₂ with
+      | inl p  := inl (calc
+          x::t₁ ~ x::(erase x l₂) : skip x p
+           ...  ~ l₂              : perm_erase xinl₂)
+      | inr np := inr (λ p : x::t₁ ~ l₂,
+        assert p₁ : erase x (x::t₁) ~ erase x l₂, from erase_perm_erase_of_perm x p,
+        have p₂ : t₁ ~ erase x l₂, by rewrite [erase_cons_head at p₁]; exact p₁,
+        absurd p₂ np)
+      end)
+    (assume nxinl₂ : x ∉ l₂,
+      inr (λ p : x::t₁ ~ l₂, absurd (mem_perm x (x::t₁) l₂ p !mem_cons) nxinl₂))
 
 definition decidable_perm [instance] : ∀ (l₁ l₂ : list A), decidable (l₁ ~ l₂) :=
 λ l₁ l₂,
-if Hl : length l₁ = length l₂ then
-  decidable_perm_aux (length l₂) l₁ l₂ Hl rfl
-else
-  inr (λ p : l₁ ~ l₂, absurd (length_eq_length_of_perm p) Hl)
+by_cases
+  (assume eql : length l₁ = length l₂,
+    decidable_perm_aux (length l₂) l₁ l₂ eql rfl)
+  (assume neql : length l₁ ≠ length l₂,
+    inr (λ p : l₁ ~ l₂, absurd (length_eq_length_of_perm p) neql))
 end dec
-
 end perm

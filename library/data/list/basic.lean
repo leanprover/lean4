@@ -66,6 +66,10 @@ theorem length_append : ∀ (s t : list T), length (s ++ t) = length s + length 
                     ...  = (length s + 1) + length t  : add.succ_left
                     ...  = length (a :: s) + length t : rfl
 
+theorem eq_nil_of_length_eq_zero : ∀ {l : list T}, length l = 0 → l = []
+| []     H := rfl
+| (a::s) H := nat.no_confusion H
+
 -- add_rewrite length_nil length_cons
 
 /- concat -/

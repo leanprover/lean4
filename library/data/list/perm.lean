@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 List permutations
 -/
 import data.list.basic
-open list setoid nat
+open list setoid nat binary
 
 variables {A B : Type}
 
@@ -461,4 +461,30 @@ assume p : l₁++(a::l₂) ~ l₃++(a::l₄),
           ...   ~ l₃++(a::l₄) : p
           ...   ~ a::(l₃++l₄) : symm (!perm_middle),
   perm_cons_inv p'
+
+section fold_thms
+  variables {f : A → A → A} {l₁ l₂ : list A} (fcomm : commutative f) (fassoc : associative f)
+  include fcomm
+  include fassoc
+
+  theorem foldl_eq_of_perm : l₁ ~ l₂ → ∀ a, foldl f a l₁ = foldl f a l₂ :=
+  assume p, perm_induction_on p
+    (λ a, by rewrite *foldl_nil)
+    (λ x t₁ t₂ p r a, calc
+       foldl f a (x::t₁) = foldl f (f a x) t₁ : foldl_cons
+               ...       = foldl f (f a x) t₂ : r (f a x)
+               ...       = foldl f a (x::t₂)  : foldl_cons)
+    (λ x y t₁ t₂ p r a, calc
+       foldl f a (y :: x :: t₁) = foldl f (f (f a y) x) t₁ : by rewrite foldl_cons
+                     ...        = foldl f (f (f a x) y) t₁ : by rewrite [right_comm fcomm fassoc]
+                     ...        = foldl f (f (f a x) y) t₂ : r (f (f a x) y)
+                     ...        = foldl f a (x :: y :: t₂) : by rewrite foldl_cons)
+    (λ t₁ t₂ t₃ p₁ p₂ r₁ r₂ a, eq.trans (r₁ a) (r₂ a))
+
+  theorem foldr_eq_of_perm : l₁ ~ l₂ → ∀ a, foldr f a l₁ = foldr f a l₂ :=
+  assume p, take a, calc
+    foldr f a l₁ = foldl f a l₁ : by rewrite [foldl_eq_foldr fcomm fassoc]
+         ...     = foldl f a l₂ : foldl_eq_of_perm fcomm fassoc p
+         ...     = foldr f a l₂ : by rewrite [foldl_eq_foldr fcomm fassoc]
+end fold_thms
 end perm

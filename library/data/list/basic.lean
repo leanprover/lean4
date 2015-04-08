@@ -422,15 +422,23 @@ definition foldl (f : A → B → A) : A → list B → A
 | a []       := a
 | a (b :: l) := foldl (f a b) l
 
+theorem foldl_nil (f : A → B → A) (a : A) : foldl f a [] = a
+
+theorem foldl_cons (f : A → B → A) (a : A) (b : B) (l : list B) : foldl f a (b::l) = foldl f (f a b) l
+
 definition foldr (f : A → B → B) : B → list A → B
 | b []       := b
 | b (a :: l) := f a (foldr b l)
+
+theorem foldr_nil (f : A → B → B) (b : B) : foldr f b [] = b
+
+theorem foldr_cons (f : A → B → B) (b : B) (a : A) (l : list A) : foldr f b (a::l) = f a (foldr f b l)
 
 section foldl_eq_foldr
   -- foldl and foldr coincide when f is commutative and associative
   parameters {α : Type} {f : α → α → α}
   hypothesis (Hcomm  : ∀ a b, f a b = f b a)
-  hypothesis (Hassoc : ∀ a b c, f a (f b c) = f (f a b) c)
+  hypothesis (Hassoc : ∀ a b c, f (f a b) c = f a (f b c))
   include Hcomm Hassoc
 
   theorem foldl_eq_of_comm_of_assoc : ∀ a b l, foldl f a (b::l) = f b (foldl f a l)
@@ -440,7 +448,7 @@ section foldl_eq_foldr
       change (foldl f (f (f a b) c) l = f b (foldl f (f a c) l)),
       rewrite -foldl_eq_of_comm_of_assoc,
       change (foldl f (f (f a b) c) l = foldl f (f (f a c) b) l),
-      have H₁ : f (f a b) c = f (f a c) b, by rewrite [-Hassoc, -Hassoc, Hcomm b c],
+      have H₁ : f (f a b) c = f (f a c) b, by rewrite [Hassoc, Hassoc, Hcomm b c],
       rewrite H₁
     end
 

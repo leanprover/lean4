@@ -7,14 +7,15 @@ false.of_ne|?a ≠ ?a → false
 false.rec_on|Π (C : Type), false → C
 false.cases_on|Π (C : Type), false → C
 false.induction_on|∀ (C : Prop), false → C
-true_ne_false|¬ true = false
-not_of_is_false|is_false ?c → ¬ ?c
-not_of_iff_false|?a ↔ false → ¬ ?a
+true_ne_false|¬true = false
+not_of_is_false|is_false ?c → ¬?c
+not_of_iff_false|?a ↔ false → ¬?a
 p_ne_false|?p → ?p ≠ false
 is_false|Π (c : Prop) [H : decidable c], Prop
-not_of_eq_false|?p = false → ¬ ?p
-decidable.rec_on_false|Π (H3 : ¬ ?p), ?H2 H3 → decidable.rec_on ?H ?H1 ?H2
-not_false|¬ false
+not_of_eq_false|?p = false → ¬?p
+decidable.rec_on_false|Π (H3 : ¬?p), ?H2 H3 → decidable.rec_on ?H ?H1 ?H2
+not_false|¬false
 decidable_false|decidable false
-of_not_is_false|¬ is_false ?c → ?c
+of_not_is_false|¬is_false ?c → ?c
+iff_false_intro|¬?a → ?a ↔ false
 -- ENDFINDP

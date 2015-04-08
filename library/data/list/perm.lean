@@ -257,6 +257,70 @@ by_cases
     inr (λ p : l₁ ~ l₂, absurd (length_eq_length_of_perm p) neql))
 end dec
 
+theorem discriminate {P : Prop} {l : list A} : (l = [] → P) → (∀ h t, l = h::t → P) → P :=
+list.cases_on l
+  (λ h₁ h₂, h₁ rfl)
+  (λ a l h₁ h₂, h₂ a l rfl)
+
+theorem discriminate₂ {P : Prop} {l : list A} : (l = [] → P) → (∀ a, l = [a] → P) → (∀ a₁ a₂ t, l = a₁::a₂::t → P) → P :=
+list.cases_on l
+  (λ h₁ h₂ h₃, h₁ rfl)
+  (λ a₁ t, list.cases_on t
+    (λ h₁ h₂ h₃, h₂ a₁ rfl)
+    (λ a₂ t₂ h₁ h₂ h₃, h₃ a₁ a₂ t₂ rfl))
+
+theorem tail_eq {a₁ a₂ : A} {t₁ t₂ : list A} : a₁::t₁ = a₂::t₂ → t₁ = t₂ :=
+assume h, list.no_confusion h (λ e₁ e₂, e₂)
+
+theorem head_eq {a₁ a₂ : A} {t₁ t₂ : list A} : a₁::t₁ = a₂::t₂ → a₁ = a₂ :=
+assume h, list.no_confusion h (λ e₁ e₂, e₁)
+
+-- Auxiliary theorem for performing cases-analysis on l₂.
+-- We use it to prove perm_inv_core.
+private theorem discr {P : Prop} {a b : A} {l₁ l₂ l₃ : list A} :
+    a::l₁ = l₂++(b::l₃)                    →
+    (l₂ = [] → a = b → l₁ = l₃ → P)        →
+    (∀ t, l₂ = a::t → l₁ = t++(b::l₃) → P) → P :=
+list.cases_on l₂
+  (λ e h₁ h₂, begin rewrite append_nil_left at e, exact (list.no_confusion e (λ e₁ e₂, h₁ rfl e₁ e₂)) end)
+  (λ h t e h₁ h₂, begin
+    rewrite append_cons at e, apply (list.no_confusion e), intros [e₁, e₂],
+    rewrite e₁ at h₂,
+    exact (h₂ t rfl e₂)
+  end)
+
+-- Auxiliary theorem for performing cases-analysis on l₂.
+-- We use it to prove perm_inv_core.
+private theorem discr₂ {P : Prop} {a b c : A} {l₁ l₂ l₃ : list A} :
+    a::b::l₁ = l₂++(c::l₃)                     →
+    (l₂ = [] → l₃ = b::l₁ → a = c → P)         →
+    (l₂ = [a] → b = c → l₁ = l₃ → P)           →
+    (∀ t, l₂ = a::b::t → l₁ = t++(c::l₃) → P)  → P :=
+list.cases_on l₂
+  (λ e H₁ H₂ H₃,
+    begin
+      apply (list.no_confusion e), intros [a_eq_c, b_l₁_eq_l₃],
+      exact (H₁ rfl (eq.symm b_l₁_eq_l₃) a_eq_c)
+    end)
+  (λ h₁ t₁,
+    list.cases_on t₁
+      (λ e H₁ H₂ H₃,
+         begin
+           rewrite [append_cons at e, append_nil_left at e],
+           apply (list.no_confusion e), intros [a_eq_h₁, rest],
+           apply (list.no_confusion rest), intros [b_eq_c, l₁_eq_l₃],
+           rewrite [a_eq_h₁ at H₂, b_eq_c at H₂, l₁_eq_l₃ at H₂],
+           exact (H₂ rfl rfl rfl)
+         end)
+      (λ h₂ t₂ e H₁ H₂ H₃,
+         begin
+           rewrite [*append_cons at e],
+           apply (list.no_confusion e),    intros [a_eq_h₁, rest],
+           apply (list.no_confusion rest), intros [b_eq_h₂, l₁_eq],
+           rewrite [a_eq_h₁ at H₃, b_eq_h₂ at H₃],
+           exact (H₃ t₂ rfl l₁_eq)
+         end))
+
 /- permutation inversion -/
 theorem perm_inv_core {l₁ l₂ : list A} (p' : l₁ ~ l₂) : ∀ {a s₁ s₂}, l₁≈a|s₁ → l₂≈a|s₂ → s₁ ~ s₂ :=
 perm_induction_on p'
@@ -266,137 +330,138 @@ perm_induction_on p'
   (λ x t₁ t₂ p (r : ∀{a s₁ s₂}, t₁≈a|s₁ → t₂≈a|s₂ → s₁ ~ s₂) a s₁ s₂ e₁ e₂,
     obtain (s₁₁ s₁₂ : list A) (C₁ : s₁ = s₁₁ ++ s₁₂ ∧ x::t₁ = s₁₁++(a::s₁₂)), from qeq_split e₁,
     obtain (s₂₁ s₂₂ : list A) (C₂ : s₂ = s₂₁ ++ s₂₂ ∧ x::t₂ = s₂₁++(a::s₂₂)), from qeq_split e₂,
-    begin
-      cases s₁₁ with [hs₁₁, ts₁₁],
-      { rewrite *append_nil_left at C₁,
-        apply (list.no_confusion (and.elim_right C₁)), intros [x_eq_a, t₁_eq_s₁₂],
-        rewrite [t₁_eq_s₁₂ at p, -and.elim_left C₁ at p],
-        cases s₂₁ with [hs₁₂, ts₁₂],
-        { rewrite *append_nil_left at C₂,
-          apply (list.no_confusion (and.elim_right C₂)), intros [x_eq_a', t₂_eq_s₂₂],
-          rewrite [t₂_eq_s₂₂ at p, -and.elim_left C₂ at p],
-          exact p},
-        { rewrite *append_cons at C₂,
-          apply (list.no_confusion (and.elim_right C₂)), intros [x_eq_hs₁₂, t₂_eq_ts₁₂_a_s₂₂],
-          have eq₁ : s₂ = a :: ts₁₂ ++ s₂₂, begin rewrite [-x_eq_hs₁₂ at C₂, x_eq_a at C₂]; exact (and.elim_left C₂) end,
-          have p₁  : s₁ ~ ts₁₂ ++ (a :: s₂₂), begin rewrite [t₂_eq_ts₁₂_a_s₂₂ at p]; exact p end,
-          have p₂  : a :: ts₁₂ ++ s₂₂ ~ ts₁₂ ++ (a :: s₂₂), from !perm_middle,
-          rewrite eq₁, exact (trans p₁ (symm p₂))}},
-      { rewrite *append_cons at C₁,
-        apply (list.no_confusion (and.elim_right C₁)), intros [x_eq_hs₁₁, t₁_eq_ts₁₁_a_s₁₂],
-        rewrite [t₁_eq_ts₁₁_a_s₁₂ at p],
-        cases s₂₁ with [hs₂₁, ts₂₁],
-        { rewrite *append_nil_left at C₂,
-          apply (list.no_confusion (and.elim_right C₂)), intros [x_eq_a, t₂_eq_s₂₂],
-          rewrite [t₂_eq_s₂₂ at p, -and.elim_left C₂ at p],
-          have eq₁ : s₁ = a :: ts₁₁ ++ s₁₂,   begin rewrite [-x_eq_hs₁₁ at C₁, x_eq_a at C₁], exact (and.elim_left C₁) end,
-          have p₁  : ts₁₁ ++ (a :: s₁₂) ~ s₂, from p,
-          have p₂  : a :: ts₁₁ ++ s₁₂ ~ ts₁₁ ++ (a :: s₁₂), from !perm_middle,
-          rewrite eq₁, exact (trans p₂ p₁)},
-        { rewrite *append_cons at C₂,
-          apply (list.no_confusion (and.elim_right C₂)), intros [x_eq_hs₂₁, t₂_eq_ts₂₁_a_s₂₂],
-          have t₁qeq : t₁ ≈ a | (ts₁₁ ++ s₁₂), begin rewrite t₁_eq_ts₁₁_a_s₁₂, exact !qeq_app end,
-          have t₂qeq : t₂ ≈ a | (ts₂₁ ++ s₂₂), begin rewrite t₂_eq_ts₂₁_a_s₂₂, exact !qeq_app end,
-          have p₁ : x::(ts₁₁++s₁₂) ~ x::(ts₂₁++s₂₂), from skip x (r t₁qeq t₂qeq),
-          rewrite [and.elim_left C₁, and.elim_left C₂, -x_eq_hs₁₁, -x_eq_hs₂₁],
-          exact p₁}}
-    end)
+    discr (and.elim_right C₁)
+      (λ (s₁₁_eq : s₁₁ = []) (x_eq_a : x = a) (t₁_eq : t₁ = s₁₂),
+        assert s₁_p : s₁ ~ t₂, from calc
+            s₁  = s₁₁ ++ s₁₂ : and.elim_left C₁
+            ... = t₁         : by rewrite [-t₁_eq, s₁₁_eq, append_nil_left]
+            ... ~ t₂         : p,
+        discr (and.elim_right C₂)
+          (λ (s₂₁_eq : s₂₁ = []) (x_eq_a : x = a) (t₂_eq: t₂ = s₂₂),
+            proof calc
+              s₁  ~ t₂         : s₁_p
+              ... = s₂₁ ++ s₂₂ : by rewrite [-t₂_eq, s₂₁_eq, append_nil_left]
+              ... = s₂         : by rewrite [and.elim_left C₂]
+            qed)
+          (λ (ts₂₁ : list A) (s₂₁_eq : s₂₁ = x::ts₂₁) (t₂_eq : t₂ = ts₂₁++(a::s₂₂)),
+            proof calc
+              s₁  ~ t₂             : s₁_p
+              ... = ts₂₁++(a::s₂₂) : t₂_eq
+              ... ~ (a::ts₂₁)++s₂₂ : !perm_middle
+              ... = s₂₁ ++ s₂₂     : by rewrite [-x_eq_a, -s₂₁_eq]
+              ... = s₂             : by rewrite [and.elim_left C₂]
+            qed))
+      (λ (ts₁₁ : list A) (s₁₁_eq : s₁₁ = x::ts₁₁) (t₁_eq : t₁ = ts₁₁++(a::s₁₂)),
+        assert t₁_qeq : t₁ ≈ a|(ts₁₁++s₁₂), by rewrite t₁_eq; exact !qeq_app,
+        assert s₁_eq : s₁ = x::(ts₁₁++s₁₂), from calc
+          s₁  = s₁₁ ++ s₁₂       : and.elim_left C₁
+          ... = x::(ts₁₁++ s₁₂)  : by rewrite s₁₁_eq,
+        discr (and.elim_right C₂)
+          (λ (s₂₁_eq : s₂₁ = []) (x_eq_a : x = a) (t₂_eq: t₂ = s₂₂),
+            proof calc
+              s₁  = a::(ts₁₁++s₁₂) : by rewrite [s₁_eq, x_eq_a]
+              ... ~ ts₁₁++(a::s₁₂) : !perm_middle
+              ... = t₁             : t₁_eq
+              ... ~ t₂             : p
+              ... = s₂             : by rewrite [t₂_eq, and.elim_left C₂, s₂₁_eq, append_nil_left]
+            qed)
+          (λ (ts₂₁ : list A) (s₂₁_eq : s₂₁ = x::ts₂₁) (t₂_eq : t₂ = ts₂₁++(a::s₂₂)),
+            assert t₂_qeq : t₂ ≈ a|(ts₂₁++s₂₂), by rewrite t₂_eq; exact !qeq_app,
+            proof calc
+              s₁  = x::(ts₁₁++s₁₂) : s₁_eq
+              ... ~ x::(ts₂₁++s₂₂) : skip x (r t₁_qeq t₂_qeq)
+              ... = s₂             : by rewrite [-append_cons, -s₂₁_eq, and.elim_left C₂]
+            qed)))
   (λ x y t₁ t₂ p (r : ∀{a s₁ s₂}, t₁≈a|s₁ → t₂≈a|s₂ → s₁ ~ s₂) a s₁ s₂ e₁ e₂,
     obtain (s₁₁ s₁₂ : list A) (C₁ : s₁ = s₁₁ ++ s₁₂ ∧ y::x::t₁ = s₁₁++(a::s₁₂)), from qeq_split e₁,
     obtain (s₂₁ s₂₂ : list A) (C₂ : s₂ = s₂₁ ++ s₂₂ ∧ x::y::t₂ = s₂₁++(a::s₂₂)), from qeq_split e₂,
-    begin
-      clears [e₁, e₂, p', l₁, l₂],
-      cases s₁₁ with [hs₁₁, ts₁₁],
-      { rewrite *append_nil_left at C₁,
-        apply (list.no_confusion (and.elim_right C₁)), intros [y_eq_a, hs₁₂_t₁_eq_s₁₂],
-        rewrite [y_eq_a at *], clear y_eq_a,
-        cases s₂₁ with [hs₂₁, ts₂₁],
-        { rewrite *append_nil_left at C₂,
-          apply (list.no_confusion (and.elim_right C₂)), intros [x_eq_a, t₂_eq_s₂₂],
-          rewrite [x_eq_a at *], clear x_eq_a,
-          rewrite [and.elim_left C₁, and.elim_left C₂, -hs₁₂_t₁_eq_s₁₂, -t₂_eq_s₂₂],
-          exact (skip a p)},
-        { rewrite *append_cons at C₂,
-          apply (list.no_confusion (and.elim_right C₂)), intros [x_eq_hs₂₁, h_t₂_eq_ts₂₁_a_s₂₂],
-          rewrite x_eq_hs₂₁ at *, clear x_eq_hs₂₁,
-          rewrite [and.elim_left C₁, and.elim_left C₂, -hs₁₂_t₁_eq_s₁₂],
-          cases ts₂₁ with [hts₂₁, tts₂₁],
-          { rewrite *append_nil_left at *,
-            have t₂_eq_s₂₂ : t₂ = s₂₂, from list.no_confusion h_t₂_eq_ts₂₁_a_s₂₂ (λ h t, t),
-            rewrite -t₂_eq_s₂₂,
-            exact (skip _ p)},
-          { rewrite append_cons at *,
-            apply (list.no_confusion h_t₂_eq_ts₂₁_a_s₂₂), intros [a_eq_hts₂₁, t₂_eq_tts₂₁_a_s₂₂],
-            rewrite [a_eq_hts₂₁ at t₂_eq_tts₂₁_a_s₂₂, t₂_eq_tts₂₁_a_s₂₂ at p],
-            have p₁ : t₁ ~ tts₂₁ ++ (hts₂₁ :: s₂₂), from p,
-            have p₂ : tts₂₁ ++ (hts₂₁ :: s₂₂) ~ hts₂₁::(tts₂₁++s₂₂), from symm (!perm_middle),
-            exact (skip _ (trans p₁ p₂))}}},
-      { rewrite *append_cons at *,
-        apply (list.no_confusion (and.elim_right C₁)), intros [y_eq_hs₁₁, xt₁_eq_ts₁₁_a_s₁₂],
-        rewrite [-y_eq_hs₁₁ at C₁], clears [y_eq_hs₁₁, hs₁₁],
-        cases s₂₁ with [hs₂₁, ts₂₁],
-        { rewrite *append_nil_left at C₂,
-          apply (list.no_confusion (and.elim_right C₂)), intros [x_eq_a, y_t₂_eq_s₂₂],
-          rewrite [-x_eq_a at (C₁, C₂, xt₁_eq_ts₁₁_a_s₁₂)], clears [x_eq_a, a],
-          cases ts₁₁ with [hts₁₁, tts₁₁],
-          { rewrite *append_nil_left at *,
-            apply (list.no_confusion xt₁_eq_ts₁₁_a_s₁₂), intros [xeqx, t₁_eq_s₁₂], clears [xeqx, xt₁_eq_ts₁₁_a_s₁₂],
-            rewrite [t₁_eq_s₁₂ at p, and.elim_left C₂, -y_t₂_eq_s₂₂, and.elim_left C₁],
-            exact (skip _ p)},
-          { rewrite *append_cons at *,
-            apply (list.no_confusion xt₁_eq_ts₁₁_a_s₁₂), intros [x_eq_hts₁₁, t₁_eq_tts₁₁_x_s₁₂], clear xt₁_eq_ts₁₁_a_s₁₂,
-            rewrite [-x_eq_hts₁₁ at C₁], clears [x_eq_hts₁₁, hts₁₁],
-            cases s₂₂ with [hs₂₂, ts₂₂],
-            { apply (list.no_confusion y_t₂_eq_s₂₂) },
-            { apply (list.no_confusion y_t₂_eq_s₂₂), intros [y_eq_hs₂₂, t₂_eq_ts₂₂], clear y_t₂_eq_s₂₂,
-              rewrite [-y_eq_hs₂₂ at C₂, -t₂_eq_ts₂₂ at C₂, t₁_eq_tts₁₁_x_s₁₂ at p],
-              clears [y_eq_hs₂₂, t₂_eq_ts₂₂, t₁_eq_tts₁₁_x_s₁₂],
-              have p₁ : x :: tts₁₁ ++ s₁₂ ~ t₂, from trans (!perm_middle) p,
-              rewrite [and.elim_left C₁, and.elim_left C₂],
-              exact (skip _ p₁)}}},
-        { rewrite *append_cons at *,
-          apply (list.no_confusion (and.elim_right C₂)), intros [x_eq_hs₂₁, y_t₂_eq_ts₂₁_a_s₂₂],
-          rewrite [-x_eq_hs₂₁ at C₂], clears [x_eq_hs₂₁, hs₂₁],
-          cases ts₁₁ with [hts₁₁, tts₁₁],
-          { rewrite *append_nil_left at *,
-            apply (list.no_confusion xt₁_eq_ts₁₁_a_s₁₂), intros [x_eq_a, t₁_at_s₁₂], clear xt₁_eq_ts₁₁_a_s₁₂,
-            rewrite [-x_eq_a at (C₁, C₂, y_t₂_eq_ts₂₁_a_s₂₂), -t₁_at_s₁₂ at C₁], clears [x_eq_a, a, t₁_at_s₁₂, s₁₂],
-            cases ts₂₁ with [hts₂₁, tts₂₁],
-            { rewrite *append_nil_left at *,
-              apply (list.no_confusion y_t₂_eq_ts₂₁_a_s₂₂), intros [y_eq_x, t₂_eq_s₂₂], clear y_t₂_eq_ts₂₁_a_s₂₂,
-              rewrite [y_eq_x at (C₁, C₂), -t₂_eq_s₂₂ at (C₁, C₂)], clears [y_eq_x, t₂_eq_s₂₂],
-              rewrite [and.elim_left C₁, and.elim_left C₂],
-              exact (skip _ p)},
-            { rewrite *append_cons at *,
-              apply (list.no_confusion y_t₂_eq_ts₂₁_a_s₂₂), intros [y_eq_hts₂₁, t₂_eq_tts₂₁_x_s₂₂], clear y_t₂_eq_ts₂₁_a_s₂₂,
-              rewrite [-y_eq_hts₂₁ at C₂, t₂_eq_tts₂₁_x_s₂₂ at p],
-              have p₁ : y::t₁ ~ y::x::(tts₂₁ ++ s₂₂), from skip y (trans p (symm !perm_middle)),
-              have p₂ : y::x::(tts₂₁ ++ s₂₂) ~ x::y::(tts₂₁ ++ s₂₂), from !swap,
-              rewrite [and.elim_left C₁, and.elim_left C₂],
-              exact (trans p₁ p₂)}},
-          { rewrite *append_cons at *,
-            apply (list.no_confusion xt₁_eq_ts₁₁_a_s₁₂), intros [x_eq_hts₁₁, t₁_eq_tts₁₁_a_s₁₂], clear xt₁_eq_ts₁₁_a_s₁₂,
-            rewrite [-x_eq_hts₁₁ at C₁], clears [x_eq_hts₁₁, hts₁₁],
-            cases ts₂₁ with [hts₂₁, tts₂₁],
-            { rewrite *append_nil_left at *,
-              apply (list.no_confusion y_t₂_eq_ts₂₁_a_s₂₂), intros [y_eq_a, t₂_eq_s₂₂], clear y_t₂_eq_ts₂₁_a_s₂₂,
-              rewrite [-y_eq_a at (C₁, C₂, t₁_eq_tts₁₁_a_s₁₂), -t₂_eq_s₂₂ at C₂, t₁_eq_tts₁₁_a_s₁₂ at p],
-              clears [y_eq_a, a, t₂_eq_s₂₂, s₂₂],
-              have p₁ : x::y::(tts₁₁ ++ s₁₂) ~ x::t₂, from skip x (trans !perm_middle p),
-              have p₂ : y::x::(tts₁₁ ++ s₁₂) ~ x::y::(tts₁₁ ++ s₁₂), from !swap,
-              rewrite [and.elim_left C₁, and.elim_left C₂],
-              exact (trans p₂ p₁)},
-            { rewrite *append_cons at *,
-              apply (list.no_confusion y_t₂_eq_ts₂₁_a_s₂₂), intros [y_eq_hts₂₁, t₂_eq_tts₂₁_a_s₂₂], clear y_t₂_eq_ts₂₁_a_s₂₂,
-              rewrite [-y_eq_hts₂₁ at C₂], clears [y_eq_hts₂₁, hts₂₁],
-              have aux₁ : tts₁₁ ++ (a :: s₁₂) ≈ a|(tts₁₁ ++ s₁₂), from !qeq_app,
-              have aux₂ : tts₂₁ ++ (a :: s₂₂) ≈ a|(tts₂₁ ++ s₂₂), from !qeq_app,
-              rewrite [-t₁_eq_tts₁₁_a_s₁₂ at aux₁, -t₂_eq_tts₂₁_a_s₂₂ at aux₂],
-              have p₁ : y::x::(tts₁₁ ++ s₁₂) ~ y::x::(tts₂₁ ++ s₂₂), from skip y (skip x (r aux₁ aux₂)),
-              have p₂ : y::x::(tts₂₁ ++ s₂₂) ~ x::y::(tts₂₁ ++ s₂₂), from !swap,
-              rewrite [and.elim_left C₁, and.elim_left C₂],
-              exact (trans p₁ p₂)}}}}
-    end)
+    discr₂ (and.elim_right C₁)
+      (λ (s₁₁_eq : s₁₁ = [])  (s₁₂_eq : s₁₂ = x::t₁) (y_eq_a : y = a),
+        assert s₁_p : s₁ ~ x::t₂, from calc
+            s₁  = s₁₁ ++ s₁₂ : and.elim_left C₁
+            ... = x::t₁      : by rewrite [s₁₂_eq, s₁₁_eq, append_nil_left]
+            ... ~ x::t₂      : skip x p,
+        discr₂ (and.elim_right C₂)
+          (λ (s₂₁_eq : s₂₁ = [])  (s₂₂_eq : s₂₂ = y::t₂) (x_eq_a : x = a),
+            proof calc
+              s₁  ~ x::t₂      : s₁_p
+              ... = s₂₁ ++ s₂₂ : by rewrite [x_eq_a, -y_eq_a, -s₂₂_eq, s₂₁_eq, append_nil_left]
+              ... = s₂         : by rewrite [and.elim_left C₂]
+            qed)
+          (λ (s₂₁_eq : s₂₁ = [x]) (y_eq_a : y = a) (t₂_eq : t₂ = s₂₂),
+            proof calc
+              s₁  ~ x::t₂      : s₁_p
+              ... = s₂₁ ++ s₂₂ : by rewrite [t₂_eq, s₂₁_eq, append_cons]
+              ... = s₂         : by rewrite [and.elim_left C₂]
+            qed)
+          (λ (ts₂₁ : list A) (s₂₁_eq : s₂₁ = x::y::ts₂₁) (t₂_eq : t₂ = ts₂₁++(a::s₂₂)),
+            proof calc
+              s₁  ~ x::t₂               : s₁_p
+              ... = x::(ts₂₁++(y::s₂₂)) : by rewrite [t₂_eq, -y_eq_a]
+              ... ~ x::y::(ts₂₁++s₂₂)   : skip x !perm_middle
+              ... = s₂₁ ++ s₂₂          : by rewrite [s₂₁_eq, append_cons]
+              ... = s₂                  : by rewrite [and.elim_left C₂]
+            qed))
+      (λ (s₁₁_eq : s₁₁ = [y]) (x_eq_a : x = a) (t₁_eq : t₁ = s₁₂),
+        assert s₁_p : s₁ ~ y::t₂, from calc
+             s₁  = y::t₁ : by rewrite [and.elim_left C₁, s₁₁_eq, t₁_eq]
+             ... ~ y::t₂ : skip y p,
+        discr₂ (and.elim_right C₂)
+          (λ (s₂₁_eq : s₂₁ = [])  (s₂₂_eq : s₂₂ = y::t₂) (x_eq_a : x = a),
+            proof calc
+              s₁  ~ y::t₂      : s₁_p
+              ... = s₂₁ ++ s₂₂ : by rewrite [s₂₁_eq, s₂₂_eq]
+              ... = s₂         : by rewrite [and.elim_left C₂]
+            qed)
+          (λ (s₂₁_eq : s₂₁ = [x]) (y_eq_a : y = a) (t₂_eq : t₂ = s₂₂),
+            proof calc
+              s₁  ~ y::t₂      : s₁_p
+              ... = s₂₁ ++ s₂₂ : by rewrite [s₂₁_eq, t₂_eq, y_eq_a, -x_eq_a]
+              ... = s₂         : by rewrite [and.elim_left C₂]
+            qed)
+          (λ (ts₂₁ : list A) (s₂₁_eq : s₂₁ = x::y::ts₂₁) (t₂_eq : t₂ = ts₂₁++(a::s₂₂)),
+            proof calc
+              s₁  ~ y::t₂               : s₁_p
+              ... = y::(ts₂₁++(x::s₂₂)) : by rewrite [t₂_eq, -x_eq_a]
+              ... ~ y::x::(ts₂₁++s₂₂)   : skip y !perm_middle
+              ... ~ x::y::(ts₂₁++s₂₂)   : swap
+              ... = s₂₁ ++ s₂₂          : by rewrite [s₂₁_eq]
+              ... = s₂                  : by rewrite [and.elim_left C₂]
+            qed))
+      (λ (ts₁₁ : list A) (s₁₁_eq : s₁₁ = y::x::ts₁₁) (t₁_eq : t₁ = ts₁₁++(a::s₁₂)),
+        assert s₁_eq  : s₁ = y::x::(ts₁₁++s₁₂), by rewrite [and.elim_left C₁, s₁₁_eq],
+        discr₂ (and.elim_right C₂)
+          (λ (s₂₁_eq : s₂₁ = [])  (s₂₂_eq : s₂₂ = y::t₂) (x_eq_a : x = a),
+            proof calc
+              s₁  = y::a::(ts₁₁++s₁₂)   : by rewrite [s₁_eq, x_eq_a]
+              ... ~ y::(ts₁₁++(a::s₁₂)) : skip y !perm_middle
+              ... = y::t₁               : by rewrite t₁_eq
+              ... ~ y::t₂               : skip y p
+              ... = s₂₁ ++ s₂₂          : by rewrite [s₂₁_eq, s₂₂_eq]
+              ... = s₂                  : by rewrite [and.elim_left C₂]
+            qed)
+          (λ (s₂₁_eq : s₂₁ = [x]) (y_eq_a : y = a) (t₂_eq : t₂ = s₂₂),
+            proof calc
+              s₁  = y::x::(ts₁₁++s₁₂)   : by rewrite s₁_eq
+              ... ~ x::y::(ts₁₁++s₁₂)   : swap
+              ... = x::a::(ts₁₁++s₁₂)   : by rewrite y_eq_a
+              ... ~ x::(ts₁₁++(a::s₁₂)) : skip x !perm_middle
+              ... = x::t₁               : by rewrite t₁_eq
+              ... ~ x::t₂               : skip x p
+              ... = s₂₁ ++ s₂₂          : by rewrite [t₂_eq, s₂₁_eq]
+              ... = s₂                  : by rewrite [and.elim_left C₂]
+            qed)
+          (λ (ts₂₁ : list A) (s₂₁_eq : s₂₁ = x::y::ts₂₁) (t₂_eq : t₂ = ts₂₁++(a::s₂₂)),
+            assert t₁_qeq : t₁ ≈ a|(ts₁₁++s₁₂),    by rewrite t₁_eq; exact !qeq_app,
+            assert t₂_qeq : t₂ ≈ a|(ts₂₁++s₂₂),    by rewrite t₂_eq; exact !qeq_app,
+            assert p_aux  : ts₁₁++s₁₂ ~ ts₂₁++s₂₂, from r t₁_qeq t₂_qeq,
+            proof calc
+              s₁  = y::x::(ts₁₁++s₁₂)   : by rewrite s₁_eq
+              ... ~ y::x::(ts₂₁++s₂₂)   : skip y (skip x p_aux)
+              ... ~ x::y::(ts₂₁++s₂₂)   : swap
+              ... = s₂₁ ++ s₂₂          : by rewrite s₂₁_eq
+              ... = s₂                  : by rewrite [and.elim_left C₂]
+            qed)))
   (λ t₁ t₂ t₃ p₁ p₂
      (r₁ : ∀{a s₁ s₂}, t₁ ≈ a|s₁ → t₂≈a|s₂ → s₁ ~ s₂)
      (r₂ : ∀{a s₁ s₂}, t₂ ≈ a|s₁ → t₃≈a|s₂ → s₁ ~ s₂)

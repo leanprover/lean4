@@ -263,13 +263,15 @@ private theorem discr {P : Prop} {a b : A} {l₁ l₂ l₃ : list A} :
     a::l₁ = l₂++(b::l₃)                    →
     (l₂ = [] → a = b → l₁ = l₃ → P)        →
     (∀ t, l₂ = a::t → l₁ = t++(b::l₃) → P) → P :=
-list.cases_on l₂
-  (λ e h₁ h₂, begin rewrite append_nil_left at e, exact (list.no_confusion e (λ e₁ e₂, h₁ rfl e₁ e₂)) end)
-  (λ h t e h₁ h₂, begin
-    rewrite append_cons at e, apply (list.no_confusion e), intros [e₁, e₂],
+match l₂ with
+| []   := λ e h₁ h₂, list.no_confusion e (λ e₁ e₂, h₁ rfl e₁ e₂)
+| h::t := λ e h₁ h₂,
+  begin
+    apply (list.no_confusion e), intros [e₁, e₂],
     rewrite e₁ at h₂,
     exact (h₂ t rfl e₂)
-  end)
+  end
+end
 
 -- Auxiliary theorem for performing cases-analysis on l₂.
 -- We use it to prove perm_inv_core.
@@ -278,30 +280,25 @@ private theorem discr₂ {P : Prop} {a b c : A} {l₁ l₂ l₃ : list A} :
     (l₂ = [] → l₃ = b::l₁ → a = c → P)         →
     (l₂ = [a] → b = c → l₁ = l₃ → P)           →
     (∀ t, l₂ = a::b::t → l₁ = t++(c::l₃) → P)  → P :=
-list.cases_on l₂
-  (λ e H₁ H₂ H₃,
-    begin
-      apply (list.no_confusion e), intros [a_eq_c, b_l₁_eq_l₃],
-      exact (H₁ rfl (eq.symm b_l₁_eq_l₃) a_eq_c)
-    end)
-  (λ h₁ t₁,
-    list.cases_on t₁
-      (λ e H₁ H₂ H₃,
-         begin
-           rewrite [append_cons at e, append_nil_left at e],
-           apply (list.no_confusion e), intros [a_eq_h₁, rest],
-           apply (list.no_confusion rest), intros [b_eq_c, l₁_eq_l₃],
-           rewrite [a_eq_h₁ at H₂, b_eq_c at H₂, l₁_eq_l₃ at H₂],
-           exact (H₂ rfl rfl rfl)
-         end)
-      (λ h₂ t₂ e H₁ H₂ H₃,
-         begin
-           rewrite [*append_cons at e],
-           apply (list.no_confusion e),    intros [a_eq_h₁, rest],
-           apply (list.no_confusion rest), intros [b_eq_h₂, l₁_eq],
-           rewrite [a_eq_h₁ at H₃, b_eq_h₂ at H₃],
-           exact (H₃ t₂ rfl l₁_eq)
-         end))
+match l₂ with
+| []   := λ e H₁ H₂ H₃,
+   list.no_confusion e (λ a_eq_c b_l₁_eq_l₃, H₁ rfl (eq.symm b_l₁_eq_l₃) a_eq_c)
+| [h₁] := λ e H₁ H₂ H₃,
+  begin
+    rewrite [append_cons at e, append_nil_left at e],
+    apply (list.no_confusion e), intros [a_eq_h₁, rest],
+    apply (list.no_confusion rest), intros [b_eq_c, l₁_eq_l₃],
+    rewrite [a_eq_h₁ at H₂, b_eq_c at H₂, l₁_eq_l₃ at H₂],
+    exact (H₂ rfl rfl rfl)
+  end
+| h₁::h₂::t₂ := λ e H₁ H₂ H₃,
+  begin
+    apply (list.no_confusion e),    intros [a_eq_h₁, rest],
+    apply (list.no_confusion rest), intros [b_eq_h₂, l₁_eq],
+    rewrite [a_eq_h₁ at H₃, b_eq_h₂ at H₃],
+    exact (H₃ t₂ rfl l₁_eq)
+  end
+end
 
 /- permutation inversion -/
 theorem perm_inv_core {l₁ l₂ : list A} (p' : l₁ ~ l₂) : ∀ {a s₁ s₂}, l₁≈a|s₁ → l₂≈a|s₂ → s₁ ~ s₂ :=

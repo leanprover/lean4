@@ -487,4 +487,82 @@ section fold_thms
          ...     = foldl f a l₂ : foldl_eq_of_perm fcomm fassoc p
          ...     = foldr f a l₂ : by rewrite [foldl_eq_foldr fcomm fassoc]
 end fold_thms
+
+theorem perm_erase_dup_of_perm [H : decidable_eq A] {l₁ l₂ : list A} : l₁ ~ l₂ → erase_dup l₁ ~ erase_dup l₂ :=
+assume p, perm_induction_on p
+  nil
+  (λ x t₁ t₂ p r, by_cases
+    (λ xint₁  : x ∈ t₁,
+      assert xint₂ : x ∈ t₂, from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup xint₁)),
+      by rewrite [erase_dup_cons_of_mem xint₁, erase_dup_cons_of_mem xint₂]; exact r)
+    (λ nxint₁ : x ∉ t₁,
+      assert nxint₂ : x ∉ t₂, from
+         assume xint₂ : x ∈ t₂, absurd (mem_of_mem_erase_dup (mem_perm (symm r) (mem_erase_dup xint₂))) nxint₁,
+      by rewrite [erase_dup_cons_of_not_mem nxint₂, erase_dup_cons_of_not_mem nxint₁]; exact (skip x r)))
+  (λ y x t₁ t₂ p r, by_cases
+    (λ xinyt₁  : x ∈ y::t₁, by_cases
+      (λ yint₁  : y ∈ t₁,
+        assert yint₂  : y ∈ t₂,    from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup yint₁)),
+        assert yinxt₂ : y ∈ x::t₂, from or.inr (yint₂),
+        or.elim xinyt₁
+          (λ xeqy  : x = y,
+            assert xint₂ : x ∈ t₂, by rewrite [-xeqy at yint₂]; exact yint₂,
+            begin
+              rewrite [erase_dup_cons_of_mem xinyt₁, erase_dup_cons_of_mem yinxt₂,
+                       erase_dup_cons_of_mem yint₁, erase_dup_cons_of_mem xint₂],
+              exact r
+            end)
+          (λ xint₁ : x ∈ t₁,
+            assert xint₂ : x ∈ t₂, from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup xint₁)),
+            begin
+              rewrite [erase_dup_cons_of_mem xinyt₁, erase_dup_cons_of_mem yinxt₂,
+                       erase_dup_cons_of_mem yint₁, erase_dup_cons_of_mem xint₂],
+              exact r
+            end))
+      (λ nyint₁ : y ∉ t₁,
+        assert nyint₂ : y ∉ t₂, from
+          assume yint₂ : y ∈ t₂, absurd (mem_of_mem_erase_dup (mem_perm (symm r) (mem_erase_dup yint₂))) nyint₁,
+        by_cases
+          (λ xeqy  : x = y,
+            assert nxint₂ : x ∉ t₂, by rewrite [-xeqy at nyint₂]; exact nyint₂,
+            assert yinxt₂ : y ∈ x::t₂, by rewrite [xeqy]; exact !mem_cons,
+            begin
+              rewrite [erase_dup_cons_of_mem xinyt₁, erase_dup_cons_of_mem yinxt₂,
+                       erase_dup_cons_of_not_mem nyint₁, erase_dup_cons_of_not_mem nxint₂, xeqy],
+              exact (skip y r)
+            end)
+          (λ xney : x ≠ y,
+            have xint₁     : x ∈ t₁, from or_resolve_right xinyt₁ xney,
+            assert xint₂   : x ∈ t₂, from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup xint₁)),
+            assert nyinxt₂ : y ∉ x::t₂, from
+              assume yinxt₂ : y ∈ x::t₂, or.elim yinxt₂ (λ h, absurd h (ne.symm xney)) (λ h, absurd h nyint₂),
+            begin
+              rewrite [erase_dup_cons_of_mem xinyt₁, erase_dup_cons_of_not_mem nyinxt₂,
+                       erase_dup_cons_of_not_mem nyint₁, erase_dup_cons_of_mem xint₂],
+              exact (skip y r)
+            end)))
+    (λ nxinyt₁ : x ∉ y::t₁,
+      have   xney    : x ≠ y,  from not_eq_of_not_mem nxinyt₁,
+      have   nxint₁  : x ∉ t₁, from not_mem_of_not_mem nxinyt₁,
+      assert nxint₂  : x ∉ t₂, from
+        assume xint₂ : x ∈ t₂, absurd (mem_of_mem_erase_dup (mem_perm (symm r) (mem_erase_dup xint₂))) nxint₁,
+      by_cases
+        (λ yint₁  : y ∈ t₁,
+          assert yinxt₂ : y ∈ x::t₂, from or.inr (mem_of_mem_erase_dup (mem_perm r (mem_erase_dup yint₁))),
+          begin
+            rewrite [erase_dup_cons_of_not_mem nxinyt₁, erase_dup_cons_of_mem yinxt₂,
+                     erase_dup_cons_of_mem yint₁, erase_dup_cons_of_not_mem nxint₂],
+            exact (skip x r)
+          end)
+        (λ nyint₁ : y ∉ t₁,
+          assert nyinxt₂ : y ∉ x::t₂, from
+            assume yinxt₂ : y ∈ x::t₂, or.elim yinxt₂
+              (λ h, absurd h (ne.symm xney))
+              (λ h, absurd (mem_of_mem_erase_dup (mem_perm (symm r) (mem_erase_dup h))) nyint₁),
+          begin
+            rewrite [erase_dup_cons_of_not_mem nxinyt₁, erase_dup_cons_of_not_mem nyinxt₂,
+                     erase_dup_cons_of_not_mem nyint₁, erase_dup_cons_of_not_mem nxint₂],
+            exact (xswap x y r)
+          end)))
+  (λ t₁ t₂ t₃ p₁ p₂ r₁ r₂, trans r₁ r₂)
 end perm

@@ -257,24 +257,6 @@ by_cases
     inr (λ p : l₁ ~ l₂, absurd (length_eq_length_of_perm p) neql))
 end dec
 
-theorem discriminate {P : Prop} {l : list A} : (l = [] → P) → (∀ h t, l = h::t → P) → P :=
-list.cases_on l
-  (λ h₁ h₂, h₁ rfl)
-  (λ a l h₁ h₂, h₂ a l rfl)
-
-theorem discriminate₂ {P : Prop} {l : list A} : (l = [] → P) → (∀ a, l = [a] → P) → (∀ a₁ a₂ t, l = a₁::a₂::t → P) → P :=
-list.cases_on l
-  (λ h₁ h₂ h₃, h₁ rfl)
-  (λ a₁ t, list.cases_on t
-    (λ h₁ h₂ h₃, h₂ a₁ rfl)
-    (λ a₂ t₂ h₁ h₂ h₃, h₃ a₁ a₂ t₂ rfl))
-
-theorem tail_eq {a₁ a₂ : A} {t₁ t₂ : list A} : a₁::t₁ = a₂::t₂ → t₁ = t₂ :=
-assume h, list.no_confusion h (λ e₁ e₂, e₂)
-
-theorem head_eq {a₁ a₂ : A} {t₁ t₂ : list A} : a₁::t₁ = a₂::t₂ → a₁ = a₂ :=
-assume h, list.no_confusion h (λ e₁ e₂, e₁)
-
 -- Auxiliary theorem for performing cases-analysis on l₂.
 -- We use it to prove perm_inv_core.
 private theorem discr {P : Prop} {a b : A} {l₁ l₂ l₃ : list A} :

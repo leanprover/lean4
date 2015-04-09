@@ -14,6 +14,12 @@ variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
 definition compose [reducible] (f : B → C) (g : A → B) : A → C :=
 λx, f (g x)
 
+definition compose_right [reducible] (f : B → B → B) (g : A → B) : B → A → B :=
+λ b a, f b (g a)
+
+definition compose_left [reducible] (f : B → B → B) (g : A → B) : A → B → B :=
+λ a b, f (g a) b
+
 definition id [reducible] (a : A) : A :=
 a
 

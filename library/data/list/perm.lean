@@ -467,27 +467,27 @@ assume p : l₁++(a::l₂) ~ l₃++(a::l₄),
 
 section foldl
   variables {f : B → A → B} {l₁ l₂ : list A}
-  variable rcomm : ∀ b a₁ a₂, f (f b a₁) a₂ = f (f b a₂) a₁
+  variable rcomm : right_commutative f
   include  rcomm
 
-  theorem foldl_eq_of_perm : l₁ ~ l₂ → ∀ a, foldl f a l₁ = foldl f a l₂ :=
+  theorem foldl_eq_of_perm : l₁ ~ l₂ → ∀ b, foldl f b l₁ = foldl f b l₂ :=
   assume p, perm_induction_on p
-    (λ a, by rewrite *foldl_nil)
-    (λ x t₁ t₂ p r a, calc
-       foldl f a (x::t₁) = foldl f (f a x) t₁ : foldl_cons
-               ...       = foldl f (f a x) t₂ : r (f a x)
-               ...       = foldl f a (x::t₂)  : foldl_cons)
-    (λ x y t₁ t₂ p r a, calc
-       foldl f a (y :: x :: t₁) = foldl f (f (f a y) x) t₁ : by rewrite foldl_cons
-                     ...        = foldl f (f (f a x) y) t₁ : by rewrite rcomm
-                     ...        = foldl f (f (f a x) y) t₂ : r (f (f a x) y)
-                     ...        = foldl f a (x :: y :: t₂) : by rewrite foldl_cons)
-    (λ t₁ t₂ t₃ p₁ p₂ r₁ r₂ a, eq.trans (r₁ a) (r₂ a))
+    (λ b, by rewrite *foldl_nil)
+    (λ x t₁ t₂ p r b, calc
+       foldl f b (x::t₁) = foldl f (f b x) t₁ : foldl_cons
+               ...       = foldl f (f b x) t₂ : r (f b x)
+               ...       = foldl f b (x::t₂)  : foldl_cons)
+    (λ x y t₁ t₂ p r b, calc
+       foldl f b (y :: x :: t₁) = foldl f (f (f b y) x) t₁ : by rewrite foldl_cons
+                     ...        = foldl f (f (f b x) y) t₁ : by rewrite rcomm
+                     ...        = foldl f (f (f b x) y) t₂ : r (f (f b x) y)
+                     ...        = foldl f b (x :: y :: t₂) : by rewrite foldl_cons)
+    (λ t₁ t₂ t₃ p₁ p₂ r₁ r₂ b, eq.trans (r₁ b) (r₂ b))
 end foldl
 
 section foldr
   variables {f : A → B → B} {l₁ l₂ : list A}
-  variable lcomm : ∀ a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)
+  variable lcomm : left_commutative f
   include  lcomm
 
   theorem foldr_eq_of_perm : l₁ ~ l₂ → ∀ b, foldr f b l₁ = foldr f b l₂ :=

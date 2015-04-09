@@ -179,11 +179,14 @@ assume h : x ∈ [a], or.elim h
   (λ xeqa : x = a, xeqa)
   (λ xinn : x ∈ [], absurd xinn !not_mem_nil)
 
-theorem mem_cons_of_mem (x : T) {y : T} {l : list T} : x ∈ l → x ∈ y :: l :=
+theorem mem_cons_of_mem (y : T) {x : T} {l : list T} : x ∈ l → x ∈ y :: l :=
 assume H, or.inr H
 
 theorem mem_cons_iff (x y : T) (l : list T) : x ∈ y::l ↔ (x = y ∨ x ∈ l) :=
 iff.rfl
+
+theorem mem_or_mem_of_mem_cons {x y : T} {l : list T} : x ∈ y::l → x = y ∨ x ∈ l :=
+assume h, h
 
 theorem mem_or_mem_of_mem_append {x : T} {s t : list T} : x ∈ s ++ t → x ∈ s ∨ x ∈ t :=
 list.induction_on s or.inr
@@ -855,6 +858,114 @@ theorem nodup_erase_dup [H : decidable_eq A] : ∀ l : list A, nodup (erase_dup 
       assume ab : a ∈ erase_dup l, absurd (mem_of_mem_erase_dup ab) nainl,
     by rewrite [erase_dup_cons_of_not_mem nainl]; exact (nodup_cons nin r))
 end nodup
+
+/- union -/
+section union
+variable {A : Type}
+variable [H : decidable_eq A]
+include H
+
+definition union : list A → list A → list A
+| []      l₂ := l₂
+| (a::l₁) l₂ := if a ∈ l₂ then union l₁ l₂ else a :: union l₁ l₂
+
+theorem union_nil (l : list A) : union [] l = l
+
+theorem union_cons_of_mem {a : A} {l₂} : ∀ (l₁), a ∈ l₂ → union (a::l₁) l₂ = union l₁ l₂ :=
+take l₁, assume ainl₂, calc
+  union (a::l₁) l₂ = if a ∈ l₂ then union l₁ l₂ else a :: union l₁ l₂ : rfl
+                  ...   = union l₁ l₂                                           : if_pos ainl₂
+
+theorem union_cons_of_not_mem {a : A} {l₂} : ∀ (l₁), a ∉ l₂ → union (a::l₁) l₂ = a :: union l₁ l₂ :=
+take l₁, assume nainl₂, calc
+  union (a::l₁) l₂ = if a ∈ l₂ then union l₁ l₂ else a :: union l₁ l₂ : rfl
+                  ...   = a :: union l₁ l₂                                      : if_neg nainl₂
+
+theorem mem_or_mem_of_mem_union : ∀ {l₁ l₂} {a : A}, a ∈ union l₁ l₂ → a ∈ l₁ ∨ a ∈ l₂
+| []      l₂ a ainl₂ := by rewrite union_nil at ainl₂; exact (or.inr (ainl₂))
+| (b::l₁) l₂ a ainbl₁l₂ := by_cases
+  (λ binl₂  : b ∈ l₂,
+    have ainl₁l₂ : a ∈ union l₁ l₂, by rewrite [union_cons_of_mem l₁ binl₂ at ainbl₁l₂]; exact ainbl₁l₂,
+    or.elim (mem_or_mem_of_mem_union ainl₁l₂)
+      (λ ainl₁, or.inl (mem_cons_of_mem _ ainl₁))
+      (λ ainl₂, or.inr ainl₂))
+  (λ nbinl₂ : b ∉ l₂,
+    have ainb_l₁l₂ : a ∈ b :: union l₁ l₂, by rewrite [union_cons_of_not_mem l₁ nbinl₂ at ainbl₁l₂]; exact ainbl₁l₂,
+    or.elim (mem_or_mem_of_mem_cons ainb_l₁l₂)
+      (λ aeqb, by rewrite aeqb; exact (or.inl !mem_cons))
+      (λ ainl₁l₂,
+        or.elim (mem_or_mem_of_mem_union ainl₁l₂)
+          (λ ainl₁, or.inl (mem_cons_of_mem _ ainl₁))
+          (λ ainl₂, or.inr ainl₂)))
+
+theorem mem_union_right {a : A} : ∀ (l₁) {l₂}, a ∈ l₂ → a ∈ union l₁ l₂
+| []      l₂  h := by rewrite union_nil; exact h
+| (b::l₁) l₂  h := by_cases
+  (λ binl₂ : b ∈ l₂, by rewrite [union_cons_of_mem _ binl₂]; exact (mem_union_right _ h))
+  (λ nbinl₂ : b ∉ l₂, by rewrite [union_cons_of_not_mem _ nbinl₂]; exact (mem_cons_of_mem _ (mem_union_right _ h)))
+
+theorem mem_union_left {a : A} : ∀ {l₁} (l₂), a ∈ l₁ → a ∈ union l₁ l₂
+| []      l₂  h := absurd h !not_mem_nil
+| (b::l₁) l₂  h := by_cases
+  (λ binl₂  : b ∈ l₂, or.elim h
+    (λ aeqb  : a = b,
+      by rewrite [union_cons_of_mem l₁ binl₂, -aeqb at binl₂]; exact (mem_union_right _ binl₂))
+    (λ ainl₁ : a ∈ l₁,
+      by rewrite [union_cons_of_mem l₁ binl₂]; exact (mem_union_left _ ainl₁)))
+  (λ nbinl₂ : b ∉ l₂, or.elim h
+    (λ aeqb  : a = b,
+      by rewrite [union_cons_of_not_mem l₁ nbinl₂, aeqb]; exact !mem_cons)
+    (λ ainl₁ : a ∈ l₁,
+      by rewrite [union_cons_of_not_mem l₁ nbinl₂]; exact (mem_cons_of_mem _ (mem_union_left _ ainl₁))))
+
+theorem nodup_union_of_nodup_of_nodup : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → nodup (union l₁ l₂)
+| []      l₂ n₁   nl₂ := by rewrite union_nil; exact nl₂
+| (a::l₁) l₂ nal₁ nl₂ :=
+  assert nl₁   : nodup l₁, from nodup_of_nodup_cons nal₁,
+  assert nl₁l₂ : nodup (union l₁ l₂), from nodup_union_of_nodup_of_nodup nl₁ nl₂,
+  by_cases
+    (λ ainl₂  : a ∈ l₂,
+       by rewrite [union_cons_of_mem l₁ ainl₂]; exact nl₁l₂)
+    (λ nainl₂ : a ∉ l₂,
+       have nainl₁ : a ∉ l₁, from not_mem_of_nodup_cons nal₁,
+       assert nainl₁l₂ : a ∉ union l₁ l₂, from
+         assume ainl₁l₂ : a ∈ union l₁ l₂, or.elim (mem_or_mem_of_mem_union ainl₁l₂)
+           (λ ainl₁, absurd ainl₁ nainl₁)
+           (λ ainl₂, absurd ainl₂ nainl₂),
+       by rewrite [union_cons_of_not_mem l₁ nainl₂]; exact (nodup_cons nainl₁l₂ nl₁l₂))
+end union
+
+/- insert -/
+section insert
+variable {A : Type}
+variable [H : decidable_eq A]
+include H
+
+definition insert (a : A) (l : list A) : list A :=
+if a ∈ l then l else a::l
+
+theorem insert_eq_of_mem {a : A} {l : list A} : a ∈ l → insert a l = l :=
+assume ainl, if_pos ainl
+
+theorem insert_eq_of_non_mem {a : A} {l : list A} : a ∉ l → insert a l = a::l :=
+assume nainl, if_neg nainl
+
+theorem mem_insert (a : A) (l : list A) : a ∈ insert a l :=
+by_cases
+  (λ ainl  : a ∈ l, by rewrite [insert_eq_of_mem ainl]; exact ainl)
+  (λ nainl : a ∉ l, by rewrite [insert_eq_of_non_mem nainl]; exact !mem_cons)
+
+theorem mem_insert_of_mem {a : A} (b : A) {l : list A} : a ∈ l → a ∈ insert b l :=
+assume ainl, by_cases
+  (λ binl  : b ∈ l, by rewrite [insert_eq_of_mem binl]; exact ainl)
+  (λ nbinl : b ∉ l, by rewrite [insert_eq_of_non_mem nbinl]; exact (mem_cons_of_mem _ ainl))
+
+theorem nodup_insert (a : A) {l : list A} : nodup l → nodup (insert a l) :=
+assume n, by_cases
+  (λ ainl  : a ∈ l, by rewrite [insert_eq_of_mem ainl]; exact n)
+  (λ nainl : a ∉ l, by rewrite [insert_eq_of_non_mem nainl]; exact (nodup_cons nainl n))
+
+end insert
 end list
 
 attribute list.has_decidable_eq  [instance]

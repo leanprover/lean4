@@ -77,6 +77,9 @@ assume p, perm.induction_on p
       (assume ainl : a ∈ l, or.inr (or.inr ainl))))
   (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂ ainl₁, r₂ (r₁ ainl₁))
 
+theorem not_mem_perm {a : A} {l₁ l₂ : list A} : l₁ ~ l₂ → a ∉ l₁ → a ∉ l₂ :=
+assume p nainl₁ ainl₂, absurd (mem_perm (symm p) ainl₂) nainl₁
+
 theorem perm_app_left {l₁ l₂ : list A} (t₁ : list A) : l₁ ~ l₂ → (l₁++t₁) ~ (l₂++t₁) :=
 assume p, perm.induction_on p
   !refl
@@ -565,4 +568,56 @@ assume p, perm_induction_on p
             exact (xswap x y r)
           end)))
   (λ t₁ t₂ t₃ p₁ p₂ r₁ r₂, trans r₁ r₂)
+
+section perm_union
+variable [H : decidable_eq A]
+include H
+
+theorem perm_union_left {l₁ l₂ : list A} (t₁ : list A) : l₁ ~ l₂ → (union l₁ t₁) ~ (union l₂ t₁) :=
+assume p, perm.induction_on p
+  (by rewrite [union_nil]; exact !refl)
+  (λ x l₁ l₂ p₁ r₁, by_cases
+     (λ xint₁  : x ∈ t₁, by rewrite [*union_cons_of_mem _ xint₁]; exact r₁)
+     (λ nxint₁ : x ∉ t₁, by rewrite [*union_cons_of_not_mem _ nxint₁]; exact (skip _ r₁)))
+  (λ x y l, by_cases
+    (λ yint  : y ∈ t₁, by_cases
+      (λ xint  : x ∈ t₁,
+        by rewrite [*union_cons_of_mem _ xint, *union_cons_of_mem _ yint, *union_cons_of_mem _ xint]; exact !refl)
+      (λ nxint : x ∉ t₁,
+        by rewrite [*union_cons_of_mem _ yint, *union_cons_of_not_mem _ nxint, union_cons_of_mem _ yint]; exact !refl))
+    (λ nyint : y ∉ t₁, by_cases
+      (λ xint  : x ∈ t₁,
+        by rewrite [*union_cons_of_mem _ xint, *union_cons_of_not_mem _ nyint, union_cons_of_mem _ xint]; exact !refl)
+      (λ nxint : x ∉ t₁,
+        by rewrite [*union_cons_of_not_mem _ nxint, *union_cons_of_not_mem _ nyint, union_cons_of_not_mem _ nxint]; exact !swap)))
+  (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, trans r₁ r₂)
+
+theorem perm_union_right (l : list A) {t₁ t₂ : list A} : t₁ ~ t₂ → (union l t₁) ~ (union l t₂) :=
+list.induction_on l
+  (λ p, by rewrite [*union_nil]; exact p)
+  (λ x xs r p, by_cases
+    (λ xint₁  : x ∈ t₁,
+      assert xint₂ : x ∈ t₂, from mem_perm p xint₁,
+      by rewrite [union_cons_of_mem _ xint₁, union_cons_of_mem _ xint₂]; exact (r p))
+    (λ nxint₁ : x ∉ t₁,
+      assert nxint₂ : x ∉ t₂, from not_mem_perm p nxint₁,
+      by rewrite [union_cons_of_not_mem _ nxint₁, union_cons_of_not_mem _ nxint₂]; exact (skip _ (r p))))
+
+theorem perm_union {l₁ l₂ t₁ t₂ : list A} : l₁ ~ l₂ → t₁ ~ t₂ → (union l₁ t₁) ~ (union l₂ t₂) :=
+assume p₁ p₂, trans (perm_union_left t₁ p₁) (perm_union_right l₂ p₂)
+end perm_union
+
+section perm_insert
+variable [H : decidable_eq A]
+include H
+
+theorem perm_insert (a : A) {l₁ l₂ : list A} : l₁ ~ l₂ → (insert a l₁) ~ (insert a l₂) :=
+assume p, by_cases
+ (λ ainl₁  : a ∈ l₁,
+   assert ainl₂ : a ∈ l₂, from mem_perm p ainl₁,
+   by rewrite [insert_eq_of_mem ainl₁, insert_eq_of_mem ainl₂]; exact p)
+ (λ nainl₁ : a ∉ l₁,
+   assert nainl₂ : a ∉ l₂, from not_mem_perm p nainl₁,
+   by rewrite [insert_eq_of_non_mem nainl₁, insert_eq_of_non_mem nainl₂]; exact (skip _ p))
+end perm_insert
 end perm

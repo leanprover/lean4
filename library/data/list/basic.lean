@@ -188,6 +188,11 @@ iff.rfl
 theorem mem_or_mem_of_mem_cons {x y : T} {l : list T} : x ∈ y::l → x = y ∨ x ∈ l :=
 assume h, h
 
+theorem mem_of_mem_cons_of_mem {a b : T} {l : list T} : a ∈ b::l → b ∈ l → a ∈ l :=
+assume ainbl binl, or.elim (mem_or_mem_of_mem_cons ainbl)
+  (λ aeqb : a = b, by rewrite [aeqb]; exact binl)
+  (λ ainl : a ∈ l, ainl)
+
 theorem mem_or_mem_of_mem_append {x : T} {s t : list T} : x ∈ s ++ t → x ∈ s ∨ x ∈ t :=
 list.induction_on s or.inr
   (take y s,

@@ -693,6 +693,35 @@ lemma erase_sub (a : A) : ∀ l, erase a l ⊆ l
           assert yinxs : y ∈ xs, from subxs yine,
           or.inr yinxs))
 
+theorem mem_erase_of_ne_of_mem {a b : A} : ∀ {l : list A}, a ≠ b → a ∈ l → a ∈ erase b l
+| []     n  i := absurd i !not_mem_nil
+| (c::l) n  i := by_cases
+  (λ beqc : b = c,
+   assert ainl : a ∈ l, from or.elim (mem_or_mem_of_mem_cons i)
+     (λ aeqc : a = c, absurd aeqc (beqc ▸ n))
+     (λ ainl : a ∈ l, ainl),
+   by rewrite [beqc, erase_cons_head]; exact ainl)
+  (λ bnec : b ≠ c, by_cases
+    (λ aeqc : a = c,
+      assert aux : a ∈ c :: erase b l, by rewrite [aeqc]; exact !mem_cons,
+      by rewrite [erase_cons_tail _ bnec]; exact aux)
+    (λ anec : a ≠ c,
+      have ainl  : a ∈ l, from mem_of_ne_of_mem anec i,
+      have ainel : a ∈ erase b l, from mem_erase_of_ne_of_mem n ainl,
+      assert aux : a ∈ c :: erase b l, from mem_cons_of_mem _ ainel,
+      by rewrite [erase_cons_tail _ bnec]; exact aux)) --
+
+theorem mem_of_mem_erase {a b : A} : ∀ {l}, a ∈ erase b l → a ∈ l
+| []     i := absurd i !not_mem_nil
+| (c::l) i := by_cases
+  (λ beqc : b = c, by rewrite [beqc at i, erase_cons_head at i]; exact (mem_cons_of_mem _ i))
+  (λ bnec : b ≠ c,
+    have i₁ : a ∈ c :: erase b l, by rewrite [erase_cons_tail _ bnec at i]; exact i,
+    or.elim (mem_or_mem_of_mem_cons i₁)
+      (λ aeqc  : a = c, by rewrite [aeqc]; exact !mem_cons)
+      (λ ainel : a ∈ erase b l,
+        have ainl : a ∈ l, from mem_of_mem_erase ainel,
+        mem_cons_of_mem _ ainl))
 end erase
 
 /- disjoint -/

@@ -67,12 +67,12 @@ calc_trans perm.trans
 theorem mem_perm {a : A} {l₁ l₂ : list A} : l₁ ~ l₂ → a ∈ l₁ → a ∈ l₂ :=
 assume p, perm.induction_on p
   (λ h, h)
-  (λ x l₁ l₂ p₁ r₁ i, or.elim i
+  (λ x l₁ l₂ p₁ r₁ i, or.elim (eq_or_mem_of_mem_cons i)
     (assume aeqx : a = x,   by rewrite aeqx; apply !mem_cons)
     (assume ainl₁ : a ∈ l₁, or.inr (r₁ ainl₁)))
-  (λ x y l ainyxl, or.elim ainyxl
+  (λ x y l ainyxl, or.elim (eq_or_mem_of_mem_cons ainyxl)
     (assume aeqy  : a = y, by rewrite aeqy; exact (or.inr !mem_cons))
-    (assume ainxl : a ∈ x::l, or.elim ainxl
+    (assume ainxl : a ∈ x::l, or.elim (eq_or_mem_of_mem_cons ainxl)
       (assume aeqx : a = x, or.inl aeqx)
       (assume ainl : a ∈ l, or.inr (or.inr ainl))))
   (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂ ainl₁, r₂ (r₁ ainl₁))
@@ -521,7 +521,7 @@ assume p, perm_induction_on p
       (λ yint₁  : y ∈ t₁,
         assert yint₂  : y ∈ t₂,    from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup yint₁)),
         assert yinxt₂ : y ∈ x::t₂, from or.inr (yint₂),
-        or.elim xinyt₁
+        or.elim (eq_or_mem_of_mem_cons xinyt₁)
           (λ xeqy  : x = y,
             assert xint₂ : x ∈ t₂, by rewrite [-xeqy at yint₂]; exact yint₂,
             begin
@@ -552,7 +552,9 @@ assume p, perm_induction_on p
             have xint₁     : x ∈ t₁, from or_resolve_right xinyt₁ xney,
             assert xint₂   : x ∈ t₂, from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup xint₁)),
             assert nyinxt₂ : y ∉ x::t₂, from
-              assume yinxt₂ : y ∈ x::t₂, or.elim yinxt₂ (λ h, absurd h (ne.symm xney)) (λ h, absurd h nyint₂),
+              assume yinxt₂ : y ∈ x::t₂, or.elim (eq_or_mem_of_mem_cons yinxt₂)
+                (λ h, absurd h (ne.symm xney))
+                (λ h, absurd h nyint₂),
             begin
               rewrite [erase_dup_cons_of_mem xinyt₁, erase_dup_cons_of_not_mem nyinxt₂,
                        erase_dup_cons_of_not_mem nyint₁, erase_dup_cons_of_mem xint₂],
@@ -573,7 +575,7 @@ assume p, perm_induction_on p
           end)
         (λ nyint₁ : y ∉ t₁,
           assert nyinxt₂ : y ∉ x::t₂, from
-            assume yinxt₂ : y ∈ x::t₂, or.elim yinxt₂
+            assume yinxt₂ : y ∈ x::t₂, or.elim (eq_or_mem_of_mem_cons yinxt₂)
               (λ h, absurd h (ne.symm xney))
               (λ h, absurd (mem_of_mem_erase_dup (mem_perm (symm r) (mem_erase_dup h))) nyint₁),
           begin
@@ -661,20 +663,20 @@ theorem perm_ext : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → (∀a
          have ains₁a₁s₂ : a ∈ s₁++(a₁::s₂), by rewrite [t₂_eq at aina₂t₂]; exact aina₂t₂,
          or.elim (mem_or_mem_of_mem_append ains₁a₁s₂)
            (λ ains₁ : a ∈ s₁, mem_append_left s₂ ains₁)
-           (λ aina₁s₂ : a ∈ a₁::s₂, or.elim (mem_or_mem_of_mem_cons aina₁s₂)
+           (λ aina₁s₂ : a ∈ a₁::s₂, or.elim (eq_or_mem_of_mem_cons aina₁s₂)
              (λ aeqa₁ : a = a₁, absurd (aeqa₁ ▸ aint₁) na₁int₁)
              (λ ains₂ : a ∈ s₂, mem_append_right s₁ ains₂)))
       (λ ains₁s₂ : a ∈ s₁ ++ s₂, or.elim (mem_or_mem_of_mem_append ains₁s₂)
         (λ ains₁ : a ∈ s₁,
            have aina₂t₂ : a ∈ a₂::t₂, from by rewrite [t₂_eq]; exact (mem_append_left _ ains₁),
            have aina₁t₁ : a ∈ a₁::t₁, from iff.mp' (e a) aina₂t₂,
-           or.elim (mem_or_mem_of_mem_cons aina₁t₁)
+           or.elim (eq_or_mem_of_mem_cons aina₁t₁)
              (λ aeqa₁ : a = a₁, absurd (aeqa₁ ▸ ains₁) na₁s₁)
              (λ aint₁ : a ∈ t₁, aint₁))
         (λ ains₂ : a ∈ s₂,
            have aina₂t₂ : a ∈ a₂::t₂, from by rewrite [t₂_eq]; exact (mem_append_right _ (mem_cons_of_mem _ ains₂)),
            have aina₁t₁ : a ∈ a₁::t₁, from iff.mp' (e a) aina₂t₂,
-           or.elim (mem_or_mem_of_mem_cons aina₁t₁)
+           or.elim (eq_or_mem_of_mem_cons aina₁t₁)
              (λ aeqa₁ : a = a₁, absurd (aeqa₁ ▸ ains₂) na₁s₂)
              (λ aint₁ : a ∈ t₁, aint₁))),
   calc a₁::t₁ ~ a₁::(s₁++s₂) : skip a₁ (perm_ext dt₁ ds₁s₂ eqv)

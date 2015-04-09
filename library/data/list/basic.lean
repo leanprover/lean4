@@ -174,22 +174,22 @@ iff.mp !mem_nil
 theorem mem_cons (x : T) (l : list T) : x ∈ x :: l :=
 or.inl rfl
 
-theorem mem_singleton {x a : T} : x ∈ [a] → x = a :=
-assume h : x ∈ [a], or.elim h
-  (λ xeqa : x = a, xeqa)
-  (λ xinn : x ∈ [], absurd xinn !not_mem_nil)
-
 theorem mem_cons_of_mem (y : T) {x : T} {l : list T} : x ∈ l → x ∈ y :: l :=
 assume H, or.inr H
 
 theorem mem_cons_iff (x y : T) (l : list T) : x ∈ y::l ↔ (x = y ∨ x ∈ l) :=
 iff.rfl
 
-theorem mem_or_mem_of_mem_cons {x y : T} {l : list T} : x ∈ y::l → x = y ∨ x ∈ l :=
+theorem eq_or_mem_of_mem_cons {x y : T} {l : list T} : x ∈ y::l → x = y ∨ x ∈ l :=
 assume h, h
 
+theorem mem_singleton {x a : T} : x ∈ [a] → x = a :=
+assume h : x ∈ [a], or.elim (eq_or_mem_of_mem_cons h)
+  (λ xeqa : x = a, xeqa)
+  (λ xinn : x ∈ [], absurd xinn !not_mem_nil)
+
 theorem mem_of_mem_cons_of_mem {a b : T} {l : list T} : a ∈ b::l → b ∈ l → a ∈ l :=
-assume ainbl binl, or.elim (mem_or_mem_of_mem_cons ainbl)
+assume ainbl binl, or.elim (eq_or_mem_of_mem_cons ainbl)
   (λ aeqb : a = b, by rewrite [aeqb]; exact binl)
   (λ ainl : a ∈ l, ainl)
 
@@ -210,7 +210,7 @@ list.induction_on s
     assume H : x ∈ y::s ∨ x ∈ t,
       or.elim H
         (assume H1,
-          or.elim H1
+          or.elim (eq_or_mem_of_mem_cons H1)
             (take H2 : x = y, or.inl H2)
             (take H2 : x ∈ s, or.inr (IH (or.inl H2))))
         (assume H1 : x ∈ t, or.inr (IH (or.inr H1))))
@@ -237,7 +237,7 @@ list.induction_on l
   (take y l,
     assume IH : x ∈ l → ∃s t : list T, l = s ++ (x::t),
     assume H : x ∈ y::l,
-    or.elim H
+    or.elim (eq_or_mem_of_mem_cons H)
       (assume H1 : x = y,
         exists.intro [] (!exists.intro (H1 ▸ rfl)))
       (assume H1 : x ∈ l,
@@ -279,7 +279,7 @@ list.rec_on l
             decidable.inr H2)))
 
 theorem mem_of_ne_of_mem {x y : T} {l : list T} (H₁ : x ≠ y) (H₂ : x ∈ y :: l) : x ∈ l :=
-or.elim H₂ (λe, absurd e H₁) (λr, r)
+or.elim (eq_or_mem_of_mem_cons H₂) (λe, absurd e H₁) (λr, r)
 
 theorem not_eq_of_not_mem {a b : T} {l : list T} : a ∉ b::l → a ≠ b :=
 assume nin aeqb, absurd (or.inl aeqb) nin
@@ -304,7 +304,7 @@ lemma sub_cons (a : T) (l : list T) : l ⊆ a::l :=
 λ b i, or.inr i
 
 lemma cons_sub_cons  {l₁ l₂ : list T} (a : T) (s : l₁ ⊆ l₂) : (a::l₁) ⊆ (a::l₂) :=
-λ b Hin, or.elim Hin
+λ b Hin, or.elim (eq_or_mem_of_mem_cons Hin)
   (λ e : b = a,  or.inl e)
   (λ i : b ∈ l₁, or.inr (s i))
 
@@ -328,7 +328,7 @@ lemma sub_app_of_sub_right (l l₁ l₂ : list T) : l ⊆ l₂ → l ⊆ l₁++l
   mem_append_of_mem_or_mem (or.inr xinl₁)
 
 lemma cons_sub_of_sub_of_mem {a : T} {l m : list T} : a ∈ m → l ⊆ m → a::l ⊆ m :=
-λ (ainm : a ∈ m) (lsubm : l ⊆ m) (x : T) (xinal : x ∈ a::l), or.elim xinal
+λ (ainm : a ∈ m) (lsubm : l ⊆ m) (x : T) (xinal : x ∈ a::l), or.elim (eq_or_mem_of_mem_cons xinal)
   (assume xeqa : x = a, eq.rec_on (eq.symm xeqa) ainm)
   (assume xinl : x ∈ l, lsubm xinl)
 
@@ -422,7 +422,7 @@ theorem len_map (f : A → B) : ∀ l : list A, length (map f l) = length l
 
 theorem mem_map {A B : Type} (f : A → B) : ∀ {a l}, a ∈ l → f a ∈ map f l
 | a []      i := absurd i !not_mem_nil
-| a (x::xs) i := or.elim i
+| a (x::xs) i := or.elim (eq_or_mem_of_mem_cons i)
    (λ aeqx  : a = x, by rewrite [aeqx, map_cons]; apply mem_cons)
    (λ ainxs : a ∈ xs, or.inr (mem_map ainxs))
 
@@ -568,16 +568,16 @@ take q, qeq.induction_on q
 lemma mem_tail_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → ∀ x, x ∈ l₂ → x ∈ l₁ :=
 take q, qeq.induction_on q
   (λ l x i, or.inr i)
-  (λ b l l' q r x xinbl, or.elim xinbl
+  (λ b l l' q r x xinbl, or.elim (eq_or_mem_of_mem_cons xinbl)
      (λ xeqb : x = b, xeqb ▸ mem_cons x l')
      (λ xinl : x ∈ l, or.inr (r x xinl)))
 
 lemma mem_cons_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → ∀ x, x ∈ l₁ → x ∈ a::l₂ :=
 take q, qeq.induction_on q
   (λ l x i, i)
-  (λ b l l' q r x xinbl', or.elim xinbl'
+  (λ b l l' q r x xinbl', or.elim (eq_or_mem_of_mem_cons xinbl')
     (λ xeqb  : x = b, xeqb ▸ or.inr (mem_cons x l))
-    (λ xinl' : x ∈ l', or.elim (r x xinl')
+    (λ xinl' : x ∈ l', or.elim (eq_or_mem_of_mem_cons (r x xinl'))
       (λ xeqa : x = a, xeqa ▸ mem_cons x (b::l))
       (λ xinl : x ∈ l, or.inr (or.inr xinl))))
 
@@ -589,7 +589,7 @@ take q, qeq.induction_on q
 lemma qeq_of_mem {a : A} {l : list A} : a ∈ l → (∃l', l≈a|l') :=
 list.induction_on l
   (λ h : a ∈ nil, absurd h (not_mem_nil a))
-  (λ x xs r ainxxs, or.elim ainxxs
+  (λ x xs r ainxxs, or.elim (eq_or_mem_of_mem_cons ainxxs)
     (λ aeqx  : a = x,
        assert aux : ∃ l, x::xs≈x|l, from
          exists.intro xs (qhead x xs),
@@ -618,7 +618,7 @@ lemma sub_of_mem_of_sub_of_qeq {a : A} {l : list A} {u v : list A} : a ∉ l →
 λ (nainl : a ∉ l) (s : a::l ⊆ v) (q : v≈a|u) (x : A) (xinl : x ∈ l),
   have xinv : x ∈ v, from s (or.inr xinl),
   have xinau : x ∈ a::u, from mem_cons_of_qeq q x xinv,
-  or.elim xinau
+  or.elim (eq_or_mem_of_mem_cons xinau)
     (λ xeqa : x = a, absurd (xeqa ▸ xinl) nainl)
     (λ xinu : x ∈ u, xinu)
 end qeq
@@ -702,7 +702,7 @@ theorem mem_erase_of_ne_of_mem {a b : A} : ∀ {l : list A}, a ≠ b → a ∈ l
 | []     n  i := absurd i !not_mem_nil
 | (c::l) n  i := by_cases
   (λ beqc : b = c,
-   assert ainl : a ∈ l, from or.elim (mem_or_mem_of_mem_cons i)
+   assert ainl : a ∈ l, from or.elim (eq_or_mem_of_mem_cons i)
      (λ aeqc : a = c, absurd aeqc (beqc ▸ n))
      (λ ainl : a ∈ l, ainl),
    by rewrite [beqc, erase_cons_head]; exact ainl)
@@ -722,7 +722,7 @@ theorem mem_of_mem_erase {a b : A} : ∀ {l}, a ∈ erase b l → a ∈ l
   (λ beqc : b = c, by rewrite [beqc at i, erase_cons_head at i]; exact (mem_cons_of_mem _ i))
   (λ bnec : b ≠ c,
     have i₁ : a ∈ c :: erase b l, by rewrite [erase_cons_tail _ bnec at i]; exact i,
-    or.elim (mem_or_mem_of_mem_cons i₁)
+    or.elim (eq_or_mem_of_mem_cons i₁)
       (λ aeqc  : a = c, by rewrite [aeqc]; exact !mem_cons)
       (λ ainel : a ∈ erase b l,
         have ainl : a ∈ l, from mem_of_mem_erase ainel,
@@ -766,10 +766,10 @@ disjoint.comm (disjoint_nil_left l)
 
 lemma disjoint_cons_of_not_mem_of_disjoint {a : A} {l₁ l₂} : a ∉ l₂ → disjoint l₁ l₂ → disjoint (a::l₁) l₂ :=
 λ nainl₂ d x, and.intro
-  (λ xinal₁ : x ∈ a::l₁, or.elim xinal₁
+  (λ xinal₁ : x ∈ a::l₁, or.elim (eq_or_mem_of_mem_cons xinal₁)
     (λ xeqa  : x = a, xeqa⁻¹ ▸ nainl₂)
     (λ xinl₁ : x ∈ l₁, disjoint_left d xinl₁))
-  (λ (xinl₂ : x ∈ l₂) (xinal₁ : x ∈ a::l₁), or.elim xinal₁
+  (λ (xinl₂ : x ∈ l₂) (xinal₁ : x ∈ a::l₁), or.elim (eq_or_mem_of_mem_cons xinal₁)
     (λ xeqa  : x = a, absurd (xeqa ▸ xinl₂) nainl₂)
     (λ xinl₁ : x ∈ l₁, absurd xinl₁ (disjoint_right d xinl₂)))
 
@@ -839,13 +839,13 @@ theorem disjoint_of_nodup_append : ∀ {l₁ l₂ : list A}, nodup (l₁++l₂) 
   have dsj    : disjoint xs l₂,      from disjoint_of_nodup_append d₂,
   (λ a, and.intro
     (λ ainxxs : a ∈ x::xs,
-      or.elim (mem_or_mem_of_mem_cons ainxxs)
+      or.elim (eq_or_mem_of_mem_cons ainxxs)
         (λ aeqx  : a = x, aeqx⁻¹ ▸ nxinl₂)
         (λ ainxs : a ∈ xs, disjoint_left dsj ainxs))
     (λ ainl₂  : a ∈ l₂,
       have nainxs : a ∉ xs, from disjoint_right dsj ainl₂,
-      assume ain : a ∈ x::xs, or.elim (mem_or_mem_of_mem_cons ain)
-       (λ aeqx  : a = x, absurd ainl₂ (aeqx⁻¹ ▸ nxinl₂))
+      assume ain : a ∈ x::xs, or.elim (eq_or_mem_of_mem_cons ain)
+       (λ aeqx  : a = x, absurd (aeqx ▸ ainl₂) nxinl₂)
        (λ ainxs : a ∈ xs, absurd ainxs nainxs)))
 
 theorem nodup_append_of_nodup_of_nodup_of_disjoint : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → disjoint l₁ l₂ → nodup (l₁++l₂)
@@ -927,7 +927,7 @@ theorem mem_erase_of_nodup [h : decidable_eq A] (a : A) : ∀ {l}, nodup l → a
   (λ aeqb : a = b, by rewrite [aeqb, erase_cons_head]; exact nbinl)
   (λ aneb : a ≠ b,
     assert aux : a ∉ b :: erase a l, from
-      assume ainbeal : a ∈ b :: erase a l, or.elim ainbeal
+      assume ainbeal : a ∈ b :: erase a l, or.elim (eq_or_mem_of_mem_cons ainbeal)
         (λ aeqb   : a = b, absurd aeqb aneb)
         (λ aineal : a ∈ erase a l, absurd aineal naineal),
     by rewrite [erase_cons_tail _ aneb]; exact aux)
@@ -951,10 +951,10 @@ assume nainl, calc
 theorem mem_erase_dup [H : decidable_eq A] {a : A} : ∀ {l}, a ∈ l → a ∈ erase_dup l
 | []     h  := absurd h !not_mem_nil
 | (b::l) h  := by_cases
-  (λ binl  : b ∈ l, or.elim h
+  (λ binl  : b ∈ l, or.elim (eq_or_mem_of_mem_cons h)
     (λ aeqb : a = b, by rewrite [erase_dup_cons_of_mem binl, -aeqb at binl]; exact (mem_erase_dup binl))
     (λ ainl : a ∈ l, by rewrite [erase_dup_cons_of_mem binl]; exact (mem_erase_dup ainl)))
-  (λ nbinl : b ∉ l, or.elim h
+  (λ nbinl : b ∉ l, or.elim (eq_or_mem_of_mem_cons h)
     (λ aeqb : a = b, by rewrite [erase_dup_cons_of_not_mem nbinl, aeqb]; exact !mem_cons)
     (λ ainl : a ∈ l, by rewrite [erase_dup_cons_of_not_mem nbinl]; exact (or.inr (mem_erase_dup ainl))))
 
@@ -966,7 +966,7 @@ theorem mem_of_mem_erase_dup [H : decidable_eq A] {a : A} : ∀ {l}, a ∈ erase
     or.inr (mem_of_mem_erase_dup h₁))
   (λ nbinl : b ∉ l,
     have h₁ : a ∈ b :: erase_dup l, by rewrite [erase_dup_cons_of_not_mem nbinl at h]; exact h,
-    or.elim h₁
+    or.elim (eq_or_mem_of_mem_cons h₁)
       (λ aeqb  : a = b, by rewrite aeqb; exact !mem_cons)
       (λ ainel : a ∈ erase_dup l, or.inr (mem_of_mem_erase_dup ainel)))
 
@@ -1020,7 +1020,7 @@ theorem mem_or_mem_of_mem_union : ∀ {l₁ l₂} {a : A}, a ∈ union l₁ l₂
       (λ ainl₂, or.inr ainl₂))
   (λ nbinl₂ : b ∉ l₂,
     have ainb_l₁l₂ : a ∈ b :: union l₁ l₂, by rewrite [union_cons_of_not_mem l₁ nbinl₂ at ainbl₁l₂]; exact ainbl₁l₂,
-    or.elim (mem_or_mem_of_mem_cons ainb_l₁l₂)
+    or.elim (eq_or_mem_of_mem_cons ainb_l₁l₂)
       (λ aeqb, by rewrite aeqb; exact (or.inl !mem_cons))
       (λ ainl₁l₂,
         or.elim (mem_or_mem_of_mem_union ainl₁l₂)
@@ -1036,12 +1036,12 @@ theorem mem_union_right {a : A} : ∀ (l₁) {l₂}, a ∈ l₂ → a ∈ union 
 theorem mem_union_left {a : A} : ∀ {l₁} (l₂), a ∈ l₁ → a ∈ union l₁ l₂
 | []      l₂  h := absurd h !not_mem_nil
 | (b::l₁) l₂  h := by_cases
-  (λ binl₂  : b ∈ l₂, or.elim h
+  (λ binl₂  : b ∈ l₂, or.elim (eq_or_mem_of_mem_cons h)
     (λ aeqb  : a = b,
       by rewrite [union_cons_of_mem l₁ binl₂, -aeqb at binl₂]; exact (mem_union_right _ binl₂))
     (λ ainl₁ : a ∈ l₁,
       by rewrite [union_cons_of_mem l₁ binl₂]; exact (mem_union_left _ ainl₁)))
-  (λ nbinl₂ : b ∉ l₂, or.elim h
+  (λ nbinl₂ : b ∉ l₂, or.elim (eq_or_mem_of_mem_cons h)
     (λ aeqb  : a = b,
       by rewrite [union_cons_of_not_mem l₁ nbinl₂, aeqb]; exact !mem_cons)
     (λ ainl₁ : a ∈ l₁,

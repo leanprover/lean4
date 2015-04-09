@@ -237,7 +237,7 @@ definition decidable_perm_aux : ∀ (n : nat) (l₁ l₂ : list A), length l₁ 
     (assume xinl₂ : x ∈ l₂,
       let t₂ : list A := erase x l₂ in
       have len_t₁       : length t₁ = n,                from nat.no_confusion H₁ (λ e, e),
-      assert len_t₂_aux : length t₂ = pred (length l₂), from length_erase_of_mem x l₂ xinl₂,
+      assert len_t₂_aux : length t₂ = pred (length l₂), from length_erase_of_mem xinl₂,
       assert len_t₂     : length t₂ = n,                by rewrite [len_t₂_aux, H₂],
       match decidable_perm_aux n t₁ t₂ len_t₁ len_t₂ with
       | inl p  := inl (calc
@@ -465,10 +465,10 @@ assume p : l₁++(a::l₂) ~ l₃++(a::l₄),
           ...   ~ a::(l₃++l₄) : symm (!perm_middle),
   perm_cons_inv p'
 
-section fold_thms
-  variables {f : A → A → A} {l₁ l₂ : list A} (fcomm : commutative f) (fassoc : associative f)
-  include fcomm
-  include fassoc
+section foldl
+  variables {f : B → A → B} {l₁ l₂ : list A}
+  variable rcomm : ∀ b a₁ a₂, f (f b a₁) a₂ = f (f b a₂) a₁
+  include  rcomm
 
   theorem foldl_eq_of_perm : l₁ ~ l₂ → ∀ a, foldl f a l₁ = foldl f a l₂ :=
   assume p, perm_induction_on p
@@ -479,17 +479,31 @@ section fold_thms
                ...       = foldl f a (x::t₂)  : foldl_cons)
     (λ x y t₁ t₂ p r a, calc
        foldl f a (y :: x :: t₁) = foldl f (f (f a y) x) t₁ : by rewrite foldl_cons
-                     ...        = foldl f (f (f a x) y) t₁ : by rewrite [right_comm fcomm fassoc]
+                     ...        = foldl f (f (f a x) y) t₁ : by rewrite rcomm
                      ...        = foldl f (f (f a x) y) t₂ : r (f (f a x) y)
                      ...        = foldl f a (x :: y :: t₂) : by rewrite foldl_cons)
     (λ t₁ t₂ t₃ p₁ p₂ r₁ r₂ a, eq.trans (r₁ a) (r₂ a))
+end foldl
 
-  theorem foldr_eq_of_perm : l₁ ~ l₂ → ∀ a, foldr f a l₁ = foldr f a l₂ :=
-  assume p, take a, calc
-    foldr f a l₁ = foldl f a l₁ : by rewrite [foldl_eq_foldr fcomm fassoc]
-         ...     = foldl f a l₂ : foldl_eq_of_perm fcomm fassoc p
-         ...     = foldr f a l₂ : by rewrite [foldl_eq_foldr fcomm fassoc]
-end fold_thms
+section foldr
+  variables {f : A → B → B} {l₁ l₂ : list A}
+  variable lcomm : ∀ a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)
+  include  lcomm
+
+  theorem foldr_eq_of_perm : l₁ ~ l₂ → ∀ b, foldr f b l₁ = foldr f b l₂ :=
+  assume p, perm_induction_on p
+    (λ b, by rewrite *foldl_nil)
+    (λ x t₁ t₂ p r b, calc
+       foldr f b (x::t₁) = f x (foldr f b t₁) : foldr_cons
+               ...       = f x (foldr f b t₂) : by rewrite [r b]
+               ...       = foldr f b (x::t₂)  : foldr_cons)
+    (λ x y t₁ t₂ p r b, calc
+       foldr f b (y :: x :: t₁) = f y (f x (foldr f b t₁)) : by rewrite foldr_cons
+                  ...           = f x (f y (foldr f b t₁)) : by rewrite lcomm
+                  ...           = f x (f y (foldr f b t₂)) : by rewrite [r b]
+                  ...           = foldr f b (x :: y :: t₂) : by rewrite foldr_cons)
+    (λ t₁ t₂ t₃ p₁ p₂ r₁ r₂ a, eq.trans (r₁ a) (r₂ a))
+end foldr
 
 theorem perm_erase_dup_of_perm [H : decidable_eq A] {l₁ l₂ : list A} : l₁ ~ l₂ → erase_dup l₁ ~ erase_dup l₂ :=
 assume p, perm_induction_on p
@@ -618,6 +632,6 @@ assume p, by_cases
    by rewrite [insert_eq_of_mem ainl₁, insert_eq_of_mem ainl₂]; exact p)
  (λ nainl₁ : a ∉ l₁,
    assert nainl₂ : a ∉ l₂, from not_mem_perm p nainl₁,
-   by rewrite [insert_eq_of_non_mem nainl₁, insert_eq_of_non_mem nainl₂]; exact (skip _ p))
+   by rewrite [insert_eq_of_not_mem nainl₁, insert_eq_of_not_mem nainl₂]; exact (skip _ p))
 end perm_insert
 end perm

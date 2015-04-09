@@ -623,7 +623,6 @@ variable {A : Type}
 variable [H : decidable_eq A]
 include H
 
-
 definition erase (a : A) : list A → list A
 | []     := []
 | (b::l) :=
@@ -644,7 +643,7 @@ assume h : a ≠ b,
 show match H a b with | inl e := l | inr n₁ := b :: erase a l end = b :: erase a l,
 by rewrite (decidable_eq_inr_neg h)
 
-lemma length_erase_of_mem (a : A) : ∀ l, a ∈ l → length (erase a l) = pred (length l)
+lemma length_erase_of_mem {a : A} : ∀ {l}, a ∈ l → length (erase a l) = pred (length l)
 | []         h := rfl
 | [x]        h := by rewrite [mem_singleton h, erase_cons_head]
 | (x::y::xs) h :=
@@ -652,14 +651,14 @@ lemma length_erase_of_mem (a : A) : ∀ l, a ∈ l → length (erase a l) = pred
    (λ aeqx : a = x, by rewrite [aeqx, erase_cons_head])
    (λ anex : a ≠ x,
     assert ainyxs : a ∈ y::xs, from or_resolve_right h anex,
-    by rewrite [erase_cons_tail _ anex, *length_cons, length_erase_of_mem (y::xs) ainyxs])
+    by rewrite [erase_cons_tail _ anex, *length_cons, length_erase_of_mem ainyxs])
 
-lemma length_erase_of_not_mem (a : A) : ∀ l, a ∉ l → length (erase a l) = length l
+lemma length_erase_of_not_mem {a : A} : ∀ {l}, a ∉ l → length (erase a l) = length l
 | []      h   := rfl
 | (x::xs) h   :=
   assert anex   : a ≠ x,  from λ aeqx  : a = x,  absurd (or.inl aeqx) h,
   assert aninxs : a ∉ xs, from λ ainxs : a ∈ xs, absurd (or.inr ainxs) h,
-  by rewrite [erase_cons_tail _ anex, length_cons, length_erase_of_not_mem xs aninxs]
+  by rewrite [erase_cons_tail _ anex, length_cons, length_erase_of_not_mem aninxs]
 
 lemma erase_append_left {a : A} : ∀ {l₁} (l₂), a ∈ l₁ → erase a (l₁++l₂) = erase a l₁ ++ l₂
 | []      l₂  h := absurd h !not_mem_nil
@@ -772,19 +771,19 @@ section nodup
 open nodup
 variables {A B : Type}
 
-lemma nodup_nil : @nodup A [] :=
+theorem nodup_nil : @nodup A [] :=
 ndnil
 
-lemma nodup_cons {a : A} {l : list A} : a ∉ l → nodup l → nodup (a::l)  :=
+theorem nodup_cons {a : A} {l : list A} : a ∉ l → nodup l → nodup (a::l)  :=
 λ i n, ndcons i n
 
-lemma nodup_of_nodup_cons : ∀ {a : A} {l : list A}, nodup (a::l) → nodup l
+theorem nodup_of_nodup_cons : ∀ {a : A} {l : list A}, nodup (a::l) → nodup l
 | a xs (ndcons i n) := n
 
-lemma not_mem_of_nodup_cons : ∀ {a : A} {l : list A}, nodup (a::l) → a ∉ l
+theorem not_mem_of_nodup_cons : ∀ {a : A} {l : list A}, nodup (a::l) → a ∉ l
 | a xs (ndcons i n) := i
 
-lemma nodup_of_nodup_append_left : ∀ {l₁ l₂ : list A}, nodup (l₁++l₂) → nodup l₁
+theorem nodup_of_nodup_append_left : ∀ {l₁ l₂ : list A}, nodup (l₁++l₂) → nodup l₁
 | []      l₂ n := nodup_nil
 | (x::xs) l₂ n :=
   have ndxs     : nodup xs,   from nodup_of_nodup_append_left (nodup_of_nodup_cons n),
@@ -792,11 +791,11 @@ lemma nodup_of_nodup_append_left : ∀ {l₁ l₂ : list A}, nodup (l₁++l₂) 
   have nxinxs   : x ∉ xs,     from not_mem_of_not_mem_append_left nxinxsl₂,
   nodup_cons nxinxs ndxs
 
-lemma nodup_of_nodup_append_right : ∀ {l₁ l₂ : list A}, nodup (l₁++l₂) → nodup l₂
+theorem nodup_of_nodup_append_right : ∀ {l₁ l₂ : list A}, nodup (l₁++l₂) → nodup l₂
 | []      l₂ n := n
 | (x::xs) l₂ n := nodup_of_nodup_append_right (nodup_of_nodup_cons n)
 
-lemma nodup_map {f : A → B} (inj : injective f) : ∀ {l : list A}, nodup l → nodup (map f l)
+theorem nodup_map {f : A → B} (inj : injective f) : ∀ {l : list A}, nodup l → nodup (map f l)
 | []      n := begin rewrite [map_nil], apply nodup_nil end
 | (x::xs) n :=
   assert nxinxs : x ∉ xs,           from not_mem_of_nodup_cons n,
@@ -814,6 +813,33 @@ lemma nodup_map {f : A → B} (inj : injective f) : ∀ {l : list A}, nodup l �
         end,
       absurd xinxs nxinxs,
   nodup_cons nfxinm ndmfxs
+
+theorem nodup_erase_of_nodup [h : decidable_eq A] (a : A) : ∀ {l}, nodup l → nodup (erase a l)
+| []     n := nodup_nil
+| (b::l) n := by_cases
+  (λ aeqb : a = b, by rewrite [aeqb, erase_cons_head]; exact (nodup_of_nodup_cons n))
+  (λ aneb : a ≠ b,
+    have nbinl   : b ∉ l,                  from not_mem_of_nodup_cons n,
+    have ndl     : nodup l,                from nodup_of_nodup_cons n,
+    have ndeal   : nodup (erase a l),      from nodup_erase_of_nodup ndl,
+    have nbineal : b ∉ erase a l,          from λ i, absurd (erase_sub _ _ i) nbinl,
+    assert aux   : nodup (b :: erase a l), from nodup_cons nbineal ndeal,
+    by rewrite [erase_cons_tail _ aneb]; exact aux)
+
+theorem mem_erase_of_nodup [h : decidable_eq A] (a : A) : ∀ {l}, nodup l → a ∉ erase a l
+| []     n := !not_mem_nil
+| (b::l) n :=
+  have ndl     : nodup l,       from nodup_of_nodup_cons n,
+  have naineal : a ∉ erase a l, from mem_erase_of_nodup ndl,
+  assert nbinl : b ∉ l,         from not_mem_of_nodup_cons n,
+  by_cases
+  (λ aeqb : a = b, by rewrite [aeqb, erase_cons_head]; exact nbinl)
+  (λ aneb : a ≠ b,
+    assert aux : a ∉ b :: erase a l, from
+      assume ainbeal : a ∈ b :: erase a l, or.elim ainbeal
+        (λ aeqb   : a = b, absurd aeqb aneb)
+        (λ aineal : a ∈ erase a l, absurd aineal naineal),
+    by rewrite [erase_cons_tail _ aneb]; exact aux)
 
 definition erase_dup [H : decidable_eq A] : list A → list A
 | []        :=  []
@@ -952,24 +978,29 @@ if a ∈ l then l else a::l
 theorem insert_eq_of_mem {a : A} {l : list A} : a ∈ l → insert a l = l :=
 assume ainl, if_pos ainl
 
-theorem insert_eq_of_non_mem {a : A} {l : list A} : a ∉ l → insert a l = a::l :=
+theorem insert_eq_of_not_mem {a : A} {l : list A} : a ∉ l → insert a l = a::l :=
 assume nainl, if_neg nainl
 
 theorem mem_insert (a : A) (l : list A) : a ∈ insert a l :=
 by_cases
   (λ ainl  : a ∈ l, by rewrite [insert_eq_of_mem ainl]; exact ainl)
-  (λ nainl : a ∉ l, by rewrite [insert_eq_of_non_mem nainl]; exact !mem_cons)
+  (λ nainl : a ∉ l, by rewrite [insert_eq_of_not_mem nainl]; exact !mem_cons)
 
 theorem mem_insert_of_mem {a : A} (b : A) {l : list A} : a ∈ l → a ∈ insert b l :=
 assume ainl, by_cases
   (λ binl  : b ∈ l, by rewrite [insert_eq_of_mem binl]; exact ainl)
-  (λ nbinl : b ∉ l, by rewrite [insert_eq_of_non_mem nbinl]; exact (mem_cons_of_mem _ ainl))
+  (λ nbinl : b ∉ l, by rewrite [insert_eq_of_not_mem nbinl]; exact (mem_cons_of_mem _ ainl))
 
 theorem nodup_insert (a : A) {l : list A} : nodup l → nodup (insert a l) :=
 assume n, by_cases
   (λ ainl  : a ∈ l, by rewrite [insert_eq_of_mem ainl]; exact n)
-  (λ nainl : a ∉ l, by rewrite [insert_eq_of_non_mem nainl]; exact (nodup_cons nainl n))
+  (λ nainl : a ∉ l, by rewrite [insert_eq_of_not_mem nainl]; exact (nodup_cons nainl n))
 
+theorem length_insert_of_mem {a : A} {l : list A} : a ∈ l → length (insert a l) = length l :=
+assume ainl, by rewrite [insert_eq_of_mem ainl]
+
+theorem length_insert_of_not_mem {a : A} {l : list A} : a ∉ l → length (insert a l) = length l + 1 :=
+assume nainl, by rewrite [insert_eq_of_not_mem nainl]
 end insert
 end list
 

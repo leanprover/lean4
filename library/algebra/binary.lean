@@ -7,9 +7,8 @@ Authors: Leonardo de Moura, Jeremy Avigad
 
 General properties of binary operations.
 -/
-
-import logic.eq
-open eq.ops
+import algebra.function
+open eq.ops function
 
 namespace binary
   section
@@ -45,7 +44,6 @@ namespace binary
     definition left_commutative [reducible] {B : Type}  (f : A → B → B) := ∀ a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)
   end
 
-
   context
     variable {A : Type}
     variable {f : A → A → A}
@@ -76,4 +74,11 @@ namespace binary
               ... = a*((b*c)*d) : H_assoc
   end
 
+  definition right_commutative_compose_right [reducible]
+    {A B : Type} (f : A → A → A) (g : B → A) (rcomm : right_commutative f) : right_commutative (compose_right f g) :=
+  λ a b₁ b₂, !rcomm
+
+  definition left_commutative_compose_left [reducible]
+    {A B : Type} (f : A → A → A) (g : B → A) (lcomm : left_commutative f) : left_commutative (compose_left f g) :=
+  λ a b₁ b₂, !lcomm
 end binary

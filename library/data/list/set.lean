@@ -376,6 +376,45 @@ theorem erase_dup_eq_of_nodup [H : decidable_eq A] : ∀ {l : list A}, nodup l �
   by rewrite [erase_dup_cons_of_not_mem nainl, erase_dup_eq_of_nodup dl]
 end nodup
 
+/- upto -/
+definition upto : nat → list nat
+| 0     := []
+| (n+1) := n :: upto n
+
+theorem upto_nil  : upto 0 = nil
+
+theorem upto_succ (n : nat) : upto (succ n) = n :: upto n
+
+theorem length_upto : ∀ n, length (upto n) = n
+| 0        := rfl
+| (succ n) := by rewrite [upto_succ, length_cons, length_upto]
+
+theorem upto_less : ∀ n, all (upto n) (λ i, i < n)
+| 0        := trivial
+| (succ n) :=
+   have alln : all (upto n) (λ i, i < n), from upto_less n,
+   all_cons_of_all (lt.base n) (all_implies alln (λ x h, lt.step h))
+
+theorem nodup_upto : ∀ n, nodup (upto n)
+| 0     := nodup_nil
+| (n+1) :=
+  have d : nodup (upto n), from nodup_upto n,
+  have n : n ∉ upto n, from
+    assume i : n ∈ upto n, absurd (of_mem_of_all i (upto_less n)) (lt.irrefl n),
+  nodup_cons n d
+
+theorem lt_of_mem_upto {n i : nat} : i ∈ upto n → i < n :=
+assume i, of_mem_of_all i (upto_less n)
+
+theorem mem_upto_succ_of_mem_upto {n i : nat} : i ∈ upto n → i ∈ upto (succ n) :=
+assume i, mem_cons_of_mem _ i
+
+theorem mem_upto_of_lt : ∀ {n i : nat}, i < n → i ∈ upto n
+| 0        i h := absurd h !not_lt_zero
+| (succ n) i h := or.elim (eq_or_lt_of_le h)
+  (λ ieqn : i = n, by rewrite [ieqn, upto_succ]; exact !mem_cons)
+  (λ iltn : i < n, mem_upto_succ_of_mem_upto (mem_upto_of_lt iltn))
+
 /- union -/
 section union
 variable {A : Type}

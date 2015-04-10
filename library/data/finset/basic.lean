@@ -231,24 +231,4 @@ theorem empty_union (s : finset A) : ∅ ∪ s = s :=
 calc ∅ ∪ s = s ∪ ∅ : union.comm
        ... = s     : union_empty
 end union
-
-/- acc -/
-section acc
-variable {B : Type}
-variables (f : B → A → B) (rcomm : right_commutative f) (b : B)
-
-definition acc  (s : finset A) : B :=
-quot.lift_on s (λ l : nodup_list A, list.foldl f b (elt_of l))
-  (λ l₁ l₂ p, foldl_eq_of_perm rcomm p b)
-
-section union
-variable [h : decidable_eq A]
-include h
-
-definition acc_union {s₁ s₂ : finset A} : disjoint s₁ s₂ → acc f rcomm b (s₁ ∪ s₂) = acc f rcomm (acc f rcomm b s₁) s₂ :=
-quot.induction_on₂ s₁ s₂
-  (λ l₁ l₂ d, foldl_union_of_disjoint f b d)
-end union
-
-end acc
 end finset

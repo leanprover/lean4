@@ -7,7 +7,7 @@ Authors: Leonardo de Moura
 
 Big operator for lists
 -/
-import algebra.group data.list.comb data.list.set
+import algebra.group data.list.comb data.list.set data.list.perm
 open algebra function binary quot
 
 namespace list
@@ -15,7 +15,7 @@ variables {A B : Type}
 variable  [g : group B]
 include g
 
-protected definition mulf (f : A → B) : B → A → B :=
+definition mulf (f : A → B) : B → A → B :=
 λ b a, b * f a
 
 definition bigop (l : list A) (f : A → B) : B :=
@@ -23,7 +23,7 @@ foldl (mulf f) 1 l
 
 private theorem foldl_const (f : A → B) : ∀ (l : list A) (b : B), foldl (mulf f) b l = b * foldl (mulf f) 1 l
 | []     b := by rewrite [*foldl_nil, mul_one]
-| (a::l) b := by rewrite [*foldl_cons, foldl_const, {foldl _ (list.mulf f 1 a) _}foldl_const, ↑mulf, one_mul, mul.assoc]
+| (a::l) b := by rewrite [*foldl_cons, foldl_const, {foldl _ (mulf f 1 a) _}foldl_const, ↑mulf, one_mul, mul.assoc]
 
 theorem bigop_nil (f : A → B) : bigop [] f = 1 :=
 rfl
@@ -53,4 +53,17 @@ include H
 definition bigop_union {l₁ l₂ : list A} (f : A → B) (d : disjoint l₁ l₂) : bigop (union l₁ l₂) f = bigop l₁ f * bigop l₂ f :=
 by rewrite [union_eq_append d, bigop_append]
 end union
+end list
+
+namespace list
+open perm
+variables {A B : Type}
+variable  [g : comm_group B]
+include g
+
+theorem mulf_rcomm (f : A → B) : right_commutative (mulf f) :=
+right_commutative_compose_right (@has_mul.mul B g) f (@mul.right_comm B g)
+
+theorem bigop_of_perm (f : A → B) {l₁ l₂ : list A} : l₁ ~ l₂ → bigop l₁ f = bigop l₂ f :=
+λ p, foldl_eq_of_perm (mulf_rcomm f) p 1
 end list

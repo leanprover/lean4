@@ -476,6 +476,14 @@ section foldl_eq_foldr
     end
 end foldl_eq_foldr
 
+theorem foldl_append (f : B → A → B) : ∀ (b : B) (l₁ l₂ : list A), foldl f b (l₁++l₂) = foldl f (foldl f b l₁) l₂
+| b []      l₂ := rfl
+| b (a::l₁) l₂ := by rewrite [append_cons, *foldl_cons, foldl_append]
+
+theorem foldr_append (f : A → B → B) : ∀ (b : B) (l₁ l₂ : list A), foldr f b (l₁++l₂) = foldr f (foldr f b l₂) l₁
+| b []      l₂ := rfl
+| b (a::l₁) l₂ := by rewrite [append_cons, *foldr_cons, foldr_append]
+
 definition all (p : A → Prop) (l : list A) : Prop :=
 foldr (λ a r, p a ∧ r) true l
 
@@ -1062,6 +1070,22 @@ theorem nodup_union_of_nodup_of_nodup : ∀ {l₁ l₂ : list A}, nodup l₁ →
            (λ ainl₁, absurd ainl₁ nainl₁)
            (λ ainl₂, absurd ainl₂ nainl₂),
        by rewrite [union_cons_of_not_mem l₁ nainl₂]; exact (nodup_cons nainl₁l₂ nl₁l₂))
+
+theorem union_eq_append : ∀ {l₁ l₂ : list A}, disjoint l₁ l₂ → union l₁ l₂ = append l₁ l₂
+| []      l₂ d := rfl
+| (a::l₁) l₂ d :=
+  assert nainl₂ : a ∉ l₂, from disjoint_left d !mem_cons,
+  assert d₁ : disjoint l₁ l₂, from disjoint_of_disjoint_cons_left d,
+  by rewrite [union_cons_of_not_mem _ nainl₂, append_cons, union_eq_append d₁]
+
+variable {B : Type}
+theorem foldl_union_of_disjoint (f : B → A → B) (b : B) {l₁ l₂ : list A} (d : disjoint l₁ l₂)
+        : foldl f b (union l₁ l₂) = foldl f (foldl f b l₁) l₂ :=
+by rewrite [union_eq_append d, foldl_append]
+
+theorem foldr_union_of_dijoint  (f : A → B → B) (b : B) (l₁ l₂ : list A) (d : disjoint l₁ l₂)
+        : foldr f b (union l₁ l₂) = foldr f (foldr f b l₂) l₁ :=
+by rewrite [union_eq_append d, foldr_append]
 end union
 
 /- insert -/

@@ -15,10 +15,9 @@ import .trunc
 open is_trunc eq
 
 /-
-  We take three higher inductive types (hits) as primitive notions in Lean. We define all other hits
-  in terms of these three hits. The hits which are primitive are
+  We take two higher inductive types (hits) as primitive notions in Lean. We define all other hits
+  in terms of these two hits. The hits which are primitive are
     - n-truncation
-    - the mapping cylinder
     - general colimits
   For each of the hits we add the following constants:
     - the type formation
@@ -52,50 +51,6 @@ namespace trunc
   sorry --idp
 
 end trunc
-
-constant cylinder.{u v} {A : Type.{u}} {B : Type.{v}} (f : A → B) : B → Type.{max u v}
-
-namespace cylinder
-
-  constant base {A B : Type} (f : A → B) (b : B) : cylinder f b
-  constant top  {A B : Type} (f : A → B) (a : A) : cylinder f (f a)
-  constant seg  {A B : Type} (f : A → B) (a : A) : top f a = base f (f a)
-
-  axiom is_trunc_trunc (n : trunc_index) (A : Type) : is_trunc n (trunc n A)
-
-  attribute is_trunc_trunc [instance]
-
-  /-protected-/ constant rec {A B : Type} {f : A → B} {P : Π{b : B}, cylinder f b → Type}
-    (Pbase : Π(b : B), P (base f b)) (Ptop  : Π(a : A), P (top f a))
-    (Pseg  : Π(a : A), seg f a ▹ Ptop a = Pbase (f a))
-      : Π{b : B} (x : cylinder f b), P x
-
-  protected definition rec_on [reducible] {A B : Type} {f : A → B}
-    {P : Π{b : B}, cylinder f b → Type} {b : B} (x : cylinder f b) (Pbase : Π(b : B), P (base f b))
-    (Ptop  : Π(a : A), P (top f a)) (Pseg  : Π(a : A), seg f a ▹ Ptop a = Pbase (f a)) : P x :=
-  cylinder.rec Pbase Ptop Pseg x
-
-  definition rec_base [reducible] {A B : Type} {f : A → B} {P : Π{b : B}, cylinder f b → Type}
-    (Pbase : Π(b : B), P (base f b)) (Ptop  : Π(a : A), P (top f a))
-    (Pseg  : Π(a : A), seg f a ▹ Ptop a = Pbase (f a)) (b : B) :
-      cylinder.rec Pbase Ptop Pseg (base f b) = Pbase b :=
-  sorry --idp
-
-  definition rec_top [reducible] {A B : Type} {f : A → B} {P : Π{b : B}, cylinder f b → Type}
-    (Pbase : Π(b : B), P (base f b)) (Ptop  : Π(a : A), P (top f a))
-    (Pseg  : Π(a : A), seg f a ▹ Ptop a = Pbase (f a)) (a : A) :
-      cylinder.rec Pbase Ptop Pseg (top f a) = Ptop a :=
-  sorry --idp
-
-  definition rec_seg [reducible] {A B : Type} {f : A → B} {P : Π{b : B}, cylinder f b → Type}
-    (Pbase : Π(b : B), P (base f b)) (Ptop  : Π(a : A), P (top f a))
-    (Pseg  : Π(a : A), seg f a ▹ Ptop a = Pbase (f a)) (a : A) :
-      apD (cylinder.rec Pbase Ptop Pseg) (seg f a) = sorry ⬝ Pseg a ⬝ sorry :=
-  --the sorry's in the statement can be removed when rec_base/rec_top are definitional
-  sorry
-
-end cylinder
-
 
 namespace colimit
 structure diagram [class] :=

@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: hit.pushout
 Authors: Floris van Doorn
 
-Declaration of pushout
+Declaration of the pushout
 -/
 
 import .colimit
@@ -46,14 +46,11 @@ parameters {TL BL TR : Type.{u}} (f : TL → BL) (g : TL → TR)
   definition pushout := colimit pushout_diag -- TODO: define this in root namespace
   local attribute pushout_diag [instance]
 
- definition inl (x : BL) : pushout :=
+  definition inl (x : BL) : pushout :=
   @ι _ _ x
 
   definition inr (x : TR) : pushout :=
   @ι _ _ x
-
-  definition coherence (x : TL) : inl (f x) = @ι _ _ x :=
-  @cglue _ _ x
 
   definition glue (x : TL) : inl (f x) = inr (g x) :=
   @cglue _ _ x ⬝ (@cglue _ _ x)⁻¹
@@ -64,7 +61,7 @@ parameters {TL BL TR : Type.{u}} (f : TL → BL) (g : TL → TR)
   begin
     fapply (@colimit.rec_on _ _ y),
     { intros [i, x], cases i,
-       exact (coherence x ▹ Pinl (f x)),
+       exact (@cglue _ _ x ▹ Pinl (f x)),
        apply Pinl,
        apply Pinr},
     { intros [j, x], cases j,
@@ -84,6 +81,7 @@ parameters {TL BL TR : Type.{u}} (f : TL → BL) (g : TL → TR)
     (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x)) : P y :=
   rec Pinl Pinr Pglue y
 
+  --these definitions are needed until we have them definitionally
   definition rec_inl {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
     (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x))
       (x : BL) : rec Pinl Pinr Pglue (inl x) = Pinl x :=

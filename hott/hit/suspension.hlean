@@ -49,7 +49,7 @@ namespace suspension
 
   protected definition elim_on [reducible] {A : Type} {P : Type} (x : suspension A)
     (PN : P) (PS : P)  (Pm : A → PN = PS) : P :=
-  rec PN PS (λa, !tr_constant ⬝ Pm a) x
+  elim PN PS Pm x
 
   protected definition elim_merid {A : Type} {P : Type} (PN : P) (PS : P) (Pm : A → PN = PS)
     (x : suspension A) (a : A) : ap (elim PN PS Pm) (merid a) = sorry ⬝ Pm a ⬝ sorry :=

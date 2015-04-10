@@ -231,4 +231,53 @@ theorem empty_union (s : finset A) : ∅ ∪ s = s :=
 calc ∅ ∪ s = s ∪ ∅ : union.comm
        ... = s     : union_empty
 end union
+
+/- intersection -/
+section intersection
+variable [h : decidable_eq A]
+include h
+
+definition intersection (s₁ s₂ : finset A) : finset A :=
+quot.lift_on₂ s₁ s₂
+  (λ l₁ l₂,
+    to_finset_of_nodup (list.intersection (elt_of l₁) (elt_of l₂))
+                       (nodup_intersection_of_nodup _ (has_property l₁)))
+  (λ v₁ v₂ w₁ w₂ p₁ p₂, quot.sound (perm_intersection p₁ p₂))
+
+notation s₁ ∩ s₂ := intersection s₁ s₂
+
+theorem mem_of_mem_intersection_left {a : A} {s₁ s₂ : finset A} : a ∈ s₁ ∩ s₂ → a ∈ s₁ :=
+quot.induction_on₂ s₁ s₂ (λ l₁ l₂ ainl₁l₂, list.mem_of_mem_intersection_left ainl₁l₂)
+
+theorem mem_of_mem_intersection_right {a : A} {s₁ s₂ : finset A} : a ∈ s₁ ∩ s₂ → a ∈ s₂ :=
+quot.induction_on₂ s₁ s₂ (λ l₁ l₂ ainl₁l₂, list.mem_of_mem_intersection_right ainl₁l₂)
+
+theorem mem_intersection_of_mem_of_mem {a : A} {s₁ s₂ : finset A} : a ∈ s₁ → a ∈ s₂ → a ∈ s₁ ∩ s₂ :=
+quot.induction_on₂ s₁ s₂ (λ l₁ l₂ ainl₁ ainl₂, list.mem_intersection_of_mem_of_mem ainl₁ ainl₂)
+
+theorem mem_intersection_eq (a : A) (s₁ s₂ : finset A) : (a ∈ s₁ ∩ s₂) = (a ∈ s₁ ∧ a ∈ s₂) :=
+propext (iff.intro
+ (λ h, and.intro (mem_of_mem_intersection_left h) (mem_of_mem_intersection_right h))
+ (λ h, mem_intersection_of_mem_of_mem (and.elim_left h) (and.elim_right h)))
+
+theorem intersection.comm (s₁ s₂ : finset A) : s₁ ∩ s₂ = s₂ ∩ s₁ :=
+ext (λ a, by rewrite [*mem_intersection_eq]; exact and.comm)
+
+theorem intersection.assoc (s₁ s₂ s₃ : finset A) : (s₁ ∩ s₂) ∩ s₃ = s₁ ∩ (s₂ ∩ s₃) :=
+ext (λ a, by rewrite [*mem_intersection_eq]; exact and.assoc)
+
+theorem intersection_self (s : finset A) : s ∩ s = s :=
+ext (λ a, iff.intro
+  (λ h, mem_of_mem_intersection_right h)
+  (λ h, mem_intersection_of_mem_of_mem h h))
+
+theorem intersection_empty (s : finset A) : s ∩ ∅ = ∅ :=
+ext (λ a, iff.intro
+  (λ h : a ∈ s ∩ ∅, absurd (mem_of_mem_intersection_right h) !not_mem_empty)
+  (λ h : a ∈ ∅,     absurd h !not_mem_empty))
+
+theorem empty_intersection (s : finset A) : ∅ ∩ s = ∅ :=
+calc ∅ ∩ s = s ∩ ∅ : intersection.comm
+       ... = ∅     : intersection_empty
+end intersection
 end finset

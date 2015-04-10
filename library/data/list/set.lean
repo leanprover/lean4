@@ -585,7 +585,7 @@ theorem mem_of_mem_intersection_right : ∀ {l₁ l₂} {a : A}, a ∈ intersect
   (λ nbinl₂ : b ∉ l₂,
     by rewrite [intersection_cons_of_not_mem _ nbinl₂ at i]; exact (mem_of_mem_intersection_right i))
 
-theorem mem_intersection_of_mem_of_men : ∀ {l₁ l₂} {a : A}, a ∈ l₁ → a ∈ l₂ → a ∈ intersection l₁ l₂
+theorem mem_intersection_of_mem_of_mem : ∀ {l₁ l₂} {a : A}, a ∈ l₁ → a ∈ l₂ → a ∈ intersection l₁ l₂
 | []      l₂ a i₁ i₂ := absurd i₁ !not_mem_nil
 | (b::l₁) l₂ a i₁ i₂ := by_cases
   (λ binl₂  : b ∈ l₂,
@@ -595,12 +595,12 @@ theorem mem_intersection_of_mem_of_men : ∀ {l₁ l₂} {a : A}, a ∈ l₁ →
      (λ ainl₁ : a ∈ l₁,
         by rewrite [intersection_cons_of_mem _ binl₂];
            apply mem_cons_of_mem;
-           exact (mem_intersection_of_mem_of_men ainl₁ i₂)))
+           exact (mem_intersection_of_mem_of_mem ainl₁ i₂)))
   (λ nbinl₂ : b ∉ l₂,
     or.elim (eq_or_mem_of_mem_cons i₁)
      (λ aeqb  : a = b, absurd (aeqb ▸ i₂) nbinl₂)
      (λ ainl₁ : a ∈ l₁,
-       by rewrite [intersection_cons_of_not_mem _ nbinl₂]; exact (mem_intersection_of_mem_of_men ainl₁ i₂)))
+       by rewrite [intersection_cons_of_not_mem _ nbinl₂]; exact (mem_intersection_of_mem_of_mem ainl₁ i₂)))
 
 theorem nodup_intersection_of_nodup : ∀ {l₁ : list A} (l₂), nodup l₁ → nodup (intersection l₁ l₂)
 | []      l₂ d := nodup_nil

@@ -20,8 +20,8 @@ namespace eq
 
   --notation a = b := eq a b
   notation x = y `:>`:50 A:49 := @eq A x y
-  definition idp {a : A} := refl a
-  definition idpath (a : A) := refl a
+  definition idp [reducible] {a : A} := refl a
+  definition idpath [reducible] (a : A) := refl a
 
   -- unbased path induction
   definition rec' [reducible] {P : Π (a b : A), (a = b) -> Type}

@@ -148,7 +148,7 @@ namespace eq
   is_equiv.mk (concat p) (concat p⁻¹)
               (con_inv_cancel_left p)
               (inv_con_cancel_left p)
-              (eq.rec_on p (λq, eq.rec_on q idp))
+              (λq, by cases p;cases q;exact idp)
   local attribute is_equiv_concat_left [instance]
 
   definition equiv_eq_closed_left (p : a1 = a2) (a3 : A) : (a1 = a3) ≃ (a2 = a3) :=
@@ -159,7 +159,7 @@ namespace eq
   is_equiv.mk (λq, q ⬝ p) (λq, q ⬝ p⁻¹)
               (λq, inv_con_cancel_right q p)
               (λq, con_inv_cancel_right q p)
-              (eq.rec_on p (λq, eq.rec_on q idp))
+              (λq, by cases p;cases q;exact idp)
   local attribute is_equiv_concat_right [instance]
 
   definition equiv_eq_closed_right (p : a2 = a3) (a1 : A) : (a1 = a2) ≃ (a1 = a3) :=

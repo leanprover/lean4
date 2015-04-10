@@ -237,8 +237,9 @@ namespace equiv
     (right_inv : f ∘ g ∼ id) (left_inv : g ∘ f ∼ id) : A ≃ B :=
   equiv.mk f (adjointify f g right_inv left_inv)
 
-  definition to_inv [reducible] (f : A ≃ B) : B → A :=
-  f⁻¹
+  definition to_inv [reducible] (f : A ≃ B) : B → A := f⁻¹
+  definition to_right_inv [reducible] (f : A ≃ B) : f ∘ f⁻¹ ∼ id := right_inv f
+  definition to_left_inv [reducible] (f : A ≃ B) : f⁻¹ ∘ f ∼ id := left_inv f
 
   protected definition refl : A ≃ A :=
   equiv.mk id !is_equiv_id

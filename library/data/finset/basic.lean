@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 
 Finite sets
 -/
-import data.nat data.list.perm data.subtype algebra.binary algebra.function logic.identities
+import data.nat data.list.perm data.subtype algebra.binary
 open nat quot list subtype binary function
 open [declarations] perm
 

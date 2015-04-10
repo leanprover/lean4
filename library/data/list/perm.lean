@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 
 List permutations
 -/
-import data.list.basic
+import data.list.basic data.list.set
 open list setoid nat binary
 
 variables {A B : Type}

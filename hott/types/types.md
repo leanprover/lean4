@@ -12,4 +12,4 @@ Various datatypes.
 * [fiber](fiber.hlean)
 * [equiv](equiv.hlean)
 * [pointed](pointed.hlean)
-* [W](W.hlean)
+* [W](W.hlean) (not loaded by default)

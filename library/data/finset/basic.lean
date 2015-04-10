@@ -155,6 +155,32 @@ theorem card_erase_of_not_mem {a : A} {s : finset A} : a ∉ s → card (erase a
 quot.induction_on s (λ l nainl, list.length_erase_of_not_mem nainl)
 end erase
 
+/- disjoint -/
+definition disjoint (s₁ s₂ : finset A) : Prop :=
+quot.lift_on₂ s₁ s₂ (λ l₁ l₂, disjoint (elt_of l₁) (elt_of l₂))
+  (λ v₁ v₂ w₁ w₂ p₁ p₂, propext (iff.intro
+    (λ d₁ a, and.intro
+      (λ ainw₁ : a ∈ elt_of w₁,
+        have ainv₁  : a ∈ elt_of v₁, from mem_perm (perm.symm p₁) ainw₁,
+        have nainv₂ : a ∉ elt_of v₂, from disjoint_left d₁ ainv₁,
+        not_mem_perm p₂ nainv₂)
+      (λ ainw₂ : a ∈ elt_of w₂,
+        have ainv₂ : a ∈ elt_of v₂,  from mem_perm (perm.symm p₂) ainw₂,
+        have nainv₁ : a ∉ elt_of v₁, from disjoint_right d₁ ainv₂,
+        not_mem_perm p₁ nainv₁))
+    (λ d₂ a, and.intro
+      (λ ainv₁ : a ∈ elt_of v₁,
+        have ainw₁  : a ∈ elt_of w₁, from mem_perm p₁ ainv₁,
+        have nainw₂ : a ∉ elt_of w₂, from disjoint_left d₂ ainw₁,
+        not_mem_perm (perm.symm p₂) nainw₂)
+      (λ ainv₂ : a ∈ elt_of v₂,
+        have ainw₂  : a ∈ elt_of w₂, from mem_perm p₂ ainv₂,
+        have nainw₁ : a ∉ elt_of w₁, from disjoint_right d₂ ainw₂,
+        not_mem_perm (perm.symm p₁) nainw₁))))
+
+theorem disjoint.comm {s₁ s₂ : finset A} : disjoint s₁ s₂ → disjoint s₂ s₁ :=
+quot.induction_on₂ s₁ s₂ (λ l₁ l₂ d, list.disjoint.comm d)
+
 /- union -/
 section union
 variable [h : decidable_eq A]
@@ -209,20 +235,20 @@ end union
 /- acc -/
 section acc
 variable {B : Type}
-definition acc (f : B → A → B) (rcomm : ∀ b a₁ a₂, f (f b a₁) a₂ = f (f b a₂) a₁) (b : B) (s : finset A) : B :=
+variables (f : B → A → B) (rcomm : right_commutative f) (b : B)
+
+definition acc  (s : finset A) : B :=
 quot.lift_on s (λ l : nodup_list A, list.foldl f b (elt_of l))
   (λ l₁ l₂ p, foldl_eq_of_perm rcomm p b)
 
-definition bigsum (s : finset A) (f : A → nat) : nat :=
-acc (compose_right nat.add f) (right_commutative_compose_right nat.add f nat.add.right_comm) 0 s
+section union
+variable [h : decidable_eq A]
+include h
 
-definition bigprod (s : finset A) (f : A → nat) : nat :=
-acc (compose_right nat.mul f) (right_commutative_compose_right nat.mul f nat.mul.right_comm) 1 s
+definition acc_union {s₁ s₂ : finset A} : disjoint s₁ s₂ → acc f rcomm b (s₁ ∪ s₂) = acc f rcomm (acc f rcomm b s₁) s₂ :=
+quot.induction_on₂ s₁ s₂
+  (λ l₁ l₂ d, foldl_union_of_disjoint f b d)
+end union
 
-definition bigand (s : finset A) (p : A → Prop) : Prop :=
-acc (compose_right and p) (right_commutative_compose_right and p (λ a b c, propext (and.right_comm a b c))) true s
-
-definition bigor (s : finset A) (p : A → Prop) : Prop :=
-acc (compose_right or p) (right_commutative_compose_right or p (λ a b c, propext (or.right_comm a b c))) false s
 end acc
 end finset

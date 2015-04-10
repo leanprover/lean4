@@ -1083,7 +1083,7 @@ theorem foldl_union_of_disjoint (f : B → A → B) (b : B) {l₁ l₂ : list A}
         : foldl f b (union l₁ l₂) = foldl f (foldl f b l₁) l₂ :=
 by rewrite [union_eq_append d, foldl_append]
 
-theorem foldr_union_of_dijoint  (f : A → B → B) (b : B) (l₁ l₂ : list A) (d : disjoint l₁ l₂)
+theorem foldr_union_of_dijoint  (f : A → B → B) (b : B) {l₁ l₂ : list A} (d : disjoint l₁ l₂)
         : foldr f b (union l₁ l₂) = foldr f (foldr f b l₂) l₁ :=
 by rewrite [union_eq_append d, foldr_append]
 end union

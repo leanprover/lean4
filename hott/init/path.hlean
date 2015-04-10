@@ -498,6 +498,7 @@ namespace eq
 
   -- Transporting in a pulled back fibration.
   -- TODO: P can probably be implicit
+  -- rename: tr_compose
   definition transport_compose (P : B → Type) (f : A → B) (p : x = y) (z : P (f x)) :
     transport (P ∘ f) p z  =  transport P (ap f p) z :=
   eq.rec_on p idp

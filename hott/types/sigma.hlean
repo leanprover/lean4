@@ -321,7 +321,7 @@ namespace sigma
 
   section
   definition is_equiv_sigma_rec [instance] (C : (Σa, B a) → Type)
-    : is_equiv (@sigma.rec _ _ C) :=
+    : is_equiv (sigma.rec : (Πa b, C ⟨a, b⟩) → Πab, C ab) :=
   adjointify _ (λ g a b, g ⟨a, b⟩)
                (λ g, proof eq_of_homotopy (λu, destruct u (λa b, idp)) qed)
                (λ f, refl f)

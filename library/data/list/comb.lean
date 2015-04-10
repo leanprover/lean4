@@ -107,6 +107,24 @@ foldr (λ a r, p a ∧ r) true l
 definition any (p : A → Prop) (l : list A) : Prop :=
 foldr (λ a r, p a ∨ r) false l
 
+theorem all_nil (p : A → Prop) : all p [] = true
+
+theorem all_cons (p : A → Prop) (a : A) (l : list A) : all p (a::l) = (p a ∧ all p l)
+
+theorem of_mem_of_all {p : A → Prop} {a : A} : ∀ {l}, a ∈ l → all p l → p a
+| []     h₁ h₂ := absurd h₁ !not_mem_nil
+| (b::l) h₁ h₂ :=
+  or.elim (eq_or_mem_of_mem_cons h₁)
+    (λ aeqb : a = b,
+      by rewrite [all_cons at h₂, -aeqb at h₂]; exact (and.elim_left h₂))
+    (λ ainl : a ∈ l,
+      have allp : all p l, by rewrite [all_cons at h₂]; exact (and.elim_right h₂),
+      of_mem_of_all ainl allp)
+
+theorem any_nil (p : A → Prop) : any p [] = false
+
+theorem any_cons (p : A → Prop) (a : A) (l : list A) : any p (a::l) = (p a ∨ any p l)
+
 definition decidable_all (p : A → Prop) [H : decidable_pred p] : ∀ l, decidable (all p l)
 | []       := decidable_true
 | (a :: l) :=

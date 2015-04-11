@@ -39,7 +39,6 @@ theorem append_nil_right : ∀ (t : list T), t ++ [] = t
   (a :: l) ++ [] = a :: (l ++ []) : rfl
              ... = a :: l         : append_nil_right l
 
-
 theorem append.assoc : ∀ (s t u : list T), s ++ t ++ u = s ++ (t ++ u)
 | []       t u := rfl
 | (a :: l) t u :=
@@ -47,7 +46,6 @@ theorem append.assoc : ∀ (s t u : list T), s ++ t ++ u = s ++ (t ++ u)
   by rewrite (append.assoc l t u)
 
 /- length -/
-
 definition length : list T → nat
 | []       := 0
 | (a :: l) := length l + 1
@@ -368,7 +366,6 @@ list.rec_on l
 end
 
 /- nth element -/
-
 definition nth [h : inhabited T] : list T → nat → T
 | []       n     := arbitrary T
 | (a :: l) 0     := a

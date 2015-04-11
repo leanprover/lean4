@@ -132,45 +132,34 @@ end erase
 section disjoint
 variable {A : Type}
 
-definition disjoint (l₁ l₂ : list A) : Prop := ∀ a, (a ∈ l₁ → a ∉ l₂) ∧ (a ∈ l₂ → a ∉ l₁)
+definition disjoint (l₁ l₂ : list A) : Prop := ∀ a, (a ∈ l₁ → a ∈ l₂ → false)
 
 lemma disjoint_left {l₁ l₂ : list A} : disjoint l₁ l₂ → ∀ {a}, a ∈ l₁ → a ∉ l₂ :=
-λ d a, and.elim_left (d a)
+λ d a, d a
 
 lemma disjoint_right {l₁ l₂ : list A} : disjoint l₁ l₂ → ∀ {a}, a ∈ l₂ → a ∉ l₁ :=
-λ d a, and.elim_right (d a)
+λ d a i₂ i₁, d a i₁ i₂
 
 lemma disjoint.comm {l₁ l₂ : list A} : disjoint l₁ l₂ → disjoint l₂ l₁ :=
-λ d a, and.intro
-  (λ ainl₂ : a ∈ l₂, disjoint_right d ainl₂)
-  (λ ainl₁ : a ∈ l₁, disjoint_left d ainl₁)
+λ d a i₂ i₁, d a i₁ i₂
 
 lemma disjoint_of_disjoint_cons_left {a : A} {l₁ l₂} : disjoint (a::l₁) l₂ → disjoint l₁ l₂ :=
-λ d x, and.intro
-  (λ xinl₁ : x ∈ l₁, disjoint_left d (or.inr xinl₁))
-  (λ xinl₂ : x ∈ l₂,
-    have nxinal₁ : x ∉ a::l₁, from disjoint_right d xinl₂,
-    not_mem_of_not_mem nxinal₁)
+λ d x xinl₁, disjoint_left d (or.inr xinl₁)
 
 lemma disjoint_of_disjoint_cons_right {a : A} {l₁ l₂} : disjoint l₁ (a::l₂) → disjoint l₁ l₂ :=
 λ d, disjoint.comm (disjoint_of_disjoint_cons_left (disjoint.comm d))
 
 lemma disjoint_nil_left (l : list A) : disjoint [] l :=
-λ a, and.intro
-  (λ ab   : a ∈ nil, absurd ab !not_mem_nil)
-  (λ ainl : a ∈ l, !not_mem_nil)
+λ a ab, absurd ab !not_mem_nil
 
 lemma disjoint_nil_right (l : list A) : disjoint l [] :=
 disjoint.comm (disjoint_nil_left l)
 
 lemma disjoint_cons_of_not_mem_of_disjoint {a : A} {l₁ l₂} : a ∉ l₂ → disjoint l₁ l₂ → disjoint (a::l₁) l₂ :=
-λ nainl₂ d x, and.intro
-  (λ xinal₁ : x ∈ a::l₁, or.elim (eq_or_mem_of_mem_cons xinal₁)
+λ nainl₂ d x (xinal₁ : x ∈ a::l₁),
+  or.elim (eq_or_mem_of_mem_cons xinal₁)
     (λ xeqa  : x = a, xeqa⁻¹ ▸ nainl₂)
-    (λ xinl₁ : x ∈ l₁, disjoint_left d xinl₁))
-  (λ (xinl₂ : x ∈ l₂) (xinal₁ : x ∈ a::l₁), or.elim (eq_or_mem_of_mem_cons xinal₁)
-    (λ xeqa  : x = a, absurd (xeqa ▸ xinl₂) nainl₂)
-    (λ xinl₁ : x ∈ l₁, absurd xinl₁ (disjoint_right d xinl₂)))
+    (λ xinl₁ : x ∈ l₁, disjoint_left d xinl₁)
 
 lemma disjoint_of_disjoint_append_left_left : ∀ {l₁ l₂ l : list A}, disjoint (l₁++l₂) l → disjoint l₁ l
 | []      l₂ l d := disjoint_nil_left l
@@ -245,16 +234,10 @@ theorem disjoint_of_nodup_append : ∀ {l₁ l₂ : list A}, nodup (l₁++l₂) 
   have nxin   : x ∉ xs++l₂,          from not_mem_of_nodup_cons d₁,
   have nxinl₂ : x ∉ l₂,              from not_mem_of_not_mem_append_right nxin,
   have dsj    : disjoint xs l₂,      from disjoint_of_nodup_append d₂,
-  (λ a, and.intro
-    (λ ainxxs : a ∈ x::xs,
-      or.elim (eq_or_mem_of_mem_cons ainxxs)
-        (λ aeqx  : a = x, aeqx⁻¹ ▸ nxinl₂)
-        (λ ainxs : a ∈ xs, disjoint_left dsj ainxs))
-    (λ ainl₂  : a ∈ l₂,
-      have nainxs : a ∉ xs, from disjoint_right dsj ainl₂,
-      assume ain : a ∈ x::xs, or.elim (eq_or_mem_of_mem_cons ain)
-       (λ aeqx  : a = x, absurd (aeqx ▸ ainl₂) nxinl₂)
-       (λ ainxs : a ∈ xs, absurd ainxs nainxs)))
+  λ a (ainxxs : a ∈ x::xs),
+    or.elim (eq_or_mem_of_mem_cons ainxxs)
+      (λ aeqx  : a = x, aeqx⁻¹ ▸ nxinl₂)
+      (λ ainxs : a ∈ xs, disjoint_left dsj ainxs)
 
 theorem nodup_append_of_nodup_of_nodup_of_disjoint : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → disjoint l₁ l₂ → nodup (l₁++l₂)
 | []      l₂ d₁ d₂ dsj := by rewrite [append_nil_left]; exact d₂

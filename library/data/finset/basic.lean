@@ -168,24 +168,14 @@ end erase
 definition disjoint (s₁ s₂ : finset A) : Prop :=
 quot.lift_on₂ s₁ s₂ (λ l₁ l₂, disjoint (elt_of l₁) (elt_of l₂))
   (λ v₁ v₂ w₁ w₂ p₁ p₂, propext (iff.intro
-    (λ d₁ a, and.intro
-      (λ ainw₁ : a ∈ elt_of w₁,
-        have ainv₁  : a ∈ elt_of v₁, from mem_perm (perm.symm p₁) ainw₁,
-        have nainv₂ : a ∉ elt_of v₂, from disjoint_left d₁ ainv₁,
-        not_mem_perm p₂ nainv₂)
-      (λ ainw₂ : a ∈ elt_of w₂,
-        have ainv₂ : a ∈ elt_of v₂,  from mem_perm (perm.symm p₂) ainw₂,
-        have nainv₁ : a ∉ elt_of v₁, from disjoint_right d₁ ainv₂,
-        not_mem_perm p₁ nainv₁))
-    (λ d₂ a, and.intro
-      (λ ainv₁ : a ∈ elt_of v₁,
-        have ainw₁  : a ∈ elt_of w₁, from mem_perm p₁ ainv₁,
-        have nainw₂ : a ∉ elt_of w₂, from disjoint_left d₂ ainw₁,
-        not_mem_perm (perm.symm p₂) nainw₂)
-      (λ ainv₂ : a ∈ elt_of v₂,
-        have ainw₂  : a ∈ elt_of w₂, from mem_perm p₂ ainv₂,
-        have nainw₁ : a ∉ elt_of w₁, from disjoint_right d₂ ainw₂,
-        not_mem_perm (perm.symm p₁) nainw₁))))
+    (λ d₁ a (ainw₁ : a ∈ elt_of w₁),
+      have ainv₁  : a ∈ elt_of v₁, from mem_perm (perm.symm p₁) ainw₁,
+      have nainv₂ : a ∉ elt_of v₂, from disjoint_left d₁ ainv₁,
+      not_mem_perm p₂ nainv₂)
+    (λ d₂ a (ainv₁ : a ∈ elt_of v₁),
+      have ainw₁  : a ∈ elt_of w₁, from mem_perm p₁ ainv₁,
+      have nainw₂ : a ∉ elt_of w₂, from disjoint_left d₂ ainw₁,
+      not_mem_perm (perm.symm p₂) nainw₂)))
 
 theorem disjoint.comm {s₁ s₂ : finset A} : disjoint s₁ s₂ → disjoint s₂ s₁ :=
 quot.induction_on₂ s₁ s₂ (λ l₁ l₂ d, list.disjoint.comm d)

@@ -219,6 +219,12 @@ theorem nodup_of_nodup_cons : ∀ {a : A} {l : list A}, nodup (a::l) → nodup l
 theorem not_mem_of_nodup_cons : ∀ {a : A} {l : list A}, nodup (a::l) → a ∉ l
 | a xs (ndcons i n) := i
 
+theorem not_nodup_cons_of_mem {a : A} {l : list A} : a ∈ l → ¬ nodup (a :: l) :=
+λ ainl d, absurd ainl (not_mem_of_nodup_cons d)
+
+theorem not_nodup_cons_of_not_nodup {a : A} {l : list A} : ¬ nodup l → ¬ nodup (a :: l) :=
+λ nd d, absurd (nodup_of_nodup_cons d) nd
+
 theorem nodup_of_nodup_append_left : ∀ {l₁ l₂ : list A}, nodup (l₁++l₂) → nodup l₁
 | []      l₂ n := nodup_nil
 | (x::xs) l₂ n :=
@@ -388,6 +394,18 @@ theorem erase_dup_eq_of_nodup [H : decidable_eq A] : ∀ {l : list A}, nodup l �
   assert nainl : a ∉ l, from not_mem_of_nodup_cons d,
   assert dl : nodup l,  from nodup_of_nodup_cons d,
   by rewrite [erase_dup_cons_of_not_mem nainl, erase_dup_eq_of_nodup dl]
+
+definition decidable_nodup [instance] [h : decidable_eq A] : ∀ (l : list A), decidable (nodup l)
+| []     := inl nodup_nil
+| (a::l) :=
+  match decidable_mem a l with
+  | inl p := inr (not_nodup_cons_of_mem p)
+  | inr n :=
+    match decidable_nodup l with
+    | inl nd := inl (nodup_cons n nd)
+    | inr d  := inr (not_nodup_cons_of_not_nodup d)
+    end
+  end
 end nodup
 
 /- upto -/

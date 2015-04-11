@@ -57,6 +57,9 @@ definition has_decidable_eq [instance] [h : decidable_eq A] : decidable_eq (fins
      | decidable.inr n := decidable.inr (λ e : ⟦l₁⟧ = ⟦l₂⟧, absurd (quot.exact e) n)
      end)
 
+definition singleton (a : A) : finset A :=
+to_finset_of_nodup [a] !nodup_singleton
+
 definition mem (a : A) (s : finset A) : Prop :=
 quot.lift_on s (λ l, a ∈ elt_of l)
  (λ l₁ l₂ (e : l₁ ~ l₂), propext (iff.intro
@@ -66,11 +69,14 @@ quot.lift_on s (λ l, a ∈ elt_of l)
 infix `∈` := mem
 notation a ∉ b := ¬ mem a b
 
-definition mem_of_mem_list {a : A} {l : nodup_list A} : a ∈ elt_of l → a ∈ ⟦l⟧ :=
+theorem mem_of_mem_list {a : A} {l : nodup_list A} : a ∈ elt_of l → a ∈ ⟦l⟧ :=
 λ ainl, ainl
 
-definition mem_list_of_mem {a : A} {l : nodup_list A} : a ∈ ⟦l⟧ → a ∈ elt_of l :=
+theorem mem_list_of_mem {a : A} {l : nodup_list A} : a ∈ ⟦l⟧ → a ∈ elt_of l :=
 λ ainl, ainl
+
+theorem mem_singleton (a : A) : a ∈ singleton a :=
+mem_of_mem_list !mem_cons
 
 definition decidable_mem [instance] [h : decidable_eq A] : ∀ (a : A) (s : finset A), decidable (a ∈ s) :=
 λ a s, quot.rec_on_subsingleton s
@@ -105,6 +111,9 @@ quot.lift_on s
   (λ l₁ l₂ p, length_eq_length_of_perm p)
 
 theorem card_empty : card (@empty A) = 0 :=
+rfl
+
+theorem card_singleton (a : A) : card (singleton a) = 1 :=
 rfl
 
 /- insert -/
@@ -280,4 +289,22 @@ theorem empty_intersection (s : finset A) : ∅ ∩ s = ∅ :=
 calc ∅ ∩ s = s ∩ ∅ : intersection.comm
        ... = ∅     : intersection_empty
 end intersection
+
+/- upto -/
+section upto
+definition upto (n : nat) : finset nat :=
+to_finset_of_nodup (list.upto n) (nodup_upto n)
+
+theorem card_upto : ∀ n, card (upto n) = n :=
+list.length_upto
+
+theorem lt_of_mem_upto {n a : nat} : a ∈ upto n → a < n :=
+list.lt_of_mem_upto
+
+theorem mem_upto_succ_of_mem_upto {n a : nat} : a ∈ upto n → a ∈ upto (succ n) :=
+list.mem_upto_succ_of_mem_upto
+
+theorem mem_upto_of_lt {n a : nat} : a < n → a ∈ upto n :=
+list.mem_upto_of_lt
+end upto
 end finset

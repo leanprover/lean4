@@ -8,9 +8,9 @@ Authors: Floris van Doorn
 Declaration of the coequalizer
 -/
 
-import .colimit
+import .type_quotient
 
-open colimit bool eq
+open type_quotient eq
 
 namespace coeq
 context
@@ -18,39 +18,26 @@ context
 universe u
 parameters {A B : Type.{u}} (f g : A → B)
 
-  definition coeq_diag [reducible] : diagram :=
-  diagram.mk bool
-             bool
-             (λi, bool.rec_on i A B)
-             (λj, ff)
-             (λj, tt)
-             (λj, bool.rec_on j f g)
+  inductive coeq_rel : B → B → Type :=
+  | Rmk : Π(x : A), coeq_rel (f x) (g x)
+  open coeq_rel
+  local abbreviation R := coeq_rel
 
-  local notation `D` := coeq_diag
-
-  definition coeq := colimit coeq_diag -- TODO: define this in root namespace
-  local attribute coeq_diag [instance]
+  definition coeq : Type := type_quotient coeq_rel -- TODO: define this in root namespace
 
   definition coeq_i (x : B) : coeq :=
-  @ι _ _ x
+  class_of R x
 
   /- cp is the name Coq uses. I don't know what it abbreviates, but at least it's short :-) -/
   definition cp (x : A) : coeq_i (f x) = coeq_i (g x) :=
-  @cglue _ _ x ⬝ (@cglue _ _ x)⁻¹
+  eq_of_rel (Rmk f g x)
 
   protected definition rec {P : coeq → Type} (P_i : Π(x : B), P (coeq_i x))
     (Pcp : Π(x : A), cp x ▹ P_i (f x) = P_i (g x)) (y : coeq) : P y :=
   begin
-    fapply (@colimit.rec_on _ _ y),
-    { intros [i, x], cases i,
-        exact (@cglue _ _ x ▹ P_i (f x)),
-        apply P_i},
-    { intros [j, x], cases j,
-        exact idp,
-      esimp [coeq_diag],
-      apply tr_eq_of_eq_inv_tr,
-      apply concat, rotate 1, apply tr_con,
-      rewrite -Pcp}
+    fapply (type_quotient.rec_on y),
+    { intro a, apply P_i},
+    { intros [a, a', H], cases H, apply Pcp}
   end
 
   protected definition rec_on [reducible] {P : coeq → Type} (y : coeq)

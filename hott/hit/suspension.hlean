@@ -12,7 +12,7 @@ import .pushout
 
 open pushout unit eq
 
-definition suspension (A : Type) : Type := pushout (λ(a : A), star) (λ(a : A), star)
+definition suspension (A : Type) : Type := pushout (λ(a : A), star.{0}) (λ(a : A), star.{0})
 
 namespace suspension
 

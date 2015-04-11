@@ -8,72 +8,41 @@ Authors: Floris van Doorn
 Declaration of the pushout
 -/
 
-import .colimit
+import .type_quotient
 
-open colimit bool eq
+open type_quotient eq sum
 
 namespace pushout
 context
 
-universe u
-parameters {TL BL TR : Type.{u}} (f : TL → BL) (g : TL → TR)
+parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
 
-  inductive pushout_ob :=
-  | tl : pushout_ob
-  | bl : pushout_ob
-  | tr : pushout_ob
+  local abbreviation A := BL + TR
+  inductive pushout_rel : A → A → Type :=
+  | Rmk : Π(x : TL), pushout_rel (inl (f x)) (inr (g x))
+  open pushout_rel
+  local abbreviation R := pushout_rel
 
-  open pushout_ob
-
-  definition pushout_diag [reducible] : diagram :=
-  diagram.mk pushout_ob
-             bool
-             (λi, pushout_ob.rec_on i TL BL TR)
-             (λj, bool.rec_on j tl tl)
-             (λj, bool.rec_on j bl tr)
-             (λj, bool.rec_on j f  g)
-
-  local notation `D` := pushout_diag
-  -- open bool
-  -- definition pushout_diag : diagram :=
-  -- diagram.mk pushout_ob
-  --            bool
-  --            (λi, match i with | tl := TL | tr := TR | bl := BL end)
-  --            (λj, match j with | tt := tl | ff := tl end)
-  --            (λj, match j with | tt := bl | ff := tr end)
-  --            (λj, match j with | tt := f  | ff := g  end)
-
-  definition pushout := colimit pushout_diag -- TODO: define this in root namespace
-  local attribute pushout_diag [instance]
+  definition pushout : Type := type_quotient pushout_rel -- TODO: define this in root namespace
 
   definition inl (x : BL) : pushout :=
-  @ι _ _ x
+  class_of R (inl x)
 
   definition inr (x : TR) : pushout :=
-  @ι _ _ x
+  class_of R (inr x)
 
   definition glue (x : TL) : inl (f x) = inr (g x) :=
-  @cglue _ _ x ⬝ (@cglue _ _ x)⁻¹
+  eq_of_rel (Rmk f g x)
 
   protected definition rec {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
     (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x))
       (y : pushout) : P y :=
   begin
-    fapply (@colimit.rec_on _ _ y),
-    { intros [i, x], cases i,
-       exact (@cglue _ _ x ▹ Pinl (f x)),
+    fapply (type_quotient.rec_on y),
+    { intro a, cases a,
        apply Pinl,
        apply Pinr},
-    { intros [j, x], cases j,
-        exact idp,
-      esimp [pushout_ob.cases_on, pushout_diag],
--- change (transport P (@cglue _ tt x) (Pinr (g x)) = transport P (coherence x) (Pinl (f x))),
-      -- apply concat;rotate 1;apply (idpath (coherence x ▹ Pinl (f x))),
-      -- apply concat;apply (ap (transport _ _));apply (idpath (Pinr (g x))),
-      apply tr_eq_of_eq_inv_tr,
---      rewrite -{(transport (λ (x : pushout), P x) (inverse (coherence x)) (transport P (@cglue _ tt x) (Pinr (g x))))}tr_con,
-      apply concat, rotate 1, apply tr_con,
-      rewrite -Pglue}
+    { intros [a, a', H], cases H, apply Pglue}
   end
 
   protected definition rec_on [reducible] {P : pushout → Type} (y : pushout)
@@ -85,12 +54,12 @@ parameters {TL BL TR : Type.{u}} (f : TL → BL) (g : TL → TR)
   definition rec_inl {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
     (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x))
       (x : BL) : rec Pinl Pinr Pglue (inl x) = Pinl x :=
-  @colimit.rec_incl _ _ _ _ _ _ --idp
+  rec_class_of _ _ _ --idp
 
   definition rec_inr {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
     (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x))
       (x : TR) : rec Pinl Pinr Pglue (inr x) = Pinr x :=
-  @colimit.rec_incl _ _ _ _ _ _ --idp
+  rec_class_of _ _ _ --idp
 
   protected definition elim {P : Type} (Pinl : BL → P) (Pinr : TR → P)
     (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) (y : pushout) : P :=
@@ -113,7 +82,7 @@ parameters {TL BL TR : Type.{u}} (f : TL → BL) (g : TL → TR)
 
 end
 
-  open pushout equiv is_equiv unit
+  open pushout equiv is_equiv unit bool
 
   namespace test
     definition unit_of_empty (u : empty) : unit := star

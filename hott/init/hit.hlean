@@ -18,7 +18,7 @@ open is_trunc eq
   We take two higher inductive types (hits) as primitive notions in Lean. We define all other hits
   in terms of these two hits. The hits which are primitive are
     - n-truncation
-    - general colimits
+    - type quotients (non-truncated quotients)
   For each of the hits we add the following constants:
     - the type formation
     - the term and path constructors
@@ -52,46 +52,31 @@ namespace trunc
 
 end trunc
 
-namespace colimit
-structure diagram [class] :=
-  (Iob : Type)
-  (Ihom : Type)
-  (ob : Iob → Type)
-  (dom cod : Ihom → Iob)
-  (hom : Π(j : Ihom), ob (dom j) → ob (cod j))
-end colimit
-open colimit colimit.diagram
+constant type_quotient.{u v} {A : Type.{u}} (R : A → A → Type.{v}) : Type.{max u v}
 
-constant colimit.{u v w} : diagram.{u v w} → Type.{max u v w}
+namespace type_quotient
 
-namespace colimit
+  constant class_of {A : Type} (R : A → A → Type) (a : A) : type_quotient R
 
-  constant inclusion : Π [D : diagram] {i : Iob}, ob i → colimit D
-  abbreviation ι := @inclusion
+  constant eq_of_rel {A : Type} {R : A → A → Type} {a a' : A} (H : R a a')
+    : class_of R a = class_of R a'
 
-  constant cglue : Π [D : diagram] (j : Ihom) (x : ob (dom j)), ι (hom j x) = ι x
+  /-protected-/ constant rec {A : Type} {R : A → A → Type} {P : type_quotient R → Type}
+    (Pc : Π(a : A), P (class_of R a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▹ Pc a = Pc a')
+    (x : type_quotient R) : P x
 
-  /-protected-/ constant rec : Π [D : diagram] {P : colimit D → Type}
-    (Pincl : Π⦃i : Iob⦄ (x : ob i), P (ι x))
-    (Pglue : Π(j : Ihom) (x : ob (dom j)), cglue j x ▹ Pincl (hom j x) = Pincl x)
-      (y : colimit D), P y
+  protected definition rec_on [reducible] {A : Type} {R : A → A → Type} {P : type_quotient R → Type}
+    (x : type_quotient R) (Pc : Π(a : A), P (class_of R a))
+    (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▹ Pc a = Pc a') : P x :=
+  rec Pc Pp x
 
-  definition rec_incl [reducible] [D : diagram] {P : colimit D → Type}
-    (Pincl : Π⦃i : Iob⦄ (x : ob i), P (ι x))
-    (Pglue : Π(j : Ihom) (x : ob (dom j)), cglue j x ▹ Pincl (hom j x) = Pincl x)
-      {i : Iob} (x : ob i) : rec Pincl Pglue (ι x) = Pincl x :=
+  definition rec_class_of {A : Type} {R : A → A → Type} {P : type_quotient R → Type}
+    (Pc : Π(a : A), P (class_of R a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▹ Pc a = Pc a')
+    (a : A) : rec Pc Pp (class_of R a) = Pc a :=
   sorry --idp
 
-  definition rec_cglue [reducible] [D : diagram] {P : colimit D → Type}
-    (Pincl : Π⦃i : Iob⦄ (x : ob i), P (ι x))
-    (Pglue : Π(j : Ihom) (x : ob (dom j)), cglue j x ▹ Pincl (hom j x) = Pincl x)
-      {j : Ihom} (x : ob (dom j)) : apD (rec Pincl Pglue) (cglue j x) = sorry ⬝ Pglue j x ⬝ sorry :=
-  --the sorry's in the statement can be removed when rec_incl is definitional
-  sorry
+  constant rec_eq_of_rel {A : Type} {R : A → A → Type} {P : type_quotient R → Type}
+    (Pc : Π(a : A), P (class_of R a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▹ Pc a = Pc a')
+    {a a' : A} (H : R a a') : apD (rec Pc Pp) (eq_of_rel H) = sorry ⬝ Pp H ⬝ sorry
 
-  protected definition rec_on [reducible] [D : diagram] {P : colimit D → Type} (y : colimit D)
-    (Pincl : Π⦃i : Iob⦄ (x : ob i), P (ι x))
-    (Pglue : Π(j : Ihom) (x : ob (dom j)), cglue j x ▹ Pincl (hom j x) = Pincl x) : P y :=
-  colimit.rec Pincl Pglue y
-
-end colimit
+end type_quotient

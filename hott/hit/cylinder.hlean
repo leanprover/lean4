@@ -8,9 +8,9 @@ Authors: Floris van Doorn
 Declaration of mapping cylinders
 -/
 
-import .colimit
+import .type_quotient
 
-open colimit bool unit eq
+open type_quotient eq sum
 
 namespace cylinder
 context
@@ -18,37 +18,32 @@ context
 universe u
 parameters {A B : Type.{u}} (f : A → B)
 
-  definition cylinder_diag [reducible] : diagram :=
-  diagram.mk bool
-             unit.{0}
-             (λi, bool.rec_on i A B)
-             (λj, ff)
-             (λj, tt)
-             (λj, f)
+  local abbreviation C := B + A
+  inductive cylinder_rel : C → C → Type :=
+  | Rmk : Π(a : A), cylinder_rel (inl (f a)) (inr a)
+  open cylinder_rel
+  local abbreviation R := cylinder_rel
 
-  local notation `D` := cylinder_diag
-
-  definition cylinder := colimit cylinder_diag -- TODO: define this in root namespace
-  local attribute cylinder_diag [instance]
+  definition cylinder := type_quotient cylinder_rel -- TODO: define this in root namespace
 
   definition base (b : B) : cylinder :=
-  @ι _ _ b
+  class_of R (inl b)
 
   definition top (a : A) : cylinder :=
-  @ι _ _ a
+  class_of R (inr a)
 
   definition seg (a : A) : base (f a) = top a :=
-  @cglue _ star a
+  eq_of_rel (Rmk f a)
 
   protected definition rec {P : cylinder → Type}
     (Pbase : Π(b : B), P (base b)) (Ptop : Π(a : A), P (top a))
     (Pseg : Π(a : A), seg a ▹ Pbase (f a) = Ptop a) (x : cylinder) : P x :=
   begin
-    fapply (@colimit.rec_on _ _ x),
-    { intros [i, x], cases i,
-        apply Ptop,
-        apply Pbase},
-    { intros [j, x], cases j, apply Pseg}
+    fapply (type_quotient.rec_on x),
+    { intro a, cases a,
+       apply Pbase,
+       apply Ptop},
+    { intros [a, a', H], cases H, apply Pseg}
   end
 
   protected definition rec_on [reducible] {P : cylinder → Type} (x : cylinder)

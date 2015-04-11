@@ -8,36 +8,23 @@ Authors: Floris van Doorn
 Declaration of set-quotients
 -/
 
-/-
-We aim to model
-HIT quotient : Type :=
-   | class_of : A -> quotient
-   | eq_of_rel : Πa a', R a a' → class_of a = class_of a'
-   | is_hset_quotient : is_hset quotient
--/
+import .type_quotient .trunc
 
-import .coeq .trunc
-
-open coeq eq is_trunc trunc
+open eq is_trunc trunc type_quotient
 
 namespace quotient
 context
-universe u
-parameters {A : Type.{u}} (R : A → A → hprop.{u})
-
-  structure total : Type := {pt1 : A} {pt2 : A} (rel : R pt1 pt2)
-  open total
-
-  definition quotient : Type :=
-  trunc 0 (coeq (pt1 : total → A) (pt2 : total → A))
+parameters {A : Type} (R : A → A → hprop)
+  -- set-quotients are just truncations of type-quotients
+  definition quotient : Type := trunc 0 (type_quotient (λa a', trunctype.carrier (R a a')))
 
   definition class_of (a : A) : quotient :=
-  tr (coeq_i _ _ a)
+  tr (class_of _ a)
 
   definition eq_of_rel {a a' : A} (H : R a a') : class_of a = class_of a' :=
-  ap tr (cp _ _ (total.mk H))
+  ap tr (eq_of_rel H)
 
-  definition is_hset_quotient : is_hset quotient :=
+  theorem is_hset_quotient : is_hset quotient :=
   by unfold quotient; exact _
 
   protected definition rec {P : quotient → Type} [Pt : Πaa, is_trunc 0 (P aa)]
@@ -46,10 +33,9 @@ parameters {A : Type.{u}} (R : A → A → hprop.{u})
   begin
     apply (@trunc.rec_on _ _ P x),
     { intro x', apply Pt},
-    { intro y, fapply (coeq.rec_on _ _ y),
+    { intro y, fapply (type_quotient.rec_on y),
       { exact Pc},
-      { intro H, cases H with [a, a', H], esimp [is_typeof],
-        --rewrite (transport_compose P tr (cp pt1 pt2 (total.mk H)) (Pc a))
+      { intros [a, a', H],
         apply concat, apply transport_compose;apply Pp}}
   end
 

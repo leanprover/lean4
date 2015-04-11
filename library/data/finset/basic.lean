@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 
 Finite sets
 -/
-import data.nat data.list.perm data.subtype algebra.binary
+import data.fintype data.nat data.list.perm data.subtype algebra.binary
 open nat quot list subtype binary function
 open [declarations] perm
 
@@ -103,6 +103,13 @@ notation `∅` := !empty
 
 theorem not_mem_empty (a : A) : a ∉ ∅ :=
 λ aine : a ∈ ∅, aine
+
+/- universe -/
+definition univ [h : fintype A] : finset A :=
+to_finset_of_nodup (@fintype.elems A h) (@fintype.unique A h)
+
+theorem mem_univ [h : fintype A] (x : A) : x ∈ univ :=
+fintype.complete x
 
 /- card -/
 definition card (s : finset A) : nat :=

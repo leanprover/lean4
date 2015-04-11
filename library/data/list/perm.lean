@@ -591,7 +591,7 @@ include H
 
 theorem perm_union_left {l₁ l₂ : list A} (t₁ : list A) : l₁ ~ l₂ → (union l₁ t₁) ~ (union l₂ t₁) :=
 assume p, perm.induction_on p
-  (by rewrite [union_nil]; exact !refl)
+  (by rewrite [nil_union]; exact !refl)
   (λ x l₁ l₂ p₁ r₁, by_cases
      (λ xint₁  : x ∈ t₁, by rewrite [*union_cons_of_mem _ xint₁]; exact r₁)
      (λ nxint₁ : x ∉ t₁, by rewrite [*union_cons_of_not_mem _ nxint₁]; exact (skip _ r₁)))

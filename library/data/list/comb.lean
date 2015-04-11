@@ -229,6 +229,18 @@ theorem cross_product_nil : ∀ (l : list A), cross_product l (@nil B) = []
 | []     := rfl
 | (a::l) := by rewrite [cross_product_cons, map_nil, cross_product_nil]
 
+theorem eq_of_mem_map_pair₁  {a₁ a : A} {b₁ : B} {l : list B} : (a₁, b₁) ∈ map (λ b, (a, b)) l → a₁ = a :=
+assume ain,
+assert h₁ : pr1 (a₁, b₁) ∈ map pr1 (map (λ b, (a, b)) l), from mem_map pr1 ain,
+assert h₂ : a₁ ∈ map (λb, a) l, by rewrite [map_map at h₁, ↑pr1 at h₁]; exact h₁,
+eq_of_map_const h₂
+
+theorem mem_of_mem_map_pair₁ {a₁ a : A} {b₁ : B} {l : list B} : (a₁, b₁) ∈ map (λ b, (a, b)) l → b₁ ∈ l :=
+assume ain,
+assert h₁ : pr2 (a₁, b₁) ∈ map pr2 (map (λ b, (a, b)) l), from mem_map pr2 ain,
+assert h₂ : b₁ ∈ map (λx, x) l, by rewrite [map_map at h₁, ↑pr2 at h₁]; exact h₁,
+by rewrite [map_id at h₂]; exact h₂
+
 theorem mem_cross_product {a : A} {b : B} : ∀ {l₁ l₂}, a ∈ l₁ → b ∈ l₂ → (a, b) ∈ cross_product l₁ l₂
 | []      l₂ h₁ h₂ := absurd h₁ !not_mem_nil
 | (x::l₁) l₂ h₁ h₂ :=
@@ -245,9 +257,7 @@ theorem mem_of_mem_cross_product_left {a : A} {b : B} : ∀ {l₁ l₂}, (a, b) 
 | (x::l₁) l₂ h :=
   or.elim (mem_or_mem_of_mem_append h)
     (λ ain : (a, b) ∈ map (λ b, (x, b)) l₂,
-       assert h₁ : pr1 (a, b) ∈ map pr1 (map (λ b, (x, b)) l₂), from mem_map pr1 ain,
-       assert h₂ : a ∈ map (λb, x) l₂, by rewrite [map_map at h₁, ↑pr1 at h₁]; exact h₁,
-       assert aeqx : a = x, from eq_of_map_const h₂,
+       assert aeqx : a = x, from eq_of_mem_map_pair₁ ain,
        by rewrite [aeqx]; exact !mem_cons)
     (λ ain : (a, b) ∈ cross_product l₁ l₂,
       have ainl₁ : a ∈ l₁, from mem_of_mem_cross_product_left ain,
@@ -258,9 +268,7 @@ theorem mem_of_mem_cross_product_right {a : A} {b : B} : ∀ {l₁ l₂}, (a, b)
 | (x::l₁) l₂ h :=
   or.elim (mem_or_mem_of_mem_append h)
     (λ abin : (a, b) ∈ map (λ b, (x, b)) l₂,
-       assert h₁ : pr2 (a, b) ∈ map pr2 (map (λ b, (x, b)) l₂), from mem_map pr2 abin,
-       assert h₂ : b ∈ map (λx, x) l₂, by rewrite [map_map at h₁, ↑pr2 at h₁]; exact h₁,
-       by rewrite [map_id at h₂]; exact h₂)
+      mem_of_mem_map_pair₁ abin)
     (λ abin : (a, b) ∈ cross_product l₁ l₂,
       mem_of_mem_cross_product_right abin)
 end cross_product

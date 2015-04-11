@@ -7,4 +7,4 @@ Author: Leonardo de Moura
 
 Finite sets
 -/
-import data.finset.basic data.finset.bigop
+import data.finset.basic data.finset.comb data.finset.bigop

@@ -42,6 +42,18 @@ definition flip [reducible] {C : A → B → Type} (f : Πx y, C x y) : Πy x, C
 definition app [reducible] {B : A → Type} (f : Πx, B x) (x : A) : B x :=
 f x
 
+definition curry [reducible] : (A × B → C) → A → B → C :=
+λ f a b, f (a, b)
+
+definition uncurry [reducible] : (A → B → C) → (A × B → C) :=
+λ f p, match p with (a, b) := f a b end
+
+theorem curry_uncurry (f : A → B → C) : curry (uncurry f) = f :=
+rfl
+
+theorem uncurry_curry (f : A × B → C) : uncurry (curry f) = f :=
+funext (λ p, match p with (a, b) := rfl end)
+
 precedence `∘'`:60
 precedence `on`:1
 precedence `$`:1

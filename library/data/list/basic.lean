@@ -289,48 +289,48 @@ definition sublist (l₁ l₂ : list T) := ∀ ⦃a : T⦄, a ∈ l₁ → a ∈
 
 infix `⊆`:50 := sublist
 
-lemma nil_sub (l : list T) : [] ⊆ l :=
+theorem nil_sub (l : list T) : [] ⊆ l :=
 λ b i, false.elim (iff.mp (mem_nil b) i)
 
-lemma sub.refl (l : list T) : l ⊆ l :=
+theorem sub.refl (l : list T) : l ⊆ l :=
 λ b i, i
 
-lemma sub.trans {l₁ l₂ l₃ : list T} (H₁ : l₁ ⊆ l₂) (H₂ : l₂ ⊆ l₃) : l₁ ⊆ l₃ :=
+theorem sub.trans {l₁ l₂ l₃ : list T} (H₁ : l₁ ⊆ l₂) (H₂ : l₂ ⊆ l₃) : l₁ ⊆ l₃ :=
 λ b i, H₂ (H₁ i)
 
-lemma sub_cons (a : T) (l : list T) : l ⊆ a::l :=
+theorem sub_cons (a : T) (l : list T) : l ⊆ a::l :=
 λ b i, or.inr i
 
-lemma cons_sub_cons  {l₁ l₂ : list T} (a : T) (s : l₁ ⊆ l₂) : (a::l₁) ⊆ (a::l₂) :=
+theorem cons_sub_cons  {l₁ l₂ : list T} (a : T) (s : l₁ ⊆ l₂) : (a::l₁) ⊆ (a::l₂) :=
 λ b Hin, or.elim (eq_or_mem_of_mem_cons Hin)
   (λ e : b = a,  or.inl e)
   (λ i : b ∈ l₁, or.inr (s i))
 
-lemma sub_append_left (l₁ l₂ : list T) : l₁ ⊆ l₁++l₂ :=
+theorem sub_append_left (l₁ l₂ : list T) : l₁ ⊆ l₁++l₂ :=
 λ b i, iff.mp' (mem_append_iff b l₁ l₂) (or.inl i)
 
-lemma sub_append_right (l₁ l₂ : list T) : l₂ ⊆ l₁++l₂ :=
+theorem sub_append_right (l₁ l₂ : list T) : l₂ ⊆ l₁++l₂ :=
 λ b i, iff.mp' (mem_append_iff b l₁ l₂) (or.inr i)
 
-lemma sub_cons_of_sub (a : T) {l₁ l₂ : list T} : l₁ ⊆ l₂ → l₁ ⊆ (a::l₂) :=
+theorem sub_cons_of_sub (a : T) {l₁ l₂ : list T} : l₁ ⊆ l₂ → l₁ ⊆ (a::l₂) :=
 λ (s : l₁ ⊆ l₂) (x : T) (i : x ∈ l₁), or.inr (s i)
 
-lemma sub_app_of_sub_left (l l₁ l₂ : list T) : l ⊆ l₁ → l ⊆ l₁++l₂ :=
+theorem sub_app_of_sub_left (l l₁ l₂ : list T) : l ⊆ l₁ → l ⊆ l₁++l₂ :=
 λ (s : l ⊆ l₁) (x : T) (xinl : x ∈ l),
   have xinl₁ : x ∈ l₁, from s xinl,
   mem_append_of_mem_or_mem (or.inl xinl₁)
 
-lemma sub_app_of_sub_right (l l₁ l₂ : list T) : l ⊆ l₂ → l ⊆ l₁++l₂ :=
+theorem sub_app_of_sub_right (l l₁ l₂ : list T) : l ⊆ l₂ → l ⊆ l₁++l₂ :=
 λ (s : l ⊆ l₂) (x : T) (xinl : x ∈ l),
   have xinl₁ : x ∈ l₂, from s xinl,
   mem_append_of_mem_or_mem (or.inr xinl₁)
 
-lemma cons_sub_of_sub_of_mem {a : T} {l m : list T} : a ∈ m → l ⊆ m → a::l ⊆ m :=
+theorem cons_sub_of_sub_of_mem {a : T} {l m : list T} : a ∈ m → l ⊆ m → a::l ⊆ m :=
 λ (ainm : a ∈ m) (lsubm : l ⊆ m) (x : T) (xinal : x ∈ a::l), or.elim (eq_or_mem_of_mem_cons xinal)
   (assume xeqa : x = a, eq.rec_on (eq.symm xeqa) ainm)
   (assume xinl : x ∈ l, lsubm xinl)
 
-lemma app_sub_of_sub_of_sub {l₁ l₂ l : list T} : l₁ ⊆ l → l₂ ⊆ l → l₁++l₂ ⊆ l :=
+theorem app_sub_of_sub_of_sub {l₁ l₂ l : list T} : l₁ ⊆ l → l₂ ⊆ l → l₁++l₂ ⊆ l :=
 λ (l₁subl : l₁ ⊆ l) (l₂subl : l₂ ⊆ l) (x : T) (xinl₁l₂ : x ∈ l₁++l₂),
   or.elim (mem_or_mem_of_mem_append xinl₁l₂)
     (λ xinl₁ : x ∈ l₁, l₁subl xinl₁)
@@ -402,23 +402,23 @@ open qeq
 
 notation l' `≈`:50 a `|` l:50 := qeq a l l'
 
-lemma qeq_app : ∀ (l₁ : list A) (a : A) (l₂ : list A), l₁++(a::l₂) ≈ a|l₁++l₂
+theorem qeq_app : ∀ (l₁ : list A) (a : A) (l₂ : list A), l₁++(a::l₂) ≈ a|l₁++l₂
 | []      a l₂ := qhead a l₂
 | (x::xs) a l₂ := qcons x (qeq_app xs a l₂)
 
-lemma mem_head_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → a ∈ l₁ :=
+theorem mem_head_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → a ∈ l₁ :=
 take q, qeq.induction_on q
   (λ l, !mem_cons)
   (λ b l l' q r, or.inr r)
 
-lemma mem_tail_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → ∀ x, x ∈ l₂ → x ∈ l₁ :=
+theorem mem_tail_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → ∀ x, x ∈ l₂ → x ∈ l₁ :=
 take q, qeq.induction_on q
   (λ l x i, or.inr i)
   (λ b l l' q r x xinbl, or.elim (eq_or_mem_of_mem_cons xinbl)
      (λ xeqb : x = b, xeqb ▸ mem_cons x l')
      (λ xinl : x ∈ l, or.inr (r x xinl)))
 
-lemma mem_cons_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → ∀ x, x ∈ l₁ → x ∈ a::l₂ :=
+theorem mem_cons_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → ∀ x, x ∈ l₁ → x ∈ a::l₂ :=
 take q, qeq.induction_on q
   (λ l x i, i)
   (λ b l l' q r x xinbl', or.elim (eq_or_mem_of_mem_cons xinbl')
@@ -427,12 +427,12 @@ take q, qeq.induction_on q
       (λ xeqa : x = a, xeqa ▸ mem_cons x (b::l))
       (λ xinl : x ∈ l, or.inr (or.inr xinl))))
 
-lemma length_eq_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → length l₁ = succ (length l₂) :=
+theorem length_eq_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → length l₁ = succ (length l₂) :=
 take q, qeq.induction_on q
   (λ l, rfl)
   (λ b l l' q r, by rewrite [*length_cons, r])
 
-lemma qeq_of_mem {a : A} {l : list A} : a ∈ l → (∃l', l≈a|l') :=
+theorem qeq_of_mem {a : A} {l : list A} : a ∈ l → (∃l', l≈a|l') :=
 list.induction_on l
   (λ h : a ∈ nil, absurd h (not_mem_nil a))
   (λ x xs r ainxxs, or.elim (eq_or_mem_of_mem_cons ainxxs)
@@ -446,7 +446,7 @@ list.induction_on l
        have q₂ : x::xs ≈ a | x::l', from qcons x q,
        exists.intro (x::l') q₂))
 
-lemma qeq_split {a : A} {l l' : list A} : l'≈a|l → ∃l₁ l₂, l = l₁++l₂ ∧ l' = l₁++(a::l₂) :=
+theorem qeq_split {a : A} {l l' : list A} : l'≈a|l → ∃l₁ l₂, l = l₁++l₂ ∧ l' = l₁++(a::l₂) :=
 take q, qeq.induction_on q
   (λ t,
     have aux : t = []++t ∧ a::t = []++(a::t), from and.intro rfl rfl,
@@ -460,7 +460,7 @@ take q, qeq.induction_on q
       end,
     exists.intro (b::l₁) (exists.intro l₂ aux))
 
-lemma sub_of_mem_of_sub_of_qeq {a : A} {l : list A} {u v : list A} : a ∉ l → a::l ⊆ v → v≈a|u → l ⊆ u :=
+theorem sub_of_mem_of_sub_of_qeq {a : A} {l : list A} {u v : list A} : a ∉ l → a::l ⊆ v → v≈a|u → l ⊆ u :=
 λ (nainl : a ∉ l) (s : a::l ⊆ v) (q : v≈a|u) (x : A) (xinl : x ∈ l),
   have xinv : x ∈ v, from s (or.inr xinl),
   have xinau : x ∈ a::u, from mem_cons_of_qeq q x xinv,

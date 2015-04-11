@@ -96,6 +96,11 @@ namespace quot
      {C : quot s₁ → quot s₂ → Prop} (q₁ : quot s₁) (q₂ : quot s₂) (H : ∀ a b, C ⟦a⟧ ⟦b⟧) : C q₁ q₂ :=
   quot.ind (λ a₁, quot.ind (λ a₂, H a₁ a₂) q₂) q₁
 
+  protected theorem induction_on₃
+     [s₃ : setoid C]
+     {D : quot s₁ → quot s₂ → quot s₃ → Prop} (q₁ : quot s₁) (q₂ : quot s₂) (q₃ : quot s₃) (H : ∀ a b c, D ⟦a⟧ ⟦b⟧ ⟦c⟧)
+     : D q₁ q₂ q₃ :=
+  quot.ind (λ a₁, quot.ind (λ a₂, quot.ind (λ a₃, H a₁ a₂ a₃) q₃) q₂) q₁
   end
 
   section

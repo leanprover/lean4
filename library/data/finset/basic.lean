@@ -287,6 +287,31 @@ calc ∅ ∩ s = s ∩ ∅ : intersection.comm
        ... = ∅     : intersection_empty
 end intersection
 
+/- subset -/
+definition subset (s₁ s₂ : finset A) : Prop :=
+quot.lift_on₂ s₁ s₂
+  (λ l₁ l₂, sublist (elt_of l₁) (elt_of l₂))
+  (λ v₁ v₂ w₁ w₂ p₁ p₂, propext (iff.intro
+    (λ s₁ a i, mem_perm p₂ (s₁ a (mem_perm (perm.symm p₁) i)))
+    (λ s₂ a i, mem_perm (perm.symm p₂) (s₂ a (mem_perm p₁ i)))))
+
+infix `⊆`:50 := subset
+
+theorem nil_sub (s : finset A) : ∅ ⊆ s :=
+quot.induction_on s (λ l, list.nil_sub (elt_of l))
+
+theorem sub_univ [h : fintype A] (s : finset A) : s ⊆ univ :=
+quot.induction_on s (λ l a i, fintype.complete a)
+
+theorem sub.refl (s : finset A) : s ⊆ s :=
+quot.induction_on s (λ l, list.sub.refl (elt_of l))
+
+theorem sub.trans {s₁ s₂ s₃ : finset A} : s₁ ⊆ s₂ → s₂ ⊆ s₃ → s₁ ⊆ s₃ :=
+quot.induction_on₃ s₁ s₂ s₃ (λ l₁ l₂ l₃ h₁ h₂, list.sub.trans h₁ h₂)
+
+theorem mem_of_sub_of_mem {s₁ s₂ : finset A} {a : A} : s₁ ⊆ s₂ → a ∈ s₁ → a ∈ s₂ :=
+quot.induction_on₂ s₁ s₂ (λ l₁ l₂ h₁ h₂, h₁ a h₂)
+
 /- upto -/
 section upto
 definition upto (n : nat) : finset nat :=

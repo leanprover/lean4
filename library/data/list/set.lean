@@ -115,6 +115,17 @@ theorem mem_of_mem_erase {a b : A} : ∀ {l}, a ∈ erase b l → a ∈ l
       (λ ainel : a ∈ erase b l,
         have ainl : a ∈ l, from mem_of_mem_erase ainel,
         mem_cons_of_mem _ ainl))
+
+theorem all_erase_of_all {p : A → Prop} (a : A) : ∀ {l}, all l p → all (erase a l) p
+| []     h := by rewrite [erase_nil]; exact h
+| (b::l) h :=
+  assert h₁ : all l p, from all_of_all_cons h,
+  have   h₂ : all (erase a l) p, from all_erase_of_all h₁,
+  have   pb : p b, from of_all_cons h,
+  assert h₃ : all (b :: erase a l) p, from all_cons_of_all pb h₂,
+  by_cases
+    (λ aeqb : a = b, by rewrite [aeqb, erase_cons_head]; exact h₁)
+    (λ aneb : a ≠ b, by rewrite [erase_cons_tail _ aneb]; exact h₃)
 end erase
 
 /- disjoint -/
@@ -198,6 +209,9 @@ ndnil
 
 theorem nodup_cons {a : A} {l : list A} : a ∉ l → nodup l → nodup (a::l)  :=
 λ i n, ndcons i n
+
+theorem nodup_singleton (a : A) : nodup [a] :=
+nodup_cons !not_mem_nil nodup_nil
 
 theorem nodup_of_nodup_cons : ∀ {a : A} {l : list A}, nodup (a::l) → nodup l
 | a xs (ndcons i n) := n
@@ -425,7 +439,7 @@ definition union : list A → list A → list A
 | []      l₂ := l₂
 | (a::l₁) l₂ := if a ∈ l₂ then union l₁ l₂ else a :: union l₁ l₂
 
-theorem union_nil (l : list A) : union [] l = l
+theorem nil_union (l : list A) : union [] l = l
 
 theorem union_cons_of_mem {a : A} {l₂} : ∀ (l₁), a ∈ l₂ → union (a::l₁) l₂ = union l₁ l₂ :=
 take l₁, assume ainl₂, calc
@@ -437,8 +451,12 @@ take l₁, assume nainl₂, calc
   union (a::l₁) l₂ = if a ∈ l₂ then union l₁ l₂ else a :: union l₁ l₂ : rfl
                   ...   = a :: union l₁ l₂                                      : if_neg nainl₂
 
+theorem union_nil : ∀ (l : list A), union l [] = l
+| []     := !nil_union
+| (a::l) := by rewrite [union_cons_of_not_mem _ !not_mem_nil, union_nil]
+
 theorem mem_or_mem_of_mem_union : ∀ {l₁ l₂} {a : A}, a ∈ union l₁ l₂ → a ∈ l₁ ∨ a ∈ l₂
-| []      l₂ a ainl₂ := by rewrite union_nil at ainl₂; exact (or.inr (ainl₂))
+| []      l₂ a ainl₂ := by rewrite nil_union at ainl₂; exact (or.inr (ainl₂))
 | (b::l₁) l₂ a ainbl₁l₂ := by_cases
   (λ binl₂  : b ∈ l₂,
     have ainl₁l₂ : a ∈ union l₁ l₂, by rewrite [union_cons_of_mem l₁ binl₂ at ainbl₁l₂]; exact ainbl₁l₂,
@@ -455,7 +473,7 @@ theorem mem_or_mem_of_mem_union : ∀ {l₁ l₂} {a : A}, a ∈ union l₁ l₂
           (λ ainl₂, or.inr ainl₂)))
 
 theorem mem_union_right {a : A} : ∀ (l₁) {l₂}, a ∈ l₂ → a ∈ union l₁ l₂
-| []      l₂  h := by rewrite union_nil; exact h
+| []      l₂  h := by rewrite nil_union; exact h
 | (b::l₁) l₂  h := by_cases
   (λ binl₂ : b ∈ l₂, by rewrite [union_cons_of_mem _ binl₂]; exact (mem_union_right _ h))
   (λ nbinl₂ : b ∉ l₂, by rewrite [union_cons_of_not_mem _ nbinl₂]; exact (mem_cons_of_mem _ (mem_union_right _ h)))
@@ -474,8 +492,13 @@ theorem mem_union_left {a : A} : ∀ {l₁} (l₂), a ∈ l₁ → a ∈ union l
     (λ ainl₁ : a ∈ l₁,
       by rewrite [union_cons_of_not_mem l₁ nbinl₂]; exact (mem_cons_of_mem _ (mem_union_left _ ainl₁))))
 
+theorem mem_union_cons (a : A) (l₁ : list A) (l₂ : list A) : a ∈ union (a::l₁) l₂ :=
+by_cases
+  (λ ainl₂  : a ∈ l₂, mem_union_right _ ainl₂)
+  (λ nainl₂ : a ∉ l₂, by rewrite [union_cons_of_not_mem _ nainl₂]; exact !mem_cons)
+
 theorem nodup_union_of_nodup_of_nodup : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → nodup (union l₁ l₂)
-| []      l₂ n₁   nl₂ := by rewrite union_nil; exact nl₂
+| []      l₂ n₁   nl₂ := by rewrite nil_union; exact nl₂
 | (a::l₁) l₂ nal₁ nl₂ :=
   assert nl₁   : nodup l₁, from nodup_of_nodup_cons nal₁,
   assert nl₁l₂ : nodup (union l₁ l₂), from nodup_union_of_nodup_of_nodup nl₁ nl₂,
@@ -496,6 +519,41 @@ theorem union_eq_append : ∀ {l₁ l₂ : list A}, disjoint l₁ l₂ → union
   assert nainl₂ : a ∉ l₂, from disjoint_left d !mem_cons,
   assert d₁ : disjoint l₁ l₂, from disjoint_of_disjoint_cons_left d,
   by rewrite [union_cons_of_not_mem _ nainl₂, append_cons, union_eq_append d₁]
+
+theorem all_union {p : A → Prop} : ∀ {l₁ l₂ : list A}, all l₁ p → all l₂ p → all (union l₁ l₂) p
+| []      l₂ h₁ h₂ := h₂
+| (a::l₁) l₂ h₁ h₂ :=
+  have h₁'   : all l₁ p, from all_of_all_cons h₁,
+  have pa    : p a, from of_all_cons h₁,
+  assert au  : all (union l₁ l₂) p, from all_union h₁' h₂,
+  assert au' : all (a :: union l₁ l₂) p, from all_cons_of_all pa au,
+  by_cases
+    (λ ainl₂  : a ∈ l₂, by rewrite [union_cons_of_mem _ ainl₂]; exact au)
+    (λ nainl₂ : a ∉ l₂, by rewrite [union_cons_of_not_mem _ nainl₂]; exact au')
+
+theorem all_of_all_union_left {p : A → Prop} : ∀ {l₁ l₂ : list A}, all (union l₁ l₂) p → all l₁ p
+| []      l₂  h := trivial
+| (a::l₁) l₂  h :=
+  have ain : a ∈ union (a::l₁) l₂, from !mem_union_cons,
+  have pa  : p a, from of_mem_of_all ain h,
+  by_cases
+  (λ ainl₂  : a ∈ l₂,
+    have al₁l₂ : all (union l₁ l₂) p, by rewrite [union_cons_of_mem _ ainl₂ at h]; exact h,
+    have al₁   : all l₁ p, from all_of_all_union_left al₁l₂,
+    all_cons_of_all pa al₁)
+  (λ nainl₂ : a ∉ l₂,
+    have aal₁l₂ : all (a::union l₁ l₂) p, by rewrite [union_cons_of_not_mem _ nainl₂ at h]; exact h,
+    have al₁l₂ : all (union l₁ l₂) p, from all_of_all_cons aal₁l₂,
+    have al₁   : all l₁ p, from all_of_all_union_left al₁l₂,
+    all_cons_of_all pa al₁)
+
+theorem all_of_all_union_right {p : A → Prop} : ∀ {l₁ l₂ : list A}, all (union l₁ l₂) p → all l₂ p
+| []      l₂ h := by rewrite [nil_union at h]; exact h
+| (a::l₁) l₂ h := by_cases
+  (λ ainl₂  : a ∈ l₂, by rewrite [union_cons_of_mem _ ainl₂ at h]; exact (all_of_all_union_right h))
+  (λ nainl₂ : a ∉ l₂,
+    have h₁ : all (a :: union l₁ l₂) p, by rewrite [union_cons_of_not_mem _ nainl₂ at h]; exact h,
+    all_of_all_union_right (all_of_all_cons h₁))
 
 variable {B : Type}
 theorem foldl_union_of_disjoint (f : B → A → B) (b : B) {l₁ l₂ : list A} (d : disjoint l₁ l₂)
@@ -542,6 +600,11 @@ assume ainl, by rewrite [insert_eq_of_mem ainl]
 
 theorem length_insert_of_not_mem {a : A} {l : list A} : a ∉ l → length (insert a l) = length l + 1 :=
 assume nainl, by rewrite [insert_eq_of_not_mem nainl]
+
+theorem all_insert_of_all {p : A → Prop} {a : A} {l} : p a → all l p → all (insert a l) p :=
+assume h₁ h₂, by_cases
+  (λ ainl  : a ∈ l, by rewrite [insert_eq_of_mem ainl]; exact h₂)
+  (λ nainl : a ∉ l, by rewrite [insert_eq_of_not_mem nainl]; exact (all_cons_of_all h₁ h₂))
 end insert
 
 /- intersection -/
@@ -619,5 +682,28 @@ theorem intersection_eq_nil_of_disjoint : ∀ {l₁ l₂ : list A}, disjoint l�
   assert aux_eq : intersection l₁ l₂ = [], from intersection_eq_nil_of_disjoint (disjoint_of_disjoint_cons_left d),
   assert nainl₂ : a ∉ l₂,                  from disjoint_left d !mem_cons,
   by rewrite [intersection_cons_of_not_mem _ nainl₂, aux_eq]
+
+theorem all_intersection_of_all_left {p : A → Prop} : ∀ {l₁} (l₂), all l₁ p → all (intersection l₁ l₂) p
+| []      l₂ h := trivial
+| (a::l₁) l₂ h :=
+  have   h₁ : all l₁ p,                        from all_of_all_cons h,
+  assert h₂ : all (intersection l₁ l₂) p,      from all_intersection_of_all_left _ h₁,
+  have   pa : p a,                             from of_all_cons h,
+  assert h₃ : all (a :: intersection l₁ l₂) p, from all_cons_of_all pa h₂,
+  by_cases
+    (λ ainl₂  : a ∈ l₂, by rewrite [intersection_cons_of_mem _ ainl₂]; exact h₃)
+    (λ nainl₂ : a ∉ l₂, by rewrite [intersection_cons_of_not_mem _ nainl₂]; exact h₂)
+
+theorem all_intersection_of_all_right {p : A → Prop} : ∀ (l₁) {l₂}, all l₂ p → all (intersection l₁ l₂) p
+| []      l₂ h := trivial
+| (a::l₁) l₂ h :=
+  assert h₁ : all (intersection l₁ l₂) p, from all_intersection_of_all_right _ h,
+  by_cases
+    (λ ainl₂  : a ∈ l₂,
+      have   pa : p a, from of_mem_of_all ainl₂ h,
+      assert h₂ : all (a :: intersection l₁ l₂) p, from all_cons_of_all pa h₁,
+      by rewrite [intersection_cons_of_mem _ ainl₂]; exact h₂)
+    (λ nainl₂ : a ∉ l₂, by rewrite [intersection_cons_of_not_mem _ nainl₂]; exact h₁)
+
 end intersection
 end list

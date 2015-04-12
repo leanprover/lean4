@@ -748,7 +748,7 @@ list.induction_on l
   (λ a t r p,
     perm_app (perm_map _ p) (r p))
 
-theorem perm_cross_product {l₁ l₂ t₁ t₂ : list A} : l₁ ~ l₂ → t₁ ~ t₂ → (cross_product l₁ t₁) ~ (cross_product l₂ t₂) :=
+theorem perm_cross_product {l₁ l₂ : list A} {t₁ t₂ : list B} : l₁ ~ l₂ → t₁ ~ t₂ → (cross_product l₁ t₁) ~ (cross_product l₂ t₂) :=
 assume p₁ p₂, trans (perm_cross_product_left t₁ p₁) (perm_cross_product_right l₂ p₂)
 end cross_product
 end perm

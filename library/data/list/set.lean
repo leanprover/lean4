@@ -415,6 +415,18 @@ theorem nodup_cross_product : ∀ {l₁ : list A} {l₂ : list B}, nodup l₁ �
               absurd (a₁eqa ▸ a₁inl₁) nainl₁
          end,
   nodup_append_of_nodup_of_nodup_of_disjoint dm n₄ dsj
+
+theorem nodup_filter (p : A → Prop) [h : decidable_pred p] : ∀ {l : list A}, nodup l → nodup (filter p l)
+| []     nd := nodup_nil
+| (a::l) nd :=
+  have   nainl : a ∉ l,              from not_mem_of_nodup_cons nd,
+  have   ndl   : nodup l,            from nodup_of_nodup_cons nd,
+  assert ndf   : nodup (filter p l), from nodup_filter ndl,
+  assert nainf : a ∉ filter p l,     from
+    assume ainf, absurd (mem_of_mem_filter ainf) nainl,
+  by_cases
+    (λ pa  : p a, by rewrite [filter_cons_of_pos _ pa]; exact (nodup_cons nainf ndf))
+    (λ npa : ¬ p a, by rewrite [filter_cons_of_neg _ npa]; exact ndf)
 end nodup
 
 /- upto -/

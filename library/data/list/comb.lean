@@ -275,7 +275,7 @@ definition cross_product : list A → list B → list (A × B)
 | []      l₂ := []
 | (a::l₁) l₂ := map (λ b, (a, b)) l₂ ++ cross_product l₁ l₂
 
-theorem nil_cross_product_nil (l : list B) : cross_product (@nil A) l = []
+theorem nil_cross_product (l : list B) : cross_product (@nil A) l = []
 
 theorem cross_product_cons (a : A) (l₁ : list A) (l₂ : list B)
         : cross_product (a::l₁) l₂ = map (λ b, (a, b)) l₂ ++ cross_product l₁ l₂

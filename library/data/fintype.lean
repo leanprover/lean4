@@ -84,6 +84,52 @@ definition decidable_eq_fun [instance] {A B : Type} [h₁ : fintype A] [h₂ : d
     end rfl
   end
 
+section check_pred
+variables {A : Type}
+
+definition check_pred (p : A → Prop) [h : decidable_pred p] : list A → bool
+| []     := tt
+| (a::l) := if p a then check_pred l else ff
+
+theorem check_pred_cons_of_pos {p : A → Prop} [h : decidable_pred p] {a : A} (l : list A) : p a → check_pred p (a::l) = check_pred p l :=
+assume pa, if_pos pa
+
+theorem check_pred_cons_of_neg {p : A → Prop} [h : decidable_pred p] {a : A} (l : list A) : ¬ p a → check_pred p (a::l) = ff :=
+assume npa, if_neg npa
+
+theorem all_of_check_pred_eq_tt {p : A → Prop} [h : decidable_pred p] : ∀ {l : list A}, check_pred p l = tt → ∀ {a}, a ∈ l → p a
+| []     eqtt a ainl := absurd ainl !not_mem_nil
+| (b::l) eqtt a ainbl := by_cases
+  (λ pb  : p b, or.elim (eq_or_mem_of_mem_cons ainbl)
+    (λ aeqb : a = b, by rewrite [aeqb]; exact pb)
+    (λ ainl : a ∈ l,
+      have eqtt₁ : check_pred p l = tt, by rewrite [check_pred_cons_of_pos _ pb at eqtt]; exact eqtt,
+      all_of_check_pred_eq_tt eqtt₁ ainl))
+  (λ npb : ¬ p b,
+    by rewrite [check_pred_cons_of_neg _ npb at eqtt]; exact (bool.no_confusion eqtt))
+
+theorem ex_of_check_pred_eq_ff {p : A → Prop} [h : decidable_pred p] : ∀ {l : list A}, check_pred p l = ff → ∃ w, ¬ p w
+| []     eqtt := bool.no_confusion eqtt
+| (a::l) eqtt := by_cases
+  (λ pa  : p a,
+    have eqtt₁ : check_pred p l = ff, by rewrite [check_pred_cons_of_pos _ pa at eqtt]; exact eqtt,
+    ex_of_check_pred_eq_ff eqtt₁)
+  (λ npa : ¬ p a, exists.intro a npa)
+end check_pred
+
+definition decidable_finite_pred [instance] {A : Type} {p : A → Prop} [h₁ : fintype A] [h₂ : decidable_pred p]
+           : decidable (∀ x : A, p x) :=
+match h₁ with
+| fintype.mk e u c :=
+  match check_pred p e with
+  | tt := λ h : check_pred p e = tt, inl (λ a : A, all_of_check_pred_eq_tt h (c a))
+  | ff := λ h : check_pred p e = ff,
+    inr (λ n : (∀ x, p x),
+         obtain (a : A) (w : ¬ p a), from ex_of_check_pred_eq_ff h,
+         absurd (n a) w)
+  end rfl
+end
+
 open list.as_type
 -- Auxiliary function for returning a list with all elements of the type: (list.as_type l)
 -- Remark ⟪s⟫ is notation for (list.as_type l)

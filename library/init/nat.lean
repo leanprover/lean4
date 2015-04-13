@@ -250,10 +250,14 @@ namespace nat
         eq.rec_on aux (le_of_lt h)))
 
   definition gt [reducible] a b := lt b a
+  definition decidable_gt [instance] : decidable_rel gt :=
+  _
 
   notation a > b := gt a b
 
   definition ge [reducible] a b := le b a
+  definition decidable_ge [instance] : decidable_rel ge :=
+  _
 
   notation a ≥ b := ge a b
 

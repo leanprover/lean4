@@ -301,6 +301,9 @@ theorem sub.trans {l₁ l₂ l₃ : list T} (H₁ : l₁ ⊆ l₂) (H₂ : l₂ 
 theorem sub_cons (a : T) (l : list T) : l ⊆ a::l :=
 λ b i, or.inr i
 
+theorem sub_of_cons_sub {a : T} {l₁ l₂ : list T} : a::l₁ ⊆ l₂ → l₁ ⊆ l₂ :=
+λ s b i, s b (mem_cons_of_mem _ i)
+
 theorem cons_sub_cons  {l₁ l₂ : list T} (a : T) (s : l₁ ⊆ l₂) : (a::l₁) ⊆ (a::l₂) :=
 λ b Hin, or.elim (eq_or_mem_of_mem_cons Hin)
   (λ e : b = a,  or.inl e)

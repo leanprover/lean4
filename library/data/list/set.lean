@@ -361,6 +361,12 @@ theorem mem_of_mem_erase_dup [H : decidable_eq A] {a : A} : ∀ {l}, a ∈ erase
       (λ aeqb  : a = b, by rewrite aeqb; exact !mem_cons)
       (λ ainel : a ∈ erase_dup l, or.inr (mem_of_mem_erase_dup ainel)))
 
+theorem erase_dup_sub [H : decidable_eq A] (l : list A) : erase_dup l ⊆ l :=
+λ a i, mem_of_mem_erase_dup i
+
+theorem sub_erase_dup [H : decidable_eq A] (l : list A) : l ⊆ erase_dup l :=
+λ a i, mem_erase_dup i
+
 theorem nodup_erase_dup [H : decidable_eq A] : ∀ l : list A, nodup (erase_dup l)
 | []        := by rewrite erase_dup_nil; exact nodup_nil
 | (a::l)    := by_cases

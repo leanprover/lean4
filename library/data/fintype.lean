@@ -12,6 +12,9 @@ open list bool unit decidable option function
 structure fintype [class] (A : Type) : Type :=
 (elems : list A) (unique : nodup elems) (complete : ∀ a, a ∈ elems)
 
+definition elements_of (A : Type) [h : fintype A] : list A :=
+@fintype.elems A h
+
 definition fintype_unit [instance] : fintype unit :=
 fintype.mk [star] dec_trivial (λ u, match u with star := dec_trivial end)
 
@@ -80,3 +83,64 @@ definition decidable_eq_fun [instance] {A B : Type} [h₁ : fintype A] [h₂ : d
     | none   := λ h : find_discr f g e = none, inl (show f = g, from funext (λ a : A, all_eq_of_find_discr_eq_none h a (c a)))
     end rfl
   end
+
+open list.as_type
+-- Auxiliary function for returning a list with all elements of the type: (list.as_type l)
+-- Remark ⟪s⟫ is notation for (list.as_type l)
+-- We use this function to define the instance for (fintype ⟪s⟫)
+private definition ltype_elems {A : Type} {s : list A} : Π {l : list A}, l ⊆ s → list ⟪s⟫
+| []     h := []
+| (a::l) h := lval a (h a !mem_cons) :: ltype_elems (sub_of_cons_sub h)
+
+private theorem mem_of_mem_ltype_elems {A : Type} {a : A} {s : list A}
+                : Π {l : list A} {h : l ⊆ s} {m : a ∈ s}, mk a m ∈ ltype_elems h → a ∈ l
+| []     h m lin := absurd lin !not_mem_nil
+| (b::l) h m lin := or.elim (eq_or_mem_of_mem_cons lin)
+  (λ leq : mk a m = mk b (h b (mem_cons b l)),
+     as_type.no_confusion leq (λ aeqb em, by rewrite [aeqb]; exact !mem_cons))
+  (λ linl : mk a m ∈ ltype_elems (sub_of_cons_sub h),
+     have ainl : a ∈ l, from mem_of_mem_ltype_elems linl,
+     mem_cons_of_mem _ ainl)
+
+private theorem nodup_ltype_elems {A : Type} {s : list A} : Π {l : list A} (d : nodup l) (h : l ⊆ s), nodup (ltype_elems h)
+| []     d h := nodup_nil
+| (a::l) d h :=
+  have d₁    : nodup l, from nodup_of_nodup_cons d,
+  have nainl : a ∉ l, from not_mem_of_nodup_cons d,
+  let  h₁    : l ⊆ s := sub_of_cons_sub h in
+  have d₂    : nodup (ltype_elems h₁), from nodup_ltype_elems d₁ h₁,
+  have nin   : mk a (h a (mem_cons a l)) ∉ ltype_elems h₁, from
+    assume ab, absurd (mem_of_mem_ltype_elems ab) nainl,
+  nodup_cons nin d₂
+
+private theorem mem_ltype_elems {A : Type} {s : list A} {a : ⟪s⟫}
+                : Π {l : list A} (h : l ⊆ s), value a ∈ l → a ∈ ltype_elems h
+| []     h vainl  := absurd vainl !not_mem_nil
+| (b::l) h vainbl := or.elim (eq_or_mem_of_mem_cons vainbl)
+  (λ vaeqb : value a = b,
+   begin
+     clear vainbl, reverts [vaeqb, h],
+     apply (as_type.cases_on a),
+     intros [va, ma, vaeqb], esimp at vaeqb,
+     apply (eq.rec_on vaeqb), intro h,
+     change (mk va ma ∈ mk va (h !mem_cons) :: ltype_elems (sub_of_cons_sub h)),
+     apply mem_cons
+   end)
+  (λ vainl : value a ∈ l,
+     assert s₁  : l ⊆ s, from sub_of_cons_sub h,
+     have   aux : a ∈ ltype_elems (sub_of_cons_sub h), from mem_ltype_elems s₁ vainl,
+     mem_cons_of_mem _ aux)
+
+definition fintype_list_as_type [instance] {A : Type} [h : decidable_eq A] {s : list A} : fintype ⟪s⟫ :=
+let  nds     : list A := erase_dup s in
+assert sub₁  : nds ⊆ s, from erase_dup_sub s,
+assert sub₂  : s ⊆ nds, from sub_erase_dup s,
+assert dnds  : nodup nds, from nodup_erase_dup s,
+let  e       : list ⟪s⟫ := ltype_elems sub₁ in
+fintype.mk
+  e
+  (nodup_ltype_elems dnds sub₁)
+  (λ a : ⟪s⟫, show a ∈ e, from
+   assert vains   : value a ∈ s,   from is_member a,
+   assert vainnds : value a ∈ nds, from sub₂ vains,
+   mem_ltype_elems sub₁ vainnds)

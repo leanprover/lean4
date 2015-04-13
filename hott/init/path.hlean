@@ -40,8 +40,8 @@ namespace eq
   definition inverse (p : x = y) : y = x :=
   eq.rec (refl x) p
 
-  notation p₁ ⬝ p₂ := concat p₁ p₂
-  notation p ⁻¹ := inverse p
+  infix   ⬝  := concat
+  postfix ⁻¹ := inverse
   --a second notation for the inverse, which is not overloaded
   postfix [parsing-only] `⁻¹ᵖ`:std.prec.max_plus := inverse
 

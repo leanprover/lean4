@@ -119,28 +119,28 @@ private theorem mem_ltype_elems {A : Type} {s : list A} {a : ⟪s⟫}
 | (b::l) h vainbl := or.elim (eq_or_mem_of_mem_cons vainbl)
   (λ vaeqb : value a = b,
    begin
-     clear vainbl, reverts [vaeqb, h],
-     apply (as_type.cases_on a),
-     intros [va, ma, vaeqb], esimp at vaeqb,
-     apply (eq.rec_on vaeqb), intro h,
-     change (mk va ma ∈ mk va (h !mem_cons) :: ltype_elems (sub_of_cons_sub h)),
-     apply mem_cons
+      reverts [vaeqb, h],
+      -- TODO(Leo): check why 'cases a with [va, ma]' produces an incorrect proof
+      apply (as_type.cases_on a),
+      intros [va, ma, vaeqb],
+      rewrite -vaeqb, intro h,
+      apply mem_cons
    end)
   (λ vainl : value a ∈ l,
-     assert s₁  : l ⊆ s, from sub_of_cons_sub h,
-     have   aux : a ∈ ltype_elems (sub_of_cons_sub h), from mem_ltype_elems s₁ vainl,
+     have s₁  : l ⊆ s,                               from sub_of_cons_sub h,
+     have aux : a ∈ ltype_elems (sub_of_cons_sub h), from mem_ltype_elems s₁ vainl,
      mem_cons_of_mem _ aux)
 
 definition fintype_list_as_type [instance] {A : Type} [h : decidable_eq A] {s : list A} : fintype ⟪s⟫ :=
-let  nds     : list A := erase_dup s in
-assert sub₁  : nds ⊆ s, from erase_dup_sub s,
-assert sub₂  : s ⊆ nds, from sub_erase_dup s,
-assert dnds  : nodup nds, from nodup_erase_dup s,
-let  e       : list ⟪s⟫ := ltype_elems sub₁ in
+let  nds   : list A := erase_dup s in
+have sub₁  : nds ⊆ s,   from erase_dup_sub s,
+have sub₂  : s ⊆ nds,   from sub_erase_dup s,
+have dnds  : nodup nds, from nodup_erase_dup s,
+let  e     : list ⟪s⟫ := ltype_elems sub₁ in
 fintype.mk
   e
   (nodup_ltype_elems dnds sub₁)
   (λ a : ⟪s⟫, show a ∈ e, from
-   assert vains   : value a ∈ s,   from is_member a,
-   assert vainnds : value a ∈ nds, from sub₂ vains,
+   have vains   : value a ∈ s,   from is_member a,
+   have vainnds : value a ∈ nds, from sub₂ vains,
    mem_ltype_elems sub₁ vainnds)

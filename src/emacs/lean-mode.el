@@ -49,9 +49,9 @@
           (buffer-file-name)
           (flymake-init-create-temp-buffer-copy 'lean-create-temp-in-system-tempdir))))
     (compile (lean-compile-string
-              (lean-get-executable lean-executable-name)
+              (shell-quote-argument (lean-get-executable lean-executable-name))
               (or arg "")
-              target-file-name))))
+              (shell-quote-argument target-file-name)))))
 
 (defun lean-exec-at-pos (process-name process-buffer-name &rest options)
   "Execute Lean by providing current position with optional

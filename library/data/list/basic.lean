@@ -8,8 +8,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura
 Basic properties of lists.
 -/
 import logic tools.helper_tactics data.nat.basic algebra.function
-
-open eq.ops helper_tactics nat prod function
+open eq.ops helper_tactics nat prod function option
 
 inductive list (T : Type) : Type :=
 | nil {} : list T
@@ -340,7 +339,6 @@ theorem app_sub_of_sub_of_sub {l₁ l₂ l : list T} : l₁ ⊆ l → l₂ ⊆ l
     (λ xinl₂ : x ∈ l₂, l₂subl xinl₂)
 
 /- find -/
-
 section
 variable [H : decidable_eq T]
 include H
@@ -352,6 +350,12 @@ definition find : T → list T → nat
 theorem find_nil (x : T) : find x [] = 0
 
 theorem find_cons (x y : T) (l : list T) : find x (y::l) = if x = y then 0 else succ (find x l)
+
+theorem find_cons_of_eq {x y : T} (l : list T) : x = y → find x (y::l) = 0 :=
+assume e, if_pos e
+
+theorem find_cons_of_ne {x y : T} (l : list T) : x ≠ y → find x (y::l) = succ (find x l) :=
+assume n, if_neg n
 
 theorem find.not_mem {l : list T} {x : T} : ¬x ∈ l → find x l = length l :=
 list.rec_on l
@@ -369,14 +373,35 @@ list.rec_on l
 end
 
 /- nth element -/
-definition nth [h : inhabited T] : list T → nat → T
-| []       n     := arbitrary T
-| (a :: l) 0     := a
+section nth
+definition nth : list T → nat → option T
+| []       n     := none
+| (a :: l) 0     := some a
 | (a :: l) (n+1) := nth l n
 
-theorem nth_zero [h : inhabited T] (a : T) (l : list T) : nth (a :: l) 0 = a
+theorem nth_zero (a : T) (l : list T) : nth (a :: l) 0 = some a
 
-theorem nth_succ [h : inhabited T] (a : T) (l : list T) (n : nat) : nth (a::l) (n+1) = nth l n
+theorem nth_succ (a : T) (l : list T) (n : nat) : nth (a::l) (succ n) = nth l n
+
+open decidable
+theorem find_nth [h : decidable_eq T] {a : T} : ∀ {l}, a ∈ l → nth l (find a l) = some a
+| []     ain   := absurd ain !not_mem_nil
+| (b::l) ainbl := by_cases
+  (λ aeqb : a = b, by rewrite [find_cons_of_eq _ aeqb, nth_zero, aeqb])
+  (λ aneb : a ≠ b, or.elim (eq_or_mem_of_mem_cons ainbl)
+    (λ aeqb : a = b, absurd aeqb aneb)
+    (λ ainl : a ∈ l, by rewrite [find_cons_of_ne _ aneb, nth_succ, find_nth ainl]))
+
+definition inth [h : inhabited T] (l : list T) (n : nat) : T :=
+match nth l n with
+| some a := a
+| none   := arbitrary T
+end
+
+theorem inth_zero [h : inhabited T] (a : T) (l : list T) : inth (a :: l) 0 = a
+
+theorem inth_succ [h : inhabited T] (a : T) (l : list T) (n : nat) : inth (a::l) (n+1) = inth l n
+end nth
 
 open decidable
 definition has_decidable_eq {A : Type} [H : decidable_eq A] : ∀ l₁ l₂ : list A, decidable (l₁ = l₂)

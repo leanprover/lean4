@@ -75,6 +75,12 @@ calc
 theorem mul_div_cancel_left {m : ℕ} (n : ℕ) (H : m > 0) : m * n div m = n :=
 !mul.comm ▸ !mul_div_cancel H
 
+theorem mul_cancel_right_of_ne_zero {a b c : nat} : c ≠ 0 → a * c = b * c → a = b :=
+assume h₁ h₂, by rewrite [-mul_div_cancel a (pos_of_ne_zero h₁), h₂, mul_div_cancel b (pos_of_ne_zero h₁)]
+
+theorem mul_cancel_left_of_ne_zero {a b c : nat} : a ≠ 0 → a * b = a * c → b = c :=
+assume h₁ h₂, mul_cancel_right_of_ne_zero h₁ (mul.comm a b ▸ mul.comm a c ▸ h₂)
+
 private definition mod.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
 if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y else x
 

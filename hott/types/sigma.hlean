@@ -19,7 +19,6 @@ namespace sigma
             {D : Πa b, C a b → Type}
             {a a' a'' : A} {b b₁ b₂ : B a} {b' : B a'} {b'' : B a''} {u v w : Σa, B a}
 
-  -- sigma.eta is already used for the eta rule for strict equality
   protected definition eta : Π (u : Σa, B a), ⟨u.1 , u.2⟩ = u
   | eta ⟨u₁, u₂⟩ := idp
 
@@ -32,7 +31,6 @@ namespace sigma
   definition dpair_eq_dpair (p : a = a') (q : p ▹ b = b') : ⟨a, b⟩ = ⟨a', b'⟩ :=
   by cases p; cases q; apply idp
 
-  /- In Coq they often have to give u and v explicitly -/
   definition sigma_eq (p : u.1 = v.1) (q : p ▹ u.2 = v.2) : u = v :=
   by cases u; cases v; apply (dpair_eq_dpair p q)
 
@@ -45,9 +43,6 @@ namespace sigma
 
   definition eq_pr2 (p : u = v) : p..1 ▹ u.2 = v.2 :=
   by cases p; apply idp
-
-  --Coq uses the following proof, which only computes if u,v are dpairs AND p is idp
-  --(transport_compose B dpr1 p u.2)⁻¹ ⬝ apD dpr2 p
 
   postfix `..2`:(max+1) := eq_pr2
 
@@ -71,11 +66,11 @@ namespace sigma
 
   /- the uncurried version of sigma_eq. We will prove that this is an equivalence -/
 
-  definition sigma_eq_uncurried : Π (pq : Σ(p : pr1 u = pr1 v), p ▹ (pr2 u) = pr2 v), u = v
+  definition sigma_eq_uncurried : Π (pq : Σ(p : u.1 = v.1), p ▹ u.2 = v.2), u = v
   | sigma_eq_uncurried ⟨pq₁, pq₂⟩ := sigma_eq pq₁ pq₂
 
   definition dpair_sigma_eq_uncurried : Π (pq : Σ(p : u.1 = v.1), p ▹ u.2 = v.2),
-        sigma.mk (sigma_eq_uncurried pq)..1 (sigma_eq_uncurried pq)..2 = pq
+        ⟨(sigma_eq_uncurried pq)..1, (sigma_eq_uncurried pq)..2⟩ = pq
   | dpair_sigma_eq_uncurried ⟨pq₁, pq₂⟩ := dpair_sigma_eq pq₁ pq₂
 
   definition sigma_eq_pr1_uncurried (pq : Σ(p : u.1 = v.1), p ▹ u.2 = v.2)
@@ -86,7 +81,7 @@ namespace sigma
       : (sigma_eq_pr1_uncurried pq) ▹ (sigma_eq_uncurried pq)..2 = pq.2 :=
   (dpair_sigma_eq_uncurried pq)..2
 
-  definition sigma_eq_eta_uncurried (p : u = v) : sigma_eq_uncurried (sigma.mk p..1 p..2) = p :=
+  definition sigma_eq_eta_uncurried (p : u = v) : sigma_eq_uncurried ⟨p..1, p..2⟩ = p :=
   sigma_eq_eta p
 
   definition tr_sigma_eq_pr1_uncurried {B' : A → Type}

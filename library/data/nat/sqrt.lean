@@ -8,7 +8,7 @@ Authors: Leonardo de Moura
 Very simple (sqrt n) function that returns s s.t.
     s*s ≤ n ≤ s*s + s + s
 -/
-import data.nat.order
+import data.nat.order data.nat.sub
 
 namespace nat
 open decidable
@@ -38,10 +38,6 @@ theorem sqrt_aux_lower : ∀ {s n : nat}, s ≤ n → sqrt_aux s n * sqrt_aux s 
 theorem sqrt_lower (n : nat) : sqrt n * sqrt n ≤ n :=
 sqrt_aux_lower (le.refl n)
 
-theorem succ_squared (n : nat) : succ n * succ n = n*n + n + n + 1 :=
-calc succ n * succ n = (n+1)*(n+1)     : by rewrite [add_one]
-                ...  = n*n + n + n + 1 : by rewrite [mul.right_distrib, mul.left_distrib, one_mul, mul_one]
-
 theorem sqrt_aux_upper : ∀ {s n : nat}, n ≤ s*s + s + s → n ≤ sqrt_aux s n * sqrt_aux s n + sqrt_aux s n + sqrt_aux s n
 | 0         n   h := h
 | (succ s)  n   h := by_cases
@@ -49,10 +45,14 @@ theorem sqrt_aux_upper : ∀ {s n : nat}, n ≤ s*s + s + s → n ≤ sqrt_aux s
     by rewrite [sqrt_aux_suc_of_pos h₁]; exact h)
   (λ h₂ : ¬ (succ s)*(succ s) ≤ n,
     assert h₃ : n < (succ s) * (succ s), from lt_of_not_le h₂,
-    assert h₄ : n ≤ s * s + s + s, by rewrite [succ_squared at h₃]; exact h₃,
+    assert h₄ : n ≤ s * s + s + s, by rewrite [succ_mul_succ_eq at h₃]; exact h₃,
     by rewrite [sqrt_aux_suc_of_neg h₂]; exact (sqrt_aux_upper h₄))
 
 theorem sqrt_upper (n : nat) : n ≤ sqrt n * sqrt n + sqrt n + sqrt n :=
 have aux : n ≤ n*n + n + n, from le_add_of_le_right (le_add_of_le_left (le.refl n)),
 sqrt_aux_upper aux
+
+theorem sqrt_aux_eq : ∀ n, sqrt_aux n (n*n) = n
+| 0        := rfl
+| (succ n) := if_pos !le.refl
 end nat

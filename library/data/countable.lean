@@ -111,3 +111,79 @@ countable.mk
   unpickle_prod
   unpickle_pickle_prod
 end prod
+
+section list
+variables {A : Type}
+variables [h : countable A]
+include h
+
+definition pickle_list_core : list A → nat
+| []     := 0
+| (a::l) := mkpair (pickle a) (pickle_list_core l)
+
+theorem pickle_list_core_cons (a : A) (l : list A) : pickle_list_core (a::l) = mkpair (pickle a) (pickle_list_core l) :=
+rfl
+
+definition pickle_list (l : list A) : nat :=
+mkpair (length l) (pickle_list_core l)
+
+definition unpickle_list_core : nat → nat → option (list A)
+| 0        v  := some []
+| (succ n) v  :=
+  match unpair v with
+  | (v₁, v₂) :=
+    match unpickle A v₁ with
+    | some a :=
+      match unpickle_list_core n v₂ with
+      | some l := some (a::l)
+      | none   := none
+      end
+    | none   := none
+    end
+  end
+
+theorem unpickle_list_core_succ (n v : nat) :
+  unpickle_list_core (succ n) v =
+    match unpair v with
+    | (v₁, v₂) :=
+      match unpickle A v₁ with
+      | some a :=
+        match unpickle_list_core n v₂ with
+        | some l := some (a::l)
+        | none   := none
+        end
+      | none   := none
+      end
+    end
+:= rfl
+
+definition unpickle_list (n : nat) : option (list A) :=
+match unpair n with
+| (l, v) := unpickle_list_core l v
+end
+
+theorem unpickle_pickle_list_core : ∀ l : list A, unpickle_list_core (length l) (pickle_list_core l) = some l
+| []     := rfl
+| (a::l) :=
+  begin
+    rewrite [pickle_list_core_cons, length_cons, add_one (length l), unpickle_list_core_succ],
+    rewrite [unpair_mkpair],
+    esimp [prod.cases_on],
+    rewrite [unpickle_pickle_list_core l],
+    rewrite [countable.picklek],
+  end
+
+theorem unpickle_pickle_list (l : list A) : unpickle_list (pickle_list l) = some l :=
+begin
+  esimp [pickle_list, unpickle_list],
+  rewrite [unpair_mkpair],
+  esimp [prod.cases_on],
+  apply unpickle_pickle_list_core
+end
+
+definition countable_list [instance] {A : Type} [h : countable A] : countable (list A) :=
+countable.mk
+  pickle_list
+  unpickle_list
+  unpickle_pickle_list
+end list

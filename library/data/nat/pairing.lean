@@ -47,4 +47,28 @@ by_cases
       esimp [mkpair],
       rewrite [if_neg l₄, sub_sub, add_sub_of_le g₃],
     end)
+
+theorem unpair_mkpair (a b : nat) : unpair (mkpair a b) = (a, b) :=
+by_cases
+ (λ h : a < b,
+  assert aux₁ : a ≤ b + b, from calc
+    a   ≤ b   : le_of_lt h
+    ... ≤ b+b : !le_add_right,
+  begin
+    esimp [mkpair],
+    rewrite [if_pos h],
+    esimp [unpair],
+    rewrite [sqrt_offset_eq aux₁, add_sub_cancel_left, if_pos h]
+  end)
+ (λ h : ¬ a < b,
+  have h₁ : b ≤ a, from le_of_not_lt h,
+  assert aux₁ : a + b ≤ a + a, from add_le_add_left h₁ a,
+  have   aux₂ : a + b ≥ a,     from !le_add_right,
+  assert aux₃ : ¬ a + b < a,   from not_lt_of_le aux₂,
+  begin
+    esimp [mkpair],
+    rewrite [if_neg h],
+    esimp [unpair],
+    rewrite [add.assoc (a * a) a b, sqrt_offset_eq aux₁, *add_sub_cancel_left, if_neg aux₃]
+  end)
 end nat

@@ -68,7 +68,7 @@ theorem unpickle_pickle_sum : ∀ s : sum A B, unpickle_sum (pickle_sum s) = som
              mul_div_cancel_left _ aux₁, countable.picklek]
   end
 
-definition countable_sum [instance] {A B : Type} [h₁ : countable A] [h₂ : countable B] : countable (sum A B) :=
+definition countable_sum [instance] : countable (sum A B) :=
 countable.mk
   (λ s, pickle_sum s)
   (λ n, unpickle_sum n)
@@ -105,7 +105,7 @@ theorem unpickle_pickle_prod : ∀ p : A × B, unpickle_prod (pickle_prod p) = s
     rewrite [*countable.picklek]
   end
 
-definition countable_product [instance] {A B : Type} [h₁ : countable A] [h₂ : countable B] : countable (A × B) :=
+definition countable_product [instance] : countable (A × B) :=
 countable.mk
   pickle_prod
   unpickle_prod
@@ -181,7 +181,7 @@ begin
   apply unpickle_pickle_list_core
 end
 
-definition countable_list [instance] {A : Type} [h : countable A] : countable (list A) :=
+definition countable_list [instance] : countable (list A) :=
 countable.mk
   pickle_list
   unpickle_list

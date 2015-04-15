@@ -187,3 +187,21 @@ countable.mk
   unpickle_list
   unpickle_pickle_list
 end list
+
+definition countable_of_left_injection
+             {A B : Type} [h₁ : countable A]
+             (f : B → A) (finv : A → option B) (linv : ∀ b, finv (f b) = some b) : countable B :=
+countable.mk
+  (λ b, pickle (f b))
+  (λ n,
+    match unpickle A n with
+    | some a := finv a
+    | none   := none
+    end)
+  (λ b,
+    begin
+      esimp,
+      rewrite [countable.picklek],
+      esimp [option.cases_on],
+      rewrite [linv]
+    end)

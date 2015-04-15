@@ -73,5 +73,41 @@ countable.mk
   (λ s, pickle_sum s)
   (λ n, unpickle_sum n)
   (λ s, unpickle_pickle_sum s)
-
 end sum
+
+section prod
+variables {A B : Type}
+variables [h₁ : countable A] [h₂ : countable B]
+include h₁ h₂
+
+definition pickle_prod : A × B → nat
+| (a, b) := mkpair (pickle a) (pickle b)
+
+definition unpickle_prod (n : nat) : option (A × B) :=
+match unpair n with
+| (n₁, n₂) :=
+  match unpickle A n₁ with
+  | some a :=
+    match unpickle B n₂ with
+    | some b := some (a, b)
+    | none   := none
+    end
+  | none   := none
+  end
+end
+
+theorem unpickle_pickle_prod : ∀ p : A × B, unpickle_prod (pickle_prod p) = some p
+| (a, b) :=
+  begin
+    esimp [pickle_prod, unpickle_prod, prod.cases_on],
+    rewrite [unpair_mkpair],
+    esimp,
+    rewrite [*countable.picklek]
+  end
+
+definition countable_product [instance] {A B : Type} [h₁ : countable A] [h₂ : countable B] : countable (A × B) :=
+countable.mk
+  pickle_prod
+  unpickle_prod
+  unpickle_pickle_prod
+end prod

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 
 Type class for countable types
 -/
-import data.fintype data.list data.sum data.nat
+import data.fintype data.list data.sum data.nat data.subtype
 open option list nat
 
 structure countable [class] (A : Type) :=
@@ -214,3 +214,90 @@ countable.mk
       esimp [option.cases_on],
       rewrite [linv]
     end)
+
+/-
+Choice function for countable types  and decidable predicates.
+We provide the following API
+
+choose      {A : Type} {p : A → Prop} [c : countable A] [d : decidable_pred p] : (∃ x, p x) → A :=
+choose_spec {A : Type} {p : A → Prop} [c : countable A] [d : decidable_pred p] (ex : ∃ x, p x) : p (choose ex) :=
+-/
+section find_a
+parameters {A : Type} {p : A → Prop} [c : countable A] [d : decidable_pred p]
+include c
+include d
+
+private definition pn (n : nat) : Prop :=
+match unpickle A n with
+| some a := p a
+| none   := false
+end
+
+private definition decidable_pn : decidable_pred pn :=
+λ n,
+match unpickle A n with
+| some a := λ e : unpickle A n = some a,
+  match d a with
+  | decidable.inl t :=
+    begin
+      unfold pn, rewrite e, esimp [option.cases_on],
+      exact (decidable.inl t)
+    end
+  | decidable.inr f :=
+    begin
+      unfold pn, rewrite e, esimp [option.cases_on],
+      exact (decidable.inr f)
+    end
+  end
+| none   := λ e : unpickle A n = none,
+  begin
+    unfold pn, rewrite e, esimp [option.cases_on],
+    exact decidable_false
+  end
+end (eq.refl (unpickle A n))
+
+private definition ex_pn_of_ex : (∃ x, p x) → (∃ x, pn x) :=
+assume ex,
+obtain (w : A) (pw : p w), from ex,
+exists.intro (pickle w)
+  begin
+    unfold pn, rewrite [picklek], esimp, exact pw
+  end
+
+private lemma unpickle_ne_none_of_pn {n : nat} : pn n → unpickle A n ≠ none :=
+assume pnn e,
+begin
+  rewrite [▸ (match unpickle A n with | some a := p a | none   := false end) at pnn],
+  rewrite [e at pnn], esimp [option.cases_on] at pnn,
+  exact (false.elim pnn)
+end
+
+open subtype
+
+private lemma of_nat (n : nat) : pn n → { a : A | p a } :=
+match unpickle A n with
+| some a := λ (e : unpickle A n = some a),
+  begin
+    unfold pn, rewrite e, esimp [option.cases_on], intro pa,
+    exact (tag a pa)
+  end
+| none   := λ (e : unpickle A n = none) h, absurd e (unpickle_ne_none_of_pn h)
+end (eq.refl (unpickle A n))
+
+private definition find_a : (∃ x, p x) → {a : A | p a} :=
+assume ex : ∃ x, p x,
+have exn  : ∃ x, pn x, from ex_pn_of_ex ex,
+let r     : nat := @nat.choose pn decidable_pn exn in
+have pnr  : pn r, from @nat.choose_spec pn decidable_pn exn,
+of_nat r pnr
+end find_a
+
+namespace countable
+open subtype
+
+definition choose {A : Type} {p : A → Prop} [c : countable A] [d : decidable_pred p] : (∃ x, p x) → A :=
+assume ex, elt_of (find_a ex)
+
+theorem choose_spec {A : Type} {p : A → Prop} [c : countable A] [d : decidable_pred p] (ex : ∃ x, p x) : p (choose ex) :=
+has_property (find_a ex)
+end countable

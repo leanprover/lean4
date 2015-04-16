@@ -9,7 +9,6 @@ open eq.ops nonempty inhabited
 -- Show that Excluded middle follows from
 --   Hilbert's choice operator, function extensionality and Prop extensionality
 context
-hypothesis propext {a b : Prop} : (a → b) → (b → a) → a = b
 parameter  p : Prop
 
 private definition u [reducible] := epsilon (λx, x = true ∨ p)
@@ -40,7 +39,7 @@ assume Hp : p,
       have Hr : (x = false ∨ p) → (x = true ∨ p), from
         assume A, or.inr Hp,
       show (x = true ∨ p) = (x = false ∨ p), from
-        propext Hl Hr),
+        propext (iff.intro Hl Hr)),
   show u = v, from
     Hpred ▸ (eq.refl (epsilon (λ x, x = true ∨ p)))
 

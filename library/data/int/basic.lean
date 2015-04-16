@@ -150,19 +150,19 @@ int.cases_on a
 
 /- int is a quotient of ordered pairs of natural numbers -/
 
-definition equiv (p q : ℕ × ℕ) : Prop :=  pr1 p + pr2 q = pr2 p + pr1 q
+protected definition equiv (p q : ℕ × ℕ) : Prop :=  pr1 p + pr2 q = pr2 p + pr1 q
 
 local notation p `≡` q := equiv p q
 
-theorem equiv.refl {p : ℕ × ℕ} : p ≡ p := !add.comm
+protected theorem equiv.refl {p : ℕ × ℕ} : p ≡ p := !add.comm
 
-theorem equiv.symm {p q : ℕ × ℕ} (H : p ≡ q) : q ≡ p :=
+protected theorem equiv.symm {p q : ℕ × ℕ} (H : p ≡ q) : q ≡ p :=
 calc
   pr1 q + pr2 p = pr2 p + pr1 q : !add.comm
     ... = pr1 p + pr2 q         : H⁻¹
     ... = pr2 q + pr1 p         : !add.comm
 
-theorem equiv.trans {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q ≡ r) : p ≡ r :=
+protected theorem equiv.trans {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q ≡ r) : p ≡ r :=
 have H3 : pr1 p + pr2 r + pr2 q = pr2 p + pr1 r + pr2 q, from
   calc
    pr1 p + pr2 r + pr2 q = pr1 p + pr2 q + pr2 r : by simp
@@ -172,10 +172,10 @@ have H3 : pr1 p + pr2 r + pr2 q = pr2 p + pr1 r + pr2 q, from
     ... = pr2 p + pr1 r + pr2 q                  : by simp,
 show pr1 p + pr2 r = pr2 p + pr1 r, from add.cancel_right H3
 
-theorem equiv_equiv : is_equivalence equiv :=
+protected theorem equiv_equiv : is_equivalence equiv :=
 is_equivalence.mk @equiv.refl @equiv.symm @equiv.trans
 
-theorem equiv_cases {p q : ℕ × ℕ} (H : equiv p q) :
+protected theorem equiv_cases {p q : ℕ × ℕ} (H : equiv p q) :
     (pr1 p ≥ pr2 p ∧ pr1 q ≥ pr2 q) ∨ (pr1 p < pr2 p ∧ pr1 q < pr2 q) :=
 or.elim (@le_or_gt (pr2 p) (pr1 p))
   (assume H1: pr1 p ≥ pr2 p,
@@ -185,7 +185,7 @@ or.elim (@le_or_gt (pr2 p) (pr1 p))
     have H2 : pr2 p + pr1 q < pr2 p + pr2 q, from H ▸ add_lt_add_right H1 (pr2 q),
     or.inr (and.intro H1 (lt_of_add_lt_add_left H2)))
 
-theorem equiv_of_eq {p q : ℕ × ℕ} (H : p = q) : p ≡ q := H ▸ equiv.refl
+protected theorem equiv_of_eq {p q : ℕ × ℕ} (H : p = q) : p ≡ q := H ▸ equiv.refl
 
 calc_trans equiv.trans
 calc_refl equiv.refl

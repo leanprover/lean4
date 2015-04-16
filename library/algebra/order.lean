@@ -87,9 +87,12 @@ section
   theorem gt.trans {a b c : A} (H1 : a > b) (H2: b > c) : a > c := lt.trans H2 H1
   calc_trans gt.trans
 
-  theorem ne_of_lt {a b : A} : a < b → a ≠ b :=
-  assume lt_ab : a < b, assume eq_ab : a = b,
+  theorem ne_of_lt {a b : A} (lt_ab : a < b) : a ≠ b :=
+  assume eq_ab : a = b,
   show false, from lt.irrefl b (eq_ab ▸ lt_ab)
+
+  theorem ne_of_gt {a b : A} (gt_ab : a > b) : a ≠ b :=
+  ne.symm (ne_of_lt gt_ab)
 
   theorem lt.asymm {a b : A} (H : a < b) : ¬ b < a :=
   assume H1 : b < a, lt.irrefl _ (lt.trans H H1)

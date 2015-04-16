@@ -259,7 +259,8 @@ section port_algebra
   show decidable (b < a), from _
 
   theorem ge.trans: ∀{a b c : ℤ}, a ≥ b → b ≥ c → a ≥ c := @algebra.ge.trans _ _
-  theorem gt.trans: ∀{a b c : ℤ}, a ≥ b → b ≥ c → a ≥ c := @algebra.ge.trans _ _
+  theorem gt.trans: ∀{a b c : ℤ}, a > b → b > c → a > c := @algebra.gt.trans _ _
+  theorem ne_of_gt: ∀{a b : ℤ}, a > b → a ≠ b := @algebra.ne_of_gt _ _
   theorem gt_of_gt_of_ge : ∀{a b c : ℤ}, a > b → b ≥ c → a > c := @algebra.gt_of_gt_of_ge _ _
   theorem gt_of_ge_of_gt : ∀{a b c : ℤ}, a ≥ b → b > c → a > c := @algebra.gt_of_ge_of_gt _ _
   theorem lt.asymm : ∀{a b : ℤ}, a < b → ¬ b < a := @algebra.lt.asymm _ _

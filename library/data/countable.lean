@@ -1,3 +1,12 @@
+/-
+Copyright (c) 2015 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Module: data.countable
+Author: Leonardo de Moura
+
+Type class for countable types
+-/
 import data.fintype data.list data.sum data.nat
 open option list nat
 

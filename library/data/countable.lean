@@ -300,4 +300,18 @@ assume ex, elt_of (find_a ex)
 
 theorem choose_spec {A : Type} {p : A → Prop} [c : countable A] [d : decidable_pred p] (ex : ∃ x, p x) : p (choose ex) :=
 has_property (find_a ex)
+
+theorem axiom_of_choice {A : Type} {B : A → Type} {R : Π x, B x → Prop} [c : Π a, countable (B a)] [d : ∀ x y, decidable (R x y)]
+                        : (∀x, ∃y, R x y) → ∃f, ∀x, R x (f x) :=
+assume H,
+have H₁ : ∀x, R x (choose (H x)), from take x, choose_spec (H x),
+exists.intro _ H₁
+
+theorem skolem {A : Type} {B : A → Type} {P : Π x, B x → Prop} [c : Π a, countable (B a)] [d : ∀ x y, decidable (P x y)]
+               : (∀x, ∃y, P x y) ↔ ∃f, (∀x, P x (f x)) :=
+iff.intro
+  (assume H : (∀x, ∃y, P x y), axiom_of_choice H)
+  (assume H : (∃f, (∀x, P x (f x))),
+    take x, obtain (fw : ∀x, B x) (Hw : ∀x, P x (fw x)), from H,
+      exists.intro (fw x) (Hw x))
 end countable

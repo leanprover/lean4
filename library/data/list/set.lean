@@ -277,7 +277,7 @@ have d₄    : nodup (a::l₂),       from nodup_cons nain₂ d₃,
 have disj₂ : disjoint l₁ (a::l₂), from disjoint.comm (disjoint_cons_of_not_mem_of_disjoint nain₁ (disjoint.comm disj)),
 nodup_append_of_nodup_of_nodup_of_disjoint d₂ d₄ disj₂
 
-theorem nodup_map {f : A → B} (inj : injective f) : ∀ {l : list A}, nodup l → nodup (map f l)
+theorem nodup_map {f : A → B} (inj : has_left_inverse f) : ∀ {l : list A}, nodup l → nodup (map f l)
 | []      n := begin rewrite [map_nil], apply nodup_nil end
 | (x::xs) n :=
   assert nxinxs : x ∉ xs,           from not_mem_of_nodup_cons n,

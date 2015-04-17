@@ -67,15 +67,33 @@ notation f `-[` op `]-` g  := combine f op g
 lemma left_inv_eq {finv : B → A} {f : A → B} (linv : finv ∘ f = id) : ∀ x, finv (f x) = x :=
 take x, show (finv ∘ f) x = x, by rewrite linv
 
-definition injective (f : A → B) : Prop := ∃ finv : B → A, finv ∘ f = id
+lemma right_inv_eq {finv : B → A} {f : A → B} (rinv : f ∘ finv = id) : ∀ x, f (finv x) = x :=
+take x, show (f ∘ finv) x = x, by rewrite rinv
 
-lemma injective_def {f : A → B} (h : injective f) : ∀ a b, f a = f b → a = b :=
-take a b, assume faeqfb,
+definition injective (f : A → B) : Prop := ∀ a₁ a₂, f a₁ = f a₂ → a₁ = a₂
+
+definition surjective (f : A → B) : Prop := ∀ b, ∃ a, f a = b
+
+definition has_left_inverse (f : A → B) : Prop := ∃ finv : B → A, finv ∘ f = id
+
+definition has_right_inverse (f : A → B) : Prop := ∃ finv : B → A, f ∘ finv = id
+
+lemma injective_of_has_left_inverse {f : A → B} : has_left_inverse f → injective f :=
+assume h, take a b, assume faeqfb,
 obtain (finv : B → A) (inv : finv ∘ f = id), from h,
 calc a = finv (f a) : by rewrite (left_inv_eq inv)
    ... = finv (f b) : faeqfb
    ... = b          : by rewrite (left_inv_eq inv)
 
+lemma surjective_of_has_right_inverse {f : A → B} : has_right_inverse f → surjective f :=
+assume h, take b,
+obtain (finv : B → A) (inv : f ∘ finv = id), from h,
+let  a : A := finv b in
+have h : f a = b, from calc
+  f a  = (f ∘ finv) b : rfl
+   ... = id b         : by rewrite (right_inv_eq inv)
+   ... = b            : rfl,
+exists.intro a h
 end function
 
 -- copy reducible annotations to top-level

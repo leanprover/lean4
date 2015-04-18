@@ -220,33 +220,33 @@ namespace nat
   definition min (a b : nat) : nat :=
   if a < b then a else b
 
-  definition max_a_a (a : nat) : a = max a a :=
+  definition max_self (a : nat) : max a a = a :=
   eq.rec_on !if_t_t rfl
 
-  definition max.eq_right {a b : nat} (H : a < b) : max a b = b :=
+  definition max_eq_right {a b : nat} (H : a < b) : max a b = b :=
   if_pos H
 
-  definition max.eq_left {a b : nat} (H : ¬ a < b) : max a b = a :=
+  definition max_eq_left {a b : nat} (H : ¬ a < b) : max a b = a :=
   if_neg H
 
-  definition max.right_eq {a b : nat} (H : a < b) : b = max a b :=
-  eq.rec_on (max.eq_right H) rfl
+  definition eq_max_right {a b : nat} (H : a < b) : b = max a b :=
+  eq.rec_on (max_eq_right H) rfl
 
-  definition max.left_eq {a b : nat} (H : ¬ a < b) : a = max a b :=
-  eq.rec_on (max.eq_left H) rfl
+  definition eq_max_left {a b : nat} (H : ¬ a < b) : a = max a b :=
+  eq.rec_on (max_eq_left H) rfl
 
-  definition max.left (a b : nat) : a ≤ max a b :=
+  definition le_max_left (a b : nat) : a ≤ max a b :=
   by_cases
-    (λ h : a < b,   le_of_lt (eq.rec_on (max.right_eq h) h))
-    (λ h : ¬ a < b, eq.rec_on (max.eq_left h) !le.refl)
+    (λ h : a < b,   le_of_lt (eq.rec_on (eq_max_right h) h))
+    (λ h : ¬ a < b, eq.rec_on (eq_max_left h) !le.refl)
 
-  definition max.right (a b : nat) : b ≤ max a b :=
+  definition le_max_right (a b : nat) : b ≤ max a b :=
   by_cases
-    (λ h : a < b,   eq.rec_on (max.eq_right h) !le.refl)
+    (λ h : a < b,   eq.rec_on (eq_max_right h) !le.refl)
     (λ h : ¬ a < b, or.rec_on (eq_or_lt_of_not_lt h)
-      (λ heq, eq.rec_on heq (eq.rec_on (max_a_a a) !le.refl))
+      (λ heq, eq.rec_on heq (eq.rec_on (eq.symm (max_self a)) !le.refl))
       (λ h : b < a,
-        have aux : a = max a b, from max.left_eq (lt.asymm h),
+        have aux : a = max a b, from eq_max_left (lt.asymm h),
         eq.rec_on aux (le_of_lt h)))
 
   definition gt [reducible] a b := lt b a

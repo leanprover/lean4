@@ -18,7 +18,7 @@ definition addl (x y : ℕ) : ℕ :=
 nat.rec y (λ n r, succ r) x
 infix `⊕`:65 := addl
 
-theorem addl.succ_right (n m : ℕ) : n ⊕ succ m = succ (n ⊕ m) :=
+theorem addl_succ_right (n m : ℕ) : n ⊕ succ m = succ (n ⊕ m) :=
 nat.induction_on n
   rfl
   (λ n₁ ih, calc
@@ -42,7 +42,7 @@ nat.induction_on x
     (λ y₁ ih₂, calc
       succ x₁ + succ y₁ = succ (succ x₁ + y₁) : rfl
                    ...  = succ (succ x₁ ⊕ y₁) : {ih₂}
-                   ...  = succ x₁ ⊕ succ y₁   : addl.succ_right))
+                   ...  = succ x₁ ⊕ succ y₁   : addl_succ_right))
 
 /- successor and predecessor -/
 
@@ -66,15 +66,15 @@ nat.induction_on n
 theorem exists_eq_succ_of_ne_zero {n : ℕ} (H : n ≠ 0) : ∃k : ℕ, n = succ k :=
 exists.intro _ (or_resolve_right !eq_zero_or_eq_succ_pred H)
 
-theorem succ.inj {n m : ℕ} (H : succ n = succ m) : n = m :=
+theorem succ_inj {n m : ℕ} (H : succ n = succ m) : n = m :=
 nat.no_confusion H (λe, e)
 
-theorem succ.ne_self {n : ℕ} : succ n ≠ n :=
+theorem succ_ne_self {n : ℕ} : succ n ≠ n :=
 nat.induction_on n
   (take H : 1 = 0,
     have ne : 1 ≠ 0, from !succ_ne_zero,
     absurd H ne)
-  (take k IH H, IH (succ.inj H))
+  (take k IH H, IH (succ_inj H))
 
 theorem discriminate {B : Prop} {n : ℕ} (H1: n = 0 → B) (H2 : ∀m, n = succ m → B) : B :=
 have H : n = n → B, from nat.cases_on n H1 H2,
@@ -117,7 +117,7 @@ nat.induction_on n
         0 + succ m = succ (0 + m) : add_succ
                ... = succ m       : IH)
 
-theorem add.succ_left (n m : ℕ) : (succ n) + m = succ (n + m) :=
+theorem succ_add (n m : ℕ) : (succ n) + m = succ (n + m) :=
 nat.induction_on m
     (!add_zero ▸ !add_zero)
     (take k IH, calc
@@ -131,10 +131,10 @@ nat.induction_on m
     (take k IH, calc
         n + succ k = succ (n+k)   : add_succ
                ... = succ (k + n) : IH
-               ... = succ k + n   : add.succ_left)
+               ... = succ k + n   : succ_add)
 
 theorem succ_add_eq_succ_add (n m : ℕ) : succ n + m = n + succ m :=
-!add.succ_left ⬝ !add_succ⁻¹
+!succ_add ⬝ !add_succ⁻¹
 
 theorem add.assoc (n m k : ℕ) : (n + m) + k = n + (m + k) :=
 nat.induction_on k
@@ -159,10 +159,10 @@ nat.induction_on n
   (take (n : ℕ) (IH : n + m = n + k → m = k) (H : succ n + m = succ n + k),
     have H2 : succ (n + m) = succ (n + k),
     from calc
-      succ (n + m) = succ n + m   : add.succ_left
+      succ (n + m) = succ n + m   : succ_add
                ... = succ n + k   : H
-               ... = succ (n + k) : add.succ_left,
-    have H3 : n + m = n + k, from succ.inj H2,
+               ... = succ (n + k) : succ_add,
+    have H3 : n + m = n + k, from succ_inj H2,
     IH H3)
 
 theorem add.cancel_right {n m k : ℕ} (H : n + m = k + m) : n = k :=
@@ -176,21 +176,21 @@ nat.induction_on n
     assume H : succ k + m = 0,
     absurd
       (show succ (k + m) = 0, from calc
-         succ (k + m) = succ k + m : add.succ_left
+         succ (k + m) = succ k + m : succ_add
                   ... = 0          : H)
       !succ_ne_zero)
 
 theorem eq_zero_of_add_eq_zero_left {n m : ℕ} (H : n + m = 0) : m = 0 :=
 eq_zero_of_add_eq_zero_right (!add.comm ⬝ H)
 
-theorem add.eq_zero {n m : ℕ} (H : n + m = 0) : n = 0 ∧ m = 0 :=
+theorem eq_zero_and_eq_zero_of_add_eq_zero {n m : ℕ} (H : n + m = 0) : n = 0 ∧ m = 0 :=
 and.intro (eq_zero_of_add_eq_zero_right H) (eq_zero_of_add_eq_zero_left H)
 
 theorem add_one (n : ℕ) : n + 1 = succ n :=
 !add_zero ▸ !add_succ
 
 theorem one_add (n : ℕ) : 1 + n = succ n :=
-!zero_add ▸ !add.succ_left
+!zero_add ▸ !succ_add
 
 /- multiplication -/
 

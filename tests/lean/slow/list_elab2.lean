@@ -118,7 +118,7 @@ list_induction_on s
     calc
       length (concat (cons x s) t ) = succ (length (concat s t))  : refl _
         ... = succ (length s + length t)  : { H }
-        ... = succ (length s) + length t  : {symm !add.succ_left}
+        ... = succ (length s) + length t  : {symm !succ_add}
         ... = length (cons x s) + length t : refl _)
 
 -- Reverse

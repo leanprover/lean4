@@ -42,4 +42,4 @@ end
 end
 
 theorem not_countable_nat_arrow_nat : (countable (nat → nat)) → false :=
-assume h, absurd (f_eq h) succ.ne_self
+assume h, absurd (f_eq h) succ_ne_self

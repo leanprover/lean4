@@ -187,7 +187,7 @@ sub_induction n m
     take H : succ k ≤ succ l,
     calc
       succ k + (succ l - succ k) = succ k + (l - k)   : succ_sub_succ
-                             ... = succ (k + (l - k)) : add.succ_left
+                             ... = succ (k + (l - k)) : succ_add
                              ... = succ l             : IH (le_of_succ_le_succ H))
 
 theorem add_sub_of_ge {n m : ℕ} (H : n ≥ m) : n + (m - n) = n :=

@@ -60,7 +60,7 @@ theorem length_append : ∀ (s t : list T), length (s ++ t) = length s + length 
 | (a :: s) t := calc
     length (a :: s ++ t) = length (s ++ t) + 1        : rfl
                     ...  = length s + length t + 1    : length_append
-                    ...  = (length s + 1) + length t  : add.succ_left
+                    ...  = (length s + 1) + length t  : succ_add
                     ...  = length (a :: s) + length t : rfl
 
 theorem eq_nil_of_length_eq_zero : ∀ {l : list T}, length l = 0 → l = []

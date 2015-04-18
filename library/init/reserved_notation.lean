@@ -46,6 +46,7 @@ reserve infix `=`:50
 reserve infix `≠`:50
 reserve infix `≈`:50
 reserve infix `∼`:50
+reserve infix `≡`:50
 
 reserve infixr `∘`:60                   -- input with \comp
 reserve postfix `⁻¹`:std.prec.max_plus  -- input with \sy or \-1 or \inv

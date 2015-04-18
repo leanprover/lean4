@@ -310,8 +310,10 @@ section field
 end field
 
 structure discrete_field [class] (A : Type) extends field A :=
-  (decidable_equality : ∀x y : A, decidable (x = y))
+  (has_decidable_eq : decidable_eq A)
   (inv_zero : inv zero = zero)
+
+attribute discrete_field.has_decidable_eq [instance]
 
 section discrete_field
   variable [s : discrete_field A]
@@ -321,10 +323,6 @@ section discrete_field
   -- many of the theorems in discrete_field are the same as theorems in field or division ring,
   -- but with fewer hypotheses since 0⁻¹ = 0 and equality is decidable.
   -- they are named with '. Is there a better convention?
-
-  -- name clash with order
-  definition decidable_eq' [instance] (a b : A) : decidable (a = b) :=
-    @discrete_field.decidable_equality A s a b
 
   theorem discrete_field.eq_zero_or_eq_zero_of_mul_eq_zero
     (x y : A) (H : x * y = 0) : x = 0 ∨ y = 0 :=

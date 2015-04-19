@@ -15,7 +15,7 @@ structure nat_trans {C D : Precategory} (F G : C ⇒ D) :=
 namespace nat_trans
 
   infixl `⟹`:25 := nat_trans -- \==>
-  variables {C D E : Precategory} {F G H I : C ⇒ D} {F' G' : D ⇒ E}
+  variables {B C D E : Precategory} {F G H I : C ⇒ D} {F' G' : D ⇒ E}
 
   attribute natural_map [coercion]
 
@@ -107,6 +107,26 @@ namespace nat_trans
   definition functor_nat_trans_compose_commute (η : F ⟹ G) (θ : F' ⟹ G')
     : (θ ∘nf G) ∘n (F' ∘fn η) = (G' ∘fn η) ∘n (θ ∘nf F) :=
   nat_trans_eq_mk (λc, (naturality θ (η c))⁻¹)
+
+  definition fn_n_distrib (F' : D ⇒ E) (η : G ⟹ H) (θ : F ⟹ G)
+    : F' ∘fn (η ∘n θ) = (F' ∘fn η) ∘n (F' ∘fn θ) :=
+  nat_trans_eq_mk (λc, !respect_comp)
+
+  definition n_nf_distrib (η : G ⟹ H) (θ : F ⟹ G) (F' : B ⇒ C)
+    : (η ∘n θ) ∘nf F' = (η ∘nf F') ∘n (θ ∘nf F') :=
+  nat_trans_eq_mk (λc, idp)
+
+  definition fn_id (F' : D ⇒ E) : F' ∘fn nat_trans.ID F = nat_trans.id :=
+  nat_trans_eq_mk (λc, !respect_id)
+
+  definition id_nf (F' : B ⇒ C) : nat_trans.ID F ∘nf F' = nat_trans.id :=
+  nat_trans_eq_mk (λc, idp)
+
+  definition id_fn (η : G ⟹ H) (c : C) : (functor.id ∘fn η) c = η c :=
+  idp
+
+  definition nf_id (η : G ⟹ H) (c : C) : (η ∘nf functor.id) c = η c :=
+  idp
 
   definition nat_trans_of_eq [reducible] (p : F = G) : F ⟹ G :=
   nat_trans.mk (λc, hom_of_eq (ap010 to_fun_ob p c))

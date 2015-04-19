@@ -150,7 +150,7 @@ namespace iso
   namespace iso
     attribute to_hom [coercion]
 
-    definition MK (f : a ⟶ b) (g : b ⟶ a) (H1 : g ∘ f = id) (H2 : f ∘ g = id) :=
+    protected definition MK (f : a ⟶ b) (g : b ⟶ a) (H1 : g ∘ f = id) (H2 : f ∘ g = id) :=
     @mk _ _ _ _ f (is_iso.mk H1 H2)
 
     definition to_inv (f : a ≅ b) : b ⟶ a :=

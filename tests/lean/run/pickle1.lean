@@ -1,7 +1,7 @@
-import data.countable
-open countable decidable bool prod list nat option
+import data.encodable
+open encodable decidable bool prod list nat option
 variable l : list (nat × bool)
-check pickle l
-eval pickle [2, 1]
-example : unpickle (list nat) (pickle [1, 1]) = some [1, 1] :=
+check encode l
+eval encode [2, 1]
+example : decode (list nat) (encode [1, 1]) = some [1, 1] :=
 rfl

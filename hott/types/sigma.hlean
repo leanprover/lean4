@@ -200,7 +200,7 @@ namespace sigma
     -- "rewrite retr (g (f⁻¹ a'))"
     apply concat, apply (ap (λx, (transport B' (retr f a') x))), apply (retr (g (f⁻¹ a'))),
     show retr f a' ▹ ((retr f a')⁻¹ ▹ b') = b',
-    from tr_inv_tr B' (retr f a') b'
+    from tr_inv_tr _ (retr f a') b'
   end
   begin
     intro u,

@@ -57,9 +57,9 @@ namespace pi
 
   /- A special case of [transport_pi] where the type [B] does not depend on [A],
       and so it is just a fixed type [B]. -/
-  definition pi_transport_constant {C : A → A' → Type} (p : a = a') (f : Π(b : A'), C a b)
-    : Π(b : A'), (transport (λa, Π(b : A'), C a b) p f) b = transport (λa, C a b) p (f b) :=
-  eq.rec_on p (λx, idp)
+  definition pi_transport_constant {C : A → A' → Type} (p : a = a') (f : Π(b : A'), C a b) (b : A')
+    : (transport (λa, Π(b : A'), C a b) p f) b = transport (λa, C a b) p (f b) :=
+  eq.rec_on p idp
 
   /- Maps on paths -/
 

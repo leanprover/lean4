@@ -10,7 +10,7 @@ Type quotients (quotient without truncation)
 
 /- The hit type_quotient is primitive, declared in init.hit. -/
 
-open eq
+open eq equiv sigma.ops
 
 namespace type_quotient
 
@@ -28,5 +28,22 @@ namespace type_quotient
     (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a = Pc a') {a a' : A} (H : R a a')
     : ap (elim Pc Pp) (eq_of_rel H) = sorry ⬝ Pp H ⬝ sorry :=
   sorry
+
+  protected definition elim_type (Pc : A → Type)
+    (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a ≃ Pc a') : type_quotient R → Type :=
+  elim Pc (λa a' H, ua (Pp H))
+
+  protected definition elim_type_on [reducible] (x : type_quotient R) (Pc : A → Type)
+    (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a ≃ Pc a') : Type :=
+  elim_type Pc Pp x
+
+  protected definition elim_type_eq_of_rel (Pc : A → Type)
+    (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a ≃ Pc a') {a a' : A} (H : R a a')
+    : transport (elim_type Pc Pp) (eq_of_rel H) = sorry /-to_fun (Pp H)-/ :=
+  sorry
+
+  definition elim_type_uncurried (H : Σ(Pc : A → Type),  Π⦃a a' : A⦄ (H : R a a'), Pc a ≃ Pc a')
+    : type_quotient R → Type :=
+  elim_type H.1 H.2
 
 end type_quotient

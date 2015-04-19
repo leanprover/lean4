@@ -12,11 +12,13 @@ import .suspension
 
 open eq nat suspension bool is_trunc unit
 
-/- We can define spheres with the following possible indices:
-- trunc_index
-- nat
-- nat, but counting wrong (S^0 = empty, S^1 = bool, ...)
-- some new type "integers >= 1"
+/-
+  We can define spheres with the following possible indices:
+  - trunc_index (defining S^-2 = S^-1 = empty)
+  - nat (forgetting that S^1 = empty)
+  - nat, but counting wrong (S^0 = empty, S^1 = bool, ...)
+  - some new type "integers >= -1"
+  We choose the last option here.
 -/
 
  /- Sphere levels -/
@@ -56,6 +58,7 @@ namespace sphere_index
 
   definition trunc_index_of_sphere_index [coercion] [reducible] (n : sphere_index) : trunc_index :=
   sphere_index.rec_on n -1 (λ n k, k.+1)
+
 end sphere_index
 
 open sphere_index equiv

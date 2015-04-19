@@ -9,7 +9,7 @@ Definition of general colimits and sequential colimits.
 -/
 
 /- definition of a general colimit -/
-open eq nat type_quotient sigma
+open eq nat type_quotient sigma equiv
 
 namespace colimit
 context
@@ -49,6 +49,12 @@ context
     (Pglue : Π(j : J) (x : A (dom j)), cglue j x ▹ Pincl (f j x) = Pincl x) : P y :=
   rec Pincl Pglue y
 
+  definition rec_cglue [reducible] {P : colimit → Type}
+    (Pincl : Π⦃i : I⦄ (x : A i), P (ι x))
+    (Pglue : Π(j : J) (x : A (dom j)), cglue j x ▹ Pincl (f j x) = Pincl x)
+      {j : J} (x : A (dom j)) : apD (rec Pincl Pglue) (cglue j x) = sorry ⬝ Pglue j x ⬝ sorry :=
+  sorry
+
    protected definition elim {P : Type} (Pincl : Π⦃i : I⦄ (x : A i), P)
     (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) = Pincl x) (y : colimit) : P :=
   rec Pincl (λj a, !tr_constant ⬝ Pglue j a) y
@@ -58,16 +64,24 @@ context
     (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) = Pincl x) : P :=
   elim Pincl Pglue y
 
-  definition rec_cglue [reducible] {P : colimit → Type}
-    (Pincl : Π⦃i : I⦄ (x : A i), P (ι x))
-    (Pglue : Π(j : J) (x : A (dom j)), cglue j x ▹ Pincl (f j x) = Pincl x)
-      {j : J} (x : A (dom j)) : apD (rec Pincl Pglue) (cglue j x) = sorry ⬝ Pglue j x ⬝ sorry :=
-  sorry
-
   definition elim_cglue [reducible] {P : Type}
     (Pincl : Π⦃i : I⦄ (x : A i), P)
     (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) = Pincl x)
       {j : J} (x : A (dom j)) : ap (elim Pincl Pglue) (cglue j x) = sorry ⬝ Pglue j x ⬝ sorry :=
+  sorry
+
+  protected definition elim_type (Pincl : Π⦃i : I⦄ (x : A i), Type)
+    (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) ≃ Pincl x) (y : colimit) : Type :=
+  elim Pincl (λj a, ua (Pglue j a)) y
+
+  protected definition elim_type_on [reducible] (y : colimit)
+    (Pincl : Π⦃i : I⦄ (x : A i), Type)
+    (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) ≃ Pincl x) : Type :=
+  elim_type Pincl Pglue y
+
+  definition elim_type_cglue [reducible] (Pincl : Π⦃i : I⦄ (x : A i), Type)
+    (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) ≃ Pincl x)
+      {j : J} (x : A (dom j)) : transport (elim_type Pincl Pglue) (cglue j x) = sorry /-Pglue j x-/ :=
   sorry
 
 end
@@ -129,6 +143,20 @@ context
   definition elim_glue {P : Type} (Pincl : Π⦃n : ℕ⦄ (a : A n), P)
     (Pglue : Π⦃n : ℕ⦄ (a : A n), Pincl (f a) = Pincl a) {n : ℕ} (a : A n)
       : ap (elim Pincl Pglue) (glue a) = sorry ⬝ Pglue a ⬝ sorry :=
+  sorry
+
+  protected definition elim_type (Pincl : Π⦃n : ℕ⦄ (a : A n), Type)
+    (Pglue : Π⦃n : ℕ⦄ (a : A n), Pincl (f a) ≃ Pincl a) : seq_colim → Type :=
+  elim Pincl (λn a, ua (Pglue a))
+
+  protected definition elim_type_on [reducible] (aa : seq_colim)
+    (Pincl : Π⦃n : ℕ⦄ (a : A n), Type)
+    (Pglue : Π⦃n : ℕ⦄ (a : A n), Pincl (f a) ≃ Pincl a) : Type :=
+  elim_type Pincl Pglue aa
+
+  definition elim_type_glue (Pincl : Π⦃n : ℕ⦄ (a : A n), Type)
+    (Pglue : Π⦃n : ℕ⦄ (a : A n), Pincl (f a) ≃ Pincl a) {n : ℕ} (a : A n)
+      : transport (elim_type Pincl Pglue) (glue a) = sorry /-Pglue a-/ :=
   sorry
 
 end

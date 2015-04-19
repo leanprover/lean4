@@ -10,7 +10,7 @@ Declaration of the circle
 
 import .sphere
 
-open eq suspension bool sphere_index
+open eq suspension bool sphere_index equiv
 
 definition circle [reducible] := suspension bool --redefine this as sphere 1
 
@@ -76,22 +76,34 @@ namespace circle
 
   protected definition rec_on [reducible] {P : circle → Type} (x : circle) (Pbase : P base)
     (Ploop : loop ▹ Pbase = Pbase) : P x :=
-  circle.rec Pbase Ploop x
+  rec Pbase Ploop x
+
+  definition rec_loop {P : circle → Type} (Pbase : P base) (Ploop : loop ▹ Pbase = Pbase) :
+    ap (rec Pbase Ploop) loop = sorry ⬝ Ploop ⬝ sorry :=
+  sorry
 
   protected definition elim {P : Type} (Pbase : P) (Ploop : Pbase = Pbase)
     (x : circle) : P :=
-  circle.rec Pbase (tr_constant loop Pbase ⬝ Ploop) x
+  rec Pbase (tr_constant loop Pbase ⬝ Ploop) x
 
   protected definition elim_on [reducible] {P : Type} (x : circle) (Pbase : P)
     (Ploop : Pbase = Pbase) : P :=
   elim Pbase Ploop x
 
-  definition rec_loop {P : circle → Type} (Pbase : P base) (Ploop : loop ▹ Pbase = Pbase) :
-    ap (circle.rec Pbase Ploop) loop = sorry ⬝ Ploop ⬝ sorry :=
+  definition elim_loop {P : Type} (Pbase : P) (Ploop : Pbase = Pbase) :
+    ap (elim Pbase Ploop) loop = sorry ⬝ Ploop ⬝ sorry :=
   sorry
 
-  definition elim_loop {P : Type} (Pbase : P) (Ploop : Pbase = Pbase) :
-    ap (circle.elim Pbase Ploop) loop = sorry ⬝ Ploop ⬝ sorry :=
+  protected definition elim_type (Pbase : Type) (Ploop : Pbase ≃ Pbase)
+    (x : circle) : Type :=
+  elim Pbase (ua Ploop) x
+
+  protected definition elim_type_on [reducible] (x : circle) (Pbase : Type)
+    (Ploop : Pbase ≃ Pbase) : Type :=
+  elim_type Pbase Ploop x
+
+  definition elim_type_loop (Pbase : Type) (Ploop : Pbase ≃ Pbase) :
+    transport (elim_type Pbase Ploop) loop = sorry /-Ploop-/ :=
   sorry
 
 end circle

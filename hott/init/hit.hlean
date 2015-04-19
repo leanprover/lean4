@@ -23,11 +23,11 @@ open is_trunc eq
     - the type formation
     - the term and path constructors
     - the dependent recursor
-  We add the computation rule for point constructors judgmentally to the kernel of Lean, and for the
-  path constructors (undecided).
+  We add the computation rule for point constructors judgmentally to the kernel of Lean.
+  The computation rules for the path constructors are added (propositionally) as axioms
 
   In this file we only define the dependent recursor. For the nondependent recursor and all other
-  uses of these hits, see the folder /hott/hit/
+  uses of these hits, see the folder ../hit/
 -/
 
 constant trunc.{u} (n : trunc_index) (A : Type.{u}) : Type.{u}

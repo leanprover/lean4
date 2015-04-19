@@ -10,7 +10,7 @@ Declaration of the coequalizer
 
 import .type_quotient
 
-open type_quotient eq
+open type_quotient eq equiv
 
 namespace coeq
 context
@@ -44,6 +44,11 @@ parameters {A B : Type.{u}} (f g : A → B)
     (P_i : Π(x : B), P (coeq_i x)) (Pcp : Π(x : A), cp x ▹ P_i (f x) = P_i (g x)) : P y :=
   rec P_i Pcp y
 
+  definition rec_cp {P : coeq → Type} (P_i : Π(x : B), P (coeq_i x))
+    (Pcp : Π(x : A), cp x ▹ P_i (f x) = P_i (g x))
+      (x : A) : apD (rec P_i Pcp) (cp x) = sorry ⬝ Pcp x ⬝ sorry :=
+  sorry
+
   protected definition elim {P : Type} (P_i : B → P)
     (Pcp : Π(x : A), P_i (f x) = P_i (g x)) (y : coeq) : P :=
   rec P_i (λx, !tr_constant ⬝ Pcp x) y
@@ -52,14 +57,22 @@ parameters {A B : Type.{u}} (f g : A → B)
     (Pcp : Π(x : A), P_i (f x) = P_i (g x)) : P :=
   elim P_i Pcp y
 
-  definition rec_cp {P : coeq → Type} (P_i : Π(x : B), P (coeq_i x))
-    (Pcp : Π(x : A), cp x ▹ P_i (f x) = P_i (g x))
-      (x : A) : apD (rec P_i Pcp) (cp x) = sorry ⬝ Pcp x ⬝ sorry :=
-  sorry
-
   definition elim_cp {P : Type} (P_i : B → P) (Pcp : Π(x : A), P_i (f x) = P_i (g x))
     (x : A) : ap (elim P_i Pcp) (cp x) = sorry ⬝ Pcp x ⬝ sorry :=
   sorry
+
+  protected definition elim_type (P_i : B → Type)
+    (Pcp : Π(x : A), P_i (f x) ≃ P_i (g x)) (y : coeq) : Type :=
+  elim P_i (λx, ua (Pcp x)) y
+
+  protected definition elim_type_on [reducible] (y : coeq) (P_i : B → Type)
+    (Pcp : Π(x : A), P_i (f x) ≃ P_i (g x)) : Type :=
+  elim_type P_i Pcp y
+
+  definition elim_type_cp (P_i : B → Type) (Pcp : Π(x : A), P_i (f x) ≃ P_i (g x))
+    (x : A) : transport (elim_type P_i Pcp) (cp x) = sorry /-Pcp x-/ :=
+  sorry
+
 
 end
 

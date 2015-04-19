@@ -10,7 +10,7 @@ Declaration of the pushout
 
 import .type_quotient
 
-open type_quotient eq sum
+open type_quotient eq sum equiv
 
 namespace pushout
 context
@@ -61,24 +61,36 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
       (x : TR) : rec Pinl Pinr Pglue (inr x) = Pinr x :=
   rec_class_of _ _ _ --idp
 
-  protected definition elim {P : Type} (Pinl : BL → P) (Pinr : TR → P)
-    (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) (y : pushout) : P :=
-  rec Pinl Pinr (λx, !tr_constant ⬝ Pglue x) y
-
-  protected definition elim_on [reducible] {P : Type} (Pinl : BL → P) (y : pushout)
-    (Pinr : TR → P) (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) : P :=
-  elim Pinl Pinr Pglue y
-
   definition rec_glue {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
     (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x))
       (x : TL) : apD (rec Pinl Pinr Pglue) (glue x) = sorry ⬝ Pglue x ⬝ sorry :=
   sorry
+
+  protected definition elim {P : Type} (Pinl : BL → P) (Pinr : TR → P)
+    (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) (y : pushout) : P :=
+  rec Pinl Pinr (λx, !tr_constant ⬝ Pglue x) y
+
+  protected definition elim_on [reducible] {P : Type} (y : pushout) (Pinl : BL → P)
+    (Pinr : TR → P) (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) : P :=
+  elim Pinl Pinr Pglue y
 
   definition elim_glue {P : Type} (Pinl : BL → P) (Pinr : TR → P)
     (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) (y : pushout) (x : TL)
     : ap (elim Pinl Pinr Pglue) (glue x) = sorry ⬝ Pglue x ⬝ sorry :=
   sorry
 
+  protected definition elim_type (Pinl : BL → Type) (Pinr : TR → Type)
+    (Pglue : Π(x : TL), Pinl (f x) ≃ Pinr (g x)) (y : pushout) : Type :=
+  elim Pinl Pinr (λx, ua (Pglue x)) y
+
+  protected definition elim_type_on [reducible] (y : pushout) (Pinl : BL → Type)
+    (Pinr : TR → Type) (Pglue : Π(x : TL), Pinl (f x) ≃ Pinr (g x)) : Type :=
+  elim_type Pinl Pinr Pglue y
+
+  definition elim_type_glue (Pinl : BL → Type) (Pinr : TR → Type)
+    (Pglue : Π(x : TL), Pinl (f x) ≃ Pinr (g x)) (y : pushout) (x : TL)
+    : transport (elim_type Pinl Pinr Pglue) (glue x) = sorry /-Pglue x-/ :=
+  sorry
 
 end
 

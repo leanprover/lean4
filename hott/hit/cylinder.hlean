@@ -10,7 +10,7 @@ Declaration of mapping cylinders
 
 import .type_quotient
 
-open type_quotient eq sum
+open type_quotient eq sum equiv
 
 namespace cylinder
 context
@@ -51,6 +51,12 @@ parameters {A B : Type.{u}} (f : A → B)
     (Pseg  : Π(a : A), seg a ▹ Pbase (f a) = Ptop a) : P x :=
   rec Pbase Ptop Pseg x
 
+  definition rec_seg {P : cylinder → Type}
+    (Pbase : Π(b : B), P (base b)) (Ptop : Π(a : A), P (top a))
+    (Pseg : Π(a : A), seg a ▹ Pbase (f a) = Ptop a)
+      (a : A) : apD (rec Pbase Ptop Pseg) (seg a) = sorry ⬝ Pseg a ⬝ sorry :=
+  sorry
+
   protected definition elim {P : Type} (Pbase : B → P) (Ptop : A → P)
     (Pseg : Π(a : A), Pbase (f a) = Ptop a) (x : cylinder) : P :=
   rec Pbase Ptop (λa, !tr_constant ⬝ Pseg a) x
@@ -59,15 +65,22 @@ parameters {A B : Type.{u}} (f : A → B)
     (Pseg : Π(a : A), Pbase (f a) = Ptop a) : P :=
   elim Pbase Ptop Pseg x
 
-  definition rec_seg {P : cylinder → Type}
-    (Pbase : Π(b : B), P (base b)) (Ptop : Π(a : A), P (top a))
-    (Pseg : Π(a : A), seg a ▹ Pbase (f a) = Ptop a)
-      (a : A) : apD (rec Pbase Ptop Pseg) (seg a) = sorry ⬝ Pseg a ⬝ sorry :=
-  sorry
-
   definition elim_seg {P : Type} (Pbase : B → P) (Ptop : A → P)
     (Pseg : Π(a : A), Pbase (f a) = Ptop a)
     (a : A) : ap (elim Pbase Ptop Pseg) (seg a) = sorry ⬝ Pseg a ⬝ sorry :=
+  sorry
+
+  protected definition elim_type (Pbase : B → Type) (Ptop : A → Type)
+    (Pseg : Π(a : A), Pbase (f a) ≃ Ptop a) (x : cylinder) : Type :=
+  elim Pbase Ptop (λa, ua (Pseg a)) x
+
+  protected definition elim_type_on [reducible] (x : cylinder) (Pbase : B → Type) (Ptop : A → Type)
+    (Pseg : Π(a : A), Pbase (f a) ≃ Ptop a) : Type :=
+  elim_type Pbase Ptop Pseg x
+
+  definition elim_type_seg (Pbase : B → Type) (Ptop : A → Type)
+    (Pseg : Π(a : A), Pbase (f a) ≃ Ptop a)
+    (a : A) : transport (elim_type Pbase Ptop Pseg) (seg a) = sorry /-Pseg a-/ :=
   sorry
 
 end

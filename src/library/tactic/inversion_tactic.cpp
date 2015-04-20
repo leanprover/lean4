@@ -182,8 +182,8 @@ class inversion_tac {
         for (unsigned i = fidx; i < args.size(); i++) {
             if (!is_local(args[i]))
                 return false; // the indices must be local constants
-            for (unsigned j = fidx; j < i; j++) {
-                if (mlocal_name(args[j]) == mlocal_name(args[i]))
+            for (unsigned j = 0; j < i; j++) {
+                if (is_local(args[j]) && mlocal_name(args[j]) == mlocal_name(args[i]))
                     return false; // the indices must be distinct local constants
             }
         }

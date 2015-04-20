@@ -278,7 +278,7 @@ static expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const &
 static expr parse_proof_qed_core(parser & p, pos_info const & pos) {
     expr r = p.parse_expr();
     p.check_token_next(get_qed_tk(), "invalid proof-qed, 'qed' expected");
-    r      = p.mk_by(p.mk_app(get_rexact_tac_fn(), r, pos), pos);
+    r      = p.mk_by(p.mk_app(get_exact_tac_fn(), r, pos), pos);
     return r;
 }
 

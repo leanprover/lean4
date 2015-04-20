@@ -75,6 +75,7 @@ name const & get_tactic_beta_name();
 name const & get_tactic_builtin_name();
 name const & get_tactic_cases_name();
 name const & get_tactic_change_name();
+name const & get_tactic_check_expr_name();
 name const & get_tactic_clear_name();
 name const & get_tactic_clears_name();
 name const & get_tactic_determ_name();

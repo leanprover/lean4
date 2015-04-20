@@ -1,0 +1,10 @@
+a :: l : list A
+check_expr.lean:8:0: error: 1 unsolved subgoal
+A : Type,
+l : list A,
+a b : A
+⊢ list A
+check_expr.lean:8:0: error: failed to add declaration 'foo' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  λ (A : Type) (l : …),
+    ?M_1

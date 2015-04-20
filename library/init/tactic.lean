@@ -65,6 +65,7 @@ opaque definition refine     (e : expr)   : tactic := builtin
 opaque definition exact      (e : expr)   : tactic := builtin
 -- Relaxed version of exact that does not enforce goal type
 opaque definition rexact     (e : expr)   : tactic := builtin
+opaque definition check_expr (e : expr)   : tactic := builtin
 opaque definition trace      (s : string) : tactic := builtin
 
 inductive expr_list : Type :=

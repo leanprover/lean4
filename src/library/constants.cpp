@@ -73,6 +73,7 @@ name const * g_tactic_beta = nullptr;
 name const * g_tactic_builtin = nullptr;
 name const * g_tactic_cases = nullptr;
 name const * g_tactic_change = nullptr;
+name const * g_tactic_check_expr = nullptr;
 name const * g_tactic_clear = nullptr;
 name const * g_tactic_clears = nullptr;
 name const * g_tactic_determ = nullptr;
@@ -189,6 +190,7 @@ void initialize_constants() {
     g_tactic_builtin = new name{"tactic", "builtin"};
     g_tactic_cases = new name{"tactic", "cases"};
     g_tactic_change = new name{"tactic", "change"};
+    g_tactic_check_expr = new name{"tactic", "check_expr"};
     g_tactic_clear = new name{"tactic", "clear"};
     g_tactic_clears = new name{"tactic", "clears"};
     g_tactic_determ = new name{"tactic", "determ"};
@@ -306,6 +308,7 @@ void finalize_constants() {
     delete g_tactic_builtin;
     delete g_tactic_cases;
     delete g_tactic_change;
+    delete g_tactic_check_expr;
     delete g_tactic_clear;
     delete g_tactic_clears;
     delete g_tactic_determ;
@@ -422,6 +425,7 @@ name const & get_tactic_beta_name() { return *g_tactic_beta; }
 name const & get_tactic_builtin_name() { return *g_tactic_builtin; }
 name const & get_tactic_cases_name() { return *g_tactic_cases; }
 name const & get_tactic_change_name() { return *g_tactic_change; }
+name const & get_tactic_check_expr_name() { return *g_tactic_check_expr; }
 name const & get_tactic_clear_name() { return *g_tactic_clear; }
 name const & get_tactic_clears_name() { return *g_tactic_clears; }
 name const & get_tactic_determ_name() { return *g_tactic_determ; }

@@ -68,6 +68,7 @@ tactic.beta
 tactic.builtin
 tactic.cases
 tactic.change
+tactic.check_expr
 tactic.clear
 tactic.clears
 tactic.determ

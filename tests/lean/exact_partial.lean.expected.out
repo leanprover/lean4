@@ -1,3 +1,13 @@
+exact_partial.lean:4:19: error: don't know how to synthesize placeholder
+a b : Prop,
+a_1 : a,
+a_2 : b
+⊢ a
+exact_partial.lean:4:21: error: don't know how to synthesize placeholder
+a b : Prop,
+a_1 : a,
+a_2 : b
+⊢ b
 exact_partial.lean:4:2: error:invalid 'exact' tactic, term still contains metavariables after elaboration
   and.intro ?M_1 ?M_2
 proof state:

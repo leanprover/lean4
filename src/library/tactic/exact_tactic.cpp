@@ -33,9 +33,18 @@ tactic exact_tactic(elaborate_fn const & elab, expr const & e, bool enforce_type
                 return none_proof_state();
             }
             expr t                 = head(gs).get_type();
-            bool report_unassigned = false;
-            if (auto new_e = elaborate_with_respect_to(env, ios, elab, new_s, e, some_expr(t),
-                                                       report_unassigned, enforce_type_during_elaboration)) {
+            bool report_unassigned = enforce_type_during_elaboration;
+            optional<expr> new_e;
+            try {
+                new_e = elaborate_with_respect_to(env, ios, elab, new_s, e, some_expr(t),
+                                                  report_unassigned, enforce_type_during_elaboration);
+            } catch (exception &) {
+                if (s.report_failure())
+                    throw;
+                else
+                    return none_proof_state();
+            }
+            if (new_e) {
                 goals const & gs   = new_s.get_goals();
                 if (gs) {
                     goal const & g     = head(gs);

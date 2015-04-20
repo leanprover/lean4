@@ -1,0 +1,24 @@
+foo.A : Prop
+protected_consts.lean:14:6: error: unknown identifier 'A'
+foo.a : foo.A
+protected_consts.lean:16:6: error: unknown identifier 'a'
+foo.A₁ : Prop
+foo.A₂ : Prop
+protected_consts.lean:19:6: error: unknown identifier 'A₁'
+protected_consts.lean:20:6: error: unknown identifier 'A₂'
+foo.a₁ : foo.A
+foo.a₂ : foo.A
+protected_consts.lean:23:6: error: unknown identifier 'a₁'
+protected_consts.lean:24:6: error: unknown identifier 'a₂'
+B : Prop
+B : Prop
+b : B
+b : B
+b₁ : B
+b₂ : B
+b₁ : B
+b₂ : B
+B₁ : Prop
+B₂ : Prop
+B₁ : Prop
+B₂ : Prop

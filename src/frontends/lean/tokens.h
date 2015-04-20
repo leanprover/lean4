@@ -98,6 +98,8 @@ name const & get_theorem_tk();
 name const & get_abbreviation_tk();
 name const & get_axiom_tk();
 name const & get_axioms_tk();
+name const & get_constant_tk();
+name const & get_constants_tk();
 name const & get_variable_tk();
 name const & get_variables_tk();
 name const & get_opaque_tk();

@@ -119,7 +119,8 @@ static void check_parameter_type(parser & p, name const & n, expr const & type, 
 
 static environment declare_var(parser & p, environment env,
                                name const & n, level_param_names const & ls, expr const & type,
-                               variable_kind k, optional<binder_info> const & _bi, pos_info const & pos) {
+                               variable_kind k, optional<binder_info> const & _bi, pos_info const & pos,
+                               bool is_protected) {
     binder_info bi;
     if (_bi) bi = *_bi;
     if (k == variable_kind::Parameter || k == variable_kind::Variable) {
@@ -151,6 +152,8 @@ static environment declare_var(parser & p, environment env,
         }
         if (!ns.is_anonymous())
             env = add_expr_alias(env, n, full_n);
+        if (is_protected)
+            env = add_protected(env, full_n);
         return env;
     }
 }
@@ -179,7 +182,7 @@ static void check_variable_kind(parser & p, variable_kind k) {
     }
 }
 
-static environment variable_cmd_core(parser & p, variable_kind k) {
+static environment variable_cmd_core(parser & p, variable_kind k, bool is_protected = false) {
     check_variable_kind(p, k);
     auto pos = p.pos();
     optional<binder_info> bi = parse_binder_info(p, k);
@@ -217,7 +220,7 @@ static environment variable_cmd_core(parser & p, variable_kind k) {
     std::tie(type, new_ls) = p.elaborate_type(type, ctx);
     if (k == variable_kind::Variable || k == variable_kind::Parameter)
         update_local_levels(p, new_ls, k == variable_kind::Variable);
-    return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos);
+    return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos, is_protected);
 }
 static environment variable_cmd(parser & p) {
     return variable_cmd_core(p, variable_kind::Variable);
@@ -232,7 +235,7 @@ static environment parameter_cmd(parser & p)    {
     return variable_cmd_core(p, variable_kind::Parameter);
 }
 
-static environment variables_cmd_core(parser & p, variable_kind k) {
+static environment variables_cmd_core(parser & p, variable_kind k, bool is_protected = false) {
     check_variable_kind(p, k);
     auto pos = p.pos();
     environment env = p.env();
@@ -261,7 +264,7 @@ static environment variables_cmd_core(parser & p, variable_kind k) {
         if (k == variable_kind::Variable || k == variable_kind::Parameter)
             update_local_levels(p, new_ls, k == variable_kind::Variable);
         new_ls = append(ls, new_ls);
-        env = declare_var(p, env, id, new_ls, new_type, k, bi, pos);
+        env = declare_var(p, env, id, new_ls, new_type, k, bi, pos, is_protected);
     }
     if (p.curr_is_token(get_lparen_tk()) || p.curr_is_token(get_lcurly_tk()) ||
         p.curr_is_token(get_ldcurly_tk()) || p.curr_is_token(get_lbracket_tk())) {
@@ -285,6 +288,9 @@ static environment parameters_cmd(parser & p) {
 }
 static environment constants_cmd(parser & p) {
     return variables_cmd_core(p, variable_kind::Constant);
+}
+static environment axioms_cmd(parser & p) {
+    return variables_cmd_core(p, variable_kind::Axiom);
 }
 
 struct decl_attributes {
@@ -1252,25 +1258,39 @@ static environment private_definition_cmd(parser & p) {
     return definition_cmd_core(p, kind, is_opaque, true, false);
 }
 static environment protected_definition_cmd(parser & p) {
-    def_cmd_kind kind = Definition;
-    bool is_opaque  = false;
-    if (p.curr_is_token_or_id(get_opaque_tk())) {
-        is_opaque = true;
+    if (p.curr_is_token_or_id(get_axiom_tk())) {
         p.next();
-        p.check_token_next(get_definition_tk(), "invalid 'protected' definition, 'definition' expected");
-    } else if (p.curr_is_token_or_id(get_definition_tk())) {
+        return variable_cmd_core(p, variable_kind::Axiom, true);
+    } else if (p.curr_is_token_or_id(get_constant_tk())) {
         p.next();
-    } else if (p.curr_is_token_or_id(get_abbreviation_tk())) {
+        return variable_cmd_core(p, variable_kind::Constant, true);
+    } else if (p.curr_is_token_or_id(get_axioms_tk())) {
         p.next();
-        kind = Abbreviation;
-    } else if (p.curr_is_token_or_id(get_theorem_tk())) {
+        return variables_cmd_core(p, variable_kind::Axiom, true);
+    } else if (p.curr_is_token_or_id(get_constants_tk())) {
         p.next();
-        kind       = Theorem;
-        is_opaque  = true;
+        return variables_cmd_core(p, variable_kind::Constant, true);
     } else {
-        throw parser_error("invalid 'protected' definition/theorem, 'definition' or 'theorem' expected", p.pos());
+        def_cmd_kind kind = Definition;
+        bool is_opaque  = false;
+        if (p.curr_is_token_or_id(get_opaque_tk())) {
+            is_opaque = true;
+            p.next();
+            p.check_token_next(get_definition_tk(), "invalid 'protected' definition, 'definition' expected");
+        } else if (p.curr_is_token_or_id(get_definition_tk())) {
+            p.next();
+        } else if (p.curr_is_token_or_id(get_abbreviation_tk())) {
+            p.next();
+            kind = Abbreviation;
+        } else if (p.curr_is_token_or_id(get_theorem_tk())) {
+            p.next();
+            kind       = Theorem;
+            is_opaque  = true;
+        } else {
+            throw parser_error("invalid 'protected' definition/theorem, 'definition' or 'theorem' expected", p.pos());
+        }
+        return definition_cmd_core(p, kind, is_opaque, false, true);
     }
-    return definition_cmd_core(p, kind, is_opaque, false, true);
 }
 
 static environment include_cmd_core(parser & p, bool include) {
@@ -1338,6 +1358,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("variables",    "declare new variables", variables_cmd));
     add_cmd(r, cmd_info("parameters",   "declare new parameters", parameters_cmd));
     add_cmd(r, cmd_info("constants",    "declare new constants (aka top-level variables)", constants_cmd));
+    add_cmd(r, cmd_info("axioms",       "declare new axioms", axioms_cmd));
     add_cmd(r, cmd_info("definition",   "add new definition", definition_cmd));
     add_cmd(r, cmd_info("example",      "add new example", example_cmd));
     add_cmd(r, cmd_info("opaque",       "add new opaque definition", opaque_definition_cmd));

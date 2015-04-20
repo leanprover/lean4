@@ -96,6 +96,8 @@ static name * g_theorem      = nullptr;
 static name * g_abbreviation = nullptr;
 static name * g_axiom        = nullptr;
 static name * g_axioms       = nullptr;
+static name * g_constant     = nullptr;
+static name * g_constants    = nullptr;
 static name * g_variable     = nullptr;
 static name * g_variables    = nullptr;
 static name * g_opaque       = nullptr;
@@ -223,6 +225,8 @@ void initialize_tokens() {
     g_opaque       = new name("opaque");
     g_axiom        = new name("axiom");
     g_axioms       = new name("axioms");
+    g_constant     = new name("constant");
+    g_constants    = new name("constants");
     g_variable     = new name("variable");
     g_variables    = new name("variables");
     g_instance     = new name("[instance]");
@@ -287,6 +291,8 @@ void finalize_tokens() {
     delete g_opaque;
     delete g_axiom;
     delete g_axioms;
+    delete g_constant;
+    delete g_constants;
     delete g_variables;
     delete g_variable;
     delete g_instance;
@@ -476,6 +482,8 @@ name const & get_theorem_tk() { return *g_theorem; }
 name const & get_abbreviation_tk() { return *g_abbreviation; }
 name const & get_axiom_tk() { return *g_axiom; }
 name const & get_axioms_tk() { return *g_axioms; }
+name const & get_constant_tk() { return *g_constant; }
+name const & get_constants_tk() { return *g_constants; }
 name const & get_variable_tk() { return *g_variable; }
 name const & get_variables_tk() { return *g_variables; }
 name const & get_opaque_tk() { return *g_opaque; }

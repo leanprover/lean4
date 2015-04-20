@@ -88,8 +88,8 @@ void init_token_table(token_table & t) {
          {"<d", g_decreasing_prec}, {"renaming", 0}, {"extends", 0}, {nullptr, 0}};
 
     char const * commands[] =
-        {"theorem", "axiom", "variable", "protected", "private", "opaque", "definition", "example", "coercion",
-         "abbreviation",
+        {"theorem", "axiom", "axioms", "variable", "protected", "private", "opaque",
+         "definition", "example", "coercion", "abbreviation",
          "variables", "parameter", "parameters", "constant", "constants", "[persistent]", "[visible]", "[instance]",
          "[none]", "[class]", "[coercion]", "[reducible]", "[irreducible]", "[semireducible]", "[quasireducible]",
          "[parsing-only]", "[multiple-instances]",
@@ -98,7 +98,8 @@ void init_token_table(token_table & t) {
          "import", "inductive", "record", "structure", "module", "universe", "universes", "local",
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation", "context",
          "exit", "set_option", "open", "export", "calc_subst", "calc_refl", "calc_trans", "calc_symm", "tactic_hint",
-         "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class", "multiple_instances", "find_decl", "attribute", "persistent",
+         "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class",
+         "multiple_instances", "find_decl", "attribute", "persistent",
          "include", "omit", "migrate", "init_quotient", "#erase_cache", "#projections", "#telescope_eq", nullptr};
 
     pair<char const *, char const *> aliases[] =

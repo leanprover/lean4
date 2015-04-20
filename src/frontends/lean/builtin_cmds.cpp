@@ -382,7 +382,10 @@ environment eval_cmd(parser & p) {
     return p.env();
 }
 
-environment exit_cmd(parser &) {
+environment exit_cmd(parser & p) {
+    flycheck_warning wrn(p.regular_stream());
+    p.display_warning_pos(p.cmd_pos());
+    p.regular_stream() << " using 'exit' to interrupt Lean" << endl;
     throw interrupt_parser();
 }
 

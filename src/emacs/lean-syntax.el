@@ -15,7 +15,7 @@
     "context" "open" "as" "export" "axiom" "axioms" "inductive" "with" "structure" "record" "universe" "universes"
     "alias" "help" "environment" "options" "precedence" "reserve" "postfix" "prefix"
     "calc_trans" "calc_subst" "calc_refl" "calc_symm" "match"
-    "infix" "infixl" "infixr" "notation" "eval" "check" "exit" "coercion" "end"
+    "infix" "infixl" "infixr" "notation" "eval" "check" "coercion" "end"
     "using" "namespace" "section" "fields" "find_decl"
     "attribute" "local" "set_option" "add_rewrite" "extends" "include" "omit" "classes"
     "instances" "coercions" "metaclasses" "raw" "migrate" "replacing")
@@ -141,6 +141,7 @@
      (,(rx word-start (group "Type") ".") (1 'font-lock-type-face))
      ;; sorry
      (,(rx word-start "sorry" word-end) . 'font-lock-warning-face)
+     (,(rx word-start "exit" word-end) . 'font-lock-warning-face)
      ;; extra-keywords
      (,(rx (or "∎")) . 'font-lock-keyword-face)
      ;; lean-keywords

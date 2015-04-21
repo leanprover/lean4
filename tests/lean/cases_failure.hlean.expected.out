@@ -1,0 +1,34 @@
+cases_failure.hlean:11:2: error:invalid 'cases' tactic, unification failed
+auxiliary goal at time of failure
+  A : Type,
+  x y z : A,
+  b r t l : z = z,
+  s : square t b l r,
+  e_3 : z = z
+  ⊢ Π (e_4 : eq.rec t (refl z) = idp) (e_5 : eq.rec (eq.rec b (refl z)) e_3 = idp) (e_6 : eq.rec l (refl z) = idp)
+    (e_7 : eq.rec (eq.rec r (refl z)) e_3 = idp),
+      eq.rec (eq.rec (eq.rec (eq.rec (eq.rec (eq.rec (eq.rec s (refl z)) (refl z)) e_3) e_4) e_5) e_6)
+        e_7 = square.ids →
+      unit
+proof state:
+A : Type,
+x y z : A,
+t : x = y,
+b : z = y,
+l : x = z,
+r : y = y,
+s : square t b l r
+⊢ unit
+cases_failure.hlean:13:0: error: don't know how to synthesize placeholder
+A : Type,
+x y z : A,
+t : x = y,
+b : z = y,
+l : x = z,
+r : y = y,
+s : square t b l r
+⊢ unit
+cases_failure.hlean:13:0: error: failed to add declaration 'foo' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  λ (A : Type) (x y z : A) (t : …) (b : …) (l : …) (r : …) (s : …),
+    ?M_1

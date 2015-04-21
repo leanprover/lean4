@@ -700,6 +700,19 @@ class inversion_tac {
         }
     }
 
+    [[ noreturn ]] void throw_unify_eqs_failure(goal const & g) {
+        if (m_throw_tactic_exception) {
+            throw tactic_exception([=](formatter const & fmt) {
+                    format r("invalid 'cases' tactic, unification failed");
+                    r += compose(line(), format("auxiliary goal at time of failure"));
+                    r += nest(get_pp_indent(fmt.get_options()), compose(line(), g.pp(fmt)));
+                    return r;
+                });
+        } else {
+            throw inversion_exception();
+        }
+    }
+
     // Remark: it also updates m_renames and m_imps
     optional<goal> unify_eqs(goal g, unsigned neqs) {
         if (neqs == 0)
@@ -803,10 +816,19 @@ class inversion_tac {
                 level eq_rec_lvl1   = sort_level(m_tc.ensure_type(deps_g_type).first);
                 level eq_rec_lvl2   = sort_level(m_tc.ensure_type(A).first);
                 expr tformer;
-                if (m_proof_irrel)
+                if (m_proof_irrel) {
                     tformer = Fun(rhs, deps_g_type);
-                else
+                } else {
+                    if (depends_on(lhs, rhs)) {
+                        // tformer must be of the form
+                        //   fun x, fun (Heq : lhs = x, ...)
+                        // If the lhs contains occurrences of rhs, then
+                        // we would produce the following ill-typed tformer
+                        //   fun x, fun (Heq : lhs[x] = x, ...)
+                        throw_unify_eqs_failure(g);
+                    }
                     tformer = Fun(rhs, Fun(Heq, deps_g_type));
+                }
                 expr eq_rec         = mk_constant(get_eq_rec_name(), {eq_rec_lvl1, eq_rec_lvl2});
                 eq_rec              = mk_app(eq_rec, A, lhs, tformer);
                 buffer<expr> new_hyps;
@@ -877,16 +899,7 @@ class inversion_tac {
                 return unify_eqs(new_g, neqs);
             }
         }
-        if (m_throw_tactic_exception) {
-            throw tactic_exception([=](formatter const & fmt) {
-                    format r("invalid 'cases' tactic, unification failed");
-                    r += compose(line(), format("auxiliary goal at time of failure"));
-                    r += nest(get_pp_indent(fmt.get_options()), compose(line(), g.pp(fmt)));
-                    return r;
-                });
-        } else {
-            throw inversion_exception();
-        }
+        throw_unify_eqs_failure(g);
     }
 
     auto unify_eqs(list<goal> const & gs, list<list<expr>> args, list<implementation_list> imps) ->

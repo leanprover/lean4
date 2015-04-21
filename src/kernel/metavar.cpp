@@ -60,11 +60,13 @@ optional<level> substitution::get_level(name const & m) const {
 }
 
 void substitution::assign(expr const & mvar, buffer<expr> const & locals, expr const & v, justification const & j) {
+    lean_assert(mvar != v);
     assign(mlocal_name(mvar), Fun(locals, v), j);
 }
 
 void substitution::assign(name const & m, expr const & t, justification const & j) {
     lean_assert(closed(t));
+    lean_assert(!is_metavar(t) || m != mlocal_name(t));
     m_expr_subst.insert(m, t);
     m_occs_map.erase(m);
     if (!j.is_none())
@@ -270,6 +272,7 @@ auto substitution::expand_metavar_app(expr const & e) -> opt_expr_jst {
         return opt_expr_jst();
     buffer<expr> args;
     get_app_rev_args(e, args);
+    lean_assert(*f_value != f);
     expr new_e = apply_beta(*f_value, args.size(), args.data());
     return opt_expr_jst(new_e, get_expr_jst(f_name));
 }

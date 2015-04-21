@@ -1998,7 +1998,7 @@ struct unifier_fn {
         buffer<expr> lhs_args, rhs_args;
         expr ml = get_app_args(lhs, lhs_args);
         expr mr = get_app_args(rhs, rhs_args);
-        if (ml == mr) {
+        if (mlocal_name(ml) == mlocal_name(mr)) {
             discard(c);
             return true;
         }

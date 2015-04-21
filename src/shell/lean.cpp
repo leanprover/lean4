@@ -604,6 +604,9 @@ int main(int argc, char ** argv) {
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {
         lean::display_error(diagnostic(env, ios), nullptr, ex);
+    } catch (std::bad_alloc & ex) {
+        std::cerr << "out of memory" << std::endl;
+        return 1;
     }
     return 1;
 }

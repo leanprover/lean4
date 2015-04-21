@@ -485,7 +485,11 @@ struct unifier_fn {
     }
 
     void check_system() {
-        check_interrupted();
+        ::lean::check_system("unifier");
+    }
+
+    void check_full() {
+        check_system();
         if (m_num_steps > m_config.m_max_steps)
             throw exception(sstream() << "unifier maximum number of steps (" << m_config.m_max_steps << ") exceeded, " <<
                             "the maximum number of steps can be increased by setting the option unifier.max_steps " <<
@@ -867,6 +871,11 @@ struct unifier_fn {
     expr instantiate_meta(expr e, justification & j) {
         while (true) {
             if (auto p = m_subst.expand_metavar_app(e)) {
+                // The following check_system is defensive programming.
+                // If the unifier is correct, and no loops are introduced in the substituion,
+                // then this loop should always terminate.
+                // Anyway, we may have bugs, and we should interrupt the loop if all resources are being consumed.
+                check_system();
                 e = p->first;
                 j = mk_composite1(j, p->second);
             } else {
@@ -1112,7 +1121,7 @@ struct unifier_fn {
     bool process_constraint(constraint const & c) {
         if (in_conflict())
             return false;
-        check_system();
+        check_full();
         // std::cout << "process: " << c << "\n";
         switch (c.kind()) {
         case constraint_kind::Choice:
@@ -1163,6 +1172,7 @@ struct unifier_fn {
     bool resolve_conflict() {
         lean_assert(in_conflict());
         while (!m_case_splits.empty()) {
+            check_system();
             justification conflict = *m_conflict;
             std::unique_ptr<case_split> & d = m_case_splits.back();
             if (!m_config.m_nonchronological || depends_on(conflict, d->m_assumption_idx)) {

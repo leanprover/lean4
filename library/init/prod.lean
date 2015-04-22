@@ -46,10 +46,10 @@ namespace prod
   intro : ∀{a₁ b₁ a₂ b₂}, Ra a₁ a₂ → Rb b₁ b₂ → rprod (a₁, b₁) (a₂, b₂)
   end
 
-  context
+  section
   parameters {A B : Type}
   parameters {Ra  : A → A → Prop} {Rb  : B → B → Prop}
-  infix `≺`:50 := lex Ra Rb
+  local infix `≺`:50 := lex Ra Rb
 
   definition lex.accessible {a} (aca : acc Ra a) (acb : ∀b, acc Rb b): ∀b, acc (lex Ra Rb) (a, b) :=
   acc.rec_on aca

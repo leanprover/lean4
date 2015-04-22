@@ -44,12 +44,12 @@ namespace binary
     definition left_commutative [reducible] {B : Type}  (f : A → B → B) := ∀ a₁ a₂ b, f a₁ (f a₂ b) = f a₂ (f a₁ b)
   end
 
-  context
+  section
     variable {A : Type}
     variable {f : A → A → A}
     variable H_comm : commutative f
     variable H_assoc : associative f
-    infixl `*` := f
+    local infixl `*` := f
     theorem left_comm : left_commutative f :=
     take a b c, calc
       a*(b*c) = (a*b)*c  : H_assoc
@@ -63,11 +63,11 @@ namespace binary
         ...   = (a*c)*b : H_assoc
   end
 
-  context
+  section
     variable {A : Type}
     variable {f : A → A → A}
     variable H_assoc : associative f
-    infixl `*` := f
+    local infixl `*` := f
     theorem assoc4helper (a b c d) : (a*b)*(c*d) = a*((b*c)*d) :=
     calc
       (a*b)*(c*d) = a*(b*(c*d)) : H_assoc

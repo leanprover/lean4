@@ -32,7 +32,7 @@ namespace function
   mk_equivalence (@equiv A B) (@equiv.refl A B) (@equiv.symm A B) (@equiv.trans A B)
 end function
 
-context
+section
   open quot
   variables {A : Type} {B : A → Type}
 

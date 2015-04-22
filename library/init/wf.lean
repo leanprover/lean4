@@ -25,9 +25,9 @@ namespace well_founded
   definition apply [coercion] {A : Type} {R : A → A → Prop} (wf : well_founded R) : ∀a, acc R a :=
   take a, well_founded.rec_on wf (λp, p) a
 
-  context
+  section
   parameters {A : Type} {R : A → A → Prop}
-  infix `≺`:50    := R
+  local infix `≺`:50    := R
 
   hypothesis [Hwf : well_founded R]
 
@@ -81,7 +81,7 @@ well_founded.intro (λ (a : A),
 
 -- Subrelation of a well-founded relation is well-founded
 namespace subrelation
-context
+section
   parameters {A : Type} {R Q : A → A → Prop}
   parameters (H₁ : subrelation Q R)
   parameters (H₂ : well_founded R)
@@ -98,7 +98,7 @@ end subrelation
 
 -- The inverse image of a well-founded relation is well-founded
 namespace inv_image
-context
+section
   parameters {A B : Type} {R : B → B → Prop}
   parameters (f : A → B)
   parameters (H : well_founded R)
@@ -119,9 +119,9 @@ end inv_image
 
 -- The transitive closure of a well-founded relation is well-founded
 namespace tc
-context
+section
   parameters {A : Type} {R : A → A → Prop}
-  notation `R⁺` := tc R
+  local notation `R⁺` := tc R
 
   definition accessible {z} (ac: acc R z) : acc R⁺ z :=
   acc.rec_on ac

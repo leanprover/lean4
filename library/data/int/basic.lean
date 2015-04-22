@@ -128,8 +128,8 @@ calc
   sub_nat_nat m n = nat.cases_on 0 (of_nat (m - n)) _ : H1 ▸ rfl
     ... = of_nat (m - n) : rfl
 
-context
-attribute sub_nat_nat [reducible]
+section
+local attribute sub_nat_nat [reducible]
 theorem sub_nat_nat_of_lt {m n : ℕ} (H : m < n) :
   sub_nat_nat m n = neg_succ_of_nat (pred (n - m)) :=
 have H1 : n - m = succ (pred (n - m)), from (succ_pred_of_pos (sub_pos_of_lt H))⁻¹,
@@ -276,9 +276,9 @@ calc
     ... = abstr (repr b) : abstr_eq H
     ... = b : abstr_repr
 
-context
-attribute abstr [reducible]
-attribute dist [reducible]
+section
+local attribute abstr [reducible]
+local attribute dist [reducible]
 theorem nat_abs_abstr (p : ℕ × ℕ) : nat_abs (abstr p) = dist (pr1 p) (pr2 p) :=
 let m := pr1 p, n := pr2 p in
 or.elim (@le_or_gt n m)
@@ -458,8 +458,8 @@ have H3 : pabs (padd (repr a) (repr b)) ≤ pabs (repr a) + pabs (repr b),
   from !dist_add_add_le_add_dist_dist,
 H⁻¹ ▸ H1⁻¹ ▸ H2⁻¹ ▸ H3
 
-context
-attribute nat_abs [reducible]
+section
+local attribute nat_abs [reducible]
 theorem mul_nat_abs (a b : ℤ) : nat_abs (a * b) = #nat (nat_abs a) * (nat_abs b) :=
 int.cases_on a
   (take m,

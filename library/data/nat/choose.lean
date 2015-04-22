@@ -16,7 +16,7 @@ import data.subtype data.nat.basic data.nat.order
 open nat subtype decidable well_founded
 
 namespace nat
-context find_x
+section find_x
 parameter {p : nat → Prop}
 
 private definition lbp (x : nat) : Prop := ∀ y, y < x → ¬ p y

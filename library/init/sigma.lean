@@ -42,10 +42,10 @@ namespace sigma
   | right : ∀a {b₁ b₂},     Rb a b₁ b₂ → lex ⟨a, b₁⟩  ⟨a, b₂⟩
   end
 
-  context
+  section
   parameters {A : Type} {B : A → Type}
   parameters {Ra  : A → A → Prop} {Rb : Π a : A, B a → B a → Prop}
-  infix `≺`:50 := lex Ra Rb
+  local infix `≺`:50 := lex Ra Rb
 
   definition lex.accessible {a} (aca : acc Ra a) (acb : ∀a, well_founded (Rb a)) : ∀ (b : B a), acc (lex Ra Rb) ⟨a, b⟩ :=
   acc.rec_on aca

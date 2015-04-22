@@ -79,7 +79,7 @@ namespace category
      (λ a b f, @subsingleton.elim (set_hom a b) _ _ _)
   local attribute discrete_category [reducible]
   definition Discrete_category (A : Type) [H : decidable_eq A] := Mk (discrete_category A)
-    context
+    section
     local attribute discrete_category [instance]
     include H
     theorem discrete_category.endomorphism {a b : A} (f : a ⟶ b) : a = b :=

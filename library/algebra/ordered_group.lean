@@ -489,7 +489,7 @@ section
   abs.by_cases H1 H2
 
   -- the triangle inequality
-  context
+  section
     private lemma aux1 {a b : A} (H1 : a + b ≥ 0) (H2 : a ≥ 0) : abs (a + b) ≤ abs a + abs b :=
     decidable.by_cases
       (assume H3 : b ≥ 0,

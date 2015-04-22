@@ -1174,7 +1174,7 @@ name parser::check_constant_next(char const * msg) {
     name id = check_id_next(msg);
     expr e  = id_to_expr(id, p);
 
-    if (in_context(m_env) && is_as_atomic(e)) {
+    if ((in_section(m_env) || in_context(m_env)) && is_as_atomic(e)) {
         e = get_app_fn(get_as_atomic_arg(e));
         if (is_explicit(e))
             e = get_explicit_arg(e);

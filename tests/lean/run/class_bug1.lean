@@ -11,7 +11,7 @@ mk : Π (comp : Π⦃A B C : ob⦄, mor B C → mor A B → mor A C)
 attribute category [class]
 
 namespace category
-context sec_cat
+section sec_cat
   parameter A : Type
   inductive foo :=
   mk : A → foo
@@ -20,7 +20,7 @@ context sec_cat
   parameters {ob : Type} {mor : ob → ob → Type} {Cat : category ob mor}
   definition compose := category.rec (λ comp id assoc idr idl, comp) Cat
   definition id := category.rec (λ comp id assoc idr idl, id) Cat
-  infixr ∘ := compose
+  local infixr ∘ := compose
   inductive is_section {A B : ob} (f : mor A B) : Type :=
   mk : ∀g, g ∘ f = id → is_section f
 end sec_cat

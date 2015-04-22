@@ -50,8 +50,8 @@ definition weak_funext_of_naive_funext : naive_funext → weak_funext :=
   funext, the space of "pointwise homotopies" has the same universal property as
   the space of paths. -/
 
-context
-  universes l k
+section
+  universe variables l k
   parameters [wf : weak_funext.{l k}] {A : Type.{l}} {B : A → Type.{k}} (f : Π x, B x)
 
   definition is_contr_sigma_homotopy [instance] : is_contr (Σ (g : Π x, B x), f ∼ g) :=
@@ -86,7 +86,6 @@ context
   local attribute homotopy_ind [reducible]
   definition homotopy_ind_comp : homotopy_ind f (homotopy.refl f) = d :=
     (@hprop_eq_of_is_contr _ _ _ _ !center_eq idp)⁻¹ ▹ idp
-
 end
 
 -- Now the proof is fairly easy; we can just use the same induction principle on both sides.

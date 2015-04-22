@@ -86,6 +86,9 @@ name const * g_tactic_expr_builtin = nullptr;
 name const * g_tactic_expr_list = nullptr;
 name const * g_tactic_expr_list_cons = nullptr;
 name const * g_tactic_expr_list_nil = nullptr;
+name const * g_tactic_identifier = nullptr;
+name const * g_tactic_identifier_list = nullptr;
+name const * g_tactic_opt_identifier_list = nullptr;
 name const * g_tactic_fail = nullptr;
 name const * g_tactic_fixpoint = nullptr;
 name const * g_tactic_focus_at = nullptr;
@@ -203,6 +206,9 @@ void initialize_constants() {
     g_tactic_expr_list = new name{"tactic", "expr_list"};
     g_tactic_expr_list_cons = new name{"tactic", "expr_list", "cons"};
     g_tactic_expr_list_nil = new name{"tactic", "expr_list", "nil"};
+    g_tactic_identifier = new name{"tactic", "identifier"};
+    g_tactic_identifier_list = new name{"tactic", "identifier_list"};
+    g_tactic_opt_identifier_list = new name{"tactic", "opt_identifier_list"};
     g_tactic_fail = new name{"tactic", "fail"};
     g_tactic_fixpoint = new name{"tactic", "fixpoint"};
     g_tactic_focus_at = new name{"tactic", "focus_at"};
@@ -321,6 +327,9 @@ void finalize_constants() {
     delete g_tactic_expr_list;
     delete g_tactic_expr_list_cons;
     delete g_tactic_expr_list_nil;
+    delete g_tactic_identifier;
+    delete g_tactic_identifier_list;
+    delete g_tactic_opt_identifier_list;
     delete g_tactic_fail;
     delete g_tactic_fixpoint;
     delete g_tactic_focus_at;
@@ -438,6 +447,9 @@ name const & get_tactic_expr_builtin_name() { return *g_tactic_expr_builtin; }
 name const & get_tactic_expr_list_name() { return *g_tactic_expr_list; }
 name const & get_tactic_expr_list_cons_name() { return *g_tactic_expr_list_cons; }
 name const & get_tactic_expr_list_nil_name() { return *g_tactic_expr_list_nil; }
+name const & get_tactic_identifier_name() { return *g_tactic_identifier; }
+name const & get_tactic_identifier_list_name() { return *g_tactic_identifier_list; }
+name const & get_tactic_opt_identifier_list_name() { return *g_tactic_opt_identifier_list; }
 name const & get_tactic_fail_name() { return *g_tactic_fail; }
 name const & get_tactic_fixpoint_name() { return *g_tactic_fixpoint; }
 name const & get_tactic_focus_at_name() { return *g_tactic_focus_at; }

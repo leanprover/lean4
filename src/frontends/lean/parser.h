@@ -221,8 +221,11 @@ class parser {
     optional<expr> is_tactic_command(name & id);
     expr parse_tactic_led(expr left);
     expr parse_tactic_nud();
+    expr mk_tactic_expr_list(buffer<expr> const & args, pos_info const & p);
     expr parse_tactic_expr_list();
     expr parse_tactic_opt_expr_list();
+    expr parse_tactic_id_list();
+    expr parse_tactic_opt_id_list();
 
 public:
     parser(environment const & env, io_state const & ios,

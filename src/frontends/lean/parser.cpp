@@ -1352,6 +1352,18 @@ static bool is_tactic_opt_expr_list_type(expr const & e) {
     return is_constant(e) && const_name(e) == get_tactic_opt_expr_list_name();
 }
 
+static bool is_tactic_identifier_type(expr const & e) {
+    return is_constant(e) && const_name(e) == get_tactic_identifier_name();
+}
+
+static bool is_tactic_identifier_list_type(expr const & e) {
+    return is_constant(e) && const_name(e) == get_tactic_identifier_list_name();
+}
+
+static bool is_tactic_opt_identifier_list_type(expr const & e) {
+    return is_constant(e) && const_name(e) == get_tactic_opt_identifier_list_name();
+}
+
 static bool is_tactic_command_type(expr e) {
     while (is_pi(e))
         e = binding_body(e);
@@ -1370,6 +1382,16 @@ optional<expr> parser::is_tactic_command(name & id) {
     return some_expr(type);
 }
 
+expr parser::mk_tactic_expr_list(buffer<expr> const & args, pos_info const & p) {
+    unsigned i = args.size();
+    expr r = save_pos(mk_constant(get_tactic_expr_list_nil_name()), p);
+    while (i > 0) {
+        i--;
+        r = mk_app({save_pos(mk_constant(get_tactic_expr_list_cons_name()), p), args[i], r}, p);
+    }
+    return r;
+}
+
 expr parser::parse_tactic_expr_list() {
     auto p = pos();
     check_token_next(get_lbracket_tk(), "invalid tactic, '[' expected");
@@ -1381,13 +1403,21 @@ expr parser::parse_tactic_expr_list() {
         next();
     }
     check_token_next(get_rbracket_tk(), "invalid tactic, ',' or ']' expected");
-    unsigned i = args.size();
-    expr r = save_pos(mk_constant(get_tactic_expr_list_nil_name()), p);
-    while (i > 0) {
-        i--;
-        r = mk_app({save_pos(mk_constant(get_tactic_expr_list_cons_name()), p), args[i], r}, p);
+    return mk_tactic_expr_list(args, p);
+}
+
+expr parser::parse_tactic_id_list() {
+    auto p = pos();
+    check_token_next(get_lbracket_tk(), "invalid tactic, '[' expected");
+    buffer<expr> args;
+    while (true) {
+        args.push_back(mk_local(check_id_next("invalid tactic, identifier expected"), mk_expr_placeholder()));
+        if (!curr_is_token(get_comma_tk()))
+            break;
+        next();
     }
-    return r;
+    check_token_next(get_rbracket_tk(), "invalid tactic, ',' or ']' expected");
+    return mk_tactic_expr_list(args, p);
 }
 
 expr parser::parse_tactic_opt_expr_list() {
@@ -1396,6 +1426,17 @@ expr parser::parse_tactic_opt_expr_list() {
     } else if (curr_is_token(get_with_tk())) {
         next();
         return parse_tactic_expr_list();
+    } else {
+        return save_pos(mk_constant(get_tactic_expr_list_nil_name()), pos());
+    }
+}
+
+expr parser::parse_tactic_opt_id_list() {
+    if (curr_is_token(get_lbracket_tk())) {
+        return parse_tactic_id_list();
+    } else if (curr_is_token(get_with_tk())) {
+        next();
+        return parse_tactic_id_list();
     } else {
         return save_pos(mk_constant(get_tactic_expr_list_nil_name()), pos());
     }
@@ -1417,6 +1458,12 @@ expr parser::parse_tactic_nud() {
                     r = mk_app(r, parse_tactic_expr_list(), id_pos);
                 } else if (is_tactic_opt_expr_list_type(d)) {
                     r = mk_app(r, parse_tactic_opt_expr_list(), id_pos);
+                } else if (is_tactic_identifier_type(d)) {
+                    r = mk_app(r, mk_local(check_id_next("invalid tactic, identifier expected"), mk_expr_placeholder()), id_pos);
+                } else if (is_tactic_identifier_list_type(d)) {
+                    r = mk_app(r, parse_tactic_id_list(), id_pos);
+                } else if (is_tactic_opt_identifier_list_type(d)) {
+                    r = mk_app(r, parse_tactic_opt_id_list(), id_pos);
                 } else {
                     r = mk_app(r, parse_expr(get_max_prec()), id_pos);
                 }

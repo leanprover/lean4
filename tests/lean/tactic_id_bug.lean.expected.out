@@ -1,0 +1,11 @@
+tactic_id_bug.lean:23:4: proof state
+A : Type,
+gfunc gfinv : A → A,
+glinv : gfinv ∘ gfunc = id,
+grinv : gfunc ∘ gfinv = id,
+func finv : A → A,
+linv : finv ∘ func = id,
+rinv : func ∘ finv = id
+⊢ func (mk func finv linv rinv) = func (mk gfunc gfinv glinv grinv) →
+  finv (mk func finv linv rinv) = finv (mk gfunc gfinv glinv grinv) →
+  mk func finv linv rinv = mk gfunc gfinv glinv grinv

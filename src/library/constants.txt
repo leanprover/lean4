@@ -81,6 +81,9 @@ tactic.expr.builtin
 tactic.expr_list
 tactic.expr_list.cons
 tactic.expr_list.nil
+tactic.identifier
+tactic.identifier_list
+tactic.opt_identifier_list
 tactic.fail
 tactic.fixpoint
 tactic.focus_at

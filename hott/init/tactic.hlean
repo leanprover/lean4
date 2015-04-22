@@ -52,22 +52,6 @@ definition rotate (k : num) := rotate_left k
 inductive expr : Type :=
 builtin : expr
 
-opaque definition apply      (e : expr)   : tactic := builtin
-opaque definition rapply     (e : expr)   : tactic := builtin
-opaque definition fapply     (e : expr)   : tactic := builtin
-opaque definition rename     (a b : expr) : tactic := builtin
-opaque definition intro      (e : expr)   : tactic := builtin
-opaque definition generalize (e : expr)   : tactic := builtin
-opaque definition clear      (e : expr)   : tactic := builtin
-opaque definition revert     (e : expr)   : tactic := builtin
-opaque definition unfold     (e : expr)   : tactic := builtin
-opaque definition refine     (e : expr)   : tactic := builtin
-opaque definition exact      (e : expr)   : tactic := builtin
--- Relaxed version of exact that does not enforce goal type
-opaque definition rexact     (e : expr)   : tactic := builtin
-opaque definition check_expr (e : expr)   : tactic := builtin
-opaque definition trace      (s : string) : tactic := builtin
-
 inductive expr_list : Type :=
 | nil  : expr_list
 | cons : expr → expr_list → expr_list
@@ -75,23 +59,44 @@ inductive expr_list : Type :=
 -- auxiliary type used to mark optional list of arguments
 definition opt_expr_list := expr_list
 
+-- auxiliary types used to mark that the expression (list) is an identifier (list)
+definition identifier := expr
+definition identifier_list := expr_list
+definition opt_identifier_list := expr_list
+
+opaque definition apply      (e : expr)         : tactic := builtin
+opaque definition rapply     (e : expr)         : tactic := builtin
+opaque definition fapply     (e : expr)         : tactic := builtin
+opaque definition rename     (a b : identifier) : tactic := builtin
+opaque definition intro      (e : identifier)   : tactic := builtin
+opaque definition generalize (e : expr)         : tactic := builtin
+opaque definition clear      (e : identifier)   : tactic := builtin
+opaque definition revert     (e : identifier)   : tactic := builtin
+opaque definition unfold     (e : expr)         : tactic := builtin
+opaque definition refine     (e : expr)         : tactic := builtin
+opaque definition exact      (e : expr)         : tactic := builtin
+-- Relaxed version of exact that does not enforce goal type
+opaque definition rexact     (e : expr)         : tactic := builtin
+opaque definition check_expr (e : expr)         : tactic := builtin
+opaque definition trace      (s : string)       : tactic := builtin
+
 -- rewrite_tac is just a marker for the builtin 'rewrite' notation
 -- used to create instances of this tactic.
-opaque definition rewrite_tac (e : expr_list)  : tactic := builtin
+opaque definition rewrite_tac (e : expr_list) : tactic := builtin
 
-opaque definition cases (id : expr) (ids : opt_expr_list) : tactic := builtin
+opaque definition cases (id : identifier) (ids : opt_identifier_list) : tactic := builtin
 
-opaque definition intros (ids : opt_expr_list) : tactic := builtin
+opaque definition intros (ids : opt_identifier_list) : tactic := builtin
 
 opaque definition generalizes (es : expr_list) : tactic := builtin
 
-opaque definition clears (ids : expr_list) : tactic := builtin
+opaque definition clears  (ids : identifier_list) : tactic := builtin
 
-opaque definition reverts (ids : expr_list) : tactic := builtin
+opaque definition reverts (ids : identifier_list) : tactic := builtin
 
 opaque definition change (e : expr) : tactic := builtin
 
-opaque definition assert_hypothesis (id : expr) (e : expr) : tactic := builtin
+opaque definition assert_hypothesis (id : identifier) (e : expr) : tactic := builtin
 
 infixl `;`:15 := and_then
 notation `(` h `|` r:(foldl `|` (e r, or_else r e) h) `)` := r

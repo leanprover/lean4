@@ -30,6 +30,7 @@ tactic expr_to_tactic(environment const & env, elaborate_fn const & fn, expr con
 name const & get_tactic_name();
 
 expr const & get_tactic_expr_type();
+expr const & get_tactic_identifier_type();
 expr mk_tactic_expr(expr const & e);
 bool is_tactic_expr(expr const & e);
 expr const & get_tactic_expr_expr(expr const & e);

@@ -32,7 +32,7 @@ section
 
   check @foo1
   check @foo2
-  -- check @foo3 -- TODO
+  check @foo3
   check @foo4
 end
 

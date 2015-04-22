@@ -90,6 +90,8 @@ private:
     optional<result> pp_notation(notation_entry const & entry, buffer<optional<expr>> & args);
     optional<result> pp_notation(expr const & e);
 
+    optional<result> pp_local_ref(expr const & e);
+
     result pp_coercion_fn(expr const & e, unsigned sz, bool ignore_hide = false);
     result pp_coercion(expr const & e, unsigned bp, bool ignore_hide = false);
     result pp_child_core(expr const & e, unsigned bp, bool ignore_hide = false);

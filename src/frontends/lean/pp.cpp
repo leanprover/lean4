@@ -364,10 +364,30 @@ auto pretty_fn::pp_child_core(expr const & e, unsigned bp, bool ignore_hide) -> 
     }
 }
 
+// Return some result if \c e is of the form (c p_1 ... p_n) where
+// c is a constant, and p_i's are parameters fixed in a section.
+auto pretty_fn::pp_local_ref(expr const & e) -> optional<result> {
+    lean_assert(is_app(e));
+    expr const & rfn = get_app_fn(e);
+    if (is_constant(rfn)) {
+        if (auto info = get_local_ref_info(m_env, const_name(rfn))) {
+            buffer<expr> args;
+            get_app_args(e, args);
+            if (args.size() == info->second) {
+                // TODO(Leo): must check if the arguments are really the fixed parameters.
+                return some(pp_const(rfn));
+            }
+        }
+    }
+    return optional<result>();
+}
+
 auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> result {
     if (auto it = is_abbreviated(e))
         return pp_abbreviation(e, *it, false, bp, ignore_hide);
     if (is_app(e)) {
+        if (auto r = pp_local_ref(e))
+            return *r;
         expr const & f = app_fn(e);
         if (auto it = is_abbreviated(f)) {
             return pp_abbreviation(e, *it, true, bp, ignore_hide);
@@ -501,15 +521,8 @@ bool pretty_fn::has_implicit_args(expr const & f) {
 }
 
 auto pretty_fn::pp_app(expr const & e) -> result {
-    expr const & rfn = get_app_fn(e);
-    if (is_constant(rfn)) {
-        if (auto info = get_local_ref_info(m_env, const_name(rfn))) {
-            buffer<expr> args;
-            get_app_args(e, args);
-            if (args.size() == info->second)
-                return pp_const(rfn);
-        }
-    }
+    if (auto r = pp_local_ref(e))
+        return *r;
     expr const & fn = app_fn(e);
     if (auto it = is_abbreviated(fn))
         return pp_abbreviation(e, *it, true);

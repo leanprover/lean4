@@ -3,7 +3,7 @@ SYNC 10
 import logic
 constant category : Type -> Type
 namespace category
-  context
+  section
   parameters {ob : Type} {C : category ob}
   variables {a b c d : ob}
   definition hom : ob → ob → Type := let aux := C in sorry

@@ -66,7 +66,7 @@ namespace category
     !is_trunc_eq
 
   end basic_lemmas
-  context squares
+  section squares
     parameters {ob : Type} [C : precategory ob]
     local infixl `⟶`:25 := @precategory.hom ob C
     local infixr `∘`    := @precategory.comp ob C _ _ _

@@ -711,7 +711,7 @@ static environment dispatch_notation_cmd(parser & p, bool overload, bool reserve
 }
 
 environment local_notation_cmd(parser & p) {
-    bool overload   = !in_context(p.env());
+    bool overload   = false; // REMARK: local notation override global one
     bool reserve    = false;
     bool persistent = false;
     return dispatch_notation_cmd(p, overload, reserve, persistent);

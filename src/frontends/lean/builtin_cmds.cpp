@@ -252,15 +252,6 @@ environment section_cmd(parser & p) {
     return push_scope(p.env(), p.ios(), scope_kind::Section, n);
 }
 
-environment context_cmd(parser & p) {
-    name n;
-    if (p.curr_is_identifier())
-        n = p.check_atomic_id_next("invalid context, atomic identifier expected");
-    bool save_options = true;
-    p.push_local_scope(save_options);
-    return push_scope(p.env(), p.ios(), scope_kind::Context, n);
-}
-
 environment namespace_cmd(parser & p) {
     auto pos = p.pos();
     name n = p.check_atomic_id_next("invalid namespace declaration, atomic identifier expected");
@@ -274,7 +265,7 @@ static environment redeclare_aliases(environment env, parser & p,
                                      list<pair<name, level>> old_level_entries,
                                      list<pair<name, expr>> old_entries) {
     environment const & old_env = p.env();
-    if (!in_context(old_env) && !in_section(old_env))
+    if (!in_section(old_env))
         return env;
     list<pair<name, expr>> new_entries = p.get_local_entries();
     buffer<pair<name, expr>> to_redeclare;
@@ -695,7 +686,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("exit",          "exit", exit_cmd));
     add_cmd(r, cmd_info("print",         "print a string", print_cmd));
     add_cmd(r, cmd_info("section",       "open a new section", section_cmd));
-    add_cmd(r, cmd_info("context",       "open a new context", context_cmd));
     add_cmd(r, cmd_info("namespace",     "open a new namespace", namespace_cmd));
     add_cmd(r, cmd_info("end",           "close the current namespace/section", end_scoped_cmd));
     add_cmd(r, cmd_info("check",         "type check given expression, and display its type", check_cmd));

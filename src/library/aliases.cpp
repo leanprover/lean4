@@ -25,12 +25,12 @@ static environment update(environment const & env, aliases_ext const & ext);
 
 struct aliases_ext : public environment_extension {
     struct state {
-        bool                  m_in_context;
+        bool                  m_in_section;
         name_map<list<name>>  m_aliases;
         name_map<name>        m_inv_aliases;
         name_map<name>        m_level_aliases;
         name_map<name>        m_inv_level_aliases;
-        state():m_in_context(false) {}
+        state():m_in_section(false) {}
 
         void add_expr_alias(name const & a, name const & e, bool overwrite) {
             auto it = m_aliases.find(a);
@@ -63,7 +63,7 @@ struct aliases_ext : public environment_extension {
         } else {
             state s = head(scopes);
             s.add_expr_alias(a, e, overwrite);
-            if (s.m_in_context) {
+            if (s.m_in_section) {
                 return cons(s, add_expr_alias_rec_core(tail(scopes), a, e, overwrite));
             } else {
                 return cons(s, tail(scopes));
@@ -72,15 +72,15 @@ struct aliases_ext : public environment_extension {
     }
 
     void add_expr_alias_rec(name const & a, name const & e, bool overwrite = false) {
-        if (m_state.m_in_context) {
+        if (m_state.m_in_section) {
             m_scopes = add_expr_alias_rec_core(m_scopes, a, e, overwrite);
         }
         add_expr_alias(a, e, overwrite);
     }
 
-    void push(bool in_context) {
+    void push(bool in_section) {
         m_scopes = cons(m_state, m_scopes);
-        m_state.m_in_context = in_context;
+        m_state.m_in_section = in_section;
     }
 
     void pop() {
@@ -106,7 +106,7 @@ struct aliases_ext : public environment_extension {
         aliases_ext ext = get_extension(env);
         ext.push(k != scope_kind::Namespace);
         environment new_env = update(env, ext);
-        if (!::lean::in_context(new_env) && !::lean::in_section(new_env))
+        if (!::lean::in_section(new_env))
             new_env = add_aliases(new_env, get_namespace(new_env), name());
         return new_env;
     }

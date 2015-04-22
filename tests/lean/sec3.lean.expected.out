@@ -1,1 +1,1 @@
-sec3.lean:5:8: error: invalid use of explicit universe parameter, identifier is a variable, parameter or a constant bound to parameters in a section/context
+sec3.lean:5:8: error: invalid use of explicit universe parameter, identifier is a variable, parameter or a constant bound to parameters in a section

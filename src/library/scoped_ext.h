@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "library/fingerprint.h"
 
 namespace lean {
-enum class scope_kind { Namespace, Section, Context };
+enum class scope_kind { Namespace, Section };
 typedef environment (*using_namespace_fn)(environment const &, io_state const &, name const &);
 typedef environment (*export_namespace_fn)(environment const &, io_state const &, name const &);
 typedef environment (*push_scope_fn)(environment const &, io_state const &, scope_kind);
@@ -56,7 +56,6 @@ environment add_namespace(environment const & env, name const & ns);
 
 name const & get_namespace(environment const & env);
 list<name> const & get_namespaces(environment const & env);
-bool in_context(environment const & env);
 bool in_section(environment const & env);
 
 /** \brief Check if \c n may be a reference to a namespace, if it is return it.
@@ -234,7 +233,7 @@ public:
         if (auto h = get_fingerprint(e)) {
             env = update_fingerprint(env, *h);
         }
-        if (in_context(env) || !persistent) {
+        if (!persistent) {
             return update(env, get(env)._add_tmp_entry(env, ios, e));
         } else {
             name n = get_namespace(env);

@@ -457,7 +457,7 @@ void parser::push_local_scope(bool save_options) {
 
 void parser::pop_local_scope() {
     if (!m_local_level_decls.has_scopes()) {
-        throw parser_error("invalid 'end', there is no open namespace/section/context", pos());
+        throw parser_error("invalid 'end', there is no open namespace/section", pos());
     }
     m_local_level_decls.pop();
     m_local_decls.pop();
@@ -1116,7 +1116,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
     if (auto it1 = m_local_decls.find(id)) {
         if (ls && m_undef_id_behavior != undef_id_behavior::AssumeConstant)
             throw parser_error("invalid use of explicit universe parameter, identifier is a variable, "
-                               "parameter or a constant bound to parameters in a section/context", p);
+                               "parameter or a constant bound to parameters in a section", p);
         auto r = copy_with_new_pos(*it1, p);
         save_type_info(r);
         save_identifier_info(p, id);
@@ -1189,7 +1189,7 @@ name parser::check_constant_next(char const * msg) {
     name id = check_id_next(msg);
     expr e  = id_to_expr(id, p);
 
-    if ((in_section(m_env) || in_context(m_env)) && is_as_atomic(e)) {
+    if (in_section(m_env) && is_as_atomic(e)) {
         e = get_app_fn(get_as_atomic_arg(e));
         if (is_explicit(e))
             e = get_explicit_arg(e);

@@ -50,18 +50,9 @@ list<name> const & get_namespaces(environment const & env) {
     return get_extension(env).m_namespaces;
 }
 
-bool in_section_or_context(environment const & env) {
-    scope_mng_ext const & ext = get_extension(env);
-    return !is_nil(ext.m_scope_kinds) && head(ext.m_scope_kinds) != scope_kind::Namespace;
-}
-
-bool in_context(environment const & env) {
-    scope_mng_ext const & ext = get_extension(env);
-    return !is_nil(ext.m_scope_kinds) && head(ext.m_scope_kinds) == scope_kind::Context;
-}
-
 bool in_section(environment const & env) {
-    return in_section_or_context(env) && !in_context(env);
+    scope_mng_ext const & ext = get_extension(env);
+    return !is_nil(ext.m_scope_kinds) && head(ext.m_scope_kinds) == scope_kind::Section;
 }
 
 void get_metaclasses(buffer<name> & r) {
@@ -143,10 +134,8 @@ environment add_namespace(environment const & env, name const & ns) {
 }
 
 environment push_scope(environment const & env, io_state const & ios, scope_kind k, name const & n) {
-    if (k == scope_kind::Namespace && in_section_or_context(env))
-        throw exception("invalid namespace declaration, a namespace cannot be declared inside a section or context");
-    if (k == scope_kind::Section && in_context(env))
-        throw exception("invalid section declaration, a section cannot be declared inside a context");
+    if (k == scope_kind::Namespace && in_section(env))
+        throw exception("invalid namespace declaration, a namespace cannot be declared inside a section");
     name new_n = get_namespace(env);
     if (k == scope_kind::Namespace)
         new_n = new_n + n;
@@ -200,7 +189,7 @@ environment pop_scope_core(environment const & env, io_state const & ios) {
 environment pop_scope(environment const & env, io_state const & ios, name const & n) {
     scope_mng_ext ext = get_extension(env);
     if (is_nil(ext.m_namespaces))
-        throw exception("invalid end of scope, there are no open namespaces/sections/contexts");
+        throw exception("invalid end of scope, there are no open namespaces/sections");
     if (n != head(ext.m_headers))
         throw exception(sstream() << "invalid end of scope, begin/end mistmatch, scope starts with '"
                         << head(ext.m_headers) << "', and ends with '" << n << "'");
@@ -227,7 +216,7 @@ static int using_namespace_objects(lua_State * L) {
 static int push_scope(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 1)
-        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), scope_kind::Context));
+        return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), scope_kind::Section));
     else if (nargs == 2)
         return push_environment(L, push_scope(to_environment(L, 1), get_io_state(L), scope_kind::Namespace, to_name_ext(L, 2)));
     scope_kind k = static_cast<scope_kind>(lua_tonumber(L, 3));
@@ -253,7 +242,6 @@ void open_scoped_ext(lua_State * L) {
     lua_newtable(L);
     SET_ENUM("Namespace",   scope_kind::Namespace);
     SET_ENUM("Section",     scope_kind::Section);
-    SET_ENUM("Context",     scope_kind::Context);
     lua_setglobal(L, "scope_kind");
 }
 

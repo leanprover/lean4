@@ -37,7 +37,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static environment declare_universe(parser & p, environment env, name const & n, bool local) {
-    if (in_context(env) || local) {
+    if (local) {
         p.add_local_level(n, mk_param_univ(n), local);
     } else {
         name const & ns = get_namespace(env);
@@ -125,7 +125,7 @@ static environment declare_var(parser & p, environment env,
     if (_bi) bi = *_bi;
     if (k == variable_kind::Parameter || k == variable_kind::Variable) {
         if (k == variable_kind::Parameter) {
-            check_in_context_or_section(p);
+            check_in_section(p);
             check_parameter_type(p, n, type, pos);
         }
         if (p.get_local(n))
@@ -172,13 +172,13 @@ optional<binder_info> parse_binder_info(parser & p, variable_kind k) {
 }
 
 static void check_variable_kind(parser & p, variable_kind k) {
-    if (in_context(p.env()) || in_section(p.env())) {
+    if (in_section(p.env())) {
         if (k == variable_kind::Axiom || k == variable_kind::Constant)
-            throw parser_error("invalid declaration, 'constant/axiom' cannot be used in sections/contexts",
+            throw parser_error("invalid declaration, 'constant/axiom' cannot be used in sections",
                                p.pos());
-    } else if (!in_section(p.env()) && !in_context(p.env()) && k == variable_kind::Parameter) {
+    } else if (!in_section(p.env()) && k == variable_kind::Parameter) {
         throw parser_error("invalid declaration, 'parameter/hypothesis/conjecture' "
-                           "can only be used in contexts and sections", p.pos());
+                           "can only be used in sections", p.pos());
     }
 }
 
@@ -374,10 +374,7 @@ struct decl_attributes {
                 m_is_instance = true;
                 p.next();
             } else if (p.curr_is_token(get_coercion_tk())) {
-                auto pos = p.pos();
                 p.next();
-                if (in_context(p.env()) && m_persistent)
-                    throw parser_error("invalid '[coercion]' attribute, (non local) coercions cannot be defined in contexts", pos);
                 m_is_coercion = true;
             } else if (p.curr_is_token(get_reducible_tk())) {
                 if (m_is_irreducible || m_is_semireducible || m_is_quasireducible)

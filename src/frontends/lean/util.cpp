@@ -60,14 +60,9 @@ void check_atomic(name const & n) {
         throw exception(sstream() << "invalid declaration name '" << n << "', identifier must be atomic");
 }
 
-void check_in_context(parser const & p) {
-    if (!in_context(p.env()))
-        throw exception(sstream() << "invalid command, it must be used in a (local) context");
-}
-
-void check_in_context_or_section(parser const & p) {
-    if (!in_context(p.env()) && !in_section(p.env()))
-        throw exception(sstream() << "invalid command, it must be used in a (local) context or section");
+void check_in_section(parser const & p) {
+    if (!in_section(p.env()))
+        throw exception(sstream() << "invalid command, it must be used in a section");
 }
 
 bool is_root_namespace(name const & n) {

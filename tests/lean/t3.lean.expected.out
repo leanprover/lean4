@@ -5,7 +5,7 @@ Type
 t3.lean:9:16: error: unknown universe 'v'
 Type
 t3.lean:14:16: error: unknown universe 'z'
-t3.lean:16:2: error: invalid namespace declaration, a namespace cannot be declared inside a section or context
+t3.lean:16:2: error: invalid namespace declaration, a namespace cannot be declared inside a section
 Type
 Type
 Type

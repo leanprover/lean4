@@ -96,7 +96,7 @@ void init_token_table(token_table & t) {
          "evaluate", "check", "eval", "[wf]", "[whnf]", "[all-transparent]", "[priority", "[unfold-f]", "[unfold-c", "print",
          "end", "namespace", "section", "prelude", "help",
          "import", "inductive", "record", "structure", "module", "universe", "universes", "local",
-         "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation", "context",
+         "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation",
          "exit", "set_option", "open", "export", "calc_subst", "calc_refl", "calc_trans", "calc_symm", "tactic_hint",
          "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class",
          "multiple_instances", "find_decl", "attribute", "persistent",

@@ -627,7 +627,7 @@ struct notation_modifiers {
 static environment notation_cmd_core(parser & p, bool overload, bool reserve, bool persistent) {
     notation_modifiers mods;
     mods.parse(p);
-    flet<bool> set_allow_local(g_allow_local, in_context(p.env()) || !persistent);
+    flet<bool> set_allow_local(g_allow_local, !persistent);
     environment env = p.env();
     buffer<token_entry> new_tokens;
     auto ne = parse_notation_core(p, overload, reserve, new_tokens, mods.m_parse_only);
@@ -640,7 +640,7 @@ static environment notation_cmd_core(parser & p, bool overload, bool reserve, bo
 static environment mixfix_cmd(parser & p, mixfix_kind k, bool overload, bool reserve, bool persistent) {
     notation_modifiers mods;
     mods.parse(p);
-    flet<bool> set_allow_local(g_allow_local, in_context(p.env()) || !persistent);
+    flet<bool> set_allow_local(g_allow_local, !persistent);
     auto nt = parse_mixfix_notation(p, k, overload, reserve, mods.m_parse_only);
     environment env = p.env();
     if (nt.second)
@@ -650,35 +650,35 @@ static environment mixfix_cmd(parser & p, mixfix_kind k, bool overload, bool res
 }
 
 static environment notation_cmd(parser & p) {
-    bool overload = !in_context(p.env());
+    bool overload = true;
     bool reserve  = false;
     bool persistent = true;
     return notation_cmd_core(p, overload, reserve, persistent);
 }
 
 static environment infixl_cmd(parser & p) {
-    bool overload = !in_context(p.env());
+    bool overload = true;
     bool reserve  = false;
     bool persistent = true;
     return mixfix_cmd(p, mixfix_kind::infixl, overload, reserve, persistent);
 }
 
 static environment infixr_cmd(parser & p) {
-    bool overload = !in_context(p.env());
+    bool overload = true;
     bool reserve  = false;
     bool persistent = true;
     return mixfix_cmd(p, mixfix_kind::infixr, overload, reserve, persistent);
 }
 
 static environment postfix_cmd(parser & p) {
-    bool overload = !in_context(p.env());
+    bool overload = true;
     bool reserve  = false;
     bool persistent = true;
     return mixfix_cmd(p, mixfix_kind::postfix, overload, reserve, persistent);
 }
 
 static environment prefix_cmd(parser & p) {
-    bool overload = !in_context(p.env());
+    bool overload = true;
     bool reserve  = false;
     bool persistent = true;
     return mixfix_cmd(p, mixfix_kind::prefix, overload, reserve, persistent);

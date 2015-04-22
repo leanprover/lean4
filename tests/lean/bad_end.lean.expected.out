@@ -1,1 +1,1 @@
-bad_end.lean:1:4: error: invalid 'end', there is no open namespace/section/context
+bad_end.lean:1:4: error: invalid 'end', there is no open namespace/section

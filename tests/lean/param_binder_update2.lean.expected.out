@@ -1,0 +1,4 @@
+foo1 : Π {A : Type} {B : Type}, A → B → A
+foo2 : Π {A : Type} (B : Type), A → B → A
+foo3 : Π (A : Type) {B : Type}, A → B → A
+foo4 : Π (A : Type) (B : Type), A → B → A

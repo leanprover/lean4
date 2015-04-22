@@ -247,6 +247,7 @@ end
 /- instantiate ordered ring theorems to int -/
 
 section port_algebra
+  open [classes] algebra
   definition ge [reducible] (a b : ℤ) := algebra.has_le.ge a b
   definition gt [reducible] (a b : ℤ) := algebra.has_lt.gt a b
   infix >= := int.ge

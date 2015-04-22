@@ -102,7 +102,7 @@ struct aliases_ext : public environment_extension {
         return env;
     }
 
-    static environment push_scope(environment const & env, scope_kind k) {
+    static environment push_scope(environment const & env, io_state const &, scope_kind k) {
         aliases_ext ext = get_extension(env);
         ext.push(k != scope_kind::Namespace);
         environment new_env = update(env, ext);
@@ -111,7 +111,7 @@ struct aliases_ext : public environment_extension {
         return new_env;
     }
 
-    static environment pop_scope(environment const & env, scope_kind) {
+    static environment pop_scope(environment const & env, io_state const &, scope_kind) {
         aliases_ext ext = get_extension(env);
         ext.pop();
         return update(env, ext);

@@ -384,6 +384,7 @@ match H a a with
 | inr n := absurd rfl n
 end
 
+open eq.ops
 theorem decidable_eq_inr_neg {A : Type} [H : decidable_eq A] {a b : A} : Π n : a ≠ b, H a b = inr n :=
 assume n,
 match H a b with

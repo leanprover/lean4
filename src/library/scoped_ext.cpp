@@ -161,7 +161,7 @@ environment push_scope(environment const & env, io_state const & ios, scope_kind
     ext.m_scope_kinds = cons(k, ext.m_scope_kinds);
     environment r = update(env, ext);
     for (auto const & t : get_exts()) {
-        r = std::get<3>(t)(r, k);
+        r = std::get<3>(t)(r, ios, k);
     }
     if (k == scope_kind::Namespace)
         r = using_namespace(r, ios, new_n);
@@ -182,7 +182,7 @@ static void namespace_reader(deserializer & d, module_idx, shared_environment &,
         });
 }
 
-environment pop_scope_core(environment const & env) {
+environment pop_scope_core(environment const & env, io_state const & ios) {
     scope_mng_ext ext = get_extension(env);
     if (is_nil(ext.m_namespaces))
         return env;
@@ -192,19 +192,19 @@ environment pop_scope_core(environment const & env) {
     ext.m_scope_kinds = tail(ext.m_scope_kinds);
     environment r = update(env, ext);
     for (auto const & t : get_exts()) {
-        r = std::get<4>(t)(r, k);
+        r = std::get<4>(t)(r, ios, k);
     }
     return r;
 }
 
-environment pop_scope(environment const & env, name const & n) {
+environment pop_scope(environment const & env, io_state const & ios, name const & n) {
     scope_mng_ext ext = get_extension(env);
     if (is_nil(ext.m_namespaces))
         throw exception("invalid end of scope, there are no open namespaces/sections/contexts");
     if (n != head(ext.m_headers))
         throw exception(sstream() << "invalid end of scope, begin/end mistmatch, scope starts with '"
                         << head(ext.m_headers) << "', and ends with '" << n << "'");
-    return pop_scope_core(env);
+    return pop_scope_core(env, ios);
 }
 
 bool has_open_scopes(environment const & env) {
@@ -240,9 +240,9 @@ static int push_scope(lua_State * L) {
 static int pop_scope(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 1)
-        return push_environment(L, pop_scope(to_environment(L, 1)));
+        return push_environment(L, pop_scope(to_environment(L, 1), get_io_state(L)));
     else
-        return push_environment(L, pop_scope(to_environment(L, 1), to_name_ext(L, 2)));
+        return push_environment(L, pop_scope(to_environment(L, 1), get_io_state(L), to_name_ext(L, 2)));
 }
 
 void open_scoped_ext(lua_State * L) {

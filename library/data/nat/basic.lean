@@ -311,6 +311,7 @@ section
 end
 
 section port_algebra
+  open [classes] algebra
   theorem mul.left_comm : ∀a b c : ℕ, a * (b * c) = b * (a * c) := algebra.mul.left_comm
   theorem mul.right_comm : ∀a b c : ℕ, (a * b) * c = (a * c) * b := algebra.mul.right_comm
 

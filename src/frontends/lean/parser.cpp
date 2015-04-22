@@ -1634,7 +1634,7 @@ bool parser::parse_commands() {
     } catch (interrupt_parser) {
         commit_info();
         while (has_open_scopes(m_env))
-            m_env = pop_scope_core(m_env);
+            m_env = pop_scope_core(m_env, m_ios);
     }
     commit_info(m_scanner.get_line()+1, 0);
     for (certified_declaration const & thm : m_theorem_queue.join()) {

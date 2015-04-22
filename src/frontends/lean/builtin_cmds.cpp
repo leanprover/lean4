@@ -309,11 +309,11 @@ environment end_scoped_cmd(parser & p) {
     p.pop_local_scope();
     if (p.curr_is_identifier()) {
         name n = p.check_atomic_id_next("invalid end of scope, atomic identifier expected");
-        environment env = pop_scope(p.env(), n);
+        environment env = pop_scope(p.env(), p.ios(), n);
         redeclare_aliases(p, level_entries, entries);
         return env;
     } else {
-        environment env = pop_scope(p.env());
+        environment env = pop_scope(p.env(), p.ios());
         redeclare_aliases(p, level_entries, entries);
         return env;
     }

@@ -630,6 +630,7 @@ end
 /- instantiate ring theorems to int -/
 
 section port_algebra
+  open [classes] algebra
   theorem mul.left_comm : ∀a b c : ℤ, a * (b * c) = b * (a * c) := algebra.mul.left_comm
   theorem mul.right_comm : ∀a b c : ℤ, (a * b) * c = (a * c) * b := algebra.mul.right_comm
   theorem add.left_comm : ∀a b c : ℤ, a + (b + c) = b + (a + c) := algebra.add.left_comm

@@ -316,6 +316,8 @@ if_pos unit.star
 definition if_empty {A : Type} (t e : A) : (if empty then t else e) = e :=
 if_neg not_empty
 
+section
+open eq.ops
 definition if_cond_congr {c₁ c₂ : Type} [H₁ : decidable c₁] [H₂ : decidable c₂] (Heq : c₁ ↔ c₂) {A : Type} (t e : A)
                       : (if c₁ then t else e) = (if c₂ then t else e) :=
 decidable.rec_on H₁
@@ -357,3 +359,4 @@ decidable.rec
 -- Remark: dite and ite are "definitionally equal" when we ignore the proofs.
 definition dite_ite_eq (c : Type) [H : decidable c] {A : Type} (t : A) (e : A) : dite c (λh, t) (λh, e) = ite c t e :=
 rfl
+end

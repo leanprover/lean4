@@ -173,6 +173,7 @@ section
 end
 
 section port_algebra
+  open [classes] algebra
   theorem add_pos_left : ∀{a : ℕ}, 0 < a → ∀b : ℕ, 0 < a + b :=
     take a H b, @algebra.add_pos_of_pos_of_nonneg _ _ a b H !zero_le
   theorem add_pos_right : ∀{a : ℕ}, 0 < a → ∀b : ℕ, 0 < b + a :=

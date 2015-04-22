@@ -249,6 +249,7 @@ namespace is_trunc
 
   /- interaction with the Unit type -/
 
+  open equiv
   -- A contractible type is equivalent to [Unit]. *)
   definition equiv_unit_of_is_contr [H : is_contr A] : A ≃ unit :=
     equiv.mk (λ (x : A), ⋆)

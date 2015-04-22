@@ -37,10 +37,11 @@ public:
         m_entries = cons(mk_pair(k, v), m_entries);
     }
     void update(name const & k, V const & v) {
-        if (auto it = m_map.find(k))
+        if (auto it = m_map.find(k)) {
             m_map.insert(k, mk_pair(v, it->second));
-        else
+        } else {
             lean_unreachable();
+        }
     }
     V const * find(name const & k) const { auto it = m_map.find(k); return it ? &(it->first) : nullptr; }
     unsigned find_idx(name const & k) const { auto it = m_map.find(k); return it ? it->second : 0; }

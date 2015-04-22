@@ -17,7 +17,7 @@ notation `take`   binders `,` r:(scoped f, f) := r
   If a module reassigns these, it will be incompatible with other modules that adhere to these
   conventions.
 
-  When hovering over a symbol, use "C-u C-x =" to see how to input it.
+  When hovering over a symbol, use "C-c C-k" to see how to input it.
 -/
 
 definition std.prec.max   : num := 1024 -- the strength of application, identifiers, (, [, etc.
@@ -40,8 +40,8 @@ reserve infixr `∧`:35
 reserve infixr `/\`:35
 reserve infixr `\/`:30
 reserve infixr `∨`:30
-reserve infix `<->`:25
-reserve infix `↔`:25
+reserve infix `<->`:20
+reserve infix `↔`:20
 reserve infix `=`:50
 reserve infix `≠`:50
 reserve infix `≈`:50

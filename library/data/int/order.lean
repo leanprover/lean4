@@ -326,7 +326,7 @@ section port_algebra
   theorem add_neg_of_nonpos_of_neg : ∀{a b : ℤ}, a ≤ 0 → b < 0 → a + b < 0 :=
     @algebra.add_neg_of_nonpos_of_neg _ _
   theorem add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg : ∀{a b : ℤ},
-    0 ≤ a → 0 ≤ b → a + b = 0 ↔ a = 0 ∧ b = 0 :=
+    0 ≤ a → 0 ≤ b → (a + b = 0 ↔ a = 0 ∧ b = 0) :=
     @algebra.add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg _ _
 
   theorem le_add_of_nonneg_of_le : ∀{a b c : ℤ}, 0 ≤ a → b ≤ c → b ≤ a + c :=
@@ -416,9 +416,9 @@ section port_algebra
     algebra.lt_add_iff_sub_lt_left
   theorem lt_add_iff_sub_lt_right : ∀a b c : ℤ, a < b + c ↔ a - c < b :=
     algebra.lt_add_iff_sub_lt_right
-  theorem le_iff_le_of_sub_eq_sub : ∀{a b c d : ℤ}, a - b = c - d → a ≤ b ↔ c ≤ d :=
+  theorem le_iff_le_of_sub_eq_sub : ∀{a b c d : ℤ}, a - b = c - d → (a ≤ b ↔ c ≤ d) :=
     @algebra.le_iff_le_of_sub_eq_sub _ _
-  theorem lt_iff_lt_of_sub_eq_sub : ∀{a b c d : ℤ}, a - b = c - d → a < b ↔ c < d :=
+  theorem lt_iff_lt_of_sub_eq_sub : ∀{a b c d : ℤ}, a - b = c - d → (a < b ↔ c < d) :=
     @algebra.lt_iff_lt_of_sub_eq_sub _ _
   theorem sub_le_sub_left : ∀{a b : ℤ}, a ≤ b → ∀c : ℤ, c - b ≤ c - a :=
     @algebra.sub_le_sub_left _ _

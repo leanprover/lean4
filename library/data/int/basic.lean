@@ -689,7 +689,7 @@ section port_algebra
     algebra.sub_add_eq_sub_sub_swap
   theorem sub_eq_iff_eq_add : ∀a b c : ℤ, a - b = c ↔ a = c + b := algebra.sub_eq_iff_eq_add
   theorem eq_sub_iff_add_eq : ∀a b c : ℤ, a = b - c ↔ a + c = b := algebra.eq_sub_iff_add_eq
-  theorem eq_iff_eq_of_sub_eq_sub : ∀{a b c d : ℤ}, a - b = c - d → a = b ↔ c = d :=
+  theorem eq_iff_eq_of_sub_eq_sub : ∀{a b c d : ℤ}, a - b = c - d → (a = b ↔ c = d) :=
     @algebra.eq_iff_eq_of_sub_eq_sub _ _
   theorem eq_sub_of_add_eq : ∀{a b c : ℤ}, a + c = b → a = b - c := @algebra.eq_sub_of_add_eq _ _
   theorem sub_eq_of_eq_add : ∀{a b c : ℤ}, a = c + b → a - b = c := @algebra.sub_eq_of_eq_add _ _

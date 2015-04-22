@@ -70,19 +70,6 @@ void check_in_context_or_section(parser const & p) {
         throw exception(sstream() << "invalid command, it must be used in a (local) context or section");
 }
 
-bool in_parametric_section(parser const & p) {
-    return in_section(p.env()) && p.has_params();
-}
-
-void check_not_in_parametric_section(parser const & p) {
-    if (in_parametric_section(p))
-        throw exception(sstream() << "invalid command, it cannot be used in sections containing parameters");
-}
-
-bool in_context_or_parametric_section(parser const & p) {
-    return in_context(p.env()) || in_parametric_section(p);
-}
-
 bool is_root_namespace(name const & n) {
     return n == get_root_tk();
 }

@@ -29,9 +29,6 @@ void check_command_period_open_binder_or_eof(parser const & p);
 void check_atomic(name const & n);
 void check_in_context(parser const & p);
 void check_in_context_or_section(parser const & p);
-void check_not_in_parametric_section(parser const & p);
-bool in_parametric_section(parser const & p);
-bool in_context_or_parametric_section(parser const & p);
 bool is_root_namespace(name const & n);
 name remove_root_prefix(name const & n);
 /** \brief Return the local levels in \c ls that are not tagged as variables.

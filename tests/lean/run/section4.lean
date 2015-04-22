@@ -7,7 +7,7 @@ section
   universe k
   parameter A : Type
 
-  context
+  section
     universe variable l
     universe variable u
     parameter B : Type

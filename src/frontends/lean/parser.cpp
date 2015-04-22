@@ -515,6 +515,14 @@ void parser::add_parameter(name const & n, expr const & p) {
     m_has_params = true;
 }
 
+bool parser::update_local_binder_info(name const & n, binder_info const & bi) {
+    auto it = get_local(n);
+    if (!it) return false;
+    if (!is_local(*it)) return false;
+    m_local_decls.update(n, update_local(*it, bi));
+    return true;
+}
+
 unsigned parser::get_local_level_index(name const & n) const {
     return m_local_level_decls.find_idx(n);
 }

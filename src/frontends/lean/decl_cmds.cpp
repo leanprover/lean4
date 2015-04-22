@@ -182,6 +182,29 @@ static void check_variable_kind(parser & p, variable_kind k) {
     }
 }
 
+static void update_local_binder_info(parser & p, variable_kind k, name const & n,
+                                     optional<binder_info> const & bi, pos_info const & pos) {
+    binder_info new_bi;
+    if (bi) new_bi = *bi;
+    if (k == variable_kind::Parameter) {
+        if (p.is_local_variable(n))
+            throw parser_error(sstream() << "invalid parameter binder type update, '"
+                               << n << "' is a variable", pos);
+        if (!p.update_local_binder_info(n, new_bi))
+            throw parser_error(sstream() << "invalid parameter binder type update, '"
+                               << n << "' is not a parameter", pos);
+    } else {
+        if (!p.update_local_binder_info(n, new_bi) || !p.is_local_variable(n))
+            throw parser_error(sstream() << "invalid variable binder type update, '"
+                               << n << "' is not a variable", pos);
+    }
+}
+
+static bool curr_is_binder_annotation(parser & p) {
+    return p.curr_is_token(get_lparen_tk()) || p.curr_is_token(get_lcurly_tk()) ||
+           p.curr_is_token(get_ldcurly_tk()) || p.curr_is_token(get_lbracket_tk());
+}
+
 static environment variable_cmd_core(parser & p, variable_kind k, bool is_protected = false) {
     check_variable_kind(p, k);
     auto pos = p.pos();
@@ -196,12 +219,18 @@ static environment variable_cmd_core(parser & p, variable_kind k, bool is_protec
     parse_univ_params(p, ls_buffer);
     expr type;
     if (!p.curr_is_token(get_colon_tk())) {
-        buffer<expr> ps;
-        unsigned rbp = 0;
-        auto lenv = p.parse_binders(ps, rbp);
-        p.check_token_next(get_colon_tk(), "invalid declaration, ':' expected");
-        type = p.parse_scoped_expr(ps, lenv);
-        type = Pi(ps, type, p);
+        if (!curr_is_binder_annotation(p) && (k == variable_kind::Parameter || k == variable_kind::Variable)) {
+            p.parse_close_binder_info(bi);
+            update_local_binder_info(p, k, n, bi, pos);
+            return p.env();
+        } else {
+            buffer<expr> ps;
+            unsigned rbp = 0;
+            auto lenv = p.parse_binders(ps, rbp);
+            p.check_token_next(get_colon_tk(), "invalid declaration, ':' expected");
+            type = p.parse_scoped_expr(ps, lenv);
+            type = Pi(ps, type, p);
+        }
     } else {
         p.next();
         type = p.parse_expr();
@@ -242,11 +271,29 @@ static environment variables_cmd_core(parser & p, variable_kind k, bool is_prote
 
     optional<binder_info> bi = parse_binder_info(p, k);
     buffer<name> ids;
-    while (!p.curr_is_token(get_colon_tk())) {
-        name id = p.check_id_next("invalid parameters declaration, identifier expected");
+    while (p.curr_is_identifier()) {
+        name id = p.get_name_val();
+        p.next();
         ids.push_back(id);
     }
-    p.next();
+
+    if (p.curr_is_token(get_colon_tk())) {
+        p.next();
+    } else {
+        if (k == variable_kind::Parameter || k == variable_kind::Variable) {
+            p.parse_close_binder_info(bi);
+            for (name const & id : ids) {
+                update_local_binder_info(p, k, id, bi, pos);
+            }
+            if (curr_is_binder_annotation(p))
+                return variables_cmd_core(p, k);
+            else
+                return env;
+        } else {
+            throw parser_error("invalid variables/constants/axioms declaration, ':' expected", pos);
+        }
+    }
+
     optional<parser::local_scope> scope1;
     if (k == variable_kind::Constant || k == variable_kind::Axiom)
         scope1.emplace(p);
@@ -266,8 +313,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, bool is_prote
         new_ls = append(ls, new_ls);
         env = declare_var(p, env, id, new_ls, new_type, k, bi, pos, is_protected);
     }
-    if (p.curr_is_token(get_lparen_tk()) || p.curr_is_token(get_lcurly_tk()) ||
-        p.curr_is_token(get_ldcurly_tk()) || p.curr_is_token(get_lbracket_tk())) {
+    if (curr_is_binder_annotation(p)) {
         if (k == variable_kind::Constant || k == variable_kind::Axiom) {
             // Hack: temporarily update the parser environment.
             // We must do that to be able to process

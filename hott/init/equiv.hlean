@@ -95,7 +95,7 @@ namespace is_equiv
   is_equiv.mk (inv f) sect' retr' adj'
   end
 
-  context
+  section
   parameters {A B : Type} (f : A → B) (g : B → A)
             (ret : f ∘ g ∼ id) (sec : g ∘ f ∼ id)
 

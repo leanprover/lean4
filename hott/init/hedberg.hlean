@@ -16,7 +16,7 @@ private definition const {A B : Type} (f : A → B) := ∀ x y, f x = f y
 private definition coll (A : Type) := Σ f : A → A, const f
 private definition path_coll (A : Type) := ∀ x y : A, coll (x = y)
 
-context
+section
   parameter  {A : Type}
   hypothesis [h : decidable_eq A]
   variables  {x y : A}

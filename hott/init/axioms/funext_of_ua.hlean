@@ -14,7 +14,7 @@ import .funext_varieties .ua
 
 open eq function prod is_trunc sigma equiv is_equiv unit
 
-context
+section
   universe variables l
 
   private theorem ua_isequiv_postcompose {A B : Type.{l}} {C : Type}

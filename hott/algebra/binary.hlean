@@ -41,12 +41,12 @@ namespace binary
     definition right_distributive := ∀a b c, (a + b) * c = a * c + b * c
   end
 
-  context
+  section
     variable {A : Type}
     variable {f : A → A → A}
     variable H_comm : commutative f
     variable H_assoc : associative f
-    infixl `*` := f
+    local infixl `*` := f
     theorem left_comm : ∀a b c, a*(b*c) = b*(a*c) :=
     take a b c, calc
       a*(b*c) = (a*b)*c  : H_assoc
@@ -60,11 +60,11 @@ namespace binary
         ...   = (a*c)*b : H_assoc
   end
 
-  context
+  section
     variable {A : Type}
     variable {f : A → A → A}
     variable H_assoc : associative f
-    infixl `*` := f
+    local infixl `*` := f
     theorem assoc4helper (a b c d) : (a*b)*(c*d) = a*((b*c)*d) :=
     calc
       (a*b)*(c*d) = a*(b*(c*d)) : H_assoc

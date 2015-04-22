@@ -228,9 +228,9 @@ namespace sigma
     : (Σa, B a) ≃ (Σa', B' a') :=
   equiv.mk (sigma_functor f g) !is_equiv_sigma_functor
 
-  context
-  attribute inv [irreducible]
-  attribute function.compose [irreducible] --this is needed for the following class inference problem
+  section
+  local attribute inv [irreducible]
+  local attribute function.compose [irreducible] --this is needed for the following class inference problem
   definition sigma_equiv_sigma (Hf : A ≃ A') (Hg : Π a, B a ≃ B' (to_fun Hf a)) :
       (Σa, B a) ≃ (Σa', B' a') :=
   sigma_equiv_sigma_of_is_equiv (to_fun Hf) (λ a, to_fun (Hg a))

@@ -1,7 +1,7 @@
 import logic
 
 
-context
+section
   variable A : Type
   parameter a : A
 end

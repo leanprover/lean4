@@ -1,7 +1,7 @@
 import logic
 
 
-context
+section
   universe l
   variable A : Type.{l}
   variable a : A

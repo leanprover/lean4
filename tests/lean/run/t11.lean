@@ -2,7 +2,7 @@ constant A : Type.{1}
 constants a b c : A
 constant f : A → A → A
 check f a b
-context
+section
   parameters A B : Type
   parameters {C D : Type}
   parameters [e d : A]

@@ -3,7 +3,7 @@ structure is_equiv [class] {A B : Type} (f : A → B) :=
 
 check @is_equiv.inv
 namespace is_equiv
-context
+section
    parameters A B : Type
    parameter  f : A → B
    parameter  c : is_equiv f

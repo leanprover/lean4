@@ -1,6 +1,6 @@
 open eq
 
-context
+section
   parameter (A : Type)
 
   definition foo (a : A) : a = a := refl a

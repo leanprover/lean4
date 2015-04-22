@@ -3,13 +3,13 @@ import logic
   set_option pp.universes true
   set_option pp.implicit true
 
-context
+section
   universe k
   parameter A : Type
 
   context
-    universe l
-    universe u
+    universe variable l
+    universe variable u
     parameter B : Type
     definition foo (a : A) (b : B) := b
 

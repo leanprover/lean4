@@ -21,7 +21,7 @@ protected theorem dec_eq : ∀ x y : nat, decidable (x = y)
   | inr H := inr (λ h : succ x = succ y, nat.no_confusion h (λ heq : x = y, absurd heq H))
   end
 
-context
+section
   open list
   parameter {A : Type}
   parameter (p : A → Prop)

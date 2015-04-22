@@ -1,6 +1,6 @@
 prelude
 definition Prop : Type.{1} := Type.{0}
-context
+section
   parameter A : Type
 
   definition eq (a b : A) : Prop

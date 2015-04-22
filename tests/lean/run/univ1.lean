@@ -19,7 +19,7 @@ end S2
 
 
 namespace S3
-context
+section
   hypothesis I : Type
   definition F (X : Type) : Type := (X → Prop) → Prop
   hypothesis unfold : I → F I

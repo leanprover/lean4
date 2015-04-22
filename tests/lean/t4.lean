@@ -13,7 +13,7 @@ constant f (a b : N) : N
 constant len.{l} (A : Type.{l}) (n : N) (v : vec.{l} A n) : N
 check f
 check len.{1}
-context
+section
    parameter A  : Type
    parameter B  : Prop
    hypothesis H : B

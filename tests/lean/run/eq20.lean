@@ -1,7 +1,7 @@
 import data.list
 open nat list
 
-context
+section
   parameter {A : Type}
   parameter (p : A → Prop)
   parameter [H : decidable_pred p]

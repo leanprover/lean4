@@ -5,25 +5,25 @@ prelude namespace foo
   constant c : A
 end foo
 
-context
+section
   open foo (renaming a->b x->y) (hiding c)
   check b
   check y
   check c -- Error
 end
 
-context
+section
   open foo (a x)
   check a
   check x
   check c -- Error
 end
 
-context
+section
   open foo (a x) (hiding c) -- Error
 end
 
-context
+section
   open foo
   check a
   check c
@@ -35,18 +35,18 @@ namespace foo
   infix `*`:75 := f
 end foo
 
-context
+section
   open foo
   check a * c
 end
 
-context
+section
   open [notations] foo -- use only the notation
   check foo.a * foo.c
   check a * c -- Error
 end
 
-context
+section
   open [decls] foo -- use only the declarations
   check f a c
   check a*c -- Error

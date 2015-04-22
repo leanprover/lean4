@@ -1,4 +1,4 @@
-context
+section
   parameter A : Type
   definition tst (a : A) := a
   set_option pp.universes true

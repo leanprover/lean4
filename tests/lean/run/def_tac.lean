@@ -1,4 +1,4 @@
-context
+section
   open tactic
   definition cases_refl (e : expr) : tactic :=
   cases e expr_list.nil; apply rfl

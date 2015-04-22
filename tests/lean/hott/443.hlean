@@ -2,7 +2,7 @@ import algebra.group algebra.precategory.basic
 
 open eq sigma unit category path_algebra
 
-context
+section
   parameters {P₀ : Type} [P : precategory P₀]
 
   structure my_structure := (a : P₀) (b : P₀) (f : @hom P₀ P a b)

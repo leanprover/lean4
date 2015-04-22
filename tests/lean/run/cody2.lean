@@ -2,7 +2,7 @@ import logic
 open eq
 definition subsets (P : Type) := P → Prop.
 
-context
+section
 
 hypothesis A : Type.
 
@@ -14,7 +14,7 @@ hypothesis retract {P : subsets A} {a : A} : r (i P) a = P a.
 
 definition delta (a:A) : Prop := ¬ (r a a).
 
-notation `δ` := delta.
+local notation `δ` := delta.
 
 theorem delta_aux : ¬ (δ (i delta))
          := assume H : δ (i delta),

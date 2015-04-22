@@ -5,7 +5,7 @@ open eq sigma unit category path_algebra equiv
 set_option pp.implicit true
 set_option pp.universes true
 set_option pp.notation false
-context
+section
   parameters {D₀ : Type} [C : precategory D₀]
     {D₂ : Π ⦃a b c d : D₀⦄ (f : hom a b) (g : hom c d)
       (h : hom a c) (i : hom b d), Type}

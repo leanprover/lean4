@@ -1,6 +1,6 @@
 open nat
 
-context
+section
   inductive NatA :=
   | a : NatA
   | s : NatA → NatA

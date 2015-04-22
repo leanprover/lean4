@@ -1,6 +1,6 @@
 prelude definition Prop : Type.{1} := Type.{0}
 constant and : Prop → Prop → Prop
-context
+section
   parameter {A : Type}  -- Mark A as implicit parameter
   parameter   R : A → A → Prop
   parameter   B : Type

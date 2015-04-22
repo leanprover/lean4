@@ -1,10 +1,10 @@
-context
+section
   open [notations] [coercions] nat
   check 1 + 2
   check add -- Error aliases were not created
 end
 
-context
+section
   open [declarations] [notations] nat
   variable a : nat
   check a + a
@@ -12,7 +12,7 @@ context
   check a + 1 -- Error coercion from num to nat was not loaded
 end
 
-context
+section
   open - [classes] nat
   variable a : nat
   check a + a
@@ -22,7 +22,7 @@ context
   _ -- Error inhabited instances was not loaded
 end
 
-context
+section
   open - [classes] [decls] nat
   variable a : nat
   check a + a
@@ -32,7 +32,7 @@ context
   _ -- Error inhabited instances was not loaded
 end
 
-context
+section
   open [classes] nat
   definition foo3 : inhabited nat :=
   _

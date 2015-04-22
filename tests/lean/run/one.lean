@@ -10,7 +10,7 @@ unit : one2
 
 check one2
 
-context foo
+section foo
   universe l2
   parameter A : Type.{l2}
 

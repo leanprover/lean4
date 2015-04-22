@@ -27,7 +27,7 @@ section
   check point3d_color.to_point
 end
 
-context
+section
   universe l
   parameters A : Type.{l}
   parameters B : Type.{l}

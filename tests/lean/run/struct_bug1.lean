@@ -3,7 +3,7 @@ variable (A : Type)
 structure foo (a : A) :=
 (eqpr : a = a)
 
-context
+section
  parameter (B : Type)
 
  structure foo2 (b : B) :=

@@ -3,13 +3,13 @@ import logic
 namespace experiment
 definition Type1 := Type.{1}
 
-context
+section
   variable {A  : Type}
   variable f   : A → A → A
   variable one : A
   variable inv : A → A
-  infixl `*`     := f
-  postfix `^-1`:100 := inv
+  local infixl `*`     := f
+  local postfix `^-1`:100 := inv
   definition is_assoc := ∀ a b c, (a*b)*c = a*b*c
   definition is_id    := ∀ a, a*one = a
   definition is_inv   := ∀ a, a*a^-1 = one

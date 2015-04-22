@@ -43,7 +43,7 @@ section
   variables {A : Type} [s : semigroup A]
   variables a b c : A
   definition mul := semigroup.rec (λmul assoc, mul) s a b
-  context
+  section
     infixl `*` := mul
     definition assoc : (a * b) * c = a * (b * c) :=
       semigroup.rec (λmul assoc, assoc) s a b c
@@ -111,7 +111,7 @@ namespace monoid
   variables {A : Type} [s : monoid A]
   variables a b c : A
   include s
-  context
+  section
   definition mul := monoid.rec (λmul one assoc right_id left_id, mul) s a b
   definition one := monoid.rec (λmul one assoc right_id left_id, one) s
   infixl `*` := mul

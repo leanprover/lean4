@@ -1,8 +1,8 @@
 import logic
 
 namespace N1
-  context
-    context
+  section
+    section
       parameter A : Type
       definition foo (a : A) : Prop := true
       check foo
@@ -14,7 +14,7 @@ end N1
 check N1.foo
 
 namespace N2
-  context
+  section
     parameter A : Type
     inductive list : Type :=
     | nil {} : list

@@ -2,10 +2,10 @@ import logic data.unit
 
 set_option pp.universes true
 
-context
+section
   parameter (A : Type)
 
-  context
+  section
     parameter (B : Type)
 
     structure point :=

@@ -33,6 +33,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/parser_config.h"
+#include "frontends/lean/local_ref_info.h"
 
 namespace lean {
 static format * g_ellipsis_n_fmt  = nullptr;
@@ -438,9 +439,19 @@ auto pretty_fn::pp_const(expr const & e) -> result {
             n = *n1;
     }
     if (m_universes && !empty(const_levels(e))) {
+        unsigned first_idx = 0;
+        buffer<level> ls;
+        to_buffer(const_levels(e), ls);
+        if (auto info = get_local_ref_info(m_env, n)) {
+            if (ls.size() <= info->first)
+                return result(format(n));
+            else
+                first_idx = info->first;
+        }
         format r = compose(format(n), format(".{"));
         bool first = true;
-        for (auto const & l : const_levels(e)) {
+        for (unsigned i = first_idx; i < ls.size(); i++) {
+            level const & l = ls[i];
             format l_fmt = pp_level(l);
             if (is_max(l) || is_imax(l))
                 l_fmt = paren(l_fmt);
@@ -490,6 +501,15 @@ bool pretty_fn::has_implicit_args(expr const & f) {
 }
 
 auto pretty_fn::pp_app(expr const & e) -> result {
+    expr const & rfn = get_app_fn(e);
+    if (is_constant(rfn)) {
+        if (auto info = get_local_ref_info(m_env, const_name(rfn))) {
+            buffer<expr> args;
+            get_app_args(e, args);
+            if (args.size() == info->second)
+                return pp_const(rfn);
+        }
+    }
     expr const & fn = app_fn(e);
     if (auto it = is_abbreviated(fn))
         return pp_abbreviation(e, *it, true);

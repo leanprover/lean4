@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/scanner.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/server.h"
+#include "frontends/lean/local_ref_info.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
@@ -53,8 +54,10 @@ void initialize_frontend_lean_module() {
     initialize_calc_proof_elaborator();
     initialize_server();
     initialize_find_cmd();
+    initialize_local_ref_info();
 }
 void finalize_frontend_lean_module() {
+    finalize_local_ref_info();
     finalize_find_cmd();
     finalize_server();
     finalize_calc_proof_elaborator();

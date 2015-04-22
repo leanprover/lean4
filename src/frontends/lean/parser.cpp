@@ -47,6 +47,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/parse_rewrite_tactic.h"
 #include "frontends/lean/update_environment_exception.h"
+#include "frontends/lean/local_ref_info.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -492,6 +493,20 @@ void parser::add_local_expr(name const & n, expr const & p, bool is_variable) {
         lean_assert(is_local(p));
         m_variables.insert(local_pp_name(p));
     }
+}
+
+environment parser::add_local_ref(environment const & env, name const & n, expr const & ref) {
+    add_local_expr(n, ref, false);
+    if (is_as_atomic(ref)) {
+        buffer<expr> args;
+        expr f = get_app_args(get_as_atomic_arg(ref), args);
+        if (is_explicit(f))
+            f = get_explicit_arg(f);
+        if (is_constant(f)) {
+            return save_local_ref_info(env, const_name(f), length(const_levels(f)), args.size());
+        }
+    }
+    return env;
 }
 
 void parser::add_parameter(name const & n, expr const & p) {

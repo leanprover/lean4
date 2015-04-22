@@ -952,10 +952,10 @@ class definition_cmd_fn {
             local_ls = remove_local_vars(m_p, local_ls);
             if (!locals.empty()) {
                 expr ref = mk_local_ref(m_real_name, local_ls, locals);
-                m_p.add_local_expr(m_name, ref);
+                m_env = m_p.add_local_ref(m_env, m_name, ref);
             } else if (local_ls) {
                 expr ref = mk_constant(m_real_name, local_ls);
-                m_p.add_local_expr(m_name, ref);
+                m_env = m_p.add_local_ref(m_env, m_name, ref);
             }
         } else {
             update_univ_parameters(m_ls_buffer, collect_univ_params(m_value, collect_univ_params(m_type)), m_p);

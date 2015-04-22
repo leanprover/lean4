@@ -270,12 +270,12 @@ environment namespace_cmd(parser & p) {
     return push_scope(p.env(), p.ios(), scope_kind::Namespace, n);
 }
 
-static void redeclare_aliases(parser & p,
-                              list<pair<name, level>> old_level_entries,
-                              list<pair<name, expr>> old_entries) {
-    environment const & env = p.env();
-    if (!in_context(env) && !in_section(env))
-        return;
+static environment redeclare_aliases(environment env, parser & p,
+                                     list<pair<name, level>> old_level_entries,
+                                     list<pair<name, expr>> old_entries) {
+    environment const & old_env = p.env();
+    if (!in_context(old_env) && !in_section(old_env))
+        return env;
     list<pair<name, expr>> new_entries = p.get_local_entries();
     buffer<pair<name, expr>> to_redeclare;
     name_set popped_locals;
@@ -299,8 +299,9 @@ static void redeclare_aliases(parser & p,
     for (auto const & entry : to_redeclare) {
         expr new_ref = update_local_ref(entry.second, popped_levels, popped_locals);
         if (!is_constant(new_ref))
-            p.add_local_expr(entry.first, new_ref);
+            env = p.add_local_ref(env, entry.first, new_ref);
     }
+    return env;
 }
 
 environment end_scoped_cmd(parser & p) {
@@ -310,12 +311,10 @@ environment end_scoped_cmd(parser & p) {
     if (p.curr_is_identifier()) {
         name n = p.check_atomic_id_next("invalid end of scope, atomic identifier expected");
         environment env = pop_scope(p.env(), p.ios(), n);
-        redeclare_aliases(p, level_entries, entries);
-        return env;
+        return redeclare_aliases(env, p, level_entries, entries);
     } else {
         environment env = pop_scope(p.env(), p.ios());
-        redeclare_aliases(p, level_entries, entries);
-        return env;
+        return redeclare_aliases(env, p, level_entries, entries);
     }
 }
 

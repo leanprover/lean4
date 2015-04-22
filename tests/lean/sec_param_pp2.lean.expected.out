@@ -1,0 +1,4 @@
+id : (A → B → A) → A
+id : (A → B → A) → A
+id.{l_2} : ?B a → (A → ?B a → A) → A
+id.{l_1 l_2} : ?A → (Π {B : Type.{l_2}}, B → (?A → B → ?A) → ?A)

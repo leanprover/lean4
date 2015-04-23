@@ -13,7 +13,7 @@ import .type_quotient .trunc
 open eq is_trunc trunc type_quotient
 
 namespace quotient
-context
+section
 parameters {A : Type} (R : A → A → hprop)
   -- set-quotients are just truncations of type-quotients
   definition quotient : Type := trunc 0 (type_quotient (λa a', trunctype.carrier (R a a')))

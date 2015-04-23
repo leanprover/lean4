@@ -20,7 +20,7 @@ namespace trunc
 
   protected definition elim {n : trunc_index} {A : Type} {P : Type}
     [Pt : is_trunc n P] (H : A → P) : trunc n A → P :=
-  rec H
+  trunc.rec H
 
   protected definition elim_on {n : trunc_index} {A : Type} {P : Type} (aa : trunc n A)
     [Pt : is_trunc n P] (H : A → P) : P :=

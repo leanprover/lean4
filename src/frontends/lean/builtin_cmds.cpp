@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 #include "kernel/quotient/quotient.h"
+#include "kernel/hits/hits.h"
 #include "kernel/default_converter.h"
 #include "library/io_state_stream.h"
 #include "library/scoped_ext.h"
@@ -70,6 +71,7 @@ static void print_axioms(parser & p) {
             name const & n = d.get_name();
             if (!d.is_definition() &&
                 !is_quotient_decl(env, n) &&
+                !is_hits_decl(env, n) &&
                 !inductive::is_inductive_decl(env, n) &&
                 !inductive::is_elim_rule(env, n) &&
                 !inductive::is_intro_rule(env, n)) {
@@ -674,7 +676,15 @@ static environment help_cmd(parser & p) {
 }
 
 environment init_quotient_cmd(parser & p) {
+    if (!(p.env().prop_proof_irrel() && p.env().impredicative()))
+        throw parser_error("invalid init_quotient command, this command is only available for kernels containing an impredicative and proof irrelevant Prop", p.cmd_pos());
     return module::declare_quotient(p.env());
+}
+
+environment init_hits_cmd(parser & p) {
+    if (p.env().prop_proof_irrel() || p.env().impredicative())
+        throw parser_error("invalid init_hits command, this command is only available for proof relevant and predicative kernels", p.cmd_pos());
+    return module::declare_hits(p.env());
 }
 
 void init_cmd_table(cmd_table & r) {
@@ -694,6 +704,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("local",         "define local attributes or notation", local_cmd));
     add_cmd(r, cmd_info("help",          "brief description of available commands and options", help_cmd));
     add_cmd(r, cmd_info("init_quotient", "initialize quotient type computational rules", init_quotient_cmd));
+    add_cmd(r, cmd_info("init_hits",     "initialize builtin HITs", init_hits_cmd));
     add_cmd(r, cmd_info("#erase_cache",  "erase cached definition (for debugging purposes)", erase_cache_cmd));
     add_cmd(r, cmd_info("#projections",  "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
     add_cmd(r, cmd_info("#telescope_eq", "(for debugging purposes)", telescope_eq_cmd));

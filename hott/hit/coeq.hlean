@@ -13,7 +13,7 @@ import .type_quotient
 open type_quotient eq equiv
 
 namespace coeq
-context
+section
 
 universe u
 parameters {A B : Type.{u}} (f g : A → B)

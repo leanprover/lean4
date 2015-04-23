@@ -109,6 +109,9 @@ environment add_inductive(environment                  env,
 /** \brief The following function must be invoked to register the quotient type computation rules in the kernel. */
 environment declare_quotient(environment const & env);
 
+/** \brief The following function must be invoked to register the builtin HITs in the kernel. */
+environment declare_hits(environment const & env);
+
 /**
    \brief Declare a single inductive datatype. This is just a helper function implemented on top of
     the previous (more general) add_inductive.

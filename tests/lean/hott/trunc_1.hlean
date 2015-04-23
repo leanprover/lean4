@@ -1,5 +1,5 @@
 open is_trunc
-
+namespace hide
 inductive trunc (n : trunc_index) (A : Type) : Type :=
 tr {} : A → trunc n A
 
@@ -30,3 +30,4 @@ namespace trunc
   by intro xx; apply (trunc_rec_on xx); intro x; exact (tr (f x))
 
 end trunc
+end hide

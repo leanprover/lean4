@@ -13,7 +13,7 @@ import .type_quotient
 open type_quotient eq sum equiv
 
 namespace pushout
-context
+section
 
 parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
 
@@ -54,16 +54,16 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
   definition rec_inl {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
     (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x))
       (x : BL) : rec Pinl Pinr Pglue (inl x) = Pinl x :=
-  rec_class_of _ _ _ --idp
+  idp
 
   definition rec_inr {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
     (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x))
       (x : TR) : rec Pinl Pinr Pglue (inr x) = Pinr x :=
-  rec_class_of _ _ _ --idp
+  idp
 
   definition rec_glue {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
     (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x))
-      (x : TL) : apD (rec Pinl Pinr Pglue) (glue x) = sorry ⬝ Pglue x ⬝ sorry :=
+      (x : TL) : apD (rec Pinl Pinr Pglue) (glue x) = Pglue x :=
   sorry
 
   protected definition elim {P : Type} (Pinl : BL → P) (Pinr : TR → P)
@@ -76,7 +76,7 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
 
   definition elim_glue {P : Type} (Pinl : BL → P) (Pinr : TR → P)
     (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) (y : pushout) (x : TL)
-    : ap (elim Pinl Pinr Pglue) (glue x) = sorry ⬝ Pglue x ⬝ sorry :=
+    : ap (elim Pinl Pinr Pglue) (glue x) = Pglue x :=
   sorry
 
   protected definition elim_type (Pinl : BL → Type) (Pinr : TR → Type)
@@ -109,7 +109,7 @@ end
       { intro b, cases b,
           exact (inl _ _ ⋆),
           exact (inr _ _ ⋆)},
-      { intro b, cases b, apply rec_inl, apply rec_inr},
+      { intro b, cases b, esimp, esimp},
       { intro x, fapply (pushout.rec_on _ _ x),
           intro u, cases u, rewrite [↑function.compose,↑pushout.rec_on,rec_inl],
           intro u, cases u, rewrite [↑function.compose,↑pushout.rec_on,rec_inr],

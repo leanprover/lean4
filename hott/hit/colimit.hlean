@@ -12,7 +12,7 @@ Definition of general colimits and sequential colimits.
 open eq nat type_quotient sigma equiv
 
 namespace colimit
-context
+section
   parameters {I J : Type} (A : I → Type) (dom cod : J → I)
              (f : Π(j : J), A (dom j) → A (cod j))
   variables {i : I} (a : A i) (j : J) (b : A (dom j))
@@ -52,7 +52,7 @@ context
   definition rec_cglue [reducible] {P : colimit → Type}
     (Pincl : Π⦃i : I⦄ (x : A i), P (ι x))
     (Pglue : Π(j : J) (x : A (dom j)), cglue j x ▹ Pincl (f j x) = Pincl x)
-      {j : J} (x : A (dom j)) : apD (rec Pincl Pglue) (cglue j x) = sorry ⬝ Pglue j x ⬝ sorry :=
+      {j : J} (x : A (dom j)) : apD (rec Pincl Pglue) (cglue j x) = Pglue j x :=
   sorry
 
    protected definition elim {P : Type} (Pincl : Π⦃i : I⦄ (x : A i), P)
@@ -67,7 +67,7 @@ context
   definition elim_cglue [reducible] {P : Type}
     (Pincl : Π⦃i : I⦄ (x : A i), P)
     (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) = Pincl x)
-      {j : J} (x : A (dom j)) : ap (elim Pincl Pglue) (cglue j x) = sorry ⬝ Pglue j x ⬝ sorry :=
+      {j : J} (x : A (dom j)) : ap (elim Pincl Pglue) (cglue j x) = Pglue j x :=
   sorry
 
   protected definition elim_type (Pincl : Π⦃i : I⦄ (x : A i), Type)
@@ -89,7 +89,7 @@ end colimit
 
 /- definition of a sequential colimit -/
 namespace seq_colim
-context
+section
   parameters {A : ℕ → Type} (f : Π⦃n⦄, A n → A (succ n))
   variables {n : ℕ} (a : A n)
 

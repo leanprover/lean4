@@ -13,7 +13,7 @@ import .type_quotient
 open type_quotient eq sum equiv
 
 namespace cylinder
-context
+section
 
 universe u
 parameters {A B : Type.{u}} (f : A → B)

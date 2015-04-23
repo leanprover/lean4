@@ -80,8 +80,8 @@ Case 1: Build Lean from source
 (require 'lean-mode)
 ```
 
-Case 2: Install Lean via apt-get on Ubuntu
--------------------------------------------
+Case 2: Install Lean via apt-get on Ubuntu or via dpkg on Debian
+----------------------------------------------------------------
 
 ```elisp
 ;; Set up lean-root path

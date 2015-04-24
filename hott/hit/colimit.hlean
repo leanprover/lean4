@@ -52,7 +52,7 @@ section
   definition rec_cglue [reducible] {P : colimit → Type}
     (Pincl : Π⦃i : I⦄ (x : A i), P (ι x))
     (Pglue : Π(j : J) (x : A (dom j)), cglue j x ▹ Pincl (f j x) = Pincl x)
-      {j : J} (x : A (dom j)) : apD (rec Pincl Pglue) (cglue j x) = Pglue j x :=
+      {j : J} (x : A (dom j)) : apd (rec Pincl Pglue) (cglue j x) = Pglue j x :=
   sorry
 
    protected definition elim {P : Type} (Pincl : Π⦃i : I⦄ (x : A i), P)
@@ -137,7 +137,7 @@ section
 
   definition rec_glue {P : seq_colim → Type} (Pincl : Π⦃n : ℕ⦄ (a : A n), P (sι a))
     (Pglue : Π⦃n : ℕ⦄ (a : A n), glue a ▹ Pincl (f a) = Pincl a) {n : ℕ} (a : A n)
-      : apD (rec Pincl Pglue) (glue a) = sorry ⬝ Pglue a ⬝ sorry :=
+      : apd (rec Pincl Pglue) (glue a) = sorry ⬝ Pglue a ⬝ sorry :=
   sorry
 
   definition elim_glue {P : Type} (Pincl : Π⦃n : ℕ⦄ (a : A n), P)

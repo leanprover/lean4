@@ -22,15 +22,15 @@ namespace pi
 
   /- Paths [p : f ≈ g] in a function type [Πx:X, P x] are equivalent to functions taking values in path types, [H : Πx:X, f x ≈ g x], or concisely, [H : f ∼ g].
 
-  This equivalence, however, is just the combination of [apD10] and function extensionality [funext], and as such, [path_forall], et seq. are given in axioms.funext and path:  -/
+  This equivalence, however, is just the combination of [apd10] and function extensionality [funext], and as such, [path_forall], et seq. are given in axioms.funext and path:  -/
 
   /- Now we show how these things compute. -/
 
-  definition apD10_eq_of_homotopy (h : f ∼ g) : apD10 (eq_of_homotopy h) ∼ h :=
-  apD10 (retr apD10 h)
+  definition apd10_eq_of_homotopy (h : f ∼ g) : apd10 (eq_of_homotopy h) ∼ h :=
+  apd10 (retr apd10 h)
 
-  definition eq_of_homotopy_eta (p : f = g) : eq_of_homotopy (apD10 p) = p :=
-  sect apD10 p
+  definition eq_of_homotopy_eta (p : f = g) : eq_of_homotopy (apd10 p) = p :=
+  sect apd10 p
 
   definition eq_of_homotopy_idp (f : Πa, B a) : eq_of_homotopy (λx : A, refl (f x)) = refl f :=
   !eq_of_homotopy_eta
@@ -38,11 +38,11 @@ namespace pi
   /- The identification of the path space of a dependent function space, up to equivalence, is of course just funext. -/
 
   definition eq_equiv_homotopy (f g : Πx, B x) : (f = g) ≃ (f ∼ g) :=
-  equiv.mk _ !is_equiv_apD
+  equiv.mk _ !is_equiv_apd
 
   definition is_equiv_eq_of_homotopy [instance] (f g : Πx, B x)
       : is_equiv (@eq_of_homotopy _ _ f g) :=
-  is_equiv_inv apD10
+  is_equiv_inv apd10
 
   definition homotopy_equiv_eq (f g : Πx, B x) : (f ∼ g) ≃ (f = g) :=
   equiv.mk _ !is_equiv_eq_of_homotopy
@@ -52,7 +52,7 @@ namespace pi
 
   definition pi_transport (p : a = a') (f : Π(b : B a), C a b)
     : (transport (λa, Π(b : B a), C a b) p f)
-      ∼ (λb, transport (C a') !tr_inv_tr (transportD _ _ p _ (f (p⁻¹ ▹ b)))) :=
+      ∼ (λb, transport (C a') !tr_inv_tr (transportD _ p _ (f (p⁻¹ ▹ b)))) :=
   eq.rec_on p (λx, idp)
 
   /- A special case of [transport_pi] where the type [B] does not depend on [A],
@@ -107,7 +107,7 @@ namespace pi
   definition ap_pi_functor {g g' : Π(a:A), B a} (h : g ∼ g')
       : ap (pi_functor f0 f1) (eq_of_homotopy h) = eq_of_homotopy (λa':A', (ap (f1 a') (h (f0 a')))) :=
   begin
-  apply (equiv_rect (@apD10 A B g g')), intro p, clear h,
+  apply (equiv_rect (@apd10 A B g g')), intro p, clear h,
   cases p,
   apply concat,
     exact (ap (ap (pi_functor f0 f1)) (eq_of_homotopy_idp g)),
@@ -130,13 +130,13 @@ namespace pi
       apply (transport (λx, f1 a' x = h a') (transport_compose B f0 (sect f0 a') _)),
       apply (tr_inv (λx, x = h a') (fn_tr_eq_tr_fn _ f1 _)), unfold function.compose,
       apply (tr_inv (λx, sect f0 a' ▹ x = h a') (retr (f1 _) _)), unfold function.id,
-      apply apD
+      apply apd
     end,
     begin
       intro h,
       apply eq_of_homotopy, intro a,
       apply (tr_inv (λx, retr f0 a ▹ x = h a) (sect (f1 _) _)), unfold function.id,
-      apply apD
+      apply apd
     end
   end
 

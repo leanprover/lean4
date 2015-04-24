@@ -14,7 +14,7 @@ import ..path ..trunc ..equiv
 open eq is_trunc sigma function
 
 /- In init.axioms.funext, we defined function extensionality to be the assertion
-   that the map apD10 is an equivalence.   We now prove that this follows
+   that the map apd10 is an equivalence.   We now prove that this follows
    from a couple of weaker-looking forms of function extensionality.  We do
    require eta conversion, which Coq 8.4+ has judgmentally.
 
@@ -22,7 +22,7 @@ open eq is_trunc sigma function
    by Peter Lumsdaine and Michael Shulman. -/
 
 definition funext.{l k} :=
-  Π ⦃A : Type.{l}⦄ {P : A → Type.{k}} (f g : Π x, P x), is_equiv (@apD10 A P f g)
+  Π ⦃A : Type.{l}⦄ {P : A → Type.{k}} (f g : Π x, P x), is_equiv (@apd10 A P f g)
 
 -- Naive funext is the simple assertion that pointwise equal functions are equal.
 -- TODO think about universe levels
@@ -98,13 +98,13 @@ theorem funext_of_weak_funext (wf : weak_funext.{l k}) : funext.{l k} :=
     let sim2path := homotopy_ind f eq_to_f idp in
     assert t1 : sim2path f (homotopy.refl f) = idp,
       proof homotopy_ind_comp f eq_to_f idp qed,
-    assert t2 : apD10 (sim2path f (homotopy.refl f)) = (homotopy.refl f),
-      proof ap apD10 t1 qed,
-    have sect : apD10 ∘ (sim2path g) ∼ id,
-      proof (homotopy_ind f (λ g' x, apD10 (sim2path g' x) = x) t2) g qed,
-    have retr : (sim2path g) ∘ apD10 ∼ id,
+    assert t2 : apd10 (sim2path f (homotopy.refl f)) = (homotopy.refl f),
+      proof ap apd10 t1 qed,
+    have sect : apd10 ∘ (sim2path g) ∼ id,
+      proof (homotopy_ind f (λ g' x, apd10 (sim2path g' x) = x) t2) g qed,
+    have retr : (sim2path g) ∘ apd10 ∼ id,
       from (λ h, eq.rec_on h (homotopy_ind_comp f _ idp)),
-    is_equiv.adjointify apD10 (sim2path g) sect retr
+    is_equiv.adjointify apd10 (sim2path g) sect retr
 
 definition funext_from_naive_funext : naive_funext -> funext :=
   compose funext_of_weak_funext weak_funext_of_naive_funext

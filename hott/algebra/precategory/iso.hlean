@@ -131,7 +131,7 @@ namespace iso
   begin
     apply is_hprop.mk, intros [H, H'],
     cases H with [g, li, ri], cases H' with [g', li', ri'],
-    fapply (apD0111 (@is_iso.mk ob C a b f)),
+    fapply (apd0111 (@is_iso.mk ob C a b f)),
       apply left_inverse_eq_right_inverse,
         apply li,
         apply ri',
@@ -167,7 +167,7 @@ namespace iso
 
     protected definition eq_mk' {f f' : a ⟶ b} [H : is_iso f] [H' : is_iso f'] (p : f = f')
         : iso.mk f = iso.mk f' :=
-    apD011 iso.mk p !is_hprop.elim
+    apd011 iso.mk p !is_hprop.elim
 
     protected definition eq_mk {f f' : a ≅ b} (p : to_hom f = to_hom f') : f = f' :=
     by (cases f; cases f'; apply (iso.eq_mk' p))
@@ -212,16 +212,16 @@ namespace iso
     open funext
     variables {X : Type} {x y : X} {F G : X → ob}
     definition transport_hom_of_eq (p : F = G) (f : hom (F x) (F y))
-      : p ▹ f = hom_of_eq (apD10 p y) ∘ f ∘ inv_of_eq (apD10 p x) :=
+      : p ▹ f = hom_of_eq (apd10 p y) ∘ f ∘ inv_of_eq (apd10 p x) :=
     eq.rec_on p !id_leftright⁻¹
 
     definition transport_hom (p : F ∼ G) (f : hom (F x) (F y))
       : eq_of_homotopy p ▹ f = hom_of_eq (p y) ∘ f ∘ inv_of_eq (p x) :=
     calc
       eq_of_homotopy p ▹ f =
-        hom_of_eq (apD10 (eq_of_homotopy p) y) ∘ f ∘ inv_of_eq (apD10 (eq_of_homotopy p) x)
+        hom_of_eq (apd10 (eq_of_homotopy p) y) ∘ f ∘ inv_of_eq (apd10 (eq_of_homotopy p) x)
           : transport_hom_of_eq
-        ... = hom_of_eq (p y) ∘ f ∘ inv_of_eq (p x) : {retr apD10 p}
+        ... = hom_of_eq (p y) ∘ f ∘ inv_of_eq (p x) : {retr apd10 p}
   end
 
   structure mono [class] (f : a ⟶ b) :=

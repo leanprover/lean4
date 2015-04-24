@@ -112,69 +112,69 @@ namespace eq
 
   /- Theorems for moving things around in equations -/
 
-  definition con_eq_of_eq_inv_con (p : x = z) (q : y = z) (r : y = x) :
+  definition con_eq_of_eq_inv_con {p : x = z} {q : y = z} {r : y = x} :
     p = r⁻¹ ⬝ q → r ⬝ p = q :=
-  eq.rec_on r (take p h, idp_con _ ⬝ h ⬝ idp_con _) p
+  eq.rec_on r (take p h, !idp_con ⬝ h ⬝ !idp_con) p
 
-  definition con_eq_of_eq_con_inv (p : x = z) (q : y = z) (r : y = x) :
+  definition con_eq_of_eq_con_inv {p : x = z} {q : y = z} {r : y = x} :
     r = q ⬝ p⁻¹ → r ⬝ p = q :=
-  eq.rec_on p (take q h, (con_idp _ ⬝ h ⬝ con_idp _)) q
+  eq.rec_on p (take q h, (!con_idp ⬝ h ⬝ !con_idp)) q
 
-  definition inv_con_eq_of_eq_con (p : x = z) (q : y = z) (r : x = y) :
+  definition inv_con_eq_of_eq_con {p : x = z} {q : y = z} {r : x = y} :
     p = r ⬝ q → r⁻¹ ⬝ p = q :=
-  eq.rec_on r (take q h, idp_con _ ⬝ h ⬝ idp_con _) q
+  eq.rec_on r (take q h, !idp_con ⬝ h ⬝ !idp_con) q
 
-  definition con_inv_eq_of_eq_con (p : z = x) (q : y = z) (r : y = x) :
+  definition con_inv_eq_of_eq_con {p : z = x} {q : y = z} {r : y = x} :
     r = q ⬝ p → r ⬝ p⁻¹ = q :=
-  eq.rec_on p (take r h, con_idp _ ⬝ h ⬝ con_idp _) r
+  eq.rec_on p (take r h, !con_idp ⬝ h ⬝ !con_idp) r
 
-  definition eq_con_of_inv_con_eq (p : x = z) (q : y = z) (r : y = x) :
+  definition eq_con_of_inv_con_eq {p : x = z} {q : y = z} {r : y = x} :
     r⁻¹ ⬝ q = p → q = r ⬝ p :=
-  eq.rec_on r (take p h, (idp_con _)⁻¹ ⬝ h ⬝ (idp_con _)⁻¹) p
+  eq.rec_on r (take p h, !idp_con⁻¹ ⬝ h ⬝ !idp_con⁻¹) p
 
-  definition eq_con_of_con_inv_eq (p : x = z) (q : y = z) (r : y = x) :
+  definition eq_con_of_con_inv_eq {p : x = z} {q : y = z} {r : y = x} :
     q ⬝ p⁻¹ = r → q = r ⬝ p :=
-  eq.rec_on p (take q h, (con_idp _)⁻¹ ⬝ h ⬝ (con_idp _)⁻¹) q
+  eq.rec_on p (take q h, !con_idp⁻¹ ⬝ h ⬝ !con_idp⁻¹) q
 
-  definition eq_inv_con_of_con_eq (p : x = z) (q : y = z) (r : x = y) :
+  definition eq_inv_con_of_con_eq {p : x = z} {q : y = z} {r : x = y} :
     r ⬝ q = p → q = r⁻¹ ⬝ p :=
-  eq.rec_on r (take q h, (idp_con _)⁻¹ ⬝ h ⬝ (idp_con _)⁻¹) q
+  eq.rec_on r (take q h, !idp_con⁻¹ ⬝ h ⬝ !idp_con⁻¹) q
 
-  definition eq_con_inv_of_con_eq (p : z = x) (q : y = z) (r : y = x) :
+  definition eq_con_inv_of_con_eq {p : z = x} {q : y = z} {r : y = x} :
     q ⬝ p = r → q = r ⬝ p⁻¹ :=
-  eq.rec_on p (take r h, (con_idp _)⁻¹ ⬝ h ⬝ (con_idp _)⁻¹) r
+  eq.rec_on p (take r h, !con_idp⁻¹ ⬝ h ⬝ !con_idp⁻¹) r
 
-  definition eq_of_con_inv_eq_idp (p q : x = y) :
+  definition eq_of_con_inv_eq_idp {p q : x = y} :
     p ⬝ q⁻¹ = idp → p = q :=
-  eq.rec_on q (take p h, (con_idp _)⁻¹ ⬝ h) p
+  eq.rec_on q (take p h, !con_idp⁻¹ ⬝ h) p
 
-  definition eq_of_inv_con_eq_idp (p q : x = y) :
+  definition eq_of_inv_con_eq_idp {p q : x = y} :
     q⁻¹ ⬝ p = idp → p = q :=
-  eq.rec_on q (take p h, (idp_con _)⁻¹ ⬝ h) p
+  eq.rec_on q (take p h, !idp_con⁻¹ ⬝ h) p
 
-  definition eq_inv_of_con_eq_idp' (p : x = y) (q : y = x) :
+  definition eq_inv_of_con_eq_idp' {p : x = y} {q : y = x} :
     p ⬝ q = idp → p = q⁻¹ :=
-  eq.rec_on q (take p h, (con_idp _)⁻¹ ⬝ h) p
+  eq.rec_on q (take p h, !con_idp⁻¹ ⬝ h) p
 
-  definition eq_inv_of_con_eq_idp (p : x = y) (q : y = x) :
+  definition eq_inv_of_con_eq_idp {p : x = y} {q : y = x} :
     q ⬝ p = idp → p = q⁻¹ :=
-  eq.rec_on q (take p h, (idp_con _)⁻¹ ⬝ h) p
+  eq.rec_on q (take p h, !idp_con⁻¹ ⬝ h) p
 
-  definition eq_of_idp_eq_inv_con (p q : x = y) :
+  definition eq_of_idp_eq_inv_con {p q : x = y} :
     idp = p⁻¹ ⬝ q → p = q :=
-  eq.rec_on p (take q h, h ⬝ (idp_con _)) q
+  eq.rec_on p (take q h, h ⬝ !idp_con) q
 
-  definition eq_of_idp_eq_con_inv (p q : x = y) :
+  definition eq_of_idp_eq_con_inv {p q : x = y} :
     idp = q ⬝ p⁻¹ → p = q :=
-  eq.rec_on p (take q h, h ⬝ (con_idp _)) q
+  eq.rec_on p (take q h, h ⬝ !con_idp) q
 
-  definition inv_eq_of_idp_eq_con (p : x = y) (q : y = x) :
+  definition inv_eq_of_idp_eq_con {p : x = y} {q : y = x} :
     idp = q ⬝ p → p⁻¹ = q :=
-  eq.rec_on p (take q h, h ⬝ (con_idp _)) q
+  eq.rec_on p (take q h, h ⬝ !con_idp) q
 
-  definition inv_eq_of_idp_eq_con' (p : x = y) (q : y = x) :
+  definition inv_eq_of_idp_eq_con' {p : x = y} {q : y = x} :
     idp = p ⬝ q → p⁻¹ = q :=
-  eq.rec_on p (take q h, h ⬝ (idp_con _)) q
+  eq.rec_on p (take q h, h ⬝ !idp_con) q
 
   /- Transport -/
 
@@ -184,13 +184,16 @@ namespace eq
   -- This idiom makes the operation right associative.
   notation p `▹`:65 x:64 := transport _ p x
 
+  definition cast [reducible] {A B : Type} (p : A = B) (a : A) : B :=
+  p ▹ a
+
   definition tr_inv [reducible] (P : A → Type) {x y : A} (p : x = y) (u : P y) : P x :=
   p⁻¹ ▹ u
 
   definition ap ⦃A B : Type⦄ (f : A → B) {x y:A} (p : x = y) : f x = f y :=
   eq.rec_on p idp
 
-  definition ap01 [reducible] := ap
+  abbreviation ap01 [parsing-only] := ap
 
   definition homotopy [reducible] (f g : Πx, P x) : Type :=
   Πx : A, f x = g x
@@ -212,19 +215,19 @@ namespace eq
   calc_trans trans
   end homotopy
 
-  definition apD10 {f g : Πx, P x} (H : f = g) : f ∼ g :=
+  definition apd10 {f g : Πx, P x} (H : f = g) : f ∼ g :=
   λx, eq.rec_on H idp
 
-  --the next theorem is useful if you want to write "apply (apD10' a)"
-  definition apD10' {f g : Πx, P x} (a : A) (H : f = g) : f a = g a :=
+  --the next theorem is useful if you want to write "apply (apd10' a)"
+  definition apd10' {f g : Πx, P x} (a : A) (H : f = g) : f a = g a :=
   eq.rec_on H idp
 
-  definition ap10 {f g : A → B} (H : f = g) : f ∼ g := apD10 H
+  definition ap10 [reducible] {f g : A → B} (H : f = g) : f ∼ g := apd10 H
 
   definition ap11 {f g : A → B} (H : f = g) {x y : A} (p : x = y) : f x = g y :=
   eq.rec_on H (eq.rec_on p idp)
 
-  definition apD (f : Πa:A, P a) {x y : A} (p : x = y) : p ▹ (f x) = f y :=
+  definition apd (f : Πa:A, P a) {x y : A} (p : x = y) : p ▹ (f x) = f y :=
   eq.rec_on p idp
 
   /- calc enviroment -/
@@ -236,19 +239,19 @@ namespace eq
 
   /- More theorems for moving things around in equations -/
 
-  definition tr_eq_of_eq_inv_tr (P : A → Type) {x y : A} (p : x = y) (u : P x) (v : P y) :
+  definition tr_eq_of_eq_inv_tr (P : A → Type) {x y : A} {p : x = y} {u : P x} {v : P y} :
     u = p⁻¹ ▹ v → p ▹ u = v :=
   eq.rec_on p (take v, id) v
 
-  definition inv_tr_eq_of_eq_tr (P : A → Type) {x y : A} (p : y = x) (u : P x) (v : P y) :
+  definition inv_tr_eq_of_eq_tr (P : A → Type) {x y : A} {p : y = x} {u : P x} {v : P y} :
     u = p ▹ v → p⁻¹ ▹ u = v :=
   eq.rec_on p (take u, id) u
 
-  definition eq_inv_tr_of_tr_eq (P : A → Type) {x y : A} (p : x = y) (u : P x) (v : P y) :
+  definition eq_inv_tr_of_tr_eq (P : A → Type) {x y : A} {p : x = y} {u : P x} {v : P y} :
     p ▹ u = v → u = p⁻¹ ▹ v :=
   eq.rec_on p (take v, id) v
 
-  definition eq_tr_of_inv_tr_eq (P : A → Type) {x y : A} (p : y = x) (u : P x) (v : P y) :
+  definition eq_tr_of_inv_tr_eq (P : A → Type) {x y : A} {p : y = x} {u : P x} {v : P y} :
     p⁻¹ ▹ u = v → u = p ▹ v :=
   eq.rec_on p (take u, id) u
 
@@ -258,9 +261,8 @@ namespace eq
   -- functorial.
 
   -- Functions take identity paths to identity paths
-  definition ap_idp (x : A) (f : A → B) : (ap f idp) = idp :> (f x = f x) := idp
-
-  definition apD_idp (x : A) (f : Π x : A, P x) : apD f idp = idp :> (f x = f x) := idp
+  definition ap_idp  (x : A) (f : A → B)   : ap  f idp = idp :> (f x = f x) := idp
+  definition apd_idp (x : A) (f : Πx, P x) : apd f idp = idp :> (f x = f x) := idp
 
   -- Functions commute with concatenation.
   definition ap_con (f : A → B) {x y z : A} (p : x = y) (q : y = z) :
@@ -297,23 +299,22 @@ namespace eq
   eq.rec_on p idp
 
   -- The action of constant maps.
-  definition ap_constant (p : x = y) (z : B) :
-    ap (λu, z) p = idp :=
+  definition ap_constant (p : x = y) (z : B) : ap (λu, z) p = idp :=
   eq.rec_on p idp
 
   -- Naturality of [ap].
-  definition ap_con_eq_con_ap {f g : A → B} (p : Π x, f x = g x) {x y : A} (q : x = y) :
-    (ap f q) ⬝ (p y) = (p x) ⬝ (ap g q) :=
-  eq.rec_on q (idp_con _ ⬝ (con_idp _)⁻¹)
+  definition ap_con_eq_con_ap {f g : A → B} (p : f ∼ g) {x y : A} (q : x = y) :
+    ap f q ⬝ p y = p x ⬝ ap g q :=
+  eq.rec_on q (!idp_con ⬝ !con_idp⁻¹)
 
   -- Naturality of [ap] at identity.
   definition ap_con_eq_con {f : A → A} (p : Πx, f x = x) {x y : A} (q : x = y) :
-    (ap f q) ⬝ (p y) = (p x) ⬝ q :=
-  eq.rec_on q (idp_con _ ⬝ (con_idp _)⁻¹)
+    ap f q ⬝ p y = p x ⬝ q :=
+  eq.rec_on q (!idp_con ⬝ !con_idp⁻¹)
 
   definition con_ap_eq_con {f : A → A} (p : Πx, x = f x) {x y : A} (q : x = y) :
-    (p x) ⬝ (ap f q) =  q ⬝ (p y) :=
-  eq.rec_on q (con_idp _ ⬝ (idp_con _)⁻¹)
+    p x ⬝ ap f q =  q ⬝ p y :=
+  eq.rec_on q (!con_idp ⬝ !idp_con⁻¹)
 
   -- Naturality with other paths hanging around.
 
@@ -330,14 +331,14 @@ namespace eq
   -- TODO: try this using the simplifier, and compare proofs
   definition ap_con_con_eq_con_ap_con {f g : A → B} (p : f ∼ g) {x y : A} (q : x = y)
       {z : B} (s : g y = z) :
-    (ap f q) ⬝ (p y ⬝ s) = (p x) ⬝ (ap g q ⬝ s) :=
+    ap f q ⬝ (p y ⬝ s) = p x ⬝ (ap g q ⬝ s) :=
   eq.rec_on s (eq.rec_on q
     (calc
       (ap f idp) ⬝ (p x ⬝ idp) = idp ⬝ p x : idp
-        ... = p x : idp_con _
+        ... = p x : !idp_con
         ... = (p x) ⬝ (ap g idp ⬝ idp) : idp))
   -- This also works:
-  -- eq.rec_on s (eq.rec_on q (idp_con _ ▹ idp))
+  -- eq.rec_on s (eq.rec_on q (!idp_con ▹ idp))
 
   definition con_ap_con_con_eq_con_con_con {f : A → A} (p : f ∼ id) {x y : A} (q : x = y)
       {w z : A} (r : w = f x) (s : y = z) :
@@ -356,8 +357,8 @@ namespace eq
 
   definition ap_con_con_eq_con_con {f : A → A} (p : f ∼ id) {x y : A} (q : x = y)
       {z : A} (s : y = z) :
-    (ap f q) ⬝ (p y ⬝ s) = (p x) ⬝ (q ⬝ s) :=
-  eq.rec_on s (eq.rec_on q (idp_con _ ▹ idp))
+    ap f q ⬝ (p y ⬝ s) = p x ⬝ (q ⬝ s) :=
+  eq.rec_on s (eq.rec_on q (!idp_con ▹ idp))
 
   definition con_con_ap_eq_con_con {g : A → A} (p : id ∼ g) {x y : A} (q : x = y)
       {w : A} (r : w = x) :
@@ -373,27 +374,27 @@ namespace eq
     apply (idp_con (p x) ▹ idp)
   end
 
-  /- Action of [apD10] and [ap10] on paths -/
+  /- Action of [apd10] and [ap10] on paths -/
 
   -- Application of paths between functions preserves the groupoid structure
 
-  definition apD10_idp (f : Πx, P x) (x : A) : apD10 (refl f) x = idp := idp
+  definition apd10_idp (f : Πx, P x) (x : A) : apd10 (refl f) x = idp := idp
 
-  definition apD10_con {f f' f'' : Πx, P x} (h : f = f') (h' : f' = f'') (x : A) :
-    apD10 (h ⬝ h') x = apD10 h x ⬝ apD10 h' x :=
+  definition apd10_con {f f' f'' : Πx, P x} (h : f = f') (h' : f' = f'') (x : A) :
+    apd10 (h ⬝ h') x = apd10 h x ⬝ apd10 h' x :=
   eq.rec_on h (take h', eq.rec_on h' idp) h'
 
-  definition apD10_inv {f g : Πx : A, P x} (h : f = g) (x : A) :
-    apD10 h⁻¹ x = (apD10 h x)⁻¹ :=
+  definition apd10_inv {f g : Πx : A, P x} (h : f = g) (x : A) :
+    apd10 h⁻¹ x = (apd10 h x)⁻¹ :=
   eq.rec_on h idp
 
   definition ap10_idp {f : A → B} (x : A) : ap10 (refl f) x = idp := idp
 
   definition ap10_con {f f' f'' : A → B} (h : f = f') (h' : f' = f'') (x : A) :
-  ap10 (h ⬝ h') x = ap10 h x ⬝ ap10 h' x := apD10_con h h' x
+  ap10 (h ⬝ h') x = ap10 h x ⬝ ap10 h' x := apd10_con h h' x
 
   definition ap10_inv {f g : A → B} (h : f = g) (x : A) : ap10 h⁻¹ x = (ap10 h x)⁻¹ :=
-  apD10_inv h x
+  apd10_inv h x
 
   -- [ap10] also behaves nicely on paths produced by [ap]
   definition ap_ap10 (f g : A → B) (h : B → C) (p : f = g) (a : A) :
@@ -403,8 +404,7 @@ namespace eq
 
   /- Transport and the groupoid structure of paths -/
 
-  definition tr_idp (P : A → Type) {x : A} (u : P x) :
-    idp ▹ u = u := idp
+  definition tr_idp (P : A → Type) {x : A} (u : P x) : idp ▹ u = u := idp
 
   definition tr_con (P : A → Type) {x y z : A} (p : x = y) (q : y = z) (u : P x) :
     p ⬝ q ▹ u = q ▹ p ▹ u :=
@@ -432,12 +432,12 @@ namespace eq
   eq.rec_on p idp
 
   -- Dependent transport in a doubly dependent type.
-  -- should P, Q and y all be explicit here?
-  definition transportD (P : A → Type) (Q : Π a : A, P a → Type)
+  definition transportD {P : A → Type} (Q : Π a : A, P a → Type)
       {a a' : A} (p : a = a') (b : P a) (z : Q a b) : Q a' (p ▹ b) :=
   eq.rec_on p z
-  -- In Coq the variables B, C and y are explicit, but in Lean we can probably have them implicit using the following notation
-  notation p `▹D`:65 x:64 := transportD _ _ p _ x
+
+  -- In Coq the variables P, Q and b are explicit, but in Lean we can probably have them implicit using the following notation
+  notation p `▹D`:65 x:64 := transportD _ p _ x
 
   -- Transporting along higher-dimensional paths
   definition transport2 (P : A → Type) {x y : A} {p q : x = y} (r : p = q) (z : P x) :
@@ -470,7 +470,7 @@ namespace eq
   definition ap_tr_con_tr2 (P : A → Type) {x y : A} {p q : x = y} {z w : P x} (r : p = q)
       (s : z = w) :
     ap (transport P p) s  ⬝  transport2 P r w = transport2 P r z  ⬝  ap (transport P q) s :=
-  eq.rec_on r (con_idp _ ⬝ (idp_con _)⁻¹)
+  eq.rec_on r (!con_idp ⬝ !idp_con⁻¹)
 
 
   definition fn_tr_eq_tr_fn {P Q : A → Type} {x y : A} (p : x = y) (f : Πx, P x → Q x) (z : P x) :
@@ -494,7 +494,7 @@ namespace eq
 
   definition tr2_constant {p q : x = y} (r : p = q) (z : B) :
     tr_constant p z = transport2 (λu, B) r z ⬝ tr_constant q z :=
-  eq.rec_on r (idp_con _)⁻¹
+  eq.rec_on r !idp_con⁻¹
 
   -- Transporting in a pulled back fibration.
   -- rename: tr_compose
@@ -506,33 +506,31 @@ namespace eq
     ap (λh, h ∘ f) p = transport (λh : B → C, g ∘ f = h ∘ f) p idp :=
   eq.rec_on p idp
 
-  definition apD10_ap_precompose (f : A → B) (g g' : B → C) (p : g = g') (a : A) :
-    apD10 (ap (λh : B → C, h ∘ f) p) a = apD10 p (f a) :=
+  definition apd10_ap_precompose (f : A → B) (g g' : B → C) (p : g = g') (a : A) :
+    apd10 (ap (λh : B → C, h ∘ f) p) a = apd10 p (f a) :=
   eq.rec_on p idp
 
-  definition apD10_ap_postcompose (f : B → C) (g g' : A → B) (p : g = g') (a : A) :
-    apD10 (ap (λh : A → B, f ∘ h) p) a = ap f (apD10 p a) :=
+  definition apd10_ap_postcompose (f : B → C) (g g' : A → B) (p : g = g') (a : A) :
+    apd10 (ap (λh : A → B, f ∘ h) p) a = ap f (apd10 p a) :=
   eq.rec_on p idp
 
   -- A special case of [transport_compose] which seems to come up a lot.
-  definition tr_eq_tr_id_ap (P : A → Type) x y (p : x = y) (u : P x) :
-    transport P p u = transport id (ap P p) u :=
+  definition tr_eq_cast_ap (P : A → Type) {x y} (p : x = y) (u : P x) : p ▹ u = cast (ap P p) u :=
   eq.rec_on p idp
 
 
-  /- The behavior of [ap] and [apD] -/
+  /- The behavior of [ap] and [apd] -/
 
-  -- In a constant fibration, [apD] reduces to [ap], modulo [transport_const].
-  definition apD_eq_tr_constant_con_ap (f : A → B) (p: x = y) :
-    apD f p = tr_constant p (f x) ⬝ ap f p :=
+  -- In a constant fibration, [apd] reduces to [ap], modulo [transport_const].
+  definition apd_eq_tr_constant_con_ap (f : A → B) (p : x = y) :
+    apd f p = tr_constant p (f x) ⬝ ap f p :=
   eq.rec_on p idp
 
 
   /- The 2-dimensional groupoid structure -/
 
   -- Horizontal composition of 2-dimensional paths.
-  definition concat2 {p p' : x = y} {q q' : y = z} (h : p = p') (h' : q = q') :
-    p ⬝ q = p' ⬝ q' :=
+  definition concat2 {p p' : x = y} {q q' : y = z} (h : p = p') (h' : q = q') : p ⬝ q = p' ⬝ q' :=
   eq.rec_on h (eq.rec_on h' idp)
 
   infixl `◾`:75 := concat2
@@ -552,10 +550,10 @@ namespace eq
 
   -- Unwhiskering, a.k.a. cancelling
 
-  definition cancel_left {x y z : A} (p : x = y) (q r : y = z) : (p ⬝ q = p ⬝ r) → (q = r) :=
+  definition cancel_left {x y z : A} {p : x = y} {q r : y = z} : (p ⬝ q = p ⬝ r) → (q = r) :=
   λs, !inv_con_cancel_left⁻¹ ⬝ whisker_left p⁻¹ s ⬝ !inv_con_cancel_left
 
-  definition cancel_right {x y z : A} (p q : x = y) (r : y = z) : (p ⬝ r = q ⬝ r) → (p = q) :=
+  definition cancel_right {x y z : A} {p q : x = y} {r : y = z} : (p ⬝ r = q ⬝ r) → (p = q) :=
   λs, !con_inv_cancel_right⁻¹ ⬝ whisker_right s r⁻¹ ⬝ !con_inv_cancel_right
 
   -- Whiskering and identity paths.
@@ -590,9 +588,10 @@ namespace eq
     (a ◾ c) ⬝ (b ◾ d) = (a ⬝ b) ◾ (c ⬝ d) :=
   eq.rec_on d (eq.rec_on c (eq.rec_on b (eq.rec_on a idp)))
 
-  definition whisker_right_con_whisker_left {x y z : A} (p p' : x = y) (q q' : y = z) (a : p = p') (b : q = q') :
+  definition whisker_right_con_whisker_left {x y z : A} {p p' : x = y} {q q' : y = z}
+    (a : p = p') (b : q = q') :
     (whisker_right a q) ⬝ (whisker_left p' b) = (whisker_left p b) ⬝ (whisker_right a q') :=
-  eq.rec_on b (eq.rec_on a (idp_con _)⁻¹)
+  eq.rec_on b (eq.rec_on a !idp_con⁻¹)
 
   -- Structure corresponding to the coherence equations of a bicategory.
 
@@ -609,7 +608,7 @@ namespace eq
     con.assoc' p idp q ⬝ whisker_right (con_idp p) q = whisker_left p (idp_con q) :=
   eq.rec_on q (eq.rec_on p idp)
 
-  definition eckmann_hilton {x:A} (p q : idp = idp :> (x = x)) : p ⬝ q = q ⬝ p :=
+  definition eckmann_hilton {x:A} (p q : idp = idp :> x = x) : p ⬝ q = q ⬝ p :=
     (!whisker_right_idp_right ◾ !whisker_left_idp_left)⁻¹
     ⬝ (!con_idp ◾ !con_idp)
     ⬝ (!idp_con ◾ !idp_con)
@@ -619,7 +618,7 @@ namespace eq
     ⬝ (!whisker_left_idp_left ◾ !whisker_right_idp_right)
 
   -- The action of functions on 2-dimensional paths
-  definition ap02 (f:A → B) {x y : A} {p q : x = y} (r : p = q) : ap f p = ap f q :=
+  definition ap02 (f : A → B) {x y : A} {p q : x = y} (r : p = q) : ap f p = ap f q :=
   eq.rec_on r idp
 
   definition ap02_con (f : A → B) {x y : A} {p p' p'' : x = y} (r : p = p') (r' : p' = p'') :
@@ -633,16 +632,16 @@ namespace eq
                         ⬝ (ap_con f p' q')⁻¹ :=
   eq.rec_on r (eq.rec_on s (eq.rec_on q (eq.rec_on p idp)))
 
-  definition apD02 {p q : x = y} (f : Π x, P x) (r : p = q) :
-    apD f p = transport2 P r (f x) ⬝ apD f q :=
-  eq.rec_on r (idp_con _)⁻¹
+  definition apd02 {p q : x = y} (f : Π x, P x) (r : p = q) :
+    apd f p = transport2 P r (f x) ⬝ apd f q :=
+  eq.rec_on r !idp_con⁻¹
 
   -- And now for a lemma whose statement is much longer than its proof.
-  definition apD02_con (P : A → Type) (f : Π x:A, P x) {x y : A}
+  definition apd02_con (P : A → Type) (f : Π x:A, P x) {x y : A}
       {p1 p2 p3 : x = y} (r1 : p1 = p2) (r2 : p2 = p3) :
-    apD02 f (r1 ⬝ r2) = apD02 f r1
-      ⬝ whisker_left (transport2 P r1 (f x)) (apD02 f r2)
+    apd02 f (r1 ⬝ r2) = apd02 f r1
+      ⬝ whisker_left (transport2 P r1 (f x)) (apd02 f r2)
       ⬝ con.assoc' _ _ _
-      ⬝ (whisker_right (tr2_con P r1 r2 (f x))⁻¹ (apD f p3)) :=
+      ⬝ (whisker_right (tr2_con P r1 r2 (f x))⁻¹ (apd f p3)) :=
   eq.rec_on r2 (eq.rec_on r1 (eq.rec_on p1 idp))
 end eq

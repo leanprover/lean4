@@ -54,7 +54,7 @@ parameters {A B : Type.{u}} (f : A → B)
   definition rec_seg {P : cylinder → Type}
     (Pbase : Π(b : B), P (base b)) (Ptop : Π(a : A), P (top a))
     (Pseg : Π(a : A), seg a ▹ Pbase (f a) = Ptop a)
-      (a : A) : apD (rec Pbase Ptop Pseg) (seg a) = sorry ⬝ Pseg a ⬝ sorry :=
+      (a : A) : apd (rec Pbase Ptop Pseg) (seg a) = sorry ⬝ Pseg a ⬝ sorry :=
   sorry
 
   protected definition elim {P : Type} (Pbase : B → P) (Ptop : A → P)

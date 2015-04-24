@@ -91,7 +91,7 @@ namespace equiv
 
   protected definition eq_mk' {f f' : A → B} [H : is_equiv f] [H' : is_equiv f'] (p : f = f')
       : equiv.mk f H = equiv.mk f' H' :=
-  apD011 equiv.mk p !is_hprop.elim
+  apd011 equiv.mk p !is_hprop.elim
 
   protected definition eq_mk {f f' : A ≃ B} (p : to_fun f = to_fun f') : f = f' :=
   by (cases f; cases f'; apply (equiv.eq_mk' p))

@@ -50,7 +50,7 @@ namespace functor
     {H₂ : Π(a b : C), hom a b → hom (F₂ a) (F₂ b)} (id₁ id₂ comp₁ comp₂)
     (pF : F₁ = F₂) (pH : pF ▹ H₁ = H₂)
       : functor.mk F₁ H₁ id₁ comp₁ = functor.mk F₂ H₂ id₂ comp₂ :=
-  apD01111 functor.mk pF pH !is_hprop.elim !is_hprop.elim
+  apd01111 functor.mk pF pH !is_hprop.elim !is_hprop.elim
 
   definition functor_eq' {F₁ F₂ : C ⇒ D}
     : Π(p : to_fun_ob F₁ = to_fun_ob F₂),
@@ -68,10 +68,10 @@ namespace functor
         apply concat, rotate_left 1, apply transport_hom,
         apply concat, rotate_left 1,
         exact (pi_transport_constant (eq_of_homotopy pF) (H₁ c c') f),
-        apply (apD10' f),
+        apply (apd10' f),
         apply concat, rotate_left 1, esimp,
         exact (pi_transport_constant (eq_of_homotopy pF) (H₁ c) c'),
-        apply (apD10' c'),
+        apply (apd10' c'),
         apply concat, rotate_left 1, esimp,
         exact (pi_transport_constant (eq_of_homotopy pF) H₁ c),
         apply idp
@@ -169,7 +169,7 @@ namespace functor
   definition functor_mk_eq'_idp (F : C → D) (H : Π(a b : C), hom a b → hom (F a) (F b))
     (id comp) : functor_mk_eq' id id comp comp (idpath F) (idpath H) = idp :=
   begin
-    fapply (apD011 (apD01111 functor.mk idp idp)),
+    fapply (apd011 (apd01111 functor.mk idp idp)),
     apply is_hset.elim,
     apply is_hset.elim
   end
@@ -178,7 +178,7 @@ namespace functor
   by (cases F; apply functor_mk_eq'_idp)
 
   definition functor_eq_eta' {F₁ F₂ : C ⇒ D} (p : F₁ = F₂)
-      : functor_eq' (ap to_fun_ob p) (!transport_compose⁻¹ ⬝ apD to_fun_hom p) = p :=
+      : functor_eq' (ap to_fun_ob p) (!transport_compose⁻¹ ⬝ apd to_fun_hom p) = p :=
   begin
     cases p, cases F₁,
     apply concat, rotate_left 1, apply functor_eq'_idp,
@@ -203,7 +203,7 @@ namespace functor
 
   -- definition ap010_functor_eq_mk' {F₁ F₂ : C ⇒ D} (p : to_fun_ob F₁ = to_fun_ob F₂)
   --   (q : p ▹ F₁ = F₂) (c : C) :
-  --   ap to_fun_ob (functor_eq_mk (apD10 p) (λa b f, _)) = p := sorry
+  --   ap to_fun_ob (functor_eq_mk (apd10 p) (λa b f, _)) = p := sorry
   -- begin
   --   cases F₂, revert q, apply (homotopy.rec_on p), clear p, esimp, intros (p, q),
   --   cases p, clears (e_1, e_2),

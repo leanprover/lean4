@@ -189,7 +189,7 @@ namespace category
       end)
     definition nat_trans_left_inverse : nat_trans_inverse η ∘n η = nat_trans.id :=
     begin
-    fapply (apD011 nat_trans.mk),
+    fapply (apd011 nat_trans.mk),
       apply eq_of_homotopy, intro c, apply left_inverse,
     apply eq_of_homotopy, intros, apply eq_of_homotopy, intros, apply eq_of_homotopy, intros,
     apply is_hset.elim
@@ -197,7 +197,7 @@ namespace category
 
     definition nat_trans_right_inverse : η ∘n nat_trans_inverse η = nat_trans.id :=
     begin
-    fapply (apD011 nat_trans.mk),
+    fapply (apd011 nat_trans.mk),
       apply eq_of_homotopy, intro c, apply right_inverse,
     apply eq_of_homotopy, intros, apply eq_of_homotopy, intros, apply eq_of_homotopy, intros,
     apply is_hset.elim

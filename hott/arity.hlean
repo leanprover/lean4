@@ -29,10 +29,10 @@ namespace eq
          transports in the theorem statement).
       For the fully-dependent versions (except that the conclusion doesn't contain a transport)
       we write
-        apDi₀i₁...iₙ.
+        apdi₀i₁...iₙ.
 
       For versions where only some arguments depend on some other arguments,
-      or for versions with transport in the conclusion (like apD), we don't have a
+      or for versions with transport in the conclusion (like apd), we don't have a
       consistent naming scheme (yet).
 
       We don't prove each theorem systematically, but prove only the ones which we actually need.
@@ -68,25 +68,25 @@ namespace eq
   definition ap01000 (f : X → Πa b c, D a b c) (Hx : x = x') : f x ∼3 f x' :=
   λa b c, eq.rec_on Hx idp
 
-  definition apD011 (f : Πa, B a → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
+  definition apd011 (f : Πa, B a → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
       : f a b = f a' b' :=
   eq.rec_on Hb (eq.rec_on Ha idp)
 
-  definition apD0111 (f : Πa b, C a b → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
-    (Hc : apD011 C Ha Hb ▹ c = c')
+  definition apd0111 (f : Πa b, C a b → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
+    (Hc : apd011 C Ha Hb ▹ c = c')
       : f a b c = f a' b' c' :=
   eq.rec_on Hc (eq.rec_on Hb (eq.rec_on Ha idp))
 
-  definition apD01111 (f : Πa b c, D a b c → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
-    (Hc : apD011 C Ha Hb ▹ c = c') (Hd : apD0111 D Ha Hb Hc ▹ d = d')
+  definition apd01111 (f : Πa b c, D a b c → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
+    (Hc : apd011 C Ha Hb ▹ c = c') (Hd : apd0111 D Ha Hb Hc ▹ d = d')
       : f a b c d = f a' b' c' d' :=
   eq.rec_on Hd (eq.rec_on Hc (eq.rec_on Hb (eq.rec_on Ha idp)))
 
-  definition apD100 {f g : Πa b, C a b} (p : f = g) : f ∼2 g :=
-  λa b, apD10 (apD10 p a) b
+  definition apd100 {f g : Πa b, C a b} (p : f = g) : f ∼2 g :=
+  λa b, apd10 (apd10 p a) b
 
-  definition apD1000 {f g : Πa b c, D a b c} (p : f = g) : f ∼3 g :=
-  λa b c, apD100 (apD10 p a) b c
+  definition apd1000 {f g : Πa b c, D a b c} (p : f = g) : f ∼3 g :=
+  λa b c, apd100 (apd10 p a) b c
 
   /- some properties of these variants of ap -/
 
@@ -128,30 +128,30 @@ end eq
 
 open eq is_equiv
 namespace funext
-  definition is_equiv_apD100 [instance] (f g : Πa b, C a b) : is_equiv (@apD100 A B C f g) :=
+  definition is_equiv_apd100 [instance] (f g : Πa b, C a b) : is_equiv (@apd100 A B C f g) :=
   adjointify _
              eq_of_homotopy2
              begin
-               intro H, esimp [apD100, eq_of_homotopy2, function.compose],
+               intro H, esimp [apd100, eq_of_homotopy2, function.compose],
                apply eq_of_homotopy, intro a,
-               apply concat, apply (ap (λx, apD10 (x a))), apply (retr apD10),
-               apply (retr apD10)
+               apply concat, apply (ap (λx, apd10 (x a))), apply (retr apd10),
+               apply (retr apd10)
              end
              begin
                intro p, cases p, apply eq_of_homotopy2_id
              end
 
-  definition is_equiv_apD1000 [instance] (f g : Πa b c, D a b c)
-    : is_equiv (@apD1000 A B C D f g) :=
+  definition is_equiv_apd1000 [instance] (f g : Πa b c, D a b c)
+    : is_equiv (@apd1000 A B C D f g) :=
   adjointify _
              eq_of_homotopy3
              begin
                intro H, apply eq_of_homotopy, intro a,
                apply concat,
-                 {apply (ap (λx, @apD100 _ _ (λ(b : B a)(c : C a b), _) _ _ (x a))),
-                   apply (retr apD10)},
+                 {apply (ap (λx, @apd100 _ _ (λ(b : B a)(c : C a b), _) _ _ (x a))),
+                   apply (retr apd10)},
 --TODO: remove implicit argument after #469 is closed
-               apply (@retr _ _ apD100 !is_equiv_apD100) --is explicit argument needed here?
+               apply (@retr _ _ apd100 !is_equiv_apd100) --is explicit argument needed here?
              end
              begin
                intro p, cases p, apply eq_of_homotopy3_id
@@ -160,22 +160,22 @@ end funext
 
 namespace eq
   open funext
-  local attribute funext.is_equiv_apD100 [instance]
+  local attribute funext.is_equiv_apd100 [instance]
   protected definition homotopy2.rec_on {f g : Πa b, C a b} {P : (f ∼2 g) → Type}
-    (p : f ∼2 g) (H : Π(q : f = g), P (apD100 q)) : P p :=
-  retr apD100 p ▹ H (eq_of_homotopy2 p)
+    (p : f ∼2 g) (H : Π(q : f = g), P (apd100 q)) : P p :=
+  retr apd100 p ▹ H (eq_of_homotopy2 p)
 
   protected definition homotopy3.rec_on {f g : Πa b c, D a b c} {P : (f ∼3 g) → Type}
-    (p : f ∼3 g) (H : Π(q : f = g), P (apD1000 q)) : P p :=
-  retr apD1000 p ▹ H (eq_of_homotopy3 p)
+    (p : f ∼3 g) (H : Π(q : f = g), P (apd1000 q)) : P p :=
+  retr apd1000 p ▹ H (eq_of_homotopy3 p)
 
-  definition apD10_ap (f : X → Πa, B a) (p : x = x')
-    : apD10 (ap f p) = ap010 f p :=
+  definition apd10_ap (f : X → Πa, B a) (p : x = x')
+    : apd10 (ap f p) = ap010 f p :=
   eq.rec_on p idp
 
   definition eq_of_homotopy_ap010 (f : X → Πa, B a) (p : x = x')
     : eq_of_homotopy (ap010 f p) = ap f p :=
-  inv_eq_of_eq !apD10_ap⁻¹
+  inv_eq_of_eq !apd10_ap⁻¹
 
   definition ap_eq_ap_of_homotopy {f : X → Πa, B a} {p q : x = x'} (H : ap010 f p ∼ ap010 f q)
     : ap f p = ap f q :=

@@ -80,7 +80,7 @@ namespace is_trunc
     (imp : Π{a b : A}, R a b → a = b) : is_hset A :=
   is_hset_of_axiom_K
     (λa p,
-      have H2 : transport (λx, R a x → a = x) p (@imp a a) = @imp a a, from !apD,
+      have H2 : transport (λx, R a x → a = x) p (@imp a a) = @imp a a, from !apd,
       have H3 : Π(r : R a a), transport (λx, a = x) p (imp r)
                               = imp (transport (λx, R a x) p r), from
         to_fun (equiv.symm !heq_pi) H2,
@@ -89,7 +89,7 @@ namespace is_trunc
           imp (refl a) ⬝ p = transport (λx, a = x) p (imp (refl a)) : transport_eq_r
             ... = imp (transport (λx, R a x) p (refl a)) : H3
             ... = imp (refl a) : is_hprop.elim,
-      cancel_left (imp (refl a)) _ _ H4)
+      cancel_left H4)
 
   definition relation_equiv_eq {A : Type} (R : A → A → Type)
     (mere : Π(a b : A), is_hprop (R a b)) (refl : Π(a : A), R a a)

@@ -46,7 +46,7 @@ parameters {A B : Type.{u}} (f g : A → B)
 
   definition rec_cp {P : coeq → Type} (P_i : Π(x : B), P (coeq_i x))
     (Pcp : Π(x : A), cp x ▹ P_i (f x) = P_i (g x))
-      (x : A) : apD (rec P_i Pcp) (cp x) = sorry ⬝ Pcp x ⬝ sorry :=
+      (x : A) : apd (rec P_i Pcp) (cp x) = sorry ⬝ Pcp x ⬝ sorry :=
   sorry
 
   protected definition elim {P : Type} (P_i : B → P)

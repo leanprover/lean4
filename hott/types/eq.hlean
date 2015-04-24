@@ -96,7 +96,7 @@ namespace eq
 
   definition transport_eq_FlFr_D {B : A → Type} {f g : Πa, B a}
     (p : a1 = a2) (q : f a1 = g a1)
-      : transport (λx, f x = g x) p q = (apD f p)⁻¹ ⬝ ap (transport B p) q ⬝ (apD g p) :=
+      : transport (λx, f x = g x) p q = (apd f p)⁻¹ ⬝ ap (transport B p) q ⬝ (apd g p) :=
   begin
   apply (eq.rec_on p),
   apply inverse,
@@ -201,7 +201,7 @@ namespace eq
   equiv.mk _ !is_equiv_whisker_right
 
   definition is_equiv_con_eq_of_eq_inv_con (p : a1 = a3) (q : a2 = a3) (r : a2 = a1)
-    : is_equiv (con_eq_of_eq_inv_con p q r) :=
+    : is_equiv (con_eq_of_eq_inv_con : p = r⁻¹ ⬝ q → r ⬝ p = q) :=
   begin
    cases r,
    apply (@is_equiv_compose _ _ _ _ _ !is_equiv_concat_left !is_equiv_concat_right),
@@ -212,7 +212,7 @@ namespace eq
   equiv.mk _ !is_equiv_con_eq_of_eq_inv_con
 
   definition is_equiv_con_eq_of_eq_con_inv (p : a1 = a3) (q : a2 = a3) (r : a2 = a1)
-    : is_equiv (con_eq_of_eq_con_inv p q r) :=
+    : is_equiv (con_eq_of_eq_con_inv : r = q ⬝ p⁻¹ → r ⬝ p = q) :=
   begin
     cases p,
     apply (@is_equiv_compose _ _ _ _ _ !is_equiv_concat_left !is_equiv_concat_right)
@@ -223,7 +223,7 @@ namespace eq
   equiv.mk _ !is_equiv_con_eq_of_eq_con_inv
 
   definition is_equiv_inv_con_eq_of_eq_con (p : a1 = a3) (q : a2 = a3) (r : a1 = a2)
-    : is_equiv (inv_con_eq_of_eq_con p q r) :=
+    : is_equiv (inv_con_eq_of_eq_con : p = r ⬝ q → r⁻¹ ⬝ p = q) :=
   begin
     cases r,
     apply (@is_equiv_compose _ _ _ _ _ !is_equiv_concat_left !is_equiv_concat_right)
@@ -234,7 +234,7 @@ namespace eq
   equiv.mk _ !is_equiv_inv_con_eq_of_eq_con
 
   definition is_equiv_con_inv_eq_of_eq_con (p : a3 = a1) (q : a2 = a3) (r : a2 = a1)
-    : is_equiv (con_inv_eq_of_eq_con p q r) :=
+    : is_equiv (con_inv_eq_of_eq_con : r = q ⬝ p → r ⬝ p⁻¹ = q) :=
   begin
     cases p,
     apply (@is_equiv_compose _ _ _ _ _ !is_equiv_concat_left !is_equiv_concat_right)
@@ -245,7 +245,7 @@ namespace eq
    equiv.mk _ !is_equiv_con_inv_eq_of_eq_con
 
   definition is_equiv_eq_con_of_inv_con_eq (p : a1 = a3) (q : a2 = a3) (r : a2 = a1)
-    : is_equiv (eq_con_of_inv_con_eq p q r) :=
+    : is_equiv (eq_con_of_inv_con_eq : r⁻¹ ⬝ q = p → q = r ⬝ p) :=
   begin
     cases r,
     apply (@is_equiv_compose _ _ _ _ _ !is_equiv_concat_left !is_equiv_concat_right)
@@ -256,7 +256,7 @@ namespace eq
   equiv.mk _ !is_equiv_eq_con_of_inv_con_eq
 
   definition is_equiv_eq_con_of_con_inv_eq (p : a1 = a3) (q : a2 = a3) (r : a2 = a1)
-    : is_equiv (eq_con_of_con_inv_eq p q r) :=
+    : is_equiv (eq_con_of_con_inv_eq : q ⬝ p⁻¹ = r → q = r ⬝ p) :=
   begin
     cases p,
     apply (@is_equiv_compose _ _ _ _ _ !is_equiv_concat_left !is_equiv_concat_right)

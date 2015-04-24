@@ -138,25 +138,25 @@ definition funext_of_ua : funext :=
 variables {A : Type} {P : A → Type} {f g : Π x, P x}
 
 namespace funext
-  definition is_equiv_apD [instance] (f g : Π x, P x) : is_equiv (@apD10 A P f g) :=
+  definition is_equiv_apd [instance] (f g : Π x, P x) : is_equiv (@apd10 A P f g) :=
   funext_of_ua f g
 end funext
 
 open funext
 
 definition eq_equiv_homotopy : (f = g) ≃ (f ∼ g) :=
-equiv.mk apD10 _
+equiv.mk apd10 _
 
 definition eq_of_homotopy [reducible] : f ∼ g → f = g :=
-(@apD10 A P f g)⁻¹
+(@apd10 A P f g)⁻¹
 
 --TODO: rename to eq_of_homotopy_idp
 definition eq_of_homotopy_id (f : Π x, P x) : eq_of_homotopy (λx : A, idpath (f x)) = idpath f :=
-is_equiv.sect apD10 idp
+is_equiv.sect apd10 idp
 
 definition naive_funext_of_ua : naive_funext :=
 λ A P f g h, eq_of_homotopy h
 
 protected definition homotopy.rec_on {Q : (f ∼ g) → Type} (p : f ∼ g)
-  (H : Π(q : f = g), Q (apD10 q)) : Q p :=
-retr apD10 p ▹ H (eq_of_homotopy p)
+  (H : Π(q : f = g), Q (apd10 q)) : Q p :=
+retr apd10 p ▹ H (eq_of_homotopy p)

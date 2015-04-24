@@ -78,7 +78,7 @@ namespace is_equiv
           ... = ap f (ap invf ff'a) ⬝ retrf'a : by rewrite ap_compose,
       have eq2 : _ = _,
         from calc retrf'a
-              = (ap f (ap invf ff'a))⁻¹ ⬝ (ap f secta ⬝ ff'a)   : eq_inv_con_of_con_eq _ _ _ eq1⁻¹
+              = (ap f (ap invf ff'a))⁻¹ ⬝ (ap f secta ⬝ ff'a)   : eq_inv_con_of_con_eq eq1⁻¹
           ... = (ap f (ap invf ff'a))⁻¹ ⬝ (ap f secta ⬝ Hty a) : ap_inv invf ff'a
           ... = (ap f (ap invf ff'a))⁻¹ ⬝ (Hty (invf (f a)) ⬝ ap f' secta) : by rewrite ap_con_eq_con_ap
           ... = ((ap f (ap invf ff'a))⁻¹ ⬝ Hty (invf (f a))) ⬝ ap f' secta : by rewrite con.assoc
@@ -88,7 +88,7 @@ namespace is_equiv
           ... = Hty (invf (f' a)) ⬝ ((ap f' (ap invf ff'a))⁻¹ ⬝ ap f' secta) : by rewrite con.assoc,
       have eq3 : _ = _,
         from calc (Hty (invf (f' a)))⁻¹ ⬝ retrf'a
-              = (ap f' (ap invf ff'a))⁻¹ ⬝ ap f' secta : inv_con_eq_of_eq_con _ _ _ eq2
+              = (ap f' (ap invf ff'a))⁻¹ ⬝ ap f' secta : inv_con_eq_of_eq_con eq2
           ... = (ap f' (ap invf ff'a)⁻¹) ⬝ ap f' secta : by rewrite ap_inv
           ... = ap f' ((ap invf ff'a)⁻¹ ⬝ secta)       : by rewrite ap_con,
     eq3) in
@@ -119,7 +119,7 @@ namespace is_equiv
         from !con_idp ⬝ eq1,
       have eq3 : idp = _,
         from calc idp
-              = (ap f (sec a))⁻¹ ⬝ ((ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a))) : eq_inv_con_of_con_eq _ _ _ eq2
+              = (ap f (sec a))⁻¹ ⬝ ((ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a))) : eq_inv_con_of_con_eq eq2
           ... = ((ap f (sec a))⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ (fgretrfa ⬝ ap f (sec a)) : by rewrite con.assoc'
           ... = (ap f (sec a)⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ (fgretrfa ⬝ ap f (sec a))   : by rewrite ap_inv
           ... = ((ap f (sec a)⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ fgretrfa) ⬝ ap f (sec a)   : by rewrite con.assoc'
@@ -130,7 +130,7 @@ namespace is_equiv
           ... = retrfa⁻¹ ⬝ (ap f (ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ ap f (sec a)) : by rewrite con.assoc'
           ... = retrfa⁻¹ ⬝ ap f ((ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ sec a)        : by rewrite -ap_con,
       have eq4 : ret (f a) = ap f ((ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ sec a),
-        from eq_of_idp_eq_inv_con _ _ eq3,
+        from eq_of_idp_eq_inv_con eq3,
       eq4)
 
   definition adjointify : is_equiv f :=
@@ -188,7 +188,7 @@ namespace is_equiv
           = transport P (retr f (f x)) (df (f⁻¹ (f x)))       : by esimp
       ... = transport P (eq.ap f (sect f x)) (df (f⁻¹ (f x))) : by rewrite adj
       ... = transport (P ∘ f) (sect f x) (df (f⁻¹ (f x)))     : by rewrite -transport_compose
-      ... = df x                                              : by rewrite (apD df (sect f x))
+      ... = df x                                              : by rewrite (apd df (sect f x))
 
   end
 

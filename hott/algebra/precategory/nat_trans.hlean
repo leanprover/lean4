@@ -43,7 +43,7 @@ namespace nat_trans
     (nat₂ : Π (a b : C) (f : hom a b), G f ∘ η₂ a = η₂ b ∘ F f)
     (p : η₁ ∼ η₂)
       : nat_trans.mk η₁ nat₁ = nat_trans.mk η₂ nat₂ :=
-  apD011 nat_trans.mk (eq_of_homotopy p) !is_hprop.elim
+  apd011 nat_trans.mk (eq_of_homotopy p) !is_hprop.elim
 
   definition nat_trans_eq_mk {η₁ η₂ : F ⟹ G} : natural_map η₁ ∼ natural_map η₂ → η₁ = η₂ :=
   nat_trans.rec_on η₁ (λf₁ nat₁, nat_trans.rec_on η₂ (λf₂ nat₂ p, !nat_trans_eq_mk' p))

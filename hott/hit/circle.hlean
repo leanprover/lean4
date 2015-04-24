@@ -41,12 +41,12 @@ namespace circle
 
   definition rec2_seg1 {P : circle → Type} (Pb1 : P base1) (Pb2 : P base2)
     (Ps1 : seg1 ▹ Pb1 = Pb2) (Ps2 : seg2 ▹ Pb2 = Pb1)
-      : apD (rec2 Pb1 Pb2 Ps1 Ps2) seg1 = sorry ⬝ Ps1 ⬝ sorry :=
+      : apd (rec2 Pb1 Pb2 Ps1 Ps2) seg1 = sorry ⬝ Ps1 ⬝ sorry :=
   sorry
 
   definition rec2_seg2 {P : circle → Type} (Pb1 : P base1) (Pb2 : P base2)
     (Ps1 : seg1 ▹ Pb1 = Pb2) (Ps2 : seg2 ▹ Pb2 = Pb1)
-      : apD (rec2 Pb1 Pb2 Ps1 Ps2) seg2 = sorry ⬝ Ps2 ⬝ sorry :=
+      : apd (rec2 Pb1 Pb2 Ps1 Ps2) seg2 = sorry ⬝ Ps2 ⬝ sorry :=
   sorry
 
   definition elim2 {P : Type} (Pb1 Pb2 : P) (Ps1 : Pb1 = Pb2) (Ps2 : Pb2 = Pb1) (x : circle) : P :=

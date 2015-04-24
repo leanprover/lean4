@@ -41,7 +41,7 @@ namespace suspension
 
   definition rec_merid {P : suspension A → Type} (PN : P !north) (PS : P !south)
     (Pm : Π(a : A), merid a ▹ PN = PS) (a : A)
-      : apD (rec PN PS Pm) (merid a) = sorry ⬝ Pm a ⬝ sorry :=
+      : apd (rec PN PS Pm) (merid a) = sorry ⬝ Pm a ⬝ sorry :=
   sorry
 
   protected definition elim {P : Type} (PN : P) (PS : P) (Pm : A → PN = PS)

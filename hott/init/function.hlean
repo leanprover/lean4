@@ -13,7 +13,7 @@ import init.reserved_notation
 
 namespace function
 
-variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
+variables {A B C D E : Type}
 
 definition compose [reducible] (f : B → C) (g : A → B) : A → C :=
 λx, f (g x)
@@ -43,8 +43,6 @@ f x
 precedence `∘'`:60
 precedence `on`:1
 precedence `$`:1
-
-variables {f g : A → B}
 
 
 infixr  ∘                  := compose

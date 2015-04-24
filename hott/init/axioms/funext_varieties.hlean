@@ -25,7 +25,6 @@ definition funext.{l k} :=
   Π ⦃A : Type.{l}⦄ {P : A → Type.{k}} (f g : Π x, P x), is_equiv (@apd10 A P f g)
 
 -- Naive funext is the simple assertion that pointwise equal functions are equal.
--- TODO think about universe levels
 definition naive_funext :=
   Π ⦃A : Type⦄ {P : A → Type} (f g : Πx, P x), (f ∼ g) → f = g
 
@@ -67,7 +66,7 @@ section
           have t2 : is_contr (Πx, Σ y, f x = y),
             from !wf,
           have t3 : (λ x, @sigma.mk _ (λ y, f x = y) (f x) idp) = s g h,
-            from @center_eq (Π x, Σ y, f x = y) t2 _ _,
+            from @eq_of_is_contr (Π x, Σ y, f x = y) t2 _ _,
           have t4 : r (λ x, sigma.mk (f x) idp) = r (s g h),
             from ap r t3,
           have endt : sigma.mk f (homotopy.refl f) = sigma.mk g h,
@@ -80,12 +79,12 @@ section
 
   definition homotopy_ind (g : Πx, B x) (h : f ∼ g) : Q g h :=
     @transport _ (λ gh, Q (pr1 gh) (pr2 gh)) (sigma.mk f (homotopy.refl f)) (sigma.mk g h)
-      (@center_eq _ is_contr_sigma_homotopy _ _) d
+      (@eq_of_is_contr _ is_contr_sigma_homotopy _ _) d
 
   local attribute weak_funext [reducible]
   local attribute homotopy_ind [reducible]
   definition homotopy_ind_comp : homotopy_ind f (homotopy.refl f) = d :=
-    (@hprop_eq_of_is_contr _ _ _ _ !center_eq idp)⁻¹ ▹ idp
+    (@hprop_eq_of_is_contr _ _ _ _ !eq_of_is_contr idp)⁻¹ ▹ idp
 end
 
 -- Now the proof is fairly easy; we can just use the same induction principle on both sides.

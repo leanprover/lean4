@@ -60,7 +60,7 @@ namespace is_equiv
   protected definition sigma_char : (is_equiv f) ≃
   (Σ(g : B → A) (ε : f ∘ g ∼ id) (η : g ∘ f ∼ id), Π(a : A), ε (f a) = ap f (η a)) :=
   equiv.MK (λH, ⟨inv f, retr f, sect f, adj f⟩)
-           (λp, is_equiv.mk p.1 p.2.1 p.2.2.1 p.2.2.2)
+           (λp, is_equiv.mk f p.1 p.2.1 p.2.2.1 p.2.2.2)
            (λp, begin
                   cases p with [p1, p2],
                   cases p2 with [p21, p22],

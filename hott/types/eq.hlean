@@ -137,7 +137,7 @@ namespace eq
   /- Path operations are equivalences -/
 
   definition is_equiv_eq_inverse (a1 a2 : A) : is_equiv (@inverse A a1 a2) :=
-  is_equiv.mk inverse inv_inv inv_inv (λp, eq.rec_on p idp)
+  is_equiv.mk inverse inverse inv_inv inv_inv (λp, eq.rec_on p idp)
   local attribute is_equiv_eq_inverse [instance]
 
   definition eq_equiv_eq_symm (a1 a2 : A) : (a1 = a2) ≃ (a2 = a1) :=
@@ -145,7 +145,7 @@ namespace eq
 
   definition is_equiv_concat_left [instance] (p : a1 = a2) (a3 : A)
     : is_equiv (@concat _ a1 a2 a3 p) :=
-  is_equiv.mk (concat p⁻¹)
+  is_equiv.mk (concat p) (concat p⁻¹)
               (con_inv_cancel_left p)
               (inv_con_cancel_left p)
               (eq.rec_on p (λq, eq.rec_on q idp))
@@ -156,7 +156,7 @@ namespace eq
 
   definition is_equiv_concat_right [instance] (p : a2 = a3) (a1 : A)
     : is_equiv (λq : a1 = a2, q ⬝ p) :=
-  is_equiv.mk (λq, q ⬝ p⁻¹)
+  is_equiv.mk (λq, q ⬝ p) (λq, q ⬝ p⁻¹)
               (λq, inv_con_cancel_right q p)
               (λq, con_inv_cancel_right q p)
               (eq.rec_on p (λq, eq.rec_on q idp))

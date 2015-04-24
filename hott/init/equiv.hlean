@@ -17,6 +17,7 @@ open eq function
 -- This is our definition of equivalence. In the HoTT-book it's called
 -- ihae (half-adjoint equivalence).
 structure is_equiv [class] {A B : Type} (f : A → B) :=
+mk' ::
   (inv : B → A)
   (retr : (f ∘ inv) ∼ id)
   (sect : (inv ∘ f) ∼ id)
@@ -33,19 +34,22 @@ structure equiv (A B : Type) :=
 namespace is_equiv
   /- Some instances and closure properties of equivalences -/
   postfix `⁻¹` := inv
-  --a second notation for the inverse, which is not overloaded
+  /- a second notation for the inverse, which is not overloaded -/
   postfix [parsing-only] `⁻¹ᵉ`:std.prec.max_plus := inv
 
   section
   variables {A B C : Type} (f : A → B) (g : B → C) {f' : A → B}
 
+  -- The variant of mk' where f is explicit.
+  protected abbreviation mk := @is_equiv.mk' A B f
+
   -- The identity function is an equivalence.
-  -- TODO: make A explicit
-  definition is_equiv_id : (@is_equiv A A id) := is_equiv.mk id (λa, idp) (λa, idp) (λa, idp)
+  definition is_equiv_id (A : Type) : (@is_equiv A A id) :=
+  is_equiv.mk id id (λa, idp) (λa, idp) (λa, idp)
 
   -- The composition of two equivalences is, again, an equivalence.
   definition is_equiv_compose [Hf : is_equiv f] [Hg : is_equiv g] : is_equiv (g ∘ f) :=
-    is_equiv.mk ((inv f) ∘ (inv g))
+    is_equiv.mk (g ∘ f) (f⁻¹ ∘ g⁻¹)
                (λc, ap g (retr f (g⁻¹ c)) ⬝ retr g c)
                (λa, ap (inv f) (sect g (f a)) ⬝ sect f a)
                (λa, (whisker_left _ (adj g (f a))) ⬝
@@ -92,7 +96,7 @@ namespace is_equiv
           ... = (ap f' (ap invf ff'a)⁻¹) ⬝ ap f' secta : by rewrite ap_inv
           ... = ap f' ((ap invf ff'a)⁻¹ ⬝ secta)       : by rewrite ap_con,
     eq3) in
-  is_equiv.mk (inv f) sect' retr' adj'
+  is_equiv.mk f' (inv f) sect' retr' adj'
   end
 
   section
@@ -133,8 +137,7 @@ namespace is_equiv
         from eq_of_idp_eq_inv_con eq3,
       eq4)
 
-  definition adjointify : is_equiv f :=
-    is_equiv.mk g ret adjointify_sect' adjointify_adj'
+  definition adjointify : is_equiv f := is_equiv.mk f g ret adjointify_sect' adjointify_adj'
 
   end
 
@@ -213,7 +216,7 @@ namespace is_equiv
 
   --Transporting is an equivalence
   definition is_equiv_tr [instance] {A : Type} (P : A → Type) {x y : A} (p : x = y) : (is_equiv (transport P p)) :=
-    is_equiv.mk (transport P p⁻¹) (tr_inv_tr P p) (inv_tr_tr P p) (tr_inv_tr_lemma P p)
+    is_equiv.mk _ (transport P p⁻¹) (tr_inv_tr P p) (inv_tr_tr P p) (tr_inv_tr_lemma P p)
 
 
 end is_equiv

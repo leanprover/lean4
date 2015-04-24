@@ -151,7 +151,7 @@ definition eq_of_homotopy [reducible] : f ∼ g → f = g :=
 (@apd10 A P f g)⁻¹
 
 --TODO: rename to eq_of_homotopy_idp
-definition eq_of_homotopy_id (f : Π x, P x) : eq_of_homotopy (λx : A, idpath (f x)) = idpath f :=
+definition eq_of_homotopy_idp (f : Π x, P x) : eq_of_homotopy (λx : A, idpath (f x)) = idpath f :=
 is_equiv.sect apd10 idp
 
 definition naive_funext_of_ua : naive_funext :=

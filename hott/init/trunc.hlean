@@ -101,16 +101,15 @@ namespace is_trunc
   definition contr [H : is_contr A] (a : A) : !center = a :=
   @contr_internal.contr A !is_trunc.to_internal a
 
-  --TODO: rename
-  definition center_eq [H : is_contr A] (x y : A) : x = y :=
+  definition eq_of_is_contr [H : is_contr A] (x y : A) : x = y :=
   (contr x)⁻¹ ⬝ (contr y)
 
   definition hprop_eq_of_is_contr {A : Type} [H : is_contr A] {x y : A} (p q : x = y) : p = q :=
-  have K : ∀ (r : x = y), center_eq x y = r, from (λ r, eq.rec_on r !con.left_inv),
+  have K : ∀ (r : x = y), eq_of_is_contr x y = r, from (λ r, eq.rec_on r !con.left_inv),
   (K p)⁻¹ ⬝ K q
 
   definition is_contr_eq {A : Type} [H : is_contr A] (x y : A) : is_contr (x = y) :=
-  is_contr.mk !center_eq (λ p, !hprop_eq_of_is_contr)
+  is_contr.mk !eq_of_is_contr (λ p, !hprop_eq_of_is_contr)
   local attribute is_contr_eq [instance]
 
   /- truncation is upward close -/
@@ -236,7 +235,7 @@ namespace is_trunc
 
   definition is_equiv_of_is_hprop [HA : is_hprop A] [HB : is_hprop B] (f : A → B) (g : B → A)
     : is_equiv f :=
-  is_equiv.mk g (λb, !is_hprop.elim) (λa, !is_hprop.elim) (λa, !is_hset.elim)
+  is_equiv.mk f g (λb, !is_hprop.elim) (λa, !is_hprop.elim) (λa, !is_hset.elim)
 
   definition equiv_of_is_hprop [HA : is_hprop A] [HB : is_hprop B] (f : A → B) (g : B → A)
     : A ≃ B :=
@@ -252,11 +251,10 @@ namespace is_trunc
   open equiv
   -- A contractible type is equivalent to [Unit]. *)
   definition equiv_unit_of_is_contr [H : is_contr A] : A ≃ unit :=
-    equiv.mk (λ (x : A), ⋆)
-      (is_equiv.mk (λ (u : unit), center A)
-        (λ (u : unit), unit.rec_on u idp)
-        (λ (x : A), contr x)
-        (λ (x : A), !ap_constant⁻¹))
+  equiv.MK (λ (x : A), ⋆)
+           (λ (u : unit), center A)
+           (λ (u : unit), unit.rec_on u idp)
+           (λ (x : A), contr x)
 
   -- TODO: port "Truncated morphisms"
 

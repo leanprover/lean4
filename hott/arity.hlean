@@ -112,8 +112,8 @@ namespace eq
     : eq_of_homotopy2 (λa b, idpath (f a b)) = idpath f :=
   begin
     apply concat,
-      {apply (ap (λx, eq_of_homotopy x)), apply eq_of_homotopy, intro a, apply eq_of_homotopy_id},
-    apply eq_of_homotopy_id
+      {apply (ap (λx, eq_of_homotopy x)), apply eq_of_homotopy, intro a, apply eq_of_homotopy_idp},
+    apply eq_of_homotopy_idp
   end
 
   definition eq_of_homotopy3_id (f : Πa b c, D a b c)
@@ -121,7 +121,7 @@ namespace eq
   begin
     apply concat,
       {apply (ap (λx, eq_of_homotopy x)), apply eq_of_homotopy, intro a, apply eq_of_homotopy2_id},
-    apply eq_of_homotopy_id
+    apply eq_of_homotopy_idp
   end
 
 end eq

@@ -126,8 +126,10 @@ void collect_locals(expr const & type, expr const & value, parser const & p, buf
     buffer<expr> include_vars;
     p.get_include_variables(include_vars);
     for (expr const & param : include_vars) {
-        collect_locals_ignoring_tactics(mlocal_type(param), ls);
-        ls.insert(param);
+        if (is_local(param)) {
+            collect_locals_ignoring_tactics(mlocal_type(param), ls);
+            ls.insert(param);
+        }
     }
     collect_locals_ignoring_tactics(type, ls);
     collect_locals_ignoring_tactics(value, ls);

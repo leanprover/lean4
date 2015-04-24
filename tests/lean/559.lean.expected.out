@@ -1,0 +1,4 @@
+559.lean:10:28: error: failed to synthesize placeholder
+Q : Type,
+a b : Q
+⊢ has_add Q

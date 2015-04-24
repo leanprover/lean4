@@ -89,4 +89,4 @@ lemma P0_x0 : P0 x0 :=
 exists.intro P0 (and.intro fP0_eq not_P0_x0)
 
 theorem inconsistent : false :=
-absurd @P0_x0 @not_P0_x0
+absurd P0_x0 not_P0_x0

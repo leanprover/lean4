@@ -52,6 +52,7 @@ public:
     bool is_asserted() const;
     bool is_assumption() const;
     bool is_composite() const;
+    bool is_wrapper() const;
 
     justification_cell * raw() const { return m_ptr; }
 
@@ -69,6 +70,7 @@ public:
 
     friend justification mk_composite(justification const & j1, justification const & j2, optional<expr> const & s, pp_jst_fn const & fn);
     friend justification mk_composite1(justification const & j1, justification const & j2);
+    friend justification mk_wrapper(justification const & j, optional<expr> const & s, pp_jst_fn const & fn);
     friend justification mk_assumption_justification(unsigned idx, optional<expr> const & s, pp_jst_fn const & fn);
     friend justification mk_assumption_justification(unsigned idx);
     friend justification mk_justification(optional<expr> const & s, pp_jst_fn const & fn);
@@ -84,6 +86,8 @@ typedef std::function<format(formatter const &, substitution const &)> pp_jst_sf
 /** \brief Return a format object containing position information for the given expression (if available) */
 format to_pos(optional<expr> const & e, pos_info_provider const * p);
 
+/** \brief Provide a custom pretty printer for \c j */
+justification mk_wrapper(justification const & j, optional<expr> const & s, pp_jst_fn const & fn);
 /**
    \brief Combine the two given justifications into a new justification object, and use
    the given function to convert the justification into a format object.
@@ -120,6 +124,11 @@ inline justification mk_justification(expr const & s, pp_jst_sfn const & fn) {
     return mk_justification(some_expr(s), fn);
 }
 
+/**
+   \brief Return the child of a wrapper justification.
+   \pre j.is_composite()
+*/
+justification const & wrapper_child(justification const & j);
 /**
    \brief Return the first child of a composite justification.
    \pre j.is_composite()

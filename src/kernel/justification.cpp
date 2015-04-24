@@ -33,7 +33,7 @@ static approx_set mk_intersection(approx_set s1, approx_set s2) { return s1 & s2
 static approx_set mk_singleton(unsigned i) { return static_cast<uint64>(1) << (i % 64); }
 static approx_set may_contain(approx_set s, unsigned i) { return mk_intersection(s, mk_singleton(i)) != 0ull; }
 
-enum class justification_kind { Asserted, Composite, ExtComposite, Assumption, ExtAssumption };
+enum class justification_kind { Asserted, Composite, Wrapper, Assumption };
 
 approx_set get_approx_assumption_set(justification const & j);
 
@@ -49,10 +49,9 @@ struct justification_cell {
         g_hash_alloc_jst_counter++;
     }
     bool is_asserted() const { return m_kind == justification_kind::Asserted; }
-    bool is_assumption() const { return m_kind == justification_kind::Assumption || m_kind == justification_kind::ExtAssumption; }
-    bool is_composite() const { return m_kind == justification_kind::Composite || m_kind == justification_kind::ExtComposite; }
-    bool is_ext_assumption() const { return m_kind == justification_kind::ExtAssumption; }
-    bool is_ext_composite() const { return m_kind == justification_kind::ExtComposite; }
+    bool is_assumption() const { return m_kind == justification_kind::Assumption; }
+    bool is_composite() const { return m_kind == justification_kind::Composite; }
+    bool is_wrapper() const { return m_kind == justification_kind::Wrapper; }
 };
 
 struct asserted_cell : public justification_cell {
@@ -76,13 +75,13 @@ struct composite_cell : public justification_cell {
         composite_cell(justification_kind::Composite, j1, j2) {}
 };
 
-struct ext_composite_cell : public composite_cell {
+struct wrapper_cell : public justification_cell {
     pp_jst_fn      m_fn;
     optional<expr> m_expr;
-    ext_composite_cell(justification const & j1, justification const & j2, pp_jst_fn const & fn, optional<expr> const & e):
-        composite_cell(justification_kind::ExtComposite, j1, j2),
-        m_fn(fn),
-        m_expr(e) {}
+    justification  m_jst;
+    wrapper_cell(justification const & j, pp_jst_fn const & fn, optional<expr> const & e):
+        justification_cell(justification_kind::Wrapper),
+        m_fn(fn), m_expr(e), m_jst(j) {}
 };
 
 struct assumption_cell : public justification_cell {
@@ -93,20 +92,10 @@ struct assumption_cell : public justification_cell {
         assumption_cell(justification_kind::Assumption, idx) {}
 };
 
-struct ext_assumption_cell : public assumption_cell {
-    pp_jst_fn      m_fn;
-    optional<expr> m_expr;
-    ext_assumption_cell(unsigned idx, pp_jst_fn const & fn, optional<expr> const & e):
-        assumption_cell(justification_kind::ExtAssumption, idx),
-        m_fn(fn),
-        m_expr(e) {}
-};
-
 asserted_cell * to_asserted(justification_cell * j) { lean_assert(j && j->is_asserted()); return static_cast<asserted_cell*>(j); }
 assumption_cell * to_assumption(justification_cell * j) { lean_assert(j && j->is_assumption()); return static_cast<assumption_cell*>(j); }
-ext_assumption_cell * to_ext_assumption(justification_cell * j) { lean_assert(j && j->is_ext_assumption()); return static_cast<ext_assumption_cell*>(j); }
 composite_cell * to_composite(justification_cell * j) { lean_assert(j && j->is_composite()); return static_cast<composite_cell*>(j); }
-ext_composite_cell * to_ext_composite(justification_cell * j) { lean_assert(j && j->is_composite()); return static_cast<ext_composite_cell*>(j); }
+wrapper_cell * to_wrapper(justification_cell * j) { lean_assert(j && j->is_wrapper()); return static_cast<wrapper_cell*>(j); }
 
 approx_set get_approx_assumption_set(justification const & j) {
     justification_cell * it = j.raw();
@@ -115,19 +104,20 @@ approx_set get_approx_assumption_set(justification const & j) {
     switch (it->m_kind) {
     case justification_kind::Asserted:
         return mk_empty_set();
-    case justification_kind::Assumption: case justification_kind::ExtAssumption:
+    case justification_kind::Assumption:
         return mk_singleton(to_assumption(it)->m_idx);
-    case justification_kind::Composite: case justification_kind::ExtComposite:
+    case justification_kind::Composite:
         return to_composite(it)->m_assumption_set;
+    case justification_kind::Wrapper:
+        return get_approx_assumption_set(to_wrapper(it)->m_jst);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
 DEF_THREAD_MEMORY_POOL(get_asserted_allocator, sizeof(asserted_cell));
 DEF_THREAD_MEMORY_POOL(get_composite_allocator, sizeof(composite_cell));
-DEF_THREAD_MEMORY_POOL(get_ext_composite_allocator, sizeof(ext_composite_cell));
 DEF_THREAD_MEMORY_POOL(get_assumption_allocator, sizeof(assumption_cell));
-DEF_THREAD_MEMORY_POOL(get_ext_assumption_allocator, sizeof(ext_assumption_cell));
+DEF_THREAD_MEMORY_POOL(get_wrapper_allocator, sizeof(wrapper_cell));
 
 void justification_cell::dealloc() {
     switch (m_kind) {
@@ -139,17 +129,13 @@ void justification_cell::dealloc() {
         to_assumption(this)->~assumption_cell();
         get_assumption_allocator().recycle(this);
         break;
-    case justification_kind::ExtAssumption:
-        to_ext_assumption(this)->~ext_assumption_cell();
-        get_ext_assumption_allocator().recycle(this);
-        break;
     case justification_kind::Composite:
         to_composite(this)->~composite_cell();
         get_composite_allocator().recycle(this);
         break;
-    case justification_kind::ExtComposite:
-        to_ext_composite(this)->~ext_composite_cell();
-        get_ext_composite_allocator().recycle(this);
+    case justification_kind::Wrapper:
+        to_wrapper(this)->~wrapper_cell();
+        get_wrapper_allocator().recycle(this);
         break;
     }
 }
@@ -206,17 +192,23 @@ bool depends_on(justification const & j, unsigned i) {
         switch (curr->m_kind) {
         case justification_kind::Asserted:
             break;
-        case justification_kind::Assumption: case justification_kind::ExtAssumption:
+        case justification_kind::Assumption:
             if (to_assumption(curr)->m_idx == i)
                 return true;
             break;
-        case justification_kind::Composite: case justification_kind::ExtComposite:
+        case justification_kind::Composite:
             for (unsigned k = 0; k < 2; k++) {
                 justification c = to_composite(curr)->m_child[k];
                 if (!cache->visited(c.raw()) && may_contain(get_approx_assumption_set(c), i))
                     todo.push_back(c.raw());
             }
-        }
+            break;
+        case justification_kind::Wrapper: {
+            justification c = to_wrapper(curr)->m_jst;
+            if (!cache->visited(c.raw()) && may_contain(get_approx_assumption_set(c), i))
+                todo.push_back(c.raw());
+            break;
+        }}
     }
     return false;
 }
@@ -229,6 +221,11 @@ justification const & composite_child1(justification const & j) {
 justification const & composite_child2(justification const & j) {
     lean_assert(j.is_composite());
     return to_composite(j.raw())->m_child[1];
+}
+
+justification const & wrapper_child(justification const & j) {
+    lean_assert(j.is_wrapper());
+    return to_wrapper(j.raw())->m_jst;
 }
 
 unsigned assumption_idx(justification const & j) {
@@ -245,6 +242,7 @@ bool justification::is_none() const { return m_ptr == nullptr; }
 bool justification::is_asserted() const { return m_ptr && m_ptr->is_asserted(); }
 bool justification::is_assumption() const { return m_ptr && m_ptr->is_assumption(); }
 bool justification::is_composite() const { return m_ptr && m_ptr->is_composite(); }
+bool justification::is_wrapper() const { return m_ptr && m_ptr->is_wrapper(); }
 justification & justification::operator=(justification const & s) { LEAN_COPY_REF(s); }
 justification & justification::operator=(justification && s) { LEAN_MOVE_REF(s); }
 optional<expr> justification::get_main_expr() const {
@@ -255,15 +253,13 @@ optional<expr> justification::get_main_expr() const {
         switch (it->m_kind) {
         case justification_kind::Asserted:
             return to_asserted(it)->m_expr;
-        case justification_kind::ExtAssumption:
-            return to_ext_assumption(it)->m_expr;
-        case justification_kind::ExtComposite:
-            return to_ext_composite(it)->m_expr;
         case justification_kind::Assumption:
             return none_expr();
         case justification_kind::Composite:
             it = to_composite(it)->m_child[0].raw();
             break;
+        case justification_kind::Wrapper:
+            return to_wrapper(it)->m_expr;
         }
     }
 }
@@ -275,10 +271,8 @@ format justification::pp(formatter const & fmt, pos_info_provider const * p, sub
         switch (it->m_kind) {
         case justification_kind::Asserted:
             return to_asserted(it)->m_fn(fmt, p, s);
-        case justification_kind::ExtAssumption:
-            return to_ext_assumption(it)->m_fn(fmt, p, s);
-        case justification_kind::ExtComposite:
-            return to_ext_composite(it)->m_fn(fmt, p, s);
+        case justification_kind::Wrapper:
+            return to_wrapper(it)->m_fn(fmt, p, s);
         case justification_kind::Assumption:
             return format(format("Assumption "), format(to_assumption(it)->m_idx));
         case justification_kind::Composite:
@@ -288,12 +282,11 @@ format justification::pp(formatter const & fmt, pos_info_provider const * p, sub
     }
 }
 
+justification mk_wrapper(justification const & j, optional<expr> const & s, pp_jst_fn const & fn) {
+    return justification(new (get_wrapper_allocator().allocate()) wrapper_cell(j, fn, s));
+}
 justification mk_composite(justification const & j1, justification const & j2, optional<expr> const & s, pp_jst_fn const & fn) {
-    if (j1.is_none())
-        return j2;
-    if (j2.is_none())
-        return j1;
-    return justification(new (get_ext_composite_allocator().allocate()) ext_composite_cell(j1, j2, fn, s));
+    return mk_wrapper(mk_composite1(j1, j2), s, fn);
 }
 justification mk_composite1(justification const & j1, justification const & j2) {
     if (j1.is_none() || j1.raw() == j2.raw())
@@ -303,7 +296,7 @@ justification mk_composite1(justification const & j1, justification const & j2) 
     return justification(new (get_composite_allocator().allocate()) composite_cell(j1, j2));
 }
 justification mk_assumption_justification(unsigned idx, optional<expr> const & s, pp_jst_fn const & fn) {
-    return justification(new (get_ext_assumption_allocator().allocate()) ext_assumption_cell(idx, fn, s));
+    return mk_wrapper(mk_assumption_justification(idx), s, fn);
 }
 justification mk_assumption_justification(unsigned idx) {
     return justification(new (get_assumption_allocator().allocate()) assumption_cell(idx));
@@ -333,6 +326,8 @@ std::ostream & operator<<(std::ostream & out, justification const & j) {
         out << "(assumption " << assumption_idx(j) << ")";
     } else if (j.is_composite()) {
         out << "(join " << composite_child1(j) << " " << composite_child2(j) << ")";
+    } else if (j.is_wrapper()) {
+        out << "(wrapper " << wrapper_child(j) << ")";
     } else {
         out << "unexpected";
     }

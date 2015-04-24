@@ -37,6 +37,8 @@ void collect_assumptions(justification const & j, buffer<unsigned> & r) {
         } else if (j.is_composite()) {
             todo.push_back(composite_child1(j));
             todo.push_back(composite_child2(j));
+        } else if (j.is_wrapper()) {
+            todo.push_back(wrapper_child(j));
         }
     }
 }

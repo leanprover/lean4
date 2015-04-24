@@ -387,6 +387,51 @@ expr mk_rewrite_tactic_expr(buffer<expr> const & elems) {
     return mk_app(*g_rewrite_tac, mk_expr_list(elems.size(), elems.data()));
 }
 
+/**
+   \brief make sure hypothesis h occur after hs (if possible).
+   This procedure assumes that all hypotheses in \c hs occur in g, and it has no duplicates.
+
+   \remark It stores the solution for goal \c g into \c s.
+*/
+optional<goal> move_after(name_generator & ngen, goal const & g, name const & h, buffer<name> const & hs, substitution & s) {
+    if (hs.empty())
+        return optional<goal>(g); // nothing to be done
+    buffer<expr> hyps;
+    buffer<expr> new_hyps;
+    buffer<expr> to_move;
+    g.get_hyps(hyps);
+    unsigned num_found = 0;
+    for (unsigned i = 0; i < hyps.size(); i++) {
+        expr const & h_2 = hyps[i];
+        if (std::any_of(hs.begin(), hs.end(), [&](name const & n) { return mlocal_name(h_2) == n; })) {
+            if (depends_on(to_move.size(), to_move.begin(), mlocal_type(h_2)))
+                return optional<goal>(); // can't move
+            num_found++;
+            new_hyps.push_back(h_2);
+            if (hs.size() == num_found) {
+                if (to_move.empty())
+                    return optional<goal>(g); // h already occurs after hs
+                new_hyps.append(to_move);
+                new_hyps.append(hyps.size() - i - 1, hyps.begin() + i + 1);
+                expr new_type = g.get_type();
+                expr new_mvar = mk_metavar(ngen.next(), Pi(new_hyps, new_type));
+                expr new_meta = mk_app(new_mvar, new_hyps);
+                goal new_g(new_meta, new_type);
+                assign(s, g, new_meta);
+                return optional<goal>(new_g);
+            }
+        } else if (mlocal_name(h_2) == h) {
+            lean_assert(to_move.empty());
+            to_move.push_back(h_2);
+        } else if (depends_on(to_move.size(), to_move.begin(), mlocal_type(h_2))) {
+            to_move.push_back(h_2);
+        } else {
+            new_hyps.push_back(h_2);
+        }
+    }
+    return optional<goal>();
+}
+
 class rewrite_match_plugin : public match_plugin {
 #ifdef TRACE_MATCH_PLUGIN
     io_state       m_ios;
@@ -1111,6 +1156,19 @@ class rewrite_fn {
         return result;
     }
 
+    bool move_after(expr const & hyp, expr_struct_set const & hyps) {
+        buffer<name> used_hyp_names;
+        for (auto const & p : hyps) {
+            used_hyp_names.push_back(mlocal_name(p));
+        }
+        if (auto new_g = ::lean::move_after(m_ngen, m_g, mlocal_name(hyp), used_hyp_names, m_subst)) {
+            m_g = *new_g;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     bool process_rewrite_hypothesis(expr const & hyp, expr const & orig_elem, expr const & pattern, occurrence const & occ) {
         add_target(hyp, true);
         expr Pa = mlocal_type(hyp);
@@ -1118,7 +1176,11 @@ class rewrite_fn {
         if (auto it = find_target(Pa, pattern, orig_elem, is_goal)) {
             expr a, Heq, b; // Heq is a proof of a = b
             std::tie(a, b, Heq) = *it;
-
+            // We must make sure that hyp occurs after all hypotheses in b
+            expr_struct_set b_hyps;
+            collect_locals(b, b_hyps);
+            if (!move_after(hyp, b_hyps))
+                return false;
             bool has_dep_elim = inductive::has_dep_elim(m_env, get_eq_name());
             unsigned vidx = has_dep_elim ? 1 : 0;
             expr Px  = replace_occurrences(Pa, a, occ, vidx);

@@ -13,13 +13,13 @@ Syntax declarations:
 
 Datatypes and logic:
 
-* [datatypes](datatypes.hlean)
 * [logic](logic.hlean)
+* [datatypes](datatypes.hlean) (declaration of common types)
 * [bool](bool.hlean)
 * [num](num.hlean)
 * [nat](nat.hlean)
 * [function](function.hlean)
-* [types](types/types.md) (subfolder)
+* [types](types.hlean) (notation and some theorems for the remaining basic types)
 
 HoTT basics:
 
@@ -27,7 +27,8 @@ HoTT basics:
 * [hedberg](hedberg.hlean)
 * [trunc](trunc.hlean)
 * [equiv](equiv.hlean)
-* [axioms](axioms/axioms.md) (subfolder)
+* [ua](ua.hlean) (declaration of the univalence axiom, and some basic properties)
+* [funext](funext.hlean) (proof of equivalence of certain notions of function exensionality, and a proof that function extensionality follows from univalence)
 
 Support for well-founded recursion and automation:
 
@@ -38,4 +39,3 @@ Support for well-founded recursion and automation:
 The default import:
 
 * [default](default.hlean)
-

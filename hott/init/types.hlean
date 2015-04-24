@@ -1,20 +1,73 @@
 /-
-Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Copyright (c) 2014-2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Module: init.types.prod
-Author: Leonardo de Moura, Jeremy Avigad
+Module: init.types
+Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn, Jakob von Raumer
 -/
 
 prelude
-import ..wf ..num
+import .logic .num .wf
+
+-- Empty type
+-- ----------
+
+namespace empty
+
+  protected theorem elim (A : Type) (H : empty) : A :=
+  empty.rec (λe, A) H
+
+end empty
+
+protected definition empty.has_decidable_eq [instance] : decidable_eq empty :=
+take (a b : empty), decidable.inl (!empty.elim a)
+
+-- Unit type
+-- ---------
+
+namespace unit
+
+  notation `⋆` := star
+
+end unit
+
+-- Sigma type
+-- ----------
+
+notation `Σ` binders `,` r:(scoped P, sigma P) := r
+
+namespace sigma
+  notation `⟨`:max t:(foldr `,` (e r, mk e r)) `⟩`:0 := t --input ⟨ ⟩ as \< \>
+
+  namespace ops
+  postfix `.1`:(max+1) := pr1
+  postfix `.2`:(max+1) := pr2
+  abbreviation pr₁ := @pr1
+  abbreviation pr₂ := @pr2
+  end ops
+end sigma
+
+-- Sum type
+-- --------
+
+namespace sum
+  infixr ⊎ := sum
+  infixr + := sum
+  namespace low_precedence_plus
+    reserve infixr `+`:25  -- conflicts with notation for addition
+    infixr `+` := sum
+  end low_precedence_plus
+end sum
+
+-- Product type
+-- ------------
 
 definition pair := @prod.mk
 
 namespace prod
 
-  notation A * B := prod A B
-  notation A × B := prod A B
+  infixr * := prod
+  infixr × := prod
 
   namespace ops
   postfix `.1`:(max+1) := pr1
@@ -30,7 +83,6 @@ namespace prod
 
   end low_precedence_times
 
-  -- TODO: add lemmas about flip to hott/types/prod.hlean
   definition flip {A B : Type} (a : A × B) : B × A := pair (pr2 a) (pr1 a)
 
   notation `pr₁` := pr1

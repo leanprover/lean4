@@ -7,7 +7,7 @@ Authors: Floris van Doorn, Leonardo de Moura
 -/
 
 prelude
-import init.wf init.tactic init.hedberg init.util init.types.sum
+import init.wf init.tactic init.hedberg init.util init.types
 
 open eq.ops decidable sum
 

@@ -7,7 +7,7 @@ Authors: Leonardo de Moura
 -/
 
 prelude
-import init.datatypes init.reserved_notation
+import init.reserved_notation
 
 namespace bool
   definition cond {A : Type} (b : bool) (t e : A) :=

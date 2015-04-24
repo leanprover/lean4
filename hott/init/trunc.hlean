@@ -11,7 +11,7 @@ TODO: can we replace some definitions with a hprop as codomain by theorems?
 -/
 
 prelude
-import .logic .equiv .types.empty .types.sigma
+import .logic .equiv .types
 open eq nat sigma unit
 
 namespace is_trunc

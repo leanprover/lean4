@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/local_context.h"
 #include "library/unifier.h"
+#include "library/locals.h"
 #include "library/constants.h"
 #include "library/generic_exception.h"
 #include "library/tactic/rewrite_tactic.h"
@@ -1201,10 +1202,17 @@ class rewrite_fn {
         location const & loc      = info.get_location();
         if (loc.is_goal_only())
             return process_rewrite_goal(orig_elem, pattern, *loc.includes_goal());
+        expr_struct_set used_hyps;
+        collect_locals(orig_elem, used_hyps);
+        // We collect hypotheses used in the rewrite step. They are not rewritten.
+        // That is, we don't use them to rewrite themselves.
+        // We need to do that to avoid the problem described on issue #548.
         bool progress = false;
         buffer<expr> hyps;
         m_g.get_hyps(hyps);
         for (expr const & h : hyps) {
+            if (used_hyps.find(h) != used_hyps.end())
+                continue; // skip used hypothesis
             auto occ = loc.includes_hypothesis(local_pp_name(h));
             if (!occ)
                 continue;

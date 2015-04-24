@@ -1100,14 +1100,38 @@ expr elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
     optional<expr> first_eq;
     for (expr const & eq : eqs) {
         expr new_eq;
+        constraint_seq new_cs;
+        buffer<expr> fns_locals;
+        fun_to_telescope(m_ngen, eq, fns_locals, optional<binder_info>());
+        list<expr> locals = to_list(fns_locals.begin() + num_fns, fns_locals.end());
         if (first_eq) {
             // Replace first num_fns domains of eq with the ones in first_eq.
             // This is a trick/hack to ensure the fns in each equation have
             // the same elaborated type.
-            new_eq = visit(copy_domain(num_fns, *first_eq, eq), cs);
+            new_eq = visit(copy_domain(num_fns, *first_eq, eq), new_cs);
         } else {
-            new_eq = visit(eq, cs);
+            new_eq = visit(eq, new_cs);
             first_eq = new_eq;
+        }
+        // To produce more helpful error messages, we decorate all
+        // justifications created when processing eq with the list of local variables declared in the
+        // left-hand-side of the equation.
+        buffer<constraint> tmp_cs;
+        new_cs.linearize(tmp_cs);
+        for (constraint const & c : tmp_cs) {
+            justification j = c.get_justification();
+            auto pp_fn      = [=](formatter const & fmt, pos_info_provider const * pp, substitution const & s) {
+                format r = j.pp(fmt, pp, s);
+                r += compose(line(), format("The following identifier(s) are introduced as free variables by the "
+                                            "left-hand-side of the equation:"));
+                format aux;
+                for (expr const & l : locals)
+                    aux += compose(format(local_pp_name(l)), space());
+                r += nest(get_pp_indent(fmt.get_options()), compose(line(), aux));
+                return r;
+            };
+            justification new_j = mk_wrapper(j, j.get_main_expr(), pp_fn);
+            cs += update_justification(c, new_j);
         }
         new_eqs.push_back(new_eq);
     }

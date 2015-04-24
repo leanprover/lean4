@@ -1,0 +1,6 @@
+528.lean:6:5: error: type mismatch at definition 'match', has type
+  P bool.ff
+but is expected to have type
+  P bool.tt
+The following identifier(s) are introduced as free variables by the left-hand-side of the equation:
+  ff 

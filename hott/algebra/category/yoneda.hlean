@@ -2,16 +2,15 @@
 Copyright (c) 2015 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Module: algebra.precategory.yoneda
+Module: algebra.category.yoneda
 Authors: Floris van Doorn
 -/
 
 --note: modify definition in category.set
-import algebra.category.constructions .iso
+import .constructions.functor .constructions.hset .constructions.product .constructions.opposite
 
 open category eq category.ops functor prod.ops is_trunc iso
 
-set_option pp.beta true
 namespace yoneda
   set_option class.conservative false
 

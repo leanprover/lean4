@@ -1,17 +1,30 @@
 /-
-Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Copyright (c) 2015 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Module: algebra.category.constructions
-Authors: Floris van Doorn
+Module: algebra.category.constructions.hset
+Authors: Floris van Doorn, Jakob von Raumer
+
+Category of hsets
 -/
 
-import .basic algebra.precategory.constructions types.equiv types.trunc
+import ..category types.equiv
 
---open eq eq.ops equiv category.ops iso category is_trunc
-open eq category equiv iso is_equiv category.ops is_trunc iso.iso function sigma
+--open eq is_trunc sigma equiv iso is_equiv
+open eq category equiv iso is_equiv is_trunc function sigma
 
 namespace category
+
+  definition precategory_hset [reducible] : precategory hset :=
+  precategory.mk (λx y : hset, x → y)
+                 (λx y z g f a, g (f a))
+                 (λx a, a)
+                 (λx y z w h g f, eq_of_homotopy (λa, idp))
+                 (λx y f, eq_of_homotopy (λa, idp))
+                 (λx y f, eq_of_homotopy (λa, idp))
+
+  definition Precategory_hset [reducible] : Precategory :=
+  Precategory.mk hset precategory_hset
 
   namespace set
     local attribute is_equiv_subtype_eq [instance]
@@ -70,75 +83,13 @@ namespace category
         !univalence)
       !is_equiv_iso_of_equiv,
     (iso_of_eq_eq_compose A B)⁻¹ ▹ H
-
   end set
 
   definition category_hset [reducible] [instance] : category hset :=
-  category.mk' hset precategory_hset set.is_univalent_hset
+  category.mk precategory_hset set.is_univalent_hset
 
   definition Category_hset [reducible] : Category :=
   Category.mk hset category_hset
 
-  namespace ops
-    abbreviation set := Category_hset
-  end ops
-
-  section functor
-    open functor nat_trans
-
-    variables {C : Precategory} {D : Category} {F G : D ^c C}
-    definition eq_of_iso_functor_ob (η : F ≅ G) (c : C) : F c = G c :=
-    by apply eq_of_iso; apply componentwise_iso; exact η
-
-    local attribute functor.to_fun_hom [quasireducible]
-    definition eq_of_iso_functor (η : F ≅ G) : F = G :=
-    begin
-    fapply functor_eq,
-      {exact (eq_of_iso_functor_ob η)},
-      {intros [c, c', f], --unfold eq_of_iso_functor_ob, --TODO: report: this fails
-        apply concat,
-          {apply (ap (λx, to_hom x ∘ to_fun_hom F f ∘ _)), apply (retr iso_of_eq)},
-        apply concat,
-          {apply (ap (λx, _ ∘ to_fun_hom F f ∘ (to_hom x)⁻¹)), apply (retr iso_of_eq)},
-        apply inverse, apply naturality_iso}
-    end
-
-    definition iso_of_eq_eq_of_iso_functor (η : F ≅ G) : iso_of_eq (eq_of_iso_functor η) = η :=
-    begin
-    apply iso.eq_mk,
-    apply nat_trans_eq_mk,
-    intro c,
-    rewrite natural_map_hom_of_eq, esimp [eq_of_iso_functor],
-    rewrite ap010_functor_eq, esimp [hom_of_eq,eq_of_iso_functor_ob],
-    rewrite (retr iso_of_eq),
-    end
-
-    definition eq_of_iso_functor_iso_of_eq (p : F = G) : eq_of_iso_functor (iso_of_eq p) = p :=
-    begin
-    apply functor_eq2,
-    intro c,
-    esimp [eq_of_iso_functor],
-    rewrite ap010_functor_eq,
-    esimp [eq_of_iso_functor_ob],
-    rewrite componentwise_iso_iso_of_eq,
-    rewrite (sect iso_of_eq)
-    end
-
-    definition is_univalent_functor (D : Category) (C : Precategory) : is_univalent (D ^c C) :=
-    λF G, adjointify _ eq_of_iso_functor
-                       iso_of_eq_eq_of_iso_functor
-                       eq_of_iso_functor_iso_of_eq
-
-  end functor
-
-  definition Category_functor_of_precategory (D : Category) (C : Precategory) : Category :=
-  category.MK (D ^c C) (is_univalent_functor D C)
-
-  definition Category_functor (D : Category) (C : Category) : Category :=
-  Category_functor_of_precategory D C
-
-  namespace ops
-    infixr `^c2`:35 := Category_functor
-  end ops
-
+  abbreviation set := Category_hset
 end category

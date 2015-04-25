@@ -2,11 +2,11 @@
 Copyright (c) 2015 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Module: algebra.precategory.functor
+Module: algebra.category.functor
 Authors: Floris van Doorn, Jakob von Raumer
 -/
 
-import .basic types.pi .iso
+import .iso types.pi
 
 open function category eq prod equiv is_equiv sigma sigma.ops is_trunc funext iso
 open pi
@@ -153,7 +153,7 @@ namespace functor
     local attribute precategory.is_hset_hom [priority 1001]
     protected theorem is_hset_functor [instance]
       [HD : is_hset D] : is_hset (functor C D) :=
-    by apply is_trunc_equiv_closed; apply sigma_char
+    by apply is_trunc_equiv_closed; apply functor.sigma_char
   end
 
   definition functor_mk_eq'_idp (F : C → D) (H : Π(a b : C), hom a b → hom (F a) (F b))

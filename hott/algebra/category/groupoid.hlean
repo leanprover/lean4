@@ -2,13 +2,13 @@
 Copyright (c) 2014 Jakob von Raumer. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Module: algebra.groupoid
+Module: algebra.category.groupoid
 Author: Jakob von Raumer
 
 Ported from Coq HoTT
 -/
 
-import .precategory.iso .group
+import .iso ..group
 
 open eq is_trunc iso category path_algebra nat unit
 

@@ -2,15 +2,13 @@
 Copyright (c) 2015 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Module: algebra.precategory.iso
+Module: algebra.category.iso
 Author: Floris van Doorn, Jakob von Raumer
 -/
 
-import algebra.precategory.basic types.sigma arity
+import .precategory types.sigma arity
 
 open eq category prod equiv is_equiv sigma sigma.ops is_trunc
-
-
 
 namespace iso
   structure split_mono [class] {ob : Type} [C : precategory ob] {a b : ob} (f : a ⟶ b) :=
@@ -113,20 +111,6 @@ namespace iso
     [Hf : is_iso f] [Hg : is_iso g] : is_iso (g ∘ f) :=
   !is_iso_of_split_epi_of_split_mono
 
-  -- "is_iso f" is equivalent to a certain sigma type
-  -- definition is_iso.sigma_char (f : hom a b) :
-  --   (Σ (g : hom b a), (g ∘ f = id) × (f ∘ g = id)) ≃ is_iso f :=
-  -- begin
-  --   fapply equiv.MK,
-  --     {intro S, apply is_iso.mk,
-  --       exact (pr₁ S.2),
-  --       exact (pr₂ S.2)},
-  --     {intro H, cases H with (g, η, ε),
-  --        exact (sigma.mk g (pair η ε))},
-  --     {intro H, cases H, apply idp},
-  --     {intro S, cases S with (g, ηε), cases ηε, apply idp},
-  -- end
-
   definition is_hprop_is_iso [instance] (f : hom a b) : is_hprop (is_iso f) :=
   begin
     apply is_hprop.mk, intros [H, H'],
@@ -138,52 +122,55 @@ namespace iso
       apply is_hprop.elim,
       apply is_hprop.elim,
   end
+end iso open iso
 
-  /- iso objects -/
-  structure iso (a b : ob) :=
-    (to_hom : hom a b)
-    [struct : is_iso to_hom]
+/- isomorphic objects -/
+structure iso {ob : Type} [C : precategory ob] (a b : ob) :=
+  (to_hom : hom a b)
+  [struct : is_iso to_hom]
 
-  infix `≅`:50 := iso.iso
+namespace iso
+  variables {ob : Type} [C : precategory ob]
+  variables {a b c : ob} {g : b ⟶ c} {f : a ⟶ b} {h : b ⟶ a}
+  include C
+
+  infix `≅`:50 := iso
   attribute iso.struct [instance] [priority 400]
 
-  namespace iso
-    attribute to_hom [coercion]
+  attribute to_hom [coercion]
 
-    protected definition MK (f : a ⟶ b) (g : b ⟶ a) (H1 : g ∘ f = id) (H2 : f ∘ g = id) :=
-    @mk _ _ _ _ f (is_iso.mk H1 H2)
+  protected definition MK (f : a ⟶ b) (g : b ⟶ a) (H1 : g ∘ f = id) (H2 : f ∘ g = id) :=
+  @mk _ _ _ _ f (is_iso.mk H1 H2)
 
-    definition to_inv (f : a ≅ b) : b ⟶ a :=
-    (to_hom f)⁻¹
+  definition to_inv (f : a ≅ b) : b ⟶ a :=
+  (to_hom f)⁻¹
 
-    protected definition refl (a : ob) : a ≅ a :=
-    mk (ID a)
+  protected definition refl (a : ob) : a ≅ a :=
+  mk (ID a)
 
-    protected definition symm ⦃a b : ob⦄ (H : a ≅ b) : b ≅ a :=
-    mk (to_hom H)⁻¹
+  protected definition symm ⦃a b : ob⦄ (H : a ≅ b) : b ≅ a :=
+  mk (to_hom H)⁻¹
 
-    protected definition trans ⦃a b c : ob⦄ (H1 : a ≅ b) (H2 : b ≅ c) : a ≅ c :=
-    mk (to_hom H2 ∘ to_hom H1)
+  protected definition trans ⦃a b c : ob⦄ (H1 : a ≅ b) (H2 : b ≅ c) : a ≅ c :=
+  mk (to_hom H2 ∘ to_hom H1)
 
-    protected definition eq_mk' {f f' : a ⟶ b} [H : is_iso f] [H' : is_iso f'] (p : f = f')
-        : iso.mk f = iso.mk f' :=
-    apd011 iso.mk p !is_hprop.elim
+  protected definition eq_mk' {f f' : a ⟶ b} [H : is_iso f] [H' : is_iso f'] (p : f = f')
+      : iso.mk f = iso.mk f' :=
+  apd011 iso.mk p !is_hprop.elim
 
-    protected definition eq_mk {f f' : a ≅ b} (p : to_hom f = to_hom f') : f = f' :=
-    by (cases f; cases f'; apply (iso.eq_mk' p))
+  protected definition eq_mk {f f' : a ≅ b} (p : to_hom f = to_hom f') : f = f' :=
+  by (cases f; cases f'; apply (iso.eq_mk' p))
 
-    -- The structure for isomorphism can be characterized up to equivalence by a sigma type.
-    definition sigma_char ⦃a b : ob⦄ : (Σ (f : hom a b), is_iso f) ≃ (a ≅ b) :=
-    begin
-      fapply (equiv.mk),
-        {intro S, apply iso.mk, apply (S.2)},
-        {fapply adjointify,
-          {intro p, cases p with [f, H], exact (sigma.mk f H)},
-          {intro p, cases p, apply idp},
-          {intro S, cases S, apply idp}},
-    end
-
-  end iso
+  -- The structure for isomorphism can be characterized up to equivalence by a sigma type.
+  protected definition sigma_char ⦃a b : ob⦄ : (Σ (f : hom a b), is_iso f) ≃ (a ≅ b) :=
+  begin
+    fapply (equiv.mk),
+      {intro S, apply iso.mk, apply (S.2)},
+      {fapply adjointify,
+        {intro p, cases p with [f, H], exact (sigma.mk f H)},
+        {intro p, cases p, apply idp},
+        {intro S, cases S, apply idp}},
+  end
 
   -- The type of isomorphisms between two objects is a set
   definition is_hset_iso [instance] : is_hset (a ≅ b) :=

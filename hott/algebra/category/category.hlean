@@ -2,11 +2,11 @@
 Copyright (c) 2014 Jakob von Raumer. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Module: algebra.category.basic
+Module: algebra.category.category
 Author: Jakob von Raumer
 -/
 
-import algebra.precategory.iso
+import .iso
 
 open iso is_equiv eq is_trunc
 
@@ -18,15 +18,15 @@ namespace category
   Π(a b : ob), is_equiv (@iso_of_eq ob C a b)
 
   structure category [class] (ob : Type) extends parent : precategory ob :=
-    (iso_of_path_equiv : is_univalent parent)
+  mk' :: (iso_of_path_equiv : is_univalent parent)
 
   attribute category [multiple-instances]
 
   abbreviation iso_of_path_equiv := @category.iso_of_path_equiv
 
-  definition category.mk' [reducible] (ob : Type) (C : precategory ob)
-    (H : Π (a b : ob), is_equiv (@iso_of_eq ob C a b)) : category ob :=
-  precategory.rec_on C category.mk H
+  definition category.mk [reducible] {ob : Type} (C : precategory ob)
+    (H : Π (a b : ob), is_equiv (iso_of_eq : a = b → a ≅ b)) : category ob :=
+  precategory.rec_on C category.mk' H
 
   section basic
   variables {ob : Type} [C : category ob]
@@ -61,7 +61,7 @@ namespace category
 
   definition category.Mk [reducible] := Category.mk
   definition category.MK [reducible] (C : Precategory)
-    (H : is_univalent C) : Category := Category.mk C (category.mk' C C H)
+    (H : is_univalent C) : Category := Category.mk C (category.mk C H)
 
   definition Category.eta (C : Category) : Category.mk C C = C :=
   Category.rec (λob c, idp) C

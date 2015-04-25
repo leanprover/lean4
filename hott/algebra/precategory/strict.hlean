@@ -34,12 +34,11 @@ namespace category
 
   definition precat_strict_precat : precategory Strict_precategory :=
   precategory.mk (λ a b, functor a b)
-     (λ a b, @functor.is_hset_functor a b _)
-     (λ a b c g f, functor.compose g f)
-     (λ a, functor.id)
-     (λ a b c d h g f, !functor.assoc)
-     (λ a b f, !functor.id_left)
-     (λ a b f, !functor.id_right)
+                 (λ a b c g f, functor.compose g f)
+                 (λ a, functor.id)
+                 (λ a b c d h g f, !functor.assoc)
+                 (λ a b f, !functor.id_left)
+                 (λ a b f, !functor.id_right)
 
   definition Precat_of_strict_precats := precategory.Mk precat_strict_precat
 

@@ -17,13 +17,15 @@ namespace category
   namespace opposite
 
   definition opposite [reducible] {ob : Type} (C : precategory ob) : precategory ob :=
-  precategory.mk (λ a b, hom b a)
-                 (λ a b, !homH)
-                 (λ a b c f g, g ∘ f)
-                 (λ a, id)
-                 (λ a b c d f g h, !assoc⁻¹)
-                 (λ a b f, !id_right)
-                 (λ a b f, !id_left)
+  precategory.mk' (λ a b, hom b a)
+                  (λ a b c f g, g ∘ f)
+                  (λ a, id)
+                  (λ a b c d f g h, !assoc')
+                  (λ a b c d f g h, !assoc)
+                  (λ a b f, !id_right)
+                  (λ a b f, !id_left)
+                  (λ a, !id_id)
+                  (λ a b, !is_hset_hom)
 
   definition Opposite [reducible] (C : Precategory) : Precategory := precategory.Mk (opposite C)
 
@@ -31,22 +33,10 @@ namespace category
 
   variables {C : Precategory} {a b c : C}
 
-  set_option apply.class_instance false -- disable class instance resolution in the apply tactic
-
   definition compose_op {f : hom a b} {g : hom b c} : f ∘op g = g ∘ f := idp
 
-  -- TODO: Decide whether just to use funext for this theorem or
-  --       take the trick they use in Coq-HoTT, and introduce a further
-  --       axiom in the definition of precategories that provides thee
-  --       symmetric associativity proof.
   definition opposite_opposite' {ob : Type} (C : precategory ob) : opposite (opposite C) = C :=
-  begin
-    apply (precategory.rec_on C), intros [hom', homH', comp', ID', assoc', id_left', id_right'],
-    apply (ap (λassoc'', precategory.mk hom' @homH' comp' ID' assoc'' id_left' id_right')),
-    repeat (apply eq_of_homotopy ; intros ),
-    apply ap,
-    apply (@is_hset.elim), apply !homH',
-  end
+  by cases C; apply idp
 
   definition opposite_opposite : Opposite (Opposite C) = C :=
   (ap (Precategory.mk C) (opposite_opposite' C)) ⬝ !Precategory.eta
@@ -94,7 +84,6 @@ namespace category
   definition precategory_prod [reducible] {obC obD : Type} (C : precategory obC) (D : precategory obD)
       : precategory (obC × obD) :=
   precategory.mk (λ a b, hom (pr1 a) (pr1 b) × hom (pr2 a) (pr2 b))
-                 (λ a b, !is_trunc_prod)
                  (λ a b c g f, (pr1 g ∘ pr1 f , pr2 g ∘ pr2 f))
                  (λ a, (id, id))
                  (λ a b c d h g f, pair_eq  !assoc    !assoc   )
@@ -141,7 +130,6 @@ namespace category
 
   definition precategory_hset [reducible] : precategory hset :=
   precategory.mk (λx y : hset, x → y)
-                 _
                  (λx y z g f a, g (f a))
                  (λx a, a)
                  (λx y z w h g f, eq_of_homotopy (λa, idp))
@@ -156,7 +144,6 @@ namespace category
     definition precategory_functor [instance] [reducible] (D C : Precategory)
       : precategory (functor C D) :=
     precategory.mk (λa b, nat_trans a b)
-                   (λ a b, @is_hset_nat_trans C D a b)
                    (λ a b c g f, nat_trans.compose g f)
                    (λ a, nat_trans.id)
                    (λ a b c d h g f, !nat_trans.assoc)
@@ -228,12 +215,12 @@ namespace category
     definition naturality_iso {c c' : C} (f : c ⟶ c') : G f = η c' ∘ F f ∘ (η c)⁻¹ :=
     calc
       G f = (G f ∘ η c) ∘ (η c)⁻¹ : comp_inverse_cancel_right
-      ... = (η c' ∘ F f) ∘ (η c)⁻¹ : {naturality η f}
+      ... = (η c' ∘ F f) ∘ (η c)⁻¹ : by rewrite naturality
       ... = η c' ∘ F f ∘ (η c)⁻¹ : assoc
 
     definition naturality_iso' {c c' : C} (f : c ⟶ c') : (η c')⁻¹ ∘ G f ∘ η c = F f :=
     calc
-     (η c')⁻¹ ∘ G f ∘ η c = (η c')⁻¹ ∘ η c' ∘ F f : {naturality η f}
+     (η c')⁻¹ ∘ G f ∘ η c = (η c')⁻¹ ∘ η c' ∘ F f : by rewrite naturality
        ... = F f : inverse_comp_cancel_left
 
     omit isoη
@@ -243,7 +230,7 @@ namespace category
                     (@componentwise_is_iso _ _ _ _ (to_hom η) (struct η) c)
 
     definition componentwise_iso_id (c : C) : componentwise_iso (iso.refl F) c = iso.refl (F c) :=
-    iso.eq_mk (idpath id)
+    iso.eq_mk (idpath (ID (F c)))
 
     definition componentwise_iso_iso_of_eq (p : F = G) (c : C)
       : componentwise_iso (iso_of_eq p) c = iso_of_eq (ap010 to_fun_ob p c) :=

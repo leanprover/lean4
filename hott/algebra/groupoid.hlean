@@ -15,27 +15,29 @@ open eq is_trunc iso category path_algebra nat unit
 namespace category
 
   structure groupoid [class] (ob : Type) extends parent : precategory ob :=
-   (all_iso : Π ⦃a b : ob⦄ (f : hom a b), @is_iso ob parent a b f)
+  mk' :: (all_iso : Π ⦃a b : ob⦄ (f : hom a b), @is_iso ob parent a b f)
 
   abbreviation all_iso := @groupoid.all_iso
   attribute groupoid.all_iso [instance] [priority 100000]
 
-  definition groupoid.mk' [reducible] (ob : Type) (C : precategory ob)
+  definition groupoid.mk [reducible] {ob : Type} (C : precategory ob)
     (H : Π (a b : ob) (f : a ⟶ b), is_iso f) : groupoid ob :=
-  precategory.rec_on C groupoid.mk H
+  precategory.rec_on C groupoid.mk' H
 
-  definition groupoid_of_1_type.{l} (A : Type.{l})
-      [H : is_trunc 1 A] : groupoid.{l l} A :=
-  groupoid.mk
+  definition precategory_of_1_type.{l} (A : Type.{l})
+      [H : is_trunc 1 A] : precategory.{l l} A :=
+  precategory.mk
     (λ (a b : A), a = b)
-    (λ (a b : A), have ish : is_hset (a = b), from is_trunc_eq nat.zero a b, ish)
     (λ (a b c : A) (p : b = c) (q : a = b), q ⬝ p)
     (λ (a : A), refl a)
     (λ (a b c d : A) (p : c = d) (q : b = c) (r : a = b), con.assoc r q p)
     (λ (a b : A) (p : a = b), con_idp p)
     (λ (a b : A) (p : a = b), idp_con p)
-    (λ (a b : A) (p : a = b), @is_iso.mk A _ a b p p⁻¹
-      !con.right_inv !con.left_inv)
+
+  definition groupoid_of_1_type.{l} (A : Type.{l})
+      [H : is_trunc 1 A] : groupoid.{l l} A :=
+  groupoid.mk !precategory_of_1_type
+              (λ (a b : A) (p : a = b), is_iso.mk !con.right_inv !con.left_inv)
 
   -- A groupoid with a contractible carrier is a group
   definition group_of_is_contr_groupoid {ob : Type} [H : is_contr ob]
@@ -43,7 +45,7 @@ namespace category
   begin
     fapply group.mk,
       intros [f, g], apply (comp f g),
-      apply homH,
+      apply is_hset_hom,
       intros [f, g, h], apply (assoc f g h)⁻¹,
       apply (ID (center ob)),
       intro f, apply id_left,
@@ -56,7 +58,7 @@ namespace category
   begin
     fapply group.mk,
       intros [f, g], apply (comp f g),
-      apply homH,
+      apply is_hset_hom,
       intros [f, g, h], apply (assoc f g h)⁻¹,
       apply (ID ⋆),
       intro f, apply id_left,
@@ -68,7 +70,7 @@ namespace category
   -- Conversely we can turn each group into a groupoid on the unit type
   definition groupoid_of_group.{l} (A : Type.{l}) [G : group A] : groupoid.{l l} unit :=
   begin
-    fapply groupoid.mk,
+    fapply groupoid.mk, fapply precategory.mk,
       intros, exact A,
       intros, apply (@group.carrier_hset A G),
       intros [a, b, c, g, h], exact (@group.mul A G g h),
@@ -76,7 +78,7 @@ namespace category
       intros, exact (@group.mul_assoc A G h g f)⁻¹,
       intros, exact (@group.one_mul A G f),
       intros, exact (@group.mul_one A G f),
-      intros, apply is_iso.mk,
+      intros, esimp [precategory.mk], apply is_iso.mk,
         apply mul_left_inv,
         apply mul_right_inv,
   end
@@ -86,7 +88,7 @@ namespace category
   begin
     fapply group.mk,
       intros [f, g], apply (comp f g),
-      apply homH,
+      apply is_hset_hom,
       intros [f, g, h], apply (assoc f g h)⁻¹,
       apply (ID a),
       intro f, apply id_left,
@@ -102,8 +104,6 @@ namespace category
     (struct : groupoid carrier)
 
   attribute Groupoid.struct [instance] [coercion]
-  -- definition objects [reducible] := Category.objects
-  -- definition category_instance [instance] [coercion] [reducible] := Category.category_instance
 
   definition Groupoid.to_Precategory [coercion] [reducible] (C : Groupoid) : Precategory :=
   Precategory.mk (Groupoid.carrier C) C
@@ -111,7 +111,7 @@ namespace category
   definition groupoid.Mk [reducible] := Groupoid.mk
   definition groupoid.MK [reducible] (C : Precategory) (H : Π (a b : C) (f : a ⟶ b), is_iso f)
     : Groupoid :=
-  Groupoid.mk C (groupoid.mk' C C H)
+  Groupoid.mk C (groupoid.mk C H)
 
   definition Groupoid.eta (C : Groupoid) : Groupoid.mk C C = C :=
   Groupoid.rec (λob c, idp) C

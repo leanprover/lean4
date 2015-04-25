@@ -150,8 +150,8 @@ namespace functor
       from calc
         to_fun_hom (functor_curry (functor_uncurry G) c) g
             = to_fun_hom (G c) g ∘ natural_map (to_fun_hom G (ID c)) d : by esimp
-        ... = to_fun_hom (G c) g ∘ natural_map (ID (G c)) d
-               : by rewrite respect_id
+        ... = to_fun_hom (G c) g ∘ natural_map (ID (G c)) d : by rewrite respect_id
+        ... = to_fun_hom (G c) g ∘ id : idp
         ... = to_fun_hom (G c) g : id_right}
   end
 

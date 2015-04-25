@@ -78,8 +78,8 @@ namespace is_equiv
     ... ≃ (Σ(u : Σ(g : B → A), f ∘ g ∼ id), Σ(η : u.1 ∘ f ∼ id), Π(a : A), u.2 (f a) = ap f (η a))
           : {sigma_assoc_equiv (λu, Σ(η : u.1 ∘ f ∼ id), Π(a : A), u.2 (f a) = ap f (η a))}
 
-  local attribute is_contr_right_inverse [instance]
-  local attribute is_contr_right_coherence [instance]
+  local attribute is_contr_right_inverse [instance] [priority 1600]
+  local attribute is_contr_right_coherence [instance] [priority 1600]
   theorem is_hprop_is_equiv [instance] : is_hprop (is_equiv f) :=
   is_hprop_of_imp_is_contr (λ(H : is_equiv f), is_trunc_equiv_closed -2 (equiv.symm !sigma_char'))
 

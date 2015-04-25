@@ -5,10 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Module: init.trunc
 Authors: Jeremy Avigad, Floris van Doorn
 
-Ported from Coq HoTT.
+Definition of is_trunc (n-truncatedness)
 
-TODO: can we replace some definitions with a hprop as codomain by theorems?
+Ported from Coq HoTT.
 -/
+
+--TODO: can we replace some definitions with a hprop as codomain by theorems?
 
 prelude
 import .logic .equiv .types
@@ -87,7 +89,8 @@ namespace is_trunc
     : is_trunc n.+1 A :=
   is_trunc.mk (λ x y, !is_trunc.to_internal)
 
-  definition is_trunc_eq (n : trunc_index) [H : is_trunc (n.+1) A] (x y : A) : is_trunc n (x = y) :=
+  definition is_trunc_eq [instance] [priority 1200]
+    (n : trunc_index) [H : is_trunc (n.+1) A] (x y : A) : is_trunc n (x = y) :=
   is_trunc.mk (!is_trunc.to_internal x y)
 
   /- contractibility -/
@@ -119,7 +122,7 @@ namespace is_trunc
     [H : is_trunc n A] : is_trunc (n.+1) A :=
   trunc_index.rec_on n
     (λ A (H : is_contr A), !is_trunc_succ_intro)
-    (λ n IH A (H : is_trunc (n.+1) A), @is_trunc_succ_intro _ _ (λ x y, IH _ !is_trunc_eq))
+    (λ n IH A (H : is_trunc (n.+1) A), @is_trunc_succ_intro _ _ (λ x y, IH _ _))
     A H
   --in the proof the type of H is given explicitly to make it available for class inference
 
@@ -136,7 +139,7 @@ namespace is_trunc
     λm IHm n, trunc_index.rec_on n
            (λA Hnm Hn, @is_trunc_succ A m (IHm -2 A star Hn))
            (λn IHn A Hnm (Hn : is_trunc n.+1 A),
-           @is_trunc_succ_intro A m (λx y, IHm n (x = y) (trunc_index.le_of_succ_le_succ Hnm) !is_trunc_eq)),
+           @is_trunc_succ_intro A m (λx y, IHm n (x = y) (trunc_index.le_of_succ_le_succ Hnm) _)),
   trunc_index.rec_on m base step n A Hnm Hn
 
   -- the following cannot be instances in their current form, because they are looping
@@ -154,7 +157,7 @@ namespace is_trunc
   /- hprops -/
 
   definition is_hprop.elim [H : is_hprop A] (x y : A) : x = y :=
-  @center _ !is_trunc_eq
+  !center
 
   definition is_contr_of_inhabited_hprop {A : Type} [H : is_hprop A] (x : A) : is_contr A :=
   is_contr.mk x (λy, !is_hprop.elim)
@@ -175,7 +178,7 @@ namespace is_trunc
   @is_trunc_succ_intro _ _ (λ x y, is_hprop.mk (H x y))
 
   definition is_hset.elim [H : is_hset A] ⦃x y : A⦄ (p q : x = y) : p = q :=
-  @is_hprop.elim _ !is_trunc_eq p q
+  !is_hprop.elim
 
   /- instances -/
 
@@ -226,7 +229,7 @@ namespace is_trunc
   trunc_index.rec_on n
     (λA (HA : is_contr A) B f (H : is_equiv f), !is_contr_is_equiv_closed)
     (λn IH A (HA : is_trunc n.+1 A) B f (H : is_equiv f), @is_trunc_succ_intro _ _ (λ x y : B,
-      IH (f⁻¹ x = f⁻¹ y) !is_trunc_eq (x = y) (ap f⁻¹)⁻¹ !is_equiv_inv))
+      IH (f⁻¹ x = f⁻¹ y) _ (x = y) (ap f⁻¹)⁻¹ !is_equiv_inv))
     A HA B f H
 
   definition is_trunc_equiv_closed (n : trunc_index) (f : A ≃ B) [HA : is_trunc n A]

@@ -154,7 +154,7 @@ namespace pi
   /- Truncatedness: any dependent product of n-types is an n-type -/
 
   open is_trunc
-  definition is_trunc_pi [instance] (B : A → Type) (n : trunc_index)
+  definition is_trunc_pi (B : A → Type) (n : trunc_index)
       [H : ∀a, is_trunc n (B a)] : is_trunc n (Πa, B a) :=
   begin
     reverts [B, H],
@@ -173,8 +173,8 @@ namespace pi
               show is_trunc n (f a = g a), from
               is_trunc_eq n (f a) (g a)}
   end
-
-  definition is_trunc_eq_pi [instance] (n : trunc_index) (f g : Πa, B a)
+  local attribute is_trunc_pi [instance]
+  definition is_trunc_eq_pi [instance] [priority 500] (n : trunc_index) (f g : Πa, B a)
       [H : ∀a, is_trunc n (f a = g a)] : is_trunc n (f = g) :=
   begin
     apply is_trunc_equiv_closed, apply equiv.symm,
@@ -195,4 +195,4 @@ namespace pi
 
 end pi
 
-attribute pi.is_trunc_pi [instance]
+attribute pi.is_trunc_pi [instance] [priority 1510]

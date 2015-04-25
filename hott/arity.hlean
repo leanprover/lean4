@@ -10,7 +10,7 @@ Theorems about functions with multiple arguments
 
 variables {A U V W X Y Z : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type}
           {E : Πa b c, D a b c → Type}
-variables {a a' : A} {u u' : U} {v v' : V} {w w' : W} {x x' x'' : X} {y y' : Y}
+variables {a a' : A} {u u' : U} {v v' : V} {w w' : W} {x x' x'' : X} {y y' : Y} {z z' : Z}
           {b : B a} {b' : B a'}
           {c : C a b} {c' : C a' b'}
           {d : D a b c} {d' : D a' b' c'}
@@ -58,6 +58,16 @@ namespace eq
   definition ap01111 (f : U → V → W → X → Y) (Hu : u = u') (Hv : v = v') (Hw : w = w') (Hx : x = x')
       : f u v w x = f u' v' w' x' :=
   eq.rec_on Hu (ap0111 (f u) Hv Hw Hx)
+
+  definition ap011111 (f : U → V → W → X → Y → Z)
+    (Hu : u = u') (Hv : v = v') (Hw : w = w') (Hx : x = x') (Hy : y = y')
+      : f u v w x y = f u' v' w' x' y' :=
+  eq.rec_on Hu (ap01111 (f u) Hv Hw Hx Hy)
+
+  definition ap0111111 (f : U → V → W → X → Y → Z → A)
+    (Hu : u = u') (Hv : v = v') (Hw : w = w') (Hx : x = x') (Hy : y = y') (Hz : z = z')
+      : f u v w x y z = f u' v' w' x' y' z' :=
+  eq.rec_on Hu (ap011111 (f u) Hv Hw Hx Hy Hz)
 
   definition ap010 (f : X → Πa, B a) (Hx : x = x') : f x ∼ f x' :=
   λa, eq.rec_on Hx idp

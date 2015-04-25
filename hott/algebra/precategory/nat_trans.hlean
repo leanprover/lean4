@@ -77,16 +77,8 @@ namespace nat_trans
     apply is_hprop.elim,
   end
 
-  set_option apply.class_instance false
-  definition is_hset_nat_trans : is_hset (F ⟹ G) :=
-  begin
-    apply is_trunc_is_equiv_closed, apply (equiv.to_is_equiv !sigma_char),
-    apply is_trunc_sigma,
-      apply is_trunc_pi, intro a, exact (@homH (Precategory.carrier D) _ (F a) (G a)),
-    intro η, apply is_trunc_pi, intro a,
-    apply is_trunc_pi, intro b, apply is_trunc_pi, intro f,
-    apply is_trunc_eq, apply is_trunc_succ, exact (@homH (Precategory.carrier D) _ (F a) (G b)),
-  end
+  definition is_hset_nat_trans [instance] : is_hset (F ⟹ G) :=
+  by apply is_trunc_is_equiv_closed; apply (equiv.to_is_equiv !sigma_char)
 
   definition nat_trans_functor_compose [reducible] (η : G ⟹ H) (F : E ⇒ C) : G ∘f F ⟹ H ∘f F :=
   nat_trans.mk

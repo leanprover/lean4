@@ -39,15 +39,12 @@ namespace category
   definition eq_of_iso [reducible] {a b : ob} : a ≅ b → a = b :=
   iso_of_eq⁻¹ᵉ
 
-  set_option apply.class_instance false -- disable class instance resolution in the apply tactic
-
   definition is_trunc_1_ob : is_trunc 1 ob :=
   begin
     apply is_trunc_succ_intro, intros [a, b],
     fapply is_trunc_is_equiv_closed,
           exact (@eq_of_iso _ _ a b),
         apply is_equiv_inv,
-    apply is_hset_iso,
   end
   end basic
 
@@ -58,8 +55,6 @@ namespace category
     (struct : category carrier)
 
   attribute Category.struct [instance] [coercion]
-  -- definition objects [reducible] := Category.objects
-  -- definition category_instance [instance] [coercion] [reducible] := Category.category_instance
 
   definition Category.to_Precategory [coercion] [reducible] (C : Category) : Precategory :=
   Precategory.mk (Category.carrier C) C

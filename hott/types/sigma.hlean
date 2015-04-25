@@ -383,10 +383,10 @@ namespace sigma
 
 end sigma
 
-attribute sigma.is_trunc_sigma [instance]
+attribute sigma.is_trunc_sigma [instance] [priority 1505]
 
 open is_trunc sigma prod
 /- truncatedness -/
-definition prod.is_trunc_prod [instance] (A B : Type) (n : trunc_index)
+definition prod.is_trunc_prod [instance] [priority 1510] (A B : Type) (n : trunc_index)
   [HA : is_trunc n A] [HB : is_trunc n B] : is_trunc n (A × B) :=
 is_trunc.is_trunc_equiv_closed n !equiv_prod

@@ -149,21 +149,11 @@ namespace functor
         apply idp},
   end
 
-  set_option apply.class_instance false
-  protected definition is_hset_functor
-    [HD : is_hset D] : is_hset (functor C D) :=
-  begin
-    apply is_trunc_is_equiv_closed, apply equiv.to_is_equiv,
-      apply sigma_char,
-    apply is_trunc_sigma, apply is_trunc_pi, intros, exact HD, intro F,
-    apply is_trunc_sigma, apply is_trunc_pi, intro a,
-      {apply is_trunc_pi, intro b,
-       apply is_trunc_pi, intro c, apply !homH},
-    intro H, apply is_trunc_prod,
-      {apply is_trunc_pi, intro a,
-       apply is_trunc_eq, apply is_trunc_succ, apply !homH},
-      {repeat (apply is_trunc_pi; intros),
-       apply is_trunc_eq, apply is_trunc_succ, apply !homH},
+  section
+    local attribute precategory.is_hset_hom [priority 1001]
+    protected theorem is_hset_functor [instance]
+      [HD : is_hset D] : is_hset (functor C D) :=
+    by apply is_trunc_equiv_closed; apply sigma_char
   end
 
   definition functor_mk_eq'_idp (F : C → D) (H : Π(a b : C), hom a b → hom (F a) (F b))

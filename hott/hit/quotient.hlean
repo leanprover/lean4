@@ -25,7 +25,7 @@ parameters {A : Type} (R : A → A → hprop)
   ap tr (eq_of_rel H)
 
   theorem is_hset_quotient : is_hset quotient :=
-  by unfold quotient; exact _
+  begin unfold quotient, exact _ end
 
   protected definition rec {P : quotient → Type} [Pt : Πaa, is_hset (P aa)]
     (Pc : Π(a : A), P (class_of a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▹ Pc a = Pc a')

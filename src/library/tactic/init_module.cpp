@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/tactic/intros_tactic.h"
 #include "library/tactic/trace_tactic.h"
 #include "library/tactic/exact_tactic.h"
-#include "library/tactic/unfold_tactic.h"
 #include "library/tactic/generalize_tactic.h"
 #include "library/tactic/whnf_tactic.h"
 #include "library/tactic/clear_tactic.h"
@@ -34,7 +33,6 @@ void initialize_tactic_module() {
     initialize_intros_tactic();
     initialize_trace_tactic();
     initialize_exact_tactic();
-    initialize_unfold_tactic();
     initialize_generalize_tactic();
     initialize_whnf_tactic();
     initialize_clear_tactic();
@@ -58,7 +56,6 @@ void finalize_tactic_module() {
     finalize_clear_tactic();
     finalize_whnf_tactic();
     finalize_generalize_tactic();
-    finalize_unfold_tactic();
     finalize_exact_tactic();
     finalize_trace_tactic();
     finalize_intros_tactic();

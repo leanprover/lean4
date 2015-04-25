@@ -113,7 +113,6 @@ name const & get_tactic_rotate_right_name();
 name const & get_tactic_state_name();
 name const & get_tactic_trace_name();
 name const & get_tactic_try_for_name();
-name const & get_tactic_unfold_name();
 name const & get_tactic_whnf_name();
 name const & get_trans_rel_left_name();
 name const & get_trans_rel_right_name();

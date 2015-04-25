@@ -153,6 +153,21 @@ expr parse_esimp_tactic(parser & p) {
     return mk_rewrite_tactic_expr(elems);
 }
 
+expr parse_unfold_tactic(parser & p) {
+    buffer<expr> elems;
+    auto pos = p.pos();
+    if (p.curr_is_identifier()) {
+        name c       = p.check_constant_next("invalid unfold tactic, identifier expected");
+        location loc = parse_tactic_location(p);
+        elems.push_back(p.save_pos(mk_rewrite_unfold(to_list(c), loc), pos));
+    } else if (p.curr_is_token(get_lbracket_tk())) {
+        elems.push_back(p.save_pos(parse_rewrite_unfold_core(p), pos));
+    } else {
+        throw parser_error("invalid unfold tactic, identifier or `[` expected", pos);
+    }
+    return mk_rewrite_tactic_expr(elems);
+}
+
 expr parse_fold_tactic(parser & p) {
     buffer<expr> elems;
     auto pos = p.pos();

@@ -1,0 +1,22 @@
+unfold.lean:10:2: proof state
+a b : ℕ,
+h : a + b = 0
+⊢ f b a = 0
+unfold.lean:12:2: proof state
+a b : ℕ,
+h : a + b = 0
+⊢ b + a = 0
+unfold.lean:21:2: proof state
+a b : ℕ,
+h : a + b = 0
+⊢ b + a = 0
+unfold.lean:30:2: proof state
+a b c : ℕ,
+h₁ : c + c = 0,
+h₂ : a + b = 0
+⊢ f b a = f c c
+unfold.lean:39:2: proof state
+a b c : ℕ,
+h₁ : c + c = 0,
+h₂ : a + b = 0
+⊢ f b a = f c c

@@ -106,7 +106,6 @@ tactic.rotate_right
 tactic.state
 tactic.trace
 tactic.try_for
-tactic.unfold
 tactic.whnf
 trans_rel_left
 trans_rel_right

@@ -111,7 +111,6 @@ name const * g_tactic_rotate_right = nullptr;
 name const * g_tactic_state = nullptr;
 name const * g_tactic_trace = nullptr;
 name const * g_tactic_try_for = nullptr;
-name const * g_tactic_unfold = nullptr;
 name const * g_tactic_whnf = nullptr;
 name const * g_trans_rel_left = nullptr;
 name const * g_trans_rel_right = nullptr;
@@ -231,7 +230,6 @@ void initialize_constants() {
     g_tactic_state = new name{"tactic", "state"};
     g_tactic_trace = new name{"tactic", "trace"};
     g_tactic_try_for = new name{"tactic", "try_for"};
-    g_tactic_unfold = new name{"tactic", "unfold"};
     g_tactic_whnf = new name{"tactic", "whnf"};
     g_trans_rel_left = new name{"trans_rel_left"};
     g_trans_rel_right = new name{"trans_rel_right"};
@@ -352,7 +350,6 @@ void finalize_constants() {
     delete g_tactic_state;
     delete g_tactic_trace;
     delete g_tactic_try_for;
-    delete g_tactic_unfold;
     delete g_tactic_whnf;
     delete g_trans_rel_left;
     delete g_trans_rel_right;
@@ -472,7 +469,6 @@ name const & get_tactic_rotate_right_name() { return *g_tactic_rotate_right; }
 name const & get_tactic_state_name() { return *g_tactic_state; }
 name const & get_tactic_trace_name() { return *g_tactic_trace; }
 name const & get_tactic_try_for_name() { return *g_tactic_try_for; }
-name const & get_tactic_unfold_name() { return *g_tactic_unfold; }
 name const & get_tactic_whnf_name() { return *g_tactic_whnf; }
 name const & get_trans_rel_left_name() { return *g_trans_rel_left; }
 name const & get_trans_rel_right_name() { return *g_trans_rel_right; }

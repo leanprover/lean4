@@ -7,8 +7,6 @@ section
 
   definition bar (a : A) : foo a = refl a :=
   begin
-    unfold foo,
-    apply rfl
+    unfold foo
   end
-
 end

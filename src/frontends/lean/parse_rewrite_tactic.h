@@ -11,5 +11,6 @@ namespace lean {
 class parser;
 expr parse_rewrite_tactic(parser & p);
 expr parse_esimp_tactic(parser & p);
+expr parse_unfold_tactic(parser & p);
 expr parse_fold_tactic(parser & p);
 }

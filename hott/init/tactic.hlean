@@ -72,7 +72,6 @@ opaque definition intro      (e : identifier)   : tactic := builtin
 opaque definition generalize (e : expr)         : tactic := builtin
 opaque definition clear      (e : identifier)   : tactic := builtin
 opaque definition revert     (e : identifier)   : tactic := builtin
-opaque definition unfold     (e : expr)         : tactic := builtin
 opaque definition refine     (e : expr)         : tactic := builtin
 opaque definition exact      (e : expr)         : tactic := builtin
 -- Relaxed version of exact that does not enforce goal type

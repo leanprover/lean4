@@ -20,7 +20,7 @@ false.rec b (H2 H1)
 
 /- not -/
 
-theorem not_false : ¬false :=
+definition not_false : ¬false :=
 assume H : false, H
 
 definition non_contradictory (a : Prop) : Prop := ¬¬a
@@ -172,7 +172,7 @@ notation a `\/` b := or a b
 notation a ∨ b := or a b
 
 namespace or
-  theorem elim (H₁ : a ∨ b) (H₂ : a → c) (H₃ : b → c) : c :=
+  definition elim (H₁ : a ∨ b) (H₂ : a → c) (H₃ : b → c) : c :=
   or.rec H₂ H₃ H₁
 end or
 
@@ -266,7 +266,7 @@ definition exists.intro := @Exists.intro
 notation `exists` binders `,` r:(scoped P, Exists P) := r
 notation `∃` binders `,` r:(scoped P, Exists P) := r
 
-theorem exists.elim {A : Type} {p : A → Prop} {B : Prop} (H1 : ∃x, p x) (H2 : ∀ (a : A) (H : p a), B) : B :=
+definition exists.elim {A : Type} {p : A → Prop} {B : Prop} (H1 : ∃x, p x) (H2 : ∀ (a : A) (H : p a), B) : B :=
 Exists.rec H2 H1
 
 /- decidable -/

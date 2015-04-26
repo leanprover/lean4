@@ -21,10 +21,10 @@ parameter {p : nat → Prop}
 
 private definition lbp (x : nat) : Prop := ∀ y, y < x → ¬ p y
 
-private lemma lbp_zero : lbp 0 :=
+private definition lbp_zero : lbp 0 :=
 λ y h, absurd h (not_lt_zero y)
 
-private lemma lbp_succ {x : nat} : lbp x → ¬ p x → lbp (succ x) :=
+private definition lbp_succ {x : nat} : lbp x → ¬ p x → lbp (succ x) :=
 λ lx npx y yltsx,
   or.elim (eq_or_lt_of_le yltsx)
     (λ yeqx, by rewrite [yeqx]; exact npx)

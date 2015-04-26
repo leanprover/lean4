@@ -117,7 +117,7 @@ theorem ex_of_check_pred_eq_ff {p : A → Prop} [h : decidable_pred p] : ∀ {l 
   (λ npa : ¬ p a, exists.intro a npa)
 end check_pred
 
-definition decidable_finite_pred [instance] {A : Type} {p : A → Prop} [h₁ : fintype A] [h₂ : decidable_pred p]
+definition decidable_forall_finite [instance] {A : Type} {p : A → Prop} [h₁ : fintype A] [h₂ : decidable_pred p]
            : decidable (∀ x : A, p x) :=
 match h₁ with
 | fintype.mk e u c :=
@@ -127,6 +127,20 @@ match h₁ with
     inr (λ n : (∀ x, p x),
          obtain (a : A) (w : ¬ p a), from ex_of_check_pred_eq_ff h,
          absurd (n a) w)
+  end rfl
+end
+
+definition decidable_exists_finite [instance] {A : Type} {p : A → Prop} [h₁ : fintype A] [h₂ : decidable_pred p]
+           : decidable (∃ x : A, p x) :=
+match h₁ with
+| fintype.mk e u c :=
+  match check_pred (λ a, ¬ p a) e with
+  | tt := λ h : check_pred (λ a, ¬ p a) e = tt, inr (λ ex : (∃ x, p x),
+          obtain x px, from ex,
+          absurd px (all_of_check_pred_eq_tt h (c x)))
+  | ff := λ h : check_pred (λ a, ¬ p a) e = ff, inl (
+          assert aux₁ : ∃ x, ¬¬p x, from ex_of_check_pred_eq_ff h,
+          obtain x nnpx, from aux₁, exists.intro x (not_not_elim nnpx))
   end rfl
 end
 

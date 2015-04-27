@@ -392,6 +392,7 @@ int main(int argc, char ** argv) {
         case 'i':
             index_name = optarg;
             gen_index  = true;
+            break;
         case 'M':
             lean::set_max_memory_megabyte(atoi(optarg));
             opts = opts.update(lean::get_max_memory_opt_name(), atoi(optarg));

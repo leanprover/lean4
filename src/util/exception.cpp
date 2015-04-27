@@ -49,7 +49,7 @@ char const * stack_space_exception::what() const noexcept {
 char const * memory_exception::what() const noexcept {
     std::string & buffer = get_g_buffer();
     std::ostringstream s;
-    s << "excessive memory consumption detected at '" << m_component_name << "' (potential solution: increase memory consumption thresold)";
+    s << "excessive memory consumption detected at '" << m_component_name << "' (potential solution: increase memory consumption threshold)";
     buffer = s.str();
     return buffer.c_str();
 }

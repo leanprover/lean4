@@ -95,7 +95,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --githash         display the git commit hash number used to build this binary\n";
     std::cout << "  --path            display the path used for finding Lean libraries and extensions\n";
     std::cout << "  --output=file -o  save the final environment in binary format in the given file\n";
-    std::cout << "  --cpp=file -C     save the final environment as a C++ array\n";
     std::cout << "  --luahook=num -k  how often the Lua interpreter checks the interrupted flag,\n";
     std::cout << "                    it is useful for interrupting non-terminating user scripts,\n";
     std::cout << "                    0 means 'do not check'.\n";
@@ -153,7 +152,6 @@ static struct option g_long_options[] = {
     {"luahook",      required_argument, 0, 'k'},
     {"githash",      no_argument,       0, 'g'},
     {"output",       required_argument, 0, 'o'},
-    {"cpp",          required_argument, 0, 'C'},
     {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
     {"discard",      no_argument,       0, 'r'},
@@ -177,7 +175,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "PHRXFC:dD:qrlupgvhk:012t:012o:c:i:L:012O:012G"
+#define OPT_STR "PHRXFdD:qrlupgvhk:012t:012o:c:i:L:012O:012G"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -234,23 +232,6 @@ options set_config_option(options const & opts, char const * in) {
     } else {
         throw lean::exception(lean::sstream() << "invalid -D parameter, unknown configuration option '" << opt << "'");
     }
-}
-
-static void export_as_cpp_file(std::string const & fname, char const * varname, environment const & env) {
-    std::ostringstream buffer(std::ofstream::binary);
-    export_module(buffer, env);
-    std::string r = buffer.str();
-    std::ofstream out(fname);
-    out << "// automatically generated file do not edit\n";
-    out << "namespace lean {\n";
-    out << "    char " << varname << "[" << r.size() + 1 << "] = {";
-    for (unsigned i = 0; i < r.size(); i++) {
-        if (i > 0)
-            out << ", ";
-        out << static_cast<unsigned>(static_cast<unsigned char>(r[i]));
-    }
-    out << "    }\n";
-    out << "}\n";
 }
 
 environment import_module(environment const & env, io_state const & ios, module_name const & mod, bool keep_proofs = true) {
@@ -348,11 +329,9 @@ int main(int argc, char ** argv) {
     unsigned num_threads    = 1;
     bool use_cache          = false;
     bool gen_index          = false;
-    bool export_cpp         = false;
     keep_theorem_mode tmode = keep_theorem_mode::All;
     options opts;
     std::string output;
-    std::string cpp_output;
     std::string cache_name;
     std::string index_name;
     optional<unsigned> line;
@@ -405,10 +384,6 @@ int main(int argc, char ** argv) {
         case 'o':
             output         = optarg;
             export_objects = true;
-            break;
-        case 'C':
-            cpp_output = optarg;
-            export_cpp = true;
             break;
         case 'c':
             cache_name = optarg;
@@ -597,9 +572,6 @@ int main(int argc, char ** argv) {
         if (export_objects && ok) {
             std::ofstream out(output, std::ofstream::binary);
             export_module(out, env);
-        }
-        if (export_cpp && ok) {
-            export_as_cpp_file(cpp_output, "olean_lib", env);
         }
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {

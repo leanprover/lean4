@@ -116,7 +116,7 @@ wf.rec_on x H
 /- structures with a weak and a strict order -/
 
 structure order_pair [class] (A : Type) extends weak_order A, has_lt A :=
-(lt_iff_le_ne : ∀a b, lt a b ↔ (le a b ∧ a ≠ b))
+(lt_iff_le_and_ne : ∀a b, lt a b ↔ (le a b ∧ a ≠ b))
 
 section
   variable [s : order_pair A]
@@ -124,7 +124,7 @@ section
   include s
 
   theorem lt_iff_le_and_ne : a < b ↔ (a ≤ b ∧ a ≠ b) :=
-  !order_pair.lt_iff_le_ne
+  !order_pair.lt_iff_le_and_ne
 
   theorem le_of_lt (H : a < b) : a ≤ b :=
   and.elim_left (iff.mp lt_iff_le_and_ne H)
@@ -243,10 +243,10 @@ iff.intro
 definition strict_order_with_le.to_order_pair [instance] [coercion] [reducible] [s : strict_order_with_le A] :
   strong_order_pair A :=
 ⦃ strong_order_pair, s,
-  le_refl      := le_refl s,
-  le_trans     := le_trans s,
-  le_antisymm  := le_antisymm s,
-  lt_iff_le_ne := lt_iff_le_ne s ⦄
+  le_refl          := le_refl s,
+  le_trans         := le_trans s,
+  le_antisymm      := le_antisymm s,
+  lt_iff_le_and_ne := lt_iff_le_ne s ⦄
 
 /- linear orders -/
 

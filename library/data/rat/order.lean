@@ -198,7 +198,7 @@ theorem mul_pos (H1 : a > 0) (H2 : b > 0) : a * b > 0 :=
 have H : pos (a * b), from pos_mul (!sub_zero ▸ H1) (!sub_zero ▸ H2),
 !sub_zero⁻¹ ▸ H
 
-definition has_decidable_lt [instance] : decidable_rel rat.lt :=
+definition decidable_lt [instance] : decidable_rel rat.lt :=
 take a b, decidable_pos (b - a)
 
 section
@@ -208,16 +208,16 @@ section
     algebra.discrete_linear_ordered_field rat :=
   ⦃algebra.discrete_linear_ordered_field,
     rat.discrete_field,
-    le_refl         := le.refl,
-    le_trans        := @le.trans,
-    le_antisymm     := @le.antisymm,
-    le_total        := @le.total,
-    lt_iff_le_ne    := @lt_iff_le_and_ne,
-    le_iff_lt_or_eq := @le_iff_lt_or_eq,
-    add_le_add_left := @add_le_add_left,
-    mul_nonneg      := @mul_nonneg,
-    mul_pos         := @mul_pos,
-    decidable_lt    := @has_decidable_lt⦄
+    le_refl          := le.refl,
+    le_trans         := @le.trans,
+    le_antisymm      := @le.antisymm,
+    le_total         := @le.total,
+    lt_iff_le_and_ne := @lt_iff_le_and_ne,
+    le_iff_lt_or_eq  := @le_iff_lt_or_eq,
+    add_le_add_left  := @add_le_add_left,
+    mul_nonneg       := @mul_nonneg,
+    mul_pos          := @mul_pos,
+    decidable_lt     := @decidable_lt⦄
 
 --  migrate from algebra with rat
 end

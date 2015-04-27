@@ -158,7 +158,7 @@ section
     le_antisymm                := @le.antisymm,
     le_total                   := @le.total,
     le_iff_lt_or_eq            := @le_iff_lt_or_eq,
-    lt_iff_le_ne               := lt_iff_le_and_ne,
+    lt_iff_le_and_ne           := lt_iff_le_and_ne,
     add_le_add_left            := @add_le_add_left,
     le_of_add_le_add_left      := @le_of_add_le_add_left,
     zero_ne_one                := ne.symm (succ_ne_zero zero),

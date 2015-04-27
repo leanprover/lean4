@@ -229,7 +229,7 @@ section
     le_trans         := @le.trans,
     le_antisymm      := @le.antisymm,
     lt               := lt,
-    lt_iff_le_ne     := lt_iff_le_and_ne,
+    lt_iff_le_and_ne := lt_iff_le_and_ne,
     add_le_add_left  := @add_le_add_left,
     mul_nonneg       := @mul_nonneg,
     mul_pos          := @mul_pos,

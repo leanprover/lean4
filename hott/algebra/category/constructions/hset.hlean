@@ -42,8 +42,8 @@ namespace category
 
     definition is_equiv_iso_of_equiv (A B : Precategory_hset) : is_equiv (@iso_of_equiv A B) :=
     adjointify _ (λf, equiv_of_iso f)
-                 (λf, iso.eq_mk idp)
-                 (λf, equiv.eq_mk idp)
+                 (λf, iso_eq idp)
+                 (λf, equiv_eq idp)
     local attribute is_equiv_iso_of_equiv [instance]
 
     open sigma.ops
@@ -66,8 +66,8 @@ namespace category
                            (iso.to_inv f)
                            (ap10 (right_inverse (to_hom f)))
                            (ap10 (left_inverse  (to_hom f))))
-             (λf, iso.eq_mk idp)
-             (λf, equiv.eq_mk idp)
+             (λf, iso_eq idp)
+             (λf, equiv_eq idp)
 
     definition equiv_eq_iso (A B : Precategory_hset) : (A ≃ B) = (A ≅ B) :=
     ua !equiv_equiv_iso

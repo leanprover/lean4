@@ -44,4 +44,4 @@ section
    ... = q                      : aux)
 end
 
-attribute is_hset_of_decidable_eq [instance]
+attribute is_hset_of_decidable_eq [instance] [priority 600]

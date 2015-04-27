@@ -96,7 +96,7 @@ namespace category
                   (@componentwise_is_iso _ _ _ _ (to_hom η) (struct η) c)
 
   definition componentwise_iso_id (c : C) : componentwise_iso (iso.refl F) c = iso.refl (F c) :=
-  iso.eq_mk (idpath (ID (F c)))
+  iso_eq (idpath (ID (F c)))
 
   definition componentwise_iso_iso_of_eq (p : F = G) (c : C)
     : componentwise_iso (iso_of_eq p) c = iso_of_eq (ap010 to_fun_ob p c) :=
@@ -133,8 +133,8 @@ namespace category
 
     definition iso_of_eq_eq_of_iso (η : F ≅ G) : iso_of_eq (eq_of_iso η) = η :=
     begin
-    apply iso.eq_mk,
-    apply nat_trans_eq_mk,
+    apply iso_eq,
+    apply nat_trans_eq,
     intro c,
     rewrite natural_map_hom_of_eq, esimp [eq_of_iso],
     rewrite ap010_functor_eq, esimp [hom_of_eq,eq_of_iso_ob],

@@ -68,11 +68,11 @@ namespace functor
     (Fhom F f) d = to_fun_hom F (f, id) := idp
 
   theorem functor_curry_id (c : C) : Fhom F (ID c) = nat_trans.id :=
-  nat_trans_eq_mk (λd, respect_id F _)
+  nat_trans_eq (λd, respect_id F _)
 
   theorem functor_curry_comp ⦃c c' c'' : C⦄ (f' : c' ⟶ c'') (f : c ⟶ c')
     : Fhom F (f' ∘ f) = Fhom F f' ∘n Fhom F f :=
-  nat_trans_eq_mk (λd, calc
+  nat_trans_eq (λd, calc
     natural_map (Fhom F (f' ∘ f)) d = F (f' ∘ f, id) : functor_curry_hom_def
       ... = F (f' ∘ f, id ∘ id)                      : by rewrite id_comp
       ... = F ((f',id) ∘ (f, id))                    : by esimp
@@ -158,7 +158,7 @@ namespace functor
   begin
   fapply functor_eq, exact (functor_curry_functor_uncurry_ob G),
   intros [c, c', f],
-  fapply nat_trans_eq_mk,
+  fapply nat_trans_eq,
   intro d,
   apply concat,
     {apply (ap (λx, x ∘ _)),

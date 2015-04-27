@@ -54,7 +54,7 @@ section
   universe variables l k
   parameters [wf : weak_funext.{l k}] {A : Type.{l}} {B : A → Type.{k}} (f : Π x, B x)
 
-  definition is_contr_sigma_homotopy [instance] : is_contr (Σ (g : Π x, B x), f ∼ g) :=
+  definition is_contr_sigma_homotopy : is_contr (Σ (g : Π x, B x), f ∼ g) :=
     is_contr.mk (sigma.mk f (homotopy.refl f))
       (λ dp, sigma.rec_on dp
         (λ (g : Π x, B x) (h : f ∼ g),
@@ -75,6 +75,7 @@ section
           endt
         )
       )
+  local attribute is_contr_sigma_homotopy [instance]
 
   parameters (Q : Π g (h : f ∼ g), Type) (d : Q f (homotopy.refl f))
 

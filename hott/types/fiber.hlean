@@ -29,7 +29,7 @@ namespace fiber
     {intro x, cases x, apply idp},
   end
 
-  definition equiv_fiber_eq (x y : fiber f b)
+  definition fiber_eq_equiv (x y : fiber f b)
     : (x = y) ≃ (Σ(p : point x = point y), point_eq x = ap f p ⬝ point_eq y) :=
   begin
     apply equiv.trans,
@@ -46,6 +46,6 @@ namespace fiber
 
   definition fiber_eq {x y : fiber f b} (p : point x = point y)
     (q : point_eq x = ap f p ⬝ point_eq y) : x = y :=
-  to_inv !equiv_fiber_eq ⟨p, q⟩
+  to_inv !fiber_eq_equiv ⟨p, q⟩
 
 end fiber

@@ -118,7 +118,7 @@ namespace is_trunc
   /- truncation is upward close -/
 
   -- n-types are also (n+1)-types
-  definition is_trunc_succ [instance] [priority 100] (A : Type) (n : trunc_index)
+  definition is_trunc_succ [instance] [priority 900] (A : Type) (n : trunc_index)
     [H : is_trunc n A] : is_trunc (n.+1) A :=
   trunc_index.rec_on n
     (λ A (H : is_contr A), !is_trunc_succ_intro)
@@ -182,7 +182,8 @@ namespace is_trunc
 
   /- instances -/
 
-  definition is_contr_sigma_eq [instance] {A : Type} (a : A) : is_contr (Σ(x : A), a = x) :=
+  definition is_contr_sigma_eq [instance] [priority 800] {A : Type} (a : A)
+    : is_contr (Σ(x : A), a = x) :=
   is_contr.mk (sigma.mk a idp) (λp, sigma.rec_on p (λ b q, eq.rec_on q idp))
 
   definition is_contr_unit [instance] : is_contr unit :=

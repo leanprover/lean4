@@ -128,8 +128,7 @@ namespace is_trunc
     intro A, apply (trunctype.rec_on A), intros [A1, A2], apply idp,
   end
 
---  set_option pp.notation false
-  protected definition trunctype.eq (n : trunc_index) (A B : n-Type) :
+  protected definition trunctype_eq_equiv (n : trunc_index) (A B : n-Type) :
     (A = B) ≃ (carrier A = carrier B) :=
   calc
     (A = B) ≃ (trunctype.sigma_char n A = trunctype.sigma_char n B) : eq_equiv_fn_eq_of_equiv

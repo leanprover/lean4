@@ -191,9 +191,9 @@ namespace functor
     exact r,
   end
 
-  -- definition ap010_functor_eq_mk' {F₁ F₂ : C ⇒ D} (p : to_fun_ob F₁ = to_fun_ob F₂)
+  -- definition ap010_functor_eq' {F₁ F₂ : C ⇒ D} (p : to_fun_ob F₁ = to_fun_ob F₂)
   --   (q : p ▹ F₁ = F₂) (c : C) :
-  --   ap to_fun_ob (functor_eq_mk (apd10 p) (λa b f, _)) = p := sorry
+  --   ap to_fun_ob (functor_eq (apd10 p) (λa b f, _)) = p := sorry
   -- begin
   --   cases F₂, revert q, apply (homotopy.rec_on p), clear p, esimp, intros (p, q),
   --   cases p, clears (e_1, e_2),

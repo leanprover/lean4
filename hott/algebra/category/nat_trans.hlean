@@ -38,25 +38,25 @@ namespace nat_trans
   protected definition ID [reducible] {C D : Precategory} (F : functor C D) : nat_trans F F :=
   id
 
-  definition nat_trans_eq_mk' {η₁ η₂ : Π (a : C), hom (F a) (G a)}
+  definition nat_trans_mk_eq {η₁ η₂ : Π (a : C), hom (F a) (G a)}
     (nat₁ : Π (a b : C) (f : hom a b), G f ∘ η₁ a = η₁ b ∘ F f)
     (nat₂ : Π (a b : C) (f : hom a b), G f ∘ η₂ a = η₂ b ∘ F f)
     (p : η₁ ∼ η₂)
       : nat_trans.mk η₁ nat₁ = nat_trans.mk η₂ nat₂ :=
   apd011 nat_trans.mk (eq_of_homotopy p) !is_hprop.elim
 
-  definition nat_trans_eq_mk {η₁ η₂ : F ⟹ G} : natural_map η₁ ∼ natural_map η₂ → η₁ = η₂ :=
-  nat_trans.rec_on η₁ (λf₁ nat₁, nat_trans.rec_on η₂ (λf₂ nat₂ p, !nat_trans_eq_mk' p))
+  definition nat_trans_eq {η₁ η₂ : F ⟹ G} : natural_map η₁ ∼ natural_map η₂ → η₁ = η₂ :=
+  nat_trans.rec_on η₁ (λf₁ nat₁, nat_trans.rec_on η₂ (λf₂ nat₂ p, !nat_trans_mk_eq p))
 
   protected definition assoc (η₃ : H ⟹ I) (η₂ : G ⟹ H) (η₁ : F ⟹ G) :
       η₃ ∘n (η₂ ∘n η₁) = (η₃ ∘n η₂) ∘n η₁ :=
-  nat_trans_eq_mk (λa, !assoc)
+  nat_trans_eq (λa, !assoc)
 
   protected definition id_left (η : F ⟹ G) : id ∘n η = η :=
-  nat_trans_eq_mk (λa, !id_left)
+  nat_trans_eq (λa, !id_left)
 
   protected definition id_right (η : F ⟹ G) : η ∘n id = η :=
-  nat_trans_eq_mk (λa, !id_right)
+  nat_trans_eq (λa, !id_right)
 
   protected definition sigma_char (F G : C ⇒ D) :
     (Σ (η : Π (a : C), hom (F a) (G a)), Π (a b : C) (f : hom a b), G f ∘ η a = η b ∘ F f) ≃  (F ⟹ G) :=
@@ -69,7 +69,7 @@ namespace nat_trans
           fapply sigma.mk,
             intro a, exact (H a),
           intros [a, b, f], exact (naturality H f),
-    intro η, apply nat_trans_eq_mk, intro a, apply idp,
+    intro η, apply nat_trans_eq, intro a, apply idp,
     intro S,
     fapply sigma_eq,
       apply eq_of_homotopy, intro a,
@@ -98,21 +98,21 @@ namespace nat_trans
 
   definition functor_nat_trans_compose_commute (η : F ⟹ G) (θ : F' ⟹ G')
     : (θ ∘nf G) ∘n (F' ∘fn η) = (G' ∘fn η) ∘n (θ ∘nf F) :=
-  nat_trans_eq_mk (λc, (naturality θ (η c))⁻¹)
+  nat_trans_eq (λc, (naturality θ (η c))⁻¹)
 
   definition fn_n_distrib (F' : D ⇒ E) (η : G ⟹ H) (θ : F ⟹ G)
     : F' ∘fn (η ∘n θ) = (F' ∘fn η) ∘n (F' ∘fn θ) :=
-  nat_trans_eq_mk (λc, !respect_comp)
+  nat_trans_eq (λc, !respect_comp)
 
   definition n_nf_distrib (η : G ⟹ H) (θ : F ⟹ G) (F' : B ⇒ C)
     : (η ∘n θ) ∘nf F' = (η ∘nf F') ∘n (θ ∘nf F') :=
-  nat_trans_eq_mk (λc, idp)
+  nat_trans_eq (λc, idp)
 
   definition fn_id (F' : D ⇒ E) : F' ∘fn nat_trans.ID F = nat_trans.id :=
-  nat_trans_eq_mk (λc, !respect_id)
+  nat_trans_eq (λc, !respect_id)
 
   definition id_nf (F' : B ⇒ C) : nat_trans.ID F ∘nf F' = nat_trans.id :=
-  nat_trans_eq_mk (λc, idp)
+  nat_trans_eq (λc, idp)
 
   definition id_fn (η : G ⟹ H) (c : C) : (functor.id ∘fn η) c = η c :=
   idp

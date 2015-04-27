@@ -154,12 +154,12 @@ namespace iso
   protected definition trans ⦃a b c : ob⦄ (H1 : a ≅ b) (H2 : b ≅ c) : a ≅ c :=
   mk (to_hom H2 ∘ to_hom H1)
 
-  protected definition eq_mk' {f f' : a ⟶ b} [H : is_iso f] [H' : is_iso f'] (p : f = f')
+  definition iso_mk_eq {f f' : a ⟶ b} [H : is_iso f] [H' : is_iso f'] (p : f = f')
       : iso.mk f = iso.mk f' :=
   apd011 iso.mk p !is_hprop.elim
 
-  protected definition eq_mk {f f' : a ≅ b} (p : to_hom f = to_hom f') : f = f' :=
-  by (cases f; cases f'; apply (iso.eq_mk' p))
+  definition iso_eq {f f' : a ≅ b} (p : to_hom f = to_hom f') : f = f' :=
+  by (cases f; cases f'; apply (iso_mk_eq p))
 
   -- The structure for isomorphism can be characterized up to equivalence by a sigma type.
   protected definition sigma_char ⦃a b : ob⦄ : (Σ (f : hom a b), is_iso f) ≃ (a ≅ b) :=
@@ -193,7 +193,7 @@ namespace iso
 
   definition iso_of_eq_con (p : a = b) (q : b = c)
     : iso_of_eq (p ⬝ q) = iso.trans (iso_of_eq p) (iso_of_eq q) :=
-  eq.rec_on q (eq.rec_on p (iso.eq_mk !id_comp⁻¹))
+  eq.rec_on q (eq.rec_on p (iso_eq !id_comp⁻¹))
 
   section
     open funext

@@ -85,9 +85,6 @@ namespace category
     definition homset [reducible] (x y : ob) : hset :=
     hset.mk (hom x y) _
 
-    -- definition is_hprop_eq_hom [instance] : is_hprop (f = f') :=
-    -- !is_trunc_eq
-
   end basic_lemmas
   section squares
     parameters {ob : Type} [C : precategory ob]
@@ -165,11 +162,7 @@ namespace category
 
   /-Characterization of paths between precategories-/
 
-  -- auxiliary definition for speeding up precategory_eq_mk
-  private definition is_hprop_pi (A : Type) (B : A → Type) (H : Π (a : A), is_hprop (B a)) : is_hprop (Π (x : A), B x) :=
-  is_trunc_pi B (-2 .+1)
-
-  definition precategory_eq_mk (ob : Type)
+  definition precategory_mk'_eq (ob : Type)
     (hom1 : ob → ob → Type)
     (hom2 : ob → ob → Type)
     (homH1 : Π(a b : ob), is_hset (hom1 a b))
@@ -203,7 +196,7 @@ namespace category
     repeat (apply is_hprop.elim),
   end
 
-  definition precategory_eq_mk' (ob : Type)
+  definition precategory_eq (ob : Type)
     (C D : precategory ob)
     (p : @hom ob C = @hom ob D)
     (q : transport (λ x, Πa b c, x b c → x a b → x a c) p
@@ -211,10 +204,10 @@ namespace category
     (r : transport (λ x, Πa, x a a) p (@ID ob C) = @ID ob D) : C = D :=
   begin
     cases C, cases D,
-    apply precategory_eq_mk, apply q, apply r,
+    apply precategory_mk'_eq, apply q, apply r,
   end
 
-  definition precategory_eq_mk'' (ob : Type)
+  definition precategory_mk_eq (ob : Type)
     (hom1 : ob → ob → Type)
     (hom2 : ob → ob → Type)
     (homH1 : Π(a b : ob), is_hset (hom1 a b))
@@ -240,7 +233,7 @@ namespace category
     precategory.mk hom1 comp1 ID1 assoc1 id_left1 id_right1
     = precategory.mk hom2 comp2 ID2 assoc2 id_left2 id_right2 :=
   begin
-    fapply precategory_eq_mk,
+    fapply precategory_eq,
         apply eq_of_homotopy, intros,
         apply eq_of_homotopy, intros,
         exact (p _ _),
@@ -248,7 +241,7 @@ namespace category
     exact r,
   end
 
-  definition Precategory_eq_mk (C D : Precategory)
+  definition Precategory_eq (C D : Precategory)
     (p : carrier C = carrier D)
     (q : p ▹ (Precategory.struct C) = Precategory.struct D) : C = D :=
   begin

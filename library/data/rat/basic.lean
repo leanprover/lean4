@@ -24,7 +24,7 @@ namespace prerat
 
 definition equiv (a b : prerat) : Prop := num a * denom b = num b * denom a
 
-local infix `≡` := equiv
+infix `≡` := equiv
 
 theorem equiv.refl (a : prerat) : a ≡ a := rfl
 
@@ -309,9 +309,13 @@ infix `*`    := rat.mul
 prefix `-`   := rat.neg
 postfix `⁻¹` := rat.inv
 
+definition sub (a b : rat) : rat := a + (-b)
+
+infix `-`    := rat.sub
+
 -- TODO: this is a workaround, since the coercions from numerals do not work
-local notation 0 := zero
-local notation 1 := one
+notation 0 := zero
+notation 1 := one
 
 /- properties -/
 
@@ -396,6 +400,7 @@ section
     has_decidable_eq := has_decidable_eq⦄
 
   migrate from algebra with rat
+    replacing sub → rat.sub
 end
 
 end rat

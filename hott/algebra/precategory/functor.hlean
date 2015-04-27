@@ -69,10 +69,10 @@ namespace functor
         apply concat, rotate_left 1,
         exact (pi_transport_constant (eq_of_homotopy pF) (H₁ c c') f),
         apply (apD10' f),
-        apply concat, rotate_left 1,
+        apply concat, rotate_left 1, esimp,
         exact (pi_transport_constant (eq_of_homotopy pF) (H₁ c) c'),
         apply (apD10' c'),
-        apply concat, rotate_left 1,
+        apply concat, rotate_left 1, esimp,
         exact (pi_transport_constant (eq_of_homotopy pF) H₁ c),
         apply idp
       end))))

@@ -22,7 +22,7 @@ public:
     virtual bool is_opaque(declaration const & d) const = 0;
     virtual optional<declaration> is_delta(expr const & e) const = 0;
 
-    virtual bool may_reduce_later(expr const & e, type_checker & c) = 0;
+    virtual bool is_stuck(expr const & e, type_checker & c) = 0;
     virtual pair<expr, constraint_seq> whnf(expr const & e, type_checker & c) = 0;
     virtual pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & j) = 0;
 

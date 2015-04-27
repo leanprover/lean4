@@ -965,7 +965,14 @@ optional<expr> is_elim_meta_app_core(Ctx & ctx, expr const & e) {
     if (elim_args.size() < major_idx + 1)
         return none_expr();
     expr intro_app = ctx.whnf(elim_args[major_idx]).first;
-    return has_expr_metavar_strict(intro_app);
+    if (it1->m_K_target) {
+        // TODO(Leo): make it more precise.  Remark: this piece of
+        // code does not affect the correctness of the kernel, but the
+        // effectiveness of the elaborator.
+        return has_expr_metavar_strict(intro_app);
+    } else {
+        return ctx.is_stuck(intro_app);
+    }
 }
 
 bool is_elim_meta_app(type_checker & tc, expr const & e) {
@@ -973,7 +980,7 @@ bool is_elim_meta_app(type_checker & tc, expr const & e) {
 }
 
 // Return true if \c e is of the form (elim ... (?m ...))
-optional<expr> inductive_normalizer_extension::may_reduce_later(expr const & e, extension_context & ctx) const {
+optional<expr> inductive_normalizer_extension::is_stuck(expr const & e, extension_context & ctx) const {
     return is_elim_meta_app_core(ctx, e);
 }
 

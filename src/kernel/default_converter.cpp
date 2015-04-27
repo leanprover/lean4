@@ -47,12 +47,12 @@ optional<expr> default_converter::d_norm_ext(expr const & e, constraint_seq & cs
 }
 
 /** \brief Return true if \c e may be reduced later after metavariables are instantiated. */
-bool default_converter::may_reduce_later(expr const & e) {
-    return static_cast<bool>(m_env.norm_ext().may_reduce_later(e, get_extension(*m_tc)));
+bool default_converter::is_stuck(expr const & e) {
+    return static_cast<bool>(m_env.norm_ext().is_stuck(e, get_extension(*m_tc)));
 }
 
-bool default_converter::may_reduce_later(expr const & e, type_checker & c) {
-    return static_cast<bool>(m_env.norm_ext().may_reduce_later(e, get_extension(c)));
+bool default_converter::is_stuck(expr const & e, type_checker & c) {
+    return static_cast<bool>(m_env.norm_ext().is_stuck(e, get_extension(c)));
 }
 
 /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */
@@ -524,7 +524,7 @@ pair<bool, constraint_seq> default_converter::is_def_eq_core(expr const & t, exp
         d_s = is_delta(s_n);
         if (d_t && d_s && is_eqp(*d_t, *d_s))
             delay_check = true;
-        else if (may_reduce_later(t_n) && may_reduce_later(s_n))
+        else if (is_stuck(t_n) && is_stuck(s_n))
             delay_check = true;
     }
 
@@ -539,7 +539,7 @@ pair<bool, constraint_seq> default_converter::is_def_eq_core(expr const & t, exp
     if (is_def_eq_proof_irrel(t, s, pi_cs))
         return to_bcs(true, pi_cs);
 
-    if (may_reduce_later(t_n) || may_reduce_later(s_n) || delay_check) {
+    if (is_stuck(t_n) || is_stuck(s_n) || delay_check) {
         cs += constraint_seq(mk_eq_cnstr(t_n, s_n, m_jst->get()));
         return to_bcs(true, cs);
     }

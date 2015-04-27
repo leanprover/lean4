@@ -435,7 +435,7 @@ optional<expr> type_checker::is_stuck(expr const & e) {
     if (is_meta(e)) {
         return some_expr(e);
     } else {
-        return m_env.norm_ext().may_reduce_later(e, m_tc_ctx);
+        return m_env.norm_ext().is_stuck(e, m_tc_ctx);
     }
 }
 

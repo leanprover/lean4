@@ -134,7 +134,7 @@ public:
         // In a real implementation, we must check if proj1 and mk were defined in the environment.
         return optional<pair<expr, constraint_seq>>(app_arg(app_fn(a_n)), constraint_seq());
     }
-    virtual optional<expr> may_reduce_later(expr const &, extension_context &) const { return none_expr(); }
+    virtual optional<expr> is_stuck(expr const &, extension_context &) const { return none_expr(); }
     virtual bool supports(name const &) const { return false; }
 };
 

@@ -11,6 +11,9 @@ namespace lean {
 expr extension_context::whnf(expr const & e, constraint_seq & cs) {
     auto p = whnf(e); cs += p.second; return p.first;
 }
+pair<expr, constraint_seq> extension_context::infer(expr const & e) {
+    return infer_type(e);
+}
 expr extension_context::infer_type(expr const & e, constraint_seq & cs) {
     auto p = infer_type(e); cs += p.second; return p.first;
 }

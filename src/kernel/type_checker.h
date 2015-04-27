@@ -81,6 +81,7 @@ class type_checker {
         }
         virtual pair<expr, constraint_seq> infer_type(expr const & e) { return m_tc.infer_type(e); }
         virtual name mk_fresh_name() { return m_tc.m_gen.next(); }
+        virtual optional<expr> is_stuck(expr const & e) { return m_tc.is_stuck(e); }
     };
 
     environment                m_env;
@@ -215,7 +216,7 @@ public:
 
     optional<declaration> is_delta(expr const & e) const { return m_conv->is_delta(e); }
 
-    bool may_reduce_later(expr const & e) { return m_conv->may_reduce_later(e, *this); }
+    bool may_reduce_later(expr const & e) { return m_conv->is_stuck(e, *this); }
 
     template<typename F>
     typename std::result_of<F()>::type with_params(level_param_names const & ps, F && f) {

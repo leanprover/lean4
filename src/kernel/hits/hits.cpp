@@ -115,10 +115,10 @@ optional<expr> is_hits_meta_app_core(Ctx & ctx, expr const & e) {
         return none_expr();
 
     expr mk_app = ctx.whnf(args[mk_pos]).first;
-    return has_expr_metavar_strict(mk_app);
+    return ctx.is_stuck(mk_app);
 }
 
-optional<expr> hits_normalizer_extension::may_reduce_later(expr const & e, extension_context & ctx) const {
+optional<expr> hits_normalizer_extension::is_stuck(expr const & e, extension_context & ctx) const {
     return is_hits_meta_app_core(ctx, e);
 }
 

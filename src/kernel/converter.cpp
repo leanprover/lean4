@@ -38,7 +38,7 @@ struct dummy_converter : public converter {
     virtual optional<module_idx> get_module_idx() const { return optional<module_idx>(); }
     virtual bool is_opaque(declaration const &) const { return false; }
     virtual optional<declaration> is_delta(expr const &) const { return optional<declaration>(); }
-    virtual bool may_reduce_later(expr const &, type_checker &) { return false; }
+    virtual bool is_stuck(expr const &, type_checker &) { return false; }
 };
 
 std::unique_ptr<converter> mk_dummy_converter() {

@@ -12,7 +12,7 @@ public:
     virtual optional<pair<expr, constraint_seq>> operator()(expr const &, extension_context &) const {
         return optional<pair<expr, constraint_seq>>();
     }
-    virtual optional<expr> may_reduce_later(expr const &, extension_context &) const { return none_expr(); }
+    virtual optional<expr> is_stuck(expr const &, extension_context &) const { return none_expr(); }
     virtual bool supports(name const &) const { return false; }
 };
 
@@ -34,11 +34,11 @@ public:
             return (*m_ext2)(e, ctx);
     }
 
-    virtual optional<expr> may_reduce_later(expr const & e, extension_context & ctx) const {
-        if (auto r = m_ext1->may_reduce_later(e, ctx))
+    virtual optional<expr> is_stuck(expr const & e, extension_context & ctx) const {
+        if (auto r = m_ext1->is_stuck(e, ctx))
             return r;
         else
-            return m_ext2->may_reduce_later(e, ctx);
+            return m_ext2->is_stuck(e, ctx);
     }
 
     virtual bool supports(name const & feature) const {

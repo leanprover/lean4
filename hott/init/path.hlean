@@ -362,7 +362,7 @@ namespace eq
   definition con_con_ap_eq_con_con {g : A → A} (p : id ∼ g) {x y : A} (q : x = y)
       {w : A} (r : w = x) :
     (r ⬝ p x) ⬝ ap g q = (r ⬝ q) ⬝ p y :=
-  eq.rec_on q idp
+  begin cases q, exact idp end
 
   definition con_ap_con_eq_con_con' {g : A → A} (p : id ∼ g) {x y : A} (q : x = y)
       {z : A} (s : g y = z) :

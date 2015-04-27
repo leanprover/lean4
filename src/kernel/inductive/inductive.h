@@ -17,7 +17,7 @@ namespace inductive {
 class inductive_normalizer_extension : public normalizer_extension {
 public:
     virtual optional<pair<expr, constraint_seq>> operator()(expr const & e, extension_context & ctx) const;
-    virtual optional<expr> may_reduce_later(expr const & e, extension_context & ctx) const;
+    virtual optional<expr> is_stuck(expr const & e, extension_context & ctx) const;
     virtual bool supports(name const & feature) const;
 };
 

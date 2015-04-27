@@ -10,18 +10,18 @@ Ported from Coq HoTT
 
 prelude
 import .equiv
-open eq equiv is_equiv
+open eq equiv is_equiv equiv.ops
 
 --Ensure that the types compared are in the same universe
 section
   universe variable l
   variables {A B : Type.{l}}
 
-  definition is_equiv_tr_of_eq (H : A = B) : is_equiv (transport (λX:Type, X) H) :=
+  definition is_equiv_cast_of_eq (H : A = B) : is_equiv (cast H) :=
     (@is_equiv_tr Type (λX, X) A B H)
 
   definition equiv_of_eq (H : A = B) : A ≃ B :=
-    equiv.mk _ (is_equiv_tr_of_eq H)
+    equiv.mk _ (is_equiv_cast_of_eq H)
 
 end
 
@@ -30,8 +30,21 @@ axiom univalence (A B : Type) : is_equiv (@equiv_of_eq A B)
 attribute univalence [instance]
 
 -- This is the version of univalence axiom we will probably use most often
-definition ua {A B : Type} : A ≃ B → A = B :=
-(@equiv_of_eq A B)⁻¹
+definition ua [reducible] {A B : Type} : A ≃ B → A = B :=
+equiv_of_eq⁻¹
+
+definition equiv_of_eq_ua [reducible] {A B : Type} (f : A ≃ B) : equiv_of_eq (ua f) = f :=
+right_inv equiv_of_eq f
+
+definition cast_ua_fn {A B : Type} (f : A ≃ B) : cast (ua f) = f :=
+ap to_fun (equiv_of_eq_ua f)
+
+definition cast_ua {A B : Type} (f : A ≃ B) (a : A) : cast (ua f) a = f a :=
+ap10 (cast_ua_fn f) a
+
+definition ua_equiv_of_eq [reducible] {A B : Type} (p : A = B) : ua (equiv_of_eq p) = p :=
+left_inv equiv_of_eq p
+
 
 -- One consequence of UA is that we can transport along equivalencies of types
 namespace equiv

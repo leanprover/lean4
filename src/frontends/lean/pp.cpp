@@ -1136,6 +1136,7 @@ static bool is_pp_atomic(expr const & e) {
 }
 
 auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
+    check_system("pretty printer");
     if ((m_depth >= m_max_depth ||
          m_num_steps > m_max_steps ||
          (m_hide_full_terms && !ignore_hide && !has_expr_metavar_relaxed(e))) &&

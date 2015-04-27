@@ -225,10 +225,6 @@ tactic fapply_tactic(elaborate_fn const & elab, expr const & e) {
     return apply_tactic_core(elab, e, AddAllSubgoals);
 }
 
-tactic rapply_tactic(elaborate_fn const & elab, expr const & e) {
-    return apply_tactic_core(elab, e, AddRevSubgoals);
-}
-
 int mk_eassumption_tactic(lua_State * L) { return push_tactic(L, eassumption_tactic()); }
 void open_apply_tactic(lua_State * L) {
     SET_GLOBAL_FUN(mk_eassumption_tactic, "eassumption_tac");
@@ -244,12 +240,6 @@ void initialize_apply_tactic() {
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'apply' tactic, invalid argument");
                      return apply_tactic(fn, get_tactic_expr_expr(app_arg(e)));
-                 });
-
-    register_tac(get_tactic_rapply_name(),
-                 [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
-                     check_tactic_expr(app_arg(e), "invalid 'rapply' tactic, invalid argument");
-                     return rapply_tactic(fn, get_tactic_expr_expr(app_arg(e)));
                  });
 
     register_tac(get_tactic_fapply_name(),

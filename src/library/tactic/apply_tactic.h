@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "library/tactic/elaborate.h"
 namespace lean {
 tactic apply_tactic(elaborate_fn const & fn, expr const & e);
-tactic rapply_tactic(elaborate_fn const & fn, expr const & e);
 tactic fapply_tactic(elaborate_fn const & fn, expr const & e);
 tactic eassumption_tactic();
 void open_apply_tactic(lua_State * L);

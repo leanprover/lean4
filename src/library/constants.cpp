@@ -63,7 +63,6 @@ name const * g_tactic_all_goals = nullptr;
 name const * g_tactic_apply = nullptr;
 name const * g_tactic_assert_hypothesis = nullptr;
 name const * g_tactic_fapply = nullptr;
-name const * g_tactic_rapply = nullptr;
 name const * g_tactic_eassumption = nullptr;
 name const * g_tactic_and_then = nullptr;
 name const * g_tactic_append = nullptr;
@@ -182,7 +181,6 @@ void initialize_constants() {
     g_tactic_apply = new name{"tactic", "apply"};
     g_tactic_assert_hypothesis = new name{"tactic", "assert_hypothesis"};
     g_tactic_fapply = new name{"tactic", "fapply"};
-    g_tactic_rapply = new name{"tactic", "rapply"};
     g_tactic_eassumption = new name{"tactic", "eassumption"};
     g_tactic_and_then = new name{"tactic", "and_then"};
     g_tactic_append = new name{"tactic", "append"};
@@ -302,7 +300,6 @@ void finalize_constants() {
     delete g_tactic_apply;
     delete g_tactic_assert_hypothesis;
     delete g_tactic_fapply;
-    delete g_tactic_rapply;
     delete g_tactic_eassumption;
     delete g_tactic_and_then;
     delete g_tactic_append;
@@ -421,7 +418,6 @@ name const & get_tactic_all_goals_name() { return *g_tactic_all_goals; }
 name const & get_tactic_apply_name() { return *g_tactic_apply; }
 name const & get_tactic_assert_hypothesis_name() { return *g_tactic_assert_hypothesis; }
 name const & get_tactic_fapply_name() { return *g_tactic_fapply; }
-name const & get_tactic_rapply_name() { return *g_tactic_rapply; }
 name const & get_tactic_eassumption_name() { return *g_tactic_eassumption; }
 name const & get_tactic_and_then_name() { return *g_tactic_and_then; }
 name const & get_tactic_append_name() { return *g_tactic_append; }

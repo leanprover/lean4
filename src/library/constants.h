@@ -65,7 +65,6 @@ name const & get_tactic_all_goals_name();
 name const & get_tactic_apply_name();
 name const & get_tactic_assert_hypothesis_name();
 name const & get_tactic_fapply_name();
-name const & get_tactic_rapply_name();
 name const & get_tactic_eassumption_name();
 name const & get_tactic_and_then_name();
 name const & get_tactic_append_name();

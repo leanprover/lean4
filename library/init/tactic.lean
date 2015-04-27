@@ -65,7 +65,6 @@ definition identifier_list := expr_list
 definition opt_identifier_list := expr_list
 
 opaque definition apply      (e : expr)         : tactic := builtin
-opaque definition rapply     (e : expr)         : tactic := builtin
 opaque definition fapply     (e : expr)         : tactic := builtin
 opaque definition rename     (a b : identifier) : tactic := builtin
 opaque definition intro      (e : identifier)   : tactic := builtin

@@ -58,7 +58,6 @@ tactic.all_goals
 tactic.apply
 tactic.assert_hypothesis
 tactic.fapply
-tactic.rapply
 tactic.eassumption
 tactic.and_then
 tactic.append

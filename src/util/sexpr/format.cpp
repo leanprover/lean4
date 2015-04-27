@@ -116,6 +116,7 @@ format const & dot() { return *g_dot; }
 LEAN_THREAD_VALUE(bool, g_diff_flatten, false);
 //
 sexpr format::flatten(sexpr const & s) {
+    check_system("formatter");
     lean_assert(is_cons(s));
     switch (sexpr_kind(s)) {
     case format_kind::NIL:
@@ -265,6 +266,7 @@ std::ostream & format::pretty(std::ostream & out, unsigned w, bool colors, forma
     std::vector<pair<sexpr, unsigned>> todo;
     todo.push_back(std::make_pair(f.m_value, 0));
     while (!todo.empty()) {
+        check_system("formatter");
         auto pair       = todo.back();
         sexpr s         = pair.first;
         unsigned indent = pair.second;
@@ -355,6 +357,7 @@ format pp(name const & n) {
 
 struct sexpr_pp_fn {
     format apply(sexpr const & s) {
+        check_system("formatter");
         switch (s.kind()) {
         case sexpr_kind::Nil:         return format("nil");
         case sexpr_kind::String: {

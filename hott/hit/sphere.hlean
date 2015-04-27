@@ -82,7 +82,7 @@ namespace sphere
   definition sphere_equiv_bool : sphere 0 ≃ bool :=
   equiv.MK bool_of_sphere
            sphere_of_bool
-           sorry --idp
-           sorry --idp
+           (λb, match b with | tt := idp | ff := idp end)
+           (λx, suspension.rec_on x idp idp (empty.rec _))
 
 end sphere

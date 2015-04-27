@@ -26,4 +26,9 @@ namespace trunc
     [Pt : is_trunc n P] (H : A → P) : P :=
   elim H aa
 
+  /-
+    there are no theorems to eliminate to the universe here,
+    because the universe is generally not a set
+  -/
+
 end trunc

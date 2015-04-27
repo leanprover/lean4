@@ -10,7 +10,7 @@ Declaration of suspension
 
 import .pushout
 
-open pushout unit eq equiv
+open pushout unit eq equiv equiv.ops
 
 definition suspension (A : Type) : Type := pushout (λ(a : A), star.{0}) (λ(a : A), star.{0})
 
@@ -39,9 +39,9 @@ namespace suspension
     (PN : P !north) (PS : P !south) (Pm : Π(a : A), merid a ▹ PN = PS) : P y :=
   rec PN PS Pm y
 
-  definition rec_merid {P : suspension A → Type} (PN : P !north) (PS : P !south)
+  theorem rec_merid {P : suspension A → Type} (PN : P !north) (PS : P !south)
     (Pm : Π(a : A), merid a ▹ PN = PS) (a : A)
-      : apd (rec PN PS Pm) (merid a) = sorry ⬝ Pm a ⬝ sorry :=
+      : apd (rec PN PS Pm) (merid a) = Pm a :=
   sorry
 
   protected definition elim {P : Type} (PN : P) (PS : P) (Pm : A → PN = PS)
@@ -52,9 +52,12 @@ namespace suspension
     (PN : P) (PS : P)  (Pm : A → PN = PS) : P :=
   elim PN PS Pm x
 
-  protected definition elim_merid {P : Type} (PN : P) (PS : P) (Pm : A → PN = PS)
-    (x : suspension A) (a : A) : ap (elim PN PS Pm) (merid a) = sorry ⬝ Pm a ⬝ sorry :=
-  sorry
+  theorem elim_merid {P : Type} (PN : P) (PS : P) (Pm : A → PN = PS) (a : A)
+    : ap (elim PN PS Pm) (merid a) = Pm a :=
+  begin
+    apply (@cancel_left _ _ _ _ (tr_constant (merid a) (elim PN PS Pm !north))),
+    rewrite [-apd_eq_tr_constant_con_ap,↑elim,rec_merid],
+  end
 
   protected definition elim_type (PN : Type) (PS : Type) (Pm : A → PN ≃ PS)
     (x : suspension A) : Type :=
@@ -64,9 +67,8 @@ namespace suspension
     (PN : Type) (PS : Type)  (Pm : A → PN ≃ PS) : Type :=
   elim_type PN PS Pm x
 
-  protected definition elim_type_merid (PN : Type) (PS : Type) (Pm : A → PN ≃ PS)
-    (x : suspension A) (a : A) : transport (elim_type PN PS Pm) (merid a) = sorry /-Pm a-/ :=
-  sorry
-
+  theorem elim_type_merid (PN : Type) (PS : Type) (Pm : A → PN ≃ PS)
+    (x : suspension A) (a : A) : transport (elim_type PN PS Pm) (merid a) = Pm a :=
+  by rewrite [tr_eq_cast_ap_fn,↑elim_type,elim_merid];apply cast_ua_fn
 
 end suspension

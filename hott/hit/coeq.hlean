@@ -10,7 +10,7 @@ Declaration of the coequalizer
 
 import .type_quotient
 
-open type_quotient eq equiv
+open type_quotient eq equiv equiv.ops
 
 namespace coeq
 section
@@ -30,7 +30,7 @@ parameters {A B : Type.{u}} (f g : A → B)
 
   /- cp is the name Coq uses. I don't know what it abbreviates, but at least it's short :-) -/
   definition cp (x : A) : coeq_i (f x) = coeq_i (g x) :=
-  eq_of_rel (Rmk f g x)
+  eq_of_rel coeq_rel (Rmk f g x)
 
   protected definition rec {P : coeq → Type} (P_i : Π(x : B), P (coeq_i x))
     (Pcp : Π(x : A), cp x ▹ P_i (f x) = P_i (g x)) (y : coeq) : P y :=
@@ -44,9 +44,9 @@ parameters {A B : Type.{u}} (f g : A → B)
     (P_i : Π(x : B), P (coeq_i x)) (Pcp : Π(x : A), cp x ▹ P_i (f x) = P_i (g x)) : P y :=
   rec P_i Pcp y
 
-  definition rec_cp {P : coeq → Type} (P_i : Π(x : B), P (coeq_i x))
+  theorem rec_cp {P : coeq → Type} (P_i : Π(x : B), P (coeq_i x))
     (Pcp : Π(x : A), cp x ▹ P_i (f x) = P_i (g x))
-      (x : A) : apd (rec P_i Pcp) (cp x) = sorry ⬝ Pcp x ⬝ sorry :=
+      (x : A) : apd (rec P_i Pcp) (cp x) = Pcp x :=
   sorry
 
   protected definition elim {P : Type} (P_i : B → P)
@@ -57,9 +57,12 @@ parameters {A B : Type.{u}} (f g : A → B)
     (Pcp : Π(x : A), P_i (f x) = P_i (g x)) : P :=
   elim P_i Pcp y
 
-  definition elim_cp {P : Type} (P_i : B → P) (Pcp : Π(x : A), P_i (f x) = P_i (g x))
-    (x : A) : ap (elim P_i Pcp) (cp x) = sorry ⬝ Pcp x ⬝ sorry :=
-  sorry
+  theorem elim_cp {P : Type} (P_i : B → P) (Pcp : Π(x : A), P_i (f x) = P_i (g x))
+    (x : A) : ap (elim P_i Pcp) (cp x) = Pcp x :=
+  begin
+    apply (@cancel_left _ _ _ _ (tr_constant (cp x) (elim P_i Pcp (coeq_i (f x))))),
+    rewrite [-apd_eq_tr_constant_con_ap,↑elim,rec_cp],
+  end
 
   protected definition elim_type (P_i : B → Type)
     (Pcp : Π(x : A), P_i (f x) ≃ P_i (g x)) (y : coeq) : Type :=
@@ -69,10 +72,9 @@ parameters {A B : Type.{u}} (f g : A → B)
     (Pcp : Π(x : A), P_i (f x) ≃ P_i (g x)) : Type :=
   elim_type P_i Pcp y
 
-  definition elim_type_cp (P_i : B → Type) (Pcp : Π(x : A), P_i (f x) ≃ P_i (g x))
-    (x : A) : transport (elim_type P_i Pcp) (cp x) = sorry /-Pcp x-/ :=
-  sorry
-
+  theorem elim_type_cp (P_i : B → Type) (Pcp : Π(x : A), P_i (f x) ≃ P_i (g x))
+    (x : A) : transport (elim_type P_i Pcp) (cp x) = Pcp x :=
+  by rewrite [tr_eq_cast_ap_fn,↑elim_type,elim_cp];apply cast_ua_fn
 
 end
 

@@ -518,6 +518,8 @@ namespace eq
   definition tr_eq_cast_ap (P : A → Type) {x y} (p : x = y) (u : P x) : p ▹ u = cast (ap P p) u :=
   eq.rec_on p idp
 
+  definition tr_eq_cast_ap_fn (P : A → Type) {x y} (p : x = y) : transport P p = cast (ap P p) :=
+  eq.rec_on p idp
 
   /- The behavior of [ap] and [apd] -/
 

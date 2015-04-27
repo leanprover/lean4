@@ -22,7 +22,7 @@ parameters {A : Type} (R : A → A → hprop)
   tr (class_of _ a)
 
   definition eq_of_rel {a a' : A} (H : R a a') : class_of a = class_of a' :=
-  ap tr (eq_of_rel H)
+  ap tr (eq_of_rel _ H)
 
   theorem is_hset_quotient : is_hset quotient :=
   begin unfold quotient, exact _ end
@@ -44,9 +44,9 @@ parameters {A : Type} (R : A → A → hprop)
     (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▹ Pc a = Pc a') : P x :=
   rec Pc Pp x
 
-  definition rec_eq_of_rel {P : quotient → Type} [Pt : Πaa, is_hset (P aa)]
+  theorem rec_eq_of_rel {P : quotient → Type} [Pt : Πaa, is_hset (P aa)]
     (Pc : Π(a : A), P (class_of a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▹ Pc a = Pc a')
-    {a a' : A} (H : R a a') : apd (rec Pc Pp) (eq_of_rel H) = sorry ⬝ Pp H ⬝ sorry :=
+    {a a' : A} (H : R a a') : apd (rec Pc Pp) (eq_of_rel H) = Pp H :=
   sorry
 
   protected definition elim {P : Type} [Pt : is_hset P] (Pc : A → P)
@@ -57,10 +57,18 @@ parameters {A : Type} (R : A → A → hprop)
     (Pc : A → P) (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a = Pc a')  : P :=
   elim Pc Pp x
 
-  protected definition elim_eq_of_rel {P : Type} [Pt : is_hset P] (Pc : A → P)
+  theorem elim_eq_of_rel {P : Type} [Pt : is_hset P] (Pc : A → P)
     (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a = Pc a') {a a' : A} (H : R a a')
-    : ap (elim Pc Pp) (eq_of_rel H) = sorry ⬝ Pp H ⬝ sorry :=
-  sorry
+    : ap (elim Pc Pp) (eq_of_rel H) = Pp H :=
+  begin
+    apply (@cancel_left _ _ _ _ (tr_constant (eq_of_rel H) (elim Pc Pp (class_of a)))),
+    rewrite [-apd_eq_tr_constant_con_ap,↑elim,rec_eq_of_rel],
+  end
+
+  /-
+    there are no theorems to eliminate to the universe here,
+    because the universe is generally not a set
+  -/
 
 end
 end quotient

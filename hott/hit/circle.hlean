@@ -10,7 +10,7 @@ Declaration of the circle
 
 import .sphere
 
-open eq suspension bool sphere_index equiv
+open eq suspension bool sphere_index equiv equiv.ops
 
 definition circle [reducible] := suspension bool --redefine this as sphere 1
 
@@ -39,14 +39,14 @@ namespace circle
     (Ps1 : seg1 ▹ Pb1 = Pb2) (Ps2 : seg2 ▹ Pb2 = Pb1) : P x :=
   circle.rec2 Pb1 Pb2 Ps1 Ps2 x
 
-  definition rec2_seg1 {P : circle → Type} (Pb1 : P base1) (Pb2 : P base2)
+  theorem rec2_seg1 {P : circle → Type} (Pb1 : P base1) (Pb2 : P base2)
     (Ps1 : seg1 ▹ Pb1 = Pb2) (Ps2 : seg2 ▹ Pb2 = Pb1)
-      : apd (rec2 Pb1 Pb2 Ps1 Ps2) seg1 = sorry ⬝ Ps1 ⬝ sorry :=
+      : apd (rec2 Pb1 Pb2 Ps1 Ps2) seg1 = Ps1 :=
   sorry
 
-  definition rec2_seg2 {P : circle → Type} (Pb1 : P base1) (Pb2 : P base2)
+  theorem rec2_seg2 {P : circle → Type} (Pb1 : P base1) (Pb2 : P base2)
     (Ps1 : seg1 ▹ Pb1 = Pb2) (Ps2 : seg2 ▹ Pb2 = Pb1)
-      : apd (rec2 Pb1 Pb2 Ps1 Ps2) seg2 = sorry ⬝ Ps2 ⬝ sorry :=
+      : apd (rec2 Pb1 Pb2 Ps1 Ps2) seg2 = Ps2 :=
   sorry
 
   definition elim2 {P : Type} (Pb1 Pb2 : P) (Ps1 : Pb1 = Pb2) (Ps2 : Pb2 = Pb1) (x : circle) : P :=
@@ -56,13 +56,19 @@ namespace circle
     (Ps1 : Pb1 = Pb2) (Ps2 : Pb2 = Pb1) : P :=
   elim2 Pb1 Pb2 Ps1 Ps2 x
 
-  definition elim2_seg1 {P : Type} (Pb1 Pb2 : P) (Ps1 : Pb1 = Pb2) (Ps2 : Pb2 = Pb1)
-    : ap (elim2 Pb1 Pb2 Ps1 Ps2) seg1 = sorry ⬝ Ps1 ⬝ sorry :=
-  sorry
+  theorem elim2_seg1 {P : Type} (Pb1 Pb2 : P) (Ps1 : Pb1 = Pb2) (Ps2 : Pb2 = Pb1)
+    : ap (elim2 Pb1 Pb2 Ps1 Ps2) seg1 = Ps1 :=
+  begin
+    apply (@cancel_left _ _ _ _ (tr_constant seg1 (elim2 Pb1 Pb2 Ps1 Ps2 base1))),
+    rewrite [-apd_eq_tr_constant_con_ap,↑elim2,rec2_seg1],
+  end
 
-  definition elim2_seg2 {P : Type} (Pb1 Pb2 : P) (Ps1 : Pb1 = Pb2) (Ps2 : Pb2 = Pb1)
-    : ap (elim2 Pb1 Pb2 Ps1 Ps2) seg2 = sorry ⬝ Ps2 ⬝ sorry :=
-  sorry
+  theorem elim2_seg2 {P : Type} (Pb1 Pb2 : P) (Ps1 : Pb1 = Pb2) (Ps2 : Pb2 = Pb1)
+    : ap (elim2 Pb1 Pb2 Ps1 Ps2) seg2 = Ps2 :=
+  begin
+    apply (@cancel_left _ _ _ _ (tr_constant seg2 (elim2 Pb1 Pb2 Ps1 Ps2 base2))),
+    rewrite [-apd_eq_tr_constant_con_ap,↑elim2,rec2_seg2],
+  end
 
   protected definition rec {P : circle → Type} (Pbase : P base) (Ploop : loop ▹ Pbase = Pbase)
     (x : circle) : P x :=
@@ -74,12 +80,14 @@ namespace circle
     { apply eq_tr_of_inv_tr_eq, rewrite -tr_con, apply Ploop},
   end
 
+  example {P : circle → Type} (Pbase : P base) (Ploop : loop ▹ Pbase = Pbase) : rec Pbase Ploop base = Pbase := idp
+
   protected definition rec_on [reducible] {P : circle → Type} (x : circle) (Pbase : P base)
     (Ploop : loop ▹ Pbase = Pbase) : P x :=
   rec Pbase Ploop x
 
-  definition rec_loop {P : circle → Type} (Pbase : P base) (Ploop : loop ▹ Pbase = Pbase) :
-    ap (rec Pbase Ploop) loop = sorry ⬝ Ploop ⬝ sorry :=
+  theorem rec_loop {P : circle → Type} (Pbase : P base) (Ploop : loop ▹ Pbase = Pbase) :
+    apd (rec Pbase Ploop) loop = Ploop :=
   sorry
 
   protected definition elim {P : Type} (Pbase : P) (Ploop : Pbase = Pbase)
@@ -90,9 +98,12 @@ namespace circle
     (Ploop : Pbase = Pbase) : P :=
   elim Pbase Ploop x
 
-  definition elim_loop {P : Type} (Pbase : P) (Ploop : Pbase = Pbase) :
-    ap (elim Pbase Ploop) loop = sorry ⬝ Ploop ⬝ sorry :=
-  sorry
+  theorem elim_loop {P : Type} (Pbase : P) (Ploop : Pbase = Pbase) :
+    ap (elim Pbase Ploop) loop = Ploop :=
+  begin
+    apply (@cancel_left _ _ _ _ (tr_constant loop (elim Pbase Ploop base))),
+    rewrite [-apd_eq_tr_constant_con_ap,↑elim,rec_loop],
+  end
 
   protected definition elim_type (Pbase : Type) (Ploop : Pbase ≃ Pbase)
     (x : circle) : Type :=
@@ -102,8 +113,8 @@ namespace circle
     (Ploop : Pbase ≃ Pbase) : Type :=
   elim_type Pbase Ploop x
 
-  definition elim_type_loop (Pbase : Type) (Ploop : Pbase ≃ Pbase) :
-    transport (elim_type Pbase Ploop) loop = sorry /-Ploop-/ :=
-  sorry
+  theorem elim_type_loop (Pbase : Type) (Ploop : Pbase ≃ Pbase) :
+    transport (elim_type Pbase Ploop) loop = Ploop :=
+  by rewrite [tr_eq_cast_ap_fn,↑elim_type,elim_loop];apply cast_ua_fn
 
 end circle

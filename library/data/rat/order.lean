@@ -40,8 +40,8 @@ calc
 theorem nonneg_zero : nonneg zero := le.refl 0
 
 theorem nonneg_add (H1 : nonneg a) (H2 : nonneg b) : nonneg (add a b) :=
-show num a * denom b + num b * denom a ≥ 0, 
-  from add_nonneg 
+show num a * denom b + num b * denom a ≥ 0,
+  from add_nonneg
     (mul_nonneg H1 (le_of_lt (denom_pos b)))
     (mul_nonneg H2 (le_of_lt (denom_pos a)))
 
@@ -60,7 +60,7 @@ theorem ne_zero_of_pos (H : pos a) : ¬ a ≡ zero :=
 assume H', ne_of_gt H (num_eq_zero_of_equiv_zero H')
 
 theorem pos_of_nonneg_of_ne_zero (H1 : nonneg a) (H2 : ¬ a ≡ zero) : pos a :=
-have H3 : num a ≠ 0, 
+have H3 : num a ≠ 0,
   from assume H' : num a = 0, H2 (equiv_zero_of_num_eq_zero H'),
 lt_of_le_of_ne H1 (ne.symm H3)
 
@@ -77,7 +77,7 @@ local attribute prerat.setoid [instance]
 
 /- The ordering on the rationals.
 
-   The definitions of pos and nonneg are kept private, because they are only meant for internal 
+   The definitions of pos and nonneg are kept private, because they are only meant for internal
    use. Users should use a > 0 and a ≥ 0 instead of pos and nonneg.
 -/
 
@@ -109,7 +109,7 @@ quot.induction_on a @prerat.nonneg_total
 private theorem nonneg_of_pos : pos a → nonneg a :=
 quot.induction_on a @prerat.nonneg_of_pos
 
-private theorem ne_zero_of_pos : pos a → a ≠ 0 := 
+private theorem ne_zero_of_pos : pos a → a ≠ 0 :=
 quot.induction_on a (take u, assume H1 H2, prerat.ne_zero_of_pos H1 (quot.exact H2))
 
 private theorem pos_of_nonneg_of_ne_zero : nonneg a → ¬ a = 0 → pos a :=
@@ -134,7 +134,7 @@ quot.rec_on_subsingleton a (take u, int.decidable_lt 0 (prerat.num u))
 definition lt (a b : ℚ) : Prop := pos (b - a)
 definition le (a b : ℚ) : Prop := nonneg (b - a)
 definition gt [reducible] (a b : ℚ) := lt b a
-definition ge [reducible] (a b : ℚ) := le b a 
+definition ge [reducible] (a b : ℚ) := le b a
 
 infix <  := rat.lt
 infix <= := rat.le
@@ -143,7 +143,7 @@ infix >= := rat.ge
 infix ≥  := rat.ge
 infix >  := rat.gt
 
-theorem le.refl (a : ℚ) : a ≤ a := 
+theorem le.refl (a : ℚ) : a ≤ a :=
 by rewrite [↑rat.le, sub_self]; apply nonneg_zero
 
 theorem le.trans (H1 : a ≤ b) (H2 : b ≤ c) : a ≤ c :=
@@ -166,7 +166,7 @@ or.elim (nonneg_total (b - a))
 
 theorem lt_iff_le_and_ne (a b : ℚ) : a < b ↔ a ≤ b ∧ a ≠ b :=
 iff.intro
-  (assume H : a < b, 
+  (assume H : a < b,
     have H1 : b - a ≠ 0, from ne_zero_of_pos H,
     have H2 : a ≠ b, from ne.symm (assume H', H1 (H' ▸ !sub_self)),
     and.intro (nonneg_of_pos H) H2)
@@ -204,7 +204,7 @@ take a b, decidable_pos (b - a)
 section
   open [classes] algebra
 
-  protected definition discrete_linear_ordered_field [instance] [reducible] : 
+  protected definition discrete_linear_ordered_field [instance] [reducible] :
     algebra.discrete_linear_ordered_field rat :=
   ⦃algebra.discrete_linear_ordered_field,
     rat.discrete_field,
@@ -219,7 +219,8 @@ section
     mul_pos          := @mul_pos,
     decidable_lt     := @decidable_lt⦄
 
---  migrate from algebra with rat
+  definition abs (n : rat) : rat := algebra.abs n
+  definition sign (n : rat) : rat := algebra.sign n
+  migrate from algebra with rat replacing abs → abs, sign → sign
 end
-
 end rat

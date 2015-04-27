@@ -125,9 +125,9 @@ namespace category
       {exact (eq_of_iso_ob η)},
       {intros [c, c', f], --unfold eq_of_iso_ob, --TODO: report: this fails
         apply concat,
-          {apply (ap (λx, to_hom x ∘ to_fun_hom F f ∘ _)), apply (retr iso_of_eq)},
+          {apply (ap (λx, to_hom x ∘ to_fun_hom F f ∘ _)), apply (right_inv iso_of_eq)},
         apply concat,
-          {apply (ap (λx, _ ∘ to_fun_hom F f ∘ (to_hom x)⁻¹)), apply (retr iso_of_eq)},
+          {apply (ap (λx, _ ∘ to_fun_hom F f ∘ (to_hom x)⁻¹)), apply (right_inv iso_of_eq)},
         apply inverse, apply naturality_iso}
     end
 
@@ -138,7 +138,7 @@ namespace category
     intro c,
     rewrite natural_map_hom_of_eq, esimp [eq_of_iso],
     rewrite ap010_functor_eq, esimp [hom_of_eq,eq_of_iso_ob],
-    rewrite (retr iso_of_eq),
+    rewrite (right_inv iso_of_eq),
     end
 
     definition eq_of_iso_iso_of_eq (p : F = G) : eq_of_iso (iso_of_eq p) = p :=
@@ -149,7 +149,7 @@ namespace category
     rewrite ap010_functor_eq,
     esimp [eq_of_iso_ob],
     rewrite componentwise_iso_iso_of_eq,
-    rewrite (sect iso_of_eq)
+    rewrite (left_inv iso_of_eq)
     end
 
     definition is_univalent (D : Category) (C : Precategory) : is_univalent (D ^c C) :=

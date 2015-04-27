@@ -144,8 +144,8 @@ namespace funext
              begin
                intro H, esimp [apd100, eq_of_homotopy2, function.compose],
                apply eq_of_homotopy, intro a,
-               apply concat, apply (ap (λx, apd10 (x a))), apply (retr apd10),
-               apply (retr apd10)
+               apply concat, apply (ap (λx, apd10 (x a))), apply (right_inv apd10),
+               apply (right_inv apd10)
              end
              begin
                intro p, cases p, apply eq_of_homotopy2_id
@@ -159,9 +159,9 @@ namespace funext
                intro H, apply eq_of_homotopy, intro a,
                apply concat,
                  {apply (ap (λx, @apd100 _ _ (λ(b : B a)(c : C a b), _) _ _ (x a))),
-                   apply (retr apd10)},
+                   apply (right_inv apd10)},
 --TODO: remove implicit argument after #469 is closed
-               apply (@retr _ _ apd100 !is_equiv_apd100) --is explicit argument needed here?
+               apply (@right_inv _ _ apd100 !is_equiv_apd100) --is explicit argument needed here?
              end
              begin
                intro p, cases p, apply eq_of_homotopy3_id
@@ -173,11 +173,11 @@ namespace eq
   local attribute funext.is_equiv_apd100 [instance]
   protected definition homotopy2.rec_on {f g : Πa b, C a b} {P : (f ∼2 g) → Type}
     (p : f ∼2 g) (H : Π(q : f = g), P (apd100 q)) : P p :=
-  retr apd100 p ▹ H (eq_of_homotopy2 p)
+  right_inv apd100 p ▹ H (eq_of_homotopy2 p)
 
   protected definition homotopy3.rec_on {f g : Πa b c, D a b c} {P : (f ∼3 g) → Type}
     (p : f ∼3 g) (H : Π(q : f = g), P (apd1000 q)) : P p :=
-  retr apd1000 p ▹ H (eq_of_homotopy3 p)
+  right_inv apd1000 p ▹ H (eq_of_homotopy3 p)
 
   definition apd10_ap (f : X → Πa, B a) (p : x = x')
     : apd10 (ap f p) = ap010 f p :=

@@ -21,15 +21,15 @@ namespace is_equiv
     include H
     definition is_contr_fiber_of_is_equiv (b : B) : is_contr (fiber f b) :=
     is_contr.mk
-      (fiber.mk (f⁻¹ b) (retr f b))
-      (λz, fiber.rec_on z (λa p, fiber_eq ((ap f⁻¹ p)⁻¹ ⬝ sect f a) (calc
-        retr f b = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ((ap (f ∘ f⁻¹) p) ⬝ retr f b) : by rewrite inv_con_cancel_left
-             ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (retr f (f a) ⬝ p)       : by rewrite ap_con_eq_con
-             ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (ap f (sect f a) ⬝ p)    : by rewrite adj
-             ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ap f (sect f a) ⬝ p      : by rewrite con.assoc
-             ... = (ap f (ap f⁻¹ p))⁻¹ ⬝ ap f (sect f a) ⬝ p     : by rewrite ap_compose
-             ... = ap f (ap f⁻¹ p)⁻¹ ⬝ ap f (sect f a) ⬝ p       : by rewrite ap_inv
-             ... = ap f ((ap f⁻¹ p)⁻¹ ⬝ sect f a) ⬝ p            : by rewrite ap_con)))
+      (fiber.mk (f⁻¹ b) (right_inv f b))
+      (λz, fiber.rec_on z (λa p, fiber_eq ((ap f⁻¹ p)⁻¹ ⬝ left_inv f a) (calc
+        right_inv f b = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ((ap (f ∘ f⁻¹) p) ⬝ right_inv f b) : by rewrite inv_con_cancel_left
+             ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (right_inv f (f a) ⬝ p)       : by rewrite ap_con_eq_con
+             ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (ap f (left_inv f a) ⬝ p)    : by rewrite adj
+             ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ap f (left_inv f a) ⬝ p      : by rewrite con.assoc
+             ... = (ap f (ap f⁻¹ p))⁻¹ ⬝ ap f (left_inv f a) ⬝ p     : by rewrite ap_compose
+             ... = ap f (ap f⁻¹ p)⁻¹ ⬝ ap f (left_inv f a) ⬝ p       : by rewrite ap_inv
+             ... = ap f ((ap f⁻¹ p)⁻¹ ⬝ left_inv f a) ⬝ p            : by rewrite ap_con)))
 
     definition is_contr_right_inverse : is_contr (Σ(g : B → A), f ∘ g ∼ id) :=
     begin
@@ -59,7 +59,7 @@ namespace is_equiv
 
   protected definition sigma_char : (is_equiv f) ≃
   (Σ(g : B → A) (ε : f ∘ g ∼ id) (η : g ∘ f ∼ id), Π(a : A), ε (f a) = ap f (η a)) :=
-  equiv.MK (λH, ⟨inv f, retr f, sect f, adj f⟩)
+  equiv.MK (λH, ⟨inv f, right_inv f, left_inv f, adj f⟩)
            (λp, is_equiv.mk f p.1 p.2.1 p.2.2.1 p.2.2.2)
            (λp, begin
                   cases p with [p1, p2],

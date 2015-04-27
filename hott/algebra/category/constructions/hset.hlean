@@ -31,8 +31,8 @@ namespace category
     definition iso_of_equiv {A B : Precategory_hset} (f : A ≃ B) : A ≅ B :=
     iso.MK (to_fun f)
            (equiv.to_inv f)
-           (eq_of_homotopy (sect (to_fun f)))
-           (eq_of_homotopy (retr (to_fun f)))
+           (eq_of_homotopy (left_inv (to_fun f)))
+           (eq_of_homotopy (right_inv (to_fun f)))
 
     definition equiv_of_iso {A B : Precategory_hset} (f : A ≅ B) : A ≃ B :=
     equiv.MK (to_hom f)

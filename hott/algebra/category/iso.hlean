@@ -208,7 +208,7 @@ namespace iso
       eq_of_homotopy p ▹ f =
         hom_of_eq (apd10 (eq_of_homotopy p) y) ∘ f ∘ inv_of_eq (apd10 (eq_of_homotopy p) x)
           : transport_hom_of_eq
-        ... = hom_of_eq (p y) ∘ f ∘ inv_of_eq (p x) : {retr apd10 p}
+        ... = hom_of_eq (p y) ∘ f ∘ inv_of_eq (p x) : {right_inv apd10 p}
   end
 
   structure mono [class] (f : a ⟶ b) :=

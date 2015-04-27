@@ -27,10 +27,10 @@ namespace pi
   /- Now we show how these things compute. -/
 
   definition apd10_eq_of_homotopy (h : f ∼ g) : apd10 (eq_of_homotopy h) ∼ h :=
-  apd10 (retr apd10 h)
+  apd10 (right_inv apd10 h)
 
   definition eq_of_homotopy_eta (p : f = g) : eq_of_homotopy (apd10 p) = p :=
-  sect apd10 p
+  left_inv apd10 p
 
   definition eq_of_homotopy_idp (f : Πa, B a) : eq_of_homotopy (λx : A, refl (f x)) = refl f :=
   !eq_of_homotopy_eta
@@ -121,21 +121,21 @@ namespace pi
       : is_equiv (pi_functor f0 f1) :=
   begin
     apply (adjointify (pi_functor f0 f1) (pi_functor f0⁻¹
-          (λ(a : A) (b' : B' (f0⁻¹ a)), transport B (retr f0 a) ((f1 (f0⁻¹ a))⁻¹ b')))),
+          (λ(a : A) (b' : B' (f0⁻¹ a)), transport B (right_inv f0 a) ((f1 (f0⁻¹ a))⁻¹ b')))),
     intro h, apply eq_of_homotopy,
     unfold pi_functor, unfold function.compose, unfold function.id,
     begin
       intro a',
       apply (tr_inv _ (adj f0 a')),
-      apply (transport (λx, f1 a' x = h a') (transport_compose B f0 (sect f0 a') _)),
+      apply (transport (λx, f1 a' x = h a') (transport_compose B f0 (left_inv f0 a') _)),
       apply (tr_inv (λx, x = h a') (fn_tr_eq_tr_fn _ f1 _)), unfold function.compose,
-      apply (tr_inv (λx, sect f0 a' ▹ x = h a') (retr (f1 _) _)), unfold function.id,
+      apply (tr_inv (λx, left_inv f0 a' ▹ x = h a') (right_inv (f1 _) _)), unfold function.id,
       apply apd
     end,
     begin
       intro h,
       apply eq_of_homotopy, intro a,
-      apply (tr_inv (λx, retr f0 a ▹ x = h a) (sect (f1 _) _)), unfold function.id,
+      apply (tr_inv (λx, right_inv f0 a ▹ x = h a) (left_inv (f1 _) _)), unfold function.id,
       apply apd
     end
   end

@@ -190,33 +190,33 @@ namespace sigma
       : is_equiv (sigma_functor f g) :=
   adjointify (sigma_functor f g)
              (sigma_functor f⁻¹ (λ(a' : A') (b' : B' a'),
-               ((g (f⁻¹ a'))⁻¹ (transport B' (retr f a')⁻¹ b'))))
+               ((g (f⁻¹ a'))⁻¹ (transport B' (right_inv f a')⁻¹ b'))))
   begin
     intro u',
     cases u' with [a', b'],
-    apply (sigma_eq (retr f a')),
-  --   rewrite retr,
+    apply (sigma_eq (right_inv f a')),
+  --   rewrite right_inv,
   -- end
-    -- "rewrite retr (g (f⁻¹ a'))"
-    apply concat, apply (ap (λx, (transport B' (retr f a') x))), apply (retr (g (f⁻¹ a'))),
-    show retr f a' ▹ ((retr f a')⁻¹ ▹ b') = b',
-    from tr_inv_tr _ (retr f a') b'
+    -- "rewrite right_inv (g (f⁻¹ a'))"
+    apply concat, apply (ap (λx, (transport B' (right_inv f a') x))), apply (right_inv (g (f⁻¹ a'))),
+    show right_inv f a' ▹ ((right_inv f a')⁻¹ ▹ b') = b',
+    from tr_inv_tr _ (right_inv f a') b'
   end
   begin
     intro u,
     cases u with [a, b],
-    apply (sigma_eq (sect f a)),
-    show transport B (sect f a) ((g (f⁻¹ (f a)))⁻¹ (transport B' (retr f (f a))⁻¹ (g a b))) = b,
+    apply (sigma_eq (left_inv f a)),
+    show transport B (left_inv f a) ((g (f⁻¹ (f a)))⁻¹ (transport B' (right_inv f (f a))⁻¹ (g a b))) = b,
     from calc
-      transport B (sect f a) ((g (f⁻¹ (f a)))⁻¹ (transport B' (retr f (f a))⁻¹ (g a b)))
-          = (g a)⁻¹ (transport (B' ∘ f) (sect f a) (transport B' (retr f (f a))⁻¹ (g a b)))
-              : by rewrite (fn_tr_eq_tr_fn (sect f a) (λ a, (g a)⁻¹))
-      ... = (g a)⁻¹ (transport B' (ap f (sect f a)) (transport B' (retr f (f a))⁻¹ (g a b)))
+      transport B (left_inv f a) ((g (f⁻¹ (f a)))⁻¹ (transport B' (right_inv f (f a))⁻¹ (g a b)))
+          = (g a)⁻¹ (transport (B' ∘ f) (left_inv f a) (transport B' (right_inv f (f a))⁻¹ (g a b)))
+              : by rewrite (fn_tr_eq_tr_fn (left_inv f a) (λ a, (g a)⁻¹))
+      ... = (g a)⁻¹ (transport B' (ap f (left_inv f a)) (transport B' (right_inv f (f a))⁻¹ (g a b)))
               : ap (g a)⁻¹ !transport_compose
-      ... = (g a)⁻¹ (transport B' (ap f (sect f a)) (transport B' (ap f (sect f a))⁻¹ (g a b)))
-           : ap (λ x, (g a)⁻¹ (transport B' (ap f (sect f a)) (transport B' x⁻¹ (g a b)))) (adj f a)
+      ... = (g a)⁻¹ (transport B' (ap f (left_inv f a)) (transport B' (ap f (left_inv f a))⁻¹ (g a b)))
+           : ap (λ x, (g a)⁻¹ (transport B' (ap f (left_inv f a)) (transport B' x⁻¹ (g a b)))) (adj f a)
       ... = (g a)⁻¹ (g a b) : {!tr_inv_tr}
-      ... = b : by rewrite (sect (g a) b)
+      ... = b : by rewrite (left_inv (g a) b)
   end
 
   definition sigma_equiv_sigma_of_is_equiv [H1 : is_equiv f] [H2 : Π a, is_equiv (g a)]

@@ -101,11 +101,11 @@ theorem funext_of_weak_funext (wf : weak_funext.{l k}) : funext.{l k} :=
       proof homotopy_ind_comp f eq_to_f idp qed,
     assert t2 : apd10 (sim2path f (homotopy.refl f)) = (homotopy.refl f),
       proof ap apd10 t1 qed,
-    have sect : apd10 ∘ (sim2path g) ∼ id,
+    have left_inv : apd10 ∘ (sim2path g) ∼ id,
       proof (homotopy_ind f (λ g' x, apd10 (sim2path g' x) = x) t2) g qed,
-    have retr : (sim2path g) ∘ apd10 ∼ id,
+    have right_inv : (sim2path g) ∘ apd10 ∼ id,
       from (λ h, eq.rec_on h (homotopy_ind_comp f _ idp)),
-    is_equiv.adjointify apd10 (sim2path g) sect retr
+    is_equiv.adjointify apd10 (sim2path g) left_inv right_inv
 
 definition funext_from_naive_funext : naive_funext → funext :=
   compose funext_of_weak_funext weak_funext_of_naive_funext
@@ -123,7 +123,7 @@ section
       (@compose C B A (is_equiv.inv w))
       (λ (x : C → B),
         have eqretr : eq' = w',
-          from (@retr _ _ (@equiv_of_eq A B) (univalence A B) w'),
+          from (@right_inv _ _ (@equiv_of_eq A B) (univalence A B) w'),
         have invs_eq : (to_fun eq')⁻¹ = (to_fun w')⁻¹,
           from inv_eq eq' w' eqretr,
         have eqfin : (to_fun eq') ∘ ((to_fun eq')⁻¹ ∘ x) = x,
@@ -141,7 +141,7 @@ section
       )
       (λ (x : C → A),
         have eqretr : eq' = w',
-          from (@retr _ _ (@equiv_of_eq A B) (univalence A B) w'),
+          from (@right_inv _ _ (@equiv_of_eq A B) (univalence A B) w'),
         have invs_eq : (to_fun eq')⁻¹ = (to_fun w')⁻¹,
           from inv_eq eq' w' eqretr,
         have eqfin : (to_fun eq')⁻¹ ∘ ((to_fun eq') ∘ x) = x,
@@ -249,11 +249,11 @@ definition eq_of_homotopy [reducible] : f ∼ g → f = g :=
 
 --TODO: rename to eq_of_homotopy_idp
 definition eq_of_homotopy_idp (f : Π x, P x) : eq_of_homotopy (λx : A, idpath (f x)) = idpath f :=
-is_equiv.sect apd10 idp
+is_equiv.left_inv apd10 idp
 
 definition naive_funext_of_ua : naive_funext :=
 λ A P f g h, eq_of_homotopy h
 
 protected definition homotopy.rec_on {Q : (f ∼ g) → Type} (p : f ∼ g)
   (H : Π(q : f = g), Q (apd10 q)) : Q p :=
-retr apd10 p ▹ H (eq_of_homotopy p)
+right_inv apd10 p ▹ H (eq_of_homotopy p)

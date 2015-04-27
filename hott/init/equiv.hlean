@@ -19,9 +19,9 @@ open eq function
 structure is_equiv [class] {A B : Type} (f : A → B) :=
 mk' ::
   (inv : B → A)
-  (retr : (f ∘ inv) ∼ id)
-  (sect : (inv ∘ f) ∼ id)
-  (adj : Πx, retr (f x) = ap f (sect x))
+  (right_inv : (f ∘ inv) ∼ id)
+  (left_inv : (inv ∘ f) ∼ id)
+  (adj : Πx, right_inv (f x) = ap f (left_inv x))
 
 attribute is_equiv.inv [quasireducible]
 
@@ -50,11 +50,11 @@ namespace is_equiv
   -- The composition of two equivalences is, again, an equivalence.
   definition is_equiv_compose [Hf : is_equiv f] [Hg : is_equiv g] : is_equiv (g ∘ f) :=
     is_equiv.mk (g ∘ f) (f⁻¹ ∘ g⁻¹)
-               (λc, ap g (retr f (g⁻¹ c)) ⬝ retr g c)
-               (λa, ap (inv f) (sect g (f a)) ⬝ sect f a)
+               (λc, ap g (right_inv f (g⁻¹ c)) ⬝ right_inv g c)
+               (λa, ap (inv f) (left_inv g (f a)) ⬝ left_inv f a)
                (λa, (whisker_left _ (adj g (f a))) ⬝
                     (ap_con g _ _)⁻¹ ⬝
-                    ap02 g ((ap_con_eq_con (retr f) (sect g (f a)))⁻¹ ⬝
+                    ap02 g ((ap_con_eq_con (right_inv f) (left_inv g (f a)))⁻¹ ⬝
                             (ap_compose (inv f) f _ ◾  adj f a) ⬝
                             (ap_con f _ _)⁻¹
                            ) ⬝
@@ -67,14 +67,14 @@ namespace is_equiv
 
   -- Any function pointwise equal to an equivalence is an equivalence as well.
   definition homotopy_closed [Hf : is_equiv f] (Hty : f ∼ f') : (is_equiv f') :=
-    let sect' := (λ b, (Hty (inv f b))⁻¹ ⬝ retr f b) in
-    let retr' := (λ a, (ap (inv f) (Hty a))⁻¹ ⬝ sect f a) in
+    let sect' := (λ b, (Hty (inv f b))⁻¹ ⬝ right_inv f b) in
+    let retr' := (λ a, (ap (inv f) (Hty a))⁻¹ ⬝ left_inv f a) in
     let adj' := (λ (a : A),
       let ff'a := Hty a in
       let invf := inv f in
-      let secta := sect f a in
-      let retrfa := retr f (f a) in
-      let retrf'a := retr f (f' a) in
+      let secta := left_inv f a in
+      let retrfa := right_inv f (f a) in
+      let retrf'a := right_inv f (f' a) in
       have eq1 : _ = _,
         from calc ap f secta ⬝ ff'a
               = retrfa ⬝ ff'a                 : by rewrite adj
@@ -147,29 +147,29 @@ namespace is_equiv
 
   --The inverse of an equivalence is, again, an equivalence.
   definition is_equiv_inv [instance] : (is_equiv f⁻¹) :=
-  adjointify f⁻¹ f (sect f) (retr f)
+  adjointify f⁻¹ f (left_inv f) (right_inv f)
 
   definition cancel_right (g : B → C) [Hgf : is_equiv (g ∘ f)] : (is_equiv g) :=
   have Hfinv [visible] : is_equiv f⁻¹, from is_equiv_inv f,
-  @homotopy_closed _ _ _ _ (is_equiv_compose f⁻¹ (g ∘ f)) (λb, ap g (@retr _ _ f _ b))
+  @homotopy_closed _ _ _ _ (is_equiv_compose f⁻¹ (g ∘ f)) (λb, ap g (@right_inv _ _ f _ b))
 
   definition cancel_left (g : C → A) [Hgf : is_equiv (f ∘ g)] : (is_equiv g) :=
   have Hfinv [visible] : is_equiv f⁻¹, from is_equiv_inv f,
-  @homotopy_closed _ _ _ _ (is_equiv_compose (f ∘ g) f⁻¹) (λa, sect f (g a))
+  @homotopy_closed _ _ _ _ (is_equiv_compose (f ∘ g) f⁻¹) (λa, left_inv f (g a))
 
   definition is_equiv_ap [instance] (x y : A) : is_equiv (ap f) :=
     adjointify (ap f)
-      (λq, (inverse (sect f x)) ⬝ ap f⁻¹ q ⬝ sect f y)
+      (λq, (inverse (left_inv f x)) ⬝ ap f⁻¹ q ⬝ left_inv f y)
       (λq, !ap_con
         ⬝ whisker_right !ap_con _
         ⬝ ((!ap_inv ⬝ inverse2 (adj f _)⁻¹)
           ◾ (inverse (ap_compose f⁻¹ f _))
           ◾ (adj f _)⁻¹)
-        ⬝ con_ap_con_eq_con_con (retr f) _ _
+        ⬝ con_ap_con_eq_con_con (right_inv f) _ _
         ⬝ whisker_right !con.left_inv _
         ⬝ !idp_con)
       (λp, whisker_right (whisker_left _ (ap_compose f f⁻¹ _)⁻¹) _
-        ⬝ con_ap_con_eq_con_con (sect f) _ _
+        ⬝ con_ap_con_eq_con_con (left_inv f) _ _
         ⬝ whisker_right !con.left_inv _
         ⬝ !idp_con)
 
@@ -183,15 +183,15 @@ namespace is_equiv
 
   definition equiv_rect (P : B → Type) :
       (Πx, P (f x)) → (Πy, P y) :=
-    (λg y, eq.transport _ (retr f y) (g (f⁻¹ y)))
+    (λg y, eq.transport _ (right_inv f y) (g (f⁻¹ y)))
 
   definition equiv_rect_comp (P : B → Type)
       (df : Π (x : A), P (f x)) (x : A) : equiv_rect f P df (f x) = df x :=
     calc equiv_rect f P df (f x)
-          = transport P (retr f (f x)) (df (f⁻¹ (f x)))       : by esimp
-      ... = transport P (eq.ap f (sect f x)) (df (f⁻¹ (f x))) : by rewrite adj
-      ... = transport (P ∘ f) (sect f x) (df (f⁻¹ (f x)))     : by rewrite -transport_compose
-      ... = df x                                              : by rewrite (apd df (sect f x))
+          = transport P (right_inv f (f x)) (df (f⁻¹ (f x)))       : by esimp
+      ... = transport P (eq.ap f (left_inv f x)) (df (f⁻¹ (f x))) : by rewrite adj
+      ... = transport (P ∘ f) (left_inv f x) (df (f⁻¹ (f x)))     : by rewrite -transport_compose
+      ... = df x                                              : by rewrite (apd df (left_inv f x))
 
   end
 
@@ -201,13 +201,13 @@ namespace is_equiv
 
   --Rewrite rules
   definition eq_of_eq_inv (p : a = f⁻¹ b) : f a = b :=
-  ap f p ⬝ retr f b
+  ap f p ⬝ right_inv f b
 
   definition eq_of_inv_eq (p : f⁻¹ b = a) : b = f a :=
   (eq_of_eq_inv p⁻¹)⁻¹
 
   definition inv_eq_of_eq (p : b = f a) : f⁻¹ b = a :=
-  ap f⁻¹ p ⬝ sect f a
+  ap f⁻¹ p ⬝ left_inv f a
 
   definition eq_inv_of_eq (p : f a = b) : a = f⁻¹ b :=
   (inv_eq_of_eq p⁻¹)⁻¹
@@ -234,8 +234,8 @@ namespace equiv
   variables {A B C : Type}
 
   protected definition MK [reducible] (f : A → B) (g : B → A)
-    (retr : f ∘ g ∼ id) (sect : g ∘ f ∼ id) : A ≃ B :=
-  equiv.mk f (adjointify f g retr sect)
+    (right_inv : f ∘ g ∼ id) (left_inv : g ∘ f ∼ id) : A ≃ B :=
+  equiv.mk f (adjointify f g right_inv left_inv)
 
   definition to_inv [reducible] (f : A ≃ B) : B → A :=
   f⁻¹

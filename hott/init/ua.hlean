@@ -33,6 +33,9 @@ attribute univalence [instance]
 definition ua [reducible] {A B : Type} : A ≃ B → A = B :=
 equiv_of_eq⁻¹
 
+definition eq_equiv_equiv (A B : Type) : (A = B) ≃ (A ≃ B) :=
+equiv.mk equiv_of_eq _
+
 definition equiv_of_eq_ua [reducible] {A B : Type} (f : A ≃ B) : equiv_of_eq (ua f) = f :=
 right_inv equiv_of_eq f
 

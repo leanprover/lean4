@@ -64,7 +64,8 @@ namespace is_trunc
   -/
 
   structure contr_internal (A : Type) :=
-    (center : A) (contr : Π(a : A), center = a)
+    (center : A)
+    (center_eq : Π(a : A), center = a)
 
   definition is_trunc_internal (n : trunc_index) : Type → Type :=
     trunc_index.rec_on n
@@ -95,17 +96,17 @@ namespace is_trunc
 
   /- contractibility -/
 
-  definition is_contr.mk (center : A) (contr : Π(a : A), center = a) : is_contr A :=
-  is_trunc.mk (contr_internal.mk center contr)
+  definition is_contr.mk (center : A) (center_eq : Π(a : A), center = a) : is_contr A :=
+  is_trunc.mk (contr_internal.mk center center_eq)
 
   definition center (A : Type) [H : is_contr A] : A :=
   @contr_internal.center A !is_trunc.to_internal
 
-  definition contr [H : is_contr A] (a : A) : !center = a :=
-  @contr_internal.contr A !is_trunc.to_internal a
+  definition center_eq [H : is_contr A] (a : A) : !center = a :=
+  @contr_internal.center_eq A !is_trunc.to_internal a
 
   definition eq_of_is_contr [H : is_contr A] (x y : A) : x = y :=
-  (contr x)⁻¹ ⬝ (contr y)
+  (center_eq x)⁻¹ ⬝ (center_eq y)
 
   definition hprop_eq_of_is_contr {A : Type} [H : is_contr A] {x y : A} (p q : x = y) : p = q :=
   have K : ∀ (r : x = y), eq_of_is_contr x y = r, from (λ r, eq.rec_on r !con.left_inv),
@@ -215,7 +216,7 @@ namespace is_trunc
   --"is_trunc_is_equiv_closed"
   definition is_contr_is_equiv_closed (f : A → B) [Hf : is_equiv f] [HA: is_contr A]
     : (is_contr B) :=
-  is_contr.mk (f (center A)) (λp, eq_of_eq_inv !contr)
+  is_contr.mk (f (center A)) (λp, eq_of_eq_inv !center_eq)
 
   theorem is_contr_equiv_closed (H : A ≃ B) [HA: is_contr A] : is_contr B :=
   @is_contr_is_equiv_closed _ _ (to_fun H) (to_is_equiv H) _
@@ -223,7 +224,7 @@ namespace is_trunc
   definition equiv_of_is_contr_of_is_contr [HA : is_contr A] [HB : is_contr B] : A ≃ B :=
   equiv.mk
     (λa, center B)
-    (is_equiv.adjointify (λa, center B) (λb, center A) contr contr)
+    (is_equiv.adjointify (λa, center B) (λb, center A) center_eq center_eq)
 
   definition is_trunc_is_equiv_closed (n : trunc_index) (f : A → B) [H : is_equiv f]
     [HA : is_trunc n A] : is_trunc n B :=
@@ -258,7 +259,7 @@ namespace is_trunc
   equiv.MK (λ (x : A), ⋆)
            (λ (u : unit), center A)
            (λ (u : unit), unit.rec_on u idp)
-           (λ (x : A), contr x)
+           (λ (x : A), center_eq x)
 
   -- TODO: port "Truncated morphisms"
 

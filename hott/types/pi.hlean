@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2014 Floris van Doorn. All rights reserved.
+Copyright (c) 2014-15 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Module: types.pi
@@ -163,7 +163,7 @@ namespace pi
         fapply is_contr.mk,
           intro a, apply center,
           intro f, apply eq_of_homotopy,
-            intro x, apply (contr (f x))},
+            intro x, apply (center_eq (f x))},
       {intros [n, IH, B, H],
         fapply is_trunc_succ_intro, intros [f, g],
           fapply is_trunc_equiv_closed,

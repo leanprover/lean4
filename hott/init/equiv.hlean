@@ -216,7 +216,7 @@ namespace is_equiv
 
   --Transporting is an equivalence
   definition is_equiv_tr [instance] {A : Type} (P : A → Type) {x y : A} (p : x = y) : (is_equiv (transport P p)) :=
-    is_equiv.mk _ (transport P p⁻¹) (tr_inv_tr P p) (inv_tr_tr P p) (tr_inv_tr_lemma P p)
+    is_equiv.mk _ (transport P p⁻¹) (tr_inv_tr p) (inv_tr_tr p) (tr_inv_tr_lemma p)
 
 
 end is_equiv

@@ -36,7 +36,7 @@ definition weak_funext_of_naive_funext : naive_funext → weak_funext :=
     let c := λx, center (P x) in
     is_contr.mk c (λ f,
       have eq' : (λx, center (P x)) ∼ f,
-        from (λx, contr (f x)),
+        from (λx, center_eq (f x)),
       have eq : (λx, center (P x)) = f,
         from nf A P (λx, center (P x)) f eq',
       eq

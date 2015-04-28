@@ -8,7 +8,7 @@ Author: Floris van Doorn
 Theorems about pathovers
 -/
 
-import .sigma arity
+import types.sigma arity
 
 open eq equiv is_equiv equiv.ops
 

@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2014 Floris van Doorn. All rights reserved.
+Copyright (c) 2014-15 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Module: types.sigma
@@ -101,13 +101,13 @@ namespace sigma
 
   definition dpair_eq_dpair_con (p1 : a  = a' ) (q1 : p1 ▹ b  = b' )
                                   (p2 : a' = a'') (q2 : p2 ▹ b' = b'') :
-      dpair_eq_dpair (p1 ⬝ p2) (tr_con B p1 p2 b ⬝ ap (transport B p2) q1 ⬝ q2)
+      dpair_eq_dpair (p1 ⬝ p2) (con_tr p1 p2 b ⬝ ap (transport B p2) q1 ⬝ q2)
     = dpair_eq_dpair p1 q1 ⬝ dpair_eq_dpair  p2 q2 :=
   by cases p1; cases p2; cases q1; cases q2; apply idp
 
   definition sigma_eq_con (p1 : u.1 = v.1) (q1 : p1 ▹ u.2 = v.2)
                               (p2 : v.1 = w.1) (q2 : p2 ▹ v.2 = w.2) :
-      sigma_eq (p1 ⬝ p2) (tr_con B p1 p2 u.2 ⬝ ap (transport B p2) q1 ⬝ q2)
+      sigma_eq (p1 ⬝ p2) (con_tr p1 p2 u.2 ⬝ ap (transport B p2) q1 ⬝ q2)
     = sigma_eq p1 q1 ⬝ sigma_eq p2 q2 :=
   by cases u; cases v; cases w; apply dpair_eq_dpair_con
 
@@ -200,7 +200,7 @@ namespace sigma
     -- "rewrite right_inv (g (f⁻¹ a'))"
     apply concat, apply (ap (λx, (transport B' (right_inv f a') x))), apply (right_inv (g (f⁻¹ a'))),
     show right_inv f a' ▹ ((right_inv f a')⁻¹ ▹ b') = b',
-    from tr_inv_tr _ (right_inv f a') b'
+    from tr_inv_tr (right_inv f a') b'
   end
   begin
     intro u,
@@ -253,7 +253,7 @@ namespace sigma
   adjointify pr1
              (λa, ⟨a, !center⟩)
              (λa, idp)
-             (λu, sigma_eq idp !contr)
+             (λu, sigma_eq idp !center_eq)
 
   definition sigma_equiv_of_is_contr_pr2 [H : Π a, is_contr (B a)] : (Σa, B a) ≃ A :=
   equiv.mk pr1 _
@@ -263,10 +263,10 @@ namespace sigma
   definition sigma_equiv_of_is_contr_pr1 (B : A → Type) [H : is_contr A] : (Σa, B a) ≃ B (center A)
   :=
   equiv.mk _ (adjointify
-    (λu, (contr u.1)⁻¹ ▹ u.2)
+    (λu, (center_eq u.1)⁻¹ ▹ u.2)
     (λb, ⟨!center, b⟩)
     (λb, ap (λx, x ▹ b) !hprop_eq_of_is_contr)
-    (λu, sigma_eq !contr !tr_inv_tr))
+    (λu, sigma_eq !center_eq !tr_inv_tr))
 
   /- Associativity -/
 

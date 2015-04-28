@@ -19,7 +19,7 @@ namespace is_trunc
     fapply equiv.mk,
      {intro S, apply is_contr.mk, exact S.2},
      {fapply is_equiv.adjointify,
-       {intro H, apply sigma.mk, exact (@contr A H)},
+       {intro H, apply sigma.mk, exact (@center_eq A H)},
        {intro H, apply (is_trunc.rec_on H), intro Hint,
         apply (contr_internal.rec_on Hint), intros [H1, H2],
         apply idp},

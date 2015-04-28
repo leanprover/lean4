@@ -201,14 +201,14 @@ namespace eq
   notation f ∼ g := homotopy f g
 
   namespace homotopy
-  protected definition refl (f : Πx, P x) : f ∼ f :=
+  protected definition refl [reducible] (f : Πx, P x) : f ∼ f :=
   λ x, idp
 
-  protected definition symm {f g : Πx, P x} (H : f ∼ g) : g ∼ f :=
-  λ x, inverse (H x)
+  protected definition symm [reducible] {f g : Πx, P x} (H : f ∼ g) : g ∼ f :=
+  λ x, (H x)⁻¹
 
-  protected definition trans {f g h : Πx, P x} (H1 : f ∼ g) (H2 : g ∼ h) : f ∼ h :=
-  λ x, concat (H1 x) (H2 x)
+  protected definition trans [reducible] {f g h : Πx, P x} (H1 : f ∼ g) (H2 : g ∼ h) : f ∼ h :=
+  λ x, H1 x ⬝ H2 x
 
   calc_refl refl
   calc_symm symm
@@ -239,19 +239,19 @@ namespace eq
 
   /- More theorems for moving things around in equations -/
 
-  definition tr_eq_of_eq_inv_tr (P : A → Type) {x y : A} {p : x = y} {u : P x} {v : P y} :
+  definition tr_eq_of_eq_inv_tr {P : A → Type} {x y : A} {p : x = y} {u : P x} {v : P y} :
     u = p⁻¹ ▹ v → p ▹ u = v :=
   eq.rec_on p (take v, id) v
 
-  definition inv_tr_eq_of_eq_tr (P : A → Type) {x y : A} {p : y = x} {u : P x} {v : P y} :
+  definition inv_tr_eq_of_eq_tr {P : A → Type} {x y : A} {p : y = x} {u : P x} {v : P y} :
     u = p ▹ v → p⁻¹ ▹ u = v :=
   eq.rec_on p (take u, id) u
 
-  definition eq_inv_tr_of_tr_eq (P : A → Type) {x y : A} {p : x = y} {u : P x} {v : P y} :
+  definition eq_inv_tr_of_tr_eq {P : A → Type} {x y : A} {p : x = y} {u : P x} {v : P y} :
     p ▹ u = v → u = p⁻¹ ▹ v :=
   eq.rec_on p (take v, id) v
 
-  definition eq_tr_of_inv_tr_eq (P : A → Type) {x y : A} {p : y = x} {u : P x} {v : P y} :
+  definition eq_tr_of_inv_tr_eq {P : A → Type} {x y : A} {p : y = x} {u : P x} {v : P y} :
     p⁻¹ ▹ u = v → u = p ▹ v :=
   eq.rec_on p (take u, id) u
 
@@ -403,41 +403,41 @@ namespace eq
 
   /- Transport and the groupoid structure of paths -/
 
-  definition tr_idp (P : A → Type) {x : A} (u : P x) : idp ▹ u = u := idp
+  definition idp_tr {P : A → Type} {x : A} (u : P x) : idp ▹ u = u := idp
 
-  definition tr_con (P : A → Type) {x y z : A} (p : x = y) (q : y = z) (u : P x) :
+  definition con_tr {P : A → Type} {x y z : A} (p : x = y) (q : y = z) (u : P x) :
     p ⬝ q ▹ u = q ▹ p ▹ u :=
   eq.rec_on q (eq.rec_on p idp)
 
-  definition tr_inv_tr (P : A → Type) {x y : A} (p : x = y) (z : P y) :
+  definition tr_inv_tr {P : A → Type} {x y : A} (p : x = y) (z : P y) :
     p ▹ p⁻¹ ▹ z = z :=
-  (tr_con P p⁻¹ p z)⁻¹ ⬝ ap (λr, transport P r z) (con.left_inv p)
+  (con_tr p⁻¹ p z)⁻¹ ⬝ ap (λr, transport P r z) (con.left_inv p)
 
-  definition inv_tr_tr (P : A → Type) {x y : A} (p : x = y) (z : P x) :
+  definition inv_tr_tr {P : A → Type} {x y : A} (p : x = y) (z : P x) :
     p⁻¹ ▹ p ▹ z = z :=
-  (tr_con P p p⁻¹ z)⁻¹ ⬝ ap (λr, transport P r z) (con.right_inv p)
+  (con_tr p p⁻¹ z)⁻¹ ⬝ ap (λr, transport P r z) (con.right_inv p)
 
-  definition tr_con_lemma (P : A → Type)
+  definition con_tr_lemma {P : A → Type}
       {x y z w : A} (p : x = y) (q : y = z) (r : z = w) (u : P x) :
-    ap (λe, e ▹ u) (con.assoc' p q r) ⬝ (tr_con P (p ⬝ q) r u) ⬝
-        ap (transport P r) (tr_con P p q u)
-      = (tr_con P p (q ⬝ r) u) ⬝ (tr_con P q r (p ▹ u))
+    ap (λe, e ▹ u) (con.assoc' p q r) ⬝ (con_tr (p ⬝ q) r u) ⬝
+        ap (transport P r) (con_tr p q u)
+      = (con_tr p (q ⬝ r) u) ⬝ (con_tr q r (p ▹ u))
       :> ((p ⬝ (q ⬝ r)) ▹ u = r ▹ q ▹ p ▹ u) :=
   eq.rec_on r (eq.rec_on q (eq.rec_on p idp))
 
   --  Here is another coherence lemma for transport.
-  definition tr_inv_tr_lemma (P : A → Type) {x y : A} (p : x = y) (z : P x) :
-    tr_inv_tr P p (transport P p z) = ap (transport P p) (inv_tr_tr P p z) :=
+  definition tr_inv_tr_lemma {P : A → Type} {x y : A} (p : x = y) (z : P x) :
+    tr_inv_tr p (transport P p z) = ap (transport P p) (inv_tr_tr p z) :=
   eq.rec_on p idp
 
   /- some properties for apd -/
 
   definition apd_idp (x : A) (f : Πx, P x) : apd f idp = idp :> (f x = f x) := idp
   definition apd_con (f : Πx, P x) {x y z : A} (p : x = y) (q : y = z)
-    : apd f (p ⬝ q) = tr_con P p q (f x) ⬝ ap (transport P q) (apd f p) ⬝ apd f q :=
+    : apd f (p ⬝ q) = con_tr p q (f x) ⬝ ap (transport P q) (apd f p) ⬝ apd f q :=
   by cases p;cases q;apply idp
   definition apd_inv (f : Πx, P x) {x y : A} (p : x = y)
-    : apd f p⁻¹ = (eq_inv_tr_of_tr_eq P (apd f p))⁻¹ :=
+    : apd f p⁻¹ = (eq_inv_tr_of_tr_eq (apd f p))⁻¹ :=
   by cases p;apply idp
 
 
@@ -462,7 +462,7 @@ namespace eq
     transport2 Q r z = ap10 (ap (transport Q) r) z :=
   eq.rec_on r idp
 
-  definition tr2_con (P : A → Type) {x y : A} {p1 p2 p3 : x = y}
+  definition tr2_con {P : A → Type} {x y : A} {p1 p2 p3 : x = y}
       (r1 : p1 = p2) (r2 : p2 = p3) (z : P x) :
     transport2 P (r1 ⬝ r2) z = transport2 P r1 z ⬝ transport2 P r2 z :=
   eq.rec_on r1 (eq.rec_on r2 idp)
@@ -525,10 +525,10 @@ namespace eq
   eq.rec_on p idp
 
   -- A special case of [transport_compose] which seems to come up a lot.
-  definition tr_eq_cast_ap (P : A → Type) {x y} (p : x = y) (u : P x) : p ▹ u = cast (ap P p) u :=
+  definition tr_eq_cast_ap {P : A → Type} {x y} (p : x = y) (u : P x) : p ▹ u = cast (ap P p) u :=
   eq.rec_on p idp
 
-  definition tr_eq_cast_ap_fn (P : A → Type) {x y} (p : x = y) : transport P p = cast (ap P p) :=
+  definition tr_eq_cast_ap_fn {P : A → Type} {x y} (p : x = y) : transport P p = cast (ap P p) :=
   eq.rec_on p idp
 
   /- The behavior of [ap] and [apd] -/
@@ -649,11 +649,11 @@ namespace eq
   eq.rec_on r !idp_con⁻¹
 
   -- And now for a lemma whose statement is much longer than its proof.
-  definition apd02_con (P : A → Type) (f : Π x:A, P x) {x y : A}
+  definition apd02_con {P : A → Type} (f : Π x:A, P x) {x y : A}
       {p1 p2 p3 : x = y} (r1 : p1 = p2) (r2 : p2 = p3) :
     apd02 f (r1 ⬝ r2) = apd02 f r1
       ⬝ whisker_left (transport2 P r1 (f x)) (apd02 f r2)
       ⬝ con.assoc' _ _ _
-      ⬝ (whisker_right (tr2_con P r1 r2 (f x))⁻¹ (apd f p3)) :=
+      ⬝ (whisker_right (tr2_con r1 r2 (f x))⁻¹ (apd f p3)) :=
   eq.rec_on r2 (eq.rec_on r1 (eq.rec_on p1 idp))
 end eq

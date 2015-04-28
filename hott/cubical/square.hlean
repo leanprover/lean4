@@ -8,8 +8,6 @@ Author: Floris van Doorn
 Theorems about square
 -/
 
-import .sigma arity
-
 open eq equiv is_equiv
 
 namespace cubical

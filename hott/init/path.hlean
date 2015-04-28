@@ -227,7 +227,7 @@ namespace eq
   definition ap11 {f g : A → B} (H : f = g) {x y : A} (p : x = y) : f x = g y :=
   eq.rec_on H (eq.rec_on p idp)
 
-  definition apd (f : Πa:A, P a) {x y : A} (p : x = y) : p ▹ (f x) = f y :=
+  definition apd (f : Πa:A, P a) {x y : A} (p : x = y) : p ▹ f x = f y :=
   eq.rec_on p idp
 
   /- calc enviroment -/
@@ -261,20 +261,19 @@ namespace eq
   -- functorial.
 
   -- Functions take identity paths to identity paths
-  definition ap_idp  (x : A) (f : A → B)   : ap  f idp = idp :> (f x = f x) := idp
-  definition apd_idp (x : A) (f : Πx, P x) : apd f idp = idp :> (f x = f x) := idp
+  definition ap_idp (x : A) (f : A → B) : ap f idp = idp :> (f x = f x) := idp
 
   -- Functions commute with concatenation.
   definition ap_con (f : A → B) {x y z : A} (p : x = y) (q : y = z) :
-    ap f (p ⬝ q) = (ap f p) ⬝ (ap f q) :=
+    ap f (p ⬝ q) = ap f p ⬝ ap f q :=
   eq.rec_on q (eq.rec_on p idp)
 
   definition con_ap_con_eq_con_ap_con_ap (f : A → B) {w x y z : A} (r : f w = f x) (p : x = y) (q : y = z) :
-    r ⬝ (ap f (p ⬝ q)) = (r ⬝ ap f p) ⬝ (ap f q) :=
+    r ⬝ ap f (p ⬝ q) = (r ⬝ ap f p) ⬝ ap f q :=
   eq.rec_on q (take p, eq.rec_on p (con.assoc' r idp idp)) p
 
   definition ap_con_con_eq_ap_con_ap_con (f : A → B) {w x y z : A} (p : x = y) (q : y = z) (r : f z = f w) :
-    (ap f (p ⬝ q)) ⬝ r = (ap f p) ⬝ (ap f q ⬝ r) :=
+    ap f (p ⬝ q) ⬝ r = ap f p ⬝ (ap f q ⬝ r) :=
   eq.rec_on q (eq.rec_on p (take r, con.assoc _ _ _)) r
 
   -- Functions commute with path inverses.
@@ -430,6 +429,17 @@ namespace eq
   definition tr_inv_tr_lemma (P : A → Type) {x y : A} (p : x = y) (z : P x) :
     tr_inv_tr P p (transport P p z) = ap (transport P p) (inv_tr_tr P p z) :=
   eq.rec_on p idp
+
+  /- some properties for apd -/
+
+  definition apd_idp (x : A) (f : Πx, P x) : apd f idp = idp :> (f x = f x) := idp
+  definition apd_con (f : Πx, P x) {x y z : A} (p : x = y) (q : y = z)
+    : apd f (p ⬝ q) = tr_con P p q (f x) ⬝ ap (transport P q) (apd f p) ⬝ apd f q :=
+  by cases p;cases q;apply idp
+  definition apd_inv (f : Πx, P x) {x y : A} (p : x = y)
+    : apd f p⁻¹ = (eq_inv_tr_of_tr_eq P (apd f p))⁻¹ :=
+  by cases p;apply idp
+
 
   -- Dependent transport in a doubly dependent type.
   definition transportD {P : A → Type} (Q : Π a : A, P a → Type)

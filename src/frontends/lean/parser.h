@@ -182,7 +182,9 @@ class parser {
     void parse_command();
     void parse_script(bool as_expr = false);
     bool parse_commands();
-    unsigned curr_lbp() const;
+    unsigned curr_lbp_core(bool as_tactic) const;
+    unsigned curr_expr_lbp() const { return curr_lbp_core(false); }
+    unsigned curr_tactic_lbp() const { return curr_lbp_core(true); }
     expr parse_notation_core(parse_table t, expr * left, bool as_tactic);
     expr parse_expr_or_tactic(unsigned rbp, bool as_tactic) {
         return as_tactic ? parse_tactic(rbp) : parse_expr(rbp);

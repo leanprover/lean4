@@ -99,13 +99,13 @@ static void check_keyword(char const * str, name const & expected, environment c
 static void tst1() {
     environment env;
     token_table s = get_token_table(env);
-    env = add_token(env, "+", 0);
-    env = add_token(env, "=", 0);
+    env = add_expr_token(env, "+", 0);
+    env = add_expr_token(env, "=", 0);
     scan_success("a..a");
     check("a..a", {tk::Identifier, tk::Keyword, tk::Keyword, tk::Identifier});
     check("Type.{0}", {tk::Keyword, tk::Keyword, tk::Numeral, tk::Keyword});
-    env = add_token(env, "ab+cde", 0);
-    env = add_token(env, "+cd", 0);
+    env = add_expr_token(env, "ab+cde", 0);
+    env = add_expr_token(env, "+cd", 0);
     scan_success("ab+cd", env);
     check("ab+cd", {tk::Identifier, tk::Keyword}, env);
     scan_success("ab+cde", env);
@@ -139,9 +139,9 @@ static void tst2() {
     scan_error("***");
     environment env;
     token_table s = mk_default_token_table();
-    env = add_token(env, "***", 0);
+    env = add_expr_token(env, "***", 0);
     check_keyword("***", "***", env);
-    env = add_token(env, "+", 0);
+    env = add_expr_token(env, "+", 0);
     check("x+y", {tk::Identifier, tk::Keyword, tk::Identifier}, env);
     check("-- testing", {});
     check("/- testing -/", {});
@@ -152,7 +152,7 @@ static void tst2() {
     check("int -> int", {tk::Identifier, tk::Keyword, tk::Identifier});
     check("int->int", {tk::Identifier, tk::Keyword, tk::Identifier});
     check_keyword("->", "->");
-    env = add_token(env, "-+->", 0);
+    env = add_expr_token(env, "-+->", 0);
     check("Int -+-> Int", {tk::Identifier, tk::Keyword, tk::Identifier}, env);
     check("x := 10", {tk::Identifier, tk::Keyword, tk::Numeral});
     check("{x}", {tk::Keyword, tk::Identifier, tk::Keyword});

@@ -83,7 +83,10 @@ struct token_config {
     static std::string * g_key;
 
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
-        s.m_table = add_token(s.m_table, e.m_token.c_str(), e.m_prec);
+        if (e.m_expr)
+            s.m_table = add_token(s.m_table, e.m_token.c_str(), e.m_prec);
+        else
+            s.m_table = add_tactic_token(s.m_table, e.m_token.c_str(), e.m_prec);
     }
     static name const & get_class_name() {
         return *g_class_name;
@@ -92,12 +95,13 @@ struct token_config {
         return *g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
-        s << e.m_token.c_str() << e.m_prec;
+        s << e.m_expr << e.m_token.c_str() << e.m_prec;
     }
     static entry read_entry(deserializer & d) {
+        bool is_expr   = d.read_bool();
         std::string tk = d.read_string();
         unsigned prec  = d.read_unsigned();
-        return entry(tk, prec);
+        return entry(is_expr, tk, prec);
     }
     static optional<unsigned> get_fingerprint(entry const &) {
         return optional<unsigned>();
@@ -113,8 +117,12 @@ environment add_token(environment const & env, token_entry const & e, bool persi
     return token_ext::add_entry(env, get_dummy_ios(), e, persistent);
 }
 
-environment add_token(environment const & env, char const * val, unsigned prec) {
-    return add_token(env, token_entry(val, prec));
+environment add_expr_token(environment const & env, char const * val, unsigned prec) {
+    return add_token(env, token_entry(true, val, prec));
+}
+
+environment add_tactic_token(environment const & env, char const * val, unsigned prec) {
+    return add_token(env, token_entry(false, val, prec));
 }
 
 token_table const & get_token_table(environment const & env) {

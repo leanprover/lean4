@@ -845,10 +845,10 @@ bool pretty_fn::match(expr const & p, expr const & e, buffer<optional<expr>> & a
 
 static unsigned get_some_precedence(token_table const & t, name const & tk) {
     if (tk.is_atomic() && tk.is_string()) {
-        if (auto p = get_precedence(t, tk.get_string()))
+        if (auto p = get_expr_precedence(t, tk.get_string()))
             return *p;
     } else {
-        if (auto p = get_precedence(t, tk.to_string().c_str()))
+        if (auto p = get_expr_precedence(t, tk.to_string().c_str()))
             return *p;
     }
     return 0;

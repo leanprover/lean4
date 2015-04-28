@@ -488,7 +488,7 @@ void display(io_state_stream & out, unsigned num, transition const * ts, list<ex
         if (i > 0) out << " ";
         out << "`" << ts[i].get_token() << "`";
         if (tt) {
-            if (auto prec = get_precedence(*tt, ts[i].get_token().to_string().c_str())) {
+            if (auto prec = get_expr_precedence(*tt, ts[i].get_token().to_string().c_str())) {
                 out << ":" << *prec;
             }
         }

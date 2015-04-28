@@ -96,6 +96,28 @@ void check_not_forbidden(char const * tk) {
     }
 }
 
+static optional<unsigned> get_precedence(environment const & env, char const * tk, bool is_expr) {
+    if (is_expr)
+        return get_expr_precedence(get_token_table(env), tk);
+    else
+        return get_tactic_precedence(get_token_table(env), tk);
+}
+
+static optional<unsigned> get_precedence(environment const & env, char const * tk, notation_entry_group grp) {
+    return get_precedence(env, tk, grp != notation_entry_group::Tactic);
+}
+
+static token_entry mk_token_entry(std::string const & tk, unsigned prec, bool is_expr) {
+    if (is_expr)
+        return mk_expr_token_entry(tk, prec);
+    else
+        return mk_tactic_token_entry(tk, prec);
+}
+
+static token_entry mk_token_entry(std::string const & tk, unsigned prec, notation_entry_group grp) {
+    return mk_token_entry(tk, prec, grp != notation_entry_group::Tactic);
+}
+
 static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, notation_entry_group grp, bool parse_only)
 -> pair<notation_entry, optional<token_entry>> {
     std::string tk = parse_symbol(p, "invalid notation declaration, quoted symbol or identifier expected");
@@ -107,7 +129,7 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
 
     optional<parse_table> reserved_pt;
     optional<action> reserved_action;
-    if (grp != notation_entry_group::Reserve) {
+    if (grp == notation_entry_group::Main) {
         if (k == mixfix_kind::prefix) {
             if (auto at = get_reserved_nud_table(p.env()).find(tks)) {
                 reserved_pt     = at->second;
@@ -134,18 +156,20 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
 
     if (!prec) {
         if (reserved_action && k == mixfix_kind::prefix && reserved_action->kind() == notation::action_kind::Expr) {
+            lean_assert(grp == notation_entry_group::Main);
             prec = reserved_action->rbp();
         } else if (reserved_action && k == mixfix_kind::infixr && reserved_action->kind() == notation::action_kind::Expr) {
+            lean_assert(grp == notation_entry_group::Main);
             prec = reserved_action->rbp();
         } else {
-            prec = get_precedence(get_token_table(env), tk.c_str());
+            prec = get_precedence(env, tk.c_str(), grp);
             if (prec && k == mixfix_kind::infixr)
                 prec = *prec - 1;
         }
     } else {
-        auto old_prec = get_precedence(get_token_table(env), tk.c_str());
+        auto old_prec = get_precedence(env, tk.c_str(), grp);
         if (!old_prec || (k != mixfix_kind::prefix && old_prec != prec))
-            new_token = token_entry(tk.c_str(), *prec);
+            new_token = mk_token_entry(tk.c_str(), *prec, grp);
         if (k == mixfix_kind::infixr)
             prec = *prec - 1;
     }
@@ -231,7 +255,7 @@ static notation_entry parse_mixfix_notation(parser & p, mixfix_kind k, bool over
     return nt.first;
 }
 
-static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_tokens, bool & used_default) {
+static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_tokens, bool & used_default, notation_entry_group grp) {
     used_default = false;
     if (p.curr_is_quoted_symbol()) {
         environment const & env = p.env();
@@ -243,11 +267,11 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
         if (p.curr_is_token(get_colon_tk())) {
             p.next();
             unsigned prec = parse_precedence(p);
-            auto old_prec = get_precedence(get_token_table(env), tkcs);
+            auto old_prec = get_precedence(env, tkcs, grp);
             if (!old_prec || prec != *old_prec)
-                new_tokens.push_back(token_entry(tkcs, prec));
-        } else if (!get_precedence(get_token_table(env), tkcs)) {
-            new_tokens.push_back(token_entry(tkcs, LEAN_DEFAULT_PRECEDENCE));
+                new_tokens.push_back(mk_token_entry(tkcs, prec, grp));
+        } else if (!get_precedence(env, tkcs, grp)) {
+            new_tokens.push_back(mk_token_entry(tkcs, LEAN_DEFAULT_PRECEDENCE, grp));
             used_default = true;
         }
         return tk;
@@ -261,9 +285,9 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
     }
 }
 
-static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_tokens) {
+static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_tokens, notation_entry_group grp) {
     bool dummy;
-    return parse_quoted_symbol_or_token(p, new_tokens, dummy);
+    return parse_quoted_symbol_or_token(p, new_tokens, dummy, grp);
 }
 
 static expr parse_notation_expr(parser & p, buffer<expr> const & locals) {
@@ -293,7 +317,7 @@ static unsigned get_precedence(environment const & env, buffer<token_entry> cons
         if (e.m_token == token_str)
             return e.m_prec;
     }
-    auto prec = get_precedence(get_token_table(env), token_str.c_str());
+    auto prec = get_expr_precedence(get_token_table(env), token_str.c_str());
     if (prec)
         return *prec;
     else
@@ -301,7 +325,7 @@ static unsigned get_precedence(environment const & env, buffer<token_entry> cons
 }
 
 static action parse_action(parser & p, name const & prev_token, unsigned default_prec,
-                           buffer<expr> & locals, buffer<token_entry> & new_tokens) {
+                           buffer<expr> & locals, buffer<token_entry> & new_tokens, notation_entry_group grp) {
     if (p.curr_is_token(get_colon_tk())) {
         p.next();
         if (p.curr_is_numeral() || p.curr_is_token_or_id(get_max_tk())) {
@@ -323,7 +347,7 @@ static action parse_action(parser & p, name const & prev_token, unsigned default
                 bool is_fold_right = p.curr_is_token_or_id(get_foldr_tk());
                 p.next();
                 auto prec = parse_optional_precedence(p);
-                name sep  = parse_quoted_symbol_or_token(p, new_tokens);
+                name sep  = parse_quoted_symbol_or_token(p, new_tokens, grp);
                 expr rec;
                 {
                     parser::local_scope scope(p);
@@ -341,7 +365,7 @@ static action parse_action(parser & p, name const & prev_token, unsigned default
                     ini = parse_notation_expr(p, locals);
                 optional<name> terminator;
                 if (!p.curr_is_token(get_rparen_tk()))
-                    terminator = parse_quoted_symbol_or_token(p, new_tokens);
+                    terminator = parse_quoted_symbol_or_token(p, new_tokens, grp);
                 p.check_token_next(get_rparen_tk(), "invalid fold notation argument, ')' expected");
                 return mk_exprs_action(sep, rec, ini, terminator, is_fold_right, prec ? *prec : 0);
             } else if (p.curr_is_token_or_id(get_scoped_tk())) {
@@ -446,7 +470,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
     bool used_default = false;
     while ((grp != notation_entry_group::Reserve && !p.curr_is_token(get_assign_tk())) ||
            (grp == notation_entry_group::Reserve && !p.curr_is_command() && !p.curr_is_eof())) {
-        name tk = parse_quoted_symbol_or_token(p, new_tokens, used_default);
+        name tk = parse_quoted_symbol_or_token(p, new_tokens, used_default, grp);
         if (auto at = find_next(reserved_pt, tk)) {
             action const & a = at->first;
             reserved_pt      = at->second;
@@ -499,7 +523,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
                 unsigned default_prec = get_default_prec(pt, tk);
                 name n   = p.get_name_val();
                 p.next();
-                action a = parse_action(p, tk, default_prec, locals, new_tokens);
+                action a = parse_action(p, tk, default_prec, locals, new_tokens, grp);
                 expr local_type = mk_Prop(); // type used in notation local declarations, it is irrelevant
                 expr l = mk_local(n, local_type);
                 p.add_local(l);
@@ -606,7 +630,7 @@ static environment add_user_token(environment const & env, token_entry const & e
 
 static environment add_user_token(environment const & env, char const * val, unsigned prec) {
     check_token(val);
-    return add_token(env, val, prec);
+    return add_expr_token(env, val, prec);
 }
 
 struct notation_modifiers {

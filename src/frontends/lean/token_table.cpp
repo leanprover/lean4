@@ -20,6 +20,20 @@ unsigned get_max_prec() { return g_max_prec; }
 unsigned get_Max_prec() { return g_Max_prec; }
 unsigned get_arrow_prec() { return g_arrow_prec; }
 unsigned get_decreasing_prec() { return g_decreasing_prec; }
+static token_table update(token_table const & s, char const * token, char const * val,
+                          optional<unsigned> expr_prec, optional<unsigned> tac_prec) {
+    lean_assert(expr_prec || tac_prec);
+    token_info info(token, val, 0, 0);
+    if (token_info const * old_info = find(s, token)) {
+        info = info.update_expr_precedence(old_info->expr_precedence());
+        info = info.update_tactic_precedence(old_info->tactic_precedence());
+    }
+    if (expr_prec)
+        info = info.update_expr_precedence(*expr_prec);
+    if (tac_prec)
+        info = info.update_tactic_precedence(*tac_prec);
+    return insert(s, token, info);
+}
 token_table add_command_token(token_table const & s, char const * token) {
     return insert(s, token, token_info(token));
 }
@@ -27,10 +41,16 @@ token_table add_command_token(token_table const & s, char const * token, char co
     return insert(s, token, token_info(token, val));
 }
 token_table add_token(token_table const & s, char const * token, unsigned prec) {
-    return insert(s, token, token_info(token, prec));
+    return update(s, token, token, optional<unsigned>(prec), optional<unsigned>());
 }
 token_table add_token(token_table const & s, char const * token, char const * val, unsigned prec) {
-    return insert(s, token, token_info(token, val, prec));
+    return update(s, token, val, optional<unsigned>(prec), optional<unsigned>());
+}
+token_table add_tactic_token(token_table const & s, char const * token, unsigned prec) {
+    return update(s, token, token, optional<unsigned>(), optional<unsigned>(prec));
+}
+token_table add_tactic_token(token_table const & s, char const * token, char const * val, unsigned prec) {
+    return update(s, token, val, optional<unsigned>(), optional<unsigned>(prec));
 }
 token_table const * find(token_table const & s, char c) {
     return s.find(c);
@@ -38,9 +58,13 @@ token_table const * find(token_table const & s, char c) {
 token_info const * value_of(token_table const & s) {
     return s.value();
 }
-optional<unsigned> get_precedence(token_table const & s, char const * token) {
+optional<unsigned> get_expr_precedence(token_table const & s, char const * token) {
     auto it = find(s, token);
-    return it ? optional<unsigned>(it->precedence()) : optional<unsigned>();
+    return it ? optional<unsigned>(it->expr_precedence()) : optional<unsigned>();
+}
+optional<unsigned> get_tactic_precedence(token_table const & s, char const * token) {
+    auto it = find(s, token);
+    return it ? optional<unsigned>(it->tactic_precedence()) : optional<unsigned>();
 }
 bool is_token(token_table const & s, char const * token) {
     return static_cast<bool>(find(s, token));
@@ -51,16 +75,6 @@ void for_each(token_table const & s, std::function<void(char const *, token_info
             str.append(num, keys);
             str.push_back(0);
             fn(str.data(), info);
-        });
-}
-void display(std::ostream & out, token_table const & s) {
-    for_each(s, [&](char const * token, token_info const & info) {
-            out << "`" << token << "`:" << info.precedence();
-            if (info.is_command())
-                out << " [command]";
-            if (info.value() != info.token())
-                out << " " << info.value();
-            out << "\n";
         });
 }
 
@@ -79,7 +93,7 @@ void init_token_table(token_table & t) {
          {"from", 0}, {"(", g_max_prec}, {")", 0}, {"{", g_max_prec}, {"}", 0}, {"_", g_max_prec},
          {"[", g_max_prec}, {"]", 0}, {"⦃", g_max_prec}, {"⦄", 0}, {".{", 0}, {"Type", g_max_prec},
          {"{|", g_max_prec}, {"|}", 0}, {"⊢", 0}, {"⟨", g_max_prec}, {"⟩", 0}, {"^", 0}, {"↑", 0}, {"▸", 0},
-         {"using", 0}, {"|", 0}, {"!", g_max_prec}, {"?", 0},  {"with", 0}, {"...", 0}, {",", 0}, {";", 1},
+         {"using", 0}, {"|", 0}, {"!", g_max_prec}, {"?", 0},  {"with", 0}, {"...", 0}, {",", 0},
          {".", 0}, {":", 0}, {"::", 0}, {"calc", 0}, {"rewrite", 0}, {"esimp", 0}, {"fold", 0}, {"unfold", 0},
          {":=", 0}, {"--", 0}, {"#", 0},
          {"(*", 0}, {"/-", 0}, {"begin", g_max_prec}, {"proof", g_max_prec}, {"qed", 0}, {"@", g_max_prec},
@@ -197,7 +211,7 @@ static int value_of(lua_State * L) {
     if (it) {
         push_boolean(L, it->is_command());
         push_name(L, it->value());
-        push_integer(L, it->precedence());
+        push_integer(L, it->expr_precedence());
         return 3;
     } else {
         push_nil(L);
@@ -212,7 +226,7 @@ static int for_each(lua_State * L) {
             lua_pushstring(L, k);
             lua_pushboolean(L, info.is_command());
             push_name(L, info.value());
-            lua_pushinteger(L, info.precedence());
+            lua_pushinteger(L, info.expr_precedence());
             pcall(L, 4, 0, 0);
         });
     return 0;

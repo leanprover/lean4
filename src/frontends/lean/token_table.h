@@ -26,21 +26,30 @@ class token_info {
     bool        m_command;
     name        m_token;
     name        m_value;
-    unsigned    m_precedence;
+    unsigned    m_expr_precedence;
+    unsigned    m_tactic_precedence;
+    token_info(bool c, name const & t, name const & v, unsigned ep, unsigned tp):
+        m_command(c), m_token(t), m_value(v), m_expr_precedence(ep), m_tactic_precedence(tp) {}
 public:
     token_info():m_command(true) {}
     token_info(char const * val):
-        m_command(true), m_token(val), m_value(val), m_precedence(LEAN_DEFAULT_PRECEDENCE) {}
+        m_command(true), m_token(val), m_value(val), m_expr_precedence(0), m_tactic_precedence(0) {}
     token_info(char const * token, char const * val):
-        m_command(true), m_token(token), m_value(val), m_precedence(LEAN_DEFAULT_PRECEDENCE) {}
-    token_info(char const * val, unsigned prec):
-        m_command(false), m_token(val), m_value(val), m_precedence(prec) {}
-    token_info(char const * token, char const * val, unsigned prec):
-        m_command(false), m_token(token), m_value(val), m_precedence(prec) {}
+        m_command(true), m_token(token), m_value(val), m_expr_precedence(0), m_tactic_precedence(0) {}
+    token_info(char const * token, char const * val, unsigned prec, unsigned tac_prec):
+        m_command(false), m_token(token), m_value(val),
+        m_expr_precedence(prec), m_tactic_precedence(tac_prec) {}
     bool is_command() const { return m_command; }
     name const & token() const { return m_token; }
     name const & value() const { return m_value; }
-    unsigned precedence() const { return m_precedence; }
+    unsigned expr_precedence() const { return m_expr_precedence; }
+    unsigned tactic_precedence() const { return m_tactic_precedence; }
+    token_info update_expr_precedence(unsigned prec) const {
+        return token_info(m_command, m_token, m_value, prec, m_tactic_precedence);
+    }
+    token_info update_tactic_precedence(unsigned prec) const {
+        return token_info(m_command, m_token, m_value, m_expr_precedence, prec);
+    }
 };
 
 typedef ctrie<token_info> token_table;
@@ -50,10 +59,12 @@ token_table add_command_token(token_table const & s, char const * token);
 token_table add_command_token(token_table const & s, char const * token, char const * val);
 token_table add_token(token_table const & s, char const * token, unsigned prec = LEAN_DEFAULT_PRECEDENCE);
 token_table add_token(token_table const & s, char const * token, char const * val, unsigned prec = LEAN_DEFAULT_PRECEDENCE);
+token_table add_tactic_token(token_table const & s, char const * token, unsigned prec = LEAN_DEFAULT_PRECEDENCE);
+token_table add_tactic_token(token_table const & s, char const * token, char const * val, unsigned prec = LEAN_DEFAULT_PRECEDENCE);
 void for_each(token_table const & s, std::function<void(char const *, token_info const&)> const & fn);
-void display(std::ostream & out, token_table const & s);
 token_table const * find(token_table const & s, char c);
-optional<unsigned> get_precedence(token_table const & s, char const * token);
+optional<unsigned> get_expr_precedence(token_table const & s, char const * token);
+optional<unsigned> get_tactic_precedence(token_table const & s, char const * token);
 bool is_token(token_table const & s, char const * token);
 token_info const * value_of(token_table const & s);
 void open_token_table(lua_State * L);

@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/begin_end_ext.h"
 #include "frontends/lean/builtin_cmds.h"
 #include "frontends/lean/builtin_exprs.h"
+#include "frontends/lean/builtin_tactics.h"
 #include "frontends/lean/inductive_cmd.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/migrate_cmd.h"
@@ -37,6 +38,7 @@ void initialize_frontend_lean_module() {
     initialize_parse_table();
     initialize_builtin_cmds();
     initialize_builtin_exprs();
+    initialize_builtin_tactics();
     initialize_elaborator_context();
     initialize_elaborator();
     initialize_scanner();
@@ -75,6 +77,7 @@ void finalize_frontend_lean_module() {
     finalize_scanner();
     finalize_elaborator();
     finalize_elaborator_context();
+    finalize_builtin_tactics();
     finalize_builtin_exprs();
     finalize_builtin_cmds();
     finalize_parse_table();

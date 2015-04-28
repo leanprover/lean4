@@ -169,6 +169,8 @@ class parser {
 
     parse_table const & nud() const { return get_nud_table(env()); }
     parse_table const & led() const { return get_led_table(env()); }
+    parse_table const & tactic_nud() const { return get_tactic_nud_table(env()); }
+    parse_table const & tactic_led() const { return get_tactic_led_table(env()); }
 
     unsigned curr_level_lbp() const;
     level parse_max_imax(bool is_max);
@@ -181,7 +183,12 @@ class parser {
     void parse_script(bool as_expr = false);
     bool parse_commands();
     unsigned curr_lbp() const;
-    expr parse_notation(parse_table t, expr * left);
+    expr parse_notation_core(parse_table t, expr * left, bool as_tactic);
+    expr parse_expr_or_tactic(unsigned rbp, bool as_tactic) {
+        return as_tactic ? parse_tactic(rbp) : parse_expr(rbp);
+    }
+    expr parse_notation(parse_table t, expr * left) { return parse_notation_core(t, left, false); }
+    expr parse_tactic_notation(parse_table t, expr * left) { return parse_notation_core(t, left, true); }
     expr parse_nud_notation();
     expr parse_led_notation(expr left);
     expr parse_nud();

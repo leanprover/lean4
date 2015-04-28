@@ -925,7 +925,7 @@ bool parser::parse_local_notation_decl(buffer<notation_entry> * nentries) {
     }
 }
 
-expr parser::parse_notation(parse_table t, expr * left) {
+expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
     lean_assert(curr() == scanner::token_kind::Keyword);
     auto p = pos();
     if (m_info_manager)
@@ -949,17 +949,17 @@ expr parser::parse_notation(parse_table t, expr * left) {
             break;
         case notation::action_kind::Expr:
             next();
-            args.push_back(parse_expr(a.rbp()));
+            args.push_back(parse_expr_or_tactic(a.rbp(), as_tactic));
             break;
         case notation::action_kind::Exprs: {
             next();
             buffer<expr> r_args;
             auto terminator = a.get_terminator();
             if (!terminator || !curr_is_token(*terminator)) {
-                r_args.push_back(parse_expr(a.rbp()));
+                r_args.push_back(parse_expr_or_tactic(a.rbp(), as_tactic));
                 while (curr_is_token(a.get_sep())) {
                     next();
-                    r_args.push_back(parse_expr(a.rbp()));
+                    r_args.push_back(parse_expr_or_tactic(a.rbp(), as_tactic));
                 }
             }
             if (terminator) {
@@ -1473,34 +1473,18 @@ expr parser::parse_tactic_nud() {
         } else {
             return parse_expr();
         }
-    } else if (curr_is_token_or_id(get_rewrite_tk())) {
-        auto p = pos();
-        next();
-        return save_pos(parse_rewrite_tactic(*this), p);
-    } else if (curr_is_token(get_lparen_tk())) {
-        next();
-        expr r = parse_tactic();
-        while (curr_is_token(get_bar_tk())) {
-            auto bar_pos = pos();
-            next();
-            expr n = parse_tactic();
-            r = mk_app({save_pos(mk_constant(get_tactic_or_else_name()), bar_pos), r, n}, bar_pos);
-        }
-        check_token_next(get_rparen_tk(), "invalid tactic, ')' expected");
-        return r;
+    } else if (curr_is_keyword()) {
+        return parse_tactic_notation(tactic_nud(), nullptr);
     } else {
-        return parse_expr();
+        throw parser_error("invalid tactic expression", pos());
     }
 }
 
 expr parser::parse_tactic_led(expr left) {
-    auto p = pos();
-    if (curr_is_token(get_semicolon_tk())) {
-        next();
-        expr right = parse_tactic();
-        return mk_app({save_pos(mk_constant(get_tactic_and_then_name()), p), left, right}, p);
+    if (tactic_led().find(get_token_info().value())) {
+        return parse_tactic_notation(tactic_led(), &left);
     } else {
-        return parse_led(left);
+        throw parser_error("invalid tactic expression", pos());
     }
 }
 

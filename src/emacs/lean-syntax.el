@@ -13,9 +13,11 @@
     "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises"
     "print" "theorem" "example" "abbreviation"
     "open" "as" "export" "axiom" "axioms" "inductive" "with" "structure" "record" "universe" "universes"
-    "alias" "help" "environment" "options" "precedence" "reserve" "postfix" "prefix"
+    "alias" "help" "environment" "options" "precedence" "reserve"
     "calc_trans" "calc_subst" "calc_refl" "calc_symm" "match"
-    "infix" "infixl" "infixr" "notation" "eval" "check" "coercion" "end"
+    "infix" "infixl" "infixr" "notation" "postfix" "prefix"
+    "tactic_infix" "tactic_infixl" "tactic_infixr" "tactic_notation" "tactic_postfix" "tactic_prefix"
+    "eval" "check" "coercion" "end"
     "using" "namespace" "section" "fields" "find_decl"
     "attribute" "local" "set_option" "add_rewrite" "extends" "include" "omit" "classes"
     "instances" "coercions" "metaclasses" "raw" "migrate" "replacing")

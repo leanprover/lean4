@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/kernel_serializer.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/builtin_exprs.h"
+#include "frontends/lean/builtin_tactics.h"
 #include "frontends/lean/builtin_cmds.h"
 
 namespace lean {
@@ -24,22 +25,23 @@ notation_entry replace(notation_entry const & e, std::function<expr(expr const &
     else
         return notation_entry(e.is_nud(),
                               map(e.get_transitions(), [&](transition const & t) { return notation::replace(t, f); }),
-                              f(e.get_expr()), e.overload(), e.reserve(), e.parse_only());
+                              f(e.get_expr()), e.overload(), e.group(), e.parse_only());
 }
 
 notation_entry::notation_entry():m_kind(notation_entry_kind::NuD) {}
 notation_entry::notation_entry(notation_entry const & e):
     m_kind(e.m_kind), m_expr(e.m_expr), m_overload(e.m_overload),
-    m_safe_ascii(e.m_safe_ascii), m_reserve(e.m_reserve), m_parse_only(e.m_parse_only) {
+    m_safe_ascii(e.m_safe_ascii), m_group(e.m_group), m_parse_only(e.m_parse_only) {
     if (is_numeral())
         new (&m_num) mpz(e.m_num);
     else
         new (&m_transitions) list<transition>(e.m_transitions);
 }
 
-notation_entry::notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload, bool reserve, bool parse_only):
+notation_entry::notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload,
+                               notation_entry_group g, bool parse_only):
     m_kind(is_nud ? notation_entry_kind::NuD : notation_entry_kind::LeD),
-    m_expr(e), m_overload(overload), m_reserve(reserve), m_parse_only(parse_only) {
+    m_expr(e), m_overload(overload), m_group(g), m_parse_only(parse_only) {
     new (&m_transitions) list<transition>(ts);
     m_safe_ascii = std::all_of(ts.begin(), ts.end(), [](transition const & t) { return t.is_safe_ascii(); });
 }
@@ -48,7 +50,7 @@ notation_entry::notation_entry(notation_entry const & e, bool overload):
     m_overload = overload;
 }
 notation_entry::notation_entry(mpz const & val, expr const & e, bool overload, bool parse_only):
-    m_kind(notation_entry_kind::Numeral), m_expr(e), m_overload(overload), m_safe_ascii(true), m_reserve(false), m_parse_only(parse_only) {
+    m_kind(notation_entry_kind::Numeral), m_expr(e), m_overload(overload), m_safe_ascii(true), m_group(notation_entry_group::Main), m_parse_only(parse_only) {
     new (&m_num) mpz(val);
 }
 
@@ -61,7 +63,7 @@ notation_entry::~notation_entry() {
 
 bool operator==(notation_entry const & e1, notation_entry const & e2) {
     if (e1.kind() != e2.kind() || e1.overload() != e2.overload() || e1.get_expr() != e2.get_expr() ||
-        e1.reserve() != e2.reserve() || e1.parse_only() != e2.parse_only())
+        e1.group() != e2.group() || e1.parse_only() != e2.parse_only())
         return false;
     if (e1.is_numeral())
         return e1.get_num() == e2.get_num();
@@ -213,11 +215,34 @@ struct notation_state {
     // The following two tables are used to implement `reserve notation` commands
     parse_table      m_reserved_nud;
     parse_table      m_reserved_led;
+    // The following two tables are used to implement `notation [tactic]` commands
+    parse_table      m_tactic_nud;
+    parse_table      m_tactic_led;
     notation_state():
         m_nud(get_builtin_nud_table()),
         m_led(get_builtin_led_table()),
         m_reserved_nud(true),
-        m_reserved_led(false) {
+        m_reserved_led(false),
+        m_tactic_nud(get_builtin_tactic_nud_table()),
+        m_tactic_led(get_builtin_tactic_led_table()) {
+    }
+
+    parse_table & nud(notation_entry_group g) {
+        switch (g) {
+        case notation_entry_group::Main:    return m_nud;
+        case notation_entry_group::Reserve: return m_reserved_nud;
+        case notation_entry_group::Tactic:  return m_tactic_nud;
+        }
+        lean_unreachable();
+    }
+
+    parse_table & led(notation_entry_group g) {
+        switch (g) {
+        case notation_entry_group::Main:    return m_led;
+        case notation_entry_group::Reserve: return m_reserved_led;
+        case notation_entry_group::Tactic:  return m_tactic_led;
+        }
+        lean_unreachable();
     }
 };
 
@@ -239,7 +264,7 @@ struct notation_config {
             to_buffer(e.get_transitions(), ts);
             if (auto idx = get_head_index(ts.size(), ts.data(), e.get_expr()))
                 updt_inv_map(s, *idx, e);
-            parse_table & nud = e.reserve() ? s.m_reserved_nud : s.m_nud;
+            parse_table & nud = s.nud(e.group());
             nud = nud.add(ts.size(), ts.data(), e.get_expr(), e.overload());
             break;
         }
@@ -247,7 +272,7 @@ struct notation_config {
             to_buffer(e.get_transitions(), ts);
             if (auto idx = get_head_index(ts.size(), ts.data(), e.get_expr()))
                 updt_inv_map(s, *idx, e);
-            parse_table & led = e.reserve() ? s.m_reserved_led : s.m_led;
+            parse_table & led = s.led(e.group());
             led = led.add(ts.size(), ts.data(), e.get_expr(), e.overload());
             break;
         }
@@ -275,7 +300,7 @@ struct notation_config {
         if (e.is_numeral()) {
             s << e.get_num();
         } else {
-            s << e.reserve() << length(e.get_transitions());
+            s << static_cast<char>(e.group()) << length(e.get_transitions());
             for (auto const & t : e.get_transitions())
                 s << t;
         }
@@ -290,13 +315,13 @@ struct notation_config {
             return entry(val, e, overload, parse_only);
         } else {
             bool is_nud = k == notation_entry_kind::NuD;
-            bool reserve;
-            unsigned sz;
-            d >> reserve >> sz;
+            unsigned sz; char _g;
+            d >> _g >> sz;
+            notation_entry_group g = static_cast<notation_entry_group>(_g);
             buffer<transition> ts;
             for (unsigned i = 0; i < sz; i++)
                 ts.push_back(read_transition(d));
-            return entry(is_nud, to_list(ts.begin(), ts.end()), e, overload, reserve, parse_only);
+            return entry(is_nud, to_list(ts.begin(), ts.end()), e, overload, g, parse_only);
         }
     }
     static optional<unsigned> get_fingerprint(entry const &) {
@@ -314,25 +339,25 @@ environment add_notation(environment const & env, notation_entry const & e, bool
 }
 
 environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts,
-                             expr const & a, bool overload, bool reserve, bool parse_only) {
-    return add_notation(env, notation_entry(true, to_list(ts, ts+num), a, overload, reserve, parse_only));
+                             expr const & a, bool overload, notation_entry_group g, bool parse_only) {
+    return add_notation(env, notation_entry(true, to_list(ts, ts+num), a, overload, g, parse_only));
 }
 
 environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts,
-                             expr const & a, bool overload, bool reserve, bool parse_only) {
-    return add_notation(env, notation_entry(false, to_list(ts, ts+num), a, overload, reserve, parse_only));
+                             expr const & a, bool overload, notation_entry_group g, bool parse_only) {
+    return add_notation(env, notation_entry(false, to_list(ts, ts+num), a, overload, g, parse_only));
 }
 
 environment add_nud_notation(environment const & env, std::initializer_list<notation::transition> const & ts,
                              expr const & a, bool overload, bool parse_only) {
-    bool reserve = false;
-    return add_nud_notation(env, ts.size(), ts.begin(), a, overload, reserve, parse_only);
+    notation_entry_group g = notation_entry_group::Main;
+    return add_nud_notation(env, ts.size(), ts.begin(), a, overload, g, parse_only);
 }
 
 environment add_led_notation(environment const & env, std::initializer_list<notation::transition> const & ts,
                              expr const & a, bool overload, bool parse_only) {
-    bool reserve = false;
-    return add_led_notation(env, ts.size(), ts.begin(), a, overload, reserve, parse_only);
+    notation_entry_group g = notation_entry_group::Main;
+    return add_led_notation(env, ts.size(), ts.begin(), a, overload, g, parse_only);
 }
 
 parse_table const & get_nud_table(environment const & env) {
@@ -349,6 +374,14 @@ parse_table const & get_reserved_nud_table(environment const & env) {
 
 parse_table const & get_reserved_led_table(environment const & env) {
     return notation_ext::get_state(env).m_reserved_led;
+}
+
+parse_table const & get_tactic_nud_table(environment const & env) {
+    return notation_ext::get_state(env).m_tactic_nud;
+}
+
+parse_table const & get_tactic_led_table(environment const & env) {
+    return notation_ext::get_state(env).m_tactic_led;
 }
 
 environment add_mpz_notation(environment const & env, mpz const & n, expr const & e, bool overload, bool parse_only) {

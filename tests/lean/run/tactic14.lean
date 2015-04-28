@@ -1,6 +1,8 @@
 import logic
 open tactic
 
+notation `(` h `|` r:(foldl `|` (e r, tactic.or_else r e) h) `)` := r
+
 definition basic_tac : tactic
 := repeat (apply @and.intro | assumption)
 

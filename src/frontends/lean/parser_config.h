@@ -19,7 +19,7 @@ struct token_entry {
 };
 
 enum class notation_entry_kind { NuD, LeD, Numeral };
-
+enum class notation_entry_group { Main, Reserve, Tactic };
 class notation_entry {
     typedef notation::transition transition;
     notation_entry_kind  m_kind;
@@ -30,12 +30,12 @@ class notation_entry {
     expr                 m_expr;
     bool                 m_overload;
     bool                 m_safe_ascii;
-    bool                 m_reserve;
+    notation_entry_group m_group;
     bool                 m_parse_only;
 public:
     notation_entry();
     notation_entry(notation_entry const & e);
-    notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload, bool reserve, bool parse_only);
+    notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload, notation_entry_group g, bool parse_only);
     notation_entry(mpz const & val, expr const & e, bool overload, bool parse_only);
     notation_entry(notation_entry const & e, bool overload);
     ~notation_entry();
@@ -47,7 +47,8 @@ public:
     expr const & get_expr() const { return m_expr; }
     bool overload() const { return m_overload; }
     bool is_safe_ascii() const { return m_safe_ascii; }
-    bool reserve() const { return m_reserve; }
+    notation_entry_group group() const { return m_group; }
+    bool reserve() const { return group() == notation_entry_group::Reserve; }
     bool parse_only() const { return m_parse_only; }
 };
 bool operator==(notation_entry const & e1, notation_entry const & e2);
@@ -63,9 +64,9 @@ environment add_notation(environment const & env, notation_entry const & e, bool
 
 environment add_token(environment const & env, char const * val, unsigned prec);
 environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a,
-                             bool overload = true, bool reserve = false, bool parse_only = false);
+                             bool overload = true, notation_entry_group g = notation_entry_group::Main, bool parse_only = false);
 environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a,
-                             bool overload = true, bool reserve = false, bool parse_only = false);
+                             bool overload = true, notation_entry_group g = notation_entry_group::Main, bool parse_only = false);
 environment add_nud_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a,
                              bool overload = true, bool parse_only = false);
 environment add_led_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a,
@@ -75,6 +76,8 @@ parse_table const & get_nud_table(environment const & env);
 parse_table const & get_led_table(environment const & env);
 parse_table const & get_reserved_nud_table(environment const & env);
 parse_table const & get_reserved_led_table(environment const & env);
+parse_table const & get_tactic_nud_table(environment const & env);
+parse_table const & get_tactic_led_table(environment const & env);
 cmd_table const & get_cmd_table(environment const & env);
 /** \brief Force notation from namespace \c n to shadow any existing notation */
 environment overwrite_notation(environment const & env, name const & n);

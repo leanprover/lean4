@@ -1,3 +1,5 @@
+infixl `;`:15 := tactic.and_then
+
 section
   open tactic
   definition cases_refl (e : expr) : tactic :=
@@ -12,7 +14,7 @@ section
   cases e expr_list.nil; apply rfl
 end
 
-notation `cases_lst` l:(foldr `,` (h t, tactic.expr_list.cons h t) tactic.expr_list.nil) := cases_lst_refl l
+tactic_notation `cases_lst` l:(foldr `,` (h t, tactic.expr_list.cons h t) tactic.expr_list.nil) := cases_lst_refl l
 
 open prod
 theorem tst₁ (a : nat × nat) : (pr1 a, pr2 a) = a :=

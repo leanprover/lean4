@@ -53,7 +53,7 @@ section
     (Pincl : Π⦃i : I⦄ (x : A i), P (ι x))
     (Pglue : Π(j : J) (x : A (dom j)), cglue j x ▹ Pincl (f j x) = Pincl x)
       {j : J} (x : A (dom j)) : apd (rec Pincl Pglue) (cglue j x) = Pglue j x :=
-  sorry
+  !rec_eq_of_rel
 
    protected definition elim {P : Type} (Pincl : Π⦃i : I⦄ (x : A i), P)
     (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) = Pincl x) (y : colimit) : P :=
@@ -93,6 +93,10 @@ end colimit
 /- definition of a sequential colimit -/
 namespace seq_colim
 section
+  /-
+    we define it directly in terms of type quotients. An alternative definition could be
+    definition seq_colim := colimit.colimit A function.id succ f
+  -/
   parameters {A : ℕ → Type} (f : Π⦃n⦄, A n → A (succ n))
   variables {n : ℕ} (a : A n)
 
@@ -132,7 +136,7 @@ section
   theorem rec_glue {P : seq_colim → Type} (Pincl : Π⦃n : ℕ⦄ (a : A n), P (sι a))
     (Pglue : Π⦃n : ℕ⦄ (a : A n), glue a ▹ Pincl (f a) = Pincl a) {n : ℕ} (a : A n)
       : apd (rec Pincl Pglue) (glue a) = Pglue a :=
-  sorry
+  !rec_eq_of_rel
 
   protected definition elim {P : Type} (Pincl : Π⦃n : ℕ⦄ (a : A n), P)
     (Pglue : Π⦃n : ℕ⦄ (a : A n), Pincl (f a) = Pincl a) : seq_colim → P :=

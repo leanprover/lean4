@@ -53,7 +53,7 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
   theorem rec_glue {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
     (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x))
       (x : TL) : apd (rec Pinl Pinr Pglue) (glue x) = Pglue x :=
-  sorry
+  !rec_eq_of_rel
 
   protected definition elim {P : Type} (Pinl : BL → P) (Pinr : TR → P)
     (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) (y : pushout) : P :=

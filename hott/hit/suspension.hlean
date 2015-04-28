@@ -42,7 +42,7 @@ namespace suspension
   theorem rec_merid {P : suspension A → Type} (PN : P !north) (PS : P !south)
     (Pm : Π(a : A), merid a ▹ PN = PS) (a : A)
       : apd (rec PN PS Pm) (merid a) = Pm a :=
-  sorry
+  !rec_glue
 
   protected definition elim {P : Type} (PN : P) (PS : P) (Pm : A → PN = PS)
     (x : suspension A) : P :=

@@ -19,7 +19,7 @@ namespace type_quotient
   protected definition elim {P : Type} (Pc : A → P) (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a = Pc a')
     (x : type_quotient R) : P :=
   type_quotient.rec Pc (λa a' H, !tr_constant ⬝ Pp H) x
-  attribute elim [unfold-c 6]
+
   protected definition elim_on [reducible] {P : Type} (x : type_quotient R)
     (Pc : A → P) (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a = Pc a') : P :=
   elim Pc Pp x
@@ -48,5 +48,6 @@ namespace type_quotient
   definition elim_type_uncurried (H : Σ(Pc : A → Type),  Π⦃a a' : A⦄ (H : R a a'), Pc a ≃ Pc a')
     : type_quotient R → Type :=
   elim_type H.1 H.2
+
 
 end type_quotient

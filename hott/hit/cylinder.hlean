@@ -55,7 +55,7 @@ parameters {A B : Type.{u}} (f : A → B)
     (Pbase : Π(b : B), P (base b)) (Ptop : Π(a : A), P (top a))
     (Pseg : Π(a : A), seg a ▹ Pbase (f a) = Ptop a)
       (a : A) : apd (rec Pbase Ptop Pseg) (seg a) = Pseg a :=
-  sorry
+  !rec_eq_of_rel
 
   protected definition elim {P : Type} (Pbase : B → P) (Ptop : A → P)
     (Pseg : Π(a : A), Pbase (f a) = Ptop a) (x : cylinder) : P :=

@@ -47,7 +47,7 @@ parameters {A : Type} (R : A → A → hprop)
   theorem rec_eq_of_rel {P : quotient → Type} [Pt : Πaa, is_hset (P aa)]
     (Pc : Π(a : A), P (class_of a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▹ Pc a = Pc a')
     {a a' : A} (H : R a a') : apd (rec Pc Pp) (eq_of_rel H) = Pp H :=
-  sorry
+  !is_hset.elim
 
   protected definition elim {P : Type} [Pt : is_hset P] (Pc : A → P)
     (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a = Pc a') (x : quotient) : P :=

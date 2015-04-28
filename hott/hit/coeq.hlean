@@ -47,7 +47,7 @@ parameters {A B : Type.{u}} (f g : A → B)
   theorem rec_cp {P : coeq → Type} (P_i : Π(x : B), P (coeq_i x))
     (Pcp : Π(x : A), cp x ▹ P_i (f x) = P_i (g x))
       (x : A) : apd (rec P_i Pcp) (cp x) = Pcp x :=
-  sorry
+  !rec_eq_of_rel
 
   protected definition elim {P : Type} (P_i : B → P)
     (Pcp : Π(x : A), P_i (f x) = P_i (g x)) (y : coeq) : P :=

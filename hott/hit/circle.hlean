@@ -42,7 +42,7 @@ namespace circle
   theorem rec2_seg1 {P : circle → Type} (Pb1 : P base1) (Pb2 : P base2)
     (Ps1 : seg1 ▹ Pb1 = Pb2) (Ps2 : seg2 ▹ Pb2 = Pb1)
       : apd (rec2 Pb1 Pb2 Ps1 Ps2) seg1 = Ps1 :=
-  sorry
+  !rec_merid
 
   theorem rec2_seg2 {P : circle → Type} (Pb1 : P base1) (Pb2 : P base2)
     (Ps1 : seg1 ▹ Pb1 = Pb2) (Ps2 : seg2 ▹ Pb2 = Pb1)

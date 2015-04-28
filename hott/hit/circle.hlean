@@ -78,22 +78,27 @@ namespace circle
     { exact Pbase},
     { exact (transport P seg1 Pbase)},
     { apply idp},
-    { apply tr_eq_of_eq_inv_tr, rewrite -tr_con, exact Ploop⁻¹},
+    { apply tr_eq_of_eq_inv_tr, exact (Ploop⁻¹ ⬝ !tr_con)},
   end
-
-  example {P : circle → Type} (Pbase : P base) (Ploop : loop ▹ Pbase = Pbase) : rec Pbase Ploop base = Pbase := idp
+--rewrite -tr_con, exact Ploop⁻¹
 
   protected definition rec_on [reducible] {P : circle → Type} (x : circle) (Pbase : P base)
     (Ploop : loop ▹ Pbase = Pbase) : P x :=
   rec Pbase Ploop x
-  set_option pp.beta false
+
+  theorem rec_loop_helper {A : Type} (P : A → Type)
+    {x y : A} {p : x = y} {u : P x} {v : P y} (q : u = p⁻¹ ▹ v) :
+    eq_inv_tr_of_tr_eq P (tr_eq_of_eq_inv_tr P q) = q :=
+  by cases p; exact idp
+
   theorem rec_loop {P : circle → Type} (Pbase : P base) (Ploop : loop ▹ Pbase = Pbase) :
     apd (rec Pbase Ploop) loop = Ploop :=
-  sorry
-  -- begin
-  --   rewrite [↑loop,apd_con,↑rec,↑rec2_on,↑base,rec2_seg1,apd_inv,rec2_seg2,↑ap,↑eq.rec_on,▸*],
-  --   esimp
-  -- end
+  begin
+    rewrite [↑loop,apd_con,↑rec,↑rec2_on,↑base,rec2_seg1,apd_inv,rec2_seg2],
+    apply concat, apply (ap (λx, x ⬝ _)), apply con_idp, esimp,
+    rewrite [(rec_loop_helper P),inv_con_inv_left],
+    apply con_inv_cancel_left
+  end
 
   protected definition elim {P : Type} (Pbase : P) (Ploop : Pbase = Pbase)
     (x : circle) : P :=

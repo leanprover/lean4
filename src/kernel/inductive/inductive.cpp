@@ -920,18 +920,6 @@ auto inductive_normalizer_extension::operator()(expr const & e, extension_contex
     // Check intro num_args
     if (intro_args.size() != it1->m_num_params + it2->m_num_bu)
         return none_ecs();
-    if (it1->m_num_params > 0) {
-        // Global parameters of elim and intro be definitionally equal
-        simple_delayed_justification jst([=]() {
-                return mk_justification("elim/intro global parameters must match", some_expr(e));
-            });
-        for (unsigned i = 0; i < it1->m_num_params; i++) {
-            auto dcs = ctx.is_def_eq(elim_args[i], intro_args[i], jst);
-            if (!dcs.first)
-                return none_ecs();
-            cs = cs + dcs.second;
-        }
-    }
     // Number of universe levels must match.
     if (length(const_levels(elim_fn)) != length(it1->m_level_names))
         return none_ecs();

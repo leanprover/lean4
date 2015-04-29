@@ -92,6 +92,9 @@ optional<pair<expr, constraint_seq>> hits_normalizer_extension::operator()(expr 
 
     expr const & f = args[f_pos];
     expr r = mk_app(f, app_arg(mk));
+    unsigned elim_arity = mk_pos+1;
+    if (args.size() > elim_arity)
+        r = mk_app(r, args.size() - elim_arity, args.begin() + elim_arity);
     return some_ecs(r, mk_cs.second);
 }
 

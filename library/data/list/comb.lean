@@ -135,9 +135,9 @@ section foldl_eq_foldr
   | a b  nil    := Hcomm a b
   | a b  (c::l) :=
     begin
-      change (foldl f (f (f a b) c) l = f b (foldl f (f a c) l)),
+      change foldl f (f (f a b) c) l = f b (foldl f (f a c) l),
       rewrite -foldl_eq_of_comm_of_assoc,
-      change (foldl f (f (f a b) c) l = foldl f (f (f a c) b) l),
+      change foldl f (f (f a b) c) l = foldl f (f (f a c) b) l,
       have H₁ : f (f a b) c = f (f a c) b, by rewrite [Hassoc, Hassoc, Hcomm b c],
       rewrite H₁
     end
@@ -148,7 +148,7 @@ section foldl_eq_foldr
     begin
       rewrite foldl_eq_of_comm_of_assoc,
       esimp,
-      change (f b (foldl f a l) = f b (foldr f a l)),
+      change f b (foldl f a l) = f b (foldr f a l),
       rewrite foldl_eq_foldr
     end
 end foldl_eq_foldr
@@ -259,7 +259,7 @@ theorem zip_unzip : ∀ (l : list (A × B)), zip (pr₁ (unzip l)) (pr₂ (unzip
     rewrite unzip_cons,
     have r : zip (pr₁ (unzip l)) (pr₂ (unzip l)) = l, from zip_unzip l,
     revert r,
-    apply (prod.cases_on (unzip l)),
+    apply prod.cases_on (unzip l),
     intros [la, lb, r],
     rewrite -r
   end

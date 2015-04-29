@@ -32,11 +32,11 @@ private definition v : nat := encode_fun f
 
 private lemma f_eq : succ (f v) = f v :=
 begin
-  change (succ (f v) =
-          match decode_fun (encode_fun f) with
-          | some g := succ (g v)
-          | none   := 0
-          end),
+  change succ (f v) =
+         match decode_fun (encode_fun f) with
+         | some g := succ (g v)
+         | none   := 0
+         end,
   rewrite encodek_fun
 end
 end

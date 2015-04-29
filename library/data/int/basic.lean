@@ -372,7 +372,7 @@ begin
   apply equiv.trans,
   apply repr_add,
   apply equiv.symm,
-  apply (eq.subst (padd_comm (repr b) (repr a))),
+  apply eq.subst (padd_comm (repr b) (repr a)),
   apply repr_add
 end
 
@@ -385,7 +385,7 @@ begin
   apply eq_of_repr_equiv_repr,
   apply equiv.trans,
   apply H1,
-  apply (eq.subst ((padd_assoc _ _ _)⁻¹)),
+  apply eq.subst (padd_assoc _ _ _)⁻¹,
   apply equiv.symm,
   apply H2
 end

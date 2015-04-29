@@ -55,7 +55,7 @@ section
   assume H, calc
      f₁ = extfun_app ⟦f₁⟧ : rfl
     ... = extfun_app ⟦f₂⟧ : {sound H}
-    ... = f₂             : rfl
+    ... = f₂              : rfl
 end
 
 open function.equiv_notation

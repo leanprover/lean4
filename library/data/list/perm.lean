@@ -270,9 +270,9 @@ match l₂ with
 | []   := λ e h₁ h₂, list.no_confusion e (λ e₁ e₂, h₁ rfl e₁ e₂)
 | h::t := λ e h₁ h₂,
   begin
-    apply (list.no_confusion e), intros [e₁, e₂],
+    apply list.no_confusion e, intros [e₁, e₂],
     rewrite e₁ at h₂,
-    exact (h₂ t rfl e₂)
+    exact h₂ t rfl e₂
   end
 end
 
@@ -289,17 +289,17 @@ match l₂ with
 | [h₁] := λ e H₁ H₂ H₃,
   begin
     rewrite [append_cons at e, append_nil_left at e],
-    apply (list.no_confusion e), intros [a_eq_h₁, rest],
-    apply (list.no_confusion rest), intros [b_eq_c, l₁_eq_l₃],
+    apply list.no_confusion e, intros [a_eq_h₁, rest],
+    apply list.no_confusion rest, intros [b_eq_c, l₁_eq_l₃],
     rewrite [a_eq_h₁ at H₂, b_eq_c at H₂, l₁_eq_l₃ at H₂],
-    exact (H₂ rfl rfl rfl)
+    exact H₂ rfl rfl rfl
   end
 | h₁::h₂::t₂ := λ e H₁ H₂ H₃,
   begin
-    apply (list.no_confusion e),    intros [a_eq_h₁, rest],
-    apply (list.no_confusion rest), intros [b_eq_h₂, l₁_eq],
+    apply list.no_confusion e,    intros [a_eq_h₁, rest],
+    apply list.no_confusion rest, intros [b_eq_h₂, l₁_eq],
     rewrite [a_eq_h₁ at H₃, b_eq_h₂ at H₃],
-    exact (H₃ t₂ rfl l₁_eq)
+    exact H₃ t₂ rfl l₁_eq
   end
 end
 
@@ -546,7 +546,7 @@ assume p, perm_induction_on p
             begin
               rewrite [erase_dup_cons_of_mem xinyt₁, erase_dup_cons_of_mem yinxt₂,
                        erase_dup_cons_of_not_mem nyint₁, erase_dup_cons_of_not_mem nxint₂, xeqy],
-              exact (skip y r)
+              exact skip y r
             end)
           (λ xney : x ≠ y,
             have xint₁     : x ∈ t₁, from or_resolve_right xinyt₁ xney,
@@ -558,7 +558,7 @@ assume p, perm_induction_on p
             begin
               rewrite [erase_dup_cons_of_mem xinyt₁, erase_dup_cons_of_not_mem nyinxt₂,
                        erase_dup_cons_of_not_mem nyint₁, erase_dup_cons_of_mem xint₂],
-              exact (skip y r)
+              exact skip y r
             end)))
     (λ nxinyt₁ : x ∉ y::t₁,
       have   xney    : x ≠ y,  from not_eq_of_not_mem nxinyt₁,
@@ -571,7 +571,7 @@ assume p, perm_induction_on p
           begin
             rewrite [erase_dup_cons_of_not_mem nxinyt₁, erase_dup_cons_of_mem yinxt₂,
                      erase_dup_cons_of_mem yint₁, erase_dup_cons_of_not_mem nxint₂],
-            exact (skip x r)
+            exact skip x r
           end)
         (λ nyint₁ : y ∉ t₁,
           assert nyinxt₂ : y ∉ x::t₂, from
@@ -581,7 +581,7 @@ assume p, perm_induction_on p
           begin
             rewrite [erase_dup_cons_of_not_mem nxinyt₁, erase_dup_cons_of_not_mem nyinxt₂,
                      erase_dup_cons_of_not_mem nyint₁, erase_dup_cons_of_not_mem nxint₂],
-            exact (xswap x y r)
+            exact xswap x y r
           end)))
   (λ t₁ t₂ t₃ p₁ p₂ r₁ r₂, trans r₁ r₂)
 

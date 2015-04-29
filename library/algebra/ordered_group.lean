@@ -520,7 +520,7 @@ section
           have H3 : abs (b + a) ≤ abs b + abs a,
           begin
             rewrite add.comm at H1,
-            exact (aux1 H1 H2)
+            exact aux1 H1 H2
           end,
           rewrite [add.comm, {abs a + _}add.comm],
           exact H3

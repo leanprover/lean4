@@ -459,11 +459,11 @@ public:
     }
 
     // Return true iff the given declaration contains inst_implicit arguments
-    bool has_inst_implicit_args(name const & d) const {
+    bool has_implicit_args(name const & d) const {
         if (auto decl = m_tc.env().find(d)) {
             expr const * it = &decl->get_type();
             while (is_pi(*it)) {
-                if (binding_info(*it).is_inst_implicit())
+                if (!is_explicit(binding_info(*it)))
                     return true;
                 it = &binding_body(*it);
             }
@@ -500,7 +500,7 @@ public:
             }
             return l_true;
         }
-        if (has_inst_implicit_args(const_name(p_fn))) {
+        if (has_implicit_args(const_name(p_fn))) {
             // Special support for declarations that contains inst_implicit arguments.
             // The idea is to skip them during matching.
             buffer<expr> p_args, t_args;
@@ -510,7 +510,7 @@ public:
                 return l_false;
             expr const * it = &m_tc.env().get(const_name(p_fn)).get_type();
             for (unsigned i = 0; i < p_args.size(); i++) {
-                if (is_pi(*it) && binding_info(*it).is_inst_implicit()) {
+                if (is_pi(*it) && !is_explicit(binding_info(*it))) {
                     it = &binding_body(*it);
                     continue; // skip argument
                 }

@@ -103,15 +103,20 @@ namespace cubical
     from eq.rec_on p (by cases r; cases t; exact H),
   left_inv (to_fun !square_equiv_eq) s ▹ !con_inv_cancel_right ▹ H2
 
-  definition rec_on_t {a₁₀ : A}
-    {P : Π {a₀₂ a₂₂ : A} {b : a₀₂ = a₂₂} {l : a₁₀ = a₀₂} {r : a₁₀ = a₂₂}, square idp b l r → Type}
+  definition rec_on_t.{l} {A : Type.{l}} {a₁₀ : A}
+    {P : Π {a₀₂ a₂₂ : A} {b : a₀₂ = a₂₂} {l : a₁₀ = a₀₂} {r : a₁₀ = a₂₂}, square idp b l r → Type.{l}}
     {a₀₂ a₂₂ : A} {b : a₀₂ = a₂₂} {l : a₁₀ = a₀₂} {r : a₁₀ = a₂₂}
       (s : square idp b l r) (H : P ids) : P s :=
   let p : l ⬝ b = r := (eq_of_square s)⁻¹ ⬝ !idp_con in
   assert H2 : P (square_of_eq ((p ⬝ !idp_con⁻¹)⁻¹)),
     from eq.rec_on p (by cases b; cases l; exact H),
-  by rewrite [con_inv_cancel_right at H2, inv_inv at H2];
-     exact (left_inv (to_fun !square_equiv_eq) s ▹ H2)
+  assert H3 : P (square_of_eq ((eq_of_square s)⁻¹⁻¹)),
+    from eq.rec_on !con_inv_cancel_right H2,
+  assert H4 : P (square_of_eq (eq_of_square s)),
+    from eq.rec_on !inv_inv H3,
+  proof
+    left_inv (to_fun !square_equiv_eq) s ▹ H4
+  qed
 
   definition rec_on_tb {a : A}
     {P : Π{b : A} {l : a = b} {r : a = b}, square idp idp l r → Type}

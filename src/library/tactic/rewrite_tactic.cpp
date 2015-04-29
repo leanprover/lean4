@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/error_msgs.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"
+#include "kernel/kernel_exception.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/default_converter.h"
 #include "kernel/inductive/inductive.h"
@@ -1169,6 +1170,10 @@ class rewrite_fn {
         }
     }
 
+    void check_term(expr const & H) {
+        type_checker(m_env).check_ignore_undefined_universes(H);
+    }
+
     bool process_rewrite_hypothesis(expr const & hyp, expr const & orig_elem, expr const & pattern, occurrence const & occ) {
         add_target(hyp, true);
         expr Pa = mlocal_type(hyp);
@@ -1214,7 +1219,9 @@ class rewrite_fn {
             expr new_mvar = mk_metavar(m_ngen.next(), Pi(new_hyps, new_type));
             expr new_meta = mk_app(new_mvar, new_hyps);
             goal new_g(new_meta, new_type);
-            assign(m_subst, m_g, mk_app(new_mvar, args));
+            expr V = mk_app(new_mvar, args);
+            check_term(V);
+            assign(m_subst, m_g, V);
             update_goal(new_g);
             return true;
         }
@@ -1247,7 +1254,7 @@ class rewrite_fn {
             } else {
                 H          = mk_app({mk_constant(get_eq_rec_name(), {l1, l2}), A, b, mk_lambda("x", A, Px), M, a, Heq});
             }
-
+            check_term(H);
             goal new_g(M, Pb);
             assign(m_subst, m_g, H);
             update_goal(new_g);
@@ -1404,6 +1411,33 @@ class rewrite_fn {
         }
     }
 
+    void process_failure(expr const & elem, bool type_error) {
+        if (m_ps.report_failure()) {
+            proof_state curr_ps(m_ps, cons(m_g, tail(m_ps.get_goals())), m_subst, m_ngen);
+            if (!m_use_trace || !m_trace_initialized) {
+                throw tactic_exception("rewrite step failed", some_expr(elem), curr_ps,
+                                       [=](formatter const &) {
+                                           if (type_error)
+                                               return format("invalid 'rewrite' tactic, rewrite step produced type incorrect term");
+                                           else
+                                               return format("invalid 'rewrite' tactic, rewrite step failed");
+                                       });
+            } else {
+                trace saved_trace = m_trace;
+                throw tactic_exception("rewrite step failed", some_expr(elem), curr_ps,
+                                       [=](formatter const & fmt) {
+                                           format r;
+                                           if (type_error)
+                                               r += format("invalid 'rewrite' tactic, step produced type incorrect term, details: ");
+                                           else
+                                               r += format("invalid 'rewrite' tactic, ");
+                                           r += saved_trace.pp(fmt);
+                                           return r;
+                                       });
+            }
+        }
+    }
+
 public:
     rewrite_fn(environment const & env, io_state const & ios, elaborate_fn const & elab, proof_state const & ps):
         m_env(env), m_ios(ios), m_elab(elab), m_ps(ps), m_ngen(ps.get_ngen()),
@@ -1423,22 +1457,13 @@ public:
     proof_state_seq operator()(buffer<expr> const & elems) {
         for (expr const & elem : elems) {
             flet<expr> set1(m_expr_loc, elem);
-            if (!process_step(elem)) {
-                if (m_ps.report_failure()) {
-                    proof_state curr_ps(m_ps, cons(m_g, tail(m_ps.get_goals())), m_subst, m_ngen);
-                    if (!m_use_trace || !m_trace_initialized) {
-                        throw tactic_exception("rewrite step failed", some_expr(elem), curr_ps,
-                                               [](formatter const &) { return format("invalid 'rewrite' tactic, rewrite step failed"); });
-                    } else {
-                        trace saved_trace = m_trace;
-                        throw tactic_exception("rewrite step failed", some_expr(elem), curr_ps,
-                                               [=](formatter const & fmt) {
-                                                   format r = format("invalid 'rewrite' tactic, ");
-                                                   r       += saved_trace.pp(fmt);
-                                                   return r;
-                                               });
-                    }
+            try {
+                if (!process_step(elem)) {
+                    process_failure(elem, false);
+                    return proof_state_seq();
                 }
+            } catch (kernel_exception &) {
+                process_failure(elem, true);
                 return proof_state_seq();
             }
         }

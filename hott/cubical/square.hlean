@@ -103,8 +103,8 @@ namespace cubical
     from eq.rec_on p (by cases r; cases t; exact H),
   left_inv (to_fun !square_equiv_eq) s ▹ !con_inv_cancel_right ▹ H2
 
-  definition rec_on_t.{l} {A : Type.{l}} {a₁₀ : A}
-    {P : Π {a₀₂ a₂₂ : A} {b : a₀₂ = a₂₂} {l : a₁₀ = a₀₂} {r : a₁₀ = a₂₂}, square idp b l r → Type.{l}}
+  definition rec_on_t {a₁₀ : A}
+    {P : Π {a₀₂ a₂₂ : A} {b : a₀₂ = a₂₂} {l : a₁₀ = a₀₂} {r : a₁₀ = a₂₂}, square idp b l r → Type}
     {a₀₂ a₂₂ : A} {b : a₀₂ = a₂₂} {l : a₁₀ = a₀₂} {r : a₁₀ = a₂₂}
       (s : square idp b l r) (H : P ids) : P s :=
   let p : l ⬝ b = r := (eq_of_square s)⁻¹ ⬝ !idp_con in

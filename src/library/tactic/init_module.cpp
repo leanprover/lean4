@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/tactic/rewrite_tactic.h"
 #include "library/tactic/change_tactic.h"
 #include "library/tactic/check_expr_tactic.h"
+#include "library/tactic/let_tactic.h"
 
 namespace lean {
 void initialize_tactic_module() {
@@ -43,9 +44,11 @@ void initialize_tactic_module() {
     initialize_rewrite_tactic();
     initialize_change_tactic();
     initialize_check_expr_tactic();
+    initialize_let_tactic();
 }
 
 void finalize_tactic_module() {
+    finalize_let_tactic();
     finalize_check_expr_tactic();
     finalize_change_tactic();
     finalize_rewrite_tactic();

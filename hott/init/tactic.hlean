@@ -96,6 +96,8 @@ opaque definition change (e : expr) : tactic := builtin
 
 opaque definition assert_hypothesis (id : identifier) (e : expr) : tactic := builtin
 
+opaque definition lettac (id : identifier) (e : expr) : tactic := builtin
+
 definition try         (t : tactic) : tactic := or_else t id
 definition repeat1     (t : tactic) : tactic := and_then t (repeat t)
 definition focus       (t : tactic) : tactic := focus_at t 0

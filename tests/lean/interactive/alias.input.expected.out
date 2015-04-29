@@ -6,6 +6,7 @@
 bool.bor_tt|∀ (a : bool), eq (bool.bor a bool.tt) bool.tt
 bool.band_tt|∀ (a : bool), eq (bool.band a bool.tt) a
 bool.tt|bool
+tactic.lettac|tactic.identifier → tactic.expr → tactic
 bool.absurd_of_eq_ff_of_eq_tt|eq ?a bool.ff → eq ?a bool.tt → ?B
 bool.eq_tt_of_ne_ff|ne ?a bool.ff → eq ?a bool.tt
 bool.tt_band|∀ (a : bool), eq (bool.band bool.tt a) a
@@ -22,6 +23,7 @@ tt_bor|∀ (a : bool), eq (bor tt a) tt
 tt_band|∀ (a : bool), eq (band tt a) a
 bor_tt|∀ (a : bool), eq (bor a tt) tt
 band_tt|∀ (a : bool), eq (band a tt) a
+tactic.lettac|tactic.identifier → tactic.expr → tactic
 absurd_of_eq_ff_of_eq_tt|eq ?a ff → eq ?a tt → ?B
 eq_tt_of_ne_ff|ne ?a ff → eq ?a tt
 cond_tt|∀ (t e : ?A), eq (cond tt t e) t

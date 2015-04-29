@@ -97,6 +97,7 @@ name const & get_tactic_generalize_name();
 name const & get_tactic_generalizes_name();
 name const & get_tactic_id_name();
 name const & get_tactic_interleave_name();
+name const & get_tactic_lettac_name();
 name const & get_tactic_now_name();
 name const & get_tactic_opt_expr_list_name();
 name const & get_tactic_or_else_name();

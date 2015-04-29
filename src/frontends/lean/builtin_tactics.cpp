@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/tactic/let_tactic.h"
+#include "frontends/lean/tokens.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/parse_rewrite_tactic.h"
 
@@ -29,6 +31,13 @@ static expr parse_rparen(parser &, unsigned, expr const * args, pos_info const &
     return args[0];
 }
 
+static expr parse_let_tactic(parser & p, unsigned, expr const *, pos_info const & pos) {
+    name id    = p.check_atomic_id_next("invalid 'let' tactic, identifier expected");
+    p.check_token_next(get_assign_tk(), "invalid 'let' tactic, ':=' expected");
+    expr value = p.parse_expr();
+    return p.save_pos(mk_let_tactic_expr(id, value), pos);
+}
+
 parse_table init_tactic_nud_table() {
     action Expr(mk_expr_action());
     expr x0 = mk_var(0);
@@ -38,6 +47,7 @@ parse_table init_tactic_nud_table() {
     r = r.add({transition("esimp",   mk_ext_action(parse_esimp_tactic_expr))}, x0);
     r = r.add({transition("unfold",  mk_ext_action(parse_unfold_tactic_expr))}, x0);
     r = r.add({transition("fold",    mk_ext_action(parse_fold_tactic_expr))}, x0);
+    r = r.add({transition("let",    mk_ext_action(parse_let_tactic))}, x0);
     return r;
 }
 

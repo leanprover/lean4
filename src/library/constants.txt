@@ -90,6 +90,7 @@ tactic.generalize
 tactic.generalizes
 tactic.id
 tactic.interleave
+tactic.lettac
 tactic.now
 tactic.opt_expr_list
 tactic.or_else

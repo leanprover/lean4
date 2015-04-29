@@ -95,6 +95,7 @@ name const * g_tactic_generalize = nullptr;
 name const * g_tactic_generalizes = nullptr;
 name const * g_tactic_id = nullptr;
 name const * g_tactic_interleave = nullptr;
+name const * g_tactic_lettac = nullptr;
 name const * g_tactic_now = nullptr;
 name const * g_tactic_opt_expr_list = nullptr;
 name const * g_tactic_or_else = nullptr;
@@ -213,6 +214,7 @@ void initialize_constants() {
     g_tactic_generalizes = new name{"tactic", "generalizes"};
     g_tactic_id = new name{"tactic", "id"};
     g_tactic_interleave = new name{"tactic", "interleave"};
+    g_tactic_lettac = new name{"tactic", "lettac"};
     g_tactic_now = new name{"tactic", "now"};
     g_tactic_opt_expr_list = new name{"tactic", "opt_expr_list"};
     g_tactic_or_else = new name{"tactic", "or_else"};
@@ -332,6 +334,7 @@ void finalize_constants() {
     delete g_tactic_generalizes;
     delete g_tactic_id;
     delete g_tactic_interleave;
+    delete g_tactic_lettac;
     delete g_tactic_now;
     delete g_tactic_opt_expr_list;
     delete g_tactic_or_else;
@@ -450,6 +453,7 @@ name const & get_tactic_generalize_name() { return *g_tactic_generalize; }
 name const & get_tactic_generalizes_name() { return *g_tactic_generalizes; }
 name const & get_tactic_id_name() { return *g_tactic_id; }
 name const & get_tactic_interleave_name() { return *g_tactic_interleave; }
+name const & get_tactic_lettac_name() { return *g_tactic_lettac; }
 name const & get_tactic_now_name() { return *g_tactic_now; }
 name const & get_tactic_opt_expr_list_name() { return *g_tactic_opt_expr_list; }
 name const & get_tactic_or_else_name() { return *g_tactic_or_else; }

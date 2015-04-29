@@ -354,7 +354,7 @@ pair<expr, constraint_seq> type_checker::check(expr const & e, level_param_names
     return infer_type_core(e, false);
 }
 
-pair<expr, constraint_seq> type_checker::check_ignore_levels(expr const & e) {
+pair<expr, constraint_seq> type_checker::check_ignore_undefined_universes(expr const & e) {
     flet<level_param_names const *> updt(m_params, nullptr);
     return infer_type_core(e, false);
 }

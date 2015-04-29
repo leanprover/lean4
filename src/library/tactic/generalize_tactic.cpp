@@ -39,7 +39,7 @@ tactic generalize_tactic(elaborate_fn const & elab, expr const & e, name const &
                 expr new_t = mk_pi(n, e_t, abstract(t, *new_e));
                 expr new_m = g.mk_meta(ngen.next(), new_t);
                 try {
-                    tc->check_ignore_levels(g.abstract(new_t));
+                    tc->check_ignore_undefined_universes(g.abstract(new_t));
                 } catch (kernel_exception const & ex) {
                     std::shared_ptr<kernel_exception> ex_ptr(static_cast<kernel_exception*>(ex.clone()));
                     throw_tactic_exception_if_enabled(s, [=](formatter const & fmt) {

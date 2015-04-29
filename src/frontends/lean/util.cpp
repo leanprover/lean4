@@ -444,4 +444,20 @@ name get_priority_namespace() {
 environment open_priority_aliases(environment const & env) {
     return overwrite_aliases(env, get_priority_namespace(), name());
 }
+
+char const * open_binder_string(binder_info const & bi, bool unicode) {
+    if (bi.is_implicit()) return "{";
+    else if (bi.is_inst_implicit()) return "[";
+    else if (bi.is_strict_implicit() && unicode) return "⦃";
+    else if (bi.is_strict_implicit() && !unicode) return "{{";
+    else return "(";
+}
+
+char const * close_binder_string(binder_info const & bi, bool unicode) {
+    if (bi.is_implicit()) return "}";
+    else if (bi.is_inst_implicit()) return "]";
+    else if (bi.is_strict_implicit() && unicode) return "⦄";
+    else if (bi.is_strict_implicit() && !unicode) return "}}";
+    else return ")";
+}
 }

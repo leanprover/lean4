@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/replace_visitor.h"
 #include "frontends/lean/pp.h"
+#include "frontends/lean/util.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/parser_config.h"
@@ -541,21 +542,13 @@ auto pretty_fn::pp_app(expr const & e) -> result {
 
 format pretty_fn::pp_binder_block(buffer<name> const & names, expr const & type, binder_info const & bi) {
     format r;
-    if (bi.is_implicit()) r += format("{");
-    else if (bi.is_inst_implicit()) r += format("[");
-    else if (bi.is_strict_implicit() && m_unicode) r += format("⦃");
-    else if (bi.is_strict_implicit() && !m_unicode) r += format("{{");
-    else r += format("(");
+    r += format(open_binder_string(bi, m_unicode));
     for (name const & n : names) {
         r += format(n);
         r += space();
     }
     r += compose(colon(), nest(m_indent, compose(line(), pp_child(type, 0).fmt())));
-    if (bi.is_implicit()) r += format("}");
-    else if (bi.is_inst_implicit()) r += format("]");
-    else if (bi.is_strict_implicit() && m_unicode) r += format("⦄");
-    else if (bi.is_strict_implicit() && !m_unicode) r += format("}}");
-    else r += format(")");
+    r += format(close_binder_string(bi, m_unicode));
     return group(r);
 }
 

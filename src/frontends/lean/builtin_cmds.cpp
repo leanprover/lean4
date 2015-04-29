@@ -100,10 +100,8 @@ static void print_prefix(parser & p) {
         p.regular_stream() << "no declaration starting with prefix '" << prefix << "'" << endl;
 }
 
-static void print_fields(parser & p) {
-    auto pos = p.pos();
+static void print_fields(parser & p, name const & S, pos_info const & pos) {
     environment const & env = p.env();
-    name S = p.check_constant_next("invalid 'print fields' command, constant expected");
     if (!is_structure(env, S))
         throw parser_error(sstream() << "invalid 'print fields' command, '" << S << "' is not a structure", pos);
     buffer<name> field_names;
@@ -168,6 +166,48 @@ static void print_metaclasses(parser & p) {
         p.regular_stream() << "[" << n << "]" << endl;
 }
 
+static void print_definition(parser const & p, name const & n, pos_info const & pos) {
+    environment const & env = p.env();
+    declaration d = env.get(n);
+    io_state_stream out = p.regular_stream();
+    options opts        = out.get_options();
+    opts                = opts.update_if_undef(get_pp_beta_name(), false);
+    io_state_stream new_out = out.update_options(opts);
+    if (!d.is_definition())
+        throw parser_error(sstream() << "invalid 'print definition', '" << n << "' is not a definition", pos);
+    new_out << d.get_value() << endl;
+}
+
+static void print_inductive(parser & p, name const & n, pos_info const & pos) {
+    environment const & env = p.env();
+    io_state_stream out = p.regular_stream();
+    if (auto idecls = inductive::is_inductive_decl(env, n)) {
+        level_param_names ls; unsigned nparams; list<inductive::inductive_decl> dlist;
+        std::tie(ls, nparams, dlist) = *idecls;
+        if (is_structure(env, n))
+            out << "structure";
+        else
+            out << "inductive";
+        out << " " << n;
+        if (is_class(env, n))
+            out << " [class]";
+        out << " : " << env.get(n).get_type() << "\n";
+        if (is_structure(env, n)) {
+            out << "fields:\n";
+            print_fields(p, n, pos);
+        } else {
+            out << "constructors:\n";
+            buffer<name> constructors;
+            get_intro_rule_names(env, n, constructors);
+            for (name const & c : constructors) {
+                out << c << " : " << env.get(c).get_type() << "\n";
+            }
+        }
+    } else {
+        throw parser_error(sstream() << "invalid 'print inductive', '" << n << "' is not an inductive declaration", pos);
+    }
+}
+
 environment print_cmd(parser & p) {
     flycheck_information info(p.regular_stream());
     if (info.enabled()) {
@@ -194,15 +234,7 @@ environment print_cmd(parser & p) {
         p.next();
         auto pos = p.pos();
         name c = p.check_constant_next("invalid 'print definition', constant expected");
-        environment const & env = p.env();
-        declaration d = env.get(c);
-        io_state_stream out = p.regular_stream();
-        options opts        = out.get_options();
-        opts                = opts.update_if_undef(get_pp_beta_name(), false);
-        io_state_stream new_out = out.update_options(opts);
-        if (!d.is_definition())
-            throw parser_error(sstream() << "invalid 'print definition', '" << c << "' is not a definition", pos);
-        new_out << d.get_value() << endl;
+        print_definition(p, c, pos);
     } else if (p.curr_is_token_or_id(get_instances_tk())) {
         p.next();
         name c = p.check_constant_next("invalid 'print instances', constant expected");
@@ -236,10 +268,17 @@ environment print_cmd(parser & p) {
         print_axioms(p);
     } else if (p.curr_is_token_or_id(get_fields_tk())) {
         p.next();
-        print_fields(p);
+        auto pos = p.pos();
+        name S = p.check_constant_next("invalid 'print fields' command, constant expected");
+        print_fields(p, S, pos);
     } else if (p.curr_is_token_or_id(get_notation_tk())) {
         p.next();
         print_notation(p);
+    } else if (p.curr_is_token_or_id(get_inductive_tk())) {
+        p.next();
+        auto pos = p.pos();
+        name c = p.check_constant_next("invalid 'print inductive', constant expected");
+        print_inductive(p, c, pos);
     } else {
         throw parser_error("invalid print command", p.pos());
     }

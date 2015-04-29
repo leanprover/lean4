@@ -111,4 +111,7 @@ environment open_prec_aliases(environment const & env);
 /** \brief Open 'std.priority' aliases */
 environment open_priority_aliases(environment const & env);
 name get_priority_namespace();
+
+char const * open_binder_string(binder_info const & bi, bool unicode);
+char const * close_binder_string(binder_info const & bi, bool unicode);
 }

@@ -925,12 +925,14 @@ class rewrite_fn {
 
     struct failure {
         enum kind { Unification, Exception, HasMetavars };
-        expr m_elab_lemma;
-        expr m_subterm;
-        kind m_kind;
+        expr        m_elab_lemma;
+        expr        m_subterm;
+        kind        m_kind;
+        std::string m_ex_msg;
         failure(expr const & elab_lemma, expr const & subterm, kind k):
             m_elab_lemma(elab_lemma), m_subterm(subterm), m_kind(k) {}
-
+        failure(expr const & elab_lemma, expr const & subterm, std::string const & msg):
+            m_elab_lemma(elab_lemma), m_subterm(subterm), m_kind(Exception), m_ex_msg(msg) {}
         format pp(formatter const & fmt) const {
             format r;
             switch (m_kind) {
@@ -941,7 +943,8 @@ class rewrite_fn {
                 r += pp_indent_expr(fmt, m_subterm);
                 return r;
             case Exception:
-                r  = compose(line(), format("-an exception occurred when unifying the subterm"));
+                r  = compose(line(), format("-an exception occurred when unifying the subterm:"));
+                r += compose(line(), format(m_ex_msg.c_str()));
                 r += pp_indent_expr(fmt, m_subterm);
                 return r;
             case HasMetavars:
@@ -1040,6 +1043,14 @@ class rewrite_fn {
         }
     }
 
+    void add_target_failure(expr const & elab_term, expr const & subterm, char const * ex_msg) {
+        if (m_use_trace) {
+            target_trace & tt = latest_target();
+            lean_assert(!tt.m_matched);
+            tt.m_failures     = cons(failure(elab_term, subterm, std::string(ex_msg)), tt.m_failures);
+        }
+    }
+
     void add_target_match(expr const & m) {
         if (m_use_trace) {
             target_trace & tt = latest_target();
@@ -1122,9 +1133,10 @@ class rewrite_fn {
                 add_target_failure(src, t, failure::Unification);
                 return unify_result();
             }
-        } catch (exception&) {}
-        add_target_failure(orig_elem, t, failure::Exception);
-        return unify_result();
+        } catch (exception & ex) {
+            add_target_failure(orig_elem, t, ex.what());
+            return unify_result();
+        }
     }
 
     // Search for \c pattern in \c e. If \c t is a match, then try to unify the type of the rule

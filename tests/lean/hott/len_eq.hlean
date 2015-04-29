@@ -1,4 +1,4 @@
-import init.axioms.ua
+import init.ua
 open nat unit equiv is_trunc
 
 inductive vector (A : Type) : nat → Type :=

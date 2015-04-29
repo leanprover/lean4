@@ -1,4 +1,4 @@
-import algebra.group algebra.precategory.basic
+import algebra.group algebra.category
 
 open eq sigma unit category path_algebra
 

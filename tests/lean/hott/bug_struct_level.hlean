@@ -1,4 +1,4 @@
-import algebra.precategory.basic
+import algebra.category
 
 open category
 

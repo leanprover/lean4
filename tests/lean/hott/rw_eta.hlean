@@ -17,8 +17,7 @@ definition eq_of_homotopy2 {f g : Πa b, C a b} (H : f ∼2 g) : f = g :=
 eq_of_homotopy (λa, eq_of_homotopy (H a))
 
 definition apD100 {f g : Πa b, C a b} (p : f = g) : f ∼2 g :=
-λa b, apD10 (apD10 p a) b
-
+λa b, apd10 (apd10 p a) b
 
 local attribute eq_of_homotopy [reducible]
 
@@ -26,8 +25,8 @@ definition foo (f g : Πa b, C a b) (H : f ∼2 g) (a : A)
   : apD100 (eq_of_homotopy2 H) a = H a :=
 begin
   esimp [apD100, eq_of_homotopy2, eq_of_homotopy],
-  rewrite (retr apD10 (λ(a : A), eq_of_homotopy (H a))),
-  apply (retr apD10)
+  rewrite (right_inv apd10 (λ(a : A), eq_of_homotopy (H a))),
+  apply (right_inv apd10)
 end
 
 end hide

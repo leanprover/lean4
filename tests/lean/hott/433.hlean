@@ -24,11 +24,11 @@ namespace pi
 
   /- Now we show how these things compute. -/
 
-  definition apD10_path_pi (H : funext) (h : f ∼ g) : apD10 (eq_of_homotopy h) ∼ h :=
-  apD10 (retr apD10 h)
+  definition apd10_path_pi (H : funext) (h : f ∼ g) : apd10 (eq_of_homotopy h) ∼ h :=
+  apd10 (right_inv apd10 h)
 
-  definition path_pi_eta (H : funext) (p : f = g) : eq_of_homotopy (apD10 p) = p :=
-  sect apD10 p
+  definition path_pi_eta (H : funext) (p : f = g) : eq_of_homotopy (apd10 p) = p :=
+  left_inv apd10 p
 
   print classes
 
@@ -38,11 +38,11 @@ namespace pi
   /- The identification of the path space of a dependent function space, up to equivalence, is of course just funext. -/
 
   definition path_equiv_homotopy (H : funext) (f g : Πx, B x) : (f = g) ≃ (f ∼ g) :=
-  equiv.mk _ !is_equiv_apD
+  equiv.mk _ !is_equiv_apd
 
   definition is_equiv_path_pi [instance] (H : funext) (f g : Πx, B x)
       : is_equiv (@eq_of_homotopy _ _ f g) :=
-  is_equiv_inv apD10
+  is_equiv_inv apd10
 
   definition homotopy_equiv_path (H : funext) (f g : Πx, B x) : (f ∼ g) ≃ (f = g) :=
   equiv.mk _ (is_equiv_path_pi H f g)
@@ -51,7 +51,7 @@ namespace pi
 
   protected definition transport (p : a = a') (f : Π(b : B a), C a b)
     : (transport (λa, Π(b : B a), C a b) p f)
-      ∼ (λb, transport (C a') !tr_inv_tr (transportD _ _ p _ (f (p⁻¹ ▹ b)))) :=
+      ∼ (λb, transport (C a') !tr_inv_tr (transportD _ p _ (f (p⁻¹ ▹ b)))) :=
   eq.rec_on p (λx, idp)
 
   /- A special case of [transport_pi] where the type [B] does not depend on [A],
@@ -102,7 +102,7 @@ namespace pi
       : is_equiv (functor_pi f0 f1) :=
   begin
   apply (adjointify (functor_pi f0 f1) (functor_pi (f0⁻¹)
-        (λ(a : A) (b' : B' (f0⁻¹ a)), transport B (retr f0 a) ((f1 (f0⁻¹ a))⁻¹ b')))),
+        (λ(a : A) (b' : B' (f0⁻¹ a)), transport B (right_inv f0 a) ((f1 (f0⁻¹ a))⁻¹ b')))),
   intro h, apply eq_of_homotopy,
   esimp [functor_pi, function.compose], -- simplify (and unfold function_pi and function.compose)
   --first subgoal
@@ -110,13 +110,13 @@ namespace pi
   rewrite adj,
   rewrite -transport_compose,
   rewrite {f1 a' _}(fn_tr_eq_tr_fn _ f1 _),
-  rewrite (retr (f1 _) _),
-  apply apD,
+  rewrite (right_inv (f1 _) _),
+  apply apd,
   intro h, beta,
   apply eq_of_homotopy, intro a, esimp,
-  apply (transport_V (λx, retr f0 a ▹ x = h a) (sect (f1 _) _)),
+  apply (transport_V (λx, right_inv f0 a ▹ x = h a) (left_inv (f1 _) _)),
   esimp [function.id],
-  apply apD
+  apply apd
   end
 
 end pi

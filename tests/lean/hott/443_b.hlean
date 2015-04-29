@@ -1,4 +1,4 @@
-import algebra.groupoid algebra.group
+import algebra.group algebra.category
 
 open eq sigma unit category path_algebra equiv
 

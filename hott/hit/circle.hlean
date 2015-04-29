@@ -91,10 +91,13 @@ namespace circle
     eq_inv_tr_of_tr_eq (tr_eq_of_eq_inv_tr q) = q :=
   by cases p; exact idp
 
+  definition con_refl {A : Type} {x y : A} (p : x = y) : p ⬝ refl _ = p :=
+  eq.rec_on p idp
+
   theorem rec_loop {P : circle → Type} (Pbase : P base) (Ploop : loop ▹ Pbase = Pbase) :
     apd (rec Pbase Ploop) loop = Ploop :=
   begin
-    rewrite [↑loop,apd_con,↑rec,↑rec2_on,↑base,rec2_seg1,apd_inv,rec2_seg2],
+    rewrite [↑loop,apd_con,↑rec,↑rec2_on,↑base,rec2_seg1,apd_inv,rec2_seg2,↑ap], --con_idp should work here
     apply concat, apply (ap (λx, x ⬝ _)), apply con_idp, esimp,
     rewrite [rec_loop_helper,inv_con_inv_left],
     apply con_inv_cancel_left

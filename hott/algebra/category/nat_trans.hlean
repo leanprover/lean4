@@ -93,12 +93,16 @@ namespace nat_trans
         ... = F (η b ∘ G f)             : by rewrite (naturality η f)
         ... = F (η b) ∘ F (G f)         : by rewrite respect_comp)
 
-  infixr `∘nf`:60 := nat_trans_functor_compose
-  infixr `∘fn`:60 := functor_nat_trans_compose
+  infixr `∘nf`:62 := nat_trans_functor_compose
+  infixr `∘fn`:62 := functor_nat_trans_compose
 
-  definition functor_nat_trans_compose_commute (η : F ⟹ G) (θ : F' ⟹ G')
+  definition nf_fn_eq_fn_nf_pt (η : F ⟹ G) (θ : F' ⟹ G') (c : C)
+    : (θ (G c)) ∘ (F' (η c)) = (G' (η c)) ∘ (θ (F c)) :=
+  (naturality θ (η c))⁻¹
+
+  definition nf_fn_eq_fn_nf (η : F ⟹ G) (θ : F' ⟹ G')
     : (θ ∘nf G) ∘n (F' ∘fn η) = (G' ∘fn η) ∘n (θ ∘nf F) :=
-  nat_trans_eq (λc, (naturality θ (η c))⁻¹)
+  nat_trans_eq (λc, !nf_fn_eq_fn_nf_pt)
 
   definition fn_n_distrib (F' : D ⇒ E) (η : G ⟹ H) (θ : F ⟹ G)
     : F' ∘fn (η ∘n θ) = (F' ∘fn η) ∘n (F' ∘fn θ) :=

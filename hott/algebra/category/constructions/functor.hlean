@@ -159,14 +159,20 @@ namespace category
 
   end functor
 
-  definition Category_functor_of_precategory (D : Category) (C : Precategory) : Category :=
-  category.MK (D ^c C) (functor.is_univalent D C)
+  definition category_functor [instance] (D : Category) (C : Precategory)
+    : category (D ^c C) :=
+  category.mk (D ^c C) (functor.is_univalent D C)
 
-  definition Category_functor (D : Category) (C : Category) : Category :=
-  Category_functor_of_precategory D C
+  definition Category_functor (D : Category) (C : Precategory) : Category :=
+  category.Mk (D ^c C) !category_functor
+
+  --this definition is only useful if the exponent is a category,
+  --  and the elaborator has trouble with inserting the coercion
+  definition Category_functor' (D C : Category) : Category :=
+  Category_functor D C
 
   namespace ops
-    infixr `^c2`:35 := Category_functor_of_precategory
+    infixr `^c2`:35 := Category_functor
   end ops
 
 

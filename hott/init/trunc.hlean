@@ -127,7 +127,7 @@ namespace is_trunc
     A H
   --in the proof the type of H is given explicitly to make it available for class inference
 
-  definition is_trunc_of_leq (A : Type) (n m : trunc_index) (Hnm : n ≤ m)
+  definition is_trunc_of_leq.{l} (A : Type.{l}) {n m : trunc_index} (Hnm : n ≤ m)
     [Hn : is_trunc n A] : is_trunc m A :=
   have base : ∀k A, k ≤ -2 → is_trunc k A → (is_trunc -2 A), from
     λ k A, trunc_index.cases_on k
@@ -149,11 +149,11 @@ namespace is_trunc
 
   definition is_trunc_succ_of_is_hprop (A : Type) (n : trunc_index) [H : is_hprop A]
       : is_trunc (n.+1) A :=
-  is_trunc_of_leq A -1 (n.+1) star
+  is_trunc_of_leq A star
 
   definition is_trunc_succ_succ_of_is_hset (A : Type) (n : trunc_index) [H : is_hset A]
       : is_trunc (n.+2) A :=
-  is_trunc_of_leq A nat.zero (n.+2) star
+  is_trunc_of_leq A star
 
   /- hprops -/
 
@@ -204,8 +204,12 @@ namespace is_trunc
   abbreviation hprop := -1-Type
   abbreviation hset := 0-Type
 
-  protected definition hprop.mk := @trunctype.mk -1
-  protected definition hset.mk := @trunctype.mk (-1.+1)
+  protected abbreviation hprop.mk := @trunctype.mk -1
+  protected abbreviation hset.mk := @trunctype.mk (-1.+1)
+
+  protected abbreviation trunctype.mk' [parsing-only] (n : trunc_index) (A : Type)
+    [H : is_trunc n A] : n-Type :=
+  trunctype.mk A H
 
   /- interaction with equivalences -/
 
@@ -234,9 +238,17 @@ namespace is_trunc
       IH (f⁻¹ x = f⁻¹ y) _ (x = y) (ap f⁻¹)⁻¹ !is_equiv_inv))
     A HA B f H
 
+  definition is_trunc_is_equiv_closed_rev (n : trunc_index) (f : A → B) [H : is_equiv f]
+    [HA : is_trunc n B] : is_trunc n A :=
+  is_trunc_is_equiv_closed n f⁻¹
+
   definition is_trunc_equiv_closed (n : trunc_index) (f : A ≃ B) [HA : is_trunc n A]
     : is_trunc n B :=
   is_trunc_is_equiv_closed n (to_fun f)
+
+  definition is_trunc_equiv_closed_rev (n : trunc_index) (f : A ≃ B) [HA : is_trunc n B]
+    : is_trunc n A :=
+  is_trunc_is_equiv_closed n (to_inv f)
 
   definition is_equiv_of_is_hprop [HA : is_hprop A] [HB : is_hprop B] (f : A → B) (g : B → A)
     : is_equiv f :=

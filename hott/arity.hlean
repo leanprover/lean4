@@ -14,6 +14,7 @@ variables {a a' : A} {u u' : U} {v v' : V} {w w' : W} {x x' x'' : X} {y y' : Y} 
           {b : B a} {b' : B a'}
           {c : C a b} {c' : C a' b'}
           {d : D a b c} {d' : D a' b' c'}
+          {e : E a b c d} {e' : E a' b' c' d'}
 
 namespace eq
   /-
@@ -49,48 +50,54 @@ namespace eq
   notation f `∼3`:50 g := homotopy3 f g
 
   definition ap011 (f : U → V → W) (Hu : u = u') (Hv : v = v') : f u v = f u' v' :=
-  eq.rec_on Hu (ap (f u) Hv)
+  by cases Hu; exact (ap (f u) Hv)
 
   definition ap0111 (f : U → V → W → X) (Hu : u = u') (Hv : v = v') (Hw : w = w')
       : f u v w = f u' v' w' :=
-  eq.rec_on Hu (ap011 (f u) Hv Hw)
+  by cases Hu; exact (ap011 (f u) Hv Hw)
 
   definition ap01111 (f : U → V → W → X → Y) (Hu : u = u') (Hv : v = v') (Hw : w = w') (Hx : x = x')
       : f u v w x = f u' v' w' x' :=
-  eq.rec_on Hu (ap0111 (f u) Hv Hw Hx)
+  by cases Hu; exact (ap0111 (f u) Hv Hw Hx)
 
   definition ap011111 (f : U → V → W → X → Y → Z)
     (Hu : u = u') (Hv : v = v') (Hw : w = w') (Hx : x = x') (Hy : y = y')
       : f u v w x y = f u' v' w' x' y' :=
-  eq.rec_on Hu (ap01111 (f u) Hv Hw Hx Hy)
+  by cases Hu; exact (ap01111 (f u) Hv Hw Hx Hy)
 
   definition ap0111111 (f : U → V → W → X → Y → Z → A)
     (Hu : u = u') (Hv : v = v') (Hw : w = w') (Hx : x = x') (Hy : y = y') (Hz : z = z')
       : f u v w x y z = f u' v' w' x' y' z' :=
-  eq.rec_on Hu (ap011111 (f u) Hv Hw Hx Hy Hz)
+  by cases Hu; exact (ap011111 (f u) Hv Hw Hx Hy Hz)
 
   definition ap010 (f : X → Πa, B a) (Hx : x = x') : f x ∼ f x' :=
-  λa, eq.rec_on Hx idp
+  λa, by cases Hx; exact idp
 
   definition ap0100 (f : X → Πa b, C a b) (Hx : x = x') : f x ∼2 f x' :=
-  λa b, eq.rec_on Hx idp
+  λa b, by cases Hx; exact idp
 
   definition ap01000 (f : X → Πa b c, D a b c) (Hx : x = x') : f x ∼3 f x' :=
-  λa b c, eq.rec_on Hx idp
+  λa b c, by cases Hx; exact idp
 
   definition apd011 (f : Πa, B a → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
       : f a b = f a' b' :=
-  eq.rec_on Hb (eq.rec_on Ha idp)
+  by cases Ha; cases Hb; exact idp
 
   definition apd0111 (f : Πa b, C a b → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
     (Hc : apd011 C Ha Hb ▹ c = c')
       : f a b c = f a' b' c' :=
-  eq.rec_on Hc (eq.rec_on Hb (eq.rec_on Ha idp))
+  by cases Ha; cases Hb; cases Hc; exact idp
 
   definition apd01111 (f : Πa b c, D a b c → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
     (Hc : apd011 C Ha Hb ▹ c = c') (Hd : apd0111 D Ha Hb Hc ▹ d = d')
       : f a b c d = f a' b' c' d' :=
-  eq.rec_on Hd (eq.rec_on Hc (eq.rec_on Hb (eq.rec_on Ha idp)))
+  by cases Ha; cases Hb; cases Hc; cases Hd; exact idp
+
+  definition apd011111 (f : Πa b c d, E a b c d → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
+    (Hc : apd011 C Ha Hb ▹ c = c') (Hd : apd0111 D Ha Hb Hc ▹ d = d')
+    (He : apd01111 E Ha Hb Hc Hd ▹ e = e')
+    : f a b c d e = f a' b' c' d' e' :=
+  by cases Ha; cases Hb; cases Hc; cases Hd; cases He; exact idp
 
   definition apd100 {f g : Πa b, C a b} (p : f = g) : f ∼2 g :=
   λa b, apd10 (apd10 p a) b

@@ -230,11 +230,11 @@ namespace iso
   epi.mk
     (λ c g h H,
       calc
-        g = g ∘ id                 : by rewrite id_right
-      ... = g ∘ f ∘ section_of f   : by rewrite -comp_section
-      ... = h ∘ f ∘ section_of f   : by rewrite [assoc, H, -assoc]
-      ... = h ∘ id                 : by rewrite comp_section
-      ... = h                      : by rewrite id_right)
+        g = g ∘ id               : by rewrite id_right
+      ... = g ∘ f ∘ section_of f : by rewrite -comp_section
+      ... = h ∘ f ∘ section_of f : by rewrite [assoc, H, -assoc]
+      ... = h ∘ id               : by rewrite comp_section
+      ... = h                    : by rewrite id_right)
 
   definition mono_comp [instance] (g : b ⟶ c) (f : a ⟶ b) [Hf : mono f] [Hg : mono g]
     : mono (g ∘ f) :=

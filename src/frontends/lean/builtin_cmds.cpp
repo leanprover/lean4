@@ -178,6 +178,23 @@ static void print_definition(parser const & p, name const & n, pos_info const & 
     new_out << d.get_value() << endl;
 }
 
+void print_attributes(parser & p, name const & n) {
+    environment const & env = p.env();
+    io_state_stream out = p.regular_stream();
+    if (is_coercion(env, n))
+        out << " [coercion]";
+    if (is_class(env, n))
+        out << " [class]";
+    if (is_instance(env, n))
+        out << " [instance]";
+    switch (get_reducible_status(env, n)) {
+    case reducible_status::Reducible:      out << " [reducible]"; break;
+    case reducible_status::Irreducible:    out << " [irreducible]"; break;
+    case reducible_status::Quasireducible: out << " [quasireducible]"; break;
+    case reducible_status::Semireducible:  break;
+    }
+}
+
 static void print_inductive(parser & p, name const & n, pos_info const & pos) {
     environment const & env = p.env();
     io_state_stream out = p.regular_stream();
@@ -189,8 +206,7 @@ static void print_inductive(parser & p, name const & n, pos_info const & pos) {
         else
             out << "inductive";
         out << " " << n;
-        if (is_class(env, n))
-            out << " [class]";
+        print_attributes(p, n);
         out << " : " << env.get(n).get_type() << "\n";
         if (is_structure(env, n)) {
             out << "fields:\n";
@@ -206,6 +222,96 @@ static void print_inductive(parser & p, name const & n, pos_info const & pos) {
     } else {
         throw parser_error(sstream() << "invalid 'print inductive', '" << n << "' is not an inductive declaration", pos);
     }
+}
+
+bool print_constant(parser & p, char const * kind, declaration const & d) {
+    io_state_stream out = p.regular_stream();
+    out << kind << " " << d.get_name();
+    print_attributes(p, d.get_name());
+    out << " : " << d.get_type() << "\n";
+    return true;
+}
+
+bool print_polymorphic(parser & p) {
+    environment const & env = p.env();
+    io_state_stream out = p.regular_stream();
+    auto pos = p.pos();
+    try {
+        name id = p.check_id_next("");
+        // declarations
+        try {
+            name c = p.to_constant(id, "", pos);
+            declaration const & d = env.get(c);
+            if (d.is_theorem()) {
+                print_constant(p, "theorem", d);
+                print_definition(p, c, pos);
+                return true;
+            } else if (d.is_axiom() || d.is_constant_assumption()) {
+                if (inductive::is_inductive_decl(env, c)) {
+                    print_inductive(p, c, pos);
+                    return true;
+                } else if (inductive::is_intro_rule(env, c)) {
+                    return print_constant(p, "constructor", d);
+                } else if (inductive::is_elim_rule(env, c)) {
+                    return print_constant(p, "eliminator", d);
+                } else if (is_quotient_decl(env, c)) {
+                    return print_constant(p, "builtin-quotient-type-constant", d);
+                } else if (is_hits_decl(env, c)) {
+                    return print_constant(p, "builtin-HIT-constant", d);
+                } else if (d.is_axiom()) {
+                    return print_constant(p, "axiom", d);
+                } else if (d.is_constant_assumption()) {
+                    return print_constant(p, "constant", d);
+                }
+            } else if (d.is_definition()) {
+                print_constant(p, "definition", d);
+                print_definition(p, c, pos);
+                return true;
+            }
+        } catch (exception & ex) {}
+
+        // variables and parameters
+        if (expr const * type = p.get_local(id)) {
+            if (is_local(*type)) {
+                if (p.is_local_variable(*type)) {
+                    out << "variable " << id << " : " << mlocal_type(*type) << "\n";
+                } else {
+                    out << "parameter " << id << " : " << mlocal_type(*type) << "\n";
+                }
+                return true;
+            }
+        }
+
+        // options
+        for (auto odecl : get_option_declarations()) {
+            auto opt = odecl.second;
+            if (opt.get_name() == id || opt.get_name() == name("lean") + id) {
+                out << "option  " << opt.get_name() << " (" << opt.kind() << ") "
+                    << opt.get_description() << " (default: " << opt.get_default_value() << ")" << endl;
+                return true;
+            }
+        }
+    } catch (exception &) {}
+
+    // notation
+    if (p.curr_is_keyword()) {
+        buffer<name> tokens;
+        name tk = p.get_token_info().token();
+        tokens.push_back(tk);
+        bool found = false;
+        if (print_parse_table(p, get_nud_table(p.env()), true, tokens)) {
+            p.next();
+            found = true;
+        }
+        if (print_parse_table(p, get_led_table(p.env()), false, tokens)) {
+            p.next();
+            found = true;
+        }
+        if (found)
+            return true;
+    }
+
+    return false;
 }
 
 environment print_cmd(parser & p) {
@@ -279,6 +385,7 @@ environment print_cmd(parser & p) {
         auto pos = p.pos();
         name c = p.check_constant_next("invalid 'print inductive', constant expected");
         print_inductive(p, c, pos);
+    } else if (print_polymorphic(p)) {
     } else {
         throw parser_error("invalid print command", p.pos());
     }

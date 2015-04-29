@@ -1192,11 +1192,8 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
     return *r;
 }
 
-name parser::check_constant_next(char const * msg) {
-    auto p  = pos();
-    name id = check_id_next(msg);
+name parser::to_constant(name const & id, char const * msg, pos_info const & p) {
     expr e  = id_to_expr(id, p);
-
     if (in_section(m_env) && is_as_atomic(e)) {
         e = get_app_fn(get_as_atomic_arg(e));
         if (is_explicit(e))
@@ -1211,6 +1208,12 @@ name parser::check_constant_next(char const * msg) {
     } else {
         throw parser_error(msg, p);
     }
+}
+
+name parser::check_constant_next(char const * msg) {
+    auto p  = pos();
+    name id = check_id_next(msg);
+    return to_constant(id, msg, p);
 }
 
 expr parser::parse_id() {

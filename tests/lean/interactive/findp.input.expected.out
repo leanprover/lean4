@@ -18,4 +18,5 @@ not_false|¬false
 decidable_false|decidable false
 of_not_is_false|¬is_false ?c → ?c
 iff_false_intro|¬?a → (?a ↔ false)
+tactic.exfalso|tactic
 -- ENDFINDP

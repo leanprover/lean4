@@ -88,7 +88,7 @@ endif()
 
 if(STATIC)
   message(STATUS "Creating a static executable")
-  if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  if (MULTI_THREAD AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
   endif()
   set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -static")

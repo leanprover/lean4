@@ -4,6 +4,7 @@ exact_tactic.cpp generalize_tactic.cpp
 inversion_tactic.cpp whnf_tactic.cpp revert_tactic.cpp
 assert_tactic.cpp clear_tactic.cpp expr_to_tactic.cpp location.cpp
 rewrite_tactic.cpp util.cpp class_instance_synth.cpp init_module.cpp
-change_tactic.cpp check_expr_tactic.cpp let_tactic.cpp contradiction_tactic.cpp)
+change_tactic.cpp check_expr_tactic.cpp let_tactic.cpp contradiction_tactic.cpp
+exfalso_tactic.cpp)
 
 target_link_libraries(tactic ${LEAN_LIBS})

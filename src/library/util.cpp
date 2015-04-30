@@ -244,6 +244,18 @@ expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, option
     return to_telescope(tc, type, telescope, binfo, cs);
 }
 
+expr mk_false() {
+    return mk_constant(get_false_name());
+}
+
+expr mk_empty() {
+    return mk_constant(get_empty_name(), {mk_level_zero()});
+}
+
+expr mk_false(environment const & env) {
+    return is_standard(env) ? mk_false() : mk_empty();
+}
+
 bool is_false(expr const & e) {
     return is_constant(e) && const_name(e) == get_false_name();
 }

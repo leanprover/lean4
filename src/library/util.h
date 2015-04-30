@@ -126,6 +126,10 @@ expr mk_pair(type_checker & tc, expr const & a, expr const & b, bool prop);
 expr mk_pr1(type_checker & tc, expr const & p, bool prop);
 expr mk_pr2(type_checker & tc, expr const & p, bool prop);
 
+expr mk_false();
+expr mk_empty();
+/** \brief Return false (in standard mode) and empty (in HoTT) mode */
+expr mk_false(environment const & env);
 
 bool is_false(expr const & e);
 bool is_empty(expr const & e);

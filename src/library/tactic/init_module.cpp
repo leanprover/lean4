@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/tactic/check_expr_tactic.h"
 #include "library/tactic/let_tactic.h"
 #include "library/tactic/contradiction_tactic.h"
+#include "library/tactic/exfalso_tactic.h"
 
 namespace lean {
 void initialize_tactic_module() {
@@ -47,9 +48,11 @@ void initialize_tactic_module() {
     initialize_check_expr_tactic();
     initialize_let_tactic();
     initialize_contradiction_tactic();
+    initialize_exfalso_tactic();
 }
 
 void finalize_tactic_module() {
+    finalize_exfalso_tactic();
     finalize_contradiction_tactic();
     finalize_let_tactic();
     finalize_check_expr_tactic();

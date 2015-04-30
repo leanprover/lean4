@@ -43,6 +43,7 @@ opaque definition beta        : tactic := builtin
 opaque definition info        : tactic := builtin
 opaque definition whnf        : tactic := builtin
 opaque definition contradiction : tactic := builtin
+opaque definition exfalso : tactic := builtin
 opaque definition rotate_left (k : num) := builtin
 opaque definition rotate_right (k : num) := builtin
 definition rotate (k : num) := rotate_left k

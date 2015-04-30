@@ -135,7 +135,7 @@
                 "apply" "fapply" "rename" "intro" "intros" "all_goals" "fold"
                 "generalize" "generalizes" "clear" "clears" "revert" "reverts" "back" "beta" "done" "exact" "rexact"
                 "refine" "repeat" "whnf" "rotate" "rotate_left" "rotate_right" "inversion" "cases" "rewrite" "esimp"
-                "unfold" "change" "check_expr" "contradiction"))
+                "unfold" "change" "check_expr" "contradiction" "exfalso"))
            word-end)
       (1 'font-lock-constant-face))
      ;; Types

@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "library/tactic/elaborate.h"
 
 namespace lean {
-tactic generalize_tactic(elaborate_fn const & elab, expr const & e);
+expr mk_generalize_tactic_expr(expr const & e, name const & id);
 void initialize_generalize_tactic();
 void finalize_generalize_tactic();
 }

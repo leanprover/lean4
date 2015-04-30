@@ -1,0 +1,4 @@
+gen_as.lean:7:2: proof state
+x y : ℕ
+⊢ ∀ (n : ℕ),
+    n ≥ 0

@@ -91,7 +91,7 @@ name const * g_tactic_opt_identifier_list = nullptr;
 name const * g_tactic_fail = nullptr;
 name const * g_tactic_fixpoint = nullptr;
 name const * g_tactic_focus_at = nullptr;
-name const * g_tactic_generalize = nullptr;
+name const * g_tactic_generalize_tac = nullptr;
 name const * g_tactic_generalizes = nullptr;
 name const * g_tactic_id = nullptr;
 name const * g_tactic_interleave = nullptr;
@@ -210,7 +210,7 @@ void initialize_constants() {
     g_tactic_fail = new name{"tactic", "fail"};
     g_tactic_fixpoint = new name{"tactic", "fixpoint"};
     g_tactic_focus_at = new name{"tactic", "focus_at"};
-    g_tactic_generalize = new name{"tactic", "generalize"};
+    g_tactic_generalize_tac = new name{"tactic", "generalize_tac"};
     g_tactic_generalizes = new name{"tactic", "generalizes"};
     g_tactic_id = new name{"tactic", "id"};
     g_tactic_interleave = new name{"tactic", "interleave"};
@@ -330,7 +330,7 @@ void finalize_constants() {
     delete g_tactic_fail;
     delete g_tactic_fixpoint;
     delete g_tactic_focus_at;
-    delete g_tactic_generalize;
+    delete g_tactic_generalize_tac;
     delete g_tactic_generalizes;
     delete g_tactic_id;
     delete g_tactic_interleave;
@@ -449,7 +449,7 @@ name const & get_tactic_opt_identifier_list_name() { return *g_tactic_opt_identi
 name const & get_tactic_fail_name() { return *g_tactic_fail; }
 name const & get_tactic_fixpoint_name() { return *g_tactic_fixpoint; }
 name const & get_tactic_focus_at_name() { return *g_tactic_focus_at; }
-name const & get_tactic_generalize_name() { return *g_tactic_generalize; }
+name const & get_tactic_generalize_tac_name() { return *g_tactic_generalize_tac; }
 name const & get_tactic_generalizes_name() { return *g_tactic_generalizes; }
 name const & get_tactic_id_name() { return *g_tactic_id; }
 name const & get_tactic_interleave_name() { return *g_tactic_interleave; }

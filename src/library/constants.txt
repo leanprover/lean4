@@ -86,7 +86,7 @@ tactic.opt_identifier_list
 tactic.fail
 tactic.fixpoint
 tactic.focus_at
-tactic.generalize
+tactic.generalize_tac
 tactic.generalizes
 tactic.id
 tactic.interleave

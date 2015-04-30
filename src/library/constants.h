@@ -93,7 +93,7 @@ name const & get_tactic_opt_identifier_list_name();
 name const & get_tactic_fail_name();
 name const & get_tactic_fixpoint_name();
 name const & get_tactic_focus_at_name();
-name const & get_tactic_generalize_name();
+name const & get_tactic_generalize_tac_name();
 name const & get_tactic_generalizes_name();
 name const & get_tactic_id_name();
 name const & get_tactic_interleave_name();

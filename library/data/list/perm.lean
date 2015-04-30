@@ -24,17 +24,17 @@ theorem eq_nil_of_perm_nil {l₁ : list A} (p : [] ~ l₁) : l₁ = [] :=
 have gen : ∀ (l₂ : list A) (p : l₂ ~ l₁), l₂ = [] → l₁ = [], from
   take l₂ p, perm.induction_on p
     (λ h, h)
-    (λ x y l₁ l₂ p₁ r₁, by contradiction)
-    (λ x y l e, by contradiction)
+    (by contradiction)
+    (by contradiction)
     (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂ e, r₂ (r₁ e)),
 gen [] p rfl
 
 theorem not_perm_nil_cons (x : A) (l : list A) : ¬ [] ~ (x::l) :=
 have gen : ∀ (l₁ l₂ : list A) (p : l₁ ~ l₂), l₁ = [] → l₂ = (x::l) → false, from
   take l₁ l₂ p, perm.induction_on p
-    (λ e₁ e₂, by contradiction)
-    (λ x l₁ l₂ p₁ r₁ e₁ e₂, by contradiction)
-    (λ x y l e₁ e₂, by contradiction)
+    (by contradiction)
+    (by contradiction)
+    (by contradiction)
     (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂ e₁ e₂,
       begin
         rewrite [e₂ at *, e₁ at *],

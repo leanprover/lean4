@@ -67,10 +67,10 @@ definition opt_identifier_list := expr_list
 opaque definition apply      (e : expr)         : tactic := builtin
 opaque definition fapply     (e : expr)         : tactic := builtin
 opaque definition rename     (a b : identifier) : tactic := builtin
-opaque definition intro      (e : identifier)   : tactic := builtin
-opaque definition generalize (e : expr)         : tactic := builtin
-opaque definition clear      (e : identifier)   : tactic := builtin
-opaque definition revert     (e : identifier)   : tactic := builtin
+opaque definition intro      (e : identifier_list) : tactic := builtin
+opaque definition generalize (e : expr)            : tactic := builtin
+opaque definition clear      (e : identifier_list) : tactic := builtin
+opaque definition revert     (e : identifier_list) : tactic := builtin
 opaque definition refine     (e : expr)         : tactic := builtin
 opaque definition exact      (e : expr)         : tactic := builtin
 -- Relaxed version of exact that does not enforce goal type

@@ -48,7 +48,7 @@ namespace function
     (H : Π(a a' : A), f a = f a' → a = a') : is_embedding f :=
   begin
   fapply is_embedding.mk,
-  intros [a, a'],
+  intro a a',
   fapply adjointify,
     {exact (H a a')},
     {intro p, apply is_hset.elim},

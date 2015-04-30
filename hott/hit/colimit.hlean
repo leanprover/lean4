@@ -41,7 +41,7 @@ section
   begin
     fapply (type_quotient.rec_on y),
     { intro a, cases a, apply Pincl},
-    { intros [a, a', H], cases H, apply Pglue}
+    { intro a a' H, cases H, apply Pglue}
   end
 
   protected definition rec_on [reducible] {P : colimit → Type} (y : colimit)
@@ -124,7 +124,7 @@ section
   begin
     fapply (type_quotient.rec_on aa),
     { intro a, cases a, apply Pincl},
-    { intros [a, a', H], cases H, apply Pglue}
+    { intro a a' H, cases H, apply Pglue}
   end
 
   protected definition rec_on [reducible] {P : seq_colim → Type} (aa : seq_colim)

@@ -63,10 +63,10 @@ namespace Wtype
   definition sup_path_W (p : w.1 = w'.1) (q : p ▹ w.2 = w'.2)
       :  dpair (Wtype_eq p q)..1 (Wtype_eq p q)..2 = dpair p q :=
   begin
-    reverts (p, q),
-    apply (cases_on w), intros (w1, w2),
-    apply (cases_on w'), intros (w1', w2', p), generalize w2', --change to revert
-    apply (path.rec_on p), intros (w2', q),
+    revert p q,
+    apply (cases_on w), intro w1 w2,
+    apply (cases_on w'), intro w1' w2' p, generalize w2', --change to revert
+    apply (path.rec_on p), intro w2' q,
     apply (path.rec_on q), apply idp
   end
 
@@ -80,17 +80,17 @@ namespace Wtype
   definition eta_path_W (p : w = w') : Wtype_eq (p..1) (p..2) = p :=
   begin
     apply (path.rec_on p),
-    apply (cases_on w), intros (w1, w2),
+    apply (cases_on w), intro w1 w2,
     apply idp
   end
 
   definition transport_pr1_path_W {B' : A → Type} (p : w.1 = w'.1) (q : p ▹ w.2 = w'.2)
       : transport (λx, B' x.1) (Wtype_eq p q) = transport B' p :=
   begin
-    reverts (p, q),
-    apply (cases_on w), intros (w1, w2),
-    apply (cases_on w'), intros (w1', w2', p), generalize w2',
-    apply (path.rec_on p), intros (w2', q),
+    revert p q,
+    apply (cases_on w), intro w1 w2,
+    apply (cases_on w'), intro w1' w2' p, generalize w2',
+    apply (path.rec_on p), intro w2' q,
     apply (path.rec_on q), apply idp
   end
 
@@ -131,9 +131,9 @@ namespace Wtype
       (∀ (b : B a) (b' : B a'), P (f b) (f' b')) → P (sup a f) (sup a' f')) : P w w' :=
   begin
     revert w',
-    apply (rec_on w), intros (a, f, IH, w'),
-    apply (cases_on w'), intros (a', f'),
-    apply H, intros (b, b'),
+    apply (rec_on w), intro a f IH w',
+    apply (cases_on w'), intro a' f',
+    apply H, intro b b',
     apply IH
   end
 
@@ -142,14 +142,14 @@ namespace Wtype
   definition trunc_W [instance] [FUN : funext.{v (max 1 u v)}] (n : trunc_index)
     [HA : is_trunc (n.+1) A] : is_trunc (n.+1) (W a, B a) :=
   begin
-  fapply is_trunc_succ, intros (w, w'),
-  apply (double_induction_on w w'), intros (a, a', f, f', IH),
+  fapply is_trunc_succ, intro w w',
+  apply (double_induction_on w w'), intro a a' f f' IH,
   fapply is_trunc_equiv_closed,
     apply equiv_path_W,
     apply is_trunc_sigma,
       fapply (is_trunc_eq n),
       intro p, revert IH, generalize f', --change to revert after simpl
-      apply (path.rec_on p), intros (f', IH),
+      apply (path.rec_on p), intro f' IH,
       apply pi.is_trunc_eq_pi, intro b,
       apply IH
   end

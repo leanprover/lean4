@@ -84,10 +84,10 @@ namespace trunc
   -- begin
   --   fapply equiv.MK,
   --     apply sorry, --{exact (λpp, trunc.rec_on pp (λp, (tr p.1, tr p.2)))},
-  --     apply sorry, /-{intro p, cases p with (xx, yy),
+  --     apply sorry, /-{intro p, cases p with xx yy,
   --       apply (trunc.rec_on xx), intro x,
   --       apply (trunc.rec_on yy), intro y, exact (tr (x,y))},-/
-  --     apply sorry, /-{intro p, cases p with (xx, yy),
+  --     apply sorry, /-{intro p, cases p with xx yy,
   --       apply (trunc.rec_on xx), intro x,
   --       apply (trunc.rec_on yy), intro y, apply idp},-/
   --     apply sorry --{intro pp, apply (trunc.rec_on pp), intro p, cases p, apply idp},

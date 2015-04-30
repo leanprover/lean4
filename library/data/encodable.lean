@@ -42,7 +42,7 @@ encodable.mk
   (λ n, if n = 0 then some none else some (decode A (pred n)))
   (λ o,
     begin
-    cases o with [a],
+    cases o with a,
       begin esimp end,
       begin esimp, rewrite [if_neg !succ_ne_zero, pred_succ, encodable.encodek] end
     end)

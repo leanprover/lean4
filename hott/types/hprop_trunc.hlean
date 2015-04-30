@@ -20,8 +20,8 @@ namespace is_trunc
   begin
     fapply equiv.MK,
     { intro S, exact (is_contr.mk S.1 S.2)},
-    { intro H, cases H with [H'], cases H' with [ce, co], exact ⟨ce, co⟩},
-    { intro H, cases H with [H'], cases H' with [ce, co], exact idp},
+    { intro H, cases H with H', cases H' with ce co, exact ⟨ce, co⟩},
+    { intro H, cases H with H', cases H' with ce co, exact idp},
     { intro S, cases S, apply idp}
   end
 
@@ -30,7 +30,7 @@ namespace is_trunc
   begin
     fapply equiv.MK,
     { intro H, apply is_trunc_succ_intro},
-    { intros [H, x, y], apply is_trunc_eq},
+    { intro H x y, apply is_trunc_eq},
     { intro H, cases H, apply idp},
     { intro P, apply eq_of_homotopy, intro a, apply eq_of_homotopy, intro b,
       esimp [function.id,compose,is_trunc_succ_intro,is_trunc_eq],
@@ -48,14 +48,14 @@ namespace is_trunc
       fapply sigma_eq, {apply x.2},
       apply (@is_hprop.elim),
       apply is_trunc_pi, intro a,
-      apply is_hprop.mk, intros [w, z],
+      apply is_hprop.mk, intro w z,
       have H : is_hset A,
       begin
         apply is_trunc_succ, apply is_trunc_succ,
         apply is_contr.mk, exact y.2
       end,
       fapply (@is_hset.elim A _ _ _ w z)},
-    { intros [n', IH, A],
+    { intro n' IH A,
       apply is_trunc_is_equiv_closed,
       apply equiv.to_is_equiv,
       apply is_trunc.pi_char},

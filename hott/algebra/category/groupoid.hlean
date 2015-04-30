@@ -44,9 +44,9 @@ namespace category
     [G : groupoid ob] : group (hom (center ob) (center ob)) :=
   begin
     fapply group.mk,
-      intros [f, g], apply (comp f g),
+      intro f g, apply (comp f g),
       apply is_hset_hom,
-      intros [f, g, h], apply (assoc f g h)⁻¹,
+      intro f g h, apply (assoc f g h)⁻¹,
       apply (ID (center ob)),
       intro f, apply id_left,
       intro f, apply id_right,
@@ -57,9 +57,9 @@ namespace category
   definition group_of_groupoid_unit [G : groupoid unit] : group (hom ⋆ ⋆) :=
   begin
     fapply group.mk,
-      intros [f, g], apply (comp f g),
+      intro f g, apply (comp f g),
       apply is_hset_hom,
-      intros [f, g, h], apply (assoc f g h)⁻¹,
+      intro f g h, apply (assoc f g h)⁻¹,
       apply (ID ⋆),
       intro f, apply id_left,
       intro f, apply id_right,
@@ -87,9 +87,9 @@ namespace category
     group (hom a a) :=
   begin
     fapply group.mk,
-      intros [f, g], apply (comp f g),
+      intro f g, apply (comp f g),
       apply is_hset_hom,
-      intros [f, g, h], apply (assoc f g h)⁻¹,
+      intros f g h, apply (assoc f g h)⁻¹,
       apply (ID a),
       intro f, apply id_left,
       intro f, apply id_right,

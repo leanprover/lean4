@@ -113,8 +113,8 @@ namespace iso
 
   definition is_hprop_is_iso [instance] (f : hom a b) : is_hprop (is_iso f) :=
   begin
-    apply is_hprop.mk, intros [H, H'],
-    cases H with [g, li, ri], cases H' with [g', li', ri'],
+    apply is_hprop.mk, intro H H',
+    cases H with g li ri, cases H' with g' li' ri',
     fapply (apd0111 (@is_iso.mk ob C a b f)),
       apply left_inverse_eq_right_inverse,
         apply li,
@@ -167,7 +167,7 @@ namespace iso
     fapply (equiv.mk),
       {intro S, apply iso.mk, apply (S.2)},
       {fapply adjointify,
-        {intro p, cases p with [f, H], exact (sigma.mk f H)},
+        {intro p, cases p with f H, exact sigma.mk f H},
         {intro p, cases p, apply idp},
         {intro S, cases S, apply idp}},
   end
@@ -176,7 +176,7 @@ namespace iso
   definition is_hset_iso [instance] : is_hset (a ≅ b) :=
   begin
     apply is_trunc_is_equiv_closed,
-      apply (equiv.to_is_equiv (!iso.sigma_char)),
+      apply equiv.to_is_equiv (!iso.sigma_char),
   end
 
   definition iso_of_eq (p : a = b) : a ≅ b :=

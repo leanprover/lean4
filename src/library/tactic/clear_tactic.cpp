@@ -55,23 +55,19 @@ tactic clear_tactic(name const & n) {
 }
 
 void initialize_clear_tactic() {
-    register_tac(get_tactic_clear_name(),
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     name n = tactic_expr_to_id(app_arg(e), "invalid 'clear' tactic, argument must be an identifier");
-                     return clear_tactic(n);
-                 });
-    register_tac(get_tactic_clears_name(),
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     buffer<name> ns;
-                     get_tactic_id_list_elements(app_arg(e), ns, "invalid 'clears' tactic, list of identifiers expected");
-                     tactic r = clear_tactic(ns.back());
-                     ns.pop_back();
-                     while (!ns.empty()) {
-                         r = then(clear_tactic(ns.back()), r);
-                         ns.pop_back();
-                     }
-                     return r;
-                 });
+    auto fn = [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+        buffer<name> ns;
+        get_tactic_id_list_elements(app_arg(e), ns, "invalid 'clears' tactic, list of identifiers expected");
+        tactic r = clear_tactic(ns.back());
+        ns.pop_back();
+        while (!ns.empty()) {
+            r = then(clear_tactic(ns.back()), r);
+            ns.pop_back();
+        }
+        return r;
+    };
+    register_tac(get_tactic_clear_name(), fn);
+    register_tac(get_tactic_clears_name(), fn);
 }
 void finalize_clear_tactic() {}
 }

@@ -78,7 +78,7 @@ namespace category
     : is_hprop (is_left_adjoint F) :=
   begin
     apply is_hprop.mk,
-    intros [G, G'], cases G with [G, η, ε, H, K], cases G' with [G', η', ε', H', K'],
+    intro G G', cases G with G η ε H K, cases G' with G' η' ε' H' K',
     fapply (apd011111 is_left_adjoint.mk),
     { fapply functor_eq,
       { intro d, apply eq_of_iso, fapply iso.MK,

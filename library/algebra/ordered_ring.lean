@@ -294,14 +294,14 @@ lt.by_cases
         begin
           have H1 : 0 < a * b, from mul_pos Ha Hb,
           rewrite H at H1,
-          apply (absurd_a_lt_a H1)
+          apply absurd_a_lt_a H1
         end)
       (assume Hb : 0 = b, or.inr (Hb⁻¹))
       (assume Hb : 0 > b,
         begin
           have H1 : 0 > a * b, from mul_neg_of_pos_of_neg Ha Hb,
           rewrite H at H1,
-          apply (absurd_a_lt_a H1)
+          apply absurd_a_lt_a H1
         end))
   (assume Ha : 0 = a, or.inl (Ha⁻¹))
   (assume Ha : 0 > a,
@@ -310,14 +310,14 @@ lt.by_cases
         begin
           have H1 : 0 > a * b, from mul_neg_of_neg_of_pos Ha Hb,
           rewrite H at H1,
-          apply (absurd_a_lt_a H1)
+          apply absurd_a_lt_a H1
         end)
       (assume Hb : 0 = b, or.inr (Hb⁻¹))
       (assume Hb : 0 > b,
         begin
           have H1 : 0 < a * b, from mul_pos_of_neg_of_neg Ha Hb,
           rewrite H at H1,
-          apply (absurd_a_lt_a H1)
+          apply absurd_a_lt_a H1
         end))
 
 -- Linearity implies no zero divisors. Doesn't need commutativity.
@@ -349,14 +349,14 @@ section
         (assume Hb : 0 = b,
           begin
             rewrite [-Hb at Hab, mul_zero at Hab],
-            apply (absurd_a_lt_a Hab)
+            apply absurd_a_lt_a Hab
           end)
         (assume Hb : b < 0,
           absurd Hab (lt.asymm (mul_neg_of_pos_of_neg Ha Hb))))
     (assume Ha : 0 = a,
       begin
         rewrite [-Ha at Hab, zero_mul at Hab],
-        apply (absurd_a_lt_a Hab)
+        apply absurd_a_lt_a Hab
       end)
     (assume Ha : a < 0,
       lt.by_cases
@@ -365,7 +365,7 @@ section
         (assume Hb : 0 = b,
           begin
             rewrite [-Hb at Hab, mul_zero at Hab],
-            apply (absurd_a_lt_a Hab)
+            apply absurd_a_lt_a Hab
           end)
         (assume Hb : b < 0, or.inr (and.intro Ha Hb)))
 
@@ -430,7 +430,7 @@ section
     (assume H1 : 0 = a,
       begin
         rewrite [-H1 at H, sign_zero at H],
-        apply (absurd H zero_ne_one)
+        apply absurd H zero_ne_one
       end)
     (assume H1 : 0 > a,
       have H2 : -1 = 1, from (sign_of_neg H1)⁻¹ ⬝ H,

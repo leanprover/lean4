@@ -270,7 +270,7 @@ match l₂ with
 | []   := λ e h₁ h₂, list.no_confusion e (λ e₁ e₂, h₁ rfl e₁ e₂)
 | h::t := λ e h₁ h₂,
   begin
-    apply list.no_confusion e, intros [e₁, e₂],
+    apply list.no_confusion e, intro e₁ e₂,
     rewrite e₁ at h₂,
     exact h₂ t rfl e₂
   end
@@ -289,15 +289,15 @@ match l₂ with
 | [h₁] := λ e H₁ H₂ H₃,
   begin
     rewrite [append_cons at e, append_nil_left at e],
-    apply list.no_confusion e, intros [a_eq_h₁, rest],
-    apply list.no_confusion rest, intros [b_eq_c, l₁_eq_l₃],
+    apply list.no_confusion e, intro a_eq_h₁ rest,
+    apply list.no_confusion rest, intro b_eq_c l₁_eq_l₃,
     rewrite [a_eq_h₁ at H₂, b_eq_c at H₂, l₁_eq_l₃ at H₂],
     exact H₂ rfl rfl rfl
   end
 | h₁::h₂::t₂ := λ e H₁ H₂ H₃,
   begin
-    apply list.no_confusion e,    intros [a_eq_h₁, rest],
-    apply list.no_confusion rest, intros [b_eq_h₂, l₁_eq],
+    apply list.no_confusion e,    intro a_eq_h₁ rest,
+    apply list.no_confusion rest, intro b_eq_h₂ l₁_eq,
     rewrite [a_eq_h₁ at H₃, b_eq_h₂ at H₃],
     exact H₃ t₂ rfl l₁_eq
   end

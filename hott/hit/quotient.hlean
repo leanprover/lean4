@@ -35,7 +35,7 @@ parameters {A : Type} (R : A → A → hprop)
     { intro x', apply Pt},
     { intro y, fapply (type_quotient.rec_on y),
       { exact Pc},
-      { intros [a, a', H],
+      { intro a a' H,
         apply concat, apply transport_compose;apply Pp}}
   end
 

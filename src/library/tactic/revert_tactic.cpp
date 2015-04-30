@@ -48,21 +48,16 @@ tactic revert_tactic(name const & n) {
 }
 
 void initialize_revert_tactic() {
-    register_tac(get_tactic_revert_name(),
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     name n = tactic_expr_to_id(app_arg(e), "invalid 'revert' tactic, argument must be an identifier");
-                     return revert_tactic(n);
-                 });
-
-    register_tac(get_tactic_reverts_name(),
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     buffer<name> ns;
-                     get_tactic_id_list_elements(app_arg(e), ns, "invalid 'reverts' tactic, list of identifiers expected");
-                     tactic r = revert_tactic(ns[0]);
-                     for (unsigned i = 1; i < ns.size(); i++)
-                         r = then(revert_tactic(ns[i]), r);
-                     return r;
-                 });
+    auto fn = [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+        buffer<name> ns;
+        get_tactic_id_list_elements(app_arg(e), ns, "invalid 'reverts' tactic, list of identifiers expected");
+        tactic r = revert_tactic(ns[0]);
+        for (unsigned i = 1; i < ns.size(); i++)
+            r = then(revert_tactic(ns[i]), r);
+        return r;
+    };
+    register_tac(get_tactic_revert_name(), fn);
+    register_tac(get_tactic_reverts_name(), fn);
 }
 void finalize_revert_tactic() {}
 }

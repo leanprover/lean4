@@ -179,10 +179,10 @@ private theorem mem_ltype_elems {A : Type} {s : list A} {a : ⟪s⟫}
 | (b::l) h vainbl := or.elim (eq_or_mem_of_mem_cons vainbl)
   (λ vaeqb : value a = b,
    begin
-      reverts [vaeqb, h],
-      -- TODO(Leo): check why 'cases a with [va, ma]' produces an incorrect proof
-      apply (as_type.cases_on a),
-      intros [va, ma, vaeqb],
+      revert vaeqb h,
+      -- TODO(Leo): check why 'cases a with va, ma' produces an incorrect proof
+      apply as_type.cases_on a,
+      intro va ma vaeqb,
       rewrite -vaeqb, intro h,
       apply mem_cons
    end)

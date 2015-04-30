@@ -43,7 +43,7 @@ parameters {A B : Type.{u}} (f : A → B)
     { intro a, cases a,
        apply Pbase,
        apply Ptop},
-    { intros [a, a', H], cases H, apply Pseg}
+    { intro a a' H, cases H, apply Pseg}
   end
 
   protected definition rec_on [reducible] {P : cylinder → Type} (x : cylinder)

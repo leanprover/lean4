@@ -1414,15 +1414,23 @@ expr parser::parse_tactic_expr_list() {
 
 expr parser::parse_tactic_id_list() {
     auto p = pos();
-    check_token_next(get_lbracket_tk(), "invalid tactic, '[' expected");
     buffer<expr> args;
-    while (true) {
-        args.push_back(mk_local(check_id_next("invalid tactic, identifier expected"), mk_expr_placeholder()));
-        if (!curr_is_token(get_comma_tk()))
-            break;
-        next();
+    if (curr_is_identifier()) {
+        while (curr_is_identifier()) {
+            name id = get_name_val();
+            args.push_back(mk_local(id, mk_expr_placeholder()));
+            next();
+        }
+    } else {
+        check_token_next(get_lbracket_tk(), "invalid tactic, '[' or identifier expected");
+        while (true) {
+            args.push_back(mk_local(check_id_next("invalid tactic, identifier expected"), mk_expr_placeholder()));
+            if (!curr_is_token(get_comma_tk()))
+                break;
+            next();
+        }
+        check_token_next(get_rbracket_tk(), "invalid tactic, ',' or ']' expected");
     }
-    check_token_next(get_rbracket_tk(), "invalid tactic, ',' or ']' expected");
     return mk_tactic_expr_list(args, p);
 }
 
@@ -1438,7 +1446,7 @@ expr parser::parse_tactic_opt_expr_list() {
 }
 
 expr parser::parse_tactic_opt_id_list() {
-    if (curr_is_token(get_lbracket_tk())) {
+    if (curr_is_token(get_lbracket_tk()) || curr_is_identifier()) {
         return parse_tactic_id_list();
     } else if (curr_is_token(get_with_tk())) {
         next();

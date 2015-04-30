@@ -60,17 +60,13 @@ tactic intros_tactic(list<name> _ns, bool relax_main_opaque) {
 }
 
 void initialize_intros_tactic() {
-    register_tac(get_tactic_intro_name(),
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     name const & id = tactic_expr_to_id(app_arg(e), "invalid 'intro' tactic, argument must be an identifier");
-                     return intros_tactic(to_list(id));
-                 });
-    register_tac(get_tactic_intros_name(),
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     buffer<name> ns;
-                     get_tactic_id_list_elements(app_arg(e), ns, "invalid 'intros' tactic, arguments must be identifiers");
-                     return intros_tactic(to_list(ns.begin(), ns.end()));
-                 });
+    auto fn = [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+        buffer<name> ns;
+        get_tactic_id_list_elements(app_arg(e), ns, "invalid 'intro' tactic, arguments must be identifiers");
+        return intros_tactic(to_list(ns.begin(), ns.end()));
+    };
+    register_tac(get_tactic_intro_name(), fn);
+    register_tac(get_tactic_intros_name(), fn);
 }
 
 void finalize_intros_tactic() {

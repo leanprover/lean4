@@ -123,7 +123,7 @@ namespace category
     begin
     fapply functor_eq,
       {exact (eq_of_iso_ob η)},
-      {intros [c, c', f], --unfold eq_of_iso_ob, --TODO: report: this fails
+      {intro c c' f, --unfold eq_of_iso_ob, --TODO: report: this fails
         apply concat,
           {apply (ap (λx, to_hom x ∘ to_fun_hom F f ∘ _)), apply (right_inv iso_of_eq)},
         apply concat,

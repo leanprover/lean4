@@ -124,12 +124,12 @@ namespace pos_num
   | (bit0 a) ⌞(bit0 a)⌟ H₁ (eq.refl (bit0 a)) :=
     begin
       rewrite lt_bit0_bit0_eq_lt at H₁,
-      apply (ne_of_lt_eq_tt H₁ (eq.refl a))
+      apply ne_of_lt_eq_tt H₁ (eq.refl a)
     end
   | (bit1 a) ⌞(bit1 a)⌟ H₁ (eq.refl (bit1 a)) :=
     begin
       rewrite lt_bit1_bit1_eq_lt at H₁,
-      apply (ne_of_lt_eq_tt H₁ (eq.refl a))
+      apply ne_of_lt_eq_tt H₁ (eq.refl a)
     end
 
   theorem lt_base : ∀ a : pos_num, a < succ a
@@ -153,7 +153,7 @@ namespace pos_num
   | (bit0 a) (bit0 b) H :=
     begin
       rewrite [succ_bit0, lt_bit0_bit1_eq_lt_succ, lt_bit0_bit0_eq_lt at H],
-      apply (lt_step H)
+      apply lt_step H
     end
   | (bit0 a) (bit1 b) H :=
     begin
@@ -169,7 +169,7 @@ namespace pos_num
   | (bit1 a) (bit1 b) H :=
     begin
       rewrite [succ_bit1, lt_bit1_bit0_eq_lt, lt_bit1_bit1_eq_lt at H],
-      apply (lt_step H)
+      apply lt_step H
     end
 
   theorem lt_of_lt_succ_succ : ∀ {a b : pos_num}, succ a < succ b → a < b
@@ -179,25 +179,25 @@ namespace pos_num
   | (bit0 a) one      H :=
     begin
       rewrite [succ_bit0 at H, succ_one at H, lt_bit1_bit0_eq_lt at H],
-      apply (absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff a) H)
+      apply absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff a) H
     end
   | (bit0 a) (bit0 b) H := by exact H
   | (bit0 a) (bit1 b) H := by exact H
   | (bit1 a) one      H :=
     begin
       rewrite [succ_bit1 at H, succ_one at H, lt_bit0_bit0_eq_lt at H],
-      apply (absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff (succ a)) H)
+      apply absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff (succ a)) H
     end
   | (bit1 a) (bit0 b) H :=
     begin
       rewrite [succ_bit1 at H, succ_bit0 at H, lt_bit0_bit1_eq_lt_succ at H],
       rewrite lt_bit1_bit0_eq_lt,
-      apply (lt_of_lt_succ_succ H)
+      apply lt_of_lt_succ_succ H
     end
   | (bit1 a) (bit1 b) H :=
     begin
       rewrite [lt_bit1_bit1_eq_lt, *succ_bit1 at H, lt_bit0_bit0_eq_lt at H],
-      apply (lt_of_lt_succ_succ H)
+      apply lt_of_lt_succ_succ H
     end
 
   theorem lt_succ_succ : ∀ {a b : pos_num}, a < b → succ a < succ b
@@ -219,12 +219,12 @@ namespace pos_num
   | (bit1 a) (bit0 b) H :=
     begin
       rewrite [succ_bit1, succ_bit0, lt_bit0_bit1_eq_lt_succ, lt_bit1_bit0_eq_lt at H],
-      apply (lt_succ_succ H)
+      apply lt_succ_succ H
     end
   | (bit1 a) (bit1 b) H :=
     begin
       rewrite [lt_bit1_bit1_eq_lt at H, *succ_bit1, lt_bit0_bit0_eq_lt],
-      apply (lt_succ_succ H)
+      apply lt_succ_succ H
     end
 
   theorem lt_of_lt_succ : ∀ {a b : pos_num}, succ a < b → a < b
@@ -236,18 +236,18 @@ namespace pos_num
   | (bit0 a) (bit1 b) H :=
     begin
       rewrite [succ_bit0 at H, lt_bit1_bit1_eq_lt at H, lt_bit0_bit1_eq_lt_succ],
-      apply (lt_step H)
+      apply lt_step H
     end
   | (bit1 a) one      H := absurd_of_eq_ff_of_eq_tt !lt_one_right_eq_ff H
   | (bit1 a) (bit0 b) H :=
     begin
       rewrite [lt_bit1_bit0_eq_lt, succ_bit1 at H, lt_bit0_bit0_eq_lt at H],
-      apply (lt_of_lt_succ H)
+      apply lt_of_lt_succ H
     end
   | (bit1 a) (bit1 b) H :=
     begin
       rewrite [succ_bit1 at H, lt_bit0_bit1_eq_lt_succ at H, lt_bit1_bit1_eq_lt],
-      apply (lt_of_lt_succ_succ H)
+      apply lt_of_lt_succ_succ H
     end
 
   theorem lt_of_lt_succ_of_ne : ∀ {a b : pos_num}, a < succ b → a ≠ b → a < b
@@ -257,12 +257,12 @@ namespace pos_num
   | (bit0 a) one      H₁ H₂ :=
   begin
     rewrite [succ_one at H₁, lt_bit0_bit0_eq_lt at H₁],
-    apply (absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff _) H₁)
+    apply absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff _) H₁
   end
   | (bit0 a) (bit0 b) H₁ H₂ :=
     begin
       rewrite [lt_bit0_bit0_eq_lt, succ_bit0 at H₁, lt_bit0_bit1_eq_lt_succ at H₁],
-      apply (lt_of_lt_succ_of_ne H₁ (ne_of_bit0_ne_bit0 H₂))
+      apply lt_of_lt_succ_of_ne H₁ (ne_of_bit0_ne_bit0 H₂)
     end
   | (bit0 a) (bit1 b) H₁ H₂ :=
     begin
@@ -272,7 +272,7 @@ namespace pos_num
   | (bit1 a) one      H₁ H₂ :=
     begin
       rewrite [succ_one at H₁, lt_bit1_bit0_eq_lt at H₁],
-      apply (absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff _) H₁)
+      apply absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff _) H₁
     end
   | (bit1 a) (bit0 b) H₁ H₂ :=
     begin
@@ -282,7 +282,7 @@ namespace pos_num
   | (bit1 a) (bit1 b) H₁ H₂ :=
     begin
       rewrite [succ_bit1 at H₁, lt_bit1_bit0_eq_lt at H₁, lt_bit1_bit1_eq_lt],
-      apply (lt_of_lt_succ_of_ne H₁ (ne_of_bit1_ne_bit1 H₂))
+      apply lt_of_lt_succ_of_ne H₁ (ne_of_bit1_ne_bit1 H₂)
     end
 
   theorem lt_trans : ∀ {a b c : pos_num}, a < b → b < c → a < c
@@ -292,56 +292,56 @@ namespace pos_num
   | a        (bit1 b) one      H₁ H₂ := absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff _) H₂
   | (bit0 a) (bit0 b) (bit0 c) H₁ H₂ :=
     begin
-      rewrite lt_bit0_bit0_eq_lt at *, apply (lt_trans H₁ H₂)
+      rewrite lt_bit0_bit0_eq_lt at *, apply lt_trans H₁ H₂
     end
   | (bit0 a) (bit0 b) (bit1 c) H₁ H₂ :=
     begin
       rewrite [lt_bit0_bit1_eq_lt_succ at *, lt_bit0_bit0_eq_lt at H₁],
-      apply (lt_trans H₁ H₂)
+      apply lt_trans H₁ H₂
     end
   | (bit0 a) (bit1 b) (bit0 c) H₁ H₂ :=
     begin
       rewrite [lt_bit0_bit1_eq_lt_succ at H₁, lt_bit1_bit0_eq_lt at H₂, lt_bit0_bit0_eq_lt],
-      apply (@by_cases (a = b)),
+      apply @by_cases (a = b),
       begin
          intro H, rewrite -H at H₂, exact H₂
       end,
       begin
         intro H,
-        apply (lt_trans (lt_of_lt_succ_of_ne H₁ H) H₂)
+        apply lt_trans (lt_of_lt_succ_of_ne H₁ H) H₂
       end
     end
   | (bit0 a) (bit1 b) (bit1 c) H₁ H₂ :=
     begin
       rewrite [lt_bit0_bit1_eq_lt_succ at *, lt_bit1_bit1_eq_lt at H₂],
-      apply (lt_trans H₁ (lt_succ_succ H₂))
+      apply lt_trans H₁ (lt_succ_succ H₂)
     end
   | (bit1 a) (bit0 b) (bit0 c) H₁ H₂ :=
     begin
       rewrite [lt_bit0_bit0_eq_lt at H₂, lt_bit1_bit0_eq_lt at *],
-      apply (lt_trans H₁ H₂)
+      apply lt_trans H₁ H₂
     end
   | (bit1 a) (bit0 b) (bit1 c) H₁ H₂ :=
     begin
       rewrite [lt_bit1_bit0_eq_lt at H₁, lt_bit0_bit1_eq_lt_succ at H₂, lt_bit1_bit1_eq_lt],
-      apply (@by_cases (b = c)),
+      apply @by_cases (b = c),
       begin
         intro H, rewrite H at H₁, exact H₁
       end,
       begin
         intro H,
-        apply (lt_trans H₁ (lt_of_lt_succ_of_ne H₂ H))
+        apply lt_trans H₁ (lt_of_lt_succ_of_ne H₂ H)
       end
     end
   | (bit1 a) (bit1 b) (bit0 c) H₁ H₂ :=
     begin
       rewrite [lt_bit1_bit1_eq_lt at H₁, lt_bit1_bit0_eq_lt at H₂, lt_bit1_bit0_eq_lt],
-      apply (lt_trans H₁ H₂)
+      apply lt_trans H₁ H₂
     end
   | (bit1 a) (bit1 b) (bit1 c) H₁ H₂ :=
     begin
       rewrite lt_bit1_bit1_eq_lt at *,
-      apply (lt_trans H₁ H₂)
+      apply lt_trans H₁ H₂
     end
 
   theorem lt_antisymm : ∀ {a b : pos_num}, a < b → b ≮ a
@@ -352,7 +352,7 @@ namespace pos_num
   | (bit0 a) (bit0 b) H :=
     begin
       rewrite lt_bit0_bit0_eq_lt at *,
-      apply (lt_antisymm H)
+      apply lt_antisymm H
     end
   | (bit0 a) (bit1 b) H :=
     begin
@@ -361,19 +361,19 @@ namespace pos_num
       have H₁ : succ b ≮ a, from lt_antisymm H,
       apply eq_ff_of_ne_tt,
         intro H₂,
-        apply (@by_cases (succ b = a)),
+        apply @by_cases (succ b = a),
         show succ b = a → false,
         begin
           intro Hp,
           rewrite -Hp at H,
-          apply (absurd_of_eq_ff_of_eq_tt (lt_irrefl (succ b)) H)
+          apply absurd_of_eq_ff_of_eq_tt (lt_irrefl (succ b)) H
         end,
         show succ b ≠ a → false,
         begin
           intro Hn,
           have H₃ : succ b < succ a, from lt_succ_succ H₂,
           have H₄ : succ b < a, from lt_of_lt_succ_of_ne H₃ Hn,
-          apply (absurd_of_eq_ff_of_eq_tt H₁ H₄)
+          apply absurd_of_eq_ff_of_eq_tt H₁ H₄
         end,
     end
   | (bit1 a) one      H := absurd H ff_ne_tt
@@ -384,24 +384,24 @@ namespace pos_num
       have H₁ : lt b a = ff, from lt_antisymm H,
       apply eq_ff_of_ne_tt,
         intro H₂,
-        apply (@by_cases (b = a)),
+        apply @by_cases (b = a),
         show b = a → false,
         begin
           intro Hp,
           rewrite -Hp at H,
-          apply (absurd_of_eq_ff_of_eq_tt (lt_irrefl b) H)
+          apply absurd_of_eq_ff_of_eq_tt (lt_irrefl b) H
         end,
         show b ≠ a → false,
         begin
           intro Hn,
           have H₃ : b < a, from lt_of_lt_succ_of_ne H₂ Hn,
-          apply (absurd_of_eq_ff_of_eq_tt H₁ H₃)
+          apply absurd_of_eq_ff_of_eq_tt H₁ H₃
         end,
       end
   | (bit1 a) (bit1 b) H :=
     begin
       rewrite lt_bit1_bit1_eq_lt at *,
-      apply (lt_antisymm H)
+      apply lt_antisymm H
     end
 
   local notation a ≤ b := (le a b = tt)
@@ -419,56 +419,56 @@ namespace pos_num
   | (bit0 a) one      H₁ H₂ :=
     begin
       rewrite [le_eq_lt_succ at H₁, succ_one at H₁, lt_bit0_bit0_eq_lt at H₁],
-      apply (absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff _) H₁)
+      apply absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff _) H₁
     end
   | (bit0 a) (bit0 b) H₁ H₂ :=
     begin
       rewrite [le_eq_lt_succ at H₁, succ_bit0 at H₁, lt_bit0_bit1_eq_lt_succ at H₁],
       rewrite [lt_bit0_bit0_eq_lt at H₂],
-      apply (not_lt_of_le H₁ H₂)
+      apply not_lt_of_le H₁ H₂
     end
   | (bit0 a) (bit1 b) H₁ H₂ :=
     begin
       rewrite [le_eq_lt_succ at H₁, succ_bit1 at H₁, lt_bit0_bit0_eq_lt at H₁],
       rewrite [lt_bit1_bit0_eq_lt at H₂],
-      apply (not_lt_of_le H₁ H₂)
+      apply not_lt_of_le H₁ H₂
     end
   | (bit1 a) one      H₁ H₂ :=
     begin
       rewrite [le_eq_lt_succ at H₁, succ_one at H₁, lt_bit1_bit0_eq_lt at H₁],
-      apply (absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff _) H₁)
+      apply absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff _) H₁
     end
   | (bit1 a) (bit0 b) H₁ H₂ :=
     begin
       rewrite [le_eq_lt_succ at H₁, succ_bit0 at H₁, lt_bit1_bit1_eq_lt at H₁],
       rewrite lt_bit0_bit1_eq_lt_succ at H₂,
       have H₃ : a < succ b, from lt_step H₁,
-      apply (@by_cases (b = a)),
+      apply @by_cases (b = a),
       begin
         intro Hba, rewrite -Hba at H₁,
-        apply (absurd_of_eq_ff_of_eq_tt (lt_irrefl b) H₁)
+        apply absurd_of_eq_ff_of_eq_tt (lt_irrefl b) H₁
       end,
       begin
         intro Hnba,
         have H₄ : b < a, from lt_of_lt_succ_of_ne H₂ Hnba,
-        apply (not_lt_of_le H₃ H₄)
+        apply not_lt_of_le H₃ H₄
       end
     end
   | (bit1 a) (bit1 b) H₁ H₂ :=
     begin
       rewrite [le_eq_lt_succ at H₁, succ_bit1 at H₁, lt_bit1_bit0_eq_lt at H₁],
       rewrite [lt_bit1_bit1_eq_lt at H₂],
-      apply (not_lt_of_le H₁ H₂)
+      apply not_lt_of_le H₁ H₂
     end
 
   theorem le_antisymm : ∀ {a b : pos_num}, a ≤ b → b ≤ a → a = b
   | one      one      H₁ H₂ := rfl
   | one      (bit0 b) H₁ H₂ :=
-    by apply (absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff b) H₂)
+    by apply absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff b) H₂
   | one      (bit1 b) H₁ H₂ :=
-    by apply (absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff b) H₂)
+    by apply absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff b) H₂
   | (bit0 a) one      H₁ H₂ :=
-    by apply (absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff a) H₁)
+    by apply absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff a) H₁
   | (bit0 a) (bit0 b) H₁ H₂ :=
     begin
       rewrite [le_eq_lt_succ at *, succ_bit0 at *, lt_bit0_bit1_eq_lt_succ at *],
@@ -479,15 +479,15 @@ namespace pos_num
     begin
       rewrite [le_eq_lt_succ at *, succ_bit1 at H₁, succ_bit0 at H₂],
       rewrite [lt_bit0_bit0_eq_lt at H₁, lt_bit1_bit1_eq_lt at H₂],
-      apply (false.rec _ (not_lt_of_le H₁ H₂))
+      apply false.rec _ (not_lt_of_le H₁ H₂)
     end
   | (bit1 a) one      H₁ H₂ :=
-    by apply (absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff a) H₁)
+    by apply absurd_of_eq_ff_of_eq_tt (lt_one_right_eq_ff a) H₁
   | (bit1 a) (bit0 b) H₁ H₂ :=
     begin
       rewrite [le_eq_lt_succ at *, succ_bit0 at H₁, succ_bit1 at H₂],
       rewrite [lt_bit1_bit1_eq_lt at H₁, lt_bit0_bit0_eq_lt at H₂],
-      apply (false.rec _ (not_lt_of_le H₂ H₁))
+      apply false.rec _ (not_lt_of_le H₂ H₁)
     end
   | (bit1 a) (bit1 b) H₁ H₂ :=
     begin
@@ -498,16 +498,16 @@ namespace pos_num
 
   theorem le_trans {a b c : pos_num} : a ≤ b → b ≤ c → a ≤ c :=
   begin
-    intros [H₁, H₂],
+    intro H₁ H₂,
     rewrite [le_eq_lt_succ at *],
-    apply (@by_cases (a = b)),
+    apply @by_cases (a = b),
     begin
       intro Hab, rewrite Hab, exact H₂
     end,
     begin
       intro Hnab,
       have Haltb : a < b, from lt_of_lt_succ_of_ne H₁ Hnab,
-      apply (lt_trans Haltb H₂)
+      apply lt_trans Haltb H₂
     end,
   end
 

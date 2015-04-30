@@ -42,7 +42,7 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
     { intro a, cases a,
        apply Pinl,
        apply Pinr},
-    { intros [a, a', H], cases H, apply Pglue}
+    { intro a a' H, cases H, apply Pglue}
   end
 
   protected definition rec_on [reducible] {P : pushout → Type} (y : pushout)

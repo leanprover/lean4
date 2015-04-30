@@ -56,9 +56,9 @@ namespace is_equiv
   equiv.MK (λH, ⟨inv f, right_inv f, left_inv f, adj f⟩)
            (λp, is_equiv.mk f p.1 p.2.1 p.2.2.1 p.2.2.2)
            (λp, begin
-                  cases p with [p1, p2],
-                  cases p2 with [p21, p22],
-                  cases p22 with [p221, p222],
+                  cases p with p1 p2,
+                  cases p2 with p21 p22,
+                  cases p22 with p221 p222,
                   apply idp
                 end)
            (λH, is_equiv.rec_on H (λH1 H2 H3 H4, idp))
@@ -118,9 +118,9 @@ namespace equiv
   begin
     fapply equiv.MK,
       {intro F, exact ⟨to_fun F, to_is_equiv F⟩},
-      {intro p, cases p with [f, H], exact (equiv.mk f H)},
-      {intro p, cases p with [f, H], exact idp},
-      {intro F, cases F with [f, H], exact idp},
+      {intro p, cases p with f H, exact (equiv.mk f H)},
+      {intro p, cases p, exact idp},
+      {intro F, cases F, exact idp},
   end
 
   definition equiv_eq_char (f f' : A ≃ B) : (f = f') ≃ (to_fun f = to_fun f') :=
@@ -134,11 +134,11 @@ namespace equiv
     : is_equiv (ap to_fun : f = f' → to_fun f = to_fun f') :=
   begin
     fapply adjointify,
-      {intro p, cases f with [f, H], cases f' with [f', H'], cases p, apply (ap (mk f')), apply is_hprop.elim},
-      {intro p, cases f with [f, H], cases f' with [f', H'], cases p,
-        apply (@concat _ _ (ap to_fun (ap (equiv.mk f') (is_hprop.elim H H')))), {apply idp},
-        generalize (is_hprop.elim H H'), intro q, cases q, apply idp},
-      {intro p, cases p, cases f with [f, H], apply (ap (ap (equiv.mk f))), apply is_hset.elim}
+      {intro p, cases f with f H, cases f' with f' H', cases p, apply ap (mk f'), apply is_hprop.elim},
+      {intro p, cases f with f H, cases f' with f' H', cases p,
+        apply @concat _ _ (ap to_fun (ap (equiv.mk f') (is_hprop.elim H H'))), {apply idp},
+        generalize is_hprop.elim H H', intro q, cases q, apply idp},
+      {intro p, cases p, cases f with f H, apply ap (ap (equiv.mk f)), apply is_hset.elim}
   end
 
 end equiv

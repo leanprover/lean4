@@ -157,15 +157,15 @@ namespace pi
   definition is_trunc_pi (B : A → Type) (n : trunc_index)
       [H : ∀a, is_trunc n (B a)] : is_trunc n (Πa, B a) :=
   begin
-    reverts [B, H],
+    revert B H,
     apply (trunc_index.rec_on n),
-      {intros [B, H],
+      {intro B H,
         fapply is_contr.mk,
           intro a, apply center,
           intro f, apply eq_of_homotopy,
             intro x, apply (center_eq (f x))},
-      {intros [n, IH, B, H],
-        fapply is_trunc_succ_intro, intros [f, g],
+      {intro n IH B H,
+        fapply is_trunc_succ_intro, intro f g,
           fapply is_trunc_equiv_closed,
             apply equiv.symm, apply eq_equiv_homotopy,
             apply IH,

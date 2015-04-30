@@ -379,12 +379,12 @@ section discrete_linear_ordered_field
 
   theorem div_lt_div_of_pos_of_lt_of_pos (Hb : 0 < b) (H : b < a) (Hc : 0 < c) : c / a < c / b :=
     begin
-      apply (iff.mp (sub_neg_iff_lt _ _)),
+      apply iff.mp (sub_neg_iff_lt _ _),
       rewrite [div_eq_mul_one_div, {c / b}div_eq_mul_one_div],
       rewrite -mul_sub_left_distrib,
       apply mul_neg_of_pos_of_neg,
       exact Hc,
-      apply (iff.mp' (sub_neg_iff_lt _ _)),
+      apply iff.mp' (sub_neg_iff_lt _ _),
       apply div_lt_div_of_lt,
       exact Hb, exact H
     end

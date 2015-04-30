@@ -37,7 +37,7 @@ parameters {A B : Type.{u}} (f g : A → B)
   begin
     fapply (type_quotient.rec_on y),
     { intro a, apply P_i},
-    { intros [a, a', H], cases H, apply Pcp}
+    { intro a a' H, cases H, apply Pcp}
   end
 
   protected definition rec_on [reducible] {P : coeq → Type} (y : coeq)

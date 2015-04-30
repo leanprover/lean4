@@ -32,8 +32,8 @@ namespace is_trunc
     fapply equiv.MK,
     { intro A, exact (⟨carrier A, struct A⟩)},
     { intro S, exact (trunctype.mk S.1 S.2)},
-    { intro S, apply (sigma.rec_on S), intros [S1, S2], apply idp},
-    { intro A, apply (trunctype.rec_on A), intros [A1, A2], apply idp},
+    { intro S, apply (sigma.rec_on S), intro S1 S2, apply idp},
+    { intro A, apply (trunctype.rec_on A), intro A1 A2, apply idp},
   end
 
   definition trunctype_eq_equiv (n : trunc_index) (A B : n-Type) :
@@ -48,24 +48,24 @@ namespace is_trunc
   definition is_trunc_is_embedding_closed (f : A → B) [Hf : is_embedding f] [HB : is_trunc n B]
     (Hn : -1 ≤ n) : is_trunc n A :=
   begin
-    cases n with [n],
-      {exact (!empty.elim Hn)},
-      {apply is_trunc_succ_intro, intros [a, a'],
-         fapply (@is_trunc_is_equiv_closed_rev _ _ n (ap f))}
+    cases n with n,
+      {exact !empty.elim Hn},
+      {apply is_trunc_succ_intro, intro a a',
+         fapply @is_trunc_is_equiv_closed_rev _ _ n (ap f)}
   end
 
   definition is_trunc_is_retraction_closed (f : A → B) [Hf : is_retraction f]
     (n : trunc_index) [HA : is_trunc n A] : is_trunc n B :=
   begin
-    reverts [A, B, f, Hf, HA],
+    revert A B f Hf HA,
     apply (trunc_index.rec_on n),
-    { clear n, intros [A, B, f, Hf, HA], cases Hf with [g, ε], fapply is_contr.mk,
-      { exact (f (center A))},
+    { clear n, intro A B f Hf HA, cases Hf with g ε, fapply is_contr.mk,
+      { exact f (center A)},
       { intro b, apply concat,
         { apply (ap f), exact (center_eq (g b))},
         { apply ε}}},
-    { clear n, intros [n, IH, A, B, f, Hf, HA], cases Hf with [g, ε],
-      apply is_trunc_succ_intro, intros [b, b'],
+    { clear n, intro n IH A B f Hf HA, cases Hf with g ε,
+      apply is_trunc_succ_intro, intro b b',
       fapply (IH (g b = g b')),
       { intro q, exact ((ε b)⁻¹ ⬝ ap f q ⬝ ε b')},
       { apply (is_retraction.mk (ap g)),
@@ -78,7 +78,7 @@ namespace is_trunc
 
   definition is_trunc_trunctype [instance] (n : trunc_index) : is_trunc n.+1 (n-Type) :=
   begin
-    apply is_trunc_succ_intro, intros [X, Y],
+    apply is_trunc_succ_intro, intro X Y,
     fapply is_trunc_equiv_closed,
       {apply equiv.symm, apply trunctype_eq_equiv},
     fapply is_trunc_equiv_closed,
@@ -155,11 +155,11 @@ namespace trunc
     { intro p, cases p, apply (trunc.rec_on aa),
       intro a, esimp [trunc_eq_type,trunc.rec_on], exact (tr idp)},
     { apply (trunc.rec_on aa'), apply (trunc.rec_on aa),
-      intros [a, a', x], esimp [trunc_eq_type, trunc.rec_on] at x,
+      intro a a' x, esimp [trunc_eq_type, trunc.rec_on] at x,
       apply (trunc.rec_on x), intro p, exact (ap tr p)},
     {
       -- apply (trunc.rec_on aa'), apply (trunc.rec_on aa),
-      -- intros [a, a', x], esimp [trunc_eq_type, trunc.rec_on] at x,
+      -- intro a a' x, esimp [trunc_eq_type, trunc.rec_on] at x,
       -- apply (trunc.rec_on x), intro p,
       -- cases p, esimp [trunc.rec_on,eq.cases_on,compose,id], -- apply idp --?
       apply sorry},
@@ -173,15 +173,15 @@ namespace trunc
   definition is_trunc_trunc_of_is_trunc [instance] [priority 500] (A : Type)
     (n m : trunc_index) [H : is_trunc n A] : is_trunc n (trunc m A) :=
   begin
-    reverts [A, m, H], apply (trunc_index.rec_on n),
-    { clear n, intros [A, m, H], apply is_contr_equiv_closed,
+    revert A m H, apply (trunc_index.rec_on n),
+    { clear n, intro A m H, apply is_contr_equiv_closed,
       { apply equiv_trunc, apply (@is_trunc_of_leq _ -2), exact unit.star} },
-    { clear n, intros [n, IH, A, m, H], cases m with [m],
+    { clear n, intro n IH A m H, cases m with m,
       { apply (@is_trunc_of_leq _ -2), exact unit.star},
-      { apply is_trunc_succ_intro, intros [aa, aa'],
+      { apply is_trunc_succ_intro, intro aa aa',
         apply (@trunc.rec_on _ _ _ aa  (λy, !is_trunc_succ_of_is_hprop)),
         apply (@trunc.rec_on _ _ _ aa' (λy, !is_trunc_succ_of_is_hprop)),
-        intros [a, a'], apply (is_trunc_equiv_closed_rev),
+        intro a a', apply (is_trunc_equiv_closed_rev),
         { apply tr_eq_tr_equiv},
         { exact (IH _ _ _)}}}
   end

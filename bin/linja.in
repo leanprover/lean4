@@ -185,8 +185,6 @@ class FlycheckItemList:
         tmpBuffer = ""
         ignore = True
         for line in text.splitlines():
-            # I had to add the following line to avoid a crash on Python 3.4 for Windows
-            line = line.decode("utf-8")
             if line.startswith(g_flycheck_header):
                 tmpBuffer = tmpBuffer + line + "\n"
                 ignore = False

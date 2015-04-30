@@ -37,7 +37,7 @@ namespace nat
     nat.rec_on m
       (λ n, nat.cases_on n
         (inl rfl)
-        (λ m, inr (λ (e : succ m = zero), down (nat.no_confusion e))))
+        (λ m, inr (by contradiction)))
       (λ (m' : nat) (ih : ∀n, decidable (n = m')) (n : nat), nat.cases_on n
         (inr (λ h, down (nat.no_confusion h)))
         (λ (n' : nat),
@@ -79,8 +79,8 @@ namespace nat
   definition not_lt_zero (a : nat) : ¬ a < zero :=
   have aux : ∀ {b}, a < b → b = zero → empty, from
     λ b H, lt.cases_on H
-      (λ heq, down (nat.no_confusion heq))
-      (λ b h₁ heq, down (nat.no_confusion heq)),
+      (by contradiction)
+      (by contradiction),
   λ H, aux H rfl
 
   definition zero_lt_succ (a : nat) : zero < succ a :=

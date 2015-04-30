@@ -22,10 +22,10 @@ namespace sum
   variables {A B : Type}
 
   definition inl_ne_inr (a : A) (b : B) : inl a ≠ inr b :=
-  assume H, sum.no_confusion H
+  by contradiction
 
   definition inr_ne_inl (b : B) (a : A) : inr b ≠ inl a :=
-  assume H, sum.no_confusion H
+  by contradiction
 
   definition inl_inj {a₁ a₂ : A} : intro_left B a₁ = intro_left B a₂ → a₁ = a₂ :=
   assume H, sum.no_confusion H (λe, e)
@@ -45,8 +45,8 @@ namespace sum
       | decidable.inl hp := decidable.inl (hp ▸ rfl)
       | decidable.inr hn := decidable.inr (λ he, absurd (inl_inj he) hn)
     end
-  | has_decidable_eq (inl a₁) (inr b₂) := decidable.inr (λ e, sum.no_confusion e)
-  | has_decidable_eq (inr b₁) (inl a₂) := decidable.inr (λ e, sum.no_confusion e)
+  | has_decidable_eq (inl a₁) (inr b₂) := decidable.inr (by contradiction)
+  | has_decidable_eq (inr b₁) (inl a₂) := decidable.inr (by contradiction)
   | has_decidable_eq (inr b₁) (inr b₂) :=
     match h₂ b₁ b₂ with
       | decidable.inl hp := decidable.inl (hp ▸ rfl)

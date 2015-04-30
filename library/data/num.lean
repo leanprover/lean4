@@ -61,17 +61,17 @@ namespace pos_num
 
   theorem decidable_eq [instance] : ∀ (a b : pos_num), decidable (a = b)
   | one      one      := inl rfl
-  | one      (bit0 b) := inr (λ H, pos_num.no_confusion H)
-  | one      (bit1 b) := inr (λ H, pos_num.no_confusion H)
-  | (bit0 a) one      := inr (λ H, pos_num.no_confusion H)
+  | one      (bit0 b) := inr (by contradiction)
+  | one      (bit1 b) := inr (by contradiction)
+  | (bit0 a) one      := inr (by contradiction)
   | (bit0 a) (bit0 b) :=
     match decidable_eq a b with
     | inl H₁  := inl (eq.rec_on H₁ rfl)
     | inr H₁  := inr (λ H, pos_num.no_confusion H (λ H₂, absurd H₂ H₁))
     end
-  | (bit0 a) (bit1 b) := inr (λ H, pos_num.no_confusion H)
-  | (bit1 a) one      := inr (λ H, pos_num.no_confusion H)
-  | (bit1 a) (bit0 b) := inr (λ H, pos_num.no_confusion H)
+  | (bit0 a) (bit1 b) := inr (by contradiction)
+  | (bit1 a) one      := inr (by contradiction)
+  | (bit1 a) (bit0 b) := inr (by contradiction)
   | (bit1 a) (bit1 b) :=
     match decidable_eq a b with
     | inl H₁  := inl (eq.rec_on H₁ rfl)

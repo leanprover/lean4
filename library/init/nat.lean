@@ -44,8 +44,8 @@ namespace nat
     (acc.intro zero (λ (y : nat) (hlt : y < zero),
       have aux : ∀ {n₁}, y < n₁ → zero = n₁ → acc lt y, from
         λ n₁ hlt, nat.lt.cases_on hlt
-          (λ heq, nat.no_confusion heq)
-          (λ b hlt heq, nat.no_confusion heq),
+          (by contradiction)
+          (by contradiction),
       aux hlt rfl))
     (λ (n : nat) (ih : acc lt n),
       acc.intro (succ n) (λ (m : nat) (hlt : m < succ n),
@@ -68,8 +68,8 @@ namespace nat
   definition not_lt_zero (a : nat) : ¬ a < zero :=
   have aux : ∀ {b}, a < b → b = zero → false, from
     λ b H, lt.cases_on H
-      (λ heq, nat.no_confusion heq)
-      (λ b h₁ heq, nat.no_confusion heq),
+      (by contradiction)
+      (by contradiction),
   λ H, aux H rfl
 
   definition zero_lt_succ (a : nat) : zero < succ a :=

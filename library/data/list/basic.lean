@@ -406,8 +406,8 @@ end nth
 open decidable
 definition has_decidable_eq {A : Type} [H : decidable_eq A] : ∀ l₁ l₂ : list A, decidable (l₁ = l₂)
 | []      []      := inl rfl
-| []      (b::l₂) := inr (λ H, list.no_confusion H)
-| (a::l₁) []      := inr (λ H, list.no_confusion H)
+| []      (b::l₂) := inr (by contradiction)
+| (a::l₁) []      := inr (by contradiction)
 | (a::l₁) (b::l₂) :=
   match H a b with
   | inl Hab  :=

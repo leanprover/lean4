@@ -52,7 +52,7 @@ theorem find_discr_cons_of_eq {f g : A → B} {a : A} (l : list A) : f a = g a �
 assume eq, if_pos eq
 
 theorem ne_of_find_discr_eq_some {f g : A → B} {a : A} : ∀ {l}, find_discr f g l = some a → f a ≠ g a
-| []     e := option.no_confusion e
+| []     e := by contradiction
 | (x::l) e := by_cases
   (λ h : f x = g x,
      have aux : find_discr f g l = some a, by rewrite [find_discr_cons_of_eq l h at e]; exact e,

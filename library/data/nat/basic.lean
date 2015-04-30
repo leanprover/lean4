@@ -47,7 +47,7 @@ nat.induction_on x
 /- successor and predecessor -/
 
 theorem succ_ne_zero (n : ℕ) : succ n ≠ 0 :=
-assume H, nat.no_confusion H
+by contradiction
 
 -- add_rewrite succ_ne_zero
 

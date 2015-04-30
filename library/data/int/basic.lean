@@ -108,10 +108,10 @@ int.cases_on a
     int.cases_on b
       (take n,
         if H : m = n then inl (congr_arg of_nat H) else inr (take H1, H (of_nat.inj H1)))
-      (take n', inr (assume H, int.no_confusion H)))
+      (take n', inr (by contradiction)))
   (take m',
     int.cases_on b
-      (take n, inr (assume H, int.no_confusion H))
+      (take n, inr (by contradiction))
       (take n',
         (if H : m' = n' then inl (congr_arg neg_succ_of_nat H) else
             inr (take H1, H (neg_succ_of_nat.inj H1)))))

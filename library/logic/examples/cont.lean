@@ -68,7 +68,7 @@ assert zero_eq_one : 0 = 1, from calc
   ... = β (α m)     : aux α (zω_eq_znkω m (M f + 1))
   ... = β (M f + 1) : by rewrite znkω_bound
   ... = 1           : by rewrite znkω_bound,
-nat.no_confusion zero_eq_one
+by contradiction
 end
 
 /-

@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/tactic/expr_to_tactic.h"
 
 namespace lean {
-tactic intros_tactic(list<name> _ns, bool relax_main_opaque) {
+tactic intros_tactic(list<name> _ns) {
     auto fn = [=](environment const & env, io_state const &, proof_state const & s) {
         list<name> ns    = _ns;
         goals const & gs = s.get_goals();
@@ -21,7 +21,7 @@ tactic intros_tactic(list<name> _ns, bool relax_main_opaque) {
         }
         goal const & g      = head(gs);
         name_generator ngen = s.get_ngen();
-        auto tc             = mk_type_checker(env, ngen.mk_child(), relax_main_opaque);
+        auto tc             = mk_type_checker(env, ngen.mk_child(), s.relax_main_opaque());
         expr t              = g.get_type();
         expr m              = g.get_meta();
         bool gen_names      = empty(ns);

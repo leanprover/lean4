@@ -15,6 +15,10 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 
 namespace lean {
+bool is_standard(environment const & env) {
+    return env.prop_proof_irrel() && env.impredicative();
+}
+
 bool is_def_app(environment const & env, expr const & e) {
     if (!is_app(e))
         return false;
@@ -151,8 +155,8 @@ level get_datatype_level(expr ind_type) {
 }
 
 bool is_inductive_predicate(environment const & env, name const & n) {
-    if (!env.impredicative())
-        return false; // environment does not have Prop
+    if (!is_standard(env))
+        return false;
     if (!inductive::is_inductive_decl(env, n))
         return false; // n is not inductive datatype
     return is_zero(get_datatype_level(env.get(n).get_type()));
@@ -238,6 +242,43 @@ expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, option
 expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo) {
     constraint_seq cs;
     return to_telescope(tc, type, telescope, binfo, cs);
+}
+
+bool is_false(expr const & e) {
+    return is_constant(e) && const_name(e) == get_false_name();
+}
+
+bool is_empty(expr const & e) {
+    return is_constant(e) && const_name(e) == get_empty_name();
+}
+
+bool is_false(environment const & env, expr const & e) {
+    return is_standard(env) ? is_false(e) : is_empty(e);
+}
+
+expr mk_false_rec(type_checker & tc, expr const & f, expr const & t) {
+    level t_lvl = sort_level(tc.ensure_type(t).first);
+    if (is_standard(tc.env())) {
+        return mk_app(mk_constant(get_false_rec_name(), {t_lvl}), t, f);
+    } else {
+        expr f_type = tc.infer(f).first;
+        level f_lvl = sort_level(tc.ensure_type(f_type).first);
+        return mk_app(mk_constant(get_empty_rec_name(), {t_lvl, f_lvl}), mk_lambda("e", f_type, t), f);
+    }
+}
+
+optional<expr> lift_down_if_hott(type_checker & tc, expr const & v) {
+    if (is_standard(tc.env())) {
+        return some_expr(v);
+    } else {
+        expr v_type = tc.whnf(tc.infer(v).first).first;
+        if (!is_app(v_type))
+            return none_expr();
+        expr const & lift = app_fn(v_type);
+        if (!is_constant(lift) || const_name(lift) != get_lift_name())
+            return none_expr();
+        return some_expr(mk_app(mk_constant(get_lift_down_name(), const_levels(lift)), app_arg(v_type), v));
+    }
 }
 
 static expr * g_true = nullptr;
@@ -385,6 +426,14 @@ bool is_eq_rec(expr const & e) {
 bool is_eq(expr const & e) {
     expr const & fn = get_app_fn(e);
     return is_constant(fn) && const_name(fn) == get_eq_name();
+}
+
+bool is_eq(expr const & e, expr & lhs, expr & rhs) {
+    if (!is_eq(e) || !is_app(app_fn(e)))
+        return false;
+    lhs = app_arg(app_fn(e));
+    rhs = app_arg(e);
+    return true;
 }
 
 bool is_eq_a_a(expr const & e) {

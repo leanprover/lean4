@@ -9,6 +9,8 @@ bool.tt
 char
 char.mk
 dite
+empty
+empty.rec
 eq
 eq.elim_inv_inv
 eq.intro
@@ -19,6 +21,7 @@ eq.symm
 eq.trans
 exists.elim
 false
+false.rec
 heq
 heq.refl
 heq.to_eq

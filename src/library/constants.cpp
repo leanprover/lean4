@@ -14,6 +14,8 @@ name const * g_bool_tt = nullptr;
 name const * g_char = nullptr;
 name const * g_char_mk = nullptr;
 name const * g_dite = nullptr;
+name const * g_empty = nullptr;
+name const * g_empty_rec = nullptr;
 name const * g_eq = nullptr;
 name const * g_eq_elim_inv_inv = nullptr;
 name const * g_eq_intro = nullptr;
@@ -24,6 +26,7 @@ name const * g_eq_symm = nullptr;
 name const * g_eq_trans = nullptr;
 name const * g_exists_elim = nullptr;
 name const * g_false = nullptr;
+name const * g_false_rec = nullptr;
 name const * g_heq = nullptr;
 name const * g_heq_refl = nullptr;
 name const * g_heq_to_eq = nullptr;
@@ -133,6 +136,8 @@ void initialize_constants() {
     g_char = new name{"char"};
     g_char_mk = new name{"char", "mk"};
     g_dite = new name{"dite"};
+    g_empty = new name{"empty"};
+    g_empty_rec = new name{"empty", "rec"};
     g_eq = new name{"eq"};
     g_eq_elim_inv_inv = new name{"eq", "elim_inv_inv"};
     g_eq_intro = new name{"eq", "intro"};
@@ -143,6 +148,7 @@ void initialize_constants() {
     g_eq_trans = new name{"eq", "trans"};
     g_exists_elim = new name{"exists", "elim"};
     g_false = new name{"false"};
+    g_false_rec = new name{"false", "rec"};
     g_heq = new name{"heq"};
     g_heq_refl = new name{"heq", "refl"};
     g_heq_to_eq = new name{"heq", "to_eq"};
@@ -253,6 +259,8 @@ void finalize_constants() {
     delete g_char;
     delete g_char_mk;
     delete g_dite;
+    delete g_empty;
+    delete g_empty_rec;
     delete g_eq;
     delete g_eq_elim_inv_inv;
     delete g_eq_intro;
@@ -263,6 +271,7 @@ void finalize_constants() {
     delete g_eq_trans;
     delete g_exists_elim;
     delete g_false;
+    delete g_false_rec;
     delete g_heq;
     delete g_heq_refl;
     delete g_heq_to_eq;
@@ -372,6 +381,8 @@ name const & get_bool_tt_name() { return *g_bool_tt; }
 name const & get_char_name() { return *g_char; }
 name const & get_char_mk_name() { return *g_char_mk; }
 name const & get_dite_name() { return *g_dite; }
+name const & get_empty_name() { return *g_empty; }
+name const & get_empty_rec_name() { return *g_empty_rec; }
 name const & get_eq_name() { return *g_eq; }
 name const & get_eq_elim_inv_inv_name() { return *g_eq_elim_inv_inv; }
 name const & get_eq_intro_name() { return *g_eq_intro; }
@@ -382,6 +393,7 @@ name const & get_eq_symm_name() { return *g_eq_symm; }
 name const & get_eq_trans_name() { return *g_eq_trans; }
 name const & get_exists_elim_name() { return *g_exists_elim; }
 name const & get_false_name() { return *g_false; }
+name const & get_false_rec_name() { return *g_false_rec; }
 name const & get_heq_name() { return *g_heq; }
 name const & get_heq_refl_name() { return *g_heq_refl; }
 name const & get_heq_to_eq_name() { return *g_heq_to_eq; }

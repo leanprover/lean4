@@ -507,7 +507,7 @@ class inversion_tac {
             throw inversion_exception();
     }
 
-    void throw_lift_down_failure() {
+    [[ noreturn ]] void throw_lift_down_failure() {
         if (m_throw_tactic_exception)
             throw tactic_exception("invalid 'cases' tactic, lift.down failed");
         else
@@ -664,19 +664,10 @@ class inversion_tac {
        We must apply lift.down to eliminate the auxiliary lift.
     */
     expr lift_down(expr const & v) {
-        if (!m_proof_irrel) {
-            expr v_type       = whnf(infer_type(v));
-            if (!is_app(v_type)) {
-                throw_lift_down_failure();
-            }
-            expr const & lift = app_fn(v_type);
-            if (!is_constant(lift) || const_name(lift) != get_lift_name()) {
-                throw_lift_down_failure();
-            }
-            return mk_app(mk_constant(get_lift_down_name(), const_levels(lift)), app_arg(v_type), v);
-        } else {
-            return v;
-        }
+        if (auto r = lift_down_if_hott(m_tc, v))
+            return *r;
+        else
+            throw_lift_down_failure();
     }
 
     buffer<expr>        m_c_args; // current intro/constructor args that may be renamed by unify_eqs

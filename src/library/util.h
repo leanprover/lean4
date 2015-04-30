@@ -26,6 +26,9 @@ optional<expr> unfold_app(environment const & env, expr const & e);
 */
 optional<level> dec_level(level const & l);
 
+/** \brief Return true iff \c env has been configured with an impredicative and proof irrelevant Prop. */
+bool is_standard(environment const & env);
+
 bool has_unit_decls(environment const & env);
 bool has_eq_decls(environment const & env);
 bool has_heq_decls(environment const & env);
@@ -123,11 +126,20 @@ expr mk_pair(type_checker & tc, expr const & a, expr const & b, bool prop);
 expr mk_pr1(type_checker & tc, expr const & p, bool prop);
 expr mk_pr2(type_checker & tc, expr const & p, bool prop);
 
+
+bool is_false(expr const & e);
+bool is_empty(expr const & e);
+/** \brief Return true iff \c e is false (in standard mode) or empty (in HoTT) mode */
+bool is_false(environment const & env, expr const & e);
+/** \brief Return an element of type t given an element \c f : false (in standard mode) and empty (in HoTT) mode */
+expr mk_false_rec(type_checker & tc, expr const & f, expr const & t);
+
 expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs);
 expr mk_refl(type_checker & tc, expr const & a);
 expr mk_symm(type_checker & tc, expr const & H);
 bool is_eq_rec(expr const & e);
 bool is_eq(expr const & e);
+bool is_eq(expr const & e, expr & lhs, expr & rhs);
 /** \brief Return true iff \c e is of the form (eq A a a) */
 bool is_eq_a_a(expr const & e);
 /** \brief Return true iff \c e is of the form (eq A a a') where \c a and \c a' are definitionally equal */
@@ -136,6 +148,12 @@ bool is_eq_a_a(type_checker & tc, expr const & e);
 bool is_iff(expr const & e);
 expr mk_iff(expr const & lhs, expr const & rhs);
 expr mk_iff_refl(expr const & a);
+
+/** \brief If in HoTT mode, apply lift.down.
+    The no_confusion constructions uses lifts in the proof relevant version (aka HoTT mode).
+    We must apply lift.down to eliminate the auxiliary lift.
+*/
+optional<expr> lift_down_if_hott(type_checker & tc, expr const & v);
 
 /** \brief Create a telescope equality for HoTT library.
     This procedure assumes eq supports dependent elimination.

@@ -78,11 +78,11 @@ namespace nat
     (λ a (hlt : zero < succ a), lt.step hlt)
 
   definition lt.trans {a b c : nat} (H₁ : a < b) (H₂ : b < c) : a < c :=
-  have aux : ∀ {d}, d < c → b = d → a < b → a < c, from
-    (λ d H, lt.rec_on H
-      (λ h₁ h₂, lt.step (eq.rec_on h₁ h₂))
-      (λ b hl ih h₁ h₂, lt.step (ih h₁ h₂))),
-  aux H₂ rfl H₁
+  have aux : a < b → a < c, from
+    lt.rec_on H₂
+      (λ h₁, lt.step h₁)
+      (λ b₁ bb₁ ih h₁, lt.step (ih h₁)),
+  aux H₁
 
   definition succ_lt_succ {a b : nat} (H : a < b) : succ a < succ b :=
   lt.rec_on H
@@ -90,11 +90,9 @@ namespace nat
     (λ b hlt ih, lt.trans ih (lt.base (succ b)))
 
   definition lt_of_succ_lt {a b : nat} (H : succ a < b) : a < b :=
-  have aux : ∀ {a₁}, a₁ < b → succ a = a₁ → a < b, from
-    λ a₁ H, lt.rec_on H
-      (λ e₁, eq.rec_on e₁ (lt.step (lt.base a)))
-      (λ d hlt ih e₁, lt.step (ih e₁)),
-  aux H rfl
+  lt.rec_on H
+    (lt.step (lt.base a))
+    (λ b h ih, lt.step ih)
 
   definition lt_of_succ_lt_succ {a b : nat} (H : succ a < succ b) : a < b :=
   have aux : pred (succ a) < pred (succ b), from
@@ -276,7 +274,7 @@ namespace nat
   section
   local attribute sub [reducible]
   definition succ_sub_succ_eq_sub (a b : nat) : succ a - succ b = a - b :=
-  nat.induction_on b
+  nat.rec_on b
     rfl
     (λ b₁ (ih : succ a - succ b₁ = a - b₁),
       eq.rec_on ih (eq.refl (pred (succ a - succ b₁))))
@@ -286,7 +284,7 @@ namespace nat
   eq.rec_on (succ_sub_succ_eq_sub a b) rfl
 
   definition zero_sub_eq_zero (a : nat) : zero - a = zero :=
-  nat.induction_on a
+  nat.rec_on a
     rfl
     (λ a₁ (ih : zero - a₁ = zero),
       eq.rec_on ih (eq.refl (pred (zero - a₁))))

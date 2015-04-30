@@ -405,7 +405,8 @@ optional<goal> move_after(name_generator & ngen, goal const & g, name const & h,
     for (unsigned i = 0; i < hyps.size(); i++) {
         expr const & h_2 = hyps[i];
         if (std::any_of(hs.begin(), hs.end(), [&](name const & n) { return mlocal_name(h_2) == n; })) {
-            if (depends_on(to_move.size(), to_move.begin(), mlocal_type(h_2)))
+            if (std::any_of(to_move.begin(), to_move.end(),
+                            [&](expr const & h) { return depends_on(mlocal_type(h_2), h); }))
                 return optional<goal>(); // can't move
             num_found++;
             new_hyps.push_back(h_2);
@@ -424,7 +425,8 @@ optional<goal> move_after(name_generator & ngen, goal const & g, name const & h,
         } else if (mlocal_name(h_2) == h) {
             lean_assert(to_move.empty());
             to_move.push_back(h_2);
-        } else if (depends_on(to_move.size(), to_move.begin(), mlocal_type(h_2))) {
+        } else if (std::any_of(to_move.begin(), to_move.end(),
+                               [&](expr const & h) { return depends_on(mlocal_type(h_2), h); })) {
             to_move.push_back(h_2);
         } else {
             new_hyps.push_back(h_2);

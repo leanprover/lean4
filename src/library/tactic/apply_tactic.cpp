@@ -67,8 +67,6 @@ static void remove_redundant_metas(buffer<expr> & metas) {
 
 enum subgoals_action_kind { IgnoreSubgoals, AddRevSubgoals, AddSubgoals, AddAllSubgoals };
 
-
-
 static proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s,
                                          expr const & _e, buffer<constraint> & cs,
                                          bool add_meta, subgoals_action_kind subgoals_action) {
@@ -176,6 +174,12 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
                                          bool add_meta, subgoals_action_kind subgoals_action) {
     buffer<constraint> cs;
     return apply_tactic_core(env, ios, s, e, cs, add_meta, subgoals_action);
+}
+
+proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s, expr const & e, constraint_seq const & cs) {
+    buffer<constraint> tmp_cs;
+    cs.linearize(tmp_cs);
+    return apply_tactic_core(env, ios, s, e, tmp_cs, true, AddAllSubgoals);
 }
 
 tactic eassumption_tactic() {

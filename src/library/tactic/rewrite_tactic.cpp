@@ -1206,8 +1206,8 @@ class rewrite_fn {
             expr Pb  = instantiate(Px, vidx, b);
 
             expr A   = m_tc->infer(a).first;
-            level l1 = sort_level(m_tc->ensure_type(Pa).first);
-            level l2 = sort_level(m_tc->ensure_type(A).first);
+            level l1 = sort_level(m_unifier_tc->ensure_type(Pa).first);
+            level l2 = sort_level(m_unifier_tc->ensure_type(A).first);
             expr H;
             if (has_dep_elim) {
                 expr Haeqx = mk_app(mk_constant(get_eq_name(), {l1}), A, a, mk_var(0));
@@ -1257,8 +1257,8 @@ class rewrite_fn {
             expr Px  = replace_occurrences(Pa, a, occ, vidx);
             expr Pb  = instantiate(Px, vidx, b);
             expr A   = m_tc->infer(a).first;
-            level l1 = sort_level(m_tc->ensure_type(Pa).first);
-            level l2 = sort_level(m_tc->ensure_type(A).first);
+            level l1 = sort_level(m_unifier_tc->ensure_type(Pa).first);
+            level l2 = sort_level(m_unifier_tc->ensure_type(A).first);
             expr M   = m_g.mk_meta(m_ngen.next(), Pb);
             expr H;
             if (has_dep_elim) {
@@ -1476,7 +1476,7 @@ public:
                     process_failure(elem, false);
                     return proof_state_seq();
                 }
-            } catch (kernel_exception &) {
+            } catch (kernel_exception & ex) {
                 process_failure(elem, true);
                 return proof_state_seq();
             }

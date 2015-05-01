@@ -1479,11 +1479,16 @@ expr parser::parse_tactic_nud() {
         name id = get_name_val();
         if (optional<expr> tac_type = is_tactic_command(id)) {
             next();
-            expr type  = *tac_type;
-            bool unary = get_arity(type) == 1;
-            expr r     = save_pos(mk_constant(id), id_pos);
+            expr r         = save_pos(mk_constant(id), id_pos);
+            expr type      = *tac_type;
+            buffer<expr> ds;
             while (is_pi(type)) {
-                expr d = binding_domain(type);
+                ds.push_back(binding_domain(type));
+                type = binding_body(type);
+            }
+            unsigned arity = ds.size();
+            for (unsigned i = 0; i < arity; i++) {
+                expr const & d = ds[i];
                 if (is_tactic_type(d)) {
                     r = mk_app(r, parse_tactic(get_max_prec()), id_pos);
                 } else if (is_tactic_expr_list_type(d)) {
@@ -1497,13 +1502,16 @@ expr parser::parse_tactic_nud() {
                     r = mk_app(r, parse_tactic_id_list(), id_pos);
                 } else if (is_tactic_opt_identifier_list_type(d)) {
                     r = mk_app(r, parse_tactic_opt_id_list(), id_pos);
-                } else if (unary && is_option_num(d)) {
+                } else if (arity == 1 && is_option_num(d)) {
                     r = mk_app(r, parse_tactic_option_num(), id_pos);
                 } else {
-                    unsigned prec = unary ? 1 : get_max_prec();
-                    r = mk_app(r, parse_expr(prec), id_pos);
+                    unsigned rbp;
+                    if (arity == 1 || (arity == 2 && i == 0 && is_tactic_opt_identifier_list_type(ds[1])))
+                        rbp = 0;
+                    else
+                        rbp = get_max_prec();
+                    r = mk_app(r, parse_expr(rbp), id_pos);
                 }
-                type = binding_body(type);
             }
             return r;
         } else {

@@ -182,6 +182,12 @@ proof_state_seq apply_tactic_core(environment const & env, io_state const & ios,
     return apply_tactic_core(env, ios, s, e, tmp_cs, true, AddSubgoals);
 }
 
+tactic apply_tactic_core(expr const & e, constraint_seq const & cs) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
+            return apply_tactic_core(env, ios, s, e, cs);
+        });
+}
+
 tactic eassumption_tactic() {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             goals const & gs = s.get_goals();

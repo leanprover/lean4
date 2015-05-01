@@ -467,6 +467,24 @@ bool is_eq_a_a(type_checker & tc, expr const & e) {
     return d.first && !d.second;
 }
 
+bool is_heq(expr const & e) {
+    expr const & fn = get_app_fn(e);
+    return is_constant(fn) && const_name(fn) == get_heq_name();
+}
+
+bool is_heq(expr const & e, expr & A, expr & lhs, expr & B, expr & rhs) {
+    if (is_heq(e)) {
+        buffer<expr> args;
+        get_app_args(e, args);
+        if (args.size() != 4)
+            return false;
+        A = args[0]; lhs = args[1]; B = args[2]; rhs = args[3];
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void mk_telescopic_eq(type_checker & tc, buffer<expr> const & t, buffer<expr> const & s, buffer<expr> & eqs) {
     lean_assert(t.size() == s.size());
     lean_assert(std::all_of(s.begin(), s.end(), is_local));

@@ -149,6 +149,9 @@ bool is_eq_a_a(expr const & e);
 /** \brief Return true iff \c e is of the form (eq A a a') where \c a and \c a' are definitionally equal */
 bool is_eq_a_a(type_checker & tc, expr const & e);
 
+bool is_heq(expr const & e);
+bool is_heq(expr const & e, expr & A, expr & lhs, expr & B, expr & rhs);
+
 bool is_iff(expr const & e);
 expr mk_iff(expr const & lhs, expr const & rhs);
 expr mk_iff_refl(expr const & a);

@@ -268,8 +268,8 @@ namespace equiv
 
   -- calc enviroment
   -- Note: Calculating with substitutions needs univalence
-  definition equiv_of_equiv_of_eq {A B C : Type} (p : A = B) (q : B ≃ C) : A ≃ C := p⁻¹ ▹ q
-  definition equiv_of_eq_of_equiv {A B C : Type} (p : A ≃ B) (q : B = C) : A ≃ C := q   ▹ p
+  definition equiv_of_equiv_of_eq {A B C : Type} (p : A = B) (q : B ≃ C) : A ≃ C := p⁻¹ ▸ q
+  definition equiv_of_eq_of_equiv {A B C : Type} (p : A ≃ B) (q : B = C) : A ≃ C := q   ▸ p
 
   attribute equiv.trans [trans]
   attribute equiv.refl [refl]

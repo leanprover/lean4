@@ -61,6 +61,6 @@ namespace equiv
 
   definition rec_on_of_equiv_of_eq {A B : Type} {P : (A ≃ B) → Type}
     (p : A ≃ B) (H : Π(q : A = B), P (equiv_of_eq q)) : P p :=
-  right_inv equiv_of_eq p ▹ H (ua p)
+  right_inv equiv_of_eq p ▸ H (ua p)
 
 end equiv

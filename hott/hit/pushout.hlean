@@ -35,7 +35,7 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
   eq_of_rel pushout_rel (Rmk f g x)
 
   protected definition rec {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
-    (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x))
+    (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▸ Pinl (f x) = Pinr (g x))
       (y : pushout) : P y :=
   begin
     fapply (type_quotient.rec_on y),
@@ -47,11 +47,11 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
 
   protected definition rec_on [reducible] {P : pushout → Type} (y : pushout)
     (Pinl : Π(x : BL), P (inl x)) (Pinr : Π(x : TR), P (inr x))
-    (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x)) : P y :=
+    (Pglue : Π(x : TL), glue x ▸ Pinl (f x) = Pinr (g x)) : P y :=
   rec Pinl Pinr Pglue y
 
   theorem rec_glue {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
-    (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x))
+    (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▸ Pinl (f x) = Pinr (g x))
       (x : TL) : apd (rec Pinl Pinr Pglue) (glue x) = Pglue x :=
   !rec_eq_of_rel
 

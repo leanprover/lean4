@@ -82,7 +82,7 @@ namespace category
           (@is_equiv_subtype_eq_inv _ _ _ _ _))
         !univalence)
       !is_equiv_iso_of_equiv,
-    (iso_of_eq_eq_compose A B)⁻¹ ▹ H
+    (iso_of_eq_eq_compose A B)⁻¹ ▸ H
   end set
 
   definition category_hset [reducible] [instance] : category hset :=

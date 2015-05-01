@@ -28,7 +28,7 @@ parameters {A : Type} (R : A → A → hprop)
   begin unfold quotient, exact _ end
 
   protected definition rec {P : quotient → Type} [Pt : Πaa, is_hset (P aa)]
-    (Pc : Π(a : A), P (class_of a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▹ Pc a = Pc a')
+    (Pc : Π(a : A), P (class_of a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▸ Pc a = Pc a')
     (x : quotient) : P x :=
   begin
     apply (@trunc.rec_on _ _ P x),
@@ -41,11 +41,11 @@ parameters {A : Type} (R : A → A → hprop)
 
   protected definition rec_on [reducible] {P : quotient → Type} (x : quotient)
     [Pt : Πaa, is_hset (P aa)] (Pc : Π(a : A), P (class_of a))
-    (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▹ Pc a = Pc a') : P x :=
+    (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▸ Pc a = Pc a') : P x :=
   rec Pc Pp x
 
   theorem rec_eq_of_rel {P : quotient → Type} [Pt : Πaa, is_hset (P aa)]
-    (Pc : Π(a : A), P (class_of a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▹ Pc a = Pc a')
+    (Pc : Π(a : A), P (class_of a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▸ Pc a = Pc a')
     {a a' : A} (H : R a a') : apd (rec Pc Pp) (eq_of_rel H) = Pp H :=
   !is_hset.elim
 

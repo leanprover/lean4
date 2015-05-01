@@ -40,10 +40,10 @@ namespace Wtype
   protected definition eta (w : W a, B a) : ⟨w.1 , w.2⟩ = w :=
   cases_on w (λa f, idp)
 
-  definition sup_eq_sup (p : a = a') (q : p ▹ f = f') : ⟨a, f⟩ = ⟨a', f'⟩ :=
+  definition sup_eq_sup (p : a = a') (q : p ▸ f = f') : ⟨a, f⟩ = ⟨a', f'⟩ :=
   path.rec_on p (λf' q, path.rec_on q idp) f' q
 
-  protected definition Wtype_eq (p : w.1 = w'.1) (q : p ▹ w.2 = w'.2) : w = w' :=
+  protected definition Wtype_eq (p : w.1 = w'.1) (q : p ▸ w.2 = w'.2) : w = w' :=
   cases_on w
            (λw1 w2, cases_on w' (λ w1' w2', sup_eq_sup))
            p q
@@ -51,7 +51,7 @@ namespace Wtype
   protected definition Wtype_eq_pr1 (p : w = w') : w.1 = w'.1 :=
   path.rec_on p idp
 
-  protected definition Wtype_eq_pr2 (p : w = w') : Wtype_eq_pr1 p ▹ w.2 = w'.2 :=
+  protected definition Wtype_eq_pr2 (p : w = w') : Wtype_eq_pr1 p ▸ w.2 = w'.2 :=
   path.rec_on p idp
 
   namespace ops
@@ -60,7 +60,7 @@ namespace Wtype
   end ops
   open ops
 
-  definition sup_path_W (p : w.1 = w'.1) (q : p ▹ w.2 = w'.2)
+  definition sup_path_W (p : w.1 = w'.1) (q : p ▸ w.2 = w'.2)
       :  dpair (Wtype_eq p q)..1 (Wtype_eq p q)..2 = dpair p q :=
   begin
     revert p q,
@@ -70,11 +70,11 @@ namespace Wtype
     apply (path.rec_on q), apply idp
   end
 
-  definition pr1_path_W (p : w.1 = w'.1) (q : p ▹ w.2 = w'.2) : (Wtype_eq p q)..1 = p :=
+  definition pr1_path_W (p : w.1 = w'.1) (q : p ▸ w.2 = w'.2) : (Wtype_eq p q)..1 = p :=
   (!sup_path_W)..1
 
-  definition pr2_path_W (p : w.1 = w'.1) (q : p ▹ w.2 = w'.2)
-      : pr1_path_W p q ▹ (Wtype_eq p q)..2 = q :=
+  definition pr2_path_W (p : w.1 = w'.1) (q : p ▸ w.2 = w'.2)
+      : pr1_path_W p q ▸ (Wtype_eq p q)..2 = q :=
   (!sup_path_W)..2
 
   definition eta_path_W (p : w = w') : Wtype_eq (p..1) (p..2) = p :=
@@ -84,7 +84,7 @@ namespace Wtype
     apply idp
   end
 
-  definition transport_pr1_path_W {B' : A → Type} (p : w.1 = w'.1) (q : p ▹ w.2 = w'.2)
+  definition transport_pr1_path_W {B' : A → Type} (p : w.1 = w'.1) (q : p ▸ w.2 = w'.2)
       : transport (λx, B' x.1) (Wtype_eq p q) = transport B' p :=
   begin
     revert p q,
@@ -94,25 +94,25 @@ namespace Wtype
     apply (path.rec_on q), apply idp
   end
 
-  definition path_W_uncurried (pq : Σ(p : w.1 = w'.1), p ▹ w.2 = w'.2) : w = w' :=
+  definition path_W_uncurried (pq : Σ(p : w.1 = w'.1), p ▸ w.2 = w'.2) : w = w' :=
   destruct pq Wtype_eq
 
-  definition sup_path_W_uncurried (pq : Σ(p : w.1 = w'.1), p ▹ w.2 = w'.2)
+  definition sup_path_W_uncurried (pq : Σ(p : w.1 = w'.1), p ▸ w.2 = w'.2)
       :  dpair (path_W_uncurried pq)..1 (path_W_uncurried pq)..2 = pq :=
   destruct pq sup_path_W
 
-  definition pr1_path_W_uncurried (pq : Σ(p : w.1 = w'.1), p ▹ w.2 = w'.2)
+  definition pr1_path_W_uncurried (pq : Σ(p : w.1 = w'.1), p ▸ w.2 = w'.2)
       : (path_W_uncurried pq)..1 = pq.1 :=
   (!sup_path_W_uncurried)..1
 
-  definition pr2_path_W_uncurried (pq : Σ(p : w.1 = w'.1), p ▹ w.2 = w'.2)
-      : (pr1_path_W_uncurried pq) ▹ (path_W_uncurried pq)..2 = pq.2 :=
+  definition pr2_path_W_uncurried (pq : Σ(p : w.1 = w'.1), p ▸ w.2 = w'.2)
+      : (pr1_path_W_uncurried pq) ▸ (path_W_uncurried pq)..2 = pq.2 :=
   (!sup_path_W_uncurried)..2
 
   definition eta_path_W_uncurried (p : w = w') : path_W_uncurried (dpair p..1 p..2) = p :=
   !eta_path_W
 
-  definition transport_pr1_path_W_uncurried {B' : A → Type} (pq : Σ(p : w.1 = w'.1), p ▹ w.2 = w'.2)
+  definition transport_pr1_path_W_uncurried {B' : A → Type} (pq : Σ(p : w.1 = w'.1), p ▸ w.2 = w'.2)
       : transport (λx, B' x.1) (@path_W_uncurried A B w w' pq) = transport B' pq.1 :=
     destruct pq transport_pr1_path_W
 
@@ -123,7 +123,7 @@ namespace Wtype
              eta_path_W_uncurried
              sup_path_W_uncurried
 
-  definition equiv_path_W (w w' : W a, B a) : (Σ(p : w.1 = w'.1),  p ▹ w.2 = w'.2) ≃ (w = w') :=
+  definition equiv_path_W (w w' : W a, B a) : (Σ(p : w.1 = w'.1),  p ▸ w.2 = w'.2) ≃ (w = w') :=
   equiv.mk path_W_uncurried !isequiv_path_W
 
   definition double_induction_on {P : (W a, B a) → (W a, B a) → Type} (w w' : W a, B a)

@@ -133,7 +133,7 @@ namespace category
 
   definition is_isomorphism_equiv1 (F : C ⇒ D) : is_equivalence F
     ≃ Σ(G : D ⇒ C) (η : functor.id = G ∘f F) (ε : F ∘f G = functor.id),
-        sorry ▹ ap (λ(H : C ⇒ C), F ∘f H) η = ap (λ(H : D ⇒ D), H ∘f F) ε⁻¹ :=
+        sorry ▸ ap (λ(H : C ⇒ C), F ∘f H) η = ap (λ(H : D ⇒ D), H ∘f F) ε⁻¹ :=
   sorry
 
   definition is_isomorphism_equiv2 (F : C ⇒ D) : is_equivalence F

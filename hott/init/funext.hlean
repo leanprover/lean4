@@ -86,7 +86,7 @@ section
   local attribute weak_funext [reducible]
   local attribute homotopy_ind [reducible]
   definition homotopy_ind_comp : homotopy_ind f (homotopy.refl f) = d :=
-    (@hprop_eq_of_is_contr _ _ _ _ !eq_of_is_contr idp)⁻¹ ▹ idp
+    (@hprop_eq_of_is_contr _ _ _ _ !eq_of_is_contr idp)⁻¹ ▸ idp
 end
 
 /- Now the proof is fairly easy; we can just use the same induction principle on both sides. -/
@@ -135,9 +135,9 @@ section
               B p (λ x', idp))
             ) eqinv x,
         have eqfin' : (to_fun w') ∘ ((to_fun eq')⁻¹ ∘ x) = x,
-          from eqretr ▹ eqfin,
+          from eqretr ▸ eqfin,
         have eqfin'' : (to_fun w') ∘ ((to_fun w')⁻¹ ∘ x) = x,
-          from invs_eq ▹ eqfin',
+          from invs_eq ▸ eqfin',
         eqfin''
       )
       (λ (x : C → A),
@@ -148,9 +148,9 @@ section
         have eqfin : (to_fun eq')⁻¹ ∘ ((to_fun eq') ∘ x) = x,
           from (λ p, eq.rec_on p idp) eqinv,
         have eqfin' : (to_fun eq')⁻¹ ∘ ((to_fun w') ∘ x) = x,
-          from eqretr ▹ eqfin,
+          from eqretr ▸ eqfin,
         have eqfin'' : (to_fun w')⁻¹ ∘ ((to_fun w') ∘ x) = x,
-          from invs_eq ▹ eqfin',
+          from invs_eq ▸ eqfin',
         eqfin''
       )
 
@@ -257,4 +257,4 @@ definition naive_funext_of_ua : naive_funext :=
 
 protected definition homotopy.rec_on {Q : (f ∼ g) → Type} (p : f ∼ g)
   (H : Π(q : f = g), Q (apd10 q)) : Q p :=
-right_inv apd10 p ▹ H (eq_of_homotopy p)
+right_inv apd10 p ▸ H (eq_of_homotopy p)

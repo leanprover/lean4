@@ -77,7 +77,7 @@ namespace iso
 
   definition is_iso_of_split_epi_of_split_mono (f : a ⟶ b) [Hl : split_mono f] [Hr : split_epi f]
     : is_iso f :=
-  is_iso.mk ((retraction_eq_section f) ▹ (retraction_comp f)) (comp_section f)
+  is_iso.mk ((retraction_eq_section f) ▸ (retraction_comp f)) (comp_section f)
 
   definition inverse_unique (H H' : is_iso f) : @inverse _ _ _ _ f H = @inverse _ _ _ _ f H' :=
   inverse_eq_left !left_inverse
@@ -199,13 +199,13 @@ namespace iso
     open funext
     variables {X : Type} {x y : X} {F G : X → ob}
     definition transport_hom_of_eq (p : F = G) (f : hom (F x) (F y))
-      : p ▹ f = hom_of_eq (apd10 p y) ∘ f ∘ inv_of_eq (apd10 p x) :=
+      : p ▸ f = hom_of_eq (apd10 p y) ∘ f ∘ inv_of_eq (apd10 p x) :=
     eq.rec_on p !id_leftright⁻¹
 
     definition transport_hom (p : F ∼ G) (f : hom (F x) (F y))
-      : eq_of_homotopy p ▹ f = hom_of_eq (p y) ∘ f ∘ inv_of_eq (p x) :=
+      : eq_of_homotopy p ▸ f = hom_of_eq (p y) ∘ f ∘ inv_of_eq (p x) :=
     calc
-      eq_of_homotopy p ▹ f =
+      eq_of_homotopy p ▸ f =
         hom_of_eq (apd10 (eq_of_homotopy p) y) ∘ f ∘ inv_of_eq (apd10 (eq_of_homotopy p) x)
           : transport_hom_of_eq
         ... = hom_of_eq (p y) ∘ f ∘ inv_of_eq (p x) : {right_inv apd10 p}
@@ -286,13 +286,13 @@ namespace iso
      by rewrite [-assoc, inverse_comp_cancel_left, left_inverse])
 
   definition inverse_comp_inverse_left [H' : is_iso g] : (q⁻¹ ∘ g)⁻¹ = g⁻¹ ∘ q :=
-  inverse_involutive q ▹ comp_inverse q⁻¹ g
+  inverse_involutive q ▸ comp_inverse q⁻¹ g
 
   definition inverse_comp_inverse_right [H' : is_iso f] : (q ∘ f⁻¹)⁻¹ = f ∘ q⁻¹ :=
-  inverse_involutive f ▹ comp_inverse q f⁻¹
+  inverse_involutive f ▸ comp_inverse q f⁻¹
 
   definition inverse_comp_inverse_inverse [H' : is_iso r] : (q⁻¹ ∘ r⁻¹)⁻¹ = r ∘ q :=
-  inverse_involutive r ▹ inverse_comp_inverse_left q r⁻¹
+  inverse_involutive r ▸ inverse_comp_inverse_left q r⁻¹
   end
 
   section
@@ -306,13 +306,13 @@ namespace iso
   variable [Hq : is_iso q] include Hq
 
   definition comp_eq_of_eq_inverse_comp (H : y = q⁻¹ ∘ g) : q ∘ y = g :=
-  H⁻¹ ▹ comp_inverse_cancel_left q g
+  H⁻¹ ▸ comp_inverse_cancel_left q g
   definition comp_eq_of_eq_comp_inverse (H : w = f ∘ q⁻¹) : w ∘ q = f :=
-  H⁻¹ ▹ inverse_comp_cancel_right f q
+  H⁻¹ ▸ inverse_comp_cancel_right f q
   definition inverse_comp_eq_of_eq_comp (H : z = q ∘ p) : q⁻¹ ∘ z = p :=
-  H⁻¹ ▹ inverse_comp_cancel_left q p
+  H⁻¹ ▸ inverse_comp_cancel_left q p
   definition comp_inverse_eq_of_eq_comp (H : x = r ∘ q) : x ∘ q⁻¹ = r :=
-  H⁻¹ ▹ comp_inverse_cancel_right r q
+  H⁻¹ ▸ comp_inverse_cancel_right r q
   definition eq_comp_of_inverse_comp_eq (H : q⁻¹ ∘ g = y) : g = q ∘ y :=
   (comp_eq_of_eq_inverse_comp H⁻¹)⁻¹
   definition eq_comp_of_comp_inverse_eq (H : f ∘ q⁻¹ = w) : f = w ∘ q :=

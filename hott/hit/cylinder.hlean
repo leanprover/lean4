@@ -37,7 +37,7 @@ parameters {A B : Type.{u}} (f : A → B)
 
   protected definition rec {P : cylinder → Type}
     (Pbase : Π(b : B), P (base b)) (Ptop : Π(a : A), P (top a))
-    (Pseg : Π(a : A), seg a ▹ Pbase (f a) = Ptop a) (x : cylinder) : P x :=
+    (Pseg : Π(a : A), seg a ▸ Pbase (f a) = Ptop a) (x : cylinder) : P x :=
   begin
     fapply (type_quotient.rec_on x),
     { intro a, cases a,
@@ -48,12 +48,12 @@ parameters {A B : Type.{u}} (f : A → B)
 
   protected definition rec_on [reducible] {P : cylinder → Type} (x : cylinder)
     (Pbase : Π(b : B), P (base b)) (Ptop  : Π(a : A), P (top a))
-    (Pseg  : Π(a : A), seg a ▹ Pbase (f a) = Ptop a) : P x :=
+    (Pseg  : Π(a : A), seg a ▸ Pbase (f a) = Ptop a) : P x :=
   rec Pbase Ptop Pseg x
 
   theorem rec_seg {P : cylinder → Type}
     (Pbase : Π(b : B), P (base b)) (Ptop : Π(a : A), P (top a))
-    (Pseg : Π(a : A), seg a ▹ Pbase (f a) = Ptop a)
+    (Pseg : Π(a : A), seg a ▸ Pbase (f a) = Ptop a)
       (a : A) : apd (rec Pbase Ptop Pseg) (seg a) = Pseg a :=
   !rec_eq_of_rel
 

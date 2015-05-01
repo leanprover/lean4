@@ -48,7 +48,7 @@ namespace functor
 
   definition functor_mk_eq' {F₁ F₂ : C → D} {H₁ : Π(a b : C), hom a b → hom (F₁ a) (F₁ b)}
     {H₂ : Π(a b : C), hom a b → hom (F₂ a) (F₂ b)} (id₁ id₂ comp₁ comp₂)
-    (pF : F₁ = F₂) (pH : pF ▹ H₁ = H₂)
+    (pF : F₁ = F₂) (pH : pF ▸ H₁ = H₂)
       : functor.mk F₁ H₁ id₁ comp₁ = functor.mk F₂ H₂ id₂ comp₂ :=
   apd01111 functor.mk pF pH !is_hprop.elim !is_hprop.elim
 
@@ -193,7 +193,7 @@ namespace functor
   end
 
   -- definition ap010_functor_eq' {F₁ F₂ : C ⇒ D} (p : to_fun_ob F₁ = to_fun_ob F₂)
-  --   (q : p ▹ F₁ = F₂) (c : C) :
+  --   (q : p ▸ F₁ = F₂) (c : C) :
   --   ap to_fun_ob (functor_eq (apd10 p) (λa b f, _)) = p := sorry
   -- begin
   --   cases F₂, revert q, apply (homotopy.rec_on p), clear p, esimp, intros p q,

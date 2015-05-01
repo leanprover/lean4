@@ -33,7 +33,7 @@ parameters {A B : Type.{u}} (f g : A → B)
   eq_of_rel coeq_rel (Rmk f g x)
 
   protected definition rec {P : coeq → Type} (P_i : Π(x : B), P (coeq_i x))
-    (Pcp : Π(x : A), cp x ▹ P_i (f x) = P_i (g x)) (y : coeq) : P y :=
+    (Pcp : Π(x : A), cp x ▸ P_i (f x) = P_i (g x)) (y : coeq) : P y :=
   begin
     fapply (type_quotient.rec_on y),
     { intro a, apply P_i},
@@ -41,11 +41,11 @@ parameters {A B : Type.{u}} (f g : A → B)
   end
 
   protected definition rec_on [reducible] {P : coeq → Type} (y : coeq)
-    (P_i : Π(x : B), P (coeq_i x)) (Pcp : Π(x : A), cp x ▹ P_i (f x) = P_i (g x)) : P y :=
+    (P_i : Π(x : B), P (coeq_i x)) (Pcp : Π(x : A), cp x ▸ P_i (f x) = P_i (g x)) : P y :=
   rec P_i Pcp y
 
   theorem rec_cp {P : coeq → Type} (P_i : Π(x : B), P (coeq_i x))
-    (Pcp : Π(x : A), cp x ▹ P_i (f x) = P_i (g x))
+    (Pcp : Π(x : A), cp x ▸ P_i (f x) = P_i (g x))
       (x : A) : apd (rec P_i Pcp) (cp x) = Pcp x :=
   !rec_eq_of_rel
 

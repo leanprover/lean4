@@ -29,20 +29,20 @@ namespace cubical
   pathover.idpatho b
 
   /- equivalences with equality using transport -/
-  definition pathover_of_transport_eq (r : p ▹ b = b₂) : b =[p] b₂ :=
+  definition pathover_of_transport_eq (r : p ▸ b = b₂) : b =[p] b₂ :=
   by cases p; cases r; exact idpo
 
-  definition pathover_of_eq_transport (r : b = p⁻¹ ▹ b₂) : b =[p] b₂ :=
+  definition pathover_of_eq_transport (r : b = p⁻¹ ▸ b₂) : b =[p] b₂ :=
   by cases p; cases r; exact idpo
 
-  definition transport_eq_of_pathover (r : b =[p] b₂) : p ▹ b = b₂ :=
+  definition transport_eq_of_pathover (r : b =[p] b₂) : p ▸ b = b₂ :=
   by cases r; exact idp
 
-  definition eq_transport_of_pathover (r : b =[p] b₂) : b = p⁻¹ ▹ b₂ :=
+  definition eq_transport_of_pathover (r : b =[p] b₂) : b = p⁻¹ ▸ b₂ :=
   by cases r; exact idp
 
   definition pathover_equiv_transport_eq (p : a = a₂) (b : B a) (b₂ : B a₂)
-    : (b =[p] b₂) ≃ (p ▹ b = b₂) :=
+    : (b =[p] b₂) ≃ (p ▸ b = b₂) :=
   begin
     fapply equiv.MK,
     { exact transport_eq_of_pathover},
@@ -52,7 +52,7 @@ namespace cubical
   end
 
   definition pathover_equiv_eq_transport (p : a = a₂) (b : B a) (b₂ : B a₂)
-    : (b =[p] b₂) ≃ (b = p⁻¹ ▹ b₂) :=
+    : (b =[p] b₂) ≃ (b = p⁻¹ ▸ b₂) :=
   begin
     fapply equiv.MK,
     { exact eq_transport_of_pathover},
@@ -61,10 +61,10 @@ namespace cubical
     { intro r, cases r, apply idp},
   end
 
-  definition pathover_transport (p : a = a₂) (b : B a) : b =[p] p ▹ b :=
+  definition pathover_transport (p : a = a₂) (b : B a) : b =[p] p ▸ b :=
   pathover_of_transport_eq idp
 
-  definition transport_pathover (p : a = a₂) (b : B a) : p⁻¹ ▹ b =[p] b :=
+  definition transport_pathover (p : a = a₂) (b : B a) : p⁻¹ ▸ b =[p] b :=
   pathover_of_eq_transport idp
 
   definition concato (r : b =[p] b₂) (r₂ : b₂ =[p₂] b₃) : b =[p ⬝ p₂] b₃ :=
@@ -127,7 +127,7 @@ namespace cubical
     {b₂ : B a} (r : b =[idpath a] b₂) (H : P idpo) : P r :=
   have H2 : P (pathover_idp_of_eq (eq_of_pathover_idp r)),
     from eq.rec_on (eq_of_pathover_idp r) H,
-  left_inv !pathover_idp r ▹ H2
+  left_inv !pathover_idp r ▸ H2
 
   --pathover with fibration B' ∘ f
   definition pathover_compose (B' : A' → Type) (f : A → A') (p : a = a₂)
@@ -240,11 +240,11 @@ namespace cubical
     by cases r; apply (idp_rec_on q); exact idpo
 
     definition ap10o {f : Πb, C a b} {g : Πb₂, C a₂ b₂} (r : f =[p] g)
-      {b : B a} : f b =[apD011o C p !pathover_transport] g (p ▹ b) :=
+      {b : B a} : f b =[apD011o C p !pathover_transport] g (p ▸ b) :=
     by cases r; exact idpo
 
     -- definition equiv_pi_pathover' (f : Πb, C a b) (g : Πb₂, C a₂ b₂) :
-    --   (f =[p] g) ≃ (Π(b : B a), f b =[apD011o C p !pathover_transport] g (p ▹ b)) :=
+    --   (f =[p] g) ≃ (Π(b : B a), f b =[apD011o C p !pathover_transport] g (p ▸ b)) :=
     -- begin
     --   fapply equiv.MK,
     --   { exact ap10o},

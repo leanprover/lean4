@@ -36,7 +36,7 @@ section
 
    protected definition rec {P : colimit → Type}
     (Pincl : Π⦃i : I⦄ (x : A i), P (ι x))
-    (Pglue : Π(j : J) (x : A (dom j)), cglue j x ▹ Pincl (f j x) = Pincl x)
+    (Pglue : Π(j : J) (x : A (dom j)), cglue j x ▸ Pincl (f j x) = Pincl x)
       (y : colimit) : P y :=
   begin
     fapply (type_quotient.rec_on y),
@@ -46,12 +46,12 @@ section
 
   protected definition rec_on [reducible] {P : colimit → Type} (y : colimit)
     (Pincl : Π⦃i : I⦄ (x : A i), P (ι x))
-    (Pglue : Π(j : J) (x : A (dom j)), cglue j x ▹ Pincl (f j x) = Pincl x) : P y :=
+    (Pglue : Π(j : J) (x : A (dom j)), cglue j x ▸ Pincl (f j x) = Pincl x) : P y :=
   rec Pincl Pglue y
 
   theorem rec_cglue {P : colimit → Type}
     (Pincl : Π⦃i : I⦄ (x : A i), P (ι x))
-    (Pglue : Π(j : J) (x : A (dom j)), cglue j x ▹ Pincl (f j x) = Pincl x)
+    (Pglue : Π(j : J) (x : A (dom j)), cglue j x ▸ Pincl (f j x) = Pincl x)
       {j : J} (x : A (dom j)) : apd (rec Pincl Pglue) (cglue j x) = Pglue j x :=
   !rec_eq_of_rel
 
@@ -120,7 +120,7 @@ section
 
   protected definition rec {P : seq_colim → Type}
     (Pincl : Π⦃n : ℕ⦄ (a : A n), P (sι a))
-    (Pglue : Π(n : ℕ) (a : A n), glue a ▹ Pincl (f a) = Pincl a) (aa : seq_colim) : P aa :=
+    (Pglue : Π(n : ℕ) (a : A n), glue a ▸ Pincl (f a) = Pincl a) (aa : seq_colim) : P aa :=
   begin
     fapply (type_quotient.rec_on aa),
     { intro a, cases a, apply Pincl},
@@ -129,12 +129,12 @@ section
 
   protected definition rec_on [reducible] {P : seq_colim → Type} (aa : seq_colim)
     (Pincl : Π⦃n : ℕ⦄ (a : A n), P (sι a))
-    (Pglue : Π⦃n : ℕ⦄ (a : A n), glue a ▹ Pincl (f a) = Pincl a)
+    (Pglue : Π⦃n : ℕ⦄ (a : A n), glue a ▸ Pincl (f a) = Pincl a)
       : P aa :=
   rec Pincl Pglue aa
 
   theorem rec_glue {P : seq_colim → Type} (Pincl : Π⦃n : ℕ⦄ (a : A n), P (sι a))
-    (Pglue : Π⦃n : ℕ⦄ (a : A n), glue a ▹ Pincl (f a) = Pincl a) {n : ℕ} (a : A n)
+    (Pglue : Π⦃n : ℕ⦄ (a : A n), glue a ▸ Pincl (f a) = Pincl a) {n : ℕ} (a : A n)
       : apd (rec Pincl Pglue) (glue a) = Pglue a :=
   !rec_eq_of_rel
 

@@ -27,7 +27,7 @@ namespace suspension
   glue _ _ a
 
   protected definition rec {P : suspension A → Type} (PN : P !north) (PS : P !south)
-    (Pm : Π(a : A), merid a ▹ PN = PS) (x : suspension A) : P x :=
+    (Pm : Π(a : A), merid a ▸ PN = PS) (x : suspension A) : P x :=
   begin
     fapply (pushout.rec_on _ _ x),
     { intro u, cases u, exact PN},
@@ -36,11 +36,11 @@ namespace suspension
   end
 
   protected definition rec_on [reducible] {P : suspension A → Type} (y : suspension A)
-    (PN : P !north) (PS : P !south) (Pm : Π(a : A), merid a ▹ PN = PS) : P y :=
+    (PN : P !north) (PS : P !south) (Pm : Π(a : A), merid a ▸ PN = PS) : P y :=
   rec PN PS Pm y
 
   theorem rec_merid {P : suspension A → Type} (PN : P !north) (PS : P !south)
-    (Pm : Π(a : A), merid a ▹ PN = PS) (a : A)
+    (Pm : Π(a : A), merid a ▸ PN = PS) (a : A)
       : apd (rec PN PS Pm) (merid a) = Pm a :=
   !rec_glue
 

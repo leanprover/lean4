@@ -182,13 +182,13 @@ namespace eq
   eq.rec_on p u
 
   -- This idiom makes the operation right associative.
-  notation p `▹`:65 x:64 := transport _ p x
+  notation p `▸` x := transport _ p x
 
   definition cast [reducible] {A B : Type} (p : A = B) (a : A) : B :=
-  p ▹ a
+  p ▸ a
 
   definition tr_inv [reducible] (P : A → Type) {x y : A} (p : x = y) (u : P y) : P x :=
-  p⁻¹ ▹ u
+  p⁻¹ ▸ u
 
   definition ap ⦃A B : Type⦄ (f : A → B) {x y:A} (p : x = y) : f x = f y :=
   eq.rec_on p idp
@@ -223,7 +223,7 @@ namespace eq
   definition ap11 {f g : A → B} (H : f = g) {x y : A} (p : x = y) : f x = g y :=
   eq.rec_on H (eq.rec_on p idp)
 
-  definition apd (f : Πa:A, P a) {x y : A} (p : x = y) : p ▹ f x = f y :=
+  definition apd (f : Πa:A, P a) {x y : A} (p : x = y) : p ▸ f x = f y :=
   eq.rec_on p idp
 
   /- calc enviroment -/
@@ -235,19 +235,19 @@ namespace eq
   /- More theorems for moving things around in equations -/
 
   definition tr_eq_of_eq_inv_tr {P : A → Type} {x y : A} {p : x = y} {u : P x} {v : P y} :
-    u = p⁻¹ ▹ v → p ▹ u = v :=
+    u = p⁻¹ ▸ v → p ▸ u = v :=
   eq.rec_on p (take v, id) v
 
   definition inv_tr_eq_of_eq_tr {P : A → Type} {x y : A} {p : y = x} {u : P x} {v : P y} :
-    u = p ▹ v → p⁻¹ ▹ u = v :=
+    u = p ▸ v → p⁻¹ ▸ u = v :=
   eq.rec_on p (take u, id) u
 
   definition eq_inv_tr_of_tr_eq {P : A → Type} {x y : A} {p : x = y} {u : P x} {v : P y} :
-    p ▹ u = v → u = p⁻¹ ▹ v :=
+    p ▸ u = v → u = p⁻¹ ▸ v :=
   eq.rec_on p (take v, id) v
 
   definition eq_tr_of_inv_tr_eq {P : A → Type} {x y : A} {p : y = x} {u : P x} {v : P y} :
-    p⁻¹ ▹ u = v → u = p ▹ v :=
+    p⁻¹ ▸ u = v → u = p ▸ v :=
   eq.rec_on p (take u, id) u
 
   /- Functoriality of functions -/
@@ -332,7 +332,7 @@ namespace eq
         ... = p x : !idp_con
         ... = (p x) ⬝ (ap g idp ⬝ idp) : idp))
   -- This also works:
-  -- eq.rec_on s (eq.rec_on q (!idp_con ▹ idp))
+  -- eq.rec_on s (eq.rec_on q (!idp_con ▸ idp))
 
   definition con_ap_con_con_eq_con_con_con {f : A → A} (p : f ∼ id) {x y : A} (q : x = y)
       {w z : A} (r : w = f x) (s : y = z) :
@@ -352,7 +352,7 @@ namespace eq
   definition ap_con_con_eq_con_con {f : A → A} (p : f ∼ id) {x y : A} (q : x = y)
       {z : A} (s : y = z) :
     ap f q ⬝ (p y ⬝ s) = p x ⬝ (q ⬝ s) :=
-  eq.rec_on s (eq.rec_on q (!idp_con ▹ idp))
+  eq.rec_on s (eq.rec_on q (!idp_con ▸ idp))
 
   definition con_con_ap_eq_con_con {g : A → A} (p : id ∼ g) {x y : A} (q : x = y)
       {w : A} (r : w = x) :
@@ -365,7 +365,7 @@ namespace eq
   begin
     apply (eq.rec_on s),
     apply (eq.rec_on q),
-    apply (idp_con (p x) ▹ idp)
+    apply (idp_con (p x) ▸ idp)
   end
 
   /- Action of [apd10] and [ap10] on paths -/
@@ -398,26 +398,26 @@ namespace eq
 
   /- Transport and the groupoid structure of paths -/
 
-  definition idp_tr {P : A → Type} {x : A} (u : P x) : idp ▹ u = u := idp
+  definition idp_tr {P : A → Type} {x : A} (u : P x) : idp ▸ u = u := idp
 
   definition con_tr {P : A → Type} {x y z : A} (p : x = y) (q : y = z) (u : P x) :
-    p ⬝ q ▹ u = q ▹ p ▹ u :=
+    p ⬝ q ▸ u = q ▸ p ▸ u :=
   eq.rec_on q (eq.rec_on p idp)
 
   definition tr_inv_tr {P : A → Type} {x y : A} (p : x = y) (z : P y) :
-    p ▹ p⁻¹ ▹ z = z :=
+    p ▸ p⁻¹ ▸ z = z :=
   (con_tr p⁻¹ p z)⁻¹ ⬝ ap (λr, transport P r z) (con.left_inv p)
 
   definition inv_tr_tr {P : A → Type} {x y : A} (p : x = y) (z : P x) :
-    p⁻¹ ▹ p ▹ z = z :=
+    p⁻¹ ▸ p ▸ z = z :=
   (con_tr p p⁻¹ z)⁻¹ ⬝ ap (λr, transport P r z) (con.right_inv p)
 
   definition con_tr_lemma {P : A → Type}
       {x y z w : A} (p : x = y) (q : y = z) (r : z = w) (u : P x) :
-    ap (λe, e ▹ u) (con.assoc' p q r) ⬝ (con_tr (p ⬝ q) r u) ⬝
+    ap (λe, e ▸ u) (con.assoc' p q r) ⬝ (con_tr (p ⬝ q) r u) ⬝
         ap (transport P r) (con_tr p q u)
-      = (con_tr p (q ⬝ r) u) ⬝ (con_tr q r (p ▹ u))
-      :> ((p ⬝ (q ⬝ r)) ▹ u = r ▹ q ▹ p ▹ u) :=
+      = (con_tr p (q ⬝ r) u) ⬝ (con_tr q r (p ▸ u))
+      :> ((p ⬝ (q ⬝ r)) ▸ u = r ▸ q ▸ p ▸ u) :=
   eq.rec_on r (eq.rec_on q (eq.rec_on p idp))
 
   --  Here is another coherence lemma for transport.
@@ -438,18 +438,18 @@ namespace eq
 
   -- Dependent transport in a doubly dependent type.
   definition transportD {P : A → Type} (Q : Π a : A, P a → Type)
-      {a a' : A} (p : a = a') (b : P a) (z : Q a b) : Q a' (p ▹ b) :=
+      {a a' : A} (p : a = a') (b : P a) (z : Q a b) : Q a' (p ▸ b) :=
   eq.rec_on p z
 
   -- In Coq the variables P, Q and b are explicit, but in Lean we can probably have them implicit using the following notation
-  notation p `▹D`:65 x:64 := transportD _ p _ x
+  notation p `▸D`:65 x:64 := transportD _ p _ x
 
   -- Transporting along higher-dimensional paths
   definition transport2 (P : A → Type) {x y : A} {p q : x = y} (r : p = q) (z : P x) :
-    p ▹ z = q ▹ z :=
-  ap (λp', p' ▹ z) r
+    p ▸ z = q ▸ z :=
+  ap (λp', p' ▸ z) r
 
-  notation p `▹2`:65 x:64 := transport2 _ p _ x
+  notation p `▸2`:65 x:64 := transport2 _ p _ x
 
   -- An alternative definition.
   definition tr2_eq_ap10 (Q : A → Type) {x y : A} {p q : x = y} (r : p = q)
@@ -467,10 +467,10 @@ namespace eq
   eq.rec_on r idp
 
   definition transportD2 (B C : A → Type) (D : Π(a:A), B a → C a → Type)
-    {x1 x2 : A} (p : x1 = x2) (y : B x1) (z : C x1) (w : D x1 y z) : D x2 (p ▹ y) (p ▹ z) :=
+    {x1 x2 : A} (p : x1 = x2) (y : B x1) (z : C x1) (w : D x1 y z) : D x2 (p ▸ y) (p ▸ z) :=
   eq.rec_on p w
 
-  notation p `▹D2`:65 x:64 := transportD2 _ _ _ p _ _ x
+  notation p `▸D2`:65 x:64 := transportD2 _ _ _ p _ _ x
 
   definition ap_tr_con_tr2 (P : A → Type) {x y : A} {p q : x = y} {z w : P x} (r : p = q)
       (s : z = w) :
@@ -479,7 +479,7 @@ namespace eq
 
 
   definition fn_tr_eq_tr_fn {P Q : A → Type} {x y : A} (p : x = y) (f : Πx, P x → Q x) (z : P x) :
-    f y (p ▹ z) = (p ▹ (f x z)) :=
+    f y (p ▸ z) = (p ▸ (f x z)) :=
   eq.rec_on p idp
 
   /- Transporting in particular fibrations -/
@@ -520,7 +520,7 @@ namespace eq
   eq.rec_on p idp
 
   -- A special case of [transport_compose] which seems to come up a lot.
-  definition tr_eq_cast_ap {P : A → Type} {x y} (p : x = y) (u : P x) : p ▹ u = cast (ap P p) u :=
+  definition tr_eq_cast_ap {P : A → Type} {x y} (p : x = y) (u : P x) : p ▸ u = cast (ap P p) u :=
   eq.rec_on p idp
 
   definition tr_eq_cast_ap_fn {P : A → Type} {x y} (p : x = y) : transport P p = cast (ap P p) :=

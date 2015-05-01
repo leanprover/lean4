@@ -82,7 +82,7 @@ namespace cubical
       (s : square t idp l r) (H : P ids) : P s :=
   have H2 : P (square_of_eq (eq_of_square s)),
     from eq.rec_on (eq_of_square s : t ⬝ r = l) (by cases r; cases t; exact H),
-  left_inv (to_fun !square_equiv_eq) s ▹ H2
+  left_inv (to_fun !square_equiv_eq) s ▸ H2
 
   definition rec_on_r {a₀₀ : A}
     {P : Π{a₀₂ a₂₁ : A} {t : a₀₀ = a₂₁} {b : a₀₂ = a₂₁} {l : a₀₀ = a₀₂}, square t b l idp → Type}
@@ -91,7 +91,7 @@ namespace cubical
   let p : l ⬝ b = t := (eq_of_square s)⁻¹ in
   have H2 : P (square_of_eq (eq_of_square s)⁻¹⁻¹),
     from @eq.rec_on _ _ (λx p, P (square_of_eq p⁻¹)) _ p (by cases b; cases l; exact H),
-  left_inv (to_fun !square_equiv_eq) s ▹ !inv_inv ▹ H2
+  left_inv (to_fun !square_equiv_eq) s ▸ !inv_inv ▸ H2
 
   definition rec_on_l {a₀₁ : A}
     {P : Π {a₂₀ a₂₂ : A} {t : a₀₁ = a₂₀} {b : a₀₁ = a₂₂} {r : a₂₀ = a₂₂},
@@ -101,7 +101,7 @@ namespace cubical
   let p : t ⬝ r = b := eq_of_square s ⬝ !idp_con in
   have H2 : P (square_of_eq (p ⬝ !idp_con⁻¹)),
     from eq.rec_on p (by cases r; cases t; exact H),
-  left_inv (to_fun !square_equiv_eq) s ▹ !con_inv_cancel_right ▹ H2
+  left_inv (to_fun !square_equiv_eq) s ▸ !con_inv_cancel_right ▸ H2
 
   definition rec_on_t {a₁₀ : A}
     {P : Π {a₀₂ a₂₂ : A} {b : a₀₂ = a₂₂} {l : a₁₀ = a₀₂} {r : a₁₀ = a₂₂}, square idp b l r → Type}
@@ -115,7 +115,7 @@ namespace cubical
   assert H4 : P (square_of_eq (eq_of_square s)),
     from eq.rec_on !inv_inv H3,
   proof
-    left_inv (to_fun !square_equiv_eq) s ▹ H4
+    left_inv (to_fun !square_equiv_eq) s ▸ H4
   qed
 
   definition rec_on_tb {a : A}
@@ -124,7 +124,7 @@ namespace cubical
       (s : square idp idp l r) (H : P ids) : P s :=
   have H2 : P (square_of_eq (eq_of_square s)),
     from eq.rec_on (eq_of_square s : idp ⬝ r = l) (by cases r; exact H),
-  left_inv (to_fun !square_equiv_eq) s ▹ H2
+  left_inv (to_fun !square_equiv_eq) s ▸ H2
 
   --we can also do the other recursors (lr, tl, tr, bl, br, tbl, tbr, tlr, blr), but let's postpone this until they are needed
 

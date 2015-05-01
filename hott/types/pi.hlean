@@ -52,7 +52,7 @@ namespace pi
 
   definition pi_transport (p : a = a') (f : Π(b : B a), C a b)
     : (transport (λa, Π(b : B a), C a b) p f)
-      ∼ (λb, transport (C a') !tr_inv_tr (transportD _ p _ (f (p⁻¹ ▹ b)))) :=
+      ∼ (λb, transport (C a') !tr_inv_tr (transportD _ p _ (f (p⁻¹ ▸ b)))) :=
   eq.rec_on p (λx, idp)
 
   /- A special case of [transport_pi] where the type [B] does not depend on [A],
@@ -78,22 +78,22 @@ namespace pi
      (Π(b : B a), transportD B C p b (f b) = g (transport B p b)) ≃
      (transport (λa, Π(b : B a), C a b) p f = g) -/
   definition heq_piD (p : a = a') (f : Π(b : B a), C a b)
-    (g : Π(b' : B a'), C a' b') : (Π(b : B a), p ▹D (f b) = g (p ▹ b)) ≃ (p ▹ f = g) :=
+    (g : Π(b' : B a'), C a' b') : (Π(b : B a), p ▸D (f b) = g (p ▸ b)) ≃ (p ▸ f = g) :=
   eq.rec_on p (λg, !homotopy_equiv_eq) g
 
   definition heq_pi {C : A → Type} (p : a = a') (f : Π(b : B a), C a)
-    (g : Π(b' : B a'), C a') : (Π(b : B a), p ▹ (f b) = g (p ▹ b)) ≃ (p ▹ f = g) :=
+    (g : Π(b' : B a'), C a') : (Π(b : B a), p ▸ (f b) = g (p ▸ b)) ≃ (p ▸ f = g) :=
   eq.rec_on p (λg, !homotopy_equiv_eq) g
 
 
   section
   open sigma sigma.ops
   /- more implicit arguments:
-  (Π(b : B a), transport C (sigma_eq p idp) (f b) = g (p ▹ b)) ≃
+  (Π(b : B a), transport C (sigma_eq p idp) (f b) = g (p ▸ b)) ≃
   (Π(b : B a), transportD B (λ(a : A) (b : B a), C ⟨a, b⟩) p b (f b) = g (transport B p b)) -/
   definition heq_pi_sigma {C : (Σa, B a) → Type} (p : a = a')
     (f : Π(b : B a), C ⟨a, b⟩) (g : Π(b' : B a'), C ⟨a', b'⟩) :
-    (Π(b : B a), (sigma_eq p idp) ▹ (f b) = g (p ▹ b)) ≃ (Π(b : B a), p ▹D (f b) = g (p ▹ b)) :=
+    (Π(b : B a), (sigma_eq p idp) ▸ (f b) = g (p ▸ b)) ≃ (Π(b : B a), p ▸D (f b) = g (p ▸ b)) :=
   eq.rec_on p (λg, !equiv.refl) g
   end
 
@@ -129,13 +129,13 @@ namespace pi
       apply (tr_inv _ (adj f0 a')),
       apply (transport (λx, f1 a' x = h a') (transport_compose B f0 (left_inv f0 a') _)),
       apply (tr_inv (λx, x = h a') (fn_tr_eq_tr_fn _ f1 _)), unfold function.compose,
-      apply (tr_inv (λx, left_inv f0 a' ▹ x = h a') (right_inv (f1 _) _)), unfold function.id,
+      apply (tr_inv (λx, left_inv f0 a' ▸ x = h a') (right_inv (f1 _) _)), unfold function.id,
       apply apd
     end,
     begin
       intro h,
       apply eq_of_homotopy, intro a,
-      apply (tr_inv (λx, right_inv f0 a ▹ x = h a) (left_inv (f1 _) _)), unfold function.id,
+      apply (tr_inv (λx, right_inv f0 a ▸ x = h a) (left_inv (f1 _) _)), unfold function.id,
       apply apd
     end
   end

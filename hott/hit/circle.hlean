@@ -25,7 +25,7 @@ namespace circle
   definition loop : base = base := seg1 ⬝ seg2⁻¹
 
   definition rec2 {P : circle → Type} (Pb1 : P base1) (Pb2 : P base2)
-    (Ps1 : seg1 ▹ Pb1 = Pb2) (Ps2 : seg2 ▹ Pb1 = Pb2) (x : circle) : P x :=
+    (Ps1 : seg1 ▸ Pb1 = Pb2) (Ps2 : seg2 ▸ Pb1 = Pb2) (x : circle) : P x :=
   begin
     fapply (suspension.rec_on x),
     { exact Pb1},
@@ -37,16 +37,16 @@ namespace circle
   end
 
   definition rec2_on [reducible] {P : circle → Type} (x : circle) (Pb1 : P base1) (Pb2 : P base2)
-    (Ps1 : seg1 ▹ Pb1 = Pb2) (Ps2 : seg2 ▹ Pb1 = Pb2) : P x :=
+    (Ps1 : seg1 ▸ Pb1 = Pb2) (Ps2 : seg2 ▸ Pb1 = Pb2) : P x :=
   circle.rec2 Pb1 Pb2 Ps1 Ps2 x
 
   theorem rec2_seg1 {P : circle → Type} (Pb1 : P base1) (Pb2 : P base2)
-    (Ps1 : seg1 ▹ Pb1 = Pb2) (Ps2 : seg2 ▹ Pb1 = Pb2)
+    (Ps1 : seg1 ▸ Pb1 = Pb2) (Ps2 : seg2 ▸ Pb1 = Pb2)
       : apd (rec2 Pb1 Pb2 Ps1 Ps2) seg1 = Ps1 :=
   !rec_merid
 
   theorem rec2_seg2 {P : circle → Type} (Pb1 : P base1) (Pb2 : P base2)
-    (Ps1 : seg1 ▹ Pb1 = Pb2) (Ps2 : seg2 ▹ Pb1 = Pb2)
+    (Ps1 : seg1 ▸ Pb1 = Pb2) (Ps2 : seg2 ▸ Pb1 = Pb2)
       : apd (rec2 Pb1 Pb2 Ps1 Ps2) seg2 = Ps2 :=
   !rec_merid
 
@@ -71,7 +71,7 @@ namespace circle
     rewrite [-apd_eq_tr_constant_con_ap,↑elim2,rec2_seg2],
   end
 
-  protected definition rec {P : circle → Type} (Pbase : P base) (Ploop : loop ▹ Pbase = Pbase)
+  protected definition rec {P : circle → Type} (Pbase : P base) (Ploop : loop ▸ Pbase = Pbase)
     (x : circle) : P x :=
   begin
     fapply (rec2_on x),
@@ -83,18 +83,18 @@ namespace circle
 --rewrite -tr_con, exact Ploop⁻¹
 
   protected definition rec_on [reducible] {P : circle → Type} (x : circle) (Pbase : P base)
-    (Ploop : loop ▹ Pbase = Pbase) : P x :=
+    (Ploop : loop ▸ Pbase = Pbase) : P x :=
   rec Pbase Ploop x
 
   theorem rec_loop_helper {A : Type} (P : A → Type)
-    {x y : A} {p : x = y} {u : P x} {v : P y} (q : u = p⁻¹ ▹ v) :
+    {x y : A} {p : x = y} {u : P x} {v : P y} (q : u = p⁻¹ ▸ v) :
     eq_inv_tr_of_tr_eq (tr_eq_of_eq_inv_tr q) = q :=
   by cases p; exact idp
 
   definition con_refl {A : Type} {x y : A} (p : x = y) : p ⬝ refl _ = p :=
   eq.rec_on p idp
 
-  theorem rec_loop {P : circle → Type} (Pbase : P base) (Ploop : loop ▹ Pbase = Pbase) :
+  theorem rec_loop {P : circle → Type} (Pbase : P base) (Ploop : loop ▸ Pbase = Pbase) :
     apd (rec Pbase Ploop) loop = Ploop :=
   begin
     rewrite [↑loop,apd_con,↑rec,↑rec2_on,↑base,rec2_seg1,apd_inv,rec2_seg2,↑ap], --con_idp should work here
@@ -141,7 +141,7 @@ namespace circle
   definition nonidp (x : circle) : x = x :=
   circle.rec_on x loop
     (calc
-      loop ▹ loop = loop⁻¹ ⬝ loop ⬝ loop : transport_eq_lr
+      loop ▸ loop = loop⁻¹ ⬝ loop ⬝ loop : transport_eq_lr
         ... = loop : by rewrite [con.left_inv, idp_con])
 
   definition nonidp_neq_idp : nonidp ≠ (λx, idp) :=

@@ -183,16 +183,16 @@ section group
   theorem inv_inj {a b : A} (H : a⁻¹ = b⁻¹) : a = b :=
   calc
     a = (a⁻¹)⁻¹ : inv_inv
-      ... = b : inv_eq_of_mul_eq_one (H⁻¹ ▹ (mul_left_inv _))
+      ... = b : inv_eq_of_mul_eq_one (H⁻¹ ▸ (mul_left_inv _))
 
   --theorem inv_eq_inv_iff_eq (a b : A) : a⁻¹ = b⁻¹ ↔ a = b :=
   --iff.intro (assume H, inv_inj H) (assume H, congr_arg _ H)
 
   --theorem inv_eq_one_iff_eq_one (a b : A) : a⁻¹ = 1 ↔ a = 1 :=
-  --inv_one ▹ !inv_eq_inv_iff_eq
+  --inv_one ▸ !inv_eq_inv_iff_eq
 
   theorem eq_inv_imp_eq_inv {a b : A} (H : a = b⁻¹) : b = a⁻¹ :=
-  H⁻¹ ▹ (inv_inv b)⁻¹
+  H⁻¹ ▸ (inv_inv b)⁻¹
 
   --theorem eq_inv_iff_eq_inv (a b : A) : a = b⁻¹ ↔ b = a⁻¹ :=
   --iff.intro !eq_inv_imp_eq_inv !eq_inv_imp_eq_inv
@@ -229,28 +229,28 @@ section group
 
   -- TODO: better names for the next eight theorems? (Also for additive ones.)
   theorem eq_mul_inv_of_mul_eq {a b c : A} (H : a * b = c) : a = c * b⁻¹ :=
-  H ▹ !mul_inv_cancel_right⁻¹
+  H ▸ !mul_inv_cancel_right⁻¹
 
   theorem eq_inv_mul_of_mul_eq {a b c : A} (H : a * b = c) : b = a⁻¹ * c :=
-  H ▹ !inv_mul_cancel_left⁻¹
+  H ▸ !inv_mul_cancel_left⁻¹
 
   theorem inv_mul_eq_of_eq_mul {a b c : A} (H : a = b * c) : b⁻¹ * a = c :=
-  H⁻¹ ▹ !inv_mul_cancel_left
+  H⁻¹ ▸ !inv_mul_cancel_left
 
   theorem mul_inv_eq_of_eq_mul {a b c : A} (H : a = b * c) : a * c⁻¹ = b :=
-  H⁻¹ ▹ !mul_inv_cancel_right
+  H⁻¹ ▸ !mul_inv_cancel_right
 
   theorem eq_mul_of_mul_inv_eq {a b c : A} (H : a * b⁻¹ = c) : a = c * b :=
-  !inv_inv ▹ (eq_mul_inv_of_mul_eq H)
+  !inv_inv ▸ (eq_mul_inv_of_mul_eq H)
 
   theorem eq_mul_of_inv_mul_eq {a b c : A} (H : a⁻¹ * b = c) : b = a * c :=
-  !inv_inv ▹ (eq_inv_mul_of_mul_eq H)
+  !inv_inv ▸ (eq_inv_mul_of_mul_eq H)
 
   theorem mul_eq_of_eq_inv_mul {a b c : A} (H : a = b⁻¹ * c) : b * a = c :=
-  !inv_inv ▹ (inv_mul_eq_of_eq_mul H)
+  !inv_inv ▸ (inv_mul_eq_of_eq_mul H)
 
   theorem mul_eq_of_eq_mul_inv {a b c : A} (H : a = b * c⁻¹) : a * c = b :=
-  !inv_inv ▹ (mul_inv_eq_of_eq_mul H)
+  !inv_inv ▸ (mul_inv_eq_of_eq_mul H)
 
   --theorem mul_eq_iff_eq_inv_mul (a b c : A) : a * b = c ↔ b = a⁻¹ * c :=
   --iff.intro eq_inv_mul_of_mul_eq mul_eq_of_eq_inv_mul
@@ -318,16 +318,16 @@ section add_group
   theorem neg_inj {a b : A} (H : -a = -b) : a = b :=
   calc
     a = -(-a) : neg_neg
-      ... = b : neq_eq_of_add_eq_zero (H⁻¹ ▹ (add_left_inv _))
+      ... = b : neq_eq_of_add_eq_zero (H⁻¹ ▸ (add_left_inv _))
 
   --theorem neg_eq_neg_iff_eq (a b : A) : -a = -b ↔ a = b :=
   --iff.intro (assume H, neg_inj H) (assume H, congr_arg _ H)
 
   --theorem neg_eq_zero_iff_eq_zero (a b : A) : -a = 0 ↔ a = 0 :=
-  --neg_zero ▹ !neg_eq_neg_iff_eq
+  --neg_zero ▸ !neg_eq_neg_iff_eq
 
   theorem eq_neq_of_eq_neg {a b : A} (H : a = -b) : b = -a :=
-  H⁻¹ ▹ (neg_neg b)⁻¹
+  H⁻¹ ▸ (neg_neg b)⁻¹
 
   --theorem eq_neg_iff_eq_neg (a b : A) : a = -b ↔ b = -a :=
   --iff.intro !eq_neq_of_eq_neg !eq_neq_of_eq_neg
@@ -357,28 +357,28 @@ section add_group
         ... = 0 : add_right_inv)
 
   theorem eq_add_neq_of_add_eq {a b c : A} (H : a + b = c) : a = c + -b :=
-  H ▹ !add_neg_cancel_right⁻¹
+  H ▸ !add_neg_cancel_right⁻¹
 
   theorem eq_neg_add_of_add_eq {a b c : A} (H : a + b = c) : b = -a + c :=
-  H ▹ !neg_add_cancel_left⁻¹
+  H ▸ !neg_add_cancel_left⁻¹
 
   theorem neg_add_eq_of_eq_add {a b c : A} (H : a = b + c) : -b + a = c :=
-  H⁻¹ ▹ !neg_add_cancel_left
+  H⁻¹ ▸ !neg_add_cancel_left
 
   theorem add_neg_eq_of_eq_add {a b c : A} (H : a = b + c) : a + -c = b :=
-  H⁻¹ ▹ !add_neg_cancel_right
+  H⁻¹ ▸ !add_neg_cancel_right
 
   theorem eq_add_of_add_neg_eq {a b c : A} (H : a + -b = c) : a = c + b :=
-  !neg_neg ▹ (eq_add_neq_of_add_eq H)
+  !neg_neg ▸ (eq_add_neq_of_add_eq H)
 
   theorem eq_add_of_neg_add_eq {a b c : A} (H : -a + b = c) : b = a + c :=
-  !neg_neg ▹ (eq_neg_add_of_add_eq H)
+  !neg_neg ▸ (eq_neg_add_of_add_eq H)
 
   theorem add_eq_of_eq_neg_add {a b c : A} (H : a = -b + c) : b + a = c :=
-  !neg_neg ▹ (neg_add_eq_of_eq_add H)
+  !neg_neg ▸ (neg_add_eq_of_eq_add H)
 
   theorem add_eq_of_eq_add_neg {a b c : A} (H : a = b + -c) : a + c = b :=
-  !neg_neg ▹ (add_neg_eq_of_eq_add H)
+  !neg_neg ▸ (add_neg_eq_of_eq_add H)
 
   --theorem add_eq_iff_eq_neg_add (a b c : A) : a + b = c ↔ b = -a + c :=
   --iff.intro eq_neg_add_of_add_eq add_eq_of_eq_neg_add
@@ -426,13 +426,13 @@ section add_group
       ... = b : zero_add
 
   --theorem eq_iff_minus_eq_zero (a b : A) : a = b ↔ a - b = 0 :=
-  --iff.intro (assume H, H ▹ !sub_self) (assume H, eq_of_sub_eq_zero H)
+  --iff.intro (assume H, H ▸ !sub_self) (assume H, eq_of_sub_eq_zero H)
 
   theorem zero_sub (a : A) : 0 - a = -a := !zero_add
 
-  theorem sub_zero (a : A) : a - 0 = a := neg_zero⁻¹ ▹ !add_zero
+  theorem sub_zero (a : A) : a - 0 = a := neg_zero⁻¹ ▸ !add_zero
 
-  theorem sub_neg_eq_add (a b : A) : a - (-b) = a + b := !neg_neg ▹ idp
+  theorem sub_neg_eq_add (a b : A) : a - (-b) = a + b := !neg_neg ▸ idp
 
   theorem neg_sub (a b : A) : -(a - b) = b - a :=
   neq_eq_of_add_eq_zero
@@ -457,7 +457,7 @@ section add_group
   --theorem minus_eq_minus_iff {a b c d : A} (H : a - b = c - d) : a = b ↔ c = d :=
   --calc
   --  a = b ↔ a - b = 0 : eq_iff_minus_eq_zero
-  --    ... ↔ c - d = 0 : H ▹ !iff.refl
+  --    ... ↔ c - d = 0 : H ▸ !iff.refl
   --    ... ↔ c = d : iff.symm (eq_iff_minus_eq_zero c d)
 
 end add_group
@@ -470,11 +470,11 @@ variable [s : add_comm_group A]
 include s
 
   theorem sub_add_eq_sub_sub (a b c : A) : a - (b + c) = a - b - c :=
-  !add_comm ▹ !sub_add_eq_sub_sub_swap
+  !add_comm ▸ !sub_add_eq_sub_sub_swap
 
   theorem neq_add_eq_sub (a b : A) : -a + b = b - a := !add_comm
 
-  theorem neg_add_distrib (a b : A) : -(a + b) = -a + -b := !add_comm ▹ !neq_add_rev
+  theorem neg_add_distrib (a b : A) : -(a + b) = -a + -b := !add_comm ▸ !neq_add_rev
 
   theorem sub_add_eq_add_sub (a b c : A) : a - b + c = a + c - b := !add_right_comm
 

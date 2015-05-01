@@ -79,23 +79,23 @@ namespace eq
   definition ap01000 (f : X → Πa b c, D a b c) (Hx : x = x') : f x ∼3 f x' :=
   by intros; cases Hx; reflexivity
 
-  definition apd011 (f : Πa, B a → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
+  definition apd011 (f : Πa, B a → Z) (Ha : a = a') (Hb : (Ha ▸ b) = b')
       : f a b = f a' b' :=
   by cases Ha; cases Hb; reflexivity
 
-  definition apd0111 (f : Πa b, C a b → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
-    (Hc : apd011 C Ha Hb ▹ c = c')
+  definition apd0111 (f : Πa b, C a b → Z) (Ha : a = a') (Hb : (Ha ▸ b) = b')
+    (Hc : apd011 C Ha Hb ▸ c = c')
       : f a b c = f a' b' c' :=
   by cases Ha; cases Hb; cases Hc; reflexivity
 
-  definition apd01111 (f : Πa b c, D a b c → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
-    (Hc : apd011 C Ha Hb ▹ c = c') (Hd : apd0111 D Ha Hb Hc ▹ d = d')
+  definition apd01111 (f : Πa b c, D a b c → Z) (Ha : a = a') (Hb : (Ha ▸ b) = b')
+    (Hc : apd011 C Ha Hb ▸ c = c') (Hd : apd0111 D Ha Hb Hc ▸ d = d')
       : f a b c d = f a' b' c' d' :=
   by cases Ha; cases Hb; cases Hc; cases Hd; reflexivity
 
-  definition apd011111 (f : Πa b c d, E a b c d → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
-    (Hc : apd011 C Ha Hb ▹ c = c') (Hd : apd0111 D Ha Hb Hc ▹ d = d')
-    (He : apd01111 E Ha Hb Hc Hd ▹ e = e')
+  definition apd011111 (f : Πa b c d, E a b c d → Z) (Ha : a = a') (Hb : (Ha ▸ b) = b')
+    (Hc : apd011 C Ha Hb ▸ c = c') (Hd : apd0111 D Ha Hb Hc ▸ d = d')
+    (He : apd01111 E Ha Hb Hc Hd ▸ e = e')
     : f a b c d e = f a' b' c' d' e' :=
   by cases Ha; cases Hb; cases Hc; cases Hd; cases He; reflexivity
 
@@ -180,11 +180,11 @@ namespace eq
   local attribute funext.is_equiv_apd100 [instance]
   protected definition homotopy2.rec_on {f g : Πa b, C a b} {P : (f ∼2 g) → Type}
     (p : f ∼2 g) (H : Π(q : f = g), P (apd100 q)) : P p :=
-  right_inv apd100 p ▹ H (eq_of_homotopy2 p)
+  right_inv apd100 p ▸ H (eq_of_homotopy2 p)
 
   protected definition homotopy3.rec_on {f g : Πa b c, D a b c} {P : (f ∼3 g) → Type}
     (p : f ∼3 g) (H : Π(q : f = g), P (apd1000 q)) : P p :=
-  right_inv apd1000 p ▹ H (eq_of_homotopy3 p)
+  right_inv apd1000 p ▸ H (eq_of_homotopy3 p)
 
   definition apd10_ap (f : X → Πa, B a) (p : x = x')
     : apd10 (ap f p) = ap010 f p :=

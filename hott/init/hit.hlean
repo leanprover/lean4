@@ -56,12 +56,12 @@ namespace type_quotient
     : class_of R a = class_of R a'
 
   protected constant rec {A : Type} {R : A → A → Type} {P : type_quotient R → Type}
-    (Pc : Π(a : A), P (class_of R a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel R H ▹ Pc a = Pc a')
+    (Pc : Π(a : A), P (class_of R a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel R H ▸ Pc a = Pc a')
     (x : type_quotient R) : P x
 
   protected definition rec_on [reducible] {A : Type} {R : A → A → Type} {P : type_quotient R → Type}
     (x : type_quotient R) (Pc : Π(a : A), P (class_of R a))
-    (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel R H ▹ Pc a = Pc a') : P x :=
+    (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel R H ▸ Pc a = Pc a') : P x :=
   rec Pc Pp x
 
 end type_quotient
@@ -76,11 +76,11 @@ end trunc
 
 namespace type_quotient
   definition rec_class_of {A : Type} {R : A → A → Type} {P : type_quotient R → Type}
-    (Pc : Π(a : A), P (class_of R a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel R H ▹ Pc a = Pc a')
+    (Pc : Π(a : A), P (class_of R a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel R H ▸ Pc a = Pc a')
     (a : A) : type_quotient.rec Pc Pp (class_of R a) = Pc a :=
   idp
 
   constant rec_eq_of_rel {A : Type} {R : A → A → Type} {P : type_quotient R → Type}
-    (Pc : Π(a : A), P (class_of R a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel R H ▹ Pc a = Pc a')
+    (Pc : Π(a : A), P (class_of R a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel R H ▸ Pc a = Pc a')
     {a a' : A} (H : R a a') : apd (type_quotient.rec Pc Pp) (eq_of_rel R H) = Pp H
 end type_quotient

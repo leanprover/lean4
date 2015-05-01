@@ -121,7 +121,7 @@ namespace is_trunc
   @equiv_of_is_hprop _ _ _
     (@is_trunc_eq _ _ (is_hset_of_relation R mere refl @imp) a b)
     imp
-    (λp, p ▹ refl a)
+    (λp, p ▸ refl a)
 
   local attribute not [reducible]
   definition is_hset_of_double_neg_elim {A : Type} (H : Π(a b : A), ¬¬a = b → a = b)

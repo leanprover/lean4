@@ -186,8 +186,8 @@ namespace category
     (id_id1 : Π (a : ob), comp1 !ID1 !ID1 = ID1 a)
     (id_id2 : Π (a : ob), comp2 !ID2 !ID2 = ID2 a)
     (p : hom1 = hom2)
-    (q : p ▹ comp1 = comp2)
-    (r : p ▹ ID1 = ID2) :
+    (q : p ▸ comp1 = comp2)
+    (r : p ▸ ID1 = ID2) :
     precategory.mk' hom1 comp1 ID1 assoc1 assoc1' id_left1 id_right1 id_id1 homH1
     = precategory.mk' hom2 comp2 ID2 assoc2 assoc2' id_left2 id_right2 id_id2 homH2 :=
   begin
@@ -243,7 +243,7 @@ namespace category
 
   definition Precategory_eq (C D : Precategory)
     (p : carrier C = carrier D)
-    (q : p ▹ (Precategory.struct C) = Precategory.struct D) : C = D :=
+    (q : p ▸ (Precategory.struct C) = Precategory.struct D) : C = D :=
   begin
     cases C, cases D,
     cases p, cases q,

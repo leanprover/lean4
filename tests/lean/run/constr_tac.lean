@@ -57,12 +57,12 @@ end
 
 example : list nat :=
 begin
-  constructor 0
+  constructor 1
 end
 
 example : list nat :=
 begin
+  constructor 2,
   constructor 1,
-  constructor 0,
-  constructor 0
+  constructor 1
 end

@@ -34,12 +34,12 @@ end
 
 example : nat :=
 begin
-  constructor 0
+  constructor 1
 end
 
 example : nat :=
 begin
-  constructor 1,
-  constructor 1,
-  constructor 0
+  constructor 2,
+  constructor 2,
+  constructor 1
 end

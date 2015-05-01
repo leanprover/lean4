@@ -20,13 +20,18 @@ namespace lean {
    If \c given_args is provided, then the tactic fixes the given arguments.
    It creates a subgoal for each remaining argument.
 */
-tactic constructor_tactic(elaborate_fn const & elab, unsigned i, optional<unsigned> num_constructors, list<expr> const & given_args) {
+tactic constructor_tactic(elaborate_fn const & elab, unsigned _i, optional<unsigned> num_constructors, list<expr> const & given_args) {
     auto fn = [=](environment const & env, io_state const & ios, proof_state const & s) {
         goals const & gs = s.get_goals();
         if (empty(gs)) {
             throw_no_goal_if_enabled(s);
             return optional<proof_state>();
         }
+        if (_i == 0) {
+            throw_tactic_exception_if_enabled(s, "invalid 'constructor' tactic, index must be greater than zero");
+            return optional<proof_state>();
+        }
+        unsigned i = _i - 1;
         name_generator ngen = s.get_ngen();
         auto tc             = mk_type_checker(env, ngen.mk_child(), s.relax_main_opaque());
         goal const & g      = head(gs);
@@ -102,21 +107,21 @@ void initialize_constructor_tactic() {
                  });
     register_tac(name{"tactic", "split"},
                  [](type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *) {
-                     return constructor_tactic(fn, 0, optional<unsigned>(1), list<expr>());
+                     return constructor_tactic(fn, 1, optional<unsigned>(1), list<expr>());
                  });
     register_tac(name{"tactic", "left"},
                  [](type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *) {
-                     return constructor_tactic(fn, 0, optional<unsigned>(2), list<expr>());
+                     return constructor_tactic(fn, 1, optional<unsigned>(2), list<expr>());
                  });
     register_tac(name{"tactic", "right"},
                  [](type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *) {
-                     return constructor_tactic(fn, 1, optional<unsigned>(2), list<expr>());
+                     return constructor_tactic(fn, 2, optional<unsigned>(2), list<expr>());
                  });
     register_tac(name{"tactic", "existsi"},
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'existsi' tactic, invalid argument");
                      expr arg = get_tactic_expr_expr(app_arg(e));
-                     return constructor_tactic(fn, 0, optional<unsigned>(1), list<expr>(arg));
+                     return constructor_tactic(fn, 1, optional<unsigned>(1), list<expr>(arg));
                  });
 }
 

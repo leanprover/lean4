@@ -124,18 +124,23 @@ theorem eq_singlenton_of_perm_inv (a : A) {l : list A} : [a] ~ l → l = [a] :=
 have gen : ∀ l₂, perm l₂ l → l₂ = [a] → l = [a], from
   take l₂, assume p, perm.induction_on p
     (λ e, e)
-    (λ x l₁ l₂ p r e, list.no_confusion e (λ (e₁ : x = a) (e₂ : l₁ = []),
+    (λ x l₁ l₂ p r e,
       begin
+        injection e with e₁ e₂,
         rewrite [e₁, e₂ at p],
         have h₁ : l₂ = [], from eq_nil_of_perm_nil p,
         rewrite h₁
-      end))
-    (λ x y l e, list.no_confusion e (λ e₁ e₂, list.no_confusion e₂))
+      end)
+    (λ x y l e, by injection e; contradiction)
     (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂ e, r₂ (r₁ e)),
 assume p, gen [a] p rfl
 
 theorem eq_singlenton_of_perm (a b : A) : [a] ~ [b] → a = b :=
-assume p, list.no_confusion (eq_singlenton_of_perm_inv a p) (λ e₁ e₂, by rewrite e₁)
+assume p,
+begin
+  injection eq_singlenton_of_perm_inv a p with e₁ e₂,
+  rewrite e₁
+end
 
 theorem perm_rev : ∀ (l : list A), l ~ (reverse l)
 | []      := nil
@@ -236,7 +241,7 @@ definition decidable_perm_aux : ∀ (n : nat) (l₁ l₂ : list A), length l₁ 
   by_cases
     (assume xinl₂ : x ∈ l₂,
       let t₂ : list A := erase x l₂ in
-      have len_t₁       : length t₁ = n,                from nat.no_confusion H₁ (λ e, e),
+      have len_t₁       : length t₁ = n,                begin injection H₁ with e, exact e end,
       assert len_t₂_aux : length t₂ = pred (length l₂), from length_erase_of_mem xinl₂,
       assert len_t₂     : length t₂ = n,                by rewrite [len_t₂_aux, H₂],
       match decidable_perm_aux n t₁ t₂ len_t₁ len_t₂ with
@@ -267,10 +272,10 @@ private theorem discr {P : Prop} {a b : A} {l₁ l₂ l₃ : list A} :
     (l₂ = [] → a = b → l₁ = l₃ → P)        →
     (∀ t, l₂ = a::t → l₁ = t++(b::l₃) → P) → P :=
 match l₂ with
-| []   := λ e h₁ h₂, list.no_confusion e (λ e₁ e₂, h₁ rfl e₁ e₂)
+| []   := λ e h₁ h₂, by injection e with e₁ e₂; exact h₁ rfl e₁ e₂
 | h::t := λ e h₁ h₂,
   begin
-    apply list.no_confusion e, intro e₁ e₂,
+    injection e with e₁ e₂,
     rewrite e₁ at h₂,
     exact h₂ t rfl e₂
   end
@@ -285,19 +290,22 @@ private theorem discr₂ {P : Prop} {a b c : A} {l₁ l₂ l₃ : list A} :
     (∀ t, l₂ = a::b::t → l₁ = t++(c::l₃) → P)  → P :=
 match l₂ with
 | []   := λ e H₁ H₂ H₃,
-   list.no_confusion e (λ a_eq_c b_l₁_eq_l₃, H₁ rfl (eq.symm b_l₁_eq_l₃) a_eq_c)
+  begin
+    injection e with a_eq_c b_l₁_eq_l₃,
+    exact H₁ rfl (eq.symm b_l₁_eq_l₃) a_eq_c
+  end
 | [h₁] := λ e H₁ H₂ H₃,
   begin
     rewrite [append_cons at e, append_nil_left at e],
-    apply list.no_confusion e, intro a_eq_h₁ rest,
-    apply list.no_confusion rest, intro b_eq_c l₁_eq_l₃,
+    injection e    with a_eq_h₁ rest,
+    injection rest with b_eq_c l₁_eq_l₃,
     rewrite [a_eq_h₁ at H₂, b_eq_c at H₂, l₁_eq_l₃ at H₂],
     exact H₂ rfl rfl rfl
   end
 | h₁::h₂::t₂ := λ e H₁ H₂ H₃,
   begin
-    apply list.no_confusion e,    intro a_eq_h₁ rest,
-    apply list.no_confusion rest, intro b_eq_h₂ l₁_eq,
+    injection e    with a_eq_h₁ rest,
+    injection rest with b_eq_h₂ l₁_eq,
     rewrite [a_eq_h₁ at H₃, b_eq_h₂ at H₃],
     exact H₃ t₂ rfl l₁_eq
   end

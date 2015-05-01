@@ -297,15 +297,13 @@ match l₂ with
 | [h₁] := λ e H₁ H₂ H₃,
   begin
     rewrite [append_cons at e, append_nil_left at e],
-    injection e    with a_eq_h₁ rest,
-    injection rest with b_eq_c l₁_eq_l₃,
+    injection e  with a_eq_h₁ b_eq_c l₁_eq_l₃,
     rewrite [a_eq_h₁ at H₂, b_eq_c at H₂, l₁_eq_l₃ at H₂],
     exact H₂ rfl rfl rfl
   end
 | h₁::h₂::t₂ := λ e H₁ H₂ H₃,
   begin
-    injection e    with a_eq_h₁ rest,
-    injection rest with b_eq_h₂ l₁_eq,
+    injection e with a_eq_h₁ b_eq_h₂ l₁_eq,
     rewrite [a_eq_h₁ at H₃, b_eq_h₂ at H₃],
     exact H₃ t₂ rfl l₁_eq
   end

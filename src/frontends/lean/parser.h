@@ -194,7 +194,7 @@ class parser {
     expr parse_nud_notation();
     expr parse_led_notation(expr left);
     expr parse_nud();
-    expr parse_numeral_expr();
+    expr parse_numeral_expr(bool user_notation = true);
     expr parse_decimal_expr();
     expr parse_string_expr();
     expr parse_binder_core(binder_info const & bi, unsigned rbp);
@@ -228,6 +228,7 @@ class parser {
     elaborator_context mk_elaborator_context(environment const & env, local_level_decls const & lls, pos_info_provider const & pp);
 
     optional<expr> is_tactic_command(name & id);
+    expr parse_tactic_option_num();
     expr parse_tactic_led(expr left);
     expr parse_tactic_nud();
     expr mk_tactic_expr_list(buffer<expr> const & args, pos_info const & p);

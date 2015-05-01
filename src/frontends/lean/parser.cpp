@@ -1223,13 +1223,15 @@ expr parser::parse_id() {
     return id_to_expr(id, p);
 }
 
-expr parser::parse_numeral_expr() {
+expr parser::parse_numeral_expr(bool user_notation) {
     auto p = pos();
     mpz n = get_num_val().get_numerator();
     next();
     if (!m_has_num)
         m_has_num = has_num_decls(m_env);
-    list<expr> vals = get_mpz_notation(m_env, n);
+    list<expr> vals;
+    if (user_notation)
+        vals = get_mpz_notation(m_env, n);
     if (!*m_has_num && !vals) {
         throw parser_error("numeral cannot be encoded as expression, environment does not contain the type 'num' "
                            "nor notation was defined for the given numeral "
@@ -1370,6 +1372,11 @@ static bool is_tactic_opt_identifier_list_type(expr const & e) {
     return is_constant(e) && const_name(e) == get_tactic_opt_identifier_list_name();
 }
 
+static bool is_option_num(expr const & e) {
+    return is_app(e) && is_constant(app_fn(e)) && const_name(app_fn(e)) == get_option_name() &&
+        is_constant(app_arg(e)) && const_name(app_arg(e)) == get_num_name();
+}
+
 static bool is_tactic_command_type(expr e) {
     while (is_pi(e))
         e = binding_body(e);
@@ -1456,6 +1463,16 @@ expr parser::parse_tactic_opt_id_list() {
     }
 }
 
+expr parser::parse_tactic_option_num() {
+    auto p = pos();
+    if (curr_is_numeral()) {
+        expr n = parse_numeral_expr(false);
+        return mk_app(save_pos(mk_constant(get_option_some_name()), p), n, p);
+    } else {
+        return save_pos(mk_constant(get_option_none_name()), p);
+    }
+}
+
 expr parser::parse_tactic_nud() {
     if (curr_is_identifier()) {
         auto id_pos = pos();
@@ -1480,6 +1497,8 @@ expr parser::parse_tactic_nud() {
                     r = mk_app(r, parse_tactic_id_list(), id_pos);
                 } else if (is_tactic_opt_identifier_list_type(d)) {
                     r = mk_app(r, parse_tactic_opt_id_list(), id_pos);
+                } else if (unary && is_option_num(d)) {
+                    r = mk_app(r, parse_tactic_option_num(), id_pos);
                 } else {
                     unsigned prec = unary ? 1 : get_max_prec();
                     r = mk_app(r, parse_expr(prec), id_pos);

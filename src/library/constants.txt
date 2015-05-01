@@ -39,6 +39,9 @@ not
 num
 num.zero
 num.pos
+option
+option.some
+option.none
 or
 or.elim
 or.intro_left

@@ -228,21 +228,36 @@ static name_generator next_name_generator() {
     return name_generator(name(*g_tmp_prefix, r));
 }
 
+unsigned get_unsigned(type_checker & tc, expr const & e, expr const & ref) {
+    optional<mpz> k = to_num(e);
+    if (!k)
+        k = to_num(tc.whnf(e).first);
+    if (!k)
+        throw expr_to_tactic_exception(ref, "invalid tactic, second argument must be a numeral");
+    if (!k->is_unsigned_int())
+        throw expr_to_tactic_exception(ref,
+                                       "invalid tactic, second argument does not fit in "
+                                       "a machine unsigned integer");
+    return k->get_unsigned_int();
+}
+
 unsigned get_unsigned_arg(type_checker & tc, expr const & e, unsigned i) {
     buffer<expr> args;
     get_app_args(e, args);
     if (i >= args.size())
         throw expr_to_tactic_exception(e, "invalid tactic, insufficient number of arguments");
-    optional<mpz> k = to_num(args[i]);
-    if (!k)
-        k = to_num(tc.whnf(args[1]).first);
-    if (!k)
-        throw expr_to_tactic_exception(e, "invalid tactic, second argument must be a numeral");
-    if (!k->is_unsigned_int())
-        throw expr_to_tactic_exception(e,
-                                       "invalid tactic, second argument does not fit in "
-                                       "a machine unsigned integer");
-    return k->get_unsigned_int();
+    return get_unsigned(tc, args[i], e);
+}
+
+optional<unsigned> get_optional_unsigned(type_checker & tc, expr const & e) {
+    if (is_app(e) && is_constant(get_app_fn(e))) {
+        if (const_name(get_app_fn(e)) == get_option_some_name()) {
+            return optional<unsigned>(get_unsigned(tc, app_arg(e), e));
+        } else if (const_name(get_app_fn(e)) == get_option_none_name()) {
+            return optional<unsigned>();
+        }
+    }
+    throw expr_to_tactic_exception(e, "invalid tactic, argument is not an option num");
 }
 
 tactic expr_to_tactic(environment const & env, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {

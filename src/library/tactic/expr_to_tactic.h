@@ -30,6 +30,7 @@ tactic expr_to_tactic(environment const & env, elaborate_fn const & fn, expr con
 name const & get_tactic_name();
 
 unsigned get_unsigned_arg(type_checker & tc, expr const & e, unsigned i);
+optional<unsigned> get_optional_unsigned(type_checker & tc, expr const & e);
 
 expr const & get_tactic_expr_type();
 expr const & get_tactic_identifier_type();

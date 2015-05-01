@@ -3,6 +3,7 @@ hott.types
 
 Various datatypes.
 
+* [bool](bool.hlean)
 * [prod](prod.hlean)
 * [sigma](sigma.hlean)
 * [pi](pi.hlean)

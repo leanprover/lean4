@@ -8,7 +8,7 @@ Authors: Floris van Doorn
 Declaration of the circle
 -/
 
-import .sphere
+import .sphere types.bool types.eq
 
 open eq suspension bool sphere_index equiv equiv.ops
 
@@ -129,5 +129,24 @@ namespace circle
   theorem elim_type_loop (Pbase : Type) (Ploop : Pbase ≃ Pbase) :
     transport (elim_type Pbase Ploop) loop = Ploop :=
   by rewrite [tr_eq_cast_ap_fn,↑elim_type,elim_loop];apply cast_ua_fn
+
+  definition loop_neq_idp : loop ≠ idp :=
+  assume H : loop = idp,
+  have H2 : Π{A : Type₁} {a : A} (p : a = a), p = idp,
+    from λA a p, calc
+      p   = ap (circle.elim a p) loop : elim_loop
+      ... = ap (circle.elim a p) (refl base) : by rewrite H,
+  absurd !H2 eq_bnot_ne_idp
+
+  definition nonidp (x : circle) : x = x :=
+  circle.rec_on x loop
+    (calc
+      loop ▹ loop = loop⁻¹ ⬝ loop ⬝ loop : transport_eq_lr
+        ... = loop : by rewrite [con.left_inv, idp_con])
+
+  definition nonidp_neq_idp : nonidp ≠ (λx, idp) :=
+  assume H : nonidp = λx, idp,
+  have H2 : loop = idp, from apd10 H base,
+  absurd H2 loop_neq_idp
 
 end circle

@@ -6,4 +6,4 @@ Module: types.default
 Authors: Floris van Doorn
 -/
 
-import .sigma .prod .pi .equiv .fiber .eq .trunc .arrow .pointed
+import .sigma .prod .pi .equiv .fiber .eq .trunc .arrow .pointed .function .trunc .bool

@@ -179,7 +179,7 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
 proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s, expr const & e, constraint_seq const & cs) {
     buffer<constraint> tmp_cs;
     cs.linearize(tmp_cs);
-    return apply_tactic_core(env, ios, s, e, tmp_cs, true, AddAllSubgoals);
+    return apply_tactic_core(env, ios, s, e, tmp_cs, true, AddSubgoals);
 }
 
 tactic eassumption_tactic() {

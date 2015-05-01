@@ -9,7 +9,9 @@ General operations on functions.
 -/
 
 prelude
-import init.reserved_notation
+import init.reserved_notation .types
+
+open prod
 
 namespace function
 
@@ -17,6 +19,12 @@ variables {A B C D E : Type}
 
 definition compose [reducible] (f : B → C) (g : A → B) : A → C :=
 λx, f (g x)
+
+definition compose_right [reducible] (f : B → B → B) (g : A → B) : B → A → B :=
+λ b a, f b (g a)
+
+definition compose_left [reducible] (f : B → B → B) (g : A → B) : A → B → B :=
+λ a b, f (g a) b
 
 definition id [reducible] (a : A) : A :=
 a
@@ -39,6 +47,12 @@ definition flip [reducible] {C : A → B → Type} (f : Πx y, C x y) : Πy x, C
 
 definition app [reducible] {B : A → Type} (f : Πx, B x) (x : A) : B x :=
 f x
+
+definition curry [reducible] : (A × B → C) → A → B → C :=
+λ f a b, f (a, b)
+
+definition uncurry [reducible] : (A → B → C) → (A × B → C) :=
+λ f p, match p with (a, b) := f a b end
 
 precedence `∘'`:60
 precedence `on`:1

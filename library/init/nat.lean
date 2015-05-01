@@ -31,8 +31,8 @@ namespace nat
 
   protected definition has_decidable_eq [instance] : ∀ x y : nat, decidable (x = y)
   | has_decidable_eq zero     zero     := inl rfl
-  | has_decidable_eq (succ x) zero     := inr (λ h, nat.no_confusion h)
-  | has_decidable_eq zero     (succ y) := inr (λ h, nat.no_confusion h)
+  | has_decidable_eq (succ x) zero     := inr (by contradiction)
+  | has_decidable_eq zero     (succ y) := inr (by contradiction)
   | has_decidable_eq (succ x) (succ y) :=
       if H : x = y
       then inl (eq.rec_on H rfl)

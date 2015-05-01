@@ -9,16 +9,16 @@ Authors: Leonardo de Moura
 prelude
 import init.reserved_notation
 
+/- not -/
+
 definition not.{l} (a : Type.{l}) := a → empty.{l}
 prefix `¬` := not
 
-definition absurd {a : Type} {b : Type} (H₁ : a) (H₂ : ¬a) : b :=
+definition absurd {a b : Type} (H₁ : a) (H₂ : ¬a) : b :=
 empty.rec (λ e, b) (H₂ H₁)
 
 definition mt {a b : Type} (H₁ : a → b) (H₂ : ¬b) : ¬a :=
 assume Ha : a, absurd (H₁ Ha) H₂
-
-/- not -/
 
 protected definition not_empty : ¬ empty :=
 assume H : empty, H
@@ -26,9 +26,9 @@ assume H : empty, H
 definition not_not_intro {a : Type} (Ha : a) : ¬¬a :=
 assume Hna : ¬a, absurd Ha Hna
 
-definition not.intro {a : Type} (H : a → empty) : ¬a := H
-
 definition not.elim {a : Type} (H₁ : ¬a) (H₂ : a) : empty := H₁ H₂
+
+definition not.intro {a : Type} (H : a → empty) : ¬a := H
 
 definition not_not_of_not_implies {a b : Type} (H : ¬(a → b)) : ¬¬a :=
 assume Hna : ¬a, absurd (assume Ha : a, absurd Ha Hna) H
@@ -42,8 +42,7 @@ notation a = b := eq a b
 definition rfl {A : Type} {a : A} := eq.refl a
 
 namespace eq
-  variables {A : Type}
-  variables {a b c a' : A}
+  variables {A : Type} {a b c : A}
 
   definition subst {P : A → Type} (H₁ : a = b) (H₂ : P a) : P b :=
   eq.rec H₂ H₁
@@ -61,7 +60,7 @@ namespace eq
   end ops
 end eq
 
-theorem congr {A B : Type} {f₁ f₂ : A → B} {a₁ a₂ : A} (H₁ : f₁ = f₂) (H₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ :=
+definition congr {A B : Type} {f₁ f₂ : A → B} {a₁ a₂ : A} (H₁ : f₁ = f₂) (H₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ :=
 eq.subst H₁ (eq.subst H₂ rfl)
 
 section

@@ -8,7 +8,7 @@ Authors: Floris van Doorn, Jakob von Raumer
 
 import .iso types.pi
 
-open function category eq prod equiv is_equiv sigma sigma.ops is_trunc funext iso
+open function category eq prod prod.ops equiv is_equiv sigma sigma.ops is_trunc funext iso
 open pi
 
 structure functor (C D : Precategory) : Type :=

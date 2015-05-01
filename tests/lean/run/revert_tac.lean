@@ -12,7 +12,7 @@ theorem foo1 {A : Type} (a b c : A) (P : A → Prop) : P a → a = b → P b :=
 begin
   intros [Hp, Heq],
   revert Hp,
-  apply (eq.rec_on Heq),
+  eapply (eq.rec_on Heq),
   intro Hpa,
   apply Hpa
 end

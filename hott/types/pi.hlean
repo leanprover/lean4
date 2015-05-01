@@ -158,7 +158,7 @@ namespace pi
       [H : ∀a, is_trunc n (B a)] : is_trunc n (Πa, B a) :=
   begin
     revert B H,
-    apply (trunc_index.rec_on n),
+    eapply (trunc_index.rec_on n),
       {intro B H,
         fapply is_contr.mk,
           intro a, apply center,

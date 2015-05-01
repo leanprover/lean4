@@ -204,7 +204,7 @@ namespace functor
     (q : (λ(a b : C) (f : hom a b), hom_of_eq (p b) ∘ F₁ f ∘ inv_of_eq (p a)) ∼3 to_fun_hom F₂) (c : C) :
     ap010 to_fun_ob (functor_eq p q) c = p c :=
   begin
-    cases F₂, revert q, apply (homotopy.rec_on p), clear p, esimp, intro p q,
+    cases F₂, revert q, eapply (homotopy.rec_on p), clear p, esimp, intro p q,
     apply sorry,
     --apply (homotopy3.rec_on q), clear q, intro q,
     --cases p, --TODO: report: this fails

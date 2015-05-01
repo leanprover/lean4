@@ -13,7 +13,7 @@ begin
   intros  [Hp, Heq],
   reverts [Heq, Hp],
   intro Heq,
-  apply (eq.rec_on Heq),
+  eapply (eq.rec_on Heq),
   intro Pa,
   apply Pa
 end

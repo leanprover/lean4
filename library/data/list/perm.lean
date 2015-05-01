@@ -138,7 +138,7 @@ assume p, gen [a] p rfl
 theorem eq_singlenton_of_perm (a b : A) : [a] ~ [b] → a = b :=
 assume p,
 begin
-  injection eq_singlenton_of_perm_inv a p with e₁ e₂,
+  injection eq_singlenton_of_perm_inv a p with e₁,
   rewrite e₁
 end
 

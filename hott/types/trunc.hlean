@@ -58,7 +58,7 @@ namespace is_trunc
     (n : trunc_index) [HA : is_trunc n A] : is_trunc n B :=
   begin
     revert A B f Hf HA,
-    apply (trunc_index.rec_on n),
+    eapply (trunc_index.rec_on n),
     { clear n, intro A B f Hf HA, cases Hf with g ε, fapply is_contr.mk,
       { exact f (center A)},
       { intro b, apply concat,
@@ -154,7 +154,7 @@ namespace trunc
     fapply equiv.MK,
     { intro p, cases p, apply (trunc.rec_on aa),
       intro a, esimp [trunc_eq_type,trunc.rec_on], exact (tr idp)},
-    { apply (trunc.rec_on aa'), apply (trunc.rec_on aa),
+    { eapply (trunc.rec_on aa'), eapply (trunc.rec_on aa),
       intro a a' x, esimp [trunc_eq_type, trunc.rec_on] at x,
       apply (trunc.rec_on x), intro p, exact (ap tr p)},
     {
@@ -173,14 +173,14 @@ namespace trunc
   definition is_trunc_trunc_of_is_trunc [instance] [priority 500] (A : Type)
     (n m : trunc_index) [H : is_trunc n A] : is_trunc n (trunc m A) :=
   begin
-    revert A m H, apply (trunc_index.rec_on n),
+    revert A m H, eapply (trunc_index.rec_on n),
     { clear n, intro A m H, apply is_contr_equiv_closed,
       { apply equiv_trunc, apply (@is_trunc_of_leq _ -2), exact unit.star} },
     { clear n, intro n IH A m H, cases m with m,
       { apply (@is_trunc_of_leq _ -2), exact unit.star},
       { apply is_trunc_succ_intro, intro aa aa',
         apply (@trunc.rec_on _ _ _ aa  (λy, !is_trunc_succ_of_is_hprop)),
-        apply (@trunc.rec_on _ _ _ aa' (λy, !is_trunc_succ_of_is_hprop)),
+        eapply (@trunc.rec_on _ _ _ aa' (λy, !is_trunc_succ_of_is_hprop)),
         intro a a', apply (is_trunc_equiv_closed_rev),
         { apply tr_eq_tr_equiv},
         { exact (IH _ _ _)}}}

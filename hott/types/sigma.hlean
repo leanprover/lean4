@@ -365,7 +365,7 @@ namespace sigma
       [HA : is_trunc n A] [HB : Πa, is_trunc n (B a)] : is_trunc n (Σa, B a) :=
   begin
   revert A B HA HB,
-  apply (trunc_index.rec_on n),
+  eapply (trunc_index.rec_on n),
     intro A B HA HB,
       fapply is_trunc.is_trunc_equiv_closed,
         apply equiv.symm,

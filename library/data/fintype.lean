@@ -181,7 +181,7 @@ private theorem mem_ltype_elems {A : Type} {s : list A} {a : ⟪s⟫}
    begin
       revert vaeqb h,
       -- TODO(Leo): check why 'cases a with va, ma' produces an incorrect proof
-      apply as_type.cases_on a,
+      eapply as_type.cases_on a,
       intro va ma vaeqb,
       rewrite -vaeqb, intro h,
       apply mem_cons

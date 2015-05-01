@@ -259,7 +259,7 @@ theorem zip_unzip : ∀ (l : list (A × B)), zip (pr₁ (unzip l)) (pr₂ (unzip
     rewrite unzip_cons,
     have r : zip (pr₁ (unzip l)) (pr₂ (unzip l)) = l, from zip_unzip l,
     revert r,
-    apply prod.cases_on (unzip l),
+    eapply prod.cases_on (unzip l),
     intro la lb r,
     rewrite -r
   end

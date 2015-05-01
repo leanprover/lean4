@@ -40,7 +40,7 @@ namespace is_trunc
   definition is_hprop_is_trunc [instance] (n : trunc_index) :
     Π (A : Type), is_hprop (is_trunc n A) :=
   begin
-    apply (trunc_index.rec_on n),
+    eapply (trunc_index.rec_on n),
     { intro A,
       apply is_trunc_is_equiv_closed,
       { apply equiv.to_is_equiv, apply is_contr.sigma_char},

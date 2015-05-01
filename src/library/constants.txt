@@ -63,6 +63,7 @@ tactic
 tactic.all_goals
 tactic.apply
 tactic.assert_hypothesis
+tactic.eapply
 tactic.fapply
 tactic.eassumption
 tactic.and_then

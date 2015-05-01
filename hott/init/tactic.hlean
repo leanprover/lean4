@@ -100,6 +100,12 @@ opaque definition assert_hypothesis (id : identifier) (e : expr) : tactic := bui
 
 opaque definition lettac (id : identifier) (e : expr) : tactic := builtin
 
+opaque definition constructor (k : num) : tactic := builtin
+opaque definition existsi (e : expr)    : tactic := builtin
+opaque definition split                 : tactic := builtin
+opaque definition left                  : tactic := builtin
+opaque definition right                 : tactic := builtin
+
 definition try         (t : tactic) : tactic := or_else t id
 definition repeat1     (t : tactic) : tactic := and_then t (repeat t)
 definition focus       (t : tactic) : tactic := focus_at t 0

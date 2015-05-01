@@ -1,0 +1,59 @@
+constr_tac_errors.lean:3:2: error:invalid 'constructor' tactic, goal is an inductive datatype, but it does not have 1 constructor(s)
+proof state:
+
+⊢ nat
+constr_tac_errors.lean:4:0: error: don't know how to synthesize placeholder
+
+⊢ nat
+constr_tac_errors.lean:4:0: error: failed to add declaration '14.0' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  ?M_1
+constr_tac_errors.lean:12:2: error:invalid 'constructor' tactic, goal is an inductive datatype, but it does not have 2 constructor(s)
+proof state:
+a b : Prop,
+Ha : a,
+Hb : b
+⊢ a ∧ b
+constr_tac_errors.lean:13:0: error: don't know how to synthesize placeholder
+a b : Prop
+⊢ a → b → a ∧ b
+constr_tac_errors.lean:13:0: error: failed to add declaration '14.2' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  λ (a b : Prop),
+    ?M_1
+constr_tac_errors.lean:18:2: error:invalid 'constructor' tactic, goal is an inductive datatype, but it does not have 2 constructor(s)
+proof state:
+a b : Prop,
+Ha : a,
+Hb : b
+⊢ a ∧ b
+constr_tac_errors.lean:19:0: error: don't know how to synthesize placeholder
+a b : Prop
+⊢ a → b → a ∧ b
+constr_tac_errors.lean:19:0: error: failed to add declaration '14.3' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  λ (a b : Prop),
+    ?M_1
+constr_tac_errors.lean:31:2: error:invalid 'constructor' tactic, too many arguments have been provided
+proof state:
+a b : Prop,
+Ha : a,
+Hb : b
+⊢ unit
+constr_tac_errors.lean:32:0: error: don't know how to synthesize placeholder
+a b : Prop
+⊢ a → b → unit
+constr_tac_errors.lean:32:0: error: failed to add declaration '14.5' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  λ (a b : Prop),
+    ?M_1
+constr_tac_errors.lean:39:2: error:invalid 'constructor' tactic, goal is not an inductive datatype
+proof state:
+
+⊢ nat → nat
+constr_tac_errors.lean:40:0: error: don't know how to synthesize placeholder
+
+⊢ nat → nat
+constr_tac_errors.lean:40:0: error: failed to add declaration '14.7' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  ?M_1

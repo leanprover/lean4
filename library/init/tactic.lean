@@ -43,7 +43,7 @@ opaque definition beta        : tactic := builtin
 opaque definition info        : tactic := builtin
 opaque definition whnf        : tactic := builtin
 opaque definition contradiction : tactic := builtin
-opaque definition exfalso : tactic := builtin
+opaque definition exfalso     : tactic := builtin
 opaque definition rotate_left (k : num) := builtin
 opaque definition rotate_right (k : num) := builtin
 definition rotate (k : num) := rotate_left k
@@ -99,6 +99,12 @@ opaque definition change (e : expr) : tactic := builtin
 opaque definition assert_hypothesis (id : identifier) (e : expr) : tactic := builtin
 
 opaque definition lettac (id : identifier) (e : expr) : tactic := builtin
+
+opaque definition constructor (k : num) : tactic := builtin
+opaque definition existsi (e : expr)    : tactic := builtin
+opaque definition split                 : tactic := builtin
+opaque definition left                  : tactic := builtin
+opaque definition right                 : tactic := builtin
 
 definition try         (t : tactic) : tactic := or_else t id
 definition repeat1     (t : tactic) : tactic := and_then t (repeat t)

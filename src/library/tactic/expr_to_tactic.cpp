@@ -228,6 +228,23 @@ static name_generator next_name_generator() {
     return name_generator(name(*g_tmp_prefix, r));
 }
 
+unsigned get_unsigned_arg(type_checker & tc, expr const & e, unsigned i) {
+    buffer<expr> args;
+    get_app_args(e, args);
+    if (i >= args.size())
+        throw expr_to_tactic_exception(e, "invalid tactic, insufficient number of arguments");
+    optional<mpz> k = to_num(args[i]);
+    if (!k)
+        k = to_num(tc.whnf(args[1]).first);
+    if (!k)
+        throw expr_to_tactic_exception(e, "invalid tactic, second argument must be a numeral");
+    if (!k->is_unsigned_int())
+        throw expr_to_tactic_exception(e,
+                                       "invalid tactic, second argument does not fit in "
+                                       "a machine unsigned integer");
+    return k->get_unsigned_int();
+}
+
 tactic expr_to_tactic(environment const & env, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
     bool memoize             = false;
     type_checker tc(env, next_name_generator(), memoize);
@@ -277,16 +294,7 @@ void register_unary_num_tac(name const & n, std::function<tactic(tactic const &,
             if (args.size() != 2)
                 throw expr_to_tactic_exception(e, "invalid tactic, it must have two arguments");
             tactic t = expr_to_tactic(tc, fn, args[0], p);
-            optional<mpz> k = to_num(args[1]);
-            if (!k)
-                k = to_num(tc.whnf(args[1]).first);
-            if (!k)
-                throw expr_to_tactic_exception(e, "invalid tactic, second argument must be a numeral");
-            if (!k->is_unsigned_int())
-                throw expr_to_tactic_exception(e,
-                                               "invalid tactic, second argument does not fit in "
-                                               "a machine unsigned integer");
-            return f(t, k->get_unsigned_int());
+            return f(t, get_unsigned_arg(tc, e, 1));
         });
 }
 
@@ -296,16 +304,7 @@ void register_num_tac(name const & n, std::function<tactic(unsigned k)> f) {
             get_app_args(e, args);
             if (args.size() != 1)
                 throw expr_to_tactic_exception(e, "invalid tactic, it must have one argument");
-            optional<mpz> k = to_num(args[0]);
-            if (!k)
-                k = to_num(tc.whnf(args[0]).first);
-            if (!k)
-                throw expr_to_tactic_exception(e, "invalid tactic, argument must be a numeral");
-            if (!k->is_unsigned_int())
-                throw expr_to_tactic_exception(e,
-                                               "invalid tactic, argument does not fit in "
-                                               "a machine unsigned integer");
-            return f(k->get_unsigned_int());
+            return f(get_unsigned_arg(tc, e, 0));
         });
 }
 

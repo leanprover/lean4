@@ -57,6 +57,9 @@ namespace eq
   end ops
 end eq
 
+theorem congr {A B : Type} {f₁ f₂ : A → B} {a₁ a₂ : A} (H₁ : f₁ = f₂) (H₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ :=
+eq.subst H₁ (eq.subst H₂ rfl)
+
 section
   variables {A : Type} {a b c: A}
   open eq.ops

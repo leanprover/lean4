@@ -58,9 +58,6 @@ section
   theorem congr_arg (f : A → B) (H : a = a') : f a = f a' :=
   H ▸ rfl
 
-  theorem congr {f g : A → B} (H₁ : f = g) (H₂ : a = a') : f a = g a' :=
-  H₁ ▸ H₂ ▸ rfl
-
   theorem congr_arg2 (f : A → B → C) (Ha : a = a') (Hb : b = b') : f a b = f a' b' :=
   congr (congr_arg f Ha) Hb
 

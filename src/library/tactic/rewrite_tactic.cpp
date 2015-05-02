@@ -1279,14 +1279,14 @@ class rewrite_fn {
         return false;
     }
 
-    bool process_rewrite_single_step(expr const & orig_elem, expr const & pattern) {
+    bool process_rewrite_single_step(expr const & elem, expr const & orig_elem, expr const & pattern) {
         check_system("rewrite tactic");
         rewrite_info const & info = get_rewrite_info(orig_elem);
         location const & loc      = info.get_location();
         if (loc.is_goal_only())
             return process_rewrite_goal(orig_elem, pattern, *loc.includes_goal());
         expr_struct_set used_hyps;
-        collect_locals(orig_elem, used_hyps);
+        collect_locals(elem, used_hyps);
         // We collect hypotheses used in the rewrite step. They are not rewritten.
         // That is, we don't use them to rewrite themselves.
         // We need to do that to avoid the problem described on issue #548.
@@ -1323,11 +1323,11 @@ class rewrite_fn {
         unsigned i, num;
         switch (info.get_multiplicity()) {
         case rewrite_info::Once:
-            return process_rewrite_single_step(orig_elem, pattern);
+            return process_rewrite_single_step(elem, orig_elem, pattern);
         case rewrite_info::AtMostN:
             num = info.num();
             for (i = 0; i < std::min(num, m_max_iter); i++) {
-                if (!process_rewrite_single_step(orig_elem, pattern))
+                if (!process_rewrite_single_step(elem, orig_elem, pattern))
                     return true;
             }
             check_max_iter(i);
@@ -1335,22 +1335,22 @@ class rewrite_fn {
         case rewrite_info::ExactlyN:
             num = info.num();
             for (i = 0; i < std::min(num, m_max_iter); i++) {
-                if (!process_rewrite_single_step(orig_elem, pattern))
+                if (!process_rewrite_single_step(elem, orig_elem, pattern))
                     return false;
             }
             check_max_iter(i);
             return true;
         case rewrite_info::ZeroOrMore:
             for (i = 0; i < m_max_iter; i++) {
-                if (!process_rewrite_single_step(orig_elem, pattern))
+                if (!process_rewrite_single_step(elem, orig_elem, pattern))
                     return true;
             }
             throw_max_iter_exceeded();
         case rewrite_info::OneOrMore:
-            if (!process_rewrite_single_step(orig_elem, pattern))
+            if (!process_rewrite_single_step(elem, orig_elem, pattern))
                 return false;
             for (i = 0; i < m_max_iter; i++) {
-                if (!process_rewrite_single_step(orig_elem, pattern))
+                if (!process_rewrite_single_step(elem, orig_elem, pattern))
                     return true;
             }
             throw_max_iter_exceeded();
@@ -1432,7 +1432,8 @@ class rewrite_fn {
                 throw tactic_exception("rewrite step failed", some_expr(elem), curr_ps,
                                        [=](formatter const &) {
                                            if (type_error)
-                                               return format("invalid 'rewrite' tactic, rewrite step produced type incorrect term");
+                                               return format("invalid 'rewrite' tactic, "
+                                                             "rewrite step produced type incorrect term");
                                            else
                                                return format("invalid 'rewrite' tactic, rewrite step failed");
                                        });
@@ -1442,7 +1443,8 @@ class rewrite_fn {
                                        [=](formatter const & fmt) {
                                            format r;
                                            if (type_error)
-                                               r += format("invalid 'rewrite' tactic, step produced type incorrect term, details: ");
+                                               r += format("invalid 'rewrite' tactic, "
+                                                           "step produced type incorrect term, details: ");
                                            else
                                                r += format("invalid 'rewrite' tactic, ");
                                            r += saved_trace.pp(fmt);

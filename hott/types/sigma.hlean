@@ -277,7 +277,7 @@ namespace sigma
     begin intro uc, cases uc with u c, cases u, reflexivity end
     begin intro av, cases av with a v, cases v, reflexivity end)
 
-  open prod
+  open prod prod.ops
   definition assoc_equiv_prod (C : (A × A') → Type) : (Σa a', C (a,a')) ≃ (Σu, C u) :=
   equiv.mk _ (adjointify
     (λav, ⟨(av.1, av.2.1), av.2.2⟩)

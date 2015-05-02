@@ -66,10 +66,12 @@ definition pair := @prod.mk
 
 namespace prod
 
-  infixr * := prod
+  -- notation for n-ary tuples
+  notation `(` h `,` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
   infixr × := prod
 
   namespace ops
+  infixr * := prod
   postfix `.1`:(max+1) := pr1
   postfix `.2`:(max+1) := pr2
   abbreviation pr₁ := @pr1
@@ -83,13 +85,9 @@ namespace prod
 
   end low_precedence_times
 
+  open prod.ops
+
   definition flip {A B : Type} (a : A × B) : B × A := pair (pr2 a) (pr1 a)
-
-  notation `pr₁` := pr1
-  notation `pr₂` := pr2
-
-  -- notation for n-ary tuples
-  notation `(` h `,` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
 
   open well_founded
 

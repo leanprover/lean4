@@ -10,7 +10,7 @@ Ported from Coq HoTT
 
 prelude
 import .trunc .equiv .ua
-open eq is_trunc sigma function is_equiv equiv prod unit
+open eq is_trunc sigma function is_equiv equiv prod unit prod.ops
 
 /-
    We now prove that funext follows from a couple of weaker-looking forms

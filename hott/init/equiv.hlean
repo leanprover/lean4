@@ -62,6 +62,7 @@ namespace is_equiv
                )
 
   -- Any function equal to an equivalence is an equivlance as well.
+  variable {f}
   definition is_equiv_eq_closed [Hf : is_equiv f] (Heq : f = f') : (is_equiv f') :=
      eq.rec_on Heq Hf
 
@@ -146,7 +147,7 @@ namespace is_equiv
   include Hf
 
   --The inverse of an equivalence is, again, an equivalence.
-  definition is_equiv_inv [instance] : (is_equiv f⁻¹) :=
+  definition is_equiv_inv [instance] : is_equiv f⁻¹ :=
   adjointify f⁻¹ f (left_inv f) (right_inv f)
 
   definition cancel_right (g : B → C) [Hgf : is_equiv (g ∘ f)] : (is_equiv g) :=
@@ -249,8 +250,8 @@ namespace equiv
   protected definition trans (f : A ≃ B) (g: B ≃ C) : A ≃ C :=
   equiv.mk (g ∘ f) !is_equiv_compose
 
-  definition equiv_of_eq_fn_of_equiv (f : A ≃ B) (f' : A → B) (Heq : f = f') : A ≃ B :=
-  equiv.mk f' (is_equiv_eq_closed f Heq)
+  definition equiv_of_eq_fn_of_equiv (f : A ≃ B) {f' : A → B} (Heq : f = f') : A ≃ B :=
+  equiv.mk f' (is_equiv_eq_closed Heq)
 
   definition eq_equiv_fn_eq (f : A → B) [H : is_equiv f] (a b : A) : (a = b) ≃ (f a = f b) :=
   equiv.mk (ap f) !is_equiv_ap

@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/tactic/constructor_tactic.h"
 #include "library/tactic/injection_tactic.h"
 #include "library/tactic/congruence_tactic.h"
+#include "library/tactic/equivalence_tactics.h"
 
 namespace lean {
 void initialize_tactic_module() {
@@ -55,9 +56,11 @@ void initialize_tactic_module() {
     initialize_constructor_tactic();
     initialize_injection_tactic();
     initialize_congruence_tactic();
+    initialize_equivalence_tactics();
 }
 
 void finalize_tactic_module() {
+    finalize_equivalence_tactics();
     finalize_congruence_tactic();
     finalize_injection_tactic();
     finalize_constructor_tactic();

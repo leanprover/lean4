@@ -4,7 +4,7 @@
 -- Author: Floris van Doorn
 ----------------------------------------------------------------------------------------------------
 import logic algebra.binary
-open tactic binary eq.ops eq
+open binary eq.ops eq
 open decidable
 
 namespace experiment
@@ -23,7 +23,7 @@ definition to_nat [coercion] (n : num) : ℕ
 := num.rec zero (λ n, pos_num.rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
 
 namespace helper_tactics
-  definition apply_refl := apply @eq.refl
+  definition apply_refl := tactic.apply @eq.refl
   tactic_hint apply_refl
 end helper_tactics
 open helper_tactics

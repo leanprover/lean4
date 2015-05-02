@@ -136,7 +136,7 @@
                 "generalize" "generalizes" "clear" "clears" "revert" "reverts" "back" "beta" "done" "exact" "rexact"
                 "refine" "repeat" "whnf" "rotate" "rotate_left" "rotate_right" "inversion" "cases" "rewrite" "esimp"
                 "unfold" "change" "check_expr" "contradiction" "exfalso" "split" "existsi" "constructor" "left" "right"
-                "injection"))
+                "injection" "congruence"))
            word-end)
       (1 'font-lock-constant-face))
      ;; Types

@@ -13,6 +13,7 @@ name const * g_bool_ff = nullptr;
 name const * g_bool_tt = nullptr;
 name const * g_char = nullptr;
 name const * g_char_mk = nullptr;
+name const * g_congr = nullptr;
 name const * g_dite = nullptr;
 name const * g_empty = nullptr;
 name const * g_empty_rec = nullptr;
@@ -139,6 +140,7 @@ void initialize_constants() {
     g_bool_tt = new name{"bool", "tt"};
     g_char = new name{"char"};
     g_char_mk = new name{"char", "mk"};
+    g_congr = new name{"congr"};
     g_dite = new name{"dite"};
     g_empty = new name{"empty"};
     g_empty_rec = new name{"empty", "rec"};
@@ -266,6 +268,7 @@ void finalize_constants() {
     delete g_bool_tt;
     delete g_char;
     delete g_char_mk;
+    delete g_congr;
     delete g_dite;
     delete g_empty;
     delete g_empty_rec;
@@ -392,6 +395,7 @@ name const & get_bool_ff_name() { return *g_bool_ff; }
 name const & get_bool_tt_name() { return *g_bool_tt; }
 name const & get_char_name() { return *g_char; }
 name const & get_char_mk_name() { return *g_char_mk; }
+name const & get_congr_name() { return *g_congr; }
 name const & get_dite_name() { return *g_dite; }
 name const & get_empty_name() { return *g_empty; }
 name const & get_empty_rec_name() { return *g_empty_rec; }

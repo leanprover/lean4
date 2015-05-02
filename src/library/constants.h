@@ -15,6 +15,7 @@ name const & get_bool_ff_name();
 name const & get_bool_tt_name();
 name const & get_char_name();
 name const & get_char_mk_name();
+name const & get_congr_name();
 name const & get_dite_name();
 name const & get_empty_name();
 name const & get_empty_rec_name();

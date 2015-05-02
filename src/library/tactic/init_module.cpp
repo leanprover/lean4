@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "library/tactic/exfalso_tactic.h"
 #include "library/tactic/constructor_tactic.h"
 #include "library/tactic/injection_tactic.h"
+#include "library/tactic/congruence_tactic.h"
 
 namespace lean {
 void initialize_tactic_module() {
@@ -53,9 +54,11 @@ void initialize_tactic_module() {
     initialize_exfalso_tactic();
     initialize_constructor_tactic();
     initialize_injection_tactic();
+    initialize_congruence_tactic();
 }
 
 void finalize_tactic_module() {
+    finalize_congruence_tactic();
     finalize_injection_tactic();
     finalize_constructor_tactic();
     finalize_exfalso_tactic();

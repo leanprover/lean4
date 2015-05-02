@@ -1288,7 +1288,7 @@ class rewrite_fn {
         if (loc.is_goal_only())
             return process_rewrite_goal(orig_elem, pattern, *loc.includes_goal());
         expr_struct_set used_hyps;
-        collect_locals(elem, used_hyps);
+        collect_locals(elem, used_hyps, true);
         // We collect hypotheses used in the rewrite step. They are not rewritten.
         // That is, we don't use them to rewrite themselves.
         // We need to do that to avoid the problem described on issue #548.

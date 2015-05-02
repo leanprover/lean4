@@ -11,7 +11,11 @@ Author: Leonardo de Moura
 namespace lean {
 void collect_univ_params_core(level const & l, name_set & r);
 name_set collect_univ_params(expr const & e, name_set const & ls = name_set());
-void collect_locals(expr const & e, expr_struct_set & ls);
+/**
+  \remark If restricted is true, then locals in meta-variable applications and local constants
+  are ignored.
+*/
+void collect_locals(expr const & e, expr_struct_set & ls, bool restricted = false);
 level_param_names to_level_param_names(name_set const & ls);
 
 /** \brief Return true iff \c [begin_locals, end_locals) contains \c local */

@@ -49,14 +49,18 @@ level_param_names to_level_param_names(name_set const & ls) {
     return r;
 }
 
-void collect_locals(expr const & e, expr_struct_set & ls) {
+void collect_locals(expr const & e, expr_struct_set & ls, bool restricted) {
     if (!has_local(e))
         return;
     for_each(e, [&](expr const & e, unsigned) {
             if (!has_local(e))
                 return false;
-            if (is_local(e))
+            if (is_local(e)) {
                 ls.insert(e);
+                return !restricted; // search type if not restricted
+            }
+            if (is_meta(e))
+                return !restricted; // search type if not restricted
             return true;
         });
 }

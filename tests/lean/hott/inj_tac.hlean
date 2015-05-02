@@ -11,7 +11,7 @@ end
 example (A : Type) (n : nat) (v w : vector A n) (a : A) (b : A) :
         a :: v = b :: w →  b = a :=
 begin
-  intro H, injection H with aeqb beqw,
+  intro H, injection H with aeqb neqn beqw,
   rewrite aeqb
 end
 

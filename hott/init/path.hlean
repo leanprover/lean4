@@ -201,18 +201,14 @@ namespace eq
   notation f ∼ g := homotopy f g
 
   namespace homotopy
-  protected definition refl [reducible] (f : Πx, P x) : f ∼ f :=
+  protected definition refl [refl] [reducible] (f : Πx, P x) : f ∼ f :=
   λ x, idp
 
-  protected definition symm [reducible] {f g : Πx, P x} (H : f ∼ g) : g ∼ f :=
+  protected definition symm [symm] [reducible] {f g : Πx, P x} (H : f ∼ g) : g ∼ f :=
   λ x, (H x)⁻¹
 
-  protected definition trans [reducible] {f g h : Πx, P x} (H1 : f ∼ g) (H2 : g ∼ h) : f ∼ h :=
+  protected definition trans [trans] [reducible] {f g h : Πx, P x} (H1 : f ∼ g) (H2 : g ∼ h) : f ∼ h :=
   λ x, H1 x ⬝ H2 x
-
-  calc_refl refl
-  calc_symm symm
-  calc_trans trans
   end homotopy
 
   definition apd10 {f g : Πx, P x} (H : f = g) : f ∼ g :=
@@ -232,10 +228,9 @@ namespace eq
 
   /- calc enviroment -/
 
-  calc_subst transport
-  calc_trans concat
-  calc_refl refl
-  calc_symm inverse
+  attribute transport [subst]
+  attribute concat [trans]
+  attribute inverse [symm]
 
   /- More theorems for moving things around in equations -/
 

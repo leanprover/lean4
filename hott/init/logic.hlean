@@ -75,10 +75,10 @@ section
   H₁⁻¹ ▸ H₂
 end
 
-calc_subst eq.subst
-calc_refl  eq.refl
-calc_trans eq.trans
-calc_symm  eq.symm
+attribute eq.subst [subst]
+attribute eq.refl [refl]
+attribute eq.trans [trans]
+attribute eq.symm [symm]
 
 namespace lift
   definition down_up.{l₁ l₂} {A : Type.{l₁}} (a : A) : down (up.{l₁ l₂} a) = a :=
@@ -125,8 +125,8 @@ section
   assume H₁ H₂, H₂ ▸ H₁
 end
 
-calc_trans ne.of_eq_of_ne
-calc_trans ne.of_ne_of_eq
+attribute ne.of_eq_of_ne [trans]
+attribute ne.of_ne_of_eq [trans]
 
 /- iff -/
 
@@ -187,8 +187,9 @@ namespace iff
   iff.intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
 end iff
 
-calc_refl iff.refl
-calc_trans iff.trans
+attribute iff.refl [refl]
+attribute iff.trans [trans]
+attribute iff.symm [symm]
 
 /- inhabited -/
 

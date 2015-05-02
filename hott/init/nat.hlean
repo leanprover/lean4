@@ -88,7 +88,7 @@ namespace nat
     (lt.base zero)
     (λ a (hlt : zero < succ a), lt.step hlt)
 
-  definition lt.trans {a b c : nat} (H₁ : a < b) (H₂ : b < c) : a < c :=
+  definition lt.trans [trans] {a b c : nat} (H₁ : a < b) (H₂ : b < c) : a < c :=
   have aux : ∀ {d}, d < c → b = d → a < b → a < c, from
     (λ d H, lt.rec_on H
       (λ h₁ h₂, lt.step (eq.rec_on h₁ h₂))
@@ -199,47 +199,26 @@ namespace nat
   definition succ_le_of_lt {a b : nat} (h : a < b) : succ a ≤ b :=
   lt.succ_of_lt h
 
-  definition le.trans {a b c : nat} (h₁ : a ≤ b) (h₂ : b ≤ c) : a ≤ c :=
+  definition le.trans [trans] {a b c : nat} (h₁ : a ≤ b) (h₂ : b ≤ c) : a ≤ c :=
   begin
     cases h₁ with b' hlt,
       apply h₂,
       apply lt.trans hlt h₂
   end
 
-  definition lt.of_le_of_lt {a b c : nat} (h₁ : a ≤ b) (h₂ : b < c) : a < c :=
+  definition lt.of_le_of_lt [trans] {a b c : nat} (h₁ : a ≤ b) (h₂ : b < c) : a < c :=
   begin
     cases h₁ with b' hlt,
       apply h₂,
       apply lt.trans hlt h₂
   end
 
-  definition lt.of_lt_of_le {a b c : nat} (h₁ : a < b) (h₂ : b ≤ c) : a < c :=
+  definition lt.of_lt_of_le [trans] {a b c : nat} (h₁ : a < b) (h₂ : b ≤ c) : a < c :=
   begin
     cases h₁ with b' hlt,
       apply lt.of_succ_lt_succ h₂,
       apply lt.trans hlt (lt.of_succ_lt_succ h₂)
   end
-
-  definition lt.of_lt_of_eq {a b c : nat} (h₁ : a < b) (h₂ : b = c) : a < c :=
-  eq.rec_on h₂ h₁
-
-  definition le.of_le_of_eq {a b c : nat} (h₁ : a ≤ b) (h₂ : b = c) : a ≤ c :=
-  eq.rec_on h₂ h₁
-
-  definition lt.of_eq_of_lt {a b c : nat} (h₁ : a = b) (h₂ : b < c) : a < c :=
-  eq.rec_on (eq.rec_on h₁ rfl) h₂
-
-  definition le.of_eq_of_le {a b c : nat} (h₁ : a = b) (h₂ : b ≤ c) : a ≤ c :=
-  eq.rec_on (eq.rec_on h₁ rfl) h₂
-
-  calc_trans lt.trans
-  calc_trans lt.of_le_of_lt
-  calc_trans lt.of_lt_of_le
-  calc_trans lt.of_lt_of_eq
-  calc_trans lt.of_eq_of_lt
-  calc_trans le.trans
-  calc_trans le.of_le_of_eq
-  calc_trans le.of_eq_of_le
 
   definition max (a b : nat) : nat :=
   if a < b then b else a

@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/cmd_table.h"
 namespace lean {
 class parser;
-void register_calc_cmds(cmd_table & r);
 expr parse_calc(parser & p);
 bool is_calc_annotation(expr const & e);
 /** \brief Given an operator name \c op, return the symmetry rule associated with, number of arguments, and universe parameters.

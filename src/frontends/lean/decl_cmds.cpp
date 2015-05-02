@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/class.h"
 #include "library/abbreviation.h"
+#include "library/equivalence_manager.h"
 #include "library/unfold_macros.h"
 #include "library/definitional/equations.h"
 #include "library/error_handling/error_handling.h"
@@ -353,6 +354,10 @@ struct decl_attributes {
     bool               m_is_parsing_only;
     bool               m_has_multiple_instances;
     bool               m_unfold_f_hint;
+    bool               m_symm;
+    bool               m_trans;
+    bool               m_refl;
+    bool               m_subst;
     optional<unsigned> m_priority;
     optional<unsigned> m_unfold_c_hint;
 
@@ -371,6 +376,10 @@ struct decl_attributes {
         m_is_parsing_only        = false;
         m_has_multiple_instances = false;
         m_unfold_f_hint          = false;
+        m_symm                   = false;
+        m_trans                  = false;
+        m_refl                   = false;
+        m_subst                  = false;
     }
 
     struct elim_choice_fn : public replace_visitor {
@@ -482,6 +491,18 @@ struct decl_attributes {
                     throw parser_error("invalid '[unfold-c]' attribute, value must be greater than 0", pos);
                 m_unfold_c_hint = r - 1;
                 p.check_token_next(get_rbracket_tk(), "invalid 'unfold-c', ']' expected");
+            } else if (p.curr_is_token(get_symm_tk())) {
+                p.next();
+                m_symm = true;
+            } else if (p.curr_is_token(get_refl_tk())) {
+                p.next();
+                m_refl = true;
+            } else if (p.curr_is_token(get_trans_tk())) {
+                p.next();
+                m_trans = true;
+            } else if (p.curr_is_token(get_subst_tk())) {
+                p.next();
+                m_subst = true;
             } else {
                 break;
             }
@@ -527,6 +548,14 @@ struct decl_attributes {
             if (m_unfold_f_hint)
                 env = add_unfold_f_hint(env, d, m_persistent);
         }
+        if (m_symm)
+            env = add_symm(env, d, m_persistent);
+        if (m_refl)
+            env = add_refl(env, d, m_persistent);
+        if (m_trans)
+            env = add_trans(env, d, m_persistent);
+        if (m_subst)
+            env = add_subst(env, d, m_persistent);
         if (m_is_class)
             env = add_class(env, d, m_persistent);
         if (m_has_multiple_instances)

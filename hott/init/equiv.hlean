@@ -270,10 +270,10 @@ namespace equiv
   definition equiv_of_equiv_of_eq {A B C : Type} (p : A = B) (q : B ≃ C) : A ≃ C := p⁻¹ ▹ q
   definition equiv_of_eq_of_equiv {A B C : Type} (p : A ≃ B) (q : B = C) : A ≃ C := q   ▹ p
 
-  calc_trans equiv.trans
-  calc_refl equiv.refl
-  calc_symm equiv.symm
-  calc_trans equiv_of_equiv_of_eq
-  calc_trans equiv_of_eq_of_equiv
+  attribute equiv.trans [trans]
+  attribute equiv.refl [refl]
+  attribute equiv.symm [symm]
+  attribute equiv_of_equiv_of_eq [trans]
+  attribute equiv_of_eq_of_equiv [trans]
 
 end equiv

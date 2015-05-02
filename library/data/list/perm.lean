@@ -43,26 +43,24 @@ have gen : ∀ (l₁ l₂ : list A) (p : l₁ ~ l₂), l₁ = [] → l₂ = (x::
       end),
 assume p, gen [] (x::l) p rfl rfl
 
-protected theorem refl : ∀ (l : list A), l ~ l
+protected theorem refl [refl] : ∀ (l : list A), l ~ l
 | []      := nil
 | (x::xs) := skip x (refl xs)
 
-protected theorem symm : ∀ {l₁ l₂ : list A}, l₁ ~ l₂ → l₂ ~ l₁ :=
+protected theorem symm [symm] : ∀ {l₁ l₂ : list A}, l₁ ~ l₂ → l₂ ~ l₁ :=
 take l₁ l₂ p, perm.induction_on p
   nil
   (λ x l₁ l₂ p₁ r₁, skip x r₁)
   (λ x y l, swap y x l)
   (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, trans r₂ r₁)
 
+attribute perm.trans [trans]
+
 theorem eqv (A : Type) : equivalence (@perm A) :=
 mk_equivalence (@perm A) (@perm.refl A) (@perm.symm A) (@perm.trans A)
 
 protected definition is_setoid [instance] (A : Type) : setoid (list A) :=
 setoid.mk (@perm A) (perm.eqv A)
-
-calc_refl  perm.refl
-calc_symm  perm.symm
-calc_trans perm.trans
 
 theorem mem_perm {a : A} {l₁ l₂ : list A} : l₁ ~ l₂ → a ∈ l₁ → a ∈ l₂ :=
 assume p, perm.induction_on p

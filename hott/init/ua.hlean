@@ -53,12 +53,11 @@ left_inv equiv_of_eq p
 namespace equiv
   universe variable l
 
-  protected definition transport_of_equiv (P : Type → Type) {A B : Type.{l}} (H : A ≃ B)
+  protected definition transport_of_equiv [subst] (P : Type → Type) {A B : Type.{l}} (H : A ≃ B)
     : P A → P B :=
   eq.transport P (ua H)
 
   -- We can use this for calculation evironments
-  calc_subst transport_of_equiv
 
   definition rec_on_of_equiv_of_eq {A B : Type} {P : (A ≃ B) → Type}
     (p : A ≃ B) (H : Π(q : A = B), P (equiv_of_eq q)) : P p :=

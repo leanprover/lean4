@@ -154,15 +154,15 @@ protected definition equiv (p q : ℕ × ℕ) : Prop :=  pr1 p + pr2 q = pr2 p +
 
 local notation p `≡` q := equiv p q
 
-protected theorem equiv.refl {p : ℕ × ℕ} : p ≡ p := !add.comm
+protected theorem equiv.refl [refl] {p : ℕ × ℕ} : p ≡ p := !add.comm
 
-protected theorem equiv.symm {p q : ℕ × ℕ} (H : p ≡ q) : q ≡ p :=
+protected theorem equiv.symm [symm] {p q : ℕ × ℕ} (H : p ≡ q) : q ≡ p :=
 calc
   pr1 q + pr2 p = pr2 p + pr1 q : !add.comm
     ... = pr1 p + pr2 q         : H⁻¹
     ... = pr2 q + pr1 p         : !add.comm
 
-protected theorem equiv.trans {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q ≡ r) : p ≡ r :=
+protected theorem equiv.trans [trans] {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q ≡ r) : p ≡ r :=
 have H3 : pr1 p + pr2 r + pr2 q = pr2 p + pr1 r + pr2 q, from
   calc
    pr1 p + pr2 r + pr2 q = pr1 p + pr2 q + pr2 r : by simp
@@ -186,10 +186,6 @@ or.elim (@le_or_gt (pr2 p) (pr1 p))
     or.inr (and.intro H1 (lt_of_add_lt_add_left H2)))
 
 protected theorem equiv_of_eq {p q : ℕ × ℕ} (H : p = q) : p ≡ q := H ▸ equiv.refl
-
-calc_trans equiv.trans
-calc_refl equiv.refl
-calc_symm equiv.symm
 
 /- the representation and abstraction functions -/
 

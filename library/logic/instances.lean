@@ -87,7 +87,7 @@ namespace iff
   @general_subst.subst Prop iff P C a b H H1
 end iff
 
-calc_subst iff.subst
+attribute iff.subst [subst]
 
 namespace iff_ops
   notation H ⁻¹ := iff.symm H

@@ -11,13 +11,13 @@ axiom le_trans (a b c : A) (H1 : a ≤ b) (H2 : b ≤ c) : a ≤ c
 axiom le_refl (a : A) : a ≤ a
 axiom eq_le_trans (a b c : A) (H1 : a = b) (H2 : b ≤ c) : a ≤ c
 axiom le_eq_trans (a b c : A) (H1 : a ≤ b) (H2 : b = c) : a ≤ c
-calc_subst subst
-calc_refl  eq_refl
-calc_refl  le_refl
-calc_trans eq_trans
-calc_trans le_trans
-calc_trans eq_le_trans
-calc_trans le_eq_trans
+attribute subst [subst]
+attribute eq_refl [refl]
+attribute le_refl [refl]
+attribute eq_trans [trans]
+attribute le_trans [trans]
+attribute eq_le_trans [trans]
+attribute le_eq_trans [trans]
 constants a b c d e f : A
 axiom H1 : a = b
 axiom H2 : b ≤ c
@@ -36,14 +36,14 @@ axiom lt_le_trans (a b c : A) (H1 : a < b) (H2 : b ≤ c) : a < c
 axiom H5 : c < d
 check calc b  ≤ c : H2
           ... < d : H5 -- Error le_lt_trans was not registered yet
-calc_trans le_lt_trans
+attribute le_lt_trans [trans]
 check calc b  ≤ c : H2
           ... < d : H5
 
 constant le2 : A → A → bool
 infixl `≤`:50 := le2
 constant le2_trans (a b c : A) (H1 : le2 a b) (H2 : le2 b c) : le2 a c
-calc_trans le2_trans
+attribute le2_trans [trans]
 print raw calc b   ≤ c : H2
                ... ≤ d : H3
                ... ≤ e : H4

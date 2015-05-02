@@ -82,10 +82,10 @@ section
   assume Hp, H ▸ Hp
 end
 
-calc_subst eq.subst
-calc_refl  eq.refl
-calc_trans eq.trans
-calc_symm  eq.symm
+attribute eq.subst [subst]
+attribute eq.refl [refl]
+attribute eq.trans [trans]
+attribute eq.symm [symm]
 
 /- ne -/
 
@@ -154,10 +154,10 @@ end heq
 theorem of_heq_true {a : Prop} (H : a == true) : a :=
 of_eq_true (heq.to_eq H)
 
-calc_trans heq.trans
-calc_trans heq.of_heq_of_eq
-calc_trans heq.of_eq_of_heq
-calc_symm  heq.symm
+attribute heq.trans [trans]
+attribute heq.of_heq_of_eq [trans]
+attribute heq.of_eq_of_heq [trans]
+attribute heq.symm [symm]
 
 /- and -/
 
@@ -258,8 +258,9 @@ iff.intro
   (assume Hr : ¬a,
     assume Hnna : ¬¬a, absurd Hr Hnna)
 
-calc_refl iff.refl
-calc_trans iff.trans
+attribute iff.refl [refl]
+attribute iff.symm [symm]
+attribute iff.trans [trans]
 
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 intro : ∀ (a : A), P a → Exists P

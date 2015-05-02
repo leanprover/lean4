@@ -37,9 +37,9 @@ namespace eq
   subst H (refl a)
 end eq
 
-calc_subst eq.subst
-calc_refl  eq.refl
-calc_trans eq.trans
+attribute eq.subst [subst]
+attribute eq.refl [refl]
+attribute eq.trans [trans]
 
 namespace eq_ops
   postfix `⁻¹`:1024 := eq.symm

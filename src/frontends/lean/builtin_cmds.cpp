@@ -860,7 +860,6 @@ void init_cmd_table(cmd_table & r) {
     register_structure_cmd(r);
     register_migrate_cmd(r);
     register_notation_cmds(r);
-    register_calc_cmds(r);
     register_begin_end_cmds(r);
     register_tactic_hint_cmd(r);
 }

@@ -134,6 +134,10 @@ static name * g_fields       = nullptr;
 static name * g_trust        = nullptr;
 static name * g_metaclasses  = nullptr;
 static name * g_inductive    = nullptr;
+static name * g_symm         = nullptr;
+static name * g_trans        = nullptr;
+static name * g_refl         = nullptr;
+static name * g_subst        = nullptr;
 
 void initialize_tokens() {
     g_period       = new name(".");
@@ -240,6 +244,10 @@ void initialize_tokens() {
     g_semireducible = new name("[semireducible]");
     g_irreducible  = new name("[irreducible]");
     g_parsing_only = new name("[parsing-only]");
+    g_symm         = new name("[symm]");
+    g_trans        = new name("[trans]");
+    g_refl         = new name("[refl]");
+    g_subst        = new name("[subst]");
     g_attribute    = new name("attribute");
     g_with         = new name("with");
     g_class        = new name("[class]");
@@ -303,6 +311,10 @@ void finalize_tokens() {
     delete g_unfold_c;
     delete g_unfold_f;
     delete g_coercion;
+    delete g_symm;
+    delete g_refl;
+    delete g_trans;
+    delete g_subst;
     delete g_reducible;
     delete g_quasireducible;
     delete g_semireducible;
@@ -496,6 +508,10 @@ name const & get_priority_tk() { return *g_priority; }
 name const & get_unfold_c_tk() { return *g_unfold_c; }
 name const & get_unfold_f_tk() { return *g_unfold_f; }
 name const & get_coercion_tk() { return *g_coercion; }
+name const & get_symm_tk() { return *g_symm; }
+name const & get_trans_tk() { return *g_trans; }
+name const & get_refl_tk() { return *g_refl; }
+name const & get_subst_tk() { return *g_subst; }
 name const & get_reducible_tk() { return *g_reducible; }
 name const & get_quasireducible_tk() { return *g_quasireducible; }
 name const & get_semireducible_tk() { return *g_semireducible; }

@@ -54,11 +54,9 @@ section
 
   theorem le.refl (a : A) : a ≤ a := !weak_order.le_refl
 
-  theorem le.trans {a b c : A} : a ≤ b → b ≤ c → a ≤ c := !weak_order.le_trans
-  calc_trans le.trans
+  theorem le.trans [trans] {a b c : A} : a ≤ b → b ≤ c → a ≤ c := !weak_order.le_trans
 
-  theorem ge.trans {a b c : A} (H1 : a ≥ b) (H2: b ≥ c) : a ≥ c := le.trans H2 H1
-  calc_trans ge.trans
+  theorem ge.trans [trans] {a b c : A} (H1 : a ≥ b) (H2: b ≥ c) : a ≥ c := le.trans H2 H1
 
   theorem le.antisymm {a b : A} : a ≤ b → b ≤ a → a = b := !weak_order.le_antisymm
 end
@@ -81,11 +79,9 @@ section
 
   theorem lt.irrefl (a : A) : ¬ a < a := !strict_order.lt_irrefl
 
-  theorem lt.trans {a b c : A} : a < b → b < c → a < c := !strict_order.lt_trans
-  calc_trans lt.trans
+  theorem lt.trans [trans] {a b c : A} : a < b → b < c → a < c := !strict_order.lt_trans
 
-  theorem gt.trans {a b c : A} (H1 : a > b) (H2: b > c) : a > c := lt.trans H2 H1
-  calc_trans gt.trans
+  theorem gt.trans [trans] {a b c : A} (H1 : a > b) (H2: b > c) : a > c := lt.trans H2 H1
 
   theorem ne_of_lt {a b : A} (lt_ab : a < b) : a ≠ b :=
   assume eq_ab : a = b,
@@ -152,7 +148,7 @@ section
   definition order_pair.to_strict_order [instance] [coercion] [reducible] : strict_order A :=
   ⦃ strict_order, s, lt_irrefl := lt_irrefl s, lt_trans := lt_trans s ⦄
 
-  theorem lt_of_lt_of_le : a < b → b ≤ c → a < c :=
+  theorem lt_of_lt_of_le [trans] : a < b → b ≤ c → a < c :=
   assume lt_ab : a < b,
   assume le_bc : b ≤ c,
   have le_ac : a ≤ c, from le.trans (le_of_lt lt_ab) le_bc,
@@ -163,7 +159,7 @@ section
     show false, from ne_of_lt lt_ab eq_ab,
   show a < c, from lt_of_le_of_ne le_ac ne_ac
 
-  theorem lt_of_le_of_lt : a ≤ b → b < c → a < c :=
+  theorem lt_of_le_of_lt [trans] : a ≤ b → b < c → a < c :=
   assume le_ab : a ≤ b,
   assume lt_bc : b < c,
   have le_ac : a ≤ c, from le.trans le_ab (le_of_lt lt_bc),
@@ -174,14 +170,9 @@ section
     show false, from ne_of_lt lt_bc eq_bc,
   show a < c, from lt_of_le_of_ne le_ac ne_ac
 
-  theorem gt_of_gt_of_ge (H1 : a > b) (H2 : b ≥ c) : a > c := lt_of_le_of_lt H2 H1
+  theorem gt_of_gt_of_ge [trans] (H1 : a > b) (H2 : b ≥ c) : a > c := lt_of_le_of_lt H2 H1
 
-  theorem gt_of_ge_of_gt (H1 : a ≥ b) (H2 : b > c) : a > c := lt_of_lt_of_le H2 H1
-
-  calc_trans lt_of_lt_of_le
-  calc_trans lt_of_le_of_lt
-  calc_trans gt_of_gt_of_ge
-  calc_trans gt_of_ge_of_gt
+  theorem gt_of_ge_of_gt [trans] (H1 : a ≥ b) (H2 : b > c) : a > c := lt_of_lt_of_le H2 H1
 
   theorem not_le_of_lt (H : a < b) : ¬ b ≤ a :=
   assume H1 : b ≤ a,

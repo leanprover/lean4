@@ -136,4 +136,8 @@ name const & get_fields_tk();
 name const & get_trust_tk();
 name const & get_metaclasses_tk();
 name const & get_inductive_tk();
+name const & get_symm_tk();
+name const & get_trans_tk();
+name const & get_refl_tk();
+name const & get_subst_tk();
 }

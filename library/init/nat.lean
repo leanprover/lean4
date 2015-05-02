@@ -76,7 +76,7 @@ namespace nat
     (lt.base zero)
     (λ a (hlt : zero < succ a), lt.step hlt)
 
-  definition lt.trans {a b c : nat} (H₁ : a < b) (H₂ : b < c) : a < c :=
+  definition lt.trans [trans] {a b c : nat} (H₁ : a < b) (H₂ : b < c) : a < c :=
   have aux : a < b → a < c, from
     lt.rec_on H₂
       (λ h₁, lt.step h₁)
@@ -185,31 +185,26 @@ namespace nat
   definition succ_le_of_lt {a b : nat} (h : a < b) : succ a ≤ b :=
   succ_lt_succ h
 
-  definition le.trans {a b c : nat} (h₁ : a ≤ b) (h₂ : b ≤ c) : a ≤ c :=
+  definition le.trans [trans] {a b c : nat} (h₁ : a ≤ b) (h₂ : b ≤ c) : a ≤ c :=
   begin
     cases h₁ with b' hlt,
       apply h₂,
       apply lt.trans hlt h₂
   end
 
-  definition lt_of_le_of_lt {a b c : nat} (h₁ : a ≤ b) (h₂ : b < c) : a < c :=
+  definition lt_of_le_of_lt [trans] {a b c : nat} (h₁ : a ≤ b) (h₂ : b < c) : a < c :=
   begin
     cases h₁ with b' hlt,
       apply h₂,
       apply lt.trans hlt h₂
   end
 
-  definition lt_of_lt_of_le {a b c : nat} (h₁ : a < b) (h₂ : b ≤ c) : a < c :=
+  definition lt_of_lt_of_le [trans] {a b c : nat} (h₁ : a < b) (h₂ : b ≤ c) : a < c :=
   begin
     cases h₁ with b' hlt,
       apply lt_of_succ_lt_succ h₂,
       apply lt.trans hlt (lt_of_succ_lt_succ h₂)
   end
-
-  calc_trans lt.trans
-  calc_trans lt_of_le_of_lt
-  calc_trans lt_of_lt_of_le
-  calc_trans le.trans
 
   definition max (a b : nat) : nat :=
   if a < b then b else a

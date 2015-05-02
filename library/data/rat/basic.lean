@@ -26,12 +26,9 @@ definition equiv (a b : prerat) : Prop := num a * denom b = num b * denom a
 
 infix `≡` := equiv
 
-theorem equiv.refl (a : prerat) : a ≡ a := rfl
+theorem equiv.refl [refl] (a : prerat) : a ≡ a := rfl
 
-theorem equiv.symm {a b : prerat} (H : a ≡ b) : b ≡ a := !eq.symm H
-
-calc_refl equiv.refl
-calc_symm equiv.symm
+theorem equiv.symm [symm] {a b : prerat} (H : a ≡ b) : b ≡ a := !eq.symm H
 
 theorem num_eq_zero_of_equiv {a b : prerat} (H : a ≡ b) (na_zero : num a = 0) : num b = 0 :=
 have H1 : num a * denom b = 0, from !zero_mul ▸ na_zero ▸ rfl,
@@ -52,7 +49,7 @@ neg_of_neg_pos H3
 theorem equiv_of_num_eq_zero {a b : prerat} (H1 : num a = 0) (H2 : num b = 0) : a ≡ b :=
 by rewrite [↑equiv, H1, H2, *zero_mul]
 
-theorem equiv.trans {a b c : prerat} (H1 : a ≡ b) (H2 : b ≡ c) : a ≡ c :=
+theorem equiv.trans [trans] {a b c : prerat} (H1 : a ≡ b) (H2 : b ≡ c) : a ≡ c :=
 decidable.by_cases
   (assume b0 : num b = 0,
     have a0 : num a = 0, from num_eq_zero_of_equiv (equiv.symm H1) b0,
@@ -70,10 +67,6 @@ decidable.by_cases
                     by rewrite [*mul.assoc, *mul.left_comm (denom a),
                                    *mul.left_comm (denom b), mul.comm (denom a)],
     mul.cancel_left H3 H4)
-
-calc_refl  equiv.refl
-calc_symm  equiv.symm
-calc_trans equiv.trans
 
 theorem equiv.is_equivalence : equivalence equiv :=
   mk_equivalence equiv equiv.refl @equiv.symm @equiv.trans

@@ -14,8 +14,7 @@
     "print" "theorem" "example" "abbreviation"
     "open" "as" "export" "axiom" "axioms" "inductive" "with" "structure" "record" "universe" "universes"
     "alias" "help" "environment" "options" "precedence" "reserve"
-    "calc_trans" "calc_subst" "calc_refl" "calc_symm" "match"
-    "infix" "infixl" "infixr" "notation" "postfix" "prefix"
+    "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix"
     "tactic_infix" "tactic_infixl" "tactic_infixr" "tactic_notation" "tactic_postfix" "tactic_prefix"
     "eval" "check" "coercion" "end"
     "using" "namespace" "section" "fields" "find_decl"
@@ -123,6 +122,7 @@
                "\[coercion\]" "\[unfold-f\]" "\[reducible\]" "\[irreducible\]" "\[semireducible\]" "\[quasireducible\]" "\[wf\]"
                "\[whnf\]" "\[multiple-instances\]" "\[none\]"
                "\[decls\]" "\[declarations\]" "\[all-transparent\]" "\[coercions\]" "\[classes\]"
+               "\[symm\]" "\[subst\]" "\[refl\]" "\[trans\]"
                "\[notations\]" "\[abbreviations\]" "\[begin-end-hints\]" "\[tactic-hints\]" "\[reduce-hints\]"))
       . 'font-lock-doc-face)
      (,(rx "\[priority" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)

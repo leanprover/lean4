@@ -70,8 +70,7 @@ theorem all_eq_of_find_discr_eq_none {f g : A → B} : ∀ {l}, find_discr f g l
       (λ aeqx : a = x, by rewrite [-aeqx at fx_eq_gx]; exact fx_eq_gx)
       (λ ainl : a ∈ l, all_eq_of_find_discr_eq_none aux a ainl))
   (λ fx_ne_gx : f x ≠ g x,
-    have aux : some x = none, by rewrite [find_discr_cons_of_ne l fx_ne_gx at e]; exact e,
-    option.no_confusion aux)
+    by rewrite [find_discr_cons_of_ne l fx_ne_gx at e]; contradiction)
 end find_discr
 
 definition decidable_eq_fun [instance] {A B : Type} [h₁ : fintype A] [h₂ : decidable_eq B] : decidable_eq (A → B) :=

@@ -21,7 +21,7 @@ assume e : encodable A,
 have inj_encode : injective encode, from
   λ (a₁ a₂ : A) (h : encode a₁ = encode a₂),
     assert aux : decode A (encode a₁) = decode A (encode a₂), by rewrite h,
-    by rewrite [*encodek at aux]; exact (option.no_confusion aux (λ e, e)),
+    by rewrite [*encodek at aux]; injection aux; assumption,
 exists.intro encode inj_encode
 
 definition encodable_fintype [instance] {A : Type} [h₁ : fintype A] [h₂ : decidable_eq A] : encodable A :=

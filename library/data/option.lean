@@ -23,7 +23,7 @@ namespace option
   by contradiction
 
   theorem some.inj {A : Type} {a₁ a₂ : A} (H : some a₁ = some a₂) : a₁ = a₂ :=
-  option.no_confusion H (λe, e)
+  by injection H; assumption
 
   protected definition is_inhabited [instance] (A : Type) : inhabited (option A) :=
   inhabited.mk none

@@ -65,7 +65,7 @@ theorem length_append : ∀ (s t : list T), length (s ++ t) = length s + length 
 
 theorem eq_nil_of_length_eq_zero : ∀ {l : list T}, length l = 0 → l = []
 | []     H := rfl
-| (a::s) H := nat.no_confusion H
+| (a::s) H := by contradiction
 
 -- add_rewrite length_nil length_cons
 

@@ -34,9 +34,10 @@ namespace nat
   | has_decidable_eq (succ x) zero     := inr (by contradiction)
   | has_decidable_eq zero     (succ y) := inr (by contradiction)
   | has_decidable_eq (succ x) (succ y) :=
-      if H : x = y
-      then inl (eq.rec_on H rfl)
-      else inr (λ h : succ x = succ y, nat.no_confusion h (λ heq : x = y, absurd heq H))
+      match has_decidable_eq x y with
+      | inl xeqy := inl (by rewrite xeqy)
+      | inr xney := inr (λ h : succ x = succ y, by injection h with xeqy; exact absurd xeqy xney)
+      end
 
   -- less-than is well-founded
   definition lt.wf [instance] : well_founded lt :=
@@ -51,12 +52,10 @@ namespace nat
       acc.intro (succ n) (λ (m : nat) (hlt : m < succ n),
         have aux : ∀ {n₁} (hlt : m < n₁), succ n = n₁ → acc lt m, from
           λ n₁ hlt, nat.lt.cases_on hlt
-            (λ (heq : succ n = succ m),
-              nat.no_confusion heq (λ (e : n = m),
-                eq.rec_on e ih))
-            (λ b (hlt : m < b) (heq : succ n = succ b),
-              nat.no_confusion heq (λ (e : n = b),
-                acc.inv (eq.rec_on e ih) hlt)),
+            (λ (sn_eq_sm : succ n = succ m),
+               by injection sn_eq_sm with neqm; rewrite neqm at ih; exact ih)
+            (λ b (hlt : m < b) (sn_eq_sb : succ n = succ b),
+               by injection sn_eq_sb with neqb; rewrite neqb at ih; exact acc.inv ih hlt),
         aux hlt rfl)))
 
   definition measure {A : Type} (f : A → nat) : A → A → Prop :=

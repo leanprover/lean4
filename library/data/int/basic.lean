@@ -94,10 +94,10 @@ infix *  := int.mul
 /- some basic functions and properties -/
 
 theorem of_nat.inj {m n : ℕ} (H : of_nat m = of_nat n) : m = n :=
-int.no_confusion H (λe, e)
+by injection H; assumption
 
 theorem neg_succ_of_nat.inj {m n : ℕ} (H : neg_succ_of_nat m = neg_succ_of_nat n) : m = n :=
-int.no_confusion H (λe, e)
+by injection H; assumption
 
 theorem neg_succ_of_nat_eq (n : ℕ) : -[n +1] = -(n + 1) := rfl
 

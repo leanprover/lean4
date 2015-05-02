@@ -602,6 +602,8 @@ static void parse_metaclasses(parser & p, buffer<name> & r) {
         while (p.curr_is_token(get_lbracket_tk())) {
             name m = parse_metaclass(p);
             tmp.erase_elem(m);
+            if (m == get_declarations_tk())
+                tmp.erase_elem(get_decls_tk());
         }
         r.append(tmp);
     } else {

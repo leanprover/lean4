@@ -1656,7 +1656,6 @@ void initialize_rewrite_tactic() {
                      get_tactic_id_list_elements(app_arg(e), ns, "invalid 'subst' tactic, list of identifiers expected");
                      return mk_subst_tactic(to_list(ns));
                  });
-
 }
 
 void finalize_rewrite_tactic() {

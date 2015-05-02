@@ -1,5 +1,13 @@
-import data.vector
-open nat vector
+open nat
+
+inductive vector (A : Type) : nat → Type :=
+| nil {} : vector A zero
+| cons   : Π {n}, A → vector A n → vector A (succ n)
+
+open vector
+notation a :: b := cons a b
+notation `[` l:(foldr `,` (h t, cons h t) nil `]`) := l
+
 
 example (a b : nat) : succ a = succ b → a + 2 = b + 2 :=
 begin
@@ -11,7 +19,7 @@ end
 example (A : Type) (n : nat) (v w : vector A n) (a : A) (b : A) :
         a :: v = b :: w →  b = a :=
 begin
-  intro H, injection H with aeqb neqn beqw,
+  intro H, injection H with neqn aeqb beqw,
   rewrite aeqb
 end
 

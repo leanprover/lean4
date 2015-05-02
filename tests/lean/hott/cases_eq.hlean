@@ -10,7 +10,7 @@ begin
   cases h₁, apply rfl
 end
 
-theorem congr {A B : Type} (f : A → B) {a₁ a₂ : A} (h : a₁ = a₂) : f a₁ = f a₂ :=
+theorem congr2 {A B : Type} (f : A → B) {a₁ a₂ : A} (h : a₁ = a₂) : f a₁ = f a₂ :=
 begin
   cases h, apply rfl
 end

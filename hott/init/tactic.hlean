@@ -109,6 +109,8 @@ opaque definition right                        : tactic := builtin
 
 opaque definition injection (e : expr) (ids : opt_identifier_list) : tactic := builtin
 
+opaque definition subst (ids : identifier_list) : tactic := builtin
+
 definition try         (t : tactic) : tactic := or_else t id
 definition repeat1     (t : tactic) : tactic := and_then t (repeat t)
 definition focus       (t : tactic) : tactic := focus_at t 0

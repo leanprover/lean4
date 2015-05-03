@@ -129,29 +129,30 @@ namespace functor
   begin
     intro cd cd' fg,
     cases cd with c d, cases cd' with c' d', cases fg with f g,
-    apply concat, apply id_leftright,
+    transitivity to_fun_hom (functor_uncurry (functor_curry F)) (f, g),
+    apply id_leftright,
     show (functor_uncurry (functor_curry F)) (f, g) = F (f,g),
       from calc
         (functor_uncurry (functor_curry F)) (f, g) = to_fun_hom F (id, g) ∘ to_fun_hom F (f, id) : by esimp
           ... = F (id ∘ f, g ∘ id) : respect_comp F (id,g) (f,id)
-          ... = F (f, g ∘ id) : by rewrite id_left
-          ... = F (f,g) : by rewrite id_right,
+          ... = F (f, g ∘ id)      : by rewrite id_left
+          ... = F (f,g)            : by rewrite id_right,
   end
 
   definition functor_curry_functor_uncurry_ob (c : C)
     : functor_curry (functor_uncurry G) c = G c :=
   begin
   fapply functor_eq,
-   {intro d, apply idp},
+   {intro d, reflexivity},
    {intro d d' g,
      apply concat, apply id_leftright,
       show to_fun_hom (functor_curry (functor_uncurry G) c) g = to_fun_hom (G c) g,
       from calc
         to_fun_hom (functor_curry (functor_uncurry G) c) g
             = to_fun_hom (G c) g ∘ natural_map (to_fun_hom G (ID c)) d : by esimp
-        ... = to_fun_hom (G c) g ∘ natural_map (ID (G c)) d : by rewrite respect_id
-        ... = to_fun_hom (G c) g ∘ id : idp
-        ... = to_fun_hom (G c) g : id_right}
+        ... = to_fun_hom (G c) g ∘ natural_map (ID (G c)) d            : by rewrite respect_id
+        ... = to_fun_hom (G c) g ∘ id                                  : by reflexivity
+        ... = to_fun_hom (G c) g                                       : id_right}
   end
 
   theorem functor_curry_functor_uncurry : functor_curry (functor_uncurry G) = G :=
@@ -163,7 +164,7 @@ namespace functor
   apply concat,
     {apply (ap (λx, x ∘ _)),
       apply concat, apply natural_map_hom_of_eq, apply (ap hom_of_eq), apply ap010_functor_eq},
-   apply concat,
+  apply concat,
      {apply (ap (λx, _ ∘ x)), apply (ap (λx, _ ∘ x)),
        apply concat, apply natural_map_inv_of_eq,
        apply (ap (λx, hom_of_eq x⁻¹)), apply ap010_functor_eq},

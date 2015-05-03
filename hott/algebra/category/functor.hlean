@@ -74,7 +74,7 @@ namespace functor
         apply (apd10' c'),
         apply concat, rotate_left 1, esimp,
         exact (pi_transport_constant (eq_of_homotopy pF) H₁ c),
-        apply idp
+        reflexivity
       end))))
 
   definition functor_eq {F₁ F₂ : C ⇒ D} : Π(p : to_fun_ob F₁ ∼ to_fun_ob F₂),
@@ -91,7 +91,7 @@ namespace functor
     is_iso (F f) :=
   begin
     fapply @is_iso.mk, apply (F (f⁻¹)),
-    repeat (apply concat ; apply inverse ;  apply (respect_comp F) ;
+    repeat (apply concat ; symmetry ;  apply (respect_comp F) ;
       apply concat ; apply (ap (λ x, to_fun_hom F x)) ;
       (apply left_inverse | apply right_inverse);
       apply (respect_id F) ),
@@ -104,10 +104,12 @@ namespace functor
     F (f⁻¹) = (F f)⁻¹ :=
   begin
     fapply @left_inverse_eq_right_inverse, apply (F f),
-      apply concat, apply inverse, apply (respect_comp F),
-      apply concat, apply (ap (λ x, to_fun_hom F x)),
-      apply left_inverse, apply respect_id,
-    apply right_inverse,
+      transitivity to_fun_hom F (f⁻¹ ∘ f),
+        {symmetry, apply (respect_comp F)},
+        {transitivity to_fun_hom F category.id,
+          {congruence, apply left_inverse},
+          {apply respect_id}},
+      apply right_inverse
   end
 
   protected definition assoc (H : C ⇒ D) (G : B ⇒ C) (F : A ⇒ B) :
@@ -141,12 +143,12 @@ namespace functor
         exact ⟨d1, d2, (d3, @d4)⟩},
       {intro F,
         cases F,
-        apply idp},
+        reflexivity},
       {intro S,
         cases S with d1 S2,
         cases S2 with d2 P1,
         cases P1,
-        apply idp},
+        reflexivity},
   end
 
   section
@@ -172,8 +174,7 @@ namespace functor
   begin
     cases p, cases F₁,
     apply concat, rotate_left 1, apply functor_eq'_idp,
-    apply (ap (functor_eq' idp)),
-    apply idp_con,
+    esimp
   end
 
   definition functor_eq2' {F₁ F₂ : C ⇒ D} {p₁ p₂ : to_fun_ob F₁ = to_fun_ob F₂} (q₁ q₂)

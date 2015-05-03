@@ -50,54 +50,54 @@ namespace eq
   notation f `∼3`:50 g := homotopy3 f g
 
   definition ap011 (f : U → V → W) (Hu : u = u') (Hv : v = v') : f u v = f u' v' :=
-  by cases Hu; exact (ap (f u) Hv)
+  by cases Hu; congruence; repeat assumption
 
   definition ap0111 (f : U → V → W → X) (Hu : u = u') (Hv : v = v') (Hw : w = w')
       : f u v w = f u' v' w' :=
-  by cases Hu; exact (ap011 (f u) Hv Hw)
+  by cases Hu; congruence; repeat assumption
 
   definition ap01111 (f : U → V → W → X → Y) (Hu : u = u') (Hv : v = v') (Hw : w = w') (Hx : x = x')
       : f u v w x = f u' v' w' x' :=
-  by cases Hu; exact (ap0111 (f u) Hv Hw Hx)
+  by cases Hu; congruence; repeat assumption
 
   definition ap011111 (f : U → V → W → X → Y → Z)
     (Hu : u = u') (Hv : v = v') (Hw : w = w') (Hx : x = x') (Hy : y = y')
       : f u v w x y = f u' v' w' x' y' :=
-  by cases Hu; exact (ap01111 (f u) Hv Hw Hx Hy)
+  by cases Hu; congruence; repeat assumption
 
   definition ap0111111 (f : U → V → W → X → Y → Z → A)
     (Hu : u = u') (Hv : v = v') (Hw : w = w') (Hx : x = x') (Hy : y = y') (Hz : z = z')
       : f u v w x y z = f u' v' w' x' y' z' :=
-  by cases Hu; exact (ap011111 (f u) Hv Hw Hx Hy Hz)
+  by cases Hu; congruence; repeat assumption
 
   definition ap010 (f : X → Πa, B a) (Hx : x = x') : f x ∼ f x' :=
-  λa, by cases Hx; exact idp
+  by intros; cases Hx; reflexivity
 
   definition ap0100 (f : X → Πa b, C a b) (Hx : x = x') : f x ∼2 f x' :=
-  λa b, by cases Hx; exact idp
+  by intros; cases Hx; reflexivity
 
   definition ap01000 (f : X → Πa b c, D a b c) (Hx : x = x') : f x ∼3 f x' :=
-  λa b c, by cases Hx; exact idp
+  by intros; cases Hx; reflexivity
 
   definition apd011 (f : Πa, B a → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
       : f a b = f a' b' :=
-  by cases Ha; cases Hb; exact idp
+  by cases Ha; cases Hb; reflexivity
 
   definition apd0111 (f : Πa b, C a b → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
     (Hc : apd011 C Ha Hb ▹ c = c')
       : f a b c = f a' b' c' :=
-  by cases Ha; cases Hb; cases Hc; exact idp
+  by cases Ha; cases Hb; cases Hc; reflexivity
 
   definition apd01111 (f : Πa b c, D a b c → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
     (Hc : apd011 C Ha Hb ▹ c = c') (Hd : apd0111 D Ha Hb Hc ▹ d = d')
       : f a b c d = f a' b' c' d' :=
-  by cases Ha; cases Hb; cases Hc; cases Hd; exact idp
+  by cases Ha; cases Hb; cases Hc; cases Hd; reflexivity
 
   definition apd011111 (f : Πa b c d, E a b c d → Z) (Ha : a = a') (Hb : (Ha ▹ b) = b')
     (Hc : apd011 C Ha Hb ▹ c = c') (Hd : apd0111 D Ha Hb Hc ▹ d = d')
     (He : apd01111 E Ha Hb Hc Hd ▹ e = e')
     : f a b c d e = f a' b' c' d' e' :=
-  by cases Ha; cases Hb; cases Hc; cases Hd; cases He; exact idp
+  by cases Ha; cases Hb; cases Hc; cases Hd; cases He; reflexivity
 
   definition apd100 {f g : Πa b, C a b} (p : f = g) : f ∼2 g :=
   λa b, apd10 (apd10 p a) b
@@ -128,17 +128,17 @@ namespace eq
   definition eq_of_homotopy2_id (f : Πa b, C a b)
     : eq_of_homotopy2 (λa b, idpath (f a b)) = idpath f :=
   begin
-    apply concat,
-      {apply (ap (λx, eq_of_homotopy x)), apply eq_of_homotopy, intro a, apply eq_of_homotopy_idp},
-    apply eq_of_homotopy_idp
+    transitivity eq_of_homotopy (λ a, idpath (f a)),
+      {apply (ap eq_of_homotopy), apply eq_of_homotopy, intros, apply eq_of_homotopy_idp},
+      apply eq_of_homotopy_idp
   end
 
   definition eq_of_homotopy3_id (f : Πa b c, D a b c)
     : eq_of_homotopy3 (λa b c, idpath (f a b c)) = idpath f :=
   begin
-    apply concat,
-      {apply (ap (λx, eq_of_homotopy x)), apply eq_of_homotopy, intro a, apply eq_of_homotopy2_id},
-    apply eq_of_homotopy_idp
+    transitivity _,
+      {apply (ap eq_of_homotopy), apply eq_of_homotopy, intros, apply eq_of_homotopy2_id},
+      apply eq_of_homotopy_idp
   end
 
 end eq

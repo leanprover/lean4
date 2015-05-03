@@ -62,19 +62,19 @@ namespace eq
 
   definition transport_eq_l (p : a1 = a2) (q : a1 = a3)
     : transport (λx, x = a3) p q = p⁻¹ ⬝ q :=
-  by cases p; cases q; apply idp
+  by cases p; cases q; reflexivity
 
   definition transport_eq_r (p : a2 = a3) (q : a1 = a2)
     : transport (λx, a1 = x) p q = q ⬝ p :=
-  by cases p; cases q; apply idp
+  by cases p; cases q; reflexivity
 
   definition transport_eq_lr (p : a1 = a2) (q : a1 = a1)
     : transport (λx, x = x) p q = p⁻¹ ⬝ q ⬝ p :=
   begin
-  apply (eq.rec_on p),
-  apply inverse, apply concat,
+  cases p,
+  symmetry, transitivity (refl a1)⁻¹ ⬝ q,
     apply con_idp,
-  apply idp_con
+    apply idp_con
   end
 
   definition transport_eq_Fl (p : a1 = a2) (q : f a1 = b)
@@ -88,41 +88,43 @@ namespace eq
   definition transport_eq_FlFr (p : a1 = a2) (q : f a1 = g a1)
     : transport (λx, f x = g x) p q = (ap f p)⁻¹ ⬝ q ⬝ (ap g p) :=
   begin
-  apply (eq.rec_on p),
-  apply inverse, apply concat,
+  cases p,
+  symmetry, transitivity (ap f (refl a1))⁻¹ ⬝ q,
     apply con_idp,
-  apply idp_con
+    apply idp_con
   end
 
   definition transport_eq_FlFr_D {B : A → Type} {f g : Πa, B a}
     (p : a1 = a2) (q : f a1 = g a1)
       : transport (λx, f x = g x) p q = (apd f p)⁻¹ ⬝ ap (transport B p) q ⬝ (apd g p) :=
   begin
-  apply (eq.rec_on p),
-  apply inverse,
-  apply concat, apply con_idp,
-  apply concat, apply idp_con,
-  apply ap_id
+  cases p,
+  symmetry,
+  transitivity _,
+    apply con_idp,
+    transitivity _,
+      apply idp_con,
+      apply ap_id
   end
 
   definition transport_eq_FFlr (p : a1 = a2) (q : h (f a1) = a1)
     : transport (λx, h (f x) = x) p q = (ap h (ap f p))⁻¹ ⬝ q ⬝ p :=
   begin
-  apply (eq.rec_on p),
-  apply inverse,
-  apply concat, apply con_idp,
-  apply idp_con,
+  cases p,
+  symmetry,
+  transitivity (ap h (ap f (refl a1)))⁻¹ ⬝ q,
+     apply con_idp,
+     apply idp_con,
   end
 
   definition transport_eq_lFFr (p : a1 = a2) (q : a1 = h (f a1))
     : transport (λx, x = h (f x)) p q = p⁻¹ ⬝ q ⬝ (ap h (ap f p)) :=
   begin
-  apply (eq.rec_on p),
-  apply inverse,
-  apply concat, apply con_idp,
-  apply idp_con,
+  cases p, symmetry,
+  transitivity (refl a1)⁻¹ ⬝ q,
+    apply con_idp,
+    apply idp_con,
   end
-
 
   -- The Functorial action of paths is [ap].
 
@@ -193,8 +195,8 @@ namespace eq
   begin
   fapply adjointify,
     {intro s, apply (!cancel_right s)},
-    {intro s, cases r, cases s, cases q, apply idp},
-    {intro s, cases s, cases r, cases p, apply idp}
+    {intro s, cases r, cases s, cases q, reflexivity},
+    {intro s, cases s, cases r, cases p, reflexivity}
   end
 
   definition eq_equiv_con_eq_con_right (p q : a1 = a2) (r : a2 = a3) : (p = q) ≃ (p ⬝ r = q ⬝ r) :=

@@ -35,8 +35,8 @@ parameters {A : Type} (R : A → A → hprop)
     { intro x', apply Pt},
     { intro y, fapply (type_quotient.rec_on y),
       { exact Pc},
-      { intro a a' H,
-        apply concat, apply transport_compose;apply Pp}}
+      { intros,
+        apply concat, apply transport_compose; apply Pp}}
   end
 
   protected definition rec_on [reducible] {P : quotient → Type} (x : quotient)

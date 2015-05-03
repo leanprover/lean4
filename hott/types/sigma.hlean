@@ -29,7 +29,7 @@ namespace sigma
   | eta3 ⟨u₁, u₂, u₃, u₄⟩ := idp
 
   definition dpair_eq_dpair (p : a = a') (q : p ▹ b = b') : ⟨a, b⟩ = ⟨a', b'⟩ :=
-  by cases p; cases q; apply idp
+  by cases p; cases q; reflexivity
 
   definition sigma_eq (p : u.1 = v.1) (q : p ▹ u.2 = v.2) : u = v :=
   by cases u; cases v; apply (dpair_eq_dpair p q)
@@ -42,13 +42,13 @@ namespace sigma
   postfix `..1`:(max+1) := eq_pr1
 
   definition eq_pr2 (p : u = v) : p..1 ▹ u.2 = v.2 :=
-  by cases p; apply idp
+  by cases p; reflexivity
 
   postfix `..2`:(max+1) := eq_pr2
 
   private definition dpair_sigma_eq (p : u.1 = v.1) (q : p ▹ u.2 = v.2)
       : ⟨(sigma_eq p q)..1, (sigma_eq p q)..2⟩ = ⟨p, q⟩ :=
-  by cases u; cases v; cases p; cases q; apply idp
+  by cases u; cases v; cases p; cases q; reflexivity
 
   definition sigma_eq_pr1 (p : u.1 = v.1) (q : p ▹ u.2 = v.2) : (sigma_eq p q)..1 = p :=
   (dpair_sigma_eq p q)..1
@@ -58,11 +58,11 @@ namespace sigma
   (dpair_sigma_eq p q)..2
 
   definition sigma_eq_eta (p : u = v) : sigma_eq (p..1) (p..2) = p :=
-  by cases p; cases u; apply idp
+  by cases p; cases u; reflexivity
 
   definition tr_pr1_sigma_eq {B' : A → Type} (p : u.1 = v.1) (q : p ▹ u.2 = v.2)
       : transport (λx, B' x.1) (sigma_eq p q) = transport B' p :=
-  by cases u; cases v; cases p; cases q; apply idp
+  by cases u; cases v; cases p; cases q; reflexivity
 
   /- the uncurried version of sigma_eq. We will prove that this is an equivalence -/
 
@@ -103,7 +103,7 @@ namespace sigma
                                   (p2 : a' = a'') (q2 : p2 ▹ b' = b'') :
       dpair_eq_dpair (p1 ⬝ p2) (con_tr p1 p2 b ⬝ ap (transport B p2) q1 ⬝ q2)
     = dpair_eq_dpair p1 q1 ⬝ dpair_eq_dpair  p2 q2 :=
-  by cases p1; cases p2; cases q1; cases q2; apply idp
+  by cases p1; cases p2; cases q1; cases q2; reflexivity
 
   definition sigma_eq_con (p1 : u.1 = v.1) (q1 : p1 ▹ u.2 = v.2)
                               (p2 : v.1 = w.1) (q2 : p2 ▹ v.2 = w.2) :
@@ -114,7 +114,7 @@ namespace sigma
   local attribute dpair_eq_dpair [reducible]
   definition dpair_eq_dpair_con_idp (p : a = a') (q : p ▹ b = b') :
       dpair_eq_dpair p q = dpair_eq_dpair p idp ⬝ dpair_eq_dpair idp q :=
-  by cases p; cases q; apply idp
+  by cases p; cases q; reflexivity
 
   /- eq_pr1 commutes with the groupoid structure. -/
 
@@ -125,17 +125,17 @@ namespace sigma
   /- Applying dpair to one argument is the same as dpair_eq_dpair with reflexivity in the first place. -/
 
   definition ap_dpair (q : b₁ = b₂) : ap (sigma.mk a) q = dpair_eq_dpair idp q :=
-  by cases q; apply idp
+  by cases q; reflexivity
 
   /- Dependent transport is the same as transport along a sigma_eq. -/
 
   definition transportD_eq_transport (p : a = a') (c : C a b) :
       p ▹D c = transport (λu, C (u.1) (u.2)) (dpair_eq_dpair p idp) c :=
-  by cases p; apply idp
+  by cases p; reflexivity
 
   definition sigma_eq_eq_sigma_eq {p1 q1 : a = a'} {p2 : p1 ▹ b = b'} {q2 : q1 ▹ b = b'}
       (r : p1 = q1) (s : r ▹ p2 = q2) : sigma_eq p1 p2 = sigma_eq q1 q2 :=
-  by cases r; cases s; apply idp
+  by cases r; cases s; reflexivity
 
   /- A path between paths in a total space is commonly shown component wise. -/
   definition sigma_eq2 {p q : u = v} (r : p..1 = q..1) (s : r ▹ p..2 = q..2)
@@ -144,9 +144,9 @@ namespace sigma
     revert q r s,
     cases p, cases u with u1 u2,
     intro q r s,
-    apply concat, rotate 1,
-    apply sigma_eq_eta,
-    apply sigma_eq_eq_sigma_eq r s
+    transitivity sigma_eq q..1 q..2,
+      apply sigma_eq_eq_sigma_eq r s,
+      apply sigma_eq_eta,
   end
 
   /- In Coq they often have to give u and v explicitly when using the following definition -/
@@ -162,20 +162,19 @@ namespace sigma
 
   definition transport_eq (p : a = a') (bc : Σ(b : B a), C a b)
       : p ▹ bc = ⟨p ▹ bc.1, p ▹D bc.2⟩ :=
-  by cases p; cases bc; apply idp
+  by cases p; cases bc; reflexivity
 
   /- The special case when the second variable doesn't depend on the first is simpler. -/
   definition tr_eq_nondep {B : Type} {C : A → B → Type} (p : a = a') (bc : Σ(b : B), C a b)
       : p ▹ bc = ⟨bc.1, p ▹ bc.2⟩ :=
-  by cases p; cases bc; apply idp
+  by cases p; cases bc; reflexivity
 
   /- Or if the second variable contains a first component that doesn't depend on the first. -/
 
   definition tr_eq2_nondep {C : A → Type} {D : Π a:A, B a → C a → Type} (p : a = a')
       (bcd : Σ(b : B a) (c : C a), D a b c) : p ▹ bcd = ⟨p ▹ bcd.1, p ▹ bcd.2.1, p ▹D2 bcd.2.2⟩ :=
   begin
-    cases p, cases bcd with b cd,
-    cases cd, apply idp
+    cases p, cases bcd with b cd, cases cd, reflexivity
   end
 
   /- Functorial action -/
@@ -238,7 +237,7 @@ namespace sigma
     : ap (sigma.sigma_functor f g) (sigma_eq p q)
     = sigma_eq (ap f p)
                  ((transport_compose _ f p (g a b))⁻¹ ⬝ (fn_tr_eq_tr_fn p g b)⁻¹ ⬝ ap (g a') q) :=
-  by cases p; cases q; apply idp
+  by cases p; cases q; reflexivity
 
   definition ap_sigma_functor_eq (p : u.1 = v.1) (q : p ▹ u.2 = v.2)
     : ap (sigma.sigma_functor f g) (sigma_eq p q) =
@@ -275,8 +274,8 @@ namespace sigma
   equiv.mk _ (adjointify
     (λav, ⟨⟨av.1, av.2.1⟩, av.2.2⟩)
     (λuc, ⟨uc.1.1, uc.1.2, !eta⁻¹ ▹ uc.2⟩)
-    begin intro uc; cases uc with u c; cases u; apply idp end
-    begin intro av; cases av with a v; cases v; apply idp end)
+    begin intro uc, cases uc with u c, cases u, reflexivity end
+    begin intro av, cases av with a v, cases v, reflexivity end)
 
   open prod
   definition assoc_equiv_prod (C : (A × A') → Type) : (Σa a', C (a,a')) ≃ (Σu, C u) :=
@@ -368,7 +367,7 @@ namespace sigma
   eapply (trunc_index.rec_on n),
     intro A B HA HB,
       fapply is_trunc.is_trunc_equiv_closed,
-        apply equiv.symm,
+        symmetry,
           apply sigma_equiv_of_is_contr_pr1,
      intro n IH A B HA HB,
        fapply is_trunc.is_trunc_succ_intro, intro u v,

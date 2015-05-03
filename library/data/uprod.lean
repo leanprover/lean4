@@ -15,22 +15,22 @@ p₁ = p₂ ∨ swap p₁ = p₂
 
 infix `~` := eqv    -- this is "~"
 
-private theorem eqv.refl {A : Type} : ∀ p : A × A, p ~ p :=
+private theorem eqv.refl [refl] {A : Type} : ∀ p : A × A, p ~ p :=
 take p, or.inl rfl
 
-private theorem eqv.symm {A : Type} : ∀ p₁ p₂ : A × A, p₁ ~ p₂ → p₂ ~ p₁ :=
+private theorem eqv.symm [symm] {A : Type} : ∀ p₁ p₂ : A × A, p₁ ~ p₂ → p₂ ~ p₁ :=
 take p₁ p₂ h, or.elim h
-  (λ e, by rewrite e; apply eqv.refl)
-  (λ e, begin esimp [eqv], rewrite [-e, swap_swap], exact (or.inr rfl) end)
+  (λ e, by rewrite e; reflexivity)
+  (λ e, begin esimp [eqv], rewrite [-e, swap_swap], right, reflexivity end)
 
-private theorem eqv.trans {A : Type} : ∀ p₁ p₂ p₃ : A × A, p₁ ~ p₂ → p₂ ~ p₃ → p₁ ~ p₃ :=
+private theorem eqv.trans [trans] {A : Type} : ∀ p₁ p₂ p₃ : A × A, p₁ ~ p₂ → p₂ ~ p₃ → p₁ ~ p₃ :=
 take p₁ p₂ p₃ h₁ h₂, or.elim h₁
   (λ e₁₂,  or.elim h₂
-    (λ e₂₃,  by rewrite [e₁₂, e₂₃]; apply eqv.refl)
-    (λ es₂₃, begin esimp [eqv], rewrite -es₂₃, exact (or.inr (congr_arg swap e₁₂)) end))
+    (λ e₂₃,  by rewrite [e₁₂, e₂₃]; reflexivity)
+    (λ es₂₃, begin esimp [eqv], rewrite -es₂₃, right, congruence, assumption end))
   (λ es₁₂, or.elim h₂
-    (λ e₂₃,  begin esimp [eqv], rewrite es₁₂, exact (or.inr e₂₃) end)
-    (λ es₂₃, begin esimp [eqv], rewrite [-es₁₂ at es₂₃, swap_swap at es₂₃], exact (or.inl es₂₃) end))
+    (λ e₂₃,  begin esimp [eqv], rewrite es₁₂, right, assumption end)
+    (λ es₂₃, begin esimp [eqv], rewrite [-es₁₂ at es₂₃, swap_swap at es₂₃], left, assumption end))
 
 private theorem is_equivalence (A : Type) : equivalence (@eqv A) :=
 mk_equivalence (@eqv A) (@eqv.refl A) (@eqv.symm A) (@eqv.trans A)
@@ -83,7 +83,7 @@ namespace uprod
   | (a₁, b₁) (a₂, b₂) h :=
     or.elim h
       (λ e,  by rewrite e)
-      (λ es, begin rewrite -es, apply quot.sound, exact (or.inr rfl) end)
+      (λ es, begin rewrite -es, apply quot.sound, right, reflexivity end)
 
   definition map {A B : Type} (f : A → B) (u : uprod A) : uprod B :=
   quot.lift_on u (λ p, map_fn f p) (λ p₁ p₂ c, map_coherent f c)
@@ -95,5 +95,5 @@ namespace uprod
   or.inr rfl
 
   theorem map_map {A B C : Type} (g : B → C) (f : A → B) (u : uprod A) : map g (map f u) = map (g ∘ f) u :=
-  quot.induction_on u (λ p : A × A, begin cases p, apply rfl end)
+  quot.induction_on u (λ p : A × A, begin cases p, reflexivity end)
 end uprod

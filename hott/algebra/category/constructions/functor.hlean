@@ -39,10 +39,9 @@ namespace category
     (λc d f,
     begin
       apply comp_inverse_eq_of_eq_comp,
-      apply concat, rotate_left 1, apply assoc,
-      apply eq_inverse_comp_of_comp_eq,
-      apply inverse,
-      apply naturality,
+      transitivity (natural_map η d)⁻¹ ∘ to_fun_hom G f ∘ natural_map η c,
+        {apply eq_inverse_comp_of_comp_eq, symmetry, apply naturality},
+        {apply assoc}
     end)
 
   definition nat_trans_left_inverse : nat_trans_inverse η ∘n η = nat_trans.id :=
@@ -80,14 +79,14 @@ namespace category
 
   definition naturality_iso {c c' : C} (f : c ⟶ c') : G f = η c' ∘ F f ∘ (η c)⁻¹ :=
   calc
-    G f = (G f ∘ η c) ∘ (η c)⁻¹ : comp_inverse_cancel_right
+    G f = (G f ∘ η c) ∘ (η c)⁻¹  : by rewrite comp_inverse_cancel_right
     ... = (η c' ∘ F f) ∘ (η c)⁻¹ : by rewrite naturality
-    ... = η c' ∘ F f ∘ (η c)⁻¹ : assoc
+    ... = η c' ∘ F f ∘ (η c)⁻¹   : by rewrite assoc
 
   definition naturality_iso' {c c' : C} (f : c ⟶ c') : (η c')⁻¹ ∘ G f ∘ η c = F f :=
   calc
    (η c')⁻¹ ∘ G f ∘ η c = (η c')⁻¹ ∘ η c' ∘ F f : by rewrite naturality
-     ... = F f : inverse_comp_cancel_left
+                    ... = F f                   : by rewrite inverse_comp_cancel_left
 
   omit isoη
 
@@ -128,7 +127,7 @@ namespace category
           {apply (ap (λx, to_hom x ∘ to_fun_hom F f ∘ _)), apply (right_inv iso_of_eq)},
         apply concat,
           {apply (ap (λx, _ ∘ to_fun_hom F f ∘ (to_hom x)⁻¹)), apply (right_inv iso_of_eq)},
-        apply inverse, apply naturality_iso}
+        symmetry, apply naturality_iso}
     end
 
     definition iso_of_eq_eq_of_iso (η : F ≅ G) : iso_of_eq (eq_of_iso η) = η :=

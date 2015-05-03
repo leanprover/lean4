@@ -514,9 +514,9 @@ def call_ninja(args):
         ninja_option += ["-k", args.keep_going]
     proc = subprocess.Popen([g_ninja_path] + ninja_option + targets, stdout=proc_out, stderr=proc_err)
     (out, err) = proc.communicate()
-    if out:
+    if out is not None:
       out = out.decode('utf-8')
-    if err:
+    if err is not None:
       err = err.decode('utf-8')
     if args.flycheck:
         if len(args.targets) == 1 and (args.targets[0].endswith(".lean") or args.targets[0].endswith(".hlean")):

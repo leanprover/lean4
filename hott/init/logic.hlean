@@ -125,9 +125,6 @@ section
   assume H₁ H₂, H₂ ▸ H₁
 end
 
-attribute ne.of_eq_of_ne [trans]
-attribute ne.of_ne_of_eq [trans]
-
 /- iff -/
 
 definition iff (a b : Type) := prod (a → b) (b → a)

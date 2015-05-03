@@ -273,7 +273,5 @@ namespace equiv
   attribute equiv.trans [trans]
   attribute equiv.refl [refl]
   attribute equiv.symm [symm]
-  attribute equiv_of_equiv_of_eq [trans]
-  attribute equiv_of_eq_of_equiv [trans]
 
 end equiv

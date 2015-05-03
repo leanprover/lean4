@@ -35,12 +35,12 @@ static expr parse_rparen(parser &, unsigned, expr const * args, pos_info const &
 static expr parse_let_tactic(parser & p, unsigned, expr const *, pos_info const & pos) {
     name id    = p.check_atomic_id_next("invalid 'let' tactic, identifier expected");
     p.check_token_next(get_assign_tk(), "invalid 'let' tactic, ':=' expected");
-    expr value = p.parse_expr();
+    expr value = p.parse_tactic_expr_arg();
     return p.save_pos(mk_let_tactic_expr(id, value), pos);
 }
 
 static expr parse_generalize_tactic(parser & p, unsigned, expr const *, pos_info const & pos) {
-    expr e = p.parse_expr();
+    expr e = p.parse_tactic_expr_arg();
     name id;
     if (p.curr_is_token(get_as_tk())) {
         p.next();

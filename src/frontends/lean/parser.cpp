@@ -1383,6 +1383,16 @@ static bool is_tactic_command_type(expr e) {
     return is_tactic_type(e);
 }
 
+expr parser::parse_tactic_expr_arg(unsigned rbp) {
+    parser::undef_id_to_local_scope scope1(*this);
+    return parse_expr(rbp);
+}
+
+expr parser::parse_tactic_id_arg() {
+    parser::undef_id_to_local_scope scope1(*this);
+    return parse_id();
+}
+
 optional<expr> parser::is_tactic_command(name & id) {
     if (id.is_atomic())
         id = get_tactic_name() + id;
@@ -1410,7 +1420,7 @@ expr parser::parse_tactic_expr_list() {
     check_token_next(get_lbracket_tk(), "invalid tactic, '[' expected");
     buffer<expr> args;
     while (true) {
-        args.push_back(parse_expr());
+        args.push_back(parse_tactic_expr_arg());
         if (!curr_is_token(get_comma_tk()))
             break;
         next();
@@ -1510,7 +1520,7 @@ expr parser::parse_tactic_nud() {
                         rbp = 0;
                     else
                         rbp = get_max_prec();
-                    r = mk_app(r, parse_expr(rbp), id_pos);
+                    r = mk_app(r, parse_tactic_expr_arg(rbp), id_pos);
                 }
             }
             return r;

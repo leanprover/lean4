@@ -404,6 +404,8 @@ public:
     expr parse_scoped_expr(buffer<expr> const & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
 
     expr parse_tactic(unsigned rbp = 0);
+    expr parse_tactic_expr_arg(unsigned rbp = 0);
+    expr parse_tactic_id_arg();
 
     struct local_scope { parser & m_p; environment m_env;
         local_scope(parser & p, bool save_options = false);

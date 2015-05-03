@@ -124,7 +124,6 @@ static expr parse_placeholder(parser & p, unsigned, expr const *, pos_info const
 }
 
 static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
-    parser::undef_id_to_local_scope scope(p);
     p.next();
     expr t = p.parse_tactic();
     return p.mk_by(t, pos);
@@ -133,7 +132,6 @@ static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
 static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & end_token, bool nested = false) {
     if (!p.has_tactic_decls())
         throw parser_error("invalid 'begin-end' expression, tactic module has not been imported", pos);
-    parser::undef_id_to_local_scope scope1(p);
     p.next();
     optional<expr> pre_tac = get_begin_end_pre_tactic(p.env());
     buffer<expr> tacs;
@@ -171,7 +169,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
                 p.next();
                 name id  = p.check_id_next("invalid 'assert' tactic, identifier expected");
                 p.check_token_next(get_colon_tk(), "invalid 'assert' tactic, ':' expected");
-                expr A   = p.parse_expr();
+                expr A   = p.parse_tactic_expr_arg();
                 expr assert_tac = p.save_pos(mk_assert_tactic_expr(id, A), pos);
                 tacs.push_back(mk_begin_end_element_annotation(assert_tac));
             } else if (p.curr_is_token(get_have_tk())) {
@@ -180,7 +178,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
                 auto id_pos = p.pos();
                 name id  = p.check_id_next("invalid 'have' tactic, identifier expected");
                 p.check_token_next(get_colon_tk(), "invalid 'have' tactic, ':' expected");
-                expr A   = p.parse_expr();
+                expr A   = p.parse_tactic_expr_arg();
                 expr assert_tac = p.save_pos(mk_assert_tactic_expr(id, A), pos);
                 tacs.push_back(mk_begin_end_element_annotation(assert_tac));
                 if (p.curr_is_token(get_bar_tk())) {
@@ -196,7 +194,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
                         // parse: 'from' expr
                         p.next();
                         auto pos = p.pos();
-                        expr t = p.parse_expr();
+                        expr t = p.parse_tactic_expr_arg();
                         t      = p.mk_app(get_rexact_tac_fn(), t, pos);
                         t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
                         t      = p.save_pos(mk_begin_end_annotation(t), pos);
@@ -204,7 +202,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
                     } else if (p.curr_is_token(get_proof_tk())) {
                         auto pos = p.pos();
                         p.next();
-                        expr t = p.parse_expr();
+                        expr t = p.parse_tactic_expr_arg();
                         p.check_token_next(get_qed_tk(), "invalid proof-qed, 'qed' expected");
                         t      = p.mk_app(get_rexact_tac_fn(), t, pos);
                         t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
@@ -225,13 +223,13 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
                 }
             } else if (p.curr_is_token(get_show_tk())) {
                 auto pos = p.pos();
-                expr t = p.parse_expr();
+                expr t = p.parse_tactic_expr_arg();
                 t      = p.mk_app(get_rexact_tac_fn(), t, pos);
                 add_tac(t, pos);
             } else if (p.curr_is_token(get_match_tk()) || p.curr_is_token(get_assume_tk()) ||
                        p.curr_is_token(get_take_tk())  || p.curr_is_token(get_fun_tk())) {
                 auto pos = p.pos();
-                expr t = p.parse_expr();
+                expr t = p.parse_tactic_expr_arg();
                 t      = p.mk_app(get_exact_tac_fn(), t, pos);
                 add_tac(t, pos);
             } else {

@@ -379,10 +379,16 @@ class inversion_tac {
         name const & I_name = const_name(I);
         expr g_type         = g.get_type();
         expr cases_on;
+        level g_lvl  = sort_level(m_tc.ensure_type(g_type).first);
         if (m_cases_on_decl.get_num_univ_params() != m_I_decl.get_num_univ_params()) {
-            level g_lvl  = sort_level(m_tc.ensure_type(g_type).first);
             cases_on     = mk_constant({I_name, "cases_on"}, cons(g_lvl, const_levels(I)));
         } else {
+            if (!is_zero(g_lvl)) {
+                if (m_throw_tactic_exception)
+                    throw tactic_exception(sstream() << "invalid 'cases' tactic, '" << const_name(I) << "' can only eliminate to Prop");
+                else
+                    throw inversion_exception();
+            }
             cases_on     = mk_constant({I_name, "cases_on"}, const_levels(I));
         }
         // add params

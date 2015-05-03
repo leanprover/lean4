@@ -1,0 +1,13 @@
+571.lean:6:2: error:invalid 'cases' tactic, 'Exists' can only eliminate to Prop
+proof state:
+P : ℕ → Prop,
+H : ∃ (n : ℕ), P n
+⊢ ℕ
+571.lean:7:0: error: don't know how to synthesize placeholder
+P : ℕ → Prop,
+H : ∃ (n : ℕ), P n
+⊢ ℕ
+571.lean:7:0: error: failed to add declaration '14.1' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  λ (P : …) (H : …),
+    ?M_1

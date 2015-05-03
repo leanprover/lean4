@@ -5,7 +5,7 @@ notation `(` h `|` r:(foldl `|` (e r, tactic.or_else r e) h) `)` := r
 infixl `;`:15 := tactic.and_then
 
 definition my_tac1 := apply @eq.refl
-definition my_tac2 := repeat (apply @and.intro; assumption)
+definition my_tac2 := repeat (apply @and.intro | assumption)
 
 tactic_hint my_tac1
 tactic_hint my_tac2

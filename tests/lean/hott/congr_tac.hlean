@@ -14,7 +14,7 @@ begin
 end
 
 example (f g : nat → nat → nat) (a b c : nat) : f = g → b = c → f a b = g a c :=
-by intros; congruence; assumption
+by intros; congruence; repeat assumption
 
 inductive list (A : Type) :=
 | nil {} : list A

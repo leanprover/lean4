@@ -56,8 +56,6 @@ tactic id_tactic();
 tactic fail_tactic();
 /** \brief Return a tactic that fails if there are unsolved goals. */
 tactic now_tactic();
-/** \brief Return a tactic that solves any goal of the form  <tt>..., H : A, ... |- A</tt>. */
-tactic assumption_tactic();
 /** \brief Return a tactic that performs \c t1 followed by \c t2. */
 tactic then(tactic const & t1, tactic const & t2);
 inline tactic operator<<(tactic const & t1, tactic const & t2) { return then(t1, t2); }

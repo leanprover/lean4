@@ -220,36 +220,6 @@ tactic discard(tactic const & t, unsigned k) {
         });
 }
 
-tactic assumption_tactic() {
-    return tactic01([](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
-            substitution subst = s.get_subst();
-            bool solved = false;
-            goals new_gs = map_goals(s, [&](goal const & g) -> optional<goal> {
-                    expr const & t  = g.get_type();
-                    optional<expr> h;
-                    buffer<expr> hyps;
-                    g.get_hyps(hyps);
-                    for (auto const & l : hyps) {
-                        if (mlocal_type(l) == t) {
-                            h = l;
-                            break;
-                        }
-                    }
-                    if (h) {
-                        assign(subst, g, *h);
-                        solved = true;
-                        return optional<goal>();
-                    } else {
-                        return some(g);
-                    }
-                });
-            if (solved)
-                return some(proof_state(s, new_gs, subst));
-            else
-                return none_proof_state();
-        });
-}
-
 tactic beta_tactic() {
     return tactic01([=](environment const &, io_state const &, proof_state const & s) -> optional<proof_state> {
             bool reduced = false;
@@ -421,7 +391,6 @@ static int mk_lua_when_tactic(lua_State * L) { return mk_lua_cond_tactic(L, to_t
 static int mk_id_tactic(lua_State * L)          {  return push_tactic(L, id_tactic()); }
 static int mk_now_tactic(lua_State * L)         {  return push_tactic(L, now_tactic()); }
 static int mk_fail_tactic(lua_State * L)        {  return push_tactic(L, fail_tactic()); }
-static int mk_assumption_tactic(lua_State * L)  {  return push_tactic(L, assumption_tactic()); }
 static int mk_beta_tactic(lua_State * L) {  return push_tactic(L, beta_tactic()); }
 static const struct luaL_Reg tactic_m[] = {
     {"__gc",            tactic_gc}, // never throws
@@ -460,7 +429,6 @@ void open_tactic(lua_State * L) {
     SET_GLOBAL_FUN(mk_id_tactic,          "id_tac");
     SET_GLOBAL_FUN(mk_now_tactic,         "now_tac");
     SET_GLOBAL_FUN(mk_fail_tactic,        "fail_tac");
-    SET_GLOBAL_FUN(mk_assumption_tactic,  "assumption_tac");
     SET_GLOBAL_FUN(mk_beta_tactic,        "beta_tac");
     SET_GLOBAL_FUN(mk_lua_tactic01,       "tactic01");
 

@@ -14,7 +14,7 @@ begin
   intros,
   symmetry,
   transitivity b,
-  assumption
+  repeat assumption
 end
 
 example (a b c : Prop) : (a ↔ b) → (b ↔ c) → (c ↔ a) :=
@@ -22,7 +22,7 @@ begin
   intros,
   symmetry,
   transitivity b,
-  assumption
+  repeat assumption
 end
 
 example {A B C : Type} (a : A) (b : B) (c : C) : a == b → b == c → c == a :=
@@ -30,5 +30,5 @@ begin
   intros,
   symmetry,
   transitivity b,
-  assumption
+  repeat assumption
 end

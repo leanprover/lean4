@@ -16,7 +16,7 @@ begin
 end
 
 example (f g : nat → nat → nat) (a b c : nat) : f = g → b = c → f a b = g a c :=
-by intros; congruence; assumption
+by intros; congruence; repeat assumption
 
 open list
 
@@ -31,4 +31,4 @@ begin
 end
 
 example (a b : nat) : a = b → [a] ++ [b] = [b] ++ [a] :=
-by intros; repeat (congruence | assumption | apply eq.symm)
+by intros; repeat (congruence | assumption | symmetry)

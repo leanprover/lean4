@@ -2,7 +2,7 @@ import logic
 open tactic
 
 definition my_tac1 := apply @eq.refl
-definition my_tac2 := repeat (and_then (apply and.intro) assumption)
+definition my_tac2 := repeat (or_else (apply and.intro) assumption)
 
 tactic_hint my_tac1
 tactic_hint my_tac2

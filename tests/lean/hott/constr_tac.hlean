@@ -3,10 +3,7 @@ open prod
 example (a b c : Type) : a → b → c → a × b × c :=
 begin
   intro Ha Hb Hc,
-  split,
-  assumption,
-  split,
-  assumption
+  repeat (split | assumption)
 end
 
 example (a b : Type) : a → sum a b :=

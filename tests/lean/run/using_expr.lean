@@ -4,5 +4,5 @@ have Hq : q, from and.elim_right H,
 using Hp Hq,
 begin
   apply and.intro, assumption,
-  apply and.intro, assumption
+  apply and.intro, repeat assumption
 end

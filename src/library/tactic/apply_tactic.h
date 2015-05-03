@@ -13,6 +13,7 @@ tactic apply_tactic_core(expr const & e, constraint_seq const & cs = constraint_
 tactic apply_tactic(elaborate_fn const & fn, expr const & e);
 tactic fapply_tactic(elaborate_fn const & fn, expr const & e);
 tactic eassumption_tactic();
+tactic assumption_tactic();
 void open_apply_tactic(lua_State * L);
 void initialize_apply_tactic();
 void finalize_apply_tactic();

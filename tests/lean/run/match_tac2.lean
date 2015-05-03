@@ -3,10 +3,10 @@ begin
   apply iff.intro,
   {intro H,
    match H with
-   |  and.intro H₁ H₂ := by apply and.intro; assumption
+   |  and.intro H₁ H₂ := by apply and.intro; repeat assumption
    end},
   {intro H,
    match H with
-   | and.intro H₁ H₂ := by apply and.intro; assumption
+   | and.intro H₁ H₂ := by apply and.intro; repeat assumption
    end},
 end

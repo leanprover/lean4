@@ -71,7 +71,8 @@ enum add_meta_kind { DoNotAdd, AddDiff, AddAll };
 
 static proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s,
                                          expr const & _e, buffer<constraint> & cs,
-                                         add_meta_kind add_meta, subgoals_action_kind subgoals_action) {
+                                         add_meta_kind add_meta, subgoals_action_kind subgoals_action,
+                                         optional<unifier_kind> const & uk = optional<unifier_kind>()) {
     goals const & gs = s.get_goals();
     if (empty(gs)) {
         throw_no_goal_if_enabled(s);
@@ -92,6 +93,8 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
     local_context ctx;
     bool initialized_ctx = false;
     unifier_config cfg(ios.get_options());
+    if (uk)
+        cfg.m_kind = *uk;
     if (add_meta != DoNotAdd) {
         unsigned num_e_t = get_expect_num_args(*tc, e_t);
         if (add_meta == AddDiff) {
@@ -178,9 +181,9 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
 }
 
 static proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s, expr const & e,
-                                         add_meta_kind add_meta, subgoals_action_kind subgoals_action) {
+                                         add_meta_kind add_meta, subgoals_action_kind subgoals_action, optional<unifier_kind> const & uk = optional<unifier_kind>()) {
     buffer<constraint> cs;
-    return apply_tactic_core(env, ios, s, e, cs, add_meta, subgoals_action);
+    return apply_tactic_core(env, ios, s, e, cs, add_meta, subgoals_action, uk);
 }
 
 proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s, expr const & e, constraint_seq const & cs) {
@@ -195,7 +198,7 @@ tactic apply_tactic_core(expr const & e, constraint_seq const & cs) {
         });
 }
 
-tactic eassumption_tactic() {
+static tactic assumption_tactic_core(optional<unifier_kind> uk) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             goals const & gs = s.get_goals();
             if (empty(gs)) {
@@ -206,12 +209,20 @@ tactic eassumption_tactic() {
             proof_state_seq r;
             goal g = head(gs);
             buffer<expr> hs;
-            get_app_args(g.get_meta(), hs);
+            g.get_hyps(hs);
             for (expr const & h : hs) {
-                r = append(r, apply_tactic_core(env, ios, new_s, h, DoNotAdd, IgnoreSubgoals));
+                r = append(r, apply_tactic_core(env, ios, new_s, h, DoNotAdd, IgnoreSubgoals, uk));
             }
             return r;
         });
+}
+
+tactic eassumption_tactic() {
+    return assumption_tactic_core(optional<unifier_kind>());
+}
+
+tactic assumption_tactic() {
+    return assumption_tactic_core(optional<unifier_kind>(unifier_kind::Conservative));
 }
 
 tactic apply_tactic_core(elaborate_fn const & elab, expr const & e, add_meta_kind add_meta, subgoals_action_kind k) {
@@ -277,6 +288,9 @@ void initialize_apply_tactic() {
 
     register_simple_tac(get_tactic_eassumption_name(),
                         []() { return eassumption_tactic(); });
+
+    register_simple_tac(get_tactic_assumption_name(),
+                        []() { return assumption_tactic(); });
 }
 
 void finalize_apply_tactic() {

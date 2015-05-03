@@ -367,8 +367,6 @@ void initialize_expr_to_tactic() {
                         []() { return id_tactic(); });
     register_simple_tac(get_tactic_now_name(),
                         []() { return now_tactic(); });
-    register_simple_tac(get_tactic_assumption_name(),
-                        []() { return assumption_tactic(); });
     register_simple_tac(get_tactic_fail_name(),
                         []() { return fail_tactic(); });
     register_simple_tac(get_tactic_beta_name(),

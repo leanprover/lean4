@@ -1,7 +1,7 @@
 cases_failure.hlean:11:2: error:invalid 'cases' tactic, unification failed
 auxiliary goal at time of failure
   A : Type,
-  x y z : A,
+  z : A,
   b r t l : z = z,
   s : square t b l r,
   e_3 : z = z

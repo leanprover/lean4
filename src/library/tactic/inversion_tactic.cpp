@@ -212,12 +212,12 @@ class inversion_tac {
         - non_deps : hypotheses that do not depend on H
         - deps     : hypotheses that depend on H (directly or indirectly)
     */
-    void split_deps(buffer<expr> const & hyps, expr const & H, buffer<expr> & non_deps, buffer<expr> & deps) {
+    void split_deps(buffer<expr> const & hyps, expr const & H, buffer<expr> & non_deps, buffer<expr> & deps, bool clear_H = false) {
         for (expr const & hyp : hyps) {
             expr const & hyp_type = mlocal_type(hyp);
             if (depends_on(hyp_type, H) || std::any_of(deps.begin(), deps.end(), [&](expr const & dep) { return depends_on(hyp_type, dep); })) {
                 deps.push_back(hyp);
-            } else {
+            } else if (hyp != H || !clear_H) {
                 non_deps.push_back(hyp);
             }
         }
@@ -798,7 +798,8 @@ class inversion_tac {
             // Remark: A is the type of lhs and rhs
             hyps.pop_back(); // remove processed equality
             buffer<expr> non_deps, deps;
-            split_deps(hyps, rhs, non_deps, deps);
+            bool clear_rhs = true;
+            split_deps(hyps, rhs, non_deps, deps, clear_rhs);
             if (deps.empty() && !depends_on(g_type, rhs)) {
                 // eq.rec is not necessary
                 buffer<expr> & new_hyps = non_deps;

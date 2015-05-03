@@ -1890,11 +1890,18 @@ std::tuple<expr, expr, level_param_names> elaborator::operator()(
 }
 
 // Auxiliary procedure for #translate
-static expr translate_local_name(list<expr> const & ctx, name const & local_name,
+static expr translate_local_name(environment const & env,
+                                 list<expr> const & ctx, name const & local_name,
                                  expr const & src) {
     for (expr const & local : ctx) {
         if (local_pp_name(local) == local_name)
             return copy(local);
+    }
+    if (env.find(local_name)) {
+        if (is_local(src))
+            return mk_constant(local_name);
+        else
+            return src;
     }
     throw_elaborator_exception(sstream() << "unknown identifier '" << local_name << "'", src);
 }
@@ -1908,14 +1915,10 @@ static expr translate(environment const & env, list<expr> const & ctx, expr cons
         if (is_placeholder(e) || is_by(e)) {
             return some_expr(e); // ignore placeholders
         } else if (is_constant(e)) {
-            if (!env.find(const_name(e))) {
-                expr new_e = copy_tag(e, translate_local_name(ctx, const_name(e), e));
-                return some_expr(new_e);
-            } else {
-                return none_expr();
-            }
+            expr new_e = copy_tag(e, translate_local_name(env, ctx, const_name(e), e));
+            return some_expr(new_e);
         } else if (is_local(e)) {
-            expr new_e = copy_tag(e, translate_local_name(ctx, local_pp_name(e), e));
+            expr new_e = copy_tag(e, translate_local_name(env, ctx, local_pp_name(e), e));
             return some_expr(new_e);
         } else {
             return none_expr();

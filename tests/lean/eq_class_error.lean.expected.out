@@ -1,0 +1,7 @@
+eq_class_error.lean:15:10: error: don't know how to synthesize placeholder
+decidable_eq_foo : Π (f₁ f₂ : foo), decidable (f₁ = f₂)
+⊢ decidable (b = b)
+eq_class_error.lean:9:11: error: failed to synthesize placeholder
+
+⊢ Π (f₁ f₂ : foo),
+    decidable (f₁ = f₂)

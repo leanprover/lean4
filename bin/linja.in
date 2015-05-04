@@ -515,9 +515,9 @@ def call_ninja(args):
     proc = subprocess.Popen([g_ninja_path] + ninja_option + targets, stdout=proc_out, stderr=proc_err)
     (out, err) = proc.communicate()
     if out is not None:
-      out = out.decode('utf-8')
+      out = out.decode('utf-8').replace('\r\n', '\n')
     if err is not None:
-      err = err.decode('utf-8')
+      err = err.decode('utf-8').replace('\r\n', '\n')
     if args.flycheck:
         if len(args.targets) == 1 and (args.targets[0].endswith(".lean") or args.targets[0].endswith(".hlean")):
             process_lean_output(targets[0], out, args, args.targets[0].endswith(".hlean"))
@@ -530,7 +530,7 @@ def call_ninja(args):
 def call_lean(filename, args):
     proc = subprocess.Popen([g_lean_path] + args.lean_options + [filename],
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    out = proc.communicate()[0].decode('utf-8')
+    out = proc.communicate()[0].decode('utf-8').replace('\r\n', '\n')
     process_lean_output(filename, out, args, filename.endswith(".hlean"))
     return proc.returncode
 
@@ -685,8 +685,9 @@ def escape_dep(s):
 def make_deps(lean_file, dlean_file, olean_file):
     with open(dlean_file, "w") as f:
         deps = []
-        proc = subprocess.Popen([g_lean_path, "--deps", lean_file], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = proc.communicate()[0].decode('utf-8')
+        proc = subprocess.Popen([g_lean_path, "--deps", lean_file],
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        output = proc.communicate()[0].decode('utf-8').replace('\r\n', '\n')
         print(escape_dep(olean_file) + ": \\", file=f)
         for olean_file in output.strip().splitlines():
             if olean_file:

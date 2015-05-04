@@ -402,6 +402,7 @@ public:
         return parse_scoped_expr(num_params, ps, local_environment(m_env), rbp);
     }
     expr parse_scoped_expr(buffer<expr> const & ps, unsigned rbp = 0) { return parse_scoped_expr(ps.size(), ps.data(), rbp); }
+    expr parse_expr_with_env(local_environment const & lenv, unsigned rbp = 0);
 
     expr parse_tactic(unsigned rbp = 0);
     expr parse_tactic_expr_arg(unsigned rbp = 0);

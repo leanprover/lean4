@@ -1348,6 +1348,11 @@ expr parser::parse_scoped_expr(unsigned num_ps, expr const * ps, local_environme
     return parse_expr(rbp);
 }
 
+expr parser::parse_expr_with_env(local_environment const & lenv, unsigned rbp) {
+    flet<environment> set_env(m_env, lenv);
+    return parse_expr(rbp);
+}
+
 static bool is_tactic_type(expr const & e) {
     return is_constant(e) && const_name(e) == get_tactic_name();
 }

@@ -521,7 +521,7 @@ static expr parse_calc_expr(parser & p, unsigned, expr const *, pos_info const &
 static expr parse_overwrite_notation(parser & p, unsigned, expr const *, pos_info const &) {
     name n = p.check_id_next("invalid '#' local notation, identifier expected");
     environment env = overwrite_notation(p.env(), n);
-    return p.parse_scoped_expr(0, nullptr, env);
+    return p.parse_expr_with_env(env);
 }
 
 static expr parse_explicit_expr(parser & p, unsigned, expr const *, pos_info const & pos) {

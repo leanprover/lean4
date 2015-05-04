@@ -1,0 +1,8 @@
+simp_idp.hlean:7:2: proof state
+A : Type,
+C : A → Type,
+a : A,
+f g : C a → C a,
+c : C a,
+a_1 : f = g
+⊢ f c = g c

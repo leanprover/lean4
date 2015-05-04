@@ -51,9 +51,7 @@ namespace bool
   bool.cases_on a rfl rfl
 
   theorem bor.comm (a b : bool) : a || b = b || a :=
-  bool.cases_on a
-    (bool.cases_on b rfl rfl)
-    (bool.cases_on b rfl rfl)
+  by cases a; repeat (cases b | reflexivity)
 
   theorem bor.assoc (a b c : bool) : (a || b) || c = a || (b || c) :=
   match a with

@@ -259,15 +259,14 @@ namespace vector
    /- decidable equality -/
   open decidable
   definition decidable_eq [H : decidable_eq A] : ∀ {n : nat} (v₁ v₂ : vector A n), decidable (v₁ = v₂)
-  | ⌞0⌟    []      []      := inl rfl
+  | ⌞0⌟    []      []      := by left; reflexivity
   | ⌞n+1⌟  (a::v₁) (b::v₂) :=
     match H a b with
     | inl Hab  :=
       match decidable_eq v₁ v₂ with
-      | inl He := inl (eq.rec_on Hab (eq.rec_on He rfl))
-      | inr Hn := inr (λ H₁, vector.no_confusion H₁ (λ e₁ e₂ e₃, absurd (heq.to_eq e₃) Hn))
+      | inl He := by left; congruence; repeat assumption
+      | inr Hn := by right; intro h; injection h; refine absurd _ Hn; assumption
       end
-    | inr Hnab := inr (λ H₁, vector.no_confusion H₁ (λ e₁ e₂ e₃, absurd e₂ Hnab))
+    | inr Hnab := by right; intro h; injection h; refine absurd _ Hnab; assumption
   end
-
 end vector

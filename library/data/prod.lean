@@ -20,13 +20,16 @@ namespace prod
   protected definition is_inhabited [instance] [h₁ : inhabited A] [h₂ : inhabited B] : inhabited (prod A B) :=
   inhabited.mk (default A, default B)
 
-  protected definition has_decidable_eq [instance] [h₁ : decidable_eq A] [h₂ : decidable_eq B] : decidable_eq (A × B) :=
-  take (u v : A × B),
-    have H₃ : u = v ↔ (pr₁ u = pr₁ v) ∧ (pr₂ u = pr₂ v), from
-      iff.intro
-        (assume H, H ▸ and.intro rfl rfl)
-        (assume H, and.elim H (assume H₄ H₅, equal H₄ H₅)),
-    decidable_of_decidable_of_iff _ (iff.symm H₃)
+  protected definition has_decidable_eq [instance] [h₁ : decidable_eq A] [h₂ : decidable_eq B] : ∀ p₁ p₂ : A × B, decidable (p₁ = p₂)
+  | (a, b) (a', b') :=
+    match h₁ a a' with
+    | inl e₁ :=
+      match h₂ b b' with
+      | inl e₂ := by left; congruence; repeat assumption
+      | inr n₂ := by right; intro h; injection h; refine absurd _ n₂; assumption
+      end
+    | inr n₁ := by right; intro h; injection h; refine absurd _ n₁; assumption
+    end
 
   definition swap {A : Type} : A × A → A × A
   | (a, b) := (b, a)

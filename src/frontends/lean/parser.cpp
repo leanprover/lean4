@@ -758,11 +758,15 @@ auto parser::elaborate_definition_at(environment const & env, local_level_decls 
       - '{'          : implicit
       - '{{' or '⦃'  : strict implicit
       - '['          : cast
+
+   If simple_only, then only `(` is considered
 */
-optional<binder_info> parser::parse_optional_binder_info() {
+optional<binder_info> parser::parse_optional_binder_info(bool simple_only) {
     if (curr_is_token(get_lparen_tk())) {
         next();
         return some(binder_info());
+    } else if (simple_only) {
+        return optional<binder_info>();
     } else if (curr_is_token(get_lcurly_tk())) {
         next();
         if (curr_is_token(get_lcurly_tk())) {
@@ -788,9 +792,9 @@ optional<binder_info> parser::parse_optional_binder_info() {
 
    \see parse_optional_binder_info
 */
-binder_info parser::parse_binder_info() {
+binder_info parser::parse_binder_info(bool simple_only) {
     auto p = pos();
-    if (auto bi = parse_optional_binder_info()) {
+    if (auto bi = parse_optional_binder_info(simple_only)) {
         return *bi;
     } else {
         throw_invalid_open_binder(p);
@@ -843,7 +847,8 @@ expr parser::parse_binder(unsigned rbp) {
     if (curr_is_identifier()) {
         return parse_binder_core(binder_info(), rbp);
     } else {
-        binder_info bi = parse_binder_info();
+        bool simple_only = false;
+        binder_info bi = parse_binder_info(simple_only);
         rbp = 0;
         auto r = parse_binder_core(bi, rbp);
         parse_close_binder_info(bi);
@@ -878,17 +883,17 @@ void parser::parse_binder_block(buffer<expr> & r, binder_info const & bi, unsign
 }
 
 void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentries,
-                                bool & last_block_delimited, unsigned rbp) {
+                                bool & last_block_delimited, unsigned rbp, bool simple_only) {
     while (true) {
         if (curr_is_identifier()) {
             parse_binder_block(r, binder_info(), rbp);
             last_block_delimited = false;
         } else {
-            optional<binder_info> bi = parse_optional_binder_info();
+            optional<binder_info> bi = parse_optional_binder_info(simple_only);
             if (bi) {
                 rbp = 0;
                 last_block_delimited = true;
-                if (!parse_local_notation_decl(nentries))
+                if (simple_only || !parse_local_notation_decl(nentries))
                     parse_binder_block(r, *bi, rbp);
                 parse_close_binder_info(bi);
             } else {
@@ -899,11 +904,12 @@ void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentr
 }
 
 local_environment parser::parse_binders(buffer<expr> & r, buffer<notation_entry> * nentries,
-                                        bool & last_block_delimited, bool allow_empty, unsigned rbp) {
+                                        bool & last_block_delimited, bool allow_empty, unsigned rbp,
+                                        bool simple_only) {
     flet<environment> save(m_env, m_env); // save environment
     local_expr_decls::mk_scope scope(m_local_decls);
     unsigned old_sz = r.size();
-    parse_binders_core(r, nentries, last_block_delimited, rbp);
+    parse_binders_core(r, nentries, last_block_delimited, rbp, simple_only);
     if (!allow_empty && old_sz == r.size())
         throw_invalid_open_binder(pos());
     return local_environment(m_env);

@@ -3,7 +3,7 @@ Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Module: data.set.function
-Author: Jeremy Avigad, Andrew Zipperer
+Author: Jeremy Avigad, Andrew Zipperer, Haitao Zhang
 
 Functions between subsets of finite types.
 -/
@@ -36,6 +36,22 @@ setext (take y, iff.intro
     have H4 : x ∈ a, from and.left H3,
     have H5 : f1 x = y, from (H1 H4) ⬝ and.right H3,
     exists.intro x (and.intro H4 H5)))
+
+theorem in_image {f : X → Y} {a : set X} {x : X} {y : Y}
+  (H1 : x ∈ a) (H2 : f x = y) : y ∈ f '[a] :=
+exists.intro x (and.intro H1 H2)
+
+lemma image_compose (f : Y → X) (g : X → Y) (a : set X) : (f ∘ g) '[a] = f '[g '[a]] :=
+setext (take z,
+  iff.intro
+    (assume Hz : z ∈ (f ∘ g) '[a],
+      obtain x (Hx : x ∈ a ∧ f (g x) = z), from Hz,
+      have Hgx : g x ∈ g '[a], from in_image (and.left Hx) rfl,
+      show z ∈ f '[g '[a]], from in_image Hgx (and.right Hx))
+    (assume Hz : z ∈ f '[g '[a]],
+      obtain y (Hy : y ∈ g '[a] ∧ f y = z), from Hz,
+      obtain x (Hz : x ∈ a ∧ g x = y), from and.left Hy,
+      show z ∈ (f ∘ g) '[a], from in_image (and.left Hz) ((and.right Hz)⁻¹ ▸ (and.right Hy))))
 
 /- maps to -/
 

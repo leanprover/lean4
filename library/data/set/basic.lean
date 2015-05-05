@@ -8,7 +8,7 @@ Author: Jeremy Avigad, Leonardo de Moura
 import logic
 open eq.ops
 
-definition set (T : Type) := T → Prop
+definition set [reducible] (T : Type) := T → Prop
 
 namespace set
 

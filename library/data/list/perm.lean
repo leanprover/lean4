@@ -641,48 +641,48 @@ assume p, by_cases
    by rewrite [insert_eq_of_not_mem nainl₁, insert_eq_of_not_mem nainl₂]; exact (skip _ p))
 end perm_insert
 
-section perm_intersection
+section perm_inter
 variable [H : decidable_eq A]
 include H
 
-theorem perm_intersection_left {l₁ l₂ : list A} (t₁ : list A) : l₁ ~ l₂ → (intersection l₁ t₁) ~ (intersection l₂ t₁) :=
+theorem perm_inter_left {l₁ l₂ : list A} (t₁ : list A) : l₁ ~ l₂ → (inter l₁ t₁) ~ (inter l₂ t₁) :=
 assume p, perm.induction_on p
   !refl
   (λ x l₁ l₂ p₁ r₁, by_cases
-    (λ xint₁  : x ∈ t₁, by rewrite [*intersection_cons_of_mem _ xint₁]; exact (skip x r₁))
-    (λ nxint₁ : x ∉ t₁, by rewrite [*intersection_cons_of_not_mem _ nxint₁]; exact r₁))
+    (λ xint₁  : x ∈ t₁, by rewrite [*inter_cons_of_mem _ xint₁]; exact (skip x r₁))
+    (λ nxint₁ : x ∉ t₁, by rewrite [*inter_cons_of_not_mem _ nxint₁]; exact r₁))
   (λ x y l, by_cases
     (λ yint  : y ∈ t₁, by_cases
       (λ xint  : x ∈ t₁,
-        by rewrite [*intersection_cons_of_mem _ xint, *intersection_cons_of_mem _ yint, *intersection_cons_of_mem _ xint];
+        by rewrite [*inter_cons_of_mem _ xint, *inter_cons_of_mem _ yint, *inter_cons_of_mem _ xint];
            exact !swap)
       (λ nxint : x ∉ t₁,
-        by rewrite [*intersection_cons_of_mem _ yint, *intersection_cons_of_not_mem _ nxint, intersection_cons_of_mem _ yint];
+        by rewrite [*inter_cons_of_mem _ yint, *inter_cons_of_not_mem _ nxint, inter_cons_of_mem _ yint];
            exact !refl))
     (λ nyint : y ∉ t₁, by_cases
       (λ xint  : x ∈ t₁,
-        by rewrite [*intersection_cons_of_mem _ xint, *intersection_cons_of_not_mem _ nyint, intersection_cons_of_mem _ xint];
+        by rewrite [*inter_cons_of_mem _ xint, *inter_cons_of_not_mem _ nyint, inter_cons_of_mem _ xint];
            exact !refl)
       (λ nxint : x ∉ t₁,
-        by rewrite [*intersection_cons_of_not_mem _ nxint, *intersection_cons_of_not_mem _ nyint,
-                     intersection_cons_of_not_mem _ nxint];
+        by rewrite [*inter_cons_of_not_mem _ nxint, *inter_cons_of_not_mem _ nyint,
+                     inter_cons_of_not_mem _ nxint];
            exact !refl)))
   (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, trans r₁ r₂)
 
-theorem perm_intersection_right (l : list A) {t₁ t₂ : list A} : t₁ ~ t₂ → (intersection l t₁) ~ (intersection l t₂) :=
+theorem perm_inter_right (l : list A) {t₁ t₂ : list A} : t₁ ~ t₂ → (inter l t₁) ~ (inter l t₂) :=
 list.induction_on l
-  (λ p, by rewrite [*intersection_nil]; exact !refl)
+  (λ p, by rewrite [*inter_nil]; exact !refl)
   (λ x xs r p, by_cases
     (λ xint₁  : x ∈ t₁,
       assert xint₂ : x ∈ t₂, from mem_perm p xint₁,
-      by rewrite [intersection_cons_of_mem _ xint₁, intersection_cons_of_mem _ xint₂]; exact (skip _ (r p)))
+      by rewrite [inter_cons_of_mem _ xint₁, inter_cons_of_mem _ xint₂]; exact (skip _ (r p)))
     (λ nxint₁ : x ∉ t₁,
       assert nxint₂ : x ∉ t₂, from not_mem_perm p nxint₁,
-      by rewrite [intersection_cons_of_not_mem _ nxint₁, intersection_cons_of_not_mem _ nxint₂]; exact (r p)))
+      by rewrite [inter_cons_of_not_mem _ nxint₁, inter_cons_of_not_mem _ nxint₂]; exact (r p)))
 
-theorem perm_intersection {l₁ l₂ t₁ t₂ : list A} : l₁ ~ l₂ → t₁ ~ t₂ → (intersection l₁ t₁) ~ (intersection l₂ t₂) :=
-assume p₁ p₂, trans (perm_intersection_left t₁ p₁) (perm_intersection_right l₂ p₂)
-end perm_intersection
+theorem perm_inter {l₁ l₂ t₁ t₂ : list A} : l₁ ~ l₂ → t₁ ~ t₂ → (inter l₁ t₁) ~ (inter l₂ t₂) :=
+assume p₁ p₂, trans (perm_inter_left t₁ p₁) (perm_inter_right l₂ p₂)
+end perm_inter
 
 /- extensionality -/
 section ext

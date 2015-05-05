@@ -59,11 +59,11 @@ quot.induction_on s (λ l h₁ h₂, list.all_insert_of_all h₁ h₂)
 theorem all_erase_of_all {p : A → Prop} (a : A) {s : finset A}: all s p → all (erase a s) p :=
 quot.induction_on s (λ l h, list.all_erase_of_all a h)
 
-theorem all_intersection_of_all_left {p : A → Prop} {s₁ : finset A} (s₂ : finset A) : all s₁ p → all (s₁ ∩ s₂) p :=
-quot.induction_on₂ s₁ s₂ (λ l₁ l₂ h, list.all_intersection_of_all_left _ h)
+theorem all_inter_of_all_left {p : A → Prop} {s₁ : finset A} (s₂ : finset A) : all s₁ p → all (s₁ ∩ s₂) p :=
+quot.induction_on₂ s₁ s₂ (λ l₁ l₂ h, list.all_inter_of_all_left _ h)
 
-theorem all_intersection_of_all_right {p : A → Prop} {s₁ : finset A} (s₂ : finset A) : all s₂ p → all (s₁ ∩ s₂) p :=
-quot.induction_on₂ s₁ s₂ (λ l₁ l₂ h, list.all_intersection_of_all_right _ h)
+theorem all_inter_of_all_right {p : A → Prop} {s₁ : finset A} (s₂ : finset A) : all s₂ p → all (s₁ ∩ s₂) p :=
+quot.induction_on₂ s₁ s₂ (λ l₁ l₂ h, list.all_inter_of_all_right _ h)
 end all
 
 section cross_product

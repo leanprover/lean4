@@ -652,103 +652,103 @@ assume h₁ h₂, by_cases
   (λ nainl : a ∉ l, by rewrite [insert_eq_of_not_mem nainl]; exact (all_cons_of_all h₁ h₂))
 end insert
 
-/- intersection -/
-section intersection
+/- inter -/
+section inter
 variable {A : Type}
 variable [H : decidable_eq A]
 include H
 
-definition intersection : list A → list A → list A
+definition inter : list A → list A → list A
 | []      l₂ := []
-| (a::l₁) l₂ := if a ∈ l₂ then a :: intersection l₁ l₂ else intersection l₁ l₂
+| (a::l₁) l₂ := if a ∈ l₂ then a :: inter l₁ l₂ else inter l₁ l₂
 
-theorem intersection_nil (l : list A) : intersection [] l = []
+theorem inter_nil (l : list A) : inter [] l = []
 
-theorem intersection_cons_of_mem {a : A} (l₁ : list A) {l₂} : a ∈ l₂ → intersection (a::l₁) l₂ = a :: intersection l₁ l₂ :=
+theorem inter_cons_of_mem {a : A} (l₁ : list A) {l₂} : a ∈ l₂ → inter (a::l₁) l₂ = a :: inter l₁ l₂ :=
 assume i, if_pos i
 
-theorem intersection_cons_of_not_mem {a : A} (l₁ : list A) {l₂} : a ∉ l₂ → intersection (a::l₁) l₂ = intersection l₁ l₂ :=
+theorem inter_cons_of_not_mem {a : A} (l₁ : list A) {l₂} : a ∉ l₂ → inter (a::l₁) l₂ = inter l₁ l₂ :=
 assume i, if_neg i
 
-theorem mem_of_mem_intersection_left : ∀ {l₁ l₂} {a : A}, a ∈ intersection l₁ l₂ → a ∈ l₁
+theorem mem_of_mem_inter_left : ∀ {l₁ l₂} {a : A}, a ∈ inter l₁ l₂ → a ∈ l₁
 | []      l₂ a i := absurd i !not_mem_nil
 | (b::l₁) l₂ a i := by_cases
   (λ binl₂  : b ∈ l₂,
-    have aux : a ∈ b :: intersection l₁ l₂, by rewrite [intersection_cons_of_mem _ binl₂ at i]; exact i,
+    have aux : a ∈ b :: inter l₁ l₂, by rewrite [inter_cons_of_mem _ binl₂ at i]; exact i,
     or.elim (eq_or_mem_of_mem_cons aux)
       (λ aeqb : a = b, by rewrite [aeqb]; exact !mem_cons)
-      (λ aini, mem_cons_of_mem _ (mem_of_mem_intersection_left aini)))
+      (λ aini, mem_cons_of_mem _ (mem_of_mem_inter_left aini)))
   (λ nbinl₂ : b ∉ l₂,
-    have ainl₁ : a ∈ l₁, by rewrite [intersection_cons_of_not_mem _ nbinl₂ at i]; exact (mem_of_mem_intersection_left i),
+    have ainl₁ : a ∈ l₁, by rewrite [inter_cons_of_not_mem _ nbinl₂ at i]; exact (mem_of_mem_inter_left i),
     mem_cons_of_mem _ ainl₁)
 
-theorem mem_of_mem_intersection_right : ∀ {l₁ l₂} {a : A}, a ∈ intersection l₁ l₂ → a ∈ l₂
+theorem mem_of_mem_inter_right : ∀ {l₁ l₂} {a : A}, a ∈ inter l₁ l₂ → a ∈ l₂
 | []      l₂ a i := absurd i !not_mem_nil
 | (b::l₁) l₂ a i := by_cases
   (λ binl₂  : b ∈ l₂,
-    have aux : a ∈ b :: intersection l₁ l₂, by rewrite [intersection_cons_of_mem _ binl₂ at i]; exact i,
+    have aux : a ∈ b :: inter l₁ l₂, by rewrite [inter_cons_of_mem _ binl₂ at i]; exact i,
     or.elim (eq_or_mem_of_mem_cons aux)
       (λ aeqb : a = b, by rewrite [aeqb]; exact binl₂)
-      (λ aini : a ∈ intersection l₁ l₂, mem_of_mem_intersection_right aini))
+      (λ aini : a ∈ inter l₁ l₂, mem_of_mem_inter_right aini))
   (λ nbinl₂ : b ∉ l₂,
-    by rewrite [intersection_cons_of_not_mem _ nbinl₂ at i]; exact (mem_of_mem_intersection_right i))
+    by rewrite [inter_cons_of_not_mem _ nbinl₂ at i]; exact (mem_of_mem_inter_right i))
 
-theorem mem_intersection_of_mem_of_mem : ∀ {l₁ l₂} {a : A}, a ∈ l₁ → a ∈ l₂ → a ∈ intersection l₁ l₂
+theorem mem_inter_of_mem_of_mem : ∀ {l₁ l₂} {a : A}, a ∈ l₁ → a ∈ l₂ → a ∈ inter l₁ l₂
 | []      l₂ a i₁ i₂ := absurd i₁ !not_mem_nil
 | (b::l₁) l₂ a i₁ i₂ := by_cases
   (λ binl₂  : b ∈ l₂,
     or.elim (eq_or_mem_of_mem_cons i₁)
       (λ aeqb  : a = b,
-        by rewrite [intersection_cons_of_mem _ binl₂, aeqb]; exact !mem_cons)
+        by rewrite [inter_cons_of_mem _ binl₂, aeqb]; exact !mem_cons)
      (λ ainl₁ : a ∈ l₁,
-        by rewrite [intersection_cons_of_mem _ binl₂];
+        by rewrite [inter_cons_of_mem _ binl₂];
            apply mem_cons_of_mem;
-           exact (mem_intersection_of_mem_of_mem ainl₁ i₂)))
+           exact (mem_inter_of_mem_of_mem ainl₁ i₂)))
   (λ nbinl₂ : b ∉ l₂,
     or.elim (eq_or_mem_of_mem_cons i₁)
      (λ aeqb  : a = b, absurd (aeqb ▸ i₂) nbinl₂)
      (λ ainl₁ : a ∈ l₁,
-       by rewrite [intersection_cons_of_not_mem _ nbinl₂]; exact (mem_intersection_of_mem_of_mem ainl₁ i₂)))
+       by rewrite [inter_cons_of_not_mem _ nbinl₂]; exact (mem_inter_of_mem_of_mem ainl₁ i₂)))
 
-theorem nodup_intersection_of_nodup : ∀ {l₁ : list A} (l₂), nodup l₁ → nodup (intersection l₁ l₂)
+theorem nodup_inter_of_nodup : ∀ {l₁ : list A} (l₂), nodup l₁ → nodup (inter l₁ l₂)
 | []      l₂ d := nodup_nil
 | (a::l₁) l₂ d :=
-  have   d₁     : nodup l₁,                   from nodup_of_nodup_cons d,
-  assert d₂     : nodup (intersection l₁ l₂), from nodup_intersection_of_nodup _ d₁,
-  have   nainl₁ : a ∉ l₁,                     from not_mem_of_nodup_cons d,
-  assert naini  : a ∉ intersection l₁ l₂,     from λ i, absurd (mem_of_mem_intersection_left i) nainl₁,
+  have   d₁     : nodup l₁,            from nodup_of_nodup_cons d,
+  assert d₂     : nodup (inter l₁ l₂), from nodup_inter_of_nodup _ d₁,
+  have   nainl₁ : a ∉ l₁,              from not_mem_of_nodup_cons d,
+  assert naini  : a ∉ inter l₁ l₂,     from λ i, absurd (mem_of_mem_inter_left i) nainl₁,
   by_cases
-    (λ ainl₂  : a ∈ l₂, by rewrite [intersection_cons_of_mem _ ainl₂]; exact (nodup_cons naini d₂))
-    (λ nainl₂ : a ∉ l₂, by rewrite [intersection_cons_of_not_mem _ nainl₂]; exact d₂)
+    (λ ainl₂  : a ∈ l₂, by rewrite [inter_cons_of_mem _ ainl₂]; exact (nodup_cons naini d₂))
+    (λ nainl₂ : a ∉ l₂, by rewrite [inter_cons_of_not_mem _ nainl₂]; exact d₂)
 
-theorem intersection_eq_nil_of_disjoint : ∀ {l₁ l₂ : list A}, disjoint l₁ l₂ → intersection l₁ l₂ = []
+theorem inter_eq_nil_of_disjoint : ∀ {l₁ l₂ : list A}, disjoint l₁ l₂ → inter l₁ l₂ = []
 | []      l₂ d := rfl
 | (a::l₁) l₂ d :=
-  assert aux_eq : intersection l₁ l₂ = [], from intersection_eq_nil_of_disjoint (disjoint_of_disjoint_cons_left d),
-  assert nainl₂ : a ∉ l₂,                  from disjoint_left d !mem_cons,
-  by rewrite [intersection_cons_of_not_mem _ nainl₂, aux_eq]
+  assert aux_eq : inter l₁ l₂ = [], from inter_eq_nil_of_disjoint (disjoint_of_disjoint_cons_left d),
+  assert nainl₂ : a ∉ l₂,           from disjoint_left d !mem_cons,
+  by rewrite [inter_cons_of_not_mem _ nainl₂, aux_eq]
 
-theorem all_intersection_of_all_left {p : A → Prop} : ∀ {l₁} (l₂), all l₁ p → all (intersection l₁ l₂) p
+theorem all_inter_of_all_left {p : A → Prop} : ∀ {l₁} (l₂), all l₁ p → all (inter l₁ l₂) p
 | []      l₂ h := trivial
 | (a::l₁) l₂ h :=
-  have   h₁ : all l₁ p,                        from all_of_all_cons h,
-  assert h₂ : all (intersection l₁ l₂) p,      from all_intersection_of_all_left _ h₁,
-  have   pa : p a,                             from of_all_cons h,
-  assert h₃ : all (a :: intersection l₁ l₂) p, from all_cons_of_all pa h₂,
+  have   h₁ : all l₁ p,                 from all_of_all_cons h,
+  assert h₂ : all (inter l₁ l₂) p,      from all_inter_of_all_left _ h₁,
+  have   pa : p a,                      from of_all_cons h,
+  assert h₃ : all (a :: inter l₁ l₂) p, from all_cons_of_all pa h₂,
   by_cases
-    (λ ainl₂  : a ∈ l₂, by rewrite [intersection_cons_of_mem _ ainl₂]; exact h₃)
-    (λ nainl₂ : a ∉ l₂, by rewrite [intersection_cons_of_not_mem _ nainl₂]; exact h₂)
+    (λ ainl₂  : a ∈ l₂, by rewrite [inter_cons_of_mem _ ainl₂]; exact h₃)
+    (λ nainl₂ : a ∉ l₂, by rewrite [inter_cons_of_not_mem _ nainl₂]; exact h₂)
 
-theorem all_intersection_of_all_right {p : A → Prop} : ∀ (l₁) {l₂}, all l₂ p → all (intersection l₁ l₂) p
+theorem all_inter_of_all_right {p : A → Prop} : ∀ (l₁) {l₂}, all l₂ p → all (inter l₁ l₂) p
 | []      l₂ h := trivial
 | (a::l₁) l₂ h :=
-  assert h₁ : all (intersection l₁ l₂) p, from all_intersection_of_all_right _ h,
+  assert h₁ : all (inter l₁ l₂) p, from all_inter_of_all_right _ h,
   by_cases
     (λ ainl₂  : a ∈ l₂,
-      have   pa : p a, from of_mem_of_all ainl₂ h,
-      assert h₂ : all (a :: intersection l₁ l₂) p, from all_cons_of_all pa h₁,
-      by rewrite [intersection_cons_of_mem _ ainl₂]; exact h₂)
-    (λ nainl₂ : a ∉ l₂, by rewrite [intersection_cons_of_not_mem _ nainl₂]; exact h₁)
+      have   pa : p a,                      from of_mem_of_all ainl₂ h,
+      assert h₂ : all (a :: inter l₁ l₂) p, from all_cons_of_all pa h₁,
+      by rewrite [inter_cons_of_mem _ ainl₂]; exact h₂)
+    (λ nainl₂ : a ∉ l₂, by rewrite [inter_cons_of_not_mem _ nainl₂]; exact h₁)
 
-end intersection
+end inter
 end list

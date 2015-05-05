@@ -33,8 +33,7 @@ class exporter {
             return it->second;
         unsigned i;
         if (n.is_anonymous()) {
-            i = m_name2idx.size();
-            m_out << i << " n\n";
+            lean_unreachable();
         } else if (n.is_string()) {
             unsigned p = export_name(n.get_prefix());
             i = m_name2idx.size();
@@ -56,8 +55,7 @@ class exporter {
         unsigned l1, l2, n;
         switch (l.kind()) {
         case level_kind::Zero:
-            i = m_level2idx.size();
-            m_out << i << " UZ\n";
+            lean_unreachable();
             break;
         case level_kind::Succ:
             l1 = export_level(succ_of(l));
@@ -275,6 +273,8 @@ public:
     exporter(std::ostream & out, environment const & env):m_out(out), m_env(env) {}
 
     void operator()() {
+        m_name2idx.insert(mk_pair(name(), 0));
+        m_level2idx.insert(mk_pair(level(), 0));
         export_direct_imports();
         export_global_universes();
         export_declarations();

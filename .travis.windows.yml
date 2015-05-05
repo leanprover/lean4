@@ -9,6 +9,8 @@ env:
   - CMAKE_CXX_COMPILER=g++ CMAKE_BUILD_TYPE=DEBUG PUSH_TO_CDASH=TRUE
 
 install:
+  - until sudo add-apt-repository --yes ppa:kalakris/cmake; do echo retry; done
+  - until sudo apt-get -qq update; do echo retry; done
   - sudo apt-get -qq install make cmake
   - if [[ $DROPBOX == TRUE ]]; then
        sudo apt-get -qq install python python-pip;

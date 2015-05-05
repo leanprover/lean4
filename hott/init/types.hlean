@@ -191,7 +191,7 @@ iff.intro (assume H, pr1 H) (assume H, pair H star)
 definition unit_prod (a : Type) : unit × a ↔ a :=
 iff.intro (assume H, pr2 H) (assume H, pair star H)
 
-definition prod_empty.{l} (a : Type.{l}) : a × empty.{l} ↔ empty.{l} :=
+definition prod_empty (a : Type) : a × empty ↔ empty :=
 iff.intro (assume H, pr2 H) (assume H, !empty.elim H)
 
 definition empty_prod (a : Type) : empty × a ↔ empty :=

@@ -46,15 +46,7 @@ namespace is_trunc
       { apply equiv.to_is_equiv, apply is_contr.sigma_char},
       apply (@is_hprop.mk), intros,
       fapply sigma_eq, {apply x.2},
-      apply (@is_hprop.elim),
-      apply is_trunc_pi, intro a,
-      apply is_hprop.mk, intro w z,
-      have H : is_hset A,
-      begin
-        apply is_trunc_succ, apply is_trunc_succ,
-        apply is_contr.mk, exact y.2
-      end,
-      fapply (@is_hset.elim A _ _ _ w z)},
+      apply (@is_hprop.elim)},
     { intro n' IH A,
       apply is_trunc_is_equiv_closed,
       apply equiv.to_is_equiv,

@@ -19,7 +19,7 @@ notation `Type₃` := Type.{3}
 inductive unit.{l} : Type.{l} :=
 star : unit
 
-inductive empty.{l} : Type.{l}
+inductive empty : Type₀
 
 inductive eq.{l} {A : Type.{l}} (a : A) : A → Type.{l} :=
 refl : eq a a

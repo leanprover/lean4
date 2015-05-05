@@ -20,7 +20,7 @@ namespace is_trunc
 
  /- Truncation levels -/
 
-  inductive trunc_index : Type₁ :=
+  inductive trunc_index : Type₀ :=
   | minus_two : trunc_index
   | succ : trunc_index → trunc_index
 
@@ -38,7 +38,7 @@ namespace is_trunc
   definition add (n m : trunc_index) : trunc_index :=
   trunc_index.rec_on m n (λ k l, l .+1)
 
-  definition leq (n m : trunc_index) : Type₁ :=
+  definition leq (n m : trunc_index) : Type₀ :=
   trunc_index.rec_on n (λm, unit) (λ n p m, trunc_index.rec_on m (λ p, empty) (λ m q p, p m) p) m
   end trunc_index
 

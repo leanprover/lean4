@@ -40,7 +40,7 @@ namespace sphere_index
   definition add (n m : sphere_index) : sphere_index :=
   sphere_index.rec_on m n (λ k l, l .+1)
 
-  definition leq (n m : sphere_index) : Type₁ :=
+  definition leq (n m : sphere_index) : Type₀ :=
   sphere_index.rec_on n (λm, unit) (λ n p m, sphere_index.rec_on m (λ p, empty) (λ m q p, p m) p) m
 
   infix `+1+`:65 := sphere_index.add

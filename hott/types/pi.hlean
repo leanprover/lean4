@@ -177,13 +177,18 @@ namespace pi
   definition is_trunc_eq_pi [instance] [priority 500] (n : trunc_index) (f g : Πa, B a)
       [H : ∀a, is_trunc n (f a = g a)] : is_trunc n (f = g) :=
   begin
-    apply is_trunc_equiv_closed, apply equiv.symm,
+    apply is_trunc_equiv_closed_rev,
     apply eq_equiv_homotopy
   end
 
-  /- Symmetry of Π -/
+  definition is_hprop_pi_eq [instance] [priority 490] (a : A) : is_hprop (Π(a' : A), a = a') :=
+  is_hprop_of_imp_is_contr
+  ( assume (f : Πa', a = a'),
+    assert H : is_contr A, from is_contr.mk a f,
+    _)
 
-  definition is_equiv_flip [instance] {P : A → A' → Type} : is_equiv (@function.flip _ _ P) :=
+  /- Symmetry of Π -/
+  definition is_equiv_flip [instance] {P : A → A' → Type} : is_equiv (@function.flip A A' P) :=
   begin
     fapply is_equiv.mk,
     exact (@function.flip _ _ (function.flip P)),

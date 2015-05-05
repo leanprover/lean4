@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Copyright (c) 2014-2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
@@ -42,6 +42,8 @@ typedef pair<std::string, std::function<void(serializer &)>> writer;
 struct module_ext : public environment_extension {
     list<module_name> m_direct_imports;
     list<writer>      m_writers;
+    list<name>        m_module_univs;
+    list<name>        m_module_decls;
     name_set          m_module_defs;
     // auxiliary information for detecting whether
     // directly imported files have changed
@@ -65,6 +67,18 @@ static environment update(environment const & env, module_ext const & ext) {
 }
 
 list<module_name> get_direct_imports(environment const & env) {
+    return get_extension(env).m_direct_imports;
+}
+
+list<name> const & get_curr_module_decl_names(environment const & env) {
+    return get_extension(env).m_module_decls;
+}
+
+list<name> const & get_curr_module_univ_names(environment const & env) {
+    return get_extension(env).m_module_univs;
+}
+
+list<module_name> const & get_curr_module_imports(environment const & env) {
     return get_extension(env).m_direct_imports;
 }
 
@@ -176,16 +190,22 @@ environment add(environment const & env, std::string const & k, std::function<vo
 
 environment add_universe(environment const & env, name const & l) {
     environment new_env = env.add_universe(l);
+    module_ext ext = get_extension(env);
+    ext.m_module_univs = cons(l, ext.m_module_univs);
+    new_env = update(new_env, ext);
     return add(new_env, *g_glvl_key, [=](serializer & s) { s << l; });
 }
 
 environment update_module_defs(environment const & env, declaration const & d) {
     if (d.is_definition() && !d.is_theorem()) {
         module_ext ext = get_extension(env);
+        ext.m_module_decls = cons(d.get_name(), ext.m_module_decls);
         ext.m_module_defs.insert(d.get_name());
         return update(env, ext);
     } else {
-        return env;
+        module_ext ext = get_extension(env);
+        ext.m_module_decls = cons(d.get_name(), ext.m_module_decls);
+        return update(env, ext);
     }
 }
 
@@ -238,6 +258,9 @@ environment add_inductive(environment                  env,
                           unsigned                     num_params,
                           list<inductive::inductive_decl> const & decls) {
     environment new_env = inductive::add_inductive(env, level_params, num_params, decls);
+    module_ext ext = get_extension(env);
+    ext.m_module_decls = cons(inductive::inductive_decl_name(head(decls)), ext.m_module_decls);
+    new_env = update(new_env, ext);
     return add(new_env, *g_inductive, [=](serializer & s) {
             s << inductive_decls(level_params, num_params, decls);
         });

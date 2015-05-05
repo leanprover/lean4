@@ -31,6 +31,13 @@ public:
     optional<unsigned> const & get_k() const { return m_relative; }
 };
 
+/** \brief Return the list of declarations performed in the current module */
+list<name> const & get_curr_module_decl_names(environment const & env);
+/** \brief Return the list of universes declared in the current module */
+list<name> const & get_curr_module_univ_names(environment const & env);
+/** \brief Return the list of modules directly imported by the current module */
+list<module_name> const & get_curr_module_imports(environment const & env);
+
 /** \brief Return an environment based on \c env, where all modules in \c modules are imported.
     Modules included directly or indirectly by them are also imported.
     The environment \c env is usually an empty environment.

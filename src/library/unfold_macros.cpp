@@ -104,8 +104,8 @@ class unfold_untrusted_macros_fn {
     }
 
 public:
-    unfold_untrusted_macros_fn(environment const & env):
-        m_tc(env), m_trust_lvl(env.trust_lvl()) {}
+    unfold_untrusted_macros_fn(environment const & env, unsigned lvl):
+        m_tc(env), m_trust_lvl(lvl) {}
 
     expr operator()(expr const & e) { return visit(e); }
 };
@@ -116,12 +116,20 @@ bool contains_untrusted_macro(unsigned trust_lvl, expr const & e) {
             }));
 }
 
-expr unfold_untrusted_macros(environment const & env, expr const & e) {
-    if (contains_untrusted_macro(env.trust_lvl(), e)) {
-        return unfold_untrusted_macros_fn(env)(e);
+expr unfold_untrusted_macros(environment const & env, expr const & e, unsigned trust_lvl) {
+    if (contains_untrusted_macro(trust_lvl, e)) {
+        return unfold_untrusted_macros_fn(env, trust_lvl)(e);
     } else {
         return e;
     }
+}
+
+expr unfold_untrusted_macros(environment const & env, expr const & e) {
+    return unfold_untrusted_macros(env, e, env.trust_lvl());
+}
+
+expr unfold_all_macros(environment const & env, expr const & e) {
+    return unfold_untrusted_macros(env, e, 0);
 }
 
 bool contains_untrusted_macro(unsigned trust_lvl, declaration const & d) {
@@ -130,14 +138,14 @@ bool contains_untrusted_macro(unsigned trust_lvl, declaration const & d) {
     return (d.is_definition() || d.is_theorem()) && contains_untrusted_macro(trust_lvl, d.get_value());
 }
 
-declaration unfold_untrusted_macros(environment const & env, declaration const & d) {
-    if (contains_untrusted_macro(env.trust_lvl(), d)) {
-        expr new_t = unfold_untrusted_macros(env, d.get_type());
+declaration unfold_untrusted_macros(environment const & env, declaration const & d, unsigned trust_lvl) {
+    if (contains_untrusted_macro(trust_lvl, d)) {
+        expr new_t = unfold_untrusted_macros(env, d.get_type(), trust_lvl);
         if (d.is_theorem()) {
-            expr new_v = unfold_untrusted_macros(env, d.get_value());
+            expr new_v = unfold_untrusted_macros(env, d.get_value(), trust_lvl);
             return mk_theorem(d.get_name(), d.get_univ_params(), new_t, new_v, d.get_module_idx());
         } else if (d.is_definition()) {
-            expr new_v = unfold_untrusted_macros(env, d.get_value());
+            expr new_v = unfold_untrusted_macros(env, d.get_value(), trust_lvl);
             return mk_definition(d.get_name(), d.get_univ_params(), new_t, new_v,
                                  d.is_opaque(), d.get_weight(), d.get_module_idx(), d.use_conv_opt());
         } else if (d.is_axiom()) {
@@ -150,5 +158,13 @@ declaration unfold_untrusted_macros(environment const & env, declaration const &
     } else {
         return d;
     }
+}
+
+declaration unfold_untrusted_macros(environment const & env, declaration const & d) {
+    return unfold_untrusted_macros(env, d, env.trust_lvl());
+}
+
+declaration unfold_all_macros(environment const & env, declaration const & d) {
+    return unfold_untrusted_macros(env, d, 0);
 }
 }

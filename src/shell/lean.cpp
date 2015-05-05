@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/definition_cache.h"
 #include "library/declaration_index.h"
+#include "library/export.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
@@ -125,6 +126,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --line=value      line number for query\n";
     std::cout << "  --col=value       column number for query\n";
     std::cout << "  --goal            display goal at close to given position\n";
+    std::cout << "  --export=file -E  export final environment as textual low-level file\n";
 }
 
 static char const * get_file_extension(char const * fname) {
@@ -152,6 +154,7 @@ static struct option g_long_options[] = {
     {"luahook",      required_argument, 0, 'k'},
     {"githash",      no_argument,       0, 'g'},
     {"output",       required_argument, 0, 'o'},
+    {"export",       required_argument, 0, 'E'},
     {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
     {"discard",      no_argument,       0, 'r'},
@@ -175,7 +178,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "PHRXFdD:qrlupgvhk:012t:012o:c:i:L:012O:012G"
+#define OPT_STR "PHRXFdD:qrlupgvhk:012t:012o:E:c:i:L:012O:012G"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -336,6 +339,7 @@ int main(int argc, char ** argv) {
     std::string index_name;
     optional<unsigned> line;
     optional<unsigned> column;
+    optional<std::string> export_txt;
     bool show_goal = false;
     input_kind default_k = input_kind::Unspecified;
     while (true) {
@@ -434,6 +438,9 @@ int main(int argc, char ** argv) {
             break;
         case 'G':
             show_goal = true;
+            break;
+        case 'E':
+            export_txt = std::string(optarg);
             break;
         default:
             std::cerr << "Unknown command line option\n";
@@ -573,6 +580,10 @@ int main(int argc, char ** argv) {
         if (export_objects && ok) {
             std::ofstream out(output, std::ofstream::binary);
             export_module(out, env);
+        }
+        if (export_txt) {
+            std::ofstream out(*export_txt);
+            export_module_as_lowtext(out, env);
         }
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {

@@ -18,4 +18,8 @@ namespace lean {
 expr unfold_untrusted_macros(environment const & env, expr const & e);
 
 declaration unfold_untrusted_macros(environment const & env, declaration const & d);
+
+expr unfold_all_macros(environment const & env, expr const & e);
+
+declaration unfold_all_macros(environment const & env, declaration const & d);
 }

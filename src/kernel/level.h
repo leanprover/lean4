@@ -70,6 +70,9 @@ public:
 bool operator==(level const & l1, level const & l2);
 inline bool operator!=(level const & l1, level const & l2) { return !operator==(l1, l2); }
 
+struct level_hash { unsigned operator()(level const & n) const { return n.hash(); } };
+struct level_eq { bool operator()(level const & n1, level const & n2) const { return n1 == n2; } };
+
 SPECIALIZE_OPTIONAL_FOR_SMART_PTR(level)
 
 inline optional<level> none_level() { return optional<level>(); }

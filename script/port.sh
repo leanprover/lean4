@@ -20,7 +20,8 @@
 # have to be escaped
 
 now=$(date +"%B %d, %Y")
-./port.pl ../library/data/nat/basic.lean ../hott/types/nat/basic.hlean "Module: data.nat.basic" "Module: types.nat.basic
-(Ported from standard library file data.nat.basic on $now)" "import logic.connectives data.num algebra.binary algebra.ring" "import algebra.binary" "open binary eq.ops" "open core prod binary" "nat.no_confusion H \(λe, e\)" "lift.down (nat.no_confusion H (λe, e))"
+./port.pl ../library/data/nat/basic.lean ../hott/types/nat/basic2.hlean "Module: data.nat.basic" "Module: types.nat.basic
+(Ported from standard library file data.nat.basic on $now)" "import logic.connectives data.num algebra.binary algebra.ring" "import algebra.ring" "open binary eq.ops" "open core prod binary" "nat.no_confusion H \(λe, e\)" "lift.down (nat.no_confusion H (λe, e))"
 
 # ./port.pl ../library/logic/connectives.lean ../hott/logic.hlean
+/port.pl ../library/algebra/ring.lean ../hott/algebra/ring.hlean "import logic.eq logic.connectives data.unit data.sigma data.prod" "import algebra.group" "import algebra.function algebra.binary algebra.group" "" "open eq eq.ops" "open core"

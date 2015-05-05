@@ -14,7 +14,7 @@ import .num .wf
 
 namespace empty
 
-  protected theorem elim (A : Type) (H : empty) : A :=
+  protected theorem elim {A : Type} (H : empty) : A :=
   empty.rec (λe, A) H
 
 end empty
@@ -57,6 +57,22 @@ namespace sum
     reserve infixr `+`:25  -- conflicts with notation for addition
     infixr `+` := sum
   end low_precedence_plus
+
+  variables {a b c d : Type}
+  definition sum_of_sum_of_imp_of_imp (H₁ : a ⊎ b) (H₂ : a → c) (H₃ : b → d) : c ⊎ d :=
+  sum.rec_on H₁
+    (assume Ha : a, sum.inl (H₂ Ha))
+    (assume Hb : b, sum.inr (H₃ Hb))
+
+  definition sum_of_sum_of_imp_left (H₁ : a ⊎ c) (H : a → b) : b ⊎ c :=
+  sum.rec_on H₁
+    (assume H₂ : a, sum.inl (H H₂))
+    (assume H₂ : c, sum.inr H₂)
+
+  definition sum_of_sum_of_imp_right (H₁ : c ⊎ a) (H : a → b) : c ⊎ b :=
+  sum.rec_on H₁
+    (assume H₂ : c, sum.inl H₂)
+    (assume H₂ : a, sum.inr (H H₂))
 end sum
 
 -- Product type

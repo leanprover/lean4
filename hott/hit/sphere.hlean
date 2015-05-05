@@ -73,7 +73,7 @@ namespace sphere
   end ops
 
   definition bool_of_sphere [reducible] : sphere 0 → bool :=
-  suspension.rec tt ff (λx, empty.elim _ x)
+  suspension.rec tt ff (λx, empty.elim x)
 
   definition sphere_of_bool [reducible] : bool → sphere 0
   | tt := !north

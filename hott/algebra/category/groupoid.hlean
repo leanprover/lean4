@@ -10,7 +10,7 @@ Ported from Coq HoTT
 
 import .iso ..group
 
-open eq is_trunc iso category path_algebra nat unit
+open eq is_trunc iso category algebra nat unit
 
 namespace category
 
@@ -72,15 +72,15 @@ namespace category
   begin
     fapply groupoid.mk, fapply precategory.mk,
       intros, exact A,
-      intros, apply (@group.carrier_hset A G),
+      intros, apply (@group.is_hset_carrier A G),
       intros [a, b, c, g, h], exact (@group.mul A G g h),
       intro a, exact (@group.one A G),
       intros, exact (@group.mul_assoc A G h g f)⁻¹,
       intros, exact (@group.one_mul A G f),
       intros, exact (@group.mul_one A G f),
       intros, esimp [precategory.mk], apply is_iso.mk,
-        apply mul_left_inv,
-        apply mul_right_inv,
+        apply mul.left_inv,
+        apply mul.right_inv,
   end
 
   protected definition hom_group {A : Type} [G : groupoid A] (a : A) :

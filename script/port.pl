@@ -84,8 +84,7 @@ sub rename_in_file {
     while (<>) {
 	foreach my $lkey (keys %literalrenamings2) {
 	    # replace all instances of lkey
-	    if (/$lkey/) {print STDOUT "renamed ", $lkey, "\n"; }
-	    # else {print STDOUT "WARNING: didn't rename ", $lkey, " to ", $literalrenamings2{$lkey}, "\n";}
+	    # if (/$lkey/) {print STDOUT "renamed ", $lkey, "\n"; }
 	    s/$lkey/$literalrenamings2{$lkey}/g
 	}
 	foreach my $key (keys %renamings) {
@@ -103,6 +102,7 @@ sub rename_in_file {
 
 my $oldfile = shift;
 my $newfile = shift;
+if (-e $newfile) {move($newfile,$newfile.".orig") or die "Move failed: $!"; } 
 print "copying ", $oldfile, " to ",$newfile, ".\n";
 copy($oldfile,$newfile) or die "Copy failed: $!";
 get_renamings;

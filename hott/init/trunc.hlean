@@ -132,7 +132,7 @@ namespace is_trunc
   have base : ∀k A, k ≤ -2 → is_trunc k A → (is_trunc -2 A), from
     λ k A, trunc_index.cases_on k
            (λh1 h2, h2)
-           (λk h1 h2, empty.elim (is_trunc -2 A) (trunc_index.empty_of_succ_le_minus_two h1)),
+           (λk h1 h2, empty.elim (trunc_index.empty_of_succ_le_minus_two h1)),
   have step : Π (m : trunc_index)
                 (IHm : Π (n : trunc_index) (A : Type), n ≤ m → is_trunc n A → is_trunc m A)
                 (n : trunc_index) (A : Type)

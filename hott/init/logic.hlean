@@ -151,6 +151,8 @@ namespace iff
   definition elim_right (H : a ↔ b) : b → a :=
   elim (assume H₁ H₂, H₂) H
 
+  definition mp' := @elim_right
+
   definition flip_sign (H₁ : a ↔ b) : ¬a ↔ ¬b :=
   intro
     (assume Hna, mt (elim_right H₁) Hna)
@@ -360,3 +362,24 @@ decidable.rec
 definition dite_ite_eq (c : Type) [H : decidable c] {A : Type} (t : A) (e : A) : dite c (λh, t) (λh, e) = ite c t e :=
 rfl
 end
+open eq.ops unit
+
+definition is_unit (c : Type) [H : decidable c] : Type₀ :=
+if c then unit else empty
+
+definition is_empty (c : Type) [H : decidable c] : Type₀ :=
+if c then empty else unit
+
+theorem of_is_unit {c : Type} [H₁ : decidable c] (H₂ : is_unit c) : c :=
+decidable.rec_on H₁ (λ Hc, Hc) (λ Hnc, empty.rec _ (if_neg Hnc ▸ H₂))
+
+notation `dec_trivial` := of_is_unit star
+
+theorem not_of_not_is_unit {c : Type} [H₁ : decidable c] (H₂ : ¬ is_unit c) : ¬ c :=
+decidable.rec_on H₁ (λ Hc, absurd star (if_pos Hc ▸ H₂)) (λ Hnc, Hnc)
+
+theorem not_of_is_empty {c : Type} [H₁ : decidable c] (H₂ : is_empty c) : ¬ c :=
+decidable.rec_on H₁ (λ Hc, empty.rec _ (if_pos Hc ▸ H₂)) (λ Hnc, Hnc)
+
+theorem of_not_is_empty {c : Type} [H₁ : decidable c] (H₂ : ¬ is_empty c) : c :=
+decidable.rec_on H₁ (λ Hc, Hc) (λ Hnc, absurd star (if_neg Hnc ▸ H₂))

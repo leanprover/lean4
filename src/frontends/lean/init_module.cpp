@@ -29,6 +29,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp.h"
 #include "frontends/lean/server.h"
 #include "frontends/lean/local_ref_info.h"
+#include "frontends/lean/obtain_expr.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
@@ -57,8 +58,10 @@ void initialize_frontend_lean_module() {
     initialize_server();
     initialize_find_cmd();
     initialize_local_ref_info();
+    initialize_obtain_expr();
 }
 void finalize_frontend_lean_module() {
+    finalize_obtain_expr();
     finalize_local_ref_info();
     finalize_find_cmd();
     finalize_server();

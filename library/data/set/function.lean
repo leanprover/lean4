@@ -45,13 +45,13 @@ lemma image_compose (f : Y → X) (g : X → Y) (a : set X) : (f ∘ g) '[a] = f
 setext (take z,
   iff.intro
     (assume Hz : z ∈ (f ∘ g) '[a],
-      obtain x (Hx : x ∈ a ∧ f (g x) = z), from Hz,
-      have Hgx : g x ∈ g '[a], from in_image (and.left Hx) rfl,
-      show z ∈ f '[g '[a]], from in_image Hgx (and.right Hx))
+      obtain x (Hx₁ : x ∈ a) (Hx₂ : f (g x) = z), from Hz,
+      have Hgx : g x ∈ g '[a], from in_image Hx₁ rfl,
+      show z ∈ f '[g '[a]], from in_image Hgx Hx₂)
     (assume Hz : z ∈ f '[g '[a]],
-      obtain y (Hy : y ∈ g '[a] ∧ f y = z), from Hz,
-      obtain x (Hz : x ∈ a ∧ g x = y), from and.left Hy,
-      show z ∈ (f ∘ g) '[a], from in_image (and.left Hz) ((and.right Hz)⁻¹ ▸ (and.right Hy))))
+      obtain y (Hy₁ : y ∈ g '[a]) (Hy₂ : f y = z), from Hz,
+      obtain x (Hz₁ : x ∈ a) (Hz₂ : g x = y),      from Hy₁,
+      show z ∈ (f ∘ g) '[a], from in_image Hz₁ (Hz₂⁻¹ ▸ Hy₂)))
 
 /- maps to -/
 

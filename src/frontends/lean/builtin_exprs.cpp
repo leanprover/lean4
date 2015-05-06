@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_tactic.h"
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/structure_cmd.h"
+#include "frontends/lean/obtain_expr.h"
 
 namespace lean {
 namespace notation {
@@ -275,7 +276,7 @@ static expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const &
 static expr parse_proof_qed_core(parser & p, pos_info const & pos) {
     expr r = p.parse_expr();
     p.check_token_next(get_qed_tk(), "invalid proof-qed, 'qed' expected");
-    r      = p.mk_by(p.mk_app(get_exact_tac_fn(), r, pos), pos);
+    r      = p.mk_by_plus(p.mk_app(get_exact_tac_fn(), r, pos), pos);
     return r;
 }
 
@@ -439,37 +440,37 @@ static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos)
     }
 }
 
+static obtain_struct parse_obtain_decls (parser & p, buffer<expr> & ps) {
+    buffer<obtain_struct> children;
+    while (!p.curr_is_token(get_comma_tk()) && !p.curr_is_token(get_rbracket_tk())) {
+        if (p.curr_is_token(get_lbracket_tk())) {
+            p.next();
+            auto s = parse_obtain_decls(p, ps);
+            children.push_back(s);
+            p.check_token_next(get_rbracket_tk(), "invalid 'obtain' expression, ']' expected");
+        } else {
+            unsigned old_sz = ps.size();
+            unsigned rbp = 0;
+            p.parse_simple_binders(ps, rbp);
+            for (unsigned i = old_sz; i < ps.size(); i++)
+                children.push_back(obtain_struct());
+        }
+    }
+    if (children.empty())
+        throw parser_error("invalid 'obtain' expression, empty declaration block", p.pos());
+    return obtain_struct(to_list(children));
+}
+
 static expr parse_obtain(parser & p, unsigned, expr const *, pos_info const & pos) {
-    if (!p.env().find(get_exists_elim_name()))
-        throw parser_error("invalid use of 'obtain' expression, environment does not contain 'exists.elim' theorem", pos);
-    // exists_elim {A : Type} {P : A → Prop} {B : Prop} (H1 : ∃ x : A, P x) (H2 : ∀ (a : A) (H : P a), B)
     buffer<expr> ps;
-    auto b_pos = p.pos();
-    unsigned rbp = 0;
-    environment env = p.parse_binders(ps, rbp);
-    unsigned num_ps = ps.size();
-    if (num_ps < 2)
-        throw parser_error("invalid 'obtain' expression, at least 2 binders expected", b_pos);
+    obtain_struct s = parse_obtain_decls(p, ps);
     p.check_token_next(get_comma_tk(), "invalid 'obtain' expression, ',' expected");
     p.check_token_next(get_from_tk(), "invalid 'obtain' expression, 'from' expected");
-    expr H1 = p.parse_expr();
+    expr from = p.parse_expr();
     p.check_token_next(get_comma_tk(), "invalid 'obtain' expression, ',' expected");
-    expr b  = p.parse_scoped_expr(ps, env);
-    expr H  = ps[num_ps-1];
-    name H_name = local_pp_name(H);
-    unsigned i = num_ps-1;
-    while (i > 1) {
-        --i;
-        expr a      = ps[i];
-        expr H_aux  = mk_local(p.mk_fresh_name(), H_name.append_after(i), mk_expr_placeholder(), mk_contextual_info(false));
-        expr  H2    = Fun({a, H}, b);
-        b = mk_app(mk_constant(get_exists_elim_name()), H_aux, H2);
-        H = H_aux;
-    }
-    expr a  = ps[0];
-    expr H2 = Fun({a, H}, b);
-    expr r  = mk_app(mk_constant(get_exists_elim_name()), H1, H2);
-    return p.rec_save_pos(r, pos);
+    expr goal = p.parse_scoped_expr(ps);
+    expr r    = p.rec_save_pos(mk_obtain_expr(s, ps, from, goal), pos);
+    return p.mk_by_plus(p.mk_app(get_exact_tac_fn(), r, pos), pos);
 }
 
 static expr * g_not  = nullptr;

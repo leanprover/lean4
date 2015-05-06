@@ -285,6 +285,8 @@ expr elaborator::visit_expecting_type_of(expr const & e, expr const & t, constra
         return visit_choice(e, some_expr(t), cs);
     } else if (is_by(e)) {
         return visit_by(e, some_expr(t), cs);
+    } else if (is_by_plus(e)) {
+        return visit_by_plus(e, some_expr(t), cs);
     } else if (is_calc_annotation(e)) {
         return visit_calc_proof(e, some_expr(t), cs);
     } else {
@@ -313,6 +315,15 @@ expr elaborator::visit_by(expr const & e, optional<expr> const & t, constraint_s
     lean_assert(is_by(e));
     expr tac = visit(get_by_arg(e), cs);
     expr m   = m_context.mk_meta(m_ngen, t, e.get_tag());
+    register_meta(m);
+    m_local_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
+    return m;
+}
+
+expr elaborator::visit_by_plus(expr const & e, optional<expr> const & t, constraint_seq & cs) {
+    lean_assert(is_by_plus(e));
+    expr tac = visit(get_by_plus_arg(e), cs);
+    expr m   = m_full_context.mk_meta(m_ngen, t, e.get_tag());
     register_meta(m);
     m_local_tactic_hints.insert(mlocal_name(get_app_fn(m)), tac);
     return m;
@@ -1342,6 +1353,129 @@ expr elaborator::visit_structure_instance(expr const & e, constraint_seq & cs) {
     return S_mk;
 }
 
+expr elaborator::process_obtain_expr(list<obtain_struct> const & s_list, list<expr> const & from_list,
+                                     expr const & goal, bool first, constraint_seq & cs, expr const & src) {
+    lean_assert(length(s_list) == length(from_list));
+    if (!s_list && !from_list)
+        return visit(goal, cs);
+    expr from       = head(from_list);
+    obtain_struct s = head(s_list);
+    lean_assert(!first || !s.is_leaf());
+    if (s.is_leaf()) {
+        lean_assert(is_local(from));
+        expr const & from_type = mlocal_type(from);
+        // fix user visible name
+        expr goal_domain = visit(binding_domain(goal), cs);
+        expr new_from    = ::lean::mk_local(mlocal_name(from), binding_name(goal), goal_domain, binder_info());
+        if (!is_lambda(goal))
+            throw_elaborator_exception("invalid 'obtain' expression, insufficient number of local declarations", src);
+        justification j = mk_type_mismatch_jst(new_from, goal_domain, from_type, src);
+        if (!is_def_eq(from_type, goal_domain, j, cs))
+            throw unifier_exception(j, substitution());
+        flet<local_context> save1(m_context, m_context);
+        flet<local_context> save2(m_full_context, m_full_context);
+        m_context.add_local(new_from);
+        m_full_context.add_local(new_from);
+        expr new_goal   = instantiate(binding_body(goal), new_from);
+        expr r = process_obtain_expr(tail(s_list), tail(from_list), new_goal, false, cs, src);
+        return Fun(new_from, r);
+    } else {
+        lean_assert(!first || is_local(from));
+        expr from_type  = whnf(infer_type(from, cs), cs);
+        buffer<expr> I_args;
+        expr I          = get_app_args(from_type, I_args);
+        if (!is_constant(I)) {
+            throw_elaborator_exception(src, [=](formatter const & fmt) {
+                    format r = format("invalid 'obtain' expression, type of 'from' expression is not inductive");
+                    r += pp_indent_expr(fmt, from_type);
+                    return r;
+                });
+        }
+        name const & I_name   = const_name(I);
+        levels const & I_lvls = const_levels(I);
+        if (!inductive::is_inductive_decl(env(), I_name))
+            throw_elaborator_exception(sstream() << "invalid 'obtain' expression, '" << I_name
+                                       << "' is not an inductive datatype", src);
+        if (*inductive::get_num_intro_rules(env(), I_name) != 1)
+            throw_elaborator_exception(sstream() << "invalid 'obtain' expression, '" << I_name
+                                       << "' has more than one constructor", src);
+        unsigned nparams      = *inductive::get_num_params(env(), I_name);
+        unsigned nindices     = *inductive::get_num_indices(env(), I_name);
+        declaration cases_on_decl = env().get({I_name, "cases_on"});
+        levels cases_on_lvls = I_lvls;
+        if (cases_on_decl.get_num_univ_params() != length(I_lvls))
+            cases_on_lvls = cons(mk_meta_univ(m_ngen.next()), cases_on_lvls);
+        expr cases_on = mk_constant(cases_on_decl.get_name(), cases_on_lvls);
+        tag  g        = src.get_tag();
+        expr R        = cases_on;
+        for (unsigned i = 0; i < nparams; i++)
+            R = mk_app(R, I_args[i], g);
+        expr R_type   = whnf(infer_type(R, cs), cs);
+        auto check_R_type = [&]() {
+            if (!is_pi(R_type))
+                throw_elaborator_exception(sstream() << "invalid 'obtain' expression, '"
+                                           << I_name << "' has an ill-formed cases_on recursor", src);
+        };
+        check_R_type();
+        expr motive_type = binding_domain(R_type);
+        expr motive      = m_full_context.mk_meta(m_ngen, some_expr(motive_type), g);
+        R                = mk_app(R, motive, g);
+        R_type           = whnf(instantiate(binding_body(R_type), motive), cs);
+        for (unsigned i = 0; i < nindices; i++) {
+            check_R_type();
+            expr index_type = binding_domain(R_type);
+            expr index      = m_full_context.mk_meta(m_ngen, some_expr(index_type), g);
+            R               = mk_app(R, index, g);
+            R_type          = whnf(instantiate(binding_body(R_type), index), cs);
+        }
+        check_R_type();
+        expr major_type = binding_domain(R_type);
+        justification j = mk_type_mismatch_jst(from, from_type, major_type, src);
+        if (!is_def_eq(from_type, major_type, j, cs))
+            throw unifier_exception(j, substitution());
+        R = mk_app(R, from, g);
+        R_type = whnf(instantiate(binding_body(R_type), from), cs);
+        check_R_type();
+        expr minor_type = whnf(binding_domain(R_type), cs);
+        buffer<expr> telescope;
+        to_telescope(*m_tc[m_relax_main_opaque], minor_type, telescope, optional<binder_info>(), cs);
+        lean_assert(!s.is_leaf());
+        buffer<obtain_struct> s_buffer;
+        to_buffer(s.get_children(), s_buffer);
+        if (telescope.size() == 0)
+            throw_elaborator_exception(sstream() << "invalid 'obtain' expression, '" << I_name
+                                       << "' is an empty type", src);
+        if (s_buffer.size() < telescope.size())
+            throw_elaborator_exception("invalid 'obtain' expression, insufficient number of local declarations", src);
+        if (s_buffer.size() > telescope.size()) {
+            obtain_struct s_tail(to_list(s_buffer.begin() + telescope.size() - 1, s_buffer.end()));
+            s_buffer.shrink(telescope.size() - 1);
+            s_buffer.push_back(s_tail);
+        }
+        lean_assert(s_buffer.size() == telescope.size());
+        list<obtain_struct> new_s_list = to_list(s_buffer.begin(), s_buffer.end(), tail(s_list));
+        list<expr> new_from_list       = to_list(telescope.begin(), telescope.end(), tail(from_list));
+        expr minor = process_obtain_expr(new_s_list, new_from_list, goal, false, cs, src);
+        expr infer_minor_type = infer_type(minor, cs);
+        justification j2      = mk_type_mismatch_jst(minor, infer_minor_type, minor_type, src);
+        if (!is_def_eq(infer_minor_type, minor_type, j2, cs))
+            throw unifier_exception(j2, substitution());
+        expr r    = mk_app(R, minor, g);
+        if (!first)
+            r = Fun(from, r);
+        return r;
+    }
+}
+
+expr elaborator::visit_obtain_expr(expr const & e, constraint_seq & cs) {
+    lean_assert(is_obtain_expr(e));
+    expr from, decls_goal;
+    obtain_struct s;
+    decompose_obtain(e, s, from, decls_goal);
+    from       = visit(from, cs);
+    return process_obtain_expr(to_list(s), to_list(from), decls_goal, true, cs, e);
+}
+
 expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
     if (is_placeholder(e)) {
         return visit_placeholder(e, cs);
@@ -1351,6 +1485,8 @@ expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
         return visit_let_value(e, cs);
     } else if (is_by(e)) {
         return visit_by(e, none_expr(), cs);
+    } else if (is_by_plus(e)) {
+        return visit_by_plus(e, none_expr(), cs);
     } else if (is_calc_annotation(e)) {
         return visit_calc_proof(e, none_expr(), cs);
     } else if (is_no_info(e)) {
@@ -1379,6 +1515,8 @@ expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
         return visit_decreasing(e, cs);
     } else if (is_structure_instance(e)) {
         return visit_structure_instance(e, cs);
+    } else if (is_obtain_expr(e)) {
+        return visit_obtain_expr(e, cs);
     } else {
         switch (e.kind()) {
         case expr_kind::Local:      return e;

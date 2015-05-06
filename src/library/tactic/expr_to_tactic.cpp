@@ -324,16 +324,24 @@ void register_num_tac(name const & n, std::function<tactic(unsigned k)> f) {
 }
 
 static name * g_by_name = nullptr;
+static name * g_by_plus_name = nullptr;
 
 expr mk_by(expr const & e) { return mk_annotation(*g_by_name, e); }
 bool is_by(expr const & e) { return is_annotation(e, *g_by_name); }
 expr const & get_by_arg(expr const & e) { lean_assert(is_by(e)); return get_annotation_arg(e); }
+
+expr mk_by_plus(expr const & e) { return mk_annotation(*g_by_plus_name, e); }
+bool is_by_plus(expr const & e) { return is_annotation(e, *g_by_plus_name); }
+expr const & get_by_plus_arg(expr const & e) { lean_assert(is_by_plus(e)); return get_annotation_arg(e); }
 
 void initialize_expr_to_tactic() {
     g_tmp_prefix        = new name(name::mk_internal_unique_name());
 
     g_by_name           = new name("by");
     register_annotation(*g_by_name);
+
+    g_by_plus_name      = new name("by+");
+    register_annotation(*g_by_plus_name);
 
     g_map               = new expr_to_tactic_map();
 
@@ -425,6 +433,7 @@ void finalize_expr_to_tactic() {
     delete g_map;
     delete g_tactic_opcode;
     delete g_by_name;
+    delete g_by_plus_name;
     delete g_tmp_prefix;
 }
 }

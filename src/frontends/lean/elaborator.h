@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/coercion_elaborator.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/calc_proof_elaborator.h"
+#include "frontends/lean/obtain_expr.h"
 
 namespace lean {
 /** \brief Mapping from metavariable names to metavariable applications (?M ...) */
@@ -84,6 +85,9 @@ class elaborator : public coercion_info_manager {
     pair<expr, constraint_seq> whnf(expr const & e) { return m_tc[m_relax_main_opaque]->whnf(e); }
     expr infer_type(expr const & e, constraint_seq & s) { return m_tc[m_relax_main_opaque]->infer(e, s); }
     expr whnf(expr const & e, constraint_seq & s) { return m_tc[m_relax_main_opaque]->whnf(e, s); }
+    bool is_def_eq(expr const & e1, expr const & e2, justification const & j, constraint_seq & cs) {
+        return m_tc[m_relax_main_opaque]->is_def_eq(e1, e2, j, cs);
+    }
     expr mk_app(expr const & f, expr const & a, tag g) { return ::lean::mk_app(f, a, g); }
 
     void register_meta(expr const & meta);
@@ -111,6 +115,7 @@ class elaborator : public coercion_info_manager {
     expr visit_expecting_type_of(expr const & e, expr const & t, constraint_seq & cs);
     expr visit_choice(expr const & e, optional<expr> const & t, constraint_seq & cs);
     expr visit_by(expr const & e, optional<expr> const & t, constraint_seq & cs);
+    expr visit_by_plus(expr const & e, optional<expr> const & t, constraint_seq & cs);
     expr visit_calc_proof(expr const & e, optional<expr> const & t, constraint_seq & cs);
     expr add_implict_args(expr e, constraint_seq & cs, bool relax);
     pair<expr, expr> ensure_fun(expr f, constraint_seq & cs);
@@ -121,6 +126,7 @@ class elaborator : public coercion_info_manager {
                                                    justification const & j);
     pair<expr, constraint_seq> ensure_has_type(expr const & a, expr const & a_type, expr const & expected_type,
                                                justification const & j, bool relax);
+
     bool is_choice_app(expr const & e);
     expr visit_choice_app(expr const & e, constraint_seq & cs);
     expr visit_app(expr const & e, constraint_seq & cs);
@@ -172,6 +178,9 @@ class elaborator : public coercion_info_manager {
     bool is_structure(expr const & S);
     expr visit_structure_instance(expr const & e, constraint_seq & cs);
 
+    expr process_obtain_expr(list<obtain_struct> const & s_list, list<expr> const & from_list,
+                             expr const & goal, bool first, constraint_seq & cs, expr const & src);
+    expr visit_obtain_expr(expr const & e, constraint_seq & cs);
 public:
     elaborator(elaborator_context & ctx, name_generator const & ngen, bool nice_mvar_names = false);
     std::tuple<expr, level_param_names> operator()(list<expr> const & ctx, expr const & e, bool _ensure_type,

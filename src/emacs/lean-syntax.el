@@ -9,7 +9,7 @@
 
 (defconst lean-keywords
   '("import" "prelude" "tactic_hint" "protected" "private" "opaque" "definition" "renaming"
-    "hiding" "exposing" "parameter" "parameters" "begin" "proof" "qed" "conjecture" "constant" "constants"
+    "hiding" "exposing" "parameter" "parameters" "begin" "begin+" "proof" "qed" "conjecture" "constant" "constants"
     "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises"
     "print" "theorem" "example" "abbreviation"
     "open" "as" "export" "axiom" "axioms" "inductive" "with" "structure" "record" "universe" "universes"
@@ -98,7 +98,7 @@
 
 (defconst lean-font-lock-defaults
   `((;; Keywords
-     (,(rx word-start (or "calc" "have" "obtains" "show" "by" "in" "at" "let" "forall" "fun"
+     (,(rx word-start (or "calc" "have" "obtains" "show" "by" "by+" "in" "at" "let" "forall" "fun"
                             "exists" "if" "dif" "then" "else" "assume" "assert" "take" "obtain" "from") word-end)
       . font-lock-keyword-face)
      ;; String

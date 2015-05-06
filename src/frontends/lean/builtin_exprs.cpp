@@ -130,7 +130,13 @@ static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     return p.mk_by(t, pos);
 }
 
-static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & end_token, bool nested = false) {
+static expr parse_by_plus(parser & p, unsigned, expr const *, pos_info const & pos) {
+    p.next();
+    expr t = p.parse_tactic();
+    return p.mk_by_plus(t, pos);
+}
+
+static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & end_token, bool plus, bool nested = false) {
     if (!p.has_tactic_decls())
         throw parser_error("invalid 'begin-end' expression, tactic module has not been imported", pos);
     p.next();
@@ -159,10 +165,10 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
             }
             if (p.curr_is_token(get_begin_tk())) {
                 auto pos = p.pos();
-                tacs.push_back(parse_begin_end_core(p, pos, get_end_tk(), true));
+                tacs.push_back(parse_begin_end_core(p, pos, get_end_tk(), plus, true));
             } else if (p.curr_is_token(get_lcurly_tk())) {
                 auto pos = p.pos();
-                tacs.push_back(parse_begin_end_core(p, pos, get_rcurly_tk(), true));
+                tacs.push_back(parse_begin_end_core(p, pos, get_rcurly_tk(), plus, true));
             } else if (p.curr_is_token(end_token)) {
                 break;
             } else if (p.curr_is_token(get_assert_tk())) {
@@ -211,7 +217,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
                         add_tac(t, pos);
                     } else if (p.curr_is_token(get_begin_tk())) {
                         auto pos = p.pos();
-                        tacs.push_back(parse_begin_end_core(p, pos, get_end_tk(), true));
+                        tacs.push_back(parse_begin_end_core(p, pos, get_end_tk(), plus, true));
                     } else if (p.curr_is_token(get_by_tk())) {
                         // parse: 'by' tactic
                         auto pos = p.pos();
@@ -265,12 +271,18 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
     r = p.save_pos(mk_begin_end_annotation(r), end_pos);
     if (nested)
         return r;
+    else if (plus)
+        return p.mk_by_plus(r, end_pos);
     else
         return p.mk_by(r, end_pos);
 }
 
 static expr parse_begin_end(parser & p, unsigned, expr const *, pos_info const & pos) {
-    return parse_begin_end_core(p, pos, get_end_tk());
+    return parse_begin_end_core(p, pos, get_end_tk(), false);
+}
+
+static expr parse_begin_end_plus(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return parse_begin_end_core(p, pos, get_end_tk(), true);
 }
 
 static expr parse_proof_qed_core(parser & p, pos_info const & pos) {
@@ -328,7 +340,10 @@ static expr parse_proof(parser & p, expr const & prop) {
         return parse_proof_qed_core(p, pos);
     } else if (p.curr_is_token(get_begin_tk())) {
         auto pos = p.pos();
-        return parse_begin_end_core(p, pos, get_end_tk());
+        return parse_begin_end_core(p, pos, get_end_tk(), false);
+    } else if (p.curr_is_token(get_begin_plus_tk())) {
+        auto pos = p.pos();
+        return parse_begin_end_core(p, pos, get_end_tk(), true);
     } else if (p.curr_is_token(get_by_tk())) {
         // parse: 'by' tactic
         auto pos = p.pos();
@@ -576,6 +591,7 @@ parse_table init_nud_table() {
     parse_table r;
     r = r.add({transition("_", mk_ext_action(parse_placeholder))}, x0);
     r = r.add({transition("by", mk_ext_action_core(parse_by))}, x0);
+    r = r.add({transition("by+", mk_ext_action_core(parse_by_plus))}, x0);
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
     r = r.add({transition("assert", mk_ext_action(parse_assert))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
@@ -593,6 +609,7 @@ parse_table init_nud_table() {
     r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);
     r = r.add({transition("!", mk_ext_action(parse_consume_args_expr))}, x0);
     r = r.add({transition("begin", mk_ext_action_core(parse_begin_end))}, x0);
+    r = r.add({transition("begin+", mk_ext_action_core(parse_begin_end_plus))}, x0);
     r = r.add({transition("proof", mk_ext_action(parse_proof_qed))}, x0);
     r = r.add({transition("using", mk_ext_action(parse_using))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);

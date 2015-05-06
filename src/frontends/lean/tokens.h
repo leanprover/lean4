@@ -90,6 +90,7 @@ name const & get_by_tk();
 name const & get_rewrite_tk();
 name const & get_proof_tk();
 name const & get_begin_tk();
+name const & get_begin_plus_tk();
 name const & get_qed_tk();
 name const & get_end_tk();
 name const & get_private_tk();

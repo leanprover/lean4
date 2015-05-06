@@ -1427,28 +1427,43 @@ class rewrite_fn {
         }
     }
 
-    void process_failure(expr const & elem, bool type_error) {
+    void process_failure(expr const & elem, bool type_error, kernel_exception * ex = nullptr) {
+        std::shared_ptr<kernel_exception> saved_ex;
+        if (ex)
+            saved_ex.reset(static_cast<kernel_exception*>(ex->clone()));
         if (m_ps.report_failure()) {
             proof_state curr_ps(m_ps, cons(m_g, tail(m_ps.get_goals())), m_subst, m_ngen);
             if (!m_use_trace || !m_trace_initialized) {
                 throw tactic_exception("rewrite step failed", some_expr(elem), curr_ps,
-                                       [=](formatter const &) {
-                                           if (type_error)
-                                               return format("invalid 'rewrite' tactic, "
+                                       [=](formatter const & fmt) {
+                                           format r;
+                                           if (type_error) {
+                                               r = format("invalid 'rewrite' tactic, "
                                                              "rewrite step produced type incorrect term");
-                                           else
-                                               return format("invalid 'rewrite' tactic, rewrite step failed");
+                                               if (saved_ex) {
+                                                   r += saved_ex->pp(fmt);
+                                                   r += line();
+                                               }
+                                           } else {
+                                               r = format("invalid 'rewrite' tactic, rewrite step failed");
+                                           }
+                                           return r;
                                        });
             } else {
                 trace saved_trace = m_trace;
                 throw tactic_exception("rewrite step failed", some_expr(elem), curr_ps,
                                        [=](formatter const & fmt) {
                                            format r;
-                                           if (type_error)
+                                           if (type_error) {
                                                r += format("invalid 'rewrite' tactic, "
                                                            "step produced type incorrect term, details: ");
-                                           else
+                                               if (saved_ex) {
+                                                   r += saved_ex->pp(fmt);
+                                                   r += line();
+                                               }
+                                           } else {
                                                r += format("invalid 'rewrite' tactic, ");
+                                           }
                                            r += saved_trace.pp(fmt);
                                            return r;
                                        });
@@ -1481,7 +1496,7 @@ public:
                     return proof_state_seq();
                 }
             } catch (kernel_exception & ex) {
-                process_failure(elem, true);
+                process_failure(elem, true, &ex);
                 return proof_state_seq();
             }
         }

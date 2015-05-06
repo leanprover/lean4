@@ -1,4 +1,12 @@
-550.lean:44:72: error:invalid 'rewrite' tactic, step produced type incorrect term, details: rewrite step failed using pattern
+550.lean:44:72: error:invalid 'rewrite' tactic, step produced type incorrect term, details: type mismatch at application
+  eq.rec (eq.rec (eq.refl function.id) (eq.symm linv))
+term
+  eq.rec (eq.refl function.id) (eq.symm linv)
+has type
+  x = function.id
+but is expected to have type
+  finv ∘ func = function.id
+rewrite step failed using pattern
   finv ∘ func
 proof state:
 A : Type,

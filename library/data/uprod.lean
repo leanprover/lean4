@@ -20,13 +20,13 @@ take p, or.inl rfl
 
 private theorem eqv.symm [symm] {A : Type} : ∀ p₁ p₂ : A × A, p₁ ~ p₂ → p₂ ~ p₁ :=
 take p₁ p₂ h, or.elim h
-  (λ e, by rewrite e; reflexivity)
+  (λ e, by rewrite e)
   (λ e, begin esimp [eqv], rewrite [-e, swap_swap], right, reflexivity end)
 
 private theorem eqv.trans [trans] {A : Type} : ∀ p₁ p₂ p₃ : A × A, p₁ ~ p₂ → p₂ ~ p₃ → p₁ ~ p₃ :=
 take p₁ p₂ p₃ h₁ h₂, or.elim h₁
   (λ e₁₂,  or.elim h₂
-    (λ e₂₃,  by rewrite [e₁₂, e₂₃]; reflexivity)
+    (λ e₂₃,  by rewrite [e₁₂, e₂₃])
     (λ es₂₃, begin esimp [eqv], rewrite -es₂₃, right, congruence, assumption end))
   (λ es₁₂, or.elim h₂
     (λ e₂₃,  begin esimp [eqv], rewrite es₁₂, right, assumption end)

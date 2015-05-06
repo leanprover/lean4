@@ -11,13 +11,16 @@ Author: Leonardo de Moura
 #include "library/tactic/expr_to_tactic.h"
 
 namespace lean {
-static optional<name> get_goal_op(proof_state const & s) {
+// Remark: if no_meta == true, then return none if goal contains metavariables
+static optional<name> get_goal_op(proof_state const & s, bool no_meta = false) {
     goals const & gs = s.get_goals();
     if (empty(gs)) {
         throw_no_goal_if_enabled(s);
         return optional<name>();
     }
     goal const & g   = head(gs);
+    if (no_meta && has_metavar(g.get_type()))
+        return optional<name>();
     expr const & op  = get_app_fn(g.get_type());
     if (is_constant(op))
         return optional<name>(const_name(op));
@@ -25,9 +28,9 @@ static optional<name> get_goal_op(proof_state const & s) {
         return optional<name>();
 }
 
-tactic refl_tactic(elaborate_fn const & elab) {
+tactic refl_tactic(elaborate_fn const & elab, bool no_meta = false) {
     auto fn = [=](environment const & env, io_state const & ios, proof_state const & s) {
-        auto op = get_goal_op(s);
+        auto op = get_goal_op(s, no_meta);
         if (!op)
             return proof_state_seq();
         if (auto refl = get_refl_info(env, *op)) {

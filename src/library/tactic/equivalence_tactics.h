@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 namespace lean {
+tactic refl_tactic(elaborate_fn const & elab, bool no_meta = false);
 void initialize_equivalence_tactics();
 void finalize_equivalence_tactics();
 }

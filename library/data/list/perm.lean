@@ -104,7 +104,7 @@ theorem perm_cons_app (a : A) : ∀ (l : list A), (a::l) ~ (l ++ [a])
 
 theorem perm_app_comm {l₁ l₂ : list A} : (l₁++l₂) ~ (l₂++l₁) :=
 list.induction_on l₁
-  (by rewrite [append_nil_right, append_nil_left]; apply refl)
+  (by rewrite [append_nil_right, append_nil_left])
   (λ a t r, calc
     a::(t++l₂) ~ a::(l₂++t)   : skip a r
           ...  ~ l₂++t++[a]   : perm_cons_app
@@ -166,7 +166,7 @@ theorem perm_erase [H : decidable_eq A] {a : A} : ∀ {l : list A}, a ∈ l → 
 | []     h := absurd h !not_mem_nil
 | (x::t) h :=
   by_cases
-    (assume aeqx  : a = x, by rewrite [aeqx, erase_cons_head]; exact !perm.refl)
+    (assume aeqx  : a = x, by rewrite [aeqx, erase_cons_head])
     (assume naeqx : a ≠ x,
       have aint : a ∈ t,             from mem_of_ne_of_mem naeqx h,
       have aux : t ~ a :: erase a t, from perm_erase aint,
@@ -185,11 +185,11 @@ assume p, perm.induction_on p
     by_cases
       (assume aeqx : a = x,
         by_cases
-          (assume aeqy  : a = y, by rewrite [-aeqx, -aeqy]; exact !perm.refl)
-          (assume naeqy : a ≠ y, by rewrite [-aeqx, erase_cons_tail _ naeqy, *erase_cons_head]; exact !perm.refl))
+          (assume aeqy  : a = y, by rewrite [-aeqx, -aeqy])
+          (assume naeqy : a ≠ y, by rewrite [-aeqx, erase_cons_tail _ naeqy, *erase_cons_head]))
       (assume naeqx : a ≠ x,
         by_cases
-          (assume aeqy  : a = y, by rewrite [-aeqy, erase_cons_tail _ naeqx, *erase_cons_head]; exact !perm.refl)
+          (assume aeqy  : a = y, by rewrite [-aeqy, erase_cons_tail _ naeqx, *erase_cons_head])
           (assume naeqy : a ≠ y, by rewrite[erase_cons_tail _ naeqx, *erase_cons_tail _ naeqy, erase_cons_tail _ naeqx];
                                     exact !swap)))
   (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, trans r₁ r₂)
@@ -595,19 +595,19 @@ include H
 
 theorem perm_union_left {l₁ l₂ : list A} (t₁ : list A) : l₁ ~ l₂ → (union l₁ t₁) ~ (union l₂ t₁) :=
 assume p, perm.induction_on p
-  (by rewrite [nil_union]; exact !refl)
+  (by rewrite [nil_union])
   (λ x l₁ l₂ p₁ r₁, by_cases
      (λ xint₁  : x ∈ t₁, by rewrite [*union_cons_of_mem _ xint₁]; exact r₁)
      (λ nxint₁ : x ∉ t₁, by rewrite [*union_cons_of_not_mem _ nxint₁]; exact (skip _ r₁)))
   (λ x y l, by_cases
     (λ yint  : y ∈ t₁, by_cases
       (λ xint  : x ∈ t₁,
-        by rewrite [*union_cons_of_mem _ xint, *union_cons_of_mem _ yint, *union_cons_of_mem _ xint]; exact !refl)
+        by rewrite [*union_cons_of_mem _ xint, *union_cons_of_mem _ yint, *union_cons_of_mem _ xint])
       (λ nxint : x ∉ t₁,
-        by rewrite [*union_cons_of_mem _ yint, *union_cons_of_not_mem _ nxint, union_cons_of_mem _ yint]; exact !refl))
+        by rewrite [*union_cons_of_mem _ yint, *union_cons_of_not_mem _ nxint, union_cons_of_mem _ yint]))
     (λ nyint : y ∉ t₁, by_cases
       (λ xint  : x ∈ t₁,
-        by rewrite [*union_cons_of_mem _ xint, *union_cons_of_not_mem _ nyint, union_cons_of_mem _ xint]; exact !refl)
+        by rewrite [*union_cons_of_mem _ xint, *union_cons_of_not_mem _ nyint, union_cons_of_mem _ xint])
       (λ nxint : x ∉ t₁,
         by rewrite [*union_cons_of_not_mem _ nxint, *union_cons_of_not_mem _ nyint, union_cons_of_not_mem _ nxint]; exact !swap)))
   (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, trans r₁ r₂)
@@ -657,21 +657,18 @@ assume p, perm.induction_on p
         by rewrite [*inter_cons_of_mem _ xint, *inter_cons_of_mem _ yint, *inter_cons_of_mem _ xint];
            exact !swap)
       (λ nxint : x ∉ t₁,
-        by rewrite [*inter_cons_of_mem _ yint, *inter_cons_of_not_mem _ nxint, inter_cons_of_mem _ yint];
-           exact !refl))
+        by rewrite [*inter_cons_of_mem _ yint, *inter_cons_of_not_mem _ nxint, inter_cons_of_mem _ yint]))
     (λ nyint : y ∉ t₁, by_cases
       (λ xint  : x ∈ t₁,
-        by rewrite [*inter_cons_of_mem _ xint, *inter_cons_of_not_mem _ nyint, inter_cons_of_mem _ xint];
-           exact !refl)
+        by rewrite [*inter_cons_of_mem _ xint, *inter_cons_of_not_mem _ nyint, inter_cons_of_mem _ xint])
       (λ nxint : x ∉ t₁,
         by rewrite [*inter_cons_of_not_mem _ nxint, *inter_cons_of_not_mem _ nyint,
-                     inter_cons_of_not_mem _ nxint];
-           exact !refl)))
+                     inter_cons_of_not_mem _ nxint])))
   (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, trans r₁ r₂)
 
 theorem perm_inter_right (l : list A) {t₁ t₂ : list A} : t₁ ~ t₂ → (inter l t₁) ~ (inter l t₂) :=
 list.induction_on l
-  (λ p, by rewrite [*inter_nil]; exact !refl)
+  (λ p, by rewrite [*inter_nil])
   (λ x xs r p, by_cases
     (λ xint₁  : x ∈ t₁,
       assert xint₂ : x ∈ t₂, from mem_perm p xint₁,
@@ -748,7 +745,7 @@ assume p : l₁ ~ l₂, perm.induction_on p
 
 theorem perm_cross_product_right (l : list A) {t₁ t₂ : list B} : t₁ ~ t₂ → (cross_product l t₁) ~ (cross_product l t₂) :=
 list.induction_on l
-  (λ p, by rewrite [*nil_cross_product]; exact !perm.refl)
+  (λ p, by rewrite [*nil_cross_product])
   (λ a t r p,
     perm_app (perm_map _ p) (r p))
 

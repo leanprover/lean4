@@ -35,6 +35,7 @@ Author: Leonardo de Moura
 #include "library/tactic/rewrite_tactic.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/class_instance_synth.h"
+#include "library/tactic/equivalence_tactics.h"
 
 // #define TRACE_MATCH_PLUGIN
 
@@ -1385,27 +1386,6 @@ class rewrite_fn {
         }
     }
 
-    bool check_trivial_goal() {
-        expr type = m_g.get_type();
-        if (is_eq(type) || (is_iff(type) && m_env.impredicative())) {
-            constraint_seq cs;
-            expr lhs = app_arg(app_fn(type));
-            expr rhs = app_arg(type);
-            if (m_unifier_tc->is_def_eq(lhs, rhs, justification(), cs) && !cs) {
-                expr H = is_eq(type) ? mk_refl(*m_tc, lhs) : mk_iff_refl(lhs);
-                assign(m_subst, m_g, H);
-                return true;
-            } else {
-                return false;
-            }
-        } else if (type == mk_true()) {
-            assign(m_subst, m_g, mk_constant(get_eq_intro_name()));
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     class match_converter : public unfold_reducible_converter {
     public:
         match_converter(environment const & env, bool relax_main_opaque):
@@ -1501,11 +1481,7 @@ public:
             }
         }
 
-        goals new_gs;
-        if (check_trivial_goal())
-            new_gs = tail(m_ps.get_goals());
-        else
-            new_gs = cons(m_g, tail(m_ps.get_goals()));
+        goals new_gs = cons(m_g, tail(m_ps.get_goals()));
         proof_state new_ps(m_ps, new_gs, m_subst, m_ngen);
         return proof_state_seq(new_ps);
     }
@@ -1663,13 +1639,14 @@ void initialize_rewrite_tactic() {
                              !is_rewrite_reduce_step(arg) && !is_rewrite_fold_step(arg))
                              throw expr_to_tactic_exception(e, "invalid 'rewrite' tactic, invalid argument");
                      }
-                     return mk_rewrite_tactic(elab, args);
+                     bool fail_if_metavars = true;
+                     return then(mk_rewrite_tactic(elab, args), try_tactic(refl_tactic(elab, fail_if_metavars)));
                  });
     register_tac(name{"tactic", "subst"},
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+                 [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
                      buffer<name> ns;
                      get_tactic_id_list_elements(app_arg(e), ns, "invalid 'subst' tactic, list of identifiers expected");
-                     return mk_subst_tactic(to_list(ns));
+                     return then(mk_subst_tactic(to_list(ns)), try_tactic(refl_tactic(elab)));
                  });
 }
 

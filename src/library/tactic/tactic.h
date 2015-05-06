@@ -62,6 +62,7 @@ inline tactic operator<<(tactic const & t1, tactic const & t2) { return then(t1,
 /** \brief Return a tactic that applies \c t1, and if \c t1 returns the empty sequence of states, then applies \c t2. */
 tactic orelse(tactic const & t1, tactic const & t2);
 inline tactic operator||(tactic const & t1, tactic const & t2) { return orelse(t1, t2); }
+inline tactic try_tactic(tactic const & t) { return orelse(t, id_tactic()); }
 /** \brief Return a tactic that appies \c t, but using the additional set of options \c opts. */
 tactic using_params(tactic const & t, options const & opts);
 /**

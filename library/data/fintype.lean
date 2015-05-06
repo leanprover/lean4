@@ -78,7 +78,7 @@ definition decidable_eq_fun [instance] {A B : Type} [h₁ : fintype A] [h₂ : d
   match h₁ with
   | fintype.mk e u c :=
     match find_discr f g e with
-    | some a := λ h : find_discr f g e = some a, inr (λ f_eq_g : f = g, absurd (by rewrite f_eq_g) (ne_of_find_discr_eq_some h))
+    | some a := λ h : find_discr f g e = some a, inr (λ f_eq_g : f = g, absurd (by rewrite f_eq_g; reflexivity) (ne_of_find_discr_eq_some h))
     | none   := λ h : find_discr f g e = none, inl (show f = g, from funext (λ a : A, all_eq_of_find_discr_eq_none h a (c a)))
     end rfl
   end

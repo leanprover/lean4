@@ -476,16 +476,36 @@ static obtain_struct parse_obtain_decls (parser & p, buffer<expr> & ps) {
     return obtain_struct(to_list(children));
 }
 
+static name * H_obtain_from = nullptr;
+
 static expr parse_obtain(parser & p, unsigned, expr const *, pos_info const & pos) {
     buffer<expr> ps;
     obtain_struct s = parse_obtain_decls(p, ps);
     p.check_token_next(get_comma_tk(), "invalid 'obtain' expression, ',' expected");
     p.check_token_next(get_from_tk(), "invalid 'obtain' expression, 'from' expected");
-    expr from = p.parse_expr();
+    expr from_term = p.parse_expr();
     p.check_token_next(get_comma_tk(), "invalid 'obtain' expression, ',' expected");
-    expr goal = p.parse_scoped_expr(ps);
-    expr r    = p.rec_save_pos(mk_obtain_expr(s, ps, from, goal), pos);
-    return p.mk_by_plus(p.mk_app(get_exact_tac_fn(), r, pos), pos);
+    expr goal_term = p.parse_scoped_expr(ps);
+
+    // When from_term is not just a constant or local constant, we compile obtain as:
+    //
+    //   have H : _, from from_term,
+    //   (by+ exact (obtain ps, from H, goal_term)) H
+    //
+    // Motivation, we want "from_term" (and its type) to be elaborated before processing the
+    // obtain-expression
+    //
+    if (is_constant(from_term) || is_local(from_term)) {
+        expr r    = p.rec_save_pos(mk_obtain_expr(s, ps, from_term, goal_term), pos);
+        return p.mk_by_plus(p.mk_app(get_exact_tac_fn(), r, pos), pos);
+    } else {
+        expr H_type = p.save_pos(mk_expr_placeholder(), pos);
+        expr body   = p.rec_save_pos(mk_obtain_expr(s, ps, mk_var(0), goal_term), pos);
+        body        = p.mk_by_plus(p.mk_app(get_exact_tac_fn(), body, pos), pos);
+        expr fn     = p.rec_save_pos(mk_lambda(*H_obtain_from, H_type, body), pos);
+        expr r      = p.mk_app(fn, from_term, pos);
+        return p.save_pos(mk_have_annotation(r), pos);
+    }
 }
 
 static expr * g_not  = nullptr;
@@ -640,6 +660,7 @@ parse_table get_builtin_led_table() {
 
 void initialize_builtin_exprs() {
     notation::H_show        = new name("H_show");
+    notation::H_obtain_from = new name("H_obtain_from");
     notation::g_not         = new expr(mk_constant(get_not_name()));
     g_nud_table             = new parse_table();
     *g_nud_table            = notation::init_nud_table();
@@ -651,6 +672,7 @@ void finalize_builtin_exprs() {
     delete g_led_table;
     delete g_nud_table;
     delete notation::H_show;
+    delete notation::H_obtain_from;
     delete notation::g_not;
 }
 }

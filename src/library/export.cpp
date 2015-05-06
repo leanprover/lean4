@@ -20,12 +20,12 @@ using name_hmap = typename std::unordered_map<name, T, name_hash, name_eq>;
 
 
 class exporter {
-    std::ostream &                m_out;
-    environment                   m_env;
-    max_sharing_fn                m_max_sharing;
-    name_hmap<unsigned>           m_name2idx;
-    level_map<unsigned>           m_level2idx;
-    expr_bi_struct_map<unsigned>  m_expr2idx;
+    std::ostream &        m_out;
+    environment           m_env;
+    max_sharing_fn        m_max_sharing;
+    name_hmap<unsigned>   m_name2idx;
+    level_map<unsigned>   m_level2idx;
+    expr_map<unsigned>    m_expr2idx;
 
     unsigned export_name(name const & n) {
         auto it = m_name2idx.find(n);
@@ -204,10 +204,10 @@ class exporter {
             export_name(p);
         for (inductive::inductive_decl const & d : std::get<2>(decls)) {
             export_name(inductive::inductive_decl_name(d));
-            export_expr(inductive::inductive_decl_type(d));
+            export_root_expr(inductive::inductive_decl_type(d));
             for (inductive::intro_rule const & c : inductive::inductive_decl_intros(d)) {
                 export_name(inductive::intro_rule_name(c));
-                export_expr(inductive::intro_rule_type(c));
+                export_root_expr(inductive::intro_rule_type(c));
             }
         }
         m_out << "BIND " << std::get<1>(decls) << " " << length(std::get<2>(decls));
@@ -216,10 +216,10 @@ class exporter {
         m_out << "\n";
         for (inductive::inductive_decl const & d : std::get<2>(decls)) {
             m_out << "IND " << export_name(inductive::inductive_decl_name(d)) << " "
-                  << export_expr(inductive::inductive_decl_type(d)) << "\n";
+                  << export_root_expr(inductive::inductive_decl_type(d)) << "\n";
             for (inductive::intro_rule const & c : inductive::inductive_decl_intros(d)) {
                 m_out << "INTRO " << export_name(inductive::intro_rule_name(c)) << " "
-                      << export_expr(inductive::intro_rule_type(c)) << "\n";
+                      << export_root_expr(inductive::intro_rule_type(c)) << "\n";
             }
         }
         m_out << "EIND\n";

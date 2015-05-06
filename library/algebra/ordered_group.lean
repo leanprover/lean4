@@ -152,9 +152,8 @@ section
       have Hbz : b = 0, from le.antisymm Hb' Hb,
       and.intro Haz Hbz)
     (assume Hab : a = 0 ∧ b = 0,
-      match Hab with
-      | and.intro Ha' Hb' := by rewrite [Ha', Hb', add_zero]
-      end)
+     obtain Ha' Hb', from Hab,
+     by rewrite [Ha', Hb', add_zero])
 
   theorem le_add_of_nonneg_of_le (Ha : 0 ≤ a) (Hbc : b ≤ c) : b ≤ a + c :=
   !zero_add ▸ add_le_add Ha Hbc

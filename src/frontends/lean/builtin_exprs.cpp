@@ -457,6 +457,7 @@ static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos)
 
 static obtain_struct parse_obtain_decls (parser & p, buffer<expr> & ps) {
     buffer<obtain_struct> children;
+    parser::local_scope scope(p);
     while (!p.curr_is_token(get_comma_tk()) && !p.curr_is_token(get_rbracket_tk())) {
         if (p.curr_is_token(get_lbracket_tk())) {
             p.next();
@@ -464,11 +465,14 @@ static obtain_struct parse_obtain_decls (parser & p, buffer<expr> & ps) {
             children.push_back(s);
             p.check_token_next(get_rbracket_tk(), "invalid 'obtain' expression, ']' expected");
         } else {
-            unsigned old_sz = ps.size();
             unsigned rbp = 0;
-            p.parse_simple_binders(ps, rbp);
-            for (unsigned i = old_sz; i < ps.size(); i++)
+            buffer<expr> new_ps;
+            p.parse_simple_binders(new_ps, rbp);
+            for (expr const & l : new_ps) {
+                ps.push_back(l);
+                p.add_local(l);
                 children.push_back(obtain_struct());
+            }
         }
     }
     if (children.empty())

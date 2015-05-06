@@ -191,6 +191,16 @@ bool has_expr_metavar_relaxed(expr const & e);
     elaborator with the tactic framework. */
 constraint instantiate_metavars(constraint const & c, substitution & s);
 
+
+/** \brief Check whether the given term is type correct or not, undefined universe levels are ignored,
+    and untrusted macros are unfolded before performing the test.
+
+    These procedures are useful for checking whether intermediate results produced by
+    tactics and automation are type correct.
+*/
+void check_term(type_checker & tc, expr const & e);
+void check_term(environment const & env, expr const & e);
+
 void initialize_library_util();
 void finalize_library_util();
 }

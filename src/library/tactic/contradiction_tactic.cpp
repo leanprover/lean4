@@ -51,7 +51,7 @@ tactic contradiction_tactic() {
                                 expr V = mk_app(mk_app(mk_constant(no_confusion, cons(t_lvl, const_levels(I_fn))), args),
                                                 t, lhs, rhs, h);
                                 if (auto r = lift_down_if_hott(*tc, V)) {
-                                    tc->check_ignore_undefined_universes(*r);
+                                    check_term(*tc, *r);
                                     assign(subst, g, *r);
                                     return some_proof_state(proof_state(s, tail(gs), subst, ngen));
                                 }

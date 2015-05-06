@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/util.h"
 #include "library/constants.h"
+#include "library/unfold_macros.h"
 
 namespace lean {
 bool is_standard(environment const & env) {
@@ -644,5 +645,15 @@ constraint instantiate_metavars(constraint const & c, substitution & s) {
                                cnstr_is_owner(c), c.get_justification(), relax_main_opaque(c));
     }}
     lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+void check_term(type_checker & tc, expr const & e) {
+    expr tmp = unfold_untrusted_macros(tc.env(), e);
+    tc.check_ignore_undefined_universes(tmp);
+}
+
+void check_term(environment const & env, expr const & e) {
+    expr tmp = unfold_untrusted_macros(env, e);
+    type_checker(env).check_ignore_undefined_universes(tmp);
 }
 }

@@ -29,6 +29,7 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 #include "library/locals.h"
 #include "library/constants.h"
+#include "library/unfold_macros.h"
 #include "library/generic_exception.h"
 #include "library/tactic/clear_tactic.h"
 #include "library/tactic/trace_tactic.h"
@@ -1188,7 +1189,7 @@ class rewrite_fn {
     }
 
     void check_term(expr const & H) {
-        type_checker(m_env).check_ignore_undefined_universes(H);
+        lean::check_term(m_env, H);
     }
 
     bool process_rewrite_hypothesis(expr const & hyp, expr const & orig_elem, expr const & pattern, occurrence const & occ) {

@@ -52,7 +52,11 @@ struct max_sharing_fn::imp {
         return res;
     }
 
-    expr operator()(expr const & a) { return apply(a); }
+    expr operator()(expr const & a) {
+        // we must disable approximate/opportunistic hash-consing used in the kernel
+        scoped_expr_caching disable(false);
+        return apply(a);
+    }
 
     bool already_processed(expr const & a) const {
         auto r = m_cache.find(a);

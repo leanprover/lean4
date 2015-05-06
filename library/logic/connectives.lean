@@ -85,12 +85,12 @@ iff.intro (λH, and.swap H) (λH, and.swap H)
 
 theorem and.assoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
 iff.intro
-  (assume H, and.intro
-    (and.elim_left (and.elim_left H))
-    (and.intro (and.elim_right (and.elim_left H)) (and.elim_right H)))
-  (assume H, and.intro
-    (and.intro (and.elim_left H) (and.elim_left (and.elim_right H)))
-    (and.elim_right (and.elim_right H)))
+  (assume H,
+   obtain [Ha Hb] Hc, from H,
+   and.intro Ha (and.intro Hb Hc))
+  (assume H,
+   obtain Ha Hb Hc, from H,
+   and.intro (and.intro Ha Hb) Hc)
 
 theorem and_true (a : Prop) : a ∧ true ↔ a :=
 iff.intro (assume H, and.left H) (assume H, and.intro H trivial)

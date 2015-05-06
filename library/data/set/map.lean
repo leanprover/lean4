@@ -89,9 +89,9 @@ and.intro (injective_of_equiv H1 (and.left H2)) (surjective_of_equiv H1 (and.rig
 
 theorem bijective_compose {g : map b c} {f : map a b} (Hg : bijective g) (Hf: bijective f) :
   bijective (g ∘ f) :=
-and.intro
-  (injective_compose (and.left Hg) (and.left Hf))
-  (surjective_compose (and.right Hg) (and.right Hf))
+obtain Hg₁ Hg₂, from Hg,
+obtain Hf₁ Hf₂, from Hf,
+and.intro (injective_compose Hg₁ Hf₁) (surjective_compose Hg₂ Hf₂)
 
 /- left inverse -/
 

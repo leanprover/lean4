@@ -171,8 +171,9 @@ iff.intro
     have H2 : a ≠ b, from ne.symm (assume H', H1 (H' ▸ !sub_self)),
     and.intro (nonneg_of_pos H) H2)
   (assume H : a ≤ b ∧ a ≠ b,
-    have H1 : b - a ≠ 0, from (assume H', and.right H (eq_of_sub_eq_zero H')⁻¹),
-    pos_of_nonneg_of_ne_zero (and.left H) H1)
+    obtain aleb aneb, from H,
+    have H1 : b - a ≠ 0, from (assume H', aneb (eq_of_sub_eq_zero H')⁻¹),
+    pos_of_nonneg_of_ne_zero aleb H1)
 
 theorem le_iff_lt_or_eq (a b : ℚ) : a ≤ b ↔ a < b ∨ a = b :=
 iff.intro

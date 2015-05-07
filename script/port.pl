@@ -4,36 +4,17 @@
 #
 # This perl script is for porting files from the standard library to the HoTT library
 #
-# (1) create a file "port.txt", with a list of entries "foo:bar" (or "foo;bar"),
-#     one per line
-# (2) put this script and port.txt in the same directory, and make sure
-#     the script is executable.
-# (3) use "[path]/port.pl [path]/source [path]/target" to do the renaming.
-#     On a Unix system, at least, you can use wildcards.
+# To use: first make it executable (chmod u+x port.pl). Then type
 #
-# -> You can write foo;bar to replace all occurrences,
-#    even if they are a substring of a longer expression (useful for e.g. notation)
+#  ./port.pl ../library/path/to/source.lean ../hott/path/to/destination.hlean ["from1" "to1" "from2" "to2" ...]
 #
-# Example: if you put rename.pl and port.txt in lean/library, then
-# from that directory type
-#
-#   ./rename.pl data/nat/*.lean
-#
-# to do all the renamings in data/nat. Alternative, change to that directory,
-# and type
-#
-# ../../rename.pl *.lean
-#
-# Notes:
-#
-# We assume identifiers have only letters, numbers, _, or "'" or ".".
-#
-# See http://perldoc.perl.org/perlfaq5.html, "How can I use Perl's i option from
-# within a program?" for information on the method used to change a file in place.
-#
-# See also http://perldoc.perl.org/File/Find.html for information on how to write
-# a subroutine that will traverse a directory tree.
-#
+# This will port the file ../library/path/to/source.lean to ../hott/path/to/destination.hlean
+# renaming core definitions form the standard library to core definitions in the HoTT library.
+# These renamings are specified in port.txt. See the documentation in rename.pl for the syntax.
+# The arguments "fromi" and "toi" are optional, but should be provided in pairs.
+# These arguments will replace "fromi" by "toi" in the specified file,
+# before doing any other renamings.
+
 use strict;
 use warnings;
 use Cwd 'abs_path';
@@ -102,7 +83,7 @@ sub rename_in_file {
 
 my $oldfile = shift;
 my $newfile = shift;
-if (-e $newfile) {move($newfile,$newfile.".orig") or die "Move failed: $!"; } 
+if (-e $newfile) {move($newfile,$newfile.".orig") or die "Move failed: $!"; }
 print "copying ", $oldfile, " to ",$newfile, ".\n";
 copy($oldfile,$newfile) or die "Copy failed: $!";
 get_renamings;

@@ -9,9 +9,6 @@
 # (3) use "[path]/rename.pl [path]/file" to do the renaming.
 #     On a Unix system, at least, you can use wildcards.
 #
-# -> You can write foo;bar to replace all occurrences,
-#    even if they are a substring of a longer expression (useful for e.g. notation)
-#
 # Example: if you put rename.pl and renamings.txt in lean/library, then
 # from that directory type
 #
@@ -24,14 +21,21 @@
 #
 # Notes:
 #
-# We assume identifiers have only letters, numbers, _, or "'" or ".".
+# For lines "foo:bar" we assume that foo has only letters, numbers, _, or "'" or ".".
+#
+# Lines "foo;bar" replaces every occurrence of "foo" by "bar",
+# even if "foo" is a substring of a bigger expression.
+# "foo" can contain whitespace or special characters, but cannot contain newlines.
+#
+# Parentheses (and other characters with a special meaning in regular expressions)
+# have to be escaped
 #
 # See http://perldoc.perl.org/perlfaq5.html, "How can I use Perl's i option from
 # within a program?" for information on the method used to change a file in place.
 #
 # See also http://perldoc.perl.org/File/Find.html for information on how to write
 # a subroutine that will traverse a directory tree.
-#
+
 use strict;
 use warnings;
 use Cwd 'abs_path';

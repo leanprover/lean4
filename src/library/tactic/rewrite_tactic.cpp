@@ -1422,6 +1422,7 @@ class rewrite_fn {
                                                r = format("invalid 'rewrite' tactic, "
                                                              "rewrite step produced type incorrect term");
                                                if (saved_ex) {
+                                                   r += line();
                                                    r += saved_ex->pp(fmt);
                                                    r += line();
                                                }

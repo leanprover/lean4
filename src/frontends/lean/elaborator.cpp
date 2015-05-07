@@ -1764,6 +1764,7 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
             expr new_ptac = subst.instantiate_all(ptac);
             if (auto tac = pre_tactic_to_tactic(new_ptac)) {
                 try {
+                    ps = ps.update_report_failure(true);
                     proof_state_seq seq = (*tac)(env(), ios(), ps);
                     auto r = seq.pull();
                     if (!r) {

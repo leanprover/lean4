@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/constants.h"
 #include "library/private.h"
+#include "library/locals.h"
 #include "library/protected.h"
 #include "library/choice.h"
 #include "library/placeholder.h"
@@ -521,9 +522,39 @@ void parser::add_parameter(name const & n, expr const & p) {
 
 bool parser::update_local_binder_info(name const & n, binder_info const & bi) {
     auto it = get_local(n);
-    if (!it) return false;
-    if (!is_local(*it)) return false;
-    m_local_decls.update(n, update_local(*it, bi));
+    if (!it || !is_local(*it)) return false;
+
+    buffer<pair<name, expr>> entries;
+    to_buffer(m_local_decls.get_entries(), entries);
+    std::reverse(entries.begin(), entries.end());
+    unsigned idx = m_local_decls.find_idx(n);
+    lean_assert(idx > 0);
+    lean_assert_eq(entries[idx-1].second, *it);
+
+    buffer<expr> old_locals;
+    buffer<expr> new_locals;
+    old_locals.push_back(*it);
+    expr new_l = update_local(*it, bi);
+    m_local_decls.update(n, new_l);
+    new_locals.push_back(new_l);
+
+    for (unsigned i = idx; i < entries.size(); i++) {
+        name const & curr_n = entries[i].first;
+        expr const & curr_e = entries[i].second;
+        expr r = is_local(curr_e) ? mlocal_type(curr_e) : curr_e;
+        if (std::any_of(old_locals.begin(), old_locals.end(), [&](expr const & l) { return depends_on(r, l); })) {
+            r  = instantiate_rev(abstract_locals(r, old_locals.size(), old_locals.data()),
+                                 new_locals.size(), new_locals.data());
+            if (is_local(curr_e)) {
+                expr new_e = update_mlocal(curr_e, r);
+                old_locals.push_back(curr_e);
+                new_locals.push_back(new_e);
+                m_local_decls.update(curr_n, new_e);
+            } else {
+                m_local_decls.update(curr_n, r);
+            }
+        }
+    }
     return true;
 }
 

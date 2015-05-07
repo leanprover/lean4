@@ -1,6 +1,6 @@
 import algebra.group algebra.category
 
-open eq sigma unit category path_algebra
+open eq sigma unit category algebra
 
 section
   parameters {P₀ : Type} [P : precategory P₀]

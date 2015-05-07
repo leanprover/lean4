@@ -88,9 +88,9 @@ match n with
   | zero      := take v w He, rfl
   | (succ m₁) :=
     take (v : vector A zero) (w : vector A (succ m₁)),
-    empty.elim _ (ninh (inhabited.mk (head w)))
+    empty.elim (ninh (inhabited.mk (head w)))
   end
 | (succ n₁) :=
   take (v : vector A (succ n₁)) (w : vector A m),
-  empty.elim _ (ninh (inhabited.mk (head v)))
+  empty.elim (ninh (inhabited.mk (head v)))
 end

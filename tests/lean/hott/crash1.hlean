@@ -2,7 +2,7 @@ import types.sigma types.prod
 import algebra.binary algebra.group
 open eq eq.ops
 
-namespace path_algebra
+namespace algebra
 
 variable {A : Type}
 
@@ -20,4 +20,4 @@ structure zero_ne_one_class [class] (A : Type) extends has_zero A, has_one A :=
 structure semiring [class] (A : Type) extends add_comm_monoid A, monoid A,
   distrib A, mul_zero_class A, zero_ne_one_class A
 
-end path_algebra
+end algebra

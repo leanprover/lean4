@@ -35,30 +35,30 @@ namespace colimit
 
   /-protected-/ constant rec : Π [D : diagram] {P : colimit D → Type}
     (Pincl : Π⦃i : Iob⦄ (x : ob i), P (ι x))
-    (Pglue : Π(j : Ihom) (x : ob (dom j)), cglue j x ▹ Pincl (hom j x) = Pincl x)
+    (Pglue : Π(j : Ihom) (x : ob (dom j)), cglue j x ▸ Pincl (hom j x) = Pincl x)
       (y : colimit D), P y
 
   -- {P : my_colim f → Type} (Hinc : Π⦃n : ℕ⦄ (a : A n), P (inc f a))
-  -- (Heq : Π(n : ℕ) (a : A n), inc_eq f a ▹ Hinc (f a) = Hinc a) : Πaa, P aa
+  -- (Heq : Π(n : ℕ) (a : A n), inc_eq f a ▸ Hinc (f a) = Hinc a) : Πaa, P aa
   -- init_hit
 
   definition comp_incl [D : diagram] {P : colimit D → Type}
     (Pincl : Π⦃i : Iob⦄ (x : ob i), P (ι x))
-    (Pglue : Π(j : Ihom) (x : ob (dom j)), cglue j x ▹ Pincl (hom j x) = Pincl x)
+    (Pglue : Π(j : Ihom) (x : ob (dom j)), cglue j x ▸ Pincl (hom j x) = Pincl x)
       {i : Iob} (x : ob i) : rec Pincl Pglue (ι x) = Pincl x :=
   sorry --idp
 
   --set_option pp.notation false
   definition comp_cglue [D : diagram] {P : colimit D → Type}
     (Pincl : Π⦃i : Iob⦄ (x : ob i), P (ι x))
-    (Pglue : Π(j : Ihom) (x : ob (dom j)), cglue j x ▹ Pincl (hom j x) = Pincl x)
+    (Pglue : Π(j : Ihom) (x : ob (dom j)), cglue j x ▸ Pincl (hom j x) = Pincl x)
       {j : Ihom} (x : ob (dom j)) : apd (rec Pincl Pglue) (cglue j x) = sorry ⬝ Pglue j x ⬝ sorry :=
   --the sorry's in the statement can be removed when comp_incl is definitional
   sorry --idp
 
   protected definition rec_on [D : diagram] {P : colimit D → Type} (y : colimit D)
     (Pincl : Π⦃i : Iob⦄ (x : ob i), P (ι x))
-    (Pglue : Π(j : Ihom) (x : ob (dom j)), cglue j x ▹ Pincl (hom j x) = Pincl x) : P y :=
+    (Pglue : Π(j : Ihom) (x : ob (dom j)), cglue j x ▸ Pincl (hom j x) = Pincl x) : P y :=
   colimit.rec Pincl Pglue y
 
 end colimit
@@ -119,20 +119,20 @@ parameters {TL BL TR : Type.{u}} (f : TL → BL) (g : TL → TR)
   protected theorem rec {P : pushout → Type} --make def
     (Pinl : Π(x : BL), P (inl x))
     (Pinr : Π(x : TR), P (inr x))
-    (Pglue : Π(x : TL), glue x ▹ Pinl (f x) = Pinr (g x))
+    (Pglue : Π(x : TL), glue x ▸ Pinl (f x) = Pinr (g x))
       (y : pushout) : P y :=
   begin
     fapply (@colimit.rec_on _ _ y),
     { intros [i, x], cases i,
-       exact (coherence x ▹ Pinl (f x)),
+       exact (coherence x ▸ Pinl (f x)),
        apply Pinl,
        apply Pinr},
     { intros [j, x],
       cases j,
       exact idp,
       change (transport P (@cglue _ tt x) (Pinr (g x)) = transport P (coherence x) (Pinl (f x))),
-           --(@cglue _ tt x ▹ (Pinr (g x)) = (coherence x ▹ Pinl (f x))),
-      apply concat;rotate 1;apply (idpath (coherence x ▹ Pinl (f x))),
+           --(@cglue _ tt x ▸ (Pinr (g x)) = (coherence x ▸ Pinl (f x))),
+      apply concat;rotate 1;apply (idpath (coherence x ▸ Pinl (f x))),
       apply concat;apply (ap (transport _ _));apply (idpath (Pinr (g x))),
       apply tr_eq_of_eq_inv_tr,
 --      rewrite -{(transport (λ (x : pushout), P x) (inverse (coherence x)) (transport P (@cglue _ tt x) (Pinr (g x))))}tr_con,

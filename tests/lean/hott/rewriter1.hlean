@@ -1,5 +1,5 @@
 import algebra.group
-open path_algebra
+open algebra
 
 constant f {A : Type} : A → A → A
 
@@ -7,7 +7,7 @@ theorem test1 {A : Type} [s : add_comm_group A] (a b c : A) : f (a + 0) (f (a + 
 begin
   rewrite [
     add_zero at {1, 3}, -- rewrite 1st and 3rd occurrences
-    {0 + _}add_comm]   -- apply commutativity to (0 + _)
+    {0 + _}add.comm]   -- apply commutativity to (0 + _)
 end
 
 axiom Ax {A : Type} [s₁ : has_mul A] [s₂ : has_one A] (a : A) : f (a * 1) (a * 1) = 1

@@ -51,7 +51,7 @@ namespace pi
 
   protected definition transport (p : a = a') (f : Π(b : B a), C a b)
     : (transport (λa, Π(b : B a), C a b) p f)
-      ∼ (λb, transport (C a') !tr_inv_tr (transportD _ p _ (f (p⁻¹ ▹ b)))) :=
+      ∼ (λb, transport (C a') !tr_inv_tr (transportD _ p _ (f (p⁻¹ ▸ b)))) :=
   eq.rec_on p (λx, idp)
 
   /- A special case of [transport_pi] where the type [B] does not depend on [A],
@@ -77,23 +77,23 @@ namespace pi
      (Π(b : B a), transportD B C p b (f b) = g (eq.transport B p b)) ≃
      (eq.transport (λa, Π(b : B a), C a b) p f = g) -/
   definition dpath_pi (H : funext) (p : a = a') (f : Π(b : B a), C a b) (g : Π(b' : B a'), C a' b')
-    : (Π(b : B a), p ▹D (f b) = g (p ▹ b)) ≃ (p ▹ f = g) :=
+    : (Π(b : B a), p ▸D (f b) = g (p ▸ b)) ≃ (p ▸ f = g) :=
   eq.rec_on p (λg, homotopy_equiv_path H f g) g
 
   section open sigma sigma.ops
   /- more implicit arguments:
-  (Π(b : B a), eq.transport C (sigma.path p idp) (f b) = g (p ▹ b)) ≃
+  (Π(b : B a), eq.transport C (sigma.path p idp) (f b) = g (p ▸ b)) ≃
   (Π(b : B a), transportD B (λ(a : A) (b : B a), C ⟨a, b⟩) p b (f b) = g (eq.transport B p b)) -/
   definition dpath_pi_sigma {C : (Σa, B a) → Type} (p : a = a')
     (f : Π(b : B a), C ⟨a, b⟩) (g : Π(b' : B a'), C ⟨a', b'⟩) :
-    (Π(b : B a), (sigma.sigma_eq p idp) ▹ (f b) = g (p ▹ b)) ≃ (Π(b : B a), p ▹D (f b) = g (p ▹ b)) :=
+    (Π(b : B a), (sigma.sigma_eq p idp) ▸ (f b) = g (p ▸ b)) ≃ (Π(b : B a), p ▸D (f b) = g (p ▸ b)) :=
   eq.rec_on p (λg, !equiv.refl) g
   end
 
   variables (f0 : A' → A) (f1 : Π(a':A'), B (f0 a') → B' a')
 
   definition transport_V [reducible] (P : A → Type) {x y : A} (p : x = y) (u : P y) : P x :=
-  p⁻¹ ▹ u
+  p⁻¹ ▸ u
 
   protected definition functor_pi : (Π(a:A), B a) → (Π(a':A'), B' a') := (λg a', f1 a' (g (f0 a')))
   /- Equivalences -/
@@ -114,7 +114,7 @@ namespace pi
   apply apd,
   intro h, beta,
   apply eq_of_homotopy, intro a, esimp,
-  apply (transport_V (λx, right_inv f0 a ▹ x = h a) (left_inv (f1 _) _)),
+  apply (transport_V (λx, right_inv f0 a ▸ x = h a) (left_inv (f1 _) _)),
   esimp [function.id],
   apply apd
   end

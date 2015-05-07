@@ -1,6 +1,6 @@
 import algebra.group algebra.category
 
-open eq sigma unit category path_algebra equiv
+open eq sigma unit category algebra equiv
 
 set_option pp.implicit true
 set_option pp.universes true

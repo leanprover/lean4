@@ -1,6 +1,6 @@
 import algebra.group
 
-open eq path_algebra
+open eq algebra
 
 definition foo {A : Type} (a b c : A) (H₁ : a = c) (H₂ : c = b)  : a = b :=
 begin

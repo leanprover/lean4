@@ -106,7 +106,7 @@ static name * g_instance     = nullptr;
 static name * g_priority     = nullptr;
 static name * g_unfold_c     = nullptr;
 static name * g_unfold_f     = nullptr;
-static name * g_unfold_m     = nullptr;
+static name * g_constructor  = nullptr;
 static name * g_coercion     = nullptr;
 static name * g_reducible    = nullptr;
 static name * g_quasireducible = nullptr;
@@ -241,7 +241,7 @@ void initialize_tokens() {
     g_priority     = new name("[priority");
     g_unfold_c     = new name("[unfold-c");
     g_unfold_f     = new name("[unfold-f]");
-    g_unfold_m     = new name("[unfold-m]");
+    g_constructor  = new name("[constructor]");
     g_coercion     = new name("[coercion]");
     g_reducible    = new name("[reducible]");
     g_quasireducible = new name("[quasireducible]");
@@ -314,7 +314,7 @@ void finalize_tokens() {
     delete g_priority;
     delete g_unfold_c;
     delete g_unfold_f;
-    delete g_unfold_m;
+    delete g_constructor;
     delete g_coercion;
     delete g_symm;
     delete g_refl;
@@ -514,7 +514,7 @@ name const & get_instance_tk() { return *g_instance; }
 name const & get_priority_tk() { return *g_priority; }
 name const & get_unfold_c_tk() { return *g_unfold_c; }
 name const & get_unfold_f_tk() { return *g_unfold_f; }
-name const & get_unfold_m_tk() { return *g_unfold_m; }
+name const & get_constructor_tk() { return *g_constructor; }
 name const & get_coercion_tk() { return *g_coercion; }
 name const & get_symm_tk() { return *g_symm; }
 name const & get_trans_tk() { return *g_trans; }

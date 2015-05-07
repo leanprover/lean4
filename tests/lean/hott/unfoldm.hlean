@@ -1,4 +1,4 @@
-definition rr [unfold-m] {A : Type} {a : A} := eq.refl a
+definition rr [constructor] {A : Type} {a : A} := eq.refl a
 
 constants f g : Π {A : Type}, A → A
 

@@ -354,7 +354,7 @@ struct decl_attributes {
     bool               m_is_parsing_only;
     bool               m_has_multiple_instances;
     bool               m_unfold_f_hint;
-    bool               m_unfold_m_hint;
+    bool               m_constructor_hint;
     bool               m_symm;
     bool               m_trans;
     bool               m_refl;
@@ -377,7 +377,7 @@ struct decl_attributes {
         m_is_parsing_only        = false;
         m_has_multiple_instances = false;
         m_unfold_f_hint          = false;
-        m_unfold_m_hint          = false;
+        m_constructor_hint       = false;
         m_symm                   = false;
         m_trans                  = false;
         m_refl                   = false;
@@ -486,9 +486,9 @@ struct decl_attributes {
             } else if (p.curr_is_token(get_unfold_f_tk())) {
                 p.next();
                 m_unfold_f_hint = true;
-            } else if (p.curr_is_token(get_unfold_m_tk())) {
+            } else if (p.curr_is_token(get_constructor_tk())) {
                 p.next();
-                m_unfold_m_hint = true;
+                m_constructor_hint = true;
             } else if (p.curr_is_token(get_unfold_c_tk())) {
                 p.next();
                 unsigned r = p.parse_small_nat();
@@ -552,9 +552,9 @@ struct decl_attributes {
                 env = add_unfold_c_hint(env, d, *m_unfold_c_hint, m_persistent);
             if (m_unfold_f_hint)
                 env = add_unfold_f_hint(env, d, m_persistent);
-            if (m_unfold_m_hint)
-                env = add_unfold_m_hint(env, d, m_persistent);
-         }
+        }
+        if (m_constructor_hint)
+            env = add_constructor_hint(env, d, m_persistent);
         if (m_symm)
             env = add_symm(env, d, m_persistent);
         if (m_refl)

@@ -24,7 +24,7 @@ namespace lean {
    - unfold_c (f a_1 ... a_i ... a_n) should be unfolded
      when argument a_i is a constructor.
    - unfold_f (f a_1 ... a_i ... a_n) should be unfolded when it is fully applied.
-   - unfold_m (f ...) should be unfolded when it is the major premise of a recursor-like operator
+   - constructor (f ...) should be unfolded when it is the major premise of a recursor-like operator
 */
 struct unfold_hint_entry {
     enum kind {UnfoldC, UnfoldF, UnfoldM};
@@ -41,8 +41,8 @@ unfold_hint_entry mk_add_unfold_c_entry(name const & n, unsigned idx) { return u
 unfold_hint_entry mk_erase_unfold_c_entry(name const & n) { return unfold_hint_entry(unfold_hint_entry::UnfoldC, false, n, 0); }
 unfold_hint_entry mk_add_unfold_f_entry(name const & n) { return unfold_hint_entry(unfold_hint_entry::UnfoldF, true, n, 0); }
 unfold_hint_entry mk_erase_unfold_f_entry(name const & n) { return unfold_hint_entry(unfold_hint_entry::UnfoldF, false, n, 0); }
-unfold_hint_entry mk_add_unfold_m_entry(name const & n) { return unfold_hint_entry(unfold_hint_entry::UnfoldM, true, n, 0); }
-unfold_hint_entry mk_erase_unfold_m_entry(name const & n) { return unfold_hint_entry(unfold_hint_entry::UnfoldM, false, n, 0); }
+unfold_hint_entry mk_add_constructor_entry(name const & n) { return unfold_hint_entry(unfold_hint_entry::UnfoldM, true, n, 0); }
+unfold_hint_entry mk_erase_constructor_entry(name const & n) { return unfold_hint_entry(unfold_hint_entry::UnfoldM, false, n, 0); }
 
 static name * g_unfold_hint_name = nullptr;
 static std::string * g_key = nullptr;
@@ -50,7 +50,7 @@ static std::string * g_key = nullptr;
 struct unfold_hint_state {
     name_map<unsigned>  m_unfold_c;
     name_set            m_unfold_f;
-    name_set            m_unfold_m;
+    name_set            m_constructor;
 };
 
 struct unfold_hint_config {
@@ -73,9 +73,9 @@ struct unfold_hint_config {
             break;
         case unfold_hint_entry::UnfoldM:
             if (e.m_add)
-                s.m_unfold_m.insert(e.m_decl_name);
+                s.m_constructor.insert(e.m_decl_name);
             else
-                s.m_unfold_m.erase(e.m_decl_name);
+                s.m_constructor.erase(e.m_decl_name);
             break;
         }
     }
@@ -138,20 +138,18 @@ environment erase_unfold_f_hint(environment const & env, name const & n, bool pe
     return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_erase_unfold_f_entry(n), persistent);
 }
 
-environment add_unfold_m_hint(environment const & env, name const & n, bool persistent) {
-    declaration const & d = env.get(n);
-    if (!d.is_definition() || d.is_opaque())
-        throw exception("invalid unfold-m hint, declaration must be a non-opaque definition");
-    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_add_unfold_m_entry(n), persistent);
+environment add_constructor_hint(environment const & env, name const & n, bool persistent) {
+    env.get(n);
+    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_add_constructor_entry(n), persistent);
 }
 
-bool has_unfold_m_hint(environment const & env, name const & d) {
+bool has_constructor_hint(environment const & env, name const & d) {
     unfold_hint_state const & s = unfold_hint_ext::get_state(env);
-    return s.m_unfold_m.contains(d);
+    return s.m_constructor.contains(d);
 }
 
-environment erase_unfold_m_hint(environment const & env, name const & n, bool persistent) {
-    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_erase_unfold_m_entry(n), persistent);
+environment erase_constructor_hint(environment const & env, name const & n, bool persistent) {
+    return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_erase_constructor_entry(n), persistent);
 }
 
 void initialize_normalize() {
@@ -195,8 +193,11 @@ class normalize_fn {
         if (is_constructor_app(m_tc.env(), e))
             return some_expr(e);
         expr const & f = get_app_fn(e);
-        if (is_constant(f) && has_unfold_m_hint(m_tc.env(), const_name(f))) {
-            return unfold_app(m_tc.env(), e);
+        if (is_constant(f) && has_constructor_hint(m_tc.env(), const_name(f))) {
+            if (auto r = unfold_app(m_tc.env(), e))
+                return r;
+            else
+                return some_expr(e);
         } else {
             return none_expr();
         }

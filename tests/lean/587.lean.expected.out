@@ -1,0 +1,9 @@
+587.lean:13:2: proof state
+A B : Type₁,
+s : setoid A,
+f : A → B,
+c : ∀ (a₁ a₂ : A), a₁ ≈ a₂ → f a₁ = f a₂,
+a : A,
+g h : B → B,
+gh : g = h
+⊢ g (f a) = h (f a)

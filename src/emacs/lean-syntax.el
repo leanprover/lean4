@@ -119,7 +119,7 @@
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
      ;; modifiers
      (,(rx (or "\[persistent\]" "\[notation\]" "\[visible\]" "\[instance\]" "\[class\]" "\[parsing-only\]"
-               "\[coercion\]" "\[unfold-f\]" "\[unfold-m\]" "\[reducible\]"
+               "\[coercion\]" "\[unfold-f\]" "\[constructor\]" "\[reducible\]"
                "\[irreducible\]" "\[semireducible\]" "\[quasireducible\]" "\[wf\]"
                "\[whnf\]" "\[multiple-instances\]" "\[none\]"
                "\[decls\]" "\[declarations\]" "\[all-transparent\]" "\[coercions\]" "\[classes\]"

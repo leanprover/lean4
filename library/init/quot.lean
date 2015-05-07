@@ -117,3 +117,12 @@ namespace quot
     q₁ (λ a, quot.rec_on_subsingleton q₂ (λ b, f a b))
   end
 end quot
+
+attribute quot.mk                   [constructor]
+attribute quot.lift_on              [unfold-c 4]
+attribute quot.rec                  [unfold-c 6]
+attribute quot.rec_on               [unfold-c 4]
+attribute quot.rec_on_subsingleton  [unfold-c 5]
+attribute quot.lift₂                [unfold-c 8]
+attribute quot.lift_on₂             [unfold-c 6]
+attribute quot.rec_on_subsingleton₂ [unfold-c 7]

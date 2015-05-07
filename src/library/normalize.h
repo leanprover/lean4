@@ -55,10 +55,10 @@ optional<unsigned> has_unfold_f_hint(environment const & env, name const & d);
 
 /** \brief unfold-m hint instructs normalizer (and simplifier) that function application
     (f ...) should be unfolded when it is the major premise of a constructor like operator */
-environment add_unfold_m_hint(environment const & env, name const & n, bool persistent = true);
-environment erase_unfold_m_hint(environment const & env, name const & n, bool persistent = true);
-/** \brief Retrieve the hint added with the procedure add_unfold_m_hint. */
-optional<unsigned> has_unfold_m_hint(environment const & env, name const & d);
+environment add_constructor_hint(environment const & env, name const & n, bool persistent = true);
+environment erase_constructor_hint(environment const & env, name const & n, bool persistent = true);
+/** \brief Retrieve the hint added with the procedure add_constructor_hint. */
+optional<unsigned> has_constructor_hint(environment const & env, name const & d);
 
 void initialize_normalize();
 void finalize_normalize();

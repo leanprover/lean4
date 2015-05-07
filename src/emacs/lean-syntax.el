@@ -124,7 +124,8 @@
                "\[whnf\]" "\[multiple-instances\]" "\[none\]"
                "\[decls\]" "\[declarations\]" "\[all-transparent\]" "\[coercions\]" "\[classes\]"
                "\[symm\]" "\[subst\]" "\[refl\]" "\[trans\]"
-               "\[notations\]" "\[abbreviations\]" "\[begin-end-hints\]" "\[tactic-hints\]" "\[reduce-hints\]"))
+               "\[notations\]" "\[abbreviations\]" "\[begin-end-hints\]" "\[tactic-hints\]"
+               "\[reduce-hints\]" "\[unfold-hints\]" "\[aliases\]" "\[eqv\]" "\[localrefinfo\]"))
       . 'font-lock-doc-face)
      (,(rx "\[priority" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      (,(rx "\[unfold-c" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
@@ -137,7 +138,7 @@
                 "generalize" "generalizes" "clear" "clears" "revert" "reverts" "back" "beta" "done" "exact" "rexact"
                 "refine" "repeat" "whnf" "rotate" "rotate_left" "rotate_right" "inversion" "cases" "rewrite" "esimp"
                 "unfold" "change" "check_expr" "contradiction" "exfalso" "split" "existsi" "constructor" "left" "right"
-                "injection" "congruence" "reflexivity" "symmetry" "transitivity"))
+                "injection" "congruence" "reflexivity" "symmetry" "transitivity" "state"))
            word-end)
       (1 'font-lock-constant-face))
      ;; Types

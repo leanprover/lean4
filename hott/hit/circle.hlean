@@ -12,7 +12,7 @@ import .sphere types.bool types.eq types.int.hott types.arrow types.equiv
 
 open eq suspension bool sphere_index is_equiv equiv equiv.ops is_trunc
 
-definition circle [reducible] := sphere 1
+definition circle : Type₀ := sphere 1
 
 namespace circle
 
@@ -50,7 +50,7 @@ namespace circle
       : apd (rec2 Pb1 Pb2 Ps1 Ps2) seg2 = Ps2 :=
   !rec_merid
 
-  definition elim2 {P : Type} (Pb1 Pb2 : P) (Ps1 : Pb1 = Pb2) (Ps2 : Pb1 = Pb2) (x : circle) : P :=
+  definition elim2 {P : Type} (Pb1 Pb2 : P) (Ps1 Ps2 : Pb1 = Pb2) (x : circle) : P :=
   rec2 Pb1 Pb2 (!tr_constant ⬝ Ps1) (!tr_constant ⬝ Ps2) x
 
   definition elim2_on [reducible] {P : Type} (x : circle) (Pb1 Pb2 : P)
@@ -70,6 +70,21 @@ namespace circle
     apply (@cancel_left _ _ _ _ (tr_constant seg2 (elim2 Pb1 Pb2 Ps1 Ps2 base1))),
     rewrite [-apd_eq_tr_constant_con_ap,↑elim2,rec2_seg2],
   end
+
+  definition elim2_type (Pb1 Pb2 : Type) (Ps1 Ps2 : Pb1 ≃ Pb2) (x : circle) : Type :=
+  elim2 Pb1 Pb2 (ua Ps1) (ua Ps2) x
+
+  definition elim2_type_on [reducible] (x : circle) (Pb1 Pb2 : Type) (Ps1 Ps2 : Pb1 ≃ Pb2)
+    : Type :=
+  elim2_type Pb1 Pb2 Ps1 Ps2 x
+
+  theorem elim2_type_seg1 (Pb1 Pb2 : Type) (Ps1 Ps2 : Pb1 ≃ Pb2)
+    : transport (elim2_type Pb1 Pb2 Ps1 Ps2) seg1 = Ps1 :=
+  by rewrite [tr_eq_cast_ap_fn,↑elim2_type,elim2_seg1];apply cast_ua_fn
+
+  theorem elim2_type_seg2 (Pb1 Pb2 : Type) (Ps1 Ps2 : Pb1 ≃ Pb2)
+    : transport (elim2_type Pb1 Pb2 Ps1 Ps2) seg2 = Ps2 :=
+  by rewrite [tr_eq_cast_ap_fn,↑elim2_type,elim2_seg2];apply cast_ua_fn
 
   protected definition rec {P : circle → Type} (Pbase : P base) (Ploop : loop ▸ Pbase = Pbase)
     (x : circle) : P x :=
@@ -133,7 +148,19 @@ namespace circle
   theorem elim_type_loop_inv (Pbase : Type) (Ploop : Pbase ≃ Pbase) :
     transport (elim_type Pbase Ploop) loop⁻¹ = to_inv Ploop :=
   by rewrite [tr_inv_fn,↑to_inv]; apply inv_eq_inv; apply elim_type_loop
+end circle
 
+attribute circle.base circle.base1 circle.base2 [constructor]
+attribute circle.rec circle.elim [unfold-c 4]
+attribute circle.elim_type [unfold-c 3]
+attribute circle.rec_on circle.elim_on [unfold-c 2]
+attribute circle.elim_type_on [unfold-c 1]
+attribute circle.rec2 circle.elim2 [unfold-c 6]
+attribute circle.elim2_type [unfold-c 5]
+attribute circle.rec2_on circle.elim2_on [unfold-c 2]
+attribute circle.elim2_type [unfold-c 1]
+
+namespace circle
   definition loop_neq_idp : loop ≠ idp :=
   assume H : loop = idp,
   have H2 : Π{A : Type₁} {a : A} (p : a = a), p = idp,
@@ -155,7 +182,7 @@ namespace circle
 
   open int
 
-  protected definition code (x : circle) : Type₀ :=
+  protected definition code [unfold-c 1] (x : circle) : Type₀ :=
   circle.elim_type_on x ℤ equiv_succ
 
   definition transport_code_loop (a : ℤ) : transport code loop a = succ a :=
@@ -168,7 +195,6 @@ namespace circle
   protected definition encode {x : circle} (p : base = x) : code x :=
   transport code p (of_num 0) -- why is the explicit coercion needed here?
 
-  --attribute type_quotient.rec_on [unfold-c 4]
   definition circle_eq_equiv (x : circle) : (base = x) ≃ code x :=
   begin
     fapply equiv.MK,
@@ -179,9 +205,7 @@ namespace circle
         refine !arrow.arrow_transport ⬝ !transport_eq_r ⬝ _,
         rewrite [transport_code_loop_inv,power_con,succ_pred]}},
     { refine circle.rec_on x _ _,
-      { intro a, esimp [circle.rec_on, circle.rec, base, rec2_on, rec2, base1,
-          suspension.rec_on, suspension.rec, north, pushout.rec_on, pushout.rec,
-          pushout.inl, type_quotient.rec_on], --simplify after #587
+      { intro a, esimp [base,base1], --simplify after #587
         apply rec_nat_on a,
         { exact idp},
         { intros n p,
@@ -191,7 +215,7 @@ namespace circle
           apply transport (λ(y : base = base), transport code y _ = _),
           { exact !power_con_inv ⬝ ap (power loop) !neg_succ⁻¹},
           rewrite [▸*,con_tr,transport_code_loop_inv, ↑[encode,code] at p, p, -neg_succ]}},
-      { apply eq_of_homotopy, intro a, apply @is_hset.elim, change is_hset ℤ, exact _}},
+      { apply eq_of_homotopy, intro a, esimp [base,base1] at *, }},
         --simplify after #587
     { intro p, cases p, exact idp},
   end

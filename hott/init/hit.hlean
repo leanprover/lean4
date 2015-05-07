@@ -84,3 +84,7 @@ namespace type_quotient
     (Pc : Π(a : A), P (class_of R a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel R H ▸ Pc a = Pc a')
     {a a' : A} (H : R a a') : apd (type_quotient.rec Pc Pp) (eq_of_rel R H) = Pp H
 end type_quotient
+
+attribute type_quotient.class_of trunc.tr [constructor]
+attribute type_quotient.rec trunc.rec [unfold-c 6]
+attribute type_quotient.rec_on trunc.rec_on [unfold-c 4]

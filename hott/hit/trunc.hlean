@@ -134,3 +134,6 @@ namespace trunc
   end
 
 end trunc
+
+attribute trunc.elim [unfold-c 6]
+attribute trunc.elim_on [unfold-c 4]

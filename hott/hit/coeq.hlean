@@ -79,3 +79,9 @@ parameters {A B : Type.{u}} (f g : A → B)
 end
 
 end coeq
+
+attribute coeq.coeq_i [constructor]
+attribute coeq.rec coeq.elim [unfold-c 8]
+attribute coeq.elim_type [unfold-c 7]
+attribute coeq.rec_on coeq.elim_on [unfold-c 6]
+attribute coeq.elim_type_on [unfold-c 5]

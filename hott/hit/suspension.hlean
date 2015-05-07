@@ -72,3 +72,9 @@ namespace suspension
   by rewrite [tr_eq_cast_ap_fn,↑elim_type,elim_merid];apply cast_ua_fn
 
 end suspension
+
+attribute suspension.north suspension.south [constructor]
+attribute suspension.rec suspension.elim [unfold-c 6]
+attribute suspension.elim_type [unfold-c 5]
+attribute suspension.rec_on suspension.elim_on [unfold-c 3]
+attribute suspension.elim_type_on [unfold-c 2]

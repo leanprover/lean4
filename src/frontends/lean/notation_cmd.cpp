@@ -168,7 +168,7 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
         }
     } else {
         auto old_prec = get_precedence(env, tk.c_str(), grp);
-        if (!old_prec || (k != mixfix_kind::prefix && old_prec != prec))
+        if (!old_prec || k != mixfix_kind::prefix)
             new_token = mk_token_entry(tk.c_str(), *prec, grp);
         if (k == mixfix_kind::infixr)
             prec = *prec - 1;
@@ -267,9 +267,7 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
         if (p.curr_is_token(get_colon_tk())) {
             p.next();
             unsigned prec = parse_precedence(p);
-            auto old_prec = get_precedence(env, tkcs, grp);
-            if (!old_prec || prec != *old_prec)
-                new_tokens.push_back(mk_token_entry(tkcs, prec, grp));
+            new_tokens.push_back(mk_token_entry(tkcs, prec, grp));
         } else if (!get_precedence(env, tkcs, grp)) {
             new_tokens.push_back(mk_token_entry(tkcs, LEAN_DEFAULT_PRECEDENCE, grp));
             used_default = true;

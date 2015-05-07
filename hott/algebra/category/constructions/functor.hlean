@@ -122,12 +122,12 @@ namespace category
     begin
     fapply functor_eq,
       {exact (eq_of_iso_ob η)},
-      {intro c c' f, --unfold eq_of_iso_ob, --TODO: report: this fails
-        apply concat,
-          {apply (ap (λx, to_hom x ∘ to_fun_hom F f ∘ _)), apply (right_inv iso_of_eq)},
-        apply concat,
-          {apply (ap (λx, _ ∘ to_fun_hom F f ∘ (to_hom x)⁻¹)), apply (right_inv iso_of_eq)},
-        symmetry, apply naturality_iso}
+      {intro c c' f,
+        esimp [eq_of_iso_ob, inv_of_eq, hom_of_eq, eq_of_iso],
+        rewrite [*right_inv iso_of_eq],
+        esimp [function.id],
+        symmetry, apply naturality_iso
+      }
     end
 
     definition iso_of_eq_eq_of_iso (η : F ≅ G) : iso_of_eq (eq_of_iso η) = η :=

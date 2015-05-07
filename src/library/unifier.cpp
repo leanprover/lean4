@@ -1359,7 +1359,7 @@ struct unifier_fn {
         expr rhs_fn     = get_app_rev_args(rhs, rhs_args);
         declaration d   = *m_env.find(const_name(lhs_fn));
         levels lhs_lvls = const_levels(lhs_fn);
-        levels rhs_lvls = const_levels(lhs_fn);
+        levels rhs_lvls = const_levels(rhs_fn);
         if (length(lhs_lvls) != length(rhs_lvls) ||
             d.get_num_univ_params() != length(lhs_lvls)) {
             // the constraint is not well-formed, this can happen when users are abusing the API

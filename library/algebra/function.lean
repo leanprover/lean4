@@ -11,41 +11,42 @@ namespace function
 
 variables {A : Type} {B : Type} {C : Type} {D : Type} {E : Type}
 
-definition compose [reducible] (f : B → C) (g : A → B) : A → C :=
+definition compose [reducible] [unfold-f] (f : B → C) (g : A → B) : A → C :=
 λx, f (g x)
 
-definition compose_right [reducible] (f : B → B → B) (g : A → B) : B → A → B :=
+definition compose_right [reducible] [unfold-f] (f : B → B → B) (g : A → B) : B → A → B :=
 λ b a, f b (g a)
 
-definition compose_left [reducible] (f : B → B → B) (g : A → B) : A → B → B :=
+definition compose_left [reducible] [unfold-f] (f : B → B → B) (g : A → B) : A → B → B :=
 λ a b, f (g a) b
 
-definition id [reducible] (a : A) : A :=
+definition id [reducible] [unfold-f] (a : A) : A :=
 a
 
-definition on_fun [reducible] (f : B → B → C) (g : A → B) : A → A → C :=
+definition on_fun [reducible] [unfold-f] (f : B → B → C) (g : A → B) : A → A → C :=
 λx y, f (g x) (g y)
 
-definition combine [reducible] (f : A → B → C) (op : C → D → E) (g : A → B → D) : A → B → E :=
+definition combine [reducible] [unfold-f] (f : A → B → C) (op : C → D → E) (g : A → B → D)
+  : A → B → E :=
 λx y, op (f x y) (g x y)
 
-definition const [reducible] (B : Type) (a : A) : B → A :=
+definition const [reducible] [unfold-f] (B : Type) (a : A) : B → A :=
 λx, a
 
-definition dcompose [reducible] {B : A → Type} {C : Π {x : A}, B x → Type}
+definition dcompose [reducible] [unfold-f] {B : A → Type} {C : Π {x : A}, B x → Type}
   (f : Π {x : A} (y : B x), C y) (g : Πx, B x) : Πx, C (g x) :=
 λx, f (g x)
 
-definition flip [reducible] {C : A → B → Type} (f : Πx y, C x y) : Πy x, C x y :=
+definition flip [reducible] [unfold-f] {C : A → B → Type} (f : Πx y, C x y) : Πy x, C x y :=
 λy x, f x y
 
 definition app [reducible] {B : A → Type} (f : Πx, B x) (x : A) : B x :=
 f x
 
-definition curry [reducible] : (A × B → C) → A → B → C :=
+definition curry [reducible] [unfold-f] : (A × B → C) → A → B → C :=
 λ f a b, f (a, b)
 
-definition uncurry [reducible] : (A → B → C) → (A × B → C) :=
+definition uncurry [reducible] [unfold-c 5] : (A → B → C) → (A × B → C) :=
 λ f p, match p with (a, b) := f a b end
 
 theorem curry_uncurry (f : A → B → C) : curry (uncurry f) = f :=
@@ -97,4 +98,4 @@ exists.intro a h
 end function
 
 -- copy reducible annotations to top-level
-export [reduce-hints] function
+export [reduce-hints] [unfold-hints] function

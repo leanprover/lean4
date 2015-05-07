@@ -182,7 +182,7 @@ namespace circle
 
   open int
 
-  protected definition code [unfold-c 1] (x : circle) : Type₀ :=
+  protected definition code (x : circle) : Type₀ :=
   circle.elim_type_on x ℤ equiv_succ
 
   definition transport_code_loop (a : ℤ) : transport code loop a = succ a :=
@@ -214,8 +214,8 @@ namespace circle
         { intros n p,
           apply transport (λ(y : base = base), transport code y _ = _),
           { exact !power_con_inv ⬝ ap (power loop) !neg_succ⁻¹},
-          rewrite [▸*,con_tr,transport_code_loop_inv, ↑[encode,code] at p, p, -neg_succ]}},
-      { apply eq_of_homotopy, intro a, esimp [base,base1] at *, }},
+          rewrite [▸*,@con_tr _ code,transport_code_loop_inv, ↑[encode] at p, p, -neg_succ]}},
+      { apply eq_of_homotopy, intro a, apply @is_hset.elim, esimp [code,base,base1], exact _}},
         --simplify after #587
     { intro p, cases p, exact idp},
   end

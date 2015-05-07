@@ -9,18 +9,24 @@ Theorems about the integers specific to HoTT
 -/
 
 import .basic types.eq
-open core is_equiv equiv nat equiv.ops
+open core is_equiv equiv equiv.ops
+open nat (hiding pred)
 
 namespace int
 
-  definition succ (a : ℤ) := a + (succ zero)
-  definition pred (a : ℤ) := a - (succ zero)
+  definition succ (a : ℤ) := a + (nat.succ zero)
+  definition pred (a : ℤ) := a - (nat.succ zero)
   definition pred_succ (a : ℤ) : pred (succ a) = a := !sub_add_cancel
+  definition pred_nat_succ (n : ℕ) : pred (nat.succ n) = n := pred_succ n
   definition succ_pred (a : ℤ) : succ (pred a) = a := !add_sub_cancel
   definition neg_succ (a : ℤ) : -succ a = pred (-a) :=
   by rewrite [↑succ,neg_add]
   definition succ_neg_succ (a : ℤ) : succ (-succ a) = -a :=
   by rewrite [neg_succ,succ_pred]
+  definition neg_pred (a : ℤ) : -pred a = succ (-a) :=
+  by rewrite [↑pred,neg_sub,sub_eq_add_neg,add.comm]
+  definition pred_neg_pred (a : ℤ) : pred (-pred a) = -a :=
+  by rewrite [neg_pred,pred_succ]
 
   definition is_equiv_succ [instance] : is_equiv succ :=
   adjointify succ pred (λa, !add_sub_cancel) (λa, !sub_add_cancel)
@@ -78,20 +84,17 @@ end int open int
 
 
 namespace eq
-  variables {A : Type} {a : A} (p : a = a) (b : ℤ)
+  variables {A : Type} {a : A} (p : a = a) (b : ℤ) (n : ℕ)
   definition power : a = a :=
   rec_nat_on b idp
                (λc q, q ⬝ p)
                (λc q, q ⬝ p⁻¹)
-  definition power_neg_succ (n : ℕ) : power p (-succ n) = power p (-n) ⬝ p⁻¹ :=
-  begin
-  rewrite [↑power], exact sorry
-  end
-  -- rec_nat_on_neg idp
-  --              (λc q, q ⬝ p)
-  --              (λc q, q ⬝ p⁻¹) n
-
   --iterate (equiv_eq_closed_right p a) b idp
+
+  -- definition power_neg_succ (n : ℕ) : power p (-succ n) = power p (-n) ⬝ p⁻¹ :=
+  -- !rec_nat_on_neg
+
+
   set_option pp.coercions true
   -- attribute nat.add int.add int.of_num nat.of_num int.succ [constructor]
   attribute rec_nat_on [unfold-c 2]
@@ -101,26 +104,33 @@ namespace eq
     idp
     (λn IH, idp)
     (λn IH, calc
-      power p (-succ n) ⬝ p = (power p (-n) ⬝ p⁻¹) ⬝ p : {!rec_nat_on_neg}
+      power p (-succ n) ⬝ p = (power p (-n) ⬝ p⁻¹) ⬝ p : by rewrite [↑power,rec_nat_on_neg]
         ... = power p (-n) : inv_con_cancel_right
         ... = power p (succ (-succ n)) : {(succ_neg_succ n)⁻¹})
 
-  definition con_power : p ⬝ power p b = power p (succ b) :=
-  rec_nat_on b
-    (by rewrite ↑[power];exact !idp_con⁻¹)
-    (λn IH, calc
-      p ⬝ power p (succ n) = (p ⬝ power p n) ⬝ p : con.assoc
-        ... = power p (succ (succ n)) : by rewrite IH)
-    (λn IH, calc
-      p ⬝ power p (-succ n) = p ⬝ (power p (-n) ⬝ p⁻¹) : sorry
-        ... = (p ⬝ power p (-n)) ⬝ p⁻¹ : con.assoc
-        ... = power p (succ (-n)) ⬝ p⁻¹ : by rewrite IH
-        ... = power p (succ (-succ n)) : sorry)
+  -- definition con_power : p ⬝ power p b = power p (succ b) :=
+  -- rec_nat_on b
+  --   (by rewrite ↑[power];exact !idp_con⁻¹)
+  --   (λn IH, calc
+  --     p ⬝ power p (succ n) = (p ⬝ power p n) ⬝ p : con.assoc
+  --       ... = power p (succ (succ n)) : by rewrite IH)
+  --   (λn IH, calc
+  --     p ⬝ power p (-succ n) = p ⬝ (power p (-n) ⬝ p⁻¹) : by rewrite [↑power,rec_nat_on_neg]
+  --       ... = (p ⬝ power p (-n)) ⬝ p⁻¹ : con.assoc
+  --       ... = power p (succ (-n)) ⬝ p⁻¹ : by rewrite IH
+  --       ... = power p (-pred n) ⬝ p⁻¹ : {(neg_pred n)⁻¹}
+  --       ... = power p (-succ (pred n)) : sorry
+  --       ... = power p (succ (-succ n)) : sorry)
 
   definition power_con_inv : power p b ⬝ p⁻¹ = power p (pred b) :=
-  rec_nat_on b sorry
-               sorry
-               sorry
+  rec_nat_on b
+    idp
+    (λn IH, calc
+      power p (succ n) ⬝ p⁻¹ = power p n : con_inv_cancel_right
+        ... = power p (pred (succ n)) : by rewrite pred_nat_succ)
+    (λn IH, calc
+      power p (-succ n) ⬝ p⁻¹ = power p (-succ (succ n)) : by rewrite [↑power,-rec_nat_on_neg]
+        ... = power p (pred (-succ n)) : by rewrite -neg_succ)
 
   -- definition inv_con_power : p⁻¹ ⬝ power p b = power p (pred b) :=
   -- rec_nat_on b sorry

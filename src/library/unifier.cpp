@@ -1313,8 +1313,6 @@ struct unifier_fn {
         expr lhs_fn     = get_app_rev_args(lhs, lhs_args);
         expr rhs_fn     = get_app_rev_args(rhs, rhs_args);
         declaration d   = *m_env.find(const_name(lhs_fn));
-        levels lhs_lvls = const_levels(lhs_fn);
-        levels rhs_lvls = const_levels(lhs_fn);
         bool relax = relax_main_opaque(c);
         expr lhs_fn_val = instantiate_value_univ_params(d, const_levels(lhs_fn));
         expr rhs_fn_val = instantiate_value_univ_params(d, const_levels(rhs_fn));

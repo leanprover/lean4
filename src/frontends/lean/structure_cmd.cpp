@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "kernel/error_msgs.h"
 #include "kernel/inductive/inductive.h"
 #include "library/scoped_ext.h"
+#include "library/normalize.h"
 #include "library/placeholder.h"
 #include "library/locals.h"
 #include "library/reducible.h"
@@ -725,6 +726,8 @@ struct structure_cmd_fn {
                                              opaque);
         m_env = module::add(m_env, check(m_env, new_decl));
         m_env = set_reducible(m_env, n, reducible_status::Reducible);
+        if (optional<unsigned> idx = has_unfold_c_hint(m_env, rec_on_name))
+            m_env = add_unfold_c_hint(m_env, n, *idx);
         save_def_info(n);
         add_alias(n);
     }

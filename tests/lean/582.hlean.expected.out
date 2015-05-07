@@ -1,0 +1,9 @@
+582.hlean:7:2: proof state
+A : Type,
+B : Type,
+C : Type,
+f : A → B → C,
+a : A,
+b b' : B,
+p : b = b'
+⊢ f a b = f a b'

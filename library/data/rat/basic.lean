@@ -109,7 +109,7 @@ theorem num_eq_zero_of_equiv_zero {a : prerat} : a ≡ zero → num a = 0 :=
 by rewrite [↑equiv, ↑zero, ↑of_int, mul_one, zero_mul]; intro H; exact H
 
 theorem inv_zero {d : int} (dp : d > 0) : inv (mk nat.zero d dp) = zero :=
-begin rewrite [↑inv, ↑int.cases_on, ↑cases_on, ▸*] end
+begin rewrite [↑inv, ▸*] end
 
 theorem inv_zero' : inv zero = zero := inv_zero (of_nat_succ_pos nat.zero)
 

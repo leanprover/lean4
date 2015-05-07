@@ -136,7 +136,13 @@ match h₁ with
   match check_pred (λ a, ¬ p a) e with
   | tt := λ h : check_pred (λ a, ¬ p a) e = tt, inr (λ ex : (∃ x, p x),
           obtain x px, from ex,
-          absurd px (all_of_check_pred_eq_tt h (c x)))
+          begin
+            -- TODO(Leo): remove the following hack. This hack is needed to workaround a problem in
+            -- the method elaborator::elaborate_nested
+            apply absurd px,
+            apply all_of_check_pred_eq_tt h,
+            apply c x,
+          end)
   | ff := λ h : check_pred (λ a, ¬ p a) e = ff, inl (
           assert aux₁ : ∃ x, ¬¬p x, from ex_of_check_pred_eq_ff h,
           obtain x nnpx, from aux₁, exists.intro x (not_not_elim nnpx))

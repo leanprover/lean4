@@ -487,6 +487,7 @@ pair<bool, constraint_seq> default_converter::is_def_eq_core(expr const & t, exp
                         // skip the delta-reduction step.
                         // If the flag use_conv_opt() is not true, then we skip this optimization
                         if (!is_opaque(*d_t) && d_t->use_conv_opt() &&
+                            is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n)), cs) &&
                             is_def_eq_args(t_n, s_n, cs))
                             return to_bcs(true, cs);
                     }

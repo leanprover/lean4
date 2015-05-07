@@ -62,7 +62,7 @@ find_decl bool.ff ≠ bool.tt
 
 -- map using well-founded recursion. We could have used the default recursor.
 -- this is just a test for the definitional package
-definition map.F {A B : Type} (f : A → B) (tf₁ : tree_forest A) : (Π tf₂ : tree_forest A, tf₂ ≺ tf₁ → map.res B tf₂) → map.res B tf₁ :=
+definition map.F {A B : Type₁} (f : A → B) (tf₁ : tree_forest A) : (Π tf₂ : tree_forest A, tf₂ ≺ tf₁ → map.res B tf₂) → map.res B tf₁ :=
 sum.cases_on tf₁
   (λ t : tree A, tree.cases_on t
     (λ a₁ f₁ (r : Π (tf₂ : tree_forest A), tf₂ ≺ sum.inl (tree.node a₁ f₁) → map.res B tf₂),
@@ -91,7 +91,7 @@ sum.cases_on tf₁
           (pr₂ rf₁),
        sigma.mk (sum.inr (forest.cons nt₁ nf₁)) rfl))
 
-definition map {A B : Type} (f : A → B) (tf : tree_forest A) : map.res B tf :=
+definition map {A B : Type₁} (f : A → B) (tf : tree_forest A) : map.res B tf :=
 well_founded.fix (@map.F A B f) tf
 
 eval map succ (sum.inl (tree.node 2 (forest.cons (tree.node 1 (forest.nil nat)) (forest.nil nat))))

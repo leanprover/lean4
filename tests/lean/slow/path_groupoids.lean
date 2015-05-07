@@ -573,7 +573,7 @@ path.rec_on b (path.rec_on a (concat_1p _)^)
 -- Structure corresponding to the coherence equations of a bicategory.
 
 -- The "pentagonator": the 3-cell witnessing the associativity pentagon.
-definition pentagon {A : Type} {v w x y z : A} (p : v ≈ w) (q : w ≈ x) (r : x ≈ y) (s : y ≈ z) :
+definition pentagon {A : Type₁} {v w x y z : A} (p : v ≈ w) (q : w ≈ x) (r : x ≈ y) (s : y ≈ z) :
   whiskerL p (concat_p_pp q r s)
     ⬝ concat_p_pp p (q ⬝ r) s
     ⬝ whiskerR (concat_p_pp p q r) s

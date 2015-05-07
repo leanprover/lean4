@@ -250,7 +250,7 @@ expr mk_false() {
 }
 
 expr mk_empty() {
-    return mk_constant(get_empty_name(), {mk_level_zero()});
+    return mk_constant(get_empty_name());
 }
 
 expr mk_false(environment const & env) {
@@ -275,8 +275,7 @@ expr mk_false_rec(type_checker & tc, expr const & f, expr const & t) {
         return mk_app(mk_constant(get_false_rec_name(), {t_lvl}), t, f);
     } else {
         expr f_type = tc.infer(f).first;
-        level f_lvl = sort_level(tc.ensure_type(f_type).first);
-        return mk_app(mk_constant(get_empty_rec_name(), {t_lvl, f_lvl}), mk_lambda("e", f_type, t), f);
+        return mk_app(mk_constant(get_empty_rec_name(), {t_lvl}), mk_lambda("e", f_type, t), f);
     }
 }
 

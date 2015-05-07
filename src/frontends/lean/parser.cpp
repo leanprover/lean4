@@ -451,28 +451,26 @@ expr parser::mk_app(std::initializer_list<expr> const & args, pos_info const & p
 }
 
 void parser::push_local_scope(bool save_options) {
-    m_local_level_decls.push();
-    m_local_decls.push();
     optional<options> opts;
     if (save_options)
         opts = m_ios.get_options();
     m_parser_scope_stack = cons(parser_scope_stack_elem(opts, m_level_variables, m_variables, m_include_vars,
-                                                        m_undef_ids.size(), m_has_params),
+                                                        m_undef_ids.size(), m_has_params, m_local_level_decls,
+                                                        m_local_decls),
                                 m_parser_scope_stack);
 }
 
 void parser::pop_local_scope() {
-    if (!m_local_level_decls.has_scopes()) {
+    if (!m_parser_scope_stack) {
         throw parser_error("invalid 'end', there is no open namespace/section", pos());
     }
-    m_local_level_decls.pop();
-    m_local_decls.pop();
-    lean_assert(!is_nil(m_parser_scope_stack));
     auto s = head(m_parser_scope_stack);
     if (s.m_options) {
         m_ios.set_options(*s.m_options);
         updt_options();
     }
+    m_local_level_decls  = s.m_local_level_decls;
+    m_local_decls        = s.m_local_decls;
     m_level_variables    = s.m_level_variables;
     m_variables          = s.m_variables;
     m_include_vars       = s.m_include_vars;
@@ -912,8 +910,8 @@ void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentr
 local_environment parser::parse_binders(buffer<expr> & r, buffer<notation_entry> * nentries,
                                         bool & last_block_delimited, bool allow_empty, unsigned rbp,
                                         bool simple_only) {
-    flet<environment> save(m_env, m_env); // save environment
-    local_expr_decls::mk_scope scope(m_local_decls);
+    flet<environment>      save1(m_env, m_env); // save environment
+    flet<local_expr_decls> save2(m_local_decls, m_local_decls);
     unsigned old_sz = r.size();
     parse_binders_core(r, nentries, last_block_delimited, rbp, simple_only);
     if (!allow_empty && old_sz == r.size())

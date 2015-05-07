@@ -54,10 +54,13 @@ struct parser_scope_stack_elem {
     name_set           m_include_vars;
     unsigned           m_num_undef_ids;
     bool               m_has_params;
+    local_level_decls  m_local_level_decls;
+    local_expr_decls   m_local_decls;
     parser_scope_stack_elem(optional<options> const & o, name_set const & lvs, name_set const & vs, name_set const & ivs,
-                            unsigned num_undef_ids, bool has_params):
+                            unsigned num_undef_ids, bool has_params,
+                            local_level_decls const & lld, local_expr_decls const & led):
         m_options(o), m_level_variables(lvs), m_variables(vs), m_include_vars(ivs),
-        m_num_undef_ids(num_undef_ids), m_has_params(has_params) {}
+        m_num_undef_ids(num_undef_ids), m_has_params(has_params), m_local_level_decls(lld), m_local_decls(led) {}
 };
 typedef list<parser_scope_stack_elem> parser_scope_stack;
 

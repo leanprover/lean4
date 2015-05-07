@@ -540,7 +540,7 @@ class rewrite_fn {
     name_generator       m_ngen;
     type_checker_ptr     m_tc;
     type_checker_ptr     m_matcher_tc;
-    type_checker_ptr     m_unifier_tc; // reduce_to and check_trivial
+    type_checker_ptr     m_relaxed_tc; // reduce_to and check_trivial
     rewrite_match_plugin m_mplugin;
     goal                 m_g;
     local_context        m_ctx;
@@ -755,7 +755,7 @@ class rewrite_fn {
         buffer<constraint> cs;
         to_buffer(ecs.second, cs);
         constraint_seq cs_seq;
-        if (!m_unifier_tc->is_def_eq(t, new_e, justification(), cs_seq))
+        if (!m_relaxed_tc->is_def_eq(t, new_e, justification(), cs_seq))
             return none_expr();
         cs_seq.linearize(cs);
         unifier_config cfg;
@@ -892,10 +892,10 @@ class rewrite_fn {
             // Remark: we discard constraints generated producing the pattern.
             // Patterns are only used to locate positions where the rule should be applied.
             expr rule      = get_rewrite_rule(e);
-            expr rule_type = m_tc->whnf(m_tc->infer(rule).first).first;
+            expr rule_type = m_relaxed_tc->whnf(m_relaxed_tc->infer(rule).first).first;
             while (is_pi(rule_type)) {
                 expr meta  = mk_meta(binding_domain(rule_type));
-                rule_type  = m_tc->whnf(instantiate(binding_body(rule_type), meta)).first;
+                rule_type  = m_relaxed_tc->whnf(instantiate(binding_body(rule_type), meta)).first;
             }
             if (!is_eq(rule_type))
                 throw_rewrite_exception("invalid rewrite tactic, given lemma is not an equality");
@@ -1079,7 +1079,7 @@ class rewrite_fn {
             buffer<constraint> cs;
             to_buffer(rcs.second, cs);
             constraint_seq cs_seq;
-            expr rule_type = m_tc->whnf(m_tc->infer(rule, cs_seq), cs_seq);
+            expr rule_type = m_relaxed_tc->whnf(m_relaxed_tc->infer(rule, cs_seq), cs_seq);
             while (is_pi(rule_type)) {
                 expr meta;
                 if (binding_info(rule_type).is_inst_implicit()) {
@@ -1089,7 +1089,7 @@ class rewrite_fn {
                 } else {
                     meta = mk_meta(binding_domain(rule_type));
                 }
-                rule_type  = m_tc->whnf(instantiate(binding_body(rule_type), meta), cs_seq);
+                rule_type  = m_relaxed_tc->whnf(instantiate(binding_body(rule_type), meta), cs_seq);
                 rule       = mk_app(rule, meta);
             }
             lean_assert(is_eq(rule_type));
@@ -1124,12 +1124,12 @@ class rewrite_fn {
                     if (symm) {
                         return unify_result(rule, lhs);
                     } else {
-                        rule = mk_symm(*m_tc, rule);
+                        rule = mk_symm(*m_relaxed_tc, rule);
                         return unify_result(rule, rhs);
                     }
                 } else {
                     if (symm) {
-                        rule = mk_symm(*m_tc, rule);
+                        rule = mk_symm(*m_relaxed_tc, rule);
                         return unify_result(rule, lhs);
                     } else {
                         return unify_result(rule, rhs);
@@ -1209,9 +1209,9 @@ class rewrite_fn {
             expr Px  = replace_occurrences(Pa, a, occ, vidx);
             expr Pb  = instantiate(Px, vidx, b);
 
-            expr A   = m_tc->infer(a).first;
-            level l1 = sort_level(m_unifier_tc->ensure_type(Pa).first);
-            level l2 = sort_level(m_unifier_tc->ensure_type(A).first);
+            expr A   = m_relaxed_tc->infer(a).first;
+            level l1 = sort_level(m_relaxed_tc->ensure_type(Pa).first);
+            level l2 = sort_level(m_relaxed_tc->ensure_type(A).first);
             expr H;
             if (has_dep_elim) {
                 expr Haeqx = mk_app(mk_constant(get_eq_name(), {l2}), A, a, mk_var(0));
@@ -1260,9 +1260,9 @@ class rewrite_fn {
             unsigned vidx = has_dep_elim ? 1 : 0;
             expr Px  = replace_occurrences(Pa, a, occ, vidx);
             expr Pb  = instantiate(Px, vidx, b);
-            expr A   = m_tc->infer(a).first;
-            level l1 = sort_level(m_unifier_tc->ensure_type(Pa).first);
-            level l2 = sort_level(m_unifier_tc->ensure_type(A).first);
+            expr A   = m_relaxed_tc->infer(a).first;
+            level l1 = sort_level(m_relaxed_tc->ensure_type(Pa).first);
+            level l2 = sort_level(m_relaxed_tc->ensure_type(A).first);
             expr M   = m_g.mk_meta(m_ngen.next(), Pb);
             expr H;
             if (has_dep_elim) {
@@ -1458,7 +1458,7 @@ public:
         m_env(env), m_ios(ios), m_elab(elab), m_ps(ps), m_ngen(ps.get_ngen()),
         m_tc(mk_type_checker(m_env, m_ngen.mk_child(), ps.relax_main_opaque(), UnfoldQuasireducible)),
         m_matcher_tc(mk_matcher_tc()),
-        m_unifier_tc(mk_type_checker(m_env, m_ngen.mk_child(), ps.relax_main_opaque())),
+        m_relaxed_tc(mk_type_checker(m_env, m_ngen.mk_child(), ps.relax_main_opaque())),
         m_mplugin(m_ios, *m_matcher_tc) {
         m_ps = apply_substitution(m_ps);
         goals const & gs = m_ps.get_goals();

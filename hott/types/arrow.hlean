@@ -46,4 +46,12 @@ namespace arrow
   definition arrow_equiv_arrow_left (f0 : A ≃ A') : (A → B) ≃ (A' → B) :=
   arrow_equiv_arrow f0 equiv.refl
 
+  /- Transport -/
+
+  definition arrow_transport {B C : A → Type} (p : a = a') (f : B a → C a)
+    : (transport (λa, B a → C a) p f) ∼ (λb, p ▸ f (p⁻¹ ▸ b)) :=
+  eq.rec_on p (λx, idp)
+
+
+
 end arrow

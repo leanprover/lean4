@@ -2,7 +2,7 @@
 Copyright (c) 2014 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Module: int.basic
+Module: data.int.basic
 Authors: Floris van Doorn, Jeremy Avigad
 
 The integers, with addition, multiplication, and subtraction. The representation of the integers is
@@ -116,7 +116,7 @@ int.cases_on a
         (if H : m' = n' then inl (congr_arg neg_succ_of_nat H) else
             inr (take H1, H (neg_succ_of_nat.inj H1)))))
 
-theorem of_nat_add_of_nat (n m : nat) : of_nat n + of_nat m = #nat n + m := rfl
+theorem of_nat_add_of_nat (n m : nat) : #int n + m = #nat n + m := rfl
 
 theorem of_nat_succ (n : ℕ) : of_nat (succ n) = of_nat n + 1 := rfl
 
@@ -147,6 +147,16 @@ theorem nat_abs_eq_zero {a : ℤ} : nat_abs a = 0 → a = 0 :=
 int.cases_on a
   (take m, assume H : nat_abs (of_nat m) = 0, congr_arg of_nat H)
   (take m', assume H : nat_abs (neg_succ_of_nat m') = 0, absurd H (succ_ne_zero _))
+
+definition rec_nat_on {P : ℤ → Type} (z : ℤ) (H0 : P 0) (Hsucc : Π⦃n : ℕ⦄, P n → P (succ n))
+  (Hpred : Π⦃n : ℕ⦄, P (- n) → P (-succ n)) : P z :=
+int.rec_on z (λn, nat.rec_on n H0 Hsucc) (λn, nat.rec_on n (Hpred H0) (λm H, Hpred H))
+
+--the only computation rule of rec_nat_on which is not definitional
+definition rec_nat_on_neg {P : ℤ → Type} (n : nat) (H0 : P 0)
+  (Hsucc : Π⦃n : nat⦄, P n → P (succ n)) (Hpred : Π⦃n : nat⦄, P (- n) → P (-succ n))
+  : rec_nat_on (-succ n) H0 Hsucc Hpred = Hpred (rec_nat_on (-n) H0 Hsucc Hpred) :=
+nat.rec_on n rfl (λn H, rfl)
 
 /- int is a quotient of ordered pairs of natural numbers -/
 

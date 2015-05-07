@@ -8,9 +8,9 @@ Authors: Floris van Doorn
 Declaration of the circle
 -/
 
-import .sphere types.bool types.eq
+import .sphere types.bool types.eq types.int.hott types.arrow types.equiv
 
-open eq suspension bool sphere_index equiv equiv.ops
+open eq suspension bool sphere_index is_equiv equiv equiv.ops is_trunc
 
 definition circle [reducible] := sphere 1
 
@@ -130,6 +130,10 @@ namespace circle
     transport (elim_type Pbase Ploop) loop = Ploop :=
   by rewrite [tr_eq_cast_ap_fn,↑elim_type,elim_loop];apply cast_ua_fn
 
+  theorem elim_type_loop_inv (Pbase : Type) (Ploop : Pbase ≃ Pbase) :
+    transport (elim_type Pbase Ploop) loop⁻¹ = to_inv Ploop :=
+  by rewrite [tr_inv_fn,↑to_inv]; apply inv_eq_inv; apply elim_type_loop
+
   definition loop_neq_idp : loop ≠ idp :=
   assume H : loop = idp,
   have H2 : Π{A : Type₁} {a : A} (p : a = a), p = idp,
@@ -148,5 +152,52 @@ namespace circle
   assume H : nonidp = λx, idp,
   have H2 : loop = idp, from apd10 H base,
   absurd H2 loop_neq_idp
+
+  open int
+
+  protected definition code (x : circle) : Type₀ :=
+  circle.elim_type_on x ℤ equiv_succ
+
+  definition transport_code_loop (a : ℤ) : transport code loop a = succ a :=
+  ap10 !elim_type_loop a
+
+  definition transport_code_loop_inv (a : ℤ)
+    : transport code loop⁻¹ a = pred a :=
+  ap10 !elim_type_loop_inv a
+
+  protected definition encode {x : circle} (p : base = x) : code x :=
+  transport code p (of_num 0) -- why is the explicit coercion needed here?
+
+  --attribute type_quotient.rec_on [unfold-c 4]
+  definition circle_eq_equiv (x : circle) : (base = x) ≃ code x :=
+  begin
+    fapply equiv.MK,
+    { exact encode},
+    { refine circle.rec_on x _ _,
+      { exact power loop},
+      { apply eq_of_homotopy, intro a,
+        refine !arrow.arrow_transport ⬝ !transport_eq_r ⬝ _,
+        rewrite [transport_code_loop_inv,power_con,succ_pred]}},
+    { refine circle.rec_on x _ _,
+      { intro a, esimp [circle.rec_on, circle.rec, base, rec2_on, rec2, base1,
+          suspension.rec_on, suspension.rec, north, pushout.rec_on, pushout.rec,
+          pushout.inl, type_quotient.rec_on], --simplify after #587
+        apply rec_nat_on a,
+        { exact idp},
+        { intros n p,
+          apply transport (λ(y : base = base), transport code y _ = _), apply power_con,
+          rewrite [▸*,con_tr, transport_code_loop, ↑[encode,code] at p, p]},
+        { intros n p,
+          apply transport (λ(y : base = base), transport code y _ = _),
+          { exact !power_con_inv ⬝ ap (power loop) !neg_succ⁻¹},
+          rewrite [▸*,con_tr,transport_code_loop_inv, ↑[encode,code] at p, p, -neg_succ]}},
+      { apply eq_of_homotopy, intro a, apply @is_hset.elim, change is_hset ℤ, exact _}},
+        --simplify after #587
+    { intro p, cases p, exact idp},
+  end
+
+  definition base_eq_base_equiv : (base = base) ≃ ℤ :=
+  circle_eq_equiv base
+
 
 end circle

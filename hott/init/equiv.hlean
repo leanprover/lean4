@@ -212,7 +212,6 @@ namespace is_equiv
 
   definition eq_inv_of_eq (p : f a = b) : a = f⁻¹ b :=
   (inv_eq_of_eq p⁻¹)⁻¹
-
   end
 
   --Transporting is an equivalence
@@ -220,8 +219,18 @@ namespace is_equiv
     is_equiv.mk _ (transport P p⁻¹) (tr_inv_tr p) (inv_tr_tr p) (tr_inv_tr_lemma p)
 
 end is_equiv
-
 open is_equiv
+
+namespace eq
+  definition tr_inv_fn {A : Type} {B : A → Type} {a a' : A} (p : a = a') :
+    transport B p⁻¹ = (transport B p)⁻¹ := idp
+  definition tr_inv {A : Type} {B : A → Type} {a a' : A} (p : a = a') (b : B a') :
+    p⁻¹ ▸ b = (transport B p)⁻¹ b := idp
+
+  definition cast_inv_fn {A B : Type} (p : A = B) : cast p⁻¹ = (cast p)⁻¹ := idp
+  definition cast_inv {A B : Type} (p : A = B) (b : B) : cast p⁻¹ b = (cast p)⁻¹ b :=  idp
+end eq
+
 namespace equiv
   namespace ops
     attribute to_fun [coercion]
@@ -275,4 +284,9 @@ namespace equiv
   attribute equiv.refl [refl]
   attribute equiv.symm [symm]
 
+  namespace ops
+    infixl `⬝e`:75 := equiv.trans
+    postfix `⁻¹e`:(max + 1) := equiv.symm
+    abbreviation erfl := @equiv.refl
+  end ops
 end equiv

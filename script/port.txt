@@ -1,5 +1,4 @@
 Prop:Type
-theorem:definition
 by simp;by exact sorry
 
 true:unit

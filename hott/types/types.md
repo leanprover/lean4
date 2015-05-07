@@ -16,3 +16,8 @@ Various datatypes.
 * [function](function.hlean): embeddings, (split) surjections, retractions
 * [trunc](trunc.hlean): truncation levels, n-Types, truncation
 * [W](W.hlean): W-types (not loaded by default)
+
+Subfolders:
+
+* [nat](nat/nat.md)
+* [int](int/int.md)

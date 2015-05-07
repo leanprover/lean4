@@ -2,7 +2,7 @@
 Copyright (c) 2014 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Module: int.basic
+Module: types.int.basic
 Authors: Floris van Doorn, Jeremy Avigad
 
 The integers, with addition, multiplication, and subtraction. The representation of the integers is
@@ -146,21 +146,31 @@ int.cases_on a
   (take m, assume H : nat_abs (of_nat m) = 0, ap of_nat H)
   (take m', assume H : nat_abs (neg_succ_of_nat m') = 0, absurd H (succ_ne_zero _))
 
+definition rec_nat_on {P : ℤ → Type} (z : ℤ) (H0 : P 0) (Hsucc : Π⦃n : ℕ⦄, P n → P (succ n))
+  (Hpred : Π⦃n : ℕ⦄, P (- n) → P (-succ n)) : P z :=
+int.rec_on z (λn, nat.rec_on n H0 Hsucc) (λn, nat.rec_on n (Hpred H0) (λm H, Hpred H))
+
+--the only computation rule of rec_nat_on which is not definitional
+definition rec_nat_on_neg {P : ℤ → Type} (n : nat) (H0 : P zero)
+  (Hsucc : Π⦃n : nat⦄, P n → P (succ n)) (Hpred : Π⦃n : nat⦄, P (- n) → P (-succ n))
+  : rec_nat_on (-succ n) H0 Hsucc Hpred = Hpred (rec_nat_on (-n) H0 Hsucc Hpred) :=
+nat.rec_on n rfl (λn H, rfl)
+
 /- int is a quotient of ordered pairs of natural numbers -/
 
-protected definition equiv (p q : ℕ × ℕ) : Type₀ :=  pr1 p + pr2 q = pr2 p + pr1 q
+definition int_equiv (p q : ℕ × ℕ) : Type₀ :=  pr1 p + pr2 q = pr2 p + pr1 q
 
-local infix `≡` := int.equiv
+local infix `≡` := int_equiv
 
-protected theorem equiv.refl [refl] {p : ℕ × ℕ} : p ≡ p := !add.comm
+protected theorem int_equiv.refl [refl] {p : ℕ × ℕ} : p ≡ p := !add.comm
 
-protected theorem equiv.symm [symm] {p q : ℕ × ℕ} (H : p ≡ q) : q ≡ p :=
+protected theorem int_equiv.symm [symm] {p q : ℕ × ℕ} (H : p ≡ q) : q ≡ p :=
 calc
   pr1 q + pr2 p = pr2 p + pr1 q : !add.comm
     ... = pr1 p + pr2 q         : H⁻¹
     ... = pr2 q + pr1 p         : !add.comm
 
-protected theorem equiv.trans [trans] {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q ≡ r) : p ≡ r :=
+protected theorem int_equiv.trans [trans] {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q ≡ r) : p ≡ r :=
 have H3 : pr1 p + pr2 r + pr2 q = pr2 p + pr1 r + pr2 q, from
   calc
    pr1 p + pr2 r + pr2 q = pr1 p + pr2 q + pr2 r : by exact sorry
@@ -170,10 +180,10 @@ have H3 : pr1 p + pr2 r + pr2 q = pr2 p + pr1 r + pr2 q, from
     ... = pr2 p + pr1 r + pr2 q                  : by exact sorry,
 show pr1 p + pr2 r = pr2 p + pr1 r, from add.cancel_right H3
 
-protected definition equiv_equiv : is_equivalence equiv :=
-is_equivalence.mk @equiv.refl @equiv.symm @equiv.trans
+protected definition int_equiv_int_equiv : is_equivalence int_equiv :=
+is_equivalence.mk @int_equiv.refl @int_equiv.symm @int_equiv.trans
 
-protected definition equiv_cases {p q : ℕ × ℕ} (H : equiv p q) :
+protected definition int_equiv_cases {p q : ℕ × ℕ} (H : int_equiv p q) :
     (pr1 p ≥ pr2 p × pr1 q ≥ pr2 q) ⊎ (pr1 p < pr2 p × pr1 q < pr2 q) :=
 sum.rec_on (@le_or_gt (pr2 p) (pr1 p))
   (assume H1: pr1 p ≥ pr2 p,
@@ -183,7 +193,7 @@ sum.rec_on (@le_or_gt (pr2 p) (pr1 p))
     have H2 : pr2 p + pr1 q < pr2 p + pr2 q, from H ▸ add_lt_add_right H1 (pr2 q),
     sum.inr (pair H1 (lt_of_add_lt_add_left H2)))
 
-protected definition equiv_of_eq {p q : ℕ × ℕ} (H : p = q) : p ≡ q := H ▸ equiv.refl
+protected definition int_equiv_of_eq {p q : ℕ × ℕ} (H : p = q) : p ≡ q := H ▸ int_equiv.refl
 
 /- the representation and abstraction functions -/
 
@@ -220,15 +230,15 @@ sum.rec_on (@le_or_gt n m)
 definition repr_abstr (p : ℕ × ℕ) : repr (abstr p) ≡ p :=
 !prod.eta ▸ !repr_sub_nat_nat
 
-definition abstr_eq {p q : ℕ × ℕ} (Hequiv : p ≡ q) : abstr p = abstr q :=
-sum.rec_on (equiv_cases Hequiv)
+definition abstr_eq {p q : ℕ × ℕ} (Hint_equiv : p ≡ q) : abstr p = abstr q :=
+sum.rec_on (int_equiv_cases Hint_equiv)
   (assume H2,
     have H3 : pr1 p ≥ pr2 p, from prod.pr1 H2,
     have H4 : pr1 q ≥ pr2 q, from prod.pr2 H2,
     have H5 : pr1 p = pr1 q - pr2 q + pr2 p, from
       calc
         pr1 p = pr1 p + pr2 q - pr2 q : add_sub_cancel
-          ... = pr2 p + pr1 q - pr2 q : by rewrite [↑int.equiv at Hequiv,Hequiv]
+          ... = pr2 p + pr1 q - pr2 q : by rewrite [↑int_equiv at Hint_equiv,Hint_equiv]
           ... = pr2 p + (pr1 q - pr2 q) : add_sub_assoc H4
           ... = pr1 q - pr2 q + pr2 p : add.comm,
     have H6 : pr1 p - pr2 p = pr1 q - pr2 q, from
@@ -242,7 +252,7 @@ sum.rec_on (equiv_cases Hequiv)
     have H5 : pr2 p = pr2 q - pr1 q + pr1 p, from
       calc
         pr2 p = pr2 p + pr1 q - pr1 q : add_sub_cancel
-          ... = pr1 p + pr2 q - pr1 q : by rewrite [↑int.equiv at Hequiv,Hequiv]
+          ... = pr1 p + pr2 q - pr1 q : by rewrite [↑int_equiv at Hint_equiv,Hint_equiv]
           ... = pr1 p + (pr2 q - pr1 q) : add_sub_assoc (le_of_lt H4)
           ... = pr2 q - pr1 q + pr1 p : add.comm,
     have H6 : pr2 p - pr1 p = pr2 q - pr1 q, from
@@ -251,20 +261,20 @@ sum.rec_on (equiv_cases Hequiv)
                   ... = pr2 q - pr1 q                 : add_sub_cancel,
     abstr_of_lt H3 ⬝ ap neg_succ_of_nat (ap pred H6)⬝ (abstr_of_lt H4)⁻¹)
 
-definition equiv_iff (p q : ℕ × ℕ) : (p ≡ q) ↔ ((p ≡ p) × (q ≡ q) × (abstr p = abstr q)) :=
+definition int_equiv_iff (p q : ℕ × ℕ) : (p ≡ q) ↔ ((p ≡ p) × (q ≡ q) × (abstr p = abstr q)) :=
 iff.intro
-  (assume H : equiv p q,
-    pair !equiv.refl (pair !equiv.refl (abstr_eq H)))
-  (assume H : equiv p p × equiv q q × abstr p = abstr q,
+  (assume H : int_equiv p q,
+    pair !int_equiv.refl (pair !int_equiv.refl (abstr_eq H)))
+  (assume H : int_equiv p p × int_equiv q q × abstr p = abstr q,
     have H1 : abstr p = abstr q, from prod.pr2 (prod.pr2 H),
-    equiv.trans (H1 ▸ equiv.symm (repr_abstr p)) (repr_abstr q))
+    int_equiv.trans (H1 ▸ int_equiv.symm (repr_abstr p)) (repr_abstr q))
 
-definition eq_abstr_of_equiv_repr {a : ℤ} {p : ℕ × ℕ} (Hequiv : repr a ≡ p) : a = abstr p :=
+definition eq_abstr_of_int_equiv_repr {a : ℤ} {p : ℕ × ℕ} (Hint_equiv : repr a ≡ p) : a = abstr p :=
 calc
   a = abstr (repr a) : abstr_repr
-   ... = abstr p : abstr_eq Hequiv
+   ... = abstr p : abstr_eq Hint_equiv
 
-definition eq_of_repr_equiv_repr {a b : ℤ} (H : repr a ≡ repr b) : a = b :=
+definition eq_of_repr_int_equiv_repr {a b : ℤ} (H : repr a ≡ repr b) : a = b :=
 calc
   a = abstr (repr a) : abstr_repr
     ... = abstr (repr b) : abstr_eq H
@@ -322,9 +332,9 @@ definition repr_add (a b : ℤ) :  repr (add a b) ≡ padd (repr a) (repr b) :=
 int.cases_on a
   (take m,
     int.cases_on b
-      (take n, !equiv.refl)
+      (take n, !int_equiv.refl)
       (take n',
-        have H1 : equiv (repr (add (of_nat m) (neg_succ_of_nat n'))) (m, succ n'),
+        have H1 : int_equiv (repr (add (of_nat m) (neg_succ_of_nat n'))) (m, succ n'),
           from !repr_sub_nat_nat,
         have H2 : padd (repr (of_nat m)) (repr (neg_succ_of_nat n')) = (m, 0 + succ n'),
           from rfl,
@@ -332,7 +342,7 @@ int.cases_on a
   (take m',
     int.cases_on b
       (take n,
-        have H1 : equiv (repr (add (neg_succ_of_nat m') (of_nat n))) (n, succ m'),
+        have H1 : int_equiv (repr (add (neg_succ_of_nat m') (of_nat n))) (n, succ m'),
           from !repr_sub_nat_nat,
         have H2 : padd (repr (neg_succ_of_nat m')) (repr (of_nat n)) = (0 + n, succ m'),
           from rfl,
@@ -362,25 +372,25 @@ calc
 
 definition add.comm (a b : ℤ) : a + b = b + a :=
 begin
-  apply eq_of_repr_equiv_repr,
-  apply equiv.trans,
+  apply eq_of_repr_int_equiv_repr,
+  apply int_equiv.trans,
   apply repr_add,
-  apply equiv.symm,
+  apply int_equiv.symm,
   apply eq.subst (padd_comm (repr b) (repr a)),
   apply repr_add
 end
 
 definition add.assoc (a b c : ℤ) : a + b + c = a + (b + c) :=
 assert H1 : repr (a + b + c) ≡ padd (padd (repr a) (repr b)) (repr c), from
-  equiv.trans (repr_add (a + b) c) (padd_congr !repr_add !equiv.refl),
+  int_equiv.trans (repr_add (a + b) c) (padd_congr !repr_add !int_equiv.refl),
 assert H2 : repr (a + (b + c)) ≡ padd (repr a) (padd (repr b) (repr c)), from
-  equiv.trans (repr_add a (b + c)) (padd_congr !equiv.refl !repr_add),
+  int_equiv.trans (repr_add a (b + c)) (padd_congr !int_equiv.refl !repr_add),
 begin
-  apply eq_of_repr_equiv_repr,
-  apply equiv.trans,
+  apply eq_of_repr_int_equiv_repr,
+  apply int_equiv.trans,
   apply H1,
   apply eq.subst (padd_assoc _ _ _)⁻¹,
-  apply equiv.symm,
+  apply int_equiv.symm,
   apply H2
 end
 
@@ -424,7 +434,7 @@ have H : repr (-a + a) ≡ repr 0, from
     repr (-a + a) ≡ padd (repr (neg a)) (repr a) : repr_add
       ... ≡ padd (pneg (repr a)) (repr a) : sorry
       ... ≡ repr 0 : padd_pneg,
-eq_of_repr_equiv_repr H
+eq_of_repr_int_equiv_repr H
 
 /- nat abs -/
 
@@ -506,7 +516,7 @@ int.cases_on a
             ... = (succ m' * succ n', 0) : zero_mul
             ... = repr (mul (neg_succ_of_nat m') (neg_succ_of_nat n')) : rfl)⁻¹))
 
-definition equiv_mul_prep {xa ya xb yb xn yn xm ym : ℕ}
+definition int_equiv_mul_prep {xa ya xb yb xn yn xm ym : ℕ}
   (H1 : xa + yb = ya + xb) (H2 : xn + ym = yn + xm)
 : xa * xn + ya * yn + (xb * ym + yb * xm) = xa * yn + ya * xn + (xb * xm + yb * ym) :=
 have H3 : xa * xn + ya * yn + (xb * ym + yb * xm) + (yb * xn + xb * yn + (xb * xn + yb * yn))
@@ -524,7 +534,7 @@ have H3 : xa * xn + ya * yn + (xb * ym + yb * xm) + (yb * xn + xb * yn + (xb * x
 nat.add.cancel_right H3
 
 definition pmul_congr {p p' q q' : ℕ × ℕ} (H1 : p ≡ p') (H2 : q ≡ q') : pmul p q ≡ pmul p' q' :=
-equiv_mul_prep H1 H2
+int_equiv_mul_prep H1 H2
 
 definition pmul_comm (p q : ℕ × ℕ) : pmul p q = pmul q p :=
 calc
@@ -536,26 +546,26 @@ calc
     ... = (pr1 q * pr1 p + pr2 q * pr2 p, pr1 q * pr2 p + pr2 q * pr1 p) : nat.add.comm
 
 definition mul.comm (a b : ℤ) : a * b = b * a :=
-eq_of_repr_equiv_repr
+eq_of_repr_int_equiv_repr
   ((calc
     repr (a * b) = pmul (repr a) (repr b) : repr_mul
       ... = pmul (repr b) (repr a) : pmul_comm
-      ... = repr (b * a) : repr_mul) ▸ !equiv.refl)
+      ... = repr (b * a) : repr_mul) ▸ !int_equiv.refl)
 
 definition pmul_assoc (p q r: ℕ × ℕ) : pmul (pmul p q) r = pmul p (pmul q r) :=
 by exact sorry
 
 definition mul.assoc (a b c : ℤ) : (a * b) * c = a * (b * c) :=
-eq_of_repr_equiv_repr
+eq_of_repr_int_equiv_repr
   ((calc
     repr (a * b * c) = pmul (repr (a * b)) (repr c) : repr_mul
       ... = pmul (pmul (repr a) (repr b)) (repr c) : repr_mul
       ... = pmul (repr a) (pmul (repr b) (repr c)) : pmul_assoc
       ... = pmul (repr a) (repr (b * c)) : repr_mul
-      ... = repr (a * (b * c)) : repr_mul) ▸ !equiv.refl)
+      ... = repr (a * (b * c)) : repr_mul) ▸ !int_equiv.refl)
 
 definition mul_one (a : ℤ) : a * 1 = a :=
-eq_of_repr_equiv_repr (equiv_of_eq
+eq_of_repr_int_equiv_repr (int_equiv_of_eq
   ((calc
     repr (a * 1) = pmul (repr a) (repr 1) : repr_mul
       ... = (pr1 (repr a), pr2 (repr a)) : by exact sorry
@@ -565,14 +575,14 @@ definition one_mul (a : ℤ) : 1 * a = a :=
 mul.comm a 1 ▸ mul_one a
 
 definition mul.right_distrib (a b c : ℤ) : (a + b) * c = a * c + b * c :=
-eq_of_repr_equiv_repr
+eq_of_repr_int_equiv_repr
   (calc
     repr ((a + b) * c) = pmul (repr (a + b)) (repr c) : repr_mul
-      ... ≡ pmul (padd (repr a) (repr b)) (repr c) : pmul_congr !repr_add equiv.refl
+      ... ≡ pmul (padd (repr a) (repr b)) (repr c) : pmul_congr !repr_add int_equiv.refl
       ... = padd (pmul (repr a) (repr c)) (pmul (repr b) (repr c)) : by exact sorry
       ... = padd (repr (a * c)) (pmul (repr b) (repr c)) : {(repr_mul a c)⁻¹}
       ... = padd (repr (a * c)) (repr (b * c)) : repr_mul
-      ... ≡ repr (a * c + b * c) : equiv.symm !repr_add)
+      ... ≡ repr (a * c + b * c) : int_equiv.symm !repr_add)
 
 definition mul.left_distrib (a b c : ℤ) : a * (b + c) = a * b + a * c :=
 calc

@@ -187,7 +187,7 @@ namespace eq
   definition cast [reducible] {A B : Type} (p : A = B) (a : A) : B :=
   p ▸ a
 
-  definition tr_inv [reducible] (P : A → Type) {x y : A} (p : x = y) (u : P y) : P x :=
+  definition tr_rev [reducible] (P : A → Type) {x y : A} (p : x = y) (u : P y) : P x :=
   p⁻¹ ▸ u
 
   definition ap ⦃A B : Type⦄ (f : A → B) {x y:A} (p : x = y) : f x = f y :=

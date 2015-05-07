@@ -78,7 +78,7 @@ end sum
 -- Product type
 -- ------------
 
-definition pair := @prod.mk
+abbreviation pair := @prod.mk
 
 namespace prod
 

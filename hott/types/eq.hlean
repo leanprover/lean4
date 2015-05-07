@@ -146,7 +146,7 @@ namespace eq
   equiv.mk inverse _
 
   definition is_equiv_concat_left [instance] (p : a1 = a2) (a3 : A)
-    : is_equiv (@concat _ a1 a2 a3 p) :=
+    : is_equiv (concat p : a2 = a3 → a1 = a3) :=
   is_equiv.mk (concat p) (concat p⁻¹)
               (con_inv_cancel_left p)
               (inv_con_cancel_left p)

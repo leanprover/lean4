@@ -78,6 +78,10 @@ namespace is_equiv
   theorem is_hprop_is_equiv [instance] : is_hprop (is_equiv f) :=
   is_hprop_of_imp_is_contr (λ(H : is_equiv f), is_trunc_equiv_closed -2 (equiv.symm !sigma_char'))
 
+  definition inv_eq_inv {A B : Type} {f f' : A → B} {Hf : is_equiv f} {Hf' : is_equiv f'}
+    (p : f = f') : f⁻¹ = f'⁻¹ :=
+  apd011 inv p !is_hprop.elim
+
   /- contractible fibers -/
   definition is_contr_fun [reducible] (f : A → B) := Π(b : B), is_contr (fiber f b)
 

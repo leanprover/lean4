@@ -126,16 +126,16 @@ namespace pi
     unfold pi_functor, unfold function.compose, unfold function.id,
     begin
       intro a',
-      apply (tr_inv _ (adj f0 a')),
+      apply (tr_rev _ (adj f0 a')),
       apply (transport (λx, f1 a' x = h a') (transport_compose B f0 (left_inv f0 a') _)),
-      apply (tr_inv (λx, x = h a') (fn_tr_eq_tr_fn _ f1 _)), unfold function.compose,
-      apply (tr_inv (λx, left_inv f0 a' ▸ x = h a') (right_inv (f1 _) _)), unfold function.id,
+      apply (tr_rev (λx, x = h a') (fn_tr_eq_tr_fn _ f1 _)), unfold function.compose,
+      apply (tr_rev (λx, left_inv f0 a' ▸ x = h a') (right_inv (f1 _) _)), unfold function.id,
       apply apd
     end,
     begin
       intro h,
       apply eq_of_homotopy, intro a,
-      apply (tr_inv (λx, right_inv f0 a ▸ x = h a) (left_inv (f1 _) _)), unfold function.id,
+      apply (tr_rev (λx, right_inv f0 a ▸ x = h a) (left_inv (f1 _) _)), unfold function.id,
       apply apd
     end
   end

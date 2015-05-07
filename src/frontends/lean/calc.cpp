@@ -174,12 +174,19 @@ static void join(parser & p, std::vector<calc_step> const & steps1, std::vector<
     }
 }
 
+static expr mk_implies(parser & p, expr const & lhs, expr const & rhs, pos_info const & pos) {
+    return p.mk_app(p.mk_app(p.save_pos(mk_constant(get_implies_name()), pos), lhs, pos), rhs, pos);
+}
+
 expr parse_calc(parser & p) {
     buffer<calc_pred> preds, new_preds;
     buffer<expr>      rhss;
     std::vector<calc_step> steps, new_steps, next_steps;
     auto pos             = p.pos();
+    bool is_std          = is_standard(p.env());
     expr first_pred      = p.parse_expr();
+    if (is_std && is_arrow(first_pred))
+        first_pred = mk_implies(p, binding_domain(first_pred), binding_body(first_pred), pos);
     decode_expr(first_pred, preds, pos);
     parse_calc_proof(p, preds, steps);
     bool single    = true; // true if calc has only one step
@@ -188,7 +195,15 @@ expr parse_calc(parser & p) {
         single = false;
         pos    = p.pos();
         p.next();
-        decode_expr(p.parse_led(dummy), preds, pos);
+        expr next_pred;
+        if (is_std && p.curr_is_token(get_arrow_tk())) {
+            p.next();
+            expr rhs  = p.parse_expr();
+            next_pred = mk_implies(p, dummy, rhs, pos);
+        } else {
+            next_pred = p.parse_led(dummy);
+        }
+        decode_expr(next_pred, preds, pos);
         collect_rhss(steps, rhss);
         new_steps.clear();
         for (auto const & pred : preds) {

@@ -10,6 +10,11 @@ import init.datatypes init.reserved_notation
 
 /- implication -/
 
+definition implies (a b : Prop) := a → b
+
+lemma implies.trans [trans] {p q r : Prop} (h₁ : implies p q) (h₂ : implies q r) : implies p r :=
+assume hp, h₂ (h₁ hp)
+
 definition trivial := true.intro
 
 definition not (a : Prop) := a → false

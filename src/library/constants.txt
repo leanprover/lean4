@@ -28,6 +28,7 @@ heq.refl
 heq.to_eq
 iff
 iff.refl
+implies
 ite
 lift
 lift.down

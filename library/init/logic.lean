@@ -415,7 +415,7 @@ inhabited.rec H2 H1
 definition default (A : Type) [H : inhabited A] : A :=
 inhabited.rec (λa, a) H
 
-opaque definition arbitrary (A : Type) [H : inhabited A] : A :=
+definition arbitrary [irreducible] (A : Type) [H : inhabited A] : A :=
 inhabited.rec (λa, a) H
 
 definition Prop.is_inhabited [instance] : inhabited Prop :=

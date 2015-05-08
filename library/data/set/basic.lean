@@ -54,7 +54,7 @@ theorem mem_univ (x : T) : x ∈ univ := trivial
 definition inter [reducible] (a b : set T) : set T := λx, x ∈ a ∧ x ∈ b
 notation a ∩ b := inter a b
 
-theorem mem_inter (x : T) (a b : set T) : x ∈ a ∩ b ↔ (x ∈ a ∧ x ∈ b) := !iff.refl
+theorem mem_inter (x : T) (a b : set T) : x ∈ a ∩ b ↔ x ∈ a ∧ x ∈ b := !iff.refl
 
 theorem inter_self (a : set T) : a ∩ a = a :=
 setext (take x, !and_self)
@@ -76,7 +76,7 @@ setext (take x, !and.assoc)
 definition union [reducible] (a b : set T) : set T := λx, x ∈ a ∨ x ∈ b
 notation a ∪ b := union a b
 
-theorem mem_union (x : T) (a b : set T) : x ∈ a ∪ b ↔ (x ∈ a ∨ x ∈ b) := !iff.refl
+theorem mem_union (x : T) (a b : set T) : x ∈ a ∪ b ↔ x ∈ a ∨ x ∈ b := !iff.refl
 
 theorem union_self (a : set T) : a ∪ a = a :=
 setext (take x, !or_self)

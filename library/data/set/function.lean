@@ -41,7 +41,7 @@ theorem in_image {f : X → Y} {a : set X} {x : X} {y : Y}
   (H1 : x ∈ a) (H2 : f x = y) : y ∈ f '[a] :=
 exists.intro x (and.intro H1 H2)
 
-lemma image_compose (f : Y → X) (g : X → Y) (a : set X) : (f ∘ g) '[a] = f '[g '[a]] :=
+lemma image_compose (f : Y → Z) (g : X → Y) (a : set X) : (f ∘ g) '[a] = f '[g '[a]] :=
 setext (take z,
   iff.intro
     (assume Hz : z ∈ (f ∘ g) '[a],

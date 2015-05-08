@@ -141,10 +141,9 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     expr below_type  = Pi(args, Type_result);
     expr below_value = Fun(args, rec);
 
-    bool opaque       = false;
     bool use_conv_opt = true;
     declaration new_d = mk_definition(env, below_name, blvls, below_type, below_value,
-                                      opaque, use_conv_opt);
+                                      use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
     new_env = set_reducible(new_env, below_name, reducible_status::Reducible);
     if (!ibelow)
@@ -328,10 +327,9 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     expr brec_on_type  = Pi(args, result_type);
     expr brec_on_value = Fun(args, mk_pr1(tc, rec, ind));
 
-    bool opaque       = false;
     bool use_conv_opt = true;
     declaration new_d = mk_definition(env, brec_on_name, blps, brec_on_type, brec_on_value,
-                                      opaque, use_conv_opt);
+                                      use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
     new_env = set_reducible(new_env, brec_on_name, reducible_status::Reducible);
     if (!ind)

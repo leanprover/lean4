@@ -111,8 +111,7 @@ expr default_converter::whnf_core(expr const & e) {
 bool default_converter::is_opaque(declaration const & d) const {
     lean_assert(d.is_definition());
     if (d.is_theorem()) return true;                               // theorems are always opaque
-    if (!d.is_opaque()) return false;                              // d is a transparent definition
-    return true;                                                   // d is opaque
+    return false;
 }
 
 /** \brief Expand \c e if it is non-opaque constant with weight >= w */

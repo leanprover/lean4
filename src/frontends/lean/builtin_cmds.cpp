@@ -626,12 +626,11 @@ static environment add_abbrev(parser & p, environment const & env, name const & 
     for (name const & l : decl.get_univ_params())
         ls.push_back(mk_param_univ(l));
     expr value  = mk_constant(d, to_list(ls.begin(), ls.end()));
-    bool opaque = false;
     name const & ns = get_namespace(env);
     name full_id    = ns + id;
     p.add_abbrev_index(full_id, d);
     environment new_env =
-        module::add(env, check(env, mk_definition(env, full_id, decl.get_univ_params(), decl.get_type(), value, opaque)));
+        module::add(env, check(env, mk_definition(env, full_id, decl.get_univ_params(), decl.get_type(), value)));
     if (full_id != id)
         new_env = add_expr_alias_rec(new_env, id, full_id);
     return new_env;

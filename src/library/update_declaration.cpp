@@ -30,7 +30,7 @@ static declaration update_declaration(declaration d, optional<level_param_names>
         if (d.is_theorem())
             return mk_theorem(d.get_name(), _ps, _type, _value);
         else
-            return mk_definition(d.get_name(), _ps, _type, _value, d.is_opaque(),
+            return mk_definition(d.get_name(), _ps, _type, _value,
                                  d.get_weight(), d.use_conv_opt());
     }
 }

@@ -53,12 +53,10 @@ environment mk_rec_on(environment const & env, name const & n) {
     expr rec  = mk_constant(rec_decl.get_name(), ls);
     expr rec_on_val = Fun(new_locals, mk_app(rec, locals));
 
-    bool opaque       = false;
     bool use_conv_opt = true;
     environment new_env = module::add(env,
                                       check(env, mk_definition(env, rec_on_name, rec_decl.get_univ_params(),
-                                                               rec_on_type, rec_on_val,
-                                                               opaque, use_conv_opt)));
+                                                               rec_on_type, rec_on_val, use_conv_opt)));
     new_env = set_reducible(new_env, rec_on_name, reducible_status::Reducible);
     new_env = add_unfold_c_hint(new_env, rec_on_name, rec_on_major_idx);
     return add_protected(new_env, rec_on_name);

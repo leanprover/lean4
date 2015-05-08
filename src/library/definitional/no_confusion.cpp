@@ -134,10 +134,9 @@ optional<environment> mk_no_confusion_type(environment const & env, name const &
     }
     expr no_confusion_type_value = Fun(args, mk_app(cases_on1, outer_cases_on_args));
 
-    bool opaque       = false;
     bool use_conv_opt = true;
     declaration new_d = mk_definition(env, no_confusion_type_name, lps, no_confusion_type_type, no_confusion_type_value,
-                                      opaque, use_conv_opt);
+                                      use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
     new_env = set_reducible(new_env, no_confusion_type_name, reducible_status::Reducible);
     return some(add_protected(new_env, no_confusion_type_name));
@@ -269,10 +268,9 @@ environment mk_no_confusion(environment const & env, name const & n) {
     }
     //
     expr no_confusion_val = Fun(args, eq_rec);
-    bool opaque       = false;
     bool use_conv_opt = true;
     declaration new_d = mk_definition(new_env, no_confusion_name, lps, no_confusion_ty, no_confusion_val,
-                                      opaque, use_conv_opt);
+                                      use_conv_opt);
     new_env = module::add(new_env, check(new_env, new_d));
     new_env = set_reducible(new_env, no_confusion_name, reducible_status::Reducible);
     return add_protected(new_env, no_confusion_name);

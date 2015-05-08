@@ -229,8 +229,7 @@ struct migrate_cmd_fn {
                 else if (d.is_theorem())
                     m_env = module::add(m_env, check(m_env, mk_theorem(full_name, ls, new_type, new_value)));
                 else
-                    m_env = module::add(m_env, check(m_env, mk_definition(m_env, full_name, ls,
-                                                                          new_type, new_value, d.is_opaque())));
+                    m_env = module::add(m_env, check(m_env, mk_definition(m_env, full_name, ls, new_type, new_value)));
                 m_p.add_decl_index(full_name, m_pos, d.is_theorem() ? name("theorem") : name("definition"), new_type);
                 if (short_name != full_name)
                     m_env = add_expr_alias_rec(m_env, short_name, full_name);

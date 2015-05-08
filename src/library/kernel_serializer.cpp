@@ -282,13 +282,11 @@ serializer & operator<<(serializer & s, declaration const & d) {
     char k = 0;
     if (d.is_definition()) {
         k |= 1;
-        if (d.is_opaque())
-            k |= 2;
         if (d.use_conv_opt())
-            k |= 4;
+            k |= 2;
     }
     if (d.is_theorem() || d.is_axiom())
-        k |= 8;
+        k |= 4;
     s << k << d.get_name() << d.get_univ_params() << d.get_type();
     if (d.is_definition()) {
         s << d.get_value();
@@ -301,7 +299,7 @@ serializer & operator<<(serializer & s, declaration const & d) {
 declaration read_declaration(deserializer & d) {
     char k               = d.read_char();
     bool has_value       = (k & 1) != 0;
-    bool is_th_ax        = (k & 8) != 0;
+    bool is_th_ax        = (k & 4) != 0;
     name n               = read_name(d);
     level_param_names ps = read_level_params(d);
     expr t               = read_expr(d);
@@ -311,9 +309,8 @@ declaration read_declaration(deserializer & d) {
             return mk_theorem(n, ps, t, v);
         } else {
             unsigned w        = d.read_unsigned();
-            bool is_opaque    = (k & 2) != 0;
-            bool use_conv_opt = (k & 4) != 0;
-            return mk_definition(n, ps, t, v, is_opaque, w, use_conv_opt);
+            bool use_conv_opt = (k & 2) != 0;
+            return mk_definition(n, ps, t, v, w, use_conv_opt);
         }
     } else {
         if (is_th_ax)

@@ -742,7 +742,6 @@ DECLARATION_PRED(is_definition)
 DECLARATION_PRED(is_theorem)
 DECLARATION_PRED(is_axiom)
 DECLARATION_PRED(is_constant_assumption)
-DECLARATION_PRED(is_opaque)
 DECLARATION_PRED(use_conv_opt)
 static int declaration_get_name(lua_State * L) { return push_name(L, to_declaration(L, 1).get_name()); }
 static int declaration_get_params(lua_State * L) { return push_list_name(L, to_declaration(L, 1).get_univ_params()); }
@@ -774,37 +773,36 @@ static int mk_theorem(lua_State * L) {
     else
         return push_declaration(L, mk_theorem(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3), to_expr(L, 4)));
 }
-static void get_definition_args(lua_State * L, int idx, bool & opaque, unsigned & weight, bool & use_conv_opt) {
-    opaque       = get_bool_named_param(L, idx, "opaque", opaque);
+static void get_definition_args(lua_State * L, int idx, unsigned & weight, bool & use_conv_opt) {
     use_conv_opt = get_bool_named_param(L, idx, "use_conv_opt", use_conv_opt);
     weight       = get_uint_named_param(L, idx, "weight", weight);
 }
 static int mk_definition(lua_State * L) {
     int nargs = lua_gettop(L);
-    bool opaque = false; unsigned weight = 0; bool use_conv_opt = true;
+    unsigned weight = 0; bool use_conv_opt = true;
     if (nargs < 3) {
         throw exception("mk_definition must have at least 3 arguments");
     } else if (is_environment(L, 1)) {
         if (nargs < 4) {
             throw exception("mk_definition must have at least 4 arguments, when the first argument is an environment");
         } else if (is_expr(L, 3)) {
-            get_definition_args(L, 5, opaque, weight, use_conv_opt);
+            get_definition_args(L, 5, weight, use_conv_opt);
             return push_declaration(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), level_param_names(),
-                                                    to_expr(L, 3), to_expr(L, 4), opaque, use_conv_opt));
+                                                    to_expr(L, 3), to_expr(L, 4), use_conv_opt));
         } else {
-            get_definition_args(L, 6, opaque, weight, use_conv_opt);
+            get_definition_args(L, 6, weight, use_conv_opt);
             return push_declaration(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), to_level_param_names(L, 3),
-                                                    to_expr(L, 4), to_expr(L, 5), opaque, use_conv_opt));
+                                                    to_expr(L, 4), to_expr(L, 5), use_conv_opt));
         }
     } else {
         if (is_expr(L, 2)) {
-            get_definition_args(L, 4, opaque, weight, use_conv_opt);
+            get_definition_args(L, 4, weight, use_conv_opt);
             return push_declaration(L, mk_definition(to_name_ext(L, 1), level_param_names(), to_expr(L, 2),
-                                                    to_expr(L, 3), opaque, weight, use_conv_opt));
+                                                    to_expr(L, 3), weight, use_conv_opt));
         } else {
-            get_definition_args(L, 5, opaque, weight, use_conv_opt);
+            get_definition_args(L, 5, weight, use_conv_opt);
             return push_declaration(L, mk_definition(to_name_ext(L, 1), to_level_param_names(L, 2),
-                                                    to_expr(L, 3), to_expr(L, 4), opaque, weight, use_conv_opt));
+                                                    to_expr(L, 3), to_expr(L, 4), weight, use_conv_opt));
         }
     }
 }
@@ -815,7 +813,6 @@ static const struct luaL_Reg declaration_m[] = {
     {"is_theorem",       safe_function<declaration_is_theorem>},
     {"is_axiom",         safe_function<declaration_is_axiom>},
     {"is_constant_assumption", safe_function<declaration_is_constant_assumption>},
-    {"opaque",           safe_function<declaration_is_opaque>},
     {"use_conv_opt",     safe_function<declaration_use_conv_opt>},
     {"name",             safe_function<declaration_get_name>},
     {"univ_params",      safe_function<declaration_get_params>},

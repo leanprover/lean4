@@ -177,10 +177,9 @@ environment mk_cases_on(environment const & env, name const & n) {
     expr cases_on_type  = Pi(cases_on_params, rec_type);
     expr cases_on_value = Fun(cases_on_params,  mk_app(rec_cnst, rec_args));
 
-    bool opaque       = false;
     bool use_conv_opt = true;
     declaration new_d = mk_definition(env, cases_on_name, rec_decl.get_univ_params(), cases_on_type, cases_on_value,
-                                      opaque, use_conv_opt);
+                                      use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
     new_env = set_reducible(new_env, cases_on_name, reducible_status::Reducible);
     new_env = add_unfold_c_hint(new_env, cases_on_name, cases_on_major_idx);

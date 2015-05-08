@@ -1,7 +1,7 @@
 definition x [reducible]   := 10
 definition y               := 20
 definition z [irreducible] := 30
-opaque definition w        := 40
+definition w               := 40
 
 (*
  local env   = get_env()
@@ -24,7 +24,6 @@ opaque definition w        := 40
  assert(tc:whnf(x) == val_x)
  assert(tc:whnf(y) == val_y)
  assert(tc:whnf(z) == z)
- assert(tc:whnf(w) == w)
  -- Only definitions marked as reducible are unfolded
  local tc  = reducible_type_checker(env)
  assert(tc:whnf(x) == val_x)
@@ -37,7 +36,6 @@ opaque definition w        := 40
  assert(tc:whnf(x) == val_x)
  assert(tc:whnf(y) == val_y)
  assert(tc:whnf(z) == val_z)
- assert(tc:whnf(w) == w)
 *)
 
 eval [whnf] x

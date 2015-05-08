@@ -129,10 +129,9 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         expr proj_type    = Pi(proj_args, result_type);
         proj_type         = infer_implicit_params(proj_type, nparams, infer_k);
         expr proj_val     = Fun(proj_args, rec_app);
-        bool opaque       = false;
         bool use_conv_opt = false;
         declaration new_d = mk_definition(env, proj_name, lvl_params, proj_type, proj_val,
-                                          opaque, use_conv_opt);
+                                          use_conv_opt);
         new_env = module::add(new_env, check(new_env, new_d));
         new_env = set_reducible(new_env, proj_name, reducible_status::Reducible);
         new_env = add_unfold_c_hint(new_env, proj_name, nparams);

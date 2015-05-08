@@ -21,16 +21,6 @@ bool is_standard(environment const & env) {
     return env.prop_proof_irrel() && env.impredicative();
 }
 
-bool is_def_app(environment const & env, expr const & e) {
-    if (!is_app(e))
-        return false;
-    expr const & f = get_app_fn(e);
-    if (!is_constant(f))
-        return false;
-    auto decl = env.find(const_name(f));
-    return decl && decl->is_definition() && !decl->is_opaque();
-}
-
 optional<expr> unfold_app(environment const & env, expr const & e) {
     if (!is_app(e))
         return none_expr();
@@ -38,7 +28,7 @@ optional<expr> unfold_app(environment const & env, expr const & e) {
     if (!is_constant(f))
         return none_expr();
     auto decl = env.find(const_name(f));
-    if (!decl || !decl->is_definition() || decl->is_opaque())
+    if (!decl || !decl->is_definition())
         return none_expr();
     expr d = instantiate_value_univ_params(*decl, const_levels(f));
     buffer<expr> args;
@@ -191,7 +181,7 @@ optional<name> is_constructor_app_ext(environment const & env, expr const & e) {
     if (!is_constant(f))
         return optional<name>();
     auto decl = env.find(const_name(f));
-    if (!decl || !decl->is_definition() || decl->is_opaque())
+    if (!decl || !decl->is_definition())
         return optional<name>();
     expr const * it = &decl->get_value();
     while (is_lambda(*it))

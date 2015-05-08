@@ -86,8 +86,6 @@ static void check_declaration(environment const & env, name const & n) {
         throw exception(sstream() << "invalid reducible command, '" << n << "' is not a definition");
     if (d.is_theorem())
         throw exception(sstream() << "invalid reducible command, '" << n << "' is a theorem");
-    if (d.is_opaque())
-        throw exception(sstream() << "invalid reducible command, '" << n << "' is an opaque definition");
 }
 
 environment set_reducible(environment const & env, name const & n, reducible_status s, bool persistent) {

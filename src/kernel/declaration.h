@@ -50,13 +50,12 @@ public:
     expr const & get_type() const;
 
     expr const & get_value() const;
-    bool is_opaque() const;
     unsigned get_weight() const;
     bool use_conv_opt() const;
 
     friend declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t,
-                                    expr const & v, bool opaque, bool use_conv_opt);
-    friend declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v, bool opaque,
+                                    expr const & v, bool use_conv_opt);
+    friend declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
                                     unsigned weight, bool use_conv_opt);
     friend declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
     friend declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
@@ -68,9 +67,9 @@ inline optional<declaration> some_declaration(declaration const & o) { return op
 inline optional<declaration> some_declaration(declaration && o) { return optional<declaration>(std::forward<declaration>(o)); }
 
 declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
-                         bool opaque = false, unsigned weight = 0, bool use_conv_opt = true);
+                         unsigned weight = 0, bool use_conv_opt = true);
 declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v,
-                         bool opaque = false, bool use_conv_opt = true);
+                         bool use_conv_opt = true);
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
 declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t);

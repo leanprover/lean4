@@ -105,7 +105,7 @@ typedef scoped_ext<unfold_hint_config> unfold_hint_ext;
 
 environment add_unfold_c_hint(environment const & env, name const & n, unsigned idx, bool persistent) {
     declaration const & d = env.get(n);
-    if (!d.is_definition() || d.is_opaque())
+    if (!d.is_definition())
         throw exception("invalid unfold-c hint, declaration must be a non-opaque definition");
     return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_add_unfold_c_entry(n, idx), persistent);
 }
@@ -124,7 +124,7 @@ environment erase_unfold_c_hint(environment const & env, name const & n, bool pe
 
 environment add_unfold_f_hint(environment const & env, name const & n, bool persistent) {
     declaration const & d = env.get(n);
-    if (!d.is_definition() || d.is_opaque())
+    if (!d.is_definition())
         throw exception("invalid unfold-f hint, declaration must be a non-opaque definition");
     return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_add_unfold_f_entry(n), persistent);
 }

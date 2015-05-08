@@ -1064,7 +1064,7 @@ class definition_cmd_fn {
                             cd = check(mk_axiom(m_real_name, c_ls, c_type));
                         }
                     } else {
-                        cd = check(mk_definition(m_env, m_real_name, c_ls, c_type, c_value, m_is_opaque));
+                        cd = check(mk_definition(m_env, m_real_name, c_ls, c_type, c_value));
                     }
                     if (!m_is_private)
                         m_p.add_decl_index(m_real_name, m_pos, m_p.get_cmd_token(), c_type);
@@ -1176,11 +1176,10 @@ class definition_cmd_fn {
             aux_values[i]  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, aux_values[i]));
         }
         if (is_definition()) {
-            m_env = module::add(m_env, check(mk_definition(m_env, m_real_name, new_ls,
-                                                           m_type, m_value, m_is_opaque)));
+            m_env = module::add(m_env, check(mk_definition(m_env, m_real_name, new_ls, m_type, m_value)));
             for (unsigned i = 0; i < aux_values.size(); i++)
                 m_env = module::add(m_env, check(mk_definition(m_env, m_real_aux_names[i], new_ls,
-                                                               m_aux_types[i], aux_values[i], m_is_opaque)));
+                                                               m_aux_types[i], aux_values[i])));
         } else {
             m_env = module::add(m_env, check(mk_theorem(m_real_name, new_ls, m_type, m_value)));
             for (unsigned i = 0; i < aux_values.size(); i++)
@@ -1232,8 +1231,7 @@ class definition_cmd_fn {
                 new_ls = append(m_ls, new_ls);
                 m_type  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
                 m_value = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_value));
-                m_env = module::add(m_env, check(mk_definition(m_env, m_real_name, new_ls,
-                                                               m_type, m_value, m_is_opaque)));
+                m_env = module::add(m_env, check(mk_definition(m_env, m_real_name, new_ls, m_type, m_value)));
                 m_p.cache_definition(m_real_name, pre_type, pre_value, new_ls, m_type, m_value);
             }
         }

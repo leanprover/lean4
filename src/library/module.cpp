@@ -409,7 +409,6 @@ struct import_modules_fn {
 
     void import_decl(deserializer & d) {
         declaration decl = read_declaration(d);
-        lean_assert(!decl.is_definition());
         environment env  = m_senv.env();
         decl = unfold_untrusted_macros(env, decl);
         if (decl.get_name() == get_sorry_name() && has_sorry(env))

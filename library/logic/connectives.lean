@@ -1,12 +1,11 @@
 /-
 Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: logic.connectives
 Authors: Jeremy Avigad, Leonardo de Moura
 
 The propositional connectives. See also init.datatypes and init.logic.
 -/
+open eq.ops
 
 variables {a b c d : Prop}
 
@@ -177,6 +176,34 @@ theorem or_self (a : Prop) : a ∨ a ↔ a :=
 iff.intro
   (assume H, or.elim H (assume H1, H1) (assume H1, H1))
   (assume H, or.inl H)
+
+/- distributivity -/
+
+theorem and.distrib_left (a b c : Prop) : a ∧ (b ∨ c) ↔ (a ∧ b) ∨ (a ∧ c) :=
+iff.intro
+  (assume H, or.elim (and.right H)
+    (assume Hb : b, or.inl (and.intro (and.left H) Hb))
+    (assume Hc : c, or.inr (and.intro (and.left H) Hc)))
+  (assume H, or.elim H
+    (assume Hab, and.intro (and.left Hab) (or.inl (and.right Hab)))
+    (assume Hac, and.intro (and.left Hac) (or.inr (and.right Hac))))
+
+theorem and.distrib_right (a b c : Prop) : (a ∨ b) ∧ c ↔ (a ∧ c) ∨ (b ∧ c) :=
+propext (!and.comm) ▸ propext (!and.comm) ▸ propext (!and.comm) ▸ !and.distrib_left
+
+theorem or.distrib_left (a b c : Prop) : a ∨ (b ∧ c) ↔ (a ∨ b) ∧ (a ∨ c) :=
+iff.intro
+  (assume H, or.elim H
+    (assume Ha, and.intro (or.inl Ha) (or.inl Ha))
+    (assume Hbc, and.intro (or.inr (and.left Hbc)) (or.inr (and.right Hbc))))
+  (assume H, or.elim (and.left H)
+    (assume Ha, or.inl Ha)
+    (assume Hb, or.elim (and.right H)
+      (assume Ha, or.inl Ha)
+      (assume Hc, or.inr (and.intro Hb Hc))))
+
+theorem or.distrib_right (a b c : Prop) : (a ∧ b) ∨ c ↔ (a ∨ c) ∧ (b ∨ c) :=
+propext (!or.comm) ▸ propext (!or.comm) ▸ propext (!or.comm) ▸ !or.distrib_left
 
 /- iff -/
 

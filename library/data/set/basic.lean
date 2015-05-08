@@ -8,116 +8,161 @@ Author: Jeremy Avigad, Leonardo de Moura
 import logic
 open eq.ops
 
-definition set [reducible] (T : Type) := T → Prop
+definition set [reducible] (X : Type) := X → Prop
 
 namespace set
 
-variable {T : Type}
+variable {X : Type}
 
 /- membership and subset -/
 
-definition mem [reducible] (x : T) (a : set T) := a x
-notation e ∈ a := mem e a
+definition mem [reducible] (x : X) (a : set X) := a x
+infix `∈` := mem
+notation a ∉ b := ¬ mem a b
 
-theorem setext {a b : set T} (H : ∀x, x ∈ a ↔ x ∈ b) : a = b :=
+theorem setext {a b : set X} (H : ∀x, x ∈ a ↔ x ∈ b) : a = b :=
 funext (take x, propext (H x))
 
-definition subset (a b : set T) := ∀⦃x⦄, x ∈ a → x ∈ b
+definition subset (a b : set X) := ∀⦃x⦄, x ∈ a → x ∈ b
 infix `⊆`:50 := subset
 
 /- bounded quantification -/
 
-abbreviation bounded_forall (a : set T) (P : T → Prop) := ∀⦃x⦄, x ∈ a → P x
+abbreviation bounded_forall (a : set X) (P : X → Prop) := ∀⦃x⦄, x ∈ a → P x
 notation `forallb` binders `∈` a `,` r:(scoped:1 P, P) := bounded_forall a r
 notation `∀₀` binders `∈` a `,` r:(scoped:1 P, P) := bounded_forall a r
 
-abbreviation bounded_exists (a : set T) (P : T → Prop) := ∃⦃x⦄, x ∈ a ∧ P x
+abbreviation bounded_exists (a : set X) (P : X → Prop) := ∃⦃x⦄, x ∈ a ∧ P x
 notation `existsb` binders `∈` a `,` r:(scoped:1 P, P) := bounded_exists a r
 notation `∃₀` binders `∈` a `,` r:(scoped:1 P, P) := bounded_exists a r
 
 /- empty set -/
 
-definition empty [reducible] : set T := λx, false
+definition empty [reducible] : set X := λx, false
 notation `∅` := empty
 
-theorem mem_empty (x : T) : ¬ (x ∈ ∅) :=
+theorem not_mem_empty (x : X) : ¬ (x ∈ ∅) :=
 assume H : x ∈ ∅, H
+
+theorem mem_empty_eq (x : X) : x ∈ ∅ = false := rfl
 
 /- universal set -/
 
-definition univ : set T := λx, true
+definition univ : set X := λx, true
 
-theorem mem_univ (x : T) : x ∈ univ := trivial
+theorem mem_univ (x : X) : x ∈ univ := trivial
 
-/- intersection -/
-
-definition inter [reducible] (a b : set T) : set T := λx, x ∈ a ∧ x ∈ b
-notation a ∩ b := inter a b
-
-theorem mem_inter (x : T) (a b : set T) : x ∈ a ∩ b ↔ x ∈ a ∧ x ∈ b := !iff.refl
-
-theorem inter_self (a : set T) : a ∩ a = a :=
-setext (take x, !and_self)
-
-theorem inter_empty (a : set T) : a ∩ ∅ = ∅ :=
-setext (take x, !and_false)
-
-theorem empty_inter (a : set T) : ∅ ∩ a = ∅ :=
-setext (take x, !false_and)
-
-theorem inter.comm (a b : set T) : a ∩ b = b ∩ a :=
-setext (take x, !and.comm)
-
-theorem inter.assoc (a b c : set T) : (a ∩ b) ∩ c = a ∩ (b ∩ c) :=
-setext (take x, !and.assoc)
+theorem mem_univ_eq (x : X) : x ∈ univ = true := rfl
 
 /- union -/
 
-definition union [reducible] (a b : set T) : set T := λx, x ∈ a ∨ x ∈ b
+definition union [reducible] (a b : set X) : set X := λx, x ∈ a ∨ x ∈ b
 notation a ∪ b := union a b
 
-theorem mem_union (x : T) (a b : set T) : x ∈ a ∪ b ↔ x ∈ a ∨ x ∈ b := !iff.refl
+theorem mem_union (x : X) (a b : set X) : x ∈ a ∪ b ↔ x ∈ a ∨ x ∈ b := !iff.refl
 
-theorem union_self (a : set T) : a ∪ a = a :=
+theorem mem_union_eq (x : X) (a b : set X) : x ∈ a ∪ b = (x ∈ a ∨ x ∈ b) := rfl
+
+theorem union_self (a : set X) : a ∪ a = a :=
 setext (take x, !or_self)
 
-theorem union_empty (a : set T) : a ∪ ∅ = a :=
+theorem union_empty (a : set X) : a ∪ ∅ = a :=
 setext (take x, !or_false)
 
-theorem empty_union (a : set T) : ∅ ∪ a = a :=
+theorem empty_union (a : set X) : ∅ ∪ a = a :=
 setext (take x, !false_or)
 
-theorem union.comm (a b : set T) : a ∪ b = b ∪ a :=
+theorem union.comm (a b : set X) : a ∪ b = b ∪ a :=
 setext (take x, or.comm)
 
-theorem union_assoc (a b c : set T) : (a ∪ b) ∪ c = a ∪ (b ∪ c) :=
+theorem union_assoc (a b c : set X) : (a ∪ b) ∪ c = a ∪ (b ∪ c) :=
 setext (take x, or.assoc)
+
+/- intersection -/
+
+definition inter [reducible] (a b : set X) : set X := λx, x ∈ a ∧ x ∈ b
+notation a ∩ b := inter a b
+
+theorem mem_inter (x : X) (a b : set X) : x ∈ a ∩ b ↔ x ∈ a ∧ x ∈ b := !iff.refl
+
+theorem mem_inter_eq (x : X) (a b : set X) : x ∈ a ∩ b = (x ∈ a ∧ x ∈ b) := rfl
+
+theorem inter_self (a : set X) : a ∩ a = a :=
+setext (take x, !and_self)
+
+theorem inter_empty (a : set X) : a ∩ ∅ = ∅ :=
+setext (take x, !and_false)
+
+theorem empty_inter (a : set X) : ∅ ∩ a = ∅ :=
+setext (take x, !false_and)
+
+theorem inter.comm (a b : set X) : a ∩ b = b ∩ a :=
+setext (take x, !and.comm)
+
+theorem inter.assoc (a b c : set X) : (a ∩ b) ∩ c = a ∩ (b ∩ c) :=
+setext (take x, !and.assoc)
+
+/- distributivity laws -/
+
+theorem inter.distrib_left (s t u : set X) : s ∩ (t ∪ u) = (s ∩ t) ∪ (s ∩ u) :=
+setext (take x, !and.distrib_left)
+
+theorem inter.distrib_right (s t u : set X) : (s ∪ t) ∩ u = (s ∩ u) ∪ (t ∩ u) :=
+setext (take x, !and.distrib_right)
+
+theorem union.distrib_left (s t u : set X) : s ∪ (t ∩ u) = (s ∪ t) ∩ (s ∪ u) :=
+setext (take x, !or.distrib_left)
+
+theorem union.distrib_right (s t u : set X) : (s ∩ t) ∪ u = (s ∪ u) ∩ (t ∪ u) :=
+setext (take x, !or.distrib_right)
 
 /- set-builder notation -/
 
--- {x : T | P}
-definition set_of (P : T → Prop) : set T := P
+-- {x : X | P}
+definition set_of (P : X → Prop) : set X := P
 notation `{` binders `|` r:(scoped:1 P, set_of P) `}` := r
 
+-- {x ∈ s | P}
+definition filter (P : X → Prop) (s : set X) : set X := λx, x ∈ s ∧ P x
+notation `{` binders ∈ s `|` r:(scoped:1 p, filter p s) `}` := r
+
 -- {[x, y, z]} or ⦃x, y, z⦄
-definition insert (x : T) (a : set T) : set T := {y : T | y = x ∨ y ∈ a}
+definition insert (x : X) (a : set X) : set X := {y : X | y = x ∨ y ∈ a}
 notation `{[`:max a:(foldr `,` (x b, insert x b) ∅) `]}`:0 := a
 notation `⦃` a:(foldr `,` (x b, insert x b) ∅) `⦄` := a
+
+/- set difference -/
+
+definition diff (s t : set X) : set X := {x ∈ s | x ∉ t}
+infix `\`:70 := diff
+
+theorem mem_of_mem_diff {s t : set X} {x : X} (H : x ∈ s \ t) : x ∈ s :=
+and.left H
+
+theorem not_mem_of_mem_diff {s t : set X} {x : X} (H : x ∈ s \ t) : x ∉ t :=
+and.right H
+
+theorem mem_diff {s t : set X} {x : X} (H1 : x ∈ s) (H2 : x ∉ t) : x ∈ s \ t :=
+and.intro H1 H2
+
+theorem mem_diff_iff (s t : set X) (x : X) : x ∈ s \ t ↔ x ∈ s ∧ x ∉ t := !iff.refl
+
+theorem mem_diff_eq (s t : set X) (x : X) : x ∈ s \ t = (x ∈ s ∧ x ∉ t) := rfl
 
 /- large unions -/
 
 section
   variables {I : Type}
   variable a : set I
-  variable b : I → set T
-  variable C : set (set T)
+  variable b : I → set X
+  variable C : set (set X)
 
-  definition Inter  : set T := {x : T | ∀i, x ∈ b i}
-  definition bInter : set T := {x : T | ∀₀ i ∈ a, x ∈ b i}
-  definition sInter : set T := {x : T | ∀₀ c ∈ C, x ∈ c}
-  definition Union  : set T := {x : T | ∃i, x ∈ b i}
-  definition bUnion : set T := {x : T | ∃₀ i ∈ a, x ∈ b i}
-  definition sUnion : set T := {x : T | ∃₀ c ∈ C, x ∈ c}
+  definition Inter  : set X := {x : X | ∀i, x ∈ b i}
+  definition bInter : set X := {x : X | ∀₀ i ∈ a, x ∈ b i}
+  definition sInter : set X := {x : X | ∀₀ c ∈ C, x ∈ c}
+  definition Union  : set X := {x : X | ∃i, x ∈ b i}
+  definition bUnion : set X := {x : X | ∃₀ i ∈ a, x ∈ b i}
+  definition sUnion : set X := {x : X | ∃₀ c ∈ C, x ∈ c}
 
   -- TODO: need notation for these
 end

@@ -234,13 +234,13 @@ tactic apply_tactic_core(elaborate_fn const & elab, expr const & e, add_meta_kin
             }
             goal const & g      = head(gs);
             name_generator ngen = s.get_ngen();
-            expr       new_e;
+            expr       new_e; substitution new_subst; constraints cs_;
+            auto ecs = elab(g, ngen.mk_child(), e, none_expr(), s.get_subst(), false);
+            std::tie(new_e, new_subst, cs_) = ecs;
             buffer<constraint> cs;
-            auto ecs = elab(g, ngen.mk_child(), e, none_expr(), false);
-            new_e    = ecs.first;
-            to_buffer(ecs.second, cs);
+            to_buffer(cs_, cs);
             to_buffer(s.get_postponed(), cs);
-            proof_state new_s(s, ngen, constraints());
+            proof_state new_s(s, new_subst, ngen, constraints());
             return apply_tactic_core(env, ios, new_s, new_e, cs, add_meta, k);
         });
 }

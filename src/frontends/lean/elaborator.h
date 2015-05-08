@@ -12,8 +12,9 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/expr_lt.h"
 #include "library/unifier.h"
-#include "library/tactic/tactic.h"
 #include "library/local_context.h"
+#include "library/tactic/tactic.h"
+#include "library/tactic/elaborate.h"
 #include "frontends/lean/elaborator_context.h"
 #include "frontends/lean/coercion_elaborator.h"
 #include "frontends/lean/util.h"
@@ -165,8 +166,8 @@ class elaborator : public coercion_info_manager {
     void check_sort_assignments(substitution const & s);
     expr apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params);
     std::tuple<expr, level_param_names> apply(substitution & s, expr const & e);
-    pair<expr, constraints> elaborate_nested(list<expr> const & ctx, optional<expr> const & expected_type, expr const & e,
-                                             bool relax, bool use_tactic_hints, bool report_unassigned);
+    elaborate_result elaborate_nested(list<expr> const & ctx, optional<expr> const & expected_type, expr const & e,
+                                      bool relax, bool use_tactic_hints, substitution const &, bool report_unassigned);
 
     expr const & get_equation_fn(expr const & eq) const;
     expr visit_equations(expr const & eqns, constraint_seq & cs);

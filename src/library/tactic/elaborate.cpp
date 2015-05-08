@@ -44,13 +44,14 @@ optional<expr> elaborate_with_respect_to(environment const & env, io_state const
     optional<expr> elab_expected_type;
     if (enforce_type_during_elaboration)
         elab_expected_type = expected_type;
-    auto ecs   = elab(head(gs), ngen.mk_child(), e, elab_expected_type, report_unassigned);
-    expr new_e = ecs.first;
+    auto esc   = elab(head(gs), ngen.mk_child(), e, elab_expected_type, subst, report_unassigned);
+    expr new_e; substitution new_subst; constraints cs_;
+    std::tie(new_e, new_subst, cs_) = esc;
     buffer<constraint> cs;
-    to_buffer(ecs.second, cs);
+    to_buffer(cs_, cs);
     if (cs.empty() && (!expected_type || enforce_type_during_elaboration)) {
         // easy case: no constraints to be solved
-        s = proof_state(s, ngen);
+        s = proof_state(s, new_subst, ngen);
         return some_expr(new_e);
     } else {
         to_buffer(s.get_postponed(), cs);
@@ -75,7 +76,7 @@ optional<expr> elaborate_with_respect_to(environment const & env, io_state const
             d_cs.second.linearize(cs);
         }
         unifier_config cfg(ios.get_options());
-        unify_result_seq rseq = unify(env, cs.size(), cs.data(), ngen.mk_child(), subst, cfg);
+        unify_result_seq rseq = unify(env, cs.size(), cs.data(), ngen.mk_child(), new_subst, cfg);
         if (auto p = rseq.pull()) {
             substitution new_subst     = p->first.first;
             constraints  new_postponed = p->first.second;

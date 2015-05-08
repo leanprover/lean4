@@ -40,10 +40,17 @@ public:
         proof_state(s, gs, s.m_subst, ngen) {}
     proof_state(proof_state const & s, goals const & gs):
         proof_state(s, gs, s.m_subst) {}
+    proof_state(proof_state const & s, substitution const & subst, name_generator const & ngen,
+                constraints const & postponed):
+        proof_state(s.m_goals, subst, ngen, postponed, s.relax_main_opaque(), s.report_failure()) {}
     proof_state(proof_state const & s, name_generator const & ngen, constraints const & postponed):
-        proof_state(s.m_goals, s.m_subst, ngen, postponed, s.relax_main_opaque(), s.report_failure()) {}
+        proof_state(s, s.m_goals, s.m_subst, ngen, postponed) {}
+    proof_state(proof_state const & s, substitution const & subst, name_generator const & ngen):
+        proof_state(s, s.m_goals, subst, ngen, s.m_postponed) {}
     proof_state(proof_state const & s, name_generator const & ngen):
         proof_state(s, ngen, s.m_postponed) {}
+    proof_state(proof_state const & s, substitution const & subst):
+        proof_state(s, subst, s.m_ngen) {}
 
     proof_state update_report_failure(bool f) const {
         return m_report_failure == f ? *this : proof_state(m_goals, m_subst, m_ngen, m_postponed, m_relax_main_opaque, f);

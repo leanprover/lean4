@@ -74,7 +74,7 @@ namespace functor
         apply (apd10' c'),
         apply concat, rotate_left 1, esimp,
         exact (pi_transport_constant (eq_of_homotopy pF) H₁ c),
-        reflexivity
+        esimp
       end))))
 
   definition functor_eq {F₁ F₂ : C ⇒ D} : Π(p : to_fun_ob F₁ ∼ to_fun_ob F₂),

@@ -677,11 +677,31 @@ class rewrite_fn {
         return process_reduce_step(info.get_names(), info.get_location());
     }
 
+    optional<pair<expr, constraints>> elaborate_core(expr const & e, bool fail_if_cnstrs) {
+        expr new_expr; substitution new_subst; constraints cs;
+        std::tie(new_expr, new_subst, cs) = m_elab(m_g, m_ngen.mk_child(), e, none_expr(), m_ps.get_subst(), false);
+        if (fail_if_cnstrs && cs)
+            return optional<pair<expr, constraints>>();
+        m_ps = proof_state(m_ps, new_subst);
+        return optional<pair<expr, constraints>>(new_expr, cs);
+    }
+
+    optional<expr> elaborate_if_no_cnstr(expr const & e) {
+        if (auto r = elaborate_core(e, true))
+            return some_expr(r->first);
+        else
+            return none_expr();
+    }
+
+    pair<expr, constraints> elaborate(expr const & e) {
+        return *elaborate_core(e, false);
+    }
+
     optional<expr> fold(expr const & type, expr const & e, occurrence const & occ) {
-        auto ecs       = m_elab(m_g, m_ngen.mk_child(), e, none_expr(), false);
-        expr new_e     = ecs.first;
-        if (ecs.second)
-            return none_expr(); // contain constraints...
+        auto oe = elaborate_if_no_cnstr(e);
+        if (!oe)
+            return none_expr();
+        expr new_e     = *oe;
         optional<expr> unfolded_e = unfold_app(m_env, new_e);
         if (!unfolded_e)
             return none_expr();
@@ -750,7 +770,7 @@ class rewrite_fn {
     }
 
     optional<expr> unify_with(expr const & t, expr const & e) {
-        auto ecs       = m_elab(m_g, m_ngen.mk_child(), e, none_expr(), false);
+        auto ecs       = elaborate(e);
         expr new_e     = ecs.first;
         buffer<constraint> cs;
         to_buffer(ecs.second, cs);
@@ -1074,7 +1094,7 @@ class rewrite_fn {
     unify_result unify_target(expr const & t, expr const & orig_elem, bool is_goal) {
         try {
             expr rule         = get_rewrite_rule(orig_elem);
-            auto rcs          = m_elab(m_g, m_ngen.mk_child(), rule, none_expr(), false);
+            auto rcs          = elaborate(rule);
             rule              = rcs.first;
             buffer<constraint> cs;
             to_buffer(rcs.second, cs);
@@ -1376,11 +1396,11 @@ class rewrite_fn {
             expr rule = get_rewrite_rule(elem);
             expr new_elem;
             if (has_rewrite_pattern(elem)) {
-                expr pattern     = m_elab(m_g, m_ngen.mk_child(), get_rewrite_pattern(elem), none_expr(), false).first;
+                expr pattern     = elaborate(get_rewrite_pattern(elem)).first;
                 expr new_args[2] = { rule, pattern };
                 new_elem         = mk_macro(macro_def(elem), 2, new_args);
             } else {
-                rule     = m_elab(m_g, m_ngen.mk_child(), rule, none_expr(), false).first;
+                rule     = elaborate(rule).first;
                 new_elem = mk_macro(macro_def(elem), 1, &rule);
             }
             return process_rewrite_step(new_elem, elem);
@@ -1504,8 +1524,8 @@ tactic mk_simple_rewrite_tactic(buffer<expr> const & rw_elems) {
     auto fn = [=](environment const & env, io_state const & ios, proof_state const & s) {
         // dummy elaborator
         auto elab = [](goal const &, name_generator const &, expr const & H,
-                       optional<expr> const &, bool) -> pair<expr, constraints> {
-            return mk_pair(H, constraints());
+                       optional<expr> const &, substitution const & s, bool) -> elaborate_result {
+            return elaborate_result(H, s, constraints());
         };
         return rewrite_fn(env, ios, elab, s)(rw_elems);
     };

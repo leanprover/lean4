@@ -17,10 +17,16 @@ bool solve_constraints(environment const & env, io_state const & ios, proof_stat
     2- name generator
     3- expression to be elaborated
     4- expected type
-    5- a flag indicating whether the elaborator should report unassigned/unsolved placeholders
+    5- substitution associated with the proof state
+    6- a flag indicating whether the elaborator should report unassigned/unsolved placeholders
+    The results are
+    1- elaborated expression
+    2- updated substitution
+    3- postponed constraints
 */
-typedef std::function<pair<expr, constraints>(goal const &, name_generator const &, expr const &,
-                                              optional<expr> const &, bool)> elaborate_fn;
+typedef std::tuple<expr, substitution, constraints> elaborate_result;
+typedef std::function<elaborate_result(goal const &, name_generator const &, expr const &,
+                                       optional<expr> const &, substitution const &, bool)> elaborate_fn;
 
 /** \brief Try to elaborate expression \c e using the elaboration function \c elab. The elaboration is performed
     with respect to (local context of) the first goal in \c s. The constraints generated during elaboration

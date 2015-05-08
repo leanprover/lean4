@@ -1640,13 +1640,13 @@ optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
     try {
         bool relax = m_relax_main_opaque;
         auto fn = [=](goal const & g, name_generator const & ngen, expr const & e, optional<expr> const & expected_type,
-                      bool report_unassigned) {
+                      substitution const & subst, bool report_unassigned) {
             elaborator aux_elaborator(m_ctx, ngen);
             // Disable tactic hints when processing expressions nested in tactics.
             // We must do it otherwise, it is easy to make the system loop.
             bool use_tactic_hints = false;
             return aux_elaborator.elaborate_nested(g.to_context(), expected_type, e,
-                                                   relax, use_tactic_hints, report_unassigned);
+                                                   relax, use_tactic_hints, subst, report_unassigned);
         };
         return optional<tactic>(expr_to_tactic(env(), fn, pre_tac, pip()));
     } catch (expr_to_tactic_exception & ex) {
@@ -2067,9 +2067,9 @@ static expr translate(environment const & env, list<expr> const & ctx, expr cons
 }
 
 /** \brief Elaborate expression \c e in context \c ctx. */
-pair<expr, constraints> elaborator::elaborate_nested(list<expr> const & ctx, optional<expr> const & expected_type,
-                                                     expr const & n, bool relax, bool use_tactic_hints,
-                                                     bool report_unassigned) {
+elaborate_result elaborator::elaborate_nested(list<expr> const & ctx, optional<expr> const & expected_type,
+                                              expr const & n, bool relax, bool use_tactic_hints,
+                                              substitution const & subst, bool report_unassigned) {
     if (infom()) {
         if (auto ps = get_info_tactic_proof_state()) {
             save_proof_state_info(*ps, n);
@@ -2089,21 +2089,24 @@ pair<expr, constraints> elaborator::elaborate_nested(list<expr> const & ctx, opt
     flet<bool> set_use_hints(m_use_tactic_hints, use_tactic_hints);
     constraint_seq cs;
     expr r  = visit(e, cs);
-    auto p  = solve(cs).pull();
+
+    buffer<constraint> tmp;
+    cs.linearize(tmp);
+    auto p  = unify(env(), tmp.size(), tmp.data(), m_ngen.mk_child(), subst, m_unifier_config).pull();
     lean_assert(p);
-    substitution s  = p->first.first;
-    constraints rcs = p->first.second;
-    r = s.instantiate_all(r);
-    r = solve_unassigned_mvars(s, r);
-    rcs = map(rcs, [&](constraint const & c) { return instantiate_metavars(c, s); });
-    copy_info_to_manager(s);
+    substitution new_subst = p->first.first;
+    constraints rcs        = p->first.second;
+    r = new_subst.instantiate_all(r);
+    r = solve_unassigned_mvars(new_subst, r);
+    rcs = map(rcs, [&](constraint const & c) { return instantiate_metavars(c, new_subst); });
+    copy_info_to_manager(new_subst);
     if (report_unassigned)
-        display_unassigned_mvars(r, s);
+        display_unassigned_mvars(r, new_subst);
     if (expected_type) {
         justification j;
-        rcs = append(rcs, cls.mk_constraints(s, j, relax));
+        rcs = append(rcs, cls.mk_constraints(new_subst, j, relax));
     }
-    return mk_pair(r, rcs);
+    return elaborate_result(r, new_subst, rcs);
 }
 
 static name * g_tmp_prefix = nullptr;

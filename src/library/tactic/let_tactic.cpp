@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "library/constants.h"
 #include "library/reducible.h"
+#include "library/unifier.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/elaborate.h"
 #include "library/tactic/expr_to_tactic.h"
@@ -28,10 +29,11 @@ tactic let_tactic(elaborate_fn const & elab, name const & id, expr const & e) {
             goal const & g         = head(gs);
             name_generator ngen    = s.get_ngen();
             bool report_unassigned = true;
-            auto ecs = elab(g, ngen.mk_child(), e, none_expr(), report_unassigned);
-            if (ecs.second)
+            elaborate_result esc = elab(g, ngen.mk_child(), e, none_expr(), new_s.get_subst(), report_unassigned);
+            expr new_e; substitution new_subst; constraints cs;
+            std::tie(new_e, new_subst, cs) = esc;
+            if (cs)
                 throw_tactic_exception_if_enabled(s, "invalid 'let' tactic, fail to resolve generated constraints");
-            expr new_e      = ecs.first;
             auto tc         = mk_type_checker(env, ngen.mk_child(), s.relax_main_opaque());
             expr new_e_type = tc->infer(new_e).first;
             expr new_local  = mk_local(ngen.next(), id, new_e_type, binder_info());
@@ -43,7 +45,6 @@ tactic let_tactic(elaborate_fn const & elab, name const & id, expr const & e) {
             expr new_meta_core = mk_app(new_mvar, hyps);
             expr new_meta      = mk_app(new_meta_core, new_local);
             goal new_goal(new_meta, g.get_type());
-            substitution new_subst = new_s.get_subst();
             assign(new_subst, g, mk_app(new_meta_core, new_e));
             return some_proof_state(proof_state(s, cons(new_goal, tail(gs)), new_subst, ngen));
         });

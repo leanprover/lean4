@@ -20,9 +20,17 @@ Constructors:
 * [prod](prod.lean) : cartesian product
 * [sum](sum.lean)
 * [sigma](sigma.lean) : the dependent product
+* [uprod](uprod.lean) : unordered pairs
 * [option](option.lean)
 * [subtype](subtype.lean)
 * [quotient](quotient/quotient.md)
+* [squash](squash.lean) : propositional truncation
 * [list](list/list.md)
+* [finset](finset/finset.md) : finite sets
 * [set](set/set.md)
 * [vector](vector.lean)
+
+Types with extra information:
+
+* [fintype](fintype.lean) : finite types
+* [encodable](encodable.lean) : types with a coding to nat

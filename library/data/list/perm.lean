@@ -1,11 +1,9 @@
 /-
 Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: data.list.perm
 Author: Leonardo de Moura
 
-List permutations
+List permutations.
 -/
 import data.list.basic data.list.set
 open list setoid nat binary
@@ -752,4 +750,34 @@ list.induction_on l
 theorem perm_cross_product {l₁ l₂ : list A} {t₁ t₂ : list B} : l₁ ~ l₂ → t₁ ~ t₂ → (cross_product l₁ t₁) ~ (cross_product l₂ t₂) :=
 assume p₁ p₂, trans (perm_cross_product_left t₁ p₁) (perm_cross_product_right l₂ p₂)
 end cross_product
+
+/- filter -/
+theorem perm_filter {l₁ l₂ : list A} {p : A → Prop} [decp : decidable_pred p] :
+  l₁ ~ l₂ → (filter p l₁) ~ (filter p l₂) :=
+assume u, perm.induction_on u
+  perm.nil
+  (take x l₁' l₂',
+    assume u' : l₁' ~ l₂',
+    assume u'' : filter p l₁' ~ filter p l₂',
+    decidable.by_cases
+      (assume H : p x, by rewrite [*filter_cons_of_pos _ H]; apply perm.skip; apply u'')
+      (assume H : ¬ p x, by rewrite [*filter_cons_of_neg _ H]; apply u''))
+  (take x y l,
+    decidable.by_cases
+      (assume H1 : p x,
+        decidable.by_cases
+          (assume H2 : p y,
+             begin
+               rewrite [filter_cons_of_pos _ H1, *filter_cons_of_pos _ H2, filter_cons_of_pos _ H1],
+               apply perm.swap
+             end)
+          (assume H2 : ¬ p y,
+             by rewrite [filter_cons_of_pos _ H1, *filter_cons_of_neg _ H2, filter_cons_of_pos _ H1]))
+      (assume H1 : ¬ p x,
+        decidable.by_cases
+          (assume H2 : p y,
+             by rewrite [filter_cons_of_neg _ H1, *filter_cons_of_pos _ H2, filter_cons_of_neg _ H1])
+          (assume H2 : ¬ p y,
+             by rewrite [filter_cons_of_neg _ H1, *filter_cons_of_neg _ H2, filter_cons_of_neg _ H1])))
+    (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, trans r₁ r₂)
 end perm

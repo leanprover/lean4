@@ -101,7 +101,6 @@ static name * g_constant     = nullptr;
 static name * g_constants    = nullptr;
 static name * g_variable     = nullptr;
 static name * g_variables    = nullptr;
-static name * g_opaque       = nullptr;
 static name * g_instance     = nullptr;
 static name * g_priority     = nullptr;
 static name * g_unfold_c     = nullptr;
@@ -230,7 +229,6 @@ void initialize_tokens() {
     g_definition   = new name("definition");
     g_theorem      = new name("theorem");
     g_abbreviation = new name("abbreviation");
-    g_opaque       = new name("opaque");
     g_axiom        = new name("axiom");
     g_axioms       = new name("axioms");
     g_constant     = new name("constant");
@@ -303,7 +301,6 @@ void finalize_tokens() {
     delete g_definition;
     delete g_theorem;
     delete g_abbreviation;
-    delete g_opaque;
     delete g_axiom;
     delete g_axioms;
     delete g_constant;
@@ -509,7 +506,6 @@ name const & get_constant_tk() { return *g_constant; }
 name const & get_constants_tk() { return *g_constants; }
 name const & get_variable_tk() { return *g_variable; }
 name const & get_variables_tk() { return *g_variables; }
-name const & get_opaque_tk() { return *g_opaque; }
 name const & get_instance_tk() { return *g_instance; }
 name const & get_priority_tk() { return *g_priority; }
 name const & get_unfold_c_tk() { return *g_unfold_c; }

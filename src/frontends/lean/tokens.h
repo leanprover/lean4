@@ -103,7 +103,6 @@ name const & get_constant_tk();
 name const & get_constants_tk();
 name const & get_variable_tk();
 name const & get_variables_tk();
-name const & get_opaque_tk();
 name const & get_instance_tk();
 name const & get_priority_tk();
 name const & get_unfold_c_tk();

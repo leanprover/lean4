@@ -858,7 +858,6 @@ class definition_cmd_fn {
     parser &          m_p;
     environment       m_env;
     def_cmd_kind      m_kind;
-    bool              m_is_opaque;
     bool              m_is_private;
     bool              m_is_protected;
     pos_info          m_pos;
@@ -1261,11 +1260,10 @@ class definition_cmd_fn {
     }
 
 public:
-    definition_cmd_fn(parser & p, def_cmd_kind kind, bool is_opaque, bool is_private, bool is_protected):
-        m_p(p), m_env(m_p.env()), m_kind(kind), m_is_opaque(is_opaque),
+    definition_cmd_fn(parser & p, def_cmd_kind kind, bool is_private, bool is_protected):
+        m_p(p), m_env(m_p.env()), m_kind(kind),
         m_is_private(is_private), m_is_protected(is_protected),
         m_pos(p.pos()), m_attributes(true, kind == Abbreviation || kind == LocalAbbreviation) {
-        lean_assert(!(!is_definition() && !m_is_opaque));
         lean_assert(!(m_is_private && m_is_protected));
     }
 
@@ -1291,36 +1289,27 @@ public:
     }
 };
 
-static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_opaque, bool is_private, bool is_protected) {
-    return definition_cmd_fn(p, kind, is_opaque, is_private, is_protected)();
+static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected) {
+    return definition_cmd_fn(p, kind, is_private, is_protected)();
 }
 static environment definition_cmd(parser & p) {
-    return definition_cmd_core(p, Definition, false, false, false);
+    return definition_cmd_core(p, Definition, false, false);
 }
 static environment abbreviation_cmd(parser & p) {
-    return definition_cmd_core(p, Abbreviation, false, false, false);
+    return definition_cmd_core(p, Abbreviation, false, false);
 }
 environment local_abbreviation_cmd(parser & p) {
-    return definition_cmd_core(p, LocalAbbreviation, false, true, false);
-}
-static environment opaque_definition_cmd(parser & p) {
-    p.check_token_next(get_definition_tk(), "invalid 'opaque' definition, 'definition' expected");
-    return definition_cmd_core(p, Definition, true, false, false);
+    return definition_cmd_core(p, LocalAbbreviation, true, false);
 }
 static environment theorem_cmd(parser & p) {
-    return definition_cmd_core(p, Theorem, true, false, false);
+    return definition_cmd_core(p, Theorem, false, false);
 }
 static environment example_cmd(parser & p) {
-    return definition_cmd_core(p, Example, true, false, false);
+    return definition_cmd_core(p, Example, false, false);
 }
 static environment private_definition_cmd(parser & p) {
     def_cmd_kind kind = Definition;
-    bool is_opaque  = false;
-    if (p.curr_is_token_or_id(get_opaque_tk())) {
-        is_opaque = true;
-        p.next();
-        p.check_token_next(get_definition_tk(), "invalid 'private' definition, 'definition' expected");
-    } else if (p.curr_is_token_or_id(get_definition_tk())) {
+    if (p.curr_is_token_or_id(get_definition_tk())) {
         p.next();
     } else if (p.curr_is_token_or_id(get_abbreviation_tk())) {
         kind = Abbreviation;
@@ -1328,11 +1317,10 @@ static environment private_definition_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_theorem_tk())) {
         p.next();
         kind = Theorem;
-        is_opaque  = true;
     } else {
         throw parser_error("invalid 'private' definition/theorem, 'definition' or 'theorem' expected", p.pos());
     }
-    return definition_cmd_core(p, kind, is_opaque, true, false);
+    return definition_cmd_core(p, kind, true, false);
 }
 static environment protected_definition_cmd(parser & p) {
     if (p.curr_is_token_or_id(get_axiom_tk())) {
@@ -1349,12 +1337,7 @@ static environment protected_definition_cmd(parser & p) {
         return variables_cmd_core(p, variable_kind::Constant, true);
     } else {
         def_cmd_kind kind = Definition;
-        bool is_opaque  = false;
-        if (p.curr_is_token_or_id(get_opaque_tk())) {
-            is_opaque = true;
-            p.next();
-            p.check_token_next(get_definition_tk(), "invalid 'protected' definition, 'definition' expected");
-        } else if (p.curr_is_token_or_id(get_definition_tk())) {
+        if (p.curr_is_token_or_id(get_definition_tk())) {
             p.next();
         } else if (p.curr_is_token_or_id(get_abbreviation_tk())) {
             p.next();
@@ -1362,11 +1345,10 @@ static environment protected_definition_cmd(parser & p) {
         } else if (p.curr_is_token_or_id(get_theorem_tk())) {
             p.next();
             kind       = Theorem;
-            is_opaque  = true;
         } else {
             throw parser_error("invalid 'protected' definition/theorem, 'definition' or 'theorem' expected", p.pos());
         }
-        return definition_cmd_core(p, kind, is_opaque, false, true);
+        return definition_cmd_core(p, kind, false, true);
     }
 }
 
@@ -1438,7 +1420,6 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("axioms",       "declare new axioms", axioms_cmd));
     add_cmd(r, cmd_info("definition",   "add new definition", definition_cmd));
     add_cmd(r, cmd_info("example",      "add new example", example_cmd));
-    add_cmd(r, cmd_info("opaque",       "add new opaque definition", opaque_definition_cmd));
     add_cmd(r, cmd_info("private",      "add new private definition/theorem", private_definition_cmd));
     add_cmd(r, cmd_info("protected",    "add new protected definition/theorem", protected_definition_cmd));
     add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));

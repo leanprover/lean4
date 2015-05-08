@@ -1,13 +1,13 @@
 550.lean:44:72: error:invalid 'rewrite' tactic, step produced type incorrect term, details: type mismatch at application
-  eq.rec (eq.rec (eq.refl function.id) (eq.symm linv))
+  eq.symm linv
 term
-  eq.rec (eq.refl function.id) (eq.symm linv)
+  linv
 has type
-  x = function.id
-but is expected to have type
   finv ∘ func = function.id
+but is expected to have type
+  x = function.id
 rewrite step failed using pattern
-  finv ∘ func
+  finv_1 ∘ func_1
 proof state:
 A : Type,
 f : bijection A,

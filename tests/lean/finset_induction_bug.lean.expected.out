@@ -1,0 +1,82 @@
+finset_induction_bug.lean:30:23: error:invalid 'rewrite' tactic, step produced type incorrect term, details: type mismatch at application
+  @subtype.tag (list A) (λ (l : list A), @nodup A l) x nodup_al'
+term
+  nodup_al'
+has type
+  @nodup A (@cons A a l')
+but is expected to have type
+  @nodup A x
+rewrite step failed using pattern
+  @cons A_1 a_1 l'_1
+proof state:
+A : Type,
+h : decidable_eq A,
+P : finset A → Prop,
+H1 : P (@empty A),
+H2 : ∀ ⦃s : finset A⦄ {a : A}, not (@mem A a s) → P s → P (@insert A (λ (a b : A), h a b) a s),
+s : finset A,
+u : nodup_list A,
+l : list A,
+a : A,
+l' : list A,
+IH :
+  ∀ (x : @nodup A l'),
+    P (@quot.mk (nodup_list A) (nodup_list_setoid A) (@subtype.tag (list A) (λ (l : list A), @nodup A l) l' x)),
+nodup_al' : @nodup A (@cons A a l'),
+anl' : not (@list.mem A a l'),
+H3 : @eq (list A) (@list.insert A (λ (a b : A), h a b) a l') (@cons A a l'),
+nodup_l' : @nodup A l',
+P_l' :
+  P (@quot.mk (nodup_list A) (nodup_list_setoid A) (@subtype.tag (list A) (λ (l : list A), @nodup A l) l' nodup_l')),
+H4 :
+  P
+    (@insert A (λ (a b : A), h a b) a
+       (@quot.mk (nodup_list A) (nodup_list_setoid A)
+          (@subtype.tag (list A) (λ (l : list A), @nodup A l) l' nodup_l')))
+⊢ P
+    (@quot.mk (nodup_list A) (nodup_list_setoid A)
+       (@subtype.tag (list A) (λ (l : list A), @nodup A l) (@cons A a l') nodup_al'))
+finset_induction_bug.lean:30:45: error: don't know how to synthesize placeholder
+A : Type,
+h : decidable_eq A,
+P : finset A → Prop,
+H1 : P (@empty A),
+H2 : ∀ ⦃s : finset A⦄ {a : A}, not (@mem A a s) → P s → P (@insert A (λ (a b : A), h a b) a s),
+s : finset A,
+u : nodup_list A,
+l : list A,
+a : A,
+l' : list A,
+IH :
+  ∀ (x : @nodup A l'),
+    P (@quot.mk (nodup_list A) (nodup_list_setoid A) (@subtype.tag (list A) (λ (l : list A), @nodup A l) l' x)),
+nodup_al' : @nodup A (@cons A a l'),
+anl' : not (@list.mem A a l'),
+H3 : @eq (list A) (@list.insert A (λ (a b : A), h a b) a l') (@cons A a l'),
+nodup_l' : @nodup A l',
+P_l' :
+  P (@quot.mk (nodup_list A) (nodup_list_setoid A) (@subtype.tag (list A) (λ (l : list A), @nodup A l) l' nodup_l')),
+H4 :
+  P
+    (@insert A (λ (a b : A), h a b) a
+       (@quot.mk (nodup_list A) (nodup_list_setoid A)
+          (@subtype.tag (list A) (λ (l : list A), @nodup A l) l' nodup_l')))
+⊢ P
+    (@quot.mk (nodup_list A) (nodup_list_setoid A)
+       (@subtype.tag (list A) (λ (l : list A), @nodup A l) (@cons A a l') nodup_al'))
+finset_induction_bug.lean:16:5: error: failed to add declaration 'finset.induction₂' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  λ (A : Type) (h : …) (P : …) (H1 : …) (H2 : …) (s : …),
+    @quot.induction_on … … … s
+      (λ (u : …),
+         @subtype.destruct … … … u
+           (λ (l : …),
+              @list.induction_on A … l …
+                (λ (a : A) (l' : …) (IH : …) (nodup_al' : …),
+                   assert anl' : …, from …,
+                   assert H3 : …, from …,
+                   assert nodup_l' : …, from …,
+                   assert P_l' : …, from …,
+                   assert H4 : …, from …,
+                   ?M_1)))
+finset_induction_bug.lean:30:49: error: invalid end of module, expecting 'end'

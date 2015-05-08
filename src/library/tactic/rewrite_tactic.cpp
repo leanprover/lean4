@@ -1209,7 +1209,7 @@ class rewrite_fn {
     }
 
     void check_term(expr const & H) {
-        lean::check_term(m_env, H);
+        lean::check_term(m_env, m_g.abstract(H));
     }
 
     bool process_rewrite_hypothesis(expr const & hyp, expr const & orig_elem, expr const & pattern, occurrence const & occ) {

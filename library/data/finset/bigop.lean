@@ -32,7 +32,10 @@ theorem bigop_insert_of_not_mem (f : A → B) {a : A} {s : finset A} : a ∉ s �
 quot.induction_on s
   (λ l nainl, list.bigop_insert_of_not_mem f nainl)
 
-theorem bigop_union (f : A → B) {s₁ s₂ : finset A} : disjoint s₁ s₂ → bigop (s₁ ∪ s₂) f = bigop s₁ f * bigop s₂ f :=
-quot.induction_on₂ s₁ s₂
-  (λ l₁ l₂ d, list.bigop_union f d)
+theorem bigop_union (f : A → B) {s₁ s₂ : finset A} (disj : s₁ ∩ s₂ = ∅) :
+bigop (s₁ ∪ s₂) f = bigop s₁ f * bigop s₂ f :=
+have H1 : disjoint s₁ s₂ → bigop (s₁ ∪ s₂) f = bigop s₁ f * bigop s₂ f, from
+  quot.induction_on₂ s₁ s₂
+    (λ l₁ l₂ d, list.bigop_union f d),
+H1 (disjoint_of_inter_empty disj)
 end finset

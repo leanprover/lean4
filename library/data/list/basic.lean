@@ -162,11 +162,11 @@ definition mem : T → list T → Prop
 notation e ∈ s := mem e s
 notation e ∉ s := ¬ e ∈ s
 
-theorem mem_nil (x : T) : x ∈ [] ↔ false :=
+theorem mem_nil_iff (x : T) : x ∈ [] ↔ false :=
 iff.rfl
 
 theorem not_mem_nil (x : T) : x ∉ [] :=
-iff.mp !mem_nil
+iff.mp !mem_nil_iff
 
 theorem mem_cons (x : T) (l : list T) : x ∈ x :: l :=
 or.inl rfl
@@ -230,7 +230,7 @@ local attribute mem [reducible]
 local attribute append [reducible]
 theorem mem_split {x : T} {l : list T} : x ∈ l → ∃s t : list T, l = s ++ (x::t) :=
 list.induction_on l
-  (take H : x ∈ [], false.elim (iff.elim_left !mem_nil H))
+  (take H : x ∈ [], false.elim (iff.elim_left !mem_nil_iff H))
   (take y l,
     assume IH : x ∈ l → ∃s t : list T, l = s ++ (x::t),
     assume H : x ∈ y::l,
@@ -252,7 +252,7 @@ assume ainl₂, mem_append_of_mem_or_mem (or.inr ainl₂)
 
 definition decidable_mem [instance] [H : decidable_eq T] (x : T) (l : list T) : decidable (x ∈ l) :=
 list.rec_on l
-  (decidable.inr (not_of_iff_false !mem_nil))
+  (decidable.inr (not_of_iff_false !mem_nil_iff))
   (take (h : T) (l : list T) (iH : decidable (x ∈ l)),
     show decidable (x ∈ h::l), from
     decidable.rec_on iH
@@ -289,7 +289,7 @@ definition sublist (l₁ l₂ : list T) := ∀ ⦃a : T⦄, a ∈ l₁ → a ∈
 infix `⊆`:50 := sublist
 
 theorem nil_sub (l : list T) : [] ⊆ l :=
-λ b i, false.elim (iff.mp (mem_nil b) i)
+λ b i, false.elim (iff.mp (mem_nil_iff b) i)
 
 theorem sub.refl (l : list T) : l ⊆ l :=
 λ b i, i

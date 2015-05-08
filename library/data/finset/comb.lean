@@ -153,7 +153,7 @@ variables {A B : Type}
 definition product (s₁ : finset A) (s₂ : finset B) : finset (A × B) :=
 quot.lift_on₂ s₁ s₂
   (λ l₁ l₂,
-    to_finset_of_nodup (list.product (elt_of l₁) (elt_of l₂))
+    to_finset_of_nodup (product (elt_of l₁) (elt_of l₂))
                        (nodup_product (has_property l₁) (has_property l₂)))
   (λ v₁ v₂ w₁ w₂ p₁ p₂, quot.sound (perm_product p₁ p₂))
 

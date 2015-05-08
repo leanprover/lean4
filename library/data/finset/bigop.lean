@@ -1,18 +1,16 @@
 /-
 Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: data.finset
 Author: Leonardo de Moura
 
-Big operator for finite sets
+Big operator for finite sets.
 -/
 import algebra.group data.finset.basic data.list.bigop
 open algebra finset function binary quot subtype
 
 namespace finset
 variables {A B : Type}
-variable  [g : comm_group B]
+variable  [g : comm_monoid B]
 include g
 
 definition bigop (s : finset A) (f : A → B) : B :=

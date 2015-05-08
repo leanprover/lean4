@@ -268,7 +268,7 @@ theorem zip_unzip : ∀ (l : list (A × B)), zip (pr₁ (unzip l)) (pr₂ (unzip
 definition flat (l : list (list A)) : list A :=
 foldl append nil l
 
-/- cross product -/
+/- product -/
 section product
 
 definition product : list A → list B → list (A × B)

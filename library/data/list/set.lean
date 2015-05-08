@@ -130,7 +130,7 @@ end erase
 section disjoint
 variable {A : Type}
 
-definition disjoint (l₁ l₂ : list A) : Prop := ∀ a, (a ∈ l₁ → a ∈ l₂ → false)
+definition disjoint (l₁ l₂ : list A) : Prop := ∀ ⦃a⦄, (a ∈ l₁ → a ∈ l₂ → false)
 
 lemma disjoint_left {l₁ l₂ : list A} : disjoint l₁ l₂ → ∀ {a}, a ∈ l₁ → a ∉ l₂ :=
 λ d a, d a

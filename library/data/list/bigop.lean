@@ -12,7 +12,7 @@ open algebra function binary quot
 
 namespace list
 variables {A B : Type}
-variable  [g : group B]
+variable  [g : monoid B]
 include g
 
 definition mulf (f : A → B) : B → A → B :=
@@ -58,7 +58,7 @@ end list
 namespace list
 open perm
 variables {A B : Type}
-variable  [g : comm_group B]
+variable  [g : comm_monoid B]
 include g
 
 theorem mulf_rcomm (f : A → B) : right_commutative (mulf f) :=

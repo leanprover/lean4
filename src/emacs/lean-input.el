@@ -309,6 +309,7 @@ order for the change to take effect."
   ("ex"  . ("∃"))
   ("exn" . ("∄"))
   ("0"   . ("∅"))
+  ("empty"   . ("∅"))
   ("C"   . ("∁"))
 
   ;; Corners, ceilings and floors.

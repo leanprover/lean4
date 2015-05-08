@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "util/optional.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
+#include "kernel/default_converter.h"
 #include "library/annotation.h"
 #include "library/string.h"
 #include "library/explicit.h"
@@ -260,9 +261,25 @@ optional<unsigned> get_optional_unsigned(type_checker & tc, expr const & e) {
     throw expr_to_tactic_exception(e, "invalid tactic, argument is not an option num");
 }
 
+class tac_builtin_opaque_converter : public default_converter {
+public:
+    tac_builtin_opaque_converter(environment const & env):default_converter(env) {}
+    virtual bool is_opaque(declaration const & d) const {
+        name n = d.get_name();
+        if (!is_prefix_of(get_tactic_name(), n))
+            return default_converter::is_opaque(d);
+        expr v = d.get_value();
+        while (is_lambda(v))
+            v = binding_body(v);
+        if (is_constant(v) && const_name(v) == get_tactic_builtin_name())
+            return true;
+        return default_converter::is_opaque(d);
+    }
+};
+
 tactic expr_to_tactic(environment const & env, elaborate_fn const & fn, expr const & e, pos_info_provider const * p) {
     bool memoize             = false;
-    type_checker tc(env, next_name_generator(), memoize);
+    type_checker tc(env, next_name_generator(), std::unique_ptr<converter>(new tac_builtin_opaque_converter(env)), memoize);
     return expr_to_tactic(tc, fn, e, p);
 }
 

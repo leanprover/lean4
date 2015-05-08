@@ -21,32 +21,32 @@ namespace tactic
 -- uses them when converting Lean expressions into actual tactic objects.
 -- The bultin 'by' construct triggers the process of converting a
 -- a term of type 'tactic' into a tactic that sythesizes a term
-opaque definition and_then    (t1 t2 : tactic) : tactic := builtin
-opaque definition or_else     (t1 t2 : tactic) : tactic := builtin
-opaque definition append      (t1 t2 : tactic) : tactic := builtin
-opaque definition interleave  (t1 t2 : tactic) : tactic := builtin
-opaque definition par         (t1 t2 : tactic) : tactic := builtin
-opaque definition fixpoint    (f : tactic → tactic) : tactic := builtin
-opaque definition repeat      (t : tactic) : tactic := builtin
-opaque definition at_most     (t : tactic) (k : num)  : tactic := builtin
-opaque definition discard     (t : tactic) (k : num)  : tactic := builtin
-opaque definition focus_at    (t : tactic) (i : num)  : tactic := builtin
-opaque definition try_for     (t : tactic) (ms : num) : tactic := builtin
-opaque definition all_goals   (t : tactic) : tactic := builtin
-opaque definition now         : tactic := builtin
-opaque definition assumption  : tactic := builtin
-opaque definition eassumption : tactic := builtin
-opaque definition state       : tactic := builtin
-opaque definition fail        : tactic := builtin
-opaque definition id          : tactic := builtin
-opaque definition beta        : tactic := builtin
-opaque definition info        : tactic := builtin
-opaque definition whnf        : tactic := builtin
-opaque definition contradiction : tactic := builtin
-opaque definition exfalso     : tactic := builtin
-opaque definition congruence  : tactic := builtin
-opaque definition rotate_left (k : num) := builtin
-opaque definition rotate_right (k : num) := builtin
+definition and_then    (t1 t2 : tactic) : tactic := builtin
+definition or_else     (t1 t2 : tactic) : tactic := builtin
+definition append      (t1 t2 : tactic) : tactic := builtin
+definition interleave  (t1 t2 : tactic) : tactic := builtin
+definition par         (t1 t2 : tactic) : tactic := builtin
+definition fixpoint    (f : tactic → tactic) : tactic := builtin
+definition repeat      (t : tactic) : tactic := builtin
+definition at_most     (t : tactic) (k : num)  : tactic := builtin
+definition discard     (t : tactic) (k : num)  : tactic := builtin
+definition focus_at    (t : tactic) (i : num)  : tactic := builtin
+definition try_for     (t : tactic) (ms : num) : tactic := builtin
+definition all_goals   (t : tactic) : tactic := builtin
+definition now         : tactic := builtin
+definition assumption  : tactic := builtin
+definition eassumption : tactic := builtin
+definition state       : tactic := builtin
+definition fail        : tactic := builtin
+definition id          : tactic := builtin
+definition beta        : tactic := builtin
+definition info        : tactic := builtin
+definition whnf        : tactic := builtin
+definition contradiction : tactic := builtin
+definition exfalso     : tactic := builtin
+definition congruence  : tactic := builtin
+definition rotate_left (k : num) := builtin
+definition rotate_right (k : num) := builtin
 definition rotate (k : num) := rotate_left k
 
 -- This is just a trick to embed expressions into tactics.
@@ -67,54 +67,54 @@ definition identifier := expr
 definition identifier_list := expr_list
 definition opt_identifier_list := expr_list
 
-opaque definition apply      (e : expr)         : tactic := builtin
-opaque definition eapply     (e : expr)         : tactic := builtin
-opaque definition fapply     (e : expr)         : tactic := builtin
-opaque definition rename     (a b : identifier) : tactic := builtin
-opaque definition intro      (e : identifier_list) : tactic := builtin
-opaque definition generalize_tac (e : expr) (id : identifier) : tactic := builtin
-opaque definition clear      (e : identifier_list) : tactic := builtin
-opaque definition revert     (e : identifier_list) : tactic := builtin
-opaque definition refine     (e : expr)         : tactic := builtin
-opaque definition exact      (e : expr)         : tactic := builtin
+definition apply      (e : expr)         : tactic := builtin
+definition eapply     (e : expr)         : tactic := builtin
+definition fapply     (e : expr)         : tactic := builtin
+definition rename     (a b : identifier) : tactic := builtin
+definition intro      (e : identifier_list) : tactic := builtin
+definition generalize_tac (e : expr) (id : identifier) : tactic := builtin
+definition clear      (e : identifier_list) : tactic := builtin
+definition revert     (e : identifier_list) : tactic := builtin
+definition refine     (e : expr)         : tactic := builtin
+definition exact      (e : expr)         : tactic := builtin
 -- Relaxed version of exact that does not enforce goal type
-opaque definition rexact     (e : expr)         : tactic := builtin
-opaque definition check_expr (e : expr)         : tactic := builtin
-opaque definition trace      (s : string)       : tactic := builtin
+definition rexact     (e : expr)         : tactic := builtin
+definition check_expr (e : expr)         : tactic := builtin
+definition trace      (s : string)       : tactic := builtin
 
 -- rewrite_tac is just a marker for the builtin 'rewrite' notation
 -- used to create instances of this tactic.
-opaque definition rewrite_tac (e : expr_list) : tactic := builtin
+definition rewrite_tac (e : expr_list) : tactic := builtin
 
-opaque definition cases (id : identifier) (ids : opt_identifier_list) : tactic := builtin
+definition cases (id : identifier) (ids : opt_identifier_list) : tactic := builtin
 
-opaque definition intros (ids : opt_identifier_list) : tactic := builtin
+definition intros (ids : opt_identifier_list) : tactic := builtin
 
-opaque definition generalizes (es : expr_list) : tactic := builtin
+definition generalizes (es : expr_list) : tactic := builtin
 
-opaque definition clears  (ids : identifier_list) : tactic := builtin
+definition clears  (ids : identifier_list) : tactic := builtin
 
-opaque definition reverts (ids : identifier_list) : tactic := builtin
+definition reverts (ids : identifier_list) : tactic := builtin
 
-opaque definition change (e : expr) : tactic := builtin
+definition change (e : expr) : tactic := builtin
 
-opaque definition assert_hypothesis (id : identifier) (e : expr) : tactic := builtin
+definition assert_hypothesis (id : identifier) (e : expr) : tactic := builtin
 
-opaque definition lettac (id : identifier) (e : expr) : tactic := builtin
+definition lettac (id : identifier) (e : expr) : tactic := builtin
 
-opaque definition constructor (k : option num) : tactic := builtin
-opaque definition existsi (e : expr)           : tactic := builtin
-opaque definition split                        : tactic := builtin
-opaque definition left                         : tactic := builtin
-opaque definition right                        : tactic := builtin
+definition constructor (k : option num) : tactic := builtin
+definition existsi (e : expr)           : tactic := builtin
+definition split                        : tactic := builtin
+definition left                         : tactic := builtin
+definition right                        : tactic := builtin
 
-opaque definition injection (e : expr) (ids : opt_identifier_list) : tactic := builtin
+definition injection (e : expr) (ids : opt_identifier_list) : tactic := builtin
 
-opaque definition subst (ids : identifier_list) : tactic := builtin
+definition subst (ids : identifier_list) : tactic := builtin
 
-opaque definition reflexivity             : tactic := builtin
-opaque definition symmetry                : tactic := builtin
-opaque definition transitivity (e : expr) : tactic := builtin
+definition reflexivity             : tactic := builtin
+definition symmetry                : tactic := builtin
+definition transitivity (e : expr) : tactic := builtin
 
 definition try         (t : tactic) : tactic := or_else t id
 definition repeat1     (t : tactic) : tactic := and_then t (repeat t)

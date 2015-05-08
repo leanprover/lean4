@@ -635,6 +635,20 @@ assume ainl, by_cases
   (λ binl  : b ∈ l, by rewrite [insert_eq_of_mem binl]; exact ainl)
   (λ nbinl : b ∉ l, by rewrite [insert_eq_of_not_mem nbinl]; exact (mem_cons_of_mem _ ainl))
 
+theorem eq_or_mem_of_mem_insert {x a : A} {l : list A} (H : x ∈ insert a l) : x = a ∨ x ∈ l :=
+decidable.by_cases
+  (assume H3: a ∈ l, or.inr (insert_eq_of_mem H3 ▸ H))
+  (assume H3: a ∉ l,
+    have H4: x ∈ a :: l, from insert_eq_of_not_mem H3 ▸ H,
+    iff.mp !mem_cons_iff H4)
+
+theorem mem_insert_iff (x a : A) (l : list A) : x ∈ insert a l ↔ x = a ∨ x ∈ l :=
+iff.intro
+  (!eq_or_mem_of_mem_insert)
+  (assume H, or.elim H
+    (assume H' : x = a, H'⁻¹ ▸ !mem_insert)
+    (assume H' : x ∈ l, !mem_insert_of_mem H'))
+
 theorem nodup_insert (a : A) {l : list A} : nodup l → nodup (insert a l) :=
 assume n, by_cases
   (λ ainl  : a ∈ l, by rewrite [insert_eq_of_mem ainl]; exact n)

@@ -31,8 +31,8 @@ bool get_proof_state_goal_names(options const & opts) {
 }
 
 proof_state::proof_state(goals const & gs, substitution const & s, name_generator const & ngen,
-                         constraints const & postponed, bool relax_main_opaque, bool report_failure):
-    m_goals(gs), m_subst(s), m_ngen(ngen), m_postponed(postponed), m_relax_main_opaque(relax_main_opaque),
+                         constraints const & postponed, bool report_failure):
+    m_goals(gs), m_subst(s), m_ngen(ngen), m_postponed(postponed),
     m_report_failure(report_failure) {
     if (std::any_of(gs.begin(), gs.end(),
                     [&](goal const & g) { return s.is_assigned(g.get_mvar()); })) {
@@ -81,13 +81,12 @@ goals map_goals(proof_state const & s, std::function<optional<goal>(goal const &
         });
 }
 
-proof_state to_proof_state(expr const & meta, expr const & type, substitution const & subst, name_generator ngen,
-                           bool relax_main_opaque) {
-    return proof_state(goals(goal(meta, type)), subst, ngen, constraints(), relax_main_opaque);
+proof_state to_proof_state(expr const & meta, expr const & type, substitution const & subst, name_generator ngen) {
+    return proof_state(goals(goal(meta, type)), subst, ngen, constraints());
 }
 
-proof_state to_proof_state(expr const & meta, expr const & type, name_generator ngen, bool relax_main_opaque) {
-    return to_proof_state(meta, type, substitution(), ngen, relax_main_opaque);
+proof_state to_proof_state(expr const & meta, expr const & type, name_generator ngen) {
+    return to_proof_state(meta, type, substitution(), ngen);
 }
 
 proof_state apply_substitution(proof_state const & s) {
@@ -180,9 +179,8 @@ static int mk_proof_state(lua_State * L) {
     } else if (nargs == 3 && is_proof_state(L, 1)) {
         return push_proof_state(L, proof_state(to_proof_state(L, 1), to_goals(L, 2), to_substitution(L, 3)));
     } else if (nargs == 3) {
-        bool relax_main_opaque = true;
         return push_proof_state(L, proof_state(to_goals(L, 1), to_substitution(L, 2), to_name_generator(L, 3),
-                                               constraints(), relax_main_opaque));
+                                               constraints()));
     } else {
         throw exception("proof_state invalid number of arguments");
     }
@@ -191,11 +189,10 @@ static int mk_proof_state(lua_State * L) {
 static name * g_tmp_prefix = nullptr;
 static int to_proof_state(lua_State * L) {
     int nargs = lua_gettop(L);
-    bool relax_main_opaque = true;
     if (nargs == 2)
-        return push_proof_state(L, to_proof_state(to_expr(L, 1), to_expr(L, 2), name_generator(*g_tmp_prefix), relax_main_opaque));
+        return push_proof_state(L, to_proof_state(to_expr(L, 1), to_expr(L, 2), name_generator(*g_tmp_prefix)));
     else
-        return push_proof_state(L, to_proof_state(to_expr(L, 1), to_expr(L, 2), to_name_generator(L, 3), relax_main_opaque));
+        return push_proof_state(L, to_proof_state(to_expr(L, 1), to_expr(L, 2), to_name_generator(L, 3)));
 }
 
 static int proof_state_tostring(lua_State * L) {

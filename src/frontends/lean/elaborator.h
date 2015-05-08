@@ -32,14 +32,12 @@ class elaborator : public coercion_info_manager {
     typedef std::vector<pair<expr, expr>> to_check_sorts;
     elaborator_context & m_ctx;
     name_generator       m_ngen;
-    type_checker_ptr     m_tc[2];
+    type_checker_ptr     m_tc;
     // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
     // representing the context where ?m was created.
     local_context        m_context; // current local context: a list of local constants
     local_context        m_full_context; // superset of m_context, it also contains non-contextual locals.
     mvar2meta            m_mvar2meta;
-    // Set of metavariable that where created when m_relax_main_opaque flag is set to true.
-    name_set             m_relaxed_mvars;
     cache                m_cache;
     // The following vector contains sorts that we should check
     // whether the computed universe is too specific or not.
@@ -50,8 +48,6 @@ class elaborator : public coercion_info_manager {
     local_tactic_hints   m_local_tactic_hints;
     // set of metavariables that we already reported unsolved/unassigned
     name_set             m_displayed_errors;
-    // if m_relax_main_opaque is true, then treat opaque definitions from the main module as transparent.
-    bool                 m_relax_main_opaque;
     // if m_no_info is true, we do not collect information when true,
     // we set is to true whenever we find no_info annotation.
     bool                 m_no_info;
@@ -82,12 +78,12 @@ class elaborator : public coercion_info_manager {
 
     expr mk_local(name const & n, expr const & t, binder_info const & bi);
 
-    pair<expr, constraint_seq> infer_type(expr const & e) { return m_tc[m_relax_main_opaque]->infer(e); }
-    pair<expr, constraint_seq> whnf(expr const & e) { return m_tc[m_relax_main_opaque]->whnf(e); }
-    expr infer_type(expr const & e, constraint_seq & s) { return m_tc[m_relax_main_opaque]->infer(e, s); }
-    expr whnf(expr const & e, constraint_seq & s) { return m_tc[m_relax_main_opaque]->whnf(e, s); }
+    pair<expr, constraint_seq> infer_type(expr const & e) { return m_tc->infer(e); }
+    pair<expr, constraint_seq> whnf(expr const & e) { return m_tc->whnf(e); }
+    expr infer_type(expr const & e, constraint_seq & s) { return m_tc->infer(e, s); }
+    expr whnf(expr const & e, constraint_seq & s) { return m_tc->whnf(e, s); }
     bool is_def_eq(expr const & e1, expr const & e2, justification const & j, constraint_seq & cs) {
-        return m_tc[m_relax_main_opaque]->is_def_eq(e1, e2, j, cs);
+        return m_tc->is_def_eq(e1, e2, j, cs);
     }
     expr mk_app(expr const & f, expr const & a, tag g) { return ::lean::mk_app(f, a, g); }
 
@@ -118,7 +114,7 @@ class elaborator : public coercion_info_manager {
     expr visit_by(expr const & e, optional<expr> const & t, constraint_seq & cs);
     expr visit_by_plus(expr const & e, optional<expr> const & t, constraint_seq & cs);
     expr visit_calc_proof(expr const & e, optional<expr> const & t, constraint_seq & cs);
-    expr add_implict_args(expr e, constraint_seq & cs, bool relax);
+    expr add_implict_args(expr e, constraint_seq & cs);
     pair<expr, expr> ensure_fun(expr f, constraint_seq & cs);
     bool has_coercions_from(expr const & a_type);
     bool has_coercions_to(expr d_type);
@@ -126,7 +122,7 @@ class elaborator : public coercion_info_manager {
     pair<expr, constraint_seq> mk_delayed_coercion(expr const & a, expr const & a_type, expr const & expected_type,
                                                    justification const & j);
     pair<expr, constraint_seq> ensure_has_type(expr const & a, expr const & a_type, expr const & expected_type,
-                                               justification const & j, bool relax);
+                                               justification const & j);
 
     bool is_choice_app(expr const & e);
     expr visit_choice_app(expr const & e, constraint_seq & cs);
@@ -167,7 +163,7 @@ class elaborator : public coercion_info_manager {
     expr apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params);
     std::tuple<expr, level_param_names> apply(substitution & s, expr const & e);
     elaborate_result elaborate_nested(list<expr> const & ctx, optional<expr> const & expected_type, expr const & e,
-                                      bool relax, bool use_tactic_hints, substitution const &, bool report_unassigned);
+                                      bool use_tactic_hints, substitution const &, bool report_unassigned);
 
     expr const & get_equation_fn(expr const & eq) const;
     expr visit_equations(expr const & eqns, constraint_seq & cs);
@@ -184,16 +180,14 @@ class elaborator : public coercion_info_manager {
     expr visit_obtain_expr(expr const & e, constraint_seq & cs);
 public:
     elaborator(elaborator_context & ctx, name_generator const & ngen, bool nice_mvar_names = false);
-    std::tuple<expr, level_param_names> operator()(list<expr> const & ctx, expr const & e, bool _ensure_type,
-                                                   bool relax_main_opaque);
-    std::tuple<expr, expr, level_param_names> operator()(expr const & t, expr const & v, name const & n, bool is_opaque);
+    std::tuple<expr, level_param_names> operator()(list<expr> const & ctx, expr const & e, bool _ensure_type);
+    std::tuple<expr, expr, level_param_names> operator()(expr const & t, expr const & v, name const & n);
 };
 
 std::tuple<expr, level_param_names> elaborate(elaborator_context & env, list<expr> const & ctx, expr const & e,
-                                              bool relax_main_opaque, bool ensure_type = false, bool nice_mvar_names = false);
+                                              bool ensure_type = false, bool nice_mvar_names = false);
 
-std::tuple<expr, expr, level_param_names> elaborate(elaborator_context & env, name const & n, expr const & t, expr const & v,
-                                                    bool is_opaque);
+std::tuple<expr, expr, level_param_names> elaborate(elaborator_context & env, name const & n, expr const & t, expr const & v);
 void initialize_elaborator();
 void finalize_elaborator();
 }

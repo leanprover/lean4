@@ -18,7 +18,6 @@ protected:
     extension_context & get_extension(type_checker & tc);
 public:
     virtual ~converter() {}
-    virtual optional<module_idx> get_module_idx() const = 0;
     virtual bool is_opaque(declaration const & d) const = 0;
     virtual optional<declaration> is_delta(expr const & e) const = 0;
 

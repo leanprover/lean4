@@ -18,8 +18,7 @@ void theorem_queue::add(environment const & env, name const & n, level_param_nam
     m_queue.add([=]() {
             level_param_names new_ls;
             expr type, value;
-            bool is_opaque = true; // theorems are always opaque
-            std::tie(type, value, new_ls) = m_parser.elaborate_definition_at(env, lls, n, t, v, is_opaque);
+            std::tie(type, value, new_ls) = m_parser.elaborate_definition_at(env, lls, n, t, v);
             new_ls = append(ls, new_ls);
             value  = expand_abbreviations(env, unfold_untrusted_macros(env, value));
             auto r = check(env, mk_theorem(n, new_ls, type, value));

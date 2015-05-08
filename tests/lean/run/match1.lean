@@ -6,7 +6,7 @@ definition two2 : nat := succ (succ (zero))
 constant f      : nat → nat → nat
 
 (*
-local tc     = type_checker_with_hints(get_env(), true)
+local tc     = type_checker_with_hints(get_env())
 local plugin = whnf_match_plugin(tc)
 function tst_match(p, t)
    local r1, r2   = match(p, t, plugin)

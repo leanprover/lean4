@@ -56,7 +56,7 @@ projection_info const * get_projection_info(environment const & env, name const 
     return ext.m_info.find(p);
 }
 
-static void projection_info_reader(deserializer & d, module_idx, shared_environment & senv,
+static void projection_info_reader(deserializer & d, shared_environment & senv,
                                    std::function<void(asynch_update_fn const &)> &,
                                    std::function<void(delayed_update_fn const &)> &) {
     name p, mk; unsigned nparams, i; bool inst_implicit;

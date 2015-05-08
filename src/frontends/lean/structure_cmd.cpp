@@ -113,7 +113,7 @@ struct structure_cmd_fn {
     bool                        m_gen_proj_mk;
 
     structure_cmd_fn(parser & p):m_p(p), m_env(p.env()), m_ngen(p.mk_ngen()), m_namespace(get_namespace(m_env)) {
-        m_tc = mk_type_checker(m_env, m_p.mk_ngen(), false);
+        m_tc = mk_type_checker(m_env, m_p.mk_ngen());
         m_infer_result_universe = false;
         m_gen_eta     = get_structure_eta_thm(p.get_options());
         m_gen_proj_mk = get_structure_proj_mk_thm(p.get_options());

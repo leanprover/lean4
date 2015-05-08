@@ -132,7 +132,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         bool opaque       = false;
         bool use_conv_opt = false;
         declaration new_d = mk_definition(env, proj_name, lvl_params, proj_type, proj_val,
-                                          opaque, rec_decl.get_module_idx(), use_conv_opt);
+                                          opaque, use_conv_opt);
         new_env = module::add(new_env, check(new_env, new_d));
         new_env = set_reducible(new_env, proj_name, reducible_status::Reducible);
         new_env = add_unfold_c_hint(new_env, proj_name, nparams);

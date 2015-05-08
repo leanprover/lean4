@@ -62,7 +62,7 @@ tactic exact_tactic(elaborate_fn const & elab, expr const & e, bool enforce_type
                     if (allow_metavars) {
                         buffer<goal> new_goals;
                         name_generator ngen = new_s.get_ngen();
-                        auto tc             = mk_type_checker(env, ngen.mk_child(), new_s.relax_main_opaque());
+                        auto tc             = mk_type_checker(env, ngen.mk_child());
                         for_each(*new_e, [&](expr const & m, unsigned) {
                                 if (!has_expr_metavar(m))
                                     return false;

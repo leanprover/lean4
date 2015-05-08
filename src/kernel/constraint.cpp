@@ -16,22 +16,21 @@ struct constraint_cell {
     MK_LEAN_RC()
     constraint_kind m_kind;
     justification   m_jst;
-    bool            m_relax_main_opaque;
-    constraint_cell(constraint_kind k, justification const & j, bool relax):
-        m_rc(1), m_kind(k), m_jst(j), m_relax_main_opaque(relax) {}
+    constraint_cell(constraint_kind k, justification const & j):
+        m_rc(1), m_kind(k), m_jst(j) {}
 };
 struct eq_constraint_cell : public constraint_cell {
     expr m_lhs;
     expr m_rhs;
-    eq_constraint_cell(expr const & lhs, expr const & rhs, justification const & j, bool relax):
-        constraint_cell(constraint_kind::Eq, j, relax),
+    eq_constraint_cell(expr const & lhs, expr const & rhs, justification const & j):
+        constraint_cell(constraint_kind::Eq, j),
         m_lhs(lhs), m_rhs(rhs) {}
 };
 struct level_constraint_cell : public constraint_cell {
     level m_lhs;
     level m_rhs;
     level_constraint_cell(level const & lhs, level const & rhs, justification const & j):
-        constraint_cell(constraint_kind::LevelEq, j, false),
+        constraint_cell(constraint_kind::LevelEq, j),
         m_lhs(lhs), m_rhs(rhs) {}
 };
 struct choice_constraint_cell : public constraint_cell {
@@ -40,8 +39,8 @@ struct choice_constraint_cell : public constraint_cell {
     delay_factor m_delay_factor;
     bool         m_owner;
     choice_constraint_cell(expr const & e, choice_fn const & fn, delay_factor const & f,
-                           bool owner, justification const & j, bool relax):
-        constraint_cell(constraint_kind::Choice, j, relax),
+                           bool owner, justification const & j):
+        constraint_cell(constraint_kind::Choice, j),
         m_expr(e), m_fn(fn), m_delay_factor(f), m_owner(owner) {}
 };
 
@@ -65,16 +64,16 @@ constraint & constraint::operator=(constraint && c) { LEAN_MOVE_REF(c); }
 constraint_kind constraint::kind() const { lean_assert(m_ptr); return m_ptr->m_kind; }
 justification const & constraint::get_justification() const { lean_assert(m_ptr); return m_ptr->m_jst; }
 
-constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j, bool relax_main_opaque) {
-    return constraint(new eq_constraint_cell(lhs, rhs, j, relax_main_opaque));
+constraint mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j) {
+    return constraint(new eq_constraint_cell(lhs, rhs, j));
 }
 constraint mk_level_eq_cnstr(level const & lhs, level const & rhs, justification const & j) {
     return constraint(new level_constraint_cell(lhs, rhs, j));
 }
 constraint mk_choice_cnstr(expr const & m, choice_fn const & fn, delay_factor const & f,
-                           bool owner, justification const & j, bool relax_main_opaque) {
+                           bool owner, justification const & j) {
     lean_assert(is_meta(m));
-    return constraint(new choice_constraint_cell(m, fn, f, owner, j, relax_main_opaque));
+    return constraint(new choice_constraint_cell(m, fn, f, owner, j));
 }
 
 expr const & cnstr_lhs_expr(constraint const & c) {
@@ -85,7 +84,6 @@ expr const & cnstr_rhs_expr(constraint const & c) {
     lean_assert(is_eq_cnstr(c));
     return static_cast<eq_constraint_cell*>(c.raw())->m_rhs;
 }
-bool relax_main_opaque(constraint const & c) { return c.raw()->m_relax_main_opaque; }
 level const & cnstr_lhs_level(constraint const & c) {
     lean_assert(is_level_eq_cnstr(c));
     return static_cast<level_constraint_cell*>(c.raw())->m_lhs;
@@ -119,13 +117,13 @@ bool cnstr_is_owner(constraint const & c) {
 constraint update_justification(constraint const & c, justification const & j) {
     switch (c.kind()) {
     case constraint_kind::Eq:
-        return mk_eq_cnstr(cnstr_lhs_expr(c), cnstr_rhs_expr(c), j, relax_main_opaque(c));
+        return mk_eq_cnstr(cnstr_lhs_expr(c), cnstr_rhs_expr(c), j);
     case constraint_kind::LevelEq:
         return mk_level_eq_cnstr(cnstr_lhs_level(c), cnstr_rhs_level(c), j);
     case constraint_kind::Choice:
         return mk_choice_cnstr(cnstr_expr(c), cnstr_choice_fn(c),
                                static_cast<choice_constraint_cell*>(c.raw())->m_delay_factor,
-                               cnstr_is_owner(c), j, relax_main_opaque(c));
+                               cnstr_is_owner(c), j);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }

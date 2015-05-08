@@ -477,10 +477,10 @@ public:
     /** \brief Elaborate \c e (making sure the result does not have metavariables). */
     std::tuple<expr, level_param_names> elaborate(expr const & e) { return elaborate_at(m_env, e); }
     /** \brief Elaborate the definition n : t := v */
-    std::tuple<expr, expr, level_param_names> elaborate_definition(name const & n, expr const & t, expr const & v, bool is_opaque);
+    std::tuple<expr, expr, level_param_names> elaborate_definition(name const & n, expr const & t, expr const & v);
     /** \brief Elaborate the definition n : t := v in the given environment*/
     std::tuple<expr, expr, level_param_names> elaborate_definition_at(environment const & env, local_level_decls const & lls,
-                                                                      name const & n, expr const & t, expr const & v, bool is_opaque);
+                                                                      name const & n, expr const & t, expr const & v);
 
     expr mk_sorry(pos_info const & p);
     bool used_sorry() const { return m_used_sorry; }

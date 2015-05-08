@@ -720,65 +720,60 @@ elaborator_context parser::mk_elaborator_context(environment const & env, local_
 }
 
 std::tuple<expr, level_param_names> parser::elaborate_relaxed(expr const & e, list<expr> const & ctx) {
-    bool relax            = true;
     bool check_unassigned = false;
     bool ensure_type      = false;
     bool nice_mvar_names  = true;
     parser_pos_provider pp = get_pos_provider();
     elaborator_context env = mk_elaborator_context(pp, check_unassigned);
-    auto r = ::lean::elaborate(env, ctx, e, relax, ensure_type, nice_mvar_names);
+    auto r = ::lean::elaborate(env, ctx, e, ensure_type, nice_mvar_names);
     m_pre_info_manager.clear();
     return r;
 }
 
 std::tuple<expr, level_param_names> parser::elaborate(expr const & e, list<expr> const & ctx) {
-    bool relax            = false;
     bool check_unassigned = true;
     bool ensure_type      = false;
     parser_pos_provider pp = get_pos_provider();
     elaborator_context env = mk_elaborator_context(pp, check_unassigned);
-    auto r = ::lean::elaborate(env, ctx, e, relax, ensure_type);
+    auto r = ::lean::elaborate(env, ctx, e, ensure_type);
     m_pre_info_manager.clear();
     return r;
 }
 
 std::tuple<expr, level_param_names> parser::elaborate_type(expr const & e, list<expr> const & ctx, bool clear_pre_info) {
-    bool relax            = false;
     bool check_unassigned = true;
     bool ensure_type      = true;
     parser_pos_provider pp = get_pos_provider();
     elaborator_context env = mk_elaborator_context(pp, check_unassigned);
-    auto r = ::lean::elaborate(env, ctx, e, relax, ensure_type);
+    auto r = ::lean::elaborate(env, ctx, e, ensure_type);
     if (clear_pre_info)
         m_pre_info_manager.clear();
     return r;
 }
 
 std::tuple<expr, level_param_names> parser::elaborate_at(environment const & env, expr const & e) {
-    bool relax            = false;
     parser_pos_provider pp = get_pos_provider();
     elaborator_context eenv = mk_elaborator_context(env, pp);
-    auto r = ::lean::elaborate(eenv, list<expr>(), e, relax);
+    auto r = ::lean::elaborate(eenv, list<expr>(), e);
     m_pre_info_manager.clear();
     return r;
 }
 
-auto parser::elaborate_definition(name const & n, expr const & t, expr const & v,
-                                  bool is_opaque)
--> std::tuple<expr, expr, level_param_names> {
+auto parser::elaborate_definition(name const & n, expr const & t, expr const & v)
+    -> std::tuple<expr, expr, level_param_names> {
     parser_pos_provider pp = get_pos_provider();
     elaborator_context eenv = mk_elaborator_context(pp);
-    auto r = ::lean::elaborate(eenv, n, t, v, is_opaque);
+    auto r = ::lean::elaborate(eenv, n, t, v);
     m_pre_info_manager.clear();
     return r;
 }
 
 auto parser::elaborate_definition_at(environment const & env, local_level_decls const & lls,
-                                     name const & n, expr const & t, expr const & v, bool is_opaque)
+                                     name const & n, expr const & t, expr const & v)
 -> std::tuple<expr, expr, level_param_names> {
     parser_pos_provider pp = get_pos_provider();
     elaborator_context eenv = mk_elaborator_context(env, lls, pp);
-    auto r = ::lean::elaborate(eenv, n, t, v, is_opaque);
+    auto r = ::lean::elaborate(eenv, n, t, v);
     m_pre_info_manager.clear();
     return r;
 }
@@ -1639,7 +1634,7 @@ static optional<std::string> try_file(std::string const & base, optional<unsigne
 }
 
 static std::string * g_lua_module_key = nullptr;
-static void lua_module_reader(deserializer & d, module_idx, shared_environment &,
+static void lua_module_reader(deserializer & d, shared_environment &,
                               std::function<void(asynch_update_fn const &)> &,
                               std::function<void(delayed_update_fn const &)> & add_delayed_update) {
     name fname;

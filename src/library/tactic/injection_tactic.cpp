@@ -50,7 +50,7 @@ tactic intros_num_tactic(unsigned num, list<name> _ns) {
             return proof_state_seq();
         goal const & g      = head(gs);
         name_generator ngen = s.get_ngen();
-        auto tc             = mk_type_checker(env, ngen.mk_child(), s.relax_main_opaque());
+        auto tc             = mk_type_checker(env, ngen.mk_child());
         expr t              = g.get_type();
         expr m              = g.get_meta();
 
@@ -150,7 +150,7 @@ tactic injection_tactic_core(expr const & e, unsigned num, list<name> const & id
         expr t                 = head(gs).get_type();
         constraint_seq cs;
         name_generator ngen = s.get_ngen();
-        auto tc             = mk_type_checker(env, ngen.mk_child(), s.relax_main_opaque());
+        auto tc             = mk_type_checker(env, ngen.mk_child());
         expr e_type         = tc->whnf(tc->infer(e, cs), cs);
         expr lhs, rhs;
         if (!is_eq(e_type, lhs, rhs)) {

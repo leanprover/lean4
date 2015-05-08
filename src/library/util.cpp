@@ -627,8 +627,7 @@ constraint instantiate_metavars(constraint const & c, substitution & s) {
     case constraint_kind::Eq:
         return mk_eq_cnstr(s.instantiate_all(cnstr_lhs_expr(c)),
                            s.instantiate_all(cnstr_rhs_expr(c)),
-                           c.get_justification(),
-                           relax_main_opaque(c));
+                           c.get_justification());
     case constraint_kind::LevelEq:
         return mk_level_eq_cnstr(s.instantiate(cnstr_lhs_level(c)), s.instantiate(cnstr_rhs_level(c)), c.get_justification());
     case constraint_kind::Choice: {
@@ -642,7 +641,7 @@ constraint instantiate_metavars(constraint const & c, substitution & s) {
         return mk_choice_cnstr(mk_app(mvar, args),
                                cnstr_choice_fn(c),
                                cnstr_delay_factor_core(c),
-                               cnstr_is_owner(c), c.get_justification(), relax_main_opaque(c));
+                               cnstr_is_owner(c), c.get_justification());
     }}
     lean_unreachable(); // LCOV_EXCL_LINE
 }

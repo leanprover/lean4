@@ -21,19 +21,18 @@ class proof_state {
     substitution     m_subst;
     name_generator   m_ngen;
     constraints      m_postponed;
-    bool             m_relax_main_opaque;
     bool             m_report_failure;
 
     format pp_core(std::function<formatter()> const & mk_fmt, options const & opts) const;
 
 public:
     proof_state(goals const & gs, substitution const & s, name_generator const & ngen, constraints const & postponed,
-                bool relax_main_opaque, bool report_failure = true);
+                bool report_failure = true);
     proof_state(proof_state const & s, goals const & gs, substitution const & subst, name_generator const & ngen,
                 constraints const & postponed):
-        proof_state(gs, subst, ngen, postponed, s.relax_main_opaque(), s.report_failure()) {}
+        proof_state(gs, subst, ngen, postponed, s.report_failure()) {}
     proof_state(proof_state const & s, goals const & gs, substitution const & subst, name_generator const & ngen):
-        proof_state(gs, subst, ngen, s.m_postponed, s.relax_main_opaque(), s.report_failure()) {}
+        proof_state(gs, subst, ngen, s.m_postponed, s.report_failure()) {}
     proof_state(proof_state const & s, goals const & gs, substitution const & subst):
         proof_state(s, gs, subst, s.m_ngen) {}
     proof_state(proof_state const & s, goals const & gs, name_generator const & ngen):
@@ -42,7 +41,7 @@ public:
         proof_state(s, gs, s.m_subst) {}
     proof_state(proof_state const & s, substitution const & subst, name_generator const & ngen,
                 constraints const & postponed):
-        proof_state(s.m_goals, subst, ngen, postponed, s.relax_main_opaque(), s.report_failure()) {}
+        proof_state(s.m_goals, subst, ngen, postponed, s.report_failure()) {}
     proof_state(proof_state const & s, name_generator const & ngen, constraints const & postponed):
         proof_state(s, s.m_goals, s.m_subst, ngen, postponed) {}
     proof_state(proof_state const & s, substitution const & subst, name_generator const & ngen):
@@ -53,14 +52,13 @@ public:
         proof_state(s, subst, s.m_ngen) {}
 
     proof_state update_report_failure(bool f) const {
-        return m_report_failure == f ? *this : proof_state(m_goals, m_subst, m_ngen, m_postponed, m_relax_main_opaque, f);
+        return m_report_failure == f ? *this : proof_state(m_goals, m_subst, m_ngen, m_postponed, f);
     }
 
     goals const & get_goals() const { return m_goals; }
     substitution const & get_subst() const { return m_subst; }
     name_generator const & get_ngen() const { return m_ngen; }
     constraints const & get_postponed() const { return m_postponed; }
-    bool relax_main_opaque() const { return m_relax_main_opaque; }
     bool report_failure() const { return m_report_failure; }
 
     /** \brief Return true iff this state does not have any goals left */
@@ -81,9 +79,8 @@ proof_state apply_substitution(proof_state const & s);
 inline optional<proof_state> some_proof_state(proof_state const & s) { return some(s); }
 inline optional<proof_state> none_proof_state() { return optional<proof_state> (); }
 
-proof_state to_proof_state(expr const & meta, expr const & type, substitution const & subst, name_generator ngen,
-                           bool relax_main_opaque);
-proof_state to_proof_state(expr const & meta, expr const & type, name_generator ngen, bool relax_main_opaque);
+proof_state to_proof_state(expr const & meta, expr const & type, substitution const & subst, name_generator ngen);
+proof_state to_proof_state(expr const & meta, expr const & type, name_generator ngen);
 
 goals map_goals(proof_state const & s, std::function<optional<goal>(goal const & g)> f);
 

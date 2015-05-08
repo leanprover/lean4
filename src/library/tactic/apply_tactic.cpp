@@ -80,8 +80,7 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
     }
     bool class_inst   = get_apply_class_instance(ios.get_options());
     name_generator ngen = s.get_ngen();
-    bool relax_opaque = s.relax_main_opaque();
-    std::shared_ptr<type_checker> tc(mk_type_checker(env, ngen.mk_child(), relax_opaque));
+    std::shared_ptr<type_checker> tc(mk_type_checker(env, ngen.mk_child()));
     goal  g           = head(gs);
     goals tail_gs     = tail(gs);
     expr  t           = g.get_type();
@@ -120,7 +119,7 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
                 bool is_strict       = false;
                 auto mc = mk_class_instance_elaborator(
                     env, ios, ctx, ngen.next(), optional<name>(),
-                    relax_opaque, use_local_insts, is_strict,
+                    use_local_insts, is_strict,
                     some_expr(binding_domain(e_t)), e.get_tag(), cfg, nullptr);
                 meta    = mc.first;
                 cs.push_back(mc.second);
@@ -133,7 +132,7 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
         }
     }
     metavar_closure cls(t);
-    cls.mk_constraints(s.get_subst(), justification(), relax_opaque);
+    cls.mk_constraints(s.get_subst(), justification());
     pair<bool, constraint_seq> dcs = tc->is_def_eq(t, e_t);
     if (!dcs.first) {
         throw_tactic_exception_if_enabled(s, [=](formatter const & fmt) {

@@ -580,9 +580,8 @@ class rewrite_fn {
         list<name> const & m_to_unfold;
         bool             & m_unfolded;
     public:
-        rewriter_converter(environment const & env, bool relax_main_opaque, list<name> const & to_unfold,
-                           bool & unfolded):
-            default_converter(env, relax_main_opaque),
+        rewriter_converter(environment const & env, list<name> const & to_unfold, bool & unfolded):
+            default_converter(env),
             m_to_unfold(to_unfold), m_unfolded(unfolded) {}
         virtual bool is_opaque(declaration const & d) const {
             if (std::find(m_to_unfold.begin(), m_to_unfold.end(), d.get_name()) != m_to_unfold.end()) {
@@ -596,9 +595,8 @@ class rewrite_fn {
 
     optional<expr> reduce(expr const & e, list<name> const & to_unfold) {
         bool unfolded          = !to_unfold;
-        bool relax_main_opaque = false;
         auto tc = new type_checker(m_env, m_ngen.mk_child(),
-                                   std::unique_ptr<converter>(new rewriter_converter(m_env, relax_main_opaque, to_unfold, unfolded)));
+                                   std::unique_ptr<converter>(new rewriter_converter(m_env, to_unfold, unfolded)));
         constraint_seq cs;
         bool use_eta = true;
         expr r = normalize(*tc, e, cs, use_eta);
@@ -941,7 +939,7 @@ class rewrite_fn {
         bool use_local_instances = true;
         bool is_strict           = false;
         return ::lean::mk_class_instance_elaborator(m_env, m_ios, m_ctx, m_ngen.next(), optional<name>(),
-                                                    m_ps.relax_main_opaque(), use_local_instances, is_strict,
+                                                    use_local_instances, is_strict,
                                                     some_expr(type), m_expr_loc.get_tag(), cfg, nullptr);
     }
 
@@ -1409,8 +1407,8 @@ class rewrite_fn {
 
     class match_converter : public unfold_reducible_converter {
     public:
-        match_converter(environment const & env, bool relax_main_opaque):
-            unfold_reducible_converter(env, relax_main_opaque, true) {}
+        match_converter(environment const & env):
+            unfold_reducible_converter(env, true) {}
         virtual bool is_opaque(declaration const & d) const {
             if (is_projection(m_env, d.get_name()))
                 return true;
@@ -1424,7 +1422,7 @@ class rewrite_fn {
             return mk_opaque_type_checker(m_env, m_ngen.mk_child());
         } else {
             return std::unique_ptr<type_checker>(new type_checker(m_env, m_ngen.mk_child(),
-                   std::unique_ptr<converter>(new match_converter(m_env, m_ps.relax_main_opaque()))));
+                   std::unique_ptr<converter>(new match_converter(m_env))));
         }
     }
 
@@ -1476,9 +1474,9 @@ class rewrite_fn {
 public:
     rewrite_fn(environment const & env, io_state const & ios, elaborate_fn const & elab, proof_state const & ps):
         m_env(env), m_ios(ios), m_elab(elab), m_ps(ps), m_ngen(ps.get_ngen()),
-        m_tc(mk_type_checker(m_env, m_ngen.mk_child(), ps.relax_main_opaque(), UnfoldQuasireducible)),
+        m_tc(mk_type_checker(m_env, m_ngen.mk_child(), UnfoldQuasireducible)),
         m_matcher_tc(mk_matcher_tc()),
-        m_relaxed_tc(mk_type_checker(m_env, m_ngen.mk_child(), ps.relax_main_opaque())),
+        m_relaxed_tc(mk_type_checker(m_env, m_ngen.mk_child())),
         m_mplugin(m_ios, *m_matcher_tc) {
         m_ps = apply_substitution(m_ps);
         goals const & gs = m_ps.get_goals();

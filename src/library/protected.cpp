@@ -37,7 +37,7 @@ environment add_protected(environment const & env, name const & n) {
     return module::add(new_env, *g_prt_key, [=](serializer & s) { s << n; });
 }
 
-static void protected_reader(deserializer & d, module_idx, shared_environment & senv,
+static void protected_reader(deserializer & d, shared_environment & senv,
                              std::function<void(asynch_update_fn const &)> &,
                              std::function<void(delayed_update_fn const &)> &) {
     name n;

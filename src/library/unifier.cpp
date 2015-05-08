@@ -329,7 +329,7 @@ struct unifier_fn {
     owned_map        m_owned_map; // mapping from metavariable name m to delay factor of the choice constraint that owns m
     expr_map         m_type_map;  // auxiliary map for storing the type of the expr in choice constraints
     unifier_plugin   m_plugin;
-    type_checker_ptr m_tc[2];
+    type_checker_ptr m_tc;
     type_checker_ptr m_flex_rigid_tc; // type checker used when solving flex rigid constraints. By default,
                                       // only the definitions from the main module are treated as transparent.
     unifier_config   m_config;
@@ -438,28 +438,24 @@ struct unifier_fn {
         m_config(cfg), m_num_steps(0) {
         switch (m_config.m_kind) {
         case unifier_kind::Cheap:
-            m_tc[0] = mk_opaque_type_checker(env, m_ngen.mk_child());
-            m_tc[1] = m_tc[0];
-            m_flex_rigid_tc = m_tc[0];
+            m_tc = mk_opaque_type_checker(env, m_ngen.mk_child());
+            m_flex_rigid_tc = m_tc;
             m_config.m_computation = false;
             break;
         case unifier_kind::VeryConservative:
-            m_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false, UnfoldReducible);
-            m_tc[1] = m_tc[0];
-            m_flex_rigid_tc = m_tc[0];
+            m_tc = mk_type_checker(env, m_ngen.mk_child(), UnfoldReducible);
+            m_flex_rigid_tc = m_tc;
             m_config.m_computation = false;
             break;
         case unifier_kind::Conservative:
-            m_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false, UnfoldQuasireducible);
-            m_tc[1] = m_tc[0];
-            m_flex_rigid_tc = m_tc[0];
+            m_tc = mk_type_checker(env, m_ngen.mk_child(), UnfoldQuasireducible);
+            m_flex_rigid_tc = m_tc;
             m_config.m_computation = false;
             break;
         case unifier_kind::Liberal:
-            m_tc[0] = mk_type_checker(env, m_ngen.mk_child(), false);
-            m_tc[1] = mk_type_checker(env, m_ngen.mk_child(), true);
+            m_tc = mk_type_checker(env, m_ngen.mk_child());
             if (!cfg.m_computation)
-                m_flex_rigid_tc = mk_type_checker(env, m_ngen.mk_child(), false, UnfoldQuasireducible);
+                m_flex_rigid_tc = mk_type_checker(env, m_ngen.mk_child(), UnfoldQuasireducible);
             break;
         default:
             lean_unreachable();
@@ -556,12 +552,10 @@ struct unifier_fn {
     }
 
     /** \brief Check if \c t1 and \c t2 are definitionally equal, if they are not, set a conflict with justification \c j
-
-        \remark If relax is true then opaque definitions from the main module are treated as transparent.
     */
-    bool is_def_eq(expr const & t1, expr const & t2, justification const & j, bool relax) {
+    bool is_def_eq(expr const & t1, expr const & t2, justification const & j) {
         try {
-            auto dcs = m_tc[relax]->is_def_eq(t1, t2, j);
+            auto dcs = m_tc->is_def_eq(t1, t2, j);
             if (!dcs.first) {
                 // std::cout << "conflict: " << t1 << " =?= " << t2 << "\n";
                 set_conflict(j);
@@ -607,37 +601,35 @@ struct unifier_fn {
 
     /** \brief Put \c e in weak head normal form.
 
-        \remark If relax is true then opaque definitions from the main module are treated as transparent.
         \remark Constraints generated in the process are stored in \c cs.
     */
-    expr whnf(expr const & e, bool relax, constraint_seq & cs) {
-        return m_tc[relax]->whnf(e, cs);
+    expr whnf(expr const & e, constraint_seq & cs) {
+        return m_tc->whnf(e, cs);
     }
 
     /** \brief Infer \c e type.
 
         \remark Return none if an exception was throw when inferring the type.
-        \remark If relax is true then opaque definitions from the main module are treated as transparent.
         \remark Constraints generated in the process are stored in \c cs.
     */
-    optional<expr> infer(expr const & e, bool relax, constraint_seq & cs) {
+    optional<expr> infer(expr const & e, constraint_seq & cs) {
         try {
-            return some_expr(m_tc[relax]->infer(e, cs));
+            return some_expr(m_tc->infer(e, cs));
         } catch (exception &) {
             return none_expr();
         }
     }
 
-    expr whnf(expr const & e, justification const & j, bool relax, buffer<constraint> & cs) {
+    expr whnf(expr const & e, justification const & j, buffer<constraint> & cs) {
         constraint_seq _cs;
-        expr r = whnf(e, relax, _cs);
+        expr r = whnf(e, _cs);
         to_buffer(_cs, j, cs);
         return r;
     }
 
-    expr flex_rigid_whnf(expr const & e, justification const & j, bool relax, buffer<constraint> & cs) {
+    expr flex_rigid_whnf(expr const & e, justification const & j, buffer<constraint> & cs) {
         if (m_config.m_computation) {
-            return whnf(e, j, relax, cs);
+            return whnf(e, j, cs);
         } else {
             constraint_seq _cs;
             expr r = m_flex_rigid_tc->whnf(e, _cs);
@@ -677,21 +669,19 @@ struct unifier_fn {
        The type of lhs and rhs are inferred, and is_def_eq is invoked.
 
        Any other constraint that contains \c m is revisited
-
-       \remark If relax is true then opaque definitions from the main module are treated as transparent.
     */
-    bool assign(expr const & lhs, expr const & m, buffer<expr> const & args, expr const & rhs, justification const & j, bool relax) {
+    bool assign(expr const & lhs, expr const & m, buffer<expr> const & args, expr const & rhs, justification const & j) {
         lean_assert(is_metavar(m));
         lean_assert(!in_conflict());
         m_subst.assign(m, args, rhs, j);
         constraint_seq cs;
-        auto lhs_type = infer(lhs, relax, cs);
-        auto rhs_type = infer(rhs, relax, cs);
+        auto lhs_type = infer(lhs, cs);
+        auto rhs_type = infer(rhs, cs);
         if (lhs_type && rhs_type) {
             if (!process_constraints(cs, j))
                 return false;
             justification new_j = mk_assign_justification(m, *lhs_type, *rhs_type, j);
-            if (!is_def_eq(*lhs_type, *rhs_type, new_j, relax))
+            if (!is_def_eq(*lhs_type, *rhs_type, new_j))
                 return false;
         } else {
             set_conflict(j);
@@ -754,7 +744,7 @@ struct unifier_fn {
        The method returns \c Failed if \c rhs contains <tt>?m</tt>, or it contains a local constant not in <tt>{l_1, ..., l_n}</tt>.
        Otherwise, it returns \c Continue.
     */
-    status process_metavar_eq(expr const & lhs, expr const & rhs, justification const & j, bool relax) {
+    status process_metavar_eq(expr const & lhs, expr const & rhs, justification const & j) {
         if (!is_meta(lhs))
             return Continue;
         buffer<expr> locals;
@@ -778,9 +768,9 @@ struct unifier_fn {
                     return true;
                 return false;
             };
-            expr rhs_n = normalize(*m_tc[relax], rhs, is_target_fn, cs);
+            expr rhs_n = normalize(*m_tc, rhs, is_target_fn, cs);
             if (rhs != rhs_n && process_constraints(cs))
-                return process_metavar_eq(lhs, rhs_n, j, relax);
+                return process_metavar_eq(lhs, rhs_n, j);
         }
         switch (status) {
         case occurs_check_status::FailLocal:
@@ -793,7 +783,7 @@ struct unifier_fn {
             return Continue;
         case occurs_check_status::Ok:
             lean_assert(!m_subst.is_assigned(*m));
-            if (assign(lhs, *m, locals, rhs, j, relax)) {
+            if (assign(lhs, *m, locals, rhs, j)) {
                 return Solved;
             } else {
                 return Failed;
@@ -803,8 +793,7 @@ struct unifier_fn {
     }
 
     optional<declaration> is_delta(expr const & e) {
-        bool relax_opaque = true;
-        return m_tc[relax_opaque]->is_delta(e);
+        return m_tc->is_delta(e);
     }
 
     /** \brief Return true if lhs and rhs are of the form (f ...) where f can be expanded */
@@ -827,8 +816,7 @@ struct unifier_fn {
             expr rhs = rhs_jst.first;
             if (lhs != cnstr_lhs_expr(c) || rhs != cnstr_rhs_expr(c)) {
                 return mk_pair(mk_eq_cnstr(lhs, rhs,
-                                           mk_composite1(mk_composite1(c.get_justification(), lhs_jst.second), rhs_jst.second),
-                                           relax_main_opaque(c)),
+                                           mk_composite1(mk_composite1(c.get_justification(), lhs_jst.second), rhs_jst.second)),
                                true);
             }
         } else if (is_level_eq_cnstr(c)) {
@@ -849,20 +837,19 @@ struct unifier_fn {
         expr const & lhs = cnstr_lhs_expr(c);
         expr const & rhs = cnstr_rhs_expr(c);
         justification const & jst = c.get_justification();
-        bool relax = relax_main_opaque(c);
 
         if (lhs == rhs)
             return Solved; // trivial constraint
 
         // Update justification using the justification of the instantiated metavariables
         if (!has_metavar(lhs) && !has_metavar(rhs)) {
-            return is_def_eq(lhs, rhs, jst, relax) ? Solved : Failed;
+            return is_def_eq(lhs, rhs, jst) ? Solved : Failed;
         }
 
         // Handle higher-order pattern matching.
-        status st = process_metavar_eq(lhs, rhs, jst, relax);
+        status st = process_metavar_eq(lhs, rhs, jst);
         if (st != Continue) return st;
-        st = process_metavar_eq(rhs, lhs, jst, relax);
+        st = process_metavar_eq(rhs, lhs, jst);
         if (st != Continue) return st;
 
         return Continue;
@@ -909,11 +896,11 @@ struct unifier_fn {
         expr lhs = instantiate_meta(cnstr_lhs_expr(c), j);
         expr rhs = instantiate_meta(cnstr_rhs_expr(c), j);
         if (lhs != cnstr_lhs_expr(c) || rhs != cnstr_rhs_expr(c))
-            return is_def_eq(lhs, rhs, j, relax_main_opaque(c)) ? Solved : Failed;
+            return is_def_eq(lhs, rhs, j) ? Solved : Failed;
         lhs = instantiate_meta_args(lhs, j);
         rhs = instantiate_meta_args(rhs, j);
         if (lhs != cnstr_lhs_expr(c) || rhs != cnstr_rhs_expr(c))
-            return is_def_eq(lhs, rhs, j, relax_main_opaque(c)) ? Solved : Failed;
+            return is_def_eq(lhs, rhs, j) ? Solved : Failed;
         return Continue;
     }
 
@@ -957,7 +944,6 @@ struct unifier_fn {
 
         expr const & lhs = cnstr_lhs_expr(c);
         expr const & rhs = cnstr_rhs_expr(c);
-        bool relax = relax_main_opaque(c);
 
         if (is_eq_deltas(lhs, rhs)) {
             // we need to create a backtracking point for this one
@@ -967,9 +953,9 @@ struct unifier_fn {
             unsigned cidx = add_cnstr(c, cnstr_group::FlexFlex);
             add_meta_occ(lhs, cidx);
             add_meta_occ(rhs, cidx);
-        } else if (m_tc[relax]->may_reduce_later(lhs) ||
-                   m_tc[relax]->may_reduce_later(rhs) ||
-                   m_plugin->delay_constraint(*m_tc[relax], c)) {
+        } else if (m_tc->may_reduce_later(lhs) ||
+                   m_tc->may_reduce_later(rhs) ||
+                   m_plugin->delay_constraint(*m_tc, c)) {
             unsigned cidx = add_cnstr(c, cnstr_group::PluginDelayed);
             add_meta_occs(lhs, cidx);
             add_meta_occs(rhs, cidx);
@@ -1078,9 +1064,8 @@ struct unifier_fn {
                 // should infer it, process generated
                 // constraints and save the result in
                 // m_type_map.
-                bool relax = relax_main_opaque(c);
                 constraint_seq cs;
-                optional<expr> t = infer(m, relax, cs);
+                optional<expr> t = infer(m, cs);
                 if (!t) {
                     set_conflict(c.get_justification());
                     return false;
@@ -1237,8 +1222,7 @@ struct unifier_fn {
             return lazy_list<constraints>();
         justification const & j = c.get_justification();
         constraint_seq cs;
-        bool relax = relax_main_opaque(c);
-        auto fcs = m_tc[relax]->is_def_eq(f_lhs, f_rhs, j);
+        auto fcs = m_tc->is_def_eq(f_lhs, f_rhs, j);
         if (!fcs.first)
             return lazy_list<constraints>();
         cs = fcs.second;
@@ -1248,7 +1232,7 @@ struct unifier_fn {
         if (args_lhs.size() != args_rhs.size())
             return lazy_list<constraints>();
         for (unsigned i = 0; i < args_lhs.size(); i++) {
-            auto acs = m_tc[relax]->is_def_eq(args_lhs[i], args_rhs[i], j);
+            auto acs = m_tc->is_def_eq(args_lhs[i], args_rhs[i], j);
             if (!acs.first)
                 return lazy_list<constraints>();
             cs = acs.second + cs;
@@ -1257,9 +1241,8 @@ struct unifier_fn {
     }
 
     bool process_plugin_constraint(constraint const & c) {
-        bool relax = relax_main_opaque(c);
         lean_assert(!is_choice_cnstr(c));
-        lazy_list<constraints> alts = m_plugin->solve(*m_tc[relax], c, m_ngen.mk_child());
+        lazy_list<constraints> alts = m_plugin->solve(*m_tc, c, m_ngen.mk_child());
         alts = append(alts, process_const_const_cnstr(c));
         return process_lazy_constraints(alts, c.get_justification());
     }
@@ -1274,10 +1257,9 @@ struct unifier_fn {
             m_owned_map.erase(mlocal_name(get_app_fn(m)));
         }
         expr m_type;
-        bool relax = relax_main_opaque(c);
 
         constraint_seq cs;
-        if (auto type = infer(m, relax, cs)) {
+        if (auto type = infer(m, cs)) {
             m_type = *type;
             if (!process_constraints(cs))
                 return false;
@@ -1313,12 +1295,11 @@ struct unifier_fn {
         expr lhs_fn     = get_app_rev_args(lhs, lhs_args);
         expr rhs_fn     = get_app_rev_args(rhs, rhs_args);
         declaration d   = *m_env.find(const_name(lhs_fn));
-        bool relax = relax_main_opaque(c);
         expr lhs_fn_val = instantiate_value_univ_params(d, const_levels(lhs_fn));
         expr rhs_fn_val = instantiate_value_univ_params(d, const_levels(rhs_fn));
         expr t = apply_beta(lhs_fn_val, lhs_args.size(), lhs_args.data());
         expr s = apply_beta(rhs_fn_val, rhs_args.size(), rhs_args.data());
-        auto dcs = m_tc[relax]->is_def_eq(t, s, j);
+        auto dcs = m_tc->is_def_eq(t, s, j);
         if (dcs.first) {
             constraints cnstrs = dcs.second.to_list();
             return process_constraints(cnstrs, extra_j);
@@ -1371,7 +1352,6 @@ struct unifier_fn {
             return unfold_delta(c, justification());
 
         justification a;
-        bool relax = relax_main_opaque(c);
         if (m_config.m_kind == unifier_kind::Liberal &&
             (m_config.m_computation || module::is_definition(m_env, d.get_name()) || is_at_least_quasireducible(m_env, d.get_name()))) {
             // add case_split for t =?= s
@@ -1393,7 +1373,7 @@ struct unifier_fn {
         unsigned i = lhs_args.size();
         while (i > 0) {
             --i;
-            if (!is_def_eq(lhs_args[i], rhs_args[i], new_j, relax))
+            if (!is_def_eq(lhs_args[i], rhs_args[i], new_j))
                 return false;
         }
         return true;
@@ -1429,7 +1409,6 @@ struct unifier_fn {
         expr const &          m;
         expr const &          rhs;
         justification         j;
-        bool                  relax;
         buffer<constraints> & alts; // result: alternatives
         bool                  imitation_only; // if true, then only imitation step is used
 
@@ -1439,12 +1418,12 @@ struct unifier_fn {
         bool pattern() const { return u.m_config.m_pattern; }
 
         type_checker & tc() {
-            return *u.m_tc[relax];
+            return *u.m_tc;
         }
 
         type_checker & restricted_tc() {
             if (u.m_config.m_computation)
-                return *u.m_tc[relax];
+                return *u.m_tc;
             else
                 return *u.m_flex_rigid_tc;
         }
@@ -1529,7 +1508,7 @@ struct unifier_fn {
             expr const & mtype = mlocal_type(m);
             constraint_seq cs;
             expr new_mtype = ensure_sufficient_args(mtype, cs);
-            cs = cs + mk_eq_cnstr(m, mk_lambda_for(new_mtype, rhs), j, relax);
+            cs = cs + mk_eq_cnstr(m, mk_lambda_for(new_mtype, rhs), j);
             alts.push_back(cs.to_list());
         }
 
@@ -1570,7 +1549,7 @@ struct unifier_fn {
             if (tc().is_def_eq_types(marg, rhs, j, cs) &&
                 restricted_is_def_eq(marg, rhs, j, cs)) {
                 expr v = mk_lambda_for(new_mtype, mk_var(vidx));
-                cs = cs + mk_eq_cnstr(m, v, j, relax);
+                cs = cs + mk_eq_cnstr(m, v, j);
                 alts.push_back(cs.to_list());
             }
         }
@@ -1610,7 +1589,7 @@ struct unifier_fn {
                     constraint_seq cs;
                     auto new_mtype = ensure_sufficient_args(mtype, cs);
                     expr v = mk_lambda_for(new_mtype, mk_var(vidx));
-                    cs = cs + mk_eq_cnstr(m, v, j, relax);
+                    cs = cs + mk_eq_cnstr(m, v, j);
                     alts.push_back(cs.to_list());
                     if (cheap())
                         return;
@@ -1694,12 +1673,12 @@ struct unifier_fn {
             if (context_check(type, locals)) {
                 expr maux    = mk_metavar(u.m_ngen.next(), Pi(locals, type));
                 // std::cout << "  >> " << maux << " : " << mlocal_type(maux) << "\n";
-                cs = mk_eq_cnstr(mk_app(maux, margs), arg, j, relax) + cs;
+                cs = mk_eq_cnstr(mk_app(maux, margs), arg, j) + cs;
                 return mk_app(maux, locals);
             } else {
                 expr maux_type   = mk_metavar(u.m_ngen.next(), Pi(locals, mk_sort(mk_meta_univ(u.m_ngen.next()))));
                 expr maux        = mk_metavar(u.m_ngen.next(), Pi(locals, mk_app(maux_type, locals)));
-                cs = mk_eq_cnstr(mk_app(maux, margs), arg, j, relax) + cs;
+                cs = mk_eq_cnstr(mk_app(maux, margs), arg, j) + cs;
                 return mk_app(maux, locals);
             }
         }
@@ -1719,7 +1698,7 @@ struct unifier_fn {
                 }
             } catch (exception&) {}
             expr v = Fun(locals, mk_app(f, sargs));
-            cs += mk_eq_cnstr(m, v, j, relax);
+            cs += mk_eq_cnstr(m, v, j);
             alts.push_back(cs.to_list());
         }
 
@@ -1797,7 +1776,7 @@ struct unifier_fn {
                 expr binding   = is_pi(rhs) ? Pi(local, B) : Fun(local, B);
                 locals.pop_back();
                 expr v         = Fun(locals, binding);
-                cs += mk_eq_cnstr(m, v, j, relax);
+                cs += mk_eq_cnstr(m, v, j);
                 alts.push_back(cs.to_list());
             } catch (exception&) {}
             margs.pop_back();
@@ -1805,9 +1784,9 @@ struct unifier_fn {
 
     public:
         flex_rigid_core_fn(unifier_fn & _u, expr const & _lhs, expr const & _rhs,
-                           justification const & _j, bool _relax, buffer<constraints> & _alts,
+                           justification const & _j, buffer<constraints> & _alts,
                            bool _imitation_only):
-            u(_u), lhs(_lhs), m(get_app_args(lhs, margs)), rhs(_rhs), j(_j), relax(_relax), alts(_alts),
+            u(_u), lhs(_lhs), m(get_app_args(lhs, margs)), rhs(_rhs), j(_j), alts(_alts),
             imitation_only(_imitation_only) {}
 
         void operator()() {
@@ -1838,9 +1817,9 @@ struct unifier_fn {
         }
     };
 
-    void process_flex_rigid_core(expr const & lhs, expr const & rhs, justification const & j, bool relax,
+    void process_flex_rigid_core(expr const & lhs, expr const & rhs, justification const & j,
                                  buffer<constraints> & alts, bool imitation_only) {
-        flex_rigid_core_fn(*this, lhs, rhs, j, relax, alts, imitation_only)();
+        flex_rigid_core_fn(*this, lhs, rhs, j, alts, imitation_only)();
     }
 
     /** \brief When lhs is an application (f ...), make sure that if any argument that is reducible to a
@@ -1849,14 +1828,14 @@ struct unifier_fn {
         \remark We store auxiliary constraints created in the reductions in \c aux. We return the new
         "reduce" application.
     */
-    expr expose_local_args(expr const & lhs, justification const & j, bool relax, buffer<constraint> & aux) {
+    expr expose_local_args(expr const & lhs, justification const & j, buffer<constraint> & aux) {
         buffer<expr> margs;
         expr m        = get_app_args(lhs, margs);
         bool modified = false;
         for (expr & marg : margs) {
             // Make sure that if marg is reducible to a local constant, then it is replaced with it.
             if (!is_local(marg)) {
-                expr new_marg = whnf(marg, j, relax, aux);
+                expr new_marg = whnf(marg, j, aux);
                 if (is_local(new_marg)) {
                     marg     = new_marg;
                     modified = true;
@@ -1866,14 +1845,14 @@ struct unifier_fn {
         return modified ? mk_app(m, margs) : lhs;
     }
 
-    optional<expr> expand_rhs(expr const & rhs, bool relax) {
+    optional<expr> expand_rhs(expr const & rhs) {
         buffer<expr> args;
         expr const & f = get_app_rev_args(rhs, args);
         lean_assert(!is_local(f) && !is_constant(f) && !is_var(f) && !is_metavar(f));
         if (is_lambda(f)) {
             return some_expr(apply_beta(f, args.size(), args.data()));
         } else if (is_macro(f)) {
-            if (optional<expr> new_f = m_tc[relax]->expand_macro(f))
+            if (optional<expr> new_f = m_tc->expand_macro(f))
                 return some_expr(mk_rev_app(*new_f, args.size(), args.data()));
         }
         return none_expr();
@@ -1907,42 +1886,42 @@ struct unifier_fn {
     }
 
     /** \brief Process a flex rigid constraint */
-    bool process_flex_rigid(expr lhs, expr const & rhs, justification const & j, bool relax) {
+    bool process_flex_rigid(expr lhs, expr const & rhs, justification const & j) {
         lean_assert(is_meta(lhs));
         lean_assert(!is_meta(rhs));
         if (is_app(rhs)) {
             expr const & f = get_app_fn(rhs);
             if (!is_local(f) && !is_constant(f)) {
-                if (auto new_rhs = expand_rhs(rhs, relax)) {
+                if (auto new_rhs = expand_rhs(rhs)) {
                     lean_assert(*new_rhs != rhs);
-                    return is_def_eq(lhs, *new_rhs, j, relax);
+                    return is_def_eq(lhs, *new_rhs, j);
                 } else {
                     return false;
                 }
             }
         } else if (is_macro(rhs)) {
-            if (auto new_rhs = expand_rhs(rhs, relax)) {
+            if (auto new_rhs = expand_rhs(rhs)) {
                 lean_assert(*new_rhs != rhs);
-                return is_def_eq(lhs, *new_rhs, j, relax);
+                return is_def_eq(lhs, *new_rhs, j);
             } else {
                 return false;
             }
         }
 
         buffer<constraint> aux;
-        lhs = expose_local_args(lhs, j, relax, aux);
+        lhs = expose_local_args(lhs, j, aux);
         buffer<constraints> alts;
-        process_flex_rigid_core(lhs, rhs, j, relax, alts, false);
+        process_flex_rigid_core(lhs, rhs, j, alts, false);
         append_auxiliary_constraints(alts, to_list(aux.begin(), aux.end()));
         if (use_flex_rigid_whnf_split(lhs, rhs)) {
-            expr rhs_whnf = flex_rigid_whnf(rhs, j, relax, aux);
+            expr rhs_whnf = flex_rigid_whnf(rhs, j, aux);
             if (rhs_whnf != rhs) {
                 if (is_meta(rhs_whnf)) {
                     // it become a flex-flex constraint
-                    alts.push_back(constraints(mk_eq_cnstr(lhs, rhs_whnf, j, relax)));
+                    alts.push_back(constraints(mk_eq_cnstr(lhs, rhs_whnf, j)));
                 } else {
                     buffer<constraints> alts2;
-                    process_flex_rigid_core(lhs, rhs_whnf, j, relax, alts2, true);
+                    process_flex_rigid_core(lhs, rhs_whnf, j, alts2, true);
                     append_auxiliary_constraints(alts2, to_list(aux.begin(), aux.end()));
                     alts.append(alts2);
                 }
@@ -1975,11 +1954,10 @@ struct unifier_fn {
         lean_assert(is_flex_rigid(c));
         expr lhs   = cnstr_lhs_expr(c);
         expr rhs   = cnstr_rhs_expr(c);
-        bool relax = relax_main_opaque(c);
         if (is_meta(lhs))
-            return process_flex_rigid(lhs, rhs, c.get_justification(), relax);
+            return process_flex_rigid(lhs, rhs, c.get_justification());
         else
-            return process_flex_rigid(rhs, lhs, c.get_justification(), relax);
+            return process_flex_rigid(rhs, lhs, c.get_justification());
     }
 
     void postpone(constraint const & c) {
@@ -2019,9 +1997,9 @@ struct unifier_fn {
                 break;
         if (i == min_sz) {
             if (lhs_args.size() >= rhs_args.size()) {
-                return assign(lhs, ml, lhs_args, rhs, c.get_justification(), relax_main_opaque(c));
+                return assign(lhs, ml, lhs_args, rhs, c.get_justification());
             } else {
-                return assign(rhs, mr, rhs_args, lhs, c.get_justification(), relax_main_opaque(c));
+                return assign(rhs, mr, rhs_args, lhs, c.get_justification());
             }
         } else {
             discard(c);
@@ -2263,7 +2241,7 @@ struct unifier_fn {
                 if (is_delta_cnstr(c)) {
                     return process_delta(c);
                 } else if (modified) {
-                    return is_def_eq(cnstr_lhs_expr(c), cnstr_rhs_expr(c), c.get_justification(), relax_main_opaque(c));
+                    return is_def_eq(cnstr_lhs_expr(c), cnstr_rhs_expr(c), c.get_justification());
                 } else if (auto d = is_owned(c)) {
                     // Metavariable in the constraint is owned by choice constraint.
                     // choice constraint was postponed... since c was not modifed
@@ -2353,13 +2331,13 @@ unify_result_seq unify(environment const & env,  unsigned num_cs, constraint con
 }
 
 unify_result_seq unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
-                       bool relax, substitution const & s, unifier_config const & cfg) {
+                       substitution const & s, unifier_config const & cfg) {
     substitution new_s = s;
     expr _lhs = new_s.instantiate(lhs);
     expr _rhs = new_s.instantiate(rhs);
     auto u = std::make_shared<unifier_fn>(env, 0, nullptr, ngen, new_s, cfg);
     constraint_seq cs;
-    if (!u->m_tc[relax]->is_def_eq(_lhs, _rhs, justification(), cs) || !u->process_constraints(cs)) {
+    if (!u->m_tc->is_def_eq(_lhs, _rhs, justification(), cs) || !u->process_constraints(cs)) {
         return unify_result_seq();
     } else {
         return unify(u);
@@ -2485,13 +2463,13 @@ static int unify(lua_State * L) {
     unify_result_seq r;
     environment const & env = to_environment(L, 1);
     if (is_expr(L, 2)) {
-        if (nargs == 7)
-            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4), lua_toboolean(L, 5), to_substitution(L, 6),
-                      unifier_config(to_options(L, 7)));
-        else if (nargs == 6)
-            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4), lua_toboolean(L, 5), to_substitution(L, 6));
+        if (nargs == 6)
+            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4), to_substitution(L, 5),
+                      unifier_config(to_options(L, 6)));
+        else if (nargs == 5)
+            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4), to_substitution(L, 5));
         else
-            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4), lua_toboolean(L, 5));
+            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4));
     } else {
         buffer<constraint> cs;
         to_constraint_buffer(L, 2, cs);
@@ -2539,7 +2517,7 @@ void initialize_unifier() {
     register_bool_option(*g_unifier_nonchronological, LEAN_DEFAULT_UNIFIER_NONCHRONOLOGICAL,
                          "(unifier) enable/disable nonchronological backtracking in the unifier (this option is only available for debugging and benchmarking purposes, and running experiments)");
 
-    g_dont_care_cnstr = new constraint(mk_eq_cnstr(expr(), expr(), justification(), false));
+    g_dont_care_cnstr = new constraint(mk_eq_cnstr(expr(), expr(), justification()));
     g_tmp_prefix      = new name(name::mk_internal_unique_name());
 }
 

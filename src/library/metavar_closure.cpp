@@ -45,10 +45,10 @@ void metavar_closure::for_each_level_mvar(std::function<void(level const &)> con
     m_lvl_mvars.for_each(fn);
 }
 
-void metavar_closure::mk_constraints(substitution s, justification const & j, bool relax, buffer<constraint> & r) const {
+void metavar_closure::mk_constraints(substitution s, justification const & j, buffer<constraint> & r) const {
     m_expr_mvars.for_each([&](expr const & m) {
             if (s.is_expr_assigned(mlocal_name(m)))
-                r.push_back(mk_eq_cnstr(m, s.instantiate(m), j, relax));
+                r.push_back(mk_eq_cnstr(m, s.instantiate(m), j));
         });
     m_lvl_mvars.for_each([&](level const & m) {
             if (s.is_level_assigned(meta_id(m)))
@@ -56,9 +56,9 @@ void metavar_closure::mk_constraints(substitution s, justification const & j, bo
         });
 }
 
-constraints metavar_closure::mk_constraints(substitution s, justification const & j, bool relax) const {
+constraints metavar_closure::mk_constraints(substitution s, justification const & j) const {
     buffer<constraint> cs;
-    mk_constraints(s, j, relax, cs);
+    mk_constraints(s, j, cs);
     return to_list(cs.begin(), cs.end());
 }
 }

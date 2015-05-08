@@ -1721,8 +1721,7 @@ class equation_compiler_fn {
 
 
 public:
-    equation_compiler_fn(type_checker & tc, io_state const & ios, expr const & meta, expr const & meta_type,
-                         bool /* relax */):
+    equation_compiler_fn(type_checker & tc, io_state const & ios, expr const & meta, expr const & meta_type):
         m_tc(tc), m_ios(ios), m_meta(meta), m_meta_type(meta_type) {
         get_app_args(m_meta, m_global_context);
     }
@@ -1746,7 +1745,7 @@ public:
 };
 
 expr compile_equations(type_checker & tc, io_state const & ios, expr const & eqns,
-                       expr const & meta, expr const & meta_type, bool relax) {
-    return equation_compiler_fn(tc, ios, meta, meta_type, relax)(eqns);
+                       expr const & meta, expr const & meta_type) {
+    return equation_compiler_fn(tc, ios, meta, meta_type)(eqns);
 }
 }

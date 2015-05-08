@@ -14,17 +14,14 @@ Author: Leonardo de Moura
 namespace lean {
 static expr * g_dont_care = nullptr;
 
-default_converter::default_converter(environment const & env, optional<module_idx> mod_idx, bool memoize):
-    m_env(env), m_module_idx(mod_idx), m_memoize(memoize) {
+default_converter::default_converter(environment const & env, bool memoize):
+    m_env(env), m_memoize(memoize) {
     m_tc  = nullptr;
     m_jst = nullptr;
 }
 
-default_converter::default_converter(environment const & env, bool relax_main_opaque, bool memoize):
-    default_converter(env, relax_main_opaque ? optional<module_idx>(0) : optional<module_idx>(), memoize) {}
-
 constraint default_converter::mk_eq_cnstr(expr const & lhs, expr const & rhs, justification const & j) {
-    return ::lean::mk_eq_cnstr(lhs, rhs, j, static_cast<bool>(m_module_idx));
+    return ::lean::mk_eq_cnstr(lhs, rhs, j);
 }
 
 optional<expr> default_converter::expand_macro(expr const & m) {
@@ -115,7 +112,6 @@ bool default_converter::is_opaque(declaration const & d) const {
     lean_assert(d.is_definition());
     if (d.is_theorem()) return true;                               // theorems are always opaque
     if (!d.is_opaque()) return false;                              // d is a transparent definition
-    if (m_module_idx && d.get_module_idx() == *m_module_idx) return false; // the opaque definitions in mod_idx are considered transparent
     return true;                                                   // d is opaque
 }
 

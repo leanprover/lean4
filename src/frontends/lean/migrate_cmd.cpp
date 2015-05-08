@@ -45,7 +45,7 @@ class migrate_converter : public unfold_semireducible_converter {
     list<name> m_namespaces;
 public:
     migrate_converter(environment const & env, list<name> const & ns):
-        unfold_semireducible_converter(env, true, true),
+        unfold_semireducible_converter(env, true),
         m_namespaces(ns) {
     }
 
@@ -420,7 +420,7 @@ struct migrate_cmd_fn {
         m_migrate_tc = std::unique_ptr<type_checker>(new type_checker(m_env, m_ngen.mk_child(),
                        std::unique_ptr<converter>(new migrate_converter(m_env, get_namespaces(m_env)))));
         m_tc = std::unique_ptr<type_checker>(new type_checker(m_env, m_ngen.mk_child(),
-               std::unique_ptr<converter>(new unfold_semireducible_converter(m_env, true, true))));
+               std::unique_ptr<converter>(new unfold_semireducible_converter(m_env, true))));
 
         parse_params();
         parse_from_namespace();

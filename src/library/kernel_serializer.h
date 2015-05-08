@@ -27,7 +27,7 @@ expr read_expr(deserializer & d);
 inline deserializer & operator>>(deserializer & d, expr & e) { e = read_expr(d); return d; }
 
 serializer & operator<<(serializer & s, declaration const & d);
-declaration read_declaration(deserializer & d, module_idx midx);
+declaration read_declaration(deserializer & d);
 
 typedef std::tuple<level_param_names, unsigned, list<inductive::inductive_decl>> inductive_decls;
 serializer & operator<<(serializer & s, inductive_decls const & ds);

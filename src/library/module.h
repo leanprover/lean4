@@ -76,7 +76,7 @@ typedef std::function<environment(environment const & env, io_state const & ios)
      2- Asynchronous update using add_asynch_update.
      3- Delayed update using add_delayed_update.
 */
-typedef void (*module_object_reader)(deserializer & d, module_idx midx, shared_environment & senv,
+typedef void (*module_object_reader)(deserializer & d, shared_environment & senv,
                                      std::function<void(asynch_update_fn const &)> & add_asynch_update,
                                      std::function<void(delayed_update_fn const &)> & add_delayed_update);
 

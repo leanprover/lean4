@@ -180,7 +180,7 @@ environment mk_cases_on(environment const & env, name const & n) {
     bool opaque       = false;
     bool use_conv_opt = true;
     declaration new_d = mk_definition(env, cases_on_name, rec_decl.get_univ_params(), cases_on_type, cases_on_value,
-                                      opaque, rec_decl.get_module_idx(), use_conv_opt);
+                                      opaque, use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
     new_env = set_reducible(new_env, cases_on_name, reducible_status::Reducible);
     new_env = add_unfold_c_hint(new_env, cases_on_name, cases_on_major_idx);

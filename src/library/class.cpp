@@ -187,7 +187,7 @@ environment add_instance(environment const & env, name const & n, unsigned prior
     declaration d = env.get(n);
     expr type = d.get_type();
     name_generator ngen(*g_tmp_prefix);
-    auto tc = mk_type_checker(env, ngen, false);
+    auto tc = mk_type_checker(env, ngen);
     while (true) {
         type = tc->whnf(type).first;
         if (!is_pi(type))

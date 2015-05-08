@@ -24,7 +24,7 @@ tactic contradiction_tactic() {
         expr const & t      = g.get_type();
         substitution subst  = s.get_subst();
         name_generator ngen = s.get_ngen();
-        auto tc             = mk_type_checker(env, ngen.mk_child(), s.relax_main_opaque());
+        auto tc             = mk_type_checker(env, ngen.mk_child());
         buffer<expr> hyps;
         g.get_hyps(hyps);
         for (expr const & h : hyps) {

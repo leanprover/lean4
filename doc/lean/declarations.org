@@ -41,69 +41,6 @@ previous example would produce a typing error because the type checker
 would be unable to unfold =id= and establish that =nat= and =id nat=
 are definitionally equal.
 
-** Opaque definitions
-
-Opaque definitions are similar to regular definitions, but they are
-only _transparent_ in the module/file where they were defined.  The
-idea is to allow us to prove theorems about the opaque definition =C=
-in the module where it was defined. In other modules, we can only rely
-on these theorems. That is, the actual definition is
-hidden/encapsulated, and the module designer is free to change it
-without affecting its "customers".
-
-Actually, the opaque definition is only treated as transparent inside of
-other opaque definitions/theorems in the same module.
-
-Here is an example
-
-#+BEGIN_SRC lean
-    import data.nat
-    opaque definition id {A : Type} (a : A) : A := a
-    -- The following command is type correct since it is being executed in the
-    -- same file where id was defined
-    check λ (x : nat) (y : id nat), x = y
-
-    -- The following theorem is also type correct since id is being treated as
-    -- transparent only in the proof by reflexivity.
-    theorem id_eq {A : Type} (a : A) : id a = a :=
-    eq.refl a
-
-    -- The following transparent definition is also type correct. It uses
-    -- id but it can be type checked without unfolding id.
-    definition id2 {A : Type} (a : A) : A :=
-    id a
-
-    -- The following definition is type incorrect. It only type checks if
-    -- we unfold id, but it is not allowed because the definition is opaque.
-    /-
-    definition buggy_def {A : Type} (a : A) : Prop :=
-    ∀ (b : id A), a = b
-    -/
-#+END_SRC
-
-Theorems are always opaque, but we should be able to type check their type
-in any module. The following theorem is type incorrect because we need to
-unfold the opaque definition =id= to type check it.
-
-#+BEGIN_SRC lean
-    import data.unit
-    opaque definition id {A : Type} (a : A) : A := a
-    /-
-    theorem buggy_thm (a : unit) (b : id unit) : a = b :=
-    unit.equal a b
-    -/
-#+END_SRC
-
-In contrast, the following theorem is type correct because =id= is
-transparent in this example.
-
-#+BEGIN_SRC lean
-  import data.unit
-  definition id {A : Type} (a : A) : A := a
-  theorem simple (a : unit) (b : id unit) : a = b :=
-  unit.equal a b
-#+END_SRC
-
 ** Private definitions and theorems
 
 Sometimes it is useful to hide auxiliary definitions and theorems from

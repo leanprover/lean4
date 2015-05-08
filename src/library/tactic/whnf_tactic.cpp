@@ -11,13 +11,13 @@ Author: Leonardo de Moura
 #include "library/tactic/whnf_tactic.h"
 
 namespace lean {
-tactic whnf_tactic(bool relax_main_opaque) {
+tactic whnf_tactic() {
     return tactic01([=](environment const & env, io_state const & ios, proof_state const & ps) {
             goals const & gs = ps.get_goals();
             if (empty(gs))
                 return none_proof_state();
             name_generator ngen = ps.get_ngen();
-            auto tc             = mk_type_checker(env, ngen.mk_child(), relax_main_opaque);
+            auto tc             = mk_type_checker(env, ngen.mk_child());
             goal  g             = head(gs);
             goals tail_gs       = tail(gs);
             expr  type          = g.get_type();

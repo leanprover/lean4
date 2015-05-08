@@ -23,7 +23,7 @@ typedef std::function<void(expr const &)> update_type_info_fn;
 constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
                                local_context const & ctx, expr const & m, expr const & e,
                                constraint_seq const & cs, unifier_config const & cfg,
-                               info_manager * im, bool relax, update_type_info_fn const & fn);
+                               info_manager * im, update_type_info_fn const & fn);
 
 void initialize_calc_proof_elaborator();
 void finalize_calc_proof_elaborator();

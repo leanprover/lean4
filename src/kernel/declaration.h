@@ -12,21 +12,6 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-/**
-    \brief Module index. The kernel provides only basic support
-    for implementing a module system outside of the kernel.
-
-    We need at least the notion of module index in the kernel, because
-    it affects the convertability procedure.
-
-    Given an opaque definition (non-theorem) d in module m1, then d is considered
-    to be transparent for any other opaque definition in module m1.
-*/
-typedef unsigned module_idx;
-/** \brief The main module is the module being currently compiled. We always assigned it the index 0. */
-constexpr module_idx g_main_module_idx = 0;
-constexpr module_idx g_null_module_idx = std::numeric_limits<unsigned>::max();
-
 /** \brief Environment definitions, theorems, axioms and variable declarations. */
 class declaration {
     struct cell;
@@ -67,14 +52,13 @@ public:
     expr const & get_value() const;
     bool is_opaque() const;
     unsigned get_weight() const;
-    module_idx get_module_idx() const;
     bool use_conv_opt() const;
 
     friend declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t,
-                                    expr const & v, bool opaque, module_idx mod_idx, bool use_conv_opt);
+                                    expr const & v, bool opaque, bool use_conv_opt);
     friend declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v, bool opaque,
-                                    unsigned weight, module_idx mod_idx, bool use_conv_opt);
-    friend declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v, module_idx mod_idx);
+                                    unsigned weight, bool use_conv_opt);
+    friend declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
     friend declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
     friend declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t);
 };
@@ -84,10 +68,10 @@ inline optional<declaration> some_declaration(declaration const & o) { return op
 inline optional<declaration> some_declaration(declaration && o) { return optional<declaration>(std::forward<declaration>(o)); }
 
 declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
-                         bool opaque = false, unsigned weight = 0, module_idx mod_idx = 0, bool use_conv_opt = true);
+                         bool opaque = false, unsigned weight = 0, bool use_conv_opt = true);
 declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v,
-                         bool opaque = false, module_idx mod_idx = 0, bool use_conv_opt = true);
-declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v, module_idx mod_idx = 0);
+                         bool opaque = false, bool use_conv_opt = true);
+declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v);
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t);
 declaration mk_constant_assumption(name const & n, level_param_names const & params, expr const & t);
 

@@ -244,7 +244,7 @@ public:
             return update(env, get(env)._add_entry(env, ios, e));
         }
     }
-    static void reader(deserializer & d, module_idx, shared_environment &,
+    static void reader(deserializer & d, shared_environment &,
                        std::function<void(asynch_update_fn const &)> &,
                        std::function<void(delayed_update_fn const &)> & add_delayed_update) {
         name n;

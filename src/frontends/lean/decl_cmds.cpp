@@ -1143,15 +1143,15 @@ class definition_cmd_fn {
         }
     }
 
-    std::tuple<expr, expr, level_param_names> elaborate_definition(expr const & type, expr const & value, bool is_opaque) {
+    std::tuple<expr, expr, level_param_names> elaborate_definition(expr const & type, expr const & value) {
         if (m_p.profiling()) {
             std::ostringstream msg;
             display_pos(msg);
             msg << " elaboration time for " << m_name;
             timeit timer(m_p.diagnostic_stream().get_stream(), msg.str().c_str());
-            return m_p.elaborate_definition(m_name, type, value, is_opaque);
+            return m_p.elaborate_definition(m_name, type, value);
         } else {
-            return m_p.elaborate_definition(m_name, type, value, is_opaque);
+            return m_p.elaborate_definition(m_name, type, value);
         }
     }
 
@@ -1161,7 +1161,7 @@ class definition_cmd_fn {
     void elaborate_multi() {
         lean_assert(!m_aux_decls.empty());
         level_param_names new_ls;
-        std::tie(m_type, m_value, new_ls) = elaborate_definition(m_type, m_value, m_is_opaque);
+        std::tie(m_type, m_value, new_ls) = elaborate_definition(m_type, m_value);
         new_ls = append(m_ls, new_ls);
         lean_assert(m_aux_types.empty());
         buffer<expr> aux_values;
@@ -1212,7 +1212,7 @@ class definition_cmd_fn {
                     m_p.add_delayed_theorem(m_env, m_real_name, m_ls, type_as_is, m_value);
                     m_env = module::add(m_env, check(mk_axiom(m_real_name, m_ls, m_type)));
                 } else {
-                    std::tie(m_type, m_value, new_ls) = elaborate_definition(type_as_is, m_value, m_is_opaque);
+                    std::tie(m_type, m_value, new_ls) = elaborate_definition(type_as_is, m_value);
                     m_type  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
                     m_value = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_value));
                     new_ls = append(m_ls, new_ls);
@@ -1228,7 +1228,7 @@ class definition_cmd_fn {
                     }
                 }
             } else {
-                std::tie(m_type, m_value, new_ls) = elaborate_definition(m_type, m_value, m_is_opaque);
+                std::tie(m_type, m_value, new_ls) = elaborate_definition(m_type, m_value);
                 new_ls = append(m_ls, new_ls);
                 m_type  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
                 m_value = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_value));

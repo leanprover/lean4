@@ -232,7 +232,7 @@ environment declare_quotient(environment const & env) {
     return add(new_env, *g_quotient, [=](serializer &) {});
 }
 
-static void quotient_reader(deserializer &, module_idx, shared_environment & senv,
+static void quotient_reader(deserializer &, shared_environment & senv,
                             std::function<void(asynch_update_fn const &)>  &,
                             std::function<void(delayed_update_fn const &)> &) {
     senv.update([&](environment const & env) {
@@ -245,7 +245,7 @@ environment declare_hits(environment const & env) {
     return add(new_env, *g_hits, [=](serializer &) {});
 }
 
-static void hits_reader(deserializer &, module_idx, shared_environment & senv,
+static void hits_reader(deserializer &, shared_environment & senv,
                         std::function<void(asynch_update_fn const &)>  &,
                         std::function<void(delayed_update_fn const &)> &) {
     senv.update([&](environment const & env) {
@@ -266,7 +266,7 @@ environment add_inductive(environment                  env,
         });
 }
 
-static void inductive_reader(deserializer & d, module_idx, shared_environment & senv,
+static void inductive_reader(deserializer & d, shared_environment & senv,
                              std::function<void(asynch_update_fn const &)>  &,
                              std::function<void(delayed_update_fn const &)> &) {
     inductive_decls ds = read_inductive_decls(d);
@@ -282,7 +282,7 @@ environment add_inductive(environment const & env, name const & ind_name, level_
 } // end of namespace module
 
 struct import_modules_fn {
-    typedef std::tuple<module_idx, unsigned, delayed_update_fn> delayed_update;
+    typedef std::tuple<unsigned, unsigned, delayed_update_fn> delayed_update;
     shared_environment             m_senv;
     unsigned                       m_num_threads;
     bool                           m_keep_proofs;
@@ -367,7 +367,7 @@ struct import_modules_fn {
             module_info_ptr r = std::make_shared<module_info>();
             r->m_fname        = fname;
             r->m_counter      = 0;
-            r->m_module_idx   = g_null_module_idx;
+            r->m_module_idx   = 0;
             m_import_counter++;
             std::string new_base = dirname(fname.c_str());
             std::swap(r->m_obj_code, code);
@@ -407,9 +407,9 @@ struct import_modules_fn {
         return mk_axiom(decl.get_name(), decl.get_univ_params(), decl.get_type());
     }
 
-    void import_decl(deserializer & d, module_idx midx) {
-        declaration decl = read_declaration(d, midx);
-        lean_assert(!decl.is_definition() || decl.get_module_idx() == midx);
+    void import_decl(deserializer & d) {
+        declaration decl = read_declaration(d);
+        lean_assert(!decl.is_definition());
         environment env  = m_senv.env();
         decl = unfold_untrusted_macros(env, decl);
         if (decl.get_name() == get_sorry_name() && has_sorry(env))
@@ -465,7 +465,7 @@ struct import_modules_fn {
             if (k == g_olean_end_file) {
                 break;
             } else if (k == *g_decl_key) {
-                import_decl(d, r->m_module_idx);
+                import_decl(d);
             } else if (k == *g_glvl_key) {
                 import_universe(d);
             } else {
@@ -473,7 +473,7 @@ struct import_modules_fn {
                 auto it = readers.find(k);
                 if (it == readers.end())
                     throw exception(sstream() << "file '" << r->m_fname << "' has been corrupted, unknown object");
-                it->second(d, r->m_module_idx, m_senv, add_asynch_update, add_delayed_update);
+                it->second(d, m_senv, add_asynch_update, add_delayed_update);
             }
             obj_counter++;
         }

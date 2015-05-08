@@ -460,7 +460,7 @@ environment end_scoped_cmd(parser & p) {
 environment check_cmd(parser & p) {
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
-    auto tc = mk_type_checker(p.env(), p.mk_ngen(), true);
+    auto tc = mk_type_checker(p.env(), p.mk_ngen());
     expr type = tc->check(e, ls).first;
     auto reg              = p.regular_stream();
     formatter fmt         = reg.get_formatter();
@@ -481,7 +481,7 @@ environment check_cmd(parser & p) {
 class all_transparent_converter : public default_converter {
 public:
     all_transparent_converter(environment const & env):
-        default_converter(env, optional<module_idx>(), true) {
+        default_converter(env) {
     }
     virtual bool is_opaque(declaration const &) const {
         return false;
@@ -502,7 +502,7 @@ environment eval_cmd(parser & p) {
     std::tie(e, ls) = parse_local_expr(p);
     expr r;
     if (whnf) {
-        auto tc = mk_type_checker(p.env(), p.mk_ngen(), true);
+        auto tc = mk_type_checker(p.env(), p.mk_ngen());
         r = tc->whnf(e).first;
     } else if (all_transparent) {
         type_checker tc(p.env(), name_generator(),
@@ -767,7 +767,7 @@ environment telescope_eq_cmd(parser & p) {
         t.push_back(local);
         e = instantiate(binding_body(e), local);
     }
-    auto tc = mk_type_checker(p.env(), p.mk_ngen(), true);
+    auto tc = mk_type_checker(p.env(), p.mk_ngen());
     buffer<expr> eqs;
     mk_telescopic_eq(*tc, t, eqs);
     for (expr const & eq : eqs) {

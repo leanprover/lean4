@@ -113,7 +113,7 @@ struct inductive_cmd_fn {
         m_u = mk_global_univ(u_name);
         m_infer_result_universe = false;
         m_namespace = get_namespace(m_env);
-        m_tc = mk_type_checker(m_env, m_p.mk_ngen(), false);
+        m_tc = mk_type_checker(m_env, m_p.mk_ngen());
     }
 
     [[ noreturn ]] void throw_error(char const * error_msg) { throw parser_error(error_msg, m_pos); }

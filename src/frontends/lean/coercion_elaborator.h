@@ -38,14 +38,11 @@ public:
     enumerate coercion functions \c f. By "not known", we mean the type is a
     metavariable application.
 
-    \param relax True if opaque constants in the current module should be treated
-                 as transparent
-
     \see coercion_info_manager
 */
 constraint mk_coercion_cnstr(type_checker & tc, coercion_info_manager & infom,
                              expr const & m, expr const & a, expr const & a_type,
-                             justification const & j, unsigned delay_factor, bool relax);
+                             justification const & j, unsigned delay_factor);
 
 list<expr> get_coercions_from_to(type_checker & tc, expr const & from_type, expr const & to_type, constraint_seq & cs);
 }

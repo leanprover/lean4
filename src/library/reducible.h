@@ -40,7 +40,7 @@ public:
 class unfold_reducible_converter : public default_converter {
     reducible_state m_state;
 public:
-    unfold_reducible_converter(environment const & env, bool relax_main_opaque, bool memoize);
+    unfold_reducible_converter(environment const & env, bool memoize);
     virtual bool is_opaque(declaration const & d) const;
 };
 
@@ -48,7 +48,7 @@ public:
 class unfold_quasireducible_converter : public default_converter {
     reducible_state m_state;
 public:
-    unfold_quasireducible_converter(environment const & env, bool relax_main_opaque, bool memoize);
+    unfold_quasireducible_converter(environment const & env, bool memoize);
     virtual bool is_opaque(declaration const & d) const;
 };
 
@@ -56,7 +56,7 @@ public:
 class unfold_semireducible_converter : public default_converter {
     reducible_state m_state;
 public:
-    unfold_semireducible_converter(environment const & env, bool relax_main_opaque, bool memoize);
+    unfold_semireducible_converter(environment const & env, bool memoize);
     virtual bool is_opaque(declaration const & d) const;
 };
 
@@ -64,10 +64,9 @@ enum reducible_behavior { UnfoldReducible, UnfoldQuasireducible, UnfoldSemireduc
 
 /** \brief Create a type checker that takes the "reducibility" hints into account. */
 std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_generator const & ngen,
-                                              bool relax_main_opaque = true, reducible_behavior r = UnfoldSemireducible,
+                                              reducible_behavior r = UnfoldSemireducible,
                                               bool memoize = true);
-std::unique_ptr<type_checker> mk_type_checker(environment const & env, bool relax_main_opaque,
-                                              reducible_behavior r = UnfoldSemireducible);
+std::unique_ptr<type_checker> mk_type_checker(environment const & env, reducible_behavior r = UnfoldSemireducible);
 
 /** \brief Create a type checker that treats all definitions as opaque. */
 std::unique_ptr<type_checker> mk_opaque_type_checker(environment const & env, name_generator const & ngen);

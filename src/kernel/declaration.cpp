@@ -18,7 +18,6 @@ struct declaration::cell {
     optional<expr>    m_value;        // if none, then declaration is actually a postulate
     // The following fields are only meaningful for definitions (which are not theorems)
     unsigned          m_weight;
-    unsigned          m_module_idx;   // module idx where it was defined
     bool              m_opaque;
     // The following field affects the convertability checker.
     // Let f be this definition, then if the following field is true,
@@ -31,11 +30,11 @@ struct declaration::cell {
 
     cell(name const & n, level_param_names const & params, expr const & t, bool is_axiom):
         m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(is_axiom),
-        m_weight(0), m_module_idx(0), m_opaque(true), m_use_conv_opt(false) {}
+        m_weight(0), m_opaque(true), m_use_conv_opt(false) {}
     cell(name const & n, level_param_names const & params, expr const & t, bool is_thm, expr const & v,
-         bool opaque, unsigned w, module_idx mod_idx, bool use_conv_opt):
+         bool opaque, unsigned w, bool use_conv_opt):
         m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(is_thm),
-        m_value(v), m_weight(w), m_module_idx(mod_idx), m_opaque(opaque), m_use_conv_opt(use_conv_opt) {}
+        m_value(v), m_weight(w), m_opaque(opaque), m_use_conv_opt(use_conv_opt) {}
 };
 
 static declaration * g_dummy = nullptr;
@@ -62,15 +61,14 @@ expr const & declaration::get_type() const { return m_ptr->m_type; }
 bool declaration::is_opaque() const { return m_ptr->m_opaque; }
 expr const & declaration::get_value() const { lean_assert(is_definition()); return *(m_ptr->m_value); }
 unsigned declaration::get_weight() const { return m_ptr->m_weight; }
-module_idx declaration::get_module_idx() const { return m_ptr->m_module_idx; }
 bool declaration::use_conv_opt() const { return m_ptr->m_use_conv_opt; }
 
 declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
-                          bool opaque, unsigned weight, module_idx mod_idx, bool use_conv_opt) {
-    return declaration(new declaration::cell(n, params, t, false, v, opaque, weight, mod_idx, use_conv_opt));
+                          bool opaque, unsigned weight, bool use_conv_opt) {
+    return declaration(new declaration::cell(n, params, t, false, v, opaque, weight, use_conv_opt));
 }
 declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v,
-                          bool opaque, module_idx mod_idx, bool use_conv_opt) {
+                          bool opaque, bool use_conv_opt) {
     unsigned w = 0;
     for_each(v, [&](expr const & e, unsigned) {
             if (is_constant(e)) {
@@ -80,10 +78,10 @@ declaration mk_definition(environment const & env, name const & n, level_param_n
             }
             return true;
         });
-    return mk_definition(n, params, t, v, opaque, w+1, mod_idx, use_conv_opt);
+    return mk_definition(n, params, t, v, opaque, w+1, use_conv_opt);
 }
-declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v, module_idx mod_idx) {
-    return declaration(new declaration::cell(n, params, t, true, v, true, 0, mod_idx, false));
+declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v) {
+    return declaration(new declaration::cell(n, params, t, true, v, true, 0, false));
 }
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t) {
     return declaration(new declaration::cell(n, params, t, true));

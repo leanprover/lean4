@@ -1096,7 +1096,7 @@ tactic inversion_tactic(name const & n, list<name> const & ids) {
         goal  g           = head(gs);
         goals tail_gs     = tail(gs);
         name_generator ngen              = ps.get_ngen();
-        std::unique_ptr<type_checker> tc = mk_type_checker(env, ngen.mk_child(), ps.relax_main_opaque());
+        std::unique_ptr<type_checker> tc = mk_type_checker(env, ngen.mk_child());
         inversion_tac tac(env, ios, ngen, *tc, ps.get_subst(), ids, ps.report_failure());
         if (auto res = tac.execute(g, n, implementation_list())) {
             proof_state new_s(ps, append(res->m_goals, tail_gs), res->m_subst, res->m_ngen);

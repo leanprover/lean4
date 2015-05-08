@@ -23,7 +23,7 @@ tactic congruence_tactic() {
         expr t              = g.get_type();
         substitution subst  = s.get_subst();
         name_generator ngen = s.get_ngen();
-        auto tc             = mk_type_checker(env, ngen.mk_child(), s.relax_main_opaque());
+        auto tc             = mk_type_checker(env, ngen.mk_child());
         constraint_seq cs;
         t = tc->whnf(t, cs);
         expr lhs, rhs;

@@ -334,13 +334,13 @@ public:
 };
 
 expr normalize(environment const & env, expr const & e, bool eta) {
-    auto tc          = mk_type_checker(env, true);
+    auto tc          = mk_type_checker(env);
     bool save_cnstrs = false;
     return normalize_fn(*tc, save_cnstrs, eta)(e);
 }
 
 expr normalize(environment const & env, level_param_names const & ls, expr const & e, bool eta) {
-    auto tc          = mk_type_checker(env, true);
+    auto tc          = mk_type_checker(env);
     bool save_cnstrs = false;
     return normalize_fn(*tc, save_cnstrs, eta)(ls, e);
 }

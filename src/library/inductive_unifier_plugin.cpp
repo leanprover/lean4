@@ -45,7 +45,7 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
     */
     lazy_list<constraints> add_elim_meta_cnstrs(type_checker & tc, name_generator ngen, inductive::inductive_decl const & decl,
                                                 expr const & elim, buffer<expr> & args, expr const & t, justification const & j,
-                                                constraint_seq cs, bool relax) const {
+                                                constraint_seq cs) const {
         lean_assert(is_constant(elim));
         environment const & env = tc.env();
         levels elim_lvls       = const_levels(elim);
@@ -75,10 +75,10 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
                 hint = mk_app(hint, mk_app(mk_aux_metavar_for(ngen, mtype), margs));
                 intro_type = tc.whnf(binding_body(intro_type), cs_intro);
             }
-            constraint c1      = mk_eq_cnstr(meta, hint, j, relax);
+            constraint c1      = mk_eq_cnstr(meta, hint, j);
             args[major_idx]    = hint;
             expr reduce_elim   = tc.whnf(mk_app(elim, args), cs_intro);
-            constraint c2      = mk_eq_cnstr(reduce_elim, t, j, relax);
+            constraint c2      = mk_eq_cnstr(reduce_elim, t, j);
             cs_intro = constraint_seq(c1) + constraint_seq(c2) + cs_intro;
             buffer<constraint> cs_buffer;
             cs_intro.linearize(cs_buffer);
@@ -88,7 +88,7 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
     }
 
     lazy_list<constraints> process_elim_meta_core(type_checker & tc, name_generator const & ngen,
-                                                  expr const & lhs, expr const & rhs, justification const & j, bool relax) const {
+                                                  expr const & lhs, expr const & rhs, justification const & j) const {
         lean_assert(inductive::is_elim_meta_app(tc, lhs));
         auto dcs = tc.is_def_eq_types(lhs, rhs, j);
         if (!dcs.first)
@@ -101,7 +101,7 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
         auto decls   = *inductive::is_inductive_decl(env, it_name);
         for (auto const & d : std::get<2>(decls)) {
             if (inductive::inductive_decl_name(d) == it_name)
-                return add_elim_meta_cnstrs(tc, ngen, d, elim, args, rhs, j, cs, relax);
+                return add_elim_meta_cnstrs(tc, ngen, d, elim, args, rhs, j, cs);
         }
         lean_unreachable(); // LCOV_EXCL_LINE
     }
@@ -117,11 +117,10 @@ public:
         expr const & lhs        = cnstr_lhs_expr(c);
         expr const & rhs        = cnstr_rhs_expr(c);
         justification const & j = c.get_justification();
-        bool relax = relax_main_opaque(c);
         if (inductive::is_elim_meta_app(tc, lhs))
-            return process_elim_meta_core(tc, ngen, lhs, rhs, j, relax);
+            return process_elim_meta_core(tc, ngen, lhs, rhs, j);
         else if (inductive::is_elim_meta_app(tc, rhs))
-            return process_elim_meta_core(tc, ngen, rhs, lhs, j, relax);
+            return process_elim_meta_core(tc, ngen, rhs, lhs, j);
         else
             return lazy_list<constraints>();
     }

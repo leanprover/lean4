@@ -31,7 +31,7 @@ tactic constructor_tactic(elaborate_fn const & elab, optional<unsigned> _i, opti
         }
         constraint_seq cs;
         name_generator ngen = s.get_ngen();
-        auto tc             = mk_type_checker(env, ngen.mk_child(), s.relax_main_opaque());
+        auto tc             = mk_type_checker(env, ngen.mk_child());
         goal const & g      = head(gs);
         expr t              = tc->whnf(g.get_type(), cs);
         buffer<expr> I_args;

@@ -21,7 +21,7 @@ tactic intros_tactic(list<name> _ns) {
         }
         goal const & g      = head(gs);
         name_generator ngen = s.get_ngen();
-        auto tc             = mk_type_checker(env, ngen.mk_child(), s.relax_main_opaque());
+        auto tc             = mk_type_checker(env, ngen.mk_child());
         expr t              = g.get_type();
         expr m              = g.get_meta();
         bool gen_names      = empty(ns);

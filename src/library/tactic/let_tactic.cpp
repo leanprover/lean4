@@ -34,7 +34,7 @@ tactic let_tactic(elaborate_fn const & elab, name const & id, expr const & e) {
             std::tie(new_e, new_subst, cs) = esc;
             if (cs)
                 throw_tactic_exception_if_enabled(s, "invalid 'let' tactic, fail to resolve generated constraints");
-            auto tc         = mk_type_checker(env, ngen.mk_child(), s.relax_main_opaque());
+            auto tc         = mk_type_checker(env, ngen.mk_child());
             expr new_e_type = tc->infer(new_e).first;
             expr new_local  = mk_local(ngen.next(), id, new_e_type, binder_info());
             buffer<expr> hyps;

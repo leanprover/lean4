@@ -32,7 +32,7 @@ environment mk_induction_on(environment const & env, name const & n) {
         certified_declaration cdecl = check(new_env,
                                             mk_definition(new_env, induction_on_name, rec_on_decl.get_univ_params(),
                                                           rec_on_decl.get_type(), rec_on_decl.get_value(),
-                                                          opaque, rec_on_decl.get_module_idx(), use_conv_opt));
+                                                          opaque, use_conv_opt));
         new_env = module::add(new_env, cdecl);
     } else {
         level_param_names induction_on_univs = tail(rec_on_decl.get_univ_params());
@@ -43,7 +43,7 @@ environment mk_induction_on(environment const & env, name const & n) {
         certified_declaration cdecl = check(new_env,
                                             mk_definition(new_env, induction_on_name, induction_on_univs,
                                                           induction_on_type, induction_on_value,
-                                                          opaque, rec_on_decl.get_module_idx(), use_conv_opt));
+                                                          opaque, use_conv_opt));
         new_env = module::add(new_env, cdecl);
     }
     return add_protected(new_env, induction_on_name);

@@ -120,7 +120,7 @@ static optional<pair<expr, expr>> apply_subst(environment const & env, local_con
 constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
                                local_context const & _ctx, expr const & m, expr const & _e,
                                constraint_seq const & cs, unifier_config const & cfg,
-                               info_manager * im, bool relax, update_type_info_fn const & fn) {
+                               info_manager * im, update_type_info_fn const & fn) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & _s,
                          name_generator const & _ngen) {
@@ -128,7 +128,7 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
         expr e            = _e;
         substitution s    = _s;
         name_generator ngen(_ngen);
-        type_checker_ptr tc(mk_type_checker(env, ngen.mk_child(), relax));
+        type_checker_ptr tc(mk_type_checker(env, ngen.mk_child()));
         constraint_seq new_cs = cs;
         expr e_type = tc->infer(e, new_cs);
         e_type      = s.instantiate(e_type);
@@ -163,8 +163,8 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
             fcs.linearize(cs_buffer);
             metavar_closure cls(meta);
             cls.add(meta_type);
-            cls.mk_constraints(s, j, relax, cs_buffer);
-            cs_buffer.push_back(mk_eq_cnstr(meta, e, j, relax));
+            cls.mk_constraints(s, j, cs_buffer);
+            cs_buffer.push_back(mk_eq_cnstr(meta, e, j));
 
             unifier_config new_cfg(cfg);
             new_cfg.m_discard      = false;
@@ -182,7 +182,7 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
                 throw_elaborator_exception("solution contains metavariables", e);
             if (im)
                 im->instantiate(new_s);
-            constraints r = cls.mk_constraints(new_s, j, relax);
+            constraints r = cls.mk_constraints(new_s, j);
             return append(r, postponed);
         };
 
@@ -250,6 +250,6 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
         }
     };
     bool owner = false;
-    return mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::Epilogue), owner, j, relax);
+    return mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::Epilogue), owner, j);
 }
 }

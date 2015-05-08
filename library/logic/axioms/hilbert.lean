@@ -30,7 +30,7 @@ inhabited_of_nonempty (obtain w Hw, from H, nonempty.intro w)
 
 /- the Hilbert epsilon function -/
 
-opaque definition epsilon {A : Type} [H : nonempty A] (P : A → Prop) : A :=
+definition epsilon {A : Type} [H : nonempty A] (P : A → Prop) : A :=
 let u : {x | (∃y, P y) → P x} :=
   strong_indefinite_description P H in
 elt_of u
@@ -39,7 +39,8 @@ theorem epsilon_spec_aux {A : Type} (H : nonempty A) (P : A → Prop) (Hex : ∃
     P (@epsilon A H P) :=
 let u : {x | (∃y, P y) → P x} :=
   strong_indefinite_description P H in
-has_property u Hex
+have aux : (∃y, P y) → P (elt_of (strong_indefinite_description P H)), from has_property u,
+aux Hex
 
 theorem epsilon_spec {A : Type} {P : A → Prop} (Hex : ∃y, P y) :
     P (@epsilon A (nonempty_of_exists Hex) P) :=

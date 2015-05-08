@@ -24,7 +24,7 @@ tactic exfalso_tactic() {
         expr const & t      = g.get_type();
         substitution subst  = s.get_subst();
         name_generator ngen = s.get_ngen();
-        auto tc             = mk_type_checker(env, ngen.mk_child(), s.relax_main_opaque());
+        auto tc             = mk_type_checker(env, ngen.mk_child());
         expr false_expr     = mk_false(env);
         expr new_meta       = g.mk_meta(ngen.next(), false_expr);
         goal new_goal(new_meta, false_expr);

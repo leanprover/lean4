@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "library/tactic/tactic.h"
 
 namespace lean {
-tactic whnf_tactic(bool relax_main_opaque = true);
+tactic whnf_tactic();
 void initialize_whnf_tactic();
 void finalize_whnf_tactic();
 }

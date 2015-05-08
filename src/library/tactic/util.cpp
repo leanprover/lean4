@@ -60,8 +60,7 @@ justification mk_failed_to_synthesize_jst(environment const & env, expr const & 
             substitution tmp(subst);
             expr new_m    = instantiate_meta(m, tmp);
             expr new_type = type_checker(env).infer(new_m).first;
-            bool relax_main_opaque = true; // this value doesn't really matter for pretty printing
-            proof_state ps = to_proof_state(new_m, new_type, name_generator("dontcare"), relax_main_opaque);
+            proof_state ps = to_proof_state(new_m, new_type, name_generator("dontcare"));
             return format("failed to synthesize placeholder") + line() + ps.pp(fmt);
         });
 }

@@ -53,7 +53,7 @@ pair<environment, name> add_private_name(environment const & env, name const & n
     return mk_pair(new_env, r);
 }
 
-static void private_reader(deserializer & d, module_idx, shared_environment & senv,
+static void private_reader(deserializer & d, shared_environment & senv,
                            std::function<void(asynch_update_fn const &)> &,
                            std::function<void(delayed_update_fn const &)> &) {
     name n, h;

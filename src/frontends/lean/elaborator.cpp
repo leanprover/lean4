@@ -68,11 +68,10 @@ struct elaborator::choice_expr_elaborator : public choice_iterator {
     expr          m_type;
     expr          m_choice;
     unsigned      m_idx;
-    bool          m_relax_main_opaque;
     choice_expr_elaborator(elaborator & elab, local_context const & ctx, local_context const & full_ctx,
-                           expr const & meta, expr const & type, expr const & c, bool relax):
+                           expr const & meta, expr const & type, expr const & c):
         m_elab(elab), m_context(ctx), m_full_context(full_ctx), m_meta(meta),
-        m_type(type), m_choice(c), m_idx(get_num_choices(m_choice)), m_relax_main_opaque(relax) {
+        m_type(type), m_choice(c), m_idx(get_num_choices(m_choice)) {
     }
 
     virtual optional<constraints> next() {
@@ -93,13 +92,12 @@ struct elaborator::choice_expr_elaborator : public choice_iterator {
                     expr r_type                = m_elab.infer_type(r, new_cs);
                     if (!has_expr_metavar_relaxed(r_type)) {
                         cs = new_cs;
-                        auto new_rcs                   = m_elab.ensure_has_type(r, r_type, m_type, justification(),
-                                                                                m_relax_main_opaque);
+                        auto new_rcs                   = m_elab.ensure_has_type(r, r_type, m_type, justification());
                         r                              = new_rcs.first;
                         cs                            += new_rcs.second;
                     }
                 }
-                cs = mk_eq_cnstr(m_meta, r, justification(), m_relax_main_opaque) + cs;
+                cs = mk_eq_cnstr(m_meta, r, justification()) + cs;
                 return optional<constraints>(cs.to_list());
             } catch (exception &) {}
         }
@@ -114,12 +112,10 @@ elaborator::elaborator(elaborator_context & ctx, name_generator const & ngen, bo
     m_full_context(),
     m_unifier_config(ctx.m_ios.get_options(), true /* use exceptions */, true /* discard */) {
     m_has_sorry = has_sorry(m_ctx.m_env);
-    m_relax_main_opaque = false;
     m_use_tactic_hints  = true;
     m_no_info           = false;
     m_in_equation_lhs   = false;
-    m_tc[0]             = mk_type_checker(ctx.m_env, m_ngen.mk_child(), false);
-    m_tc[1]             = mk_type_checker(ctx.m_env, m_ngen.mk_child(), true);
+    m_tc                = mk_type_checker(ctx.m_env, m_ngen.mk_child());
     m_nice_mvar_names   = nice_mvar_names;
 }
 
@@ -131,8 +127,6 @@ void elaborator::register_meta(expr const & meta) {
     lean_assert(is_meta(meta));
     name const & n = mlocal_name(get_app_fn(meta));
     m_mvar2meta.insert(n, meta);
-    if (m_relax_main_opaque)
-        m_relaxed_mvars.insert(n);
 }
 
 /** \brief Convert the metavariable to the metavariable application that captures
@@ -153,7 +147,7 @@ void elaborator::save_type_data(expr const & e, expr const & r) {
         (is_constant(e) || is_local(e) || is_placeholder(e) || is_as_atomic(e) ||
          is_consume_args(e) || is_notation_info(e))) {
         if (auto p = pip()->get_pos_info(e)) {
-            expr t = m_tc[m_relax_main_opaque]->infer(r).first;
+            expr t = m_tc->infer(r).first;
             m_pre_info_data.add_type_info(p->first, p->second, t);
         }
     }
@@ -172,7 +166,7 @@ void elaborator::save_binder_type(expr const & e, expr const & r) {
 void elaborator::save_extra_type_data(expr const & e, expr const & r) {
     if (!m_no_info && infom() && pip()) {
         if (auto p = pip()->get_pos_info(e)) {
-            expr t = m_tc[m_relax_main_opaque]->infer(r).first;
+            expr t = m_tc->infer(r).first;
             m_pre_info_data.add_extra_type_info(p->first, p->second, r, t);
         }
     }
@@ -216,7 +210,7 @@ void elaborator::save_placeholder_info(expr const & e, expr const & r) {
 void elaborator::save_coercion_info(expr const & e, expr const & c) {
     if (!m_no_info && infom() && pip()) {
         if (auto p = pip()->get_pos_info(e)) {
-            expr t = m_tc[m_relax_main_opaque]->infer(c).first;
+            expr t = m_tc->infer(c).first;
             m_pre_info_data.add_coercion_info(p->first, p->second, c, t);
         }
     }
@@ -253,7 +247,7 @@ expr elaborator::mk_placeholder_meta(optional<name> const & suffix, optional<exp
                                      tag g, bool is_strict, bool is_inst_implicit, constraint_seq & cs) {
     if (is_inst_implicit && !m_ctx.m_ignore_instances) {
         auto ec = mk_class_instance_elaborator(
-            env(), ios(), m_context, m_ngen.next(), suffix, m_relax_main_opaque,
+            env(), ios(), m_context, m_ngen.next(), suffix,
             use_local_instances(), is_strict, type, g, m_unifier_config, m_ctx.m_pos_provider);
         register_meta(ec.first);
         cs += ec.second;
@@ -299,15 +293,14 @@ expr elaborator::visit_choice(expr const & e, optional<expr> const & t, constrai
     // Possible optimization: try to lookahead and discard some of the alternatives.
     expr m                 = m_full_context.mk_meta(m_ngen, t, e.get_tag());
     register_meta(m);
-    bool relax             = m_relax_main_opaque;
     local_context ctx      = m_context;
     local_context full_ctx = m_full_context;
     auto fn = [=](expr const & meta, expr const & type, substitution const & /* s */,
                   name_generator const & /* ngen */) {
-        return choose(std::make_shared<choice_expr_elaborator>(*this, ctx, full_ctx, meta, type, e, relax));
+        return choose(std::make_shared<choice_expr_elaborator>(*this, ctx, full_ctx, meta, type, e));
     };
     justification j = mk_justification("none of the overloads is applicable", some_expr(e));
-    cs += mk_choice_cnstr(m, fn, to_delay_factor(cnstr_group::Basic), true, j, m_relax_main_opaque);
+    cs += mk_choice_cnstr(m, fn, to_delay_factor(cnstr_group::Basic), true, j);
     return m;
 }
 
@@ -340,7 +333,7 @@ expr elaborator::visit_calc_proof(expr const & e, optional<expr> const & t, cons
     auto fn = [=](expr const & t) { save_type_data(get_annotation_arg(e), t); };
     constraint c                   = mk_calc_proof_cnstr(env(), ios().get_options(),
                                                          m_context, m, ecs.first, ecs.second, m_unifier_config,
-                                                         im, m_relax_main_opaque, fn);
+                                                         im, fn);
     cs += c;
     return m;
 }
@@ -353,8 +346,8 @@ static bool is_implicit_pi(expr const & e) {
 }
 
 /** \brief Auxiliary function for adding implicit arguments to coercions to function-class */
-expr elaborator::add_implict_args(expr e, constraint_seq & cs, bool relax) {
-    type_checker & tc = *m_tc[relax];
+expr elaborator::add_implict_args(expr e, constraint_seq & cs) {
+    type_checker & tc = *m_tc;
     constraint_seq new_cs;
     expr type = tc.whnf(tc.infer(e, new_cs), new_cs);
     if (!is_implicit_pi(type))
@@ -395,10 +388,10 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
     if (!is_pi(f_type) && has_metavar(f_type)) {
         constraint_seq saved_cs = cs;
         expr new_f_type = whnf(f_type, cs);
-        if (!is_pi(new_f_type) && m_tc[m_relax_main_opaque]->is_stuck(new_f_type)) {
+        if (!is_pi(new_f_type) && m_tc->is_stuck(new_f_type)) {
             cs = saved_cs;
             // let type checker add constraint
-            f_type = m_tc[m_relax_main_opaque]->ensure_pi(f_type, f, cs);
+            f_type = m_tc->ensure_pi(f_type, f, cs);
         } else {
             f_type = new_f_type;
         }
@@ -410,14 +403,12 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
             throw_kernel_exception(env(), f, [=](formatter const & fmt) { return pp_function_expected(fmt, f); });
         } else if (is_nil(tail(coes))) {
             expr old_f = f;
-            bool relax = m_relax_main_opaque;
             f = mk_coercion_app(head(coes), f);
-            f = add_implict_args(f, cs, relax);
+            f = add_implict_args(f, cs);
             f_type = infer_type(f, cs);
             save_coercion_info(old_f, f);
             lean_assert(is_pi(f_type));
         } else {
-            bool relax             = m_relax_main_opaque;
             local_context ctx      = m_context;
             local_context full_ctx = m_full_context;
             justification j        = mk_justification(f, [=](formatter const & fmt, substitution const & subst) {
@@ -429,19 +420,19 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
                 list<constraints> choices = map2<constraints>(coes, [&](expr const & coe) {
                         expr new_f      = mk_coercion_app(coe, f);
                         constraint_seq cs;
-                        new_f = add_implict_args(new_f, cs, relax);
-                        cs += mk_eq_cnstr(meta, new_f, j, relax);
+                        new_f = add_implict_args(new_f, cs);
+                        cs += mk_eq_cnstr(meta, new_f, j);
                         return cs.to_list();
                     });
                 return choose(std::make_shared<coercion_elaborator>(*this, f, choices, coes, false));
             };
             f   = m_full_context.mk_meta(m_ngen, none_expr(), f.get_tag());
             register_meta(f);
-            cs += mk_choice_cnstr(f, choice_fn, to_delay_factor(cnstr_group::Basic), true, j, relax);
+            cs += mk_choice_cnstr(f, choice_fn, to_delay_factor(cnstr_group::Basic), true, j);
             lean_assert(is_meta(f));
             // let type checker add constraint
             f_type = infer_type(f, cs);
-            f_type = m_tc[m_relax_main_opaque]->ensure_pi(f_type, f, cs);
+            f_type = m_tc->ensure_pi(f_type, f, cs);
             lean_assert(is_pi(f_type));
         }
     } else {
@@ -481,7 +472,7 @@ expr elaborator::apply_coercion(expr const & a, expr a_type, expr d_type) {
     a_type = whnf(a_type).first;
     d_type = whnf(d_type).first;
     constraint_seq aux_cs;
-    list<expr> coes = get_coercions_from_to(*m_tc[m_relax_main_opaque], a_type, d_type, aux_cs);
+    list<expr> coes = get_coercions_from_to(*m_tc, a_type, d_type, aux_cs);
     if (is_nil(coes)) {
         erase_coercion_info(a);
         return a;
@@ -494,7 +485,7 @@ expr elaborator::apply_coercion(expr const & a, expr a_type, expr d_type) {
             expr r = mk_coercion_app(coe, a);
             expr r_type = infer_type(r).first;
             try {
-                if (m_tc[m_relax_main_opaque]->is_def_eq(r_type, d_type).first) {
+                if (m_tc->is_def_eq(r_type, d_type).first) {
                     save_coercion_info(a, r);
                     return r;
                 }
@@ -510,21 +501,17 @@ expr elaborator::apply_coercion(expr const & a, expr a_type, expr d_type) {
 pair<expr, constraint_seq> elaborator::mk_delayed_coercion(
     expr const & a, expr const & a_type, expr const & expected_type,
     justification const & j) {
-    bool relax = m_relax_main_opaque;
-    type_checker & tc = *m_tc[relax];
+    type_checker & tc = *m_tc;
     expr m       = m_full_context.mk_meta(m_ngen, some_expr(expected_type), a.get_tag());
     register_meta(m);
-    constraint c = mk_coercion_cnstr(tc, *this, m, a, a_type, j, to_delay_factor(cnstr_group::Basic), relax);
+    constraint c = mk_coercion_cnstr(tc, *this, m, a, a_type, j, to_delay_factor(cnstr_group::Basic));
     return to_ecs(m, c);
 }
 
 /** \brief Given a term <tt>a : a_type</tt>, ensure it has type \c expected_type. Apply coercions if needed
-
-    \remark relax == true affects how opaque definitions in the main module are treated.
 */
 pair<expr, constraint_seq> elaborator::ensure_has_type(
-    expr const & a, expr const & a_type, expr const & expected_type,
-    justification const & j, bool relax) {
+        expr const & a, expr const & a_type, expr const & expected_type, justification const & j) {
     if (is_meta(expected_type) && has_coercions_from(a_type)) {
         return mk_delayed_coercion(a, a_type, expected_type, j);
     } else if (!m_in_equation_lhs && is_meta(a_type) && has_coercions_to(expected_type)) {
@@ -532,7 +519,7 @@ pair<expr, constraint_seq> elaborator::ensure_has_type(
     } else {
         pair<bool, constraint_seq> dcs;
         try {
-            dcs = m_tc[relax]->is_def_eq(a_type, expected_type, j);
+            dcs = m_tc->is_def_eq(a_type, expected_type, j);
         } catch (exception&) {
             dcs.first = false;
         }
@@ -545,7 +532,7 @@ pair<expr, constraint_seq> elaborator::ensure_has_type(
             if (!is_eqp(a, new_a)) {
                 expr new_a_type = infer_type(new_a, cs);
                 try {
-                    coercion_worked = m_tc[relax]->is_def_eq(new_a_type, expected_type, j, cs);
+                    coercion_worked = m_tc->is_def_eq(new_a_type, expected_type, j, cs);
                 } catch (exception&) {
                     coercion_worked = false;
                 }
@@ -554,7 +541,7 @@ pair<expr, constraint_seq> elaborator::ensure_has_type(
                 return to_ecs(new_a, cs);
             } else if (has_metavar(a_type) || has_metavar(expected_type)) {
                 // rely on unification hints to solve this constraint
-                return to_ecs(a, mk_eq_cnstr(a_type, expected_type, j, relax));
+                return to_ecs(a, mk_eq_cnstr(a_type, expected_type, j));
             } else {
                 throw unifier_exception(j, substitution());
             }
@@ -636,7 +623,7 @@ expr elaborator::visit_app(expr const & e, constraint_seq & cs) {
         expr a_type     = infer_type(a, a_cs);
         expr r          = mk_app(f, a, e.get_tag());
         justification j = mk_app_justification(r, a, d_type, a_type);
-        auto new_a_cs   = ensure_has_type(a, a_type, d_type, j, m_relax_main_opaque);
+        auto new_a_cs   = ensure_has_type(a, a_type, d_type, j);
         expr new_a      = new_a_cs.first;
         cs += f_cs + new_a_cs.second + a_cs;
         return update_app(r, app_fn(r), new_a);
@@ -722,7 +709,7 @@ expr elaborator::ensure_type(expr const & e, constraint_seq & cs) {
             return e;
         if (is_meta(t)) {
             // let type checker add constraint
-            m_tc[m_relax_main_opaque]->ensure_sort(t, e, cs);
+            m_tc->ensure_sort(t, e, cs);
             return e;
         }
     }
@@ -811,7 +798,7 @@ expr elaborator::visit_typed_expr(expr const & e, constraint_seq & cs) {
     expr v      = visit(get_typed_expr_expr(e), v_cs);
     expr v_type = infer_type(v, v_cs);
     justification j = mk_type_mismatch_jst(v, v_type, t, e);
-    auto new_vcs    = ensure_has_type(v, v_type, t, j, m_relax_main_opaque);
+    auto new_vcs    = ensure_has_type(v, v_type, t, j);
     v = new_vcs.first;
     cs += t_cs + new_vcs.second + v_cs;
     return v;
@@ -1060,7 +1047,6 @@ static expr assign_equation_lhs_metas(type_checker & tc, expr const & eqns) {
 
 // \remark original_eqns is eqns before elaboration
 constraint elaborator::mk_equations_cnstr(expr const & m, expr const & eqns) {
-    bool relax               = m_relax_main_opaque;
     environment const & _env = env();
     io_state const & _ios    = ios();
     justification j          = mk_failed_to_synthesize_jst(_env, m);
@@ -1071,15 +1057,15 @@ constraint elaborator::mk_equations_cnstr(expr const & m, expr const & eqns) {
         new_eqns            = solve_unassigned_mvars(new_s, new_eqns);
         if (display_unassigned_mvars(new_eqns, new_s))
             return lazy_list<constraints>();
-        type_checker_ptr tc = mk_type_checker(_env, ngen, relax);
+        type_checker_ptr tc = mk_type_checker(_env, ngen);
         new_eqns            = assign_equation_lhs_metas(*tc, new_eqns);
-        expr val            = compile_equations(*tc, _ios, new_eqns, meta, meta_type, relax);
+        expr val            = compile_equations(*tc, _ios, new_eqns, meta, meta_type);
         justification j     = mk_justification("equation compilation", some_expr(eqns));
-        constraint c        = mk_eq_cnstr(meta, val, j, relax);
+        constraint c        = mk_eq_cnstr(meta, val, j);
         return lazy_list<constraints>(c);
     };
     bool owner = true;
-    return mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::MaxDelayed), owner, j, relax);
+    return mk_choice_cnstr(m, choice_fn, to_delay_factor(cnstr_group::MaxDelayed), owner, j);
 }
 
 expr elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
@@ -1100,7 +1086,7 @@ expr elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
         expr wf         = visit(mk_constant(get_well_founded_name()), cs);
         wf              = ::lean::mk_app(wf, *new_R);
         justification j = mk_type_mismatch_jst(*new_Hwf, Hwf_type, wf, equations_wf_proof(eqns));
-        auto new_Hwf_cs = ensure_has_type(*new_Hwf, Hwf_type, wf, j, m_relax_main_opaque);
+        auto new_Hwf_cs = ensure_has_type(*new_Hwf, Hwf_type, wf, j);
         new_Hwf         = new_Hwf_cs.first;
         cs             += new_Hwf_cs.second;
     }
@@ -1188,7 +1174,7 @@ expr elaborator::visit_equation(expr const & eq, constraint_seq & cs) {
             substitution s(subst);
             return pp_def_type_mismatch(fmt, local_pp_name(lhs_fn), s.instantiate(lhs_type), s.instantiate(rhs_type));
         });
-    pair<expr, constraint_seq> new_rhs_cs = ensure_has_type(new_rhs, rhs_type, lhs_type, j, m_relax_main_opaque);
+    pair<expr, constraint_seq> new_rhs_cs = ensure_has_type(new_rhs, rhs_type, lhs_type, j);
     new_rhs = new_rhs_cs.first;
     cs     += new_rhs_cs.second;
     return copy_tag(eq, mk_equation(new_lhs, new_rhs));
@@ -1216,7 +1202,7 @@ expr elaborator::visit_decreasing(expr const & e, constraint_seq & cs) {
     expr dec_proof      = visit(decreasing_proof(e), cs);
     expr f_type         = mlocal_type(get_app_fn(*m_equation_lhs));
     buffer<expr> ts;
-    type_checker & tc = *m_tc[m_relax_main_opaque];
+    type_checker & tc = *m_tc;
     to_telescope(tc, f_type, ts, optional<binder_info>(), cs);
     buffer<expr> old_args;
     buffer<expr> new_args;
@@ -1229,7 +1215,7 @@ expr elaborator::visit_decreasing(expr const & e, constraint_seq & cs) {
     expr expected_dec_proof_type = mk_app(mk_app(*m_equation_R, new_tuple, e.get_tag()), old_tuple, e.get_tag());
     expr dec_proof_type = infer_type(dec_proof, cs);
     justification j = mk_type_mismatch_jst(dec_proof, dec_proof_type, expected_dec_proof_type, decreasing_proof(e));
-    auto new_dec_proof_cs = ensure_has_type(dec_proof, dec_proof_type, expected_dec_proof_type, j, m_relax_main_opaque);
+    auto new_dec_proof_cs = ensure_has_type(dec_proof, dec_proof_type, expected_dec_proof_type, j);
     dec_proof = new_dec_proof_cs.first;
     cs       += new_dec_proof_cs.second;
     return mk_decreasing(dec_app, dec_proof);
@@ -1334,7 +1320,7 @@ expr elaborator::visit_structure_instance(expr const & e, constraint_seq & cs) {
         S_mk            = mk_app(S_mk, v, result_tag);
         expr v_type     = infer_type(v, cs);
         justification j = mk_app_justification(S_mk, v, d_type, v_type);
-        auto new_v_cs   = ensure_has_type(v, v_type, d_type, j, m_relax_main_opaque);
+        auto new_v_cs   = ensure_has_type(v, v_type, d_type, j);
         expr new_v      = new_v_cs.first;
         cs             += new_v_cs.second;
         S_mk            = update_app(S_mk, app_fn(S_mk), new_v);
@@ -1438,7 +1424,7 @@ expr elaborator::process_obtain_expr(list<obtain_struct> const & s_list, list<ex
         check_R_type();
         expr minor_type = whnf(binding_domain(R_type), cs);
         buffer<expr> telescope;
-        to_telescope(*m_tc[m_relax_main_opaque], minor_type, telescope, optional<binder_info>(), cs);
+        to_telescope(*m_tc, minor_type, telescope, optional<binder_info>(), cs);
         lean_assert(!s.is_leaf());
         buffer<obtain_struct> s_buffer;
         to_buffer(s.get_children(), s_buffer);
@@ -1638,7 +1624,6 @@ optional<expr> elaborator::get_pre_tactic_for(expr const & mvar) {
 
 optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
     try {
-        bool relax = m_relax_main_opaque;
         auto fn = [=](goal const & g, name_generator const & ngen, expr const & e, optional<expr> const & expected_type,
                       substitution const & subst, bool report_unassigned) {
             elaborator aux_elaborator(m_ctx, ngen);
@@ -1646,7 +1631,7 @@ optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
             // We must do it otherwise, it is easy to make the system loop.
             bool use_tactic_hints = false;
             return aux_elaborator.elaborate_nested(g.to_context(), expected_type, e,
-                                                   relax, use_tactic_hints, subst, report_unassigned);
+                                                   use_tactic_hints, subst, report_unassigned);
         };
         return optional<tactic>(expr_to_tactic(env(), fn, pre_tac, pip()));
     } catch (expr_to_tactic_exception & ex) {
@@ -1813,11 +1798,10 @@ void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set
         return;
     meta = instantiate_meta(*meta, subst);
     // TODO(Leo): we are discarding constraints here
-    expr type = m_tc[m_relax_main_opaque]->infer(*meta).first;
+    expr type = m_tc->infer(*meta).first;
     // first solve unassigned metavariables in type
     type = solve_unassigned_mvars(subst, type, visited);
-    bool relax_main_opaque = m_relaxed_mvars.contains(mlocal_name(mvar));
-    proof_state ps = to_proof_state(*meta, type, subst, m_ngen.mk_child(), relax_main_opaque);
+    proof_state ps = to_proof_state(*meta, type, subst, m_ngen.mk_child());
     if (auto pre_tac = get_pre_tactic_for(mvar)) {
         if (is_begin_end_annotation(*pre_tac)) {
             try_using_begin_end(subst, mvar, ps, *pre_tac);
@@ -1924,8 +1908,7 @@ bool elaborator::display_unassigned_mvars(expr const & e, substitution const & s
                     expr meta      = tmp_s.instantiate(*it);
                     expr meta_type = tmp_s.instantiate(type_checker(env()).infer(meta).first);
                     goal g(meta, meta_type);
-                    bool relax     = true;
-                    proof_state ps(goals(g), s, m_ngen, constraints(), relax);
+                    proof_state ps(goals(g), s, m_ngen, constraints());
                     display_unsolved_proof_state(mvar, ps, "don't know how to synthesize placeholder");
                     r = true;
                 }
@@ -1982,11 +1965,10 @@ std::tuple<expr, level_param_names> elaborator::apply(substitution & s, expr con
     return std::make_tuple(r, to_list(new_ps.begin(), new_ps.end()));
 }
 
-auto elaborator::operator()(list<expr> const & ctx, expr const & e, bool _ensure_type, bool relax_main_opaque)
+auto elaborator::operator()(list<expr> const & ctx, expr const & e, bool _ensure_type)
 -> std::tuple<expr, level_param_names> {
     m_context.set_ctx(ctx);
     m_full_context.set_ctx(ctx);
-    flet<bool> set_relax(m_relax_main_opaque, relax_main_opaque);
     constraint_seq cs;
     expr r = visit(e, cs);
     if (_ensure_type)
@@ -2000,12 +1982,10 @@ auto elaborator::operator()(list<expr> const & ctx, expr const & e, bool _ensure
     return result;
 }
 
-std::tuple<expr, expr, level_param_names> elaborator::operator()(
-    expr const & t, expr const & v, name const & n, bool is_opaque) {
+std::tuple<expr, expr, level_param_names> elaborator::operator()(expr const & t, expr const & v, name const & n) {
     constraint_seq t_cs;
     expr r_t      = ensure_type(visit(t, t_cs), t_cs);
     // Opaque definitions in the main module may treat other opaque definitions (in the main module) as transparent.
-    flet<bool> set_relax(m_relax_main_opaque, is_opaque);
     constraint_seq v_cs;
     expr r_v      = visit(v, v_cs);
     expr r_v_type = infer_type(r_v, v_cs);
@@ -2013,7 +1993,7 @@ std::tuple<expr, expr, level_param_names> elaborator::operator()(
             substitution s(subst);
             return pp_def_type_mismatch(fmt, n, s.instantiate(r_t), s.instantiate(r_v_type));
         });
-    pair<expr, constraint_seq> r_v_cs = ensure_has_type(r_v, r_v_type, r_t, j, is_opaque);
+    pair<expr, constraint_seq> r_v_cs = ensure_has_type(r_v, r_v_type, r_t, j);
     r_v = r_v_cs.first;
     constraint_seq cs = t_cs + r_v_cs.second + v_cs;
     auto p  = solve(cs).pull();
@@ -2068,7 +2048,7 @@ static expr translate(environment const & env, list<expr> const & ctx, expr cons
 
 /** \brief Elaborate expression \c e in context \c ctx. */
 elaborate_result elaborator::elaborate_nested(list<expr> const & ctx, optional<expr> const & expected_type,
-                                              expr const & n, bool relax, bool use_tactic_hints,
+                                              expr const & n, bool use_tactic_hints,
                                               substitution const & subst, bool report_unassigned) {
     if (infom()) {
         if (auto ps = get_info_tactic_proof_state()) {
@@ -2084,7 +2064,6 @@ elaborate_result elaborator::elaborate_nested(list<expr> const & ctx, optional<e
     m_context.set_ctx(ctx);
     m_context.set_ctx(ctx);
     m_full_context.set_ctx(ctx);
-    flet<bool> set_relax(m_relax_main_opaque, relax);
     flet<bool> set_discard(m_unifier_config.m_discard, false);
     flet<bool> set_use_hints(m_use_tactic_hints, use_tactic_hints);
     constraint_seq cs;
@@ -2104,7 +2083,7 @@ elaborate_result elaborator::elaborate_nested(list<expr> const & ctx, optional<e
         display_unassigned_mvars(r, new_subst);
     if (expected_type) {
         justification j;
-        rcs = append(rcs, cls.mk_constraints(new_subst, j, relax));
+        rcs = append(rcs, cls.mk_constraints(new_subst, j));
     }
     return elaborate_result(r, new_subst, rcs);
 }
@@ -2112,13 +2091,13 @@ elaborate_result elaborator::elaborate_nested(list<expr> const & ctx, optional<e
 static name * g_tmp_prefix = nullptr;
 
 std::tuple<expr, level_param_names> elaborate(elaborator_context & env, list<expr> const & ctx, expr const & e,
-                                              bool relax_main_opaque, bool ensure_type, bool nice_mvar_names) {
-    return elaborator(env, name_generator(*g_tmp_prefix), nice_mvar_names)(ctx, e, ensure_type, relax_main_opaque);
+                                              bool ensure_type, bool nice_mvar_names) {
+    return elaborator(env, name_generator(*g_tmp_prefix), nice_mvar_names)(ctx, e, ensure_type);
 }
 
-std::tuple<expr, expr, level_param_names> elaborate(elaborator_context & env, name const & n, expr const & t, expr const & v,
-                                                    bool is_opaque) {
-    return elaborator(env, name_generator(*g_tmp_prefix))(t, v, n, is_opaque);
+std::tuple<expr, expr, level_param_names> elaborate(elaborator_context & env, name const & n, expr const & t,
+                                                    expr const & v) {
+    return elaborator(env, name_generator(*g_tmp_prefix))(t, v, n);
 }
 
 void initialize_elaborator() {

@@ -35,7 +35,6 @@ struct dummy_converter : public converter {
     virtual pair<bool, constraint_seq> is_def_eq(expr const &, expr const &, type_checker &, delayed_justification &) {
         return mk_pair(true, constraint_seq());
     }
-    virtual optional<module_idx> get_module_idx() const { return optional<module_idx>(); }
     virtual bool is_opaque(declaration const &) const { return false; }
     virtual optional<declaration> is_delta(expr const &) const { return optional<declaration>(); }
     virtual bool is_stuck(expr const &, type_checker &) { return false; }

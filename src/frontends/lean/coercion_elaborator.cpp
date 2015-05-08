@@ -58,7 +58,7 @@ optional<constraints> coercion_elaborator::next() {
     that considers coercions from a_type to the type assigned to \c m. */
 constraint mk_coercion_cnstr(type_checker & tc, coercion_info_manager & infom,
                              expr const & m, expr const & a, expr const & a_type,
-                             justification const & j, unsigned delay_factor, bool relax) {
+                             justification const & j, unsigned delay_factor) {
     auto choice_fn = [=, &tc, &infom](expr const & meta, expr const & d_type, substitution const & s,
                                       name_generator const & /* ngen */) {
         expr          new_a_type;
@@ -74,10 +74,10 @@ constraint mk_coercion_cnstr(type_checker & tc, coercion_info_manager & infom,
             if (delay_factor < to_delay_factor(cnstr_group::DelayedChoice)) {
                 // postpone...
                 return lazy_list<constraints>(constraints(mk_coercion_cnstr(tc, infom, m, a, a_type, justification(),
-                                                                            delay_factor+1, relax)));
+                                                                            delay_factor+1)));
             } else {
                 // giveup...
-                return lazy_list<constraints>(constraints(mk_eq_cnstr(meta, a, justification(), relax)));
+                return lazy_list<constraints>(constraints(mk_eq_cnstr(meta, a, justification())));
             }
         }
         constraint_seq cs;
@@ -89,7 +89,7 @@ constraint mk_coercion_cnstr(type_checker & tc, coercion_info_manager & infom,
             buffer<constraints> choices;
             buffer<expr> coes;
             // first alternative: no coercion
-            constraint_seq cs1 = cs + mk_eq_cnstr(meta, a, justification(), relax);
+            constraint_seq cs1 = cs + mk_eq_cnstr(meta, a, justification());
             choices.push_back(cs1.to_list());
             unsigned i = alts.size();
             while (i > 0) {
@@ -98,7 +98,7 @@ constraint mk_coercion_cnstr(type_checker & tc, coercion_info_manager & infom,
                 expr coe   = std::get<1>(t);
                 expr new_a = copy_tag(a, mk_app(coe, a));
                 coes.push_back(coe);
-                constraint_seq csi = cs + mk_eq_cnstr(meta, new_a, new_a_type_jst, relax);
+                constraint_seq csi = cs + mk_eq_cnstr(meta, new_a, new_a_type_jst);
                 choices.push_back(csi.to_list());
             }
             return choose(std::make_shared<coercion_elaborator>(infom, meta,
@@ -109,23 +109,23 @@ constraint mk_coercion_cnstr(type_checker & tc, coercion_info_manager & infom,
             if (is_nil(coes)) {
                 expr new_a = a;
                 infom.erase_coercion_info(a);
-                cs += mk_eq_cnstr(meta, new_a, new_a_type_jst, relax);
+                cs += mk_eq_cnstr(meta, new_a, new_a_type_jst);
                 return lazy_list<constraints>(cs.to_list());
             } else if (is_nil(tail(coes))) {
                 expr new_a = copy_tag(a, mk_app(head(coes), a));
                 infom.save_coercion_info(a, new_a);
-                cs += mk_eq_cnstr(meta, new_a, new_a_type_jst, relax);
+                cs += mk_eq_cnstr(meta, new_a, new_a_type_jst);
                 return lazy_list<constraints>(cs.to_list());
             } else {
                 list<constraints> choices = map2<constraints>(coes, [&](expr const & coe) {
                         expr new_a   = copy_tag(a, mk_app(coe, a));
-                        constraint c = mk_eq_cnstr(meta, new_a, new_a_type_jst, relax);
+                        constraint c = mk_eq_cnstr(meta, new_a, new_a_type_jst);
                         return (cs + c).to_list();
                     });
                 return choose(std::make_shared<coercion_elaborator>(infom, meta, choices, coes, false));
             }
         }
     };
-    return mk_choice_cnstr(m, choice_fn, delay_factor, true, j, relax);
+    return mk_choice_cnstr(m, choice_fn, delay_factor, true, j);
 }
 }

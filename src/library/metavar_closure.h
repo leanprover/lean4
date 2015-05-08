@@ -30,10 +30,10 @@ class metavar_closure {
     void for_each_expr_mvar(std::function<void(expr const &)> const & fn) const;
     void for_each_level_mvar(std::function<void(level const &)> const & fn) const;
     /** \brief For each collected metavariable ?m, store in \c r constraints of the form ?m =?= s(?m)
-        if ?m is assigned by \c s. The constraints are justified by \c j and \c relax
+        if ?m is assigned by \c s. The constraints are justified by \c j
         \see mk_eq_cnstr
     */
-    void mk_constraints(substitution s, justification const & j, bool relax, buffer<constraint> & r) const;
-    constraints mk_constraints(substitution s, justification const & j, bool relax) const;
+    void mk_constraints(substitution s, justification const & j, buffer<constraint> & r) const;
+    constraints mk_constraints(substitution s, justification const & j) const;
 };
 }

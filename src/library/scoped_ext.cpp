@@ -159,7 +159,7 @@ environment push_scope(environment const & env, io_state const & ios, scope_kind
     return r;
 }
 
-static void namespace_reader(deserializer & d, module_idx, shared_environment &,
+static void namespace_reader(deserializer & d, shared_environment &,
                              std::function<void(asynch_update_fn const &)> &,
                              std::function<void(delayed_update_fn const &)> & add_delayed_update) {
     name n;

@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2015 Leonardo de Moura. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: data.list.set
 Authors: Leonardo de Moura
 
 Set-like operations on lists
@@ -396,12 +394,12 @@ definition decidable_nodup [instance] [h : decidable_eq A] : ∀ (l : list A), d
     end
   end
 
-theorem nodup_cross_product : ∀ {l₁ : list A} {l₂ : list B}, nodup l₁ → nodup l₂ → nodup (cross_product l₁ l₂)
+theorem nodup_product : ∀ {l₁ : list A} {l₂ : list B}, nodup l₁ → nodup l₂ → nodup (product l₁ l₂)
 | []      l₂ n₁ n₂ := nodup_nil
 | (a::l₁) l₂ n₁ n₂ :=
   have nainl₁ : a ∉ l₁,                      from not_mem_of_nodup_cons n₁,
   have n₃    : nodup l₁,                     from nodup_of_nodup_cons n₁,
-  have n₄    : nodup (cross_product l₁ l₂),  from nodup_cross_product n₃ n₂,
+  have n₄    : nodup (product l₁ l₂),  from nodup_product n₃ n₂,
   have dgen  : ∀ l, nodup l → nodup (map (λ b, (a, b)) l)
     | []     h := nodup_nil
     | (x::l) h :=
@@ -412,11 +410,11 @@ theorem nodup_cross_product : ∀ {l₁ : list A} {l₂ : list B}, nodup l₁ �
         assume pin, absurd (mem_of_mem_map_pair₁ pin) nxin,
       nodup_cons npin dm,
   have dm    : nodup (map (λ b, (a, b)) l₂), from dgen l₂ n₂,
-  have dsj   : disjoint (map (λ b, (a, b)) l₂) (cross_product l₁ l₂), from
+  have dsj   : disjoint (map (λ b, (a, b)) l₂) (product l₁ l₂), from
     λ p, match p with
          | (a₁, b₁) :=
-            λ (i₁ : (a₁, b₁) ∈ map (λ b, (a, b)) l₂) (i₂ : (a₁, b₁) ∈ cross_product l₁ l₂),
-              have a₁inl₁ : a₁ ∈ l₁, from mem_of_mem_cross_product_left i₂,
+            λ (i₁ : (a₁, b₁) ∈ map (λ b, (a, b)) l₂) (i₂ : (a₁, b₁) ∈ product l₁ l₂),
+              have a₁inl₁ : a₁ ∈ l₁, from mem_of_mem_product_left i₂,
               have a₁eqa : a₁ = a, from eq_of_mem_map_pair₁ i₁,
               absurd (a₁eqa ▸ a₁inl₁) nainl₁
          end,

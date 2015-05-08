@@ -1,10 +1,9 @@
 /-
 Copyright (c) 2015 Leonardo de Moura. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
 Authors: Leonardo de Moura
 
-Finite type (type class)
+Finite type (type class).
 -/
 import data.list data.bool
 open list bool unit decidable option function
@@ -26,11 +25,11 @@ fintype.mk [ff, tt]
 definition fintype_product [instance] {A B : Type} : Π [h₁ : fintype A] [h₂ : fintype B], fintype (A × B)
 | (fintype.mk e₁ u₁ c₁) (fintype.mk e₂ u₂ c₂) :=
   fintype.mk
-    (cross_product e₁ e₂)
-    (nodup_cross_product u₁ u₂)
+    (product e₁ e₂)
+    (nodup_product u₁ u₂)
     (λ p,
       match p with
-      (a, b) := mem_cross_product (c₁ a) (c₂ b)
+      (a, b) := mem_product (c₁ a) (c₂ b)
       end)
 
 /- auxiliary function for finding 'a' s.t. f a ≠ g a -/

@@ -148,38 +148,38 @@ theorem all_inter_of_all_right {p : A → Prop} {s₁ : finset A} (s₂ : finset
 quot.induction_on₂ s₁ s₂ (λ l₁ l₂ h, list.all_inter_of_all_right _ h)
 end all
 
-section cross_product
+section product
 variables {A B : Type}
-definition cross_product (s₁ : finset A) (s₂ : finset B) : finset (A × B) :=
+definition product (s₁ : finset A) (s₂ : finset B) : finset (A × B) :=
 quot.lift_on₂ s₁ s₂
   (λ l₁ l₂,
-    to_finset_of_nodup (list.cross_product (elt_of l₁) (elt_of l₂))
-                       (nodup_cross_product (has_property l₁) (has_property l₂)))
-  (λ v₁ v₂ w₁ w₂ p₁ p₂, quot.sound (perm_cross_product p₁ p₂))
+    to_finset_of_nodup (list.product (elt_of l₁) (elt_of l₂))
+                       (nodup_product (has_property l₁) (has_property l₂)))
+  (λ v₁ v₂ w₁ w₂ p₁ p₂, quot.sound (perm_product p₁ p₂))
 
-infix * := cross_product
+infix * := product
 
-theorem empty_cross_product (s : finset B) : @empty A * s = ∅ :=
+theorem empty_product (s : finset B) : @empty A * s = ∅ :=
 quot.induction_on s (λ l, rfl)
 
-theorem mem_cross_product {a : A} {b : B} {s₁ : finset A} {s₂ : finset B}
+theorem mem_product {a : A} {b : B} {s₁ : finset A} {s₂ : finset B}
         : a ∈ s₁ → b ∈ s₂ → (a, b) ∈ s₁ * s₂ :=
-quot.induction_on₂ s₁ s₂ (λ l₁ l₂ i₁ i₂, list.mem_cross_product i₁ i₂)
+quot.induction_on₂ s₁ s₂ (λ l₁ l₂ i₁ i₂, list.mem_product i₁ i₂)
 
-theorem mem_of_mem_cross_product_left {a : A} {b : B} {s₁ : finset A} {s₂ : finset B}
+theorem mem_of_mem_product_left {a : A} {b : B} {s₁ : finset A} {s₂ : finset B}
         : (a, b) ∈ s₁ * s₂ → a ∈ s₁ :=
-quot.induction_on₂ s₁ s₂ (λ l₁ l₂ i, list.mem_of_mem_cross_product_left i)
+quot.induction_on₂ s₁ s₂ (λ l₁ l₂ i, list.mem_of_mem_product_left i)
 
-theorem mem_of_mem_cross_product_right {a : A} {b : B} {s₁ : finset A} {s₂ : finset B}
+theorem mem_of_mem_product_right {a : A} {b : B} {s₁ : finset A} {s₂ : finset B}
         : (a, b) ∈ s₁ * s₂ → b ∈ s₂ :=
-quot.induction_on₂ s₁ s₂ (λ l₁ l₂ i, list.mem_of_mem_cross_product_right i)
+quot.induction_on₂ s₁ s₂ (λ l₁ l₂ i, list.mem_of_mem_product_right i)
 
-theorem cross_product_empty (s : finset A) : s * @empty B = ∅ :=
+theorem product_empty (s : finset A) : s * @empty B = ∅ :=
 ext (λ p,
   match p with
   | (a, b) := iff.intro
-     (λ i, absurd (mem_of_mem_cross_product_right i) !not_mem_empty)
+     (λ i, absurd (mem_of_mem_product_right i) !not_mem_empty)
      (λ i, absurd i !not_mem_empty)
   end)
-end cross_product
+end product
 end finset

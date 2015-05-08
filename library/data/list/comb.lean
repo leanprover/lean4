@@ -269,20 +269,20 @@ definition flat (l : list (list A)) : list A :=
 foldl append nil l
 
 /- cross product -/
-section cross_product
+section product
 
-definition cross_product : list A → list B → list (A × B)
+definition product : list A → list B → list (A × B)
 | []      l₂ := []
-| (a::l₁) l₂ := map (λ b, (a, b)) l₂ ++ cross_product l₁ l₂
+| (a::l₁) l₂ := map (λ b, (a, b)) l₂ ++ product l₁ l₂
 
-theorem nil_cross_product (l : list B) : cross_product (@nil A) l = []
+theorem nil_product (l : list B) : product (@nil A) l = []
 
-theorem cross_product_cons (a : A) (l₁ : list A) (l₂ : list B)
-        : cross_product (a::l₁) l₂ = map (λ b, (a, b)) l₂ ++ cross_product l₁ l₂
+theorem product_cons (a : A) (l₁ : list A) (l₂ : list B)
+        : product (a::l₁) l₂ = map (λ b, (a, b)) l₂ ++ product l₁ l₂
 
-theorem cross_product_nil : ∀ (l : list A), cross_product l (@nil B) = []
+theorem product_nil : ∀ (l : list A), product l (@nil B) = []
 | []     := rfl
-| (a::l) := by rewrite [cross_product_cons, map_nil, cross_product_nil]
+| (a::l) := by rewrite [product_cons, map_nil, product_nil]
 
 theorem eq_of_mem_map_pair₁  {a₁ a : A} {b₁ : B} {l : list B} : (a₁, b₁) ∈ map (λ b, (a, b)) l → a₁ = a :=
 assume ain,
@@ -296,7 +296,7 @@ assert h₁ : pr2 (a₁, b₁) ∈ map pr2 (map (λ b, (a, b)) l), from mem_map 
 assert h₂ : b₁ ∈ map (λx, x) l, by rewrite [map_map at h₁, ↑pr2 at h₁]; exact h₁,
 by rewrite [map_id at h₂]; exact h₂
 
-theorem mem_cross_product {a : A} {b : B} : ∀ {l₁ l₂}, a ∈ l₁ → b ∈ l₂ → (a, b) ∈ cross_product l₁ l₂
+theorem mem_product {a : A} {b : B} : ∀ {l₁ l₂}, a ∈ l₁ → b ∈ l₂ → (a, b) ∈ product l₁ l₂
 | []      l₂ h₁ h₂ := absurd h₁ !not_mem_nil
 | (x::l₁) l₂ h₁ h₂ :=
   or.elim (eq_or_mem_of_mem_cons h₁)
@@ -304,29 +304,29 @@ theorem mem_cross_product {a : A} {b : B} : ∀ {l₁ l₂}, a ∈ l₁ → b �
       assert aux : (a, b) ∈ map (λ b, (a, b)) l₂, from mem_map _ h₂,
       by rewrite [-aeqx]; exact (mem_append_left _ aux))
     (λ ainl₁ : a ∈ l₁,
-      have inl₁l₂ : (a, b) ∈ cross_product l₁ l₂, from mem_cross_product ainl₁ h₂,
+      have inl₁l₂ : (a, b) ∈ product l₁ l₂, from mem_product ainl₁ h₂,
       mem_append_right _ inl₁l₂)
 
-theorem mem_of_mem_cross_product_left {a : A} {b : B} : ∀ {l₁ l₂}, (a, b) ∈ cross_product l₁ l₂ → a ∈ l₁
+theorem mem_of_mem_product_left {a : A} {b : B} : ∀ {l₁ l₂}, (a, b) ∈ product l₁ l₂ → a ∈ l₁
 | []      l₂ h := absurd h !not_mem_nil
 | (x::l₁) l₂ h :=
   or.elim (mem_or_mem_of_mem_append h)
     (λ ain : (a, b) ∈ map (λ b, (x, b)) l₂,
        assert aeqx : a = x, from eq_of_mem_map_pair₁ ain,
        by rewrite [aeqx]; exact !mem_cons)
-    (λ ain : (a, b) ∈ cross_product l₁ l₂,
-      have ainl₁ : a ∈ l₁, from mem_of_mem_cross_product_left ain,
+    (λ ain : (a, b) ∈ product l₁ l₂,
+      have ainl₁ : a ∈ l₁, from mem_of_mem_product_left ain,
       mem_cons_of_mem _ ainl₁)
 
-theorem mem_of_mem_cross_product_right {a : A} {b : B} : ∀ {l₁ l₂}, (a, b) ∈ cross_product l₁ l₂ → b ∈ l₂
+theorem mem_of_mem_product_right {a : A} {b : B} : ∀ {l₁ l₂}, (a, b) ∈ product l₁ l₂ → b ∈ l₂
 | []      l₂ h := absurd h !not_mem_nil
 | (x::l₁) l₂ h :=
   or.elim (mem_or_mem_of_mem_append h)
     (λ abin : (a, b) ∈ map (λ b, (x, b)) l₂,
       mem_of_mem_map_pair₁ abin)
-    (λ abin : (a, b) ∈ cross_product l₁ l₂,
-      mem_of_mem_cross_product_right abin)
-end cross_product
+    (λ abin : (a, b) ∈ product l₁ l₂,
+      mem_of_mem_product_right abin)
+end product
 end list
 
 attribute list.decidable_any [instance]

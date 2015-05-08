@@ -726,30 +726,30 @@ theorem perm_ext : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → (∀a
          ...  = a₂::t₂       : by rewrite t₂_eq
 end ext
 
-/- cross_product -/
-section cross_product
-theorem perm_cross_product_left {l₁ l₂ : list A} (t₁ : list B) : l₁ ~ l₂ → (cross_product l₁ t₁) ~ (cross_product l₂ t₁) :=
+/- product -/
+section product
+theorem perm_product_left {l₁ l₂ : list A} (t₁ : list B) : l₁ ~ l₂ → (product l₁ t₁) ~ (product l₂ t₁) :=
 assume p : l₁ ~ l₂, perm.induction_on p
   !perm.refl
   (λ x l₁ l₂ p r, perm_app !perm.refl r)
   (λ x y l,
     let m₁ := map (λ b, (x, b)) t₁ in
     let m₂ := map (λ b, (y, b)) t₁ in
-    let c  := cross_product l t₁ in
+    let c  := product l t₁ in
     calc m₂ ++ (m₁ ++ c) = (m₂ ++ m₁) ++ c  : by rewrite append.assoc
                      ... ~ (m₁ ++ m₂) ++ c  : perm_app !perm_app_comm !perm.refl
                      ... =  m₁ ++ (m₂ ++ c) : by rewrite append.assoc)
   (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, trans r₁ r₂)
 
-theorem perm_cross_product_right (l : list A) {t₁ t₂ : list B} : t₁ ~ t₂ → (cross_product l t₁) ~ (cross_product l t₂) :=
+theorem perm_product_right (l : list A) {t₁ t₂ : list B} : t₁ ~ t₂ → (product l t₁) ~ (product l t₂) :=
 list.induction_on l
-  (λ p, by rewrite [*nil_cross_product])
+  (λ p, by rewrite [*nil_product])
   (λ a t r p,
     perm_app (perm_map _ p) (r p))
 
-theorem perm_cross_product {l₁ l₂ : list A} {t₁ t₂ : list B} : l₁ ~ l₂ → t₁ ~ t₂ → (cross_product l₁ t₁) ~ (cross_product l₂ t₂) :=
-assume p₁ p₂, trans (perm_cross_product_left t₁ p₁) (perm_cross_product_right l₂ p₂)
-end cross_product
+theorem perm_product {l₁ l₂ : list A} {t₁ t₂ : list B} : l₁ ~ l₂ → t₁ ~ t₂ → (product l₁ t₁) ~ (product l₂ t₂) :=
+assume p₁ p₂, trans (perm_product_left t₁ p₁) (perm_product_right l₂ p₂)
+end product
 
 /- filter -/
 theorem perm_filter {l₁ l₂ : list A} {p : A → Prop} [decp : decidable_pred p] :

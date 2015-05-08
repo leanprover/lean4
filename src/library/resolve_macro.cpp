@@ -97,8 +97,8 @@ public:
         return r.first;
     }
 
-    expr infer_type(expr const & e, extension_context & ctx) const {
-        auto r = ctx.infer_type(e);
+    expr infer_type(expr const & e, extension_context & ctx, bool infer_only) const {
+        auto r = ctx.check_type(e, infer_only);
         if (r.second)
             throw_kernel_exception(ctx.env(), "invalid resolve macro, constraints were generated while inferring type", e);
         return r.first;
@@ -150,13 +150,15 @@ public:
         return mk_bin_rop(*g_or, *g_false, R.size(), R.data());
     }
 
-    virtual pair<expr, constraint_seq> get_type(expr const & m, extension_context & ctx) const {
+    virtual pair<expr, constraint_seq> check_type(expr const & m, extension_context & ctx, bool infer_only) const {
         environment const & env = ctx.env();
         check_num_args(env, m);
+        if (!infer_only)
+            infer_type(macro_arg(m, 0), ctx, infer_only);
         expr l     = whnf(macro_arg(m, 0), ctx);
         expr not_l = whnf(mk_app(*g_not, l), ctx);
-        expr C1    = infer_type(macro_arg(m, 1), ctx);
-        expr C2    = infer_type(macro_arg(m, 2), ctx);
+        expr C1    = infer_type(macro_arg(m, 1), ctx, infer_only);
+        expr C2    = infer_type(macro_arg(m, 2), ctx, infer_only);
         return mk_pair(mk_resolvent(env, ctx, m, l, not_l, C1, C2), constraint_seq());
     }
 
@@ -175,8 +177,8 @@ public:
         expr not_l = whnf(mk_app(*g_not, l), ctx);
         expr H1    = macro_arg(m, 1);
         expr H2    = macro_arg(m, 2);
-        expr C1    = infer_type(H1, ctx);
-        expr C2    = infer_type(H2, ctx);
+        expr C1    = infer_type(H1, ctx, true);
+        expr C2    = infer_type(H2, ctx, true);
         expr R     = mk_resolvent(env, ctx, m, l, not_l, C1, C2);
         return some_expr(mk_or_elim_tree1(l, not_l, C1, H1, C2, H2, R, ctx));
     }

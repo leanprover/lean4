@@ -28,6 +28,7 @@ namespace finset
   | []        := (λ a, iff.rfl)
   | (x :: xs) :=
     take y,
+    assert ih : xs ~ norep xs, from eqv_norep xs,
     show y ∈ x :: xs ↔ y ∈ if x ∈ xs then norep xs else x :: norep xs,
     begin
       apply (@by_cases (x ∈ xs)),
@@ -35,19 +36,19 @@ namespace finset
         intro xin, rewrite (if_pos xin),
         apply iff.intro,
         {intro yinxxs, apply (or.elim (iff.mp !mem_cons_iff yinxxs)),
-          intro yeqx,  rewrite -yeqx at xin, exact (iff.mp (eqv_norep xs y) xin),
-          intro yeqxs, exact (iff.mp (eqv_norep xs y) yeqxs)},
-        {intro yinnrep, show y ∈ x::xs, from or.inr (iff.mp' (eqv_norep xs y) yinnrep)}
+          intro yeqx,  rewrite -yeqx at xin, exact (iff.mp (ih y) xin),
+          intro yeqxs, exact (iff.mp (ih y) yeqxs)},
+        {intro yinnrep, show y ∈ x::xs, from or.inr (iff.mp' (ih y) yinnrep)}
       end,
       begin
         intro xnin, rewrite (if_neg xnin),
         apply iff.intro,
         {intro yinxxs, apply (or.elim (iff.mp !mem_cons_iff yinxxs)),
           intro yeqx, rewrite yeqx, apply mem_cons,
-          intro yinxs, show y ∈ x:: norep xs, from or.inr (iff.mp (eqv_norep xs y) yinxs)},
+          intro yinxs, show y ∈ x:: norep xs, from or.inr (iff.mp (ih y) yinxs)},
         {intro yinxnrep, apply (or.elim (iff.mp !mem_cons_iff yinxnrep)),
           intro yeqx, rewrite yeqx, apply mem_cons,
-          intro yinrep, show y ∈ x::xs, from or.inr (iff.mp' (eqv_norep xs y) yinrep)}
+          intro yinrep, show y ∈ x::xs, from or.inr (iff.mp' (ih y) yinrep)}
       end
     end
 

@@ -189,7 +189,7 @@ expr type_checker::infer_constant(expr const & e, bool infer_only) {
 
 pair<expr, constraint_seq> type_checker::infer_macro(expr const & e, bool infer_only) {
     auto def = macro_def(e);
-    pair<expr, constraint_seq> tcs = def.get_type(e, m_tc_ctx);
+    pair<expr, constraint_seq> tcs = def.check_type(e, m_tc_ctx, infer_only);
     expr t            = tcs.first;
     constraint_seq cs = tcs.second;
     if (!infer_only && def.trust_level() >= m_env.trust_lvl()) {

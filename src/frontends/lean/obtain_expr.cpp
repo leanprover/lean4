@@ -48,7 +48,7 @@ class obtain_macro_cell : public macro_definition_cell {
 public:
     obtain_macro_cell(obtain_struct const & s):m_struct(s) {}
     virtual name get_name() const { return *g_obtain_name; }
-    virtual pair<expr, constraint_seq> get_type(expr const &, extension_context &) const { throw_ex(); }
+    virtual pair<expr, constraint_seq> check_type(expr const &, extension_context &, bool) const { throw_ex(); }
     virtual optional<expr> expand(expr const &, extension_context &) const { throw_ex(); }
     virtual void write(serializer & s) const {
         s << *g_obtain_opcode << m_struct;

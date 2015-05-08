@@ -84,12 +84,12 @@ public:
     virtual format pp(formatter const &) const { return format(m_proj_name); }
     virtual void display(std::ostream & out) const { out << m_proj_name; }
 
-    virtual pair<expr, constraint_seq> get_type(expr const & m, extension_context & ctx) const {
+    virtual pair<expr, constraint_seq> check_type(expr const & m, extension_context & ctx, bool infer_only) const {
         check_macro(m);
         environment const & env = ctx.env();
         constraint_seq cs;
         expr s   = macro_arg(m, 0);
-        expr s_t = ctx.whnf(ctx.infer_type(s, cs), cs);
+        expr s_t = ctx.whnf(ctx.check_type(s, cs, infer_only), cs);
         buffer<expr> I_args;
         expr const & I = get_app_args(s_t, I_args);
         if (is_constant(I)) {

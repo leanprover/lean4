@@ -201,6 +201,15 @@ constraint instantiate_metavars(constraint const & c, substitution & s);
 void check_term(type_checker & tc, expr const & e);
 void check_term(environment const & env, expr const & e);
 
+/** \brief Return a justification for \c v_type being definitionally equal to \c t,
+    <tt> v : v_type</tt>, the expressiong \c src is used to extract position information.
+*/
+format pp_type_mismatch(formatter const & fmt, expr const & v, expr const & v_type, expr const & t);
+justification mk_type_mismatch_jst(expr const & v, expr const & v_type, expr const & t, expr const & src);
+inline justification mk_type_mismatch_jst(expr const & v, expr const & v_type, expr const & t) {
+    return mk_type_mismatch_jst(v, v_type, t, v);
+}
+
 void initialize_library_util();
 void finalize_library_util();
 }

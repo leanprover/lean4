@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
+#include "kernel/kernel_exception.h"
+#include "library/util.h"
 #include "library/kernel_serializer.h"
 
 namespace lean {
@@ -34,9 +36,25 @@ class typed_expr_macro_definition_cell : public macro_definition_cell {
     }
 public:
     virtual name get_name() const { return get_typed_expr_name(); }
-    virtual pair<expr, constraint_seq> get_type(expr const & m, extension_context & ctx) const {
+    virtual pair<expr, constraint_seq> check_type(expr const & m, extension_context & ctx, bool infer_only) const {
+        constraint_seq cseq;
         check_macro(m);
-        return ctx.infer_type(macro_arg(m, 0));
+        expr given_type = macro_arg(m, 0);
+        if (!infer_only) {
+            cseq += ctx.check_type(given_type, infer_only).second;
+            auto p = ctx.check_type(macro_arg(m, 1), infer_only);
+            expr inferred_type = p.first;
+            cseq              += p.second;
+            justification jst = mk_type_mismatch_jst(macro_arg(m, 1), inferred_type, given_type, m);
+            as_delayed_justification djst(jst);
+            if (!ctx.is_def_eq(inferred_type, given_type, djst, cseq)) {
+                throw_kernel_exception(ctx.env(), m,
+                                       [=](formatter const & fmt) {
+                                           return pp_type_mismatch(fmt, macro_arg(m, 1), inferred_type, given_type);
+                                       });
+            }
+        }
+        return mk_pair(given_type, cseq);
     }
     virtual optional<expr> expand(expr const & m, extension_context &) const {
         check_macro(m);

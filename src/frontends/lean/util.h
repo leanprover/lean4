@@ -88,14 +88,6 @@ bool occurs(level const & u, level const & l);
 expr univ_metavars_to_params(environment const & env, local_decls<level> const & lls, substitution & s,
                              name_set & ps, buffer<name> & new_ps, expr const & e);
 
-/** \brief Return a justification for \c v_type being definitionally equal to \c t,
-    <tt> v : v_type</tt>, the expressiong \c src is used to extract position information.
-*/
-justification mk_type_mismatch_jst(expr const & v, expr const & v_type, expr const & t, expr const & src);
-inline justification mk_type_mismatch_jst(expr const & v, expr const & v_type, expr const & t) {
-    return mk_type_mismatch_jst(v, v_type, t, v);
-}
-
 /** \brief Auxiliary function for check/eval/find_decl */
 std::tuple<expr, level_param_names> parse_local_expr(parser & p, bool relaxed = true);
 

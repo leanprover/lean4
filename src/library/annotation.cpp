@@ -33,9 +33,9 @@ public:
     virtual name get_name() const { return get_annotation_name(); }
     virtual format pp(formatter const &) const { return format(m_name); }
     virtual void display(std::ostream & out) const { out << m_name; }
-    virtual pair<expr, constraint_seq> get_type(expr const & m, extension_context & ctx) const {
+    virtual pair<expr, constraint_seq> check_type(expr const & m, extension_context & ctx, bool infer_only) const {
         check_macro(m);
-        return ctx.infer_type(macro_arg(m, 0));
+        return ctx.check_type(macro_arg(m, 0), infer_only);
     }
     virtual optional<expr> expand(expr const & m, extension_context &) const {
         check_macro(m);

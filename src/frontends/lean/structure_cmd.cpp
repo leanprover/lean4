@@ -993,7 +993,7 @@ class structure_instance_macro_cell : public macro_definition_cell {
 public:
     structure_instance_macro_cell(list<name> const & fs):m_fields(fs) {}
     virtual name get_name() const { return *g_structure_instance_name; }
-    virtual pair<expr, constraint_seq> get_type(expr const &, extension_context &) const { throw_se_ex(); }
+    virtual pair<expr, constraint_seq> check_type(expr const &, extension_context &, bool) const { throw_se_ex(); }
     virtual optional<expr> expand(expr const &, extension_context &) const { throw_se_ex(); }
     virtual void write(serializer & s) const {
         s << *g_structure_instance_opcode;

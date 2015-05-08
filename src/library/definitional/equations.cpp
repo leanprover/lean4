@@ -46,7 +46,7 @@ class equations_macro_cell : public macro_definition_cell {
 public:
     equations_macro_cell(unsigned num_fns):m_num_fns(num_fns) {}
     virtual name get_name() const { return *g_equations_name; }
-    virtual pair<expr, constraint_seq> get_type(expr const &, extension_context &) const { throw_eqs_ex(); }
+    virtual pair<expr, constraint_seq> check_type(expr const &, extension_context &, bool) const { throw_eqs_ex(); }
     virtual optional<expr> expand(expr const &, extension_context &) const { throw_eqs_ex(); }
     virtual void write(serializer & s) const { s << *g_equations_opcode << m_num_fns; }
     unsigned get_num_fns() const { return m_num_fns; }
@@ -54,7 +54,7 @@ public:
 
 class equation_base_macro_cell : public macro_definition_cell {
 public:
-    virtual pair<expr, constraint_seq> get_type(expr const &, extension_context &) const {
+    virtual pair<expr, constraint_seq> check_type(expr const &, extension_context &, bool) const {
         expr dummy = mk_Prop();
         return mk_pair(dummy, constraint_seq());
     }
@@ -85,9 +85,9 @@ class decreasing_macro_cell : public macro_definition_cell {
 public:
     decreasing_macro_cell() {}
     virtual name get_name() const { return *g_decreasing_name; }
-    virtual pair<expr, constraint_seq> get_type(expr const & m, extension_context & ctx) const {
+    virtual pair<expr, constraint_seq> check_type(expr const & m, extension_context & ctx, bool infer_only) const {
         check_macro(m);
-        return ctx.infer_type(macro_arg(m, 0));
+        return ctx.check_type(macro_arg(m, 0), infer_only);
     }
     virtual optional<expr> expand(expr const & m, extension_context &) const {
         check_macro(m);
@@ -204,8 +204,8 @@ bool is_inaccessible(expr const & e) { return is_annotation(e, *g_inaccessible_n
 class equations_result_macro_cell : public macro_definition_cell {
 public:
     virtual name get_name() const { return *g_equations_result_name; }
-    virtual pair<expr, constraint_seq> get_type(expr const & m, extension_context & ctx) const {
-        return ctx.infer_type(macro_arg(m, 0));
+    virtual pair<expr, constraint_seq> check_type(expr const & m, extension_context & ctx, bool infer_only) const {
+        return ctx.check_type(macro_arg(m, 0), infer_only);
     }
     virtual optional<expr> expand(expr const & m, extension_context &) const {
         return some_expr(macro_arg(m, 0));

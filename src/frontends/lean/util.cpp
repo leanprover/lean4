@@ -373,21 +373,6 @@ expr univ_metavars_to_params(environment const & env, local_decls<level> const &
     return univ_metavars_to_params_fn(env, lls, s, ps, new_ps)(e);
 }
 
-justification mk_type_mismatch_jst(expr const & v, expr const & v_type, expr const & t, expr const & src) {
-    return mk_justification(src, [=](formatter const & fmt, substitution const & subst) {
-            substitution s(subst);
-            format expected_fmt, given_fmt;
-            std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, s.instantiate(t), s.instantiate(v_type));
-            format r("type mismatch at term");
-            r += pp_indent_expr(fmt, s.instantiate(v));
-            r += compose(line(), format("has type"));
-            r += given_fmt;
-            r += compose(line(), format("but is expected to have type"));
-            r += expected_fmt;
-            return r;
-        });
-}
-
 std::tuple<expr, level_param_names> parse_local_expr(parser & p, bool relaxed) {
     expr e   = p.parse_expr();
     list<expr> ctx = p.locals_to_context();

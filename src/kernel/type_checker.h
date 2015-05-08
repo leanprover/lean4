@@ -79,7 +79,9 @@ class type_checker {
         virtual pair<bool, constraint_seq> is_def_eq(expr const & e1, expr const & e2, delayed_justification & j) {
             return m_tc.is_def_eq(e1, e2, j);
         }
-        virtual pair<expr, constraint_seq> infer_type(expr const & e) { return m_tc.infer_type(e); }
+        virtual pair<expr, constraint_seq> check_type(expr const & e, bool infer_only) {
+            return m_tc.infer_type_core(e, infer_only);
+        }
         virtual name mk_fresh_name() { return m_tc.m_gen.next(); }
         virtual optional<expr> is_stuck(expr const & e) { return m_tc.is_stuck(e); }
     };

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
+#include "kernel/error_msgs.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
 #include "kernel/metavar.h"
@@ -654,5 +655,24 @@ void check_term(type_checker & tc, expr const & e) {
 void check_term(environment const & env, expr const & e) {
     expr tmp = unfold_untrusted_macros(env, e);
     type_checker(env).check_ignore_undefined_universes(tmp);
+}
+
+format pp_type_mismatch(formatter const & fmt, expr const & v, expr const & v_type, expr const & t) {
+    format expected_fmt, given_fmt;
+    std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, t, v_type);
+    format r("type mismatch at term");
+    r += pp_indent_expr(fmt, v);
+    r += compose(line(), format("has type"));
+    r += given_fmt;
+    r += compose(line(), format("but is expected to have type"));
+    r += expected_fmt;
+    return r;
+}
+
+justification mk_type_mismatch_jst(expr const & v, expr const & v_type, expr const & t, expr const & src) {
+    return mk_justification(src, [=](formatter const & fmt, substitution const & subst) {
+            substitution s(subst);
+            return pp_type_mismatch(fmt, s.instantiate(v), s.instantiate(v_type), s.instantiate(t));
+        });
 }
 }

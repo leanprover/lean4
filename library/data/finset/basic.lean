@@ -194,9 +194,9 @@ protected theorem induction {P : finset A → Prop}
   ∀s, P s :=
 take s,
 quot.induction_on s
-  take u,
+ (take u,
   subtype.destruct u
-    take l,
+   (take l,
     list.induction_on l
       (assume nodup_l, H1)
       (take a l',
@@ -206,7 +206,12 @@ quot.induction_on s
         assert nodup_l' : nodup l', from nodup_of_nodup_cons nodup_al',
         assert P_l' : P (quot.mk (subtype.tag l' nodup_l')), from IH nodup_l',
         assert H4 : P (insert a (quot.mk (subtype.tag l' nodup_l'))), from H2 anl' P_l',
-        begin rewrite [eq.symm H3], apply H4 end)
+        begin
+          revert nodup_al',
+          rewrite [-H3],
+          intros,
+          apply H4
+        end)))
 
 protected theorem induction_on {P : finset A → Prop} (s : finset A)
     (H1 : P empty)

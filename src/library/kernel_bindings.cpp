@@ -766,13 +766,6 @@ static int mk_axiom(lua_State * L) {
     else
         return push_declaration(L, mk_axiom(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3)));
 }
-static int mk_theorem(lua_State * L) {
-    int nargs = lua_gettop(L);
-    if (nargs == 3)
-        return push_declaration(L, mk_theorem(to_name_ext(L, 1), level_param_names(), to_expr(L, 2), to_expr(L, 3)));
-    else
-        return push_declaration(L, mk_theorem(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3), to_expr(L, 4)));
-}
 static void get_definition_args(lua_State * L, int idx, unsigned & weight, bool & use_conv_opt) {
     use_conv_opt = get_bool_named_param(L, idx, "use_conv_opt", use_conv_opt);
     weight       = get_uint_named_param(L, idx, "weight", weight);
@@ -804,6 +797,27 @@ static int mk_definition(lua_State * L) {
             return push_declaration(L, mk_definition(to_name_ext(L, 1), to_level_param_names(L, 2),
                                                     to_expr(L, 3), to_expr(L, 4), weight, use_conv_opt));
         }
+    }
+}
+static void get_definition_args(lua_State * L, int idx, unsigned & weight) {
+    weight       = get_uint_named_param(L, idx, "weight", weight);
+}
+static int mk_theorem(lua_State * L) {
+    int nargs = lua_gettop(L);
+    unsigned weight = 0;
+    if (nargs == 3) {
+          return push_declaration(L, mk_theorem(to_name_ext(L, 1), level_param_names(), to_expr(L, 2), to_expr(L, 3), 0));
+    } else if (nargs == 4) {
+        if (is_expr(L, 4)) {
+            return push_declaration(L, mk_theorem(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3), to_expr(L, 4),
+                                                  weight));
+        } else {
+            get_definition_args(L, 4, weight);
+            return push_declaration(L, mk_theorem(to_name_ext(L, 1), level_param_names(), to_expr(L, 2), to_expr(L, 3), weight));
+        }
+    } else {
+        get_definition_args(L, 5, weight);
+        return push_declaration(L, mk_theorem(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3), to_expr(L, 4), weight));
     }
 }
 

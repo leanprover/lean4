@@ -31,7 +31,7 @@ void theorem_queue::add(environment const & env, name const & n, level_param_nam
             std::tie(type, value, new_ls) = m_parser.elaborate_definition_at(env, lls, n, t, v);
             new_ls = append(ls, new_ls);
             value  = expand_abbreviations(env, unfold_untrusted_macros(env, value));
-            auto r = check(env, mk_theorem(n, new_ls, type, value));
+            auto r = check(env, mk_theorem(env, n, new_ls, type, value));
             m_parser.cache_definition(n, t, v, new_ls, type, value);
             return r;
         });

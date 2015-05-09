@@ -857,7 +857,7 @@ struct structure_cmd_fn {
         expr eta_value           = Fun(m_params, Fun(st, rec));
         name eta_name(m_name, "eta");
 
-        declaration eta_decl     = mk_theorem(eta_name, lnames, eta_type, eta_value);
+        declaration eta_decl     = mk_theorem(m_env, eta_name, lnames, eta_type, eta_value);
         m_env = module::add(m_env, check(m_env, eta_decl));
         save_thm_info(eta_name);
         add_alias(eta_name);
@@ -888,7 +888,7 @@ struct structure_cmd_fn {
             expr proj_over_type     = infer_implicit(Pi(m_params, Pi(m_fields, eq)), m_params.size(), true);
             expr proj_over_value    = Fun(m_params, Fun(m_fields, refl));
 
-            declaration proj_over_decl = mk_theorem(proj_over_name, lnames, proj_over_type, proj_over_value);
+            declaration proj_over_decl = mk_theorem(m_env, proj_over_name, lnames, proj_over_type, proj_over_value);
             m_env = module::add(m_env, check(m_env, proj_over_decl));
             save_thm_info(proj_over_name);
             add_alias(proj_over_name);

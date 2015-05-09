@@ -290,8 +290,7 @@ serializer & operator<<(serializer & s, declaration const & d) {
     s << k << d.get_name() << d.get_univ_params() << d.get_type();
     if (d.is_definition()) {
         s << d.get_value();
-        if (!d.is_theorem())
-            s << d.get_weight();
+        s << d.get_weight();
     }
     return s;
 }
@@ -305,10 +304,10 @@ declaration read_declaration(deserializer & d) {
     expr t               = read_expr(d);
     if (has_value) {
         expr v      = read_expr(d);
+        unsigned w        = d.read_unsigned();
         if (is_th_ax) {
-            return mk_theorem(n, ps, t, v);
+            return mk_theorem(n, ps, t, v, w);
         } else {
-            unsigned w        = d.read_unsigned();
             bool use_conv_opt = (k & 2) != 0;
             return mk_definition(n, ps, t, v, w, use_conv_opt);
         }

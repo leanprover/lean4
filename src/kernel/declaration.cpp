@@ -65,8 +65,7 @@ declaration mk_definition(name const & n, level_param_names const & params, expr
                           unsigned weight, bool use_conv_opt) {
     return declaration(new declaration::cell(n, params, t, false, v, weight, use_conv_opt));
 }
-declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t,
-                          expr const & v, bool use_conv_opt) {
+static unsigned get_max_weight(environment const & env, expr const & v) {
     unsigned w = 0;
     for_each(v, [&](expr const & e, unsigned) {
             if (is_constant(e)) {
@@ -76,10 +75,20 @@ declaration mk_definition(environment const & env, name const & n, level_param_n
             }
             return true;
         });
+    return w;
+}
+
+declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t,
+                          expr const & v, bool use_conv_opt) {
+    unsigned w = get_max_weight(env, v);
     return mk_definition(n, params, t, v, w+1, use_conv_opt);
 }
-declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v) {
-    return declaration(new declaration::cell(n, params, t, true, v, 0, false));
+declaration mk_theorem(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v) {
+    unsigned w = get_max_weight(env, v);
+    return declaration(new declaration::cell(n, params, t, true, v, w+1, false));
+}
+declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v, unsigned weight) {
+    return declaration(new declaration::cell(n, params, t, true, v, weight, false));
 }
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t) {
     return declaration(new declaration::cell(n, params, t, true));

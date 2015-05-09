@@ -225,9 +225,9 @@ struct migrate_cmd_fn {
             expr new_value = Fun(m_params, v);
             try {
                 if (d.is_axiom())
-                    m_env = module::add(m_env, check(m_env, mk_theorem(full_name, ls, new_type, new_value)));
+                    m_env = module::add(m_env, check(m_env, mk_theorem(m_env, full_name, ls, new_type, new_value)));
                 else if (d.is_theorem())
-                    m_env = module::add(m_env, check(m_env, mk_theorem(full_name, ls, new_type, new_value)));
+                    m_env = module::add(m_env, check(m_env, mk_theorem(m_env, full_name, ls, new_type, new_value)));
                 else
                     m_env = module::add(m_env, check(m_env, mk_definition(m_env, full_name, ls, new_type, new_value)));
                 m_p.add_decl_index(full_name, m_pos, d.is_theorem() ? name("theorem") : name("definition"), new_type);

@@ -108,9 +108,7 @@ expr default_converter::whnf_core(expr const & e) {
     return r;
 }
 
-bool default_converter::is_opaque(declaration const & d) const {
-    lean_assert(d.is_definition());
-    if (d.is_theorem()) return true;                               // theorems are always opaque
+bool default_converter::is_opaque(declaration const &) const {
     return false;
 }
 

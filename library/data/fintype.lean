@@ -185,8 +185,7 @@ private theorem mem_ltype_elems {A : Type} {s : list A} {a : ⟪s⟫}
       apply mem_cons
    end)
   (λ vainl : value a ∈ l,
-     have s₁  : l ⊆ s,                               from sub_of_cons_sub h,
-     have aux : a ∈ ltype_elems (sub_of_cons_sub h), from mem_ltype_elems s₁ vainl,
+     have aux : a ∈ ltype_elems (sub_of_cons_sub h), from mem_ltype_elems (sub_of_cons_sub h) vainl,
      mem_cons_of_mem _ aux)
 
 definition fintype_list_as_type [instance] {A : Type} [h : decidable_eq A] {s : list A} : fintype ⟪s⟫ :=

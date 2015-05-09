@@ -143,7 +143,8 @@ declaration unfold_untrusted_macros(environment const & env, declaration const &
         expr new_t = unfold_untrusted_macros(env, d.get_type(), trust_lvl);
         if (d.is_theorem()) {
             expr new_v = unfold_untrusted_macros(env, d.get_value(), trust_lvl);
-            return mk_theorem(d.get_name(), d.get_univ_params(), new_t, new_v);
+            return mk_theorem(d.get_name(), d.get_univ_params(), new_t, new_v,
+                              d.get_weight());
         } else if (d.is_definition()) {
             expr new_v = unfold_untrusted_macros(env, d.get_value(), trust_lvl);
             return mk_definition(d.get_name(), d.get_univ_params(), new_t, new_v,

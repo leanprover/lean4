@@ -55,7 +55,7 @@ namespace quot
   protected lemma lift_indep_pr1
     (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b)
     (q : quot s) : (lift (indep f) (indep_coherent f H) q).1 = q  :=
-  ind (λ a, by esimp) q
+  quot.ind (λ a, by esimp) q
 
   protected definition rec [reducible]
      (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b)
@@ -65,11 +65,18 @@ namespace quot
 
   protected definition rec_on [reducible]
      (q : quot s) (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b) : B q :=
-  rec f H q
+  quot.rec f H q
 
   protected definition rec_on_subsingleton [reducible]
      [H : ∀ a, subsingleton (B ⟦a⟧)] (q : quot s) (f : Π a, B ⟦a⟧) : B q :=
-  rec f (λ a b h, !subsingleton.elim) q
+  quot.rec f (λ a b h, !subsingleton.elim) q
+
+  protected definition hrec_on [reducible]
+     (q : quot s) (f : Π a, B ⟦a⟧) (c : ∀ (a b : A) (p : a ≈ b), f a == f b) : B q :=
+  quot.rec_on q f
+    (λ a b p, heq.to_eq (calc
+      eq.rec (f a) (sound p) == f a : eq_rec_heq
+                         ... == f b : c a b p))
   end
 
   section
@@ -80,14 +87,14 @@ namespace quot
   protected definition lift₂ [reducible]
      (f : A → B → C)(c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ = f b₁ b₂)
      (q₁ : quot s₁) (q₂ : quot s₂) : C :=
-  lift
+  quot.lift
     (λ a₁, lift (λ a₂, f a₁ a₂) (λ a b H, c a₁ a a₁ b (setoid.refl a₁) H) q₂)
     (λ a b H, ind (λ a', proof c a a' b a' H (setoid.refl a') qed) q₂)
     q₁
 
   protected definition lift_on₂ [reducible]
     (q₁ : quot s₁) (q₂ : quot s₂) (f : A → B → C) (c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ = f b₁ b₂) : C :=
-  lift₂ f c q₁ q₂
+  quot.lift₂ f c q₁ q₂
 
   protected theorem ind₂ {C : quot s₁ → quot s₂ → Prop} (H : ∀ a b, C ⟦a⟧ ⟦b⟧) (q₁ : quot s₁) (q₂ : quot s₂) : C q₁ q₂ :=
   quot.ind (λ a₁, quot.ind (λ a₂, H a₁ a₂) q₂) q₁
@@ -115,6 +122,19 @@ namespace quot
   @quot.rec_on_subsingleton _ _ _
     (λ a, quot.ind _ _)
     q₁ (λ a, quot.rec_on_subsingleton q₂ (λ b, f a b))
+
+  protected definition hrec_on₂ [reducible]
+     {C : quot s₁ → quot s₂ → Type₁} (q₁ : quot s₁) (q₂ : quot s₂)
+     (f : Π a b, C ⟦a⟧ ⟦b⟧) (c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ == f b₁ b₂) : C q₁ q₂:=
+  hrec_on q₁
+    (λ a, hrec_on q₂ (λ b, f a b) (λ b₁ b₂ p, c _ _ _ _ !setoid.refl p))
+    (λ a₁ a₂ p, quot.induction_on q₂
+      (λ b,
+        have aux : f a₁ b == f a₂ b, from c _ _ _ _ p !setoid.refl,
+        calc quot.hrec_on ⟦b⟧ (λ (b : B), f a₁ b) _
+                 == f a₁ b                                 : eq_rec_heq
+             ... == f a₂ b                                 : aux
+             ... == quot.hrec_on ⟦b⟧ (λ (b : B), f a₂ b) _ : eq_rec_heq))
   end
 end quot
 
@@ -122,7 +142,9 @@ attribute quot.mk                   [constructor]
 attribute quot.lift_on              [unfold-c 4]
 attribute quot.rec                  [unfold-c 6]
 attribute quot.rec_on               [unfold-c 4]
+attribute quot.hrec_on              [unfold-c 4]
 attribute quot.rec_on_subsingleton  [unfold-c 5]
 attribute quot.lift₂                [unfold-c 8]
 attribute quot.lift_on₂             [unfold-c 6]
+attribute quot.hrec_on₂             [unfold-c 6]
 attribute quot.rec_on_subsingleton₂ [unfold-c 7]

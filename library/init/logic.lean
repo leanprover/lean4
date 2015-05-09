@@ -60,6 +60,9 @@ namespace eq
     notation H1 ⬝ H2 := trans H1 H2
     notation H1 ▸ H2 := subst H1 H2
   end ops
+
+  protected definition drec_on {B : Πa' : A, a = a' → Type} (H₁ : a = a') (H₂ : B a (refl a)) : B a' H₁ :=
+  eq.rec (λH₁ : a = a, show B a H₁, from H₂) H₁ H₁
 end eq
 
 theorem congr {A B : Type} {f₁ f₂ : A → B} {a₁ a₂ : A} (H₁ : f₁ = f₂) (H₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ :=
@@ -154,7 +157,11 @@ namespace heq
 
   theorem of_eq_of_heq (H₁ : a = a') (H₂ : a' == b) : a == b :=
   trans (of_eq H₁) H₂
+
 end heq
+
+theorem eq_rec_heq {A : Type} {P : A → Type} {a a' : A} (H : a = a') (p : P a) : eq.rec_on H p == p :=
+eq.drec_on H !heq.refl
 
 theorem of_heq_true {a : Prop} (H : a == true) : a :=
 of_eq_true (heq.to_eq H)

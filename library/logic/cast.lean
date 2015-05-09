@@ -42,10 +42,6 @@ namespace heq
   drec_on H !cast_eq
 end heq
 
-theorem eq_rec_heq {A : Type} {P : A → Type} {a a' : A} (H : a = a') (p : P a) :
-  eq.rec_on H p == p :=
-eq.drec_on H !heq.refl
-
 section
   universe variables u v
   variables {A A' B C : Type.{u}} {P P' : A → Type.{v}} {a a' : A} {b : B}

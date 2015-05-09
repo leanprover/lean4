@@ -110,15 +110,17 @@ quot.lift_on s
   (λ l, all (elt_of l) p)
   (λ l₁ l₂ p, foldr_eq_of_perm (λ a₁ a₂ q, propext !and.left_comm) p true)
 
--- notation for bounded quantifiers
-notation `forallb` binders `∈` a `,` r:(scoped:1 P, P) := all a r
-notation `∀₀` binders `∈` a `,` r:(scoped:1 P, P) := all a r
-
 theorem all_empty (p : A → Prop) : all ∅ p = true :=
 rfl
 
 theorem of_mem_of_all {p : A → Prop} {a : A} {s : finset A} : a ∈ s → all s p → p a :=
 quot.induction_on s (λ l i h, list.of_mem_of_all i h)
+
+theorem forall_of_all {p : A → Prop} {s : finset A} (H : all s p) : ∀{a}, a ∈ s → p a :=
+λ a H', of_mem_of_all H' H
+
+definition decidable_all (p : A → Prop) [h : decidable_pred p] (s : finset A) : decidable (all s p) :=
+quot.rec_on_subsingleton s (λ l, list.decidable_all p (elt_of l))
 
 theorem all_implies {p q : A → Prop} {s : finset A} : all s p → (∀ x, p x → q x) → all s q :=
 quot.induction_on s (λ l h₁ h₂, list.all_implies h₁ h₂)
@@ -147,6 +149,40 @@ quot.induction_on₂ s₁ s₂ (λ l₁ l₂ h, list.all_inter_of_all_left _ h)
 theorem all_inter_of_all_right {p : A → Prop} {s₁ : finset A} (s₂ : finset A) : all s₂ p → all (s₁ ∩ s₂) p :=
 quot.induction_on₂ s₁ s₂ (λ l₁ l₂ h, list.all_inter_of_all_right _ h)
 end all
+
+/- any -/
+section any
+variables {A : Type}
+definition any (s : finset A) (p : A → Prop) : Prop :=
+quot.lift_on s
+  (λ l, any (elt_of l) p)
+  (λ l₁ l₂ p, foldr_eq_of_perm (λ a₁ a₂ q, propext !or.left_comm) p false)
+
+theorem any_empty (p : A → Prop) : any ∅ p = false := rfl
+
+theorem exists_of_any {p : A → Prop} {s : finset A} : any s p → ∃a, a ∈ s ∧ p a :=
+quot.induction_on s (λ l H, list.exists_of_any H)
+
+theorem any_of_mem {p : A → Prop} {s : finset A} {a : A} : a ∈ s → p a → any s p :=
+quot.induction_on s (λ l H1 H2, list.any_of_mem H1 H2)
+
+theorem any_of_insert [h : decidable_eq A] {p : A → Prop} (s : finset A) {a : A} (H : p a) :
+  any (insert a s) p :=
+any_of_mem (mem_insert a s) H
+
+theorem any_of_insert_right [h : decidable_eq A] {p : A → Prop} {s : finset A} (a : A) (H : any s p) :
+  any (insert a s) p :=
+obtain b (H' : b ∈ s ∧ p b), from exists_of_any H,
+any_of_mem (mem_insert_of_mem a (and.left H')) (and.right H')
+
+theorem any_of_exists {p : A → Prop} {s : finset A} (H : ∃a, a ∈ s ∧ p a) : any s p :=
+obtain a H', from H,
+any_of_mem (and.left H') (and.right H')
+
+definition decidable_any (p : A → Prop) [h : decidable_pred p] (s : finset A) : decidable (any s p) :=
+quot.rec_on_subsingleton s (λ l, list.decidable_any p (elt_of l))
+
+end any
 
 section product
 variables {A B : Type}

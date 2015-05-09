@@ -64,5 +64,5 @@ theorem add_eq_addl : ∀ x y, x + y = x ⊕ y
     rewrite [s_add, add_eq_addl]
   end
 
-wait add_eq_addl
+reveal add_eq_addl
 print definition add_eq_addl

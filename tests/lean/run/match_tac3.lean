@@ -10,5 +10,5 @@ begin
   end
 end
 
-wait tst
+reveal tst
 print definition tst

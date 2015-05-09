@@ -7,5 +7,5 @@ calc d  == c  : H₃
     ... == a₂ : H₁
     ... =  a₁ : H₀
 
-wait tst
+reveal tst
 print definition tst

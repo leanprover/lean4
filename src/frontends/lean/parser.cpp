@@ -1821,7 +1821,7 @@ void parser::add_delayed_theorem(certified_declaration const & cd) {
     m_theorem_queue.add(cd);
 }
 
-environment parser::wait_theorems(buffer<name> const & ds) {
+environment parser::reveal_theorems(buffer<name> const & ds) {
     m_theorem_queue.for_each([&](certified_declaration const & thm) {
             if (keep_new_thms()) {
                 name const & thm_name = thm.get_declaration().get_name();

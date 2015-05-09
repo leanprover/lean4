@@ -6,5 +6,5 @@ begin
   rewrite [add.assoc, {b + _}add.comm, -add.assoc]
 end
 
-wait test
+reveal test
 print definition test

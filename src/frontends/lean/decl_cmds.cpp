@@ -1410,14 +1410,14 @@ environment local_attribute_cmd(parser & p) {
     return attribute_cmd_core(p, false);
 }
 
-static environment wait_cmd(parser & p) {
+static environment reveal_cmd(parser & p) {
     buffer<name> ds;
-    name d          = p.check_constant_next("invalid 'wait' command, constant expected");
+    name d          = p.check_constant_next("invalid 'reveal' command, constant expected");
     ds.push_back(d);
     while (p.curr_is_identifier()) {
-        ds.push_back(p.check_constant_next("invalid 'wait' command, constant expected"));
+        ds.push_back(p.check_constant_next("invalid 'reveal' command, constant expected"));
     }
-    return p.wait_theorems(ds);
+    return p.reveal_theorems(ds);
 }
 
 void register_decl_cmds(cmd_table & r) {
@@ -1436,7 +1436,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("private",      "add new private definition/theorem", private_definition_cmd));
     add_cmd(r, cmd_info("protected",    "add new protected definition/theorem", protected_definition_cmd));
     add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));
-    add_cmd(r, cmd_info("wait",         "wait for theorems to be processed", wait_cmd));
+    add_cmd(r, cmd_info("reveal",       "reveal given theorems", reveal_cmd));
     add_cmd(r, cmd_info("include",      "force section parameter/variable to be included", include_cmd));
     add_cmd(r, cmd_info("attribute",    "set declaration attributes", attribute_cmd));
     add_cmd(r, cmd_info("abbreviation", "declare a new abbreviation", abbreviation_cmd));

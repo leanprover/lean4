@@ -59,10 +59,13 @@ optional<pair<expr, constraint_seq>> quotient_normalizer_extension::operator()(e
     if (!ext.m_initialized)
         return none_ecs();
     unsigned mk_pos;
+    unsigned arg_pos;
     if (const_name(fn) == *g_quotient_lift) {
-        mk_pos = 5;
+        mk_pos  = 5;
+        arg_pos = 3;
     } else if (const_name(fn) == *g_quotient_ind) {
-        mk_pos = 4;
+        mk_pos  = 4;
+        arg_pos = 3;
     } else {
         return none_ecs();
     }
@@ -80,7 +83,7 @@ optional<pair<expr, constraint_seq>> quotient_normalizer_extension::operator()(e
     if (const_name(mk_fn) != *g_quotient_mk)
         return none_ecs();
 
-    expr const & f = args[mk_pos-2];
+    expr const & f = args[arg_pos];
     expr r = mk_app(f, app_arg(mk));
     unsigned elim_arity = mk_pos+1;
     if (args.size() > elim_arity)

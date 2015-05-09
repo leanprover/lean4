@@ -481,25 +481,11 @@ environment check_cmd(parser & p) {
     return p.env();
 }
 
-class all_transparent_converter : public default_converter {
-public:
-    all_transparent_converter(environment const & env):
-        default_converter(env) {
-    }
-    virtual bool is_opaque(declaration const &) const {
-        return false;
-    }
-};
-
 environment eval_cmd(parser & p) {
     bool whnf   = false;
-    bool all_transparent = false;
     if (p.curr_is_token(get_whnf_tk())) {
         p.next();
         whnf = true;
-    } else if (p.curr_is_token(get_all_transparent_tk())) {
-        p.next();
-        all_transparent = true;
     }
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
@@ -507,12 +493,9 @@ environment eval_cmd(parser & p) {
     if (whnf) {
         auto tc = mk_type_checker(p.env(), p.mk_ngen());
         r = tc->whnf(e).first;
-    } else if (all_transparent) {
-        type_checker tc(p.env(), name_generator(),
-                        std::unique_ptr<converter>(new all_transparent_converter(p.env())));
-        r = normalize(tc, ls, e);
     } else {
-        r = normalize(p.env(), ls, e);
+        type_checker tc(p.env());
+        r = normalize(tc, ls, e);
     }
     flycheck_information info(p.regular_stream());
     if (info.enabled()) {

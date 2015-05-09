@@ -122,7 +122,7 @@
                "\[coercion\]" "\[unfold-f\]" "\[constructor\]" "\[reducible\]"
                "\[irreducible\]" "\[semireducible\]" "\[quasireducible\]" "\[wf\]"
                "\[whnf\]" "\[multiple-instances\]" "\[none\]"
-               "\[decls\]" "\[declarations\]" "\[all-transparent\]" "\[coercions\]" "\[classes\]"
+               "\[decls\]" "\[declarations\]" "\[coercions\]" "\[classes\]"
                "\[symm\]" "\[subst\]" "\[refl\]" "\[trans\]"
                "\[notations\]" "\[abbreviations\]" "\[begin-end-hints\]" "\[tactic-hints\]"
                "\[reduce-hints\]" "\[unfold-hints\]" "\[aliases\]" "\[eqv\]" "\[localrefinfo\]"))

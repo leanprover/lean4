@@ -75,7 +75,6 @@ static name * g_as           = nullptr;
 static name * g_none         = nullptr;
 static name * g_whnf         = nullptr;
 static name * g_wf           = nullptr;
-static name * g_all_transparent = nullptr;
 static name * g_in           = nullptr;
 static name * g_at           = nullptr;
 static name * g_assign       = nullptr;
@@ -209,7 +208,6 @@ void initialize_tokens() {
     g_none         = new name("[none]");
     g_whnf         = new name("[whnf]");
     g_wf           = new name("[wf]");
-    g_all_transparent = new name("[all-transparent]");
     g_in           = new name("in");
     g_at           = new name("at");
     g_assign       = new name(":=");
@@ -359,7 +357,6 @@ void finalize_tokens() {
     delete g_none;
     delete g_whnf;
     delete g_wf;
-    delete g_all_transparent;
     delete g_ellipsis;
     delete g_match;
     delete g_fun;
@@ -480,7 +477,6 @@ name const & get_as_tk() { return *g_as; }
 name const & get_none_tk() { return *g_none; }
 name const & get_whnf_tk() { return *g_whnf; }
 name const & get_wf_tk() { return *g_wf; }
-name const & get_all_transparent_tk() { return *g_all_transparent; }
 name const & get_in_tk() { return *g_in; }
 name const & get_at_tk() { return *g_at; }
 name const & get_assign_tk() { return *g_assign; }

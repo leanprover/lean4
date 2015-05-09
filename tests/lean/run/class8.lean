@@ -32,6 +32,7 @@ have h1 [visible] : inh A, from inh.intro a,
 have h2 [visible] : inh C, from inh_exists H2,
 _
 
+wait T1
 (*
 print(get_env():find("T1"):value())
 *)

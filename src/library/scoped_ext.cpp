@@ -127,7 +127,7 @@ environment add_namespace(environment const & env, name const & ns) {
     if (!ext.m_namespace_set.contains(ns)) {
         ext.m_namespace_set.insert(ns);
         environment r = update(env, ext);
-        return module::add(r, *g_new_namespace_key, [=](serializer & s) { s << ns; });
+        return module::add(r, *g_new_namespace_key, [=](environment const &, serializer & s) { s << ns; });
     } else {
         return env;
     }
@@ -155,7 +155,7 @@ environment push_scope(environment const & env, io_state const & ios, scope_kind
     if (k == scope_kind::Namespace)
         r = using_namespace(r, ios, new_n);
     if (save_ns)
-        r = module::add(r, *g_new_namespace_key, [=](serializer & s) { s << new_n; });
+        r = module::add(r, *g_new_namespace_key, [=](environment const &, serializer & s) { s << new_n; });
     return r;
 }
 

@@ -1058,16 +1058,19 @@ class definition_cmd_fn {
                     c_value = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, c_value));
                     if (m_kind == Theorem) {
                         cd = check(mk_theorem(m_real_name, c_ls, c_type, c_value));
-                        if (!m_p.keep_new_thms()) {
-                            // discard theorem
-                            cd = check(mk_axiom(m_real_name, c_ls, c_type));
+                        if (m_p.keep_new_thms()) {
+                            if (!m_is_private)
+                                m_p.add_decl_index(m_real_name, m_pos, m_p.get_cmd_token(), c_type);
+                            m_p.add_delayed_theorem(*cd);
                         }
+                        cd = check(mk_axiom(m_real_name, c_ls, c_type));
+                        m_env = module::add(m_env, *cd);
                     } else {
                         cd = check(mk_definition(m_env, m_real_name, c_ls, c_type, c_value));
+                        if (!m_is_private)
+                            m_p.add_decl_index(m_real_name, m_pos, m_p.get_cmd_token(), c_type);
+                        m_env = module::add(m_env, *cd);
                     }
-                    if (!m_is_private)
-                        m_p.add_decl_index(m_real_name, m_pos, m_p.get_cmd_token(), c_type);
-                    m_env = module::add(m_env, *cd);
                     return true;
                 } catch (exception&) {}
             }
@@ -1217,10 +1220,10 @@ class definition_cmd_fn {
                     auto cd = check(mk_theorem(m_real_name, new_ls, m_type, m_value));
                     if (m_kind == Theorem) {
                         // Remark: we don't keep examples
-                        if (!m_p.keep_new_thms()) {
-                            // discard theorem
-                            cd = check(mk_axiom(m_real_name, new_ls, m_type));
+                        if (m_p.keep_new_thms()) {
+                            m_p.add_delayed_theorem(cd);
                         }
+                        cd = check(mk_axiom(m_real_name, new_ls, m_type));
                         m_env = module::add(m_env, cd);
                         m_p.cache_definition(m_real_name, pre_type, pre_value, new_ls, m_type, m_value);
                     }
@@ -1407,6 +1410,16 @@ environment local_attribute_cmd(parser & p) {
     return attribute_cmd_core(p, false);
 }
 
+static environment wait_cmd(parser & p) {
+    buffer<name> ds;
+    name d          = p.check_constant_next("invalid 'wait' command, constant expected");
+    ds.push_back(d);
+    while (p.curr_is_identifier()) {
+        ds.push_back(p.check_constant_next("invalid 'wait' command, constant expected"));
+    }
+    return p.wait_theorems(ds);
+}
+
 void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("universe",     "declare a universe level", universe_cmd));
     add_cmd(r, cmd_info("universes",    "declare universe levels", universes_cmd));
@@ -1423,6 +1436,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("private",      "add new private definition/theorem", private_definition_cmd));
     add_cmd(r, cmd_info("protected",    "add new protected definition/theorem", protected_definition_cmd));
     add_cmd(r, cmd_info("theorem",      "add new theorem", theorem_cmd));
+    add_cmd(r, cmd_info("wait",         "wait for theorems to be processed", wait_cmd));
     add_cmd(r, cmd_info("include",      "force section parameter/variable to be included", include_cmd));
     add_cmd(r, cmd_info("attribute",    "set declaration attributes", attribute_cmd));
     add_cmd(r, cmd_info("abbreviation", "declare a new abbreviation", abbreviation_cmd));

@@ -37,7 +37,7 @@ corrupted_file_exception::corrupted_file_exception(std::string const & fname):
     exception(sstream() << "failed to import '" << fname << "', file is corrupted, please regenerate the file from sources") {
 }
 
-typedef pair<std::string, std::function<void(serializer &)>> writer;
+typedef pair<std::string, std::function<void(environment const &, serializer &)>> writer;
 
 struct module_ext : public environment_extension {
     list<module_name> m_direct_imports;
@@ -146,7 +146,7 @@ void export_module(std::ostream & out, environment const & env) {
     // store objects
     for (auto p : writers) {
         s1 << p->first;
-        p->second(s1);
+        p->second(env, s1);
     }
     s1 << g_olean_end_file;
 
@@ -182,7 +182,7 @@ static std::string * g_quotient  = nullptr;
 static std::string * g_hits      = nullptr;
 
 namespace module {
-environment add(environment const & env, std::string const & k, std::function<void(serializer &)> const & wr) {
+environment add(environment const & env, std::string const & k, std::function<void(environment const &, serializer &)> const & wr) {
     module_ext ext = get_extension(env);
     ext.m_writers  = cons(writer(k, wr), ext.m_writers);
     return update(env, ext);
@@ -193,7 +193,7 @@ environment add_universe(environment const & env, name const & l) {
     module_ext ext = get_extension(env);
     ext.m_module_univs = cons(l, ext.m_module_univs);
     new_env = update(new_env, ext);
-    return add(new_env, *g_glvl_key, [=](serializer & s) { s << l; });
+    return add(new_env, *g_glvl_key, [=](environment const &, serializer & s) { s << l; });
 }
 
 environment update_module_defs(environment const & env, declaration const & d) {
@@ -209,17 +209,22 @@ environment update_module_defs(environment const & env, declaration const & d) {
     }
 }
 
+static environment export_decl(environment const & env, declaration const & d) {
+    name n = d.get_name();
+    return add(env, *g_decl_key, [=](environment const & env, serializer & s) {
+            s << env.get(n);
+        });
+}
+
 environment add(environment const & env, certified_declaration const & d) {
     environment new_env = env.add(d);
     declaration _d = d.get_declaration();
-    new_env = update_module_defs(new_env, _d);
-    return add(new_env, *g_decl_key, [=](serializer & s) { s << _d; });
+    return export_decl(update_module_defs(new_env, _d), _d);
 }
 
 environment add(environment const & env, declaration const & d) {
     environment new_env = env.add(d);
-    new_env = update_module_defs(new_env, d);
-    return add(new_env, *g_decl_key, [=](serializer & s) { s << d; });
+    return export_decl(update_module_defs(new_env, d), d);
 }
 
 bool is_definition(environment const & env, name const & n) {
@@ -229,7 +234,7 @@ bool is_definition(environment const & env, name const & n) {
 
 environment declare_quotient(environment const & env) {
     environment new_env = ::lean::declare_quotient(env);
-    return add(new_env, *g_quotient, [=](serializer &) {});
+    return add(new_env, *g_quotient, [=](environment const &, serializer &) {});
 }
 
 static void quotient_reader(deserializer &, shared_environment & senv,
@@ -242,7 +247,7 @@ static void quotient_reader(deserializer &, shared_environment & senv,
 
 environment declare_hits(environment const & env) {
     environment new_env = ::lean::declare_hits(env);
-    return add(new_env, *g_hits, [=](serializer &) {});
+    return add(new_env, *g_hits, [=](environment const &, serializer &) {});
 }
 
 static void hits_reader(deserializer &, shared_environment & senv,
@@ -261,7 +266,7 @@ environment add_inductive(environment                  env,
     module_ext ext = get_extension(env);
     ext.m_module_decls = cons(inductive::inductive_decl_name(head(decls)), ext.m_module_decls);
     new_env = update(new_env, ext);
-    return add(new_env, *g_inductive, [=](serializer & s) {
+    return add(new_env, *g_inductive, [=](environment const &, serializer & s) {
             s << inductive_decls(level_params, num_params, decls);
         });
 }

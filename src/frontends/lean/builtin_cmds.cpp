@@ -173,6 +173,9 @@ static void print_definition(parser const & p, name const & n, pos_info const & 
     options opts        = out.get_options();
     opts                = opts.update_if_undef(get_pp_beta_name(), false);
     io_state_stream new_out = out.update_options(opts);
+    if (d.is_axiom())
+        throw parser_error(sstream() << "invalid 'print definition', theorem '" << n
+                           << "' is not available (suggestion: use command 'wait " << n << "')", pos);
     if (!d.is_definition())
         throw parser_error(sstream() << "invalid 'print definition', '" << n << "' is not a definition", pos);
     new_out << d.get_value() << endl;

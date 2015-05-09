@@ -1709,7 +1709,7 @@ void parser::parse_imports() {
     for (auto const & f : lua_files) {
         std::string rname = find_file(f, {".lua"});
         system_import(rname.c_str());
-        m_env = module::add(m_env, *g_lua_module_key, [=](serializer & s) {
+        m_env = module::add(m_env, *g_lua_module_key, [=](environment const &, serializer & s) {
                 s << f;
             });
     }
@@ -1786,10 +1786,14 @@ bool parser::parse_commands() {
             m_env = pop_scope_core(m_env, m_ios);
     }
     commit_info(m_scanner.get_line()+1, 0);
-    for (certified_declaration const & thm : m_theorem_queue.join()) {
-        if (keep_new_thms())
-            m_env.replace(thm);
-    }
+
+    m_theorem_queue.for_each([&](certified_declaration const & thm) {
+            if (keep_new_thms()) {
+                name const & thm_name = thm.get_declaration().get_name();
+                if (m_env.get(thm_name).is_axiom())
+                    m_env = m_env.replace(thm);
+            }
+        });
     return !m_found_errors;
 }
 
@@ -1811,6 +1815,23 @@ bool parser::curr_is_command_like() const {
 void parser::add_delayed_theorem(environment const & env, name const & n, level_param_names const & ls,
                                  expr const & t, expr const & v) {
     m_theorem_queue.add(env, n, ls, get_local_level_decls(), t, v);
+}
+
+void parser::add_delayed_theorem(certified_declaration const & cd) {
+    m_theorem_queue.add(cd);
+}
+
+environment parser::wait_theorems(buffer<name> const & ds) {
+    m_theorem_queue.for_each([&](certified_declaration const & thm) {
+            if (keep_new_thms()) {
+                name const & thm_name = thm.get_declaration().get_name();
+                if (m_env.get(thm_name).is_axiom() &&
+                    std::any_of(ds.begin(), ds.end(), [&](name const & n) { return n == thm_name; })) {
+                    m_env = m_env.replace(thm);
+                }
+            }
+        });
+    return m_env;
 }
 
 void parser::save_snapshot() {

@@ -92,7 +92,7 @@ namespace module {
 
     \see module_object_reader
 */
-environment add(environment const & env, std::string const & k, std::function<void(serializer &)> const & writer);
+environment add(environment const & env, std::string const & k, std::function<void(environment const &, serializer &)> const & writer);
 
 /** \brief Add the global universe declaration to the environment, and mark it to be exported. */
 environment add_universe(environment const & env, name const & l);

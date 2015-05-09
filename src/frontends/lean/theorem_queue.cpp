@@ -12,10 +12,20 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 
 namespace lean {
-theorem_queue::theorem_queue(parser & p, unsigned num_threads):m_parser(p), m_queue(num_threads, []() { enable_expr_caching(false); }) {}
+void theorem_queue::init_queue() {
+    m_queue.reset(new worker_queue<certified_declaration>(m_num_threads, []() { enable_expr_caching(false); }));
+}
+void theorem_queue::consume() {
+    for (auto const & c : m_queue->join())
+        m_ready.push_back(c);
+    init_queue();
+}
+theorem_queue::theorem_queue(parser & p, unsigned num_threads):m_parser(p), m_num_threads(num_threads) {
+    init_queue();
+}
 void theorem_queue::add(environment const & env, name const & n, level_param_names const & ls, local_level_decls const & lls,
                         expr const & t, expr const & v) {
-    m_queue.add([=]() {
+    m_queue->add([=]() {
             level_param_names new_ls;
             expr type, value;
             std::tie(type, value, new_ls) = m_parser.elaborate_definition_at(env, lls, n, t, v);
@@ -26,7 +36,15 @@ void theorem_queue::add(environment const & env, name const & n, level_param_nam
             return r;
         });
 }
-std::vector<certified_declaration> const & theorem_queue::join() { return m_queue.join(); }
-void theorem_queue::interrupt() { m_queue.interrupt(); }
-bool theorem_queue::done() const { return m_queue.done(); }
+void theorem_queue::add(certified_declaration const & c) {
+    m_ready.push_back(c);
+}
+void theorem_queue::for_each(std::function<void(certified_declaration const & c)> const & fn) {
+    consume();
+    for (auto const & c : m_ready)
+        fn(c);
+}
+void theorem_queue::join() { m_queue->join(); }
+void theorem_queue::interrupt() { m_queue->interrupt(); }
+bool theorem_queue::done() const { return m_queue->done(); }
 }

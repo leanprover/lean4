@@ -48,7 +48,9 @@ static environment save_projection_info_core(environment const & env, name const
 
 environment save_projection_info(environment const & env, name const & p, name const & mk, unsigned nparams, unsigned i, bool inst_implicit) {
     environment new_env = save_projection_info_core(env, p, mk, nparams, i, inst_implicit);
-    return module::add(new_env, *g_proj_key, [=](serializer & s) { s << p << mk << nparams << i << inst_implicit; });
+    return module::add(new_env, *g_proj_key, [=](environment const &, serializer & s) {
+            s << p << mk << nparams << i << inst_implicit;
+        });
 }
 
 projection_info const * get_projection_info(environment const & env, name const & p) {

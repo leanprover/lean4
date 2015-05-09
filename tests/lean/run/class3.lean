@@ -11,6 +11,7 @@ section
 
 end
 
+wait tst
 (*
 print(get_env():find("tst"):value())
 *)

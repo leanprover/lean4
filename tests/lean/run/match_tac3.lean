@@ -10,4 +10,5 @@ begin
   end
 end
 
+wait tst
 print definition tst

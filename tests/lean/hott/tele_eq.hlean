@@ -14,5 +14,5 @@ begin
   cases H₃,
   apply rfl
 end
-
+wait foo.eq
 print definition foo.eq

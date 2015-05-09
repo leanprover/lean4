@@ -22,6 +22,7 @@ begin
   end
 end
 
+wait tst
 print definition tst
 
 theorem tst2 (a b c d : Prop) : a ∧ b ∧ c ∧ d ↔ d ∧ c ∧ b ∧ a :=
@@ -30,4 +31,5 @@ begin
   repeat (intro H;  repeat (cases H with [H', H] | apply and.intro | assumption))
 end
 
+wait tst2
 print definition tst2

@@ -25,6 +25,7 @@ begin
   rewrite [+mul_zero, +zero_mul, +add_zero] -- in rewrite rules, + is notation for one or more
 end
 
+wait test3
 print definition test3
 
 theorem test4 {A : Type} [s : comm_ring A] (a b c : A) : a * 0 + 0 * b + c * 0 + 0 * a = 0 :=

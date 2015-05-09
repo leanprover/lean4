@@ -237,7 +237,7 @@ public:
             return update(env, get(env)._add_tmp_entry(env, ios, e));
         } else {
             name n = get_namespace(env);
-            env = module::add(env, get_serialization_key(), [=](serializer & s) {
+            env = module::add(env, get_serialization_key(), [=](environment const &, serializer & s) {
                     s << n;
                     write_entry(s, e);
                 });

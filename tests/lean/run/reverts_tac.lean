@@ -24,5 +24,6 @@ begin
   apply (eq.rec_on Heq Hp)
 end
 
+wait foo1 foo2
 print definition foo1
 print definition foo2

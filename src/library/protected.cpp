@@ -34,7 +34,7 @@ environment add_protected(environment const & env, name const & n) {
     protected_ext ext = get_extension(env);
     ext.m_protected.insert(n);
     environment new_env = update(env, ext);
-    return module::add(new_env, *g_prt_key, [=](serializer & s) { s << n; });
+    return module::add(new_env, *g_prt_key, [=](environment const &, serializer & s) { s << n; });
 }
 
 static void protected_reader(deserializer & d, shared_environment & senv,

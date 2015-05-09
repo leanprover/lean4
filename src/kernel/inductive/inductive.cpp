@@ -865,6 +865,33 @@ static optional<expr> mk_nullary_intro(environment const & env, expr const & typ
     return some(mk_app(mk_constant(*intro_name, const_levels(d)), args));
 }
 
+// For datatypes that support K-axiom, given e an element of that type, we convert (if possible)
+// to the default constructor. For example, if (e : a = a), then this method returns (eq.refl a)
+static optional<pair<expr, constraint_seq>> to_intro_when_K(inductive_env_ext::elim_info const * it,
+                                                            expr const & e, extension_context & ctx) {
+    lean_assert(it->m_K_target);
+    environment const & env = ctx.env();
+    constraint_seq cs;
+    expr app_type    = ctx.whnf(ctx.infer_type(e, cs), cs);
+    if (has_expr_metavar(app_type))
+        return none_ecs();
+    expr const & app_type_I = get_app_fn(app_type);
+    if (!is_constant(app_type_I) || const_name(app_type_I) != it->m_inductive_name)
+        return none_ecs(); // type incorrect
+    auto new_intro_app = mk_nullary_intro(env, app_type, it->m_num_params);
+    if (!new_intro_app)
+        return none_ecs();
+    expr new_type    = ctx.infer_type(*new_intro_app, cs);
+    if (has_expr_metavar(new_type))
+        return none_ecs();
+    simple_delayed_justification jst([=]() {
+            return mk_justification("elim/intro global parameters must match", some_expr(e));
+        });
+    if (!ctx.is_def_eq(app_type, new_type, jst, cs))
+        return none_ecs();
+    return some_ecs(*new_intro_app, cs);
+}
+
 auto inductive_normalizer_extension::operator()(expr const & e, extension_context & ctx) const
     -> optional<pair<expr, constraint_seq>> {
     // Reduce terms \c e of the form
@@ -882,41 +909,29 @@ auto inductive_normalizer_extension::operator()(expr const & e, extension_contex
     unsigned major_idx = it1->m_num_ACe + it1->m_num_indices;
     if (elim_args.size() < major_idx + 1)
         return none_ecs(); // major premise is missing
-    auto intro_app_cs = ctx.whnf(elim_args[major_idx]);
-    expr intro_app    = intro_app_cs.first;
-    constraint_seq cs = intro_app_cs.second;
-    auto it2 = is_intro_for(ext, const_name(elim_fn), intro_app);
-    if (!it2) {
-        if (it1->m_K_target) {
-            // If the inductive type support K-like reduction
-            // we try to replace the term with associated nullary
-            // intro rule
-            expr app_type    = ctx.whnf(ctx.infer_type(intro_app, cs), cs);
-            if (has_expr_metavar(app_type))
-                return none_ecs();
-            expr const & app_type_I = get_app_fn(app_type);
-            if (!is_constant(app_type_I) || const_name(app_type_I) != it1->m_inductive_name)
-                return none_ecs(); // e is type incorrect
-            auto new_intro_app = mk_nullary_intro(env, app_type, it1->m_num_params);
-            if (!new_intro_app)
-                return none_ecs();
-            expr new_type    = ctx.infer_type(*new_intro_app, cs);
-            if (has_expr_metavar(new_type))
-                return none_ecs();
-            simple_delayed_justification jst([=]() {
-                    return mk_justification("elim/intro global parameters must match", some_expr(e));
-                });
-            if (!ctx.is_def_eq(app_type, new_type, jst, cs))
-                return none_ecs();
-            intro_app = *new_intro_app;
-            it2 = ext.m_comp_rules.find(const_name(get_app_fn(intro_app)));
-        } else {
-            return none_ecs();
+    expr major = elim_args[major_idx];
+    optional<expr> intro_app;
+    constraint_seq cs;
+    inductive_env_ext::comp_rule const * it2 = nullptr;
+    if (it1->m_K_target) {
+        if (auto p = to_intro_when_K(it1, major, ctx)) {
+            intro_app = p->first;
+            cs        = p->second;
+            it2       = ext.m_comp_rules.find(const_name(get_app_fn(*intro_app)));
         }
     }
-
+    if (!intro_app) {
+        auto intro_app_cs = ctx.whnf(major);
+        intro_app         = intro_app_cs.first;
+        cs                = intro_app_cs.second;
+        it2               = is_intro_for(ext, const_name(elim_fn), *intro_app);
+        if (!it2)
+            return none_ecs();
+    }
+    lean_assert(intro_app);
+    lean_assert(it2);
     buffer<expr> intro_args;
-    get_app_args(intro_app, intro_args);
+    get_app_args(*intro_app, intro_args);
     // Check intro num_args
     if (intro_args.size() != it1->m_num_params + it2->m_num_bu)
         return none_ecs();

@@ -84,6 +84,7 @@ def extract_info_from_ilean(ilean_file, decl_dict, args):
     info = []
     with codecs.open(ilean_file, "r", "utf-8") as f:
         for line in f:
+            line = line.replace("\r\n", "\n")
             array = line[:-1].split("|")
             item = {}
             item['category'] = array[0]

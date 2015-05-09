@@ -89,13 +89,13 @@ definition check_pred (p : A → Prop) [h : decidable_pred p] : list A → bool
 | []     := tt
 | (a::l) := if p a then check_pred l else ff
 
-definition check_pred_cons_of_pos {p : A → Prop} [h : decidable_pred p] {a : A} (l : list A) : p a → check_pred p (a::l) = check_pred p l :=
+theorem check_pred_cons_of_pos {p : A → Prop} [h : decidable_pred p] {a : A} (l : list A) : p a → check_pred p (a::l) = check_pred p l :=
 assume pa, if_pos pa
 
-definition check_pred_cons_of_neg {p : A → Prop} [h : decidable_pred p] {a : A} (l : list A) : ¬ p a → check_pred p (a::l) = ff :=
+theorem check_pred_cons_of_neg {p : A → Prop} [h : decidable_pred p] {a : A} (l : list A) : ¬ p a → check_pred p (a::l) = ff :=
 assume npa, if_neg npa
 
-definition all_of_check_pred_eq_tt {p : A → Prop} [h : decidable_pred p] : ∀ {l : list A}, check_pred p l = tt → ∀ {a}, a ∈ l → p a
+theorem all_of_check_pred_eq_tt {p : A → Prop} [h : decidable_pred p] : ∀ {l : list A}, check_pred p l = tt → ∀ {a}, a ∈ l → p a
 | []     eqtt a ainl := absurd ainl !not_mem_nil
 | (b::l) eqtt a ainbl := by_cases
   (λ pb  : p b, or.elim (eq_or_mem_of_mem_cons ainbl)
@@ -106,7 +106,7 @@ definition all_of_check_pred_eq_tt {p : A → Prop} [h : decidable_pred p] : ∀
   (λ npb : ¬ p b,
     by rewrite [check_pred_cons_of_neg _ npb at eqtt]; exact (bool.no_confusion eqtt))
 
-definition ex_of_check_pred_eq_ff {p : A → Prop} [h : decidable_pred p] : ∀ {l : list A}, check_pred p l = ff → ∃ w, ¬ p w
+theorem ex_of_check_pred_eq_ff {p : A → Prop} [h : decidable_pred p] : ∀ {l : list A}, check_pred p l = ff → ∃ w, ¬ p w
 | []     eqtt := bool.no_confusion eqtt
 | (a::l) eqtt := by_cases
   (λ pa  : p a,

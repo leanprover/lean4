@@ -273,7 +273,7 @@ exists.intro (encode w)
     unfold pn, rewrite [encodek], esimp, exact pw
   end
 
-private definition decode_ne_none_of_pn {n : nat} : pn n → decode A n ≠ none :=
+private lemma decode_ne_none_of_pn {n : nat} : pn n → decode A n ≠ none :=
 assume pnn e,
 begin
   rewrite [▸ (match decode A n with | some a := p a | none   := false end) at pnn],

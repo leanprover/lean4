@@ -11,19 +11,17 @@ import data.nat.basic algebra.ordered_ring
 open eq.ops
 
 namespace nat
-
 /- lt and le -/
-
-definition le_of_lt_or_eq {m n : ℕ} (H : m < n ∨ m = n) : m ≤ n :=
+theorem le_of_lt_or_eq {m n : ℕ} (H : m < n ∨ m = n) : m ≤ n :=
 or.elim H (take H1, le_of_lt H1) (take H1, H1 ▸ !le.refl)
 
-definition lt.by_cases {a b : ℕ} {P : Prop}
+theorem lt.by_cases {a b : ℕ} {P : Prop}
   (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) : P :=
 or.elim !lt.trichotomy
   (assume H, H1 H)
   (assume H, or.elim H (assume H', H2 H') (assume H', H3 H'))
 
-definition lt_or_eq_of_le {m n : ℕ} (H : m ≤ n) : m < n ∨ m = n :=
+theorem lt_or_eq_of_le {m n : ℕ} (H : m ≤ n) : m < n ∨ m = n :=
 lt.by_cases
   (assume H1 : m < n, or.inl H1)
   (assume H1 : m = n, or.inr H1)
@@ -32,7 +30,7 @@ lt.by_cases
 theorem le_iff_lt_or_eq (m n : ℕ) : m ≤ n ↔ m < n ∨ m = n :=
 iff.intro lt_or_eq_of_le le_of_lt_or_eq
 
-definition lt_of_le_and_ne {m n : ℕ} (H1 : m ≤ n) (H2 : m ≠ n) : m < n :=
+theorem lt_of_le_and_ne {m n : ℕ} (H1 : m ≤ n) (H2 : m ≠ n) : m < n :=
 or.elim (lt_or_eq_of_le H1)
   (take H3 : m < n, H3)
   (take H3 : m = n, absurd H3 H2)

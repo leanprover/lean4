@@ -57,7 +57,8 @@ struct result {
 };
 
 optional<result> apply(environment const & env, io_state const & ios, type_checker & tc,
-                       goal const & g, expr const & h, implementation_list const & imps);
+                       goal const & g, expr const & h, implementation_list const & imps,
+                       bool clear_elim);
 }
 
 tactic inversion_tactic(name const & n, list<name> const & ids = list<name>());

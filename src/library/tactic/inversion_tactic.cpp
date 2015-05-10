@@ -115,6 +115,7 @@ class inversion_tac {
     declaration                   m_cases_on_decl;
 
     bool                          m_throw_tactic_exception; // if true, then throw tactic_exception in case of failure, instead of returning none
+    bool                          m_clear_elim; // if true, then clear eliminated variables
 
     expr whnf(expr const & e) { return m_tc.whnf(e).first; }
     expr infer_type(expr const & e) { return m_tc.infer(e).first; }
@@ -798,7 +799,7 @@ class inversion_tac {
             // Remark: A is the type of lhs and rhs
             hyps.pop_back(); // remove processed equality
             buffer<expr> non_deps, deps;
-            bool clear_rhs = true;
+            bool clear_rhs = m_clear_elim;
             split_deps(hyps, rhs, non_deps, deps, clear_rhs);
             if (deps.empty() && !depends_on(g_type, rhs)) {
                 // eq.rec is not necessary
@@ -1021,14 +1022,15 @@ class inversion_tac {
 public:
     inversion_tac(environment const & env, io_state const & ios, name_generator const & ngen,
                   type_checker & tc, substitution const & subst, list<name> const & ids,
-                  bool throw_tactic_ex):
+                  bool throw_tactic_ex, bool clear_elim):
         m_env(env), m_ios(ios), m_tc(tc), m_ids(ids),
-        m_ngen(ngen), m_subst(subst), m_throw_tactic_exception(throw_tactic_ex) {
+        m_ngen(ngen), m_subst(subst), m_throw_tactic_exception(throw_tactic_ex),
+        m_clear_elim(clear_elim) {
         m_proof_irrel = m_env.prop_proof_irrel();
     }
 
-    inversion_tac(environment const & env, io_state const & ios, type_checker & tc):
-        inversion_tac(env, ios, tc.mk_ngen(), tc, substitution(), list<name>(), false) {}
+    inversion_tac(environment const & env, io_state const & ios, type_checker & tc, bool clear_elim):
+        inversion_tac(env, ios, tc.mk_ngen(), tc, substitution(), list<name>(), false, clear_elim) {}
 
     typedef inversion::result result;
 
@@ -1083,8 +1085,8 @@ public:
 
 namespace inversion {
 optional<result> apply(environment const & env, io_state const & ios, type_checker & tc,
-                       goal const & g, expr const & h, implementation_list const & imps) {
-    return inversion_tac(env, ios, tc).execute(g, h, imps);
+                       goal const & g, expr const & h, implementation_list const & imps, bool clear_elim) {
+    return inversion_tac(env, ios, tc, clear_elim).execute(g, h, imps);
 }
 }
 
@@ -1097,7 +1099,8 @@ tactic inversion_tactic(name const & n, list<name> const & ids) {
         goals tail_gs     = tail(gs);
         name_generator ngen              = ps.get_ngen();
         std::unique_ptr<type_checker> tc = mk_type_checker(env, ngen.mk_child());
-        inversion_tac tac(env, ios, ngen, *tc, ps.get_subst(), ids, ps.report_failure());
+        bool  clear_elim = true;
+        inversion_tac tac(env, ios, ngen, *tc, ps.get_subst(), ids, ps.report_failure(), clear_elim);
         if (auto res = tac.execute(g, n, implementation_list())) {
             proof_state new_s(ps, append(res->m_goals, tail_gs), res->m_subst, res->m_ngen);
             return some_proof_state(new_s);

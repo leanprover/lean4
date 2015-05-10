@@ -896,7 +896,8 @@ class equation_compiler_fn {
         expr h                    = p.get_var(*head(p.m_var_stack));
         goal g                    = to_goal(p);
         auto imps                 = to_implementation_list(p);
-        if (auto r = apply(env(), ios(), m_tc, g, h, imps)) {
+        bool clear_elim           = false;
+        if (auto r = apply(env(), ios(), m_tc, g, h, imps, clear_elim)) {
             substitution subst       = r->m_subst;
             list<list<expr>> args    = r->m_args;
             list<rename_map> rn_maps = r->m_renames;

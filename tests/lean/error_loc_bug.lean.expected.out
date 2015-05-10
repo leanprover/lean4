@@ -5,6 +5,6 @@ term
 has type
   Γ ⊢ A ∨ B
 but is expected to have type
-  Γ ⊢ A ∧ B
+  Γ ⊢ ⌞A ∧ B⌟
 The following identifier(s) are introduced as free variables by the left-hand-side of the equation:
   Γ A B Δ H Hs 

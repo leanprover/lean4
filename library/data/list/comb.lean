@@ -1,11 +1,9 @@
 /-
 Copyright (c) 2015 Leonardo de Moura. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: data.list.comb
 Authors: Leonardo de Moura
 
-List combinators
+List combinators.
 -/
 import data.list.basic
 open nat prod decidable function helper_tactics
@@ -42,6 +40,16 @@ theorem mem_map {A B : Type} (f : A → B) : ∀ {a l}, a ∈ l → f a ∈ map 
 | a (x::xs) i := or.elim (eq_or_mem_of_mem_cons i)
    (λ aeqx  : a = x, by rewrite [aeqx, map_cons]; apply mem_cons)
    (λ ainxs : a ∈ xs, or.inr (mem_map ainxs))
+
+theorem exists_of_mem_map {A B : Type} {f : A → B} {b : B} :
+    ∀{l}, b ∈ map f l → ∃a, a ∈ l ∧ f a = b
+| []     H := false.elim H
+| (c::l) H := or.elim (iff.mp !mem_cons_iff H)
+                (assume H1 : b = f c,
+                  exists.intro c (and.intro !mem_cons (eq.symm H1)))
+                (assume H1 : b ∈ map f l,
+                  obtain a (H : a ∈ l ∧ f a = b), from exists_of_mem_map H1,
+                  exists.intro a (and.intro (mem_cons_of_mem _ (and.left H)) (and.right H)))
 
 theorem eq_of_map_const {A B : Type} {b₁ b₂ : B} : ∀ {l : list A}, b₁ ∈ map (const A b₂) l → b₁ = b₂
 | []     h := absurd h !not_mem_nil
@@ -98,7 +106,7 @@ theorem mem_filter_of_mem {p : A → Prop} [h : decidable_pred p] {a : A} : ∀ 
     (λ aeqb : a = b, absurd (eq.rec_on aeqb pa) npb)
     (λ ainl : a ∈ l, by rewrite [filter_cons_of_neg _ npb]; exact (mem_filter_of_mem ainl pa)))
 
-theorem filter_subset {p : A → Prop} [h : decidable_pred p] (l : list A) : filter p l ⊆ l :=
+theorem filter_sub {p : A → Prop} [h : decidable_pred p] (l : list A) : filter p l ⊆ l :=
 λ a ain, mem_of_mem_filter ain
 
 theorem filter_append {p : A → Prop} [h : decidable_pred p] : ∀ (l₁ l₂ : list A), filter p (l₁++l₂) = filter p l₁ ++ filter p l₂

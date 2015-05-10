@@ -96,6 +96,12 @@ assume  H1 : g (f x1) = g (f x2),
 have    H2 : f x1 = f x2, from Hg fx1b fx2b H1,
 show x1 = x2, from Hf x1a x2a H2
 
+theorem inj_on_of_inj_on_of_subset {f : X → Y} {a b : set X} (H1 : inj_on f b) (H2 : a ⊆ b) :
+  inj_on f a :=
+take x1 x2 : X, assume (x1a : x1 ∈ a) (x2a : x2 ∈ a),
+assume H : f x1 = f x2,
+show x1 = x2, from H1 (H2 x1a) (H2 x2a) H
+
 /- surjectivity -/
 
 definition surj_on [reducible] (f : X → Y) (a : set X) (b : set Y) : Prop := b ⊆ f '[a]

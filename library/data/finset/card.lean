@@ -5,14 +5,14 @@ Author: Jeremy Avigad
 
 Cardinality calculations for finite sets.
 -/
-import data.finset.comb
+import data.finset.to_set data.set.function
 open nat eq.ops
 
 namespace finset
 
-variable {A : Type}
-variable [deceq : decidable_eq A]
-include deceq
+variables {A B : Type}
+variables [deceqA : decidable_eq A] [deceqB : decidable_eq B]
+include deceqA
 
 theorem card_add_card (s₁ s₂ : finset A) : card s₁ + card s₂ = card (s₁ ∪ s₂) + card (s₁ ∩ s₂) :=
 finset.induction_on s₂
@@ -57,5 +57,35 @@ calc
   card s₂ = card (s₁ ∪ (s₂ \ s₁))    : union_diff_cancel H
       ... = card s₁ + card (s₂ \ s₁) : card_union_of_disjoint H1
       ... ≥ card s₁                  : le_add_right
+
+section card_image
+open set
+include deceqB
+
+theorem card_image_eq_of_inj_on {f : A → B} {s : finset A} :
+  inj_on f (ts s) → card (image f s) = card s :=
+finset.induction_on s
+  (assume H : inj_on f (ts empty), calc
+    card (image f empty) = 0          : card_empty
+                     ... = card empty : card_empty)
+  (take t a,
+    assume H : a ∉ t,
+    assume IH : inj_on f (ts t) → card (image f t) = card t,
+    assume H1 : inj_on f (ts (insert a t)),
+    have H2 : ts t ⊆ ts (insert a t), by rewrite [-subset_eq_to_set_subset]; apply subset_insert,
+    have H3 : card (image f t) = card t, from IH (inj_on_of_inj_on_of_subset H1 H2),
+    have H4 : f a ∉ image f t,
+      proof
+        assume H5 : f a ∈ image f t,
+        obtain x (H6 : x ∈ t ∧ f x = f a), from exists_of_mem_image H5,
+        have H7 : x = a, from H1 (mem_insert_of_mem _ (and.left H6)) !mem_insert (and.right H6),
+        show false, from H (H7 ▸ and.left H6)
+      qed,
+    calc
+      card (image f (insert a t)) = card (insert (f a) (image f t)) : image_insert
+                              ... = card (image f t) + 1            : card_insert_of_not_mem H4
+                              ... = card t + 1                      : H3
+                              ... = card (insert a t)               : card_insert_of_not_mem H)
+end card_image
 
 end finset

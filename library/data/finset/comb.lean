@@ -27,6 +27,11 @@ rfl
 theorem mem_image_of_mem (f : A → B) {s : finset A} {a : A} : a ∈ s → f a ∈ image f s :=
 quot.induction_on s (take l, assume H : a ∈ elt_of l, mem_to_finset (mem_map f H))
 
+theorem mem_image_of_mem_of_eq {f : A → B} {s : finset A} {a : A} {b : B}
+    (H1 : a ∈ s) (H2 : f a = b) :
+  b ∈ image f s :=
+eq.subst H2 (mem_image_of_mem f H1)
+
 theorem exists_of_mem_image {f : A → B} {s : finset A} {b : B} :
   b ∈ image f s → ∃a, a ∈ s ∧ f a = b :=
 quot.induction_on s
@@ -37,10 +42,39 @@ theorem mem_image_iff (f : A → B) {s : finset A} {y : B} : y ∈ image f s ↔
 iff.intro exists_of_mem_image
   (assume H,
     obtain x (H1 : x ∈ s ∧ f x = y), from H,
-    eq.subst (and.right H1) (mem_image_of_mem f (and.left H1)))
+    mem_image_of_mem_of_eq (and.left H1) (and.right H1))
 
 theorem mem_image_eq (f : A → B) {s : finset A} {y : B} : y ∈ image f s = ∃x, x ∈ s ∧ f x = y :=
 propext (mem_image_iff f)
+
+theorem mem_image_of_mem_image_of_subset {f : A → B} {s t : finset A} {y : B}
+    (H1 : y ∈ image f s) (H2 : s ⊆ t) : y ∈ image f t :=
+obtain x (H3: x ∈ s ∧ f x = y), from exists_of_mem_image H1,
+have H4 : x ∈ t, from mem_of_subset_of_mem H2 (and.left H3),
+show y ∈ image f t, from mem_image_of_mem_of_eq H4 (and.right H3)
+
+theorem image_insert [h' : decidable_eq A] (f : A → B) (s : finset A) (a : A) :
+  image f (insert a s) = insert (f a) (image f s) :=
+ext (take y, iff.intro
+  (assume H : y ∈ image f (insert a s),
+    obtain x (H1 : x ∈ insert a s ∧ f x = y), from exists_of_mem_image H,
+    have H2 : x = a ∨ x ∈ s, from eq_or_mem_of_mem_insert (and.left H1),
+    or.elim H2
+      (assume H3 : x = a,
+        have H4 : f a = y, from eq.subst H3 (and.right H1),
+        show y ∈ insert (f a) (image f s), from eq.subst H4 !mem_insert)
+      (assume H3 : x ∈ s,
+        have H4 : f x = y, from and.right H1,
+        have H5 : f x ∈ image f s, from mem_image_of_mem f H3,
+        show y ∈ insert (f a) (image f s), from eq.subst H4 (mem_insert_of_mem _ H5)))
+  (assume H : y ∈ insert (f a) (image f s),
+    have H1 : y = f a ∨ y ∈ image f s, from eq_or_mem_of_mem_insert H,
+    or.elim H1
+      (assume H2 : y = f a,
+        have H3 : f a ∈ image f (insert a s), from mem_image_of_mem f !mem_insert,
+        show y ∈ image f (insert a s), from eq.subst (eq.symm H2) H3)
+      (assume H2 : y ∈ image f s,
+        show y ∈ image f (insert a s), from mem_image_of_mem_image_of_subset H2 !subset_insert)))
 end image
 
 /- filter and set-builder notation -/

@@ -257,6 +257,8 @@ order for the change to take effect."
   ("subn"  . ("⊄"))  ("supn"  . ("⊅"))
   ("sub="  . ("⊆"))  ("sup="  . ("⊇"))
   ("sub=n" . ("⊈"))  ("sup=n" . ("⊉"))
+  ("subeq"  . ("⊆")) ("supeq"  . ("⊇"))
+  ("subeqn" . ("⊈")) ("supeqn" . ("⊉"))
 
   ("squb"   . ("⊏"))  ("squp"   . ("⊐"))
   ("squb="  . ("⊑"))  ("squp="  . ("⊒"))
@@ -265,6 +267,7 @@ order for the change to take effect."
   ;; Set membership etc.
 
   ("member" . ,(lean-input-to-string-list "∈∉∊∋∌∍⋲⋳⋴⋵⋶⋷⋸⋹⋺⋻⋼⋽⋾⋿"))
+  ("mem" . ("∈"))
 
   ("inn" . ("∉"))
   ("nin" . ("∌"))

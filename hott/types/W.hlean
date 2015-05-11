@@ -12,6 +12,7 @@ import .sigma .pi
 open eq sigma sigma.ops equiv is_equiv
 
 -- TODO fix universe levels
+/-
 exit
 
 inductive Wtype.{l k} {A : Type.{l}} (B : A → Type.{k}) :=
@@ -155,3 +156,4 @@ namespace Wtype
   end
 
 end Wtype
+-/

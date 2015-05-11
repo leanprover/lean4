@@ -22,7 +22,7 @@ fi
 
 echo "-- testing $f"
 "$LEAN" $CONFIG "$f" &> "$f.produced.out.1"
-sed "/warning: imported file uses 'sorry'/d" "$f.produced.out.1" > "$f.produced.out"
+sed "/warning: imported file uses 'sorry'/d" "$f.produced.out.1" | sed "/warning: using 'sorry'/d" > "$f.produced.out"
 rm -f "$f.produced.out.1"
 if test -f "$f.expected.out"; then
     if diff --ignore-all-space -I "executing external script" "$f.produced.out" "$f.expected.out"; then

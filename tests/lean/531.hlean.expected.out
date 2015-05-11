@@ -1,7 +1,1 @@
-531.hlean:49:2: warning: using 'sorry'
-531.hlean:55:72: warning: using 'sorry'
-531.hlean:55:92: warning: using 'sorry'
-531.hlean:57:2: warning: using 'sorry'
-531.hlean:133:12: warning: using 'sorry'
-531.hlean:148:6: warning: using 'sorry'
 531.hlean:151:0: warning: using 'exit' to interrupt Lean

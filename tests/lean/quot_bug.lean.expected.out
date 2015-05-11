@@ -1,2 +1,1 @@
 λ (x : A), f x
-quot_bug.lean:8:59: warning: using 'sorry'

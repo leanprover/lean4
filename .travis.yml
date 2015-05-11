@@ -16,8 +16,8 @@ env:
    # =======================================================
    # TESTCOV Build
    # =======================================================
-   # TC. g++-4.8      | DEBUG                   | CDASH
-   - CMAKE_CXX_COMPILER=g++-4.8
+   # TC. g++-4.9      | DEBUG                   | CDASH
+   - CMAKE_CXX_COMPILER=g++-4.9
      CMAKE_BUILD_TYPE=Debug
      TESTCOV=OFF
      PUSH_TO_CDASH=TRUE
@@ -33,8 +33,8 @@ env:
      TCMALLOC=ON
      PUSH_TO_CDASH=TRUE
      LUA=52
-   # D2. g++-4.8     | DEBUG    | TCMALLOC       | CDASH + TRIGGERS
-   - CMAKE_CXX_COMPILER=g++-4.8
+   # D2. g++-4.9     | DEBUG    | TCMALLOC       | CDASH + TRIGGERS
+   - CMAKE_CXX_COMPILER=g++-4.9
      CMAKE_BUILD_TYPE=Debug
      TRIGGER_BB=TRUE
      TRIGGER_OSX=TRUE
@@ -49,8 +49,8 @@ env:
      TCMALLOC=OFF
      PUSH_TO_CDASH=TRUE
      LUA=52
-   # D4. g++-4.8     | DEBUG
-   - CMAKE_CXX_COMPILER=g++-4.8
+   # D4. g++-4.9     | DEBUG
+   - CMAKE_CXX_COMPILER=g++-4.9
      CMAKE_BUILD_TYPE=Debug
      TCMALLOC=OFF
      PUSH_TO_CDASH=TRUE
@@ -65,8 +65,8 @@ env:
      TCMALLOC=ON
      PUSH_TO_CDASH=TRUE
      LUA=52
-   # R2. g++-4.8     | RELEASE | TCMALLOC        | CDASH + UPLOAD=>DROPBOX
-   - CMAKE_CXX_COMPILER=g++-4.8
+   # R2. g++-4.9     | RELEASE | TCMALLOC        | CDASH + UPLOAD=>DROPBOX
+   - CMAKE_CXX_COMPILER=g++-4.9
      CMAKE_BUILD_TYPE=Release
      TCMALLOC=ON
      UPLOAD=linux_tcmalloc
@@ -80,8 +80,8 @@ env:
      TCMALLOC=OFF
      PUSH_TO_CDASH=TRUE
      LUA=52
-   # R4. g++-4.8    | RELEASE                    | UPLOAD=>DROPBOX
-   - CMAKE_CXX_COMPILER=g++-4.8
+   # R4. g++-4.9    | RELEASE                    | UPLOAD=>DROPBOX
+   - CMAKE_CXX_COMPILER=g++-4.9
      CMAKE_BUILD_TYPE=Release
      TCMALLOC=OFF
      UPLOAD=linux
@@ -91,8 +91,8 @@ env:
    # =======================================================
    # DOXYGEN Build
    # =======================================================
-   # DOC. g++-4.8      | DEBUG   | TCMALLOC      | DOXYGEN=>DROPBOX
-   - CMAKE_CXX_COMPILER=g++-4.8
+   # DOC. g++-4.9      | DEBUG   | TCMALLOC      | DOXYGEN=>DROPBOX
+   - CMAKE_CXX_COMPILER=g++-4.9
      CMAKE_BUILD_TYPE=DOXYGEN
      BUILD_DOXYGEN=TRUE
      TCMALLOC=OFF
@@ -101,16 +101,16 @@ env:
    # =======================================================
    # Different Lua Versions
    # =======================================================
-   # L51. g++-4.8     | RELEASE |                | CDASH
-   - CMAKE_CXX_COMPILER=g++-4.8
+   # L51. g++-4.9     | RELEASE |                | CDASH
+   - CMAKE_CXX_COMPILER=g++-4.9
      CMAKE_BUILD_TYPE=Release
      TCMALLOC=OFF
      UPLOAD=linux
      PUSH_TO_CDASH=TRUE
      LUA=51
      CONSERVE_MEMORY=ON
-   # LJIT. g++-4.8     | RELEASE |                | CDASH
-   - CMAKE_CXX_COMPILER=g++-4.8
+   # LJIT. g++-4.9     | RELEASE |                | CDASH
+   - CMAKE_CXX_COMPILER=g++-4.9
      CMAKE_BUILD_TYPE=Release
      TCMALLOC=OFF
      UPLOAD=linux
@@ -143,11 +143,11 @@ install:
     ./bootstrap.py > /dev/null 2>&1;
     sudo cp -v ninja /usr/bin/;
     cd ..;
-  - until sudo apt-get -qq install libstdc++-4.8-dev; do echo retry; done
+  - until sudo apt-get -qq install libstdc++-4.9-dev; do echo retry; done
   - if [[ $REPO == BLESSED && $MEMCHECK == TRUE ]]; then
        sudo apt-get -qq install valgrind;
     fi
-  - if [[ $CMAKE_CXX_COMPILER == g++-4.8 ]]; then until sudo apt-get -qq install g++-4.8; do echo retry; done fi
+  - if [[ $CMAKE_CXX_COMPILER == g++-4.9 ]]; then until sudo apt-get -qq install g++-4.9; do echo retry; done fi
   - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then until sudo apt-get -qq install clang-3.3; do echo retry; done fi
   - if [[ $REPO == BLESSED && ($UPLOAD || $BUILD_DOXYGEN == TRUE) ]]; then
        sudo apt-get -qq install python python-pip;
@@ -158,7 +158,7 @@ install:
        tar xvfz lcov-1.11.tar.gz;
        sudo make -C lcov-1.11 install
        rm -rf lcov-1.11.tar.gz lcov-1.11;
-       sudo cp -v `which gcov-4.8` `which gcov`;
+       sudo cp -v `which gcov-4.9` `which gcov`;
     fi
 
 before_script:

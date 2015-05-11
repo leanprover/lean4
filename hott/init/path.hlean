@@ -24,27 +24,26 @@ namespace eq
   definition idpath [reducible] [constructor] (a : A) := refl a
 
   -- unbased path induction
-  definition rec' [reducible] {P : Π (a b : A), (a = b) -> Type}
-      (H : Π (a : A), P a a idp) {a b : A} (p : a = b) : P a b p :=
+  definition rec' [reducible] [unfold-c 6] {P : Π (a b : A), (a = b) → Type}
+    (H : Π (a : A), P a a idp) {a b : A} (p : a = b) : P a b p :=
   eq.rec (H a) p
 
-  definition rec_on' [reducible] {P : Π (a b : A), (a = b) -> Type} {a b : A} (p : a = b)
-      (H : Π (a : A), P a a idp) : P a b p :=
+  definition rec_on' [reducible] [unfold-c 5] {P : Π (a b : A), (a = b) → Type}
+    {a b : A} (p : a = b) (H : Π (a : A), P a a idp) : P a b p :=
   eq.rec (H a) p
 
   /- Concatenation and inverse -/
 
-  definition concat (p : x = y) (q : y = z) : x = z :=
-  eq.rec (λu, u) q p
+  definition concat [trans] [unfold-c 6] (p : x = y) (q : y = z) : x = z :=
+  eq.rec (λp', p') q p
 
-  definition inverse (p : x = y) : y = x :=
+  definition inverse [symm] [unfold-c 4] (p : x = y) : y = x :=
   eq.rec (refl x) p
 
   infix   ⬝  := concat
   postfix ⁻¹ := inverse
   --a second notation for the inverse, which is not overloaded
   postfix [parsing-only] `⁻¹ᵖ`:std.prec.max_plus := inverse
-
 
   /- The 1-dimensional groupoid structure -/
 
@@ -178,19 +177,20 @@ namespace eq
 
   /- Transport -/
 
-  definition transport [reducible] (P : A → Type) {x y : A} (p : x = y) (u : P x) : P y :=
+  definition transport [subst] [reducible] [unfold-c 5] (P : A → Type) {x y : A} (p : x = y)
+    (u : P x) : P y :=
   eq.rec_on p u
 
   -- This idiom makes the operation right associative.
   notation p `▸` x := transport _ p x
 
-  definition cast [reducible] {A B : Type} (p : A = B) (a : A) : B :=
+  definition cast [reducible] [unfold-c 3] {A B : Type} (p : A = B) (a : A) : B :=
   p ▸ a
 
-  definition tr_rev [reducible] (P : A → Type) {x y : A} (p : x = y) (u : P y) : P x :=
+  definition tr_rev [reducible] [unfold-c 6] (P : A → Type) {x y : A} (p : x = y) (u : P y) : P x :=
   p⁻¹ ▸ u
 
-  definition ap ⦃A B : Type⦄ (f : A → B) {x y:A} (p : x = y) : f x = f y :=
+  definition ap [unfold-c 6] ⦃A B : Type⦄ (f : A → B) {x y:A} (p : x = y) : f x = f y :=
   eq.rec_on p idp
 
   abbreviation ap01 [parsing-only] := ap
@@ -198,7 +198,7 @@ namespace eq
   definition homotopy [reducible] (f g : Πx, P x) : Type :=
   Πx : A, f x = g x
 
-  notation f ∼ g := homotopy f g
+  infix  ∼ := homotopy
 
   namespace homotopy
   protected definition refl [refl] [reducible] (f : Πx, P x) : f ∼ f :=
@@ -207,30 +207,25 @@ namespace eq
   protected definition symm [symm] [reducible] {f g : Πx, P x} (H : f ∼ g) : g ∼ f :=
   λ x, (H x)⁻¹
 
-  protected definition trans [trans] [reducible] {f g h : Πx, P x} (H1 : f ∼ g) (H2 : g ∼ h) : f ∼ h :=
+  protected definition trans [trans] [reducible] {f g h : Πx, P x} (H1 : f ∼ g) (H2 : g ∼ h)
+    : f ∼ h :=
   λ x, H1 x ⬝ H2 x
   end homotopy
 
-  definition apd10 {f g : Πx, P x} (H : f = g) : f ∼ g :=
+  definition apd10 [unfold-c 5] {f g : Πx, P x} (H : f = g) : f ∼ g :=
   λx, eq.rec_on H idp
 
   --the next theorem is useful if you want to write "apply (apd10' a)"
-  definition apd10' {f g : Πx, P x} (a : A) (H : f = g) : f a = g a :=
+  definition apd10' [unfold-c 6] {f g : Πx, P x} (a : A) (H : f = g) : f a = g a :=
   eq.rec_on H idp
 
-  definition ap10 [reducible] {f g : A → B} (H : f = g) : f ∼ g := apd10 H
+  definition ap10 [reducible] [unfold-c 5] {f g : A → B} (H : f = g) : f ∼ g := apd10 H
 
   definition ap11 {f g : A → B} (H : f = g) {x y : A} (p : x = y) : f x = g y :=
   eq.rec_on H (eq.rec_on p idp)
 
-  definition apd (f : Πa:A, P a) {x y : A} (p : x = y) : p ▸ f x = f y :=
+  definition apd [unfold-c 6] (f : Πa, P a) {x y : A} (p : x = y) : p ▸ f x = f y :=
   eq.rec_on p idp
-
-  /- calc enviroment -/
-
-  attribute transport [subst]
-  attribute concat [trans]
-  attribute inverse [symm]
 
   /- More theorems for moving things around in equations -/
 
@@ -437,7 +432,7 @@ namespace eq
 
 
   -- Dependent transport in a doubly dependent type.
-  definition transportD {P : A → Type} (Q : Π a : A, P a → Type)
+  definition transportD [unfold-c 6] {P : A → Type} (Q : Πa, P a → Type)
       {a a' : A} (p : a = a') (b : P a) (z : Q a b) : Q a' (p ▸ b) :=
   eq.rec_on p z
 
@@ -445,7 +440,7 @@ namespace eq
   notation p `▸D`:65 x:64 := transportD _ p _ x
 
   -- Transporting along higher-dimensional paths
-  definition transport2 (P : A → Type) {x y : A} {p q : x = y} (r : p = q) (z : P x) :
+  definition transport2 [unfold-c 7] (P : A → Type) {x y : A} {p q : x = y} (r : p = q) (z : P x) :
     p ▸ z = q ▸ z :=
   ap (λp', p' ▸ z) r
 
@@ -466,7 +461,7 @@ namespace eq
     transport2 Q r⁻¹ z = (transport2 Q r z)⁻¹ :=
   eq.rec_on r idp
 
-  definition transportD2 (B C : A → Type) (D : Π(a:A), B a → C a → Type)
+  definition transportD2 [unfold-c 7] (B C : A → Type) (D : Π(a:A), B a → C a → Type)
     {x1 x2 : A} (p : x1 = x2) (y : B x1) (z : C x1) (w : D x1 y z) : D x2 (p ▸ y) (p ▸ z) :=
   eq.rec_on p w
 
@@ -537,15 +532,15 @@ namespace eq
   /- The 2-dimensional groupoid structure -/
 
   -- Horizontal composition of 2-dimensional paths.
-  definition concat2 {p p' : x = y} {q q' : y = z} (h : p = p') (h' : q = q') : p ⬝ q = p' ⬝ q' :=
+  definition concat2 {p p' : x = y} {q q' : y = z} (h : p = p') (h' : q = q')
+    : p ⬝ q = p' ⬝ q' :=
   eq.rec_on h (eq.rec_on h' idp)
 
   infixl `◾`:75 := concat2
 
   -- 2-dimensional path inversion
-  definition inverse2 {p q : x = y} (h : p = q) : p⁻¹ = q⁻¹ :=
+  definition inverse2 [unfold-c 6] {p q : x = y} (h : p = q) : p⁻¹ = q⁻¹ :=
   eq.rec_on h idp
-
 
   /- Whiskering -/
 
@@ -625,7 +620,7 @@ namespace eq
     ⬝ (!whisker_left_idp_left ◾ !whisker_right_idp_right)
 
   -- The action of functions on 2-dimensional paths
-  definition ap02 (f : A → B) {x y : A} {p q : x = y} (r : p = q) : ap f p = ap f q :=
+  definition ap02 [unfold-c 8] (f : A → B) {x y : A} {p q : x = y} (r : p = q) : ap f p = ap f q :=
   eq.rec_on r idp
 
   definition ap02_con (f : A → B) {x y : A} {p p' p'' : x = y} (r : p = p') (r' : p' = p'') :
@@ -639,7 +634,7 @@ namespace eq
                         ⬝ (ap_con f p' q')⁻¹ :=
   eq.rec_on r (eq.rec_on s (eq.rec_on q (eq.rec_on p idp)))
 
-  definition apd02 {p q : x = y} (f : Π x, P x) (r : p = q) :
+  definition apd02 [unfold-c 8] {p q : x = y} (f : Π x, P x) (r : p = q) :
     apd f p = transport2 P r (f x) ⬝ apd f q :=
   eq.rec_on r !idp_con⁻¹
 

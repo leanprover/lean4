@@ -69,7 +69,7 @@ namespace is_trunc
       fapply (IH (g b = g b')),
       { intro q, exact ((ε b)⁻¹ ⬝ ap f q ⬝ ε b')},
       { apply (is_retraction.mk (ap g)),
-        { intro p, cases p, {rewrite [↑ap, con_idp, con.left_inv]}}},
+        { intro p, cases p, {rewrite [↑ap, con.left_inv]}}},
       { apply is_trunc_eq}}
   end
 

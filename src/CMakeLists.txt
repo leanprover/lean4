@@ -340,6 +340,7 @@ add_subdirectory(tests/util/numerics)
 add_subdirectory(tests/util/interval)
 add_subdirectory(tests/kernel)
 add_subdirectory(tests/library)
+add_subdirectory(tests/library/blast)
 add_subdirectory(tests/frontends/lean)
 
 # Include style check

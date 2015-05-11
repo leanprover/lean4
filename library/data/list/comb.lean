@@ -48,8 +48,8 @@ theorem exists_of_mem_map {A B : Type} {f : A → B} {b : B} :
                 (assume H1 : b = f c,
                   exists.intro c (and.intro !mem_cons (eq.symm H1)))
                 (assume H1 : b ∈ map f l,
-                  obtain a (H : a ∈ l ∧ f a = b), from exists_of_mem_map H1,
-                  exists.intro a (and.intro (mem_cons_of_mem _ (and.left H)) (and.right H)))
+                  obtain a (Hl : a ∈ l) (Hr : f a = b), from exists_of_mem_map H1,
+                  exists.intro a (and.intro (mem_cons_of_mem _ Hl) Hr))
 
 theorem eq_of_map_const {A B : Type} {b₁ b₂ : B} : ∀ {l : list A}, b₁ ∈ map (const A b₂) l → b₁ = b₂
 | []     h := absurd h !not_mem_nil
@@ -234,8 +234,8 @@ theorem exists_of_any {p : A → Prop} : ∀{l : list A}, any l p → ∃a, a �
 | (b::l) H := or.elim H
                 (assume H1 : p b, exists.intro b (and.intro !mem_cons H1))
                 (assume H1 : any l p,
-                  obtain a (H2 : a ∈ l ∧ p a), from exists_of_any H1,
-                  exists.intro a (and.intro (mem_cons_of_mem b (and.left H2)) (and.right H2)))
+                  obtain a (H2l : a ∈ l) (H2r : p a), from exists_of_any H1,
+                  exists.intro a (and.intro (mem_cons_of_mem b H2l) H2r))
 
 definition decidable_all (p : A → Prop) [H : decidable_pred p] : ∀ l, decidable (all l p)
 | []       := decidable_true

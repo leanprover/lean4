@@ -41,32 +41,31 @@ quot.induction_on s
 theorem mem_image_iff (f : A → B) {s : finset A} {y : B} : y ∈ image f s ↔ ∃x, x ∈ s ∧ f x = y :=
 iff.intro exists_of_mem_image
   (assume H,
-    obtain x (H1 : x ∈ s ∧ f x = y), from H,
-    mem_image_of_mem_of_eq (and.left H1) (and.right H1))
+    obtain x (H₁ : x ∈ s) (H₂ : f x = y), from H,
+    mem_image_of_mem_of_eq H₁ H₂)
 
 theorem mem_image_eq (f : A → B) {s : finset A} {y : B} : y ∈ image f s = ∃x, x ∈ s ∧ f x = y :=
 propext (mem_image_iff f)
 
 theorem mem_image_of_mem_image_of_subset {f : A → B} {s t : finset A} {y : B}
     (H1 : y ∈ image f s) (H2 : s ⊆ t) : y ∈ image f t :=
-obtain x (H3: x ∈ s ∧ f x = y), from exists_of_mem_image H1,
-have H4 : x ∈ t, from mem_of_subset_of_mem H2 (and.left H3),
-show y ∈ image f t, from mem_image_of_mem_of_eq H4 (and.right H3)
+obtain x (H3: x ∈ s) (H4 : f x = y), from exists_of_mem_image H1,
+have H5 : x ∈ t, from mem_of_subset_of_mem H2 H3,
+show y ∈ image f t, from mem_image_of_mem_of_eq H5 H4
 
 theorem image_insert [h' : decidable_eq A] (f : A → B) (s : finset A) (a : A) :
   image f (insert a s) = insert (f a) (image f s) :=
 ext (take y, iff.intro
   (assume H : y ∈ image f (insert a s),
-    obtain x (H1 : x ∈ insert a s ∧ f x = y), from exists_of_mem_image H,
-    have H2 : x = a ∨ x ∈ s, from eq_or_mem_of_mem_insert (and.left H1),
+    obtain x (H1l : x ∈ insert a s) (H1r :f x = y), from exists_of_mem_image H,
+    have H2 : x = a ∨ x ∈ s, from eq_or_mem_of_mem_insert H1l,
     or.elim H2
       (assume H3 : x = a,
-        have H4 : f a = y, from eq.subst H3 (and.right H1),
+        have H4 : f a = y, from eq.subst H3 H1r,
         show y ∈ insert (f a) (image f s), from eq.subst H4 !mem_insert)
       (assume H3 : x ∈ s,
-        have H4 : f x = y, from and.right H1,
         have H5 : f x ∈ image f s, from mem_image_of_mem f H3,
-        show y ∈ insert (f a) (image f s), from eq.subst H4 (mem_insert_of_mem _ H5)))
+        show y ∈ insert (f a) (image f s), from eq.subst H1r (mem_insert_of_mem _ H5)))
   (assume H : y ∈ insert (f a) (image f s),
     have H1 : y = f a ∨ y ∈ image f s, from eq_or_mem_of_mem_insert H,
     or.elim H1
@@ -237,8 +236,8 @@ theorem any_of_mem {p : A → Prop} {s : finset A} {a : A} : a ∈ s → p a →
 quot.induction_on s (λ l H1 H2, list.any_of_mem H1 H2)
 
 theorem any_of_exists {p : A → Prop} {s : finset A} (H : ∃a, a ∈ s ∧ p a) : any s p :=
-obtain a H', from H,
-any_of_mem (and.left H') (and.right H')
+obtain a H₁ H₂, from H,
+any_of_mem H₁ H₂
 
 theorem any_iff_exists (p : A → Prop) (s : finset A) : any s p ↔ (∃a, a ∈ s ∧ p a) :=
 iff.intro exists_of_any any_of_exists
@@ -249,8 +248,8 @@ any_of_mem (mem_insert a s) H
 
 theorem any_of_insert_right [h : decidable_eq A] {p : A → Prop} {s : finset A} (a : A) (H : any s p) :
   any (insert a s) p :=
-obtain b (H' : b ∈ s ∧ p b), from exists_of_any H,
-any_of_mem (mem_insert_of_mem a (and.left H')) (and.right H')
+obtain b (H₁ : b ∈ s) (H₂ : p b), from exists_of_any H,
+any_of_mem (mem_insert_of_mem a H₁) H₂
 
 definition decidable_any [instance] (p : A → Prop) [h : decidable_pred p] (s : finset A) :
   decidable (any s p) :=

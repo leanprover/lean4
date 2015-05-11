@@ -77,9 +77,9 @@ finset.induction_on s
     have H4 : f a ∉ image f t,
       proof
         assume H5 : f a ∈ image f t,
-        obtain x (H6 : x ∈ t ∧ f x = f a), from exists_of_mem_image H5,
-        have H7 : x = a, from H1 (mem_insert_of_mem _ (and.left H6)) !mem_insert (and.right H6),
-        show false, from H (H7 ▸ and.left H6)
+        obtain x (H6l : x ∈ t) (H6r : f x = f a), from exists_of_mem_image H5,
+        have H7 : x = a, from H1 (mem_insert_of_mem _ H6l) !mem_insert H6r,
+        show false, from H (H7 ▸ H6l)
       qed,
     calc
       card (image f (insert a t)) = card (insert (f a) (image f t)) : image_insert

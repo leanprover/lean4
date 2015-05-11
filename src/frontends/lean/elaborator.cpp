@@ -795,7 +795,7 @@ expr elaborator::visit_typed_expr(expr const & e, constraint_seq & cs) {
     constraint_seq t_cs;
     expr t      = visit(get_typed_expr_type(e), t_cs);
     constraint_seq v_cs;
-    expr v      = visit(get_typed_expr_expr(e), v_cs);
+    expr v      = visit_expecting_type_of(get_typed_expr_expr(e), t, v_cs);
     expr v_type = infer_type(v, v_cs);
     justification j = mk_type_mismatch_jst(v, v_type, t, e);
     auto new_vcs    = ensure_has_type(v, v_type, t, j);

@@ -595,8 +595,8 @@ class rewrite_fn {
 
     optional<expr> reduce(expr const & e, list<name> const & to_unfold) {
         bool unfolded          = !to_unfold;
-        auto tc = new type_checker(m_env, m_ngen.mk_child(),
-                                   std::unique_ptr<converter>(new rewriter_converter(m_env, to_unfold, unfolded)));
+        type_checker_ptr tc(new type_checker(m_env, m_ngen.mk_child(),
+                            std::unique_ptr<converter>(new rewriter_converter(m_env, to_unfold, unfolded))));
         constraint_seq cs;
         bool use_eta = true;
         expr r = normalize(*tc, e, cs, use_eta);

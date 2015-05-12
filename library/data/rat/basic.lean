@@ -392,8 +392,10 @@ section
     inv_zero         := inv_zero,
     has_decidable_eq := has_decidable_eq⦄
 
-  migrate from algebra with rat
-    replacing sub → rat.sub
-end
+  definition divide (a b : rat) := algebra.divide a b
+  definition dvd (a b : rat) := algebra.dvd a b
 
+  migrate from algebra with rat
+    replacing sub → rat.sub, divide → divide, dvd → dvd
+end
 end rat

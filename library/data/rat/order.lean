@@ -222,6 +222,8 @@ section
 
   definition abs (n : rat) : rat := algebra.abs n
   definition sign (n : rat) : rat := algebra.sign n
-  migrate from algebra with rat replacing abs → abs, sign → sign
+
+  migrate from algebra with rat
+  replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign, dvd → dvd, divide → divide
 end
 end rat

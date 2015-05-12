@@ -140,4 +140,5 @@ name const & get_symm_tk();
 name const & get_trans_tk();
 name const & get_refl_tk();
 name const & get_subst_tk();
+name const & get_recursor_tk();
 }

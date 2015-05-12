@@ -138,6 +138,7 @@ static name * g_symm         = nullptr;
 static name * g_trans        = nullptr;
 static name * g_refl         = nullptr;
 static name * g_subst        = nullptr;
+static name * g_recursor     = nullptr;
 
 void initialize_tokens() {
     g_period       = new name(".");
@@ -248,6 +249,7 @@ void initialize_tokens() {
     g_trans        = new name("[trans]");
     g_refl         = new name("[refl]");
     g_subst        = new name("[subst]");
+    g_recursor     = new name("[recursor]");
     g_attribute    = new name("attribute");
     g_with         = new name("with");
     g_class        = new name("[class]");
@@ -315,6 +317,7 @@ void finalize_tokens() {
     delete g_refl;
     delete g_trans;
     delete g_subst;
+    delete g_recursor;
     delete g_reducible;
     delete g_quasireducible;
     delete g_semireducible;
@@ -512,6 +515,7 @@ name const & get_symm_tk() { return *g_symm; }
 name const & get_trans_tk() { return *g_trans; }
 name const & get_refl_tk() { return *g_refl; }
 name const & get_subst_tk() { return *g_subst; }
+name const & get_recursor_tk() { return *g_recursor; }
 name const & get_reducible_tk() { return *g_reducible; }
 name const & get_quasireducible_tk() { return *g_quasireducible; }
 name const & get_semireducible_tk() { return *g_semireducible; }

@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/class.h"
 #include "library/abbreviation.h"
 #include "library/equivalence_manager.h"
+#include "library/user_recursors.h"
 #include "library/unfold_macros.h"
 #include "library/definitional/equations.h"
 #include "library/error_handling/error_handling.h"
@@ -359,6 +360,7 @@ struct decl_attributes {
     bool               m_trans;
     bool               m_refl;
     bool               m_subst;
+    bool               m_recursor;
     optional<unsigned> m_priority;
     optional<unsigned> m_unfold_c_hint;
 
@@ -382,6 +384,7 @@ struct decl_attributes {
         m_trans                  = false;
         m_refl                   = false;
         m_subst                  = false;
+        m_recursor               = false;
     }
 
     struct elim_choice_fn : public replace_visitor {
@@ -508,6 +511,9 @@ struct decl_attributes {
             } else if (p.curr_is_token(get_subst_tk())) {
                 p.next();
                 m_subst = true;
+            } else if (p.curr_is_token(get_recursor_tk())) {
+                p.next();
+                m_recursor = true;
             } else {
                 break;
             }
@@ -563,6 +569,8 @@ struct decl_attributes {
             env = add_trans(env, d, m_persistent);
         if (m_subst)
             env = add_subst(env, d, m_persistent);
+        if (m_recursor)
+            env = add_user_recursor(env, d, m_persistent);
         if (m_is_class)
             env = add_class(env, d, m_persistent);
         if (m_has_multiple_instances)

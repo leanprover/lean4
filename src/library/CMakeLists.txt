@@ -13,6 +13,6 @@ add_library(library deep_copy.cpp expr_lt.cpp io_state.cpp occurs.cpp
   generic_exception.cpp fingerprint.cpp flycheck.cpp hott_kernel.cpp
   local_context.cpp choice_iterator.cpp pp_options.cpp unfold_macros.cpp
   app_builder.cpp projection.cpp abbreviation.cpp equivalence_manager.cpp
-  export.cpp)
+  export.cpp user_recursors.cpp)
 
 target_link_libraries(library ${LEAN_LIBS})

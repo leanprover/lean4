@@ -218,15 +218,17 @@ expr fun_to_telescope(name_generator & ngen, expr const & e, buffer<expr> & tele
 
 expr to_telescope(type_checker & tc, expr type, buffer<expr> & telescope, optional<binder_info> const & binfo,
                   constraint_seq & cs) {
-    type = tc.whnf(type, cs);
-    while (is_pi(type)) {
+    expr new_type = tc.whnf(type, cs);
+    while (is_pi(new_type)) {
+        type = new_type;
         expr local;
         if (binfo)
             local = mk_local(tc.mk_fresh_name(), binding_name(type), binding_domain(type), *binfo);
         else
             local = mk_local(tc.mk_fresh_name(), binding_name(type), binding_domain(type), binding_info(type));
         telescope.push_back(local);
-        type = tc.whnf(instantiate(binding_body(type), local), cs);
+        type     = instantiate(binding_body(type), local);
+        new_type = tc.whnf(type, cs);
     }
     return type;
 }

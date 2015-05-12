@@ -272,8 +272,9 @@ Binders
 
 Use a space after binders:
 or this:
-#+BEGIN_SRC
-example : ∀ X : Type, ∀ x : X, ∃ y, (λ u, u) x = y
+#+BEGIN_SRC lean
+example : ∀ X : Type, ∀ x : X, ∃ y, (λ u, u) x = y :=
+take (X : Type) (x : X), exists.intro x rfl
 #+END_SRC
 
 Calculations
@@ -282,7 +283,11 @@ Calculations
 There is some flexibility in how you write calculational proofs. In
 general, it looks nice when the comparisons and justifications line up
 neatly:
-#+BEGIN_SRC
+#+BEGIN_SRC lean
+import data.list
+open list
+variable {T : Type}
+
 theorem reverse_reverse : ∀ (l : list T), reverse (reverse l) = l
 | []       := rfl
 | (a :: l) := calc
@@ -293,7 +298,11 @@ theorem reverse_reverse : ∀ (l : list T), reverse (reverse l) = l
                            ... = a :: l                             : rfl
 #+END_SRC
 To be more compact, for example, you may do this only after the first line:
-#+BEGIN_SRC
+#+BEGIN_SRC lean
+import data.list
+open list
+variable {T : Type}
+
 theorem reverse_reverse : ∀ (l : list T), reverse (reverse l) = l
 | []       := rfl
 | (a :: l) := calc
@@ -310,7 +319,7 @@ Sections
 
 Within a section, you can indent definitions and theorems to make the
 scope salient:
-#+BEGIN_SRC
+#+BEGIN_SRC lean
 section my_section
   variable A : Type
   variable P : Prop

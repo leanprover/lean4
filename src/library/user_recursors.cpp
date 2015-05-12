@@ -58,7 +58,7 @@ static void throw_invalid_major(buffer<expr> const & tele, expr const & I, unsig
 
 recursor_info mk_recursor_info(environment const & env, name const & r) {
     if (auto I = inductive::is_elim_rule(env, r)) {
-        if (*inductive::get_num_type_formers(env, r) > 1)
+        if (*inductive::get_num_type_formers(env, *I) > 1)
             throw exception(sstream() << "unsupported recursor '" << r << "', it has multiple motives");
         optional<unsigned> motive_univ_pos;
         if (env.get(name(*I, "rec")).get_num_univ_params() != env.get(name(*I)).get_num_univ_params())
@@ -66,7 +66,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r) {
         return recursor_info(r, *I,
                              *inductive::get_num_params(env, *I),
                              *inductive::get_num_indices(env, *I),
-                             *inductive::get_elim_major_idx(env, *I),
+                             *inductive::get_elim_major_idx(env, r),
                              motive_univ_pos,
                              inductive::has_dep_elim(env, *I));
     }

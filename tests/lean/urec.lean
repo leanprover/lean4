@@ -31,3 +31,10 @@ set_option pp.implicit true
 set_option pp.universes true
 
 check @myrec
+
+print [recursor] myrec
+print [recursor] nat.induction_on
+check @vector.induction_on
+print [recursor] vector.induction_on
+check @Exists.rec
+print [recursor] Exists.rec

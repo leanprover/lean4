@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "library/class.h"
 #include "library/flycheck.h"
 #include "library/util.h"
+#include "library/user_recursors.h"
 #include "library/pp_options.h"
 #include "library/definitional/projection.h"
 #include "frontends/lean/util.h"
@@ -227,6 +228,21 @@ static void print_inductive(parser & p, name const & n, pos_info const & pos) {
     }
 }
 
+static void print_recursor_info(parser & p) {
+    name c = p.check_constant_next("invalid 'print [recursor]', constant expected");
+    recursor_info info = get_recursor_info(p.env(), c);
+    p.regular_stream() << "recursor information\n"
+                       << "  num. parameters:    " << info.get_num_params() << "\n"
+                       << "  num. indices:       " << info.get_num_indices() << "\n";
+    if (auto r = info.get_motive_univ_pos())
+        p.regular_stream() << "  motive univ. pos. : " << *r << "\n";
+    else
+        p.regular_stream() << "  recursor eliminate only to Prop\n";
+    p.regular_stream() << "  motive pos.:        " << info.get_motive_pos() << "\n"
+                       << "  major premise pos.: " << info.get_major_pos() << "\n"
+                       << "  dep. elimination:   " << info.has_dep_elim() << "\n";
+}
+
 bool print_constant(parser & p, char const * kind, declaration const & d) {
     io_state_stream out = p.regular_stream();
     out << kind << " " << d.get_name();
@@ -388,6 +404,9 @@ environment print_cmd(parser & p) {
         auto pos = p.pos();
         name c = p.check_constant_next("invalid 'print inductive', constant expected");
         print_inductive(p, c, pos);
+    } else if (p.curr_is_token(get_recursor_tk())) {
+        p.next();
+        print_recursor_info(p);
     } else if (print_polymorphic(p)) {
     } else {
         throw parser_error("invalid print command", p.pos());

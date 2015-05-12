@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2014 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: data.int.basic
 Authors: Floris van Doorn, Jeremy Avigad
 
 The integers, with addition, multiplication, and subtraction. The representation of the integers is
@@ -609,10 +607,10 @@ or_of_or_of_imp_of_imp H3
   (assume H : (nat_abs a) = nat.zero, nat_abs_eq_zero H)
   (assume H : (nat_abs b) = nat.zero, nat_abs_eq_zero H)
 
-section
+section migrate_algebra
   open [classes] algebra
 
-  protected definition integral_domain [instance] [reducible] : algebra.integral_domain int :=
+  protected definition integral_domain [reducible] : algebra.integral_domain int :=
   ⦃algebra.integral_domain,
     add            := add,
     add_assoc      := add.assoc,
@@ -632,6 +630,7 @@ section
     mul_comm       := mul.comm,
     eq_zero_or_eq_zero_of_mul_eq_zero := @eq_zero_or_eq_zero_of_mul_eq_zero⦄
 
+  local attribute int.integral_domain [instance]
   definition sub (a b : ℤ) : ℤ := algebra.sub a b
   infix - := int.sub
   definition dvd (a b : ℤ) : Prop := algebra.dvd a b
@@ -639,7 +638,7 @@ section
 
   migrate from algebra with int
   replacing sub → sub, dvd → dvd
-end
+end migrate_algebra
 
 /- additional properties -/
 

@@ -290,7 +290,7 @@ nat.cases_on n
 section
   open [classes] algebra
 
-  protected definition comm_semiring [instance] [reducible] : algebra.comm_semiring nat :=
+  protected definition comm_semiring [reducible] : algebra.comm_semiring nat :=
   ⦃algebra.comm_semiring,
     add            := add,
     add_assoc      := add.assoc,
@@ -312,6 +312,7 @@ end
 
 section port_algebra
   open [classes] algebra
+  local attribute comm_semiring [instance]
   theorem mul.left_comm : ∀a b c : ℕ, a * (b * c) = b * (a * c) := algebra.mul.left_comm
   theorem mul.right_comm : ∀a b c : ℕ, (a * b) * c = (a * c) * b := algebra.mul.right_comm
 

@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2014 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: data.int.order
 Authors: Floris van Doorn, Jeremy Avigad
 
 The order relation on the integers. We show that int is an instance of linear_comm_ordered_ring
@@ -218,10 +216,10 @@ lt.intro
         ... = of_nat (succ (succ n * m + n))   : nat.add_succ
         ... = 0 + succ (succ n * m + n)        : zero_add))
 
-section
+section migrate_algebra
   open [classes] algebra
 
-  protected definition linear_ordered_comm_ring [instance] [reducible] :
+  protected definition linear_ordered_comm_ring [reducible] :
     algebra.linear_ordered_comm_ring int :=
   ⦃algebra.linear_ordered_comm_ring, int.integral_domain,
     le               := le,
@@ -237,11 +235,15 @@ section
     le_total         := le.total,
     zero_ne_one      := zero_ne_one⦄
 
-  protected definition decidable_linear_ordered_comm_ring [instance] [reducible] :
+  protected definition decidable_linear_ordered_comm_ring [reducible] :
     algebra.decidable_linear_ordered_comm_ring int :=
   ⦃algebra.decidable_linear_ordered_comm_ring,
     int.linear_ordered_comm_ring,
     decidable_lt := decidable_lt⦄
+
+  local attribute int.integral_domain [instance]
+  local attribute int.linear_ordered_comm_ring [instance]
+  local attribute int.decidable_linear_ordered_comm_ring [instance]
 
   definition ge [reducible] (a b : ℤ) := algebra.has_le.ge a b
   definition gt [reducible] (a b : ℤ) := algebra.has_lt.gt a b
@@ -257,7 +259,7 @@ section
 
   migrate from algebra with int
   replacing has_le.ge → ge, has_lt.gt → gt, sign → sign, abs → abs, dvd → dvd, sub → sub
-end
+end migrate_algebra
 
 /- more facts specific to int -/
 

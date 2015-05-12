@@ -143,8 +143,9 @@ le.intro !zero_add
 
 section
   open [classes] algebra
+  local attribute nat.comm_semiring [instance]
 
-  protected definition linear_ordered_semiring [instance] [reducible] :
+  protected definition linear_ordered_semiring [reducible] :
     algebra.linear_ordered_semiring nat :=
   ⦃ algebra.linear_ordered_semiring, nat.comm_semiring,
     add_left_cancel            := @add.cancel_left,
@@ -164,6 +165,11 @@ section
     mul_le_mul_of_nonneg_right := (take a b c H1 H2, mul_le_mul_right H1 c),
     mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left,
     mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right ⦄
+end
+
+section
+  open [classes] algebra
+  local attribute nat.linear_ordered_semiring [instance]
 
   migrate from algebra with nat
     replacing has_le.ge → ge, has_lt.gt → gt
@@ -172,6 +178,7 @@ end
 
 section port_algebra
   open [classes] algebra
+  local attribute nat.linear_ordered_semiring [instance]
   theorem add_pos_left : ∀{a : ℕ}, 0 < a → ∀b : ℕ, 0 < a + b :=
     take a H b, @algebra.add_pos_of_pos_of_nonneg _ _ a b H !zero_le
   theorem add_pos_right : ∀{a : ℕ}, 0 < a → ∀b : ℕ, 0 < b + a :=

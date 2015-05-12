@@ -202,10 +202,10 @@ have H : pos (a * b), from pos_mul (!sub_zero ▸ H1) (!sub_zero ▸ H2),
 definition decidable_lt [instance] : decidable_rel rat.lt :=
 take a b, decidable_pos (b - a)
 
-section
+section migrate_algebra
   open [classes] algebra
 
-  protected definition discrete_linear_ordered_field [instance] [reducible] :
+  protected definition discrete_linear_ordered_field [reducible] :
     algebra.discrete_linear_ordered_field rat :=
   ⦃algebra.discrete_linear_ordered_field,
     rat.discrete_field,
@@ -220,10 +220,12 @@ section
     mul_pos          := @mul_pos,
     decidable_lt     := @decidable_lt⦄
 
+  local attribute rat.discrete_field [instance]
+  local attribute rat.discrete_linear_ordered_field [instance]
   definition abs (n : rat) : rat := algebra.abs n
   definition sign (n : rat) : rat := algebra.sign n
 
   migrate from algebra with rat
-  replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign, dvd → dvd, divide → divide
-end
+    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign, dvd → dvd, divide → divide
+end migrate_algebra
 end rat

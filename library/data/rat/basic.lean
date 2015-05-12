@@ -365,10 +365,10 @@ take a b, quot.rec_on_subsingleton₂ a b
 theorem inv_zero : inv 0 = 0 :=
 quot.sound (prerat.inv_zero' ▸ !prerat.equiv.refl)
 
-section
+section migrate_algebra
   open [classes] algebra
 
-  protected definition discrete_field [instance] [reducible] : algebra.discrete_field rat :=
+  protected definition discrete_field [reducible] : algebra.discrete_field rat :=
   ⦃algebra.discrete_field,
     add              := add,
     add_assoc        := add.assoc,
@@ -392,10 +392,12 @@ section
     inv_zero         := inv_zero,
     has_decidable_eq := has_decidable_eq⦄
 
+  local attribute rat.discrete_field [instance]
   definition divide (a b : rat) := algebra.divide a b
   definition dvd (a b : rat) := algebra.dvd a b
 
   migrate from algebra with rat
     replacing sub → rat.sub, divide → divide, dvd → dvd
-end
+
+end migrate_algebra
 end rat

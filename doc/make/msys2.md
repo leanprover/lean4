@@ -11,7 +11,12 @@ It is easy to install all dependencies, it produces native
 
 ## Installing dependencies
 
-[The official webpage][msys2] provides one-click installers.
+Lean requires Python2 or Python3. If you do not have a Python installation on your machine, 
+please download and install one from [Python.org](https://www.python.org/downloads/windows).
+Also please make sure that your `PATH` environment variable includes the installed 
+Python directory (i.e. `C:\Python27`).
+
+[The official webpage of msys2][msys2] provides one-click installers.
 We assume that you install [msys2][msys2] at `c:\msys64`.
 Once installed it, you can run msys2 shell from the start menu.
 It has a package management system, [pacman][pacman], which is used in Arch Linux.
@@ -25,8 +30,8 @@ pacman -S mingw-w64-x86_64-gcc
 # Install mpfr, gmp, lua
 pacman -S mingw-w64-x86_64-mpfr mingw-w64-x86_64-gmp mingw-w64-x86_64-lua
 
-# Install python, ninja, cmake
-pacman -S mingw-w64-x86_64-python2 mingw-w64-x86_64-ninja mingw-w64-x86_64-cmake
+# Install ninja, cmake
+pacman -S mingw-w64-x86_64-ninja mingw-w64-x86_64-cmake
 
 # Install git
 pacman -S git

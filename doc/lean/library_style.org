@@ -30,7 +30,7 @@ check and.comm
 check mul.comm
 check and.assoc
 check mul.assoc
-check mul.left_cancel -- multiplication is left cancelative
+check @algebra.mul.left_cancel  -- multiplication is left cancelative
 #+END_SRC
 In particular, this includes =intro= and =elim= operations for logical
 connectives, and properties of relations:
@@ -58,8 +58,8 @@ open nat algebra
 check succ_ne_zero
 check mul_zero
 check mul_one
-check sub_add_eq_add_sub
-check le_iff_lt_or_eq
+check @sub_add_eq_add_sub
+check @le_iff_lt_or_eq
 #+END_SRC
 If only a prefix of the description is enough to convey the meaning,
 the name may be made even shorter:
@@ -67,12 +67,12 @@ the name may be made even shorter:
 import standard algebra.ordered_ring
 open nat algebra
 
-check neg_neg
-check pred_succ
+check @neg_neg
+check nat.pred_succ
 #+END_SRC
 When an operation is written as infix, the theorem names follow
 suit. For example, we write =neg_mul_neg= rather than =mul_neg_neg= to
-describe the patter =-a * -b=. 
+describe the patter =-a * -b=.
 
 Sometimes, to disambiguate the name of theorem or better convey the
 intended reference, it is necessary to describe some of the
@@ -103,7 +103,7 @@ check add_lt_of_nonpos_of_lt
 These conventions are not perfect. They cannot distinguish compound
 expressions up to associativity, or repeated occurrences in a
 pattern. For that, we make do as best we can. For example, =a + b - b
-= a= could be named either =add_sub_self= or =add_sub_cancel=. 
+= a= could be named either =add_sub_self= or =add_sub_cancel=.
 
 Sometimes the word "left" or "right" is helpful to describe variants
 of a theorem.
@@ -154,14 +154,16 @@ forces a break to suggest the the break is artificial rather than
 structural, as in the statement of theorem:
 
 #+BEGIN_SRC lean
-theorem two_step_induction_on {P : nat → Bool} (a : nat) (H1 : P 0) (H2 : P (succ 0))
+open nat
+theorem two_step_induction_on {P : nat → Prop} (a : nat) (H1 : P 0) (H2 : P (succ 0))
     (H3 : ∀ (n : nat) (IH1 : P n) (IH2 : P (succ n)), P (succ (succ n))) : P a :=
 sorry
 #+END_SRC
 
 If you want to indent to make parameters line up, that is o.k. too:
 #+BEGIN_SRC lean
-theorem two_step_induction_on {P : nat → Bool} (a : nat) (H1 : P 0) (H2 : P (succ 0))
+open nat
+theorem two_step_induction_on {P : nat → Prop} (a : nat) (H1 : P 0) (H2 : P (succ 0))
                               (H3 : ∀ (n : nat) (IH1 : P n) (IH2 : P (succ n)), P (succ (succ n))) :
   P a :=
 sorry
@@ -170,17 +172,20 @@ sorry
 After stating the theorem, we generally do not indent the first line
 of a proof, so that the proof is "flush left" in the file.
 #+BEGIN_SRC lean
-theorem nat_case {P : nat → Bool} (n : nat) (H1: P 0) (H2 : ∀m, P (succ m)) : P n := 
-induction_on n H1 (take m IH, H2 m)
+open nat
+theorem nat_case {P : nat → Prop} (n : nat) (H1: P 0) (H2 : ∀m, P (succ m)) : P n :=
+nat.induction_on n H1 (take m IH, H2 m)
 #+END_SRC
 
 When a proof rule takes multiple arguments, it is sometimes clearer, and often
 necessary, to put some of the arguments on subsequent lines. In that case,
 indent each argument.
 #+BEGIN_SRC lean
-theorem nat_discriminate {B : Bool} {n : nat} (H1: n = 0 → B)
+open nat
+axiom zero_or_succ (n : nat) : n = zero ∨ n = succ (pred n)
+theorem nat_discriminate {B : Prop} {n : nat} (H1: n = 0 → B)
     (H2 : ∀m, n = succ m → B) : B :=
-or_elim (zero_or_succ n)
+or.elim (zero_or_succ n)
   (take H3 : n = zero, H1 H3)
   (take H3 : n = succ (pred n), H2 (pred n) H3)
 #+END_SRC
@@ -188,6 +193,11 @@ Don't orphan parentheses; keep them with their arguments.
 
 Here is a longer example.
 #+BEGIN_SRC lean
+import data.list
+open list eq.ops
+variable {T : Type}
+local attribute mem [reducible]
+local attribute append [reducible]
 theorem mem_split {x : T} {l : list T} : x ∈ l → ∃s t : list T, l = s ++ (x::t) :=
 list.induction_on l
   (take H : x ∈ [], false.elim (iff.elim_left !mem_nil_iff H))
@@ -206,24 +216,25 @@ list.induction_on l
 
 A short definition can be written on a single line:
 #+BEGIN_SRC lean
+open nat
 definition square (x : nat) : nat := x * x
 #+END_SRC
 For longer definitions, use conventions like those for theorems.
 
 A "have" / "from" pair can be put on the same line.
-#+BEGIN_SRC lean
+#+BEGIN_SRC
 have H2 : n ≠ succ k, from subst (ne_symm (succ_ne_zero k)) (symm H),
 [...]
 #+END_SRC
 You can also put it on the next line, if the justification is long.
-#+BEGIN_SRC lean
+#+BEGIN_SRC
 have H2 : n ≠ succ k,
   from subst (ne_symm (succ_ne_zero k)) (symm H),
 [...]
 #+END_SRC
 If the justification takes more than a single line, keep the "from" on the same
 line as the "have", and then begin the justification indented on the next line.
-#+BEGIN_SRC lean
+#+BEGIN_SRC
 have n ≠ succ k, from
   not_intro
     (take H4 : n = succ k,
@@ -237,19 +248,21 @@ When the arguments themselves are long enough to require line breaks, use
 an additional indent for every line after the first, as in the following
 example:
 #+BEGIN_SRC lean
+import data.nat
+open nat eq
 theorem add_right_inj {n m k : nat} : n + m = n + k → m = k :=
-induction_on n
+nat.induction_on n
   (take H : 0 + m = 0 + k,
     calc
-        m = 0 + m : symm (add_zero_left m)
+        m = 0 + m : symm (zero_add m)
       ... = 0 + k : H
-      ... = k     : add_zero_left k)
+      ... = k     : zero_add)
   (take (n : nat) (IH : n + m = n + k → m = k) (H : succ n + m = succ n + k),
     have H2 : succ (n + m) = succ (n + k), from
       calc
-        succ (n + m) = succ n + m   : symm (add_succ_left n m)
+        succ (n + m) = succ n + m   : symm (succ_add n m)
                  ... = succ n + k   : H
-                 ... = succ (n + k) : add_succ_left n k,
+                 ... = succ (n + k) : succ_add n k,
     have H3 : n + m = n + k, from succ_inj H2,
     IH H3)
 #+END_SRC lean
@@ -259,7 +272,7 @@ Binders
 
 Use a space after binders:
 or this:
-#+BEGIN_SRC lean
+#+BEGIN_SRC
 example : ∀ X : Type, ∀ x : X, ∃ y, (λ u, u) x = y
 #+END_SRC
 
@@ -269,7 +282,7 @@ Calculations
 There is some flexibility in how you write calculational proofs. In
 general, it looks nice when the comparisons and justifications line up
 neatly:
-#+BEGIN_SRC lean
+#+BEGIN_SRC
 theorem reverse_reverse : ∀ (l : list T), reverse (reverse l) = l
 | []       := rfl
 | (a :: l) := calc
@@ -278,13 +291,13 @@ theorem reverse_reverse : ∀ (l : list T), reverse (reverse l) = l
                            ... = reverse [a] ++ reverse (reverse l) : reverse_append
                            ... = reverse [a] ++ l                   : reverse_reverse
                            ... = a :: l                             : rfl
-#+END_SRC lean
+#+END_SRC
 To be more compact, for example, you may do this only after the first line:
-#+BEGIN_SRC lean
+#+BEGIN_SRC
 theorem reverse_reverse : ∀ (l : list T), reverse (reverse l) = l
 | []       := rfl
 | (a :: l) := calc
-    reverse (reverse (a :: l)) 
+    reverse (reverse (a :: l))
           = reverse (concat a (reverse l))     : rfl
       ... = reverse (reverse l ++ [a])         : concat_eq_append
       ... = reverse [a] ++ reverse (reverse l) : reverse_append
@@ -297,7 +310,7 @@ Sections
 
 Within a section, you can indent definitions and theorems to make the
 scope salient:
-#+BEGIN_SRC lean
+#+BEGIN_SRC
 section my_section
   variable A : Type
   variable P : Prop

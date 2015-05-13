@@ -27,8 +27,8 @@ env:
    # =======================================================
    # DEBUG Build
    # =======================================================
-   # D1. clang++-3.3  | DEBUG   | TCMALLOC       | CDASH
-   - CMAKE_CXX_COMPILER=clang++-3.3
+   # D1. clang++-3.4  | DEBUG   | TCMALLOC       | CDASH
+   - CMAKE_CXX_COMPILER=clang++-3.4
      CMAKE_BUILD_TYPE=Debug
      TCMALLOC=ON
      PUSH_TO_CDASH=TRUE
@@ -43,8 +43,8 @@ env:
      PUSH_TO_CDASH=TRUE
      LUA=52
      CONSERVE_MEMORY=ON
-   # D3. clang++-3.3 | DEBUG
-   - CMAKE_CXX_COMPILER=clang++-3.3
+   # D3. clang++-3.4 | DEBUG
+   - CMAKE_CXX_COMPILER=clang++-3.4
      CMAKE_BUILD_TYPE=Debug
      TCMALLOC=OFF
      PUSH_TO_CDASH=TRUE
@@ -59,8 +59,8 @@ env:
    # =======================================================
    # RELEASE Build
    # =======================================================
-   # R1. clang++-3.3 | RELEASE | TCMALLOC        | CDASH
-   - CMAKE_CXX_COMPILER=clang++-3.3
+   # R1. clang++-3.4 | RELEASE | TCMALLOC        | CDASH
+   - CMAKE_CXX_COMPILER=clang++-3.4
      CMAKE_BUILD_TYPE=Release
      TCMALLOC=ON
      PUSH_TO_CDASH=TRUE
@@ -74,8 +74,8 @@ env:
      LUA=52
      PACKAGE=TRUE
      CONSERVE_MEMORY=ON
-   # R3. clang++-3.3 | RELEASE
-   - CMAKE_CXX_COMPILER=clang++-3.3
+   # R3. clang++-3.4 | RELEASE
+   - CMAKE_CXX_COMPILER=clang++-3.4
      CMAKE_BUILD_TYPE=Release
      TCMALLOC=OFF
      PUSH_TO_CDASH=TRUE
@@ -148,7 +148,7 @@ install:
        sudo apt-get -qq install valgrind;
     fi
   - if [[ $CMAKE_CXX_COMPILER == g++-4.9 ]]; then until sudo apt-get -qq install g++-4.9; do echo retry; done fi
-  - if [[ $CMAKE_CXX_COMPILER == clang++-3.3 ]]; then until sudo apt-get -qq install clang-3.3; do echo retry; done fi
+  - if [[ $CMAKE_CXX_COMPILER == clang++-3.4 ]]; then until sudo apt-get -qq install clang-3.4; do echo retry; done fi
   - if [[ $REPO == BLESSED && ($UPLOAD || $BUILD_DOXYGEN == TRUE) ]]; then
        sudo apt-get -qq install python python-pip;
        sudo pip install dropbox;
@@ -194,7 +194,7 @@ before_script:
 script:
   - mkdir -p build
   - cd build
-  - if [[ $CMAKE_BUILD_TYPE == Release && $CMAKE_CXX_COMPILER=clang++-3.3 ]]; then
+  - if [[ $CMAKE_BUILD_TYPE == Release && $CMAKE_CXX_COMPILER=clang++-3.4 ]]; then
        GENERATOR=;
     else
        GENERATOR=-GNinja;

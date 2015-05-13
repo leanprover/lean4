@@ -43,6 +43,9 @@ add_test(NAME "lean_print_notation"
 add_test(NAME "auto_completion_issue_422"
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
          COMMAND bash "./ac_bug.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
+add_test(NAME "issue_597"
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
+         COMMAND bash "./issue_597.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
 
 # LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")

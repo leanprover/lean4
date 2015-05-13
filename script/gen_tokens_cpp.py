@@ -47,7 +47,7 @@ def main(argv=None):
     with open(hfile, 'w') as f:
         f.write('// Copyright (c) 2015 Microsoft Corporation. All rights reserved.\n')
         f.write('// Released under Apache 2.0 license as described in the file LICENSE.\n')
-        f.write('// DO NOT EDIT, automatically generated file, generator scripts/gen_constants_cpp.py\n')
+        f.write('// DO NOT EDIT, automatically generated file, generator scripts/get_tokens_cpp.py\n')
         f.write('#include "util/name.h"\n')
         f.write('namespace lean {\n')
         f.write('void initialize_tokens();\n')
@@ -58,7 +58,7 @@ def main(argv=None):
     with open(cppfile, 'w') as f:
         f.write('// Copyright (c) 2015 Microsoft Corporation. All rights reserved.\n')
         f.write('// Released under Apache 2.0 license as described in the file LICENSE.\n')
-        f.write('// DO NOT EDIT, automatically generated file, generator scripts/gen_constants_cpp.py\n')
+        f.write('// DO NOT EDIT, automatically generated file, generator scripts/gen_tokens_cpp.py\n')
         f.write('#include "util/name.h"\n')
         f.write('namespace lean{\n')
         # declare constants

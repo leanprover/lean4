@@ -644,6 +644,7 @@ static environment add_abbrev(parser & p, environment const & env, name const & 
 // open/export [class] id (as id)? (id ...) (renaming id->id id->id) (hiding id ... id)
 environment open_export_cmd(parser & p, bool open) {
     environment env = p.env();
+    unsigned fingerprint = 0;
     while (true) {
         buffer<name> metacls;
         parse_metaclasses(p, metacls);
@@ -652,8 +653,11 @@ environment open_export_cmd(parser & p, bool open) {
             std::find(metacls.begin(), metacls.end(), get_decls_tk()) != metacls.end() ||
             std::find(metacls.begin(), metacls.end(), get_declarations_tk()) != metacls.end())
             decls = true;
+        for (name const & n : metacls)
+            fingerprint = hash(fingerprint, n.hash());
         auto pos   = p.pos();
         name ns    = p.check_id_next("invalid 'open/export' command, identifier expected");
+        fingerprint = hash(fingerprint, ns.hash());
         optional<name> real_ns = to_valid_namespace_name(env, ns);
         if (!real_ns)
             throw parser_error(sstream() << "invalid namespace name '" << ns << "'", pos);
@@ -680,6 +684,7 @@ environment open_export_cmd(parser & p, bool open) {
                         p.next();
                         p.check_token_next(get_arrow_tk(), "invalid 'open/export' command renaming, '->' expected");
                         name to_id = p.check_id_next("invalid 'open/export' command renaming, identifier expected");
+                        fingerprint = hash(hash(fingerprint, from_id.hash()), to_id.hash());
                         check_identifier(p, env, ns, from_id);
                         exceptions.push_back(from_id);
                         if (open)
@@ -694,12 +699,14 @@ environment open_export_cmd(parser & p, bool open) {
                         p.next();
                         check_identifier(p, env, ns, id);
                         exceptions.push_back(id);
+                        fingerprint = hash(fingerprint, id.hash());
                     }
                 } else if (p.curr_is_identifier()) {
                     found_explicit = true;
                     while (p.curr_is_identifier()) {
                         name id = p.get_name_val();
                         p.next();
+                        fingerprint = hash(fingerprint, id.hash());
                         check_identifier(p, env, ns, id);
                         if (open)
                             env = add_expr_alias(env, as+id, ns+id);
@@ -736,7 +743,7 @@ environment open_export_cmd(parser & p, bool open) {
         if (!p.curr_is_token(get_lbracket_tk()) && !p.curr_is_identifier())
             break;
     }
-    return env;
+    return update_fingerprint(env, fingerprint);
 }
 environment open_cmd(parser & p) { return open_export_cmd(p, true); }
 environment export_cmd(parser & p) { return open_export_cmd(p, false); }

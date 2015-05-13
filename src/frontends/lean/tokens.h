@@ -1,11 +1,7 @@
-/*
-Copyright (c) 2014 Microsoft Corporation. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-
-Author: Leonardo de Moura
-*/
+// Copyright (c) 2015 Microsoft Corporation. All rights reserved.
+// Released under Apache 2.0 license as described in the file LICENSE.
+// DO NOT EDIT, automatically generated file, generator scripts/gen_constants_cpp.py
 #include "util/name.h"
-
 namespace lean {
 void initialize_tokens();
 void finalize_tokens();
@@ -35,13 +31,13 @@ name const & get_bar_tk();
 name const & get_comma_tk();
 name const & get_add_tk();
 name const & get_sub_tk();
+name const & get_greater_tk();
 name const & get_question_tk();
 name const & get_question_lp_tk();
 name const & get_bang_tk();
 name const & get_slash_tk();
-name const & get_star_tk();
 name const & get_plus_tk();
-name const & get_greater_tk();
+name const & get_star_tk();
 name const & get_turnstile_tk();
 name const & get_explicit_tk();
 name const & get_max_tk();
@@ -88,9 +84,9 @@ name const & get_else_tk();
 name const & get_by_tk();
 name const & get_rewrite_tk();
 name const & get_proof_tk();
+name const & get_qed_tk();
 name const & get_begin_tk();
 name const & get_begin_plus_tk();
-name const & get_qed_tk();
 name const & get_end_tk();
 name const & get_private_tk();
 name const & get_definition_tk();
@@ -109,14 +105,19 @@ name const & get_unfold_f_tk();
 name const & get_constructor_tk();
 name const & get_coercion_tk();
 name const & get_reducible_tk();
-name const & get_semireducible_tk();
 name const & get_quasireducible_tk();
+name const & get_semireducible_tk();
 name const & get_irreducible_tk();
-name const & get_multiple_instances_tk();
-name const & get_attribute_tk();
 name const & get_parsing_only_tk();
-name const & get_class_tk();
+name const & get_symm_tk();
+name const & get_trans_tk();
+name const & get_refl_tk();
+name const & get_subst_tk();
+name const & get_recursor_tk();
+name const & get_attribute_tk();
 name const & get_with_tk();
+name const & get_class_tk();
+name const & get_multiple_instances_tk();
 name const & get_prev_tk();
 name const & get_scoped_tk();
 name const & get_foldr_tk();
@@ -136,9 +137,4 @@ name const & get_fields_tk();
 name const & get_trust_tk();
 name const & get_metaclasses_tk();
 name const & get_inductive_tk();
-name const & get_symm_tk();
-name const & get_trans_tk();
-name const & get_refl_tk();
-name const & get_subst_tk();
-name const & get_recursor_tk();
 }

@@ -106,12 +106,13 @@ recursor_info mk_recursor_info(environment const & env, name const & r) {
                                 "motive result sort must be Type.{l} where l is a universe parameter");
         }
         name l  = param_id(C_lvl);
-        C_univ_pos = 0;
+        unsigned uni_pos = 0;
         for (name const & l_curr : d.get_univ_params()) {
             if (l_curr == l)
                 break;
-            C_univ_pos = *C_univ_pos + 1;
+            uni_pos++;
         }
+        C_univ_pos = uni_pos;
         lean_assert(*C_univ_pos < length(d.get_univ_params()));
     }
 

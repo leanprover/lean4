@@ -151,14 +151,14 @@ install:
   - if [[ $CMAKE_CXX_COMPILER == clang++-3.4 ]]; then until sudo apt-get -qq install clang-3.4; do echo retry; done fi
   - if [[ $REPO == BLESSED && ($UPLOAD || $BUILD_DOXYGEN == TRUE) ]]; then
        sudo apt-get -qq install python python-pip &&
-       sudo pip install dropbox
+       sudo pip install dropbox;
     fi
   - if [[ $TESTCOV == ON ]]; then
        wget http://downloads.sourceforge.net/ltp/lcov-1.11.tar.gz &&
        tar xvfz lcov-1.11.tar.gz &&
        sudo make -C lcov-1.11 install &&
        rm -rf lcov-1.11.tar.gz lcov-1.11 &&
-       sudo cp -v `which gcov-4.9` `which gcov`
+       sudo cp -v `which gcov-4.9` `which gcov`;
     fi
 
 before_script:
@@ -176,7 +176,7 @@ before_script:
       git commit -m "$MSG" &&
       git push -q https://soonhokong:${GH_TOKEN}@github.com/soonhokong/lean-osx.git +HEAD:master &&
       mv /tmp/.travis.temp.yml .travis.yml &&
-      git reset --hard HEAD~
+      git reset --hard HEAD~;
   fi
 - if [[ $REPO == BLESSED && $TRIGGER_WINDOWS == TRUE ]]; then
       MSG=`git log --pretty=oneline --abbrev-commit -n 1 | cut -d ' ' -f 2-` &&
@@ -188,45 +188,45 @@ before_script:
       git commit -m "$MSG" &&
       git push -q https://soonhokong:${GH_TOKEN}@github.com/soonhokong/lean-windows.git +HEAD:master &&
       mv /tmp/.travis.temp.yml .travis.yml &&
-      git reset --hard HEAD~
+      git reset --hard HEAD~;
   fi
 
 script:
   - mkdir -p build
   - cd build
   - if [[ $CMAKE_BUILD_TYPE == Release && $CMAKE_CXX_COMPILER=clang++-3.4 ]]; then
-       GENERATOR=
+       GENERATOR=;
     else
-       GENERATOR=-GNinja
+       GENERATOR=-GNinja;
     fi
   - if [[ $TESTCOV != ON ]]; then
-       TESTCOV=OFF
+       TESTCOV=OFF;
     fi
   - /usr/bin/cmake -DIGNORE_SORRY=ON -DCONSERVE_MEMORY=${CONSERVE_MEMORY} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DTESTCOV=${TESTCOV} -DTCMALLOC=${TCMALLOC} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} ${GENERATOR} -DCMAKE_PROGRAM_PATH=/usr/bin ../src
   - if [[ $CMAKE_BUILD_TYPE == Debug || $CMAKE_BUILD_TYPE == Release || $TESTCOV == ON ]]; then
        SITE=Ubuntu12.04@Travis &&
        if [[ $CMAKE_BUILD_TYPE == Release ]]; then
-           BUILD_TYPE=Release
+           BUILD_TYPE=Release;
        else
-           BUILD_TYPE=Debug
+           BUILD_TYPE=Debug;
        fi &&
        LUA_VERSION=LUA_${LUA} &&
        BUILD_NAME=${TRAVIS_BRANCH}_${CMAKE_CXX_COMPILER}_${BUILD_TYPE}_${LUA_VERSION} &&
        if [[ $TCMALLOC == ON ]]; then
-           BUILD_NAME=${BUILD_NAME}_TC
+           BUILD_NAME=${BUILD_NAME}_TC;
        fi &&
        CONFIG_FILE=DartConfiguration.tcl &&
        sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE &&
        sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE &&
        if [[ $MEMCHECK == TRUE ]]; then
-           ninja -j 1
+           ninja -j 1;
        else
            ctest -D ExperimentalConfigure &&
            sed -i "s/^Site:.*/Site:$SITE/" $CONFIG_FILE &&
            sed -i "s/BuildName:.*/BuildName:$BUILD_NAME/" $CONFIG_FILE &&
            ctest -D ExperimentalBuild -VV &&
-           yes "C" | ctest -D ExperimentalTest -VV | ../script/demangle_cpptype.py
-       fi
+           yes "C" | ctest -D ExperimentalTest -VV | ../script/demangle_cpptype.py;
+       fi;
     fi
   - cd ..
 
@@ -236,14 +236,14 @@ after_script:
      ctest -D ExperimentalCoverage &&
      ninja -j 1 cov &&
      npm install coveralls --save &&
-     cat coverage.info.cleaned | ./node_modules/coveralls/bin/coveralls.js
+     cat coverage.info.cleaned | ./node_modules/coveralls/bin/coveralls.js;
   fi
 - if [[ $REPO == BLESSED && $MEMCHECK == TRUE ]]; then
      MEMCHECK_SUPP=`readlink -f ../src/memcheck.supp` &&
      CONFIG_FILE=DartConfiguration.tcl &&
      sed -i "s,^MemoryCheckSuppressionFile:\W*$,MemoryCheckSuppressionFile:$MEMCHECK_SUPP," $CONFIG_FILE &&
      ulimit -s unlimited &&
-     yes "C" | ctest -D ExperimentalMemCheck -LE expensive -VV -I $MEMCHECK_RANGE | ../script/demangle_cpptype.py
+     yes "C" | ctest -D ExperimentalMemCheck -LE expensive -VV -I $MEMCHECK_RANGE | ../script/demangle_cpptype.py;
   fi
 - if [[ $REPO == BLESSED && $PUSH_TO_CDASH == TRUE ]]; then
       GIT_COMMIT=`git log --oneline -n 1 | cut -d ' ' -f 1` &&
@@ -253,10 +253,10 @@ after_script:
       GIT_SUBJECT=$(echo -e $(printf '%q' "$GIT_SUBJECT")) &&
       find Testing -name "*.xml" -exec sed -i "s,Generator=\".*\",Generator=\"${GIT_COMMIT}###${GIT_SUBJECT}\"," {} ";" &&
       find Testing \( -name "LastTest_*.log" -o -name "LastDynamicAnalysis_*.log" \) -exec sh -c 'TMP=`mktemp /tmp/ctesttmp_XXXX`; ../script/demangle_cpptype.py {} > $TMP; mv -v $TMP {}' ";" &&
-      ctest -D ExperimentalSubmit
+      ctest -D ExperimentalSubmit;
   fi
 - if [[ $REPO == BLESSED && $PACKAGE == TRUE ]]; then
-     make package
+     make package;
   fi
 - cd ..
 - if [[ $REPO == BLESSED && $BUILD_DOXYGEN == TRUE ]]; then
@@ -265,7 +265,7 @@ after_script:
       DOXYGEN_DIR=doc/html &&
       find $DOXYGEN_DIR -type f -name "*.md5" -exec rm {} ";" &&
       find $DOXYGEN_DIR -type f | split -l 100 - doxygen_files.txt. &&
-      ls -1 doxygen_files.txt.* | travis_wait parallel -u -j 10 ./script/dropbox_upload.py --destpath /Public --dropbox-token ${DROPBOX_KEY} --copylist {}
+      ls -1 doxygen_files.txt.* | travis_wait parallel -u -j 10 ./script/dropbox_upload.py --destpath /Public --dropbox-token ${DROPBOX_KEY} --copylist {};
   fi
 - if [[ $REPO == BLESSED && $UPLOAD ]]; then
       UPLOAD_DIR=bin &&
@@ -284,7 +284,7 @@ after_script:
       fi &&
       cp -v build/shell/lean ${UPLOAD_DIR}/${BINARY} &&
       tar cvfz ${UPLOAD_DIR}/${ARCHIVE_BINARY}.tar.gz ${UPLOAD_DIR}/${BINARY} &&
-      script/dropbox_upload.py --srcpath ${UPLOAD_DIR} --destpath /Public/${UPLOAD_DIR} --dropbox-token ${DROPBOX_KEY}
+      script/dropbox_upload.py --srcpath ${UPLOAD_DIR} --destpath /Public/${UPLOAD_DIR} --dropbox-token ${DROPBOX_KEY};
   fi
 
 notifications:

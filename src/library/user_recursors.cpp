@@ -94,6 +94,10 @@ recursor_info mk_recursor_info(environment const & env, name const & r) {
     if (!is_sort(C_rtype) || C_tele.size() != C_args.size()) {
         throw_invalid_motive(C);
     }
+    // The following pragma is for avoiding gcc bogus warning
+    #if defined(__GNUC__) && !defined(__CLANG__)
+    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+    #endif
     optional<unsigned> C_univ_pos;
     level C_lvl = sort_level(C_rtype);
     if (!is_standard(env) || !is_zero(C_lvl)) {

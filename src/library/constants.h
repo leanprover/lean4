@@ -98,6 +98,7 @@ name const & get_tactic_expr_list_cons_name();
 name const & get_tactic_expr_list_nil_name();
 name const & get_tactic_identifier_name();
 name const & get_tactic_identifier_list_name();
+name const & get_tactic_opt_expr_name();
 name const & get_tactic_opt_identifier_list_name();
 name const & get_tactic_fail_name();
 name const & get_tactic_fixpoint_name();

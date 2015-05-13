@@ -63,7 +63,7 @@ def main(argv=None):
         f.write('namespace lean{\n')
         # declare constants
         for c in constants:
-            f.write('name const * g_%s_tk = nullptr;\n' % c[0])
+            f.write('static name const * g_%s_tk = nullptr;\n' % c[0])
         # initialize constants
         f.write('void initialize_tokens() {\n')
         for c in constants:

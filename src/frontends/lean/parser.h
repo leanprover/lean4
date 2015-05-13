@@ -67,6 +67,7 @@ typedef list<parser_scope_stack_elem> parser_scope_stack;
 /** \brief Snapshot of the state of the Lean parser */
 struct snapshot {
     environment        m_env;
+    name_generator     m_ngen;
     local_level_decls  m_lds;
     local_expr_decls   m_eds;
     name_set           m_lvars; // subset of m_lds that is tagged as level variable
@@ -77,10 +78,10 @@ struct snapshot {
     unsigned           m_line;
     snapshot():m_line(0) {}
     snapshot(environment const & env, options const & o):m_env(env), m_options(o), m_line(1) {}
-    snapshot(environment const & env, local_level_decls const & lds, local_expr_decls const & eds,
-             name_set const & lvars, name_set const & vars, name_set const & includes, options const & opts,
-             parser_scope_stack const & pss, unsigned line):
-        m_env(env), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
+    snapshot(environment const & env, name_generator const & ngen, local_level_decls const & lds,
+             local_expr_decls const & eds, name_set const & lvars, name_set const & vars,
+             name_set const & includes, options const & opts, parser_scope_stack const & pss, unsigned line):
+        m_env(env), m_ngen(ngen), m_lds(lds), m_eds(eds), m_lvars(lvars), m_vars(vars), m_include_vars(includes),
         m_options(opts), m_parser_scope_stack(pss), m_line(line) {}
 };
 

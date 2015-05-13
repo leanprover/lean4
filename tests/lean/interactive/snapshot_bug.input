@@ -1,0 +1,7 @@
+VISIT snapshot_bug.lean
+WAIT
+INSERT 21
+
+REPLACE 22
+lemma ker.has_one (Hom : is_hom f) : 1 ∈ ker f := sorry
+WAIT

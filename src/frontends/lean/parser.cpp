@@ -116,6 +116,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_has_params = false;
     m_keep_theorem_mode = tmode;
     if (s) {
+        m_ngen               = s->m_ngen;
         m_local_level_decls  = s->m_lds;
         m_local_decls        = s->m_eds;
         m_level_variables    = s->m_lvars;
@@ -1839,7 +1840,7 @@ void parser::save_snapshot() {
     if (!m_snapshot_vector)
         return;
     if (m_snapshot_vector->empty() || static_cast<int>(m_snapshot_vector->back().m_line) != m_scanner.get_line())
-        m_snapshot_vector->push_back(snapshot(m_env, m_local_level_decls, m_local_decls,
+        m_snapshot_vector->push_back(snapshot(m_env, m_ngen, m_local_level_decls, m_local_decls,
                                               m_level_variables, m_variables, m_include_vars,
                                               m_ios.get_options(), m_parser_scope_stack, m_scanner.get_line()));
 }

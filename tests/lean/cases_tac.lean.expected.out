@@ -1,14 +1,14 @@
 cases_tac.lean:7:2: proof state
 A : Type,
 B : A → Type,
-a_1 : A,
-Hb : B a_1
+a : A,
+Hb : B a
 ⊢ A
 cases_tac.lean:17:2: proof state
 A : Type,
 B : A → Type,
 f : A → A,
-d : A,
-Hc : d = d,
-Hb : foo₂.mk (f d) d = foo₂.mk (f d) d
+a : A,
+Hc : a = a,
+Hb : foo₂.mk (f a) a = foo₂.mk (f a) a
 ⊢ A

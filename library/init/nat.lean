@@ -138,9 +138,9 @@ namespace nat
 
   theorem le.rec_on {a : nat} {P : nat → Prop} {b : nat} (H : a ≤ b) (H₁ : P a) (H₂ : ∀ b, a < b → P b) : P b :=
   begin
-    cases H with b' hlt,
+    cases H with b hlt,
       apply H₁,
-      apply H₂ b' hlt
+      apply H₂ b hlt
   end
 
   theorem lt.irrefl (a : nat) : ¬ a < a :=

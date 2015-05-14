@@ -13,7 +13,7 @@ mk : Π a b : A, foo₂ a b
 
 example (A : Type) (B : A → Type) (f : A → A) (a : A) (H : foo₂ (f a) a) (Hb : H = H) (Hc : a = a) : A :=
 begin
-  cases H with [c, d],
+  cases H,
   state,
-  exact d
+  exact a
 end

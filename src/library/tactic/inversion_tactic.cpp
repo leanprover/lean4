@@ -156,10 +156,10 @@ class inversion_tac {
         constraint_seq cs;
         if (m_tc.is_def_eq(lhs_type, rhs_type, justification(), cs) && !cs) {
             return mk_pair(mk_app(mk_constant(get_eq_name(), to_list(l)), lhs_type, lhs, rhs),
-                           mk_app(mk_constant(get_eq_refl_name(), to_list(l)), rhs_type, rhs));
+                           mk_app(mk_constant(get_eq_refl_name(), to_list(l)), lhs_type, lhs));
         } else {
             return mk_pair(mk_app(mk_constant(get_heq_name(), to_list(l)), lhs_type, lhs, rhs_type, rhs),
-                           mk_app(mk_constant(get_heq_refl_name(), to_list(l)), rhs_type, rhs));
+                           mk_app(mk_constant(get_heq_refl_name(), to_list(l)), lhs_type, lhs));
         }
     }
 
@@ -274,7 +274,7 @@ class inversion_tac {
                 expr t_type = binding_domain(d);
                 expr t      = mk_local(m_ngen.next(), g.get_unused_name(t_prefix, nidx), t_type, binder_info());
                 expr const & index = I_args[i];
-                add_eq(t, index);
+                add_eq(index, t);
                 h_new_type  = mk_app(h_new_type, t);
                 hyps.push_back(t);
                 ts.push_back(t);
@@ -282,7 +282,7 @@ class inversion_tac {
             }
             expr h_new    = mk_local(m_ngen.next(), h_new_name, h_new_type, local_info(h));
             if (m_dep_elim)
-                add_eq(h_new, h);
+                add_eq(h, h_new);
             hyps.push_back(h_new);
             expr new_type = Pi(eqs, g.get_type());
             expr new_meta = mk_app(mk_metavar(m_ngen.next(), Pi(hyps, new_type)), hyps);

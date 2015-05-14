@@ -13,8 +13,8 @@ namespace fin
                          (f  : fin (succ n)) : C n f :=
   begin
     cases f,
-    apply (H₁ n_1),
-    apply (H₂ n_1 a)
+    apply (H₁ n),
+    apply (H₂ n a)
   end
 
 end fin

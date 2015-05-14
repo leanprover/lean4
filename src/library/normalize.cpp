@@ -194,7 +194,7 @@ class normalize_fn {
             return some_expr(e);
         expr const & f = get_app_fn(e);
         if (is_constant(f) && has_constructor_hint(m_tc.env(), const_name(f))) {
-            if (auto r = unfold_app(m_tc.env(), e))
+            if (auto r = unfold_term(m_tc.env(), e))
                 return r;
             else
                 return some_expr(e);

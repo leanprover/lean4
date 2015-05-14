@@ -10,6 +10,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 typedef std::unique_ptr<type_checker> type_checker_ptr;
+/** \brief Unfold constant \c e or constant application (i.e., \c e is of the form (f ....),
+    where \c f is a constant */
+optional<expr> unfold_term(environment const & env, expr const & e);
 /** \brief If \c e is of the form <tt>(f a_1 ... a_n)</tt>, where \c f is
     a non-opaque definition, then unfold \c f, and beta reduce.
     Otherwise, return none.

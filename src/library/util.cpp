@@ -21,9 +21,7 @@ bool is_standard(environment const & env) {
     return env.prop_proof_irrel() && env.impredicative();
 }
 
-optional<expr> unfold_app(environment const & env, expr const & e) {
-    if (!is_app(e))
-        return none_expr();
+optional<expr> unfold_term(environment const & env, expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
         return none_expr();
@@ -34,6 +32,12 @@ optional<expr> unfold_app(environment const & env, expr const & e) {
     buffer<expr> args;
     get_app_rev_args(e, args);
     return some_expr(apply_beta(d, args.size(), args.data()));
+}
+
+optional<expr> unfold_app(environment const & env, expr const & e) {
+    if (!is_app(e))
+        return none_expr();
+    return unfold_term(env, e);
 }
 
 optional<level> dec_level(level const & l) {

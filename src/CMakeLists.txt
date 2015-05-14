@@ -263,12 +263,6 @@ ENDIF()
 # Python
 find_package(PythonInterp REQUIRED)
 
-# Examples
-file(GLOB LEANLIB "${LEAN_SOURCE_DIR}/../examples/*.lean")
-FOREACH(FILE ${LEANLIB})
-   install_files(/examples FILES "${FILE}")
-ENDFOREACH(FILE)
-
 include_directories(${LEAN_SOURCE_DIR})
 
 # Git HASH

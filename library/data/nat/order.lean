@@ -169,7 +169,7 @@ section migrate_algebra
   local attribute nat.linear_ordered_semiring [instance]
 
   migrate from algebra with nat
-    replacing has_le.ge → ge, has_lt.gt → gt
+    replacing dvd → dvd, has_le.ge → ge, has_lt.gt → gt
     hiding add_pos_of_pos_of_nonneg,  add_pos_of_nonneg_of_pos,
       add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg, le_add_of_nonneg_of_le,
       le_add_of_le_of_nonneg, lt_add_of_nonneg_of_lt, lt_add_of_lt_of_nonneg,

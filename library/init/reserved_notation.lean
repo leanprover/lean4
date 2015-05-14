@@ -68,6 +68,7 @@ reserve infixl `div`:70
 reserve infixl `mod`:70
 reserve infixl `/`:70
 reserve prefix `-`:100
+reserve infix `^`:80
 
 reserve infix `<=`:50
 reserve infix `≤`:50

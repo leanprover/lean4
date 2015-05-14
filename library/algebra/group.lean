@@ -487,4 +487,14 @@ section add_comm_group
   !add.comm ▸ add_eq_of_eq_sub H
 end add_comm_group
 
+definition group_of_add_group (A : Type) [G : add_group A] : group A :=
+⦃group,
+  mul             := has_add.add,
+  mul_assoc       := add.assoc,
+  one             := !has_zero.zero,
+  one_mul         := zero_add,
+  mul_one         := add_zero,
+  inv             := has_neg.neg,
+  mul_left_inv    := add.left_inv⦄
+
 end algebra

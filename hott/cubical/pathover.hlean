@@ -208,18 +208,18 @@ namespace cubical
 
   end sigma
 
-  definition apD011o (f : Πa, B a → A') (Ha : a = a₂) (Hb : b =[Ha] b₂)
+  definition apd011o (f : Πa, B a → A') (Ha : a = a₂) (Hb : b =[Ha] b₂)
       : f a b = f a₂ b₂ :=
   by cases Hb; exact idp
 
-  definition apD0111o (f : Πa b, C a b → A') (Ha : a = a₂) (Hb : b =[Ha] b₂)
-    (Hc : c =[apD011o C Ha Hb] c₂) : f a b c = f a₂ b₂ c₂ :=
+  definition apd0111o (f : Πa b, C a b → A') (Ha : a = a₂) (Hb : b =[Ha] b₂)
+    (Hc : c =[apd011o C Ha Hb] c₂) : f a b c = f a₂ b₂ c₂ :=
   by cases Hb; apply (idp_rec_on Hc); apply idp
 
   namespace pi
     --the most 'natural' version here needs a notion of "path over a pathover"
     definition pi_pathover {f : Πb, C a b} {g : Πb₂, C a₂ b₂}
-      (r : Π(b : B a) (b₂ : B a₂) (q : b =[p] b₂), f b =[apD011o C p q] g b₂) : f =[p] g :=
+      (r : Π(b : B a) (b₂ : B a₂) (q : b =[p] b₂), f b =[apd011o C p q] g b₂) : f =[p] g :=
     begin
       cases p, apply pathover_idp_of_eq,
       apply eq_of_homotopy, intro b,
@@ -236,15 +236,15 @@ namespace cubical
     end
 
     definition ap11o {f : Πb, C a b} {g : Πb₂, C a₂ b₂} (r : f =[p] g)
-      {b : B a} {b₂ : B a₂} (q : b =[p] b₂) : f b =[apD011o C p q] g b₂ :=
+      {b : B a} {b₂ : B a₂} (q : b =[p] b₂) : f b =[apd011o C p q] g b₂ :=
     by cases r; apply (idp_rec_on q); exact idpo
 
     definition ap10o {f : Πb, C a b} {g : Πb₂, C a₂ b₂} (r : f =[p] g)
-      {b : B a} : f b =[apD011o C p !pathover_transport] g (p ▸ b) :=
+      {b : B a} : f b =[apd011o C p !pathover_transport] g (p ▸ b) :=
     by cases r; exact idpo
 
     -- definition equiv_pi_pathover' (f : Πb, C a b) (g : Πb₂, C a₂ b₂) :
-    --   (f =[p] g) ≃ (Π(b : B a), f b =[apD011o C p !pathover_transport] g (p ▸ b)) :=
+    --   (f =[p] g) ≃ (Π(b : B a), f b =[apd011o C p !pathover_transport] g (p ▸ b)) :=
     -- begin
     --   fapply equiv.MK,
     --   { exact ap10o},
@@ -255,7 +255,7 @@ namespace cubical
 
 
     -- definition equiv_pi_pathover (f : Πb, C a b) (g : Πb₂, C a₂ b₂) :
-    --   (f =[p] g) ≃ (Π(b : B a) (b₂ : B a₂) (q : b =[p] b₂), f b =[apD011o C p q] g b₂) :=
+    --   (f =[p] g) ≃ (Π(b : B a) (b₂ : B a₂) (q : b =[p] b₂), f b =[apd011o C p q] g b₂) :=
     -- begin
     --   fapply equiv.MK,
     --   { exact ap11o},

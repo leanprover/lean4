@@ -15,7 +15,7 @@ open iso is_equiv eq is_trunc
 -- is an equivalecnce.
 namespace category
   definition is_univalent [reducible] {ob : Type} (C : precategory ob) :=
-  Π(a b : ob), is_equiv (@iso_of_eq ob C a b)
+  Π(a b : ob), is_equiv (iso_of_eq : a = b → a ≅ b)
 
   structure category [class] (ob : Type) extends parent : precategory ob :=
   mk' :: (iso_of_path_equiv : is_univalent parent)
@@ -37,7 +37,7 @@ namespace category
   attribute iso_of_path_equiv [instance]
 
   definition eq_of_iso [reducible] {a b : ob} : a ≅ b → a = b :=
-  iso_of_eq⁻¹ᵉ
+  iso_of_eq⁻¹ᶠ
 
   definition is_trunc_1_ob : is_trunc 1 ob :=
   begin

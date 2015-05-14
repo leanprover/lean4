@@ -8,7 +8,7 @@ Authors: Leonardo de Moura, Jeremy Avigad
 General properties of binary operations.
 -/
 
-open eq.ops function
+open eq.ops function equiv
 
 namespace binary
   section
@@ -82,3 +82,34 @@ namespace binary
     {A B : Type} (f : A → A → A) (g : B → A) (lcomm : left_commutative f) : left_commutative (compose_left f g) :=
   λ a b₁ b₂, !lcomm
 end binary
+
+open eq
+namespace is_equiv
+  definition inv_preserve_binary {A B : Type} (f : A → B) [H : is_equiv f]
+    (mA : A → A → A) (mB : B → B → B) (H : Π(a a' : A), mB (f a) (f a') = f (mA a a'))
+    (b b' : B) : f⁻¹ (mB b b') = mA (f⁻¹ b) (f⁻¹ b') :=
+  begin
+  have H2 : f⁻¹ (mB (f (f⁻¹ b)) (f (f⁻¹ b'))) = f⁻¹ (f (mA (f⁻¹ b) (f⁻¹ b'))), from ap f⁻¹ !H,
+  rewrite [+right_inv f at H2,left_inv f at H2,▸* at H2,H2]
+  end
+
+  definition preserve_binary_of_inv_preserve {A B : Type} (f : A → B) [H : is_equiv f]
+    (mA : A → A → A) (mB : B → B → B) (H : Π(b b' : B), mA (f⁻¹ b) (f⁻¹ b') = f⁻¹ (mB b b'))
+    (a a' : A) : f (mA a a') = mB (f a) (f a') :=
+  begin
+  have H2 : f (mA (f⁻¹ (f a)) (f⁻¹ (f a'))) = f (f⁻¹ (mB (f a) (f a'))), from ap f !H,
+  rewrite [right_inv f at H2,+left_inv f at H2,▸* at H2,H2]
+  end
+end is_equiv
+namespace equiv
+  open is_equiv equiv.ops
+  definition inv_preserve_binary {A B : Type} (f : A ≃ B)
+    (mA : A → A → A) (mB : B → B → B) (H : Π(a a' : A), mB (f a) (f a') = f (mA a a'))
+    (b b' : B) : f⁻¹ (mB b b') = mA (f⁻¹ b) (f⁻¹ b') :=
+  inv_preserve_binary f mA mB H b b'
+
+  definition preserve_binary_of_inv_preserve {A B : Type} (f : A ≃ B)
+    (mA : A → A → A) (mB : B → B → B) (H : Π(b b' : B), mA (f⁻¹ b) (f⁻¹ b') = f⁻¹ (mB b b'))
+    (a a' : A) : f (mA a a') = mB (f a) (f a') :=
+  preserve_binary_of_inv_preserve f mA mB H a a'
+end equiv

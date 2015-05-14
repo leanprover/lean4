@@ -49,18 +49,27 @@ definition ua_equiv_of_eq [reducible] {A B : Type} (p : A = B) : ua (equiv_of_eq
 left_inv equiv_of_eq p
 
 
--- One consequence of UA is that we can transport along equivalencies of types
-namespace equiv
-  universe variable l
 
-  protected definition transport_of_equiv [subst] (P : Type → Type) {A B : Type.{l}} (H : A ≃ B)
+namespace equiv
+  -- One consequence of UA is that we can transport along equivalencies of types
+  -- We can use this for calculation evironments
+  protected definition transport_of_equiv [subst] (P : Type → Type) {A B : Type} (H : A ≃ B)
     : P A → P B :=
   eq.transport P (ua H)
 
-  -- We can use this for calculation evironments
+  -- we can "recurse" on equivalences, by replacing them by (equiv_of_eq _)
+  definition rec_on_ua {A B : Type} {P : A ≃ B → Type}
+    (f : A ≃ B) (H : Π(q : A = B), P (equiv_of_eq q)) : P f :=
+  right_inv equiv_of_eq f ▸ H (ua f)
 
-  definition rec_on_of_equiv_of_eq {A B : Type} {P : (A ≃ B) → Type}
-    (p : A ≃ B) (H : Π(q : A = B), P (equiv_of_eq q)) : P p :=
-  right_inv equiv_of_eq p ▸ H (ua p)
+  -- a variant where (equiv_of_eq (ua f)) will be replaced by f in the new goal
+  definition rec_on_ua2 {A B : Type} {P : A ≃ B → A = B → Type}
+    (f : A ≃ B) (H : Π(q : A = B), P (equiv_of_eq q) q) : P f (ua f) :=
+  right_inv equiv_of_eq f ▸ H (ua f)
+
+  -- a variant where we immediately recurse on the equality in the new goal
+  definition rec_on_ua3 {A : Type} {P : Π{B}, A ≃ B → A = B → Type} {B : Type}
+    (f : A ≃ B) (H : P equiv.refl idp) : P f (ua f) :=
+  rec_on_ua2 f (λq, eq.rec_on q H)
 
 end equiv

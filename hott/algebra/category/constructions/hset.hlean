@@ -49,7 +49,7 @@ namespace category
     open sigma.ops
     definition subtype_eq_inv {A : Type} {B : A → Type} [H : Πa, is_hprop (B a)] (u v : Σa, B a)
       : u = v → u.1 = v.1 :=
-    (subtype_eq u v)⁻¹ᵉ
+    (subtype_eq u v)⁻¹ᶠ
     local attribute subtype_eq_inv [reducible]
     definition is_equiv_subtype_eq_inv {A : Type} {B : A → Type} [H : Πa, is_hprop (B a)] (u v : Σa, B a)
       : is_equiv (subtype_eq_inv u v) :=
@@ -72,7 +72,7 @@ namespace category
     definition equiv_eq_iso (A B : Precategory_hset) : (A ≃ B) = (A ≅ B) :=
     ua !equiv_equiv_iso
 
-    definition is_univalent_hset (A B : Precategory_hset) : is_equiv (@iso_of_eq _ _ A B) :=
+    definition is_univalent_hset (A B : Precategory_hset) : is_equiv (iso_of_eq : A = B → A ≅ B) :=
     have H : is_equiv (@iso_of_equiv A B ∘ @equiv_of_eq A B ∘ subtype_eq_inv _ _ ∘
       @ap _ _ (to_fun (trunctype.sigma_char 0)) A B), from
     @is_equiv_compose _ _ _ _ _
@@ -85,7 +85,7 @@ namespace category
     (iso_of_eq_eq_compose A B)⁻¹ ▸ H
   end set
 
-  definition category_hset [reducible] [instance] : category hset :=
+  definition category_hset [instance] : category hset :=
   category.mk precategory_hset set.is_univalent_hset
 
   definition Category_hset [reducible] : Category :=

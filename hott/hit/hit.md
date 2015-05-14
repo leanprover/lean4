@@ -1,7 +1,12 @@
 hit
 ===
 
-Declaration and theorems of higher inductive types in Lean. We take two higher inductive types (hits) as primitive notions in Lean. We define all other hits in terms of these two hits. The hits which are primitive are n-truncation and type quotients. These are defined in [init.hit](../init.hit.hlean) and they have definitional computation rules on the point constructors.
+Declaration and theorems of higher inductive types in Lean. We take
+two higher inductive types (hits) as primitive notions in Lean. We
+define all other hits in terms of these two hits. The hits which are
+primitive are n-truncation and type quotients. These are defined in
+[init.hit](../init.hit.hlean) and they have definitional computation
+rules on the point constructors.
 
 Files in this folder:
 

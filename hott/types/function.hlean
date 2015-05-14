@@ -16,7 +16,7 @@ open equiv sigma sigma.ops eq trunc is_trunc pi is_equiv fiber prod
 variables {A B : Type} {f : A → B} {b : B}
 
 structure is_embedding [class] (f : A → B) :=
-(elim : Π(a a' : A), is_equiv (@ap A B f a a'))
+(elim : Π(a a' : A), is_equiv (ap f : a = a' → f a = f a'))
 
 structure is_surjective [class] (f : A → B) :=
 (elim : Π(b : B), ∥ fiber f b ∥)

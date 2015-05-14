@@ -40,7 +40,8 @@ inductive int : Type :=
 
 notation `ℤ` := int
 attribute int.of_nat [coercion]
-definition int.of_num [coercion] [reducible] (n : num) : ℤ := int.of_nat (nat.of_num n)
+definition int.of_num [coercion] [reducible] [constructor] (n : num) : ℤ :=
+int.of_nat (nat.of_num n)
 
 namespace int
 
@@ -146,7 +147,7 @@ int.cases_on a
   (take m, assume H : nat_abs (of_nat m) = 0, congr_arg of_nat H)
   (take m', assume H : nat_abs (neg_succ_of_nat m') = 0, absurd H (succ_ne_zero _))
 
-definition rec_nat_on {P : ℤ → Type} (z : ℤ) (H0 : P 0) (Hsucc : Π⦃n : ℕ⦄, P n → P (succ n))
+definition rec_nat_on [unfold-c 2] {P : ℤ → Type} (z : ℤ) (H0 : P 0) (Hsucc : Π⦃n : ℕ⦄, P n → P (succ n))
   (Hpred : Π⦃n : ℕ⦄, P (- n) → P (-succ n)) : P z :=
 int.rec_on z (λn, nat.rec_on n H0 Hsucc) (λn, nat.rec_on n (Hpred H0) (λm H, Hpred H))
 

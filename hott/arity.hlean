@@ -9,12 +9,16 @@ Theorems about functions with multiple arguments
 -/
 
 variables {A U V W X Y Z : Type} {B : A → Type} {C : Πa, B a → Type} {D : Πa b, C a b → Type}
-          {E : Πa b c, D a b c → Type}
+          {E : Πa b c, D a b c → Type} {F : Πa b c d, E a b c d → Type}
+          {G : Πa b c d e, F a b c d e → Type} {H : Πa b c d e f, G a b c d e f → Type}
 variables {a a' : A} {u u' : U} {v v' : V} {w w' : W} {x x' x'' : X} {y y' : Y} {z z' : Z}
           {b : B a} {b' : B a'}
           {c : C a b} {c' : C a' b'}
           {d : D a b c} {d' : D a' b' c'}
           {e : E a b c d} {e' : E a' b' c' d'}
+         {ff : F a b c d e} {f' : F a' b' c' d' e'}
+          {g : G a b c d e ff} {g' : G a' b' c' d' e' f'}
+          {h : H a b c d e ff g} {h' : H a' b' c' d' e' f' g'}
 
 namespace eq
   /-
@@ -79,25 +83,45 @@ namespace eq
   definition ap01000 (f : X → Πa b c, D a b c) (Hx : x = x') : f x ∼3 f x' :=
   by intros; cases Hx; reflexivity
 
-  definition apd011 (f : Πa, B a → Z) (Ha : a = a') (Hb : (Ha ▸ b) = b')
+  definition apd011 (f : Πa, B a → Z) (Ha : a = a') (Hb : transport B Ha b = b')
       : f a b = f a' b' :=
   by cases Ha; cases Hb; reflexivity
 
-  definition apd0111 (f : Πa b, C a b → Z) (Ha : a = a') (Hb : (Ha ▸ b) = b')
-    (Hc : apd011 C Ha Hb ▸ c = c')
+  definition apd0111 (f : Πa b, C a b → Z) (Ha : a = a') (Hb : transport B Ha b = b')
+    (Hc : cast (apd011 C Ha Hb) c = c')
       : f a b c = f a' b' c' :=
   by cases Ha; cases Hb; cases Hc; reflexivity
 
-  definition apd01111 (f : Πa b c, D a b c → Z) (Ha : a = a') (Hb : (Ha ▸ b) = b')
-    (Hc : apd011 C Ha Hb ▸ c = c') (Hd : apd0111 D Ha Hb Hc ▸ d = d')
+  definition apd01111 (f : Πa b c, D a b c → Z) (Ha : a = a') (Hb : transport B Ha b = b')
+    (Hc : cast (apd011 C Ha Hb) c = c') (Hd : cast (apd0111 D Ha Hb Hc) d = d')
       : f a b c d = f a' b' c' d' :=
   by cases Ha; cases Hb; cases Hc; cases Hd; reflexivity
 
-  definition apd011111 (f : Πa b c d, E a b c d → Z) (Ha : a = a') (Hb : (Ha ▸ b) = b')
-    (Hc : apd011 C Ha Hb ▸ c = c') (Hd : apd0111 D Ha Hb Hc ▸ d = d')
-    (He : apd01111 E Ha Hb Hc Hd ▸ e = e')
+  definition apd011111 (f : Πa b c d, E a b c d → Z) (Ha : a = a') (Hb : transport B Ha b = b')
+    (Hc : cast (apd011 C Ha Hb) c = c') (Hd : cast (apd0111 D Ha Hb Hc) d = d')
+    (He : cast (apd01111 E Ha Hb Hc Hd) e = e')
     : f a b c d e = f a' b' c' d' e' :=
   by cases Ha; cases Hb; cases Hc; cases Hd; cases He; reflexivity
+
+  definition apd0111111 (f : Πa b c d e, F a b c d e → Z) (Ha : a = a') (Hb : transport B Ha b = b')
+    (Hc : cast (apd011 C Ha Hb) c = c') (Hd : cast (apd0111 D Ha Hb Hc) d = d')
+    (He : cast (apd01111 E Ha Hb Hc Hd) e = e') (Hf : cast (apd011111 F Ha Hb Hc Hd He) ff = f')
+    : f a b c d e ff = f a' b' c' d' e' f' :=
+  begin cases Ha, cases Hb, cases Hc, cases Hd, cases He, cases Hf, reflexivity end
+
+  -- definition apd0111111 (f : Πa b c d e ff, G a b c d e ff → Z) (Ha : a = a') (Hb : transport B Ha b = b')
+  --   (Hc : cast (apd011 C Ha Hb) c = c') (Hd : cast (apd0111 D Ha Hb Hc) d = d')
+  --   (He : cast (apd01111 E Ha Hb Hc Hd) e = e') (Hf : cast (apd011111 F Ha Hb Hc Hd He) ff = f')
+  --   (Hg : cast (apd0111111 G Ha Hb Hc Hd He Hf) g = g')
+  --   : f a b c d e ff g = f a' b' c' d' e' f' g' :=
+  -- by cases Ha; cases Hb; cases Hc; cases Hd; cases He; cases Hf; cases Hg; reflexivity
+
+  -- definition apd01111111 (f : Πa b c d e ff g, G a b c d e ff g → Z) (Ha : a = a') (Hb : transport B Ha b = b')
+  --   (Hc : cast (apd011 C Ha Hb) c = c') (Hd : cast (apd0111 D Ha Hb Hc) d = d')
+  --   (He : cast (apd01111 E Ha Hb Hc Hd) e = e') (Hf : cast (apd011111 F Ha Hb Hc Hd He) ff = f')
+  --   (Hg : cast (apd0111111 G Ha Hb Hc Hd He Hf) g = g') (Hh : cast (apd01111111 H Ha Hb Hc Hd He Hf Hg) h = h')
+  --   : f a b c d e ff g h = f a' b' c' d' e' f' g' h' :=
+  -- by cases Ha; cases Hb; cases Hc; cases Hd; cases He; cases Hf; cases Hg; cases Hh; reflexivity
 
   definition apd100 {f g : Πa b, C a b} (p : f = g) : f ∼2 g :=
   λa b, apd10 (apd10 p a) b

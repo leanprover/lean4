@@ -35,13 +35,13 @@ namespace is_equiv
   /- Some instances and closure properties of equivalences -/
   postfix `⁻¹` := inv
   /- a second notation for the inverse, which is not overloaded -/
-  postfix [parsing-only] `⁻¹ᵉ`:std.prec.max_plus := inv
+  postfix [parsing-only] `⁻¹ᶠ`:std.prec.max_plus := inv
 
   section
   variables {A B C : Type} (f : A → B) (g : B → C) {f' : A → B}
 
   -- The variant of mk' where f is explicit.
-  protected abbreviation mk := @is_equiv.mk' A B f
+  protected abbreviation mk [constructor] := @is_equiv.mk' A B f
 
   -- The identity function is an equivalence.
   definition is_equiv_id (A : Type) : (@is_equiv A A id) :=
@@ -138,7 +138,8 @@ namespace is_equiv
         from eq_of_idp_eq_inv_con eq3,
       eq4)
 
-  definition adjointify : is_equiv f := is_equiv.mk f g ret adjointify_sect' adjointify_adj'
+  definition adjointify [constructor] : is_equiv f :=
+  is_equiv.mk f g ret adjointify_sect' adjointify_adj'
 
   end
 
@@ -242,21 +243,21 @@ namespace equiv
 
   variables {A B C : Type}
 
-  protected definition MK [reducible] (f : A → B) (g : B → A)
+  protected definition MK [reducible] [constructor] (f : A → B) (g : B → A)
     (right_inv : f ∘ g ∼ id) (left_inv : g ∘ f ∼ id) : A ≃ B :=
   equiv.mk f (adjointify f g right_inv left_inv)
 
-  definition to_inv [reducible] (f : A ≃ B) : B → A := f⁻¹
-  definition to_right_inv [reducible] (f : A ≃ B) : f ∘ f⁻¹ ∼ id := right_inv f
-  definition to_left_inv [reducible] (f : A ≃ B) : f⁻¹ ∘ f ∼ id := left_inv f
+  definition to_inv [reducible] [unfold-c 3] (f : A ≃ B) : B → A := f⁻¹
+  definition to_right_inv [reducible] [unfold-c 3] (f : A ≃ B) : f ∘ f⁻¹ ∼ id := right_inv f
+  definition to_left_inv [reducible] [unfold-c 3] (f : A ≃ B) : f⁻¹ ∘ f ∼ id := left_inv f
 
-  protected definition refl : A ≃ A :=
+  protected definition refl [refl] : A ≃ A :=
   equiv.mk id !is_equiv_id
 
-  protected definition symm (f : A ≃ B) : B ≃ A :=
+  protected definition symm [symm] (f : A ≃ B) : B ≃ A :=
   equiv.mk f⁻¹ !is_equiv_inv
 
-  protected definition trans (f : A ≃ B) (g: B ≃ C) : A ≃ C :=
+  protected definition trans [trans] (f : A ≃ B) (g: B ≃ C) : A ≃ C :=
   equiv.mk (g ∘ f) !is_equiv_compose
 
   definition equiv_of_eq_fn_of_equiv (f : A ≃ B) {f' : A → B} (Heq : f = f') : A ≃ B :=
@@ -275,18 +276,13 @@ namespace equiv
   theorem inv_eq {A B : Type} (eqf eqg : A ≃ B) (p : eqf = eqg) : (to_fun eqf)⁻¹ = (to_fun eqg)⁻¹ :=
   eq.rec_on p idp
 
-  -- calc enviroment
-  -- Note: Calculating with substitutions needs univalence
   definition equiv_of_equiv_of_eq {A B C : Type} (p : A = B) (q : B ≃ C) : A ≃ C := p⁻¹ ▸ q
   definition equiv_of_eq_of_equiv {A B C : Type} (p : A ≃ B) (q : B = C) : A ≃ C := q   ▸ p
 
-  attribute equiv.trans [trans]
-  attribute equiv.refl [refl]
-  attribute equiv.symm [symm]
-
   namespace ops
     infixl `⬝e`:75 := equiv.trans
-    postfix `⁻¹e`:(max + 1) := equiv.symm
+    postfix `⁻¹` := equiv.symm -- overloaded notation for inverse
+    postfix `⁻¹ᵉ`:(max + 1) := equiv.symm -- notation for inverse which is not overloaded
     abbreviation erfl := @equiv.refl
   end ops
 end equiv

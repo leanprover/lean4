@@ -72,9 +72,7 @@ namespace is_trunc
       (λA, contr_internal A)
       (λn trunc_n A, (Π(x y : A), trunc_n (x = y)))
 
-end is_trunc
-
-open is_trunc
+end is_trunc open is_trunc
 structure is_trunc [class] (n : trunc_index) (A : Type) :=
   (to_internal : is_trunc_internal n A)
 open nat num is_trunc.trunc_index
@@ -195,6 +193,7 @@ namespace is_trunc
 
   /- truncated universe -/
 
+  -- TODO: move to root namespace?
   structure trunctype (n : trunc_index) :=
   (carrier : Type) (struct : is_trunc n carrier)
   attribute trunctype.carrier [coercion]

@@ -12,7 +12,7 @@ Ported from Coq HoTT
 
 /- The hit n-truncation is primitive, declared in init.hit. -/
 
-import types.sigma
+import types.sigma types.pointed
 
 open is_trunc eq equiv is_equiv function prod sum sigma
 
@@ -53,11 +53,8 @@ namespace trunc
   tr⁻¹
 
   /- Functoriality -/
-  definition trunc_functor (f : X → Y) : trunc n X → trunc n Y :=
+  definition trunc_functor [unfold-c 5] (f : X → Y) : trunc n X → trunc n Y :=
   λxx, trunc.rec_on xx (λx, tr (f x))
---  by intro xx; apply (trunc.rec_on xx); intro x; exact (tr (f x))
---  by intro xx; fapply (trunc.rec_on xx); intro x; exact (tr (f x))
---  by intro xx; exact (trunc.rec_on xx (λx, (tr (f x))))
 
   definition trunc_functor_compose (f : X → Y) (g : Y → Z)
     : trunc_functor n (g ∘ f) ∼ trunc_functor n g ∘ trunc_functor n f :=
@@ -73,9 +70,15 @@ namespace trunc
              (λxx, trunc.rec_on xx (λx, ap tr !left_inv))
 
   section
+    open equiv.ops
+    definition trunc_equiv_trunc (f : X ≃ Y) : trunc n X ≃ trunc n Y :=
+    equiv.mk _ (is_equiv_trunc_functor n f)
+  end
+
+  section
   open prod.ops
-  definition trunc_prod_equiv : trunc n (X × Y) ≃ trunc n X × trunc n Y :=
-  sorry
+  -- definition trunc_prod_equiv : trunc n (X × Y) ≃ trunc n X × trunc n Y :=
+  -- sorry
   -- equiv.MK (λpp, trunc.rec_on pp (λp, (tr p.1, tr p.2)))
   --          (λp, trunc.rec_on p.1 (λx, trunc.rec_on p.2 (λy, tr (x,y))))
   --          sorry --(λp, trunc.rec_on p.1 (λx, trunc.rec_on p.2 (λy, idp)))

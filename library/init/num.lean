@@ -129,4 +129,4 @@ namespace nat
   num.rec zero
     (λ n, pos_num.rec (succ zero) (λ n r, r + r + (succ zero)) (λ n r, r + r) n) n
 end nat
-attribute nat.of_num [reducible] -- of_num is also reducible if namespace "nat" is not opened
+attribute nat.of_num [reducible] [constructor] -- of_num is also reducible if namespace "nat" is not opened

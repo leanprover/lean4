@@ -8,25 +8,16 @@ Author: Floris van Doorn
 Theorems about the integers specific to HoTT
 -/
 
-import .basic types.eq
-open core is_equiv equiv equiv.ops
+import .basic types.eq arity
+open core eq is_equiv equiv equiv.ops
 open nat (hiding pred)
 
 namespace int
-
-  definition succ (a : ℤ) := a + (nat.succ zero)
-  definition pred (a : ℤ) := a - (nat.succ zero)
-  definition pred_succ (a : ℤ) : pred (succ a) = a := !sub_add_cancel
-  definition pred_nat_succ (n : ℕ) : pred (nat.succ n) = n := pred_succ n
-  definition succ_pred (a : ℤ) : succ (pred a) = a := !add_sub_cancel
-  definition neg_succ (a : ℤ) : -succ a = pred (-a) :=
-  by rewrite [↑succ,neg_add]
-  definition succ_neg_succ (a : ℤ) : succ (-succ a) = -a :=
-  by rewrite [neg_succ,succ_pred]
-  definition neg_pred (a : ℤ) : -pred a = succ (-a) :=
-  by rewrite [↑pred,neg_sub,sub_eq_add_neg,add.comm]
-  definition pred_neg_pred (a : ℤ) : pred (-pred a) = -a :=
-  by rewrite [neg_pred,pred_succ]
+  section
+  open algebra
+  definition group_integers : Group :=
+  Group.mk ℤ (group_of_add_group _)
+  end
 
   definition is_equiv_succ [instance] : is_equiv succ :=
   adjointify succ pred (λa, !add_sub_cancel) (λa, !sub_add_cancel)
@@ -39,7 +30,7 @@ namespace int
   definition iterate {A : Type} (f : A ≃ A) (a : ℤ) : A ≃ A :=
   rec_nat_on a erfl
                (λb g, f ⬝e g)
-               (λb g, g ⬝e f⁻¹e)
+               (λb g, g ⬝e f⁻¹ᵉ)
 
   -- definition iterate_trans {A : Type} (f : A ≃ A) (a : ℤ)
   --   : iterate f a ⬝e f = iterate f (a + 1) :=
@@ -84,7 +75,7 @@ end int open int
 
 
 namespace eq
-  variables {A : Type} {a : A} (p : a = a) (b : ℤ) (n : ℕ)
+  variables {A : Type} {a : A} (p : a = a) (b c : ℤ) (n : ℕ)
   definition power : a = a :=
   rec_nat_on b idp
                (λc q, q ⬝ p)
@@ -94,33 +85,16 @@ namespace eq
   -- definition power_neg_succ (n : ℕ) : power p (-succ n) = power p (-n) ⬝ p⁻¹ :=
   -- !rec_nat_on_neg
 
-
-  set_option pp.coercions true
-  -- attribute nat.add int.add int.of_num nat.of_num int.succ [constructor]
-  attribute rec_nat_on [unfold-c 2]
+  -- local attribute nat.add int.add int.of_num nat.of_num int.succ [constructor]
 
   definition power_con : power p b ⬝ p = power p (succ b) :=
   rec_nat_on b
     idp
     (λn IH, idp)
     (λn IH, calc
-      power p (-succ n) ⬝ p = (power p (-n) ⬝ p⁻¹) ⬝ p : by rewrite [↑power,rec_nat_on_neg]
+      power p (-succ n) ⬝ p = (power p (-n) ⬝ p⁻¹) ⬝ p : by rewrite [↑power,-rec_nat_on_neg]
         ... = power p (-n) : inv_con_cancel_right
-        ... = power p (succ (-succ n)) : {(succ_neg_succ n)⁻¹})
-
-  -- definition con_power : p ⬝ power p b = power p (succ b) :=
-  -- rec_nat_on b
-  --   (by rewrite ↑[power];exact !idp_con⁻¹)
-  --   (λn IH, calc
-  --     p ⬝ power p (succ n) = (p ⬝ power p n) ⬝ p : con.assoc
-  --       ... = power p (succ (succ n)) : by rewrite IH)
-  --   (λn IH, calc
-  --     p ⬝ power p (-succ n) = p ⬝ (power p (-n) ⬝ p⁻¹) : by rewrite [↑power,rec_nat_on_neg]
-  --       ... = (p ⬝ power p (-n)) ⬝ p⁻¹ : con.assoc
-  --       ... = power p (succ (-n)) ⬝ p⁻¹ : by rewrite IH
-  --       ... = power p (-pred n) ⬝ p⁻¹ : {(neg_pred n)⁻¹}
-  --       ... = power p (-succ (pred n)) : sorry
-  --       ... = power p (succ (-succ n)) : sorry)
+        ... = power p (succ (-succ n)) : by rewrite -succ_neg_succ)
 
   definition power_con_inv : power p b ⬝ p⁻¹ = power p (pred b) :=
   rec_nat_on b
@@ -132,9 +106,41 @@ namespace eq
       power p (-succ n) ⬝ p⁻¹ = power p (-succ (succ n)) : by rewrite [↑power,-rec_nat_on_neg]
         ... = power p (pred (-succ n)) : by rewrite -neg_succ)
 
-  -- definition inv_con_power : p⁻¹ ⬝ power p b = power p (pred b) :=
-  -- rec_nat_on b sorry
-  --              sorry
-  --              sorry
+  definition con_power : p ⬝ power p b = power p (succ b) :=
+  rec_nat_on b
+  ( by rewrite ↑[power];exact !idp_con⁻¹)
+  ( λn IH, proof calc
+    p ⬝ power p (succ n) = (p ⬝ power p n) ⬝ p : con.assoc p _ p
+      ... = power p (succ (succ n)) : by rewrite IH qed)
+  ( λn IH, calc
+          p ⬝ power p (-succ n)
+                = p ⬝ (power p (-n) ⬝ p⁻¹) : by rewrite [↑power,rec_nat_on_neg]
+            ... = (p ⬝ power p (-n)) ⬝ p⁻¹ : con.assoc
+            ... = power p (succ (-n)) ⬝ p⁻¹ : by rewrite IH
+            ... = power p (pred (succ (-n))) : power_con_inv
+            ... = power p (succ (-succ n)) : by rewrite [succ_neg_nat_succ,int.pred_succ])
+
+  definition inv_con_power : p⁻¹ ⬝ power p b = power p (pred b) :=
+  rec_nat_on b
+  ( by rewrite ↑[power];exact !idp_con⁻¹)
+  (λn IH, calc
+    p⁻¹ ⬝ power p (succ n) = p⁻¹ ⬝ power p n ⬝ p : con.assoc
+      ... = power p (pred n) ⬝ p : by rewrite IH
+      ... = power p (succ (pred n)) : power_con
+      ... = power p (pred (succ n)) : by rewrite [succ_pred,-int.pred_succ n])
+  ( λn IH, calc
+    p⁻¹ ⬝ power p (-succ n) = p⁻¹ ⬝ (power p (-n) ⬝ p⁻¹) : by rewrite [↑power,rec_nat_on_neg]
+      ... = (p⁻¹ ⬝ power p (-n)) ⬝ p⁻¹ : con.assoc
+      ... = power p (pred (-n)) ⬝ p⁻¹ : by rewrite IH
+      ... = power p (-succ n) ⬝ p⁻¹ : by rewrite -neg_succ
+      ... = power p (-succ (succ n)) : by rewrite [↑power,-rec_nat_on_neg]
+      ... = power p (pred (-succ n)) : by rewrite -neg_succ)
+
+  definition power_con_power : Π(b : ℤ), power p b ⬝ power p c = power p (b + c) :=
+  rec_nat_on c
+    (λb, by rewrite int.add_zero)
+    (λn IH b, by rewrite [-con_power,-con.assoc,power_con,IH,↑succ,int.add.assoc,int.add.comm 1 n])
+    (λn IH b, by rewrite [neg_nat_succ,-inv_con_power,-con.assoc,power_con_inv,IH,↑pred,
+                          +sub_eq_add_neg,int.add.assoc,int.add.comm (-1) (-n)])
 
 end eq

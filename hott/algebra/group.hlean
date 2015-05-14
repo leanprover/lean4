@@ -86,7 +86,10 @@ theorem mul.right_cancel [s : right_cancel_semigroup A] {a b c : A} :
 /- additive semigroup -/
 
 structure add_semigroup [class] (A : Type) extends has_add A :=
+(is_hset_carrier : is_hset A)
 (add_assoc : ∀a b c, add (add a b) c = add a (add b c))
+
+attribute add_semigroup.is_hset_carrier [instance]
 
 theorem add.assoc [s : add_semigroup A] (a b c : A) : a + b + c = a + (b + c) :=
 !add_semigroup.add_assoc
@@ -475,6 +478,17 @@ section add_comm_group
   theorem add_eq_of_eq_sub' {a b c : A} (H : b = c - a) : a + b = c :=
   !add.comm ▸ add_eq_of_eq_sub H
 end add_comm_group
+
+definition group_of_add_group (A : Type) [G : add_group A] : group A :=
+⦃group,
+  mul             := has_add.add,
+  mul_assoc       := add.assoc,
+  one             := !has_zero.zero,
+  one_mul         := zero_add,
+  mul_one         := add_zero,
+  inv             := has_neg.neg,
+  mul_left_inv    := add.left_inv,
+  is_hset_carrier := !add_group.is_hset_carrier⦄
 
 /- bundled structures -/
 structure Semigroup :=

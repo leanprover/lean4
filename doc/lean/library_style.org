@@ -1,16 +1,14 @@
 #+Title: Library Style Guidelines
 #+Author: [[http://www.andrew.cmu.edu/user/avigad][Jeremy Avigad]]
 
-Library Style Guidelines
-========================
+* Library Style Guidelines
 
 Files in the Lean library generally adhere to the following guidelines
 and conventions. Having a uniform style makes it easier to browse the
 library and read the contents, but these are meant to be guidelines
 rather than rigid rules.
 
-Identifiers and theorem names
------------------------------
+** Identifiers and theorem names
 
 We generally use lower case with underscores for theorem names and
 definitions. Sometimes upper case is used for bundled structures, such
@@ -117,14 +115,12 @@ check le_of_mul_le_mul_left
 check le_of_mul_le_mul_right
 #+END_SRC
 
-Line length
------------
+** Line length
 
 Lines should not be longer than 100 characters. This makes files
 easier to read, especially on a small screen or in a small window.
 
-Header and imports
-------------------
+** Header and imports
 
 The file header should contain copyright information, a list of all
 the authors who have worked on the file, and a description of the
@@ -143,8 +139,7 @@ import data.nat algebra.group
 open nat eq.ops
 #+END_SRC
 
-Structuring definitions and theorems
-------------------------------------
+** Structuring definitions and theorems
 
 Use spaces around ":" and ":=". Put them before a line break rather
 than at the beginning of the next line.
@@ -267,8 +262,7 @@ nat.induction_on n
     IH H3)
 #+END_SRC lean
 
-Binders
--------
+** Binders
 
 Use a space after binders:
 or this:
@@ -277,8 +271,7 @@ example : ∀ X : Type, ∀ x : X, ∃ y, (λ u, u) x = y :=
 take (X : Type) (x : X), exists.intro x rfl
 #+END_SRC
 
-Calculations
-------------
+** Calculations
 
 There is some flexibility in how you write calculational proofs. In
 general, it looks nice when the comparisons and justifications line up
@@ -314,8 +307,7 @@ theorem reverse_reverse : ∀ (l : list T), reverse (reverse l) = l
       ... = a :: l                             : rfl
 #+END_SRC lean
 
-Sections
---------
+** Sections
 
 Within a section, you can indent definitions and theorems to make the
 scope salient:
@@ -335,8 +327,7 @@ We generally use a blank line to separate theorems and definitions,
 but this can be omitted, for example, to group together a number of
 short definitions, or to group together a definition and notation.
 
-Comments
---------
+** Comments
 
 Use comment delimeters =/-= =-/= to provide section headers and
 separators, and for long comments. Use =--= for short or in-line

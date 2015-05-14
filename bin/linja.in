@@ -34,6 +34,7 @@
 from __future__ import print_function
 
 import argparse
+import codecs
 import fnmatch
 import glob
 import logging
@@ -48,6 +49,13 @@ import tempfile
 import threading
 
 # Python 2/3 compatibility
+if sys.version_info[0] == 3:
+  # Reset the output encoding globally (to utf-8)
+  if sys.stdout.encoding != 'utf-8':
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+  if sys.stderr.encoding != 'utf-8':
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
 if sys.version_info[0] == 2:
   def python_2_unicode_compatible(klass):
       klass.__unicode__ = klass.__str__
@@ -70,14 +78,8 @@ elif sys.version_info[0] == 3:
   def python_2_unicode_compatible(klass):
       return klass
 
-  def my_str(a):
-      # The following is a Hack to avoid the following error on Python 3.4 for Windows.
-      #    UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position xxx:
-      #    character maps to <undefined>
-      return str(a).encode('utf-8').decode(sys.stdout.encoding, errors='replace')
-
   # Aliases
-  text_type = my_str
+  text_type = str
   iteritems = dict.items
 
   from urllib.request import urlretrieve

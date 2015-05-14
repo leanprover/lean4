@@ -53,7 +53,6 @@ protected:
     bool is_next_digit();
     bool is_next_id_rest();
     void move_back(unsigned offset, unsigned u_offset);
-    bool consume(char const * str, char const * error_msg);
     void read_single_line_comment();
     void read_comment_block();
     void read_until(char const * end_str, char const * error_msg);

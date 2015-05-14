@@ -216,42 +216,25 @@ void scanner::read_single_line_comment() {
     }
 }
 
-// Try to consume str, return true if success.
-// Throw a parser exception error_msg if end of file is found
-bool scanner::consume(char const * str, char const * error_msg) {
-    if (curr() == str[0]) {
-        next();
-        unsigned i = 1;
-        while (true) {
-            if (!str[i])
-                return true;
-            check_not_eof(error_msg);
-            if (curr_next() != str[i])
-                return false;
-            i++;
-        }
-    } else {
-        return false;
-    }
-}
-
-static char const * g_begin_comment_block = "/-";
-static char const * g_end_comment_block = "-/";
-static char const * g_end_error_block_msg = "unexpected end of comment block";
-
 void scanner::read_comment_block() {
     unsigned nesting = 1;
     while (true) {
-        if (consume(g_begin_comment_block, g_end_error_block_msg)) {
-            nesting++;
-        }
-        if (consume(g_end_comment_block, g_end_error_block_msg)) {
-            nesting--;
-            if (nesting == 0)
-                return;
-        }
-        check_not_eof(g_end_error_block_msg);
+        char c = curr();
+        check_not_eof("unexpected end of comment block");
         next();
+        if (c == '/') {
+            if (curr() == '-') {
+                next();
+                nesting++;
+            }
+        } else if (c == '-') {
+            if (curr() == '/') {
+                next();
+                nesting--;
+                if (nesting == 0)
+                    return;
+            }
+        }
     }
 }
 

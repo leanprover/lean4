@@ -876,7 +876,7 @@ class rewrite_fn {
         return replace(e, [&](expr const & e, unsigned) {
                 if (!has_metavar(e)) {
                     return some_expr(e); // done
-                } else if (is_binding(e)) {
+                } else if (is_lambda(e)) {
                     unsigned next_idx = m_esubst.size();
                     expr r = mk_idx_meta(next_idx, m_tc->infer(e).first);
                     m_esubst.push_back(none_expr());
@@ -909,14 +909,21 @@ class rewrite_fn {
         } else {
             // Remark: we discard constraints generated producing the pattern.
             // Patterns are only used to locate positions where the rule should be applied.
-            expr rule      = get_rewrite_rule(e);
-            expr rule_type = m_relaxed_tc->whnf(m_relaxed_tc->infer(rule).first).first;
-            while (is_pi(rule_type)) {
-                expr meta  = mk_meta(binding_domain(rule_type));
-                rule_type  = m_relaxed_tc->whnf(instantiate(binding_body(rule_type), meta)).first;
+            expr rule          = get_rewrite_rule(e);
+            expr rule_type     = m_relaxed_tc->infer(rule).first;
+            expr new_rule_type = m_relaxed_tc->whnf(rule_type).first;
+            while (is_pi(new_rule_type)) {
+                rule_type     = new_rule_type;
+                expr meta     = mk_meta(binding_domain(rule_type));
+                rule_type     = instantiate(binding_body(rule_type), meta);
+                new_rule_type = m_relaxed_tc->whnf(rule_type).first;
             }
-            if (!is_eq(rule_type))
+            if (is_standard(m_env)) {
+                if (!is_eq(rule_type) && !is_iff(rule_type))
+                    throw_rewrite_exception("invalid rewrite tactic, given lemma is not an equality or iff");
+            } else if (!is_eq(rule_type)) {
                 throw_rewrite_exception("invalid rewrite tactic, given lemma is not an equality");
+            }
             if (get_rewrite_info(e).symm()) {
                 return to_meta_idx(app_arg(rule_type));
             } else {
@@ -1097,8 +1104,12 @@ class rewrite_fn {
             buffer<constraint> cs;
             to_buffer(rcs.second, cs);
             constraint_seq cs_seq;
-            expr rule_type = m_relaxed_tc->whnf(m_relaxed_tc->infer(rule, cs_seq), cs_seq);
-            while (is_pi(rule_type)) {
+            expr rule_type     = m_relaxed_tc->infer(rule, cs_seq);
+            constraint_seq new_cs_seq;
+            expr new_rule_type = m_relaxed_tc->whnf(rule_type, new_cs_seq);
+            while (is_pi(new_rule_type)) {
+                rule_type = new_rule_type;
+                cs_seq   += new_cs_seq;
                 expr meta;
                 if (binding_info(rule_type).is_inst_implicit()) {
                     auto mc = mk_class_instance_elaborator(binding_domain(rule_type));
@@ -1107,8 +1118,14 @@ class rewrite_fn {
                 } else {
                     meta = mk_meta(binding_domain(rule_type));
                 }
-                rule_type  = m_relaxed_tc->whnf(instantiate(binding_body(rule_type), meta), cs_seq);
+                rule_type     = instantiate(binding_body(rule_type), meta);
+                new_rule_type = m_relaxed_tc->whnf(rule_type , cs_seq);
                 rule       = mk_app(rule, meta);
+            }
+            lean_assert(is_eq(rule_type) || (is_standard(m_env) && is_iff(rule_type)));
+            if (is_standard(m_env) && is_iff(rule_type)) {
+                rule      = apply_propext(rule, rule_type);
+                rule_type = mk_eq(*m_relaxed_tc, app_arg(app_fn(rule_type)), app_arg(rule_type));
             }
             lean_assert(is_eq(rule_type));
             bool symm = get_rewrite_info(orig_elem).symm();

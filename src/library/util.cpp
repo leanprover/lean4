@@ -393,9 +393,12 @@ bool is_iff(expr const & e) {
 expr mk_iff(expr const & lhs, expr const & rhs) {
     return mk_app(mk_constant(get_iff_name()), lhs, rhs);
 }
-
 expr mk_iff_refl(expr const & a) {
     return mk_app(mk_constant(get_iff_refl_name()), a);
+}
+expr apply_propext(expr const & iff_pr, expr const & iff_term) {
+    lean_assert(is_iff(iff_term));
+    return mk_app(mk_constant(get_propext_name()), app_arg(app_fn(iff_term)), app_arg(iff_term), iff_pr);
 }
 
 expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs) {

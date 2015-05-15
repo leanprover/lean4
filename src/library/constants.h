@@ -63,6 +63,7 @@ name const & get_prod_name();
 name const & get_prod_mk_name();
 name const & get_prod_pr1_name();
 name const & get_prod_pr2_name();
+name const & get_propext_name();
 name const & get_sigma_name();
 name const & get_sigma_mk_name();
 name const & get_string_name();

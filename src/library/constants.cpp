@@ -61,6 +61,7 @@ name const * g_prod = nullptr;
 name const * g_prod_mk = nullptr;
 name const * g_prod_pr1 = nullptr;
 name const * g_prod_pr2 = nullptr;
+name const * g_propext = nullptr;
 name const * g_sigma = nullptr;
 name const * g_sigma_mk = nullptr;
 name const * g_string = nullptr;
@@ -190,6 +191,7 @@ void initialize_constants() {
     g_prod_mk = new name{"prod", "mk"};
     g_prod_pr1 = new name{"prod", "pr1"};
     g_prod_pr2 = new name{"prod", "pr2"};
+    g_propext = new name{"propext"};
     g_sigma = new name{"sigma"};
     g_sigma_mk = new name{"sigma", "mk"};
     g_string = new name{"string"};
@@ -320,6 +322,7 @@ void finalize_constants() {
     delete g_prod_mk;
     delete g_prod_pr1;
     delete g_prod_pr2;
+    delete g_propext;
     delete g_sigma;
     delete g_sigma_mk;
     delete g_string;
@@ -449,6 +452,7 @@ name const & get_prod_name() { return *g_prod; }
 name const & get_prod_mk_name() { return *g_prod_mk; }
 name const & get_prod_pr1_name() { return *g_prod_pr1; }
 name const & get_prod_pr2_name() { return *g_prod_pr2; }
+name const & get_propext_name() { return *g_propext; }
 name const & get_sigma_name() { return *g_sigma; }
 name const & get_sigma_mk_name() { return *g_sigma_mk; }
 name const & get_string_name() { return *g_string; }

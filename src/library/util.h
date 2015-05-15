@@ -153,6 +153,10 @@ bool is_heq(expr const & e, expr & A, expr & lhs, expr & B, expr & rhs);
 bool is_iff(expr const & e);
 expr mk_iff(expr const & lhs, expr const & rhs);
 expr mk_iff_refl(expr const & a);
+/** \brief Given <tt>iff_pr : iff_term</tt>, where \c iff_term is of the form <tt>l <-> r</tt>,
+    return the term <tt>propext l r iff_pr</tt>
+*/
+expr apply_propext(expr const & iff_pr, expr const & iff_term);
 
 /** \brief If in HoTT mode, apply lift.down.
     The no_confusion constructions uses lifts in the proof relevant version (aka HoTT mode).

@@ -56,6 +56,7 @@ prod
 prod.mk
 prod.pr1
 prod.pr2
+propext
 sigma
 sigma.mk
 string

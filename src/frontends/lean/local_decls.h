@@ -32,6 +32,11 @@ public:
         m_map.insert(k, mk_pair(v, m_counter));
         m_entries = cons(mk_pair(k, v), m_entries);
         m_counter++;
+        lean_assert(m_counter == length(m_entries)+1);
+    }
+    unsigned size() const {
+        lean_assert(m_counter > 0);
+        return m_counter - 1;
     }
     void update(name const & k, V const & v) {
         if (auto it = m_map.find(k)) {

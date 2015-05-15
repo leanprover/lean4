@@ -144,6 +144,9 @@ class parser {
     // profiling
     bool                   m_profile;
 
+    // auxiliary field used to record the size of m_local_decls before a command is executed.
+    unsigned               m_local_decls_size_at_beg_cmd;
+
     void display_warning_pos(unsigned line, unsigned pos);
     void display_error_pos(unsigned line, unsigned pos);
     void display_error_pos(pos_info p);
@@ -436,6 +439,11 @@ public:
     bool is_local_level_variable(name const & n) const { return m_level_variables.contains(n); }
     bool is_local_variable(name const & n) const { return m_variables.contains(n); }
     bool is_local_variable(expr const & e) const { return is_local_variable(local_pp_name(e)); }
+    /** \brief Return true iff n is the name of a variable or parameter. */
+    bool is_local_variable_parameter(name const & n) const {
+        unsigned idx = m_local_decls.find_idx(n);
+        return 0 < idx && idx <= m_local_decls_size_at_beg_cmd;
+    }
     /** \brief Update binder information for the section parameter n, return true if success, and false if n is not a section parameter. */
     bool update_local_binder_info(name const & n, binder_info const & bi);
     void include_variable(name const & n) { m_include_vars.insert(n); }

@@ -303,10 +303,14 @@ static expr parse_using_expr(parser & p, expr const & prop, pos_info const & usi
         expr l      = p.parse_id();
         if (!is_local(l))
             throw parser_error("invalid 'using' declaration for 'have', local expected", id_pos);
-        expr new_l = l;
-        binder_info bi = local_info(l);
-        if (!bi.is_contextual())
-            new_l = update_local(l, bi.update_contextual(true));
+        expr new_l;
+        binder_info bi = local_info(l).update_contextual(true);
+        if (p.is_local_variable_parameter(local_pp_name(l))) {
+            expr new_type = p.save_pos(mk_as_is(mlocal_type(l)), id_pos);
+            new_l = p.save_pos(mk_local(mlocal_name(l), local_pp_name(l), new_type, bi), id_pos);
+        } else {
+            new_l = p.save_pos(update_local(l, bi), id_pos);
+        }
         p.add_local(new_l);
         locals.push_back(l);
         new_locals.push_back(new_l);

@@ -178,8 +178,6 @@ class match_fn : public match_context {
             p = binding_body(p);
             t = binding_body(t);
         }
-        if (p.kind() == k || t.kind() == k)
-            return false;
         p = instantiate_rev(p, ls.size(), ls.data());
         t = instantiate_rev(t, ls.size(), ls.data());
         return _match(p, t);

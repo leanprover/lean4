@@ -7,3 +7,4 @@ Authors: Floris van Doorn
 -/
 
 import .sigma .prod .pi .equiv .fiber .eq .trunc .arrow .pointed .function .trunc .bool
+import .nat .int

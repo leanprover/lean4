@@ -37,6 +37,14 @@ lemma injective_eq_inj_on_univ₃ (f : A → B) : injective f = inj_on f univ :=
     repeat (apply forall_congr; intros),
     rewrite *(propext !true_imp)
   end
+
+lemma injective_eq_inj_on_univ₄ (f : A → B) : injective f = inj_on f univ :=
+  begin
+    esimp [injective, inj_on, univ, mem],
+    apply propext,
+    repeat (apply forall_congr; intros),
+    rewrite *true_imp
+  end
 end
 
 end function

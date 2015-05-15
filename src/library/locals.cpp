@@ -88,4 +88,8 @@ optional<expr> depends_on(unsigned sz, expr const * es, expr const & h) {
             return some_expr(es[i]);
     return none_expr();
 }
+
+bool depends_on_any(expr const & e, unsigned hs_sz, expr const * hs) {
+    return std::any_of(hs, hs+hs_sz, [&](expr const & h) { return depends_on(e, h); });
+}
 }

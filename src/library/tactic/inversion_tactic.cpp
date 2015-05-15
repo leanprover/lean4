@@ -190,7 +190,7 @@ class inversion_tac {
         }
         if (!m_dep_elim) {
             expr const & g_type = g.get_type();
-            if (std::any_of(args.end() - m_nindices, args.end(), [&](expr const & arg) { return depends_on(g_type, arg); }))
+            if (depends_on_any(g_type, m_nindices, args.end() - m_nindices))
                 return false;
         }
         buffer<expr> hyps;
@@ -203,7 +203,7 @@ class inversion_tac {
                 continue;
             // h1 is not h nor any of the indices
             // Thus, it must not depend on the indices
-            if (std::any_of(args.end() - m_nindices, args.end(), [&](expr const & arg) { return depends_on(h1, arg); }))
+            if (depends_on_any(h1, m_nindices, args.end() - m_nindices))
                 return false;
         }
         return true;
@@ -216,7 +216,7 @@ class inversion_tac {
     void split_deps(buffer<expr> const & hyps, expr const & H, buffer<expr> & non_deps, buffer<expr> & deps, bool clear_H = false) {
         for (expr const & hyp : hyps) {
             expr const & hyp_type = mlocal_type(hyp);
-            if (depends_on(hyp_type, H) || std::any_of(deps.begin(), deps.end(), [&](expr const & dep) { return depends_on(hyp_type, dep); })) {
+            if (depends_on(hyp_type, H) || depends_on_any(hyp_type, deps)) {
                 deps.push_back(hyp);
             } else if (hyp != H || !clear_H) {
                 non_deps.push_back(hyp);

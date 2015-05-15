@@ -40,4 +40,10 @@ inline bool depends_on(expr const & e, expr const & h) {
 
 /** \brief Return true iff one of \c es contains the local constant \c h */
 optional<expr> depends_on(unsigned sz, expr const * es, expr const & h);
+
+/** \brief Return true iff \c e depends on any of the local constants in \c hs */
+bool depends_on_any(expr const & e, unsigned hs_sz, expr const * hs);
+inline bool depends_on_any(expr const & e, buffer<expr> const & hs) {
+    return depends_on_any(e, hs.size(), hs.data());
+}
 }

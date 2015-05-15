@@ -147,16 +147,6 @@ int.cases_on a
   (take m, assume H : nat_abs (of_nat m) = 0, congr_arg of_nat H)
   (take m', assume H : nat_abs (neg_succ_of_nat m') = 0, absurd H (succ_ne_zero _))
 
-definition rec_nat_on [unfold-c 2] {P : ℤ → Type} (z : ℤ) (H0 : P 0) (Hsucc : Π⦃n : ℕ⦄, P n → P (succ n))
-  (Hpred : Π⦃n : ℕ⦄, P (- n) → P (-succ n)) : P z :=
-int.rec_on z (λn, nat.rec_on n H0 Hsucc) (λn, nat.rec_on n (Hpred H0) (λm H, Hpred H))
-
---the only computation rule of rec_nat_on which is not definitional
-definition rec_nat_on_neg {P : ℤ → Type} (n : nat) (H0 : P 0)
-  (Hsucc : Π⦃n : nat⦄, P n → P (succ n)) (Hpred : Π⦃n : nat⦄, P (- n) → P (-succ n))
-  : rec_nat_on (-succ n) H0 Hsucc Hpred = Hpred (rec_nat_on (-n) H0 Hsucc Hpred) :=
-nat.rec_on n rfl (λn H, rfl)
-
 /- int is a quotient of ordered pairs of natural numbers -/
 
 protected definition equiv (p q : ℕ × ℕ) : Prop :=  pr1 p + pr2 q = pr2 p + pr1 q
@@ -650,5 +640,32 @@ have H2 : m = (#nat m - n) + n, from congr_arg of_nat H1,
 
 theorem neg_succ_of_nat_eq' (m : ℕ) : -[m +1] = -m - 1 :=
 by rewrite [neg_succ_of_nat_eq, of_nat_add, neg_add]
+
+definition succ (a : ℤ) := a + (nat.succ zero)
+definition pred (a : ℤ) := a - (nat.succ zero)
+theorem pred_succ (a : ℤ) : pred (succ a) = a := !sub_add_cancel
+theorem succ_pred (a : ℤ) : succ (pred a) = a := !add_sub_cancel
+theorem neg_succ (a : ℤ) : -succ a = pred (-a) :=
+by rewrite [↑succ,neg_add]
+theorem succ_neg_succ (a : ℤ) : succ (-succ a) = -a :=
+by rewrite [neg_succ,succ_pred]
+theorem neg_pred (a : ℤ) : -pred a = succ (-a) :=
+by rewrite [↑pred,neg_sub,sub_eq_add_neg,add.comm]
+theorem pred_neg_pred (a : ℤ) : pred (-pred a) = -a :=
+by rewrite [neg_pred,pred_succ]
+
+theorem pred_nat_succ (n : ℕ) : pred (nat.succ n) = n := pred_succ n
+theorem neg_nat_succ (n : ℕ) : -nat.succ n = pred (-n) := !neg_succ
+theorem succ_neg_nat_succ (n : ℕ) : succ (-nat.succ n) = -n := !succ_neg_succ
+
+definition rec_nat_on [unfold-c 2] {P : ℤ → Type} (z : ℤ) (H0 : P 0)
+  (Hsucc : Π⦃n : ℕ⦄, P n → P (succ n)) (Hpred : Π⦃n : ℕ⦄, P (-n) → P (-nat.succ n)) : P z :=
+int.rec_on z (λn, nat.rec_on n H0 Hsucc) (λn, nat.rec_on n (Hpred H0) (λm H, Hpred H))
+
+--the only computation rule of rec_nat_on which is not definitional
+theorem rec_nat_on_neg {P : ℤ → Type} (n : nat) (H0 : P zero)
+  (Hsucc : Π⦃n : nat⦄, P n → P (succ n)) (Hpred : Π⦃n : nat⦄, P (-n) → P (-nat.succ n))
+  : rec_nat_on (-nat.succ n) H0 Hsucc Hpred = Hpred (rec_nat_on (-n) H0 Hsucc Hpred) :=
+nat.rec_on n rfl (λn H, rfl)
 
 end int

@@ -84,8 +84,8 @@ exists.intro n H2
 theorem of_nat_lt_of_nat (n m : ℕ) : of_nat n < of_nat m ↔ n < m :=
 calc
   of_nat n < of_nat m ↔ of_nat n + 1 ≤ of_nat m : iff.refl
-    ... ↔ of_nat (succ n) ≤ of_nat m            : of_nat_succ n ▸ !iff.refl
-    ... ↔ succ n ≤ m                            : of_nat_le_of_nat
+    ... ↔ of_nat (nat.succ n) ≤ of_nat m        : of_nat_succ n ▸ !iff.refl
+    ... ↔ nat.succ n ≤ m                        : of_nat_le_of_nat
     ... ↔ n < m                                 : iff.symm (lt_iff_succ_le _ _)
 
 theorem lt_of_of_nat_lt_of_nat {m n : ℕ} (H : of_nat m < of_nat n) : #nat m < n :=
@@ -137,8 +137,8 @@ theorem lt.irrefl (a : ℤ) : ¬ a < a :=
     calc
       a + succ n = a : Hn
         ... = a + 0 : by simp,
-  have H3 : succ n = 0, from add.left_cancel H2,
-  have H4 : succ n = 0, from of_nat.inj H3,
+  have H3 : nat.succ n = 0, from add.left_cancel H2,
+  have H4 : nat.succ n = 0, from of_nat.inj H3,
   absurd H4 !succ_ne_zero)
 
 theorem ne_of_lt {a b : ℤ} (H : a < b) : a ≠ b :=
@@ -160,7 +160,7 @@ iff.intro
     have H2 : a ≠ b, from and.elim_right H,
     obtain (n : ℕ) (Hn : a + n = b), from le.elim H1,
     have H3 : n ≠ 0, from (assume H' : n = 0, H2 (!add_zero ▸ H' ▸ Hn)),
-    obtain (k : ℕ) (Hk : n = succ k), from nat.exists_eq_succ_of_ne_zero H3,
+    obtain (k : ℕ) (Hk : n = nat.succ k), from nat.exists_eq_succ_of_ne_zero H3,
     lt.intro (Hk ▸ Hn))
 
 theorem le_iff_lt_or_eq (a b : ℤ) : a ≤ b ↔ (a < b ∨ a = b) :=
@@ -171,7 +171,7 @@ iff.intro
       (assume H1 : a ≠ b,
         obtain (n : ℕ) (Hn : a + n = b), from le.elim H,
         have H2 : n ≠ 0, from (assume H' : n = 0, H1 (!add_zero ▸ H' ▸ Hn)),
-        obtain (k : ℕ) (Hk : n = succ k), from nat.exists_eq_succ_of_ne_zero H2,
+        obtain (k : ℕ) (Hk : n = nat.succ k), from nat.exists_eq_succ_of_ne_zero H2,
         or.inl (lt.intro (Hk ▸ Hn))))
   (assume H,
     or.elim H
@@ -202,19 +202,19 @@ le.intro
         ... = 0 + n * m   : zero_add))
 
 theorem mul_pos {a b : ℤ} (Ha : 0 < a) (Hb : 0 < b) : 0 < a * b :=
-obtain (n : ℕ) (Hn : 0 + succ n = a), from lt.elim Ha,
-obtain (m : ℕ) (Hm : 0 + succ m = b), from lt.elim Hb,
+obtain (n : ℕ) (Hn : 0 + nat.succ n = a), from lt.elim Ha,
+obtain (m : ℕ) (Hm : 0 + nat.succ m = b), from lt.elim Hb,
 lt.intro
   (eq.symm
     (calc
-      a * b = (0 + succ n) * b                 : Hn
-        ... = succ n * b                       : nat.zero_add
-        ... = succ n * (0 + succ m)            : {Hm⁻¹}
-        ... = succ n * succ m                  : nat.zero_add
-        ... = of_nat (succ n * succ m)         : of_nat_mul
-        ... = of_nat (succ n * m + succ n)     : nat.mul_succ
-        ... = of_nat (succ (succ n * m + n))   : nat.add_succ
-        ... = 0 + succ (succ n * m + n)        : zero_add))
+      a * b = (0 + nat.succ n) * b                 : Hn
+        ... = nat.succ n * b                       : nat.zero_add
+        ... = nat.succ n * (0 + nat.succ m)            : {Hm⁻¹}
+        ... = nat.succ n * nat.succ m                  : nat.zero_add
+        ... = of_nat (nat.succ n * nat.succ m)         : of_nat_mul
+        ... = of_nat (nat.succ n * m + nat.succ n)     : nat.mul_succ
+        ... = of_nat (nat.succ (nat.succ n * m + n))   : nat.add_succ
+        ... = 0 + nat.succ (nat.succ n * m + n)        : zero_add))
 
 section migrate_algebra
   open [classes] algebra
@@ -324,7 +324,7 @@ le_of_lt_add_one (!sub_add_cancel⁻¹ ▸ H)
 theorem lt_of_le_sub_one {a b : ℤ} (H : a ≤ b - 1) : a < b :=
 !sub_add_cancel ▸ (lt_add_one_of_le H)
 
-theorem sign_of_succ (n : nat) : sign (succ n) = 1 :=
+theorem sign_of_succ (n : nat) : sign (nat.succ n) = 1 :=
 sign_of_pos (of_nat_pos !nat.succ_pos)
 
 theorem exists_eq_neg_succ_of_nat {a : ℤ} : a < 0 → ∃m : ℕ, a = -[m +1] :=

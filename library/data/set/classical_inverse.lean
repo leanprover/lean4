@@ -70,16 +70,16 @@ variables {X Y : Type} {a : set X} {b : set Y}
 protected definition inverse (f : map a b) {dflt : X} (dflta : dflt ∈ a) :=
 map.mk (inv_fun f a dflt) (@maps_to_inv_fun _ _ _ _ b _ dflta)
 
-theorem left_inverse_inverse {f : map a b} {dflt : X} (dflta : dflt ∈ a) (H : injective f) :
-  left_inverse (inverse f dflta) f :=
+theorem left_inverse_inverse {f : map a b} {dflt : X} (dflta : dflt ∈ a) (H : map.injective f) :
+  map.left_inverse (inverse f dflta) f :=
 left_inv_on_inv_fun_of_inj_on dflt H
 
-theorem right_inverse_inverse {f : map a b} {dflt : X} (dflta : dflt ∈ a) (H : surjective f) :
-  right_inverse (inverse f dflta) f :=
+theorem right_inverse_inverse {f : map a b} {dflt : X} (dflta : dflt ∈ a) (H : map.surjective f) :
+  map.right_inverse (inverse f dflta) f :=
 right_inv_on_inv_fun_of_surj_on dflt H
 
-theorem is_inverse_inverse {f : map a b} {dflt : X} (dflta : dflt ∈ a) (H : bijective f) :
-is_inverse (inverse f dflta) f :=
+theorem is_inverse_inverse {f : map a b} {dflt : X} (dflta : dflt ∈ a) (H : map.bijective f) :
+map.is_inverse (inverse f dflta) f :=
 and.intro
   (left_inverse_inverse dflta (and.left H))
   (right_inverse_inverse dflta (and.right H))

@@ -43,21 +43,21 @@ mk_equivalence (@equiv X Y a b) (@equiv.refl X Y a b) (@equiv.symm X Y a b) (@eq
 
 /- compose -/
 
-definition compose (g : map b c) (f : map a b) : map a c :=
+protected definition compose (g : map b c) (f : map a b) : map a c :=
 map.mk (#function g ∘ f) (maps_to_compose (mapsto g) (mapsto f))
 
 notation g ∘ f := compose g f
 
 /- range -/
 
-definition range (f : map a b) : set Y := image f a
+protected definition range (f : map a b) : set Y := image f a
 
 theorem range_eq_range_of_equiv {f1 f2 : map a b} (H : f1 ~ f2) : range f1 = range f2 :=
 image_eq_image_of_eq_on H
 
 /- injective -/
 
-definition injective (f : map a b) : Prop := inj_on f a
+protected definition injective (f : map a b) : Prop := inj_on f a
 
 theorem injective_of_equiv {f1 f2 : map a b} (H1 : f1 ~ f2) (H2 : injective f1) :
   injective f2 :=
@@ -69,7 +69,7 @@ inj_on_compose (mapsto f) Hg Hf
 
 /- surjective -/
 
-definition surjective (f : map a b) : Prop := surj_on f a b
+protected definition surjective (f : map a b) : Prop := surj_on f a b
 
 theorem surjective_of_equiv {f1 f2 : map a b} (H1 : f1 ~ f2) (H2 : surjective f1) :
   surjective f2 :=
@@ -81,7 +81,7 @@ surj_on_compose Hg Hf
 
 /- bijective -/
 
-definition bijective (f : map a b) : Prop := injective f ∧ surjective f
+protected definition bijective (f : map a b) : Prop := injective f ∧ surjective f
 
 theorem bijective_of_equiv {f1 f2 : map a b} (H1 : f1 ~ f2) (H2 : bijective f1) :
   bijective f2 :=
@@ -96,7 +96,7 @@ and.intro (injective_compose Hg₁ Hf₁) (surjective_compose Hg₂ Hf₂)
 /- left inverse -/
 
 -- g is a left inverse to f
-definition left_inverse (g : map b a) (f : map a b) : Prop := left_inv_on g f a
+protected definition left_inverse (g : map b a) (f : map a b) : Prop := left_inv_on g f a
 
 theorem left_inverse_of_equiv_left {g1 g2 : map b a} {f : map a b} (eqg : g1 ~ g2)
   (H : left_inverse g1 f) : left_inverse g2 f :=
@@ -117,7 +117,7 @@ left_inv_on_compose (mapsto f) Hf Hg
 /- right inverse -/
 
 -- g is a right inverse to f
-definition right_inverse (g : map b a) (f : map a b) : Prop := left_inverse f g
+protected definition right_inverse (g : map b a) (f : map a b) : Prop := left_inverse f g
 
 theorem right_inverse_of_equiv_left {g1 g2 : map b a} {f : map a b} (eqg : g1 ~ g2)
   (H : right_inverse g1 f) : right_inverse g2 f :=
@@ -142,7 +142,8 @@ eq_on_of_left_inv_of_right_inv (mapsto g2) H1 H2
 /- inverse -/
 
 -- g is an inverse to f
-definition is_inverse (g : map b a) (f : map a b) : Prop := left_inverse g f ∧ right_inverse g f
+protected definition is_inverse (g : map b a) (f : map a b) : Prop :=
+left_inverse g f ∧ right_inverse g f
 
 theorem bijective_of_is_inverse {g : map b a} {f : map a b} (H : is_inverse g f) : bijective f :=
 and.intro

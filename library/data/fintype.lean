@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 
 Finite type (type class).
 -/
-import data.list data.bool
+import data.list.perm data.list.as_type data.bool
 open list bool unit decidable option function
 
 structure fintype [class] (A : Type) : Type :=

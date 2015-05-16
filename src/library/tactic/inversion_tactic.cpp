@@ -190,7 +190,7 @@ class inversion_tac {
         }
         if (!m_dep_elim) {
             expr const & g_type = g.get_type();
-            if (depends_on_any(g_type, m_nindices, args.end() - m_nindices))
+            if (depends_on(g_type, h))
                 return false;
         }
         buffer<expr> hyps;
@@ -213,7 +213,8 @@ class inversion_tac {
         - non_deps : hypotheses that do not depend on H
         - deps     : hypotheses that depend on H (directly or indirectly)
     */
-    void split_deps(buffer<expr> const & hyps, expr const & H, buffer<expr> & non_deps, buffer<expr> & deps, bool clear_H = false) {
+    void split_deps(buffer<expr> const & hyps, expr const & H, buffer<expr> & non_deps, buffer<expr> & deps,
+                    bool clear_H = false) {
         for (expr const & hyp : hyps) {
             expr const & hyp_type = mlocal_type(hyp);
             if (depends_on(hyp_type, H) || depends_on_any(hyp_type, deps)) {

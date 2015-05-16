@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: data.set.basic
 Author: Jeremy Avigad, Leonardo de Moura
 -/
 import logic
@@ -126,10 +124,9 @@ notation `{` binders `|` r:(scoped:1 P, set_of P) `}` := r
 definition filter (P : X → Prop) (s : set X) : set X := λx, x ∈ s ∧ P x
 notation `{` binders ∈ s `|` r:(scoped:1 p, filter p s) `}` := r
 
--- {[x, y, z]} or ⦃x, y, z⦄
+-- {[x, y, z]}
 definition insert (x : X) (a : set X) : set X := {y : X | y = x ∨ y ∈ a}
 notation `{[`:max a:(foldr `,` (x b, insert x b) ∅) `]}`:0 := a
-notation `⦃` a:(foldr `,` (x b, insert x b) ∅) `⦄` := a
 
 /- set difference -/
 

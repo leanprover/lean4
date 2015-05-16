@@ -60,19 +60,17 @@ namespace list -- i.e. algebra.list
   section decidable_eq
   variable [H : decidable_eq A]
   include H
+    theorem prod_insert_of_mem (f : A → B) {a : A} {l : list A} : a ∈ l →
+      prod (insert a l) f = prod l f :=
+    assume ainl, by rewrite [insert_eq_of_mem ainl]
 
-  theorem prod_insert_of_mem (f : A → B) {a : A} {l : list A} : a ∈ l →
-    prod (insert a l) f = prod l f :=
-  assume ainl, by rewrite [insert_eq_of_mem ainl]
+    theorem prod_insert_of_not_mem (f : A → B) {a : A} {l : list A} :
+      a ∉ l → prod (insert a l) f = f a * prod l f :=
+    assume nainl, by rewrite [insert_eq_of_not_mem nainl, prod_cons]
 
-  theorem prod_insert_of_not_mem (f : A → B) {a : A} {l : list A} :
-    a ∉ l → prod (insert a l) f = f a * prod l f :=
-  assume nainl, by rewrite [insert_eq_of_not_mem nainl, prod_cons]
-
-  theorem prod_union {l₁ l₂ : list A} (f : A → B) (d : disjoint l₁ l₂) :
-    prod (union l₁ l₂) f = prod l₁ f * prod l₂ f :=
-  by rewrite [union_eq_append d, prod_append]
-
+    theorem prod_union {l₁ l₂ : list A} (f : A → B) (d : disjoint l₁ l₂) :
+      prod (union l₁ l₂) f = prod l₁ f * prod l₂ f :=
+    by rewrite [union_eq_append d, prod_append]
   end decidable_eq
   end monoid
 
@@ -120,30 +118,30 @@ namespace finset
   list.prod_nil f
 
   section decidable_eq
-  variable [H : decidable_eq A]
-  include H
+    variable [H : decidable_eq A]
+    include H
 
-  theorem prod_insert_of_mem (f : A → B) {a : A} {s : finset A} :
-    a ∈ s → prod (insert a s) f = prod s f :=
-  quot.induction_on s
-    (λ l ainl, list.prod_insert_of_mem f ainl)
+    theorem prod_insert_of_mem (f : A → B) {a : A} {s : finset A} :
+      a ∈ s → prod (insert a s) f = prod s f :=
+    quot.induction_on s
+      (λ l ainl, list.prod_insert_of_mem f ainl)
 
-  theorem prod_insert_of_not_mem (f : A → B) {a : A} {s : finset A} :
-    a ∉ s → prod (insert a s) f = f a * prod s f :=
-  quot.induction_on s
-    (λ l nainl, list.prod_insert_of_not_mem f nainl)
+    theorem prod_insert_of_not_mem (f : A → B) {a : A} {s : finset A} :
+      a ∉ s → prod (insert a s) f = f a * prod s f :=
+    quot.induction_on s
+      (λ l nainl, list.prod_insert_of_not_mem f nainl)
 
-  theorem prod_union (f : A → B) {s₁ s₂ : finset A} (disj : s₁ ∩ s₂ = ∅) :
-    prod (s₁ ∪ s₂) f = prod s₁ f * prod s₂ f :=
-  have H1 : disjoint s₁ s₂ → prod (s₁ ∪ s₂) f = prod s₁ f * prod s₂ f, from
-    quot.induction_on₂ s₁ s₂
-      (λ l₁ l₂ d, list.prod_union f d),
-  H1 (disjoint_of_inter_empty disj)
+    theorem prod_union (f : A → B) {s₁ s₂ : finset A} (disj : s₁ ∩ s₂ = ∅) :
+      prod (s₁ ∪ s₂) f = prod s₁ f * prod s₂ f :=
+    have H1 : disjoint s₁ s₂ → prod (s₁ ∪ s₂) f = prod s₁ f * prod s₂ f, from
+      quot.induction_on₂ s₁ s₂
+        (λ l₁ l₂ d, list.prod_union f d),
+    H1 (disjoint_of_inter_empty disj)
+  end decidable_eq
 
   theorem prod_mul (s : finset A) (f g : A → B) : prod s (λx, f x * g x) = prod s f * prod s g :=
   quot.induction_on s (take u, !list.prod_mul)
 
-  end decidable_eq
 end finset
 
 /- list.sum -/
@@ -169,15 +167,14 @@ namespace list
     prod_append l₁ l₂ f
 
   section decidable_eq
-  variable [H : decidable_eq A]
-  include H
-
-  theorem sum_insert_of_mem (f : A → B) {a : A} {l : list A} (H : a ∈ l) :
-    sum (insert a l) f = sum l f := prod_insert_of_mem f H
-  theorem sum_insert_of_not_mem (f : A → B) {a : A} {l : list A} (H : a ∉ l) :
-    sum (insert a l) f = f a * sum l f := prod_insert_of_not_mem f H
-  theorem sum_union {l₁ l₂ : list A} (f : A → B) (d : disjoint l₁ l₂) :
-    sum (union l₁ l₂) f = sum l₁ f + sum l₂ f := prod_union f d
+    variable [H : decidable_eq A]
+    include H
+    theorem sum_insert_of_mem (f : A → B) {a : A} {l : list A} (H : a ∈ l) :
+      sum (insert a l) f = sum l f := prod_insert_of_mem f H
+    theorem sum_insert_of_not_mem (f : A → B) {a : A} {l : list A} (H : a ∉ l) :
+      sum (insert a l) f = f a + sum l f := prod_insert_of_not_mem f H
+    theorem sum_union {l₁ l₂ : list A} (f : A → B) (d : disjoint l₁ l₂) :
+      sum (union l₁ l₂) f = sum l₁ f + sum l₂ f := prod_union f d
   end decidable_eq
   end add_monoid
 
@@ -210,19 +207,18 @@ namespace finset
   theorem sum_empty (f : A → B) : sum ∅ f = 0 := prod_empty f
 
   section decidable_eq
-  variable [H : decidable_eq A]
-  include H
+    variable [H : decidable_eq A]
+    include H
+    theorem sum_insert_of_mem (f : A → B) {a : A} {s : finset A} (H : a ∈ s) :
+      sum (insert a s) f = sum s f := prod_insert_of_mem f H
+    theorem sum_insert_of_not_mem (f : A → B) {a : A} {s : finset A} (H : a ∉ s) :
+      sum (insert a s) f = f a + sum s f := prod_insert_of_not_mem f H
+    theorem sum_union (f : A → B) {s₁ s₂ : finset A} (disj : s₁ ∩ s₂ = ∅) :
+      sum (s₁ ∪ s₂) f = sum s₁ f + sum s₂ f := prod_union f disj
+  end decidable_eq
 
-  theorem sum_insert_of_mem (f : A → B) {a : A} {s : finset A} (H : a ∈ s) :
-    sum (insert a s) f = sum s f := prod_insert_of_mem f H
-  theorem sum_insert_of_not_mem (f : A → B) {a : A} {s : finset A} (H : a ∉ s) :
-    sum (insert a s) f = f a + sum s f := prod_insert_of_not_mem f H
-  theorem sum_union (f : A → B) {s₁ s₂ : finset A} (disj : s₁ ∩ s₂ = ∅) :
-    sum (s₁ ∪ s₂) f = sum s₁ f + sum s₂ f := prod_union f disj
   theorem sum_add (s : finset A) (f g : A → B) :
     sum s (λx, f x + g x) = sum s f + sum s g := prod_mul s f g
-
-  end decidable_eq
   end add_comm_monoid
 end finset
 

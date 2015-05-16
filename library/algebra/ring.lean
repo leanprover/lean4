@@ -63,7 +63,7 @@ end semiring
 
 /- comm semiring -/
 
-structure comm_semiring [class] (A : Type) extends semiring A, comm_semigroup A
+structure comm_semiring [class] (A : Type) extends semiring A, comm_monoid A
 -- TODO: we could also define a cancelative comm_semiring, i.e. satisfying
 -- c ≠ 0 → c * a = c * b → a = b.
 

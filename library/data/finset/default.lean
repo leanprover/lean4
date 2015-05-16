@@ -5,4 +5,4 @@ Author: Leonardo de Moura
 
 Finite sets.
 -/
-import data.finset.basic data.finset.comb data.finset.card data.finset.bigop
+import .basic .comb .to_set .card

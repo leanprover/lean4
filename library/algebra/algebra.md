@@ -8,6 +8,8 @@ Algebraic structures.
 * [binary](binary.lean) : binary operations
 * [wf](wf.lean) : well-founded relations
 * [group](group.lean)
+* [group_power](group_power.lean) : nat and int powers
+* [group_bigops](group_bigops.lean) : finite products and sums
 * [ring](ring.lean)
 * [ordered_group](ordered_group.lean)
 * [ordered_ring](ordered_ring.lean)

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Jeremy Avigad
 
 The power function on the natural numbers.
 -/
-import data.nat.basic data.nat.order data.nat.div algebra.group_pow
+import data.nat.basic data.nat.order data.nat.div algebra.group_power
 
 namespace nat
 

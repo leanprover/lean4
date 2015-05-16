@@ -8,3 +8,5 @@ The natural numbers.
 * [bquant](bquant.lean) : bounded quantifiers
 * [sub](sub.lean) : subtraction, and distance
 * [div](div.lean) : div, mod, gcd, and lcm
+* [power](power.lean)
+* [bigops](bigops.lean) : finite sums and products

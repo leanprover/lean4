@@ -7,5 +7,4 @@ List of elements of a fixed type. By default, `import list` imports everything h
 [comb](comb.lean) : combinators and list constructions
 [set](set.lean) : set-like operations (these support the finset construction)
 [perm](perm.lean) : equivalence up to permutation (these support the finset construction)
-[bigop](bigop.lean) : "big" operations
 [as_type](as_type.lean) : treats a list as a type

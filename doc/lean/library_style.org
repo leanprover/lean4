@@ -1,8 +1,6 @@
 #+Title: Library Style Guidelines
 #+Author: [[http://www.andrew.cmu.edu/user/avigad][Jeremy Avigad]]
 
-* Library Style Guidelines
-
 Files in the Lean library generally adhere to the following guidelines
 and conventions. Having a uniform style makes it easier to browse the
 library and read the contents, but these are meant to be guidelines

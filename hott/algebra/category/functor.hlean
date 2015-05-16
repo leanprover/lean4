@@ -61,21 +61,12 @@ namespace functor
     {H₂ : Π(a b : C), hom a b → hom (F₂ a) (F₂ b)} (id₁ id₂ comp₁ comp₂) (pF : F₁ ∼ F₂)
     (pH : Π(a b : C) (f : hom a b), hom_of_eq (pF b) ∘ H₁ a b f ∘ inv_of_eq (pF a) = H₂ a b f)
       : functor.mk F₁ H₁ id₁ comp₁ = functor.mk F₂ H₂ id₂ comp₂ :=
-  functor_mk_eq' id₁ id₂ comp₁ comp₂ (eq_of_homotopy pF)
-    (eq_of_homotopy (λc, eq_of_homotopy (λc', eq_of_homotopy (λf,
-      begin
-        apply concat, rotate_left 1, exact (pH c c' f),
-        apply concat, rotate_left 1, apply transport_hom,
-        apply concat, rotate_left 1,
-        exact (pi_transport_constant (eq_of_homotopy pF) (H₁ c c') f),
-        apply (apd10' f),
-        apply concat, rotate_left 1, esimp,
-        exact (pi_transport_constant (eq_of_homotopy pF) (H₁ c) c'),
-        apply (apd10' c'),
-        apply concat, rotate_left 1, esimp,
-        exact (pi_transport_constant (eq_of_homotopy pF) H₁ c),
-        esimp
-      end))))
+  begin
+    fapply functor_mk_eq',
+    { exact eq_of_homotopy pF},
+    { refine eq_of_homotopy (λc, eq_of_homotopy (λc', eq_of_homotopy (λf, _))), intros,
+      rewrite [+pi_transport_constant,-pH,-transport_hom]}
+  end
 
   definition functor_eq {F₁ F₂ : C ⇒ D} : Π(p : to_fun_ob F₁ ∼ to_fun_ob F₂),
     (Π(a b : C) (f : hom a b), hom_of_eq (p b) ∘ F₁ f ∘ inv_of_eq (p a) = F₂ f) → F₁ = F₂ :=
@@ -138,17 +129,9 @@ namespace functor
         exact (S.1), exact (S.2.1),
         -- TODO(Leo): investigate why we need to use relaxed-exact (rexact) tactic here
         exact (pr₁ S.2.2), rexact (pr₂ S.2.2)},
-      {intro F,
-        cases F with d1 d2 d3 d4,
-        exact ⟨d1, d2, (d3, @d4)⟩},
-      {intro F,
-        cases F,
-        reflexivity},
-      {intro S,
-        cases S with d1 S2,
-        cases S2 with d2 P1,
-        cases P1,
-        reflexivity},
+      {intro F, cases F with d1 d2 d3 d4, exact ⟨d1, d2, (d3, @d4)⟩},
+      {intro F, cases F, reflexivity},
+      {intro S, cases S with d1 S2, cases S2 with d2 P1, cases P1, reflexivity},
   end
 
   section
@@ -192,23 +175,20 @@ namespace functor
     exact r,
   end
 
-  -- definition ap010_functor_eq' {F₁ F₂ : C ⇒ D} (p : to_fun_ob F₁ = to_fun_ob F₂)
-  --   (q : p ▸ F₁ = F₂) (c : C) :
-  --   ap to_fun_ob (functor_eq (apd10 p) (λa b f, _)) = p := sorry
-  -- begin
-  --   cases F₂, revert q, apply (homotopy.rec_on p), clear p, esimp, intros p q,
-  --   cases p, clear e_1 e_2,
-  -- end
+  definition ap010_apd01111_functor {F₁ F₂ : C → D} {H₁ : Π(a b : C), hom a b → hom (F₁ a) (F₁ b)}
+    {H₂ : Π(a b : C), hom a b → hom (F₂ a) (F₂ b)} {id₁ id₂ comp₁ comp₂}
+    (pF : F₁ = F₂) (pH : pF ▸ H₁ = H₂) (pid : cast (apd011 _ pF pH) id₁ = id₂)
+    (pcomp : cast (apd0111 _ pF pH pid) comp₁ = comp₂) (c : C)
+      : ap010 to_fun_ob (apd01111 functor.mk pF pH pid pcomp) c = ap10 pF c :=
+  by cases pF; cases pH; cases pid; cases pcomp; apply idp
 
-  -- TODO: remove sorry
-  definition ap010_functor_eq {F₁ F₂ : C ⇒ D} (p : to_fun_ob F₁ ∼ to_fun_ob F₂)
+definition ap010_functor_eq {F₁ F₂ : C ⇒ D} (p : to_fun_ob F₁ ∼ to_fun_ob F₂)
     (q : (λ(a b : C) (f : hom a b), hom_of_eq (p b) ∘ F₁ f ∘ inv_of_eq (p a)) ∼3 to_fun_hom F₂) (c : C) :
     ap010 to_fun_ob (functor_eq p q) c = p c :=
   begin
-    cases F₂, revert q, eapply (homotopy.rec_on p), clear p, esimp, intro p q,
-    apply sorry,
-    --apply (homotopy3.rec_on q), clear q, intro q,
-    --cases p, --TODO: report: this fails
+    cases F₁ with F₁o F₁h F₁id F₁comp, cases F₂ with F₂o F₂h F₂id F₂comp,
+    esimp [functor_eq,functor_mk_eq,functor_mk_eq'],
+    rewrite [ap010_apd01111_functor,↑ap10,{apd10 (eq_of_homotopy p)}right_inv apd10]
   end
 
   definition ap010_functor_mk_eq_constant {F : C → D} {H₁ : Π(a b : C), hom a b → hom (F a) (F b)}
@@ -217,7 +197,10 @@ namespace functor
   ap010 to_fun_ob (functor_mk_eq_constant id₁ id₂ comp₁ comp₂ pH) c = idp :=
   !ap010_functor_eq
 
-  --do we need this theorem?
+  definition ap010_assoc (H : C ⇒ D) (G : B ⇒ C) (F : A ⇒ B) (a : A) :
+    ap010 to_fun_ob (assoc H G F) a = idp :=
+  by apply ap010_functor_mk_eq_constant
+
   definition compose_pentagon (K : D ⇒ E) (H : C ⇒ D) (G : B ⇒ C) (F : A ⇒ B) :
     (calc K ∘f H ∘f G ∘f F = (K ∘f H) ∘f G ∘f F : functor.assoc
       ... = ((K ∘f H) ∘f G) ∘f F : functor.assoc)
@@ -225,20 +208,21 @@ namespace functor
     (calc K ∘f H ∘f G ∘f F = K ∘f (H ∘f G) ∘f F : ap (λx, K ∘f x) !functor.assoc
       ... = (K ∘f H ∘f G) ∘f F : functor.assoc
       ... = ((K ∘f H) ∘f G) ∘f F : ap (λx, x ∘f F) !functor.assoc) :=
-  sorry
-  -- begin
-  -- apply functor_eq2,
-  -- intro a,
-  -- rewrite +ap010_con,
-  -- -- rewrite +ap010_ap,
-  -- -- apply sorry
-  -- /-to prove this we need a stronger ap010-lemma, something like
-  --     ap010 (λy, to_fun_ob (f y)) (functor_mk_eq_constant ...) c = idp
-  --   or something another way of getting ap out of ap010
-  -- -/
-  -- --rewrite +ap010_ap,
-  -- --unfold functor.assoc,
-  -- --rewrite ap010_functor_mk_eq_constant,
-  -- end
+  begin
+  have lem1  : Π{F₁ F₂ : A ⇒ D} (p : F₁ = F₂) (a : A),
+    ap010 to_fun_ob (ap (λx, K ∘f x) p) a = ap (to_fun_ob K) (ap010 to_fun_ob p a),
+      by intros; cases p; esimp,
+  have lem2 : Π{F₁ F₂ : B ⇒ E} (p : F₁ = F₂) (a : A),
+    ap010 to_fun_ob (ap (λx, x ∘f F) p) a = ap010 to_fun_ob p (F a),
+      by intros; cases p; esimp,
+  apply functor_eq2,
+  intro a, esimp,
+  rewrite [+ap010_con,lem1,lem2,
+            ap010_assoc K H (G ∘f F) a,
+            ap010_assoc (K ∘f H) G F a,
+            ap010_assoc H G F a,
+            ap010_assoc K H G (F a),
+            ap010_assoc K (H ∘f G) F a],
+  end
 
 end functor

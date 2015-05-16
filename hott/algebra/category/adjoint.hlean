@@ -52,7 +52,8 @@ namespace category
 
   definition full (F : C ⇒ D) := Π⦃c c' : C⦄ (g : F c ⟶ F c'), ∃(f : c ⟶ c'), F f = g
 
-  definition fully_faithful [reducible] (F : C ⇒ D) := Π⦃c c' : C⦄, is_equiv (@to_fun_hom _ _ F c c')
+  definition fully_faithful [reducible] (F : C ⇒ D) :=
+  Π⦃c c' : C⦄, is_equiv (@(to_fun_hom F) c c')
 
   definition split_essentially_surjective (F : C ⇒ D) :=
   Π⦃d : D⦄, Σ(c : C), F c ≅ d
@@ -103,7 +104,7 @@ namespace category
   sorry
 
   definition full_of_fully_faithful (H : fully_faithful F) : full F :=
-  sorry --λc c' g, trunc.elim _ _
+  sorry --  λc c' g, exists.intro ((@(to_fun_hom F) c c')⁻¹ g) _
 
   definition faithful_of_fully_faithful (H : fully_faithful F) : faithful F :=
   λc c' f f' p, is_injective_of_is_embedding p

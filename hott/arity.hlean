@@ -131,7 +131,7 @@ namespace eq
 
   /- some properties of these variants of ap -/
 
-  -- we only prove what is needed somewhere
+  -- we only prove what we currently need
 
   definition ap010_con (f : X → Πa, B a) (p : x = x') (q : x' = x'') :
     ap010 f (p ⬝ q) a = ap010 f p a ⬝ ap010 f q a :=

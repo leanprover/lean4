@@ -136,6 +136,21 @@ theorem add_zero [s : add_monoid A] (a : A) : a + 0 = a := !add_monoid.add_zero
 
 structure add_comm_monoid [class] (A : Type) extends add_monoid A, add_comm_semigroup A
 
+definition add_monoid.to_monoid {A : Type} [s : add_monoid A] : monoid A :=
+⦃ monoid,
+  mul         := add_monoid.add,
+  mul_assoc   := add_monoid.add_assoc,
+  one         := add_monoid.zero A,
+  mul_one     := add_monoid.add_zero,
+  one_mul     := add_monoid.zero_add
+⦄
+
+definition add_comm_monoid.to_comm_monoid {A : Type} [s : add_comm_monoid A] : comm_monoid A :=
+⦃ comm_monoid,
+  add_monoid.to_monoid,
+  mul_comm    := add_comm_monoid.add_comm
+⦄
+
 /- group -/
 
 structure group [class] (A : Type) extends monoid A, has_inv A :=

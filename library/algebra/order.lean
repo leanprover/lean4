@@ -313,7 +313,7 @@ section
         (assume H2 : b < a, inr (not_le_of_lt H2))
         (assume H2 : ¬ b < a, inl (le_of_not_lt H2)))
 
-  definition decidable_eq [instance] : decidable (a = b) :=
+  definition has_decidable_eq [instance] : decidable (a = b) :=
   by_cases
     (assume H : a ≤ b,
       by_cases

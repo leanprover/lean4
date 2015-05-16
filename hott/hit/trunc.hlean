@@ -77,24 +77,18 @@ namespace trunc
 
   section
   open prod.ops
-  -- definition trunc_prod_equiv : trunc n (X × Y) ≃ trunc n X × trunc n Y :=
-  -- sorry
-  -- equiv.MK (λpp, trunc.rec_on pp (λp, (tr p.1, tr p.2)))
-  --          (λp, trunc.rec_on p.1 (λx, trunc.rec_on p.2 (λy, tr (x,y))))
-  --          sorry --(λp, trunc.rec_on p.1 (λx, trunc.rec_on p.2 (λy, idp)))
-  --          (λpp, trunc.rec_on pp (λp, prod.rec_on p (λx y, idp)))
-
-  -- begin
-  --   fapply equiv.MK,
-  --     apply sorry, --{exact (λpp, trunc.rec_on pp (λp, (tr p.1, tr p.2)))},
-  --     apply sorry, /-{intro p, cases p with xx yy,
-  --       apply (trunc.rec_on xx), intro x,
-  --       apply (trunc.rec_on yy), intro y, exact (tr (x,y))},-/
-  --     apply sorry, /-{intro p, cases p with xx yy,
-  --       apply (trunc.rec_on xx), intro x,
-  --       apply (trunc.rec_on yy), intro y, apply idp},-/
-  --     apply sorry --{intro pp, apply (trunc.rec_on pp), intro p, cases p, apply idp},
-  -- end
+  definition trunc_prod_equiv : trunc n (X × Y) ≃ trunc n X × trunc n Y :=
+  begin
+    fapply equiv.MK,
+      {exact (λpp, trunc.rec_on pp (λp, (tr p.1, tr p.2)))},
+      {intro p, cases p with xx yy,
+        apply (trunc.rec_on xx), intro x,
+        apply (trunc.rec_on yy), intro y, exact (tr (x,y))},
+      {intro p, cases p with xx yy,
+        apply (trunc.rec_on xx), intro x,
+        apply (trunc.rec_on yy), intro y, apply idp},
+      {intro pp, apply (trunc.rec_on pp), intro p, cases p, apply idp}
+  end
   end
 
   /- Propositional truncation -/

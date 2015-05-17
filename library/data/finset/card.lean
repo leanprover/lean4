@@ -5,7 +5,7 @@ Author: Jeremy Avigad
 
 Cardinality calculations for finite sets.
 -/
-import data.finset.to_set data.set.function
+import .to_set .bigops data.set.function data.nat.power data.nat.bigops
 open nat eq.ops
 
 namespace finset
@@ -46,13 +46,13 @@ calc
   card (s₁ ∪ s₂) = card (s₁ ∪ s₂) + card (s₁ ∩ s₂) - card (s₁ ∩ s₂) : add_sub_cancel
              ... = card s₁ + card s₂ - card (s₁ ∩ s₂)               : card_add_card
 
-theorem card_union_of_disjoint {s₁ s₂ : finset A} (H : disjoint s₁ s₂) :
+theorem card_union_of_disjoint {s₁ s₂ : finset A} (H : s₁ ∩ s₂ = ∅) :
   card (s₁ ∪ s₂) = card s₁ + card s₂ :=
-by rewrite [card_union, ↑disjoint at H, inter_empty_of_disjoint H]
+by rewrite [card_union, H]
 
 theorem card_le_card_of_subset {s₁ s₂ : finset A} (H : s₁ ⊆ s₂) : card s₁ ≤ card s₂ :=
-have H1 : disjoint s₁ (s₂ \ s₁),
-  from disjoint.intro (take x, assume H1 H2, not_mem_of_mem_diff H2 H1),
+have H1 : s₁ ∩ (s₂ \ s₁) = ∅,
+  from inter_eq_empty (take x, assume H1 H2, not_mem_of_mem_diff H2 H1),
 calc
   card s₂ = card (s₁ ∪ (s₂ \ s₁))    : union_diff_cancel H
       ... = card s₁ + card (s₂ \ s₁) : card_union_of_disjoint H1
@@ -87,5 +87,44 @@ finset.induction_on s
                               ... = card t + 1                      : H3
                               ... = card (insert a t)               : card_insert_of_not_mem H)
 end card_image
+
+theorem Sum_const_eq_card_mul (s : finset A) (n : nat) : (∑ x ∈ s, n) = card s * n :=
+finset.induction_on s
+  (by rewrite [Sum_empty, card_empty, zero_mul])
+  (take s' a, assume H : a ∉ s',
+    assume IH,
+    by rewrite [Sum_insert_of_not_mem _ H, IH, card_insert_of_not_mem H, add.comm,
+                 mul.right_distrib, one_mul])
+
+theorem Sum_one_eq_card (s : finset A) : (∑ x ∈ s, (1 : nat)) = card s :=
+eq.trans !Sum_const_eq_card_mul !mul_one
+
+section deceqB
+include deceqB
+
+theorem card_Union_of_disjoint (s : finset A) (f : A → finset B) :
+  (∀{a₁ a₂}, a₁ ∈ s → a₂ ∈ s → a₁ ≠ a₂ → f a₁ ∩ f a₂ = ∅) →
+    card (⋃ x ∈ s, f x) = ∑ x ∈ s, card (f x) :=
+finset.induction_on s
+  (assume H, by rewrite [Union_empty, Sum_empty, card_empty])
+  (take s' a, assume H : a ∉ s',
+    assume IH,
+    assume H1 : ∀ {a₁ a₂ : A}, a₁ ∈ insert a s' → a₂ ∈ insert a s' → a₁ ≠ a₂ → f a₁ ∩ f a₂ = ∅,
+    have H2  : ∀ a₁ a₂ : A, a₁ ∈ s' → a₂ ∈ s' → a₁ ≠ a₂ → f a₁ ∩ f a₂ = ∅, from
+      take a₁ a₂, assume H3 H4 H5,
+      H1 (!mem_insert_of_mem H3) (!mem_insert_of_mem H4) H5,
+    assert H6 : card (⋃ (x : A) ∈ s', f x) = ∑ (x : A) ∈ s', card (f x), from IH H2,
+    have H7 : ∀ x, x ∈ s' → f a ∩ f x = ∅, from
+      take x, assume xs',
+      have anex : a ≠ x, from assume aex, (eq.subst aex H) xs',
+      H1 !mem_insert (!mem_insert_of_mem xs') anex,
+    assert H8 : f a ∩ (⋃ (x : A) ∈ s', f x) = ∅, from
+      calc
+        f a ∩ (⋃ (x : A) ∈ s', f x) = (⋃ (x : A) ∈ s', f a ∩ f x) : inter_Union
+                                ... = (⋃ (x : A) ∈ s', ∅)         : Union_ext H7
+                                ... = ∅                            : Union_empty',
+    by rewrite [Union_insert_of_not_mem _ H, Sum_insert_of_not_mem _ H,
+                card_union_of_disjoint H8, H6])
+end deceqB
 
 end finset

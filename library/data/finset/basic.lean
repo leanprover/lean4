@@ -109,8 +109,14 @@ notation `∅` := !empty
 theorem not_mem_empty (a : A) : a ∉ ∅ :=
 λ aine : a ∈ ∅, aine
 
+theorem mem_empty_iff (x : A) : x ∈ ∅ ↔ false :=
+iff.mp' !iff_false_iff_not !not_mem_empty
+
 theorem mem_empty_eq (x : A) : x ∈ ∅ = false :=
-propext (iff.mp' !iff_false_iff_not !not_mem_empty)
+propext !mem_empty_iff
+
+theorem eq_empty_of_forall_not_mem {s : finset A} (H : ∀x, ¬ x ∈ s) : s = ∅ :=
+ext (take x, iff_false_intro (H x))
 
 /- universe -/
 definition univ [h : fintype A] : finset A :=
@@ -423,17 +429,21 @@ quot.induction_on₂ s₁ s₂ (take u₁ u₂, assume H H1 H2, H x H1 H2)
 theorem disjoint.intro {s₁ s₂ : finset A} : (∀{x : A}, x ∈ s₁ → x ∈ s₂ → false) → disjoint s₁ s₂ :=
 quot.induction_on₂ s₁ s₂ (take u₁ u₂, assume H, H)
 
-theorem inter_empty_of_disjoint [h : decidable_eq A] {s₁ s₂ : finset A} (H : disjoint s₁ s₂) : s₁ ∩ s₂ = ∅ :=
+theorem inter_eq_empty_of_disjoint [h : decidable_eq A] {s₁ s₂ : finset A} (H : disjoint s₁ s₂) : s₁ ∩ s₂ = ∅ :=
 ext (take x, iff_false_intro (assume H1,
   disjoint.elim H (mem_of_mem_inter_left H1) (mem_of_mem_inter_right H1)))
 
-theorem disjoint_of_inter_empty [h : decidable_eq A] {s₁ s₂ : finset A} (H : s₁ ∩ s₂ = ∅) : disjoint s₁ s₂ :=
+theorem disjoint_of_inter_eq_empty [h : decidable_eq A] {s₁ s₂ : finset A} (H : s₁ ∩ s₂ = ∅) : disjoint s₁ s₂ :=
 disjoint.intro (take x H1 H2,
   have H3 : x ∈ s₁ ∩ s₂, from mem_inter H1 H2,
   !not_mem_empty (eq.subst H H3))
 
 theorem disjoint.comm {s₁ s₂ : finset A} : disjoint s₁ s₂ → disjoint s₂ s₁ :=
 quot.induction_on₂ s₁ s₂ (λ l₁ l₂ d, list.disjoint.comm d)
+
+theorem inter_eq_empty [h : decidable_eq A] {s₁ s₂ : finset A}
+    (H : ∀x : A, x ∈ s₁ → x ∈ s₂ → false) : s₁ ∩ s₂ = ∅ :=
+inter_eq_empty_of_disjoint (disjoint.intro H)
 
 /- subset -/
 definition subset (s₁ s₂ : finset A) : Prop :=

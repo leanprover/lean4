@@ -124,7 +124,7 @@ section comm_monoid
     have H1 : disjoint s₁ s₂ → Prod (s₁ ∪ s₂) f = Prod s₁ f * Prod s₂ f, from
       quot.induction_on₂ s₁ s₂
         (λ l₁ l₂ d, Prodl_union f d),
-    H1 (disjoint_of_inter_empty disj)
+    H1 (disjoint_of_inter_eq_empty disj)
 
     theorem Prod_ext {s : finset A} {f g : A → B} :
       (∀{x}, x ∈ s → f x = g x) → Prod s f = Prod s g :=

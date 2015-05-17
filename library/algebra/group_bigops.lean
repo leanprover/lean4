@@ -99,9 +99,11 @@ section comm_monoid
   theorem Prod_empty (f : A → B) : Prod ∅ f = 1 :=
   Prodl_nil f
 
-  section decidable_eq
-    variable [H : decidable_eq A]
-    include H
+  theorem Prod_mul (s : finset A) (f g : A → B) : Prod s (λx, f x * g x) = Prod s f * Prod s g :=
+  quot.induction_on s (take u, !Prodl_mul)
+
+  section deceqA
+    include deceqA
 
     theorem Prod_insert_of_mem (f : A → B) {a : A} {s : finset A} :
       a ∈ s → Prod (insert a s) f = Prod s f :=
@@ -119,10 +121,19 @@ section comm_monoid
       quot.induction_on₂ s₁ s₂
         (λ l₁ l₂ d, Prodl_union f d),
     H1 (disjoint_of_inter_empty disj)
-  end decidable_eq
 
-  theorem Prod_mul (s : finset A) (f g : A → B) : Prod s (λx, f x * g x) = Prod s f * Prod s g :=
-  quot.induction_on s (take u, !Prodl_mul)
+    theorem Prod_ext {s : finset A} {f g : A → B} :
+      (∀{x}, x ∈ s → f x = g x) → Prod s f = Prod s g :=
+    finset.induction_on s
+      (assume H, rfl)
+      (take s' x, assume H1 : x ∉ s',
+        assume IH : (∀ {x : A}, x ∈ s' → f x = g x) → Prod s' f = Prod s' g,
+        assume H2 : ∀{y}, y ∈ insert x s' → f y = g y,
+        assert H3 : ∀y, y ∈ s' → f y = g y, from
+          take y, assume H', H2 (mem_insert_of_mem _ H'),
+        assert H4 : f x = g x, from H2 !mem_insert,
+        by rewrite [Prod_insert_of_not_mem f H1, Prod_insert_of_not_mem g H1, IH H3, H4])
+  end deceqA
 end comm_monoid
 
 section add_monoid
@@ -141,16 +152,15 @@ section add_monoid
   theorem Suml_append (l₁ l₂ : list A) (f : A → B) : Suml (l₁++l₂) f = Suml l₁ f + Suml l₂ f :=
     Prodl_append l₁ l₂ f
 
-  section decidable_eq
-    variable [H : decidable_eq A]
-    include H
+  section deceqA
+    include deceqA
     theorem Suml_insert_of_mem (f : A → B) {a : A} {l : list A} (H : a ∈ l) :
       Suml (insert a l) f = Suml l f := Prodl_insert_of_mem f H
     theorem Suml_insert_of_not_mem (f : A → B) {a : A} {l : list A} (H : a ∉ l) :
       Suml (insert a l) f = f a + Suml l f := Prodl_insert_of_not_mem f H
     theorem Suml_union {l₁ l₂ : list A} (f : A → B) (d : disjoint l₁ l₂) :
       Suml (union l₁ l₂) f = Suml l₁ f + Suml l₂ f := Prodl_union f d
-  end decidable_eq
+  end deceqA
 end add_monoid
 
 section add_comm_monoid
@@ -175,20 +185,20 @@ section add_comm_monoid
   notation `∑` binders `∈` s, r:(scoped f, Sum s f) := r
 
   theorem Sum_empty (f : A → B) : Sum ∅ f = 0 := Prod_empty f
+  theorem Sum_add (s : finset A) (f g : A → B) :
+    Sum s (λx, f x + g x) = Sum s f + Sum s g := Prod_mul s f g
 
-  section decidable_eq
-    variable [H : decidable_eq A]
-    include H
+  section deceqA
+    include deceqA
     theorem Sum_insert_of_mem (f : A → B) {a : A} {s : finset A} (H : a ∈ s) :
       Sum (insert a s) f = Sum s f := Prod_insert_of_mem f H
     theorem Sum_insert_of_not_mem (f : A → B) {a : A} {s : finset A} (H : a ∉ s) :
       Sum (insert a s) f = f a + Sum s f := Prod_insert_of_not_mem f H
     theorem Sum_union (f : A → B) {s₁ s₂ : finset A} (disj : s₁ ∩ s₂ = ∅) :
       Sum (s₁ ∪ s₂) f = Sum s₁ f + Sum s₂ f := Prod_union f disj
-  end decidable_eq
-
-  theorem Sum_add (s : finset A) (f g : A → B) :
-    Sum s (λx, f x + g x) = Sum s f + Sum s g := Prod_mul s f g
+    theorem Sum_ext {s : finset A} {f g : A → B} (H : ∀x, x ∈ s → f x = g x) :
+      Sum s f = Sum s g := Prod_ext H
+  end deceqA
 end add_comm_monoid
 
 end algebra

@@ -23,7 +23,8 @@ theorem Prodl_cons (f : A → nat) (a : A) (l : list A) : Prodl (a::l) f = f a *
   algebra.Prodl_cons f a l
 theorem Prodl_append (l₁ l₂ : list A) (f : A → nat) : Prodl (l₁++l₂) f = Prodl l₁ f * Prodl l₂ f :=
   algebra.Prodl_append l₁ l₂ f
-
+theorem Prodl_mul (l : list A) (f g : A → nat) :
+  Prodl l (λx, f x * g x) = Prodl l f * Prodl l g := algebra.Prodl_mul l f g
 section deceqA
   include deceqA
   theorem Prodl_insert_of_mem (f : A → nat) {a : A} {l : list A} (H : a ∈ l) :
@@ -34,16 +35,14 @@ section deceqA
     Prodl (union l₁ l₂) f = Prodl l₁ f * Prodl l₂ f := algebra.Prodl_union f d
 end deceqA
 
-theorem Prodl_mul (l : list A) (f g : A → nat) :
-  Prodl l (λx, f x * g x) = Prodl l f * Prodl l g := algebra.Prodl_mul l f g
-
 /- Prod -/
 
 definition Prod (s : finset A) (f : A → nat) : nat := algebra.Prod s f
 notation `∏` binders `∈` s, r:(scoped f, Prod s f) := r
 
 theorem Prod_empty (f : A → nat) : Prod ∅ f = 1 := algebra.Prod_empty f
-
+theorem Prod_mul (s : finset A) (f g : A → nat) : Prod s (λx, f x * g x) = Prod s f * Prod s g :=
+  algebra.Prod_mul s f g
 section deceqA
   include deceqA
   theorem Prod_insert_of_mem (f : A → nat) {a : A} {s : finset A} (H : a ∈ s) :
@@ -52,10 +51,9 @@ section deceqA
     Prod (insert a s) f = f a * Prod s f := algebra.Prod_insert_of_not_mem f H
   theorem Prod_union (f : A → nat) {s₁ s₂ : finset A} (disj : s₁ ∩ s₂ = ∅) :
     Prod (s₁ ∪ s₂) f = Prod s₁ f * Prod s₂ f := algebra.Prod_union f disj
+  theorem Prod_ext {s : finset A} {f g : A → nat} (H : ∀x, x ∈ s → f x = g x) :
+    Prod s f = Prod s g := algebra.Prod_ext H
 end deceqA
-
-theorem Prod_mul (s : finset A) (f g : A → nat) : Prod s (λx, f x * g x) = Prod s f * Prod s g :=
-  algebra.Prod_mul s f g
 
 /- Suml -/
 
@@ -67,7 +65,8 @@ theorem Suml_cons (f : A → nat) (a : A) (l : list A) : Suml (a::l) f = f a + S
   algebra.Suml_cons f a l
 theorem Suml_append (l₁ l₂ : list A) (f : A → nat) : Suml (l₁++l₂) f = Suml l₁ f + Suml l₂ f :=
   algebra.Suml_append l₁ l₂ f
-
+theorem Suml_add (l : list A) (f g : A → nat) : Suml l (λx, f x + g x) = Suml l f + Suml l g :=
+  algebra.Suml_add l f g
 section deceqA
   include deceqA
   theorem Suml_insert_of_mem (f : A → nat) {a : A} {l : list A} (H : a ∈ l) :
@@ -78,26 +77,24 @@ section deceqA
     Suml (union l₁ l₂) f = Suml l₁ f + Suml l₂ f := algebra.Suml_union f d
 end deceqA
 
-theorem Suml_add (l : list A) (f g : A → nat) : Suml l (λx, f x + g x) = Suml l f + Suml l g :=
-  algebra.Suml_add l f g
-
 /- Sum -/
 
 definition Sum (s : finset A) (f : A → nat) : nat := algebra.Sum s f
 notation `∑` binders `∈` s, r:(scoped f, Sum s f) := r
 
 theorem Sum_empty (f : A → nat) : Sum ∅ f = 0 := algebra.Sum_empty f
+theorem Sum_add (s : finset A) (f g : A → nat) : Sum s (λx, f x + g x) = Sum s f + Sum s g :=
+  algebra.Sum_add s f g
 section deceqA
   include deceqA
   theorem Sum_insert_of_mem (f : A → nat) {a : A} {s : finset A} (H : a ∈ s) :
-      Sum (insert a s) f = Sum s f := algebra.Sum_insert_of_mem f H
-    theorem Sum_insert_of_not_mem (f : A → nat) {a : A} {s : finset A} (H : a ∉ s) :
-      Sum (insert a s) f = f a + Sum s f := algebra.Sum_insert_of_not_mem f H
-    theorem Sum_union (f : A → nat) {s₁ s₂ : finset A} (disj : s₁ ∩ s₂ = ∅) :
-      Sum (s₁ ∪ s₂) f = Sum s₁ f + Sum s₂ f := algebra.Sum_union f disj
+    Sum (insert a s) f = Sum s f := algebra.Sum_insert_of_mem f H
+  theorem Sum_insert_of_not_mem (f : A → nat) {a : A} {s : finset A} (H : a ∉ s) :
+    Sum (insert a s) f = f a + Sum s f := algebra.Sum_insert_of_not_mem f H
+  theorem Sum_union (f : A → nat) {s₁ s₂ : finset A} (disj : s₁ ∩ s₂ = ∅) :
+    Sum (s₁ ∪ s₂) f = Sum s₁ f + Sum s₂ f := algebra.Sum_union f disj
+  theorem Sum_ext {s : finset A} {f g : A → nat} (H : ∀x, x ∈ s → f x = g x) :
+    Sum s f = Sum s g := algebra.Sum_ext H
 end deceqA
-
-theorem Sum_add (s : finset A) (f g : A → nat) : Sum s (λx, f x + g x) = Sum s f + Sum s g :=
-  algebra.Sum_add s f g
 
 end nat

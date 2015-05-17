@@ -3,43 +3,32 @@ Copyright (c) 2015 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad
 
-Finite products on a monoid, and finite sums on an additive monoid. These are called
-
-  algebra.list.prod
-  algebra.finset.prod
-  algebra.list.sum
-  algebra.finset.sum
-
-So when we open algebra we have list.prod etc., and when we migrate to nat, we have
-nat.list.prod etc.
+Finite products on a monoid, and finite sums on an additive monoid.
 
 We have to be careful with dependencies. This theory imports files from finset and list, which
 import basic files from nat. Then nat imports this file to instantiate finite products and sums.
 -/
 import .group data.list.basic data.list.perm data.finset.basic
-open algebra function binary quot subtype
+open algebra function binary quot subtype list finset
 
 namespace algebra
+variables {A B : Type}
+variable [deceqA : decidable_eq A]
 
-/- list.prod -/
+/- Prodl: product indexed by a list -/
 
-namespace list -- i.e. algebra.list
-  open list    -- i.e. ordinary lists
-
-  variable {A : Type}
-
-  section monoid
-  variables {B : Type} [mB : monoid B]
+section monoid
+  variable [mB : monoid B]
   include mB
 
   definition mulf (f : A → B) : B → A → B :=
   λ b a, b * f a
 
-  definition prod (l : list A) (f : A → B) : B :=
+  definition Prodl (l : list A) (f : A → B) : B :=
   list.foldl (mulf f) 1 l
 
   -- ∏ x ← l, f x
-  notation `∏` binders `←` l, r:(scoped f, prod l f) := r
+  notation `∏` binders `←` l, r:(scoped f, Prodl l f) := r
 
   private theorem foldl_const (f : A → B) :
     ∀ (l : list A) (b : B), foldl (mulf f) b l = b * foldl (mulf f) 1 l
@@ -47,179 +36,159 @@ namespace list -- i.e. algebra.list
   | (a::l) b := by rewrite [*foldl_cons, foldl_const, {foldl _ (mulf f 1 a) _}foldl_const, ↑mulf,
                              one_mul, mul.assoc]
 
-  theorem prod_nil (f : A → B) : prod [] f = 1 := rfl
+  theorem Prodl_nil (f : A → B) : Prodl [] f = 1 := rfl
 
-  theorem prod_cons (f : A → B) (a : A) (l : list A) : prod (a::l) f = f a * prod l f :=
-  by rewrite [↑prod, foldl_cons, foldl_const, ↑mulf, one_mul]
+  theorem Prodl_cons (f : A → B) (a : A) (l : list A) : Prodl (a::l) f = f a * Prodl l f :=
+  by rewrite [↑Prodl, foldl_cons, foldl_const, ↑mulf, one_mul]
 
-  theorem prod_append :
-    ∀ (l₁ l₂ : list A) (f : A → B), prod (l₁++l₂) f = prod l₁ f * prod l₂ f
-  | []    l₂ f  := by rewrite [append_nil_left, prod_nil, one_mul]
-  | (a::l) l₂ f := by rewrite [append_cons, *prod_cons, prod_append, mul.assoc]
+  theorem Prodl_append :
+    ∀ (l₁ l₂ : list A) (f : A → B), Prodl (l₁++l₂) f = Prodl l₁ f * Prodl l₂ f
+  | []    l₂ f  := by rewrite [append_nil_left, Prodl_nil, one_mul]
+  | (a::l) l₂ f := by rewrite [append_cons, *Prodl_cons, Prodl_append, mul.assoc]
 
-  section decidable_eq
-  variable [H : decidable_eq A]
-  include H
-    theorem prod_insert_of_mem (f : A → B) {a : A} {l : list A} : a ∈ l →
-      prod (insert a l) f = prod l f :=
+  section deceqA
+    include deceqA
+
+    theorem Prodl_insert_of_mem (f : A → B) {a : A} {l : list A} : a ∈ l →
+      Prodl (insert a l) f = Prodl l f :=
     assume ainl, by rewrite [insert_eq_of_mem ainl]
 
-    theorem prod_insert_of_not_mem (f : A → B) {a : A} {l : list A} :
-      a ∉ l → prod (insert a l) f = f a * prod l f :=
-    assume nainl, by rewrite [insert_eq_of_not_mem nainl, prod_cons]
+    theorem Prodl_insert_of_not_mem (f : A → B) {a : A} {l : list A} :
+      a ∉ l → Prodl (insert a l) f = f a * Prodl l f :=
+    assume nainl, by rewrite [insert_eq_of_not_mem nainl, Prodl_cons]
 
-    theorem prod_union {l₁ l₂ : list A} (f : A → B) (d : disjoint l₁ l₂) :
-      prod (union l₁ l₂) f = prod l₁ f * prod l₂ f :=
-    by rewrite [union_eq_append d, prod_append]
-  end decidable_eq
-  end monoid
+    theorem Prodl_union {l₁ l₂ : list A} (f : A → B) (d : disjoint l₁ l₂) :
+      Prodl (union l₁ l₂) f = Prodl l₁ f * Prodl l₂ f :=
+    by rewrite [union_eq_append d, Prodl_append]
+  end deceqA
+end monoid
 
-  section comm_monoid
-  variables {B : Type} [cmB : comm_monoid B]
-  include cmB
-
-  theorem prod_mul (l : list A) (f g : A → B) : prod l (λx, f x * g x) = prod l f * prod l g :=
-  list.induction_on l
-     (by rewrite [*prod_nil, mul_one])
-     (take a l,
-       assume IH,
-       by rewrite [*prod_cons, IH, *mul.assoc, mul.left_comm (prod l f)])
-
-  end comm_monoid
-end list
-
-/- finset.prod -/
-
-namespace finset
-  open finset
-  variables {A B : Type}
+section comm_monoid
   variable [cmB : comm_monoid B]
   include cmB
 
-  theorem mulf_rcomm (f : A → B) : right_commutative (list.mulf f) :=
+  theorem Prodl_mul (l : list A) (f g : A → B) : Prodl l (λx, f x * g x) = Prodl l f * Prodl l g :=
+  list.induction_on l
+     (by rewrite [*Prodl_nil, mul_one])
+     (take a l,
+       assume IH,
+       by rewrite [*Prodl_cons, IH, *mul.assoc, mul.left_comm (Prodl l f)])
+end comm_monoid
+
+/- Prod: product indexed by a finset -/
+
+section comm_monoid
+  variable [cmB : comm_monoid B]
+  include cmB
+
+  theorem mulf_rcomm (f : A → B) : right_commutative (mulf f) :=
   right_commutative_compose_right (@has_mul.mul B cmB) f (@mul.right_comm B cmB)
 
-  section
-  open perm
-  theorem listprod_of_perm (f : A → B) {l₁ l₂ : list A} :
-    l₁ ~ l₂ → list.prod l₁ f = list.prod l₂ f :=
-  λ p, foldl_eq_of_perm (mulf_rcomm f) p 1
-  end
+  theorem Prodl_eq_Prodl_of_perm (f : A → B) {l₁ l₂ : list A} :
+    perm l₁ l₂ → Prodl l₁ f = Prodl l₂ f :=
+  λ p, perm.foldl_eq_of_perm (mulf_rcomm f) p 1
 
-  definition prod (s : finset A) (f : A → B) : B :=
+  definition Prod (s : finset A) (f : A → B) : B :=
   quot.lift_on s
-  (λ l, list.prod (elt_of l) f)
-  (λ l₁ l₂ p, listprod_of_perm f p)
+    (λ l, Prodl (elt_of l) f)
+    (λ l₁ l₂ p, Prodl_eq_Prodl_of_perm f p)
 
   -- ∏ x ∈ s, f x
   notation `∏` binders `∈` s, r:(scoped f, prod s f) := r
 
-  theorem prod_empty (f : A → B) : prod ∅ f = 1 :=
-  list.prod_nil f
+  theorem Prod_empty (f : A → B) : Prod ∅ f = 1 :=
+  Prodl_nil f
 
   section decidable_eq
     variable [H : decidable_eq A]
     include H
 
-    theorem prod_insert_of_mem (f : A → B) {a : A} {s : finset A} :
-      a ∈ s → prod (insert a s) f = prod s f :=
+    theorem Prod_insert_of_mem (f : A → B) {a : A} {s : finset A} :
+      a ∈ s → Prod (insert a s) f = Prod s f :=
     quot.induction_on s
-      (λ l ainl, list.prod_insert_of_mem f ainl)
+      (λ l ainl, Prodl_insert_of_mem f ainl)
 
-    theorem prod_insert_of_not_mem (f : A → B) {a : A} {s : finset A} :
-      a ∉ s → prod (insert a s) f = f a * prod s f :=
+    theorem Prod_insert_of_not_mem (f : A → B) {a : A} {s : finset A} :
+      a ∉ s → Prod (insert a s) f = f a * Prod s f :=
     quot.induction_on s
-      (λ l nainl, list.prod_insert_of_not_mem f nainl)
+      (λ l nainl, Prodl_insert_of_not_mem f nainl)
 
-    theorem prod_union (f : A → B) {s₁ s₂ : finset A} (disj : s₁ ∩ s₂ = ∅) :
-      prod (s₁ ∪ s₂) f = prod s₁ f * prod s₂ f :=
-    have H1 : disjoint s₁ s₂ → prod (s₁ ∪ s₂) f = prod s₁ f * prod s₂ f, from
+    theorem Prod_union (f : A → B) {s₁ s₂ : finset A} (disj : s₁ ∩ s₂ = ∅) :
+      Prod (s₁ ∪ s₂) f = Prod s₁ f * Prod s₂ f :=
+    have H1 : disjoint s₁ s₂ → Prod (s₁ ∪ s₂) f = Prod s₁ f * Prod s₂ f, from
       quot.induction_on₂ s₁ s₂
-        (λ l₁ l₂ d, list.prod_union f d),
+        (λ l₁ l₂ d, Prodl_union f d),
     H1 (disjoint_of_inter_empty disj)
   end decidable_eq
 
-  theorem prod_mul (s : finset A) (f g : A → B) : prod s (λx, f x * g x) = prod s f * prod s g :=
-  quot.induction_on s (take u, !list.prod_mul)
+  theorem Prod_mul (s : finset A) (f g : A → B) : Prod s (λx, f x * g x) = Prod s f * Prod s g :=
+  quot.induction_on s (take u, !Prodl_mul)
+end comm_monoid
 
-end finset
-
-/- list.sum -/
-
-namespace list
-  open list
-  variable {A : Type}
-
-  section add_monoid
-  variables {B : Type} [amB : add_monoid B]
+section add_monoid
+  variable [amB : add_monoid B]
   include amB
   local attribute add_monoid.to_monoid [instance]
 
-  definition sum (l : list A) (f : A → B) : B := prod l f
+  definition Suml (l : list A) (f : A → B) : B := Prodl l f
 
   -- ∑ x ← l, f x
-  notation `∑` binders `←` l, r:(scoped f, sum l f) := r
+  notation `∑` binders `←` l, r:(scoped f, Suml l f) := r
 
-  theorem sum_nil (f : A → B) : sum [] f = 0 := prod_nil f
-  theorem sum_cons (f : A → B) (a : A) (l : list A) : sum (a::l) f = f a + sum l f :=
-    prod_cons f a l
-  theorem sum_append (l₁ l₂ : list A) (f : A → B) : sum (l₁++l₂) f = sum l₁ f + sum l₂ f :=
-    prod_append l₁ l₂ f
+  theorem Suml_nil (f : A → B) : Suml [] f = 0 := Prodl_nil f
+  theorem Suml_cons (f : A → B) (a : A) (l : list A) : Suml (a::l) f = f a + Suml l f :=
+    Prodl_cons f a l
+  theorem Suml_append (l₁ l₂ : list A) (f : A → B) : Suml (l₁++l₂) f = Suml l₁ f + Suml l₂ f :=
+    Prodl_append l₁ l₂ f
 
   section decidable_eq
     variable [H : decidable_eq A]
     include H
-    theorem sum_insert_of_mem (f : A → B) {a : A} {l : list A} (H : a ∈ l) :
-      sum (insert a l) f = sum l f := prod_insert_of_mem f H
-    theorem sum_insert_of_not_mem (f : A → B) {a : A} {l : list A} (H : a ∉ l) :
-      sum (insert a l) f = f a + sum l f := prod_insert_of_not_mem f H
-    theorem sum_union {l₁ l₂ : list A} (f : A → B) (d : disjoint l₁ l₂) :
-      sum (union l₁ l₂) f = sum l₁ f + sum l₂ f := prod_union f d
+    theorem Suml_insert_of_mem (f : A → B) {a : A} {l : list A} (H : a ∈ l) :
+      Suml (insert a l) f = Suml l f := Prodl_insert_of_mem f H
+    theorem Suml_insert_of_not_mem (f : A → B) {a : A} {l : list A} (H : a ∉ l) :
+      Suml (insert a l) f = f a + Suml l f := Prodl_insert_of_not_mem f H
+    theorem Suml_union {l₁ l₂ : list A} (f : A → B) (d : disjoint l₁ l₂) :
+      Suml (union l₁ l₂) f = Suml l₁ f + Suml l₂ f := Prodl_union f d
   end decidable_eq
-  end add_monoid
+end add_monoid
 
-  section add_comm_monoid
-  variables {B : Type} [acmB : add_comm_monoid B]
+section add_comm_monoid
+  variable [acmB : add_comm_monoid B]
   include acmB
   local attribute add_comm_monoid.to_comm_monoid [instance]
 
-  theorem sum_add (l : list A) (f g : A → B) : sum l (λx, f x + g x) = sum l f + sum l g :=
-    prod_mul l f g
-  end add_comm_monoid
-end list
+  theorem Suml_add (l : list A) (f g : A → B) : Suml l (λx, f x + g x) = Suml l f + Suml l g :=
+    Prodl_mul l f g
+end add_comm_monoid
 
-/- finset.sum -/
+/- Sum -/
 
-namespace finset
-  open finset
-  variable {A : Type}
-
-  section add_comm_monoid
-  variables {B : Type} [acmB : add_comm_monoid B]
+section add_comm_monoid
+  variable [acmB : add_comm_monoid B]
   include acmB
   local attribute add_comm_monoid.to_comm_monoid [instance]
 
-  definition sum (s : finset A) (f : A → B) : B := prod s f
+  definition Sum (s : finset A) (f : A → B) : B := Prod s f
 
   -- ∑ x ∈ s, f x
-  notation `∑` binders `∈` s, r:(scoped f, sum s f) := r
+  notation `∑` binders `∈` s, r:(scoped f, Sum s f) := r
 
-  theorem sum_empty (f : A → B) : sum ∅ f = 0 := prod_empty f
+  theorem Sum_empty (f : A → B) : Sum ∅ f = 0 := Prod_empty f
 
   section decidable_eq
     variable [H : decidable_eq A]
     include H
-    theorem sum_insert_of_mem (f : A → B) {a : A} {s : finset A} (H : a ∈ s) :
-      sum (insert a s) f = sum s f := prod_insert_of_mem f H
-    theorem sum_insert_of_not_mem (f : A → B) {a : A} {s : finset A} (H : a ∉ s) :
-      sum (insert a s) f = f a + sum s f := prod_insert_of_not_mem f H
-    theorem sum_union (f : A → B) {s₁ s₂ : finset A} (disj : s₁ ∩ s₂ = ∅) :
-      sum (s₁ ∪ s₂) f = sum s₁ f + sum s₂ f := prod_union f disj
+    theorem Sum_insert_of_mem (f : A → B) {a : A} {s : finset A} (H : a ∈ s) :
+      Sum (insert a s) f = Sum s f := Prod_insert_of_mem f H
+    theorem Sum_insert_of_not_mem (f : A → B) {a : A} {s : finset A} (H : a ∉ s) :
+      Sum (insert a s) f = f a + Sum s f := Prod_insert_of_not_mem f H
+    theorem Sum_union (f : A → B) {s₁ s₂ : finset A} (disj : s₁ ∩ s₂ = ∅) :
+      Sum (s₁ ∪ s₂) f = Sum s₁ f + Sum s₂ f := Prod_union f disj
   end decidable_eq
 
-  theorem sum_add (s : finset A) (f g : A → B) :
-    sum s (λx, f x + g x) = sum s f + sum s g := prod_mul s f g
-  end add_comm_monoid
-end finset
+  theorem Sum_add (s : finset A) (f g : A → B) :
+    Sum s (λx, f x + g x) = Sum s f + Sum s g := Prod_mul s f g
+end add_comm_monoid
 
 end algebra

@@ -492,5 +492,59 @@ iff.intro lt_of_mem_upto mem_upto_of_lt
 theorem mem_upto_eq (a n : nat) : a ∈ upto n = (a < n) :=
 propext !mem_upto_iff
 end upto
+
+/- useful rules for calculations with quantifiers -/
+theorem exists_mem_empty_iff {A : Type} (P : A → Prop) : (∃ x, x ∈ ∅ ∧ P x) ↔ false :=
+iff.intro
+  (assume H,
+    obtain x (H1 : x ∈ ∅ ∧ P x), from H,
+    !not_mem_empty (and.left H1))
+  (assume H, false.elim H)
+
+theorem exists_mem_empty_eq {A : Type} (P : A → Prop) : (∃ x, x ∈ ∅ ∧ P x) = false :=
+propext !exists_mem_empty_iff
+
+theorem exists_mem_insert_iff {A : Type} [d : decidable_eq A]
+    (a : A) (s : finset A) (P : A → Prop) :
+  (∃ x, x ∈ insert a s ∧ P x) ↔ P a ∨ (∃ x, x ∈ s ∧ P x) :=
+iff.intro
+  (assume H,
+    obtain x [H1 H2], from H,
+    or.elim (eq_or_mem_of_mem_insert H1)
+      (assume H3 : x = a, or.inl (eq.subst H3 H2))
+      (assume H3 : x ∈ s, or.inr (exists.intro x (and.intro H3 H2))))
+  (assume H,
+    or.elim H
+      (assume H1 : P a, exists.intro a (and.intro !mem_insert H1))
+      (assume H1 : ∃ x, x ∈ s ∧ P x,
+        obtain x [H2 H3], from H1,
+        exists.intro x (and.intro (!mem_insert_of_mem H2) H3)))
+
+theorem exists_mem_insert_eq {A : Type} [d : decidable_eq A] (a : A) (s : finset A) (P : A → Prop) :
+  (∃ x, x ∈ insert a s ∧ P x) = (P a ∨ (∃ x, x ∈ s ∧ P x)) :=
+propext !exists_mem_insert_iff
+
+theorem forall_mem_empty_iff {A : Type} (P : A → Prop) : (∀ x, x ∈ ∅ → P x) ↔ true :=
+iff.intro
+  (assume H, trivial)
+  (assume H, take x, assume H', absurd H' !not_mem_empty)
+
+theorem forall_mem_empty_eq {A : Type} (P : A → Prop) : (∀ x, x ∈ ∅ → P x) = true :=
+propext !forall_mem_empty_iff
+
+theorem forall_mem_insert_iff {A : Type} [d : decidable_eq A]
+    (a : A) (s : finset A) (P : A → Prop) :
+  (∀ x, x ∈ insert a s → P x) ↔ P a ∧ (∀ x, x ∈ s → P x) :=
+iff.intro
+  (assume H, and.intro (H _ !mem_insert) (take x, assume H', H _ (!mem_insert_of_mem H')))
+  (assume H, take x, assume H' : x ∈ insert a s,
+    or.elim (eq_or_mem_of_mem_insert H')
+      (assume H1 : x = a, eq.subst (eq.symm H1) (and.left H))
+      (assume H1 : x ∈ s, and.right H _ H1))
+
+theorem forall_mem_insert_eq {A : Type} [d : decidable_eq A] (a : A) (s : finset A) (P : A → Prop) :
+  (∀ x, x ∈ insert a s → P x) = (P a ∧ (∀ x, x ∈ s → P x)) :=
+propext !forall_mem_insert_iff
+
 end finset
 abbreviation finset := finset.finset

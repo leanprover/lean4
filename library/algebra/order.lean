@@ -59,6 +59,9 @@ section
   theorem ge.trans [trans] {a b c : A} (H1 : a ≥ b) (H2: b ≥ c) : a ≥ c := le.trans H2 H1
 
   theorem le.antisymm {a b : A} : a ≤ b → b ≤ a → a = b := !weak_order.le_antisymm
+
+  -- Alternate syntax. A definition does not migrate well.
+  theorem eq_of_le_of_ge {a b : A} : a ≤ b → b ≤ a → a = b := !le.antisymm
 end
 
 structure linear_weak_order [class] (A : Type) extends weak_order A :=
@@ -78,6 +81,7 @@ section
   include s
 
   theorem lt.irrefl (a : A) : ¬ a < a := !strict_order.lt_irrefl
+  theorem not_lt_self (a : A) : ¬ a < a := !lt.irrefl   -- alternate syntax
 
   theorem lt.trans [trans] {a b c : A} : a < b → b < c → a < c := !strict_order.lt_trans
 
@@ -92,6 +96,8 @@ section
 
   theorem lt.asymm {a b : A} (H : a < b) : ¬ b < a :=
   assume H1 : b < a, lt.irrefl _ (lt.trans H H1)
+
+  theorem not_lt_of_lt {a b : A} (H : a < b) : ¬ b < a := !lt.asymm H    -- alternate syntax
 end
 
 /- well-founded orders -/

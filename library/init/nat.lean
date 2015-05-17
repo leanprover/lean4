@@ -21,6 +21,7 @@ namespace nat
 
   definition le [reducible] (a b : nat) : Prop := a < succ b
 
+  notation a <= b := le a b
   notation a ≤ b := le a b
 
   definition pred (a : nat) : nat :=
@@ -251,6 +252,7 @@ namespace nat
   definition decidable_ge [instance] : decidable_rel ge :=
   _
 
+  notation a >= b := ge a b
   notation a ≥ b := ge a b
 
   -- add is defined in init.num

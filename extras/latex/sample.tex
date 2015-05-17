@@ -1,0 +1,72 @@
+\documentclass{article}
+
+\usepackage[utf8x]{inputenc}
+\usepackage{amssymb}
+
+\usepackage{color}
+\definecolor{keywordcolor}{rgb}{0.7, 0.1, 0.1}   % red
+\definecolor{tacticcolor}{rgb}{0.1, 0.2, 0.6}    % blue
+\definecolor{commentcolor}{rgb}{0.4, 0.4, 0.4}   % grey
+\definecolor{symbolcolor}{rgb}{0.0, 0.1, 0.6}    % blue
+\definecolor{sortcolor}{rgb}{0.1, 0.5, 0.1}      % green
+\definecolor{attributecolor}{rgb}{0.7, 0.1, 0.1} % red
+
+\usepackage{listings}
+\def\lstlanguagefiles{lstlean.tex}
+\lstset{language=lean}
+
+\title{The Lean listing style}
+\author{Jeremy Avigad}
+
+\begin{document}
+
+\maketitle 
+
+This is an example of how to use \verb=lstlean.tex= to typeset your Lean code. Here is some code: \lstinline{theorem foo (x y : ℕ), x + y = y + x}.  Here are the translations of some unicode symbols:
+\begin{lstlisting}
+Some symbols: ℕ ℤ ∩ ⊂ ∀ ∃ Π α β γ ∈ ⦃ ⦄
+\end{lstlisting}
+Here is a block of code:
+\begin{lstlisting}
+/-
+Basic properties of lists.
+-/
+import logic tools.helper_tactics data.nat.basic algebra.function
+open eq.ops helper_tactics nat prod function option
+
+inductive list (T : Type) : Type :=
+| nil {} : list T
+| cons   : T → list T → list T
+
+namespace list
+notation h :: t  := cons h t
+notation `[` l:(foldr `,` (h t, cons h t) nil `]`) := l
+
+variable {T : Type}
+
+/- append -/
+
+definition append : list T → list T → list T
+| []       l := l
+| (h :: s) t := h :: (append s t)
+
+notation l₁ ++ l₂ := append l₁ l₂
+
+theorem append_nil_left (t : list T) : [] ++ t = t
+
+theorem append_cons (x : T) (s t : list T) : (x::s) ++ t = x::(s ++ t)
+
+theorem append_nil_right : ∀ (t : list T), t ++ [] = t
+| []       := rfl
+| (a :: l) := calc
+  (a :: l) ++ [] = a :: (l ++ []) : rfl
+             ... = a :: l         : append_nil_right l
+
+theorem append.assoc : ∀ (s t u : list T), s ++ t ++ u = s ++ (t ++ u)
+| []       t u := rfl
+| (a :: l) t u :=
+  show a :: (l ++ t ++ u) = (a :: l) ++ (t ++ u),
+  by rewrite (append.assoc l t u)
+\end{lstlisting}
+
+\end{document}

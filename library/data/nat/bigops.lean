@@ -33,6 +33,7 @@ section deceqA
     Prodl (insert a l) f = f a * Prodl l f := algebra.Prodl_insert_of_not_mem f H
   theorem Prodl_union {l₁ l₂ : list A} (f : A → nat) (d : disjoint l₁ l₂) :
     Prodl (union l₁ l₂) f = Prodl l₁ f * Prodl l₂ f := algebra.Prodl_union f d
+  theorem Prodl_one (l : list A) : Prodl l (λ x, nat.succ 0) = 1 := algebra.Prodl_one l
 end deceqA
 
 /- Prod -/
@@ -53,6 +54,7 @@ section deceqA
     Prod (s₁ ∪ s₂) f = Prod s₁ f * Prod s₂ f := algebra.Prod_union f disj
   theorem Prod_ext {s : finset A} {f g : A → nat} (H : ∀x, x ∈ s → f x = g x) :
     Prod s f = Prod s g := algebra.Prod_ext H
+  theorem Prod_one (s : finset A) : Prod s (λ x, nat.succ 0) = 1 := algebra.Prod_one s
 end deceqA
 
 /- Suml -/
@@ -75,6 +77,7 @@ section deceqA
     Suml (insert a l) f = f a + Suml l f := algebra.Suml_insert_of_not_mem f H
   theorem Suml_union {l₁ l₂ : list A} (f : A → nat) (d : disjoint l₁ l₂) :
     Suml (union l₁ l₂) f = Suml l₁ f + Suml l₂ f := algebra.Suml_union f d
+  theorem Suml_zero (l : list A) : Suml l (λ x, zero) = 0 := algebra.Suml_zero l
 end deceqA
 
 /- Sum -/
@@ -95,6 +98,7 @@ section deceqA
     Sum (s₁ ∪ s₂) f = Sum s₁ f + Sum s₂ f := algebra.Sum_union f disj
   theorem Sum_ext {s : finset A} {f g : A → nat} (H : ∀x, x ∈ s → f x = g x) :
     Sum s f = Sum s g := algebra.Sum_ext H
+  theorem Sum_zero (s : finset A) : Sum s (λ x, zero) = 0 := algebra.Sum_zero s
 end deceqA
 
 end nat

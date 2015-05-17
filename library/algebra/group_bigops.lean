@@ -61,6 +61,10 @@ section monoid
       Prodl (union l₁ l₂) f = Prodl l₁ f * Prodl l₂ f :=
     by rewrite [union_eq_append d, Prodl_append]
   end deceqA
+
+  theorem Prodl_one : ∀(l : list A), Prodl l (λ x, 1) = 1
+  | []     := rfl
+  | (a::l) := by rewrite [Prodl_cons, Prodl_one, mul_one]
 end monoid
 
 section comm_monoid
@@ -134,6 +138,9 @@ section comm_monoid
         assert H4 : f x = g x, from H2 !mem_insert,
         by rewrite [Prod_insert_of_not_mem f H1, Prod_insert_of_not_mem g H1, IH H3, H4])
   end deceqA
+
+  theorem Prod_one (s : finset A) : Prod s (λ x, 1) = 1 :=
+  quot.induction_on s (take u, !Prodl_one)
 end comm_monoid
 
 section add_monoid
@@ -161,6 +168,8 @@ section add_monoid
     theorem Suml_union {l₁ l₂ : list A} (f : A → B) (d : disjoint l₁ l₂) :
       Suml (union l₁ l₂) f = Suml l₁ f + Suml l₂ f := Prodl_union f d
   end deceqA
+
+  theorem Suml_zero (l : list A) : Suml l (λ x, 0) = 0 := Prodl_one l
 end add_monoid
 
 section add_comm_monoid
@@ -199,6 +208,8 @@ section add_comm_monoid
     theorem Sum_ext {s : finset A} {f g : A → B} (H : ∀x, x ∈ s → f x = g x) :
       Sum s f = Sum s g := Prod_ext H
   end deceqA
+
+  theorem Sum_zero (s : finset A) : Sum s (λ x, 0) = 0 := Prod_one s
 end add_comm_monoid
 
 end algebra

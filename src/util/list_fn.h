@@ -302,4 +302,6 @@ template<typename T>
 T const & get_ith(list<T> const & l, unsigned idx) {
     return idx == 0 ? head(l) : get_ith(tail(l), idx - 1);
 }
+
+list<unsigned> mk_list_range(unsigned from, unsigned to);
 }

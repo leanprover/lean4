@@ -106,7 +106,7 @@ symm         [symm]
 trans        [trans]
 refl         [refl]
 subst        [subst]
-recursor     [recursor]
+recursor     [recursor
 attribute    attribute
 with         with
 class        [class]

@@ -1,43 +1,46 @@
-urec.lean:3:0: error: invalid user defined recursor, result type must be of the form (C i t), where C and t are bound variables, and i is a (possibly empty) sequence of bound variables
+urec.lean:3:0: error: invalid user defined recursor, result type must be of the form (C t), where C is a bound variable, and t is a (possibly empty) sequence of bound variables
 urec.lean:5:0: error: invalid user defined recursor, 'nat.rec' is a builtin recursor
-urec.lean:19:0: error: invalid user defined recursor, motive 'C' must have a type of the form (C : Pi (i : B A), I A i -> Type), where A is (possibly empty) sequence of bound variables (aka parameters), (i : B A) is a (possibly empty) telescope (aka indices), and I is a constant
-urec.lean:23:0: error: invalid user defined recursor, resultant type of minor premise 'a' must be of the form (M ...)
+urec.lean:19:0: error: invalid user defined recursor, type of the major premise 'a' must be for the form (I ...), where I is a constant
 myrec.{l_1 l_2} :
   Π (A : Type.{l_1}) (M : list.{l_1} A → Type.{l_2}) (l : list.{l_1} A),
     M (@nil.{l_1} A) → (Π (a : A), M [a]) → (Π (a₁ a₂ : A), M [a₁, a₂]) → M l
 recursor information
-  num. parameters:    1
-  num. indices:       0
-  motive univ. pos. : 1
-  motive pos.:        1
-  major premise pos.: 2
-  dep. elimination:   1
+  num. parameters:          1
+  num. indices:             0
+  motive univ. pos.:        1
+  motive pos.:              2
+  major premise pos.:       3
+  dep. elimination:         1
+  parameters pos. at major: 1
 recursor information
-  num. parameters:    0
-  num. indices:       0
+  num. parameters:          0
+  num. indices:             0
   recursor eliminate only to Prop
-  motive pos.:        0
-  major premise pos.: 1
-  dep. elimination:   1
+  motive pos.:              1
+  major premise pos.:       2
+  dep. elimination:         1
 vector.induction_on.{l_1} :
   ∀ {A : Type.{l_1}} {C : Π (a : nat), vector.{l_1} A a → Prop} {a : nat} (n : vector.{l_1} A a),
     C nat.zero (@vector.nil.{l_1} A) →
     (∀ {n : nat} (a : A) (a_1 : vector.{l_1} A n), C n a_1 → C (nat.succ n) (@vector.cons.{l_1} A n a a_1)) →
     C a n
 recursor information
-  num. parameters:    1
-  num. indices:       1
+  num. parameters:          1
+  num. indices:             1
   recursor eliminate only to Prop
-  motive pos.:        1
-  major premise pos.: 3
-  dep. elimination:   1
+  motive pos.:              2
+  major premise pos.:       4
+  dep. elimination:         1
+  parameters pos. at major: 1
+  indices pos. at major:    2
 Exists.rec.{l_1} :
   ∀ {A : Type.{l_1}} {P : A → Prop} {C : Prop},
     (∀ (a : A), P a → C) → @Exists.{l_1} A P → C
 recursor information
-  num. parameters:    2
-  num. indices:       0
+  num. parameters:          2
+  num. indices:             0
   recursor eliminate only to Prop
-  motive pos.:        2
-  major premise pos.: 4
-  dep. elimination:   0
+  motive pos.:              3
+  major premise pos.:       5
+  dep. elimination:         0
+  parameters pos. at major: 1 2

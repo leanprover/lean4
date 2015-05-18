@@ -244,7 +244,7 @@ void initialize_tokens() {
     g_trans_tk = new name{"[trans]"};
     g_refl_tk = new name{"[refl]"};
     g_subst_tk = new name{"[subst]"};
-    g_recursor_tk = new name{"[recursor]"};
+    g_recursor_tk = new name{"[recursor"};
     g_attribute_tk = new name{"attribute"};
     g_with_tk = new name{"with"};
     g_class_tk = new name{"[class]"};

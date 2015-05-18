@@ -230,17 +230,30 @@ static void print_inductive(parser & p, name const & n, pos_info const & pos) {
 
 static void print_recursor_info(parser & p) {
     name c = p.check_constant_next("invalid 'print [recursor]', constant expected");
+    auto out = p.regular_stream();
     recursor_info info = get_recursor_info(p.env(), c);
-    p.regular_stream() << "recursor information\n"
-                       << "  num. parameters:    " << info.get_num_params() << "\n"
-                       << "  num. indices:       " << info.get_num_indices() << "\n";
+    out << "recursor information\n"
+        << "  num. parameters:          " << info.get_num_params() << "\n"
+        << "  num. indices:             " << info.get_num_indices() << "\n";
     if (auto r = info.get_motive_univ_pos())
-        p.regular_stream() << "  motive univ. pos. : " << *r << "\n";
+        out << "  motive univ. pos.:        " << *r << "\n";
     else
-        p.regular_stream() << "  recursor eliminate only to Prop\n";
-    p.regular_stream() << "  motive pos.:        " << info.get_motive_pos() << "\n"
-                       << "  major premise pos.: " << info.get_major_pos() << "\n"
-                       << "  dep. elimination:   " << info.has_dep_elim() << "\n";
+        out << "  recursor eliminate only to Prop\n";
+    out << "  motive pos.:              " << info.get_motive_pos() + 1 << "\n"
+        << "  major premise pos.:       " << info.get_major_pos() + 1 << "\n"
+        << "  dep. elimination:         " << info.has_dep_elim() << "\n";
+    if (info.get_num_params() > 0) {
+        out << "  parameters pos. at major:";
+        for (unsigned p : info.get_params_pos())
+            out << " " << p+1;
+        out << "\n";
+    }
+    if (info.get_num_indices() > 0) {
+        out << "  indices pos. at major:   ";
+        for (unsigned p : info.get_indices_pos())
+            out << " " << p+1;
+        out << "\n";
+    }
 }
 
 bool print_constant(parser & p, char const * kind, declaration const & d) {
@@ -406,6 +419,7 @@ environment print_cmd(parser & p) {
         print_inductive(p, c, pos);
     } else if (p.curr_is_token(get_recursor_tk())) {
         p.next();
+        p.check_token_next(get_rbracket_tk(), "invalid 'print [recursor]', ']' expected");
         print_recursor_info(p);
     } else if (print_polymorphic(p)) {
     } else {

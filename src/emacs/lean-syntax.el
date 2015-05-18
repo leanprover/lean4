@@ -123,11 +123,12 @@
                "\[irreducible\]" "\[semireducible\]" "\[quasireducible\]" "\[wf\]"
                "\[whnf\]" "\[multiple-instances\]" "\[none\]"
                "\[decls\]" "\[declarations\]" "\[coercions\]" "\[classes\]"
-               "\[symm\]" "\[subst\]" "\[refl\]" "\[trans\]" "\[recursor\]"
+               "\[symm\]" "\[subst\]" "\[refl\]" "\[trans\]"
                "\[notations\]" "\[abbreviations\]" "\[begin-end-hints\]" "\[tactic-hints\]"
                "\[reduce-hints\]" "\[unfold-hints\]" "\[aliases\]" "\[eqv\]" "\[localrefinfo\]"))
       . 'font-lock-doc-face)
      (,(rx "\[priority" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
+     (,(rx "\[recursor" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      (,(rx "\[unfold-c" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      ;; tactics
      ("cases[ \t\n]+[^ \t\n]+[ \t\n]+\\(with\\)" (1 'font-lock-constant-face))

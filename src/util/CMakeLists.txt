@@ -4,6 +4,6 @@ add_library(util trace.cpp debug.cpp name.cpp name_set.cpp
   realpath.cpp script_state.cpp script_exception.cpp rb_map.cpp
   lua.cpp luaref.cpp lua_named_param.cpp stackinfo.cpp lean_path.cpp
   serializer.cpp lbool.cpp thread_script_state.cpp bitap_fuzzy_search.cpp
-  init_module.cpp thread.cpp memory_pool.cpp utf8.cpp name_map.cpp)
+  init_module.cpp thread.cpp memory_pool.cpp utf8.cpp name_map.cpp list_fn.cpp)
 
 target_link_libraries(util ${LEAN_LIBS})

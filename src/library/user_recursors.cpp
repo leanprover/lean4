@@ -165,16 +165,6 @@ recursor_info mk_recursor_info(environment const & env, name const & r) {
         if (!tc.is_def_eq(I_args_major[num_params + i], tele[first_index_pos + i]).first)
             throw_invalid_major(tele, I, num_params, num_indices, major_pos);
     }
-    for (unsigned i = 0; i < tele.size(); i++) {
-        if (info.is_minor(i)) {
-            buffer<expr> minor_tele;
-            expr minor_rtype = to_telescope(tc, mlocal_type(tele[i]), minor_tele);
-            expr minor_C     = get_app_fn(minor_rtype);
-            if (!is_local(minor_C) || mlocal_name(minor_C) != mlocal_name(C))
-                throw exception(sstream() << "invalid user defined recursor, resultant type of minor premise '"
-                                << tele[i] << "' must be of the form (" << C << " ...)");
-        }
-    }
     return info;
 }
 

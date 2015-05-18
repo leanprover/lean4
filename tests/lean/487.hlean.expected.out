@@ -5,7 +5,7 @@ f : A → B,
 g : B → A,
 ε : Π (b : B), f (g b) = b,
 b b' : B
-⊢ (ε b)⁻¹ ⬝ refl (f (g b)) ⬝ ε b = refl b
+⊢ (ε b)⁻¹ ⬝ ε b = refl b
 487.hlean:19:0: error: failed to add declaration 'foo' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (A : Type) (B : Type) (f : …) (g : …) (ε : …) (b b' : B),

@@ -126,12 +126,13 @@ recursor_info mk_recursor_info(environment const & env, name const & r) {
         throw_invalid_motive(C);
     }
     for (unsigned i = 0; i < num_params; i++) {
-        if (mlocal_name(I_args[i]) != mlocal_name(tele[i]))
+        if (!tc.is_def_eq(I_args[i], tele[i]).first)
             throw_invalid_motive(C);
     }
     for (unsigned i = 0; i < num_indices; i++) {
-        if (mlocal_name(I_args[num_params + i]) != mlocal_name(C_tele[i]))
+        if (!tc.is_def_eq(I_args[num_params + i], C_tele[i]).first) {
             throw_invalid_motive(C);
+        }
     }
     expr const & major  = C_args.back();
     unsigned major_pos  = 0;
@@ -147,7 +148,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r) {
     recursor_info info(r, const_name(I), num_params, num_indices, major_pos, C_univ_pos, true);
     unsigned first_index_pos = info.get_first_index_pos();
     for (unsigned i = 0; i < num_indices; i++) {
-        if (mlocal_name(tele[first_index_pos+i]) != mlocal_name(C_args[i])) {
+        if (!tc.is_def_eq(tele[first_index_pos+i], C_args[i]).first) {
             throw exception(sstream() << "invalid user defined recursor, index '" << C_args[i]
                             << "' expected, but got '" << tele[i] << "'");
         }
@@ -157,11 +158,11 @@ recursor_info mk_recursor_info(environment const & env, name const & r) {
     if (I != I_major)
         throw_invalid_major(tele, I, num_params, num_indices, major_pos);
     for (unsigned i = 0; i < num_params; i++) {
-        if (mlocal_name(I_args_major[i]) != mlocal_name(tele[i]))
+        if (!tc.is_def_eq(I_args_major[i], tele[i]).first)
             throw_invalid_major(tele, I, num_params, num_indices, major_pos);
     }
     for (unsigned i = 0; i < num_indices; i++) {
-        if (mlocal_name(I_args_major[num_params + i]) != mlocal_name(tele[first_index_pos + i]))
+        if (!tc.is_def_eq(I_args_major[num_params + i], tele[first_index_pos + i]).first)
             throw_invalid_major(tele, I, num_params, num_indices, major_pos);
     }
     for (unsigned i = 0; i < tele.size(); i++) {

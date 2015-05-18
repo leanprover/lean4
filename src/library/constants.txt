@@ -90,6 +90,8 @@ tactic.expr.builtin
 tactic.expr_list
 tactic.expr_list.cons
 tactic.expr_list.nil
+tactic.using_expr
+tactic.none_expr
 tactic.identifier
 tactic.identifier_list
 tactic.opt_expr

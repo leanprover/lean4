@@ -39,6 +39,7 @@ bool is_tactic_expr(expr const & e);
 expr const & get_tactic_expr_expr(expr const & e);
 void check_tactic_expr(expr const & e, char const * msg);
 expr const & get_tactic_expr_list_type();
+expr const & get_tactic_using_expr_type();
 
 expr mk_expr_list(unsigned num, expr const * args);
 

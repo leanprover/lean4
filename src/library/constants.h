@@ -97,6 +97,8 @@ name const & get_tactic_expr_builtin_name();
 name const & get_tactic_expr_list_name();
 name const & get_tactic_expr_list_cons_name();
 name const & get_tactic_expr_list_nil_name();
+name const & get_tactic_using_expr_name();
+name const & get_tactic_none_expr_name();
 name const & get_tactic_identifier_name();
 name const & get_tactic_identifier_list_name();
 name const & get_tactic_opt_expr_name();

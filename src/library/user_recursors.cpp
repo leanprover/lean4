@@ -243,6 +243,9 @@ list<name> get_recursors_for(environment const & env, name const & I) {
         return list<name>();
 }
 
+has_recursors_pred::has_recursors_pred(environment const & env):
+    m_type2recursors(recursor_ext::get_state(env).m_type2recursors) {}
+
 void initialize_user_recursors() {
     g_class_name = new name("recursor");
     g_key        = new std::string("urec");

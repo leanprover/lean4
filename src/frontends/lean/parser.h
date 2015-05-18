@@ -243,6 +243,7 @@ class parser {
     expr parse_tactic_opt_expr_list();
     expr parse_tactic_id_list();
     expr parse_tactic_opt_id_list();
+    expr parse_tactic_using_expr();
 
 public:
     parser(environment const & env, io_state const & ios,

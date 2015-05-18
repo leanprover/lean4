@@ -40,6 +40,14 @@ public:
 environment add_user_recursor(environment const & env, name const & r, bool persistent);
 recursor_info get_recursor_info(environment const & env, name const & r);
 list<name> get_recursors_for(environment const & env, name const & I);
+
+class has_recursors_pred {
+    name_map<list<name>>    m_type2recursors;
+public:
+    has_recursors_pred(environment const & env);
+    bool operator()(name const & n) const { return m_type2recursors.contains(n); }
+};
+
 void initialize_user_recursors();
 void finalize_user_recursors();
 }

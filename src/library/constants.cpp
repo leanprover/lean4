@@ -95,6 +95,8 @@ name const * g_tactic_expr_builtin = nullptr;
 name const * g_tactic_expr_list = nullptr;
 name const * g_tactic_expr_list_cons = nullptr;
 name const * g_tactic_expr_list_nil = nullptr;
+name const * g_tactic_using_expr = nullptr;
+name const * g_tactic_none_expr = nullptr;
 name const * g_tactic_identifier = nullptr;
 name const * g_tactic_identifier_list = nullptr;
 name const * g_tactic_opt_expr = nullptr;
@@ -225,6 +227,8 @@ void initialize_constants() {
     g_tactic_expr_list = new name{"tactic", "expr_list"};
     g_tactic_expr_list_cons = new name{"tactic", "expr_list", "cons"};
     g_tactic_expr_list_nil = new name{"tactic", "expr_list", "nil"};
+    g_tactic_using_expr = new name{"tactic", "using_expr"};
+    g_tactic_none_expr = new name{"tactic", "none_expr"};
     g_tactic_identifier = new name{"tactic", "identifier"};
     g_tactic_identifier_list = new name{"tactic", "identifier_list"};
     g_tactic_opt_expr = new name{"tactic", "opt_expr"};
@@ -356,6 +360,8 @@ void finalize_constants() {
     delete g_tactic_expr_list;
     delete g_tactic_expr_list_cons;
     delete g_tactic_expr_list_nil;
+    delete g_tactic_using_expr;
+    delete g_tactic_none_expr;
     delete g_tactic_identifier;
     delete g_tactic_identifier_list;
     delete g_tactic_opt_expr;
@@ -486,6 +492,8 @@ name const & get_tactic_expr_builtin_name() { return *g_tactic_expr_builtin; }
 name const & get_tactic_expr_list_name() { return *g_tactic_expr_list; }
 name const & get_tactic_expr_list_cons_name() { return *g_tactic_expr_list_cons; }
 name const & get_tactic_expr_list_nil_name() { return *g_tactic_expr_list_nil; }
+name const & get_tactic_using_expr_name() { return *g_tactic_using_expr; }
+name const & get_tactic_none_expr_name() { return *g_tactic_none_expr; }
 name const & get_tactic_identifier_name() { return *g_tactic_identifier; }
 name const & get_tactic_identifier_list_name() { return *g_tactic_identifier_list; }
 name const & get_tactic_opt_expr_name() { return *g_tactic_opt_expr; }

@@ -605,7 +605,8 @@ expr elaborator::visit_app(expr const & e, constraint_seq & cs) {
     }
     constraint_seq a_cs;
     expr d_type = binding_domain(f_type);
-    if (d_type == get_tactic_expr_type() || d_type == get_tactic_identifier_type()) {
+    if (d_type == get_tactic_expr_type() || d_type == get_tactic_identifier_type() ||
+        d_type == get_tactic_using_expr_type()) {
         expr const & a = app_arg(e);
         expr r;
         if (is_local(a) &&

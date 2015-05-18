@@ -1415,6 +1415,10 @@ static bool is_tactic_opt_identifier_list_type(expr const & e) {
     return is_constant(e) && const_name(e) == get_tactic_opt_identifier_list_name();
 }
 
+static bool is_tactic_using_expr(expr const & e) {
+    return is_constant(e) && const_name(e) == get_tactic_using_expr_name();
+}
+
 static bool is_option_num(expr const & e) {
     return is_app(e) && is_constant(app_fn(e)) && const_name(app_fn(e)) == get_option_name() &&
         is_constant(app_arg(e)) && const_name(app_arg(e)) == get_num_name();
@@ -1526,6 +1530,16 @@ expr parser::parse_tactic_option_num() {
     }
 }
 
+expr parser::parse_tactic_using_expr() {
+    auto p = pos();
+    if (curr_is_token(get_using_tk())) {
+        next();
+        return parse_expr();
+    } else {
+        return save_pos(mk_constant(get_tactic_none_expr_name()), p);
+    }
+}
+
 expr parser::parse_tactic_nud() {
     if (curr_is_identifier()) {
         auto id_pos = pos();
@@ -1555,6 +1569,8 @@ expr parser::parse_tactic_nud() {
                     r = mk_app(r, parse_tactic_id_list(), id_pos);
                 } else if (is_tactic_opt_identifier_list_type(d)) {
                     r = mk_app(r, parse_tactic_opt_id_list(), id_pos);
+                } else if (is_tactic_using_expr(d)) {
+                    r = mk_app(r, parse_tactic_using_expr(), id_pos);
                 } else if (arity == 1 && is_option_num(d)) {
                     r = mk_app(r, parse_tactic_option_num(), id_pos);
                 } else {

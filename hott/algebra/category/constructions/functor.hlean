@@ -14,7 +14,7 @@ open eq functor is_trunc nat_trans iso is_equiv
 
 namespace category
 
-  definition precategory_functor [instance] [reducible] (D C : Precategory)
+  definition precategory_functor [instance] [reducible] [constructor] (D C : Precategory)
     : precategory (functor C D) :=
   precategory.mk (λa b, nat_trans a b)
                  (λ a b c g f, nat_trans.compose g f)

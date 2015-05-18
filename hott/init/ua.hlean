@@ -58,7 +58,7 @@ namespace equiv
   eq.transport P (ua H)
 
   -- we can "recurse" on equivalences, by replacing them by (equiv_of_eq _)
-  definition rec_on_ua {A B : Type} {P : A ≃ B → Type}
+  definition rec_on_ua [recursor] {A B : Type} {P : A ≃ B → Type}
     (f : A ≃ B) (H : Π(q : A = B), P (equiv_of_eq q)) : P f :=
   right_inv equiv_of_eq f ▸ H (ua f)
 

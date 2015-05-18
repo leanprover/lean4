@@ -6,4 +6,4 @@ Module: algebra.category.constructions.default
 Authors: Floris van Doorn
 -/
 
-import .functor .hset .opposite .product
+import .functor .hset .opposite .product .comma

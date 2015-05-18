@@ -53,7 +53,7 @@ namespace category
   abbreviation is_hset_hom := @precategory.is_hset_hom
 
   -- the constructor you want to use in practice
-  protected definition precategory.mk {ob : Type} (hom : ob → ob → Type)
+  protected definition precategory.mk [constructor] {ob : Type} (hom : ob → ob → Type)
     [hset : Π (a b : ob), is_hset (hom a b)]
     (comp : Π ⦃a b c : ob⦄, hom b c → hom a b → hom a c) (ID : Π (a : ob), hom a a)
     (ass : Π ⦃a b c d : ob⦄ (h : hom c d) (g : hom b c) (f : hom a b),
@@ -142,8 +142,8 @@ namespace category
     (carrier : Type)
     (struct : precategory carrier)
 
-  definition precategory.Mk [reducible] {ob} (C) : Precategory := Precategory.mk ob C
-  definition precategory.MK [reducible] (a b c d e f g h) : Precategory :=
+  definition precategory.Mk [reducible] [constructor] {ob} (C) : Precategory := Precategory.mk ob C
+  definition precategory.MK [reducible] [constructor] (a b c d e f g h) : Precategory :=
   Precategory.mk a (@precategory.mk _ b c d e f g h)
 
   abbreviation carrier := @Precategory.carrier

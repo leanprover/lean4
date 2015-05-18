@@ -22,6 +22,6 @@ namespace core
   export eq (idp idpath concat inverse transport ap ap10 cast tr_inv homotopy ap11 apd refl)
   export [declarations] function
   export equiv (to_inv to_right_inv to_left_inv)
-  export is_equiv (inv right_inv left_inv)
+  export is_equiv (inv right_inv left_inv adjointify)
   export [abbreviations] [declarations] is_trunc (trunctype hprop.mk hset.mk)
 end core

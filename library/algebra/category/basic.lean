@@ -23,7 +23,7 @@ namespace category
   variables {a b c d : ob}
   include C
 
-  definition compose := comp
+  definition compose := @comp ob _
 
   definition id [reducible] {a : ob} : hom a a := ID a
 

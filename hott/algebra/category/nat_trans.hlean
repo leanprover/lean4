@@ -36,7 +36,7 @@ namespace nat_trans
   mk (λa, id) (λa b f, !id_right ⬝ !id_left⁻¹)
 
   protected definition ID [reducible] {C D : Precategory} (F : functor C D) : nat_trans F F :=
-  id
+  (@id C D F)
 
   definition nat_trans_mk_eq {η₁ η₂ : Π (a : C), hom (F a) (G a)}
     (nat₁ : Π (a b : C) (f : hom a b), G f ∘ η₁ a = η₁ b ∘ F f)

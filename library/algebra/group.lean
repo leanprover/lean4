@@ -174,7 +174,7 @@ section group
   theorem inv_eq_of_mul_eq_one {a b : A} (H : a * b = 1) : a⁻¹ = b :=
   by rewrite [-mul_one a⁻¹, -H, inv_mul_cancel_left]
 
-  theorem inv_one : 1⁻¹ = 1 := inv_eq_of_mul_eq_one (one_mul 1)
+  theorem inv_one : 1⁻¹ = (1 : A) := inv_eq_of_mul_eq_one (one_mul 1)
 
   theorem inv_inv (a : A) : (a⁻¹)⁻¹ = a := inv_eq_of_mul_eq_one (mul.left_inv a)
 
@@ -292,7 +292,7 @@ section add_group
   theorem neg_eq_of_add_eq_zero {a b : A} (H : a + b = 0) : -a = b :=
   by rewrite [-add_zero, -H, neg_add_cancel_left]
 
-  theorem neg_zero : -0 = 0 := neg_eq_of_add_eq_zero (zero_add 0)
+  theorem neg_zero : -0 = (0 : A) := neg_eq_of_add_eq_zero (zero_add 0)
 
   theorem neg_neg (a : A) : -(-a) = a := neg_eq_of_add_eq_zero (add.left_inv a)
 

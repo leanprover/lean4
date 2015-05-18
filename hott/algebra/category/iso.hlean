@@ -231,7 +231,7 @@ namespace iso
     (λ c g h H,
       calc
         g = g ∘ id               : by rewrite id_right
-      ... = g ∘ f ∘ section_of f : by rewrite -comp_section
+      ... = g ∘ f ∘ section_of f : by rewrite -(comp_section f)
       ... = h ∘ f ∘ section_of f : by rewrite [assoc, H, -assoc]
       ... = h ∘ id               : by rewrite comp_section
       ... = h                    : by rewrite id_right)

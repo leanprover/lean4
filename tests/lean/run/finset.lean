@@ -186,7 +186,7 @@ namespace finset
   theorem eq_clean {A : Type} [H : decidable_eq A] : ∀ s : finset A, clean s = s :=
   take s, quot.induction_on s (λ l, eq.symm (quot.sound (eqv_norep l)))
 
-  theorem eq_of_clean_eq_clean {A : Type} [H : decidable_eq A] : ∀ s₁ s₂, clean s₁ = clean s₂ → s₁ = s₂ :=
+  theorem eq_of_clean_eq_clean {A : Type} [H : decidable_eq A] : ∀ s₁ s₂ : finset A, clean s₁ = clean s₂ → s₁ = s₂ :=
   take s₁ s₂, by rewrite *eq_clean; intro H; apply H
 
   example : to_finset [(1:nat), 1, 2, 3] = to_finset [1, 2, 2, 2, 3, 3] :=

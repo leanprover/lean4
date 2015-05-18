@@ -15,18 +15,18 @@ variable [deceq : decidable_eq A]
 include deceq
 
 definition to_set (s : finset A) : set A := λx, x ∈ s
-abbreviation ts := to_set   -- until coercion is working
+abbreviation ts := @to_set A _  -- until coercion is working
 
 variables (s t : finset A) (x : A)
 
 /- operations -/
 
 theorem mem_to_set_empty : (x ∈ ts ∅) = (x ∈ ∅) := rfl
-theorem to_set_empty : ts ∅ = ∅ := rfl
+theorem to_set_empty : ts ∅ = (∅ : set A) := rfl
 
 theorem mem_to_set_univ [h : fintype A] : (x ∈ ts univ) = (x ∈ set.univ) :=
   propext (iff.intro (assume H, trivial) (assume H, !mem_univ))
-theorem to_set_univ [h : fintype A] : ts univ = set.univ := funext (λ x, !mem_to_set_univ)
+theorem to_set_univ [h : fintype A] : ts univ = (set.univ : set A) := funext (λ x, !mem_to_set_univ)
 
 theorem mem_to_set_union : (x ∈ ts (s ∪ t)) = (x ∈ ts s ∪ ts t) := !finset.mem_union_eq
 theorem to_set_union : ts (s ∪ t) = ts s ∪ ts t := funext (λ x, !mem_to_set_union)
@@ -51,7 +51,7 @@ theorem to_set_image {B : Type} [h : decidable_eq B] (f : A → B) (s : finset A
 
 theorem mem_eq_mem_to_set : (x ∈ s) = (x ∈ ts s) := rfl
 
-definition decidable_mem_to_set [instance] (x s) : decidable (x ∈ ts s) :=
+definition decidable_mem_to_set [instance] (x : A) (s : finset A) : decidable (x ∈ ts s) :=
 decidable_of_decidable_of_eq _ !mem_eq_mem_to_set
 
 theorem eq_eq_to_set_eq : (s = t) = (ts s = ts t) :=

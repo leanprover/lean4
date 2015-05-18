@@ -44,7 +44,7 @@ namespace functor
   protected definition id [reducible] {C : Precategory} : functor C C :=
   mk (λa, a) (λ a b f, f) (λ a, idp) (λ a b c f g, idp)
 
-  protected definition ID [reducible] (C : Precategory) : functor C C := id
+  protected definition ID [reducible] (C : Precategory) : functor C C := @functor.id C
 
   definition functor_mk_eq' {F₁ F₂ : C → D} {H₁ : Π(a b : C), hom a b → hom (F₁ a) (F₁ b)}
     {H₂ : Π(a b : C), hom a b → hom (F₂ a) (F₂ b)} (id₁ id₂ comp₁ comp₂)

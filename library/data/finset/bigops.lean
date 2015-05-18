@@ -54,7 +54,7 @@ section deceqA
     Unionl (list.insert a l) f = f a ∪ Unionl l f := algebra.Prodl_insert_of_not_mem f H
   theorem Unionl_union {l₁ l₂ : list A} (f : A → finset B) (d : list.disjoint l₁ l₂) :
     Unionl (list.union l₁ l₂) f = Unionl l₁ f ∪ Unionl l₂ f := algebra.Prodl_union f d
-  theorem Unionl_empty (l : list A) : Unionl l (λ x, ∅) = ∅ := algebra.Prodl_one l
+  theorem Unionl_empty (l : list A) : Unionl l (λ x, ∅) = (∅ : finset B) := algebra.Prodl_one l
 end deceqA
 
 theorem Union_empty (f : A → finset B) : Union ∅ f = ∅ := algebra.Prod_empty f
@@ -70,7 +70,7 @@ section deceqA
     Union (s₁ ∪ s₂) f = Union s₁ f ∪ Union s₂ f := algebra.Prod_union f disj
   theorem Union_ext {s : finset A} {f g : A → finset B} (H : ∀x, x ∈ s → f x = g x) :
     Union s f = Union s g := algebra.Prod_ext H
-  theorem Union_empty' (s : finset A) : Union s (λ x, ∅) = ∅ := algebra.Prod_one s
+  theorem Union_empty' (s : finset A) : Union s (λ x, ∅) = (∅ : finset B) := algebra.Prod_one s
 
   -- this will eventually be an instance of something more general
   theorem inter_Union (s : finset B) (t : finset A) (f : A → finset B) :

@@ -339,8 +339,8 @@ section
     (assume H : a ≥ 0, mul_nonneg H H)
     (assume H : a ≤ 0, mul_nonneg_of_nonpos_of_nonpos H H)
 
-  definition zero_le_one : 0 ≤ 1 := one_mul 1 ▸ mul_self_nonneg (1 : A)
-  definition zero_lt_one : 0 < 1 := lt_of_le_of_ne zero_le_one zero_ne_one
+  definition zero_le_one : 0 ≤ (1:A) := one_mul 1 ▸ mul_self_nonneg (1 : A)
+  definition zero_lt_one : 0 < (1:A) := lt_of_le_of_ne zero_le_one zero_ne_one
 
   definition pos_and_pos_or_neg_and_neg_of_mul_pos {a b : A} (Hab : a * b > 0) :
     (a > 0 × b > 0) ⊎ (a < 0 × b < 0) :=
@@ -400,13 +400,13 @@ section
 
   definition sign_of_neg (H : a < 0) : sign a = -1 := lt.cases_of_lt H
 
-  definition sign_zero : sign 0 = 0 := lt.cases_of_eq rfl
+  definition sign_zero : sign 0 = (0:A) := lt.cases_of_eq rfl
 
   definition sign_of_pos (H : a > 0) : sign a = 1 := lt.cases_of_gt H
 
-  definition sign_one : sign 1 = 1 := sign_of_pos zero_lt_one
+  definition sign_one : sign 1 = (1:A) := sign_of_pos zero_lt_one
 
-  definition sign_neg_one : sign (-1) = -1 := sign_of_neg (neg_neg_of_pos zero_lt_one)
+  definition sign_neg_one : sign (-1) = -(1:A) := sign_of_neg (neg_neg_of_pos zero_lt_one)
 
   definition sign_sign (a : A) : sign (sign a) = sign a :=
   lt.by_cases
@@ -454,7 +454,7 @@ section
       have H2 : -1 = 1, from H⁻¹ ⬝ (sign_of_pos H1),
       absurd ((eq_zero_of_neg_eq H2)⁻¹) zero_ne_one)
     (assume H1 : 0 = a,
-      have H2 : 0 = -1,
+      have H2 : (0:A) = -1,
         begin
           rewrite [-H1 at H, sign_zero at H],
           exact H

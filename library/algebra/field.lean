@@ -64,21 +64,21 @@ section division_ring
 
   theorem div_self (H : a ≠ 0) : a / a = 1 := mul_inv_cancel H
 
-  theorem one_div_one : 1 / 1 = 1 := div_self (ne.symm zero_ne_one)
+  theorem one_div_one : 1 / 1 = (1:A) := div_self (ne.symm zero_ne_one)
 
   theorem mul_div_assoc : (a * b) / c = a * (b / c) := !mul.assoc
 
   theorem one_div_ne_zero (H : a ≠ 0) : 1 / a ≠ 0 :=
     assume H2 : 1 / a = 0,
-    have C1 : 0 = 1, from symm (by rewrite [-(mul_one_div_cancel H), H2, mul_zero]),
+    have C1 : 0 = (1:A), from symm (by rewrite [-(mul_one_div_cancel H), H2, mul_zero]),
     absurd C1 zero_ne_one
 
 --  theorem ne_zero_of_one_div_ne_zero (H : 1 / a ≠ 0) : a ≠ 0 :=
 --    assume Ha : a = 0, absurd (Ha⁻¹ ▸ one_div_zero) H
 
   -- the analogue in group is called inv_one
-  theorem inv_one_is_one : 1⁻¹ = 1 :=
-    by rewrite [-mul_one, (inv_mul_cancel (ne.symm zero_ne_one))]
+  theorem inv_one_is_one : 1⁻¹ = (1:A) :=
+  by rewrite [-mul_one, inv_mul_cancel (ne.symm (@zero_ne_one A _))]
 
   theorem div_one : a / 1 = a :=
     by rewrite [↑divide, inv_one_is_one, mul_one]
@@ -99,8 +99,8 @@ section division_ring
   -- make "left" and "right" versions?
   theorem eq_one_div_of_mul_eq_one (H : a * b = 1) : b = 1 / a :=
     have H2 : a ≠ 0, from
-      (assume A : a = 0,
-      have B : 0 = 1, by rewrite [-(zero_mul b), -A, H],
+      (assume aeq0 : a = 0,
+      have B : 0 = (1:A), by rewrite [-(zero_mul b), -aeq0, H],
       absurd B zero_ne_one),
     show b = 1 / a, from symm (calc
       1 / a = (1 / a) * 1       : mul_one
@@ -130,8 +130,8 @@ section division_ring
       rewrite [mul.assoc, -(mul.assoc a), (mul_one_div_cancel Ha), one_mul, (mul_one_div_cancel Hb)],
     eq_one_div_of_mul_eq_one H
 
-  theorem one_div_neg_one_eq_neg_one : 1 / (-1) = -1 :=
-    have H : (-1) * (-1) = 1, by rewrite [-neg_eq_neg_one_mul, neg_neg],
+  theorem one_div_neg_one_eq_neg_one : (1:A) / (-1) = -1 :=
+    have H : (-1) * (-1) = (1:A), by rewrite [-neg_eq_neg_one_mul, neg_neg],
     symm (eq_one_div_of_mul_eq_one H)
 
   theorem one_div_neg_eq_neg_one_div (H : a ≠ 0) : 1 / (- a) = - (1 / a) :=
@@ -139,7 +139,7 @@ section division_ring
       (assume H2 : -1 = 0, absurd (symm (calc
           1 = -(-1) : neg_neg
         ... = -0    : H2
-        ... = 0     : neg_zero)) zero_ne_one),
+        ... = (0:A) : neg_zero)) zero_ne_one),
     calc
       1 / (- a) = 1 / ((-1) * a)        : neg_eq_neg_one_mul
             ... = (1 / a) * (1 / (- 1)) : one_div_mul_one_div H H1
@@ -336,9 +336,9 @@ section discrete_field
   ⦃ integral_domain, s,
     eq_zero_or_eq_zero_of_mul_eq_zero := discrete_field.eq_zero_or_eq_zero_of_mul_eq_zero⦄
 
-  theorem inv_zero : 0⁻¹ = 0 := !discrete_field.inv_zero
+  theorem inv_zero : 0⁻¹ = (0:A) := !discrete_field.inv_zero
 
-  theorem one_div_zero : 1 / 0 = 0 :=
+  theorem one_div_zero : 1 / 0 = (0:A) :=
     calc
       1 / 0 = 1 * 0⁻¹ : refl
         ... = 1 * 0 : discrete_field.inv_zero A

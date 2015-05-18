@@ -134,7 +134,7 @@ namespace eq
 
   definition equiv_ap (f : A → B) [H : is_equiv f] (a1 a2 : A)
     : (a1 = a2) ≃ (f a1 = f a2) :=
-  equiv.mk _ _
+  equiv.mk (ap f) _
 
   /- Path operations are equivalences -/
 

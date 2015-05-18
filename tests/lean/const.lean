@@ -11,7 +11,7 @@ set_option pp.implicit true
 section
   variable A : Type
   variable S : inhabited A
-  variable B : bla
+  variable B : @bla A _
   check B
   check @foo A _
 end

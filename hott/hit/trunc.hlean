@@ -47,7 +47,7 @@ namespace trunc
   equiv.mk tr _
 
   definition is_trunc_of_is_equiv_tr [H : is_equiv (@tr n A)] : is_trunc n A :=
-  is_trunc_is_equiv_closed n tr⁻¹
+  is_trunc_is_equiv_closed n (@tr n _)⁻¹
 
   definition untrunc_of_is_trunc [reducible] [H : is_trunc n A] : trunc n A → A :=
   tr⁻¹

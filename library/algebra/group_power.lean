@@ -37,7 +37,7 @@ theorem pow_succ' (a : A) : ∀n, a^(succ n) = a * a^n
 | 0        := by rewrite [pow_succ, *pow_zero, one_mul, mul_one]
 | (succ n) := by rewrite [pow_succ, pow_succ' at {1}, pow_succ, mul.assoc]
 
-theorem one_pow : ∀ n : ℕ, 1^n = 1
+theorem one_pow : ∀ n : ℕ, 1^n = (1:A)
 | 0        := rfl
 | (succ n) := by rewrite [pow_succ, mul_one, one_pow]
 

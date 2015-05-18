@@ -137,7 +137,8 @@ namespace morphism
   theorem refl  (a     : ob)                           : a ≅ a := mk id
   theorem symm  ⦃a b   : ob⦄ (H  : a ≅ b)              : b ≅ a := mk (inverse (iso H))
   theorem trans ⦃a b c : ob⦄ (H1 : a ≅ b) (H2 : b ≅ c) : a ≅ c := mk (iso H2 ∘ iso H1)
-  theorem is_equivalence_eq [instance] (T : Type) : is_equivalence isomorphic :=
+
+  theorem is_equivalence_eq [instance] (T : Type) : is_equivalence (isomorphic : ob → ob → Type) :=
   is_equivalence.mk refl symm trans
   end isomorphic
 
@@ -160,7 +161,7 @@ namespace morphism
   is_mono.mk
     (λ c g h H, calc
         g = id ∘ g                    : by rewrite id_left
-      ... = (retraction_of f ∘ f) ∘ g : by rewrite -retraction_compose
+      ... = (retraction_of f ∘ f) ∘ g : by rewrite -(retraction_compose f)
       ... = (retraction_of f ∘ f) ∘ h : by rewrite [-assoc, H, -assoc]
       ... = id ∘ h                    : by rewrite retraction_compose
       ... = h                         : by rewrite id_left)
@@ -169,7 +170,7 @@ namespace morphism
   is_epi.mk
     (λ c g h H, calc
         g = g ∘ id                 : by rewrite id_right
-      ... = g ∘ f ∘ section_of f   : by rewrite -compose_section
+      ... = g ∘ f ∘ section_of f   : by rewrite -(compose_section f)
       ... = h ∘ f ∘ section_of f   : by rewrite [assoc, H, -assoc]
       ... = h ∘ id                 : by rewrite compose_section
       ... = h                      : by rewrite id_right)

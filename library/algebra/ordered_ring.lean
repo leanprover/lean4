@@ -337,8 +337,8 @@ section
     (assume H : a ≥ 0, mul_nonneg H H)
     (assume H : a ≤ 0, mul_nonneg_of_nonpos_of_nonpos H H)
 
-  theorem zero_le_one : 0 ≤ 1 := one_mul 1 ▸ mul_self_nonneg 1
-  theorem zero_lt_one : 0 < 1 := lt_of_le_of_ne zero_le_one zero_ne_one
+  theorem zero_le_one : 0 ≤ (1:A) := one_mul 1 ▸ mul_self_nonneg 1
+  theorem zero_lt_one : 0 < (1:A) := lt_of_le_of_ne zero_le_one zero_ne_one
 
   theorem pos_and_pos_or_neg_and_neg_of_mul_pos {a b : A} (Hab : a * b > 0) :
     (a > 0 ∧ b > 0) ∨ (a < 0 ∧ b < 0) :=
@@ -369,7 +369,7 @@ section
           end)
         (assume Hb : b < 0, or.inr (and.intro Ha Hb)))
 
-  theorem gt_of_mul_lt_mul_neg_left {a b c} (H : c * a < c * b) (Hc : c ≤ 0) : a > b :=
+  theorem gt_of_mul_lt_mul_neg_left {a b c : A} (H : c * a < c * b) (Hc : c ≤ 0) : a > b :=
     have nhc : -c ≥ 0, from neg_nonneg_of_nonpos Hc,
     have H2 : -(c * b) < -(c * a), from iff.mp' (neg_lt_neg_iff_lt _ _) H,
     have H3 : (-c) * b < (-c) * a, from calc
@@ -378,7 +378,7 @@ section
            ... = (-c) * a     : neg_mul_eq_neg_mul,
     lt_of_mul_lt_mul_left H3 nhc
 
-  theorem zero_gt_neg_one : -1 < 0 :=
+  theorem zero_gt_neg_one : -1 < (0:A) :=
     neg_zero ▸ (neg_lt_neg zero_lt_one)
 
 end
@@ -398,13 +398,13 @@ section
 
   theorem sign_of_neg (H : a < 0) : sign a = -1 := lt.cases_of_lt H
 
-  theorem sign_zero : sign 0 = 0 := lt.cases_of_eq rfl
+  theorem sign_zero : sign 0 = (0:A) := lt.cases_of_eq rfl
 
   theorem sign_of_pos (H : a > 0) : sign a = 1 := lt.cases_of_gt H
 
-  theorem sign_one : sign 1 = 1 := sign_of_pos zero_lt_one
+  theorem sign_one : sign 1 = (1:A) := sign_of_pos zero_lt_one
 
-  theorem sign_neg_one : sign (-1) = -1 := sign_of_neg (neg_neg_of_pos zero_lt_one)
+  theorem sign_neg_one : sign (-1) = -(1:A) := sign_of_neg (neg_neg_of_pos zero_lt_one)
 
   theorem sign_sign (a : A) : sign (sign a) = sign a :=
   lt.by_cases
@@ -452,7 +452,7 @@ section
       have H2 : -1 = 1, from H⁻¹ ⬝ (sign_of_pos H1),
       absurd ((eq_zero_of_neg_eq H2)⁻¹) zero_ne_one)
     (assume H1 : 0 = a,
-      have H2 : 0 = -1,
+      have H2 : (0:A) = -1,
         begin
           rewrite [-H1 at H, sign_zero at H],
           exact H

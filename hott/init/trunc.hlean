@@ -233,7 +233,7 @@ namespace is_trunc
   definition is_trunc_is_equiv_closed (n : trunc_index) (f : A → B) [H : is_equiv f]
     [HA : is_trunc n A] : is_trunc n B :=
   trunc_index.rec_on n
-    (λA (HA : is_contr A) B f (H : is_equiv f), !is_contr_is_equiv_closed)
+    (λA (HA : is_contr A) B f (H : is_equiv f), is_contr_is_equiv_closed f)
     (λn IH A (HA : is_trunc n.+1 A) B f (H : is_equiv f), @is_trunc_succ_intro _ _ (λ x y : B,
       IH (f⁻¹ x = f⁻¹ y) _ (x = y) (ap f⁻¹)⁻¹ !is_equiv_inv))
     A HA B f H

@@ -13,7 +13,7 @@ check @mul_zero
 
 axiom Ax {A : Type} [s₁ : has_mul A] [s₂ : has_zero A] (a : A) : f (a * 0) (a * 0) = 0
 
-theorem test2 {A : Type} [s : comm_ring A] (a b c : A) : f 0 0 = 0 :=
+theorem test2 {A : Type} [s : comm_ring A] (a b c : A) : f 0 0 = (0:A) :=
 begin
   rewrite [
     -(mul_zero a) at {1, 2},  -- - means apply symmetry, rewrite 0 ==> a * 0  at 1st and 2nd occurrences

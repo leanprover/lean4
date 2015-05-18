@@ -325,7 +325,7 @@ definition erase_dup [H : decidable_eq A] : list A → list A
 | []        :=  []
 | (x :: xs) :=  if x ∈ xs then erase_dup xs else x :: erase_dup xs
 
-theorem erase_dup_nil [H : decidable_eq A] : erase_dup [] = []
+theorem erase_dup_nil [H : decidable_eq A] : erase_dup [] = ([] : list A)
 
 theorem erase_dup_cons_of_mem [H : decidable_eq A] {a : A} {l : list A} : a ∈ l → erase_dup (a::l) = erase_dup l :=
 assume ainl, calc

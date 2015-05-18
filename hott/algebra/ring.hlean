@@ -230,7 +230,7 @@ section
              ... = 0              : mul_zero,
     inverse (neg_eq_of_add_eq_zero H)
 
-  definition mul_ne_zero_imp_ne_zero {a b} (H : a * b ≠ 0) : a ≠ 0 × b ≠ 0 :=
+  definition mul_ne_zero_imp_ne_zero {a b : A} (H : a * b ≠ 0) : a ≠ 0 × b ≠ 0 :=
     have Ha : a ≠ 0, from
       (assume Ha1 : a = 0,
         have H1 : a * b = 0, by rewrite [Ha1, zero_mul],

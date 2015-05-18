@@ -6,7 +6,7 @@ section
   variable [s : comm_monoid A]
   include s
 
-  theorem one_mul_one : 1 * 1 = 1 :=
+  theorem one_mul_one : 1 * 1 = (1:A) :=
   mul_one 1
 end
 

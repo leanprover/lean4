@@ -1713,7 +1713,7 @@ struct unifier_fn {
                (?m_n a_1 ... a_k) =?= b_n
                ?m  =?= fun (x_1 ... x_k), g (?m_1 x_1 ... x_k) ... (?m_n x_1 ... x_k)
 
-           If f is a constant, then g is f.
+           If f is a constant (or a macro), then g is f.
            If f is a local constant, then we consider each a_i that is equal to f.
 
            Remark: we try to minimize the number of constraints (?m_i a_1 ... a_k) =?= b_i by detecting "easy" cases
@@ -1728,7 +1728,7 @@ struct unifier_fn {
             mk_local_context(locals, cs);
             lean_assert(margs.size() == locals.size());
             expr const & f = get_app_fn(rhs);
-            lean_assert(is_constant(f) || is_local(f));
+            lean_assert(is_constant(f) || is_macro(f) || is_local(f));
             if (is_local(f)) {
                 unsigned i = margs.size();
                 while (i > 0) {
@@ -1739,6 +1739,7 @@ struct unifier_fn {
                     }
                 }
             } else {
+                lean_assert(is_constant(f) || is_macro(f));
                 mk_app_imitation_core(f, locals, cs);
             }
         }

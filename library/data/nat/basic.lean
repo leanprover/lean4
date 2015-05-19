@@ -307,7 +307,7 @@ section migrate_algebra
     mul_zero       := mul_zero,
     mul_comm       := mul.comm⦄
 
-  local attribute comm_semiring [instance]
+  local attribute nat.comm_semiring [instance]
   definition dvd (a b : ℕ) : Prop := algebra.dvd a b
   notation a ∣ b := dvd a b
 

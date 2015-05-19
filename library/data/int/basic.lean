@@ -181,10 +181,10 @@ have H3 : pr1 p + pr2 r + pr2 q = pr2 p + pr1 r + pr2 q, from
     ... = pr2 p + pr1 r + pr2 q                  : by simp,
 show pr1 p + pr2 r = pr2 p + pr1 r, from add.cancel_right H3
 
-protected theorem equiv_equiv : is_equivalence equiv :=
+protected theorem equiv_equiv : is_equivalence int.equiv :=
 is_equivalence.mk @equiv.refl @equiv.symm @equiv.trans
 
-protected theorem equiv_cases {p q : ℕ × ℕ} (H : equiv p q) :
+protected theorem equiv_cases {p q : ℕ × ℕ} (H : int.equiv p q) :
     (pr1 p ≥ pr2 p ∧ pr1 q ≥ pr2 q) ∨ (pr1 p < pr2 p ∧ pr1 q < pr2 q) :=
 or.elim (@le_or_gt (pr2 p) (pr1 p))
   (assume H1: pr1 p ≥ pr2 p,
@@ -232,7 +232,7 @@ theorem repr_abstr (p : ℕ × ℕ) : repr (abstr p) ≡ p :=
 !prod.eta ▸ !repr_sub_nat_nat
 
 theorem abstr_eq {p q : ℕ × ℕ} (Hequiv : p ≡ q) : abstr p = abstr q :=
-or.elim (equiv_cases Hequiv)
+or.elim (int.equiv_cases Hequiv)
   (assume H2,
     have H3 : pr1 p ≥ pr2 p, from and.elim_left H2,
     have H4 : pr1 q ≥ pr2 q, from and.elim_right H2,
@@ -264,9 +264,9 @@ or.elim (equiv_cases Hequiv)
 
 theorem equiv_iff (p q : ℕ × ℕ) : (p ≡ q) ↔ ((p ≡ p) ∧ (q ≡ q) ∧ (abstr p = abstr q)) :=
 iff.intro
-  (assume H : equiv p q,
+  (assume H : int.equiv p q,
     and.intro !equiv.refl (and.intro !equiv.refl (abstr_eq H)))
-  (assume H : equiv p p ∧ equiv q q ∧ abstr p = abstr q,
+  (assume H : int.equiv p p ∧ int.equiv q q ∧ abstr p = abstr q,
     have H1 : abstr p = abstr q, from and.elim_right (and.elim_right H),
     equiv.trans (H1 ▸ equiv.symm (repr_abstr p)) (repr_abstr q))
 
@@ -335,7 +335,7 @@ int.cases_on a
     int.cases_on b
       (take n, !equiv.refl)
       (take n',
-        have H1 : equiv (repr (add (of_nat m) (neg_succ_of_nat n'))) (m, succ n'),
+        have H1 : int.equiv (repr (add (of_nat m) (neg_succ_of_nat n'))) (m, succ n'),
           from !repr_sub_nat_nat,
         have H2 : padd (repr (of_nat m)) (repr (neg_succ_of_nat n')) = (m, 0 + succ n'),
           from rfl,
@@ -343,7 +343,7 @@ int.cases_on a
   (take m',
     int.cases_on b
       (take n,
-        have H1 : equiv (repr (add (neg_succ_of_nat m') (of_nat n))) (n, succ m'),
+        have H1 : int.equiv (repr (add (neg_succ_of_nat m') (of_nat n))) (n, succ m'),
           from !repr_sub_nat_nat,
         have H2 : padd (repr (neg_succ_of_nat m')) (repr (of_nat n)) = (0 + n, succ m'),
           from rfl,
@@ -566,7 +566,7 @@ eq_of_repr_equiv_repr
       ... = repr (a * (b * c)) : repr_mul) ▸ !equiv.refl)
 
 theorem mul_one (a : ℤ) : a * 1 = a :=
-eq_of_repr_equiv_repr (equiv_of_eq
+eq_of_repr_equiv_repr (int.equiv_of_eq
   ((calc
     repr (a * 1) = pmul (repr a) (repr 1) : repr_mul
       ... = (pr1 (repr a), pr2 (repr a)) : by simp

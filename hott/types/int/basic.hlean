@@ -171,10 +171,10 @@ have H3 : pr1 p + pr2 r + pr2 q = pr2 p + pr1 r + pr2 q, from
     ... = pr2 p + pr1 r + pr2 q                  : by exact sorry,
 show pr1 p + pr2 r = pr2 p + pr1 r, from add.cancel_right H3
 
-protected definition int_equiv_int_equiv : is_equivalence int_equiv :=
+definition int_equiv_int_equiv : is_equivalence int_equiv :=
 is_equivalence.mk @int_equiv.refl @int_equiv.symm @int_equiv.trans
 
-protected definition int_equiv_cases {p q : ℕ × ℕ} (H : int_equiv p q) :
+definition int_equiv_cases {p q : ℕ × ℕ} (H : int_equiv p q) :
     (pr1 p ≥ pr2 p × pr1 q ≥ pr2 q) ⊎ (pr1 p < pr2 p × pr1 q < pr2 q) :=
 sum.rec_on (@le_or_gt (pr2 p) (pr1 p))
   (assume H1: pr1 p ≥ pr2 p,
@@ -184,7 +184,7 @@ sum.rec_on (@le_or_gt (pr2 p) (pr1 p))
     have H2 : pr2 p + pr1 q < pr2 p + pr2 q, from H ▸ add_lt_add_right H1 (pr2 q),
     sum.inr (pair H1 (lt_of_add_lt_add_left H2)))
 
-protected definition int_equiv_of_eq {p q : ℕ × ℕ} (H : p = q) : p ≡ q := H ▸ int_equiv.refl
+definition int_equiv_of_eq {p q : ℕ × ℕ} (H : p = q) : p ≡ q := H ▸ int_equiv.refl
 
 /- the representation and abstraction functions -/
 

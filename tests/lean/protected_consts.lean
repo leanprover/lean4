@@ -1,10 +1,10 @@
 namespace foo
   protected axiom A : Prop
   axiom B : Prop
-  protected constant a : A
+  protected constant a : foo.A
   constant b : B
   protected axioms (A₁ A₂ : Prop)
-  protected constants (a₁ a₂ : A)
+  protected constants (a₁ a₂ : foo.A)
   axioms (B₁ B₂ : Prop)
   constants (b₁ b₂ : B)
 end foo

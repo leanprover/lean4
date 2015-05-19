@@ -223,7 +223,7 @@ protected theorem induction_on {P : finset A → Prop} (s : finset A)
     (H1 : P empty)
     (H2 : ∀⦃s : finset A⦄, ∀{a : A}, a ∉ s → P s → P (insert a s)) :
   P s :=
-induction H1 H2 s
+finset.induction H1 H2 s
 end insert
 
 /- erase -/

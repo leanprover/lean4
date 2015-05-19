@@ -17,11 +17,11 @@ namespace unit
   unit.equal a star
 
   protected theorem subsingleton [instance] : subsingleton unit :=
-  subsingleton.intro (λ a b, equal a b)
+  subsingleton.intro (λ a b, unit.equal a b)
 
   protected definition is_inhabited [instance] : inhabited unit :=
   inhabited.mk unit.star
 
   protected definition has_decidable_eq [instance] : decidable_eq unit :=
-  take (a b : unit), decidable.inl (equal a b)
+  take (a b : unit), decidable.inl (unit.equal a b)
 end unit

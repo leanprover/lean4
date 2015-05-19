@@ -99,7 +99,7 @@ namespace circle
 
   protected definition rec_on [reducible] {P : circle → Type} (x : circle) (Pbase : P base)
     (Ploop : loop ▸ Pbase = Pbase) : P x :=
-  rec Pbase Ploop x
+  circle.rec Pbase Ploop x
 
   theorem rec_loop_helper {A : Type} (P : A → Type)
     {x y : A} {p : x = y} {u : P x} {v : P y} (q : u = p⁻¹ ▸ v) :
@@ -110,9 +110,9 @@ namespace circle
   eq.rec_on p idp
 
   theorem rec_loop {P : circle → Type} (Pbase : P base) (Ploop : loop ▸ Pbase = Pbase) :
-    apd (rec Pbase Ploop) loop = Ploop :=
+    apd (circle.rec Pbase Ploop) loop = Ploop :=
   begin
-    rewrite [↑loop,apd_con,↑rec,↑rec2_on,↑base,rec2_seg1,apd_inv,rec2_seg2,↑ap], --con_idp should work here
+    rewrite [↑loop,apd_con,↑circle.rec,↑circle.rec2_on,↑base,rec2_seg1,apd_inv,rec2_seg2,↑ap], --con_idp should work here
     apply concat, apply (ap (λx, x ⬝ _)), apply con_idp, esimp,
     rewrite [rec_loop_helper,inv_con_inv_left],
     apply con_inv_cancel_left
@@ -120,33 +120,33 @@ namespace circle
 
   protected definition elim {P : Type} (Pbase : P) (Ploop : Pbase = Pbase)
     (x : circle) : P :=
-  rec Pbase (tr_constant loop Pbase ⬝ Ploop) x
+  circle.rec Pbase (tr_constant loop Pbase ⬝ Ploop) x
 
   protected definition elim_on [reducible] {P : Type} (x : circle) (Pbase : P)
     (Ploop : Pbase = Pbase) : P :=
-  elim Pbase Ploop x
+  circle.elim Pbase Ploop x
 
   theorem elim_loop {P : Type} (Pbase : P) (Ploop : Pbase = Pbase) :
-    ap (elim Pbase Ploop) loop = Ploop :=
+    ap (circle.elim Pbase Ploop) loop = Ploop :=
   begin
-    apply (@cancel_left _ _ _ _ (tr_constant loop (elim Pbase Ploop base))),
-    rewrite [-apd_eq_tr_constant_con_ap,↑elim,rec_loop],
+    apply (@cancel_left _ _ _ _ (tr_constant loop (circle.elim Pbase Ploop base))),
+    rewrite [-apd_eq_tr_constant_con_ap,↑circle.elim,rec_loop],
   end
 
   protected definition elim_type (Pbase : Type) (Ploop : Pbase ≃ Pbase)
     (x : circle) : Type :=
-  elim Pbase (ua Ploop) x
+  circle.elim Pbase (ua Ploop) x
 
   protected definition elim_type_on [reducible] (x : circle) (Pbase : Type)
     (Ploop : Pbase ≃ Pbase) : Type :=
-  elim_type Pbase Ploop x
+  circle.elim_type Pbase Ploop x
 
   theorem elim_type_loop (Pbase : Type) (Ploop : Pbase ≃ Pbase) :
-    transport (elim_type Pbase Ploop) loop = Ploop :=
-  by rewrite [tr_eq_cast_ap_fn,↑elim_type,elim_loop];apply cast_ua_fn
+    transport (circle.elim_type Pbase Ploop) loop = Ploop :=
+  by rewrite [tr_eq_cast_ap_fn,↑circle.elim_type,circle.elim_loop];apply cast_ua_fn
 
   theorem elim_type_loop_inv (Pbase : Type) (Ploop : Pbase ≃ Pbase) :
-    transport (elim_type Pbase Ploop) loop⁻¹ = to_inv Ploop :=
+    transport (circle.elim_type Pbase Ploop) loop⁻¹ = to_inv Ploop :=
   by rewrite [tr_inv_fn,↑to_inv]; apply inv_eq_inv; apply elim_type_loop
 end circle
 
@@ -188,17 +188,17 @@ namespace circle
   protected definition code (x : circle) : Type₀ :=
   circle.elim_type_on x ℤ equiv_succ
 
-  definition transport_code_loop (a : ℤ) : transport code loop a = succ a :=
+  definition transport_code_loop (a : ℤ) : transport circle.code loop a = succ a :=
   ap10 !elim_type_loop a
 
   definition transport_code_loop_inv (a : ℤ)
-    : transport code loop⁻¹ a = pred a :=
+    : transport circle.code loop⁻¹ a = pred a :=
   ap10 !elim_type_loop_inv a
 
-  protected definition encode {x : circle} (p : base = x) : code x :=
-  transport code p (of_num 0) -- why is the explicit coercion needed here?
+  protected definition encode {x : circle} (p : base = x) : circle.code x :=
+  transport circle.code p (of_num 0) -- why is the explicit coercion needed here?
 
-  protected definition decode {x : circle} : code x → base = x :=
+  protected definition decode {x : circle} : circle.code x → base = x :=
   begin
     refine circle.rec_on x _ _,
     { exact power loop},
@@ -208,30 +208,30 @@ namespace circle
   end
 
   --remove this theorem after #484
-  theorem encode_decode {x : circle} : Π(a : code x), encode (decode a) = a :=
+  theorem encode_decode {x : circle} : Π(a : circle.code x), circle.encode (circle.decode a) = a :=
   begin
-    unfold decode, refine circle.rec_on x _ _,
+    unfold circle.decode, refine circle.rec_on x _ _,
     { intro a, esimp [base,base1], --simplify after #587
       apply rec_nat_on a,
       { exact idp},
       { intros n p,
-        apply transport (λ(y : base = base), transport code y _ = _), apply power_con,
-        rewrite [▸*,con_tr, transport_code_loop, ↑[encode,code] at p, p]},
+        apply transport (λ(y : base = base), transport circle.code y _ = _), apply power_con,
+        rewrite [▸*,con_tr, transport_code_loop, ↑[circle.encode,circle.code] at p, p]},
       { intros n p,
-        apply transport (λ(y : base = base), transport code y _ = _),
+        apply transport (λ(y : base = base), transport circle.code y _ = _),
         { exact !power_con_inv ⬝ ap (power loop) !neg_succ⁻¹},
-        rewrite [▸*,@con_tr _ code,transport_code_loop_inv, ↑[encode] at p, p, -neg_succ]}},
-    { apply eq_of_homotopy, intro a, apply @is_hset.elim, esimp [code,base,base1], exact _}
+        rewrite [▸*,@con_tr _ circle.code,transport_code_loop_inv, ↑[circle.encode] at p, p, -neg_succ]}},
+    { apply eq_of_homotopy, intro a, apply @is_hset.elim, esimp [circle.code,base,base1], exact _}
         --simplify after #587
   end
 
 
-  definition circle_eq_equiv (x : circle) : (base = x) ≃ code x :=
+  definition circle_eq_equiv (x : circle) : (base = x) ≃ circle.code x :=
   begin
     fapply equiv.MK,
-    { exact encode},
-    { exact decode},
-    { exact encode_decode},
+    { exact circle.encode},
+    { exact circle.decode},
+    { exact circle.encode_decode},
     { intro p, cases p, exact idp},
   end
 
@@ -242,7 +242,7 @@ namespace circle
     base_eq_base_equiv⁻¹ a ⬝ base_eq_base_equiv⁻¹ b = base_eq_base_equiv⁻¹ (a + b) :=
   !power_con_power
 
-  definition encode_con (p q : base = base) : encode (p ⬝ q) = encode p + encode q :=
+  definition encode_con (p q : base = base) : circle.encode (p ⬝ q) = circle.encode p + circle.encode q :=
   preserve_binary_of_inv_preserve base_eq_base_equiv concat add decode_add p q
 
   --the carrier of π₁(S¹) is the set-truncation of base = base.

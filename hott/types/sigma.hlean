@@ -273,7 +273,7 @@ namespace sigma
   definition sigma_assoc_equiv (C : (Σa, B a) → Type) : (Σa b, C ⟨a, b⟩) ≃ (Σu, C u) :=
   equiv.mk _ (adjointify
     (λav, ⟨⟨av.1, av.2.1⟩, av.2.2⟩)
-    (λuc, ⟨uc.1.1, uc.1.2, !eta⁻¹ ▸ uc.2⟩)
+    (λuc, ⟨uc.1.1, uc.1.2, !sigma.eta⁻¹ ▸ uc.2⟩)
     begin intro uc, cases uc with u c, cases u, reflexivity end
     begin intro av, cases av with a v, cases v, reflexivity end)
 
@@ -331,18 +331,18 @@ namespace sigma
   ⟨fg.1 a, fg.2 a⟩
 
   protected definition coind (f : Π a, B a) (g : Π a, C a (f a)) (a : A) : Σ(b : B a), C a b :=
-  coind_uncurried ⟨f, g⟩ a
+  sigma.coind_uncurried ⟨f, g⟩ a
 
   --is the instance below dangerous?
   --in Coq this can be done without function extensionality
   definition is_equiv_coind [instance] (C : Πa, B a → Type)
-    : is_equiv (@coind_uncurried _ _ C) :=
+    : is_equiv (@sigma.coind_uncurried _ _ C) :=
   adjointify _ (λ h, ⟨λa, (h a).1, λa, (h a).2⟩)
-               (λ h, proof eq_of_homotopy (λu, !eta) qed)
+               (λ h, proof eq_of_homotopy (λu, !sigma.eta) qed)
                (λfg, destruct fg (λ(f : Π (a : A), B a) (g : Π (x : A), C x (f x)), proof idp qed))
 
   definition sigma_pi_equiv_pi_sigma : (Σ(f : Πa, B a), Πa, C a (f a)) ≃ (Πa, Σb, C a b) :=
-  equiv.mk coind_uncurried _
+  equiv.mk sigma.coind_uncurried _
   end
 
   /- ** Subtypes (sigma types whose second components are hprops) -/

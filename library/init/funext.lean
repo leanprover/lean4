@@ -28,8 +28,8 @@ namespace function
   protected theorem equiv.trans {f₁ f₂ f₃ : Πx: A, B x} : f₁ ~ f₂ → f₂ ~ f₃ → f₁ ~ f₃ :=
   λH₁ H₂ x, eq.trans (H₁ x) (H₂ x)
 
-  protected theorem equiv.is_equivalence (A : Type) (B : A → Type) : equivalence (@equiv A B) :=
-  mk_equivalence (@equiv A B) (@equiv.refl A B) (@equiv.symm A B) (@equiv.trans A B)
+  protected theorem equiv.is_equivalence (A : Type) (B : A → Type) : equivalence (@function.equiv A B) :=
+  mk_equivalence (@function.equiv A B) (@equiv.refl A B) (@equiv.symm A B) (@equiv.trans A B)
 end function
 
 section

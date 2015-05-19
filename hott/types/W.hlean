@@ -24,7 +24,7 @@ namespace Wtype
   protected definition pr1 [unfold-c 3] (w : W(a : A), B a) : A :=
   by cases w with a f; exact a
 
-  protected definition pr2 [unfold-c 3] (w : W(a : A), B a) : B (pr1 w) → W(a : A), B a :=
+  protected definition pr2 [unfold-c 3] (w : W(a : A), B a) : B (Wtype.pr1 w) → W(a : A), B a :=
   by cases w with a f; exact f
 
   namespace ops
@@ -40,13 +40,13 @@ namespace Wtype
   definition sup_eq_sup (p : a = a') (q : p ▸ f = f') : ⟨a, f⟩ = ⟨a', f'⟩ :=
   by cases p; cases q; exact idp
 
-  protected definition Wtype_eq (p : w.1 = w'.1) (q : p ▸ w.2 = w'.2) : w = w' :=
+  definition Wtype_eq (p : w.1 = w'.1) (q : p ▸ w.2 = w'.2) : w = w' :=
   by cases w; cases w';exact (sup_eq_sup p q)
 
-  protected definition Wtype_eq_pr1 (p : w = w') : w.1 = w'.1 :=
+  definition Wtype_eq_pr1 (p : w = w') : w.1 = w'.1 :=
   by cases p;exact idp
 
-  protected definition Wtype_eq_pr2 (p : w = w') : Wtype_eq_pr1 p ▸ w.2 = w'.2 :=
+  definition Wtype_eq_pr2 (p : w = w') : Wtype_eq_pr1 p ▸ w.2 = w'.2 :=
   by cases p;exact idp
 
   namespace ops

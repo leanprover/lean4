@@ -104,6 +104,6 @@ end find_x
 protected definition choose {p : nat → Prop} [d : decidable_pred p] : (∃ x, p x) → nat :=
 assume h, elt_of (find_x h)
 
-protected theorem choose_spec {p : nat → Prop} [d : decidable_pred p] (ex : ∃ x, p x) : p (choose ex) :=
+protected theorem choose_spec {p : nat → Prop} [d : decidable_pred p] (ex : ∃ x, p x) : p (nat.choose ex) :=
 has_property (find_x ex)
 end nat

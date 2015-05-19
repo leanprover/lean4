@@ -53,6 +53,15 @@ bool is_protected(environment const & env, name const & n) {
     return get_extension(env).m_protected.contains(n);
 }
 
+name get_protected_shortest_name(name const & n) {
+    if (n.is_atomic() || n.get_prefix().is_atomic()) {
+        return n;
+    } else {
+        name new_prefix = n.get_prefix().replace_prefix(n.get_prefix().get_prefix(), name());
+        return n.replace_prefix(n.get_prefix(), new_prefix);
+    }
+}
+
 void initialize_protected() {
     g_ext     = new protected_ext_reg();
     g_prt_key = new std::string("prt");

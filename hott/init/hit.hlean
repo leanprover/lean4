@@ -62,7 +62,7 @@ namespace type_quotient
   protected definition rec_on [reducible] {A : Type} {R : A → A → Type} {P : type_quotient R → Type}
     (x : type_quotient R) (Pc : Π(a : A), P (class_of R a))
     (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel R H ▸ Pc a = Pc a') : P x :=
-  rec Pc Pp x
+  type_quotient.rec Pc Pp x
 
 end type_quotient
 

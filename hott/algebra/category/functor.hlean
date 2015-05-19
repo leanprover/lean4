@@ -39,7 +39,7 @@ namespace functor
       G (F (g ∘ f)) = G (F g ∘ F f)     : by rewrite respect_comp
                 ... = G (F g) ∘ G (F f) : by rewrite respect_comp)
 
-  infixr `∘f`:60 := compose
+  infixr `∘f`:60 := functor.compose
 
   protected definition id [reducible] {C : Precategory} : functor C C :=
   mk (λa, a) (λ a b f, f) (λ a, idp) (λ a b c f g, idp)
@@ -88,7 +88,7 @@ namespace functor
       apply (respect_id F) ),
   end
 
-  attribute preserve_iso [instance]
+  attribute functor.preserve_iso [instance]
 
   protected definition respect_inv (F : C ⇒ D) {a b : C} (f : hom a b)
     [H : is_iso f] [H' : is_iso (F f)] :
@@ -107,10 +107,10 @@ namespace functor
       H ∘f (G ∘f F) = (H ∘f G) ∘f F :=
   !functor_mk_eq_constant (λa b f, idp)
 
-  protected definition id_left  (F : C ⇒ D) : id ∘f F = F :=
+  protected definition id_left  (F : C ⇒ D) : functor.id ∘f F = F :=
   functor.rec_on F (λF1 F2 F3 F4, !functor_mk_eq_constant (λa b f, idp))
 
-  protected definition id_right (F : C ⇒ D) : F ∘f id = F :=
+  protected definition id_right (F : C ⇒ D) : F ∘f functor.id = F :=
   functor.rec_on F (λF1 F2 F3 F4, !functor_mk_eq_constant (λa b f, idp))
 
   protected definition comp_id_eq_id_comp (F : C ⇒ D) : F ∘f functor.id = functor.id ∘f F :=
@@ -182,7 +182,7 @@ namespace functor
       : ap010 to_fun_ob (apd01111 functor.mk pF pH pid pcomp) c = ap10 pF c :=
   by cases pF; cases pH; cases pid; cases pcomp; apply idp
 
-definition ap010_functor_eq {F₁ F₂ : C ⇒ D} (p : to_fun_ob F₁ ∼ to_fun_ob F₂)
+  definition ap010_functor_eq {F₁ F₂ : C ⇒ D} (p : to_fun_ob F₁ ∼ to_fun_ob F₂)
     (q : (λ(a b : C) (f : hom a b), hom_of_eq (p b) ∘ F₁ f ∘ inv_of_eq (p a)) ∼3 to_fun_hom F₂) (c : C) :
     ap010 to_fun_ob (functor_eq p q) c = p c :=
   begin
@@ -198,7 +198,7 @@ definition ap010_functor_eq {F₁ F₂ : C ⇒ D} (p : to_fun_ob F₁ ∼ to_fun
   !ap010_functor_eq
 
   definition ap010_assoc (H : C ⇒ D) (G : B ⇒ C) (F : A ⇒ B) (a : A) :
-    ap010 to_fun_ob (assoc H G F) a = idp :=
+    ap010 to_fun_ob (functor.assoc H G F) a = idp :=
   by apply ap010_functor_mk_eq_constant
 
   definition compose_pentagon (K : D ⇒ E) (H : C ⇒ D) (G : B ⇒ C) (F : A ⇒ B) :

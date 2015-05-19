@@ -328,10 +328,10 @@ H1 !lt_succ_self
 
 protected theorem case_strong_induction_on {P : nat → Type} (a : nat) (H0 : P 0)
   (Hind : Π(n : nat), (Πm, m ≤ n → P m) → P (succ n)) : P a :=
-strong_induction_on a (
-  take n,
-  show (Πm, m < n → P m) → P n, from
-    nat.cases_on n
+nat.strong_induction_on a
+  (take n,
+   show (Π m, m < n → P m) → P n, from
+     nat.cases_on n
        (assume H : (Πm, m < 0 → P m), show P 0, from H0)
        (take n,
          assume H : (Πm, m < succ n → P m),

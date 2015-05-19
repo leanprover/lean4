@@ -176,32 +176,32 @@ namespace category
   open sigma function
   variables {ob : Type} {C : category ob} {c : ob}
   protected definition slice_obs (C : category ob) (c : ob) := Σ(b : ob), hom b c
-  variables {a b : slice_obs C c}
-  protected definition to_ob  (a : slice_obs C c) : ob              := sigma.pr1 a
-  protected definition to_ob_def (a : slice_obs C c) : to_ob a = sigma.pr1 a := rfl
-  protected definition ob_hom (a : slice_obs C c) : hom (to_ob a) c := sigma.pr2 a
+  variables {a b : slice.slice_obs C c}
+  protected definition to_ob  (a : slice.slice_obs C c) : ob              := sigma.pr1 a
+  protected definition to_ob_def (a : slice.slice_obs C c) : slice.to_ob a = sigma.pr1 a := rfl
+  protected definition ob_hom (a : slice.slice_obs C c) : hom (slice.to_ob a) c := sigma.pr2 a
   -- protected theorem slice_obs_equal (H₁ : to_ob a = to_ob b)
   --     (H₂ : eq.drec_on H₁ (ob_hom a) = ob_hom b) : a = b :=
   -- sigma.equal H₁ H₂
 
 
-  protected definition slice_hom (a b : slice_obs C c) : Type :=
-  Σ(g : hom (to_ob a) (to_ob b)), ob_hom b ∘ g = ob_hom a
+  protected definition slice_hom (a b : slice.slice_obs C c) : Type :=
+  Σ(g : hom (slice.to_ob a) (slice.to_ob b)), slice.ob_hom b ∘ g = slice.ob_hom a
 
-  protected definition hom_hom  (f : slice_hom a b) : hom (to_ob a) (to_ob b)          := sigma.pr1 f
-  protected definition commute (f : slice_hom a b) : ob_hom b ∘ (hom_hom f) = ob_hom a := sigma.pr2 f
+  protected definition hom_hom  (f : slice.slice_hom a b) : hom (slice.to_ob a) (slice.to_ob b)                := sigma.pr1 f
+  protected definition commute (f : slice.slice_hom a b) : slice.ob_hom b ∘ (slice.hom_hom f) = slice.ob_hom a := sigma.pr2 f
   -- protected theorem slice_hom_equal (f g : slice_hom a b) (H : hom_hom f = hom_hom g) : f = g :=
   -- sigma.equal H !proof_irrel
 
-  definition slice_category (C : category ob) (c : ob) : category (slice_obs C c) :=
-  mk (λa b, slice_hom a b)
-     (λ a b c g f, sigma.mk (hom_hom g ∘ hom_hom f)
-       (show ob_hom c ∘ (hom_hom g ∘ hom_hom f) = ob_hom a,
+  definition slice_category (C : category ob) (c : ob) : category (slice.slice_obs C c) :=
+  mk (λa b, slice.slice_hom a b)
+     (λ a b c g f, sigma.mk (slice.hom_hom g ∘ slice.hom_hom f)
+       (show slice.ob_hom c ∘ (slice.hom_hom g ∘ slice.hom_hom f) = slice.ob_hom a,
          proof
          calc
-           ob_hom c ∘ (hom_hom g ∘ hom_hom f) = (ob_hom c ∘ hom_hom g) ∘ hom_hom f : !assoc
-             ... = ob_hom b ∘ hom_hom f : {commute g}
-             ... = ob_hom a : {commute f}
+           slice.ob_hom c ∘ (slice.hom_hom g ∘ slice.hom_hom f) = (slice.ob_hom c ∘ slice.hom_hom g) ∘ slice.hom_hom f : !assoc
+             ... = slice.ob_hom b ∘ slice.hom_hom f : {slice.commute g}
+             ... = slice.ob_hom a : {slice.commute f}
          qed))
      (λ a, sigma.mk id !id_right)
      (λ a b c d h g f, dpair_eq    !assoc    !proof_irrel)
@@ -231,20 +231,20 @@ namespace category
   attribute slice_category [instance]
   variables {D : Category}
   definition forgetful (x : D) : (Slice_category D x) ⇒ D :=
-  functor.mk (λ a, to_ob a)
-             (λ a b f, hom_hom f)
+  functor.mk (λ a, slice.to_ob a)
+             (λ a b f, slice.hom_hom f)
              (λ a, rfl)
              (λ a b c g f, rfl)
 
   definition postcomposition_functor {x y : D} (h : x ⟶ y)
       : Slice_category D x ⇒ Slice_category D y :=
   functor.mk
-       (λ a, sigma.mk (to_ob a) (h ∘ ob_hom a))
+       (λ a, sigma.mk (slice.to_ob a) (h ∘ slice.ob_hom a))
        (λ a b f,
-         ⟨hom_hom f,
+         ⟨slice.hom_hom f,
           calc
-            (h ∘ ob_hom b) ∘ hom_hom f = h ∘ (ob_hom b ∘ hom_hom f) : by rewrite assoc
-                                   ... = h ∘ ob_hom a               : by rewrite commute⟩)
+            (h ∘ slice.ob_hom b) ∘ slice.hom_hom f = h ∘ (slice.ob_hom b ∘ slice.hom_hom f) : by rewrite assoc
+                                   ... = h ∘ slice.ob_hom a               : by rewrite slice.commute⟩)
        (λ a, rfl)
        (λ a b c g f, dpair_eq rfl !proof_irrel)
 
@@ -330,30 +330,32 @@ namespace category
   -- make these definitions private?
   variables {ob : Type} {C : category ob}
   protected definition arrow_obs (ob : Type) (C : category ob) := Σ(a b : ob), hom a b
-  variables {a b : arrow_obs ob C}
-  protected definition src    (a : arrow_obs ob C) : ob                  := sigma.pr1 a
-  protected definition dst    (a : arrow_obs ob C) : ob                  := sigma.pr2' a
-  protected definition to_hom (a : arrow_obs ob C) : hom (src a) (dst a) := sigma.pr3 a
+  variables {a b : category.arrow_obs ob C}
+  protected definition src    (a : category.arrow_obs ob C) : ob                  := sigma.pr1 a
+  protected definition dst    (a : category.arrow_obs ob C) : ob                  := sigma.pr2' a
+  protected definition to_hom (a : category.arrow_obs ob C) : hom (category.src a) (category.dst a) := sigma.pr3 a
 
-  protected definition arrow_hom (a b : arrow_obs ob C) : Type :=
-  Σ (g : hom (src a) (src b)) (h : hom (dst a) (dst b)), to_hom b ∘ g = h ∘ to_hom a
+  protected definition arrow_hom (a b : category.arrow_obs ob C) : Type :=
+  Σ (g : hom (category.src a) (category.src b)) (h : hom (category.dst a) (category.dst b)),
+    category.to_hom b ∘ g = h ∘ category.to_hom a
 
-  protected definition hom_src (m : arrow_hom a b) : hom (src a) (src b) := sigma.pr1 m
-  protected definition hom_dst (m : arrow_hom a b) : hom (dst a) (dst b) := sigma.pr2' m
-  protected definition commute (m : arrow_hom a b) : to_hom b ∘ (hom_src m) = (hom_dst m) ∘ to_hom a
+  protected definition hom_src (m : category.arrow_hom a b) : hom (category.src a) (category.src b) := sigma.pr1 m
+  protected definition hom_dst (m : category.arrow_hom a b) : hom (category.dst a) (category.dst b) := sigma.pr2' m
+  protected definition commute (m : category.arrow_hom a b) :
+     category.to_hom b ∘ (category.hom_src m) = (category.hom_dst m) ∘ category.to_hom a
   := sigma.pr3 m
 
-  definition arrow (ob : Type) (C : category ob) : category (arrow_obs ob C) :=
-  mk (λa b, arrow_hom a b)
-     (λ a b c g f, sigma.mk (hom_src g ∘ hom_src f) (sigma.mk (hom_dst g ∘ hom_dst f)
-        (show to_hom c ∘ (hom_src g ∘ hom_src f) = (hom_dst g ∘ hom_dst f) ∘ to_hom a,
+  definition arrow (ob : Type) (C : category ob) : category (category.arrow_obs ob C) :=
+  mk (λa b, category.arrow_hom a b)
+     (λ a b c g f, sigma.mk (category.hom_src g ∘ category.hom_src f) (sigma.mk (category.hom_dst g ∘ category.hom_dst f)
+        (show category.to_hom c ∘ (category.hom_src g ∘ category.hom_src f) = (category.hom_dst g ∘ category.hom_dst f) ∘ category.to_hom a,
          proof
          calc
-         to_hom c ∘ (hom_src g ∘ hom_src f) = (to_hom c ∘ hom_src g) ∘ hom_src f : by rewrite assoc
-           ... = (hom_dst g ∘ to_hom b) ∘ hom_src f                              : by rewrite commute
-           ... = hom_dst g ∘ (to_hom b ∘ hom_src f)                              : by rewrite assoc
-           ... = hom_dst g ∘ (hom_dst f ∘ to_hom a)                              : by rewrite commute
-           ... = (hom_dst g ∘ hom_dst f) ∘ to_hom a                              : by rewrite assoc
+         category.to_hom c ∘ (category.hom_src g ∘ category.hom_src f) = (category.to_hom c ∘ category.hom_src g) ∘ category.hom_src f : by rewrite assoc
+           ... = (category.hom_dst g ∘ category.to_hom b) ∘ category.hom_src f                     : by rewrite category.commute
+           ... = category.hom_dst g ∘ (category.to_hom b ∘ category.hom_src f)                     : by rewrite assoc
+           ... = category.hom_dst g ∘ (category.hom_dst f ∘ category.to_hom a)                     : by rewrite category.commute
+           ... = (category.hom_dst g ∘ category.hom_dst f) ∘ category.to_hom a                     : by rewrite assoc
          qed)
        ))
      (λ a, sigma.mk id (sigma.mk id (!id_right ⬝ (symm !id_left))))

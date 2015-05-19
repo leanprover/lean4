@@ -12,7 +12,7 @@ namespace empty
   empty.rec (λe, A) H
 
   protected theorem subsingleton [instance] : subsingleton empty :=
-  subsingleton.intro (λ a b, !elim a)
+  subsingleton.intro (λ a b, !empty.elim a)
 end empty
 
 protected definition empty.has_decidable_eq [instance] : decidable_eq empty :=

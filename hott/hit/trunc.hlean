@@ -24,7 +24,7 @@ namespace trunc
 
   protected definition elim_on {n : trunc_index} {A : Type} {P : Type} (aa : trunc n A)
     [Pt : is_trunc n P] (H : A → P) : P :=
-  elim H aa
+  trunc.elim H aa
 
   /-
     there are no theorems to eliminate to the universe here,

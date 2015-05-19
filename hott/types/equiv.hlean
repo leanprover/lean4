@@ -76,7 +76,7 @@ namespace is_equiv
   local attribute is_contr_right_coherence [instance] [priority 1600]
 
   theorem is_hprop_is_equiv [instance] : is_hprop (is_equiv f) :=
-  is_hprop_of_imp_is_contr (λ(H : is_equiv f), is_trunc_equiv_closed -2 (equiv.symm !sigma_char'))
+  is_hprop_of_imp_is_contr (λ(H : is_equiv f), is_trunc_equiv_closed -2 (equiv.symm !is_equiv.sigma_char'))
 
   definition inv_eq_inv {A B : Type} {f f' : A → B} {Hf : is_equiv f} {Hf' : is_equiv f'}
     (p : f = f') : f⁻¹ = f'⁻¹ :=

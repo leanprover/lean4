@@ -36,7 +36,7 @@ namespace natural_transformation
                       ... = (η b ∘ θ b) ∘ F f : assoc)
 --congr_arg (λx, η b ∘ x) (naturality θ f) -- this needed to be explicit for some reason (on Oct 24)
 
-  infixr `∘n`:60 := compose
+  infixr `∘n`:60 := natural_transformation.compose
   protected theorem assoc (η₃ : H ⟹ I) (η₂ : G ⟹ H) (η₁ : F ⟹ G) :
       η₃ ∘n (η₂ ∘n η₁) = (η₃ ∘n η₂) ∘n η₁ :=
   dcongr_arg2 mk (funext (take x, !assoc)) !proof_irrel

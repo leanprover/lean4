@@ -39,7 +39,7 @@ namespace functor
       G (F (g ∘ f)) = G (F g ∘ F f)     : respect_comp F g f
                 ... = G (F g) ∘ G (F f) : respect_comp G (F g) (F f) qed)
 
-  infixr `∘f`:60 := compose
+  infixr `∘f`:60 := functor.compose
 
   protected theorem assoc (H : functor C D) (G : functor B C) (F : functor A B) :
       H ∘f (G ∘f F) = (H ∘f G) ∘f F :=
@@ -47,11 +47,11 @@ namespace functor
 
   protected definition id [reducible] {C : Category} : functor C C :=
   mk (λa, a) (λ a b f, f) (λ a, rfl) (λ a b c f g, rfl)
-  protected definition ID [reducible] (C : Category) : functor C C := @id C
+  protected definition ID [reducible] (C : Category) : functor C C := @functor.id C
 
-  protected theorem id_left  (F : functor C D) : (@id D) ∘f F = F :=
+  protected theorem id_left  (F : functor C D) : (@functor.id D) ∘f F = F :=
   functor.rec (λ obF homF idF compF, dcongr_arg4 mk rfl rfl !proof_irrel !proof_irrel) F
-  protected theorem id_right (F : functor C D) : F ∘f (@id C) = F :=
+  protected theorem id_right (F : functor C D) : F ∘f (@functor.id C) = F :=
   functor.rec (λ obF homF idF compF, dcongr_arg4 mk rfl rfl !proof_irrel !proof_irrel) F
 
 end functor

@@ -12,6 +12,8 @@ namespace lean {
 environment add_protected(environment const & env, name const & n);
 /** \brief Return true iff \c n was marked as protected in the environment \c n. */
 bool is_protected(environment const & env, name const & n);
+/** \brief Return the shortest name that can be used to reference the given name */
+name get_protected_shortest_name(name const & n);
 
 void initialize_protected();
 void finalize_protected();

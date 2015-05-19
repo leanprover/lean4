@@ -152,8 +152,12 @@ static environment declare_var(parser & p, environment env,
             env = module::add(env, check(env, mk_constant_assumption(full_n, ls, new_type)));
             p.add_decl_index(full_n, pos, get_variable_tk(), new_type);
         }
-        if (!ns.is_anonymous())
-            env = add_expr_alias(env, n, full_n);
+        if (!ns.is_anonymous()) {
+            if (is_protected)
+                env = add_expr_alias(env, get_protected_shortest_name(full_n), full_n);
+            else
+                env = add_expr_alias(env, n, full_n);
+        }
         if (is_protected)
             env = add_protected(env, full_n);
         return env;
@@ -1101,8 +1105,12 @@ class definition_cmd_fn {
                 m_p.add_decl_index(real_n, m_pos, m_p.get_cmd_token(), type);
             if (m_is_protected)
                 m_env = add_protected(m_env, real_n);
-            if (n != real_n)
-                m_env = add_expr_alias_rec(m_env, n, real_n);
+            if (n != real_n) {
+                if (m_is_protected)
+                    m_env = add_expr_alias_rec(m_env, get_protected_shortest_name(real_n), real_n);
+                else
+                    m_env = add_expr_alias_rec(m_env, n, real_n);
+            }
             if (m_kind == Abbreviation || m_kind == LocalAbbreviation) {
                 bool persistent = m_kind == Abbreviation;
                 m_env = add_abbreviation(m_env, real_n, m_attributes.m_is_parsing_only, persistent);

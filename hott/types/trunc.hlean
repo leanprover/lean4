@@ -148,27 +148,27 @@ namespace trunc
   protected definition code (n : trunc_index) (aa aa' : trunc n.+1 A) : n-Type :=
   trunc.rec_on aa (λa, trunc.rec_on aa' (λa', trunctype.mk' n (trunc n (a = a'))))
 
-  protected definition encode (n : trunc_index) (aa aa' : trunc n.+1 A) : aa = aa' → code n aa aa' :=
+  protected definition encode (n : trunc_index) (aa aa' : trunc n.+1 A) : aa = aa' → trunc.code n aa aa' :=
   begin
     intro p, cases p, apply (trunc.rec_on aa),
-    intro a, esimp [code,trunc.rec_on], exact (tr idp)
+    intro a, esimp [trunc.code,trunc.rec_on], exact (tr idp)
   end
 
-  protected definition decode (n : trunc_index) (aa aa' : trunc n.+1 A) : code n aa aa' → aa = aa' :=
+  protected definition decode (n : trunc_index) (aa aa' : trunc n.+1 A) : trunc.code n aa aa' → aa = aa' :=
   begin
     eapply (trunc.rec_on aa'), eapply (trunc.rec_on aa),
-    intro a a' x, esimp [code, trunc.rec_on] at x,
+    intro a a' x, esimp [trunc.code, trunc.rec_on] at x,
     apply (trunc.rec_on x), intro p, exact (ap tr p)
   end
 
   definition trunc_eq_equiv (n : trunc_index) (aa aa' : trunc n.+1 A)
-    : aa = aa' ≃ code n aa aa' :=
+    : aa = aa' ≃ trunc.code n aa aa' :=
   begin
     fapply equiv.MK,
-    { apply encode},
-    { apply decode},
+    { apply trunc.encode},
+    { apply trunc.decode},
     { eapply (trunc.rec_on aa'), eapply (trunc.rec_on aa),
-      intro a a' x, esimp [code, trunc.rec_on] at x,
+      intro a a' x, esimp [trunc.code, trunc.rec_on] at x,
       apply (trunc.rec_on x), intro p, cases p, exact idp},
     { intro p, cases p, apply (trunc.rec_on aa), intro a, exact idp},
   end

@@ -27,8 +27,8 @@ namespace prod
   begin
     cases u with a₁ b₁,
     cases v with a₂ b₂,
-    apply transport _ (eta (a₁, b₁)),
-    apply transport _ (eta (a₂, b₂)),
+    apply transport _ (prod.eta (a₁, b₁)),
+    apply transport _ (prod.eta (a₂, b₂)),
     apply pair_eq H₁ H₂,
   end
 

@@ -49,19 +49,19 @@ namespace quot
 
   protected lemma indep_coherent (f : Π a, B ⟦a⟧)
                        (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b)
-                       : ∀ a b, a ≈ b → indep f a = indep f b  :=
+                       : ∀ a b, a ≈ b → quot.indep f a = quot.indep f b  :=
   λa b e, sigma.equal (sound e) (H a b e)
 
   protected lemma lift_indep_pr1
     (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b)
-    (q : quot s) : (lift (indep f) (indep_coherent f H) q).1 = q  :=
+    (q : quot s) : (lift (quot.indep f) (quot.indep_coherent f H) q).1 = q  :=
   quot.ind (λ a, by esimp) q
 
   protected definition rec [reducible]
      (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b)
      (q : quot s) : B q :=
-  let p := lift (indep f) (indep_coherent f H) q in
-  eq.rec_on (lift_indep_pr1 f H q) (p.2)
+  let p := lift (quot.indep f) (quot.indep_coherent f H) q in
+  eq.rec_on (quot.lift_indep_pr1 f H q) (p.2)
 
   protected definition rec_on [reducible]
      (q : quot s) (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b) : B q :=
@@ -126,8 +126,8 @@ namespace quot
   protected definition hrec_on₂ [reducible]
      {C : quot s₁ → quot s₂ → Type₁} (q₁ : quot s₁) (q₂ : quot s₂)
      (f : Π a b, C ⟦a⟧ ⟦b⟧) (c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ == f b₁ b₂) : C q₁ q₂:=
-  hrec_on q₁
-    (λ a, hrec_on q₂ (λ b, f a b) (λ b₁ b₂ p, c _ _ _ _ !setoid.refl p))
+  quot.hrec_on q₁
+    (λ a, quot.hrec_on q₂ (λ b, f a b) (λ b₁ b₂ p, c _ _ _ _ !setoid.refl p))
     (λ a₁ a₂ p, quot.induction_on q₂
       (λ b,
         have aux : f a₁ b == f a₂ b, from c _ _ _ _ p !setoid.refl,

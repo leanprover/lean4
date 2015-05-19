@@ -30,13 +30,13 @@ namespace nat_trans
                       ... = η b ∘ (θ b ∘ F f) : by rewrite naturality
                       ... = (η b ∘ θ b) ∘ F f : by rewrite assoc)
 
-  infixr `∘n`:60 := compose
+  infixr `∘n`:60 := nat_trans.compose
 
   protected definition id [reducible] {C D : Precategory} {F : functor C D} : nat_trans F F :=
   mk (λa, id) (λa b f, !id_right ⬝ !id_left⁻¹)
 
   protected definition ID [reducible] {C D : Precategory} (F : functor C D) : nat_trans F F :=
-  (@id C D F)
+  (@nat_trans.id C D F)
 
   definition nat_trans_mk_eq {η₁ η₂ : Π (a : C), hom (F a) (G a)}
     (nat₁ : Π (a b : C) (f : hom a b), G f ∘ η₁ a = η₁ b ∘ F f)
@@ -52,10 +52,10 @@ namespace nat_trans
       η₃ ∘n (η₂ ∘n η₁) = (η₃ ∘n η₂) ∘n η₁ :=
   nat_trans_eq (λa, !assoc)
 
-  protected definition id_left (η : F ⟹ G) : id ∘n η = η :=
+  protected definition id_left (η : F ⟹ G) : nat_trans.id ∘n η = η :=
   nat_trans_eq (λa, !id_left)
 
-  protected definition id_right (η : F ⟹ G) : η ∘n id = η :=
+  protected definition id_right (η : F ⟹ G) : η ∘n nat_trans.id = η :=
   nat_trans_eq (λa, !id_right)
 
   protected definition sigma_char (F G : C ⇒ D) :
@@ -78,7 +78,7 @@ namespace nat_trans
   end
 
   definition is_hset_nat_trans [instance] : is_hset (F ⟹ G) :=
-  by apply is_trunc_is_equiv_closed; apply (equiv.to_is_equiv !sigma_char)
+  by apply is_trunc_is_equiv_closed; apply (equiv.to_is_equiv !nat_trans.sigma_char)
 
   definition nat_trans_functor_compose [reducible] (η : G ⟹ H) (F : E ⇒ C) : G ∘f F ⟹ H ∘f F :=
   nat_trans.mk

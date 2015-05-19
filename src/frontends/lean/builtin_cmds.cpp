@@ -245,8 +245,12 @@ static void print_recursor_info(parser & p) {
         << "  dep. elimination:         " << info.has_dep_elim() << "\n";
     if (info.get_num_params() > 0) {
         out << "  parameters pos. at major:";
-        for (unsigned p : info.get_params_pos())
-            out << " " << p+1;
+        for (optional<unsigned> const & p : info.get_params_pos()) {
+            if (p)
+                out << " " << *p+1;
+            else
+                out << " [instance]";
+        }
         out << "\n";
     }
     if (info.get_num_indices() > 0) {

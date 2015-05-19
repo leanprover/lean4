@@ -194,7 +194,7 @@ theorem card_insert_of_not_mem {a : A} {s : finset A} : a ∉ s → card (insert
 quot.induction_on s
   (λ (l : nodup_list A) (nainl : a ∉ ⟦l⟧), list.length_insert_of_not_mem nainl)
 
-protected theorem induction {P : finset A → Prop}
+protected theorem induction [recursor 6] {P : finset A → Prop}
     (H1 : P empty)
     (H2 : ∀⦃s : finset A⦄, ∀{a : A}, a ∉ s → P s → P (insert a s)) :
   ∀s, P s :=

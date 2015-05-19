@@ -75,18 +75,19 @@ section deceqA
   -- this will eventually be an instance of something more general
   theorem inter_Union (s : finset B) (t : finset A) (f : A → finset B) :
       s ∩ (⋃ x ∈ t, f x) = (⋃ x ∈ t, s ∩ f x) :=
-  finset.induction_on t
-    (by rewrite [*Union_empty, inter_empty])
-    (take s' x, assume H : x ∉ s',
-      assume IH,
-      by rewrite [*Union_insert_of_not_mem _ H, inter.distrib_left, IH])
+  begin
+    induction t with s' x H IH,
+      rewrite [*Union_empty, inter_empty],
+      rewrite [*Union_insert_of_not_mem _ H, inter.distrib_left, IH],
+  end
 
   theorem mem_Union_iff (s : finset A) (f : A → finset B) (b : B) :
     b ∈ (⋃ x ∈ s, f x) ↔ (∃ x, x ∈ s ∧ b ∈ f x ) :=
-  finset.induction_on s
-    (by rewrite [exists_mem_empty_eq])
-    (take s' a, assume H : a ∉ s', assume IH,
-      by rewrite [Union_insert_of_not_mem _ H, mem_union_eq, IH, exists_mem_insert_eq])
+  begin
+    induction s with s' a H IH,
+      rewrite [exists_mem_empty_eq],
+      rewrite [Union_insert_of_not_mem _ H, mem_union_eq, IH, exists_mem_insert_eq]
+  end
 
   theorem mem_Union_eq (s : finset A) (f : A → finset B) (b : B) :
     b ∈ (⋃ x ∈ s, f x) = (∃ x, x ∈ s ∧ b ∈ f x ) :=

@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
+#include "library/tactic/class_instance_synth.h"
 
 namespace lean {
 class has_rec_opaque_converter : public default_converter {
@@ -38,6 +39,8 @@ class induction_tac {
     substitution          m_subst;
     bool                  m_throw_ex;
     bool                  m_standard;
+    constraint_seq        m_cs;
+    expr                  m_ref; // reference expression for location information
 
     void assign(goal const & g, expr const & val) {
         ::lean::assign(m_subst, g, val);
@@ -68,11 +71,28 @@ class induction_tac {
                                << "' is ill-formed");
     }
 
+    expr mk_type_class_param(goal const & g, expr const & rec, recursor_info const & rec_info) {
+        expr rec_type = m_tc.whnf(m_tc.infer(rec, m_cs), m_cs);
+        if (!is_pi(rec_type)) {
+            throw_ill_formed_recursor(rec_info);
+        }
+        bool use_local_insts = true;
+        bool is_strict       = false;
+        local_context ctx    = g.to_local_context();
+        unifier_config cfg(m_ios.get_options());
+        auto mc = mk_class_instance_elaborator(
+            m_env, m_ios, ctx, m_ngen.next(), optional<name>(),
+            use_local_insts, is_strict,
+            some_expr(binding_domain(rec_type)), m_ref.get_tag(), cfg, nullptr);
+        m_cs += mc.second;
+        return mc.first;
+    }
+
     goals apply_recursor(goal const & g, unsigned num_deps, expr const & h, expr const & h_type,
-                         buffer<expr> const & params, buffer<expr> const & indices,
+                         buffer<optional<expr>> const & params, buffer<expr> const & indices,
                          recursor_info const & rec_info) {
         expr const & g_type = g.get_type();
-        level g_lvl         = sort_level(m_tc.ensure_type(g_type).first);
+        level g_lvl         = sort_level(m_tc.ensure_type(g_type, m_cs));
         levels rec_levels;
         expr const & I = get_app_fn(h_type);
         if (auto lpos = rec_info.get_motive_univ_pos()) {
@@ -95,7 +115,13 @@ class induction_tac {
             rec_levels = const_levels(I);
         }
         expr rec    = mk_constant(rec_info.get_name(), rec_levels);
-        rec         = mk_app(rec, params);
+        for (optional<expr> const & p : params) {
+            if (p) {
+                rec = mk_app(rec, *p);
+            } else {
+                rec = mk_app(rec, mk_type_class_param(g, rec, rec_info));
+            }
+        }
         expr motive = g_type;
         if (rec_info.has_dep_elim())
             motive  = Fun(h, motive);
@@ -111,7 +137,7 @@ class induction_tac {
                 new_hyps.push_back(curr_h);
             }
         }
-        expr rec_type          = m_tc.whnf(m_tc.infer(rec).first).first;
+        expr rec_type          = m_tc.whnf(m_tc.infer(rec, m_cs), m_cs);
         unsigned curr_pos      = params.size() + 1 /* motive */;
         unsigned first_idx_pos = rec_info.get_first_index_pos();
         bool consumed_major    = false;
@@ -120,13 +146,14 @@ class induction_tac {
             if (first_idx_pos == curr_pos) {
                 for (expr const & idx : indices) {
                     rec      = mk_app(rec, idx);
-                    rec_type = m_tc.whnf(instantiate(binding_body(rec_type), idx)).first;
-                    if (!is_pi(rec_type))
+                    rec_type = m_tc.whnf(instantiate(binding_body(rec_type), idx), m_cs);
+                    if (!is_pi(rec_type)) {
                         throw_ill_formed_recursor(rec_info);
+                    }
                     curr_pos++;
                 }
                 rec      = mk_app(rec, h);
-                rec_type = m_tc.whnf(instantiate(binding_body(rec_type), h)).first;
+                rec_type = m_tc.whnf(instantiate(binding_body(rec_type), h), m_cs);
                 consumed_major = true;
                 curr_pos++;
             } else {
@@ -137,7 +164,7 @@ class induction_tac {
                 // introduce minor arguments
                 buffer<expr> minor_args;
                 for (unsigned i = 0; i < arity; i++) {
-                    expr arg_type = binding_domain(new_type);
+                    expr arg_type = head_beta_reduce(binding_domain(new_type));
                     name arg_name;
                     if (m_ids) {
                         arg_name = head(m_ids);
@@ -155,8 +182,9 @@ class induction_tac {
                 buffer<expr> new_deps;
                 // introduce deps
                 for (unsigned i = 0; i < num_deps; i++) {
-                    if (!is_pi(new_type))
+                    if (!is_pi(new_type)) {
                         throw_ill_formed_recursor(rec_info);
+                    }
                     expr dep_type = binding_domain(new_type);
                     expr new_dep  = mk_local(m_ngen.next(), get_unused_name(binding_name(new_type), new_goal_hyps),
                                              dep_type, binder_info());
@@ -168,12 +196,13 @@ class induction_tac {
                 goal new_g(new_meta, new_type);
                 new_goals.push_back(new_g);
                 rec            = mk_app(rec, Fun(minor_args, Fun(new_deps, new_meta)));
-                rec_type       = m_tc.whnf(instantiate(binding_body(rec_type), new_meta)).first;
+                rec_type       = m_tc.whnf(instantiate(binding_body(rec_type), new_meta), m_cs);
                 curr_pos++;
             }
         }
-        if (!consumed_major)
+        if (!consumed_major) {
             throw_ill_formed_recursor(rec_info);
+        }
         assign(g, rec);
         return to_list(new_goals);
     }
@@ -183,11 +212,15 @@ class induction_tac {
             recursor_info rec_info = get_recursor_info(m_env, rec);
             buffer<expr> h_type_args;
             get_app_args(h_type, h_type_args);
-            buffer<expr> params;
-            for (unsigned pos : rec_info.get_params_pos()) {
-                if (pos >= h_type_args.size())
+            buffer<optional<expr>> params;
+            for (optional<unsigned> const & pos : rec_info.get_params_pos()) {
+                if (!pos) {
+                    params.push_back(none_expr());
+                } else if (*pos >= h_type_args.size()) {
                     throw tactic_exception("invalid 'induction' tactic, major premise type is ill-formed");
-                params.push_back(h_type_args[pos]);
+                } else {
+                    params.push_back(some_expr(h_type_args[*pos]));
+                }
             }
             buffer<expr> indices;
             for (unsigned pos : rec_info.get_indices_pos()) {
@@ -232,15 +265,17 @@ public:
     induction_tac(environment const & env, io_state const & ios, name_generator const & ngen,
                   type_checker & tc, substitution const & subst, name const & h_name,
                   optional<name> const & rec_name, list<name> const & ids,
-                  bool throw_ex):
+                  bool throw_ex, expr const & ref):
         m_env(env), m_ios(ios), m_tc(tc), m_h_name(h_name), m_rec_name(rec_name), m_ids(ids),
-        m_ngen(ngen), m_subst(subst), m_throw_ex(throw_ex) {
+        m_ngen(ngen), m_subst(subst), m_throw_ex(throw_ex), m_ref(ref) {
         m_standard = is_standard(env);
     }
 
     name_generator const & get_ngen() const { return m_ngen; }
 
     substitution const & get_subst() const { return m_subst; }
+
+    constraint_seq get_new_constraints() const { return m_cs; }
 
     expr normalize_H_type(expr const & H) {
         lean_assert(is_local(H));
@@ -275,7 +310,7 @@ public:
     }
 };
 
-tactic induction_tactic(name const & H, optional<name> rec, list<name> const & ids) {
+tactic induction_tactic(name const & H, optional<name> rec, list<name> const & ids, expr const & ref) {
     name rec1 = "unknown";
     if (rec) rec1 = *rec;
     auto fn = [=](environment const & env, io_state const & ios, proof_state const & ps) -> optional<proof_state> {
@@ -288,10 +323,13 @@ tactic induction_tactic(name const & H, optional<name> rec, list<name> const & i
         goals tail_gs                    = tail(gs);
         name_generator ngen              = ps.get_ngen();
         std::unique_ptr<type_checker> tc = mk_type_checker(env, ngen.mk_child());
-        induction_tac tac(env, ios, ngen, *tc, ps.get_subst(), H, rec, ids, ps.report_failure());
+        induction_tac tac(env, ios, ngen, *tc, ps.get_subst(), H, rec, ids, ps.report_failure(), ref);
         if (auto res = tac.execute(g)) {
             proof_state new_s(ps, append(*res, tail_gs), tac.get_subst(), tac.get_ngen());
-            return some_proof_state(new_s);
+            if (solve_constraints(env, ios, new_s, tac.get_new_constraints()))
+                return some_proof_state(new_s);
+            else
+                return none_proof_state();
         } else {
             return none_proof_state();
         }
@@ -316,9 +354,9 @@ void initialize_induction_tactic() {
                      }
                      name const & cname = const_name(rec);
                      if (cname == get_tactic_none_expr_name()) {
-                         return induction_tactic(H, optional<name>(), to_list(ids.begin(), ids.end()));
+                         return induction_tactic(H, optional<name>(), to_list(ids.begin(), ids.end()), e);
                      } else {
-                         return induction_tactic(H, optional<name>(cname), to_list(ids.begin(), ids.end()));
+                         return induction_tactic(H, optional<name>(cname), to_list(ids.begin(), ids.end()), e);
                      }
                  });
 }

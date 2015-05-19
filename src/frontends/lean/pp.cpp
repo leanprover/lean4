@@ -286,6 +286,7 @@ void pretty_fn::set_options_core(options const & o) {
     m_numerals        = get_pp_numerals(o);
     m_abbreviations   = get_pp_abbreviations(o);
     m_extra_spaces    = get_pp_extra_spaces(o);
+    m_preterm         = get_pp_preterm(o);
     m_hide_full_terms = get_formatter_hide_full_terms(o);
     m_num_nat_coe     = m_numerals && !m_coercion && has_coercion_num_nat(m_env);
 }
@@ -301,7 +302,11 @@ format pretty_fn::pp_level(level const & l) {
 }
 
 bool pretty_fn::is_implicit(expr const & f) {
-    if (m_implict)
+    // Remark: we assume preterms do not have implicit arguments,
+    // since they have not been elaborated yet.
+    // Moreover, the type checker will probably produce an error
+    // when trying to infer type information
+    if (m_implict || m_preterm)
         return false; // showing implicit arguments
     if (!closed(f)) {
         // the Lean type checker assumes expressions are closed.
@@ -505,8 +510,10 @@ auto pretty_fn::pp_local(expr const & e) -> result {
 }
 
 bool pretty_fn::has_implicit_args(expr const & f) {
-    if (!closed(f)) {
-        // the Lean type checker assumes expressions are closed.
+    if (!closed(f) || m_preterm) {
+        // The Lean type checker assumes expressions are closed.
+        // If preterms are being processed, then we assume
+        // there are no implicit arguments.
         return false;
     }
     name_generator ngen(*g_tmp_prefix);

@@ -69,6 +69,7 @@ private:
     bool                m_abbreviations;
     bool                m_hide_full_terms;
     bool                m_extra_spaces;
+    bool                m_preterm;
 
     name mk_metavar_name(name const & m);
     name mk_local_name(name const & n, name const & suggested);

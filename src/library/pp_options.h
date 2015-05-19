@@ -16,6 +16,7 @@ name const & get_pp_metavar_args_name();
 name const & get_pp_purify_metavars_name();
 name const & get_pp_purify_locals_name();
 name const & get_pp_beta_name();
+name const & get_pp_preterm_name();
 
 unsigned get_pp_max_depth(options const & opts);
 unsigned get_pp_max_steps(options const & opts);
@@ -32,6 +33,7 @@ bool     get_pp_purify_locals(options const & opts);
 bool     get_pp_numerals(options const & opts);
 bool     get_pp_abbreviations(options const & opts);
 bool     get_pp_extra_spaces(options const & opts);
+bool     get_pp_preterm(options const & opts);
 list<options> const & get_distinguishing_pp_options();
 
 void initialize_pp_options();

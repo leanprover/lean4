@@ -67,6 +67,10 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_EXTRA_SPACES false
 #endif
 
+#ifndef LEAN_DEFAULT_PP_PRETERM
+#define LEAN_DEFAULT_PP_PRETERM false
+#endif
+
 namespace lean {
 static name * g_pp_max_depth       = nullptr;
 static name * g_pp_max_steps       = nullptr;
@@ -83,6 +87,7 @@ static name * g_pp_beta            = nullptr;
 static name * g_pp_numerals        = nullptr;
 static name * g_pp_abbreviations   = nullptr;
 static name * g_pp_extra_spaces    = nullptr;
+static name * g_pp_preterm         = nullptr;
 static list<options> * g_distinguishing_pp_options = nullptr;
 
 void initialize_pp_options() {
@@ -101,6 +106,7 @@ void initialize_pp_options() {
     g_pp_numerals        = new name{"pp", "numerals"};
     g_pp_abbreviations   = new name{"pp", "abbreviations"};
     g_pp_extra_spaces    = new name{"pp", "extra_spaces"};
+    g_pp_preterm         = new name{"pp", "preterm"};
     register_unsigned_option(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH,
                              "(pretty printer) maximum expression depth, after that it will use ellipsis");
     register_unsigned_option(*g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS,
@@ -133,6 +139,8 @@ void initialize_pp_options() {
                          "(pretty printer) display abbreviations (i.e., revert abbreviation expansion when pretty printing)");
     register_bool_option(*g_pp_extra_spaces, LEAN_DEFAULT_PP_EXTRA_SPACES,
                          "(pretty printer) add space after prefix operators and before postfix ones");
+    register_bool_option(*g_pp_preterm, LEAN_DEFAULT_PP_PRETERM,
+                         "(pretty printer) assume the term is a preterm (i.e., a term before elaboration)");
 
     options universes_true(*g_pp_universes, true);
     options full_names_true(*g_pp_full_names, true);
@@ -147,6 +155,7 @@ void initialize_pp_options() {
 }
 
 void finalize_pp_options() {
+    delete g_pp_preterm;
     delete g_pp_extra_spaces;
     delete g_pp_abbreviations;
     delete g_pp_numerals;
@@ -174,6 +183,7 @@ name const & get_pp_metavar_args_name() { return *g_pp_metavar_args; }
 name const & get_pp_purify_metavars_name() { return *g_pp_purify_metavars; }
 name const & get_pp_purify_locals_name() { return *g_pp_purify_locals; }
 name const & get_pp_beta_name() { return *g_pp_beta; }
+name const & get_pp_preterm_name() { return *g_pp_preterm; }
 
 unsigned get_pp_max_depth(options const & opts)       { return opts.get_unsigned(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH); }
 unsigned get_pp_max_steps(options const & opts)       { return opts.get_unsigned(*g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS); }
@@ -190,5 +200,6 @@ bool     get_pp_beta(options const & opts)            { return opts.get_bool(*g_
 bool     get_pp_numerals(options const & opts)        { return opts.get_bool(*g_pp_numerals, LEAN_DEFAULT_PP_NUMERALS); }
 bool     get_pp_abbreviations(options const & opts)   { return opts.get_bool(*g_pp_abbreviations, LEAN_DEFAULT_PP_ABBREVIATIONS); }
 bool     get_pp_extra_spaces(options const & opts)    { return opts.get_bool(*g_pp_extra_spaces, LEAN_DEFAULT_PP_EXTRA_SPACES); }
+bool     get_pp_preterm(options const & opts)         { return opts.get_bool(*g_pp_preterm, LEAN_DEFAULT_PP_PRETERM); }
 list<options> const & get_distinguishing_pp_options() { return *g_distinguishing_pp_options; }
 }

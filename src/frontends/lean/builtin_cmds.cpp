@@ -133,6 +133,7 @@ static bool print_parse_table(parser & p, parse_table const & t, bool nud, buffe
     options os   = ios.get_options();
     os = os.update_if_undef(get_pp_full_names_option_name(), true);
     os = os.update(get_pp_notation_option_name(), false);
+    os = os.update(get_pp_preterm_name(), true);
     ios.set_options(os);
     optional<token_table> tt(get_token_table(p.env()));
     t.for_each([&](unsigned num, notation::transition const * ts, list<expr> const & overloads) {

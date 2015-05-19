@@ -230,7 +230,8 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
                 }
             } else if (p.curr_is_token(get_match_tk()) || p.curr_is_token(get_assume_tk()) ||
                        p.curr_is_token(get_take_tk())  || p.curr_is_token(get_fun_tk()) ||
-                       p.curr_is_token(get_calc_tk())  || p.curr_is_token(get_show_tk())) {
+                       p.curr_is_token(get_calc_tk())  || p.curr_is_token(get_show_tk()) ||
+                       p.curr_is_token(get_obtain_tk())) {
                 auto pos = p.pos();
                 expr t = p.parse_tactic_expr_arg();
                 t      = p.mk_app(get_exact_tac_fn(), t, pos);

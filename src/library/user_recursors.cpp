@@ -100,6 +100,10 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
             dep_elim = true;
         else
             dep_elim = false;
+    } else if (C_args.empty()) {
+        throw exception(sstream() << "invalid user defined recursor, '" << r << "' does not support dependent elimination, "
+                        << "and position of the major premise was not specified "
+                        << "(solution: set attribute '[recursor <pos>]', where <pos> is the position of the major premise)");
     } else {
         major    = C_args.back();
         dep_elim = true;

@@ -61,8 +61,9 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
             motive_univ_pos = 0;
         unsigned major_pos         = *inductive::get_elim_major_idx(env, r);
         unsigned num_indices       = *inductive::get_num_indices(env, *I);
-        list<unsigned> params_pos  = mk_list_range(0, *inductive::get_num_params(env, *I));
-        list<unsigned> indices_pos = mk_list_range(major_pos - num_indices, major_pos);
+        unsigned num_parms         = *inductive::get_num_params(env, *I);
+        list<unsigned> params_pos  = mk_list_range(0, num_parms);
+        list<unsigned> indices_pos = mk_list_range(num_parms, num_parms + num_indices);
         return recursor_info(r, *I, motive_univ_pos, inductive::has_dep_elim(env, *I),
                              major_pos, params_pos, indices_pos);
     }

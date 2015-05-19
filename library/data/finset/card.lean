@@ -15,13 +15,11 @@ variables [deceqA : decidable_eq A] [deceqB : decidable_eq B]
 include deceqA
 
 theorem card_add_card (s₁ s₂ : finset A) : card s₁ + card s₂ = card (s₁ ∪ s₂) + card (s₁ ∩ s₂) :=
-finset.induction_on s₂
-  (show card s₁ + card ∅ = card (s₁ ∪ ∅) + card (s₁ ∩ ∅),
-    by rewrite [union_empty, card_empty, inter_empty])
-  (take s₂ a,
-    assume ans2: a ∉ s₂,
-    assume IH : card s₁ + card s₂ = card (s₁ ∪ s₂) + card (s₁ ∩ s₂),
-    show card s₁ + card (insert a s₂) = card (s₁ ∪ (insert a s₂)) + card (s₁ ∩ (insert a s₂)),
+begin
+  induction s₂ with s₂ a ans2 IH,
+   show card s₁ + card (∅:finset A) = card (s₁ ∪ ∅) + card (s₁ ∩ ∅),
+    by rewrite [union_empty, card_empty, inter_empty],
+   show card s₁ + card (insert a s₂) = card (s₁ ∪ (insert a s₂)) + card (s₁ ∩ (insert a s₂)),
     from decidable.by_cases
       (assume as1 : a ∈ s₁,
         assert H : a ∉ s₁ ∩ s₂, from assume H', ans2 (mem_of_mem_inter_right H'),
@@ -39,7 +37,8 @@ finset.induction_on s₂
           rewrite [card_insert_of_not_mem H, insert_eq, inter.distrib_left, inter.comm],
           rewrite [singleton_inter_of_not_mem ans1, empty_union, add.right_comm],
           rewrite [-add.assoc, IH]
-        end))
+        end)
+end
 
 theorem card_union (s₁ s₂ : finset A) : card (s₁ ∪ s₂) = card s₁ + card s₂ - card (s₁ ∩ s₂) :=
 calc
@@ -62,39 +61,35 @@ section card_image
 open set
 include deceqB
 
-theorem card_image_eq_of_inj_on {f : A → B} {s : finset A} :
-  inj_on f (ts s) → card (image f s) = card s :=
-finset.induction_on s
-  (assume H : inj_on f (ts empty), calc
-    card (image f empty) = 0          : card_empty
-                     ... = card empty : card_empty)
-  (take t a,
-    assume H : a ∉ t,
-    assume IH : inj_on f (ts t) → card (image f t) = card t,
-    assume H1 : inj_on f (ts (insert a t)),
-    have H2 : ts t ⊆ ts (insert a t), by rewrite [-subset_eq_to_set_subset]; apply subset_insert,
-    have H3 : card (image f t) = card t, from IH (inj_on_of_inj_on_of_subset H1 H2),
-    have H4 : f a ∉ image f t,
+theorem card_image_eq_of_inj_on {f : A → B} {s : finset A} (H1 : inj_on f (ts s)) : card (image f s) = card s :=
+begin
+  induction s with t a H IH,
+    { rewrite [card_empty] },
+    { have H2 : ts t ⊆ ts (insert a t), by rewrite [-subset_eq_to_set_subset]; apply subset_insert,
+      have H3 : card (image f t) = card t, from IH (inj_on_of_inj_on_of_subset H1 H2),
+      have H4 : f a ∉ image f t,
       proof
         assume H5 : f a ∈ image f t,
         obtain x (H6l : x ∈ t) (H6r : f x = f a), from exists_of_mem_image H5,
         have H7 : x = a, from H1 (mem_insert_of_mem _ H6l) !mem_insert H6r,
         show false, from H (H7 ▸ H6l)
       qed,
-    calc
-      card (image f (insert a t)) = card (insert (f a) (image f t)) : image_insert
-                              ... = card (image f t) + 1            : card_insert_of_not_mem H4
-                              ... = card t + 1                      : H3
-                              ... = card (insert a t)               : card_insert_of_not_mem H)
+      calc
+        card (image f (insert a t)) = card (insert (f a) (image f t)) : image_insert
+                                ... = card (image f t) + 1            : card_insert_of_not_mem H4
+                                ... = card t + 1                      : H3
+                                ... = card (insert a t)               : card_insert_of_not_mem H
+    }
+end
 end card_image
 
 theorem Sum_const_eq_card_mul (s : finset A) (n : nat) : (∑ x ∈ s, n) = card s * n :=
-finset.induction_on s
-  (by rewrite [Sum_empty, card_empty, zero_mul])
-  (take s' a, assume H : a ∉ s',
-    assume IH,
-    by rewrite [Sum_insert_of_not_mem _ H, IH, card_insert_of_not_mem H, add.comm,
-                 mul.right_distrib, one_mul])
+begin
+  induction s with s' a H IH,
+    rewrite [Sum_empty, card_empty, zero_mul],
+    rewrite [Sum_insert_of_not_mem _ H, IH, card_insert_of_not_mem H, add.comm,
+             mul.right_distrib, one_mul]
+end
 
 theorem Sum_one_eq_card (s : finset A) : (∑ x ∈ s, (1 : nat)) = card s :=
 eq.trans !Sum_const_eq_card_mul !mul_one

@@ -1,0 +1,18 @@
+show_tac.lean:6:29: error: don't know how to synthesize placeholder
+a b : Prop,
+Hab : a ∧ b,
+Ha : a,
+Hb : b
+⊢ b
+show_tac.lean:6:2: error:invalid 'exact' tactic, term still contains metavariables after elaboration
+  show b ∧ a, from and.intro ?M_1 Ha
+proof state:
+a b : Prop,
+Hab : a ∧ b,
+Ha : a,
+Hb : b
+⊢ b ∧ a
+show_tac.lean:7:0: error: failed to add declaration '14.0' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  λ (a b : Prop) (Hab : …),
+    ?M_1

@@ -205,17 +205,16 @@ namespace sigma
     intro u,
     cases u with a b,
     apply (sigma_eq (left_inv f a)),
-    show transport B (left_inv f a) ((g (f⁻¹ (f a)))⁻¹ (transport B' (right_inv f (f a))⁻¹ (g a b))) = b,
-    from calc
+    calc
       transport B (left_inv f a) ((g (f⁻¹ (f a)))⁻¹ (transport B' (right_inv f (f a))⁻¹ (g a b)))
           = (g a)⁻¹ (transport (B' ∘ f) (left_inv f a) (transport B' (right_inv f (f a))⁻¹ (g a b)))
-              : by rewrite (fn_tr_eq_tr_fn (left_inv f a) (λ a, (g a)⁻¹))
+              : by esimp; rewrite (fn_tr_eq_tr_fn (left_inv f a) (λ a, (g a)⁻¹))
       ... = (g a)⁻¹ (transport B' (ap f (left_inv f a)) (transport B' (right_inv f (f a))⁻¹ (g a b)))
               : ap (g a)⁻¹ !transport_compose
       ... = (g a)⁻¹ (transport B' (ap f (left_inv f a)) (transport B' (ap f (left_inv f a))⁻¹ (g a b)))
            : ap (λ x, (g a)⁻¹ (transport B' (ap f (left_inv f a)) (transport B' x⁻¹ (g a b)))) (adj f a)
       ... = (g a)⁻¹ (g a b) : {!tr_inv_tr}
-      ... = b : by rewrite (left_inv (g a) b)
+      ... = b : by esimp; rewrite (left_inv (g a) b)
   end
 
   definition sigma_equiv_sigma_of_is_equiv [H1 : is_equiv f] [H2 : Π a, is_equiv (g a)]

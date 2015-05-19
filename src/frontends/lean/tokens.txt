@@ -124,6 +124,7 @@ postfix      postfix
 prefix       prefix
 notation     notation
 call         call
+calc         calc
 persistent   [persistent]
 root         _root_
 fields       fields

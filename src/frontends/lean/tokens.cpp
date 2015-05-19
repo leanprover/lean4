@@ -129,6 +129,7 @@ static name const * g_postfix_tk = nullptr;
 static name const * g_prefix_tk = nullptr;
 static name const * g_notation_tk = nullptr;
 static name const * g_call_tk = nullptr;
+static name const * g_calc_tk = nullptr;
 static name const * g_persistent_tk = nullptr;
 static name const * g_root_tk = nullptr;
 static name const * g_fields_tk = nullptr;
@@ -262,6 +263,7 @@ void initialize_tokens() {
     g_prefix_tk = new name{"prefix"};
     g_notation_tk = new name{"notation"};
     g_call_tk = new name{"call"};
+    g_calc_tk = new name{"calc"};
     g_persistent_tk = new name{"[persistent]"};
     g_root_tk = new name{"_root_"};
     g_fields_tk = new name{"fields"};
@@ -396,6 +398,7 @@ void finalize_tokens() {
     delete g_prefix_tk;
     delete g_notation_tk;
     delete g_call_tk;
+    delete g_calc_tk;
     delete g_persistent_tk;
     delete g_root_tk;
     delete g_fields_tk;
@@ -529,6 +532,7 @@ name const & get_postfix_tk() { return *g_postfix_tk; }
 name const & get_prefix_tk() { return *g_prefix_tk; }
 name const & get_notation_tk() { return *g_notation_tk; }
 name const & get_call_tk() { return *g_call_tk; }
+name const & get_calc_tk() { return *g_calc_tk; }
 name const & get_persistent_tk() { return *g_persistent_tk; }
 name const & get_root_tk() { return *g_root_tk; }
 name const & get_fields_tk() { return *g_fields_tk; }

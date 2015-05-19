@@ -131,6 +131,7 @@ name const & get_postfix_tk();
 name const & get_prefix_tk();
 name const & get_notation_tk();
 name const & get_call_tk();
+name const & get_calc_tk();
 name const & get_persistent_tk();
 name const & get_root_tk();
 name const & get_fields_tk();

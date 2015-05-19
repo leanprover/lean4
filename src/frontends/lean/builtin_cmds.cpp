@@ -272,34 +272,34 @@ bool print_polymorphic(parser & p) {
         name id = p.check_id_next("");
         // declarations
         try {
-            name c = p.to_constant(id, "", pos);
-            declaration const & d = env.get(c);
-            if (d.is_theorem()) {
-                print_constant(p, "theorem", d);
-                print_definition(p, c, pos);
-                return true;
-            } else if (d.is_axiom() || d.is_constant_assumption()) {
-                if (inductive::is_inductive_decl(env, c)) {
-                    print_inductive(p, c, pos);
-                    return true;
-                } else if (inductive::is_intro_rule(env, c)) {
-                    return print_constant(p, "constructor", d);
-                } else if (inductive::is_elim_rule(env, c)) {
-                    return print_constant(p, "eliminator", d);
-                } else if (is_quotient_decl(env, c)) {
-                    return print_constant(p, "builtin-quotient-type-constant", d);
-                } else if (is_hits_decl(env, c)) {
-                    return print_constant(p, "builtin-HIT-constant", d);
-                } else if (d.is_axiom()) {
-                    return print_constant(p, "axiom", d);
-                } else if (d.is_constant_assumption()) {
-                    return print_constant(p, "constant", d);
+            list<name> cs = p.to_constants(id, "", pos);
+            for (name const & c : cs) {
+                declaration const & d = env.get(c);
+                if (d.is_theorem()) {
+                    print_constant(p, "theorem", d);
+                    print_definition(p, c, pos);
+                } else if (d.is_axiom() || d.is_constant_assumption()) {
+                    if (inductive::is_inductive_decl(env, c)) {
+                        print_inductive(p, c, pos);
+                    } else if (inductive::is_intro_rule(env, c)) {
+                        print_constant(p, "constructor", d);
+                    } else if (inductive::is_elim_rule(env, c)) {
+                        print_constant(p, "eliminator", d);
+                    } else if (is_quotient_decl(env, c)) {
+                        print_constant(p, "builtin-quotient-type-constant", d);
+                    } else if (is_hits_decl(env, c)) {
+                        print_constant(p, "builtin-HIT-constant", d);
+                    } else if (d.is_axiom()) {
+                        print_constant(p, "axiom", d);
+                    } else {
+                        print_constant(p, "constant", d);
+                    }
+                } else if (d.is_definition()) {
+                    print_constant(p, "definition", d);
+                    print_definition(p, c, pos);
                 }
-            } else if (d.is_definition()) {
-                print_constant(p, "definition", d);
-                print_definition(p, c, pos);
-                return true;
             }
+            return true;
         } catch (exception & ex) {}
 
         // variables and parameters
@@ -371,8 +371,20 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token_or_id(get_definition_tk())) {
         p.next();
         auto pos = p.pos();
-        name c = p.check_constant_next("invalid 'print definition', constant expected");
-        print_definition(p, c, pos);
+        name id  = p.check_id_next("invalid 'print definition', constant expected");
+        list<name> cs = p.to_constants(id, "invalid 'print definition', constant expected", pos);
+        for (name const & c : cs) {
+            declaration const & d = p.env().get(c);
+            if (d.is_theorem()) {
+                print_constant(p, "theorem", d);
+                print_definition(p, c, pos);
+            } else if (d.is_definition()) {
+                print_constant(p, "definition", d);
+                print_definition(p, c, pos);
+            } else {
+                throw parser_error(sstream() << "invalid 'print definition', '" << c << "' is not a definition", pos);
+            }
+        }
     } else if (p.curr_is_token_or_id(get_instances_tk())) {
         p.next();
         name c = p.check_constant_next("invalid 'print instances', constant expected");

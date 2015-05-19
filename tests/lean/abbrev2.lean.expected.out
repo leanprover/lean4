@@ -1,9 +1,16 @@
+definition bla.tst : ℕ
 foo
+definition bla.tst : ℕ
 10 + 1
 abbrev2.lean:12:6: error: unknown identifier 'bla.foo'
 abbrev2.lean:14:6: error: unknown identifier 'foo'
+definition bla.tst : ℕ
 10 + 1
+definition bla2.tst2 : ℕ
 foo2
+definition bla2.tst2 : ℕ
 1
+definition bla2.tst2 : ℕ
 foo2
+definition bla2.tst2 : ℕ
 foo2

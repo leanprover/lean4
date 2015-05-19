@@ -1230,22 +1230,30 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
     return *r;
 }
 
-name parser::to_constant(name const & id, char const * msg, pos_info const & p) {
+list<name> parser::to_constants(name const & id, char const * msg, pos_info const & p) {
     expr e  = id_to_expr(id, p);
-    if (in_section(m_env) && is_as_atomic(e)) {
-        e = get_app_fn(get_as_atomic_arg(e));
-        if (is_explicit(e))
-            e = get_explicit_arg(e);
-    }
 
-    while (is_choice(e))
-        e = get_choice(e, 0);
+    buffer<name> rs;
+    std::function<void(expr const & e)> visit = [&](expr const & e) {
+        if (in_section(m_env) && is_as_atomic(e)) {
+            visit(get_app_fn(get_as_atomic_arg(e)));
+        } else if (is_explicit(e)) {
+            visit(get_explicit_arg(e));
+        } else if (is_choice(e)) {
+            for (unsigned i = 0; i < get_num_choices(e); i++)
+                visit(get_choice(e, i));
+        } else if (is_constant(e)) {
+            rs.push_back(const_name(e));
+        } else {
+            throw parser_error(msg, p);
+        }
+    };
+    visit(e);
+    return to_list(rs);
+}
 
-    if (is_constant(e)) {
-        return const_name(e);
-    } else {
-        throw parser_error(msg, p);
-    }
+name parser::to_constant(name const & id, char const * msg, pos_info const & p) {
+    return head(to_constants(id, msg, p));
 }
 
 name parser::check_constant_next(char const * msg) {

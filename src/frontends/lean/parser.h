@@ -345,6 +345,7 @@ public:
     /** \brief Check if the current token is an atomic identifier, if it is, return it and move to next token,
         otherwise throw an exception. */
     name check_atomic_id_next(char const * msg);
+    list<name> to_constants(name const & id, char const * msg, pos_info const & p);
     name to_constant(name const & id, char const * msg, pos_info const & p);
     /** \brief Check if the current token is a constant, if it is, return it and move to next token, otherwise throw an exception. */
     name check_constant_next(char const * msg);

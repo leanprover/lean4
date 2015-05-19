@@ -1,3 +1,6 @@
+definition tst : ℕ
 (λ (a : Type₁), 2 + 3) ℕ
+definition tst : ℕ
 foo ℕ
+definition tst1 : num
 is_typeof num 10

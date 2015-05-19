@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
+#include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"
 #include "library/user_recursors.h"
@@ -46,7 +47,8 @@ class induction_tac {
         - non_deps : hypotheses that do not depend on H nor its indices
         - deps     : hypotheses that depend on H or its indices (directly or indirectly)
     */
-    void split_deps(buffer<expr> const & hyps, expr const & h, buffer<expr> const & indices, buffer<expr> & non_deps, buffer<expr> & deps) {
+    void split_deps(buffer<expr> const & hyps, expr const & h, buffer<expr> const & indices,
+                    buffer<expr> & non_deps, buffer<expr> & deps) {
         for (expr const & hyp : hyps) {
             if (hyp == h) {
                 // we clear h
@@ -61,42 +63,22 @@ class induction_tac {
         }
     }
 
-    bool validate_rec_info(goal const & g, expr const & h, expr const & h_type, recursor_info const & rec_info) {
-        unsigned nindices = rec_info.get_num_indices();
-        if (nindices == 0)
-            return true;
-        buffer<expr> args;
-        get_app_args(h_type, args);
-        if (rec_info.get_num_params() + nindices != args.size())
-            return false;
-        unsigned fidx = args.size() - nindices;
-        for (unsigned i = fidx; i < args.size(); i++) {
-            if (!is_local(args[i]))
-                return false; // the indices must be local constants
-            for (unsigned j = 0; j < i; j++) {
-                if (is_local(args[j]) && mlocal_name(args[j]) == mlocal_name(args[i]))
-                    return false; // the indices must be distinct local constants
-            }
-        }
-        if (!rec_info.has_dep_elim() && depends_on(g.get_type(), h))
-            return false;
-        return true;
+    void throw_ill_formed_recursor(recursor_info const & rec_info) {
+        throw tactic_exception(sstream() << "invalid 'induction' tactic, recursor '" << rec_info.get_name()
+                               << "' is ill-formed");
     }
 
-    goals apply_recursor(goal const & g, expr const & h, expr const & h_type, recursor_info const & rec_info) {
+    goals apply_recursor(goal const & g, unsigned num_deps, expr const & h, expr const & h_type,
+                         buffer<expr> const & params, buffer<expr> const & indices,
+                         recursor_info const & rec_info) {
         expr const & g_type = g.get_type();
         level g_lvl         = sort_level(m_tc.ensure_type(g_type).first);
-        buffer<expr> I_args;
-        expr const & I = get_app_args(h_type, I_args);
-        buffer<expr> params;
-        params.append(rec_info.get_num_params(), I_args.data());
-        buffer<expr> indices;
-        indices.append(rec_info.get_num_indices(), I_args.data() + params.size());
         levels rec_levels;
+        expr const & I = get_app_fn(h_type);
         if (auto lpos = rec_info.get_motive_univ_pos()) {
             buffer<level> ls;
             unsigned i = 0;
-            for (level const & l : ls) {
+            for (level const & l : const_levels(I)) {
                 if (i == *lpos)
                     ls.push_back(g_lvl);
                 ls.push_back(l);
@@ -112,32 +94,124 @@ class induction_tac {
             }
             rec_levels = const_levels(I);
         }
-        expr rec = mk_constant(rec_info.get_name(), rec_levels);
-        rec      = mk_app(rec, params);
+        expr rec    = mk_constant(rec_info.get_name(), rec_levels);
+        rec         = mk_app(rec, params);
         expr motive = g_type;
         if (rec_info.has_dep_elim())
             motive  = Fun(h, motive);
         motive = Fun(indices, motive);
         rec      = mk_app(rec, motive);
-
-        // TODO(Leo):
-        regular(m_env, m_ios) << ">> rec: " << rec << "\n";
-
-        return goals();
+        buffer<expr> hyps;
+        g.get_hyps(hyps);
+        buffer<expr> new_hyps;
+        for (expr const & curr_h : hyps) {
+            if (mlocal_name(curr_h) != mlocal_name(h) &&
+                std::all_of(indices.begin(), indices.end(),
+                            [&](expr const & idx) { return mlocal_name(curr_h) != mlocal_name(idx); })) {
+                new_hyps.push_back(curr_h);
+            }
+        }
+        expr rec_type          = m_tc.whnf(m_tc.infer(rec).first).first;
+        unsigned curr_pos      = params.size() + 1 /* motive */;
+        unsigned first_idx_pos = rec_info.get_first_index_pos();
+        bool consumed_major    = false;
+        buffer<goal> new_goals;
+        while (is_pi(rec_type) && curr_pos < rec_info.get_num_args()) {
+            if (first_idx_pos == curr_pos) {
+                for (expr const & idx : indices) {
+                    rec      = mk_app(rec, idx);
+                    rec_type = m_tc.whnf(instantiate(binding_body(rec_type), idx)).first;
+                    if (!is_pi(rec_type))
+                        throw_ill_formed_recursor(rec_info);
+                    curr_pos++;
+                }
+                rec      = mk_app(rec, h);
+                rec_type = m_tc.whnf(instantiate(binding_body(rec_type), h)).first;
+                consumed_major = true;
+                curr_pos++;
+            } else {
+                buffer<expr> new_goal_hyps;
+                new_goal_hyps.append(new_hyps);
+                expr new_type  = binding_domain(rec_type);
+                unsigned arity = get_arity(new_type);
+                // introduce minor arguments
+                buffer<expr> minor_args;
+                for (unsigned i = 0; i < arity; i++) {
+                    expr arg_type = binding_domain(new_type);
+                    name arg_name;
+                    if (m_ids) {
+                        arg_name = head(m_ids);
+                        m_ids    = tail(m_ids);
+                    } else {
+                        arg_name = binding_name(new_type);
+                    }
+                    expr new_h = mk_local(m_ngen.next(), get_unused_name(arg_name, new_goal_hyps),
+                                          arg_type, binder_info());
+                    minor_args.push_back(new_h);
+                    new_goal_hyps.push_back(new_h);
+                    new_type = instantiate(binding_body(new_type), new_h);
+                }
+                new_type = head_beta_reduce(new_type);
+                buffer<expr> new_deps;
+                // introduce deps
+                for (unsigned i = 0; i < num_deps; i++) {
+                    if (!is_pi(new_type))
+                        throw_ill_formed_recursor(rec_info);
+                    expr dep_type = binding_domain(new_type);
+                    expr new_dep  = mk_local(m_ngen.next(), get_unused_name(binding_name(new_type), new_goal_hyps),
+                                             dep_type, binder_info());
+                    new_deps.push_back(new_dep);
+                    new_goal_hyps.push_back(new_dep);
+                    new_type = instantiate(binding_body(new_type), new_dep);
+                }
+                expr new_meta  = mk_app(mk_metavar(m_ngen.next(), Pi(new_goal_hyps, new_type)), new_goal_hyps);
+                goal new_g(new_meta, new_type);
+                new_goals.push_back(new_g);
+                rec            = mk_app(rec, Fun(minor_args, Fun(new_deps, new_meta)));
+                rec_type       = m_tc.whnf(instantiate(binding_body(rec_type), new_meta)).first;
+                curr_pos++;
+            }
+        }
+        if (!consumed_major)
+            throw_ill_formed_recursor(rec_info);
+        assign(g, rec);
+        return to_list(new_goals);
     }
 
     optional<goals> execute(goal const & g, expr const & h, expr const & h_type, name const & rec) {
         try {
             recursor_info rec_info = get_recursor_info(m_env, rec);
-            if (!validate_rec_info(g, h, h_type, rec_info)) {
-                throw tactic_exception(sstream() << "invalid 'induction' tactic, indices occurring in the hypothesis '"
-                                       << h << "' must be distinct variables");
-            }
-            unsigned nindices = rec_info.get_num_indices();
             buffer<expr> h_type_args;
             get_app_args(h_type, h_type_args);
+            buffer<expr> params;
+            for (unsigned pos : rec_info.get_params_pos()) {
+                if (pos >= h_type_args.size())
+                    throw tactic_exception("invalid 'induction' tactic, major premise type is ill-formed");
+                params.push_back(h_type_args[pos]);
+            }
             buffer<expr> indices;
-            indices.append(nindices, h_type_args.end() - nindices);
+            for (unsigned pos : rec_info.get_indices_pos()) {
+                if (pos >= h_type_args.size())
+                    throw tactic_exception("invalid 'induction' tactic, major premise type is ill-formed");
+                expr const & idx = h_type_args[pos];
+                if (!is_local(idx)) {
+                    throw tactic_exception(sstream() << "invalid 'induction' tactic, argument #"
+                                           << pos+1 << " of major premise '" << h << "' type is not a variable");
+                }
+                for (unsigned i = 0; i < h_type_args.size(); i++) {
+                    if (i != pos && is_local(h_type_args[i]) && mlocal_name(h_type_args[i]) == mlocal_name(idx)) {
+                        throw tactic_exception(sstream() << "invalid 'induction' tactic, argument #"
+                                               << pos+1 << " of major premise '" << h << "' type is an index, "
+                                               << "but it occurs more than once");
+                    }
+                }
+                indices.push_back(idx);
+            }
+            if (!rec_info.has_dep_elim() && depends_on(g.get_type(), h)) {
+                throw tactic_exception(sstream() << "invalid 'induction' tactic, recursor '" << rec
+                                       << "' does not support dependent elimination, but conclusion "
+                                       << "depends on major premise '" << h << "'");
+            }
             buffer<expr> hyps, non_deps, deps;
             g.get_hyps(hyps);
             split_deps(hyps, h, indices, non_deps, deps);
@@ -148,10 +222,7 @@ class induction_tac {
             goal new_g(new_meta, new_type);
             expr val      = mk_app(new_meta, deps);
             assign(g, val);
-            regular(m_env, m_ios) << new_g << "\n";
-            goals new_gs  = apply_recursor(new_g, h, h_type, rec_info);
-            // TODO(Leo): finish
-            return optional<goals>();
+            return optional<goals>(apply_recursor(new_g, deps.size(), h, h_type, params, indices, rec_info));
         } catch (exception const & ex) {
             throw tactic_exception(sstream() << "invalid 'induction' tactic, " << ex.what());
         }
@@ -207,8 +278,6 @@ public:
 tactic induction_tactic(name const & H, optional<name> rec, list<name> const & ids) {
     name rec1 = "unknown";
     if (rec) rec1 = *rec;
-    std::cout << "induction: " << H << " " << rec1 << " " << ids << "\n";
-
     auto fn = [=](environment const & env, io_state const & ios, proof_state const & ps) -> optional<proof_state> {
         goals const & gs  = ps.get_goals();
         if (empty(gs)) {

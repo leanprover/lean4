@@ -109,7 +109,8 @@ namespace Wtype
       (∀ (b : B a) (b' : B a'), P (f b) (f' b')) → P (sup a f) (sup a' f')) : P w w' :=
   begin
     revert w',
-    eapply (Wtype.rec_on w), intro a f IH w',
+    induction w with a f IH,
+    intro w',
     cases w' with a' f',
     apply H, intro b b',
     apply IH

@@ -1,4 +1,3 @@
-induction: h and.rec_on (h₁ h₂)
 user_rec_crash.lean:3:2: error:invalid 'induction' tactic, invalid user defined recursor, 'and.rec_on' does not support dependent elimination, and position of the major premise was not specified (solution: set attribute '[recursor <pos>]', where <pos> is the position of the major premise)
 proof state:
 a b : Prop,

@@ -13,6 +13,7 @@ class recursor_info {
     name               m_type_name;
     optional<unsigned> m_motive_univ_pos; // if none, then recursor can only eliminate to Prop
     bool               m_dep_elim;
+    unsigned           m_num_args; // total number of arguments
     unsigned           m_major_pos;
     list<unsigned>     m_params_pos; // position of the recursor parameters in the major premise
     list<unsigned>     m_indices_pos; // position of the recursor indices in the major premise
@@ -21,13 +22,14 @@ public:
     recursor_info(name const & r, name const & I,
                   optional<unsigned> const & motive_univ_pos,
                   bool dep_elim,
-                  unsigned major_pos,
+                  unsigned num_args, unsigned major_pos,
                   list<unsigned> const & params_pos,
                   list<unsigned> const & indices_pos);
     recursor_info();
 
     name const & get_name() const { return m_recursor; }
     name const & get_type_name() const { return m_type_name; }
+    unsigned get_num_args() const { return m_num_args; }
     unsigned get_num_params() const { return length(m_params_pos); }
     unsigned get_num_indices() const { return length(m_indices_pos); }
     unsigned get_motive_pos() const { return get_num_params(); }

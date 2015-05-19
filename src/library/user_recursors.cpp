@@ -23,10 +23,10 @@ bool recursor_info::is_minor(unsigned pos) const {
 }
 
 recursor_info::recursor_info(name const & r, name const & I, optional<unsigned> const & motive_univ_pos,
-                             bool dep_elim, unsigned major_pos, list<unsigned> const & params_pos,
+                             bool dep_elim, unsigned num_args, unsigned major_pos, list<unsigned> const & params_pos,
                              list<unsigned> const & indices_pos):
     m_recursor(r), m_type_name(I), m_motive_univ_pos(motive_univ_pos), m_dep_elim(dep_elim),
-    m_major_pos(major_pos), m_params_pos(params_pos), m_indices_pos(indices_pos) {}
+    m_num_args(num_args), m_major_pos(major_pos), m_params_pos(params_pos), m_indices_pos(indices_pos) {}
 recursor_info::recursor_info() {}
 
 void recursor_info::write(serializer & s) const {
@@ -61,11 +61,13 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
             motive_univ_pos = 0;
         unsigned major_pos         = *inductive::get_elim_major_idx(env, r);
         unsigned num_indices       = *inductive::get_num_indices(env, *I);
-        unsigned num_parms         = *inductive::get_num_params(env, *I);
-        list<unsigned> params_pos  = mk_list_range(0, num_parms);
-        list<unsigned> indices_pos = mk_list_range(num_parms, num_parms + num_indices);
+        unsigned num_params        = *inductive::get_num_params(env, *I);
+        unsigned num_minors        = *inductive::get_num_minor_premises(env, *I);
+        unsigned num_args          = num_params + 1 /* motive */ + num_minors + num_indices + 1 /* major */;
+        list<unsigned> params_pos  = mk_list_range(0, num_params);
+        list<unsigned> indices_pos = mk_list_range(num_params, num_params + num_indices);
         return recursor_info(r, *I, motive_univ_pos, inductive::has_dep_elim(env, *I),
-                             major_pos, params_pos, indices_pos);
+                             num_args, major_pos, params_pos, indices_pos);
     }
     declaration d = env.get(r);
     type_checker tc(env);
@@ -196,7 +198,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         lean_assert(*C_univ_pos < length(d.get_univ_params()));
     }
 
-    return recursor_info(r, const_name(I), C_univ_pos, dep_elim, major_pos,
+    return recursor_info(r, const_name(I), C_univ_pos, dep_elim, tele.size(), major_pos,
                          to_list(params_pos), to_list(indices_pos));
 }
 

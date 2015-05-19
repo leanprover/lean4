@@ -258,6 +258,8 @@ static void print_recursor_info(parser & p) {
 
 bool print_constant(parser & p, char const * kind, declaration const & d) {
     io_state_stream out = p.regular_stream();
+    if (is_protected(p.env(), d.get_name()))
+        out << "protected ";
     out << kind << " " << d.get_name();
     print_attributes(p, d.get_name());
     out << " : " << d.get_type() << "\n";

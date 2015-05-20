@@ -54,6 +54,42 @@ Author: Leonardo de Moura
 #include "frontends/lean/calc.h"
 
 namespace lean {
+/** \brief Custom converter that does not unfold constants that contains coercions from it.
+    We use this converter for detecting whether we have coercions from a given type. */
+class coercion_from_converter : public unfold_semireducible_converter {
+    environment m_env;
+public:
+    coercion_from_converter(environment const & env):unfold_semireducible_converter(env, true), m_env(env) {}
+    virtual bool is_opaque(declaration const & d) const {
+        if (has_coercions_from(m_env, d.get_name()))
+            return true;
+        return unfold_semireducible_converter::is_opaque(d);
+    }
+};
+
+/** \brief Custom converter that does not unfold constants that contains coercions to it.
+    We use this converter for detecting whether we have coercions to a given type. */
+class coercion_to_converter : public unfold_semireducible_converter {
+    environment m_env;
+public:
+    coercion_to_converter(environment const & env):unfold_semireducible_converter(env, true), m_env(env) {}
+    virtual bool is_opaque(declaration const & d) const {
+        if (has_coercions_to(m_env, d.get_name()))
+            return true;
+        return unfold_semireducible_converter::is_opaque(d);
+    }
+};
+
+type_checker_ptr mk_coercion_from_type_checker(environment const & env, name_generator const & ngen) {
+    return std::unique_ptr<type_checker>(new type_checker(env, ngen,
+           std::unique_ptr<converter>(new coercion_from_converter(env))));
+}
+
+type_checker_ptr mk_coercion_to_type_checker(environment const & env, name_generator const & ngen) {
+    return std::unique_ptr<type_checker>(new type_checker(env, ngen,
+           std::unique_ptr<converter>(new coercion_to_converter(env))));
+}
+
 /** \brief 'Choice' expressions <tt>(choice e_1 ... e_n)</tt> are mapped into a metavariable \c ?m
     and a choice constraints <tt>(?m in fn)</tt> where \c fn is a choice function.
     The choice function produces a stream of alternatives. In this case, it produces a stream of
@@ -116,6 +152,8 @@ elaborator::elaborator(elaborator_context & ctx, name_generator const & ngen, bo
     m_no_info           = false;
     m_in_equation_lhs   = false;
     m_tc                = mk_type_checker(ctx.m_env, m_ngen.mk_child());
+    m_coercion_from_tc  = mk_coercion_from_type_checker(ctx.m_env, m_ngen.mk_child());
+    m_coercion_to_tc    = mk_coercion_to_type_checker(ctx.m_env, m_ngen.mk_child());
     m_nice_mvar_names   = nice_mvar_names;
 }
 
@@ -383,6 +421,8 @@ static expr mk_coercion_app(expr const & coe, expr const & a) {
 */
 pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
     expr f_type = infer_type(f, cs);
+    expr saved_f_type       = f_type;
+    constraint_seq saved_cs = cs;
     if (!is_pi(f_type))
         f_type = whnf(f_type, cs);
     if (is_pi(f_type)) {
@@ -392,6 +432,8 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
             f_type = m_tc->ensure_pi(f_type, f, cs);
             erase_coercion_info(f);
         } else {
+            cs     = saved_cs;
+            f_type = m_coercion_from_tc->whnf(saved_f_type, cs);
             // try coercion to function-class
             list<expr> coes  = get_coercions_to_fun(env(), f_type);
             if (is_nil(coes)) {
@@ -438,7 +480,7 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
 
 bool elaborator::has_coercions_from(expr const & a_type) {
     try {
-        expr a_cls = get_app_fn(whnf(a_type).first);
+        expr a_cls = get_app_fn(m_coercion_from_tc->whnf(a_type).first);
         return is_constant(a_cls) && ::lean::has_coercions_from(env(), const_name(a_cls));
     } catch (exception&) {
         return false;
@@ -447,7 +489,7 @@ bool elaborator::has_coercions_from(expr const & a_type) {
 
 bool elaborator::has_coercions_to(expr d_type) {
     try {
-        d_type = whnf(d_type).first;
+        d_type = m_coercion_to_tc->whnf(d_type).first;
         expr const & fn = get_app_fn(d_type);
         if (is_constant(fn))
             return ::lean::has_coercions_to(env(), const_name(fn));
@@ -463,10 +505,10 @@ bool elaborator::has_coercions_to(expr d_type) {
 }
 
 expr elaborator::apply_coercion(expr const & a, expr a_type, expr d_type) {
-    a_type = whnf(a_type).first;
-    d_type = whnf(d_type).first;
+    a_type = m_coercion_from_tc->whnf(a_type).first;
+    d_type = m_coercion_to_tc->whnf(d_type).first;
     constraint_seq aux_cs;
-    list<expr> coes = get_coercions_from_to(*m_tc, a_type, d_type, aux_cs);
+    list<expr> coes = get_coercions_from_to(*m_coercion_from_tc, *m_coercion_to_tc, a_type, d_type, aux_cs);
     if (is_nil(coes)) {
         erase_coercion_info(a);
         return a;
@@ -495,10 +537,10 @@ expr elaborator::apply_coercion(expr const & a, expr a_type, expr d_type) {
 pair<expr, constraint_seq> elaborator::mk_delayed_coercion(
     expr const & a, expr const & a_type, expr const & expected_type,
     justification const & j) {
-    type_checker & tc = *m_tc;
     expr m       = m_full_context.mk_meta(m_ngen, some_expr(expected_type), a.get_tag());
     register_meta(m);
-    constraint c = mk_coercion_cnstr(tc, *this, m, a, a_type, j, to_delay_factor(cnstr_group::Basic));
+    constraint c = mk_coercion_cnstr(*m_coercion_from_tc, *m_coercion_to_tc, *this, m, a, a_type, j,
+                                     to_delay_factor(cnstr_group::Basic));
     return to_ecs(m, c);
 }
 
@@ -695,6 +737,8 @@ expr elaborator::ensure_type(expr const & e, constraint_seq & cs) {
     erase_coercion_info(e);
     if (is_sort(t))
         return e;
+    expr            saved_t = t;
+    constraint_seq saved_cs = cs;
     t = whnf(t, cs);
     if (is_sort(t))
         return e;
@@ -708,6 +752,8 @@ expr elaborator::ensure_type(expr const & e, constraint_seq & cs) {
             return e;
         }
     }
+    cs = saved_cs;
+    t  = m_coercion_from_tc->whnf(saved_t, cs);
     list<expr> coes = get_coercions_to_sort(env(), t);
     if (is_nil(coes)) {
         throw_kernel_exception(env(), e, [=](formatter const & fmt) { return pp_type_expected(fmt, e); });

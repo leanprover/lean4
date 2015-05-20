@@ -33,6 +33,8 @@ class elaborator : public coercion_info_manager {
     elaborator_context & m_ctx;
     name_generator       m_ngen;
     type_checker_ptr     m_tc;
+    type_checker_ptr     m_coercion_from_tc;
+    type_checker_ptr     m_coercion_to_tc;
     // mapping from metavariable ?m to the (?m l_1 ... l_n) where [l_1 ... l_n] are the local constants
     // representing the context where ?m was created.
     local_context        m_context; // current local context: a list of local constants

@@ -21,17 +21,19 @@ coercion_elaborator::coercion_elaborator(coercion_info_manager & info, expr cons
     lean_assert(use_id  || length(m_coercions)     == length(m_choices));
 }
 
-list<expr> get_coercions_from_to(type_checker & tc, expr const & from_type, expr const & to_type, constraint_seq & cs) {
+list<expr> get_coercions_from_to(type_checker & /* from_tc */, type_checker & to_tc,
+                                 expr const & from_type, expr const & to_type, constraint_seq & cs) {
     constraint_seq new_cs;
-    expr whnf_to_type = tc.whnf(to_type, new_cs);
+    environment const & env = to_tc.env();
+    expr whnf_to_type = to_tc.whnf(to_type, new_cs);
     expr const & fn   = get_app_fn(whnf_to_type);
     list<expr> r;
     if (is_constant(fn)) {
-        r = get_coercions(tc.env(), from_type, const_name(fn));
+        r = get_coercions(env, from_type, const_name(fn));
     } else if (is_pi(whnf_to_type)) {
-        r = get_coercions_to_fun(tc.env(), from_type);
+        r = get_coercions_to_fun(env, from_type);
     } else if (is_sort(whnf_to_type)) {
-        r = get_coercions_to_sort(tc.env(), from_type);
+        r = get_coercions_to_sort(env, from_type);
     }
     if (r)
         cs += new_cs;
@@ -56,11 +58,11 @@ optional<constraints> coercion_elaborator::next() {
 
 /** \brief Given a term <tt>a : a_type</tt>, and a metavariable \c m, creates a constraint
     that considers coercions from a_type to the type assigned to \c m. */
-constraint mk_coercion_cnstr(type_checker & tc, coercion_info_manager & infom,
+constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coercion_info_manager & infom,
                              expr const & m, expr const & a, expr const & a_type,
                              justification const & j, unsigned delay_factor) {
-    auto choice_fn = [=, &tc, &infom](expr const & meta, expr const & d_type, substitution const & s,
-                                      name_generator const & /* ngen */) {
+    auto choice_fn = [=, &from_tc, &to_tc, &infom](expr const & meta, expr const & d_type, substitution const & s,
+                                                   name_generator const & /* ngen */) {
         expr          new_a_type;
         justification new_a_type_jst;
         if (is_meta(a_type)) {
@@ -73,7 +75,7 @@ constraint mk_coercion_cnstr(type_checker & tc, coercion_info_manager & infom,
         if (is_meta(new_a_type)) {
             if (delay_factor < to_delay_factor(cnstr_group::DelayedChoice)) {
                 // postpone...
-                return lazy_list<constraints>(constraints(mk_coercion_cnstr(tc, infom, m, a, a_type, justification(),
+                return lazy_list<constraints>(constraints(mk_coercion_cnstr(from_tc, to_tc, infom, m, a, a_type, justification(),
                                                                             delay_factor+1)));
             } else {
                 // giveup...
@@ -81,11 +83,11 @@ constraint mk_coercion_cnstr(type_checker & tc, coercion_info_manager & infom,
             }
         }
         constraint_seq cs;
-        new_a_type = tc.whnf(new_a_type, cs);
+        new_a_type = from_tc.whnf(new_a_type, cs);
         if (is_meta(d_type)) {
             // case-split
             buffer<std::tuple<coercion_class, expr, expr>> alts;
-            get_coercions_from(tc.env(), new_a_type, alts);
+            get_coercions_from(from_tc.env(), new_a_type, alts);
             buffer<constraints> choices;
             buffer<expr> coes;
             // first alternative: no coercion
@@ -105,7 +107,7 @@ constraint mk_coercion_cnstr(type_checker & tc, coercion_info_manager & infom,
                                                                 to_list(choices.begin(), choices.end()),
                                                                 to_list(coes.begin(), coes.end())));
         } else {
-            list<expr> coes    = get_coercions_from_to(tc, new_a_type, d_type, cs);
+            list<expr> coes    = get_coercions_from_to(from_tc, to_tc, new_a_type, d_type, cs);
             if (is_nil(coes)) {
                 expr new_a = a;
                 infom.erase_coercion_info(a);

@@ -385,58 +385,52 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
     expr f_type = infer_type(f, cs);
     if (!is_pi(f_type))
         f_type = whnf(f_type, cs);
-    if (!is_pi(f_type) && has_metavar(f_type)) {
-        constraint_seq saved_cs = cs;
-        expr new_f_type = whnf(f_type, cs);
-        if (!is_pi(new_f_type) && m_tc->is_stuck(new_f_type)) {
-            cs = saved_cs;
-            // let type checker add constraint
-            f_type = m_tc->ensure_pi(f_type, f, cs);
-        } else {
-            f_type = new_f_type;
-        }
-    }
-    if (!is_pi(f_type)) {
-        // try coercion to function-class
-        list<expr> coes  = get_coercions_to_fun(env(), f_type);
-        if (is_nil(coes)) {
-            throw_kernel_exception(env(), f, [=](formatter const & fmt) { return pp_function_expected(fmt, f); });
-        } else if (is_nil(tail(coes))) {
-            expr old_f = f;
-            f = mk_coercion_app(head(coes), f);
-            f = add_implict_args(f, cs);
-            f_type = infer_type(f, cs);
-            save_coercion_info(old_f, f);
-            lean_assert(is_pi(f_type));
-        } else {
-            local_context ctx      = m_context;
-            local_context full_ctx = m_full_context;
-            justification j        = mk_justification(f, [=](formatter const & fmt, substitution const & subst) {
-                    return pp_function_expected(fmt, substitution(subst).instantiate(f));
-                });
-            auto choice_fn = [=](expr const & meta, expr const &, substitution const &, name_generator const &) {
-                flet<local_context> save1(m_context,      ctx);
-                flet<local_context> save2(m_full_context, full_ctx);
-                list<constraints> choices = map2<constraints>(coes, [&](expr const & coe) {
-                        expr new_f      = mk_coercion_app(coe, f);
-                        constraint_seq cs;
-                        new_f = add_implict_args(new_f, cs);
-                        cs += mk_eq_cnstr(meta, new_f, j);
-                        return cs.to_list();
-                    });
-                return choose(std::make_shared<coercion_elaborator>(*this, f, choices, coes, false));
-            };
-            f   = m_full_context.mk_meta(m_ngen, none_expr(), f.get_tag());
-            register_meta(f);
-            cs += mk_choice_cnstr(f, choice_fn, to_delay_factor(cnstr_group::Basic), true, j);
-            lean_assert(is_meta(f));
-            // let type checker add constraint
-            f_type = infer_type(f, cs);
-            f_type = m_tc->ensure_pi(f_type, f, cs);
-            lean_assert(is_pi(f_type));
-        }
-    } else {
+    if (is_pi(f_type)) {
         erase_coercion_info(f);
+    } else {
+        if (m_tc->is_stuck(f_type)) {
+            f_type = m_tc->ensure_pi(f_type, f, cs);
+            erase_coercion_info(f);
+        } else {
+            // try coercion to function-class
+            list<expr> coes  = get_coercions_to_fun(env(), f_type);
+            if (is_nil(coes)) {
+                throw_kernel_exception(env(), f, [=](formatter const & fmt) { return pp_function_expected(fmt, f); });
+            } else if (is_nil(tail(coes))) {
+                expr old_f = f;
+                f = mk_coercion_app(head(coes), f);
+                f = add_implict_args(f, cs);
+                f_type = infer_type(f, cs);
+                save_coercion_info(old_f, f);
+                lean_assert(is_pi(f_type));
+            } else {
+                local_context ctx      = m_context;
+                local_context full_ctx = m_full_context;
+                justification j        = mk_justification(f, [=](formatter const & fmt, substitution const & subst) {
+                        return pp_function_expected(fmt, substitution(subst).instantiate(f));
+                    });
+                auto choice_fn = [=](expr const & meta, expr const &, substitution const &, name_generator const &) {
+                    flet<local_context> save1(m_context,      ctx);
+                    flet<local_context> save2(m_full_context, full_ctx);
+                    list<constraints> choices = map2<constraints>(coes, [&](expr const & coe) {
+                            expr new_f      = mk_coercion_app(coe, f);
+                            constraint_seq cs;
+                            new_f = add_implict_args(new_f, cs);
+                            cs += mk_eq_cnstr(meta, new_f, j);
+                            return cs.to_list();
+                        });
+                    return choose(std::make_shared<coercion_elaborator>(*this, f, choices, coes, false));
+                };
+                f   = m_full_context.mk_meta(m_ngen, none_expr(), f.get_tag());
+                register_meta(f);
+                cs += mk_choice_cnstr(f, choice_fn, to_delay_factor(cnstr_group::Basic), true, j);
+                lean_assert(is_meta(f));
+                // let type checker add constraint
+                f_type = infer_type(f, cs);
+                f_type = m_tc->ensure_pi(f_type, f, cs);
+                lean_assert(is_pi(f_type));
+            }
+        }
     }
     lean_assert(is_pi(f_type));
     return mk_pair(f, f_type);

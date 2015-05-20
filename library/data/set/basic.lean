@@ -22,7 +22,7 @@ theorem setext {a b : set X} (H : ∀x, x ∈ a ↔ x ∈ b) : a = b :=
 funext (take x, propext (H x))
 
 definition subset (a b : set X) := ∀⦃x⦄, x ∈ a → x ∈ b
-infix `⊆`:50 := subset
+infix `⊆` := subset
 
 /- bounded quantification -/
 

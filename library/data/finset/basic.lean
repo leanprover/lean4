@@ -453,7 +453,7 @@ quot.lift_on₂ s₁ s₂
     (λ s₁ a i, mem_perm p₂ (s₁ a (mem_perm (perm.symm p₁) i)))
     (λ s₂ a i, mem_perm (perm.symm p₂) (s₂ a (mem_perm p₁ i)))))
 
-infix `⊆`:50 := subset
+infix `⊆` := subset
 
 theorem empty_subset (s : finset A) : ∅ ⊆ s :=
 quot.induction_on s (λ l, list.nil_sub (elt_of l))

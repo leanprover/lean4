@@ -286,7 +286,7 @@ assume nin nainl, absurd (or.inr nainl) nin
 
 definition sublist (l₁ l₂ : list T) := ∀ ⦃a : T⦄, a ∈ l₁ → a ∈ l₂
 
-infix `⊆`:50 := sublist
+infix `⊆` := sublist
 
 theorem nil_sub (l : list T) : [] ⊆ l :=
 λ b i, false.elim (iff.mp (mem_nil_iff b) i)

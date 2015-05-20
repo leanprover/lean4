@@ -409,7 +409,8 @@ name get_decl_short_name(name const & d, environment const & env) {
 environment open_num_notation(environment const & env) {
     name num("num");
     try {
-        environment new_env = overwrite_notation(env, num);
+        bool persistent     = false;
+        environment new_env = override_notation(env, num, persistent);
         return overwrite_aliases(new_env, num, name());
     } catch (exception &) {
         // num namespace is not available, then use only the aliases

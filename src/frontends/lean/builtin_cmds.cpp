@@ -690,11 +690,11 @@ environment open_export_cmd(parser & p, bool open) {
             fingerprint = hash(fingerprint, n.hash());
         auto pos   = p.pos();
         name ns    = p.check_id_next("invalid 'open/export' command, identifier expected");
-        fingerprint = hash(fingerprint, ns.hash());
         optional<name> real_ns = to_valid_namespace_name(env, ns);
         if (!real_ns)
             throw parser_error(sstream() << "invalid namespace name '" << ns << "'", pos);
         ns = *real_ns;
+        fingerprint = hash(fingerprint, ns.hash());
         name as;
         if (p.curr_is_token_or_id(get_as_tk())) {
             p.next();
@@ -778,16 +778,32 @@ environment open_export_cmd(parser & p, bool open) {
     }
     return update_fingerprint(env, fingerprint);
 }
-environment open_cmd(parser & p) { return open_export_cmd(p, true); }
-environment export_cmd(parser & p) { return open_export_cmd(p, false); }
+static environment open_cmd(parser & p) { return open_export_cmd(p, true); }
+static environment export_cmd(parser & p) { return open_export_cmd(p, false); }
 
-environment erase_cache_cmd(parser & p) {
+static environment override_cmd(parser & p) {
+    environment env = p.env();
+    while (p.curr_is_identifier()) {
+        auto pos   = p.pos();
+        name ns    = p.check_id_next("invalid 'override' command, identifier expected");
+        optional<name> real_ns = to_valid_namespace_name(env, ns);
+        if (!real_ns)
+            throw parser_error(sstream() << "invalid namespace name '" << ns << "'", pos);
+        ns = *real_ns;
+        bool persistent = false;
+        env = override_notation(env, ns, persistent);
+        env = update_fingerprint(env, ns.hash());
+    }
+    return env;
+}
+
+static environment erase_cache_cmd(parser & p) {
     name n = p.check_id_next("invalid #erase_cache command, identifier expected");
     p.erase_cached_definition(n);
     return p.env();
 }
 
-environment projections_cmd(parser & p) {
+static environment projections_cmd(parser & p) {
     name n = p.check_id_next("invalid #projections command, identifier expected");
     if (p.curr_is_token(get_dcolon_tk())) {
         p.next();
@@ -802,7 +818,7 @@ environment projections_cmd(parser & p) {
     }
 }
 
-environment telescope_eq_cmd(parser & p) {
+static environment telescope_eq_cmd(parser & p) {
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
     buffer<expr> t;
@@ -821,7 +837,7 @@ environment telescope_eq_cmd(parser & p) {
     return p.env();
 }
 
-environment local_cmd(parser & p) {
+static environment local_cmd(parser & p) {
     if (p.curr_is_token_or_id(get_attribute_tk())) {
         p.next();
         return local_attribute_cmd(p);
@@ -867,13 +883,13 @@ static environment help_cmd(parser & p) {
     return p.env();
 }
 
-environment init_quotient_cmd(parser & p) {
+static environment init_quotient_cmd(parser & p) {
     if (!(p.env().prop_proof_irrel() && p.env().impredicative()))
         throw parser_error("invalid init_quotient command, this command is only available for kernels containing an impredicative and proof irrelevant Prop", p.cmd_pos());
     return module::declare_quotient(p.env());
 }
 
-environment init_hits_cmd(parser & p) {
+static environment init_hits_cmd(parser & p) {
     if (p.env().prop_proof_irrel() || p.env().impredicative())
         throw parser_error("invalid init_hits command, this command is only available for proof relevant and predicative kernels", p.cmd_pos());
     return module::declare_hits(p.env());
@@ -884,6 +900,8 @@ void init_cmd_table(cmd_table & r) {
                         open_cmd));
     add_cmd(r, cmd_info("export",        "create abbreviations for declarations, "
                         "and export objects defined in other namespaces", export_cmd));
+    add_cmd(r, cmd_info("override",      "override notation declarations using the ones defined in the given namespace",
+                        override_cmd));
     add_cmd(r, cmd_info("set_option",    "set configuration option", set_option_cmd));
     add_cmd(r, cmd_info("exit",          "exit", exit_cmd));
     add_cmd(r, cmd_info("print",         "print a string", print_cmd));

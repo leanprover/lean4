@@ -411,20 +411,20 @@ list<notation_entry> get_notation_entries(environment const & env, head_index co
         return list<notation_entry>();
 }
 
-environment overwrite_notation(environment const & env, name const & n) {
+environment override_notation(environment const & env, name const & n, bool persistent) {
     environment r = env;
     bool found = false;
     if (auto it = token_ext::get_entries(r, n)) {
         found = true;
         for (token_entry e : *it) {
-            r = add_token(r, e);
+            r = add_token(r, e, persistent);
         }
     }
     if (auto it = notation_ext::get_entries(env, n)) {
         found = true;
         for (notation_entry const & e : *it) {
             notation_entry new_e(e, false);
-            r = add_notation(r, new_e);
+            r = add_notation(r, new_e, persistent);
         }
     }
     if (!found)

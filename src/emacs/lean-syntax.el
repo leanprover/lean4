@@ -12,7 +12,7 @@
     "hiding" "exposing" "parameter" "parameters" "begin" "begin+" "proof" "qed" "conjecture" "constant" "constants"
     "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises"
     "print" "theorem" "example" "abbreviation"
-    "open" "as" "export" "axiom" "axioms" "inductive" "with" "structure" "record" "universe" "universes"
+    "open" "as" "export" "override" "axiom" "axioms" "inductive" "with" "structure" "record" "universe" "universes"
     "alias" "help" "environment" "options" "precedence" "reserve"
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix"
     "tactic_infix" "tactic_infixl" "tactic_infixr" "tactic_notation" "tactic_postfix" "tactic_prefix"

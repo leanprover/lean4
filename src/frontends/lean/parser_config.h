@@ -85,7 +85,7 @@ parse_table const & get_tactic_nud_table(environment const & env);
 parse_table const & get_tactic_led_table(environment const & env);
 cmd_table const & get_cmd_table(environment const & env);
 /** \brief Force notation from namespace \c n to shadow any existing notation */
-environment overwrite_notation(environment const & env, name const & n);
+environment override_notation(environment const & env, name const & n, bool persistent = true);
 
 /** \brief Add \c n as notation for \c e */
 environment add_mpz_notation(environment const & env, mpz const & n, expr const & e, bool overload = true, bool parse_only = false);

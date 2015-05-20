@@ -16,9 +16,9 @@
     "alias" "help" "environment" "options" "precedence" "reserve"
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix"
     "tactic_infix" "tactic_infixl" "tactic_infixr" "tactic_notation" "tactic_postfix" "tactic_prefix"
-    "eval" "check" "coercion" "end" "reveal"
+    "eval" "check" "end" "reveal"
     "using" "namespace" "section" "fields" "find_decl"
-    "attribute" "local" "set_option" "add_rewrite" "extends" "include" "omit" "classes"
+    "attribute" "local" "set_option" "extends" "include" "omit" "classes"
     "instances" "coercions" "metaclasses" "raw" "migrate" "replacing")
   "lean keywords")
 
@@ -98,7 +98,7 @@
 
 (defconst lean-font-lock-defaults
   `((;; Keywords
-     (,(rx word-start (or "calc" "have" "obtains" "show" "by" "by+" "in" "at" "let" "forall" "fun"
+     (,(rx word-start (or "calc" "have" "show" "by" "by+" "in" "at" "let" "forall" "fun"
                             "exists" "if" "dif" "then" "else" "assume" "assert" "take" "obtain" "from") word-end)
       . font-lock-keyword-face)
      ;; String

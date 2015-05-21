@@ -33,9 +33,9 @@ parameters {A B : Type.{u}} (f g : A → B)
   protected definition rec {P : coeq → Type} (P_i : Π(x : B), P (coeq_i x))
     (Pcp : Π(x : A), cp x ▸ P_i (f x) = P_i (g x)) (y : coeq) : P y :=
   begin
-    fapply (type_quotient.rec_on y),
-    { intro a, apply P_i},
-    { intro a a' H, cases H, apply Pcp}
+    induction y,
+    { apply P_i},
+    { cases H, apply Pcp}
   end
 
   protected definition rec_on [reducible] {P : coeq → Type} (y : coeq)

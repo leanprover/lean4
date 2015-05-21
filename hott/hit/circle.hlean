@@ -25,13 +25,13 @@ namespace circle
   definition rec2 {P : circle → Type} (Pb1 : P base1) (Pb2 : P base2)
     (Ps1 : seg1 ▸ Pb1 = Pb2) (Ps2 : seg2 ▸ Pb1 = Pb2) (x : circle) : P x :=
   begin
-    fapply (suspension.rec_on x),
+    induction x with b,
     { exact Pb1},
     { exact Pb2},
-    { esimp, intro b, fapply (suspension.rec_on b),
+    { esimp at *, induction b with y,
       { exact Ps1},
       { exact Ps2},
-      { intro x, cases x}},
+      { cases y}},
   end
 
   definition rec2_on [reducible] {P : circle → Type} (x : circle) (Pb1 : P base1) (Pb2 : P base2)
@@ -198,7 +198,7 @@ namespace circle
 
   protected definition decode {x : circle} : circle.code x → base = x :=
   begin
-    refine circle.rec_on x _ _,
+    induction x,
     { exact power loop},
     { apply eq_of_homotopy, intro a,
       refine !arrow.arrow_transport ⬝ !transport_eq_r ⬝ _,
@@ -208,7 +208,7 @@ namespace circle
   --remove this theorem after #484
   theorem encode_decode {x : circle} : Π(a : circle.code x), circle.encode (circle.decode a) = a :=
   begin
-    unfold circle.decode, refine circle.rec_on x _ _,
+    unfold circle.decode, induction x,
     { intro a, esimp [base,base1], --simplify after #587
       apply rec_nat_on a,
       { exact idp},

@@ -36,11 +36,11 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
     (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▸ Pinl (f x) = Pinr (g x))
       (y : pushout) : P y :=
   begin
-    fapply (type_quotient.rec_on y),
-    { intro a, cases a,
-       apply Pinl,
-       apply Pinr},
-    { intro a a' H, cases H, apply Pglue}
+    induction y,
+    { cases a,
+        apply Pinl,
+        apply Pinr},
+    { cases H, apply Pglue}
   end
 
   protected definition rec_on [reducible] {P : pushout → Type} (y : pushout)
@@ -83,31 +83,6 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
   by rewrite [tr_eq_cast_ap_fn,↑elim_type,elim_glue];apply cast_ua_fn
 
 end
-
-
-
-  namespace test
-    open pushout equiv is_equiv unit bool
-    private definition unit_of_empty (u : empty) : unit := star
-
-    example : pushout unit_of_empty unit_of_empty ≃ bool :=
-    begin
-      fapply equiv.MK,
-      { intro x, fapply (pushout.rec_on _ _ x),
-          intro u, exact ff,
-          intro u, exact tt,
-          intro c, cases c},
-      { intro b, cases b,
-          exact (inl _ _ ⋆),
-          exact (inr _ _ ⋆)},
-      { intro b, cases b, esimp, esimp},
-      { intro x, fapply (pushout.rec_on _ _ x),
-          intro u, cases u, esimp,
-          intro u, cases u, esimp,
-          intro c, cases c},
-    end
-
-  end test
 end pushout
 
 attribute pushout.inl pushout.inr [constructor]

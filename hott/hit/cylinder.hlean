@@ -37,11 +37,11 @@ parameters {A B : Type.{u}} (f : A → B)
     (Pbase : Π(b : B), P (base b)) (Ptop : Π(a : A), P (top a))
     (Pseg : Π(a : A), seg a ▸ Pbase (f a) = Ptop a) (x : cylinder) : P x :=
   begin
-    fapply (type_quotient.rec_on x),
-    { intro a, cases a,
-       apply Pbase,
-       apply Ptop},
-    { intro a a' H, cases H, apply Pseg}
+    induction x,
+    { cases a,
+        apply Pbase,
+        apply Ptop},
+    { cases H, apply Pseg}
   end
 
   protected definition rec_on [reducible] {P : cylinder → Type} (x : cylinder)

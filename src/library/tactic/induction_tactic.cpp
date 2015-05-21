@@ -332,8 +332,21 @@ public:
                     return execute(g, H, H_type, *m_rec_name);
                 } else if (inductive::is_inductive_decl(m_env, const_name(I))) {
                     return execute(g, H, H_type, inductive::get_elim_name(const_name(I)));
-                } else if (auto rs = get_recursors_for(m_env, const_name(I))) {
-                    return execute(g, H, H_type, head(rs));
+                } else if (list<name> rs = get_recursors_for(m_env, const_name(I))) {
+                    while (rs) {
+                        name r = head(rs);
+                        rs     = tail(rs);
+                        if (!rs) {
+                            // last one
+                            return execute(g, H, H_type, r);
+                        } else {
+                            try {
+                                flet<list<name>>     save_ids(m_ids, m_ids);
+                                flet<constraint_seq> save_cs(m_cs, m_cs);
+                                return execute(g, H, H_type, r);
+                            } catch (exception &) {}
+                        }
+                    }
                 }
             }
             throw tactic_exception(sstream() << "invalid 'induction' tactic, hypothesis '" << m_h_name

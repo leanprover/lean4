@@ -85,6 +85,7 @@ struct rel_state {
                     throw_invalid_relation(rop);
             }
             type = binding_body(type);
+            i++;
         }
         if (lhs_pos && rhs_pos) {
             m_rop_table.insert(rop, relation_info(i, *lhs_pos, *rhs_pos));

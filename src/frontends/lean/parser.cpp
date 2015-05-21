@@ -1679,6 +1679,7 @@ void parser::parse_imports() {
     bool prelude     = false;
     std::string base = dirname(get_stream_name().c_str());
     bool imported    = false;
+    unsigned fingerprint = 0;
     if (curr_is_token(get_prelude_tk())) {
         next();
         prelude = true;
@@ -1716,6 +1717,9 @@ void parser::parse_imports() {
             if (!curr_is_identifier())
                 break;
             name f            = get_name_val();
+            fingerprint       = hash(fingerprint, f.hash());
+            if (k)
+                fingerprint = hash(fingerprint, *k);
             if (auto it = try_file(f, ".lua")) {
                 if (k)
                     throw parser_error(sstream() << "invalid import, failed to import '" << f
@@ -1733,6 +1737,7 @@ void parser::parse_imports() {
     bool keep_imported_thms = (m_keep_theorem_mode == keep_theorem_mode::All);
     m_env = import_modules(m_env, base, olean_files.size(), olean_files.data(), num_threads,
                            keep_imported_thms, m_ios);
+    m_env = update_fingerprint(m_env, fingerprint);
     for (auto const & f : lua_files) {
         std::string rname = find_file(f, {".lua"});
         system_import(rname.c_str());

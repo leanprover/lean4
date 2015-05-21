@@ -18,11 +18,14 @@ class recursor_info {
     // if param is <none>, then it should be resolved by type class resolution
     list<optional<unsigned>> m_params_pos;  // position of the recursor parameters in the major premise
     list<unsigned>           m_indices_pos; // position of the recursor indices in the major premise
+    list<bool>               m_produce_motive; // "bit-map" indicating whether the i-th element is true, if
+                                               // the i-th minor premise produces the motive
 
 public:
     recursor_info(name const & r, name const & I, optional<unsigned> const & motive_univ_pos,
                   bool dep_elim, unsigned num_args, unsigned major_pos,
-                  list<optional<unsigned>> const & params_pos, list<unsigned> const & indices_pos);
+                  list<optional<unsigned>> const & params_pos, list<unsigned> const & indices_pos,
+                  list<bool> const & produce_motive);
     recursor_info();
 
     name const & get_name() const { return m_recursor; }
@@ -38,6 +41,7 @@ public:
     list<optional<unsigned>> const & get_params_pos() const { return m_params_pos; }
     /** \brief Return position of the recursor indices in the major premise. */
     list<unsigned> const & get_indices_pos() const { return m_indices_pos; }
+    list<bool> const & get_produce_motive() const { return m_produce_motive; }
     bool has_dep_elim() const { return m_dep_elim; }
     bool is_minor(unsigned pos) const;
 

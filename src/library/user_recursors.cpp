@@ -24,23 +24,27 @@ bool recursor_info::is_minor(unsigned pos) const {
 
 recursor_info::recursor_info(name const & r, name const & I, optional<unsigned> const & motive_univ_pos,
                              bool dep_elim, unsigned num_args, unsigned major_pos,
-                             list<optional<unsigned>> const & params_pos, list<unsigned> const & indices_pos):
+                             list<optional<unsigned>> const & params_pos, list<unsigned> const & indices_pos,
+                             list<bool> const & produce_motive):
     m_recursor(r), m_type_name(I), m_motive_univ_pos(motive_univ_pos), m_dep_elim(dep_elim),
-    m_num_args(num_args), m_major_pos(major_pos), m_params_pos(params_pos), m_indices_pos(indices_pos) {}
+    m_num_args(num_args), m_major_pos(major_pos), m_params_pos(params_pos), m_indices_pos(indices_pos),
+    m_produce_motive(produce_motive) {}
 recursor_info::recursor_info() {}
 
 void recursor_info::write(serializer & s) const {
     s << m_recursor << m_type_name << m_motive_univ_pos << m_dep_elim << m_num_args << m_major_pos;
     write_list(s, m_params_pos);
     write_list(s, m_indices_pos);
+    write_list(s, m_produce_motive);
 }
 
 recursor_info recursor_info::read(deserializer & d) {
     recursor_info info;
     d >> info.m_recursor >> info.m_type_name >> info.m_motive_univ_pos >> info.m_dep_elim
       >> info.m_num_args >> info.m_major_pos;
-    info.m_params_pos  = read_list<optional<unsigned>>(d);
-    info.m_indices_pos = read_list<unsigned>(d);
+    info.m_params_pos     = read_list<optional<unsigned>>(d);
+    info.m_indices_pos    = read_list<unsigned>(d);
+    info.m_produce_motive = read_list<bool>(d);
     return info;
 }
 
@@ -64,11 +68,14 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         unsigned num_params        = *inductive::get_num_params(env, *I);
         unsigned num_minors        = *inductive::get_num_minor_premises(env, *I);
         unsigned num_args          = num_params + 1 /* motive */ + num_minors + num_indices + 1 /* major */;
+        list<bool> produce_motive;
+        for (unsigned i = 0; i < num_minors; i++)
+            produce_motive = cons(true, produce_motive);
         list<optional<unsigned>> params_pos = map2<optional<unsigned>>(mk_list_range(0, num_params),
                                                                        [](unsigned i) { return optional<unsigned>(i); });
         list<unsigned> indices_pos = mk_list_range(num_params, num_params + num_indices);
         return recursor_info(r, *I, motive_univ_pos, inductive::has_dep_elim(env, *I),
-                             num_args, major_pos, params_pos, indices_pos);
+                             num_args, major_pos, params_pos, indices_pos, produce_motive);
     }
     declaration d = env.get(r);
     type_checker tc(env);
@@ -204,8 +211,24 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         lean_assert(*C_univ_pos < length(d.get_univ_params()));
     }
 
+    buffer<bool> produce_motive;
+    unsigned nparams  = params_pos.size();
+    unsigned nindices = indices_pos.size();
+    for (unsigned i = nparams+1; i < tele.size(); i++) {
+        if (i < major_pos - nindices || i > major_pos) {
+            // i is a minor premise
+            buffer<expr> tmp;
+            expr res = get_app_fn(to_telescope(tc, mlocal_type(tele[i]), tmp));
+            if (is_local(res) && mlocal_name(C) == mlocal_name(res)) {
+                produce_motive.push_back(true);
+            } else {
+                produce_motive.push_back(false);
+            }
+        }
+    }
+
     return recursor_info(r, const_name(I), C_univ_pos, dep_elim, tele.size(), major_pos,
-                         to_list(params_pos), to_list(indices_pos));
+                         to_list(params_pos), to_list(indices_pos), to_list(produce_motive));
 }
 
 struct recursor_state {

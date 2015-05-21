@@ -157,6 +157,7 @@ class induction_tac {
         unsigned first_idx_pos = rec_info.get_first_index_pos();
         bool consumed_major    = false;
         buffer<goal> new_goals;
+        list<bool> produce_motive = rec_info.get_produce_motive();
         while (is_pi(rec_type) && curr_pos < rec_info.get_num_args()) {
             if (first_idx_pos == curr_pos) {
                 for (expr const & idx : indices) {
@@ -172,6 +173,8 @@ class induction_tac {
                 consumed_major = true;
                 curr_pos++;
             } else {
+                if (!produce_motive)
+                    throw_ill_formed_recursor(rec_info);
                 buffer<expr> new_goal_hyps;
                 new_goal_hyps.append(new_hyps);
                 expr new_type  = binding_domain(rec_type);
@@ -199,23 +202,26 @@ class induction_tac {
                     }
                     new_type = head_beta_reduce(new_type);
                     buffer<expr> new_deps;
-                    // introduce deps
-                    for (unsigned i = 0; i < num_deps; i++) {
-                        if (!is_pi(new_type)) {
-                            throw_ill_formed_recursor(rec_info);
+                    if (head(produce_motive)) {
+                        // introduce deps
+                        for (unsigned i = 0; i < num_deps; i++) {
+                            if (!is_pi(new_type)) {
+                                throw_ill_formed_recursor(rec_info);
+                            }
+                            expr dep_type = binding_domain(new_type);
+                            expr new_dep  = mk_local(m_ngen.next(), get_unused_name(binding_name(new_type), new_goal_hyps),
+                                                     dep_type, binder_info());
+                            new_deps.push_back(new_dep);
+                            new_goal_hyps.push_back(new_dep);
+                            new_type = instantiate(binding_body(new_type), new_dep);
                         }
-                        expr dep_type = binding_domain(new_type);
-                        expr new_dep  = mk_local(m_ngen.next(), get_unused_name(binding_name(new_type), new_goal_hyps),
-                                                 dep_type, binder_info());
-                        new_deps.push_back(new_dep);
-                        new_goal_hyps.push_back(new_dep);
-                        new_type = instantiate(binding_body(new_type), new_dep);
                     }
                     expr new_meta  = mk_app(mk_metavar(m_ngen.next(), Pi(new_goal_hyps, new_type)), new_goal_hyps);
                     goal new_g(new_meta, new_type);
                     new_goals.push_back(new_g);
                     rec_arg   = Fun(minor_args, Fun(new_deps, new_meta));
                 }
+                produce_motive = tail(produce_motive);
                 rec            = mk_app(rec, rec_arg);
                 rec_type       = m_tc.whnf(instantiate(binding_body(rec_type), rec_arg), m_cs);
                 curr_pos++;

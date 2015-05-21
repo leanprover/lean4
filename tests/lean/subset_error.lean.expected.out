@@ -1,0 +1,12 @@
+subset_error.lean:18:51: error: type mismatch at application
+  x ∈ S
+term
+  S
+has type
+  set A
+but is expected to have type
+  finset A
+subset_error.lean:18:51: previous error additional information
+none of the overloads is applicable: finset.mem set.mem
+subset_error.lean:18:66: previous error additional information
+none of the overloads is applicable: finset.subset set.subset

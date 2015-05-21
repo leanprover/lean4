@@ -23,7 +23,9 @@ struct justification_cell;
    The pp_jst_fn is a generic funciton that produces these messages. We can associate these functions
    to justification objects.
 */
-typedef std::function<format(formatter const &, pos_info_provider const *, substitution const &)> pp_jst_fn;
+typedef std::function<format(formatter const &, pos_info_provider const *, substitution const &, bool)> pp_jst_fn;
+
+class justification_set;
 
 /**
     \brief Objects used to justify unification (and level) constraints and metavariable assignments.
@@ -40,6 +42,8 @@ typedef std::function<format(formatter const &, pos_info_provider const *, subst
 class justification {
     justification_cell * m_ptr;
     justification(justification_cell * ptr);
+    format pp_core(formatter const & fmt, pos_info_provider const * p, substitution const & s,
+                   justification_set & visited, bool is_main) const;
 public:
     justification();
     justification(justification const & s);
@@ -85,6 +89,7 @@ typedef std::function<format(formatter const &, substitution const &)> pp_jst_sf
 
 /** \brief Return a format object containing position information for the given expression (if available) */
 format to_pos(optional<expr> const & e, pos_info_provider const * p);
+format pp_previous_error_header(formatter const &, pos_info_provider const * pos_prov, optional<expr> const & ref, bool is_main);
 
 /** \brief Provide a custom pretty printer for \c j */
 justification mk_wrapper(justification const & j, optional<expr> const & s, pp_jst_fn const & fn);

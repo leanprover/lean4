@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include <vector>
+#include <unordered_set>
 #include "util/buffer.h"
 #include "util/int64.h"
 #include "util/memory_pool.h"
@@ -24,6 +25,18 @@ format to_pos(optional<expr> const & e, pos_info_provider const * p) {
     if (!f)
         return format();
     return f + space();
+}
+
+format pp_previous_error_header(formatter const &, pos_info_provider const * pos_prov, optional<expr> const & ref, bool is_main) {
+    if (!is_main) {
+        format r = line();
+        r += to_pos(ref, pos_prov);
+        r += format("previous error additional information");
+        r += line();
+        return r;
+    } else {
+        return format();
+    }
 }
 
 typedef uint64 approx_set;
@@ -263,23 +276,50 @@ optional<expr> justification::get_main_expr() const {
         }
     }
 }
-format justification::pp(formatter const & fmt, pos_info_provider const * p, substitution const & s) const {
+
+struct jst_hash_fn {
+    unsigned operator()(justification const & j) const { return j.raw()->m_hash_alloc; }
+};
+
+struct jst_ptr_eq {
+    bool operator()(justification const & j1, justification const & j2) const { return j1.raw() == j2.raw(); }
+};
+
+class justification_set {
+    std::unordered_set<justification, jst_hash_fn, jst_ptr_eq> m_set;
+public:
+    bool contains(justification const & j) const { return m_set.find(j) != m_set.end(); }
+    void insert(justification const & j) { m_set.insert(j); }
+};
+
+format justification::pp_core(formatter const & fmt, pos_info_provider const * p, substitution const & s,
+                              justification_set & set, bool is_main) const {
+    if (set.contains(*this))
+        return format();
+    set.insert(*this);
     justification_cell * it = m_ptr;
-    while (true) {
-        if (!it)
-            return format();
-        switch (it->m_kind) {
-        case justification_kind::Asserted:
-            return to_asserted(it)->m_fn(fmt, p, s);
-        case justification_kind::Wrapper:
-            return to_wrapper(it)->m_fn(fmt, p, s);
-        case justification_kind::Assumption:
+    if (!it)
+        return format();
+    switch (it->m_kind) {
+    case justification_kind::Asserted:
+        return to_asserted(it)->m_fn(fmt, p, s, is_main);
+    case justification_kind::Wrapper:
+        return to_wrapper(it)->m_fn(fmt, p, s, is_main);
+    case justification_kind::Assumption:
+        if (is_main)
             return format(format("Assumption "), format(to_assumption(it)->m_idx));
-        case justification_kind::Composite:
-            it = to_composite(it)->m_child[0].raw();
-            break;
-        }
+        else
+            return format();
+    case justification_kind::Composite:
+        return
+            to_composite(it)->m_child[0].pp_core(fmt, p, s, set, is_main) +
+            to_composite(it)->m_child[1].pp_core(fmt, p, s, set, false);
     }
+}
+
+format justification::pp(formatter const & fmt, pos_info_provider const * p, substitution const & s) const {
+    justification_set set;
+    return pp_core(fmt, p, s, set, true);
 }
 
 justification mk_wrapper(justification const & j, optional<expr> const & s, pp_jst_fn const & fn) {
@@ -305,16 +345,22 @@ justification mk_justification(optional<expr> const & s, pp_jst_fn const & fn) {
     return justification(new (get_asserted_allocator().allocate()) asserted_cell(fn, s));
 }
 justification mk_justification(optional<expr> const & s, pp_jst_sfn const & fn) {
-    return mk_justification(s, [=](formatter const & fmt, pos_info_provider const *, substitution const & subst) {
+    return mk_justification(s, [=](formatter const & fmt, pos_info_provider const *, substitution const & subst, bool is_main) {
             // Remark: we are not using to_pos(s, p) anymore because we don't try to display complicated error messages anymore.
             // return compose(to_pos(s, p), fn(fmt, subst));
-            return fn(fmt, subst);
+            if (is_main)
+                return fn(fmt, subst);
+            else
+                return format();
         });
 }
 justification mk_justification(char const * msg, optional<expr> const & s) {
     std::string _msg(msg);
-    return mk_justification(s, [=](formatter const &, pos_info_provider const *, substitution const &) {
-            return format(_msg);
+    return mk_justification(s, [=](formatter const &, pos_info_provider const *, substitution const &, bool is_main) {
+            if (is_main)
+                return format(_msg);
+            else
+                return format();
         });
 }
 std::ostream & operator<<(std::ostream & out, justification const & j) {

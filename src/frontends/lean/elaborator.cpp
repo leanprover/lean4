@@ -337,7 +337,27 @@ expr elaborator::visit_choice(expr const & e, optional<expr> const & t, constrai
                   name_generator const & /* ngen */) {
         return choose(std::make_shared<choice_expr_elaborator>(*this, ctx, full_ctx, meta, type, e));
     };
-    justification j = mk_justification("none of the overloads is applicable", some_expr(e));
+    auto pp_fn = [=](formatter const & fmt, pos_info_provider const * pos_prov, substitution const &, bool is_main) {
+        format r = pp_previous_error_header(fmt, pos_prov, some_expr(e), is_main);
+        r += format("none of the overloads is applicable:");
+        for (unsigned i = 0; i < get_num_choices(e); i++) {
+            expr const & c = get_choice(e, i);
+            expr const & f = get_app_fn(c);
+            optional<name> fn;
+            if (is_constant(f))
+                fn = const_name(f);
+            else if (is_local(f))
+                fn = local_pp_name(f);
+            r += space();
+            if (fn) {
+                r += format(*fn);
+            } else {
+                r += format("[nontrivial]");
+            }
+        }
+        return r;
+    };
+    justification j = mk_justification(some_expr(e), pp_fn);
     cs += mk_choice_cnstr(m, fn, to_delay_factor(cnstr_group::Basic), true, j);
     return m;
 }
@@ -1158,7 +1178,9 @@ expr elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
         new_cs.linearize(tmp_cs);
         for (constraint const & c : tmp_cs) {
             justification j = c.get_justification();
-            auto pp_fn      = [=](formatter const & fmt, pos_info_provider const * pp, substitution const & s) {
+            auto pp_fn      = [=](formatter const & fmt, pos_info_provider const * pp, substitution const & s, bool is_main) {
+                if (!is_main)
+                    return format();
                 format r = j.pp(fmt, pp, s);
                 r += compose(line(), format("The following identifier(s) are introduced as free variables by the "
                                             "left-hand-side of the equation:"));

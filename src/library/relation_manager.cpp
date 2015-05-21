@@ -8,8 +8,10 @@ Author: Leonardo de Moura
 #include "util/optional.h"
 #include "util/name.h"
 #include "util/rb_map.h"
+#include "util/sstream.h"
 #include "library/constants.h"
 #include "library/scoped_ext.h"
+#include "library/relation_manager.h"
 
 namespace lean {
 // Check whether e is of the form (f ...) where f is a constant. If it is return f.
@@ -48,11 +50,48 @@ struct rel_state {
     typedef name_map<std::tuple<name, unsigned, unsigned>> subst_table;
     typedef name_map<std::tuple<name, unsigned, unsigned>> symm_table;
     typedef rb_map<name_pair, std::tuple<name, name, unsigned>, name_pair_quick_cmp> trans_table;
+    typedef name_map<relation_info> rop_table;
     trans_table    m_trans_table;
     refl_table     m_refl_table;
     subst_table    m_subst_table;
     symm_table     m_symm_table;
+    rop_table      m_rop_table;
     rel_state() {}
+
+    bool is_equivalence(name const & rop) const {
+        return m_trans_table.contains(mk_pair(rop, rop)) && m_refl_table.contains(rop) && m_symm_table.contains(rop);
+    }
+
+    static void throw_invalid_relation(name const & rop) {
+        throw exception(sstream() << "invalid binary relation declaration, relation '" << rop
+                        << "' must have two explicit parameters");
+    }
+
+    void register_rop(environment const & env, name const & rop) {
+        if (m_rop_table.contains(rop))
+            return;
+        declaration const & d = env.get(rop);
+        optional<unsigned> lhs_pos;
+        optional<unsigned> rhs_pos;
+        unsigned i = 0;
+        expr type = d.get_type();
+        while (is_pi(type)) {
+            if (is_explicit(binding_info(type))) {
+                if (!lhs_pos)
+                    lhs_pos = i;
+                else if (!rhs_pos)
+                    rhs_pos = i;
+                else
+                    throw_invalid_relation(rop);
+            }
+            type = binding_body(type);
+        }
+        if (lhs_pos && rhs_pos) {
+            m_rop_table.insert(rop, relation_info(i, *lhs_pos, *rhs_pos));
+        } else {
+            throw_invalid_relation(rop);
+        }
+    }
 
     void add_subst(environment const & env, name const & subst) {
         buffer<expr> arg_types;
@@ -75,6 +114,7 @@ struct rel_state {
         if (nargs < 1)
             throw exception("invalid reflexivity rule, it must have at least 1 argument");
         name const & rop = get_fn_const(r_type, "invalid reflexivity rule, result type must be an operator application");
+        register_rop(env, rop);
         m_refl_table.insert(rop, std::make_tuple(refl, nargs, nunivs));
     }
 
@@ -87,6 +127,7 @@ struct rel_state {
         name const & rop = get_fn_const(r_type, "invalid transitivity rule, result type must be an operator application");
         name const & op1 = get_fn_const(arg_types[nargs-2], "invalid transitivity rule, penultimate argument must be an operator application");
         name const & op2 = get_fn_const(arg_types[nargs-1], "invalid transitivity rule, last argument must be an operator application");
+        register_rop(env, rop);
         m_trans_table.insert(name_pair(op1, op2), std::make_tuple(trans, rop, nargs));
     }
 
@@ -99,6 +140,7 @@ struct rel_state {
         if (nargs < 1)
             throw exception("invalid symmetry rule, it must have at least 1 argument");
         name const & rop = get_fn_const(r_type, "invalid symmetry rule, result type must be an operator application");
+        register_rop(env, rop);
         m_symm_table.insert(rop, std::make_tuple(symm, nargs, nunivs));
     }
 };
@@ -202,6 +244,14 @@ optional<name> get_trans_info(environment const & env, name const & op) {
         return optional<name>(std::get<0>(*it));
     else
         return optional<name>();
+}
+
+bool is_equivalence(environment const & env, name const & rop) {
+    return rel_ext::get_state(env).is_equivalence(rop);
+}
+
+relation_info const * get_relation_info(environment const & env, name const & rop) {
+    return rel_ext::get_state(env).m_rop_table.find(rop);
 }
 
 void initialize_relation_manager() {

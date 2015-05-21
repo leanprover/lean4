@@ -8,6 +8,28 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
+struct relation_info {
+    unsigned m_arity;
+    unsigned m_lhs_pos;
+    unsigned m_rhs_pos;
+public:
+    relation_info() {}
+    relation_info(unsigned arity, unsigned lhs, unsigned rhs):
+        m_arity(arity), m_lhs_pos(lhs), m_rhs_pos(rhs) {
+        lean_assert(m_lhs_pos < m_arity);
+        lean_assert(m_rhs_pos < m_arity);
+    }
+    unsigned get_arity() const { return m_arity; }
+    unsigned get_lhs_pos() const { return m_lhs_pos; }
+    unsigned get_rhs_pos() const { return m_rhs_pos; }
+};
+
+/** \brief Return true if \c rop is a registered equivalence relation in the given manager */
+bool is_equivalence(environment const & env, name const & rop);
+
+/** \brief If \c rop is a registered relation, then return a non-null pointer to the associated information */
+relation_info const * get_relation_info(environment const & env, name const & rop);
+
 environment add_subst(environment const & env, name const & n, bool persistent = true);
 environment add_refl(environment const & env, name const & n, bool persistent = true);
 environment add_symm(environment const & env, name const & n, bool persistent = true);

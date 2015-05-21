@@ -310,11 +310,11 @@ format justification::pp_core(formatter const & fmt, pos_info_provider const * p
             return format(format("Assumption "), format(to_assumption(it)->m_idx));
         else
             return format();
-    case justification_kind::Composite:
-        return
-            to_composite(it)->m_child[0].pp_core(fmt, p, s, set, is_main) +
-            to_composite(it)->m_child[1].pp_core(fmt, p, s, set, false);
-    }
+    case justification_kind::Composite: {
+        format r1 = to_composite(it)->m_child[0].pp_core(fmt, p, s, set, is_main);
+        format r2 = to_composite(it)->m_child[1].pp_core(fmt, p, s, set, false);
+        return r1 + r2;
+    }}
 }
 
 format justification::pp(formatter const & fmt, pos_info_provider const * p, substitution const & s) const {

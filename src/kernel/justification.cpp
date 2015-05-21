@@ -315,6 +315,7 @@ format justification::pp_core(formatter const & fmt, pos_info_provider const * p
         format r2 = to_composite(it)->m_child[1].pp_core(fmt, p, s, set, false);
         return r1 + r2;
     }}
+    lean_unreachable();
 }
 
 format justification::pp(formatter const & fmt, pos_info_provider const * p, substitution const & s) const {

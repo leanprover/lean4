@@ -36,7 +36,7 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/normalize.h"
 #include "library/abbreviation.h"
-#include "library/equivalence_manager.h"
+#include "library/relation_manager.h"
 #include "library/user_recursors.h"
 
 namespace lean {
@@ -73,13 +73,13 @@ void initialize_library_module() {
     initialize_projection();
     initialize_normalize();
     initialize_abbreviation();
-    initialize_equivalence_manager();
+    initialize_relation_manager();
     initialize_user_recursors();
 }
 
 void finalize_library_module() {
     finalize_user_recursors();
-    finalize_equivalence_manager();
+    finalize_relation_manager();
     finalize_abbreviation();
     finalize_normalize();
     finalize_projection();

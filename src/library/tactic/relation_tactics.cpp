@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/equivalence_manager.h"
+#include "library/relation_manager.h"
 #include "library/explicit.h"
 #include "library/placeholder.h"
 #include "library/tactic/apply_tactic.h"
@@ -79,7 +79,7 @@ tactic trans_tactic(elaborate_fn const & elab, expr const & e) {
     return tactic(fn);
 }
 
-void initialize_equivalence_tactics() {
+void initialize_relation_tactics() {
     register_tac(name{"tactic", "reflexivity"},
                  [](type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *) {
                      return refl_tactic(fn);
@@ -94,5 +94,5 @@ void initialize_equivalence_tactics() {
                      return trans_tactic(fn, get_tactic_expr_expr(app_arg(e)));
                  });
 }
-void finalize_equivalence_tactics() {}
+void finalize_relation_tactics() {}
 }

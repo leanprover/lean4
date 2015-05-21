@@ -36,7 +36,7 @@ Author: Leonardo de Moura
 #include "library/tactic/rewrite_tactic.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/class_instance_synth.h"
-#include "library/tactic/equivalence_tactics.h"
+#include "library/tactic/relation_tactics.h"
 
 // #define TRACE_MATCH_PLUGIN
 

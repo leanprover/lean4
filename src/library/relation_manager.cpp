@@ -36,14 +36,14 @@ static expr extract_arg_types(environment const & env, name const & f, buffer<ex
 
 enum class op_kind { Subst, Trans, Refl, Symm };
 
-struct eqv_entry {
+struct rel_entry {
     op_kind m_kind;
     name    m_name;
-    eqv_entry() {}
-    eqv_entry(op_kind k, name const & n):m_kind(k), m_name(n) {}
+    rel_entry() {}
+    rel_entry(op_kind k, name const & n):m_kind(k), m_name(n) {}
 };
 
-struct eqv_state {
+struct rel_state {
     typedef name_map<std::tuple<name, unsigned, unsigned>> refl_table;
     typedef name_map<std::tuple<name, unsigned, unsigned>> subst_table;
     typedef name_map<std::tuple<name, unsigned, unsigned>> symm_table;
@@ -52,7 +52,7 @@ struct eqv_state {
     refl_table     m_refl_table;
     subst_table    m_subst_table;
     symm_table     m_symm_table;
-    eqv_state() {}
+    rel_state() {}
 
     void add_subst(environment const & env, name const & subst) {
         buffer<expr> arg_types;
@@ -103,12 +103,12 @@ struct eqv_state {
     }
 };
 
-static name * g_eqv_name  = nullptr;
+static name * g_rel_name  = nullptr;
 static std::string * g_key = nullptr;
 
-struct eqv_config {
-    typedef eqv_state state;
-    typedef eqv_entry entry;
+struct rel_config {
+    typedef rel_state state;
+    typedef rel_entry entry;
     static void add_entry(environment const & env, io_state const &, state & s, entry const & e) {
         switch (e.m_kind) {
         case op_kind::Refl:  s.add_refl(env, e.m_name); break;
@@ -118,7 +118,7 @@ struct eqv_config {
         }
     }
     static name const & get_class_name() {
-        return *g_eqv_name;
+        return *g_rel_name;
     }
     static std::string const & get_serialization_key() {
         return *g_key;
@@ -138,23 +138,23 @@ struct eqv_config {
     }
 };
 
-template class scoped_ext<eqv_config>;
-typedef scoped_ext<eqv_config> eqv_ext;
+template class scoped_ext<rel_config>;
+typedef scoped_ext<rel_config> rel_ext;
 
 environment add_subst(environment const & env, name const & n, bool persistent) {
-    return eqv_ext::add_entry(env, get_dummy_ios(), eqv_entry(op_kind::Subst, n), persistent);
+    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Subst, n), persistent);
 }
 
 environment add_refl(environment const & env, name const & n, bool persistent) {
-    return eqv_ext::add_entry(env, get_dummy_ios(), eqv_entry(op_kind::Refl, n), persistent);
+    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Refl, n), persistent);
 }
 
 environment add_symm(environment const & env, name const & n, bool persistent) {
-    return eqv_ext::add_entry(env, get_dummy_ios(), eqv_entry(op_kind::Symm, n), persistent);
+    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Symm, n), persistent);
 }
 
 environment add_trans(environment const & env, name const & n, bool persistent) {
-    return eqv_ext::add_entry(env, get_dummy_ios(), eqv_entry(op_kind::Trans, n), persistent);
+    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Trans, n), persistent);
 }
 
 static optional<std::tuple<name, unsigned, unsigned>> get_info(name_map<std::tuple<name, unsigned, unsigned>> const & table, name const & op) {
@@ -166,17 +166,17 @@ static optional<std::tuple<name, unsigned, unsigned>> get_info(name_map<std::tup
 }
 
 optional<std::tuple<name, unsigned, unsigned>> get_refl_extra_info(environment const & env, name const & op) {
-    return get_info(eqv_ext::get_state(env).m_refl_table, op);
+    return get_info(rel_ext::get_state(env).m_refl_table, op);
 }
 optional<std::tuple<name, unsigned, unsigned>> get_subst_extra_info(environment const & env, name const & op) {
-    return get_info(eqv_ext::get_state(env).m_subst_table, op);
+    return get_info(rel_ext::get_state(env).m_subst_table, op);
 }
 optional<std::tuple<name, unsigned, unsigned>> get_symm_extra_info(environment const & env, name const & op) {
-    return get_info(eqv_ext::get_state(env).m_symm_table, op);
+    return get_info(rel_ext::get_state(env).m_symm_table, op);
 }
 
 optional<std::tuple<name, name, unsigned>> get_trans_extra_info(environment const & env, name const & op1, name const & op2) {
-    if (auto it = eqv_ext::get_state(env).m_trans_table.find(mk_pair(op1, op2))) {
+    if (auto it = rel_ext::get_state(env).m_trans_table.find(mk_pair(op1, op2))) {
         return optional<std::tuple<name, name, unsigned>>(*it);
     } else {
         return optional<std::tuple<name, name, unsigned>>();
@@ -204,15 +204,15 @@ optional<name> get_trans_info(environment const & env, name const & op) {
         return optional<name>();
 }
 
-void initialize_equivalence_manager() {
-    g_eqv_name = new name("eqv");
-    g_key       = new std::string("eqv");
-    eqv_ext::initialize();
+void initialize_relation_manager() {
+    g_rel_name = new name("rel");
+    g_key       = new std::string("rel");
+    rel_ext::initialize();
 }
 
-void finalize_equivalence_manager() {
-    eqv_ext::finalize();
+void finalize_relation_manager() {
+    rel_ext::finalize();
     delete g_key;
-    delete g_eqv_name;
+    delete g_rel_name;
 }
 }

@@ -19,6 +19,6 @@ optional<std::tuple<name, name, unsigned>> get_trans_extra_info(environment cons
 optional<name> get_refl_info(environment const & env, name const & op);
 optional<name> get_symm_info(environment const & env, name const & op);
 optional<name> get_trans_info(environment const & env, name const & op);
-void initialize_equivalence_manager();
-void finalize_equivalence_manager();
+void initialize_relation_manager();
+void finalize_relation_manager();
 }

@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/interrupt.h"
 #include "kernel/environment.h"
-#include "library/equivalence_manager.h"
+#include "library/relation_manager.h"
 #include "library/module.h"
 #include "library/constants.h"
 #include "library/choice.h"

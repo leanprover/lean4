@@ -27,7 +27,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/class.h"
 #include "library/abbreviation.h"
-#include "library/equivalence_manager.h"
+#include "library/relation_manager.h"
 #include "library/user_recursors.h"
 #include "library/unfold_macros.h"
 #include "library/definitional/equations.h"

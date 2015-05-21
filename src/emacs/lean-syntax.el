@@ -109,7 +109,7 @@
      (,(rx symbol-start (or "λ" "→" "∃" "∀" ":=") symbol-end) . 'font-lock-constant-face )
      ;; universe/inductive/theorem... "names"
      (,(rx word-start
-           (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "hypothesis" "definition" "constant"))
+           (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "hypothesis" "definition" "constant" "abbreviation"))
            word-end
            (zero-or-more (or whitespace "(" "{" "["))
            (group (zero-or-more (not (any " \t\n\r{([")))))

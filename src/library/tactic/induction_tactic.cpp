@@ -195,8 +195,9 @@ class induction_tac {
                 expr new_meta  = mk_app(mk_metavar(m_ngen.next(), Pi(new_goal_hyps, new_type)), new_goal_hyps);
                 goal new_g(new_meta, new_type);
                 new_goals.push_back(new_g);
-                rec            = mk_app(rec, Fun(minor_args, Fun(new_deps, new_meta)));
-                rec_type       = m_tc.whnf(instantiate(binding_body(rec_type), new_meta), m_cs);
+                expr rec_arg   = Fun(minor_args, Fun(new_deps, new_meta));
+                rec            = mk_app(rec, rec_arg);
+                rec_type       = m_tc.whnf(instantiate(binding_body(rec_type), rec_arg), m_cs);
                 curr_pos++;
             }
         }

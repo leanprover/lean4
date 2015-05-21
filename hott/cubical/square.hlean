@@ -26,13 +26,13 @@ namespace cubical
   variables {s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁} {s₃₁ : square p₃₀ p₃₂ p₂₁ p₄₁}
             {s₁₃ : square p₁₂ p₁₄ p₀₃ p₂₃} {s₃₃ : square p₃₂ p₃₄ p₂₃ p₄₃}
 
-  definition ids [reducible] := @square.ids
-  definition idsquare [reducible] (a : A) := @square.ids A a
+  definition ids [reducible] [constructor] := @square.ids
+  definition idsquare [reducible] [constructor] (a : A) := @square.ids A a
 
-  definition hrefl (p : a = a') : square idp idp p p :=
+  definition hrefl [unfold-c 4] (p : a = a') : square idp idp p p :=
   by cases p; exact ids
 
-  definition vrefl (p : a = a') : square p p idp idp :=
+  definition vrefl [unfold-c 4] (p : a = a') : square p p idp idp :=
   by cases p; exact ids
 
   definition hconcat (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (s₃₁ : square p₃₀ p₃₂ p₂₁ p₄₁)
@@ -74,7 +74,7 @@ namespace cubical
     { intro s, cases s, apply idp},
   end
 
-  definition rec_on_b {a₀₀ : A}
+  definition rec_on_b [recursor] {a₀₀ : A}
     {P : Π{a₂₀ a₁₂ : A} {t : a₀₀ = a₂₀} {l : a₀₀ = a₁₂} {r : a₂₀ = a₁₂}, square t idp l r → Type}
     {a₂₀ a₁₂ : A} {t : a₀₀ = a₂₀} {l : a₀₀ = a₁₂} {r : a₂₀ = a₁₂}
       (s : square t idp l r) (H : P ids) : P s :=
@@ -82,7 +82,7 @@ namespace cubical
     from eq.rec_on (eq_of_square s : t ⬝ r = l) (by cases r; cases t; exact H),
   left_inv (to_fun !square_equiv_eq) s ▸ H2
 
-  definition rec_on_r {a₀₀ : A}
+  definition rec_on_r [recursor] {a₀₀ : A}
     {P : Π{a₀₂ a₂₁ : A} {t : a₀₀ = a₂₁} {b : a₀₂ = a₂₁} {l : a₀₀ = a₀₂}, square t b l idp → Type}
     {a₀₂ a₂₁ : A} {t : a₀₀ = a₂₁} {b : a₀₂ = a₂₁} {l : a₀₀ = a₀₂}
       (s : square t b l idp) (H : P ids) : P s :=
@@ -91,7 +91,7 @@ namespace cubical
     from @eq.rec_on _ _ (λx p, P (square_of_eq p⁻¹)) _ p (by cases b; cases l; exact H),
   left_inv (to_fun !square_equiv_eq) s ▸ !inv_inv ▸ H2
 
-  definition rec_on_l {a₀₁ : A}
+  definition rec_on_l [recursor] {a₀₁ : A}
     {P : Π {a₂₀ a₂₂ : A} {t : a₀₁ = a₂₀} {b : a₀₁ = a₂₂} {r : a₂₀ = a₂₂},
       square t b idp r → Type}
     {a₂₀ a₂₂ : A} {t : a₀₁ = a₂₀} {b : a₀₁ = a₂₂} {r : a₂₀ = a₂₂}
@@ -101,7 +101,7 @@ namespace cubical
     from eq.rec_on p (by cases r; cases t; exact H),
   left_inv (to_fun !square_equiv_eq) s ▸ !con_inv_cancel_right ▸ H2
 
-  definition rec_on_t {a₁₀ : A}
+  definition rec_on_t [recursor] {a₁₀ : A}
     {P : Π {a₀₂ a₂₂ : A} {b : a₀₂ = a₂₂} {l : a₁₀ = a₀₂} {r : a₁₀ = a₂₂}, square idp b l r → Type}
     {a₀₂ a₂₂ : A} {b : a₀₂ = a₂₂} {l : a₁₀ = a₀₂} {r : a₁₀ = a₂₂}
       (s : square idp b l r) (H : P ids) : P s :=
@@ -116,7 +116,7 @@ namespace cubical
     left_inv (to_fun !square_equiv_eq) s ▸ H4
   qed
 
-  definition rec_on_tb {a : A}
+  definition rec_on_tb [recursor] {a : A}
     {P : Π{b : A} {l : a = b} {r : a = b}, square idp idp l r → Type}
     {b : A} {l : a = b} {r : a = b}
       (s : square idp idp l r) (H : P ids) : P s :=

@@ -23,7 +23,7 @@ namespace cubical
 
   notation b `=[`:50 p:0 `]`:0 b₂:50 := pathover _ b p b₂
 
-  definition idpo [reducible] {b : B a} : b =[refl a] b :=
+  definition idpo [reducible] [constructor] {b : B a} : b =[refl a] b :=
   pathover.idpatho b
 
   /- equivalences with equality using transport -/
@@ -121,7 +121,7 @@ namespace cubical
   definition pathover_idp_of_eq {b' : B a} (q : b = b') : b =[idpath a] b' :=
   pathover_of_transport_eq q
 
-  definition idp_rec_on {P : Π⦃b₂ : B a⦄, b =[idpath a] b₂ → Type}
+  definition idp_rec_on [recursor] {P : Π⦃b₂ : B a⦄, b =[idpath a] b₂ → Type}
     {b₂ : B a} (r : b =[idpath a] b₂) (H : P idpo) : P r :=
   have H2 : P (pathover_idp_of_eq (eq_of_pathover_idp r)),
     from eq.rec_on (eq_of_pathover_idp r) H,

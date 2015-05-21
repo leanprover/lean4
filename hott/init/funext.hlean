@@ -253,6 +253,6 @@ is_equiv.left_inv apd10 idp
 definition naive_funext_of_ua : naive_funext :=
 λ A P f g h, eq_of_homotopy h
 
-protected definition homotopy.rec_on {Q : (f ∼ g) → Type} (p : f ∼ g)
+protected definition homotopy.rec_on [recursor] {Q : (f ∼ g) → Type} (p : f ∼ g)
   (H : Π(q : f = g), Q (apd10 q)) : Q p :=
 right_inv apd10 p ▸ H (eq_of_homotopy p)

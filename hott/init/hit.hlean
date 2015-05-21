@@ -39,8 +39,9 @@ namespace trunc
   protected constant rec {n : trunc_index} {A : Type} {P : trunc n A → Type}
     [Pt : Πaa, is_trunc n (P aa)] (H : Πa, P (tr a)) : Πaa, P aa
 
-  protected definition rec_on [reducible] {n : trunc_index} {A : Type} {P : trunc n A → Type}
-    (aa : trunc n A) [Pt : Πaa, is_trunc n (P aa)] (H : Πa, P (tr a)) : P aa :=
+  protected definition rec_on [reducible] {n : trunc_index} {A : Type}
+    {P : trunc n A → Type} (aa : trunc n A) [Pt : Πaa, is_trunc n (P aa)] (H : Πa, P (tr a))
+    : P aa :=
   trunc.rec H aa
 end trunc
 

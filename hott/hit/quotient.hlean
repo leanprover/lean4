@@ -72,5 +72,5 @@ end
 end quotient
 
 attribute quotient.class_of [constructor]
-attribute quotient.rec quotient.elim [unfold-c 7]
+attribute quotient.elim quotient.rec [unfold-c 7] [recursor]
 attribute quotient.rec_on quotient.elim_on [unfold-c 4]

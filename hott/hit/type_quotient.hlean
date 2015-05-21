@@ -48,7 +48,8 @@ namespace type_quotient
   type_quotient.elim_type H.1 H.2
 end type_quotient
 
-attribute type_quotient.elim [unfold-c 6]
+attribute type_quotient.elim [unfold-c 6] [recursor 6]
 attribute type_quotient.elim_type [unfold-c 5]
 attribute type_quotient.elim_on [unfold-c 4]
 attribute type_quotient.elim_type_on [unfold-c 3]
+attribute type_quotient.rec [recursor]

@@ -23,7 +23,7 @@ namespace lean {
 class unifier_plugin_cell {
 public:
     virtual ~unifier_plugin_cell() {}
-    virtual lazy_list<constraints> solve(type_checker &, constraint const &, name_generator const &) const = 0;
+    virtual lazy_list<constraints> solve(type_checker &, constraint const &, name_generator &&) const = 0;
     virtual bool delay_constraint(type_checker &, constraint const &) const = 0;
 };
 

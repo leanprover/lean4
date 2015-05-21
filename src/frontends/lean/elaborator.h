@@ -181,7 +181,7 @@ class elaborator : public coercion_info_manager {
                              expr const & goal, bool first, constraint_seq & cs, expr const & src);
     expr visit_obtain_expr(expr const & e, constraint_seq & cs);
 public:
-    elaborator(elaborator_context & ctx, name_generator const & ngen, bool nice_mvar_names = false);
+    elaborator(elaborator_context & ctx, name_generator && ngen, bool nice_mvar_names = false);
     std::tuple<expr, level_param_names> operator()(list<expr> const & ctx, expr const & e, bool _ensure_type);
     std::tuple<expr, expr, level_param_names> operator()(expr const & t, expr const & v, name const & n);
 };

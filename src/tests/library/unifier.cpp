@@ -14,7 +14,6 @@ using namespace lean;
 
 static void tst1() {
     environment env;
-    name_generator ngen("foo");
     expr Type = mk_Type();
     expr A  = Local("A", Type);
     expr f  = Local("f", A >> (A >> A));
@@ -23,7 +22,7 @@ static void tst1() {
     expr m  = mk_metavar("m", A);
     expr t1 = mk_app(f, m, m);
     expr t2 = mk_app(f, a, b);
-    auto r = unify(env, t1, t2, ngen);
+    auto r = unify(env, t1, t2, name_generator("foo"));
     lean_assert(!r.pull());
 }
 

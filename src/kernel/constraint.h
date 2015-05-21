@@ -57,7 +57,7 @@ typedef list<constraint> constraints;
 
    One application of choice constraints is overloaded notation.
 */
-typedef std::function<lazy_list<constraints>(expr const &, expr const &, substitution const &, name_generator const &)> choice_fn;
+typedef std::function<lazy_list<constraints>(expr const &, expr const &, substitution const &, name_generator &&)> choice_fn;
 
 struct constraint_cell;
 class constraint {

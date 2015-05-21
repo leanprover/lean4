@@ -123,11 +123,10 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
                                info_manager * im, update_type_info_fn const & fn) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & _s,
-                         name_generator const & _ngen) {
+                         name_generator && ngen) {
         local_context ctx = _ctx;
         expr e            = _e;
         substitution s    = _s;
-        name_generator ngen(_ngen);
         type_checker_ptr tc(mk_type_checker(env, ngen.mk_child()));
         constraint_seq new_cs = cs;
         expr e_type = tc->infer(e, new_cs);
@@ -169,7 +168,7 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
             unifier_config new_cfg(cfg);
             new_cfg.m_discard      = false;
             new_cfg.m_kind         = conservative ? unifier_kind::Conservative : unifier_kind::Liberal;
-            unify_result_seq seq   = unify(env, cs_buffer.size(), cs_buffer.data(), ngen, substitution(), new_cfg);
+            unify_result_seq seq   = unify(env, cs_buffer.size(), cs_buffer.data(), ngen.mk_child(), substitution(), new_cfg);
             auto p = seq.pull();
             lean_assert(p);
             substitution new_s     = p->first.first;
@@ -218,8 +217,10 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
                 // 4. subst (eq.symm pr) (eq.refl lhs)
                 if (symm) {
                     constraint_seq subst_cs = symm_cs;
-                    if (auto subst = apply_subst(env, ctx, ngen, tc, symm->first, symm->second, meta_type, subst_cs, g)) {
-                        try { return try_alternative(subst->first, subst->second, subst_cs, conservative); } catch (exception&) {}
+                    if (auto subst = apply_subst(env, ctx, ngen, tc, symm->first, symm->second,
+                                                 meta_type, subst_cs, g)) {
+                        try { return try_alternative(subst->first, subst->second, subst_cs, conservative); }
+                        catch (exception&) {}
                     }
                 }
             }
@@ -240,7 +241,8 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
                 constraint_seq symm_cs = new_cs;
                 auto symm  = apply_symmetry(env, ctx, ngen, tc, e, e_type, symm_cs, g);
                 if (symm) {
-                    try { return try_alternative(symm->first, symm->second, symm_cs, conservative); } catch (exception &) {}
+                    try { return try_alternative(symm->first, symm->second, symm_cs, conservative); }
+                    catch (exception &) {}
                 }
 
                 // We use the exception for the first alternative as the error message

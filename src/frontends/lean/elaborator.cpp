@@ -80,13 +80,13 @@ public:
     }
 };
 
-type_checker_ptr mk_coercion_from_type_checker(environment const & env, name_generator const & ngen) {
-    return std::unique_ptr<type_checker>(new type_checker(env, ngen,
+type_checker_ptr mk_coercion_from_type_checker(environment const & env, name_generator && ngen) {
+    return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
            std::unique_ptr<converter>(new coercion_from_converter(env))));
 }
 
-type_checker_ptr mk_coercion_to_type_checker(environment const & env, name_generator const & ngen) {
-    return std::unique_ptr<type_checker>(new type_checker(env, ngen,
+type_checker_ptr mk_coercion_to_type_checker(environment const & env, name_generator && ngen) {
+    return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
            std::unique_ptr<converter>(new coercion_to_converter(env))));
 }
 
@@ -141,7 +141,7 @@ struct elaborator::choice_expr_elaborator : public choice_iterator {
     }
 };
 
-elaborator::elaborator(elaborator_context & ctx, name_generator const & ngen, bool nice_mvar_names):
+elaborator::elaborator(elaborator_context & ctx, name_generator && ngen, bool nice_mvar_names):
     m_ctx(ctx),
     m_ngen(ngen),
     m_context(),
@@ -334,7 +334,7 @@ expr elaborator::visit_choice(expr const & e, optional<expr> const & t, constrai
     local_context ctx      = m_context;
     local_context full_ctx = m_full_context;
     auto fn = [=](expr const & meta, expr const & type, substitution const & /* s */,
-                  name_generator const & /* ngen */) {
+                  name_generator && /* ngen */) {
         return choose(std::make_shared<choice_expr_elaborator>(*this, ctx, full_ctx, meta, type, e));
     };
     auto pp_fn = [=](formatter const & fmt, pos_info_provider const * pos_prov, substitution const &, bool is_main) {
@@ -471,7 +471,7 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
                 justification j        = mk_justification(f, [=](formatter const & fmt, substitution const & subst) {
                         return pp_function_expected(fmt, substitution(subst).instantiate(f));
                     });
-                auto choice_fn = [=](expr const & meta, expr const &, substitution const &, name_generator const &) {
+                auto choice_fn = [=](expr const & meta, expr const &, substitution const &, name_generator &&) {
                     flet<local_context> save1(m_context,      ctx);
                     flet<local_context> save2(m_full_context, full_ctx);
                     list<constraints> choices = map2<constraints>(coes, [&](expr const & coe) {
@@ -1112,13 +1112,13 @@ constraint elaborator::mk_equations_cnstr(expr const & m, expr const & eqns) {
     io_state const & _ios    = ios();
     justification j          = mk_failed_to_synthesize_jst(_env, m);
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
-                         name_generator const & ngen) {
+                         name_generator && ngen) {
         substitution new_s  = s;
         expr new_eqns       = new_s.instantiate_all(eqns);
         new_eqns            = solve_unassigned_mvars(new_s, new_eqns);
         if (display_unassigned_mvars(new_eqns, new_s))
             return lazy_list<constraints>();
-        type_checker_ptr tc = mk_type_checker(_env, ngen);
+        type_checker_ptr tc = mk_type_checker(_env, std::move(ngen));
         new_eqns            = assign_equation_lhs_metas(*tc, new_eqns);
         expr val            = compile_equations(*tc, _ios, new_eqns, meta, meta_type);
         justification j     = mk_justification("equation compilation", some_expr(eqns));
@@ -1687,9 +1687,9 @@ optional<expr> elaborator::get_pre_tactic_for(expr const & mvar) {
 
 optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
     try {
-        auto fn = [=](goal const & g, name_generator const & ngen, expr const & e, optional<expr> const & expected_type,
+        auto fn = [=](goal const & g, name_generator && ngen, expr const & e, optional<expr> const & expected_type,
                       substitution const & subst, bool report_unassigned) {
-            elaborator aux_elaborator(m_ctx, ngen);
+            elaborator aux_elaborator(m_ctx, std::move(ngen));
             // Disable tactic hints when processing expressions nested in tactics.
             // We must do it otherwise, it is easy to make the system loop.
             bool use_tactic_hints = false;

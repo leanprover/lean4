@@ -134,17 +134,17 @@ bool unfold_semireducible_converter::is_opaque(declaration const & d) const {
     return default_converter::is_opaque(d);
 }
 
-std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_generator const & ngen,
+std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_generator && ngen,
                                               reducible_behavior rb, bool memoize) {
     switch (rb) {
     case UnfoldReducible:
-        return std::unique_ptr<type_checker>(new type_checker(env, ngen,
+        return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
                std::unique_ptr<converter>(new unfold_reducible_converter(env, memoize))));
     case UnfoldQuasireducible:
-        return std::unique_ptr<type_checker>(new type_checker(env, ngen,
+        return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
                std::unique_ptr<converter>(new unfold_quasireducible_converter(env, memoize))));
     case UnfoldSemireducible:
-        return std::unique_ptr<type_checker>(new type_checker(env, ngen,
+        return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
                std::unique_ptr<converter>(new unfold_semireducible_converter(env, memoize))));
     }
     lean_unreachable();
@@ -160,8 +160,8 @@ public:
     virtual bool is_opaque(declaration const &) const { return true; }
 };
 
-std::unique_ptr<type_checker> mk_opaque_type_checker(environment const & env, name_generator const & ngen) {
-    return std::unique_ptr<type_checker>(new type_checker(env, ngen,
+std::unique_ptr<type_checker> mk_opaque_type_checker(environment const & env, name_generator && ngen) {
+    return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
                                                           std::unique_ptr<converter>(new opaque_converter(env))));
 }
 
@@ -174,7 +174,7 @@ static int mk_opaque_type_checker(lua_State * L) {
         type_checker_ref r(mk_opaque_type_checker(to_environment(L, 1), name_generator()));
         return push_type_checker_ref(L, r);
     } else {
-        type_checker_ref r(mk_opaque_type_checker(to_environment(L, 1), to_name_generator(L, 2)));
+        type_checker_ref r(mk_opaque_type_checker(to_environment(L, 1), to_name_generator(L, 2).mk_child()));
         return push_type_checker_ref(L, r);
     }
 }
@@ -188,7 +188,7 @@ static int mk_reducible_checker_core(lua_State * L, reducible_behavior rb) {
         type_checker_ref r(mk_type_checker(to_environment(L, 1), name_generator(), rb));
         return push_type_checker_ref(L, r);
     } else {
-        type_checker_ref r(mk_type_checker(to_environment(L, 1), to_name_generator(L, 2), rb));
+        type_checker_ref r(mk_type_checker(to_environment(L, 1), to_name_generator(L, 2).mk_child(), rb));
         return push_type_checker_ref(L, r);
     }
 }

@@ -774,8 +774,8 @@ bool match_type(type_checker & tc, expr const & meta, expr const & expected_type
     }
 }
 
-static std::unique_ptr<type_checker> mk_find_goal_type_checker(environment const & env, name_generator const & ngen) {
-    return mk_opaque_type_checker(env, ngen);
+static std::unique_ptr<type_checker> mk_find_goal_type_checker(environment const & env, name_generator && ngen) {
+    return mk_opaque_type_checker(env, std::move(ngen));
 }
 
 static name * g_tmp_prefix = nullptr;
@@ -794,8 +794,7 @@ void server::find_goal_matches(unsigned line_num, unsigned col_num, std::string 
     m_out << std::endl;
     environment const & env = env_opts->first;
     options const & opts    = env_opts->second;
-    name_generator ngen(*g_tmp_prefix);
-    std::unique_ptr<type_checker> tc = mk_find_goal_type_checker(env, ngen);
+    std::unique_ptr<type_checker> tc = mk_find_goal_type_checker(env, name_generator(*g_tmp_prefix));
     if (auto meta = m_file->infom().get_meta_at(line_num, col_num)) {
     if (is_meta(*meta)) {
     if (auto type = m_file->infom().get_type_at(line_num, col_num)) {

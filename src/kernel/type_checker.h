@@ -123,8 +123,8 @@ public:
 
        memoize: if true, then inferred types are memoized/cached
     */
-    type_checker(environment const & env, name_generator const & g, std::unique_ptr<converter> && conv, bool memoize = true);
-    type_checker(environment const & env, name_generator const & g, bool memoize = true);
+    type_checker(environment const & env, name_generator && g, std::unique_ptr<converter> && conv, bool memoize = true);
+    type_checker(environment const & env, name_generator && g, bool memoize = true);
     type_checker(environment const & env);
     ~type_checker();
 
@@ -235,7 +235,7 @@ void check_no_metavar(environment const & env, name const & n, expr const & e, b
    \brief Type check the given declaration, and return a certified declaration if it is type correct.
    Throw an exception if the declaration is type incorrect.
 */
-certified_declaration check(environment const & env, declaration const & d, name_generator const & g);
+certified_declaration check(environment const & env, declaration const & d, name_generator && g);
 certified_declaration check(environment const & env, declaration const & d);
 
 /**

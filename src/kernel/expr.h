@@ -483,8 +483,6 @@ inline expr mk_app(expr const & e1, expr const & e2, expr const & e3, expr const
 /** \brief Return application (...((f x_{n-1}) x_{n-2}) ... x_0) */
 expr mk_app_vars(expr const & f, unsigned n, tag g = nulltag);
 
-expr mk_local_for(expr const & b, name_generator const & ngen, tag g = nulltag);
-
 bool enable_expr_caching(bool f);
 /** \brief Helper class for temporarily enabling/disabling expression caching */
 struct scoped_expr_caching {

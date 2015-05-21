@@ -62,7 +62,7 @@ constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coerc
                              expr const & m, expr const & a, expr const & a_type,
                              justification const & j, unsigned delay_factor) {
     auto choice_fn = [=, &from_tc, &to_tc, &infom](expr const & meta, expr const & d_type, substitution const & s,
-                                                   name_generator const & /* ngen */) {
+                                                   name_generator && /* ngen */) {
         expr          new_a_type;
         justification new_a_type_jst;
         if (is_meta(a_type)) {

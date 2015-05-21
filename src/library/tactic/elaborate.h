@@ -25,7 +25,7 @@ bool solve_constraints(environment const & env, io_state const & ios, proof_stat
     3- postponed constraints
 */
 typedef std::tuple<expr, substitution, constraints> elaborate_result;
-typedef std::function<elaborate_result(goal const &, name_generator const &, expr const &,
+typedef std::function<elaborate_result(goal const &, name_generator &&, expr const &,
                                        optional<expr> const &, substitution const &, bool)> elaborate_fn;
 
 /** \brief Try to elaborate expression \c e using the elaboration function \c elab. The elaboration is performed

@@ -416,13 +416,13 @@ bool type_checker::is_opaque(expr const & c) const {
         return true;
 }
 
-type_checker::type_checker(environment const & env, name_generator const & g, std::unique_ptr<converter> && conv, bool memoize):
+type_checker::type_checker(environment const & env, name_generator && g, std::unique_ptr<converter> && conv, bool memoize):
     m_env(env), m_gen(g), m_conv(std::move(conv)), m_tc_ctx(*this),
     m_memoize(memoize), m_params(nullptr) {
 }
 
-type_checker::type_checker(environment const & env, name_generator const & g, bool memoize):
-    type_checker(env, g, std::unique_ptr<converter>(new default_converter(env, memoize)), memoize) {}
+type_checker::type_checker(environment const & env, name_generator && g, bool memoize):
+    type_checker(env, std::move(g), std::unique_ptr<converter>(new default_converter(env, memoize)), memoize) {}
 
 static name * g_tmp_prefix = nullptr;
 
@@ -472,18 +472,18 @@ static void check_duplicated_params(environment const & env, declaration const &
     }
 }
 
-certified_declaration check(environment const & env, declaration const & d, name_generator const & g) {
+certified_declaration check(environment const & env, declaration const & d, name_generator && g) {
     if (d.is_definition())
         check_no_mlocal(env, d.get_name(), d.get_value(), false);
     check_no_mlocal(env, d.get_name(), d.get_type(), true);
     check_name(env, d.get_name());
     check_duplicated_params(env, d);
     bool memoize = true;
-    type_checker checker1(env, g, std::unique_ptr<converter>(new default_converter(env, memoize)));
+    type_checker checker1(env, g.mk_child(), std::unique_ptr<converter>(new default_converter(env, memoize)));
     expr sort = checker1.check(d.get_type(), d.get_univ_params()).first;
     checker1.ensure_sort(sort, d.get_type());
     if (d.is_definition()) {
-        type_checker checker2(env, g, std::unique_ptr<converter>(new default_converter(env, memoize)));
+        type_checker checker2(env, g.mk_child(), std::unique_ptr<converter>(new default_converter(env, memoize)));
         expr val_type = checker2.check(d.get_value(), d.get_univ_params()).first;
         if (!checker2.is_def_eq(val_type, d.get_type()).first) {
             throw_kernel_exception(env, d.get_value(), [=](formatter const & fmt) {

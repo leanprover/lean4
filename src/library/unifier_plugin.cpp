@@ -22,16 +22,16 @@ public:
 class append_unifier_plugin_cell : public binary_unifier_plugin_cell {
 public:
     append_unifier_plugin_cell(unifier_plugin const & p1, unifier_plugin const & p2):binary_unifier_plugin_cell(p1, p2) {}
-    virtual lazy_list<constraints> solve(type_checker & tc, constraint const & c, name_generator const & ngen) const {
-        return append(m_p1->solve(tc, c, ngen), m_p2->solve(tc, c, ngen));
+    virtual lazy_list<constraints> solve(type_checker & tc, constraint const & c, name_generator && ngen) const {
+        return append(m_p1->solve(tc, c, ngen.mk_child()), m_p2->solve(tc, c, ngen.mk_child()));
     }
 };
 
 class orelse_unifier_plugin_cell : public binary_unifier_plugin_cell {
 public:
     orelse_unifier_plugin_cell(unifier_plugin const & p1, unifier_plugin const & p2):binary_unifier_plugin_cell(p1, p2) {}
-    virtual lazy_list<constraints> solve(type_checker & tc, constraint const & c, name_generator const & ngen) const {
-        return orelse(m_p1->solve(tc, c, ngen), m_p2->solve(tc, c, ngen));
+    virtual lazy_list<constraints> solve(type_checker & tc, constraint const & c, name_generator && ngen) const {
+        return orelse(m_p1->solve(tc, c, ngen.mk_child()), m_p2->solve(tc, c, ngen.mk_child()));
     }
 };
 
@@ -46,7 +46,7 @@ unifier_plugin orelse(unifier_plugin const & p1, unifier_plugin const & p2) {
 static unifier_plugin noop_unifier_plugin() {
     class noop_unifier_plugin_cell : public unifier_plugin_cell {
     public:
-        virtual lazy_list<constraints> solve(type_checker &, constraint const &, name_generator const &) const {
+        virtual lazy_list<constraints> solve(type_checker &, constraint const &, name_generator &&) const {
             return lazy_list<constraints>();
         }
         virtual bool delay_constraint(type_checker &, constraint const &) const { return false; }

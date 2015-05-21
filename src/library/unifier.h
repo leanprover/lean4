@@ -74,9 +74,9 @@ struct unifier_config {
 /** \brief The unification procedures produce a lazy list of pair substitution + constraints that could not be solved. */
 typedef lazy_list<pair<substitution, constraints>> unify_result_seq;
 
-unify_result_seq unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator const & ngen,
+unify_result_seq unify(environment const & env, unsigned num_cs, constraint const * cs, name_generator && ngen,
                        substitution const & s = substitution(), unifier_config const & c = unifier_config());
-unify_result_seq unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
+unify_result_seq unify(environment const & env, expr const & lhs, expr const & rhs, name_generator && ngen,
                        substitution const & s = substitution(), unifier_config const & c = unifier_config());
 
 /**

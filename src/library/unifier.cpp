@@ -432,7 +432,7 @@ struct unifier_fn {
     optional<justification> m_conflict; //!< if different from none, then there is a conflict.
 
     unifier_fn(environment const & env, unsigned num_cs, constraint const * cs,
-               name_generator const & ngen, substitution const & s,
+               name_generator && ngen, substitution const & s,
                unifier_config const & cfg):
         m_env(env), m_ngen(ngen), m_subst(s), m_plugin(get_unifier_plugin(env)),
         m_config(cfg), m_num_steps(0) {
@@ -2326,17 +2326,17 @@ unify_result_seq unify(std::shared_ptr<unifier_fn> u) {
     }
 }
 
-unify_result_seq unify(environment const & env,  unsigned num_cs, constraint const * cs, name_generator const & ngen,
+unify_result_seq unify(environment const & env,  unsigned num_cs, constraint const * cs, name_generator && ngen,
                        substitution const & s, unifier_config const & cfg) {
-    return unify(std::make_shared<unifier_fn>(env, num_cs, cs, ngen, s, cfg));
+    return unify(std::make_shared<unifier_fn>(env, num_cs, cs, std::move(ngen), s, cfg));
 }
 
-unify_result_seq unify(environment const & env, expr const & lhs, expr const & rhs, name_generator const & ngen,
+unify_result_seq unify(environment const & env, expr const & lhs, expr const & rhs, name_generator && ngen,
                        substitution const & s, unifier_config const & cfg) {
     substitution new_s = s;
     expr _lhs = new_s.instantiate(lhs);
     expr _rhs = new_s.instantiate(rhs);
-    auto u = std::make_shared<unifier_fn>(env, 0, nullptr, ngen, new_s, cfg);
+    auto u = std::make_shared<unifier_fn>(env, 0, nullptr, std::move(ngen), new_s, cfg);
     constraint_seq cs;
     if (!u->m_tc->is_def_eq(_lhs, _rhs, justification(), cs) || !u->process_constraints(cs)) {
         return unify_result_seq();
@@ -2411,7 +2411,7 @@ static constraints to_constraints(lua_State * L, int idx) {
 static unifier_plugin to_unifier_plugin(lua_State * L, int idx) {
     luaL_checktype(L, idx, LUA_TFUNCTION); // user-fun
     luaref f(L, idx);
-    return unifier_plugin([=](constraint const & c, name_generator const & ngen) {
+    return unifier_plugin([=](constraint const & c, name_generator && ngen) {
             lua_State * L = f.get_state();
             f.push();
             push_constraint(L, c);
@@ -2465,21 +2465,22 @@ static int unify(lua_State * L) {
     environment const & env = to_environment(L, 1);
     if (is_expr(L, 2)) {
         if (nargs == 6)
-            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4), to_substitution(L, 5),
+            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4).mk_child(), to_substitution(L, 5),
                       unifier_config(to_options(L, 6)));
         else if (nargs == 5)
-            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4), to_substitution(L, 5));
+            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4).mk_child(), to_substitution(L, 5));
         else
-            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4));
+            r = unify(env, to_expr(L, 2), to_expr(L, 3), to_name_generator(L, 4).mk_child());
     } else {
         buffer<constraint> cs;
         to_constraint_buffer(L, 2, cs);
         if (nargs == 5)
-            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3), to_substitution(L, 4), unifier_config(to_options(L, 5)));
+            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3).mk_child(), to_substitution(L, 4),
+                      unifier_config(to_options(L, 5)));
         else if (nargs == 4)
-            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3), to_substitution(L, 4));
+            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3).mk_child(), to_substitution(L, 4));
         else
-            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3));
+            r = unify(env, cs.size(), cs.data(), to_name_generator(L, 3).mk_child());
     }
     return push_unify_result_seq_it(L, r);
 }

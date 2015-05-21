@@ -1766,7 +1766,8 @@ static int mk_type_checker(lua_State * L) {
     if (nargs == 1) {
         return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1)));
     } else {
-        return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1), to_name_generator(L, 2)));
+        return push_type_checker_ref(L, std::make_shared<type_checker>(to_environment(L, 1),
+                                                                       to_name_generator(L, 2).mk_child()));
     }
 }
 static int type_checker_whnf(lua_State * L) { return push_ecs(L, to_type_checker_ref(L, 1)->whnf(to_expr(L, 2))); }
@@ -1802,7 +1803,7 @@ static int mk_type_checker_with_hints(lua_State * L) {
     if (nargs == 1) {
         return push_type_checker_ref(L, mk_type_checker(env, name_generator(*g_tmp_prefix)));
     } else {
-        return push_type_checker_ref(L, mk_type_checker(env, to_name_generator(L, 2)));
+        return push_type_checker_ref(L, mk_type_checker(env, to_name_generator(L, 2).mk_child()));
     }
 }
 
@@ -1824,7 +1825,8 @@ static int type_check(lua_State * L) {
     if (nargs == 2) {
         return push_certified_declaration(L, check(to_environment(L, 1), to_declaration(L, 2)));
     } else {
-        return push_certified_declaration(L, check(to_environment(L, 1), to_declaration(L, 2), to_name_generator(L, 3)));
+        return push_certified_declaration(L, check(to_environment(L, 1), to_declaration(L, 2),
+                                                   to_name_generator(L, 3).mk_child()));
     }
 }
 
@@ -1835,7 +1837,7 @@ static int add_declaration(lua_State * L) {
     if (nargs == 2) {
         d = check(env, unfold_untrusted_macros(env, to_declaration(L, 2)));
     } else {
-        d = check(env, unfold_untrusted_macros(env, to_declaration(L, 2)), to_name_generator(L, 3));
+        d = check(env, unfold_untrusted_macros(env, to_declaration(L, 2)), to_name_generator(L, 3).mk_child());
     }
     return push_environment(L, module::add(to_environment(L, 1), *d));
 }

@@ -328,7 +328,7 @@ constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_context> 
     justification j         = mk_failed_to_synthesize_jst(env, m);
 
     auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s,
-                         name_generator const & ngen) {
+                         name_generator && ngen) {
         environment const & env  = C->env();
         auto cls_name_it = is_ext_class(C->tc(), meta_type);
         if (!cls_name_it) {
@@ -368,7 +368,7 @@ constraint mk_class_instance_root_cnstr(std::shared_ptr<class_instance_context> 
                 return lazy_list<constraints>(constraints());
         };
 
-        unify_result_seq seq1    = unify(env, 1, &c, ngen, substitution(), new_cfg);
+        unify_result_seq seq1    = unify(env, 1, &c, std::move(ngen), substitution(), new_cfg);
         unify_result_seq seq2    = filter(seq1, [=](pair<substitution, constraints> const & p) {
                 substitution new_s = p.first;
                 expr result = new_s.instantiate(new_meta);

@@ -63,13 +63,13 @@ public:
 enum reducible_behavior { UnfoldReducible, UnfoldQuasireducible, UnfoldSemireducible };
 
 /** \brief Create a type checker that takes the "reducibility" hints into account. */
-std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_generator const & ngen,
+std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_generator && ngen,
                                               reducible_behavior r = UnfoldSemireducible,
                                               bool memoize = true);
 std::unique_ptr<type_checker> mk_type_checker(environment const & env, reducible_behavior r = UnfoldSemireducible);
 
 /** \brief Create a type checker that treats all definitions as opaque. */
-std::unique_ptr<type_checker> mk_opaque_type_checker(environment const & env, name_generator const & ngen);
+std::unique_ptr<type_checker> mk_opaque_type_checker(environment const & env, name_generator && ngen);
 
 void initialize_reducible();
 void finalize_reducible();

@@ -17,6 +17,17 @@ Author: Leonardo de Moura
 #include "library/tactic/class_instance_synth.h"
 
 namespace lean {
+class rec_opaque_converter : public default_converter {
+    name m_I;
+public:
+    rec_opaque_converter(environment const & env, name const & I):default_converter(env), m_I(I) {}
+    virtual bool is_opaque(declaration const & d) const {
+        if (d.get_name() == m_I)
+            return true;
+        return default_converter::is_opaque(d);
+    }
+};
+
 class has_rec_opaque_converter : public default_converter {
     has_recursors_pred m_pred;
 public:
@@ -234,8 +245,9 @@ class induction_tac {
             }
             buffer<expr> indices;
             for (unsigned pos : rec_info.get_indices_pos()) {
-                if (pos >= h_type_args.size())
+                if (pos >= h_type_args.size()) {
                     throw tactic_exception("invalid 'induction' tactic, major premise type is ill-formed");
+                }
                 expr const & idx = h_type_args[pos];
                 if (!is_local(idx)) {
                     throw tactic_exception(sstream() << "invalid 'induction' tactic, argument #"
@@ -289,8 +301,16 @@ public:
 
     expr normalize_H_type(expr const & H) {
         lean_assert(is_local(H));
-        type_checker aux_tc(m_env, m_ngen.mk_child(), std::unique_ptr<converter>(new has_rec_opaque_converter(m_env)));
-        return aux_tc.whnf(mlocal_type(H)).first;
+        if (m_rec_name) {
+            recursor_info info = get_recursor_info(m_env, *m_rec_name);
+            type_checker aux_tc(m_env, m_ngen.mk_child(),
+                                std::unique_ptr<converter>(new rec_opaque_converter(m_env, info.get_type_name())));
+            return aux_tc.whnf(mlocal_type(H)).first;
+        } else {
+            type_checker aux_tc(m_env, m_ngen.mk_child(),
+                                std::unique_ptr<converter>(new has_rec_opaque_converter(m_env)));
+            return aux_tc.whnf(mlocal_type(H)).first;
+        }
     }
 
     optional<goals> execute(goal const & g) {
@@ -312,6 +332,10 @@ public:
             }
             throw tactic_exception(sstream() << "invalid 'induction' tactic, hypothesis '" << m_h_name
                                    << "' must have a type that is associated with a recursor");
+        } catch (exception & ex) {
+            if (m_throw_ex)
+                throw tactic_exception(sstream() << "invalid 'induction' tactic, " << ex.what());
+            return optional<goals>();
         } catch (tactic_exception & ex) {
             if (m_throw_ex)
                 throw;
@@ -321,8 +345,6 @@ public:
 };
 
 tactic induction_tactic(name const & H, optional<name> rec, list<name> const & ids, expr const & ref) {
-    name rec1 = "unknown";
-    if (rec) rec1 = *rec;
     auto fn = [=](environment const & env, io_state const & ios, proof_state const & ps) -> optional<proof_state> {
         goals const & gs  = ps.get_goals();
         if (empty(gs)) {

@@ -351,13 +351,13 @@ public:
             }
             throw tactic_exception(sstream() << "invalid 'induction' tactic, hypothesis '" << m_h_name
                                    << "' must have a type that is associated with a recursor");
-        } catch (exception & ex) {
-            if (m_throw_ex)
-                throw tactic_exception(sstream() << "invalid 'induction' tactic, " << ex.what());
-            return optional<goals>();
         } catch (tactic_exception & ex) {
             if (m_throw_ex)
                 throw;
+            return optional<goals>();
+        } catch (exception & ex) {
+            if (m_throw_ex)
+                throw tactic_exception(sstream() << "invalid 'induction' tactic, " << ex.what());
             return optional<goals>();
         }
     }

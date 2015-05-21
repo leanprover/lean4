@@ -37,6 +37,15 @@ namespace category
   definition eq_of_iso [reducible] {a b : ob} : a ≅ b → a = b :=
   iso_of_eq⁻¹ᶠ
 
+  definition iso_of_eq_eq_of_iso {a b : ob} (p : a ≅ b) : iso_of_eq (eq_of_iso p) = p :=
+  right_inv iso_of_eq p
+
+  definition hom_of_eq_eq_of_iso {a b : ob} (p : a ≅ b) : hom_of_eq (eq_of_iso p) = to_hom p :=
+  ap to_hom !iso_of_eq_eq_of_iso
+
+  definition inv_of_eq_eq_of_iso {a b : ob} (p : a ≅ b) : inv_of_eq (eq_of_iso p) = to_inv p :=
+  ap to_inv !iso_of_eq_eq_of_iso
+
   definition is_trunc_1_ob : is_trunc 1 ob :=
   begin
     apply is_trunc_succ_intro, intro a b,

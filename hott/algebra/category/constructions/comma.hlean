@@ -8,7 +8,7 @@ Comma category
 
 import ..functor cubical.pathover ..strict ..category
 
-open core eq functor equiv sigma sigma.ops is_trunc cubical iso
+open eq functor equiv sigma sigma.ops is_trunc cubical iso is_equiv
 
 namespace category
 
@@ -16,9 +16,9 @@ namespace category
     (a : A)
     (b : B)
     (f : S a ⟶ T b)
-  abbreviation ob1 := @comma_object.a
-  abbreviation ob2 := @comma_object.b
-  abbreviation mor := @comma_object.f
+  abbreviation ob1 [unfold-c 6] := @comma_object.a
+  abbreviation ob2 [unfold-c 6] := @comma_object.b
+  abbreviation mor [unfold-c 6] := @comma_object.f
 
   variables {A B C : Precategory} (S : A ⇒ C) (T : B ⇒ C)
 
@@ -40,19 +40,27 @@ namespace category
     (r : mor x =[ap011 (@hom C C) (ap (to_fun_ob S) p) (ap (to_fun_ob T) q)] mor y) : x = y :=
   begin
     cases x with a b f, cases y with a' b' f', cases p, cases q,
-    esimp [ap011,congr,core.ap,subst] at r,
+    esimp [ap011,congr,ap,subst] at r,
     eapply (idp_rec_on r), reflexivity
   end
 
-  -- definition comma_object_eq {x y : comma_object S T} (p : ob1 x = ob1 y) (q : ob2 x = ob2 y)
-  --   (r : T (hom_of_eq q) ∘ mor x ∘ S (inv_of_eq p) = mor y) : x = y :=
-  -- begin
-  --   fapply comma_object_eq' p q,
-  --   --cases x with a b f, cases y with a' b' f', cases p, cases q,
-  --   --esimp [ap011,congr,core.ap,subst] at r,
-  --   --eapply (idp_rec_on r), reflexivity
-  -- end
+  --TODO: remove. This is a different version where Hq is not in square brackets
+  definition eq_comp_inverse_of_comp_eq' {ob : Type} {C : precategory ob} {d c b : ob} {r : hom c d}
+    {q : hom b c} {x : hom b d} {Hq : is_iso q} (p : r ∘ q = x) : r = x ∘ q⁻¹ʰ :=
+  sorry --eq_inverse_comp_of_comp_eq p
 
+  definition comma_object_eq {x y : comma_object S T} (p : ob1 x = ob1 y) (q : ob2 x = ob2 y)
+    (r : T (hom_of_eq q) ∘ mor x ∘ S (inv_of_eq p) = mor y) : x = y :=
+  begin
+    cases x with a b f, cases y with a' b' f', cases p, cases q,
+    have r' : f = f',
+    begin
+      rewrite [▸* at r, -r, respect_id, id_left, respect_inv'],
+      apply eq_comp_inverse_of_comp_eq',
+      rewrite [respect_id,id_right]
+    end,
+    rewrite r'
+  end
 
   definition ap_ob1_comma_object_eq' (x y : comma_object S T) (p : ob1 x = ob1 y) (q : ob2 x = ob2 y)
     (r : mor x =[ap011 (@hom C C) (ap (to_fun_ob S) p) (ap (to_fun_ob T) q)] mor y)
@@ -149,19 +157,20 @@ namespace category
     strict_precategory (comma_object S T) :=
   strict_precategory.mk (comma_category S T) !is_trunc_comma_object
 
-  -- definition is_univalent_comma (HA : is_univalent A) (HB : is_univalent B)
-  --   : is_univalent (comma_category S T) :=
-  -- begin
-  --   intros c d,
-  --   fapply adjointify,
-  --   { intro i, cases i with f s, cases s with g l r, cases f with fA fB fp, cases g with gA gB gp,
-  --     esimp at *, fapply comma_object_eq', unfold is_univalent at (HA, HB),
-  --       {apply iso_of_eq⁻¹ᶠ, exact (iso.MK fA gA (ap mor1 l) (ap mor1 r))},
-  --       {apply iso_of_eq⁻¹ᶠ, exact (iso.MK fB gB (ap mor2 l) (ap mor2 r))},
-  --       { apply sorry}},
-  --   { apply sorry},
-  --   { apply sorry},
-  -- end
+  --set_option pp.notation false
+  definition is_univalent_comma (HA : is_univalent A) (HB : is_univalent B)
+    : is_univalent (comma_category S T) :=
+  begin
+    intros c d,
+    fapply adjointify,
+    { intro i, cases i with f s, cases s with g l r, cases f with fA fB fp, cases g with gA gB gp,
+      esimp at *, fapply comma_object_eq,
+        {apply iso_of_eq⁻¹ᶠ, exact (iso.MK fA gA (ap mor1 l) (ap mor1 r))},
+        {apply iso_of_eq⁻¹ᶠ, exact (iso.MK fB gB (ap mor2 l) (ap mor2 r))},
+        { apply sorry /-rewrite hom_of_eq_eq_of_iso,-/ }},
+    { apply sorry},
+    { apply sorry},
+  end
 
 
 end category

@@ -60,14 +60,19 @@ namespace equiv
     (f : A ≃ B) (H : Π(q : A = B), P (equiv_of_eq q)) : P f :=
   right_inv equiv_of_eq f ▸ H (ua f)
 
+  -- a variant where we immediately recurse on the equality in the new goal
+  definition rec_on_ua_idp [recursor] {A : Type} {P : Π{B}, A ≃ B → Type} {B : Type}
+    (f : A ≃ B) (H : P equiv.refl) : P f :=
+  rec_on_ua f (λq, eq.rec_on q H)
+
   -- a variant where (equiv_of_eq (ua f)) will be replaced by f in the new goal
-  definition rec_on_ua2 {A B : Type} {P : A ≃ B → A = B → Type}
+  definition rec_on_ua' {A B : Type} {P : A ≃ B → A = B → Type}
     (f : A ≃ B) (H : Π(q : A = B), P (equiv_of_eq q) q) : P f (ua f) :=
   right_inv equiv_of_eq f ▸ H (ua f)
 
-  -- a variant where we immediately recurse on the equality in the new goal
-  definition rec_on_ua3 {A : Type} {P : Π{B}, A ≃ B → A = B → Type} {B : Type}
+  -- a variant where we do both
+  definition rec_on_ua_idp' {A : Type} {P : Π{B}, A ≃ B → A = B → Type} {B : Type}
     (f : A ≃ B) (H : P equiv.refl idp) : P f (ua f) :=
-  rec_on_ua2 f (λq, eq.rec_on q H)
+  rec_on_ua' f (λq, eq.rec_on q H)
 
 end equiv

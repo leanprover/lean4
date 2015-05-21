@@ -86,9 +86,7 @@ namespace functor
       apply (respect_id F) ),
   end
 
-  attribute functor.preserve_iso [instance]
-
-  protected definition respect_inv (F : C ⇒ D) {a b : C} (f : hom a b)
+  definition respect_inv (F : C ⇒ D) {a b : C} (f : hom a b)
     [H : is_iso f] [H' : is_iso (F f)] :
     F (f⁻¹) = (F f)⁻¹ :=
   begin
@@ -100,6 +98,11 @@ namespace functor
           {apply respect_id}},
       apply right_inverse
   end
+
+  attribute functor.preserve_iso [instance]
+
+  definition respect_inv' (F : C ⇒ D) {a b : C} (f : hom a b) {H : is_iso f} : F (f⁻¹) = (F f)⁻¹ :=
+  respect_inv F f
 
   protected definition assoc (H : C ⇒ D) (G : B ⇒ C) (F : A ⇒ B) :
       H ∘f (G ∘f F) = (H ∘f G) ∘f F :=

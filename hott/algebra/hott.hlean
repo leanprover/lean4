@@ -44,7 +44,7 @@ namespace algebra
   definition group_pathover {G : group A} {H : group B} (f : A ≃ B) : (Π(g h : A), f (g * h) = f g * f h) → G =[ua f] H :=
   begin
     revert H,
-    eapply (rec_on_ua3 f),
+    eapply (rec_on_ua_idp' f),
     intros H resp_mul,
     esimp [equiv.refl] at resp_mul, esimp,
     apply pathover_idp_of_eq, apply group_eq,

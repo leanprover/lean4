@@ -249,7 +249,7 @@ namespace equiv
   definition to_right_inv [reducible] [unfold-c 3] (f : A ≃ B) : f ∘ f⁻¹ ∼ id := right_inv f
   definition to_left_inv [reducible] [unfold-c 3] (f : A ≃ B) : f⁻¹ ∘ f ∼ id := left_inv f
 
-  protected definition refl [refl] : A ≃ A :=
+  protected definition refl [refl] [constructor] : A ≃ A :=
   equiv.mk id !is_equiv_id
 
   protected definition symm [symm] (f : A ≃ B) : B ≃ A :=
@@ -281,6 +281,6 @@ namespace equiv
     infixl `⬝e`:75 := equiv.trans
     postfix `⁻¹` := equiv.symm -- overloaded notation for inverse
     postfix `⁻¹ᵉ`:(max + 1) := equiv.symm -- notation for inverse which is not overloaded
-    abbreviation erfl := @equiv.refl
+    abbreviation erfl [constructor] := @equiv.refl
   end ops
 end equiv

@@ -19,7 +19,7 @@ expr normalize(environment const & env, level_param_names const & ls, expr const
 /** \brief Similar to <tt>expr normalize(environment const & env, expr const & e)</tt>, but
     uses the converter associated with \c tc. */
 expr normalize(type_checker & tc, expr const & e, bool eta = false);
-expr normalize(type_checker & tc, level_param_names const & ls, expr const & e, bool eta = false);
+expr normalize(type_checker & tc, level_param_names const & ls, expr const & e, bool eta = false, bool eval_nested_prop = true);
 /** \brief Return the \c e normal form with respect to \c tc, and store generated constraints
     into \c cs.
 */

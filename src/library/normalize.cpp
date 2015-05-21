@@ -171,6 +171,9 @@ class normalize_fn {
     bool                              m_save_cnstrs;
     constraint_seq                    m_cnstrs;
     bool                              m_use_eta;
+    bool                              m_eval_nested_prop;
+
+    environment const & env() const { return m_tc.env(); }
 
     expr normalize_binding(expr const & e) {
         expr d = normalize(binding_domain(e));
@@ -182,19 +185,19 @@ class normalize_fn {
     optional<unsigned> has_unfold_c_hint(expr const & f) {
         if (!is_constant(f))
             return optional<unsigned>();
-        return ::lean::has_unfold_c_hint(m_tc.env(), const_name(f));
+        return ::lean::has_unfold_c_hint(env(), const_name(f));
     }
 
     bool has_unfold_f_hint(expr const & f) {
-        return is_constant(f) &&  ::lean::has_unfold_f_hint(m_tc.env(), const_name(f));
+        return is_constant(f) &&  ::lean::has_unfold_f_hint(env(), const_name(f));
     }
 
     optional<expr> is_constructor_like(expr const & e) {
-        if (is_constructor_app(m_tc.env(), e))
+        if (is_constructor_app(env(), e))
             return some_expr(e);
         expr const & f = get_app_fn(e);
-        if (is_constant(f) && has_constructor_hint(m_tc.env(), const_name(f))) {
-            if (auto r = unfold_term(m_tc.env(), e))
+        if (is_constant(f) && has_constructor_hint(env(), const_name(f))) {
+            if (auto r = unfold_term(env(), e))
                 return r;
             else
                 return some_expr(e);
@@ -211,7 +214,7 @@ class normalize_fn {
                 expr new_app = mk_rev_app(f, args);
                 if (is_rec)
                     return some_expr(normalize(new_app));
-                else if (optional<expr> r = unfold_app(m_tc.env(), new_app))
+                else if (optional<expr> r = unfold_app(env(), new_app))
                     return some_expr(normalize(*r));
             }
         }
@@ -231,14 +234,16 @@ class normalize_fn {
         bool modified = false;
         expr f = get_app_rev_args(e, args);
         for (expr & a : args) {
-            expr new_a = normalize(a);
+            expr new_a = a;
+            if (m_eval_nested_prop || !m_tc.is_prop(m_tc.infer(a).first).first)
+                 new_a = normalize(a);
             if (new_a != a)
                 modified = true;
             a = new_a;
         }
         if (has_unfold_f_hint(f)) {
             if (!is_pi(m_tc.whnf(m_tc.infer(e).first).first)) {
-                if (optional<expr> r = unfold_app(m_tc.env(), mk_rev_app(f, args)))
+                if (optional<expr> r = unfold_app(env(), mk_rev_app(f, args)))
                     return normalize(*r);
             }
         }
@@ -247,7 +252,7 @@ class normalize_fn {
                 return *r;
         }
         if (is_constant(f)) {
-            if (auto idx = inductive::get_elim_major_idx(m_tc.env(), const_name(f))) {
+            if (auto idx = inductive::get_elim_major_idx(env(), const_name(f))) {
                 if (auto r = unfold_recursor_major(f, *idx, args))
                     return *r;
             }
@@ -255,7 +260,7 @@ class normalize_fn {
         if (!modified)
             return e;
         expr r = mk_rev_app(f, args);
-        if (is_constant(f) && inductive::is_elim_rule(m_tc.env(), const_name(f))) {
+        if (is_constant(f) && inductive::is_elim_rule(env(), const_name(f))) {
             return normalize(r);
         } else {
             return r;
@@ -309,14 +314,20 @@ class normalize_fn {
     }
 
 public:
-    normalize_fn(type_checker & tc, bool save, bool eta):
+    normalize_fn(type_checker & tc, bool save, bool eta, bool nested_prop = true):
         m_tc(tc), m_ngen(m_tc.mk_ngen()),
         m_pred([](expr const &) { return true; }),
-        m_save_cnstrs(save), m_use_eta(eta) {}
+        m_save_cnstrs(save), m_use_eta(eta), m_eval_nested_prop(nested_prop) {
+        if (!is_standard(env()))
+            m_eval_nested_prop = true;
+    }
 
-    normalize_fn(type_checker & tc, std::function<bool(expr const &)> const & fn, bool eta): // NOLINT
+    normalize_fn(type_checker & tc, std::function<bool(expr const &)> const & fn, bool eta, bool nested_prop = true): // NOLINT
         m_tc(tc), m_ngen(m_tc.mk_ngen()),
-        m_pred(fn), m_save_cnstrs(true), m_use_eta(eta) {}
+        m_pred(fn), m_save_cnstrs(true), m_use_eta(eta), m_eval_nested_prop(nested_prop) {
+        if (!is_standard(env()))
+            m_eval_nested_prop = true;
+    }
 
     expr operator()(expr const & e) {
         m_cnstrs = constraint_seq();
@@ -350,9 +361,9 @@ expr normalize(type_checker & tc, expr const & e, bool eta) {
     return normalize_fn(tc, save_cnstrs, eta)(e);
 }
 
-expr normalize(type_checker & tc, level_param_names const & ls, expr const & e, bool eta) {
+expr normalize(type_checker & tc, level_param_names const & ls, expr const & e, bool eta, bool eval_nested_prop) {
     bool save_cnstrs = false;
-    return normalize_fn(tc, save_cnstrs, eta)(ls, e);
+    return normalize_fn(tc, save_cnstrs, eta, eval_nested_prop)(ls, e);
 }
 
 expr normalize(type_checker & tc, expr const & e, constraint_seq & cs, bool eta) {

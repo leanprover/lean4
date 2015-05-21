@@ -1,0 +1,1 @@
+quot.mk (prerat.mk 14 6 (mul_denom_pos (prerat.mul (prerat.of_int 8) (prerat.inv (prerat.of_int 6))) prerat.one))

@@ -547,7 +547,9 @@ environment eval_cmd(parser & p) {
         r = tc->whnf(e).first;
     } else {
         type_checker tc(p.env());
-        r = normalize(tc, ls, e);
+        bool eta = false;
+        bool eval_nested_prop = false;
+        r = normalize(tc, ls, e, eta, eval_nested_prop);
     }
     flycheck_information info(p.regular_stream());
     if (info.enabled()) {

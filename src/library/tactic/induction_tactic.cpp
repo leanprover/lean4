@@ -71,11 +71,7 @@ class induction_tac {
                                << "' is ill-formed");
     }
 
-    expr mk_type_class_param(goal const & g, expr const & rec, recursor_info const & rec_info) {
-        expr rec_type = m_tc.whnf(m_tc.infer(rec, m_cs), m_cs);
-        if (!is_pi(rec_type)) {
-            throw_ill_formed_recursor(rec_info);
-        }
+    expr mk_type_class_param(goal const & g, expr const & type) {
         bool use_local_insts = true;
         bool is_strict       = false;
         local_context ctx    = g.to_local_context();
@@ -83,9 +79,17 @@ class induction_tac {
         auto mc = mk_class_instance_elaborator(
             m_env, m_ios, ctx, m_ngen.next(), optional<name>(),
             use_local_insts, is_strict,
-            some_expr(binding_domain(rec_type)), m_ref.get_tag(), cfg, nullptr);
+            some_expr(type), m_ref.get_tag(), cfg, nullptr);
         m_cs += mc.second;
         return mc.first;
+    }
+
+    expr mk_type_class_param(goal const & g, expr const & rec, recursor_info const & rec_info) {
+        expr rec_type = m_tc.whnf(m_tc.infer(rec, m_cs), m_cs);
+        if (!is_pi(rec_type)) {
+            throw_ill_formed_recursor(rec_info);
+        }
+        return mk_type_class_param(g, binding_domain(rec_type));
     }
 
     goals apply_recursor(goal const & g, unsigned num_deps, expr const & h, expr const & h_type,
@@ -160,42 +164,47 @@ class induction_tac {
                 buffer<expr> new_goal_hyps;
                 new_goal_hyps.append(new_hyps);
                 expr new_type  = binding_domain(rec_type);
-                unsigned arity = get_arity(new_type);
-                // introduce minor arguments
-                buffer<expr> minor_args;
-                for (unsigned i = 0; i < arity; i++) {
-                    expr arg_type = head_beta_reduce(binding_domain(new_type));
-                    name arg_name;
-                    if (m_ids) {
-                        arg_name = head(m_ids);
-                        m_ids    = tail(m_ids);
-                    } else {
-                        arg_name = binding_name(new_type);
+                expr rec_arg;
+                if (binding_info(rec_type).is_inst_implicit()) {
+                    rec_arg   = mk_type_class_param(g, binding_domain(rec_type));
+                } else {
+                    unsigned arity = get_arity(new_type);
+                    // introduce minor arguments
+                    buffer<expr> minor_args;
+                    for (unsigned i = 0; i < arity; i++) {
+                        expr arg_type = head_beta_reduce(binding_domain(new_type));
+                        name arg_name;
+                        if (m_ids) {
+                            arg_name = head(m_ids);
+                            m_ids    = tail(m_ids);
+                        } else {
+                            arg_name = binding_name(new_type);
+                        }
+                        expr new_h = mk_local(m_ngen.next(), get_unused_name(arg_name, new_goal_hyps),
+                                              arg_type, binder_info());
+                        minor_args.push_back(new_h);
+                        new_goal_hyps.push_back(new_h);
+                        new_type = instantiate(binding_body(new_type), new_h);
                     }
-                    expr new_h = mk_local(m_ngen.next(), get_unused_name(arg_name, new_goal_hyps),
-                                          arg_type, binder_info());
-                    minor_args.push_back(new_h);
-                    new_goal_hyps.push_back(new_h);
-                    new_type = instantiate(binding_body(new_type), new_h);
-                }
-                new_type = head_beta_reduce(new_type);
-                buffer<expr> new_deps;
-                // introduce deps
-                for (unsigned i = 0; i < num_deps; i++) {
-                    if (!is_pi(new_type)) {
-                        throw_ill_formed_recursor(rec_info);
+                    new_type = head_beta_reduce(new_type);
+                    buffer<expr> new_deps;
+                    // introduce deps
+                    for (unsigned i = 0; i < num_deps; i++) {
+                        if (!is_pi(new_type)) {
+                            throw_ill_formed_recursor(rec_info);
+                        }
+                        expr dep_type = binding_domain(new_type);
+                        expr new_dep  = mk_local(m_ngen.next(), get_unused_name(binding_name(new_type), new_goal_hyps),
+                                                 dep_type, binder_info());
+                        new_deps.push_back(new_dep);
+                        new_goal_hyps.push_back(new_dep);
+                        new_type = instantiate(binding_body(new_type), new_dep);
                     }
-                    expr dep_type = binding_domain(new_type);
-                    expr new_dep  = mk_local(m_ngen.next(), get_unused_name(binding_name(new_type), new_goal_hyps),
-                                             dep_type, binder_info());
-                    new_deps.push_back(new_dep);
-                    new_goal_hyps.push_back(new_dep);
-                    new_type = instantiate(binding_body(new_type), new_dep);
+                    expr new_meta  = mk_app(mk_metavar(m_ngen.next(), Pi(new_goal_hyps, new_type)), new_goal_hyps);
+                    goal new_g(new_meta, new_type);
+                    new_goals.push_back(new_g);
+                    rec_arg   = Fun(minor_args, Fun(new_deps, new_meta));
                 }
-                expr new_meta  = mk_app(mk_metavar(m_ngen.next(), Pi(new_goal_hyps, new_type)), new_goal_hyps);
-                goal new_g(new_meta, new_type);
-                new_goals.push_back(new_g);
-                expr rec_arg   = Fun(minor_args, Fun(new_deps, new_meta));
                 rec            = mk_app(rec, rec_arg);
                 rec_type       = m_tc.whnf(instantiate(binding_body(rec_type), rec_arg), m_cs);
                 curr_pos++;

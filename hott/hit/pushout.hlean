@@ -33,7 +33,7 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
   eq_of_rel pushout_rel (Rmk f g x)
 
   protected definition rec {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
-    (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▸ Pinl (f x) = Pinr (g x))
+    (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), Pinl (f x) =[glue x] Pinr (g x))
       (y : pushout) : P y :=
   begin
     induction y,
@@ -45,17 +45,17 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
 
   protected definition rec_on [reducible] {P : pushout → Type} (y : pushout)
     (Pinl : Π(x : BL), P (inl x)) (Pinr : Π(x : TR), P (inr x))
-    (Pglue : Π(x : TL), glue x ▸ Pinl (f x) = Pinr (g x)) : P y :=
+    (Pglue : Π(x : TL), Pinl (f x) =[glue x] Pinr (g x)) : P y :=
   rec Pinl Pinr Pglue y
 
   theorem rec_glue {P : pushout → Type} (Pinl : Π(x : BL), P (inl x))
-    (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), glue x ▸ Pinl (f x) = Pinr (g x))
-      (x : TL) : apd (rec Pinl Pinr Pglue) (glue x) = Pglue x :=
+    (Pinr : Π(x : TR), P (inr x)) (Pglue : Π(x : TL), Pinl (f x) =[glue x] Pinr (g x))
+      (x : TL) : apdo (rec Pinl Pinr Pglue) (glue x) = Pglue x :=
   !rec_eq_of_rel
 
   protected definition elim {P : Type} (Pinl : BL → P) (Pinr : TR → P)
     (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) (y : pushout) : P :=
-  rec Pinl Pinr (λx, !tr_constant ⬝ Pglue x) y
+  rec Pinl Pinr (λx, pathover_of_eq (Pglue x)) y
 
   protected definition elim_on [reducible] {P : Type} (y : pushout) (Pinl : BL → P)
     (Pinr : TR → P) (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) : P :=
@@ -65,8 +65,8 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
     (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) (x : TL)
     : ap (elim Pinl Pinr Pglue) (glue x) = Pglue x :=
   begin
-    apply (@cancel_left _ _ _ _ (tr_constant (glue x) (elim Pinl Pinr Pglue (inl (f x))))),
-    rewrite [-apd_eq_tr_constant_con_ap,↑elim,rec_glue],
+    apply eq_of_fn_eq_fn_inv !(pathover_constant (glue x)),
+    rewrite [▸*,-apdo_eq_pathover_of_eq_ap,↑pushout.elim,rec_glue],
   end
 
   protected definition elim_type (Pinl : BL → Type) (Pinr : TR → Type)

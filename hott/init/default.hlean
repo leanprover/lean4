@@ -10,7 +10,7 @@ import init.bool init.num init.priority init.relation init.wf
 import init.types
 import init.trunc init.path init.equiv init.util
 import init.ua init.funext
-import init.hedberg init.nat init.hit
+import init.hedberg init.nat init.hit init.pathover
 
 namespace core
   export bool empty unit sum

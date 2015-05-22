@@ -11,7 +11,7 @@ Ported from Coq HoTT.
 --TODO: can we replace some definitions with a hprop as codomain by theorems?
 
 prelude
-import .logic .equiv .types
+import .logic .equiv .types .pathover
 open eq nat sigma unit
 
 namespace is_trunc
@@ -269,6 +269,22 @@ namespace is_trunc
            (λ (u : unit), center A)
            (λ (u : unit), unit.rec_on u idp)
            (λ (x : A), center_eq x)
+
+  /- interaction with pathovers -/
+  variables {C : A → Type}
+            {a a₂ : A} (p : a = a₂)
+            (c : C a) (c₂ : C a₂)
+
+  definition is_hprop.elimo [H : is_hprop (C a)] : c =[p] c₂ :=
+  pathover_of_eq_tr !is_hprop.elim
+
+  definition is_trunc_pathover [instance]
+    (n : trunc_index) [H : is_trunc (n.+1) (C a)] : is_trunc n (c =[p] c₂) :=
+  is_trunc_equiv_closed_rev n !pathover_equiv_eq_tr
+
+  variables {p c c₂}
+  theorem is_hset.elimo (q q' : c =[p] c₂) [H : is_hset (C a)] : q = q' :=
+  !is_hprop.elim
 
   -- TODO: port "Truncated morphisms"
 

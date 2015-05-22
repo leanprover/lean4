@@ -8,7 +8,7 @@ Declaration of set-quotients
 
 import .type_quotient .trunc
 
-open eq is_trunc trunc type_quotient
+open eq is_trunc trunc type_quotient equiv
 
 namespace quotient
 section
@@ -26,30 +26,29 @@ parameters {A : Type} (R : A → A → hprop)
   begin unfold quotient, exact _ end
 
   protected definition rec {P : quotient → Type} [Pt : Πaa, is_hset (P aa)]
-    (Pc : Π(a : A), P (class_of a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▸ Pc a = Pc a')
+    (Pc : Π(a : A), P (class_of a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a =[eq_of_rel H] Pc a')
     (x : quotient) : P x :=
   begin
     apply (@trunc.rec_on _ _ P x),
     { intro x', apply Pt},
     { intro y, fapply (type_quotient.rec_on y),
       { exact Pc},
-      { intros,
-        apply concat, apply transport_compose; apply Pp}}
+      { intros, apply equiv.to_inv !(pathover_compose _ tr), apply Pp}}
   end
 
   protected definition rec_on [reducible] {P : quotient → Type} (x : quotient)
     [Pt : Πaa, is_hset (P aa)] (Pc : Π(a : A), P (class_of a))
-    (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▸ Pc a = Pc a') : P x :=
+    (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a =[eq_of_rel H] Pc a') : P x :=
   rec Pc Pp x
 
   theorem rec_eq_of_rel {P : quotient → Type} [Pt : Πaa, is_hset (P aa)]
-    (Pc : Π(a : A), P (class_of a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), eq_of_rel H ▸ Pc a = Pc a')
-    {a a' : A} (H : R a a') : apd (rec Pc Pp) (eq_of_rel H) = Pp H :=
-  !is_hset.elim
+    (Pc : Π(a : A), P (class_of a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a =[eq_of_rel H] Pc a')
+    {a a' : A} (H : R a a') : apdo (rec Pc Pp) (eq_of_rel H) = Pp H :=
+  !is_hset.elimo
 
   protected definition elim {P : Type} [Pt : is_hset P] (Pc : A → P)
     (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a = Pc a') (x : quotient) : P :=
-  rec Pc (λa a' H, !tr_constant ⬝ Pp H) x
+  rec Pc (λa a' H, pathover_of_eq (Pp H)) x
 
   protected definition elim_on [reducible] {P : Type} (x : quotient) [Pt : is_hset P]
     (Pc : A → P) (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a = Pc a')  : P :=
@@ -59,8 +58,8 @@ parameters {A : Type} (R : A → A → hprop)
     (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a = Pc a') {a a' : A} (H : R a a')
     : ap (elim Pc Pp) (eq_of_rel H) = Pp H :=
   begin
-    apply (@cancel_left _ _ _ _ (tr_constant (eq_of_rel H) (elim Pc Pp (class_of a)))),
-    rewrite [-apd_eq_tr_constant_con_ap,↑elim,rec_eq_of_rel],
+    apply eq_of_fn_eq_fn_inv !(pathover_constant (eq_of_rel H)),
+    rewrite [▸*,-apdo_eq_pathover_of_eq_ap,↑elim,rec_eq_of_rel],
   end
 
   /-

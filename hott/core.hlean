@@ -7,5 +7,6 @@ The core of the HoTT library
 -/
 
 import types
-import cubical.pathover cubical.square
+import cubical.square
 import hit.circle
+import algebra.hott

@@ -31,7 +31,7 @@ parameters {A B : Type.{u}} (f g : A → B)
   eq_of_rel coeq_rel (Rmk f g x)
 
   protected definition rec {P : coeq → Type} (P_i : Π(x : B), P (coeq_i x))
-    (Pcp : Π(x : A), cp x ▸ P_i (f x) = P_i (g x)) (y : coeq) : P y :=
+    (Pcp : Π(x : A), P_i (f x) =[cp x] P_i (g x)) (y : coeq) : P y :=
   begin
     induction y,
     { apply P_i},
@@ -39,17 +39,17 @@ parameters {A B : Type.{u}} (f g : A → B)
   end
 
   protected definition rec_on [reducible] {P : coeq → Type} (y : coeq)
-    (P_i : Π(x : B), P (coeq_i x)) (Pcp : Π(x : A), cp x ▸ P_i (f x) = P_i (g x)) : P y :=
+    (P_i : Π(x : B), P (coeq_i x)) (Pcp : Π(x : A), P_i (f x) =[cp x] P_i (g x)) : P y :=
   rec P_i Pcp y
 
   theorem rec_cp {P : coeq → Type} (P_i : Π(x : B), P (coeq_i x))
-    (Pcp : Π(x : A), cp x ▸ P_i (f x) = P_i (g x))
-      (x : A) : apd (rec P_i Pcp) (cp x) = Pcp x :=
+    (Pcp : Π(x : A), P_i (f x) =[cp x] P_i (g x))
+      (x : A) : apdo (rec P_i Pcp) (cp x) = Pcp x :=
   !rec_eq_of_rel
 
   protected definition elim {P : Type} (P_i : B → P)
     (Pcp : Π(x : A), P_i (f x) = P_i (g x)) (y : coeq) : P :=
-  rec P_i (λx, !tr_constant ⬝ Pcp x) y
+  rec P_i (λx, pathover_of_eq (Pcp x)) y
 
   protected definition elim_on [reducible] {P : Type} (y : coeq) (P_i : B → P)
     (Pcp : Π(x : A), P_i (f x) = P_i (g x)) : P :=
@@ -58,8 +58,8 @@ parameters {A B : Type.{u}} (f g : A → B)
   theorem elim_cp {P : Type} (P_i : B → P) (Pcp : Π(x : A), P_i (f x) = P_i (g x))
     (x : A) : ap (elim P_i Pcp) (cp x) = Pcp x :=
   begin
-    apply (@cancel_left _ _ _ _ (tr_constant (cp x) (elim P_i Pcp (coeq_i (f x))))),
-    rewrite [-apd_eq_tr_constant_con_ap,↑elim,rec_cp],
+    apply eq_of_fn_eq_fn_inv !(pathover_constant (cp x)),
+    rewrite [▸*,-apdo_eq_pathover_of_eq_ap,↑elim,rec_cp],
   end
 
   protected definition elim_type (P_i : B → Type)

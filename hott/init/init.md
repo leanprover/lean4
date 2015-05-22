@@ -24,6 +24,7 @@ Datatypes and logic:
 HoTT basics:
 
 * [path](path.hlean)
+* [pathover](pathover.hlean) 
 * [hedberg](hedberg.hlean)
 * [trunc](trunc.hlean)
 * [equiv](equiv.hlean)

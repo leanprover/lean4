@@ -1,14 +1,15 @@
 /-
 Copyright (c) 2015 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Floris van Doorn, Jakob von Raumer
+
+Authors: Floris van Doorn
 
 Comma category
 -/
 
-import ..functor cubical.pathover ..strict ..category
+import ..functor ..strict ..category
 
-open eq functor equiv sigma sigma.ops is_trunc cubical iso is_equiv
+open eq functor equiv sigma sigma.ops is_trunc iso is_equiv
 
 namespace category
 

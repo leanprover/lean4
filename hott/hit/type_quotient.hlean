@@ -16,7 +16,7 @@ namespace type_quotient
 
   protected definition elim {P : Type} (Pc : A → P) (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a = Pc a')
     (x : type_quotient R) : P :=
-  type_quotient.rec Pc (λa a' H, !tr_constant ⬝ Pp H) x
+  type_quotient.rec Pc (λa a' H, pathover_of_eq (Pp H)) x
 
   protected definition elim_on [reducible] {P : Type} (x : type_quotient R)
     (Pc : A → P) (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a = Pc a') : P :=
@@ -26,8 +26,8 @@ namespace type_quotient
     (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a = Pc a') {a a' : A} (H : R a a')
     : ap (type_quotient.elim Pc Pp) (eq_of_rel R H) = Pp H :=
   begin
-    apply (@cancel_left _ _ _ _ (tr_constant (eq_of_rel R H) (type_quotient.elim Pc Pp (class_of R a)))),
-    rewrite [-apd_eq_tr_constant_con_ap,↑type_quotient.elim,rec_eq_of_rel],
+    apply eq_of_fn_eq_fn_inv !(pathover_constant (eq_of_rel R H)),
+    rewrite [▸*,-apdo_eq_pathover_of_eq_ap,↑type_quotient.elim,rec_eq_of_rel],
   end
 
   protected definition elim_type (Pc : A → Type)

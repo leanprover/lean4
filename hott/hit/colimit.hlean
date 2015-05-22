@@ -34,7 +34,7 @@ section
 
    protected definition rec {P : colimit → Type}
     (Pincl : Π⦃i : I⦄ (x : A i), P (ι x))
-    (Pglue : Π(j : J) (x : A (dom j)), cglue j x ▸ Pincl (f j x) = Pincl x)
+    (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) =[cglue j x] Pincl x)
       (y : colimit) : P y :=
   begin
     fapply (type_quotient.rec_on y),
@@ -44,18 +44,18 @@ section
 
   protected definition rec_on [reducible] {P : colimit → Type} (y : colimit)
     (Pincl : Π⦃i : I⦄ (x : A i), P (ι x))
-    (Pglue : Π(j : J) (x : A (dom j)), cglue j x ▸ Pincl (f j x) = Pincl x) : P y :=
+    (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) =[cglue j x] Pincl x) : P y :=
   rec Pincl Pglue y
 
   theorem rec_cglue {P : colimit → Type}
     (Pincl : Π⦃i : I⦄ (x : A i), P (ι x))
-    (Pglue : Π(j : J) (x : A (dom j)), cglue j x ▸ Pincl (f j x) = Pincl x)
-      {j : J} (x : A (dom j)) : apd (rec Pincl Pglue) (cglue j x) = Pglue j x :=
+    (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) =[cglue j x] Pincl x)
+      {j : J} (x : A (dom j)) : apdo (rec Pincl Pglue) (cglue j x) = Pglue j x :=
   !rec_eq_of_rel
 
-   protected definition elim {P : Type} (Pincl : Π⦃i : I⦄ (x : A i), P)
+  protected definition elim {P : Type} (Pincl : Π⦃i : I⦄ (x : A i), P)
     (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) = Pincl x) (y : colimit) : P :=
-  rec Pincl (λj a, !tr_constant ⬝ Pglue j a) y
+  rec Pincl (λj a, pathover_of_eq (Pglue j a)) y
 
   protected definition elim_on [reducible] {P : Type} (y : colimit)
     (Pincl : Π⦃i : I⦄ (x : A i), P)
@@ -67,8 +67,8 @@ section
     (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) = Pincl x)
       {j : J} (x : A (dom j)) : ap (elim Pincl Pglue) (cglue j x) = Pglue j x :=
   begin
-    apply (@cancel_left _ _ _ _ (tr_constant (cglue j x) (elim Pincl Pglue (ι (f j x))))),
-    rewrite [-apd_eq_tr_constant_con_ap,↑elim,rec_cglue],
+    apply eq_of_fn_eq_fn_inv !(pathover_constant (cglue j x)),
+    rewrite [▸*,-apdo_eq_pathover_of_eq_ap,↑elim,rec_cglue],
   end
 
   protected definition elim_type (Pincl : Π⦃i : I⦄ (x : A i), Type)
@@ -118,7 +118,7 @@ section
 
   protected definition rec {P : seq_colim → Type}
     (Pincl : Π⦃n : ℕ⦄ (a : A n), P (sι a))
-    (Pglue : Π(n : ℕ) (a : A n), glue a ▸ Pincl (f a) = Pincl a) (aa : seq_colim) : P aa :=
+    (Pglue : Π(n : ℕ) (a : A n), Pincl (f a) =[glue a] Pincl a) (aa : seq_colim) : P aa :=
   begin
     fapply (type_quotient.rec_on aa),
     { intro a, cases a, apply Pincl},
@@ -127,18 +127,18 @@ section
 
   protected definition rec_on [reducible] {P : seq_colim → Type} (aa : seq_colim)
     (Pincl : Π⦃n : ℕ⦄ (a : A n), P (sι a))
-    (Pglue : Π⦃n : ℕ⦄ (a : A n), glue a ▸ Pincl (f a) = Pincl a)
+    (Pglue : Π⦃n : ℕ⦄ (a : A n), Pincl (f a) =[glue a] Pincl a)
       : P aa :=
   rec Pincl Pglue aa
 
   theorem rec_glue {P : seq_colim → Type} (Pincl : Π⦃n : ℕ⦄ (a : A n), P (sι a))
-    (Pglue : Π⦃n : ℕ⦄ (a : A n), glue a ▸ Pincl (f a) = Pincl a) {n : ℕ} (a : A n)
-      : apd (rec Pincl Pglue) (glue a) = Pglue a :=
+    (Pglue : Π⦃n : ℕ⦄ (a : A n), Pincl (f a) =[glue a] Pincl a) {n : ℕ} (a : A n)
+      : apdo (rec Pincl Pglue) (glue a) = Pglue a :=
   !rec_eq_of_rel
 
   protected definition elim {P : Type} (Pincl : Π⦃n : ℕ⦄ (a : A n), P)
     (Pglue : Π⦃n : ℕ⦄ (a : A n), Pincl (f a) = Pincl a) : seq_colim → P :=
-  rec Pincl (λn a, !tr_constant ⬝ Pglue a)
+  rec Pincl (λn a, pathover_of_eq (Pglue a))
 
   protected definition elim_on [reducible] {P : Type} (aa : seq_colim)
     (Pincl : Π⦃n : ℕ⦄ (a : A n), P)
@@ -149,8 +149,8 @@ section
     (Pglue : Π⦃n : ℕ⦄ (a : A n), Pincl (f a) = Pincl a) {n : ℕ} (a : A n)
       : ap (elim Pincl Pglue) (glue a) = Pglue a :=
   begin
-    apply (@cancel_left _ _ _ _ (tr_constant (glue a) (elim Pincl Pglue (sι (f a))))),
-    rewrite [-apd_eq_tr_constant_con_ap,↑elim,rec_glue],
+    apply eq_of_fn_eq_fn_inv !(pathover_constant (glue a)),
+    rewrite [▸*,-apdo_eq_pathover_of_eq_ap,↑elim,rec_glue],
   end
 
   protected definition elim_type (Pincl : Π⦃n : ℕ⦄ (a : A n), Type)

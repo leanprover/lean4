@@ -6,9 +6,9 @@ Author: Floris van Doorn
 Theorems about algebra specific to HoTT
 -/
 
-import .group arity types.pi types.hprop_trunc cubical.pathover
+import .group arity types.pi types.hprop_trunc
 
-open equiv eq equiv.ops is_trunc cubical
+open equiv eq equiv.ops is_trunc
 
 namespace algebra
   open Group has_mul has_inv
@@ -55,7 +55,7 @@ namespace algebra
     (resp_mul : Π(g h : G), f (g * h) = f g * f h) : G = H :=
   begin
     cases G with Gc G, cases H with Hc H,
-    apply (apd011o mk (ua f)),
+    apply (apo011 mk (ua f)),
     apply group_pathover, exact resp_mul
   end
 

@@ -35,7 +35,7 @@ parameters {A B : Type.{u}} (f : A → B)
 
   protected definition rec {P : cylinder → Type}
     (Pbase : Π(b : B), P (base b)) (Ptop : Π(a : A), P (top a))
-    (Pseg : Π(a : A), seg a ▸ Pbase (f a) = Ptop a) (x : cylinder) : P x :=
+    (Pseg : Π(a : A), Pbase (f a) =[seg a] Ptop a) (x : cylinder) : P x :=
   begin
     induction x,
     { cases a,
@@ -46,18 +46,18 @@ parameters {A B : Type.{u}} (f : A → B)
 
   protected definition rec_on [reducible] {P : cylinder → Type} (x : cylinder)
     (Pbase : Π(b : B), P (base b)) (Ptop  : Π(a : A), P (top a))
-    (Pseg  : Π(a : A), seg a ▸ Pbase (f a) = Ptop a) : P x :=
+    (Pseg  : Π(a : A), Pbase (f a) =[seg a] Ptop a) : P x :=
   rec Pbase Ptop Pseg x
 
   theorem rec_seg {P : cylinder → Type}
     (Pbase : Π(b : B), P (base b)) (Ptop : Π(a : A), P (top a))
-    (Pseg : Π(a : A), seg a ▸ Pbase (f a) = Ptop a)
-      (a : A) : apd (rec Pbase Ptop Pseg) (seg a) = Pseg a :=
+    (Pseg : Π(a : A), Pbase (f a) =[seg a] Ptop a)
+      (a : A) : apdo (rec Pbase Ptop Pseg) (seg a) = Pseg a :=
   !rec_eq_of_rel
 
   protected definition elim {P : Type} (Pbase : B → P) (Ptop : A → P)
     (Pseg : Π(a : A), Pbase (f a) = Ptop a) (x : cylinder) : P :=
-  rec Pbase Ptop (λa, !tr_constant ⬝ Pseg a) x
+  rec Pbase Ptop (λa, pathover_of_eq (Pseg a)) x
 
   protected definition elim_on [reducible] {P : Type} (x : cylinder) (Pbase : B → P) (Ptop : A → P)
     (Pseg : Π(a : A), Pbase (f a) = Ptop a) : P :=
@@ -67,8 +67,8 @@ parameters {A B : Type.{u}} (f : A → B)
     (Pseg : Π(a : A), Pbase (f a) = Ptop a)
     (a : A) : ap (elim Pbase Ptop Pseg) (seg a) = Pseg a :=
   begin
-    apply (@cancel_left _ _ _ _ (tr_constant (seg a) (elim Pbase Ptop Pseg (base (f a))))),
-    rewrite [-apd_eq_tr_constant_con_ap,↑elim,rec_seg],
+    apply eq_of_fn_eq_fn_inv !(pathover_constant (seg a)),
+    rewrite [▸*,-apdo_eq_pathover_of_eq_ap,↑elim,rec_seg],
   end
 
   protected definition elim_type (Pbase : B → Type) (Ptop : A → Type)

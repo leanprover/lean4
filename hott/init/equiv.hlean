@@ -28,7 +28,6 @@ structure equiv (A B : Type) :=
   (to_fun : A → B)
   (to_is_equiv : is_equiv to_fun)
 
-
 namespace is_equiv
   /- Some instances and closure properties of equivalences -/
   postfix `⁻¹` := inv
@@ -157,9 +156,13 @@ namespace is_equiv
   have Hfinv [visible] : is_equiv f⁻¹, from is_equiv_inv f,
   @homotopy_closed _ _ _ _ (is_equiv_compose (f ∘ g) f⁻¹) (λa, left_inv f (g a))
 
-  definition is_equiv_ap [instance] (x y : A) : is_equiv (ap f) :=
-    adjointify (ap f)
-      (λq, (inverse (left_inv f x)) ⬝ ap f⁻¹ q ⬝ left_inv f y)
+  definition eq_of_fn_eq_fn' {x y : A} (q : f x = f y) : x = y :=
+  (left_inv f x)⁻¹ ⬝ ap f⁻¹ q ⬝ left_inv f y
+
+  definition is_equiv_ap [instance] (x y : A) : is_equiv (ap f : x = y → f x = f y) :=
+    adjointify
+      (ap f)
+      (eq_of_fn_eq_fn' f)
       (λq, !ap_con
         ⬝ whisker_right !ap_con _
         ⬝ ((!ap_inv ⬝ inverse2 (adj f _)⁻¹)
@@ -252,7 +255,7 @@ namespace equiv
   protected definition refl [refl] [constructor] : A ≃ A :=
   equiv.mk id !is_equiv_id
 
-  protected definition symm [symm] (f : A ≃ B) : B ≃ A :=
+  protected definition symm [symm] [unfold-c 3] (f : A ≃ B) : B ≃ A :=
   equiv.mk f⁻¹ !is_equiv_inv
 
   protected definition trans [trans] (f : A ≃ B) (g: B ≃ C) : A ≃ C :=
@@ -270,6 +273,12 @@ namespace equiv
   definition equiv_ap (P : A → Type) {a b : A} (p : a = b) : (P a) ≃ (P b) :=
   equiv.mk (transport P p) !is_equiv_tr
 
+  definition eq_of_fn_eq_fn (f : A ≃ B) {x y : A} (q : f x = f y) : x = y :=
+  (left_inv f x)⁻¹ ⬝ ap f⁻¹ q ⬝ left_inv f y
+
+  definition eq_of_fn_eq_fn_inv (f : A ≃ B) {x y : B} (q : f⁻¹ x = f⁻¹ y) : x = y :=
+  (right_inv f x)⁻¹ ⬝ ap f q ⬝ right_inv f y
+
   --we need this theorem for the funext_of_ua proof
   theorem inv_eq {A B : Type} (eqf eqg : A ≃ B) (p : eqf = eqg) : (to_fun eqf)⁻¹ = (to_fun eqg)⁻¹ :=
   eq.rec_on p idp
@@ -280,7 +289,10 @@ namespace equiv
   namespace ops
     infixl `⬝e`:75 := equiv.trans
     postfix `⁻¹` := equiv.symm -- overloaded notation for inverse
-    postfix `⁻¹ᵉ`:(max + 1) := equiv.symm -- notation for inverse which is not overloaded
+    postfix [parsing-only] `⁻¹ᵉ`:(max + 1) := equiv.symm
+      -- notation for inverse which is not overloaded
     abbreviation erfl [constructor] := @equiv.refl
   end ops
 end equiv
+
+export [unfold-hints] equiv [unfold-hints] is_equiv

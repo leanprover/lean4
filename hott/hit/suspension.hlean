@@ -25,7 +25,7 @@ namespace suspension
   glue _ _ a
 
   protected definition rec {P : suspension A → Type} (PN : P !north) (PS : P !south)
-    (Pm : Π(a : A), merid a ▸ PN = PS) (x : suspension A) : P x :=
+    (Pm : Π(a : A), PN =[merid a] PS) (x : suspension A) : P x :=
   begin
     fapply (pushout.rec_on _ _ x),
     { intro u, cases u, exact PN},
@@ -34,17 +34,17 @@ namespace suspension
   end
 
   protected definition rec_on [reducible] {P : suspension A → Type} (y : suspension A)
-    (PN : P !north) (PS : P !south) (Pm : Π(a : A), merid a ▸ PN = PS) : P y :=
+    (PN : P !north) (PS : P !south) (Pm : Π(a : A), PN =[merid a] PS) : P y :=
   suspension.rec PN PS Pm y
 
   theorem rec_merid {P : suspension A → Type} (PN : P !north) (PS : P !south)
-    (Pm : Π(a : A), merid a ▸ PN = PS) (a : A)
-      : apd (suspension.rec PN PS Pm) (merid a) = Pm a :=
+    (Pm : Π(a : A), PN =[merid a] PS) (a : A)
+      : apdo (suspension.rec PN PS Pm) (merid a) = Pm a :=
   !rec_glue
 
   protected definition elim {P : Type} (PN : P) (PS : P) (Pm : A → PN = PS)
     (x : suspension A) : P :=
-  suspension.rec PN PS (λa, !tr_constant ⬝ Pm a) x
+  suspension.rec PN PS (λa, pathover_of_eq (Pm a)) x
 
   protected definition elim_on [reducible] {P : Type} (x : suspension A)
     (PN : P) (PS : P)  (Pm : A → PN = PS) : P :=
@@ -53,8 +53,8 @@ namespace suspension
   theorem elim_merid {P : Type} (PN : P) (PS : P) (Pm : A → PN = PS) (a : A)
     : ap (suspension.elim PN PS Pm) (merid a) = Pm a :=
   begin
-    apply (@cancel_left _ _ _ _ (tr_constant (merid a) (suspension.elim PN PS Pm !north))),
-    rewrite [-apd_eq_tr_constant_con_ap,↑suspension.elim,rec_merid],
+    apply eq_of_fn_eq_fn_inv !(pathover_constant (merid a)),
+    rewrite [▸*,-apdo_eq_pathover_of_eq_ap,↑suspension.elim,rec_merid],
   end
 
   protected definition elim_type (PN : Type) (PS : Type) (Pm : A → PN ≃ PS)

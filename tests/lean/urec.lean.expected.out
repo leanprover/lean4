@@ -7,7 +7,7 @@ myrec.{l_1 l_2} :
 recursor information
   num. parameters:          1
   num. indices:             0
-  motive univ. pos.:        1
+  universe param pos.:      0 [motive univ]
   motive pos.:              2
   major premise pos.:       3
   dep. elimination:         1
@@ -15,7 +15,7 @@ recursor information
 recursor information
   num. parameters:          0
   num. indices:             0
-  recursor eliminate only to Prop
+  universe param pos.:     
   motive pos.:              1
   major premise pos.:       2
   dep. elimination:         1
@@ -27,7 +27,7 @@ vector.induction_on.{l_1} :
 recursor information
   num. parameters:          1
   num. indices:             1
-  recursor eliminate only to Prop
+  universe param pos.:      0
   motive pos.:              2
   major premise pos.:       4
   dep. elimination:         1
@@ -39,7 +39,7 @@ Exists.rec.{l_1} :
 recursor information
   num. parameters:          2
   num. indices:             0
-  recursor eliminate only to Prop
+  universe param pos.:      0
   motive pos.:              3
   major premise pos.:       5
   dep. elimination:         0

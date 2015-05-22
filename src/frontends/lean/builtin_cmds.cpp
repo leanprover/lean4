@@ -235,11 +235,16 @@ static void print_recursor_info(parser & p) {
     recursor_info info = get_recursor_info(p.env(), c);
     out << "recursor information\n"
         << "  num. parameters:          " << info.get_num_params() << "\n"
-        << "  num. indices:             " << info.get_num_indices() << "\n";
-    if (auto r = info.get_motive_univ_pos())
-        out << "  motive univ. pos.:        " << *r << "\n";
-    else
-        out << "  recursor eliminate only to Prop\n";
+        << "  num. indices:             " << info.get_num_indices() << "\n"
+        << "  universe param pos.:     ";
+    for (unsigned idx : info.get_universe_pos()) {
+        if (idx == recursor_info::get_motive_univ_idx()) {
+            out << " [motive univ]";
+        } else {
+            out << " " << idx;
+        }
+    }
+    out << "\n";
     out << "  motive pos.:              " << info.get_motive_pos() + 1 << "\n"
         << "  major premise pos.:       " << info.get_major_pos() + 1 << "\n"
         << "  dep. elimination:         " << info.has_dep_elim() << "\n";

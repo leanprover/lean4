@@ -22,17 +22,18 @@ bool recursor_info::is_minor(unsigned pos) const {
     return true;
 }
 
-recursor_info::recursor_info(name const & r, name const & I, optional<unsigned> const & motive_univ_pos,
+recursor_info::recursor_info(name const & r, name const & I, list<unsigned> const & univ_pos,
                              bool dep_elim, unsigned num_args, unsigned major_pos,
                              list<optional<unsigned>> const & params_pos, list<unsigned> const & indices_pos,
                              list<bool> const & produce_motive):
-    m_recursor(r), m_type_name(I), m_motive_univ_pos(motive_univ_pos), m_dep_elim(dep_elim),
+    m_recursor(r), m_type_name(I), m_universe_pos(univ_pos), m_dep_elim(dep_elim),
     m_num_args(num_args), m_major_pos(major_pos), m_params_pos(params_pos), m_indices_pos(indices_pos),
     m_produce_motive(produce_motive) {}
 recursor_info::recursor_info() {}
 
 void recursor_info::write(serializer & s) const {
-    s << m_recursor << m_type_name << m_motive_univ_pos << m_dep_elim << m_num_args << m_major_pos;
+    s << m_recursor << m_type_name << m_dep_elim << m_num_args << m_major_pos;
+    write_list(s, m_universe_pos);
     write_list(s, m_params_pos);
     write_list(s, m_indices_pos);
     write_list(s, m_produce_motive);
@@ -40,8 +41,9 @@ void recursor_info::write(serializer & s) const {
 
 recursor_info recursor_info::read(deserializer & d) {
     recursor_info info;
-    d >> info.m_recursor >> info.m_type_name >> info.m_motive_univ_pos >> info.m_dep_elim
+    d >> info.m_recursor >> info.m_type_name >> info.m_dep_elim
       >> info.m_num_args >> info.m_major_pos;
+    info.m_universe_pos   = read_list<unsigned>(d);
     info.m_params_pos     = read_list<optional<unsigned>>(d);
     info.m_indices_pos    = read_list<unsigned>(d);
     info.m_produce_motive = read_list<bool>(d);
@@ -60,9 +62,10 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
     if (auto I = inductive::is_elim_rule(env, r)) {
         if (*inductive::get_num_type_formers(env, *I) > 1)
             throw exception(sstream() << "unsupported recursor '" << r << "', it has multiple motives");
-        optional<unsigned> motive_univ_pos;
-        if (env.get(name(*I, "rec")).get_num_univ_params() != env.get(name(*I)).get_num_univ_params())
-            motive_univ_pos = 0;
+        unsigned num_univ_params = env.get(*I).get_num_univ_params();
+        list<unsigned> universe_pos = mk_list_range(0, num_univ_params);
+        if (env.get(name(*I, "rec")).get_num_univ_params() != num_univ_params)
+            universe_pos = cons(recursor_info::get_motive_univ_idx(), universe_pos);
         unsigned major_pos         = *inductive::get_elim_major_idx(env, r);
         unsigned num_indices       = *inductive::get_num_indices(env, *I);
         unsigned num_params        = *inductive::get_num_params(env, *I);
@@ -74,7 +77,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         list<optional<unsigned>> params_pos = map2<optional<unsigned>>(mk_list_range(0, num_params),
                                                                        [](unsigned i) { return optional<unsigned>(i); });
         list<unsigned> indices_pos = mk_list_range(num_params, num_params + num_indices);
-        return recursor_info(r, *I, motive_univ_pos, inductive::has_dep_elim(env, *I),
+        return recursor_info(r, *I, universe_pos, inductive::has_dep_elim(env, *I),
                              num_args, major_pos, params_pos, indices_pos, produce_motive);
     }
     declaration d = env.get(r);
@@ -183,16 +186,12 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
     if (!is_sort(C_rtype) || C_tele.size() != C_args.size()) {
         throw_invalid_motive(C);
     }
-    // Calculate position of the motive's universe.
+
+    level motive_lvl = sort_level(C_rtype);
     // Remark: if we are in the standard environment, then the motive may be a proposition, and be fixed at 0.
     // The following pragma is for avoiding gcc bogus warning
-    #if defined(__GNUC__) && !defined(__CLANG__)
-    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-    #endif
-    optional<unsigned> C_univ_pos;
-    level C_lvl = sort_level(C_rtype);
-    if (!is_standard(env) || !is_zero(C_lvl)) {
-        if (!is_param(C_lvl)) {
+    if (!is_standard(env) || !is_zero(motive_lvl)) {
+        if (!is_param(motive_lvl)) {
             if (is_standard(env))
                 throw exception("invalid user defined recursor, "
                                 "motive result sort must be Prop or Type.{l} where l is a universe parameter");
@@ -200,15 +199,29 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
                 throw exception("invalid user defined recursor, "
                                 "motive result sort must be Type.{l} where l is a universe parameter");
         }
-        name l  = param_id(C_lvl);
-        unsigned uni_pos = 0;
-        for (name const & l_curr : d.get_univ_params()) {
-            if (l_curr == l)
-                break;
-            uni_pos++;
+    }
+
+    // A universe parameter must occur in the major premise or in the motive
+    buffer<unsigned> univ_param_pos;
+    for (name const & p : d.get_univ_params()) {
+        if (!is_zero(motive_lvl) && param_id(motive_lvl) == p) {
+            univ_param_pos.push_back(recursor_info::get_motive_univ_idx());
+        } else {
+            bool found = false;
+            unsigned i = 0;
+            for (level const & l : const_levels(I)) {
+                if (is_param(l) && param_id(l) == p) {
+                    univ_param_pos.push_back(i);
+                    found = true;
+                    break;
+                }
+                i++;
+            }
+            if (!found) {
+                throw exception(sstream() << "invalid user defined recursor, major premise '"
+                                << major << "' does not contain universe parameter '" << p << "'");
+            }
         }
-        C_univ_pos = uni_pos;
-        lean_assert(*C_univ_pos < length(d.get_univ_params()));
     }
 
     buffer<bool> produce_motive;
@@ -227,7 +240,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         }
     }
 
-    return recursor_info(r, const_name(I), C_univ_pos, dep_elim, tele.size(), major_pos,
+    return recursor_info(r, const_name(I), to_list(univ_param_pos), dep_elim, tele.size(), major_pos,
                          to_list(params_pos), to_list(indices_pos), to_list(produce_motive));
 }
 

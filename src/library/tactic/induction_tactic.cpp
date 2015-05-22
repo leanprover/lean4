@@ -108,28 +108,26 @@ class induction_tac {
                          recursor_info const & rec_info) {
         expr const & g_type = g.get_type();
         level g_lvl         = sort_level(m_tc.ensure_type(g_type, m_cs));
-        levels rec_levels;
+        buffer<level> rec_lvls;
         expr const & I = get_app_fn(h_type);
-        if (auto lpos = rec_info.get_motive_univ_pos()) {
-            buffer<level> ls;
-            unsigned i = 0;
-            for (level const & l : const_levels(I)) {
-                if (i == *lpos)
-                    ls.push_back(g_lvl);
-                ls.push_back(l);
-                i++;
+        buffer<level> I_lvls;
+        to_buffer(const_levels(I), I_lvls);
+        bool found_g_lvl = false;
+        for (unsigned idx : rec_info.get_universe_pos()) {
+            if (idx == recursor_info::get_motive_univ_idx()) {
+                rec_lvls.push_back(g_lvl);
+                found_g_lvl = true;
+            } else {
+                if (idx >= I_lvls.size())
+                    throw_ill_formed_recursor(rec_info);
+                rec_lvls.push_back(I_lvls[idx]);
             }
-            if (i == *lpos)
-                ls.push_back(g_lvl);
-            rec_levels = to_list(ls);
-        } else {
-            if (!is_zero(g_lvl)) {
-                throw tactic_exception(sstream() << "invalid 'induction' tactic, recursor '" << rec_info.get_name()
-                                       << "' can only eliminate into Prop");
-            }
-            rec_levels = const_levels(I);
         }
-        expr rec    = mk_constant(rec_info.get_name(), rec_levels);
+        if (!found_g_lvl && !is_zero(g_lvl)) {
+            throw tactic_exception(sstream() << "invalid 'induction' tactic, recursor '" << rec_info.get_name()
+                                   << "' can only eliminate into Prop");
+        }
+        expr rec    = mk_constant(rec_info.get_name(), to_list(rec_lvls));
         for (optional<expr> const & p : params) {
             if (p) {
                 rec = mk_app(rec, *p);

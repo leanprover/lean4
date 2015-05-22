@@ -11,7 +11,7 @@ namespace lean {
 class recursor_info {
     name                     m_recursor;
     name                     m_type_name;
-    optional<unsigned>       m_motive_univ_pos; // if none, then recursor can only eliminate to Prop
+    list<unsigned>           m_universe_pos; // position of the recursor universe level parameters.
     bool                     m_dep_elim;
     unsigned                 m_num_args; // total number of arguments
     unsigned                 m_major_pos;
@@ -22,11 +22,17 @@ class recursor_info {
                                                // the i-th minor premise produces the motive
 
 public:
-    recursor_info(name const & r, name const & I, optional<unsigned> const & motive_univ_pos,
+    recursor_info(name const & r, name const & I, list<unsigned> const & univ_pos,
                   bool dep_elim, unsigned num_args, unsigned major_pos,
                   list<optional<unsigned>> const & params_pos, list<unsigned> const & indices_pos,
                   list<bool> const & produce_motive);
     recursor_info();
+
+    /** \brief Return a list containing the position of the recursor universe parameters in the major premise.
+        The value get_motive_univ_idx() is used to identify the position of the motive universe. */
+    list<unsigned> const & get_universe_pos() const { return m_universe_pos; }
+
+    static unsigned get_motive_univ_idx() { return static_cast<unsigned>(-1); }
 
     name const & get_name() const { return m_recursor; }
     name const & get_type_name() const { return m_type_name; }
@@ -36,7 +42,6 @@ public:
     unsigned get_motive_pos() const { return get_num_params(); }
     unsigned get_first_index_pos() const { return m_major_pos - get_num_indices(); }
     unsigned get_major_pos() const { return m_major_pos; }
-    optional<unsigned> const & get_motive_univ_pos() const { return m_motive_univ_pos; }
     /** \brief Return position of the recursor parameters in the major premise. */
     list<optional<unsigned>> const & get_params_pos() const { return m_params_pos; }
     /** \brief Return position of the recursor indices in the major premise. */

@@ -7,7 +7,7 @@ Theorems about W-types (well-founded trees)
 -/
 
 import .sigma .pi
-open eq sigma sigma.ops equiv is_equiv
+open eq equiv is_equiv sigma sigma.ops
 
 inductive Wtype.{l k} {A : Type.{l}} (B : A → Type.{k}) : Type.{max l k} :=
 sup : Π (a : A), (B a → Wtype.{l k} B) → Wtype.{l k} B
@@ -35,71 +35,71 @@ namespace Wtype
   protected definition eta (w : W a, B a) : ⟨w.1 , w.2⟩ = w :=
   by cases w; exact idp
 
-  definition sup_eq_sup (p : a = a') (q : p ▸ f = f') : ⟨a, f⟩ = ⟨a', f'⟩ :=
-  by cases p; cases q; exact idp
+  definition sup_eq_sup (p : a = a') (q : f =[p] f') : ⟨a, f⟩ = ⟨a', f'⟩ :=
+  by cases q; exact idp
 
-  definition Wtype_eq (p : w.1 = w'.1) (q : p ▸ w.2 = w'.2) : w = w' :=
+  definition Wtype_eq (p : w.1 = w'.1) (q : w.2 =[p] w'.2) : w = w' :=
   by cases w; cases w';exact (sup_eq_sup p q)
 
   definition Wtype_eq_pr1 (p : w = w') : w.1 = w'.1 :=
   by cases p;exact idp
 
-  definition Wtype_eq_pr2 (p : w = w') : Wtype_eq_pr1 p ▸ w.2 = w'.2 :=
-  by cases p;exact idp
+  definition Wtype_eq_pr2 (p : w = w') : w.2 =[Wtype_eq_pr1 p] w'.2 :=
+  by cases p;exact idpo
 
   namespace ops
   postfix `..1`:(max+1) := Wtype_eq_pr1
   postfix `..2`:(max+1) := Wtype_eq_pr2
   end ops open ops open sigma
 
-  definition sup_path_W (p : w.1 = w'.1) (q : p ▸ w.2 = w'.2)
-      :  ⟨(Wtype_eq p q)..1,(Wtype_eq p q)..2⟩ = ⟨p, q⟩ :=
-  by cases w; cases w'; cases p; cases q; exact idp
+  definition sup_path_W (p : w.1 = w'.1) (q : w.2 =[p] w'.2)
+    : ⟨(Wtype_eq p q)..1, (Wtype_eq p q)..2⟩ = ⟨p, q⟩ :=
+  by cases w; cases w'; cases q; exact idp
 
-  definition pr1_path_W (p : w.1 = w'.1) (q : p ▸ w.2 = w'.2) : (Wtype_eq p q)..1 = p :=
+  definition pr1_path_W (p : w.1 = w'.1) (q : w.2 =[p] w'.2) : (Wtype_eq p q)..1 = p :=
   !sup_path_W..1
 
-  definition pr2_path_W (p : w.1 = w'.1) (q : p ▸ w.2 = w'.2)
-      : pr1_path_W p q ▸ (Wtype_eq p q)..2 = q :=
+  definition pr2_path_W (p : w.1 = w'.1) (q : w.2 =[p] w'.2)
+      : (Wtype_eq p q)..2 =[pr1_path_W p q] q :=
   !sup_path_W..2
 
   definition eta_path_W (p : w = w') : Wtype_eq (p..1) (p..2) = p :=
   by cases p; cases w; exact idp
 
-  definition transport_pr1_path_W {B' : A → Type} (p : w.1 = w'.1) (q : p ▸ w.2 = w'.2)
+  definition transport_pr1_path_W {B' : A → Type} (p : w.1 = w'.1) (q : w.2 =[p] w'.2)
       : transport (λx, B' x.1) (Wtype_eq p q) = transport B' p :=
-  by cases w; cases w'; cases p; cases q; exact idp
+  by cases w; cases w'; cases q; exact idp
 
-  definition path_W_uncurried (pq : Σ(p : w.1 = w'.1), p ▸ w.2 = w'.2) : w = w' :=
+  definition path_W_uncurried (pq : Σ(p : w.1 = w'.1), w.2 =[p] w'.2) : w = w' :=
   by cases pq with p q; exact (Wtype_eq p q)
 
-  definition sup_path_W_uncurried (pq : Σ(p : w.1 = w'.1), p ▸ w.2 = w'.2)
+  definition sup_path_W_uncurried (pq : Σ(p : w.1 = w'.1), w.2 =[p] w'.2)
       :  ⟨(path_W_uncurried pq)..1, (path_W_uncurried pq)..2⟩ = pq :=
   by cases pq with p q; exact (sup_path_W p q)
 
-  definition pr1_path_W_uncurried (pq : Σ(p : w.1 = w'.1), p ▸ w.2 = w'.2)
+  definition pr1_path_W_uncurried (pq : Σ(p : w.1 = w'.1), w.2 =[p] w'.2)
       : (path_W_uncurried pq)..1 = pq.1 :=
   !sup_path_W_uncurried..1
 
-  definition pr2_path_W_uncurried (pq : Σ(p : w.1 = w'.1), p ▸ w.2 = w'.2)
-      : (pr1_path_W_uncurried pq) ▸ (path_W_uncurried pq)..2 = pq.2 :=
+  definition pr2_path_W_uncurried (pq : Σ(p : w.1 = w'.1), w.2 =[p] w'.2)
+      : (path_W_uncurried pq)..2 =[pr1_path_W_uncurried pq] pq.2 :=
   !sup_path_W_uncurried..2
 
   definition eta_path_W_uncurried (p : w = w') : path_W_uncurried ⟨p..1, p..2⟩ = p :=
   !eta_path_W
 
-  definition transport_pr1_path_W_uncurried {B' : A → Type} (pq : Σ(p : w.1 = w'.1), p ▸ w.2 = w'.2)
+  definition transport_pr1_path_W_uncurried {B' : A → Type} (pq : Σ(p : w.1 = w'.1), w.2 =[p] w'.2)
       : transport (λx, B' x.1) (@path_W_uncurried A B w w' pq) = transport B' pq.1 :=
   by cases pq with p q; exact (transport_pr1_path_W p q)
 
   definition isequiv_path_W /-[instance]-/ (w w' : W a, B a)
-      : is_equiv (@path_W_uncurried A B w w') :=
+      : is_equiv (path_W_uncurried : (Σ(p : w.1 = w'.1), w.2 =[p] w'.2) → w = w') :=
   adjointify path_W_uncurried
              (λp, ⟨p..1, p..2⟩)
              eta_path_W_uncurried
              sup_path_W_uncurried
 
-  definition equiv_path_W (w w' : W a, B a) : (Σ(p : w.1 = w'.1),  p ▸ w.2 = w'.2) ≃ (w = w') :=
+  definition equiv_path_W (w w' : W a, B a) : (Σ(p : w.1 = w'.1), w.2 =[p] w'.2) ≃ (w = w') :=
   equiv.mk path_W_uncurried !isequiv_path_W
 
   definition double_induction_on {P : (W a, B a) → (W a, B a) → Type} (w w' : W a, B a)
@@ -115,7 +115,7 @@ namespace Wtype
   end
 
   /- truncatedness -/
-  open is_trunc
+  open is_trunc pi
   definition trunc_W [instance] (n : trunc_index)
     [HA : is_trunc (n.+1) A] : is_trunc (n.+1) (W a, B a) :=
   begin
@@ -123,9 +123,9 @@ namespace Wtype
   eapply (double_induction_on w w'), intro a a' f f' IH,
   fapply is_trunc_equiv_closed,
   { apply equiv_path_W},
-  { fapply is_trunc_sigma,
-    intro p, cases p, esimp,
-    apply pi.is_trunc_eq_pi}
+  { apply is_trunc_sigma,
+    intro p, cases p, esimp, apply is_trunc_equiv_closed_rev,
+      apply pathover_idp}
   end
 
 end Wtype

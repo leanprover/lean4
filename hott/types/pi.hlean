@@ -3,13 +3,13 @@ Copyright (c) 2014-15 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Floris van Doorn
 
-Ported from Coq HoTT
+Partially ported from Coq HoTT
 Theorems about pi-types (dependent function spaces)
 -/
 
 import types.sigma
 
-open eq equiv is_equiv funext
+open eq equiv is_equiv funext sigma
 
 namespace pi
   variables {A A' : Type} {B : A → Type} {B' : A' → Type} {C : Πa, B a → Type}
@@ -59,6 +59,26 @@ namespace pi
     : (transport (λa, Π(b : A'), C a b) p f) b = transport (λa, C a b) p (f b) :=
   eq.rec_on p idp
 
+  /- Pathovers -/
+
+  definition pi_pathover {f : Πb, C a b} {g : Πb', C a' b'} {p : a = a'}
+    (r : Π(b : B a) (b' : B a') (q : b =[p] b'), f b =[apo011 C p q] g b') : f =[p] g :=
+  begin
+    cases p, apply pathover_idp_of_eq,
+    apply eq_of_homotopy, intro b,
+    apply eq_of_pathover_idp, apply r
+  end
+
+  definition pi_pathover' {C : (Σa, B a) → Type} {f : Πb, C ⟨a, b⟩} {g : Πb', C ⟨a', b'⟩}
+    {p : a = a'} (r : Π(b : B a) (b' : B a') (q : pathover B b p b'), f b =[dpair_eq_dpair p q] g b')
+    : f =[p] g :=
+  begin
+    cases p, apply pathover_idp_of_eq,
+    apply eq_of_homotopy, intro b,
+    apply (@eq_of_pathover_idp _ C), exact (r b b (pathover.idpatho b)),
+  end
+
+
   /- Maps on paths -/
 
   /- The action of maps given by lambda. -/
@@ -91,7 +111,8 @@ namespace pi
   (Π(b : B a), transportD B (λ(a : A) (b : B a), C ⟨a, b⟩) p b (f b) = g (transport B p b)) -/
   definition heq_pi_sigma {C : (Σa, B a) → Type} (p : a = a')
     (f : Π(b : B a), C ⟨a, b⟩) (g : Π(b' : B a'), C ⟨a', b'⟩) :
-    (Π(b : B a), (sigma_eq p idp) ▸ (f b) = g (p ▸ b)) ≃ (Π(b : B a), p ▸D (f b) = g (p ▸ b)) :=
+    (Π(b : B a), (sigma_eq p !pathover_tr) ▸ (f b) = g (p ▸ b)) ≃
+    (Π(b : B a), p ▸D (f b) = g (p ▸ b)) :=
   eq.rec_on p (λg, !equiv.refl) g
   end
 

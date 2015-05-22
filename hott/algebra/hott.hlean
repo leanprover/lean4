@@ -41,7 +41,7 @@ namespace algebra
     cases ps, cases ph1, cases ph2, cases ph3, cases ph4, reflexivity
   end
 
-  definition group_pathover {G : group A} {H : group B} (f : A ≃ B) : (Π(g h : A), f (g * h) = f g * f h) → G =[ua f] H :=
+  definition group_pathover {G : group A} {H : group B} {f : A ≃ B} : (Π(g h : A), f (g * h) = f g * f h) → G =[ua f] H :=
   begin
     revert H,
     eapply (rec_on_ua_idp' f),

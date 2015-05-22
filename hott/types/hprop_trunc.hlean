@@ -44,7 +44,7 @@ namespace is_trunc
       { apply equiv.to_is_equiv, apply is_contr.sigma_char},
       apply (@is_hprop.mk), intros,
       fapply sigma_eq, {apply x.2},
-      apply (@is_hprop.elim)},
+      apply (@is_hprop.elimo)},
     { intro A,
       apply is_trunc_is_equiv_closed,
       apply equiv.to_is_equiv,

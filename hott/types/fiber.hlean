@@ -36,10 +36,7 @@ namespace fiber
       {apply equiv.symm, apply equiv_sigma_eq},
     apply sigma_equiv_sigma_id,
     intro p,
-    apply equiv_of_equiv_of_eq,
-    rotate 1,
-    apply inv_con_eq_equiv_eq_con,
-    {apply (ap (λx, x = _)), rewrite transport_eq_Fl}
+    apply pathover_eq_equiv_Fl,
   end
 
   definition fiber_eq {x y : fiber f b} (p : point x = point y)

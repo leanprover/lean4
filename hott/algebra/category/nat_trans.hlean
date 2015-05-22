@@ -70,9 +70,8 @@ namespace nat_trans
     intro η, apply nat_trans_eq, intro a, apply idp,
     intro S,
     fapply sigma_eq,
-      apply eq_of_homotopy, intro a,
-      apply idp,
-    apply is_hprop.elim,
+    { apply eq_of_homotopy, intro a, apply idp},
+    { apply is_hprop.elimo}
   end
 
   definition is_hset_nat_trans [instance] : is_hset (F ⟹ G) :=

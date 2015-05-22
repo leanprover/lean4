@@ -3,11 +3,11 @@ Copyright (c) 2014 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Floris van Doorn
 
-Ported from Coq HoTT
+Partially ported from Coq HoTT
 Theorems about path types (identity types)
 -/
 
-open eq sigma sigma.ops equiv is_equiv
+open eq sigma sigma.ops equiv is_equiv equiv.ops
 
 namespace eq
   /- Path spaces -/
@@ -22,31 +22,31 @@ namespace eq
   definition whisker_left_con_right (p : a1 = a2) {q q' q'' : a2 = a3} (r : q = q') (s : q' = q'')
     : whisker_left p (r ⬝ s) = whisker_left p r ⬝ whisker_left p s :=
   begin
-    cases p, cases r, cases s, apply idp
+    cases p, cases r, cases s, exact idp
   end
 
   definition whisker_right_con_right {p p' p'' : a1 = a2} (q : a2 = a3) (r : p = p') (s : p' = p'')
     : whisker_right (r ⬝ s) q = whisker_right r q ⬝ whisker_right s q :=
   begin
-    cases q, cases r, cases s, apply idp
+    cases q, cases r, cases s, exact idp
   end
 
   definition whisker_left_con_left (p : a1 = a2) (p' : a2 = a3) {q q' : a3 = a4} (r : q = q')
     : whisker_left (p ⬝ p') r = !con.assoc ⬝ whisker_left p (whisker_left p' r) ⬝ !con.assoc' :=
   begin
-    cases p', cases p, cases r, cases q, apply idp
+    cases p', cases p, cases r, cases q, exact idp
   end
 
   definition whisker_right_con_left {p p' : a1 = a2} (q : a2 = a3) (q' : a3 = a4) (r : p = p')
     : whisker_right r (q ⬝ q') = !con.assoc' ⬝ whisker_right (whisker_right r q) q' ⬝ !con.assoc :=
   begin
-    cases q', cases q, cases r, cases p, apply idp
+    cases q', cases q, cases r, cases p, exact idp
   end
 
   definition whisker_left_inv_left (p : a2 = a1) {q q' : a2 = a3} (r : q = q')
     : !con_inv_cancel_left⁻¹ ⬝ whisker_left p (whisker_left p⁻¹ r) ⬝ !con_inv_cancel_left = r :=
   begin
-    cases p, cases r, cases q, apply idp
+    cases p, cases r, cases q, exact idp
   end
 
   /- Transporting in path spaces.
@@ -68,61 +68,66 @@ namespace eq
 
   definition transport_eq_lr (p : a1 = a2) (q : a1 = a1)
     : transport (λx, x = x) p q = p⁻¹ ⬝ q ⬝ p :=
-  begin
-  cases p,
-  symmetry, transitivity (refl a1)⁻¹ ⬝ q,
-    apply con_idp,
-    apply idp_con
-  end
+  by cases p; rewrite [▸*,idp_con]
 
   definition transport_eq_Fl (p : a1 = a2) (q : f a1 = b)
     : transport (λx, f x = b) p q = (ap f p)⁻¹ ⬝ q :=
-  by cases p; cases q; apply idp
+  by cases p; cases q; reflexivity
 
   definition transport_eq_Fr (p : a1 = a2) (q : b = f a1)
     : transport (λx, b = f x) p q = q ⬝ (ap f p) :=
-  by cases p; apply idp
+  by cases p; reflexivity
 
   definition transport_eq_FlFr (p : a1 = a2) (q : f a1 = g a1)
     : transport (λx, f x = g x) p q = (ap f p)⁻¹ ⬝ q ⬝ (ap g p) :=
-  begin
-  cases p,
-  symmetry, transitivity (ap f (refl a1))⁻¹ ⬝ q,
-    apply con_idp,
-    apply idp_con
-  end
+  by cases p; rewrite [▸*,idp_con]
 
   definition transport_eq_FlFr_D {B : A → Type} {f g : Πa, B a}
     (p : a1 = a2) (q : f a1 = g a1)
       : transport (λx, f x = g x) p q = (apd f p)⁻¹ ⬝ ap (transport B p) q ⬝ (apd g p) :=
-  begin
-  cases p,
-  symmetry,
-  transitivity _,
-    apply con_idp,
-    transitivity _,
-      apply idp_con,
-      apply ap_id
-  end
+  by cases p; rewrite [▸*,idp_con,ap_id]
 
   definition transport_eq_FFlr (p : a1 = a2) (q : h (f a1) = a1)
     : transport (λx, h (f x) = x) p q = (ap h (ap f p))⁻¹ ⬝ q ⬝ p :=
-  begin
-  cases p,
-  symmetry,
-  transitivity (ap h (ap f (refl a1)))⁻¹ ⬝ q,
-     apply con_idp,
-     apply idp_con,
-  end
+  by cases p; rewrite [▸*,idp_con]
 
   definition transport_eq_lFFr (p : a1 = a2) (q : a1 = h (f a1))
     : transport (λx, x = h (f x)) p q = p⁻¹ ⬝ q ⬝ (ap h (ap f p)) :=
-  begin
-  cases p, symmetry,
-  transitivity (refl a1)⁻¹ ⬝ q,
-    apply con_idp,
-    apply idp_con,
-  end
+  by cases p; rewrite [▸*,idp_con]
+
+  /- Pathovers -/
+
+  -- In the comment we give the fibration of the pathover
+  definition pathover_eq_l (p : a1 = a2) (q : a1 = a3) : q =[p] p⁻¹ ⬝ q := /-(λx, x = a3)-/
+  by cases p; cases q; exact idpo
+
+  definition pathover_eq_r (p : a2 = a3) (q : a1 = a2) : q =[p] q ⬝ p := /-(λx, a1 = x)-/
+  by cases p; cases q; exact idpo
+
+  definition pathover_eq_lr (p : a1 = a2) (q : a1 = a1) : q =[p] p⁻¹ ⬝ q ⬝ p := /-(λx, x = x)-/
+  by cases p; rewrite [▸*,idp_con]; exact idpo
+
+  definition pathover_eq_Fl (p : a1 = a2) (q : f a1 = b) : q =[p] (ap f p)⁻¹ ⬝ q := /-(λx, f x = b)-/
+  by cases p; cases q; exact idpo
+
+  definition pathover_eq_Fr (p : a1 = a2) (q : b = f a1) : q =[p] q ⬝ (ap f p) := /-(λx, b = f x)-/
+  by cases p; exact idpo
+
+  definition pathover_eq_FlFr (p : a1 = a2) (q : f a1 = g a1) : q =[p] (ap f p)⁻¹ ⬝ q ⬝ (ap g p) :=
+  /-(λx, f x = g x)-/
+  by cases p; rewrite [▸*,idp_con]; exact idpo
+
+  definition pathover_eq_FlFr_D {B : A → Type} {f g : Πa, B a} (p : a1 = a2) (q : f a1 = g a1)
+    : q =[p] (apd f p)⁻¹ ⬝ ap (transport B p) q ⬝ (apd g p) := /-(λx, f x = g x)-/
+  by cases p; rewrite [▸*,idp_con,ap_id];exact idpo
+
+  definition pathover_eq_FFlr (p : a1 = a2) (q : h (f a1) = a1) : q =[p] (ap h (ap f p))⁻¹ ⬝ q ⬝ p :=
+  /-(λx, h (f x) = x)-/
+  by cases p; rewrite [▸*,idp_con];exact idpo
+
+  definition pathover_eq_lFFr (p : a1 = a2) (q : a1 = h (f a1)) : q =[p] p⁻¹ ⬝ q ⬝ (ap h (ap f p)) :=
+  /-(λx, x = h (f x))-/
+  by cases p; rewrite [▸*,idp_con];exact idpo
 
   -- The Functorial action of paths is [ap].
 
@@ -151,7 +156,7 @@ namespace eq
               (λq, by cases p;cases q;exact idp)
   local attribute is_equiv_concat_left [instance]
 
-  definition equiv_eq_closed_left (p : a1 = a2) (a3 : A) : (a1 = a3) ≃ (a2 = a3) :=
+  definition equiv_eq_closed_left (a3 : A) (p : a1 = a2) : (a1 = a3) ≃ (a2 = a3) :=
   equiv.mk (concat p⁻¹) _
 
   definition is_equiv_concat_right [instance] (p : a2 = a3) (a1 : A)
@@ -162,11 +167,11 @@ namespace eq
               (λq, by cases p;cases q;exact idp)
   local attribute is_equiv_concat_right [instance]
 
-  definition equiv_eq_closed_right (p : a2 = a3) (a1 : A) : (a1 = a2) ≃ (a1 = a3) :=
+  definition equiv_eq_closed_right (a1 : A) (p : a2 = a3) : (a1 = a2) ≃ (a1 = a3) :=
   equiv.mk (λq, q ⬝ p) _
 
   definition eq_equiv_eq_closed (p : a1 = a2) (q : a3 = a4) : (a1 = a3) ≃ (a2 = a4) :=
-  equiv.trans (equiv_eq_closed_left p a3) (equiv_eq_closed_right q a2)
+  equiv.trans (equiv_eq_closed_left a3 p) (equiv_eq_closed_right a2 q)
 
   definition is_equiv_whisker_left (p : a1 = a2) (q r : a2 = a3)
   : is_equiv (@whisker_left A a1 a2 a3 p q r) :=
@@ -179,10 +184,10 @@ namespace eq
       apply concat2,
         {apply concat, {apply whisker_left_con_right},
           apply concat2,
-            {cases p, cases q, apply idp},
-            {apply idp}},
-        {cases p, cases r, apply idp}},
-    {intro s, cases s, cases q, cases p, apply idp}
+            {cases p, cases q, exact idp},
+            {exact idp}},
+        {cases p, cases r, exact idp}},
+    {intro s, cases s, cases q, cases p, exact idp}
   end
 
   definition eq_equiv_con_eq_con_left (p : a1 = a2) (q r : a2 = a3) : (q = r) ≃ (p ⬝ q = p ⬝ r) :=
@@ -266,6 +271,44 @@ namespace eq
     : (q ⬝ p⁻¹ = r) ≃ (q = r ⬝ p) :=
   equiv.mk _ !is_equiv_eq_con_of_con_inv_eq
 
+  /- Pathover Equivalences -/
+
+  definition pathover_eq_equiv_l (p : a1 = a2) (q : a1 = a3) (r : a2 = a3) : q =[p] r ≃ q = p ⬝ r :=
+  /-(λx, x = a3)-/
+  by cases p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
+
+  definition pathover_eq_equiv_r (p : a2 = a3) (q : a1 = a2) (r : a1 = a3) : q =[p] r ≃ q ⬝ p = r :=
+  /-(λx, a1 = x)-/
+  by cases p; apply pathover_idp
+
+  definition pathover_eq_equiv_lr (p : a1 = a2) (q : a1 = a1) (r : a2 = a2)
+    : q =[p] r ≃ q ⬝ p = p ⬝ r := /-(λx, x = x)-/
+  by cases p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
+
+  definition pathover_eq_equiv_Fl (p : a1 = a2) (q : f a1 = b) (r : f a2 = b)
+    : q =[p] r ≃ q = ap f p ⬝ r := /-(λx, f x = b)-/
+  by cases p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
+
+  definition pathover_eq_equiv_Fr (p : a1 = a2) (q : b = f a1) (r : b = f a2)
+    : q =[p] r ≃ q ⬝ ap f p = r := /-(λx, b = f x)-/
+  by cases p; apply pathover_idp
+
+  definition pathover_eq_equiv_FlFr (p : a1 = a2) (q : f a1 = g a1) (r : f a2 = g a2)
+    : q =[p] r ≃ q ⬝ ap g p = ap f p ⬝ r := /-(λx, f x = g x)-/
+  by cases p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
+
+  definition pathover_eq_equiv_FFlr (p : a1 = a2) (q : h (f a1) = a1) (r : h (f a2) = a2)
+    : q =[p] r ≃ q ⬝ p = ap h (ap f p) ⬝ r :=
+  /-(λx, h (f x) = x)-/
+  by cases p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
+
+  definition pathover_eq_equiv_lFFr (p : a1 = a2) (q : a1 = h (f a1)) (r : a2 = h (f a2))
+    : q =[p] r ≃ q ⬝ ap h (ap f p) = p ⬝ r :=
+  /-(λx, x = h (f x))-/
+  by cases p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
+
   -- a lot of this library still needs to be ported from Coq HoTT
+
+
 
 end eq

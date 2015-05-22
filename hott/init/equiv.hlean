@@ -261,6 +261,11 @@ namespace equiv
   protected definition trans [trans] (f : A ≃ B) (g: B ≃ C) : A ≃ C :=
   equiv.mk (g ∘ f) !is_equiv_compose
 
+  infixl `⬝e`:75 := equiv.trans
+  postfix [parsing-only] `⁻¹ᵉ`:(max + 1) := equiv.symm
+    -- notation for inverse which is not overloaded
+  abbreviation erfl [constructor] := @equiv.refl
+
   definition equiv_of_eq_fn_of_equiv (f : A ≃ B) {f' : A → B} (Heq : f = f') : A ≃ B :=
   equiv.mk f' (is_equiv_eq_closed Heq)
 
@@ -287,11 +292,7 @@ namespace equiv
   definition equiv_of_eq_of_equiv {A B C : Type} (p : A ≃ B) (q : B = C) : A ≃ C := q   ▸ p
 
   namespace ops
-    infixl `⬝e`:75 := equiv.trans
     postfix `⁻¹` := equiv.symm -- overloaded notation for inverse
-    postfix [parsing-only] `⁻¹ᵉ`:(max + 1) := equiv.symm
-      -- notation for inverse which is not overloaded
-    abbreviation erfl [constructor] := @equiv.refl
   end ops
 end equiv
 

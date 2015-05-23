@@ -259,6 +259,9 @@ section migrate_algebra
 
   migrate from algebra with int
   replacing has_le.ge → ge, has_lt.gt → gt, sign → sign, abs → abs, dvd → dvd, sub → sub
+
+  attribute le.trans ge.trans lt.trans gt.trans [trans]
+  attribute lt_of_lt_of_le lt_of_le_of_lt gt_of_gt_of_ge gt_of_ge_of_gt [trans]
 end migrate_algebra
 
 /- more facts specific to int -/

@@ -15,6 +15,8 @@ section migrate_algebra
   local attribute nat.linear_ordered_semiring [instance]
 
   definition pow (a : ℕ) (n : ℕ) : ℕ := algebra.pow a n
+  infix ^ := pow
+
   migrate from algebra with nat
     replacing dvd → dvd, has_le.ge → ge, has_lt.gt → gt, pow → pow
     hiding add_pos_of_pos_of_nonneg,  add_pos_of_nonneg_of_pos,

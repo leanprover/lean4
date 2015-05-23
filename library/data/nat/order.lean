@@ -175,6 +175,9 @@ section migrate_algebra
       le_add_of_le_of_nonneg, lt_add_of_nonneg_of_lt, lt_add_of_lt_of_nonneg,
       lt_of_mul_lt_mul_left, lt_of_mul_lt_mul_right, pos_of_mul_pos_left, pos_of_mul_pos_right
 
+  attribute le.trans ge.trans lt.trans gt.trans [trans]
+  attribute lt_of_lt_of_le lt_of_le_of_lt gt_of_gt_of_ge gt_of_ge_of_gt [trans]
+
   theorem add_pos_left : ∀{a : ℕ}, 0 < a → ∀b : ℕ, 0 < a + b :=
     take a H b, @algebra.add_pos_of_pos_of_nonneg _ _ a b H !zero_le
   theorem add_pos_right : ∀{a : ℕ}, 0 < a → ∀b : ℕ, 0 < b + a :=

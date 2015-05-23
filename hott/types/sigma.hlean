@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2014-15 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: types.sigma
 Author: Floris van Doorn
 
 Ported from Coq HoTT

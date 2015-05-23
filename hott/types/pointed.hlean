@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2014 Jakob von Raumer. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: types.pointed
 Authors: Jakob von Raumer, Floris van Doorn
 
 Ported from Coq HoTT

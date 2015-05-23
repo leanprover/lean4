@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2014 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: types.nat.basic
 (Ported from standard library file data.nat.basic on May 02, 2015)
 Authors: Floris van Doorn, Leonardo de Moura, Jeremy Avigad
 

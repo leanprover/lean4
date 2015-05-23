@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: algebra.order
 Author: Jeremy Avigad
 
 Various types of orders. We develop weak orders "≤" and strict orders "<" separately. We also

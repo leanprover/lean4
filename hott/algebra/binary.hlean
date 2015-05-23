@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2014-15 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: algebra.binary
 Authors: Leonardo de Moura, Jeremy Avigad
 
 General properties of binary operations.

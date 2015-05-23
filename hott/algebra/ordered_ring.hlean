@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: algebra.ordered_ring
 Authors: Jeremy Avigad
 
 Here an "ordered_ring" is partially ordered ring, which is ordered with respect to both a weak

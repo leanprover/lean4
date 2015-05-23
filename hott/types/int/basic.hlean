@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2014 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: types.int.basic
 Authors: Floris van Doorn, Jeremy Avigad
 
 The integers, with addition, multiplication, and subtraction. The representation of the integers is

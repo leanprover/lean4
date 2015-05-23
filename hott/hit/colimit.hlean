@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2015 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: hit.colimit
 Authors: Floris van Doorn
 
 Definition of general colimits and sequential colimits.

@@ -18,6 +18,8 @@ definition cons (a : A) (s : stream A) : stream A :=
   | succ n := s n
   end
 
+notation h :: t := cons h t
+
 definition head (s : stream A) : A :=
 s 0
 
@@ -30,13 +32,13 @@ definition nth_tail (n : nat) (s : stream A) : stream A :=
 definition nth (n : nat) (s : stream A) : A :=
 s n
 
-protected theorem eta (s : stream A) : cons (head s) (tail s) = s :=
+protected theorem eta (s : stream A) : head s :: tail s = s :=
 funext (λ i, begin cases i, repeat reflexivity end)
 
-theorem head_cons (a : A) (s : stream A) : head (cons a s) = a :=
+theorem head_cons (a : A) (s : stream A) : head (a :: s) = a :=
 rfl
 
-theorem tail_cons (a : A) (s : stream A) : tail (cons a s) = s :=
+theorem tail_cons (a : A) (s : stream A) : tail (a :: s) = s :=
 rfl
 
 theorem tail_nth_tail (n : nat) (s : stream A) : tail (nth_tail n s) = nth_tail n (tail s) :=
@@ -81,6 +83,15 @@ rfl
 
 theorem tail_map (s : stream A) : tail (map f s) = map f (tail s) :=
 begin rewrite tail_eq_nth_tail end
+
+theorem head_map (s : stream A) : head (map f s) = f (head s) :=
+rfl
+
+theorem map_eq (s : stream A) : map f s = f (head s) :: map f (tail s) :=
+by rewrite [-stream.eta, tail_map, head_map]
+
+theorem map_id (s : stream A) : map id s = s :=
+rfl
 end map
 
 section zip
@@ -94,21 +105,36 @@ stream.ext (λ i, rfl)
 
 theorem nth_zip (n : nat) (s₁ : stream A) (s₂ : stream B) : nth n (zip f s₁ s₂) = f (nth n s₁) (nth n s₂) :=
 rfl
+
+theorem head_zip (s₁ : stream A) (s₂ : stream B) : head (zip f s₁ s₂) = f (head s₁) (head s₂) :=
+rfl
+
+theorem tail_zip (s₁ : stream A) (s₂ : stream B) : tail (zip f s₁ s₂) = zip f (tail s₁) (tail s₂) :=
+rfl
+
+theorem zip_eq (s₁ : stream A) (s₂ : stream B) : zip f s₁ s₂ = f (head s₁) (head s₂) :: zip f (tail s₁) (tail s₂) :=
+by rewrite [-stream.eta]
 end zip
 
-definition repeat (a : A) : stream A :=
+definition const (a : A) : stream A :=
 λ n, a
 
-theorem repeat_eq (a : A) : repeat a = cons a (repeat a) :=
+theorem const_eq (a : A) : const a = a :: const a :=
 begin
   apply stream.ext, intro n,
   cases n, repeat reflexivity
 end
 
-theorem nth_repeat (n : nat) (a : A) : nth n (repeat a) = a :=
+theorem tail_const (a : A) : tail (const a) = const a :=
+by rewrite [const_eq at {1}]
+
+theorem map_const (f : A → B) (a : A) : map f (const a) = const (f a) :=
 rfl
 
-theorem nth_tail_repeat (n : nat) (a : A) : nth_tail n (repeat a) = repeat a :=
+theorem nth_const (n : nat) (a : A) : nth n (const a) = a :=
+rfl
+
+theorem nth_tail_const (n : nat) (a : A) : nth_tail n (const a) = const a :=
 stream.ext (λ i, rfl)
 
 definition iterate (f : A → A) (a : A) : stream A :=
@@ -127,7 +153,7 @@ begin
      esimp at *, rewrite IH}
 end
 
-theorem iterate_eq (f : A → A) (a : A) : iterate f a = cons a (iterate f (f a)) :=
+theorem iterate_eq (f : A → A) (a : A) : iterate f a = a :: iterate f (f a) :=
 begin
   rewrite [-stream.eta], congruence, exact !tail_iterate
 end
@@ -138,6 +164,43 @@ rfl
 theorem nth_succ_iterate (n : nat) (f : A → A) (a : A) : nth (succ n) (iterate f a) = nth n (iterate f (f a)) :=
 by rewrite [nth_succ, tail_iterate]
 
+section bisim
+  definition is_bisimulation (R : stream A → stream A → Prop) := ∀ ⦃s₁ s₂⦄, R s₁ s₂ → head s₁ = head s₂ ∧ R (tail s₁) (tail s₂)
+
+  variable {R : stream A → stream A → Prop}
+  local infix ~ := R
+
+  lemma nth_of_bisim (bisim : is_bisimulation R) : ∀ {s₁ s₂} n, s₁ ~ s₂ → nth n s₁ = nth n s₂ ∧ nth_tail (n+1) s₁ ~ nth_tail (n+1) s₂
+  | s₁ s₂ 0     h := bisim h
+  | s₁ s₂ (n+1) h :=
+    obtain h₁ (trel : tail s₁ ~ tail s₂), from bisim h,
+    nth_of_bisim n trel
+
+  -- If two streams are bisimilar, then they are equal
+  theorem eq_of_bisim (bisim : is_bisimulation R) : ∀ {s₁ s₂}, s₁ ~ s₂ → s₁ = s₂ :=
+  λ s₁ s₂ r, stream.ext (λ n, and.elim_left (nth_of_bisim bisim n r))
+end bisim
+
+theorem bisim_simple (s₁ s₂ : stream A) : head s₁ = head s₂ → s₁ = tail s₁ → s₂ = tail s₂ → s₁ = s₂ :=
+let R := λ s₁ s₂, head s₁ = head s₂ ∧ s₁ = tail s₁ ∧ s₂ = tail s₂ in
+have bisim : is_bisimulation R, from
+  λ s₁ s₂ (h : R s₁ s₂),
+    obtain h₁ h₂ h₃, from h,
+    begin
+      constructor, exact h₁, rewrite [-h₂, -h₃], exact h
+    end,
+assume hh ht₁ ht₂,
+have Rs₁s₂ : R s₁ s₂, from and.intro hh (and.intro ht₁ ht₂),
+eq_of_bisim bisim Rs₁s₂
+
+theorem iterate_id (a : A) : iterate id a = const a :=
+begin
+  apply bisim_simple,
+    reflexivity,
+    rewrite tail_iterate,
+    rewrite tail_const
+end
+
 theorem map_iterate (f : A → A) (a : A) : iterate f (f a) = map f (iterate f a) :=
 begin
   apply funext, intro n,
@@ -147,22 +210,6 @@ begin
      rewrite IH}
 end
 
-section bisim
-  variable {R : stream A → stream A → Prop}
-  local infix ~ := R
-  premise (bisim : ∀ ⦃s₁ s₂⦄, s₁ ~ s₂ → head s₁ = head s₂ ∧ tail s₁ ~ tail s₂)
-
-  lemma nth_of_bisim : ∀ {s₁ s₂} n, s₁ ~ s₂ → nth n s₁ = nth n s₂ ∧ nth_tail (n+1) s₁ ~ nth_tail (n+1) s₂
-  | s₁ s₂ 0     h := bisim h
-  | s₁ s₂ (n+1) h :=
-    obtain h₁ (trel : tail s₁ ~ tail s₂), from bisim h,
-    nth_of_bisim n trel
-
-  -- If two streams are bisimilar, then they are equal
-  theorem eq_of_bisim  : ∀ {s₁ s₂}, s₁ ~ s₂ → s₁ = s₂ :=
-  λ s₁ s₂ r, stream.ext (λ n, and.elim_left (nth_of_bisim bisim n r))
-end bisim
-
 section corec
   definition corec (f : A → B) (g : A → A) : A → stream B :=
   λ a, map f (iterate g a)
@@ -170,30 +217,26 @@ section corec
   theorem corec_def (f : A → B) (g : A → A) (a : A) : corec f g a = map f (iterate g a) :=
   rfl
 
-  theorem corec_eq (f : A → B) (g : A → A) (a : A) : corec f g a = cons (f a) (corec f g (g a)) :=
-  begin
-    apply stream.ext, intro n,
-    cases n,
-      {reflexivity},
-      {esimp [corec] at *,
-       rewrite [*nth_succ, tail_cons, tail_map, tail_iterate]}
-  end
+  theorem corec_eq (f : A → B) (g : A → A) (a : A) : corec f g a = f a :: corec f g (g a) :=
+  by rewrite [corec_def, map_eq, head_iterate, tail_iterate]
 
-  theorem corec_id_id_eq_repeat (a : A) : corec id id a = repeat a :=
-  begin
-    apply stream.ext, intro n,
-    induction n with n' ih,
-      {reflexivity},
-      {rewrite [corec_eq, repeat_eq, *nth_succ, *tail_cons], esimp,
-       exact ih}
-  end
+  theorem corec_id_id_eq_const (a : A) : corec id id a = const a :=
+  by rewrite [corec_def, map_id, iterate_id]
 
   theorem corec_id_f_eq_iterate (f : A → A) (a : A) : corec id f a = iterate f a :=
-  begin
-    apply stream.ext, intro n,
-    cases n,
-      {reflexivity},
-      {rewrite [corec_eq, *nth_succ, tail_iterate]}
-  end
+  rfl
 end corec
+
+definition interleave (s₁ s₂ : stream A) : stream A :=
+corec
+  (λ p, obtain s₁ s₂, from p, head s₁)
+  (λ p, obtain s₁ s₂, from p, (s₂, tail s₁))
+  (s₁, s₂)
+
+infix `⋈`:65 := interleave
+
+theorem interleave_eq (s₁ s₂ : stream A) : s₁ ⋈ s₂ = head s₁ :: head s₂ :: (tail s₁ ⋈ tail s₂) :=
+begin
+  esimp [interleave], rewrite corec_eq, esimp, congruence, rewrite corec_eq
+end
 end stream

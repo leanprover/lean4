@@ -123,4 +123,20 @@ begin
     {esimp [map, iterate, nth] at *,
      rewrite IH}
 end
+
+section bisim
+  variable {R : stream A → stream A → Prop}
+  local infix ~ := R
+  premise (bisim : ∀ ⦃s₁ s₂⦄, s₁ ~ s₂ → head s₁ = head s₂ ∧ tail s₁ ~ tail s₂)
+
+  lemma nth_of_bisim : ∀ {s₁ s₂} n, s₁ ~ s₂ → nth n s₁ = nth n s₂ ∧ nth_tail (n+1) s₁ ~ nth_tail (n+1) s₂
+  | s₁ s₂ 0     h := bisim h
+  | s₁ s₂ (n+1) h :=
+    obtain h₁ (trel : tail s₁ ~ tail s₂), from bisim h,
+    nth_of_bisim n trel
+
+  -- If two streams are bisimilar, then they are equal
+  theorem eq_of_bisim  : ∀ {s₁ s₂}, s₁ ~ s₂ → s₁ = s₂ :=
+  λ s₁ s₂ r, stream.ext (λ n, and.elim_left (nth_of_bisim bisim n r))
+end bisim
 end stream

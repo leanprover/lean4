@@ -76,12 +76,11 @@ section division_ring
 --  theorem ne_zero_of_one_div_ne_zero (H : 1 / a ≠ 0) : a ≠ 0 :=
 --    assume Ha : a = 0, absurd (Ha⁻¹ ▸ one_div_zero) H
 
-  -- the analogue in group is called inv_one
-  theorem inv_one_is_one : 1⁻¹ = (1:A) :=
+  theorem one_inv_eq : 1⁻¹ = (1:A) :=
   by rewrite [-mul_one, inv_mul_cancel (ne.symm (@zero_ne_one A _))]
 
   theorem div_one : a / 1 = a :=
-    by rewrite [↑divide, inv_one_is_one, mul_one]
+    by rewrite [↑divide, one_inv_eq, mul_one]
 
   theorem zero_div : 0 / a = 0 := !zero_mul
 
@@ -92,7 +91,7 @@ section division_ring
       absurd C1 Ha
 
   theorem mul_ne_zero_comm (H : a * b ≠ 0) : b * a ≠ 0 :=
-    have H2 : a ≠ 0 ∧ b ≠ 0, from mul_ne_zero_imp_ne_zero H,
+    have H2 : a ≠ 0 ∧ b ≠ 0, from ne_zero_and_ne_zero_of_mul_ne_zero H,
     mul_ne_zero' (and.right H2) (and.left H2)
 
 
@@ -165,9 +164,7 @@ section division_ring
   theorem eq_of_invs_eq (Ha : a ≠ 0) (Hb : b ≠ 0) (H : 1 / a = 1 / b) : a = b :=
     by rewrite [-(div_div Ha), H, (div_div Hb)]
 
-  -- oops, the analogous theorem in group is called inv_mul, but it *should* be called
-  -- mul_inv, in which case, we will have to rename this one
-  theorem mul_inv (Ha : a ≠ 0) (Hb : b ≠ 0) : (b * a)⁻¹ = a⁻¹ * b⁻¹ :=
+  theorem mul_inv_eq (Ha : a ≠ 0) (Hb : b ≠ 0) : (b * a)⁻¹ = a⁻¹ * b⁻¹ :=
     have H1 : b * a ≠ 0, from mul_ne_zero' Hb Ha,
     eq.symm (calc
       a⁻¹ * b⁻¹ = (1 / a) * b⁻¹ : inv_eq_one_div
@@ -234,7 +231,7 @@ section field
      by rewrite [(one_div_mul_one_div Ha Hb), mul.comm b]
 
   theorem div_mul_right (Hb : b ≠ 0) (H : a * b ≠ 0) : a / (a * b) = 1 / b :=
-    let Ha : a ≠ 0 := and.left (mul_ne_zero_imp_ne_zero H) in
+    let Ha : a ≠ 0 := and.left (ne_zero_and_ne_zero_of_mul_ne_zero H) in
     symm (calc
       1 / b = 1 * (1 / b)             : one_mul
         ... = (a * a⁻¹) * (1 / b)     : mul_inv_cancel Ha
@@ -259,7 +256,7 @@ section field
     by rewrite [add.comm, -(div_mul_left Ha H), -(div_mul_right Hb H), ↑divide, -right_distrib]
 
   theorem div_mul_div (Hb : b ≠ 0) (Hd : d ≠ 0) : (a / b) * (c / d) = (a * c) / (b * d) :=
-     by rewrite [↑divide, 2 mul.assoc, (mul.comm b⁻¹), mul.assoc, (mul_inv Hd Hb)]
+     by rewrite [↑divide, 2 mul.assoc, (mul.comm b⁻¹), mul.assoc, (mul_inv_eq Hd Hb)]
 
   theorem mul_div_mul_left (Hb : b ≠ 0) (Hc : c ≠ 0) : (c * a) / (c * b) = a / b :=
     have H [visible] : c * b ≠ 0, from mul_ne_zero' Hc Hb,
@@ -400,7 +397,7 @@ section discrete_field
       (assume Ha : a ≠ 0,
         decidable.by_cases
           (assume Hb : b = 0, by rewrite [Hb, zero_mul, 2 inv_zero, mul_zero])
-          (assume Hb : b ≠ 0, mul_inv Ha Hb))
+          (assume Hb : b ≠ 0, mul_inv_eq Ha Hb))
 
 -- the following are specifically for fields
   theorem one_div_mul_one_div''' : (1 / a) * (1 / b) =  1 / (a * b) :=

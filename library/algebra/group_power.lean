@@ -76,8 +76,8 @@ include s
 section nat
 open nat
 theorem inv_pow (a : A) : ∀n, (a⁻¹)^n = (a^n)⁻¹
-| 0        := by rewrite [*pow_zero, inv_one]
-| (succ n) := by rewrite [pow_succ, pow_succ', inv_pow, inv_mul]
+| 0        := by rewrite [*pow_zero, one_inv]
+| (succ n) := by rewrite [pow_succ, pow_succ', inv_pow, mul_inv]
 
 theorem pow_sub (a : A) {m n : ℕ} (H : m ≥ n) : a^(m - n) = a^m * (a^n)⁻¹ :=
 assert H1 : m - n + n = m, from nat.sub_add_cancel H,
@@ -110,7 +110,7 @@ or.elim (nat.lt_or_ge m (nat.succ n))
         ... = (pow a (nat.succ n) * (pow a m)⁻¹)⁻¹                        :
                 by rewrite [nat.succ_pred_of_pos H1, pow_sub a (nat.le_of_lt H)]
         ... = pow a m * (pow a (nat.succ n))⁻¹                            :
-                by rewrite [inv_mul, inv_inv]
+                by rewrite [mul_inv, inv_inv]
         ... = ipow a (of_nat m) * ipow a (-[n +1])                        : rfl)
   (assume H : (#nat m ≥ nat.succ n),
     calc
@@ -126,7 +126,7 @@ theorem ipow_add (a : A) : ∀i j : int, ipow a (i + j) = ipow a i * ipow a j
 | -[ m+1]    -[n+1]     :=
   calc
     ipow a (-[ m+1] + -[n+1]) = (a^(#nat nat.succ m + nat.succ n))⁻¹ : rfl
-      ... = (a^(nat.succ m))⁻¹ * (a^(nat.succ n))⁻¹ : by rewrite [pow_add, pow_comm, inv_mul]
+      ... = (a^(nat.succ m))⁻¹ * (a^(nat.succ n))⁻¹ : by rewrite [pow_add, pow_comm, mul_inv]
       ... = ipow a (-[ m+1]) * ipow a (-[n+1])      : rfl
 
 theorem ipow_comm (a : A) (i j : ℤ) : ipow a i * ipow a j = ipow a j * ipow a i :=

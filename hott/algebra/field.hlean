@@ -10,7 +10,6 @@ The development is modeled after Isabelle's library.
 
 Ported from the standard library
 -/
-----------------------------------------------------------------------------------------------------
 import algebra.ring
 open core
 
@@ -78,12 +77,11 @@ section division_ring
 --  definition ne_zero_of_one_div_ne_zero (H : 1 / a ≠ 0) : a ≠ 0 :=
 --    assume Ha : a = 0, absurd (Ha⁻¹ ▸ one_div_zero) H
 
-  -- the analogue in group is called inv_one
-  definition inv_one_is_one : 1⁻¹ = (1:A) :=
+  definition inv_one_eq : 1⁻¹ = (1:A) :=
     by rewrite [-mul_one, (inv_mul_cancel (ne.symm zero_ne_one))]
 
   definition div_one : a / 1 = a :=
-    by rewrite [↑divide, inv_one_is_one, mul_one]
+    by rewrite [↑divide, inv_one_eq, mul_one]
 
   definition zero_div : 0 / a = 0 := !zero_mul
 
@@ -94,9 +92,8 @@ section division_ring
       absurd C1 Ha
 
   definition mul_ne_zero_comm (H : a * b ≠ 0) : b * a ≠ 0 :=
-    have H2 : a ≠ 0 × b ≠ 0, from mul_ne_zero_imp_ne_zero H,
+    have H2 : a ≠ 0 × b ≠ 0, from ne_zero_and_ne_zero_of_mul_ne_zero H,
     mul_ne_zero' (prod.pr2 H2) (prod.pr1 H2)
-
 
   -- make "left" and "right" versions?
   definition eq_one_div_of_mul_eq_one (H : a * b = 1) : b = 1 / a :=
@@ -169,7 +166,7 @@ section division_ring
 
   -- oops, the analogous definition in group is called inv_mul, but it *should* be called
   -- mul_inv, in which case, we will have to rename this one
-  definition mul_inv (Ha : a ≠ 0) (Hb : b ≠ 0) : (b * a)⁻¹ = a⁻¹ * b⁻¹ :=
+  definition mul_inv_eq (Ha : a ≠ 0) (Hb : b ≠ 0) : (b * a)⁻¹ = a⁻¹ * b⁻¹ :=
     have H1 : b * a ≠ 0, from mul_ne_zero' Hb Ha,
     inverse (calc
       a⁻¹ * b⁻¹ = (1 / a) * b⁻¹ : inv_eq_one_div
@@ -236,7 +233,7 @@ section field
      by rewrite [(one_div_mul_one_div Ha Hb), mul.comm b]
 
   definition div_mul_right (Hb : b ≠ 0) (H : a * b ≠ 0) : a / (a * b) = 1 / b :=
-    let Ha : a ≠ 0 := prod.pr1 (mul_ne_zero_imp_ne_zero H) in
+    let Ha : a ≠ 0 := prod.pr1 (ne_zero_and_ne_zero_of_mul_ne_zero H) in
     inverse (calc
       1 / b = 1 * (1 / b)             : one_mul
         ... = (a * a⁻¹) * (1 / b)     : mul_inv_cancel Ha
@@ -261,7 +258,7 @@ section field
     by rewrite [add.comm, -(div_mul_left Ha H), -(div_mul_right Hb H), ↑divide, -right_distrib]
 
   definition div_mul_div (Hb : b ≠ 0) (Hd : d ≠ 0) : (a / b) * (c / d) = (a * c) / (b * d) :=
-     by rewrite [↑divide, 2 mul.assoc, (mul.comm b⁻¹), mul.assoc, (mul_inv Hd Hb)]
+     by rewrite [↑divide, 2 mul.assoc, (mul.comm b⁻¹), mul.assoc, (mul_inv_eq Hd Hb)]
 
   definition mul_div_mul_left (Hb : b ≠ 0) (Hc : c ≠ 0) : (c * a) / (c * b) = a / b :=
     have H [visible] : c * b ≠ 0, from mul_ne_zero' Hc Hb,
@@ -402,7 +399,7 @@ section discrete_field
       (assume Ha : a ≠ 0,
         decidable.by_cases
           (assume Hb : b = 0, by rewrite [Hb, zero_mul, 2 inv_zero, mul_zero])
-          (assume Hb : b ≠ 0, mul_inv Ha Hb))
+          (assume Hb : b ≠ 0, mul_inv_eq Ha Hb))
 
 -- the following are specifically for fields
   definition one_div_mul_one_div''' : (1 / a) * (1 / b) =  1 / (a * b) :=

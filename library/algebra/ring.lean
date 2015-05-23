@@ -229,7 +229,7 @@ section
              ... = 0              : mul_zero,
     symm (neg_eq_of_add_eq_zero H)
 
-  theorem mul_ne_zero_imp_ne_zero {a b : A} (H : a * b ≠ 0) : a ≠ 0 ∧ b ≠ 0 :=
+  theorem ne_zero_and_ne_zero_of_mul_ne_zero {a b : A} (H : a * b ≠ 0) : a ≠ 0 ∧ b ≠ 0 :=
     have Ha : a ≠ 0, from
       (assume Ha1 : a = 0,
         have H1 : a * b = 0, by rewrite [Ha1, zero_mul],

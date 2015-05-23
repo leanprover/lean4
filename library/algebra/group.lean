@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: algebra.group
 Authors: Jeremy Avigad, Leonardo de Moura
 
 Various multiplicative and additive structures. Partially modeled on Isabelle's library.
@@ -174,7 +172,7 @@ section group
   theorem inv_eq_of_mul_eq_one {a b : A} (H : a * b = 1) : a⁻¹ = b :=
   by rewrite [-mul_one a⁻¹, -H, inv_mul_cancel_left]
 
-  theorem inv_one : 1⁻¹ = (1 : A) := inv_eq_of_mul_eq_one (one_mul 1)
+  theorem one_inv : 1⁻¹ = (1 : A) := inv_eq_of_mul_eq_one (one_mul 1)
 
   theorem inv_inv (a : A) : (a⁻¹)⁻¹ = a := inv_eq_of_mul_eq_one (mul.left_inv a)
 
@@ -185,7 +183,7 @@ section group
   iff.intro (assume H, inv.inj H) (assume H, congr_arg _ H)
 
   theorem inv_eq_one_iff_eq_one (a b : A) : a⁻¹ = 1 ↔ a = 1 :=
-  inv_one ▸ inv_eq_inv_iff_eq a 1
+  one_inv ▸ inv_eq_inv_iff_eq a 1
 
   theorem eq_inv_of_eq_inv {a b : A} (H : a = b⁻¹) : b = a⁻¹ :=
   by rewrite [H, inv_inv]
@@ -210,7 +208,7 @@ section group
       ... = a * 1 : mul.right_inv
       ... = a : mul_one
 
-  theorem inv_mul (a b : A) : (a * b)⁻¹ = b⁻¹ * a⁻¹ :=
+  theorem mul_inv (a b : A) : (a * b)⁻¹ = b⁻¹ * a⁻¹ :=
   inv_eq_of_mul_eq_one
     (calc
       a * b * (b⁻¹ * a⁻¹) = a * (b * (b⁻¹ * a⁻¹)) : mul.assoc

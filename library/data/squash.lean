@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: data.squash
 Author: Leonardo de Moura
 
 Define squash type (aka propositional truncation) using quotients.

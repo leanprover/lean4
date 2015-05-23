@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2015 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: data.rat.order
 Author: Jeremy Avigad
 
 Adds the ordering, and instantiates the rationals as an ordered field.

@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: cast.lean
 Author: Leonardo de Moura
 
 Casts and heterogeneous equality. See also init.datatypes and init.logic.

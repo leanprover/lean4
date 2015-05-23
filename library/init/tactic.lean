@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: init.tactic
 Author: Leonardo de Moura
 
 This is just a trick to embed the 'tactic language' as a Lean

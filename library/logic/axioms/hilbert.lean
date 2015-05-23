@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: logic.axioms.hilbert
 Authors: Leonardo de Moura, Jeremy Avigad
 
 Follows Coq.Logic.ClassicalEpsilon (but our definition of "inhabited" is the constructive one).

@@ -1,8 +1,6 @@
 /-
 Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-
-Module: algebra.ordered_group
 Authors: Jeremy Avigad
 
 Partially ordered additive groups, modeled on Isabelle's library. We could refine the structures,

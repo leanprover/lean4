@@ -6,7 +6,7 @@ Module: algebra.category.functor
 Author: Floris van Doorn
 -/
 import .basic
-import logic.cast logic.funext
+import logic.cast algebra.function
 open function
 open category eq eq.ops heq
 

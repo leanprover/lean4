@@ -1,4 +1,4 @@
-tactic_id_bug.lean:23:4: proof state
+tactic_id_bug.lean:22:4: proof state
 A : Type,
 gfunc gfinv : A → A,
 glinv : gfinv ∘ gfunc = id,

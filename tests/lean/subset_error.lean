@@ -12,8 +12,8 @@ definition set.subset {A : Type₁} (s₁ s₂ : set A) : Prop :=
 definition finset.subset {A : Type₁} (s₁ s₂ : finset A) : Prop :=
 ∀ ⦃a : A⦄, a ∈ s₁ → a ∈ s₂
 
-infix `⊆`:50 := set.subset
-infix `⊆`:50 := finset.subset
+infix `⊆` := set.subset
+infix `⊆` := finset.subset
 
 example (A : Type₁) (x : A) (S H : set A) (Pin : x ∈ S) (Psub : S ⊆ H) : x ∈ H :=
 Psub Pin -- Error, we cannot infer at preprocessing time the binder information for Psub

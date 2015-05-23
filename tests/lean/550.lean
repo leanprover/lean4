@@ -1,5 +1,4 @@
 import algebra.function
-import logic.funext
 
 open function
 

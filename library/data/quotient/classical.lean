@@ -1,6 +1,10 @@
--- Copyright (c) 2014 Floris van Doorn. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Floris van Doorn
+/-
+Copyright (c) 2014 Floris van Doorn. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Author: Floris van Doorn
+
+A classical treatment of quotients, using Hilbert choice.
+-/
 import algebra.relation data.subtype logic.axioms.classical logic.axioms.hilbert
 import .basic
 
@@ -8,8 +12,7 @@ namespace quotient
 
 open relation nonempty subtype
 
--- abstract quotient
--- -----------------
+/- abstract quotient -/
 
 definition prelim_map {A : Type} (R : A → A → Prop) (a : A) :=
 -- TODO: it is interesting how the elaborator fails here
@@ -46,7 +49,6 @@ fun_image (prelim_map R)
 
 definition quotient_elt_of {A : Type} (R : A → A → Prop) : quotient R → A := elt_of
 
--- TODO: I had to make is_quotient transparent -- change this?
 theorem quotient_is_quotient  {A : Type} (R : A → A → Prop) (H : is_equivalence R)
   : is_quotient R (quotient_abs R) (quotient_elt_of R) :=
 representative_map_to_quotient_equiv

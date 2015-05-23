@@ -1,10 +1,10 @@
--- Copyright (c) 2014 Floris van Doorn. All rights reserved.
--- Released under Apache 2.0 license as described in the file LICENSE.
--- Author: Floris van Doorn
+/-
+Copyright (c) 2014 Floris van Doorn. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Author: Floris van Doorn
 
--- Theory data.quotient
--- ====================
-
+An explicit treatment of quotients, without using Lean's built-in quotient types.
+-/
 import logic data.subtype logic.cast algebra.relation data.prod
 import logic.instances
 import .util
@@ -14,9 +14,7 @@ open subtype relation.iff_ops
 
 namespace quotient
 
-
--- definition and basics
--- ---------------------
+/- definition and basics -/
 
 -- TODO: make this a structure
 definition is_quotient {A B : Type} (R : A → A → Prop) (abs : A → B) (rep : B → A) : Prop :=
@@ -107,9 +105,7 @@ have Hc : R c c, from refl_right Q Hbc,
 have Hac : abs a = abs c, from eq.trans (eq_abs Q Hab) (eq_abs Q Hbc),
 R_intro Q Ha Hc Hac
 
-
--- recursion
--- ---------
+/- recursion -/
 
 -- (maybe some are superfluous)
 
@@ -195,8 +191,8 @@ theorem comp_quotient_map_binary_refl {A B : Type} {R : A → A → Prop} (Hrefl
   (a b : A) : quotient_map_binary Q f (abs a) (abs b) = abs (f a b) :=
 comp_quotient_map_binary Q H (Hrefl a) (Hrefl b)
 
--- image
--- -----
+/- image -/
+
 definition image {A B : Type} (f : A → B) := subtype (fun b, ∃a, f a = b)
 
 theorem image_inhabited {A B : Type} (f : A → B) (H : inhabited A) : inhabited (image f) :=
@@ -253,9 +249,7 @@ calc
     ... = f a : H a
     ... = elt_of u : Ha
 
-
--- construct quotient from representative map
--- ------------------------------------------
+/- construct quotient from representative map -/
 
 theorem representative_map_idempotent {A : Type} {R : A → A → Prop} {f : A → A}
     (H1 : ∀a, R a (f a)) (H2 : ∀a b, R a b ↔ R a a ∧ R b b ∧ f a = f b) (a : A) :

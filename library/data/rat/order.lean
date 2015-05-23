@@ -21,10 +21,16 @@ variables {a b : prerat}
 
 definition pos (a : prerat) : Prop := num a > 0
 
+definition nonneg (a : prerat) : Prop := num a ≥ 0
+
+theorem pos_of_int (a : ℤ) : pos (of_int a) ↔ (#int a > 0) :=
+!iff.rfl
+
+theorem nonneg_of_int (a : ℤ) : nonneg (of_int a) ↔ (#int a ≥ 0) :=
+!iff.rfl
+
 theorem pos_eq_pos_of_equiv {a b : prerat} (H1 : a ≡ b) : pos a = pos b :=
 propext (iff.intro (num_pos_of_equiv H1) (num_pos_of_equiv H1⁻¹))
-
-definition nonneg (a : prerat) : Prop := num a ≥ 0
 
 theorem nonneg_eq_nonneg_of_equiv (H : a ≡ b) : nonneg a = nonneg b :=
 have H1 : (0 = num a) = (0 = num b),
@@ -93,6 +99,12 @@ quot.lift prerat.pos @prerat.pos_eq_pos_of_equiv a
 private definition nonneg (a : ℚ) : Prop :=
 quot.lift prerat.nonneg @prerat.nonneg_eq_nonneg_of_equiv a
 
+private theorem pos_of_int (a : ℤ) : (#int a > 0) ↔ pos (of_int a) :=
+prerat.pos_of_int a
+
+private theorem nonneg_of_int (a : ℤ) : (#int a ≥ 0) ↔ nonneg (of_int a) :=
+prerat.nonneg_of_int a
+
 private theorem nonneg_zero : nonneg 0 := prerat.nonneg_zero
 
 private theorem nonneg_add : nonneg a → nonneg b → nonneg (a + b) :=
@@ -142,6 +154,20 @@ infix ≤  := rat.le
 infix >= := rat.ge
 infix ≥  := rat.ge
 infix >  := rat.gt
+
+theorem of_int_lt_of_int (a b : ℤ) : (#int a < b) ↔ of_int a < of_int b :=
+calc
+  (#int a < b) ↔ (#int b - a > 0)          : iff.symm !int.sub_pos_iff_lt
+           ... ↔ pos (of_int (#int b - a)) : iff.symm !pos_of_int
+           ... ↔ pos (of_int b - of_int a) : !of_int_sub ▸ iff.rfl
+           ... ↔ of_int a < of_int b       : iff.rfl
+
+theorem of_int_le_of_int (a b : ℤ) : (#int a ≤ b) ↔ of_int a ≤ of_int b :=
+calc
+  (#int a ≤ b) ↔ (#int b - a ≥ 0)             : iff.symm !int.sub_nonneg_iff_le
+           ... ↔ nonneg (of_int (#int b - a)) : iff.symm !nonneg_of_int
+           ... ↔ nonneg (of_int b - of_int a) : !of_int_sub ▸ iff.rfl
+           ... ↔ of_int a ≤ of_int b          : iff.rfl
 
 theorem le.refl (a : ℚ) : a ≤ a :=
 by rewrite [↑rat.le, sub_self]; apply nonneg_zero
@@ -225,7 +251,7 @@ section migrate_algebra
   definition abs (n : rat) : rat := algebra.abs n
   definition sign (n : rat) : rat := algebra.sign n
 
-  migrate from algebra with rat
-    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign, dvd → dvd, divide → divide
+--  migrate from algebra with rat
+--    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign, dvd → dvd, divide → divide
 end migrate_algebra
 end rat

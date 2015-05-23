@@ -97,6 +97,15 @@ prerat.mk (num a * num b) (denom a * denom b) (mul_denom_pos a b)
 definition neg (a : prerat) : prerat :=
 prerat.mk (- num a) (denom a) (denom_pos a)
 
+theorem of_int_add (a b : ℤ) : of_int (#int a + b) ≡ add (of_int a) (of_int b) :=
+by esimp [equiv, num, denom, one, add, of_int]; rewrite [*int.mul_one]
+
+theorem of_int_mul (a b : ℤ) : of_int (#int a * b) ≡ mul (of_int a) (of_int b) :=
+!equiv.refl
+
+theorem of_int_neg (a : ℤ) : of_int (#int -a) ≡ neg (of_int a) :=
+!equiv.refl
+
 definition inv : prerat → prerat
 | inv (prerat.mk nat.zero d dp) := zero
 | inv (prerat.mk (nat.succ n) d dp) := prerat.mk d (nat.succ n) !of_nat_succ_pos
@@ -311,6 +320,20 @@ notation 0 := zero
 notation 1 := one
 
 /- properties -/
+
+theorem of_int_add (a b : ℤ) : of_int (#int a + b) = of_int a + of_int b :=
+quot.sound (prerat.of_int_add a b)
+
+theorem of_int_mul (a b : ℤ) : of_int (#int a * b) = of_int a * of_int b :=
+quot.sound (prerat.of_int_mul a b)
+
+theorem of_int_neg (a : ℤ) : of_int (#int -a) = -(of_int a) :=
+quot.sound (prerat.of_int_neg a)
+
+theorem of_int_sub (a b : ℤ) : of_int (#int a - b) = of_int a - of_int b :=
+calc
+  of_int (#int a - b) = of_int a + of_int (#int -b) : of_int_add
+                  ... = of_int a - of_int b         : {of_int_neg b}
 
 theorem add.comm (a b : ℚ) : a + b = b + a :=
 quot.induction_on₂ a b (take u v, quot.sound !prerat.add.comm)

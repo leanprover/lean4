@@ -9,7 +9,7 @@ Ported from standard library
 -/
 
 import .basic algebra.ordered_ring
-open core prod decidable
+open prod decidable sum eq
 
 namespace nat
 

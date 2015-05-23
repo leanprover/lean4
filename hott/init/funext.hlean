@@ -256,3 +256,6 @@ definition naive_funext_of_ua : naive_funext :=
 protected definition homotopy.rec_on [recursor] {Q : (f ∼ g) → Type} (p : f ∼ g)
   (H : Π(q : f = g), Q (apd10 q)) : Q p :=
 right_inv apd10 p ▸ H (eq_of_homotopy p)
+
+protected definition homotopy.rec_on_idp [recursor] {Q : Π{g}, (f ∼ g) → Type} {g : Π x, P x} (p : f ∼ g) (H : Q (homotopy.refl f)) : Q p :=
+homotopy.rec_on p (λq, eq.rec_on q H)

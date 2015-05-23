@@ -38,12 +38,11 @@ namespace is_trunc
 
   definition leq (n m : trunc_index) : Type₀ :=
   trunc_index.rec_on n (λm, unit) (λ n p m, trunc_index.rec_on m (λ p, empty) (λ m q p, p m) p) m
+  notation x <= y := trunc_index.leq x y
+  notation x ≤ y := trunc_index.leq x y
   end trunc_index
 
   infix `+2+`:65 := trunc_index.add
-
-  notation x <= y := trunc_index.leq x y
-  notation x ≤ y := trunc_index.leq x y
 
   namespace trunc_index
   definition succ_le_succ {n m : trunc_index} (H : n ≤ m) : n.+1 ≤ m.+1 := H

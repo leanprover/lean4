@@ -10,7 +10,7 @@ Properties of is_trunc and trunctype
 
 import types.pi types.eq types.equiv .function
 
-open eq sigma sigma.ops pi function equiv is_trunc.trunctype is_equiv prod
+open eq sigma sigma.ops pi function equiv is_trunc.trunctype is_equiv prod is_trunc.trunc_index
 
 namespace is_trunc
   variables {A B : Type} {n : trunc_index}

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 import data.nat data.list algebra.function
-open nat function
+open nat function option
 
 definition stream (A : Type) := nat → A
 
@@ -334,21 +334,36 @@ theorem map_append (f : A → B) : ∀ (l : list A) (s : stream A), map f (l ++ 
 | []     s := rfl
 | (a::l) s := by rewrite [cons_append, list.map_cons, map_cons, cons_append, map_append]
 
-definition to_list : nat → stream A → list A
+definition approx : nat → stream A → list A
 | 0     s := []
-| (n+1) s := head s :: to_list n (tail s)
+| (n+1) s := head s :: approx n (tail s)
 
-theorem to_list_zero (s : stream A) : to_list 0 s = [] :=
+theorem approx_zero (s : stream A) : approx 0 s = [] :=
 rfl
 
-theorem to_list_succ (n : nat) (s : stream A) : to_list (succ n) s = head s :: to_list n (tail s) :=
+theorem approx_succ (n : nat) (s : stream A) : approx (succ n) s = head s :: approx n (tail s) :=
 rfl
 
-theorem append_to_list : ∀ (n : nat) (s : stream A), append (to_list n s) (nth_tail n s) = s :=
+theorem nth_approx : ∀ (n : nat) (s : stream A), list.nth (approx (succ n) s) n = some (nth n s)
+| 0     s := rfl
+| (n+1) s := begin rewrite [approx_succ, add_one, list.nth_succ, nth_approx] end
+
+theorem append_approx : ∀ (n : nat) (s : stream A), append (approx n s) (nth_tail n s) = s :=
 begin
   intro n,
   induction n with n' ih,
    {intro s, reflexivity},
-   {intro s, rewrite [to_list_succ, nth_tail_succ, cons_append, ih (tail s), stream.eta]}
+   {intro s, rewrite [approx_succ, nth_tail_succ, cons_append, ih (tail s), stream.eta]}
+end
+
+-- Take lemma reduces a proof of equality of infinite streams to an
+-- induction over all their finite approximations.
+theorem take_lemma (s₁ s₂ : stream A) : (∀ (n : nat), approx n s₁ = approx n s₂) → s₁ = s₂ :=
+begin
+  intro h, apply stream.ext, intro n,
+    induction n with n ih,
+     {injection (h 1), assumption},
+     {have h₁ : some (nth (succ n) s₁) = some (nth (succ n) s₂), by rewrite [-*nth_approx, h (succ (succ n))],
+      injection h₁, assumption}
 end
 end stream

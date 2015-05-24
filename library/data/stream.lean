@@ -65,15 +65,37 @@ rfl
 protected theorem ext {s₁ s₂ : stream A} : (∀ n, nth n s₁ = nth n s₂) → s₁ = s₂ :=
 assume h, funext h
 
-protected definition all (p : A → Prop) (s : stream A) := ∀ n, p (nth n s)
+definition all (p : A → Prop) (s : stream A) := ∀ n, p (nth n s)
 
-protected definition any (p : A → Prop) (s : stream A) := ∃ n, p (nth n s)
+definition any (p : A → Prop) (s : stream A) := ∃ n, p (nth n s)
 
-theorem all_def (p : A → Prop) (s : stream A) : stream.all p s = ∀ n, p (nth n s) :=
+theorem all_def (p : A → Prop) (s : stream A) : all p s = ∀ n, p (nth n s) :=
 rfl
 
-theorem any_def (p : A → Prop) (s : stream A) : stream.any p s = ∃ n, p (nth n s) :=
+theorem any_def (p : A → Prop) (s : stream A) : any p s = ∃ n, p (nth n s) :=
 rfl
+
+definition mem (a : A) (s : stream A) := any (λ b, a = b) s
+
+notation e ∈ s := mem e s
+
+theorem mem_cons (a : A) (s : stream A) : a ∈ (a::s) :=
+exists.intro 0 rfl
+
+theorem mem_cons_of_mem {a : A} {s : stream A} (b : A) : a ∈ s → a ∈ b :: s :=
+assume ains, obtain n (h : a = nth n s), from ains,
+exists.intro (succ n) (by rewrite [nth_succ, tail_cons, h]; esimp)
+
+theorem eq_or_mem_of_mem_cons {a b : A} {s : stream A} : a ∈ b::s → a = b ∨ a ∈ s :=
+assume ainbs, obtain n (h : a = nth n (b::s)), from ainbs,
+begin
+  cases n with n',
+   {left, exact h},
+   {right, rewrite [nth_succ at h, tail_cons at h], existsi n', exact h}
+end
+
+theorem mem_of_nth_eq {n : nat} {s : stream A} {a : A} : a = nth n s → a ∈ s :=
+assume h, exists.intro n h
 
 section map
 variable (f : A → B)
@@ -101,6 +123,10 @@ by rewrite [-stream.eta, map_eq]
 
 theorem map_id (s : stream A) : map id s = s :=
 rfl
+
+theorem mem_map {a : A} {s : stream A} : a ∈ s → f a ∈ map f s :=
+assume ains, obtain n (h : a = nth n s), from ains,
+exists.intro n (by rewrite [nth_map, h]; esimp)
 end map
 
 section zip
@@ -127,6 +153,9 @@ end zip
 
 definition const (a : A) : stream A :=
 λ n, a
+
+theorem mem_const (a : A) : a ∈ const a :=
+exists.intro 0 rfl
 
 theorem const_eq (a : A) : const a = a :: const a :=
 begin
@@ -264,6 +293,30 @@ by esimp [interleave]; rewrite corec_eq
 theorem interleave_tail_tail (s₁ s₂ : stream A) : tail s₁ ⋈ tail s₂ = tail (tail (s₁ ⋈ s₂)) :=
 by rewrite [interleave_eq s₁ s₂]
 
+theorem nth_interleave_left : ∀ (n : nat) (s₁ s₂ : stream A), nth (2*n) (s₁ ⋈ s₂) = nth n s₁
+| 0        s₁ s₂ := rfl
+| (succ n) s₁ s₂ :=
+  begin
+    change nth (succ (succ (2*n))) (s₁ ⋈ s₂) = nth (succ n) s₁,
+    rewrite [*nth_succ, interleave_eq, *tail_cons, nth_interleave_left]
+  end
+
+theorem nth_interleave_right : ∀ (n : nat) (s₁ s₂ : stream A), nth (2*n+1) (s₁ ⋈ s₂) = nth n s₂
+| 0        s₁ s₂ := rfl
+| (succ n) s₁ s₂ :=
+  begin
+    change nth (succ (succ (2*n+1))) (s₁ ⋈ s₂) = nth (succ n) s₂,
+    rewrite [*nth_succ, interleave_eq, *tail_cons, nth_interleave_right]
+  end
+
+theorem mem_interleave_left {a : A} {s₁ : stream A} (s₂ : stream A) : a ∈ s₁ → a ∈ s₁ ⋈ s₂ :=
+assume ains₁, obtain n (h : a = nth n s₁), from ains₁,
+exists.intro (2*n) (by rewrite [h, nth_interleave_left]; esimp)
+
+theorem mem_interleave_right {a : A} {s₁ : stream A} (s₂ : stream A) : a ∈ s₂ → a ∈ s₁ ⋈ s₂ :=
+assume ains₂, obtain n (h : a = nth n s₂), from ains₂,
+exists.intro (2*n+1) (by rewrite [h, nth_interleave_right]; esimp)
+
 definition even (s : stream A) : stream A :=
 corec
   (λ s, head s)
@@ -314,6 +367,25 @@ eq_of_bisim
     end)
   rfl
 
+theorem nth_even : ∀ (n : nat) (s : stream A), nth n (even s) = nth (2*n) s
+| 0        s := rfl
+| (succ n) s :=
+  begin
+    change nth (succ n) (even s) = nth (succ (succ (2 * n))) s,
+    rewrite [+nth_succ, tail_even, nth_even]
+  end
+
+theorem nth_odd : ∀ (n : nat) (s : stream A), nth n (odd s) = nth (2*n + 1) s :=
+λ n s, by rewrite [odd_eq, nth_even]
+
+theorem mem_of_mem_even (a : A) (s : stream A) : a ∈ even s → a ∈ s :=
+assume aines, obtain n (h : a = nth n (even s)), from aines,
+exists.intro (2*n) (by rewrite [h, nth_even]; esimp)
+
+theorem mem_of_mem_odd (a : A) (s : stream A) : a ∈ odd s → a ∈ s :=
+assume ainos, obtain n (h : a = nth n (odd s)), from ainos,
+exists.intro (2*n+1) (by rewrite [h, nth_odd]; esimp)
+
 open list
 definition append : list A → stream A → stream A
 | []     s := s
@@ -343,6 +415,19 @@ theorem drop_append : ∀ (l : list A) (s : stream A), drop (length l) (l ++ s) 
 
 theorem append_head_tail (s : stream A) : [head s] ++ tail s = s :=
 by rewrite [cons_append, nil_append, stream.eta]
+
+theorem mem_append_right : ∀ {a : A} (l : list A) {s : stream A}, a ∈ s → a ∈ l ++ s
+| a []     s h := h
+| a (b::l) s h :=
+  have ih : a ∈ l ++ s, from mem_append_right l h,
+  !mem_cons_of_mem ih
+
+theorem mem_append_left : ∀ {a : A} {l : list A} (s : stream A), a ∈ l → a ∈ l ++ s
+| a []     s h := absurd h !not_mem_nil
+| a (b::l) s h :=
+  or.elim (list.eq_or_mem_of_mem_cons h)
+    (λ (aeqb : a = b), exists.intro 0 aeqb)
+    (λ (ainl : a ∈ l), mem_cons_of_mem b (mem_append_left s ainl))
 
 definition approx : nat → stream A → list A
 | 0     s := []
@@ -405,6 +490,9 @@ theorem cycle_eq : ∀ (l : list A) (h : l ≠ nil), cycle l h = l ++ cycle l h
         {intro a', rewrite [corec_eq, cycle_g_cons, ih a₁]}
     end,
   gen l a
+
+theorem mem_cycle {a : A} {l : list A} : ∀ (h : l ≠ []), a ∈ l → a ∈ cycle l h :=
+assume h ainl, by rewrite [cycle_eq]; exact !mem_append_left ainl
 
 theorem cycle_singleton (a : A) (h : [a] ≠ nil) : cycle [a] h = const a :=
 coinduction

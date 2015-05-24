@@ -3,7 +3,7 @@ Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-import data.nat algebra.function
+import data.nat data.list algebra.function
 open nat function
 
 definition stream (A : Type) := nat → A
@@ -56,6 +56,9 @@ funext (λ i, begin esimp [nth_tail], rewrite add.assoc end)
 theorem nth_succ (n : nat) (s : stream A) : nth (succ n) s = nth n (tail s) :=
 rfl
 
+theorem nth_tail_succ (n : nat) (s : stream A) : nth_tail (succ n) s = nth_tail n (tail s) :=
+rfl
+
 protected theorem ext {s₁ s₂ : stream A} : (∀ n, nth n s₁ = nth n s₂) → s₁ = s₂ :=
 assume h, funext h
 
@@ -89,6 +92,9 @@ rfl
 
 theorem map_eq (s : stream A) : map f s = f (head s) :: map f (tail s) :=
 by rewrite [-stream.eta, tail_map, head_map]
+
+theorem map_cons (a : A) (s : stream A) : map f (a :: s) = f a :: map f s :=
+by rewrite [-stream.eta, map_eq]
 
 theorem map_id (s : stream A) : map id s = s :=
 rfl
@@ -165,10 +171,10 @@ theorem nth_succ_iterate (n : nat) (f : A → A) (a : A) : nth (succ n) (iterate
 by rewrite [nth_succ, tail_iterate]
 
 section bisim
-  definition is_bisimulation (R : stream A → stream A → Prop) := ∀ ⦃s₁ s₂⦄, R s₁ s₂ → head s₁ = head s₂ ∧ R (tail s₁) (tail s₂)
-
-  variable {R : stream A → stream A → Prop}
+  variable (R : stream A → stream A → Prop)
   local infix ~ := R
+
+  definition is_bisimulation := ∀ ⦃s₁ s₂⦄, s₁ ~ s₂ → head s₁ = head s₂ ∧ tail s₁ ~ tail s₂
 
   lemma nth_of_bisim (bisim : is_bisimulation R) : ∀ {s₁ s₂} n, s₁ ~ s₂ → nth n s₁ = nth n s₂ ∧ nth_tail (n+1) s₁ ~ nth_tail (n+1) s₂
   | s₁ s₂ 0     h := bisim h
@@ -178,28 +184,37 @@ section bisim
 
   -- If two streams are bisimilar, then they are equal
   theorem eq_of_bisim (bisim : is_bisimulation R) : ∀ {s₁ s₂}, s₁ ~ s₂ → s₁ = s₂ :=
-  λ s₁ s₂ r, stream.ext (λ n, and.elim_left (nth_of_bisim bisim n r))
+  λ s₁ s₂ r, stream.ext (λ n, and.elim_left (nth_of_bisim R bisim n r))
 end bisim
 
 theorem bisim_simple (s₁ s₂ : stream A) : head s₁ = head s₂ → s₁ = tail s₁ → s₂ = tail s₂ → s₁ = s₂ :=
-let R := λ s₁ s₂, head s₁ = head s₂ ∧ s₁ = tail s₁ ∧ s₂ = tail s₂ in
-have bisim : is_bisimulation R, from
-  λ s₁ s₂ (h : R s₁ s₂),
+assume hh ht₁ ht₂, eq_of_bisim
+  (λ s₁ s₂, head s₁ = head s₂ ∧ s₁ = tail s₁ ∧ s₂ = tail s₂)
+  (λ s₁ s₂ h,
     obtain h₁ h₂ h₃, from h,
     begin
       constructor, exact h₁, rewrite [-h₂, -h₃], exact h
-    end,
-assume hh ht₁ ht₂,
-have Rs₁s₂ : R s₁ s₂, from and.intro hh (and.intro ht₁ ht₂),
-eq_of_bisim bisim Rs₁s₂
+    end)
+  (and.intro hh (and.intro ht₁ ht₂))
+
+-- AKA coinduction freeze
+theorem coinduction.{l} {A : Type.{l}} {s₁ s₂ : stream A} :
+        head s₁ = head s₂ → (∀ (B : Type.{l}) (fr : stream A → B), fr s₁ = fr s₂ → fr (tail s₁) = fr (tail s₂)) → s₁ = s₂ :=
+assume hh ht,
+  eq_of_bisim
+    (λ s₁ s₂, head s₁ = head s₂ ∧ ∀ (B : Type) (fr : stream A → B), fr s₁ = fr s₂ → fr (tail s₁) = fr (tail s₂))
+    (λ s₁ s₂ h,
+      have h₁ : head s₁ = head s₂,               from and.elim_left h,
+      have h₂ : head (tail s₁) = head (tail s₂), from and.elim_right h A (@head A) h₁,
+      have h₃ : ∀ (B : Type) (fr : stream A → B), fr (tail s₁) = fr (tail s₂) → fr (tail (tail s₁)) = fr (tail (tail s₂)), from
+        λ B fr, and.elim_right h B (λ s, fr (tail s)),
+      and.intro h₁ (and.intro h₂ h₃))
+    (and.intro hh ht)
 
 theorem iterate_id (a : A) : iterate id a = const a :=
-begin
-  apply bisim_simple,
-    reflexivity,
-    rewrite tail_iterate,
-    rewrite tail_const
-end
+coinduction
+  rfl
+  (λ B fr ch, by rewrite [tail_iterate, tail_const]; exact ch)
 
 theorem map_iterate (f : A → A) (a : A) : iterate f (f a) = map f (iterate f a) :=
 begin
@@ -238,5 +253,102 @@ infix `⋈`:65 := interleave
 theorem interleave_eq (s₁ s₂ : stream A) : s₁ ⋈ s₂ = head s₁ :: head s₂ :: (tail s₁ ⋈ tail s₂) :=
 begin
   esimp [interleave], rewrite corec_eq, esimp, congruence, rewrite corec_eq
+end
+
+theorem tail_interleave (s₁ s₂ : stream A) : tail (s₁ ⋈ s₂) = s₂ ⋈ (tail s₁) :=
+by esimp [interleave]; rewrite corec_eq
+
+theorem interleave_tail_tail (s₁ s₂ : stream A) : tail s₁ ⋈ tail s₂ = tail (tail (s₁ ⋈ s₂)) :=
+by rewrite [interleave_eq s₁ s₂]
+
+definition even (s : stream A) : stream A :=
+corec
+  (λ s, head s)
+  (λ s, tail (tail s))
+  s
+
+definition odd (s : stream A) : stream A :=
+even (tail s)
+
+theorem odd_eq (s : stream A) : odd s = even (tail s) :=
+rfl
+
+theorem head_even (s : stream A) : head (even s) = head s :=
+rfl
+
+theorem tail_even (s : stream A) : tail (even s) = even (tail (tail s)) :=
+by esimp [even]; rewrite corec_eq
+
+theorem even_cons_cons (a₁ a₂ : A) (s : stream A) : even (a₁ :: a₂ :: s) = a₁ :: even s :=
+by esimp [even]; rewrite corec_eq
+
+theorem even_tail (s : stream A) : even (tail s) = odd s :=
+rfl
+
+theorem even_interleave (s₁ s₂ : stream A) : even (s₁ ⋈ s₂) = s₁ :=
+eq_of_bisim
+  (λ s₁' s₁, ∃ s₂, s₁' = even (s₁ ⋈ s₂))
+  (λ s₁' s₁ h,
+    obtain s₂ (h₁ : s₁' = even (s₁ ⋈ s₂)), from h,
+    begin
+      rewrite h₁,
+      constructor,
+       {reflexivity},
+       {existsi (tail s₂),
+        rewrite [interleave_eq, even_cons_cons, tail_cons],
+        apply rfl}
+    end)
+  (exists.intro s₂ rfl)
+
+theorem interleave_even_odd (s₁ : stream A) : even s₁ ⋈ odd s₁ = s₁ :=
+eq_of_bisim
+  (λ s' s, s' = even s ⋈ odd s)
+  (λ s' s (h : s' = even s ⋈ odd s),
+    begin
+      rewrite h, constructor,
+       {reflexivity},
+       {esimp, rewrite [*odd_eq, tail_interleave, tail_even]}
+    end)
+  rfl
+
+open list
+definition append : list A → stream A → stream A
+| []     s := s
+| (a::l) s := a :: append l s
+
+theorem nil_append (s : stream A) : append [] s = s :=
+rfl
+
+theorem cons_append (a : A) (l : list A) (s : stream A) : append (a::l) s = a :: append l s :=
+rfl
+
+infix ++ := append
+-- the following local notation is used just to make the following theorem clear
+local infix `++ₛ`:65 := append
+
+theorem append_append : ∀ (l₁ l₂ : list A) (s : stream A), (l₁ ++ l₂) ++ₛ s = l₁ ++ (l₂ ++ₛ s)
+| []      l₂ s := rfl
+| (a::l₁) l₂ s := by rewrite [list.append_cons, *cons_append, append_append]
+
+theorem map_append (f : A → B) : ∀ (l : list A) (s : stream A), map f (l ++ s) = list.map f l ++ map f s
+| []     s := rfl
+| (a::l) s := by rewrite [cons_append, list.map_cons, map_cons, cons_append, map_append]
+
+definition to_list : nat → stream A → list A
+| 0     s := []
+| (n+1) s := head s :: to_list n (tail s)
+
+theorem to_list_zero (s : stream A) : to_list 0 s = [] :=
+rfl
+
+theorem to_list_succ (n : nat) (s : stream A) : to_list (succ n) s = head s :: to_list n (tail s) :=
+rfl
+
+theorem append_to_list : ∀ (n : nat) (s : stream A), append (to_list n s) (nth_tail n s) = s :=
+begin
+  intro n,
+  induction n with n' ih,
+   {intro s, reflexivity},
+   {intro s, rewrite [to_list_succ, nth_tail_succ, cons_append, ih (tail s), stream.eta]}
 end
 end stream

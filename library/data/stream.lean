@@ -26,7 +26,7 @@ s 0
 definition tail (s : stream A) : stream A :=
 λ i, s (i+1)
 
-definition nth_tail (n : nat) (s : stream A) : stream A :=
+definition drop (n : nat) (s : stream A) : stream A :=
 λ i, s (i+n)
 
 definition nth (n : nat) (s : stream A) : A :=
@@ -35,28 +35,31 @@ s n
 protected theorem eta (s : stream A) : head s :: tail s = s :=
 funext (λ i, begin cases i, repeat reflexivity end)
 
+theorem nth_zero_cons (a : A) (s : stream A) : nth 0 (a :: s) = a :=
+rfl
+
 theorem head_cons (a : A) (s : stream A) : head (a :: s) = a :=
 rfl
 
 theorem tail_cons (a : A) (s : stream A) : tail (a :: s) = s :=
 rfl
 
-theorem tail_nth_tail (n : nat) (s : stream A) : tail (nth_tail n s) = nth_tail n (tail s) :=
-funext (λ i, begin esimp [tail, nth_tail], congruence, rewrite add.right_comm end)
+theorem tail_drop (n : nat) (s : stream A) : tail (drop n s) = drop n (tail s) :=
+funext (λ i, begin esimp [tail, drop], congruence, rewrite add.right_comm end)
 
-theorem nth_nth_tail (n m : nat) (s : stream A) : nth n (nth_tail m s) = nth (n+m) s :=
+theorem nth_drop (n m : nat) (s : stream A) : nth n (drop m s) = nth (n+m) s :=
 rfl
 
-theorem tail_eq_nth_tail (s : stream A) : tail s = nth_tail 1 s :=
+theorem tail_eq_drop (s : stream A) : tail s = drop 1 s :=
 rfl
 
-theorem nth_tail_nth_tail (n m : nat) (s : stream A) : nth_tail n (nth_tail m s) = nth_tail (n+m) s :=
-funext (λ i, begin esimp [nth_tail], rewrite add.assoc end)
+theorem drop_drop (n m : nat) (s : stream A) : drop n (drop m s) = drop (n+m) s :=
+funext (λ i, begin esimp [drop], rewrite add.assoc end)
 
 theorem nth_succ (n : nat) (s : stream A) : nth (succ n) s = nth n (tail s) :=
 rfl
 
-theorem nth_tail_succ (n : nat) (s : stream A) : nth_tail (succ n) s = nth_tail n (tail s) :=
+theorem drop_succ (n : nat) (s : stream A) : drop (succ n) s = drop n (tail s) :=
 rfl
 
 protected theorem ext {s₁ s₂ : stream A} : (∀ n, nth n s₁ = nth n s₂) → s₁ = s₂ :=
@@ -78,14 +81,14 @@ variable (f : A → B)
 definition map (s : stream A) : stream B :=
 λ n, f (nth n s)
 
-theorem nth_tail_map (n : nat) (s : stream A) : nth_tail n (map f s) = map f (nth_tail n s) :=
+theorem drop_map (n : nat) (s : stream A) : drop n (map f s) = map f (drop n s) :=
 stream.ext (λ i, rfl)
 
 theorem nth_map (n : nat) (s : stream A) : nth n (map f s) = f (nth n s) :=
 rfl
 
 theorem tail_map (s : stream A) : tail (map f s) = map f (tail s) :=
-begin rewrite tail_eq_nth_tail end
+begin rewrite tail_eq_drop end
 
 theorem head_map (s : stream A) : head (map f s) = f (head s) :=
 rfl
@@ -106,7 +109,7 @@ variable (f : A → B → C)
 definition zip (s₁ : stream A) (s₂ : stream B) : stream C :=
 λ n, f (nth n s₁) (nth n s₂)
 
-theorem nth_tail_zip (n : nat) (s₁ : stream A) (s₂ : stream B) : nth_tail n (zip f s₁ s₂) = zip f (nth_tail n s₁) (nth_tail n s₂) :=
+theorem drop_zip (n : nat) (s₁ : stream A) (s₂ : stream B) : drop n (zip f s₁ s₂) = zip f (drop n s₁) (drop n s₂) :=
 stream.ext (λ i, rfl)
 
 theorem nth_zip (n : nat) (s₁ : stream A) (s₂ : stream B) : nth n (zip f s₁ s₂) = f (nth n s₁) (nth n s₂) :=
@@ -140,7 +143,7 @@ rfl
 theorem nth_const (n : nat) (a : A) : nth n (const a) = a :=
 rfl
 
-theorem nth_tail_const (n : nat) (a : A) : nth_tail n (const a) = const a :=
+theorem drop_const (n : nat) (a : A) : drop n (const a) = const a :=
 stream.ext (λ i, rfl)
 
 definition iterate (f : A → A) (a : A) : stream A :=
@@ -176,7 +179,7 @@ section bisim
 
   definition is_bisimulation := ∀ ⦃s₁ s₂⦄, s₁ ~ s₂ → head s₁ = head s₂ ∧ tail s₁ ~ tail s₂
 
-  lemma nth_of_bisim (bisim : is_bisimulation R) : ∀ {s₁ s₂} n, s₁ ~ s₂ → nth n s₁ = nth n s₂ ∧ nth_tail (n+1) s₁ ~ nth_tail (n+1) s₂
+  lemma nth_of_bisim (bisim : is_bisimulation R) : ∀ {s₁ s₂} n, s₁ ~ s₂ → nth n s₁ = nth n s₂ ∧ drop (n+1) s₁ ~ drop (n+1) s₂
   | s₁ s₂ 0     h := bisim h
   | s₁ s₂ (n+1) h :=
     obtain h₁ (trel : tail s₁ ~ tail s₂), from bisim h,
@@ -334,6 +337,13 @@ theorem map_append (f : A → B) : ∀ (l : list A) (s : stream A), map f (l ++ 
 | []     s := rfl
 | (a::l) s := by rewrite [cons_append, list.map_cons, map_cons, cons_append, map_append]
 
+theorem drop_append : ∀ (l : list A) (s : stream A), drop (length l) (l ++ s) = s
+| []     s := by esimp
+| (a::l) s := by rewrite [length_cons, add_one, drop_succ, cons_append, tail_cons, drop_append]
+
+theorem append_head_tail (s : stream A) : [head s] ++ tail s = s :=
+by rewrite [cons_append, nil_append, stream.eta]
+
 definition approx : nat → stream A → list A
 | 0     s := []
 | (n+1) s := head s :: approx n (tail s)
@@ -348,12 +358,12 @@ theorem nth_approx : ∀ (n : nat) (s : stream A), list.nth (approx (succ n) s) 
 | 0     s := rfl
 | (n+1) s := begin rewrite [approx_succ, add_one, list.nth_succ, nth_approx] end
 
-theorem append_approx : ∀ (n : nat) (s : stream A), append (approx n s) (nth_tail n s) = s :=
+theorem append_approx_drop : ∀ (n : nat) (s : stream A), append (approx n s) (drop n s) = s :=
 begin
   intro n,
   induction n with n' ih,
    {intro s, reflexivity},
-   {intro s, rewrite [approx_succ, nth_tail_succ, cons_append, ih (tail s), stream.eta]}
+   {intro s, rewrite [approx_succ, drop_succ, cons_append, ih (tail s), stream.eta]}
 end
 
 -- Take lemma reduces a proof of equality of infinite streams to an
@@ -365,5 +375,101 @@ begin
      {injection (h 1), assumption},
      {have h₁ : some (nth (succ n) s₁) = some (nth (succ n) s₂), by rewrite [-*nth_approx, h (succ (succ n))],
       injection h₁, assumption}
+end
+
+-- auxiliary definition for cycle corecursive definition
+private definition cycle_f : A × list A × A × list A → A
+| (v, _, _, _) := v
+
+-- auxiliary definition for cycle corecursive definition
+private definition cycle_g : A × list A × A × list A → A × list A × A × list A
+| (v₁, [],     v₀, l₀) := (v₀, l₀, v₀, l₀)
+| (v₁, v₂::l₂, v₀, l₀) := (v₂, l₂, v₀, l₀)
+
+private lemma cycle_g_cons (a : A) (a₁ : A) (l₁ : list A) (a₀ : A) (l₀ : list A) :
+              cycle_g (a, a₁::l₁, a₀, l₀) = (a₁, l₁, a₀, l₀) :=
+rfl
+
+definition cycle : Π (l : list A), l ≠ nil → stream A
+| []     h := absurd rfl h
+| (a::l) h := corec cycle_f cycle_g (a, l, a, l)
+
+theorem cycle_eq : ∀ (l : list A) (h : l ≠ nil), cycle l h = l ++ cycle l h
+| []     h := absurd rfl h
+| (a::l) h :=
+  have gen : ∀ l' a', corec cycle_f cycle_g (a', l', a, l) = (a' :: l') ++ₛ corec cycle_f cycle_g (a, l, a, l),
+    begin
+      intro l',
+      induction l' with a₁ l₁ ih,
+        {intro a', rewrite [corec_eq]},
+        {intro a', rewrite [corec_eq, cycle_g_cons, ih a₁]}
+    end,
+  gen l a
+
+theorem cycle_singleton (a : A) (h : [a] ≠ nil) : cycle [a] h = const a :=
+coinduction
+  rfl
+  (λ B fr ch, by rewrite [cycle_eq, const_eq]; exact ch)
+
+definition tails (s : stream A) : stream (stream A) :=
+corec id tail (tail s)
+
+theorem tails_eq (s : stream A) : tails s = tail s :: tails (tail s) :=
+by esimp [tails]; rewrite [corec_eq]
+
+theorem nth_tails : ∀ (n : nat) (s : stream A), nth n (tails s) = drop n (tail s) :=
+begin
+  intro n, induction n with n' ih,
+    {intros, reflexivity},
+    {intro s, rewrite [nth_succ, drop_succ, tails_eq, tail_cons, ih]}
+end
+
+definition inits_core (l : list A) (s : stream A) : stream (list A) :=
+corec
+  prod.pr1
+  (λ p, match p with (l', s') := (l' ++ [head s'], tail s') end)
+  (l, s)
+
+definition inits (s : stream A) : stream (list A) :=
+inits_core [head s] (tail s)
+
+theorem inits_core_eq (l : list A) (s : stream A) : inits_core l s = l :: inits_core (l ++ [head s]) (tail s) :=
+by esimp [inits_core]; rewrite [corec_eq]
+
+theorem tail_inits (s : stream A) : tail (inits s) = inits_core [head s, head (tail s)] (tail (tail s)) :=
+by esimp [inits]; rewrite inits_core_eq
+
+theorem inits_tail (s : stream A) : inits (tail s) = inits_core [head (tail s)] (tail (tail s)) :=
+rfl
+
+theorem cons_nth_inits_core : ∀ (a : A) (n : nat) (l : list A) (s : stream A),
+                                 a :: nth n (inits_core l s) = nth n (inits_core (a::l) s) :=
+begin
+  intro a n,
+  induction n with n' ih,
+   {intros, reflexivity},
+   {intro l s, rewrite [*nth_succ, inits_core_eq, +tail_cons, ih, inits_core_eq (a::l) s] }
+end
+
+theorem nth_inits : ∀ (n : nat) (s : stream A), nth n (inits s) = approx (succ n) s  :=
+begin
+  intro n, induction n with n' ih,
+    {intros, reflexivity},
+    {intros, rewrite [nth_succ, approx_succ, -ih, tail_inits, inits_tail, cons_nth_inits_core]}
+end
+
+theorem inits_eq (s : stream A) : inits s = [head s] :: map (list.cons (head s)) (inits (tail s)) :=
+begin
+  apply stream.ext, intro n,
+  cases n,
+    {reflexivity},
+    {rewrite [nth_inits, nth_succ, tail_cons, nth_map, nth_inits]}
+end
+
+theorem zip_inits_tails (s : stream A) : zip append (inits s) (tails s) = const s :=
+begin
+  apply stream.ext, intro n,
+  rewrite [nth_zip, nth_inits, nth_tails, nth_const, approx_succ,
+           cons_append, append_approx_drop, stream.eta]
 end
 end stream

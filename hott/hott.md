@@ -2,7 +2,7 @@ The Lean Homotopy Type Theory Library
 =====================================
 
 The Lean homotopy type theory library is contained in the following
-modules and directories:
+files and directories:
 
 * [init](init/init.md) : constants and theorems needed for low-level system operations
 * [types](types/types.md) : concrete datatypes and type constructors

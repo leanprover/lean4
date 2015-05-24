@@ -1,7 +1,7 @@
 init
 ====
 
-The modules in this folder are required by low-level operations, and
+The files in this folder are required by low-level operations, and
 are always imported by default. You can suppress this behavior by
 beginning a file with the keyword "prelude".
 

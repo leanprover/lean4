@@ -1,7 +1,7 @@
 The Lean Standard Library
 =========================
 
-The Lean standard library is contained in the following modules and directories:
+The Lean standard library is contained in the following files and directories:
 
 * [init](init/init.md) : constants and theorems needed for low-level system operations
 * [logic](logic/logic.md) : logical constructs and axioms

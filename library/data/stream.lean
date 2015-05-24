@@ -124,6 +124,9 @@ by rewrite [-stream.eta, map_eq]
 theorem map_id (s : stream A) : map id s = s :=
 rfl
 
+theorem map_compose (g : B → C) (f : A → B) (s : stream A) : map g (map f s) = map (g ∘ f) s :=
+rfl
+
 theorem mem_map {a : A} {s : stream A} : a ∈ s → f a ∈ map f s :=
 assume ains, obtain n (h : a = nth n s), from ains,
 exists.intro n (by rewrite [nth_map, h]; esimp)
@@ -273,6 +276,23 @@ section corec
   theorem corec_id_f_eq_iterate (f : A → A) (a : A) : corec id f a = iterate f a :=
   rfl
 end corec
+
+-- corec is also known as unfold
+definition unfolds (g : A → B) (f : A → A) (a : A) : stream B :=
+corec g f a
+
+theorem unfolds_eq (g : A → B) (f : A → A) (a : A) : unfolds g f a = g a :: unfolds g f (f a) :=
+by esimp [unfolds]; rewrite [corec_eq]
+
+theorem nth_unfolds_head_tail : ∀ (n : nat) (s : stream A), nth n (unfolds head tail s) = nth n s :=
+begin
+  intro n, induction n with n' ih,
+   {intro s, reflexivity},
+   {intro s, rewrite [*nth_succ, unfolds_eq, tail_cons, ih]}
+end
+
+theorem unfolds_head_eq : ∀ (s : stream A), unfolds head tail s = s :=
+λ s, stream.ext (λ n, nth_unfolds_head_tail n s)
 
 definition interleave (s₁ s₂ : stream A) : stream A :=
 corec
@@ -512,6 +532,9 @@ begin
     {intro s, rewrite [nth_succ, drop_succ, tails_eq, tail_cons, ih]}
 end
 
+theorem tails_eq_iterate (s : stream A) : tails s = iterate tail (tail s) :=
+rfl
+
 definition inits_core (l : list A) (s : stream A) : stream (list A) :=
 corec
   prod.pr1
@@ -559,5 +582,36 @@ begin
   apply stream.ext, intro n,
   rewrite [nth_zip, nth_inits, nth_tails, nth_const, approx_succ,
            cons_append, append_approx_drop, stream.eta]
+end
+
+definition pure (a : A) : stream A :=
+const a
+
+definition apply (f : stream (A → B)) (s : stream A) : stream B :=
+λ n, (nth n f) (nth n s)
+
+infix `⊛`:75 := apply  -- input as \o*
+
+theorem identity (s : stream A) : pure id ⊛ s = s :=
+rfl
+theorem composition (g : stream (B → C)) (f : stream (A → B)) (s : stream A) : pure compose ⊛ g ⊛ f ⊛ s = g ⊛ (f ⊛ s) :=
+rfl
+theorem homomorphism (f : A → B) (a : A) : pure f ⊛ pure a = pure (f a) :=
+rfl
+theorem interchange (fs : stream (A → B)) (a : A) : fs ⊛ pure a = pure (λ f, f a) ⊛ fs :=
+rfl
+theorem map_eq_apply (f : A → B) (s : stream A) : map f s = pure f ⊛ s :=
+rfl
+
+definition nats : stream nat :=
+λ n, n
+
+theorem nth_nats (n : nat) : nth n nats = n :=
+rfl
+
+theorem nats_eq : nats = 0 :: map succ nats :=
+begin
+  apply stream.ext, intro n,
+  cases n, reflexivity, rewrite [nth_succ]
 end
 end stream

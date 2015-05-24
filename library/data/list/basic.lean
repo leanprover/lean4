@@ -381,6 +381,14 @@ theorem nth_zero (a : T) (l : list T) : nth (a :: l) 0 = some a
 
 theorem nth_succ (a : T) (l : list T) (n : nat) : nth (a::l) (succ n) = nth l n
 
+theorem nth_eq_some : ∀ {l : list T} {n : nat}, n < length l → Σ a : T, nth l n = some a
+| []     n        h := absurd h !not_lt_zero
+| (a::l) 0        h := ⟨a, rfl⟩
+| (a::l) (succ n) h :=
+  have aux : n < length l,                 from lt_of_succ_lt_succ h,
+  obtain (r : T) (req : nth l n = some r), from nth_eq_some aux,
+  ⟨r, by rewrite [nth_succ, req]⟩
+
 open decidable
 theorem find_nth [h : decidable_eq T] {a : T} : ∀ {l}, a ∈ l → nth l (find a l) = some a
 | []     ain   := absurd ain !not_mem_nil

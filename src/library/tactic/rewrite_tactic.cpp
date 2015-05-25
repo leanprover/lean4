@@ -918,6 +918,7 @@ class rewrite_fn {
                 rule_type     = instantiate(binding_body(rule_type), meta);
                 new_rule_type = m_relaxed_tc->whnf(rule_type).first;
             }
+            rule_type = head_beta_reduce(rule_type);
             if (is_standard(m_env)) {
                 if (!is_eq(rule_type) && !is_iff(rule_type))
                     throw_rewrite_exception("invalid rewrite tactic, given lemma is not an equality or iff");
@@ -1122,6 +1123,7 @@ class rewrite_fn {
                 new_rule_type = m_relaxed_tc->whnf(rule_type , cs_seq);
                 rule       = mk_app(rule, meta);
             }
+            rule_type = head_beta_reduce(rule_type);
             lean_assert(is_eq(rule_type) || (is_standard(m_env) && is_iff(rule_type)));
             if (is_standard(m_env) && is_iff(rule_type)) {
                 rule      = apply_propext(rule, rule_type);

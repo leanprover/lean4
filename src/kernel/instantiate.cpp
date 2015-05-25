@@ -117,7 +117,7 @@ expr head_beta_reduce(expr const & t) {
         buffer<expr> args;
         expr const & f = get_app_rev_args(t, args);
         lean_assert(is_lambda(f));
-        return apply_beta(f, args.size(), args.data());
+        return head_beta_reduce(apply_beta(f, args.size(), args.data()));
     }
 }
 

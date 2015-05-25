@@ -53,11 +53,11 @@ or.elim (nonneg_or_nonneg_neg (b - a))
 
 theorem of_nat_le_of_nat {m n : ℕ} (H : #nat m ≤ n) : of_nat m ≤ of_nat n :=
 obtain (k : ℕ) (Hk : m + k = n), from nat.le.elim H,
-le.intro (Hk ▸ of_nat_add_of_nat m k)
+le.intro (Hk ▸ (of_nat_add m k)⁻¹)
 
 theorem le_of_of_nat_le_of_nat {m n : ℕ} (H : of_nat m ≤ of_nat n) : (#nat m ≤ n) :=
 obtain (k : ℕ) (Hk : of_nat m + of_nat k = of_nat n), from le.elim H,
-have H1 : m + k = n, from of_nat.inj ((of_nat_add_of_nat m k)⁻¹ ⬝ Hk),
+have H1 : m + k = n, from of_nat.inj (of_nat_add m k ⬝ Hk),
 nat.le.intro H1
 
 theorem of_nat_le_of_nat_iff (m n : ℕ) : of_nat m ≤ of_nat n ↔ m ≤ n :=
@@ -104,7 +104,7 @@ obtain (n : ℕ) (Hn : a + n = b), from le.elim H1,
 obtain (m : ℕ) (Hm : b + m = c), from le.elim H2,
 have H3 : a + of_nat (n + m) = c, from
   calc
-    a + of_nat (n + m) = a + (of_nat n + m) : {(of_nat_add_of_nat n m)⁻¹}
+    a + of_nat (n + m) = a + (of_nat n + m) : {of_nat_add n m}
       ... = a + n + m : (add.assoc a n m)⁻¹
       ... = b + m : {Hn}
       ... = c : Hm,
@@ -116,7 +116,7 @@ obtain (n : ℕ) (Hn : a + n = b), from le.elim H₁,
 obtain (m : ℕ) (Hm : b + m = a), from le.elim H₂,
 have H₃ : a + of_nat (n + m) = a + 0, from
   calc
-    a + of_nat (n + m) = a + (of_nat n + m) : of_nat_add_of_nat
+    a + of_nat (n + m) = a + (of_nat n + m) : of_nat_add
       ... = a + n + m                       : add.assoc
       ... = b + m                           : Hn
       ... = a                               : Hm
@@ -211,7 +211,7 @@ lt.intro
         ... = succ n * b                       : nat.zero_add
         ... = succ n * (0 + succ m)            : {Hm⁻¹}
         ... = succ n * succ m                  : nat.zero_add
-        ... = of_nat (succ n * succ m)         : of_nat_mul_of_nat
+        ... = of_nat (succ n * succ m)         : of_nat_mul
         ... = of_nat (succ n * m + succ n)     : nat.mul_succ
         ... = of_nat (succ (succ n * m + n))   : nat.add_succ
         ... = 0 + succ (succ n * m + n)        : zero_add))

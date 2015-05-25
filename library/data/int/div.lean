@@ -246,7 +246,7 @@ or.elim (nat.lt_or_ge m (#nat n * k))
         ... = #nat n - (m div k + 1)                    : nat.sub_sub
         ... = n - (#nat m div k + 1)                    : of_nat_sub_of_nat H4
         ... = -(m div k + 1) + n                        :
-                  by rewrite [add.comm, -sub_eq_add_neg, -of_nat_add_of_nat, of_nat_div_of_nat]
+                  by rewrite [add.comm, -sub_eq_add_neg, of_nat_add, of_nat_div_of_nat]
         ... = -[m +1] div k + n                         :
                   neg_succ_of_nat_div m (of_nat_lt_of_nat H2)))
   (assume nk_le_m : #nat n * k ≤ m,
@@ -257,7 +257,7 @@ or.elim (nat.lt_or_ge m (#nat n * k))
         ... = -((#nat (m - n * k + n * k) div k) + 1) + n : nat.sub_add_cancel nk_le_m
         ... = -((#nat (m - n * k) div k + n) + 1) + n     : nat.add_mul_div_self H2
         ... = -((#nat m - n * k) div k + 1)               :
-                   by rewrite [-of_nat_add_of_nat, *neg_add, add.right_comm, neg_add_cancel_right,
+                   by rewrite [of_nat_add, *neg_add, add.right_comm, neg_add_cancel_right,
                                of_nat_div_of_nat]
         ... = -[(#nat m - n * k) +1] div k                :
                    neg_succ_of_nat_div _ (of_nat_lt_of_nat H2)

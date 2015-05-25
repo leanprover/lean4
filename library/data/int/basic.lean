@@ -115,11 +115,11 @@ int.cases_on a
         (if H : m' = n' then inl (congr_arg neg_succ_of_nat H) else
             inr (take H1, H (neg_succ_of_nat.inj H1)))))
 
-theorem of_nat_add_of_nat (n m : nat) : #int n + m = #nat n + m := rfl
+theorem of_nat_add (n m : nat) : of_nat (n + m) = of_nat n + of_nat m := rfl
 
 theorem of_nat_succ (n : ℕ) : of_nat (succ n) = of_nat n + 1 := rfl
 
-theorem of_nat_mul_of_nat (n m : ℕ) : of_nat n * of_nat m = n * m := rfl
+theorem of_nat_mul (n m : ℕ) : of_nat (n * m) = of_nat n * of_nat m := rfl
 
 theorem sub_nat_nat_of_ge {m n : ℕ} (H : m ≥ n) : sub_nat_nat m n = of_nat (m - n) :=
 have H1 : n - m = 0, from sub_eq_zero_of_le H,
@@ -649,6 +649,6 @@ have H2 : m = (#nat m - n) + n, from congr_arg of_nat H1,
 sub_eq_of_eq_add H2
 
 theorem neg_succ_of_nat_eq' (m : ℕ) : -[m +1] = -m - 1 :=
-by rewrite [neg_succ_of_nat_eq, -of_nat_add_of_nat, neg_add]
+by rewrite [neg_succ_of_nat_eq, of_nat_add, neg_add]
 
 end int

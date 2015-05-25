@@ -1537,81 +1537,6 @@ tactic mk_rewrite_tactic(elaborate_fn const & elab, buffer<expr> const & elems) 
         });
 }
 
-tactic mk_simple_rewrite_tactic(buffer<expr> const & rw_elems) {
-    auto fn = [=](environment const & env, io_state const & ios, proof_state const & s) {
-        // dummy elaborator
-        auto elab = [](goal const &, name_generator const &, expr const & H,
-                       optional<expr> const &, substitution const & s, bool) -> elaborate_result {
-            return elaborate_result(H, s, constraints());
-        };
-        return rewrite_fn(env, ios, elab, s)(rw_elems);
-    };
-    return tactic(fn);
-}
-
-tactic mk_simple_rewrite_tactic(expr const & rw_elem) {
-    buffer<expr> rw_elems;
-    rw_elems.push_back(rw_elem);
-    return mk_simple_rewrite_tactic(rw_elems);
-}
-
-tactic mk_subst_tactic(list<name> const & ids) {
-    auto fn = [=](environment const & env, io_state const & ios, proof_state const & s) {
-        if (!ids)
-            return proof_state_seq(s);
-        goals const & gs = s.get_goals();
-        if (empty(gs))
-            return proof_state_seq();
-        goal const & g  = head(gs);
-        name const & id = head(ids);
-
-        auto apply_rewrite = [&](expr const & H, bool symm) {
-            tactic tac = then(mk_simple_rewrite_tactic(mk_rewrite_once(none_expr(), H, symm, location::mk_everywhere())),
-                              then(clear_tactic(local_pp_name(H)),
-                                   mk_subst_tactic(tail(ids))));
-            return tac(env, ios, s);
-        };
-
-        optional<pair<expr, unsigned>> p = g.find_hyp(id);
-        if (!p) {
-            throw_tactic_exception_if_enabled(s, sstream() << "invalid 'subst' tactic, there is no hypothesis named '"
-                                              << id << "'");
-            return proof_state_seq();
-        }
-        expr const & H = p->first;
-        expr lhs, rhs;
-        if (is_eq(mlocal_type(H), lhs, rhs)) {
-            if (is_local(lhs)) {
-                return apply_rewrite(H, false);
-            } else if (is_local(rhs)) {
-                return apply_rewrite(H, true);
-            } else {
-                throw_tactic_exception_if_enabled(s, sstream() << "invalid 'subst' tactic, hypothesis '"
-                                                  << id << "' is not of the form (x = t) or (t = x)");
-                return proof_state_seq();
-            }
-        } else if (is_local(H)) {
-            expr const & x = H;
-            buffer<expr> hyps;
-            g.get_hyps(hyps);
-            for (expr const & H : hyps) {
-                expr lhs, rhs;
-                if (is_eq(mlocal_type(H), lhs, rhs)) {
-                    if (is_local(lhs) && mlocal_name(lhs) == mlocal_name(x)) {
-                        return apply_rewrite(H, false);
-                    } else if (is_local(rhs) && mlocal_name(rhs) == mlocal_name(x)) {
-                        return apply_rewrite(H, true);
-                    }
-                }
-            }
-        }
-        throw_tactic_exception_if_enabled(s, sstream() << "invalid 'subst' tactic, hypothesis '"
-                                          << id << "' is not a variable nor an equation of the form (x = t) or (t = x)");
-        return proof_state_seq();
-    };
-    return tactic(fn);
-}
-
 void initialize_rewrite_tactic() {
     g_rewriter_max_iterations = new name{"rewriter", "max_iter"};
     register_unsigned_option(*g_rewriter_max_iterations, LEAN_DEFAULT_REWRITER_MAX_ITERATIONS,
@@ -1680,12 +1605,6 @@ void initialize_rewrite_tactic() {
                      }
                      bool fail_if_metavars = true;
                      return then(mk_rewrite_tactic(elab, args), try_tactic(refl_tactic(elab, fail_if_metavars)));
-                 });
-    register_tac(name{"tactic", "subst"},
-                 [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
-                     buffer<name> ns;
-                     get_tactic_id_list_elements(app_arg(e), ns, "invalid 'subst' tactic, list of identifiers expected");
-                     return then(mk_subst_tactic(to_list(ns)), try_tactic(refl_tactic(elab)));
                  });
 }
 

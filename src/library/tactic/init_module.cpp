@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/tactic/congruence_tactic.h"
 #include "library/tactic/relation_tactics.h"
 #include "library/tactic/induction_tactic.h"
+#include "library/tactic/subst_tactic.h"
 
 namespace lean {
 void initialize_tactic_module() {
@@ -59,9 +60,11 @@ void initialize_tactic_module() {
     initialize_congruence_tactic();
     initialize_relation_tactics();
     initialize_induction_tactic();
+    initialize_subst_tactic();
 }
 
 void finalize_tactic_module() {
+    finalize_subst_tactic();
     finalize_induction_tactic();
     finalize_relation_tactics();
     finalize_congruence_tactic();

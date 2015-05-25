@@ -34,6 +34,6 @@ namespace option
   | (some v₁) (some v₂) :=
     match H v₁ v₂ with
     | inl e := by left; congruence; assumption
-    | inr n := by right; intro h; injection h; refine absurd _ n; assumption
+    | inr n := by right; intro h; injection h; contradiction
     end
 end option

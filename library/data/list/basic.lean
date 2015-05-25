@@ -418,10 +418,10 @@ definition has_decidable_eq {A : Type} [H : decidable_eq A] : ∀ l₁ l₂ : li
   match H a b with
   | inl Hab  :=
     match has_decidable_eq l₁ l₂ with
-    | inl He := inl (eq.rec_on Hab (eq.rec_on He rfl))
-    | inr Hn := inr (λ H, list.no_confusion H (λ Hab Ht, absurd Ht Hn))
+    | inl He := inl (by congruence; repeat assumption)
+    | inr Hn := inr (by intro H; injection H; contradiction)
     end
-  | inr Hnab := inr (λ H, list.no_confusion H (λ Hab Ht, absurd Hab Hnab))
+  | inr Hnab := inr (by intro H; injection H; contradiction)
   end
 
 /- quasiequal a l l' means that l' is exactly l, with a added

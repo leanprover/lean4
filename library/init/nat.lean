@@ -35,7 +35,7 @@ namespace nat
   | has_decidable_eq (succ x) (succ y) :=
       match has_decidable_eq x y with
       | inl xeqy := inl (by rewrite xeqy)
-      | inr xney := inr (λ h : succ x = succ y, by injection h with xeqy; exact absurd xeqy xney)
+      | inr xney := inr (by intro h; injection h; contradiction)
       end
 
   -- less-than is well-founded

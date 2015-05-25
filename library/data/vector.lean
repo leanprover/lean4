@@ -263,8 +263,8 @@ namespace vector
     | inl Hab  :=
       match decidable_eq v₁ v₂ with
       | inl He := by left; congruence; repeat assumption
-      | inr Hn := by right; intro h; injection h; refine absurd _ Hn; assumption
+      | inr Hn := by right; intro h; injection h; contradiction
       end
-    | inr Hnab := by right; intro h; injection h; refine absurd _ Hnab; assumption
+    | inr Hnab := by right; intro h; injection h; contradiction
   end
 end vector

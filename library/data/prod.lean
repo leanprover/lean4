@@ -24,9 +24,9 @@ namespace prod
     | inl e₁ :=
       match h₂ b b' with
       | inl e₂ := by left; congruence; repeat assumption
-      | inr n₂ := by right; intro h; injection h; refine absurd _ n₂; assumption
+      | inr n₂ := by right; intro h; injection h; contradiction
       end
-    | inr n₁ := by right; intro h; injection h; refine absurd _ n₁; assumption
+    | inr n₁ := by right; intro h; injection h; contradiction
     end
 
   definition swap {A : Type} : A × A → A × A

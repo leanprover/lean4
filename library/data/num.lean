@@ -64,16 +64,16 @@ namespace pos_num
   | (bit0 a) one      := inr (by contradiction)
   | (bit0 a) (bit0 b) :=
     match decidable_eq a b with
-    | inl H₁  := inl (eq.rec_on H₁ rfl)
-    | inr H₁  := inr (λ H, pos_num.no_confusion H (λ H₂, absurd H₂ H₁))
+    | inl H₁  := inl (by rewrite H₁)
+    | inr H₁  := inr (by intro H; injection H; contradiction)
     end
   | (bit0 a) (bit1 b) := inr (by contradiction)
   | (bit1 a) one      := inr (by contradiction)
   | (bit1 a) (bit0 b) := inr (by contradiction)
   | (bit1 a) (bit1 b) :=
     match decidable_eq a b with
-    | inl H₁  := inl (eq.rec_on H₁ rfl)
-    | inr H₁  := inr (λ H, pos_num.no_confusion H (λ H₂, absurd H₂ H₁))
+    | inl H₁  := inl (by rewrite H₁)
+    | inr H₁  := inr (by intro H; injection H; contradiction)
     end
 
   local notation a < b         := (lt a b = tt)

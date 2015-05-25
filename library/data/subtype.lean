@@ -33,6 +33,6 @@ namespace subtype
     begin
       apply (@by_cases (v₁ = v₂)),
         {intro e, revert p₁, rewrite e, intro p₁, left, congruence},
-        {intro n, right, intro h, injection h, refine absurd _ n, assumption}
+        {intro n, right, intro h, injection h, contradiction}
     end
 end subtype

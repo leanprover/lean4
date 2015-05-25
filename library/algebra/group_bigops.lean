@@ -130,7 +130,7 @@ section comm_monoid
       (∀{x}, x ∈ s → f x = g x) → Prod s f = Prod s g :=
     finset.induction_on s
       (assume H, rfl)
-      (take s' x, assume H1 : x ∉ s',
+      (take x s', assume H1 : x ∉ s',
         assume IH : (∀ {x : A}, x ∈ s' → f x = g x) → Prod s' f = Prod s' g,
         assume H2 : ∀{y}, y ∈ insert x s' → f y = g y,
         assert H3 : ∀y, y ∈ s' → f y = g y, from

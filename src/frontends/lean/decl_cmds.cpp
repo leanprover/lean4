@@ -816,6 +816,10 @@ expr parse_local_equations(parser & p, expr const & fn) {
     return p.save_pos(mk_equations(fns.size(), eqns.size(), eqns.data()), pos);
 }
 
+static name * g_match_name = nullptr;
+
+bool is_match_binder_name(name const & n) { return n == *g_match_name; }
+
 /** \brief Use equations compiler infrastructure to implement match-with */
 expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
     buffer<expr> eqns;
@@ -823,7 +827,7 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
     try {
         t  = p.parse_expr();
         p.check_token_next(get_with_tk(), "invalid 'match' expression, 'with' expected");
-        expr fn = mk_local(p.mk_fresh_name(), "match", mk_expr_placeholder(), binder_info());
+        expr fn = mk_local(p.mk_fresh_name(), *g_match_name, mk_expr_placeholder(), binder_info());
         if (p.curr_is_token(get_end_tk())) {
             p.next();
             // empty match-with
@@ -1465,5 +1469,12 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("attribute",    "set declaration attributes", attribute_cmd));
     add_cmd(r, cmd_info("abbreviation", "declare a new abbreviation", abbreviation_cmd));
     add_cmd(r, cmd_info("omit",         "undo 'include' command", omit_cmd));
+}
+
+void initialize_decl_cmds() {
+    g_match_name = new name(name::mk_internal_unique_name(), "match");
+}
+void finalize_decl_cmds() {
+    delete g_match_name;
 }
 }

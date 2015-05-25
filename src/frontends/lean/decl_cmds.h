@@ -19,6 +19,9 @@ bool parse_univ_params(parser & p, buffer<name> & ps);
 expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos);
 expr parse_local_equations(parser & p, expr const & fn);
 
+/** \brief Return true iff \c n is the auxiliary name used to elaborate match-expressions. */
+bool is_match_binder_name(name const & n);
+
 /**   \brief Add universe levels from \c found_ls to \c ls_buffer (only the levels that do not already occur in \c ls_buffer are added).
    Then sort \c ls_buffer (using the order in which the universe levels were declared).
 */
@@ -30,4 +33,7 @@ environment local_abbreviation_cmd(parser & p);
 /** \brief Parse a local attribute command */
 environment local_attribute_cmd(parser & p);
 void register_decl_cmds(cmd_table & r);
+
+void initialize_decl_cmds();
+void finalize_decl_cmds();
 }

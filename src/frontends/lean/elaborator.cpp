@@ -52,6 +52,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/begin_end_ext.h"
 #include "frontends/lean/elaborator_exception.h"
 #include "frontends/lean/calc.h"
+#include "frontends/lean/decl_cmds.h"
 
 namespace lean {
 /** \brief Custom converter that does not unfold constants that contains coercions from it.
@@ -828,9 +829,11 @@ expr elaborator::visit_binding(expr e, expr_kind k, constraint_seq & cs) {
 
         ds.push_back(d);
         expr l   = mk_local(binding_name(e), d, binding_info(e));
-        if (binding_info(e).is_contextual())
-            m_context.add_local(l);
-        m_full_context.add_local(l);
+        if (!is_match_binder_name(binding_name(e))) {
+            if (binding_info(e).is_contextual())
+                m_context.add_local(l);
+            m_full_context.add_local(l);
+        }
         ls.push_back(l);
         e = binding_body(e);
     }
@@ -1090,9 +1093,16 @@ static expr assign_equation_lhs_metas(type_checker & tc, expr const & eqns) {
                                 options o = fmt.get_options().update_if_undef(get_pp_implicit_name(), true);
                                 o = o.update_if_undef(get_pp_notation_option_name(), false);
                                 formatter new_fmt = fmt.update_options(o);
-                                format r("invalid recursive equation, left-hand-side contains meta-variable");
-                                r += format(" (possible solution: provide implicit parameters occurring in left-hand-side explicitly)");
-                                r += pp_indent_expr(new_fmt, lhs);
+                                expr const & f = get_app_fn(lhs);
+                                format r;
+                                if (is_local(f) && is_match_binder_name(local_pp_name(f))) {
+                                    r = format("invalid 'match' expression, left-hand-side contains meta-variable");
+                                    r += pp_indent_expr(new_fmt, app_arg(lhs));
+                                } else {
+                                    r = format("invalid recursive equation, left-hand-side contains meta-variable");
+                                    r += format(" (possible solution: provide implicit parameters occurring in left-hand-side explicitly)");
+                                    r += pp_indent_expr(new_fmt, lhs);
+                                }
                                 return r;
                             });
                     }
@@ -1235,7 +1245,10 @@ expr elaborator::visit_equation(expr const & eq, constraint_seq & cs) {
     expr rhs_type = infer_type(new_rhs, cs);
     justification j = mk_justification(eq, [=](formatter const & fmt, substitution const & subst) {
             substitution s(subst);
-            return pp_def_type_mismatch(fmt, local_pp_name(lhs_fn), s.instantiate(lhs_type), s.instantiate(rhs_type));
+            name n = local_pp_name(lhs_fn);
+            if (is_match_binder_name(n))
+                n = "match";
+            return pp_def_type_mismatch(fmt, n, s.instantiate(lhs_type), s.instantiate(rhs_type));
         });
     pair<expr, constraint_seq> new_rhs_cs = ensure_has_type(new_rhs, rhs_type, lhs_type, j);
     new_rhs = new_rhs_cs.first;

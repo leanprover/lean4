@@ -276,6 +276,34 @@ expr mk_false_rec(type_checker & tc, expr const & f, expr const & t) {
     }
 }
 
+bool is_not(environment const & env, expr const & e, expr & a) {
+    if (is_app(e)) {
+        expr const & f = app_fn(e);
+        if (!is_constant(f) || const_name(f) != get_not_name())
+            return false;
+        a = app_arg(e);
+        return true;
+    } else if (is_pi(e)) {
+        if (!is_false(env, binding_body(e)))
+            return false;
+        a = binding_domain(e);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+expr mk_absurd(type_checker & tc, expr const & t, expr const & e, expr const & not_e) {
+    level t_lvl  = sort_level(tc.ensure_type(t).first);
+    expr  e_type = tc.infer(e).first;
+    if (is_standard(tc.env())) {
+        return mk_app(mk_constant(get_absurd_name(), {t_lvl}), e_type, t, e, not_e);
+    } else {
+        level e_lvl = sort_level(tc.ensure_type(e_type).first);
+        return mk_app(mk_constant(get_absurd_name(), {e_lvl, t_lvl}), e_type, t, e, not_e);
+    }
+}
+
 optional<expr> lift_down_if_hott(type_checker & tc, expr const & v) {
     if (is_standard(tc.env())) {
         return some_expr(v);

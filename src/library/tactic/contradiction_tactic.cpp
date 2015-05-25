@@ -25,15 +25,29 @@ tactic contradiction_tactic() {
         substitution subst  = s.get_subst();
         name_generator ngen = s.get_ngen();
         auto tc             = mk_type_checker(env, ngen.mk_child());
+        auto conserv_tc     = mk_type_checker(env, ngen.mk_child(), UnfoldReducible);
         buffer<expr> hyps;
         g.get_hyps(hyps);
         for (expr const & h : hyps) {
             expr h_type = mlocal_type(h);
             h_type      = tc->whnf(h_type).first;
-            expr lhs, rhs;
+            expr lhs, rhs, arg;
             if (is_false(env, h_type)) {
                 assign(subst, g, mk_false_rec(*tc, h, t));
                 return some_proof_state(proof_state(s, tail(gs), subst, ngen));
+            } else if (is_not(env, h_type, arg)) {
+                optional<expr> h_pos;
+                for (expr const & h_prime : hyps) {
+                    constraint_seq cs;
+                    if (conserv_tc->is_def_eq(arg, mlocal_type(h_prime), justification(), cs) && !cs) {
+                        h_pos = h_prime;
+                        break;
+                    }
+                }
+                if (h_pos) {
+                    assign(subst, g, mk_absurd(*tc, t, *h_pos, h));
+                    return some_proof_state(proof_state(s, tail(gs), subst, ngen));
+                }
             } else if (is_eq(h_type, lhs, rhs)) {
                 lhs = tc->whnf(lhs).first;
                 rhs = tc->whnf(rhs).first;

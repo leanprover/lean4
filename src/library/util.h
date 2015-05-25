@@ -136,6 +136,13 @@ bool is_false(environment const & env, expr const & e);
 /** \brief Return an element of type t given an element \c f : false (in standard mode) and empty (in HoTT) mode */
 expr mk_false_rec(type_checker & tc, expr const & f, expr const & t);
 
+/** \brief Return true if \c e is of the form <tt>(not arg)</tt>, and store \c arg in \c a.
+     Return false otherwise */
+bool is_not(environment const & env, expr const & e, expr & a);
+
+/** \brief Create the term <tt>absurd e not_e : t</tt>. */
+expr mk_absurd(type_checker & tc, expr const & t, expr const & e, expr const & not_e);
+
 expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs);
 expr mk_refl(type_checker & tc, expr const & a);
 expr mk_symm(type_checker & tc, expr const & H);

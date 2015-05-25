@@ -116,6 +116,7 @@ definition right                        : tactic := builtin
 definition injection (e : expr) (ids : opt_identifier_list) : tactic := builtin
 
 definition subst (ids : identifier_list) : tactic := builtin
+definition substvars : tactic := builtin
 
 definition reflexivity             : tactic := builtin
 definition symmetry                : tactic := builtin

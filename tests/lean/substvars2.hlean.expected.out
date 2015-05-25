@@ -1,0 +1,8 @@
+substvars2.hlean:11:2: proof state
+A B : Type,
+a : A,
+b : list B,
+h₁ : A = list B,
+h₂ : eq.rec_on h₁ a = list.nil B,
+h₄ : 0 + 1 = 0 + 2
+⊢ b = eq.rec_on h₁ a × 0 = 1

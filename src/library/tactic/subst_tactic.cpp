@@ -181,12 +181,54 @@ tactic mk_subst_tactic(list<name> const & ids) {
     return tactic(fn);
 }
 
+tactic mk_subst_vars_tactic(bool first, unsigned start) {
+    auto fn = [=](environment const & env, io_state const & ios, proof_state const & s) {
+        goals const & gs = s.get_goals();
+        if (empty(gs)) {
+            if (first)
+                return proof_state_seq();
+            else
+                return proof_state_seq(s);
+        }
+        goal const & g  = head(gs);
+
+        auto apply_rewrite = [&](expr const & H, bool symm, unsigned i) {
+            tactic tac = orelse(then(mk_subst_tactic_core(mlocal_name(H), symm), mk_subst_vars_tactic(false, 0)),
+                                mk_subst_vars_tactic(false, i+1));
+            return tac(env, ios, s);
+        };
+
+        buffer<expr> hyps;
+        g.get_hyps(hyps);
+        for (unsigned i = start; i < hyps.size(); i++) {
+            expr const & h = hyps[i];
+            expr lhs, rhs;
+            if (is_eq(mlocal_type(h), lhs, rhs)) {
+                if (is_local(rhs)) {
+                    return apply_rewrite(h, true, i);
+                } else if (is_local(lhs)) {
+                    return apply_rewrite(h, false, i);
+                }
+            }
+        }
+        if (first)
+            return proof_state_seq();
+        else
+            return proof_state_seq(s);
+    };
+    return tactic(fn);
+}
+
 void initialize_subst_tactic() {
     register_tac(name{"tactic", "subst"},
                  [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
                      buffer<name> ns;
                      get_tactic_id_list_elements(app_arg(e), ns, "invalid 'subst' tactic, list of identifiers expected");
                      return then(mk_subst_tactic(to_list(ns)), try_tactic(refl_tactic(elab)));
+                 });
+    register_tac(name{"tactic", "substvars"},
+                 [](type_checker &, elaborate_fn const & elab, expr const &, pos_info_provider const *) {
+                     return then(mk_subst_vars_tactic(true, 0), try_tactic(refl_tactic(elab)));
                  });
 }
 void finalize_subst_tactic() {

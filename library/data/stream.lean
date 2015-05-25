@@ -84,7 +84,7 @@ exists.intro 0 rfl
 
 theorem mem_cons_of_mem {a : A} {s : stream A} (b : A) : a ∈ s → a ∈ b :: s :=
 assume ains, obtain n (h : a = nth n s), from ains,
-exists.intro (succ n) (by rewrite [nth_succ, tail_cons, h]; esimp)
+exists.intro (succ n) (by rewrite [nth_succ, tail_cons, h])
 
 theorem eq_or_mem_of_mem_cons {a b : A} {s : stream A} : a ∈ b::s → a = b ∨ a ∈ s :=
 assume ainbs, obtain n (h : a = nth n (b::s)), from ainbs,
@@ -129,7 +129,7 @@ rfl
 
 theorem mem_map {a : A} {s : stream A} : a ∈ s → f a ∈ map f s :=
 assume ains, obtain n (h : a = nth n s), from ains,
-exists.intro n (by rewrite [nth_map, h]; esimp)
+exists.intro n (by rewrite [nth_map, h])
 end map
 
 section zip
@@ -330,12 +330,12 @@ theorem nth_interleave_right : ∀ (n : nat) (s₁ s₂ : stream A), nth (2*n+1)
   end
 
 theorem mem_interleave_left {a : A} {s₁ : stream A} (s₂ : stream A) : a ∈ s₁ → a ∈ s₁ ⋈ s₂ :=
-assume ains₁, obtain n (h : a = nth n s₁), from ains₁,
-exists.intro (2*n) (by rewrite [h, nth_interleave_left]; esimp)
+assume ains₁, obtain n h, from ains₁,
+exists.intro (2*n) (by rewrite [h, nth_interleave_left])
 
 theorem mem_interleave_right {a : A} {s₁ : stream A} (s₂ : stream A) : a ∈ s₂ → a ∈ s₁ ⋈ s₂ :=
-assume ains₂, obtain n (h : a = nth n s₂), from ains₂,
-exists.intro (2*n+1) (by rewrite [h, nth_interleave_right]; esimp)
+assume ains₂, obtain n h, from ains₂,
+exists.intro (2*n+1) (by rewrite [h, nth_interleave_right])
 
 definition even (s : stream A) : stream A :=
 corec
@@ -371,8 +371,7 @@ eq_of_bisim
       constructor,
        {reflexivity},
        {existsi (tail s₂),
-        rewrite [interleave_eq, even_cons_cons, tail_cons],
-        apply rfl}
+        rewrite [interleave_eq, even_cons_cons, tail_cons]}
     end)
   (exists.intro s₂ rfl)
 
@@ -399,12 +398,12 @@ theorem nth_odd : ∀ (n : nat) (s : stream A), nth n (odd s) = nth (2*n + 1) s 
 λ n s, by rewrite [odd_eq, nth_even]
 
 theorem mem_of_mem_even (a : A) (s : stream A) : a ∈ even s → a ∈ s :=
-assume aines, obtain n (h : a = nth n (even s)), from aines,
-exists.intro (2*n) (by rewrite [h, nth_even]; esimp)
+assume aines, obtain n h, from aines,
+exists.intro (2*n) (by rewrite [h, nth_even])
 
 theorem mem_of_mem_odd (a : A) (s : stream A) : a ∈ odd s → a ∈ s :=
-assume ainos, obtain n (h : a = nth n (odd s)), from ainos,
-exists.intro (2*n+1) (by rewrite [h, nth_odd]; esimp)
+assume ainos, obtain n h, from ainos,
+exists.intro (2*n+1) (by rewrite [h, nth_odd])
 
 open list
 definition append : list A → stream A → stream A

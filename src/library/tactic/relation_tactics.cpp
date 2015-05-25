@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "kernel/instantiate.h"
 #include "library/relation_manager.h"
 #include "library/explicit.h"
 #include "library/placeholder.h"
@@ -21,7 +22,7 @@ static optional<name> get_goal_op(proof_state const & s, bool no_meta = false) {
     goal const & g   = head(gs);
     if (no_meta && has_metavar(g.get_type()))
         return optional<name>();
-    expr const & op  = get_app_fn(g.get_type());
+    expr op  = get_app_fn(head_beta_reduce(g.get_type()));
     if (is_constant(op))
         return optional<name>(const_name(op));
     else

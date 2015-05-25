@@ -1846,6 +1846,7 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
         return false;
     } else {
         subst = ps.get_subst();
+        lean_assert(subst.is_assigned(mvar));
         expr v = subst.instantiate(mvar);
         subst.assign(mlocal_name(mvar), v);
         return true;

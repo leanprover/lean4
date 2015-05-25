@@ -46,7 +46,7 @@ theorem sqrt_aux_upper : ∀ {s n : nat}, n ≤ s*s + s + s → n ≤ sqrt_aux s
   (λ h₁ : (succ s)*(succ s) ≤ n,
     by rewrite [sqrt_aux_succ_of_pos h₁]; exact h)
   (λ h₂ : ¬ (succ s)*(succ s) ≤ n,
-    assert h₃ : n < (succ s) * (succ s), from lt_of_not_le h₂,
+    assert h₃ : n < (succ s) * (succ s), from lt_of_not_ge h₂,
     assert h₄ : n ≤ s * s + s + s, by rewrite [succ_mul_succ_eq at h₃]; exact h₃,
     by rewrite [sqrt_aux_succ_of_neg h₂]; exact (sqrt_aux_upper h₄))
 
@@ -75,7 +75,7 @@ theorem sqrt_aux_offset_eq {n k : nat} (h₁ : k ≤ n + n) : ∀ {s}, s ≥ n �
        assume g : succ s > succ n,
          have g₁ : (succ s)*(succ s) > (succ n)*(succ n), from mul_lt_mul_of_le_of_le g g,
          absurd (lt.trans g₁ l₄) !lt.irrefl,
-     have sslesn  : succ s ≤ succ n, from le_of_not_lt ng,
+     have sslesn  : succ s ≤ succ n, from le_of_not_gt ng,
      have ssnesn  : succ s ≠ succ n, from
        assume sseqsn : succ s = succ n,
          by rewrite [sseqsn at l₄]; exact (absurd l₄ !lt.irrefl),

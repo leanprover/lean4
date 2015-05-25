@@ -275,7 +275,7 @@ section discrete_linear_ordered_field
       decidable.by_cases
       (assume H' : y < x, decidable.inr (ne.symm (ne_of_lt H')))
       (assume H' : ¬ y < x,
-        decidable.inl (le.antisymm (le_of_not_lt H') (le_of_not_lt H))))
+        decidable.inl (le.antisymm (le_of_not_gt H') (le_of_not_gt H))))
 
   definition discrete_linear_ordered_field.to_discrete_field [instance] [reducible] [coercion]
     [s : discrete_linear_ordered_field A] :  discrete_field A :=
@@ -343,24 +343,24 @@ section discrete_linear_ordered_field
 
 
   theorem div_lt_div_of_lt (Ha : 0 < a) (H : a < b) : 1 / b < 1 / a :=
-    lt_of_not_le
+    lt_of_not_ge
       (assume H',
-      absurd H (not_lt_of_le (le_of_div_le Ha H')))
+      absurd H (not_lt_of_ge (le_of_div_le Ha H')))
 
   theorem div_le_div_of_le (Ha : 0 < a) (H : a ≤ b) : 1 / b ≤ 1 / a :=
-    le_of_not_lt
+    le_of_not_gt
       (assume H',
-      absurd H (not_le_of_lt (lt_of_div_lt Ha H')))
+      absurd H (not_le_of_gt (lt_of_div_lt Ha H')))
 
   theorem div_lt_div_of_lt_neg (Hb : b < 0) (H : a < b) : 1 / b < 1 / a :=
-    lt_of_not_le
+    lt_of_not_ge
       (assume H',
-      absurd H (not_lt_of_le (le_of_div_le_neg Hb H')))
+      absurd H (not_lt_of_ge (le_of_div_le_neg Hb H')))
 
   theorem div_le_div_of_le_neg (Hb : b < 0) (H : a ≤ b) : 1 / b ≤ 1 / a :=
-    le_of_not_lt
+    le_of_not_gt
       (assume H',
-      absurd H (not_le_of_lt (lt_of_div_lt_neg Hb H')))
+      absurd H (not_le_of_gt (lt_of_div_lt_neg Hb H')))
 
 
   theorem one_lt_div (H1 : 0 < a) (H2 : a < 1) : 1 < 1 / a :=

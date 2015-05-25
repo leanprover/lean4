@@ -110,40 +110,40 @@ section
   include s
 
   theorem lt_of_mul_lt_mul_left (H : c * a < c * b) (Hc : c ≥ 0) : a < b :=
-  lt_of_not_le
+  lt_of_not_ge
     (assume H1 : b ≤ a,
       have H2 : c * b ≤ c * a, from mul_le_mul_of_nonneg_left H1 Hc,
-      not_lt_of_le H2 H)
+      not_lt_of_ge H2 H)
 
   theorem lt_of_mul_lt_mul_right (H : a * c < b * c) (Hc : c ≥ 0) : a < b :=
-  lt_of_not_le
+  lt_of_not_ge
     (assume H1 : b ≤ a,
       have H2 : b * c ≤ a * c, from mul_le_mul_of_nonneg_right H1 Hc,
-      not_lt_of_le H2 H)
+      not_lt_of_ge H2 H)
 
   theorem le_of_mul_le_mul_left (H : c * a ≤ c * b) (Hc : c > 0) : a ≤ b :=
-  le_of_not_lt
+  le_of_not_gt
     (assume H1 : b < a,
       have H2 : c * b < c * a, from mul_lt_mul_of_pos_left H1 Hc,
-      not_le_of_lt H2 H)
+      not_le_of_gt H2 H)
 
   theorem le_of_mul_le_mul_right (H : a * c ≤ b * c) (Hc : c > 0) : a ≤ b :=
-  le_of_not_lt
+  le_of_not_gt
     (assume H1 : b < a,
       have H2 : b * c < a * c, from mul_lt_mul_of_pos_right H1 Hc,
-      not_le_of_lt H2 H)
+      not_le_of_gt H2 H)
 
   theorem pos_of_mul_pos_left (H : 0 < a * b) (H1 : 0 ≤ a) : 0 < b :=
-  lt_of_not_le
+  lt_of_not_ge
     (assume H2 : b ≤ 0,
       have H3 : a * b ≤ 0, from mul_nonpos_of_nonneg_of_nonpos H1 H2,
-      not_lt_of_le H3 H)
+      not_lt_of_ge H3 H)
 
   theorem pos_of_mul_pos_right (H : 0 < a * b) (H1 : 0 ≤ b) : 0 < a :=
-  lt_of_not_le
+  lt_of_not_ge
     (assume H2 : a ≤ 0,
       have H3 : a * b ≤ 0, from mul_nonpos_of_nonpos_of_nonneg H2 H1,
-      not_lt_of_le H3 H)
+      not_lt_of_ge H3 H)
 end
 
 structure ordered_ring [class] (A : Type) extends ring A, ordered_comm_group A, zero_ne_one_class A :=

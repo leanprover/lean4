@@ -27,7 +27,7 @@ by_cases
       rewrite [if_pos h₁, add_sub_of_le (sqrt_lower n)]
     end)
   (λ h₂ : ¬ n - s*s < s,
-    have   g₁ : s ≤ n - s*s,             from le_of_not_lt h₂,
+    have   g₁ : s ≤ n - s*s,             from le_of_not_gt h₂,
     assert g₂ : s + s*s ≤ n - s*s + s*s, from add_le_add_right g₁ (s*s),
     assert g₃ : s*s + s ≤ n,             by rewrite [sub_add_cancel (sqrt_lower n) at g₂, add.comm at g₂]; exact g₂,
     have l₁   : n ≤ s*s + s + s,         from sqrt_upper n,
@@ -38,7 +38,7 @@ by_cases
     have l₃   : n - s*s - s ≤ s,         from calc
         n - s*s - s ≤ (s + s) - s        : sub_le_sub_right l₂ s
                 ... = s                  : by rewrite add_sub_cancel_left,
-    assert l₄ : ¬ s < n - s*s - s,       from not_lt_of_le l₃,
+    assert l₄ : ¬ s < n - s*s - s,       from not_lt_of_ge l₃,
     begin
       esimp [unpair],
       rewrite [if_neg h₂], esimp,
@@ -59,10 +59,10 @@ by_cases
     rewrite [sqrt_offset_eq aux₁, add_sub_cancel_left, if_pos h]
   end)
  (λ h : ¬ a < b,
-  have h₁ : b ≤ a, from le_of_not_lt h,
+  have h₁ : b ≤ a, from le_of_not_gt h,
   assert aux₁ : a + b ≤ a + a, from add_le_add_left h₁ a,
   have   aux₂ : a + b ≥ a,     from !le_add_right,
-  assert aux₃ : ¬ a + b < a,   from not_lt_of_le aux₂,
+  assert aux₃ : ¬ a + b < a,   from not_lt_of_ge aux₂,
   begin
     esimp [mkpair],
     rewrite [if_neg h],

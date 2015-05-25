@@ -32,7 +32,7 @@ theorem div_zero (a : ℕ) : a div 0 = 0 :=
 divide_def a 0 ⬝ if_neg (!not_and_of_not_left (lt.irrefl 0))
 
 theorem div_eq_zero_of_lt {a b : ℕ} (h : a < b) : a div b = 0 :=
-divide_def a b ⬝ if_neg (!not_and_of_not_right (not_le_of_lt h))
+divide_def a b ⬝ if_neg (!not_and_of_not_right (not_le_of_gt h))
 
 theorem zero_div (b : ℕ) : 0 div b = 0 :=
 divide_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt_of_lt_of_le l r) (lt.irrefl 0)))
@@ -87,7 +87,7 @@ theorem mod_zero (a : ℕ) : a mod 0 = a :=
 modulo_def a 0 ⬝ if_neg (!not_and_of_not_left (lt.irrefl 0))
 
 theorem mod_eq_of_lt {a b : ℕ} (h : a < b) : a mod b = a :=
-modulo_def a b ⬝ if_neg (!not_and_of_not_right (not_le_of_lt h))
+modulo_def a b ⬝ if_neg (!not_and_of_not_right (not_le_of_gt h))
 
 theorem zero_mod (b : ℕ) : 0 mod b = 0 :=
 modulo_def 0 b ⬝ if_neg (λ h, and.rec_on h (λ l r, absurd (lt_of_lt_of_le l r) (lt.irrefl 0)))
@@ -139,7 +139,7 @@ nat.case_strong_induction_on x
           have H2 : succ x mod y = succ x, from mod_eq_of_lt H1,
           show succ x mod y < y, from H2⁻¹ ▸ H1)
         (assume H1 : ¬ succ x < y,
-          have H2 : y ≤ succ x, from le_of_not_lt H1,
+          have H2 : y ≤ succ x, from le_of_not_gt H1,
           have H3 : succ x mod y = (succ x - y) mod y, from mod_eq_sub_mod H H2,
           have H4 : succ x - y < succ x, from sub_lt !succ_pos H,
           have H5 : succ x - y ≤ x, from le_of_lt_succ H4,
@@ -169,7 +169,7 @@ by_cases_zero_pos y
                 have H3 : succ x mod y = succ x, from mod_eq_of_lt H1,
                 by simp)
               (assume H1 : ¬ succ x < y,
-                have H2 : y ≤ succ x, from le_of_not_lt H1,
+                have H2 : y ≤ succ x, from le_of_not_gt H1,
                 have H3 : succ x div y = succ ((succ x - y) div y), from div_eq_succ_sub_div H H2,
                 have H4 : succ x mod y = (succ x - y) mod y, from mod_eq_sub_mod H H2,
                 have H5 : succ x - y < succ x, from sub_lt !succ_pos H,
@@ -392,7 +392,7 @@ by_cases
     have H4 : n1 = n1 - n2 + n2, from (sub_add_cancel H3)⁻¹,
     show m ∣ n1 - n2, from dvd_of_dvd_add_right (H4 ▸ H1) H2)
   (assume H3 : ¬ (n1 ≥ n2),
-    have H4 : n1 - n2 = 0, from sub_eq_zero_of_le (le_of_lt (lt_of_not_le H3)),
+    have H4 : n1 - n2 = 0, from sub_eq_zero_of_le (le_of_lt (lt_of_not_ge H3)),
     show m ∣ n1 - n2, from H4⁻¹ ▸ dvd_zero _)
 
 theorem dvd.antisymm {m n : ℕ} : m ∣ n → n ∣ m → m = n :=

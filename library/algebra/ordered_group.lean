@@ -420,7 +420,7 @@ section
 
   theorem abs_of_pos (H : a > 0) : abs a = a := if_pos (le_of_lt H)
 
-  theorem abs_of_neg (H : a < 0) : abs a = -a := if_neg (not_le_of_lt H)
+  theorem abs_of_neg (H : a < 0) : abs a = -a := if_neg (not_le_of_gt H)
 
   theorem abs_zero : abs 0 = (0:A) := abs_of_nonneg (le.refl _)
 
@@ -496,7 +496,7 @@ section
                 ... = abs a + b         : by rewrite (abs_of_nonneg H2)
                 ... = abs a + abs b     : by rewrite (abs_of_nonneg H3))
       (assume H3 : ¬ b ≥ 0,
-        assert H4 : b ≤ 0, from le_of_lt (lt_of_not_le H3),
+        assert H4 : b ≤ 0, from le_of_lt (lt_of_not_ge H3),
         calc
           abs (a + b) = a + b     : by rewrite (abs_of_nonneg H1)
               ... = abs a + b     : by rewrite (abs_of_nonneg H2)
@@ -510,8 +510,8 @@ section
         have H3 : ¬ a < 0, from
           assume H4 : a < 0,
           have H5 : a + b < 0, from !add_zero ▸ add_lt_add_of_lt_of_le H4 H2,
-          not_lt_of_le H1 H5,
-        aux1 H1 (le_of_not_lt H3))
+          not_lt_of_ge H1 H5,
+        aux1 H1 (le_of_not_gt H3))
       (assume H2 : 0 ≤ b,
         begin
           have H3 : abs (b + a) ≤ abs b + abs a,

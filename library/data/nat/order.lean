@@ -279,9 +279,9 @@ nat.cases_on n
     !pred_succ⁻¹ ▸ succ_le_of_le_pred H)
 
 theorem lt_of_pred_lt_pred {n m : ℕ} (H : pred n < pred m) : n < m :=
-lt_of_not_le
+lt_of_not_ge
   (take H1 : m ≤ n,
-    not_lt_of_le (pred_le_pred_of_le H1) H)
+    not_lt_of_ge (pred_le_pred_of_le H1) H)
 
 theorem le_or_eq_succ_of_le_succ {n m : ℕ} (H : n ≤ succ m) : n ≤ m ∨ n = succ m :=
 or_of_or_of_imp_left (succ_le_or_eq_of_le H)
@@ -407,7 +407,7 @@ or.elim (le_or_gt n 1)
   (assume H5 : n > 1,
     have H6 : n * m ≥ 2 * 1, from mul_le_mul (succ_le_of_lt H5) (succ_le_of_lt H4),
     have H7 : 1 ≥ 2, from !mul_one ▸ H ▸ H6,
-    absurd !lt_succ_self (not_lt_of_le H7))
+    absurd !lt_succ_self (not_lt_of_ge H7))
 
 theorem eq_one_of_mul_eq_one_left {n m : ℕ} (H : n * m = 1) : m = 1 :=
 eq_one_of_mul_eq_one_right (!mul.comm ▸ H)

@@ -95,7 +95,7 @@ section
   theorem lt.asymm {a b : A} (H : a < b) : ¬ b < a :=
   assume H1 : b < a, lt.irrefl _ (lt.trans H H1)
 
-  theorem not_lt_of_lt {a b : A} (H : a < b) : ¬ b < a := !lt.asymm H    -- alternate syntax
+  theorem not_lt_of_gt {a b : A} (H : a > b) : ¬ a < b := !lt.asymm H    -- alternate syntax
 end
 
 /- well-founded orders -/
@@ -178,12 +178,12 @@ section
 
   theorem gt_of_ge_of_gt [trans] (H1 : a ≥ b) (H2 : b > c) : a > c := lt_of_lt_of_le H2 H1
 
-  theorem not_le_of_lt (H : a < b) : ¬ b ≤ a :=
-  assume H1 : b ≤ a,
+  theorem not_le_of_gt (H : a > b) : ¬ a ≤ b :=
+  assume H1 : a ≤ b,
   lt.irrefl _ (lt_of_lt_of_le H H1)
 
-  theorem not_lt_of_le (H : a ≤ b) : ¬ b < a :=
-  assume H1 : b < a,
+  theorem not_lt_of_ge (H : a ≥ b) : ¬ a < b :=
+  assume H1 : a < b,
   lt.irrefl _ (lt_of_le_of_lt H H1)
 end
 
@@ -274,10 +274,10 @@ section
      : linear_order_pair A :=
   ⦃ linear_order_pair, s ⦄
 
-  theorem le_of_not_lt {a b : A} (H : ¬ a < b) : b ≤ a :=
+  theorem le_of_not_gt {a b : A} (H : ¬ a > b) : a ≤ b :=
   lt.by_cases (assume H', absurd H' H) (assume H', H' ▸ !le.refl) (assume H', le_of_lt H')
 
-  theorem lt_of_not_le {a b : A} (H : ¬ a ≤ b) : b < a :=
+  theorem lt_of_not_ge {a b : A} (H : ¬ a ≥ b) : a < b :=
   lt.by_cases
     (assume H', absurd (le_of_lt H') H)
     (assume H', absurd (H' ▸ !le.refl) H)
@@ -312,10 +312,10 @@ section
   by_cases
     (assume H : a < b, inl (le_of_lt H))
     (assume H : ¬ a < b,
-      have H1 : b ≤ a, from le_of_not_lt H,
+      have H1 : b ≤ a, from le_of_not_gt H,
       by_cases
-        (assume H2 : b < a, inr (not_le_of_lt H2))
-        (assume H2 : ¬ b < a, inl (le_of_not_lt H2)))
+        (assume H2 : b < a, inr (not_le_of_gt H2))
+        (assume H2 : ¬ b < a, inl (le_of_not_gt H2)))
 
   definition has_decidable_eq [instance] : decidable (a = b) :=
   by_cases

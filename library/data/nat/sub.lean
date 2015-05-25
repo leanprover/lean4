@@ -292,22 +292,22 @@ have H2 : 0 + m < n - m + m, from (zero_add m)⁻¹ ▸ H1 ▸ H,
 !lt_of_add_lt_add_right H2
 
 theorem lt_of_sub_pos {m n : ℕ} (H : n - m > 0) : m < n :=
-lt_of_not_le
+lt_of_not_ge
   (take H1 : m ≥ n,
     have H2 : n - m = 0, from sub_eq_zero_of_le H1,
     !lt.irrefl (H2 ▸ H))
 
 theorem lt_of_sub_lt_sub_right {n m k : ℕ} (H : n - k < m - k) : n < m :=
-lt_of_not_le
+lt_of_not_ge
   (assume H1 : m ≤ n,
     have H2 : m - k ≤ n - k, from sub_le_sub_right H1 _,
-    not_le_of_lt H H2)
+    not_le_of_gt H H2)
 
 theorem lt_of_sub_lt_sub_left {n m k : ℕ} (H : n - m < n - k) : k < m :=
-lt_of_not_le
+lt_of_not_ge
   (assume H1 : m ≤ k,
     have H2 : n - k ≤ n - m, from sub_le_sub_left H1 _,
-    not_le_of_lt H H2)
+    not_le_of_gt H H2)
 
 theorem sub_lt_sub_add_sub (n m k : ℕ) : n - k ≤ (n - m) + (m - k) :=
 sub.cases

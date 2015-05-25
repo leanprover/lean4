@@ -43,7 +43,7 @@ theorem pow_cancel_left : ∀ {a b c : nat}, a > 1 → pow a b = pow a c → b =
   absurd h₁ !lt.irrefl
 | a (succ b) (succ c) h₁ h₂ :=
   assert ane0 : a ≠ 0, from assume aeq0, by rewrite [aeq0 at h₁]; exact (absurd h₁ dec_trivial),
-  assert beqc : pow a b = pow a c, by rewrite [*pow_succ' at h₂]; exact (mul_cancel_left_of_ne_zero ane0 h₂),
+  assert beqc : pow a b = pow a c, by rewrite [*pow_succ' at h₂]; exact (eq_of_mul_eq_mul_left (pos_of_ne_zero ane0) h₂),
   by rewrite [pow_cancel_left h₁ beqc]
 
 theorem pow_div_cancel : ∀ {a b : nat}, a ≠ 0 → pow a (succ b) div a = pow a b

@@ -73,12 +73,6 @@ calc
 theorem mul_div_cancel_left {m : ℕ} (n : ℕ) (H : m > 0) : m * n div m = n :=
 !mul.comm ▸ !mul_div_cancel H
 
-theorem mul_cancel_right_of_ne_zero {a b c : nat} : c ≠ 0 → a * c = b * c → a = b :=
-assume h₁ h₂, by rewrite [-mul_div_cancel a (pos_of_ne_zero h₁), h₂, mul_div_cancel b (pos_of_ne_zero h₁)]
-
-theorem mul_cancel_left_of_ne_zero {a b c : nat} : a ≠ 0 → a * b = a * c → b = c :=
-assume h₁ h₂, mul_cancel_right_of_ne_zero h₁ (mul.comm a b ▸ mul.comm a c ▸ h₂)
-
 private definition mod.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
 if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y else x
 
@@ -263,6 +257,18 @@ nat.cases_on n (by simp)
     have H : (succ n * 1) mod (succ n * 1) = succ n * (1 mod 1),
       from !mul_mod_mul_left,
     (by simp) ▸ H)
+
+theorem mul_mod_eq_mod_mul_mod (m n k : nat) : (m * n) mod k = ((m mod k) * n) mod k :=
+by_cases_zero_pos k
+  (by rewrite [*mod_zero])
+  (take k, assume H : k > 0,
+    (calc
+      (m * n) mod k = (((m div k) * k + m mod k) * n) mod k : eq_div_mul_add_mod
+            ... = ((m mod k) * n) mod k                     :
+                    by rewrite [mul.right_distrib, mul.right_comm, add.comm, add_mul_mod_self H]))
+
+theorem mul_mod_eq_mul_mod_mod (m n k : nat) : (m * n) mod k = (m * (n mod k)) mod k :=
+!mul.comm ▸ !mul.comm ▸ !mul_mod_eq_mod_mul_mod
 
 theorem div_one (n : ℕ) : n div 1 = n :=
 have H : n div 1 * 1 + n mod 1 = n, from eq_div_mul_add_mod⁻¹,

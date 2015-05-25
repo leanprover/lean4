@@ -153,19 +153,35 @@ infix >= := rat.ge
 infix ≥  := rat.ge
 infix >  := rat.gt
 
-theorem of_int_lt_of_int (a b : ℤ) : (#int a < b) ↔ of_int a < of_int b :=
-calc
+theorem of_int_lt_of_int (a b : ℤ) : of_int a < of_int b ↔ (#int a < b) :=
+iff.symm (calc
   (#int a < b) ↔ (#int b - a > 0)          : iff.symm !int.sub_pos_iff_lt
            ... ↔ pos (of_int (#int b - a)) : iff.symm !pos_of_int
            ... ↔ pos (of_int b - of_int a) : !of_int_sub ▸ iff.rfl
-           ... ↔ of_int a < of_int b       : iff.rfl
+           ... ↔ of_int a < of_int b       : iff.rfl)
 
-theorem of_int_le_of_int (a b : ℤ) : (#int a ≤ b) ↔ of_int a ≤ of_int b :=
-calc
+theorem of_int_le_of_int (a b : ℤ) : of_int a ≤ of_int b ↔ (#int a ≤ b) :=
+iff.symm (calc
   (#int a ≤ b) ↔ (#int b - a ≥ 0)             : iff.symm !int.sub_nonneg_iff_le
            ... ↔ nonneg (of_int (#int b - a)) : iff.symm !nonneg_of_int
            ... ↔ nonneg (of_int b - of_int a) : !of_int_sub ▸ iff.rfl
-           ... ↔ of_int a ≤ of_int b          : iff.rfl
+           ... ↔ of_int a ≤ of_int b          : iff.rfl)
+
+theorem of_int_pos (a : ℤ) : (of_int a > 0) ↔ (#int a > 0) := !of_int_lt_of_int
+
+theorem of_int_nonneg (a : ℤ) : (of_int a ≥ 0) ↔ (#int a ≥ 0) := !of_int_le_of_int
+
+theorem of_nat_lt_of_nat (a b : ℕ) : of_nat a < of_nat b ↔ (#nat a < b) :=
+by rewrite [*of_nat_eq, propext !of_int_lt_of_int]; apply int.of_nat_lt_of_nat
+
+theorem of_nat_le_of_nat (a b : ℕ) : of_nat a ≤ of_nat b ↔ (#nat a ≤ b) :=
+by rewrite [*of_nat_eq, propext !of_int_le_of_int]; apply int.of_nat_le_of_nat
+
+theorem of_nat_pos (a : ℕ) : (of_nat a > 0) ↔ (#nat a > nat.zero) :=
+!of_nat_lt_of_nat
+
+theorem of_nat_nonneg (a : ℕ) : (of_nat a ≥ 0) ↔ (#nat a ≥ nat.zero) :=
+!of_nat_le_of_nat
 
 theorem le.refl (a : ℚ) : a ≤ a :=
 by rewrite [↑rat.le, sub_self]; apply nonneg_zero
@@ -249,7 +265,8 @@ section migrate_algebra
   definition abs (n : rat) : rat := algebra.abs n
   definition sign (n : rat) : rat := algebra.sign n
 
---  migrate from algebra with rat
---    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign, dvd → dvd, divide → divide
+  migrate from algebra with rat
+    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign, dvd → dvd,
+      divide → divide
 end migrate_algebra
 end rat

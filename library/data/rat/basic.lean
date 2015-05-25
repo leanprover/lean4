@@ -74,7 +74,7 @@ setoid.mk equiv equiv.is_equivalence
 
 /- field operations -/
 
-private theorem of_nat_succ_pos (n : nat) : of_nat (nat.succ n) > 0 :=
+theorem of_nat_succ_pos (n : nat) : of_nat (nat.succ n) > 0 :=
 of_nat_pos !nat.succ_pos
 
 definition of_int (i : int) : prerat := prerat.mk i 1 !of_nat_succ_pos
@@ -332,6 +332,17 @@ theorem of_int_sub (a b : ℤ) : of_int (#int a - b) = of_int a - of_int b :=
 calc
   of_int (#int a - b) = of_int a + of_int (#int -b) : of_int_add
                   ... = of_int a - of_int b         : {of_int_neg b}
+
+theorem of_nat_eq (a : ℕ) : of_nat a = of_int (int.of_nat a) := rfl
+
+theorem of_nat_add (a b : ℕ) : of_nat (#nat a + b) = of_nat a + of_nat b :=
+by rewrite [*of_nat_eq, int.of_nat_add, rat.of_int_add]
+
+theorem of_nat_mul (a b : ℕ) : of_nat (#nat a * b) = of_nat a * of_nat b :=
+by rewrite [*of_nat_eq, int.of_nat_mul, rat.of_int_mul]
+
+theorem of_nat_sub {a b : ℕ} (H : #nat a ≥ b) : of_nat (#nat a - b) = of_nat a - of_nat b :=
+by rewrite [*of_nat_eq, int.of_nat_sub H, rat.of_int_sub]
 
 theorem add.comm (a b : ℚ) : a + b = b + a :=
 quot.induction_on₂ a b (take u v, quot.sound !prerat.add.comm)

@@ -51,7 +51,7 @@ or.elim (nonneg_or_nonneg_neg (b - a))
     have H1 : nonneg (a - b), from H0 ▸ H,    -- too bad: can't do it in one step
     or.inr H1)
 
-theorem of_nat_le_of_nat {m n : ℕ} (H : #nat m ≤ n) : of_nat m ≤ of_nat n :=
+theorem of_nat_le_of_nat_of_le {m n : ℕ} (H : #nat m ≤ n) : of_nat m ≤ of_nat n :=
 obtain (k : ℕ) (Hk : m + k = n), from nat.le.elim H,
 le.intro (Hk ▸ (of_nat_add m k)⁻¹)
 
@@ -60,8 +60,8 @@ obtain (k : ℕ) (Hk : of_nat m + of_nat k = of_nat n), from le.elim H,
 have H1 : m + k = n, from of_nat.inj (of_nat_add m k ⬝ Hk),
 nat.le.intro H1
 
-theorem of_nat_le_of_nat_iff (m n : ℕ) : of_nat m ≤ of_nat n ↔ m ≤ n :=
-iff.intro le_of_of_nat_le_of_nat of_nat_le_of_nat
+theorem of_nat_le_of_nat (m n : ℕ) : of_nat m ≤ of_nat n ↔ m ≤ n :=
+iff.intro le_of_of_nat_le_of_nat of_nat_le_of_nat_of_le
 
 theorem lt_add_succ (a : ℤ) (n : ℕ) : a < a + succ n :=
 le.intro (show a + 1 + n = a + succ n, from
@@ -81,18 +81,18 @@ have H2 : a + succ n = b, from
       ... = b : Hn,
 exists.intro n H2
 
-theorem of_nat_lt_of_nat_iff (n m : ℕ) : of_nat n < of_nat m ↔ n < m :=
+theorem of_nat_lt_of_nat (n m : ℕ) : of_nat n < of_nat m ↔ n < m :=
 calc
   of_nat n < of_nat m ↔ of_nat n + 1 ≤ of_nat m : iff.refl
     ... ↔ of_nat (succ n) ≤ of_nat m            : of_nat_succ n ▸ !iff.refl
-    ... ↔ succ n ≤ m                            : of_nat_le_of_nat_iff
+    ... ↔ succ n ≤ m                            : of_nat_le_of_nat
     ... ↔ n < m                                 : iff.symm (lt_iff_succ_le _ _)
 
 theorem lt_of_of_nat_lt_of_nat {m n : ℕ} (H : of_nat m < of_nat n) : #nat m < n :=
-iff.mp !of_nat_lt_of_nat_iff H
+iff.mp !of_nat_lt_of_nat H
 
-theorem of_nat_lt_of_nat {m n : ℕ} (H : #nat m < n) : of_nat m < of_nat n :=
-iff.mp' !of_nat_lt_of_nat_iff H
+theorem of_nat_lt_of_nat_of_lt {m n : ℕ} (H : #nat m < n) : of_nat m < of_nat n :=
+iff.mp' !of_nat_lt_of_nat H
 
 /- show that the integers form an ordered additive group -/
 
@@ -266,7 +266,10 @@ end migrate_algebra
 
 /- more facts specific to int -/
 
-theorem nonneg_of_nat (n : ℕ) : 0 ≤ of_nat n := trivial
+theorem of_nat_nonneg (n : ℕ) : 0 ≤ of_nat n := trivial
+
+theorem of_nat_pos {n : ℕ} (Hpos : #nat n > 0) : of_nat n > 0 :=
+of_nat_lt_of_nat_of_lt Hpos
 
 theorem exists_eq_of_nat {a : ℤ} (H : 0 ≤ a) : ∃n : ℕ, a = of_nat n :=
 obtain (n : ℕ) (H1 : 0 + of_nat n = a), from le.elim H,
@@ -320,11 +323,6 @@ le_of_lt_add_one (!sub_add_cancel⁻¹ ▸ H)
 
 theorem lt_of_le_sub_one {a b : ℤ} (H : a ≤ b - 1) : a < b :=
 !sub_add_cancel ▸ (lt_add_one_of_le H)
-
-theorem of_nat_nonneg (n : ℕ) : of_nat n ≥ 0 := trivial
-
-theorem of_nat_pos {n : ℕ} (Hpos : #nat n > 0) : of_nat n > 0 :=
-of_nat_lt_of_nat Hpos
 
 theorem sign_of_succ (n : nat) : sign (succ n) = 1 :=
 sign_of_pos (of_nat_pos !nat.succ_pos)

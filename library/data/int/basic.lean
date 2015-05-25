@@ -643,10 +643,10 @@ end migrate_algebra
 
 /- additional properties -/
 
-theorem of_nat_sub_of_nat {m n : ℕ} (H : #nat m ≥ n) : of_nat m - of_nat n = of_nat (#nat m - n) :=
+theorem of_nat_sub {m n : ℕ} (H : #nat m ≥ n) : of_nat (#nat m - n) = of_nat m - of_nat n :=
 have H1 : m = (#nat m - n + n), from (nat.sub_add_cancel H)⁻¹,
 have H2 : m = (#nat m - n) + n, from congr_arg of_nat H1,
-sub_eq_of_eq_add H2
+(sub_eq_of_eq_add H2)⁻¹
 
 theorem neg_succ_of_nat_eq' (m : ℕ) : -[m +1] = -m - 1 :=
 by rewrite [neg_succ_of_nat_eq, of_nat_add, neg_add]

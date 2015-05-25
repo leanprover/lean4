@@ -185,7 +185,7 @@ assume h : x ∈ [a], or.elim (eq_or_mem_of_mem_cons h)
 
 theorem mem_of_mem_cons_of_mem {a b : T} {l : list T} : a ∈ b::l → b ∈ l → a ∈ l :=
 assume ainbl binl, or.elim (eq_or_mem_of_mem_cons ainbl)
-  (λ aeqb : a = b, by rewrite [aeqb]; exact binl)
+  (λ aeqb : a = b, by substvars; exact binl)
   (λ ainl : a ∈ l, ainl)
 
 theorem mem_or_mem_of_mem_append {x : T} {s t : list T} : x ∈ s ++ t → x ∈ s ∨ x ∈ t :=
@@ -221,8 +221,8 @@ theorem not_mem_of_not_mem_append_right {x : T} {s t : list T} : x ∉ s++t → 
 
 theorem not_mem_append {x : T} {s t : list T} : x ∉ s → x ∉ t → x ∉ s++t :=
 λ nxins nxint xinst, or.elim (mem_or_mem_of_mem_append xinst)
-  (λ xins, absurd xins nxins)
-  (λ xint, absurd xint nxint)
+  (λ xins, by contradiction)
+  (λ xint, by contradiction)
 
 local attribute mem [reducible]
 local attribute append [reducible]
@@ -267,8 +267,8 @@ list.rec_on l
           (assume Hne : x ≠ h,
             have H1 : ¬(x = h ∨ x ∈ l), from
               assume H2 : x = h ∨ x ∈ l, or.elim H2
-                (assume Heq, absurd Heq Hne)
-                (assume Hp,  absurd Hp Hn),
+                (assume Heq, by contradiction)
+                (assume Hp,  by contradiction),
             have H2 : ¬x ∈ h::l, from
               iff.elim_right (not_iff_not_of_iff !mem_cons_iff) H1,
             decidable.inr H2)))
@@ -327,7 +327,7 @@ theorem sub_app_of_sub_right (l l₁ l₂ : list T) : l ⊆ l₂ → l ⊆ l₁+
 
 theorem cons_sub_of_sub_of_mem {a : T} {l m : list T} : a ∈ m → l ⊆ m → a::l ⊆ m :=
 λ (ainm : a ∈ m) (lsubm : l ⊆ m) (x : T) (xinal : x ∈ a::l), or.elim (eq_or_mem_of_mem_cons xinal)
-  (assume xeqa : x = a, eq.rec_on (eq.symm xeqa) ainm)
+  (assume xeqa : x = a, by substvars; exact ainm)
   (assume xinl : x ∈ l, lsubm xinl)
 
 theorem app_sub_of_sub_of_sub {l₁ l₂ l : list T} : l₁ ⊆ l → l₂ ⊆ l → l₁++l₂ ⊆ l :=
@@ -490,7 +490,7 @@ take q, qeq.induction_on q
     have aux : b::t = (b::l₁)++l₂ ∧ b::t' = (b::l₁)++(a::l₂),
       begin
         rewrite [and.elim_right h, and.elim_left h],
-        exact (and.intro rfl rfl)
+        constructor, repeat reflexivity
       end,
     exists.intro (b::l₁) (exists.intro l₂ aux))
 
@@ -499,7 +499,7 @@ theorem sub_of_mem_of_sub_of_qeq {a : A} {l : list A} {u v : list A} : a ∉ l �
   have xinv : x ∈ v, from s (or.inr xinl),
   have xinau : x ∈ a::u, from mem_cons_of_qeq q x xinv,
   or.elim (eq_or_mem_of_mem_cons xinau)
-    (λ xeqa : x = a, absurd (xeqa ▸ xinl) nainl)
+    (λ xeqa : x = a, by substvars; contradiction)
     (λ xinu : x ∈ u, xinu)
 end qeq
 end list

@@ -125,7 +125,7 @@ have gen : ∀ l₂, perm l₂ l → l₂ = [a] → l = [a], from
         injection e with e₁ e₂,
         rewrite [e₁, e₂ at p],
         have h₁ : l₂ = [], from eq_nil_of_perm_nil p,
-        rewrite h₁
+        substvars
       end)
     (λ x y l e, by injection e; contradiction)
     (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂ e, r₂ (r₁ e)),

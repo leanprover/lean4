@@ -164,6 +164,7 @@ eq.drec_on H !heq.refl
 theorem of_heq_true {a : Prop} (H : a == true) : a :=
 of_eq_true (heq.to_eq H)
 
+attribute heq.refl [refl]
 attribute heq.trans [trans]
 attribute heq.of_heq_of_eq [trans]
 attribute heq.of_eq_of_heq [trans]

@@ -124,8 +124,7 @@ namespace vector
       revert H₁, generalize (append t []),
       rewrite [-add_eq_addl, add_zero],
       intro w H₁,
-      rewrite [heq.to_eq H₁],
-      apply heq.refl
+      rewrite [heq.to_eq H₁]
     end
 
   theorem map_append (f : A → B) : ∀ {n m : nat} (v : vector A n) (w : vector A m), map f (append v w) = append (map f v) (map f w)
@@ -240,7 +239,7 @@ namespace vector
     end
 
   theorem of_list_to_list {A : Type} : ∀ {n : nat} (v : vector A n), of_list (to_list v) == v
-  | 0     []        := !heq.refl
+  | 0     []        := by reflexivity
   | (n+1) (a :: vs) :=
     begin
       change (a :: of_list (to_list vs) == a :: vs),
@@ -250,9 +249,9 @@ namespace vector
       rewrite length_to_list at *,
       intro vs', intro H,
       have H₂ : vs' = vs, from heq.to_eq H,
-      rewrite H₂,
-      apply heq.refl
+      substvars
    end
+
 
    /- decidable equality -/
   open decidable

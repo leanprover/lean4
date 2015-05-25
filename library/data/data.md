@@ -27,6 +27,7 @@ Constructors:
 * [squash](squash.lean) : propositional truncation
 * [list](list/list.md)
 * [finset](finset/finset.md) : finite sets
+* [stream](stream.lean)
 * [set](set/set.md)
 * [vector](vector.lean)
 

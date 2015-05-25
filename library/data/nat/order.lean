@@ -342,7 +342,8 @@ nat.strong_induction_on a
 
 /- pos -/
 
-theorem by_cases_zero_pos {P : ℕ → Prop} (y : ℕ) (H0 : P 0) (H1 : ∀ {y : nat}, y > 0 → P y) : P y :=
+theorem by_cases_zero_pos {P : ℕ → Prop} (y : ℕ) (H0 : P 0) (H1 : ∀ {y : nat}, y > 0 → P y) :
+  P y :=
 nat.cases_on y H0 (take y, H1 !succ_pos)
 
 theorem eq_zero_or_pos (n : ℕ) : n = 0 ∨ n > 0 :=

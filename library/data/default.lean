@@ -4,4 +4,4 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Jeremy Avigad
 -/
 import .empty .unit .bool .num .string .nat .int .rat .fintype
-import .prod .sum .sigma .option .subtype .quotient .list .vector .finset .set
+import .prod .sum .sigma .option .subtype .quotient .list .vector .finset .set .stream

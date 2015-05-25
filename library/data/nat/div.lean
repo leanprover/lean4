@@ -613,7 +613,8 @@ or.elim (eq_zero_or_pos m)
 theorem eq_zero_of_gcd_eq_zero_right {m n : ℕ} (H : gcd m n = 0) : n = 0 :=
 eq_zero_of_gcd_eq_zero_left (!gcd.comm ▸ H)
 
-theorem gcd_div {m n k : ℕ} (H1 : (k ∣ m)) (H2 : (k ∣ n)) : gcd (m div k) (n div k) = gcd m n div k :=
+theorem gcd_div {m n k : ℕ} (H1 : (k ∣ m)) (H2 : (k ∣ n)) :
+  gcd (m div k) (n div k) = gcd m n div k :=
 or.elim (eq_zero_or_pos k)
   (assume H3 : k = 0,
     calc

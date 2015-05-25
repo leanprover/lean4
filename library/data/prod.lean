@@ -12,7 +12,7 @@ namespace prod
   theorem pair_eq : a₁ = a₂ → b₁ = b₂ → (a₁, b₁) = (a₂, b₂) :=
   assume H1 H2, H1 ▸ H2 ▸ rfl
 
-  protected theorem equal {p₁ p₂ : prod A B} : pr₁ p₁ = pr₁ p₂ → pr₂ p₁ = pr₂ p₂ → p₁ = p₂ :=
+  protected theorem eq {p₁ p₂ : prod A B} : pr₁ p₁ = pr₁ p₂ → pr₂ p₁ = pr₂ p₂ → p₁ = p₂ :=
   destruct p₁ (take a₁ b₁, destruct p₂ (take a₂ b₂ H₁ H₂, pair_eq H₁ H₂))
 
   protected definition is_inhabited [instance] [h₁ : inhabited A] [h₂ : inhabited B] : inhabited (prod A B) :=

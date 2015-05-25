@@ -22,7 +22,7 @@ namespace subtype
   theorem tag_eq {a1 a2 : A} {H1 : P a1} {H2 : P a2} (H3 : a1 = a2) : tag a1 H1 = tag a2 H2 :=
   eq.subst H3 (take H2, tag_irrelevant H1 H2) H2
 
-  protected theorem equal {a1 a2 : {x | P x}} : ∀(H : elt_of a1 = elt_of a2), a1 = a2 :=
+  protected theorem eq {a1 a2 : {x | P x}} : ∀(H : elt_of a1 = elt_of a2), a1 = a2 :=
   destruct a1 (take x1 H1, destruct a2 (take x2 H2 H, tag_eq H))
 
   protected definition is_inhabited [instance] {a : A} (H : P a) : inhabited {x | P x} :=

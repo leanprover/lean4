@@ -48,7 +48,7 @@ namespace quot
   protected lemma indep_coherent (f : Π a, B ⟦a⟧)
                        (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b)
                        : ∀ a b, a ≈ b → quot.indep f a = quot.indep f b  :=
-  λa b e, sigma.equal (sound e) (H a b e)
+  λa b e, sigma.eq (sound e) (H a b e)
 
   protected lemma lift_indep_pr1
     (f : Π a, B ⟦a⟧) (H : ∀ (a b : A) (p : a ≈ b), eq.rec (f a) (sound p) = f b)

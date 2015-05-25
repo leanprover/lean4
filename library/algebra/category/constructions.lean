@@ -111,9 +111,9 @@ namespace category
     mk (λa b, hom (pr1 a) (pr1 b) × hom (pr2 a) (pr2 b))
        (λ a b c g f, (pr1 g ∘ pr1 f , pr2 g ∘ pr2 f) )
        (λ a, (id,id))
-       (λ a b c d h g f, pair_eq    !assoc    !assoc   )
-       (λ a b f,         prod.equal !id_left  !id_left )
-       (λ a b f,         prod.equal !id_right !id_right)
+       (λ a b c d h g f, pair_eq !assoc    !assoc   )
+       (λ a b f,         prod.eq !id_left  !id_left )
+       (λ a b f,         prod.eq !id_right !id_right)
 
     definition Prod_category [reducible] (C D : Category) : Category := Mk (prod_category C D)
     end
@@ -204,9 +204,9 @@ namespace category
              ... = slice.ob_hom a : {slice.commute f}
          qed))
      (λ a, sigma.mk id !id_right)
-     (λ a b c d h g f, dpair_eq    !assoc    !proof_irrel)
-     (λ a b f,         sigma.equal !id_left  !proof_irrel)
-     (λ a b f,         sigma.equal !id_right !proof_irrel)
+     (λ a b c d h g f, dpair_eq !assoc    !proof_irrel)
+     (λ a b f,         sigma.eq !id_left  !proof_irrel)
+     (λ a b f,         sigma.eq !id_right !proof_irrel)
   -- We use !proof_irrel instead of rfl, to give the unifier an easier time
 
   -- definition slice_category {ob : Type} (C : category ob) (c : ob) : category (Σ(b : ob), hom b c)

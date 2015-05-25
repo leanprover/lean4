@@ -30,7 +30,7 @@ namespace sigma
   theorem dpair_eq : ∀ {a₁ a₂ : A} {b₁ : B a₁} {b₂ : B a₂} (H₁ : a₁ = a₂), eq.rec_on H₁ b₁ = b₂ → ⟨a₁, b₁⟩ = ⟨a₂, b₂⟩
   | a₁ a₁ b₁ b₁ rfl rfl := rfl
 
-  protected theorem equal {p₁ p₂ : Σa : A, B a} :
+  protected theorem eq {p₁ p₂ : Σa : A, B a} :
     ∀(H₁ : p₁.1 = p₂.1) (H₂ : eq.rec_on H₁ p₁.2 = p₂.2), p₁ = p₂ :=
   destruct p₁ (take a₁ b₁, destruct p₂ (take a₂ b₂ H₁ H₂, dpair_eq H₁ H₂))
 

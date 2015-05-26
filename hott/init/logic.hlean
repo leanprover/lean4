@@ -338,6 +338,11 @@ definition if_congr {c₁ c₂ : Type} [H₁ : decidable c₁] {A : Type} {t₁ 
 have H2 [visible] : decidable c₂, from (decidable.decidable_iff_equiv H₁ Hc),
 if_congr_aux Hc Ht He
 
+theorem implies_of_if_pos {c t e : Type} [H : decidable c] (h : if c then t else e) : c → t :=
+assume Hc, eq.rec_on (if_pos Hc) h
+
+theorem implies_of_if_neg {c t e : Type} [H : decidable c] (h : if c then t else e) : ¬c → e :=
+assume Hnc, eq.rec_on (if_neg Hnc) h
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches

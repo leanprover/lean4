@@ -117,8 +117,7 @@ namespace ne
 end ne
 
 section
-  open eq.ops
-  variables {A : Type} {a b c : A}
+  variables {A : Type} {a : A}
 
   theorem false.of_ne : a ≠ a → false :=
   assume H, H rfl
@@ -500,6 +499,12 @@ decidable.rec
   (λ Hc  : c,  eq.refl (@ite c (decidable.inl Hc)  A t t))
   (λ Hnc : ¬c, eq.refl (@ite c (decidable.inr Hnc) A t t))
   H
+
+theorem implies_of_if_pos {c t e : Prop} [H : decidable c] (h : if c then t else e) : c → t :=
+assume Hc, eq.rec_on (if_pos Hc) h
+
+theorem implies_of_if_neg {c t e : Prop} [H : decidable c] (h : if c then t else e) : ¬c → e :=
+assume Hnc, eq.rec_on (if_neg Hnc) h
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches

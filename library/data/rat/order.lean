@@ -265,8 +265,15 @@ section migrate_algebra
   definition abs (n : rat) : rat := algebra.abs n
   definition sign (n : rat) : rat := algebra.sign n
 
+  definition max (a b : rat) : rat := algebra.max a b
+  definition min (a b : rat) : rat := algebra.min a b
+  --set_option migrate.trace true
   migrate from algebra with rat
     replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign, dvd → dvd,
-      divide → divide
+      divide → divide, max → max, min → min
+
+attribute le.trans lt.trans lt_of_lt_of_le lt_of_le_of_lt ge.trans gt.trans gt_of_gt_of_ge
+                   gt_of_ge_of_gt [trans]
+
 end migrate_algebra
 end rat

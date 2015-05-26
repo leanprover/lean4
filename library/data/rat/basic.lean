@@ -309,7 +309,7 @@ infix `*`    := rat.mul
 prefix `-`   := rat.neg
 postfix `⁻¹` := rat.inv
 
-definition sub (a b : rat) : rat := a + (-b)
+definition sub [reducible] (a b : rat) : rat := a + (-b)
 
 infix `-`    := rat.sub
 
@@ -426,6 +426,7 @@ section migrate_algebra
 
   local attribute rat.discrete_field [instance]
   definition divide (a b : rat) := algebra.divide a b
+  infix `/` := divide
   definition dvd (a b : rat) := algebra.dvd a b
 
   migrate from algebra with rat

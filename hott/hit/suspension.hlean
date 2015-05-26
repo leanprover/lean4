@@ -27,7 +27,7 @@ namespace suspension
   protected definition rec {P : suspension A → Type} (PN : P !north) (PS : P !south)
     (Pm : Π(a : A), PN =[merid a] PS) (x : suspension A) : P x :=
   begin
-    fapply (pushout.rec_on _ _ x),
+    fapply pushout.rec_on _ _ x,
     { intro u, cases u, exact PN},
     { intro u, cases u, exact PS},
     { exact Pm},
@@ -66,7 +66,7 @@ namespace suspension
   suspension.elim_type PN PS Pm x
 
   theorem elim_type_merid (PN : Type) (PS : Type) (Pm : A → PN ≃ PS)
-    (x : suspension A) (a : A) : transport (suspension.elim_type PN PS Pm) (merid a) = Pm a :=
+    (a : A) : transport (suspension.elim_type PN PS Pm) (merid a) = Pm a :=
   by rewrite [tr_eq_cast_ap_fn,↑suspension.elim_type,elim_merid];apply cast_ua_fn
 
 end suspension

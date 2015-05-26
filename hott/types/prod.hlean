@@ -7,28 +7,21 @@ Ported from Coq HoTT
 Theorems about products
 -/
 
-open eq equiv is_equiv is_trunc prod prod.ops
+open eq equiv is_equiv is_trunc prod prod.ops unit
 
 variables {A A' B B' C D : Type}
           {a a' a'' : A} {b b₁ b₂ b' b'' : B} {u v w : A × B}
 
 namespace prod
 
-  -- prod.eta is already used for the eta rule for strict equality
-  protected definition eta (u : A × B) : (pr₁ u , pr₂ u) = u :=
+  protected definition eta (u : A × B) : (pr₁ u, pr₂ u) = u :=
   by cases u; apply idp
 
-  definition pair_eq (pa : a = a') (pb : b = b') : (a , b) = (a' , b') :=
+  definition pair_eq (pa : a = a') (pb : b = b') : (a, b) = (a', b') :=
   by cases pa; cases pb; apply idp
 
   definition prod_eq (H₁ : pr₁ u = pr₁ v) (H₂ : pr₂ u = pr₂ v) : u = v :=
-  begin
-    cases u with a₁ b₁,
-    cases v with a₂ b₂,
-    apply transport _ (prod.eta (a₁, b₁)),
-    apply transport _ (prod.eta (a₂, b₂)),
-    apply pair_eq H₁ H₂,
-  end
+  by cases u; cases v; exact pair_eq H₁ H₂
 
   /- Symmetry -/
 
@@ -40,6 +33,15 @@ namespace prod
 
   definition prod_comm_equiv (A B : Type) : A × B ≃ B × A :=
   equiv.mk flip _
+
+  definition prod_contr_equiv (A B : Type) [H : is_contr B] : A × B ≃ A :=
+  equiv.MK pr1
+           (λx, (x, !center))
+           (λx, idp)
+           (λx, by cases x with a b; exact pair_eq idp !center_eq)
+
+  definition prod_unit_equiv (A : Type) : A × unit ≃ A :=
+  !prod_contr_equiv
 
   -- is_trunc_prod is defined in sigma
 

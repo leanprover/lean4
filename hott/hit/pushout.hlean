@@ -78,7 +78,7 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
   elim_type Pinl Pinr Pglue y
 
   theorem elim_type_glue (Pinl : BL → Type) (Pinr : TR → Type)
-    (Pglue : Π(x : TL), Pinl (f x) ≃ Pinr (g x)) (y : pushout) (x : TL)
+    (Pglue : Π(x : TL), Pinl (f x) ≃ Pinr (g x)) (x : TL)
     : transport (elim_type Pinl Pinr Pglue) (glue x) = Pglue x :=
   by rewrite [tr_eq_cast_ap_fn,↑elim_type,elim_glue];apply cast_ua_fn
 

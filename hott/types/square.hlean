@@ -64,6 +64,18 @@ namespace cubical
   definition square_of_eq (r : p₁₀ ⬝ p₂₁ = p₀₁ ⬝ p₁₂) : square p₁₀ p₁₂ p₀₁ p₂₁ :=
   by cases p₁₂; (esimp [concat] at r); cases r; cases p₂₁; cases p₁₀; exact ids
 
+  definition aps {B : Type} (f : A → B) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
+    : square (ap f p₁₀) (ap f p₁₂) (ap f p₀₁) (ap f p₂₁) :=
+  by cases s₁₁;exact ids
+
+  definition square_of_homotopy {B : Type} {f g : A → B} (H : f ∼ g) (p : a = a')
+    : square (H a) (H a') (ap f p) (ap g p) :=
+  by cases p; apply vrefl
+
+  definition square_of_homotopy' {B : Type} {f g : A → B} (H : f ∼ g) (p : a = a')
+    : square (ap f p) (ap g p) (H a) (H a') :=
+  by cases p; apply hrefl
+
   definition square_equiv_eq (t : a₀₀ = a₀₂) (b : a₂₀ = a₂₂) (l : a₀₀ = a₂₀) (r : a₀₂ = a₂₂)
     : square t b l r ≃ t ⬝ r = l ⬝ b :=
   begin

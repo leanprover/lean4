@@ -6,7 +6,12 @@ Authors: Floris van Doorn
 Type quotients (quotient without truncation)
 -/
 
-/- The hit type_quotient is primitive, declared in init.hit. -/
+/-
+  The hit type_quotient is primitive, declared in init.hit.
+  The constructors are
+    class_of : A → A / R (A implicit, R explicit)
+    eq_of_rel : R a a' → a = a' (R explicit)
+-/
 
 open eq equiv sigma.ops
 

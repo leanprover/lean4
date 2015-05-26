@@ -253,6 +253,15 @@ section linear_ordered_field
   theorem div_lt_div_of_lt_of_neg (H : b < a) (Hc : c < 0) : a / c < b / c :=
     div_eq_mul_one_div⁻¹ ▸ div_eq_mul_one_div⁻¹ ▸ mul_lt_mul_of_neg_right H (div_neg_of_neg Hc)
 
+  theorem two_ne_zero : (1 : A) + 1 ≠ 0 :=
+    ne.symm (ne_of_lt (add_pos zero_lt_one zero_lt_one))
+
+  theorem add_halves : a / (1 + 1) + a / (1 + 1) = a :=
+    calc
+      a / (1 + 1) + a / (1 + 1) = (a + a) / (1 + 1) : div_add_div_same
+      ... = (a * 1 + a * 1) / (1 + 1) : by rewrite mul_one
+      ... = (a * (1 + 1)) / (1 + 1) : left_distrib
+      ... = a : mul_div_cancel two_ne_zero
 
 end linear_ordered_field
 

@@ -340,6 +340,47 @@ section
   theorem lt.cases_of_gt {B : Type} {a b : A} {t_lt t_eq t_gt : B} (H : a > b) :
     lt.cases a b t_lt t_eq t_gt = t_gt :=
   if_neg (ne.symm (ne_of_lt H)) ⬝ if_neg (lt.asymm H)
+
+  definition max (a b : A) : A :=
+  if a < b then b else a
+
+  definition min (a b : A) : A :=
+  if a < b then a else b
+
+  theorem max_a_a (a : A) : a = max a a :=
+  eq.rec_on !if_t_t rfl
+
+  theorem max.eq_right {a b : A} (H : a < b) : max a b = b :=
+  if_pos H
+
+  theorem max.eq_left {a b : A} (H : ¬ a < b) : max a b = a :=
+  if_neg H
+
+  theorem max.right_eq {a b : A} (H : a < b) : b = max a b :=
+  eq.rec_on (max.eq_right H) rfl
+
+  theorem max.left_eq {a b : A} (H : ¬ a < b) : a = max a b :=
+  eq.rec_on (max.eq_left H) rfl
+
+  theorem max.left (a b : A) : a ≤ max a b :=
+  decidable.by_cases
+    (λ h : a < b,   le_of_lt (eq.rec_on (max.right_eq h) h))
+    (λ h : ¬ a < b, eq.rec_on (max.eq_left h) !le.refl)
+
+  theorem eq_or_lt_of_not_lt (H : ¬ a < b) : a = b ∨ b < a :=
+  have H' : b = a ∨ b < a, from or.swap (lt_or_eq_of_le (le_of_not_gt H)),
+  or.elim H'
+    (take H'' : b = a, or.inl (symm H''))
+    (take H'' : b < a, or.inr H'')
+    
+  theorem max.right (a b : A) : b ≤ max a b :=
+  decidable.by_cases
+    (λ h : a < b,   eq.rec_on (max.eq_right h) !le.refl)
+    (λ h : ¬ a < b, or.rec_on (eq_or_lt_of_not_lt h)
+      (λ heq, eq.rec_on heq (eq.rec_on (max_a_a a) !le.refl))
+      (λ h : b < a,
+        have aux : a = max a b, from max.left_eq (lt.asymm h),
+        eq.rec_on aux (le_of_lt h)))
 end
 
 end algebra

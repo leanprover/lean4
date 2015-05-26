@@ -348,40 +348,39 @@ auto scanner::read_key_cmd_id() -> token_kind {
             }
         }
     }
-
     unsigned i = 0;
-    token_table const * it  = find(*m_tokens, cs[i]);
+    token_table const * it  = m_tokens;
     token_info const * info = nullptr;
     unsigned key_sz       = 0;
     unsigned key_utf_sz   = 0;
-    unsigned aux_num_utfs = id_utf_sz;
-    if (it) {
-        if (aux_num_utfs == 0)
-            aux_num_utfs = 1;
-        info = value_of(*it);
-        if (info) {
+    while (i < id_sz) {
+        it = find(*it, cs[i]);
+        i++;
+        if (!it)
+            break;
+        if (auto new_info = value_of(*it)) {
             lean_assert(m_uskip == 0);
-            key_sz     = 1;
-            key_utf_sz = aux_num_utfs;
+            info       = new_info;
+            key_sz     = i;
+            key_utf_sz = id_utf_sz; // this is imprecise if key_sz < id_sz, but this case is irrelevant
         }
-        while (it) {
-            i++;
-            if (i == cs.size()) {
-                next_utf(cs);
-                num_utfs++;
-                aux_num_utfs = num_utfs;
-            }
-            it = find(*it, cs[i]);
-            if (it) {
-                if (auto new_info = value_of(*it)) {
-                    lean_assert(m_uskip == 0);
-                    info       = new_info;
-                    key_sz     = i+1;
-                    key_utf_sz = aux_num_utfs;
-                }
-            } else {
-                break;
-            }
+    }
+
+    while (it) {
+        if (i == cs.size()) {
+            next_utf(cs);
+            num_utfs++;
+        }
+        it = find(*it, cs[i]);
+        i++;
+        if (!it)
+            break;
+        if (auto new_info = value_of(*it)) {
+            lean_assert(m_uskip == 0);
+            info       = new_info;
+            key_sz     = i;
+            key_utf_sz = num_utfs;
+            lean_assert(key_sz > id_sz);
         }
     }
 

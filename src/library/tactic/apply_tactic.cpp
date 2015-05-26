@@ -179,12 +179,6 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
         });
 }
 
-static proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s, expr const & e,
-                                         add_meta_kind add_meta, subgoals_action_kind subgoals_action, optional<unifier_kind> const & uk = optional<unifier_kind>()) {
-    buffer<constraint> cs;
-    return apply_tactic_core(env, ios, s, e, cs, add_meta, subgoals_action, uk);
-}
-
 proof_state_seq apply_tactic_core(environment const & env, io_state const & ios, proof_state const & s, expr const & e, constraint_seq const & cs) {
     buffer<constraint> tmp_cs;
     cs.linearize(tmp_cs);

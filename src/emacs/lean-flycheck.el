@@ -17,14 +17,13 @@
 (defun lean-flycheck-command ()
   "Concat lean-flychecker-checker-name with options"
   (let ((command
-         (cl-concatenate 'list
-                         `(,(lean-get-executable lean-flycheck-checker-name))
-                         lean-flycheck-checker-options
-                         '("--cache")
-                         '(source-original)
-                         '((eval (lean-option-string t)))
-                         '("--")
-                         '(source-inplace))))
+         (-concat `(,(lean-get-executable lean-flycheck-checker-name))
+                  lean-flycheck-checker-options
+                  '("--cache")
+                  '(source-original)
+                  '((eval (lean-option-string t)))
+                  '("--")
+                  '(source-inplace))))
     (when (string= system-type "windows-nt")
       (setq command (cons "python" command)))
     command))

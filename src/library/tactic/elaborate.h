@@ -41,5 +41,6 @@ typedef std::function<elaborate_result(goal const &, name_generator &&, expr con
 optional<expr> elaborate_with_respect_to(environment const & env, io_state const & ios, elaborate_fn const & elab,
                                          proof_state & s, expr const & e,
                                          optional<expr> const & expected_type = optional<expr>(),
-                                         bool report_unassigned = false, bool enforce_type_during_elaboration = false);
+                                         bool report_unassigned = false, bool enforce_type_during_elaboration = false,
+                                         bool conservative = false);
 }

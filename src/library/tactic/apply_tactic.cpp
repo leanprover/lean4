@@ -120,11 +120,11 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
                 auto mc = mk_class_instance_elaborator(
                     env, ios, ctx, ngen.next(), optional<name>(),
                     use_local_insts, is_strict,
-                    some_expr(binding_domain(e_t)), e.get_tag(), cfg, nullptr);
+                    some_expr(head_beta_reduce(binding_domain(e_t))), e.get_tag(), cfg, nullptr);
                 meta    = mc.first;
                 cs.push_back(mc.second);
             } else {
-                meta  = g.mk_meta(ngen.next(), binding_domain(e_t));
+                meta  = g.mk_meta(ngen.next(), head_beta_reduce(binding_domain(e_t)));
             }
             e          = mk_app(e, meta);
             e_t        = instantiate(binding_body(e_t), meta);
@@ -197,33 +197,6 @@ tactic apply_tactic_core(expr const & e, constraint_seq const & cs) {
         });
 }
 
-static tactic assumption_tactic_core(optional<unifier_kind> uk) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
-            goals const & gs = s.get_goals();
-            if (empty(gs)) {
-                throw_no_goal_if_enabled(s);
-                return proof_state_seq();
-            }
-            proof_state new_s = s.update_report_failure(false);
-            proof_state_seq r;
-            goal g = head(gs);
-            buffer<expr> hs;
-            g.get_hyps(hs);
-            for (expr const & h : hs) {
-                r = append(r, apply_tactic_core(env, ios, new_s, h, DoNotAdd, IgnoreSubgoals, uk));
-            }
-            return r;
-        });
-}
-
-tactic eassumption_tactic() {
-    return assumption_tactic_core(optional<unifier_kind>());
-}
-
-tactic assumption_tactic() {
-    return assumption_tactic_core(optional<unifier_kind>(unifier_kind::Conservative));
-}
-
 tactic apply_tactic_core(elaborate_fn const & elab, expr const & e, add_meta_kind add_meta, subgoals_action_kind k) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             goals const & gs = s.get_goals();
@@ -284,12 +257,6 @@ void initialize_apply_tactic() {
                      check_tactic_expr(app_arg(e), "invalid 'fapply' tactic, invalid argument");
                      return fapply_tactic(fn, get_tactic_expr_expr(app_arg(e)));
                  });
-
-    register_simple_tac(get_tactic_eassumption_name(),
-                        []() { return eassumption_tactic(); });
-
-    register_simple_tac(get_tactic_assumption_name(),
-                        []() { return assumption_tactic(); });
 }
 
 void finalize_apply_tactic() {

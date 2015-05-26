@@ -32,7 +32,8 @@ bool solve_constraints(environment const & env, io_state const & ios, proof_stat
 
 optional<expr> elaborate_with_respect_to(environment const & env, io_state const & ios, elaborate_fn const & elab,
                                          proof_state & s, expr const & e, optional<expr> const & _expected_type,
-                                         bool report_unassigned, bool enforce_type_during_elaboration) {
+                                         bool report_unassigned, bool enforce_type_during_elaboration,
+                                         bool conservative) {
     name_generator ngen = s.get_ngen();
     substitution subst  = s.get_subst();
     goals const & gs    = s.get_goals();
@@ -56,7 +57,7 @@ optional<expr> elaborate_with_respect_to(environment const & env, io_state const
     } else {
         to_buffer(s.get_postponed(), cs);
         if (expected_type) {
-            auto tc      = mk_type_checker(env, ngen.mk_child());
+            auto tc      = mk_type_checker(env, ngen.mk_child(), conservative ? UnfoldReducible : UnfoldSemireducible);
             auto e_t_cs  = tc->infer(new_e);
             expr t       = *expected_type;
             e_t_cs.second.linearize(cs);

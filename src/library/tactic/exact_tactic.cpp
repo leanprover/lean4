@@ -24,7 +24,8 @@ bool is_meta_placeholder(expr const & e) {
     return std::all_of(args.begin(), args.end(), is_local);
 }
 
-tactic exact_tactic(elaborate_fn const & elab, expr const & e, bool enforce_type_during_elaboration, bool allow_metavars) {
+tactic exact_tactic(elaborate_fn const & elab, expr const & e, bool enforce_type_during_elaboration, bool allow_metavars,
+                    bool conservative) {
     return tactic01([=](environment const & env, io_state const & ios, proof_state const & s) {
             proof_state new_s = s;
             goals const & gs  = new_s.get_goals();
@@ -37,7 +38,8 @@ tactic exact_tactic(elaborate_fn const & elab, expr const & e, bool enforce_type
             optional<expr> new_e;
             try {
                 new_e = elaborate_with_respect_to(env, ios, elab, new_s, e, some_expr(t),
-                                                  report_unassigned, enforce_type_during_elaboration);
+                                                  report_unassigned, enforce_type_during_elaboration,
+                                                  conservative);
             } catch (exception &) {
                 if (s.report_failure())
                     throw;
@@ -85,6 +87,48 @@ tactic exact_tactic(elaborate_fn const & elab, expr const & e, bool enforce_type
         });
 }
 
+static tactic assumption_tactic_core(bool conservative) {
+    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
+            goals const & gs = s.get_goals();
+            if (empty(gs)) {
+                throw_no_goal_if_enabled(s);
+                return proof_state_seq();
+            }
+            proof_state new_s = s.update_report_failure(false);
+            optional<tactic> tac;
+            goal g = head(gs);
+            buffer<expr> hs;
+            g.get_hyps(hs);
+            auto elab = [](goal const &, name_generator const &, expr const & H,
+                           optional<expr> const &, substitution const & s, bool) -> elaborate_result {
+                return elaborate_result(H, s, constraints());
+            };
+            unsigned i = hs.size();
+            while (i > 0) {
+                --i;
+                expr const & h = hs[i];
+                tactic curr = exact_tactic(elab, h, false, false, conservative);
+                if (tac)
+                    tac = orelse(*tac, curr);
+                else
+                    tac = curr;
+            }
+            if (tac) {
+                return (*tac)(env, ios, s);
+            } else {
+                return proof_state_seq();
+            }
+        });
+}
+
+tactic eassumption_tactic() {
+    return assumption_tactic_core(false);
+}
+
+tactic assumption_tactic() {
+    return assumption_tactic_core(true);
+}
+
 static expr * g_exact_tac_fn   = nullptr;
 static expr * g_rexact_tac_fn  = nullptr;
 static expr * g_refine_tac_fn  = nullptr;
@@ -101,18 +145,23 @@ void initialize_exact_tactic() {
     register_tac(exact_tac_name,
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'exact' tactic, invalid argument");
-                     return exact_tactic(fn, get_tactic_expr_expr(app_arg(e)), true, false);
+                     return exact_tactic(fn, get_tactic_expr_expr(app_arg(e)), true, false, false);
                  });
     register_tac(rexact_tac_name,
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'rexact' tactic, invalid argument");
-                     return exact_tactic(fn, get_tactic_expr_expr(app_arg(e)), false, false);
+                     return exact_tactic(fn, get_tactic_expr_expr(app_arg(e)), false, false, false);
                  });
     register_tac(refine_tac_name,
                  [](type_checker &, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      check_tactic_expr(app_arg(e), "invalid 'refine' tactic, invalid argument");
-                     return exact_tactic(fn, get_tactic_expr_expr(app_arg(e)), true, true);
+                     return exact_tactic(fn, get_tactic_expr_expr(app_arg(e)), true, true, false);
                  });
+    register_simple_tac(get_tactic_eassumption_name(),
+                        []() { return eassumption_tactic(); });
+
+    register_simple_tac(get_tactic_assumption_name(),
+                        []() { return assumption_tactic(); });
 }
 void finalize_exact_tactic() {
     delete g_exact_tac_fn;

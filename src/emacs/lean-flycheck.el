@@ -31,28 +31,20 @@
 
 (defun lean-flycheck-init ()
   "Initialize lean-flychek checker"
-  (eval
-   `(flycheck-define-checker lean-checker
-      "A Lean syntax checker."
-      :command ,(lean-flycheck-command)
-      :error-patterns
-      ((error line-start "FLYCHECK_BEGIN ERROR" (? "\r") "\n"
-              (file-name) ":" line ":" (? column ":") " error: "
+  (flycheck-define-command-checker 'lean-checker
+    "A Lean syntax checker."
+    :command (lean-flycheck-command)
+    :error-patterns
+    '((error line-start "FLYCHECK_BEGIN ERROR" (? "\r") "\n"
+            (file-name) ":" line ":" (? column ":") " error: "
+            (minimal-match
+             (message (one-or-more (zero-or-more not-newline) (? "\r") "\n")))
+            "FLYCHECK_END" (? "\r") line-end)
+     (warning line-start "FLYCHECK_BEGIN INFORMATION" (? "\r") "\n"
+              (file-name) ":" line ":" (? column ":") " information: "
               (minimal-match
                (message (one-or-more (zero-or-more not-newline) (? "\r") "\n")))
-              "FLYCHECK_END" (? "\r") line-end)
-       (warning line-start "FLYCHECK_BEGIN INFORMATION" (? "\r") "\n"
-                (file-name) ":" line ":" (? column ":") " information: "
-                (minimal-match
-                 (message (one-or-more (zero-or-more not-newline) (? "\r") "\n")))
-                "FLYCHECK_END" (? "\r") line-end)
-       ;; (warning line-start "FLYCHECK_BEGIN WARNING" (? "\r") "\n"
-       ;;          (file-name) ":" line ":" (? column ":") " warning: "
-       ;;          (minimal-match
-       ;;           (message (one-or-more (zero-or-more not-newline) (? "\r") "\n")))
-       ;;          "FLYCHECK_END" (? "\r") line-end)
-       )
-      :modes (lean-mode)))
+              "FLYCHECK_END" (? "\r") line-end))
   (add-to-list 'flycheck-checkers 'lean-checker))
 
 (defun lean-flycheck-turn-on ()

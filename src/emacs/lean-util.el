@@ -10,16 +10,11 @@
 (require 'dash)
 (require 'dash-functional)
 
-(defun lean-concat-paths (&rest seq)
-  "Concatenate paths"
-  (cl-reduce (lambda (p1 p2) (concat (file-name-as-directory p1) p2))
-             seq))
-
 (defun lean-find-file-upward (file-name &optional dir-name)
   "Try to find a file in a (current) directory or its parent directories."
   (let* ((dir-name (or dir-name (file-name-directory (buffer-file-name))))
          (parent-dir-name (file-name-directory (directory-file-name dir-name)))
-         (full-name (lean-concat-paths dir-name file-name)))
+         (full-name (f-join dir-name file-name)))
     (cond ((file-exists-p full-name) full-name)
           ((string= dir-name parent-dir-name) nil)
           (t (lean-find-file-upward file-name parent-dir-name)))))
@@ -45,7 +40,7 @@
 (defun lean-get-executable (exe-name)
   "Return fullpath of lean executable"
   (let ((lean-bin-dir-name "bin"))
-    (lean-concat-paths (lean-get-rootdir) lean-bin-dir-name exe-name)))
+    (f-full (f-join (lean-get-rootdir) lean-bin-dir-name exe-name))))
 
 (defun lean-path-list ()
   (interactive)

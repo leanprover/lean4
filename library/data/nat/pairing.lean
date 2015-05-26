@@ -29,7 +29,7 @@ by_cases
   (λ h₂ : ¬ n - s*s < s,
     have   g₁ : s ≤ n - s*s,             from le_of_not_gt h₂,
     assert g₂ : s + s*s ≤ n - s*s + s*s, from add_le_add_right g₁ (s*s),
-    assert g₃ : s*s + s ≤ n,             by rewrite [sub_add_cancel (sqrt_lower n) at g₂, add.comm at g₂]; exact g₂,
+    assert g₃ : s*s + s ≤ n,             by rewrite [sub_add_cancel (sqrt_lower n) at g₂, add.comm at g₂]; assumption,
     have l₁   : n ≤ s*s + s + s,         from sqrt_upper n,
     have l₂   : n - s*s ≤ s + s,         from calc
         n - s*s ≤ (s*s + s + s) - s*s    : sub_le_sub_right l₁ (s*s)

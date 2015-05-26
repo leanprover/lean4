@@ -25,7 +25,7 @@ private lemma lbp_zero : lbp 0 :=
 private lemma lbp_succ {x : nat} : lbp x → ¬ p x → lbp (succ x) :=
 λ lx npx y yltsx,
   or.elim (eq_or_lt_of_le yltsx)
-    (λ yeqx, by rewrite [yeqx]; exact npx)
+    (λ yeqx, by substvars; assumption)
     (λ yltx, lx y yltx)
 
 private definition gtb (a b : nat) : Prop :=
@@ -36,8 +36,7 @@ local infix `≺`:50 := gtb
 private lemma acc_of_px {x : nat} : p x → acc gtb x :=
 assume h,
 acc.intro x (λ (y : nat) (l : y ≺ x),
-  have h₁ : y > x,              from and.elim_left l,
-  have h₂ : ∀ a, a < y → ¬ p a, from and.elim_right l,
+  obtain (h₁ : y > x) (h₂ : ∀ a, a < y → ¬ p a), from l,
   absurd h (h₂ x h₁))
 
 private lemma acc_of_acc_succ {x : nat} : acc gtb (succ x) → acc gtb x :=
@@ -45,7 +44,7 @@ assume h,
 acc.intro x (λ (y : nat) (l : y ≺ x),
    have ygtx  : x < y,    from and.elim_left l,
    by_cases
-     (λ yeqx : y = succ x, by rewrite [yeqx]; exact h)
+     (λ yeqx : y = succ x, by substvars; assumption)
      (λ ynex : y ≠ succ x,
         have ygtsx : succ x < y, from lt_of_le_and_ne (succ_lt_succ ygtx) (ne.symm ynex),
         acc.inv h (and.intro ygtsx (and.elim_right l))))
@@ -53,8 +52,7 @@ acc.intro x (λ (y : nat) (l : y ≺ x),
 private lemma acc_of_px_of_gt {x y : nat} : p x → y > x → acc gtb y :=
 assume px ygtx,
 acc.intro y (λ (z : nat) (l : z ≺ y),
-  have zgty : z > y,              from and.elim_left l,
-  have h    : ∀ a, a < z → ¬ p a, from and.elim_right l,
+  obtain (zgty : z > y) (h : ∀ a, a < z → ¬ p a), from l,
   absurd px (h x (lt.trans ygtx zgty)))
 
 private lemma acc_of_acc_of_lt : ∀ {x y : nat}, acc gtb x → y < x → acc gtb y
@@ -62,7 +60,7 @@ private lemma acc_of_acc_of_lt : ∀ {x y : nat}, acc gtb x → y < x → acc gt
 | (succ x) y asx yltsx :=
   assert ax : acc gtb x, from acc_of_acc_succ asx,
   by_cases
-     (λ yeqx : y = x, by rewrite [yeqx]; exact ax)
+     (λ yeqx : y = x, by substvars; assumption)
      (λ ynex : y ≠ x, acc_of_acc_of_lt ax (lt_of_le_and_ne yltsx ynex))
 
 parameter (ex : ∃ a, p a)
@@ -73,7 +71,7 @@ private lemma acc_of_ex (x : nat) : acc gtb x :=
 obtain (w : nat) (pw : p w), from ex,
 lt.by_cases
   (λ xltw : x < w, acc_of_acc_of_lt (acc_of_px pw) xltw)
-  (λ xeqw : x = w, by rewrite [xeqw]; exact (acc_of_px pw))
+  (λ xeqw : x = w, by subst x; exact (acc_of_px pw))
   (λ xgtw : x > w, acc_of_px_of_gt pw xgtw)
 
 private lemma wf_gtb : well_founded gtb :=

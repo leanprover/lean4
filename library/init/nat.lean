@@ -114,7 +114,7 @@ namespace nat
            inr aux)))
     a
 
-  theorem le.refl (a : nat) : a ≤ a :=
+  theorem le.refl [refl] (a : nat) : a ≤ a :=
   lt.base a
 
   theorem le_of_lt {a b : nat} (H : a < b) : a ≤ b :=

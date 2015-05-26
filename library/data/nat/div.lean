@@ -225,11 +225,11 @@ theorem mul_mod_mul_left (z x y : ℕ) : (z * x) mod (z * y) = z * (x mod y) :=
 or.elim (eq_zero_or_pos z)
   (assume H : z = 0,
     calc
-      (z * x) mod (z * y) = (0 * x) mod (z * y) : H
+      (z * x) mod (z * y) = (0 * x) mod (z * y) : by subst z
                       ... = 0 mod (z * y)       : zero_mul
                       ... = 0                   : zero_mod
                       ... = 0 * (x mod y)       : zero_mul
-                      ... = z * (x mod y)       : H)
+                      ... = z * (x mod y)       : by subst z)
   (assume zpos : z > 0,
     or.elim (eq_zero_or_pos y)
       (assume H : y = 0, by simp)
@@ -618,13 +618,10 @@ theorem gcd_div {m n k : ℕ} (H1 : (k ∣ m)) (H2 : (k ∣ n)) :
 or.elim (eq_zero_or_pos k)
   (assume H3 : k = 0,
     calc
-      gcd (m div k) (n div k) = gcd (m div 0) (n div k) : H3
-                          ... = gcd 0 (n div k)         : div_zero
-                          ... = n div k                 : gcd_zero_left
-                          ... = n div 0                 : H3
-                          ... = 0                       : div_zero
-                          ... = gcd m n div 0           : div_zero
-                          ... = gcd m n div k           : H3)
+      gcd (m div k) (n div k) = gcd 0 0         : by subst k; rewrite *div_zero
+                          ... = 0               : gcd_zero_left
+                          ... = gcd m n div 0   : div_zero
+                          ... = gcd m n div k   : by subst k)
   (assume H3 : k > 0,
     eq_div_of_mul_eq H3
       (calc

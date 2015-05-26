@@ -61,9 +61,12 @@ bool is_letter_like_unicode(unsigned u) {
 }
 bool is_super_sub_script_alnum_unicode(unsigned u) {
     return
-        (0x2070 <= u && u <= 0x2079) ||
-        (0x207f <= u && u <= 0x2089) ||
-        (0x2090 <= u && u <= 0x209c);
+        (0x2070 <= u && u <= 0x2079) || // most (numeric) superscripts
+        (0x207f <= u && u <= 0x2089) || // n superscript and numberic subscripts
+        (0x2090 <= u && u <= 0x209c) || // letter-like subscripts
+        u == 0x00B2 ||  // 2 superscript
+        u == 0x00B3 ||  // 3 superscript
+        u == 0x00B9;    // 1 superscript
 }
 
 void scanner::next() {

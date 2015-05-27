@@ -21,7 +21,7 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
   open pushout_rel
   local abbreviation R := pushout_rel
 
-  definition pushout : Type := type_quotient pushout_rel -- TODO: define this in root namespace
+  definition pushout : Type := type_quotient R -- TODO: define this in root namespace
 
   definition inl (x : BL) : pushout :=
   class_of R (inl x)

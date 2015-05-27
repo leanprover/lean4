@@ -98,6 +98,16 @@ namespace eq
   /- Pathovers -/
 
   -- In the comment we give the fibration of the pathover
+
+  definition pathover_eq_r_idp (p : a1 = a2) : idp =[p] p := /-(λx, a1 = x)-/
+  by cases p; exact idpo
+
+  definition pathover_eq_l_idp (p : a1 = a2) : idp =[p] p⁻¹ := /-(λx, x = a1)-/
+  by cases p; exact idpo
+
+  definition pathover_eq_l_idp' (p : a1 = a2) : idp =[p⁻¹] p := /-(λx, x = a2)-/
+  by cases p; exact idpo
+
   definition pathover_eq_l (p : a1 = a2) (q : a1 = a3) : q =[p] p⁻¹ ⬝ q := /-(λx, x = a3)-/
   by cases p; cases q; exact idpo
 

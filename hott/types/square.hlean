@@ -8,7 +8,7 @@ Theorems about square
 
 open eq equiv is_equiv
 
-namespace cubical
+namespace eq
 
   variables {A : Type} {a a' a'' a₀₀ a₂₀ a₄₀ a₀₂ a₂₂ a₂₄ a₀₄ a₄₂ a₄₄ : A}
             /-a₀₀-/ {p₁₀ : a₀₀ = a₂₀} /-a₂₀-/ {p₃₀ : a₂₀ = a₄₀} /-a₄₀-/
@@ -138,4 +138,4 @@ namespace cubical
 
   --we can also do the other recursors (lr, tl, tr, bl, br, tbl, tbr, tlr, blr), but let's postpone this until they are needed
 
-end cubical
+end eq

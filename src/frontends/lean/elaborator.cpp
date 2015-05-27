@@ -1847,6 +1847,15 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
                 } catch (tactic_exception & ex) {
                     display_tactic_exception(ex, ps, ptac);
                     return false;
+                } catch (exception &) {
+                    throw;
+                } catch (throwable & ex) {
+                    auto out = regular(env(), ios());
+                    flycheck_error err(out);
+                    display_error_pos(out, pip(), ptac);
+                    out << ex.what() << "\nproof state:\n";
+                    out << ps.pp(env(), ios()) << "\n";
+                    return false;
                 }
             } else {
                 return false;

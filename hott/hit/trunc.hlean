@@ -130,6 +130,6 @@ namespace trunc
 
 end trunc
 
-attribute trunc.elim [unfold-c 6]
 attribute trunc.elim_on [unfold-c 4]
 attribute trunc.rec [recursor]
+attribute trunc.elim [recursor 6] [unfold-c 6]

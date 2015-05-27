@@ -148,7 +148,7 @@ namespace circle
 end circle
 
 attribute circle.base1 circle.base2 circle.base [constructor]
-attribute circle.elim2 circle.rec2 [unfold-c 6] [recursor 6]
+attribute circle.rec2 circle.elim2 [unfold-c 6] [recursor 6]
 attribute circle.elim2_type [unfold-c 5]
 attribute circle.rec2_on circle.elim2_on [unfold-c 2]
 attribute circle.elim2_type [unfold-c 1]
@@ -251,7 +251,7 @@ namespace circle
   begin
     apply (Group_eq fg_carrier_equiv_int),
     intros g h,
-    apply trunc.rec_on g, intro g', apply trunc.rec_on h, intro h',
+    induction g with g', induction h with h',
     -- esimp at *,
     -- esimp [fg_carrier_equiv_int,equiv.trans,equiv.symm,equiv_trunc,trunc_equiv_trunc,
     --   base_eq_base_equiv,circle_eq_equiv,is_equiv_tr,semigroup.to_has_mul,monoid.to_semigroup,

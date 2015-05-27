@@ -72,7 +72,7 @@ namespace suspension
 end suspension
 
 attribute suspension.north suspension.south [constructor]
-attribute suspension.elim suspension.rec [unfold-c 6] [recursor 6]
+attribute suspension.rec suspension.elim [unfold-c 6] [recursor 6]
 attribute suspension.elim_type [unfold-c 5]
 attribute suspension.rec_on suspension.elim_on [unfold-c 3]
 attribute suspension.elim_type_on [unfold-c 2]

@@ -6,7 +6,7 @@ Author: Floris van Doorn
 Theorems about squareovers
 -/
 
-import cubical.pathover cubical.square
+import types.square
 
 open eq equiv is_equiv equiv.ops
 
@@ -40,7 +40,5 @@ namespace cubical
   definition squareo := @squareover A a₀₀ B
   definition idsquareo [reducible] [constructor] (b₀₀ : B a₀₀) := @squareover.idsquareo A a₀₀ B b₀₀
   definition idso [reducible] [constructor] := @squareover.idsquareo A a₀₀ B b₀₀
-
-
 
 end cubical

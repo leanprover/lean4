@@ -13,7 +13,7 @@ open equiv is_equiv equiv.ops
 
 variables {A A' : Type} {B : A → Type} {C : Πa, B a → Type}
           {a a₂ a₃ a₄ : A} {p : a = a₂} {p₂ : a₂ = a₃} {p₃ : a₃ = a₄}
-          {b : B a} {b₂ : B a₂} {b₃ : B a₃} {b₄ : B a₄}
+          {b b' : B a} {b₂ b₂' : B a₂} {b₃ : B a₃} {b₄ : B a₄}
           {c : C a b} {c₂ : C a₂ b₂}
 
 namespace eq
@@ -66,6 +66,12 @@ namespace eq
 
   definition concato (r : b =[p] b₂) (r₂ : b₂ =[p₂] b₃) : b =[p ⬝ p₂] b₃ :=
   pathover.rec_on r₂ (pathover.rec_on r idpo)
+
+  definition concato_eq (r : b =[p] b₂) (q : b₂ = b₂') : b =[p] b₂' :=
+  eq.rec_on q r
+
+  definition eq_concato (q : b = b') (r : b' =[p] b₂) : b =[p] b₂ :=
+  eq.rec_on q (λr, r) r
 
   definition inverseo (r : b =[p] b₂) : b₂ =[p⁻¹] b :=
   pathover.rec_on r idpo
@@ -133,6 +139,14 @@ namespace eq
   have H2 : P (pathover_idp_of_eq (eq_of_pathover_idp r)),
     from eq.rec_on (eq_of_pathover_idp r) H,
   left_inv !pathover_idp r ▸ H2
+
+  definition rec_on_right [recursor] {P : Π⦃b₂ : B a₂⦄, b =[p] b₂ → Type}
+    {b₂ : B a₂} (r : b =[p] b₂) (H : P !pathover_tr) : P r :=
+  by cases r; exact H
+
+  definition rec_on_left [recursor] {P : Π⦃b : B a⦄, b =[p] b₂ → Type}
+    {b : B a} (r : b =[p] b₂) (H : P !tr_pathover) : P r :=
+  by cases r; exact H
 
   --pathover with fibration B' ∘ f
   definition pathover_compose (B' : A' → Type) (f : A → A') (p : a = a₂)

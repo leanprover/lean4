@@ -7,7 +7,7 @@ Partially ported from Coq HoTT
 Theorems about pi-types (dependent function spaces)
 -/
 
-import types.sigma
+import types.sigma arity
 
 open eq equiv is_equiv funext sigma
 
@@ -69,15 +69,30 @@ namespace pi
     apply eq_of_pathover_idp, apply r
   end
 
-  definition pi_pathover' {C : (Σa, B a) → Type} {f : Πb, C ⟨a, b⟩} {g : Πb', C ⟨a', b'⟩}
-    {p : a = a'} (r : Π(b : B a) (b' : B a') (q : pathover B b p b'), f b =[dpair_eq_dpair p q] g b')
-    : f =[p] g :=
+  definition pi_pathover_left {f : Πb, C a b} {g : Πb', C a' b'} {p : a = a'}
+    (r : Π(b : B a), f b =[apo011 C p !pathover_tr] g (p ▸ b)) : f =[p] g :=
   begin
     cases p, apply pathover_idp_of_eq,
     apply eq_of_homotopy, intro b,
-    apply (@eq_of_pathover_idp _ C), exact (r b b (pathover.idpatho b)),
+    apply eq_of_pathover_idp, apply r
   end
 
+  definition pi_pathover_right {f : Πb, C a b} {g : Πb', C a' b'} {p : a = a'}
+    (r : Π(b' : B a'), f (p⁻¹ ▸ b') =[apo011 C p !tr_pathover] g b') : f =[p] g :=
+  begin
+    cases p, apply pathover_idp_of_eq,
+    apply eq_of_homotopy, intro b,
+    apply eq_of_pathover_idp, apply r
+  end
+
+  definition pi_pathover_constant {C : A → A' → Type} {f : Π(b : A'), C a b}
+    {g : Π(b : A'), C a' b} {p : a = a'}
+    (r : Π(b : A'), f b =[p] g b) : f =[p] g :=
+  begin
+    cases p, apply pathover_idp_of_eq,
+    apply eq_of_homotopy, intro b,
+    exact eq_of_pathover_idp (r b),
+  end
 
   /- Maps on paths -/
 

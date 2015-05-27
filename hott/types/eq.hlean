@@ -9,6 +9,8 @@ Theorems about path types (identity types)
 
 open eq sigma sigma.ops equiv is_equiv equiv.ops
 
+-- TODO: Rename transport_eq_... and pathover_eq_... to eq_transport_... and eq_pathover_...
+
 namespace eq
   /- Path spaces -/
 
@@ -99,15 +101,6 @@ namespace eq
 
   -- In the comment we give the fibration of the pathover
 
-  definition pathover_eq_r_idp (p : a1 = a2) : idp =[p] p := /-(λx, a1 = x)-/
-  by cases p; exact idpo
-
-  definition pathover_eq_l_idp (p : a1 = a2) : idp =[p] p⁻¹ := /-(λx, x = a1)-/
-  by cases p; exact idpo
-
-  definition pathover_eq_l_idp' (p : a1 = a2) : idp =[p⁻¹] p := /-(λx, x = a2)-/
-  by cases p; exact idpo
-
   definition pathover_eq_l (p : a1 = a2) (q : a1 = a3) : q =[p] p⁻¹ ⬝ q := /-(λx, x = a3)-/
   by cases p; cases q; exact idpo
 
@@ -138,6 +131,15 @@ namespace eq
   definition pathover_eq_lFFr (p : a1 = a2) (q : a1 = h (f a1)) : q =[p] p⁻¹ ⬝ q ⬝ (ap h (ap f p)) :=
   /-(λx, x = h (f x))-/
   by cases p; rewrite [▸*,idp_con];exact idpo
+
+  definition pathover_eq_r_idp (p : a1 = a2) : idp =[p] p := /-(λx, a1 = x)-/
+  by cases p; exact idpo
+
+  definition pathover_eq_l_idp (p : a1 = a2) : idp =[p] p⁻¹ := /-(λx, x = a1)-/
+  by cases p; exact idpo
+
+  definition pathover_eq_l_idp' (p : a1 = a2) : idp =[p⁻¹] p := /-(λx, x = a2)-/
+  by cases p; exact idpo
 
   -- The Functorial action of paths is [ap].
 

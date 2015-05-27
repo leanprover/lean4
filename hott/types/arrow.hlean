@@ -11,7 +11,7 @@ import types.pi
 
 open eq equiv is_equiv funext pi equiv.ops
 
-namespace arrow
+namespace pi
 
   variables {A A' : Type} {B B' : Type} {C : A → B → Type}
             {a a' a'' : A} {b b' b'' : B} {f g : A → B}
@@ -50,6 +50,34 @@ namespace arrow
     : (transport (λa, B a → C a) p f) ∼ (λb, p ▸ f (p⁻¹ ▸ b)) :=
   eq.rec_on p (λx, idp)
 
+  /- Pathovers -/
 
+  definition arrow_pathover {B C : A → Type} {f : B a → C a} {g : B a' → C a'} {p : a = a'}
+    (r : Π(b : B a) (b' : B a') (q : b =[p] b'), f b =[p] g b') : f =[p] g :=
+  begin
+    cases p, apply pathover_idp_of_eq,
+    apply eq_of_homotopy, intro b,
+    exact eq_of_pathover_idp (r b b idpo),
+  end
 
-end arrow
+  definition arrow_pathover_left {B C : A → Type} {f : B a → C a} {g : B a' → C a'} {p : a = a'}
+    (r : Π(b : B a), f b =[p] g (p ▸ b)) : f =[p] g :=
+  begin
+    cases p, apply pathover_idp_of_eq,
+    apply eq_of_homotopy, intro b,
+    exact eq_of_pathover_idp (r b),
+  end
+
+  definition arrow_pathover_right {B C : A → Type} {f : B a → C a} {g : B a' → C a'} {p : a = a'}
+    (r : Π(b' : B a'), f (p⁻¹ ▸ b') =[p] g b') : f =[p] g :=
+  begin
+    cases p, apply pathover_idp_of_eq,
+    apply eq_of_homotopy, intro b,
+    exact eq_of_pathover_idp (r b),
+  end
+
+  definition arrow_pathover_constant {B : Type} {C : A → Type} {f : B → C a} {g : B → C a'}
+    {p : a = a'} (r : Π(b : B), f b =[p] g b) : f =[p] g :=
+  pi_pathover_constant r
+
+end pi

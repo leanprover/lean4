@@ -6,9 +6,11 @@ Authors: Floris van Doorn
 Declaration of the circle
 -/
 
-import .sphere types.bool types.eq types.int.hott types.arrow types.equiv algebra.fundamental_group algebra.hott
+import .sphere
+import types.bool types.int.hott types.equiv
+import algebra.fundamental_group algebra.hott
 
-open eq suspension bool sphere_index is_equiv equiv equiv.ops is_trunc
+open eq suspension bool sphere_index is_equiv equiv equiv.ops is_trunc pi
 
 definition circle : Type₀ := sphere 1
 
@@ -171,12 +173,8 @@ namespace circle
   begin
     induction x,
     { exact loop},
-    { exact sorry}
+    { apply concato_eq, apply pathover_eq_lr, rewrite [con.left_inv,idp_con]}
   end
-  -- circle.rec_on x loop
-  --   (calc
-  --     loop ▸ loop = loop⁻¹ ⬝ loop ⬝ loop : transport_eq_lr
-  --       ... = loop : by rewrite [con.left_inv, idp_con])
 
   definition nonidp_neq_idp : nonidp ≠ (λx, idp) :=
   assume H : nonidp = λx, idp,
@@ -202,10 +200,8 @@ namespace circle
   begin
     induction x,
     { exact power loop},
-    { apply sorry}
--- apply eq_of_homotopy, intro a,
---       refine !arrow.arrow_transport ⬝ !transport_eq_r ⬝ _,
---       rewrite [transport_code_loop_inv,power_con,succ_pred]}
+    { apply arrow_pathover_left, intro b, apply concato_eq, apply pathover_eq_r,
+      rewrite [power_con,transport_code_loop]},
   end
 
   --remove this theorem after #484
@@ -222,9 +218,9 @@ namespace circle
         apply transport (λ(y : base = base), transport circle.code y _ = _),
         { exact !power_con_inv ⬝ ap (power loop) !neg_succ⁻¹},
         rewrite [▸*,@con_tr _ circle.code,transport_code_loop_inv, ↑[circle.encode] at p, p, -neg_succ]}},
-    --{ apply eq_of_homotopy, intro a, apply @is_hset.elim, esimp [circle.code,base,base1], exact _}
-      { apply sorry}
-        --simplify after #587
+    { apply pathover_of_tr_eq, apply eq_of_homotopy, intro a, apply @is_hset.elim,
+      esimp [circle.code,base,base1], exact _}
+      --simplify after #587
   end
 
   definition circle_eq_equiv (x : circle) : (base = x) ≃ circle.code x :=

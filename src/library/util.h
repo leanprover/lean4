@@ -225,6 +225,9 @@ inline justification mk_type_mismatch_jst(expr const & v, expr const & v_type, e
     return mk_type_mismatch_jst(v, v_type, t, v);
 }
 
+/** \brief Create a type checker and normalizer that treats any constant named \c n as opaque when pred(n) is true */
+type_checker_ptr mk_type_checker(environment const & env, name_generator && ngen, name_predicate const & pred);
+
 void initialize_library_util();
 void finalize_library_util();
 }

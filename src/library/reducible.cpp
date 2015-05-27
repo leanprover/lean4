@@ -21,6 +21,13 @@ struct reducible_entry {
     reducible_entry(reducible_status s, name const & n):m_status(s), m_name(n) {}
 };
 
+class reducible_state {
+    name_map<reducible_status> m_status;
+public:
+    void add(reducible_entry const & e);
+    reducible_status get_status(name const & n) const;
+};
+
 void reducible_state::add(reducible_entry const & e) {
     m_status.insert(e.m_name, e.m_status);
 }
@@ -101,68 +108,46 @@ bool is_at_least_quasireducible(environment const & env, name const & n) {
     return r == reducible_status::Reducible || r == reducible_status::Quasireducible;
 }
 
-unfold_reducible_converter::unfold_reducible_converter(environment const & env, bool memoize):
-    default_converter(env, memoize) {
-    m_state = reducible_ext::get_state(env);
+name_predicate mk_not_reducible_pred(environment const & env) {
+    reducible_state m_state = reducible_ext::get_state(env);
+    return [=](name const & n) {
+        return m_state.get_status(n) != reducible_status::Reducible;
+    };
 }
 
-bool unfold_reducible_converter::is_opaque(declaration const & d) const {
-    auto r = m_state.get_status(d.get_name());
-    if (r != reducible_status::Reducible) return true;
-    return default_converter::is_opaque(d);
+name_predicate mk_not_quasireducible_pred(environment const & env) {
+    reducible_state m_state = reducible_ext::get_state(env);
+    return [=](name const & n) {
+        auto r = m_state.get_status(n);
+        return r != reducible_status::Reducible && r != reducible_status::Quasireducible;
+    };
 }
 
-unfold_quasireducible_converter::unfold_quasireducible_converter(environment const & env, bool memoize):
-    default_converter(env, memoize) {
-    m_state = reducible_ext::get_state(env);
+name_predicate mk_irreducible_pred(environment const & env) {
+    reducible_state m_state = reducible_ext::get_state(env);
+    return [=](name const & n) {
+        return m_state.get_status(n) == reducible_status::Irreducible;
+    };
 }
 
-bool unfold_quasireducible_converter::is_opaque(declaration const & d) const {
-    auto r = m_state.get_status(d.get_name());
-    if (r != reducible_status::Reducible && r != reducible_status::Quasireducible) return true;
-    return default_converter::is_opaque(d);
-}
-
-unfold_semireducible_converter::unfold_semireducible_converter(environment const & env, bool memoize):
-    default_converter(env, memoize) {
-    m_state = reducible_ext::get_state(env);
-}
-
-bool unfold_semireducible_converter::is_opaque(declaration const & d) const {
-    auto r = m_state.get_status(d.get_name());
-    if (r == reducible_status::Irreducible) return true;
-    return default_converter::is_opaque(d);
-}
-
-std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_generator && ngen,
-                                              reducible_behavior rb, bool memoize) {
+type_checker_ptr mk_type_checker(environment const & env, name_generator && ngen, reducible_behavior rb) {
     switch (rb) {
     case UnfoldReducible:
-        return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
-               std::unique_ptr<converter>(new unfold_reducible_converter(env, memoize))));
+        return mk_type_checker(env, std::move(ngen), mk_not_reducible_pred(env));
     case UnfoldQuasireducible:
-        return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
-               std::unique_ptr<converter>(new unfold_quasireducible_converter(env, memoize))));
+        return mk_type_checker(env, std::move(ngen), mk_not_quasireducible_pred(env));
     case UnfoldSemireducible:
-        return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
-               std::unique_ptr<converter>(new unfold_semireducible_converter(env, memoize))));
+        return mk_type_checker(env, std::move(ngen), mk_irreducible_pred(env));
     }
     lean_unreachable();
 }
 
-std::unique_ptr<type_checker> mk_type_checker(environment const & env, reducible_behavior rb) {
+type_checker_ptr mk_type_checker(environment const & env, reducible_behavior rb) {
     return mk_type_checker(env, name_generator(*g_tmp_prefix), rb);
 }
 
-class opaque_converter : public default_converter {
-public:
-    opaque_converter(environment const & env): default_converter(env) {}
-    virtual bool is_opaque(declaration const &) const { return true; }
-};
-
-std::unique_ptr<type_checker> mk_opaque_type_checker(environment const & env, name_generator && ngen) {
-    return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
-                                                          std::unique_ptr<converter>(new opaque_converter(env))));
+type_checker_ptr mk_opaque_type_checker(environment const & env, name_generator && ngen) {
+    return mk_type_checker(env, std::move(ngen), [](name const &) { return true; });
 }
 
 static int mk_opaque_type_checker(lua_State * L) {

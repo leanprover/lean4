@@ -1424,24 +1424,15 @@ class rewrite_fn {
         }
     }
 
-    class match_converter : public unfold_reducible_converter {
-    public:
-        match_converter(environment const & env):
-            unfold_reducible_converter(env, true) {}
-        virtual bool is_opaque(declaration const & d) const {
-            if (is_projection(m_env, d.get_name()))
-                return true;
-            return unfold_reducible_converter::is_opaque(d);
-        }
-    };
-
     type_checker_ptr mk_matcher_tc() {
         if (get_rewriter_syntactic(m_ios.get_options())) {
             // use an everything opaque converter
             return mk_opaque_type_checker(m_env, m_ngen.mk_child());
         } else {
-            return std::unique_ptr<type_checker>(new type_checker(m_env, m_ngen.mk_child(),
-                   std::unique_ptr<converter>(new match_converter(m_env))));
+            auto aux_pred = mk_not_reducible_pred(m_env);
+            return mk_type_checker(m_env, m_ngen.mk_child(), [=](name const & n) {
+                    return is_projection(m_env, n) || aux_pred(n);
+                });
         }
     }
 

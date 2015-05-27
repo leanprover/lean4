@@ -56,40 +56,18 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_cmds.h"
 
 namespace lean {
-/** \brief Custom converter that does not unfold constants that contains coercions from it.
-    We use this converter for detecting whether we have coercions from a given type. */
-class coercion_from_converter : public unfold_semireducible_converter {
-    environment m_env;
-public:
-    coercion_from_converter(environment const & env):unfold_semireducible_converter(env, true), m_env(env) {}
-    virtual bool is_opaque(declaration const & d) const {
-        if (has_coercions_from(m_env, d.get_name()))
-            return true;
-        return unfold_semireducible_converter::is_opaque(d);
-    }
-};
-
-/** \brief Custom converter that does not unfold constants that contains coercions to it.
-    We use this converter for detecting whether we have coercions to a given type. */
-class coercion_to_converter : public unfold_semireducible_converter {
-    environment m_env;
-public:
-    coercion_to_converter(environment const & env):unfold_semireducible_converter(env, true), m_env(env) {}
-    virtual bool is_opaque(declaration const & d) const {
-        if (has_coercions_to(m_env, d.get_name()))
-            return true;
-        return unfold_semireducible_converter::is_opaque(d);
-    }
-};
-
 type_checker_ptr mk_coercion_from_type_checker(environment const & env, name_generator && ngen) {
-    return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
-           std::unique_ptr<converter>(new coercion_from_converter(env))));
+    auto irred_pred = mk_irreducible_pred(env);
+    return mk_type_checker(env, std::move(ngen), [=](name const & n) {
+            return has_coercions_from(env, n) || irred_pred(n);
+        });
 }
 
 type_checker_ptr mk_coercion_to_type_checker(environment const & env, name_generator && ngen) {
-    return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
-           std::unique_ptr<converter>(new coercion_to_converter(env))));
+    auto irred_pred = mk_irreducible_pred(env);
+    return mk_type_checker(env, std::move(ngen), [=](name const & n) {
+            return has_coercions_to(env, n) || irred_pred(n);
+        });
 }
 
 /** \brief 'Choice' expressions <tt>(choice e_1 ... e_n)</tt> are mapped into a metavariable \c ?m

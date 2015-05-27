@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include "kernel/type_checker.h"
 #include "kernel/default_converter.h"
+#include "library/util.h"
 
 namespace lean {
 enum class reducible_status { Reducible, Quasireducible, Semireducible, Irreducible };
@@ -27,49 +28,22 @@ reducible_status get_reducible_status(environment const & env, name const & n);
 
 bool is_at_least_quasireducible(environment const & env, name const & n);
 
-struct reducible_entry;
-
-class reducible_state {
-    name_map<reducible_status> m_status;
-public:
-    void add(reducible_entry const & e);
-    reducible_status get_status(name const & n) const;
-};
-
-/** \brief Unfold only constants marked as reducible */
-class unfold_reducible_converter : public default_converter {
-    reducible_state m_state;
-public:
-    unfold_reducible_converter(environment const & env, bool memoize);
-    virtual bool is_opaque(declaration const & d) const;
-};
-
-/** \brief Unfold only constants marked as reducible or quasireducible */
-class unfold_quasireducible_converter : public default_converter {
-    reducible_state m_state;
-public:
-    unfold_quasireducible_converter(environment const & env, bool memoize);
-    virtual bool is_opaque(declaration const & d) const;
-};
-
-/** \brief Unfold only constants marked as reducible, quasireducible, or semireducible */
-class unfold_semireducible_converter : public default_converter {
-    reducible_state m_state;
-public:
-    unfold_semireducible_converter(environment const & env, bool memoize);
-    virtual bool is_opaque(declaration const & d) const;
-};
+/** \brief Create a predicate that returns true for all non reducible constants in \c env */
+name_predicate mk_not_reducible_pred(environment const & env);
+/** \brief Create a predicate that returns true for all non reducible and non quasireducible constants in \c env */
+name_predicate mk_not_quasireducible_pred(environment const & env);
+/** \brief Create a predicate that returns true for irreducible constants  in \c env */
+name_predicate mk_irreducible_pred(environment const & env);
 
 enum reducible_behavior { UnfoldReducible, UnfoldQuasireducible, UnfoldSemireducible };
 
 /** \brief Create a type checker that takes the "reducibility" hints into account. */
-std::unique_ptr<type_checker> mk_type_checker(environment const & env, name_generator && ngen,
-                                              reducible_behavior r = UnfoldSemireducible,
-                                              bool memoize = true);
-std::unique_ptr<type_checker> mk_type_checker(environment const & env, reducible_behavior r = UnfoldSemireducible);
+type_checker_ptr mk_type_checker(environment const & env, name_generator && ngen,
+                                 reducible_behavior r = UnfoldSemireducible);
+type_checker_ptr mk_type_checker(environment const & env, reducible_behavior r = UnfoldSemireducible);
 
 /** \brief Create a type checker that treats all definitions as opaque. */
-std::unique_ptr<type_checker> mk_opaque_type_checker(environment const & env, name_generator && ngen);
+type_checker_ptr mk_opaque_type_checker(environment const & env, name_generator && ngen);
 
 void initialize_reducible();
 void finalize_reducible();

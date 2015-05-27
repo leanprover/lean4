@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/error_msgs.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
+#include "kernel/default_converter.h"
 #include "kernel/metavar.h"
 #include "kernel/inductive/inductive.h"
 #include "library/locals.h"
@@ -712,5 +713,22 @@ justification mk_type_mismatch_jst(expr const & v, expr const & v_type, expr con
             substitution s(subst);
             return pp_type_mismatch(fmt, s.instantiate(v), s.instantiate(v_type), s.instantiate(t));
         });
+}
+
+class extra_opaque_converter : public default_converter {
+    name_predicate m_pred;
+public:
+    extra_opaque_converter(environment const & env, name_predicate const & p):default_converter(env, true), m_pred(p) {}
+    virtual bool is_opaque(declaration const & d) const {
+        if (m_pred(d.get_name()))
+            return true;
+        return default_converter::is_opaque(d);
+    }
+};
+
+type_checker_ptr mk_type_checker(environment const & env, name_generator && ngen, name_predicate const & pred) {
+    return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
+                                         std::unique_ptr<converter>(new extra_opaque_converter(env, pred))));
+
 }
 }

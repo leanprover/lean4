@@ -38,28 +38,6 @@ static name * g_migrate_trace  = nullptr;
 
 bool get_migrate_trace(options const & o) { return o.get_bool(*g_migrate_trace, LEAN_DEFAULT_MIGRATE_TRACE); }
 
-/** \brief Converter used by the migrate command. It treat
-    definitions from a given set of namespaces as opaque.
-*/
-class migrate_converter : public unfold_semireducible_converter {
-    list<name> m_namespaces;
-public:
-    migrate_converter(environment const & env, list<name> const & ns):
-        unfold_semireducible_converter(env, true),
-        m_namespaces(ns) {
-    }
-
-    virtual bool is_opaque(declaration const & d) const {
-        name const & n = d.get_name();
-        if (!is_instance(m_env, n) &&
-            std::any_of(m_namespaces.begin(), m_namespaces.end(), [&](name const & ns) {
-                    return is_prefix_of(ns, n);
-                }))
-            return true;
-        return default_converter::is_opaque(d);
-    }
-};
-
 struct migrate_cmd_fn {
     parser &                 m_p;
     environment              m_env;
@@ -416,10 +394,21 @@ struct migrate_cmd_fn {
     environment operator()() {
         m_pos = m_p.pos();
 
-        m_migrate_tc = std::unique_ptr<type_checker>(new type_checker(m_env, m_ngen.mk_child(),
-                       std::unique_ptr<converter>(new migrate_converter(m_env, get_namespaces(m_env)))));
-        m_tc = std::unique_ptr<type_checker>(new type_checker(m_env, m_ngen.mk_child(),
-               std::unique_ptr<converter>(new unfold_semireducible_converter(m_env, true))));
+        auto m_namespaces = get_namespaces(m_env);
+        auto irred_pred   = mk_irreducible_pred(m_env);
+        /* auxiliary predicate for custom converter used by the migrate command. It treats
+           definitions from a given set of namespaces as opaque.
+        */
+        auto opaque_pred = [=](name const & n) {
+            if (!is_instance(m_env, n) &&
+                std::any_of(m_namespaces.begin(), m_namespaces.end(), [&](name const & ns) {
+                        return is_prefix_of(ns, n);
+                    }))
+                return true;
+            return irred_pred(n);
+        };
+        m_migrate_tc = mk_type_checker(m_env, m_ngen.mk_child(), opaque_pred);
+        m_tc         = mk_type_checker(m_env, m_ngen.mk_child(), UnfoldSemireducible);
 
         parse_params();
         parse_from_namespace();

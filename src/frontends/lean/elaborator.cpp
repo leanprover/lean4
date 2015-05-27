@@ -36,6 +36,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/util.h"
 #include "library/choice_iterator.h"
+#include "library/projection.h"
 #include "library/pp_options.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/class_instance_synth.h"
@@ -1297,12 +1298,9 @@ expr elaborator::visit_decreasing(expr const & e, constraint_seq & cs) {
     return mk_decreasing(dec_app, dec_proof);
 }
 
-bool elaborator::is_structure(expr const & S) {
+bool elaborator::is_structure_like(expr const & S) {
     expr const & I = get_app_fn(S);
-    return is_constant(I) &&
-        inductive::is_inductive_decl(env(), const_name(I)) &&
-        *inductive::get_num_intro_rules(env(), const_name(I)) == 1 &&
-        *inductive::get_num_indices(env(), const_name(I)) == 0;
+    return is_constant(I) && ::lean::is_structure_like(env(), const_name(I));
 }
 
 expr elaborator::visit_structure_instance(expr const & e, constraint_seq & cs) {
@@ -1312,7 +1310,7 @@ expr elaborator::visit_structure_instance(expr const & e, constraint_seq & cs) {
     destruct_structure_instance(e, S, field_names, field_values, using_exprs);
     lean_assert(field_names.size() == field_values.size());
     expr new_S     = visit(S, cs);
-    if (!is_structure(new_S))
+    if (!is_structure_like(new_S))
         throw_elaborator_exception("invalid structure instance, given type is not a structure", S);
     buffer<expr> new_S_args;
     expr I = get_app_args(new_S, new_S_args);
@@ -1337,7 +1335,7 @@ expr elaborator::visit_structure_instance(expr const & e, constraint_seq & cs) {
     for (expr const & u : using_exprs) {
         expr new_u = visit(u, cs);
         expr new_u_type = whnf(infer_type(new_u, cs), cs);
-        if (!is_structure(new_u_type))
+        if (!is_structure_like(new_u_type))
             throw_elaborator_exception("invalid structure instance, type of 'using' argument is not a structure", u);
         new_using_exprs.push_back(new_u);
         new_using_types.push_back(new_u_type);

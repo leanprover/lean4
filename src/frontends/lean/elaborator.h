@@ -174,7 +174,7 @@ class elaborator : public coercion_info_manager {
     expr visit_decreasing(expr const & e, constraint_seq & cs);
     constraint mk_equations_cnstr(expr const & m, expr const & eqns);
 
-    bool is_structure(expr const & S);
+    bool is_structure_like(expr const & S);
     expr visit_structure_instance(expr const & e, constraint_seq & cs);
 
     expr process_obtain_expr(list<obtain_struct> const & s_list, list<expr> const & from_list,

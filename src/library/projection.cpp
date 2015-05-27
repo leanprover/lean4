@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/sstream.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/instantiate.h"
+#include "kernel/inductive/inductive.h"
 #include "library/util.h"
 #include "library/projection.h"
 #include "library/module.h"
@@ -168,6 +169,19 @@ public:
         s << m_proj_name;
     }
 };
+
+/** \brief Return true iff the type named \c S can be viewed as
+    a structure in the given environment.
+
+    If not, generate an error message using \c pos.
+*/
+bool is_structure_like(environment const & env, name const & S) {
+    optional<inductive::inductive_decls> idecls = inductive::is_inductive_decl(env, S);
+    if (!idecls || length(std::get<2>(*idecls)) != 1)
+        return false;
+    inductive::inductive_decl decl   = head(std::get<2>(*idecls));
+    return length(inductive::inductive_decl_intros(decl)) == 1 && *inductive::get_num_indices(env, S) == 0;
+}
 
 expr mk_projection_macro(name const & proj_name, expr const & e) {
     macro_definition def(new projection_macro_definition_cell(proj_name));

@@ -19,19 +19,6 @@ Author: Leonardo de Moura
 #include "library/definitional/projection.h"
 
 namespace lean {
-/** \brief Return true iff the type named \c S can be viewed as
-    a structure in the given environment.
-
-    If not, generate an error message using \c pos.
-*/
-bool is_structure(environment const & env, name const & S) {
-    optional<inductive::inductive_decls> idecls = inductive::is_inductive_decl(env, S);
-    if (!idecls || length(std::get<2>(*idecls)) != 1)
-        return false;
-    inductive::inductive_decl decl   = head(std::get<2>(*idecls));
-    return length(inductive::inductive_decl_intros(decl)) == 1 && *inductive::get_num_indices(env, S) == 0;
-}
-
 [[ noreturn ]] static void throw_ill_formed(name const & n) {
     throw exception(sstream() << "projection generation, '" << n << "' is an ill-formed inductive datatype");
 }

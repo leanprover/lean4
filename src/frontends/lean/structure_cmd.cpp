@@ -67,11 +67,11 @@ bool get_structure_proj_mk_thm(options const & o) { return o.get_bool(*g_gen_pro
 
 /** \brief Return the universe parameters, number of parameters and introduction rule for the given parent structure
 
-    \pre is_structure(env, S)
+    \pre is_structure_like(env, S)
 */
 static auto get_structure_info(environment const & env, name const & S)
 -> std::tuple<level_param_names, unsigned, inductive::intro_rule> {
-    lean_assert(is_structure(env, S));
+    lean_assert(is_structure_like(env, S));
     inductive::inductive_decls idecls = *inductive::is_inductive_decl(env, S);
     inductive::intro_rule intro = head(inductive::inductive_decl_intros(head(std::get<2>(idecls))));
     return std::make_tuple(std::get<0>(idecls), std::get<1>(idecls), intro);
@@ -154,7 +154,7 @@ struct structure_cmd_fn {
         if (!is_constant(fn))
             throw parser_error("invalid 'structure', expression must be a 'parent' structure", pos);
         name const & S = const_name(fn);
-        if (!is_structure(m_env, S))
+        if (!is_structure_like(m_env, S))
             throw parser_error(sstream() << "invalid 'structure' extends, '" << S << "' is not a structure", pos);
     }
 
@@ -952,7 +952,7 @@ environment structure_cmd(parser & p) {
 }
 
 void get_structure_fields(environment const & env, name const & S, buffer<name> & fields) {
-    lean_assert(is_structure(env, S));
+    lean_assert(is_structure_like(env, S));
     level_param_names ls; unsigned nparams; inductive::intro_rule intro;
     std::tie(ls, nparams, intro) = get_structure_info(env, S);
     expr intro_type = inductive::intro_rule_type(intro);
@@ -963,6 +963,23 @@ void get_structure_fields(environment const & env, name const & S, buffer<name> 
         i++;
         intro_type = binding_body(intro_type);
     }
+}
+
+bool is_structure(environment const & env, name const & S) {
+    if (!is_structure_like(env, S))
+        return false;
+    level_param_names ls; unsigned nparams; inductive::intro_rule intro;
+    std::tie(ls, nparams, intro) = get_structure_info(env, S);
+    expr intro_type = inductive::intro_rule_type(intro);
+    for (unsigned i = 0; i < nparams; i++) {
+        if (!is_pi(intro_type))
+            return false;
+        intro_type = binding_body(intro_type);
+    }
+    if (!is_pi(intro_type))
+        return false;
+    name field_name = S + binding_name(intro_type);
+    return get_projection_info(env, field_name) != nullptr;
 }
 
 static name * g_structure_instance_name          = nullptr;

@@ -111,6 +111,7 @@ expr instantiate_univ_param (expr const & e, name const & p, level const & l);
 
 expr mk_true();
 expr mk_true_intro();
+bool is_and(expr const & e, expr & arg1, expr & arg2);
 expr mk_and(expr const & a, expr const & b);
 expr mk_and_intro(type_checker & tc, expr const & Ha, expr const & Hb);
 expr mk_and_elim_left(type_checker & tc, expr const & H);
@@ -145,6 +146,7 @@ expr mk_false_rec(type_checker & tc, expr const & f, expr const & t);
 /** \brief Return true if \c e is of the form <tt>(not arg)</tt>, and store \c arg in \c a.
      Return false otherwise */
 bool is_not(environment const & env, expr const & e, expr & a);
+expr mk_not(type_checker & tc, expr const & e);
 
 /** \brief Create the term <tt>absurd e not_e : t</tt>. */
 expr mk_absurd(type_checker & tc, expr const & t, expr const & e, expr const & not_e);
@@ -162,6 +164,8 @@ bool is_eq_a_a(type_checker & tc, expr const & e);
 
 bool is_heq(expr const & e);
 bool is_heq(expr const & e, expr & A, expr & lhs, expr & B, expr & rhs);
+
+bool is_ite(expr const & e, expr & c, expr & H, expr & A, expr & t, expr & f);
 
 bool is_iff(expr const & e);
 expr mk_iff(expr const & lhs, expr const & rhs);

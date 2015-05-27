@@ -1,3 +1,6 @@
+set_option pp.universes true
+check @not
+
 inductive list (A : Type) : Type :=
 | nil {} : list A
 | cons   : A → list A → list A

@@ -28,7 +28,11 @@ heq.refl
 heq.to_eq
 iff
 iff.refl
+iff_false_intro
+iff_true_intro
 implies
+implies_of_if_pos
+implies_of_if_neg
 ite
 lift
 lift.down

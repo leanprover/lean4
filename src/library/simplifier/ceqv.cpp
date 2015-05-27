@@ -5,13 +5,111 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/type_checker.h"
+#include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
+#include "library/constants.h"
+#include "library/expr_pair.h"
 #include "library/util.h"
 #include "library/relation_manager.h"
 #include "library/occurs.h"
+#include "library/simplifier/ceqv.h"
 
 namespace lean {
+bool is_ceqv(type_checker & tc, expr e);
+
+/** \brief Auxiliary functional object for creating "conditional equations" */
+class to_ceqs_fn {
+    environment const &   m_env;
+    type_checker &        m_tc;
+
+    static list<expr_pair> mk_singleton(expr const & e, expr const & H) {
+        return list<expr_pair>(mk_pair(e, H));
+    }
+
+    bool is_type(expr const & e) {
+        return is_sort(m_tc.whnf(m_tc.infer(e).first).first);
+    }
+
+    bool is_equivalence(expr const & e) {
+        if (!is_app(e)) return false;
+        expr const & fn = get_app_fn(e);
+        return is_constant(fn) && ::lean::is_equivalence(m_env, const_name(fn)) && is_type(e);
+    }
+
+    list<expr_pair> lift(expr const & local, list<expr_pair> const & l) {
+        lean_assert(is_local(local));
+        return map(l, [&](expr_pair const & e_H) {
+                return mk_pair(Pi(local, e_H.first), Fun(local, e_H.second));
+            });
+    }
+
+    list<expr_pair> apply(expr const & e, expr const & H) {
+        expr c, Hdec, A, arg1, arg2;
+        if (is_equivalence(e)) {
+            return mk_singleton(e, H);
+        } else if (is_standard(m_env) && is_not(m_env, e, arg1)) {
+            expr new_e = mk_iff(e, mk_false());
+            expr new_H = mk_app(mk_constant(get_iff_false_intro_name()), arg1, H);
+            return mk_singleton(new_e, new_H);
+        } else if (is_standard(m_env) && is_and(e, arg1, arg2)) {
+            // TODO(Leo): we can extend this trick to any type that has only one constructor
+            expr H1 = mk_app(mk_constant(get_and_elim_left_name()), arg1, arg2, H);
+            expr H2 = mk_app(mk_constant(get_and_elim_right_name()), arg1, arg2, H);
+            auto r1 = apply(arg1, H1);
+            auto r2 = apply(arg2, H2);
+            return append(r1, r2);
+        } else if (is_pi(e)) {
+            expr local = mk_local(m_tc.mk_fresh_name(), binding_name(e), binding_domain(e), binding_info(e));
+            expr new_e = instantiate(binding_body(e), local);
+            expr new_H = mk_app(H, local);
+            auto r = apply(new_e, new_H);
+            unsigned len = length(r);
+            if (len == 0) {
+                return r;
+            } else if (len == 1 && head(r).first == new_e && head(r).second == new_H) {
+                return mk_singleton(e, H);
+            } else {
+                return lift(local, r);
+            }
+        } else if (is_standard(m_env) && is_ite(e, c, Hdec, A, arg1, arg2)) {
+            // TODO(Leo): support HoTT mode if users request
+            expr not_c = mk_not(m_tc, c);
+            expr Hc    = mk_local(m_tc.mk_fresh_name(), c);
+            expr Hnc   = mk_local(m_tc.mk_fresh_name(), not_c);
+            expr H1    = mk_app({mk_constant(get_implies_of_if_pos_name()),
+                                 c, arg1, arg2, Hdec, e, Hc});
+            expr H2    = mk_app({mk_constant(get_implies_of_if_neg_name()),
+                                 c, arg1, arg2, Hdec, e, Hnc});
+            auto r1    = lift(Hc, apply(arg1, H1));
+            auto r2    = lift(Hnc, apply(arg2, H2));
+            return append(r1, r2);
+        } else {
+            constraint_seq cs;
+            expr new_e = m_tc.whnf(e, cs);
+            if (new_e != e && !cs) {
+                return apply(new_e, H);
+            } else if (is_standard(m_env)) {
+                expr new_e = mk_iff(e, mk_true());
+                expr new_H = mk_app(mk_constant(get_iff_true_intro_name()), arg1, H);
+                return mk_singleton(new_e, new_H);
+            } else {
+                return list<expr_pair>();
+            }
+        }
+    }
+public:
+    to_ceqs_fn(type_checker & tc):m_env(tc.env()), m_tc(tc) {}
+
+    list<expr_pair> operator()(expr const & e, expr const & H) {
+        return filter(apply(e, H), [&](expr_pair const & p) { return is_ceqv(m_tc, p.first); });
+    }
+};
+
+list<expr_pair> to_ceqs(type_checker & tc, expr const & e, expr const & H) {
+    return to_ceqs_fn(tc)(e, H);
+}
+
 bool is_equivalence(environment const & env, expr const & e, expr & rel, expr & lhs, expr & rhs) {
     buffer<expr> args;
     rel = get_app_args(e, args);
@@ -30,7 +128,7 @@ bool is_equivalence(environment const & env, expr const & e, expr & lhs, expr & 
     return is_equivalence(env, e, rel, lhs, rhs);
 }
 
-bool is_ceqv(environment const & env, name_generator && ngen, expr e) {
+bool is_ceqv(type_checker & tc, expr e) {
     if (has_expr_metavar(e))
         return false;
     name_set to_find;
@@ -45,8 +143,8 @@ bool is_ceqv(environment const & env, name_generator && ngen, expr e) {
             return true;
         }
     };
+    environment const & env = tc.env();
     bool is_std = is_standard(env);
-    type_checker tc(env, ngen.mk_child());
     buffer<expr> hypotheses; // arguments that are propositions
     while (is_pi(e)) {
         if (!to_find.empty()) {
@@ -55,7 +153,7 @@ bool is_ceqv(environment const & env, name_generator && ngen, expr e) {
             // by matching the type.
             for_each(binding_domain(e), visitor_fn);
         }
-        expr local = mk_local(ngen.next(), binding_domain(e));
+        expr local = mk_local(tc.mk_fresh_name(), binding_domain(e));
         if (binding_info(e).is_inst_implicit()) {
             // If the argument can be instantiated by type class resolution, then
             // we don't need to find it in the lhs

@@ -306,6 +306,15 @@ bool is_not(environment const & env, expr const & e, expr & a) {
     }
 }
 
+expr mk_not(type_checker & tc, expr const & e) {
+    if (is_standard(tc.env())) {
+        return mk_app(mk_constant(get_not_name()), e);
+    } else {
+        level l = sort_level(tc.ensure_type(e).first);
+        return mk_app(mk_constant(get_not_name(), {l}), e);
+    }
+}
+
 expr mk_absurd(type_checker & tc, expr const & t, expr const & e, expr const & not_e) {
     level t_lvl  = sort_level(tc.ensure_type(t).first);
     expr  e_type = tc.infer(e).first;
@@ -362,6 +371,21 @@ expr mk_true() {
 
 expr mk_true_intro() {
     return *g_true_intro;
+}
+
+bool is_and(expr const & e, expr & arg1, expr & arg2) {
+    if (get_app_fn(e) == *g_and) {
+        buffer<expr> args; get_app_args(e, args);
+        if (args.size() == 2) {
+            arg1 = args[0];
+            arg2 = args[1];
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
 }
 
 expr mk_and(expr const & a, expr const & b) {
@@ -426,6 +450,22 @@ expr mk_pair(type_checker & tc, expr const & a, expr const & b, bool prop) {
 }
 expr mk_pr1(type_checker & tc, expr const & p, bool prop) { return prop ? mk_and_elim_left(tc, p) : mk_pr1(tc, p); }
 expr mk_pr2(type_checker & tc, expr const & p, bool prop) { return prop ? mk_and_elim_right(tc, p) : mk_pr2(tc, p); }
+
+bool is_ite(expr const & e, expr & c, expr & H, expr & A, expr & t, expr & f) {
+    expr const & fn = get_app_fn(e);
+    if (is_constant(fn) && const_name(fn) == get_ite_name()) {
+        buffer<expr> args;
+        get_app_args(e, args);
+        if (args.size() == 5) {
+            c = args[0]; H = args[1]; A = args[2]; t = args[3]; f = args[4];
+            return true;
+        } else {
+            return true;
+        }
+    } else {
+        return false;
+    }
+}
 
 bool is_iff(expr const & e) {
     expr const & fn = get_app_fn(e);

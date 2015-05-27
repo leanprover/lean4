@@ -40,7 +40,7 @@ size_t get_stack_size(int main) {
         if (getrlimit(RLIMIT_STACK, &curr) != 0) {
             throw_get_stack_size_failed();
         }
-        return curr.rlim_max;
+        return curr.rlim_cur;
     } else {
         #if defined(LEAN_MULTI_THREAD)
         {

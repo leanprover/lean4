@@ -237,7 +237,7 @@ theorem succ_le_succ {n m : ℕ} (H : n ≤ m) : succ n ≤ succ m :=
 !add_one ▸ !add_one ▸ add_le_add_right H 1
 
 theorem le_of_succ_le_succ {n m : ℕ} (H : succ n ≤ succ m) : n ≤ m :=
-le_of_add_le_add_right H
+le_of_add_le_add_right (by rewrite -add_one at H; assumption)
 
 theorem self_le_succ (n : ℕ) : n ≤ succ n :=
 le.intro !add_one

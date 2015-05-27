@@ -98,8 +98,8 @@ namespace eq
   rec_nat_on b
     idp
     (λn IH, calc
-      power p (succ n) ⬝ p⁻¹ = power p n : con_inv_cancel_right
-        ... = power p (pred (succ n)) : by rewrite pred_nat_succ)
+      power p (succ n) ⬝ p⁻¹ = power p n : by apply con_inv_cancel_right
+        ... = power p (pred (succ n))   : by rewrite pred_nat_succ)
     (λn IH, calc
       power p (-succ n) ⬝ p⁻¹ = power p (-succ (succ n)) : by rewrite [↑power,-rec_nat_on_neg]
         ... = power p (pred (-succ n)) : by rewrite -neg_succ)

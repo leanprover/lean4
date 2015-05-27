@@ -87,7 +87,7 @@ namespace is_trunc
 
   definition is_trunc_eq [instance] [priority 1200]
     (n : trunc_index) [H : is_trunc (n.+1) A] (x y : A) : is_trunc n (x = y) :=
-  is_trunc.mk (!is_trunc.to_internal x y)
+  is_trunc.mk (@is_trunc.to_internal (n .+1) A H x y)
 
   /- contractibility -/
 
@@ -95,7 +95,7 @@ namespace is_trunc
   is_trunc.mk (contr_internal.mk center center_eq)
 
   definition center (A : Type) [H : is_contr A] : A :=
-  @contr_internal.center A !is_trunc.to_internal
+  @contr_internal.center A (@is_trunc.to_internal -2 A H)
 
   definition center_eq [H : is_contr A] (a : A) : !center = a :=
   @contr_internal.center_eq A !is_trunc.to_internal a
@@ -144,11 +144,11 @@ namespace is_trunc
 
   definition is_trunc_succ_of_is_hprop (A : Type) (n : trunc_index) [H : is_hprop A]
       : is_trunc (n.+1) A :=
-  is_trunc_of_leq A star
+  @is_trunc_of_leq A (-2.+1) _ star _
 
-  definition is_trunc_succ_succ_of_is_hset (A : Type) (n : trunc_index) [H : is_hset A]
+   definition is_trunc_succ_succ_of_is_hset (A : Type) (n : trunc_index) [H : is_hset A]
       : is_trunc (n.+2) A :=
-  is_trunc_of_leq A star
+  @is_trunc_of_leq A (-2.+1.+1) _ star _
 
   /- hprops -/
 

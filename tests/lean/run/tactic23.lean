@@ -31,8 +31,8 @@ theorem T1 {p : nat → Prop} {a : nat } (H : p (a+2)) : ∃ x, p (succ x)
 definition is_zero (n : nat)
 := nat.rec true (λ n r, false) n
 
-theorem T2 : ∃ a, (is_zero a) = true
-:= by apply exists.intro; apply eq.refl
+theorem T2 : ∃ a, (is_zero a) = true :=
+by existsi zero; apply eq.refl
 
 end nat
 end experiment

@@ -799,7 +799,13 @@ definition succ_neg_nat_succ (n : ℕ) : succ (-nat.succ n) = -n := !succ_neg_su
 
 definition rec_nat_on [unfold-c 2] {P : ℤ → Type} (z : ℤ) (H0 : P 0)
   (Hsucc : Π⦃n : ℕ⦄, P n → P (succ n)) (Hpred : Π⦃n : ℕ⦄, P (-n) → P (-nat.succ n)) : P z :=
-int.rec_on z (λn, nat.rec_on n H0 Hsucc) (λn, nat.rec_on n (Hpred H0) (λm H, Hpred H))
+begin
+  induction z with n n,
+   {exact nat.rec_on n H0 Hsucc},
+   {induction n with m ih,
+     exact Hpred H0,
+     exact Hpred ih}
+end
 
 --the only computation rule of rec_nat_on which is not definitional
 definition rec_nat_on_neg {P : ℤ → Type} (n : nat) (H0 : P zero)

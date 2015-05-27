@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/inductive/inductive.h"
 #include "library/unifier_plugin.h"
 #include "library/unifier.h"
+#include "library/util.h"
 
 namespace lean {
 class inductive_unifier_plugin_cell : public unifier_plugin_cell {
@@ -98,6 +99,8 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
         expr const & elim = get_app_args(lhs, args);
         environment const & env = tc.env();
         auto it_name = *inductive::is_elim_rule(env, const_name(elim));
+        if (is_recursive_datatype(env, it_name))
+            return lazy_list<constraints>();
         auto decls   = *inductive::is_inductive_decl(env, it_name);
         for (auto const & d : std::get<2>(decls)) {
             if (inductive::inductive_decl_name(d) == it_name)

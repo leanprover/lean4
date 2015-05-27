@@ -769,6 +769,5 @@ public:
 type_checker_ptr mk_type_checker(environment const & env, name_generator && ngen, name_predicate const & pred) {
     return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
                                          std::unique_ptr<converter>(new extra_opaque_converter(env, pred))));
-
 }
 }

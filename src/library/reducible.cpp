@@ -110,14 +110,14 @@ bool is_at_least_quasireducible(environment const & env, name const & n) {
 
 name_predicate mk_not_reducible_pred(environment const & env) {
     reducible_state m_state = reducible_ext::get_state(env);
-    return [=](name const & n) {
+    return [=](name const & n) { // NOLINT
         return m_state.get_status(n) != reducible_status::Reducible;
     };
 }
 
 name_predicate mk_not_quasireducible_pred(environment const & env) {
     reducible_state m_state = reducible_ext::get_state(env);
-    return [=](name const & n) {
+    return [=](name const & n) { // NOLINT
         auto r = m_state.get_status(n);
         return r != reducible_status::Reducible && r != reducible_status::Quasireducible;
     };
@@ -125,7 +125,7 @@ name_predicate mk_not_quasireducible_pred(environment const & env) {
 
 name_predicate mk_irreducible_pred(environment const & env) {
     reducible_state m_state = reducible_ext::get_state(env);
-    return [=](name const & n) {
+    return [=](name const & n) { // NOLINT
         return m_state.get_status(n) == reducible_status::Irreducible;
     };
 }

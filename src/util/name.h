@@ -186,7 +186,7 @@ struct name_pair_quick_cmp {
     }
 };
 
-typedef std::function<bool(name const &)> name_predicate;
+typedef std::function<bool(name const &)> name_predicate; // NOLINT
 
 serializer & operator<<(serializer & s, name const & n);
 name read_name(deserializer & d);

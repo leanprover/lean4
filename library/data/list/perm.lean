@@ -74,11 +74,11 @@ assume p, perm.induction_on p
   (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂ ainl₁, r₂ (r₁ ainl₁))
 
 theorem not_mem_perm {a : A} {l₁ l₂ : list A} : l₁ ~ l₂ → a ∉ l₁ → a ∉ l₂ :=
-assume p nainl₁ ainl₂, absurd (mem_perm (symm p) ainl₂) nainl₁
+assume p nainl₁ ainl₂, absurd (mem_perm (perm.symm p) ainl₂) nainl₁
 
 theorem perm_app_left {l₁ l₂ : list A} (t₁ : list A) : l₁ ~ l₂ → (l₁++t₁) ~ (l₂++t₁) :=
 assume p, perm.induction_on p
-  !refl
+  !perm.refl
   (λ x l₁ l₂ p₁ r₁, skip x r₁)
   (λ x y l, !swap)
   (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, trans r₁ r₂)
@@ -95,7 +95,7 @@ theorem perm_app_cons (a : A) {h₁ h₂ t₁ t₂ : list A} : h₁ ~ h₂ → t
 assume p₁ p₂, perm_app p₁ (skip a p₂)
 
 theorem perm_cons_app (a : A) : ∀ (l : list A), (a::l) ~ (l ++ [a])
-| []      := !refl
+| []      := !perm.refl
 | (x::xs) := calc
   a::x::xs ~ x::a::xs     : swap x a xs
        ... ~ x::(xs++[a]) : skip x (perm_cons_app xs)
@@ -107,7 +107,7 @@ list.induction_on l₁
     a::(t++l₂) ~ a::(l₂++t)   : skip a r
           ...  ~ l₂++t++[a]   : perm_cons_app
           ...  = l₂++(t++[a]) : append.assoc
-          ...  ~ l₂++(a::t)   : perm_app_right l₂ (symm (perm_cons_app a t)))
+          ...  ~ l₂++(a::t)   : perm_app_right l₂ (perm.symm (perm_cons_app a t)))
 
 theorem length_eq_length_of_perm {l₁ l₂ : list A} : l₁ ~ l₂ → length l₁ = length l₂ :=
 assume p, perm.induction_on p
@@ -150,14 +150,14 @@ calc
   (a::l₁) ++ l₂ = a::(l₁++l₂)   : rfl
            ...  ~ l₁++l₂++[a]   : perm_cons_app
            ...  = l₁++(l₂++[a]) : append.assoc
-           ...  ~ l₁++(a::l₂)   : perm_app_right l₁ (symm (perm_cons_app a l₂))
+           ...  ~ l₁++(a::l₂)   : perm_app_right l₁ (perm.symm (perm_cons_app a l₂))
 
 theorem perm_cons_app_cons {l l₁ l₂ : list A} (a : A) : l ~ l₁++l₂ → a::l ~ l₁++(a::l₂) :=
 assume p, calc
   a::l ~ l++[a]        : perm_cons_app
    ... ~ l₁++l₂++[a]   : perm_app_left [a] p
    ... = l₁++(l₂++[a]) : append.assoc
-   ... ~ l₁++(a::l₂)   : perm_app_right l₁ (symm (perm_cons_app a l₂))
+   ... ~ l₁++(a::l₂)   : perm_app_right l₁ (perm.symm (perm_cons_app a l₂))
 
 open decidable
 theorem perm_erase [H : decidable_eq A] {a : A} : ∀ {l : list A}, a ∈ l → l ~ a::(erase a l)
@@ -200,8 +200,8 @@ theorem perm_induction_on {P : list A → list A → Prop} {l₁ l₂ : list A} 
    : P l₁ l₂ :=
 have P_refl : ∀ l, P l l
   | []      := h₁
-  | (x::xs) := h₂ x xs xs !refl (P_refl xs),
-perm.induction_on p h₁ h₂ (λ x y l, h₃ x y l l !refl !P_refl) h₄
+  | (x::xs) := h₂ x xs xs !perm.refl (P_refl xs),
+perm.induction_on p h₁ h₂ (λ x y l, h₃ x y l l !perm.refl !P_refl) h₄
 
 theorem xswap {l₁ l₂ : list A} (x y : A) : l₁ ~ l₂ → x::y::l₁ ~ y::x::l₂ :=
 assume p, calc
@@ -217,7 +217,7 @@ assume p, perm_induction_on p
 
 lemma perm_of_qeq {a : A} {l₁ l₂ : list A} : l₁≈a|l₂ → l₁~a::l₂ :=
 assume q, qeq.induction_on q
-  (λ h, !refl)
+  (λ h, !perm.refl)
   (λ b t₁ t₂ q₁ r₁, calc
      b::t₂ ~ b::a::t₁ : skip b r₁
        ... ~ a::b::t₁ : swap)
@@ -464,7 +464,7 @@ assume p : l₁++(a::l₂) ~ l₃++(a::l₄),
   have p' : a::(l₁++l₂) ~ a::(l₃++l₄), from calc
     a::(l₁++l₂) ~ l₁++(a::l₂) : perm_middle
           ...   ~ l₃++(a::l₄) : p
-          ...   ~ a::(l₃++l₄) : symm (!perm_middle),
+          ...   ~ a::(l₃++l₄) : perm.symm (!perm_middle),
   perm_cons_inv p'
 
 section foldl
@@ -516,7 +516,7 @@ assume p, perm_induction_on p
       by rewrite [erase_dup_cons_of_mem xint₁, erase_dup_cons_of_mem xint₂]; exact r)
     (λ nxint₁ : x ∉ t₁,
       assert nxint₂ : x ∉ t₂, from
-         assume xint₂ : x ∈ t₂, absurd (mem_of_mem_erase_dup (mem_perm (symm r) (mem_erase_dup xint₂))) nxint₁,
+         assume xint₂ : x ∈ t₂, absurd (mem_of_mem_erase_dup (mem_perm (perm.symm r) (mem_erase_dup xint₂))) nxint₁,
       by rewrite [erase_dup_cons_of_not_mem nxint₂, erase_dup_cons_of_not_mem nxint₁]; exact (skip x r)))
   (λ y x t₁ t₂ p r, by_cases
     (λ xinyt₁  : x ∈ y::t₁, by_cases
@@ -540,7 +540,7 @@ assume p, perm_induction_on p
             end))
       (λ nyint₁ : y ∉ t₁,
         assert nyint₂ : y ∉ t₂, from
-          assume yint₂ : y ∈ t₂, absurd (mem_of_mem_erase_dup (mem_perm (symm r) (mem_erase_dup yint₂))) nyint₁,
+          assume yint₂ : y ∈ t₂, absurd (mem_of_mem_erase_dup (mem_perm (perm.symm r) (mem_erase_dup yint₂))) nyint₁,
         by_cases
           (λ xeqy  : x = y,
             assert nxint₂ : x ∉ t₂, by rewrite [-xeqy at nyint₂]; exact nyint₂,
@@ -566,7 +566,7 @@ assume p, perm_induction_on p
       have   xney    : x ≠ y,  from not_eq_of_not_mem nxinyt₁,
       have   nxint₁  : x ∉ t₁, from not_mem_of_not_mem nxinyt₁,
       assert nxint₂  : x ∉ t₂, from
-        assume xint₂ : x ∈ t₂, absurd (mem_of_mem_erase_dup (mem_perm (symm r) (mem_erase_dup xint₂))) nxint₁,
+        assume xint₂ : x ∈ t₂, absurd (mem_of_mem_erase_dup (mem_perm (perm.symm r) (mem_erase_dup xint₂))) nxint₁,
       by_cases
         (λ yint₁  : y ∈ t₁,
           assert yinxt₂ : y ∈ x::t₂, from or.inr (mem_of_mem_erase_dup (mem_perm r (mem_erase_dup yint₁))),
@@ -579,7 +579,7 @@ assume p, perm_induction_on p
           assert nyinxt₂ : y ∉ x::t₂, from
             assume yinxt₂ : y ∈ x::t₂, or.elim (eq_or_mem_of_mem_cons yinxt₂)
               (λ h, absurd h (ne.symm xney))
-              (λ h, absurd (mem_of_mem_erase_dup (mem_perm (symm r) (mem_erase_dup h))) nyint₁),
+              (λ h, absurd (mem_of_mem_erase_dup (mem_perm (perm.symm r) (mem_erase_dup h))) nyint₁),
           begin
             rewrite [erase_dup_cons_of_not_mem nxinyt₁, erase_dup_cons_of_not_mem nyinxt₂,
                      erase_dup_cons_of_not_mem nyint₁, erase_dup_cons_of_not_mem nxint₂],
@@ -645,7 +645,7 @@ include H
 
 theorem perm_inter_left {l₁ l₂ : list A} (t₁ : list A) : l₁ ~ l₂ → (inter l₁ t₁) ~ (inter l₂ t₁) :=
 assume p, perm.induction_on p
-  !refl
+  !perm.refl
   (λ x l₁ l₂ p₁ r₁, by_cases
     (λ xint₁  : x ∈ t₁, by rewrite [*inter_cons_of_mem _ xint₁]; exact (skip x r₁))
     (λ nxint₁ : x ∉ t₁, by rewrite [*inter_cons_of_not_mem _ nxint₁]; exact r₁))

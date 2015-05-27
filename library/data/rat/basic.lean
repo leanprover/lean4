@@ -183,7 +183,7 @@ theorem inv_equiv_inv : ∀{a b : prerat}, a ≡ b → inv a ≡ inv b
         inv (mk an ad adp) ≡ mk (-ad) (-an) (neg_pos_of_neg an_neg) : inv_of_neg an_neg adp
                        ... ≡ mk (-bd) (-bn) (neg_pos_of_neg bn_neg) :
                              by rewrite [↑equiv at *, ▸*, *neg_mul_neg, mul.comm ad, mul.comm bd, H]
-                       ... ≡ inv (mk bn bd bdp)                     : inv_of_neg bn_neg bdp)
+                       ... ≡ inv (mk bn bd bdp)                     : (inv_of_neg bn_neg bdp)⁻¹)
     (assume an_zero : an = 0,
       have bn_zero : bn = 0, from num_eq_zero_of_equiv H an_zero,
       eq.subst (calc
@@ -197,7 +197,7 @@ theorem inv_equiv_inv : ∀{a b : prerat}, a ≡ b → inv a ≡ inv b
         inv (mk an ad adp) ≡ mk ad an an_pos    : inv_of_pos an_pos adp
                        ... ≡ mk bd bn bn_pos    :
                                 by rewrite [↑equiv at *, ▸*, mul.comm ad, mul.comm bd, H]
-                       ... ≡ inv (mk bn bd bdp) : inv_of_pos bn_pos bdp)
+                       ... ≡ inv (mk bn bd bdp) : (inv_of_pos bn_pos bdp)⁻¹)
 
 /- properties -/
 

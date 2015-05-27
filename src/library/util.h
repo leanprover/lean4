@@ -27,6 +27,12 @@ optional<level> dec_level(level const & l);
 /** \brief Return true iff \c env has been configured with an impredicative and proof irrelevant Prop. */
 bool is_standard(environment const & env);
 
+
+/** Return true if \c e can be normalized into a Pi type,
+    If the result is true, then \c e  and \c cs are updated.
+*/
+bool is_norm_pi(type_checker & tc, expr & e, constraint_seq & cs);
+
 bool has_unit_decls(environment const & env);
 bool has_eq_decls(environment const & env);
 bool has_heq_decls(environment const & env);

@@ -110,6 +110,40 @@ static optional<pair<expr, expr>> apply_subst(environment const & env, local_con
     return optional<pair<expr, expr>>();
 }
 
+/** \brief Custom converter that does not unfold given relation */
+class calc_converter : public unfold_semireducible_converter {
+    environment m_env;
+    name        m_rel;
+public:
+    calc_converter(environment const & env, name const & r):unfold_semireducible_converter(env, true), m_rel(r) {}
+    virtual bool is_opaque(declaration const & d) const {
+        if (m_rel == d.get_name())
+            return true;
+        return unfold_semireducible_converter::is_opaque(d);
+    }
+};
+
+type_checker_ptr mk_calc_type_checker(environment const & env, name_generator && ngen, name const & rel) {
+    return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
+           std::unique_ptr<converter>(new calc_converter(env, rel))));
+}
+
+// Return true if \c e is convertible to a term of the form (h ...).
+// If the result is true, update \c e and \c cs.
+bool try_normalize_to_head(environment const & env, name_generator && ngen, name const & h, expr & e, constraint_seq & cs) {
+    type_checker_ptr tc = mk_calc_type_checker(env, std::move(ngen), h);
+    constraint_seq new_cs;
+    expr new_e = tc->whnf(e, new_cs);
+    expr const & fn = get_app_fn(new_e);
+    if (is_constant(fn) && const_name(fn) == h) {
+        e   = new_e;
+        cs += new_cs;
+        return true;
+    } else {
+        return false;
+    }
+}
+
 /** \brief Create a "choice" constraint that postpones the resolution of a calc proof step.
 
     By delaying it, we can perform quick fixes such as:
@@ -122,22 +156,22 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
                                constraint_seq const & cs, unifier_config const & cfg,
                                info_manager * im, update_type_info_fn const & fn) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
-    auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & _s,
+    auto choice_fn = [=](expr const & meta, expr const & _meta_type, substitution const & _s,
                          name_generator && ngen) {
         local_context ctx = _ctx;
         expr e            = _e;
         substitution s    = _s;
-        type_checker_ptr tc(mk_type_checker(env, ngen.mk_child()));
+        expr meta_type    = _meta_type;
+        type_checker_ptr tc = mk_type_checker(env, ngen.mk_child());
         constraint_seq new_cs = cs;
         expr e_type = tc->infer(e, new_cs);
         e_type      = s.instantiate(e_type);
-        e_type      = tc->whnf(e_type, new_cs);
         tag g       = e.get_tag();
         bool calc_assistant = get_elaborator_calc_assistant(opts);
 
         if (calc_assistant) {
             // add '!' is needed
-            while (is_pi(e_type)) {
+            while (is_norm_pi(*tc, e_type, new_cs)) {
                 binder_info bi = binding_info(e_type);
                 if (!bi.is_implicit() && !bi.is_inst_implicit()) {
                     if (!has_free_var(binding_body(e_type), 0)) {
@@ -148,10 +182,21 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
                 }
                 expr imp_arg = ctx.mk_meta(ngen, some_expr(binding_domain(e_type)), g);
                 e            = mk_app(e, imp_arg, g);
-                e_type       = tc->whnf(instantiate(binding_body(e_type), imp_arg), new_cs);
+                e_type       = instantiate(binding_body(e_type), imp_arg);
             }
             if (im)
                 fn(e);
+        }
+        e_type = head_beta_reduce(e_type);
+
+        expr const & meta_type_fn = get_app_fn(meta_type);
+        expr const & e_type_fn    = get_app_fn(e_type);
+        if (is_constant(meta_type_fn) && (!is_constant(e_type_fn) || const_name(e_type_fn) != const_name(meta_type_fn))) {
+            // try to make sure meta_type and e_type have the same head symbol
+            if (!try_normalize_to_head(env, ngen.mk_child(), const_name(meta_type_fn), e_type, new_cs) &&
+                is_constant(e_type_fn)) {
+                try_normalize_to_head(env, ngen.mk_child(), const_name(e_type_fn), meta_type, new_cs);
+            }
         }
 
         auto try_alternative = [&](expr const & e, expr const & e_type, constraint_seq fcs, bool conservative) {

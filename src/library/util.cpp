@@ -21,6 +21,18 @@ bool is_standard(environment const & env) {
     return env.prop_proof_irrel() && env.impredicative();
 }
 
+bool is_norm_pi(type_checker & tc, expr & e, constraint_seq & cs) {
+    constraint_seq new_cs = cs;
+    expr new_e = tc.whnf(e, new_cs);
+    if (is_pi(new_e)) {
+        e  = new_e;
+        cs = new_cs;
+        return true;
+    } else {
+        return false;
+    }
+}
+
 optional<expr> unfold_term(environment const & env, expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))

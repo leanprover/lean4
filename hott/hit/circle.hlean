@@ -201,7 +201,7 @@ namespace circle
     induction x,
     { exact power loop},
     { apply arrow_pathover_left, intro b, apply concato_eq, apply pathover_eq_r,
-      rewrite [power_con,transport_code_loop]},
+      rewrite [power_con,transport_code_loop]}
   end
 
   --remove this theorem after #484

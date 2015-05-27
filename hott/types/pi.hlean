@@ -69,6 +69,17 @@ namespace pi
     apply eq_of_pathover_idp, apply r
   end
 
+  -- a version where C is uncurried, but where the conclusion of r is still a proper pathover
+  -- instead of a heterogenous equality
+  definition pi_pathover' {C : (Σa, B a) → Type} {f : Πb, C ⟨a, b⟩} {g : Πb', C ⟨a', b'⟩}
+    {p : a = a'} (r : Π(b : B a) (b' : B a') (q : b =[p] b'), f b =[dpair_eq_dpair p q] g b')
+    : f =[p] g :=
+  begin
+    cases p, apply pathover_idp_of_eq,
+    apply eq_of_homotopy, intro b,
+    apply (@eq_of_pathover_idp _ C), exact (r b b (pathover.idpatho b)),
+  end
+
   definition pi_pathover_left {f : Πb, C a b} {g : Πb', C a' b'} {p : a = a'}
     (r : Π(b : B a), f b =[apo011 C p !pathover_tr] g (p ▸ b)) : f =[p] g :=
   begin

@@ -3,14 +3,14 @@ Copyright (c) 2015 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Floris van Doorn
 
-Theorems about square
+Squares in a type
 -/
 
 open eq equiv is_equiv
 
 namespace eq
 
-  variables {A : Type} {a a' a'' a₀₀ a₂₀ a₄₀ a₀₂ a₂₂ a₂₄ a₀₄ a₄₂ a₄₄ : A}
+  variables {A B : Type} {a a' a'' a₀₀ a₂₀ a₄₀ a₀₂ a₂₂ a₂₄ a₀₄ a₄₂ a₄₄ : A}
             /-a₀₀-/ {p₁₀ : a₀₀ = a₂₀} /-a₂₀-/ {p₃₀ : a₂₀ = a₄₀} /-a₄₀-/
        {p₀₁ : a₀₀ = a₀₂} /-s₁₁-/ {p₂₁ : a₂₀ = a₂₂} /-s₃₁-/ {p₄₁ : a₄₀ = a₄₂}
             /-a₀₂-/ {p₁₂ : a₀₂ = a₂₂} /-a₂₂-/ {p₃₂ : a₂₂ = a₄₂} /-a₄₂-/
@@ -26,7 +26,7 @@ namespace eq
   variables {s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁} {s₃₁ : square p₃₀ p₃₂ p₂₁ p₄₁}
             {s₁₃ : square p₁₂ p₁₄ p₀₃ p₂₃} {s₃₃ : square p₃₂ p₃₄ p₂₃ p₄₃}
 
-  definition ids [reducible] [constructor] := @square.ids
+  definition ids      [reducible] [constructor]         := @square.ids
   definition idsquare [reducible] [constructor] (a : A) := @square.ids A a
 
   definition hrefl [unfold-c 4] (p : a = a') : square idp idp p p :=
@@ -34,6 +34,11 @@ namespace eq
 
   definition vrefl [unfold-c 4] (p : a = a') : square p p idp idp :=
   by cases p; exact ids
+
+  definition hrfl [unfold-c 4] {p : a = a'} : square idp idp p p :=
+  !hrefl
+  definition vrfl [unfold-c 4] {p : a = a'} : square p p idp idp :=
+  !vrefl
 
   definition hconcat (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (s₃₁ : square p₃₀ p₃₂ p₂₁ p₄₁)
     : square (p₁₀ ⬝ p₃₀) (p₁₂ ⬝ p₃₂) p₀₁ p₄₁ :=
@@ -55,10 +60,10 @@ namespace eq
   definition eq_of_square (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) : p₁₀ ⬝ p₂₁ = p₀₁ ⬝ p₁₂ :=
   by cases s₁₁; apply idp
 
-  definition hdegen_square {p q : a = a'} (r : p = q) : square idp idp p q :=
+  definition hdeg_square {p q : a = a'} (r : p = q) : square idp idp p q :=
   by cases r;apply hrefl
 
-  definition vdegen_square {p q : a = a'} (r : p = q) : square p q idp idp :=
+  definition vdeg_square {p q : a = a'} (r : p = q) : square p q idp idp :=
   by cases r;apply vrefl
 
   definition square_of_eq (r : p₁₀ ⬝ p₂₁ = p₀₁ ⬝ p₁₂) : square p₁₀ p₁₂ p₀₁ p₂₁ :=
@@ -135,6 +140,10 @@ namespace eq
   have H2 : P (square_of_eq (eq_of_square s)),
     from eq.rec_on (eq_of_square s : idp ⬝ r = l) (by cases r; exact H),
   left_inv (to_fun !square_equiv_eq) s ▸ H2
+
+  definition naturality [unfold-c 8] {f g : A → B} (p : f ∼ g) (q : a = a') :
+    square (p a) (p a') (ap f q) (ap g q) :=
+  eq.rec_on q vrfl
 
   --we can also do the other recursors (lr, tl, tr, bl, br, tbl, tbr, tlr, blr), but let's postpone this until they are needed
 

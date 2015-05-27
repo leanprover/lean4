@@ -286,7 +286,7 @@ namespace eq
   eq.rec_on p idp
 
   -- The action of constant maps.
-  definition ap_constant (p : x = y) (z : B) : ap (λu, z) p = idp :=
+  definition ap_constant [unfold-c 5] (p : x = y) (z : B) : ap (λu, z) p = idp :=
   eq.rec_on p idp
 
   -- Naturality of [ap].

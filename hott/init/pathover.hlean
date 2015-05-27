@@ -76,7 +76,7 @@ namespace eq
   definition inverseo (r : b =[p] b₂) : b₂ =[p⁻¹] b :=
   pathover.rec_on r idpo
 
-  definition apdo (f : Πa, B a) (p : a = a₂) : f a =[p] f a₂ :=
+  definition apdo [unfold-c 6] (f : Πa, B a) (p : a = a₂) : f a =[p] f a₂ :=
   eq.rec_on p idpo
 
   -- infix `⬝` := concato
@@ -149,14 +149,22 @@ namespace eq
   by cases r; exact H
 
   --pathover with fibration B' ∘ f
+  definition pathover_ap [unfold-c 10] (B' : A' → Type) (f : A → A') {p : a = a₂}
+    {b : B' (f a)} {b₂ : B' (f a₂)} (q : b =[p] b₂) : b =[ap f p] b₂ :=
+  by cases q; exact idpo
+
+  definition of_pathover_ap (B' : A' → Type) (f : A → A') {p : a = a₂}
+    {b : B' (f a)} {b₂ : B' (f a₂)} (q : b =[ap f p] b₂) : b =[p] b₂ :=
+  by cases p; apply (idp_rec_on q); apply idpo
+
   definition pathover_compose (B' : A' → Type) (f : A → A') (p : a = a₂)
     (b : B' (f a)) (b₂ : B' (f a₂)) : b =[p] b₂ ≃ b =[ap f p] b₂ :=
   begin
     fapply equiv.MK,
-    { intro r, cases r, exact idpo},
-    { intro r, cases p, apply (idp_rec_on r), apply idpo},
-    { intro r, cases p, esimp [function.compose,function.id], apply (idp_rec_on r), apply idp},
-    { intro r, cases r, exact idp},
+    { apply pathover_ap},
+    { apply of_pathover_ap},
+    { intro q, cases p, esimp, apply (idp_rec_on q), apply idp},
+    { intro q, cases q, exact idp},
   end
 
   definition apdo_con (f : Πa, B a) (p : a = a₂) (q : a₂ = a₃)

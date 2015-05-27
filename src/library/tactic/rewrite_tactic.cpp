@@ -188,6 +188,8 @@ public:
 };
 
 static expr * g_rewrite_tac                   = nullptr;
+static expr * g_xrewrite_tac                  = nullptr;
+static expr * g_krewrite_tac                  = nullptr;
 
 static name * g_rewrite_elem_name             = nullptr;
 static std::string * g_rewrite_elem_opcode    = nullptr;
@@ -384,12 +386,29 @@ rewrite_info const & get_rewrite_info(expr const & e) {
     return static_cast<rewrite_element_macro_cell const*>(macro_def(e).raw())->get_info();
 }
 
-expr mk_rewrite_tactic_expr(buffer<expr> const & elems) {
-    lean_assert(std::all_of(elems.begin(), elems.end(), [](expr const & e) {
+bool check_tactic_elems(buffer<expr> const & elems) {
+    if (std::all_of(elems.begin(), elems.end(), [](expr const & e) {
                 return is_rewrite_step(e) || is_rewrite_unfold_step(e) ||
-                    is_rewrite_reduce_step(e) || is_rewrite_fold_step(e);
-            }));
+                    is_rewrite_reduce_step(e) || is_rewrite_fold_step(e); })) {
+        lean_unreachable();
+        return false;
+    }
+    return true;
+}
+
+expr mk_rewrite_tactic_expr(buffer<expr> const & elems) {
+    lean_assert(check_tactic_elems(elems));
     return mk_app(*g_rewrite_tac, mk_expr_list(elems.size(), elems.data()));
+}
+
+expr mk_krewrite_tactic_expr(buffer<expr> const & elems) {
+    lean_assert(check_tactic_elems(elems));
+    return mk_app(*g_krewrite_tac, mk_expr_list(elems.size(), elems.data()));
+}
+
+expr mk_xrewrite_tactic_expr(buffer<expr> const & elems) {
+    lean_assert(check_tactic_elems(elems));
+    return mk_app(*g_xrewrite_tac, mk_expr_list(elems.size(), elems.data()));
 }
 
 /**
@@ -548,6 +567,7 @@ class rewrite_fn {
     expr                 m_expr_loc; // auxiliary expression used for error localization
 
     bool                 m_use_trace;
+    bool                 m_keyed;
     unsigned             m_max_iter;
 
     buffer<optional<level>> m_lsubst; // auxiliary buffer for pattern matching
@@ -902,9 +922,11 @@ class rewrite_fn {
     }
 
     // Given the rewrite step \c e, return a pattern to be used to locate the term to be rewritten.
-    expr get_pattern(expr const & e) {
+    expr get_pattern_core(expr const & e) {
         lean_assert(is_rewrite_step(e));
         if (has_rewrite_pattern(e)) {
+            if (m_keyed)
+                throw_rewrite_exception("invalid krewrite tactic, keyed-matching does not support user-defined patterns");
             return to_meta_idx(get_rewrite_pattern(e));
         } else {
             // Remark: we discard constraints generated producing the pattern.
@@ -930,6 +952,20 @@ class rewrite_fn {
             } else {
                 return to_meta_idx(app_arg(app_fn(rule_type)));
             }
+        }
+    }
+
+    expr get_pattern(expr const & e) {
+        expr r = get_pattern_core(e);
+        if (m_keyed) {
+            expr const & f = get_app_fn(r);
+            if (is_constant(f) || is_local(f))
+                return f;
+            else
+                throw_rewrite_exception("invalid krewrite tactic, "
+                                        "left-hand-side of equation must be headed by a constant or local");
+        } else {
+            return r;
         }
     }
 
@@ -1004,7 +1040,8 @@ class rewrite_fn {
                 return format();
             if (!m_failures) {
                 if (m_is_hypothesis)
-                    return line() + format("no subterm in the hypothesis '") + fmt(m_target) + format("' matched the pattern");
+                    return line() + format("no subterm in the hypothesis '") +
+                        fmt(m_target) + format("' matched the pattern");
                 else
                     return line() + format("no subterm in the goal matched the pattern");
             }
@@ -1196,10 +1233,16 @@ class rewrite_fn {
                     return false; // stop search
                 if (closed(t)) {
                     lean_assert(std::all_of(m_esubst.begin(), m_esubst.end(), [&](optional<expr> const & e) { return !e; }));
-                    bool assigned = false;
-                    bool r = match(pattern, t, m_lsubst, m_esubst, nullptr, nullptr, &m_mplugin, &assigned);
-                    if (assigned)
-                        reset_subst();
+                    bool r;
+                    if (m_keyed) {
+                        expr const & f = get_app_fn(t);
+                        r = f == pattern;
+                    } else {
+                        bool assigned = false;
+                        r = match(pattern, t, m_lsubst, m_esubst, nullptr, nullptr, &m_mplugin, &assigned);
+                        if (assigned)
+                            reset_subst();
+                    }
                     if (r) {
                         if (auto p = unify_target(t, orig_elem, is_goal)) {
                             result = std::make_tuple(t, p->second, p->first);
@@ -1424,12 +1467,12 @@ class rewrite_fn {
         }
     }
 
-    type_checker_ptr mk_matcher_tc() {
+    type_checker_ptr mk_matcher_tc(bool full) {
         if (get_rewriter_syntactic(m_ios.get_options())) {
             // use an everything opaque converter
             return mk_opaque_type_checker(m_env, m_ngen.mk_child());
         } else {
-            auto aux_pred = mk_not_reducible_pred(m_env);
+            auto aux_pred = full ? mk_irreducible_pred(m_env) : mk_not_reducible_pred(m_env);
             return mk_type_checker(m_env, m_ngen.mk_child(), [=](name const & n) {
                     return is_projection(m_env, n) || aux_pred(n);
                 });
@@ -1482,13 +1525,15 @@ class rewrite_fn {
     }
 
 public:
-    rewrite_fn(environment const & env, io_state const & ios, elaborate_fn const & elab, proof_state const & ps):
+    rewrite_fn(environment const & env, io_state const & ios, elaborate_fn const & elab, proof_state const & ps,
+               bool full, bool keyed):
         m_env(env), m_ios(ios), m_elab(elab), m_ps(ps), m_ngen(ps.get_ngen()),
-        m_tc(mk_type_checker(m_env, m_ngen.mk_child(), UnfoldQuasireducible)),
-        m_matcher_tc(mk_matcher_tc()),
+        m_tc(mk_type_checker(m_env, m_ngen.mk_child(), full ? UnfoldSemireducible : UnfoldQuasireducible)),
+        m_matcher_tc(mk_matcher_tc(full)),
         m_relaxed_tc(mk_type_checker(m_env, m_ngen.mk_child())),
         m_mplugin(m_ios, *m_matcher_tc) {
-        m_ps = apply_substitution(m_ps);
+        m_keyed = keyed;
+        m_ps    = apply_substitution(m_ps);
         goals const & gs = m_ps.get_goals();
         lean_assert(gs);
         update_goal(head(gs));
@@ -1517,15 +1562,27 @@ public:
     }
 };
 
-tactic mk_rewrite_tactic(elaborate_fn const & elab, buffer<expr> const & elems) {
+tactic mk_rewrite_tactic_core(elaborate_fn const & elab, buffer<expr> const & elems, bool full, bool keyed) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             goals const & gs = s.get_goals();
             if (empty(gs)) {
                 throw_no_goal_if_enabled(s);
                 return proof_state_seq();
             }
-            return rewrite_fn(env, ios, elab, s)(elems);
+            return rewrite_fn(env, ios, elab, s, full, keyed)(elems);
         });
+}
+
+tactic mk_rewrite_tactic(elaborate_fn const & elab, expr const & e, bool full, bool keyed) {
+    buffer<expr> args;
+    get_tactic_expr_list_elements(app_arg(e), args, "invalid 'rewrite' tactic, invalid argument");
+    for (expr const & arg : args) {
+        if (!is_rewrite_step(arg) && !is_rewrite_unfold_step(arg) &&
+            !is_rewrite_reduce_step(arg) && !is_rewrite_fold_step(arg))
+            throw expr_to_tactic_exception(e, "invalid 'rewrite' tactic, invalid argument");
+    }
+    bool fail_if_metavars = true;
+    return then(mk_rewrite_tactic_core(elab, args, full, keyed), try_tactic(refl_tactic(elab, fail_if_metavars)));
 }
 
 void initialize_rewrite_tactic() {
@@ -1540,6 +1597,8 @@ void initialize_rewrite_tactic() {
                          "(rewriter tactic) if true tactic will generate a trace for rewrite step failures");
     name rewrite_tac_name{"tactic", "rewrite_tac"};
     g_rewrite_tac           = new expr(Const(rewrite_tac_name));
+    g_xrewrite_tac          = new expr(Const(name{"tactic", "xrewrite_tac"}));
+    g_krewrite_tac          = new expr(Const(name{"tactic", "krewrite_tac"}));
     g_rewrite_reduce_name   = new name("rewrite_reduce");
     g_rewrite_reduce_opcode = new std::string("RWR");
     g_rewrite_unfold_name   = new name("rewrite_unfold");
@@ -1587,15 +1646,15 @@ void initialize_rewrite_tactic() {
                                 });
     register_tac(rewrite_tac_name,
                  [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
-                     buffer<expr> args;
-                     get_tactic_expr_list_elements(app_arg(e), args, "invalid 'rewrite' tactic, invalid argument");
-                     for (expr const & arg : args) {
-                         if (!is_rewrite_step(arg) && !is_rewrite_unfold_step(arg) &&
-                             !is_rewrite_reduce_step(arg) && !is_rewrite_fold_step(arg))
-                             throw expr_to_tactic_exception(e, "invalid 'rewrite' tactic, invalid argument");
-                     }
-                     bool fail_if_metavars = true;
-                     return then(mk_rewrite_tactic(elab, args), try_tactic(refl_tactic(elab, fail_if_metavars)));
+                     return mk_rewrite_tactic(elab, e, false, false);
+                 });
+    register_tac(name{"tactic", "xrewrite_tac"},
+                 [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
+                     return mk_rewrite_tactic(elab, e, true, false);
+                 });
+    register_tac(name{"tactic", "krewrite_tac"},
+                 [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
+                     return mk_rewrite_tactic(elab, e, true, true);
                  });
 }
 
@@ -1604,6 +1663,8 @@ void finalize_rewrite_tactic() {
     delete g_rewriter_syntactic;
     delete g_rewriter_trace;
     delete g_rewrite_tac;
+    delete g_krewrite_tac;
+    delete g_xrewrite_tac;
     delete g_rewrite_reduce_name;
     delete g_rewrite_reduce_opcode;
     delete g_rewrite_unfold_name;

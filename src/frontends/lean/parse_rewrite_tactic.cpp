@@ -120,8 +120,7 @@ static expr parse_rewrite_element(parser & p, bool use_paren) {
     }
 }
 
-expr parse_rewrite_tactic(parser & p) {
-    buffer<expr> elems;
+void parse_rewrite_tactic_elems(parser & p, buffer<expr> & elems) {
     if (p.curr_is_token(get_lbracket_tk())) {
         p.next();
         while (true) {
@@ -136,7 +135,24 @@ expr parse_rewrite_tactic(parser & p) {
         auto pos = p.pos();
         elems.push_back(p.save_pos(parse_rewrite_element(p, true), pos));
     }
+}
+
+expr parse_rewrite_tactic(parser & p) {
+    buffer<expr> elems;
+    parse_rewrite_tactic_elems(p, elems);
     return mk_rewrite_tactic_expr(elems);
+}
+
+expr parse_xrewrite_tactic(parser & p) {
+    buffer<expr> elems;
+    parse_rewrite_tactic_elems(p, elems);
+    return mk_xrewrite_tactic_expr(elems);
+}
+
+expr parse_krewrite_tactic(parser & p) {
+    buffer<expr> elems;
+    parse_rewrite_tactic_elems(p, elems);
+    return mk_krewrite_tactic_expr(elems);
 }
 
 expr parse_esimp_tactic(parser & p) {

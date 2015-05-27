@@ -87,7 +87,9 @@ definition trace      (s : string)       : tactic := builtin
 
 -- rewrite_tac is just a marker for the builtin 'rewrite' notation
 -- used to create instances of this tactic.
-definition rewrite_tac (e : expr_list) : tactic := builtin
+definition rewrite_tac  (e : expr_list) : tactic := builtin
+definition xrewrite_tac (e : expr_list) : tactic := builtin
+definition krewrite_tac (e : expr_list) : tactic := builtin
 
 definition cases (id : identifier) (ids : opt_identifier_list) : tactic := builtin
 

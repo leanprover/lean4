@@ -23,6 +23,8 @@ bool is_rewrite_step(expr const & e);
 
 /** \brief Create a rewrite tactic expression, where elems was created using \c mk_rewrite_* procedures. */
 expr mk_rewrite_tactic_expr(buffer<expr> const & elems);
+expr mk_xrewrite_tactic_expr(buffer<expr> const & elems);
+expr mk_krewrite_tactic_expr(buffer<expr> const & elems);
 
 void initialize_rewrite_tactic();
 void finalize_rewrite_tactic();

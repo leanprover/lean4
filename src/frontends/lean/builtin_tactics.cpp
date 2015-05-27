@@ -16,6 +16,14 @@ static expr parse_rewrite_tactic_expr(parser & p, unsigned, expr const *, pos_in
     return p.save_pos(parse_rewrite_tactic(p), pos);
 }
 
+static expr parse_xrewrite_tactic_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return p.save_pos(parse_xrewrite_tactic(p), pos);
+}
+
+static expr parse_krewrite_tactic_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return p.save_pos(parse_krewrite_tactic(p), pos);
+}
+
 static expr parse_esimp_tactic_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
     return p.save_pos(parse_esimp_tactic(p), pos);
 }
@@ -62,6 +70,8 @@ parse_table init_tactic_nud_table() {
     parse_table r;
     r = r.add({transition("(", Expr), transition(")", mk_ext_action(parse_rparen))}, x0);
     r = r.add({transition("rewrite",    mk_ext_action(parse_rewrite_tactic_expr))}, x0);
+    r = r.add({transition("krewrite",   mk_ext_action(parse_krewrite_tactic_expr))}, x0);
+    r = r.add({transition("xrewrite",   mk_ext_action(parse_xrewrite_tactic_expr))}, x0);
     r = r.add({transition("esimp",      mk_ext_action(parse_esimp_tactic_expr))}, x0);
     r = r.add({transition("generalize", mk_ext_action(parse_generalize_tactic))}, x0);
     r = r.add({transition("unfold",     mk_ext_action(parse_unfold_tactic_expr))}, x0);

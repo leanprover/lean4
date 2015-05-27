@@ -86,7 +86,7 @@ namespace pi
   (Π(b : B a), transportD B (λ(a : A) (b : B a), C ⟨a, b⟩) p b (f b) = g (eq.transport B p b)) -/
   definition dpath_pi_sigma {C : (Σa, B a) → Type} (p : a = a')
     (f : Π(b : B a), C ⟨a, b⟩) (g : Π(b' : B a'), C ⟨a', b'⟩) :
-    (Π(b : B a), (sigma.sigma_eq p idp) ▸ (f b) = g (p ▸ b)) ≃ (Π(b : B a), p ▸D (f b) = g (p ▸ b)) :=
+    (Π(b : B a), (sigma.sigma_eq p !pathover_tr) ▸ (f b) = g (p ▸ b)) ≃ (Π(b : B a), p ▸D (f b) = g (p ▸ b)) :=
   eq.rec_on p (λg, !equiv.refl) g
   end
 

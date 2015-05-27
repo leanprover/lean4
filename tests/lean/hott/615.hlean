@@ -1,6 +1,6 @@
 -- HoTT
 import hit.circle
-open circle eq int
+open circle eq int pi
 
 attribute circle.rec circle.elim [recursor 4]
 
@@ -12,10 +12,9 @@ begin
 end
 
 protected definition my_decode {x : circle} : my_code x → base = x :=
-begin
-  induction x,
-  { exact power loop},
-  { apply eq_of_homotopy, intro a,
-    refine !arrow.arrow_transport ⬝ !transport_eq_r ⬝ _,
-    rewrite [transport_code_loop_inv,power_con,succ_pred]}
-end
+  begin
+    induction x,
+    { exact power loop},
+    { apply arrow_pathover_left, intro b, apply concato_eq, apply pathover_eq_r,
+      rewrite [power_con,transport_code_loop]},
+  end

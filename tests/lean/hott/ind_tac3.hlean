@@ -1,5 +1,4 @@
-import cubical.pathover
-open cubical
+open eq
 
 set_option pp.implicit true
 set_option pp.universes true

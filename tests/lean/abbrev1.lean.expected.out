@@ -3,4 +3,4 @@ definition tst : ℕ
 definition tst : ℕ
 foo ℕ
 definition tst1 : num
-is_typeof num 10
+(λ (A : Type₁) (a : A), a) num 10

@@ -3,7 +3,7 @@ x : S¹
 ⊢ bool
 626b.hlean:4:50: error: don't know how to synthesize placeholder
 x : S¹
-⊢ eq.transport (λ (a : S¹), bool) loop ?M_1 = ?M_1
+⊢ eq.pathover (λ (a : S¹), bool) ?M_1 loop ?M_1
 626b.hlean:4:32: error: failed to add declaration 'f' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (x : S¹),

@@ -226,6 +226,10 @@ optional<std::tuple<name, name, unsigned>> get_trans_extra_info(environment cons
     }
 }
 
+bool is_subst_relation(environment const & env, name const & op) {
+    return rel_ext::get_state(env).m_subst_table.contains(op);
+}
+
 optional<name> get_refl_info(environment const & env, name const & op) {
     if (auto it = get_refl_extra_info(env, op))
         return optional<name>(std::get<0>(*it));

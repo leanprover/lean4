@@ -41,6 +41,11 @@ optional<std::tuple<name, name, unsigned>> get_trans_extra_info(environment cons
 optional<name> get_refl_info(environment const & env, name const & op);
 optional<name> get_symm_info(environment const & env, name const & op);
 optional<name> get_trans_info(environment const & env, name const & op);
+bool is_subst_relation(environment const & env, name const & op);
+inline bool is_trans_relation(environment const & env, name const & op) { return static_cast<bool>(get_trans_info(env, op)); }
+inline bool is_symm_relation(environment const & env, name const & op) { return static_cast<bool>(get_symm_info(env, op)); }
+inline bool is_refl_relation(environment const & env, name const & op) { return static_cast<bool>(get_refl_info(env, op)); }
+
 void initialize_relation_manager();
 void finalize_relation_manager();
 }

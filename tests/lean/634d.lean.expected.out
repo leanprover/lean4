@@ -1,0 +1,10 @@
+A : Type → Type
+_root_.A : Type₁ → Type₁
+A : Type.{l} → Type.{l}
+_root_.A.{1} : Type₁ → Type₁
+P : B → B
+_root_.P.{1} : Π {n : ℕ}, ℕ → ℕ
+P : B → B
+_root_.P.{1} : ?B → ?B
+@P 2 : B → B
+@_root_.P.{1} ℕ : Π {n : ℕ}, ℕ → ℕ

@@ -390,10 +390,9 @@ bool check_tactic_elems(buffer<expr> const & elems) {
     if (std::all_of(elems.begin(), elems.end(), [](expr const & e) {
                 return is_rewrite_step(e) || is_rewrite_unfold_step(e) ||
                     is_rewrite_reduce_step(e) || is_rewrite_fold_step(e); })) {
-        lean_unreachable();
-        return false;
+        return true;
     }
-    return true;
+    lean_unreachable();
 }
 
 expr mk_rewrite_tactic_expr(buffer<expr> const & elems) {

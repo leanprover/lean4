@@ -953,6 +953,10 @@ auto inductive_normalizer_extension::operator()(expr const & e, extension_contex
     return some_ecs(r, cs);
 }
 
+bool inductive_normalizer_extension::is_recursor(environment const & env, name const & n) const {
+    return static_cast<bool>(is_elim_rule(env, n));
+}
+
 template<typename Ctx>
 optional<expr> is_elim_meta_app_core(Ctx & ctx, expr const & e) {
     inductive_env_ext const & ext = get_extension(ctx.env());

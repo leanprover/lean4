@@ -282,7 +282,7 @@ class normalize_fn {
         if (!modified)
             return e;
         expr r = mk_rev_app(f, args);
-        if (is_constant(f) && inductive::is_elim_rule(env(), const_name(f))) {
+        if (is_constant(f) && env().is_recursor(const_name(f))) {
             return normalize(r);
         } else {
             return r;

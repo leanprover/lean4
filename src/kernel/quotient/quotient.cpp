@@ -122,6 +122,10 @@ bool quotient_normalizer_extension::supports(name const & feature) const {
     return feature == *g_quotient_extension;
 }
 
+bool quotient_normalizer_extension::is_recursor(environment const &, name const & n) const {
+    return n == *g_quotient_lift || n == *g_quotient_ind;
+}
+
 bool is_quotient_decl(environment const & env, name const & n) {
     if (!get_extension(env).m_initialized)
         return false;

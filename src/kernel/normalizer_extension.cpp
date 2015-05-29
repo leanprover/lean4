@@ -14,6 +14,7 @@ public:
     }
     virtual optional<expr> is_stuck(expr const &, extension_context &) const { return none_expr(); }
     virtual bool supports(name const &) const { return false; }
+    virtual bool is_recursor(environment const &, name const &) const { return false; }
 };
 
 std::unique_ptr<normalizer_extension> mk_id_normalizer_extension() {
@@ -43,6 +44,10 @@ public:
 
     virtual bool supports(name const & feature) const {
         return m_ext1->supports(feature) || m_ext2->supports(feature);
+    }
+
+    virtual bool is_recursor(environment const & env, name const & n) const {
+        return m_ext1->is_recursor(env, n) || m_ext2->is_recursor(env, n);
     }
 };
 

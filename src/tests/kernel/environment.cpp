@@ -136,6 +136,7 @@ public:
     }
     virtual optional<expr> is_stuck(expr const &, extension_context &) const { return none_expr(); }
     virtual bool supports(name const &) const { return false; }
+    virtual bool is_recursor(environment const &, name const &) const { return false; }
 };
 
 static void tst3() {

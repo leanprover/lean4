@@ -25,6 +25,7 @@ public:
     /** \brief Return true iff the extension supports a feature with the given name,
         this method is only used for sanity checking. */
     virtual bool supports(name const & feature) const = 0;
+    virtual bool is_recursor(environment const & env, name const & n) const = 0;
 };
 
 inline optional<pair<expr, constraint_seq>> none_ecs() { return optional<pair<expr, constraint_seq>>(); }

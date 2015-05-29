@@ -56,6 +56,7 @@ public:
     bool eta() const { return m_eta; }
     bool impredicative() const { return m_impredicative; }
     normalizer_extension const & norm_ext() const { return *(m_norm_ext.get()); }
+    bool is_recursor(environment const & env, name const & n) const { return m_norm_ext->is_recursor(env, n); }
 };
 
 class environment_extension {
@@ -133,6 +134,8 @@ public:
 
     /** \brief Return true iff the environment assumes Eta-reduction */
     bool eta() const { return m_header->eta(); }
+
+    bool is_recursor(name const & n) const { return m_header->is_recursor(*this, n); }
 
     /** \brief Return true iff the environment treats universe level 0 as an impredicative Prop */
     bool impredicative() const { return m_header->impredicative(); }

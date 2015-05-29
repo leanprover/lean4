@@ -129,6 +129,10 @@ bool hits_normalizer_extension::supports(name const & feature) const {
     return feature == *g_hits_extension;
 }
 
+bool hits_normalizer_extension::is_recursor(environment const &, name const & n) const {
+    return n == *g_trunc_rec || n == *g_type_quotient_rec;
+}
+
 bool is_hits_decl(environment const & env, name const & n) {
     if (!get_extension(env).m_initialized)
         return false;

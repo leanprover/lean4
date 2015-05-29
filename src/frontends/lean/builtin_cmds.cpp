@@ -354,6 +354,18 @@ bool print_polymorphic(parser & p) {
     return false;
 }
 
+static void print_reducible_info(parser & p, reducible_status s1) {
+    buffer<name> r;
+    for_each_reducible(p.env(), [&](name const & n, reducible_status s2) {
+            if (s1 == s2)
+                r.push_back(n);
+        });
+    io_state_stream out = p.regular_stream();
+    std::sort(r.begin(), r.end());
+    for (name const & n : r)
+        out << n << "\n";
+}
+
 environment print_cmd(parser & p) {
     flycheck_information info(p.regular_stream());
     if (info.enabled()) {
@@ -370,6 +382,15 @@ environment print_cmd(parser & p) {
         options opts = out.get_options();
         opts = opts.update(get_pp_notation_option_name(), false);
         out.update_options(opts) << e << endl;
+    } else if (p.curr_is_token_or_id(get_reducible_tk())) {
+        p.next();
+        print_reducible_info(p, reducible_status::Reducible);
+    } else if (p.curr_is_token_or_id(get_quasireducible_tk())) {
+        p.next();
+        print_reducible_info(p, reducible_status::Quasireducible);
+    } else if (p.curr_is_token_or_id(get_irreducible_tk())) {
+        p.next();
+        print_reducible_info(p, reducible_status::Irreducible);
     } else if (p.curr_is_token_or_id(get_options_tk())) {
         p.next();
         p.regular_stream() << p.ios().get_options() << endl;

@@ -21,19 +21,10 @@ struct reducible_entry {
     reducible_entry(reducible_status s, name const & n):m_status(s), m_name(n) {}
 };
 
-class reducible_state {
-    name_map<reducible_status> m_status;
-public:
-    void add(reducible_entry const & e);
-    reducible_status get_status(name const & n) const;
-};
+typedef name_map<reducible_status> reducible_state;
 
-void reducible_state::add(reducible_entry const & e) {
-    m_status.insert(e.m_name, e.m_status);
-}
-
-reducible_status reducible_state::get_status(name const & n) const {
-    if (auto it = m_status.find(n))
+static reducible_status get_status(reducible_state const & s, name const & n) {
+    if (auto it = s.find(n))
         return *it;
     else
         return reducible_status::Semireducible;
@@ -46,7 +37,7 @@ struct reducible_config {
     typedef reducible_state  state;
     typedef reducible_entry  entry;
     static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
-        s.add(e);
+        s.insert(e.m_name, e.m_status);
     }
     static name const & get_class_name() {
          return *g_class_name;
@@ -87,6 +78,11 @@ void finalize_reducible() {
     delete g_class_name;
 }
 
+void for_each_reducible(environment const & env, std::function<void(name const &, reducible_status)> const & fn) {
+    reducible_state m_state = reducible_ext::get_state(env);
+    m_state.for_each(fn);
+}
+
 static void check_declaration(environment const & env, name const & n) {
     declaration const & d = env.get(n);
     if (!d.is_definition())
@@ -100,7 +96,7 @@ environment set_reducible(environment const & env, name const & n, reducible_sta
 
 reducible_status get_reducible_status(environment const & env, name const & n) {
     reducible_state const & s = reducible_ext::get_state(env);
-    return s.get_status(n);
+    return get_status(s, n);
 }
 
 bool is_at_least_quasireducible(environment const & env, name const & n) {
@@ -111,14 +107,14 @@ bool is_at_least_quasireducible(environment const & env, name const & n) {
 name_predicate mk_not_reducible_pred(environment const & env) {
     reducible_state m_state = reducible_ext::get_state(env);
     return [=](name const & n) { // NOLINT
-        return m_state.get_status(n) != reducible_status::Reducible;
+        return get_status(m_state, n) != reducible_status::Reducible;
     };
 }
 
 name_predicate mk_not_quasireducible_pred(environment const & env) {
     reducible_state m_state = reducible_ext::get_state(env);
     return [=](name const & n) { // NOLINT
-        auto r = m_state.get_status(n);
+        auto r = get_status(m_state, n);
         return r != reducible_status::Reducible && r != reducible_status::Quasireducible;
     };
 }
@@ -126,7 +122,7 @@ name_predicate mk_not_quasireducible_pred(environment const & env) {
 name_predicate mk_irreducible_pred(environment const & env) {
     reducible_state m_state = reducible_ext::get_state(env);
     return [=](name const & n) { // NOLINT
-        return m_state.get_status(n) == reducible_status::Irreducible;
+        return get_status(m_state, n) == reducible_status::Irreducible;
     };
 }
 

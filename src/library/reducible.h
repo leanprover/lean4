@@ -28,6 +28,9 @@ reducible_status get_reducible_status(environment const & env, name const & n);
 
 bool is_at_least_quasireducible(environment const & env, name const & n);
 
+/* \brief Execute the given function for each declaration explicitly marked with a reducibility annotation */
+void for_each_reducible(environment const & env, std::function<void(name const &, reducible_status)> const & fn);
+
 /** \brief Create a predicate that returns true for all non reducible constants in \c env */
 name_predicate mk_not_reducible_pred(environment const & env);
 /** \brief Create a predicate that returns true for all non reducible and non quasireducible constants in \c env */

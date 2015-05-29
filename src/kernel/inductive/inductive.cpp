@@ -957,6 +957,10 @@ bool inductive_normalizer_extension::is_recursor(environment const & env, name c
     return static_cast<bool>(is_elim_rule(env, n));
 }
 
+bool inductive_normalizer_extension::is_builtin(environment const & env, name const & n) const {
+    return is_inductive_decl(env, n) || is_elim_rule(env, n) || is_intro_rule(env, n);
+}
+
 template<typename Ctx>
 optional<expr> is_elim_meta_app_core(Ctx & ctx, expr const & e) {
     inductive_env_ext const & ext = get_extension(ctx.env());

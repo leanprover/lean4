@@ -57,6 +57,7 @@ public:
     bool impredicative() const { return m_impredicative; }
     normalizer_extension const & norm_ext() const { return *(m_norm_ext.get()); }
     bool is_recursor(environment const & env, name const & n) const { return m_norm_ext->is_recursor(env, n); }
+    bool is_builtin(environment const & env, name const & n) const { return m_norm_ext->is_builtin(env, n); }
 };
 
 class environment_extension {
@@ -136,6 +137,8 @@ public:
     bool eta() const { return m_header->eta(); }
 
     bool is_recursor(name const & n) const { return m_header->is_recursor(*this, n); }
+
+    bool is_builtin(name const & n) const { return m_header->is_builtin(*this, n); }
 
     /** \brief Return true iff the environment treats universe level 0 as an impredicative Prop */
     bool impredicative() const { return m_header->impredicative(); }

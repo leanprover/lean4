@@ -18,6 +18,7 @@ public:
     virtual optional<expr> is_stuck(expr const & e, extension_context & ctx) const;
     virtual bool supports(name const & feature) const;
     virtual bool is_recursor(environment const & env, name const & n) const;
+    virtual bool is_builtin(environment const & env, name const & n) const;
 };
 
 /** \brief The following function must be invoked to register the builtin HITs computation rules in the kernel. */

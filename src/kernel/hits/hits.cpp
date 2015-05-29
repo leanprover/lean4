@@ -133,6 +133,10 @@ bool hits_normalizer_extension::is_recursor(environment const &, name const & n)
     return n == *g_trunc_rec || n == *g_type_quotient_rec;
 }
 
+bool hits_normalizer_extension::is_builtin(environment const & env, name const & n) const {
+    return is_hits_decl(env, n);
+}
+
 bool is_hits_decl(environment const & env, name const & n) {
     if (!get_extension(env).m_initialized)
         return false;

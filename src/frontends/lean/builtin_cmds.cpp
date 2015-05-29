@@ -71,12 +71,7 @@ static void print_axioms(parser & p) {
     environment const & env = p.env();
     env.for_each_declaration([&](declaration const & d) {
             name const & n = d.get_name();
-            if (!d.is_definition() &&
-                !is_quotient_decl(env, n) &&
-                !is_hits_decl(env, n) &&
-                !inductive::is_inductive_decl(env, n) &&
-                !inductive::is_elim_rule(env, n) &&
-                !inductive::is_intro_rule(env, n)) {
+            if (!d.is_definition() && !env.is_builtin(n)) {
                 p.regular_stream() << n << " : " << d.get_type() << endl;
                 has_axioms = true;
             }

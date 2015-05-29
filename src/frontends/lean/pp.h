@@ -91,6 +91,10 @@ private:
     optional<result> pp_notation(notation_entry const & entry, buffer<optional<expr>> & args);
     optional<result> pp_notation(expr const & e);
 
+    result add_paren_if_needed(result const & r, unsigned bp);
+
+    result pp_overriden_local_ref(expr const & e);
+    bool ignore_local_ref(expr const & e);
     optional<result> pp_local_ref(expr const & e);
 
     result pp_coercion_fn(expr const & e, unsigned sz, bool ignore_hide = false);
@@ -99,7 +103,7 @@ private:
     result pp_child(expr const & e, unsigned bp, bool ignore_hide = false);
     result pp_var(expr const & e);
     result pp_sort(expr const & e);
-    result pp_const(expr const & e);
+    result pp_const(expr const & e, optional<unsigned> const & num_ref_univs = optional<unsigned>());
     result pp_meta(expr const & e);
     result pp_local(expr const & e);
     result pp_app(expr const & e);

@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 
 namespace lean {
-environment save_local_ref_info(environment const & env, name const & n, unsigned num_fix_univs, unsigned num_fix_args);
-optional<pair<unsigned, unsigned>> get_local_ref_info(environment const & env, name const & n);
+environment save_local_ref_info(environment const & env, name const & n, expr const & ref);
+optional<expr> get_local_ref_info(environment const & env, name const & n);
 void initialize_local_ref_info();
 void finalize_local_ref_info();
 }

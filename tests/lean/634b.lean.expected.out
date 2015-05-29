@@ -1,0 +1,23 @@
+A : Type₁
+foo.A ℕ : Type₁
+foo.A (X × B) : Type₁
+foo.A (X × B) : Type₁
+foo.A (foo.B A) : Type₁
+foo.A (foo.B A) : Type₁
+foo.A (foo.B (foo.A ℕ)) : Type₁
+foo.A X : Type₁
+foo.A ℕ : Type₁
+foo.A (X × foo.B X) : Type₁
+foo.A (foo.B (foo.A X)) : Type₁
+foo.A (foo.B (foo.A ℕ)) : Type₁
+@A n : Type₁
+@foo.A ℕ 10 : Type₁
+@A n : Type₁
+@foo.A X n : Type₁
+@foo.A X n : Type₁
+@A n : Type₁
+@foo.A B n : Type₁
+@foo.A (foo.B (@A n)) n : Type₁
+@foo.A (foo.B (@A n)) n : Type₁
+@foo.A (foo.B (@foo.A ℕ n)) n : Type₁
+@A n : Type₁

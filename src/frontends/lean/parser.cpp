@@ -510,10 +510,15 @@ environment parser::add_local_ref(environment const & env, name const & n, expr 
         if (is_explicit(f))
             f = get_explicit_arg(f);
         if (is_constant(f)) {
-            return save_local_ref_info(env, const_name(f), length(const_levels(f)), args.size());
+            return save_local_ref_info(env, const_name(f), ref);
+        } else {
+            return env;
         }
+    } else if (is_constant(ref) && const_levels(ref)) {
+        return save_local_ref_info(env, const_name(ref), ref);
+    } else {
+        return env;
     }
-    return env;
 }
 
 void parser::add_parameter(name const & n, expr const & p) {

@@ -41,6 +41,8 @@ namespace lean {
 static environment declare_universe(parser & p, environment env, name const & n, bool local) {
     if (local) {
         p.add_local_level(n, mk_param_univ(n), local);
+    } else if (in_section(env)) {
+        p.add_local_level(n, mk_param_univ(n), false);
     } else {
         name const & ns = get_namespace(env);
         name full_n  = ns + n;

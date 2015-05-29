@@ -1,0 +1,22 @@
+A : Type₁
+_root_.A ℕ : Type₁
+_root_.A (X × B) : Type₁
+_root_.A (X × B) : Type₁
+_root_.A (_root_.B A) : Type₁
+_root_.A (_root_.B (_root_.A ℕ)) : Type₁
+A : Type₁
+_root_.A ℕ : Type₁
+_root_.A (X × B) : Type₁
+_root_.A (_root_.B A) : Type₁
+_root_.A (_root_.B (_root_.A ℕ)) : Type₁
+@A n : Type₁
+@_root_.A ℕ 10 : Type₁
+@A n : Type₁
+@A n : Type₁
+@_root_.A B n : Type₁
+@A n : Type₁
+@_root_.A B n : Type₁
+@_root_.A (_root_.B (@A n)) n : Type₁
+@_root_.A (_root_.B (@A n)) n : Type₁
+@_root_.A (_root_.B (@_root_.A ℕ n)) n : Type₁
+@A n : Type₁

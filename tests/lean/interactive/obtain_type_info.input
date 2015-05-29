@@ -1,0 +1,16 @@
+VISIT obtain_type_info.lean
+SYNC 12
+open eq
+inductive I (F : Type₁ → Prop) : Type₁ :=
+mk : I F
+axiom InjI : ∀ {x y}, I x = I y → x = y
+definition P (x : Type₁) : Prop := ∃ a, I a = x ∧ (a x → false).
+definition p := I P
+lemma false_of_Pp (H : P p) : false :=
+obtain a Ha0 Ha1, from H,
+  subst (InjI Ha0) Ha1 H
+lemma contradiction : false :=
+have Pp : P p, from exists.intro P (and.intro rfl false_of_Pp),
+false_of_Pp Pp
+WAIT
+INFO 8

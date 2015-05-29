@@ -1,0 +1,31 @@
+-- BEGINWAIT
+-- ENDWAIT
+-- BEGININFO
+-- SYMBOL|8|0
+obtain
+-- ACK
+-- TYPE|8|7
+Type₁ → Prop
+-- ACK
+-- IDENTIFIER|8|7
+a
+-- ACK
+-- TYPE|8|9
+I a = p
+-- ACK
+-- IDENTIFIER|8|9
+Ha0
+-- ACK
+-- TYPE|8|13
+a p → false
+-- ACK
+-- IDENTIFIER|8|13
+Ha1
+-- ACK
+-- TYPE|8|23
+P p
+-- ACK
+-- IDENTIFIER|8|23
+H
+-- ACK
+-- ENDINFO

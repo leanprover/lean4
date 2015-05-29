@@ -7,6 +7,7 @@ The natural numbers.
 * [order](order.lean) : less-than, less-then-or-equal, etc.
 * [bquant](bquant.lean) : bounded quantifiers
 * [sub](sub.lean) : subtraction, and distance
-* [div](div.lean) : div, mod, gcd, and lcm
+* [div](div.lean) : div and mod
+* [gcd](gcd.lean) : gcd, lcm, and coprime
 * [power](power.lean)
 * [bigops](bigops.lean) : finite sums and products

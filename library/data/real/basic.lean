@@ -105,6 +105,8 @@ theorem inv_pos (n : ℕ+) : n⁻¹ > 0 := div_pos_of_pos !rat_of_pnat_is_pos
 
 theorem inv_le_one (n : ℕ+) : n⁻¹ ≤ (1 : ℚ) := sorry
 
+theorem inv_lt_one_of_gt {n : ℕ+} (H : n~ > 1) : n⁻¹ < (1 : ℚ) := sorry
+
 theorem pone_inv : pone⁻¹ = 1 := rfl -- ? Why is this rfl?
 
 theorem add_invs_nonneg (m n : ℕ+) : 0 ≤ m⁻¹ + n⁻¹ :=
@@ -114,9 +116,13 @@ theorem add_invs_nonneg (m n : ℕ+) : 0 ≤ m⁻¹ + n⁻¹ :=
     repeat apply inv_pos,
   end
 
-theorem half_shrink (n : ℕ+) : (2 * n)⁻¹ ≤ n⁻¹ := sorry
+theorem half_shrink_strong (n : ℕ+) : (2 * n)⁻¹ < n⁻¹ := sorry
+
+theorem half_shrink (n : ℕ+) : (2 * n)⁻¹ ≤ n⁻¹ := le_of_lt !half_shrink_strong
 
 theorem inv_ge_of_le {p q : ℕ+} (H : p ≤ q) : q⁻¹ ≤ p⁻¹ := sorry
+
+theorem ge_of_inv_le {p q : ℕ+} (H : p⁻¹ ≤ q⁻¹) : q < p := sorry
 
 theorem padd_halves (p : ℕ+) : (2 * p)⁻¹ + (2 * p)⁻¹ = p⁻¹ := sorry
 
@@ -145,6 +151,12 @@ theorem s_mul_assoc_lemma_3 (a b n : ℕ+) (p : ℚ) :
 
 theorem pnat.mul_le_mul_left (p q : ℕ+) : q ≤ p * q := sorry
 
+theorem one_lt_two : pone < 2 := sorry
+
+theorem pnat.lt_of_not_le {p q : ℕ+} (H : ¬ p ≤ q) : q < p := sorry
+
+theorem pnat.inv_cancel (p : ℕ+) : pnat.to_rat p * p⁻¹ = (1 : ℚ) := sorry
+
 -------------------------------------
 -- theorems to add to (ordered) field and/or rat
 
@@ -170,10 +182,17 @@ theorem add_sub_comm (a b c d : ℚ) : a + b - (c + d) = (a - c) + (b - d) := so
 
 theorem div_helper (a b : ℚ) : (1 / (a * b)) * a = 1 / b := sorry
 
-theorem abs_add_three (a b c : ℚ) : abs (a + b + c) ≤ abs a + abs b + abs c := sorry
+theorem abs_add_three (a b c : ℚ) : abs (a + b + c) ≤ abs a + abs b + abs c := 
+  begin
+    apply rat.le.trans,
+    apply abs_add_le_abs_add_abs,
+    apply rat.add_le_add_right,
+    apply abs_add_le_abs_add_abs
+  end
 
 theorem add_le_add_three (a b c d e f : ℚ) (H1 : a ≤ d) (H2 : b ≤ e) (H3 : c ≤ f) :
-        a + b + c ≤ d + e + f := sorry
+        a + b + c ≤ d + e + f :=
+  by repeat apply rat.add_le_add; repeat assumption
 
 theorem distrib_three_right (a b c d : ℚ) : (a + b + c) * d = a * d + b * d + c * d := sorry
 
@@ -182,6 +201,9 @@ theorem mul_le_mul_of_mul_div_le (a b c d : ℚ) : a * (b / c) ≤ d → b * a �
 definition pceil (a : ℚ) : ℕ+ := pnat.pos (ceil a + 1) (sorry)
 
 theorem pceil_helper {a : ℚ} {n : ℕ+} (H : pceil a ≤ n) : n⁻¹ ≤ 1 / a := sorry
+
+theorem inv_pceil_div (a b : ℚ) (Ha : a > 0) (Hb : b > 0) : (pceil (a / b))⁻¹ ≤ b / a := sorry
+
 
 theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0) (H : n ≥ pceil (q / ε)) :
         q * n⁻¹ ≤ ε :=
@@ -193,7 +215,6 @@ theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0) 
     assumption
   end
 
-theorem of_nat_add (a b : ℕ) : of_nat (a + b) = of_nat a + of_nat b := sorry -- did Jeremy add this?
 -------------------------------------
 -- small helper lemmas
 
@@ -210,6 +231,10 @@ theorem squeeze {a b : ℚ} (H : ∀ j : ℕ+, a ≤ b + j⁻¹ + j⁻¹ + j⁻�
     have Ha : a > b + j⁻¹ + j⁻¹ + j⁻¹, from lt.trans Hbj Hc,
     exact absurd !H (not_le_of_gt Ha)
   end
+
+
+theorem squeeze_2 {a b : ℚ} (H : ∀ ε : ℚ, ε > 0 → a ≥ b - ε) : a ≥ b := sorry
+
 
 theorem rewrite_helper (a b c d : ℚ) : a * b  - c * d = a * (b - d) + (a - c) * d :=
   sorry
@@ -690,7 +715,23 @@ theorem s_add_zero (s : seq) (H : regular s) : sadd s zero ≡ s :=
       apply add_invs_nonneg
     end
 
-theorem add_well_defined {s t u v : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
+theorem neg_s_cancel (s : seq) (H : regular s) : sadd s (sneg s) ≡ zero :=
+  begin
+    apply equiv.trans,
+    rotate 3,
+    apply s_add_comm,
+    apply s_neg_cancel s H,
+    apply reg_add_reg,
+    apply H,
+    apply reg_neg_reg,
+    apply H,
+    apply reg_add_reg,
+    apply reg_neg_reg,
+    repeat apply H,
+    apply zero_is_reg
+  end
+
+theorem add_well_defined {s t u v : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u) 
         (Hv : regular v) (Esu : s ≡ u) (Etv : t ≡ v) : sadd s t ≡ sadd u v :=
   begin
     rewrite [↑sadd, ↑equiv at *],
@@ -1020,6 +1061,20 @@ theorem s_mul_one {s : seq} (H : regular s) : smul s one ≡ s :=
     apply H
   end
 
+theorem zero_nequiv_one : ¬ zero ≡ one :=
+  begin
+    intro Hz,
+    rewrite [↑equiv at Hz, ↑zero at Hz, ↑one at Hz],
+    let H := Hz (2 * 2),
+    rewrite [rat.zero_sub at H, abs_neg at H, padd_halves at H],
+    have H' : pone⁻¹ ≤ 2⁻¹, from calc
+      pone⁻¹ = 1 : by rewrite -pone_inv
+      ... = abs 1 : abs_of_pos zero_lt_one
+      ... ≤ 2⁻¹ : H,
+    let H'' := ge_of_inv_le H', 
+    apply absurd (one_lt_two) (pnat.not_lt_of_le (pnat.le_of_lt H''))
+  end
+
 ---------------------------------------------
 -- create the type of regular sequences and lift theorems
 
@@ -1100,6 +1155,9 @@ theorem r_one_mul (s : reg_seq) : requiv (r_one * s) s :=
 theorem r_distrib (s t u : reg_seq) : requiv (s * (t + u)) (s * t + s * u) :=
   s_distrib (reg_seq.is_reg s) (reg_seq.is_reg t) (reg_seq.is_reg u)
 
+theorem r_zero_nequiv_one : ¬ requiv r_zero r_one :=
+  zero_nequiv_one 
+
 ----------------------------------------------
 -- take quotients to get ℝ and show it's a comm ring
 
@@ -1161,6 +1219,10 @@ theorem distrib (x y z : ℝ) : x * (y + z) = x * y + x * z :=
 
 theorem distrib_l (x y z : ℝ) : (x + y) * z = x * z + y * z :=
   by rewrite [mul_comm, distrib, {x * _}mul_comm, {y * _}mul_comm] -- this shouldn't be necessary
+
+theorem zero_ne_one : ¬ zero = one := 
+  take H : zero = one,
+  absurd (quot.exact H) (r_zero_nequiv_one)
 
 definition comm_ring [reducible] : algebra.comm_ring ℝ :=
   begin

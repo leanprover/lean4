@@ -224,8 +224,7 @@ lt.intro
         ... = 0 + nat.succ (nat.succ n * m + n)        : zero_add))
 
 
-theorem zero_lt_one : (0 : ℤ) < 1 :=
-  by rewrite [↑lt, zero_add]; apply le.refl
+theorem zero_lt_one : (0 : ℤ) < 1 := trivial
 
 theorem not_le_of_gt {a b : ℤ} (H : a < b) : ¬ b ≤ a :=
   assume Hba,

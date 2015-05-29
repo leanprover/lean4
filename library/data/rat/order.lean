@@ -10,7 +10,7 @@ import data.int algebra.ordered_field .basic
 open quot eq.ops
 
 /- the ordering on representations -/
-
+ 
 namespace prerat
 section int_notation
 open int
@@ -66,7 +66,7 @@ assume H', ne_of_gt H (num_eq_zero_of_equiv_zero H')
 theorem pos_of_nonneg_of_ne_zero (H1 : nonneg a) (H2 : ¬ a ≡ zero) : pos a :=
 have H3 : num a ≠ 0,
   from assume H' : num a = 0, H2 (equiv_zero_of_num_eq_zero H'),
-lt_of_le_of_ne H1 (ne.symm H3)
+  lt_of_le_of_ne H1 (ne.symm H3)
 
 theorem nonneg_mul (H1 : nonneg a) (H2 : nonneg b) : nonneg (mul a b) :=
 mul_nonneg H1 H2
@@ -204,6 +204,9 @@ or.elim (nonneg_total (b - a))
   (assume H, or.inl H)
   (assume H, or.inr (!neg_sub ▸ H))
 
+theorem le.by_cases {P : Prop} (a b : ℚ) (H : a ≤ b → P) (H2 : b ≤ a → P) : P := 
+  or.elim (!rat.le.total) H H2
+
 theorem lt_iff_le_and_ne (a b : ℚ) : a < b ↔ a ≤ b ∧ a ≠ b :=
 iff.intro
   (assume H : a < b,
@@ -242,6 +245,42 @@ have H : pos (a * b), from pos_mul (!sub_zero ▸ H1) (!sub_zero ▸ H2),
 definition decidable_lt [instance] : decidable_rel rat.lt :=
 take a b, decidable_pos (b - a)
 
+theorem le_of_lt  (H : a < b) : a ≤ b := iff.mp' !le_iff_lt_or_eq (or.inl H)
+
+theorem lt_irrefl (a : ℚ) : ¬ a < a := 
+  take Ha,
+  let Hand := (iff.mp !lt_iff_le_and_ne) Ha in 
+  (and.right Hand) rfl
+
+theorem not_le_of_gt (H : a < b) : ¬ b ≤ a :=
+  assume Hba,
+  let Heq := le.antisymm (le_of_lt H) Hba in 
+  !lt_irrefl (Heq ▸ H) 
+
+theorem lt_of_lt_of_le  (Hab : a < b) (Hbc : b ≤ c) : a < c := 
+  let Hab' := le_of_lt Hab in
+  let Hac := le.trans Hab' Hbc in
+  (iff.mp' !lt_iff_le_and_ne) (and.intro Hac
+    (assume Heq, not_le_of_gt (Heq ▸ Hab) Hbc))
+
+theorem lt_of_le_of_lt  (Hab : a ≤ b) (Hbc : b < c) : a < c :=
+  let Hbc' := le_of_lt Hbc in
+  let Hac := le.trans Hab Hbc' in
+  (iff.mp' !lt_iff_le_and_ne) (and.intro Hac
+    (assume Heq, not_le_of_gt (Heq⁻¹ ▸ Hbc) Hab))
+
+theorem zero_lt_one : (0 : ℚ) < 1 := trivial
+--  begin
+--    rewrite [↑lt, sub_zero],
+--    apply sorry
+--  end
+
+theorem add_lt_add_left (H : a < b) (c : ℚ) : c + a < c + b := 
+let H' := le_of_lt H in 
+(iff.mp' (lt_iff_le_and_ne _ _)) (and.intro (add_le_add_left H' _)
+                                  (take Heq, let Heq' := add_left_cancel Heq in
+                                   !lt_irrefl (Heq' ▸ H)))
+
 section migrate_algebra
   open [classes] algebra
 
@@ -253,12 +292,17 @@ section migrate_algebra
     le_trans         := @le.trans,
     le_antisymm      := @le.antisymm,
     le_total         := @le.total,
-    lt_iff_le_and_ne := @lt_iff_le_and_ne,
+    le_of_lt                   := @le_of_lt, --sorry,
+    lt_irrefl                  := lt_irrefl,
+    lt_of_lt_of_le             := @lt_of_lt_of_le,
+    lt_of_le_of_lt             := @lt_of_le_of_lt,
     le_iff_lt_or_eq  := @le_iff_lt_or_eq,
     add_le_add_left  := @add_le_add_left,
     mul_nonneg       := @mul_nonneg,
     mul_pos          := @mul_pos,
-    decidable_lt     := @decidable_lt⦄
+    decidable_lt     := @decidable_lt,
+    zero_lt_one      := zero_lt_one,
+    add_lt_add_left  := @add_lt_add_left⦄
 
   local attribute rat.discrete_field [instance]
   local attribute rat.discrete_linear_ordered_field [instance]

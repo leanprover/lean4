@@ -11,7 +11,7 @@ of "linear_ordered_comm_ring". This development is modeled after Isabelle's libr
 import algebra.ordered_group algebra.ring
 open eq eq.ops
 
-namespace algebra
+namespace algebra 
 
 variable {A : Type}
 
@@ -197,7 +197,8 @@ definition ordered_ring.to_ordered_semiring [instance] [coercion] [reducible] [s
   mul_le_mul_of_nonneg_left  := @ordered_ring.mul_le_mul_of_nonneg_left A s,
   mul_le_mul_of_nonneg_right := @ordered_ring.mul_le_mul_of_nonneg_right A s,
   mul_lt_mul_of_pos_left     := @ordered_ring.mul_lt_mul_of_pos_left A s,
-  mul_lt_mul_of_pos_right    := @ordered_ring.mul_lt_mul_of_pos_right A s ⦄
+  mul_lt_mul_of_pos_right    := @ordered_ring.mul_lt_mul_of_pos_right A s,
+  lt_of_add_lt_add_left      := @lt_of_add_lt_add_left A s⦄
 
 section
   variable [s : ordered_ring A]
@@ -262,7 +263,8 @@ end
 
 -- TODO: we can eliminate mul_pos_of_pos, but now it is not worth the effort to redeclare the
 -- class instance
-structure linear_ordered_ring [class] (A : Type) extends ordered_ring A, linear_strong_order_pair A
+structure linear_ordered_ring [class] (A : Type) extends ordered_ring A, linear_strong_order_pair A :=
+  (zero_lt_one : lt zero one)
 
 -- print fields linear_ordered_semiring
 
@@ -279,7 +281,8 @@ definition linear_ordered_ring.to_linear_ordered_semiring [instance] [coercion] 
   mul_le_mul_of_nonneg_right := @mul_le_mul_of_nonneg_right A s,
   mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left A s,
   mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right A s,
-  le_total                   := linear_ordered_ring.le_total ⦄
+  le_total                   := linear_ordered_ring.le_total,
+  lt_of_add_lt_add_left      := @lt_of_add_lt_add_left A s ⦄
 
 structure linear_ordered_comm_ring [class] (A : Type) extends linear_ordered_ring A, comm_monoid A
 
@@ -336,7 +339,7 @@ section
     (assume H : a ≤ 0, mul_nonneg_of_nonpos_of_nonpos H H)
 
   theorem zero_le_one : 0 ≤ (1:A) := one_mul 1 ▸ mul_self_nonneg 1
-  theorem zero_lt_one : 0 < (1:A) := lt_of_le_of_ne zero_le_one zero_ne_one
+  theorem zero_lt_one : 0 < (1:A) := linear_ordered_ring.zero_lt_one A 
 
   theorem pos_and_pos_or_neg_and_neg_of_mul_pos {a b : A} (Hab : a * b > 0) :
     (a > 0 ∧ b > 0) ∨ (a < 0 ∧ b < 0) :=

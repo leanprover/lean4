@@ -116,63 +116,31 @@ wf.rec_on x H
 /- structures with a weak and a strict order -/
 
 structure order_pair [class] (A : Type) extends weak_order A, has_lt A :=
-(lt_iff_le_and_ne : ∀a b, lt a b ↔ (le a b ∧ a ≠ b))
+(le_of_lt : ∀ a b, lt a b → le a b)
+(lt_of_lt_of_le : ∀ a b c, lt a b → le b c → lt a c)
+(lt_of_le_of_lt : ∀ a b c, le a b → lt b c → lt a c)
+(lt_irrefl : ∀ a, ¬ lt a a)
+--lt_iff_le_and_ne : a < b ↔ (a ≤ b ∧ a ≠ b)
 
 section
   variable [s : order_pair A]
   variables {a b c : A}
   include s
 
-  theorem lt_iff_le_and_ne : a < b ↔ (a ≤ b ∧ a ≠ b) :=
-  !order_pair.lt_iff_le_and_ne
+  theorem le_of_lt : a < b → a ≤ b := !order_pair.le_of_lt
 
-  theorem le_of_lt (H : a < b) : a ≤ b :=
-  and.elim_left (iff.mp lt_iff_le_and_ne H)
+  theorem lt_of_lt_of_le [trans] : a < b → b ≤ c → a < c := !order_pair.lt_of_lt_of_le
 
-  theorem lt_of_le_of_ne (H1 : a ≤ b) (H2 : a ≠ b) : a < b :=
-  iff.mp (iff.symm lt_iff_le_and_ne) (and.intro H1 H2)
+  theorem lt_of_le_of_lt [trans] : a ≤ b → b < c → a < c := !order_pair.lt_of_le_of_lt
 
-  private theorem lt_irrefl (s' : order_pair A) (a : A) : ¬ a < a :=
-  assume H : a < a,
-  have H1 : a ≠ a, from and.elim_right (iff.mp !lt_iff_le_and_ne H),
-  H1 rfl
+  private theorem lt_irrefl (s' : order_pair A) (a : A) : ¬ a < a := !order_pair.lt_irrefl
 
   private theorem lt_trans (s' : order_pair A) (a b c: A) (lt_ab : a < b) (lt_bc : b < c) : a < c :=
-  have le_ab : a ≤ b, from le_of_lt lt_ab,
-  have le_bc : b ≤ c, from le_of_lt lt_bc,
-  have le_ac : a ≤ c, from le.trans le_ab le_bc,
-  have ne_ac : a ≠ c, from
-    assume eq_ac : a = c,
-      have le_ba : b ≤ a, from eq_ac⁻¹ ▸ le_bc,
-      have eq_ab : a = b, from le.antisymm le_ab le_ba,
-      have ne_ab : a ≠ b, from and.elim_right (iff.mp lt_iff_le_and_ne lt_ab),
-      ne_ab eq_ab,
-  show a < c, from lt_of_le_of_ne le_ac ne_ac
+    lt_of_lt_of_le lt_ab (le_of_lt lt_bc)
 
   definition order_pair.to_strict_order [instance] [coercion] [reducible] : strict_order A :=
   ⦃ strict_order, s, lt_irrefl := lt_irrefl s, lt_trans := lt_trans s ⦄
 
-  theorem lt_of_lt_of_le [trans] : a < b → b ≤ c → a < c :=
-  assume lt_ab : a < b,
-  assume le_bc : b ≤ c,
-  have le_ac : a ≤ c, from le.trans (le_of_lt lt_ab) le_bc,
-  have ne_ac : a ≠ c, from
-    assume eq_ac : a = c,
-    have le_ba : b ≤ a, from eq_ac⁻¹ ▸ le_bc,
-    have eq_ab : a = b, from le.antisymm (le_of_lt lt_ab) le_ba,
-    show false, from ne_of_lt lt_ab eq_ab,
-  show a < c, from lt_of_le_of_ne le_ac ne_ac
-
-  theorem lt_of_le_of_lt [trans] : a ≤ b → b < c → a < c :=
-  assume le_ab : a ≤ b,
-  assume lt_bc : b < c,
-  have le_ac : a ≤ c, from le.trans le_ab (le_of_lt lt_bc),
-  have ne_ac : a ≠ c, from
-    assume eq_ac : a = c,
-    have le_cb : c ≤ b, from eq_ac ▸ le_ab,
-    have eq_bc : b = c, from le.antisymm (le_of_lt lt_bc) le_cb,
-    show false, from ne_of_lt lt_bc eq_bc,
-  show a < c, from lt_of_le_of_ne le_ac ne_ac
 
   theorem gt_of_gt_of_ge [trans] (H1 : a > b) (H2 : b ≥ c) : a > c := lt_of_le_of_lt H2 H1
 
@@ -187,14 +155,69 @@ section
   lt.irrefl _ (lt_of_le_of_lt H H1)
 end
 
-structure strong_order_pair [class] (A : Type) extends order_pair A :=
+structure strong_order_pair [class] (A : Type) extends weak_order A, has_lt A := --order_pair A :=
 (le_iff_lt_or_eq : ∀a b, le a b ↔ lt a b ∨ a = b)
+(lt_irrefl : ∀ a, ¬ lt a a)
 
 theorem le_iff_lt_or_eq [s : strong_order_pair A] {a b : A} : a ≤ b ↔ a < b ∨ a = b :=
 !strong_order_pair.le_iff_lt_or_eq
 
 theorem lt_or_eq_of_le [s : strong_order_pair A] {a b : A} (le_ab : a ≤ b) : a < b ∨ a = b :=
 iff.mp le_iff_lt_or_eq le_ab
+
+theorem le_of_lt_or_eq [s : strong_order_pair A] {a b : A} (lt_or_eq : a < b ∨ a = b) : a ≤ b :=
+  iff.mp' le_iff_lt_or_eq lt_or_eq
+
+private theorem lt_irrefl' [s : strong_order_pair A] (a : A) : ¬ a < a := 
+  !strong_order_pair.lt_irrefl
+
+private theorem le_of_lt' [s : strong_order_pair A] (a b : A) : a < b → a ≤ b := 
+  take Hlt, le_of_lt_or_eq (or.inl Hlt)
+
+private theorem lt_iff_le_and_ne [s : strong_order_pair A] {a b : A} : a < b ↔ (a ≤ b ∧ a ≠ b) := 
+  iff.intro
+    (take Hlt, and.intro (le_of_lt_or_eq (or.inl Hlt)) (take Hab, absurd (Hab ▸ Hlt) !lt_irrefl'))
+    (take Hand,
+     have Hor : a < b ∨ a = b, from lt_or_eq_of_le (and.left Hand),
+     or_resolve_left Hor (and.right Hand))
+
+theorem lt_of_le_of_ne [s : strong_order_pair A] {a b : A} : a ≤ b → a ≠ b → a < b :=
+  take H1 H2, iff.mp' lt_iff_le_and_ne (and.intro H1 H2)
+
+private theorem ne_of_lt' [s : strong_order_pair A] {a b : A} (H : a < b) : a ≠ b :=
+  and.right ((iff.mp lt_iff_le_and_ne) H)
+
+private theorem lt_of_lt_of_le' [s : strong_order_pair A] (a b c : A) : a < b → b ≤ c → a < c :=
+  assume lt_ab : a < b,
+  assume le_bc : b ≤ c,
+  have le_ac : a ≤ c, from le.trans (le_of_lt' _ _ lt_ab) le_bc,
+  have ne_ac : a ≠ c, from
+    assume eq_ac : a = c,
+    have le_ba : b ≤ a, from eq_ac⁻¹ ▸ le_bc,
+    have eq_ab : a = b, from le.antisymm  (le_of_lt' _ _ lt_ab) le_ba,
+    show false, from ne_of_lt' lt_ab eq_ab,
+  show a < c, from iff.mp' (lt_iff_le_and_ne) (and.intro le_ac ne_ac)
+
+  theorem lt_of_le_of_lt' [s : strong_order_pair A] (a b c : A) : a ≤ b → b < c → a < c :=
+  assume le_ab : a ≤ b,
+  assume lt_bc : b < c,
+  have le_ac : a ≤ c, from le.trans le_ab (le_of_lt' _ _ lt_bc),
+  have ne_ac : a ≠ c, from
+    assume eq_ac : a = c,
+    have le_cb : c ≤ b, from eq_ac ▸ le_ab,
+    have eq_bc : b = c, from le.antisymm  (le_of_lt' _ _ lt_bc) le_cb,
+    show false, from ne_of_lt' lt_bc eq_bc,
+  show a < c, from iff.mp' (lt_iff_le_and_ne) (and.intro le_ac ne_ac)
+
+
+definition strong_order_pair.to_order_pair [instance] [coercion] [reducible] [s : strong_order_pair A]
+        : order_pair A := 
+  ⦃ order_pair, s,
+    lt_irrefl := lt_irrefl',
+    le_of_lt := le_of_lt',
+    lt_of_le_of_lt := lt_of_le_of_lt',
+    lt_of_lt_of_le := lt_of_lt_of_le'
+  ⦄
 
 -- We can also construct a strong order pair by defining a strict order, and then defining
 -- x ≤ y ↔ x < y ∨ x = y
@@ -235,13 +258,55 @@ iff.intro
       iff.mp !strict_order_with_le.le_iff_lt_or_eq (and.elim_left H),
     show a < b, from or_resolve_left H1 (and.elim_right H))
 
+private theorem le_of_lt' (s : strict_order_with_le A) (a b : A) : a < b → a ≤ b := 
+  take Hlt, and.left (iff.mp (lt_iff_le_ne s _ _) Hlt)
+
+private theorem lt_trans (s : strict_order_with_le A) (a b c: A) (lt_ab : a < b) (lt_bc : b < c) : a < c :=
+  have le_ab : a ≤ b, from le_of_lt' s _ _ lt_ab,
+  have le_bc : b ≤ c, from le_of_lt' s _ _ lt_bc,
+  have le_ac : a ≤ c, from le_trans s _ _ _ le_ab le_bc,
+  have ne_ac : a ≠ c, from
+    assume eq_ac : a = c,
+      have le_ba : b ≤ a, from eq_ac⁻¹ ▸ le_bc,
+      have eq_ab : a = b, from le_antisymm s a b le_ab le_ba,
+      have ne_ab : a ≠ b, from and.elim_right ((iff.mp (lt_iff_le_ne s a b)) lt_ab),
+      ne_ab eq_ab,
+  show a < c, from (iff.mp' !lt_iff_le_ne) (and.intro le_ac ne_ac)
+
+  theorem lt_of_lt_of_le' (s : strict_order_with_le A) (a b c : A) : a < b → b ≤ c → a < c :=
+  assume lt_ab : a < b,
+  assume le_bc : b ≤ c,
+  have le_ac : a ≤ c, from le_trans s _ _ _ (le_of_lt' s _ _ lt_ab) le_bc,
+  have ne_ac : a ≠ c, from
+    assume eq_ac : a = c,
+    have le_ba : b ≤ a, from eq_ac⁻¹ ▸ le_bc,
+    have eq_ab : a = b, from le_antisymm s _ _ (le_of_lt' s _ _ lt_ab) le_ba,
+    show false, from ne_of_lt lt_ab eq_ab,
+  show a < c, from iff.mp' (lt_iff_le_ne s _ _) (and.intro le_ac ne_ac)
+
+  theorem lt_of_le_of_lt'' (s : strict_order_with_le A) (a b c : A) : a ≤ b → b < c → a < c :=
+  assume le_ab : a ≤ b,
+  assume lt_bc : b < c,
+  have le_ac : a ≤ c, from le_trans s _ _ _ le_ab (le_of_lt' s _ _ lt_bc),
+  have ne_ac : a ≠ c, from
+    assume eq_ac : a = c,
+    have le_cb : c ≤ b, from eq_ac ▸ le_ab,
+    have eq_bc : b = c, from le_antisymm s _ _ (le_of_lt' s _ _ lt_bc) le_cb,
+    show false, from ne_of_lt lt_bc eq_bc,
+  show a < c, from iff.mp' (lt_iff_le_ne s _ _) (and.intro le_ac ne_ac)
+
+
 definition strict_order_with_le.to_order_pair [instance] [coercion] [reducible] [s : strict_order_with_le A] :
   strong_order_pair A :=
 ⦃ strong_order_pair, s,
   le_refl          := le_refl s,
   le_trans         := le_trans s,
-  le_antisymm      := le_antisymm s,
-  lt_iff_le_and_ne := lt_iff_le_ne s ⦄
+  le_antisymm      := le_antisymm s ⦄
+  --le_of_lt         := le_of_lt' s,
+  --lt_of_le_of_lt   := lt_of_le_of_lt' s,
+  --lt_of_lt_of_le   := lt_of_lt_of_le' s ⦄
+  --lt_iff_le_and_ne := lt_iff_le_ne s ⦄
+
 
 /- linear orders -/
 
@@ -249,6 +314,10 @@ structure linear_order_pair [class] (A : Type) extends order_pair A, linear_weak
 
 structure linear_strong_order_pair [class] (A : Type) extends strong_order_pair A,
     linear_weak_order A
+
+definition linear_strong_order_pair.to_linear_order_pair [instance] [coercion] [reducible]
+    [s : linear_strong_order_pair A] : linear_order_pair A :=
+  ⦃ linear_order_pair, s, strong_order_pair.to_order_pair⦄
 
 section
   variable [s : linear_strong_order_pair A]
@@ -269,10 +338,6 @@ section
   or.elim !lt.trichotomy
     (assume H, H1 H)
     (assume H, or.elim H (assume H', H2 H') (assume H', H3 H'))
-
-  definition linear_strong_order_pair.to_linear_order_pair [instance] [coercion] [reducible]
-     : linear_order_pair A :=
-  ⦃ linear_order_pair, s ⦄
 
   theorem le_of_not_gt {a b : A} (H : ¬ a > b) : a ≤ b :=
   lt.by_cases (assume H', absurd H' H) (assume H', H' ▸ !le.refl) (assume H', le_of_lt H')

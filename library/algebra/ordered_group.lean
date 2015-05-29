@@ -22,11 +22,22 @@ structure ordered_cancel_comm_monoid [class] (A : Type) extends add_comm_monoid 
   add_left_cancel_semigroup A, add_right_cancel_semigroup A, order_pair A :=
 (add_le_add_left : ∀a b, le a b → ∀c, le (add c a) (add c b))
 (le_of_add_le_add_left : ∀a b c, le (add a b) (add a c) → le b c)
+(add_lt_add_left : ∀a b, lt a b → ∀c, lt (add c a) (add c b))
+(lt_of_add_lt_add_left : ∀a b c, lt (add a b) (add a c) → lt b c)
 
 section
   variables [s : ordered_cancel_comm_monoid A]
   variables {a b c d e : A}
   include s
+
+  theorem add_lt_add_left (H : a < b) (c : A) : c + a < c + b :=
+    !ordered_cancel_comm_monoid.add_lt_add_left H c
+
+  theorem add_lt_add_right (H : a < b) (c : A) : a + c < b + c :=
+  begin
+    rewrite [add.comm, {b + _}add.comm],
+    exact (add_lt_add_left H c)
+  end
 
   theorem add_le_add_left (H : a ≤ b) (c : A) : c + a ≤ c + b :=
   !ordered_cancel_comm_monoid.add_le_add_left H c
@@ -37,19 +48,15 @@ section
   theorem add_le_add (Hab : a ≤ b) (Hcd : c ≤ d) : a + c ≤ b + d :=
   le.trans (add_le_add_right Hab c) (add_le_add_left Hcd b)
 
-  theorem add_lt_add_left (H : a < b) (c : A) : c + a < c + b :=
+/-  theorem add_lt_add_left (H : a < b) (c : A) : c + a < c + b :=
   have H1 : c + a ≤ c + b, from add_le_add_left (le_of_lt H) c,
   have H2 : c + a ≠ c + b, from
     take H3 : c + a = c + b,
     have H4 : a = b, from add.left_cancel H3,
     ne_of_lt H H4,
-  lt_of_le_of_ne H1 H2
+  sorry--lt_of_le_of_ne H1 H2-/
 
-  theorem add_lt_add_right (H : a < b) (c : A) : a + c < b + c :=
-  begin
-    rewrite [add.comm, {b + _}add.comm],
-    exact (add_lt_add_left H c)
-  end
+
 
   theorem le_add_of_nonneg_right (H : b ≥ 0) : a ≤ a + b :=
   begin
@@ -86,10 +93,11 @@ section
   le_of_add_le_add_left (show b + a ≤ b + c, begin rewrite [add.comm, {b + _}add.comm], exact H end)
 
   theorem lt_of_add_lt_add_left (H : a + b < a + c) : b < c :=
-  have H1 : b ≤ c, from le_of_add_le_add_left (le_of_lt H),
+  !ordered_cancel_comm_monoid.lt_of_add_lt_add_left H
+  /-have H1 : b ≤ c, from le_of_add_le_add_left (le_of_lt H),
   have H2 : b ≠ c, from
     assume H3 : b = c, lt.irrefl _ (H3 ▸ H),
-  lt_of_le_of_ne H1 H2
+  sorry --lt_of_le_of_ne H1 H2-/
 
   theorem lt_of_add_lt_add_right (H : a + b < c + b) : a < c :=
   lt_of_add_lt_add_left ((add.comm a b) ▸ (add.comm c b) ▸ H)
@@ -208,9 +216,17 @@ end
 
 structure ordered_comm_group [class] (A : Type) extends add_comm_group A, order_pair A :=
 (add_le_add_left : ∀a b, le a b → ∀c, le (add c a) (add c b))
+(add_lt_add_left : ∀a b, lt a b → ∀ c, lt (add c a) (add c b))
+--(le_of_add_le_add_left : ∀a b c, le (add a b) (add a c) → le b c)
+--(lt_of_add_lt_add_left : ∀a b c, lt (add a b) (add a c) → lt b c)
+
 
 theorem ordered_comm_group.le_of_add_le_add_left [s : ordered_comm_group A] {a b c : A} (H : a + b ≤ a + c) : b ≤ c :=
 assert H' : -a + (a + b) ≤ -a + (a + c), from ordered_comm_group.add_le_add_left _ _ H _,
+by rewrite *neg_add_cancel_left at H'; exact H'
+
+theorem ordered_comm_group.lt_of_add_lt_add_left [s : ordered_comm_group A] {a b c : A} (H : a + b < a + c) : b < c :=
+assert H' : -a + (a + b) < -a + (a + c), from ordered_comm_group.add_lt_add_left _ _ H _,
 by rewrite *neg_add_cancel_left at H'; exact H'
 
 definition ordered_comm_group.to_ordered_cancel_comm_monoid [instance] [coercion] [reducible]
@@ -218,7 +234,8 @@ definition ordered_comm_group.to_ordered_cancel_comm_monoid [instance] [coercion
 ⦃ ordered_cancel_comm_monoid, s,
   add_left_cancel       := @add.left_cancel A s,
   add_right_cancel      := @add.right_cancel A s,
-  le_of_add_le_add_left := @ordered_comm_group.le_of_add_le_add_left A s ⦄
+  le_of_add_le_add_left := @ordered_comm_group.le_of_add_le_add_left A s,
+  lt_of_add_lt_add_left := @ordered_comm_group.lt_of_add_lt_add_left A s⦄
 
 section
   variables [s : ordered_comm_group A] (a b c d e : A)
@@ -397,7 +414,21 @@ section
 end
 
 structure decidable_linear_ordered_comm_group [class] (A : Type)
-    extends ordered_comm_group A, decidable_linear_order A
+    extends add_comm_group A, decidable_linear_order A :=
+    (add_le_add_left : ∀ a b, le a b → ∀ c, le (add c a) (add c b))
+    (add_lt_add_left : ∀ a b, lt a b → ∀ c, lt (add c a) (add c b))
+
+private theorem add_le_add_left' (A : Type) (s : decidable_linear_ordered_comm_group A) (a b : A) :
+                a ≤ b → (∀ c : A, c + a ≤ c + b) :=
+  decidable_linear_ordered_comm_group.add_le_add_left a b
+
+definition decidable_linear_ordered_comm_group.to_ordered_comm_group [instance] [reducible] [coercion]
+           (A : Type) [s : decidable_linear_ordered_comm_group A] : ordered_comm_group A :=
+   ⦃ordered_comm_group, s,
+   le_of_lt := @le_of_lt A s,
+   add_le_add_left := add_le_add_left' A s,
+   lt_of_le_of_lt := @lt_of_le_of_lt A s,
+   lt_of_lt_of_le := @lt_of_lt_of_le A s⦄
 
 section
   variables [s : decidable_linear_ordered_comm_group A]

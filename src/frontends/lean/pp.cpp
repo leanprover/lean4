@@ -532,6 +532,8 @@ optional<name> pretty_fn::is_abbreviated(expr const & e) const {
 }
 
 auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ_params) -> result {
+    if (auto it = is_abbreviated(e))
+        return pp_abbreviation(e, *it, false);
     if (!num_ref_univ_params) {
         if (auto r = pp_local_ref(e))
             return *r;

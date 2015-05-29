@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/expr_lt.h"
 #include "library/util.h"
+#include "library/normalize.h"
 
 namespace lean {
 typedef pair<name, bool> abbrev_entry;
@@ -26,7 +27,8 @@ struct abbrev_state {
             throw exception(sstream() << "invalid abbreviation '" << n << "', it is not a definition");
         m_abbrevs.insert(n, parsing_only);
         if (!parsing_only) {
-            m_inv_map.insert(d.get_value(), n);
+            expr v = try_eta(d.get_value());
+            m_inv_map.insert(v, n);
         }
     }
 

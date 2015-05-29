@@ -164,6 +164,28 @@ void finalize_normalize() {
     delete g_key;
 }
 
+expr try_eta(expr const & e) {
+    if (is_lambda(e)) {
+        expr const & b = binding_body(e);
+        if (is_lambda(b)) {
+            expr new_b = try_eta(b);
+            if (is_eqp(b, new_b)) {
+                return e;
+            } else if (is_app(new_b) && is_var(app_arg(new_b), 0) && !has_free_var(app_fn(new_b), 0)) {
+                return lower_free_vars(app_fn(new_b), 1);
+            } else {
+                return update_binding(e, binding_domain(e), new_b);
+            }
+        } else if (is_app(b) && is_var(app_arg(b), 0) && !has_free_var(app_fn(b), 0)) {
+            return lower_free_vars(app_fn(b), 1);
+        } else {
+            return e;
+        }
+    } else {
+        return e;
+    }
+}
+
 class normalize_fn {
     type_checker   &                  m_tc;
     name_generator                    m_ngen;
@@ -264,25 +286,6 @@ class normalize_fn {
             return normalize(r);
         } else {
             return r;
-        }
-    }
-
-    expr try_eta(expr const & e) {
-        lean_assert(is_lambda(e));
-        expr const & b = binding_body(e);
-        if (is_lambda(b)) {
-            expr new_b = try_eta(b);
-            if (is_eqp(b, new_b)) {
-                return e;
-            } else if (is_app(new_b) && is_var(app_arg(new_b), 0) && !has_free_var(app_fn(new_b), 0)) {
-                return lower_free_vars(app_fn(new_b), 1);
-            } else {
-                return update_binding(e, binding_domain(e), new_b);
-            }
-        } else if (is_app(b) && is_var(app_arg(b), 0) && !has_free_var(app_fn(b), 0)) {
-            return lower_free_vars(app_fn(b), 1);
-        } else {
-            return e;
         }
     }
 

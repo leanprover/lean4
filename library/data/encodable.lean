@@ -80,7 +80,7 @@ theorem decode_encode_sum : ∀ s : sum A B, decode_sum (encode_sum s) = some s
   assert aux₃ : 1 ≠ 0,       from dec_trivial,
   begin
     esimp [encode_sum, decode_sum],
-    rewrite [add.comm, add_mul_mod_self_left aux₁, aux₂, if_neg aux₃, add_sub_cancel_left,
+    rewrite [add.comm, add_mul_mod_self_left, aux₂, if_neg aux₃, add_sub_cancel_left,
              mul_div_cancel_left _ aux₁, encodable.encodek]
   end
 

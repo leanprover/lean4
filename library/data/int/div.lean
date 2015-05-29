@@ -7,7 +7,6 @@ Definitions and properties of div, mod, gcd, lcm, coprime, following the SSRefle
 
 Following SSReflect and the SMTlib standard, we define a mod b so that 0 ≤ a mod b < |b| when b ≠ 0.
 -/
-
 import data.int.order data.nat.div
 open [coercions] [reduce-hints] nat
 open [declarations] nat (succ)
@@ -93,7 +92,7 @@ int.cases_on a
   (take m, by rewrite [of_nat_div_of_nat, nat.div_one])
   (take m, by rewrite [!neg_succ_of_nat_div H, of_nat_div_of_nat, nat.div_one])
 
-theorem eq_div_mul_add_mod {a b : ℤ} : a = a div b * b + a mod b :=
+theorem eq_div_mul_add_mod (a b : ℤ) : a = a div b * b + a mod b :=
 !add.comm ▸ eq_add_of_sub_eq rfl
 
 theorem div_eq_zero_of_lt {a b : ℤ} : 0 ≤ a → a < b → a div b = 0 :=
@@ -182,7 +181,7 @@ have H1 : abs b > 0, from abs_pos_of_ne_zero H,
 have H2 : (#nat nat_abs b > 0), from lt_of_of_nat_lt_of_nat (!of_nat_nat_abs⁻¹ ▸ H1),
 calc
   m mod (abs b) = (#nat m mod (nat_abs b)) : of_nat_mod_abs m b
-        ... < nat_abs b : of_nat_lt_of_nat_of_lt (nat.mod_lt H2)
+        ... < nat_abs b : of_nat_lt_of_nat_of_lt (!nat.mod_lt H2)
         ... = abs b       : of_nat_nat_abs _
 
 theorem mod_nonneg (a : ℤ) {b : ℤ} (H : b ≠ 0) : a mod b ≥ 0 :=
@@ -315,6 +314,21 @@ calc
 theorem mul_div_cancel_left {a : ℤ} (b : ℤ) (H : a ≠ 0) : a * b div a = b :=
 !mul.comm ▸ mul_div_cancel b H
 
+theorem add_mul_mod_self {a b c : ℤ} : (a + b * c) mod c = a mod c :=
+decidable.by_cases
+  (assume cz : c = 0, by rewrite [cz, mul_zero, add_zero])
+  (assume cnz, by rewrite [↑modulo, !add_mul_div_self cnz, mul.right_distrib,
+                            sub_add_eq_sub_sub_swap, add_sub_cancel])
+
+theorem add_mul_mod_self_left (a b c : ℤ) : (a + b * c) mod b = a mod b :=
+!mul.comm ▸ !add_mul_mod_self
+
+theorem mul_mod_left (a b : ℤ) : (a * b) mod b = 0 :=
+by rewrite [-zero_add (a * b), add_mul_mod_self, zero_mod]
+
+theorem mul_mod_right (a b : ℤ) : (a * b) mod a = 0 :=
+!mul.comm ▸ !mul_mod_left
+
 theorem div_self {a : ℤ} (H : a ≠ 0) : a div a = 1 :=
 !mul_one ▸ !mul_div_cancel_left H
 
@@ -359,7 +373,8 @@ lt.by_cases
   (assume H1 : c > 0,
     mul_div_mul_of_pos_aux _ H H1)
 
-theorem mul_div_mul_of_pos_left (a : ℤ) {b : ℤ} (c : ℤ) (H : b > 0) : a * b div (c * b) = a div c :=
+theorem mul_div_mul_of_pos_left (a : ℤ) {b : ℤ} (c : ℤ) (H : b > 0) :
+  a * b div (c * b) = a div c :=
 !mul.comm ▸ !mul.comm ▸ !mul_div_mul_of_pos H
 
 theorem div_mul_le (a : ℤ) {b : ℤ} (H : b ≠ 0) : a div b * b ≤ a :=
@@ -413,6 +428,91 @@ lt.by_cases
                 ... ≤ abs a : abs_nonneg)
   (assume H1 : b > 0, H _ _ H1)
 
-/- ltz_divLR -/
+theorem div_mul_cancel_of_mod_eq_zero {a b : ℤ} (H : a mod b = 0) : a div b * b = a :=
+by rewrite [eq_div_mul_add_mod a b at {2}, H, add_zero]
+
+theorem mul_div_cancel_of_mod_eq_zero {a b : ℤ} (H : a mod b = 0) : b * (a div b) = a :=
+!mul.comm ▸ div_mul_cancel_of_mod_eq_zero H
+
+/- divides -/
+
+theorem dvd_of_mod_eq_zero {a b : ℤ} (H : b mod a = 0) : a ∣ b :=
+dvd.intro (!mul.comm ▸ div_mul_cancel_of_mod_eq_zero H)
+
+theorem mod_eq_zero_of_dvd {a b : ℤ} (H : a ∣ b) : b mod a = 0 :=
+dvd.elim H (take z, assume H1 : b = a * z, H1⁻¹ ▸ !mul_mod_right)
+
+theorem dvd_iff_mod_eq_zero (a b : ℤ) : a ∣ b ↔ b mod a = 0 :=
+iff.intro mod_eq_zero_of_dvd dvd_of_mod_eq_zero
+
+definition dvd.decidable_rel [instance] : decidable_rel dvd :=
+take a n, decidable_of_decidable_of_iff _ (iff.symm !dvd_iff_mod_eq_zero)
+
+theorem div_mul_cancel {a b : ℤ} (H : b ∣ a) : a div b * b = a :=
+div_mul_cancel_of_mod_eq_zero (mod_eq_zero_of_dvd H)
+
+theorem mul_div_cancel' {a b : ℤ} (H : a ∣ b) : a * (b div a) = b :=
+!mul.comm ▸ !div_mul_cancel H
+
+theorem mul_div_assoc (a : ℤ) {b c : ℤ} (H : c ∣ b) : (a * b) div c = a * (b div c) :=
+decidable.by_cases
+  (assume cz : c = 0, by rewrite [cz, *div_zero, mul_zero])
+  (assume cnz : c ≠ 0,
+    obtain d (H' : b = d * c), from exists_eq_mul_left_of_dvd H,
+    by rewrite [H', -mul.assoc, *(!mul_div_cancel cnz)])
+
+theorem div_eq_iff_eq_mul_right {a b : ℤ} (c : ℤ) (H : b ≠ 0) (H' : b ∣ a) :
+  a div b = c ↔ a = b * c :=
+iff.intro
+  (assume H1, by rewrite [-H1, mul_div_cancel' H'])
+  (assume H1, by rewrite [H1, !mul_div_cancel_left H])
+
+theorem div_eq_iff_eq_mul_left {a b : ℤ} (c : ℤ) (H : b ≠ 0) (H' : b ∣ a) :
+  a div b = c ↔ a = c * b :=
+!mul.comm ▸ !div_eq_iff_eq_mul_right H H'
+
+theorem eq_mul_of_div_eq_right {a b c : ℤ} (H1 : b ∣ a) (H2 : a div b = c) :
+  a = b * c :=
+calc
+  a     = b * (a div b) : mul_div_cancel' H1
+    ... = b * c         : H2
+
+theorem div_eq_of_eq_mul_right {a b c : ℤ} (H1 : b ≠ 0) (H2 : a = b * c) :
+  a div b = c :=
+calc
+  a div b = b * c div b : H2
+      ... = c           : !mul_div_cancel_left H1
+
+theorem eq_mul_of_div_eq_left {a b c : ℤ} (H1 : b ∣ a) (H2 : a div b = c) :
+  a = c * b :=
+!mul.comm ▸ !eq_mul_of_div_eq_right H1 H2
+
+theorem div_eq_of_eq_mul_left {a b c : ℤ} (H1 : b ≠ 0) (H2 : b ∣ a) (H3 : a = c * b) :
+  a div b = c :=
+iff.mp' (!div_eq_iff_eq_mul_left H1 H2) H3
+
+theorem div_le_iff_le_mul_right {a b : ℤ} (c : ℤ) (H : b > 0) (H' : b ∣ a) :
+  a div b ≤ c ↔ a ≤ c * b :=
+by rewrite [propext (!le_iff_mul_le_mul_right H), !div_mul_cancel H']
+
+theorem div_le_iff_le_mul_left {a b : ℤ} (c : ℤ) (H : b > 0) (H' : b ∣ a) :
+  a div b ≤ c ↔ a ≤ b * c :=
+!mul.comm ▸ !div_le_iff_le_mul_right H H'
+
+theorem eq_mul_of_div_le_right {a b c : ℤ} (H1 : b > 0) (H2 : b ∣ a) (H3 : a div b ≤ c) :
+  a ≤ c * b :=
+iff.mp (!div_le_iff_le_mul_right H1 H2) H3
+
+theorem div_le_of_eq_mul_right {a b c : ℤ} (H1 : b > 0) (H2 : b ∣ a) (H3 : a ≤ c * b) :
+  a div b ≤ c :=
+iff.mp' (!div_le_iff_le_mul_right H1 H2) H3
+
+theorem eq_mul_of_div_le_left {a b c : ℤ} (H1 : b > 0) (H2 : b ∣ a) (H3 : a div b ≤ c) :
+  a ≤ b * c :=
+iff.mp (!div_le_iff_le_mul_left H1 H2) H3
+
+theorem div_le_of_eq_mul_left {a b c : ℤ} (H1 : b > 0) (H2 : b ∣ a) (H3 : a ≤ b * c) :
+  a div b ≤ c :=
+iff.mp' (!div_le_iff_le_mul_left H1 H2) H3
 
 end int

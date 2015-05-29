@@ -133,6 +133,16 @@ section
       have H2 : b * c < a * c, from mul_lt_mul_of_pos_right H1 Hc,
       not_le_of_gt H2 H)
 
+  theorem le_iff_mul_le_mul_left (a b : A) {c : A} (H : c > 0) : a ≤ b ↔ c * a ≤ c * b :=
+  iff.intro
+    (assume H', mul_le_mul_of_nonneg_left H' (le_of_lt H))
+    (assume H', le_of_mul_le_mul_left H' H)
+
+  theorem le_iff_mul_le_mul_right (a b : A) {c : A} (H : c > 0) : a ≤ b ↔ a * c ≤ b * c :=
+  iff.intro
+    (assume H', mul_le_mul_of_nonneg_right H' (le_of_lt H))
+    (assume H', le_of_mul_le_mul_right H' H)
+
   theorem pos_of_mul_pos_left (H : 0 < a * b) (H1 : 0 ≤ a) : 0 < b :=
   lt_of_not_ge
     (assume H2 : b ≤ 0,

@@ -377,6 +377,8 @@ auto pretty_fn::pp_child_core(expr const & e, unsigned bp, bool ignore_hide) -> 
 // Return some result if \c e is of the form (c p_1 ... p_n) where
 // c is a constant, and p_i's are parameters fixed in a section.
 auto pretty_fn::pp_local_ref(expr const & e) -> optional<result> {
+    if (m_full_names)
+        return optional<result>();
     lean_assert(is_app(e));
     expr const & rfn = get_app_fn(e);
     if (is_constant(rfn)) {

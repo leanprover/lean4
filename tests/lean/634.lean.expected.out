@@ -1,0 +1,5 @@
+A n : Type₁
+@foo.A X n : Type₁
+@foo.A X n : Type₁
+A n : Type₁
+A n : Type₁

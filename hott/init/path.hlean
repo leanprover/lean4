@@ -141,37 +141,47 @@ namespace eq
     q ⬝ p = r → q = r ⬝ p⁻¹ :=
   eq.rec_on p (take r h, !con_idp⁻¹ ⬝ h ⬝ !con_idp⁻¹) r
 
-  definition eq_of_con_inv_eq_idp {p q : x = y} :
-    p ⬝ q⁻¹ = idp → p = q :=
+  definition eq_of_con_inv_eq_idp {p q : x = y} : p ⬝ q⁻¹ = idp → p = q :=
   eq.rec_on q (take p h, !con_idp⁻¹ ⬝ h) p
 
-  definition eq_of_inv_con_eq_idp {p q : x = y} :
-    q⁻¹ ⬝ p = idp → p = q :=
+  definition eq_of_inv_con_eq_idp {p q : x = y} : q⁻¹ ⬝ p = idp → p = q :=
   eq.rec_on q (take p h, !idp_con⁻¹ ⬝ h) p
 
-  definition eq_inv_of_con_eq_idp' {p : x = y} {q : y = x} :
-    p ⬝ q = idp → p = q⁻¹ :=
+  definition eq_inv_of_con_eq_idp' {p : x = y} {q : y = x} : p ⬝ q = idp → p = q⁻¹ :=
   eq.rec_on q (take p h, !con_idp⁻¹ ⬝ h) p
 
-  definition eq_inv_of_con_eq_idp {p : x = y} {q : y = x} :
-    q ⬝ p = idp → p = q⁻¹ :=
+  definition eq_inv_of_con_eq_idp {p : x = y} {q : y = x} : q ⬝ p = idp → p = q⁻¹ :=
   eq.rec_on q (take p h, !idp_con⁻¹ ⬝ h) p
 
-  definition eq_of_idp_eq_inv_con {p q : x = y} :
-    idp = p⁻¹ ⬝ q → p = q :=
+  definition eq_of_idp_eq_inv_con {p q : x = y} : idp = p⁻¹ ⬝ q → p = q :=
   eq.rec_on p (take q h, h ⬝ !idp_con) q
 
-  definition eq_of_idp_eq_con_inv {p q : x = y} :
-    idp = q ⬝ p⁻¹ → p = q :=
+  definition eq_of_idp_eq_con_inv {p q : x = y} : idp = q ⬝ p⁻¹ → p = q :=
   eq.rec_on p (take q h, h ⬝ !con_idp) q
 
-  definition inv_eq_of_idp_eq_con {p : x = y} {q : y = x} :
-    idp = q ⬝ p → p⁻¹ = q :=
+  definition inv_eq_of_idp_eq_con {p : x = y} {q : y = x} : idp = q ⬝ p → p⁻¹ = q :=
   eq.rec_on p (take q h, h ⬝ !con_idp) q
 
-  definition inv_eq_of_idp_eq_con' {p : x = y} {q : y = x} :
-    idp = p ⬝ q → p⁻¹ = q :=
+  definition inv_eq_of_idp_eq_con' {p : x = y} {q : y = x} : idp = p ⬝ q → p⁻¹ = q :=
   eq.rec_on p (take q h, h ⬝ !idp_con) q
+
+  definition con_inv_eq_idp {p q : x = y} (r : p = q) : p ⬝ q⁻¹ = idp :=
+  by cases r;apply con.right_inv
+
+  definition inv_con_eq_idp {p q : x = y} (r : p = q) : q⁻¹ ⬝ p = idp :=
+  by cases r;apply con.left_inv
+
+  definition con_eq_idp {p : x = y} {q : y = x} (r : p = q⁻¹) : p ⬝ q = idp :=
+  by cases q;exact r
+
+  definition idp_eq_inv_con {p q : x = y} (r : p = q) : idp = p⁻¹ ⬝ q :=
+  by cases r;exact !con.left_inv⁻¹
+
+  definition idp_eq_con_inv {p q : x = y} (r : p = q) : idp = q ⬝ p⁻¹ :=
+  by cases r;exact !con.right_inv⁻¹
+
+  definition idp_eq_con {p : x = y} {q : y = x} (r : p⁻¹ = q) : idp = q ⬝ p :=
+  by cases p;exact r
 
   /- Transport -/
 

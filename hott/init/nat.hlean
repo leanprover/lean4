@@ -11,18 +11,36 @@ open eq decidable sum lift
 namespace nat
   notation `ℕ` := nat
 
-  inductive lt (a : nat) : nat → Type₀ :=
-  | base : lt a (succ a)
-  | step : Π {b}, lt a b → lt a (succ b)
+  /- basic definitions on natural numbers -/
+  inductive le (a : ℕ) : ℕ → Type₀ :=
+  | refl : le a a
+  | step : Π {b}, le a b → le a (succ b)
 
-  notation a < b := lt a b
+  infix `≤` := le
+  attribute le.refl [refl]
 
-  definition le [reducible] (a b : nat) : Type₀ := a < succ b
+  definition lt [reducible] (n m : ℕ) := succ n ≤ m
+  definition ge [reducible] (n m : ℕ) := m ≤ n
+  definition gt [reducible] (n m : ℕ) := succ m ≤ n
+  infix `<` := lt
+  infix `≥` := ge
+  infix `>` := gt
 
-  notation a ≤ b := le a b
-
-  definition pred (a : nat) : nat :=
+  definition pred [unfold-c 1] (a : nat) : nat :=
   nat.cases_on a zero (λ a₁, a₁)
+
+  -- add is defined in init.num
+  definition sub (a b : nat) : nat :=
+  nat.rec_on b a (λ b₁ r, pred r)
+
+  definition mul (a b : nat) : nat :=
+  nat.rec_on b zero (λ b₁ r, r + a)
+
+  notation a - b := sub a b
+  notation a * b := mul a b
+
+
+  /- properties of ℕ -/
 
   protected definition is_inhabited [instance] : inhabited nat :=
   inhabited.mk zero
@@ -37,200 +55,192 @@ namespace nat
       | inr xney := inr (λ h : succ x = succ y, by injection h with xeqy; exact absurd xeqy xney)
       end
 
+  /- properties of inequality -/
+
+  definition le_of_eq {n m : ℕ} (p : n = m) : n ≤ m := p ▸ le.refl n
+
+  definition le_succ (n : ℕ) : n ≤ succ n := by repeat constructor
+
+  definition pred_le (n : ℕ) : pred n ≤ n := by cases n;all_goals (repeat constructor)
+
+  definition le.trans [trans] {n m k : ℕ} (H1 : n ≤ m) (H2 : m ≤ k) : n ≤ k :=
+  by induction H2 with n H2 IH;exact H1;exact le.step IH
+
+  definition le_succ_of_le {n m : ℕ} (H : n ≤ m) : n ≤ succ m := le.trans H !le_succ
+
+  definition le_of_succ_le {n m : ℕ} (H : succ n ≤ m) : n ≤ m := le.trans !le_succ H
+
+  definition le_of_lt {n m : ℕ} (H : n < m) : n ≤ m := le_of_succ_le H
+
+  definition succ_le_succ [unfold-c 3] {n m : ℕ} (H : n ≤ m) : succ n ≤ succ m :=
+  by induction H;reflexivity;exact le.step v_0
+
+  definition pred_le_pred [unfold-c 3] {n m : ℕ} (H : n ≤ m) : pred n ≤ pred m :=
+  by induction H;reflexivity;cases b;exact v_0;exact le.step v_0
+
+  definition le_of_succ_le_succ [unfold-c 3] {n m : ℕ} (H : succ n ≤ succ m) : n ≤ m :=
+  pred_le_pred H
+
+  definition le_succ_of_pred_le [unfold-c 1] {n m : ℕ} (H : pred n ≤ m) : n ≤ succ m :=
+  by cases n;exact le.step H;exact succ_le_succ H
+
+  definition not_succ_le_self {n : ℕ} : ¬succ n ≤ n :=
+  by induction n with n IH;all_goals intros;cases a;apply IH;exact le_of_succ_le_succ a
+
+  definition zero_le (n : ℕ) : 0 ≤ n :=
+  by induction n with n IH;apply le.refl;exact le.step IH
+
+  definition zero_lt_succ (n : ℕ) : 0 < succ n :=
+  by induction n with n IH;apply le.refl;exact le.step IH
+
+  definition lt.trans [trans] {n m k : ℕ} (H1 : n < m) (H2 : m < k) : n < k :=
+  le.trans (le.step H1) H2
+
+  definition lt_of_le_of_lt [trans] {n m k : ℕ} (H1 : n ≤ m) (H2 : m < k) : n < k :=
+  le.trans (succ_le_succ H1) H2
+
+  definition lt_of_lt_of_le [trans] {n m k : ℕ} (H1 : n < m) (H2 : m ≤ k) : n < k :=
+  le.trans H1 H2
+
+  theorem le.antisymm {n m : ℕ} (H1 : n ≤ m) (H2 : m ≤ n) : n = m :=
+  begin
+    cases H1 with m' H1',
+    { reflexivity},
+    { cases H2 with n' H2',
+      { reflexivity},
+      { exfalso, apply not_succ_le_self, exact lt.trans H1' H2'}},
+  end
+
+  definition not_succ_le_zero (n : ℕ) : ¬succ n ≤ zero :=
+  by intro H; cases H
+
+  theorem lt.irrefl (n : ℕ) : ¬n < n := not_succ_le_self
+
+  theorem self_lt_succ (n : ℕ) : n < succ n := !le.refl
+  theorem lt.base (n : ℕ) : n < succ n := !le.refl
+
+  theorem le_lt_antisymm {n m : ℕ} (H1 : n ≤ m) (H2 : m < n) : empty :=
+  !lt.irrefl (lt_of_le_of_lt H1 H2)
+
+  theorem lt_le_antisymm {n m : ℕ} (H1 : n < m) (H2 : m ≤ n) : empty :=
+  le_lt_antisymm H2 H1
+
+  theorem lt.asymm {n m : ℕ} (H1 : n < m) (H2 : m < n) : empty :=
+  le_lt_antisymm (le_of_lt H1) H2
+
+  theorem lt.by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) : P :=
+  begin
+    revert b H1 H2 H3, induction a with a IH,
+    { intros, cases b,
+        exact H2 idp,
+        exact H1 !zero_lt_succ},
+    { intros, cases b with b,
+        exact H3 !zero_lt_succ,
+      { apply IH,
+          intro H, exact H1 (succ_le_succ H),
+          intro H, exact H2 (ap succ H),
+          intro H, exact H3 (succ_le_succ H)}}
+  end
+
+  definition lt.trichotomy (a b : ℕ) : a < b ⊎ a = b ⊎ b < a :=
+  lt.by_cases (λH, inl H) (λH, inr (inl H)) (λH, inr (inr H))
+
+  theorem lt_or_ge (a b : ℕ) : (a < b) ⊎ (a ≥ b) :=
+  lt.by_cases inl (λH, inr (eq.rec_on H !le.refl)) (λH, inr (le_of_lt H))
+
+  definition lt_ge_by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a ≥ b → P) : P :=
+  sum.rec_on (lt_or_ge a b) H1 H2
+
+  definition not_lt_zero (a : ℕ) : ¬ a < zero :=
+  by intro H; cases H
+
   -- less-than is well-founded
   definition lt.wf [instance] : well_founded lt :=
-  well_founded.intro (λn, nat.rec_on n
-    (acc.intro zero (λ (y : nat) (hlt : y < zero),
-      have aux : ∀ {n₁}, y < n₁ → zero = n₁ → acc lt y, from
-        λ n₁ hlt, nat.lt.cases_on hlt
-          (by contradiction)
-          (by contradiction),
-      aux hlt rfl))
-    (λ (n : nat) (ih : acc lt n),
-      acc.intro (succ n) (λ (m : nat) (hlt : m < succ n),
-        have aux : ∀ {n₁} (hlt : m < n₁), succ n = n₁ → acc lt m, from
-          λ n₁ hlt, nat.lt.cases_on hlt
-            (λ (sn_eq_sm : succ n = succ m),
-               by injection sn_eq_sm with neqm; rewrite neqm at ih; exact ih)
-            (λ b (hlt : m < b) (sn_eq_sb : succ n = succ b),
-               by injection sn_eq_sb with neqb; rewrite neqb at ih; exact acc.inv ih hlt),
-        aux hlt rfl)))
+  begin
+    constructor, intro n, induction n with n IH,
+    { constructor, intros n H, exfalso, exact !not_lt_zero H},
+    { constructor, intros m H,
+      assert aux : ∀ {n₁} (hlt : m < n₁), succ n = n₁ → acc lt m,
+        { intros n₁ hlt, induction hlt,
+          { intro p, injection p with q, exact q ▸ IH},
+          { intro p, injection p with q, exact (acc.inv (q ▸ IH) a)}},
+      apply aux H idp},
+  end
 
-  definition measure {A : Type} (f : A → nat) : A → A → Type₀ :=
+  definition measure {A : Type} (f : A → ℕ) : A → A → Type₀ :=
   inv_image lt f
 
-  definition measure.wf {A : Type} (f : A → nat) : well_founded (measure f) :=
+  definition measure.wf {A : Type} (f : A → ℕ) : well_founded (measure f) :=
   inv_image.wf f lt.wf
 
-  definition not_lt_zero (a : nat) : ¬ a < zero :=
-  have aux : Π {b}, a < b → b = zero → empty, from
-    λ b H, lt.cases_on H
-      (by contradiction)
-      (by contradiction),
-  λ H, aux H rfl
+  theorem succ_lt_succ {a b : ℕ} (H : a < b) : succ a < succ b :=
+  succ_le_succ H
 
-  definition zero_lt_succ (a : nat) : zero < succ a :=
-  nat.rec_on a
-    (lt.base zero)
-    (λ a (hlt : zero < succ a), lt.step hlt)
+  theorem lt_of_succ_lt {a b : ℕ} (H : succ a < b) : a < b :=
+  le_of_succ_le H
 
-  definition lt.trans [trans] {a b c : nat} (H₁ : a < b) (H₂ : b < c) : a < c :=
-  have aux : a < b → a < c, from
-    lt.rec_on H₂
-      (λ h₁, lt.step h₁)
-      (λ b₁ bb₁ ih h₁, lt.step (ih h₁)),
-  aux H₁
-
-  definition succ_lt_succ {a b : nat} (H : a < b) : succ a < succ b :=
-  lt.rec_on H
-    (lt.base (succ a))
-    (λ b hlt ih, lt.trans ih (lt.base (succ b)))
-
-  definition lt_of_succ_lt {a b : nat} (H : succ a < b) : a < b :=
-  lt.rec_on H
-    (lt.step (lt.base a))
-    (λ b h ih, lt.step ih)
-
-  definition lt_of_succ_lt_succ {a b : nat} (H : succ a < succ b) : a < b :=
-  have aux : pred (succ a) < pred (succ b), from
-    lt.rec_on H
-      (lt.base a)
-      (λ (b : nat) (hlt : succ a < b) ih,
-        show pred (succ a) < pred (succ b), from
-        lt_of_succ_lt hlt),
-  aux
-
-  definition decidable_lt [instance] : decidable_rel lt :=
-  λ a b, nat.rec_on b
-    (λ (a : nat), inr (not_lt_zero a))
-    (λ (b₁ : nat) (ih : Π a, decidable (a < b₁)) (a : nat), nat.cases_on a
-       (inl !zero_lt_succ)
-       (λ a, decidable.rec_on (ih a)
-         (λ h_pos : a < b₁, inl (succ_lt_succ h_pos))
-         (λ h_neg : ¬ a < b₁,
-           have aux : ¬ succ a < succ b₁, from
-             λ h : succ a < succ b₁, h_neg (lt_of_succ_lt_succ h),
-           inr aux)))
-    a
-
-  definition le.refl (a : nat) : a ≤ a :=
-  lt.base a
-
-  definition le_of_lt {a b : nat} (H : a < b) : a ≤ b :=
-  lt.step H
-
-  definition eq_or_lt_of_le {a b : nat} (H : a ≤ b) : a = b ⊎ a < b :=
-  begin
-    cases H with b hlt,
-      apply sum.inl rfl,
-      apply sum.inr hlt
-  end
-
-  definition le_of_eq_or_lt {a b : nat} (H : a = b ⊎ a < b) : a ≤ b :=
-  sum.rec_on H
-    (λ hl, eq.rec_on hl !le.refl)
-    (λ hr, le_of_lt hr)
+  theorem lt_of_succ_lt_succ {a b : ℕ} (H : succ a < succ b) : a < b :=
+  le_of_succ_le_succ H
 
   definition decidable_le [instance] : decidable_rel le :=
-  λ a b, decidable_iff_equiv _ (iff.intro le_of_eq_or_lt eq_or_lt_of_le)
-
-  definition le.rec_on {a : nat} {P : nat → Type} {b : nat} (H : a ≤ b) (H₁ : P a) (H₂ : Π b, a < b → P b) : P b :=
   begin
-    cases H with b hlt,
-      apply H₁,
-      apply H₂ b hlt
+    intros n, induction n with n IH,
+    { intro m, left, apply zero_le},
+    { intro m, cases m with m,
+      { right, apply not_succ_le_zero},
+      { let H := IH m, clear IH,
+        cases H with H H,
+          left, exact succ_le_succ H,
+          right, intro H2, exact H (le_of_succ_le_succ H2)}}
   end
 
-  definition lt.irrefl (a : nat) : ¬ a < a :=
-  nat.rec_on a
-    !not_lt_zero
-    (λ (a : nat) (ih : ¬ a < a) (h : succ a < succ a),
-      ih (lt_of_succ_lt_succ h))
+  definition decidable_lt [instance] : decidable_rel lt := _
+  definition decidable_gt [instance] : decidable_rel gt := _
+  definition decidable_ge [instance] : decidable_rel ge := _
 
-  definition lt.asymm {a b : nat} (H : a < b) : ¬ b < a :=
-  lt.rec_on H
-    (λ h : succ a < a, !lt.irrefl (lt_of_succ_lt h))
-    (λ b hlt (ih : ¬ b < a) (h : succ b < a), ih (lt_of_succ_lt h))
+  definition eq_or_lt_of_le {a b : ℕ} (H : a ≤ b) : a = b ⊎ a < b :=
+  by cases H with b' H; exact sum.inl rfl; exact sum.inr (succ_le_succ H)
 
-  definition lt.trichotomy (a b : nat) : a < b ⊎ a = b ⊎ b < a :=
-  nat.rec_on b
-    (λa, nat.cases_on a
-       (sum.inr (sum.inl rfl))
-       (λ a₁, sum.inr (sum.inr !zero_lt_succ)))
-    (λ b₁ (ih : Πa, a < b₁ ⊎ a = b₁ ⊎ b₁ < a) (a : nat), nat.cases_on a
-       (sum.inl !zero_lt_succ)
-       (λ a, sum.rec_on (ih a)
-           (λ h : a < b₁, sum.inl (succ_lt_succ h))
-           (λ h, sum.rec_on h
-              (λ h : a = b₁, sum.inr (sum.inl (eq.rec_on h rfl)))
-              (λ h : b₁ < a, sum.inr (sum.inr (succ_lt_succ h))))))
-    a
 
-  definition eq_or_lt_of_not_lt {a b : nat} (hnlt : ¬ a < b) : a = b ⊎ b < a :=
+  definition le_of_eq_or_lt {a b : ℕ} (H : a = b ⊎ a < b) : a ≤ b :=
+  by cases H with H H; exact le_of_eq H; exact le_of_lt H
+
+  definition eq_or_lt_of_not_lt {a b : ℕ} (hnlt : ¬ a < b) : a = b ⊎ b < a :=
   sum.rec_on (lt.trichotomy a b)
     (λ hlt, absurd hlt hnlt)
     (λ h, h)
 
-  definition lt_succ_of_le {a b : nat} (h : a ≤ b) : a < succ b :=
-  h
+  definition lt_succ_of_le {a b : ℕ} (h : a ≤ b) : a < succ b :=
+  succ_le_succ h
 
-  definition lt_of_succ_le {a b : nat} (h : succ a ≤ b) : a < b :=
-  lt_of_succ_lt_succ h
+  definition lt_of_succ_le {a b : ℕ} (h : succ a ≤ b) : a < b := h
 
-  definition le_succ_of_le {a b : nat} (h : a ≤ b) : a ≤ succ b :=
-  lt.step h
+  definition succ_le_of_lt {a b : ℕ} (h : a < b) : succ a ≤ b := h
 
-  definition succ_le_of_lt {a b : nat} (h : a < b) : succ a ≤ b :=
-  succ_lt_succ h
+  definition max (a b : ℕ) : ℕ := if a < b then b else a
+  definition min (a b : ℕ) : ℕ := if a < b then a else b
 
-  definition le.trans [trans] {a b c : nat} (h₁ : a ≤ b) (h₂ : b ≤ c) : a ≤ c :=
-  begin
-    cases h₁ with b' hlt,
-      apply h₂,
-      apply lt.trans hlt h₂
-  end
-
-  definition lt_of_le_of_lt [trans] {a b c : nat} (h₁ : a ≤ b) (h₂ : b < c) : a < c :=
-  begin
-    cases h₁ with b' hlt,
-      apply h₂,
-      apply lt.trans hlt h₂
-  end
-
-  definition lt_of_lt_of_le [trans] {a b c : nat} (h₁ : a < b) (h₂ : b ≤ c) : a < c :=
-  begin
-    cases h₁ with b' hlt,
-      apply lt_of_succ_lt_succ h₂,
-      apply lt.trans hlt (lt_of_succ_lt_succ h₂)
-  end
-
-  definition max (a b : nat) : nat :=
-  if a < b then b else a
-
-  definition min (a b : nat) : nat :=
-  if a < b then a else b
-
-  definition max_self (a : nat) : max a a = a :=
+  definition max_self (a : ℕ) : max a a = a :=
   eq.rec_on !if_t_t rfl
 
-  definition max_eq_right {a b : nat} (H : a < b) : max a b = b :=
+  definition max_eq_right {a b : ℕ} (H : a < b) : max a b = b :=
   if_pos H
 
-  definition max_eq_left {a b : nat} (H : ¬ a < b) : max a b = a :=
+  definition max_eq_left {a b : ℕ} (H : ¬ a < b) : max a b = a :=
   if_neg H
 
-  definition eq_max_right {a b : nat} (H : a < b) : b = max a b :=
+  definition eq_max_right {a b : ℕ} (H : a < b) : b = max a b :=
   eq.rec_on (max_eq_right H) rfl
 
-  definition eq_max_left {a b : nat} (H : ¬ a < b) : a = max a b :=
+  definition eq_max_left {a b : ℕ} (H : ¬ a < b) : a = max a b :=
   eq.rec_on (max_eq_left H) rfl
 
-  definition le_max_left (a b : nat) : a ≤ max a b :=
+  definition le_max_left (a b : ℕ) : a ≤ max a b :=
   by_cases
     (λ h : a < b,   le_of_lt (eq.rec_on (eq_max_right h) h))
     (λ h : ¬ a < b, eq.rec_on (eq_max_left h) !le.refl)
 
-  definition le_max_right (a b : nat) : b ≤ max a b :=
+  definition le_max_right (a b : ℕ) : b ≤ max a b :=
   by_cases
     (λ h : a < b,   eq.rec_on (eq_max_right h) !le.refl)
     (λ h : ¬ a < b, sum.rec_on (eq_or_lt_of_not_lt h)
@@ -239,71 +249,36 @@ namespace nat
         have aux : a = max a b, from eq_max_left (lt.asymm h),
         eq.rec_on aux (le_of_lt h)))
 
-  definition gt [reducible] a b := lt b a
-  definition decidable_gt [instance] : decidable_rel gt :=
-  _
+  definition succ_sub_succ_eq_sub (a b : ℕ) : succ a - succ b = a - b :=
+  by induction b with b IH; reflexivity; apply ap pred IH
 
-  notation a > b := gt a b
-
-  definition ge [reducible] a b := le b a
-  definition decidable_ge [instance] : decidable_rel ge :=
-  _
-
-  notation a ≥ b := ge a b
-
-  -- add is defined in init.num
-
-  definition sub (a b : nat) : nat :=
-  nat.rec_on b a (λ b₁ r, pred r)
-
-  notation a - b := sub a b
-
-  definition mul (a b : nat) : nat :=
-  nat.rec_on b zero (λ b₁ r, r + a)
-
-  notation a * b := mul a b
-
-  section
-  local attribute sub [reducible]
-  definition succ_sub_succ_eq_sub (a b : nat) : succ a - succ b = a - b :=
-  nat.rec_on b
-    rfl
-    (λ b₁ (ih : succ a - succ b₁ = a - b₁),
-      eq.rec_on ih (eq.refl (pred (succ a - succ b₁))))
-  end
-
-  definition sub_eq_succ_sub_succ (a b : nat) : a - b = succ a - succ b :=
+  definition sub_eq_succ_sub_succ (a b : ℕ) : a - b = succ a - succ b :=
   eq.rec_on (succ_sub_succ_eq_sub a b) rfl
 
-  definition zero_sub_eq_zero (a : nat) : zero - a = zero :=
+  definition zero_sub_eq_zero (a : ℕ) : zero - a = zero :=
   nat.rec_on a
     rfl
     (λ a₁ (ih : zero - a₁ = zero), ap pred ih)
 
-  definition zero_eq_zero_sub (a : nat) : zero = zero - a :=
+  definition zero_eq_zero_sub (a : ℕ) : zero = zero - a :=
   eq.rec_on (zero_sub_eq_zero a) rfl
 
-  definition sub_lt {a b : nat} : zero < a → zero < b → a - b < a :=
+  definition sub_lt {a b : ℕ} : zero < a → zero < b → a - b < a :=
   have aux : Π {a}, zero < a → Π {b}, zero < b → a - b < a, from
-    λa h₁, lt.rec_on h₁
-      (λb h₂, lt.cases_on h₂
+    λa h₁, le.rec_on h₁
+      (λb h₂, le.cases_on h₂
         (lt.base zero)
         (λ b₁ bpos,
           eq.rec_on (sub_eq_succ_sub_succ zero b₁)
            (eq.rec_on (zero_eq_zero_sub b₁) (lt.base zero))))
-      (λa₁ apos ih b h₂, lt.cases_on h₂
+      (λa₁ apos ih b h₂, le.cases_on h₂
         (lt.base a₁)
         (λ b₁ bpos,
           eq.rec_on (sub_eq_succ_sub_succ a₁ b₁)
             (lt.trans (@ih b₁ bpos) (lt.base a₁)))),
   λ h₁ h₂, aux h₁ h₂
 
-  definition pred_le (a : nat) : pred a ≤ a :=
-  nat.cases_on a
-    (le.refl zero)
-    (λ a₁, le_of_lt (lt.base a₁))
-
-  definition sub_le (a b : nat) : a - b ≤ a :=
+  definition sub_le (a b : ℕ) : a - b ≤ a :=
   nat.rec_on b
     (le.refl a)
     (λ b₁ ih, le.trans !pred_le ih)

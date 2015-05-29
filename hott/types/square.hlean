@@ -91,6 +91,10 @@ namespace eq
     { intro s, cases s, apply idp},
   end
 
+  definition naturality [unfold-c 8] {f g : A → B} (p : f ∼ g) (q : a = a') :
+    square (p a) (p a') (ap f q) (ap g q) :=
+  eq.rec_on q vrfl
+
   definition rec_on_b [recursor] {a₀₀ : A}
     {P : Π{a₂₀ a₁₂ : A} {t : a₀₀ = a₂₀} {l : a₀₀ = a₁₂} {r : a₂₀ = a₁₂}, square t idp l r → Type}
     {a₂₀ a₁₂ : A} {t : a₀₀ = a₂₀} {l : a₀₀ = a₁₂} {r : a₂₀ = a₁₂}
@@ -141,10 +145,21 @@ namespace eq
     from eq.rec_on (eq_of_square s : idp ⬝ r = l) (by cases r; exact H),
   left_inv (to_fun !square_equiv_eq) s ▸ H2
 
-  definition naturality [unfold-c 8] {f g : A → B} (p : f ∼ g) (q : a = a') :
-    square (p a) (p a') (ap f q) (ap g q) :=
-  eq.rec_on q vrfl
+  definition rec_on_lr [recursor] {a : A}
+    {P : Π{a' : A} {t : a = a'} {b : a = a'}, square t b idp idp → Type}
+    {a' : A} {t : a = a'} {b : a = a'}
+      (s : square t b idp idp) (H : P ids) : P s :=
+  let p : idp ⬝ b = t := (eq_of_square s)⁻¹ in
+  assert H2 : P (square_of_eq (eq_of_square s)⁻¹⁻¹),
+    from @eq.rec_on _ _ (λx q, P (square_of_eq q⁻¹)) _ p (by cases b; exact H),
+  to_left_inv (!square_equiv_eq) s ▸ !inv_inv ▸ H2
 
-  --we can also do the other recursors (lr, tl, tr, bl, br, tbl, tbr, tlr, blr), but let's postpone this until they are needed
+definition eq_of_hdeg_square {p q : a = a'} (s : square idp idp p q) : p = q :=
+  rec_on_tb s idp
+
+definition eq_of_vdeg_square {p q : a = a'} (s : square p q idp idp) : p = q :=
+  rec_on_lr s idp
+
+  --we can also do the other recursors (tl, tr, bl, br, tbl, tbr, tlr, blr), but let's postpone this until they are needed
 
 end eq

@@ -5,11 +5,11 @@ Authors: Floris van Doorn, Leonardo de Moura, Jeremy Avigad
 
 The order relation on the natural numbers.
 
-Ported from standard library
+Note: this file has significant differences than the standard library version
 -/
 
 import .basic algebra.ordered_ring
-open prod decidable sum eq
+open prod decidable sum eq sigma sigma.ops
 
 namespace nat
 
@@ -17,12 +17,6 @@ namespace nat
 
 theorem le_of_lt_or_eq {m n : ℕ} (H : m < n ⊎ m = n) : m ≤ n :=
 sum.rec_on H (take H1, le_of_lt H1) (take H1, H1 ▸ !le.refl)
-
-theorem lt.by_cases {a b : ℕ} {P : Type}
-  (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) : P :=
-sum.rec_on !lt.trichotomy
-  (assume H, H1 H)
-  (assume H, sum.rec_on H (assume H', H2 H') (assume H', H3 H'))
 
 theorem lt_or_eq_of_le {m n : ℕ} (H : m ≤ n) : m < n ⊎ m = n :=
 lt.by_cases
@@ -58,15 +52,7 @@ theorem le.intro {n m k : ℕ} (h : n + k = m) : n ≤ m :=
 h ▸ le_add_right n k
 
 theorem le.elim {n m : ℕ} (h : n ≤ m) : Σk, n + k = m :=
-le.rec_on h
-  (sigma.mk 0 rfl)
-  (λ m (h : n < m), lt.rec_on h
-    (sigma.mk 1 rfl)
-    (λ b hlt (ih : Σ (k : ℕ), n + k = b),
-      sigma.rec_on ih (λ(k : ℕ) (h : n + k = b),
-      sigma.mk (succ k) (calc
-        n + succ k = succ (n + k) : add_succ
-               ... = succ b       : h))))
+by induction h with m h ih;exact ⟨0, idp⟩;exact ⟨succ ih.1, ap succ ih.2⟩
 
 theorem le.total {m n : ℕ} : m ≤ n ⊎ n ≤ m :=
 lt.by_cases
@@ -122,25 +108,6 @@ lt_of_lt_of_le H2 H3
 
 theorem mul_lt_mul_of_pos_right {n m k : ℕ} (H : n < m) (Hk : k > 0) : n * k < m * k :=
 !mul.comm ▸ !mul.comm ▸ mul_lt_mul_of_pos_left H Hk
-
-theorem le.antisymm {n m : ℕ} (H1 : n ≤ m) (H2 : m ≤ n) : n = m :=
-sigma.rec_on (le.elim H1) (λ(k : ℕ) (Hk : n + k = m),
-sigma.rec_on (le.elim H2) (λ(l : ℕ) (Hl : m + l = n),
-have L1 : k + l = 0, from
-  add.cancel_left
-    (calc
-      n + (k + l) = n + k + l : (!add.assoc)⁻¹
-        ... = m + l           : {Hk}
-        ... = n               : Hl
-        ... = n + 0           : (!add_zero)⁻¹),
-have L2 : k = 0, from eq_zero_of_add_eq_zero_right L1,
-calc
-  n = n + 0  : (!add_zero)⁻¹
-... = n  + k : {L2⁻¹}
-... = m      : Hk))
-
-theorem zero_le (n : ℕ) : 0 ≤ n :=
-le.intro !zero_add
 
 /- nat is an instance of a linearly ordered semiring -/
 
@@ -224,17 +191,6 @@ eq_zero_of_add_eq_zero_right Hk
 theorem lt_iff_succ_le (m n : nat) : m < n ↔ succ m ≤ n :=
 iff.intro succ_le_of_lt lt_of_succ_le
 
-theorem not_succ_le_zero (n : ℕ) : ¬ succ n ≤ 0 :=
-(assume H : succ n ≤ 0,
-  have H2 : succ n = 0, from eq_zero_of_le_zero H,
-  absurd H2 !succ_ne_zero)
-
-theorem succ_le_succ {n m : ℕ} (H : n ≤ m) : succ n ≤ succ m :=
-!add_one ▸ !add_one ▸ add_le_add_right H 1
-
-theorem le_of_succ_le_succ {n m : ℕ} (H : succ n ≤ succ m) : n ≤ m :=
-le_of_add_le_add_right ((!add_one)⁻¹ ▸ (!add_one)⁻¹ ▸ H)
-
 theorem self_le_succ (n : ℕ) : n ≤ succ n :=
 le.intro !add_one
 
@@ -242,14 +198,6 @@ theorem succ_le_or_eq_of_le {n m : ℕ} (H : n ≤ m) : succ n ≤ m ⊎ n = m :
 sum.rec_on (lt_or_eq_of_le H)
   (assume H1 : n < m, sum.inl (succ_le_of_lt H1))
   (assume H1 : n = m, sum.inr H1)
-
-theorem le_succ_of_pred_le {n m : ℕ} : pred n ≤ m → n ≤ succ m :=
-nat.cases_on n
-  (assume H : pred 0 ≤ m, !zero_le)
-  (take n',
-    assume H : pred (succ n') ≤ m,
-    have H1 : n' ≤ m, from pred_succ n' ▸ H,
-    succ_le_succ H1)
 
 theorem pred_le_of_le_succ {n m : ℕ} : n ≤ succ m → pred n ≤ m :=
 nat.cases_on n

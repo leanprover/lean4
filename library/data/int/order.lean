@@ -34,6 +34,7 @@ int.cases_on a (take n H, exists.intro n rfl) (take n' H, false.elim H)
 private theorem nonneg_or_nonneg_neg (a : ℤ) : nonneg a ∨ nonneg (-a) :=
 int.cases_on a (take n, or.inl trivial) (take n, or.inr trivial)
 
+
 theorem le.intro {a b : ℤ} {n : ℕ} (H : a + n = b) : a ≤ b :=
 have H1 : b - a = n, from (eq_add_neg_of_add_eq (!add.comm ▸ H))⁻¹,
 have H2 : nonneg n, from true.intro,
@@ -189,6 +190,12 @@ have H2 : c + a + n = c + b, from
       ... = c + b : {Hn},
 le.intro H2
 
+theorem add_lt_add_left {a b : ℤ} (H : a < b) (c : ℤ) : c + a < c + b :=
+let H' := le_of_lt H in 
+(iff.mp' (lt_iff_le_and_ne _ _)) (and.intro (add_le_add_left H' _)
+                                  (take Heq, let Heq' := add_left_cancel Heq in
+                                   !lt.irrefl (Heq' ▸ H)))
+
 theorem mul_nonneg {a b : ℤ} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : 0 ≤ a * b :=
 obtain (n : ℕ) (Hn : 0 + n = a), from le.elim Ha,
 obtain (m : ℕ) (Hm : 0 + m = b), from le.elim Hb,
@@ -216,6 +223,27 @@ lt.intro
         ... = of_nat (nat.succ (nat.succ n * m + n))   : nat.add_succ
         ... = 0 + nat.succ (nat.succ n * m + n)        : zero_add))
 
+
+theorem zero_lt_one : (0 : ℤ) < 1 :=
+  by rewrite [↑lt, zero_add]; apply le.refl
+
+theorem not_le_of_gt {a b : ℤ} (H : a < b) : ¬ b ≤ a :=
+  assume Hba,
+  let Heq := le.antisymm (le_of_lt H) Hba in 
+  !lt.irrefl (Heq ▸ H) 
+
+theorem lt_of_lt_of_le {a b c : ℤ} (Hab : a < b) (Hbc : b ≤ c) : a < c :=
+  let Hab' := le_of_lt Hab in
+  let Hac := le.trans Hab' Hbc in
+  (iff.mp' !lt_iff_le_and_ne) (and.intro Hac
+    (assume Heq, not_le_of_gt (Heq ▸ Hab) Hbc))
+
+theorem lt_of_le_of_lt  {a b c : ℤ} (Hab : a ≤ b) (Hbc : b < c) : a < c :=
+  let Hbc' := le_of_lt Hbc in
+  let Hac := le.trans Hab Hbc' in
+  (iff.mp' !lt_iff_le_and_ne) (and.intro Hac
+    (assume Heq, not_le_of_gt (Heq⁻¹ ▸ Hbc) Hab))
+
 section migrate_algebra
   open [classes] algebra
 
@@ -227,13 +255,18 @@ section migrate_algebra
     le_trans         := @le.trans,
     le_antisymm      := @le.antisymm,
     lt               := lt,
-    lt_iff_le_and_ne := lt_iff_le_and_ne,
+    le_of_lt         := @le_of_lt,
+    lt_irrefl        := lt.irrefl,
+    lt_of_lt_of_le   := @lt_of_lt_of_le,
+    lt_of_le_of_lt   := @lt_of_le_of_lt,
     add_le_add_left  := @add_le_add_left,
     mul_nonneg       := @mul_nonneg,
     mul_pos          := @mul_pos,
     le_iff_lt_or_eq  := le_iff_lt_or_eq,
     le_total         := le.total,
-    zero_ne_one      := zero_ne_one⦄
+    zero_ne_one      := zero_ne_one,
+    zero_lt_one      := zero_lt_one,
+    add_lt_add_left  := @add_lt_add_left⦄
 
   protected definition decidable_linear_ordered_comm_ring [reducible] :
     algebra.decidable_linear_ordered_comm_ring int :=

@@ -90,6 +90,10 @@ le.intro (add.cancel_left
       k + (n + l)  = k + n + l : add.assoc
                ... = k + m     : Hl))
 
+theorem lt_of_add_lt_add_left {k n m : ℕ} (H : k + n < k + m) : n < m :=
+let H' := le_of_lt H in
+lt_of_le_and_ne (le_of_add_le_add_left H') (assume Heq, !lt.irrefl (Heq ▸ H))
+
 theorem add_lt_add_left {n m : ℕ} (H : n < m) (k : ℕ) : k + n < k + m :=
 lt_of_succ_le (!add_succ ▸ add_le_add_left (succ_le_of_lt H) k)
 
@@ -157,7 +161,12 @@ section migrate_algebra
     le_antisymm                := @le.antisymm,
     le_total                   := @le.total,
     le_iff_lt_or_eq            := @le_iff_lt_or_eq,
-    lt_iff_le_and_ne           := lt_iff_le_and_ne,
+    le_of_lt                   := @le_of_lt,
+    lt_irrefl                  := @lt.irrefl,
+    lt_of_lt_of_le             := @lt_of_lt_of_le,
+    lt_of_le_of_lt             := @lt_of_le_of_lt,
+    lt_of_add_lt_add_left      := @lt_of_add_lt_add_left,
+    add_lt_add_left            := @add_lt_add_left,
     add_le_add_left            := @add_le_add_left,
     le_of_add_le_add_left      := @le_of_add_le_add_left,
     zero_ne_one                := ne.symm (succ_ne_zero zero),

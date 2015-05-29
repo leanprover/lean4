@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/print.h"
 #include "library/class.h"
 #include "library/flycheck.h"
+#include "library/abbreviation.h"
 #include "library/util.h"
 #include "library/user_recursors.h"
 #include "library/pp_options.h"
@@ -520,6 +521,7 @@ environment end_scoped_cmd(parser & p) {
 environment check_cmd(parser & p) {
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
+    e = expand_abbreviations(p.env(), e);
     auto tc = mk_type_checker(p.env(), p.mk_ngen());
     expr type = tc->check(e, ls).first;
     auto reg              = p.regular_stream();

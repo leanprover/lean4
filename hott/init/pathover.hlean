@@ -136,9 +136,9 @@ namespace eq
 
   definition idp_rec_on [recursor] {P : Π⦃b₂ : B a⦄, b =[idpath a] b₂ → Type}
     {b₂ : B a} (r : b =[idpath a] b₂) (H : P idpo) : P r :=
-  have H2 : P (pathover_idp_of_eq (eq_of_pathover_idp r)),
-    from eq.rec_on (eq_of_pathover_idp r) H,
-  left_inv !pathover_idp r ▸ H2
+  have H2 : P (pathover_idp_of_eq (eq_of_pathover_idp r)), from
+    eq.rec_on (eq_of_pathover_idp r) H,
+  proof left_inv !pathover_idp r ▸ H2 qed
 
   definition rec_on_right [recursor] {P : Π⦃b₂ : B a₂⦄, b =[p] b₂ → Type}
     {b₂ : B a₂} (r : b =[p] b₂) (H : P !pathover_tr) : P r :=

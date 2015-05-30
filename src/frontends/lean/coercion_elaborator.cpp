@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/metavar.h"
 #include "kernel/constraint.h"
+#include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "library/coercion.h"
 #include "library/unifier.h"
@@ -28,20 +29,22 @@ list<expr> get_coercions_from_to(type_checker & from_tc, type_checker & to_tc,
     environment const & env = to_tc.env();
     expr whnf_from_type = from_tc.whnf(from_type, new_cs);
     expr whnf_to_type   = to_tc.whnf(to_type, new_cs);
-    if (is_arrow(whnf_from_type)) {
+    if (is_pi(whnf_from_type)) {
         // Try to lift coercions.
         // The idea is to convert a coercion from A to B, into a coercion from D->A to D->B
-        if (!is_arrow(whnf_to_type))
+        if (!is_pi(whnf_to_type))
             return list<expr>(); // failed
         if (!from_tc.is_def_eq(binding_domain(whnf_from_type), binding_domain(whnf_to_type), justification(), new_cs))
             return list<expr>(); // failed, the domains must be definitionally equal
-        list<expr> coe = get_coercions_from_to(from_tc, to_tc, binding_body(whnf_from_type), binding_body(whnf_to_type), new_cs);
+        expr x = mk_local(from_tc.mk_fresh_name(), "x", binding_domain(whnf_from_type), binder_info());
+        expr A = instantiate(binding_body(whnf_from_type), x);
+        expr B = instantiate(binding_body(whnf_to_type), x);
+        list<expr> coe = get_coercions_from_to(from_tc, to_tc, A, B, new_cs);
         if (coe) {
             cs += new_cs;
             // Remark: each coercion c in coe is a function from A to B
             // We create a new list: (fun (f : D -> A) (x : D), c (f x))
             expr f = mk_local(from_tc.mk_fresh_name(), "f", whnf_from_type, binder_info());
-            expr x = mk_local(from_tc.mk_fresh_name(), "x", binding_domain(whnf_from_type), binder_info());
             expr fx = mk_app(f, x);
             return map(coe, [&](expr const & c) { return Fun(f, Fun(x, mk_app(c, fx))); });
         } else {
@@ -79,6 +82,14 @@ optional<constraints> coercion_elaborator::next() {
     return optional<constraints>(r);
 }
 
+bool is_pi_meta(expr const & e) {
+    if (is_pi(e)) {
+        return is_pi_meta(binding_body(e));
+    } else {
+        return is_meta(e);
+    }
+}
+
 /** \brief Given a term <tt>a : a_type</tt>, and a metavariable \c m, creates a constraint
     that considers coercions from a_type to the type assigned to \c m. */
 constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coercion_info_manager & infom,
@@ -107,10 +118,26 @@ constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coerc
         }
         constraint_seq cs;
         new_a_type = from_tc.whnf(new_a_type, cs);
-        if (is_meta(d_type)) {
+        if (is_pi_meta(d_type)) {
             // case-split
+            buffer<expr> locals;
+            expr it_from = new_a_type;
+            expr it_to   = d_type;
+            while (is_pi(it_from) && is_pi(it_to)) {
+                expr dom_from = binding_domain(it_from);
+                expr dom_to   = binding_domain(it_to);
+                if (!from_tc.is_def_eq(dom_from, dom_to, justification(), cs))
+                    return lazy_list<constraints>();
+                expr local = mk_local(from_tc.mk_fresh_name(), binding_name(it_from), dom_from, binder_info());
+                locals.push_back(local);
+                it_from  = instantiate(binding_body(it_from), local);
+                it_to    = instantiate(binding_body(it_to), local);
+            }
             buffer<std::tuple<coercion_class, expr, expr>> alts;
-            get_coercions_from(from_tc.env(), new_a_type, alts);
+            get_coercions_from(from_tc.env(), it_from, alts);
+            expr fn_a;
+            if (!locals.empty())
+                fn_a = mk_local(from_tc.mk_fresh_name(), "f", new_a_type, binder_info());
             buffer<constraints> choices;
             buffer<expr> coes;
             // first alternative: no coercion
@@ -120,7 +147,9 @@ constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coerc
             while (i > 0) {
                 --i;
                 auto const & t = alts[i];
-                expr coe   = std::get<1>(t);
+                expr coe = std::get<1>(t);
+                if (!locals.empty())
+                    coe = Fun(fn_a, Fun(locals, mk_app(coe, mk_app(fn_a, locals))));
                 expr new_a = copy_tag(a, mk_app(coe, a));
                 coes.push_back(coe);
                 constraint_seq csi = cs + mk_eq_cnstr(meta, new_a, new_a_type_jst);

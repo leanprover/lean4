@@ -30,6 +30,9 @@ public:
     optional<constraints> next();
 };
 
+/** \brief Return true iff \c e is of the form (Pi (...), ?M ...) */
+bool is_pi_meta(expr const & e);
+
 /** \brief Given a term <tt>a : a_type</tt>, and a metavariable \c m, creates a constraint
     that considers coercions from a_type to the type assigned to \c m.
 

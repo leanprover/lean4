@@ -478,12 +478,13 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
     return mk_pair(f, f_type);
 }
 
-bool elaborator::has_coercions_from(expr const & a_type) {
+bool elaborator::has_coercions_from(expr const & a_type, bool & lifted_coe) {
     try {
-        expr a_cls = get_app_fn(m_coercion_from_tc->whnf(a_type).first);
+        expr a_cls  = get_app_fn(m_coercion_from_tc->whnf(a_type).first);
         while (is_pi(a_cls)) {
             expr local = mk_local(binding_name(a_cls), binding_domain(a_cls), binding_info(a_cls));
             a_cls      = get_app_fn(m_coercion_from_tc->whnf(instantiate(binding_body(a_cls), local)).first);
+            lifted_coe = true;
         }
         return is_constant(a_cls) && ::lean::has_coercions_from(env(), const_name(a_cls));
     } catch (exception&) {
@@ -548,11 +549,11 @@ pair<expr, constraint_seq> elaborator::mk_delayed_coercion(
     return to_ecs(m, c);
 }
 
-/** \brief Given a term <tt>a : a_type</tt>, ensure it has type \c expected_type. Apply coercions if needed
-*/
+/** \brief Given a term <tt>a : a_type</tt>, ensure it has type \c expected_type. Apply coercions if needed */
 pair<expr, constraint_seq> elaborator::ensure_has_type(
         expr const & a, expr const & a_type, expr const & expected_type, justification const & j) {
-    if (is_meta(expected_type) && has_coercions_from(a_type)) {
+    bool lifted_coe = false;
+    if (has_coercions_from(a_type, lifted_coe) && ((!lifted_coe && is_meta(expected_type)) || (lifted_coe && is_pi_meta(expected_type)))) {
         return mk_delayed_coercion(a, a_type, expected_type, j);
     } else if (!m_in_equation_lhs && is_meta(a_type) && has_coercions_to(expected_type)) {
         return mk_delayed_coercion(a, a_type, expected_type, j);

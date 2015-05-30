@@ -40,8 +40,9 @@ namespace category
 
     definition is_equiv_iso_of_equiv (A B : Precategory_hset) : is_equiv (@iso_of_equiv A B) :=
     adjointify _ (λf, equiv_of_iso f)
-                 (λf, iso_eq idp)
+                 (λf, proof iso_eq idp qed)
                  (λf, equiv_eq idp)
+
     local attribute is_equiv_iso_of_equiv [instance]
 
     open sigma.ops

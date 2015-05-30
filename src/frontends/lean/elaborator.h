@@ -118,7 +118,7 @@ class elaborator : public coercion_info_manager {
     expr visit_calc_proof(expr const & e, optional<expr> const & t, constraint_seq & cs);
     expr add_implict_args(expr e, constraint_seq & cs);
     pair<expr, expr> ensure_fun(expr f, constraint_seq & cs);
-    bool has_coercions_from(expr const & a_type);
+    bool has_coercions_from(expr const & a_type, bool & lifted_coe);
     bool has_coercions_to(expr d_type);
     expr apply_coercion(expr const & a, expr a_type, expr d_type);
     pair<expr, constraint_seq> mk_delayed_coercion(expr const & a, expr const & a_type, expr const & expected_type,

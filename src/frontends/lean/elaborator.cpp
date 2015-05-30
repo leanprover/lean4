@@ -481,6 +481,10 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
 bool elaborator::has_coercions_from(expr const & a_type) {
     try {
         expr a_cls = get_app_fn(m_coercion_from_tc->whnf(a_type).first);
+        while (is_pi(a_cls)) {
+            expr local = mk_local(binding_name(a_cls), binding_domain(a_cls), binding_info(a_cls));
+            a_cls      = get_app_fn(m_coercion_from_tc->whnf(instantiate(binding_body(a_cls), local)).first);
+        }
         return is_constant(a_cls) && ::lean::has_coercions_from(env(), const_name(a_cls));
     } catch (exception&) {
         return false;

@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/metavar.h"
 #include "kernel/constraint.h"
+#include "kernel/abstract.h"
 #include "library/coercion.h"
 #include "library/unifier.h"
 #include "library/choice_iterator.h"
@@ -21,23 +22,45 @@ coercion_elaborator::coercion_elaborator(coercion_info_manager & info, expr cons
     lean_assert(use_id  || length(m_coercions)     == length(m_choices));
 }
 
-list<expr> get_coercions_from_to(type_checker & /* from_tc */, type_checker & to_tc,
+list<expr> get_coercions_from_to(type_checker & from_tc, type_checker & to_tc,
                                  expr const & from_type, expr const & to_type, constraint_seq & cs) {
     constraint_seq new_cs;
     environment const & env = to_tc.env();
-    expr whnf_to_type = to_tc.whnf(to_type, new_cs);
-    expr const & fn   = get_app_fn(whnf_to_type);
-    list<expr> r;
-    if (is_constant(fn)) {
-        r = get_coercions(env, from_type, const_name(fn));
-    } else if (is_pi(whnf_to_type)) {
-        r = get_coercions_to_fun(env, from_type);
-    } else if (is_sort(whnf_to_type)) {
-        r = get_coercions_to_sort(env, from_type);
+    expr whnf_from_type = from_tc.whnf(from_type, new_cs);
+    expr whnf_to_type   = to_tc.whnf(to_type, new_cs);
+    if (is_arrow(whnf_from_type)) {
+        // Try to lift coercions.
+        // The idea is to convert a coercion from A to B, into a coercion from D->A to D->B
+        if (!is_arrow(whnf_to_type))
+            return list<expr>(); // failed
+        if (!from_tc.is_def_eq(binding_domain(whnf_from_type), binding_domain(whnf_to_type), justification(), new_cs))
+            return list<expr>(); // failed, the domains must be definitionally equal
+        list<expr> coe = get_coercions_from_to(from_tc, to_tc, binding_body(whnf_from_type), binding_body(whnf_to_type), new_cs);
+        if (coe) {
+            cs += new_cs;
+            // Remark: each coercion c in coe is a function from A to B
+            // We create a new list: (fun (f : D -> A) (x : D), c (f x))
+            expr f = mk_local(from_tc.mk_fresh_name(), "f", whnf_from_type, binder_info());
+            expr x = mk_local(from_tc.mk_fresh_name(), "x", binding_domain(whnf_from_type), binder_info());
+            expr fx = mk_app(f, x);
+            return map(coe, [&](expr const & c) { return Fun(f, Fun(x, mk_app(c, fx))); });
+        } else {
+            return list<expr>();
+        }
+    } else {
+        expr const & fn   = get_app_fn(whnf_to_type);
+        list<expr> r;
+        if (is_constant(fn)) {
+            r = get_coercions(env, whnf_from_type, const_name(fn));
+        } else if (is_pi(whnf_to_type)) {
+            r = get_coercions_to_fun(env, whnf_from_type);
+        } else if (is_sort(whnf_to_type)) {
+            r = get_coercions_to_sort(env, whnf_from_type);
+        }
+        if (r)
+            cs += new_cs;
+        return r;
     }
-    if (r)
-        cs += new_cs;
-    return r;
 }
 
 optional<constraints> coercion_elaborator::next() {

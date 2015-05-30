@@ -120,7 +120,7 @@ section comm_semiring
   theorem dvd_mul_of_dvd_right {a b : A} (H : a ∣ b) (c : A) : a ∣ c * b :=
   !mul.comm ▸ (dvd_mul_of_dvd_left H _)
 
-  theorem mul_dvd_mul {a b c d : A} (dvd_ab : (a ∣ b)) (dvd_cd : c ∣ d) : a * c ∣ b * d :=
+  theorem mul_dvd_mul {a b c d : A} (dvd_ab : a ∣ b) (dvd_cd : c ∣ d) : a * c ∣ b * d :=
   dvd.elim dvd_ab
     (take e, assume Haeb : b = a * e,
       dvd.elim dvd_cd

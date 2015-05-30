@@ -76,7 +76,7 @@ theorem decode_encode_sum : ∀ s : sum A B, decode_sum (encode_sum s) = some s
   end
 | (sum.inr b) :=
   assert aux₁ : 2 > 0,       from dec_trivial,
-  assert aux₂ : 1 mod 2 = 1, by rewrite [modulo_def],
+  assert aux₂ : 1 mod 2 = 1, by rewrite [nat.modulo_def],
   assert aux₃ : 1 ≠ 0,       from dec_trivial,
   begin
     esimp [encode_sum, decode_sum],

@@ -105,20 +105,20 @@ theorem lt_add_of_pos_right {n k : ℕ} (H : k > 0) : n < n + k :=
 
 /- multiplication -/
 
-theorem mul_le_mul_left {n m : ℕ} (H : n ≤ m) (k : ℕ) : k * n ≤ k * m :=
+theorem mul_le_mul_left {n m : ℕ} (k : ℕ) (H : n ≤ m) : k * n ≤ k * m :=
 obtain (l : ℕ) (Hl : n + l = m), from le.elim H,
 have H2 : k * n + k * l = k * m, by rewrite [-mul.left_distrib, Hl],
 le.intro H2
 
-theorem mul_le_mul_right {n m : ℕ} (H : n ≤ m) (k : ℕ) : n * k ≤ m * k :=
-!mul.comm ▸ !mul.comm ▸ (mul_le_mul_left H k)
+theorem mul_le_mul_right {n m : ℕ} (k : ℕ) (H : n ≤ m) : n * k ≤ m * k :=
+!mul.comm ▸ !mul.comm ▸ !mul_le_mul_left H
 
 theorem mul_le_mul {n m k l : ℕ} (H1 : n ≤ k) (H2 : m ≤ l) : n * m ≤ k * l :=
-le.trans (mul_le_mul_right H1 m) (mul_le_mul_left H2 k)
+le.trans (!mul_le_mul_right H1) (!mul_le_mul_left H2)
 
 theorem mul_lt_mul_of_pos_left {n m k : ℕ} (H : n < m) (Hk : k > 0) : k * n < k * m :=
 have H2 : k * n < k * n + k, from lt_add_of_pos_right Hk,
-have H3 : k * n + k ≤ k * m, from !mul_succ ▸ mul_le_mul_left (succ_le_of_lt H) k,
+have H3 : k * n + k ≤ k * m, from !mul_succ ▸ mul_le_mul_left k (succ_le_of_lt H),
 lt_of_lt_of_le H2 H3
 
 theorem mul_lt_mul_of_pos_right {n m k : ℕ} (H : n < m) (Hk : k > 0) : n * k < m * k :=
@@ -170,8 +170,8 @@ section migrate_algebra
     add_le_add_left            := @add_le_add_left,
     le_of_add_le_add_left      := @le_of_add_le_add_left,
     zero_ne_one                := ne.symm (succ_ne_zero zero),
-    mul_le_mul_of_nonneg_left  := (take a b c H1 H2, mul_le_mul_left H1 c),
-    mul_le_mul_of_nonneg_right := (take a b c H1 H2, mul_le_mul_right H1 c),
+    mul_le_mul_of_nonneg_left  := (take a b c H1 H2, mul_le_mul_left c H1),
+    mul_le_mul_of_nonneg_right := (take a b c H1 H2, mul_le_mul_right c H1),
     mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left,
     mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right ⦄
 
@@ -379,14 +379,14 @@ pos_of_ne_zero
 
 theorem mul_lt_mul_of_le_of_lt {n m k l : ℕ} (Hk : k > 0) (H1 : n ≤ k) (H2 : m < l) :
   n * m < k * l :=
-lt_of_le_of_lt (mul_le_mul_right H1 m) (mul_lt_mul_of_pos_left H2 Hk)
+lt_of_le_of_lt (mul_le_mul_right m H1) (mul_lt_mul_of_pos_left H2 Hk)
 
 theorem mul_lt_mul_of_lt_of_le {n m k l : ℕ} (Hl : l > 0) (H1 : n < k) (H2 : m ≤ l) :
   n * m < k * l :=
-lt_of_le_of_lt (mul_le_mul_left H2 n) (mul_lt_mul_of_pos_right H1 Hl)
+lt_of_le_of_lt (mul_le_mul_left n H2) (mul_lt_mul_of_pos_right H1 Hl)
 
 theorem mul_lt_mul_of_le_of_le {n m k l : ℕ} (H1 : n < k) (H2 : m < l) : n * m < k * l :=
-have H3 : n * m ≤ k * m, from mul_le_mul_right (le_of_lt H1) m,
+have H3 : n * m ≤ k * m, from mul_le_mul_right m (le_of_lt H1),
 have H4 : k * m < k * l, from mul_lt_mul_of_pos_left H2 (lt_of_le_of_lt !zero_le H1),
 lt_of_le_of_lt H3 H4
 

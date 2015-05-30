@@ -444,13 +444,13 @@ theorem dist_mul_dist (n m k l : ℕ) : dist n m * dist k l = dist (n * k + m * 
 have aux : ∀k l, k ≥ l → dist n m * dist k l = dist (n * k + m * l) (n * l + m * k), from
   take k l : ℕ,
   assume H : k ≥ l,
-  have H2 : m * k ≥ m * l, from mul_le_mul_left H m,
+  have H2 : m * k ≥ m * l, from !mul_le_mul_left H,
   have H3 : n * l + m * k ≥ m * l, from le.trans H2 !le_add_left,
   calc
     dist n m * dist k l = dist n m * (k - l)       : dist_eq_sub_of_ge H
       ... = dist (n * (k - l)) (m * (k - l))       : dist_mul_right
       ... = dist (n * k - n * l) (m * k - m * l)   : by simp
-      ... = dist (n * k) (m * k - m * l + n * l)   : dist_sub_eq_dist_add_left (mul_le_mul_left H n)
+      ... = dist (n * k) (m * k - m * l + n * l)   : dist_sub_eq_dist_add_left (!mul_le_mul_left H)
       ... = dist (n * k) (n * l + (m * k - m * l)) : add.comm
       ... = dist (n * k) (n * l + m * k - m * l)   : add_sub_assoc H2 (n * l)
       ... = dist (n * k + m * l) (n * l + m * k)   : dist_sub_eq_dist_add_right H3 _,

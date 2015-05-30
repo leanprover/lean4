@@ -95,6 +95,9 @@ infix *  := int.mul
 theorem of_nat.inj {m n : ℕ} (H : of_nat m = of_nat n) : m = n :=
 by injection H; assumption
 
+theorem of_nat_eq_of_nat (m n : ℕ) : of_nat m = of_nat n ↔ m = n :=
+iff.intro of_nat.inj !congr_arg
+
 theorem neg_succ_of_nat.inj {m n : ℕ} (H : neg_succ_of_nat m = neg_succ_of_nat n) : m = n :=
 by injection H; assumption
 

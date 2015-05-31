@@ -709,7 +709,7 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
         result lhs = pp_child(binding_domain(e), get_arrow_prec());
         result rhs = pp_child(lift_free_vars(binding_body(e), 1), get_arrow_prec()-1);
         format r   = group(lhs.fmt() + space() + (m_unicode ? *g_arrow_n_fmt : *g_arrow_fmt) + line() + rhs.fmt());
-        return result(get_arrow_prec()-1, r);
+        return result(get_arrow_prec(), get_arrow_prec()-1, r);
     } else {
         expr b = e;
         buffer<expr> locals;

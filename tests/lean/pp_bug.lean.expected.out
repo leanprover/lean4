@@ -1,0 +1,10 @@
+¬(p → q) : Prop
+¬p → q : Prop
+¬p → q : Prop
+¬(p → q) : Prop
+p ↔ q : Prop
+¬(p ↔ q) : Prop
+¬p ↔ q : Prop
+¬p ↔ q : Prop
+p → q ↔ q : Prop
+p → (q ↔ q) : Prop

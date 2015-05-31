@@ -25,6 +25,7 @@ class elaborator_context {
     bool                      m_ignore_instances;
     bool                      m_flycheck_goals;
     bool                      m_fail_missing_field;
+    bool                      m_lift_coercions;
     friend class elaborator;
 public:
     elaborator_context(environment const & env, io_state const & ios, local_decls<level> const & lls,

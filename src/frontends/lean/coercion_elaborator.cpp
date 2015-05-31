@@ -24,12 +24,12 @@ coercion_elaborator::coercion_elaborator(coercion_info_manager & info, expr cons
 }
 
 list<expr> get_coercions_from_to(type_checker & from_tc, type_checker & to_tc,
-                                 expr const & from_type, expr const & to_type, constraint_seq & cs) {
+                                 expr const & from_type, expr const & to_type, constraint_seq & cs, bool lift_coe) {
     constraint_seq new_cs;
     environment const & env = to_tc.env();
     expr whnf_from_type = from_tc.whnf(from_type, new_cs);
     expr whnf_to_type   = to_tc.whnf(to_type, new_cs);
-    if (is_pi(whnf_from_type)) {
+    if (lift_coe && is_pi(whnf_from_type)) {
         // Try to lift coercions.
         // The idea is to convert a coercion from A to B, into a coercion from D->A to D->B
         if (!is_pi(whnf_to_type))
@@ -39,7 +39,7 @@ list<expr> get_coercions_from_to(type_checker & from_tc, type_checker & to_tc,
         expr x = mk_local(from_tc.mk_fresh_name(), "x", binding_domain(whnf_from_type), binder_info());
         expr A = instantiate(binding_body(whnf_from_type), x);
         expr B = instantiate(binding_body(whnf_to_type), x);
-        list<expr> coe = get_coercions_from_to(from_tc, to_tc, A, B, new_cs);
+        list<expr> coe = get_coercions_from_to(from_tc, to_tc, A, B, new_cs, lift_coe);
         if (coe) {
             cs += new_cs;
             // Remark: each coercion c in coe is a function from A to B
@@ -94,7 +94,7 @@ bool is_pi_meta(expr const & e) {
     that considers coercions from a_type to the type assigned to \c m. */
 constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coercion_info_manager & infom,
                              expr const & m, expr const & a, expr const & a_type,
-                             justification const & j, unsigned delay_factor) {
+                             justification const & j, unsigned delay_factor, bool lift_coe) {
     auto choice_fn = [=, &from_tc, &to_tc, &infom](expr const & meta, expr const & d_type, substitution const & s,
                                                    name_generator && /* ngen */) {
         expr          new_a_type;
@@ -110,7 +110,7 @@ constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coerc
             if (delay_factor < to_delay_factor(cnstr_group::DelayedChoice)) {
                 // postpone...
                 return lazy_list<constraints>(constraints(mk_coercion_cnstr(from_tc, to_tc, infom, m, a, a_type, justification(),
-                                                                            delay_factor+1)));
+                                                                            delay_factor+1, lift_coe)));
             } else {
                 // giveup...
                 return lazy_list<constraints>(constraints(mk_eq_cnstr(meta, a, justification())));
@@ -118,7 +118,7 @@ constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coerc
         }
         constraint_seq cs;
         new_a_type = from_tc.whnf(new_a_type, cs);
-        if (is_pi_meta(d_type)) {
+        if ((lift_coe && is_pi_meta(d_type)) || (!lift_coe && is_meta(d_type))) {
             // case-split
             buffer<expr> locals;
             expr it_from = new_a_type;
@@ -159,7 +159,7 @@ constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coerc
                                                                 to_list(choices.begin(), choices.end()),
                                                                 to_list(coes.begin(), coes.end())));
         } else {
-            list<expr> coes    = get_coercions_from_to(from_tc, to_tc, new_a_type, d_type, cs);
+            list<expr> coes    = get_coercions_from_to(from_tc, to_tc, new_a_type, d_type, cs, lift_coe);
             if (is_nil(coes)) {
                 expr new_a = a;
                 infom.erase_coercion_info(a);

@@ -481,10 +481,12 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
 bool elaborator::has_coercions_from(expr const & a_type, bool & lifted_coe) {
     try {
         expr a_cls  = get_app_fn(m_coercion_from_tc->whnf(a_type).first);
-        while (is_pi(a_cls)) {
-            expr local = mk_local(binding_name(a_cls), binding_domain(a_cls), binding_info(a_cls));
-            a_cls      = get_app_fn(m_coercion_from_tc->whnf(instantiate(binding_body(a_cls), local)).first);
-            lifted_coe = true;
+        if (m_ctx.m_lift_coercions) {
+            while (is_pi(a_cls)) {
+                expr local = mk_local(binding_name(a_cls), binding_domain(a_cls), binding_info(a_cls));
+                a_cls      = get_app_fn(m_coercion_from_tc->whnf(instantiate(binding_body(a_cls), local)).first);
+                lifted_coe = true;
+            }
         }
         return is_constant(a_cls) && ::lean::has_coercions_from(env(), const_name(a_cls));
     } catch (exception&) {
@@ -513,7 +515,7 @@ expr elaborator::apply_coercion(expr const & a, expr a_type, expr d_type) {
     a_type = m_coercion_from_tc->whnf(a_type).first;
     d_type = m_coercion_to_tc->whnf(d_type).first;
     constraint_seq aux_cs;
-    list<expr> coes = get_coercions_from_to(*m_coercion_from_tc, *m_coercion_to_tc, a_type, d_type, aux_cs);
+    list<expr> coes = get_coercions_from_to(*m_coercion_from_tc, *m_coercion_to_tc, a_type, d_type, aux_cs, m_ctx.m_lift_coercions);
     if (is_nil(coes)) {
         erase_coercion_info(a);
         return a;
@@ -545,7 +547,7 @@ pair<expr, constraint_seq> elaborator::mk_delayed_coercion(
     expr m       = m_full_context.mk_meta(m_ngen, some_expr(expected_type), a.get_tag());
     register_meta(m);
     constraint c = mk_coercion_cnstr(*m_coercion_from_tc, *m_coercion_to_tc, *this, m, a, a_type, j,
-                                     to_delay_factor(cnstr_group::Basic));
+                                     to_delay_factor(cnstr_group::Basic), m_ctx.m_lift_coercions);
     return to_ecs(m, c);
 }
 

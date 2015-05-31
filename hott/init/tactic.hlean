@@ -91,9 +91,9 @@ definition rewrite_tac  (e : expr_list) : tactic := builtin
 definition xrewrite_tac (e : expr_list) : tactic := builtin
 definition krewrite_tac (e : expr_list) : tactic := builtin
 
-definition cases (id : identifier) (ids : opt_identifier_list) : tactic := builtin
+definition cases (h : expr) (ids : opt_identifier_list) : tactic := builtin
 
-definition induction (h : identifier) (rec : using_expr) (ids : opt_identifier_list) : tactic := builtin
+definition induction (h : expr) (rec : using_expr) (ids : opt_identifier_list) : tactic := builtin
 
 definition intros (ids : opt_identifier_list) : tactic := builtin
 

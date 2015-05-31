@@ -1588,7 +1588,8 @@ expr parser::parse_tactic_nud() {
                     r = mk_app(r, parse_tactic_option_num(), id_pos);
                 } else {
                     unsigned rbp;
-                    if (arity == 1 || (arity == 2 && i == 0 && is_tactic_opt_identifier_list_type(ds[1])))
+                    if ((arity == 1) ||
+                        (arity >= 2 && i == 0 && (is_tactic_opt_identifier_list_type(ds[1]) || is_tactic_using_expr(ds[1]))))
                         rbp = 0;
                     else
                         rbp = get_max_prec();

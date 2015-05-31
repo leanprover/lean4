@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
+#include "library/tactic/generalize_tactic.h"
 #include "library/tactic/class_instance_synth.h"
 
 namespace lean {
@@ -386,14 +387,30 @@ tactic induction_tactic(name const & H, optional<name> rec, list<name> const & i
     return tactic01(fn);
 }
 
+tactic induction_tactic(elaborate_fn const & elab, expr const & H, optional<name> rec, list<name> const & ids, expr const & ref) {
+    auto fn = [=](environment const & env, io_state const & ios, proof_state const & ps) {
+        name Haux{"H", "ind"};
+        auto new_ps = generalize_core(env, ios, elab, H, Haux, ps, "induction", true);
+        if (!new_ps)
+            return proof_state_seq();
+        goal g      = head(new_ps->get_goals());
+        expr new_H  = app_arg(g.get_meta());
+        lean_assert(is_local(new_H));
+        name H_name = local_pp_name(new_H);
+        return induction_tactic(H_name, rec, ids, ref)(env, ios, *new_ps);
+    };
+    return tactic(fn);
+}
+
 void initialize_induction_tactic() {
     register_tac(name{"tactic", "induction"},
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
+                 [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
                      buffer<expr> args;
                      get_app_args(e, args);
                      if (args.size() != 3)
                          throw expr_to_tactic_exception(e, "invalid 'induction' tactic, insufficient number of arguments");
-                     name H = tactic_expr_to_id(args[0], "invalid 'induction' tactic, argument must be an identifier");
+                     check_tactic_expr(args[0], "invalid 'induction' tactic, argument must be an expression");
+                     expr H = get_tactic_expr_expr(args[0]);
                      buffer<name> ids;
                      get_tactic_id_list_elements(args[2], ids, "invalid 'induction' tactic, list of identifiers expected");
                      check_tactic_expr(args[1], "invalid 'induction' tactic, invalid argument");
@@ -403,9 +420,15 @@ void initialize_induction_tactic() {
                      }
                      name const & cname = const_name(rec);
                      if (cname == get_tactic_none_expr_name()) {
-                         return induction_tactic(H, optional<name>(), to_list(ids.begin(), ids.end()), e);
+                         if (is_local(H))
+                             return induction_tactic(local_pp_name(H), optional<name>(), to_list(ids.begin(), ids.end()), e);
+                         else
+                             return induction_tactic(elab, H, optional<name>(), to_list(ids.begin(), ids.end()), e);
                      } else {
-                         return induction_tactic(H, optional<name>(cname), to_list(ids.begin(), ids.end()), e);
+                         if (is_local(H))
+                             return induction_tactic(local_pp_name(H), optional<name>(cname), to_list(ids.begin(), ids.end()), e);
+                         else
+                             return induction_tactic(elab, H, optional<name>(), to_list(ids.begin(), ids.end()), e);
                      }
                  });
 }

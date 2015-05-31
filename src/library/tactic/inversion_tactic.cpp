@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/class_instance_synth.h"
 #include "library/tactic/inversion_tactic.h"
+#include "library/tactic/generalize_tactic.h"
 #include "library/tactic/clear_tactic.h"
 
 namespace lean {
@@ -1112,13 +1113,32 @@ tactic inversion_tactic(name const & n, list<name> const & ids) {
     return tactic01(fn);
 }
 
+tactic inversion_tactic(elaborate_fn const & elab, expr const & H, list<name> const & ids) {
+    auto fn = [=](environment const & env, io_state const & ios, proof_state const & ps) {
+        name Haux{"H", "cases"};
+        auto new_ps = generalize_core(env, ios, elab, H, Haux, ps, "cases", true);
+        if (!new_ps)
+            return proof_state_seq();
+        goal g      = head(new_ps->get_goals());
+        expr new_H  = app_arg(g.get_meta());
+        lean_assert(is_local(new_H));
+        name H_name = local_pp_name(new_H);
+        return inversion_tactic(H_name, ids)(env, ios, *new_ps);
+    };
+    return tactic(fn);
+}
+
 void initialize_inversion_tactic() {
     register_tac(get_tactic_cases_name(),
-                 [](type_checker &, elaborate_fn const &, expr const & e, pos_info_provider const *) {
-                     name n = tactic_expr_to_id(app_arg(app_fn(e)), "invalid 'cases' tactic, argument must be an identifier");
+                 [](type_checker &, elaborate_fn const & elab, expr const & e, pos_info_provider const *) {
+                     check_tactic_expr(app_arg(app_fn(e)), "invalid 'cases' tactic, argument must be an expression");
+                     expr H = get_tactic_expr_expr(app_arg(app_fn(e)));
                      buffer<name> ids;
                      get_tactic_id_list_elements(app_arg(e), ids, "invalid 'cases' tactic, list of identifiers expected");
-                     return inversion_tactic(n, to_list(ids.begin(), ids.end()));
+                     if (is_local(H))
+                         return inversion_tactic(local_pp_name(H), to_list(ids.begin(), ids.end()));
+                     else
+                         return inversion_tactic(elab, H, to_list(ids.begin(), ids.end()));
                  });
 }
 void finalize_inversion_tactic() {}

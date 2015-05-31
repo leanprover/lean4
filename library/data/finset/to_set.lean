@@ -12,10 +12,9 @@ namespace finset
 
 variable {A : Type}
 variable [deceq : decidable_eq A]
-include deceq
 
 definition to_set (s : finset A) : set A := λx, x ∈ s
-abbreviation ts := @to_set A _  -- until coercion is working
+abbreviation ts := @to_set A
 
 variables (s t : finset A) (x : A)
 
@@ -27,6 +26,8 @@ theorem to_set_empty : ts ∅ = (∅ : set A) := rfl
 theorem mem_to_set_univ [h : fintype A] : (x ∈ ts univ) = (x ∈ set.univ) :=
   propext (iff.intro (assume H, trivial) (assume H, !mem_univ))
 theorem to_set_univ [h : fintype A] : ts univ = (set.univ : set A) := funext (λ x, !mem_to_set_univ)
+
+include deceq
 
 theorem mem_to_set_union : (x ∈ ts (s ∪ t)) = (x ∈ ts s ∪ ts t) := !finset.mem_union_eq
 theorem to_set_union : ts (s ∪ t) = ts s ∪ ts t := funext (λ x, !mem_to_set_union)

@@ -756,10 +756,10 @@ section port_algebra
   definition neg_dvd_iff_dvd : Πa b : ℤ, -a ∣ b ↔ a ∣ b := algebra.neg_dvd_iff_dvd
   definition dvd_sub : Πa b c : ℤ, a ∣ b → a ∣ c → a ∣ b - c := algebra.dvd_sub
   definition mul_ne_zero : Π{a b : ℤ}, a ≠ 0 → b ≠ 0 → a * b ≠ 0 := @algebra.mul_ne_zero _ _
-  definition mul.cancel_right : Π{a b c : ℤ}, a ≠ 0 → b * a = c * a → b = c :=
-    @algebra.mul.cancel_right _ _
-  definition mul.cancel_left : Π{a b c : ℤ}, a ≠ 0 → a * b = a * c → b = c :=
-    @algebra.mul.cancel_left _ _
+  definition eq_of_mul_eq_mul_right : Π{a b c : ℤ}, a ≠ 0 → b * a = c * a → b = c :=
+    @algebra.eq_of_mul_eq_mul_right _ _
+  definition eq_of_mul_eq_mul_left : Π{a b c : ℤ}, a ≠ 0 → a * b = a * c → b = c :=
+    @algebra.eq_of_mul_eq_mul_left _ _
   definition mul_self_eq_mul_self_iff : Πa b : ℤ, a * a = b * b ↔ a = b ⊎ a = -b :=
     algebra.mul_self_eq_mul_self_iff
   definition mul_self_eq_one_iff : Πa : ℤ, a * a = 1 ↔ a = 1 ⊎ a = -1 :=

@@ -544,7 +544,7 @@ section
           ... = -1 * abs a     : by rewrite neg_eq_neg_one_mul
           ... = sign a * abs a : by rewrite (sign_of_neg H1))
 
-  definition abs_dvd_iff_dvd (a b : A) : abs a ∣ b ↔ a ∣ b :=
+  definition abs_dvd_iff (a b : A) : abs a ∣ b ↔ a ∣ b :=
   abs.by_cases !iff.refl !neg_dvd_iff_dvd
 
   definition dvd_abs_iff (a b : A) : a ∣ abs b ↔ a ∣ b :=

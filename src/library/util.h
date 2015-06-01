@@ -232,6 +232,25 @@ inline justification mk_type_mismatch_jst(expr const & v, expr const & v_type, e
 /** \brief Create a type checker and normalizer that treats any constant named \c n as opaque when pred(n) is true */
 type_checker_ptr mk_type_checker(environment const & env, name_generator && ngen, name_predicate const & pred);
 
+/**
+   \brief Generate the format object for <tt>hyps |- conclusion</tt>.
+   The given substitution is applied to all elements.
+*/
+format format_goal(formatter const & fmt, buffer<expr> const & hyps, expr const & conclusion, substitution const & s);
+
+/** \brief Given a metavariable application (?m l_1 ... l_n), apply \c s to the types of
+    ?m and local constants l_i
+    Return the updated expression and a justification for all substitutions.
+*/
+pair<expr, justification> update_meta(expr const & meta, substitution s);
+
+/** \brief Instantiate metavariable application \c meta (?M ...) using \c subst  */
+expr instantiate_meta(expr const & meta, substitution & subst);
+
+/** \brief Return a 'failed to synthesize placholder' justification for the given
+    metavariable application \c m of the form (?m l_1 ... l_k) */
+justification mk_failed_to_synthesize_jst(environment const & env, expr const & m);
+
 void initialize_library_util();
 void finalize_library_util();
 }

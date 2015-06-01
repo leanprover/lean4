@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/constants.h"
 #include "library/unfold_macros.h"
+#include "library/pp_options.h"
 
 namespace lean {
 bool is_standard(environment const & env) {
@@ -765,6 +766,77 @@ public:
         return default_converter::is_opaque(d);
     }
 };
+
+format format_goal(formatter const & fmt, buffer<expr> const & hyps, expr const & conclusion, substitution const & s) {
+    substitution tmp_subst(s);
+    options const & opts = fmt.get_options();
+    unsigned indent  = get_pp_indent(opts);
+    bool unicode     = get_pp_unicode(opts);
+    bool compact     = get_pp_compact_goals(opts);
+    format turnstile = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
+    format r;
+    unsigned i = 0;
+    while (i < hyps.size()) {
+        if (i > 0)
+            r += compose(comma(), line());
+        expr l     = hyps[i];
+        format ids = fmt(l);
+        expr t     = tmp_subst.instantiate(mlocal_type(l));
+        lean_assert(tmp.size() > 0);
+        while (i < hyps.size() - 1) {
+            expr l2 = hyps[i+1];
+            expr t2 = tmp_subst.instantiate(mlocal_type(l2));
+            if (t2 != t)
+                break;
+            ids += space() + fmt(l2);
+            i++;
+        }
+        r += group(ids + space() + colon() + nest(indent, line() + fmt(t)));
+        i++;
+    }
+    if (compact)
+        r = group(r);
+    r += line() + turnstile + space() + nest(indent, fmt(tmp_subst.instantiate(conclusion)));
+    if (compact)
+        r = group(r);
+    return r;
+}
+
+pair<expr, justification> update_meta(expr const & meta, substitution s) {
+    buffer<expr> args;
+    expr mvar = get_app_args(meta, args);
+    justification j;
+    auto p = s.instantiate_metavars(mlocal_type(mvar));
+    mvar   = update_mlocal(mvar, p.first);
+    j      = p.second;
+    for (expr & arg : args) {
+        auto p = s.instantiate_metavars(mlocal_type(arg));
+        arg    = update_mlocal(arg, p.first);
+        j      = mk_composite1(j, p.second);
+    }
+    return mk_pair(mk_app(mvar, args), j);
+}
+
+expr instantiate_meta(expr const & meta, substitution & subst) {
+    lean_assert(is_meta(meta));
+    buffer<expr> locals;
+    expr mvar = get_app_args(meta, locals);
+    mvar = update_mlocal(mvar, subst.instantiate_all(mlocal_type(mvar)));
+    for (auto & local : locals)
+        local = subst.instantiate_all(local);
+    return mk_app(mvar, locals);
+}
+
+justification mk_failed_to_synthesize_jst(environment const & env, expr const & m) {
+    return mk_justification(m, [=](formatter const & fmt, substitution const & subst) {
+            substitution tmp(subst);
+            expr new_m    = instantiate_meta(m, tmp);
+            expr new_type = type_checker(env).infer(new_m).first;
+            buffer<expr> hyps;
+            get_app_args(new_m, hyps);
+            return format("failed to synthesize placeholder") + line() + format_goal(fmt, hyps, new_type, subst);
+        });
+}
 
 type_checker_ptr mk_type_checker(environment const & env, name_generator && ngen, name_predicate const & pred) {
     return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),

@@ -14,27 +14,11 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
 #include "kernel/metavar.h"
+#include "library/util.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/goal.h"
 
-#ifndef LEAN_DEFAULT_PP_COMPACT_GOALS
-#define LEAN_DEFAULT_PP_COMPACT_GOALS false
-#endif
-
 namespace lean {
-static name * g_pp_compact_goals = nullptr;
-void initialize_goal() {
-    g_pp_compact_goals = new name({"pp", "compact_goals"});
-    register_bool_option(*g_pp_compact_goals, LEAN_DEFAULT_PP_COMPACT_GOALS,
-                         "(pretty printer) try to display goal in a single line when possible");
-}
-void finalize_goal() {
-    delete g_pp_compact_goals;
-}
-bool get_pp_compact_goals(options const & o) {
-    return o.get_bool(*g_pp_compact_goals, LEAN_DEFAULT_PP_COMPACT_GOALS);
-}
-
 local_context goal::to_local_context() const {
     buffer<expr> hyps;
     get_hyps(hyps);
@@ -47,41 +31,9 @@ format goal::pp(formatter const & fmt) const {
 }
 
 format goal::pp(formatter const & fmt, substitution const & s) const {
-    substitution tmp_subst(s);
-    options const & opts = fmt.get_options();
-    unsigned indent  = get_pp_indent(opts);
-    bool unicode     = get_pp_unicode(opts);
-    bool compact     = get_pp_compact_goals(opts);
-    format turnstile = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
-    expr conclusion  = m_type;
-    buffer<expr> tmp;
-    get_app_args(m_meta, tmp);
-    format r;
-    unsigned i = 0;
-    while (i < tmp.size()) {
-        if (i > 0)
-            r += compose(comma(), line());
-        expr l     = tmp[i];
-        format ids = fmt(l);
-        expr t     = tmp_subst.instantiate(mlocal_type(l));
-        lean_assert(tmp.size() > 0);
-        while (i < tmp.size() - 1) {
-            expr l2 = tmp[i+1];
-            expr t2 = tmp_subst.instantiate(mlocal_type(l2));
-            if (t2 != t)
-                break;
-            ids += space() + fmt(l2);
-            i++;
-        }
-        r += group(ids + space() + colon() + nest(indent, line() + fmt(t)));
-        i++;
-    }
-    if (compact)
-        r = group(r);
-    r += line() + turnstile + space() + nest(indent, fmt(tmp_subst.instantiate(conclusion)));
-    if (compact)
-        r = group(r);
-    return r;
+    buffer<expr> hyps;
+    get_app_args(m_meta, hyps);
+    return format_goal(fmt, hyps, m_type, s);
 }
 
 expr goal::abstract(expr const & v) const {

@@ -34,6 +34,7 @@ bool     get_pp_numerals(options const & opts);
 bool     get_pp_abbreviations(options const & opts);
 bool     get_pp_extra_spaces(options const & opts);
 bool     get_pp_preterm(options const & opts);
+bool     get_pp_compact_goals(options const & opts);
 list<options> const & get_distinguishing_pp_options();
 
 void initialize_pp_options();

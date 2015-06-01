@@ -114,7 +114,4 @@ io_state_stream const & operator<<(io_state_stream const & out, goal const & g);
 
 UDATA_DEFS(goal)
 void open_goal(lua_State * L);
-
-void initialize_goal();
-void finalize_goal();
 }

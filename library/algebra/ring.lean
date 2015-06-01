@@ -308,13 +308,13 @@ section
   assume H : a * b = 0,
     or.elim (eq_zero_or_eq_zero_of_mul_eq_zero H) (assume H3, H1 H3) (assume H4, H2 H4)
 
-  theorem mul.cancel_right {a b c : A} (Ha : a ≠ 0) (H : b * a = c * a) : b = c :=
+  theorem eq_of_mul_eq_mul_right {a b c : A} (Ha : a ≠ 0) (H : b * a = c * a) : b = c :=
   have H1  : b * a - c * a = 0, from iff.mp !eq_iff_sub_eq_zero H,
   have H2 : (b - c) * a = 0, using H1, by rewrite [mul_sub_right_distrib, H1],
   have H3 : b - c = 0, from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero H2) Ha,
   iff.elim_right !eq_iff_sub_eq_zero H3
 
-  theorem mul.cancel_left {a b c : A} (Ha : a ≠ 0) (H : a * b = a * c) : b = c :=
+  theorem eq_of_mul_eq_mul_left {a b c : A} (Ha : a ≠ 0) (H : a * b = a * c) : b = c :=
   have H1 : a * b - a * c = 0, from iff.mp !eq_iff_sub_eq_zero H,
   have H2 : a * (b - c) = 0, using H1, by rewrite [mul_sub_left_distrib, H1],
   have H3 : b - c = 0, from or_resolve_right (eq_zero_or_eq_zero_of_mul_eq_zero H2) Ha,
@@ -345,7 +345,7 @@ section
   dvd.elim Hdvd
     (take d,
       assume H : a * c = a * b * d,
-      have H1 : b * d = c, from mul.cancel_left Ha (mul.assoc a b d ▸ H⁻¹),
+      have H1 : b * d = c, from eq_of_mul_eq_mul_left Ha (mul.assoc a b d ▸ H⁻¹),
       dvd.intro H1)
 
   theorem dvd_of_mul_dvd_mul_right {a b c : A} (Ha : a ≠ 0) (Hdvd : (b * a ∣ c * a)) : (b ∣ c) :=
@@ -353,7 +353,7 @@ section
     (take d,
       assume H : c * a = b * a * d,
       have H1 : b * d * a = c * a, from by rewrite [mul.right_comm, -H],
-      have H2 : b * d = c, from mul.cancel_right Ha H1,
+      have H2 : b * d = c, from eq_of_mul_eq_mul_right Ha H1,
       dvd.intro H2)
 end
 

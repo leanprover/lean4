@@ -145,10 +145,6 @@ theorem lt.irrefl (a : ℤ) : ¬ a < a :=
 theorem ne_of_lt {a b : ℤ} (H : a < b) : a ≠ b :=
 (assume H2 : a = b, absurd (H2 ▸ H) (lt.irrefl b))
 
-theorem succ_le_of_lt {a b : ℤ} (H : a < b) : a + 1 ≤ b := H
-
-theorem lt_of_le_succ {a b : ℤ} (H : a + 1 ≤ b) : a < b := H
-
 theorem le_of_lt {a b : ℤ} (H : a < b) : a ≤ b :=
 obtain (n : ℕ) (Hn : a + succ n = b), from lt.elim H,
 le.intro Hn
@@ -191,7 +187,7 @@ have H2 : c + a + n = c + b, from
 le.intro H2
 
 theorem add_lt_add_left {a b : ℤ} (H : a < b) (c : ℤ) : c + a < c + b :=
-let H' := le_of_lt H in 
+let H' := le_of_lt H in
 (iff.mp' (lt_iff_le_and_ne _ _)) (and.intro (add_le_add_left H' _)
                                   (take Heq, let Heq' := add_left_cancel Heq in
                                    !lt.irrefl (Heq' ▸ H)))
@@ -228,8 +224,8 @@ theorem zero_lt_one : (0 : ℤ) < 1 := trivial
 
 theorem not_le_of_gt {a b : ℤ} (H : a < b) : ¬ b ≤ a :=
   assume Hba,
-  let Heq := le.antisymm (le_of_lt H) Hba in 
-  !lt.irrefl (Heq ▸ H) 
+  let Heq := le.antisymm (le_of_lt H) Hba in
+  !lt.irrefl (Heq ▸ H)
 
 theorem lt_of_lt_of_le {a b c : ℤ} (Hab : a < b) (Hbc : b ≤ c) : a < c :=
   let Hab' := le_of_lt Hab in
@@ -327,6 +323,9 @@ or.elim (le.total 0 b)
   (assume H : b ≥ 0, of_nat_nat_abs_of_nonneg H ⬝ (abs_of_nonneg H)⁻¹)
   (assume H : b ≤ 0, of_nat_nat_abs_of_nonpos H ⬝ (abs_of_nonpos H)⁻¹)
 
+theorem nat_abs_abs (a : ℤ) : nat_abs (abs a) = nat_abs a :=
+abs.by_cases rfl !nat_abs_neg
+
 theorem lt_of_add_one_le {a b : ℤ} (H : a + 1 ≤ b) : a < b :=
 obtain n (H1 : a + 1 + n = b), from le.elim H,
 have H2 : a + succ n = b, by rewrite [-H1, add.assoc, add.comm 1],
@@ -363,5 +362,33 @@ theorem exists_eq_neg_succ_of_nat {a : ℤ} : a < 0 → ∃m : ℕ, a = -[m +1] 
 int.cases_on a
   (take m H, absurd (of_nat_nonneg m : 0 ≤ m) (not_le_of_gt H))
   (take m H, exists.intro m rfl)
+
+theorem eq_one_of_mul_eq_one_right {a b : ℤ} (H : a ≥ 0) (H' : a * b = 1) : a = 1 :=
+have H2 : a * b > 0, by rewrite H'; apply trivial,
+have H3 : b > 0, from pos_of_mul_pos_left H2 H,
+have H4 : a > 0, from pos_of_mul_pos_right H2 (le_of_lt H3),
+or.elim (le_or_gt a 1)
+  (assume H5 : a ≤ 1,
+    show a = 1, from le.antisymm H5 (add_one_le_of_lt H4))
+  (assume H5 : a > 1,
+    assert H6 : a * b ≥ 2 * 1,
+      from mul_le_mul (add_one_le_of_lt H5) (add_one_le_of_lt H3) trivial H,
+    have H7 : false, by rewrite [H' at H6]; apply H6,
+    false.elim H7)
+
+theorem eq_one_of_mul_eq_one_left {a b : ℤ} (H : b ≥ 0) (H' : a * b = 1) : b = 1 :=
+eq_one_of_mul_eq_one_right H (!mul.comm ▸ H')
+
+theorem eq_one_of_mul_eq_self_left {a b : ℤ} (Hpos : a ≠ 0) (H : b * a = a) : b = 1 :=
+eq_of_mul_eq_mul_right Hpos (H ⬝ (one_mul a)⁻¹)
+
+theorem eq_one_of_mul_eq_self_right {a b : ℤ} (Hpos : b ≠ 0) (H : b * a = b) : a = 1 :=
+eq_one_of_mul_eq_self_left Hpos (!mul.comm ▸ H)
+
+theorem eq_one_of_dvd_one {a : ℤ} (H : a ≥ 0) (H' : a ∣ 1) : a = 1 :=
+dvd.elim H'
+  (take b,
+    assume H1 : 1 = a * b,
+    eq_one_of_mul_eq_one_right H H1⁻¹)
 
 end int

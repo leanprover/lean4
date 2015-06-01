@@ -64,7 +64,7 @@ decidable.by_cases
           ... = (num b * denom b) * (num c * denom a)                                 :
                     by rewrite [*mul.assoc, *mul.left_comm (denom a),
                                    *mul.left_comm (denom b), mul.comm (denom a)],
-    mul.cancel_left H3 H4)
+    eq_of_mul_eq_mul_left H3 H4)
 
 theorem equiv.is_equivalence : equivalence equiv :=
   mk_equivalence equiv equiv.refl @equiv.symm @equiv.trans

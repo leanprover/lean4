@@ -444,6 +444,36 @@ theorem mul_div_cancel_of_mod_eq_zero {a b : ℤ} (H : a mod b = 0) : b * (a div
 
 /- dvd -/
 
+theorem dvd_of_of_nat_dvd_of_nat {m n : ℕ} : of_nat m ∣ of_nat n → (#nat m ∣ n) :=
+nat.by_cases_zero_pos n
+  (assume H, nat.dvd_zero m)
+  (take n',
+    assume H1 : (#nat n' > 0),
+    have H2 : of_nat n' > 0, from of_nat_pos H1,
+    assume H3 : of_nat m ∣ of_nat n',
+    dvd.elim H3
+      (take c,
+        assume H4 : of_nat n' = of_nat m * c,
+        have H5 : c > 0, from pos_of_mul_pos_left (H4 ▸ H2) !of_nat_nonneg,
+        obtain k (H6 : c = of_nat k), from exists_eq_of_nat (le_of_lt H5),
+        have H7 : n' = (#nat m * k), from (!iff.mp !of_nat_eq_of_nat (H6 ▸ H4)),
+        nat.dvd.intro H7⁻¹))
+
+theorem of_nat_dvd_of_nat_of_dvd {m n : ℕ} (H : #nat m ∣ n) : of_nat m ∣ of_nat n :=
+nat.dvd.elim H
+  (take k, assume H1 : #nat n = m * k,
+    dvd.intro (!iff.mp' !of_nat_eq_of_nat H1⁻¹))
+
+theorem of_nat_dvd_of_nat (m n : ℕ) : of_nat m ∣ of_nat n ↔ (#nat m ∣ n) :=
+iff.intro dvd_of_of_nat_dvd_of_nat of_nat_dvd_of_nat_of_dvd
+
+theorem dvd.antisymm {a b : ℤ} (H1 : a ≥ 0) (H2 : b ≥ 0) : a ∣ b → b ∣ a → a = b :=
+begin
+  rewrite [-abs_of_nonneg H1, -abs_of_nonneg H2, -*of_nat_nat_abs],
+  rewrite [*of_nat_dvd_of_nat, *of_nat_eq_of_nat],
+  apply nat.dvd.antisymm
+end
+
 theorem dvd_of_mod_eq_zero {a b : ℤ} (H : b mod a = 0) : a ∣ b :=
 dvd.intro (!mul.comm ▸ div_mul_cancel_of_mod_eq_zero H)
 
@@ -468,6 +498,16 @@ decidable.by_cases
   (assume cnz : c ≠ 0,
     obtain d (H' : b = d * c), from exists_eq_mul_left_of_dvd H,
     by rewrite [H', -mul.assoc, *(!mul_div_cancel cnz)])
+
+theorem div_dvd_div {a b c : ℤ} (H1 : a ∣ b) (H2 : b ∣ c) : b div a ∣ c div a :=
+have H3 : b = b div a * a, from (div_mul_cancel H1)⁻¹,
+have H4 : c = c div a * a, from (div_mul_cancel (dvd.trans H1 H2))⁻¹,
+decidable.by_cases
+  (assume H5 : a = 0,
+    have H6: c div a = 0, from (congr_arg _ H5 ⬝ !div_zero),
+      H6⁻¹ ▸ !dvd_zero)
+  (assume H5 : a ≠ 0,
+    dvd_of_mul_dvd_mul_right H5 (H3 ▸ H4 ▸ H2))
 
 theorem div_eq_iff_eq_mul_right {a b : ℤ} (c : ℤ) (H : b ≠ 0) (H' : b ∣ a) :
   a div b = c ↔ a = b * c :=

@@ -458,7 +458,7 @@ H⁻¹ ▸ H1⁻¹ ▸ H2⁻¹ ▸ H3
 
 section
 local attribute nat_abs [reducible]
-theorem mul_nat_abs (a b : ℤ) : nat_abs (a * b) = #nat (nat_abs a) * (nat_abs b) :=
+theorem nat_abs_mul (a b : ℤ) : nat_abs (a * b) = #nat (nat_abs a) * (nat_abs b) :=
 int.cases_on a
   (take m,
     int.cases_on b
@@ -592,7 +592,7 @@ show false, from succ_ne_zero 0 ((of_nat.inj H)⁻¹)
 theorem eq_zero_or_eq_zero_of_mul_eq_zero {a b : ℤ} (H : a * b = 0) : a = 0 ∨ b = 0 :=
 have H2 : (nat_abs a) * (nat_abs b) = nat.zero, from
   calc
-    (nat_abs a) * (nat_abs b) = (nat_abs (a * b)) : (mul_nat_abs a b)⁻¹
+    (nat_abs a) * (nat_abs b) = (nat_abs (a * b)) : (nat_abs_mul a b)⁻¹
       ... = (nat_abs 0) : {H}
       ... = nat.zero : nat_abs_of_nat nat.zero,
 have H3 : (nat_abs a) = nat.zero ∨ (nat_abs b) = nat.zero,

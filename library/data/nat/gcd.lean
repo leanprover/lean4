@@ -64,7 +64,7 @@ nat.cases_on n
                 ... = gcd (succ n₁) 0               : zero_mod
                 ... = (succ n₁)                     : gcd_zero_right)
 
-theorem gcd_rec_of_pos (m : ℕ) {n : ℕ} (H : n > 0) : gcd m n = gcd n (m mod n) :=
+theorem gcd_of_pos (m : ℕ) {n : ℕ} (H : n > 0) : gcd m n = gcd n (m mod n) :=
 gcd_def m n ⬝ if_neg (ne_zero_of_pos H)
 
 theorem gcd_rec (m n : ℕ) : gcd m n = gcd n (m mod n) :=
@@ -73,7 +73,7 @@ by_cases_zero_pos n
     gcd m 0 = m               : gcd_zero_right
         ... = gcd 0 m         : gcd_zero_left
         ... = gcd 0 (m mod 0) : mod_zero)
-  (take n, assume H : 0 < n, gcd_rec_of_pos m H)
+  (take n, assume H : 0 < n, gcd_of_pos m H)
 
 theorem gcd.induction {P : ℕ → ℕ → Prop}
                    (m n : ℕ)
@@ -265,26 +265,15 @@ or.elim (eq_zero_or_pos k)
     have qpos : q > 0, from pos_of_mul_pos_left (kn ▸ kpos),
     have H3 : p * q * (m * n * gcd p q) = p * q * (gcd m n * k), from
     calc
-      p * q * (m * n * gcd p q) = p * (q * (m * n * gcd p q)) : mul.assoc
-        ... = p * (q * (m * (n * gcd p q)))                   : mul.assoc
-        ... = p * (m * (q * (n * gcd p q)))                   : mul.left_comm
-        ... = p * m * (q * (n * gcd p q))                     : mul.assoc
-        ... = p * m * (q * n * gcd p q)                       : mul.assoc
-        ... = m * p * (q * n * gcd p q)                       : mul.comm
-        ... = k * (q * n * gcd p q)                           : km
-        ... = k * (n * q * gcd p q)                           : mul.comm
-        ... = k * (k * gcd p q)                               : kn
-        ... = k * gcd (k * p) (k * q)                         : gcd_mul_left
-        ... = k * gcd (n * q * p) (k * q)                     : kn
-        ... = k * gcd (n * q * p) (m * p * q)                 : km
-        ... = k * gcd (n * (q * p)) (m * p * q)               : mul.assoc
-        ... = k * gcd (n * (q * p)) (m * (p * q))             : mul.assoc
-        ... = k * gcd (n * (p * q)) (m * (p * q))             : mul.comm
-        ... = k * (gcd n m * (p * q))                         : gcd_mul_right
-        ... = gcd n m * (p * q) * k                           : mul.comm
-        ... = p * q * gcd n m * k                             : mul.comm
-        ... = p * q * (gcd n m * k)                           : mul.assoc
-        ... = p * q * (gcd m n * k)                           : gcd.comm,
+      p * q * (m * n * gcd p q)
+            = m * p * (n * q * gcd p q)       : by rewrite [*mul.assoc, *mul.left_comm q,
+                                                             mul.left_comm p]
+        ... = k * (k * gcd p q)               : by rewrite [-kn, -km]
+        ... = k * gcd (k * p) (k * q)         : by rewrite gcd_mul_left
+        ... = k * gcd (n * q * p) (m * p * q) : by rewrite [-kn, -km]
+        ... = k * (gcd n m * (p * q))         : by rewrite [*mul.assoc, mul.comm q, gcd_mul_right]
+        ... = p * q * (gcd m n * k)           : by rewrite [mul.comm, mul.comm (gcd n m), gcd.comm,
+                                                             *mul.assoc],
     have H4 : m * n * gcd p q = gcd m n * k,
       from !eq_of_mul_eq_mul_left (mul_pos ppos qpos) H3,
     have H5 : gcd m n * (lcm m n * gcd p q) = gcd m n * k,
@@ -293,7 +282,7 @@ or.elim (eq_zero_or_pos k)
       from !eq_of_mul_eq_mul_left gcd_pos H5,
     dvd.intro H6)
 
-theorem lcm_assoc (m n k : ℕ) : lcm (lcm m n) k = lcm m (lcm n k) :=
+theorem lcm.assoc (m n k : ℕ) : lcm (lcm m n) k = lcm m (lcm n k) :=
 dvd.antisymm
   (lcm_dvd
     (lcm_dvd !dvd_lcm_left (dvd.trans !dvd_lcm_left !dvd_lcm_right))
@@ -325,13 +314,9 @@ theorem gcd_mul_left_cancel_of_coprime {k : ℕ} (m : ℕ) {n : ℕ} (H : coprim
    gcd (k * m) n = gcd m n :=
 have H1 : coprime (gcd (k * m) n) k, from
   calc
-    gcd (gcd (k * m) n) k = gcd k (gcd (k * m) n)       : gcd.comm
-                      ... = gcd (gcd k (k * m)) n       : gcd.assoc
-                      ... = gcd (gcd (k * 1) (k * m)) n : mul_one
-                      ... = gcd (k * gcd 1 m) n         : gcd_mul_left
-                      ... = gcd (k * 1) n               : gcd_one_left
-                      ... = gcd k n                     : mul_one
-                      ... = 1 : H,
+    gcd (gcd (k * m) n) k
+         = gcd (k * gcd 1 m) n : by rewrite [-gcd_mul_left, mul_one, gcd.comm, gcd.assoc]
+     ... = 1                   : by rewrite [gcd_one_left, mul_one, ↑coprime at H, H],
 dvd.antisymm
   (dvd_gcd (dvd_of_coprime_of_dvd_mul_left H1 !gcd_dvd_left) !gcd_dvd_right)
   (dvd_gcd (dvd.trans !gcd_dvd_left !dvd_mul_left) !gcd_dvd_right)

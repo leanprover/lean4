@@ -11,7 +11,7 @@ of "linear_ordered_comm_ring". This development is modeled after Isabelle's libr
 import algebra.ordered_group algebra.ring
 open eq eq.ops
 
-namespace algebra 
+namespace algebra
 
 variable {A : Type}
 
@@ -349,7 +349,7 @@ section
     (assume H : a ≤ 0, mul_nonneg_of_nonpos_of_nonpos H H)
 
   theorem zero_le_one : 0 ≤ (1:A) := one_mul 1 ▸ mul_self_nonneg 1
-  theorem zero_lt_one : 0 < (1:A) := linear_ordered_ring.zero_lt_one A 
+  theorem zero_lt_one : 0 < (1:A) := linear_ordered_ring.zero_lt_one A
 
   theorem pos_and_pos_or_neg_and_neg_of_mul_pos {a b : A} (Hab : a * b > 0) :
     (a > 0 ∧ b > 0) ∨ (a < 0 ∧ b < 0) :=
@@ -555,7 +555,7 @@ section
           ... = -1 * abs a     : by rewrite neg_eq_neg_one_mul
           ... = sign a * abs a : by rewrite (sign_of_neg H1))
 
-  theorem abs_dvd_iff_dvd (a b : A) : abs a ∣ b ↔ a ∣ b :=
+  theorem abs_dvd_iff (a b : A) : abs a ∣ b ↔ a ∣ b :=
   abs.by_cases !iff.refl !neg_dvd_iff_dvd
 
   theorem dvd_abs_iff (a b : A) : a ∣ abs b ↔ a ∣ b :=

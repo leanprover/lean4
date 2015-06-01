@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2014 Robert Y. Lewis. All rights reserved.
+Copyright (c) 2015 Robert Y. Lewis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Robert Y. Lewis
 The real numbers, constructed as equivalence classes of Cauchy sequences of rationals.
@@ -144,18 +144,26 @@ theorem inv_mul_le_inv (p q : ℕ+) : (p * q)⁻¹ ≤ q⁻¹ :=
     apply rat.le_of_lt rat.zero_lt_one
   end
 
+theorem pnat_mul_le_mul_left' (a b c : ℕ+) (H : a ≤ b) : c * a ≤ c * b := sorry
+
 theorem pnat_mul_assoc (a b c : ℕ+) : a * b * c = a * (b * c) := sorry
+
+theorem pnat_mul_comm (a b : ℕ+) : a * b = b * a := sorry
 
 theorem s_mul_assoc_lemma_3 (a b n : ℕ+) (p : ℚ) :
         p * ((a * n)⁻¹ + (b * n)⁻¹) = p * (a⁻¹ + b⁻¹) * n⁻¹ := sorry
 
 theorem pnat.mul_le_mul_left (p q : ℕ+) : q ≤ p * q := sorry
 
+theorem pnat.mul_le_mul_right (p q : ℕ+) : p ≤ p * q := sorry
+
 theorem one_lt_two : pone < 2 := sorry
 
 theorem pnat.lt_of_not_le {p q : ℕ+} (H : ¬ p ≤ q) : q < p := sorry
 
 theorem pnat.inv_cancel (p : ℕ+) : pnat.to_rat p * p⁻¹ = (1 : ℚ) := sorry
+
+theorem pnat.inv_cancel_right (p : ℕ+) : p⁻¹ * pnat.to_rat p = (1 : ℚ) := sorry
 
 -------------------------------------
 -- theorems to add to (ordered) field and/or rat
@@ -437,7 +445,6 @@ theorem canon_2_bound_right (s t : seq) (Ht : regular t) (n : ℕ+) :
   calc
     abs (t n) ≤ pnat.to_rat (K t) : canon_bound Ht n
     ... ≤ pnat.to_rat (K₂ s t) : pnat_le_to_rat_le (!max_right)
-
 
 definition sadd (s t : seq) : seq := λ n, (s (2 * n)) + (t (2 * n))
 

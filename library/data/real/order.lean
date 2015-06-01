@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2014 Robert Y. Lewis. All rights reserved.
+Copyright (c) 2015 Robert Y. Lewis. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Robert Y. Lewis
 The real numbers, constructed as equivalence classes of Cauchy sequences of rationals.
@@ -218,6 +218,15 @@ theorem zero_nonneg : nonneg zero :=
     apply neg_nonpos_of_nonneg,
     apply le_of_lt,
     apply inv_pos
+  end
+
+theorem s_zero_lt_one : s_lt zero one :=
+  begin
+    rewrite [↑s_lt, ↑zero, ↑sadd, ↑sneg, ↑one, neg_zero, add_zero, ↑pos],
+    fapply exists.intro,
+    exact 2,
+    apply inv_lt_one_of_gt,
+    apply one_lt_two
   end
 
 theorem le.refl {s : seq} (Hs : regular s) : s_le s s :=
@@ -898,7 +907,7 @@ theorem s_lt_of_le_of_lt {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : r
 --------
 -- These are currently needed for lin_ordered_comm_ring.
 
-theorem le_or_ge {s t : seq} (Hs : regular s) (Ht : regular t) : s_le s t ∨ s_le t s :=
+/-theorem le_or_ge {s t : seq} (Hs : regular s) (Ht : regular t) : s_le s t ∨ s_le t s :=
   sorry
 
 theorem lt_or_equiv_of_le {s t : seq} (Hs : regular s) (Ht : regular t) (Hle : s_le s t) :
@@ -909,7 +918,7 @@ theorem lt_or_equiv_of_le {s t : seq} (Hs : regular s) (Ht : regular t) (Hle : s
 
 theorem le_iff_lt_or_equiv {s t : seq} (Hs : regular s) (Ht : regular t) :
         s_le s t ↔ s_lt s t ∨ s ≡ t :=
-  iff.intro (lt_or_equiv_of_le Hs Ht) (le_of_lt_or_equiv Hs Ht)
+  iff.intro (lt_or_equiv_of_le Hs Ht) (le_of_lt_or_equiv Hs Ht)-/
 
 
 
@@ -984,13 +993,18 @@ theorem r_add_lt_add_left (s t : reg_seq) (H : r_lt s t) (u : reg_seq) : r_lt (u
 theorem r_add_lt_add_left_var (s t u : reg_seq) (H : r_lt s t) : r_lt (u + s) (u + t) :=
   r_add_lt_add_left s t H u
 
+theorem r_zero_lt_one : r_lt r_zero r_one := s_zero_lt_one
+
+theorem r_le_of_lt_or_eq (s t : reg_seq) (H : r_lt s t ∨ requiv s t) : r_le s t :=
+  le_of_lt_or_equiv (reg_seq.is_reg s) (reg_seq.is_reg t) H
+
 ----------
 -- earlier versions are sorried
-theorem r_le_iff_lt_or_equiv (s t : reg_seq) : r_le s t ↔ r_lt s t ∨ requiv s t :=
+/-theorem r_le_iff_lt_or_equiv (s t : reg_seq) : r_le s t ↔ r_lt s t ∨ requiv s t :=
   le_iff_lt_or_equiv (reg_seq.is_reg s) (reg_seq.is_reg t)
 
 theorem r_le_or_ge (s t : reg_seq) : r_le s t ∨ r_le t s :=
-  le_or_ge (reg_seq.is_reg s) (reg_seq.is_reg t)
+  le_or_ge (reg_seq.is_reg s) (reg_seq.is_reg t)-/
 -----------
 
 end s
@@ -1052,9 +1066,21 @@ theorem add_lt_add_left_var (x y z : ℝ) : x < y → z + x < z + y :=
 theorem add_lt_add_left (x y : ℝ) : x < y → ∀ z : ℝ, z + x < z + y :=
   take H z, add_lt_add_left_var x y z H
 
+theorem zero_lt_one : zero < one := s.r_zero_lt_one
+
+theorem le_of_lt_or_eq (x y : ℝ) : x < y ∨ x = y → x ≤ y :=
+    (quot.induction_on₂ x y (λ s t H, or.elim H (take H', begin
+        apply s.r_le_of_lt_or_eq, 
+        apply or.inl H' 
+      end)
+      (take H', begin
+        apply s.r_le_of_lt_or_eq,
+        apply (or.inr (quot.exact H'))
+      end)))
+
 ----------
 -- earlier versions are sorried
-theorem le_iff_lt_or_eq (x y : ℝ) : x ≤ y ↔ x < y ∨ x = y :=
+/-theorem le_iff_lt_or_eq (x y : ℝ) : x ≤ y ↔ x < y ∨ x = y :=
   iff.intro
     (quot.induction_on₂ x y (λ s t H, or.elim (iff.mp ((s.r_le_iff_lt_or_equiv s t)) H) 
       (take H1, or.inl H1) 
@@ -1069,10 +1095,10 @@ theorem le_iff_lt_or_eq (x y : ℝ) : x ≤ y ↔ x < y ∨ x = y :=
       end)))
 
 theorem le_or_ge (x y : ℝ) : x ≤ y ∨ y ≤ x :=
-  quot.induction_on₂ x y (λ s t, s.r_le_or_ge s t)
+  quot.induction_on₂ x y (λ s t, s.r_le_or_ge s t)-/
 -------------
 
-theorem ordered_ring  : algebra.ordered_ring ℝ :=
+definition ordered_ring  : algebra.ordered_ring ℝ :=
   ⦃ algebra.ordered_ring, comm_ring,
     le_refl := le.refl,
     le_trans := le.trans,
@@ -1090,7 +1116,7 @@ theorem ordered_ring  : algebra.ordered_ring ℝ :=
 
 -----------------------------------
 --- here is where classical logic comes in
-theorem sep_is_eq (x y : ℝ) : x ≢ y = ¬ (x = y) := sorry 
+--theorem sep_is_eq (x y : ℝ) : x ≢ y = ¬ (x = y) := sorry 
 
 /-theorem sep_is_eq (x y : ℝ) : x ≢ y = ¬ (x = y) := begin
    apply propext,
@@ -1102,19 +1128,12 @@ theorem sep_is_eq (x y : ℝ) : x ≢ y = ¬ (x = y) := sorry
    intro Hneq,
   end-/
 
-
-/-theorem linear_ordered_comm_ring : algebra.linear_ordered_comm_ring ℝ :=
-  ⦃ algebra.linear_ordered_comm_ring, comm_ring,
-    le_refl := le.refl,
-    le_trans := le.trans,
-    le_antisymm := eq_of_le_of_ge,
-    lt_iff_le_and_ne := λ x y, (sep_is_eq x y) ▸ (lt_iff_le_and_sep x y),
-    le_iff_lt_or_eq := le_iff_lt_or_eq,
-    add_le_add_left := add_le_add_of_le_right,
-    mul_pos := mul_gt_zero_of_gt_zero,
-    mul_nonneg := mul_ge_zero_of_ge_zero,
+/-definition linear_ordered_comm_ring : algebra.linear_ordered_comm_ring ℝ :=
+  ⦃ algebra.linear_ordered_comm_ring, ordered_ring, comm_ring,
+    zero_lt_one := zero_lt_one,
     le_total := le_or_ge,
-    zero_ne_one := zero_ne_one
+    le_iff_lt_or_eq := le_iff_lt_or_eq
   ⦄-/
+
 
 end real

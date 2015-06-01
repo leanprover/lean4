@@ -1,4 +1,4 @@
-red.lean:9:19: error: type mismatch at definition '14.1', has type
+red.lean:9:19: error: type mismatch at definition 'example', has type
   f = f
 but is expected to have type
   f = g

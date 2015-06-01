@@ -910,9 +910,11 @@ class definition_cmd_fn {
     buffer<name>          m_ls_buffer_checkpoint;
 
     void save_checkpoint() {
-        m_type_checkpoint      = m_type;
-        m_env_checkpoint       = m_env;
-        m_ls_buffer_checkpoint = m_ls_buffer;
+        if (m_kind != Example) {
+            m_type_checkpoint      = m_type;
+            m_env_checkpoint       = m_env;
+            m_ls_buffer_checkpoint = m_ls_buffer;
+        }
     }
 
     bool is_definition() const { return m_kind == Definition || m_kind == Abbreviation || m_kind == LocalAbbreviation; }
@@ -921,7 +923,7 @@ class definition_cmd_fn {
 
     void parse_name() {
         if (m_kind == Example)
-            m_name = m_p.mk_fresh_name();
+            m_name = name{"example"};
         else
             m_name = m_p.check_id_next("invalid declaration, identifier expected");
     }
@@ -1338,7 +1340,8 @@ static environment theorem_cmd(parser & p) {
     return definition_cmd_core(p, Theorem, false, false);
 }
 static environment example_cmd(parser & p) {
-    return definition_cmd_core(p, Example, false, false);
+    definition_cmd_core(p, Example, false, false);
+    return p.env();
 }
 static environment private_definition_cmd(parser & p) {
     def_cmd_kind kind = Definition;

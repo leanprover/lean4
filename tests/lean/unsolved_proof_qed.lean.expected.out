@@ -15,7 +15,7 @@ a b c : nat,
 H₁ : a = b,
 H₂ : b = c
 ⊢ a = c
-unsolved_proof_qed.lean:2:0: error: failed to add declaration '14.0' to environment, value has metavariables
+unsolved_proof_qed.lean:2:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (a b c : nat) (H₁ : …) (H₂ : …),
     ?M_1
@@ -36,7 +36,7 @@ a b c : nat,
 H₁ : a = b,
 H₂ : b = c
 ⊢ c = a
-unsolved_proof_qed.lean:5:0: error: failed to add declaration '14.1' to environment, value has metavariables
+unsolved_proof_qed.lean:5:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (a b c : nat) (H₁ : …) (H₂ : …),
     have aux : …, from ?M_1,

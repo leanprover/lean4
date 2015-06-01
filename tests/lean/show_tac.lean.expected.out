@@ -12,7 +12,7 @@ Hab : a ∧ b,
 Ha : a,
 Hb : b
 ⊢ b ∧ a
-show_tac.lean:7:0: error: failed to add declaration '14.0' to environment, value has metavariables
+show_tac.lean:7:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (a b : Prop) (Hab : …),
     ?M_1

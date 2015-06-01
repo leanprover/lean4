@@ -7,7 +7,7 @@ H : ∃ (n : ℕ), P n
 P : ℕ → Prop,
 H : ∃ (n : ℕ), P n
 ⊢ ℕ
-571.lean:7:0: error: failed to add declaration '14.1' to environment, value has metavariables
+571.lean:7:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (P : …) (H : …),
     ?M_1

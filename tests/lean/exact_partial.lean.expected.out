@@ -18,7 +18,7 @@ a_2 : b
 exact_partial.lean:5:0: error: don't know how to synthesize placeholder
 a b : Prop
 ⊢ a → b → a ∧ b
-exact_partial.lean:5:0: error: failed to add declaration '14.0' to environment, value has metavariables
+exact_partial.lean:5:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (a b : Prop),
     ?M_1

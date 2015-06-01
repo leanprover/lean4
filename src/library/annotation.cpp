@@ -45,6 +45,16 @@ public:
         s.write_string(get_annotation_opcode());
         s << m_name;
     }
+    virtual bool operator==(macro_definition_cell const & other) const {
+        if (auto other_ptr = dynamic_cast<annotation_macro_definition_cell const *>(&other)) {
+            return m_name == other_ptr->m_name;
+        } else {
+            return false;
+        }
+    }
+    virtual unsigned hash() const {
+        return ::lean::hash(m_name.hash(), g_annotation->hash());
+    }
 };
 
 typedef std::unordered_map<name, macro_definition, name_hash, name_eq> annotation_macros;

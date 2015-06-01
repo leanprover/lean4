@@ -19,8 +19,6 @@ tag l n
 definition to_nodup_list [h : decidable_eq A] (l : list A) : nodup_list A :=
 @to_nodup_list_of_nodup A (erase_dup l) (nodup_erase_dup l)
 
-namespace finset
-
 private definition equiv (l₁ l₂ : nodup_list A) :=
 perm (elt_of l₁) (elt_of l₂)
 
@@ -35,11 +33,13 @@ assume p, perm.symm p
 private definition equiv.trans {l₁ l₂ l₃ : nodup_list A} : l₁ ~ l₂ → l₂ ~ l₃ → l₁ ~ l₃ :=
 assume p₁ p₂, perm.trans p₁ p₂
 
-definition nodup_list_setoid [instance] (A : Type) : setoid (nodup_list A) :=
+definition finset.nodup_list_setoid [instance] (A : Type) : setoid (nodup_list A) :=
 setoid.mk (@equiv A) (mk_equivalence (@equiv A) (@equiv.refl A) (@equiv.symm A) (@equiv.trans A))
 
 definition finset (A : Type) : Type :=
-quot (nodup_list_setoid A)
+quot (finset.nodup_list_setoid A)
+
+namespace finset
 
 definition to_finset_of_nodup (l : list A) (n : nodup l) : finset A :=
 ⟦to_nodup_list_of_nodup n⟧
@@ -557,4 +557,3 @@ theorem forall_mem_insert_eq {A : Type} [d : decidable_eq A] (a : A) (s : finset
 propext !forall_mem_insert_iff
 
 end finset
-abbreviation finset := finset.finset

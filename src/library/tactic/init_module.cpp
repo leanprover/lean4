@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "library/tactic/revert_tactic.h"
 #include "library/tactic/inversion_tactic.h"
 #include "library/tactic/assert_tactic.h"
-#include "library/tactic/class_instance_synth.h"
 #include "library/tactic/rewrite_tactic.h"
 #include "library/tactic/change_tactic.h"
 #include "library/tactic/check_expr_tactic.h"
@@ -47,7 +46,6 @@ void initialize_tactic_module() {
     initialize_revert_tactic();
     initialize_inversion_tactic();
     initialize_assert_tactic();
-    initialize_class_instance_elaborator();
     initialize_rewrite_tactic();
     initialize_change_tactic();
     initialize_check_expr_tactic();
@@ -75,7 +73,6 @@ void finalize_tactic_module() {
     finalize_check_expr_tactic();
     finalize_change_tactic();
     finalize_rewrite_tactic();
-    finalize_class_instance_elaborator();
     finalize_assert_tactic();
     finalize_inversion_tactic();
     finalize_revert_tactic();

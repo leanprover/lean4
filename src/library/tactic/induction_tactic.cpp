@@ -12,10 +12,10 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/reducible.h"
 #include "library/locals.h"
+#include "library/class_instance_synth.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/generalize_tactic.h"
-#include "library/tactic/class_instance_synth.h"
 
 namespace lean {
 class rec_opaque_converter : public default_converter {

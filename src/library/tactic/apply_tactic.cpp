@@ -23,9 +23,9 @@ Author: Leonardo de Moura
 #include "library/metavar_closure.h"
 #include "library/type_util.h"
 #include "library/local_context.h"
+#include "library/class_instance_synth.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/apply_tactic.h"
-#include "library/tactic/class_instance_synth.h"
 
 #ifndef LEAN_DEFAULT_APPLY_CLASS_INSTANCE
 #define LEAN_DEFAULT_APPLY_CLASS_INSTANCE true

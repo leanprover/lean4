@@ -11,8 +11,9 @@ add_library(library deep_copy.cpp expr_lt.cpp io_state.cpp occurs.cpp
   typed_expr.cpp let.cpp type_util.cpp protected.cpp
   metavar_closure.cpp reducible.cpp init_module.cpp
   generic_exception.cpp fingerprint.cpp flycheck.cpp hott_kernel.cpp
-  local_context.cpp choice_iterator.cpp pp_options.cpp unfold_macros.cpp
-  app_builder.cpp projection.cpp abbreviation.cpp
-  relation_manager.cpp export.cpp user_recursors.cpp)
+  local_context.cpp choice_iterator.cpp pp_options.cpp
+  unfold_macros.cpp app_builder.cpp projection.cpp abbreviation.cpp
+  relation_manager.cpp export.cpp user_recursors.cpp
+  class_instance_synth.cpp)
 
 target_link_libraries(library ${LEAN_LIBS})

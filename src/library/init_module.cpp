@@ -38,6 +38,7 @@ Author: Leonardo de Moura
 #include "library/abbreviation.h"
 #include "library/relation_manager.h"
 #include "library/user_recursors.h"
+#include "library/class_instance_synth.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -75,9 +76,11 @@ void initialize_library_module() {
     initialize_abbreviation();
     initialize_relation_manager();
     initialize_user_recursors();
+    initialize_class_instance_elaborator();
 }
 
 void finalize_library_module() {
+    finalize_class_instance_elaborator();
     finalize_user_recursors();
     finalize_relation_manager();
     finalize_abbreviation();

@@ -31,11 +31,11 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/unfold_macros.h"
 #include "library/generic_exception.h"
+#include "library/class_instance_synth.h"
 #include "library/tactic/clear_tactic.h"
 #include "library/tactic/trace_tactic.h"
 #include "library/tactic/rewrite_tactic.h"
 #include "library/tactic/expr_to_tactic.h"
-#include "library/tactic/class_instance_synth.h"
 #include "library/tactic/relation_tactics.h"
 
 // #define TRACE_MATCH_PLUGIN

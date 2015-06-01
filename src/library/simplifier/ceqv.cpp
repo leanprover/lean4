@@ -19,7 +19,7 @@ namespace lean {
 bool is_ceqv(type_checker & tc, expr e);
 
 /** \brief Auxiliary functional object for creating "conditional equations" */
-class to_ceqs_fn {
+class to_ceqvs_fn {
     environment const &   m_env;
     type_checker &        m_tc;
 
@@ -99,15 +99,15 @@ class to_ceqs_fn {
         }
     }
 public:
-    to_ceqs_fn(type_checker & tc):m_env(tc.env()), m_tc(tc) {}
+    to_ceqvs_fn(type_checker & tc):m_env(tc.env()), m_tc(tc) {}
 
     list<expr_pair> operator()(expr const & e, expr const & H) {
         return filter(apply(e, H), [&](expr_pair const & p) { return is_ceqv(m_tc, p.first); });
     }
 };
 
-list<expr_pair> to_ceqs(type_checker & tc, expr const & e, expr const & H) {
-    return to_ceqs_fn(tc)(e, H);
+list<expr_pair> to_ceqvs(type_checker & tc, expr const & e, expr const & H) {
+    return to_ceqvs_fn(tc)(e, H);
 }
 
 bool is_equivalence(environment const & env, expr const & e, expr & rel, expr & lhs, expr & rhs) {

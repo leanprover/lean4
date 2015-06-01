@@ -28,9 +28,9 @@ static void tst1() {
     lean_assert(map.contains(a));
     map.insert(a, b);
     lean_assert(map.contains(a));
-    map.erase_entry(a, b);
+    map.erase(a, b);
     lean_assert(map.contains(a));
-    map.erase_entry(a, a);
+    map.erase(a, a);
     lean_assert(!map.contains(a));
     lean_assert(map.empty());
     map.insert(l1, a);

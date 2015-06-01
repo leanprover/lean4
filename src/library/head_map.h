@@ -38,18 +38,21 @@ public:
     bool contains(head_index const & h) const { return m_map.contains(h); }
     list<V> const * find(head_index const & h) const { return m_map.find(h); }
     void erase(head_index const & h) { m_map.erase(h); }
-    void erase_entry(head_index const & h, V const & v) {
+    template<typename P> void filter(head_index const & h, P && p) {
         if (auto it = m_map.find(h)) {
-            auto new_vs = filter(*it, [&](V const & v2) { return v != v2; });
+            auto new_vs = ::lean::filter(*it, std::forward<P>(p));
             if (!new_vs)
                 m_map.erase(h);
             else
                 m_map.insert(h, new_vs);
         }
     }
+    void erase(head_index const & h, V const & v) {
+        return filter(h, [&](V const & v2) { return v != v2; });
+    }
     void insert(head_index const & h, V const & v) {
         if (auto it = m_map.find(h))
-            m_map.insert(h, cons(v, filter(*it, [&](V const & v2) { return v != v2; })));
+            m_map.insert(h, cons(v, ::lean::filter(*it, [&](V const & v2) { return v != v2; })));
         else
             m_map.insert(h, to_list(v));
     }

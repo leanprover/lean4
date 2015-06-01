@@ -1,16 +1,29 @@
-import data.real data.rat data.nat logic.axioms.classical --data.encodable
+/-
+Copyright (c) 2015 Robert Y. Lewis. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Author: Robert Y. Lewis
+The real numbers, constructed as equivalence classes of Cauchy sequences of rationals.
+This construction follows Bishop and Bridges (1985).
+
+At this point, we no longer proceed constructively: this file makes heavy use of decidability
+and excluded middle.
+-/
+
+import data.real.basic data.real.order data.rat data.nat logic.axioms.classical
 open -[coercions] rat 
 open -[coercions] nat
 open eq.ops
 
 
-notation 2 := pnat.pos (nat.of_num 2) dec_trivial
+local notation 2 := pnat.pos (nat.of_num 2) dec_trivial
 
 namespace s
 
-definition s_abs (s : seq) : seq := λ n, abs (s n)
+-----------------------------
+-- helper lemmas
 
-theorem nonneg_le_nonneg_of_squares_le {a b : ℚ} (Ha : a ≥ 0) (Hb : b ≥ 0) (H : a * a ≤ b * b) : a ≤ b :=
+theorem nonneg_le_nonneg_of_squares_le {a b : ℚ} (Ha : a ≥ 0) (Hb : b ≥ 0) (H : a * a ≤ b * b) :
+        a ≤ b :=
   begin
     apply rat.le_of_not_gt,
     intro Hab,
@@ -23,6 +36,8 @@ theorem nonneg_le_nonneg_of_squares_le {a b : ℚ} (Ha : a ≥ 0) (Hb : b ≥ 0)
 
 theorem abs_sub_square (a b : ℚ) : abs (a - b) * abs (a - b) = a * a + b * b - (1 + 1) * a * b := 
   sorry --begin rewrite [abs_mul_self, *rat.left_distrib, *rat.right_distrib, *one_mul] end
+
+theorem neg_add_rewrite {a b : ℚ} : a + -b = -(b + -a) := sorry
 
 theorem abs_abs_sub_abs_le_abs_sub (a b : ℚ) : abs (abs a - abs b) ≤ abs (a - b) :=
   begin
@@ -37,6 +52,28 @@ theorem abs_abs_sub_abs_le_abs_sub (a b : ℚ) : abs (abs a - abs b) ≤ abs (a 
     apply trivial
   end
 
+theorem abs_one_div (q : ℚ) : abs (1 / q) = 1 / abs q := sorry
+
+theorem div_le_pnat (q : ℚ) (n : ℕ+) (H : q ≥ n⁻¹) : 1 / q ≤ pnat.to_rat n := sorry
+
+theorem pnat_cancel' (n m : ℕ+) : (n * n * m)⁻¹ * (pnat.to_rat n * pnat.to_rat n) = m⁻¹ := sorry
+
+-- does this not exist already??
+theorem forall_of_not_exists {A : Type} {P : A → Prop} (H : ¬ ∃ a : A, P a) : ∀ a : A, ¬ P a :=
+  take a, assume Ha, H (exists.intro a Ha)
+
+theorem and_of_not_or {a b : Prop} (H : ¬ (a ∨ b)) : ¬ a ∧ ¬ b := 
+  and.intro (assume H', H (or.inl H')) (assume H', H (or.inr H'))
+
+theorem ne_zero_of_abs_ne_zero {a : ℚ} (H : abs a ≠ 0) : a ≠ 0 := 
+  assume Ha, H (Ha⁻¹ ▸ abs_zero)
+
+-----------------------------
+-- Facts about absolute values of sequences, to define inverse
+
+definition s_abs (s : seq) : seq := λ n, abs (s n)
+
+
 theorem abs_reg_of_reg {s : seq} (Hs : regular s) : regular (s_abs s) :=
   begin
     rewrite ↑regular at *,
@@ -46,7 +83,8 @@ theorem abs_reg_of_reg {s : seq} (Hs : regular s) : regular (s_abs s) :=
     apply Hs
   end
 
-theorem abs_pos_of_nonzero {s : seq} (Hs : regular s) (Hnz : sep s zero) : ∃ N : ℕ+, ∀ m : ℕ+, m ≥ N → abs (s m) ≥ N⁻¹ :=
+theorem abs_pos_of_nonzero {s : seq} (Hs : regular s) (Hnz : sep s zero) :
+        ∃ N : ℕ+, ∀ m : ℕ+, m ≥ N → abs (s m) ≥ N⁻¹ :=
   begin
     rewrite [↑sep at Hnz, ↑s_lt at Hnz],
     apply or.elim Hnz,
@@ -80,7 +118,6 @@ theorem abs_pos_of_nonzero {s : seq} (Hs : regular s) (Hnz : sep s zero) : ∃ N
     apply le_abs_self
   end
 
-
 theorem sep_zero_of_pos {s : seq} (Hs : regular s) (Hpos : pos s) : sep s zero :=
   begin
     rewrite ↑sep,
@@ -94,11 +131,17 @@ theorem sep_zero_of_pos {s : seq} (Hs : regular s) (Hpos : pos s) : sep s zero :
     apply s_sub_zero Hs
   end
 
-definition pb {s : seq} (Hs : regular s) (Hpos : pos s) := some (abs_pos_of_nonzero Hs (sep_zero_of_pos Hs Hpos))
-definition ps {s : seq} (Hs : regular s) (Hsep : sep s zero) := some (abs_pos_of_nonzero Hs Hsep)
+------------------------
+-- This section could be cleaned up.
+
+definition pb {s : seq} (Hs : regular s) (Hpos : pos s) :=
+  some (abs_pos_of_nonzero Hs (sep_zero_of_pos Hs Hpos))
+definition ps {s : seq} (Hs : regular s) (Hsep : sep s zero) :=
+  some (abs_pos_of_nonzero Hs Hsep)
 
 
-theorem pb_spec {s : seq} (Hs : regular s) (Hpos : pos s) : ∀ m : ℕ+, m ≥ (pb Hs Hpos) → abs (s m) ≥ (pb Hs Hpos)⁻¹ :=
+theorem pb_spec {s : seq} (Hs : regular s) (Hpos : pos s) :
+        ∀ m : ℕ+, m ≥ (pb Hs Hpos) → abs (s m) ≥ (pb Hs Hpos)⁻¹ :=
   some_spec (abs_pos_of_nonzero Hs (sep_zero_of_pos Hs Hpos))
 
 theorem ps_spec {s : seq} (Hs : regular s) (Hsep : sep s zero) :
@@ -107,40 +150,56 @@ theorem ps_spec {s : seq} (Hs : regular s) (Hsep : sep s zero) :
 
 definition s_inv {s : seq} (Hs : regular s) (n : ℕ+) : ℚ :=
   if H : sep s zero then
-    --let N := some (abs_pos_of_nonzero Hs H) in
-      (if n < (ps Hs H) then 1 / (s ((ps Hs H) * (ps Hs H) * (ps Hs H))) else 1 / (s ((ps Hs H) * (ps Hs H) * n)))
+      (if n < (ps Hs H) then 1 / (s ((ps Hs H) * (ps Hs H) * (ps Hs H)))
+        else 1 / (s ((ps Hs H) * (ps Hs H) * n)))
   else 0
 
-theorem peq {s : seq} (Hsep : sep s zero) (Hpos : pos s)  (Hs : regular s) : pb Hs Hpos = ps Hs Hsep := sorry
+theorem peq {s : seq} (Hsep : sep s zero) (Hpos : pos s)  (Hs : regular s) :
+        pb Hs Hpos = ps Hs Hsep := rfl
 
-theorem le_ps {s : seq} (Hs : regular s) (Hsep : sep s zero) (n : ℕ+) : abs (s_inv Hs n) ≤ (pnat.to_rat (ps Hs Hsep)) := sorry
 
-theorem s_inv_of_sep_lt_p {s : seq} (Hs : regular s) (Hsep : sep s zero) {n : ℕ+} (Hn : n < (ps Hs Hsep)) :
-        s_inv Hs n = 1 / s ((ps Hs Hsep) * (ps Hs Hsep) * (ps Hs Hsep)) := sorry
-
-theorem s_inv_of_sep_gt_p {s : seq} (Hs : regular s) (Hsep : sep s zero) {n : ℕ+} (Hn : n ≥ (ps Hs Hsep)) :
-        s_inv Hs n = 1 / s ((ps Hs Hsep) * (ps Hs Hsep) * n) := sorry
-
-theorem s_inv_of_pos_lt_p {s : seq} (Hs : regular s) (Hpos : pos s) {n : ℕ+} (Hn : n < (pb Hs Hpos)) : 
-        s_inv Hs n = 1 / s ((pb Hs Hpos) * (pb Hs Hpos) * (pb Hs Hpos)) :=
+theorem s_inv_of_sep_lt_p {s : seq} (Hs : regular s) (Hsep : sep s zero) {n : ℕ+}
+        (Hn : n < (ps Hs Hsep)) : s_inv Hs n = 1 / s ((ps Hs Hsep) * (ps Hs Hsep) * (ps Hs Hsep)) :=
   begin
-    let Hsep := sep_zero_of_pos Hs Hpos,
     apply eq.trans,
     apply dif_pos Hsep,
     apply dif_pos Hn
   end
 
-theorem s_inv_of_pos_gt_p {s : seq} (Hs : regular s) (Hpos : pos s) {n : ℕ+} (Hn : n ≥ (pb Hs Hpos)) :
-        s_inv Hs n = 1 / s ((pb Hs Hpos) * (pb Hs Hpos) * n) :=
+theorem s_inv_of_sep_gt_p {s : seq} (Hs : regular s) (Hsep : sep s zero) {n : ℕ+}
+        (Hn : n ≥ (ps Hs Hsep)) : s_inv Hs n = 1 / s ((ps Hs Hsep) * (ps Hs Hsep) * n) :=
   begin
-    let Hsep := sep_zero_of_pos Hs Hpos,
     apply eq.trans,
     apply dif_pos Hsep,
-    apply eq.trans,
-    rewrite *(peq Hsep Hpos) at *,
-    apply dif_neg (pnat.not_lt_of_le Hn),
-    rewrite *(peq Hsep Hpos)
+    apply dif_neg (pnat.not_lt_of_le Hn)
   end
+
+theorem s_inv_of_pos_lt_p {s : seq} (Hs : regular s) (Hpos : pos s) {n : ℕ+} 
+        (Hn : n < (pb Hs Hpos)) : s_inv Hs n = 1 / s ((pb Hs Hpos) * (pb Hs Hpos) * (pb Hs Hpos)) :=
+  s_inv_of_sep_lt_p Hs (sep_zero_of_pos Hs Hpos) Hn
+
+
+theorem s_inv_of_pos_gt_p {s : seq} (Hs : regular s) (Hpos : pos s) {n : ℕ+} 
+        (Hn : n ≥ (pb Hs Hpos)) : s_inv Hs n = 1 / s ((pb Hs Hpos) * (pb Hs Hpos) * n) :=
+  s_inv_of_sep_gt_p Hs (sep_zero_of_pos Hs Hpos) Hn
+
+theorem le_ps {s : seq} (Hs : regular s) (Hsep : sep s zero) (n : ℕ+) :
+        abs (s_inv Hs n) ≤ (pnat.to_rat (ps Hs Hsep)) := 
+  if Hn : n < ps Hs Hsep then
+    (begin
+      rewrite [(s_inv_of_sep_lt_p Hs Hsep Hn), abs_one_div],
+      apply div_le_pnat,
+      apply ps_spec,
+      apply pnat.mul_le_mul_left
+    end)
+  else
+    (begin
+      rewrite [(s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hn)), abs_one_div],
+      apply div_le_pnat,
+      apply ps_spec,
+      rewrite pnat_mul_assoc,
+      apply pnat.mul_le_mul_right
+    end)
 
 theorem s_inv_zero : s_inv zero_is_reg = zero :=
   funext (λ n, dif_neg (!not_sep_self))
@@ -155,15 +214,30 @@ theorem s_inv_of_zero {s : seq} (Hs : regular s) (Hz : ¬ sep s zero) : s_inv Hs
     apply s_inv_of_zero' Hs Hz n
   end
 
-theorem pnat_cancel' (n m : ℕ+) : (n * n * m)⁻¹ * (pnat.to_rat n * pnat.to_rat n) = m⁻¹ := sorry
+theorem s_ne_zero_of_ge_p {s : seq} (Hs : regular s) (Hsep : sep s zero) {n : ℕ+} 
+        (Hn : n ≥ (ps Hs Hsep)) : s n ≠ 0 :=
+  begin
+    let Hps := ps_spec Hs Hsep,
+    apply ne_zero_of_abs_ne_zero,
+    apply ne_of_gt,
+    apply gt_of_ge_of_gt,
+    apply Hps,
+    apply Hn,
+    apply inv_pos
+  end
 
 theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_inv Hs) :=
   begin
     rewrite ↑regular,
     intros,
-    have Hsp : s ((ps Hs Hsep) * (ps Hs Hsep) * (ps Hs Hsep)) ≠ 0, from sorry,
-    have Hspn : s ((ps Hs Hsep) * (ps Hs Hsep) * n) ≠ 0, from sorry,
-    have Hspm : s ((ps Hs Hsep) * (ps Hs Hsep) * m) ≠ 0, from sorry,
+    have Hsp : s ((ps Hs Hsep) * (ps Hs Hsep) * (ps Hs Hsep)) ≠ 0, from 
+      s_ne_zero_of_ge_p Hs Hsep !pnat.mul_le_mul_left,
+    have Hspn : s ((ps Hs Hsep) * (ps Hs Hsep) * n) ≠ 0, from 
+      s_ne_zero_of_ge_p Hs Hsep (show (ps Hs Hsep) * (ps Hs Hsep) * n ≥ ps Hs Hsep, by
+        rewrite pnat_mul_assoc; apply pnat.mul_le_mul_right),
+    have Hspm : s ((ps Hs Hsep) * (ps Hs Hsep) * m) ≠ 0, from 
+      s_ne_zero_of_ge_p Hs Hsep (show (ps Hs Hsep) * (ps Hs Hsep) * m ≥ ps Hs Hsep, by
+        rewrite pnat_mul_assoc; apply pnat.mul_le_mul_right),
     apply @decidable.cases_on (m < (ps Hs Hsep)) _ _,
       intro Hmlt,
       apply @decidable.cases_on (n < (ps Hs Hsep)) _ _,
@@ -172,7 +246,8 @@ theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_
         rewrite [sub_self, abs_zero],
         apply add_invs_nonneg,
        intro Hnlt,
-       rewrite [(s_inv_of_sep_lt_p Hs Hsep Hmlt), (s_inv_of_sep_gt_p Hs Hsep (pnat.le_of_not_lt Hnlt))],
+       rewrite [(s_inv_of_sep_lt_p Hs Hsep Hmlt), 
+                (s_inv_of_sep_gt_p Hs Hsep (pnat.le_of_not_lt Hnlt))],
        rewrite [(div_sub_div Hsp Hspn), div_eq_mul_one_div, *abs_mul, *mul_one, *one_mul],
        apply rat.le.trans,
        apply rat.mul_le_mul,
@@ -195,7 +270,8 @@ theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_
       intro Hmlt,
       apply @decidable.cases_on (n < (ps Hs Hsep)) _ _,
         intro Hnlt,
-        rewrite [(s_inv_of_sep_lt_p Hs Hsep Hnlt), (s_inv_of_sep_gt_p Hs Hsep (pnat.le_of_not_lt Hmlt))],
+        rewrite [(s_inv_of_sep_lt_p Hs Hsep Hnlt),
+                 (s_inv_of_sep_gt_p Hs Hsep (pnat.le_of_not_lt Hmlt))],
         rewrite [(div_sub_div Hspm Hsp), div_eq_mul_one_div, *abs_mul, *mul_one, *one_mul],
         apply rat.le.trans,
         apply rat.mul_le_mul,
@@ -236,9 +312,23 @@ theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_
       apply rat.le.refl
   end
 
-theorem one_rewrite : 1 = of_num 1 := rfl
-
-theorem fun_rewrite {s : seq} (Hs : regular s) : (λ a : ℕ+, s_inv Hs a) = s_inv Hs := rfl
+theorem s_inv_ne_zero {s : seq} (Hs : regular s) (Hsep : sep s zero) (n : ℕ+) : s_inv Hs n ≠ 0 :=
+  if H : n ≥ ps Hs Hsep then
+    (begin
+      rewrite (s_inv_of_sep_gt_p Hs Hsep H),
+      apply one_div_ne_zero,
+      apply s_ne_zero_of_ge_p,
+      apply ple.trans,
+      apply H,
+      apply pnat.mul_le_mul_left
+    end)
+  else
+    (begin
+      rewrite (s_inv_of_sep_lt_p Hs Hsep (lt_of_not_ge H)),
+      apply one_div_ne_zero,
+      apply s_ne_zero_of_ge_p,
+      apply pnat.mul_le_mul_left
+    end)
 
 theorem mul_inv {s : seq} (Hs : regular s) (Hsep : sep s zero) : smul s (s_inv Hs) ≡ one :=
   begin
@@ -248,24 +338,34 @@ theorem mul_inv {s : seq} (Hs : regular s) (Hsep : sep s zero) : smul s (s_inv H
     intros,
     existsi max (ps Hs Hsep) j,
     intro n Hn,
-    have Hnz : s_inv Hs ((K₂ s (s_inv Hs)) * 2 * n) ≠ 0, from sorry,
-    rewrite [↑smul, ↑one, rat.mul.comm, one_rewrite, -(mul_one_div_cancel Hnz), 
+    have Hnz : s_inv Hs ((K₂ s (s_inv Hs)) * 2 * n) ≠ 0, from s_inv_ne_zero Hs Hsep _,
+    xrewrite [↑smul, ↑one, rat.mul.comm, -(mul_one_div_cancel Hnz), 
             -rat.mul_sub_left_distrib, abs_mul],
     apply rat.le.trans,
     apply rat.mul_le_mul_of_nonneg_right,
     apply canon_2_bound_right s,
     apply Rsi,
     apply abs_nonneg,
-    have Hp : (K₂ s (s_inv Hs)) * 2 * n ≥ ps Hs Hsep, from sorry,
-    have Hnz' : s (((ps Hs Hsep) * (ps Hs Hsep)) * ((K₂ s (s_inv Hs)) * 2 * n)) ≠ 0, from sorry,
-    rewrite [(s_inv_of_sep_gt_p Hs Hsep Hp), *one_rewrite, (div_div Hnz')],
+    have Hp : (K₂ s (s_inv Hs)) * 2 * n ≥ ps Hs Hsep, begin
+      apply ple.trans,
+      apply max_left,
+      rotate 1,
+      apply ple.trans,
+      apply Hn,
+      apply pnat.mul_le_mul_left
+    end,
+    have Hnz' : s (((ps Hs Hsep) * (ps Hs Hsep)) * ((K₂ s (s_inv Hs)) * 2 * n)) ≠ 0, from
+      s_ne_zero_of_ge_p Hs Hsep 
+        (show ps Hs Hsep ≤ ((ps Hs Hsep) * (ps Hs Hsep)) * ((K₂ s (s_inv Hs)) * 2 * n), 
+          by rewrite *pnat_mul_assoc; apply pnat.mul_le_mul_right),
+    xrewrite [(s_inv_of_sep_gt_p Hs Hsep Hp), (div_div Hnz')],
     apply rat.le.trans,
     apply rat.mul_le_mul_of_nonneg_left,
     apply Hs,
     apply le_of_lt,
     apply rat_of_pnat_is_pos,
-    rewrite [rat.mul.left_distrib, pnat_mul_comm ((ps Hs Hsep) * (ps Hs Hsep)), *pnat_mul_assoc, 
-            *(@pnat_div_helper (K₂ s (s_inv Hs))), fun_rewrite, -*rat.mul.assoc, *pnat.inv_cancel,
+    xrewrite [rat.mul.left_distrib, pnat_mul_comm ((ps Hs Hsep) * (ps Hs Hsep)), *pnat_mul_assoc, 
+            *(@pnat_div_helper (K₂ s (s_inv Hs))), -*rat.mul.assoc, *pnat.inv_cancel,
             *one_mul, -(padd_halves j)],
     apply rat.add_le_add,
     apply inv_ge_of_le,
@@ -294,7 +394,8 @@ theorem inv_mul {s : seq} (Hs : regular s) (Hsep : sep s zero) : smul (s_inv Hs)
     repeat (assumption | apply reg_mul_reg | apply reg_inv_reg | apply zero_is_reg)
   end
 
-theorem sep_of_equiv_sep {s t : seq} (Hs : regular s) (Ht : regular t) (Heq : s ≡ t) (Hsep : sep s zero) : sep t zero :=
+theorem sep_of_equiv_sep {s t : seq} (Hs : regular s) (Ht : regular t) (Heq : s ≡ t)
+        (Hsep : sep s zero) : sep t zero :=
   begin
     apply or.elim Hsep,
     intro Hslt,
@@ -405,9 +506,6 @@ theorem s_neg_sub {s t : seq} (Hs : regular s) (Ht : regular t) :
     repeat (assumption | apply reg_add_reg | apply reg_neg_reg)
   end
 
-theorem forall_of_not_exists {A : Type} {P : A → Prop} (H : ¬ ∃ a : A, P a) : ∀ a : A, ¬ P a :=
-  take a, assume Ha, H (exists.intro a Ha)
-
 theorem s_le_total {s t : seq} (Hs : regular s) (Ht : regular t) : s_le s t ∨ s_le t s :=
   if H : s_le s t then or.inl H else or.inr begin
       rewrite [↑s_le at *],
@@ -439,11 +537,6 @@ theorem s_le_total {s t : seq} (Hs : regular s) (Ht : regular t) : s_le s t ∨ 
       apply Hm',
       repeat (assumption | apply reg_add_reg | apply reg_neg_reg)
     end
-
-theorem neg_add_rewrite {a b : ℚ} : a + -b = -(b + -a) := sorry
-
-theorem and_of_not_or {a b : Prop} (H : ¬ (a ∨ b)) : ¬ a ∧ ¬ b := 
-  and.intro (assume H', H (or.inl H')) (assume H', H (or.inr H'))
 
 theorem s_le_of_not_lt {s t : seq} (Hle : ¬ s_lt s t) : s_le t s := 
   begin
@@ -500,8 +593,6 @@ theorem r_sep_of_nequiv (s t : reg_seq) (Hneq : ¬ requiv s t) : r_sep s t :=
 theorem r_lt_or_equiv_of_le (s t : reg_seq) (Hle : r_le s t) : r_lt s t ∨ requiv s t :=
   lt_or_equiv_of_le (reg_seq.is_reg s) (reg_seq.is_reg t) Hle
 
-/-theorem r_inv_mul (s : reg_seq) (Hsep : r_sep s r_zero) : requiv ((r_inv s) * s) r_one :=
-  inv_mul (reg_seq.is_reg s) Hsep-/
 
 end s
 

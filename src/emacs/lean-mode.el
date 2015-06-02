@@ -282,6 +282,8 @@ Invokes `lean-mode-hook'.
   (set (make-local-variable 'lisp-indent-function)
        'common-lisp-indent-function)
   (lean-set-keys)
+  (if (fboundp 'electric-indent-local-mode)
+      (electric-indent-local-mode -1))
   ;; (abbrev-mode 1)
   (pcase-dolist (`(,hook . ,fn) lean-hooks-alist)
     (add-hook hook fn nil 'local))

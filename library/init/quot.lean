@@ -36,6 +36,9 @@ namespace quot
   protected theorem induction_on {A : Type} [s : setoid A] {B : quot s → Prop} (q : quot s) (H : ∀ a, B ⟦a⟧) : B q :=
   ind H q
 
+  theorem exists_rep {A : Type} [s : setoid A] (q : quot s) : ∃ a : A, ⟦a⟧ = q :=
+  quot.induction_on q (λ a, exists.intro a rfl)
+
   section
   variable {A : Type}
   variable [s : setoid A]

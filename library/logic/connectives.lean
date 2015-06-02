@@ -248,25 +248,4 @@ section
 
   definition if_false (t e : A) : (if false then t else e) = e :=
   if_neg not_false
-
-  theorem if_congr_cond [H₁ : decidable c₁] [H₂ : decidable c₂] (Heq : c₁ ↔ c₂) (t e : A) :
-    (if c₁ then t else e) = (if c₂ then t else e) :=
-  decidable.rec_on H₁
-   (λ Hc₁  : c₁,  decidable.rec_on H₂
-     (λ Hc₂  : c₂,  if_pos Hc₁ ⬝ (if_pos Hc₂)⁻¹)
-     (λ Hnc₂ : ¬c₂, absurd (iff.elim_left Heq Hc₁) Hnc₂))
-   (λ Hnc₁ : ¬c₁, decidable.rec_on H₂
-     (λ Hc₂  : c₂,  absurd (iff.elim_right Heq Hc₂) Hnc₁)
-     (λ Hnc₂ : ¬c₂, if_neg Hnc₁ ⬝ (if_neg Hnc₂)⁻¹))
-
-  theorem if_congr_aux [H₁ : decidable c₁] [H₂ : decidable c₂] {t₁ t₂ e₁ e₂ : A}
-      (Hc : c₁ ↔ c₂) (Ht : t₁ = t₂) (He : e₁ = e₂) :
-    (if c₁ then t₁ else e₁) = (if c₂ then t₂ else e₂) :=
-  Ht ▸ He ▸ (if_congr_cond Hc t₁ e₁)
-
-  theorem if_congr [H₁ : decidable c₁] {t₁ t₂ e₁ e₂ : A} (Hc : c₁ ↔ c₂) (Ht : t₁ = t₂)
-      (He : e₁ = e₂) :
-    (if c₁ then t₁ else e₁) = (@ite c₂ (decidable_of_decidable_of_iff H₁ Hc) A t₂ e₂) :=
-  assert H2 : decidable c₂, from (decidable_of_decidable_of_iff H₁ Hc),
-  if_congr_aux Hc Ht He
 end

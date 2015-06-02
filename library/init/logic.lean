@@ -506,6 +506,27 @@ assume Hc, eq.rec_on (if_pos Hc) h
 theorem implies_of_if_neg {c t e : Prop} [H : decidable c] (h : if c then t else e) : ¬c → e :=
 assume Hnc, eq.rec_on (if_neg Hnc) h
 
+theorem if_ctx_congr {A : Type} {b c : Prop} [dec_b : decidable b] {x y u v : A}
+                     (h_c : b ↔ c) (h_t : c → x = u) (h_e : ¬c → y = v) :
+        (if b then x else y) = (@ite c (decidable_of_decidable_of_iff dec_b h_c) A u v) :=
+assert dec_c : decidable c, from decidable_of_decidable_of_iff dec_b h_c,
+decidable.rec_on dec_b
+  (λ hp : b, calc
+     (if b then x else y)
+           = x                    : if_pos hp
+      ...  = u                    : h_t (iff.mp h_c hp)
+      ...  = (if c then u else v) : if_pos (iff.mp h_c hp))
+  (λ hn : ¬b, calc
+     (if b then x else y)
+           = y                    : if_neg hn
+      ...  = v                    : h_e (iff.mp (not_iff_not_of_iff h_c) hn)
+      ...  = (if c then u else v) : if_neg (iff.mp (not_iff_not_of_iff h_c) hn))
+
+theorem if_congr {A : Type} {b c : Prop} [dec_b : decidable b] {x y u v : A}
+                 (h_c : b ↔ c) (h_t : x = u) (h_e : y = v) :
+        (if b then x else y) = (@ite c (decidable_of_decidable_of_iff dec_b h_c) A u v) :=
+@if_ctx_congr A b c dec_b x y u v h_c (λ h, h_t) (λ h, h_e)
+
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches
 definition dite (c : Prop) [H : decidable c] {A : Type} (t : c → A) (e : ¬ c → A) : A :=
@@ -522,6 +543,29 @@ decidable.rec
   (λ Hc : c,    absurd Hc Hnc)
   (λ Hnc : ¬c,  eq.refl (@dite c (decidable.inr Hnc) A t e))
   H
+
+theorem dif_ctx_congr {A : Type} {b c : Prop} [dec_b : decidable b]
+                      {x : b → A} {u : c → A} {y : ¬b → A} {v : ¬c → A}
+                      (h_c : b ↔ c)
+                      (h_t : ∀ (h : c),    x (iff.mp' h_c h)                      = u h)
+                      (h_e : ∀ (h : ¬c),   y (iff.mp' (not_iff_not_of_iff h_c) h) = v h) :
+        (@dite b dec_b A x y) = (@dite c (decidable_of_decidable_of_iff dec_b h_c) A u v) :=
+assert dec_c : decidable c, from decidable_of_decidable_of_iff dec_b h_c,
+decidable.rec_on dec_b
+  (λ hp : b, calc
+    (if h : b then x h else y h)
+           = x hp                            : dif_pos hp
+      ...  = x (iff.mp' h_c (iff.mp h_c hp)) : proof_irrel
+      ...  = u (iff.mp h_c hp)               : h_t
+      ...  = (if h : c then u h else v h)    : dif_pos (iff.mp h_c hp))
+  (λ hn : ¬b,
+    let h_nc : ¬b ↔ ¬c := not_iff_not_of_iff h_c in
+    calc
+     (if h : b then x h else y h)
+           = y hn                              : dif_neg hn
+      ...  = y (iff.mp' h_nc (iff.mp h_nc hn)) : proof_irrel
+      ...  = v (iff.mp h_nc hn)                : h_e
+      ...  = (if h : c then u h else v h)      : dif_neg (iff.mp h_nc hn))
 
 -- Remark: dite and ite are "definitionally equal" when we ignore the proofs.
 theorem dite_ite_eq (c : Prop) [H : decidable c] {A : Type} (t : A) (e : A) : dite c (λh, t) (λh, e) = ite c t e :=

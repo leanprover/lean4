@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/relation_manager.h"
 #include "library/user_recursors.h"
 #include "library/unfold_macros.h"
+#include "library/simplifier/rewrite_rule_set.h"
 #include "library/definitional/equations.h"
 #include "library/error_handling/error_handling.h"
 #include "frontends/lean/parser.h"
@@ -367,6 +368,7 @@ struct decl_attributes {
     bool               m_refl;
     bool               m_subst;
     bool               m_recursor;
+    bool               m_rewrite;
     optional<unsigned> m_recursor_major_pos;
     optional<unsigned> m_priority;
     optional<unsigned> m_unfold_c_hint;
@@ -392,6 +394,7 @@ struct decl_attributes {
         m_refl                   = false;
         m_subst                  = false;
         m_recursor               = false;
+        m_rewrite                = false;
     }
 
     struct elim_choice_fn : public replace_visitor {
@@ -518,6 +521,9 @@ struct decl_attributes {
             } else if (p.curr_is_token(get_subst_tk())) {
                 p.next();
                 m_subst = true;
+            } else if (p.curr_is_token(get_rewrite_attr_tk())) {
+                p.next();
+                m_rewrite = true;
             } else if (p.curr_is_token(get_recursor_tk())) {
                 p.next();
                 if (!p.curr_is_token(get_rbracket_tk())) {
@@ -587,6 +593,8 @@ struct decl_attributes {
             env = add_user_recursor(env, d, m_recursor_major_pos, m_persistent);
         if (m_is_class)
             env = add_class(env, d, m_persistent);
+        if (m_rewrite)
+            env = add_rewrite_rule(env, d, m_persistent);
         if (m_has_multiple_instances)
             env = mark_multiple_instances(env, d, m_persistent);
         return env;

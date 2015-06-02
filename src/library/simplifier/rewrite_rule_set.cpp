@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "kernel/instantiate.h"
+#include "kernel/error_msgs.h"
 #include "library/scoped_ext.h"
 #include "library/expr_pair.h"
 #include "library/relation_manager.h"
@@ -17,11 +18,19 @@ bool operator==(rewrite_rule const & r1, rewrite_rule const & r2) {
     return r1.m_lhs == r2.m_lhs && r1.m_rhs == r2.m_rhs;
 }
 
-rewrite_rule::rewrite_rule(name const & id, list<expr> const & metas,
-                           expr const & lhs, expr const & rhs, constraint_seq const & cs,
-                           expr const & proof, bool is_perm):
-    m_id(id), m_metas(metas), m_lhs(lhs), m_rhs(rhs), m_cs(cs), m_proof(proof),
+rewrite_rule::rewrite_rule(name const & id, levels const & univ_metas, list<expr> const & metas,
+                           expr const & lhs, expr const & rhs, expr const & proof, bool is_perm):
+    m_id(id), m_univ_metas(univ_metas), m_metas(metas), m_lhs(lhs), m_rhs(rhs), m_proof(proof),
     m_is_permutation(is_perm) {}
+
+format rewrite_rule::pp(formatter const & fmt) const {
+    format r;
+    r += format("#") + format(length(m_metas));
+    if (m_is_permutation)
+        r += space() + format("perm");
+    r += group(space() + fmt(m_lhs) + space() + format("↦") + pp_indent_expr(fmt, m_rhs));
+    return r;
+}
 
 rewrite_rule_set::rewrite_rule_set(name const & eqv):
     m_eqv(eqv) {}
@@ -88,7 +97,8 @@ void rewrite_rule_sets::for_each(std::function<void(name const &, rewrite_rule c
 
 static name * g_prefix = nullptr;
 
-rewrite_rule_sets add(type_checker & tc, rewrite_rule_sets const & s, name const & id, expr const & e, expr const & h) {
+rewrite_rule_sets add_core(type_checker & tc, rewrite_rule_sets const & s,
+                           name const & id, levels const & univ_metas, expr const & e, expr const & h) {
     list<expr_pair> ceqvs   = to_ceqvs(tc, e, h);
     environment const & env = tc.env();
     rewrite_rule_sets new_s = s;
@@ -97,21 +107,23 @@ rewrite_rule_sets add(type_checker & tc, rewrite_rule_sets const & s, name const
         expr new_h = p.second;
         bool is_perm       = is_permutation_ceqv(env, new_e);
         buffer<expr> metas;
-        constraint_seq cs;
         unsigned idx = 0;
         while (is_pi(new_e)) {
             expr mvar = mk_metavar(name(*g_prefix, idx), binding_domain(new_e));
             idx++;
             metas.push_back(mvar);
-            // TODO(Leo): type class constraints
             new_e = instantiate(binding_body(new_e), mvar);
         }
         expr rel, lhs, rhs;
         if (is_equivalence(env, new_e, rel, lhs, rhs) && is_constant(rel)) {
-            new_s.insert(const_name(rel), rewrite_rule(id, to_list(metas), lhs, rhs, cs, new_h, is_perm));
+            new_s.insert(const_name(rel), rewrite_rule(id, univ_metas, to_list(metas), lhs, rhs, new_h, is_perm));
         }
     }
     return new_s;
+}
+
+rewrite_rule_sets add(type_checker & tc, rewrite_rule_sets const & s, name const & id, expr const & e, expr const & h) {
+    return add_core(tc, s, id, list<level>(), e, h);
 }
 
 rewrite_rule_sets join(rewrite_rule_sets const & s1, rewrite_rule_sets const & s2) {
@@ -127,16 +139,23 @@ static std::string * g_key = nullptr;
 
 struct rrs_state {
     rewrite_rule_sets           m_sets;
+    name_set                    m_rnames;
     name_map<rewrite_rule_sets> m_namespace_cache;
 
     void add(environment const & env, name const & cname) {
-        // TODO(Leo): universe variables
-        // TODO(Leo): invalide cache for current namespace
         type_checker tc(env);
         declaration const & d = env.get(cname);
-        expr e = d.get_type();
-        expr h = mk_constant(cname);
-        m_sets = ::lean::add(tc, m_sets, cname, e, h);
+        buffer<level> us;
+        unsigned num_univs = d.get_num_univ_params();
+        for (unsigned i = 0; i < num_univs; i++) {
+            us.push_back(mk_meta_univ(name(*g_prefix, i)));
+        }
+        levels ls = to_list(us);
+        expr e    = instantiate_type_univ_params(d, ls);
+        expr h    = mk_constant(cname, ls);
+        m_sets = add_core(tc, m_sets, cname, ls, e, h);
+        m_rnames.insert(cname);
+        m_namespace_cache.erase(get_namespace(env));
     }
 };
 
@@ -168,6 +187,10 @@ typedef scoped_ext<rrs_config> rrs_ext;
 
 environment add_rewrite_rule(environment const & env, name const & n, bool persistent) {
     return rrs_ext::add_entry(env, get_dummy_ios(), n, persistent);
+}
+
+bool is_rewrite_rule(environment const & env, name const & n) {
+    return rrs_ext::get_state(env).m_rnames.contains(n);
 }
 
 rewrite_rule_sets get_rewrite_rule_sets(environment const & env) {

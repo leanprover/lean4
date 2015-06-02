@@ -1,0 +1,4 @@
+rewrite rules for eq
+#1 g ?M_1 ↦ f ?M_1 + 1
+#2 g ?M_1 ↦ 1
+#2 f ?M_1 ↦ 0

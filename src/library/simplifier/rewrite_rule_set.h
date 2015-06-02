@@ -13,26 +13,26 @@ class rewrite_rule_sets;
 
 class rewrite_rule {
     name           m_id;
+    levels         m_univ_metas;
     list<expr>     m_metas;
     expr           m_lhs;
     expr           m_rhs;
-    constraint_seq m_cs;
     expr           m_proof;
     bool           m_is_permutation;
-    rewrite_rule(name const & id, list<expr> const & metas,
-                 expr const & lhs, expr const & rhs, constraint_seq const & cs,
-                 expr const & proof, bool is_perm);
-    friend rewrite_rule_sets add(type_checker & tc, rewrite_rule_sets const & s, name const & id,
-                                 expr const & e, expr const & h);
+    rewrite_rule(name const & id, levels const & univ_metas, list<expr> const & metas,
+                 expr const & lhs, expr const & rhs, expr const & proof, bool is_perm);
+    friend rewrite_rule_sets add_core(type_checker & tc, rewrite_rule_sets const & s, name const & id,
+                                      levels const & univ_metas, expr const & e, expr const & h);
 public:
     name const & get_id() const { return m_id; }
+    levels const & get_univ_metas() const { return m_univ_metas; }
     list<expr> const & get_metas() const { return m_metas; }
     expr const & get_lhs() const { return m_lhs; }
     expr const & get_rhs() const { return m_rhs; }
-    constraint_seq const & get_cs() const { return m_cs; }
     expr const & get_proof() const { return m_proof; }
     bool is_perm() const { return m_is_permutation; }
     friend bool operator==(rewrite_rule const & r1, rewrite_rule const & r2);
+    format pp(formatter const & fmt) const;
 };
 
 bool operator==(rewrite_rule const & r1, rewrite_rule const & r2);
@@ -69,6 +69,8 @@ rewrite_rule_sets add(type_checker & tc, rewrite_rule_sets const & s, name const
 rewrite_rule_sets join(rewrite_rule_sets const & s1, rewrite_rule_sets const & s2);
 
 environment add_rewrite_rule(environment const & env, name const & n, bool persistent = true);
+/** \brief Return true if \c n is an active rewrite rule in \c env */
+bool is_rewrite_rule(environment const & env, name const & n);
 /** \brief Get current rewrite rule sets */
 rewrite_rule_sets get_rewrite_rule_sets(environment const & env);
 /** \brief Get rewrite rule sets in the given namespace. */

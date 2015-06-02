@@ -106,6 +106,7 @@ symm         [symm]
 trans        [trans]
 refl         [refl]
 subst        [subst]
+rewrite_attr [rewrite]
 recursor     [recursor
 attribute    attribute
 with         with

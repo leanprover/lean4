@@ -1,2 +1,2 @@
 rewrite rules for eq
-#2 perm, nat.add ?M_2 ?M_1 ↦ nat.add ?M_1 ?M_2
+#2 perm, nat.add ?M_1 ?M_2 ↦ nat.add ?M_2 ?M_1

@@ -226,7 +226,7 @@ static bool is_permutation(expr const & lhs, expr const & rhs, unsigned offset, 
 bool is_permutation_ceqv(environment const & env, expr e) {
     unsigned num_args = 0;
     while (is_pi(e)) {
-        e = binding_domain(e);
+        e = binding_body(e);
         num_args++;
     }
     expr lhs, rhs;

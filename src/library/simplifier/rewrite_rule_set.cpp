@@ -28,7 +28,7 @@ format rewrite_rule::pp(formatter const & fmt) const {
     r += format("#") + format(length(m_metas));
     if (m_is_permutation)
         r += space() + format("perm");
-    r += group(space() + fmt(m_lhs) + space() + format("↦") + pp_indent_expr(fmt, m_rhs));
+    r += group(comma() + space() + fmt(m_lhs) + space() + format("↦") + pp_indent_expr(fmt, m_rhs));
     return r;
 }
 

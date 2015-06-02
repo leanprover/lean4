@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/private.h"
 #include "library/module.h"
 #include "library/kernel_bindings.h"
+#include "library/fingerprint.h"
 
 namespace lean {
 struct private_ext : public environment_extension {
@@ -43,6 +44,9 @@ static environment preserve_private_data(environment const & env, name const & r
 pair<environment, name> add_private_name(environment const & env, name const & n, optional<unsigned> const & extra_hash) {
     private_ext ext = get_extension(env);
     unsigned h      = hash(n.hash(), ext.m_counter);
+    uint64   f      = get_fingerprint(env);
+    h               = hash(h, static_cast<unsigned>(f >> 32));
+    h               = hash(h, static_cast<unsigned>(f));
     if (extra_hash)
         h = hash(h, *extra_hash);
     name r = name(*g_private, h) + n;

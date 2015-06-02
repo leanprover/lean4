@@ -322,3 +322,22 @@ iff.intro
     take x, obtain (fw : ∀x, B x) (Hw : ∀x, P x (fw x)), from H,
       exists.intro (fw x) (Hw x))
 end encodable
+
+namespace quot
+section
+open setoid encodable
+parameter {A : Type}
+parameter {s : setoid A}
+parameter [decR : ∀ a b : A, decidable (a ≈ b)]
+parameter [encA : encodable A]
+include decR
+include encA
+
+-- Choose equivalence class representative
+definition rep (q : quot s) : A :=
+choose (exists_rep q)
+
+theorem rep_spec (q : quot s) : ⟦rep q⟧ = q :=
+choose_spec (exists_rep q)
+end
+end quot

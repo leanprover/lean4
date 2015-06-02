@@ -146,3 +146,13 @@ attribute quot.lift₂                [unfold-c 8]
 attribute quot.lift_on₂             [unfold-c 6]
 attribute quot.hrec_on₂             [unfold-c 6]
 attribute quot.rec_on_subsingleton₂ [unfold-c 7]
+
+open decidable
+definition quot.has_decidable_eq [instance] {A : Type} {s : setoid A} [decR : ∀ a b : A, decidable (a ≈ b)] : decidable_eq (quot s) :=
+λ q₁ q₂ : quot s,
+  quot.rec_on_subsingleton₂ q₁ q₂
+    (λ a₁ a₂,
+      match decR a₁ a₂ with
+      | inl h₁ := inl (quot.sound h₁)
+      | inr h₂ := inr (λ h, absurd (quot.exact h) h₂)
+      end)

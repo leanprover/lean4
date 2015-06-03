@@ -18,6 +18,9 @@ notation `[` l:(foldr `,` (h t, cons h t) nil `]`) := l
 
 variable {T : Type}
 
+lemma cons_ne_nil (a : T) (l : list T) : a::l ≠ [] :=
+by contradiction
+
 /- append -/
 
 definition append : list T → list T → list T
@@ -65,6 +68,10 @@ theorem eq_nil_of_length_eq_zero : ∀ {l : list T}, length l = 0 → l = []
 | []     H := rfl
 | (a::s) H := by contradiction
 
+theorem ne_nil_of_length_eq_succ : ∀ {l : list T} {n : nat}, length l = succ n → l ≠ []
+| []     n h := by contradiction
+| (a::l) n h := by contradiction
+
 -- add_rewrite length_nil length_cons
 
 /- concat -/
@@ -82,6 +89,36 @@ theorem concat_eq_append (a : T) : ∀ (l : list T), concat a l = l ++ [a]
 | (b :: l) :=
   show b :: (concat a l) = (b :: l) ++ (a :: []),
   by rewrite concat_eq_append
+
+theorem concat_ne_nil (a : T) : ∀ (l : list T), concat a l ≠ [] :=
+by intro l; induction l; repeat contradiction
+
+/- last -/
+
+definition last : Π l : list T, l ≠ [] → T
+| []          h := absurd rfl h
+| [a]         h := a
+| (a₁::a₂::l) h := last (a₂::l) !cons_ne_nil
+
+lemma last_singleton (a : T) (h : [a] ≠ []) : last [a] h = a :=
+rfl
+
+lemma last_cons_cons (a₁ a₂ : T) (l : list T) (h : a₁::a₂::l ≠ []) : last (a₁::a₂::l) h = last (a₂::l) !cons_ne_nil :=
+rfl
+
+theorem last_congr {l₁ l₂ : list T} (h₁ : l₁ ≠ []) (h₂ : l₂ ≠ []) (h₃ : l₁ = l₂) : last l₁ h₁ = last l₂ h₂ :=
+by subst l₁
+
+theorem last_concat {x : T} : ∀ {l : list T} (h : concat x l ≠ []), last (concat x l) h = x
+| []          h := rfl
+| [a]         h := rfl
+| (a₁::a₂::l) h :=
+  begin
+    change last (a₁::a₂::concat x l) !cons_ne_nil = x,
+    rewrite last_cons_cons,
+    change last (concat x (a₂::l)) !concat_ne_nil = x,
+    apply last_concat
+  end
 
 -- add_rewrite append_nil append_cons
 

@@ -287,6 +287,10 @@ nat.cases_on n
     assume H : succ n' ≤ m,
     !pred_succ⁻¹ ▸ succ_le_of_le_pred H)
 
+theorem pre_lt_of_lt : ∀ {n m : ℕ}, n < m → pred n < m
+| 0        m h := h
+| (succ n) m h := lt_of_succ_lt h
+
 theorem lt_of_pred_lt_pred {n m : ℕ} (H : pred n < pred m) : n < m :=
 lt_of_not_ge
   (take H1 : m ≤ n,

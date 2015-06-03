@@ -48,43 +48,43 @@ section
   variables {a a' : A} {b b' : B} {c c' : C} {d d' : D} {e e' : E}
 
   theorem congr_fun {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a :=
-  H ▸ rfl
+  by substvars
 
   theorem congr_arg (f : A → B) (H : a = a') : f a = f a' :=
-  H ▸ rfl
+  by substvars
 
   theorem congr_arg2 (f : A → B → C) (Ha : a = a') (Hb : b = b') : f a b = f a' b' :=
-  congr (congr_arg f Ha) Hb
+  by substvars
 
   theorem congr_arg3 (f : A → B → C → D) (Ha : a = a') (Hb : b = b') (Hc : c = c')
       : f a b c = f a' b' c' :=
-  congr (congr_arg2 f Ha Hb) Hc
+  by substvars
 
   theorem congr_arg4 (f : A → B → C → D → E) (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d')
       : f a b c d = f a' b' c' d' :=
-  congr (congr_arg3 f Ha Hb Hc) Hd
+  by substvars
 
   theorem congr_arg5 (f : A → B → C → D → E → F)
       (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d') (He : e = e')
         : f a b c d e = f a' b' c' d' e' :=
-  congr (congr_arg4 f Ha Hb Hc Hd) He
+  by substvars
 
   theorem congr2 (f f' : A → B → C) (Hf : f = f') (Ha : a = a') (Hb : b = b') : f a b = f' a' b' :=
-  Hf ▸ congr_arg2 f Ha Hb
+  by substvars
 
   theorem congr3 (f f' : A → B → C → D) (Hf : f = f') (Ha : a = a') (Hb : b = b') (Hc : c = c')
       : f a b c = f' a' b' c' :=
-  Hf ▸ congr_arg3 f Ha Hb Hc
+  by substvars
 
   theorem congr4 (f f' : A → B → C → D → E)
       (Hf : f = f') (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d')
         : f a b c d = f' a' b' c' d' :=
-  Hf ▸ congr_arg4 f Ha Hb Hc Hd
+  by substvars
 
   theorem congr5 (f f' : A → B → C → D → E → F)
       (Hf : f = f') (Ha : a = a') (Hb : b = b') (Hc : c = c') (Hd : d = d') (He : e = e')
         : f a b c d e = f' a' b' c' d' e' :=
-  Hf ▸ congr_arg5 f Ha Hb Hc Hd He
+  by substvars
 end
 
 theorem equal_f {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) : ∀x, f x = g x :=

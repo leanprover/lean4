@@ -3,7 +3,6 @@ Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura, Jeremy Avigad
 -/
-
 open decidable
 
 set_option structure.proj_mk_thm true
@@ -30,9 +29,8 @@ namespace subtype
 
   protected definition has_decidable_eq [instance] [H : decidable_eq A] : ∀ s₁ s₂ : {x | P x}, decidable (s₁ = s₂)
   | (tag v₁ p₁) (tag v₂ p₂) :=
-    begin
-      apply (@by_cases (v₁ = v₂)),
-        {intro e, revert p₁, rewrite e, intro p₁, left, congruence},
-        {intro n, right, intro h, injection h, contradiction}
+    match H v₁ v₂ with
+    | inl veq := begin left, substvars end
+    | inr vne := begin right, intro h, injection h, contradiction end
     end
 end subtype

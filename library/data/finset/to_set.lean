@@ -18,6 +18,14 @@ abbreviation ts := @to_set A
 
 variables (s t : finset A) (x : A)
 
+theorem mem_eq_mem_to_set : (x ∈ s) = (x ∈ ts s) := rfl
+
+definition to_set.inj {s₁ s₂ : finset A} : to_set s₁ = to_set s₂ → s₁ = s₂ :=
+λ h, ext (λ a, iff.of_eq (calc
+  (a ∈ s₁) = (a ∈ ts s₁) : mem_eq_mem_to_set
+       ... = (a ∈ ts s₂) : h
+       ... = (a ∈ s₂)    : mem_eq_mem_to_set))
+
 /- operations -/
 
 theorem mem_to_set_empty : (x ∈ ts ∅) = (x ∈ ∅) := rfl
@@ -49,8 +57,6 @@ theorem to_set_image {B : Type} [h : decidable_eq B] (f : A → B) (s : finset A
   ts (finset.image f s) = set.image f (ts s) := funext (λ x, !mem_to_set_image)
 
 /- relations -/
-
-theorem mem_eq_mem_to_set : (x ∈ s) = (x ∈ ts s) := rfl
 
 definition decidable_mem_to_set [instance] (x : A) (s : finset A) : decidable (x ∈ ts s) :=
 decidable_of_decidable_of_eq _ !mem_eq_mem_to_set

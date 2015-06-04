@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Jeremy Avigad, Leonardo de Moura
+Authors: Jeremy Avigad, Leonardo de Moura, Haitao Zhang
 
 The propositional connectives. See also init.datatypes and init.logic.
 -/
@@ -40,6 +40,9 @@ theorem not.intro (H : a → false) : ¬a := H
 
 theorem not_not_intro (Ha : a) : ¬¬a :=
 assume Hna : ¬a, absurd Ha Hna
+
+theorem not_imp_not_of_imp {a b : Prop} : (a → b) → ¬b → ¬a :=
+assume Pimp Pnb Pa, absurd (Pimp Pa) Pnb
 
 theorem not_not_of_not_implies (H : ¬(a → b)) : ¬¬a :=
 assume Hna : ¬a, absurd (assume Ha : a, absurd Ha Hna) H
@@ -105,6 +108,21 @@ iff.intro (assume H, and.left H) (assume H, false.elim H)
 
 theorem and_self (a : Prop) : a ∧ a ↔ a :=
 iff.intro (assume H, and.left H) (assume H, and.intro H H)
+
+theorem and_imp_eq (a b c : Prop) : (a ∧ b → c) = (a → b → c) :=
+propext
+  (iff.intro (λ Pl a b, Pl (and.intro a b))
+  (λ Pr Pand, Pr (and.left Pand) (and.right Pand)))
+
+theorem and_eq_right {a b : Prop} (Ha : a) : (a ∧ b) = b :=
+propext (iff.intro
+  (assume Hab, and.elim_right Hab)
+  (assume Hb, and.intro Ha Hb))
+
+theorem and_eq_left {a b : Prop} (Hb : b) : (a ∧ b) = a :=
+propext (iff.intro
+  (assume Hab, and.elim_left Hab)
+  (assume Ha, and.intro Ha Hb))
 
 /- or -/
 

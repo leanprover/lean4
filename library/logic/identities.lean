@@ -94,19 +94,30 @@ assume H, by_contradiction (assume Hna : ¬a,
   have Hnna : ¬¬a, from not_not_of_not_implies (mt H Hna),
   absurd (not_not_elim Hnna) Hna)
 
-theorem forall_not_of_not_exists {A : Type} {P : A → Prop} [D : ∀x, decidable (P x)]
-    (H : ¬∃x, P x) : ∀x, ¬P x :=
-take x, or.elim (em (P x))
-  (assume Hp : P x,   absurd (exists.intro x Hp) H)
-  (assume Hn : ¬P x, Hn)
+theorem forall_not_of_not_exists {A : Type} {p : A → Prop} [D : ∀x, decidable (p x)]
+  (H : ¬∃x, p x) : ∀x, ¬p x :=
+take x, or.elim (em (p x))
+  (assume Hp : p x,   absurd (exists.intro x Hp) H)
+  (assume Hnp : ¬p x, Hnp)
 
-theorem exists_not_of_not_forall {A : Type} {P : A → Prop} [D : ∀x, decidable (P x)]
-    [D' : decidable (∃x, ¬P x)] (H : ¬∀x, P x) :
-  ∃x, ¬P x :=
-@by_contradiction _ D' (assume H1 : ¬∃x, ¬P x,
-  have H2 : ∀x, ¬¬P x, from @forall_not_of_not_exists _ _ (take x, decidable_not) H1,
-  have H3 : ∀x, P x, from take x, @not_not_elim _ (D x) (H2 x),
-  absurd H3 H)
+theorem forall_of_not_exists_not {A : Type} {p : A → Prop} [D : decidable_pred p] :
+  ¬(∃ x, ¬p x) → ∀ x, p x :=
+assume Hne, take x, by_contradiction (assume Hnp : ¬ p x, Hne (exists.intro x Hnp))
+
+theorem exists_not_of_not_forall {A : Type} {p : A → Prop} [D : ∀x, decidable (p x)]
+    [D' : decidable (∃x, ¬p x)] (H : ¬∀x, p x) :
+  ∃x, ¬p x :=
+by_contradiction
+  (assume H1 : ¬∃x, ¬p x,
+    have H2 : ∀x, ¬¬p x, from forall_not_of_not_exists H1,
+    have H3 : ∀x, p x, from take x, not_not_elim (H2 x),
+    absurd H3 H)
+
+theorem exists_of_not_forall_not {A : Type} {p : A → Prop} [D : ∀x, decidable (p x)]
+    [D' : decidable (∃x, ¬¬p x)] (H : ¬∀x, ¬ p x) :
+  ∃x, p x :=
+obtain x (H : ¬¬ p x), from exists_not_of_not_forall H,
+exists.intro x (not_not_elim H)
 
 theorem ne_self_iff_false {A : Type} (a : A) : (a ≠ a) ↔ false :=
 iff.intro

@@ -37,7 +37,7 @@ definition dcompose [reducible] [unfold-f] {B : A → Type} {C : Π {x : A}, B x
   (f : Π {x : A} (y : B x), C y) (g : Πx, B x) : Πx, C (g x) :=
 λx, f (g x)
 
-definition flip [reducible] [unfold-f] {C : A → B → Type} (f : Πx y, C x y) : Πy x, C x y :=
+definition swap [reducible] [unfold-f] {C : A → B → Type} (f : Πx y, C x y) : Πy x, C x y :=
 λy x, f x y
 
 definition app [reducible] {B : A → Type} (f : Πx, B x) (x : A) : B x :=

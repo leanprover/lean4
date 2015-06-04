@@ -19,11 +19,14 @@ Author: Leonardo de Moura
 
 namespace lean {
 static void split_deps(buffer<expr> const & hyps, expr const & x, expr const & h,
-                       buffer<expr> & non_deps, buffer<expr> & deps) {
+                       buffer<expr> & non_deps, buffer<expr> & deps, bool & depends_on_h) {
     for (expr const & hyp : hyps) {
         if (hyp == h || hyp == x) {
             // we clear h and x
-        } else if (depends_on(hyp, x) || depends_on(hyp, h) || depends_on_any(hyp, deps)) {
+        } else if (depends_on(hyp, h)) {
+            deps.push_back(hyp);
+            depends_on_h = true;
+        } else if (depends_on(hyp, x) || depends_on_any(hyp, deps)) {
             deps.push_back(hyp);
         } else {
             non_deps.push_back(hyp);
@@ -52,14 +55,18 @@ tactic mk_subst_tactic_core(name const & h_name, bool symm) {
             return none_proof_state();
         buffer<expr> hyps, deps, non_deps;
         g.get_hyps(hyps);
-        split_deps(hyps, lhs, h, non_deps, deps);
+        bool depends_on_h = depends_on(g.get_type(), h);
+        split_deps(hyps, lhs, h, non_deps, deps, depends_on_h);
         // revert dependencies
         expr type = Pi(deps, g.get_type());
         // substitute
         bool has_dep_elim = inductive::has_dep_elim(env, get_eq_name());
+        bool use_dep_elim = has_dep_elim;
+        if (depends_on_h)
+            use_dep_elim = true;
         expr motive, new_type;
         new_type = instantiate(abstract_local(type, mlocal_name(lhs)), rhs);
-        if (has_dep_elim) {
+        if (use_dep_elim) {
             new_type = instantiate(abstract_local(new_type, mlocal_name(h)), mk_refl(*tc, rhs));
             if (symm) {
                 motive = Fun(lhs, Fun(h, type));
@@ -90,7 +97,6 @@ tactic mk_subst_tactic_core(name const & h_name, bool symm) {
         expr new_meta_core = mk_app(new_metavar, non_deps);
         expr new_meta      = mk_app(new_meta_core, intros_hyps);
         goal new_g(new_meta, new_goal_type);
-
         // create eqrec term
         substitution new_subst = s.get_subst();
         expr major = symm ? h : mk_symm(*tc, h);
@@ -98,8 +104,13 @@ tactic mk_subst_tactic_core(name const & h_name, bool symm) {
         expr A     = tc->infer(lhs).first;
         level l1   = sort_level(tc->ensure_type(new_type).first);
         level l2   = sort_level(tc->ensure_type(A).first);
-        expr eqrec = mk_app({mk_constant(get_eq_rec_name(), {l1, l2}), A, rhs, motive, minor, lhs, major});
-        if (has_dep_elim) {
+        name eq_rec_name;
+        if (!has_dep_elim && use_dep_elim)
+            eq_rec_name = get_eq_drec_name();
+        else
+            eq_rec_name = get_eq_rec_name();
+        expr eqrec = mk_app({mk_constant(eq_rec_name, {l1, l2}), A, rhs, motive, minor, lhs, major});
+        if (use_dep_elim) {
             try {
                 check_term(env, g.abstract(eqrec));
             } catch (kernel_exception & ex) {

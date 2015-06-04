@@ -14,16 +14,16 @@ Builtin HITs:
 #include "kernel/hits/hits.h"
 
 namespace lean {
-static name * g_hits_extension              = nullptr;
-static name * g_trunc                       = nullptr;
-static name * g_trunc_tr                    = nullptr;
-static name * g_trunc_rec                   = nullptr;
-static name * g_trunc_is_trunc_trunc        = nullptr;
-static name * g_type_quotient               = nullptr;
-static name * g_type_quotient_class_of      = nullptr;
-static name * g_type_quotient_rec           = nullptr;
-static name * g_type_quotient_eq_of_rel     = nullptr;
-static name * g_type_quotient_rec_eq_of_rel = nullptr;
+static name * g_hits_extension             = nullptr;
+static name * g_trunc                      = nullptr;
+static name * g_trunc_tr                   = nullptr;
+static name * g_trunc_rec                  = nullptr;
+static name * g_trunc_is_trunc_trunc       = nullptr;
+static name * g_hit_quotient               = nullptr;
+static name * g_hit_quotient_class_of      = nullptr;
+static name * g_hit_quotient_rec           = nullptr;
+static name * g_hit_quotient_eq_of_rel     = nullptr;
+static name * g_hit_quotient_rec_eq_of_rel = nullptr;
 
 struct hits_env_ext : public environment_extension {
     bool m_initialized;
@@ -69,9 +69,9 @@ optional<pair<expr, constraint_seq>> hits_normalizer_extension::operator()(expr 
         mk_pos  = 5;
         mk_name = g_trunc_tr;
         f_pos   = 4;
-    } else if (const_name(fn) == *g_type_quotient_rec) {
+    } else if (const_name(fn) == *g_hit_quotient_rec) {
         mk_pos  = 5;
-        mk_name = g_type_quotient_class_of;
+        mk_name = g_hit_quotient_class_of;
         f_pos   = 3;
     } else {
         return none_ecs();
@@ -106,7 +106,7 @@ optional<expr> is_hits_meta_app_core(Ctx & ctx, expr const & e) {
     unsigned mk_pos;
     if (const_name(fn) == *g_trunc_rec) {
         mk_pos = 5;
-    } else if (const_name(fn) == *g_type_quotient_rec) {
+    } else if (const_name(fn) == *g_hit_quotient_rec) {
         mk_pos = 5;
     } else {
         return none_expr();
@@ -130,7 +130,7 @@ bool hits_normalizer_extension::supports(name const & feature) const {
 }
 
 bool hits_normalizer_extension::is_recursor(environment const &, name const & n) const {
-    return n == *g_trunc_rec || n == *g_type_quotient_rec;
+    return n == *g_trunc_rec || n == *g_hit_quotient_rec;
 }
 
 bool hits_normalizer_extension::is_builtin(environment const & env, name const & n) const {
@@ -143,23 +143,23 @@ bool is_hits_decl(environment const & env, name const & n) {
     return
         n == *g_trunc || n == *g_trunc_tr || n == *g_trunc_rec ||
         n == *g_trunc_is_trunc_trunc ||
-        n == *g_type_quotient || n == *g_type_quotient_class_of ||
-        n == *g_type_quotient_rec || n == *g_type_quotient_eq_of_rel ||
-        n == *g_type_quotient_rec_eq_of_rel;
+        n == *g_hit_quotient || n == *g_hit_quotient_class_of ||
+        n == *g_hit_quotient_rec || n == *g_hit_quotient_eq_of_rel ||
+        n == *g_hit_quotient_rec_eq_of_rel;
 }
 
 void initialize_hits_module() {
-    g_hits_extension              = new name("hits_extension");
-    g_trunc                       = new name{"trunc"};
-    g_trunc_tr                    = new name{"trunc", "tr"};
-    g_trunc_rec                   = new name{"trunc", "rec"};
-    g_trunc_is_trunc_trunc        = new name{"trunc", "is_trunc_trunc"};
-    g_type_quotient               = new name{"type_quotient"};
-    g_type_quotient_class_of      = new name{"type_quotient", "class_of"};
-    g_type_quotient_rec           = new name{"type_quotient", "rec"};
-    g_type_quotient_eq_of_rel     = new name{"type_quotient", "eq_of_rel"};
-    g_type_quotient_rec_eq_of_rel = new name{"type_quotient", "rec_eq_of_rel"};
-    g_ext                         = new hits_env_ext_reg();
+    g_hits_extension             = new name("hits_extension");
+    g_trunc                      = new name{"trunc"};
+    g_trunc_tr                   = new name{"trunc", "tr"};
+    g_trunc_rec                  = new name{"trunc", "rec"};
+    g_trunc_is_trunc_trunc       = new name{"trunc", "is_trunc_trunc"};
+    g_hit_quotient               = new name{"quotient"};
+    g_hit_quotient_class_of      = new name{"quotient", "class_of"};
+    g_hit_quotient_rec           = new name{"quotient", "rec"};
+    g_hit_quotient_eq_of_rel     = new name{"quotient", "eq_of_rel"};
+    g_hit_quotient_rec_eq_of_rel = new name{"quotient", "rec_eq_of_rel"};
+    g_ext                        = new hits_env_ext_reg();
 }
 
 void finalize_hits_module() {
@@ -169,10 +169,10 @@ void finalize_hits_module() {
     delete g_trunc_tr;
     delete g_trunc_rec;
     delete g_trunc_is_trunc_trunc;
-    delete g_type_quotient;
-    delete g_type_quotient_class_of;
-    delete g_type_quotient_rec;
-    delete g_type_quotient_eq_of_rel;
-    delete g_type_quotient_rec_eq_of_rel;
+    delete g_hit_quotient;
+    delete g_hit_quotient_class_of;
+    delete g_hit_quotient_rec;
+    delete g_hit_quotient_eq_of_rel;
+    delete g_hit_quotient_rec_eq_of_rel;
 }
 }

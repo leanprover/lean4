@@ -1,1 +1,1 @@
-attribute type_quotient.rec [recursor]
+attribute quotient.rec [recursor]

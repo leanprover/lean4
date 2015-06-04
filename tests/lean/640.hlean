@@ -1,10 +1,10 @@
-import hit.type_quotient
+import hit.quotient
 
-open type_quotient eq sum
+open quotient eq sum
 
   constants {A : Type} (R : A → A → Type)
 
-  local abbreviation C := type_quotient R
+  local abbreviation C := quotient R
 
   definition f [unfold-c 2] (a : A) (x : unit) : C :=
   !class_of a
@@ -15,7 +15,7 @@ open type_quotient eq sum
   set_option pp.notation false
   set_option pp.beta false
 
-  definition rec {P : type_quotient S → Type} (x : type_quotient S) : P x :=
+  definition rec {P : quotient S → Type} (x : quotient S) : P x :=
   begin
     induction x with c c c' H,
     { induction c with b b b' H,

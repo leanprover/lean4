@@ -6,9 +6,9 @@ Authors: Floris van Doorn
 Declaration of mapping cylinders
 -/
 
-import .type_quotient
+import .quotient
 
-open type_quotient eq sum equiv equiv.ops
+open quotient eq sum equiv equiv.ops
 
 namespace cylinder
 section
@@ -22,7 +22,7 @@ parameters {A B : Type.{u}} (f : A → B)
   open cylinder_rel
   local abbreviation R := cylinder_rel
 
-  definition cylinder := type_quotient cylinder_rel -- TODO: define this in root namespace
+  definition cylinder := quotient cylinder_rel -- TODO: define this in root namespace
 
   definition base (b : B) : cylinder :=
   class_of R (inl b)

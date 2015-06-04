@@ -6,9 +6,9 @@ Authors: Floris van Doorn
 Declaration of the pushout
 -/
 
-import .type_quotient
+import .quotient
 
-open type_quotient eq sum equiv equiv.ops
+open quotient eq sum equiv equiv.ops
 
 namespace pushout
 section
@@ -21,7 +21,7 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
   open pushout_rel
   local abbreviation R := pushout_rel
 
-  definition pushout : Type := type_quotient R -- TODO: define this in root namespace
+  definition pushout : Type := quotient R -- TODO: define this in root namespace
 
   definition inl (x : BL) : pushout :=
   class_of R (inl x)

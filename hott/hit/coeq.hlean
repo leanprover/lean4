@@ -6,9 +6,9 @@ Authors: Floris van Doorn
 Declaration of the coequalizer
 -/
 
-import .type_quotient
+import .quotient
 
-open type_quotient eq equiv equiv.ops
+open quotient eq equiv equiv.ops
 
 namespace coeq
 section
@@ -21,7 +21,7 @@ parameters {A B : Type.{u}} (f g : A → B)
   open coeq_rel
   local abbreviation R := coeq_rel
 
-  definition coeq : Type := type_quotient coeq_rel -- TODO: define this in root namespace
+  definition coeq : Type := quotient coeq_rel -- TODO: define this in root namespace
 
   definition coeq_i (x : B) : coeq :=
   class_of R x

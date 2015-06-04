@@ -16,7 +16,7 @@ open is_trunc eq
   We take two higher inductive types (hits) as primitive notions in Lean. We define all other hits
   in terms of these two hits. The hits which are primitive are
     - n-truncation
-    - type quotients (non-truncated quotients)
+    - quotients (non-truncated quotients)
   For each of the hits we add the following constants:
     - the type formation
     - the term and path constructors
@@ -45,27 +45,27 @@ namespace trunc
   trunc.rec H aa
 end trunc
 
-constant type_quotient.{u v} {A : Type.{u}} (R : A → A → Type.{v}) : Type.{max u v}
+constant quotient.{u v} {A : Type.{u}} (R : A → A → Type.{v}) : Type.{max u v}
 
-namespace type_quotient
+namespace quotient
 
-  constant class_of {A : Type} (R : A → A → Type) (a : A) : type_quotient R
+  constant class_of {A : Type} (R : A → A → Type) (a : A) : quotient R
 
   constant eq_of_rel {A : Type} (R : A → A → Type) {a a' : A} (H : R a a')
     : class_of R a = class_of R a'
 
-  protected constant rec {A : Type} {R : A → A → Type} {P : type_quotient R → Type}
+  protected constant rec {A : Type} {R : A → A → Type} {P : quotient R → Type}
     (Pc : Π(a : A), P (class_of R a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a =[eq_of_rel R H] Pc a')
-    (x : type_quotient R) : P x
+    (x : quotient R) : P x
 
-  protected definition rec_on [reducible] {A : Type} {R : A → A → Type} {P : type_quotient R → Type}
-    (x : type_quotient R) (Pc : Π(a : A), P (class_of R a))
+  protected definition rec_on [reducible] {A : Type} {R : A → A → Type} {P : quotient R → Type}
+    (x : quotient R) (Pc : Π(a : A), P (class_of R a))
     (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a =[eq_of_rel R H] Pc a') : P x :=
-  type_quotient.rec Pc Pp x
+  quotient.rec Pc Pp x
 
-end type_quotient
+end quotient
 
-init_hits -- Initialize builtin computational rules for trunc and type_quotient
+init_hits -- Initialize builtin computational rules for trunc and quotient
 
 namespace trunc
   definition rec_tr [reducible] {n : trunc_index} {A : Type} {P : trunc n A → Type}
@@ -73,17 +73,17 @@ namespace trunc
   idp
 end trunc
 
-namespace type_quotient
-  definition rec_class_of {A : Type} {R : A → A → Type} {P : type_quotient R → Type}
+namespace quotient
+  definition rec_class_of {A : Type} {R : A → A → Type} {P : quotient R → Type}
     (Pc : Π(a : A), P (class_of R a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a =[eq_of_rel R H] Pc a')
-    (a : A) : type_quotient.rec Pc Pp (class_of R a) = Pc a :=
+    (a : A) : quotient.rec Pc Pp (class_of R a) = Pc a :=
   idp
 
-  constant rec_eq_of_rel {A : Type} {R : A → A → Type} {P : type_quotient R → Type}
+  constant rec_eq_of_rel {A : Type} {R : A → A → Type} {P : quotient R → Type}
     (Pc : Π(a : A), P (class_of R a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a =[eq_of_rel R H] Pc a')
-    {a a' : A} (H : R a a') : apdo (type_quotient.rec Pc Pp) (eq_of_rel R H) = Pp H
-end type_quotient
+    {a a' : A} (H : R a a') : apdo (quotient.rec Pc Pp) (eq_of_rel R H) = Pp H
+end quotient
 
-attribute type_quotient.class_of trunc.tr [constructor]
-attribute type_quotient.rec trunc.rec [unfold-c 6]
-attribute type_quotient.rec_on trunc.rec_on [unfold-c 4]
+attribute quotient.class_of trunc.tr [constructor]
+attribute quotient.rec trunc.rec [unfold-c 6]
+attribute quotient.rec_on trunc.rec_on [unfold-c 4]

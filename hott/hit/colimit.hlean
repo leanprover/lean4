@@ -7,7 +7,7 @@ Definition of general colimits and sequential colimits.
 -/
 
 /- definition of a general colimit -/
-open eq nat type_quotient sigma equiv equiv.ops
+open eq nat quotient sigma equiv equiv.ops
 
 namespace colimit
 section
@@ -23,7 +23,7 @@ section
 
   -- TODO: define this in root namespace
   definition colimit : Type :=
-  type_quotient colim_rel
+  quotient colim_rel
 
   definition incl : colimit :=
   class_of R ⟨i, a⟩
@@ -37,7 +37,7 @@ section
     (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) =[cglue j x] Pincl x)
       (y : colimit) : P y :=
   begin
-    fapply (type_quotient.rec_on y),
+    fapply (quotient.rec_on y),
     { intro a, cases a, apply Pincl},
     { intro a a' H, cases H, apply Pglue}
   end
@@ -92,7 +92,7 @@ end colimit
 namespace seq_colim
 section
   /-
-    we define it directly in terms of type quotients. An alternative definition could be
+    we define it directly in terms of quotients. An alternative definition could be
     definition seq_colim := colimit.colimit A function.id succ f
   -/
   parameters {A : ℕ → Type} (f : Π⦃n⦄, A n → A (succ n))
@@ -106,7 +106,7 @@ section
 
   -- TODO: define this in root namespace
   definition seq_colim : Type :=
-  type_quotient seq_rel
+  quotient seq_rel
 
   definition inclusion : seq_colim :=
   class_of R ⟨n, a⟩
@@ -120,7 +120,7 @@ section
     (Pincl : Π⦃n : ℕ⦄ (a : A n), P (sι a))
     (Pglue : Π(n : ℕ) (a : A n), Pincl (f a) =[glue a] Pincl a) (aa : seq_colim) : P aa :=
   begin
-    fapply (type_quotient.rec_on aa),
+    fapply (quotient.rec_on aa),
     { intro a, cases a, apply Pincl},
     { intro a a' H, cases H, apply Pglue}
   end

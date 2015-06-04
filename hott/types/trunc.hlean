@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Properties of is_trunc and trunctype
 -/
 
---NOTE: the fact that (is_trunc n A) is a mere proposition is proved in .hprop_trunc
+-- NOTE: the fact that (is_trunc n A) is a mere proposition is proved in .hprop_trunc
 
 import types.pi types.eq types.equiv .function
 

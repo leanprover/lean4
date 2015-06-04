@@ -8,7 +8,6 @@ files and directories:
 * [types](types/types.md) : concrete datatypes and type constructors
 * [hit](hit/hit.md): higher inductive types
 * [algebra](algebra/algebra.md) : algebraic structures
-* [cubical](cubical/cubical.md) : implementation of ideas from cubical type theory
 * [arity](arity.hlean) : a file containing theorems about functions with arity 2 or higher
 
 Lean's homotopy type theory kernel is a version of Martin-Löf Type Theory with:

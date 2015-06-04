@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Declaration of the interval
 -/
 
-import .suspension types.eq types.prod types.square
+import .suspension types.eq types.prod types.cubical.square
 open eq suspension unit equiv equiv.ops is_trunc nat prod
 
 definition interval : Type₀ := suspension unit

@@ -6,7 +6,7 @@ Author: Floris van Doorn
 Squareovers
 -/
 
-import types.square
+import .square
 
 open eq equiv is_equiv equiv.ops
 

@@ -7,7 +7,7 @@ Partially ported from Coq HoTT
 Theorems about path types (identity types)
 -/
 
-import .square
+import .cubical.square
 
 open eq sigma sigma.ops equiv is_equiv equiv.ops
 

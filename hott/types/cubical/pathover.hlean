@@ -7,7 +7,7 @@ Pathovers.
 Note that the basic definitions are in init.pathover
 -/
 
-import types.squareover
+import .squareover
 
 open eq equiv is_equiv equiv.ops
 
@@ -18,16 +18,6 @@ namespace eq
             {b b' : B a} {b₂ b₂' : B a₂} {b₃ : B a₃} {b₄ : B a₄}
             {c : C a b} {c₂ : C a₂ b₂}
             {q q' : a =[p] a₂}
-
-
---check λa, pathover (C a) (fc a) (h a) (gc a)
-
--- λa, pathover P (b a) (p a) (b' a)
-
-
-
--- pathover P b p b'
---set_option pp.notation false
 
   --in this version A' does not depend on A
   definition pathover_pathover_fl {a' a₂' : A'} {p : a' = a₂'} {a₂ : A} {f : A' → A}

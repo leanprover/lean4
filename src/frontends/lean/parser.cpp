@@ -542,11 +542,10 @@ bool parser::update_local_binder_info(name const & n, binder_info const & bi) {
     buffer<expr> new_locals;
     old_locals.push_back(*it);
     expr new_l = update_local(*it, bi);
-    m_local_decls.update(n, new_l);
+    entries[idx-1].second = new_l;
     new_locals.push_back(new_l);
 
     for (unsigned i = idx; i < entries.size(); i++) {
-        name const & curr_n = entries[i].first;
         expr const & curr_e = entries[i].second;
         expr r = is_local(curr_e) ? mlocal_type(curr_e) : curr_e;
         if (std::any_of(old_locals.begin(), old_locals.end(), [&](expr const & l) { return depends_on(r, l); })) {
@@ -554,14 +553,21 @@ bool parser::update_local_binder_info(name const & n, binder_info const & bi) {
                                  new_locals.size(), new_locals.data());
             if (is_local(curr_e)) {
                 expr new_e = update_mlocal(curr_e, r);
+                entries[i].second = new_e;
                 old_locals.push_back(curr_e);
                 new_locals.push_back(new_e);
-                m_local_decls.update(curr_n, new_e);
             } else {
-                m_local_decls.update(curr_n, r);
+                entries[i].second = r;
             }
         }
     }
+    auto new_entries = m_local_decls.get_entries();
+    unsigned sz_to_updt = entries.size() - idx + 1;
+    for (unsigned i = 0; i < sz_to_updt; i++)
+        new_entries = tail(new_entries); // remove entries that will be updated
+    for (unsigned i = idx-1; i < entries.size(); i++)
+        new_entries = cons(entries[i], new_entries);
+    m_local_decls.update_entries(new_entries);
     return true;
 }
 

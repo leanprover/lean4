@@ -38,13 +38,24 @@ public:
         lean_assert(m_counter > 0);
         return m_counter - 1;
     }
-    void update(name const & k, V const & v) {
-        if (auto it = m_map.find(k)) {
-            m_map.insert(k, mk_pair(v, it->second));
-        } else {
-            lean_unreachable();
+    void update_entries(entries const & new_entries) {
+        lean_assert(length(new_entries) == length(m_entries));
+        auto it1 = m_entries;
+        auto it2 = new_entries;
+        unsigned i = length(new_entries);
+        while (it1.raw() != it2.raw()) {
+            name const & k = head(it2).first;
+            V const & v    = head(it2).second;
+            lean_assert(m_map.find(k));
+            lean_assert_eq(m_map.find(k)->second, i);
+            m_map.insert(k, mk_pair(v, i));
+            it1 = tail(it1);
+            it2 = tail(it2);
+            --i;
         }
+        m_entries = new_entries;
     }
+
     V const * find(name const & k) const { auto it = m_map.find(k); return it ? &(it->first) : nullptr; }
     unsigned find_idx(name const & k) const { auto it = m_map.find(k); return it ? it->second : 0; }
     bool contains(name const & k) const { return m_map.contains(k); }

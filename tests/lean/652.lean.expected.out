@@ -1,0 +1,6 @@
+R : Π {b c : bool}, Prop
+R2 : bool → bool → Prop
+R3 : bool → bool → Prop
+R4 : bool → (Π {c : bool}, Prop)
+R5 : Π {b c : bool}, Prop
+R6 : Π {b : bool}, bool → Prop

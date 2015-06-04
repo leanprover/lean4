@@ -513,14 +513,18 @@ static environment redeclare_aliases(environment env, parser & p,
         return env;
     list<pair<name, expr>> new_entries = p.get_local_entries();
     buffer<pair<name, expr>> to_redeclare;
+    unsigned new_len = length(new_entries);
+    unsigned old_len = length(old_entries);
+    lean_assert(old_len >= new_len);
     name_set popped_locals;
-    while (!is_eqp(old_entries, new_entries)) {
+    while (old_len > new_len) {
         pair<name, expr> entry = head(old_entries);
         if (is_local_ref(entry.second))
             to_redeclare.push_back(entry);
         else if (is_local(entry.second))
             popped_locals.insert(mlocal_name(entry.second));
         old_entries = tail(old_entries);
+        old_len--;
     }
     name_set popped_levels;
     list<pair<name, level>> new_level_entries = p.get_local_level_entries();

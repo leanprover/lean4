@@ -40,9 +40,16 @@ theorem rfl {A : Type} {a : A} : a = a := eq.refl a
 theorem proof_irrel {a : Prop} (H₁ H₂ : a) : H₁ = H₂ :=
 rfl
 
+-- Remark: we provide the universe levels explicitly to make sure `eq.drec` has the same type of `eq.rec` in the HoTT library
+protected theorem eq.drec.{l₁ l₂} {A : Type.{l₂}} {a : A} {C : Π (x : A), a = x → Type.{l₁}} (h₁ : C a (eq.refl a)) {b : A} (h₂ : a = b) : C b h₂ :=
+eq.rec (λh₂ : a = a, show C a h₂, from h₁) h₂ h₂
+
 namespace eq
   variables {A : Type}
   variables {a b c a': A}
+
+  protected theorem drec_on {a : A} {C : Π (x : A), a = x → Type} {b : A} (h₂ : a = b) (h₁ : C a (refl a)) : C b h₂ :=
+  eq.drec h₁ h₂
 
   theorem subst {P : A → Prop} (H₁ : a = b) (H₂ : P a) : P b :=
   eq.rec H₂ H₁
@@ -58,9 +65,6 @@ namespace eq
     notation H1 ⬝ H2 := trans H1 H2
     notation H1 ▸ H2 := subst H1 H2
   end ops
-
-  protected theorem drec_on {B : Πa' : A, a = a' → Type} (H₁ : a = a') (H₂ : B a (refl a)) : B a' H₁ :=
-  eq.rec (λH₁ : a = a, show B a H₁, from H₂) H₁ H₁
 end eq
 
 theorem congr {A B : Type} {f₁ f₂ : A → B} {a₁ a₂ : A} (H₁ : f₁ = f₂) (H₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ :=

@@ -21,6 +21,7 @@ name const * g_eq = nullptr;
 name const * g_eq_elim_inv_inv = nullptr;
 name const * g_eq_intro = nullptr;
 name const * g_eq_rec = nullptr;
+name const * g_eq_drec = nullptr;
 name const * g_eq_rec_eq = nullptr;
 name const * g_eq_refl = nullptr;
 name const * g_eq_symm = nullptr;
@@ -157,6 +158,7 @@ void initialize_constants() {
     g_eq_elim_inv_inv = new name{"eq", "elim_inv_inv"};
     g_eq_intro = new name{"eq", "intro"};
     g_eq_rec = new name{"eq", "rec"};
+    g_eq_drec = new name{"eq", "drec"};
     g_eq_rec_eq = new name{"eq_rec_eq"};
     g_eq_refl = new name{"eq", "refl"};
     g_eq_symm = new name{"eq", "symm"};
@@ -294,6 +296,7 @@ void finalize_constants() {
     delete g_eq_elim_inv_inv;
     delete g_eq_intro;
     delete g_eq_rec;
+    delete g_eq_drec;
     delete g_eq_rec_eq;
     delete g_eq_refl;
     delete g_eq_symm;
@@ -430,6 +433,7 @@ name const & get_eq_name() { return *g_eq; }
 name const & get_eq_elim_inv_inv_name() { return *g_eq_elim_inv_inv; }
 name const & get_eq_intro_name() { return *g_eq_intro; }
 name const & get_eq_rec_name() { return *g_eq_rec; }
+name const & get_eq_drec_name() { return *g_eq_drec; }
 name const & get_eq_rec_eq_name() { return *g_eq_rec_eq; }
 name const & get_eq_refl_name() { return *g_eq_refl; }
 name const & get_eq_symm_name() { return *g_eq_symm; }

@@ -33,7 +33,7 @@ namespace eq
   definition pathover_pathover_fl {a' a₂' : A'} {p : a' = a₂'} {a₂ : A} {f : A' → A}
     {b : Πa, B (f a)} {b₂ : B a₂} {q : Π(a' : A'), f a' = a₂} (r : pathover B (b a') (q a') b₂)
     (r₂ : pathover B (b a₂') (q a₂') b₂)
-    (s : squareover B (naturality q p) r r₂ (pathover_ap B f (apdo b p)) (!ap_constant⁻¹ ▸ idpo))
+    (s : squareover B (natural_square q p) r r₂ (pathover_ap B f (apdo b p)) (!ap_constant⁻¹ ▸ idpo))
     : r =[p] r₂ :=
   by cases p; esimp at s; apply pathover_idp_of_eq; apply eq_of_vdeg_squareover; exact s
 

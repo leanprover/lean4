@@ -6,9 +6,9 @@ Authors: Floris van Doorn
 Declaration of suspension
 -/
 
-import .pushout
+import .pushout types.pointed
 
-open pushout unit eq equiv equiv.ops
+open pushout unit eq equiv equiv.ops pointed
 
 definition suspension (A : Type) : Type := pushout (λ(a : A), star.{0}) (λ(a : A), star.{0})
 
@@ -76,3 +76,36 @@ attribute suspension.rec suspension.elim [unfold-c 6] [recursor 6]
 attribute suspension.elim_type [unfold-c 5]
 attribute suspension.rec_on suspension.elim_on [unfold-c 3]
 attribute suspension.elim_type_on [unfold-c 2]
+
+namespace suspension
+
+  definition pointed_suspension [instance] [constructor] (A : Type) : pointed (suspension A) :=
+  pointed.mk !north
+
+  definition suspension_adjoint_loop (A B : Pointed)
+    : map₊ (pointed.mk' (suspension A)) B ≃ map₊ A (Ω B) :=
+  begin
+    fapply equiv.MK,
+    { intro f, fapply pointed_map.mk,
+       intro a, refine !respect_pt⁻¹ ⬝ ap f (merid a ⬝ (merid pt)⁻¹) ⬝ !respect_pt,
+       refine ap _ !con.right_inv ⬝ !con.left_inv},
+    { intro g, fapply pointed_map.mk,
+      { esimp, intro a, induction a,
+          exact pt,
+          exact pt,
+          exact g a} ,
+      { reflexivity}},
+    { intro g, fapply pointed_map_eq,
+        intro a, esimp [respect_pt], refine !idp_con ⬝ !ap_con ⬝ ap _ !ap_inv
+           ⬝ ap _ !elim_merid ⬝ ap _ !elim_merid ⬝ ap _ (respect_pt g) ⬝ _, exact idp,
+        -- rewrite [ap_con,ap_inv,+elim_merid,idp_con,respect_pt],
+       esimp, exact sorry},
+    { intro f, fapply pointed_map_eq,
+      { esimp, intro a, induction a; all_goals esimp,
+          exact !respect_pt⁻¹,
+          exact !respect_pt⁻¹ ⬝ ap f (merid pt),
+          apply pathover_eq, exact sorry},
+      { esimp, exact !con.left_inv⁻¹}},
+  end
+
+end suspension

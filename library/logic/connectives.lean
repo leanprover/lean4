@@ -254,6 +254,13 @@ iff.intro (assume H, trivial) (assume H, Ha)
 theorem iff_self (a : Prop) : (a ↔ a) ↔ true :=
 iff_true_of_self !iff.refl
 
+theorem forall_iff_forall {A : Type} {P Q : A → Prop} (H : ∀a, (P a ↔ Q a)) : (∀a, P a) ↔ ∀a, Q a :=
+iff.intro (λp a, iff.elim_left (H a) (p a)) (λq a, iff.elim_right (H a) (q a))
+
+theorem imp_iff {P : Prop} (Q : Prop) (p : P) : (P → Q) ↔ Q :=
+iff.intro (λf, f p) (λq p, q)
+
+
 /- if-then-else -/
 
 section

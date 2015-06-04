@@ -7,6 +7,8 @@ Partially ported from Coq HoTT
 Theorems about path types (identity types)
 -/
 
+import .square
+
 open eq sigma sigma.ops equiv is_equiv equiv.ops
 
 -- TODO: Rename transport_eq_... and pathover_eq_... to eq_transport_... and eq_pathover_...
@@ -19,7 +21,7 @@ namespace eq
   /- The path spaces of a path space are not, of course, determined; they are just the
       higher-dimensional structure of the original space. -/
 
-  /- some lemmas about whiskering -/
+  /- some lemmas about whiskering or other higher paths -/
 
   definition whisker_left_con_right (p : a1 = a2) {q q' q'' : a2 = a3} (r : q = q') (s : q' = q'')
     : whisker_left p (r ⬝ s) = whisker_left p r ⬝ whisker_left p s :=
@@ -50,6 +52,15 @@ namespace eq
   begin
     cases p, cases r, cases q, exact idp
   end
+
+  definition con_right_inv2 (p : a1 = a2) : (con.right_inv p)⁻¹ ⬝ con.right_inv p = idp :=
+  by cases p;exact idp
+
+  definition con_left_inv2 (p : a1 = a2) : (con.left_inv p)⁻¹ ⬝ con.left_inv p = idp :=
+  by cases p;exact idp
+
+  definition ap_eq_ap10 {f g : A → B} (p : f = g) (a : A) : ap (λh, h a) p = ap10 p a :=
+  by cases p;exact idp
 
   /- Transporting in path spaces.
 
@@ -100,6 +111,10 @@ namespace eq
   /- Pathovers -/
 
   -- In the comment we give the fibration of the pathover
+
+  definition pathover_eq {f g : A → B} {p : a1 = a2} {q : f a1 = g a1} {r : f a2 = g a2}
+    (s : square q r (ap f p) (ap g p)) : q =[p] r :=
+  by cases p;apply pathover_idp_of_eq;exact eq_of_vdeg_square s
 
   definition pathover_eq_l (p : a1 = a2) (q : a1 = a3) : q =[p] p⁻¹ ⬝ q := /-(λx, x = a3)-/
   by cases p; cases q; exact idpo
@@ -160,7 +175,7 @@ namespace eq
   definition eq_equiv_eq_symm (a1 a2 : A) : (a1 = a2) ≃ (a2 = a1) :=
   equiv.mk inverse _
 
-  definition is_equiv_concat_left [instance] (p : a1 = a2) (a3 : A)
+  definition is_equiv_concat_left [constructor] [instance] (p : a1 = a2) (a3 : A)
     : is_equiv (concat p : a2 = a3 → a1 = a3) :=
   is_equiv.mk (concat p) (concat p⁻¹)
               (con_inv_cancel_left p)
@@ -168,10 +183,10 @@ namespace eq
               (λq, by cases p;cases q;exact idp)
   local attribute is_equiv_concat_left [instance]
 
-  definition equiv_eq_closed_left (a3 : A) (p : a1 = a2) : (a1 = a3) ≃ (a2 = a3) :=
+  definition equiv_eq_closed_left [constructor] (a3 : A) (p : a1 = a2) : (a1 = a3) ≃ (a2 = a3) :=
   equiv.mk (concat p⁻¹) _
 
-  definition is_equiv_concat_right [instance] (p : a2 = a3) (a1 : A)
+  definition is_equiv_concat_right [constructor] [instance] (p : a2 = a3) (a1 : A)
     : is_equiv (λq : a1 = a2, q ⬝ p) :=
   is_equiv.mk (λq, q ⬝ p) (λq, q ⬝ p⁻¹)
               (λq, inv_con_cancel_right q p)
@@ -179,10 +194,10 @@ namespace eq
               (λq, by cases p;cases q;exact idp)
   local attribute is_equiv_concat_right [instance]
 
-  definition equiv_eq_closed_right (a1 : A) (p : a2 = a3) : (a1 = a2) ≃ (a1 = a3) :=
+  definition equiv_eq_closed_right [constructor] (a1 : A) (p : a2 = a3) : (a1 = a2) ≃ (a1 = a3) :=
   equiv.mk (λq, q ⬝ p) _
 
-  definition eq_equiv_eq_closed (p : a1 = a2) (q : a3 = a4) : (a1 = a3) ≃ (a2 = a4) :=
+  definition eq_equiv_eq_closed [constructor] (p : a1 = a2) (q : a3 = a4) : (a1 = a3) ≃ (a2 = a4) :=
   equiv.trans (equiv_eq_closed_left a3 p) (equiv_eq_closed_right a2 q)
 
   definition is_equiv_whisker_left (p : a1 = a2) (q r : a2 = a3)

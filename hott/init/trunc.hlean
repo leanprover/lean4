@@ -38,8 +38,8 @@ namespace is_trunc
 
   definition leq (n m : trunc_index) : Type₀ :=
   trunc_index.rec_on n (λm, unit) (λ n p m, trunc_index.rec_on m (λ p, empty) (λ m q p, p m) p) m
-  notation x <= y := trunc_index.leq x y
-  notation x ≤ y := trunc_index.leq x y
+  infix <= := trunc_index.leq
+  infix ≤  := trunc_index.leq
   end trunc_index
 
   infix `+2+`:65 := trunc_index.add
@@ -51,7 +51,7 @@ namespace is_trunc
   definition empty_of_succ_le_minus_two {n : trunc_index} (H : n .+1 ≤ -2) : empty := H
   end trunc_index
   definition trunc_index.of_nat [coercion] [reducible] (n : nat) : trunc_index :=
-  nat.rec_on n (-1.+1) (λ n k, k.+1)
+  (nat.rec_on n -2 (λ n k, k.+1)).+2
 
   definition sub_two [reducible] (n : nat) : trunc_index :=
   nat.rec_on n -2 (λ n k, k.+1)

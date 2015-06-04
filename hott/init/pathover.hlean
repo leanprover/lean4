@@ -79,6 +79,9 @@ namespace eq
   definition apdo [unfold-c 6] (f : Πa, B a) (p : a = a₂) : f a =[p] f a₂ :=
   eq.rec_on p idpo
 
+  definition oap [unfold-c 6] {C : A → Type} (f : Πa, B a → C a) (p : a = a₂) : f a =[p] f a₂ :=
+  eq.rec_on p idpo
+
   -- infix `⬝` := concato
   infix `⬝o`:75 := concato
   -- postfix `⁻¹` := inverseo

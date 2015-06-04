@@ -246,6 +246,12 @@ equiv.mk apd10 _
 definition eq_of_homotopy [reducible] : f ∼ g → f = g :=
 (@apd10 A P f g)⁻¹
 
+definition apd10_eq_of_homotopy (p : f ∼ g) : apd10 (eq_of_homotopy p) = p :=
+right_inv apd10 p
+
+definition eq_of_homotopy_apd10 (p : f = g) : eq_of_homotopy (apd10 p) = p :=
+left_inv apd10 p
+
 definition eq_of_homotopy_idp (f : Π x, P x) : eq_of_homotopy (λx : A, idpath (f x)) = idpath f :=
 is_equiv.left_inv apd10 idp
 

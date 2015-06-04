@@ -41,7 +41,7 @@ namespace is_equiv
   protected abbreviation mk [constructor] := @is_equiv.mk' A B f
 
   -- The identity function is an equivalence.
-  definition is_equiv_id (A : Type) : (@is_equiv A A id) :=
+  definition is_equiv_id (A : Type) : (is_equiv (id : A → A)) :=
   is_equiv.mk id id (λa, idp) (λa, idp) (λa, idp)
 
   -- The composition of two equivalences is, again, an equivalence.
@@ -266,13 +266,15 @@ namespace equiv
     -- notation for inverse which is not overloaded
   abbreviation erfl [constructor] := @equiv.refl
 
-  definition equiv_of_eq_fn_of_equiv (f : A ≃ B) {f' : A → B} (Heq : f = f') : A ≃ B :=
+  definition equiv_of_eq_fn_of_equiv [constructor] (f : A ≃ B) {f' : A → B} (Heq : f = f') : A ≃ B :=
   equiv.mk f' (is_equiv_eq_closed Heq)
 
-  definition eq_equiv_fn_eq (f : A → B) [H : is_equiv f] (a b : A) : (a = b) ≃ (f a = f b) :=
+  --rename: eq_equiv_fn_eq_of_is_equiv
+  definition eq_equiv_fn_eq [constructor] (f : A → B) [H : is_equiv f] (a b : A) : (a = b) ≃ (f a = f b) :=
   equiv.mk (ap f) !is_equiv_ap
 
-  definition eq_equiv_fn_eq_of_equiv (f : A ≃ B) (a b : A) : (a = b) ≃ (f a = f b) :=
+  --rename: eq_equiv_fn_eq
+  definition eq_equiv_fn_eq_of_equiv [constructor] (f : A ≃ B) (a b : A) : (a = b) ≃ (f a = f b) :=
   equiv.mk (ap f) !is_equiv_ap
 
   definition equiv_ap (P : A → Type) {a b : A} (p : a = b) : (P a) ≃ (P b) :=

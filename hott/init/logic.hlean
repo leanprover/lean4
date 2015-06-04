@@ -181,6 +181,13 @@ namespace iff
   open eq.ops
   definition of_eq {a b : Type} (H : a = b) : a ↔ b :=
   iff.intro (λ Ha, H ▸ Ha) (λ Hb, H⁻¹ ▸ Hb)
+
+  definition pi_iff_pi {A : Type} {P Q : A → Type} (H : Πa, (P a ↔ Q a)) : (Πa, P a) ↔ Πa, Q a :=
+  iff.intro (λp a, iff.elim_left (H a) (p a)) (λq a, iff.elim_right (H a) (q a))
+
+  theorem imp_iff {P : Type} (Q : Type) (p : P) : (P → Q) ↔ Q :=
+  iff.intro (λf, f p) (λq p, q)
+
 end iff
 
 attribute iff.refl [refl]
@@ -287,7 +294,7 @@ definition decidable_pred [reducible] {A : Type} (R : A   →   Type) := Π (a  
 definition decidable_rel  [reducible] {A : Type} (R : A → A → Type) := Π (a b : A), decidable (R a b)
 definition decidable_eq   [reducible] (A : Type) := decidable_rel (@eq A)
 definition decidable_ne [instance] {A : Type} [H : decidable_eq A] : decidable_rel (@ne A) :=
-show ∀ x y : A, decidable (x = y → empty), from _
+show Π x y : A, decidable (x = y → empty), from _
 
 definition ite (c : Type) [H : decidable c] {A : Type} (t e : A) : A :=
 decidable.rec_on H (λ Hc, t) (λ Hnc, e)

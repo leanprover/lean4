@@ -91,7 +91,7 @@ namespace eq
     { intro s, cases s, apply idp},
   end
 
-  definition naturality [unfold-c 8] {f g : A → B} (p : f ∼ g) (q : a = a') :
+  definition natural_square [unfold-c 8] {f g : A → B} (p : f ∼ g) (q : a = a') :
     square (p a) (p a') (ap f q) (ap g q) :=
   eq.rec_on q vrfl
 

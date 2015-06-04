@@ -130,8 +130,7 @@ namespace is_trunc
   section
   open decidable
   --this is proven differently in init.hedberg
-  definition is_hset_of_decidable_eq (A : Type)
-    [H : decidable_eq A] : is_hset A :=
+  definition is_hset_of_decidable_eq (A : Type) [H : decidable_eq A] : is_hset A :=
   is_hset_of_double_neg_elim (λa b, by_contradiction)
   end
 
@@ -148,17 +147,43 @@ namespace is_trunc
   end
 
   definition is_trunc_succ_iff_is_trunc_loop (A : Type) (Hn : -1 ≤ n) :
-    (Π(a : A), is_trunc n (a = a)) ↔ is_trunc (n.+1) A :=
-  iff.intro (is_trunc_succ_of_is_trunc_loop Hn) _
+    is_trunc (n.+1) A ↔ Π(a : A), is_trunc n (a = a) :=
+  iff.intro _ (is_trunc_succ_of_is_trunc_loop Hn)
 
-  definition is_trunc_iff_is_contr_loop' {n : ℕ}
-    : (Π(a : A), is_contr (Ω[ n ](Pointed.mk a))) ↔ is_trunc (n.-2.+1) A :=
+--  set_option pp.implicit true
+  -- set_option pp.coercions true
+  -- set_option pp.notation false
+  definition is_trunc_iff_is_contr_loop_succ (n : ℕ) (A : Type)
+    : is_trunc n A ↔ Π(a : A), is_contr (Ω[succ n](Pointed.mk a)) :=
   begin
-    induction n with n H,
-    { esimp [sub_two,Pointed.Iterated_loop_space], apply iff.intro,
-        intro H, apply is_hprop_of_imp_is_contr, exact H,
-        intro H a, exact is_contr_of_inhabited_hprop a},
-    { exact sorry},
+    revert A, induction n with n IH,
+      { intros, esimp [Iterated_loop_space], apply iff.intro,
+        { intros H a, apply is_contr.mk idp, apply is_hprop.elim},
+        { intro H, apply is_hset_of_axiom_K, intros, apply is_hprop.elim}},
+      { intros, transitivity _, apply @is_trunc_succ_iff_is_trunc_loop n, constructor,
+        apply iff.pi_iff_pi, intros,
+        transitivity _, apply IH,
+        assert H : Πp : a = a, Ω(Pointed.mk p) = Ω(Pointed.mk (idpath a)),
+        { intros, fapply Pointed_eq,
+          { esimp, transitivity _,
+            apply eq_equiv_fn_eq_of_equiv (equiv_eq_closed_right _ p⁻¹),
+            esimp, apply eq_equiv_eq_closed, apply con.right_inv, apply con.right_inv},
+          { esimp, apply con_right_inv2}},
+        transitivity _,
+          apply iff.pi_iff_pi, intro p,
+          rewrite [↑Iterated_loop_space,↓Iterated_loop_space (Loop_space (pointed.Mk p)) n,H],
+          apply iff.refl,
+        apply iff.imp_iff, reflexivity}
+  end
+
+  definition is_trunc_iff_is_contr_loop (n : ℕ) (A : Type)
+    : is_trunc (n.-2.+1) A ↔ (Π(a : A), is_contr (Ω[n](pointed.Mk a))) :=
+  begin
+    cases n with n,
+    { esimp [sub_two,Iterated_loop_space], apply iff.intro,
+        intro H a, exact is_contr_of_inhabited_hprop a,
+        intro H, apply is_hprop_of_imp_is_contr, exact H},
+    { apply is_trunc_iff_is_contr_loop_succ},
   end
 
 end is_trunc open is_trunc

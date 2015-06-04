@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Theorems about the booleans
 -/
 
-open is_equiv eq equiv function is_trunc
+open is_equiv eq equiv function is_trunc option unit
 
 namespace bool
 
@@ -35,4 +35,13 @@ namespace bool
   definition not_is_hset_type : ¬is_hset Type₀ :=
   assume H : is_hset Type₀,
   absurd !is_hset.elim eq_bnot_ne_idp
+
+  definition bool_equiv_option_unit : bool ≃ option unit :=
+  begin
+    fapply equiv.MK,
+    { intro b, cases b, exact none, exact some star},
+    { intro u, cases u, exact ff, exact tt},
+    { intro u, cases u with u, reflexivity, cases u, reflexivity},
+    { intro b, cases b, reflexivity, reflexivity},
+  end
 end bool

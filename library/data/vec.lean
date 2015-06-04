@@ -65,7 +65,7 @@ namespace vec
   | (tag l h) := list.last l (ne_nil_of_length_eq_succ h)
 
   definition map {n : nat} (f : A → B) : vec A n → vec B n
-  | (tag l h) := tag (list.map f l) (by clear map; substvars; rewrite len_map)
+  | (tag l h) := tag (list.map f l) (by clear map; substvars; rewrite length_map)
 
   theorem map_nil (f : A → B) : map f nil = nil :=
   rfl
@@ -74,7 +74,7 @@ namespace vec
   by induction v; reflexivity
 
   theorem map_tag {n : nat} (f : A → B) (l : list A) (h : length l = n)
-                   : map f (tag l h) = tag (list.map f l) (by substvars; rewrite len_map) :=
+                   : map f (tag l h) = tag (list.map f l) (by substvars; rewrite length_map) :=
   by reflexivity
 
   theorem map_map {n : nat} (g : B → C) (f : A → B) (v : vec A n) : map g (map f v) = map (g ∘ f) v :=

@@ -33,11 +33,11 @@ theorem map_map (g : B → C) (f : A → B) : ∀ l, map g (map f l) = map (g �
   show (g ∘ f) a :: map g (map f l) = map (g ∘ f) (a :: l),
   by rewrite (map_map l)
 
-theorem len_map (f : A → B) : ∀ l : list A, length (map f l) = length l
+theorem length_map (f : A → B) : ∀ l : list A, length (map f l) = length l
 | []       := by esimp
 | (a :: l) :=
   show length (map f l) + 1 = length l + 1,
-  by rewrite (len_map l)
+  by rewrite (length_map l)
 
 theorem mem_map {A B : Type} (f : A → B) : ∀ {a l}, a ∈ l → f a ∈ map f l
 | a []      i := absurd i !not_mem_nil
@@ -356,6 +356,13 @@ theorem mem_of_mem_product_right {a : A} {b : B} : ∀ {l₁ l₂}, (a, b) ∈ p
       mem_of_mem_map_pair₁ abin)
     (λ abin : (a, b) ∈ product l₁ l₂,
       mem_of_mem_product_right abin)
+
+theorem length_product : ∀ (l₁ : list A) (l₂ : list B), length (product l₁ l₂) = length l₁ * length l₂
+| []      l₂ := by rewrite [length_nil, zero_mul]
+| (x::l₁) l₂ :=
+  assert ih : length (product l₁ l₂) = length l₁ * length l₂, from length_product l₁ l₂,
+  by rewrite [product_cons, length_append, length_cons,
+              length_map, ih, mul.right_distrib, one_mul, add.comm]
 end product
 end list
 

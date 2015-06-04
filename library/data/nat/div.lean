@@ -442,7 +442,7 @@ have H3 : m * k < (succ (n div k)) * k, from
       ... = n div k * k + n mod k      : eq_div_mul_add_mod
       ... < n div k * k + k            : add_lt_add_left (!mod_lt H1)
       ... = (succ (n div k)) * k       : succ_mul,
-lt_of_mul_lt_mul_right H3
+le_of_lt_succ (lt_of_mul_lt_mul_right H3)
 
 theorem le_div_iff_mul_le {m n k : ℕ} (H : k > 0) : m ≤ n div k ↔ m * k ≤ n :=
 iff.intro !mul_le_of_le_div (!le_div_of_mul_le H)

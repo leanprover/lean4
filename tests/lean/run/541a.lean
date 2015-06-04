@@ -1,8 +1,6 @@
 import data.list data.nat
 open nat list eq.ops
 
-theorem nat.le_of_eq {x y : ℕ} (H : x = y) : x ≤ y := H ▸ !le.refl
-
 section
 
 variable {Q : Type}

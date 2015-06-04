@@ -34,7 +34,7 @@ theorem sqrt_aux_lower : ∀ {s n : nat}, s ≤ n → sqrt_aux s n * sqrt_aux s 
 | (succ s) n h := by_cases
   (λ h₁ : (succ s)*(succ s) ≤ n,   by rewrite [sqrt_aux_succ_of_pos h₁]; exact h₁)
   (λ h₂ : ¬ (succ s)*(succ s) ≤ n,
-     assert aux : s ≤ n, from lt.step (lt_of_succ_le h),
+     assert aux : s ≤ n, from le_of_succ_le h,
      by rewrite [sqrt_aux_succ_of_neg h₂]; exact (sqrt_aux_lower aux))
 
 theorem sqrt_lower (n : nat) : sqrt n * sqrt n ≤ n :=
@@ -47,7 +47,7 @@ theorem sqrt_aux_upper : ∀ {s n : nat}, n ≤ s*s + s + s → n ≤ sqrt_aux s
     by rewrite [sqrt_aux_succ_of_pos h₁]; exact h)
   (λ h₂ : ¬ (succ s)*(succ s) ≤ n,
     assert h₃ : n < (succ s) * (succ s), from lt_of_not_ge h₂,
-    assert h₄ : n ≤ s * s + s + s, by rewrite [succ_mul_succ_eq at h₃]; exact h₃,
+    assert h₄ : n ≤ s * s + s + s, by rewrite [succ_mul_succ_eq at h₃]; exact le_of_lt_succ h₃,
     by rewrite [sqrt_aux_succ_of_neg h₂]; exact (sqrt_aux_upper h₄))
 
 theorem sqrt_upper (n : nat) : n ≤ sqrt n * sqrt n + sqrt n + sqrt n :=
@@ -68,7 +68,7 @@ theorem sqrt_aux_offset_eq {n k : nat} (h₁ : k ≤ n + n) : ∀ {s}, s ≥ n �
 | (succ s) h₂ := by_cases
   (λ hl : (succ s)*(succ s) ≤ n*n + k,
      have   l₁ : n*n + k ≤ n*n + n + n,       from by rewrite [add.assoc]; exact (add_le_add_left h₁ (n*n)),
-     assert l₂ : n*n + k < n*n + n + n + 1,   from l₁,
+     assert l₂ : n*n + k < n*n + n + n + 1,   from lt_succ_of_le l₁,
      have   l₃ : n*n + k < (succ n)*(succ n), by rewrite [-succ_mul_succ_eq at l₂]; exact l₂,
      assert l₄ : (succ s)*(succ s) < (succ n)*(succ n), from lt_of_le_of_lt hl l₃,
      have   ng : ¬ succ s > (succ n), from
@@ -79,7 +79,7 @@ theorem sqrt_aux_offset_eq {n k : nat} (h₁ : k ≤ n + n) : ∀ {s}, s ≥ n �
      have ssnesn  : succ s ≠ succ n, from
        assume sseqsn : succ s = succ n,
          by rewrite [sseqsn at l₄]; exact (absurd l₄ !lt.irrefl),
-     have   sslen : succ s ≤ n, from lt_of_le_and_ne sslesn ssnesn,
+     have   sslen : s < n, from lt_of_succ_lt_succ (lt_of_le_and_ne sslesn ssnesn),
      assert sseqn : succ s = n, from le.antisymm sslen h₂,
      by rewrite [sqrt_aux_succ_of_pos hl]; exact sseqn)
   (λ hg : ¬ (succ s)*(succ s) ≤ n*n + k,
@@ -88,8 +88,8 @@ theorem sqrt_aux_offset_eq {n k : nat} (h₁ : k ≤ n + n) : ∀ {s}, s ≥ n �
         have p : n*n ≤ n*n + k, from !le_add_right,
         have n : ¬ n*n ≤ n*n + k, by rewrite [-neqss at hg]; exact hg,
         absurd p n)
-     (λ sgen : s ≥ n,
-        by rewrite [sqrt_aux_succ_of_neg hg]; exact (sqrt_aux_offset_eq sgen)))
+     (λ sgen : succ s > n,
+        by rewrite [sqrt_aux_succ_of_neg hg]; exact (sqrt_aux_offset_eq (le_of_lt_succ sgen))))
 
 theorem sqrt_offset_eq {n k : nat} : k ≤ n + n → sqrt (n*n + k) = n :=
 assume h,

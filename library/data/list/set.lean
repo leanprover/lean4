@@ -462,9 +462,12 @@ assume i, mem_cons_of_mem _ i
 
 theorem mem_upto_of_lt : ∀ {n i : nat}, i < n → i ∈ upto n
 | 0        i h := absurd h !not_lt_zero
-| (succ n) i h := or.elim (eq_or_lt_of_le h)
-  (λ ieqn : i = n, by rewrite [ieqn, upto_succ]; exact !mem_cons)
-  (λ iltn : i < n, mem_upto_succ_of_mem_upto (mem_upto_of_lt iltn))
+| (succ n) i h :=
+begin
+  cases h with m h',
+  { rewrite upto_succ, apply mem_cons},
+  { exact mem_upto_succ_of_mem_upto (mem_upto_of_lt h')}
+end
 
 /- union -/
 section union

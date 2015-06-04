@@ -24,7 +24,7 @@ private lemma lbp_zero : lbp 0 :=
 
 private lemma lbp_succ {x : nat} : lbp x → ¬ p x → lbp (succ x) :=
 λ lx npx y yltsx,
-  or.elim (eq_or_lt_of_le yltsx)
+  or.elim (eq_or_lt_of_le (le_of_succ_le_succ yltsx))
     (λ yeqx, by substvars; assumption)
     (λ yltx, lx y yltx)
 
@@ -46,7 +46,7 @@ acc.intro x (λ (y : nat) (l : y ≺ x),
    by_cases
      (λ yeqx : y = succ x, by substvars; assumption)
      (λ ynex : y ≠ succ x,
-        have ygtsx : succ x < y, from lt_of_le_and_ne (succ_lt_succ ygtx) (ne.symm ynex),
+        have ygtsx : succ x < y, from lt_of_le_and_ne ygtx (ne.symm ynex),
         acc.inv h (and.intro ygtsx (and.elim_right l))))
 
 private lemma acc_of_px_of_gt {x y : nat} : p x → y > x → acc gtb y :=
@@ -61,7 +61,7 @@ private lemma acc_of_acc_of_lt : ∀ {x y : nat}, acc gtb x → y < x → acc gt
   assert ax : acc gtb x, from acc_of_acc_succ asx,
   by_cases
      (λ yeqx : y = x, by substvars; assumption)
-     (λ ynex : y ≠ x, acc_of_acc_of_lt ax (lt_of_le_and_ne yltsx ynex))
+     (λ ynex : y ≠ x, acc_of_acc_of_lt ax (lt_of_le_and_ne (le_of_lt_succ yltsx) ynex))
 
 parameter (ex : ∃ a, p a)
 parameter [dp : decidable_pred p]

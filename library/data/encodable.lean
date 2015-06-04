@@ -42,7 +42,7 @@ encodable.mk
     begin
     cases o with a,
       begin esimp end,
-      begin esimp, rewrite [if_neg !succ_ne_zero, pred_succ, encodable.encodek] end
+      begin esimp, rewrite [if_neg !succ_ne_zero, encodable.encodek] end
     end)
 
 section sum

@@ -37,7 +37,8 @@ take x, assume Ha : x ∈ a, eq.trans (H₁ Ha) (H₂ Ha)
 
 protected theorem equiv.is_equivalence {X Y : Type} (a : set X) (b : set Y) :
   equivalence (@map.equiv X Y a b) :=
-mk_equivalence (@map.equiv X Y a b) (@equiv.refl X Y a b) (@equiv.symm X Y a b) (@equiv.trans X Y a b)
+mk_equivalence (@map.equiv X Y a b) (@equiv.refl X Y a b) (@equiv.symm X Y a b)
+    (@equiv.trans X Y a b)
 
 /- compose -/
 
@@ -73,7 +74,8 @@ theorem surjective_of_equiv {f1 f2 : map a b} (H1 : f1 ~ f2) (H2 : map.surjectiv
   map.surjective f2 :=
 surj_on_of_eq_on H1 H2
 
-theorem surjective_compose {g : map b c} {f : map a b} (Hg : map.surjective g) (Hf: map.surjective f) :
+theorem surjective_compose {g : map b c} {f : map a b} (Hg : map.surjective g)
+    (Hf: map.surjective f) :
   map.surjective (g ∘ f) :=
 surj_on_compose Hg Hf
 
@@ -109,7 +111,8 @@ theorem injective_of_left_inverse {g : map b a} {f : map a b} (H : map.left_inve
 inj_on_of_left_inv_on H
 
 theorem left_inverse_compose {f' : map b a} {g' : map c b} {g : map b c} {f : map a b}
-    (Hf : map.left_inverse f' f) (Hg : map.left_inverse g' g) : map.left_inverse (f' ∘ g') (g ∘ f) :=
+    (Hf : map.left_inverse f' f) (Hg : map.left_inverse g' g) :
+  map.left_inverse (f' ∘ g') (g ∘ f) :=
 left_inv_on_compose (mapsto f) Hf Hg
 
 /- right inverse -/
@@ -125,12 +128,23 @@ theorem right_inverse_of_equiv_right {g : map b a} {f1 f2 : map a b} (eqf : f1 ~
   (H : map.right_inverse g f1) : map.right_inverse g f2 :=
 map.left_inverse_of_equiv_left eqf H
 
+theorem right_inverse_of_injective_of_left_inverse {f : map a b} {g : map b a}
+    (injf : map.injective f) (lfg : map.left_inverse f g) :
+  map.right_inverse f g :=
+right_inv_on_of_inj_on_of_left_inv_on (mapsto f) (mapsto g) injf lfg
+
 theorem surjective_of_right_inverse {g : map b a} {f : map a b} (H : map.right_inverse g f) :
   map.surjective f :=
 surj_on_of_right_inv_on (mapsto g) H
 
+theorem left_inverse_of_surjective_of_right_inverse {f : map a b} {g : map b a}
+    (surjf : map.surjective f) (rfg : map.right_inverse f g) :
+  map.left_inverse f g :=
+left_inv_on_of_surj_on_right_inv_on surjf rfg
+
 theorem right_inverse_compose {f' : map b a} {g' : map c b} {g : map b c} {f : map a b}
-    (Hf : map.right_inverse f' f) (Hg : map.right_inverse g' g) : map.right_inverse (f' ∘ g') (g ∘ f) :=
+    (Hf : map.right_inverse f' f) (Hg : map.right_inverse g' g) :
+  map.right_inverse (f' ∘ g') (g ∘ f) :=
 map.left_inverse_compose Hg Hf
 
 theorem equiv_of_map.left_inverse_of_right_inverse {g1 g2 : map b a} {f : map a b}
@@ -143,7 +157,8 @@ eq_on_of_left_inv_of_right_inv (mapsto g2) H1 H2
 protected definition is_inverse (g : map b a) (f : map a b) : Prop :=
 map.left_inverse g f ∧ map.right_inverse g f
 
-theorem bijective_of_is_inverse {g : map b a} {f : map a b} (H : map.is_inverse g f) : map.bijective f :=
+theorem bijective_of_is_inverse {g : map b a} {f : map a b} (H : map.is_inverse g f) :
+  map.bijective f :=
 and.intro
   (injective_of_left_inverse (and.left H))
   (surjective_of_right_inverse (and.right H))

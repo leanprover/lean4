@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Leonardo de Moura
+Author: Leonardo de Moura, Jeremy Avigad, Haitao Zhang
 
 General operations on functions.
 -/
@@ -65,53 +65,91 @@ infixl  on                 := on_fun
 infixr  $                  := app
 notation f `-[` op `]-` g  := combine f op g
 
-lemma left_inv_eq {finv : B → A} {f : A → B} (linv : finv ∘ f = id) : ∀ x, finv (f x) = x :=
-take x, show (finv ∘ f) x = x, by rewrite linv
+lemma left_id (f : A → B) : id ∘ f = f := rfl
 
-lemma right_inv_eq {finv : B → A} {f : A → B} (rinv : f ∘ finv = id) : ∀ x, f (finv x) = x :=
-take x, show (f ∘ finv) x = x, by rewrite rinv
+lemma right_id (f : A → B) : f ∘ id = f := rfl
 
-definition injective (f : A → B) : Prop := ∀ a₁ a₂, f a₁ = f a₂ → a₁ = a₂
+theorem compose.assoc (f : C → D) (g : B → C) (h : A → B) : (f ∘ g) ∘ h = f ∘ (g ∘ h) := rfl
+
+theorem compose.left_id (f : A → B) : id ∘ f = f := rfl
+
+theorem compose.right_id (f : A → B) : f ∘ id = f := rfl
+
+theorem compose_const_right (f : B → C) (b : B) : f ∘ (const A b) = const A (f b) := rfl
+
+definition injective (f : A → B) : Prop := ∀ ⦃a₁ a₂⦄, f a₁ = f a₂ → a₁ = a₂
+
+theorem injective_compose {g : B → C} {f : A → B} (Hg : injective g) (Hf : injective f) :
+  injective (g ∘ f) :=
+take a₁ a₂, assume Heq, Hf (Hg Heq)
 
 definition surjective (f : A → B) : Prop := ∀ b, ∃ a, f a = b
 
-definition has_left_inverse (f : A → B) : Prop := ∃ finv : B → A, finv ∘ f = id
+theorem surjective_compose {g : B → C} {f : A → B} (Hg : surjective g) (Hf : surjective f) :
+  surjective (g ∘ f) :=
+take c,
+  obtain b (Hb : g b = c), from Hg c,
+  obtain a (Ha : f a = b), from Hf b,
+  exists.intro a (eq.trans (congr_arg g Ha) Hb)
 
-definition has_right_inverse (f : A → B) : Prop := ∃ finv : B → A, f ∘ finv = id
+definition bijective (f : A → B) := injective f ∧ surjective f
 
-lemma injective_of_has_left_inverse {f : A → B} : has_left_inverse f → injective f :=
+theorem bijective_compose {g : B → C} {f : A → B} (Hg : bijective g) (Hf : bijective f) :
+  bijective (g ∘ f) :=
+obtain Hginj Hgsurj, from Hg,
+obtain Hfinj Hfsurj, from Hf,
+and.intro (injective_compose Hginj Hfinj) (surjective_compose Hgsurj Hfsurj)
+
+-- g is a left inverse to f
+definition left_inverse (g : B → A) (f : A → B) : Prop := ∀x, g (f x) = x
+
+definition has_left_inverse (f : A → B) : Prop := ∃ finv : B → A, left_inverse finv f
+
+-- g is a right inverse to f
+definition right_inverse (g : B → A) (f : A → B) : Prop := left_inverse f g
+
+definition has_right_inverse (f : A → B) : Prop := ∃ finv : B → A, right_inverse finv f
+
+theorem injective_of_has_left_inverse {f : A → B} : has_left_inverse f → injective f :=
 assume h, take a b, assume faeqfb,
-obtain (finv : B → A) (inv : finv ∘ f = id), from h,
-calc a = finv (f a) : by rewrite (left_inv_eq inv)
+obtain (finv : B → A) (inv : left_inverse finv f), from h,
+calc a = finv (f a) : by rewrite inv
    ... = finv (f b) : faeqfb
-   ... = b          : by rewrite (left_inv_eq inv)
+   ... = b          : by rewrite inv
 
-lemma surjective_of_has_right_inverse {f : A → B} : has_right_inverse f → surjective f :=
+theorem right_inverse_of_injective_of_left_inverse {f : A → B} {g : B → A}
+    (injf : injective f) (lfg : left_inverse f g) :
+  right_inverse f g :=
+take x,
+have H : f (g (f x)) = f x, from lfg (f x),
+injf H
+
+theorem surjective_of_has_right_inverse {f : A → B} : has_right_inverse f → surjective f :=
 assume h, take b,
-obtain (finv : B → A) (inv : f ∘ finv = id), from h,
+obtain (finv : B → A) (inv : right_inverse finv f), from h,
 let  a : A := finv b in
 have h : f a = b, from calc
   f a  = (f ∘ finv) b : rfl
-   ... = id b         : by rewrite (right_inv_eq inv)
+   ... = id b         : by rewrite inv
    ... = b            : rfl,
 exists.intro a h
 
-  theorem compose.assoc (f : C → D) (g : B → C) (h : A → B) : (f ∘ g) ∘ h = f ∘ (g ∘ h) :=
-  funext (take x, rfl)
+theorem left_inverse_of_surjective_of_right_inverse {f : A → B} {g : B → A}
+    (surjf : surjective f) (rfg : right_inverse f g) :
+  left_inverse f g :=
+take y,
+obtain x (Hx : f x = y), from surjf y,
+calc
+  f (g y) = f (g (f x)) : Hx
+      ... = f x         : rfg
+      ... = y           : Hx
 
-  theorem compose.left_id (f : A → B) : id ∘ f = f :=
-  funext (take x, rfl)
+theorem injective_id : injective (@id A) := take a₁ a₂ H, H
 
-  theorem compose.right_id (f : A → B) : f ∘ id = f :=
-  funext (take x, rfl)
+theorem surjective_id : surjective (@id A) := take a, exists.intro a rfl
 
-  theorem compose_const_right (f : B → C) (b : B) : f ∘ (const A b) = const A (f b) :=
-  funext (take x, rfl)
+theorem bijective_id : bijective (@id A) := and.intro injective_id surjective_id
 
-  theorem hfunext {A : Type} {B : A → Type} {B' : A → Type} {f : Π x, B x} {g : Π x, B' x}
-                  (H : ∀ a, f a == g a) : f == g :=
-  let HH : B = B' := (funext (λ x, heq.type_eq (H x))) in
-    cast_to_heq (funext (λ a, heq.to_eq (heq.trans (cast_app HH f a) (H a))))
 end function
 
 -- copy reducible annotations to top-level

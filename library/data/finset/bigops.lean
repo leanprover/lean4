@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Jeremy Avigad
+Author: Jeremy Avigad, Haitao Zhang
 
 Finite unions and intersections on finsets.
 
@@ -64,7 +64,7 @@ section deceqA
   include deceqA
   theorem Union_insert_of_mem (f : A → finset B) {a : A} {s : finset A} (H : a ∈ s) :
     Union (insert a s) f = Union s f := algebra.Prod_insert_of_mem f H
-  theorem Union_insert_of_not_mem (f : A → finset B) {a : A} {s : finset A} (H : a ∉ s) :
+  private theorem Union_insert_of_not_mem (f : A → finset B) {a : A} {s : finset A} (H : a ∉ s) :
     Union (insert a s) f = f a ∪ Union s f := algebra.Prod_insert_of_not_mem f H
   theorem Union_union (f : A → finset B) {s₁ s₂ : finset A} (disj : s₁ ∩ s₂ = ∅) :
     Union (s₁ ∪ s₂) f = Union s₁ f ∪ Union s₂ f := algebra.Prod_union f disj
@@ -92,6 +92,31 @@ section deceqA
   theorem mem_Union_eq (s : finset A) (f : A → finset B) (b : B) :
     b ∈ (⋃ x ∈ s, f x) = (∃ x, x ∈ s ∧ b ∈ f x ) :=
   propext !mem_Union_iff
+
+  theorem Union_insert (f : A → finset B) {a : A} {s : finset A} :
+    Union (insert a s) f = f a ∪ Union s f :=
+  decidable.by_cases
+    (assume Pin : a ∈ s,
+      begin
+        rewrite [Union_insert_of_mem f Pin],
+        apply ext,
+        intro x,
+        apply iff.intro,
+          exact mem_union_r,
+          rewrite [mem_union_eq],
+          intro Por,
+          exact or.elim Por
+            (assume Pl, begin
+              rewrite mem_Union_eq, exact (exists.intro a (and.intro Pin Pl)) end)
+            (assume Pr, Pr)
+      end)
+    (assume H : a ∉ s, !Union_insert_of_not_mem H)
+
+  lemma image_eq_Union_index_image (s : finset A) (f : A → finset B) :
+    Union s f = Union (image f s) function.id :=
+      finset.induction_on s
+        (by rewrite Union_empty)
+        (take s1 a Pa IH, by rewrite [image_insert, *Union_insert, IH])
 end deceqA
 
 end union

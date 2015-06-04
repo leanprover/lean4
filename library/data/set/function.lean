@@ -51,6 +51,11 @@ setext (take z,
       obtain x (Hz₁ : x ∈ a) (Hz₂ : g x = y),      from Hy₁,
       show z ∈ (f ∘ g) '[a], from in_image Hz₁ (Hz₂⁻¹ ▸ Hy₂)))
 
+lemma image_subset {a b : set X} (f : X → Y) (H : a ⊆ b) : f '[a] ⊆ f '[b] :=
+take y, assume Hy : y ∈ f '[a],
+obtain x (Hx₁ : x ∈ a) (Hx₂ : f x = y), from Hy,
+in_image (H Hx₁) Hx₂
+
 /- maps to -/
 
 definition maps_to [reducible] (f : X → Y) (a : set X) (b : set Y) : Prop := ∀⦃x⦄, x ∈ a → f x ∈ b
@@ -66,6 +71,9 @@ show f2 x ∈ b, from eq_on_a xa ▸ H
 theorem maps_to_compose {g : Y → Z} {f : X → Y} {a : set X} {b : set Y} {c : set Z}
    (H1 : maps_to g b c) (H2 : maps_to f a b) : maps_to (g ∘ f) a c :=
 take x, assume H : x ∈ a, H1 (H2 H)
+
+theorem maps_to_univ_univ (f : X → Y) : maps_to f univ univ :=
+take x, assume H, trivial
 
 /- injectivity -/
 
@@ -100,6 +108,13 @@ take x1 x2 : X, assume (x1a : x1 ∈ a) (x2a : x2 ∈ a),
 assume H : f x1 = f x2,
 show x1 = x2, from H1 (H2 x1a) (H2 x2a) H
 
+lemma injective_iff_inj_on_univ {f : X → Y} : injective f ↔ inj_on f univ :=
+iff.intro
+  (assume H, take x₁ x₂, assume ax₁ ax₂, H x₁ x₂)
+  (assume H : inj_on f univ,
+     take x₁ x₂ Heq,
+     show x₁ = x₂, from H trivial trivial Heq)
+
 /- surjectivity -/
 
 definition surj_on [reducible] (f : X → Y) (a : set X) (b : set Y) : Prop := b ⊆ f '[a]
@@ -128,6 +143,15 @@ show ∃x, x ∈ a ∧ g (f x) = z, from
         g (f x) = g y : {and.right H2}
             ... = z   : and.right H1))
 
+lemma surjective_iff_surj_on_univ {f : X → Y} : surjective f ↔ surj_on f univ univ :=
+iff.intro
+  (assume H, take y, assume Hy,
+    obtain x Hx, from H y,
+    in_image trivial Hx)
+  (assume H, take y,
+    obtain x H1x H2x, from H y trivial,
+    exists.intro x H2x)
+
 /- bijectivity -/
 
 definition bij_on [reducible] (f : X → Y) (a : set X) (b : set Y) : Prop :=
@@ -155,6 +179,21 @@ match Hg with and.intro Hgmap (and.intro Hginj Hgsurj) :=
         (surj_on_compose Hgsurj Hfsurj))
   end
 end
+
+-- TODO: simplify when we have a better way of handling congruences wrt iff
+lemma bijective_iff_bij_on_univ {f : X → Y} : bijective f ↔ bij_on f univ univ :=
+iff.intro
+  (assume H,
+    obtain Hinj Hsurj, from H,
+    and.intro (maps_to_univ_univ f)
+      (and.intro
+        (iff.mp !injective_iff_inj_on_univ Hinj)
+        (iff.mp !surjective_iff_surj_on_univ Hsurj)))
+ (assume H,
+    obtain Hmaps Hinj Hsurj, from H,
+      (and.intro
+        (iff.mp' !injective_iff_inj_on_univ Hinj)
+        (iff.mp' !surjective_iff_surj_on_univ Hsurj)))
 
 /- left inverse -/
 
@@ -227,6 +266,13 @@ theorem right_inv_on_compose {f' : Y → X} {g' : Z → Y} {g : Y → Z} {f : X 
     (Hf : right_inv_on f' f b) (Hg : right_inv_on g' g c) : right_inv_on (f' ∘ g') (g ∘ f) c :=
 left_inv_on_compose g'cb Hg Hf
 
+theorem right_inv_on_of_inj_on_of_left_inv_on {f : X → Y} {g : Y → X} {a : set X} {b : set Y}
+    (fab : maps_to f a b) (gba : maps_to g b a) (injf : inj_on f a) (lfg : left_inv_on f g b) :
+  right_inv_on f g a :=
+take x, assume xa : x ∈ a,
+have H : f (g (f x)) = f x, from lfg (fab xa),
+injf (gba (fab xa)) xa H
+
 theorem eq_on_of_left_inv_of_right_inv {g1 g2 : Y → X} {f : X → Y} {a : set X} {b : set Y}
   (g2ba : maps_to g2 b a) (Hg1 : left_inv_on g1 f a) (Hg2 : right_inv_on g2 f b) : eq_on g1 g2 b :=
 take y,
@@ -234,6 +280,16 @@ assume yb : y ∈ b,
 calc
   g1 y = g1 (f (g2 y)) : {(Hg2 yb)⁻¹}
    ... = g2 y          : Hg1 (g2ba yb)
+
+theorem left_inv_on_of_surj_on_right_inv_on {f : X → Y} {g : Y → X} {a : set X} {b : set Y}
+    (surjf : surj_on f a b) (rfg : right_inv_on f g a) :
+  left_inv_on f g b :=
+take y, assume yb : y ∈ b,
+obtain x (xa : x ∈ a) (Hx : f x = y), from surjf yb,
+calc
+  f (g y) = f (g (f x)) : Hx
+      ... = f x         : rfg xa
+      ... = y           : Hx
 
 /- inverses -/
 

@@ -114,15 +114,15 @@ propext
   (iff.intro (λ Pl a b, Pl (and.intro a b))
   (λ Pr Pand, Pr (and.left Pand) (and.right Pand)))
 
-theorem and_eq_right {a b : Prop} (Ha : a) : (a ∧ b) = b :=
-propext (iff.intro
+theorem and_iff_right {a b : Prop} (Ha : a) : (a ∧ b) ↔ b :=
+iff.intro
   (assume Hab, and.elim_right Hab)
-  (assume Hb, and.intro Ha Hb))
+  (assume Hb, and.intro Ha Hb)
 
-theorem and_eq_left {a b : Prop} (Hb : b) : (a ∧ b) = a :=
-propext (iff.intro
+theorem and_iff_left {a b : Prop} (Hb : b) : (a ∧ b) ↔ a :=
+iff.intro
   (assume Hab, and.elim_left Hab)
-  (assume Ha, and.intro Ha Hb))
+  (assume Ha, and.intro Ha Hb)
 
 /- or -/
 

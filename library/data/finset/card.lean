@@ -118,7 +118,7 @@ finset.induction_on s
         f a ∩ (⋃ (x : A) ∈ s', f x) = (⋃ (x : A) ∈ s', f a ∩ f x)  : inter_Union
                                 ... = (⋃ (x : A) ∈ s', ∅)          : Union_ext H7
                                 ... = ∅                            : Union_empty',
-    by rewrite [Union_insert_of_not_mem _ H, Sum_insert_of_not_mem _ H,
+    by rewrite [Union_insert, Sum_insert_of_not_mem _ H,
                 card_union_of_disjoint H8, H6])
 end deceqB
 

@@ -24,6 +24,11 @@ funext (take x, propext (H x))
 definition subset (a b : set X) := ∀⦃x⦄, x ∈ a → x ∈ b
 infix `⊆` := subset
 
+theorem subset.refl (a : set X) : a ⊆ a := take x, assume H, H
+
+theorem subset.trans (a b c : set X) (subab : a ⊆ b) (subbc : b ⊆ c) : a ⊆ c :=
+take x, assume ax, subbc (subab ax)
+
 /- bounded quantification -/
 
 abbreviation bounded_forall (a : set X) (P : X → Prop) := ∀⦃x⦄, x ∈ a → P x

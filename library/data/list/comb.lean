@@ -23,6 +23,10 @@ theorem map_id : ∀ l : list A, map id l = l
 | []      := rfl
 | (x::xs) := begin rewrite [map_cons, map_id] end
 
+theorem map_id' {f : A → A} (H : ∀x, f x = x) : ∀ l : list A, map f l = l
+| []      := rfl
+| (x::xs) := begin rewrite [map_cons, H, map_id'] end
+
 theorem map_map (g : B → C) (f : A → B) : ∀ l, map g (map f l) = map (g ∘ f) l
 | []       := rfl
 | (a :: l) :=

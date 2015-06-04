@@ -11,10 +11,10 @@ check typeof id : num → num
 
 constant h : num → bool → num
 
-check flip h
-check flip h ff num.zero
+check swap h
+check swap h ff num.zero
 
-check typeof flip h ff num.zero : num
+check typeof swap h ff num.zero : num
 
 constant f1 : num → num → bool
 constant f2 : bool → num

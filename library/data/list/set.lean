@@ -283,12 +283,12 @@ theorem nodup_map {f : A → B} (inj : has_left_inverse f) : ∀ {l : list A}, n
   assert ndmfxs : nodup (map f xs), from nodup_map ndxs,
   assert nfxinm : f x ∉ map f xs,   from
     λ ab : f x ∈ map f xs,
-      obtain (finv : B → A) (isinv : finv ∘ f = id), from inj,
+      obtain (finv : B → A) (isinv : left_inverse finv f), from inj,
       assert finvfxin : finv (f x) ∈ map finv (map f xs), from mem_map finv ab,
       assert xinxs : x ∈ xs,
         begin
-          rewrite [map_map at finvfxin, isinv at finvfxin, left_inv_eq isinv at finvfxin],
-          rewrite [map_id at finvfxin],
+          rewrite [map_map at finvfxin, isinv at finvfxin],
+          krewrite [map_id' isinv at finvfxin],
           exact finvfxin
         end,
       absurd xinxs nxinxs,

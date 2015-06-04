@@ -257,11 +257,19 @@ section group
   theorem mul_right_cancel {a b c : A} (H : a * b = c * b) : a = c :=
   by rewrite [-mul_inv_cancel_right a b, H, mul_inv_cancel_right]
 
-  definition group.to_left_cancel_semigroup [instance] [coercion] [reducible] : left_cancel_semigroup A :=
+  theorem mul_eq_one_of_mul_eq_one {a b : A} (H : b * a = 1) : a * b = 1 :=
+  by rewrite [-inv_eq_of_mul_eq_one H, mul.left_inv]
+
+  theorem mul_eq_one_iff_mul_eq_one (a b : A) : a * b = 1 ↔ b * a = 1 :=
+  iff.intro !mul_eq_one_of_mul_eq_one !mul_eq_one_of_mul_eq_one
+
+  definition group.to_left_cancel_semigroup [instance] [coercion] [reducible] :
+    left_cancel_semigroup A :=
   ⦃ left_cancel_semigroup, s,
     mul_left_cancel := @mul_left_cancel A s ⦄
 
-  definition group.to_right_cancel_semigroup [instance] [coercion] [reducible] : right_cancel_semigroup A :=
+  definition group.to_right_cancel_semigroup [instance] [coercion] [reducible] :
+    right_cancel_semigroup A :=
   ⦃ right_cancel_semigroup, s,
     mul_right_cancel := @mul_right_cancel A s ⦄
 

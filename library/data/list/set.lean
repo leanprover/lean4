@@ -275,7 +275,7 @@ have d₄    : nodup (a::l₂),       from nodup_cons nain₂ d₃,
 have disj₂ : disjoint l₁ (a::l₂), from disjoint.comm (disjoint_cons_of_not_mem_of_disjoint nain₁ (disjoint.comm disj)),
 nodup_append_of_nodup_of_nodup_of_disjoint d₂ d₄ disj₂
 
-theorem nodup_map {f : A → B} (inj : has_left_inverse f) : ∀ {l : list A}, nodup l → nodup (map f l)
+theorem nodup_map {f : A → B} (inj : injective f) : ∀ {l : list A}, nodup l → nodup (map f l)
 | []      n := begin rewrite [map_nil], apply nodup_nil end
 | (x::xs) n :=
   assert nxinxs : x ∉ xs,           from not_mem_of_nodup_cons n,
@@ -283,15 +283,9 @@ theorem nodup_map {f : A → B} (inj : has_left_inverse f) : ∀ {l : list A}, n
   assert ndmfxs : nodup (map f xs), from nodup_map ndxs,
   assert nfxinm : f x ∉ map f xs,   from
     λ ab : f x ∈ map f xs,
-      obtain (finv : B → A) (isinv : left_inverse finv f), from inj,
-      assert finvfxin : finv (f x) ∈ map finv (map f xs), from mem_map finv ab,
-      assert xinxs : x ∈ xs,
-        begin
-          rewrite [map_map at finvfxin, isinv at finvfxin],
-          krewrite [map_id' isinv at finvfxin],
-          exact finvfxin
-        end,
-      absurd xinxs nxinxs,
+      obtain (y : A) (yinxs : y ∈ xs) (fyfx : f y = f x), from exists_of_mem_map ab,
+      assert yeqx : y = x, from inj fyfx,
+      by subst y; contradiction,
   nodup_cons nfxinm ndmfxs
 
 theorem nodup_erase_of_nodup [h : decidable_eq A] (a : A) : ∀ {l}, nodup l → nodup (erase a l)

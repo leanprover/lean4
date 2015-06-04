@@ -66,11 +66,11 @@ namespace pointed
   -- | Iterated_loop_space A 0 := A
   -- | Iterated_loop_space A (n+1) := Iterated_loop_space (Loop_space A) n
 
-  definition Iterated_loop_space (A : Pointed) (n : ℕ) : Pointed :=
+  definition Iterated_loop_space [reducible] (n : ℕ) (A : Pointed) : Pointed :=
   nat.rec_on n (λA, A) (λn IH A, IH (Loop_space A)) A
 
-  prefix `Ω`:(max+1) := Loop_space
-  notation `Ω[`:95 n:0 `]`:0 A:95 := Iterated_loop_space A n
+  prefix `Ω`:(max+5) := Loop_space
+  notation `Ω[`:95 n:0 `]`:0 A:95 := Iterated_loop_space n A
 
   definition iterated_loop_space (A : Type) [H : pointed A] (n : ℕ) : Type :=
   Ω[n] (pointed.mk' A)
@@ -148,7 +148,6 @@ namespace pointed
   --     }
   -- end
 
-
   definition pointed_map_bool_equiv (B : Pointed) : map₊ Bool B ≃ B :=
   begin
     fapply equiv.MK,
@@ -165,5 +164,18 @@ namespace pointed
   --   map₊ (Pointed.mk' bool) B ≃ map₊ unit₊ B : sorry
   --     ... ≃ (unit → B) : pointed_map_equiv
   --     ... ≃ B : unit_imp_equiv
+
+  definition apn {A B : Pointed} {n : ℕ} (f : map₊ A B) (p : Ω[n] A) : Ω[n] B :=
+  begin
+  revert A B f p, induction n with n IH,
+  { intros A B f p, exact f p},
+  { intros A B f p, rewrite [↑Iterated_loop_space at p,↓Iterated_loop_space n (Ω A) at p,
+      ↑Iterated_loop_space, ↓Iterated_loop_space n (Ω B)],
+    apply IH (Ω A),
+    { esimp, fapply pointed_map.mk,
+        intro q, refine !respect_pt⁻¹ ⬝ ap f q ⬝ !respect_pt,
+        esimp, apply con.left_inv},
+    { exact p}}
+  end
 
 end pointed

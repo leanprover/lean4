@@ -88,10 +88,17 @@ namespace sphere
   definition Sphere [constructor] (n : ℕ) : Pointed := pointed.mk' (sphere n)
 
   namespace ops
-  abbreviation S := sphere
-  notation `S.` := Sphere
+    abbreviation S := sphere
+    notation `S.`:max := Sphere
   end ops
   open sphere.ops
+
+  definition equator (n : ℕ) : map₊ (S. n) (Ω (S. (succ n))) :=
+  pointed_map.mk (λa, merid a ⬝ (merid base)⁻¹) !con.right_inv
+
+  definition surf {n : ℕ} : Ω[n] S. n :=
+  nat.rec_on n (by esimp [Iterated_loop_space]; exact base)
+               (by intro n s;exact apn (equator n) s)
 
   definition bool_of_sphere [reducible] : S 0 → bool :=
   suspension.rec ff tt (λx, empty.elim x)
@@ -119,6 +126,16 @@ namespace sphere
     { intro A, transitivity _, apply suspension_adjoint_loop (S. n) A, apply IH}
   end
 
+  protected definition elim {n : ℕ} {P : Pointed} (p : Ω[n] P) : map₊ (S. n) P :=
+  to_inv !pointed_map_sphere p
+
+  definition elim_surf {n : ℕ} {P : Pointed} (p : Ω[n] P) : apn (sphere.elim p) surf = p :=
+  begin
+    induction n with n IH,
+    { esimp [apn,surf,sphere.elim,pointed_map_sphere], apply sorry},
+    { apply sorry}
+  end
+
 end sphere
 
 open sphere sphere.ops
@@ -128,7 +145,8 @@ structure weakly_constant [class] {A B : Type} (f : A → B) := --move
 
 namespace trunc
   open trunc_index
-  definition is_trunc_of_pointed_map_sphere_constant (n : ℕ) (A : Type)
+  variables {n : ℕ} {A : Type}
+  definition is_trunc_of_pointed_map_sphere_constant
     (H : Π(a : A) (f : map₊ (S. n) (pointed.Mk a)) (x : S n), f x = f base) : is_trunc (n.-2.+1) A :=
   begin
     apply iff.elim_right !is_trunc_iff_is_contr_loop,
@@ -141,12 +159,25 @@ namespace trunc
       { rewrite [▸*,con.right_inv,▸*,con.left_inv]}}
   end
 
-
-  definition is_trunc_iff_map_sphere_constant (n : ℕ) (A : Type)
+  definition is_trunc_iff_map_sphere_constant
     (H : Π(f : S n → A) (x : S n), f x = f base) : is_trunc (n.-2.+1) A :=
   begin
     apply is_trunc_of_pointed_map_sphere_constant,
     intros, cases f with f p, esimp at *, apply H
   end
+
+  definition pointed_map_sphere_constant_of_is_trunc [H : is_trunc (n.-2.+1) A]
+    (a : A) (f : map₊ (S. n) (pointed.Mk a)) (x : S n) : f x = f base :=
+  begin
+    let H' := iff.elim_left (is_trunc_iff_is_contr_loop n A) H a,
+    let H'' := @is_trunc_equiv_closed_rev _ _ _ !pointed_map_sphere H',
+    assert p : (f = pointed_map.mk (λx, f base) (respect_pt f)),
+      apply is_hprop.elim,
+    exact ap10 (ap pointed_map.map p) x
+  end
+
+  definition map_sphere_constant_of_is_trunc [H : is_trunc (n.-2.+1) A]
+    (f : S n → A) (x : S n) : f x = f base :=
+  pointed_map_sphere_constant_of_is_trunc (f base) (pointed_map.mk f idp) x
 
 end trunc

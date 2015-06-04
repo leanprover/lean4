@@ -171,7 +171,7 @@ namespace is_trunc
           { esimp, apply con_right_inv2}},
         transitivity _,
           apply iff.pi_iff_pi, intro p,
-          rewrite [↑Iterated_loop_space,↓Iterated_loop_space (Loop_space (pointed.Mk p)) n,H],
+          rewrite [↑Iterated_loop_space,↓Iterated_loop_space n (Loop_space (pointed.Mk p)),H],
           apply iff.refl,
         apply iff.imp_iff, reflexivity}
   end

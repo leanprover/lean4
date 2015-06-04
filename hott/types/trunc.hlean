@@ -10,7 +10,8 @@ Properties of is_trunc and trunctype
 
 import types.pi types.eq types.equiv .function
 
-open eq sigma sigma.ops pi function equiv is_trunc.trunctype is_equiv prod is_trunc.trunc_index
+open eq sigma sigma.ops pi function equiv is_trunc.trunctype
+     is_equiv prod is_trunc.trunc_index pointed nat
 
 namespace is_trunc
   variables {A B : Type} {n : trunc_index}
@@ -137,6 +138,28 @@ namespace is_trunc
   definition is_trunc_of_axiom_K_of_leq {A : Type} (n : trunc_index) (H : -1 ≤ n)
     (K : Π(a : A), is_trunc n (a = a)) : is_trunc (n.+1) A :=
   @is_trunc_succ_intro _ _ (λa b, is_trunc_of_imp_is_trunc_of_leq H (λp, eq.rec_on p !K))
+
+  definition is_trunc_succ_of_is_trunc_loop (Hn : -1 ≤ n) (Hp : Π(a : A), is_trunc n (a = a))
+    : is_trunc (n.+1) A :=
+  begin
+    apply is_trunc_succ_intro, intros a a',
+    apply is_trunc_of_imp_is_trunc_of_leq Hn, intro p,
+    cases p, apply Hp
+  end
+
+  definition is_trunc_succ_iff_is_trunc_loop (A : Type) (Hn : -1 ≤ n) :
+    (Π(a : A), is_trunc n (a = a)) ↔ is_trunc (n.+1) A :=
+  iff.intro (is_trunc_succ_of_is_trunc_loop Hn) _
+
+  definition is_trunc_iff_is_contr_loop' {n : ℕ}
+    : (Π(a : A), is_contr (Ω[ n ](Pointed.mk a))) ↔ is_trunc (n.-2.+1) A :=
+  begin
+    induction n with n H,
+    { esimp [sub_two,Pointed.Iterated_loop_space], apply iff.intro,
+        intro H, apply is_hprop_of_imp_is_contr, exact H,
+        intro H a, exact is_contr_of_inhabited_hprop a},
+    { exact sorry},
+  end
 
 end is_trunc open is_trunc
 

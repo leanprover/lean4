@@ -153,7 +153,7 @@ namespace eq
     {b : B' (f a)} {b₂ : B' (f a₂)} (q : b =[p] b₂) : b =[ap f p] b₂ :=
   by cases q; exact idpo
 
-  definition of_pathover_ap (B' : A' → Type) (f : A → A') {p : a = a₂}
+  definition pathover_of_pathover_ap (B' : A' → Type) (f : A → A') {p : a = a₂}
     {b : B' (f a)} {b₂ : B' (f a₂)} (q : b =[ap f p] b₂) : b =[p] b₂ :=
   by cases p; apply (idp_rec_on q); apply idpo
 
@@ -162,7 +162,7 @@ namespace eq
   begin
     fapply equiv.MK,
     { apply pathover_ap},
-    { apply of_pathover_ap},
+    { apply pathover_of_pathover_ap},
     { intro q, cases p, esimp, apply (idp_rec_on q), apply idp},
     { intro q, cases q, exact idp},
   end

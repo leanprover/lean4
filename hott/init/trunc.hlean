@@ -53,6 +53,11 @@ namespace is_trunc
   definition trunc_index.of_nat [coercion] [reducible] (n : nat) : trunc_index :=
   nat.rec_on n (-1.+1) (λ n k, k.+1)
 
+  definition sub_two [reducible] (n : nat) : trunc_index :=
+  nat.rec_on n -2 (λ n k, k.+1)
+
+  postfix `.-2`:(max+1) := sub_two
+
   /- truncated types -/
 
   /-

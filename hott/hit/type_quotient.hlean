@@ -10,7 +10,7 @@ Type quotients (quotient without truncation)
   The hit type_quotient is primitive, declared in init.hit.
   The constructors are
     class_of : A → A / R (A implicit, R explicit)
-    eq_of_rel : Π{a a' : A}, R a a' → a = a' (R explicit)
+    eq_of_rel : Π{a a' : A}, R a a' → class_of a = class_of a' (R explicit)
 -/
 
 open eq equiv sigma.ops

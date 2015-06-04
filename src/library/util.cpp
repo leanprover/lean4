@@ -782,7 +782,7 @@ format format_goal(formatter const & fmt, buffer<expr> const & hyps, expr const 
         expr l     = hyps[i];
         format ids = fmt(l);
         expr t     = tmp_subst.instantiate(mlocal_type(l));
-        lean_assert(tmp.size() > 0);
+        lean_assert(hyps.size() > 0);
         while (i < hyps.size() - 1) {
             expr l2 = hyps[i+1];
             expr t2 = tmp_subst.instantiate(mlocal_type(l2));

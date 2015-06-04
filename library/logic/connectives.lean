@@ -32,6 +32,11 @@ theorem imp_false (a : Prop) : (a → false) ↔ ¬ a := iff.rfl
 theorem false_imp (a : Prop) : (false → a) ↔ true :=
 iff.intro (assume H, trivial) (assume H H1, false.elim H1)
 
+theorem imp_iff_imp (H1 : a ↔ c) (H2 : b ↔ d) : (a → b) ↔ (c → d) :=
+iff.intro
+  (λHab Hc, iff.elim_left H2 (Hab (iff.elim_right H1 Hc)))
+  (λHcd Ha, iff.elim_right H2 (Hcd (iff.elim_left H1 Ha)))
+
 /- not -/
 
 theorem not.elim (H1 : ¬a) (H2 : a) : false := H1 H2
@@ -61,6 +66,12 @@ iff.intro (assume H, H trivial) (assume H, false.elim H)
 
 theorem not_false_iff : ¬ false ↔ true :=
 iff.intro (assume H, trivial) (assume H H1, H1)
+
+theorem not_iff_not (H : a ↔ b) : ¬a ↔ ¬b :=
+iff.intro
+  (λHna Hb, Hna (iff.elim_right H Hb))
+  (λHnb Ha, Hnb (iff.elim_left  H Ha))
+
 
 /- and -/
 
@@ -123,6 +134,11 @@ theorem and_iff_left {a b : Prop} (Hb : b) : (a ∧ b) ↔ a :=
 iff.intro
   (assume Hab, and.elim_left Hab)
   (assume Ha, and.intro Ha Hb)
+
+theorem and_iff_and (H1 : a ↔ c) (H2 : b ↔ d) : (a ∧ b) ↔ (c ∧ d) :=
+iff.intro
+  (assume Hab, and.intro (iff.elim_left  H1 (and.left Hab)) (iff.elim_left  H2 (and.right Hab)))
+  (assume Hcd, and.intro (iff.elim_right H1 (and.left Hcd)) (iff.elim_right H2 (and.right Hcd)))
 
 /- or -/
 
@@ -195,6 +211,11 @@ iff.intro
   (assume H, or.elim H (assume H1, H1) (assume H1, H1))
   (assume H, or.inl H)
 
+theorem or_iff_or (H1 : a ↔ c) (H2 : b ↔ d) : (a ∨ b) ↔ (c ∨ d) :=
+iff.intro
+  (λHab, or.elim Hab (λHa, or.inl (iff.elim_left  H1 Ha)) (λHb, or.inr (iff.elim_left  H2 Hb)))
+  (λHcd, or.elim Hcd (λHc, or.inl (iff.elim_right H1 Hc)) (λHd, or.inr (iff.elim_right H2 Hd)))
+
 /- distributivity -/
 
 theorem and.distrib_left (a b c : Prop) : a ∧ (b ∨ c) ↔ (a ∧ b) ∨ (a ∧ c) :=
@@ -260,6 +281,8 @@ iff.intro (λp a, iff.elim_left (H a) (p a)) (λq a, iff.elim_right (H a) (q a))
 theorem imp_iff {P : Prop} (Q : Prop) (p : P) : (P → Q) ↔ Q :=
 iff.intro (λf, f p) (λq p, q)
 
+theorem iff_iff_iff (H1 : a ↔ c) (H2 : b ↔ d) : (a ↔ b) ↔ (c ↔ d) :=
+and_iff_and (imp_iff_imp H1 H2) (imp_iff_imp H2 H1)
 
 /- if-then-else -/
 

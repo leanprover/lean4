@@ -189,7 +189,7 @@ eq_zero_of_add_eq_zero_right Hk
 /- succ and pred -/
 
 theorem lt_iff_succ_le (m n : nat) : m < n ↔ succ m ≤ n :=
-iff.intro succ_le_of_lt lt_of_succ_le
+iff.rfl
 
 theorem self_le_succ (n : ℕ) : n ≤ succ n :=
 le.intro !add_one

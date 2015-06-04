@@ -392,7 +392,7 @@ order for the change to take effect."
   ("join"     . ,(lean-input-to-string-list "⋈⋉⋊⋋⋌⨝⟕⟖⟗"))
 
   ;; Arrows.
-  ("iff" . ("↔"))
+  ("iff" . ("↔")) ("imp"  . ("→"))
   ("l"  . ,(lean-input-to-string-list "λ←⇐⇚⇇⇆↤⇦↞↼↽⇠⇺↜⇽⟵⟸↚⇍⇷ ↹     ↢↩↫⇋⇜⇤⟻⟽⤆↶↺⟲                                     "))
   ("r"  . ,(lean-input-to-string-list "→⇒⇛⇉⇄↦⇨↠⇀⇁⇢⇻↝⇾⟶⟹↛⇏⇸⇶ ↴    ↣↪↬⇌⇝⇥⟼⟾⤇↷↻⟳⇰⇴⟴⟿ ➵➸➙➔➛➜➝➞➟➠➡➢➣➤➧➨➩➪➫➬➭➮➯➱➲➳➺➻➼➽➾⊸"))
   ("u"  . ,(lean-input-to-string-list "↑⇑⟰⇈⇅↥⇧↟↿↾⇡⇞          ↰↱➦ ⇪⇫⇬⇭⇮⇯                                           "))

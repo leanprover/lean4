@@ -202,8 +202,14 @@ eq_zero_of_add_eq_zero_right Hk
 
 /- succ and pred -/
 
+theorem le_of_lt_succ {m n : nat} (H : m < succ n) : m ≤ n :=
+le_of_succ_le_succ H
+
 theorem lt_iff_succ_le (m n : nat) : m < n ↔ succ m ≤ n :=
-iff.intro succ_le_of_lt lt_of_succ_le
+iff.rfl
+
+theorem lt_succ_iff_le (m n : nat) : m < succ n ↔ m ≤ n :=
+iff.intro le_of_lt_succ lt_succ_of_le
 
 theorem self_le_succ (n : ℕ) : n ≤ succ n :=
 le.intro !add_one
@@ -267,9 +273,6 @@ discriminate
 
 theorem lt_succ_self (n : ℕ) : n < succ n :=
 lt.base n
-
-theorem le_of_lt_succ {n m : ℕ} (H : n < succ m) : n ≤ m :=
-le_of_succ_le_succ (succ_le_of_lt H)
 
 /- other forms of induction -/
 

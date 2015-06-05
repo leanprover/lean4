@@ -19,7 +19,6 @@ static name * g_quotient_lift  = nullptr;
 static name * g_quotient_ind   = nullptr;
 static name * g_quotient_mk    = nullptr;
 static name * g_quotient_sound = nullptr;
-static name * g_quotient_exact = nullptr;
 
 struct quotient_env_ext : public environment_extension {
     bool m_initialized;
@@ -135,7 +134,7 @@ bool is_quotient_decl(environment const & env, name const & n) {
         return false;
     return
         n == *g_propext || n == *g_quotient || n == *g_quotient_lift || n == *g_quotient_ind || n == *g_quotient_mk ||
-        n == *g_quotient_sound || n == *g_quotient_exact;
+        n == *g_quotient_sound;
 }
 
 void initialize_quotient_module() {
@@ -146,7 +145,6 @@ void initialize_quotient_module() {
     g_quotient_ind       = new name{"quot", "ind"};
     g_quotient_mk        = new name{"quot", "mk"};
     g_quotient_sound     = new name{"quot", "sound"};
-    g_quotient_exact     = new name{"quot", "exact"};
     g_ext                = new quotient_env_ext_reg();
 }
 
@@ -159,6 +157,5 @@ void finalize_quotient_module() {
     delete g_quotient_ind;
     delete g_quotient_mk;
     delete g_quotient_sound;
-    delete g_quotient_exact;
 }
 }

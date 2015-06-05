@@ -1,79 +1,106 @@
 /-
-Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Copyright (c) 2015 Haitao Zhang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Leonardo de Moura
+Author: Haitao Zhang
 
-Finite ordinals.
+Finite ordinal types.
 -/
-import data.nat
-open nat
+import data.list.basic data.finset.basic data.fintype.card
+open eq.ops nat function list finset fintype
 
-inductive fin : nat → Type :=
-| fz : Π n, fin (succ n)
-| fs : Π {n}, fin n → fin (succ n)
+structure fin (n : nat) := (val : nat) (is_lt : val < n)
+attribute fin.val [coercion]
+
+definition less_than [reducible] := fin
 
 namespace fin
-  definition to_nat : Π {n}, fin n → nat
-  | ⌞n+1⌟ (fz n) := zero
-  | ⌞n+1⌟ (fs f) := succ (to_nat f)
+section
+open decidable
+protected definition has_decidable_eq [instance] (n : nat) : ∀ (i j : fin n), decidable (i = j)
+| (mk ival ilt) (mk jval jlt) :=
+      match nat.has_decidable_eq ival jval with
+      | inl veq := inl (by substvars)
+      | inr vne := inr (by intro h; injection h; contradiction)
+      end
+end
 
-  theorem to_nat_fz (n : nat) : to_nat (fz n) = zero :=
-  rfl
+lemma dinj_lt (n : nat) : dinj (λ i, i < n) fin.mk :=
+take a1 a2 Pa1 Pa2 Pmkeq, fin.no_confusion Pmkeq (λ Pe Pqe, Pe)
 
-  theorem to_nat_fs {n : nat} (f : fin n) : to_nat (fs f) = succ (to_nat f) :=
-  rfl
+lemma val_mk (n i : nat) (Plt : i < n) : fin.val (fin.mk i Plt) = i := rfl
 
-  theorem to_nat_lt : Π {n} (f : fin n), to_nat f < n
-  | (n+1) (fz n) :=  calc
-      to_nat (fz n) = 0    : rfl
-               ...  < n+1  : succ_pos n
-  | (n+1) (fs f) := calc
-      to_nat (fs f) = (to_nat f)+1 : rfl
-               ...  < n+1          : succ_lt_succ (to_nat_lt f)
+definition upto [reducible] (n : nat) : list (fin n) :=
+dmap (λ i, i < n) fin.mk (list.upto n)
 
-  definition lift : Π {n : nat}, fin n → Π (m : nat), fin (m + n)
-  | ⌞n+1⌟ (fz n)  m := fz (m + n)
-  | ⌞n+1⌟ (fs f)  m := fs (lift f m)
+lemma nodup_upto (n : nat) : nodup (upto n) :=
+dmap_nodup_of_dinj (dinj_lt n) (list.nodup_upto n)
 
-  theorem lift_fz (n m : nat) : lift (fz n) m = fz (m + n) :=
-  rfl
+lemma mem_upto (n : nat) : ∀ (i : fin n), i ∈ upto n :=
+take i, fin.destruct i
+  (take ival Piltn,
+    assert Pin : ival ∈ list.upto n, from mem_upto_of_lt Piltn,
+    mem_of_dmap Piltn Pin)
 
-  theorem lift_fs {n : nat} (f : fin n) (m : nat) : lift (fs f) m = fs (lift f m) :=
-  rfl
+lemma upto_zero : upto 0 = [] :=
+by rewrite [↑upto, list.upto_nil, dmap_nil]
 
-  theorem to_nat_lift : ∀ {n : nat} (f : fin n) (m : nat), to_nat f = to_nat (lift f m)
-  | (n+1) (fz n) m := rfl
-  | (n+1) (fs f) m := calc
-      to_nat (fs f) = (to_nat f) + 1           : rfl
-               ...  = (to_nat (lift f m)) + 1  : to_nat_lift f
-               ...  = to_nat (lift (fs f) m)   : rfl
+lemma map_val_upto (n : nat) : map fin.val (upto n) = list.upto n :=
+map_of_dmap_inv_pos (val_mk n) (@lt_of_mem_upto n)
 
-  definition of_nat : Π (p : nat) (n : nat), p < n → fin n
-  | 0     0     h := absurd h (not_lt_zero zero)
-  | 0     (n+1) h := fz n
-  | (p+1) 0     h := absurd h (not_lt_zero (succ p))
-  | (p+1) (n+1) h := fs (of_nat p n (lt_of_succ_lt_succ h))
+lemma length_upto (n : nat) : length (upto n) = n :=
+calc
+  length (upto n) = length (list.upto n) : (map_val_upto n ▸ length_map fin.val (upto n))⁻¹
+              ... = n                    : list.length_upto n
 
-  theorem of_nat_zero_succ (n : nat) (h : 0 < n+1) : of_nat 0 (n+1) h = fz n :=
-  rfl
+definition is_fintype [instance] (n : nat) : fintype (fin n) :=
+fintype.mk (upto n) (nodup_upto n) (mem_upto n)
 
-  theorem of_nat_succ_succ (p n : nat) (h : p+1 < n+1) :
-               of_nat (p+1) (n+1) h = fs (of_nat p n (lt_of_succ_lt_succ h)) :=
-  rfl
+section pigeonhole
+open fintype
 
-  theorem to_nat_of_nat : ∀ (p : nat) (n : nat) (h : p < n), to_nat (of_nat p n h) = p
-  | 0     0     h := absurd h (not_lt_zero 0)
-  | 0     (n+1) h := rfl
-  | (p+1) 0     h := absurd h (not_lt_zero (p+1))
-  | (p+1) (n+1) h := calc
-      to_nat (of_nat (p+1) (n+1) h)
-               = succ (to_nat (of_nat p n _)) : rfl
-           ... = succ p                       : {to_nat_of_nat p n _}
+lemma card_fin (n : nat) : card (fin n) = n := length_upto n
 
-  theorem of_nat_to_nat : ∀ {n : nat} (f : fin n) (h : to_nat f < n), of_nat (to_nat f) n h = f
-  | (n+1) (fz n) h := rfl
-  | (n+1) (fs f) h := calc
-      of_nat (to_nat (fs f)) (succ n) h = fs (of_nat (to_nat f) n _) : rfl
-                                   ...  = fs f                       : {of_nat_to_nat f _}
+theorem pigeonhole {n m : nat} (Pmltn : m < n) : ¬∃ f : fin n → fin m, injective f :=
+assume Pex, absurd Pmltn (not_lt_of_ge
+  (calc
+       n = card (fin n) : card_fin
+     ... ≤ card (fin m) : card_le_of_inj (fin n) (fin m) Pex
+     ... = m : card_fin))
 
+end pigeonhole
+
+definition zero (n : nat) : fin (succ n) :=
+mk 0 !zero_lt_succ
+
+variable {n : nat}
+
+theorem val_lt : ∀ i : fin n, val i < n
+| (mk v h) := h
+
+definition lift : fin n → Π m, fin (n + m)
+| (mk v h) m := mk v (lt_add_of_lt_right h m)
+
+theorem val_lift : ∀ (i : fin n) (m : nat), val i = val (lift i m)
+| (mk v h) m := rfl
+
+definition pred : fin n → fin n
+| (mk v h) := mk (nat.pred v) (pre_lt_of_lt h)
+
+lemma val_pred : ∀ (i : fin n), val (pred i) = nat.pred (val i)
+| (mk v h) := rfl
+
+lemma pred_zero : pred (zero n) = zero n :=
+rfl
+
+definition mk_pred (i : nat) (h : succ i < succ n) : fin n :=
+mk i (lt_of_succ_lt_succ h)
+
+definition succ : fin n → fin (succ n)
+| (mk v h) := mk (nat.succ v) (succ_lt_succ h)
+
+lemma val_succ : ∀ (i : fin n), val (succ i) = nat.succ (val i)
+| (mk v h) := rfl
+
+definition elim0 {C : Type} : fin 0 → C
+| (mk v h) := absurd h !not_lt_zero
 end fin

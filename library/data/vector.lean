@@ -60,18 +60,28 @@ namespace vector
   | (n+1) a := last_const n a
 
   definition nth : Π {n : nat}, vector A n → fin n → A
-  | ⌞n+1⌟ (h :: t) (fz n) := h
-  | ⌞n+1⌟ (h :: t) (fs f) := nth t f
+  | ⌞0⌟   []       i               := elim0 i
+  | ⌞n+1⌟ (a :: v) (mk 0 _)        := a
+  | ⌞n+1⌟ (a :: v) (mk (succ i) h) := nth v (mk_pred i h)
+
+  lemma nth_zero {n : nat} (a : A) (v : vector A n) (h : 0 < succ n) : nth (a::v) (mk 0 h) = a :=
+  rfl
+
+  lemma nth_succ {n : nat} (a : A) (v : vector A n) (i : nat) (h : succ i < succ n)
+                 : nth (a::v) (mk (succ i) h) = nth v (mk_pred i h) :=
+  rfl
 
   definition tabulate : Π {n : nat}, (fin n → A) → vector A n
   | 0      f :=  []
-  | (n+1)  f :=  f (fz n) :: tabulate (λ i : fin n, f (fs i))
+  | (n+1)  f :=  f (@zero n) :: tabulate (λ i : fin n, f (succ i))
 
   theorem nth_tabulate : ∀ {n : nat} (f : fin n → A) (i : fin n), nth (tabulate f) i = f i
-  | (n+1) f (fz n) := rfl
-  | (n+1) f (fs i) :=
+  | 0     f i               := elim0 i
+  | (n+1) f (mk 0 h)        := rfl
+  | (n+1) f (mk (succ i) h) :=
     begin
-      change (nth (tabulate (λ i : fin n, f (fs i))) i = f (fs i)),
+      change nth (f (@zero n) :: tabulate (λ i : fin n, f (succ i))) (mk (succ i) h) = f (mk (succ i) h),
+      rewrite nth_succ,
       rewrite nth_tabulate
     end
 
@@ -86,12 +96,9 @@ namespace vector
   rfl
 
   theorem nth_map (f : A → B) : ∀ {n : nat} (v : vector A n) (i : fin n), nth (map f v) i = f (nth v i)
-  | (succ n) (h :: t) (fz n) := rfl
-  | (succ n) (h :: t) (fs i) :=
-    begin
-      change (nth (map f t) i = f (nth t i)),
-      rewrite nth_map
-    end
+  | 0        v        i               := elim0 i
+  | (succ n) (a :: t) (mk 0 h)        := rfl
+  | (succ n) (a :: t) (mk (succ i) h) := by rewrite [map_cons, *nth_succ, nth_map]
 
   definition map2 (f : A → B → C) : Π {n : nat}, vector A n → vector B n → vector C n
   | map2 []      []      := []

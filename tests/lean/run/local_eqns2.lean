@@ -1,5 +1,10 @@
-import data.fin
-open fin nat
+open nat
+
+inductive fin : nat → Type :=
+| fz : Π n, fin (succ n)
+| fs : Π {n}, fin n → fin (succ n)
+
+open fin
 
 definition nz_cases_on {C  : Π n, fin (succ n) → Type}
                        (H₁ : Π n, C n (fz n))

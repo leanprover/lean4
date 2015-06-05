@@ -5,4 +5,4 @@ Author: Leonardo de Moura
 
 Finite sets.
 -/
-import .basic .comb .to_set .card .bigops
+import .basic .comb .to_set .card .bigops .partition

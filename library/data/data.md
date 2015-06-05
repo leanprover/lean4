@@ -12,8 +12,9 @@ Basic types:
 * [string](string.lean) : ascii strings
 * [nat](nat/nat.md) : the natural numbers
 * [fin](fin.lean) : finite ordinals
+* [less_than](less_than.lean) : finite ordinals
 * [int](int/int.md) : the integers
-* [rat](rat/rat.md) : the integers
+* [rat](rat/rat.md) : the rationals
 
 Constructors:
 

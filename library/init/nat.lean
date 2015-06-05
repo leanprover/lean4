@@ -73,16 +73,16 @@ namespace nat
 
   theorem le_of_lt {n m : ℕ} (H : n < m) : n ≤ m := le_of_succ_le H
 
-  theorem succ_le_succ [unfold-c 3] {n m : ℕ} (H : n ≤ m) : succ n ≤ succ m :=
+  theorem succ_le_succ {n m : ℕ} (H : n ≤ m) : succ n ≤ succ m :=
   by induction H;reflexivity;exact le.step v_0
 
-  theorem pred_le_pred [unfold-c 3] {n m : ℕ} (H : n ≤ m) : pred n ≤ pred m :=
+  theorem pred_le_pred {n m : ℕ} (H : n ≤ m) : pred n ≤ pred m :=
   by induction H;reflexivity;cases b;exact v_0;exact le.step v_0
 
-  theorem le_of_succ_le_succ [unfold-c 3] {n m : ℕ} (H : succ n ≤ succ m) : n ≤ m :=
+  theorem le_of_succ_le_succ {n m : ℕ} (H : succ n ≤ succ m) : n ≤ m :=
   pred_le_pred H
 
-  theorem le_succ_of_pred_le [unfold-c 1] {n m : ℕ} (H : pred n ≤ m) : n ≤ succ m :=
+  theorem le_succ_of_pred_le {n m : ℕ} (H : pred n ≤ m) : n ≤ succ m :=
   by cases n;exact le.step H;exact succ_le_succ H
 
   theorem not_succ_le_self {n : ℕ} : ¬succ n ≤ n :=

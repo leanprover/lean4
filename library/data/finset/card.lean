@@ -61,7 +61,8 @@ section card_image
 open set
 include deceqB
 
-theorem card_image_eq_of_inj_on {f : A → B} {s : finset A} (H1 : inj_on f (ts s)) : card (image f s) = card s :=
+theorem card_image_eq_of_inj_on {f : A → B} {s : finset A} (H1 : inj_on f (ts s)) :
+  card (image f s) = card s :=
 begin
   induction s with a t H IH,
     { rewrite [card_empty] },
@@ -81,6 +82,15 @@ begin
                                 ... = card (insert a t)               : card_insert_of_not_mem H
     }
 end
+
+lemma card_le_of_inj_on (a : finset A) (b : finset B)
+    (Pex : ∃ f : A → B, set.inj_on f (ts a) ∧ (image f a ⊆ b)):
+  card a ≤ card b :=
+obtain f Pinj, from Pex,
+assert Psub : _, from and.right Pinj,
+assert Ple : card (image f a) ≤ card b, from card_le_card_of_subset Psub,
+by rewrite [(card_image_eq_of_inj_on (and.left Pinj))⁻¹]; exact Ple
+
 end card_image
 
 theorem Sum_const_eq_card_mul (s : finset A) (n : nat) : (∑ x ∈ s, n) = card s * n :=

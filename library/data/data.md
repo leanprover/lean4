@@ -33,5 +33,5 @@ Constructors:
 
 Types with extra information:
 
-* [fintype](fintype.lean) : finite types
+* [fintype](fintype/fintype.md) : finite types
 * [encodable](encodable.lean) : types with a coding to nat

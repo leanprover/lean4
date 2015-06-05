@@ -5,7 +5,7 @@ Author: Leonardo de Moura, Jeremy Avigad
 
 Finite sets.
 -/
-import data.fintype data.nat data.list.perm data.subtype algebra.binary
+import data.fintype.basic data.nat data.list.perm data.subtype algebra.binary
 open nat quot list subtype binary function
 open [declarations] perm
 

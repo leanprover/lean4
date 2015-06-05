@@ -75,6 +75,10 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_COMPACT_GOALS false
 #endif
 
+#ifndef LEAN_DEFAULT_PP_ALL
+#define LEAN_DEFAULT_PP_ALL false
+#endif
+
 namespace lean {
 static name * g_pp_max_depth       = nullptr;
 static name * g_pp_max_steps       = nullptr;
@@ -93,6 +97,7 @@ static name * g_pp_abbreviations   = nullptr;
 static name * g_pp_extra_spaces    = nullptr;
 static name * g_pp_preterm         = nullptr;
 static name * g_pp_compact_goals   = nullptr;
+static name * g_pp_all             = nullptr;
 static list<options> * g_distinguishing_pp_options = nullptr;
 
 void initialize_pp_options() {
@@ -112,7 +117,8 @@ void initialize_pp_options() {
     g_pp_abbreviations   = new name{"pp", "abbreviations"};
     g_pp_extra_spaces    = new name{"pp", "extra_spaces"};
     g_pp_preterm         = new name{"pp", "preterm"};
-    g_pp_compact_goals   = new name({"pp", "compact_goals"});
+    g_pp_all             = new name{"pp", "all"};
+    g_pp_compact_goals   = new name{"pp", "compact_goals"};
     register_unsigned_option(*g_pp_max_depth, LEAN_DEFAULT_PP_MAX_DEPTH,
                              "(pretty printer) maximum expression depth, after that it will use ellipsis");
     register_unsigned_option(*g_pp_max_steps, LEAN_DEFAULT_PP_MAX_STEPS,
@@ -149,7 +155,9 @@ void initialize_pp_options() {
                          "(pretty printer) assume the term is a preterm (i.e., a term before elaboration)");
     register_bool_option(*g_pp_compact_goals, LEAN_DEFAULT_PP_COMPACT_GOALS,
                          "(pretty printer) try to display goal in a single line when possible");
-
+    register_bool_option(*g_pp_all, LEAN_DEFAULT_PP_ALL,
+                         "(pretty printer) display coercions, implicit parameters, fully qualified names, universes, "
+                         "and disable abbreviations, beta reduction and notation during pretty printing");
     options universes_true(*g_pp_universes, true);
     options full_names_true(*g_pp_full_names, true);
     options implicit_true(*g_pp_implicit, true);
@@ -180,6 +188,7 @@ void finalize_pp_options() {
     delete g_pp_purify_locals;
     delete g_pp_beta;
     delete g_pp_compact_goals;
+    delete g_pp_all;
     delete g_distinguishing_pp_options;
 }
 
@@ -210,7 +219,8 @@ bool     get_pp_numerals(options const & opts)        { return opts.get_bool(*g_
 bool     get_pp_abbreviations(options const & opts)   { return opts.get_bool(*g_pp_abbreviations, LEAN_DEFAULT_PP_ABBREVIATIONS); }
 bool     get_pp_extra_spaces(options const & opts)    { return opts.get_bool(*g_pp_extra_spaces, LEAN_DEFAULT_PP_EXTRA_SPACES); }
 bool     get_pp_preterm(options const & opts)         { return opts.get_bool(*g_pp_preterm, LEAN_DEFAULT_PP_PRETERM); }
-bool     get_pp_compact_goals(options const & o)      { return o.get_bool(*g_pp_compact_goals, LEAN_DEFAULT_PP_COMPACT_GOALS); }
+bool     get_pp_compact_goals(options const & opts)   { return opts.get_bool(*g_pp_compact_goals, LEAN_DEFAULT_PP_COMPACT_GOALS); }
+bool     get_pp_all(options const & opts)             { return opts.get_bool(*g_pp_all, LEAN_DEFAULT_PP_ALL); }
 
 list<options> const & get_distinguishing_pp_options() { return *g_distinguishing_pp_options; }
 }

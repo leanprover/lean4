@@ -269,22 +269,23 @@ expr pretty_fn::purify(expr const & e) {
 
 void pretty_fn::set_options_core(options const & o) {
     m_options         = o;
+    bool all          = get_pp_all(o);
     m_indent          = get_pp_indent(o);
     m_max_depth       = get_pp_max_depth(o);
     m_max_steps       = get_pp_max_steps(o);
-    m_implict         = get_pp_implicit(o);
+    m_implict         = all || get_pp_implicit(o);
     m_unicode         = get_pp_unicode(o);
-    m_coercion        = get_pp_coercions(o);
-    m_notation        = get_pp_notation(o);
-    m_universes       = get_pp_universes(o);
-    m_full_names      = get_pp_full_names(o);
+    m_coercion        = all || get_pp_coercions(o);
+    m_notation        = !all && get_pp_notation(o);
+    m_universes       = all || get_pp_universes(o);
+    m_full_names      = all || get_pp_full_names(o);
     m_private_names   = get_pp_private_names(o);
     m_metavar_args    = get_pp_metavar_args(o);
     m_purify_metavars = get_pp_purify_metavars(o);
     m_purify_locals   = get_pp_purify_locals(o);
-    m_beta            = get_pp_beta(o);
+    m_beta            = !all && get_pp_beta(o);
     m_numerals        = get_pp_numerals(o);
-    m_abbreviations   = get_pp_abbreviations(o);
+    m_abbreviations   = !all && get_pp_abbreviations(o);
     m_extra_spaces    = get_pp_extra_spaces(o);
     m_preterm         = get_pp_preterm(o);
     m_hide_full_terms = get_formatter_hide_full_terms(o);

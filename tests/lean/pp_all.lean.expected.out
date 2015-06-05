@@ -1,0 +1,2 @@
+a + b = 10 : Prop
+@eq.{1} nat (nat.add ((λ (x : nat), x) a) (nat.of_num 2)) (nat.of_num 10) : Prop

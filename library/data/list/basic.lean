@@ -5,7 +5,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura
 
 Basic properties of lists.
 -/
-import logic tools.helper_tactics data.nat.basic algebra.function
+import logic tools.helper_tactics data.nat.order algebra.function
 open eq.ops helper_tactics nat prod function option
 
 inductive list (T : Type) : Type :=
@@ -313,11 +313,17 @@ list.rec_on l
 theorem mem_of_ne_of_mem {x y : T} {l : list T} (H₁ : x ≠ y) (H₂ : x ∈ y :: l) : x ∈ l :=
 or.elim (eq_or_mem_of_mem_cons H₂) (λe, absurd e H₁) (λr, r)
 
-theorem not_eq_of_not_mem {a b : T} {l : list T} : a ∉ b::l → a ≠ b :=
+theorem ne_of_not_mem_cons {a b : T} {l : list T} : a ∉ b::l → a ≠ b :=
 assume nin aeqb, absurd (or.inl aeqb) nin
 
-theorem not_mem_of_not_mem {a b : T} {l : list T} : a ∉ b::l → a ∉ l :=
+theorem not_mem_of_not_mem_cons {a b : T} {l : list T} : a ∉ b::l → a ∉ l :=
 assume nin nainl, absurd (or.inr nainl) nin
+
+lemma not_mem_cons_of_ne_of_not_mem {x y : T} {l : list T} : x ≠ y → x ∉ l → x ∉ y::l :=
+assume P1 P2, not.intro (assume Pxin, absurd (eq_or_mem_of_mem_cons Pxin) (not_or P1 P2))
+
+lemma ne_and_not_mem_of_not_mem_cons {x y : T} {l : list T} : x ∉ y::l → x ≠ y ∧ x ∉ l :=
+assume P, and.intro (ne_of_not_mem_cons P) (not_mem_of_not_mem_cons P)
 
 definition sublist (l₁ l₂ : list T) := ∀ ⦃a : T⦄, a ∈ l₁ → a ∈ l₂
 
@@ -392,7 +398,7 @@ assume e, if_pos e
 theorem find_cons_of_ne {x y : T} (l : list T) : x ≠ y → find x (y::l) = succ (find x l) :=
 assume n, if_neg n
 
-theorem find.not_mem {l : list T} {x : T} : ¬x ∈ l → find x l = length l :=
+theorem find_of_not_mem {l : list T} {x : T} : ¬x ∈ l → find x l = length l :=
 list.rec_on l
    (assume P₁ : ¬x ∈ [], _)
    (take y l,
@@ -405,6 +411,36 @@ list.rec_on l
                   ... = succ (find x l)                      : if_neg (and.elim_left P₃)
                   ... = succ (length l)                      : {iH (and.elim_right P₃)}
                   ... = length (y::l)                        : !length_cons⁻¹)
+
+lemma find_le_length : ∀ {a} {l : list T}, find a l ≤ length l
+| a []        := !le.refl
+| a (b::l)    := decidable.rec_on (H a b)
+              (assume Peq, by rewrite [find_cons_of_eq l Peq]; exact !zero_le)
+              (assume Pne,
+                begin
+                  rewrite [find_cons_of_ne l Pne, length_cons],
+                  apply succ_le_succ, apply find_le_length
+                end)
+
+lemma not_mem_of_find_eq_length : ∀ {a} {l : list T}, find a l = length l → a ∉ l
+| a []        := assume Peq, !not_mem_nil
+| a (b::l)    := decidable.rec_on (H a b)
+                (assume Peq, by rewrite [find_cons_of_eq l Peq, length_cons]; contradiction)
+                (assume Pne,
+                  begin
+                    rewrite [find_cons_of_ne l Pne, length_cons, mem_cons_iff],
+                    intro Plen, apply (not_or Pne),
+                    exact not_mem_of_find_eq_length (succ_inj Plen)
+                  end)
+
+lemma find_lt_length {a} {l : list T} (Pin : a ∈ l) : find a l < length l :=
+begin
+  apply nat.lt_of_le_and_ne,
+  apply find_le_length,
+  apply not.intro, intro Peq,
+  exact absurd Pin (not_mem_of_find_eq_length Peq)
+end
+
 end
 
 /- nth element -/

@@ -563,8 +563,8 @@ assume p, perm_induction_on p
               exact skip y r
             end)))
     (λ nxinyt₁ : x ∉ y::t₁,
-      have   xney    : x ≠ y,  from not_eq_of_not_mem nxinyt₁,
-      have   nxint₁  : x ∉ t₁, from not_mem_of_not_mem nxinyt₁,
+      have   xney    : x ≠ y,  from ne_of_not_mem_cons nxinyt₁,
+      have   nxint₁  : x ∉ t₁, from not_mem_of_not_mem_cons nxinyt₁,
       assert nxint₂  : x ∉ t₂, from
         assume xint₂ : x ∈ t₂, absurd (mem_of_mem_erase_dup (mem_perm (perm.symm r) (mem_erase_dup xint₂))) nxint₁,
       by_cases

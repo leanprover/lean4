@@ -66,7 +66,7 @@ lemma erase_append_right {a : A} : ∀ {l₁} (l₂), a ∉ l₁ → erase a (l�
   by_cases
    (λ aeqx : a = x, by rewrite aeqx at h; exact (absurd !mem_cons h))
    (λ anex : a ≠ x,
-    assert nainxs : a ∉ xs, from not_mem_of_not_mem h,
+    assert nainxs : a ∉ xs, from not_mem_of_not_mem_cons h,
     by rewrite [append_cons, *erase_cons_tail _ anex, erase_append_right l₂ nainxs])
 
 lemma erase_sub (a : A) : ∀ l, erase a l ⊆ l
@@ -425,6 +425,26 @@ theorem nodup_filter (p : A → Prop) [h : decidable_pred p] : ∀ {l : list A},
   by_cases
     (λ pa  : p a, by rewrite [filter_cons_of_pos _ pa]; exact (nodup_cons nainf ndf))
     (λ npa : ¬ p a, by rewrite [filter_cons_of_neg _ npa]; exact ndf)
+
+lemma dmap_nodup_of_dinj {p : A → Prop} [h : decidable_pred p] {f : Π a, p a → B} (Pdi : dinj p f):
+    ∀ {l : list A}, nodup l → nodup (dmap p f l)
+| []     := take P, nodup.ndnil
+| (a::l) := take Pnodup,
+              decidable.rec_on (h a)
+                (λ Pa,
+                  begin
+                    rewrite [dmap_cons_of_pos Pa],
+                    apply nodup_cons,
+                    apply (dinj_not_mem_of_dmap Pdi Pa),
+                    exact not_mem_of_nodup_cons Pnodup,
+                    exact dmap_nodup_of_dinj (nodup_of_nodup_cons Pnodup)
+                  end)
+                (λ nPa,
+                  begin
+                    rewrite [dmap_cons_of_neg nPa],
+                    exact dmap_nodup_of_dinj (nodup_of_nodup_cons Pnodup)
+                  end)
+
 end nodup
 
 /- upto -/

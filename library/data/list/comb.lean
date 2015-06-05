@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2015 Leonardo de Moura. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Haitao Zhang
 
 List combinators.
 -/
@@ -364,6 +364,81 @@ theorem length_product : ∀ (l₁ : list A) (l₂ : list B), length (product l�
   by rewrite [product_cons, length_append, length_cons,
               length_map, ih, mul.right_distrib, one_mul, add.comm]
 end product
+
+-- new for list/comb dependent map theory
+definition dinj₁ (p : A → Prop) (f : Π a, p a → B) := ∀ ⦃a1 a2⦄ (h1 : p a1) (h2 : p a2), a1 ≠ a2 → (f a1 h1) ≠ (f a2 h2)
+definition dinj (p : A → Prop) (f : Π a, p a → B) := ∀ ⦃a1 a2⦄ (h1 : p a1) (h2 : p a2), (f a1 h1) = (f a2 h2) → a1 = a2
+
+definition dmap (p : A → Prop) [h : decidable_pred p] (f : Π a, p a → B) : list A → list B
+| []       := []
+| (a::l)   := if P : (p a) then cons (f a P) (dmap l) else (dmap l)
+
+-- properties of dmap
+section dmap
+
+variable {p : A → Prop}
+variable [h : decidable_pred p]
+include h
+variable {f : Π a, p a → B}
+
+lemma dmap_nil : dmap p f [] = [] := rfl
+lemma dmap_cons_of_pos {a : A} (P : p a) : ∀ l, dmap p f (a::l) = (f a P) :: dmap p f l :=
+      λ l, dif_pos P
+lemma dmap_cons_of_neg {a : A} (P : ¬ p a) : ∀ l, dmap p f (a::l) = dmap p f l :=
+      λ l, dif_neg P
+
+lemma mem_of_dmap : ∀ {l : list A} {a} (Pa : p a), a ∈ l → (f a Pa) ∈ dmap p f l
+| []     := take a Pa Pinnil, by contradiction
+| (a::l) := take b Pb Pbin, or.elim (eq_or_mem_of_mem_cons Pbin)
+              (assume Pbeqa, begin
+                rewrite [eq.symm Pbeqa, dmap_cons_of_pos Pb],
+                exact !mem_cons
+              end)
+              (assume Pbinl,
+                decidable.rec_on (h a)
+                (assume Pa, begin
+                  rewrite [dmap_cons_of_pos Pa],
+                  apply mem_cons_of_mem,
+                  exact mem_of_dmap Pb Pbinl
+                end)
+                (assume nPa, begin
+                  rewrite [dmap_cons_of_neg nPa],
+                  exact mem_of_dmap Pb Pbinl
+                end))
+
+lemma map_of_dmap_inv_pos {g : B → A} (Pinv : ∀ a (Pa : p a), g (f a Pa) = a) :
+                          ∀ {l : list A}, (∀ ⦃a⦄, a ∈ l → p a) → map g (dmap p f l) = l
+| []     := assume Pl, by rewrite [dmap_nil, map_nil]
+| (a::l) := assume Pal,
+            assert Pa : p a, from Pal a !mem_cons,
+            assert Pl : ∀ a, a ∈ l → p a,
+              from take x Pxin, Pal x (mem_cons_of_mem a Pxin),
+            by rewrite [dmap_cons_of_pos Pa, map_cons, Pinv, map_of_dmap_inv_pos Pl]
+
+lemma dinj_mem_of_mem_of_dmap (Pdi : dinj p f) : ∀ {l : list A} {a} (Pa : p a), (f a Pa) ∈ dmap p f l → a ∈ l
+| []     := take a Pa Pinnil, by contradiction
+| (b::l) := take a Pa Pmap,
+              decidable.rec_on (h b)
+              (λ Pb, begin
+                rewrite (dmap_cons_of_pos Pb) at Pmap,
+                rewrite mem_cons_iff at Pmap,
+                rewrite mem_cons_iff,
+                apply (or_of_or_of_imp_of_imp Pmap),
+                  apply Pdi,
+                  apply dinj_mem_of_mem_of_dmap Pa
+              end)
+              (λ nPb, begin
+                 rewrite (dmap_cons_of_neg nPb) at Pmap,
+                 apply mem_cons_of_mem,
+                 exact dinj_mem_of_mem_of_dmap Pa Pmap
+              end)
+
+lemma dinj_not_mem_of_dmap (Pdi : dinj p f) {l : list A} {a} (Pa : p a) :
+  a ∉ l → (f a Pa) ∉ dmap p f l :=
+not_imp_not_of_imp (dinj_mem_of_mem_of_dmap Pdi Pa)
+
+end dmap
+
 end list
 
 attribute list.decidable_any [instance]

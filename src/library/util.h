@@ -154,6 +154,11 @@ expr mk_absurd(type_checker & tc, expr const & t, expr const & e, expr const & n
 expr mk_eq(type_checker & tc, expr const & lhs, expr const & rhs);
 expr mk_refl(type_checker & tc, expr const & a);
 expr mk_symm(type_checker & tc, expr const & H);
+expr mk_trans(type_checker & tc, expr const & H1, expr const & H2);
+expr mk_subst(type_checker & tc, expr const & motive, expr const & x, expr const & y, expr const & xeqy, expr const & h);
+expr mk_subst(type_checker & tc, expr const & motive, expr const & xeqy, expr const & h);
+/** \brief Create an proof for x = y using subsingleton.elim (in standard mode) and is_trunc.is_hprop.elim (in HoTT mode) */
+expr mk_subsingleton_elim(type_checker & tc, expr const & h, expr const & x, expr const & y);
 bool is_eq_rec(expr const & e);
 bool is_eq(expr const & e);
 bool is_eq(expr const & e, expr & lhs, expr & rhs);

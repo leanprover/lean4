@@ -26,6 +26,7 @@ name const * g_eq_rec_eq = nullptr;
 name const * g_eq_refl = nullptr;
 name const * g_eq_symm = nullptr;
 name const * g_eq_trans = nullptr;
+name const * g_eq_subst = nullptr;
 name const * g_exists_elim = nullptr;
 name const * g_false = nullptr;
 name const * g_false_rec = nullptr;
@@ -39,6 +40,7 @@ name const * g_iff_true_intro = nullptr;
 name const * g_implies = nullptr;
 name const * g_implies_of_if_pos = nullptr;
 name const * g_implies_of_if_neg = nullptr;
+name const * g_is_trunc_is_hprop_elim = nullptr;
 name const * g_ite = nullptr;
 name const * g_lift = nullptr;
 name const * g_lift_down = nullptr;
@@ -72,6 +74,8 @@ name const * g_sigma_mk = nullptr;
 name const * g_string = nullptr;
 name const * g_string_empty = nullptr;
 name const * g_string_str = nullptr;
+name const * g_subsingleton = nullptr;
+name const * g_subsingleton_elim = nullptr;
 name const * g_tactic = nullptr;
 name const * g_tactic_all_goals = nullptr;
 name const * g_tactic_apply = nullptr;
@@ -134,8 +138,8 @@ name const * g_trans_rel_left = nullptr;
 name const * g_trans_rel_right = nullptr;
 name const * g_true = nullptr;
 name const * g_true_intro = nullptr;
-name const * g_is_trunc = nullptr;
-name const * g_is_trunc_trunc_index_of_nat = nullptr;
+name const * g_is_trunc_is_hset = nullptr;
+name const * g_is_trunc_is_hprop = nullptr;
 name const * g_unit = nullptr;
 name const * g_unit_star = nullptr;
 name const * g_well_founded = nullptr;
@@ -163,6 +167,7 @@ void initialize_constants() {
     g_eq_refl = new name{"eq", "refl"};
     g_eq_symm = new name{"eq", "symm"};
     g_eq_trans = new name{"eq", "trans"};
+    g_eq_subst = new name{"eq", "subst"};
     g_exists_elim = new name{"exists", "elim"};
     g_false = new name{"false"};
     g_false_rec = new name{"false", "rec"};
@@ -176,6 +181,7 @@ void initialize_constants() {
     g_implies = new name{"implies"};
     g_implies_of_if_pos = new name{"implies_of_if_pos"};
     g_implies_of_if_neg = new name{"implies_of_if_neg"};
+    g_is_trunc_is_hprop_elim = new name{"is_trunc", "is_hprop", "elim"};
     g_ite = new name{"ite"};
     g_lift = new name{"lift"};
     g_lift_down = new name{"lift", "down"};
@@ -209,6 +215,8 @@ void initialize_constants() {
     g_string = new name{"string"};
     g_string_empty = new name{"string", "empty"};
     g_string_str = new name{"string", "str"};
+    g_subsingleton = new name{"subsingleton"};
+    g_subsingleton_elim = new name{"subsingleton", "elim"};
     g_tactic = new name{"tactic"};
     g_tactic_all_goals = new name{"tactic", "all_goals"};
     g_tactic_apply = new name{"tactic", "apply"};
@@ -271,8 +279,8 @@ void initialize_constants() {
     g_trans_rel_right = new name{"trans_rel_right"};
     g_true = new name{"true"};
     g_true_intro = new name{"true", "intro"};
-    g_is_trunc = new name{"is_trunc"};
-    g_is_trunc_trunc_index_of_nat = new name{"is_trunc", "trunc_index", "of_nat"};
+    g_is_trunc_is_hset = new name{"is_trunc", "is_hset"};
+    g_is_trunc_is_hprop = new name{"is_trunc", "is_hprop"};
     g_unit = new name{"unit"};
     g_unit_star = new name{"unit", "star"};
     g_well_founded = new name{"well_founded"};
@@ -301,6 +309,7 @@ void finalize_constants() {
     delete g_eq_refl;
     delete g_eq_symm;
     delete g_eq_trans;
+    delete g_eq_subst;
     delete g_exists_elim;
     delete g_false;
     delete g_false_rec;
@@ -314,6 +323,7 @@ void finalize_constants() {
     delete g_implies;
     delete g_implies_of_if_pos;
     delete g_implies_of_if_neg;
+    delete g_is_trunc_is_hprop_elim;
     delete g_ite;
     delete g_lift;
     delete g_lift_down;
@@ -347,6 +357,8 @@ void finalize_constants() {
     delete g_string;
     delete g_string_empty;
     delete g_string_str;
+    delete g_subsingleton;
+    delete g_subsingleton_elim;
     delete g_tactic;
     delete g_tactic_all_goals;
     delete g_tactic_apply;
@@ -409,8 +421,8 @@ void finalize_constants() {
     delete g_trans_rel_right;
     delete g_true;
     delete g_true_intro;
-    delete g_is_trunc;
-    delete g_is_trunc_trunc_index_of_nat;
+    delete g_is_trunc_is_hset;
+    delete g_is_trunc_is_hprop;
     delete g_unit;
     delete g_unit_star;
     delete g_well_founded;
@@ -438,6 +450,7 @@ name const & get_eq_rec_eq_name() { return *g_eq_rec_eq; }
 name const & get_eq_refl_name() { return *g_eq_refl; }
 name const & get_eq_symm_name() { return *g_eq_symm; }
 name const & get_eq_trans_name() { return *g_eq_trans; }
+name const & get_eq_subst_name() { return *g_eq_subst; }
 name const & get_exists_elim_name() { return *g_exists_elim; }
 name const & get_false_name() { return *g_false; }
 name const & get_false_rec_name() { return *g_false_rec; }
@@ -451,6 +464,7 @@ name const & get_iff_true_intro_name() { return *g_iff_true_intro; }
 name const & get_implies_name() { return *g_implies; }
 name const & get_implies_of_if_pos_name() { return *g_implies_of_if_pos; }
 name const & get_implies_of_if_neg_name() { return *g_implies_of_if_neg; }
+name const & get_is_trunc_is_hprop_elim_name() { return *g_is_trunc_is_hprop_elim; }
 name const & get_ite_name() { return *g_ite; }
 name const & get_lift_name() { return *g_lift; }
 name const & get_lift_down_name() { return *g_lift_down; }
@@ -484,6 +498,8 @@ name const & get_sigma_mk_name() { return *g_sigma_mk; }
 name const & get_string_name() { return *g_string; }
 name const & get_string_empty_name() { return *g_string_empty; }
 name const & get_string_str_name() { return *g_string_str; }
+name const & get_subsingleton_name() { return *g_subsingleton; }
+name const & get_subsingleton_elim_name() { return *g_subsingleton_elim; }
 name const & get_tactic_name() { return *g_tactic; }
 name const & get_tactic_all_goals_name() { return *g_tactic_all_goals; }
 name const & get_tactic_apply_name() { return *g_tactic_apply; }
@@ -546,8 +562,8 @@ name const & get_trans_rel_left_name() { return *g_trans_rel_left; }
 name const & get_trans_rel_right_name() { return *g_trans_rel_right; }
 name const & get_true_name() { return *g_true; }
 name const & get_true_intro_name() { return *g_true_intro; }
-name const & get_is_trunc_name() { return *g_is_trunc; }
-name const & get_is_trunc_trunc_index_of_nat_name() { return *g_is_trunc_trunc_index_of_nat; }
+name const & get_is_trunc_is_hset_name() { return *g_is_trunc_is_hset; }
+name const & get_is_trunc_is_hprop_name() { return *g_is_trunc_is_hprop; }
 name const & get_unit_name() { return *g_unit; }
 name const & get_unit_star_name() { return *g_unit_star; }
 name const & get_well_founded_name() { return *g_well_founded; }

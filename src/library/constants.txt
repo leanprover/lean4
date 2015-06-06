@@ -21,6 +21,7 @@ eq_rec_eq
 eq.refl
 eq.symm
 eq.trans
+eq.subst
 exists.elim
 false
 false.rec
@@ -34,6 +35,7 @@ iff_true_intro
 implies
 implies_of_if_pos
 implies_of_if_neg
+is_trunc.is_hprop.elim
 ite
 lift
 lift.down
@@ -67,6 +69,8 @@ sigma.mk
 string
 string.empty
 string.str
+subsingleton
+subsingleton.elim
 tactic
 tactic.all_goals
 tactic.apply
@@ -129,8 +133,8 @@ trans_rel_left
 trans_rel_right
 true
 true.intro
-is_trunc
-is_trunc.trunc_index.of_nat
+is_trunc.is_hset
+is_trunc.is_hprop
 unit
 unit.star
 well_founded

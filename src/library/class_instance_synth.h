@@ -44,6 +44,10 @@ optional<expr> mk_class_instance(environment const & env, io_state const & ios, 
 /** \breif Try to synthesize an inhabitant for (is_hset type) using class instance resolution */
 optional<expr> mk_hset_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type);
 
+/** \breif Try to synthesize an inhabitant for (subsingleton type in the standard library, and hprop in the HoTT library)
+    using class instance resolution */
+optional<expr> mk_subsingleton_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type);
+
 void initialize_class_instance_elaborator();
 void finalize_class_instance_elaborator();
 }

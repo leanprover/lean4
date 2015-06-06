@@ -463,8 +463,9 @@ optional<expr> mk_class_instance(environment const & env, io_state const & ios, 
             auto p = seq.pull();
             lean_assert(p);
             substitution s = p->first.first;
-            expr r = s.instantiate_all(meta);
-            if (!has_expr_metavar_relaxed(r))
+            expr r        = s.instantiate_all(meta);
+            expr new_type = s.instantiate_all(type);
+            if (!has_expr_metavar_relaxed(r) && new_type == type)
                 return some_expr(r);
             seq = p->second;
         }
@@ -481,9 +482,18 @@ optional<expr> mk_class_instance(environment const & env, io_state const & ios, 
 }
 
 optional<expr> mk_hset_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type) {
-    expr trunc_index = mk_app(mk_constant(get_is_trunc_trunc_index_of_nat_name()), mk_constant(get_nat_zero_name()));
     level lvl        = sort_level(tc.ensure_type(type).first);
-    expr is_hset     = mk_app(mk_constant(get_is_trunc_name(), {lvl}), trunc_index, type);
+    expr is_hset     = tc.whnf(mk_app(mk_constant(get_is_trunc_is_hset_name(), {lvl}), type)).first;
     return mk_class_instance(tc.env(), ios, ctx, tc.mk_fresh_name(), is_hset);
+}
+
+optional<expr> mk_subsingleton_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type) {
+    level lvl        = sort_level(tc.ensure_type(type).first);
+    expr subsingleton;
+    if (is_standard(tc.env()))
+        subsingleton = mk_app(mk_constant(get_subsingleton_name(), {lvl}), type);
+    else
+        subsingleton = tc.whnf(mk_app(mk_constant(get_is_trunc_is_hprop_name(), {lvl}), type)).first;
+    return mk_class_instance(tc.env(), ios, ctx, tc.mk_fresh_name(), subsingleton);
 }
 }

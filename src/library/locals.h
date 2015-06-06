@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Copyright (c) 2014-2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
@@ -56,4 +56,8 @@ bool depends_on_any(expr const & e, unsigned hs_sz, expr const * hs);
 inline bool depends_on_any(expr const & e, buffer<expr> const & hs) {
     return depends_on_any(e, hs.size(), hs.data());
 }
+
+/** \brief Replace the given local constants occurring in \c e with the given terms */
+expr replace_locals(expr const & e, unsigned sz, expr const * locals, expr const * terms);
+expr replace_locals(expr const & e, buffer<expr> const & locals, buffer<expr> const & terms);
 }

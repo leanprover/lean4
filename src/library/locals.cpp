@@ -1,10 +1,12 @@
 /*
-Copyright (c) 2014 Microsoft Corporation. All rights reserved.
+Copyright (c) 2014-2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
 #include "util/name_set.h"
+#include "kernel/abstract.h"
+#include "kernel/instantiate.h"
 #include "kernel/expr.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
@@ -59,17 +61,43 @@ void collected_locals::insert(expr const & l) {
 void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
     if (!has_local(e))
         return;
-    for_each(e, [&](expr const & e, unsigned) {
-            if (!has_local(e))
-                return false;
-            if (is_local(e)) {
-                ls.insert(e);
-                return !restricted; // search type if not restricted
-            }
-            if (is_meta(e))
-                return !restricted; // search type if not restricted
-            return true;
-        });
+    expr_set visited;
+    std::function<void(expr const & e)> visit = [&](expr const & e) {
+        if (!has_local(e))
+            return;
+        if (restricted && is_meta(e))
+            return;
+        if (visited.find(e) != visited.end())
+            return;
+        visited.insert(e);
+        switch (e.kind()) {
+        case expr_kind::Var: case expr_kind::Constant: case expr_kind::Sort:
+            break; // do nothing
+        case expr_kind::Local:
+            if (!restricted)
+                visit(mlocal_type(e));
+            ls.insert(e);
+            break;
+        case expr_kind::Meta:
+            lean_assert(!restricted);
+            visit(mlocal_type(e));
+            break;
+        case expr_kind::Macro:
+            for (unsigned i = 0; i < macro_num_args(e); i++)
+                visit(macro_arg(e, i));
+            break;
+        case expr_kind::App:
+            visit(app_fn(e));
+            visit(app_arg(e));
+            break;
+        case expr_kind::Lambda:
+        case expr_kind::Pi:
+            visit(binding_domain(e));
+            visit(binding_body(e));
+            break;
+        }
+    };
+    visit(e);
 }
 
 bool contains_local(expr const & e, name const & n) {
@@ -98,5 +126,15 @@ optional<expr> depends_on(unsigned sz, expr const * es, expr const & h) {
 
 bool depends_on_any(expr const & e, unsigned hs_sz, expr const * hs) {
     return std::any_of(hs, hs+hs_sz, [&](expr const & h) { return depends_on(e, h); });
+}
+
+expr replace_locals(expr const & e, unsigned sz, expr const * locals, expr const * terms) {
+    return instantiate_rev(abstract_locals(e, sz, locals), sz, terms);
+}
+
+expr replace_locals(expr const & e, buffer<expr> const & locals, buffer<expr> const & terms) {
+    lean_assert(locals.size() == terms.size());
+    lean_assert(std::all_of(locals.begin(), locals.end(), is_local));
+    return replace_locals(e, locals.size(), locals.data(), terms.data());
 }
 }

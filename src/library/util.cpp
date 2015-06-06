@@ -505,6 +505,48 @@ expr mk_symm(type_checker & tc, expr const & H) {
     return mk_app(mk_constant(get_eq_symm_name(), {lvl}), A, lhs, rhs, H);
 }
 
+expr mk_trans(type_checker & tc, expr const & H1, expr const & H2) {
+    expr p1    = tc.whnf(tc.infer(H1).first).first;
+    expr p2    = tc.whnf(tc.infer(H2).first).first;
+    lean_assert(is_eq(p1) && is_eq(p2));
+    expr lhs1  = app_arg(app_fn(p1));
+    expr rhs1  = app_arg(p1);
+    expr rhs2  = app_arg(p2);
+    expr A     = tc.infer(lhs1).first;
+    level lvl  = sort_level(tc.ensure_type(A).first);
+    return mk_app({mk_constant(get_eq_trans_name(), {lvl}), A, lhs1, rhs1, rhs2, H1, H2});
+}
+
+expr mk_subst(type_checker & tc, expr const & motive, expr const & x, expr const & y, expr const & xeqy, expr const & h) {
+    expr A    = tc.infer(x).first;
+    level l1  = sort_level(tc.ensure_type(A).first);
+    expr r;
+    if (is_standard(tc.env())) {
+        r = mk_constant(get_eq_subst_name(), {l1});
+    } else {
+        level l2 = sort_level(tc.ensure_type(tc.infer(h).first).first);
+        r = mk_constant(get_eq_subst_name(), {l1, l2});
+    }
+    return mk_app({r, A, x, y, motive, xeqy, h});
+}
+
+expr mk_subst(type_checker & tc, expr const & motive, expr const & xeqy, expr const & h) {
+    expr xeqy_type = tc.whnf(tc.infer(xeqy).first).first;
+    return mk_subst(tc, motive, app_arg(app_fn(xeqy_type)), app_arg(xeqy_type), xeqy, h);
+}
+
+expr mk_subsingleton_elim(type_checker & tc, expr const & h, expr const & x, expr const & y) {
+    expr A  = tc.infer(x).first;
+    level l = sort_level(tc.ensure_type(A).first);
+    expr r;
+    if (is_standard(tc.env())) {
+        r = mk_constant(get_subsingleton_elim_name(), {l});
+    } else {
+        r = mk_constant(get_is_trunc_is_hprop_elim_name(), {l});
+    }
+    return mk_app({r, A, h, x, y});
+}
+
 expr mk_heq(type_checker & tc, expr const & lhs, expr const & rhs) {
     expr A    = tc.whnf(tc.infer(lhs).first).first;
     expr B    = tc.whnf(tc.infer(rhs).first).first;

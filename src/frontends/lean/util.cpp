@@ -74,7 +74,7 @@ name remove_root_prefix(name const & n) {
 }
 
 // Sort local names by order of occurrence, and copy the associated parameters to ps
-void sort_locals(expr_struct_set const & locals, parser const & p, buffer<expr> & ps) {
+void sort_locals(buffer<expr> const & locals, parser const & p, buffer<expr> & ps) {
     for (expr const & l : locals) {
         // we only copy the locals that are in p's local context
         if (p.is_local_decl(l))
@@ -104,9 +104,9 @@ levels collect_local_nonvar_levels(parser & p, level_param_names const & ls) {
     return to_list(section_ls_buffer.begin(), section_ls_buffer.end());
 }
 
-// Version of collect_locals(expr const & e, expr_struct_set & ls) that ignores local constants occurring in
+// Version of collect_locals(expr const & e, collected_locals & ls) that ignores local constants occurring in
 // tactics.
-static void collect_locals_ignoring_tactics(expr const & e, expr_struct_set & ls) {
+static void collect_locals_ignoring_tactics(expr const & e, collected_locals & ls) {
     if (!has_local(e))
         return;
     for_each(e, [&](expr const & e, unsigned) {
@@ -122,7 +122,7 @@ static void collect_locals_ignoring_tactics(expr const & e, expr_struct_set & ls
 
 // Collect local constants occurring in type and value, sort them, and store in ctx_ps
 void collect_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & ctx_ps) {
-    expr_struct_set ls;
+    collected_locals ls;
     buffer<expr> include_vars;
     p.get_include_variables(include_vars);
     for (expr const & param : include_vars) {
@@ -133,7 +133,7 @@ void collect_locals(expr const & type, expr const & value, parser const & p, buf
     }
     collect_locals_ignoring_tactics(type, ls);
     collect_locals_ignoring_tactics(value, ls);
-    sort_locals(ls, p, ctx_ps);
+    sort_locals(ls.get_collected(), p, ctx_ps);
 }
 
 name_set collect_univ_params_ignoring_tactics(expr const & e, name_set const & ls) {
@@ -177,10 +177,10 @@ levels remove_local_vars(parser const & p, levels const & ls) {
 }
 
 list<expr> locals_to_context(expr const & e, parser const & p) {
-    expr_struct_set ls;
+    collected_locals ls;
     collect_locals_ignoring_tactics(e, ls);
     buffer<expr> locals;
-    sort_locals(ls, p, locals);
+    sort_locals(ls.get_collected(), p, locals);
     std::reverse(locals.begin(), locals.end());
     return to_list(locals.begin(), locals.end());
 }

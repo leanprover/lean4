@@ -15,7 +15,17 @@ name_set collect_univ_params(expr const & e, name_set const & ls = name_set());
   \remark If restricted is true, then locals in meta-variable applications and local constants
   are ignored.
 */
-void collect_locals(expr const & e, expr_struct_set & ls, bool restricted = false);
+class collected_locals {
+    name_set     m_local_names;
+    buffer<expr> m_locals;
+public:
+    void insert(expr const & l);
+    bool contains(expr const & l) const { return m_local_names.contains(mlocal_name(l)); }
+    buffer<expr> const & get_collected() const { return m_locals; }
+    bool empty() const { return m_locals.empty(); }
+};
+
+void collect_locals(expr const & e, collected_locals & ls, bool restricted = false);
 level_param_names to_level_param_names(name_set const & ls);
 
 /** \brief Return true iff \c [begin_locals, end_locals) contains \c local */

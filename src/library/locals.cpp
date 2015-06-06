@@ -49,7 +49,14 @@ level_param_names to_level_param_names(name_set const & ls) {
     return r;
 }
 
-void collect_locals(expr const & e, expr_struct_set & ls, bool restricted) {
+void collected_locals::insert(expr const & l) {
+    if (m_local_names.contains(mlocal_name(l)))
+        return;
+    m_local_names.insert(mlocal_name(l));
+    m_locals.push_back(l);
+}
+
+void collect_locals(expr const & e, collected_locals & ls, bool restricted) {
     if (!has_local(e))
         return;
     for_each(e, [&](expr const & e, unsigned) {

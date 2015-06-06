@@ -34,105 +34,109 @@ static void split_deps(buffer<expr> const & hyps, expr const & x, expr const & h
     }
 }
 
+optional<proof_state> subst(environment const & env, name const & h_name, bool symm, proof_state const & s) {
+    goals const & gs = s.get_goals();
+    if (empty(gs))
+        return none_proof_state();
+    goal g  = head(gs);
+    auto opt_h = g.find_hyp_from_internal_name(h_name);
+    if (!opt_h)
+        return none_proof_state();
+    expr const & h = opt_h->first;
+    expr lhs, rhs;
+    if (!is_eq(mlocal_type(h), lhs, rhs))
+        return none_proof_state();
+    name_generator ngen = s.get_ngen();
+    auto tc = mk_type_checker(env, ngen.mk_child());
+    if (symm)
+        std::swap(lhs, rhs);
+    if (!is_local(lhs))
+        return none_proof_state();
+    buffer<expr> hyps, deps, non_deps;
+    g.get_hyps(hyps);
+    bool depends_on_h = depends_on(g.get_type(), h);
+    split_deps(hyps, lhs, h, non_deps, deps, depends_on_h);
+    // revert dependencies
+    expr type = Pi(deps, g.get_type());
+    // substitute
+    bool has_dep_elim = inductive::has_dep_elim(env, get_eq_name());
+    bool use_dep_elim = has_dep_elim;
+    if (depends_on_h)
+        use_dep_elim = true;
+    expr motive, new_type;
+    new_type = instantiate(abstract_local(type, mlocal_name(lhs)), rhs);
+    if (use_dep_elim) {
+        new_type = instantiate(abstract_local(new_type, mlocal_name(h)), mk_refl(*tc, rhs));
+        if (symm) {
+            motive = Fun(lhs, Fun(h, type));
+        } else {
+            expr Heq = mk_local(ngen.next(), local_pp_name(h), mk_eq(*tc, rhs, lhs), binder_info());
+            motive = Fun(lhs, Fun(Heq, type));
+        }
+    } else {
+        motive   = Fun(lhs, type);
+    }
+    buffer<expr> new_hyps;
+    buffer<expr> intros_hyps;
+    new_hyps.append(non_deps);
+
+    // reintroduce dependencies
+    expr new_goal_type = new_type;
+    for (expr const & d : deps) {
+        if (!is_pi(new_goal_type))
+            return none_proof_state();
+        expr new_h = mk_local(ngen.next(), local_pp_name(d), binding_domain(new_goal_type), binder_info());
+        new_hyps.push_back(new_h);
+        intros_hyps.push_back(new_h);
+        new_goal_type = instantiate(binding_body(new_goal_type), new_h);
+    }
+
+    // create new goal
+    expr new_metavar   = mk_metavar(ngen.next(), Pi(new_hyps, new_goal_type));
+    expr new_meta_core = mk_app(new_metavar, non_deps);
+    expr new_meta      = mk_app(new_meta_core, intros_hyps);
+    goal new_g(new_meta, new_goal_type);
+    // create eqrec term
+    substitution new_subst = s.get_subst();
+    expr major = symm ? h : mk_symm(*tc, h);
+    expr minor = new_meta_core;
+    expr A     = tc->infer(lhs).first;
+    level l1   = sort_level(tc->ensure_type(new_type).first);
+    level l2   = sort_level(tc->ensure_type(A).first);
+    name eq_rec_name;
+    if (!has_dep_elim && use_dep_elim)
+        eq_rec_name = get_eq_drec_name();
+    else
+        eq_rec_name = get_eq_rec_name();
+    expr eqrec = mk_app({mk_constant(eq_rec_name, {l1, l2}), A, rhs, motive, minor, lhs, major});
+    if (use_dep_elim) {
+        try {
+            check_term(env, g.abstract(eqrec));
+        } catch (kernel_exception & ex) {
+            if (!s.report_failure())
+                return none_proof_state();
+            std::shared_ptr<kernel_exception> saved_ex(static_cast<kernel_exception*>(ex.clone()));
+            throw tactic_exception("rewrite step failed", none_expr(), s,
+                                   [=](formatter const & fmt) {
+                                       format r;
+                                       r += format("invalid 'subst' tactic, "
+                                                   "produced type incorrect term, details: ");
+                                       r += saved_ex->pp(fmt);
+                                       r += line();
+                                       return r;
+                                   });
+        }
+    }
+    expr new_val = mk_app(eqrec, deps);
+    assign(new_subst, g, new_val);
+    lean_assert(new_subst.is_assigned(g.get_mvar()));
+    proof_state new_s(s, goals(new_g, tail(gs)), new_subst, ngen);
+    return some_proof_state(new_s);
+}
+
 tactic mk_subst_tactic_core(name const & h_name, bool symm) {
     auto fn = [=](environment const & env, io_state const &, proof_state const & s) {
-        goals const & gs = s.get_goals();
-        if (empty(gs))
-            return none_proof_state();
-        goal g  = head(gs);
-        auto opt_h = g.find_hyp_from_internal_name(h_name);
-        if (!opt_h)
-            return none_proof_state();
-        expr const & h = opt_h->first;
-        expr lhs, rhs;
-        if (!is_eq(mlocal_type(h), lhs, rhs))
-            return none_proof_state();
-        name_generator ngen = s.get_ngen();
-        auto tc = mk_type_checker(env, ngen.mk_child());
-        if (symm)
-            std::swap(lhs, rhs);
-        if (!is_local(lhs))
-            return none_proof_state();
-        buffer<expr> hyps, deps, non_deps;
-        g.get_hyps(hyps);
-        bool depends_on_h = depends_on(g.get_type(), h);
-        split_deps(hyps, lhs, h, non_deps, deps, depends_on_h);
-        // revert dependencies
-        expr type = Pi(deps, g.get_type());
-        // substitute
-        bool has_dep_elim = inductive::has_dep_elim(env, get_eq_name());
-        bool use_dep_elim = has_dep_elim;
-        if (depends_on_h)
-            use_dep_elim = true;
-        expr motive, new_type;
-        new_type = instantiate(abstract_local(type, mlocal_name(lhs)), rhs);
-        if (use_dep_elim) {
-            new_type = instantiate(abstract_local(new_type, mlocal_name(h)), mk_refl(*tc, rhs));
-            if (symm) {
-                motive = Fun(lhs, Fun(h, type));
-            } else {
-                expr Heq = mk_local(ngen.next(), local_pp_name(h), mk_eq(*tc, rhs, lhs), binder_info());
-                motive = Fun(lhs, Fun(Heq, type));
-            }
-        } else {
-            motive   = Fun(lhs, type);
-        }
-        buffer<expr> new_hyps;
-        buffer<expr> intros_hyps;
-        new_hyps.append(non_deps);
-
-        // reintroduce dependencies
-        expr new_goal_type = new_type;
-        for (expr const & d : deps) {
-            if (!is_pi(new_goal_type))
-                return none_proof_state();
-            expr new_h = mk_local(ngen.next(), local_pp_name(d), binding_domain(new_goal_type), binder_info());
-            new_hyps.push_back(new_h);
-            intros_hyps.push_back(new_h);
-            new_goal_type = instantiate(binding_body(new_goal_type), new_h);
-        }
-
-        // create new goal
-        expr new_metavar   = mk_metavar(ngen.next(), Pi(new_hyps, new_goal_type));
-        expr new_meta_core = mk_app(new_metavar, non_deps);
-        expr new_meta      = mk_app(new_meta_core, intros_hyps);
-        goal new_g(new_meta, new_goal_type);
-        // create eqrec term
-        substitution new_subst = s.get_subst();
-        expr major = symm ? h : mk_symm(*tc, h);
-        expr minor = new_meta_core;
-        expr A     = tc->infer(lhs).first;
-        level l1   = sort_level(tc->ensure_type(new_type).first);
-        level l2   = sort_level(tc->ensure_type(A).first);
-        name eq_rec_name;
-        if (!has_dep_elim && use_dep_elim)
-            eq_rec_name = get_eq_drec_name();
-        else
-            eq_rec_name = get_eq_rec_name();
-        expr eqrec = mk_app({mk_constant(eq_rec_name, {l1, l2}), A, rhs, motive, minor, lhs, major});
-        if (use_dep_elim) {
-            try {
-                check_term(env, g.abstract(eqrec));
-            } catch (kernel_exception & ex) {
-                if (!s.report_failure())
-                    return none_proof_state();
-                std::shared_ptr<kernel_exception> saved_ex(static_cast<kernel_exception*>(ex.clone()));
-                throw tactic_exception("rewrite step failed", none_expr(), s,
-                                       [=](formatter const & fmt) {
-                                           format r;
-                                           r += format("invalid 'subst' tactic, "
-                                                       "produced type incorrect term, details: ");
-                                           r += saved_ex->pp(fmt);
-                                           r += line();
-                                           return r;
-                                       });
-            }
-        }
-        expr new_val = mk_app(eqrec, deps);
-        assign(new_subst, g, new_val);
-        lean_assert(new_subst.is_assigned(g.get_mvar()));
-        proof_state new_s(s, goals(new_g, tail(gs)), new_subst, ngen);
-        return some_proof_state(new_s);
+        return subst(env, h_name, symm, s);
     };
     return tactic01(fn);
 }

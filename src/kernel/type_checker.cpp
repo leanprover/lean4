@@ -391,13 +391,17 @@ pair<bool, constraint_seq> type_checker::is_def_eq_types(expr const & t, expr co
 
 /** \brief Return true iff \c e is a proposition */
 pair<bool, constraint_seq> type_checker::is_prop(expr const & e) {
-    auto tcs  = infer_type(e);
-    auto wtcs = whnf(tcs.first);
-    bool r    = wtcs.first == mk_Prop();
-    if (r)
-        return mk_pair(true, tcs.second + wtcs.second);
-    else
+    if (m_env.impredicative()) {
+        auto tcs  = infer_type(e);
+        auto wtcs = whnf(tcs.first);
+        bool r    = wtcs.first == mk_Prop();
+        if (r)
+            return mk_pair(true, tcs.second + wtcs.second);
+        else
+            return mk_pair(false, constraint_seq());
+    } else {
         return mk_pair(false, constraint_seq());
+    }
 }
 
 pair<expr, constraint_seq> type_checker::whnf(expr const & t) {

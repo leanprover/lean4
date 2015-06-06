@@ -1254,7 +1254,7 @@ class rewrite_fn {
         return result;
     }
 
-    bool move_after(expr const & hyp, expr_struct_set const & hyps) {
+    bool move_after(expr const & hyp, buffer<expr> const & hyps) {
         buffer<name> used_hyp_names;
         for (auto const & p : hyps) {
             used_hyp_names.push_back(mlocal_name(p));
@@ -1279,9 +1279,9 @@ class rewrite_fn {
             expr a, Heq, b; // Heq is a proof of a = b
             std::tie(a, b, Heq) = *it;
             // We must make sure that hyp occurs after all hypotheses in b
-            expr_struct_set b_hyps;
+            collected_locals b_hyps;
             collect_locals(b, b_hyps);
-            if (!move_after(hyp, b_hyps))
+            if (!move_after(hyp, b_hyps.get_collected()))
                 return false;
             bool has_dep_elim = inductive::has_dep_elim(m_env, get_eq_name());
             unsigned vidx = has_dep_elim ? 1 : 0;
@@ -1368,7 +1368,7 @@ class rewrite_fn {
         location const & loc      = info.get_location();
         if (loc.is_goal_only())
             return process_rewrite_goal(orig_elem, pattern, *loc.includes_goal());
-        expr_struct_set used_hyps;
+        collected_locals used_hyps;
         collect_locals(elem, used_hyps, true);
         // We collect hypotheses used in the rewrite step. They are not rewritten.
         // That is, we don't use them to rewrite themselves.
@@ -1377,7 +1377,7 @@ class rewrite_fn {
         buffer<expr> hyps;
         m_g.get_hyps(hyps);
         for (expr const & h : hyps) {
-            if (used_hyps.find(h) != used_hyps.end())
+            if (used_hyps.contains(h))
                 continue; // skip used hypothesis
             auto occ = loc.includes_hypothesis(local_pp_name(h));
             if (!occ)

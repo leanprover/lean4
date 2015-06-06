@@ -38,7 +38,7 @@ levels collect_local_nonvar_levels(parser & p, level_param_names const & ls);
 void collect_locals(expr const & type, expr const & value, parser const & p, buffer<expr> & ctx_ps);
 name_set collect_univ_params_ignoring_tactics(expr const & e, name_set const & ls = name_set());
 /** \brief Copy the local names to \c ps, then sort \c ps (using the order in which they were declared). */
-void sort_locals(expr_struct_set const & locals, parser const & p, buffer<expr> & ps);
+void sort_locals(buffer<expr> const & locals, parser const & p, buffer<expr> & ps);
 /** \brief Remove from \c ps local constants that are tagged as variables. */
 void remove_local_vars(parser const & p, buffer<expr> & ps);
 /** \brief Remove from \c ls any universe level that is tagged as variable in \c p */

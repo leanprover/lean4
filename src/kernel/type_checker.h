@@ -205,6 +205,12 @@ public:
             cs = r.second + cs;
         return r.first;
     }
+    bool is_prop(expr const & t, constraint_seq & cs) {
+        auto r = is_prop(t);
+        if (r.first)
+            cs += r.second;
+        return r.first;
+    }
 
     optional<expr> expand_macro(expr const & m);
 

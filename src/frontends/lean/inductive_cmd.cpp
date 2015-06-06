@@ -342,7 +342,7 @@ struct inductive_cmd_fn {
     }
 
     /** \brief Collect local constants used in the inductive decls. */
-    void collect_locals_core(buffer<inductive_decl> const & decls, expr_struct_set & ls) {
+    void collect_locals_core(buffer<inductive_decl> const & decls, collected_locals & ls) {
         buffer<expr> include_vars;
         m_p.get_include_variables(include_vars);
         for (expr const & param : include_vars) {
@@ -365,11 +365,11 @@ struct inductive_cmd_fn {
     void collect_locals(buffer<inductive_decl> & decls, buffer<expr> & locals) {
         if (!m_p.has_locals())
             return;
-        expr_struct_set local_set;
+        collected_locals local_set;
         collect_locals_core(decls, local_set);
         if (local_set.empty())
             return;
-        sort_locals(local_set, m_p, locals);
+        sort_locals(local_set.get_collected(), m_p, locals);
         m_num_params += locals.size();
     }
 

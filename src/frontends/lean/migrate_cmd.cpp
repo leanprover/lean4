@@ -357,7 +357,7 @@ struct migrate_cmd_fn {
         for (auto const & p : m_replacements)
             tmp_locals.push_back(mk_local(m_ngen.next(), mk_as_type(p.second)));
 
-        expr_struct_set dep_set;
+        collected_locals dep_set;
         for (expr const & v : include_vars) {
             ::lean::collect_locals(mlocal_type(v), dep_set);
             dep_set.insert(v);
@@ -365,7 +365,7 @@ struct migrate_cmd_fn {
         for (expr const & p : m_params)
             ::lean::collect_locals(mlocal_type(p), dep_set);
         buffer<expr> ctx;
-        sort_locals(dep_set, m_p, ctx);
+        sort_locals(dep_set.get_collected(), m_p, ctx);
         expr dummy     = mk_Prop();
         expr tmp       = Pi_as_is(ctx, Pi(tmp_locals, dummy, m_p), m_p);
 

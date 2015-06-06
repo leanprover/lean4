@@ -299,7 +299,7 @@ struct structure_cmd_fn {
         for (expr const & parent : m_parents)
             tmp_locals.push_back(mk_local(m_ngen.next(), parent));
 
-        expr_struct_set dep_set;
+        collected_locals dep_set;
         for (expr const & v : include_vars) {
             ::lean::collect_locals(mlocal_type(v), dep_set);
             dep_set.insert(v);
@@ -307,7 +307,7 @@ struct structure_cmd_fn {
         for (expr const & p : m_params)
             ::lean::collect_locals(mlocal_type(p), dep_set);
         buffer<expr> ctx;
-        sort_locals(dep_set, m_p, ctx);
+        sort_locals(dep_set.get_collected(), m_p, ctx);
 
         expr tmp       = Pi_as_is(ctx, Pi(tmp_locals, m_type, m_p), m_p);
         level_param_names new_ls;
@@ -602,9 +602,9 @@ struct structure_cmd_fn {
             return;
         expr dummy = mk_Prop();
         expr tmp   = Pi(m_params, Pi(m_fields, dummy));
-        expr_struct_set local_set;
+        collected_locals local_set;
         ::lean::collect_locals(tmp, local_set);
-        sort_locals(local_set, m_p, locals);
+        sort_locals(local_set.get_collected(), m_p, locals);
     }
 
     /** \brief Add context locals as extra parameters */

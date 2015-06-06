@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.relation
+import init.relation init.tactic
 
 inductive acc {A : Type} (R : A → A → Prop) : A → Prop :=
 intro : ∀x, (∀ y, R y x → acc R y) → acc R x
@@ -14,6 +14,18 @@ namespace acc
 
   definition inv {x y : A} (H₁ : acc R x) (H₂ : R y x) : acc R y :=
   acc.rec_on H₁ (λ x₁ ac₁ iH H₂, ac₁ y H₂) H₂
+
+  -- dependent elimination for acc
+  protected definition drec [recursor]
+      {C : Π (a : A), acc R a → Type}
+      (h₁ : Π (x : A) (acx : Π (y : A), R y x → acc R y),
+              (Π (y : A) (ryx : R y x), C y (acx y ryx)) → C x (acc.intro x acx))
+      {a : A} (h₂ : acc R a) : C a h₂ :=
+  begin
+    refine acc.rec _ h₂ h₂,
+    intro x acx ih h₂,
+    exact h₁ x acx (λ y ryx, ih y ryx (acx y ryx))
+  end
 end acc
 
 inductive well_founded [class] {A : Type} (R : A → A → Prop) : Prop :=
@@ -43,14 +55,10 @@ namespace well_founded
 
   theorem fix_F_eq (x : A) (r : acc R x) :
     fix_F F x r = F x (λ (y : A) (p : y ≺ x), fix_F F y (acc.inv r p)) :=
-  have gen : Π r : acc R x, fix_F F x r = F x (λ (y : A) (p : y ≺ x), fix_F F y (acc.inv r p)), from
-  acc.rec_on r
-    (λ x₁ ac iH (r₁ : acc R x₁),
-      -- The proof is straightforward after we replace r₁ with acc.intro (to "unblock" evaluation).
-      calc fix_F F x₁ r₁
-           = fix_F F x₁ (acc.intro x₁ ac)             : proof_irrel r₁
-       ... = F x₁ (λ y ay, fix_F F y (acc.inv r₁ ay)) : rfl),
-  gen r
+  begin
+    induction r using acc.drec,
+    reflexivity -- proof is trivial due to proof irrelevance
+  end
   end
 
   variables {A : Type} {C : A → Type} {R : A → A → Prop}
@@ -62,12 +70,7 @@ namespace well_founded
   -- Well-founded fixpoint satisfies fixpoint equation
   theorem fix_eq [Hwf : well_founded R] (F : Πx, (Πy, R y x → C y) → C x) (x : A) :
     fix F x = F x (λy h, fix F y) :=
-  calc
-    -- The proof is straightforward, it just uses fix_F_eq and proof irrelevance
-    fix F x
-        = F x (λy h, fix_F F y (acc.inv (Hwf x) h)) : fix_F_eq F x (Hwf x)
-    ... = F x (λy h, fix F y)                       : rfl  -- proof irrelevance is used here
-
+  fix_F_eq F x (Hwf x)
 end well_founded
 
 open well_founded
@@ -85,9 +88,11 @@ section
   parameters (H₂ : well_founded R)
 
   definition accessible {a : A} (ac : acc R a) : acc Q a :=
-  acc.rec_on ac
-    (λ (x : A) (ax : _) (iH : ∀ (y : A), R y x → acc Q y),
-      acc.intro x (λ (y : A) (lt : Q y x), iH y (H₁ lt)))
+  using H₁,
+  begin
+    induction ac with x ax ih, constructor,
+    exact λ (y : A) (lt : Q y x), ih y (H₁ lt)
+  end
 
   definition wf : well_founded Q :=
   well_founded.intro (λ a, accessible (H₂ a))
@@ -101,14 +106,16 @@ section
   parameters (f : A → B)
   parameters (H : well_founded R)
 
+  private definition acc_aux {b : B} (ac : acc R b) : ∀ x, f x = b → acc (inv_image R f) x :=
+  begin
+    induction ac with x acx ih,
+    intro z e, constructor,
+    intro y lt, subst x,
+    exact ih (f y) lt y rfl
+  end
+
   definition accessible {a : A} (ac : acc R (f a)) : acc (inv_image R f) a :=
-  have gen : ∀x, f x = f a → acc (inv_image R f) x, from
-    acc.rec_on ac
-      (λx acx (iH : ∀y, R y x → (∀z, f z = y → acc (inv_image R f) z))
-          (z : A) (eq₁ : f z = x),
-        acc.intro z (λ (y : A) (lt : R (f y) (f z)),
-          iH (f y) (eq.rec_on eq₁ lt) y rfl)),
-  gen a rfl
+  acc_aux ac a rfl
 
   definition wf : well_founded (inv_image R f) :=
   well_founded.intro (λ a, accessible (H (f a)))
@@ -122,22 +129,15 @@ section
   local notation `R⁺` := tc R
 
   definition accessible {z} (ac: acc R z) : acc R⁺ z :=
-  acc.rec_on ac
-    (λ x acx (iH : ∀y, R y x → acc R⁺ y),
-      acc.intro x (λ (y : A) (lt : R⁺ y x),
-        have gen : x = x → acc R⁺ y, from
-          tc.rec_on lt
-            (λa b (H : R a b) (Heq : b = x),
-               iH a (eq.rec_on Heq H))
-            (λa b c (H₁ : R⁺ a b) (H₂ : R⁺ b c)
-                (iH₁ : b = x → acc R⁺ a)
-                (iH₂ : c = x → acc R⁺ b)
-                (Heq : c = x),
-              acc.inv (iH₂ Heq) H₁),
-        gen rfl))
+  begin
+    induction ac with x acx ih,
+    constructor, intro y lt,
+    induction lt with a b rab a b c rab rbc ih₁ ih₂,
+      {exact ih a rab},
+      {exact acc.inv (ih₂ acx ih) rab}
+  end
 
   definition wf (H : well_founded R) : well_founded R⁺ :=
   well_founded.intro (λ a, accessible (H a))
-
 end
 end tc

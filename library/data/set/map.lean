@@ -6,7 +6,9 @@ Author: Jeremy Avigad, Andrew Zipperer
 Functions between subsets of finite types, bundled with the domain and range.
 -/
 import data.set.function
-open eq.ops set
+open eq.ops
+
+namespace set
 
 record map {X Y : Type} (a : set X) (b : set Y) := (func : X → Y) (mapsto : maps_to func a b)
 attribute map.func [coercion]
@@ -164,3 +166,4 @@ and.intro
   (surjective_of_right_inverse (and.right H))
 
 end map
+end set

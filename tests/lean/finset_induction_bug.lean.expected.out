@@ -1,5 +1,5 @@
 finset_induction_bug.lean:30:23: error:invalid 'rewrite' tactic, step produced type incorrect term, details: type mismatch at application
-  @subtype.tag (list A) (λ (l : list A), @nodup A l) x nodup_al'
+  @subtype.tag (list A) (@nodup A) x nodup_al'
 term
   nodup_al'
 has type

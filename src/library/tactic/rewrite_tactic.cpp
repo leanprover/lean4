@@ -52,10 +52,16 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_REWRITER_TRACE true
 #endif
 
+#ifndef LEAN_DEFAULT_REWRITER_BETA_ETA
+#define LEAN_DEFAULT_REWRITER_BETA_ETA true
+#endif
+
+
 namespace lean {
 static name * g_rewriter_max_iterations = nullptr;
 static name * g_rewriter_syntactic      = nullptr;
 static name * g_rewriter_trace          = nullptr;
+static name * g_rewriter_beta_eta       = nullptr;
 
 unsigned get_rewriter_max_iterations(options const & opts) {
     return opts.get_unsigned(*g_rewriter_max_iterations, LEAN_DEFAULT_REWRITER_MAX_ITERATIONS);
@@ -67,6 +73,10 @@ bool get_rewriter_syntactic(options const & opts) {
 
 bool get_rewriter_trace(options const & opts) {
     return opts.get_bool(*g_rewriter_trace, LEAN_DEFAULT_REWRITER_TRACE);
+}
+
+bool get_rewriter_beta_eta(options const & opts) {
+    return opts.get_bool(*g_rewriter_beta_eta, LEAN_DEFAULT_REWRITER_BETA_ETA);
 }
 
 class unfold_info {
@@ -568,6 +578,7 @@ class rewrite_fn {
     bool                 m_use_trace;
     bool                 m_keyed;
     unsigned             m_max_iter;
+    bool                 m_beta_eta;
 
     buffer<optional<level>> m_lsubst; // auxiliary buffer for pattern matching
     buffer<optional<expr>>  m_esubst; // auxiliary buffer for pattern matching
@@ -1271,9 +1282,16 @@ class rewrite_fn {
         lean::check_term(m_env, m_g.abstract(H));
     }
 
+    expr apply_beta_eta(expr const & e) {
+        if (m_beta_eta)
+            return beta_eta_reduce(e);
+        else
+            return e;
+    }
+
     bool process_rewrite_hypothesis(expr const & hyp, expr const & orig_elem, expr const & pattern, occurrence const & occ) {
         add_target(hyp, true);
-        expr Pa = mlocal_type(hyp);
+        expr Pa = apply_beta_eta(mlocal_type(hyp));
         bool is_goal = false;
         if (auto it = find_target(Pa, pattern, orig_elem, is_goal)) {
             expr a, Heq, b; // Heq is a proof of a = b
@@ -1326,7 +1344,7 @@ class rewrite_fn {
     }
 
     bool process_rewrite_goal(expr const & orig_elem, expr const & pattern, occurrence const & occ) {
-        expr Pa      = m_g.get_type();
+        expr Pa      = apply_beta_eta(m_g.get_type());
         add_target(Pa, false);
         bool is_goal = true;
         if (auto it = find_target(Pa, pattern, orig_elem, is_goal)) {
@@ -1539,6 +1557,7 @@ public:
         m_subst = m_ps.get_subst();
         m_max_iter  = get_rewriter_max_iterations(ios.get_options());
         m_use_trace = get_rewriter_trace(ios.get_options());
+        m_beta_eta  = get_rewriter_beta_eta(ios.get_options());
     }
 
     proof_state_seq operator()(buffer<expr> const & elems) {
@@ -1594,6 +1613,10 @@ void initialize_rewrite_tactic() {
     g_rewriter_trace          = new name{"rewriter", "trace"};
     register_bool_option(*g_rewriter_trace, LEAN_DEFAULT_REWRITER_TRACE,
                          "(rewriter tactic) if true tactic will generate a trace for rewrite step failures");
+    g_rewriter_beta_eta       = new name{"rewriter", "beta_eta"};
+    register_bool_option(*g_rewriter_beta_eta, LEAN_DEFAULT_REWRITER_BETA_ETA,
+                         "(rewriter tactic) apply beta and eta reduction before rewrite steps");
+
     name rewrite_tac_name{"tactic", "rewrite_tac"};
     g_rewrite_tac           = new expr(Const(rewrite_tac_name));
     g_xrewrite_tac          = new expr(Const(name{"tactic", "xrewrite_tac"}));

@@ -32,7 +32,6 @@ static void tst1() {
     expr F3 = mk_app(Fun(x, mk_app(f, mk_app(Fun(y, y), x), x)), a);
     lean_assert(is_head_beta(F3));
     lean_assert(head_beta_reduce(F3) == mk_app(f, mk_app(Fun(y, y), a), a));
-    lean_assert(beta_reduce(F3) == mk_app(f, a, a));
 }
 
 int main() {

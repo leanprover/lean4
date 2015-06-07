@@ -7,11 +7,13 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/interrupt.h"
 #include "util/name_generator.h"
+#include "kernel/replace_fn.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/free_vars.h"
 #include "kernel/inductive/inductive.h"
+#include "library/replace_visitor.h"
 #include "library/reducible.h"
 #include "library/util.h"
 #include "library/scoped_ext.h"
@@ -184,6 +186,42 @@ expr try_eta(expr const & e) {
     } else {
         return e;
     }
+}
+
+template<bool Eta, bool Beta>
+class eta_beta_reduce_fn : public replace_visitor {
+public:
+    virtual expr visit_app(expr const & e) {
+        expr e1 = replace_visitor::visit_app(e);
+        if (Beta && is_head_beta(e1)) {
+            return visit(head_beta_reduce(e1));
+        } else {
+            return e1;
+        }
+    }
+
+    virtual expr visit_lambda(expr const & e) {
+        expr e1 = replace_visitor::visit_lambda(e);
+        if (Eta) {
+            while (true) {
+                expr e2 = try_eta(e1);
+                if (is_eqp(e1, e2))
+                    return e1;
+                else
+                    e1 = e2;
+            }
+        } else {
+            return e1;
+        }
+    }
+};
+
+expr beta_reduce(expr t) {
+    return eta_beta_reduce_fn<false, true>()(t);
+}
+
+expr beta_eta_reduce(expr t) {
+    return eta_beta_reduce_fn<true, true>()(t);
 }
 
 class normalize_fn {

@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
+#include "library/normalize.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/tactic.h"
 #include "library/io_state_stream.h"

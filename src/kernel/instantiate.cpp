@@ -121,28 +121,6 @@ expr head_beta_reduce(expr const & t) {
     }
 }
 
-expr beta_reduce(expr t) {
-    bool reduced = false;
-    auto f = [&](expr const & m, unsigned) -> optional<expr> {
-        if (is_head_beta(m)) {
-            reduced = true;
-            return some_expr(head_beta_reduce(m));
-        } else if (is_local(m) || is_metavar(m)) {
-            return some_expr(m); // do not simplify local constants and metavariables types.
-        } else {
-            return none_expr();
-        }
-    };
-    while (true) {
-        reduced = false;
-        expr new_t = replace(t, f);
-        if (!reduced)
-            return new_t;
-        else
-            t = new_t;
-    }
-}
-
 expr instantiate_univ_params(expr const & e, level_param_names const & ps, levels const & ls) {
     if (!has_param_univ(e))
         return e;

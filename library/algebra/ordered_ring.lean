@@ -154,6 +154,36 @@ section
     (assume H2 : a ≤ 0,
       have H3 : a * b ≤ 0, from mul_nonpos_of_nonpos_of_nonneg H2 H1,
       not_lt_of_ge H3 H)
+
+  theorem nonneg_of_mul_nonneg_left (H : 0 ≤ a * b) (H1 : 0 < a) : 0 ≤ b :=
+  le_of_not_gt
+    (assume H2 : b < 0,
+      not_le_of_gt (mul_neg_of_pos_of_neg H1 H2) H)
+
+  theorem nonneg_of_mul_nonneg_right (H : 0 ≤ a * b) (H1 : 0 < b) : 0 ≤ a :=
+  le_of_not_gt
+    (assume H2 : a < 0,
+      not_le_of_gt (mul_neg_of_neg_of_pos H2 H1) H)
+
+  theorem neg_of_mul_neg_left (H : a * b < 0) (H1 : 0 ≤ a) : b < 0 :=
+  lt_of_not_ge
+    (assume H2 : b ≥ 0,
+      not_lt_of_ge (mul_nonneg H1 H2) H)
+
+  theorem neg_of_mul_neg_right (H : a * b < 0) (H1 : 0 ≤ b) : a < 0 :=
+  lt_of_not_ge
+    (assume H2 : a ≥ 0,
+      not_lt_of_ge (mul_nonneg H2 H1) H)
+
+  theorem nonpos_of_mul_nonpos_left (H : a * b ≤ 0) (H1 : 0 < a) : b ≤ 0 :=
+  le_of_not_gt
+    (assume H2 : b > 0,
+      not_le_of_gt (mul_pos H1 H2) H)
+
+  theorem nonpos_of_mul_nonpos_right (H : a * b ≤ 0) (H1 : 0 < b) : a ≤ 0 :=
+  le_of_not_gt
+    (assume H2 : a > 0,
+      not_le_of_gt (mul_pos H2 H1) H)
 end
 
 structure ordered_ring [class] (A : Type) extends ring A, ordered_comm_group A, zero_ne_one_class A :=

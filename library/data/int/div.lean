@@ -539,6 +539,14 @@ theorem div_eq_of_eq_mul_left {a b c : ℤ} (H1 : b ≠ 0) (H2 : a = c * b) :
   a div b = c :=
 div_eq_of_eq_mul_right H1 (!mul.comm ▸ H2)
 
+theorem neg_div_of_dvd {a b : ℤ} (H : b ∣ a) : -a div b = -(a div b) :=
+decidable.by_cases
+  (assume H1 : b = 0, by rewrite [H1, *div_zero, neg_zero])
+  (assume H1 : b ≠ 0,
+    dvd.elim H
+      (take c, assume H' : a = b * c,
+        by rewrite [H', neg_mul_eq_mul_neg, *!mul_div_cancel_left H1]))
+
 /- div and ordering -/
 
 theorem div_mul_le (a : ℤ) {b : ℤ} (H : b ≠ 0) : a div b * b ≤ a :=
@@ -612,5 +620,24 @@ by rewrite [propext (!le_iff_mul_le_mul_right H), !div_mul_cancel H']
 theorem le_mul_of_div_le_of_div {a b c : ℤ} (H1 : b > 0) (H2 : b ∣ a) (H3 : a div b ≤ c) :
   a ≤ c * b :=
 iff.mp (!div_le_iff_le_mul_of_div H1 H2) H3
+
+theorem div_pos_of_pos_of_dvd {a b : ℤ} (H1 : a > 0) (H2 : b ≥ 0) (H3 : b ∣ a) : a div b > 0 :=
+have H4 : b ≠ 0, from
+  (assume H5 : b = 0,
+    have H6 : a = 0, from eq_zero_of_zero_dvd (H5 ▸ H3),
+    ne_of_gt H1 H6),
+have H6 : (a div b) * b > 0, by rewrite (div_mul_cancel H3); apply H1,
+pos_of_mul_pos_right H6 H2
+
+theorem div_eq_div_of_dvd_of_dvd {a b c d : ℤ} (H1 : b ∣ a) (H2 : d ∣ c) (H3 : b ≠ 0)
+    (H4 : d ≠ 0) (H5 : a * d = b * c) :
+  a div b = c div d :=
+begin
+  apply div_eq_of_eq_mul_right H3,
+  rewrite [-!mul_div_assoc H2],
+  apply eq.symm,
+  apply div_eq_of_eq_mul_left H4,
+  apply eq.symm H5
+end
 
 end int

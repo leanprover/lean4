@@ -41,10 +41,10 @@ optional<expr> mk_class_instance(environment const & env, io_state const & ios, 
                                  name const & prefix, expr const & type, bool use_local_instances = true,
                                  unifier_config const & cfg = unifier_config());
 
-/** \breif Try to synthesize an inhabitant for (is_hset type) using class instance resolution */
+/** \brief Try to synthesize an inhabitant for (is_hset type) using class instance resolution */
 optional<expr> mk_hset_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type);
 
-/** \breif Try to synthesize an inhabitant for (subsingleton type in the standard library, and hprop in the HoTT library)
+/** \brief Try to synthesize an inhabitant for (subsingleton type in the standard library, and hprop in the HoTT library)
     using class instance resolution */
 optional<expr> mk_subsingleton_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type);
 

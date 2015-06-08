@@ -55,7 +55,7 @@ public:
         \remark #start_iteration unblocks it.
     */
     void block_new_info();
-    /** \breif Mark the start of a new information collection cycle.
+    /** \brief Mark the start of a new information collection cycle.
         It also enables new information to be added, i.e., it will undo
         the effect of #block_new_info.
     */

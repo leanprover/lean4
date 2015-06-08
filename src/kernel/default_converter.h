@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/expr_pair.h"
 
 namespace lean {
-/** \breif Converter used in the kernel */
+/** \brief Converter used in the kernel */
 class default_converter : public converter {
 protected:
     typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;

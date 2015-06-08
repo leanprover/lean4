@@ -166,14 +166,9 @@ or.elim (le_or_gt 0 a₁)
       end,
     have H7 : -a₁ div (gcd a₁ b₁) = -a₂ div (gcd a₂ b₂),
       begin
---        TODO: if you uncomment the next two lines, and comment out the three after it,
---              it takes Lean 40 seconds to process the file. (The rewrites are succeed,
---              but do not finish off the goal.)
---        rewrite [-abs_of_neg H3, -abs_of_neg H5, -gcd_abs_abs a₁],
---        rewrite [-gcd_abs_abs a₂ b₂],
-        revert H6,
-        rewrite [abs_of_neg H3 at {1}, abs_of_neg H5 at {1}, *gcd_abs_abs],
-        intro H6, apply H6
+        rewrite [-abs_of_neg H3, -abs_of_neg H5, -gcd_abs_abs a₁],
+        rewrite [-gcd_abs_abs a₂ b₂],
+        exact H6
       end,
     calc
       a₁ div (gcd a₁ b₁) = -(-a₁ div (gcd a₁ b₁)) :

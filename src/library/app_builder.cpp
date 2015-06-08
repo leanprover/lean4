@@ -66,7 +66,7 @@ struct app_builder::imp {
     // Make sure m_levels contains at least nlvls metavariable universe levels
     void ensure_levels(unsigned nlvls) {
         while (m_levels.size() <= nlvls) {
-            level new_lvl   = mk_idx_meta_univ(m_levels.size() - 1);
+            level new_lvl   = mk_idx_metauniv(m_levels.size() - 1);
             levels new_lvls = append(m_levels.back(), levels(new_lvl));
             m_levels.push_back(new_lvls);
         }
@@ -110,7 +110,7 @@ struct app_builder::imp {
             domain_types.push_back(binding_domain(type));
             // TODO(Leo): perhaps, we should cache the result of this while-loop.
             // The result of this computation can be reused in future calls.
-            expr meta = mk_idx_meta(idx, binding_domain(type));
+            expr meta = mk_idx_metavar(idx, binding_domain(type));
             idx++;
             type = instantiate(binding_body(type), meta);
         }

@@ -13,22 +13,9 @@ Author: Leonardo de Moura
 #include "util/name_map.h"
 #include "kernel/expr.h"
 #include "kernel/environment.h"
+#include "library/idx_metavar.h"
 
 namespace lean {
-/** \brief Create a universe level metavariable that can be used as a placeholder in #match.
-
-    \remark The index \c i is encoded in the hierarchical name, and can be quickly accessed.
-    In the match procedure the substitution is also efficiently represented as an array (aka buffer).
-*/
-level mk_idx_meta_univ(unsigned i);
-
-/** \brief Create a special metavariable that can be used as a placeholder in #match.
-
-    \remark The index \c i is encoded in the hierarchical name, and can be quickly accessed.
-    In the match procedure the substitution is also efficiently represented as an array (aka buffer).
-*/
-expr mk_idx_meta(unsigned i, expr const & type);
-
 /** \brief Context for match_plugins. */
 class match_context {
 public:
@@ -36,14 +23,15 @@ public:
     virtual name mk_name() = 0;
     /** \brief Given a variable \c x, return its assignment (if available) */
     virtual optional<expr> get_subst(expr const & x) const = 0;
-    /** \brief Given a universe level meta-variable \c x (created using #mk_idx_meta_univ), return its assignment (if available) */
+    /** \brief Given a universe level meta-variable \c x (created using #mk_idx_metauniv),
+        return its assignment (if available) */
     virtual optional<level> get_subst(level const & x) const = 0;
     /** \brief Assign the variable \c x to \c e
         \pre \c x is not assigned
     */
     virtual void assign(expr const & x, expr const & e) = 0;
     /** \brief Assign the variable \c x to \c l
-        \pre \c x is not assigned, \c x was created using #mk_idx_meta_univ.
+        \pre \c x is not assigned, \c x was created using #mk_idx_metauniv.
     */
     virtual void assign(level const & x, level const & l) = 0;
     virtual bool match(expr const & p, expr const & t) = 0;
@@ -59,7 +47,7 @@ public:
     virtual ~match_plugin() {}
     /** \brief The following method is invoked before the matcher tries to process
         \c p and \c t. The method is only invoked when \c p and \c t have the same kind,
-        \c p is not a special metavariable created using \c mk_idx_meta, and
+        \c p is not a special metavariable created using \c mk_idx_metavar, and
         \c p and \c t are not structurally identical.
 
         The result should be:
@@ -87,7 +75,7 @@ public:
 /**
    \brief Matching for higher-order patterns. Return true iff \c t matches the higher-order pattern \c p.
    The substitution is stored in \c subst. Note that, this procedure treats "special" meta-variables
-   (created using #mk_idx_meta_univ and #mk_idx_meta) as placeholders. The substitution of these
+   (created using #mk_idx_metauniv and #mk_idx_metavar) as placeholders. The substitution of these
    metavariable can be quickly accessed using an index stored in them. The parameters
    \c esubst and \c lsubst store the substitutions for them. There are just buffers.
 

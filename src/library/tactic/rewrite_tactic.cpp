@@ -885,7 +885,7 @@ class rewrite_fn {
                             return some_level(*it);
                         } else {
                             unsigned next_idx = m_lsubst.size();
-                            level r = mk_idx_meta_univ(next_idx);
+                            level r = mk_idx_metauniv(next_idx);
                             m_lsubst.push_back(none_level());
                             lmap.insert(meta_id(l), r);
                             return some_level(r);
@@ -908,7 +908,7 @@ class rewrite_fn {
                     return some_expr(e); // done
                 } else if (is_lambda(e)) {
                     unsigned next_idx = m_esubst.size();
-                    expr r = mk_idx_meta(next_idx, m_tc->infer(e).first);
+                    expr r = mk_idx_metavar(next_idx, m_tc->infer(e).first);
                     m_esubst.push_back(none_expr());
                     return some_expr(r);
                 } else if (is_meta(e)) {
@@ -916,7 +916,7 @@ class rewrite_fn {
                         return some_expr(*it);
                     } else {
                         unsigned next_idx = m_esubst.size();
-                        expr r = mk_idx_meta(next_idx, m_tc->infer(e).first);
+                        expr r = mk_idx_metavar(next_idx, m_tc->infer(e).first);
                         m_esubst.push_back(none_expr());
                         if (no_meta_args(e))
                             emap.insert(e, r); // cache only if arguments of e are not metavariables

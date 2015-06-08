@@ -13,50 +13,9 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/locals.h"
 #include "library/match.h"
+#include "library/idx_metavar.h"
 
 namespace lean {
-static name * g_tmp_prefix = nullptr;
-
-void initialize_match() {
-    g_tmp_prefix = new name(name::mk_internal_unique_name());
-}
-
-void finalize_match() {
-    delete g_tmp_prefix;
-}
-
-level mk_idx_meta_univ(unsigned i) {
-    return mk_meta_univ(name(*g_tmp_prefix, i));
-}
-
-expr mk_idx_meta(unsigned i, expr const & type) {
-    return mk_metavar(name(*g_tmp_prefix, i), type);
-}
-
-bool is_idx_meta_univ(level const & l) {
-    if (!is_meta(l))
-        return false;
-    name const & n = meta_id(l);
-    return !n.is_atomic() && n.is_numeral() && n.get_prefix() == *g_tmp_prefix;
-}
-
-unsigned to_meta_idx(level const & l) {
-    lean_assert(is_idx_meta_univ(l));
-    return meta_id(l).get_numeral();
-}
-
-bool is_idx_meta(expr const & e) {
-    if (!is_metavar(e))
-        return false;
-    name const & n = mlocal_name(e);
-    return !n.is_atomic() && n.is_numeral() && n.get_prefix() == *g_tmp_prefix;
-}
-
-unsigned to_meta_idx(expr const & e) {
-    lean_assert(is_idx_meta(e));
-    return mlocal_name(e).get_numeral();
-}
-
 class match_fn : public match_context {
     unsigned                          m_esubst_sz;
     optional<expr> *                  m_esubst;
@@ -280,7 +239,7 @@ class match_fn : public match_context {
     }
 
     bool match_level(level const & p, level const & l) {
-        if (is_idx_meta_univ(p)) {
+        if (is_idx_metauniv(p)) {
             auto s = _get_subst(p);
             if (s) {
                 return match_level_core(*s, l);
@@ -370,7 +329,7 @@ class match_fn : public match_context {
     }
 
     bool _match(expr const & p, expr const & t) {
-        if (is_idx_meta(p)) {
+        if (is_idx_metavar(p)) {
             auto s = _get_subst(p);
             if (s) {
                 return match_core(*s, t);
@@ -381,7 +340,7 @@ class match_fn : public match_context {
         } else if (is_app(p)) {
             buffer<expr> args;
             expr const & f = get_app_rev_args(p, args);
-            if (is_idx_meta(f)) {
+            if (is_idx_metavar(f)) {
                 // higher-order pattern case
                 auto s = _get_subst(f);
                 if (s) {
@@ -426,7 +385,7 @@ bool match(expr const & p, expr const & t,
                         name_subst, plugin, assigned).match(p, t);
     else
         return match_fn(lsubst_sz, lsubst, esubst_sz, esubst,
-                        name_generator(*g_tmp_prefix), name_subst, plugin, assigned).match(p, t);
+                        name_generator(), name_subst, plugin, assigned).match(p, t);
 }
 
 bool match(expr const & p, expr const & t, buffer<optional<level>> & lsubst, buffer<optional<expr>> & esubst,
@@ -449,7 +408,7 @@ bool whnf_match_plugin::on_failure(expr const & p, expr const & t, match_context
 static unsigned updt_idx_meta_univ_range(level const & l, unsigned r) {
     for_each(l, [&](level const & l) {
             if (!has_meta(l)) return false;
-            if (is_idx_meta_univ(l)) {
+            if (is_idx_metauniv(l)) {
                 unsigned new_r = to_meta_idx(l) + 1;
                 if (new_r > r)
                     r = new_r;
@@ -471,7 +430,7 @@ static pair<unsigned, unsigned> get_idx_meta_univ_ranges(expr const & e) {
                     rlvl = updt_idx_meta_univ_range(l, rlvl);
             if (is_sort(e))
                 rlvl = updt_idx_meta_univ_range(sort_level(e), rlvl);
-            if (is_idx_meta(e))
+            if (is_idx_metavar(e))
                 rexp = std::max(to_meta_idx(e) + 1, rexp);
             return true;
         });
@@ -542,12 +501,12 @@ static int match(lua_State * L) {
     return 2;
 }
 
-static int mk_idx_meta_univ(lua_State * L) {
-    return push_level(L, mk_idx_meta_univ(luaL_checkinteger(L, 1)));
+static int mk_idx_metauniv(lua_State * L) {
+    return push_level(L, mk_idx_metauniv(luaL_checkinteger(L, 1)));
 }
 
-static int mk_idx_meta(lua_State * L) {
-    return push_expr(L, mk_idx_meta(luaL_checkinteger(L, 1), to_expr(L, 2)));
+static int mk_idx_metavar(lua_State * L) {
+    return push_expr(L, mk_idx_metavar(luaL_checkinteger(L, 1), to_expr(L, 2)));
 }
 
 void open_match(lua_State * L) {
@@ -558,8 +517,8 @@ void open_match(lua_State * L) {
 
     SET_GLOBAL_FUN(mk_whnf_match_plugin,  "whnf_match_plugin");
     SET_GLOBAL_FUN(match_plugin_ref_pred, "is_match_plugin");
-    SET_GLOBAL_FUN(mk_idx_meta_univ,      "mk_idx_meta_univ");
-    SET_GLOBAL_FUN(mk_idx_meta,           "mk_idx_meta");
+    SET_GLOBAL_FUN(mk_idx_metauniv,       "mk_idx_metauniv");
+    SET_GLOBAL_FUN(mk_idx_metavar,        "mk_idx_metavar");
     SET_GLOBAL_FUN(match,                 "match");
 }
 }

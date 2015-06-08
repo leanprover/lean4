@@ -432,6 +432,25 @@ bool default_converter::is_def_eq_proof_irrel(expr const & t, expr const & s, co
     return false;
 }
 
+bool default_converter::failed_before(expr const & t, expr const & s) const {
+    if (t.hash() < s.hash()) {
+        return m_failure_cache.find(mk_pair(t, s)) != m_failure_cache.end();
+    } else if (t.hash() > s.hash()) {
+        return m_failure_cache.find(mk_pair(s, t)) != m_failure_cache.end();
+    } else {
+        return
+            m_failure_cache.find(mk_pair(t, s)) != m_failure_cache.end() ||
+            m_failure_cache.find(mk_pair(s, t)) != m_failure_cache.end();
+    }
+}
+
+void default_converter::cache_failure(expr const & t, expr const & s) {
+    if (t.hash() <= s.hash())
+        m_failure_cache.insert(mk_pair(t, s));
+    else
+        m_failure_cache.insert(mk_pair(s, t));
+}
+
 pair<bool, constraint_seq> default_converter::is_def_eq_core(expr const & t, expr const & s) {
     check_system("is_definitionally_equal");
     constraint_seq cs;
@@ -480,11 +499,14 @@ pair<bool, constraint_seq> default_converter::is_def_eq_core(expr const & t, exp
                         // skip the delta-reduction step.
                         // If the flag use_conv_opt() is not true, then we skip this optimization
                         constraint_seq tmp_cs;
-                        if (!is_opaque(*d_t) && d_t->use_conv_opt() &&
-                            is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n)), tmp_cs) &&
-                            is_def_eq_args(t_n, s_n, tmp_cs)) {
-                            cs += tmp_cs;
-                            return to_bcs(true, cs);
+                        if (!is_opaque(*d_t) && d_t->use_conv_opt() && !failed_before(t_n, s_n)) {
+                            if (is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n)), tmp_cs) &&
+                                is_def_eq_args(t_n, s_n, tmp_cs)) {
+                                cs += tmp_cs;
+                                return to_bcs(true, cs);
+                            } else {
+                                cache_failure(t_n, s_n);
+                            }
                         }
                     }
                 }

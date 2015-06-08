@@ -49,6 +49,9 @@ add_test(NAME "issue_597"
 add_test(NAME "issue_616"
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
          COMMAND bash "./issue_616.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
+add_test(NAME "normalizer_perf"
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
+         COMMAND bash "./timeout.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "1" "slow1.lean")
 
 # LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")

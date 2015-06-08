@@ -5,22 +5,26 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <unordered_set>
 #include "util/lbool.h"
 #include "kernel/justification.h"
 #include "kernel/environment.h"
 #include "kernel/converter.h"
 #include "kernel/expr_maps.h"
 #include "kernel/equiv_manager.h"
+#include "kernel/expr_pair.h"
 
 namespace lean {
 /** \breif Converter used in the kernel */
 class default_converter : public converter {
 protected:
+    typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
     environment                                 m_env;
     bool                                        m_memoize;
     expr_struct_map<expr>                       m_whnf_core_cache;
     expr_struct_map<pair<expr, constraint_seq>> m_whnf_cache;
     equiv_manager                               m_eqv_manager;
+    expr_pair_set                               m_failure_cache;
 
     // The two auxiliary fields are set when the public methods whnf and is_def_eq are invoked.
     // The goal is to avoid to keep carrying them around.
@@ -65,6 +69,9 @@ protected:
     bool is_def_eq(expr const & t, expr const & s, constraint_seq & cs);
     bool is_def_eq_app(expr const & t, expr const & s, constraint_seq & cs);
     bool is_def_eq_proof_irrel(expr const & t, expr const & s, constraint_seq & cs);
+
+    bool failed_before(expr const & t, expr const & s) const;
+    void cache_failure(expr const & t, expr const & s);
 
     pair<bool, constraint_seq> is_prop(expr const & e);
     pair<expr, constraint_seq> whnf(expr const & e_prime);

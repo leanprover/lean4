@@ -5,4 +5,4 @@ Authors: Leonardo de Moura
 
 Finite type (type class).
 -/
-import .basic .function .card
+import .basic .card

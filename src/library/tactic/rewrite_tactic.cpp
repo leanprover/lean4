@@ -1229,6 +1229,14 @@ class rewrite_fn {
         }
     }
 
+    static bool compare_head(expr const & pattern, expr const & t) {
+        expr const & f = get_app_fn(t);
+        if (is_constant(pattern) && is_constant(f))
+            return const_name(pattern) == const_name(f);
+        else
+            return pattern == f;
+    }
+
     // Search for \c pattern in \c e. If \c t is a match, then try to unify the type of the rule
     // in the rewrite step \c orig_elem with \c t.
     // When successful, this method returns the target \c t, the fully elaborated rule \c r,
@@ -1245,8 +1253,7 @@ class rewrite_fn {
                     lean_assert(std::all_of(m_esubst.begin(), m_esubst.end(), [&](optional<expr> const & e) { return !e; }));
                     bool r;
                     if (m_keyed) {
-                        expr const & f = get_app_fn(t);
-                        r = f == pattern;
+                        r = compare_head(pattern, t);
                     } else {
                         bool assigned = false;
                         r = match(pattern, t, m_lsubst, m_esubst, nullptr, nullptr, &m_mplugin, &assigned);

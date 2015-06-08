@@ -180,7 +180,6 @@ match Hg with and.intro Hgmap (and.intro Hginj Hgsurj) :=
   end
 end
 
--- TODO: simplify when we have a better way of handling congruences wrt iff
 lemma bijective_iff_bij_on_univ {f : X → Y} : bijective f ↔ bij_on f univ univ :=
 iff.intro
   (assume H,

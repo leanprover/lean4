@@ -297,3 +297,35 @@ section
   definition if_false (t e : A) : (if false then t else e) = e :=
   if_neg not_false
 end
+
+/- congruences -/
+
+theorem congr_not {a b :  Prop} (H : a ↔ b) : ¬a ↔ ¬b :=
+iff.intro
+  (assume H₁ : ¬a, assume H₂ : b, H₁ (iff.elim_right H H₂))
+  (assume H₁ : ¬b, assume H₂ : a, H₁ (iff.elim_left H H₂))
+
+section
+  variables {a₁ b₁ a₂ b₂ : Prop}
+  variables (H₁ : a₁ ↔ b₁) (H₂ : a₂ ↔ b₂)
+
+  theorem congr_and : a₁ ∧ a₂ ↔ b₁ ∧ b₂ :=
+  iff.intro
+    (assume H₃ : a₁ ∧ a₂, and_of_and_of_imp_of_imp H₃ (iff.elim_left H₁) (iff.elim_left H₂))
+    (assume H₃ : b₁ ∧ b₂, and_of_and_of_imp_of_imp H₃ (iff.elim_right H₁) (iff.elim_right H₂))
+
+  theorem congr_or : a₁ ∨ a₂ ↔ b₁ ∨ b₂ :=
+  iff.intro
+    (assume H₃ : a₁ ∨ a₂, or_of_or_of_imp_of_imp H₃ (iff.elim_left H₁) (iff.elim_left H₂))
+    (assume H₃ : b₁ ∨ b₂, or_of_or_of_imp_of_imp H₃ (iff.elim_right H₁) (iff.elim_right H₂))
+
+  theorem congr_imp : (a₁ → a₂) ↔ (b₁ → b₂) :=
+  iff.intro
+    (assume H₃ : a₁ → a₂, assume Hb₁ : b₁, iff.elim_left H₂ (H₃ ((iff.elim_right H₁) Hb₁)))
+    (assume H₃ : b₁ → b₂, assume Ha₁ : a₁, iff.elim_right H₂ (H₃ ((iff.elim_left H₁) Ha₁)))
+
+  theorem congr_iff : (a₁ ↔ a₂) ↔ (b₁ ↔ b₂) :=
+  iff.intro
+    (assume H₃ : a₁ ↔ a₂, iff.trans (iff.symm H₁) (iff.trans H₃ H₂))
+    (assume H₃ : b₁ ↔ b₂, iff.trans H₁ (iff.trans H₃ (iff.symm H₂)))
+end

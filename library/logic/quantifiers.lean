@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Jeremy Avigad
 
 Universal and existential quantifiers. See also init.logic.
 -/
-
+import .connectives
 open inhabited nonempty
 
 theorem not_forall_not_of_exists {A : Type} {p : A → Prop} (H : ∃x, p x) : ¬∀x, ¬p x :=
@@ -97,3 +97,30 @@ theorem exists_unique.elim {A : Type} {p : A → Prop} {b : Prop}
     (H2 : ∃!x, p x) (H1 : ∀x, p x → (∀y, p y → y = x) → b) : b :=
 obtain w Hw, from H2,
 H1 w (and.elim_left Hw) (and.elim_right Hw)
+
+/- congruences -/
+
+section
+  variables {A : Type} {p₁ p₂ : A → Prop} (H : ∀x, p₁ x ↔ p₂ x)
+
+  theorem congr_forall : (∀x, p₁ x) ↔ (∀x, p₂ x) :=
+  iff.intro
+    (assume H', take x, iff.mp (H x) (H' x))
+    (assume H', take x, iff.mp' (H x) (H' x))
+
+  theorem congr_exists : (∃x, p₁ x) ↔ (∃x, p₂ x) :=
+  iff.intro
+    (assume H', exists.elim H' (λ x H₁, exists.intro x (iff.mp (H x) H₁)))
+    (assume H', exists.elim H' (λ x H₁, exists.intro x (iff.mp' (H x) H₁)))
+
+  include H
+  theorem congr_exists_unique : (∃!x, p₁ x) ↔ (∃!x, p₂ x) :=
+  begin
+    apply congr_exists,
+    intro x,
+    apply congr_and (H x),
+    apply congr_forall,
+    intro y,
+    apply congr_imp (H y) !iff.rfl
+  end
+end

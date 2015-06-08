@@ -312,20 +312,20 @@ perm_induction_on p'
     have innil : a ∈ [], from mem_head_of_qeq e₁,
     absurd innil !not_mem_nil)
   (λ x t₁ t₂ p (r : ∀{a s₁ s₂}, t₁≈a|s₁ → t₂≈a|s₂ → s₁ ~ s₂) a s₁ s₂ e₁ e₂,
-    obtain (s₁₁ s₁₂ : list A) (C₁ : s₁ = s₁₁ ++ s₁₂ ∧ x::t₁ = s₁₁++(a::s₁₂)), from qeq_split e₁,
-    obtain (s₂₁ s₂₂ : list A) (C₂ : s₂ = s₂₁ ++ s₂₂ ∧ x::t₂ = s₂₁++(a::s₂₂)), from qeq_split e₂,
-    discr (and.elim_right C₁)
+    obtain (s₁₁ s₁₂ : list A) (C₁₁ : s₁ = s₁₁ ++ s₁₂) (C₁₂ : x::t₁ = s₁₁++(a::s₁₂)), from qeq_split e₁,
+    obtain (s₂₁ s₂₂ : list A) (C₂₁ : s₂ = s₂₁ ++ s₂₂) (C₂₂ : x::t₂ = s₂₁++(a::s₂₂)), from qeq_split e₂,
+    discr C₁₂
       (λ (s₁₁_eq : s₁₁ = []) (x_eq_a : x = a) (t₁_eq : t₁ = s₁₂),
         assert s₁_p : s₁ ~ t₂, from calc
-            s₁  = s₁₁ ++ s₁₂ : and.elim_left C₁
+            s₁  = s₁₁ ++ s₁₂ : C₁₁
             ... = t₁         : by rewrite [-t₁_eq, s₁₁_eq, append_nil_left]
             ... ~ t₂         : p,
-        discr (and.elim_right C₂)
+        discr C₂₂
           (λ (s₂₁_eq : s₂₁ = []) (x_eq_a : x = a) (t₂_eq: t₂ = s₂₂),
             proof calc
               s₁  ~ t₂         : s₁_p
               ... = s₂₁ ++ s₂₂ : by rewrite [-t₂_eq, s₂₁_eq, append_nil_left]
-              ... = s₂         : by rewrite [and.elim_left C₂]
+              ... = s₂         : by rewrite C₂₁
             qed)
           (λ (ts₂₁ : list A) (s₂₁_eq : s₂₁ = x::ts₂₁) (t₂_eq : t₂ = ts₂₁++(a::s₂₂)),
             proof calc
@@ -333,50 +333,50 @@ perm_induction_on p'
               ... = ts₂₁++(a::s₂₂) : t₂_eq
               ... ~ (a::ts₂₁)++s₂₂ : !perm_middle
               ... = s₂₁ ++ s₂₂     : by rewrite [-x_eq_a, -s₂₁_eq]
-              ... = s₂             : by rewrite [and.elim_left C₂]
+              ... = s₂             : by rewrite C₂₁
             qed))
       (λ (ts₁₁ : list A) (s₁₁_eq : s₁₁ = x::ts₁₁) (t₁_eq : t₁ = ts₁₁++(a::s₁₂)),
         assert t₁_qeq : t₁ ≈ a|(ts₁₁++s₁₂), by rewrite t₁_eq; exact !qeq_app,
         assert s₁_eq : s₁ = x::(ts₁₁++s₁₂), from calc
-          s₁  = s₁₁ ++ s₁₂       : and.elim_left C₁
+          s₁  = s₁₁ ++ s₁₂       : C₁₁
           ... = x::(ts₁₁++ s₁₂)  : by rewrite s₁₁_eq,
-        discr (and.elim_right C₂)
+        discr C₂₂
           (λ (s₂₁_eq : s₂₁ = []) (x_eq_a : x = a) (t₂_eq: t₂ = s₂₂),
             proof calc
               s₁  = a::(ts₁₁++s₁₂) : by rewrite [s₁_eq, x_eq_a]
               ... ~ ts₁₁++(a::s₁₂) : !perm_middle
               ... = t₁             : t₁_eq
               ... ~ t₂             : p
-              ... = s₂             : by rewrite [t₂_eq, and.elim_left C₂, s₂₁_eq, append_nil_left]
+              ... = s₂             : by rewrite [t₂_eq, C₂₁, s₂₁_eq, append_nil_left]
             qed)
           (λ (ts₂₁ : list A) (s₂₁_eq : s₂₁ = x::ts₂₁) (t₂_eq : t₂ = ts₂₁++(a::s₂₂)),
             assert t₂_qeq : t₂ ≈ a|(ts₂₁++s₂₂), by rewrite t₂_eq; exact !qeq_app,
             proof calc
               s₁  = x::(ts₁₁++s₁₂) : s₁_eq
               ... ~ x::(ts₂₁++s₂₂) : skip x (r t₁_qeq t₂_qeq)
-              ... = s₂             : by rewrite [-append_cons, -s₂₁_eq, and.elim_left C₂]
+              ... = s₂             : by rewrite [-append_cons, -s₂₁_eq, C₂₁]
             qed)))
   (λ x y t₁ t₂ p (r : ∀{a s₁ s₂}, t₁≈a|s₁ → t₂≈a|s₂ → s₁ ~ s₂) a s₁ s₂ e₁ e₂,
-    obtain (s₁₁ s₁₂ : list A) (C₁ : s₁ = s₁₁ ++ s₁₂ ∧ y::x::t₁ = s₁₁++(a::s₁₂)), from qeq_split e₁,
-    obtain (s₂₁ s₂₂ : list A) (C₂ : s₂ = s₂₁ ++ s₂₂ ∧ x::y::t₂ = s₂₁++(a::s₂₂)), from qeq_split e₂,
-    discr₂ (and.elim_right C₁)
+    obtain (s₁₁ s₁₂ : list A) (C₁₁ : s₁ = s₁₁ ++ s₁₂) (C₁₂ : y::x::t₁ = s₁₁++(a::s₁₂)), from qeq_split e₁,
+    obtain (s₂₁ s₂₂ : list A) (C₂₁ : s₂ = s₂₁ ++ s₂₂) (C₂₂ : x::y::t₂ = s₂₁++(a::s₂₂)), from qeq_split e₂,
+    discr₂ C₁₂
       (λ (s₁₁_eq : s₁₁ = [])  (s₁₂_eq : s₁₂ = x::t₁) (y_eq_a : y = a),
         assert s₁_p : s₁ ~ x::t₂, from calc
-            s₁  = s₁₁ ++ s₁₂ : and.elim_left C₁
+            s₁  = s₁₁ ++ s₁₂ : C₁₁
             ... = x::t₁      : by rewrite [s₁₂_eq, s₁₁_eq, append_nil_left]
             ... ~ x::t₂      : skip x p,
-        discr₂ (and.elim_right C₂)
+        discr₂ C₂₂
           (λ (s₂₁_eq : s₂₁ = [])  (s₂₂_eq : s₂₂ = y::t₂) (x_eq_a : x = a),
             proof calc
               s₁  ~ x::t₂      : s₁_p
               ... = s₂₁ ++ s₂₂ : by rewrite [x_eq_a, -y_eq_a, -s₂₂_eq, s₂₁_eq, append_nil_left]
-              ... = s₂         : by rewrite [and.elim_left C₂]
+              ... = s₂         : by rewrite C₂₁
             qed)
           (λ (s₂₁_eq : s₂₁ = [x]) (y_eq_a : y = a) (t₂_eq : t₂ = s₂₂),
             proof calc
               s₁  ~ x::t₂      : s₁_p
               ... = s₂₁ ++ s₂₂ : by rewrite [t₂_eq, s₂₁_eq, append_cons]
-              ... = s₂         : by rewrite [and.elim_left C₂]
+              ... = s₂         : by rewrite C₂₁
             qed)
           (λ (ts₂₁ : list A) (s₂₁_eq : s₂₁ = x::y::ts₂₁) (t₂_eq : t₂ = ts₂₁++(a::s₂₂)),
             proof calc
@@ -384,24 +384,24 @@ perm_induction_on p'
               ... = x::(ts₂₁++(y::s₂₂)) : by rewrite [t₂_eq, -y_eq_a]
               ... ~ x::y::(ts₂₁++s₂₂)   : skip x !perm_middle
               ... = s₂₁ ++ s₂₂          : by rewrite [s₂₁_eq, append_cons]
-              ... = s₂                  : by rewrite [and.elim_left C₂]
+              ... = s₂                  : by rewrite C₂₁
             qed))
       (λ (s₁₁_eq : s₁₁ = [y]) (x_eq_a : x = a) (t₁_eq : t₁ = s₁₂),
         assert s₁_p : s₁ ~ y::t₂, from calc
-             s₁  = y::t₁ : by rewrite [and.elim_left C₁, s₁₁_eq, t₁_eq]
+             s₁  = y::t₁ : by rewrite [C₁₁, s₁₁_eq, t₁_eq]
              ... ~ y::t₂ : skip y p,
-        discr₂ (and.elim_right C₂)
+        discr₂ C₂₂
           (λ (s₂₁_eq : s₂₁ = [])  (s₂₂_eq : s₂₂ = y::t₂) (x_eq_a : x = a),
             proof calc
               s₁  ~ y::t₂      : s₁_p
               ... = s₂₁ ++ s₂₂ : by rewrite [s₂₁_eq, s₂₂_eq]
-              ... = s₂         : by rewrite [and.elim_left C₂]
+              ... = s₂         : by rewrite C₂₁
             qed)
           (λ (s₂₁_eq : s₂₁ = [x]) (y_eq_a : y = a) (t₂_eq : t₂ = s₂₂),
             proof calc
               s₁  ~ y::t₂      : s₁_p
               ... = s₂₁ ++ s₂₂ : by rewrite [s₂₁_eq, t₂_eq, y_eq_a, -x_eq_a]
-              ... = s₂         : by rewrite [and.elim_left C₂]
+              ... = s₂         : by rewrite C₂₁
             qed)
           (λ (ts₂₁ : list A) (s₂₁_eq : s₂₁ = x::y::ts₂₁) (t₂_eq : t₂ = ts₂₁++(a::s₂₂)),
             proof calc
@@ -410,11 +410,11 @@ perm_induction_on p'
               ... ~ y::x::(ts₂₁++s₂₂)   : skip y !perm_middle
               ... ~ x::y::(ts₂₁++s₂₂)   : swap
               ... = s₂₁ ++ s₂₂          : by rewrite [s₂₁_eq]
-              ... = s₂                  : by rewrite [and.elim_left C₂]
+              ... = s₂                  : by rewrite C₂₁
             qed))
       (λ (ts₁₁ : list A) (s₁₁_eq : s₁₁ = y::x::ts₁₁) (t₁_eq : t₁ = ts₁₁++(a::s₁₂)),
-        assert s₁_eq  : s₁ = y::x::(ts₁₁++s₁₂), by rewrite [and.elim_left C₁, s₁₁_eq],
-        discr₂ (and.elim_right C₂)
+        assert s₁_eq  : s₁ = y::x::(ts₁₁++s₁₂), by rewrite [C₁₁, s₁₁_eq],
+        discr₂ C₂₂
           (λ (s₂₁_eq : s₂₁ = [])  (s₂₂_eq : s₂₂ = y::t₂) (x_eq_a : x = a),
             proof calc
               s₁  = y::a::(ts₁₁++s₁₂)   : by rewrite [s₁_eq, x_eq_a]
@@ -422,7 +422,7 @@ perm_induction_on p'
               ... = y::t₁               : by rewrite t₁_eq
               ... ~ y::t₂               : skip y p
               ... = s₂₁ ++ s₂₂          : by rewrite [s₂₁_eq, s₂₂_eq]
-              ... = s₂                  : by rewrite [and.elim_left C₂]
+              ... = s₂                  : by rewrite C₂₁
             qed)
           (λ (s₂₁_eq : s₂₁ = [x]) (y_eq_a : y = a) (t₂_eq : t₂ = s₂₂),
             proof calc
@@ -433,7 +433,7 @@ perm_induction_on p'
               ... = x::t₁               : by rewrite t₁_eq
               ... ~ x::t₂               : skip x p
               ... = s₂₁ ++ s₂₂          : by rewrite [t₂_eq, s₂₁_eq]
-              ... = s₂                  : by rewrite [and.elim_left C₂]
+              ... = s₂                  : by rewrite C₂₁
             qed)
           (λ (ts₂₁ : list A) (s₂₁_eq : s₂₁ = x::y::ts₂₁) (t₂_eq : t₂ = ts₂₁++(a::s₂₂)),
             assert t₁_qeq : t₁ ≈ a|(ts₁₁++s₁₂),    by rewrite t₁_eq; exact !qeq_app,
@@ -444,7 +444,7 @@ perm_induction_on p'
               ... ~ y::x::(ts₂₁++s₂₂)   : skip y (skip x p_aux)
               ... ~ x::y::(ts₂₁++s₂₂)   : swap
               ... = s₂₁ ++ s₂₂          : by rewrite s₂₁_eq
-              ... = s₂                  : by rewrite [and.elim_left C₂]
+              ... = s₂                  : by rewrite C₂₁
             qed)))
   (λ t₁ t₂ t₃ p₁ p₂
      (r₁ : ∀{a s₁ s₂}, t₁ ≈ a|s₁ → t₂≈a|s₂ → s₁ ~ s₂)

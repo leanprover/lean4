@@ -77,13 +77,13 @@ theorem compose.right_id (f : A → B) : f ∘ id = f := rfl
 
 theorem compose_const_right (f : B → C) (b : B) : f ∘ (const A b) = const A (f b) := rfl
 
-definition injective (f : A → B) : Prop := ∀ ⦃a₁ a₂⦄, f a₁ = f a₂ → a₁ = a₂
+definition injective [reducible] (f : A → B) : Prop := ∀ ⦃a₁ a₂⦄, f a₁ = f a₂ → a₁ = a₂
 
 theorem injective_compose {g : B → C} {f : A → B} (Hg : injective g) (Hf : injective f) :
   injective (g ∘ f) :=
 take a₁ a₂, assume Heq, Hf (Hg Heq)
 
-definition surjective (f : A → B) : Prop := ∀ b, ∃ a, f a = b
+definition surjective [reducible] (f : A → B) : Prop := ∀ b, ∃ a, f a = b
 
 theorem surjective_compose {g : B → C} {f : A → B} (Hg : surjective g) (Hf : surjective f) :
   surjective (g ∘ f) :=

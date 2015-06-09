@@ -39,9 +39,14 @@ well_founded.intro (λ (bv : vec A),
                 gen₂ n₁ e₃ v₁ ih e₂))),
             gen (to_vec (cons a₁ v₁)) lt₁ rfl))))
 
+definition direct_subterm.wf₂ (A : Type) : well_founded (direct_subterm A) :=
+begin
+  constructor, intro V, cases V with n v, induction v,
+  repeat (constructor; intro y hlt; cases hlt; repeat assumption)
+end
+
 definition subterm (A : Type) := tc (direct_subterm A)
 
 definition subterm.wf (A : Type) : well_founded (subterm A) :=
 tc.wf (direct_subterm.wf A)
-
 end vector

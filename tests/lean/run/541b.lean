@@ -15,6 +15,22 @@ inductive exp : Type :=
 
 open exp
 
+inductive direct_subterm : exp → exp → Prop :=
+| lam    : ∀ n t e, direct_subterm e (lam n t e)
+| ap_fn  : ∀ f a, direct_subterm f (ap f a)
+| ap_arg : ∀ f a, direct_subterm a (ap f a)
+
+theorem direct_subterm_wf : well_founded direct_subterm :=
+begin
+  constructor, intro e, induction e,
+  repeat (constructor; intro y hlt; cases hlt; repeat assumption)
+end
+
+definition subterm := tc direct_subterm
+
+theorem subterm_wf : well_founded subterm :=
+tc.wf direct_subterm_wf
+
 inductive is_val : exp → Prop :=
 | vcnst    : Π c,     is_val (cnst c)
 | vlam     : Π x t e, is_val (lam x t e)

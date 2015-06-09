@@ -28,4 +28,11 @@ namespace inftree
       (λ a, dsub.leaf.acc a)
       (λ f (ih :∀a, acc dsub (f a)), dsub.node.acc f ih))
 
+  theorem dsub.wf₂ (A : Type) : well_founded (@dsub A) :=
+  begin
+    constructor, intro t, induction t with a f ih ,
+     {constructor, intro y hlt, cases hlt},
+     {constructor, intro y hlt, cases hlt, exact ih a}
+  end
+
 end inftree

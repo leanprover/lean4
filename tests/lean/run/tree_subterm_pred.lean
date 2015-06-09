@@ -26,6 +26,12 @@ well_founded.intro (λ t : tree A,
            (λ (l' r' : tree A) (Heq : node l r = node l' r'), tree.no_confusion Heq (λ leq req, eq.rec_on req ihr)),
         gen (node l r) H rfl)))
 
+definition direct_subterm.wf₂ {A : Type} : well_founded (@direct_subterm A) :=
+begin
+  constructor, intro t, induction t,
+  repeat (constructor; intro y hlt; cases hlt; repeat assumption)
+end
+
 definition subterm {A : Type} : tree A → tree A → Prop := tc (@direct_subterm A)
 
 definition subterm.wf {A : Type} : well_founded (@subterm A) :=

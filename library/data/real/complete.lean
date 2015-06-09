@@ -25,8 +25,6 @@ namespace s
 
 theorem nonneg_of_ge_neg_invs (a : ℚ) (H : ∀ n : ℕ+, -n⁻¹ ≤ a) : 0 ≤ a := sorry
 
-theorem ineq_helper (a b c : ℚ) : c ≤ a + b → -a ≤ b - c := sorry
-
 definition const (a : ℚ) : seq := λ n, a
 
 theorem const_reg (a : ℚ) : regular (const a) :=
@@ -108,7 +106,7 @@ theorem const_bound {s : seq} (Hs : regular s) (n : ℕ+) : s_le (s_abs (sadd s 
   begin
     rewrite ↑[s_le, nonneg, s_abs, sadd, sneg, const],
     intro m,
-    apply ineq_helper,
+    apply iff.mp !rat.le_add_iff_neg_le_sub_left,
     apply rat.le.trans,
     apply Hs,
     apply rat.add_le_add_right,
@@ -241,28 +239,6 @@ theorem rewrite_helper9 (a b c : ℝ) : b - c = (b - a) - (c - a) := sorry
 
 theorem rewrite_helper10 (a b c d : ℝ) : c - d = (c - a) + (a - b) + (b - d) := sorry
 
-theorem r_abs_add_three (a b c : ℝ) : abs (a + b + c) ≤ abs a + abs b + abs c := 
-  begin
-    apply algebra.le.trans,
-    apply algebra.abs_add_le_abs_add_abs,
-    apply algebra.le.trans,
-    apply algebra.add_le_add_right,
-    apply algebra.abs_add_le_abs_add_abs,
-    apply algebra.le.refl
-  end
-
-theorem r_add_le_add_three (a b c d e f : ℝ) (H1 : a ≤ d) (H2 : b ≤ e) (H3 : c ≤ f) :
-        a + b + c ≤ d + e + f := 
-  begin
-    apply algebra.le.trans,
-    apply algebra.add_le_add,
-    apply algebra.add_le_add,
-    repeat assumption,
-    apply algebra.le.refl
-  end
-
-theorem re_add_comm_3 (a b c : ℝ) : a + b + c = c + b + a := sorry
-
 definition rep (x : ℝ) : reg_seq := some (quot.exists_rep x)
 
 definition const (a : ℚ) : ℝ := quot.mk (s.r_const a) 
@@ -364,7 +340,7 @@ theorem lim_seq_reg_helper {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) {m 
             (X (Nb M n) - const (lim_seq Hc n)) ≤ const (m⁻¹ + n⁻¹) :=
   begin
     apply algebra.le.trans,
-    apply r_add_le_add_three,
+    apply algebra.add_le_add_three, 
     apply approx_spec',
     rotate 1,
     apply approx_spec,
@@ -390,7 +366,7 @@ theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : regular 
     apply le_of_const_le_const,
     rewrite [abs_const, -sub_consts, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],
     apply algebra.le.trans,
-    apply r_abs_add_three,
+    apply algebra.abs_add_three, 
     let Hor := decidable.em (M (2 * m) ≥ M (2 * n)),
     apply or.elim Hor,
     intro Hor1,
@@ -398,7 +374,7 @@ theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : regular 
     intro Hor2,
     let Hor2' := pnat.le_of_lt (pnat.lt_of_not_le Hor2),
     rewrite [algebra.abs_sub (X (Nb M n)), algebra.abs_sub (X (Nb M m)), algebra.abs_sub, -- ???
-             rat.add.comm, re_add_comm_3],
+             rat.add.comm, algebra.add_comm_three],
     apply lim_seq_reg_helper Hc Hor2'
   end
 
@@ -437,9 +413,9 @@ theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
     intro k n Hn,
     rewrite (rewrite_helper10 (X (Nb M n)) (const (lim_seq Hc n))),
     apply algebra.le.trans,
-    apply r_abs_add_three,
+    apply algebra.abs_add_three,
     apply algebra.le.trans,
-    apply r_add_le_add_three,
+    apply algebra.add_le_add_three,
     apply Hc,
     apply ple.trans,
     rotate 1,

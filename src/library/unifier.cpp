@@ -1401,6 +1401,31 @@ struct unifier_fn {
             cs = append(aux, cs);
     }
 
+    /** \see ensure_sufficient_args */
+    expr ensure_sufficient_args_core(expr mtype, unsigned nargs, unsigned i, constraint_seq & cs) {
+        if (i == nargs)
+            return mtype;
+        mtype = m_tc->ensure_pi(mtype, cs);
+        expr local = mk_local_for(mtype);
+        expr body  = instantiate(binding_body(mtype), local);
+        return Pi(local, ensure_sufficient_args_core(body, nargs, i+1, cs));
+    }
+
+    /** \brief Make sure mtype is a Pi of size at least nargs.
+        If it is not, we use ensure_pi and (potentially) add new constaints to enforce it.
+    */
+    expr ensure_sufficient_args(expr const & mtype, unsigned nargs, constraint_seq & cs) {
+        expr t = mtype;
+        unsigned num = 0;
+        while (is_pi(t)) {
+            num++;
+            t = binding_body(t);
+        }
+        if (num >= nargs)
+            return mtype;
+        return ensure_sufficient_args_core(mtype, nargs, 0, cs);
+    }
+
     /** \brief Auxiliary functional object for implementing process_flex_rigid_core */
     class flex_rigid_core_fn {
         unifier_fn &          u;
@@ -1470,29 +1495,9 @@ struct unifier_fn {
             return true;
         }
 
-        /** \see ensure_sufficient_args */
-        expr ensure_sufficient_args_core(expr mtype, unsigned i, constraint_seq & cs) {
-            if (i == margs.size())
-                return mtype;
-            mtype = tc().ensure_pi(mtype, cs);
-            expr local = u.mk_local_for(mtype);
-            expr body  = instantiate(binding_body(mtype), local);
-            return Pi(local, ensure_sufficient_args_core(body, i+1, cs));
-        }
-
-        /** \brief Make sure mtype is a Pi of size at least margs.size().
-            If it is not, we use ensure_pi and (potentially) add new constaints to enforce it.
-        */
+        /** \brief Make sure mtype is a Pi of size at least margs.size(). */
         expr ensure_sufficient_args(expr const & mtype, constraint_seq & cs) {
-            expr t = mtype;
-            unsigned num = 0;
-            while (is_pi(t)) {
-                num++;
-                t = binding_body(t);
-            }
-            if (num >= margs.size())
-                return mtype;
-            return ensure_sufficient_args_core(mtype, 0, cs);
+            return u.ensure_sufficient_args(mtype, margs.size(), cs);
         }
 
         /**
@@ -1970,6 +1975,63 @@ struct unifier_fn {
             postpone(c);
     }
 
+    // Auxiliary method used in process_flex_flex_approx
+    bool assign_flex_approx(expr const & m, expr const & v, justification const & j, constraint_seq & cs) {
+        lean_assert(m_config.m_discard);
+        buffer<expr> args;
+        expr const & fn = get_app_args(m, args);
+        lean_assert(is_metavar(fn));
+        expr type = mlocal_type(fn);
+        type = ensure_sufficient_args(type, args.size(), cs);
+        buffer<expr> locals;
+        for (expr const & a : args) {
+            expr local = is_local(a) ? a : mk_local_for(type);
+            locals.push_back(local);
+            type = instantiate(binding_body(type), local);
+        }
+        return assign(m, fn, locals, v, j);
+    }
+
+    bool process_flex_flex_approx(constraint const & c) {
+        lean_assert(m_config.m_discard);
+        // Try to solve constraint
+        // ?M_1 t_1 ... t_n =?= ?M_2 s_1 ... s_m
+        // by creating a fresh metavariable ?M using common local constants.
+        // If can't build approximate solution, then discard constraint.
+        expr const & lhs = cnstr_lhs_expr(c);
+        expr const & rhs = cnstr_rhs_expr(c);
+        buffer<expr> lhs_args, rhs_args;
+        get_app_args(lhs, lhs_args);
+        get_app_args(rhs, rhs_args);
+        buffer<expr> shared_locals;
+        unsigned sz = std::min(lhs_args.size(), rhs_args.size());
+        unsigned i  = 0;
+        for (; i < sz; i++) {
+            if (!is_local(lhs_args[i]) || !is_local(rhs_args[i]) ||
+                mlocal_name(lhs_args[i]) != mlocal_name(rhs_args[i]))
+                break;
+            shared_locals.push_back(lhs_args[i]);
+        }
+        constraint_seq cs;
+        if (optional<expr> lhs_type = infer(lhs, cs)) {
+            expr new_type = Pi(shared_locals, *lhs_type);
+            if (!has_local(new_type)) {
+                expr new_mvar = mk_metavar(m_ngen.next(), new_type);
+                expr new_val  = mk_app(new_mvar, shared_locals);
+                justification const & j = c.get_justification();
+                return
+                    assign_flex_approx(lhs, new_val, j, cs) &&
+                    assign_flex_approx(rhs, new_val, j, cs) &&
+                    process_constraints(cs, c.get_justification());
+            }
+        }
+        // Failed to generate approximate solution.
+        // TODO(Leo): generate an error, or just ingore?
+        // we are currently just ignoring...
+        return true;
+    }
+
+
     bool process_flex_flex(constraint const & c) {
         expr const & lhs = cnstr_lhs_expr(c);
         expr const & rhs = cnstr_rhs_expr(c);
@@ -1979,8 +2041,12 @@ struct unifier_fn {
         //   ?M_1 l_1 ... l_k =?= ?M_2 l_1 ... l_k ... l_n
         //   ?M_1 l_1 ... l_k ... l_n =?= ?M_2 l_1 ... l_k
         if (!is_simple_meta(lhs) || !is_simple_meta(rhs)) {
-            discard(c);
-            return true;
+            if (m_config.m_discard) {
+                return process_flex_flex_approx(c);
+            } else {
+                discard(c);
+                return true;
+            }
         }
         buffer<expr> lhs_args, rhs_args;
         expr ml = get_app_args(lhs, lhs_args);

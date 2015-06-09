@@ -1,6 +1,3 @@
-626a.lean:3:29: error: don't know how to synthesize placeholder
-c : C¹
-⊢ nat → Type
 626a.lean:3:42: error: don't know how to synthesize placeholder
 c : C¹
 ⊢ ?M_1
@@ -12,9 +9,6 @@ c : C¹
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (c : C¹),
     nat.rec_on c ?M_2 ?M_3
-626a.lean:8:29: error: don't know how to synthesize placeholder
-c : C¹
-⊢ C¹ → Type
 626a.lean:8:42: error: don't know how to synthesize placeholder
 c : C¹
 ⊢ ?M_1

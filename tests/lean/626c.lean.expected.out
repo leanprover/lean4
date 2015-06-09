@@ -1,6 +1,3 @@
-626c.lean:2:27: error: don't know how to synthesize placeholder
-c : C⁽
-⊢ C⁽ → Type
 626c.lean:2:40: error: don't know how to synthesize placeholder
 c : C⁽
 ⊢ ?M_1
@@ -12,9 +9,6 @@ c : C⁽
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (c : C⁽),
     nat.rec_on c ?M_2 ?M_3
-626c.lean:5:27: error: don't know how to synthesize placeholder
-c : α⁽
-⊢ α⁽ → Type
 626c.lean:5:40: error: don't know how to synthesize placeholder
 c : α⁽
 ⊢ ?M_1
@@ -26,9 +20,6 @@ c : α⁽
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (c : α⁽),
     nat.rec_on c ?M_2 ?M_3
-626c.lean:8:27: error: don't know how to synthesize placeholder
-c : _⁽
-⊢ _⁽ → Type
 626c.lean:8:40: error: don't know how to synthesize placeholder
 c : _⁽
 ⊢ ?M_1
@@ -40,9 +31,6 @@ c : _⁽
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (c : _⁽),
     nat.rec_on c ?M_2 ?M_3
-626c.lean:11:28: error: don't know how to synthesize placeholder
-c : C.⁽
-⊢ C.⁽ → Type
 626c.lean:11:41: error: don't know how to synthesize placeholder
 c : C.⁽
 ⊢ ?M_1
@@ -54,9 +42,6 @@ c : C.⁽
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (c : C.⁽),
     nat.rec_on c ?M_2 ?M_3
-626c.lean:14:29: error: don't know how to synthesize placeholder
-c : C⁽C⁽
-⊢ C⁽C⁽ → Type
 626c.lean:14:42: error: don't know how to synthesize placeholder
 c : C⁽C⁽
 ⊢ ?M_1

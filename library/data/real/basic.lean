@@ -11,7 +11,7 @@ To do:
  o Rename things and possibly make theorems private
 -/
 
-import algebra.ordered_field data.nat data.rat.order
+import data.nat data.rat.order
 open nat eq eq.ops
 open -[coercions] rat
 ----------------------------------------------------------------------------------------------------
@@ -46,11 +46,11 @@ notation p `≥` q := q ≤ p
 definition lt (p q : pnat) := p~ < q~
 infix `<` := lt
 
-theorem pnat_le_decidable [instance] (p q : pnat) : decidable (p ≤ q) :=
+definition pnat_le_decidable [instance] (p q : pnat) : decidable (p ≤ q) :=
   pnat.rec_on p (λ n H, pnat.rec_on q
     (λ m H2, if Hl : n ≤ m then decidable.inl Hl else decidable.inr Hl))
 
-theorem pnat_lt_decidable [instance] {p q : pnat} : decidable (p < q) :=
+definition pnat_lt_decidable [instance] {p q : pnat} : decidable (p < q) :=
   pnat.rec_on p (λ n H, pnat.rec_on q
     (λ m H2, if Hl : n < m then decidable.inl Hl else decidable.inr Hl))
 
@@ -126,6 +126,8 @@ theorem ge_of_inv_le {p q : ℕ+} (H : p⁻¹ ≤ q⁻¹) : q < p := sorry
 
 theorem padd_halves (p : ℕ+) : (2 * p)⁻¹ + (2 * p)⁻¹ = p⁻¹ := sorry
 
+theorem p_add_fractions (n : ℕ+) : (2 * n)⁻¹ + (2 * 3 * n)⁻¹ + (3 * n)⁻¹ = n⁻¹ := sorry
+
 theorem add_halves_double (m n : ℕ+) :
         m⁻¹ + n⁻¹ = ((2 * m)⁻¹ + (2 * n)⁻¹) + ((2 * m)⁻¹ + (2 * n)⁻¹) :=
   have simp [visible] : ∀ a b : ℚ, (a + a) + (b + b) = (a + b) + (a + b), from sorry,
@@ -149,6 +151,8 @@ theorem pnat_mul_le_mul_left' (a b c : ℕ+) (H : a ≤ b) : c * a ≤ c * b := 
 theorem pnat_mul_assoc (a b c : ℕ+) : a * b * c = a * (b * c) := sorry
 
 theorem pnat_mul_comm (a b : ℕ+) : a * b = b * a := sorry
+
+theorem pnat_add_assoc (a b c : ℕ+) : a + b + c = a + (b + c) := sorry
 
 theorem s_mul_assoc_lemma_3 (a b n : ℕ+) (p : ℚ) :
         p * ((a * n)⁻¹ + (b * n)⁻¹) = p * (a⁻¹ + b⁻¹) * n⁻¹ := sorry

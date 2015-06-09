@@ -568,6 +568,33 @@ theorem lt_or_equiv_of_le {s t : seq} (Hs : regular s) (Ht : regular t) (Hle : s
   if H : s ≡ t then or.inr H else
     or.inl (lt_of_le_and_sep Hs Ht (and.intro Hle (sep_of_nequiv Hs Ht H)))
 
+theorem s_le_of_equiv_le_left {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u) 
+        (Heq : s ≡ t) (Hle : s_le s u) : s_le t u :=
+  begin
+    rewrite ↑s_le at *,
+    apply nonneg_of_nonneg_equiv,
+    rotate 2,
+    apply add_well_defined,
+    rotate 4,
+    apply equiv.refl,
+    apply neg_well_defined,
+    apply Heq,
+    repeat (assumption | apply reg_add_reg | apply reg_neg_reg)
+  end
+
+theorem s_le_of_equiv_le_right {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u) 
+        (Heq : t ≡ u) (Hle : s_le s t) : s_le s u :=
+  begin
+    rewrite ↑s_le at *,
+    apply nonneg_of_nonneg_equiv,
+    rotate 2,
+    apply add_well_defined,
+    rotate 4,
+    apply Heq,
+    apply equiv.refl,
+    repeat (assumption | apply reg_add_reg | apply reg_neg_reg)
+  end
+
 -----------------------------
 
 definition r_inv (s : reg_seq) : reg_seq := reg_seq.mk (s_inv (reg_seq.is_reg s))  
@@ -593,6 +620,11 @@ theorem r_sep_of_nequiv (s t : reg_seq) (Hneq : ¬ requiv s t) : r_sep s t :=
 theorem r_lt_or_equiv_of_le (s t : reg_seq) (Hle : r_le s t) : r_lt s t ∨ requiv s t :=
   lt_or_equiv_of_le (reg_seq.is_reg s) (reg_seq.is_reg t) Hle
 
+theorem r_le_of_equiv_le_left {s t u : reg_seq} (Heq : requiv s t) (Hle : r_le s u) : r_le t u :=
+  s_le_of_equiv_le_left (reg_seq.is_reg s) (reg_seq.is_reg t) (reg_seq.is_reg u) Heq Hle
+
+theorem r_le_of_equiv_le_right {s t u : reg_seq} (Heq : requiv t u) (Hle : r_le s t) : r_le s u :=
+  s_le_of_equiv_le_right (reg_seq.is_reg s) (reg_seq.is_reg t) (reg_seq.is_reg u) Heq Hle
 
 end s
 
@@ -642,7 +674,8 @@ theorem dec_lt : decidable_rel lt :=
     apply prop_decidable
   end
 
-definition linear_ordered_field : algebra.discrete_linear_ordered_field ℝ :=
+open [classes] algebra
+definition linear_ordered_field [instance] : algebra.discrete_linear_ordered_field ℝ :=
   ⦃ algebra.discrete_linear_ordered_field, comm_ring, ordered_ring, 
     le_total := le_total,
     mul_inv_cancel := mul_inv,

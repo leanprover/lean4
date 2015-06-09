@@ -38,7 +38,7 @@ bool is_idx_metauniv(level const & l) {
 }
 
 unsigned to_meta_idx(level const & l) {
-    lean_assert(is_idx_meta_univ(l));
+    lean_assert(is_idx_metauniv(l));
     return meta_id(l).get_numeral();
 }
 
@@ -50,7 +50,7 @@ bool is_idx_metavar(expr const & e) {
 }
 
 unsigned to_meta_idx(expr const & e) {
-    lean_assert(is_idx_meta(e));
+    lean_assert(is_idx_metavar(e));
     return mlocal_name(e).get_numeral();
 }
 }

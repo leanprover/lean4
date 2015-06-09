@@ -149,6 +149,13 @@ definition add_comm_monoid.to_comm_monoid {A : Type} [s : add_comm_monoid A] : c
   mul_comm    := add_comm_monoid.add_comm
 ⦄
 
+section add_comm_monoid
+
+  theorem add_comm_three {A : Type} [s : add_comm_monoid A] (a b c : A) : a + b + c = c + b + a :=
+    by rewrite [{a + _}add.comm, {_ + c}add.comm, -*add.assoc]
+
+end add_comm_monoid
+
 /- group -/
 
 structure group [class] (A : Type) extends monoid A, has_inv A :=

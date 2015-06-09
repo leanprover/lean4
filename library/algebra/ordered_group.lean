@@ -335,6 +335,21 @@ section
   assert H: a ≤ b + c ↔ a - c ≤ b + c - c, from iff.symm (!add_le_add_right_iff),
   by rewrite add_neg_cancel_right at H; exact H
 
+  theorem le_add_iff_neg_add_le_left : a ≤ b + c ↔ -b + a ≤ c :=
+  assert H: a ≤ b + c ↔ -b + a ≤ -b + (b + c), from iff.symm (!add_le_add_left_iff),
+  by rewrite neg_add_cancel_left at H; exact H
+
+  theorem le_add_iff_neg_add_le_right : a ≤ b + c ↔ -c + a ≤ b :=
+  by rewrite add.comm; apply le_add_iff_neg_add_le_left
+
+  theorem le_add_iff_neg_le_sub_left : c ≤ a + b ↔ -a ≤ b - c :=
+  assert H : c ≤ a + b ↔ -a + c ≤ b, from !le_add_iff_neg_add_le,
+  assert H' : -a + c ≤ b ↔ -a ≤ b - c, from !add_le_iff_le_sub_right,
+  iff.trans H H'
+
+  theorem le_add_iff_neg_le_sub_right : c ≤ a + b ↔ -b ≤ a - c :=
+  by rewrite add.comm; apply le_add_iff_neg_le_sub_left
+
   theorem add_lt_iff_lt_neg_add_left : a + b < c ↔ b < -a + c :=
   assert H: a + b < c ↔ -a + (a + b) < -a + c, from iff.symm (!add_lt_add_left_iff),
   begin rewrite neg_add_cancel_left at H, exact H end
@@ -411,6 +426,17 @@ section
     a - b = a + -b : rfl
       ... < a + 0  : add_lt_add_left (neg_neg_of_pos H)
       ... = a      : by rewrite add_zero
+
+  theorem add_le_add_three {a b c d e f : A} (H1 : a ≤ d) (H2 : b ≤ e) (H3 : c ≤ f) :
+        a + b + c ≤ d + e + f := 
+  begin
+    apply le.trans,
+    apply add_le_add,
+    apply add_le_add,
+    repeat assumption,
+    apply le.refl
+  end
+
 end
 
 structure decidable_linear_ordered_comm_group [class] (A : Type)
@@ -574,6 +600,16 @@ section
         ... = abs (a - b + b)       : by rewrite sub_add_cancel
         ... ≤ abs (a - b) + abs b   : abs_add_le_abs_add_abs,
   algebra.le_of_add_le_add_right H1
-end
+
+  theorem abs_add_three (a b c : A) : abs (a + b + c) ≤ abs a + abs b + abs c := 
+    begin
+      apply le.trans,
+      apply abs_add_le_abs_add_abs,
+      apply le.trans,
+      apply add_le_add_right,
+      apply abs_add_le_abs_add_abs,
+      apply le.refl
+    end
+  end
 
 end algebra

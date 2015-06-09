@@ -22,18 +22,6 @@ namespace s
 -----------------------------
 -- helper lemmas
 
-theorem nonneg_le_nonneg_of_squares_le {a b : ℚ} (Ha : a ≥ 0) (Hb : b ≥ 0) (H : a * a ≤ b * b) :
-        a ≤ b :=
-  begin
-    apply rat.le_of_not_gt,
-    intro Hab,
-    let Hposa := rat.lt_of_le_of_lt Hb Hab,
-    let H' := calc
-      b * b ≤ a * b : rat.mul_le_mul_of_nonneg_right (rat.le_of_lt Hab) Hb
-      ... < a * a : rat.mul_lt_mul_of_pos_left Hab Hposa,
-    apply (rat.not_le_of_gt H') H
-  end
-
 theorem abs_sub_square (a b : ℚ) : abs (a - b) * abs (a - b) = a * a + b * b - (1 + 1) * a * b := 
   sorry --begin rewrite [abs_mul_self, *rat.left_distrib, *rat.right_distrib, *one_mul] end
 
@@ -41,7 +29,7 @@ theorem neg_add_rewrite {a b : ℚ} : a + -b = -(b + -a) := sorry
 
 theorem abs_abs_sub_abs_le_abs_sub (a b : ℚ) : abs (abs a - abs b) ≤ abs (a - b) :=
   begin
-    apply nonneg_le_nonneg_of_squares_le,
+    apply rat.nonneg_le_nonneg_of_squares_le,
     repeat apply abs_nonneg,
     rewrite [*(abs_sub_square _ _), *abs_abs, *abs_mul_self],
     apply sub_le_sub_left,

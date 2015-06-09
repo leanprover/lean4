@@ -263,6 +263,17 @@ section linear_ordered_field
       ... = (a * (1 + 1)) / (1 + 1) : left_distrib
       ... = a : mul_div_cancel two_ne_zero
 
+theorem nonneg_le_nonneg_of_squares_le  (Ha : a ≥ 0) (Hb : b ≥ 0) (H : a * a ≤ b * b) : a ≤ b :=
+  begin
+    apply le_of_not_gt,
+    intro Hab,
+    let Hposa := lt_of_le_of_lt Hb Hab,
+    let H' := calc
+      b * b ≤ a * b : mul_le_mul_of_nonneg_right (le_of_lt Hab) Hb
+      ... < a * a : mul_lt_mul_of_pos_left Hab Hposa,
+    apply (not_le_of_gt H') H
+  end
+
 end linear_ordered_field
 
 structure discrete_linear_ordered_field [class] (A : Type) extends linear_ordered_field A,

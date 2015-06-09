@@ -15,8 +15,7 @@ import data.real.basic data.rat data.nat
 open -[coercions] rat 
 open -[coercions] nat
 open eq eq.ops
-
-
+ 
 ----------------------------------------------------------------------------------------------------
 
 -- pnat theorems

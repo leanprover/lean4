@@ -194,18 +194,6 @@ theorem add_sub_comm (a b c d : ℚ) : a + b - (c + d) = (a - c) + (b - d) := so
 
 theorem div_helper (a b : ℚ) : (1 / (a * b)) * a = 1 / b := sorry
 
-theorem abs_add_three (a b c : ℚ) : abs (a + b + c) ≤ abs a + abs b + abs c := 
-  begin
-    apply rat.le.trans,
-    apply abs_add_le_abs_add_abs,
-    apply rat.add_le_add_right,
-    apply abs_add_le_abs_add_abs
-  end
-
-theorem add_le_add_three (a b c d e f : ℚ) (H1 : a ≤ d) (H2 : b ≤ e) (H3 : c ≤ f) :
-        a + b + c ≤ d + e + f :=
-  by repeat apply rat.add_le_add; repeat assumption
-
 theorem distrib_three_right (a b c d : ℚ) : (a + b + c) * d = a * d + b * d + c * d := sorry
 
 theorem mul_le_mul_of_mul_div_le (a b c d : ℚ) : a * (b / c) ≤ d → b * a ≤ d * c := sorry

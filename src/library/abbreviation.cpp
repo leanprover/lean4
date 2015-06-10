@@ -112,7 +112,7 @@ expr expand_abbreviations(environment const & env, expr const & e) {
     abbrev_state const & s = abbrev_ext::get_state(env);
     return replace(e, [&](expr const & e, unsigned) {
             if (is_constant(e) && s.is_abbreviation(const_name(e)))
-                return some_expr(instantiate_value_univ_params(env.get(const_name(e)), const_levels(e)));
+                return some_expr(try_eta(instantiate_value_univ_params(env.get(const_name(e)), const_levels(e))));
             else
                 return none_expr();
         });

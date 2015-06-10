@@ -1,9 +1,9 @@
 definition category.id [reducible] : Π {ob : Type} [C : precategory ob] {a : ob}, hom a a
-λ (ob : Type) (C : precategory ob) (a : ob), ID a
+ID
 definition function.id [reducible] : Π {A : Type}, A → A
 λ (A : Type) (a : A), a
 -----------
 definition category.id [reducible] : Π {ob : Type} [C : precategory ob] {a : ob}, hom a a
-λ (ob : Type) (C : precategory ob) (a : ob), ID a
+ID
 definition function.id [reducible] : Π {A : Type}, A → A
 λ (A : Type) (a : A), a

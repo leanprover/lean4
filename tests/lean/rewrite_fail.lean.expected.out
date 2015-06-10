@@ -13,8 +13,7 @@ Hb : b = 0
 ⊢ a + b = 0
 rewrite_fail.lean:6:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
-  λ (a b : ℕ) (Ha : …) (Hb : …),
-    ?M_1
+  ?M_1
 rewrite_fail.lean:11:2: error:invalid tactic, there are no goals to be solved
 proof state:
 no goals
@@ -23,5 +22,4 @@ a : ℕ
 ⊢ a = a
 rewrite_fail.lean:12:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
-  λ (a : ℕ),
-    ?M_1
+  ?M_1

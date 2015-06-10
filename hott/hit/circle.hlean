@@ -213,7 +213,7 @@ namespace circle
       { exact idp},
       { intros n p,
         apply transport (λ(y : base = base), transport circle.code y _ = _), apply power_con,
-        rewrite [▸*,con_tr, transport_code_loop, ↑[circle.encode,circle.code] at p, p]},
+        rewrite [▸*,con_tr, transport_code_loop, ↑[circle.encode,circle.code] at p], krewrite p},
       { intros n p,
         apply transport (λ(y : base = base), transport circle.code y _ = _),
         { exact !power_con_inv ⬝ ap (power loop) !neg_succ⁻¹},

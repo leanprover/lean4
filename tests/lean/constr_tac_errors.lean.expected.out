@@ -19,8 +19,7 @@ a b : Prop
 ⊢ a → b → a ∧ b
 constr_tac_errors.lean:13:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
-  λ (a b : Prop),
-    ?M_1
+  ?M_1
 constr_tac_errors.lean:18:2: error:invalid 'constructor' tactic, goal is an inductive datatype, but it does not have 2 constructor(s)
 proof state:
 a b : Prop,
@@ -32,8 +31,7 @@ a b : Prop
 ⊢ a → b → a ∧ b
 constr_tac_errors.lean:19:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
-  λ (a b : Prop),
-    ?M_1
+  ?M_1
 constr_tac_errors.lean:31:2: error:invalid 'constructor' tactic, too many arguments have been provided
 proof state:
 a b : Prop,
@@ -45,8 +43,7 @@ a b : Prop
 ⊢ a → b → unit
 constr_tac_errors.lean:32:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
-  λ (a b : Prop),
-    ?M_1
+  ?M_1
 constr_tac_errors.lean:39:2: error:invalid 'constructor' tactic, goal is not an inductive datatype
 proof state:
 

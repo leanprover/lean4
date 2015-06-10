@@ -11,8 +11,7 @@ H : f a = a
 ⊢ g a = a
 quasireducible.lean:11:3: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
-  λ (a : nat) (H : …),
-    ?M_1
+  ?M_1
 quasireducible.lean:16:11: error:invalid 'rewrite' tactic, rewrite step failed using pattern
   f a
 no subterm in the goal matched the pattern
@@ -26,5 +25,4 @@ H : f a = a
 ⊢ g a = a
 quasireducible.lean:16:3: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
-  λ (a : nat) (H : …),
-    ?M_1
+  ?M_1

@@ -10,5 +10,4 @@ a b : Prop
 ⊢ a ∧ b
 apply_fail.lean:4:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
-  λ (a b : Prop),
-    ?M_1
+  ?M_1

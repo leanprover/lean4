@@ -220,6 +220,10 @@ expr beta_reduce(expr t) {
     return eta_beta_reduce_fn<false, true>()(t);
 }
 
+expr eta_reduce(expr t) {
+    return eta_beta_reduce_fn<true, false>()(t);
+}
+
 expr beta_eta_reduce(expr t) {
     return eta_beta_reduce_fn<true, true>()(t);
 }

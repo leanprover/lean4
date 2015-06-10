@@ -30,5 +30,4 @@ s : square t b l r
 ⊢ unit
 cases_failure.hlean:13:0: error: failed to add declaration 'foo' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
-  λ (A : Type) (x y z : A) (t : …) (b : …) (l : …) (r : …) (s : …),
-    ?M_1
+  ?M_1

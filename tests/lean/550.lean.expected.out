@@ -37,4 +37,4 @@ rinv : func ∘ finv = function.id
 550.lean:43:2: error: failed to add declaration 'bijection.inv.linv' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   λ (A : Type) (f : …),
-    bijection.rec_on f (λ (func finv : …) (linv : …) (rinv : …), ?M_1)
+    bijection.rec_on f ?M_1

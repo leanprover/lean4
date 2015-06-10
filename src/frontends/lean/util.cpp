@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/explicit.h"
 #include "library/aliases.h"
+#include "library/normalize.h"
 #include "library/placeholder.h"
 #include "library/abbreviation.h"
 #include "library/unfold_macros.h"
@@ -450,6 +451,6 @@ char const * close_binder_string(binder_info const & bi, bool unicode) {
 }
 
 expr postprocess(environment const & env, expr const & e) {
-    return expand_abbreviations(env, unfold_untrusted_macros(env, e));
+    return eta_reduce(expand_abbreviations(env, unfold_untrusted_macros(env, e)));
 }
 }

@@ -12,10 +12,16 @@ if [ $# -ne 2 ]; then
 else
     INTERACTIVE=$2
 fi
+
 NUM_ERRORS=0
 for f in *.lean; do
     echo "-- testing $f"
-    "$LEAN" -t config.lean "$f" &> "$f.produced.out.1"
+    if [ ${f: -6} == ".hlean" ]; then
+        CONFIG="config.hlean"
+    else
+        CONFIG="config.lean"
+    fi
+    "$LEAN" -t $CONFIG "$f" &> "$f.produced.out.1"
     sed "/warning: imported file uses 'sorry'/d" "$f.produced.out.1" > "$f.produced.out"
     rm -f -- "$f.produced.out.1"
     if test -f "$f.expected.out"; then

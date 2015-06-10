@@ -72,16 +72,20 @@ namespace category
     ua !equiv_equiv_iso
 
     definition is_univalent_hset (A B : Precategory_hset) : is_equiv (iso_of_eq : A = B → A ≅ B) :=
-    have H : is_equiv (@iso_of_equiv A B ∘ @equiv_of_eq A B ∘ subtype_eq_inv _ _ ∘
-      @ap _ _ (to_fun (trunctype.sigma_char 0)) A B), from
-    @is_equiv_compose _ _ _ _ _
+    assert H₁ : is_equiv (@iso_of_equiv A B ∘ @equiv_of_eq A B ∘ subtype_eq_inv _ _ ∘
+                  @ap _ _ (to_fun (trunctype.sigma_char 0)) A B), from
+      @is_equiv_compose _ _ _ _ _
       (@is_equiv_compose _ _ _ _ _
-        (@is_equiv_compose _ _ _ _ _
-          _
-          (@is_equiv_subtype_eq_inv _ _ _ _ _))
-        !univalence)
-      !is_equiv_iso_of_equiv,
-    (iso_of_eq_eq_compose A B)⁻¹ ▸ H
+         (@is_equiv_compose _ _ _ _ _
+           _
+           (@is_equiv_subtype_eq_inv _ _ _ _ _))
+         !univalence)
+       !is_equiv_iso_of_equiv,
+    assert H₂ : _, from (iso_of_eq_eq_compose A B)⁻¹,
+    begin
+      rewrite H₂ at H₁,
+      assumption
+    end
   end set
 
   definition category_hset [instance] : category hset :=

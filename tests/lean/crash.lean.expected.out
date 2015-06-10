@@ -1,9 +1,9 @@
 crash.lean:8:12: error: type mismatch at application
-  have H' : ¬ P, from H,
+  have H' : ¬P, from H,
   ?M_1
 term
   H
 has type
   P
 but is expected to have type
-  ¬ P
+  ¬P

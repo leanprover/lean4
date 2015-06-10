@@ -16,6 +16,8 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/aliases.h"
 #include "library/placeholder.h"
+#include "library/abbreviation.h"
+#include "library/unfold_macros.h"
 #include "library/replace_visitor.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parser.h"
@@ -445,5 +447,9 @@ char const * close_binder_string(binder_info const & bi, bool unicode) {
     else if (bi.is_strict_implicit() && unicode) return "⦄";
     else if (bi.is_strict_implicit() && !unicode) return "}}";
     else return ")";
+}
+
+expr postprocess(environment const & env, expr const & e) {
+    return expand_abbreviations(env, unfold_untrusted_macros(env, e));
 }
 }

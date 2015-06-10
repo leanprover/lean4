@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "library/abbreviation.h"
 #include "library/relation_manager.h"
 #include "library/user_recursors.h"
-#include "library/unfold_macros.h"
 #include "library/simplifier/rewrite_rule_set.h"
 #include "library/definitional/equations.h"
 #include "library/error_handling/error_handling.h"
@@ -147,7 +146,7 @@ static environment declare_var(parser & p, environment env,
         lean_assert(k == variable_kind::Constant || k == variable_kind::Axiom);
         name const & ns = get_namespace(env);
         name full_n  = ns + n;
-        expr new_type = expand_abbreviations(env, unfold_untrusted_macros(env, type));
+        expr new_type = postprocess(env, type);
         if (k == variable_kind::Axiom) {
             env = module::add(env, check(env, mk_axiom(full_n, ls, new_type)));
             p.add_decl_index(full_n, pos, get_axiom_tk(), new_type);
@@ -1090,8 +1089,8 @@ class definition_cmd_fn {
                     level_param_names c_ls; expr c_type, c_value;
                     std::tie(c_ls, c_type, c_value) = *it;
                     // cache may have been created using a different trust level
-                    c_type  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, c_type));
-                    c_value = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, c_value));
+                    c_type  = postprocess(m_env, c_type);
+                    c_value = postprocess(m_env, c_value);
                     if (m_kind == Theorem) {
                         cd = check(mk_theorem(m_env, m_real_name, c_ls, c_type, c_value));
                         if (m_p.keep_new_thms()) {
@@ -1211,11 +1210,11 @@ class definition_cmd_fn {
         lean_assert(aux_values.size() == m_aux_types.size());
         if (aux_values.size() != m_real_aux_names.size())
             throw exception("invalid declaration, failed to compile auxiliary declarations");
-        m_type  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
-        m_value = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_value));
+        m_type  = postprocess(m_env, m_type);
+        m_value = postprocess(m_env, m_value);
         for (unsigned i = 0; i < aux_values.size(); i++) {
-            m_aux_types[i] = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_aux_types[i]));
-            aux_values[i]  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, aux_values[i]));
+            m_aux_types[i] = postprocess(m_env, m_aux_types[i]);
+            aux_values[i]  = postprocess(m_env, aux_values[i]);
         }
         if (is_definition()) {
             m_env = module::add(m_env, check(mk_definition(m_env, m_real_name, new_ls, m_type, m_value)));
@@ -1245,7 +1244,7 @@ class definition_cmd_fn {
                 std::tie(m_type, new_ls) = elaborate_type(m_type);
                 check_no_metavar(m_env, m_real_name, m_type, true);
                 m_ls = append(m_ls, new_ls);
-                m_type = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
+                m_type = postprocess(m_env, m_type);
                 expr type_as_is = m_p.save_pos(mk_as_is(m_type), type_pos);
                 if (!m_p.collecting_info() && m_kind == Theorem && m_p.num_threads() > 1) {
                     // Add as axiom, and create a task to prove the theorem.
@@ -1254,8 +1253,8 @@ class definition_cmd_fn {
                     m_env = module::add(m_env, check(mk_axiom(m_real_name, m_ls, m_type)));
                 } else {
                     std::tie(m_type, m_value, new_ls) = elaborate_definition(type_as_is, m_value);
-                    m_type  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
-                    m_value = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_value));
+                    m_type  = postprocess(m_env, m_type);
+                    m_value = postprocess(m_env, m_value);
                     new_ls = append(m_ls, new_ls);
                     auto cd = check(mk_theorem(m_env, m_real_name, new_ls, m_type, m_value));
                     if (m_kind == Theorem) {
@@ -1271,8 +1270,8 @@ class definition_cmd_fn {
             } else {
                 std::tie(m_type, m_value, new_ls) = elaborate_definition(m_type, m_value);
                 new_ls = append(m_ls, new_ls);
-                m_type  = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
-                m_value = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_value));
+                m_type  = postprocess(m_env, m_type);
+                m_value = postprocess(m_env, m_value);
                 m_env = module::add(m_env, check(mk_definition(m_env, m_real_name, new_ls, m_type, m_value)));
                 m_p.cache_definition(m_real_name, pre_type, pre_value, new_ls, m_type, m_value);
             }
@@ -1297,7 +1296,7 @@ class definition_cmd_fn {
         std::tie(m_type, new_ls) = elaborate_type(m_type);
         check_no_metavar(m_env, m_real_name, m_type, true);
         m_ls = append(m_ls, new_ls);
-        m_type = expand_abbreviations(m_env, unfold_untrusted_macros(m_env, m_type));
+        m_type = postprocess(m_env, m_type);
         m_env = module::add(m_env, check(mk_axiom(m_real_name, m_ls, m_type)));
         register_decl(m_name, m_real_name, m_type);
     }

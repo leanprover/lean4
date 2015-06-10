@@ -106,4 +106,7 @@ name get_priority_namespace();
 
 char const * open_binder_string(binder_info const & bi, bool unicode);
 char const * close_binder_string(binder_info const & bi, bool unicode);
+
+/** \brief Cleanup expression after elaboration. */
+expr postprocess(environment const & env, expr const & e);
 }

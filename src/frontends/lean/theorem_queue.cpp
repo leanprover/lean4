@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "frontends/lean/theorem_queue.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/util.h"
 
 namespace lean {
 void theorem_queue::init_queue() {
@@ -30,7 +31,7 @@ void theorem_queue::add(environment const & env, name const & n, level_param_nam
             expr type, value;
             std::tie(type, value, new_ls) = m_parser.elaborate_definition_at(env, lls, n, t, v);
             new_ls = append(ls, new_ls);
-            value  = expand_abbreviations(env, unfold_untrusted_macros(env, value));
+            value  = postprocess(env, value);
             auto r = check(env, mk_theorem(env, n, new_ls, type, value));
             m_parser.cache_definition(n, t, v, new_ls, type, value);
             return r;

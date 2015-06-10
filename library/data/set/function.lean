@@ -35,26 +35,29 @@ setext (take y, iff.intro
     have H5 : f1 x = y, from (H1 H4) ⬝ and.right H3,
     exists.intro x (and.intro H4 H5)))
 
-theorem in_image {f : X → Y} {a : set X} {x : X} {y : Y}
+theorem mem_image {f : X → Y} {a : set X} {x : X} {y : Y}
   (H1 : x ∈ a) (H2 : f x = y) : y ∈ f '[a] :=
 exists.intro x (and.intro H1 H2)
+
+theorem mem_image_of_mem (f : X → Y) {x : X} {a : set X} (H : x ∈ a) : f x ∈ image f a :=
+mem_image H rfl
 
 lemma image_compose (f : Y → Z) (g : X → Y) (a : set X) : (f ∘ g) '[a] = f '[g '[a]] :=
 setext (take z,
   iff.intro
     (assume Hz : z ∈ (f ∘ g) '[a],
       obtain x (Hx₁ : x ∈ a) (Hx₂ : f (g x) = z), from Hz,
-      have Hgx : g x ∈ g '[a], from in_image Hx₁ rfl,
-      show z ∈ f '[g '[a]], from in_image Hgx Hx₂)
+      have Hgx : g x ∈ g '[a], from mem_image Hx₁ rfl,
+      show z ∈ f '[g '[a]], from mem_image Hgx Hx₂)
     (assume Hz : z ∈ f '[g '[a]],
       obtain y (Hy₁ : y ∈ g '[a]) (Hy₂ : f y = z), from Hz,
       obtain x (Hz₁ : x ∈ a) (Hz₂ : g x = y),      from Hy₁,
-      show z ∈ (f ∘ g) '[a], from in_image Hz₁ (Hz₂⁻¹ ▸ Hy₂)))
+      show z ∈ (f ∘ g) '[a], from mem_image Hz₁ (Hz₂⁻¹ ▸ Hy₂)))
 
 lemma image_subset {a b : set X} (f : X → Y) (H : a ⊆ b) : f '[a] ⊆ f '[b] :=
 take y, assume Hy : y ∈ f '[a],
 obtain x (Hx₁ : x ∈ a) (Hx₂ : f x = y), from Hy,
-in_image (H Hx₁) Hx₂
+mem_image (H Hx₁) Hx₂
 
 /- maps to -/
 
@@ -79,6 +82,9 @@ take x, assume H, trivial
 
 definition inj_on [reducible] (f : X → Y) (a : set X) : Prop :=
 ∀⦃x1 x2 : X⦄, x1 ∈ a → x2 ∈ a → f x1 = f x2 → x1 = x2
+
+theorem inj_on_empty (f : X → Y) : inj_on f ∅ :=
+  take x₁ x₂, assume H₁ H₂ H₃, false.elim H₁
 
 theorem inj_on_of_eq_on {f1 f2 : X → Y} {a : set X} (eq_f1_f2 : eq_on f1 f2 a)
     (inj_f1 : inj_on f1 a) :
@@ -147,7 +153,7 @@ lemma surjective_iff_surj_on_univ {f : X → Y} : surjective f ↔ surj_on f uni
 iff.intro
   (assume H, take y, assume Hy,
     obtain x Hx, from H y,
-    in_image trivial Hx)
+    mem_image trivial Hx)
   (assume H, take y,
     obtain x H1x H2x, from H y trivial,
     exists.intro x H2x)

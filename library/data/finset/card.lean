@@ -91,6 +91,65 @@ assert Psub : _, from and.right Pinj,
 assert Ple : card (image f a) ≤ card b, from card_le_card_of_subset Psub,
 by rewrite [(card_image_eq_of_inj_on (and.left Pinj))⁻¹]; exact Ple
 
+theorem card_image_le (f : A → B) (s : finset A) : card (image f s) ≤ card s :=
+finset.induction_on s
+  (by rewrite finset.image_empty)
+  (take a s',
+    assume Ha : a ∉ s',
+    assume IH : card (image f s') ≤ card s',
+    begin
+      rewrite [image_insert, card_insert_of_not_mem Ha],
+      apply le.trans !card_insert_le,
+      apply add_le_add_right IH
+    end)
+
+theorem inj_on_of_card_image_eq {f : A → B} {s : finset A} :
+  card (image f s) = card s → inj_on f (ts s) :=
+finset.induction_on s
+  (by intro H; xrewrite to_set_empty; apply inj_on_empty)
+  (begin
+    intro a s' Ha IH,
+    rewrite [image_insert, card_insert_of_not_mem Ha],
+    xrewrite [to_set_insert],
+    assume H1 : card (insert (f a) (image f s')) = card s' + 1,
+    show inj_on f (set.insert a (ts s')), from
+      decidable.by_cases
+        (assume Hfa : f a ∈ image f s',
+           have H2 : card (image f s') = card s' + 1,
+             by rewrite [card_insert_of_mem Hfa at H1]; assumption,
+           absurd
+             (calc
+               card (image f s') ≤ card s'           : !card_image_le
+                             ... < card s' + 1       : lt_succ_self
+                             ... = card (image f s') : H2)
+             !lt.irrefl)
+        (assume Hnfa : f a ∉ image f s',
+           have H2 : card (image f s') + 1 = card s' + 1,
+             by rewrite [card_insert_of_not_mem Hnfa at H1]; assumption,
+           have H3 : card (image f s') = card s', from add.cancel_right H2,
+           have injf : inj_on f (ts s'), from IH H3,
+           show inj_on f (set.insert a (ts s')), from
+             take x1 x2,
+             assume Hx1 : x1 ∈ set.insert a (ts s'),
+             assume Hx2 : x2 ∈ set.insert a (ts s'),
+             assume feq : f x1 = f x2,
+             or.elim Hx1
+               (assume Hx1' : x1 = a,
+                 or.elim Hx2
+                   (assume Hx2' : x2 = a, by rewrite [Hx1', Hx2'])
+                   (assume Hx2' : x2 ∈ ts s',
+                     have Hfa : f a ∈ image f s',
+                       by rewrite [-Hx1', feq]; apply mem_image_of_mem f Hx2',
+                     absurd Hfa Hnfa))
+               (assume Hx1' : x1 ∈ ts s',
+                 or.elim Hx2
+                   (assume Hx2' : x2 = a,
+                     have Hfa : f a ∈ image f s',
+                       by rewrite [-Hx2', -feq]; apply mem_image_of_mem f Hx1',
+                     absurd Hfa Hnfa)
+                   (assume Hx2' : x2 ∈ ts s', injf Hx1' Hx2' feq)))
+    end)
+
 end card_image
 
 theorem Sum_const_eq_card_mul (s : finset A) (n : nat) : (∑ x ∈ s, n) = card s * n :=

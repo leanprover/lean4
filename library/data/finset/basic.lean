@@ -47,6 +47,17 @@ definition to_finset_of_nodup (l : list A) (n : nodup l) : finset A :=
 definition to_finset [h : decidable_eq A] (l : list A) : finset A :=
 ⟦to_nodup_list l⟧
 
+lemma to_finset_eq_of_nodup [h : decidable_eq A] {l : list A} (n : nodup l) :
+  to_finset_of_nodup l n = to_finset l :=
+assert P : to_nodup_list_of_nodup n = to_nodup_list l, from
+  begin
+    rewrite [↑to_nodup_list, ↑to_nodup_list_of_nodup],
+    generalize (@nodup_erase_dup A h l),
+    rewrite [erase_dup_eq_of_nodup n], intro x, apply congr_arg (subtype.tag l),
+    apply proof_irrel
+  end,
+quot.sound (eq.subst P !setoid.refl)
+
 definition has_decidable_eq [instance] [h : decidable_eq A] : decidable_eq (finset A) :=
 λ s₁ s₂, quot.rec_on_subsingleton₂ s₁ s₂
   (λ l₁ l₂,
@@ -193,6 +204,12 @@ quot.induction_on s
 theorem card_insert_of_not_mem {a : A} {s : finset A} : a ∉ s → card (insert a s) = card s + 1 :=
 quot.induction_on s
   (λ (l : nodup_list A) (nainl : a ∉ ⟦l⟧), list.length_insert_of_not_mem nainl)
+
+theorem card_insert_le (a : A) (s : finset A) :
+  card (insert a s) ≤ card s + 1 :=
+decidable.by_cases
+  (assume H : a ∈ s, by rewrite [card_insert_of_mem H]; apply le_succ)
+  (assume H : a ∉ s, by rewrite [card_insert_of_not_mem H])
 
 protected theorem induction [recursor 6] {P : finset A → Prop}
     (H1 : P empty)

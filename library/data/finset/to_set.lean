@@ -16,7 +16,7 @@ variable [deceq : decidable_eq A]
 definition to_set (s : finset A) : set A := λx, x ∈ s
 abbreviation ts := @to_set A
 
-variables (s t : finset A) (x : A)
+variables (s t : finset A) (x y : A)
 
 theorem mem_eq_mem_to_set : (x ∈ s) = (x ∈ ts s) := rfl
 
@@ -37,13 +37,16 @@ theorem to_set_univ [h : fintype A] : ts univ = (set.univ : set A) := funext (λ
 
 include deceq
 
-theorem mem_to_set_union : (x ∈ ts (s ∪ t)) = (x ∈ ts s ∪ ts t) := !finset.mem_union_eq
+theorem mem_to_set_insert : x ∈ ts (insert y s) = (x ∈ set.insert y (ts s)) := !finset.mem_insert_eq
+theorem to_set_insert : ts (insert y s) = set.insert y (ts s) := funext (λ x, !mem_to_set_insert)
+
+theorem mem_to_set_union : x ∈ ts (s ∪ t) = (x ∈ ts s ∪ ts t) := !finset.mem_union_eq
 theorem to_set_union : ts (s ∪ t) = ts s ∪ ts t := funext (λ x, !mem_to_set_union)
 
-theorem mem_to_set_inter : (x ∈ ts (s ∩ t)) = (x ∈ ts s ∩ ts t) := !finset.mem_inter_eq
+theorem mem_to_set_inter : x ∈ ts (s ∩ t) = (x ∈ ts s ∩ ts t) := !finset.mem_inter_eq
 theorem to_set_inter : ts (s ∩ t) = ts s ∩ ts t := funext (λ x, !mem_to_set_inter)
 
-theorem mem_to_set_diff : (x ∈ ts (s \ t)) = (x ∈ ts s \ ts t) := !finset.mem_diff_eq
+theorem mem_to_set_diff : x ∈ ts (s \ t) = (x ∈ ts s \ ts t) := !finset.mem_diff_eq
 theorem to_set_diff : ts (s \ t) = ts s \ ts t := funext (λ x, !mem_to_set_diff)
 
 theorem mem_to_set_filter (p : A → Prop) [h : decidable_pred p] :

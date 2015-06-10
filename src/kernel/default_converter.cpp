@@ -10,6 +10,8 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/free_vars.h"
 #include "kernel/type_checker.h"
+#include "kernel/metavar.h"
+#include "kernel/error_msgs.h"
 
 namespace lean {
 static expr * g_dont_care = nullptr;
@@ -328,13 +330,26 @@ bool default_converter::try_eta_expansion_core(expr const & t, expr const & s, c
         auto tcs    = infer_type(s);
         auto wcs    = whnf(tcs.first);
         expr s_type = wcs.first;
-        if (!is_pi(s_type))
+        constraint_seq aux_cs;
+        if (is_pi(s_type)) {
+            // do nothing ... s_type is already a Pi
+        } else if (auto m = m_tc->is_stuck(s_type)) {
+            name_generator ngen = m_tc->mk_ngen();
+            expr r              = mk_pi_for(ngen, *m);
+            justification j     = mk_justification(s, [=](formatter const & fmt, substitution const & subst) {
+                    return pp_function_expected(fmt, substitution(subst).instantiate(s));
+                });
+            aux_cs += mk_eq_cnstr(s_type, r, j);
+            s_type  = r;
+        } else {
             return false;
+        }
         expr new_s  = mk_lambda(binding_name(s_type), binding_domain(s_type), mk_app(s, Var(0)), binding_info(s_type));
         auto dcs    = is_def_eq(t, new_s);
-        if (!dcs.first)
+        if (!dcs.first) {
             return false;
-        cs += dcs.second + wcs.second + tcs.second;
+        }
+        cs += dcs.second + wcs.second + tcs.second + aux_cs;
         return true;
     } else {
         return false;

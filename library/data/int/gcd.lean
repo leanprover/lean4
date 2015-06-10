@@ -133,7 +133,7 @@ dvd_gcd (dvd.trans !gcd_dvd_left !dvd_mul_left) !gcd_dvd_right
 theorem gcd_dvd_gcd_mul_right (a b c : ℤ) : gcd a b ∣ gcd (a * c) b :=
 !mul.comm ▸ !gcd_dvd_gcd_mul_left
 
-theorem div_gcd_eq_div_gcd_of_nonneg {a₁ b₁ a₂ b₂ : ℤ} (H : a₁ * b₂ = b₁ * a₂)
+theorem div_gcd_eq_div_gcd_of_nonneg {a₁ b₁ a₂ b₂ : ℤ} (H : a₁ * b₂ = a₂ * b₁)
     (H1 : b₁ ≠ 0) (H2 : b₂ ≠ 0) (H3 : a₁ ≥ 0) (H4 : a₂ ≥ 0) :
   a₁ div (gcd a₁ b₁) = a₂ div (gcd a₂ b₂) :=
 begin
@@ -142,24 +142,24 @@ begin
   intro H', apply H1, apply eq_zero_of_gcd_eq_zero_right H',
   intro H', apply H2, apply eq_zero_of_gcd_eq_zero_right H',
   rewrite [-abs_of_nonneg H3 at {1}, -abs_of_nonneg H4 at {2}],
-  rewrite [-gcd_mul_left, -gcd_mul_right, H]
+  rewrite [-gcd_mul_left, -gcd_mul_right, H, mul.comm b₁]
 end
 
-theorem div_gcd_eq_div_gcd {a₁ b₁ a₂ b₂ : ℤ} (H : a₁ * b₂ = b₁ * a₂) (H1 : b₁ > 0) (H2 : b₂ > 0) :
+theorem div_gcd_eq_div_gcd {a₁ b₁ a₂ b₂ : ℤ} (H : a₁ * b₂ = a₂ * b₁) (H1 : b₁ > 0) (H2 : b₂ > 0) :
   a₁ div (gcd a₁ b₁) = a₂ div (gcd a₂ b₂) :=
 or.elim (le_or_gt 0 a₁)
   (assume H3 : a₁ ≥ 0,
-    have H4 : b₁ * a₂ ≥ 0, by rewrite -H; apply mul_nonneg H3 (le_of_lt H2),
-    have H5 : a₂ ≥ 0, from nonneg_of_mul_nonneg_left H4 H1,
+    have H4 : a₂ * b₁ ≥ 0, by rewrite -H; apply mul_nonneg H3 (le_of_lt H2),
+    have H5 : a₂ ≥ 0, from nonneg_of_mul_nonneg_right H4 H1,
     div_gcd_eq_div_gcd_of_nonneg H (ne_of_gt H1) (ne_of_gt H2) H3 H5)
   (assume H3 : a₁ < 0,
-    have H4 : b₁ * a₂ < 0, by rewrite -H; apply mul_neg_of_neg_of_pos H3 H2,
-    assert H5 : a₂ < 0, from neg_of_mul_neg_left H4 (le_of_lt H1),
+    have H4 : a₂ * b₁ < 0, by rewrite -H; apply mul_neg_of_neg_of_pos H3 H2,
+    assert H5 : a₂ < 0, from neg_of_mul_neg_right H4 (le_of_lt H1),
     assert H6 : abs a₁ div (gcd (abs a₁) (abs b₁)) = abs a₂ div (gcd (abs a₂) (abs b₂)),
       begin
         apply div_gcd_eq_div_gcd_of_nonneg,
         rewrite [abs_of_pos H1, abs_of_pos H2, abs_of_neg H3, abs_of_neg H5],
-        rewrite [-neg_mul_eq_mul_neg, -neg_mul_eq_neg_mul, H],
+        rewrite [-*neg_mul_eq_neg_mul, H],
         apply ne_of_gt (abs_pos_of_pos H1),
         apply ne_of_gt (abs_pos_of_pos H2),
         repeat (apply abs_nonneg)

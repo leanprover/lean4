@@ -10,7 +10,7 @@ import data.int algebra.ordered_field .basic
 open quot eq.ops
 
 /- the ordering on representations -/
- 
+
 namespace prerat
 section int_notation
 open int
@@ -126,7 +126,7 @@ private theorem pos_of_nonneg_of_ne_zero : nonneg a → ¬ a = 0 → pos a :=
 quot.induction_on a
   (take u,
     assume H1 : nonneg ⟦u⟧,
-    assume H2 : ⟦u⟧ ≠ 0,
+    assume H2 : ⟦u⟧ ≠ (rat.of_num 0),
     have H3 : ¬ (prerat.equiv u prerat.zero), from assume H, H2 (quot.sound H),
     prerat.pos_of_nonneg_of_ne_zero H1 H3)
 
@@ -204,7 +204,7 @@ or.elim (nonneg_total (b - a))
   (assume H, or.inl H)
   (assume H, or.inr (!neg_sub ▸ H))
 
-theorem le.by_cases {P : Prop} (a b : ℚ) (H : a ≤ b → P) (H2 : b ≤ a → P) : P := 
+theorem le.by_cases {P : Prop} (a b : ℚ) (H : a ≤ b → P) (H2 : b ≤ a → P) : P :=
   or.elim (!rat.le.total) H H2
 
 theorem lt_iff_le_and_ne (a b : ℚ) : a < b ↔ a ≤ b ∧ a ≠ b :=
@@ -229,16 +229,16 @@ iff.intro
       (assume H1 : a < b, and.left (iff.mp !lt_iff_le_and_ne H1))
       (assume H1 : a = b, H1 ▸ !le.refl))
 
-theorem add_le_add_left (H : a ≤ b) (c: ℚ) : c + a ≤ c + b :=
+theorem add_le_add_left (H : a ≤ b) (c : ℚ) : c + a ≤ c + b :=
 have H1 : c + b - (c + a) = b - a,
   by rewrite [↑sub, neg_add, -add.assoc, add.comm c, add_neg_cancel_right],
 show nonneg (c + b - (c + a)), from H1⁻¹ ▸ H
 
-theorem mul_nonneg (H1 : a ≥ 0) (H2 : b ≥ 0) : a * b ≥ 0 :=
+theorem mul_nonneg (H1 : a ≥ (0 : ℚ)) (H2 : b ≥ (0 : ℚ)) : a * b ≥ (0 : ℚ) :=
 have H : nonneg (a * b), from nonneg_mul (!sub_zero ▸ H1) (!sub_zero ▸ H2),
 !sub_zero⁻¹ ▸ H
 
-theorem mul_pos (H1 : a > 0) (H2 : b > 0) : a * b > 0 :=
+theorem mul_pos (H1 : a > (0 : ℚ)) (H2 : b > (0 : ℚ)) : a * b > (0 : ℚ) :=
 have H : pos (a * b), from pos_mul (!sub_zero ▸ H1) (!sub_zero ▸ H2),
 !sub_zero⁻¹ ▸ H
 
@@ -247,17 +247,17 @@ take a b, decidable_pos (b - a)
 
 theorem le_of_lt  (H : a < b) : a ≤ b := iff.mp' !le_iff_lt_or_eq (or.inl H)
 
-theorem lt_irrefl (a : ℚ) : ¬ a < a := 
+theorem lt_irrefl (a : ℚ) : ¬ a < a :=
   take Ha,
-  let Hand := (iff.mp !lt_iff_le_and_ne) Ha in 
+  let Hand := (iff.mp !lt_iff_le_and_ne) Ha in
   (and.right Hand) rfl
 
 theorem not_le_of_gt (H : a < b) : ¬ b ≤ a :=
   assume Hba,
-  let Heq := le.antisymm (le_of_lt H) Hba in 
-  !lt_irrefl (Heq ▸ H) 
+  let Heq := le.antisymm (le_of_lt H) Hba in
+  !lt_irrefl (Heq ▸ H)
 
-theorem lt_of_lt_of_le  (Hab : a < b) (Hbc : b ≤ c) : a < c := 
+theorem lt_of_lt_of_le  (Hab : a < b) (Hbc : b ≤ c) : a < c :=
   let Hab' := le_of_lt Hab in
   let Hac := le.trans Hab' Hbc in
   (iff.mp' !lt_iff_le_and_ne) (and.intro Hac
@@ -275,8 +275,8 @@ theorem zero_lt_one : (0 : ℚ) < 1 := trivial
 --    apply sorry
 --  end
 
-theorem add_lt_add_left (H : a < b) (c : ℚ) : c + a < c + b := 
-let H' := le_of_lt H in 
+theorem add_lt_add_left (H : a < b) (c : ℚ) : c + a < c + b :=
+let H' := le_of_lt H in
 (iff.mp' (lt_iff_le_and_ne _ _)) (and.intro (add_le_add_left H' _)
                                   (take Heq, let Heq' := add_left_cancel Heq in
                                    !lt_irrefl (Heq' ▸ H)))

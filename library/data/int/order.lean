@@ -34,7 +34,6 @@ int.cases_on a (take n H, exists.intro n rfl) (take n' H, false.elim H)
 private theorem nonneg_or_nonneg_neg (a : ℤ) : nonneg a ∨ nonneg (-a) :=
 int.cases_on a (take n, or.inl trivial) (take n, or.inr trivial)
 
-
 theorem le.intro {a b : ℤ} {n : ℕ} (H : a + n = b) : a ≤ b :=
 have H1 : b - a = n, from (eq_add_neg_of_add_eq (!add.comm ▸ H))⁻¹,
 have H2 : nonneg n, from true.intro,
@@ -298,6 +297,9 @@ theorem of_nat_nonneg (n : ℕ) : 0 ≤ of_nat n := trivial
 
 theorem of_nat_pos {n : ℕ} (Hpos : #nat n > 0) : of_nat n > 0 :=
 of_nat_lt_of_nat_of_lt Hpos
+
+theorem of_nat_succ_pos (n : nat) : of_nat (nat.succ n) > 0 :=
+of_nat_pos !nat.succ_pos
 
 theorem exists_eq_of_nat {a : ℤ} (H : 0 ≤ a) : ∃n : ℕ, a = of_nat n :=
 obtain (n : ℕ) (H1 : 0 + of_nat n = a), from le.elim H,

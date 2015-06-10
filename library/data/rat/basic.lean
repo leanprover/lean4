@@ -74,9 +74,6 @@ setoid.mk equiv equiv.is_equivalence
 
 /- field operations -/
 
-theorem of_nat_succ_pos (n : nat) : of_nat (nat.succ n) > 0 :=
-of_nat_pos !nat.succ_pos
-
 definition of_int (i : int) : prerat := prerat.mk i 1 !of_nat_succ_pos
 
 definition zero : prerat := of_int 0
@@ -103,6 +100,9 @@ theorem of_int_mul (a b : ℤ) : of_int (#int a * b) ≡ mul (of_int a) (of_int 
 
 theorem of_int_neg (a : ℤ) : of_int (#int -a) ≡ neg (of_int a) :=
 !equiv.refl
+
+theorem of_int.inj {a b : ℤ} : of_int a ≡ of_int b → a = b :=
+by rewrite [↑of_int, ↑equiv, *mul_one]; intros; assumption
 
 definition inv : prerat → prerat
 | inv (prerat.mk nat.zero d dp) := zero
@@ -261,6 +261,64 @@ begin
   exact zero_ne_one
 end
 
+theorem mul_denom_equiv (a : prerat) : mul a (of_int (denom a)) ≡ of_int (num a) :=
+by esimp [mul, of_int, equiv]; rewrite [*int.mul_one]
+
+/- Reducing a fraction to lowest terms. Needed to choose a canonical representative of rat, and
+   define numerator and denominator. -/
+
+definition reduce : prerat → prerat
+| (mk an ad adpos) :=
+    have pos : ad div gcd an ad > 0, from div_pos_of_pos_of_dvd adpos !gcd_nonneg !gcd_dvd_right,
+    if an = 0 then prerat.zero
+              else mk (an div gcd an ad) (ad div gcd an ad) pos
+
+protected theorem eq {a b : prerat} (Hn : num a = num b) (Hd : denom a = denom b) : a = b :=
+begin
+  cases a with [an, ad, adpos],
+  cases b with [bn, bd, bdpos],
+  generalize adpos, generalize bdpos,
+  esimp at *,
+  rewrite [Hn, Hd],
+  intros, apply rfl
+end
+
+theorem reduce_equiv : ∀ a : prerat, reduce a ≡ a
+| (mk an ad adpos) :=
+    decidable.by_cases
+      (assume anz : an = 0,
+        by krewrite [↑reduce, if_pos anz, ↑equiv, anz, *zero_mul])
+      (assume annz : an ≠ 0,
+        by rewrite [↑reduce, if_neg annz, ↑equiv, int.mul.comm, -!mul_div_assoc !gcd_dvd_left,
+                       -!mul_div_assoc !gcd_dvd_right, int.mul.comm])
+
+theorem reduce_eq_reduce : ∀{a b : prerat}, a ≡ b → reduce a = reduce b
+| (mk an ad adpos) (mk bn bd bdpos) :=
+  assume H : an * bd = bn * ad,
+  decidable.by_cases
+    (assume anz : an = 0,
+      have H' : bn * ad = 0, by rewrite [-H, anz, zero_mul],
+      assert bnz : bn = 0, from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero H') (ne_of_gt adpos),
+      by rewrite [↑reduce, if_pos anz, if_pos bnz])
+    (assume annz : an ≠ 0,
+      assert bnnz : bn ≠ 0, from
+        assume bnz,
+        have H' : an * bd = 0, by rewrite [H, bnz, zero_mul],
+        have anz : an = 0, from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero H') (ne_of_gt bdpos),
+        show false, from annz anz,
+      begin
+        rewrite [↑reduce, if_neg annz, if_neg bnnz],
+        apply prerat.eq,
+          {apply div_gcd_eq_div_gcd H adpos bdpos},
+          {esimp, rewrite [gcd.comm, gcd.comm bn],
+            apply div_gcd_eq_div_gcd_of_nonneg,
+              rewrite [int.mul.comm, -H, int.mul.comm],
+              apply annz,
+              apply bnnz,
+              apply le_of_lt adpos,
+              apply le_of_lt bdpos},
+      end)
+
 end prerat
 
 /-
@@ -276,46 +334,49 @@ namespace rat
 
 /- operations -/
 
--- these coercions do not work: rat is not an inductive type
 definition of_int [coercion] (i : ℤ) : ℚ := ⟦prerat.of_int i⟧
 definition of_nat [coercion] (n : ℕ) : ℚ := ⟦prerat.of_int n⟧
 definition of_num [coercion] [reducible] (n : num) : ℚ := of_int (int.of_num n)
 
 definition add : ℚ → ℚ → ℚ :=
 quot.lift₂
-  (λa b : prerat, ⟦prerat.add a b⟧)
+  (λ a b : prerat, ⟦prerat.add a b⟧)
   (take a1 a2 b1 b2, assume H1 H2, quot.sound (prerat.add_equiv_add H1 H2))
 
 definition mul : ℚ → ℚ → ℚ :=
 quot.lift₂
-  (λa b : prerat, ⟦prerat.mul a b⟧)
+  (λ a b : prerat, ⟦prerat.mul a b⟧)
   (take a1 a2 b1 b2, assume H1 H2, quot.sound (prerat.mul_equiv_mul H1 H2))
 
 definition neg : ℚ → ℚ :=
 quot.lift
-  (λa : prerat, ⟦prerat.neg a⟧)
+  (λ a : prerat, ⟦prerat.neg a⟧)
   (take a1 a2, assume H, quot.sound (prerat.neg_equiv_neg H))
 
 definition inv : ℚ → ℚ :=
 quot.lift
-  (λa : prerat, ⟦prerat.inv a⟧)
+  (λ a : prerat, ⟦prerat.inv a⟧)
   (take a1 a2, assume H, quot.sound (prerat.inv_equiv_inv H))
 
-definition zero := ⟦prerat.zero⟧
-definition one := ⟦prerat.one⟧
+definition reduce : ℚ → prerat :=
+quot.lift
+  (λ a : prerat, prerat.reduce a)
+  @prerat.reduce_eq_reduce
 
-infix `+`    := rat.add
-infix `*`    := rat.mul
-prefix `-`   := rat.neg
-postfix `⁻¹` := rat.inv
+definition num (a : ℚ) : ℤ := prerat.num (reduce a)
+definition denom (a : ℚ) : ℤ := prerat.denom (reduce a)
+
+theorem denom_pos (a : ℚ): denom a > 0 :=
+prerat.denom_pos (reduce a)
+
+infix +    := rat.add
+infix *    := rat.mul
+prefix -   := rat.neg
 
 definition sub [reducible] (a b : rat) : rat := a + (-b)
 
-infix `-`    := rat.sub
-
--- TODO: this is a workaround, since the coercions from numerals do not work
-notation 0 := zero
-notation 1 := one
+postfix ⁻¹ := rat.inv
+infix -    := rat.sub
 
 /- properties -/
 
@@ -332,6 +393,9 @@ theorem of_int_sub (a b : ℤ) : of_int (#int a - b) = of_int a - of_int b :=
 calc
   of_int (#int a - b) = of_int a + of_int (#int -b) : of_int_add
                   ... = of_int a - of_int b         : {of_int_neg b}
+
+theorem of_int.inj {a b : ℤ} (H : of_int a = of_int b) : a = b :=
+sorry
 
 theorem of_nat_eq (a : ℕ) : of_nat a = of_int (int.of_nat a) := rfl
 
@@ -384,7 +448,7 @@ quot.induction_on a
 theorem inv_mul_cancel {a : ℚ} (H : a ≠ 0) : a⁻¹ * a = 1 :=
 !mul.comm ▸ mul_inv_cancel H
 
-theorem zero_ne_one : (#rat 0 ≠ 1) :=
+theorem zero_ne_one : (0 : ℚ) ≠ 1 :=
 assume H, prerat.zero_not_equiv_one (quot.exact H)
 
 definition has_decidable_eq [instance] : decidable_eq ℚ :=
@@ -396,6 +460,13 @@ take a b, quot.rec_on_subsingleton₂ a b
 
 theorem inv_zero : inv 0 = 0 :=
 quot.sound (prerat.inv_zero' ▸ !prerat.equiv.refl)
+
+theorem quot_reduce (a : ℚ) : ⟦reduce a⟧ = a :=
+quot.induction_on a (take u, quot.sound !prerat.reduce_equiv)
+
+theorem mul_denom (a : ℚ) : a * denom a = num a :=
+have H : ⟦reduce a⟧ * of_int (denom a) = of_int (num a), from quot.sound (!prerat.mul_denom_equiv),
+quot_reduce a ▸ H
 
 section migrate_algebra
   open [classes] algebra
@@ -433,4 +504,21 @@ section migrate_algebra
     replacing sub → rat.sub, divide → divide, dvd → dvd
 
 end migrate_algebra
+
+theorem eq_num_div_denom (a : ℚ) : a = num a / denom a :=
+have H : of_int (denom a) ≠ 0, from assume H', ne_of_gt (denom_pos a) (of_int.inj H'),
+iff.mp' (eq_div_iff_mul_eq H) (mul_denom a)
+
+theorem of_nat_div {a b : ℤ} (H : b ∣ a) : of_int (a div b) = of_int a / of_int b :=
+decidable.by_cases
+  (assume bz : b = 0,
+    by rewrite [bz, div_zero, int.div_zero])
+  (assume bnz : b ≠ 0,
+    have bnz' : of_int b ≠ 0, from assume oibz, bnz (of_int.inj oibz),
+    have H' : of_int (a div b) * of_int b = of_int a, from
+      int.dvd.elim H
+        (take c, assume Hc : a = b * c,
+          by rewrite [Hc, !int.mul_div_cancel_left bnz, mul.comm]),
+    iff.mp' (eq_div_iff_mul_eq bnz') H')
+
 end rat

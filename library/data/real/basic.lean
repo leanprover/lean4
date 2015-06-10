@@ -14,6 +14,8 @@ To do:
 import data.nat data.rat.order
 open nat eq eq.ops
 open -[coercions] rat
+local notation 0 := rat.of_num 0
+local notation 1 := rat.of_num 1
 ----------------------------------------------------------------------------------------------------
 
 -----------------------------------------------
@@ -730,7 +732,7 @@ theorem neg_s_cancel (s : seq) (H : regular s) : sadd s (sneg s) ≡ zero :=
     apply zero_is_reg
   end
 
-theorem add_well_defined {s t u v : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u) 
+theorem add_well_defined {s t u v : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
         (Hv : regular v) (Esu : s ≡ u) (Etv : t ≡ v) : sadd s t ≡ sadd u v :=
   begin
     rewrite [↑sadd, ↑equiv at *],
@@ -1070,7 +1072,7 @@ theorem zero_nequiv_one : ¬ zero ≡ one :=
       pone⁻¹ = 1 : by rewrite -pone_inv
       ... = abs 1 : abs_of_pos zero_lt_one
       ... ≤ 2⁻¹ : H,
-    let H'' := ge_of_inv_le H', 
+    let H'' := ge_of_inv_le H',
     apply absurd (one_lt_two) (pnat.not_lt_of_le (pnat.le_of_lt H''))
   end
 
@@ -1155,7 +1157,7 @@ theorem r_distrib (s t u : reg_seq) : requiv (s * (t + u)) (s * t + s * u) :=
   s_distrib (reg_seq.is_reg s) (reg_seq.is_reg t) (reg_seq.is_reg u)
 
 theorem r_zero_nequiv_one : ¬ requiv r_zero r_one :=
-  zero_nequiv_one 
+  zero_nequiv_one
 
 ----------------------------------------------
 -- take quotients to get ℝ and show it's a comm ring
@@ -1219,7 +1221,7 @@ theorem distrib (x y z : ℝ) : x * (y + z) = x * y + x * z :=
 theorem distrib_l (x y z : ℝ) : (x + y) * z = x * z + y * z :=
   by rewrite [mul_comm, distrib, {x * _}mul_comm, {y * _}mul_comm] -- this shouldn't be necessary
 
-theorem zero_ne_one : ¬ zero = one := 
+theorem zero_ne_one : ¬ zero = one :=
   take H : zero = one,
   absurd (quot.exact H) (r_zero_nequiv_one)
 

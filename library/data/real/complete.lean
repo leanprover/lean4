@@ -10,9 +10,11 @@ At this point, we no longer proceed constructively: this file makes heavy use of
 
 Here, we show that ℝ is complete.
 -/
- 
+
 import data.real.basic data.real.order data.real.division data.rat data.nat logic.axioms.classical
-open -[coercions] rat 
+open -[coercions] rat
+local notation 0 := rat.of_num 0
+local notation 1 := rat.of_num 1
 open -[coercions] nat
 open algebra
 open eq.ops
@@ -36,7 +38,7 @@ theorem const_reg (a : ℚ) : regular (const a) :=
 
 definition r_const (a : ℚ) : reg_seq := reg_seq.mk (const a) (const_reg a)
 
-theorem rat_approx_l1 {s : seq} (H : regular s) : 
+theorem rat_approx_l1 {s : seq} (H : regular s) :
         ∀ n : ℕ+, ∃ q : ℚ, ∃ N : ℕ+, ∀ m : ℕ+, m ≥ N → abs (s m - q) ≤ n⁻¹ :=
   begin
     intro n,
@@ -50,8 +52,8 @@ theorem rat_approx_l1 {s : seq} (H : regular s) :
     apply inv_ge_of_le Hm
   end
 
-theorem rat_approx {s : seq} (H : regular s) : 
-        ∀ n : ℕ+, ∃ q : ℚ, s_le (s_abs (sadd s (sneg (const q)))) (const n⁻¹) := 
+theorem rat_approx {s : seq} (H : regular s) :
+        ∀ n : ℕ+, ∃ q : ℚ, s_le (s_abs (sadd s (sneg (const q)))) (const n⁻¹) :=
   begin
     intro m,
     rewrite ↑s_le,
@@ -81,11 +83,11 @@ theorem rat_approx {s : seq} (H : regular s) :
     apply inv_pos
   end
 
-definition r_abs (s : reg_seq) : reg_seq := 
+definition r_abs (s : reg_seq) : reg_seq :=
   reg_seq.mk (s_abs (reg_seq.sq s)) (abs_reg_of_reg (reg_seq.is_reg s))
 
 theorem abs_well_defined {s t : seq} (Hs : regular s) (Ht : regular t) (Heq : s ≡ t) :
-        s_abs s ≡ s_abs t := 
+        s_abs s ≡ s_abs t :=
   begin
     rewrite [↑equiv at *],
     intro n,
@@ -95,11 +97,11 @@ theorem abs_well_defined {s t : seq} (Hs : regular s) (Ht : regular t) (Heq : s 
     apply Heq
   end
 
-theorem r_abs_well_defined {s t : reg_seq} (H : requiv s t) : requiv (r_abs s) (r_abs t) := 
+theorem r_abs_well_defined {s t : reg_seq} (H : requiv s t) : requiv (r_abs s) (r_abs t) :=
   abs_well_defined (reg_seq.is_reg s) (reg_seq.is_reg t) H
 
 theorem r_rat_approx (s : reg_seq) :
-        ∀ n : ℕ+, ∃ q : ℚ, r_le (r_abs (radd s (rneg (r_const q)))) (r_const n⁻¹) := 
+        ∀ n : ℕ+, ∃ q : ℚ, r_le (r_abs (radd s (rneg (r_const q)))) (r_const n⁻¹) :=
   rat_approx (reg_seq.is_reg s)
 
 theorem const_bound {s : seq} (Hs : regular s) (n : ℕ+) : s_le (s_abs (sadd s (sneg (const (s n))))) (const n⁻¹) :=
@@ -123,7 +125,7 @@ theorem abs_const (a : ℚ) : const (abs a) ≡ s_abs (const a) :=
 
 theorem r_abs_const (a : ℚ) : requiv (r_const (abs a) ) (r_abs (r_const a)) := abs_const a
 
-theorem add_consts (a b : ℚ) : sadd (const a) (const b) ≡ const (a + b) := 
+theorem add_consts (a b : ℚ) : sadd (const a) (const b) ≡ const (a + b) :=
   begin
     rewrite [↑sadd, ↑const],
     apply equiv.refl
@@ -158,7 +160,7 @@ theorem r_le_of_const_le_const {a b : ℚ} (H : r_le (r_const a) (r_const b)) : 
   le_of_const_le_const H
 
 theorem equiv_abs_of_ge_zero {s : seq} (Hs : regular s) (Hz : s_le zero s) : s_abs s ≡ s :=
-  begin 
+  begin
     apply eq_of_bdd,
     apply abs_reg_of_reg Hs,
     apply Hs,
@@ -174,7 +176,7 @@ theorem equiv_abs_of_ge_zero {s : seq} (Hs : regular s) (Hz : s_le zero s) : s_a
     apply inv_pos,
     intro Hneg,
     let Hneg' := lt_of_not_ge Hneg,
-    have Hsn : -s n - s n > 0, from add_pos (neg_pos_of_neg Hneg') (neg_pos_of_neg Hneg'), 
+    have Hsn : -s n - s n > 0, from add_pos (neg_pos_of_neg Hneg') (neg_pos_of_neg Hneg'),
     rewrite [rat.abs_of_neg Hneg', rat.abs_of_pos Hsn],
     apply rat.le.trans,
     apply rat.add_le_add,
@@ -220,13 +222,13 @@ theorem equiv_neg_abs_of_le_zero {s : seq} (Hs : regular s) (Hz : s_le s zero) :
     intro Hneg,
     let Hneg' := lt_of_not_ge Hneg,
     rewrite [rat.abs_of_neg Hneg', ↑sneg, rat.sub_neg_eq_add, rat.neg_add_eq_sub, rat.sub_self,
-                abs_zero], 
+                abs_zero],
     apply rat.le_of_lt,
     apply inv_pos
   end
 
 theorem r_equiv_abs_of_ge_zero {s : reg_seq} (Hz : r_le r_zero s) : requiv (r_abs s) s :=
-  equiv_abs_of_ge_zero (reg_seq.is_reg s) Hz 
+  equiv_abs_of_ge_zero (reg_seq.is_reg s) Hz
 
 theorem r_equiv_neg_abs_of_le_zero {s : reg_seq} (Hz : r_le s r_zero) : requiv (r_abs s) (-s) :=
   equiv_neg_abs_of_le_zero (reg_seq.is_reg s) Hz
@@ -241,23 +243,23 @@ theorem rewrite_helper10 (a b c d : ℝ) : c - d = (c - a) + (a - b) + (b - d) :
 
 definition rep (x : ℝ) : reg_seq := some (quot.exists_rep x)
 
-definition const (a : ℚ) : ℝ := quot.mk (s.r_const a) 
+definition const (a : ℚ) : ℝ := quot.mk (s.r_const a)
 
-theorem add_consts (a b : ℚ) : const a + const b = const (a + b) := 
+theorem add_consts (a b : ℚ) : const a + const b = const (a + b) :=
   quot.sound (s.r_add_consts a b)
 
 theorem sub_consts (a b : ℚ) : const a - const b = const (a - b) := !add_consts
 
-theorem add_half_const (n : ℕ+) : const (2 * n)⁻¹ + const (2 * n)⁻¹ = const (n⁻¹) := 
+theorem add_half_const (n : ℕ+) : const (2 * n)⁻¹ + const (2 * n)⁻¹ = const (n⁻¹) :=
   by rewrite [add_consts, padd_halves]
 
-theorem const_le_const_of_le (a b : ℚ) : a ≤ b → const a ≤ const b := 
+theorem const_le_const_of_le (a b : ℚ) : a ≤ b → const a ≤ const b :=
   s.r_const_le_const_of_le
 
-theorem le_of_const_le_const (a b : ℚ) : const a ≤ const b → a ≤ b := 
+theorem le_of_const_le_const (a b : ℚ) : const a ≤ const b → a ≤ b :=
   s.r_le_of_const_le_const
 
-definition re_abs (x : ℝ) : ℝ := 
+definition re_abs (x : ℝ) : ℝ :=
   quot.lift_on x (λ a, quot.mk (s.r_abs a)) (take a b Hab, quot.sound (s.r_abs_well_defined Hab))
 
 theorem r_abs_nonneg {x : ℝ} : 0 ≤ x → re_abs x = x :=
@@ -293,7 +295,7 @@ theorem rat_approx (x : ℝ) : ∀ n : ℕ+, ∃ q : ℚ, abs (x - const q) ≤ 
 
 definition approx (x : ℝ) (n : ℕ+) := some (rat_approx x n)
 
-theorem approx_spec (x : ℝ) (n : ℕ+) : abs (x - (const (approx x n))) ≤ const n⁻¹ := 
+theorem approx_spec (x : ℝ) (n : ℕ+) : abs (x - (const (approx x n))) ≤ const n⁻¹ :=
   some_spec (rat_approx x n)
 
 theorem approx_spec' (x : ℝ) (n : ℕ+) : abs ((const (approx x n)) - x) ≤ const n⁻¹ :=
@@ -310,7 +312,7 @@ definition cauchy (X : r_seq) (M : ℕ+ → ℕ+) :=
 theorem cauchy_of_converges_to {X : r_seq} {a : ℝ} {N : ℕ+ → ℕ+} (Hc : converges_to X a N) :
         cauchy X (λ k, N (2 * k)) :=
   begin
-    intro k m n Hm Hn, 
+    intro k m n Hm Hn,
     rewrite (rewrite_helper9 a),
     apply algebra.le.trans,
     apply algebra.abs_add_le_abs_add_abs,
@@ -334,13 +336,13 @@ theorem Nb_spec_left (M : ℕ+ → ℕ+) (k : ℕ+) : 3 * k ≤ Nb M k := !max_l
 definition lim_seq {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : seq :=
   λ k, approx (X (Nb M k)) (2 * k)
 
-theorem lim_seq_reg_helper {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) {m n : ℕ+} 
+theorem lim_seq_reg_helper {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) {m n : ℕ+}
         (Hmn : M (2 * n) ≤M (2 * m)) :
            abs (const (lim_seq Hc m) - X (Nb M m)) + abs (X (Nb M m) - X (Nb M n)) + abs
             (X (Nb M n) - const (lim_seq Hc n)) ≤ const (m⁻¹ + n⁻¹) :=
   begin
     apply algebra.le.trans,
-    apply algebra.add_le_add_three, 
+    apply algebra.add_le_add_three,
     apply approx_spec',
     rotate 1,
     apply approx_spec,
@@ -359,14 +361,14 @@ theorem lim_seq_reg_helper {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) {m 
     apply pnat.mul_le_mul_left
   end
 
-theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : regular (lim_seq Hc) := 
+theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : regular (lim_seq Hc) :=
   begin
     rewrite ↑regular,
     intro m n,
     apply le_of_const_le_const,
     rewrite [abs_const, -sub_consts, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],
     apply algebra.le.trans,
-    apply algebra.abs_add_three, 
+    apply algebra.abs_add_three,
     let Hor := decidable.em (M (2 * m) ≥ M (2 * n)),
     apply or.elim Hor,
     intro Hor1,
@@ -378,7 +380,7 @@ theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : regular 
     apply lim_seq_reg_helper Hc Hor2'
   end
 
-theorem lim_seq_spec {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) (k : ℕ+) : 
+theorem lim_seq_spec {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) (k : ℕ+) :
         s.s_le (s.s_abs (sadd (lim_seq Hc) (sneg (s.const (lim_seq Hc k))) )) (s.const k⁻¹) :=
   begin
     apply s.const_bound,
@@ -389,26 +391,26 @@ definition r_lim_seq {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : reg_seq
   reg_seq.mk (lim_seq Hc) (lim_seq_reg Hc)
 
 theorem r_lim_seq_spec {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) (k : ℕ+) :
-        s.r_le (s.r_abs (((r_lim_seq Hc) + -s.r_const ((reg_seq.sq (r_lim_seq Hc)) k)))) (s.r_const (k)⁻¹) := 
+        s.r_le (s.r_abs (((r_lim_seq Hc) + -s.r_const ((reg_seq.sq (r_lim_seq Hc)) k)))) (s.r_const (k)⁻¹) :=
   lim_seq_spec Hc k
 
 definition lim {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : ℝ :=
   quot.mk (r_lim_seq Hc)
 
-theorem re_lim_spec {x : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy x M) (k : ℕ+) : 
+theorem re_lim_spec {x : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy x M) (k : ℕ+) :
         re_abs ((lim Hc) - (const ((lim_seq Hc) k))) ≤ const k⁻¹ :=
-  r_lim_seq_spec Hc k 
+  r_lim_seq_spec Hc k
 
-theorem lim_spec' {x : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy x M) (k : ℕ+) : 
+theorem lim_spec' {x : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy x M) (k : ℕ+) :
         abs ((lim Hc) - (const ((lim_seq Hc) k))) ≤ const k⁻¹ :=
   by rewrite -re_abs_is_abs; apply re_lim_spec
 
-theorem lim_spec {x : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy x M) (k : ℕ+) : 
+theorem lim_spec {x : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy x M) (k : ℕ+) :
         abs ((const ((lim_seq Hc) k)) - (lim Hc)) ≤ const (k)⁻¹ :=
   by rewrite algebra.abs_sub; apply lim_spec'
 
-theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : 
-        converges_to X (lim Hc) (Nb M) := 
+theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
+        converges_to X (lim Hc) (Nb M) :=
   begin
     intro k n Hn,
     rewrite (rewrite_helper10 (X (Nb M n)) (const (lim_seq Hc n))),

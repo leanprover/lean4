@@ -12,10 +12,12 @@ To do:
 -/
 
 import data.real.basic data.rat data.nat
-open -[coercions] rat 
+open -[coercions] rat
 open -[coercions] nat
 open eq eq.ops
- 
+local notation 0 := rat.of_num 0
+local notation 1 := rat.of_num 1
+
 ----------------------------------------------------------------------------------------------------
 
 -- pnat theorems
@@ -28,7 +30,7 @@ notation 2 := pnat.pos (of_num 2) dec_trivial
 -- rat theorems
 theorem ge_sub_of_abs_sub_le_left {a b c : ℚ} (H : abs (a - b) ≤ c) : a ≥ b - c := sorry
 
-theorem ge_sub_of_abs_sub_le_right {a b c : ℚ} (H : abs (a - b) ≤ c) : b ≥ a - c := 
+theorem ge_sub_of_abs_sub_le_right {a b c : ℚ} (H : abs (a - b) ≤ c) : b ≥ a - c :=
   ge_sub_of_abs_sub_le_left (!abs_sub ▸ H)
 
 theorem sep_by_inv {a b : ℚ} (H : a > b) : ∃ N : ℕ+, a > (b + N⁻¹ + N⁻¹) := sorry
@@ -40,12 +42,12 @@ theorem rewrite_helper8 (a b c : ℚ) : a - b = c - b + (a - c) := sorry -- simp
 
 ---------
 namespace s
-definition pos (s : seq) := ∃ n : ℕ+, n⁻¹ < (s n) 
+definition pos (s : seq) := ∃ n : ℕ+, n⁻¹ < (s n)
 
 definition nonneg (s : seq) := ∀ n : ℕ+, -(n⁻¹) ≤ s n
 
 theorem bdd_away_of_pos {s : seq} (Hs : regular s) (H : pos s) :
-        ∃ N : ℕ+, ∀ n : ℕ+, n ≥ N → (s n) ≥ N⁻¹ := 
+        ∃ N : ℕ+, ∀ n : ℕ+, n ≥ N → (s n) ≥ N⁻¹ :=
   begin
     apply exists.elim H,
     intro n Hn,
@@ -73,7 +75,7 @@ theorem bdd_away_of_pos {s : seq} (Hs : regular s) (H : pos s) :
     apply Hin
   end
 
-theorem pos_of_bdd_away {s : seq} (H : ∃ N : ℕ+, ∀ n : ℕ+, n ≥ N → (s n) ≥ N⁻¹) : pos s := 
+theorem pos_of_bdd_away {s : seq} (H : ∃ N : ℕ+, ∀ n : ℕ+, n ≥ N → (s n) ≥ N⁻¹) : pos s :=
   begin
     rewrite ↑pos,
     apply exists.elim H,
@@ -87,11 +89,11 @@ theorem pos_of_bdd_away {s : seq} (H : ∃ N : ℕ+, ∀ n : ℕ+, n ≥ N → (
   end
 
 theorem bdd_within_of_nonneg {s : seq} (Hs : regular s) (H : nonneg s) :
-        ∀ n : ℕ+, ∃ N : ℕ+, ∀ m : ℕ+, m ≥ N → s m ≥ -n⁻¹ := 
+        ∀ n : ℕ+, ∃ N : ℕ+, ∀ m : ℕ+, m ≥ N → s m ≥ -n⁻¹ :=
   begin
     intros,
     existsi n,
-    intro m Hm, 
+    intro m Hm,
     rewrite ↑nonneg at H,
     apply le.trans,
     apply neg_le_neg,
@@ -100,8 +102,8 @@ theorem bdd_within_of_nonneg {s : seq} (Hs : regular s) (H : nonneg s) :
     apply H
   end
 
-theorem nonneg_of_bdd_within {s : seq} (Hs : regular s) 
-        (H : ∀n : ℕ+, ∃ N : ℕ+, ∀ m : ℕ+, m ≥ N → s m ≥ -n⁻¹) : nonneg s := 
+theorem nonneg_of_bdd_within {s : seq} (Hs : regular s)
+        (H : ∀n : ℕ+, ∃ N : ℕ+, ∀ m : ℕ+, m ≥ N → s m ≥ -n⁻¹) : nonneg s :=
   begin
     rewrite ↑nonneg,
     intro k,
@@ -272,7 +274,7 @@ theorem s_neg_add_eq_s_add_neg (s t : seq) : sneg (sadd s t) ≡ sadd (sneg s) (
     apply add_invs_nonneg
   end
 
-theorem equiv_cancel_middle {s t u : seq} (Hs : regular s) (Ht : regular t) 
+theorem equiv_cancel_middle {s t u : seq} (Hs : regular s) (Ht : regular t)
         (Hu : regular u) : sadd (sadd u t) (sneg (sadd u s)) ≡ sadd t (sneg s) :=
   begin
     let Hz := zero_is_reg,
@@ -315,15 +317,15 @@ theorem add_le_add_of_le_right {s t : seq} (Hs : regular s) (Ht : regular t) (Ls
   begin
     intro u Hu,
     rewrite [↑s_le at *],
-    apply nonneg_of_nonneg_equiv, 
+    apply nonneg_of_nonneg_equiv,
     rotate 2,
     apply equiv.symm,
     apply equiv_cancel_middle,
     repeat (apply reg_add_reg | apply reg_neg_reg | assumption)
   end
 
-theorem s_add_lt_add_left {s t : seq} (Hs : regular s) (Ht : regular t) (Hst : s_lt s t) {u : seq} 
-        (Hu : regular u) : s_lt (sadd u s) (sadd u t) := 
+theorem s_add_lt_add_left {s t : seq} (Hs : regular s) (Ht : regular t) (Hst : s_lt s t) {u : seq}
+        (Hu : regular u) : s_lt (sadd u s) (sadd u t) :=
   begin
     rewrite ↑s_lt at *,
     apply pos_of_pos_equiv,
@@ -333,7 +335,7 @@ theorem s_add_lt_add_left {s t : seq} (Hs : regular s) (Ht : regular t) (Hst : s
     repeat (apply reg_add_reg | apply reg_neg_reg | assumption)
   end
 
-theorem add_nonneg_of_nonneg {s t : seq} (Hs : nonneg s) (Ht : nonneg t) : nonneg (sadd s t) := 
+theorem add_nonneg_of_nonneg {s t : seq} (Hs : nonneg s) (Ht : nonneg t) : nonneg (sadd s t) :=
   begin
     rewrite [↑nonneg at *, ↑sadd],
     intros,
@@ -351,7 +353,7 @@ theorem le.trans {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u
     have H' : nonneg (sadd (sadd u (sadd (sneg t) t)) (sneg s)), begin
       apply nonneg_of_nonneg_equiv,
       rotate 2,
-      apply add_well_defined, 
+      apply add_well_defined,
       rotate 4,
       apply s_add_assoc,
       repeat (apply reg_add_reg | apply reg_neg_reg | assumption),
@@ -427,7 +429,7 @@ theorem le_and_sep_of_lt {s t : seq} (Hs : regular s) (Ht : regular t) (Lst : s_
       sadd t (sneg s) n ≥ sadd t (sneg s) N -  N⁻¹ - n⁻¹ : Habs
       ... ≥ 0 - n⁻¹: begin
                        apply rat.sub_le_sub_right,
-                       apply le_of_lt, 
+                       apply le_of_lt,
                        apply (iff.mp' (sub_pos_iff_lt _ _)),
                        apply HN
                      end
@@ -462,11 +464,11 @@ theorem s_neg_zero : sneg zero ≡ zero :=
   begin
     rewrite ↑[sneg, zero, equiv],
     intros,
-    rewrite [sub_zero, abs_neg, abs_zero], 
+    rewrite [sub_zero, abs_neg, abs_zero],
     apply add_invs_nonneg
   end
 
-theorem s_sub_zero {s : seq} (Hs : regular s) : sadd s (sneg zero) ≡ s := 
+theorem s_sub_zero {s : seq} (Hs : regular s) : sadd s (sneg zero) ≡ s :=
   begin
     apply equiv.trans,
     rotate 3,
@@ -488,7 +490,7 @@ theorem s_pos_of_gt_zero {s : seq} (Hs : regular s) (Hgz : s_lt zero s) : pos s 
     apply zero_is_reg
   end
 
-theorem s_gt_zero_of_pos {s : seq} (Hs : regular s) (Hp : pos s) : s_lt zero s := 
+theorem s_gt_zero_of_pos {s : seq} (Hs : regular s) (Hp : pos s) : s_lt zero s :=
   begin
     rewrite ↑s_lt,
     apply pos_of_pos_equiv,
@@ -498,7 +500,7 @@ theorem s_gt_zero_of_pos {s : seq} (Hs : regular s) (Hp : pos s) : s_lt zero s :
     repeat assumption
   end
 
-theorem s_nonneg_of_ge_zero {s : seq} (Hs : regular s) (Hgz : s_le zero s) : nonneg s := 
+theorem s_nonneg_of_ge_zero {s : seq} (Hs : regular s) (Hgz : s_le zero s) : nonneg s :=
   begin
     rewrite ↑s_le at *,
     apply nonneg_of_nonneg_equiv,
@@ -507,7 +509,7 @@ theorem s_nonneg_of_ge_zero {s : seq} (Hs : regular s) (Hgz : s_le zero s) : non
     repeat (assumption | apply reg_add_reg | apply reg_neg_reg | apply zero_is_reg)
   end
 
-theorem s_ge_zero_of_nonneg {s : seq} (Hs : regular s) (Hn : nonneg s) : s_le zero s := 
+theorem s_ge_zero_of_nonneg {s : seq} (Hs : regular s) (Hn : nonneg s) : s_le zero s :=
   begin
     rewrite ↑s_le,
     apply nonneg_of_nonneg_equiv,
@@ -567,7 +569,7 @@ theorem s_mul_pos_of_pos {s t : seq} (Hs : regular s) (Ht : regular t) (Hps : po
 
 theorem s_mul_gt_zero_of_gt_zero {s t : seq} (Hs : regular s) (Ht : regular t)
         (Hzs : s_lt zero s) (Hzt : s_lt zero t) : s_lt zero (smul s t) :=
-  s_gt_zero_of_pos 
+  s_gt_zero_of_pos
     (reg_mul_reg Hs Ht)
     (s_mul_pos_of_pos Hs Ht (s_pos_of_gt_zero Hs Hzs) (s_pos_of_gt_zero Ht Hzt))
 
@@ -619,7 +621,7 @@ theorem s_mul_nonneg_of_pos_of_zero {s t : seq} (Hs : regular s) (Ht : regular t
     repeat (assumption | apply reg_mul_reg | apply zero_is_reg)
   end
 
-theorem s_mul_nonneg_of_nonneg {s t : seq} (Hs : regular s) (Ht : regular t) 
+theorem s_mul_nonneg_of_nonneg {s t : seq} (Hs : regular s) (Ht : regular t)
         (Hps : nonneg s) (Hpt : nonneg t) : nonneg (smul s t) :=
   begin
     intro n,
@@ -784,7 +786,7 @@ theorem lt_well_defined {s t u v : seq} (Hs : regular s) (Ht : regular t) (Hu : 
 
 
 theorem sep_well_defined {s t u v : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
-        (Hv : regular v) (Hsu : s ≡ u) (Htv : t ≡ v) : s ≢ t ↔ u ≢ v := 
+        (Hv : regular v) (Hsu : s ≡ u) (Htv : t ≡ v) : s ≢ t ↔ u ≢ v :=
   begin
     rewrite ↑sep,
     apply iff.intro,
@@ -819,7 +821,7 @@ theorem s_lt_of_lt_of_le {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : r
     have Hcan : ∀ m, sadd u (sneg s) m = (sadd t (sneg s)) m + (sadd u (sneg t)) m, begin
       intro m,
       rewrite [↑sadd, ↑sneg, -rewrite_helper8]
-    end, 
+    end,
     rewrite [↑s_lt at *, ↑s_le at *],
     apply exists.elim (bdd_away_of_pos Rtns Hst),
     intro Nt HNt,
@@ -859,7 +861,7 @@ theorem s_lt_of_le_of_lt {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : r
     have Hcan : ∀ m, sadd u (sneg s) m = (sadd t (sneg s)) m + (sadd u (sneg t)) m, begin
       intro m,
       rewrite [↑sadd, ↑sneg, -rewrite_helper8]
-    end, 
+    end,
     rewrite [↑s_lt at *, ↑s_le at *],
     apply exists.elim (bdd_away_of_pos Runt Htu),
     intro Nu HNu,
@@ -938,7 +940,7 @@ theorem r_le.refl (s : reg_seq) : r_le s s := le.refl (reg_seq.is_reg s)
 theorem r_le.trans {s t u : reg_seq} (Hst : r_le s t) (Htu : r_le t u) : r_le s u :=
   le.trans (reg_seq.is_reg s) (reg_seq.is_reg t) (reg_seq.is_reg u) Hst Htu
 
-theorem r_equiv_of_le_of_ge {s t : reg_seq} (Hs : r_le s t) (Hu : r_le t s) : 
+theorem r_equiv_of_le_of_ge {s t : reg_seq} (Hs : r_le s t) (Hu : r_le t s) :
         requiv s t :=
   equiv_of_le_of_ge (reg_seq.is_reg s) (reg_seq.is_reg t) Hs Hu
 
@@ -950,14 +952,14 @@ theorem r_add_le_add_of_le_right {s t : reg_seq} (H : r_le s t) (u : reg_seq) :
   add_le_add_of_le_right (reg_seq.is_reg s) (reg_seq.is_reg t) H
                                         (reg_seq.sq u) (reg_seq.is_reg u)
 
-theorem r_add_le_add_of_le_right_var (s t u : reg_seq) (H : r_le s t) : 
+theorem r_add_le_add_of_le_right_var (s t u : reg_seq) (H : r_le s t) :
         r_le (u + s) (u + t) := r_add_le_add_of_le_right H u
 
-theorem r_mul_pos_of_pos {s t : reg_seq} (Hs : r_lt r_zero s) (Ht : r_lt r_zero t) : 
+theorem r_mul_pos_of_pos {s t : reg_seq} (Hs : r_lt r_zero s) (Ht : r_lt r_zero t) :
         r_lt r_zero (s * t) :=
   s_mul_gt_zero_of_gt_zero (reg_seq.is_reg s) (reg_seq.is_reg t) Hs Ht
 
-theorem r_mul_nonneg_of_nonneg {s t : reg_seq} (Hs : r_le r_zero s) (Ht : r_le r_zero t) : 
+theorem r_mul_nonneg_of_nonneg {s t : reg_seq} (Hs : r_le r_zero s) (Ht : r_le r_zero t) :
         r_le r_zero (s * t) :=
   s_mul_ge_zero_of_ge_zero (reg_seq.is_reg s) (reg_seq.is_reg t) Hs Ht
 
@@ -1036,7 +1038,7 @@ theorem mul_ge_zero_of_ge_zero (x y : ℝ) : zero ≤ x → zero ≤ y → zero 
 
 theorem not_sep_self (x : ℝ) : ¬ x ≢ x :=
   quot.induction_on x (λ s, s.r_not_sep_self s)
- 
+
 theorem not_lt_self (x : ℝ) : ¬ x < x :=
   quot.induction_on x (λ s, s.r_not_lt_self s)
 
@@ -1049,7 +1051,7 @@ theorem lt_of_le_of_lt (x y z : ℝ) : x ≤ y → y < z → x < z :=
 theorem lt_of_lt_of_le (x y z : ℝ) : x < y → y ≤ z → x < z :=
   quot.induction_on₃ x y z (λ s t u H H', s.r_lt_of_lt_of_le H H')
 
-theorem add_lt_add_left_var (x y z : ℝ) : x < y → z + x < z + y := 
+theorem add_lt_add_left_var (x y z : ℝ) : x < y → z + x < z + y :=
   quot.induction_on₃ x y z (λ s t u, s.r_add_lt_add_left_var s t u)
 
 theorem add_lt_add_left (x y : ℝ) : x < y → ∀ z : ℝ, z + x < z + y :=
@@ -1059,8 +1061,8 @@ theorem zero_lt_one : zero < one := s.r_zero_lt_one
 
 theorem le_of_lt_or_eq (x y : ℝ) : x < y ∨ x = y → x ≤ y :=
     (quot.induction_on₂ x y (λ s t H, or.elim H (take H', begin
-        apply s.r_le_of_lt_or_eq, 
-        apply or.inl H' 
+        apply s.r_le_of_lt_or_eq,
+        apply or.inl H'
       end)
       (take H', begin
         apply s.r_le_of_lt_or_eq,
@@ -1071,11 +1073,11 @@ theorem le_of_lt_or_eq (x y : ℝ) : x < y ∨ x = y → x ≤ y :=
 -- earlier versions are sorried
 /-theorem le_iff_lt_or_eq (x y : ℝ) : x ≤ y ↔ x < y ∨ x = y :=
   iff.intro
-    (quot.induction_on₂ x y (λ s t H, or.elim (iff.mp ((s.r_le_iff_lt_or_equiv s t)) H) 
-      (take H1, or.inl H1) 
+    (quot.induction_on₂ x y (λ s t H, or.elim (iff.mp ((s.r_le_iff_lt_or_equiv s t)) H)
+      (take H1, or.inl H1)
       (take H2, or.inr (quot.sound H2))))
     (quot.induction_on₂ x y (λ s t H, or.elim H (take H', begin
-        let H'' := iff.mp' (s.r_le_iff_lt_or_equiv s t), 
+        let H'' := iff.mp' (s.r_le_iff_lt_or_equiv s t),
         apply H'' (or.inl H')
       end)
       (take H', begin
@@ -1105,7 +1107,7 @@ definition ordered_ring  : algebra.ordered_ring ℝ :=
 
 -----------------------------------
 --- here is where classical logic comes in
---theorem sep_is_eq (x y : ℝ) : x ≢ y = ¬ (x = y) := sorry 
+--theorem sep_is_eq (x y : ℝ) : x ≢ y = ¬ (x = y) := sorry
 
 /-theorem sep_is_eq (x y : ℝ) : x ≢ y = ¬ (x = y) := begin
    apply propext,

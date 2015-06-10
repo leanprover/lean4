@@ -185,12 +185,12 @@ namespace funext
   adjointify _
              eq_of_homotopy3
              begin
-               intro H, apply eq_of_homotopy, intro a,
-               apply concat,
-                 {apply (ap (λx, @apd100 _ _ (λ(b : B a)(c : C a b), _) _ _ (x a))),
-                   apply (right_inv apd10)},
---TODO: remove implicit argument after #469 is closed
-               apply (@right_inv _ _ apd100 !is_equiv_apd100) --is explicit argument needed here?
+               intro H, esimp,
+               apply eq_of_homotopy, intro a,
+               transitivity apd100 (eq_of_homotopy2 (H a)),
+                 {apply ap (λx, apd100 (x a)),
+                  apply right_inv apd10},
+                 apply right_inv apd100
              end
              begin
                intro p, cases p, apply eq_of_homotopy3_id

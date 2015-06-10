@@ -229,17 +229,23 @@ iff.intro
       (assume H1 : a < b, and.left (iff.mp !lt_iff_le_and_ne H1))
       (assume H1 : a = b, H1 ▸ !le.refl))
 
+theorem to_nonneg : a ≥ 0 → nonneg a :=
+by intros; rewrite -sub_zero; eassumption
+
 theorem add_le_add_left (H : a ≤ b) (c : ℚ) : c + a ≤ c + b :=
 have H1 : c + b - (c + a) = b - a,
   by rewrite [↑sub, neg_add, -add.assoc, add.comm c, add_neg_cancel_right],
 show nonneg (c + b - (c + a)), from H1⁻¹ ▸ H
 
 theorem mul_nonneg (H1 : a ≥ (0 : ℚ)) (H2 : b ≥ (0 : ℚ)) : a * b ≥ (0 : ℚ) :=
-have H : nonneg (a * b), from nonneg_mul (!sub_zero ▸ H1) (!sub_zero ▸ H2),
+have H : nonneg (a * b), from nonneg_mul (to_nonneg H1) (to_nonneg H2),
 !sub_zero⁻¹ ▸ H
 
+theorem to_pos : a > 0 → pos a :=
+by intros; rewrite -sub_zero; eassumption
+
 theorem mul_pos (H1 : a > (0 : ℚ)) (H2 : b > (0 : ℚ)) : a * b > (0 : ℚ) :=
-have H : pos (a * b), from pos_mul (!sub_zero ▸ H1) (!sub_zero ▸ H2),
+have H : pos (a * b), from pos_mul (to_pos H1) (to_pos H2),
 !sub_zero⁻¹ ▸ H
 
 definition decidable_lt [instance] : decidable_rel rat.lt :=

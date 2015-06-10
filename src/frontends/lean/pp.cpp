@@ -730,7 +730,9 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
     }
 }
 
-static bool is_have(expr const & e) { return is_app(e) && is_have_annotation(app_fn(e)); }
+static bool is_have(expr const & e) {
+    return is_app(e) && is_have_annotation(app_fn(e)) && is_binding(get_annotation_arg(app_fn(e)));
+}
 static bool is_show(expr const & e) {
     return is_show_annotation(e) && is_app(get_annotation_arg(e)) &&
         is_lambda(app_fn(get_annotation_arg(e)));

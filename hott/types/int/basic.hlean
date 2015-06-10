@@ -580,7 +580,7 @@ calc
     ... = a * b + c * a : {mul.comm b a}
     ... = a * b + a * c : {mul.comm c a}
 
-definition zero_ne_one : (typeof 0 : int) ≠ 1 :=
+definition zero_ne_one : (0 : int) ≠ 1 :=
 assume H : 0 = 1,
 show empty, from succ_ne_zero 0 ((of_nat.inj H)⁻¹)
 

@@ -93,9 +93,3 @@ reserve infix `⊆`:50
 reserve infix `∣`:50
 reserve infixl `++`:65
 reserve infixr `::`:65
-
--- Yet another trick to anotate an expression with a type
-abbreviation is_typeof [parsing-only] (A : Type) (a : A) : A := a
-
-notation `typeof` t `:` T  := is_typeof T t
-notation `(` t `:` T `)`  := is_typeof T t

@@ -149,11 +149,11 @@ namespace is_trunc
 
   theorem is_trunc_succ_of_is_hprop (A : Type) (n : trunc_index) [H : is_hprop A]
       : is_trunc (n.+1) A :=
-  is_trunc_of_leq A (star : -1 ≤ n.+1)
+  is_trunc_of_leq A (show -1 ≤ n.+1, from star)
 
   theorem is_trunc_succ_succ_of_is_hset (A : Type) (n : trunc_index) [H : is_hset A]
       : is_trunc (n.+2) A :=
-  is_trunc_of_leq A (star : 0 ≤ n.+2)
+  is_trunc_of_leq A (show 0 ≤ n.+2, from star)
 
   /- hprops -/
 

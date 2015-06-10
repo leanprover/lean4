@@ -609,6 +609,10 @@ static expr parse_inaccessible(parser & p, unsigned, expr const * args, pos_info
     return p.save_pos(mk_inaccessible(args[0]), pos);
 }
 
+static expr parse_typed_expr(parser & p, unsigned, expr const * args, pos_info const & pos) {
+    return p.save_pos(mk_typed_expr(args[1], args[0]), pos);
+}
+
 parse_table init_nud_table() {
     action Expr(mk_expr_action());
     action Skip(mk_skip_action());
@@ -624,6 +628,7 @@ parse_table init_nud_table() {
     r = r.add({transition("obtain", mk_ext_action(parse_obtain))}, x0);
     r = r.add({transition("if", mk_ext_action(parse_if_then_else))}, x0);
     r = r.add({transition("(", Expr), transition(")", mk_ext_action(parse_rparen))}, x0);
+    r = r.add({transition("(", Expr), transition(":", Expr), transition(")", mk_ext_action(parse_typed_expr))}, x0);
     r = r.add({transition("?(", Expr), transition(")", mk_ext_action(parse_inaccessible))}, x0);
     r = r.add({transition("⌞", Expr), transition("⌟", mk_ext_action(parse_inaccessible))}, x0);
     r = r.add({transition("fun", Binders), transition(",", mk_scoped_expr_action(x0))}, x0);

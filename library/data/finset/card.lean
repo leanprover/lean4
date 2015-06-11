@@ -106,11 +106,10 @@ finset.induction_on s
 theorem inj_on_of_card_image_eq {f : A → B} {s : finset A} :
   card (image f s) = card s → inj_on f (ts s) :=
 finset.induction_on s
-  (by intro H; xrewrite to_set_empty; apply inj_on_empty)
+  (by intro H; rewrite to_set_empty; apply inj_on_empty)
   (begin
     intro a s' Ha IH,
-    rewrite [image_insert, card_insert_of_not_mem Ha],
-    xrewrite [to_set_insert],
+    rewrite [image_insert, card_insert_of_not_mem Ha, to_set_insert],
     assume H1 : card (insert (f a) (image f s')) = card s' + 1,
     show inj_on f (set.insert a (ts s')), from
       decidable.by_cases

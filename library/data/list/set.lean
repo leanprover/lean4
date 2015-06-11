@@ -435,7 +435,7 @@ lemma dmap_nodup_of_dinj {p : A → Prop} [h : decidable_pred p] {f : Π a, p a 
                   begin
                     rewrite [dmap_cons_of_pos Pa],
                     apply nodup_cons,
-                    apply (dinj_not_mem_of_dmap Pdi Pa),
+                    apply (not_mem_dmap_of_not_mem_of_dinj Pdi Pa),
                     exact not_mem_of_nodup_cons Pnodup,
                     exact dmap_nodup_of_dinj (nodup_of_nodup_cons Pnodup)
                   end)

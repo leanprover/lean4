@@ -94,7 +94,6 @@ section linear_ordered_field
     have H : a + 1 > a, from lt_add_of_le_of_pos (le.refl _) zero_lt_one,
     exists.intro _ H
 
-
   -- the following theorems amount to four iffs, for <, ≤, ≥, >.
 
   theorem mul_le_of_le_div (Hc : 0 < c) (H : a ≤ b / c) : a * c ≤ b :=
@@ -132,6 +131,21 @@ section linear_ordered_field
       a   = a * c * (1 / c) : mul_mul_div (ne_of_lt Hc)
       ... > b * (1 / c)     : mul_lt_mul_of_neg_right H (div_neg_of_neg Hc)
       ... = b / c           : div_eq_mul_one_div
+
+
+  -----
+
+  theorem div_le_of_le_mul (Hb : b > 0) (H : a ≤ b * c) : a / b ≤ c :=
+    calc
+      a / b = a * (1 / b)       : div_eq_mul_one_div
+        ... ≤ (b * c) * (1 / b) : mul_le_mul_of_nonneg_right H (le_of_lt (div_pos_of_pos Hb))
+        ... = (b * c) / b       : div_eq_mul_one_div
+        ... = c                 : mul_div_cancel_left (ne.symm (ne_of_lt Hb))
+
+  theorem le_mul_of_div_le (Hc : c > 0) (H : a / c ≤ b) : a ≤ b * c :=
+    calc
+      a = a / c * c : div_mul_cancel (ne.symm (ne_of_lt Hc))
+    ... ≤ b * c     : mul_le_mul_of_nonneg_right H (le_of_lt Hc)
 
   -- following these in the isabelle file, there are 8 biconditionals for the above with - signs
   -- skipping for now

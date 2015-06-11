@@ -52,9 +52,8 @@ lemma to_finset_eq_of_nodup [h : decidable_eq A] {l : list A} (n : nodup l) :
 assert P : to_nodup_list_of_nodup n = to_nodup_list l, from
   begin
     rewrite [↑to_nodup_list, ↑to_nodup_list_of_nodup],
-    generalize (@nodup_erase_dup A h l),
-    rewrite [erase_dup_eq_of_nodup n], intro x, apply congr_arg (subtype.tag l),
-    apply proof_irrel
+    congruence,
+    rewrite [erase_dup_eq_of_nodup n]
   end,
 quot.sound (eq.subst P !setoid.refl)
 

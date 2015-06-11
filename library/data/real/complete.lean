@@ -237,6 +237,8 @@ end s
 
 namespace real
 
+theorem p_add_fractions (n : ℕ+) : (2 * n)⁻¹ + (2 * 3 * n)⁻¹ + (3 * n)⁻¹ = n⁻¹ := sorry
+
 theorem rewrite_helper9 (a b c : ℝ) : b - c = (b - a) - (c - a) := sorry
 
 theorem rewrite_helper10 (a b c d : ℝ) : c - d = (c - a) + (a - b) + (b - d) := sorry

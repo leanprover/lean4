@@ -11,8 +11,8 @@ To do:
  o Rename things and possibly make theorems private
 -/
 
-import data.nat data.rat.order
-open nat eq eq.ops
+import data.nat data.rat.order data.nat.pnat
+open nat eq eq.ops pnat
 open -[coercions] rat
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1
@@ -21,7 +21,7 @@ local notation 1 := rat.of_num 1
 -----------------------------------------------
 -- positive naturals
 
-inductive pnat : Type :=
+/-inductive pnat : Type :=
   pos : Π n : nat, n > 0 → pnat
 
 notation `ℕ+` := pnat
@@ -169,7 +169,7 @@ theorem pnat.lt_of_not_le {p q : ℕ+} (H : ¬ p ≤ q) : q < p := sorry
 
 theorem pnat.inv_cancel (p : ℕ+) : pnat.to_rat p * p⁻¹ = (1 : ℚ) := sorry
 
-theorem pnat.inv_cancel_right (p : ℕ+) : p⁻¹ * pnat.to_rat p = (1 : ℚ) := sorry
+theorem pnat.inv_cancel_right (p : ℕ+) : p⁻¹ * pnat.to_rat p = (1 : ℚ) := sorry-/
 
 -------------------------------------
 -- theorems to add to (ordered) field and/or rat
@@ -219,6 +219,9 @@ theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0) 
 
 -------------------------------------
 -- small helper lemmas
+
+theorem s_mul_assoc_lemma_3 (a b n : ℕ+) (p : ℚ) :
+        p * ((a * n)⁻¹ + (b * n)⁻¹) = p * (a⁻¹ + b⁻¹) * n⁻¹ := sorry
 
 theorem find_thirds (a b : ℚ) : ∃ n : ℕ+, a + n⁻¹ + n⁻¹ + n⁻¹ < a + b := sorry
 
@@ -1073,7 +1076,7 @@ theorem zero_nequiv_one : ¬ zero ≡ one :=
       ... = abs 1 : abs_of_pos zero_lt_one
       ... ≤ 2⁻¹ : H,
     let H'' := ge_of_inv_le H',
-    apply absurd (one_lt_two) (pnat.not_lt_of_le (pnat.le_of_lt H''))
+    apply absurd (one_lt_two) (pnat.not_lt_of_le H'')
   end
 
 ---------------------------------------------

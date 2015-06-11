@@ -14,16 +14,13 @@ To do:
 import data.real.basic data.rat data.nat
 open -[coercions] rat
 open -[coercions] nat
-open eq eq.ops
+open eq eq.ops pnat
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1
 
 ----------------------------------------------------------------------------------------------------
 
 -- pnat theorems
-theorem inv_add_lt_left (p q : ℕ+) : (p + q)⁻¹ < p⁻¹ := sorry
-
-theorem pnat_lt_add_left (p q : ℕ+) : p < p + q  := sorry
 
 notation 2 := pnat.pos (of_num 2) dec_trivial
 

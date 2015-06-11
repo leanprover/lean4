@@ -14,7 +14,7 @@ open -[coercions] rat
 open -[coercions] nat
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1
-open eq.ops
+open eq.ops pnat
 
 
 local notation 2 := pnat.pos (nat.of_num 2) dec_trivial
@@ -44,9 +44,6 @@ theorem abs_abs_sub_abs_le_abs_sub (a b : ℚ) : abs (abs a - abs b) ≤ abs (a 
 
 theorem abs_one_div (q : ℚ) : abs (1 / q) = 1 / abs q := sorry
 
-theorem div_le_pnat (q : ℚ) (n : ℕ+) (H : q ≥ n⁻¹) : 1 / q ≤ pnat.to_rat n := sorry
-
-theorem pnat_cancel' (n m : ℕ+) : (n * n * m)⁻¹ * (pnat.to_rat n * pnat.to_rat n) = m⁻¹ := sorry
 
 -- does this not exist already??
 theorem forall_of_not_exists {A : Type} {P : A → Prop} (H : ¬ ∃ a : A, P a) : ∀ a : A, ¬ P a :=

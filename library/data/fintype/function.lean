@@ -76,7 +76,7 @@ lemma length_all_lists : ∀ {n : nat}, length (@all_lists_of_len A _ n) = (card
                          ... = card A * (card A ^ n) : length_all_lists
                          ... = (card A ^ n) * card A : nat.mul.comm
                          ... = (card A) ^ (succ n) : pow_succ
-      
+
 end list_of_lists
 
 section kth
@@ -90,7 +90,7 @@ definition kth : ∀ k (l : list A), k < length l → A
 
 lemma kth_zero_of_cons {a} (l : list A) (P : 0 < length (a::l)) : kth 0 (a::l) P = a :=
       rfl
-lemma kth_succ_of_cons {a} k (l : list A) (P : k+1 < length (a::l)) : 
+lemma kth_succ_of_cons {a} k (l : list A) (P : k+1 < length (a::l)) :
       kth (succ k) (a::l) P = kth k l (lt_of_succ_lt_succ P) :=
       rfl
 
@@ -136,7 +136,7 @@ lemma kth_of_map {B : Type} {f : A → B} :
                   rewrite [map_cons]; intro Pmlt; rewrite [kth_zero_of_cons]
 | (succ k) (a::l) := assume P, begin
                   rewrite [map_cons], intro Pmlt, rewrite [*kth_succ_of_cons],
-                  apply kth_of_map 
+                  apply kth_of_map
                   end
 
 lemma kth_find [deceqA : decidable_eq A] :
@@ -153,9 +153,9 @@ lemma kth_find [deceqA : decidable_eq A] :
 lemma find_kth [deceqA : decidable_eq A] :
       ∀ {k : nat} {l : list A} P, find (kth k l P) l < length l
 | k []            := assume P, absurd P !not_lt_zero
-| 0 (a::l)        := assume P, begin 
+| 0 (a::l)        := assume P, begin
                   rewrite [kth_zero_of_cons, find_cons_of_eq l rfl, length_cons],
-                  exact !zero_lt_succ 
+                  exact !zero_lt_succ
                   end
 | (succ k) (a::l) := assume P, begin
                   rewrite [kth_succ_of_cons],
@@ -186,7 +186,7 @@ end kth
 
 end list
 
-        
+
 namespace fintype
 open list
 
@@ -228,7 +228,7 @@ include deceqA
 
 lemma fintype_find (a : A) : find a (elems A) < card A :=
       find_lt_length (complete a)
- 
+
 definition list_to_fun (l : list B) (leq : length l = card A) : A → B :=
            take x,
            kth _ _ (leq⁻¹ ▸ fintype_find x)
@@ -244,10 +244,10 @@ variable [deceqB : decidable_eq B]
 include deceqB
 
 lemma fun_eq_list_to_fun_map (f : A → B) : ∀ P, f = list_to_fun (map f (elems A)) P :=
-      assume Pleq, funext (take a, 
+      assume Pleq, funext (take a,
       assert Plt : _, from Pleq⁻¹ ▸ find_lt_length (complete a), begin
       rewrite [list_to_fun_apply _ Pleq a (Pleq⁻¹ ▸ find_lt_length (complete a))],
-      assert Pmlt : find a (elems A) < length (map f (elems A)), 
+      assert Pmlt : find a (elems A) < length (map f (elems A)),
         {rewrite length_map, exact Plt},
       rewrite [@kth_of_map A B f (find a (elems A)) (elems A) Plt _, kth_find]
       end)
@@ -261,9 +261,8 @@ lemma list_eq_map_list_to_fun  (l : list B) (leq : length l = card A)
         assert Plt3 : find (kth k (elems A) Plt1) (elems A) < length l,
           {rewrite leq, apply find_kth},
         rewrite [kth_of_map Plt1 Plt2, list_to_fun_apply l leq _ Plt3],
-        generalize Plt3,
+        congruence,
         rewrite [find_kth_of_nodup Plt1 (unique A)],
-        intro Plt, exact rfl
       end
 
 lemma fun_to_list_to_fun (f : A → B) : ∀ P, list_to_fun (fun_to_list f) P = f :=
@@ -280,15 +279,15 @@ lemma dinj_list_to_fun : dinj (λ (l : list B), length l = card A) list_to_fun :
 variable [finB : fintype B]
 include finB
 
-lemma nodup_all_funs : nodup (@all_funs A B _ _ _) := 
+lemma nodup_all_funs : nodup (@all_funs A B _ _ _) :=
       dmap_nodup_of_dinj dinj_list_to_fun (nodup_all_lists _)
 
 lemma all_funs_complete (f : A → B) : f ∈ all_funs :=
-      assert Plin : map f (elems A) ∈ all_lists_of_len (card A), 
+      assert Plin : map f (elems A) ∈ all_lists_of_len (card A),
         from mem_all_lists (card A) _ (by rewrite length_map),
-      assert Plfin : list_to_fun (map f (elems A)) (length_map_of_fintype f) ∈ all_funs, 
+      assert Plfin : list_to_fun (map f (elems A)) (length_map_of_fintype f) ∈ all_funs,
         from mem_of_dmap _ Plin,
-      begin rewrite [fun_eq_list_to_fun_map f (length_map_of_fintype f)], apply Plfin end 
+      begin rewrite [fun_eq_list_to_fun_map f (length_map_of_fintype f)], apply Plfin end
 
 lemma all_funs_to_all_lists : map fun_to_list (@all_funs A B _ _ _) = all_lists_of_len (card A) :=
       map_of_dmap_inv_pos list_to_fun_to_list leq_of_mem_all_lists

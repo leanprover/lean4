@@ -52,6 +52,11 @@ optional<proof_state> subst(environment const & env, name const & h_name, bool s
         std::swap(lhs, rhs);
     if (!is_local(lhs))
         return none_proof_state();
+    if (depends_on(rhs, lhs)) {
+        throw_tactic_exception_if_enabled(s, sstream() << "invalid 'subst' tactic, '" << lhs
+                                          << "' occurs in the other side of the equation");
+        return none_proof_state();
+    }
     buffer<expr> hyps, deps, non_deps;
     g.get_hyps(hyps);
     bool depends_on_h = depends_on(g.get_type(), h);
@@ -181,9 +186,9 @@ tactic mk_subst_tactic(list<name> const & ids) {
             for (expr const & H : hyps) {
                 expr lhs, rhs;
                 if (is_eq(mlocal_type(H), lhs, rhs)) {
-                    if (is_local(lhs) && mlocal_name(lhs) == mlocal_name(x)) {
+                    if (is_local(lhs) && mlocal_name(lhs) == mlocal_name(x) && !depends_on(rhs, lhs)) {
                         return apply_rewrite(H, false);
-                    } else if (is_local(rhs) && mlocal_name(rhs) == mlocal_name(x)) {
+                    } else if (is_local(rhs) && mlocal_name(rhs) == mlocal_name(x) && !depends_on(lhs, rhs)) {
                         return apply_rewrite(H, true);
                     }
                 }

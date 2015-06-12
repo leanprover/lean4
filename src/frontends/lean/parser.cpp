@@ -797,10 +797,11 @@ auto parser::elaborate_definition_at(environment const & env, local_level_decls 
 
 /**
    \brief Return an optional binder_info object based on the current token
-      - '('           : default
+      - '('          : default
       - '{'          : implicit
       - '{{' or '⦃'  : strict implicit
-      - '['          : cast
+      - '['          : inst_implicit (i.e., implicit argument that should be
+                       synthesized using type class resolution)
 
    If simple_only, then only `(` is considered
 */

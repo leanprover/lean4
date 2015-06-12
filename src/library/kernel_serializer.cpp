@@ -118,8 +118,7 @@ static expr read_macro_definition(deserializer & d, unsigned num, expr const * a
 
 serializer & operator<<(serializer & s, binder_info const & i) {
     unsigned w =
-        (i.is_implicit() ?       16 : 0) +
-        (i.is_cast() ?            8 : 0) +
+        (i.is_implicit() ?        8 : 0) +
         (i.is_contextual() ?      4 : 0) +
         (i.is_strict_implicit() ? 2 : 0) +
         (i.is_inst_implicit() ?   1 : 0);
@@ -129,12 +128,11 @@ serializer & operator<<(serializer & s, binder_info const & i) {
 
 static binder_info read_binder_info(deserializer & d) {
     unsigned w = d.read_char();
-    bool imp   = (w & 16) != 0;
-    bool cast  = (w & 8)  != 0;
-    bool ctx   = (w & 4)  != 0;
-    bool s_imp = (w & 2)  != 0;
-    bool i_imp = (w & 1)  != 0;
-    return binder_info(imp, cast, ctx, s_imp, i_imp);
+    bool imp   = (w & 8) != 0;
+    bool ctx   = (w & 4) != 0;
+    bool s_imp = (w & 2) != 0;
+    bool i_imp = (w & 1) != 0;
+    return binder_info(imp, ctx, s_imp, i_imp);
 }
 
 static name * g_binder_name = nullptr;

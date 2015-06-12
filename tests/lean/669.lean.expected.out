@@ -1,0 +1,15 @@
+669.lean:1:9: error: type error in placeholder assigned to
+  bool
+placeholder has type
+  Type₁
+but is expected to have type
+  Prop
+the assignment was attempted when trying to solve
+    type mismatch at application
+      (λ {T : Prop} (t : T), t) bool.tt
+    term
+      bool.tt
+    has type
+      bool
+    but is expected to have type
+      bool

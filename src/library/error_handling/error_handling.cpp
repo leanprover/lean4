@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/parser_nested_exception.h"
 #include "library/generic_exception.h"
 #include "library/flycheck.h"
+#include "library/pp_options.h"
 #include "library/error_handling/error_handling.h"
 
 namespace lean {
@@ -144,7 +145,12 @@ static void display_error(io_state_stream const & ios, pos_info_provider const *
     }
 }
 
-void display_error(io_state_stream const & ios, pos_info_provider const * p, throwable const & ex) {
+void display_error(io_state_stream const & _ios, pos_info_provider const * p, throwable const & ex) {
+    options opts = _ios.get_options();
+    // Disable pp.beta to avoid cryptic error messages.
+    // See issue https://github.com/leanprover/lean/issues/669
+    opts         = opts.update_if_undef(get_pp_beta_name(), false);
+    io_state_stream ios = _ios.update_options(opts);
     flycheck_error err(ios);
     if (auto k_ex = dynamic_cast<kernel_exception const *>(&ex)) {
         display_error(ios, p, *k_ex);

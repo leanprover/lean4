@@ -21,12 +21,13 @@ namespace nat_trans
   nat_trans.mk
     (λ a, η a ∘ θ a)
     (λ a b f,
-      calc
+      abstract calc
         H f ∘ (η a ∘ θ a) = (H f ∘ η a) ∘ θ a : by rewrite assoc
                       ... = (η b ∘ G f) ∘ θ a : by rewrite naturality
                       ... = η b ∘ (G f ∘ θ a) : by rewrite assoc
                       ... = η b ∘ (θ b ∘ F f) : by rewrite naturality
-                      ... = (η b ∘ θ b) ∘ F f : by rewrite assoc)
+                      ... = (η b ∘ θ b) ∘ F f : by rewrite assoc
+      end)
 
   infixr `∘n`:60 := nat_trans.compose
 

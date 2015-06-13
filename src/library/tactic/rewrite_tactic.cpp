@@ -580,6 +580,8 @@ class rewrite_fn {
     unsigned             m_max_iter;
     bool                 m_beta_eta;
 
+    bool                 m_apply_reduce;
+
     buffer<optional<level>> m_lsubst; // auxiliary buffer for pattern matching
     buffer<optional<expr>>  m_esubst; // auxiliary buffer for pattern matching
 
@@ -931,6 +933,17 @@ class rewrite_fn {
             });
     }
 
+    expr reduce_rule_type(expr const & e) {
+        if (m_apply_reduce) {
+            if (auto it = reduce(e, list<name>()))
+                return *it;
+            else // TODO(Leo): we should fail instead of doing trying again
+                return head_beta_reduce(e);
+        } else {
+            return head_beta_reduce(e);
+        }
+    }
+
     // Given the rewrite step \c e, return a pattern to be used to locate the term to be rewritten.
     expr get_pattern_core(expr const & e) {
         lean_assert(is_rewrite_step(e));
@@ -950,7 +963,7 @@ class rewrite_fn {
                 rule_type     = instantiate(binding_body(rule_type), meta);
                 new_rule_type = m_relaxed_tc->whnf(rule_type).first;
             }
-            rule_type = head_beta_reduce(rule_type);
+            rule_type = reduce_rule_type(rule_type);
             if (is_standard(m_env)) {
                 if (!is_eq(rule_type) && !is_iff(rule_type))
                     throw_rewrite_exception("invalid rewrite tactic, given lemma is not an equality or iff");
@@ -1170,7 +1183,7 @@ class rewrite_fn {
                 new_rule_type = m_relaxed_tc->whnf(rule_type , cs_seq);
                 rule       = mk_app(rule, meta);
             }
-            rule_type = head_beta_reduce(rule_type);
+            rule_type = reduce_rule_type(rule_type);
             lean_assert(is_eq(rule_type) || (is_standard(m_env) && is_iff(rule_type)));
             if (is_standard(m_env) && is_iff(rule_type)) {
                 rule      = apply_propext(rule, rule_type);
@@ -1422,7 +1435,7 @@ class rewrite_fn {
             throw_max_iter_exceeded();
     }
 
-    bool process_rewrite_step(expr const & elem, expr const & orig_elem) {
+    bool process_rewrite_step_core(expr const & elem, expr const & orig_elem) {
         lean_assert(is_rewrite_step(elem));
         expr pattern              = get_pattern(elem);
         init_trace(orig_elem, pattern);
@@ -1464,6 +1477,15 @@ class rewrite_fn {
             throw_max_iter_exceeded();
         }
         lean_unreachable();
+    }
+
+    bool process_rewrite_step(expr const & elem, expr const & orig_elem) {
+        if (process_rewrite_step_core(elem, orig_elem)) {
+            return true;
+        } else {
+            flet<bool> set(m_apply_reduce, true);
+            return process_rewrite_step_core(elem, orig_elem);
+        }
     }
 
     // Process the given rewrite element/step. This method destructively update
@@ -1565,6 +1587,7 @@ public:
         m_max_iter  = get_rewriter_max_iterations(ios.get_options());
         m_use_trace = get_rewriter_trace(ios.get_options());
         m_beta_eta  = get_rewriter_beta_eta(ios.get_options());
+        m_apply_reduce = false;
     }
 
     proof_state_seq operator()(buffer<expr> const & elems) {

@@ -33,6 +33,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_annotation.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/obtain_expr.h"
+#include "frontends/lean/nested_declaration.h"
 
 namespace lean {
 namespace notation {
@@ -626,6 +627,7 @@ parse_table init_nud_table() {
     r = r.add({transition("assert", mk_ext_action(parse_assert))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
     r = r.add({transition("obtain", mk_ext_action(parse_obtain))}, x0);
+    r = r.add({transition("abstract", mk_ext_action(parse_nested_declaration))}, x0);
     r = r.add({transition("if", mk_ext_action(parse_if_then_else))}, x0);
     r = r.add({transition("(", Expr), transition(")", mk_ext_action(parse_rparen))}, x0);
     r = r.add({transition("(", Expr), transition(":", Expr), transition(")", mk_ext_action(parse_typed_expr))}, x0);

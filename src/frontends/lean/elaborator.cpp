@@ -52,6 +52,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/info_tactic.h"
 #include "frontends/lean/begin_end_ext.h"
 #include "frontends/lean/elaborator_exception.h"
+#include "frontends/lean/nested_declaration.h"
 #include "frontends/lean/calc.h"
 #include "frontends/lean/decl_cmds.h"
 

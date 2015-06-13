@@ -9,6 +9,6 @@ coercion_elaborator.cpp info_tactic.cpp
 init_module.cpp elaborator_context.cpp calc_proof_elaborator.cpp
 parse_tactic_location.cpp parse_rewrite_tactic.cpp builtin_tactics.cpp
 type_util.cpp elaborator_exception.cpp migrate_cmd.cpp local_ref_info.cpp
-obtain_expr.cpp decl_attributes.cpp)
+obtain_expr.cpp decl_attributes.cpp nested_declaration.cpp)
 
 target_link_libraries(lean_frontend ${LEAN_LIBS})

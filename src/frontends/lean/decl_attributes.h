@@ -43,5 +43,7 @@ public:
     void parse(parser & p);
     environment apply(environment env, io_state const & ios, name const & d) const;
     bool is_parsing_only() const { return m_is_parsing_only; }
+    void write(serializer & s) const;
+    void read(deserializer & d);
 };
 }

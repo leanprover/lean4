@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_ref_info.h"
 #include "frontends/lean/obtain_expr.h"
 #include "frontends/lean/decl_cmds.h"
+#include "frontends/lean/nested_declaration.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
@@ -61,8 +62,10 @@ void initialize_frontend_lean_module() {
     initialize_local_ref_info();
     initialize_obtain_expr();
     initialize_decl_cmds();
+    initialize_nested_declaration();
 }
 void finalize_frontend_lean_module() {
+    finalize_nested_declaration();
     finalize_decl_cmds();
     finalize_obtain_expr();
     finalize_local_ref_info();

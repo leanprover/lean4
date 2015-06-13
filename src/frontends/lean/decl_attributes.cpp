@@ -246,4 +246,20 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
         env = mark_multiple_instances(env, d, m_persistent);
     return env;
 }
+
+void decl_attributes::write(serializer & s) const {
+    s << m_def_only << m_is_abbrev << m_persistent << m_is_instance << m_is_coercion
+      << m_is_reducible << m_is_irreducible << m_is_semireducible << m_is_quasireducible
+      << m_is_class << m_is_parsing_only << m_has_multiple_instances << m_unfold_f_hint
+      << m_constructor_hint << m_symm << m_trans << m_refl << m_subst << m_recursor
+      << m_rewrite << m_recursor_major_pos << m_priority << m_unfold_c_hint;
+}
+
+void decl_attributes::read(deserializer & d) {
+    d >> m_def_only >> m_is_abbrev >> m_persistent >> m_is_instance >> m_is_coercion
+      >> m_is_reducible >> m_is_irreducible >> m_is_semireducible >> m_is_quasireducible
+      >> m_is_class >> m_is_parsing_only >> m_has_multiple_instances >> m_unfold_f_hint
+      >> m_constructor_hint >> m_symm >> m_trans >> m_refl >> m_subst >> m_recursor
+      >> m_rewrite >> m_recursor_major_pos >> m_priority >> m_unfold_c_hint;
+}
 }

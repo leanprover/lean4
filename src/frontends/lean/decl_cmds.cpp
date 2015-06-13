@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/update_environment_exception.h"
+#include "frontends/lean/nested_declaration.h"
 
 namespace lean {
 static environment declare_universe(parser & p, environment env, name const & n, bool local) {
@@ -671,6 +672,12 @@ class definition_cmd_fn {
             m_name = m_p.check_id_next("invalid declaration, identifier expected");
     }
 
+    expr extract_nested(expr const & v) {
+        expr new_v;
+        std::tie(m_env, new_v) = extract_nested_declarations(m_env, m_p.ios(), m_name, v);
+        return new_v;
+    }
+
     void parse_type_value() {
         // Parse universe parameters
         parser::local_scope scope1(m_p);
@@ -690,6 +697,7 @@ class definition_cmd_fn {
             m_type = m_p.parse_expr();
             save_checkpoint();
             if (is_curr_with_or_comma_or_bar(m_p)) {
+                allow_nested_decls_scope scope2(is_definition());
                 m_value = parse_equations(m_p, m_name, m_type, m_aux_decls,
                                           optional<local_environment>(), buffer<expr>(), m_pos);
             } else if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
@@ -697,6 +705,7 @@ class definition_cmd_fn {
                 m_value = m_p.save_pos(mk_expr_placeholder(), pos);
             } else {
                 m_p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
+                allow_nested_decls_scope scope2(is_definition());
                 m_value = m_p.save_pos(m_p.parse_expr(), pos);
             }
         } else {
@@ -711,11 +720,13 @@ class definition_cmd_fn {
                 m_type     = Pi(ps, type, m_p);
                 save_checkpoint();
                 if (is_curr_with_or_comma_or_bar(m_p)) {
+                    allow_nested_decls_scope scope2(is_definition());
                     m_value = parse_equations(m_p, m_name, type, m_aux_decls, lenv, ps, m_pos);
                 } else if (!is_definition() && !m_p.curr_is_token(get_assign_tk())) {
                     check_end_of_theorem(m_p);
                     m_value = m_p.save_pos(mk_expr_placeholder(), pos);
                 } else {
+                    allow_nested_decls_scope scope2(is_definition());
                     m_p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
                     m_value = m_p.parse_scoped_expr(ps, *lenv);
                 }
@@ -730,6 +741,7 @@ class definition_cmd_fn {
                 m_type  = Pi(ps, m_type, m_p);
                 save_checkpoint();
                 m_p.check_token_next(get_assign_tk(), "invalid declaration, ':=' expected");
+                allow_nested_decls_scope scope2(is_definition());
                 m_value = m_p.parse_scoped_expr(ps, *lenv);
             }
             erase_local_binder_info(ps);
@@ -837,6 +849,7 @@ class definition_cmd_fn {
                         cd = check(mk_axiom(m_real_name, c_ls, c_type));
                         m_env = module::add(m_env, *cd);
                     } else {
+                        c_value = extract_nested(c_value);
                         cd = check(mk_definition(m_env, m_real_name, c_ls, c_type, c_value));
                         if (!m_is_private)
                             m_p.add_decl_index(m_real_name, m_pos, m_p.get_cmd_token(), c_type);
@@ -947,7 +960,7 @@ class definition_cmd_fn {
         if (aux_values.size() != m_real_aux_names.size())
             throw exception("invalid declaration, failed to compile auxiliary declarations");
         m_type  = postprocess(m_env, m_type);
-        m_value = postprocess(m_env, m_value);
+        m_value = extract_nested(postprocess(m_env, m_value));
         for (unsigned i = 0; i < aux_values.size(); i++) {
             m_aux_types[i] = postprocess(m_env, m_aux_types[i]);
             aux_values[i]  = postprocess(m_env, aux_values[i]);
@@ -1005,10 +1018,12 @@ class definition_cmd_fn {
                 }
             } else {
                 std::tie(m_type, m_value, new_ls) = elaborate_definition(m_type, m_value);
-                new_ls = append(m_ls, new_ls);
-                m_type  = postprocess(m_env, m_type);
-                m_value = postprocess(m_env, m_value);
-                m_env = module::add(m_env, check(mk_definition(m_env, m_real_name, new_ls, m_type, m_value)));
+                new_ls       = append(m_ls, new_ls);
+                m_type       = postprocess(m_env, m_type);
+                m_value      = postprocess(m_env, m_value);
+                expr new_val = extract_nested(m_value);
+                m_env = module::add(m_env, check(mk_definition(m_env, m_real_name, new_ls, m_type, new_val)));
+                // Remark: we cache the definition with the nested declarations.
                 m_p.cache_definition(m_real_name, pre_type, pre_value, new_ls, m_type, m_value);
             }
         }

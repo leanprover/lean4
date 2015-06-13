@@ -174,7 +174,7 @@ static void print_definition(parser const & p, name const & n, pos_info const & 
     io_state_stream new_out = out.update_options(opts);
     if (d.is_axiom())
         throw parser_error(sstream() << "invalid 'print definition', theorem '" << n
-                           << "' is not available (suggestion: use command 'wait " << n << "')", pos);
+                           << "' is not available (suggestion: use command 'reveal " << n << "')", pos);
     if (!d.is_definition())
         throw parser_error(sstream() << "invalid 'print definition', '" << n << "' is not a definition", pos);
     new_out << d.get_value() << endl;
@@ -265,13 +265,16 @@ static void print_recursor_info(parser & p) {
     }
 }
 
-bool print_constant(parser & p, char const * kind, declaration const & d) {
+bool print_constant(parser & p, char const * kind, declaration const & d, bool is_def = false) {
     io_state_stream out = p.regular_stream();
     if (is_protected(p.env(), d.get_name()))
         out << "protected ";
     out << kind << " " << d.get_name();
     print_attributes(p, d.get_name());
-    out << " : " << d.get_type() << "\n";
+    out << " : " << d.get_type();
+    if (is_def)
+        out << " :=";
+    out << "\n";
     return true;
 }
 
@@ -287,7 +290,7 @@ bool print_polymorphic(parser & p) {
             for (name const & c : cs) {
                 declaration const & d = env.get(c);
                 if (d.is_theorem()) {
-                    print_constant(p, "theorem", d);
+                    print_constant(p, "theorem", d, true);
                     print_definition(p, c, pos);
                 } else if (d.is_axiom() || d.is_constant_assumption()) {
                     if (inductive::is_inductive_decl(env, c)) {
@@ -306,7 +309,7 @@ bool print_polymorphic(parser & p) {
                         print_constant(p, "constant", d);
                     }
                 } else if (d.is_definition()) {
-                    print_constant(p, "definition", d);
+                    print_constant(p, "definition", d, true);
                     print_definition(p, c, pos);
                 }
             }

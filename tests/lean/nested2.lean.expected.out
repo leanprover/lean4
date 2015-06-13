@@ -1,15 +1,15 @@
-definition bla : ℕ → ℕ
+definition bla : ℕ → ℕ :=
 λ (a : ℕ), foo (succ (succ a)) (bla_2 a)
-definition bla_1 : ∀ (x : ℕ), 0 < succ x
+definition bla_1 : ∀ (x : ℕ), 0 < succ x :=
 λ (x : ℕ), zero_lt_succ x
-definition bla_2 : ∀ (x : ℕ), 0 < succ (succ x)
+definition bla_2 : ∀ (x : ℕ), 0 < succ (succ x) :=
 λ (x : ℕ), lt.step (bla_1 x)
-definition test_1 [irreducible] : ∀ (x : ℕ), 0 < succ x
+definition test_1 [irreducible] : ∀ (x : ℕ), 0 < succ x :=
 λ (x : ℕ), zero_lt_succ x
-definition test_2 [reducible] : ∀ (x : ℕ), 0 < succ (succ x)
+definition test_2 [reducible] : ∀ (x : ℕ), 0 < succ (succ x) :=
 λ (x : ℕ), lt.step (test_1 x)
 definition tst_1 : ∀ (x : Type.{l_1}) (x_1 : x) (x_2 : list.{l_1} x),
-  x_1 :: x_2 = nil.{l_1} → list.no_confusion_type.{0 l_1} false (x_1 :: x_2) nil.{l_1}
+  x_1 :: x_2 = nil.{l_1} → list.no_confusion_type.{0 l_1} false (x_1 :: x_2) nil.{l_1} :=
 λ (x : Type.{l_1}) (x_1 : x) (x_2 : list.{l_1} x), list.no_confusion.{0 l_1}
-definition tst : Π {A : Type.{l_1}}, A → list.{l_1} A → bool
+definition tst : Π {A : Type.{l_1}}, A → list.{l_1} A → bool :=
 λ (A : Type.{l_1}) (a : A) (l : list.{l_1} A), voo.{(max 1 l_1)} (a :: l) nil.{l_1} (tst_1.{l_1} A a l)

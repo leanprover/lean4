@@ -81,12 +81,12 @@ expr get_nested_declaration_arg(expr const & e) {
 }
 
 optional<name> const & get_nested_declaration_name(expr const & d) {
-    lean_assert(is_nested_declaration(e));
+    lean_assert(is_nested_declaration(d));
     return static_cast<nested_decl_macro_definition_cell const*>(macro_def(d).raw())->get_decl_name();
 }
 
 decl_attributes const & get_nested_declaration_attributes(expr const & d) {
-    lean_assert(is_nested_declaration(e));
+    lean_assert(is_nested_declaration(d));
     return static_cast<nested_decl_macro_definition_cell const*>(macro_def(d).raw())->get_decl_attributes();
 }
 

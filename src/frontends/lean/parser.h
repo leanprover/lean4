@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "util/exception.h"
 #include "util/thread_script_state.h"
 #include "util/script_exception.h"
-#include "util/worker_queue.h"
 #include "util/name_generator.h"
 #include "kernel/environment.h"
 #include "kernel/expr_maps.h"
@@ -123,6 +122,7 @@ class parser {
     optional<bool>          m_has_tactic_decls;
     // We process theorems in parallel
     theorem_queue           m_theorem_queue;
+    name_set                m_theorem_queue_set; // set of theorem names in m_theorem_queue
 
     // info support
     snapshot_vector *       m_snapshot_vector;
@@ -307,6 +307,7 @@ public:
     void add_delayed_theorem(environment const & env, name const & n, level_param_names const & ls, expr const & t, expr const & v);
     void add_delayed_theorem(certified_declaration const & cd);
     environment reveal_theorems(buffer<name> const & ds);
+    bool in_theorem_queue(name const & n) const { return m_theorem_queue_set.contains(n); }
 
     /** \brief Read the next token. */
     void scan() { m_curr = m_scanner.scan(m_env); }

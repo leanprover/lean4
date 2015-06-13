@@ -304,7 +304,13 @@ bool print_polymorphic(parser & p) {
                     } else if (is_hits_decl(env, c)) {
                         print_constant(p, "builtin-HIT-constant", d);
                     } else if (d.is_axiom()) {
-                        print_constant(p, "axiom", d);
+                        if (p.in_theorem_queue(d.get_name())) {
+                            print_constant(p, "theorem", d);
+                            out << "'" << d.get_name() << "' is still in the theorem queue, use command 'reveal "
+                                << d.get_name() << "' to access its definition.\n";
+                        } else {
+                            print_constant(p, "axiom", d);
+                        }
                     } else {
                         print_constant(p, "constant", d);
                     }

@@ -1859,10 +1859,12 @@ bool parser::curr_is_command_like() const {
 
 void parser::add_delayed_theorem(environment const & env, name const & n, level_param_names const & ls,
                                  expr const & t, expr const & v) {
+    m_theorem_queue_set.insert(n);
     m_theorem_queue.add(env, n, ls, get_local_level_decls(), t, v);
 }
 
 void parser::add_delayed_theorem(certified_declaration const & cd) {
+    m_theorem_queue_set.insert(cd.get_declaration().get_name());
     m_theorem_queue.add(cd);
 }
 
@@ -1873,6 +1875,7 @@ environment parser::reveal_theorems(buffer<name> const & ds) {
                 if (m_env.get(thm_name).is_axiom() &&
                     std::any_of(ds.begin(), ds.end(), [&](name const & n) { return n == thm_name; })) {
                     m_env = m_env.replace(thm);
+                    m_theorem_queue_set.erase(thm_name);
                 }
             }
         });

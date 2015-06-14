@@ -425,16 +425,16 @@ lemma exists_of_mem_dmap : ∀ {l : list A} {b : B}, b ∈ dmap p f l → ∃ a 
   exact exists.intro a' (exists.intro Pa' (and.intro (mem_cons_of_mem a (and.left P')) (and.right P')))
   end)
 
-lemma map_dmap_of_pos_of_inv {g : B → A} (Pinv : ∀ a (Pa : p a), g (f a Pa) = a) :
+lemma map_dmap_of_inv_of_pos {g : B → A} (Pinv : ∀ a (Pa : p a), g (f a Pa) = a) :
                           ∀ {l : list A}, (∀ ⦃a⦄, a ∈ l → p a) → map g (dmap p f l) = l
 | []     := assume Pl, by rewrite [dmap_nil, map_nil]
 | (a::l) := assume Pal,
             assert Pa : p a, from Pal a !mem_cons,
             assert Pl : ∀ a, a ∈ l → p a,
               from take x Pxin, Pal x (mem_cons_of_mem a Pxin),
-            by rewrite [dmap_cons_of_pos Pa, map_cons, Pinv, map_dmap_of_pos_of_inv Pl]
+            by rewrite [dmap_cons_of_pos Pa, map_cons, Pinv, map_dmap_of_inv_of_pos Pl]
 
-lemma mem_of_mem_dmap_of_dinj (Pdi : dinj p f) :
+lemma mem_of_dinj_of_mem_dmap (Pdi : dinj p f) :
       ∀ {l : list A} {a} (Pa : p a), (f a Pa) ∈ dmap p f l → a ∈ l
 | []     := take a Pa Pinnil, by contradiction
 | (b::l) := take a Pa Pmap,
@@ -445,17 +445,17 @@ lemma mem_of_mem_dmap_of_dinj (Pdi : dinj p f) :
                 rewrite mem_cons_iff,
                 apply (or_of_or_of_imp_of_imp Pmap),
                   apply Pdi,
-                  apply mem_of_mem_dmap_of_dinj Pa
+                  apply mem_of_dinj_of_mem_dmap Pa
               end)
               (λ nPb, begin
                  rewrite (dmap_cons_of_neg nPb) at Pmap,
                  apply mem_cons_of_mem,
-                 exact mem_of_mem_dmap_of_dinj Pa Pmap
+                 exact mem_of_dinj_of_mem_dmap Pa Pmap
               end)
 
-lemma not_mem_dmap_of_not_mem_of_dinj (Pdi : dinj p f) {l : list A} {a} (Pa : p a) :
+lemma not_mem_dmap_of_dinj_of_not_mem (Pdi : dinj p f) {l : list A} {a} (Pa : p a) :
   a ∉ l → (f a Pa) ∉ dmap p f l :=
-not_imp_not_of_imp (mem_of_mem_dmap_of_dinj Pdi Pa)
+not_imp_not_of_imp (mem_of_dinj_of_mem_dmap Pdi Pa)
 
 end dmap
 

@@ -45,7 +45,7 @@ lemma upto_zero : upto 0 = [] :=
 by rewrite [↑upto, list.upto_nil, dmap_nil]
 
 lemma map_val_upto (n : nat) : map fin.val (upto n) = list.upto n :=
-map_dmap_of_pos_of_inv (val_mk n) (@lt_of_mem_upto n)
+map_dmap_of_inv_of_pos (val_mk n) (@lt_of_mem_upto n)
 
 lemma length_upto (n : nat) : length (upto n) = n :=
 calc

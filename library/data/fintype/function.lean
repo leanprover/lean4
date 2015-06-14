@@ -290,7 +290,7 @@ lemma all_funs_complete (f : A → B) : f ∈ all_funs :=
       begin rewrite [fun_eq_list_to_fun_map f (length_map_of_fintype f)], apply Plfin end
 
 lemma all_funs_to_all_lists : map fun_to_list (@all_funs A B _ _ _) = all_lists_of_len (card A) :=
-      map_dmap_of_pos_of_inv list_to_fun_to_list leq_of_mem_all_lists
+      map_dmap_of_inv_of_pos list_to_fun_to_list leq_of_mem_all_lists
 
 lemma length_all_funs : length (@all_funs A B _ _ _) = (card B) ^ (card A) := calc
       length _ = length (map fun_to_list all_funs) : length_map

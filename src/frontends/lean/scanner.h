@@ -40,7 +40,7 @@ protected:
     int                 m_line;  // line of the token
 
     name                m_name_val;
-    token_info const *  m_token_info;
+    token_info          m_token_info;
     mpq                 m_num_val;
     std::string         m_buffer;
     std::string         m_aux_buffer;
@@ -77,7 +77,7 @@ public:
     mpq const & get_num_val() const { return m_num_val; }
     name const & get_name_val() const { return m_name_val; }
     std::string const & get_str_val() const { return m_buffer; }
-    token_info const & get_token_info() const { lean_assert(m_token_info); return *m_token_info; }
+    token_info const & get_token_info() const { return m_token_info; }
 
     std::string const & get_stream_name() const { return m_stream_name; }
 };

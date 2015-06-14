@@ -403,8 +403,8 @@ auto scanner::read_key_cmd_id() -> token_kind {
         return token_kind::Identifier;
     } else {
         move_back(cs.size() - key_sz, num_utfs - key_utf_sz);
-        m_token_info = info;
-        return info->is_command() ? token_kind::CommandKeyword : token_kind::Keyword;
+        m_token_info = *info;
+        return m_token_info.is_command() ? token_kind::CommandKeyword : token_kind::Keyword;
     }
 }
 
@@ -447,7 +447,7 @@ auto scanner::scan(environment const & env) -> token_kind {
                 token_kind k = read_key_cmd_id();
                 if (k == token_kind::Keyword) {
                     // We treat '(--', '(*', '--' as "keywords.
-                    name const & n = m_token_info->value();
+                    name const & n = m_token_info.value();
                     if (n == *g_begin_comment_tk)
                         read_single_line_comment();
                     else if (n == *g_begin_comment_block_tk)
@@ -465,7 +465,7 @@ auto scanner::scan(environment const & env) -> token_kind {
 }
 
 scanner::scanner(std::istream & strm, char const * strm_name, unsigned line):
-    m_tokens(nullptr), m_stream(strm), m_token_info(nullptr) {
+    m_tokens(nullptr), m_stream(strm) {
     m_stream_name = strm_name ? strm_name : "[unknown]";
     m_sline = line;
     m_line  = line;

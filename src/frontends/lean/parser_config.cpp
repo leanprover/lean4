@@ -415,14 +415,16 @@ environment override_notation(environment const & env, name const & n, bool pers
     environment r = env;
     bool found = false;
     if (auto it = token_ext::get_entries(r, n)) {
+        list<token_entry> entries = *it;
         found = true;
-        for (token_entry e : *it) {
+        for (token_entry e : entries) {
             r = add_token(r, e, persistent);
         }
     }
     if (auto it = notation_ext::get_entries(env, n)) {
+        list<notation_entry> entries = *it;
         found = true;
-        for (notation_entry const & e : *it) {
+        for (notation_entry const & e : entries) {
             notation_entry new_e(e, false);
             r = add_notation(r, new_e, persistent);
         }

@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/expr_lt.h"
 #include "library/match.h"
+#include "library/choice.h"
 #include "library/projection.h"
 #include "library/local_context.h"
 #include "library/unifier.h"
@@ -1095,6 +1096,11 @@ class rewrite_fn {
             r += pp_indent_expr(fmt, m_pattern);
             for (target_trace const & t : m_targets) {
                 r += t.pp(fmt);
+            }
+            format cs = pp_choice_symbols(m_lemma);
+            if (!cs.is_nil()) {
+                r += line() + format("rewrite lemma uses the following overloaded symbols");
+                r += nest(get_pp_indent(fmt.get_options()), line() + cs);
             }
             return r;
         }

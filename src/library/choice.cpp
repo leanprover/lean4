@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "util/sstream.h"
+#include "kernel/for_each_fn.h"
 #include "library/choice.h"
 #include "library/kernel_bindings.h"
 #include "library/kernel_serializer.h"
@@ -40,6 +41,46 @@ expr mk_choice(unsigned num_es, expr const * es) {
         return es[0];
     else
         return mk_macro(*g_choice, num_es, es);
+}
+
+list<list<name>> collect_choice_symbols(expr const & e) {
+    buffer<list<name>> r;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (is_choice(e)) {
+                buffer<name> cs;
+                for (unsigned i = 0; i < get_num_choices(e); i++) {
+                    expr const & c = get_app_fn(get_choice(e, i));
+                    if (is_constant(c))
+                        cs.push_back(const_name(c));
+                    else if (is_local(c))
+                        cs.push_back(local_pp_name(c));
+                }
+                if (cs.size() > 1)
+                    r.push_back(to_list(cs));
+            }
+            return true;
+        });
+    return to_list(r);
+}
+
+format pp_choice_symbols(expr const & e) {
+    list<list<name>> symbols = collect_choice_symbols(e);
+    if (symbols) {
+        format r;
+        bool first = true;
+        for (auto cs : symbols) {
+            format aux("overloads:");
+            for (auto s : cs)
+                aux += space() + format(s);
+            if (!first)
+                r += line();
+            r += aux;
+            first = false;
+        }
+        return r;
+    } else {
+        return format();
+    }
 }
 
 void initialize_choice() {

@@ -34,6 +34,17 @@ unsigned get_num_choices(expr const & e);
    \pre i < get_num_choices(e)
 */
 expr const & get_choice(expr const & e, unsigned i);
+
+/**
+   \brief Collect "choices" occurring in \c e.
+   For example, if \c e contains [choice (f a) (g a)] where f and g are constants,
+   the result contains the list [f, g]. This function is only used for producing nicer
+   error messages.
+*/
+list<list<name>> collect_choice_symbols(expr const & e);
+/** \brief Format the result produced by collect_choice_symbols. */
+format pp_choice_symbols(expr const & e);
+
 void open_choice(lua_State * L);
 void initialize_choice();
 void finalize_choice();

@@ -21,6 +21,17 @@ variable {T : Type}
 lemma cons_ne_nil (a : T) (l : list T) : a::l ≠ [] :=
 by contradiction
 
+lemma head_eq_of_cons_eq {A : Type} {h₁ h₂ : A} {t₁ t₂ : list A} :
+      (h₁::t₁) = (h₂::t₂) → h₁ = h₂ :=
+assume Peq, list.no_confusion Peq (assume Pheq Pteq, Pheq)
+
+lemma tail_eq_of_cons_eq {A : Type} {h₁ h₂ : A} {t₁ t₂ : list A} :
+      (h₁::t₁) = (h₂::t₂) → t₁ = t₂ :=
+assume Peq, list.no_confusion Peq (assume Pheq Pteq, Pteq)
+
+lemma cons_inj {A : Type} {a : A} : injective (cons a) :=
+take l₁ l₂, assume Pe, tail_eq_of_cons_eq Pe
+
 /- append -/
 
 definition append : list T → list T → list T

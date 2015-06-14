@@ -564,6 +564,7 @@ static expr parse_override_notation(parser & p, unsigned, expr const *, pos_info
     name n = p.check_id_next("invalid '#' local notation, identifier expected");
     bool persistent = false;
     environment env = override_notation(p.env(), n, persistent);
+    env = overwrite_aliases(env, n, name());
     return p.parse_expr_with_env(env);
 }
 

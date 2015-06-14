@@ -849,6 +849,7 @@ static environment override_cmd(parser & p) {
         ns = *real_ns;
         bool persistent = false;
         env = override_notation(env, ns, persistent);
+        env = overwrite_aliases(env, ns, name());
         env = update_fingerprint(env, ns.hash());
     }
     return env;

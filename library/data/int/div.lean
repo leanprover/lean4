@@ -334,6 +334,30 @@ by rewrite -(int.mul_one b) at {1}; apply add_mul_mod_self_left
 theorem add_mod_self_left {a b : ℤ} : (a + b) mod a = b mod a :=
 !add.comm ▸ !add_mod_self
 
+theorem mod_add_mod (m n k : ℤ) : (m mod n + k) mod n = (m + k) mod n :=
+by rewrite [eq_div_mul_add_mod m n at {2}, add.assoc, add.comm (m div n * n), add_mul_mod_self]
+
+theorem add_mod_mod (m n k : ℤ) : (m + n mod k) mod k = (m + n) mod k :=
+by rewrite [add.comm, mod_add_mod, add.comm]
+
+theorem add_mod_eq_add_mod_right {m n k : ℤ} (i : ℤ) (H : m mod n = k mod n) :
+  (m + i) mod n = (k + i) mod n :=
+by rewrite [-mod_add_mod, -mod_add_mod k, H]
+
+theorem add_mod_eq_add_mod_left {m n k : ℤ} (i : ℤ) (H : m mod n = k mod n) :
+  (i + m) mod n = (i + k) mod n :=
+by rewrite [add.comm, add_mod_eq_add_mod_right _ H, add.comm]
+
+theorem mod_eq_mod_of_add_mod_eq_add_mod_right {m n k i : ℤ}
+    (H : (m + i) mod n = (k + i) mod n) :
+  m mod n = k mod n :=
+assert H1 : (m + i + (-i)) mod n = (k + i + (-i)) mod n, from add_mod_eq_add_mod_right _ H,
+by rewrite [*add_neg_cancel_right at H1]; apply H1
+
+theorem mod_eq_mod_of_add_mod_eq_add_mod_left {m n k i : ℤ} :
+  (i + m) mod n = (i + k) mod n → m mod n = k mod n :=
+by rewrite [add.comm i m, add.comm i k]; apply mod_eq_mod_of_add_mod_eq_add_mod_right
+
 theorem mul_mod_left (a b : ℤ) : (a * b) mod b = 0 :=
 by rewrite [-zero_add (a * b), add_mul_mod_self, zero_mod]
 

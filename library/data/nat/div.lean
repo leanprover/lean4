@@ -186,6 +186,40 @@ by_cases_zero_pos y
                     ... = succ x - y + y                                    : {!(IH _ H6)⁻¹}
                     ... = succ x                                         : sub_add_cancel H2)⁻¹)))
 
+theorem mod_add_mod (m n k : ℕ) : (m mod n + k) mod n = (m + k) mod n :=
+by rewrite [eq_div_mul_add_mod m n at {2}, add.assoc, add.comm (m div n * n), add_mul_mod_self]
+
+theorem add_mod_mod (m n k : ℕ) : (m + n mod k) mod k = (m + n) mod k :=
+by rewrite [add.comm, mod_add_mod, add.comm]
+
+theorem add_mod_eq_add_mod_right {m n k : ℕ} (i : ℕ) (H : m mod n = k mod n) :
+  (m + i) mod n = (k + i) mod n :=
+by rewrite [-mod_add_mod, -mod_add_mod k, H]
+
+theorem add_mod_eq_add_mod_left {m n k : ℕ} (i : ℕ) (H : m mod n = k mod n) :
+  (i + m) mod n = (i + k) mod n :=
+by rewrite [add.comm, add_mod_eq_add_mod_right _ H, add.comm]
+
+theorem mod_eq_mod_of_add_mod_eq_add_mod_right {m n k i : ℕ} :
+  (m + i) mod n = (k + i) mod n → m mod n = k mod n :=
+by_cases_zero_pos n
+  (by rewrite [*mod_zero]; apply eq_of_add_eq_add_right)
+  (take n,
+    assume npos : n > 0,
+    assume H1 : (m + i) mod n = (k + i) mod n,
+    have H2 : (m + i mod n) mod n = (k + i mod n) mod n, by rewrite [*add_mod_mod, H1],
+    assert H3 : (m + i mod n + (n - i mod n)) mod n = (k + i mod n + (n - i mod n)) mod n,
+      from add_mod_eq_add_mod_right _ H2,
+    begin
+      revert H3,
+      rewrite [*add.assoc, add_sub_of_le (le_of_lt (!mod_lt npos)), *add_mod_self],
+      intros, assumption
+    end)
+
+theorem mod_eq_mod_of_add_mod_eq_add_mod_left {m n k i : ℕ} :
+  (i + m) mod n = (i + k) mod n → m mod n = k mod n :=
+by rewrite [add.comm i m, add.comm i k]; apply mod_eq_mod_of_add_mod_eq_add_mod_right
+
 theorem mod_le {x y : ℕ} : x mod y ≤ x :=
 !eq_div_mul_add_mod⁻¹ ▸ !le_add_left
 

@@ -286,4 +286,5 @@ namespace nat
     (le.refl a)
     (λ b₁ ih, le.trans !pred_le ih)
 
+  lemma sub_lt_succ (a b : ℕ) : a - b < succ a := lt_succ_of_le (sub_le a b)
 end nat

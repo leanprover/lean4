@@ -38,7 +38,7 @@ namespace vec
 
   definition tail {n : nat} : vec A (succ n) → vec A n
   | (tag []     h) := by contradiction
-  | (tag (a::v) h) := tag v (succ_inj h)
+  | (tag (a::v) h) := tag v (succ.inj h)
 
   theorem head_cons {n : nat} (a : A) (v : vec A n) : head (a :: v) = a :=
   by induction v; reflexivity
@@ -49,7 +49,7 @@ namespace vec
   theorem head_lcons {n : nat} (a : A) (l : list A) (h : length (a::l) = succ n) : head (tag (a::l) h) = a :=
   rfl
 
-  theorem tail_lcons {n : nat} (a : A) (l : list A) (h : length (a::l) = succ n) : tail (tag (a::l) h) = tag l (succ_inj h) :=
+  theorem tail_lcons {n : nat} (a : A) (l : list A) (h : length (a::l) = succ n) : tail (tag (a::l) h) = tag l (succ.inj h) :=
   rfl
 
   theorem eta : ∀ {n : nat} (v : vec A (succ n)), head v :: tail v = v

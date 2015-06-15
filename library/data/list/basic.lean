@@ -441,7 +441,7 @@ lemma not_mem_of_find_eq_length : ∀ {a} {l : list T}, find a l = length l → 
                   begin
                     rewrite [find_cons_of_ne l Pne, length_cons, mem_cons_iff],
                     intro Plen, apply (not_or Pne),
-                    exact not_mem_of_find_eq_length (succ_inj Plen)
+                    exact not_mem_of_find_eq_length (succ.inj Plen)
                   end)
 
 lemma find_lt_length {a} {l : list T} (Pin : a ∈ l) : find a l < length l :=

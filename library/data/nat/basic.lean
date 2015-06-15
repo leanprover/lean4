@@ -64,15 +64,17 @@ nat.induction_on n
 theorem exists_eq_succ_of_ne_zero {n : ℕ} (H : n ≠ 0) : ∃k : ℕ, n = succ k :=
 exists.intro _ (or_resolve_right !eq_zero_or_eq_succ_pred H)
 
-theorem succ_inj {n m : ℕ} (H : succ n = succ m) : n = m :=
+theorem succ.inj {n m : ℕ} (H : succ n = succ m) : n = m :=
 nat.no_confusion H (λe, e)
+
+abbreviation eq_of_succ_eq_succ := @succ.inj
 
 theorem succ_ne_self {n : ℕ} : succ n ≠ n :=
 nat.induction_on n
   (take H : 1 = 0,
     have ne : 1 ≠ 0, from !succ_ne_zero,
     absurd H ne)
-  (take k IH H, IH (succ_inj H))
+  (take k IH H, IH (succ.inj H))
 
 theorem discriminate {B : Prop} {n : ℕ} (H1: n = 0 → B) (H2 : ∀m, n = succ m → B) : B :=
 have H : n = n → B, from nat.cases_on n H1 H2,
@@ -160,7 +162,7 @@ nat.induction_on n
       succ (n + m) = succ n + m   : succ_add
                ... = succ n + k   : H
                ... = succ (n + k) : succ_add,
-    have H3 : n + m = n + k, from succ_inj H2,
+    have H3 : n + m = n + k, from succ.inj H2,
     IH H3)
 
 theorem add.cancel_right {n m k : ℕ} (H : n + m = k + m) : n = k :=

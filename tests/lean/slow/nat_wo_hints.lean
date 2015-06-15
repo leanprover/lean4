@@ -64,7 +64,7 @@ theorem discriminate {B : Prop} {n : ℕ} (H1: n = 0 → B) (H2 : ∀m, n = succ
     (take H3 : n = 0, H1 H3)
     (take H3 : n = succ (pred n), H2 (pred n) H3)
 
-theorem succ_inj {n m : ℕ} (H : succ n = succ m) : n = m
+theorem succ.inj {n m : ℕ} (H : succ n = succ m) : n = m
 := calc
     n = pred (succ n) : (pred_succ n)⁻¹
   ... = pred (succ m) : {H}
@@ -75,7 +75,7 @@ theorem succ_ne_self (n : ℕ) : succ n ≠ n
     (take H : 1 = 0,
       have ne : 1 ≠ 0, from succ_ne_zero 0,
       absurd H ne)
-    (take k IH H, IH (succ_inj H))
+    (take k IH H, IH (succ.inj H))
 
 theorem decidable_eq [instance] (n m : ℕ) : decidable (n = m)
 := have general : ∀n, decidable (n = m), from
@@ -93,7 +93,7 @@ theorem decidable_eq [instance] (n m : ℕ) : decidable (n = m)
                (assume Heq : n' = m', inl (congr_arg succ Heq))
                (assume Hne : n' ≠ m',
                  have H1 : succ n' ≠ succ m', from
-                   assume Heq, absurd (succ_inj Heq) Hne,
+                   assume Heq, absurd (succ.inj Heq) Hne,
                  inr H1))),
   general n
 
@@ -203,7 +203,7 @@ theorem add_cancel_left {n m k : ℕ} : n + m = n + k → m = k
         succ (n + m) = succ n + m : symm (succ_add n m)
           ... = succ n + k : H
           ... = succ (n + k) : succ_add n k,
-      have H3 : n + m = n + k, from succ_inj H2,
+      have H3 : n + m = n + k, from succ.inj H2,
       IH H3)
 
 --rename to and_cancel_right

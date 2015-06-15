@@ -61,7 +61,7 @@ lemma mem_all_lists : ∀ {n : nat} {l : list A}, length l = n → l ∈ all_lis
 | (succ n) (a::l)   := assume Peq, begin
                     apply mem_map, apply mem_product,
                       exact fintype.complete a,
-                      exact mem_all_lists (succ_inj Peq)
+                      exact mem_all_lists (succ.inj Peq)
                     end
 
 lemma mem_all_nodups [deceqA : decidable_eq A] (n : nat) (l : list A) :

@@ -70,12 +70,16 @@ theorem mul.left_cancel [s : left_cancel_semigroup A] {a b c : A} :
   a * b = a * c → b = c :=
 !left_cancel_semigroup.mul_left_cancel
 
+abbreviation eq_of_mul_eq_mul_left' := @mul.left_cancel
+
 structure right_cancel_semigroup [class] (A : Type) extends semigroup A :=
 (mul_right_cancel : ∀a b c, mul a b = mul c b → a = c)
 
 theorem mul.right_cancel [s : right_cancel_semigroup A] {a b c : A} :
   a * b = c * b → a = c :=
 !right_cancel_semigroup.mul_right_cancel
+
+abbreviation eq_of_mul_eq_mul_right' := @mul.right_cancel
 
 /- additive semigroup -/
 
@@ -105,12 +109,16 @@ theorem add.left_cancel [s : add_left_cancel_semigroup A] {a b c : A} :
   a + b = a + c → b = c :=
 !add_left_cancel_semigroup.add_left_cancel
 
+abbreviation eq_of_add_eq_add_left := @add.left_cancel
+
 structure add_right_cancel_semigroup [class] (A : Type) extends add_semigroup A :=
 (add_right_cancel : ∀a b c, add a b = add c b → a = c)
 
 theorem add.right_cancel [s : add_right_cancel_semigroup A] {a b c : A} :
   a + b = c + b → a = c :=
 !add_right_cancel_semigroup.add_right_cancel
+
+abbreviation eq_of_add_eq_add_right := @add.right_cancel
 
 /- monoid -/
 

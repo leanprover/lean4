@@ -5,8 +5,8 @@ Author: Leonardo de Moura
 
 Excluded middle + Hilbert implies every proposition is decidable.
 -/
-import logic.axioms.prop_complete logic.axioms.hilbert
-open decidable inhabited nonempty
+import logic.axioms.prop_complete logic.axioms.hilbert data.sum
+open decidable inhabited nonempty sum
 
 theorem decidable_inhabited [instance] (a : Prop) : inhabited (decidable a) :=
 inhabited_of_nonempty
@@ -16,3 +16,9 @@ inhabited_of_nonempty
 
 theorem prop_decidable [instance] (a : Prop) : decidable a :=
 arbitrary (decidable a)
+
+theorem type_decidable (A : Type) : A + (A → false) :=
+match prop_decidable (nonempty A) with
+| inl Hp := sum.inl (inhabited.value (inhabited_of_nonempty Hp))
+| inr Hn := sum.inr (λ a, absurd (nonempty.intro a) Hn)
+end

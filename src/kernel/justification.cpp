@@ -293,7 +293,7 @@ public:
 };
 
 format justification::pp_core(formatter const & fmt, pos_info_provider const * p, substitution const & s,
-                              justification_set & set, bool is_main) const {
+                              justification_set & set, bool is_main, bool as_error) const {
     if (set.contains(*this))
         return format();
     set.insert(*this);
@@ -302,25 +302,25 @@ format justification::pp_core(formatter const & fmt, pos_info_provider const * p
         return format();
     switch (it->m_kind) {
     case justification_kind::Asserted:
-        return to_asserted(it)->m_fn(fmt, p, s, is_main);
+        return to_asserted(it)->m_fn(fmt, p, s, is_main, as_error);
     case justification_kind::Wrapper:
-        return to_wrapper(it)->m_fn(fmt, p, s, is_main);
+        return to_wrapper(it)->m_fn(fmt, p, s, is_main, as_error);
     case justification_kind::Assumption:
         if (is_main)
             return format(format("Assumption "), format(to_assumption(it)->m_idx));
         else
             return format();
     case justification_kind::Composite: {
-        format r1 = to_composite(it)->m_child[0].pp_core(fmt, p, s, set, is_main);
-        format r2 = to_composite(it)->m_child[1].pp_core(fmt, p, s, set, false);
+        format r1 = to_composite(it)->m_child[0].pp_core(fmt, p, s, set, is_main, as_error);
+        format r2 = to_composite(it)->m_child[1].pp_core(fmt, p, s, set, false, as_error);
         return r1 + r2;
     }}
     lean_unreachable();
 }
 
-format justification::pp(formatter const & fmt, pos_info_provider const * p, substitution const & s) const {
+format justification::pp(formatter const & fmt, pos_info_provider const * p, substitution const & s, bool as_error) const {
     justification_set set;
-    return pp_core(fmt, p, s, set, true);
+    return pp_core(fmt, p, s, set, true, as_error);
 }
 
 justification mk_wrapper(justification const & j, optional<expr> const & s, pp_jst_fn const & fn) {
@@ -346,18 +346,18 @@ justification mk_justification(optional<expr> const & s, pp_jst_fn const & fn) {
     return justification(new (get_asserted_allocator().allocate()) asserted_cell(fn, s));
 }
 justification mk_justification(optional<expr> const & s, pp_jst_sfn const & fn) {
-    return mk_justification(s, [=](formatter const & fmt, pos_info_provider const *, substitution const & subst, bool is_main) {
+    return mk_justification(s, [=](formatter const & fmt, pos_info_provider const *, substitution const & subst, bool is_main, bool as_error) {
             // Remark: we are not using to_pos(s, p) anymore because we don't try to display complicated error messages anymore.
             // return compose(to_pos(s, p), fn(fmt, subst));
             if (is_main)
-                return fn(fmt, subst);
+                return fn(fmt, subst, as_error);
             else
                 return format();
         });
 }
 justification mk_justification(char const * msg, optional<expr> const & s) {
     std::string _msg(msg);
-    return mk_justification(s, [=](formatter const &, pos_info_provider const *, substitution const &, bool is_main) {
+    return mk_justification(s, [=](formatter const &, pos_info_provider const *, substitution const &, bool is_main, bool) {
             if (is_main)
                 return format(_msg);
             else

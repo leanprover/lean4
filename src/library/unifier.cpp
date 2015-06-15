@@ -641,7 +641,7 @@ struct unifier_fn {
     justification mk_assign_justification(expr const & m, expr const & m_type, expr const & v_type, justification const & j) {
         auto r = j.get_main_expr();
         if (!r) r = m;
-        justification new_j = mk_justification(r, [=](formatter const & fmt, substitution const & subst) {
+        justification new_j = mk_justification(r, [=](formatter const & fmt, substitution const & subst, bool) {
                 substitution s(subst);
                 format r;
                 expr _m = s.instantiate(m);
@@ -657,8 +657,8 @@ struct unifier_fn {
                 r += given_fmt;
                 r += compose(line(), format("but is expected to have type"));
                 r += expected_fmt;
-                r += compose(line(), format("the assignment was attempted when trying to solve"));
-                r += nest(2*get_pp_indent(fmt.get_options()), compose(line(), j.pp(fmt, nullptr, subst)));
+                r += compose(line(), format("the assignment was attempted when processing"));
+                r += nest(2*get_pp_indent(fmt.get_options()), compose(line(), j.pp(fmt, nullptr, subst, false)));
                 return r;
             });
         return mk_composite1(new_j, j);
@@ -712,7 +712,7 @@ struct unifier_fn {
 
     justification mk_invalid_local_ctx_justification(expr const & lhs, expr const & rhs, justification const & j,
                                                      expr const & bad_local) {
-        justification new_j = mk_justification(get_app_fn(lhs), [=](formatter const & fmt, substitution const & subst) {
+        justification new_j = mk_justification(get_app_fn(lhs), [=](formatter const & fmt, substitution const & subst, bool) {
                 format r = format("invalid local context when tried to assign");
                 r += pp_indent_expr(fmt, rhs);
                 buffer<expr> locals;
@@ -730,8 +730,8 @@ struct unifier_fn {
                     }
                     r += nest(get_pp_indent(fmt.get_options()), compose(line(), aux));
                 }
-                r += compose(line(), format("the assignment was attempted when trying to solve"));
-                r += nest(2*get_pp_indent(fmt.get_options()), compose(line(), j.pp(fmt, nullptr, subst)));
+                r += compose(line(), format("the assignment was attempted when processing"));
+                r += nest(2*get_pp_indent(fmt.get_options()), compose(line(), j.pp(fmt, nullptr, subst, false)));
                 return r;
             });
         return mk_composite1(new_j, j);

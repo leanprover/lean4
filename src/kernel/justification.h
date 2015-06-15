@@ -23,7 +23,7 @@ struct justification_cell;
    The pp_jst_fn is a generic funciton that produces these messages. We can associate these functions
    to justification objects.
 */
-typedef std::function<format(formatter const &, pos_info_provider const *, substitution const &, bool)> pp_jst_fn;
+typedef std::function<format(formatter const &, pos_info_provider const *, substitution const &, bool, bool)> pp_jst_fn;
 
 class justification_set;
 
@@ -43,7 +43,7 @@ class justification {
     justification_cell * m_ptr;
     justification(justification_cell * ptr);
     format pp_core(formatter const & fmt, pos_info_provider const * p, substitution const & s,
-                   justification_set & visited, bool is_main) const;
+                   justification_set & visited, bool is_main, bool as_error) const;
 public:
     justification();
     justification(justification const & s);
@@ -66,7 +66,7 @@ public:
        \brief Convert this justification into a format object. This method is usually used to report
        "error" messages to users.
     */
-    format pp(formatter const & fmt, pos_info_provider const * p, substitution const & s) const;
+    format pp(formatter const & fmt, pos_info_provider const * p, substitution const & s, bool as_error = true) const;
     /**
        \brief Return an expression associated with the justification object.
     */
@@ -85,7 +85,7 @@ public:
 /**
    \brief Simpler version of pp_jst_fn
 */
-typedef std::function<format(formatter const &, substitution const &)> pp_jst_sfn;
+typedef std::function<format(formatter const &, substitution const &, bool)> pp_jst_sfn;
 
 /** \brief Return a format object containing position information for the given expression (if available) */
 format to_pos(optional<expr> const & e, pos_info_provider const * p);

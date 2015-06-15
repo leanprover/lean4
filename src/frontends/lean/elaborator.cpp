@@ -318,7 +318,7 @@ expr elaborator::visit_choice(expr const & e, optional<expr> const & t, constrai
                   name_generator && /* ngen */) {
         return choose(std::make_shared<choice_expr_elaborator>(*this, ctx, full_ctx, meta, type, e));
     };
-    auto pp_fn = [=](formatter const & fmt, pos_info_provider const * pos_prov, substitution const &, bool is_main) {
+    auto pp_fn = [=](formatter const & fmt, pos_info_provider const * pos_prov, substitution const &, bool is_main, bool) {
         format r = pp_previous_error_header(fmt, pos_prov, some_expr(e), is_main);
         r += format("none of the overloads is applicable:");
         for (unsigned i = 0; i < get_num_choices(e); i++) {
@@ -449,7 +449,7 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
             } else {
                 local_context ctx      = m_context;
                 local_context full_ctx = m_full_context;
-                justification j        = mk_justification(f, [=](formatter const & fmt, substitution const & subst) {
+                justification j        = mk_justification(f, [=](formatter const & fmt, substitution const & subst, bool) {
                         return pp_function_expected(fmt, substitution(subst).instantiate(f));
                     });
                 auto choice_fn = [=](expr const & meta, expr const &, substitution const &, name_generator &&) {
@@ -667,7 +667,7 @@ expr elaborator::visit_app(expr const & e, constraint_seq & cs) {
         expr a          = visit_expecting_type_of(app_arg(e), d_type, a_cs);
         expr a_type     = infer_type(a, a_cs);
         expr r          = mk_app(f, a, e.get_tag());
-        justification j = mk_app_justification(r, a, d_type, a_type);
+        justification j = mk_app_justification(r, f_type, a, a_type);
         auto new_a_cs   = ensure_has_type(a, a_type, d_type, j);
         expr new_a      = new_a_cs.first;
         cs += f_cs + new_a_cs.second + a_cs;
@@ -1175,7 +1175,7 @@ expr elaborator::visit_equations(expr const & eqns, constraint_seq & cs) {
         new_cs.linearize(tmp_cs);
         for (constraint const & c : tmp_cs) {
             justification j = c.get_justification();
-            auto pp_fn      = [=](formatter const & fmt, pos_info_provider const * pp, substitution const & s, bool is_main) {
+            auto pp_fn      = [=](formatter const & fmt, pos_info_provider const * pp, substitution const & s, bool is_main, bool) {
                 if (!is_main)
                     return format();
                 format r = j.pp(fmt, pp, s);
@@ -1230,12 +1230,12 @@ expr elaborator::visit_equation(expr const & eq, constraint_seq & cs) {
 
     expr lhs_type = infer_type(new_lhs, cs);
     expr rhs_type = infer_type(new_rhs, cs);
-    justification j = mk_justification(eq, [=](formatter const & fmt, substitution const & subst) {
+    justification j = mk_justification(eq, [=](formatter const & fmt, substitution const & subst, bool as_error) {
             substitution s(subst);
             name n = local_pp_name(lhs_fn);
             if (is_match_binder_name(n))
                 n = "match";
-            return pp_def_type_mismatch(fmt, n, s.instantiate(lhs_type), s.instantiate(rhs_type));
+            return pp_def_type_mismatch(fmt, n, s.instantiate(lhs_type), s.instantiate(rhs_type), as_error);
         });
     pair<expr, constraint_seq> new_rhs_cs = ensure_has_type(new_rhs, rhs_type, lhs_type, j);
     new_rhs = new_rhs_cs.first;
@@ -1379,7 +1379,7 @@ expr elaborator::visit_structure_instance(expr const & e, constraint_seq & cs) {
         }
         S_mk            = mk_app(S_mk, v, result_tag);
         expr v_type     = infer_type(v, cs);
-        justification j = mk_app_justification(S_mk, v, d_type, v_type);
+        justification j = mk_app_justification(S_mk, S_mk_type, v, v_type);
         auto new_v_cs   = ensure_has_type(v, v_type, d_type, j);
         expr new_v      = new_v_cs.first;
         cs             += new_v_cs.second;
@@ -2062,9 +2062,9 @@ std::tuple<expr, expr, level_param_names> elaborator::operator()(expr const & t,
     constraint_seq v_cs;
     expr r_v      = visit(v, v_cs);
     expr r_v_type = infer_type(r_v, v_cs);
-    justification j = mk_justification(r_v, [=](formatter const & fmt, substitution const & subst) {
+    justification j = mk_justification(r_v, [=](formatter const & fmt, substitution const & subst, bool as_error) {
             substitution s(subst);
-            return pp_def_type_mismatch(fmt, n, s.instantiate(r_t), s.instantiate(r_v_type));
+            return pp_def_type_mismatch(fmt, n, s.instantiate(r_t), s.instantiate(r_v_type), as_error);
         });
     pair<expr, constraint_seq> r_v_cs = ensure_has_type(r_v, r_v_type, r_t, j);
     r_v = r_v_cs.first;

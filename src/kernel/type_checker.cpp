@@ -106,7 +106,7 @@ pair<expr, constraint_seq> type_checker::ensure_sort_core(expr e, expr const & s
     } else if (is_meta(ecs.first)) {
         expr r = mk_sort(mk_meta_univ(m_gen.next()));
         justification j = mk_justification(s,
-                                           [=](formatter const & fmt, substitution const & subst) {
+                                           [=](formatter const & fmt, substitution const & subst, bool) {
                                                return pp_type_expected(fmt, substitution(subst).instantiate(s));
                                            });
         return to_ecs(r, mk_eq_cnstr(ecs.first, r, j), ecs.second);
@@ -124,7 +124,7 @@ pair<expr, constraint_seq> type_checker::ensure_pi_core(expr e, expr const & s) 
         return ecs;
     } else if (auto m = is_stuck(ecs.first)) {
         expr r             = mk_pi_for(m_gen, *m);
-        justification j    = mk_justification(s, [=](formatter const & fmt, substitution const & subst) {
+        justification j    = mk_justification(s, [=](formatter const & fmt, substitution const & subst, bool) {
                 return pp_function_expected(fmt, substitution(subst).instantiate(s));
             });
         return to_ecs(r, mk_eq_cnstr(ecs.first, r, j), ecs.second);
@@ -136,7 +136,7 @@ pair<expr, constraint_seq> type_checker::ensure_pi_core(expr e, expr const & s) 
 static constexpr char const * g_macro_error_msg = "failed to type check macro expansion";
 
 justification type_checker::mk_macro_jst(expr const & e) {
-    return mk_justification(e, [=](formatter const &, substitution const &) {
+    return mk_justification(e, [=](formatter const &, substitution const &, bool) {
             return format(g_macro_error_msg);
         });
 }
@@ -155,10 +155,10 @@ app_delayed_justification::app_delayed_justification(expr const & e, expr const 
                                                      expr const & a_type):
     m_e(e), m_arg(arg), m_fn_type(f_type), m_arg_type(a_type) {}
 
-justification mk_app_justification(expr const & e, expr const & arg, expr const & d_type, expr const & a_type) {
-    auto pp_fn = [=](formatter const & fmt, substitution const & subst) {
+justification mk_app_justification(expr const & e, expr const & fn_type, expr const & arg, expr const & a_type) {
+    auto pp_fn = [=](formatter const & fmt, substitution const & subst, bool as_error) {
         substitution s(subst);
-        return pp_app_type_mismatch(fmt, s.instantiate(e), s.instantiate(arg), s.instantiate(d_type), s.instantiate(a_type));
+        return pp_app_type_mismatch(fmt, s.instantiate(e), s.instantiate(fn_type), s.instantiate(arg), s.instantiate(a_type), as_error);
     };
     return mk_justification(e, pp_fn);
 }
@@ -167,7 +167,7 @@ justification app_delayed_justification::get() {
     if (!m_jst) {
         // We should not have a reference to this object inside the closure.
         // So, we create the following locals that will be captured by the closure instead of 'this'.
-        m_jst = mk_app_justification(m_e, m_arg, binding_domain(m_fn_type), m_arg_type);
+        m_jst = mk_app_justification(m_e, m_fn_type, m_arg, m_arg_type);
     }
     return *m_jst;
 }
@@ -264,15 +264,15 @@ pair<expr, constraint_seq> type_checker::infer_app(expr const & e, bool infer_on
         pair<expr, constraint_seq> acs  = infer_type_core(app_arg(e), infer_only);
         expr a_type = acs.first;
         app_delayed_justification jst(e, app_arg(e), f_type, a_type);
-        expr d_type = binding_domain(pics.first);
+        expr d_type = binding_domain(f_type);
         pair<bool, constraint_seq> dcs  = is_def_eq(a_type, d_type, jst);
         if (!dcs.first) {
             throw_kernel_exception(m_env, e,
                                    [=](formatter const & fmt) {
-                                       return pp_app_type_mismatch(fmt, e, app_arg(e), d_type, a_type);
+                                       return pp_app_type_mismatch(fmt, e, f_type, app_arg(e), a_type, true);
                                    });
         }
-        return mk_pair(instantiate(binding_body(pics.first), app_arg(e)),
+        return mk_pair(instantiate(binding_body(f_type), app_arg(e)),
                        pics.second + ftcs.second + dcs.second + acs.second);
     } else {
         buffer<expr> args;
@@ -491,7 +491,7 @@ certified_declaration check(environment const & env, declaration const & d, name
         expr val_type = checker2.check(d.get_value(), d.get_univ_params()).first;
         if (!checker2.is_def_eq(val_type, d.get_type()).first) {
             throw_kernel_exception(env, d.get_value(), [=](formatter const & fmt) {
-                    return pp_def_type_mismatch(fmt, d.get_name(), d.get_type(), val_type);
+                    return pp_def_type_mismatch(fmt, d.get_name(), d.get_type(), val_type, true);
                 });
         }
     }

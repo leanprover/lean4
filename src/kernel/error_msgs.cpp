@@ -63,30 +63,51 @@ std::tuple<format, format> pp_until_different(formatter const & fmt, expr const 
     return pp_until_different(fmt, e1, e2, get_distinguishing_pp_options());
 }
 
-format pp_app_type_mismatch(formatter const & fmt, expr const & app, expr const & arg, expr const & expected_type, expr const & given_type) {
+format pp_app_type_mismatch(formatter const & _fmt, expr const & app, expr const & fn_type, expr const & arg, expr const & given_type, bool as_error) {
+    formatter fmt(_fmt);
     format r;
     format expected_fmt, given_fmt;
+    lean_assert(is_pi(fn_type));
+    if (!is_explicit(binding_info(fn_type))) {
+        // For implicit arguments to be shown if argument is implicit
+        options opts = fmt.get_options();
+        // TODO(Leo): this is hackish, the option is defined in the folder library
+        opts = opts.update_if_undef(name{"pp", "implicit"}, true);
+        fmt = fmt.update_options(opts);
+    }
+    expr expected_type = binding_domain(fn_type);
     std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, expected_type, given_type);
-    r += format("type mismatch at application");
+    if (as_error)
+        r += format("type mismatch at application");
+    else
+        r += format("application type constraint");
     r += pp_indent_expr(fmt, app);
     r += compose(line(), format("term"));
     r += pp_indent_expr(fmt, arg);
     r += compose(line(), format("has type"));
     r += given_fmt;
-    r += compose(line(), format("but is expected to have type"));
-    r += expected_fmt;
+    if (as_error) {
+        r += compose(line(), format("but is expected to have type"));
+        r += expected_fmt;
+    }
     return r;
 }
 
-format pp_def_type_mismatch(formatter const & fmt, name const & n, expr const & expected_type, expr const & given_type) {
+format pp_def_type_mismatch(formatter const & fmt, name const & n, expr const & expected_type, expr const & given_type, bool as_error) {
     format expected_fmt, given_fmt;
     std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, expected_type, given_type);
-    format r("type mismatch at definition '");
+    format r;
+    if (as_error)
+        r += format("type mismatch at definition '");
+    else
+        r += format("definition type constraint '");
     r += format(n);
     r += format("', has type");
     r += given_fmt;
-    r += compose(line(), format("but is expected to have type"));
-    r += expected_fmt;
+    if (as_error) {
+        r += compose(line(), format("but is expected to have type"));
+        r += expected_fmt;
+    }
     return r;
 }
 

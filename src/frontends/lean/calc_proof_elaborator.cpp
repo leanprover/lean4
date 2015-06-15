@@ -61,7 +61,7 @@ static optional<pair<expr, expr>> mk_op(environment const & env, local_context &
             return optional<pair<expr, expr>>();
         r = mk_app(r, explicit_arg);
         expr type = tc->infer(explicit_arg, cs);
-        justification j = mk_app_justification(r, explicit_arg, binding_domain(op_type), type);
+        justification j = mk_app_justification(r, op_type, explicit_arg, type);
         if (!tc->is_def_eq(binding_domain(op_type), type, j, cs))
             return optional<pair<expr, expr>>();
         op_type  = instantiate(binding_body(op_type), explicit_arg);

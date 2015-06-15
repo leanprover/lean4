@@ -792,7 +792,7 @@ format pp_type_mismatch(formatter const & fmt, expr const & v, expr const & v_ty
 }
 
 justification mk_type_mismatch_jst(expr const & v, expr const & v_type, expr const & t, expr const & src) {
-    return mk_justification(src, [=](formatter const & fmt, substitution const & subst) {
+    return mk_justification(src, [=](formatter const & fmt, substitution const & subst, bool) {
             substitution s(subst);
             return pp_type_mismatch(fmt, s.instantiate(v), s.instantiate(v_type), s.instantiate(t));
         });
@@ -870,7 +870,7 @@ expr instantiate_meta(expr const & meta, substitution & subst) {
 }
 
 justification mk_failed_to_synthesize_jst(environment const & env, expr const & m) {
-    return mk_justification(m, [=](formatter const & fmt, substitution const & subst) {
+    return mk_justification(m, [=](formatter const & fmt, substitution const & subst, bool) {
             substitution tmp(subst);
             expr new_m    = instantiate_meta(m, tmp);
             expr new_type = type_checker(env).infer(new_m).first;

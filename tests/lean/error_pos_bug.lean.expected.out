@@ -5,12 +5,10 @@ placeholder has type
   Category
 but is expected to have type
   Type
-the assignment was attempted when trying to solve
-    type mismatch at application
+the assignment was attempted when processing
+    application type constraint
       Category.mk a (category.mk b c)
     term
       category.mk b c
     has type
-      category a
-    but is expected to have type
       category a

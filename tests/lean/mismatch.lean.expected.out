@@ -1,0 +1,8 @@
+mismatch.lean:3:7: error: type mismatch at application
+  @id nat 1
+term
+  1
+has type
+  num
+but is expected to have type
+  nat

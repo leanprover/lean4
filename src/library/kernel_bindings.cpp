@@ -1402,14 +1402,14 @@ static int mk_justification(lua_State * L) {
         return push_justification(L, justification());
     } else if (nargs == 1) {
         std::string s = lua_tostring(L, 1);
-        return push_justification(L, mk_justification(none_expr(), [=](formatter const &, substitution const &) {
+        return push_justification(L, mk_justification(none_expr(), [=](formatter const &, substitution const &, bool) {
                     return format(s.c_str());
                 }));
     } else {
         std::string s   = lua_tostring(L, 1);
         environment env = to_environment(L, 2);
         expr e          = to_expr(L, 3);
-        justification j = mk_justification(some_expr(e), [=](formatter const & fmt, substitution const & subst) {
+        justification j = mk_justification(some_expr(e), [=](formatter const & fmt, substitution const & subst, bool) {
                 expr new_e = substitution(subst).instantiate(e);
                 format r;
                 r += format(s.c_str());

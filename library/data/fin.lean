@@ -5,7 +5,7 @@ Authors: Haitao Zhang, Leonardo de Moura
 
 Finite ordinal types.
 -/
-import data.list.basic data.finset.basic data.fintype.card
+import data.list.basic data.finset.basic data.fintype.card algebra.group
 open eq.ops nat function list finset fintype
 
 structure fin (n : nat) := (val : nat) (is_lt : val < n)
@@ -104,9 +104,6 @@ lift i 1
 definition maxi [reducible] : fin (succ n) :=
 mk n !lt_succ_self
 
-definition sub_max : fin (succ n) → fin (succ n)
-| (mk iv ilt) := mk (succ iv mod (succ n)) (mod_lt _ !zero_lt_succ)
-
 theorem val_lift : ∀ (i : fin n) (m : nat), val i = val (lift i m)
 | (mk v h) m := rfl
 
@@ -187,6 +184,10 @@ take f₁ f₂ Peq, funext (λ i,
 assert Peqi : lift_fun f₁ (lift_succ i) = lift_fun f₂ (lift_succ i), from congr_fun Peq _,
 begin revert Peqi, rewrite [*lift_fun_eq], apply lift_succ_inj end)
 
+lemma lower_inj_apply {f Pinj Pmax} (i : fin n) :
+  val (lower_inj f Pinj Pmax i) = val (f (lift_succ i)) :=
+by rewrite [↑lower_inj]
+
 end lift_lower
 
 section madd
@@ -196,6 +197,42 @@ mk ((i + j) mod (succ n)) (mod_lt _ !zero_lt_succ)
 
 lemma val_madd : ∀ i j : fin (succ n), val (madd i j) = (i + j) mod (succ n)
 | (mk iv ilt) (mk jv jlt) := by rewrite [val_mk]
+
+lemma madd_inj : ∀ {i : fin (succ n)}, injective (madd i)
+| (mk iv ilt) :=
+take j₁ j₂, fin.destruct j₁ (fin.destruct j₂ (λ jv₁ jlt₁ jv₂ jlt₂, begin
+  rewrite [↑madd, -eq_iff_veq],
+  intro Peq, congruence,
+  rewrite [-(mod_eq_of_lt jlt₁), -(mod_eq_of_lt jlt₂)],
+  apply mod_eq_mod_of_add_mod_eq_add_mod_left Peq
+end))
+
+lemma val_mod : ∀ i : fin (succ n), (val i) mod (succ n) = val i
+| (mk iv ilt) := by rewrite [*val_mk, mod_eq_of_lt ilt]
+
+definition minv : ∀ i : fin (succ n), fin (succ n)
+| (mk iv ilt) := mk ((succ n - iv) mod succ n) (mod_lt _ !zero_lt_succ)
+
+lemma madd_comm (i j : fin (succ n)) : madd i j = madd j i :=
+by apply eq_of_veq; rewrite [*val_madd, add.comm (val i)]
+
+lemma zero_madd (i : fin (succ n)) : madd (zero n) i = i :=
+by apply eq_of_veq; rewrite [val_madd, ↑zero, nat.zero_add, mod_eq_of_lt (is_lt i)]
+
+lemma madd_zero (i : fin (succ n)) : madd i (zero n) = i :=
+!madd_comm ▸ zero_madd i
+
+lemma madd_assoc (i j k : fin (succ n)) : madd (madd i j) k = madd i (madd j k) :=
+by apply eq_of_veq; rewrite [*val_madd, mod_add_mod, add_mod_mod, add.assoc (val i)]
+
+lemma madd_left_inv : ∀ i : fin (succ n), madd (minv i) i = zero n
+| (mk iv ilt) := eq_of_veq (by
+  rewrite [val_madd, ↑minv, ↑zero, mod_add_mod, sub_add_cancel (le_of_lt ilt), mod_self])
+
+open algebra
+
+definition madd_is_comm_group [instance] : add_comm_group (fin (succ n)) :=
+add_comm_group.mk madd madd_assoc (zero n) zero_madd madd_zero minv madd_left_inv madd_comm
 
 end madd
 

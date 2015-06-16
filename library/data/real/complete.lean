@@ -11,13 +11,14 @@ At this point, we no longer proceed constructively: this file makes heavy use of
 Here, we show that ℝ is complete.
 -/
 
-import data.real.basic data.real.order data.real.division data.rat data.nat logic.axioms.classical
+import data.real.basic data.real.order data.real.division data.rat data.nat data.pnat logic.axioms.classical
 open -[coercions] rat
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1
 open -[coercions] nat
 open algebra
 open eq.ops
+open pnat
 
 
 local notation 2 := pnat.pos (nat.of_num 2) dec_trivial
@@ -47,7 +48,7 @@ theorem rat_approx_l1 {s : seq} (H : regular s) :
     intro m Hm,
     apply rat.le.trans,
     apply H,
-    rewrite -(padd_halves n),
+    rewrite -(add_halves n),
     apply rat.add_le_add_right,
     apply inv_ge_of_le Hm
   end
@@ -73,9 +74,9 @@ theorem rat_approx {s : seq} (H : regular s) :
     rotate 1,
     apply rat.sub_le_sub_left,
     apply HN,
-    apply ple.trans,
+    apply pnat.le.trans,
     apply Hp,
-    rewrite -*pnat_mul_assoc,
+    rewrite -*pnat.mul.assoc,
     apply pnat.mul_le_mul_left,
     rewrite [sub_self, -neg_zero],
     apply neg_le_neg,
@@ -112,7 +113,7 @@ theorem const_bound {s : seq} (Hs : regular s) (n : ℕ+) : s_le (s_abs (sadd s 
     apply rat.le.trans,
     apply Hs,
     apply rat.add_le_add_right,
-    rewrite -*pnat_mul_assoc,
+    rewrite -*pnat.mul.assoc,
     apply inv_ge_of_le,
     apply pnat.mul_le_mul_left
   end
@@ -185,7 +186,7 @@ theorem equiv_abs_of_ge_zero {s : seq} (Hs : regular s) (Hz : s_le zero s) : s_a
     apply rat.le.trans,
     apply rat.add_le_add,
     repeat (apply inv_ge_of_le; apply Hn),
-    rewrite padd_halves,
+    rewrite pnat.add_halves,
     apply rat.le.refl
   end
 
@@ -217,7 +218,7 @@ theorem equiv_neg_abs_of_le_zero {s : seq} (Hs : regular s) (Hz : s_le s zero) :
     apply rat.le.trans,
     apply rat.add_le_add,
     repeat (apply inv_ge_of_le; apply Hn),
-    rewrite padd_halves,
+    rewrite pnat.add_halves,
     apply rat.le.refl,
     intro Hneg,
     let Hneg' := lt_of_not_ge Hneg,
@@ -253,7 +254,7 @@ theorem add_consts (a b : ℚ) : const a + const b = const (a + b) :=
 theorem sub_consts (a b : ℚ) : const a - const b = const (a - b) := !add_consts
 
 theorem add_half_const (n : ℕ+) : const (2 * n)⁻¹ + const (2 * n)⁻¹ = const (n⁻¹) :=
-  by rewrite [add_consts, padd_halves]
+  by rewrite [add_consts, pnat.add_halves]
 
 theorem const_le_const_of_le (a b : ℚ) : a ≤ b → const a ≤ const b :=
   s.r_const_le_const_of_le
@@ -353,10 +354,10 @@ theorem lim_seq_reg_helper {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) {m 
     rotate 1,
     apply Nb_spec_right,
     rotate 1,
-    apply ple.trans,
+    apply pnat.le.trans,
     apply Hmn,
     apply Nb_spec_right,
-    rewrite [*add_consts, rat.add.assoc, padd_halves],
+    rewrite [*add_consts, rat.add.assoc, pnat.add_halves],
     apply const_le_const_of_le,
     apply rat.add_le_add_right,
     apply inv_ge_of_le,
@@ -421,18 +422,18 @@ theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
     apply algebra.le.trans,
     apply algebra.add_le_add_three,
     apply Hc,
-    apply ple.trans,
+    apply pnat.le.trans,
     rotate 1,
     apply Hn,
     rotate_right 1,
     apply Nb_spec_right,
     have HMk : M (2 * k) ≤ Nb M n, begin
-      apply ple.trans,
+      apply pnat.le.trans,
       apply Nb_spec_right,
-      apply ple.trans,
+      apply pnat.le.trans,
       apply Hn,
-      apply ple.trans,
-      apply pnat.mul_le_mul_left 3,
+      apply pnat.le.trans,
+      apply mul_le_mul_left 3,
       apply Nb_spec_left
     end,
     apply HMk,
@@ -446,18 +447,18 @@ theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
     apply rat.le.refl,
     apply inv_ge_of_le,
     apply pnat_mul_le_mul_left',
-    apply ple.trans,
+    apply pnat.le.trans,
     rotate 1,
     apply Hn,
     rotate_right 1,
     apply Nb_spec_left,
     apply inv_ge_of_le,
-    apply ple.trans,
+    apply pnat.le.trans,
     rotate 1,
     apply Hn,
     rotate_right 1,
     apply Nb_spec_left,
-    rewrite [-*pnat_mul_assoc, p_add_fractions],
+    rewrite [-*pnat.mul.assoc, p_add_fractions],
     apply rat.le.refl
   end
 

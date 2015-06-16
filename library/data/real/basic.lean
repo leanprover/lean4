@@ -99,7 +99,7 @@ theorem rewrite_helper7 (a b c d x : ℚ) :
 
 theorem ineq_helper (a b : ℚ) (k m n : ℕ+) (H : a ≤ (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹)
                     (H2 : b ≤ (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹) :
-        (pnat.to_rat k) * a + b * (pnat.to_rat k) ≤ m⁻¹ + n⁻¹ := sorry
+        (rat_of_pnat k) * a + b * (rat_of_pnat k) ≤ m⁻¹ + n⁻¹ := sorry
 
 theorem factor_lemma (a b c d e : ℚ) : abs (a + b + c - (d + (b + e))) = abs ((a - d) + (c - e)) :=
   sorry
@@ -144,7 +144,7 @@ theorem bdd_of_eq {s t : seq} (H : s ≡ t) :
     intros [j, n, Hn],
     apply rat.le.trans,
     apply H n,
-    rewrite -(padd_halves j),
+    rewrite -(add_halves j),
     apply rat.add_le_add,
     apply inv_ge_of_le Hn,
     apply inv_ge_of_le Hn
@@ -206,7 +206,7 @@ theorem pnat_bound {ε : ℚ} (Hε : ε > 0) : ∃ p : ℕ+, p⁻¹ ≤ ε :=
     existsi (pceil (1 / ε)),
     rewrite -(rat.div_div (rat.ne_of_gt Hε)) at {2},
     apply pceil_helper,
-    apply pnat.le.refl
+    apply le.refl
   end
 
 theorem bdd_of_eq_var {s t : seq} (Hs : regular s) (Ht : regular t) (Heq : s ≡ t) :
@@ -235,7 +235,7 @@ theorem equiv.trans (s t u : seq) (Hs : regular s) (Ht : regular t) (Hu : regula
     apply abs_add_le_abs_add_abs,
     have Hst : abs (s n - t n) ≤ (2 * j)⁻¹, from bdd_of_eq H _ _ Hn,
     have Htu : abs (t n - u n) ≤ (2 * j)⁻¹, from bdd_of_eq H2 _ _ Hn,
-    rewrite -(padd_halves j),
+    rewrite -(add_halves j),
     apply rat.add_le_add,
     repeat assumption
   end
@@ -245,7 +245,7 @@ theorem equiv.trans (s t u : seq) (Hs : regular s) (Ht : regular t) (Hu : regula
 
 definition K (s : seq) : ℕ+ := pnat.pos (ubound (abs (s pone)) + 1 + 1) dec_trivial
 
-theorem canon_bound {s : seq} (Hs : regular s) (n : ℕ+) : abs (s n) ≤ pnat.to_rat (K s) :=
+theorem canon_bound {s : seq} (Hs : regular s) (n : ℕ+) : abs (s n) ≤ rat_of_pnat (K s) :=
   calc
     abs (s n) = abs (s n - s pone + s pone) : by rewrite rat.sub_add_cancel
     ... ≤ abs (s n - s pone) + abs (s pone) : abs_add_le_abs_add_abs
@@ -263,7 +263,7 @@ definition K₂ (s t : seq) := max (K s) (K t)
 theorem K₂_symm (s t : seq) : K₂ s t = K₂ t s :=
   if H : K s < K t then
     (have H1 [visible] : K₂ s t = K t, from max_eq_right H,
-      have H2 [visible] : K₂ t s = K t, from max_eq_left (pnat.not_lt_of_le (pnat.le_of_lt H)),
+      have H2 [visible] : K₂ t s = K t, from max_eq_left (not_lt_of_ge (le_of_lt H)),
       by rewrite [H1, -H2])
   else
     (have H1 [visible] : K₂ s t = K s, from max_eq_left H,
@@ -271,20 +271,20 @@ theorem K₂_symm (s t : seq) : K₂ s t = K₂ t s :=
         (have H2 [visible] : K₂ t s = K s, from max_eq_right J, by rewrite [H1, -H2])
       else
         (have Heq [visible] : K t = K s, from
-          pnat.eq_of_le_of_ge (pnat.le_of_not_lt H) (pnat.le_of_not_lt J),
+          eq_of_le_of_ge (le_of_not_gt H) (le_of_not_gt J),
         by rewrite [↑K₂, Heq]))
 
 theorem canon_2_bound_left (s t : seq) (Hs : regular s) (n : ℕ+) :
-        abs (s n) ≤ pnat.to_rat (K₂ s t) :=
+        abs (s n) ≤ rat_of_pnat (K₂ s t) :=
   calc
-    abs (s n) ≤ pnat.to_rat (K s) : canon_bound Hs n
-    ... ≤ pnat.to_rat (K₂ s t) : pnat_le_to_rat_le (!max_left)
+    abs (s n) ≤ rat_of_pnat (K s) : canon_bound Hs n
+    ... ≤ rat_of_pnat (K₂ s t) : rat_of_pnat_le_of_pnat_le (!max_left)
 
 theorem canon_2_bound_right (s t : seq) (Ht : regular t) (n : ℕ+) :
-        abs (t n) ≤ pnat.to_rat (K₂ s t) :=
+        abs (t n) ≤ rat_of_pnat (K₂ s t) :=
   calc
-    abs (t n) ≤ pnat.to_rat (K t) : canon_bound Ht n
-    ... ≤ pnat.to_rat (K₂ s t) : pnat_le_to_rat_le (!max_right)
+    abs (t n) ≤ rat_of_pnat (K t) : canon_bound Ht n
+    ... ≤ rat_of_pnat (K₂ s t) : rat_of_pnat_le_of_pnat_le (!max_right)
 
 definition sadd (s t : seq) : seq := λ n, (s (2 * n)) + (t (2 * n))
 
@@ -361,8 +361,8 @@ theorem s_add_assoc (s t u : seq) (Hs : regular s) (Hu : regular u) :
     apply rat.le.trans,
     rotate 1,
     apply rat.add_le_add_right,
-    apply half_shrink,
-    rewrite [-(padd_halves (2 * n)), -(padd_halves n), factor_lemma_2],
+    apply inv_two_mul_le_inv,
+    rewrite [-(add_halves (2 * n)), -(add_halves n), factor_lemma_2],
     apply rat.add_le_add,
     apply Hs,
     apply Hu
@@ -406,7 +406,7 @@ theorem s_mul_assoc_lemma (s t u : seq) (a b c d : ℕ+) :
     apply abs_nonneg
   end
 
-definition Kq (s : seq) := pnat.to_rat (K s) + 1
+definition Kq (s : seq) := rat_of_pnat (K s) + 1
 theorem Kq_bound {s : seq} (H : regular s) : ∀ n, abs (s n) ≤ Kq s :=
   begin
     intros,
@@ -421,7 +421,7 @@ theorem Kq_bound_nonneg {s : seq} (H : regular s) : 0 ≤ Kq s :=
   rat.le.trans !abs_nonneg (Kq_bound H 2)
 
 theorem Kq_bound_pos {s : seq} (H : regular s) : 0 < Kq s :=
-  have H1 : 0 ≤ pnat.to_rat (K s), from rat.le.trans (!abs_nonneg) (canon_bound H 2),
+  have H1 : 0 ≤ rat_of_pnat (K s), from rat.le.trans (!abs_nonneg) (canon_bound H 2),
   add_pos_of_nonneg_of_pos H1 rat.zero_lt_one
 
 theorem s_mul_assoc_lemma_5 {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
@@ -492,7 +492,7 @@ theorem s_mul_assoc {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regula
     fapply exists.intro,
     rotate 1,
     intros,
-    rewrite [↑smul, *DK_rewrite, *TK_rewrite, -*pnat_mul_assoc, -*rat.mul.assoc],
+    rewrite [↑smul, *DK_rewrite, *TK_rewrite, -*pnat.mul.assoc, -*rat.mul.assoc],
     apply rat.le.trans,
     apply s_mul_assoc_lemma,
     apply rat.le.trans,
@@ -538,7 +538,7 @@ theorem s_zero_add (s : seq) (H : regular s) : sadd zero s ≡ s :=
     apply rat.le.trans,
     apply H,
     apply rat.add_le_add,
-    apply half_shrink,
+    apply inv_two_mul_le_inv,
     apply rat.le.refl
   end
 
@@ -550,7 +550,7 @@ theorem s_add_zero (s : seq) (H : regular s) : sadd s zero ≡ s :=
     apply rat.le.trans,
     apply H,
     apply rat.add_le_add,
-    apply half_shrink,
+    apply inv_two_mul_le_inv,
     apply rat.le.refl
   end
 
@@ -594,16 +594,16 @@ theorem add_well_defined {s t u v : seq} (Hs : regular s) (Ht : regular t) (Hu :
 theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : ℕ+) (j : ℕ+) :
         ∃ N : ℕ+, ∀ n : ℕ+, n ≥ N → abs (s (a * n) * t (b * n) - s (c * n) * t (c * n)) ≤ j⁻¹ :=
   begin
-    existsi pceil (((pnat.to_rat (K s)) * (b⁻¹ + c⁻¹) + (a⁻¹ + c⁻¹) *
-                   (pnat.to_rat (K t))) * (pnat.to_rat j)),
+    existsi pceil (((rat_of_pnat (K s)) * (b⁻¹ + c⁻¹) + (a⁻¹ + c⁻¹) *
+                   (rat_of_pnat (K t))) * (rat_of_pnat j)),
     intros n Hn,
     rewrite rewrite_helper4,
     apply rat.le.trans,
     apply abs_add_le_abs_add_abs,
     apply rat.le.trans,
     rotate 1,
-    show n⁻¹ * ((pnat.to_rat (K s)) * (b⁻¹ + c⁻¹)) +
-         n⁻¹ * ((a⁻¹ + c⁻¹) * (pnat.to_rat (K t))) ≤ j⁻¹, begin
+    show n⁻¹ * ((rat_of_pnat (K s)) * (b⁻¹ + c⁻¹)) +
+         n⁻¹ * ((a⁻¹ + c⁻¹) * (rat_of_pnat (K t))) ≤ j⁻¹, begin
         rewrite -rat.left_distrib,
         apply rat.le.trans,
         apply rat.mul_le_mul_of_nonneg_right,
@@ -631,7 +631,7 @@ theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : 
     apply abs_nonneg,
     apply rat.le_of_lt,
     apply rat_of_pnat_is_pos,
-    rewrite [*pnat_div_helper, -rat.right_distrib, -rat.mul.assoc, rat.mul.comm],
+    rewrite [*inv_mul_eq_mul_inv, -rat.right_distrib, -rat.mul.assoc, rat.mul.comm],
     apply rat.mul_le_mul_of_nonneg_left,
     apply rat.le.refl,
     apply rat.le_of_lt,
@@ -644,7 +644,7 @@ theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : 
     apply Ht,
     apply abs_nonneg,
     apply add_invs_nonneg,
-    rewrite [*pnat_div_helper, -rat.right_distrib, mul.comm _ n⁻¹, rat.mul.assoc],
+    rewrite [*inv_mul_eq_mul_inv, -rat.right_distrib, mul.comm _ n⁻¹, rat.mul.assoc],
     apply rat.mul_le_mul,
     apply rat.le.refl,
     apply rat.le.refl,
@@ -661,16 +661,7 @@ theorem s_distrib {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular 
                   smul s (sadd t u) ≡ sadd (smul s t) (smul s u) :=
   begin
     apply eq_of_bdd,
-    apply reg_mul_reg,
-    assumption,
-    apply reg_add_reg,
-    repeat assumption,
-    apply reg_add_reg,
-    repeat assumption,
-    apply reg_mul_reg,
-    repeat assumption,
-    apply reg_mul_reg,
-    repeat assumption,
+    repeat (assumption | apply reg_add_reg | apply reg_mul_reg),
     intros,
     let exh1 := λ a b c, mul_bound_helper Hs Ht a b c (2 * j),
     apply exists.elim,
@@ -684,16 +675,16 @@ theorem s_distrib {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular 
     intros N2 HN2,
     existsi max N1 N2,
     intros n Hn,
-    rewrite [↑sadd at *, ↑smul, rewrite_helper3, -padd_halves j, -*pnat_mul_assoc at *],
+    rewrite [↑sadd at *, ↑smul, rewrite_helper3, -add_halves j, -*pnat.mul.assoc at *],
     apply rat.le.trans,
     apply abs_add_le_abs_add_abs,
     apply rat.add_le_add,
     apply HN1,
-    apply ple.trans,
+    apply le.trans,
     apply max_left N1 N2,
     apply Hn,
     apply HN2,
-    apply ple.trans,
+    apply le.trans,
     apply max_right N1 N2,
     apply Hn
   end
@@ -717,7 +708,7 @@ theorem mul_zero_equiv_zero {s t : seq} (Hs : regular s) (Ht : regular t) (Htz :
     apply Kq_bound Hs,
     let HN' := λ n, (!rat.sub_zero ▸ HN n),
     apply HN',
-    apply ple.trans Hn,
+    apply le.trans Hn,
     apply pnat.mul_le_mul_left,
     apply abs_nonneg,
     apply rat.le_of_lt (Kq_bound_pos Hs),
@@ -761,10 +752,10 @@ theorem equiv_of_diff_equiv_zero {s t : seq} (Hs : regular s) (Ht : regular t)
     let He' := λ a b c, !rat.sub_zero ▸ (He a b c),
     apply (He' _ _ Hn),
     apply Ht,
-    rewrite [simp, padd_halves, -(padd_halves j), -(padd_halves (2 * j)), -*rat.add.assoc],
+    rewrite [simp, add_halves, -(add_halves j), -(add_halves (2 * j)), -*rat.add.assoc],
     apply rat.add_le_add_right,
     apply add_le_add_three,
-    repeat (apply rat.le.trans; apply inv_ge_of_le Hn; apply half_shrink)
+    repeat (apply rat.le.trans; apply inv_ge_of_le Hn; apply inv_two_mul_le_inv)
   end
 
 theorem s_sub_cancel (s : seq) : sadd s (sneg s) ≡ zero :=
@@ -913,13 +904,13 @@ theorem zero_nequiv_one : ¬ zero ≡ one :=
     intro Hz,
     rewrite [↑equiv at Hz, ↑zero at Hz, ↑one at Hz],
     let H := Hz (2 * 2),
-    rewrite [rat.zero_sub at H, abs_neg at H, padd_halves at H],
+    rewrite [rat.zero_sub at H, abs_neg at H, add_halves at H],
     have H' : pone⁻¹ ≤ 2⁻¹, from calc
       pone⁻¹ = 1 : by rewrite -pone_inv
       ... = abs 1 : abs_of_pos zero_lt_one
       ... ≤ 2⁻¹ : H,
     let H'' := ge_of_inv_le H',
-    apply absurd (one_lt_two) (pnat.not_lt_of_le H'')
+    apply absurd (one_lt_two) (not_lt_of_ge H'')
   end
 
 ---------------------------------------------

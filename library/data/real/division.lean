@@ -157,7 +157,7 @@ theorem s_inv_of_sep_gt_p {s : seq} (Hs : regular s) (Hsep : sep s zero) {n : �
   begin
     apply eq.trans,
     apply dif_pos Hsep,
-    apply dif_neg (pnat.not_lt_of_le Hn)
+    apply dif_neg (pnat.not_lt_of_ge Hn)
   end
 
 theorem s_inv_of_pos_lt_p {s : seq} (Hs : regular s) (Hpos : pos s) {n : ℕ+}
@@ -170,7 +170,7 @@ theorem s_inv_of_pos_gt_p {s : seq} (Hs : regular s) (Hpos : pos s) {n : ℕ+}
   s_inv_of_sep_gt_p Hs (sep_zero_of_pos Hs Hpos) Hn
 
 theorem le_ps {s : seq} (Hs : regular s) (Hsep : sep s zero) (n : ℕ+) :
-        abs (s_inv Hs n) ≤ (pnat.to_rat (ps Hs Hsep)) :=
+        abs (s_inv Hs n) ≤ (rat_of_pnat (ps Hs Hsep)) :=
   if Hn : n < ps Hs Hsep then
     (begin
       rewrite [(s_inv_of_sep_lt_p Hs Hsep Hn), abs_one_div],
@@ -183,7 +183,7 @@ theorem le_ps {s : seq} (Hs : regular s) (Hsep : sep s zero) (n : ℕ+) :
       rewrite [(s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hn)), abs_one_div],
       apply div_le_pnat,
       apply ps_spec,
-      rewrite pnat_mul_assoc,
+      rewrite pnat.mul.assoc,
       apply pnat.mul_le_mul_right
     end)
 
@@ -217,13 +217,13 @@ theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_
     rewrite ↑regular,
     intros,
     have Hsp : s ((ps Hs Hsep) * (ps Hs Hsep) * (ps Hs Hsep)) ≠ 0, from
-      s_ne_zero_of_ge_p Hs Hsep !pnat.mul_le_mul_left,
+      s_ne_zero_of_ge_p Hs Hsep !mul_le_mul_left,
     have Hspn : s ((ps Hs Hsep) * (ps Hs Hsep) * n) ≠ 0, from
       s_ne_zero_of_ge_p Hs Hsep (show (ps Hs Hsep) * (ps Hs Hsep) * n ≥ ps Hs Hsep, by
-        rewrite pnat_mul_assoc; apply pnat.mul_le_mul_right),
+        rewrite pnat.mul.assoc; apply pnat.mul_le_mul_right),
     have Hspm : s ((ps Hs Hsep) * (ps Hs Hsep) * m) ≠ 0, from
       s_ne_zero_of_ge_p Hs Hsep (show (ps Hs Hsep) * (ps Hs Hsep) * m ≥ ps Hs Hsep, by
-        rewrite pnat_mul_assoc; apply pnat.mul_le_mul_right),
+        rewrite pnat.mul.assoc; apply pnat.mul_le_mul_right),
     apply @decidable.cases_on (m < (ps Hs Hsep)) _ _,
       intro Hmlt,
       apply @decidable.cases_on (n < (ps Hs Hsep)) _ _,
@@ -233,7 +233,7 @@ theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_
         apply add_invs_nonneg,
        intro Hnlt,
        rewrite [(s_inv_of_sep_lt_p Hs Hsep Hmlt),
-                (s_inv_of_sep_gt_p Hs Hsep (pnat.le_of_not_lt Hnlt))],
+                (s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hnlt))],
        rewrite [(div_sub_div Hsp Hspn), div_eq_mul_one_div, *abs_mul, *mul_one, *one_mul],
        apply rat.le.trans,
        apply rat.mul_le_mul,
@@ -242,7 +242,7 @@ theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_
        apply rat.mul_le_mul,
        rewrite -(s_inv_of_sep_lt_p Hs Hsep Hmlt),
        apply le_ps Hs Hsep,
-       rewrite  -(s_inv_of_sep_gt_p Hs Hsep (pnat.le_of_not_lt Hnlt)),
+       rewrite  -(s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hnlt)),
        apply le_ps Hs Hsep,
        apply abs_nonneg,
        apply le_of_lt !rat_of_pnat_is_pos,
@@ -257,14 +257,14 @@ theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_
       apply @decidable.cases_on (n < (ps Hs Hsep)) _ _,
         intro Hnlt,
         rewrite [(s_inv_of_sep_lt_p Hs Hsep Hnlt),
-                 (s_inv_of_sep_gt_p Hs Hsep (pnat.le_of_not_lt Hmlt))],
+                 (s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hmlt))],
         rewrite [(div_sub_div Hspm Hsp), div_eq_mul_one_div, *abs_mul, *mul_one, *one_mul],
         apply rat.le.trans,
         apply rat.mul_le_mul,
         apply Hs,
         xrewrite [-(mul_one 1), -(div_mul_div Hspm Hsp), abs_mul],
         apply rat.mul_le_mul,
-        rewrite -(s_inv_of_sep_gt_p Hs Hsep (pnat.le_of_not_lt Hmlt)),
+        rewrite -(s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hmlt)),
         apply le_ps Hs Hsep,
         rewrite -(s_inv_of_sep_lt_p Hs Hsep Hnlt),
         apply le_ps Hs Hsep,
@@ -278,17 +278,17 @@ theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_
         apply pnat.le_of_lt,
         apply Hnlt,
       intro Hnlt,
-      rewrite [(s_inv_of_sep_gt_p Hs Hsep (pnat.le_of_not_lt Hnlt)),
-              (s_inv_of_sep_gt_p Hs Hsep (pnat.le_of_not_lt Hmlt))],
+      rewrite [(s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hnlt)),
+              (s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hmlt))],
       rewrite [(div_sub_div Hspm Hspn), div_eq_mul_one_div, abs_mul, *one_mul, *mul_one],
       apply rat.le.trans,
       apply rat.mul_le_mul,
       apply Hs,
       xrewrite [-(mul_one 1), -(div_mul_div Hspm Hspn), abs_mul],
       apply rat.mul_le_mul,
-      rewrite -(s_inv_of_sep_gt_p Hs Hsep (pnat.le_of_not_lt Hmlt)),
+      rewrite -(s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hmlt)),
       apply le_ps Hs Hsep,
-      rewrite -(s_inv_of_sep_gt_p Hs Hsep (pnat.le_of_not_lt Hnlt)),
+      rewrite -(s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hnlt)),
       apply le_ps Hs Hsep,
       apply abs_nonneg,
       apply le_of_lt !rat_of_pnat_is_pos,
@@ -304,7 +304,7 @@ theorem s_inv_ne_zero {s : seq} (Hs : regular s) (Hsep : sep s zero) (n : ℕ+) 
       rewrite (s_inv_of_sep_gt_p Hs Hsep H),
       apply one_div_ne_zero,
       apply s_ne_zero_of_ge_p,
-      apply ple.trans,
+      apply pnat.le.trans,
       apply H,
       apply pnat.mul_le_mul_left
     end)
@@ -333,40 +333,40 @@ theorem mul_inv {s : seq} (Hs : regular s) (Hsep : sep s zero) : smul s (s_inv H
     apply Rsi,
     apply abs_nonneg,
     have Hp : (K₂ s (s_inv Hs)) * 2 * n ≥ ps Hs Hsep, begin
-      apply ple.trans,
+      apply pnat.le.trans,
       apply max_left,
       rotate 1,
-      apply ple.trans,
+      apply pnat.le.trans,
       apply Hn,
       apply pnat.mul_le_mul_left
     end,
     have Hnz' : s (((ps Hs Hsep) * (ps Hs Hsep)) * ((K₂ s (s_inv Hs)) * 2 * n)) ≠ 0, from
       s_ne_zero_of_ge_p Hs Hsep
         (show ps Hs Hsep ≤ ((ps Hs Hsep) * (ps Hs Hsep)) * ((K₂ s (s_inv Hs)) * 2 * n),
-          by rewrite *pnat_mul_assoc; apply pnat.mul_le_mul_right),
+          by rewrite *pnat.mul.assoc; apply pnat.mul_le_mul_right),
     xrewrite [(s_inv_of_sep_gt_p Hs Hsep Hp), (div_div Hnz')],
     apply rat.le.trans,
     apply rat.mul_le_mul_of_nonneg_left,
     apply Hs,
     apply le_of_lt,
     apply rat_of_pnat_is_pos,
-    xrewrite [rat.mul.left_distrib, pnat_mul_comm ((ps Hs Hsep) * (ps Hs Hsep)), *pnat_mul_assoc,
-            *(@pnat_div_helper (K₂ s (s_inv Hs))), -*rat.mul.assoc, *pnat.inv_cancel,
-            *one_mul, -(padd_halves j)],
+    xrewrite [rat.mul.left_distrib, mul.comm ((ps Hs Hsep) * (ps Hs Hsep)), *pnat.mul.assoc,
+            *(@inv_mul_eq_mul_inv (K₂ s (s_inv Hs))), -*rat.mul.assoc, *inv_cancel_left,
+            *one_mul, -(add_halves j)],
     apply rat.add_le_add,
     apply inv_ge_of_le,
     apply pnat_mul_le_mul_left',
-    apply ple.trans,
+    apply pnat.le.trans,
     rotate 1,
     apply Hn,
     rotate_right 1,
     apply max_right,
     apply inv_ge_of_le,
     apply pnat_mul_le_mul_left',
-    apply ple.trans,
+    apply pnat.le.trans,
     apply max_right,
     rotate 1,
-    apply ple.trans,
+    apply pnat.le.trans,
     apply Hn,
     apply pnat.mul_le_mul_right
    end

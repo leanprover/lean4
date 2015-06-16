@@ -1720,6 +1720,7 @@ void finalize_rewrite_tactic() {
     delete g_rewriter_max_iterations;
     delete g_rewriter_syntactic;
     delete g_rewriter_trace;
+    delete g_rewriter_beta_eta;
     delete g_rewrite_tac;
     delete g_krewrite_tac;
     delete g_xrewrite_tac;

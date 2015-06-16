@@ -421,5 +421,16 @@ section discrete_linear_ordered_field
       exact Hb, exact H
     end
 
+  theorem abs_one_div : abs (1 / a) = 1 / abs a :=
+    if H : a > 0 then
+      by rewrite [abs_of_pos H, abs_of_pos (div_pos_of_pos H)]
+    else
+      (if H' : a < 0 then
+          by rewrite [abs_of_neg H', abs_of_neg (div_neg_of_neg H'),
+                         -(one_div_neg_eq_neg_one_div (ne_of_lt H'))]
+       else
+         have Heq [visible] : a = 0, from eq_of_le_of_ge (le_of_not_gt H) (le_of_not_gt H'),
+         by rewrite [Heq, div_zero, *abs_zero, div_zero])
+
 end discrete_linear_ordered_field
 end algebra

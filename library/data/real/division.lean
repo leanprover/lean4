@@ -25,7 +25,9 @@ namespace s
 -- helper lemmas
 
 theorem abs_sub_square (a b : ℚ) : abs (a - b) * abs (a - b) = a * a + b * b - (1 + 1) * a * b :=
-  sorry --begin rewrite [abs_mul_self, *rat.left_distrib, *rat.right_distrib, *one_mul] end
+  by rewrite [abs_mul_self, *rat.mul_sub_left_distrib, *rat.mul_sub_right_distrib,
+             sub_add_eq_sub_sub, sub_neg_eq_add, *rat.right_distrib, sub_add_eq_sub_sub, *one_mul,
+             *add.assoc, {_ + b * b}add.comm, {_ + (b * b + _)}add.comm, mul.comm b a, *add.assoc]
 
 theorem neg_add_rewrite {a b : ℚ} : a + -b = -(b + -a) := sorry
 
@@ -41,9 +43,6 @@ theorem abs_abs_sub_abs_le_abs_sub (a b : ℚ) : abs (abs a - abs b) ≤ abs (a 
     apply le_abs_self,
     apply trivial
   end
-
-theorem abs_one_div (q : ℚ) : abs (1 / q) = 1 / abs q := sorry
-
 
 -- does this not exist already??
 theorem forall_of_not_exists {A : Type} {P : A → Prop} (H : ¬ ∃ a : A, P a) : ∀ a : A, ¬ P a :=

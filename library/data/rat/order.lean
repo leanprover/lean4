@@ -326,4 +326,32 @@ attribute le.trans lt.trans lt_of_lt_of_le lt_of_le_of_lt ge.trans gt.trans gt_o
                    gt_of_ge_of_gt [trans]
 
 end migrate_algebra
+
+theorem rat_of_nat_abs (a : ℤ) : abs (of_int a) = of_nat (int.nat_abs a) :=
+  have simp [visible] : ∀ n : ℕ, of_int (int.neg_succ_of_nat n) = - of_nat (nat.succ n), from λ n, rfl,
+  int.induction_on a
+    (take b, abs_of_nonneg (!of_nat_nonneg))
+    (take b, by rewrite [simp, abs_neg, abs_of_nonneg (!of_nat_nonneg)])
+
+definition ubound : ℚ → ℕ := λ a : ℚ, nat.succ (int.nat_abs (num a))
+
+theorem ubound_ge (a : ℚ) : of_nat (ubound a) ≥ a :=
+  have H : abs a * abs (of_int (denom a)) = abs (of_int (num a)), from !abs_mul ▸ !mul_denom ▸ rfl,
+  have H'' : 1 ≤ abs (of_int (denom a)),  begin
+    have J : of_int (denom a) > 0, from (iff.mp' !of_int_pos) !denom_pos,
+    rewrite (abs_of_pos J),
+    apply iff.mp' !of_int_le_of_int,
+    apply denom_pos
+  end,
+  have H' : abs a ≤ abs (of_int (num a)), from
+                le_of_mul_le_of_ge_one (H ▸ !le.refl) !abs_nonneg H'',
+  calc
+    a ≤ abs a : le_abs_self
+  ... ≤ abs (of_int (num a)) : H'
+  ... ≤ abs (of_int (num a)) + 1 : rat.le_add_of_nonneg_right trivial
+  ... = of_nat (int.nat_abs (num a)) + 1 : rat_of_nat_abs
+  ... = of_nat (nat.succ (int.nat_abs (num a))) : of_nat_add
+
+theorem ubound_pos (a : ℚ) : nat.gt (ubound a) nat.zero := !nat.succ_pos
+
 end rat

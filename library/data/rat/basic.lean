@@ -521,4 +521,5 @@ decidable.by_cases
           by rewrite [Hc, !int.mul_div_cancel_left bnz, mul.comm]),
     iff.mp' (eq_div_iff_mul_eq bnz') H')
 
+
 end rat

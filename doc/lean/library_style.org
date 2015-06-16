@@ -256,7 +256,7 @@ nat.induction_on n
         succ (n + m) = succ n + m   : symm (succ_add n m)
                  ... = succ n + k   : H
                  ... = succ (n + k) : succ_add n k,
-    have H3 : n + m = n + k, from succ_inj H2,
+    have H3 : n + m = n + k, from succ.inj H2,
     IH H3)
 #+END_SRC lean
 

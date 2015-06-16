@@ -180,8 +180,8 @@ by rewrite [*of_nat_eq, propext !of_int_le_of_int]; apply int.of_nat_le_of_nat
 theorem of_nat_pos (a : ℕ) : (of_nat a > 0) ↔ (#nat a > nat.zero) :=
 !of_nat_lt_of_nat
 
-theorem of_nat_nonneg (a : ℕ) : (of_nat a ≥ 0) ↔ (#nat a ≥ nat.zero) :=
-!of_nat_le_of_nat
+theorem of_nat_nonneg (a : ℕ) : (of_nat a ≥ 0) :=
+iff.mp' !of_nat_le_of_nat !nat.zero_le
 
 theorem le.refl (a : ℚ) : a ≤ a :=
 by rewrite [↑rat.le, sub_self]; apply nonneg_zero

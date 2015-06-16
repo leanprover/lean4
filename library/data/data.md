@@ -14,6 +14,7 @@ Basic types:
 * [fin](fin.lean) : finite ordinals
 * [int](int/int.md) : the integers
 * [rat](rat/rat.md) : the rationals
+* [pnat](pnat.lean) : the positive natural numbers
 
 Constructors:
 

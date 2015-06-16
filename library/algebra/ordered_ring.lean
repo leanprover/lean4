@@ -422,6 +422,13 @@ section
   theorem zero_gt_neg_one : -1 < (0:A) :=
     neg_zero ▸ (neg_lt_neg zero_lt_one)
 
+  theorem le_of_mul_le_of_ge_one {a b c : A} (H : a * c ≤ b) (Hb : b ≥ 0) (Hc : c ≥ 1) : a ≤ b :=
+    have H' : a * c ≤ b * c, from calc
+      a * c ≤ b : H
+        ... = b * 1 : mul_one
+        ... ≤ b * c : mul_le_mul_of_nonneg_left Hc Hb,
+    le_of_mul_le_mul_right H' (lt_of_lt_of_le zero_lt_one Hc)
+
 end
 
 /- TODO: Isabelle's library has all kinds of cancelation rules for the simplifier.

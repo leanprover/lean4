@@ -21,15 +21,17 @@ local notation 1 := rat.of_num 1
 -------------------------------------
 -- theorems to add to (ordered) field and/or rat
 
-theorem find_midpoint {a b : ℚ} (H : a > b) : ∃ c : ℚ, a > b + c :=
+-- this can move to pnat once sorry is filled in
+theorem find_midpoint {a b : ℚ} (H : a > b) : ∃ c : ℚ, a > b + c ∧ c > 0 :=
   exists.intro ((a - b) / (1 + 1))
-    (have H2 [visible] : a + a > (b + b) + (a - b), from calc
+    (and.intro (have H2 [visible] : a + a > (b + b) + (a - b), from calc
       a + a > b + a : rat.add_lt_add_right H
       ... = b + a + b - b : rat.add_sub_cancel
       ... = (b + b) + (a - b) : sorry, -- simp
      have H3 [visible] : (a + a) / (1 + 1) > ((b + b) + (a - b)) / (1 + 1),
        from div_lt_div_of_lt_of_pos H2 dec_trivial,
      by rewrite [div_two at H3, -div_add_div_same at H3, div_two at H3]; exact H3)
+    (pos_div_of_pos_of_pos (iff.mp' !sub_pos_iff_lt H) dec_trivial))
 
 theorem add_sub_comm (a b c d : ℚ) : a + b - (c + d) = (a - c) + (b - d) := sorry
 
@@ -47,7 +49,8 @@ theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0) 
 -- small helper lemmas
 
 theorem s_mul_assoc_lemma_3 (a b n : ℕ+) (p : ℚ) :
-        p * ((a * n)⁻¹ + (b * n)⁻¹) = p * (a⁻¹ + b⁻¹) * n⁻¹ := sorry
+        p * ((a * n)⁻¹ + (b * n)⁻¹) = p * (a⁻¹ + b⁻¹) * n⁻¹ :=
+  by rewrite [rat.mul.assoc, rat.right_distrib, *inv_mul_eq_mul_inv]
 
 theorem find_thirds (a b : ℚ) : ∃ n : ℕ+, a + n⁻¹ + n⁻¹ + n⁻¹ < a + b := sorry
 
@@ -56,14 +59,22 @@ theorem squeeze {a b : ℚ} (H : ∀ j : ℕ+, a ≤ b + j⁻¹ + j⁻¹ + j⁻�
     apply rat.le_of_not_gt,
     intro Hb,
     apply (exists.elim (find_midpoint Hb)),
-    intros c Hc,
+    intro c Hc,
     apply (exists.elim (find_thirds b c)),
-    intros j Hbj,
-    have Ha : a > b + j⁻¹ + j⁻¹ + j⁻¹, from lt.trans Hbj Hc,
+    intro j Hbj,
+    have Ha : a > b + j⁻¹ + j⁻¹ + j⁻¹, from lt.trans Hbj (and.left Hc),
     exact absurd !H (not_le_of_gt Ha)
   end
 
-theorem squeeze_2 {a b : ℚ} (H : ∀ ε : ℚ, ε > 0 → a ≥ b - ε) : a ≥ b := sorry
+theorem squeeze_2 {a b : ℚ} (H : ∀ ε : ℚ, ε > 0 → a ≥ b - ε) : a ≥ b :=
+  begin
+    apply rat.le_of_not_gt,
+    intro Hb,
+    apply (exists.elim (find_midpoint Hb)),
+    intro c Hc,
+    let Hc' := H c (and.right Hc),
+    apply (rat.not_le_of_gt (and.left Hc)) ((iff.mp' !le_add_iff_sub_right_le) Hc')
+  end
 
 theorem rewrite_helper (a b c d : ℚ) : a * b  - c * d = a * (b - d) + (a - c) * d :=
   sorry

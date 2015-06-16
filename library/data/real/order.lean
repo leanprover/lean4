@@ -17,20 +17,31 @@ open -[coercions] nat
 open eq eq.ops pnat
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1
+notation 2 := pnat.pos (of_num 2) dec_trivial
 
 ----------------------------------------------------------------------------------------------------
 
--- pnat theorems
-
-notation 2 := pnat.pos (of_num 2) dec_trivial
-
--- rat theorems
-theorem ge_sub_of_abs_sub_le_left {a b c : ℚ} (H : abs (a - b) ≤ c) : a ≥ b - c := sorry
-
-theorem ge_sub_of_abs_sub_le_right {a b c : ℚ} (H : abs (a - b) ≤ c) : b ≥ a - c :=
-  ge_sub_of_abs_sub_le_left (!abs_sub ▸ H)
-
-theorem sep_by_inv {a b : ℚ} (H : a > b) : ∃ N : ℕ+, a > (b + N⁻¹ + N⁻¹) := sorry
+-- this could be moved to pnat, but it uses find_midpoint which still has sorries in real.basic
+theorem sep_by_inv {a b : ℚ} (H : a > b) : ∃ N : ℕ+, a > (b + N⁻¹ + N⁻¹) :=
+  begin
+    apply exists.elim (find_midpoint H),
+    intro c Hc,
+    existsi (pceil ((1 + 1 + 1) / c)),
+    apply rat.lt.trans,
+    rotate 1,
+    apply and.left Hc,
+    rewrite rat.add.assoc,
+    apply rat.add_lt_add_left,
+    rewrite -(@rat.add_halves c) at {3},
+    apply rat.add_lt_add,
+    repeat (apply lt_of_le_of_lt;
+    apply inv_pceil_div;
+    apply dec_trivial;
+    apply and.right Hc;
+    apply div_lt_div_of_pos_of_lt_of_pos;
+    repeat (apply dec_trivial);
+    apply and.right Hc)
+  end
 
 theorem helper_1 {a : ℚ} (H : a > 0) : -a + -a ≤ -a := sorry
 
@@ -159,8 +170,8 @@ theorem pos_of_pos_equiv {s t : seq} (Hs : regular s) (Heq : s ≡ t) (Hp : pos 
   end
 
 
-theorem nonneg_of_nonneg_equiv {s t : seq} (Hs : regular s) (Ht : regular t) (Heq : s ≡ t) (Hp : nonneg s) :
-       nonneg t :=
+theorem nonneg_of_nonneg_equiv {s t : seq} (Hs : regular s) (Ht : regular t) (Heq : s ≡ t)
+        (Hp : nonneg s) : nonneg t :=
   begin
     apply nonneg_of_bdd_within,
     apply Ht,
@@ -342,11 +353,13 @@ theorem add_nonneg_of_nonneg {s t : seq} (Hs : nonneg s) (Ht : nonneg t) : nonne
     apply Ht
   end
 
-theorem le.trans {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u) (Lst : s_le s t) (Ltu : s_le t u) : s_le s u :=
+theorem le.trans {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u) (Lst : s_le s t)
+        (Ltu : s_le t u) : s_le s u :=
   begin
     rewrite ↑s_le at *,
     let Rz := zero_is_reg,
-    have Hsum : nonneg (sadd (sadd u (sneg t)) (sadd t (sneg s))  ), from add_nonneg_of_nonneg Ltu Lst,
+    have Hsum : nonneg (sadd (sadd u (sneg t)) (sadd t (sneg s))),
+                from add_nonneg_of_nonneg Ltu Lst,
     have H' : nonneg (sadd (sadd u (sadd (sneg t) t)) (sneg s)), begin
       apply nonneg_of_nonneg_equiv,
       rotate 2,
@@ -384,7 +397,8 @@ theorem le.trans {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u
     repeat (apply reg_add_reg | apply reg_neg_reg | assumption)
   end
 
-theorem equiv_of_le_of_ge {s t : seq} (Hs : regular s) (Ht : regular t) (Lst : s_le s t) (Lts : s_le t s) : s ≡ t :=
+theorem equiv_of_le_of_ge {s t : seq} (Hs : regular s) (Ht : regular t) (Lst : s_le s t)
+        (Lts : s_le t s) : s ≡ t :=
   begin
     apply equiv_of_diff_equiv_zero,
     rotate 2,
@@ -411,7 +425,8 @@ theorem equiv_of_le_of_ge {s t : seq} (Hs : regular s) (Ht : regular t) (Lst : s
 definition sep (s t : seq) := s_lt s t ∨ s_lt t s
 local infix `≢` : 50 := sep
 
-theorem le_and_sep_of_lt {s t : seq} (Hs : regular s) (Ht : regular t) (Lst : s_lt s t) : s_le s t ∧ sep s t :=
+theorem le_and_sep_of_lt {s t : seq} (Hs : regular s) (Ht : regular t) (Lst : s_lt s t) :
+        s_le s t ∧ sep s t :=
   begin
     apply and.intro,
     rewrite [↑s_lt at *, ↑pos at *, ↑s_le, ↑nonneg],
@@ -435,7 +450,8 @@ theorem le_and_sep_of_lt {s t : seq} (Hs : regular s) (Ht : regular t) (Lst : s_
     exact or.inl Lst
   end
 
-theorem lt_of_le_and_sep {s t : seq} (Hs : regular s) (Ht : regular t) (H : s_le s t ∧ sep s t) : s_lt s t :=
+theorem lt_of_le_and_sep {s t : seq} (Hs : regular s) (Ht : regular t) (H : s_le s t ∧ sep s t) :
+        s_lt s t :=
   begin
     let Le := and.left H,
     let Hsep := and.right H,
@@ -891,26 +907,6 @@ theorem s_lt_of_le_of_lt {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : r
   end
 
 
-
---------
--- These are currently needed for lin_ordered_comm_ring.
-
-/-theorem le_or_ge {s t : seq} (Hs : regular s) (Ht : regular t) : s_le s t ∨ s_le t s :=
-  sorry
-
-theorem lt_or_equiv_of_le {s t : seq} (Hs : regular s) (Ht : regular t) (Hle : s_le s t) :
-        s_lt s t ∨ s ≡ t :=
-  begin
-    apply sorry
-  end -- this is not constructive
-
-theorem le_iff_lt_or_equiv {s t : seq} (Hs : regular s) (Ht : regular t) :
-        s_le s t ↔ s_lt s t ∨ s ≡ t :=
-  iff.intro (lt_or_equiv_of_le Hs Ht) (le_of_lt_or_equiv Hs Ht)-/
-
-
-
-
 -------- lift to reg_seqs
 definition r_lt (s t : reg_seq) := s_lt (reg_seq.sq s) (reg_seq.sq t)
 definition r_le (s t : reg_seq) := s_le (reg_seq.sq s) (reg_seq.sq t)
@@ -986,15 +982,6 @@ theorem r_zero_lt_one : r_lt r_zero r_one := s_zero_lt_one
 theorem r_le_of_lt_or_eq (s t : reg_seq) (H : r_lt s t ∨ requiv s t) : r_le s t :=
   le_of_lt_or_equiv (reg_seq.is_reg s) (reg_seq.is_reg t) H
 
-----------
--- earlier versions are sorried
-/-theorem r_le_iff_lt_or_equiv (s t : reg_seq) : r_le s t ↔ r_lt s t ∨ requiv s t :=
-  le_iff_lt_or_equiv (reg_seq.is_reg s) (reg_seq.is_reg t)
-
-theorem r_le_or_ge (s t : reg_seq) : r_le s t ∨ r_le t s :=
-  le_or_ge (reg_seq.is_reg s) (reg_seq.is_reg t)-/
------------
-
 end s
 
 open real
@@ -1066,26 +1053,6 @@ theorem le_of_lt_or_eq (x y : ℝ) : x < y ∨ x = y → x ≤ y :=
         apply (or.inr (quot.exact H'))
       end)))
 
-----------
--- earlier versions are sorried
-/-theorem le_iff_lt_or_eq (x y : ℝ) : x ≤ y ↔ x < y ∨ x = y :=
-  iff.intro
-    (quot.induction_on₂ x y (λ s t H, or.elim (iff.mp ((s.r_le_iff_lt_or_equiv s t)) H)
-      (take H1, or.inl H1)
-      (take H2, or.inr (quot.sound H2))))
-    (quot.induction_on₂ x y (λ s t H, or.elim H (take H', begin
-        let H'' := iff.mp' (s.r_le_iff_lt_or_equiv s t),
-        apply H'' (or.inl H')
-      end)
-      (take H', begin
-        let H'' := iff.mp' (s.r_le_iff_lt_or_equiv s t),
-        apply H'' (or.inr (quot.exact H'))
-      end)))
-
-theorem le_or_ge (x y : ℝ) : x ≤ y ∨ y ≤ x :=
-  quot.induction_on₂ x y (λ s t, s.r_le_or_ge s t)-/
--------------
-
 definition ordered_ring  : algebra.ordered_ring ℝ :=
   ⦃ algebra.ordered_ring, comm_ring,
     le_refl := le.refl,
@@ -1101,27 +1068,5 @@ definition ordered_ring  : algebra.ordered_ring ℝ :=
     le_of_lt := le_of_lt,
     add_lt_add_left := add_lt_add_left
   ⦄
-
------------------------------------
---- here is where classical logic comes in
---theorem sep_is_eq (x y : ℝ) : x ≢ y = ¬ (x = y) := sorry
-
-/-theorem sep_is_eq (x y : ℝ) : x ≢ y = ¬ (x = y) := begin
-   apply propext,
-   apply iff.intro,
-   intro Hsep,
-   intro Heq,
-   rewrite Heq at Hsep,
-   apply absurd Hsep !not_sep_self,
-   intro Hneq,
-  end-/
-
-/-definition linear_ordered_comm_ring : algebra.linear_ordered_comm_ring ℝ :=
-  ⦃ algebra.linear_ordered_comm_ring, ordered_ring, comm_ring,
-    zero_lt_one := zero_lt_one,
-    le_total := le_or_ge,
-    le_iff_lt_or_eq := le_iff_lt_or_eq
-  ⦄-/
-
 
 end real

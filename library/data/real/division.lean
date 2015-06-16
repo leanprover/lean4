@@ -12,11 +12,10 @@ and excluded middle.
 import data.real.basic data.real.order data.rat data.nat logic.axioms.classical
 open -[coercions] rat
 open -[coercions] nat
-local notation 0 := rat.of_num 0
-local notation 1 := rat.of_num 1
 open eq.ops pnat
 
-
+local notation 0 := rat.of_num 0
+local notation 1 := rat.of_num 1
 local notation 2 := pnat.pos (nat.of_num 2) dec_trivial
 
 namespace s
@@ -24,18 +23,13 @@ namespace s
 -----------------------------
 -- helper lemmas
 
-theorem abs_sub_square (a b : ℚ) : abs (a - b) * abs (a - b) = a * a + b * b - (1 + 1) * a * b :=
-  by rewrite [abs_mul_self, *rat.mul_sub_left_distrib, *rat.mul_sub_right_distrib,
-             sub_add_eq_sub_sub, sub_neg_eq_add, *rat.right_distrib, sub_add_eq_sub_sub, *one_mul,
-             *add.assoc, {_ + b * b}add.comm, {_ + (b * b + _)}add.comm, mul.comm b a, *add.assoc]
-
 theorem neg_add_rewrite {a b : ℚ} : a + -b = -(b + -a) := sorry
 
 theorem abs_abs_sub_abs_le_abs_sub (a b : ℚ) : abs (abs a - abs b) ≤ abs (a - b) :=
   begin
     apply rat.nonneg_le_nonneg_of_squares_le,
     repeat apply abs_nonneg,
-    rewrite [*(abs_sub_square _ _), *abs_abs, *abs_mul_self],
+    rewrite [*abs_sub_square, *abs_abs, *abs_mul_self],
     apply sub_le_sub_left,
     rewrite *rat.mul.assoc,
     apply rat.mul_le_mul_of_nonneg_left,
@@ -51,14 +45,10 @@ theorem forall_of_not_exists {A : Type} {P : A → Prop} (H : ¬ ∃ a : A, P a)
 theorem and_of_not_or {a b : Prop} (H : ¬ (a ∨ b)) : ¬ a ∧ ¬ b :=
   and.intro (assume H', H (or.inl H')) (assume H', H (or.inr H'))
 
-theorem ne_zero_of_abs_ne_zero {a : ℚ} (H : abs a ≠ 0) : a ≠ 0 :=
-  assume Ha, H (Ha⁻¹ ▸ abs_zero)
-
 -----------------------------
 -- Facts about absolute values of sequences, to define inverse
 
 definition s_abs (s : seq) : seq := λ n, abs (s n)
-
 
 theorem abs_reg_of_reg {s : seq} (Hs : regular s) : regular (s_abs s) :=
   begin

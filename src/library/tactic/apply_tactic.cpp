@@ -185,6 +185,12 @@ proof_state_seq apply_tactic_core(environment const & env, io_state const & ios,
     return apply_tactic_core(env, ios, s, e, tmp_cs, AddDiff, AddSubgoals);
 }
 
+proof_state_seq fapply_tactic_core(environment const & env, io_state const & ios, proof_state const & s, expr const & e, constraint_seq const & cs) {
+    buffer<constraint> tmp_cs;
+    cs.linearize(tmp_cs);
+    return apply_tactic_core(env, ios, s, e, tmp_cs, AddDiff, AddAllSubgoals);
+}
+
 tactic apply_tactic_core(expr const & e, constraint_seq const & cs) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
             return apply_tactic_core(env, ios, s, e, cs);

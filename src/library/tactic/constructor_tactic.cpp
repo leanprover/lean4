@@ -83,7 +83,7 @@ tactic constructor_tactic(elaborate_fn const & elab, optional<unsigned> _i, opti
                     return proof_state_seq();
                 }
             }
-            return apply_tactic_core(env, ios, new_s, C, cs);
+            return fapply_tactic_core(env, ios, new_s, C, cs);
         };
 
         if (_i) {

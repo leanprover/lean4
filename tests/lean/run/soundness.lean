@@ -90,26 +90,26 @@ namespace PropF
   lemma weakening2 : ∀ {Γ A Δ}, Γ ⊢ A → Γ ⊆ Δ → Δ ⊢ A
   | Γ ⌞A⌟     Δ (Nax Γ A Hin)          Hs := by constructor; exact Hs Hin
   | Γ ⌞A ⇒ B⌟ Δ (ImpI Γ A B H)         Hs := by constructor; exact weakening2 H (cons_sub_cons A Hs)
-  | Γ ⌞B⌟     Δ (ImpE Γ A B H₁ H₂)     Hs := by constructor; exact weakening2 H₁ Hs; exact weakening2 H₂ Hs
+  | Γ ⌞B⌟     Δ (ImpE Γ A B H₁ H₂)     Hs := by constructor; eassumption; exact weakening2 H₁ Hs; exact weakening2 H₂ Hs
   | Γ ⌞A⌟     Δ (BotC Γ A H)           Hs := by constructor; exact weakening2 H (cons_sub_cons (~A) Hs)
   | Γ ⌞A ∧ B⌟ Δ (AndI Γ A B H₁ H₂)     Hs := by constructor; exact weakening2 H₁ Hs; exact weakening2 H₂ Hs
-  | Γ ⌞A⌟     Δ (AndE₁ Γ A B H)        Hs := by constructor; exact weakening2 H Hs
-  | Γ ⌞B⌟     Δ (AndE₂ Γ A B H)        Hs := by constructor; exact weakening2 H Hs
+  | Γ ⌞A⌟     Δ (AndE₁ Γ A B H)        Hs := by constructor; eassumption; exact weakening2 H Hs
+  | Γ ⌞B⌟     Δ (AndE₂ Γ A B H)        Hs := by constructor; eassumption; exact weakening2 H Hs
   | Γ ⌞A ∨ B⌟ Δ (OrI₁ Γ A B H)         Hs := by constructor; exact weakening2 H Hs
   | Γ ⌞A ∨ B⌟ Δ (OrI₂ Γ A B H)         Hs := by constructor; exact weakening2 H Hs
   | Γ ⌞C⌟     Δ (OrE Γ A B C H₁ H₂ H₃) Hs :=
-       by constructor; exact weakening2 H₁ Hs; exact weakening2 H₂ (cons_sub_cons A Hs); exact weakening2 H₃ (cons_sub_cons B Hs)
+       by constructor; eassumption; eassumption; exact weakening2 H₁ Hs; exact weakening2 H₂ (cons_sub_cons A Hs); exact weakening2 H₃ (cons_sub_cons B Hs)
 
   lemma weakening : ∀ Γ Δ A, Γ ⊢ A → Γ++Δ ⊢ A :=
   λ Γ Δ A H, weakening2 H (sub_append_left Γ Δ)
 
   lemma deduction : ∀ Γ A B, Γ ⊢ A ⇒ B → A::Γ ⊢ B :=
-  λ Γ A B H, by constructor; exact weakening2 H (sub_cons A Γ); constructor; exact mem_cons A Γ
+  λ Γ A B H, by constructor; exact A; exact weakening2 H (sub_cons A Γ); constructor; exact mem_cons A Γ
 
   lemma prov_impl : ∀ A B, Provable (A ⇒ B) → ∀ Γ, Γ ⊢ A → Γ ⊢ B :=
   λ A B Hp Γ Ha,
     assert wHp : Γ ⊢ (A ⇒ B), from !weakening Hp,
-    by constructor; eassumption; eassumption
+    by constructor; eassumption; eassumption; eassumption
 
   lemma Satisfies_cons : ∀ {A Γ v}, Satisfies v Γ → is_true (TrueQ v A) → Satisfies v (A::Γ) :=
   λ A Γ v s t B BinAG,

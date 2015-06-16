@@ -11,7 +11,8 @@ At this point, we no longer proceed constructively: this file makes heavy use of
 Here, we show that ℝ is complete.
 -/
 
-import data.real.basic data.real.order data.real.division data.rat data.nat data.pnat logic.axioms.classical
+import data.real.basic data.real.order data.real.division data.rat data.nat data.pnat
+import logic.axioms.classical
 open -[coercions] rat
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1

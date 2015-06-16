@@ -21,10 +21,6 @@ local notation 1 := rat.of_num 1
 -------------------------------------
 -- theorems to add to (ordered) field and/or rat
 
-theorem div_two (a : ℚ) : (a + a) / (1 + 1) = a := sorry
-
-theorem two_pos : (1 : ℚ) + 1 > 0 := rat.add_pos rat.zero_lt_one rat.zero_lt_one
-
 theorem find_midpoint {a b : ℚ} (H : a > b) : ∃ c : ℚ, a > b + c :=
   exists.intro ((a - b) / (1 + 1))
     (have H2 [visible] : a + a > (b + b) + (a - b), from calc
@@ -32,32 +28,19 @@ theorem find_midpoint {a b : ℚ} (H : a > b) : ∃ c : ℚ, a > b + c :=
       ... = b + a + b - b : rat.add_sub_cancel
       ... = (b + b) + (a - b) : sorry, -- simp
      have H3 [visible] : (a + a) / (1 + 1) > ((b + b) + (a - b)) / (1 + 1),
-       from div_lt_div_of_lt_of_pos H2 two_pos,
+       from div_lt_div_of_lt_of_pos H2 dec_trivial,
      by rewrite [div_two at H3, -div_add_div_same at H3, div_two at H3]; exact H3)
 
 theorem add_sub_comm (a b c d : ℚ) : a + b - (c + d) = (a - c) + (b - d) := sorry
 
-theorem div_helper (a b : ℚ) : (1 / (a * b)) * a = 1 / b := sorry
-
-theorem distrib_three_right (a b c d : ℚ) : (a + b + c) * d = a * d + b * d + c * d := sorry
-
-theorem mul_le_mul_of_mul_div_le (a b c d : ℚ) : a * (b / c) ≤ d → b * a ≤ d * c := sorry
-
-definition pceil (a : ℚ) : ℕ+ := pnat.pos (ubound a) !ubound_pos
-
-theorem pceil_helper {a : ℚ} {n : ℕ+} (H : pceil a ≤ n) : n⁻¹ ≤ 1 / a := sorry
-
-theorem inv_pceil_div (a b : ℚ) (Ha : a > 0) (Hb : b > 0) : (pceil (a / b))⁻¹ ≤ b / a := sorry
-
-
 theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0) (H : n ≥ pceil (q / ε)) :
         q * n⁻¹ ≤ ε :=
   begin
-    let H2 := pceil_helper H,
+    let H2 := pceil_helper H (pos_div_of_pos_of_pos Hq Hε),
     let H3 := mul_le_of_le_div (pos_div_of_pos_of_pos Hq Hε) H2,
     rewrite -(one_mul ε),
     apply mul_le_mul_of_mul_div_le,
-    assumption
+    repeat assumption
   end
 
 -------------------------------------
@@ -80,9 +63,7 @@ theorem squeeze {a b : ℚ} (H : ∀ j : ℕ+, a ≤ b + j⁻¹ + j⁻¹ + j⁻�
     exact absurd !H (not_le_of_gt Ha)
   end
 
-
 theorem squeeze_2 {a b : ℚ} (H : ∀ ε : ℚ, ε > 0 → a ≥ b - ε) : a ≥ b := sorry
-
 
 theorem rewrite_helper (a b c d : ℚ) : a * b  - c * d = a * (b - d) + (a - c) * d :=
   sorry
@@ -106,11 +87,9 @@ theorem factor_lemma (a b c d e : ℚ) : abs (a + b + c - (d + (b + e))) = abs (
 
 theorem factor_lemma_2 (a b c d : ℚ) : (a + b) + (c + d) = (a + c) + (d + b) := sorry
 
-
 -------------------------------------
 -- The only sorry's after this point are for the simplifier.
 
---------------------------------------
 --------------------------------------
 -- define cauchy sequences and equivalence. show equivalence actually is one
 
@@ -206,7 +185,8 @@ theorem pnat_bound {ε : ℚ} (Hε : ε > 0) : ∃ p : ℕ+, p⁻¹ ≤ ε :=
     existsi (pceil (1 / ε)),
     rewrite -(rat.div_div (rat.ne_of_gt Hε)) at {2},
     apply pceil_helper,
-    apply le.refl
+    apply le.refl,
+    apply div_pos_of_pos Hε
   end
 
 theorem bdd_of_eq_var {s t : seq} (Hs : regular s) (Ht : regular t) (Heq : s ≡ t) :
@@ -500,7 +480,7 @@ theorem s_mul_assoc {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regula
     apply Hs,
     apply Ht,
     apply Hu,
-    rewrite [*s_mul_assoc_lemma_3, -distrib_three_right],
+    rewrite [*s_mul_assoc_lemma_3, -rat.distrib_three_right],
     apply s_mul_assoc_lemma_4,
     apply a,
     repeat apply rat.add_pos,
@@ -608,6 +588,7 @@ theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : 
         apply rat.le.trans,
         apply rat.mul_le_mul_of_nonneg_right,
         apply pceil_helper Hn,
+        repeat (apply rat.mul_pos | apply rat.add_pos | apply inv_pos | apply rat_of_pnat_is_pos),
         apply rat.le_of_lt,
         apply rat.add_pos,
         apply rat.mul_pos,
@@ -618,7 +599,11 @@ theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : 
         apply rat.add_pos,
         repeat apply inv_pos,
         apply rat_of_pnat_is_pos,
-        rewrite div_helper,
+        have H : (rat_of_pnat (K s) * (b⁻¹ + c⁻¹) + (a⁻¹ + c⁻¹) * rat_of_pnat (K t)) ≠ 0, begin
+          apply rat.ne_of_gt,
+          repeat (apply rat.mul_pos | apply rat.add_pos | apply inv_pos | apply rat_of_pnat_is_pos)
+        end,
+        rewrite (rat.div_helper H),
         apply rat.le.refl
       end,
     apply rat.add_le_add,
@@ -786,55 +771,30 @@ theorem diff_equiv_zero_of_equiv {s t : seq} (Hs : regular s) (Ht : regular t) (
 theorem mul_well_defined_half1 {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
         (Etu : t ≡ u) : smul s t ≡ smul s u :=
   begin
-     let Hst := reg_mul_reg Hs Ht,
-     let Hsu := reg_mul_reg Hs Hu,
-     let Hnu := reg_neg_reg Hu,
-     let Hstu := reg_add_reg Hst Hsu,
-     let Hsnu := reg_mul_reg Hs Hnu,
-     let Htnu := reg_add_reg Ht Hnu,
---     let Hstsu := reg_add_reg Hst Hsnu,
-     apply equiv_of_diff_equiv_zero,
-     apply Hst,
-     apply Hsu,
-     apply equiv.trans,
-     apply reg_add_reg,
-     apply Hst,
-     apply reg_neg_reg Hsu,
-     rotate 1,
-     apply zero_is_reg,
-     apply equiv.symm,
-     apply add_well_defined,
-     rotate 2,
-     apply reg_mul_reg Hs Ht,
-     apply reg_neg_reg Hsu,
-     apply equiv.refl,
-     apply mul_neg_equiv_neg_mul,
-     apply equiv.trans,
-     rotate 3,
-     apply equiv.symm,
-     apply s_distrib,
-     repeat assumption,
-     rotate 1,
-     apply reg_add_reg Hst Hsnu,
-     apply Hst,
-     apply Hsnu,
-     apply reg_add_reg Hst Hsnu,
-     apply reg_mul_reg Hs,
-     apply reg_add_reg Ht Hnu,
-     apply zero_is_reg,
-     apply mul_zero_equiv_zero,
-     rotate 2,
-     apply diff_equiv_zero_of_equiv,
-     repeat assumption
+    apply equiv_of_diff_equiv_zero,
+    rotate 2,
+    apply equiv.trans,
+    rotate 3,
+    apply equiv.symm,
+    apply add_well_defined,
+    rotate 4,
+    apply equiv.refl,
+    apply mul_neg_equiv_neg_mul,
+    apply equiv.trans,
+    rotate 3,
+    apply equiv.symm,
+    apply s_distrib,
+    rotate 3,
+    apply mul_zero_equiv_zero,
+    rotate 2,
+    apply diff_equiv_zero_of_equiv,
+    repeat (assumption | apply reg_mul_reg | apply reg_neg_reg | apply reg_add_reg |
+            apply zero_is_reg)
   end
 
 theorem mul_well_defined_half2 {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
         (Est : s ≡ t) : smul s u ≡ smul t u :=
   begin
-    let Hsu := reg_mul_reg Hs Hu,
-    let Hus := reg_mul_reg Hu Hs,
-    let Htu := reg_mul_reg Ht Hu,
-    let Hut := reg_mul_reg Hu Ht,
     apply equiv.trans,
     rotate 3,
     apply s_mul_comm,
@@ -845,7 +805,7 @@ theorem mul_well_defined_half2 {s t u : seq} (Hs : regular s) (Ht : regular t) (
     apply Ht,
     rotate 1,
     apply s_mul_comm,
-    repeat assumption
+    repeat (assumption | apply reg_mul_reg)
 end
 
 theorem mul_well_defined {s t u v : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)

@@ -300,5 +300,25 @@ theorem pnat_cancel' (n m : ℕ+) : (n * n * m)⁻¹ * (rat_of_pnat n * rat_of_p
     rewrite [rat.mul.comm, *inv_mul_eq_mul_inv, simp, *inv_cancel_left, *rat.one_mul]
   end
 
+definition pceil (a : ℚ) : ℕ+ := pnat.pos (ubound a) !ubound_pos
+
+theorem pceil_helper {a : ℚ} {n : ℕ+} (H : pceil a ≤ n) (Ha : a > 0) : n⁻¹ ≤ 1 / a :=
+  begin
+    apply rat.le.trans,
+    apply inv_ge_of_le H,
+    apply div_le_div_of_le,
+    apply Ha,
+    apply ubound_ge
+  end
+
+theorem inv_pceil_div (a b : ℚ) (Ha : a > 0) (Hb : b > 0) : (pceil (a / b))⁻¹ ≤ b / a :=
+  begin
+    rewrite -(@div_div' (b / a)),
+    apply div_le_div_of_le,
+    apply div_pos_of_pos,
+    apply pos_div_of_pos_of_pos Hb Ha,
+    rewrite [(div_div_eq_mul_div (ne_of_gt Hb) (ne_of_gt Ha)), rat.one_mul],
+    apply ubound_ge
+  end
 
 end pnat

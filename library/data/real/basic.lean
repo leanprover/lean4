@@ -35,31 +35,6 @@ theorem find_midpoint {a b : ℚ} (H : a > b) : ∃ c : ℚ, a > b + c :=
        from div_lt_div_of_lt_of_pos H2 two_pos,
      by rewrite [div_two at H3, -div_add_div_same at H3, div_two at H3]; exact H3)
 
-definition ceil : ℚ → ℕ := λ a, int.nat_abs (num a) + 1
-
-theorem rat_of_nat_abs (z : ℤ) : abs (of_int z) = of_nat (int.nat_abs z) :=
-  have simp [visible] : ∀ n : ℕ, of_int (int.neg_succ_of_nat n) = - of_nat (n + 1), from λ n, rfl,
-  int.induction_on z
-    (take a, abs_of_nonneg (!of_nat_nonneg))
-    (take a, by rewrite [simp, abs_neg, abs_of_nonneg (!of_nat_nonneg)])
-
-theorem ceil_ge (a : ℚ) : of_nat (ceil a) ≥ a :=
-  have H : abs a * abs (of_int (denom a)) = abs (of_int (num a)), from !abs_mul ▸ !mul_denom ▸ rfl,
-  have H'' : 1 ≤ abs (of_int (denom a)),  begin
-    have J : of_int (denom a) > 0, from (iff.mp' !of_int_pos) !denom_pos,
-    rewrite (abs_of_pos J),
-    apply iff.mp' !of_int_le_of_int,
-    apply denom_pos
-  end,
-  have H' : abs a ≤ abs (of_int (num a)), from
-                le_of_mul_le_of_ge_one (H ▸ !le.refl) !abs_nonneg H'',
-  calc
-    a ≤ abs a : le_abs_self
-  ... ≤ abs (of_int (num a)) : H'
-  ... ≤ abs (of_int (num a)) + 1 : rat.le_add_of_nonneg_right trivial
-  ... = of_nat (int.nat_abs (num a)) + 1 : rat_of_nat_abs
-  ... = of_nat (int.nat_abs (num a) + 1) : of_nat_add
-
 theorem add_sub_comm (a b c d : ℚ) : a + b - (c + d) = (a - c) + (b - d) := sorry
 
 theorem div_helper (a b : ℚ) : (1 / (a * b)) * a = 1 / b := sorry
@@ -68,7 +43,7 @@ theorem distrib_three_right (a b c d : ℚ) : (a + b + c) * d = a * d + b * d + 
 
 theorem mul_le_mul_of_mul_div_le (a b c d : ℚ) : a * (b / c) ≤ d → b * a ≤ d * c := sorry
 
-definition pceil (a : ℚ) : ℕ+ := pnat.pos (ceil a) (add_pos_right dec_trivial _)
+definition pceil (a : ℚ) : ℕ+ := pnat.pos (ubound a) !ubound_pos
 
 theorem pceil_helper {a : ℚ} {n : ℕ+} (H : pceil a ≤ n) : n⁻¹ ≤ 1 / a := sorry
 
@@ -84,7 +59,7 @@ theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0) 
     apply mul_le_mul_of_mul_div_le,
     assumption
   end
-exit
+
 -------------------------------------
 -- small helper lemmas
 
@@ -268,7 +243,7 @@ theorem equiv.trans (s t u : seq) (Hs : regular s) (Ht : regular t) (Hu : regula
 -----------------------------------
 -- define operations on cauchy sequences. show operations preserve regularity
 
-definition K (s : seq) : ℕ+ := pnat.pos (ceil (abs (s pone)) + 1 + 1) dec_trivial
+definition K (s : seq) : ℕ+ := pnat.pos (ubound (abs (s pone)) + 1 + 1) dec_trivial
 
 theorem canon_bound {s : seq} (Hs : regular s) (n : ℕ+) : abs (s n) ≤ pnat.to_rat (K s) :=
   calc
@@ -279,9 +254,9 @@ theorem canon_bound {s : seq} (Hs : regular s) (n : ℕ+) : abs (s n) ≤ pnat.t
     ... ≤ 1 + (1 + abs (s pone)) : rat.add_le_add_right (inv_le_one n)
     ... = abs (s pone) + (1 + 1) :
       by rewrite [add.comm 1 (abs (s pone)), rat.add.comm 1, rat.add.assoc]
-    ... ≤ of_nat (ceil (abs (s pone))) + (1 + 1) : rat.add_le_add_right (!ceil_ge)
-    ... = of_nat (ceil (abs (s pone)) + (1 + 1)) : by rewrite of_nat_add
-    ... = of_nat (ceil (abs (s pone)) + 1 + 1) : by rewrite nat.add.assoc
+    ... ≤ of_nat (ubound (abs (s pone))) + (1 + 1) : rat.add_le_add_right (!ubound_ge)
+    ... = of_nat (ubound (abs (s pone)) + (1 + 1)) : by rewrite of_nat_add
+    ... = of_nat (ubound (abs (s pone)) + 1 + 1) : by rewrite nat.add.assoc
 
 definition K₂ (s t : seq) := max (K s) (K t)
 

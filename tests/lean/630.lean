@@ -1,4 +1,6 @@
-import data.real
+import data.pnat
+open pnat
+
 print pnat
 
 print prod

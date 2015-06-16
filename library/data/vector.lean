@@ -77,7 +77,7 @@ namespace vector
 
   theorem nth_tabulate : ∀ {n : nat} (f : fin n → A) (i : fin n), nth (tabulate f) i = f i
   | 0     f i               := elim0 i
-  | (n+1) f (mk 0 h)        := rfl
+  | (n+1) f (mk 0 h)        := by reflexivity
   | (n+1) f (mk (succ i) h) :=
     begin
       change nth (f (@zero n) :: tabulate (λ i : fin n, f (succ i))) (mk (succ i) h) = f (mk (succ i) h),
@@ -97,7 +97,7 @@ namespace vector
 
   theorem nth_map (f : A → B) : ∀ {n : nat} (v : vector A n) (i : fin n), nth (map f v) i = f (nth v i)
   | 0        v        i               := elim0 i
-  | (succ n) (a :: t) (mk 0 h)        := rfl
+  | (succ n) (a :: t) (mk 0 h)        := by reflexivity
   | (succ n) (a :: t) (mk (succ i) h) := by rewrite [map_cons, *nth_succ, nth_map]
 
   definition map2 (f : A → B → C) : Π {n : nat}, vector A n → vector B n → vector C n

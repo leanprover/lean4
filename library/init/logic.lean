@@ -34,7 +34,7 @@ assume Hna : ¬a, absurd Ha Hna
 /- eq -/
 
 notation a = b := eq a b
-theorem rfl {A : Type} {a : A} : a = a := eq.refl a
+definition rfl {A : Type} {a : A} : a = a := eq.refl a
 
 -- proof irrelevance is built in
 theorem proof_irrel {a : Prop} (H₁ H₂ : a) : H₁ = H₂ :=

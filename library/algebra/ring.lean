@@ -57,6 +57,9 @@ section semiring
   assume H1 : b = 0,
   have H2 : a * b = 0, from H1⁻¹ ▸ mul_zero a,
   H H2
+
+  theorem distrib_three_right (a b c d : A) : (a + b + c) * d = a * d + b * d + c * d :=
+    by rewrite *right_distrib
 end semiring
 
 /- comm semiring -/

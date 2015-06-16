@@ -448,6 +448,9 @@ section discrete_field
   theorem div_div_div_div' : (a / b) / (c / d) = (a * d) / (b * c) :=
     by rewrite [div_div_eq_mul_div', div_mul_eq_mul_div, div_div_eq_div_mul']
 
+  theorem div_helper (H : a ≠ 0) : (1 / (a * b)) * a = 1 / b :=
+    by rewrite [div_mul_eq_mul_div, one_mul, (div_mul_right' H)]
+
 end discrete_field
 
 end algebra

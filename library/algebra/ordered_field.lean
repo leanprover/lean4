@@ -288,6 +288,17 @@ theorem nonneg_le_nonneg_of_squares_le  (Ha : a ≥ 0) (Hb : b ≥ 0) (H : a * a
     apply (not_le_of_gt H') H
   end
 
+  theorem div_two : (a + a) / (1 + 1) = a :=
+    symm (iff.mp' (eq_div_iff_mul_eq (ne_of_gt (add_pos zero_lt_one zero_lt_one)))
+           (by rewrite [left_distrib, *mul_one]))
+
+
+  theorem mul_le_mul_of_mul_div_le (H : a * (b / c) ≤ d) (Hc : c > 0) : b * a ≤ d * c :=
+    begin
+      rewrite [-mul_div_assoc at H, mul.comm b],
+      apply le_mul_of_div_le Hc H
+    end
+
 end linear_ordered_field
 
 structure discrete_linear_ordered_field [class] (A : Type) extends linear_ordered_field A,

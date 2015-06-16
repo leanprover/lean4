@@ -443,5 +443,23 @@ section discrete_linear_ordered_field
          have Heq [visible] : a = 0, from eq_of_le_of_ge (le_of_not_gt H) (le_of_not_gt H'),
          by rewrite [Heq, div_zero, *abs_zero, div_zero])
 
+  theorem ge_sub_of_abs_sub_le_left (H : abs (a - b) ≤ c) : a ≥ b - c :=
+    if Hz : 0 ≤ a - b then
+      (calc
+        a ≥ b : (iff.mp !sub_nonneg_iff_le) Hz
+      ... ≥ b - c : sub_le_of_nonneg _ _ (le.trans !abs_nonneg H))
+    else
+      (have Habs : b - a ≤ c, by rewrite [abs_of_neg (lt_of_not_ge Hz) at H, neg_sub at H]; apply H,
+       have Habs' : b ≤ c + a, from (iff.mp' !le_add_iff_sub_right_le) Habs,
+       (iff.mp !le_add_iff_sub_left_le) Habs')
+
+  theorem ge_sub_of_abs_sub_le_right (H : abs (a - b) ≤ c) : b ≥ a - c :=
+    ge_sub_of_abs_sub_le_left (!abs_sub ▸ H)
+
+  theorem abs_sub_square : abs (a - b) * abs (a - b) = a * a + b * b - (1 + 1) * a * b :=
+    by rewrite [abs_mul_self, *mul_sub_left_distrib, *mul_sub_right_distrib,
+             sub_add_eq_sub_sub, sub_neg_eq_add, *right_distrib, sub_add_eq_sub_sub, *one_mul,
+             *add.assoc, {_ + b * b}add.comm, {_ + (b * b + _)}add.comm, mul.comm b a, *add.assoc]
+
 end discrete_linear_ordered_field
 end algebra

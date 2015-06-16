@@ -428,7 +428,7 @@ section
       ... = a      : by rewrite add_zero
 
   theorem add_le_add_three {a b c d e f : A} (H1 : a ≤ d) (H2 : b ≤ e) (H3 : c ≤ f) :
-        a + b + c ≤ d + e + f := 
+        a + b + c ≤ d + e + f :=
   begin
     apply le.trans,
     apply add_le_add,
@@ -437,6 +437,8 @@ section
     apply le.refl
   end
 
+  theorem sub_le_of_nonneg (H : b ≥ 0) : a - b ≤ a :=
+   add_le_of_le_of_nonpos (le.refl a) (neg_nonpos_of_nonneg H)
 end
 
 structure decidable_linear_ordered_comm_group [class] (A : Type)
@@ -542,6 +544,9 @@ section
   theorem abs_lt_of_lt_of_neg_lt (H1 : a < b) (H2 : -a < b) : abs a < b :=
   abs.by_cases H1 H2
 
+  theorem ne_zero_of_abs_ne_zero {a : A} (H : abs a ≠ 0) : a ≠ 0 :=
+   assume Ha, H (Ha⁻¹ ▸ abs_zero)
+
   -- the triangle inequality
   section
     private lemma aux1 {a b : A} (H1 : a + b ≥ 0) (H2 : a ≥ 0) : abs (a + b) ≤ abs a + abs b :=
@@ -601,7 +606,7 @@ section
         ... ≤ abs (a - b) + abs b   : abs_add_le_abs_add_abs,
   algebra.le_of_add_le_add_right H1
 
-  theorem abs_add_three (a b c : A) : abs (a + b + c) ≤ abs a + abs b + abs c := 
+  theorem abs_add_three (a b c : A) : abs (a + b + c) ≤ abs a + abs b + abs c :=
     begin
       apply le.trans,
       apply abs_add_le_abs_add_abs,

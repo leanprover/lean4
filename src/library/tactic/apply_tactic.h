@@ -14,7 +14,6 @@ tactic apply_tactic(elaborate_fn const & fn, expr const & e);
 tactic fapply_tactic(elaborate_fn const & fn, expr const & e);
 tactic eassumption_tactic();
 tactic assumption_tactic();
-void open_apply_tactic(lua_State * L);
 void initialize_apply_tactic();
 void finalize_apply_tactic();
 }

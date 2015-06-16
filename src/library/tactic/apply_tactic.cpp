@@ -223,11 +223,6 @@ tactic eapply_tactic(elaborate_fn const & elab, expr const & e) {
     return apply_tactic_core(elab, e, AddAll, AddSubgoals);
 }
 
-int mk_eassumption_tactic(lua_State * L) { return push_tactic(L, eassumption_tactic()); }
-void open_apply_tactic(lua_State * L) {
-    SET_GLOBAL_FUN(mk_eassumption_tactic, "eassumption_tac");
-}
-
 void initialize_apply_tactic() {
     g_apply_class_instance = new name{"apply", "class_instance"};
     register_bool_option(*g_apply_class_instance, LEAN_DEFAULT_APPLY_CLASS_INSTANCE,

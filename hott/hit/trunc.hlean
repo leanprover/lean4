@@ -55,10 +55,10 @@ namespace trunc
   λxx, trunc.rec_on xx (λx, tr (f x))
 
   definition trunc_functor_compose (f : X → Y) (g : Y → Z)
-    : trunc_functor n (g ∘ f) ∼ trunc_functor n g ∘ trunc_functor n f :=
+    : trunc_functor n (g ∘ f) ~ trunc_functor n g ∘ trunc_functor n f :=
   λxx, trunc.rec_on xx (λx, idp)
 
-  definition trunc_functor_id : trunc_functor n (@id A) ∼ id :=
+  definition trunc_functor_id : trunc_functor n (@id A) ~ id :=
   λxx, trunc.rec_on xx (λx, idp)
 
   definition is_equiv_trunc_functor (f : X → Y) [H : is_equiv f] : is_equiv (trunc_functor n f) :=

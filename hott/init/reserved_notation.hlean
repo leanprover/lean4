@@ -43,7 +43,7 @@ reserve infix `↔`:20
 reserve infix `=`:50
 reserve infix `≠`:50
 reserve infix `≈`:50
-reserve infix `∼`:50
+reserve infix `~`:50
 reserve infix `≡`:50
 
 reserve infixr `∘`:60                   -- input with \comp

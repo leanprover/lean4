@@ -42,13 +42,13 @@ definition rfl {A : Type} {a : A} := eq.refl a
 namespace eq
   variables {A : Type} {a b c : A}
 
-  definition subst {P : A → Type} (H₁ : a = b) (H₂ : P a) : P b :=
+  definition subst [unfold-c 5] {P : A → Type} (H₁ : a = b) (H₂ : P a) : P b :=
   eq.rec H₂ H₁
 
-  definition trans (H₁ : a = b) (H₂ : b = c) : a = c :=
+  definition trans [unfold-c 5] (H₁ : a = b) (H₂ : b = c) : a = c :=
   subst H₂ H₁
 
-  definition symm (H : a = b) : b = a :=
+  definition symm [unfold-c 4] (H : a = b) : b = a :=
   subst H (refl a)
 
   namespace ops

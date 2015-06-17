@@ -7,8 +7,6 @@ Partially ported from Coq HoTT
 Theorems about path types (identity types)
 -/
 
-import .cubical.square
-
 open eq sigma sigma.ops equiv is_equiv equiv.ops
 
 -- TODO: Rename transport_eq_... and pathover_eq_... to eq_transport_... and eq_pathover_...
@@ -112,9 +110,8 @@ namespace eq
 
   -- In the comment we give the fibration of the pathover
 
-  definition pathover_eq {f g : A → B} {p : a1 = a2} {q : f a1 = g a1} {r : f a2 = g a2}
-    (s : square q r (ap f p) (ap g p)) : q =[p] r :=
-  by cases p;apply pathover_idp_of_eq;exact eq_of_vdeg_square s
+  -- we should probably try to do everything just with pathover_eq (defined in cubical.square),
+  -- the following definitions may be removed in future.
 
   definition pathover_eq_l (p : a1 = a2) (q : a1 = a3) : q =[p] p⁻¹ ⬝ q := /-(λx, x = a3)-/
   by cases p; cases q; exact idpo
@@ -232,11 +229,20 @@ namespace eq
   definition eq_equiv_con_eq_con_right (p q : a1 = a2) (r : a2 = a3) : (p = q) ≃ (p ⬝ r = q ⬝ r) :=
   equiv.mk _ !is_equiv_whisker_right
 
+  /-
+    The following proofs can be simplified a bit by concatenating previous equivalences.
+    However, these proofs have the advantage that the inverse is definitionally equal to
+    what we would expect
+  -/
   definition is_equiv_con_eq_of_eq_inv_con (p : a1 = a3) (q : a2 = a3) (r : a2 = a1)
     : is_equiv (con_eq_of_eq_inv_con : p = r⁻¹ ⬝ q → r ⬝ p = q) :=
   begin
-   cases r,
-   apply (@is_equiv_compose _ _ _ _ _ !is_equiv_concat_left !is_equiv_concat_right),
+    fapply adjointify,
+    { apply eq_inv_con_of_con_eq},
+    { intro s, cases r, rewrite [↑[con_eq_of_eq_inv_con,eq_inv_con_of_con_eq],
+        con.assoc,con.assoc,con.left_inv,▸*,-con.assoc,con.right_inv,▸* at *,idp_con s]},
+    { intro s, cases r, rewrite [↑[con_eq_of_eq_inv_con,eq_inv_con_of_con_eq],
+        con.assoc,con.assoc,con.right_inv,▸*,-con.assoc,con.left_inv,▸* at *,idp_con s] },
   end
 
   definition eq_inv_con_equiv_con_eq (p : a1 = a3) (q : a2 = a3) (r : a2 = a1)
@@ -246,8 +252,12 @@ namespace eq
   definition is_equiv_con_eq_of_eq_con_inv (p : a1 = a3) (q : a2 = a3) (r : a2 = a1)
     : is_equiv (con_eq_of_eq_con_inv : r = q ⬝ p⁻¹ → r ⬝ p = q) :=
   begin
-    cases p,
-    apply (@is_equiv_compose _ _ _ _ _ !is_equiv_concat_left !is_equiv_concat_right)
+    fapply adjointify,
+    { apply eq_con_inv_of_con_eq},
+    { intro s, cases p, rewrite [↑[con_eq_of_eq_con_inv,eq_con_inv_of_con_eq],
+        con.assoc,con.assoc,con.left_inv,▸*,-con.assoc,con.right_inv,▸* at *,idp_con s]},
+    { intro s, cases p, rewrite [↑[con_eq_of_eq_con_inv,eq_con_inv_of_con_eq],
+        con.assoc,con.assoc,con.right_inv,▸*,-con.assoc,con.left_inv,▸* at *,idp_con s] },
   end
 
   definition eq_con_inv_equiv_con_eq (p : a1 = a3) (q : a2 = a3) (r : a2 = a1)
@@ -257,8 +267,12 @@ namespace eq
   definition is_equiv_inv_con_eq_of_eq_con (p : a1 = a3) (q : a2 = a3) (r : a1 = a2)
     : is_equiv (inv_con_eq_of_eq_con : p = r ⬝ q → r⁻¹ ⬝ p = q) :=
   begin
-    cases r,
-    apply (@is_equiv_compose _ _ _ _ _ !is_equiv_concat_left !is_equiv_concat_right)
+    fapply adjointify,
+    { apply eq_con_of_inv_con_eq},
+    { intro s, cases r, rewrite [↑[inv_con_eq_of_eq_con,eq_con_of_inv_con_eq],
+        con.assoc,con.assoc,con.left_inv,▸*,-con.assoc,con.right_inv,▸* at *,idp_con s]},
+    { intro s, cases r, rewrite [↑[inv_con_eq_of_eq_con,eq_con_of_inv_con_eq],
+        con.assoc,con.assoc,con.right_inv,▸*,-con.assoc,con.left_inv,▸* at *,idp_con s] },
   end
 
   definition eq_con_equiv_inv_con_eq (p : a1 = a3) (q : a2 = a3) (r : a1 = a2)
@@ -268,35 +282,38 @@ namespace eq
   definition is_equiv_con_inv_eq_of_eq_con (p : a3 = a1) (q : a2 = a3) (r : a2 = a1)
     : is_equiv (con_inv_eq_of_eq_con : r = q ⬝ p → r ⬝ p⁻¹ = q) :=
   begin
-    cases p,
-    apply (@is_equiv_compose _ _ _ _ _ !is_equiv_concat_left !is_equiv_concat_right)
+    fapply adjointify,
+    { apply eq_con_of_con_inv_eq},
+    { intro s, cases p, rewrite [↑[con_inv_eq_of_eq_con,eq_con_of_con_inv_eq],
+        con.assoc,con.assoc,con.left_inv,▸*,-con.assoc,con.right_inv,▸* at *,idp_con s]},
+    { intro s, cases p, rewrite [↑[con_inv_eq_of_eq_con,eq_con_of_con_inv_eq],
+        con.assoc,con.assoc,con.right_inv,▸*,-con.assoc,con.left_inv,▸* at *,idp_con s] },
   end
 
   definition eq_con_equiv_con_inv_eq (p : a3 = a1) (q : a2 = a3) (r : a2 = a1)
     : (r = q ⬝ p) ≃ (r ⬝ p⁻¹ = q) :=
    equiv.mk _ !is_equiv_con_inv_eq_of_eq_con
 
+  local attribute is_equiv_inv_con_eq_of_eq_con
+                  is_equiv_con_inv_eq_of_eq_con
+                  is_equiv_con_eq_of_eq_con_inv
+                  is_equiv_con_eq_of_eq_inv_con [instance]
+
   definition is_equiv_eq_con_of_inv_con_eq (p : a1 = a3) (q : a2 = a3) (r : a2 = a1)
     : is_equiv (eq_con_of_inv_con_eq : r⁻¹ ⬝ q = p → q = r ⬝ p) :=
-  begin
-    cases r,
-    apply (@is_equiv_compose _ _ _ _ _ !is_equiv_concat_left !is_equiv_concat_right)
-  end
-
-  definition inv_con_eq_equiv_eq_con (p : a1 = a3) (q : a2 = a3) (r : a2 = a1)
-    : (r⁻¹ ⬝ q = p) ≃ (q = r ⬝ p) :=
-  equiv.mk _ !is_equiv_eq_con_of_inv_con_eq
+  is_equiv_inv inv_con_eq_of_eq_con
 
   definition is_equiv_eq_con_of_con_inv_eq (p : a1 = a3) (q : a2 = a3) (r : a2 = a1)
     : is_equiv (eq_con_of_con_inv_eq : q ⬝ p⁻¹ = r → q = r ⬝ p) :=
-  begin
-    cases p,
-    apply (@is_equiv_compose _ _ _ _ _ !is_equiv_concat_left !is_equiv_concat_right)
-  end
+  is_equiv_inv con_inv_eq_of_eq_con
 
-  definition con_inv_eq_equiv_eq_con (p : a1 = a3) (q : a2 = a3) (r : a2 = a1)
-    : (q ⬝ p⁻¹ = r) ≃ (q = r ⬝ p) :=
-  equiv.mk _ !is_equiv_eq_con_of_con_inv_eq
+  definition is_equiv_eq_con_inv_of_con_eq (p : a1 = a3) (q : a2 = a3) (r : a2 = a1)
+    : is_equiv (eq_con_inv_of_con_eq : r ⬝ p = q → r = q ⬝ p⁻¹) :=
+  is_equiv_inv con_eq_of_eq_con_inv
+
+  definition is_equiv_eq_inv_con_of_con_eq (p : a1 = a3) (q : a2 = a3) (r : a2 = a1)
+    : is_equiv (eq_inv_con_of_con_eq : r ⬝ p = q → p = r⁻¹ ⬝ q) :=
+  is_equiv_inv con_eq_of_eq_inv_con
 
   /- Pathover Equivalences -/
 

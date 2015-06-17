@@ -27,7 +27,7 @@ namespace is_equiv
            ... = ap f (ap f⁻¹ p)⁻¹ ⬝ ap f (left_inv f a) ⬝ p       : by rewrite ap_inv
            ... = ap f ((ap f⁻¹ p)⁻¹ ⬝ left_inv f a) ⬝ p            : by rewrite ap_con)))
 
-  definition is_contr_right_inverse : is_contr (Σ(g : B → A), f ∘ g ∼ id) :=
+  definition is_contr_right_inverse : is_contr (Σ(g : B → A), f ∘ g ~ id) :=
   begin
     fapply is_trunc_equiv_closed,
       {apply sigma_equiv_sigma_id, intro g, apply eq_equiv_homotopy},
@@ -37,8 +37,8 @@ namespace is_equiv
     apply (to_is_equiv (arrow_equiv_arrow_right (equiv.mk f H))),
   end
 
-  definition is_contr_right_coherence (u : Σ(g : B → A), f ∘ g ∼ id)
-    : is_contr (Σ(η : u.1 ∘ f ∼ id), Π(a : A), u.2 (f a) = ap f (η a)) :=
+  definition is_contr_right_coherence (u : Σ(g : B → A), f ∘ g ~ id)
+    : is_contr (Σ(η : u.1 ∘ f ~ id), Π(a : A), u.2 (f a) = ap f (η a)) :=
   begin
     fapply is_trunc_equiv_closed,
       {apply equiv.symm, apply sigma_pi_equiv_pi_sigma},
@@ -50,7 +50,7 @@ namespace is_equiv
   omit H
 
   protected definition sigma_char : (is_equiv f) ≃
-  (Σ(g : B → A) (ε : f ∘ g ∼ id) (η : g ∘ f ∼ id), Π(a : A), ε (f a) = ap f (η a)) :=
+  (Σ(g : B → A) (ε : f ∘ g ~ id) (η : g ∘ f ~ id), Π(a : A), ε (f a) = ap f (η a)) :=
   equiv.MK (λH, ⟨inv f, right_inv f, left_inv f, adj f⟩)
            (λp, is_equiv.mk f p.1 p.2.1 p.2.2.1 p.2.2.2)
            (λp, begin
@@ -62,13 +62,13 @@ namespace is_equiv
            (λH, is_equiv.rec_on H (λH1 H2 H3 H4, idp))
 
   protected definition sigma_char' : (is_equiv f) ≃
-  (Σ(u : Σ(g : B → A), f ∘ g ∼ id), Σ(η : u.1 ∘ f ∼ id), Π(a : A), u.2 (f a) = ap f (η a)) :=
+  (Σ(u : Σ(g : B → A), f ∘ g ~ id), Σ(η : u.1 ∘ f ~ id), Π(a : A), u.2 (f a) = ap f (η a)) :=
   calc
     (is_equiv f) ≃
-      (Σ(g : B → A) (ε : f ∘ g ∼ id) (η : g ∘ f ∼ id), Π(a : A), ε (f a) = ap f (η a))
+      (Σ(g : B → A) (ε : f ∘ g ~ id) (η : g ∘ f ~ id), Π(a : A), ε (f a) = ap f (η a))
           : is_equiv.sigma_char
-    ... ≃ (Σ(u : Σ(g : B → A), f ∘ g ∼ id), Σ(η : u.1 ∘ f ∼ id), Π(a : A), u.2 (f a) = ap f (η a))
-          : {sigma_assoc_equiv (λu, Σ(η : u.1 ∘ f ∼ id), Π(a : A), u.2 (f a) = ap f (η a))}
+    ... ≃ (Σ(u : Σ(g : B → A), f ∘ g ~ id), Σ(η : u.1 ∘ f ~ id), Π(a : A), u.2 (f a) = ap f (η a))
+          : {sigma_assoc_equiv (λu, Σ(η : u.1 ∘ f ~ id), Π(a : A), u.2 (f a) = ap f (η a))}
 
   local attribute is_contr_right_inverse [instance] [priority 1600]
   local attribute is_contr_right_coherence [instance] [priority 1600]

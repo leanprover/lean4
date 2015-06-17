@@ -205,7 +205,7 @@ namespace iso
       : p ▸ f = hom_of_eq (apd10 p y) ∘ f ∘ inv_of_eq (apd10 p x) :=
     eq.rec_on p !id_leftright⁻¹
 
-    definition transport_hom (p : F ∼ G) (f : hom (F x) (F y))
+    definition transport_hom (p : F ~ G) (f : hom (F x) (F y))
       : eq_of_homotopy p ▸ f = hom_of_eq (p y) ∘ f ∘ inv_of_eq (p x) :=
     calc
       eq_of_homotopy p ▸ f =

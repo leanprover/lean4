@@ -206,28 +206,26 @@ namespace eq
   definition homotopy [reducible] (f g : Πx, P x) : Type :=
   Πx : A, f x = g x
 
-  infix  ∼ := homotopy
+  infix ~ := homotopy
 
-  namespace homotopy
-  protected definition refl [refl] [reducible] (f : Πx, P x) : f ∼ f :=
+  protected definition homotopy.refl [refl] [reducible] (f : Πx, P x) : f ~ f :=
   λ x, idp
 
-  protected definition symm [symm] [reducible] {f g : Πx, P x} (H : f ∼ g) : g ∼ f :=
+  protected definition homotopy.symm [symm] [reducible] {f g : Πx, P x} (H : f ~ g) : g ~ f :=
   λ x, (H x)⁻¹
 
-  protected definition trans [trans] [reducible] {f g h : Πx, P x} (H1 : f ∼ g) (H2 : g ∼ h)
-    : f ∼ h :=
+  protected definition homotopy.trans [trans] [reducible] {f g h : Πx, P x} (H1 : f ~ g) (H2 : g ~ h)
+    : f ~ h :=
   λ x, H1 x ⬝ H2 x
-  end homotopy
 
-  definition apd10 [unfold-c 5] {f g : Πx, P x} (H : f = g) : f ∼ g :=
+  definition apd10 [unfold-c 5] {f g : Πx, P x} (H : f = g) : f ~ g :=
   λx, eq.rec_on H idp
 
   --the next theorem is useful if you want to write "apply (apd10' a)"
   definition apd10' [unfold-c 6] {f g : Πx, P x} (a : A) (H : f = g) : f a = g a :=
   eq.rec_on H idp
 
-  definition ap10 [reducible] [unfold-c 5] {f g : A → B} (H : f = g) : f ∼ g := apd10 H
+  definition ap10 [reducible] [unfold-c 5] {f g : A → B} (H : f = g) : f ~ g := apd10 H
 
   definition ap11 {f g : A → B} (H : f = g) {x y : A} (p : x = y) : f x = g y :=
   eq.rec_on H (eq.rec_on p idp)
@@ -286,6 +284,7 @@ namespace eq
   definition ap_id (p : x = y) : ap id p = p :=
   eq.rec_on p idp
 
+  -- TODO: interchange arguments f and g
   definition ap_compose (f : A → B) (g : B → C) {x y : A} (p : x = y) :
     ap (g ∘ f) p = ap g (ap f p) :=
   eq.rec_on p idp
@@ -300,33 +299,38 @@ namespace eq
   eq.rec_on p idp
 
   -- Naturality of [ap].
-  definition ap_con_eq_con_ap {f g : A → B} (p : f ∼ g) {x y : A} (q : x = y) :
+  definition ap_con_eq_con_ap {f g : A → B} (p : f ~ g) {x y : A} (q : x = y) :
     ap f q ⬝ p y = p x ⬝ ap g q :=
-  eq.rec_on q (!idp_con ⬝ !con_idp⁻¹)
+  eq.rec_on q !idp_con
 
   -- Naturality of [ap] at identity.
   definition ap_con_eq_con {f : A → A} (p : Πx, f x = x) {x y : A} (q : x = y) :
     ap f q ⬝ p y = p x ⬝ q :=
-  eq.rec_on q (!idp_con ⬝ !con_idp⁻¹)
+  eq.rec_on q !idp_con
 
   definition con_ap_eq_con {f : A → A} (p : Πx, x = f x) {x y : A} (q : x = y) :
     p x ⬝ ap f q =  q ⬝ p y :=
-  eq.rec_on q (!con_idp ⬝ !idp_con⁻¹)
+  eq.rec_on q !idp_con⁻¹
+
+  -- Naturality of [ap] with constant function
+  definition ap_con_eq {f : A → B} {b : B} (p : Πx, f x = b) {x y : A} (q : x = y) :
+    ap f q ⬝ p y = p x :=
+  eq.rec_on q !idp_con
 
   -- Naturality with other paths hanging around.
 
-  definition con_ap_con_con_eq_con_con_ap_con {f g : A → B} (p : f ∼ g) {x y : A} (q : x = y)
+  definition con_ap_con_con_eq_con_con_ap_con {f g : A → B} (p : f ~ g) {x y : A} (q : x = y)
       {w z : B} (r : w = f x) (s : g y = z) :
     (r ⬝ ap f q) ⬝ (p y ⬝ s) = (r ⬝ p x) ⬝ (ap g q ⬝ s) :=
   eq.rec_on s (eq.rec_on q idp)
 
-  definition con_ap_con_eq_con_con_ap {f g : A → B} (p : f ∼ g) {x y : A} (q : x = y)
+  definition con_ap_con_eq_con_con_ap {f g : A → B} (p : f ~ g) {x y : A} (q : x = y)
       {w : B} (r : w = f x) :
     (r ⬝ ap f q) ⬝ p y = (r ⬝ p x) ⬝ ap g q :=
   eq.rec_on q idp
 
   -- TODO: try this using the simplifier, and compare proofs
-  definition ap_con_con_eq_con_ap_con {f g : A → B} (p : f ∼ g) {x y : A} (q : x = y)
+  definition ap_con_con_eq_con_ap_con {f g : A → B} (p : f ~ g) {x y : A} (q : x = y)
       {z : B} (s : g y = z) :
     ap f q ⬝ (p y ⬝ s) = p x ⬝ (ap g q ⬝ s) :=
   eq.rec_on s (eq.rec_on q
@@ -337,32 +341,32 @@ namespace eq
   -- This also works:
   -- eq.rec_on s (eq.rec_on q (!idp_con ▸ idp))
 
-  definition con_ap_con_con_eq_con_con_con {f : A → A} (p : f ∼ id) {x y : A} (q : x = y)
+  definition con_ap_con_con_eq_con_con_con {f : A → A} (p : f ~ id) {x y : A} (q : x = y)
       {w z : A} (r : w = f x) (s : y = z) :
     (r ⬝ ap f q) ⬝ (p y ⬝ s) = (r ⬝ p x) ⬝ (q ⬝ s) :=
   eq.rec_on s (eq.rec_on q idp)
 
-  definition con_con_ap_con_eq_con_con_con {g : A → A} (p : id ∼ g) {x y : A} (q : x = y)
+  definition con_con_ap_con_eq_con_con_con {g : A → A} (p : id ~ g) {x y : A} (q : x = y)
       {w z : A} (r : w = x) (s : g y = z) :
     (r ⬝ p x) ⬝ (ap g q ⬝ s) = (r ⬝ q) ⬝ (p y ⬝ s) :=
   eq.rec_on s (eq.rec_on q idp)
 
-  definition con_ap_con_eq_con_con {f : A → A} (p : f ∼ id) {x y : A} (q : x = y)
+  definition con_ap_con_eq_con_con {f : A → A} (p : f ~ id) {x y : A} (q : x = y)
       {w : A} (r : w = f x) :
     (r ⬝ ap f q) ⬝ p y = (r ⬝ p x) ⬝ q :=
   eq.rec_on q idp
 
-  definition ap_con_con_eq_con_con {f : A → A} (p : f ∼ id) {x y : A} (q : x = y)
+  definition ap_con_con_eq_con_con {f : A → A} (p : f ~ id) {x y : A} (q : x = y)
       {z : A} (s : y = z) :
     ap f q ⬝ (p y ⬝ s) = p x ⬝ (q ⬝ s) :=
   eq.rec_on s (eq.rec_on q (!idp_con ▸ idp))
 
-  definition con_con_ap_eq_con_con {g : A → A} (p : id ∼ g) {x y : A} (q : x = y)
+  definition con_con_ap_eq_con_con {g : A → A} (p : id ~ g) {x y : A} (q : x = y)
       {w : A} (r : w = x) :
     (r ⬝ p x) ⬝ ap g q = (r ⬝ q) ⬝ p y :=
   begin cases q, exact idp end
 
-  definition con_ap_con_eq_con_con' {g : A → A} (p : id ∼ g) {x y : A} (q : x = y)
+  definition con_ap_con_eq_con_con' {g : A → A} (p : id ~ g) {x y : A} (q : x = y)
       {z : A} (s : g y = z) :
     p x ⬝ (ap g q ⬝ s) = q ⬝ (p y ⬝ s) :=
   begin
@@ -654,4 +658,10 @@ namespace eq
       ⬝ con.assoc' _ _ _
       ⬝ (whisker_right (tr2_con r1 r2 (f x))⁻¹ (apd f p3)) :=
   eq.rec_on r2 (eq.rec_on r1 (eq.rec_on p1 idp))
+
+  -- Naturality of [ap] with constant function over a loop
+  definition ap_eq_idp {f : A → B} {b : B} (p : Πx, f x = b) {x : A} (q : x = x) :
+    ap f q = idp :=
+  cancel_right (ap_con_eq p q ⬝ !idp_con⁻¹)
+
 end eq

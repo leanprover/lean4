@@ -10,7 +10,7 @@ import .sphere
 import types.bool types.int.hott types.equiv
 import algebra.fundamental_group algebra.hott
 
-open eq suspension bool sphere_index is_equiv equiv equiv.ops is_trunc pi
+open eq susp bool sphere_index is_equiv equiv equiv.ops is_trunc pi
 
 definition circle : Type₀ := sphere 1
 

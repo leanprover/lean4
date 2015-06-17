@@ -48,8 +48,8 @@ namespace eq
   definition homotopy4 [reducible] (f g : Πa b c d, E a b c d) : Type :=
   Πa b c d, f a b c d = g a b c d
 
-  notation f `∼2`:50 g := homotopy2 f g
-  notation f `∼3`:50 g := homotopy3 f g
+  notation f `~2`:50 g := homotopy2 f g
+  notation f `~3`:50 g := homotopy3 f g
 
   definition ap011 (f : U → V → W) (Hu : u = u') (Hv : v = v') : f u v = f u' v' :=
   by cases Hu; congruence; repeat assumption
@@ -72,13 +72,13 @@ namespace eq
       : f u v w x y z = f u' v' w' x' y' z' :=
   by cases Hu; congruence; repeat assumption
 
-  definition ap010 (f : X → Πa, B a) (Hx : x = x') : f x ∼ f x' :=
+  definition ap010 (f : X → Πa, B a) (Hx : x = x') : f x ~ f x' :=
   by intros; cases Hx; reflexivity
 
-  definition ap0100 (f : X → Πa b, C a b) (Hx : x = x') : f x ∼2 f x' :=
+  definition ap0100 (f : X → Πa b, C a b) (Hx : x = x') : f x ~2 f x' :=
   by intros; cases Hx; reflexivity
 
-  definition ap01000 (f : X → Πa b c, D a b c) (Hx : x = x') : f x ∼3 f x' :=
+  definition ap01000 (f : X → Πa b c, D a b c) (Hx : x = x') : f x ~3 f x' :=
   by intros; cases Hx; reflexivity
 
   definition apd011 (f : Πa, B a → Z) (Ha : a = a') (Hb : transport B Ha b = b')
@@ -121,10 +121,10 @@ namespace eq
   --   : f a b c d e ff g h = f a' b' c' d' e' f' g' h' :=
   -- by cases Ha; cases Hb; cases Hc; cases Hd; cases He; cases Hf; cases Hg; cases Hh; reflexivity
 
-  definition apd100 {f g : Πa b, C a b} (p : f = g) : f ∼2 g :=
+  definition apd100 {f g : Πa b, C a b} (p : f = g) : f ~2 g :=
   λa b, apd10 (apd10 p a) b
 
-  definition apd1000 {f g : Πa b c, D a b c} (p : f = g) : f ∼3 g :=
+  definition apd1000 {f g : Πa b c, D a b c} (p : f = g) : f ~3 g :=
   λa b c, apd100 (apd10 p a) b c
 
   /- some properties of these variants of ap -/
@@ -141,10 +141,10 @@ namespace eq
 
   /- the following theorems are function extentionality for functions with multiple arguments -/
 
-  definition eq_of_homotopy2 {f g : Πa b, C a b} (H : f ∼2 g) : f = g :=
+  definition eq_of_homotopy2 {f g : Πa b, C a b} (H : f ~2 g) : f = g :=
   eq_of_homotopy (λa, eq_of_homotopy (H a))
 
-  definition eq_of_homotopy3 {f g : Πa b c, D a b c} (H : f ∼3 g) : f = g :=
+  definition eq_of_homotopy3 {f g : Πa b c, D a b c} (H : f ~3 g) : f = g :=
   eq_of_homotopy (λa, eq_of_homotopy2 (H a))
 
   definition eq_of_homotopy2_id (f : Πa b, C a b)
@@ -200,12 +200,12 @@ end funext
 namespace eq
   open funext
   local attribute funext.is_equiv_apd100 [instance]
-  protected definition homotopy2.rec_on {f g : Πa b, C a b} {P : (f ∼2 g) → Type}
-    (p : f ∼2 g) (H : Π(q : f = g), P (apd100 q)) : P p :=
+  protected definition homotopy2.rec_on {f g : Πa b, C a b} {P : (f ~2 g) → Type}
+    (p : f ~2 g) (H : Π(q : f = g), P (apd100 q)) : P p :=
   right_inv apd100 p ▸ H (eq_of_homotopy2 p)
 
-  protected definition homotopy3.rec_on {f g : Πa b c, D a b c} {P : (f ∼3 g) → Type}
-    (p : f ∼3 g) (H : Π(q : f = g), P (apd1000 q)) : P p :=
+  protected definition homotopy3.rec_on {f g : Πa b c, D a b c} {P : (f ~3 g) → Type}
+    (p : f ~3 g) (H : Π(q : f = g), P (apd1000 q)) : P p :=
   right_inv apd1000 p ▸ H (eq_of_homotopy3 p)
 
   definition apd10_ap (f : X → Πa, B a) (p : x = x')
@@ -216,7 +216,7 @@ namespace eq
     : eq_of_homotopy (ap010 f p) = ap f p :=
   inv_eq_of_eq !apd10_ap⁻¹
 
-  definition ap_eq_ap_of_homotopy {f : X → Πa, B a} {p q : x = x'} (H : ap010 f p ∼ ap010 f q)
+  definition ap_eq_ap_of_homotopy {f : X → Πa, B a} {p q : x = x'} (H : ap010 f p ~ ap010 f q)
     : ap f p = ap f q :=
   calc
     ap f p = eq_of_homotopy (ap010 f p) : eq_of_homotopy_ap010

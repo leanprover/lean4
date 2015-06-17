@@ -22,7 +22,8 @@ notation `ℕ+` := pnat
 
 definition nat_of_pnat (p : pnat) : ℕ :=
   pnat.rec_on p (λ n H, n)
-local postfix `~` : std.prec.max_plus := nat_of_pnat
+reserve postfix `~`:std.prec.max_plus
+local postfix ~ := nat_of_pnat
 
 theorem nat_of_pnat_pos (p : pnat) : p~ > 0 :=
   pnat.rec_on p (λ n H, H)

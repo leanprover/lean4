@@ -6,21 +6,21 @@ Authors: Floris van Doorn
 Declaration of the interval
 -/
 
-import .suspension types.eq types.prod types.cubical.square
-open eq suspension unit equiv equiv.ops is_trunc nat prod
+import .susp types.eq types.prod types.cubical.square
+open eq susp unit equiv equiv.ops is_trunc nat prod
 
-definition interval : Type₀ := suspension unit
+definition interval : Type₀ := susp unit
 
 namespace interval
 
-  definition zero : interval := !north
-  definition one  : interval := !south
+  definition zero : interval := north
+  definition one  : interval := south
   definition seg  : zero = one := merid star
 
   protected definition rec {P : interval → Type} (P0 : P zero) (P1 : P one)
     (Ps : P0 =[seg] P1) (x : interval) : P x :=
   begin
-    fapply suspension.rec_on x,
+    fapply susp.rec_on x,
     { exact P0},
     { exact P1},
     { intro x, cases x, exact Ps}

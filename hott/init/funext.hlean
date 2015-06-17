@@ -23,7 +23,7 @@ definition funext.{l k} :=
 
 -- Naive funext is the simple assertion that pointwise equal functions are equal.
 definition naive_funext :=
-  Π ⦃A : Type⦄ {P : A → Type} (f g : Πx, P x), (f ∼ g) → f = g
+  Π ⦃A : Type⦄ {P : A → Type} (f g : Πx, P x), (f ~ g) → f = g
 
 -- Weak funext says that a product of contractible types is contractible.
 definition weak_funext :=
@@ -33,7 +33,7 @@ definition weak_funext_of_naive_funext : naive_funext → weak_funext :=
   (λ nf A P (Pc : Πx, is_contr (P x)),
     let c := λx, center (P x) in
     is_contr.mk c (λ f,
-      have eq' : (λx, center (P x)) ∼ f,
+      have eq' : (λx, center (P x)) ~ f,
         from (λx, center_eq (f x)),
       have eq : (λx, center (P x)) = f,
         from nf A P (λx, center (P x)) f eq',
@@ -52,12 +52,12 @@ section
   universe variables l k
   parameters [wf : weak_funext.{l k}] {A : Type.{l}} {B : A → Type.{k}} (f : Π x, B x)
 
-  definition is_contr_sigma_homotopy : is_contr (Σ (g : Π x, B x), f ∼ g) :=
+  definition is_contr_sigma_homotopy : is_contr (Σ (g : Π x, B x), f ~ g) :=
     is_contr.mk (sigma.mk f (homotopy.refl f))
       (λ dp, sigma.rec_on dp
-        (λ (g : Π x, B x) (h : f ∼ g),
+        (λ (g : Π x, B x) (h : f ~ g),
           let r := λ (k : Π x, Σ y, f x = y),
-            @sigma.mk _ (λg, f ∼ g)
+            @sigma.mk _ (λg, f ~ g)
               (λx, pr1 (k x)) (λx, pr2 (k x)) in
           let s := λ g h x, @sigma.mk _ (λy, f x = y) (g x) (h x) in
           have t1 : Πx, is_contr (Σ y, f x = y),
@@ -75,9 +75,9 @@ section
       )
   local attribute is_contr_sigma_homotopy [instance]
 
-  parameters (Q : Π g (h : f ∼ g), Type) (d : Q f (homotopy.refl f))
+  parameters (Q : Π g (h : f ~ g), Type) (d : Q f (homotopy.refl f))
 
-  definition homotopy_ind (g : Πx, B x) (h : f ∼ g) : Q g h :=
+  definition homotopy_ind (g : Πx, B x) (h : f ~ g) : Q g h :=
     @transport _ (λ gh, Q (pr1 gh) (pr2 gh)) (sigma.mk f (homotopy.refl f)) (sigma.mk g h)
       (@eq_of_is_contr _ is_contr_sigma_homotopy _ _) d
 
@@ -100,9 +100,9 @@ theorem funext_of_weak_funext (wf : weak_funext.{l k}) : funext.{l k} :=
       proof homotopy_ind_comp f eq_to_f idp qed,
     assert t2 : apd10 (sim2path f (homotopy.refl f)) = (homotopy.refl f),
       proof ap apd10 t1 qed,
-    have left_inv : apd10 ∘ (sim2path g) ∼ id,
+    have left_inv : apd10 ∘ (sim2path g) ~ id,
       proof (homotopy_ind f (λ g' x, apd10 (sim2path g' x) = x) t2) g qed,
-    have right_inv : (sim2path g) ∘ apd10 ∼ id,
+    have right_inv : (sim2path g) ∘ apd10 ~ id,
       from (λ h, eq.rec_on h (homotopy_ind_comp f _ idp)),
     is_equiv.adjointify apd10 (sim2path g) left_inv right_inv
 
@@ -181,8 +181,8 @@ section
 
   set_option class.conservative false
   theorem nondep_funext_from_ua {A : Type} {B : Type}
-      : Π {f g : A → B}, f ∼ g → f = g :=
-    (λ (f g : A → B) (p : f ∼ g),
+      : Π {f g : A → B}, f ~ g → f = g :=
+    (λ (f g : A → B) (p : f ~ g),
         let d := λ (x : A), sigma.mk (f x , f x) idp in
         let e := λ (x : A), sigma.mk (f x , g x) (p x) in
         let precomp1 :=  compose (pr₁ ∘ pr1) in
@@ -237,13 +237,13 @@ end funext
 
 open funext
 
-definition eq_equiv_homotopy : (f = g) ≃ (f ∼ g) :=
+definition eq_equiv_homotopy : (f = g) ≃ (f ~ g) :=
 equiv.mk apd10 _
 
-definition eq_of_homotopy [reducible] : f ∼ g → f = g :=
+definition eq_of_homotopy [reducible] : f ~ g → f = g :=
 (@apd10 A P f g)⁻¹
 
-definition apd10_eq_of_homotopy (p : f ∼ g) : apd10 (eq_of_homotopy p) = p :=
+definition apd10_eq_of_homotopy (p : f ~ g) : apd10 (eq_of_homotopy p) = p :=
 right_inv apd10 p
 
 definition eq_of_homotopy_apd10 (p : f = g) : eq_of_homotopy (apd10 p) = p :=
@@ -255,9 +255,9 @@ is_equiv.left_inv apd10 idp
 definition naive_funext_of_ua : naive_funext :=
 λ A P f g h, eq_of_homotopy h
 
-protected definition homotopy.rec_on [recursor] {Q : (f ∼ g) → Type} (p : f ∼ g)
+protected definition homotopy.rec_on [recursor] {Q : (f ~ g) → Type} (p : f ~ g)
   (H : Π(q : f = g), Q (apd10 q)) : Q p :=
 right_inv apd10 p ▸ H (eq_of_homotopy p)
 
-protected definition homotopy.rec_on_idp [recursor] {Q : Π{g}, (f ∼ g) → Type} {g : Π x, P x} (p : f ∼ g) (H : Q (homotopy.refl f)) : Q p :=
+protected definition homotopy.rec_on_idp [recursor] {Q : Π{g}, (f ~ g) → Type} {g : Π x, P x} (p : f ~ g) (H : Q (homotopy.refl f)) : Q p :=
 homotopy.rec_on p (λq, eq.rec_on q H)

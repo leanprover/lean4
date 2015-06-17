@@ -150,9 +150,6 @@ namespace is_trunc
     is_trunc (n.+1) A ↔ Π(a : A), is_trunc n (a = a) :=
   iff.intro _ (is_trunc_succ_of_is_trunc_loop Hn)
 
---  set_option pp.implicit true
-  -- set_option pp.coercions true
-  -- set_option pp.notation false
   definition is_trunc_iff_is_contr_loop_succ (n : ℕ) (A : Type)
     : is_trunc n A ↔ Π(a : A), is_contr (Ω[succ n](Pointed.mk a)) :=
   begin

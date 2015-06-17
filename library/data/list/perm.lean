@@ -17,7 +17,7 @@ inductive perm : list A → list A → Prop :=
 | trans : Π {l₁ l₂ l₃ : list A}, perm l₁ l₂ → perm l₂ l₃ → perm l₁ l₃
 
 namespace perm
-infix ~:50 := perm
+infix ~ := perm
 theorem eq_nil_of_perm_nil {l₁ : list A} (p : [] ~ l₁) : l₁ = [] :=
 have gen : ∀ (l₂ : list A) (p : l₂ ~ l₁), l₂ = [] → l₁ = [], from
   take l₂ p, perm.induction_on p

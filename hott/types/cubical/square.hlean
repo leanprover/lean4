@@ -5,7 +5,7 @@ Author: Floris van Doorn
 
 Squares in a type
 -/
-
+import types.eq
 open eq equiv is_equiv
 
 namespace eq
@@ -60,24 +60,18 @@ namespace eq
   definition eq_of_square (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) : p₁₀ ⬝ p₂₁ = p₀₁ ⬝ p₁₂ :=
   by cases s₁₁; apply idp
 
-  definition hdeg_square {p q : a = a'} (r : p = q) : square idp idp p q :=
-  by cases r;apply hrefl
-
-  definition vdeg_square {p q : a = a'} (r : p = q) : square p q idp idp :=
-  by cases r;apply vrefl
-
   definition square_of_eq (r : p₁₀ ⬝ p₂₁ = p₀₁ ⬝ p₁₂) : square p₁₀ p₁₂ p₀₁ p₂₁ :=
-  by cases p₁₂; (esimp [concat] at r); cases r; cases p₂₁; cases p₁₀; exact ids
+  by cases p₁₂; esimp [concat] at r; cases r; cases p₂₁; cases p₁₀; exact ids
 
   definition aps {B : Type} (f : A → B) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
     : square (ap f p₁₀) (ap f p₁₂) (ap f p₀₁) (ap f p₂₁) :=
   by cases s₁₁;exact ids
 
-  definition square_of_homotopy {B : Type} {f g : A → B} (H : f ∼ g) (p : a = a')
+  definition square_of_homotopy {B : Type} {f g : A → B} (H : f ~ g) (p : a = a')
     : square (H a) (H a') (ap f p) (ap g p) :=
   by cases p; apply vrefl
 
-  definition square_of_homotopy' {B : Type} {f g : A → B} (H : f ∼ g) (p : a = a')
+  definition square_of_homotopy' {B : Type} {f g : A → B} (H : f ~ g) (p : a = a')
     : square (ap f p) (ap g p) (H a) (H a') :=
   by cases p; apply hrefl
 
@@ -91,7 +85,51 @@ namespace eq
     { intro s, cases s, apply idp},
   end
 
-  definition natural_square [unfold-c 8] {f g : A → B} (p : f ∼ g) (q : a = a') :
+  definition hdeg_square {p q : a = a'} (r : p = q) : square idp idp p q :=
+  by cases r;apply hrefl
+
+  definition vdeg_square {p q : a = a'} (r : p = q) : square p q idp idp :=
+  by cases r;apply vrefl
+
+  definition hdeg_square_equiv' [constructor] (p q : a = a') : square idp idp p q ≃ p = q :=
+  by transitivity _;apply square_equiv_eq;transitivity _;apply eq_equiv_eq_symm;
+     apply equiv_eq_closed_right;apply idp_con
+
+  definition vdeg_square_equiv' [constructor] (p q : a = a') : square p q idp idp ≃ p = q :=
+  by transitivity _;apply square_equiv_eq;apply equiv_eq_closed_right; apply idp_con
+
+  definition eq_of_hdeg_square [reducible] {p q : a = a'} (s : square idp idp p q) : p = q :=
+  to_fun !hdeg_square_equiv' s
+
+  definition eq_of_vdeg_square [reducible] {p q : a = a'} (s : square p q idp idp) : p = q :=
+  to_fun !vdeg_square_equiv' s
+
+  /-
+    the following two equivalences have as underlying inverse function the functions
+    hdeg_square and vdeg_square, respectively
+  -/
+  definition hdeg_square_equiv [constructor] (p q : a = a') : square idp idp p q ≃ p = q :=
+  begin
+    fapply equiv_change_fun,
+    { fapply equiv_change_inv, apply hdeg_square_equiv', exact hdeg_square,
+        intro s, cases s, cases p, reflexivity},
+    { exact eq_of_hdeg_square},
+    { reflexivity}
+  end
+
+  definition vdeg_square_equiv [constructor] (p q : a = a') : square p q idp idp ≃ p = q :=
+  begin
+    fapply equiv_change_fun,
+    { fapply equiv_change_inv, apply vdeg_square_equiv',exact vdeg_square,
+        intro s, cases s, cases p, reflexivity},
+    { exact eq_of_vdeg_square},
+    { reflexivity}
+  end
+
+  -- example (p q : a = a') : to_inv (hdeg_square_equiv' p q) = hdeg_square := idp -- this fails
+  example (p q : a = a') : to_inv (hdeg_square_equiv p q) = hdeg_square := idp
+
+  definition natural_square [unfold-c 8] {f g : A → B} (p : f ~ g) (q : a = a') :
     square (p a) (p a') (ap f q) (ap g q) :=
   eq.rec_on q vrfl
 
@@ -154,12 +192,41 @@ namespace eq
     from @eq.rec_on _ _ (λx q, P (square_of_eq q⁻¹)) _ p (by cases b; exact H),
   to_left_inv (!square_equiv_eq) s ▸ !inv_inv ▸ H2
 
-definition eq_of_hdeg_square {p q : a = a'} (s : square idp idp p q) : p = q :=
-  rec_on_tb s idp
-
-definition eq_of_vdeg_square {p q : a = a'} (s : square p q idp idp) : p = q :=
-  rec_on_lr s idp
-
   --we can also do the other recursors (tl, tr, bl, br, tbl, tbr, tlr, blr), but let's postpone this until they are needed
+
+  definition pathover_eq {f g : A → B} {p : a = a'} {q : f a = g a} {r : f a' = g a'}
+    (s : square q r (ap f p) (ap g p)) : q =[p] r :=
+  by cases p;apply pathover_idp_of_eq;exact eq_of_vdeg_square s
+
+  definition square_of_pathover {f g : A → B} {p : a = a'} {q : f a = g a} {r : f a' = g a'}
+    (s : q =[p] r) : square q r (ap f p) (ap g p) :=
+  by cases p;apply vdeg_square;exact eq_of_pathover_idp s
+exit
+  definition pathover_eq_equiv_square {f g : A → B} (p : a = a') (q : f a = g a) (r : f a' = g a')
+    : square q r (ap f p) (ap g p) ≃ q =[p] r :=
+  equiv.MK pathover_eq
+           square_of_pathover
+           (λs, begin cases p, esimp [square_of_pathover,pathover_eq],
+                let H := to_right_inv !vdeg_square_equiv (eq_of_pathover_idp s),
+                esimp at H,
+                rewrite [H] end
+                   )
+           (λs, by cases p;esimp [square_of_pathover,pathover_eq] at *)
+
+
+  -- set_option pp.notation false
+  -- set_option pp.implicit true
+example {f g : A → B} (q : f a = g a) (r : f a = g a) (s : q =[idp] r) :
+  function.compose (to_fun (vdeg_square_equiv q r)) (to_fun (vdeg_square_equiv q r))⁻¹
+    (eq_of_pathover_idp s) = sorry :=
+    begin
+      esimp
+    end
+
+example {f g : A → B} (q : f a = g a) (r : f a = g a) (s : square q r idp idp) :
+  to_fun (vdeg_square_equiv q r) s = eq_of_vdeg_square s :=
+    begin
+
+    end
 
 end eq

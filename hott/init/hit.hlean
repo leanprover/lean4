@@ -16,7 +16,7 @@ open is_trunc eq
   We take two higher inductive types (hits) as primitive notions in Lean. We define all other hits
   in terms of these two hits. The hits which are primitive are
     - n-truncation
-    - quotients (non-truncated quotients)
+    - quotients (not truncated)
   For each of the hits we add the following constants:
     - the type formation
     - the term and path constructors

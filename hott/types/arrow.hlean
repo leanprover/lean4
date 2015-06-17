@@ -47,7 +47,7 @@ namespace pi
   /- Transport -/
 
   definition arrow_transport {B C : A → Type} (p : a = a') (f : B a → C a)
-    : (transport (λa, B a → C a) p f) ∼ (λb, p ▸ f (p⁻¹ ▸ b)) :=
+    : (transport (λa, B a → C a) p f) ~ (λb, p ▸ f (p⁻¹ ▸ b)) :=
   eq.rec_on p (λx, idp)
 
   /- Pathovers -/

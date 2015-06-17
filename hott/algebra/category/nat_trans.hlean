@@ -40,11 +40,11 @@ namespace nat_trans
   definition nat_trans_mk_eq {η₁ η₂ : Π (a : C), hom (F a) (G a)}
     (nat₁ : Π (a b : C) (f : hom a b), G f ∘ η₁ a = η₁ b ∘ F f)
     (nat₂ : Π (a b : C) (f : hom a b), G f ∘ η₂ a = η₂ b ∘ F f)
-    (p : η₁ ∼ η₂)
+    (p : η₁ ~ η₂)
       : nat_trans.mk η₁ nat₁ = nat_trans.mk η₂ nat₂ :=
   apd011 nat_trans.mk (eq_of_homotopy p) !is_hprop.elim
 
-  definition nat_trans_eq {η₁ η₂ : F ⟹ G} : natural_map η₁ ∼ natural_map η₂ → η₁ = η₂ :=
+  definition nat_trans_eq {η₁ η₂ : F ⟹ G} : natural_map η₁ ~ natural_map η₂ → η₁ = η₂ :=
   nat_trans.rec_on η₁ (λf₁ nat₁, nat_trans.rec_on η₂ (λf₂ nat₂ p, !nat_trans_mk_eq p))
 
   protected definition assoc (η₃ : H ⟹ I) (η₂ : G ⟹ H) (η₁ : F ⟹ G) :

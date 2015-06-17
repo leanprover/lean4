@@ -187,6 +187,12 @@ namespace eq
   definition pathover_tr_of_pathover {p : a = a₃} (q : b =[p ⬝ p₂⁻¹] b₂) : b =[p] p₂ ▸ b₂ :=
   by cases p₂;exact q
 
+  definition pathover_tr_of_eq (q : b = b') : b =[p] p ▸ b' :=
+  by cases q;apply pathover_tr
+
+  definition tr_pathover_of_eq (q : b₂ = b₂') : p⁻¹ ▸ b₂ =[p] b₂' :=
+  by cases q;apply tr_pathover
+
   definition apo011 (f : Πa, B a → A') (Ha : a = a₂) (Hb : b =[Ha] b₂)
       : f a b = f a₂ b₂ :=
   by cases Hb; exact idp

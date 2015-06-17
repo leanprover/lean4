@@ -123,7 +123,7 @@ namespace quot
         (λ a₁a₂, setoid.trans (setoid.symm a₁b₁) (setoid.trans a₁a₂ a₂b₂))
         (λ b₁b₂, setoid.trans a₁b₁ (setoid.trans b₁b₂ (setoid.symm a₂b₂)))))
 
-  local infix `~`:50 := rel
+  local infix `~` := rel
 
   private lemma rel.refl : ∀ q : quot s, q ~ q :=
   λ q, quot.induction_on q (λ a, setoid.refl a)

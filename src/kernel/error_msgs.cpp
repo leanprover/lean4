@@ -75,6 +75,14 @@ format pp_app_type_mismatch(formatter const & _fmt, expr const & app, expr const
         opts = opts.update_if_undef(name{"pp", "implicit"}, true);
         fmt = fmt.update_options(opts);
     }
+    if (is_lambda(get_app_fn(app))) {
+        // Disable beta reduction in the pretty printer since it will make the error hard to understand.
+        // See issue https://github.com/leanprover/lean/issues/669
+        options opts = fmt.get_options();
+        // TODO(Leo): this is hackish, the option is defined in the folder library
+        opts = opts.update_if_undef(name{"pp", "beta"}, false);
+        fmt = fmt.update_options(opts);
+    }
     expr expected_type = binding_domain(fn_type);
     std::tie(expected_fmt, given_fmt) = pp_until_different(fmt, expected_type, given_type);
     if (as_error)

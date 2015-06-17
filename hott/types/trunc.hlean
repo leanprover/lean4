@@ -165,7 +165,7 @@ namespace is_trunc
           { esimp, transitivity _,
             apply eq_equiv_fn_eq_of_equiv (equiv_eq_closed_right _ p⁻¹),
             esimp, apply eq_equiv_eq_closed, apply con.right_inv, apply con.right_inv},
-          { esimp, apply con_right_inv2}},
+          { esimp, apply con.left_inv}},
         transitivity _,
           apply iff.pi_iff_pi, intro p,
           rewrite [↑Iterated_loop_space,↓Iterated_loop_space n (Loop_space (pointed.Mk p)),H],

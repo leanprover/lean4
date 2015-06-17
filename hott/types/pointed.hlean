@@ -30,7 +30,8 @@ namespace pointed
   pointed.mk (Point A)
 
   -- Any contractible type is pointed
-  definition pointed_of_is_contr [instance] [constructor] (A : Type) [H : is_contr A] : pointed A :=
+  definition pointed_of_is_contr [instance] [priority 800] [constructor]
+    (A : Type) [H : is_contr A] : pointed A :=
   pointed.mk !center
 
   -- A pi type with a pointed target is pointed
@@ -99,15 +100,13 @@ open pmap
 
 namespace pointed
 
-  variables {A B C D : Pointed}
-
   abbreviation respect_pt [unfold-c 3] := @pmap.resp_pt
-
   notation `map₊` := pmap
   infix `→*`:30 := pmap
   attribute pmap.map [coercion]
-  definition pmap_eq {f g : map₊ A B}
-    (r : Πa, f a = g a) (s : respect_pt f = (r pt) ⬝ respect_pt g) : f = g :=
+  variables {A B C D : Pointed} {f g h : A →* B}
+
+  definition pmap_eq (r : Πa, f a = g a) (s : respect_pt f = (r pt) ⬝ respect_pt g) : f = g :=
   begin
     cases f with f p, cases g with g q,
     esimp at *,
@@ -131,22 +130,36 @@ namespace pointed
 
   infix `~*`:50 := phomotopy
   abbreviation to_homotopy_pt [unfold-c 5] := @phomotopy.homotopy_pt
-  abbreviation to_homotopy [coercion] [unfold-c 5] {f g : A →* B} (p : f ~* g) : Πa, f a = g a :=
+  abbreviation to_homotopy [coercion] [unfold-c 5] (p : f ~* g) : Πa, f a = g a :=
   phomotopy.homotopy p
 
   definition passoc (h : C →* D) (g : B →* C) (f : A →* B) : (h ∘* g) ∘* f ~* h ∘* (g ∘* f) :=
   begin
-    fapply phomotopy.mk, intro a, reflexivity,
+    constructor, intro a, reflexivity,
     cases A, cases B, cases C, cases D, cases f with f pf, cases g with g pg, cases h with h ph,
     esimp at *,
     induction pf, induction pg, induction ph, reflexivity
+  end
+
+  definition pid_comp (f : A →* B) : pid B ∘* f ~* f :=
+  begin
+    constructor,
+    { intro a, reflexivity},
+    { esimp, exact !idp_con ⬝ !ap_id⁻¹}
+  end
+
+  definition comp_pid (f : A →* B) : f ∘* pid A ~* f :=
+  begin
+    constructor,
+    { intro a, reflexivity},
+    { reflexivity}
   end
 
   definition pmap_equiv_left (A : Type) (B : Pointed) : A₊ →* B ≃ (A → B) :=
   begin
     fapply equiv.MK,
     { intro f a, cases f with f p, exact f (some a)},
-    { intro f, fapply pmap.mk,
+    { intro f, constructor,
         intro a, cases a, exact pt, exact f a,
         reflexivity},
     { intro f, reflexivity},
@@ -180,7 +193,7 @@ namespace pointed
   begin
     fapply equiv.MK,
     { intro f, cases f with f p, exact f tt},
-    { intro b, fapply pmap.mk,
+    { intro b, constructor,
         intro u, cases u, exact pt, exact b,
         reflexivity},
     { intro b, reflexivity},
@@ -196,35 +209,73 @@ namespace pointed
   { intros A B f, rewrite [↑Iterated_loop_space,↓Iterated_loop_space n (Ω A),
       ↑Iterated_loop_space, ↓Iterated_loop_space n (Ω B)],
     apply IH (Ω A),
-    { esimp, fapply pmap.mk,
+    { esimp, constructor,
         intro q, refine !respect_pt⁻¹ ⬝ ap f q ⬝ !respect_pt,
         esimp, apply con.left_inv}}
   end
 
-  definition ap1 [constructor] (f : A →* B) := apn (succ 0) f
+  definition ap1 [constructor] (f : A →* B) : Ω A →* Ω B := apn (succ 0) f
 
-  protected definition phomotopy.trans [trans] {f g h : A →* B} (p : f ~* g) (q : g ~* h)
+  definition ap1_compose (g : B →* C) (f : A →* B) : ap1 (g ∘* f) ~* ap1 g ∘* ap1 f :=
+  begin
+    induction B, induction C, induction g with g pg, induction f with f pf, esimp at *,
+    induction pg, induction pf,
+    constructor,
+    { intro p, esimp, apply whisker_left, exact ap_compose f g p ⬝ ap (ap g) !idp_con⁻¹},
+    { reflexivity}
+  end
+
+  protected definition phomotopy.refl [refl] (f : A →* B) : f ~* f :=
+  begin
+    constructor,
+    { intro a, exact idp},
+    { apply idp_con}
+  end
+
+  protected definition phomotopy.trans [trans] (p : f ~* g) (q : g ~* h)
     : f ~* h :=
   begin
-    fapply phomotopy.mk,
+    constructor,
     { intro a, exact p a ⬝ q a},
     { induction f, induction g, induction p with p p', induction q with q q', esimp at *,
       induction p', induction q', esimp, apply con.assoc}
   end
 
-  protected definition phomotopy.symm [symm] {f g : A →* B} (p : f ~* g) : g ~* f :=
+  protected definition phomotopy.symm [symm] (p : f ~* g) : g ~* f :=
   begin
-    fapply phomotopy.mk,
+    constructor,
     { intro a, exact (p a)⁻¹},
     { induction f, induction p with p p', esimp at *,
       induction p', esimp, apply inv_con_cancel_left}
   end
 
-  definition eq_of_phomotopy {f g : A →* B} (p : f ~* g) : f = g :=
+  infix `⬝*`:75 := phomotopy.trans
+  postfix `⁻¹*`:(max+1) := phomotopy.symm
+
+  definition eq_of_phomotopy (p : f ~* g) : f = g :=
   begin
     fapply pmap_eq,
     { intro a, exact p a},
     { exact !to_homotopy_pt⁻¹}
+  end
+
+  definition pwhisker_left (h : B →* C) (p : f ~* g) : h ∘* f ~* h ∘* g :=
+  begin
+    constructor,
+    { intro a, exact ap h (p a)},
+    { induction A, induction B, induction C,
+      induction f with f pf, induction g with g pg, induction h with h ph,
+      induction p with p p', esimp at *, induction ph, induction pg, induction p', reflexivity}
+  end
+
+  definition pwhisker_right (h : C →* A) (p : f ~* g) : f ∘* h ~* g ∘* h :=
+  begin
+    constructor,
+    { intro a, exact p (h a)},
+    { induction A, induction B, induction C,
+      induction f with f pf, induction g with g pg, induction h with h ph,
+      induction p with p p', esimp at *, induction ph, induction pg, induction p', esimp,
+      exact !idp_con⁻¹}
   end
 
   structure pequiv (A B : Pointed) :=

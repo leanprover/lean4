@@ -15,50 +15,64 @@ namespace eq
   /- Path spaces -/
 
   variables {A B : Type} {a a1 a2 a3 a4 : A} {b b1 b2 : B} {f g : A → B} {h : B → A}
+            {p p' p'' : a1 = a2}
 
   /- The path spaces of a path space are not, of course, determined; they are just the
       higher-dimensional structure of the original space. -/
 
   /- some lemmas about whiskering or other higher paths -/
 
-  definition whisker_left_con_right (p : a1 = a2) {q q' q'' : a2 = a3} (r : q = q') (s : q' = q'')
+  theorem whisker_left_con_right (p : a1 = a2) {q q' q'' : a2 = a3} (r : q = q') (s : q' = q'')
     : whisker_left p (r ⬝ s) = whisker_left p r ⬝ whisker_left p s :=
   begin
-    cases p, cases r, cases s, exact idp
+    cases p, cases r, cases s, reflexivity
   end
 
-  definition whisker_right_con_right {p p' p'' : a1 = a2} (q : a2 = a3) (r : p = p') (s : p' = p'')
+  theorem whisker_right_con_right (q : a2 = a3) (r : p = p') (s : p' = p'')
     : whisker_right (r ⬝ s) q = whisker_right r q ⬝ whisker_right s q :=
   begin
-    cases q, cases r, cases s, exact idp
+    cases q, cases r, cases s, reflexivity
   end
 
-  definition whisker_left_con_left (p : a1 = a2) (p' : a2 = a3) {q q' : a3 = a4} (r : q = q')
+  theorem whisker_left_con_left (p : a1 = a2) (p' : a2 = a3) {q q' : a3 = a4} (r : q = q')
     : whisker_left (p ⬝ p') r = !con.assoc ⬝ whisker_left p (whisker_left p' r) ⬝ !con.assoc' :=
   begin
-    cases p', cases p, cases r, cases q, exact idp
+    cases p', cases p, cases r, cases q, reflexivity
   end
 
-  definition whisker_right_con_left {p p' : a1 = a2} (q : a2 = a3) (q' : a3 = a4) (r : p = p')
+  theorem whisker_right_con_left {p p' : a1 = a2} (q : a2 = a3) (q' : a3 = a4) (r : p = p')
     : whisker_right r (q ⬝ q') = !con.assoc' ⬝ whisker_right (whisker_right r q) q' ⬝ !con.assoc :=
   begin
-    cases q', cases q, cases r, cases p, exact idp
+    cases q', cases q, cases r, cases p, reflexivity
   end
 
-  definition whisker_left_inv_left (p : a2 = a1) {q q' : a2 = a3} (r : q = q')
+  theorem whisker_left_inv_left (p : a2 = a1) {q q' : a2 = a3} (r : q = q')
     : !con_inv_cancel_left⁻¹ ⬝ whisker_left p (whisker_left p⁻¹ r) ⬝ !con_inv_cancel_left = r :=
   begin
-    cases p, cases r, cases q, exact idp
+    cases p, cases r, cases q, reflexivity
   end
 
-  definition con_right_inv2 (p : a1 = a2) : (con.right_inv p)⁻¹ ⬝ con.right_inv p = idp :=
-  by cases p;exact idp
+  theorem ap_eq_ap10 {f g : A → B} (p : f = g) (a : A) : ap (λh, h a) p = ap10 p a :=
+  by cases p;reflexivity
 
-  definition con_left_inv2 (p : a1 = a2) : (con.left_inv p)⁻¹ ⬝ con.left_inv p = idp :=
-  by cases p;exact idp
+  theorem inverse2_right_inv (r : p = p') : r ◾ inverse2 r ⬝ con.right_inv p' = con.right_inv p :=
+  by cases r;cases p;reflexivity
 
-  definition ap_eq_ap10 {f g : A → B} (p : f = g) (a : A) : ap (λh, h a) p = ap10 p a :=
-  by cases p;exact idp
+  theorem inverse2_left_inv (r : p = p') : inverse2 r ◾ r ⬝ con.left_inv p' = con.left_inv p :=
+  by cases r;cases p;reflexivity
+
+  theorem ap_con_right_inv (f : A → B) (p : a1 = a2)
+    : ap_con f p p⁻¹ ⬝ whisker_left _ (ap_inv f p) ⬝ con.right_inv (ap f p)
+      = ap (ap f) (con.right_inv p) :=
+  by cases p;reflexivity
+
+  theorem ap_con_left_inv (f : A → B) (p : a1 = a2)
+    : ap_con f p⁻¹ p ⬝ whisker_right (ap_inv f p) _ ⬝ con.left_inv (ap f p)
+      = ap (ap f) (con.left_inv p) :=
+  by cases p;reflexivity
+
+  theorem idp_con_idp {p : a = a} (q : p = idp) : idp_con p ⬝ q = ap (λp, idp ⬝ p) q :=
+  by cases q;reflexivity
 
   /- Transporting in path spaces.
 
@@ -177,7 +191,7 @@ namespace eq
   is_equiv.mk (concat p) (concat p⁻¹)
               (con_inv_cancel_left p)
               (inv_con_cancel_left p)
-              (λq, by cases p;cases q;exact idp)
+              (λq, by cases p;cases q;reflexivity)
   local attribute is_equiv_concat_left [instance]
 
   definition equiv_eq_closed_left [constructor] (a3 : A) (p : a1 = a2) : (a1 = a3) ≃ (a2 = a3) :=
@@ -188,7 +202,7 @@ namespace eq
   is_equiv.mk (λq, q ⬝ p) (λq, q ⬝ p⁻¹)
               (λq, inv_con_cancel_right q p)
               (λq, con_inv_cancel_right q p)
-              (λq, by cases p;cases q;exact idp)
+              (λq, by cases p;cases q;reflexivity)
   local attribute is_equiv_concat_right [instance]
 
   definition equiv_eq_closed_right [constructor] (a1 : A) (p : a2 = a3) : (a1 = a2) ≃ (a1 = a3) :=
@@ -208,10 +222,10 @@ namespace eq
       apply concat2,
         {apply concat, {apply whisker_left_con_right},
           apply concat2,
-            {cases p, cases q, exact idp},
-            {exact idp}},
-        {cases p, cases r, exact idp}},
-    {intro s, cases s, cases q, cases p, exact idp}
+            {cases p, cases q, reflexivity},
+            {reflexivity}},
+        {cases p, cases r, reflexivity}},
+    {intro s, cases s, cases q, cases p, reflexivity}
   end
 
   definition eq_equiv_con_eq_con_left (p : a1 = a2) (q r : a2 = a3) : (q = r) ≃ (p ⬝ q = p ⬝ r) :=

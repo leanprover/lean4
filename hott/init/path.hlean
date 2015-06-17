@@ -63,11 +63,11 @@ namespace eq
   eq.rec_on r (eq.rec_on q idp)
 
   -- The left inverse law.
-  definition con.right_inv (p : x = y) : p ⬝ p⁻¹ = idp :=
+  definition con.right_inv [unfold-c 4] (p : x = y) : p ⬝ p⁻¹ = idp :=
   eq.rec_on p idp
 
   -- The right inverse law.
-  definition con.left_inv (p : x = y) : p⁻¹ ⬝ p = idp :=
+  definition con.left_inv [unfold-c 4] (p : x = y) : p⁻¹ ⬝ p = idp :=
   eq.rec_on p idp
 
   /- Several auxiliary theorems about canceling inverses across associativity. These are somewhat

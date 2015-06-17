@@ -29,6 +29,15 @@ theorem subset.refl (a : set X) : a ⊆ a := take x, assume H, H
 theorem subset.trans (a b c : set X) (subab : a ⊆ b) (subbc : b ⊆ c) : a ⊆ c :=
 take x, assume ax, subbc (subab ax)
 
+theorem subset.antisymm (a b : set X) (h₁ : a ⊆ b) (h₂ : b ⊆ a) : a = b :=
+setext (λ x, iff.intro (λ ina, h₁ ina) (λ inb, h₂ inb))
+
+definition strict_subset (a b : set X) := a ⊆ b ∧ a ≠ b
+infix `⊂`:50 := strict_subset
+
+theorem strict_subset.irrefl (a : set X) : ¬ a ⊂ a :=
+assume h, absurd rfl (and.elim_right h)
+
 /- bounded quantification -/
 
 abbreviation bounded_forall (a : set X) (P : X → Prop) := ∀⦃x⦄, x ∈ a → P x
@@ -57,6 +66,10 @@ theorem mem_univ (x : X) : x ∈ univ := trivial
 
 theorem mem_univ_eq (x : X) : x ∈ univ = true := rfl
 
+theorem empty_ne_univ [h : inhabited X] : (empty : set X) ≠ univ :=
+assume H : empty = univ,
+absurd (mem_univ (inhabited.value h)) (eq.rec_on H (not_mem_empty _))
+
 /- union -/
 
 definition union [reducible] (a b : set X) : set X := λx, x ∈ a ∨ x ∈ b
@@ -78,7 +91,7 @@ setext (take x, !false_or)
 theorem union.comm (a b : set X) : a ∪ b = b ∪ a :=
 setext (take x, or.comm)
 
-theorem union_assoc (a b c : set X) : (a ∪ b) ∪ c = a ∪ (b ∪ c) :=
+theorem union.assoc (a b c : set X) : (a ∪ b) ∪ c = a ∪ (b ∪ c) :=
 setext (take x, or.assoc)
 
 /- intersection -/
@@ -104,6 +117,12 @@ setext (take x, !and.comm)
 
 theorem inter.assoc (a b c : set X) : (a ∩ b) ∩ c = a ∩ (b ∩ c) :=
 setext (take x, !and.assoc)
+
+theorem inter_univ (a : set X) : a ∩ univ = a :=
+setext (take x, !and_true)
+
+theorem univ_inter (a : set X) : univ ∩ a = a :=
+setext (take x, !true_and)
 
 /- distributivity laws -/
 

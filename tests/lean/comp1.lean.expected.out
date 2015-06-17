@@ -1,0 +1,14 @@
+>> num_to_int
+>> num_to_int
+definition num_to_int : num → int :=
+λ (n : num), int.of_nat (nat.of_num n)
+num_to_int : num → int
+comp1.lean:11:6: error: unknown identifier 'num_to_int_2'
+>> vec_len
+>> list_to_matrix
+>> list_to_matrix
+definition vec_len : Π {A : Type.{l_1}} {n : nat}, vector.{l_1} A n → nat :=
+λ {A : Type.{l_1}} {n : nat} (a : vector.{l_1} A n), @list.length.{l_1} A (@to_list.{l_1} A n a)
+definition list_to_matrix : Π {A : Type.{l_1}} (l : list.{l_1} A), matrix.{l_1} A (@list.length.{l_1} A l) (nat.of_num 1) :=
+λ {A : Type.{l_1}} (l : list.{l_1} A), @to_matrix.{l_1} A (@list.length.{l_1} A l) (@to_vector.{l_1} A l)
+comp1.lean:24:6: error: unknown identifier 'list_to_matrix_2'

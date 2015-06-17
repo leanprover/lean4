@@ -30,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/user_recursors.h"
 #include "library/pp_options.h"
+#include "library/composition_manager.h"
 #include "library/definitional/projection.h"
 #include "library/simplifier/rewrite_rule_set.h"
 #include "frontends/lean/util.h"
@@ -953,6 +954,20 @@ static environment init_hits_cmd(parser & p) {
     return module::declare_hits(p.env());
 }
 
+static environment compose_cmd(parser & p) {
+    name g = p.check_constant_next("invalid #compose command, constant expected");
+    name f = p.check_constant_next("invalid #compose command, constant expected");
+    optional<name> gf;
+    if (p.curr_is_token(get_arrow_tk())) {
+        p.next();
+        name id = p.check_id_next("invalid #compose command, identifier expected");
+        gf = get_namespace(p.env()) + id;
+    }
+    auto r = compose(p.env(), g, f, gf);
+    p.regular_stream() << ">> " << r.second << "\n";
+    return r.first;
+}
+
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",          "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -976,7 +991,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#erase_cache",  "erase cached definition (for debugging purposes)", erase_cache_cmd));
     add_cmd(r, cmd_info("#projections",  "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
     add_cmd(r, cmd_info("#telescope_eq", "(for debugging purposes)", telescope_eq_cmd));
-
+    add_cmd(r, cmd_info("#compose",      "(for debugging purposes)", compose_cmd));
     register_decl_cmds(r);
     register_inductive_cmd(r);
     register_structure_cmd(r);

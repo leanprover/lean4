@@ -370,11 +370,24 @@ lemma inj_of_card_image_eq [deceqB : decidable_eq B] {f : A → B} :
       rewrite [set.injective_iff_inj_on_univ, -to_set_univ];
       apply inj_on_of_card_image_eq Peq
 
-variable [finB : fintype B]
-include finB
 variable [deceqB : decidable_eq B]
 include deceqB
-open finset
+
+lemma nodup_of_inj {f : A → B} : injective f → nodup (map f (elems A)) :=
+      assume Pinj, nodup_map Pinj (unique A)
+
+lemma inj_of_nodup {f : A → B} :
+      nodup (map f (elems A)) → injective f :=
+      assume Pnodup, inj_of_card_image_eq (calc
+        finset.card (image f univ) = finset.card (to_finset (map f (elems A))) : rfl
+                               ... = finset.card (to_finset_of_nodup (map f (elems A)) Pnodup) : {(to_finset_eq_of_nodup Pnodup)⁻¹}
+                               ... = length (map f (elems A)) : rfl
+                               ... = length (elems A) : length_map
+                               ... = card A : rfl)
+
+
+variable [finB : fintype B]
+include finB
 
 lemma surj_of_inj_eq_card : card A = card B → ∀ {f : A → B}, injective f → surjective f :=
       assume Peqcard, take f, assume Pinj,
@@ -407,9 +420,6 @@ include deceqA
 lemma nodup_all_injs : nodup (all_injs A) :=
       dmap_nodup_of_dinj dinj_list_to_fun nodup_all_nodups
 
-lemma nodup_of_inj {f : A → A} : injective f → nodup (map f (elems A)) :=
-      assume Pinj, nodup_map Pinj (unique A)
-
 lemma all_injs_complete {f : A → A} : injective f → f ∈ (all_injs A) :=
       assume Pinj,
       assert Plin : map f (elems A) ∈ all_nodups_of_len (card A),
@@ -425,15 +435,6 @@ lemma univ_of_leq_univ_of_nodup {l : list A} (n : nodup l) (leq : length l = car
        univ_of_card_eq_univ (calc
         finset.card (to_finset_of_nodup l n) = length l : rfl
                                          ... = card A : leq)
-
-lemma inj_of_nodup {f : A → A} :
-      nodup (map f (elems A)) → injective f :=
-      assume Pnodup, inj_of_card_image_eq (calc
-        finset.card (image f univ) = finset.card (to_finset (map f (elems A))) : rfl
-                               ... = finset.card (to_finset_of_nodup (map f (elems A)) Pnodup) : {(to_finset_eq_of_nodup Pnodup)⁻¹}
-                               ... = length (map f (elems A)) : rfl
-                               ... = length (elems A) : length_map
-                               ... = card A : rfl)
 
 lemma inj_of_mem_all_injs {f : A → A} : f ∈ (all_injs A) → injective f :=
       assume Pfin, obtain l Pex, from exists_of_mem_dmap Pfin,

@@ -39,6 +39,7 @@ Author: Leonardo de Moura
 #include "library/relation_manager.h"
 #include "library/user_recursors.h"
 #include "library/class_instance_synth.h"
+#include "library/composition_manager.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -77,9 +78,11 @@ void initialize_library_module() {
     initialize_relation_manager();
     initialize_user_recursors();
     initialize_class_instance_elaborator();
+    initialize_composition_manager();
 }
 
 void finalize_library_module() {
+    finalize_composition_manager();
     finalize_class_instance_elaborator();
     finalize_user_recursors();
     finalize_relation_manager();

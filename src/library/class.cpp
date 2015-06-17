@@ -151,9 +151,7 @@ template class scoped_ext<class_config>;
 typedef scoped_ext<class_config> class_ext;
 
 static void check_class(environment const & env, name const & c_name) {
-    declaration c_d = env.get(c_name);
-    if (c_d.is_definition())
-        throw exception(sstream() << "invalid class, '" << c_name << "' is a definition");
+    env.get(c_name);
 }
 
 static void check_is_class(environment const & env, name const & c_name) {
@@ -182,12 +180,25 @@ void get_classes(environment const & env, buffer<name> & classes) {
         });
 }
 
+bool is_class(environment const & env, name const & c) {
+    class_state const & s = class_ext::get_state(env);
+    return s.m_instances.contains(c);
+}
+
+type_checker_ptr mk_class_type_checker(environment const & env, name_generator && ngen, bool conservative) {
+    auto pred = conservative ? mk_not_reducible_pred(env) : mk_irreducible_pred(env);
+    class_state s = class_ext::get_state(env);
+    return mk_type_checker(env, std::move(ngen), [=](name const & n) {
+            return s.m_instances.contains(n) || pred(n);
+        });
+}
+
 static name * g_tmp_prefix = nullptr;
 environment add_instance(environment const & env, name const & n, unsigned priority, bool persistent) {
     declaration d = env.get(n);
     expr type = d.get_type();
     name_generator ngen(*g_tmp_prefix);
-    auto tc = mk_type_checker(env, ngen.mk_child());
+    auto tc = mk_class_type_checker(env, ngen.mk_child(), false);
     while (true) {
         type = tc->whnf(type).first;
         if (!is_pi(type))
@@ -213,11 +224,6 @@ bool try_multiple_instances(environment const & env, name const & n) {
     return s.try_multiple_instances(n);
 }
 
-bool is_class(environment const & env, name const & c) {
-    class_state const & s = class_ext::get_state(env);
-    return s.m_instances.contains(c);
-}
-
 bool is_instance(environment const & env, name const & i) {
     class_state const & s = class_ext::get_state(env);
     return s.is_instance(i);
@@ -229,7 +235,7 @@ list<name> get_class_instances(environment const & env, name const & c) {
 }
 
 /** \brief If the constant \c e is a class, return its name */
-optional<name> constant_is_ext_class(environment const & env, expr const & e) {
+static optional<name> constant_is_ext_class(environment const & env, expr const & e) {
     name const & cls_name = const_name(e);
     if (is_class(env, cls_name)) {
         return optional<name>(cls_name);
@@ -243,7 +249,7 @@ optional<name> constant_is_ext_class(environment const & env, expr const & e) {
     l_false:  \c type is not a class.
     l_undef:  procedure did not establish whether \c type is a class or not.
 */
-lbool is_quick_ext_class(type_checker const & tc, expr const & type, name & result) {
+static lbool is_quick_ext_class(type_checker const & tc, expr const & type, name & result) {
     environment const & env = tc.env();
     expr const * it         = &type;
     while (true) {
@@ -287,7 +293,7 @@ lbool is_quick_ext_class(type_checker const & tc, expr const & type, name & resu
 }
 
 /** \brief Full/Expensive test for \c is_ext_class */
-optional<name> is_full_ext_class(type_checker & tc, expr type) {
+static optional<name> is_full_ext_class(type_checker & tc, expr type) {
     type = tc.whnf(type).first;
     if (is_pi(type)) {
         return is_full_ext_class(tc, instantiate(binding_body(type), mk_local(tc.mk_fresh_name(), binding_domain(type))));

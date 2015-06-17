@@ -5,8 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-
+#include "library/util.h"
 namespace lean {
+/** \brief Create type checker that treats classes as opaque constants */
+type_checker_ptr mk_class_type_checker(environment const & env, name_generator && ngen, bool conservative);
 /** \brief Add a new 'class' to the environment (if it is not already declared) */
 environment add_class(environment const & env, name const & n, bool persistent = true);
 /** \brief Add a new 'class instance' to the environment with default priority. */

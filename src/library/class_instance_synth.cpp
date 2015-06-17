@@ -113,10 +113,7 @@ struct class_instance_context {
         m_trace_instances = get_class_trace_instances(ios.get_options());
         m_max_depth       = get_class_instance_max_depth(ios.get_options());
         m_conservative    = get_class_conservative(ios.get_options());
-        if (m_conservative)
-            m_tc = mk_type_checker(env, m_ngen.mk_child(), UnfoldReducible);
-        else
-            m_tc = mk_type_checker(env, m_ngen.mk_child());
+        m_tc              = mk_class_type_checker(env, m_ngen.mk_child(), m_conservative);
         options opts      = m_ios.get_options();
         opts              = opts.update_if_undef(get_pp_purify_metavars_name(), false);
         opts              = opts.update_if_undef(get_pp_implicit_name(), true);

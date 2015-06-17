@@ -1,2 +1,0 @@
-bad_class.lean:4:0: error: invalid class, 'foo.subsingleton' is a definition
-bad_class.lean:6:0: error: 'eq' is not a class

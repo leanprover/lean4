@@ -114,8 +114,6 @@ void decl_attributes::parse(buffer<name> const & ns, parser & p) {
             m_is_quasireducible = true;
             p.next();
         } else if (p.curr_is_token(get_class_tk())) {
-            if (m_def_only)
-                throw parser_error("invalid '[class]' attribute, definitions cannot be marked as classes", pos);
             m_is_class = true;
             p.next();
         } else if (p.curr_is_token(get_multiple_instances_tk())) {

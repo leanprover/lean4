@@ -172,16 +172,16 @@ section linear_ordered_field
 
   theorem div_lt_div_of_mul_sub_mul_div_neg (Hc : c ≠ 0) (Hd : d ≠ 0)
       (H : (a * d - b * c) / (c * d) < 0) : a / c < b / d :=
-    have H1 : (a * d - c * b) / (c * d) < 0, from !mul.comm ▸ H,
-    have H2 : a / c - b / d < 0, from (div_sub_div Hc Hd)⁻¹ ▸ H1,
-    have H3 [visible] : a / c - b / d + b / d < 0 + b / d, from add_lt_add_right H2 _,
+    assert H1 : (a * d - c * b) / (c * d) < 0,     by rewrite [mul.comm c b]; exact H,
+    assert H2 : a / c - b / d < 0,                 by rewrite [div_sub_div Hc Hd]; exact H1,
+    assert H3 : a / c - b / d + b / d < 0 + b / d, from add_lt_add_right H2 _,
     begin rewrite [zero_add at H3, neg_add_cancel_right at H3], exact H3 end
 
   theorem div_le_div_of_mul_sub_mul_div_nonpos (Hc : c ≠ 0) (Hd : d ≠ 0)
       (H : (a * d - b * c) / (c * d) ≤ 0) : a / c ≤ b / d :=
-    have H1 : (a * d - c * b) / (c * d) ≤ 0, from !mul.comm ▸ H,
-    have H2 : a / c - b / d ≤ 0, from (div_sub_div Hc Hd)⁻¹ ▸ H1,
-    have H3 [visible] : a / c - b / d + b / d ≤ 0 + b / d, from add_le_add_right H2 _,
+    assert H1 : (a * d - c * b) / (c * d) ≤ 0,     by rewrite [mul.comm c b]; exact H,
+    assert H2 : a / c - b / d ≤ 0,                 by rewrite [div_sub_div Hc Hd]; exact H1,
+    assert H3 : a / c - b / d + b / d ≤ 0 + b / d, from add_le_add_right H2 _,
     begin rewrite [zero_add at H3, neg_add_cancel_right at H3], exact H3 end
 
   theorem pos_div_of_pos_of_pos (Ha : 0 < a) (Hb : 0 < b) : 0 < a / b :=
@@ -270,12 +270,14 @@ section linear_ordered_field
   theorem two_ne_zero : (1 : A) + 1 ≠ 0 :=
     ne.symm (ne_of_lt (add_pos zero_lt_one zero_lt_one))
 
-  theorem add_halves : a / (1 + 1) + a / (1 + 1) = a :=
+  notation 2 := 1 + 1
+
+  theorem add_halves : a / 2 + a / 2 = a :=
     calc
-      a / (1 + 1) + a / (1 + 1) = (a + a) / (1 + 1) : div_add_div_same
-      ... = (a * 1 + a * 1) / (1 + 1) : by rewrite mul_one
-      ... = (a * (1 + 1)) / (1 + 1) : left_distrib
-      ... = a : mul_div_cancel two_ne_zero
+      a / 2 + a / 2 = (a + a) / 2 : by rewrite div_add_div_same
+      ... = (a * 1 + a * 1) / 2   : by rewrite mul_one
+      ... = (a * 2) / 2           : by rewrite left_distrib
+      ... = a                     : by rewrite [@mul_div_cancel A _ _ _ two_ne_zero]
 
 theorem nonneg_le_nonneg_of_squares_le  (Ha : a ≥ 0) (Hb : b ≥ 0) (H : a * a ≤ b * b) : a ≤ b :=
   begin
@@ -288,7 +290,7 @@ theorem nonneg_le_nonneg_of_squares_le  (Ha : a ≥ 0) (Hb : b ≥ 0) (H : a * a
     apply (not_le_of_gt H') H
   end
 
-  theorem div_two : (a + a) / (1 + 1) = a :=
+  theorem div_two : (a + a) / 2 = a :=
     symm (iff.mp' (eq_div_iff_mul_eq (ne_of_gt (add_pos zero_lt_one zero_lt_one)))
            (by rewrite [left_distrib, *mul_one]))
 
@@ -355,15 +357,15 @@ section discrete_linear_ordered_field
 
 
   theorem le_of_div_le_neg (H : b < 0) (Hl : 1 / a ≤ 1 / b) : b ≤ a :=
-    have Ha : a ≠ 0, from ne_of_lt (neg_of_div_neg (calc
+    assert Ha : a ≠ 0, from ne_of_lt (neg_of_div_neg (calc
       1 / a ≤ 1 / b : Hl
         ... < 0     : div_neg_of_neg H)),
     have H'   : -b > 0,                from neg_pos_of_neg H,
     have Hl'  : - (1 / b) ≤ - (1 / a), from neg_le_neg Hl,
     have Hl'' : 1 / - b ≤ 1 / - a,     from calc
-      1 / -b = - (1 / b) : one_div_neg_eq_neg_one_div (ne_of_lt H)
+      1 / -b = - (1 / b) : by rewrite [one_div_neg_eq_neg_one_div (ne_of_lt H)]
          ... ≤ - (1 / a) : Hl'
-         ... = 1 / -a    : one_div_neg_eq_neg_one_div Ha,
+         ... = 1 / -a    : by rewrite [one_div_neg_eq_neg_one_div Ha],
     le_of_neg_le_neg (le_of_div_le H' Hl'')
 
   theorem lt_of_div_lt (H : 0 < a) (Hl : 1 / a < 1 / b) : b < a :=
@@ -372,7 +374,7 @@ section discrete_linear_ordered_field
       ... < 1 / b : Hl),
     have H : 1 < a / b, from (calc
       1   = a / a       : div_self (ne.symm (ne_of_lt H))
-      ... = a * (1 / a) :  div_eq_mul_one_div
+      ... = a * (1 / a) : div_eq_mul_one_div
       ... < a * (1 / b) : mul_lt_mul_of_pos_left Hl H
       ... = a / b       : div_eq_mul_one_div),
       lt_of_one_lt_div Hb H
@@ -456,7 +458,7 @@ section discrete_linear_ordered_field
   theorem ge_sub_of_abs_sub_le_right (H : abs (a - b) ≤ c) : b ≥ a - c :=
     ge_sub_of_abs_sub_le_left (!abs_sub ▸ H)
 
-  theorem abs_sub_square : abs (a - b) * abs (a - b) = a * a + b * b - (1 + 1) * a * b :=
+  theorem abs_sub_square : abs (a - b) * abs (a - b) = a * a + b * b - 2 * a * b :=
     by rewrite [abs_mul_self, *mul_sub_left_distrib, *mul_sub_right_distrib,
              sub_add_eq_sub_sub, sub_neg_eq_add, *right_distrib, sub_add_eq_sub_sub, *one_mul,
              *add.assoc, {_ + b * b}add.comm, {_ + (b * b + _)}add.comm, mul.comm b a, *add.assoc]

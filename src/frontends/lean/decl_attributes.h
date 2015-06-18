@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 namespace lean {
 class parser;
 class decl_attributes {
-    bool               m_def_only; // if true only definition attributes are allowed
     bool               m_is_abbrev; // if true only abbreviation attributes are allowed
     bool               m_persistent;
     bool               m_is_instance;
@@ -38,7 +37,7 @@ class decl_attributes {
     void parse(name const & n, parser & p);
 
 public:
-    decl_attributes(bool def_only = true, bool is_abbrev = false, bool persistent = true);
+    decl_attributes(bool is_abbrev = false, bool persistent = true);
     void parse(buffer<name> const & ns, parser & p);
     void parse(parser & p);
     environment apply(environment env, io_state const & ios, name const & d) const;

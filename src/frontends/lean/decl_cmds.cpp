@@ -1056,7 +1056,7 @@ public:
     definition_cmd_fn(parser & p, def_cmd_kind kind, bool is_private, bool is_protected):
         m_p(p), m_env(m_p.env()), m_kind(kind),
         m_is_private(is_private), m_is_protected(is_protected),
-        m_pos(p.pos()), m_attributes(true, kind == Abbreviation || kind == LocalAbbreviation) {
+        m_pos(p.pos()), m_attributes(kind == Abbreviation || kind == LocalAbbreviation) {
         lean_assert(!(m_is_private && m_is_protected));
     }
 
@@ -1183,9 +1183,8 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
     while (p.curr_is_identifier()) {
         ds.push_back(p.check_constant_next("invalid 'attribute' command, constant expected"));
     }
-    bool decl_only  = false;
     bool abbrev     = false;
-    decl_attributes attributes(decl_only, abbrev, persistent);
+    decl_attributes attributes(abbrev, persistent);
     attributes.parse(ds, p);
     environment env = p.env();
     for (name const & d : ds)

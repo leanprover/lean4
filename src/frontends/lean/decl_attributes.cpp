@@ -20,9 +20,8 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 
 namespace lean {
-decl_attributes::decl_attributes(bool def_only, bool is_abbrev, bool persistent):
+decl_attributes::decl_attributes(bool is_abbrev, bool persistent):
     m_priority() {
-    m_def_only               = def_only;
     m_is_abbrev              = is_abbrev;
     m_persistent             = persistent;
     m_is_instance            = false;
@@ -117,8 +116,6 @@ void decl_attributes::parse(buffer<name> const & ns, parser & p) {
             m_is_class = true;
             p.next();
         } else if (p.curr_is_token(get_multiple_instances_tk())) {
-            if (m_def_only)
-                throw parser_error("invalid '[multiple-instances]' attribute, only classes can have this attribute", pos);
             m_has_multiple_instances = true;
             p.next();
         } else if (auto it = parse_instance_priority(p)) {
@@ -246,7 +243,7 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
 }
 
 void decl_attributes::write(serializer & s) const {
-    s << m_def_only << m_is_abbrev << m_persistent << m_is_instance << m_is_coercion
+    s << m_is_abbrev << m_persistent << m_is_instance << m_is_coercion
       << m_is_reducible << m_is_irreducible << m_is_semireducible << m_is_quasireducible
       << m_is_class << m_is_parsing_only << m_has_multiple_instances << m_unfold_f_hint
       << m_constructor_hint << m_symm << m_trans << m_refl << m_subst << m_recursor
@@ -254,7 +251,7 @@ void decl_attributes::write(serializer & s) const {
 }
 
 void decl_attributes::read(deserializer & d) {
-    d >> m_def_only >> m_is_abbrev >> m_persistent >> m_is_instance >> m_is_coercion
+    d >> m_is_abbrev >> m_persistent >> m_is_instance >> m_is_coercion
       >> m_is_reducible >> m_is_irreducible >> m_is_semireducible >> m_is_quasireducible
       >> m_is_class >> m_is_parsing_only >> m_has_multiple_instances >> m_unfold_f_hint
       >> m_constructor_hint >> m_symm >> m_trans >> m_refl >> m_subst >> m_recursor

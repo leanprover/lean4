@@ -659,11 +659,20 @@ class rewrite_fn {
     void replace_hypothesis(expr const & hyp, expr const & new_hyp_type) {
         expr new_hyp = update_mlocal(hyp, new_hyp_type);
         buffer<expr> new_hyps;
+        buffer<expr> old_locals;
+        buffer<expr> new_locals;
         m_g.get_hyps(new_hyps);
         for (expr & h : new_hyps) {
             if (mlocal_name(h) == mlocal_name(hyp)) {
+                old_locals.push_back(h);
+                new_locals.push_back(new_hyp);
                 h = new_hyp;
-                break;
+            } else if (depends_on_any(mlocal_type(h), old_locals.size(), old_locals.data())) {
+                expr new_h_type = replace_locals(mlocal_type(h), old_locals.size(), old_locals.data(), new_locals.data());
+                expr new_h      = update_mlocal(h, new_h_type);
+                old_locals.push_back(h);
+                new_locals.push_back(new_h);
+                h = new_h;
             }
         }
         expr new_type = m_g.get_type();
@@ -674,7 +683,8 @@ class rewrite_fn {
         update_goal(new_g);
     }
 
-    bool process_reduce_hypothesis(expr const & hyp, list<name> const & to_unfold) {
+    bool process_reduce_hypothesis(name const & hyp_internal_name, list<name> const & to_unfold) {
+        expr hyp = m_g.find_hyp_from_internal_name(hyp_internal_name)->first;
         if (auto new_hyp_type = reduce(mlocal_type(hyp), to_unfold)) {
             replace_hypothesis(hyp, *new_hyp_type);
             return true;
@@ -692,7 +702,7 @@ class rewrite_fn {
         for (expr const & h : hyps) {
             if (!loc.includes_hypothesis(local_pp_name(h)))
                 continue;
-            if (process_reduce_hypothesis(h, to_unfold))
+            if (process_reduce_hypothesis(mlocal_name(h), to_unfold))
                 progress = true;
         }
         if (loc.includes_goal()) {

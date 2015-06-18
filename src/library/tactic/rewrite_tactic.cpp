@@ -1108,7 +1108,7 @@ class rewrite_fn {
                 r += t.pp(fmt);
             }
             format cs = pp_choice_symbols(m_lemma);
-            if (!cs.is_nil()) {
+            if (!cs.is_nil_fmt()) {
                 r += line() + format("rewrite lemma uses the following overloaded symbols");
                 r += nest(get_pp_indent(fmt.get_options()), line() + cs);
             }

@@ -182,7 +182,7 @@ public:
     format_kind kind() const {
         return sexpr_kind(m_value);
     }
-    bool is_nil() const { return kind() == format_kind::NIL; }
+    bool is_nil_fmt() const { return kind() == format_kind::NIL; }
     unsigned hash() const { return m_value.hash(); }
 
     explicit operator bool() const { return static_cast<bool>(m_value); }

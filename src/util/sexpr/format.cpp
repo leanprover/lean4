@@ -224,7 +224,7 @@ int format::space_upto_line_break(sexpr const & s, int available, bool & found_n
     {
         sexpr list  = sexpr_compose_list(s);
         int len = 0;
-        while (list && !found_newline) {
+        while (!is_nil(list) && !found_newline) {
             sexpr const & h = car(list);
             list = cdr(list);
             len += space_upto_line_break(h, available, found_newline);

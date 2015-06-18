@@ -448,15 +448,18 @@ class equation_compiler_fn {
     // are in local_ctx or m_global_context
     bool check_ctx(expr const & e, list<expr> const & context, list<expr> const & local_context) const {
         for_each(e, [&](expr const & e, unsigned) {
-                if (is_local(e) &&
-                    !(contains_local(e, local_context) ||
-                      contains_local(e, context) ||
-                      contains_local(e, m_additional_context) ||
-                      contains_local(e, m_global_context) ||
-                      contains_local(e, m_fns))) {
-                    lean_unreachable();
-                    return false;
+                if (is_local(e)) {
+                    if (!(contains_local(e, local_context) ||
+                          contains_local(e, context) ||
+                          contains_local(e, m_additional_context) ||
+                          contains_local(e, m_global_context) ||
+                          contains_local(e, m_fns))) {
+                        lean_unreachable();
+                    }
+                    return false; // do not visit type
                 }
+                if (is_metavar(e))
+                    return false;  // do not visit type
                 return true;
             });
         return true;

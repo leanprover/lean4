@@ -177,15 +177,15 @@ finset.induction_on s
       take a₁ a₂, assume H3 H4 H5,
       H1 (!mem_insert_of_mem H3) (!mem_insert_of_mem H4) H5,
     assert H6 : card (⋃ (x : A) ∈ s', f x) = ∑ (x : A) ∈ s', card (f x), from IH H2,
-    have H7 : ∀ x, x ∈ s' → f a ∩ f x = ∅, from
+    assert H7 : ∀ x, x ∈ s' → f a ∩ f x = ∅, from
       take x, assume xs',
       have anex : a ≠ x, from assume aex, (eq.subst aex H) xs',
       H1 !mem_insert (!mem_insert_of_mem xs') anex,
     assert H8 : f a ∩ (⋃ (x : A) ∈ s', f x) = ∅, from
       calc
-        f a ∩ (⋃ (x : A) ∈ s', f x) = (⋃ (x : A) ∈ s', f a ∩ f x)  : inter_Union
-                                ... = (⋃ (x : A) ∈ s', ∅)          : Union_ext H7
-                                ... = ∅                            : Union_empty',
+        f a ∩ (⋃ (x : A) ∈ s', f x) = (⋃ (x : A) ∈ s', f a ∩ f x)  : by rewrite inter_Union
+                                ... = (⋃ (x : A) ∈ s', ∅)          : by rewrite [Union_ext H7]
+                                ... = ∅                            : by rewrite Union_empty',
     by rewrite [Union_insert, Sum_insert_of_not_mem _ H,
                 card_union_of_disjoint H8, H6])
 end deceqB

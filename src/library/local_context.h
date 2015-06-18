@@ -13,8 +13,12 @@ namespace lean {
     and creating metavariables in the scope of the local context efficiently
 */
 class local_context {
-    list<expr>      m_ctx; // current local context: a list of local constants
-    list<expr>      m_ctx_abstracted; // m_ctx where elements have been abstracted
+    list<expr>       m_ctx; // current local context: a list of local constants
+    typedef std::tuple<name, expr, binder_info> local_decl;
+    list<local_decl> m_ctx_abstracted; // m_ctx where elements have been abstracted
+    static expr abstract_locals(expr const & e, list<expr> const & locals);
+    // convert a local constant into a local_decl
+    static local_decl to_local_decl(expr const & l, list<expr> const & ctx);
 public:
     local_context();
     local_context(list<expr> const & ctx);

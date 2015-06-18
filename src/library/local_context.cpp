@@ -17,7 +17,7 @@ namespace lean {
     return
               t[#n, ..., #0]
 */
-expr abstract_locals(expr const & e, list<expr> const & locals) {
+expr local_context::abstract_locals(expr const & e, list<expr> const & locals) {
     lean_assert(std::all_of(locals.begin(), locals.end(), [](expr const & e) { return closed(e) && is_local(e); }));
     if (!has_local(e))
         return e;
@@ -31,9 +31,14 @@ expr abstract_locals(expr const & e, list<expr> const & locals) {
                         return some_expr(copy_tag(m, mk_var(offset + i)));
                     i++;
                 }
+                return some_expr(m);
             }
             return none_expr();
         });
+}
+
+auto local_context::to_local_decl(expr const & l, list<expr> const & ctx) -> local_decl {
+    return local_decl(local_pp_name(l), abstract_locals(mlocal_type(l), ctx), local_info(l));
 }
 
 local_context::local_context() {}
@@ -43,20 +48,19 @@ local_context::local_context(list<expr> const & ctx) {
 
 void local_context::set_ctx(list<expr> const & ctx) {
     m_ctx = ctx;
-    buffer<expr> tmp;
+    buffer<local_decl> tmp;
     list<expr> it = ctx;
     while (it) {
-        tmp.push_back(abstract_locals(head(it), tail(it)));
+        tmp.push_back(to_local_decl(head(it), tail(it)));
         it = tail(it);
     }
     m_ctx_abstracted = to_list(tmp.begin(), tmp.end());
-    lean_assert(std::all_of(m_ctx_abstracted.begin(), m_ctx_abstracted.end(), [](expr const & e) { return is_local(e); }));
 }
 
 expr local_context::pi_abstract_context(expr e, tag g) const {
     e = abstract_locals(e, m_ctx);
-    for (expr const & l : m_ctx_abstracted)
-        e = mk_pi(local_pp_name(l), mlocal_type(l), e, local_info(l), g);
+    for (local_decl const & l : m_ctx_abstracted)
+        e = mk_pi(std::get<0>(l), std::get<1>(l), e, std::get<2>(l), g);
     return e;
 }
 
@@ -99,10 +103,9 @@ expr local_context::mk_meta(name_generator & ngen, optional<name> const & suffix
 
 void local_context::add_local(expr const & l) {
     lean_assert(is_local(l));
-    m_ctx_abstracted = cons(abstract_locals(l, m_ctx), m_ctx_abstracted);
+    m_ctx_abstracted = cons(to_local_decl(l, m_ctx), m_ctx_abstracted);
     m_ctx            = cons(l, m_ctx);
     lean_assert(length(m_ctx) == length(m_ctx_abstracted));
-    lean_assert(is_local(head(m_ctx_abstracted)));
 }
 
 list<expr> const & local_context::get_data() const {

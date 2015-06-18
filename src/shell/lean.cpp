@@ -39,6 +39,8 @@ Author: Leonardo de Moura
 #include "frontends/lean/server.h"
 #include "frontends/lean/dependencies.h"
 #include "init/init.h"
+#include "shell/emscripten.h"
+#include "shell/simple_pos_info_provider.h"
 #include "version.h"
 #include "githash.h" // NOLINT
 
@@ -61,6 +63,7 @@ using lean::options;
 using lean::declaration_index;
 using lean::keep_theorem_mode;
 using lean::module_name;
+using lean::simple_pos_info_provider;
 
 enum class input_kind { Unspecified, Lean, HLean, Lua, Trace };
 
@@ -194,15 +197,6 @@ static char const * g_opt_str = OPT_STR2 "Sj:012";
 static char const * g_opt_str = OPT_STR2;
 #endif
 
-class simple_pos_info_provider : public pos_info_provider {
-    char const * m_fname;
-public:
-    simple_pos_info_provider(char const * fname):m_fname(fname) {}
-    virtual optional<pos_info> get_pos_info(expr const &) const { return optional<pos_info>(); }
-    virtual char const * get_file_name() const { return m_fname; }
-    virtual pos_info get_some_pos() const { return pos_info(-1, -1); }
-};
-
 options set_config_option(options const & opts, char const * in) {
     if (!in) return opts;
     while (*in && std::isspace(*in))
@@ -237,91 +231,14 @@ options set_config_option(options const & opts, char const * in) {
     }
 }
 
-environment import_module(environment const & env, io_state const & ios, module_name const & mod, bool keep_proofs = true) {
-    std::string base = ".";
-    bool num_threads = 1;
-    return import_modules(env, base, 1, &mod, num_threads, keep_proofs, ios);
-}
-
-environment import_standard(environment const & env, io_state const & ios, bool keep_proofs = true) {
-    module_name std(lean::name("standard"));
-    return import_module(env, ios, std, keep_proofs);
-}
-
 #if defined(LEAN_EMSCRIPTEN)
 #include <emscripten/bind.h>
-
-class emscripten_shell {
-private:
-    unsigned trust_lvl;
-    unsigned num_threads;
-    options opts;
-    environment env;
-    io_state ios;
-    script_state S;
-    set_environment set1;
-    set_io_state    set2;
-
-public:
-    emscripten_shell() : trust_lvl(LEAN_BELIEVER_TRUST_LEVEL+1), num_threads(1), opts("flycheck", true),
-        env(mk_environment(trust_lvl)), ios(opts, lean::mk_pretty_formatter_factory()),
-        S(lean::get_thread_script_state()), set1(S, env), set2(S, ios) {
-    }
-
-    int import_module(std::string mname) {
-        try {
-            env = ::import_module(env, ios, lean::module_name(mname), false);
-        } catch (lean::exception & ex) {
-            simple_pos_info_provider pp("import_module");
-            lean::display_error(diagnostic(env, ios), &pp, ex);
-            return 1;
-        }
-        return 0;
-    }
-
-    int process_file(std::string input_filename) {
-        bool ok = true;
-        try {
-            environment temp_env(env);
-            io_state    temp_ios(ios);
-            if (!parse_commands(temp_env, temp_ios, input_filename.c_str(), false, num_threads)) {
-                ok = false;
-            }
-        } catch (lean::exception & ex) {
-            simple_pos_info_provider pp(input_filename.c_str());
-            ok = false;
-            lean::display_error(diagnostic(env, ios), &pp, ex);
-        }
-        return ok ? 0 : 1;
-    }
-};
-
-lean::initializer* g_init;
-emscripten_shell* g_shell;
-
-void emscripten_init() {
-    g_init = new lean::initializer();
-    g_shell = new emscripten_shell();
-}
-
-int emscripten_import_module(std::string mname) {
-    return g_shell->import_module(mname);
-}
-
-int emscripten_process_file(std::string input_filename) {
-    return g_shell->process_file(input_filename);
-}
-
 EMSCRIPTEN_BINDINGS(LEAN_JS) {
     emscripten::function("lean_init", &emscripten_init);
     emscripten::function("lean_import_module", &emscripten_import_module);
     emscripten::function("lean_process_file", &emscripten_process_file);
 }
-
-int main() {
-    return 0;
-}
-
+int main() { return 0; }
 #else
 int main(int argc, char ** argv) {
     lean::initializer init;

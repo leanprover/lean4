@@ -234,7 +234,7 @@ options set_config_option(options const & opts, char const * in) {
 #if defined(LEAN_EMSCRIPTEN)
 #include <emscripten/bind.h>
 EMSCRIPTEN_BINDINGS(LEAN_JS) {
-    emscripten::function("lean_init", &emscripten_init);
+    emscripten::function("lean_init", &initialize_emscripten);
     emscripten::function("lean_import_module", &emscripten_import_module);
     emscripten::function("lean_process_file", &emscripten_process_file);
 }

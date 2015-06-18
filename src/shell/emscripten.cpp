@@ -66,12 +66,17 @@ public:
 };
 }
 
-lean::initializer* g_init;
-lean::emscripten_shell* g_shell;
+static lean::initializer * g_init = nullptr;
+static lean::emscripten_shell * g_shell = nullptr;
 
-void emscripten_init() {
+void initialize_emscripten() {
     g_init  = new lean::initializer();
     g_shell = new lean::emscripten_shell();
+}
+
+void finalize_emscripten() {
+    delete g_shell;
+    delete g_init;
 }
 
 int emscripten_import_module(std::string mname) {

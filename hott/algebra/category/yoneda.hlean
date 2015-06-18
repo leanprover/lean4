@@ -71,10 +71,10 @@ namespace functor
   theorem functor_curry_comp ⦃c c' c'' : C⦄ (f' : c' ⟶ c'') (f : c ⟶ c')
     : Fhom F (f' ∘ f) = Fhom F f' ∘n Fhom F f :=
   nat_trans_eq (λd, calc
-    natural_map (Fhom F (f' ∘ f)) d = F (f' ∘ f, id) : functor_curry_hom_def
+    natural_map (Fhom F (f' ∘ f)) d = F (f' ∘ f, id) : by rewrite functor_curry_hom_def
       ... = F (f' ∘ f, id ∘ id)                      : by rewrite id_comp
       ... = F ((f',id) ∘ (f, id))                    : by esimp
-      ... = F (f',id) ∘ F (f, id)                    : respect_comp F
+      ... = F (f',id) ∘ F (f, id)                    : by rewrite [respect_comp F]
       ... = natural_map ((Fhom F f') ∘ (Fhom F f)) d : by esimp)
 
   definition functor_curry [reducible] : C ⇒ E ^c D :=
@@ -113,7 +113,7 @@ namespace functor
               ∘ (natural_map (to_fun_hom G f'.1) p.2 ∘ natural_map (to_fun_hom G f.1) p.2) : by esimp
       ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ natural_map (to_fun_hom G f'.1) p'.2)
               ∘ (to_fun_hom (to_fun_ob G p'.1) f.2 ∘ natural_map (to_fun_hom G f.1) p.2) :
-                  square_prepostcompose (!naturality⁻¹ᵖ) _ _
+                  by rewrite [square_prepostcompose (!naturality⁻¹ᵖ) _ _]
       ... = Ghom G f' ∘ Ghom G f : by esimp
 
   definition functor_uncurry [reducible] : C ×c D ⇒ E :=
@@ -132,7 +132,7 @@ namespace functor
     show (functor_uncurry (functor_curry F)) (f, g) = F (f,g),
       from calc
         (functor_uncurry (functor_curry F)) (f, g) = to_fun_hom F (id, g) ∘ to_fun_hom F (f, id) : by esimp
-          ... = F (id ∘ f, g ∘ id) : respect_comp F (id,g) (f,id)
+          ... = F (id ∘ f, g ∘ id) : by krewrite [respect_comp F (id,g) (f,id)]
           ... = F (f, g ∘ id)      : by rewrite id_left
           ... = F (f,g)            : by rewrite id_right,
   end
@@ -150,7 +150,7 @@ namespace functor
             = to_fun_hom (G c) g ∘ natural_map (to_fun_hom G (ID c)) d : by esimp
         ... = to_fun_hom (G c) g ∘ natural_map (ID (G c)) d            : by rewrite respect_id
         ... = to_fun_hom (G c) g ∘ id                                  : by reflexivity
-        ... = to_fun_hom (G c) g                                       : id_right}
+        ... = to_fun_hom (G c) g                                       : by rewrite id_right}
   end
 
   theorem functor_curry_functor_uncurry : functor_curry (functor_uncurry G) = G :=

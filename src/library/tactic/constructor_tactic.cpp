@@ -22,7 +22,8 @@ namespace lean {
    If \c given_args is provided, then the tactic fixes the given arguments.
    It creates a subgoal for each remaining argument.
 */
-tactic constructor_tactic(elaborate_fn const & elab, optional<unsigned> _i, optional<unsigned> num_constructors, list<expr> const & given_args) {
+tactic constructor_tactic(elaborate_fn const & elab, optional<unsigned> _i, optional<unsigned> num_constructors,
+                          list<expr> const & given_args, bool use_fapply = false) {
     auto fn = [=](environment const & env, io_state const & ios, proof_state const & s) {
         goals const & gs = s.get_goals();
         if (empty(gs)) {
@@ -83,7 +84,10 @@ tactic constructor_tactic(elaborate_fn const & elab, optional<unsigned> _i, opti
                     return proof_state_seq();
                 }
             }
-            return fapply_tactic_core(env, ios, new_s, C, cs);
+            if (use_fapply)
+                return fapply_tactic_core(env, ios, new_s, C, cs);
+            else
+                return apply_tactic_core(env, ios, new_s, C, cs);
         };
 
         if (_i) {
@@ -108,6 +112,11 @@ void initialize_constructor_tactic() {
                  [](type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
                      auto i = get_optional_unsigned(tc, app_arg(e));
                      return constructor_tactic(fn, i, optional<unsigned>(), list<expr>());
+                 });
+    register_tac(name{"tactic", "fconstructor"},
+                 [](type_checker & tc, elaborate_fn const & fn, expr const & e, pos_info_provider const *) {
+                     auto i = get_optional_unsigned(tc, app_arg(e));
+                     return constructor_tactic(fn, i, optional<unsigned>(), list<expr>(), true);
                  });
     register_tac(name{"tactic", "split"},
                  [](type_checker &, elaborate_fn const & fn, expr const &, pos_info_provider const *) {

@@ -109,11 +109,12 @@ definition assert_hypothesis (id : identifier) (e : expr) : tactic := builtin
 
 definition lettac (id : identifier) (e : expr) : tactic := builtin
 
-definition constructor (k : option num) : tactic := builtin
-definition existsi (e : expr)           : tactic := builtin
-definition split                        : tactic := builtin
-definition left                         : tactic := builtin
-definition right                        : tactic := builtin
+definition constructor (k : option num)  : tactic := builtin
+definition fconstructor (k : option num) : tactic := builtin
+definition existsi (e : expr)            : tactic := builtin
+definition split                         : tactic := builtin
+definition left                          : tactic := builtin
+definition right                         : tactic := builtin
 
 definition injection (e : expr) (ids : opt_identifier_list) : tactic := builtin
 

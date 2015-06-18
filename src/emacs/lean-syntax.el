@@ -139,7 +139,7 @@
                 "generalize" "generalizes" "clear" "clears" "revert" "reverts" "back" "beta" "done" "exact" "rexact"
                 "refine" "repeat" "whnf" "rotate" "rotate_left" "rotate_right" "inversion" "cases" "rewrite"
                 "xrewrite" "krewrite" "esimp" "unfold" "change" "check_expr" "contradiction"
-                "exfalso" "split" "existsi" "constructor" "left" "right" "injection" "congruence" "reflexivity"
+                "exfalso" "split" "existsi" "constructor" "fconstructor" "left" "right" "injection" "congruence" "reflexivity"
                 "symmetry" "transitivity" "state" "induction" "induction_using"
                 "substvars"))
            word-end)

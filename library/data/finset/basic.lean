@@ -253,6 +253,16 @@ begin
     {intro h, exact absurd rfl h},
     {intro h, existsi a, apply mem_insert}
 end
+
+open perm
+theorem empty_of_card_eq_zero {s : finset A} : card s = 0 → s = ∅ :=
+quot.induction_on s (λ l e,
+  assert enil : elt_of l = [], from eq_nil_of_length_eq_zero e,
+  quot.sound
+   begin
+    change elt_of l ~ [],
+    rewrite enil
+   end)
 end insert
 
 /- erase -/

@@ -4,15 +4,17 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "kernel/type_checker.h"
 #include "library/tc_multigraph.h"
 
 namespace lean {
-pair<environment, list<name>> tc_multigraph::add(environment const & env, name const & e, unsigned num_args) {
+pair<environment, list<name>> tc_multigraph::add(environment const & env, name const & /* e */, unsigned /* num_args */) {
     // TODO(Leo)
     return mk_pair(env, list<name>());
 }
 pair<environment, list<name>> tc_multigraph::add(environment const & env, name const & e) {
-
+    declaration const & d = env.get(e);
+    return add(env, e, get_arity(d.get_type()));
 }
 void tc_multigraph::erase(name const & e) {
     auto src = m_edges.find(e);
@@ -31,14 +33,14 @@ void tc_multigraph::erase(name const & e) {
             }
         });
     lean_assert(!tgt.is_anonymous());
-    m_successors.insert(src, new_succ_lst);
-    if (std::all_of(new_succs.begin(), new_succs.end(), [&](pair<name, name> const & p) {
+    m_successors.insert(*src, new_succ_lst);
+    if (std::all_of(new_succ_lst.begin(), new_succ_lst.end(), [&](pair<name, name> const & p) {
                 return p.second != tgt;
             })) {
         // e is the last edge from src to tgt
         auto pred_lst = m_predecessors.find(tgt);
         lean_assert(pred_list);
-        list<name> new_pred_lst = filter(*pred_lst, [&](name const & n) { return n != src; });
+        list<name> new_pred_lst = filter(*pred_lst, [&](name const & n) { return n != *src; });
         m_predecessors.insert(tgt, new_pred_lst);
     }
     m_edges.erase(e);

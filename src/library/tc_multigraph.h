@@ -20,7 +20,7 @@ public:
     bool is_node(name const & c) const;
     list<pair<name, name>> get_successors(name const & c) const;
     list<name> get_predecessors(name const & c) const;
-    static bool is_fun_sink(name const & c) const;
-    static bool is_sort_sink(name const & c) const;
+    static bool is_fun_sink(name const & c);
+    static bool is_sort_sink(name const & c);
 };
 }

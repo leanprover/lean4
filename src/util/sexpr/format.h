@@ -55,9 +55,6 @@ private:
         lean_assert(is_list(l));
         return sexpr(sexpr(format_kind::FLAT_COMPOSE), l);
     }
-    static inline sexpr sexpr_compose(std::initializer_list<sexpr> const & l) {
-        return sexpr_compose(sexpr(l));
-    }
     static inline sexpr const & sexpr_compose_list(sexpr const & s) {
         lean_assert(sexpr_kind(s) == format_kind::COMPOSE || sexpr_kind(s) == format_kind::FLAT_COMPOSE);
         return cdr(s);
@@ -111,16 +108,16 @@ private:
         return static_cast<format_color>(to_int(cdr(s)));
     }
     static inline sexpr sexpr_color_end() {
-        return sexpr{sexpr(format_kind::COLOR_END)};
+        return sexpr(sexpr(format_kind::COLOR_END), sexpr());
     }
     static inline sexpr sexpr_highlight(sexpr const & s, format_color c) {
-        return sexpr_compose({sexpr_color_begin(c), s, sexpr_color_end()});
+        return sexpr_compose(sexpr(sexpr_color_begin(c), sexpr(s, sexpr(sexpr_color_end(), sexpr()))));
     }
     static inline sexpr sexpr_nil() {
-        return sexpr{sexpr(format::format_kind::NIL)};
+        return sexpr(sexpr(format::format_kind::NIL), sexpr());
     }
     static inline sexpr sexpr_line() {
-        return sexpr{sexpr(format::format_kind::LINE)};
+        return sexpr(sexpr(format::format_kind::LINE), sexpr());
     }
 
     // Functions used inside of pretty printing
@@ -166,19 +163,6 @@ public:
     explicit format(mpq const & v):m_value(sexpr_text(sexpr(v))) {}
     format(format const & f1, format const & f2):m_value(sexpr_compose({f1.m_value, f2.m_value})) {}
     format(format const & f):m_value(f.m_value) {}
-    format(std::initializer_list<format> const & l):format() {
-        lean_assert(l.size() >= 2);
-        auto it = l.begin();
-        sexpr const & s1 = (it++)->m_value;
-        sexpr const & s2 = (it++)->m_value;
-        m_value = sexpr_compose({s1, s2});
-
-        m_value = std::accumulate(it, l.end(), m_value,
-                                  [](sexpr const & result, const format f) {
-                                      return sexpr_compose({result, f.m_value});
-                                  });
-    }
-
     format_kind kind() const {
         return sexpr_kind(m_value);
     }

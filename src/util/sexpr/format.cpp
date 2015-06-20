@@ -255,11 +255,11 @@ int format::space_upto_line_break(sexpr const & s, int available, bool & found_n
 }
 
 format operator+(format const & f1, format const & f2) {
-    return format{f1, f2};
+    return compose(f1, f2);
 }
 
 format operator^(format const & f1, format const & f2) {
-    return format {f1, format(" "), f2};
+    return compose(f1, compose(format(" "), f2));
 }
 
 std::ostream & format::pretty(std::ostream & out, unsigned w, bool colors, format const & f) {

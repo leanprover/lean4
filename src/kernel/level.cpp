@@ -523,7 +523,7 @@ format pp(level l, bool unicode, unsigned indent) {
             return format("?") + format(meta_id(l));
         case level_kind::Succ: {
             auto p = to_offset(l);
-            return format{pp_child(p.first, unicode, indent), format("+"), format(p.second)};
+            return pp_child(p.first, unicode, indent) + format("+") + format(p.second);
         }
         case level_kind::Max: case level_kind::IMax: {
             format r = format(is_max(l) ? "max" : "imax");

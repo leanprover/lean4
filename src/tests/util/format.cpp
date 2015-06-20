@@ -27,7 +27,7 @@ static void tst1() {
     format f_atom3(1);
     format f_atom4(3.1415);
     format f1(highlight(f_atom1), f_atom2);
-    format f2{f_atom1, f_atom2, highlight(f_atom3, format::format_color::ORANGE), f_atom4};
+    format f2 = f_atom1 + f_atom2 + highlight(f_atom3, format::format_color::ORANGE) + f_atom4;
     format f3 = compose(f1, f2);
     format f4 = nest(3, f3);
     format f5 = line();

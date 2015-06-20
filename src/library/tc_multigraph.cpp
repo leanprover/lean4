@@ -21,7 +21,7 @@ void tc_multigraph::erase(name const & e) {
     if (!src)
         return;
     auto succ_lst  = m_successors.find(*src);
-    lean_assert(it);
+    lean_assert(succ_lst);
     name tgt;
     list<pair<name, name>> new_succ_lst = filter(*succ_lst, [&](pair<name, name> const & p) {
             if (p.first == e) {
@@ -39,7 +39,7 @@ void tc_multigraph::erase(name const & e) {
             })) {
         // e is the last edge from src to tgt
         auto pred_lst = m_predecessors.find(tgt);
-        lean_assert(pred_list);
+        lean_assert(pred_lst);
         list<name> new_pred_lst = filter(*pred_lst, [&](name const & n) { return n != *src; });
         m_predecessors.insert(tgt, new_pred_lst);
     }

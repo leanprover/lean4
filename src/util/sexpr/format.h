@@ -185,8 +185,6 @@ public:
     bool is_nil_fmt() const { return kind() == format_kind::NIL; }
     unsigned hash() const { return m_value.hash(); }
 
-    explicit operator bool() const { return static_cast<bool>(m_value); }
-
     friend format compose(format const & f1, format const & f2);
     friend format nest(int i, format const & f);
     friend format highlight(format const & f, format::format_color const c);

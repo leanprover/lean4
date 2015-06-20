@@ -22,7 +22,7 @@ format to_pos(optional<expr> const & e, pos_info_provider const * p) {
     if (!p || !e)
         return format();
     format f = p->pp(*e);
-    if (!f)
+    if (f.is_nil_fmt())
         return format();
     return f + space();
 }

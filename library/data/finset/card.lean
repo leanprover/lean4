@@ -49,12 +49,17 @@ theorem card_union_of_disjoint {s₁ s₂ : finset A} (H : s₁ ∩ s₂ = ∅) 
   card (s₁ ∪ s₂) = card s₁ + card s₂ :=
 by rewrite [card_union, H]
 
-theorem card_le_card_of_subset {s₁ s₂ : finset A} (H : s₁ ⊆ s₂) : card s₁ ≤ card s₂ :=
+theorem card_eq_card_add_card_diff {s₁ s₂ : finset A} (H : s₁ ⊆ s₂) :
+  card s₂ = card s₁ + card (s₂ \ s₁) :=
 have H1 : s₁ ∩ (s₂ \ s₁) = ∅,
   from inter_eq_empty (take x, assume H1 H2, not_mem_of_mem_diff H2 H1),
 calc
   card s₂ = card (s₁ ∪ (s₂ \ s₁))    : union_diff_cancel H
       ... = card s₁ + card (s₂ \ s₁) : card_union_of_disjoint H1
+
+theorem card_le_card_of_subset {s₁ s₂ : finset A} (H : s₁ ⊆ s₂) : card s₁ ≤ card s₂ :=
+calc
+  card s₂ = card s₁ + card (s₂ \ s₁) : card_eq_card_add_card_diff H
       ... ≥ card s₁                  : le_add_right
 
 section card_image
@@ -151,6 +156,20 @@ finset.induction_on s
 
 end card_image
 
+theorem card_pos_of_mem {a : A} {s : finset A} (H : a ∈ s) : card s > 0 :=
+begin
+  induction s with a s' H1 IH,
+  { contradiction },
+  { rewrite (card_insert_of_not_mem H1), apply succ_pos }
+end
+
+theorem eq_of_card_eq_of_subset {s₁ s₂ : finset A} (Hcard : card s₁ = card s₂) (Hsub : s₁ ⊆ s₂) :
+  s₁ = s₂ :=
+have H : card s₁ + 0 = card s₁ + card (s₂ \ s₁),
+  by rewrite [Hcard at {1}, card_eq_card_add_card_diff Hsub],
+assert H1 : s₂ \ s₁ = ∅, from eq_empty_of_card_eq_zero (add.left_cancel H)⁻¹,
+by rewrite [-union_diff_cancel Hsub, H1, union_empty]
+
 theorem Sum_const_eq_card_mul (s : finset A) (n : nat) : (∑ x ∈ s, n) = card s * n :=
 begin
   induction s with a s' H IH,
@@ -189,25 +208,5 @@ finset.induction_on s
     by rewrite [Union_insert, Sum_insert_of_not_mem _ H,
                 card_union_of_disjoint H8, H6])
 end deceqB
-
-lemma eq_of_card_eq_of_subset {s₁ s₂ : finset A} : card s₁ = card s₂ → s₁ ⊆ s₂ → s₁ = s₂ :=
-have aux : ∀ (n : nat) (s₁ s₂ : finset A), card s₁ = n → card s₂ = n → s₁ ⊆ s₂ → s₁ = s₂,
-  begin
-    clear s₁ s₂,
-    intro n, induction n with n ih,
-      {intro s₁ s₂ e₁ e₂ is_sub, rewrite [empty_of_card_eq_zero e₁, empty_of_card_eq_zero e₂] },
-      {intro s₁ s₂ e₁ e₂ is_sub,
-       have ne : s₁ ≠ ∅, from non_empty_of_card_succ e₁,
-       cases (exists_of_not_empty ne) with a ains₁,
-       have ains₂ : a ∈ s₂,                    from mem_of_subset_of_mem is_sub ains₁,
-       have e₁' : card (erase a s₁) = n,       by rewrite [card_erase_of_mem ains₁, e₁],
-       have e₂' : card (erase a s₂) = n,       by rewrite [card_erase_of_mem ains₂, e₂],
-       have is_sub' : erase a s₁ ⊆ erase a s₂, from erase_subset_erase_of_subset is_sub,
-       have eq₁ : erase a s₁ = erase a s₂,     from ih _ _ e₁' e₂' is_sub',
-       have eq₂ : insert a (erase a s₁) = insert a (erase a s₂), by rewrite eq₁,
-       rewrite [insert_erase ains₁ at eq₂, insert_erase ains₂ at eq₂],
-       exact eq₂}
-  end,
-λ e h, aux (card s₂) s₁ s₂ e rfl h
 
 end finset

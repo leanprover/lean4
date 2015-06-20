@@ -553,6 +553,15 @@ subset_of_forall (take x, assume H : x ∈ s, mem_insert_of_mem _ H)
 theorem eq_of_subset_of_subset {s₁ s₂ : finset A} (H₁ : s₁ ⊆ s₂) (H₂ : s₂ ⊆ s₁) : s₁ = s₂ :=
 ext (take x, iff.intro (assume H, mem_of_subset_of_mem H₁ H) (assume H, mem_of_subset_of_mem H₂ H))
 
+section
+variable [decA : decidable_eq A]
+include decA
+
+theorem erase_subset_erase_of_subset {a : A} {s₁ s₂ : finset A} : s₁ ⊆ s₂ → erase a s₁ ⊆ erase a s₂ :=
+λ is_sub, subset_of_forall (λ b bin,
+  mem_erase_of_ne_of_mem (ne_of_mem_erase bin) (mem_of_subset_of_mem is_sub (mem_of_mem_erase bin)))
+end
+
 /- upto -/
 section upto
 definition upto (n : nat) : finset nat :=

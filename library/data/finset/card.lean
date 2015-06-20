@@ -190,4 +190,24 @@ finset.induction_on s
                 card_union_of_disjoint H8, H6])
 end deceqB
 
+lemma eq_of_card_eq_of_subset {s₁ s₂ : finset A} : card s₁ = card s₂ → s₁ ⊆ s₂ → s₁ = s₂ :=
+have aux : ∀ (n : nat) (s₁ s₂ : finset A), card s₁ = n → card s₂ = n → s₁ ⊆ s₂ → s₁ = s₂,
+  begin
+    clear s₁ s₂,
+    intro n, induction n with n ih,
+      {intro s₁ s₂ e₁ e₂ is_sub, rewrite [empty_of_card_eq_zero e₁, empty_of_card_eq_zero e₂] },
+      {intro s₁ s₂ e₁ e₂ is_sub,
+       have ne : s₁ ≠ ∅, from non_empty_of_card_succ e₁,
+       cases (exists_of_not_empty ne) with a ains₁,
+       have ains₂ : a ∈ s₂,                    from mem_of_subset_of_mem is_sub ains₁,
+       have e₁' : card (erase a s₁) = n,       by rewrite [card_erase_of_mem ains₁, e₁],
+       have e₂' : card (erase a s₂) = n,       by rewrite [card_erase_of_mem ains₂, e₂],
+       have is_sub' : erase a s₁ ⊆ erase a s₂, from erase_subset_erase_of_subset is_sub,
+       have eq₁ : erase a s₁ = erase a s₂,     from ih _ _ e₁' e₂' is_sub',
+       have eq₂ : insert a (erase a s₁) = insert a (erase a s₂), by rewrite eq₁,
+       rewrite [insert_erase ains₁ at eq₂, insert_erase ains₂ at eq₂],
+       exact eq₂}
+  end,
+λ e h, aux (card s₂) s₁ s₂ e rfl h
+
 end finset

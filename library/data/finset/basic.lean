@@ -174,6 +174,9 @@ quot.induction_on s
 theorem eq_or_mem_of_mem_insert {x a : A} {s : finset A} : x ∈ insert a s → x = a ∨ x ∈ s :=
 quot.induction_on s (λ l : nodup_list A, λ H, list.eq_or_mem_of_mem_insert H)
 
+theorem mem_of_mem_insert_of_ne {x a : A} {s : finset A} : x ∈ insert a s → x ≠ a → x ∈ s :=
+λ xin xne, or.elim (eq_or_mem_of_mem_insert xin) (by contradiction) id
+
 theorem mem_insert_eq (x a : A) (s : finset A) : x ∈ insert a s = (x = a ∨ x ∈ s) :=
 propext (iff.intro
   (!eq_or_mem_of_mem_insert)
@@ -210,6 +213,9 @@ decidable.by_cases
   (assume H : a ∈ s, by rewrite [card_insert_of_mem H]; apply le_succ)
   (assume H : a ∉ s, by rewrite [card_insert_of_not_mem H])
 
+lemma non_empty_of_card_succ {s : finset A} {n : nat} : card s = succ n → s ≠ ∅ :=
+by intros; substvars; contradiction
+
 protected theorem induction [recursor 6] {P : finset A → Prop}
     (H1 : P empty)
     (H2 : ∀ ⦃a : A⦄, ∀{s : finset A}, a ∉ s → P s → P (insert a s)) :
@@ -240,6 +246,13 @@ protected theorem induction_on {P : finset A → Prop} (s : finset A)
     (H2 : ∀ ⦃a : A⦄, ∀ {s : finset A}, a ∉ s → P s → P (insert a s)) :
   P s :=
 finset.induction H1 H2 s
+
+theorem exists_of_not_empty {s : finset A} : s ≠ ∅ → ∃ a : A, a ∈ s :=
+begin
+  induction s with a s nin ih,
+    {intro h, exact absurd rfl h},
+    {intro h, existsi a, apply mem_insert}
+end
 end insert
 
 /- erase -/
@@ -261,6 +274,41 @@ quot.induction_on s (λ l ainl, list.length_erase_of_mem ainl)
 
 theorem card_erase_of_not_mem {a : A} {s : finset A} : a ∉ s → card (erase a s) = card s :=
 quot.induction_on s (λ l nainl, list.length_erase_of_not_mem nainl)
+
+theorem erase_empty (a : A) : erase a ∅ = ∅ :=
+rfl
+
+theorem ne_of_mem_erase {a b : A} {s : finset A} : b ∈ erase a s → b ≠ a :=
+by intro h beqa; subst b; exact absurd h !mem_erase
+
+theorem mem_of_mem_erase {a b : A} {s : finset A} : b ∈ erase a s → b ∈ s :=
+quot.induction_on s (λ l bin, mem_of_mem_erase bin)
+
+theorem mem_erase_of_ne_of_mem {a b : A} {s : finset A} : a ≠ b → a ∈ s → a ∈ erase b s :=
+quot.induction_on s (λ l n ain, list.mem_erase_of_ne_of_mem n ain)
+
+open decidable
+theorem erase_insert (a : A) (s : finset A) : a ∉ s → erase a (insert a s) = s :=
+λ anins, finset.ext (λ b, by_cases
+  (λ beqa : b = a, iff.intro
+    (λ bin, by subst b; exact absurd bin !mem_erase)
+    (λ bin, by subst b; contradiction))
+  (λ bnea : b ≠ a, iff.intro
+    (λ bin,
+       assert bin' : b ∈ insert a s, from mem_of_mem_erase bin,
+       mem_of_mem_insert_of_ne bin' bnea)
+    (λ bin,
+      have bin' : b ∈ insert a s, from mem_insert_of_mem _ bin,
+      mem_erase_of_ne_of_mem bnea bin')))
+
+theorem insert_erase {a : A} {s : finset A} : a ∈ s → insert a (erase a s) = s :=
+λ ains, finset.ext (λ b, by_cases
+  (λ beqa : b = a, iff.intro
+    (λ bin, by subst b; assumption)
+    (λ bin, by subst b; apply mem_insert))
+  (λ bnea : b ≠ a, iff.intro
+    (λ bin, mem_of_mem_erase (mem_of_mem_insert_of_ne bin bnea))
+    (λ bin, mem_insert_of_mem _ (mem_erase_of_ne_of_mem bnea bin))))
 end erase
 
 /- union -/

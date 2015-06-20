@@ -100,6 +100,7 @@ static format * g_rcurly = nullptr;
 static format * g_comma = nullptr;
 static format * g_colon = nullptr;
 static format * g_dot = nullptr;
+static sexpr  * g_sexpr_space = nullptr;
 format const & line() { return *g_line; }
 format const & space() { return *g_space; }
 format const & lp() { return *g_lp; }
@@ -137,7 +138,7 @@ sexpr format::flatten(sexpr const & s) {
         return flatten(sexpr_choice_1(s));
     case format_kind::LINE:
         g_diff_flatten = true;
-        return sexpr_text(sexpr(" "));
+        return *g_sexpr_space;
     case format_kind::FLAT_COMPOSE:
     case format_kind::TEXT:
     case format_kind::COLOR_BEGIN:
@@ -520,9 +521,11 @@ void initialize_format() {
     g_comma = new format(",");
     g_colon = new format(":");
     g_dot = new format(".");
+    g_sexpr_space = new sexpr(sexpr(format::format_kind::TEXT), " ");
 }
 
 void finalize_format() {
+    delete g_sexpr_space;
     delete g_line;
     delete g_space;
     delete g_lp;

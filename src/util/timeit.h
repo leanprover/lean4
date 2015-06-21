@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <time.h>
 #include <string>
 #include <iostream>
+#include <iomanip>
 
 namespace lean {
 /**
@@ -23,7 +24,7 @@ public:
     }
     ~timeit() {
         clock_t end = clock();
-        m_out << m_msg << " " << ((static_cast<double>(end) - static_cast<double>(m_start)) / CLOCKS_PER_SEC) << " secs\n";
+        m_out << m_msg << " " << std::fixed << std::setprecision(5) << ((static_cast<double>(end) - static_cast<double>(m_start)) / CLOCKS_PER_SEC) << " secs\n";
     }
 };
 }

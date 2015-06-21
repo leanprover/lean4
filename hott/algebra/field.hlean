@@ -76,7 +76,7 @@ section division_ring
 --    assume Ha : a = 0, absurd (Ha⁻¹ ▸ one_div_zero) H
 
   definition inv_one_eq : 1⁻¹ = (1:A) :=
-    by rewrite [-mul_one, (inv_mul_cancel (ne.symm zero_ne_one))]
+    by rewrite [-mul_one, (inv_mul_cancel (ne.symm (@zero_ne_one A _)))]
 
   definition div_one : a / 1 = a :=
     by rewrite [↑divide, inv_one_eq, mul_one]

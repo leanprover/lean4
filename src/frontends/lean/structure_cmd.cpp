@@ -815,7 +815,8 @@ struct structure_cmd_fn {
             }
             coercion_value                 = Fun(m_params, Fun(st, coercion_value));
             name coercion_name             = coercion_names[i];
-            declaration coercion_decl      = mk_definition(m_env, coercion_name, lnames, coercion_type, coercion_value);
+            bool use_conv_opt              = false;
+            declaration coercion_decl      = mk_definition(m_env, coercion_name, lnames, coercion_type, coercion_value, use_conv_opt);
             m_env = module::add(m_env, check(m_env, coercion_decl));
             m_env = set_reducible(m_env, coercion_name, reducible_status::Reducible);
             save_def_info(coercion_name);

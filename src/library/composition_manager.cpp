@@ -34,8 +34,7 @@ static environment update(environment const & env, composition_manager_ext const
     return env.update(g_ext->m_ext_id, std::make_shared<composition_manager_ext>(ext));
 }
 
-pair<environment, name> compose(type_checker & tc, name const & g, name const & f, optional<name> const & gf) {
-    environment const & env = tc.env();
+pair<environment, name> compose(environment const & env, type_checker & tc, name const & g, name const & f, optional<name> const & gf) {
     composition_manager_ext ext = get_extension(env);
     if (name const * it = ext.m_cache.find(mk_pair(g, f)))
         return mk_pair(env, *it);
@@ -70,7 +69,22 @@ pair<environment, name> compose(type_checker & tc, name const & g, name const & 
     unsigned idx  = 1;
 
     // make sure name is unique
-    while (env.find(new_name)) {
+    while (true) {
+        auto it = env.find(new_name);
+        if (!it)
+            break;
+        if (it->is_definition() && it->get_num_univ_params() == f_decl.get_num_univ_params()) {
+            // check if definitions is definitionally equal to exisiting one
+            expr it_type = instantiate_type_univ_params(*it, f_ls);
+            expr it_val  = instantiate_value_univ_params(*it, f_ls);
+            if (tc.is_def_eq(it_type, new_type).first && tc.is_def_eq(it_val, new_val).first) {
+                // environment already contains a definition that is definitially equal to the new one.
+                // So, we do not need to create a new one
+                ext.m_cache.insert(mk_pair(g, f), new_name);
+                environment new_env = module::add(env, *g_key, [=](environment const &, serializer & s) { s << g << f << new_name; });
+                return mk_pair(update(new_env, ext), new_name);
+            }
+        }
         new_name = base_name.append_after(idx);
         idx++;
     }
@@ -84,7 +98,7 @@ pair<environment, name> compose(type_checker & tc, name const & g, name const & 
 
 pair<environment, name> compose(environment const & env, name const & g, name const & f, optional<name> const & gf) {
     type_checker tc(env);
-    return compose(tc, g, f, gf);
+    return compose(env, tc, g, f, gf);
 }
 
 static void composition_reader(deserializer & d, shared_environment & senv,

@@ -63,7 +63,7 @@ struct add_edge_fn {
 
     name compose(name const & src, name const & e1, name const & e2, name const & tgt) {
         name n = src + name("to") + tgt;
-        pair<environment, name> env_e = ::lean::compose(*m_tc, e2, e1, optional<name>(n));
+        pair<environment, name> env_e = ::lean::compose(m_env, *m_tc, e2, e1, optional<name>(n));
         m_env = env_e.first;
         return env_e.second;
     }
@@ -117,9 +117,15 @@ struct add_edge_fn {
 
 /** \brief Return true iff args contains Var(0), Var(1), ..., Var(args.size() - 1) */
 static bool check_var_args(buffer<expr> const & args) {
+    buffer<bool> found;
+    found.resize(args.size(), false);
     for (unsigned i = 0; i < args.size(); i++) {
-        if (!is_var(args[i]) || var_idx(args[i]) != i)
+        if (!is_var(args[i]))
             return false;
+        unsigned idx = var_idx(args[i]);
+        if (idx >= args.size() || found[idx])
+            return false;
+        found[idx] = true;
     }
     return true;
 }
@@ -149,16 +155,19 @@ pair<name, name> tc_multigraph::validate(environment const & env, name const & e
     declaration const & d = env.get(e);
     expr type = d.get_type();
     for (unsigned i = 0; i < num_args; i++) {
-        if (!is_pi(type))
+        if (!is_pi(type)) {
             throw_ex(m_kind, e);
+        }
         type = binding_body(type);
     }
-    if (!is_pi(type))
+    if (!is_pi(type)) {
         throw_ex(m_kind, e);
+    }
     buffer<expr> args;
     expr const & C = get_app_args(binding_domain(type), args);
-    if (!is_constant(C) || !check_levels(const_levels(C), d.get_univ_params()) || !check_var_args(args))
+    if (!is_constant(C) || !check_levels(const_levels(C), d.get_univ_params()) || !check_var_args(args)) {
         throw_ex(m_kind, e);
+    }
     name src = const_name(C);
     type = binding_body(type);
     name tgt;
@@ -168,13 +177,15 @@ pair<name, name> tc_multigraph::validate(environment const & env, name const & e
         tgt = *g_fun_sink;
     } else {
         expr const & D = get_app_fn(type);
-        if (is_constant(D))
+        if (is_constant(D)) {
             tgt = const_name(D);
-        else
+        } else {
             throw_ex(m_kind, e);
+        }
     }
-    if (src == tgt)
+    if (src == tgt) {
         throw_ex(m_kind, e);
+    }
     return mk_pair(src, tgt);
 }
 

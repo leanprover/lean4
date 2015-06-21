@@ -40,6 +40,7 @@ Author: Leonardo de Moura
 #include "library/user_recursors.h"
 #include "library/class_instance_synth.h"
 #include "library/composition_manager.h"
+#include "library/tc_multigraph.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -79,9 +80,11 @@ void initialize_library_module() {
     initialize_user_recursors();
     initialize_class_instance_elaborator();
     initialize_composition_manager();
+    initialize_tc_multigraph();
 }
 
 void finalize_library_module() {
+    finalize_tc_multigraph();
     finalize_composition_manager();
     finalize_class_instance_elaborator();
     finalize_user_recursors();

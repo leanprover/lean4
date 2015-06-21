@@ -138,7 +138,7 @@ section
   private theorem lt_trans (s' : order_pair A) (a b c: A) (lt_ab : a < b) (lt_bc : b < c) : a < c :=
     lt_of_lt_of_le lt_ab (le_of_lt lt_bc)
 
-  definition order_pair.to_strict_order [instance] [coercion] [reducible] : strict_order A :=
+  definition order_pair.to_strict_order [trans-instance] [coercion] [reducible] : strict_order A :=
   ⦃ strict_order, s, lt_irrefl := lt_irrefl s, lt_trans := lt_trans s ⦄
 
 
@@ -168,13 +168,13 @@ iff.mp le_iff_lt_or_eq le_ab
 theorem le_of_lt_or_eq [s : strong_order_pair A] {a b : A} (lt_or_eq : a < b ∨ a = b) : a ≤ b :=
   iff.mp' le_iff_lt_or_eq lt_or_eq
 
-private theorem lt_irrefl' [s : strong_order_pair A] (a : A) : ¬ a < a := 
+private theorem lt_irrefl' [s : strong_order_pair A] (a : A) : ¬ a < a :=
   !strong_order_pair.lt_irrefl
 
-private theorem le_of_lt' [s : strong_order_pair A] (a b : A) : a < b → a ≤ b := 
+private theorem le_of_lt' [s : strong_order_pair A] (a b : A) : a < b → a ≤ b :=
   take Hlt, le_of_lt_or_eq (or.inl Hlt)
 
-private theorem lt_iff_le_and_ne [s : strong_order_pair A] {a b : A} : a < b ↔ (a ≤ b ∧ a ≠ b) := 
+private theorem lt_iff_le_and_ne [s : strong_order_pair A] {a b : A} : a < b ↔ (a ≤ b ∧ a ≠ b) :=
   iff.intro
     (take Hlt, and.intro (le_of_lt_or_eq (or.inl Hlt)) (take Hab, absurd (Hab ▸ Hlt) !lt_irrefl'))
     (take Hand,
@@ -210,8 +210,8 @@ private theorem lt_of_lt_of_le' [s : strong_order_pair A] (a b c : A) : a < b �
   show a < c, from iff.mp' (lt_iff_le_and_ne) (and.intro le_ac ne_ac)
 
 
-definition strong_order_pair.to_order_pair [instance] [coercion] [reducible] [s : strong_order_pair A]
-        : order_pair A := 
+definition strong_order_pair.to_order_pair [trans-instance] [coercion] [reducible] [s : strong_order_pair A]
+        : order_pair A :=
   ⦃ order_pair, s,
     lt_irrefl := lt_irrefl',
     le_of_lt := le_of_lt',
@@ -258,7 +258,7 @@ iff.intro
       iff.mp !strict_order_with_le.le_iff_lt_or_eq (and.elim_left H),
     show a < b, from or_resolve_left H1 (and.elim_right H))
 
-private theorem le_of_lt' (s : strict_order_with_le A) (a b : A) : a < b → a ≤ b := 
+private theorem le_of_lt' (s : strict_order_with_le A) (a b : A) : a < b → a ≤ b :=
   take Hlt, and.left (iff.mp (lt_iff_le_ne s _ _) Hlt)
 
 private theorem lt_trans (s : strict_order_with_le A) (a b c: A) (lt_ab : a < b) (lt_bc : b < c) : a < c :=
@@ -296,7 +296,7 @@ private theorem lt_trans (s : strict_order_with_le A) (a b c: A) (lt_ab : a < b)
   show a < c, from iff.mp' (lt_iff_le_ne s _ _) (and.intro le_ac ne_ac)
 
 
-definition strict_order_with_le.to_order_pair [instance] [coercion] [reducible] [s : strict_order_with_le A] :
+definition strict_order_with_le.to_order_pair [trans-instance] [coercion] [reducible] [s : strict_order_with_le A] :
   strong_order_pair A :=
 ⦃ strong_order_pair, s,
   le_refl          := le_refl s,
@@ -315,7 +315,7 @@ structure linear_order_pair [class] (A : Type) extends order_pair A, linear_weak
 structure linear_strong_order_pair [class] (A : Type) extends strong_order_pair A,
     linear_weak_order A
 
-definition linear_strong_order_pair.to_linear_order_pair [instance] [coercion] [reducible]
+definition linear_strong_order_pair.to_linear_order_pair [trans-instance] [coercion] [reducible]
     [s : linear_strong_order_pair A] : linear_order_pair A :=
   ⦃ linear_order_pair, s, strong_order_pair.to_order_pair⦄
 
@@ -437,7 +437,7 @@ section
   or.elim H'
     (take H'' : b = a, or.inl (symm H''))
     (take H'' : b < a, or.inr H'')
-    
+
   theorem max.right (a b : A) : b ≤ max a b :=
   decidable.by_cases
     (λ h : a < b,   eq.rec_on (max.eq_right h) !le.refl)

@@ -25,6 +25,7 @@ decl_attributes::decl_attributes(bool is_abbrev, bool persistent):
     m_is_abbrev              = is_abbrev;
     m_persistent             = persistent;
     m_is_instance            = false;
+    m_is_trans_instance      = false;
     m_is_coercion            = false;
     m_is_reducible           = is_abbrev;
     m_is_irreducible         = false;
@@ -88,6 +89,13 @@ void decl_attributes::parse(buffer<name> const & ns, parser & p) {
         auto pos = p.pos();
         if (p.curr_is_token(get_instance_tk())) {
             m_is_instance = true;
+            if (m_is_trans_instance)
+                throw parser_error("invalid '[instance]' attribute, '[trans-instance]' was already provided", pos);
+            p.next();
+        } else if (p.curr_is_token(get_trans_inst_tk())) {
+            m_is_trans_instance = true;
+            if (m_is_instance)
+                throw parser_error("invalid '[trans-instance]' attribute, '[instance]' was already provided", pos);
             p.next();
         } else if (p.curr_is_token(get_coercion_tk())) {
             p.next();
@@ -204,6 +212,16 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
             env = add_instance(env, d, m_persistent);
         }
     }
+    if (m_is_trans_instance) {
+        if (m_priority) {
+            #if defined(__GNUC__) && !defined(__CLANG__)
+            #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+            #endif
+            env = add_trans_instance(env, d, *m_priority, m_persistent);
+        } else {
+            env = add_trans_instance(env, d, m_persistent);
+        }
+    }
     if (m_is_coercion)
         env = add_coercion(env, d, ios, m_persistent);
     auto decl = env.find(d);
@@ -243,7 +261,7 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
 }
 
 void decl_attributes::write(serializer & s) const {
-    s << m_is_abbrev << m_persistent << m_is_instance << m_is_coercion
+    s << m_is_abbrev << m_persistent << m_is_instance << m_is_trans_instance << m_is_coercion
       << m_is_reducible << m_is_irreducible << m_is_semireducible << m_is_quasireducible
       << m_is_class << m_is_parsing_only << m_has_multiple_instances << m_unfold_f_hint
       << m_constructor_hint << m_symm << m_trans << m_refl << m_subst << m_recursor
@@ -251,7 +269,7 @@ void decl_attributes::write(serializer & s) const {
 }
 
 void decl_attributes::read(deserializer & d) {
-    d >> m_is_abbrev >> m_persistent >> m_is_instance >> m_is_coercion
+    d >> m_is_abbrev >> m_persistent >> m_is_instance >> m_is_trans_instance >> m_is_coercion
       >> m_is_reducible >> m_is_irreducible >> m_is_semireducible >> m_is_quasireducible
       >> m_is_class >> m_is_parsing_only >> m_has_multiple_instances >> m_unfold_f_hint
       >> m_constructor_hint >> m_symm >> m_trans >> m_refl >> m_subst >> m_recursor

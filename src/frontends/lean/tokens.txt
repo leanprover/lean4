@@ -92,6 +92,7 @@ constants    constants
 variable     variable
 variables    variables
 instance     [instance]
+trans_inst   [trans-instance]
 priority     [priority
 unfold_c     [unfold-c
 unfold_f     [unfold-f]

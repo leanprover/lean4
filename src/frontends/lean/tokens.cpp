@@ -97,6 +97,7 @@ static name const * g_constants_tk = nullptr;
 static name const * g_variable_tk = nullptr;
 static name const * g_variables_tk = nullptr;
 static name const * g_instance_tk = nullptr;
+static name const * g_trans_inst_tk = nullptr;
 static name const * g_priority_tk = nullptr;
 static name const * g_unfold_c_tk = nullptr;
 static name const * g_unfold_f_tk = nullptr;
@@ -233,6 +234,7 @@ void initialize_tokens() {
     g_variable_tk = new name{"variable"};
     g_variables_tk = new name{"variables"};
     g_instance_tk = new name{"[instance]"};
+    g_trans_inst_tk = new name{"[trans-instance]"};
     g_priority_tk = new name{"[priority"};
     g_unfold_c_tk = new name{"[unfold-c"};
     g_unfold_f_tk = new name{"[unfold-f]"};
@@ -370,6 +372,7 @@ void finalize_tokens() {
     delete g_variable_tk;
     delete g_variables_tk;
     delete g_instance_tk;
+    delete g_trans_inst_tk;
     delete g_priority_tk;
     delete g_unfold_c_tk;
     delete g_unfold_f_tk;
@@ -506,6 +509,7 @@ name const & get_constants_tk() { return *g_constants_tk; }
 name const & get_variable_tk() { return *g_variable_tk; }
 name const & get_variables_tk() { return *g_variables_tk; }
 name const & get_instance_tk() { return *g_instance_tk; }
+name const & get_trans_inst_tk() { return *g_trans_inst_tk; }
 name const & get_priority_tk() { return *g_priority_tk; }
 name const & get_unfold_c_tk() { return *g_unfold_c_tk; }
 name const & get_unfold_f_tk() { return *g_unfold_f_tk; }

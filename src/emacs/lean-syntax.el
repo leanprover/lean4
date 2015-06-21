@@ -118,7 +118,7 @@
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
      ;; modifiers
-     (,(rx (or "\[persistent\]" "\[notation\]" "\[visible\]" "\[instance\]" "\[class\]" "\[parsing-only\]"
+     (,(rx (or "\[persistent\]" "\[notation\]" "\[visible\]" "\[instance\]" "\[trans-instance\]" "\[class\]" "\[parsing-only\]"
                "\[coercion\]" "\[unfold-f\]" "\[constructor\]" "\[reducible\]"
                "\[irreducible\]" "\[semireducible\]" "\[quasireducible\]" "\[wf\]"
                "\[whnf\]" "\[multiple-instances\]" "\[none\]"

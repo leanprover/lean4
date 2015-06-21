@@ -146,7 +146,7 @@ end comm_monoid
 section add_monoid
   variable [amB : add_monoid B]
   include amB
-  local attribute add_monoid.to_monoid [instance]
+  local attribute add_monoid.to_monoid [trans-instance]
 
   definition Suml (l : list A) (f : A → B) : B := Prodl l f
 
@@ -175,7 +175,7 @@ end add_monoid
 section add_comm_monoid
   variable [acmB : add_comm_monoid B]
   include acmB
-  local attribute add_comm_monoid.to_comm_monoid [instance]
+  local attribute add_comm_monoid.to_comm_monoid [trans-instance]
 
   theorem Suml_add (l : list A) (f g : A → B) : Suml l (λx, f x + g x) = Suml l f + Suml l g :=
     Prodl_mul l f g
@@ -186,7 +186,7 @@ end add_comm_monoid
 section add_comm_monoid
   variable [acmB : add_comm_monoid B]
   include acmB
-  local attribute add_comm_monoid.to_comm_monoid [instance]
+  local attribute add_comm_monoid.to_comm_monoid [trans-instance]
 
   definition Sum (s : finset A) (f : A → B) : B := Prod s f
 

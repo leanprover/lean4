@@ -278,12 +278,12 @@ section group
   theorem mul_eq_one_iff_mul_eq_one (a b : A) : a * b = 1 ↔ b * a = 1 :=
   iff.intro !mul_eq_one_of_mul_eq_one !mul_eq_one_of_mul_eq_one
 
-  definition group.to_left_cancel_semigroup [instance] [coercion] [reducible] :
+  definition group.to_left_cancel_semigroup [trans-instance] [coercion] [reducible] :
     left_cancel_semigroup A :=
   ⦃ left_cancel_semigroup, s,
     mul_left_cancel := @mul_left_cancel A s ⦄
 
-  definition group.to_right_cancel_semigroup [instance] [coercion] [reducible] :
+  definition group.to_right_cancel_semigroup [trans-instance] [coercion] [reducible] :
     right_cancel_semigroup A :=
   ⦃ right_cancel_semigroup, s,
     mul_right_cancel := @mul_right_cancel A s ⦄
@@ -395,12 +395,12 @@ section add_group
      ... = (c + b) + -b : H
      ... = c : add_neg_cancel_right
 
-  definition add_group.to_left_cancel_semigroup [instance] [coercion] [reducible] :
+  definition add_group.to_left_cancel_semigroup [trans-instance] [coercion] [reducible] :
     add_left_cancel_semigroup A :=
   ⦃ add_left_cancel_semigroup, s,
     add_left_cancel := @add_left_cancel A s ⦄
 
-  definition add_group.to_add_right_cancel_semigroup [instance] [coercion] [reducible] :
+  definition add_group.to_add_right_cancel_semigroup [trans-instance] [coercion] [reducible] :
     add_right_cancel_semigroup A :=
   ⦃ add_right_cancel_semigroup, s,
     add_right_cancel := @add_right_cancel A s ⦄

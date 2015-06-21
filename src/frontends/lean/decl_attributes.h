@@ -13,6 +13,7 @@ class decl_attributes {
     bool               m_is_abbrev; // if true only abbreviation attributes are allowed
     bool               m_persistent;
     bool               m_is_instance;
+    bool               m_is_trans_instance;
     bool               m_is_coercion;
     bool               m_is_reducible;
     bool               m_is_irreducible;

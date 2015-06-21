@@ -229,7 +229,7 @@ theorem ordered_comm_group.lt_of_add_lt_add_left [s : ordered_comm_group A] {a b
 assert H' : -a + (a + b) < -a + (a + c), from ordered_comm_group.add_lt_add_left _ _ H _,
 by rewrite *neg_add_cancel_left at H'; exact H'
 
-definition ordered_comm_group.to_ordered_cancel_comm_monoid [instance] [coercion] [reducible]
+definition ordered_comm_group.to_ordered_cancel_comm_monoid [trans-instance] [coercion] [reducible]
     [s : ordered_comm_group A] : ordered_cancel_comm_monoid A :=
 ⦃ ordered_cancel_comm_monoid, s,
   add_left_cancel       := @add.left_cancel A s,
@@ -450,7 +450,7 @@ private theorem add_le_add_left' (A : Type) (s : decidable_linear_ordered_comm_g
                 a ≤ b → (∀ c : A, c + a ≤ c + b) :=
   decidable_linear_ordered_comm_group.add_le_add_left a b
 
-definition decidable_linear_ordered_comm_group.to_ordered_comm_group [instance] [reducible] [coercion]
+definition decidable_linear_ordered_comm_group.to_ordered_comm_group [trans-instance] [reducible] [coercion]
            (A : Type) [s : decidable_linear_ordered_comm_group A] : ordered_comm_group A :=
    ⦃ordered_comm_group, s,
    le_of_lt := @le_of_lt A s,

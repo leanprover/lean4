@@ -61,8 +61,29 @@ struct add_edge_fn {
         m_graph.m_edges.insert(edge, src);
     }
 
+
+    static name compose_name_core(name const & src, name const & tgt) {
+        return src + name("to") + tgt;
+    }
+
+    static name compose_name(name const & p, name const & src, name const & tgt) {
+        if (is_prefix_of(p, tgt))
+            return compose_name_core(src, tgt.replace_prefix(p, name()));
+        else if (p.is_atomic())
+            return compose_name_core(src, tgt);
+        else
+            return compose_name(p.get_prefix(), src, tgt);
+    }
+
+    static name compose_name(name const & src, name const & tgt) {
+        if (src.is_atomic())
+            return compose_name_core(src, tgt);
+        else
+            return compose_name(src.get_prefix(), src, tgt);
+    }
+
     name compose(name const & src, name const & e1, name const & e2, name const & tgt) {
-        name n = src + name("to") + tgt;
+        name n = compose_name(src, tgt);
         pair<environment, name> env_e = ::lean::compose(m_env, *m_tc, e2, e1, optional<name>(n));
         m_env = env_e.first;
         return env_e.second;

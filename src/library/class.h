@@ -15,12 +15,18 @@ environment add_class(environment const & env, name const & n, bool persistent =
 environment add_instance(environment const & env, name const & n, bool persistent = true);
 /** \brief Add a new 'class instance' to the environment. */
 environment add_instance(environment const & env, name const & n, unsigned priority, bool persistent);
+/** \brief Add a new 'class transitive instance' to the environment with default priority. */
+environment add_trans_instance(environment const & env, name const & n, bool persistent = true);
+/** \brief Add a new 'class transitive instance' to the environment. */
+environment add_trans_instance(environment const & env, name const & n, unsigned priority, bool persistent);
 /** \brief Return true iff \c c was declared with \c add_class. */
 bool is_class(environment const & env, name const & c);
 /** \brief Return true iff \c i was declared with \c add_instance. */
 bool is_instance(environment const & env, name const & i);
 /** \brief Return the instances of the given class. */
 list<name> get_class_instances(environment const & env, name const & c);
+/** \brief Return instances from the transitive closure graph of instances added using add_trans_instance */
+list<name> get_class_derived_trans_instances(environment const & env, name const & c);
 /** \brief Return the classes in the given environment. */
 void get_classes(environment const & env, buffer<name> & classes);
 name get_class_name(environment const & env, expr const & e);

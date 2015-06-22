@@ -475,11 +475,11 @@ void default_converter::cache_failure(expr const & t, expr const & s) {
 
    \remark t_n, s_n and cs are updated.
 */
-auto default_converter::lazy_delta_reduction_step(expr & t_n, expr & s_n, constraint_seq & cs) -> lazy_delta_result {
+auto default_converter::lazy_delta_reduction_step(expr & t_n, expr & s_n, constraint_seq & cs) -> reduction_status {
     auto d_t = is_delta(t_n);
     auto d_s = is_delta(s_n);
     if (!d_t && !d_s) {
-        return lazy_delta_result::DefUnknown;
+        return reduction_status::DefUnknown;
     } else if (d_t && !d_s) {
         t_n = whnf_core(unfold_names(t_n, 0));
     } else if (!d_t && d_s) {
@@ -496,7 +496,7 @@ auto default_converter::lazy_delta_reduction_step(expr & t_n, expr & s_n, constr
                 // We let the unifier deal with cases such as
                 // (f ...) =?= (f ...)
                 // when t_n or s_n contains metavariables
-                return lazy_delta_result::DefUnknown;
+                return reduction_status::DefUnknown;
             } else {
                 // Optimization:
                 // We try to check if their arguments are definitionally equal.
@@ -508,7 +508,7 @@ auto default_converter::lazy_delta_reduction_step(expr & t_n, expr & s_n, constr
                     if (is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n)), tmp_cs) &&
                         is_def_eq_args(t_n, s_n, tmp_cs)) {
                         cs += tmp_cs;
-                        return lazy_delta_result::DefEqual;
+                        return reduction_status::DefEqual;
                     } else {
                         cache_failure(t_n, s_n);
                     }
@@ -519,9 +519,9 @@ auto default_converter::lazy_delta_reduction_step(expr & t_n, expr & s_n, constr
         s_n = whnf_core(unfold_names(s_n, d_s->get_weight() - 1));
     }
     switch (quick_is_def_eq(t_n, s_n, cs)) {
-    case l_true:  return lazy_delta_result::DefEqual;
-    case l_false: return lazy_delta_result::DefDiff;
-    case l_undef: return lazy_delta_result::Continue;
+    case l_true:  return reduction_status::DefEqual;
+    case l_false: return reduction_status::DefDiff;
+    case l_undef: return reduction_status::Continue;
     }
     lean_unreachable();
 }
@@ -529,10 +529,44 @@ auto default_converter::lazy_delta_reduction_step(expr & t_n, expr & s_n, constr
 lbool default_converter::lazy_delta_reduction(expr & t_n, expr & s_n, constraint_seq & cs) {
     while (true) {
         switch (lazy_delta_reduction_step(t_n, s_n, cs)) {
-        case lazy_delta_result::Continue:   break;
-        case lazy_delta_result::DefUnknown: return l_undef;
-        case lazy_delta_result::DefEqual:   return l_true;
-        case lazy_delta_result::DefDiff:    return l_false;
+        case reduction_status::Continue:   break;
+        case reduction_status::DefUnknown: return l_undef;
+        case reduction_status::DefEqual:   return l_true;
+        case reduction_status::DefDiff:    return l_false;
+        }
+    }
+}
+
+auto default_converter::ext_reduction_step(expr & t_n, expr & s_n, constraint_seq & cs) -> reduction_status {
+    auto new_t_n = d_norm_ext(t_n, cs);
+    auto new_s_n = d_norm_ext(s_n, cs);
+    if (!new_t_n && !new_s_n)
+        return reduction_status::DefUnknown;
+    if (new_t_n)
+        t_n = whnf_core(*new_t_n);
+    if (new_s_n)
+        s_n = whnf_core(*new_s_n);
+    switch (quick_is_def_eq(t_n, s_n, cs)) {
+    case l_true:  return reduction_status::DefEqual;
+    case l_false: return reduction_status::DefDiff;
+    case l_undef: return reduction_status::Continue;
+    }
+    lean_unreachable();
+}
+
+// Apply lazy delta-reduction and then normalizer extensions
+lbool default_converter::reduce_def_eq(expr & t_n, expr & s_n, constraint_seq & cs) {
+    while (true) {
+        // first, keep applying lazy delta-reduction while applicable
+        lbool r = lazy_delta_reduction(t_n, s_n, cs);
+        if (r != l_undef) return r;
+
+        // try normalizer extensions
+        switch (ext_reduction_step(t_n, s_n, cs)) {
+        case reduction_status::Continue:   break;
+        case reduction_status::DefUnknown: return l_undef;
+        case reduction_status::DefEqual:   return l_true;
+        case reduction_status::DefDiff:    return l_false;
         }
     }
 }
@@ -553,24 +587,8 @@ pair<bool, constraint_seq> default_converter::is_def_eq_core(expr const & t, exp
         if (r != l_undef) return to_bcs(r == l_true, cs);
     }
 
-    // lazy delta-reduction and then normalizer extensions
-    while (true) {
-        // first, keep applying lazy delta-reduction while applicable
-        r = lazy_delta_reduction(t_n, s_n, cs);
-        if (r != l_undef) return to_bcs(r == l_true, cs);
-
-        // try normalizer extensions
-        auto new_t_n = d_norm_ext(t_n, cs);
-        auto new_s_n = d_norm_ext(s_n, cs);
-        if (!new_t_n && !new_s_n)
-            break; // t_n and s_n are in weak head normal form
-        if (new_t_n)
-            t_n = whnf_core(*new_t_n);
-        if (new_s_n)
-            s_n = whnf_core(*new_s_n);
-        r = quick_is_def_eq(t_n, s_n, cs);
-        if (r != l_undef) return to_bcs(r == l_true, cs);
-    }
+    r = reduce_def_eq(t_n, s_n, cs);
+    if (r != l_undef) return to_bcs(r == l_true, cs);
 
     if (is_constant(t_n) && is_constant(s_n) && const_name(t_n) == const_name(s_n) &&
         is_def_eq(const_levels(t_n), const_levels(s_n), cs))

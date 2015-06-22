@@ -78,9 +78,11 @@ protected:
     pair<bool, constraint_seq> is_def_eq_core(expr const & t, expr const & s);
     pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s);
 
-    enum class lazy_delta_result { Continue, DefUnknown, DefEqual, DefDiff };
-    lazy_delta_result lazy_delta_reduction_step(expr & t_n, expr & s_n, constraint_seq & cs);
+    enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
+    reduction_status lazy_delta_reduction_step(expr & t_n, expr & s_n, constraint_seq & cs);
     lbool lazy_delta_reduction(expr & t_n, expr & s_n, constraint_seq & cs);
+    reduction_status ext_reduction_step(expr & t_n, expr & s_n, constraint_seq & cs);
+    virtual lbool reduce_def_eq(expr & t_n, expr & s_n, constraint_seq & cs);
 
 public:
     default_converter(environment const & env, bool memoize = true);

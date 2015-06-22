@@ -254,11 +254,14 @@ section
   include s
 
   theorem mul_self_sub_mul_self_eq : a * a - b * b = (a + b) * (a - b) :=
-  by rewrite [left_distrib, *right_distrib, add.assoc, -{b*a + _}add.assoc,
-              -*neg_mul_eq_mul_neg, {a*b}mul.comm, add.right_inv, zero_add]
+  begin
+    krewrite [left_distrib, *right_distrib, add.assoc],
+    rewrite [-{b*a + _}add.assoc,
+             -*neg_mul_eq_mul_neg, {a*b}mul.comm, add.right_inv, zero_add]
+  end
 
   theorem mul_self_sub_one_eq : a * a - 1 = (a + 1) * (a - 1) :=
-  mul_one 1 ▸ mul_self_sub_mul_self_eq a 1
+  by rewrite [-mul_self_sub_mul_self_eq, mul_one]
 
   theorem dvd_neg_iff_dvd : (a ∣ -b) ↔ (a ∣ b) :=
   iff.intro

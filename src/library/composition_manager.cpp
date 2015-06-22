@@ -90,8 +90,9 @@ pair<environment, name> compose(environment const & env, type_checker & tc, name
     }
 
     ext.m_cache.insert(mk_pair(g, f), new_name);
+    bool use_conv_opt   = false;
     environment new_env = module::add(env, check(env, mk_definition(env, new_name, f_decl.get_univ_params(),
-                                                                    new_type, new_val)));
+                                                                    new_type, new_val, use_conv_opt)));
     new_env = module::add(new_env, *g_key, [=](environment const &, serializer & s) { s << g << f << new_name; });
     return mk_pair(update(new_env, ext), new_name);
 }

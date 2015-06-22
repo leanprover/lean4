@@ -26,7 +26,6 @@ pair<expr, constraint_seq> converter::infer_type(type_checker & tc, expr const &
 
 extension_context & converter::get_extension(type_checker & tc) { return tc.get_extension(); }
 
-
 /** \brief Do nothing converter */
 struct dummy_converter : public converter {
     virtual pair<expr, constraint_seq> whnf(expr const & e, type_checker &) {
@@ -37,7 +36,7 @@ struct dummy_converter : public converter {
     }
     virtual bool is_opaque(declaration const &) const { return false; }
     virtual optional<declaration> is_delta(expr const &) const { return optional<declaration>(); }
-    virtual bool is_stuck(expr const &, type_checker &) { return false; }
+    virtual optional<expr> is_stuck(expr const &, type_checker &) { return none_expr(); }
 };
 
 std::unique_ptr<converter> mk_dummy_converter() {

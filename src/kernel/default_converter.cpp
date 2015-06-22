@@ -50,8 +50,12 @@ bool default_converter::is_stuck(expr const & e) {
     return static_cast<bool>(m_env.norm_ext().is_stuck(e, get_extension(*m_tc)));
 }
 
-bool default_converter::is_stuck(expr const & e, type_checker & c) {
-    return static_cast<bool>(m_env.norm_ext().is_stuck(e, get_extension(c)));
+optional<expr> default_converter::is_stuck(expr const & e, type_checker & c) {
+    if (is_meta(e)) {
+        return some_expr(e);
+    } else {
+        return m_env.norm_ext().is_stuck(e, get_extension(c));
+    }
 }
 
 /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */

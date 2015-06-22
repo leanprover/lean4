@@ -436,11 +436,7 @@ type_checker::type_checker(environment const & env):
 type_checker::~type_checker() {}
 
 optional<expr> type_checker::is_stuck(expr const & e) {
-    if (is_meta(e)) {
-        return some_expr(e);
-    } else {
-        return m_env.norm_ext().is_stuck(e, m_tc_ctx);
-    }
+    return m_conv->is_stuck(e, *this);
 }
 
 void check_no_metavar(environment const & env, name const & n, expr const & e, bool is_type) {

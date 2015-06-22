@@ -90,7 +90,7 @@ public:
     virtual optional<declaration> is_delta(expr const & e) const;
     virtual bool is_opaque(declaration const & d) const;
 
-    virtual bool is_stuck(expr const & e, type_checker & c);
+    virtual optional<expr> is_stuck(expr const & e, type_checker & c);
     virtual pair<expr, constraint_seq> whnf(expr const & e_prime, type_checker & c);
     virtual pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s, type_checker & c, delayed_justification & jst);
 };

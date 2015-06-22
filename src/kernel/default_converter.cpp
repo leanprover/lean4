@@ -466,6 +466,77 @@ void default_converter::cache_failure(expr const & t, expr const & s) {
         m_failure_cache.insert(mk_pair(s, t));
 }
 
+/**
+   \brief Perform one lazy delta-reduction step.
+   Return
+   - l_true if t_n and s_n are definitionally equal.
+   - l_false if they are not definitionally equal.
+   - l_undef it the step did not manage to establish whether they are definitionally equal or not.
+
+   \remark t_n, s_n and cs are updated.
+*/
+auto default_converter::lazy_delta_reduction_step(expr & t_n, expr & s_n, constraint_seq & cs) -> lazy_delta_result {
+    auto d_t = is_delta(t_n);
+    auto d_s = is_delta(s_n);
+    if (!d_t && !d_s) {
+        return lazy_delta_result::DefUnknown;
+    } else if (d_t && !d_s) {
+        t_n = whnf_core(unfold_names(t_n, 0));
+    } else if (!d_t && d_s) {
+        s_n = whnf_core(unfold_names(s_n, 0));
+    } else if (d_t->get_weight() > d_s->get_weight()) {
+        t_n = whnf_core(unfold_names(t_n, d_s->get_weight() + 1));
+    } else if (d_t->get_weight() < d_s->get_weight()) {
+        s_n = whnf_core(unfold_names(s_n, d_t->get_weight() + 1));
+    } else {
+        lean_assert(d_t && d_s && d_t->get_weight() == d_s->get_weight());
+        if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
+            // If t_n and s_n are both applications of the same (non-opaque) definition,
+            if (has_expr_metavar(t_n) || has_expr_metavar(s_n)) {
+                // We let the unifier deal with cases such as
+                // (f ...) =?= (f ...)
+                // when t_n or s_n contains metavariables
+                return lazy_delta_result::DefUnknown;
+            } else {
+                // Optimization:
+                // We try to check if their arguments are definitionally equal.
+                // If they are, then t_n and s_n must be definitionally equal, and we can
+                // skip the delta-reduction step.
+                // If the flag use_conv_opt() is not true, then we skip this optimization
+                constraint_seq tmp_cs;
+                if (!is_opaque(*d_t) && d_t->use_conv_opt() && !failed_before(t_n, s_n)) {
+                    if (is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n)), tmp_cs) &&
+                        is_def_eq_args(t_n, s_n, tmp_cs)) {
+                        cs += tmp_cs;
+                        return lazy_delta_result::DefEqual;
+                    } else {
+                        cache_failure(t_n, s_n);
+                    }
+                }
+            }
+        }
+        t_n = whnf_core(unfold_names(t_n, d_t->get_weight() - 1));
+        s_n = whnf_core(unfold_names(s_n, d_s->get_weight() - 1));
+    }
+    switch (quick_is_def_eq(t_n, s_n, cs)) {
+    case l_true:  return lazy_delta_result::DefEqual;
+    case l_false: return lazy_delta_result::DefDiff;
+    case l_undef: return lazy_delta_result::Continue;
+    }
+    lean_unreachable();
+}
+
+lbool default_converter::lazy_delta_reduction(expr & t_n, expr & s_n, constraint_seq & cs) {
+    while (true) {
+        switch (lazy_delta_reduction_step(t_n, s_n, cs)) {
+        case lazy_delta_result::Continue:   break;
+        case lazy_delta_result::DefUnknown: return l_undef;
+        case lazy_delta_result::DefEqual:   return l_true;
+        case lazy_delta_result::DefDiff:    return l_false;
+        }
+    }
+}
+
 pair<bool, constraint_seq> default_converter::is_def_eq_core(expr const & t, expr const & s) {
     check_system("is_definitionally_equal");
     constraint_seq cs;
@@ -485,52 +556,9 @@ pair<bool, constraint_seq> default_converter::is_def_eq_core(expr const & t, exp
     // lazy delta-reduction and then normalizer extensions
     while (true) {
         // first, keep applying lazy delta-reduction while applicable
-        while (true) {
-            auto d_t = is_delta(t_n);
-            auto d_s = is_delta(s_n);
-            if (!d_t && !d_s) {
-                break;
-            } else if (d_t && !d_s) {
-                t_n = whnf_core(unfold_names(t_n, 0));
-            } else if (!d_t && d_s) {
-                s_n = whnf_core(unfold_names(s_n, 0));
-            } else if (d_t->get_weight() > d_s->get_weight()) {
-                t_n = whnf_core(unfold_names(t_n, d_s->get_weight() + 1));
-            } else if (d_t->get_weight() < d_s->get_weight()) {
-                s_n = whnf_core(unfold_names(s_n, d_t->get_weight() + 1));
-            } else {
-                lean_assert(d_t && d_s && d_t->get_weight() == d_s->get_weight());
-                if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
-                    // If t_n and s_n are both applications of the same (non-opaque) definition,
-                    if (has_expr_metavar(t_n) || has_expr_metavar(s_n)) {
-                        // We let the unifier deal with cases such as
-                        // (f ...) =?= (f ...)
-                        // when t_n or s_n contains metavariables
-                        break;
-                    } else {
-                        // Optimization:
-                        // We try to check if their arguments are definitionally equal.
-                        // If they are, then t_n and s_n must be definitionally equal, and we can
-                        // skip the delta-reduction step.
-                        // If the flag use_conv_opt() is not true, then we skip this optimization
-                        constraint_seq tmp_cs;
-                        if (!is_opaque(*d_t) && d_t->use_conv_opt() && !failed_before(t_n, s_n)) {
-                            if (is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n)), tmp_cs) &&
-                                is_def_eq_args(t_n, s_n, tmp_cs)) {
-                                cs += tmp_cs;
-                                return to_bcs(true, cs);
-                            } else {
-                                cache_failure(t_n, s_n);
-                            }
-                        }
-                    }
-                }
-                t_n = whnf_core(unfold_names(t_n, d_t->get_weight() - 1));
-                s_n = whnf_core(unfold_names(s_n, d_s->get_weight() - 1));
-            }
-            r = quick_is_def_eq(t_n, s_n, cs);
-            if (r != l_undef) return to_bcs(r == l_true, cs);
-        }
+        r = lazy_delta_reduction(t_n, s_n, cs);
+        if (r != l_undef) return to_bcs(r == l_true, cs);
+
         // try normalizer extensions
         auto new_t_n = d_norm_ext(t_n, cs);
         auto new_s_n = d_norm_ext(s_n, cs);

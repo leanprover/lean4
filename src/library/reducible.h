@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include "kernel/type_checker.h"
-#include "kernel/default_converter.h"
 #include "library/util.h"
 
 namespace lean {

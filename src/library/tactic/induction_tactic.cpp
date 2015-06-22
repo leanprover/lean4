@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
+#include "kernel/default_converter.h"
 #include "library/util.h"
 #include "library/user_recursors.h"
 #include "library/constants.h"
@@ -18,28 +19,6 @@ Author: Leonardo de Moura
 #include "library/tactic/generalize_tactic.h"
 
 namespace lean {
-class rec_opaque_converter : public default_converter {
-    name m_I;
-public:
-    rec_opaque_converter(environment const & env, name const & I):default_converter(env), m_I(I) {}
-    virtual bool is_opaque(declaration const & d) const {
-        if (d.get_name() == m_I)
-            return true;
-        return default_converter::is_opaque(d);
-    }
-};
-
-class has_rec_opaque_converter : public default_converter {
-    has_recursors_pred m_pred;
-public:
-    has_rec_opaque_converter(environment const & env):default_converter(env), m_pred(env) {}
-    virtual bool is_opaque(declaration const & d) const {
-        if (m_pred(d.get_name()))
-            return true;
-        return default_converter::is_opaque(d);
-    }
-};
-
 class induction_tac {
     environment const &   m_env;
     io_state const &      m_ios;
@@ -307,14 +286,14 @@ public:
     expr normalize_H_type(expr const & H) {
         lean_assert(is_local(H));
         if (m_rec_name) {
-            recursor_info info = get_recursor_info(m_env, *m_rec_name);
-            type_checker aux_tc(m_env, m_ngen.mk_child(),
-                                std::unique_ptr<converter>(new rec_opaque_converter(m_env, info.get_type_name())));
-            return aux_tc.whnf(mlocal_type(H)).first;
+            recursor_info info      = get_recursor_info(m_env, *m_rec_name);
+            name tname              = info.get_type_name();
+            type_checker_ptr aux_tc = mk_type_checker(m_env, m_ngen.mk_child(), [=](name const & n) { return n == tname; });
+            return aux_tc->whnf(mlocal_type(H)).first;
         } else {
-            type_checker aux_tc(m_env, m_ngen.mk_child(),
-                                std::unique_ptr<converter>(new has_rec_opaque_converter(m_env)));
-            return aux_tc.whnf(mlocal_type(H)).first;
+            has_recursors_pred pred(m_env);
+            type_checker_ptr aux_tc = mk_type_checker(m_env, m_ngen.mk_child(), pred);
+            return aux_tc->whnf(mlocal_type(H)).first;
         }
     }
 

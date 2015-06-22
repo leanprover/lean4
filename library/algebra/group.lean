@@ -439,7 +439,7 @@ section add_group
   theorem neg_sub (a b : A) : -(a - b) = b - a :=
   neg_eq_of_add_eq_zero
     (calc
-      a - b + (b - a) = a - b + b - a : by rewrite -add.assoc
+      a - b + (b - a) = a - b + b - a : by krewrite -add.assoc
         ... = a - a                   : sub_add_cancel
         ... = 0                       : sub_self)
 
@@ -448,7 +448,7 @@ section add_group
   theorem sub_add_eq_sub_sub_swap (a b c : A) : a - (b + c) = a - c - b :=
   calc
     a - (b + c) = a + (-c - b) : neg_add_rev
-      ... = a - c - b          : by rewrite add.assoc
+            ... = a - c - b    : by krewrite -add.assoc
 
   theorem sub_eq_iff_eq_add (a b c : A) : a - b = c ↔ a = c + b :=
   iff.intro (assume H, eq_add_of_add_neg_eq H) (assume H, add_neg_eq_of_eq_add H)

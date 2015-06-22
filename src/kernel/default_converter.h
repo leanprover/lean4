@@ -84,6 +84,7 @@ protected:
     reduction_status ext_reduction_step(expr & t_n, expr & s_n, constraint_seq & cs);
     virtual lbool reduce_def_eq(expr & t_n, expr & s_n, constraint_seq & cs);
 
+    virtual bool postpone_is_def_eq(expr const & t, expr const & s);
 public:
     default_converter(environment const & env, bool memoize = true);
 

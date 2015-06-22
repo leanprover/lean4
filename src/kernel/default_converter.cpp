@@ -575,6 +575,18 @@ lbool default_converter::reduce_def_eq(expr & t_n, expr & s_n, constraint_seq & 
     }
 }
 
+bool default_converter::postpone_is_def_eq(expr const & t, expr const & s) {
+    if (has_expr_metavar(t) || has_expr_metavar(s)) {
+        optional<declaration> d_t = is_delta(t);
+        optional<declaration> d_s = is_delta(s);
+        if (d_t && d_s && is_eqp(*d_t, *d_s))
+            return true;
+        else if (is_stuck(t) && is_stuck(s))
+            return true;
+    }
+    return false;
+}
+
 pair<bool, constraint_seq> default_converter::is_def_eq_core(expr const & t, expr const & s) {
     check_system("is_definitionally_equal");
     constraint_seq cs;
@@ -601,19 +613,10 @@ pair<bool, constraint_seq> default_converter::is_def_eq_core(expr const & t, exp
     if (is_local(t_n) && is_local(s_n) && mlocal_name(t_n) == mlocal_name(s_n))
         return to_bcs(true, cs);
 
-    optional<declaration> d_t, d_s;
-    bool delay_check = false;
-    if (has_expr_metavar(t_n) || has_expr_metavar(s_n)) {
-        d_t = is_delta(t_n);
-        d_s = is_delta(s_n);
-        if (d_t && d_s && is_eqp(*d_t, *d_s))
-            delay_check = true;
-        else if (is_stuck(t_n) && is_stuck(s_n))
-            delay_check = true;
-    }
+    bool postpone = postpone_is_def_eq(t_n, s_n);
 
     // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)
-    if (!delay_check && is_def_eq_app(t_n, s_n, cs))
+    if (!postpone && is_def_eq_app(t_n, s_n, cs))
         return to_bcs(true, cs);
 
     if (try_eta_expansion(t_n, s_n, cs))
@@ -623,7 +626,7 @@ pair<bool, constraint_seq> default_converter::is_def_eq_core(expr const & t, exp
     if (is_def_eq_proof_irrel(t, s, pi_cs))
         return to_bcs(true, pi_cs);
 
-    if (is_stuck(t_n) || is_stuck(s_n) || delay_check) {
+    if (is_stuck(t_n) || is_stuck(s_n) || postpone) {
         cs += constraint_seq(mk_eq_cnstr(t_n, s_n, m_jst->get()));
         return to_bcs(true, cs);
     }

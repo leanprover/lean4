@@ -10,7 +10,7 @@ open eq equiv is_equiv
 
 namespace eq
 
-  variables {A B : Type} {a a' a'' a₀₀ a₂₀ a₄₀ a₀₂ a₂₂ a₂₄ a₀₄ a₄₂ a₄₄ : A}
+  variables {A B : Type} {a a' a'' a₀₀ a₂₀ a₄₀ a₀₂ a₂₂ a₂₄ a₀₄ a₄₂ a₄₄ a₁ a₂ a₃ a₄ : A}
             /-a₀₀-/ {p₁₀ : a₀₀ = a₂₀} /-a₂₀-/ {p₃₀ : a₂₀ = a₄₀} /-a₄₀-/
        {p₀₁ : a₀₀ = a₀₂} /-s₁₁-/ {p₂₁ : a₂₀ = a₂₂} /-s₃₁-/ {p₄₁ : a₄₀ = a₄₂}
             /-a₀₂-/ {p₁₂ : a₀₂ = a₂₂} /-a₂₂-/ {p₃₂ : a₂₂ = a₄₂} /-a₄₂-/
@@ -156,6 +156,9 @@ namespace eq
 
   definition eq_of_vdeg_square [reducible] {p q : a = a'} (s : square p q idp idp) : p = q :=
   to_fun !vdeg_square_equiv' s
+
+  definition top_deg_square (l : a₁ = a₂) (b : a₂ = a₃) (r : a₄ = a₃) : square (l ⬝ b ⬝ r⁻¹) b l r :=
+  by induction r;induction b;induction l;constructor
 
   /-
     the following two equivalences have as underlying inverse function the functions
@@ -341,5 +344,19 @@ namespace eq
   to_left_inv (!square_equiv_eq) s ▸ !inv_inv ▸ H2
 
   --we can also do the other recursors (tl, tr, bl, br, tbl, tbr, tlr, blr), but let's postpone this until they are needed
+
+  /- squares commute with some operations on 2-paths -/
+
+  definition square_inv2 {p₁ p₂ p₃ p₄ : a = a'}
+    {t : p₁ = p₂} {b : p₃ = p₄} {l : p₁ = p₃} {r : p₂ = p₄} (s : square t b l r)
+    : square (inverse2 t) (inverse2 b) (inverse2 l) (inverse2 r) :=
+  by induction s;constructor
+
+  definition square_con2 {p₁ p₂ p₃ p₄ : a₁ = a₂} {q₁ q₂ q₃ q₄ : a₂ = a₃}
+    {t₁ : p₁ = p₂} {b₁ : p₃ = p₄} {l₁ : p₁ = p₃} {r₁ : p₂ = p₄}
+    {t₂ : q₁ = q₂} {b₂ : q₃ = q₄} {l₂ : q₁ = q₃} {r₂ : q₂ = q₄}
+    (s₁ : square t₁ b₁ l₁ r₁) (s₂ : square t₂ b₂ l₂ r₂)
+      : square (t₁ ◾ t₂) (b₁ ◾ b₂) (l₁ ◾ l₂) (r₁ ◾ r₂) :=
+  by induction s₂;induction s₁;constructor
 
 end eq

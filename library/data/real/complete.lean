@@ -27,18 +27,6 @@ local notation 3 := pnat.pos (nat.of_num 3) dec_trivial
 
 namespace s
 
-theorem nonneg_of_ge_neg_invs (a : ℚ) (H : ∀ n : ℕ+, -n⁻¹ ≤ a) : 0 ≤ a := sorry
-
-definition const (a : ℚ) : seq := λ n, a
-
-theorem const_reg (a : ℚ) : regular (const a) :=
-  begin
-    intros,
-    rewrite [↑const, sub_self, abs_zero],
-    apply add_invs_nonneg
-  end
-
-definition r_const (a : ℚ) : reg_seq := reg_seq.mk (const a) (const_reg a)
 
 theorem rat_approx_l1 {s : seq} (H : regular s) :
         ∀ n : ℕ+, ∃ q : ℚ, ∃ N : ℕ+, ∀ m : ℕ+, m ≥ N → abs (s m - q) ≤ n⁻¹ :=
@@ -106,7 +94,8 @@ theorem r_rat_approx (s : reg_seq) :
         ∀ n : ℕ+, ∃ q : ℚ, r_le (r_abs (radd s (rneg (r_const q)))) (r_const n⁻¹) :=
   rat_approx (reg_seq.is_reg s)
 
-theorem const_bound {s : seq} (Hs : regular s) (n : ℕ+) : s_le (s_abs (sadd s (sneg (const (s n))))) (const n⁻¹) :=
+theorem const_bound {s : seq} (Hs : regular s) (n : ℕ+) :
+        s_le (s_abs (sadd s (sneg (const (s n))))) (const n⁻¹) :=
   begin
     rewrite ↑[s_le, nonneg, s_abs, sadd, sneg, const],
     intro m,
@@ -126,40 +115,6 @@ theorem abs_const (a : ℚ) : const (abs a) ≡ s_abs (const a) :=
   end
 
 theorem r_abs_const (a : ℚ) : requiv (r_const (abs a) ) (r_abs (r_const a)) := abs_const a
-
-theorem add_consts (a b : ℚ) : sadd (const a) (const b) ≡ const (a + b) :=
-  begin
-    rewrite [↑sadd, ↑const],
-    apply equiv.refl
-  end
-
-theorem r_add_consts (a b : ℚ) : requiv (r_const a + r_const b) (r_const (a + b)) := add_consts a b
-
-theorem const_le_const_of_le {a b : ℚ} (H : a ≤ b) : s_le (const a) (const b) :=
-  begin
-    rewrite [↑s_le, ↑nonneg],
-    intro n,
-    rewrite [↑sadd, ↑sneg, ↑const],
-    apply rat.le.trans,
-    apply rat.neg_nonpos_of_nonneg,
-    apply rat.le_of_lt,
-    apply inv_pos,
-    apply iff.mp' !rat.sub_nonneg_iff_le,
-    apply H
-  end
-
-theorem le_of_const_le_const {a b : ℚ} (H : s_le (const a) (const b)) : a ≤ b :=
-  begin
-    rewrite [↑s_le at H, ↑nonneg at H, ↑sadd at H, ↑sneg at H, ↑const at H],
-    apply iff.mp !rat.sub_nonneg_iff_le,
-    apply nonneg_of_ge_neg_invs _ H
-  end
-
-theorem r_const_le_const_of_le {a b : ℚ} (H : a ≤ b) : r_le (r_const a) (r_const b) :=
-  const_le_const_of_le H
-
-theorem r_le_of_const_le_const {a b : ℚ} (H : r_le (r_const a) (r_const b)) : a ≤ b :=
-  le_of_const_le_const H
 
 theorem equiv_abs_of_ge_zero {s : seq} (Hs : regular s) (Hz : s_le zero s) : s_abs s ≡ s :=
   begin
@@ -238,6 +193,18 @@ theorem r_equiv_neg_abs_of_le_zero {s : reg_seq} (Hz : r_le s r_zero) : requiv (
 end s
 
 namespace real
+open [classes] s
+
+/--
+definition const (a : ℚ) : ℝ := quot.mk (s.r_const a)
+
+theorem add_consts (a b : ℚ) : const a + const b = const (a + b) :=
+  quot.sound (s.r_add_consts a b)
+
+theorem sub_consts (a b : ℚ) : const a + -const b = const (a - b) := !add_consts
+
+theorem add_half_const (n : ℕ+) : const (2 * n)⁻¹ + const (2 * n)⁻¹ = const (n⁻¹) :=
+  by rewrite [add_consts, pnat.add_halves]-/
 
 theorem p_add_fractions (n : ℕ+) : (2 * n)⁻¹ + (2 * 3 * n)⁻¹ + (3 * n)⁻¹ = n⁻¹ := sorry
 
@@ -245,23 +212,7 @@ theorem rewrite_helper9 (a b c : ℝ) : b - c = (b - a) - (c - a) := sorry
 
 theorem rewrite_helper10 (a b c d : ℝ) : c - d = (c - a) + (a - b) + (b - d) := sorry
 
-definition rep (x : ℝ) : reg_seq := some (quot.exists_rep x)
-
-definition const (a : ℚ) : ℝ := quot.mk (s.r_const a)
-
-theorem add_consts (a b : ℚ) : const a + const b = const (a + b) :=
-  quot.sound (s.r_add_consts a b)
-
-theorem sub_consts (a b : ℚ) : const a - const b = const (a - b) := !add_consts
-
-theorem add_half_const (n : ℕ+) : const (2 * n)⁻¹ + const (2 * n)⁻¹ = const (n⁻¹) :=
-  by rewrite [add_consts, pnat.add_halves]
-
-theorem const_le_const_of_le (a b : ℚ) : a ≤ b → const a ≤ const b :=
-  s.r_const_le_const_of_le
-
-theorem le_of_const_le_const (a b : ℚ) : const a ≤ const b → a ≤ b :=
-  s.r_le_of_const_le_const
+definition rep (x : ℝ) : s.reg_seq := some (quot.exists_rep x)
 
 definition re_abs (x : ℝ) : ℝ :=
   quot.lift_on x (λ a, quot.mk (s.r_abs a)) (take a b Hab, quot.sound (s.r_abs_well_defined Hab))
@@ -312,6 +263,26 @@ definition converges_to (X : r_seq) (a : ℝ) (N : ℕ+ → ℕ+) :=
 
 definition cauchy (X : r_seq) (M : ℕ+ → ℕ+) :=
   ∀ k : ℕ+, ∀ m n : ℕ+, m ≥ M k → n ≥ M k → abs (X m - X n) ≤ const k⁻¹
+--set_option pp.implicit true
+--set_option pp.coercions true
+
+--check add_half_const
+--check const
+
+-- Lean is using algebra operations in these theorems, instead of the ones defined directly on real.
+-- Need to finish the migration to real to fix this.
+
+--set_option pp.all true
+theorem add_consts2 (a b : ℚ) : const a + const b = const (a + b) :=
+  !add_consts --quot.sound (s.r_add_consts a b)
+--check add_consts
+--check add_consts2
+
+theorem sub_consts2 (a b : ℚ) : const a - const b = const (a - b) := !sub_consts
+
+theorem add_half_const2 (n : ℕ+) : const (2 * n)⁻¹ + const (2 * n)⁻¹ = const (n⁻¹) :=
+  by xrewrite [add_consts2, pnat.add_halves]
+
 
 theorem cauchy_of_converges_to {X : r_seq} {a : ℝ} {N : ℕ+ → ℕ+} (Hc : converges_to X a N) :
         cauchy X (λ k, N (2 * k)) :=
@@ -327,7 +298,7 @@ theorem cauchy_of_converges_to {X : r_seq} {a : ℝ} {N : ℕ+ → ℕ+} (Hc : c
     rewrite algebra.abs_neg,
     apply Hc,
     apply Hn,
-    rewrite add_half_const,
+    xrewrite add_half_const2,
     apply !algebra.le.refl
   end
 
@@ -337,7 +308,7 @@ theorem Nb_spec_right (M : ℕ+ → ℕ+) (k : ℕ+) : M (2 * k) ≤ Nb M k := !
 
 theorem Nb_spec_left (M : ℕ+ → ℕ+) (k : ℕ+) : 3 * k ≤ Nb M k := !max_left
 
-definition lim_seq {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : seq :=
+definition lim_seq {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : ℕ+ → ℚ :=
   λ k, approx (X (Nb M k)) (2 * k)
 
 theorem lim_seq_reg_helper {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) {m n : ℕ+}
@@ -358,20 +329,22 @@ theorem lim_seq_reg_helper {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) {m 
     apply pnat.le.trans,
     apply Hmn,
     apply Nb_spec_right,
-    rewrite [*add_consts, rat.add.assoc, pnat.add_halves],
+    rewrite [*add_consts2, rat.add.assoc, pnat.add_halves],
     apply const_le_const_of_le,
     apply rat.add_le_add_right,
     apply inv_ge_of_le,
     apply pnat.mul_le_mul_left
   end
 
-theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : regular (lim_seq Hc) :=
+-- the remaineder is commented out temporarily, until migration is finished.
+
+/-theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : s.regular (lim_seq Hc) :=
   begin
-    rewrite ↑regular,
+    rewrite ↑s.regular,
     intro m n,
     apply le_of_const_le_const,
-    rewrite [abs_const, -sub_consts, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],
-    apply algebra.le.trans,
+    rewrite [abs_const, -sub_consts, -sub_eq_add_neg, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],--, -sub_consts2, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],
+    apply real.le.trans,
     apply algebra.abs_add_three,
     let Hor := decidable.em (M (2 * m) ≥ M (2 * n)),
     apply or.elim Hor,
@@ -379,23 +352,23 @@ theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : regular 
     apply lim_seq_reg_helper Hc Hor1,
     intro Hor2,
     let Hor2' := pnat.le_of_lt (pnat.lt_of_not_le Hor2),
-    rewrite [algebra.abs_sub (X (Nb M n)), algebra.abs_sub (X (Nb M m)), algebra.abs_sub, -- ???
+    rewrite [real.abs_sub (X (Nb M n)), algebra.abs_sub (X (Nb M m)), algebra.abs_sub, -- ???
              rat.add.comm, algebra.add_comm_three],
     apply lim_seq_reg_helper Hc Hor2'
   end
 
 theorem lim_seq_spec {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) (k : ℕ+) :
-        s.s_le (s.s_abs (sadd (lim_seq Hc) (sneg (s.const (lim_seq Hc k))) )) (s.const k⁻¹) :=
+        s.s_le (s.s_abs (s.sadd (lim_seq Hc) (s.sneg (s.const (lim_seq Hc k))) )) (s.const k⁻¹) :=
   begin
     apply s.const_bound,
     apply lim_seq_reg
   end
 
-definition r_lim_seq {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : reg_seq :=
-  reg_seq.mk (lim_seq Hc) (lim_seq_reg Hc)
+definition r_lim_seq {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : s.reg_seq :=
+  s.reg_seq.mk (lim_seq Hc) (lim_seq_reg Hc)
 
 theorem r_lim_seq_spec {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) (k : ℕ+) :
-        s.r_le (s.r_abs (((r_lim_seq Hc) + -s.r_const ((reg_seq.sq (r_lim_seq Hc)) k)))) (s.r_const (k)⁻¹) :=
+        s.r_le (s.r_abs (( s.radd (r_lim_seq Hc) (s.rneg (s.r_const ((s.reg_seq.sq (r_lim_seq Hc)) k)))))) (s.r_const (k)⁻¹) :=
   lim_seq_spec Hc k
 
 definition lim {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : ℝ :=
@@ -441,7 +414,7 @@ theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
     rewrite ↑lim_seq,
     apply approx_spec,
     apply lim_spec,
-    rewrite 2 add_consts,
+    rewrite 2 add_consts2,
     apply const_le_const_of_le,
     apply rat.le.trans,
     apply add_le_add_three,
@@ -461,6 +434,6 @@ theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
     apply Nb_spec_left,
     rewrite [-*pnat.mul.assoc, p_add_fractions],
     apply rat.le.refl
-  end
+  end-/
 
 end real

@@ -606,6 +606,7 @@ end s
 
 
 namespace real
+open [classes] s
 
 definition inv (x : ℝ) : ℝ := quot.lift_on x (λ a, quot.mk (s.r_inv a))
            (λ a b H, quot.sound (s.r_inv_well_defined H))

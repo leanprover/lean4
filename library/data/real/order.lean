@@ -47,6 +47,7 @@ theorem helper_1 {a : ℚ} (H : a > 0) : -a + -a ≤ -a := sorry
 
 theorem rewrite_helper8 (a b c : ℚ) : a - b = c - b + (a - c) := sorry -- simp
 
+theorem nonneg_of_ge_neg_invs (a : ℚ) (H : ∀ n : ℕ+, -n⁻¹ ≤ a) : 0 ≤ a := sorry
 
 ---------
 namespace s
@@ -906,6 +907,28 @@ theorem s_lt_of_le_of_lt {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : r
     apply max_left
   end
 
+-----------------------------
+-- const theorems
+
+theorem const_le_const_of_le {a b : ℚ} (H : a ≤ b) : s_le (const a) (const b) :=
+  begin
+    rewrite [↑s_le, ↑nonneg],
+    intro n,
+    rewrite [↑sadd, ↑sneg, ↑const],
+    apply rat.le.trans,
+    apply rat.neg_nonpos_of_nonneg,
+    apply rat.le_of_lt,
+    apply inv_pos,
+    apply iff.mp' !rat.sub_nonneg_iff_le,
+    apply H
+  end
+
+theorem le_of_const_le_const {a b : ℚ} (H : s_le (const a) (const b)) : a ≤ b :=
+  begin
+    rewrite [↑s_le at H, ↑nonneg at H, ↑sadd at H, ↑sneg at H, ↑const at H],
+    apply iff.mp !rat.sub_nonneg_iff_le,
+    apply nonneg_of_ge_neg_invs _ H
+  end
 
 -------- lift to reg_seqs
 definition r_lt (s t : reg_seq) := s_lt (reg_seq.sq s) (reg_seq.sq t)
@@ -982,9 +1005,16 @@ theorem r_zero_lt_one : r_lt r_zero r_one := s_zero_lt_one
 theorem r_le_of_lt_or_eq (s t : reg_seq) (H : r_lt s t ∨ requiv s t) : r_le s t :=
   le_of_lt_or_equiv (reg_seq.is_reg s) (reg_seq.is_reg t) H
 
+theorem r_const_le_const_of_le {a b : ℚ} (H : a ≤ b) : r_le (r_const a) (r_const b) :=
+  const_le_const_of_le H
+
+theorem r_le_of_const_le_const {a b : ℚ} (H : r_le (r_const a) (r_const b)) : a ≤ b :=
+  le_of_const_le_const H
+
 end s
 
 open real
+open [classes] s
 namespace real
 
 definition lt (x y : ℝ) := quot.lift_on₂ x y (λ a b, s.r_lt a b) s.r_lt_well_defined
@@ -1053,7 +1083,10 @@ theorem le_of_lt_or_eq (x y : ℝ) : x < y ∨ x = y → x ≤ y :=
         apply (or.inr (quot.exact H'))
       end)))
 
-definition ordered_ring  : algebra.ordered_ring ℝ :=
+section migrate_reals
+open [classes] algebra
+
+definition ordered_ring [reducible]  : algebra.ordered_ring ℝ :=
   ⦃ algebra.ordered_ring, comm_ring,
     le_refl := le.refl,
     le_trans := le.trans,
@@ -1068,5 +1101,18 @@ definition ordered_ring  : algebra.ordered_ring ℝ :=
     le_of_lt := le_of_lt,
     add_lt_add_left := add_lt_add_left
   ⦄
+local attribute real.ordered_ring [instance]
+--set_option migrate.trace true
+migrate from algebra with real
+
+end migrate_reals
+theorem const_le_const_of_le (a b : ℚ) : a ≤ b → const a ≤ const b :=
+  s.r_const_le_const_of_le
+
+theorem le_of_const_le_const (a b : ℚ) : const a ≤ const b → a ≤ b :=
+  s.r_le_of_const_le_const
 
 end real
+
+--print prefix real
+--check @real.lt

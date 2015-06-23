@@ -103,6 +103,7 @@ theorem factor_lemma_2 (a b c d : ℚ) : (a + b) + (c + d) = (a + c) + (d + b) :
 
 --------------------------------------
 -- define cauchy sequences and equivalence. show equivalence actually is one
+namespace s
 
 notation `seq` := ℕ+ → ℚ
 
@@ -885,6 +886,24 @@ theorem zero_nequiv_one : ¬ zero ≡ one :=
   end
 
 ---------------------------------------------
+-- constant sequences
+
+definition const (a : ℚ) : seq := λ n, a
+
+theorem const_reg (a : ℚ) : regular (const a) :=
+  begin
+    intros,
+    rewrite [↑const, rat.sub_self, abs_zero],
+    apply add_invs_nonneg
+  end
+
+theorem add_consts (a b : ℚ) : sadd (const a) (const b) ≡ const (a + b) :=
+  begin
+    rewrite [↑sadd, ↑const],
+    apply equiv.refl
+  end
+
+---------------------------------------------
 -- create the type of regular sequences and lift theorems
 
 record reg_seq : Type :=
@@ -967,10 +986,16 @@ theorem r_distrib (s t u : reg_seq) : requiv (s * (t + u)) (s * t + s * u) :=
 theorem r_zero_nequiv_one : ¬ requiv r_zero r_one :=
   zero_nequiv_one
 
+definition r_const (a : ℚ) : reg_seq := reg_seq.mk (const a) (const_reg a)
+
+theorem r_add_consts (a b : ℚ) : requiv (r_const a + r_const b) (r_const (a + b)) := add_consts a b
+
+end s
 ----------------------------------------------
 -- take quotients to get ℝ and show it's a comm ring
 
 namespace real
+open s
 definition real := quot reg_seq.to_setoid
 notation `ℝ` := real
 
@@ -1053,5 +1078,15 @@ definition comm_ring [reducible] : algebra.comm_ring ℝ :=
     apply distrib_l,
     apply mul_comm
   end
+
+definition const (a : ℚ) : ℝ := quot.mk (s.r_const a)
+
+theorem add_consts (a b : ℚ) : const a + const b = const (a + b) :=
+  quot.sound (s.r_add_consts a b)
+
+theorem sub_consts (a b : ℚ) : const a + -const b = const (a - b) := !add_consts
+
+theorem add_half_const (n : ℕ+) : const (2 * n)⁻¹ + const (2 * n)⁻¹ = const (n⁻¹) :=
+  by rewrite [add_consts, pnat.add_halves]
 
 end real

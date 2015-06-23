@@ -71,8 +71,7 @@ section linear_ordered_field
     iff.intro
     (assume H : 1 < a / b,
       calc
-        b   = b           : refl
-        ... < b * (a / b) : lt_mul_of_gt_one_right Hb H
+        b   < b * (a / b) : lt_mul_of_gt_one_right Hb H
         ... = a           : mul_div_cancel' Hb')
     (assume H : b < a,
       have Hbinv : 1 / b > 0, from  div_pos_of_pos Hb, calc

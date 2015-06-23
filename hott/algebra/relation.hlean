@@ -18,7 +18,6 @@ section
   definition transitive : Type := Π⦃x y z⦄, R x y → R y z → R x z
 end
 
-
 /- classes for equivalence relations -/
 
 structure is_reflexive [class] {T : Type} (R : T → T → Type) := (refl : reflexive R)

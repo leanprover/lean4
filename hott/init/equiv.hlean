@@ -52,10 +52,10 @@ namespace is_equiv
                (λa, (whisker_left _ (adj g (f a))) ⬝
                     (ap_con g _ _)⁻¹ ⬝
                     ap02 g ((ap_con_eq_con (right_inv f) (left_inv g (f a)))⁻¹ ⬝
-                            (ap_compose (inv f) f _ ◾  adj f a) ⬝
+                            (ap_compose f (inv f) _ ◾  adj f a) ⬝
                             (ap_con f _ _)⁻¹
                            ) ⬝
-                    (ap_compose f g _)⁻¹
+                    (ap_compose g f _)⁻¹
                )
 
   -- Any function equal to an equivalence is an equivlance as well.
@@ -150,12 +150,12 @@ namespace is_equiv
       (λq, !ap_con
         ⬝ whisker_right !ap_con _
         ⬝ ((!ap_inv ⬝ inverse2 (adj f _)⁻¹)
-          ◾ (inverse (ap_compose f⁻¹ f _))
+          ◾ (inverse (ap_compose f f⁻¹ _))
           ◾ (adj f _)⁻¹)
         ⬝ con_ap_con_eq_con_con (right_inv f) _ _
         ⬝ whisker_right !con.left_inv _
         ⬝ !idp_con)
-      (λp, whisker_right (whisker_left _ (ap_compose f f⁻¹ _)⁻¹) _
+      (λp, whisker_right (whisker_left _ (ap_compose f⁻¹ f _)⁻¹) _
         ⬝ con_ap_con_eq_con_con (left_inv f) _ _
         ⬝ whisker_right !con.left_inv _
         ⬝ !idp_con)
@@ -278,8 +278,8 @@ namespace equiv
   theorem inv_eq {A B : Type} (eqf eqg : A ≃ B) (p : eqf = eqg) : (to_fun eqf)⁻¹ = (to_fun eqg)⁻¹ :=
   eq.rec_on p idp
 
-  definition equiv_of_equiv_of_eq {A B C : Type} (p : A = B) (q : B ≃ C) : A ≃ C := p⁻¹ ▸ q
-  definition equiv_of_eq_of_equiv {A B C : Type} (p : A ≃ B) (q : B = C) : A ≃ C := q   ▸ p
+  definition equiv_of_equiv_of_eq [trans] {A B C : Type} (p : A = B) (q : B ≃ C) : A ≃ C := p⁻¹ ▸ q
+  definition equiv_of_eq_of_equiv [trans] {A B C : Type} (p : A ≃ B) (q : B = C) : A ≃ C := q   ▸ p
 
   definition equiv_lift (A : Type) : A ≃ lift A := equiv.mk up _
 

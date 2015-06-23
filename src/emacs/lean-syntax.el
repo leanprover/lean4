@@ -141,7 +141,7 @@
                 "xrewrite" "krewrite" "esimp" "unfold" "change" "check_expr" "contradiction"
                 "exfalso" "split" "existsi" "constructor" "fconstructor" "left" "right" "injection" "congruence" "reflexivity"
                 "symmetry" "transitivity" "state" "induction" "induction_using"
-                "substvars"))
+                "substvars" "now"))
            word-end)
       (1 'font-lock-constant-face))
      ;; Types

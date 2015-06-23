@@ -332,6 +332,7 @@ order for the change to take effect."
   ("transport" . ("▹"))
   ("con"       . ("⬝"))
   ("cdot"      . ("⬝"))
+  ("dot"      . ("⬝"))
   ("sy"        . ("⁻¹"))
   ("inv"       . ("⁻¹"))
   ("-1"        . ("⁻¹"))
@@ -339,8 +340,12 @@ order for the change to take effect."
   ("-1e"       . ("⁻¹ᵉ"))
   ("-1f"       . ("⁻¹ᶠ"))
   ("-1h"       . ("⁻¹ʰ"))
+  ("-1v"       . ("⁻¹ᵛ"))
+  ("-1m"       . ("⁻¹ᵐ"))
   ("-1g"       . ("⁻¹ᵍ"))
   ("-1o"       . ("⁻¹ᵒ"))
+  ("-2"        . ("⁻²"))
+  ("-3"        . ("⁻³"))
   ("qed"       . ("∎"))
   ("x"         . ("×"))
   ("o"         . ("∘"))
@@ -471,7 +476,7 @@ order for the change to take effect."
 
   ;; Squares.
 
-  ("sq"  . ,(lean-input-to-string-list "■□◼◻◾◽▣▢▤▥▦▧▨▩◧◨◩◪◫◰◱◲◳"))
+  ("sq"  . ,(lean-input-to-string-list "◾◽■□◼◻▣▢▤▥▦▧▨▩◧◨◩◪◫◰◱◲◳"))
   ("sqb" . ,(lean-input-to-string-list "■◼◾"))
   ("sqw" . ,(lean-input-to-string-list "□◻◽"))
   ("sq." . ("▣"))

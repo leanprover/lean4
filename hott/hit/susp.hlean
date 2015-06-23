@@ -90,7 +90,7 @@ namespace susp
 
   definition Susp_functor (f : X →* Y) : Susp X →* Susp Y :=
   begin
-    constructor,
+    fconstructor,
     { intro x, induction x,
         apply north,
         apply south,
@@ -101,12 +101,12 @@ namespace susp
   definition Susp_functor_compose (g : Y →* Z) (f : X →* Y)
     : Susp_functor (g ∘* f) ~* Susp_functor g ∘* Susp_functor f :=
   begin
-    constructor,
+    fconstructor,
     { intro a, induction a,
       { reflexivity},
       { reflexivity},
       { apply pathover_eq, apply hdeg_square,
-        rewrite [▸*,ap_compose' (Susp_functor f),↑Susp_functor,+elim_merid]}},
+        rewrite [▸*,ap_compose' _ (Susp_functor f),↑Susp_functor,+elim_merid]}},
     { reflexivity}
   end
 
@@ -114,7 +114,7 @@ namespace susp
 
   definition loop_susp_unit [constructor] (X : Pointed) : X →* Ω(Susp X) :=
   begin
-    constructor,
+    fconstructor,
     { intro x, exact merid x ⬝ (merid pt)⁻¹},
     { apply con.right_inv},
   end
@@ -123,7 +123,7 @@ namespace susp
     : loop_susp_unit Y ∘* f ~* ap1 (Susp_functor f) ∘* loop_susp_unit X :=
   begin
     induction X with X x, induction Y with Y y, induction f with f pf, esimp at *, induction pf,
-    constructor,
+    fconstructor,
     { intro x', esimp [Susp_functor], symmetry,
       exact
         !idp_con ⬝
@@ -141,7 +141,7 @@ namespace susp
 
   definition loop_susp_counit [constructor] (X : Pointed) : Susp (Ω X) →* X :=
   begin
-    constructor,
+    fconstructor,
     { intro x, induction x, exact pt, exact pt, exact a},
     { reflexivity},
   end
@@ -150,12 +150,12 @@ namespace susp
     : f ∘* loop_susp_counit X ~* loop_susp_counit Y ∘* (Susp_functor (ap1 f)) :=
   begin
     induction X with X x, induction Y with Y y, induction f with f pf, esimp at *, induction pf,
-    constructor,
+    fconstructor,
     { intro x', induction x' with p,
       { reflexivity},
       { reflexivity},
       { esimp, apply pathover_eq, apply hdeg_square,
-        xrewrite [ap_compose _ f,ap_compose _ (susp.elim (f x) (f x) (λ (a : f x = f x), a)),▸*,
+        xrewrite [ap_compose f,ap_compose (susp.elim (f x) (f x) (λ (a : f x = f x), a)),▸*,
                   +elim_merid,▸*,idp_con]}},
     { reflexivity}
   end
@@ -163,7 +163,7 @@ namespace susp
   definition loop_susp_counit_unit (X : Pointed)
     : ap1 (loop_susp_counit X) ∘* loop_susp_unit (Ω X) ~* pid (Ω X) :=
   begin
-    induction X with X x, constructor,
+    induction X with X x, fconstructor,
     { intro p, esimp,
       refine !idp_con ⬝
              (!ap_con ⬝
@@ -177,12 +177,12 @@ namespace susp
   definition loop_susp_unit_counit (X : Pointed)
     : loop_susp_counit (Susp X) ∘* Susp_functor (loop_susp_unit X) ~* pid (Susp X) :=
   begin
-    induction X with X x, constructor,
+    induction X with X x, fconstructor,
     { intro x', induction x',
       { reflexivity},
       { exact merid pt},
       { apply pathover_eq,
-        xrewrite [▸*, ap_id, ap_compose _ (susp.elim north north (λa, a)), +elim_merid,▸*],
+        xrewrite [▸*, ap_id, ap_compose (susp.elim north north (λa, a)), +elim_merid,▸*],
         apply square_of_eq, exact !idp_con ⬝ !inv_con_cancel_right⁻¹}},
     { reflexivity}
   end

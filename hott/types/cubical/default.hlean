@@ -5,4 +5,3 @@ Authors: Floris van Doorn
 -/
 
 import .square .cube .squareover .cubeover
-import .pathover

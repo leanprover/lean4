@@ -100,10 +100,10 @@ namespace sphere
   nat.rec_on n (by esimp [Iterated_loop_space]; exact base)
                (by intro n s;exact apn n (equator n) s)
 
-  definition bool_of_sphere [reducible] : S 0 → bool :=
+  definition bool_of_sphere : S 0 → bool :=
   susp.rec ff tt (λx, empty.elim x)
 
-  definition sphere_of_bool [reducible] : bool → S 0
+  definition sphere_of_bool : bool → S 0
   | ff := north
   | tt := south
 
@@ -124,17 +124,17 @@ namespace sphere
     revert A, induction n with n IH,
     { intro A, rewrite [sphere_eq_bool_pointed], apply pmap_bool_equiv},
     { intro A, transitivity _, apply susp_adjoint_loop (S. n) A, apply IH}
-  end
+  end -- can we prove this in such a way that the function from left to right is apn _ surf?
 
   protected definition elim {n : ℕ} {P : Pointed} (p : Ω[n] P) : map₊ (S. n) P :=
   to_inv !pmap_sphere p
 
-  definition elim_surf {n : ℕ} {P : Pointed} (p : Ω[n] P) : apn n (sphere.elim p) surf = p :=
-  begin
-    induction n with n IH,
-    { esimp [apn,surf,sphere.elim,pmap_sphere], apply sorry},
-    { apply sorry}
-  end
+  -- definition elim_surf {n : ℕ} {P : Pointed} (p : Ω[n] P) : apn n (sphere.elim p) surf = p :=
+  -- begin
+  --   induction n with n IH,
+  --   { esimp [apn,surf,sphere.elim,pmap_sphere], apply sorry},
+  --   { apply sorry}
+  -- end
 
 end sphere
 

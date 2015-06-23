@@ -25,51 +25,67 @@ namespace eq
   theorem whisker_left_con_right (p : a1 = a2) {q q' q'' : a2 = a3} (r : q = q') (s : q' = q'')
     : whisker_left p (r ⬝ s) = whisker_left p r ⬝ whisker_left p s :=
   begin
-    cases p, cases r, cases s, reflexivity
+    induction p, induction r, induction s, reflexivity
   end
 
   theorem whisker_right_con_right (q : a2 = a3) (r : p = p') (s : p' = p'')
     : whisker_right (r ⬝ s) q = whisker_right r q ⬝ whisker_right s q :=
   begin
-    cases q, cases r, cases s, reflexivity
+    induction q, induction r, induction s, reflexivity
   end
 
   theorem whisker_left_con_left (p : a1 = a2) (p' : a2 = a3) {q q' : a3 = a4} (r : q = q')
     : whisker_left (p ⬝ p') r = !con.assoc ⬝ whisker_left p (whisker_left p' r) ⬝ !con.assoc' :=
   begin
-    cases p', cases p, cases r, cases q, reflexivity
+    induction p', induction p, induction r, induction q, reflexivity
   end
 
   theorem whisker_right_con_left {p p' : a1 = a2} (q : a2 = a3) (q' : a3 = a4) (r : p = p')
     : whisker_right r (q ⬝ q') = !con.assoc' ⬝ whisker_right (whisker_right r q) q' ⬝ !con.assoc :=
   begin
-    cases q', cases q, cases r, cases p, reflexivity
+    induction q', induction q, induction r, induction p, reflexivity
   end
 
   theorem whisker_left_inv_left (p : a2 = a1) {q q' : a2 = a3} (r : q = q')
     : !con_inv_cancel_left⁻¹ ⬝ whisker_left p (whisker_left p⁻¹ r) ⬝ !con_inv_cancel_left = r :=
   begin
-    cases p, cases r, cases q, reflexivity
+    induction p, induction r, induction q, reflexivity
   end
 
+  theorem whisker_left_inv (p : a1 = a2) {q q' : a2 = a3} (r : q = q')
+    : whisker_left p r⁻¹ = (whisker_left p r)⁻¹ :=
+  by induction r; reflexivity
+
+  theorem whisker_right_inv {p p' : a1 = a2} (q : a2 = a3) (r : p = p')
+    : whisker_right r⁻¹ q = (whisker_right r q)⁻¹ :=
+  by induction r; reflexivity
+
   theorem ap_eq_ap10 {f g : A → B} (p : f = g) (a : A) : ap (λh, h a) p = ap10 p a :=
-  by cases p;reflexivity
+  by induction p;reflexivity
 
   theorem inverse2_right_inv (r : p = p') : r ◾ inverse2 r ⬝ con.right_inv p' = con.right_inv p :=
-  by cases r;cases p;reflexivity
+  by induction r;induction p;reflexivity
 
   theorem inverse2_left_inv (r : p = p') : inverse2 r ◾ r ⬝ con.left_inv p' = con.left_inv p :=
-  by cases r;cases p;reflexivity
+  by induction r;induction p;reflexivity
 
   theorem ap_con_right_inv (f : A → B) (p : a1 = a2)
     : ap_con f p p⁻¹ ⬝ whisker_left _ (ap_inv f p) ⬝ con.right_inv (ap f p)
       = ap (ap f) (con.right_inv p) :=
-  by cases p;reflexivity
+  by induction p;reflexivity
 
   theorem ap_con_left_inv (f : A → B) (p : a1 = a2)
     : ap_con f p⁻¹ p ⬝ whisker_right (ap_inv f p) _ ⬝ con.left_inv (ap f p)
       = ap (ap f) (con.left_inv p) :=
-  by cases p;reflexivity
+  by induction p;reflexivity
+
+  theorem idp_con_whisker_left {q q' : a2 = a3} (r : q = q') :
+  !idp_con⁻¹ ⬝ whisker_left idp r = r ⬝ !idp_con⁻¹ :=
+  by induction r;induction q;reflexivity
+
+  theorem whisker_left_idp_con {q q' : a2 = a3} (r : q = q') :
+  whisker_left idp r ⬝ !idp_con = !idp_con ⬝ r :=
+  by induction r;induction q;reflexivity
 
   theorem idp_con_idp {p : a = a} (q : p = idp) : idp_con p ⬝ q = ap (λp, idp ⬝ p) q :=
   by cases q;reflexivity
@@ -85,40 +101,40 @@ namespace eq
 
   definition transport_eq_l (p : a1 = a2) (q : a1 = a3)
     : transport (λx, x = a3) p q = p⁻¹ ⬝ q :=
-  by cases p; cases q; reflexivity
+  by induction p; induction q; reflexivity
 
   definition transport_eq_r (p : a2 = a3) (q : a1 = a2)
     : transport (λx, a1 = x) p q = q ⬝ p :=
-  by cases p; cases q; reflexivity
+  by induction p; induction q; reflexivity
 
   definition transport_eq_lr (p : a1 = a2) (q : a1 = a1)
     : transport (λx, x = x) p q = p⁻¹ ⬝ q ⬝ p :=
-  by cases p; rewrite [▸*,idp_con]
+  by induction p; rewrite [▸*,idp_con]
 
   definition transport_eq_Fl (p : a1 = a2) (q : f a1 = b)
     : transport (λx, f x = b) p q = (ap f p)⁻¹ ⬝ q :=
-  by cases p; cases q; reflexivity
+  by induction p; induction q; reflexivity
 
   definition transport_eq_Fr (p : a1 = a2) (q : b = f a1)
     : transport (λx, b = f x) p q = q ⬝ (ap f p) :=
-  by cases p; reflexivity
+  by induction p; reflexivity
 
   definition transport_eq_FlFr (p : a1 = a2) (q : f a1 = g a1)
     : transport (λx, f x = g x) p q = (ap f p)⁻¹ ⬝ q ⬝ (ap g p) :=
-  by cases p; rewrite [▸*,idp_con]
+  by induction p; rewrite [▸*,idp_con]
 
   definition transport_eq_FlFr_D {B : A → Type} {f g : Πa, B a}
     (p : a1 = a2) (q : f a1 = g a1)
       : transport (λx, f x = g x) p q = (apd f p)⁻¹ ⬝ ap (transport B p) q ⬝ (apd g p) :=
-  by cases p; rewrite [▸*,idp_con,ap_id]
+  by induction p; rewrite [▸*,idp_con,ap_id]
 
   definition transport_eq_FFlr (p : a1 = a2) (q : h (f a1) = a1)
     : transport (λx, h (f x) = x) p q = (ap h (ap f p))⁻¹ ⬝ q ⬝ p :=
-  by cases p; rewrite [▸*,idp_con]
+  by induction p; rewrite [▸*,idp_con]
 
   definition transport_eq_lFFr (p : a1 = a2) (q : a1 = h (f a1))
     : transport (λx, x = h (f x)) p q = p⁻¹ ⬝ q ⬝ (ap h (ap f p)) :=
-  by cases p; rewrite [▸*,idp_con]
+  by induction p; rewrite [▸*,idp_con]
 
   /- Pathovers -/
 
@@ -128,44 +144,44 @@ namespace eq
   -- the following definitions may be removed in future.
 
   definition pathover_eq_l (p : a1 = a2) (q : a1 = a3) : q =[p] p⁻¹ ⬝ q := /-(λx, x = a3)-/
-  by cases p; cases q; exact idpo
+  by induction p; induction q; exact idpo
 
   definition pathover_eq_r (p : a2 = a3) (q : a1 = a2) : q =[p] q ⬝ p := /-(λx, a1 = x)-/
-  by cases p; cases q; exact idpo
+  by induction p; induction q; exact idpo
 
   definition pathover_eq_lr (p : a1 = a2) (q : a1 = a1) : q =[p] p⁻¹ ⬝ q ⬝ p := /-(λx, x = x)-/
-  by cases p; rewrite [▸*,idp_con]; exact idpo
+  by induction p; rewrite [▸*,idp_con]; exact idpo
 
   definition pathover_eq_Fl (p : a1 = a2) (q : f a1 = b) : q =[p] (ap f p)⁻¹ ⬝ q := /-(λx, f x = b)-/
-  by cases p; cases q; exact idpo
+  by induction p; induction q; exact idpo
 
   definition pathover_eq_Fr (p : a1 = a2) (q : b = f a1) : q =[p] q ⬝ (ap f p) := /-(λx, b = f x)-/
-  by cases p; exact idpo
+  by induction p; exact idpo
 
   definition pathover_eq_FlFr (p : a1 = a2) (q : f a1 = g a1) : q =[p] (ap f p)⁻¹ ⬝ q ⬝ (ap g p) :=
   /-(λx, f x = g x)-/
-  by cases p; rewrite [▸*,idp_con]; exact idpo
+  by induction p; rewrite [▸*,idp_con]; exact idpo
 
   definition pathover_eq_FlFr_D {B : A → Type} {f g : Πa, B a} (p : a1 = a2) (q : f a1 = g a1)
     : q =[p] (apd f p)⁻¹ ⬝ ap (transport B p) q ⬝ (apd g p) := /-(λx, f x = g x)-/
-  by cases p; rewrite [▸*,idp_con,ap_id];exact idpo
+  by induction p; rewrite [▸*,idp_con,ap_id];exact idpo
 
   definition pathover_eq_FFlr (p : a1 = a2) (q : h (f a1) = a1) : q =[p] (ap h (ap f p))⁻¹ ⬝ q ⬝ p :=
   /-(λx, h (f x) = x)-/
-  by cases p; rewrite [▸*,idp_con];exact idpo
+  by induction p; rewrite [▸*,idp_con];exact idpo
 
   definition pathover_eq_lFFr (p : a1 = a2) (q : a1 = h (f a1)) : q =[p] p⁻¹ ⬝ q ⬝ (ap h (ap f p)) :=
   /-(λx, x = h (f x))-/
-  by cases p; rewrite [▸*,idp_con];exact idpo
+  by induction p; rewrite [▸*,idp_con];exact idpo
 
   definition pathover_eq_r_idp (p : a1 = a2) : idp =[p] p := /-(λx, a1 = x)-/
-  by cases p; exact idpo
+  by induction p; exact idpo
 
   definition pathover_eq_l_idp (p : a1 = a2) : idp =[p] p⁻¹ := /-(λx, x = a1)-/
-  by cases p; exact idpo
+  by induction p; exact idpo
 
   definition pathover_eq_l_idp' (p : a1 = a2) : idp =[p⁻¹] p := /-(λx, x = a2)-/
-  by cases p; exact idpo
+  by induction p; exact idpo
 
   -- The Functorial action of paths is [ap].
 
@@ -191,7 +207,7 @@ namespace eq
   is_equiv.mk (concat p) (concat p⁻¹)
               (con_inv_cancel_left p)
               (inv_con_cancel_left p)
-              (λq, by cases p;cases q;reflexivity)
+              (λq, by induction p;induction q;reflexivity)
   local attribute is_equiv_concat_left [instance]
 
   definition equiv_eq_closed_left [constructor] (a3 : A) (p : a1 = a2) : (a1 = a3) ≃ (a2 = a3) :=
@@ -202,7 +218,7 @@ namespace eq
   is_equiv.mk (λq, q ⬝ p) (λq, q ⬝ p⁻¹)
               (λq, inv_con_cancel_right q p)
               (λq, con_inv_cancel_right q p)
-              (λq, by cases p;cases q;reflexivity)
+              (λq, by induction p;induction q;reflexivity)
   local attribute is_equiv_concat_right [instance]
 
   definition equiv_eq_closed_right [constructor] (a1 : A) (p : a2 = a3) : (a1 = a2) ≃ (a1 = a3) :=
@@ -222,10 +238,10 @@ namespace eq
       apply concat2,
         {apply concat, {apply whisker_left_con_right},
           apply concat2,
-            {cases p, cases q, reflexivity},
+            {induction p, induction q, reflexivity},
             {reflexivity}},
-        {cases p, cases r, reflexivity}},
-    {intro s, cases s, cases q, cases p, reflexivity}
+        {induction p, induction r, reflexivity}},
+    {intro s, induction s, induction q, induction p, reflexivity}
   end
 
   definition eq_equiv_con_eq_con_left (p : a1 = a2) (q r : a2 = a3) : (q = r) ≃ (p ⬝ q = p ⬝ r) :=
@@ -236,8 +252,8 @@ namespace eq
   begin
   fapply adjointify,
     {intro s, apply (!cancel_right s)},
-    {intro s, cases r, cases s, cases q, reflexivity},
-    {intro s, cases s, cases r, cases p, reflexivity}
+    {intro s, induction r, cases s, induction q, reflexivity},
+    {intro s, induction s, induction r, induction p, reflexivity}
   end
 
   definition eq_equiv_con_eq_con_right (p q : a1 = a2) (r : a2 = a3) : (p = q) ≃ (p ⬝ r = q ⬝ r) :=
@@ -253,9 +269,9 @@ namespace eq
   begin
     fapply adjointify,
     { apply eq_inv_con_of_con_eq},
-    { intro s, cases r, rewrite [↑[con_eq_of_eq_inv_con,eq_inv_con_of_con_eq],
+    { intro s, induction r, rewrite [↑[con_eq_of_eq_inv_con,eq_inv_con_of_con_eq],
         con.assoc,con.assoc,con.left_inv,▸*,-con.assoc,con.right_inv,▸* at *,idp_con s]},
-    { intro s, cases r, rewrite [↑[con_eq_of_eq_inv_con,eq_inv_con_of_con_eq],
+    { intro s, induction r, rewrite [↑[con_eq_of_eq_inv_con,eq_inv_con_of_con_eq],
         con.assoc,con.assoc,con.right_inv,▸*,-con.assoc,con.left_inv,▸* at *,idp_con s] },
   end
 
@@ -268,10 +284,8 @@ namespace eq
   begin
     fapply adjointify,
     { apply eq_con_inv_of_con_eq},
-    { intro s, cases p, rewrite [↑[con_eq_of_eq_con_inv,eq_con_inv_of_con_eq],
-        con.assoc,con.assoc,con.left_inv,▸*,-con.assoc,con.right_inv,▸* at *,idp_con s]},
-    { intro s, cases p, rewrite [↑[con_eq_of_eq_con_inv,eq_con_inv_of_con_eq],
-        con.assoc,con.assoc,con.right_inv,▸*,-con.assoc,con.left_inv,▸* at *,idp_con s] },
+    { intro s, induction p, rewrite [↑[con_eq_of_eq_con_inv,eq_con_inv_of_con_eq]]},
+    { intro s, induction p, rewrite [↑[con_eq_of_eq_con_inv,eq_con_inv_of_con_eq]] },
   end
 
   definition eq_con_inv_equiv_con_eq (p : a1 = a3) (q : a2 = a3) (r : a2 = a1)
@@ -283,9 +297,9 @@ namespace eq
   begin
     fapply adjointify,
     { apply eq_con_of_inv_con_eq},
-    { intro s, cases r, rewrite [↑[inv_con_eq_of_eq_con,eq_con_of_inv_con_eq],
+    { intro s, induction r, rewrite [↑[inv_con_eq_of_eq_con,eq_con_of_inv_con_eq],
         con.assoc,con.assoc,con.left_inv,▸*,-con.assoc,con.right_inv,▸* at *,idp_con s]},
-    { intro s, cases r, rewrite [↑[inv_con_eq_of_eq_con,eq_con_of_inv_con_eq],
+    { intro s, induction r, rewrite [↑[inv_con_eq_of_eq_con,eq_con_of_inv_con_eq],
         con.assoc,con.assoc,con.right_inv,▸*,-con.assoc,con.left_inv,▸* at *,idp_con s] },
   end
 
@@ -298,10 +312,8 @@ namespace eq
   begin
     fapply adjointify,
     { apply eq_con_of_con_inv_eq},
-    { intro s, cases p, rewrite [↑[con_inv_eq_of_eq_con,eq_con_of_con_inv_eq],
-        con.assoc,con.assoc,con.left_inv,▸*,-con.assoc,con.right_inv,▸* at *,idp_con s]},
-    { intro s, cases p, rewrite [↑[con_inv_eq_of_eq_con,eq_con_of_con_inv_eq],
-        con.assoc,con.assoc,con.right_inv,▸*,-con.assoc,con.left_inv,▸* at *,idp_con s] },
+    { intro s, induction p, rewrite [↑[con_inv_eq_of_eq_con,eq_con_of_con_inv_eq]]},
+    { intro s, induction p, rewrite [↑[con_inv_eq_of_eq_con,eq_con_of_con_inv_eq]] },
   end
 
   definition eq_con_equiv_con_inv_eq (p : a3 = a1) (q : a2 = a3) (r : a2 = a1)
@@ -333,37 +345,37 @@ namespace eq
 
   definition pathover_eq_equiv_l (p : a1 = a2) (q : a1 = a3) (r : a2 = a3) : q =[p] r ≃ q = p ⬝ r :=
   /-(λx, x = a3)-/
-  by cases p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
+  by induction p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
 
   definition pathover_eq_equiv_r (p : a2 = a3) (q : a1 = a2) (r : a1 = a3) : q =[p] r ≃ q ⬝ p = r :=
   /-(λx, a1 = x)-/
-  by cases p; apply pathover_idp
+  by induction p; apply pathover_idp
 
   definition pathover_eq_equiv_lr (p : a1 = a2) (q : a1 = a1) (r : a2 = a2)
     : q =[p] r ≃ q ⬝ p = p ⬝ r := /-(λx, x = x)-/
-  by cases p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
+  by induction p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
 
   definition pathover_eq_equiv_Fl (p : a1 = a2) (q : f a1 = b) (r : f a2 = b)
     : q =[p] r ≃ q = ap f p ⬝ r := /-(λx, f x = b)-/
-  by cases p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
+  by induction p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
 
   definition pathover_eq_equiv_Fr (p : a1 = a2) (q : b = f a1) (r : b = f a2)
     : q =[p] r ≃ q ⬝ ap f p = r := /-(λx, b = f x)-/
-  by cases p; apply pathover_idp
+  by induction p; apply pathover_idp
 
   definition pathover_eq_equiv_FlFr (p : a1 = a2) (q : f a1 = g a1) (r : f a2 = g a2)
     : q =[p] r ≃ q ⬝ ap g p = ap f p ⬝ r := /-(λx, f x = g x)-/
-  by cases p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
+  by induction p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
 
   definition pathover_eq_equiv_FFlr (p : a1 = a2) (q : h (f a1) = a1) (r : h (f a2) = a2)
     : q =[p] r ≃ q ⬝ p = ap h (ap f p) ⬝ r :=
   /-(λx, h (f x) = x)-/
-  by cases p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
+  by induction p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
 
   definition pathover_eq_equiv_lFFr (p : a1 = a2) (q : a1 = h (f a1)) (r : a2 = h (f a2))
     : q =[p] r ≃ q ⬝ ap h (ap f p) = p ⬝ r :=
   /-(λx, x = h (f x))-/
-  by cases p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
+  by induction p; exact !pathover_idp ⬝e !equiv_eq_closed_right !idp_con⁻¹
 
   -- a lot of this library still needs to be ported from Coq HoTT
 

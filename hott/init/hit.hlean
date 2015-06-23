@@ -51,7 +51,7 @@ namespace quotient
 
   constant class_of {A : Type} (R : A → A → Type) (a : A) : quotient R
 
-  constant eq_of_rel {A : Type} (R : A → A → Type) {a a' : A} (H : R a a')
+  constant eq_of_rel {A : Type} (R : A → A → Type) ⦃a a' : A⦄ (H : R a a')
     : class_of R a = class_of R a'
 
   protected constant rec {A : Type} {R : A → A → Type} {P : quotient R → Type}

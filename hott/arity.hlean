@@ -121,10 +121,10 @@ namespace eq
   --   : f a b c d e ff g h = f a' b' c' d' e' f' g' h' :=
   -- by cases Ha; cases Hb; cases Hc; cases Hd; cases He; cases Hf; cases Hg; cases Hh; reflexivity
 
-  definition apd100 {f g : Πa b, C a b} (p : f = g) : f ~2 g :=
+  definition apd100 [unfold-c 6] {f g : Πa b, C a b} (p : f = g) : f ~2 g :=
   λa b, apd10 (apd10 p a) b
 
-  definition apd1000 {f g : Πa b c, D a b c} (p : f = g) : f ~3 g :=
+  definition apd1000 [unfold-c 7] {f g : Πa b c, D a b c} (p : f = g) : f ~3 g :=
   λa b c, apd100 (apd10 p a) b c
 
   /- some properties of these variants of ap -/
@@ -162,6 +162,22 @@ namespace eq
       {apply (ap eq_of_homotopy), apply eq_of_homotopy, intros, apply eq_of_homotopy2_id},
       apply eq_of_homotopy_idp
   end
+
+  definition eq_of_homotopy2_inv {f g : Πa b, C a b} (H : f ~2 g)
+    : eq_of_homotopy2 (λa b, (H a b)⁻¹) = (eq_of_homotopy2 H)⁻¹ :=
+  ap eq_of_homotopy (eq_of_homotopy (λa, !eq_of_homotopy_inv)) ⬝ !eq_of_homotopy_inv
+
+  definition eq_of_homotopy3_inv {f g : Πa b c, D a b c} (H : f ~3 g)
+    : eq_of_homotopy3 (λa b c, (H a b c)⁻¹) = (eq_of_homotopy3 H)⁻¹ :=
+  ap eq_of_homotopy (eq_of_homotopy (λa, !eq_of_homotopy2_inv)) ⬝ !eq_of_homotopy_inv
+
+  definition eq_of_homotopy2_con {f g h : Πa b, C a b} (H1 : f ~2 g) (H2 : g ~2 h)
+    : eq_of_homotopy2 (λa b, H1 a b ⬝ H2 a b) = eq_of_homotopy2 H1 ⬝ eq_of_homotopy2 H2 :=
+  ap eq_of_homotopy (eq_of_homotopy (λa, !eq_of_homotopy_con)) ⬝ !eq_of_homotopy_con
+
+  definition eq_of_homotopy3_con {f g h : Πa b c, D a b c} (H1 : f ~3 g) (H2 : g ~3 h)
+    : eq_of_homotopy3 (λa b c, H1 a b c ⬝ H2 a b c) = eq_of_homotopy3 H1 ⬝ eq_of_homotopy3 H2 :=
+  ap eq_of_homotopy (eq_of_homotopy (λa, !eq_of_homotopy2_con)) ⬝ !eq_of_homotopy_con
 
 end eq
 

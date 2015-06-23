@@ -46,11 +46,11 @@ namespace eq
   /- The 1-dimensional groupoid structure -/
 
   -- The identity path is a right unit.
-  definition con_idp (p : x = y) : p ⬝ idp = p :=
-  eq.rec_on p idp
+  definition con_idp [unfold-f] (p : x = y) : p ⬝ idp = p :=
+  idp
 
   -- The identity path is a right unit.
-  definition idp_con (p : x = y) : idp ⬝ p = p :=
+  definition idp_con [unfold-c 4] (p : x = y) : idp ⬝ p = p :=
   eq.rec_on p idp
 
   -- Concatenation is associative.
@@ -113,42 +113,42 @@ namespace eq
     p = r⁻¹ ⬝ q → r ⬝ p = q :=
   eq.rec_on r (take p h, !idp_con ⬝ h ⬝ !idp_con) p
 
-  definition con_eq_of_eq_con_inv {p : x = z} {q : y = z} {r : y = x} :
+  definition con_eq_of_eq_con_inv [unfold-c 5] {p : x = z} {q : y = z} {r : y = x} :
     r = q ⬝ p⁻¹ → r ⬝ p = q :=
-  eq.rec_on p (take q h, (!con_idp ⬝ h ⬝ !con_idp)) q
+  eq.rec_on p (take q h, h) q
 
   definition inv_con_eq_of_eq_con {p : x = z} {q : y = z} {r : x = y} :
     p = r ⬝ q → r⁻¹ ⬝ p = q :=
   eq.rec_on r (take q h, !idp_con ⬝ h ⬝ !idp_con) q
 
-  definition con_inv_eq_of_eq_con {p : z = x} {q : y = z} {r : y = x} :
+  definition con_inv_eq_of_eq_con [unfold-c 5] {p : z = x} {q : y = z} {r : y = x} :
     r = q ⬝ p → r ⬝ p⁻¹ = q :=
-  eq.rec_on p (take r h, !con_idp ⬝ h ⬝ !con_idp) r
+  eq.rec_on p (take r h, h) r
 
   definition eq_con_of_inv_con_eq {p : x = z} {q : y = z} {r : y = x} :
     r⁻¹ ⬝ q = p → q = r ⬝ p :=
   eq.rec_on r (take p h, !idp_con⁻¹ ⬝ h ⬝ !idp_con⁻¹) p
 
-  definition eq_con_of_con_inv_eq {p : x = z} {q : y = z} {r : y = x} :
+  definition eq_con_of_con_inv_eq [unfold-c 5] {p : x = z} {q : y = z} {r : y = x} :
     q ⬝ p⁻¹ = r → q = r ⬝ p :=
-  eq.rec_on p (take q h, !con_idp⁻¹ ⬝ h ⬝ !con_idp⁻¹) q
+  eq.rec_on p (take q h, h) q
 
   definition eq_inv_con_of_con_eq {p : x = z} {q : y = z} {r : x = y} :
     r ⬝ q = p → q = r⁻¹ ⬝ p :=
   eq.rec_on r (take q h, !idp_con⁻¹ ⬝ h ⬝ !idp_con⁻¹) q
 
-  definition eq_con_inv_of_con_eq {p : z = x} {q : y = z} {r : y = x} :
+  definition eq_con_inv_of_con_eq [unfold-c 5] {p : z = x} {q : y = z} {r : y = x} :
     q ⬝ p = r → q = r ⬝ p⁻¹ :=
-  eq.rec_on p (take r h, !con_idp⁻¹ ⬝ h ⬝ !con_idp⁻¹) r
+  eq.rec_on p (take r h, h) r
 
-  definition eq_of_con_inv_eq_idp {p q : x = y} : p ⬝ q⁻¹ = idp → p = q :=
-  eq.rec_on q (take p h, !con_idp⁻¹ ⬝ h) p
+  definition eq_of_con_inv_eq_idp [unfold-c 5] {p q : x = y} : p ⬝ q⁻¹ = idp → p = q :=
+  eq.rec_on q (take p h, h) p
 
   definition eq_of_inv_con_eq_idp {p q : x = y} : q⁻¹ ⬝ p = idp → p = q :=
   eq.rec_on q (take p h, !idp_con⁻¹ ⬝ h) p
 
-  definition eq_inv_of_con_eq_idp' {p : x = y} {q : y = x} : p ⬝ q = idp → p = q⁻¹ :=
-  eq.rec_on q (take p h, !con_idp⁻¹ ⬝ h) p
+  definition eq_inv_of_con_eq_idp' [unfold-c 5] {p : x = y} {q : y = x} : p ⬝ q = idp → p = q⁻¹ :=
+  eq.rec_on q (take p h, h) p
 
   definition eq_inv_of_con_eq_idp {p : x = y} {q : y = x} : q ⬝ p = idp → p = q⁻¹ :=
   eq.rec_on q (take p h, !idp_con⁻¹ ⬝ h) p
@@ -156,11 +156,11 @@ namespace eq
   definition eq_of_idp_eq_inv_con {p q : x = y} : idp = p⁻¹ ⬝ q → p = q :=
   eq.rec_on p (take q h, h ⬝ !idp_con) q
 
-  definition eq_of_idp_eq_con_inv {p q : x = y} : idp = q ⬝ p⁻¹ → p = q :=
-  eq.rec_on p (take q h, h ⬝ !con_idp) q
+  definition eq_of_idp_eq_con_inv [unfold-c 4] {p q : x = y} : idp = q ⬝ p⁻¹ → p = q :=
+  eq.rec_on p (take q h, h) q
 
-  definition inv_eq_of_idp_eq_con {p : x = y} {q : y = x} : idp = q ⬝ p → p⁻¹ = q :=
-  eq.rec_on p (take q h, h ⬝ !con_idp) q
+  definition inv_eq_of_idp_eq_con [unfold-c 4] {p : x = y} {q : y = x} : idp = q ⬝ p → p⁻¹ = q :=
+  eq.rec_on p (take q h, h) q
 
   definition inv_eq_of_idp_eq_con' {p : x = y} {q : y = x} : idp = p ⬝ q → p⁻¹ = q :=
   eq.rec_on p (take q h, h ⬝ !idp_con) q
@@ -214,8 +214,8 @@ namespace eq
   protected definition homotopy.symm [symm] [reducible] {f g : Πx, P x} (H : f ~ g) : g ~ f :=
   λ x, (H x)⁻¹
 
-  protected definition homotopy.trans [trans] [reducible] {f g h : Πx, P x} (H1 : f ~ g) (H2 : g ~ h)
-    : f ~ h :=
+  protected definition homotopy.trans [trans] [reducible] {f g h : Πx, P x}
+    (H1 : f ~ g) (H2 : g ~ h) : f ~ h :=
   λ x, H1 x ⬝ H2 x
 
   definition apd10 [unfold-c 5] {f g : Πx, P x} (H : f = g) : f ~ g :=
@@ -264,12 +264,12 @@ namespace eq
     ap f (p ⬝ q) = ap f p ⬝ ap f q :=
   eq.rec_on q (eq.rec_on p idp)
 
-  definition con_ap_con_eq_con_ap_con_ap (f : A → B) {w x y z : A} (r : f w = f x) (p : x = y) (q : y = z) :
-    r ⬝ ap f (p ⬝ q) = (r ⬝ ap f p) ⬝ ap f q :=
-  eq.rec_on q (take p, eq.rec_on p (con.assoc' r idp idp)) p
+  definition con_ap_con_eq_con_ap_con_ap (f : A → B) {w x y z : A} (r : f w = f x)
+    (p : x = y) (q : y = z) : r ⬝ ap f (p ⬝ q) = (r ⬝ ap f p) ⬝ ap f q :=
+  eq.rec_on q (take p, eq.rec_on p idp) p
 
-  definition ap_con_con_eq_ap_con_ap_con (f : A → B) {w x y z : A} (p : x = y) (q : y = z) (r : f z = f w) :
-    ap f (p ⬝ q) ⬝ r = ap f p ⬝ (ap f q ⬝ r) :=
+  definition ap_con_con_eq_ap_con_ap_con (f : A → B) {w x y z : A} (p : x = y) (q : y = z)
+    (r : f z = f w) : ap f (p ⬝ q) ⬝ r = ap f p ⬝ (ap f q ⬝ r) :=
   eq.rec_on q (eq.rec_on p (take r, con.assoc _ _ _)) r
 
   -- Functions commute with path inverses.
@@ -284,13 +284,12 @@ namespace eq
   definition ap_id (p : x = y) : ap id p = p :=
   eq.rec_on p idp
 
-  -- TODO: interchange arguments f and g
-  definition ap_compose (f : A → B) (g : B → C) {x y : A} (p : x = y) :
+  definition ap_compose (g : B → C) (f : A → B) {x y : A} (p : x = y) :
     ap (g ∘ f) p = ap g (ap f p) :=
   eq.rec_on p idp
 
   -- Sometimes we don't have the actual function [compose].
-  definition ap_compose' (f : A → B) (g : B → C) {x y : A} (p : x = y) :
+  definition ap_compose' (g : B → C) (f : A → B) {x y : A} (p : x = y) :
     ap (λa, g (f a)) p = ap g (ap f p) :=
   eq.rec_on p idp
 
@@ -448,7 +447,8 @@ namespace eq
       {a a' : A} (p : a = a') (b : P a) (z : Q a b) : Q a' (p ▸ b) :=
   eq.rec_on p z
 
-  -- In Coq the variables P, Q and b are explicit, but in Lean we can probably have them implicit using the following notation
+  -- In Coq the variables P, Q and b are explicit, but in Lean we can probably have them implicit
+  -- using the following notation
   notation p `▸D`:65 x:64 := transportD _ p _ x
 
   -- Transporting along higher-dimensional paths
@@ -482,7 +482,7 @@ namespace eq
   definition ap_tr_con_tr2 (P : A → Type) {x y : A} {p q : x = y} {z w : P x} (r : p = q)
       (s : z = w) :
     ap (transport P p) s  ⬝  transport2 P r w = transport2 P r z  ⬝  ap (transport P q) s :=
-  eq.rec_on r (!con_idp ⬝ !idp_con⁻¹)
+  eq.rec_on r !idp_con⁻¹
 
 
   definition fn_tr_eq_tr_fn {P Q : A → Type} {x y : A} (p : x = y) (f : Πx, P x → Q x) (z : P x) :
@@ -548,11 +548,12 @@ namespace eq
     : p ⬝ q = p' ⬝ q' :=
   eq.rec_on h (eq.rec_on h' idp)
 
-  infixl `◾`:75 := concat2
-
   -- 2-dimensional path inversion
   definition inverse2 [unfold-c 6] {p q : x = y} (h : p = q) : p⁻¹ = q⁻¹ :=
   eq.rec_on h idp
+
+  infixl `◾`:75 := concat2
+  postfix [parsing-only] `⁻²`:(max+10) := inverse2 --this notation is abusive, should we use it?
 
   /- Whiskering -/
 
@@ -573,7 +574,7 @@ namespace eq
   -- Whiskering and identity paths.
 
   definition whisker_right_idp_right {p q : x = y} (h : p = q) :
-    (con_idp p)⁻¹ ⬝ whisker_right h idp ⬝ con_idp q = h :=
+    whisker_right h idp = h :=
   eq.rec_on h (eq.rec_on p idp)
 
   definition whisker_right_idp_left (p : x = y) (q : y = z) :
@@ -615,7 +616,7 @@ namespace eq
       ⬝ con.assoc' p (q ⬝ r) s
       ⬝ whisker_right (con.assoc' p q r) s
     = con.assoc' p q (r ⬝ s) ⬝ con.assoc' (p ⬝ q) r s :=
-  eq.rec_on s (eq.rec_on r (eq.rec_on q (eq.rec_on p idp)))
+  by induction s;induction r;induction q;induction p;reflexivity
 
   -- The 3-cell witnessing the left unit triangle.
   definition triangulator (p : x = y) (q : y = z) :
@@ -624,16 +625,14 @@ namespace eq
 
   definition eckmann_hilton {x:A} (p q : idp = idp :> x = x) : p ⬝ q = q ⬝ p :=
     (!whisker_right_idp_right ◾ !whisker_left_idp_left)⁻¹
-    ⬝ (!con_idp ◾ !con_idp)
-    ⬝ (!idp_con ◾ !idp_con)
+    ⬝ whisker_left _ !idp_con
     ⬝ !whisker_right_con_whisker_left
-    ⬝ (!idp_con ◾ !idp_con)⁻¹
-    ⬝ (!con_idp ◾ !con_idp)⁻¹
+    ⬝ whisker_right !idp_con⁻¹ _
     ⬝ (!whisker_left_idp_left ◾ !whisker_right_idp_right)
 
   -- The action of functions on 2-dimensional paths
   definition ap02 [unfold-c 8] (f : A → B) {x y : A} {p q : x = y} (r : p = q) : ap f p = ap f q :=
-  eq.rec_on r idp
+  ap (ap f) r
 
   definition ap02_con (f : A → B) {x y : A} {p p' p'' : x = y} (r : p = p') (r' : p' = p'') :
     ap02 f (r ⬝ r') = ap02 f r ⬝ ap02 f r' :=
@@ -658,10 +657,5 @@ namespace eq
       ⬝ con.assoc' _ _ _
       ⬝ (whisker_right (tr2_con r1 r2 (f x))⁻¹ (apd f p3)) :=
   eq.rec_on r2 (eq.rec_on r1 (eq.rec_on p1 idp))
-
-  -- Naturality of [ap] with constant function over a loop
-  definition ap_eq_idp {f : A → B} {b : B} (p : Πx, f x = b) {x : A} (q : x = x) :
-    ap f q = idp :=
-  cancel_right (ap_con_eq p q ⬝ !idp_con⁻¹)
 
 end eq

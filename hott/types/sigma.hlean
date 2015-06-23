@@ -27,10 +27,10 @@ namespace sigma
   | eta3 ⟨u₁, u₂, u₃, u₄⟩ := idp
 
   definition dpair_eq_dpair (p : a = a') (q : b =[p] b') : ⟨a, b⟩ = ⟨a', b'⟩ :=
-  by cases q; reflexivity
+  by induction q; reflexivity
 
   definition sigma_eq (p : u.1 = v.1) (q : u.2 =[p] v.2) : u = v :=
-  by cases u; cases v; exact (dpair_eq_dpair p q)
+  by induction u; induction v; exact (dpair_eq_dpair p q)
 
   /- Projections of paths from a total space -/
 
@@ -40,13 +40,13 @@ namespace sigma
   postfix `..1`:(max+1) := eq_pr1
 
   definition eq_pr2 (p : u = v) : u.2 =[p..1] v.2 :=
-  by cases p; exact idpo
+  by induction p; exact idpo
 
   postfix `..2`:(max+1) := eq_pr2
 
-  private definition dpair_sigma_eq (p : u.1 = v.1) (q : u.2 =[p] v.2)
+  definition dpair_sigma_eq (p : u.1 = v.1) (q : u.2 =[p] v.2)
     : ⟨(sigma_eq p q)..1, (sigma_eq p q)..2⟩ = ⟨p, q⟩ :=
-  by cases u; cases v; cases q; apply idp
+  by induction u; induction v;esimp at *;induction q;esimp
 
   definition sigma_eq_pr1 (p : u.1 = v.1) (q : u.2 =[p] v.2) : (sigma_eq p q)..1 = p :=
   (dpair_sigma_eq p q)..1
@@ -56,11 +56,11 @@ namespace sigma
   (dpair_sigma_eq p q)..2
 
   definition sigma_eq_eta (p : u = v) : sigma_eq (p..1) (p..2) = p :=
-  by cases p; cases u; reflexivity
+  by induction p; induction u; reflexivity
 
   definition tr_pr1_sigma_eq {B' : A → Type} (p : u.1 = v.1) (q : u.2 =[p] v.2)
     : transport (λx, B' x.1) (sigma_eq p q) = transport B' p :=
-  by cases u; cases v; cases q; reflexivity
+  by induction u; induction v; esimp at *;induction q; reflexivity
 
   /- the uncurried version of sigma_eq. We will prove that this is an equivalence -/
 
@@ -100,18 +100,18 @@ namespace sigma
   definition dpair_eq_dpair_con (p1 : a  = a' ) (q1 : b  =[p1] b' )
                                 (p2 : a' = a'') (q2 : b' =[p2] b'') :
     dpair_eq_dpair (p1 ⬝ p2) (q1 ⬝o q2) = dpair_eq_dpair p1 q1 ⬝ dpair_eq_dpair  p2 q2 :=
-  by cases q1; cases q2; reflexivity
+  by induction q1; induction q2; reflexivity
 
   definition sigma_eq_con (p1 : u.1 = v.1) (q1 : u.2 =[p1] v.2)
                           (p2 : v.1 = w.1) (q2 : v.2 =[p2] w.2) :
     sigma_eq (p1 ⬝ p2) (q1 ⬝o q2) = sigma_eq p1 q1 ⬝ sigma_eq p2 q2 :=
-  by cases u; cases v; cases w; apply dpair_eq_dpair_con
+  by induction u; induction v; induction w; apply dpair_eq_dpair_con
 
   local attribute dpair_eq_dpair [reducible]
   definition dpair_eq_dpair_con_idp (p : a = a') (q : b =[p] b') :
     dpair_eq_dpair p q = dpair_eq_dpair p !pathover_tr ⬝
     dpair_eq_dpair idp (pathover_idp_of_eq (tr_eq_of_pathover q)) :=
-  by cases q; reflexivity
+  by induction q; reflexivity
 
   /- eq_pr1 commutes with the groupoid structure. -/
 
@@ -123,24 +123,24 @@ namespace sigma
 
   definition ap_dpair (q : b₁ = b₂) :
     ap (sigma.mk a) q = dpair_eq_dpair idp (pathover_idp_of_eq q) :=
-  by cases q; reflexivity
+  by induction q; reflexivity
 
   /- Dependent transport is the same as transport along a sigma_eq. -/
 
   definition transportD_eq_transport (p : a = a') (c : C a b) :
       p ▸D c = transport (λu, C (u.1) (u.2)) (dpair_eq_dpair p !pathover_tr) c :=
-  by cases p; reflexivity
+  by induction p; reflexivity
 
   definition sigma_eq_eq_sigma_eq {p1 q1 : a = a'} {p2 : b =[p1] b'} {q2 : b =[q1] b'}
       (r : p1 = q1) (s : p2 =[r] q2) : sigma_eq p1 p2 = sigma_eq q1 q2 :=
-  by cases s; reflexivity
+  by induction s; reflexivity
 
   /- A path between paths in a total space is commonly shown component wise. -/
   definition sigma_eq2 {p q : u = v} (r : p..1 = q..1) (s : p..2 =[r] q..2)
     : p = q :=
   begin
     revert q r s,
-    cases p, cases u with u1 u2,
+    induction p, induction u with u1 u2,
     intro q r s,
     transitivity sigma_eq q..1 q..2,
       apply sigma_eq_eq_sigma_eq r s,
@@ -158,30 +158,33 @@ namespace sigma
 
   definition transport_eq (p : a = a') (bc : Σ(b : B a), C a b)
     : p ▸ bc = ⟨p ▸ bc.1, p ▸D bc.2⟩ :=
-  by cases p; cases bc; reflexivity
+  by induction p; induction bc; reflexivity
 
   /- The special case when the second variable doesn't depend on the first is simpler. -/
   definition tr_eq_nondep {B : Type} {C : A → B → Type} (p : a = a') (bc : Σ(b : B), C a b)
       : p ▸ bc = ⟨bc.1, p ▸ bc.2⟩ :=
-  by cases p; cases bc; reflexivity
+  by induction p; induction bc; reflexivity
 
   /- Or if the second variable contains a first component that doesn't depend on the first. -/
 
   definition tr_eq2_nondep {C : A → Type} {D : Π a:A, B a → C a → Type} (p : a = a')
       (bcd : Σ(b : B a) (c : C a), D a b c) : p ▸ bcd = ⟨p ▸ bcd.1, p ▸ bcd.2.1, p ▸D2 bcd.2.2⟩ :=
   begin
-    cases p, cases bcd with b cd, cases cd, reflexivity
+    induction p, induction bcd with b cd, induction cd, reflexivity
   end
 
   /- Pathovers -/
 
   definition eta_pathover (p : a = a') (bc : Σ(b : B a), C a b)
     : bc =[p] ⟨p ▸ bc.1, p ▸D bc.2⟩ :=
-  by cases p; cases bc; apply idpo
+  by induction p; induction bc; apply idpo
 
   definition sigma_pathover (p : a = a') (u : Σ(b : B a), C a b) (v : Σ(b : B a'), C a' b)
     (r : u.1 =[p] v.1) (s : u.2 =[apo011 C p r] v.2) : u =[p] v :=
-  begin cases u, cases v, cases r, esimp [apo011] at s, induction s using idp_rec_on, apply idpo end
+  begin
+    induction u, induction v, esimp at *, induction r,
+    esimp [apo011] at s, induction s using idp_rec_on, apply idpo
+  end
 
   /- TODO:
     * define the projections from the type u =[p] v
@@ -201,14 +204,14 @@ namespace sigma
              (sigma_functor f⁻¹ (λ(a' : A') (b' : B' a'),
                ((g (f⁻¹ a'))⁻¹ (transport B' (right_inv f a')⁻¹ b'))))
   begin
-    intro u', cases u' with a' b',
+    intro u', induction u' with a' b',
     apply sigma_eq (right_inv f a'),
     rewrite [▸*,right_inv (g (f⁻¹ a')),▸*],
     apply tr_pathover
   end
   begin
     intro u,
-    cases u with a b,
+    induction u with a b,
     apply (sigma_eq (left_inv f a)),
     apply pathover_of_tr_eq,
     rewrite [▸*,adj f,-(fn_tr_eq_tr_fn (left_inv f a) (λ a, (g a)⁻¹)),
@@ -228,13 +231,13 @@ namespace sigma
 
   definition ap_sigma_functor_eq_dpair (p : a = a') (q : b =[p] b') :
     ap (sigma_functor f g) (sigma_eq p q) = sigma_eq (ap f p) (pathover.rec_on q idpo) :=
-  by cases q; reflexivity
+  by induction q; reflexivity
 
   -- definition ap_sigma_functor_eq (p : u.1 = v.1) (q : u.2 =[p] v.2)
   --   : ap (sigma_functor f g) (sigma_eq p q) =
   --     sigma_eq (ap f p)
   --      ((transport_compose B' f p (g u.1 u.2))⁻¹ ⬝ (fn_tr_eq_tr_fn p g u.2)⁻¹ ⬝ ap (g v.1) q) :=
-  -- by cases u; cases v; apply ap_sigma_functor_eq_dpair
+  -- by induction u; induction v; apply ap_sigma_functor_eq_dpair
 
   /- definition 3.11.9(i): Summing up a contractible family of types does nothing. -/
   open is_trunc
@@ -265,8 +268,8 @@ namespace sigma
   equiv.mk _ (adjointify
     (λav, ⟨⟨av.1, av.2.1⟩, av.2.2⟩)
     (λuc, ⟨uc.1.1, uc.1.2, !sigma.eta⁻¹ ▸ uc.2⟩)
-    begin intro uc, cases uc with u c, cases u, reflexivity end
-    begin intro av, cases av with a v, cases v, reflexivity end)
+    begin intro uc, induction uc with u c, induction u, reflexivity end
+    begin intro av, induction av with a v, induction v, reflexivity end)
 
   open prod prod.ops
   definition assoc_equiv_prod (C : (A × A') → Type) : (Σa a', C (a,a')) ≃ (Σu, C u) :=

@@ -231,7 +231,7 @@ definition funext_of_ua : funext :=
 variables {A : Type} {P : A → Type} {f g : Π x, P x}
 
 namespace funext
-  definition is_equiv_apd [instance] (f g : Π x, P x) : is_equiv (@apd10 A P f g) :=
+  theorem is_equiv_apd [instance] (f g : Π x, P x) : is_equiv (@apd10 A P f g) :=
   funext_of_ua f g
 end funext
 
@@ -261,3 +261,18 @@ right_inv apd10 p ▸ H (eq_of_homotopy p)
 
 protected definition homotopy.rec_on_idp [recursor] {Q : Π{g}, (f ~ g) → Type} {g : Π x, P x} (p : f ~ g) (H : Q (homotopy.refl f)) : Q p :=
 homotopy.rec_on p (λq, eq.rec_on q H)
+
+definition eq_of_homotopy_inv {f g : Π x, P x} (H : f ~ g)
+  : eq_of_homotopy (λx, (H x)⁻¹) = (eq_of_homotopy H)⁻¹ :=
+begin
+  apply homotopy.rec_on_idp H,
+  rewrite [+eq_of_homotopy_idp]
+end
+
+definition eq_of_homotopy_con {f g h : Π x, P x} (H1 : f ~ g) (H2 : g ~ h)
+  : eq_of_homotopy (λx, H1 x ⬝ H2 x) = eq_of_homotopy H1 ⬝ eq_of_homotopy H2 :=
+begin
+  apply homotopy.rec_on_idp H1,
+  apply homotopy.rec_on_idp H2,
+  rewrite [+eq_of_homotopy_idp]
+end

@@ -135,7 +135,7 @@ namespace pointed
 
   definition passoc (h : C →* D) (g : B →* C) (f : A →* B) : (h ∘* g) ∘* f ~* h ∘* (g ∘* f) :=
   begin
-    constructor, intro a, reflexivity,
+    fconstructor, intro a, reflexivity,
     cases A, cases B, cases C, cases D, cases f with f pf, cases g with g pg, cases h with h ph,
     esimp at *,
     induction pf, induction pg, induction ph, reflexivity
@@ -143,14 +143,14 @@ namespace pointed
 
   definition pid_comp (f : A →* B) : pid B ∘* f ~* f :=
   begin
-    constructor,
+    fconstructor,
     { intro a, reflexivity},
     { esimp, exact !idp_con ⬝ !ap_id⁻¹}
   end
 
   definition comp_pid (f : A →* B) : f ∘* pid A ~* f :=
   begin
-    constructor,
+    fconstructor,
     { intro a, reflexivity},
     { reflexivity}
   end
@@ -159,7 +159,7 @@ namespace pointed
   begin
     fapply equiv.MK,
     { intro f a, cases f with f p, exact f (some a)},
-    { intro f, constructor,
+    { intro f, fconstructor,
         intro a, cases a, exact pt, exact f a,
         reflexivity},
     { intro f, reflexivity},
@@ -193,7 +193,7 @@ namespace pointed
   begin
     fapply equiv.MK,
     { intro f, cases f with f p, exact f tt},
-    { intro b, constructor,
+    { intro b, fconstructor,
         intro u, cases u, exact pt, exact b,
         reflexivity},
     { intro b, reflexivity},
@@ -209,7 +209,7 @@ namespace pointed
   { intros A B f, rewrite [↑Iterated_loop_space,↓Iterated_loop_space n (Ω A),
       ↑Iterated_loop_space, ↓Iterated_loop_space n (Ω B)],
     apply IH (Ω A),
-    { esimp, constructor,
+    { esimp, fconstructor,
         intro q, refine !respect_pt⁻¹ ⬝ ap f q ⬝ !respect_pt,
         esimp, apply con.left_inv}}
   end
@@ -220,14 +220,14 @@ namespace pointed
   begin
     induction B, induction C, induction g with g pg, induction f with f pf, esimp at *,
     induction pg, induction pf,
-    constructor,
-    { intro p, esimp, apply whisker_left, exact ap_compose f g p ⬝ ap (ap g) !idp_con⁻¹},
+    fconstructor,
+    { intro p, esimp, apply whisker_left, exact ap_compose g f p ⬝ ap (ap g) !idp_con⁻¹},
     { reflexivity}
   end
 
   protected definition phomotopy.refl [refl] (f : A →* B) : f ~* f :=
   begin
-    constructor,
+    fconstructor,
     { intro a, exact idp},
     { apply idp_con}
   end
@@ -235,7 +235,7 @@ namespace pointed
   protected definition phomotopy.trans [trans] (p : f ~* g) (q : g ~* h)
     : f ~* h :=
   begin
-    constructor,
+    fconstructor,
     { intro a, exact p a ⬝ q a},
     { induction f, induction g, induction p with p p', induction q with q q', esimp at *,
       induction p', induction q', esimp, apply con.assoc}
@@ -243,7 +243,7 @@ namespace pointed
 
   protected definition phomotopy.symm [symm] (p : f ~* g) : g ~* f :=
   begin
-    constructor,
+    fconstructor,
     { intro a, exact (p a)⁻¹},
     { induction f, induction p with p p', esimp at *,
       induction p', esimp, apply inv_con_cancel_left}
@@ -261,7 +261,7 @@ namespace pointed
 
   definition pwhisker_left (h : B →* C) (p : f ~* g) : h ∘* f ~* h ∘* g :=
   begin
-    constructor,
+    fconstructor,
     { intro a, exact ap h (p a)},
     { induction A, induction B, induction C,
       induction f with f pf, induction g with g pg, induction h with h ph,
@@ -270,7 +270,7 @@ namespace pointed
 
   definition pwhisker_right (h : C →* A) (p : f ~* g) : f ∘* h ~* g ∘* h :=
   begin
-    constructor,
+    fconstructor,
     { intro a, exact p (h a)},
     { induction A, induction B, induction C,
       induction f with f pf, induction g with g pg, induction h with h ph,

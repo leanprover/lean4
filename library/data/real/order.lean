@@ -1022,6 +1022,14 @@ infix `<` := lt
 
 definition le (x y : ℝ) := quot.lift_on₂ x y (λ a b, s.r_le a b) s.r_le_well_defined
 infix `≤` := le
+infix `<=` := le
+
+definition gt [reducible] (a b : ℝ) := lt b a
+definition ge [reducible] (a b : ℝ) := le b a
+
+infix >= := real.ge
+infix ≥  := real.ge
+infix >  := real.gt
 
 definition sep (x y : ℝ) := quot.lift_on₂ x y (λ a b, s.r_sep a b) s.r_sep_well_defined
 infix `≢` : 50 := sep
@@ -1056,13 +1064,13 @@ theorem not_sep_self (x : ℝ) : ¬ x ≢ x :=
 theorem not_lt_self (x : ℝ) : ¬ x < x :=
   quot.induction_on x (λ s, s.r_not_lt_self s)
 
-theorem le_of_lt (x y : ℝ) : x < y → x ≤ y :=
+theorem le_of_lt {x y : ℝ} : x < y → x ≤ y :=
   quot.induction_on₂ x y (λ s t H', s.r_le_of_lt H')
 
-theorem lt_of_le_of_lt (x y z : ℝ) : x ≤ y → y < z → x < z :=
+theorem lt_of_le_of_lt {x y z : ℝ} : x ≤ y → y < z → x < z :=
   quot.induction_on₃ x y z (λ s t u H H', s.r_lt_of_le_of_lt H H')
 
-theorem lt_of_lt_of_le (x y z : ℝ) : x < y → y ≤ z → x < z :=
+theorem lt_of_lt_of_le {x y z : ℝ} : x < y → y ≤ z → x < z :=
   quot.induction_on₃ x y z (λ s t u H H', s.r_lt_of_lt_of_le H H')
 
 theorem add_lt_add_left_var (x y z : ℝ) : x < y → z + x < z + y :=
@@ -1083,11 +1091,11 @@ theorem le_of_lt_or_eq (x y : ℝ) : x < y ∨ x = y → x ≤ y :=
         apply (or.inr (quot.exact H'))
       end)))
 
-section migrate_reals
-open [classes] algebra
+section migrate_algebra
+  open [classes] algebra
 
-definition ordered_ring [reducible]  : algebra.ordered_ring ℝ :=
-  ⦃ algebra.ordered_ring, comm_ring,
+  protected definition ordered_ring [reducible]  : algebra.ordered_ring ℝ :=
+  ⦃ algebra.ordered_ring, real.comm_ring,
     le_refl := le.refl,
     le_trans := le.trans,
     mul_pos := mul_gt_zero_of_gt_zero,
@@ -1096,16 +1104,27 @@ definition ordered_ring [reducible]  : algebra.ordered_ring ℝ :=
     add_le_add_left := add_le_add_of_le_right,
     le_antisymm := eq_of_le_of_ge,
     lt_irrefl := not_lt_self,
-    lt_of_le_of_lt := lt_of_le_of_lt,
-    lt_of_lt_of_le := lt_of_lt_of_le,
-    le_of_lt := le_of_lt,
+    lt_of_le_of_lt := @lt_of_le_of_lt,
+    lt_of_lt_of_le := @lt_of_lt_of_le,
+    le_of_lt := @le_of_lt,
     add_lt_add_left := add_lt_add_left
   ⦄
-local attribute real.ordered_ring [instance]
---set_option migrate.trace true
-migrate from algebra with real
 
-end migrate_reals
+  local attribute real.comm_ring [instance]
+  local attribute real.ordered_ring [instance]
+
+  definition sub (a b : ℝ) : ℝ := algebra.sub a b
+  infix - := real.sub
+  definition dvd (a b : ℝ) : Prop := algebra.dvd a b
+  notation a ∣ b := real.dvd a b
+
+  migrate from algebra with real
+    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, dvd → dvd, divide → divide
+
+  attribute le.trans lt.trans lt_of_lt_of_le lt_of_le_of_lt ge.trans gt.trans gt_of_gt_of_ge
+                   gt_of_ge_of_gt [trans]
+end migrate_algebra
+
 theorem const_le_const_of_le (a b : ℚ) : a ≤ b → const a ≤ const b :=
   s.r_const_le_const_of_le
 
@@ -1113,6 +1132,3 @@ theorem le_of_const_le_const (a b : ℚ) : const a ≤ const b → a ≤ b :=
   s.r_le_of_const_le_const
 
 end real
-
---print prefix real
---check @real.lt

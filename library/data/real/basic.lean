@@ -1058,7 +1058,7 @@ theorem zero_ne_one : ¬ zero = one :=
   take H : zero = one,
   absurd (quot.exact H) (r_zero_nequiv_one)
 
-definition comm_ring [reducible] : algebra.comm_ring ℝ :=
+protected definition comm_ring [reducible] : algebra.comm_ring ℝ :=
   begin
     fapply algebra.comm_ring.mk,
     exact add,

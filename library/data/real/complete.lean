@@ -17,7 +17,7 @@ open -[coercions] rat
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1
 open -[coercions] nat
-open algebra
+-- open algebra
 open eq.ops
 open pnat
 
@@ -217,26 +217,25 @@ definition rep (x : ℝ) : s.reg_seq := some (quot.exists_rep x)
 definition re_abs (x : ℝ) : ℝ :=
   quot.lift_on x (λ a, quot.mk (s.r_abs a)) (take a b Hab, quot.sound (s.r_abs_well_defined Hab))
 
-theorem r_abs_nonneg {x : ℝ} : 0 ≤ x → re_abs x = x :=
+theorem r_abs_nonneg {x : ℝ} : zero ≤ x → re_abs x = x :=
   quot.induction_on x (λ a Ha, quot.sound  (s.r_equiv_abs_of_ge_zero Ha))
 
-theorem r_abs_nonpos {x : ℝ} : x ≤ 0 → re_abs x = -x :=
+theorem r_abs_nonpos {x : ℝ} : x ≤ zero → re_abs x = -x :=
   quot.induction_on x (λ a Ha, quot.sound (s.r_equiv_neg_abs_of_le_zero Ha))
 
 theorem abs_const' (a : ℚ) : const (rat.abs a) = re_abs (const a) := quot.sound (s.r_abs_const a)
 
-theorem re_abs_is_abs : re_abs = algebra.abs := funext
+theorem re_abs_is_abs : re_abs = real.abs := funext
   (begin
     intro x,
-    rewrite ↑abs,
     apply eq.symm,
-    let Hor := decidable.em (0 ≤ x),
+    let Hor := decidable.em (zero ≤ x),
     apply or.elim Hor,
     intro Hor1,
-    rewrite [(if_pos Hor1), r_abs_nonneg Hor1],
+    rewrite [abs_of_nonneg Hor1, r_abs_nonneg Hor1],
     intro Hor2,
-    let Hor2' := algebra.le_of_lt (algebra.lt_of_not_ge Hor2),
-    rewrite [(if_neg Hor2), r_abs_nonpos Hor2']
+    have Hor2' : x ≤ zero, from le_of_lt (lt_of_not_ge Hor2),
+    rewrite [abs_of_neg (lt_of_not_ge Hor2), r_abs_nonpos Hor2']
   end)
 
 theorem abs_const (a : ℚ) : const (rat.abs a) = abs (const a) :=
@@ -254,7 +253,7 @@ theorem approx_spec (x : ℝ) (n : ℕ+) : abs (x - (const (approx x n))) ≤ co
   some_spec (rat_approx x n)
 
 theorem approx_spec' (x : ℝ) (n : ℕ+) : abs ((const (approx x n)) - x) ≤ const n⁻¹ :=
-  by rewrite algebra.abs_sub; apply approx_spec
+  by rewrite abs_sub; apply approx_spec
 
 notation `r_seq` := ℕ+ → ℝ
 
@@ -283,26 +282,27 @@ theorem sub_consts2 (a b : ℚ) : const a - const b = const (a - b) := !sub_cons
 theorem add_half_const2 (n : ℕ+) : const (2 * n)⁻¹ + const (2 * n)⁻¹ = const (n⁻¹) :=
   by xrewrite [add_consts2, pnat.add_halves]
 
+set_option pp.all true
 
 theorem cauchy_of_converges_to {X : r_seq} {a : ℝ} {N : ℕ+ → ℕ+} (Hc : converges_to X a N) :
         cauchy X (λ k, N (2 * k)) :=
   begin
     intro k m n Hm Hn,
     rewrite (rewrite_helper9 a),
-    apply algebra.le.trans,
-    apply algebra.abs_add_le_abs_add_abs,
-    apply algebra.le.trans,
-    apply algebra.add_le_add,
+    apply le.trans,
+    apply abs_add_le_abs_add_abs,
+    apply le.trans,
+    apply add_le_add,
     apply Hc,
     apply Hm,
-    rewrite algebra.abs_neg,
+    krewrite abs_neg,
     apply Hc,
     apply Hn,
     xrewrite add_half_const2,
-    apply !algebra.le.refl
+    eapply real.le.refl
   end
 
-definition Nb (M : ℕ+ → ℕ+) := λ k, max (3 * k) (M (2 * k))
+definition Nb (M : ℕ+ → ℕ+) := λ k, pnat.max (3 * k) (M (2 * k))
 
 theorem Nb_spec_right (M : ℕ+ → ℕ+) (k : ℕ+) : M (2 * k) ≤ Nb M k := !max_right
 
@@ -316,8 +316,8 @@ theorem lim_seq_reg_helper {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) {m 
            abs (const (lim_seq Hc m) - X (Nb M m)) + abs (X (Nb M m) - X (Nb M n)) + abs
             (X (Nb M n) - const (lim_seq Hc n)) ≤ const (m⁻¹ + n⁻¹) :=
   begin
-    apply algebra.le.trans,
-    apply algebra.add_le_add_three,
+    apply le.trans,
+    apply add_le_add_three,
     apply approx_spec',
     rotate 1,
     apply approx_spec,
@@ -336,24 +336,24 @@ theorem lim_seq_reg_helper {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) {m 
     apply pnat.mul_le_mul_left
   end
 
--- the remaineder is commented out temporarily, until migration is finished.
+-- the remainder is commented out temporarily, until migration is finished.
 
-/-theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : s.regular (lim_seq Hc) :=
+theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : s.regular (lim_seq Hc) :=
   begin
     rewrite ↑s.regular,
     intro m n,
     apply le_of_const_le_const,
     rewrite [abs_const, -sub_consts, -sub_eq_add_neg, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],--, -sub_consts2, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],
     apply real.le.trans,
-    apply algebra.abs_add_three,
+    apply abs_add_three,
     let Hor := decidable.em (M (2 * m) ≥ M (2 * n)),
     apply or.elim Hor,
     intro Hor1,
     apply lim_seq_reg_helper Hc Hor1,
     intro Hor2,
     let Hor2' := pnat.le_of_lt (pnat.lt_of_not_le Hor2),
-    rewrite [real.abs_sub (X (Nb M n)), algebra.abs_sub (X (Nb M m)), algebra.abs_sub, -- ???
-             rat.add.comm, algebra.add_comm_three],
+    rewrite [real.abs_sub (X (Nb M n)), abs_sub (X (Nb M m)), abs_sub, -- ???
+             rat.add.comm, add_comm_three],
     apply lim_seq_reg_helper Hc Hor2'
   end
 
@@ -384,17 +384,17 @@ theorem lim_spec' {x : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy x M) (k : ℕ+) :
 
 theorem lim_spec {x : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy x M) (k : ℕ+) :
         abs ((const ((lim_seq Hc) k)) - (lim Hc)) ≤ const (k)⁻¹ :=
-  by rewrite algebra.abs_sub; apply lim_spec'
+  by rewrite abs_sub; apply lim_spec'
 
 theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
         converges_to X (lim Hc) (Nb M) :=
   begin
     intro k n Hn,
     rewrite (rewrite_helper10 (X (Nb M n)) (const (lim_seq Hc n))),
-    apply algebra.le.trans,
-    apply algebra.abs_add_three,
-    apply algebra.le.trans,
-    apply algebra.add_le_add_three,
+    apply le.trans,
+    apply abs_add_three,
+    apply le.trans,
+    apply add_le_add_three,
     apply Hc,
     apply pnat.le.trans,
     rotate 1,
@@ -417,7 +417,7 @@ theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
     rewrite 2 add_consts2,
     apply const_le_const_of_le,
     apply rat.le.trans,
-    apply add_le_add_three,
+    apply rat.add_le_add_three,
     apply rat.le.refl,
     apply inv_ge_of_le,
     apply pnat_mul_le_mul_left',
@@ -434,6 +434,6 @@ theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
     apply Nb_spec_left,
     rewrite [-*pnat.mul.assoc, p_add_fractions],
     apply rat.le.refl
-  end-/
+  end
 
 end real

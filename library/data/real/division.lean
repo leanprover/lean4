@@ -651,9 +651,12 @@ theorem dec_lt : decidable_rel lt :=
     apply prop_decidable
   end
 
-open [classes] algebra
-definition linear_ordered_field [instance] : algebra.discrete_linear_ordered_field ℝ :=
-  ⦃ algebra.discrete_linear_ordered_field, comm_ring, ordered_ring,
+section migrate_algebra
+  open [classes] algebra
+
+  protected definition discrete_linear_ordered_field [reducible] :
+      algebra.discrete_linear_ordered_field ℝ :=
+  ⦃ algebra.discrete_linear_ordered_field, real.comm_ring, real.ordered_ring,
     le_total := le_total,
     mul_inv_cancel := mul_inv,
     inv_mul_cancel := inv_mul,
@@ -662,5 +665,20 @@ definition linear_ordered_field [instance] : algebra.discrete_linear_ordered_fie
     le_iff_lt_or_eq := le_iff_lt_or_eq,
     decidable_lt := dec_lt
    ⦄
+
+  local attribute real.comm_ring [instance]
+  local attribute real.ordered_ring [instance]
+  local attribute real.discrete_linear_ordered_field [instance]
+
+  definition abs (n : ℝ) : ℝ := algebra.abs n
+  definition sign (n : ℝ) : ℝ := algebra.sign n
+
+  definition max (a b : ℝ) : ℝ := algebra.max a b
+  definition min (a b : ℝ) : ℝ := algebra.min a b
+
+  migrate from algebra with real
+    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign, dvd → dvd,
+      divide → divide, max → max, min → min
+end migrate_algebra
 
 end real

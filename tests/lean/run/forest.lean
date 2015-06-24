@@ -1,4 +1,4 @@
-import data.prod data.unit
+import data.prod
 open prod
 
 inductive tree (A : Type) : Type :=
@@ -18,7 +18,7 @@ definition tree.below.{l₁ l₂}
     (λ t : forest A, Type.{max 1 l₂})
     t
     (λ (a : A) (f : forest A) (r : Type.{max 1 l₂}), prod.{l₂ (max 1 l₂)} (C₂ f) r)
-    unit.{max 1 l₂}
+    poly_unit.{max 1 l₂}
     (λ (t : tree A) (f : forest A) (rt : Type.{max 1 l₂}) (rf : Type.{max 1 l₂}),
         prod.{(max 1 l₂) (max 1 l₂)} (prod.{l₂ (max 1 l₂)} (C₁ t) rt) (prod.{l₂ (max 1 l₂)} (C₂ f) rf))
 
@@ -32,7 +32,7 @@ definition forest.below.{l₁ l₂}
     (λ t : forest A, Type.{max 1 l₂})
     f
     (λ (a : A) (f : forest A) (r : Type.{max 1 l₂}), prod.{l₂ (max 1 l₂)} (C₂ f) r)
-    unit.{max 1 l₂}
+    poly_unit.{max 1 l₂}
     (λ (t : tree A) (f : forest A) (rt : Type.{max 1 l₂}) (rf : Type.{max 1 l₂}),
         prod.{(max 1 l₂) (max 1 l₂)} (prod.{l₂ (max 1 l₂)} (C₁ t) rt) (prod.{l₂ (max 1 l₂)} (C₂ f) rf))
 
@@ -57,7 +57,7 @@ have general : prod.{l₂ (max 1 l₂)} (C₁ t) (tree.below A C₁ C₂ t), fro
          F₁ (tree.node a f) b,
        prod.mk.{l₂ (max 1 l₂)} c b)
     (have b : forest.below A C₁ C₂ (forest.nil A), from
-      unit.star.{max 1 l₂},
+      poly_unit.star.{max 1 l₂},
      have c : C₂ (forest.nil A), from
       F₂ (forest.nil A) b,
      prod.mk.{l₂ (max 1 l₂)} c b)
@@ -93,7 +93,7 @@ have general : prod.{l₂ (max 1 l₂)} (C₂ f) (forest.below A C₁ C₂ f), f
          F₁ (tree.node a f) b,
        prod.mk.{l₂ (max 1 l₂)} c b)
     (have b : forest.below A C₁ C₂ (forest.nil A), from
-      unit.star.{max 1 l₂},
+      poly_unit.star.{max 1 l₂},
      have c : C₂ (forest.nil A), from
       F₂ (forest.nil A) b,
      prod.mk.{l₂ (max 1 l₂)} c b)

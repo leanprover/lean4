@@ -83,8 +83,8 @@ environment mk_cases_on(environment const & env, name const & n) {
     optional<expr> star;
     // we use unit if num_types > 1
     if (num_types > 1) {
-        unit = mk_constant(get_unit_name(), to_list(elim_univ));
-        star = mk_constant(get_unit_star_name(), to_list(elim_univ));
+        unit = mk_constant(get_poly_unit_name(), to_list(elim_univ));
+        star = mk_constant(get_poly_unit_star_name(), to_list(elim_univ));
     }
 
     // rec_params order

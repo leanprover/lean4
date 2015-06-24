@@ -142,7 +142,7 @@ name const & get_true_name();
 name const & get_true_intro_name();
 name const & get_is_trunc_is_hset_name();
 name const & get_is_trunc_is_hprop_name();
-name const & get_unit_name();
-name const & get_unit_star_name();
+name const & get_poly_unit_name();
+name const & get_poly_unit_star_name();
 name const & get_well_founded_name();
 }

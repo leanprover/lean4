@@ -10,7 +10,7 @@ import .pushout types.pointed
 
 open pushout unit eq equiv equiv.ops pointed
 
-definition suspension (A : Type) : Type := pushout (λ(a : A), star.{0}) (λ(a : A), star.{0})
+definition suspension (A : Type) : Type := pushout (λ(a : A), star) (λ(a : A), star)
 
 namespace suspension
   variable {A : Type}

@@ -44,7 +44,7 @@ end manual
     definition below_rec_on (t : tree A) (H : Π (n : tree A), @tree.below A C n → C n) : C t
     := have general : C t × @tree.below A C t, from
         tree.rec_on t
-          (λa, (H (leaf a) unit.star, unit.star))
+          (λa, (H (leaf a) poly_unit.star, poly_unit.star))
           (λ (l r : tree A) (Hl : C l × @tree.below A C l) (Hr : C r × @tree.below A C r),
             have b : @tree.below A C (node l r), from
               ((pr₁ Hl, pr₂ Hl), (pr₁ Hr, pr₂ Hr)),

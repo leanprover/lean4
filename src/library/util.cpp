@@ -97,8 +97,8 @@ bool has_constructor(environment const & env, name const & c, name const & I, un
     return is_constant(type) && const_name(type) == I;
 }
 
-bool has_unit_decls(environment const & env) {
-    return has_constructor(env, get_unit_star_name(), get_unit_name(), 0);
+bool has_poly_unit_decls(environment const & env) {
+    return has_constructor(env, get_poly_unit_star_name(), get_poly_unit_name(), 0);
 }
 
 bool has_eq_decls(environment const & env) {
@@ -408,11 +408,11 @@ expr mk_and_elim_right(type_checker & tc, expr const & H) {
 }
 
 expr mk_unit(level const & l) {
-    return mk_constant(get_unit_name(), {l});
+    return mk_constant(get_poly_unit_name(), {l});
 }
 
 expr mk_unit_mk(level const & l) {
-    return mk_constant(get_unit_star_name(), {l});
+    return mk_constant(get_poly_unit_star_name(), {l});
 }
 
 expr mk_prod(type_checker & tc, expr const & A, expr const & B) {

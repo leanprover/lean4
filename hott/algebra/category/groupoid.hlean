@@ -66,7 +66,7 @@ namespace category
   end
 
   -- Conversely we can turn each group into a groupoid on the unit type
-  definition groupoid_of_group.{l} (A : Type.{l}) [G : group A] : groupoid.{l l} unit :=
+  definition groupoid_of_group.{l} (A : Type.{l}) [G : group A] : groupoid.{0 l} unit :=
   begin
     fapply groupoid.mk, fapply precategory.mk,
       intros, exact A,

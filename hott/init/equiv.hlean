@@ -8,7 +8,7 @@ Ported from Coq HoTT
 
 prelude
 import .path .function
-open eq function
+open eq function lift
 
 /- Equivalences -/
 
@@ -139,6 +139,9 @@ namespace is_equiv
   is_equiv.mk f g ret adjointify_sect' adjointify_adj'
 
   end
+
+  definition is_equiv_up [instance] (A : Type) : is_equiv (up : A → lift A) :=
+  adjointify up down (λa, by induction a;reflexivity) (λa, idp)
 
   section
   variables {A B C : Type} (f : A → B) {f' : A → B} [Hf : is_equiv f] (g : B → C)
@@ -292,6 +295,8 @@ namespace equiv
 
   definition equiv_of_equiv_of_eq {A B C : Type} (p : A = B) (q : B ≃ C) : A ≃ C := p⁻¹ ▸ q
   definition equiv_of_eq_of_equiv {A B C : Type} (p : A ≃ B) (q : B = C) : A ≃ C := q   ▸ p
+
+  definition equiv_lift (A : Type) : A ≃ lift A := equiv.mk up _
 
   namespace ops
     postfix `⁻¹` := equiv.symm -- overloaded notation for inverse

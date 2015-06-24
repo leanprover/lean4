@@ -1663,7 +1663,7 @@ class equation_compiler_fn {
                 C = Fun(C_args, type);
             } else {
                 expr d    = binding_domain(C_type);
-                expr unit = mk_constant(get_unit_name(), rlvl);
+                expr unit = mk_constant(get_poly_unit_name(), rlvl);
                 to_telescope_ext(d, C_args);
                 C = Fun(C_args, unit);
             }
@@ -1706,7 +1706,7 @@ class equation_compiler_fn {
                 new_ctx.append(rest);
                 F               = compile_pat_match(program(prg_i, to_list(new_ctx)), *p_idx);
             } else {
-                expr star    = mk_constant(get_unit_star_name(), rlvl);
+                expr star    = mk_constant(get_poly_unit_star_name(), rlvl);
                 buffer<expr> F_args;
                 F_args.append(C_args);
                 below        = mk_app(below, F_args);

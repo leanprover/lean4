@@ -6,7 +6,7 @@ namespace nat
   definition brec_on {C : nat → Type} (n : nat) (F : Π (n : nat), @nat.below C n → C n) : C n :=
   have general : C n × @nat.below C n, from
     nat.rec_on n
-      (pair (F zero unit.star) unit.star)
+      (pair (F zero poly_unit.star) poly_unit.star)
       (λ (n₁ : nat) (r₁ : C n₁ × @nat.below C n₁),
          have b : @nat.below C (succ n₁), from
            r₁,

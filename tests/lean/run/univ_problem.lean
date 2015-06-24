@@ -1,4 +1,4 @@
-import logic data.nat.basic data.prod data.unit
+import logic data.nat.basic data.prod
 open nat prod
 
 inductive vector (A : Type) : nat → Type :=
@@ -17,7 +17,7 @@ namespace vector
     definition brec_on {n : nat} (v : vector A n) (H : Π (n : nat) (v : vector A n), @vector.below A C n v → C n v) : C n v :=
     have general : C n v × @vector.below A C n v, from
       vector.rec_on v
-       (pair (H zero vnil unit.star) unit.star)
+       (pair (H zero vnil poly_unit.star) poly_unit.star)
        (λ (n₁ : nat) (a₁ : A) (v₁ : vector A n₁) (r₁ : C n₁ v₁ × @vector.below A C n₁ v₁),
           have b : @vector.below A C _ (vcons a₁ v₁), from
             r₁,

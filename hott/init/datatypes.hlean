@@ -14,7 +14,10 @@ notation `Type₁` := Type.{1}
 notation `Type₂` := Type.{2}
 notation `Type₃` := Type.{3}
 
-inductive unit.{l} : Type.{l} :=
+inductive poly_unit.{l} : Type.{l} :=
+star : poly_unit
+
+inductive unit : Type₀ :=
 star : unit
 
 inductive empty : Type₀

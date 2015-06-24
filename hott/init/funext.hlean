@@ -8,7 +8,7 @@ Ported from Coq HoTT
 
 prelude
 import .trunc .equiv .ua
-open eq is_trunc sigma function is_equiv equiv prod unit prod.ops
+open eq is_trunc sigma function is_equiv equiv prod unit prod.ops lift
 
 /-
    We now prove that funext follows from a couple of weaker-looking forms
@@ -208,24 +208,21 @@ end
 -- implies (with dependent eta) also the strong dependent funext.
 theorem weak_funext_of_ua : weak_funext :=
   (λ (A : Type) (P : A → Type) allcontr,
-    let U := (λ (x : A), unit) in
-  have pequiv : Π (x : A), P x ≃ U x,
+    let U := (λ (x : A), lift unit) in
+  have pequiv : Π (x : A), P x ≃ unit,
     from (λ x, @equiv_unit_of_is_contr (P x) (allcontr x)),
   have psim : Π (x : A), P x = U x,
-    from (λ x, @is_equiv.inv _ _
-      equiv_of_eq (univalence _ _) (pequiv x)),
+    from (λ x, eq_of_equiv_lift (pequiv x)),
   have p : P = U,
     from @nondep_funext_from_ua A Type P U psim,
-  have tU' : is_contr (A → unit),
-    from is_contr.mk (λ x, ⋆)
-      (λ f, @nondep_funext_from_ua A unit (λ x, ⋆) f
-        (λ x, unit.rec_on (f x) idp)),
+  have tU' : is_contr (A → lift unit),
+    from is_contr.mk (λ x, up ⋆)
+      (λ f, nondep_funext_from_ua (λa, by induction (f a) with u;induction u;reflexivity)),
   have tU : is_contr (Π x, U x),
     from tU',
   have tlast : is_contr (Πx, P x),
-    from eq.transport _ p⁻¹ tU,
-  tlast
-)
+    from p⁻¹ ▸ tU,
+  tlast)
 
 -- In the following we will proof function extensionality using the univalence axiom
 definition funext_of_ua : funext :=

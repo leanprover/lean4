@@ -16,7 +16,10 @@ notation `Type₃` := Type.{3}
 set_option structure.eta_thm     true
 set_option structure.proj_mk_thm true
 
-inductive unit.{l} : Type.{l} :=
+inductive poly_unit.{l} : Type.{l} :=
+star : poly_unit
+
+inductive unit : Type₁ :=
 star : unit
 
 inductive true : Prop :=
@@ -24,7 +27,7 @@ intro : true
 
 inductive false : Prop
 
-inductive empty : Type
+inductive empty : Type₁
 
 inductive eq {A : Type} (a : A) : A → Prop :=
 refl : eq a a

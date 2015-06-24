@@ -46,7 +46,8 @@ ap10 (cast_ua_fn f) a
 definition ua_equiv_of_eq [reducible] {A B : Type} (p : A = B) : ua (equiv_of_eq p) = p :=
 left_inv equiv_of_eq p
 
-
+definition eq_of_equiv_lift {A B : Type} (f : A ≃ B) : A = lift B :=
+ua (f ⬝e !equiv_lift)
 
 namespace equiv
   -- One consequence of UA is that we can transport along equivalencies of types

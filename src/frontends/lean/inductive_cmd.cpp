@@ -726,7 +726,7 @@ struct inductive_cmd_fn {
     }
 
     environment mk_aux_decls(environment env, buffer<inductive_decl> const & decls) {
-        bool has_unit = has_unit_decls(env);
+        bool has_unit = has_poly_unit_decls(env);
         bool has_eq   = has_eq_decls(env);
         bool has_heq  = has_heq_decls(env);
         bool has_prod = has_prod_decls(env);

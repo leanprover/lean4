@@ -1,4 +1,4 @@
-import data.unit data.prod
+import data.prod
 
 inductive ftree (A : Type) (B : Type) : Type :=
 | leafa : ftree A B
@@ -16,7 +16,7 @@ definition below.{l l₁ l₂} {A : Type.{l₁}} {B : Type.{l₂}} (C : ftree A 
   A
   B
   (λ t : ftree A B,  Type.{max l₁ l₂ (l+1)})
-  unit.{max l₁ l₂ (l+1)}
+  poly_unit.{max l₁ l₂ (l+1)}
   (λ (f₁ : A → B → ftree A B)
      (f₂ : B → ftree A B)
      (r₁ : Π (a : A) (b : B), Type.{max l₁ l₂ (l+1)})
@@ -60,7 +60,7 @@ have gen : prod.{(l+1) (max l₁ l₂ (l+1))} (C t) (@below A B C t), from
     B
     (λ t : ftree A B, prod.{(l+1) (max l₁ l₂ (l+1))} (C t) (@below A B C t))
     (have b : @below A B C (leafa A B), from
-       unit.star.{max l₁ l₂ (l+1)},
+       poly_unit.star.{max l₁ l₂ (l+1)},
      have c : C (leafa A B), from
        F (leafa A B) b,
      prod.mk.{(l+1) (max l₁ l₂ (l+1))} c b)

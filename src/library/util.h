@@ -33,7 +33,7 @@ bool is_standard(environment const & env);
 */
 bool is_norm_pi(type_checker & tc, expr & e, constraint_seq & cs);
 
-bool has_unit_decls(environment const & env);
+bool has_poly_unit_decls(environment const & env);
 bool has_eq_decls(environment const & env);
 bool has_heq_decls(environment const & env);
 bool has_prod_decls(environment const & env);
@@ -117,8 +117,8 @@ expr mk_and_intro(type_checker & tc, expr const & Ha, expr const & Hb);
 expr mk_and_elim_left(type_checker & tc, expr const & H);
 expr mk_and_elim_right(type_checker & tc, expr const & H);
 
-expr mk_unit(level const & l);
-expr mk_unit_mk(level const & l);
+expr mk_poly_unit(level const & l);
+expr mk_poly_unit_mk(level const & l);
 expr mk_prod(type_checker & tc, expr const & A, expr const & B);
 expr mk_pair(type_checker & tc, expr const & a, expr const & b);
 expr mk_pr1(type_checker & tc, expr const & p);

@@ -731,7 +731,7 @@ section product
 theorem perm_product_left {l₁ l₂ : list A} (t₁ : list B) : l₁ ~ l₂ → (product l₁ t₁) ~ (product l₂ t₁) :=
 assume p : l₁ ~ l₂, perm.induction_on p
   !perm.refl
-  (λ x l₁ l₂ p r, perm_app !perm.refl r)
+  (λ x l₁ l₂ p r, perm_app (perm.refl (map _ t₁)) r)
   (λ x y l,
     let m₁ := map (λ b, (x, b)) t₁ in
     let m₂ := map (λ b, (y, b)) t₁ in

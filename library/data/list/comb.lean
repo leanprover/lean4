@@ -332,10 +332,10 @@ theorem mem_product {a : A} {b : B} : ∀ {l₁ l₂}, a ∈ l₁ → b ∈ l₂
   or.elim (eq_or_mem_of_mem_cons h₁)
     (λ aeqx  : a = x,
       assert aux : (a, b) ∈ map (λ b, (a, b)) l₂, from mem_map _ h₂,
-      by rewrite [-aeqx]; exact (mem_append_left _ aux))
+      begin rewrite [-aeqx, product_cons], exact mem_append_left _ aux end)
     (λ ainl₁ : a ∈ l₁,
-      have inl₁l₂ : (a, b) ∈ product l₁ l₂, from mem_product ainl₁ h₂,
-      mem_append_right _ inl₁l₂)
+      assert inl₁l₂ : (a, b) ∈ product l₁ l₂, from mem_product ainl₁ h₂,
+      begin rewrite [product_cons], exact mem_append_right _ inl₁l₂ end)
 
 theorem mem_of_mem_product_left {a : A} {b : B} : ∀ {l₁ l₂}, (a, b) ∈ product l₁ l₂ → a ∈ l₁
 | []      l₂ h := absurd h !not_mem_nil

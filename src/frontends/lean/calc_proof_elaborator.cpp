@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/option_declarations.h"
 #include "kernel/free_vars.h"
 #include "kernel/instantiate.h"
+#include "kernel/abstract.h"
 #include "library/unifier.h"
 #include "library/reducible.h"
 #include "library/metavar_closure.h"
@@ -190,7 +191,6 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
             metavar_closure cls(meta);
             cls.add(meta_type);
             cls.mk_constraints(s, j, cs_buffer);
-            cs_buffer.push_back(mk_eq_cnstr(meta, e, j));
 
             unifier_config new_cfg(cfg);
             new_cfg.m_discard      = false;
@@ -204,11 +204,16 @@ constraint mk_calc_proof_cnstr(environment const & env, options const & opts,
                                              // we erase internal justifications
                                              return update_justification(c, j);
                                          });
+            expr new_e = new_s.instantiate(e);
             if (conservative && has_expr_metavar_relaxed(new_s.instantiate_all(e)))
                 throw_elaborator_exception("solution contains metavariables", e);
             if (im)
                 im->instantiate(new_s);
             constraints r = cls.mk_constraints(new_s, j);
+            buffer<expr> locals;
+            expr mvar  = get_app_args(meta, locals);
+            expr val   = Fun(locals, new_e);
+            r = cons(mk_eq_cnstr(mvar, val, j), r);
             return append(r, postponed);
         };
 

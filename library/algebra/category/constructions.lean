@@ -140,7 +140,7 @@ namespace category
               (λ a, F a)
               (λ a b f, F f)
               (λ a, respect_id F a)
-              (λ a b c g f, respect_comp F f g)
+              (λ a b c g f, by apply @respect_comp C D)
   end
   end opposite
 

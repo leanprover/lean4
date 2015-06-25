@@ -48,10 +48,10 @@ namespace quotient
   (pr1.mk a a') ▸ (pr2.mk a a') ▸ rfl
 
   theorem map_pair_pr1 (f : A → B) (a : A × A) : pr1 (map_pair f a) = f (pr1 a) :=
-  !pr1.mk
+  by esimp
 
   theorem map_pair_pr2 (f : A → B) (a : A × A) : pr2 (map_pair f a) = f (pr2 a) :=
-  !pr2.mk
+  by esimp
 
   /- coordinatewise binary maps -/
 
@@ -72,10 +72,10 @@ namespace quotient
       ... = pair (f a b) (f a' b') : {pr1.mk a a'}
 
   theorem map_pair2_pr1 {A B C : Type} (f : A → B → C) (a : A × A) (b : B × B) :
-  pr1 (map_pair2 f a b) = f (pr1 a) (pr1 b) := !pr1.mk
+  pr1 (map_pair2 f a b) = f (pr1 a) (pr1 b) := by esimp
 
   theorem map_pair2_pr2 {A B C : Type} (f : A → B → C) (a : A × A) (b : B × B) :
-  pr2 (map_pair2 f a b) = f (pr2 a) (pr2 b) := !pr2.mk
+  pr2 (map_pair2 f a b) = f (pr2 a) (pr2 b) := by esimp
 
   theorem map_pair2_flip {A B C : Type} (f : A → B → C) (a : A × A) (b : B × B) :
     flip (map_pair2 f a b) = map_pair2 f (flip a) (flip b) :=
@@ -123,7 +123,7 @@ have Hx : pr1 (map_pair2 f (map_pair2 f u v) w) =
           = f (pr1 (map_pair2 f u v)) (pr1 w) : map_pair2_pr1 f _ _
       ... = f (f (pr1 u) (pr1 v)) (pr1 w) : {map_pair2_pr1 f _ _}
       ... = f (pr1 u) (f (pr1 v) (pr1 w)) : Hassoc (pr1 u) (pr1 v) (pr1 w)
-      ... = f (pr1 u) (pr1 (map_pair2 f v w)) : {(map_pair2_pr1 f _ _)⁻¹}
+      ... = f (pr1 u) (pr1 (map_pair2 f v w)) : by rewrite [map_pair2_pr1 f]
       ... = pr1 (map_pair2 f u (map_pair2 f v w)) : (map_pair2_pr1 f _ _)⁻¹,
 have Hy : pr2 (map_pair2 f (map_pair2 f u v) w) =
           pr2 (map_pair2 f u (map_pair2 f v w)), from

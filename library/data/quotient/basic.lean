@@ -208,7 +208,7 @@ theorem fun_image_def {A B : Type} (f : A → B) (a : A) :
   fun_image f a = tag (f a) (exists.intro a rfl) := rfl
 
 theorem elt_of_fun_image {A B : Type} (f : A → B) (a : A) : elt_of (fun_image f a) = f a :=
-elt_of.tag _ _
+by esimp
 
 theorem image_elt_of {A B : Type} {f : A → B} (u : image f) : ∃a, f a = elt_of u :=
 has_property u
@@ -230,13 +230,13 @@ theorem fun_image_eq {A B : Type} (f : A → B) (a a' : A)
 iff.intro
   (assume H : f a = f a', tag_eq H)
   (assume H : fun_image f a = fun_image f a',
-    (congr_arg elt_of H ▸ elt_of_fun_image f a) ▸ elt_of_fun_image f a')
+    by injection H; assumption)
 
 theorem idempotent_image_elt_of {A : Type} {f : A → A} (H : ∀a, f (f a) = f a) (u : image f)
   : fun_image f (elt_of u) = u :=
 obtain (a : A) (Ha : fun_image f a = u), from fun_image_surj u,
 calc
-  fun_image f (elt_of u) = fun_image f (elt_of (fun_image f a)) : {Ha⁻¹}
+  fun_image f (elt_of u) = fun_image f (elt_of (fun_image f a)) : by rewrite Ha
     ... = fun_image f (f a) : {elt_of_fun_image f a}
     ... = fun_image f a : {iff.elim_left (fun_image_eq f (f a) a) (H a)}
     ... = u : Ha

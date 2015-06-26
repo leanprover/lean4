@@ -32,6 +32,8 @@ Author: Leonardo de Moura
 #include "library/kernel_bindings.h"
 #include "library/print.h"
 #include "library/expr_lt.h"
+#include "library/projection.h"
+#include "library/coercion.h"
 
 #ifndef LEAN_DEFAULT_UNIFIER_MAX_STEPS
 #define LEAN_DEFAULT_UNIFIER_MAX_STEPS 20000
@@ -925,6 +927,46 @@ struct unifier_fn {
             return is_owned(cnstr_rhs_expr(c));
     }
 
+    static status to_status(bool b) { return b ? Solved : Failed; }
+
+    status reduce_both_proj_and_check(expr const & lhs, expr const & rhs, justification const & j) {
+        lean_assert(is_projection_app(lhs));
+        lean_assert(is_projection_app(rhs));
+        constraint_seq new_cs;
+        expr new_lhs = whnf(lhs, new_cs);
+        expr new_rhs = whnf(rhs, new_cs);
+        if (lhs != new_lhs || rhs != new_rhs)
+            return to_status(is_def_eq(new_lhs, new_rhs, j) && process_constraints(new_cs));
+        if (const_name(get_app_fn(lhs)) != const_name(get_app_fn(rhs))) {
+            // Two projection applications
+            //     pr_1 ... =?= pr_2 ...
+            // where pr_1 != pr_2 and both are not stuck
+            set_conflict(j);
+            return Failed;
+        } else {
+            return Continue;
+        }
+    }
+
+    status reduce_proj_and_check(expr const & lhs, expr const & rhs, justification const & j) {
+        lean_assert(is_projection_app(lhs));
+        lean_assert(!is_projection_app(rhs));
+        {
+            // First try to reduce projection
+            constraint_seq new_cs;
+            expr new_lhs = whnf(lhs, new_cs);
+            if (lhs != new_lhs)
+                return to_status(is_def_eq(new_lhs, rhs, j) && process_constraints(new_cs));
+        }
+        {
+            constraint_seq new_cs;
+            expr new_rhs = whnf(rhs, new_cs);
+            if (rhs != new_rhs)
+                return to_status(is_def_eq(lhs, new_rhs, j) && process_constraints(new_cs));
+        }
+        return Continue;
+    }
+
     /** \brief Process an equality constraints. */
     bool process_eq_constraint(constraint const & c) {
         lean_assert(is_eq_cnstr(c));
@@ -944,34 +986,61 @@ struct unifier_fn {
 
         expr const & lhs = cnstr_lhs_expr(c);
         expr const & rhs = cnstr_rhs_expr(c);
+        bool is_proj_lhs = is_projection_app(lhs);
+        bool is_proj_rhs = is_projection_app(rhs);
+        bool is_proj_stuck_lhs = is_proj_lhs && m_tc->is_stuck(lhs);
+        bool is_proj_stuck_rhs = is_proj_rhs && m_tc->is_stuck(rhs);
+
+        if (is_proj_lhs && is_proj_rhs && !is_proj_stuck_lhs && !is_proj_stuck_rhs) {
+            if (const_name(get_app_fn(lhs)) == const_name(get_app_fn(rhs))) {
+                return process_same_projection_projection(c);
+            } else {
+                st = reduce_both_proj_and_check(lhs, rhs, c.get_justification());
+                if (st != Continue) return st == Solved;
+            }
+        } else if (is_proj_lhs && !is_proj_stuck_lhs && !is_proj_rhs && !is_meta(rhs)) {
+            st = reduce_proj_and_check(lhs, rhs, c.get_justification());
+            if (st != Continue) return st == Solved;
+        } else if (is_proj_rhs && !is_proj_stuck_rhs && !is_proj_lhs && !is_meta(lhs)) {
+            st = reduce_proj_and_check(rhs, lhs, c.get_justification());
+            if (st != Continue) return st == Solved;
+        }
 
         if (is_eq_deltas(lhs, rhs)) {
             // we need to create a backtracking point for this one
             add_cnstr(c, cnstr_group::Basic);
+            return true;
         } else if (is_meta(lhs) && is_meta(rhs)) {
             // flex-flex constraints are delayed the most.
             unsigned cidx = add_cnstr(c, cnstr_group::FlexFlex);
             add_meta_occ(lhs, cidx);
             add_meta_occ(rhs, cidx);
+            return true;
         } else if (m_tc->may_reduce_later(lhs) ||
                    m_tc->may_reduce_later(rhs) ||
                    m_plugin->delay_constraint(*m_tc, c)) {
             unsigned cidx = add_cnstr(c, cnstr_group::PluginDelayed);
             add_meta_occs(lhs, cidx);
             add_meta_occs(rhs, cidx);
+            if (is_proj_lhs && is_proj_rhs)
+                return preprocess_projection_projection(c);
+            else
+                return true;
         } else if (is_meta(lhs)) {
             // flex-rigid constraints are delayed.
             unsigned cidx = add_cnstr(c, cnstr_group::FlexRigid);
             add_meta_occ(lhs, cidx);
+            return true;
         } else if (is_meta(rhs)) {
             // flex-rigid constraints are delayed.
             unsigned cidx = add_cnstr(c, cnstr_group::FlexRigid);
             add_meta_occ(rhs, cidx);
+            return true;
         } else {
             // this constraints require the unifier plugin to be solved
             add_cnstr(c, cnstr_group::Basic);
+            return true;
         }
-        return true;
     }
 
     /**
@@ -1240,6 +1309,112 @@ struct unifier_fn {
         return lazy_list<constraints>(cs.to_list());
     }
 
+    /** Return true iff t is a projection application */
+    bool is_projection_app(expr const & t) {
+        expr const & f = get_app_fn(t);
+        return is_constant(f) && is_projection(m_env, const_name(f));
+    }
+
+    // See #preprocess_projection_projection
+    bool is_preprocess_projection_projection_target(projection_info const * info, buffer<expr> const & args) {
+        if (!info->m_inst_implicit)
+            return false;
+        if (args.size() < info->m_nparams+1)
+            return false;
+        unsigned sidx = info->m_nparams;
+        if (!has_expr_metavar(args[sidx]))
+            return false;
+        for (unsigned i = 0; i < info->m_nparams; i++)
+            if (has_expr_metavar(args[i]))
+                return true;
+        // all parameters do not have metavariables, thus type class resolution will be triggered
+        // to synthesize the args[sidx]
+        return false;
+    }
+
+    /**
+      For constraints of the form
+        pr_1 A_1 s_1 a_1 =?= pr_2 A_2 s_2 a_2
+      where pr is a projection, A_{1,2} are parameters, s_{1,2} the structure, and a_{1,2} arguments.
+      If s_1/A_1 or s_2/A_2 contain metavariables, we add the constraint
+          infer_type(pr_1 A_1 s_1) =?= infer_type(pr_2 A_2 s_2)
+      when pr_{1,2} is the projection of a class. The new constraint may force some of the meta-variables occurring
+      in the parameters to be assigned, and then this assignment will trigger type class resolution at s_{1,2}
+
+      \remark Note that whenever we use this step we may be missing solutions.
+      This should only happen in very unusual circumstances. We may add an option to disable this
+      step in the future. This step is essential for processing the algebraic hierarchy.
+    */
+    bool preprocess_projection_projection(constraint const & c) {
+        expr const & lhs = cnstr_lhs_expr(c);
+        expr const & rhs = cnstr_rhs_expr(c);
+        lean_assert(is_projection_app(lhs) && is_projection_app(rhs));
+        buffer<expr> lhs_args, rhs_args;
+        expr const & f_lhs = get_app_args(lhs, lhs_args);
+        expr const & f_rhs = get_app_args(rhs, rhs_args);
+        projection_info const * info_lhs = get_projection_info(m_env, const_name(f_lhs));
+        projection_info const * info_rhs = get_projection_info(m_env, const_name(f_rhs));
+        lean_assert(info_lhs);
+        lean_assert(info_rhs);
+        if (!is_preprocess_projection_projection_target(info_lhs, lhs_args) &&
+            !is_preprocess_projection_projection_target(info_rhs, rhs_args))
+            return true; // do nothing, preprocessing step will not help
+        unsigned l_nparams = info_lhs->m_nparams;
+        unsigned r_nparams = info_rhs->m_nparams;
+        if (lhs_args.size() - l_nparams != rhs_args.size() - r_nparams)
+            return true; // the number of arguments to the projection data do not match.
+        expr new_lhs_app = mk_app(f_lhs, l_nparams+1, lhs_args.data());
+        expr new_rhs_app = mk_app(f_rhs, r_nparams+1, rhs_args.data());
+        constraint_seq cs;
+        auto t1 = infer(new_lhs_app, cs);
+        auto t2 = infer(new_rhs_app, cs);
+        if (!t1 || !t2)
+            return true; // failed to infer types
+        if (!process_constraints(cs))
+            return false;
+        return is_def_eq(*t1, *t2, c.get_justification());
+    }
+
+    bool is_same_projection_projection(expr const & lhs, expr const & rhs) {
+        expr const & f_lhs = get_app_fn(lhs);
+        expr const & f_rhs = get_app_fn(rhs);
+        return
+            is_constant(f_lhs) && is_constant(f_rhs) &&
+            const_name(f_lhs) == const_name(f_rhs) &&
+            is_projection(m_env, const_name(f_lhs));
+    }
+
+    bool is_same_projection_projection(constraint const & c) {
+        return is_same_projection_projection(cnstr_lhs_expr(c), cnstr_rhs_expr(c));
+    }
+
+    bool process_same_projection_projection(constraint const & c) {
+        lean_assert(is_same_projection_projection(c));
+        buffer<expr> lhs_args, rhs_args;
+        expr const & f_lhs = get_app_args(cnstr_lhs_expr(c), lhs_args);
+        expr const & f_rhs = get_app_args(cnstr_rhs_expr(c), rhs_args);
+        justification const & j = c.get_justification();
+        return process_levels(const_levels(f_lhs), const_levels(f_rhs), j) && process_args(lhs_args, rhs_args, j);
+    }
+
+    bool is_projection_projection(constraint const & c) {
+        return is_projection_app(cnstr_lhs_expr(c)) && is_projection_app(cnstr_rhs_expr(c));
+    }
+
+    bool process_projection_projection(constraint const & c, unsigned cidx) {
+        lean_assert(is_projection_projection(c));
+        // postpone constraint
+        if (cidx < get_group_first_index(cnstr_group::ClassInstance)) {
+            // pospone constraint
+            unsigned cidx = add_cnstr(c, cnstr_group::Epilogue);
+            add_meta_occs(cnstr_lhs_expr(c), cidx);
+            add_meta_occs(cnstr_rhs_expr(c), cidx);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     bool process_plugin_constraint(constraint const & c) {
         lean_assert(!is_choice_cnstr(c));
         lazy_list<constraints> alts = m_plugin->solve(*m_tc, c, m_ngen.mk_child());
@@ -1324,6 +1499,34 @@ struct unifier_fn {
         }
     }
 
+    // Make sure the two lists of levels are definitionally equal.
+    bool process_levels(levels lhs_lvls, levels rhs_lvls, justification const & j) {
+        while (!is_nil(lhs_lvls)) {
+            if (is_nil(rhs_lvls))
+                return false;
+            level lhs = head(lhs_lvls);
+            level rhs = head(rhs_lvls);
+            if (!process_constraint(mk_level_eq_cnstr(lhs, rhs, j)))
+                return false;
+            lhs_lvls = tail(lhs_lvls);
+            rhs_lvls = tail(rhs_lvls);
+        }
+        return is_nil(rhs_lvls);
+    }
+
+    // Make sure the two buffers of arguments are definitionally equal
+    bool process_args(buffer<expr> const & lhs_args, buffer<expr> const & rhs_args, justification const & j) {
+        if (lhs_args.size() != rhs_args.size())
+            return false;
+        unsigned i = lhs_args.size();
+        while (i > 0) {
+            --i;
+            if (!is_def_eq(lhs_args[i], rhs_args[i], j))
+                return false;
+        }
+        return true;
+    }
+
     /**
         \brief Solve constraints of the form (f a_1 ... a_n) =?= (f b_1 ... b_n) where f can be expanded.
         We consider two possible solutions:
@@ -1361,22 +1564,7 @@ struct unifier_fn {
 
         // process first case
         justification new_j = mk_composite1(j, a);
-        while (!is_nil(lhs_lvls)) {
-            level lhs = head(lhs_lvls);
-            level rhs = head(rhs_lvls);
-            if (!process_constraint(mk_level_eq_cnstr(lhs, rhs, new_j)))
-                return false;
-            lhs_lvls = tail(lhs_lvls);
-            rhs_lvls = tail(rhs_lvls);
-        }
-
-        unsigned i = lhs_args.size();
-        while (i > 0) {
-            --i;
-            if (!is_def_eq(lhs_args[i], rhs_args[i], new_j))
-                return false;
-        }
-        return true;
+        return process_levels(lhs_lvls, rhs_lvls, new_j) && process_args(lhs_args, rhs_args, new_j);
     }
 
     /** \brief Return true iff \c c is a flex-rigid constraint. */
@@ -1877,6 +2065,10 @@ struct unifier_fn {
             return false;
         if (m_config.m_computation)
             return true; // if unifier.computation is true, we always consider the additional whnf split
+        // TODO(Leo): perhaps we should use the following heuristic only for coercions
+        // automatically generated by structure manager
+        if (is_coercion(m_env, get_app_fn(rhs)))
+            return false;
         buffer<expr> locals;
         expr const * it = &lhs;
         while (is_app(*it)) {
@@ -2319,6 +2511,10 @@ struct unifier_fn {
                     return process_flex_rigid(c);
                 } else if (is_flex_flex(c)) {
                     return process_flex_flex(c);
+                } else if (is_same_projection_projection(c)) {
+                    return process_same_projection_projection(c);
+                } else if (is_projection_projection(c)) {
+                    return process_projection_projection(c, cidx);
                 } else {
                     return process_plugin_constraint(c);
                 }

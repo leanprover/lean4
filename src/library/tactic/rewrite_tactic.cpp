@@ -609,12 +609,12 @@ class rewrite_fn {
         return m_g.mk_meta(m_ngen.next(), type);
     }
 
-    class rewriter_converter : public default_converter {
+    class rewriter_converter : public projection_converter {
         list<name> const & m_to_unfold;
         bool             & m_unfolded;
     public:
         rewriter_converter(environment const & env, list<name> const & to_unfold, bool & unfolded):
-            default_converter(env),
+            projection_converter(env),
             m_to_unfold(to_unfold), m_unfolded(unfolded) {}
         virtual bool is_opaque(declaration const & d) const {
             if (std::find(m_to_unfold.begin(), m_to_unfold.end(), d.get_name()) != m_to_unfold.end()) {
@@ -1212,7 +1212,8 @@ class rewrite_fn {
                 src = app_arg(rule_type);
             else
                 src = app_arg(app_fn(rule_type));
-            if (!m_tc->is_def_eq(t, src, justification(), cs_seq)) {
+            if (!m_tc->is_def_eq(t, src, justification(), cs_seq) ||
+                !m_tc->is_def_eq_types(t, src, justification(), cs_seq)) {
                 add_target_failure(src, t, failure::Unification);
                 return unify_result();
             }
@@ -1535,7 +1536,7 @@ class rewrite_fn {
             return mk_opaque_type_checker(m_env, m_ngen.mk_child());
         } else {
             auto aux_pred = full ? mk_irreducible_pred(m_env) : mk_not_reducible_pred(m_env);
-            return mk_type_checker(m_env, m_ngen.mk_child(), [=](name const & n) {
+            return mk_simple_type_checker(m_env, m_ngen.mk_child(), [=](name const & n) {
                     return is_projection(m_env, n) || aux_pred(n);
                 });
         }

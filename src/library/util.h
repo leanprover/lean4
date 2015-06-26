@@ -234,9 +234,12 @@ inline justification mk_type_mismatch_jst(expr const & v, expr const & v_type, e
     return mk_type_mismatch_jst(v, v_type, t, v);
 }
 
-/** \brief Create a type checker and normalizer that treats any constant named \c n as opaque when pred(n) is true */
+/** \brief Create a type checker and normalizer that treats any constant named \c n as opaque when pred(n) is true.
+    Projections are reduced using the projection converter */
 type_checker_ptr mk_type_checker(environment const & env, name_generator && ngen, name_predicate const & pred);
-
+/** \brief Create a type checker and normalizer that treats any constant named \c n as opaque when pred(n) is true.
+    No special support for projections is used */
+type_checker_ptr mk_simple_type_checker(environment const & env, name_generator && ngen, name_predicate const & pred);
 /**
    \brief Generate the format object for <tt>hyps |- conclusion</tt>.
    The given substitution is applied to all elements.

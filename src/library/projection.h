@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
+#include "kernel/default_converter.h"
 
 namespace lean {
 /** \brief Auxiliary information attached to projections. This information
@@ -61,6 +62,19 @@ expr mk_projection_macro(name const & proj_name, expr const & e);
     If not, generate an error message using \c pos.
 */
 bool is_structure_like(environment const & env, name const & S);
+
+class projection_converter : public default_converter {
+    name_map<projection_info> m_proj_info;
+    projection_info const * is_projection(expr const & e) const;
+    optional<pair<expr, constraint_seq>> reduce_projection(expr const & t);
+    virtual optional<pair<expr, constraint_seq>> norm_ext(expr const & e);
+    virtual lbool reduce_def_eq(expr & t_n, expr & s_n, constraint_seq & cs);
+    virtual bool postpone_is_def_eq(expr const & t, expr const & s);
+public:
+    projection_converter(environment const & env);
+    virtual bool is_opaque(declaration const & d) const;
+    virtual optional<expr> is_stuck(expr const & e, type_checker & c);
+};
 
 void initialize_projection();
 void finalize_projection();

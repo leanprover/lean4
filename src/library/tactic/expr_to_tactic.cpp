@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/num.h"
 #include "library/constants.h"
+#include "library/projection.h"
 #include "library/kernel_serializer.h"
 #include "library/tactic/expr_to_tactic.h"
 
@@ -263,19 +264,19 @@ optional<unsigned> get_optional_unsigned(type_checker & tc, expr const & e) {
     throw expr_to_tactic_exception(e, "invalid tactic, argument is not an option num");
 }
 
-class tac_builtin_opaque_converter : public default_converter {
+class tac_builtin_opaque_converter : public projection_converter {
 public:
-    tac_builtin_opaque_converter(environment const & env):default_converter(env) {}
+    tac_builtin_opaque_converter(environment const & env):projection_converter(env) {}
     virtual bool is_opaque(declaration const & d) const {
         name n = d.get_name();
         if (!is_prefix_of(get_tactic_name(), n))
-            return default_converter::is_opaque(d);
+            return projection_converter::is_opaque(d);
         expr v = d.get_value();
         while (is_lambda(v))
             v = binding_body(v);
         if (is_constant(v) && const_name(v) == get_tactic_builtin_name())
             return true;
-        return default_converter::is_opaque(d);
+        return projection_converter::is_opaque(d);
     }
 };
 

@@ -359,4 +359,10 @@ namespace eq
       : square (t₁ ◾ t₂) (b₁ ◾ b₂) (l₁ ◾ l₂) (r₁ ◾ r₂) :=
   by induction s₂;induction s₁;constructor
 
+  -- definition square_of_con_inv_hsquare {p₁ p₂ p₃ p₄ : a₁ = a₂}
+  --   {t : p₁ = p₂} {b : p₃ = p₄} {l : p₁ = p₃} {r : p₂ = p₄}
+  --   (s : square (con_inv_eq_idp t) (con_inv_eq_idp b) (l ◾ r⁻²) idp)
+  --     : square t b l r :=
+  -- sorry --by induction s
+
 end eq

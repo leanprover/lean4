@@ -631,7 +631,8 @@ namespace eq
     ⬝ (!whisker_left_idp_left ◾ !whisker_right_idp_right)
 
   -- The action of functions on 2-dimensional paths
-  definition ap02 [unfold-c 8] (f : A → B) {x y : A} {p q : x = y} (r : p = q) : ap f p = ap f q :=
+  definition ap02 [unfold-c 8] [reducible] (f : A → B) {x y : A} {p q : x = y} (r : p = q)
+    : ap f p = ap f q :=
   ap (ap f) r
 
   definition ap02_con (f : A → B) {x y : A} {p p' p'' : x = y} (r : p = p') (r' : p' = p'') :

@@ -90,6 +90,12 @@ namespace eq
            (ap_compose g f q) :=
   natural_square (ap_compose g f) r
 
+  theorem ap_eq_of_con_inv_eq_idp (f : A → B) {p q : a₁ = a₂} (r : p ⬝ q⁻¹ = idp)
+  : ap02 f (eq_of_con_inv_eq_idp r) =
+           eq_of_con_inv_eq_idp (whisker_left _ !ap_inv⁻¹ ⬝ !ap_con⁻¹ ⬝ ap02 f r)
+            :=
+  by induction q;esimp at *;cases r;reflexivity
+
 -- definition naturality_apdo {A : Type} {B : A → Type} {a a₂ : A} {f g : Πa, B a}
 --   (H : f ~ g) (p : a = a₂)
 --   : squareover B vrfl (apdo f p) (apdo g p)

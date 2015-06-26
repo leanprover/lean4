@@ -24,7 +24,7 @@ namespace pi
 
   /- Now we show how these things compute. -/
 
-  definition apd10_path_pi (H : funext) (h : f ∼ g) : apd10 (eq_of_homotopy h) ∼ h :=
+  definition apd10_path_pi (H : funext) (h : f ~ g) : apd10 (eq_of_homotopy h) ~ h :=
   apd10 (right_inv apd10 h)
 
   definition path_pi_eta (H : funext) (p : f = g) : eq_of_homotopy (apd10 p) = p :=
@@ -37,27 +37,27 @@ namespace pi
 
   /- The identification of the path space of a dependent function space, up to equivalence, is of course just funext. -/
 
-  definition path_equiv_homotopy (H : funext) (f g : Πx, B x) : (f = g) ≃ (f ∼ g) :=
+  definition path_equiv_homotopy (H : funext) (f g : Πx, B x) : (f = g) ≃ (f ~ g) :=
   equiv.mk _ !is_equiv_apd
 
   definition is_equiv_path_pi [instance] (H : funext) (f g : Πx, B x)
       : is_equiv (@eq_of_homotopy _ _ f g) :=
   is_equiv_inv apd10
 
-  definition homotopy_equiv_path (H : funext) (f g : Πx, B x) : (f ∼ g) ≃ (f = g) :=
+  definition homotopy_equiv_path (H : funext) (f g : Πx, B x) : (f ~ g) ≃ (f = g) :=
   equiv.mk _ (is_equiv_path_pi H f g)
 
   /- Transport -/
 
   protected definition transport (p : a = a') (f : Π(b : B a), C a b)
     : (transport (λa, Π(b : B a), C a b) p f)
-      ∼ (λb, transport (C a') !tr_inv_tr (transportD _ p _ (f (p⁻¹ ▸ b)))) :=
+      ~ (λb, transport (C a') !tr_inv_tr (transportD _ p _ (f (p⁻¹ ▸ b)))) :=
   eq.rec_on p (λx, idp)
 
   /- A special case of [transport_pi] where the type [B] does not depend on [A],
       and so it is just a fixed type [B]. -/
   definition transport_constant {C : A → A' → Type} (p : a = a') (f : Π(b : A'), C a b)
-    : (eq.transport (λa, Π(b : A'), C a b) p f) ∼ (λb, eq.transport (λa, C a b) p (f b)) :=
+    : (eq.transport (λa, Π(b : A'), C a b) p f) ~ (λb, eq.transport (λa, C a b) p (f b)) :=
   eq.rec_on p (λx, idp)
 
   /- Maps on paths -/

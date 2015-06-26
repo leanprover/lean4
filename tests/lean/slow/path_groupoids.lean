@@ -197,12 +197,12 @@ definition ap01 := ap
 definition pointwise_paths {A : Type} {P : A → Type} (f g : Πx, P x) : Type :=
 Πx : A, f x ≈ g x
 
-infix `∼` := pointwise_paths
+infix `~` := pointwise_paths
 
-definition apD10 {A} {B : A → Type} {f g : Πx, B x} (H : f ≈ g) : f ∼ g :=
+definition apD10 {A} {B : A → Type} {f g : Πx, B x} (H : f ≈ g) : f ~ g :=
 λx, path.rec_on H idp
 
-definition ap10 {A B} {f g : A → B} (H : f ≈ g) : f ∼ g := apD10 H
+definition ap10 {A B} {f g : A → B} (H : f ≈ g) : f ~ g := apD10 H
 
 definition ap11 {A B} {f g : A → B} (H : f ≈ g) {x y : A} (p : x ≈ y) : f x ≈ g y :=
 path.rec_on H (path.rec_on p idp)

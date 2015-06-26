@@ -35,8 +35,14 @@ refl : eq a a
 inductive heq {A : Type} (a : A) : Π {B : Type}, B → Prop :=
 refl : heq a a
 
-structure prod (A B : Type) :=
-mk :: (pr1 : A) (pr2 : B)
+inductive prod (A B : Type) :=
+mk : A → B → prod A B
+
+definition prod.pr1 [reducible] [unfold-c 3] {A B : Type} (p : prod A B) : A :=
+prod.rec (λ a b, a) p
+
+definition prod.pr2 [reducible] [unfold-c 3] {A B : Type} (p : prod A B) : B :=
+prod.rec (λ a b, b) p
 
 inductive and (a b : Prop) : Prop :=
 intro : a → b → and a b

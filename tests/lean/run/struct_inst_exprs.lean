@@ -2,7 +2,7 @@ open nat prod
 
 set_option pp.coercions true
 
-definition s : nat × nat := {| prod, pr1 := 10, pr2 := 20 |}
+definition s : nat × nat := pair 10 20
 
 structure test :=
 (A : Type) (a : A) (B : A → Type) (b : B a)

@@ -27,6 +27,16 @@ namespace prod
   postfix `.2`:(max+1) := pr2
   end ops
 
+  definition destruct [reducible] := @prod.cases_on
+
+  section
+  variables {A B : Type}
+  lemma pr1.mk (a : A) (b : B) : pr1 (mk a b) = a := rfl
+  lemma pr2.mk (a : A) (b : B) : pr2 (mk a b) = b := rfl
+  lemma eta : ∀ (p : A × B), mk (pr1 p) (pr2 p) = p
+  | (a, b) := rfl
+  end
+
   open well_founded
 
   section

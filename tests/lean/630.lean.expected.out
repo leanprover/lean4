@@ -1,7 +1,6 @@
 inductive pnat.pnat : Type₁
 constructors:
 pnat.pnat.pos : Π (n : ℕ), nat.gt n (nat.of_num 0) → ℕ+
-structure prod : Type → Type → Type
-fields:
-prod.pr1 : Π {A : Type} {B : Type}, A × B → A
-prod.pr2 : Π {A : Type} {B : Type}, A × B → B
+inductive prod : Type → Type → Type
+constructors:
+prod.mk : Π {A : Type} {B : Type}, A → B → A × B

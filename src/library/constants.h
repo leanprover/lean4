@@ -62,6 +62,8 @@ name const & get_or_name();
 name const & get_or_elim_name();
 name const & get_or_intro_left_name();
 name const & get_or_intro_right_name();
+name const & get_poly_unit_name();
+name const & get_poly_unit_star_name();
 name const & get_pos_num_name();
 name const & get_pos_num_one_name();
 name const & get_pos_num_bit0_name();
@@ -142,7 +144,5 @@ name const & get_true_name();
 name const & get_true_intro_name();
 name const & get_is_trunc_is_hset_name();
 name const & get_is_trunc_is_hprop_name();
-name const & get_poly_unit_name();
-name const & get_poly_unit_star_name();
 name const & get_well_founded_name();
 }

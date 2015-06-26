@@ -55,6 +55,8 @@ or
 or.elim
 or.intro_left
 or.intro_right
+poly_unit
+poly_unit.star
 pos_num
 pos_num.one
 pos_num.bit0
@@ -135,6 +137,4 @@ true
 true.intro
 is_trunc.is_hset
 is_trunc.is_hprop
-unit
-unit.star
 well_founded

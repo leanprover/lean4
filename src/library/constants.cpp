@@ -60,6 +60,8 @@ name const * g_or = nullptr;
 name const * g_or_elim = nullptr;
 name const * g_or_intro_left = nullptr;
 name const * g_or_intro_right = nullptr;
+name const * g_poly_unit = nullptr;
+name const * g_poly_unit_star = nullptr;
 name const * g_pos_num = nullptr;
 name const * g_pos_num_one = nullptr;
 name const * g_pos_num_bit0 = nullptr;
@@ -140,8 +142,6 @@ name const * g_true = nullptr;
 name const * g_true_intro = nullptr;
 name const * g_is_trunc_is_hset = nullptr;
 name const * g_is_trunc_is_hprop = nullptr;
-name const * g_poly_unit = nullptr;
-name const * g_poly_unit_star = nullptr;
 name const * g_well_founded = nullptr;
 void initialize_constants() {
     g_absurd = new name{"absurd"};
@@ -201,6 +201,8 @@ void initialize_constants() {
     g_or_elim = new name{"or", "elim"};
     g_or_intro_left = new name{"or", "intro_left"};
     g_or_intro_right = new name{"or", "intro_right"};
+    g_poly_unit = new name{"poly_unit"};
+    g_poly_unit_star = new name{"poly_unit", "star"};
     g_pos_num = new name{"pos_num"};
     g_pos_num_one = new name{"pos_num", "one"};
     g_pos_num_bit0 = new name{"pos_num", "bit0"};
@@ -281,8 +283,6 @@ void initialize_constants() {
     g_true_intro = new name{"true", "intro"};
     g_is_trunc_is_hset = new name{"is_trunc", "is_hset"};
     g_is_trunc_is_hprop = new name{"is_trunc", "is_hprop"};
-    g_poly_unit = new name{"poly_unit"};
-    g_poly_unit_star = new name{"poly_unit", "star"};
     g_well_founded = new name{"well_founded"};
 }
 void finalize_constants() {
@@ -343,6 +343,8 @@ void finalize_constants() {
     delete g_or_elim;
     delete g_or_intro_left;
     delete g_or_intro_right;
+    delete g_poly_unit;
+    delete g_poly_unit_star;
     delete g_pos_num;
     delete g_pos_num_one;
     delete g_pos_num_bit0;
@@ -423,8 +425,6 @@ void finalize_constants() {
     delete g_true_intro;
     delete g_is_trunc_is_hset;
     delete g_is_trunc_is_hprop;
-    delete g_poly_unit;
-    delete g_poly_unit_star;
     delete g_well_founded;
 }
 name const & get_absurd_name() { return *g_absurd; }
@@ -484,6 +484,8 @@ name const & get_or_name() { return *g_or; }
 name const & get_or_elim_name() { return *g_or_elim; }
 name const & get_or_intro_left_name() { return *g_or_intro_left; }
 name const & get_or_intro_right_name() { return *g_or_intro_right; }
+name const & get_poly_unit_name() { return *g_poly_unit; }
+name const & get_poly_unit_star_name() { return *g_poly_unit_star; }
 name const & get_pos_num_name() { return *g_pos_num; }
 name const & get_pos_num_one_name() { return *g_pos_num_one; }
 name const & get_pos_num_bit0_name() { return *g_pos_num_bit0; }
@@ -564,7 +566,5 @@ name const & get_true_name() { return *g_true; }
 name const & get_true_intro_name() { return *g_true_intro; }
 name const & get_is_trunc_is_hset_name() { return *g_is_trunc_is_hset; }
 name const & get_is_trunc_is_hprop_name() { return *g_is_trunc_is_hprop; }
-name const & get_poly_unit_name() { return *g_poly_unit; }
-name const & get_poly_unit_star_name() { return *g_poly_unit_star; }
 name const & get_well_founded_name() { return *g_well_founded; }
 }

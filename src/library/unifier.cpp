@@ -1375,6 +1375,7 @@ struct unifier_fn {
         return is_def_eq(*t1, *t2, c.get_justification());
     }
 
+    /** \brief Return true iff lhs and rhs are of the form (pr ...) where pr is a projection */
     bool is_same_projection_projection(expr const & lhs, expr const & rhs) {
         expr const & f_lhs = get_app_fn(lhs);
         expr const & f_rhs = get_app_fn(rhs);
@@ -1384,10 +1385,22 @@ struct unifier_fn {
             is_projection(m_env, const_name(f_lhs));
     }
 
+    /** \brief Return true iff c is of the form (pr ...) =?= (pr ...) where pr is a projection. */
     bool is_same_projection_projection(constraint const & c) {
+        lean_assert(is_eq_cnstr(c));
         return is_same_projection_projection(cnstr_lhs_expr(c), cnstr_rhs_expr(c));
     }
 
+    /**
+       \brief Reduce constraint
+           pr a_1 ... a_n =?= pr b_1 ... b_n
+       into
+           a_1 =?= b_1, ..., a_n =?= b_n
+       where pr is a projection
+
+       \remark This step is only performed at process_next.
+       Moreover, we only do it when the "major premise" of both projections is not a constructor.
+    */
     bool process_same_projection_projection(constraint const & c) {
         lean_assert(is_same_projection_projection(c));
         buffer<expr> lhs_args, rhs_args;
@@ -1397,10 +1410,20 @@ struct unifier_fn {
         return process_levels(const_levels(f_lhs), const_levels(f_rhs), j) && process_args(lhs_args, rhs_args, j);
     }
 
+    /** \brief Return true iff c is of the form (pr_1 ...) =?= (pr_2 ...) where pr_1 and pr_2 are projections. */
     bool is_projection_projection(constraint const & c) {
         return is_projection_app(cnstr_lhs_expr(c)) && is_projection_app(cnstr_rhs_expr(c));
     }
 
+    /**
+       \brief Postpone constraints of the form
+           pr_1 a_1 ... a_n =?= pr_2 b_1 ... b_m
+       when pr_1 and pr_2 are projections and pr_1 != pr_2
+
+       If the constraint cannot be postponed anymore, we just fail.
+
+       \remark This step is only performed at process_next.
+    */
     bool process_projection_projection(constraint const & c, unsigned cidx) {
         lean_assert(is_projection_projection(c));
         // postpone constraint
@@ -1411,8 +1434,80 @@ struct unifier_fn {
             add_meta_occs(cnstr_rhs_expr(c), cidx);
             return true;
         } else {
+            set_conflict(c.get_justification());
             return false;
         }
+    }
+
+    /** \brief Return true iff c is of the form (pr ...) =?= t, where
+        pr is a stuck projection. */
+    bool is_projection_lhs(constraint const & c) {
+        lean_assert(is_eq_cnstr(c));
+        return is_projection_app(cnstr_lhs_expr(c)) && m_tc->is_stuck(cnstr_lhs_expr(c));
+    }
+
+    /** \brief Return true iff c is of the form t =?= (pr ...), where
+        pr is a stuck projection. */
+    bool is_projection_rhs(constraint const & c) {
+        lean_assert(is_eq_cnstr(c));
+        return is_projection_app(cnstr_rhs_expr(c)) && m_tc->is_stuck(cnstr_rhs_expr(c));
+    }
+
+    /** \brief Process constraints of the form
+                   (pr_i ... M ..) =?= t
+        If the "major premise" M of (pr_i ... M ...) is stuck, we reduce the constraint above into
+                   M =?= (mk ?M_1 ... ?M_k)
+                   (?M_i ...) =?= t
+        where ?M_i's are fresh metavariables
+
+        If M is not stuck, the procedure signs a conflict
+
+        \remark This step is only performed at process_next.
+    */
+    bool process_projection_eq(expr const & lhs, expr const & rhs, justification const & j) {
+        lean_assert(is_projection_app(lhs));
+        buffer<expr> pr_args;
+        expr const & pr = get_app_args(lhs, pr_args);
+        projection_info const * info = get_projection_info(m_env, const_name(pr));
+        unsigned nparams = info->m_nparams;
+        unsigned mkidx   = nparams;
+        if (pr_args.size() < nparams+1) {
+            set_conflict(j);
+            return false;
+        }
+        expr meta = *m_tc->is_stuck(pr_args[mkidx]);
+        lean_assert(is_meta(meta));
+        buffer<expr> meta_args;
+        expr const & mvar      = get_app_args(meta, meta_args);
+        expr const & mvar_type = mlocal_type(mvar);
+        constraint_seq cs;
+        expr mk = mk_app(mk_constant(info->m_constructor, const_levels(pr)), nparams, pr_args.data());
+        auto it = infer(mk, cs);
+        if (!it) {
+            set_conflict(j);
+            return false;
+        }
+        // Remark: this is another example where it would be really nice if every
+        // unification constraint had a context associated with it.
+        expr mk_type = whnf(*it, cs);
+        optional<expr> mk_i;
+        unsigned i = 0;
+        while (is_pi(mk_type)) {
+            expr new_mvar = mk_app(mk_aux_metavar_for(m_ngen, mvar_type), meta_args);
+            mk = mk_app(mk, new_mvar);
+            if (info->m_i == i)
+                mk_i = new_mvar;
+            i++;
+            mk_type = whnf(instantiate(binding_body(mk_type), new_mvar), cs);
+        }
+        if (!mk_i) {
+            set_conflict(j);
+            return false;
+        }
+        expr Mi = mk_app(*mk_i, pr_args.size() - mkidx - 1, pr_args.data() + mkidx + 1);
+        cs += mk_eq_cnstr(meta, mk, j);
+        cs += mk_eq_cnstr(Mi, rhs, j);
+        return process_constraints(cs);
     }
 
     bool process_plugin_constraint(constraint const & c) {
@@ -2515,6 +2610,10 @@ struct unifier_fn {
                     return process_same_projection_projection(c);
                 } else if (is_projection_projection(c)) {
                     return process_projection_projection(c, cidx);
+                } else if (is_projection_lhs(c)) {
+                    return process_projection_eq(cnstr_lhs_expr(c), cnstr_rhs_expr(c), c.get_justification());
+                } else if (is_projection_rhs(c)) {
+                    return process_projection_eq(cnstr_rhs_expr(c), cnstr_lhs_expr(c), c.get_justification());
                 } else {
                     return process_plugin_constraint(c);
                 }

@@ -49,7 +49,7 @@ assert H3 : nat.gcd (nat_abs a) (nat_abs b) = (#nat nat.gcd (nat_abs b) (nat_abs
 calc
  gcd a b = nat.gcd (nat_abs b) (#nat nat_abs a mod nat_abs b) : by rewrite [↑gcd, H3]
      ... = gcd (abs b) (abs a mod abs b)                      :
-               by rewrite [↑gcd, -*of_nat_nat_abs, of_nat_mod_of_nat]
+               by rewrite [↑gcd, -*of_nat_nat_abs, of_nat_mod]
      ... = gcd b (abs a mod abs b)                            : by rewrite [↑gcd, *nat_abs_abs]
 
 theorem gcd_of_pos (a : ℤ) {b : ℤ} (H : b > 0) : gcd a b = gcd b (abs a mod b) :=

@@ -31,7 +31,7 @@ notation a `≡` b `[mod`:100 c `]`:0 := a mod c = b mod c
 
 /- div  -/
 
-theorem of_nat_div_of_nat (m n : nat) : m div n = of_nat (#nat m div n) :=
+theorem of_nat_div (m n : nat) : of_nat (#nat m div n) = m div n :=
 nat.cases_on n
   (by rewrite [↑divide, sign_zero, zero_mul, nat.div_zero])
   (take n, by rewrite [↑divide, sign_of_succ, one_mul])
@@ -57,7 +57,7 @@ theorem div_nonneg {a b : ℤ} (Ha : a ≥ 0) (Hb : b ≥ 0) : a div b ≥ 0 :=
 obtain (m : ℕ) (Hm : a = m), from exists_eq_of_nat Ha,
 obtain (n : ℕ) (Hn : b = n), from exists_eq_of_nat Hb,
 calc
-  a div b = (#nat m div n) : by rewrite [Hm, Hn, of_nat_div_of_nat]
+  a div b = (#nat m div n) : by rewrite [Hm, Hn, of_nat_div]
       ... ≥ 0              : begin change (0 ≤ #nat m div n), apply trivial end
 
 theorem div_nonpos {a b : ℤ} (Ha : a ≥ 0) (Hb : b ≤ 0) : a div b ≤ 0 :=
@@ -84,8 +84,8 @@ by rewrite [↑divide, sign_zero, zero_mul]
 theorem div_one (a : ℤ) :a div 1 = a :=
 assert H : 1 > 0, from dec_trivial,
 int.cases_on a
-  (take m, by rewrite [of_nat_div_of_nat, nat.div_one])
-  (take m, by rewrite [!neg_succ_of_nat_div H, of_nat_div_of_nat, nat.div_one])
+  (take m, by rewrite [-of_nat_div, nat.div_one])
+  (take m, by rewrite [!neg_succ_of_nat_div H, -of_nat_div, nat.div_one])
 
 theorem eq_div_mul_add_mod (a b : ℤ) : a = a div b * b + a mod b :=
 !add.comm ▸ eq_add_of_sub_eq rfl
@@ -97,7 +97,7 @@ int.cases_on a
       (take n,
         assume H : m < n,
         calc
-          m div n = #nat m div n : of_nat_div_of_nat
+          m div n = #nat m div n : of_nat_div
               ... = 0            : nat.div_eq_zero_of_lt (lt_of_of_nat_lt_of_nat H))
       (take n,
         assume H : m < -[ n +1],
@@ -126,10 +126,10 @@ private theorem add_mul_div_self_aux1 {a : ℤ} {k : ℕ} (n : ℕ)
 obtain m (Hm : a = of_nat m), from exists_eq_of_nat H1,
 Hm⁻¹ ▸ (calc
   (m + n * k) div k = (#nat (m + n * k)) div k : rfl
-                ... = (#nat (m + n * k) div k) : of_nat_div_of_nat
+                ... = (#nat (m + n * k) div k) : of_nat_div
                 ... = (#nat m div k + n)       : !nat.add_mul_div_self H2
                 ... = (#nat m div k) + n       : rfl
-                ... = m div k + n : of_nat_div_of_nat)
+                ... = m div k + n : of_nat_div)
 
 private theorem add_mul_div_self_aux2 {a : ℤ} {k : ℕ} (n : ℕ)
     (H1 : a < 0) (H2 : #nat k > 0) :
@@ -144,26 +144,26 @@ or.elim (nat.lt_or_ge m (#nat n * k))
       (-[m +1] + n * k) div k = (n * k - (m + 1)) div k : by rewrite [add.comm, neg_succ_of_nat_eq]
         ... = ((#nat n * k) - (#nat m + 1)) div k       : rfl
         ... = (#nat n * k - (m + 1)) div k              : {(of_nat_sub H3)⁻¹}
-        ... = #nat (n * k - (m + 1)) div k              : of_nat_div_of_nat
+        ... = #nat (n * k - (m + 1)) div k              : of_nat_div
         ... = #nat (k * n - (m + 1)) div k              : nat.mul.comm
         ... = #nat n - m div k - 1                      :
                   nat.mul_sub_div_of_lt (!nat.mul.comm ▸ m_lt_nk)
         ... = #nat n - (m div k + 1)                    : nat.sub_sub
         ... = n - (#nat m div k + 1)                    : of_nat_sub H4
         ... = -(m div k + 1) + n                        :
-                  by rewrite [add.comm, -sub_eq_add_neg, of_nat_add, of_nat_div_of_nat]
+                  by rewrite [add.comm, -sub_eq_add_neg, of_nat_add, of_nat_div]
         ... = -[m +1] div k + n                         :
                   neg_succ_of_nat_div m (of_nat_lt_of_nat_of_lt H2)))
   (assume nk_le_m : #nat n * k ≤ m,
     eq.symm (Hm⁻¹ ▸ (calc
       -[m +1] div k + n = -(m div k + 1) + n              :
                   neg_succ_of_nat_div m (of_nat_lt_of_nat_of_lt H2)
-        ... = -((#nat m div k) + 1) + n                   : of_nat_div_of_nat
+        ... = -((#nat m div k) + 1) + n                   : of_nat_div
         ... = -((#nat (m - n * k + n * k) div k) + 1) + n : nat.sub_add_cancel nk_le_m
         ... = -((#nat (m - n * k) div k + n) + 1) + n     : nat.add_mul_div_self H2
         ... = -((#nat m - n * k) div k + 1)               :
                    by rewrite [of_nat_add, *neg_add, add.right_comm, neg_add_cancel_right,
-                               of_nat_div_of_nat]
+                               of_nat_div]
         ... = -[(#nat m - n * k) +1] div k                :
                    neg_succ_of_nat_div _ (of_nat_lt_of_nat_of_lt H2)
         ... = -((#nat m - n * k) + 1) div k               : rfl
@@ -225,11 +225,11 @@ theorem div_self {a : ℤ} (H : a ≠ 0) : a div a = 1 :=
 
 /- mod -/
 
-theorem of_nat_mod_of_nat (m n : nat) : m mod n = (#nat m mod n) :=
+theorem of_nat_mod (m n : nat) : m mod n = (#nat m mod n) :=
 have H : m = (#nat m mod n) + m div n * n, from calc
   m = of_nat (#nat m div n * n + m mod n)     : nat.eq_div_mul_add_mod
     ... = (#nat m div n) * n + (#nat m mod n) : rfl
-    ... = m div n * n + (#nat m mod n)        : of_nat_div_of_nat
+    ... = m div n * n + (#nat m mod n)        : of_nat_div
     ... = (#nat m mod n) + m div n * n        : add.comm,
 calc
   m mod n = m - m div n * n : rfl
@@ -272,7 +272,7 @@ calc
 private lemma of_nat_mod_abs (m : ℕ) (b : ℤ) : m mod (abs b) = (#nat m mod (nat_abs b)) :=
 calc
   m mod (abs b) = m mod (nat_abs b)        : of_nat_nat_abs
-            ... = (#nat m mod (nat_abs b)) : of_nat_mod_of_nat
+            ... = (#nat m mod (nat_abs b)) : of_nat_mod
 
 private lemma of_nat_mod_abs_lt (m : ℕ) {b : ℤ} (H : b ≠ 0) : m mod (abs b) < (abs b) :=
 have H1 : abs b > 0, from abs_pos_of_ne_zero H,
@@ -287,7 +287,7 @@ obtain m (Hm : a = of_nat m), from exists_eq_of_nat H1,
 obtain n (Hn : b = of_nat n), from exists_eq_of_nat (le_of_lt (lt_of_le_of_lt H1 H2)),
 begin
   revert H2,
-  rewrite [Hm, Hn, of_nat_mod_of_nat, of_nat_lt_of_nat, of_nat_eq_of_nat],
+  rewrite [Hm, Hn, of_nat_mod, of_nat_lt_of_nat, of_nat_eq_of_nat],
   apply nat.mod_eq_of_lt
 end
 
@@ -424,7 +424,7 @@ theorem div_le_of_nonneg_of_nonneg {a b : ℤ} (Ha : a ≥ 0) (Hb : b ≥ 0) : a
 obtain (m : ℕ) (Hm : a = m), from exists_eq_of_nat Ha,
 obtain (n : ℕ) (Hn : b = n), from exists_eq_of_nat Hb,
 calc
-  a div b = #nat m div n : by rewrite [Hm, Hn, of_nat_div_of_nat]
+  a div b = #nat m div n : by rewrite [Hm, Hn, of_nat_div]
      ... ≤ m             : of_nat_le_of_nat_of_le !nat.div_le_self
      ... = a             : Hm
 

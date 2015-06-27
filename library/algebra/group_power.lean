@@ -92,7 +92,7 @@ theorem pow_inv_comm (a : A) : ∀m n, (a⁻¹)^m * a^n = a^n * (a⁻¹)^m
 
 end nat
 
-open int
+open nat int algebra
 
 definition ipow (a : A) : ℤ → A
 | (of_nat n) := a^n

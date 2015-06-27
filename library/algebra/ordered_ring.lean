@@ -19,8 +19,7 @@ definition absurd_a_lt_a {B : Type} {a : A} [s : strict_order A] (H : a < a) : B
 absurd H (lt.irrefl a)
 
 structure ordered_semiring [class] (A : Type)
-  extends has_mul A, has_zero A, has_lt A, -- TODO: remove hack for improving performance
-    semiring A, ordered_cancel_comm_monoid A, zero_ne_one_class A :=
+  extends semiring A, ordered_cancel_comm_monoid A, zero_ne_one_class A :=
 (mul_le_mul_of_nonneg_left: ∀a b c, le a b → le zero c → le (mul c a) (mul c b))
 (mul_le_mul_of_nonneg_right: ∀a b c, le a b → le zero c → le (mul a c) (mul b c))
 (mul_lt_mul_of_pos_left: ∀a b c, lt a b → lt zero c → lt (mul c a) (mul c b))

@@ -261,10 +261,16 @@ section linear_ordered_field
     end
 
   theorem div_lt_div_of_lt_of_pos (H : a < b) (Hc : 0 < c) : a / c < b / c :=
-    div_eq_mul_one_div⁻¹ ▸ div_eq_mul_one_div⁻¹ ▸ mul_lt_mul_of_pos_right H (div_pos_of_pos Hc)
+  begin
+    rewrite [{a/c}div_eq_mul_one_div, {b/c}div_eq_mul_one_div],
+    exact mul_lt_mul_of_pos_right H (div_pos_of_pos Hc)
+  end
 
   theorem div_lt_div_of_lt_of_neg (H : b < a) (Hc : c < 0) : a / c < b / c :=
-    div_eq_mul_one_div⁻¹ ▸ div_eq_mul_one_div⁻¹ ▸ mul_lt_mul_of_neg_right H (div_neg_of_neg Hc)
+  begin
+    rewrite [{a/c}div_eq_mul_one_div, {b/c}div_eq_mul_one_div],
+    exact mul_lt_mul_of_neg_right H (div_neg_of_neg Hc)
+  end
 
   theorem two_ne_zero : (1 : A) + 1 ≠ 0 :=
     ne.symm (ne_of_lt (add_pos zero_lt_one zero_lt_one))

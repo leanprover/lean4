@@ -11,6 +11,10 @@ Author: Leonardo de Moura
 #include "kernel/declaration.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "kernel/inductive/inductive.h"
+#include "library/replace_visitor.h"
+#include "library/reducible.h"
+#include "library/projection.h"
 #include "library/util.h"
 #include "library/module.h"
 
@@ -34,11 +38,64 @@ static environment update(environment const & env, composition_manager_ext const
     return env.update(g_ext->m_ext_id, std::make_shared<composition_manager_ext>(ext));
 }
 
+struct elim_proj_mk : public replace_visitor {
+    environment const & m_env;
+    type_checker_ptr    m_tc;
+
+    virtual expr visit_binding(expr const & e) {
+        // stop at binders
+        return e;
+    }
+    virtual expr visit_app(expr const & e) {
+        expr const & fn = get_app_fn(e);
+        if (is_constant(fn) && is_projection(m_env, const_name(fn))) {
+            expr new_e = m_tc->whnf(e).first;
+            if (new_e != e)
+                return visit(new_e);
+        }
+        return replace_visitor::visit_app(e);
+    }
+
+    elim_proj_mk(environment const & env):
+        m_env(env), m_tc(mk_opaque_type_checker(env, name_generator())) {}
+};
+
+// Return true iff d is a declaration of the form (mk ... )
+static bool is_constructor_decl(environment const & env, declaration const & d) {
+    if (!d.is_definition())
+        return false;
+    expr val = d.get_value();
+    while (is_lambda(val))
+        val = binding_body(val);
+    return static_cast<bool>(is_constructor_app(env, val));
+}
+
+// Return true iff d is a declaration of the form (mk ... (pr ...)  ... )
+static bool is_constructor_of_projections_decl(environment const & env, declaration const & d) {
+    if (!d.is_definition())
+        return false;
+    expr val = d.get_value();
+    while (is_lambda(val))
+        val = binding_body(val);
+    auto mk_name = is_constructor_app(env, val);
+    if (!mk_name)
+        return false;
+    buffer<expr> args;
+    get_app_args(val, args);
+    for (expr const & arg : args) {
+        expr const & fn = get_app_fn(arg);
+        if (is_constant(fn) && is_projection(env, const_name(fn)))
+            return true;
+    }
+    return false;
+}
+
 pair<environment, name> compose(environment const & env, type_checker & tc, name const & g, name const & f, optional<name> const & gf) {
     composition_manager_ext ext = get_extension(env);
     if (name const * it = ext.m_cache.find(mk_pair(g, f)))
         return mk_pair(env, *it);
     declaration const & f_decl = env.get(f);
+    declaration const & g_decl = env.get(g);
     levels f_ls = param_names_to_levels(f_decl.get_univ_params());
     expr f_type = instantiate_type_univ_params(f_decl, f_ls);
     buffer<expr> f_domain;
@@ -49,8 +106,18 @@ pair<environment, name> compose(environment const & env, type_checker & tc, name
     if (!is_constant(B))
         throw exception(sstream() << "invalid function composition, '" << f << "' codomain must be of the form (B ...), "
                         "where B is a constant");
-    expr b       = mk_app(mk_constant(f, f_ls), f_domain);
-    expr new_val = Fun(f_domain, mk_app(mk_app(mk_constant(g, const_levels(B)), B_args), b));
+    expr new_val_body;
+    if (is_constructor_decl(env, f_decl) && is_constructor_of_projections_decl(env, g_decl)) {
+        expr fn      = instantiate_value_univ_params(f_decl, f_ls);
+        expr gn      = instantiate_value_univ_params(g_decl, const_levels(B));
+        expr b       = head_beta_reduce(mk_app(fn, f_domain));
+        new_val_body = elim_proj_mk(env)(head_beta_reduce(mk_app(mk_app(gn, B_args), b)));
+    } else {
+        // do not expand
+        expr b       = mk_app(mk_constant(f, f_ls), f_domain);
+        new_val_body = Fun(f_domain, mk_app(mk_app(mk_constant(g, const_levels(B)), B_args), b));
+    }
+    expr new_val      = Fun(f_domain, new_val_body);
     expr new_type;
     try {
         new_type = tc.infer(new_val).first;

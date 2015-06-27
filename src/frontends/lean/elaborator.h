@@ -48,6 +48,7 @@ class elaborator : public coercion_info_manager {
     // mapping from metavariable name ?m to tactic expression that should be used to solve it.
     // this mapping is populated by the 'by tactic-expr' expression.
     local_tactic_hints   m_local_tactic_hints;
+    name_set             m_used_local_tactic_hints;
     // set of metavariables that we already reported unsolved/unassigned
     name_set             m_displayed_errors;
     // if m_no_info is true, we do not collect information when true,
@@ -180,6 +181,8 @@ class elaborator : public coercion_info_manager {
     expr process_obtain_expr(list<obtain_struct> const & s_list, list<expr> const & from_list,
                              expr const & goal, bool first, constraint_seq & cs, expr const & src);
     expr visit_obtain_expr(expr const & e, constraint_seq & cs);
+
+    void check_used_local_tactic_hints();
 public:
     elaborator(elaborator_context & ctx, name_generator && ngen, bool nice_mvar_names = false);
     std::tuple<expr, level_param_names> operator()(list<expr> const & ctx, expr const & e, bool _ensure_type);

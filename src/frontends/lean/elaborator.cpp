@@ -1679,6 +1679,7 @@ void elaborator::display_unsolved_proof_state(expr const & mvar, proof_state con
 
 optional<expr> elaborator::get_pre_tactic_for(expr const & mvar) {
     if (auto it = m_local_tactic_hints.find(mlocal_name(mvar))) {
+        m_used_local_tactic_hints.insert(mlocal_name(mvar));
         return some_expr(*it);
     } else {
         return none_expr();
@@ -2038,6 +2039,25 @@ std::tuple<expr, level_param_names> elaborator::apply(substitution & s, expr con
     return std::make_tuple(r, to_list(new_ps.begin(), new_ps.end()));
 }
 
+void elaborator::check_used_local_tactic_hints() {
+    expr_struct_map<name> pretac2name;
+    // the same pretac may be processed several times because of choice-exprs
+    m_local_tactic_hints.for_each([&](name const & n, expr const & e) {
+            if (m_used_local_tactic_hints.contains(n))
+                pretac2name.insert(mk_pair(e, n));
+        });
+    m_local_tactic_hints.for_each([&](name const & n, expr const & e) {
+            if (!m_used_local_tactic_hints.contains(n) &&
+                pretac2name.find(e) == pretac2name.end()) {
+                char const * msg = "unnecessary tactic was provided, placeholder was automatically synthesized by the elaborator";
+                if (auto it = m_mvar2meta.find(n))
+                    throw_elaborator_exception(msg, *it);
+                else
+                    throw exception(msg);
+            }
+        });
+}
+
 auto elaborator::operator()(list<expr> const & ctx, expr const & e, bool _ensure_type)
 -> std::tuple<expr, level_param_names> {
     m_context.set_ctx(ctx);
@@ -2052,6 +2072,7 @@ auto elaborator::operator()(list<expr> const & ctx, expr const & e, bool _ensure
     auto result = apply(s, r);
     check_sort_assignments(s);
     copy_info_to_manager(s);
+    check_used_local_tactic_hints();
     return result;
 }
 
@@ -2078,6 +2099,7 @@ std::tuple<expr, expr, level_param_names> elaborator::operator()(expr const & t,
     expr new_r_v = apply(s, r_v, univ_params, new_params);
     check_sort_assignments(s);
     copy_info_to_manager(s);
+    check_used_local_tactic_hints();
     return std::make_tuple(new_r_t, new_r_v, to_list(new_params.begin(), new_params.end()));
 }
 

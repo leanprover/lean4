@@ -37,6 +37,7 @@ enum class unifier_kind { Cheap, VeryConservative, Conservative, Liberal };
 struct unifier_config {
     bool     m_use_exceptions;
     unsigned m_max_steps;
+    unsigned m_normalizer_max_steps;
     bool     m_computation;
     bool     m_expensive_classes;
     // If m_discard is true, then constraints that cannot be solved are discarded (or incomplete methods are used)

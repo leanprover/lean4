@@ -55,15 +55,24 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_UNIFIER_NONCHRONOLOGICAL true
 #endif
 
+#ifndef LEAN_DEFAULT_UNIFIER_NORMALIZER_MAX_STEPS
+#define LEAN_DEFAULT_UNIFIER_NORMALIZER_MAX_STEPS 512
+#endif
+
 namespace lean {
 static name * g_unifier_max_steps               = nullptr;
 static name * g_unifier_computation             = nullptr;
 static name * g_unifier_expensive_classes       = nullptr;
 static name * g_unifier_conservative            = nullptr;
 static name * g_unifier_nonchronological        = nullptr;
+static name * g_unifier_normalizer_max_steps    = nullptr;
 
 unsigned get_unifier_max_steps(options const & opts) {
     return opts.get_unsigned(*g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS);
+}
+
+unsigned get_unifier_normalizer_max_steps(options const & opts) {
+    return opts.get_unsigned(*g_unifier_normalizer_max_steps, LEAN_DEFAULT_UNIFIER_NORMALIZER_MAX_STEPS);
 }
 
 bool get_unifier_computation(options const & opts) {
@@ -85,6 +94,7 @@ bool get_unifier_nonchronological(options const & opts) {
 unifier_config::unifier_config(bool use_exceptions, bool discard):
     m_use_exceptions(use_exceptions),
     m_max_steps(LEAN_DEFAULT_UNIFIER_MAX_STEPS),
+    m_normalizer_max_steps(LEAN_DEFAULT_UNIFIER_NORMALIZER_MAX_STEPS),
     m_computation(LEAN_DEFAULT_UNIFIER_COMPUTATION),
     m_expensive_classes(LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES),
     m_discard(discard),
@@ -97,6 +107,7 @@ unifier_config::unifier_config(bool use_exceptions, bool discard):
 unifier_config::unifier_config(options const & o, bool use_exceptions, bool discard):
     m_use_exceptions(use_exceptions),
     m_max_steps(get_unifier_max_steps(o)),
+    m_normalizer_max_steps(get_unifier_normalizer_max_steps(o)),
     m_computation(get_unifier_computation(o)),
     m_expensive_classes(get_unifier_expensive_classes(o)),
     m_discard(discard),
@@ -740,6 +751,9 @@ struct unifier_fn {
     }
 
     enum status { Solved, Failed, Continue };
+
+    struct interrupt_normalizer {};
+
     /**
        \brief Process constraints of the form <tt>lhs =?= rhs</tt> where lhs is of the form <tt>?m</tt> or <tt>(?m l_1 .... l_n)</tt>,
        where all \c l_i are distinct local variables. In this case, the method returns Solved, if the method assign succeeds.
@@ -762,17 +776,26 @@ struct unifier_fn {
         if (status == occurs_check_status::FailLocal || status == occurs_check_status::FailCircular) {
             // Try to normalize rhs
             // Example:  ?M := f (pr1 (pair 0 ?M))
-            constraint_seq cs;
-            auto is_target_fn = [&](expr const & e) {
-                if (status == occurs_check_status::FailLocal && occurs(bad_local, e))
-                    return true;
-                else if (status == occurs_check_status::FailCircular && occurs(*m, e))
-                    return true;
-                return false;
-            };
-            expr rhs_n = normalize(*m_tc, rhs, is_target_fn, cs);
-            if (rhs != rhs_n && process_constraints(cs))
-                return process_metavar_eq(lhs, rhs_n, j);
+            try {
+                unsigned counter = 0;
+                constraint_seq cs;
+                auto is_target_fn = [&](expr const & e) {
+                    if ((status == occurs_check_status::FailLocal && occurs(bad_local, e)) ||
+                        (status == occurs_check_status::FailCircular && occurs(*m, e))) {
+                        counter++;
+                        if (counter > m_config.m_normalizer_max_steps)
+                            throw interrupt_normalizer();
+                        return true;
+                    } else {
+                        return false;
+                    }
+                };
+                expr rhs_n = normalize(*m_tc, rhs, is_target_fn, cs);
+                if (rhs != rhs_n && process_constraints(cs))
+                    return process_metavar_eq(lhs, rhs_n, j);
+            } catch (interrupt_normalizer &) {
+                // exceeded maximum number of steps
+            }
         }
         switch (status) {
         case occurs_check_status::FailLocal:
@@ -2864,13 +2887,15 @@ void open_unifier(lua_State * L) {
 }
 
 void initialize_unifier() {
-    g_unifier_max_steps         = new name{"unifier", "max_steps"};
-    g_unifier_computation       = new name{"unifier", "computation"};
-    g_unifier_expensive_classes = new name{"unifier", "expensive_classes"};
-    g_unifier_conservative      = new name{"unifier", "conservative"};
-    g_unifier_nonchronological  = new name{"unifier", "nonchronological"};
+    g_unifier_max_steps            = new name{"unifier", "max_steps"};
+    g_unifier_normalizer_max_steps = new name{"unifier", "normalizer_max_steps"};
+    g_unifier_computation          = new name{"unifier", "computation"};
+    g_unifier_expensive_classes    = new name{"unifier", "expensive_classes"};
+    g_unifier_conservative         = new name{"unifier", "conservative"};
+    g_unifier_nonchronological     = new name{"unifier", "nonchronological"};
 
     register_unsigned_option(*g_unifier_max_steps, LEAN_DEFAULT_UNIFIER_MAX_STEPS, "(unifier) maximum number of steps");
+    register_unsigned_option(*g_unifier_normalizer_max_steps, LEAN_DEFAULT_UNIFIER_NORMALIZER_MAX_STEPS, "(unifier) maximum number of steps the normalization procedure may perform when invoked by the unifier");
     register_bool_option(*g_unifier_computation, LEAN_DEFAULT_UNIFIER_COMPUTATION,
                          "(unifier) always case-split on reduction/computational steps when solving flex-rigid and delta-delta constraints");
     register_bool_option(*g_unifier_expensive_classes, LEAN_DEFAULT_UNIFIER_EXPENSIVE_CLASSES,
@@ -2888,6 +2913,7 @@ void finalize_unifier() {
     delete g_tmp_prefix;
     delete g_dont_care_cnstr;
     delete g_unifier_max_steps;
+    delete g_unifier_normalizer_max_steps;
     delete g_unifier_computation;
     delete g_unifier_expensive_classes;
     delete g_unifier_conservative;

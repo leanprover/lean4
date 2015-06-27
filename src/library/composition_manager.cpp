@@ -115,7 +115,7 @@ pair<environment, name> compose(environment const & env, type_checker & tc, name
     } else {
         // do not expand
         expr b       = mk_app(mk_constant(f, f_ls), f_domain);
-        new_val_body = Fun(f_domain, mk_app(mk_app(mk_constant(g, const_levels(B)), B_args), b));
+        new_val_body = mk_app(mk_app(mk_constant(g, const_levels(B)), B_args), b);
     }
     expr new_val      = Fun(f_domain, new_val_body);
     expr new_type;

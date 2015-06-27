@@ -919,7 +919,7 @@ class rewrite_fn {
         return replace(e, [&](expr const & e, unsigned) {
                 if (!has_metavar(e)) {
                     return some_expr(e); // done
-                } else if (is_lambda(e)) {
+                } else if (is_lambda(e) || is_pi(e)) {
                     unsigned next_idx = m_esubst.size();
                     expr r = mk_idx_metavar(next_idx, m_tc->infer(e).first);
                     m_esubst.push_back(none_expr());

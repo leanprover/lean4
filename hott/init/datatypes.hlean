@@ -28,8 +28,16 @@ refl : eq a a
 structure lift.{l₁ l₂} (A : Type.{l₁}) : Type.{max l₁ l₂} :=
 up :: (down : A)
 
-structure prod (A B : Type) :=
-mk :: (pr1 : A) (pr2 : B)
+inductive prod (A B : Type) :=
+mk : A → B → prod A B
+
+definition prod.pr1 [reducible] [unfold-c 3] {A B : Type} (p : prod A B) : A :=
+prod.rec (λ a b, a) p
+
+definition prod.pr2 [reducible] [unfold-c 3] {A B : Type} (p : prod A B) : B :=
+prod.rec (λ a b, b) p
+
+definition prod.destruct [reducible] := @prod.cases_on
 
 inductive sum (A B : Type) : Type :=
 | inl {} : A → sum A B
@@ -41,8 +49,14 @@ sum.inl a
 definition sum.intro_right [reducible] (A : Type) {B : Type} (b : B) : sum A B :=
 sum.inr b
 
-structure sigma {A : Type} (B : A → Type) :=
-mk :: (pr1 : A) (pr2 : B pr1)
+inductive sigma {A : Type} (B : A → Type) :=
+mk : Π (a : A), B a → sigma B
+
+definition sigma.pr1 [reducible] [unfold-c 3] {A : Type} {B : A → Type} (p : sigma B) : A :=
+sigma.rec (λ a b, a) p
+
+definition sigma.pr2 [reducible] [unfold-c 3] {A : Type} {B : A → Type} (p : sigma B) : B (sigma.pr1 p) :=
+sigma.rec (λ a b, b) p
 
 -- pos_num and num are two auxiliary datatypes used when parsing numerals such as 13, 0, 26.
 -- The parser will generate the terms (pos (bit1 (bit1 (bit0 one)))), zero, and (pos (bit0 (bit1 (bit1 one)))).

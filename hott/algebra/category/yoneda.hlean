@@ -22,17 +22,14 @@ namespace yoneda
       ... = _                          : by rewrite (assoc f2 f3 f4)
 
   definition hom_functor (C : Precategory) : Cᵒᵖ ×c C ⇒ set :=
-  functor.mk (λ(x : Cᵒᵖ ×c C), homset x.1 x.2)
-             (λ(x y : Cᵒᵖ ×c C) (f : _) (h : homset x.1 x.2), f.2 ∘⁅ C ⁆ (h ∘⁅ C ⁆ f.1))
-             begin
-               intro x, apply eq_of_homotopy, intro h, exact (!id_left ⬝ !id_right)
-             end
-             begin
-               intro x y z g f, apply eq_of_homotopy, intro h,
-               exact (representable_functor_assoc g.2 f.2 h f.1 g.1),
-             end
+  functor.mk
+    (λ (x : Cᵒᵖ ×c C), @homset (Cᵒᵖ) C x.1 x.2)
+    (λ (x y : Cᵒᵖ ×c C) (f : @category.precategory.hom (Cᵒᵖ ×c C) (Cᵒᵖ ×c C) x y) (h : @homset (Cᵒᵖ) C x.1 x.2),
+       f.2 ∘⁅ C ⁆ (h ∘⁅ C ⁆ f.1))
+    (λ x, @eq_of_homotopy _ _ _ (ID (@homset Cᵒᵖ C x.1 x.2)) (λ h, concat (by apply @id_left) (by apply @id_right)))
+    (λ x y z g f,
+       eq_of_homotopy (by intros; apply @representable_functor_assoc))
 end yoneda
-
 
 open is_equiv equiv
 
@@ -51,15 +48,18 @@ namespace functor
   local abbreviation Fob := @functor_curry_ob
 
   definition functor_curry_hom ⦃c c' : C⦄ (f : c ⟶ c') : Fob F c ⟹ Fob F c' :=
-  nat_trans.mk (λd, F (f, id))
-               (λd d' g, calc
-                 F (id, g) ∘ F (f, id) = F (id ∘ f, g ∘ id) : respect_comp F
+  begin
+    fapply @nat_trans.mk,
+      {intro d, exact F (f, id)},
+      {intro d d' g, calc
+        F (id, g) ∘ F (f, id) = F (id ∘ f, g ∘ id) : respect_comp F
                    ... = F (f, g ∘ id)         : by rewrite id_left
                    ... = F (f, g)              : by rewrite id_right
                    ... = F (f ∘ id, g)         : by rewrite id_right
                    ... = F (f ∘ id, id ∘ g)    : by rewrite id_left
-                   ... = F (f, id) ∘ F (id, g) :  (respect_comp F (f, id) (id, g))⁻¹ᵖ)
-
+                   ... = F (f, id) ∘ F (id, g) : (respect_comp F (f, id) (id, g))⁻¹ᵖ
+        }
+  end
   local abbreviation Fhom := @functor_curry_hom
 
   theorem functor_curry_hom_def ⦃c c' : C⦄ (f : c ⟶ c') (d : D) :
@@ -70,12 +70,15 @@ namespace functor
 
   theorem functor_curry_comp ⦃c c' c'' : C⦄ (f' : c' ⟶ c'') (f : c ⟶ c')
     : Fhom F (f' ∘ f) = Fhom F f' ∘n Fhom F f :=
-  nat_trans_eq (λd, calc
+  begin
+    apply @nat_trans_eq,
+    intro d, calc
     natural_map (Fhom F (f' ∘ f)) d = F (f' ∘ f, id) : by rewrite functor_curry_hom_def
       ... = F (f' ∘ f, id ∘ id)                      : by rewrite id_comp
       ... = F ((f',id) ∘ (f, id))                    : by esimp
       ... = F (f',id) ∘ F (f, id)                    : by rewrite [respect_comp F]
-      ... = natural_map ((Fhom F f') ∘ (Fhom F f)) d : by esimp)
+      ... = natural_map ((Fhom F f') ∘ (Fhom F f)) d : by esimp
+  end
 
   definition functor_curry [reducible] : C ⇒ E ^c D :=
   functor.mk (functor_curry_ob F)

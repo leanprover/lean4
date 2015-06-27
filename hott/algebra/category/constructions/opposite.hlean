@@ -29,7 +29,8 @@ namespace category
 
   variables {C : Precategory} {a b c : C}
 
-  definition compose_op {f : hom a b} {g : hom b c} : f ∘op g = g ∘ f := idp
+  definition compose_op {f : hom a b} {g : hom b c} : f ∘op g = g ∘ f :=
+  by reflexivity
 
   definition opposite_opposite' {ob : Type} (C : precategory ob) : opposite (opposite C) = C :=
   by cases C; apply idp

@@ -33,10 +33,11 @@ namespace category
            (eq_of_homotopy (right_inv (to_fun f)))
 
     definition equiv_of_iso {A B : Precategory_hset} (f : A ≅ B) : A ≃ B :=
-    equiv.MK (to_hom f)
-             (iso.to_inv f)
-             (ap10 (right_inverse (to_hom f)))
-             (ap10 (left_inverse  (to_hom f)))
+    begin
+      apply equiv.MK (to_hom f) (iso.to_inv f),
+       exact ap10 (right_inverse (to_hom f)),
+       exact ap10 (left_inverse  (to_hom f))
+    end
 
     definition is_equiv_iso_of_equiv (A B : Precategory_hset) : is_equiv (@iso_of_equiv A B) :=
     adjointify _ (λf, equiv_of_iso f)
@@ -61,12 +62,12 @@ namespace category
 
     definition equiv_equiv_iso (A B : Precategory_hset) : (A ≃ B) ≃ (A ≅ B) :=
     equiv.MK (λf, iso_of_equiv f)
-             (λf, equiv.MK (to_hom f)
+             (λf, proof equiv.MK (to_hom f)
                            (iso.to_inv f)
                            (ap10 (right_inverse (to_hom f)))
-                           (ap10 (left_inverse  (to_hom f))))
-             (λf, iso_eq idp)
-             (λf, equiv_eq idp)
+                           (ap10 (left_inverse  (to_hom f))) qed)
+             (λf, proof iso_eq idp qed)
+             (λf, proof equiv_eq idp qed)
 
     definition equiv_eq_iso (A B : Precategory_hset) : (A ≃ B) = (A ≅ B) :=
     ua !equiv_equiv_iso

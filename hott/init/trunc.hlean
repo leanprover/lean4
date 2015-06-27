@@ -103,7 +103,7 @@ namespace is_trunc
   contr_internal.center (is_trunc.to_internal -2 A)
 
   definition center_eq [H : is_contr A] (a : A) : !center = a :=
-  contr_internal.center_eq !is_trunc.to_internal a
+  contr_internal.center_eq (is_trunc.to_internal -2 A) a
 
   definition eq_of_is_contr [H : is_contr A] (x y : A) : x = y :=
   (center_eq x)⁻¹ ⬝ (center_eq y)

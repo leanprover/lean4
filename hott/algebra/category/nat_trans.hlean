@@ -100,18 +100,18 @@ namespace nat_trans
 
   definition nf_fn_eq_fn_nf (η : F ⟹ G) (θ : F' ⟹ G')
     : (θ ∘nf G) ∘n (F' ∘fn η) = (G' ∘fn η) ∘n (θ ∘nf F) :=
-  nat_trans_eq (λc, !nf_fn_eq_fn_nf_pt)
+  nat_trans_eq (λ c, nf_fn_eq_fn_nf_pt η θ c)
 
   definition fn_n_distrib (F' : D ⇒ E) (η : G ⟹ H) (θ : F ⟹ G)
     : F' ∘fn (η ∘n θ) = (F' ∘fn η) ∘n (F' ∘fn θ) :=
-  nat_trans_eq (λc, !respect_comp)
+  nat_trans_eq (λc, by apply respect_comp)
 
   definition n_nf_distrib (η : G ⟹ H) (θ : F ⟹ G) (F' : B ⇒ C)
     : (η ∘n θ) ∘nf F' = (η ∘nf F') ∘n (θ ∘nf F') :=
   nat_trans_eq (λc, idp)
 
   definition fn_id (F' : D ⇒ E) : F' ∘fn nat_trans.ID F = nat_trans.id :=
-  nat_trans_eq (λc, !respect_id)
+  nat_trans_eq (λc, by apply respect_id)
 
   definition id_nf (F' : B ⇒ C) : nat_trans.ID F ∘nf F' = nat_trans.id :=
   nat_trans_eq (λc, idp)

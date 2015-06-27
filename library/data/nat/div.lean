@@ -186,6 +186,9 @@ by_cases_zero_pos y
                     ... = succ x - y + y                                    : {!(IH _ H6)⁻¹}
                     ... = succ x                                         : sub_add_cancel H2)⁻¹)))
 
+theorem mod_eq_sub_div_mul (x y : ℕ) : x mod y = x - x div y * y :=
+eq_sub_of_add_eq (!add.comm ▸ !eq_div_mul_add_mod)⁻¹
+
 theorem mod_add_mod (m n k : ℕ) : (m mod n + k) mod n = (m + k) mod n :=
 by rewrite [eq_div_mul_add_mod m n at {2}, add.assoc, add.comm (m div n * n), add_mul_mod_self]
 

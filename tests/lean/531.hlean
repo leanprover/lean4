@@ -134,18 +134,4 @@ parameters {TL BL TR : Type.{u}} (f : TL → BL) (g : TL → TR)
     }
   end
 
-example
-{P : pushout → Type}
-{Pinl : Π (x : BL), P (inl x)}
-{Pinr : Π (x : TR), P (inr x)}
-{Pglue : Π (x : TL), eq (transport (λ (x : pushout), P x) (glue x) (Pinl (f x))) (Pinr (g x))}
-{y : pushout}
-{x : @ob _ (@dom _ tt)}
-: eq (transport (λ (x : pushout), P x) (inverse (coherence x)) (transport P (@cglue _ tt x) (Pinr (g x))))
-    (Pinl (f x)) :=
-begin
-rewrite -{(transport (λ (x : pushout), P x) (inverse (coherence x)) (transport P (@cglue _ tt x) (Pinr (g x))))}con_tr,
-apply sorry
-end
-
 exit

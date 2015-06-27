@@ -7,9 +7,7 @@ definition path_sigma_dpair (p : a = a') (q : p ▸ b = b') : sigma.mk a b = sig
 eq.rec_on p (λb b' q, eq.rec_on q idp) b b' q
 
 definition path_sigma (p :  pr1 u = pr1 v) (q : p ▸ pr2 u = pr2 v) : u = v :=
-destruct u
-         (λu1 u2, destruct v (λ v1 v2, path_sigma_dpair))
-         p q
+begin cases u, cases v, apply path_sigma_dpair p q end
 
 definition path_path_sigma_lemma' {p1 : a = a'} {p2 : p1 ▸ b = b'} {q2 : p1 ▸ b = b'}
     (s : idp ▸ p2 = q2) : path_sigma p1 p2 = path_sigma p1 q2 :=

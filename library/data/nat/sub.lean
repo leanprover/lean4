@@ -256,6 +256,12 @@ have H2 : k - n + n = m + n, from
           ... = m + n : !add.comm,
 add.cancel_right H2
 
+theorem eq_sub_of_add_eq {a b c : ℕ} (H : a + c = b) : a = b - c :=
+(sub_eq_of_add_eq (!add.comm ▸ H))⁻¹
+
+theorem sub_eq_of_eq_add {a b c : ℕ} (H : a = c + b) : a - b = c :=
+sub_eq_of_add_eq (!add.comm ▸ H⁻¹)
+
 theorem sub_le_sub_right {n m : ℕ} (H : n ≤ m) (k : ℕ) : n - k ≤ m - k :=
 obtain (l : ℕ) (Hl : n + l = m), from le.elim H,
 or.elim !le.total

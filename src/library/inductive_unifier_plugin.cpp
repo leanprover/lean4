@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/lazy_list_fn.h"
+#include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 #include "library/unifier_plugin.h"
 #include "library/unifier.h"
@@ -73,8 +74,9 @@ class inductive_unifier_plugin_cell : public unifier_plugin_cell {
             expr hint       = intro_fn;
             expr intro_type = tc.whnf(inductive::intro_rule_type(intro), cs_intro);
             while (is_pi(intro_type)) {
-                hint = mk_app(hint, mk_app(mk_aux_metavar_for(ngen, mtype), margs));
-                intro_type = tc.whnf(binding_body(intro_type), cs_intro);
+                expr new_arg = mk_app(mk_aux_metavar_for(ngen, mtype), margs);
+                hint = mk_app(hint, new_arg);
+                intro_type = tc.whnf(instantiate(binding_body(intro_type), new_arg), cs_intro);
             }
             constraint c1      = mk_eq_cnstr(meta, hint, j);
             args[major_idx]    = hint;

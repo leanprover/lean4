@@ -102,14 +102,14 @@ static void display_help(std::ostream & out) {
     std::cout << "  --luahook=num -k  how often the Lua interpreter checks the interrupted flag,\n";
     std::cout << "                    it is useful for interrupting non-terminating user scripts,\n";
     std::cout << "                    0 means 'do not check'.\n";
-    std::cout << "  --trust=num -t    trust level (default: max) 0 means do not trust any macro, "
+    std::cout << "  --trust=num -t    trust level (default: max) 0 means do not trust any macro,\n"
               << "                    and type check all imported modules\n";
     std::cout << "  --discard -r      discard the proof of imported theorems after checking\n";
     std::cout << "  --to_axiom -X     discard proofs of all theorems after checking them, i.e.,\n";
     std::cout << "                    theorems become axioms after checking\n";
     std::cout << "  --quiet -q        do not print verbose messages\n";
 #if defined(LEAN_TRACK_MEMORY)
-    std::cout << "  --memory=num -M   maximum amount of memory that should be used by Lean ";
+    std::cout << "  --memory=num -M   maximum amount of memory that should be used by Lean\n";
     std::cout << "                    (in megabytes)\n";
 #endif
 #if defined(LEAN_MULTI_THREAD)

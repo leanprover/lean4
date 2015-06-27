@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/timeit.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
@@ -440,7 +441,16 @@ struct migrate_cmd_fn {
 };
 
 static environment migrate_cmd(parser & p) {
-    return migrate_cmd_fn(p)();
+    if (p.profiling()) {
+        auto pos = p.pos();
+        std::ostringstream msg;
+        ::lean::display_pos(msg, p.get_stream_name().c_str(), pos.first, pos.second);
+        msg << " migrate cmd time";
+        timeit timer(p.diagnostic_stream().get_stream(), msg.str().c_str());
+        return migrate_cmd_fn(p)();
+    } else {
+        return migrate_cmd_fn(p)();
+    }
 }
 
 void register_migrate_cmd(cmd_table & r) {

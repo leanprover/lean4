@@ -45,22 +45,25 @@ optional<proof_state> generalize_core(environment const & env, io_state const & 
         else
             n = x;
         expr new_t, new_m, new_val;
+        expr to_check;
         if (intro) {
             buffer<expr> hyps;
             g.get_hyps(hyps);
             expr new_h = mk_local(ngen.next(), get_unused_name(x, hyps), e_t, binder_info());
-            new_t   = instantiate(abstract(t, *new_e), new_h);
-            new_m   = mk_metavar(ngen.next(), Pi(hyps, Pi(new_h, new_t)));
-            new_m   = mk_app(new_m, hyps);
-            new_val = mk_app(new_m, *new_e);
-            new_m   = mk_app(new_m, new_h);
+            new_t      = instantiate(abstract(t, *new_e), new_h);
+            to_check   = Pi(new_h, new_t);
+            new_m      = mk_metavar(ngen.next(), Pi(hyps, Pi(new_h, new_t)));
+            new_m      = mk_app(new_m, hyps);
+            new_val    = mk_app(new_m, *new_e);
+            new_m      = mk_app(new_m, new_h);
         } else {
-            new_t   = mk_pi(n, e_t, abstract(t, *new_e));
-            new_m   = g.mk_meta(ngen.next(), new_t);
-            new_val = mk_app(new_m, *new_e);
+            new_t    = mk_pi(n, e_t, abstract(t, *new_e));
+            to_check = new_t;
+            new_m    = g.mk_meta(ngen.next(), new_t);
+            new_val  = mk_app(new_m, *new_e);
         }
         try {
-            check_term(*tc, g.abstract(new_t));
+            check_term(*tc, g.abstract(to_check));
         } catch (kernel_exception const & ex) {
             std::shared_ptr<kernel_exception> ex_ptr(static_cast<kernel_exception*>(ex.clone()));
             throw_tactic_exception_if_enabled(s, [=](formatter const & fmt) {

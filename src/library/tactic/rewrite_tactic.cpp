@@ -1200,7 +1200,11 @@ class rewrite_fn {
                 rule       = mk_app(rule, meta);
             }
             rule_type = reduce_rule_type(rule_type);
-            lean_assert(is_eq(rule_type) || (is_standard(m_env) && is_iff(rule_type)));
+            if (!is_eq(rule_type) && !(is_standard(m_env) && is_iff(rule_type))) {
+                // Remark: this branch is reachable when the user provide explicit patterns.
+                throw_rewrite_exception("invalid rewrite tactic, given lemma is not an equality or iff");
+            }
+
             if (is_standard(m_env) && is_iff(rule_type)) {
                 rule      = apply_propext(rule, rule_type);
                 rule_type = mk_eq(*m_relaxed_tc, app_arg(app_fn(rule_type)), app_arg(rule_type));

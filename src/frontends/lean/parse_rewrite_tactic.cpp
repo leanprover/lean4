@@ -36,19 +36,31 @@ static expr parse_rule(parser & p, bool use_paren) {
     }
 }
 
+static void check_not_in_theorem_queue(parser & p, name const & n, pos_info const & pos) {
+    if (p.in_theorem_queue(n)) {
+        throw parser_error(sstream() << "invalid 'rewrite' tactic, cannot unfold '" << n << "' "
+                           << "which is still in the theorem queue. Use command 'reveal " << n << "' "
+                           << "to access its definition.", pos);
+    }
+}
+
 static expr parse_rewrite_unfold_core(parser & p) {
     buffer<name> to_unfold;
     if (p.curr_is_token(get_lbracket_tk())) {
         p.next();
         while (true) {
+            auto pos = p.pos();
             to_unfold.push_back(p.check_constant_next("invalid unfold rewrite step, identifier expected"));
+            check_not_in_theorem_queue(p, to_unfold.back(), pos);
             if (!p.curr_is_token(get_comma_tk()))
                 break;
             p.next();
         }
         p.check_token_next(get_rbracket_tk(), "invalid unfold rewrite step, ',' or ']' expected");
     } else {
+        auto pos = p.pos();
         to_unfold.push_back(p.check_constant_next("invalid unfold rewrite step, identifier or '[' expected"));
+        check_not_in_theorem_queue(p, to_unfold.back(), pos);
     }
     location loc = parse_tactic_location(p);
     return mk_rewrite_unfold(to_list(to_unfold), loc);
@@ -174,6 +186,7 @@ expr parse_unfold_tactic(parser & p) {
     auto pos = p.pos();
     if (p.curr_is_identifier()) {
         name c       = p.check_constant_next("invalid unfold tactic, identifier expected");
+        check_not_in_theorem_queue(p, c, pos);
         location loc = parse_tactic_location(p);
         elems.push_back(p.save_pos(mk_rewrite_unfold(to_list(c), loc), pos));
     } else if (p.curr_is_token(get_lbracket_tk())) {

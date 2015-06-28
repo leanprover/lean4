@@ -1,0 +1,4 @@
+691.lean:4:10: error: invalid 'rewrite' tactic, cannot unfold 'foo' which is still in the theorem queue. Use command 'reveal foo' to access its definition.
+691.lean:7:11: error: invalid 'rewrite' tactic, cannot unfold 'foo' which is still in the theorem queue. Use command 'reveal foo' to access its definition.
+691.lean:10:13: error: invalid 'rewrite' tactic, cannot unfold 'foo' which is still in the theorem queue. Use command 'reveal foo' to access its definition.
+691.lean:13:14: error: invalid 'rewrite' tactic, cannot unfold 'foo' which is still in the theorem queue. Use command 'reveal foo' to access its definition.

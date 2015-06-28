@@ -5,7 +5,7 @@ Author: Jeremy Avigad
 
 Weak orders "≤", strict orders "<", and structures that include both.
 -/
-import logic.eq logic.connectives
+import logic.eq logic.connectives algebra.binary
 open eq eq.ops
 
 namespace algebra
@@ -102,6 +102,104 @@ wf_strict_order.wf_rec P H x
 theorem wf.ind_on.{u v} {A : Type.{u}} [s : wf_strict_order.{u 0} A] {P : A → Prop}
     (x : A) (H : ∀x, (∀y, wf_strict_order.lt y x → P y) → P x) : P x :=
 wf.rec_on x H
+
+/- lattices (we could split this to upper- and lower-semilattices, if needed) -/
+
+structure lattice [class] (A : Type) extends weak_order A :=
+(min : A → A → A)
+(max : A → A → A)
+(min_le_left : ∀ a b, le (min a b) a)
+(min_le_right : ∀ a b, le (min a b) b)
+(le_min : ∀a b c, le c a → le c b → le c (min a b))
+(le_max_left : ∀ a b, le a (max a b))
+(le_max_right : ∀ a b, le b (max a b))
+(max_le : ∀ a b c, le a c → le b c → le (max a b) c)
+
+definition min := @lattice.min
+definition max := @lattice.max
+
+section
+  variable [s : lattice A]
+  include s
+
+  theorem min_le_left (a b : A) : min a b ≤ a := !lattice.min_le_left
+
+  theorem min_le_right (a b : A) : min a b ≤ b := !lattice.min_le_right
+
+  theorem le_min {a b c : A} (H₁ : c ≤ a) (H₂ : c ≤ b) : c ≤ min a b := !lattice.le_min H₁ H₂
+
+  theorem le_max_left (a b : A) : a ≤ max a b := !lattice.le_max_left
+
+  theorem le_max_right (a b : A) : b ≤ max a b := !lattice.le_max_right
+
+  theorem max_le {a b c : A} (H₁ : a ≤ c) (H₂ : b ≤ c) : max a b ≤ c := !lattice.max_le H₁ H₂
+
+  /- min -/
+
+  theorem eq_min {a b c : A} (H₁ : c ≤ a) (H₂ : c ≤ b) (H₃ : ∀{d}, d ≤ a → d ≤ b → d ≤ c) :
+    c = min a b :=
+  le.antisymm (le_min H₁ H₂) (H₃ !min_le_left !min_le_right)
+
+  theorem min.comm (a b : A) : min a b = min b a :=
+  eq_min !min_le_right !min_le_left (λ c H₁ H₂, le_min H₂ H₁)
+
+  theorem min.assoc (a b c : A) : min (min a b) c = min a (min b c) :=
+  begin
+    apply eq_min,
+    { apply le.trans, apply min_le_left, apply min_le_left },
+    { apply le_min, apply le.trans, apply min_le_left, apply min_le_right, apply min_le_right },
+    { intros [d, H₁, H₂], apply le_min, apply le_min H₁, apply le.trans H₂, apply min_le_left,
+      apply le.trans H₂, apply min_le_right }
+  end
+
+  theorem min.left_comm (a b c : A) : min a (min b c) = min b (min a c) :=
+  binary.left_comm (@min.comm A s) (@min.assoc A s) a b c
+
+  theorem min.right_comm (a b c : A) : min (min a b) c = min (min a c) b :=
+  binary.right_comm (@min.comm A s) (@min.assoc A s) a b c
+
+  theorem min_self (a : A) : min a a = a :=
+  by apply eq.symm; apply eq_min (le.refl a) !le.refl; intros; assumption
+
+  theorem min_eq_left {a b : A} (H : a ≤ b) : min a b = a :=
+  by apply eq.symm; apply eq_min !le.refl H; intros; assumption
+
+  theorem min_eq_right {a b : A} (H : b ≤ a) : min a b = b :=
+  eq.subst !min.comm (min_eq_left H)
+
+  /- max -/
+
+  theorem eq_max {a b c : A} (H₁ : a ≤ c) (H₂ : b ≤ c) (H₃ : ∀{d}, a ≤ d → b ≤ d → c ≤ d) :
+    c = max a b :=
+  le.antisymm (H₃ !le_max_left !le_max_right) (max_le H₁ H₂)
+
+  theorem max.comm (a b : A) : max a b = max b a :=
+  eq_max !le_max_right !le_max_left (λ c H₁ H₂, max_le H₂ H₁)
+
+  theorem max.assoc (a b c : A) : max (max a b) c = max a (max b c) :=
+  begin
+    apply eq_max,
+    { apply le.trans, apply le_max_left a b, apply le_max_left },
+    { apply max_le, apply le.trans, apply le_max_right a b, apply le_max_left, apply le_max_right },
+    { intros [d, H₁, H₂], apply max_le, apply max_le H₁, apply le.trans !le_max_left H₂,
+      apply le.trans !le_max_right H₂}
+  end
+
+  theorem max.left_comm (a b c : A) : max a (max b c) = max b (max a c) :=
+  binary.left_comm (@max.comm A s) (@max.assoc A s) a b c
+
+  theorem max.right_comm (a b c : A) : max (max a b) c = max (max a c) b :=
+  binary.right_comm (@max.comm A s) (@max.assoc A s) a b c
+
+  theorem max_self (a : A) : max a a = a :=
+  by apply eq.symm; apply eq_max (le.refl a) !le.refl; intros; assumption
+
+  theorem max_eq_left {a b : A} (H : b ≤ a) : max a b = a :=
+  by apply eq.symm; apply eq_max !le.refl H; intros; assumption
+
+  theorem max_eq_right {a b : A} (H : a ≤ b) : max a b = b :=
+  eq.subst !max.comm (max_eq_left H)
+end
 
 /- structures with a weak and a strict order -/
 
@@ -259,6 +357,8 @@ section
   lt.by_cases (assume H1, or.inl H1) (assume H1, absurd H1 H) (assume H1, or.inr H1)
 end
 
+open decidable
+
 structure decidable_linear_order [class] (A : Type) extends linear_strong_order_pair A :=
 (decidable_lt : decidable_rel lt)
 
@@ -304,6 +404,53 @@ section
     lt.cases a b t_lt t_eq t_gt = t_gt :=
   if_neg (ne.symm (ne_of_lt H)) ⬝ if_neg (lt.asymm H)
 
+  private definition dlo_min (a b : A) : A := if a ≤ b then a else b
+
+  private definition dlo_max (a b : A) : A := if a ≤ b then b else a
+
+  private theorem dlo_min_le_left (a b : A) : dlo_min a b ≤ a :=
+  by_cases
+    (assume H : a ≤ b, by rewrite [↑dlo_min, if_pos H]; apply le.refl)
+    (assume H : ¬ a ≤ b, by rewrite [↑dlo_min, if_neg H]; apply le_of_lt (lt_of_not_ge H))
+
+  private theorem dlo_min_le_right (a b : A) : dlo_min a b ≤ b :=
+  by_cases
+    (assume H : a ≤ b, by rewrite [↑dlo_min, if_pos H]; apply H)
+    (assume H : ¬ a ≤ b, by rewrite [↑dlo_min, if_neg H]; apply le.refl)
+
+  private theorem le_dlo_min (a b c : A) (H₁ : c ≤ a) (H₂ : c ≤ b) : c ≤ dlo_min a b :=
+  by_cases
+    (assume H : a ≤ b, by rewrite [↑dlo_min, if_pos H]; apply H₁)
+    (assume H : ¬ a ≤ b, by rewrite [↑dlo_min, if_neg H]; apply H₂)
+
+  private theorem le_dlo_max_left (a b : A) : a ≤ dlo_max a b :=
+  by_cases
+    (assume H : a ≤ b, by rewrite [↑dlo_max, if_pos H]; apply H)
+    (assume H : ¬ a ≤ b, by rewrite [↑dlo_max, if_neg H]; apply le.refl)
+
+  private theorem le_dlo_max_right (a b : A) : b ≤ dlo_max a b :=
+  by_cases
+    (assume H : a ≤ b, by rewrite [↑dlo_max, if_pos H]; apply le.refl)
+    (assume H : ¬ a ≤ b, by rewrite [↑dlo_max, if_neg H]; apply le_of_lt (lt_of_not_ge H))
+
+  private theorem dlo_max_le (a b c : A) (H₁ : a ≤ c) (H₂ : b ≤ c) : dlo_max a b ≤ c :=
+  by_cases
+    (assume H : a ≤ b, by rewrite [↑dlo_max, if_pos H]; apply H₂)
+    (assume H : ¬ a ≤ b, by rewrite [↑dlo_max, if_neg H]; apply H₁)
+
+  definition decidable_linear_order.to_lattice [trans-instance] [coercion] [reducible] :
+    lattice A :=
+  ⦃ lattice, s,
+    min := dlo_min,
+    max := dlo_max,
+    min_le_left := dlo_min_le_left,
+    min_le_right := dlo_min_le_right,
+    le_min := le_dlo_min,
+    le_max_left := le_dlo_max_left,
+    le_max_right := le_dlo_max_right,
+    max_le := dlo_max_le ⦄
+
+/-
   definition max (a b : A) : A :=
   if a < b then b else a
 
@@ -326,7 +473,7 @@ section
   eq.rec_on (max.eq_left H) rfl
 
   theorem max.left (a b : A) : a ≤ max a b :=
-  decidable.by_cases
+  by_cases
     (λ h : a < b,   le_of_lt (eq.rec_on (max.right_eq h) h))
     (λ h : ¬ a < b, eq.rec_on (max.eq_left h) !le.refl)
 
@@ -337,13 +484,14 @@ section
     (take H'' : b < a, or.inr H'')
 
   theorem max.right (a b : A) : b ≤ max a b :=
-  decidable.by_cases
+  by_cases
     (λ h : a < b,   eq.rec_on (max.eq_right h) !le.refl)
     (λ h : ¬ a < b, or.rec_on (eq_or_lt_of_not_lt h)
       (λ heq, eq.rec_on heq (eq.rec_on (max_a_a a) !le.refl))
       (λ h : b < a,
         have aux : a = max a b, from max.left_eq (lt.asymm h),
         eq.rec_on aux (le_of_lt h)))
+-/
 end
 
 end algebra

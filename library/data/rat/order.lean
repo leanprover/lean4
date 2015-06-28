@@ -276,10 +276,6 @@ theorem lt_of_le_of_lt  (Hab : a ≤ b) (Hbc : b < c) : a < c :=
     (assume Heq, not_le_of_gt (Heq⁻¹ ▸ Hbc) Hab))
 
 theorem zero_lt_one : (0 : ℚ) < 1 := trivial
---  begin
---    rewrite [↑lt, sub_zero],
---    apply sorry
---  end
 
 theorem add_lt_add_left (H : a < b) (c : ℚ) : c + a < c + b :=
 let H' := le_of_lt H in
@@ -298,10 +294,10 @@ section migrate_algebra
     le_trans         := @le.trans,
     le_antisymm      := @le.antisymm,
     le_total         := @le.total,
-    le_of_lt                   := @le_of_lt, --sorry,
-    lt_irrefl                  := lt_irrefl,
-    lt_of_lt_of_le             := @lt_of_lt_of_le,
-    lt_of_le_of_lt             := @lt_of_le_of_lt,
+    le_of_lt         := @le_of_lt,
+    lt_irrefl        := lt_irrefl,
+    lt_of_lt_of_le   := @lt_of_lt_of_le,
+    lt_of_le_of_lt   := @lt_of_le_of_lt,
     le_iff_lt_or_eq  := @le_iff_lt_or_eq,
     add_le_add_left  := @add_le_add_left,
     mul_nonneg       := @mul_nonneg,
@@ -312,17 +308,16 @@ section migrate_algebra
 
   local attribute rat.discrete_field [instance]
   local attribute rat.discrete_linear_ordered_field [instance]
-  definition abs (n : rat) : rat := algebra.abs n
-  definition sign (n : rat) : rat := algebra.sign n
+  definition min : ℚ → ℚ → ℚ := algebra.min
+  definition max : ℚ → ℚ → ℚ := algebra.max
+  definition abs : ℚ → ℚ := algebra.abs
+  definition sign : ℚ → ℚ := algebra.sign
 
-  definition max (a b : rat) : rat := algebra.max a b
-  definition min (a b : rat) : rat := algebra.min a b
-  --set_option migrate.trace true
   migrate from algebra with rat
-    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign, dvd → dvd,
-      divide → divide, max → max, min → min
+    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, dvd → dvd,
+              divide → divide, max → max, min → min, abs → abs, sign → sign
 
-attribute le.trans lt.trans lt_of_lt_of_le lt_of_le_of_lt ge.trans gt.trans gt_of_gt_of_ge
+  attribute le.trans lt.trans lt_of_lt_of_le lt_of_le_of_lt ge.trans gt.trans gt_of_gt_of_ge
                    gt_of_ge_of_gt [trans]
 
 end migrate_algebra

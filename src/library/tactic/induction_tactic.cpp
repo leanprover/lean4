@@ -228,7 +228,8 @@ class induction_tac {
                 }
             }
             buffer<expr> indices;
-            for (unsigned pos : rec_info.get_indices_pos()) {
+            list<unsigned> const & idx_pos = rec_info.get_indices_pos();
+            for (unsigned pos : idx_pos) {
                 if (pos >= h_type_args.size()) {
                     throw tactic_exception("invalid 'induction' tactic, major premise type is ill-formed");
                 }
@@ -242,6 +243,14 @@ class induction_tac {
                         throw tactic_exception(sstream() << "invalid 'induction' tactic, argument #"
                                                << pos+1 << " of major premise '" << h << "' type is an index, "
                                                << "but it occurs more than once");
+                    }
+                    if (i > pos && // occurs after idx
+                        std::find(idx_pos.begin(), idx_pos.end(), i) != idx_pos.end() && // it is also an index
+                        is_local(h_type_args[i]) && // if it is not an index, it will fail anyway.
+                        depends_on(mlocal_type(idx), h_type_args[i])) {
+                        throw tactic_exception(sstream() << "invalid 'induction' tactic, argument #"
+                                               << pos+1 << " of major premise '" << h << "' type is an index, "
+                                               << "but its type depends on the index at position #" << i+1);
                     }
                 }
                 indices.push_back(idx);

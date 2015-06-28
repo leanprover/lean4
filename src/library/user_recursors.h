@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-
+#include "kernel/environment.h"
 namespace lean {
 /** \brief Information for a user defined recursor */
 class recursor_info {

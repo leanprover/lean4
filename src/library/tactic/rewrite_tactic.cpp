@@ -1330,6 +1330,16 @@ class rewrite_fn {
             return e;
     }
 
+    void throw_nothing_rewritten_ex() {
+        if (m_ps.report_failure()) {
+            throw_rewrite_exception("invalid 'rewrite' tactic, no occurrence was replaced, "
+                                    "this error may occur when the 'at' modifier is used (e.g., 'at {2}'). Lean "
+                                    "uses the following semantics: first it finds a matching subterm; then uses the bound "
+                                    "arguments to look for further syntactically identical occurrences; and then it replaces "
+                                    "the occurrences specified by the 'at' modifier (when provided)");
+        }
+    }
+
     bool process_rewrite_hypothesis(expr const & hyp, expr const & orig_elem, expr const & pattern, occurrence const & occ) {
         add_target(hyp, true);
         expr Pa = apply_beta_eta(mlocal_type(hyp));
@@ -1344,21 +1354,22 @@ class rewrite_fn {
                 return false;
             bool has_dep_elim = inductive::has_dep_elim(m_env, get_eq_name());
             unsigned vidx = has_dep_elim ? 1 : 0;
-            expr Px  = replace_occurrences(Pa, a, occ, vidx);
-            expr Pb  = instantiate(Px, vidx, b);
-
+            optional<expr> Px  = replace_occurrences(Pa, a, occ, vidx);
+            if (!Px) {
+                return false;
+            }
+            expr Pb  = instantiate(*Px, vidx, b);
             expr A   = m_relaxed_tc->infer(a).first;
             level l1 = sort_level(m_relaxed_tc->ensure_type(Pa).first);
             level l2 = sort_level(m_relaxed_tc->ensure_type(A).first);
             expr H;
             if (has_dep_elim) {
                 expr Haeqx = mk_app(mk_constant(get_eq_name(), {l2}), A, a, mk_var(0));
-                expr P     = mk_lambda("x", A, mk_lambda("H", Haeqx, Px));
+                expr P     = mk_lambda("x", A, mk_lambda("H", Haeqx, *Px));
                 H          = mk_app({mk_constant(get_eq_rec_name(), {l1, l2}), A, a, P, hyp, b, Heq});
             } else {
-                H          = mk_app({mk_constant(get_eq_rec_name(), {l1, l2}), A, a, mk_lambda("x", A, Px), hyp, b, Heq});
+                H          = mk_app({mk_constant(get_eq_rec_name(), {l1, l2}), A, a, mk_lambda("x", A, *Px), hyp, b, Heq});
             }
-
             expr new_hyp   = update_mlocal(hyp, Pb);
             buffer<expr> new_hyps;
             buffer<expr> args;
@@ -1396,8 +1407,12 @@ class rewrite_fn {
             // where M is a metavariable application of a fresh metavariable, and H is a witness (based on M) for P[a].
             bool has_dep_elim = inductive::has_dep_elim(m_env, get_eq_name());
             unsigned vidx = has_dep_elim ? 1 : 0;
-            expr Px  = replace_occurrences(Pa, a, occ, vidx);
-            expr Pb  = instantiate(Px, vidx, b);
+            optional<expr> Px  = replace_occurrences(Pa, a, occ, vidx);
+            if (!Px) {
+                throw_nothing_rewritten_ex();
+                return false;
+            }
+            expr Pb  = instantiate(*Px, vidx, b);
             expr A   = m_relaxed_tc->infer(a).first;
             level l1 = sort_level(m_relaxed_tc->ensure_type(Pa).first);
             level l2 = sort_level(m_relaxed_tc->ensure_type(A).first);
@@ -1405,10 +1420,10 @@ class rewrite_fn {
             expr H;
             if (has_dep_elim) {
                 expr Haeqx = mk_app(mk_constant(get_eq_name(), {l2}), A, b, mk_var(0));
-                expr P     = mk_lambda("x", A, mk_lambda("H", Haeqx, Px));
+                expr P     = mk_lambda("x", A, mk_lambda("H", Haeqx, *Px));
                 H          = mk_app({mk_constant(get_eq_rec_name(), {l1, l2}), A, b, P, M, a, Heq});
             } else {
-                H          = mk_app({mk_constant(get_eq_rec_name(), {l1, l2}), A, b, mk_lambda("x", A, Px), M, a, Heq});
+                H          = mk_app({mk_constant(get_eq_rec_name(), {l1, l2}), A, b, mk_lambda("x", A, *Px), M, a, Heq});
             }
             check_term(H);
             goal new_g(M, Pb);

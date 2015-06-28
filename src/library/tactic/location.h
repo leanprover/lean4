@@ -54,8 +54,10 @@ public:
 
 /** \brief Replace occurrences of \c t in \c e with the free variable #vidx.
     The j-th occurrence is replaced iff occ.contains(j)
+
+    Return none when no occurrence was replaced.
 */
-expr replace_occurrences(expr const & e, expr const & t, occurrence const & occ, unsigned vidx);
+optional<expr> replace_occurrences(expr const & e, expr const & t, occurrence const & occ, unsigned vidx);
 
 class location {
 public:

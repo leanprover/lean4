@@ -135,14 +135,14 @@ static expr parse_rewrite_element(parser & p, bool use_paren) {
 void parse_rewrite_tactic_elems(parser & p, buffer<expr> & elems) {
     if (p.curr_is_token(get_lbracket_tk())) {
         p.next();
-        while (true) {
+        while (!p.curr_is_token(get_rbracket_tk())) {
             auto pos = p.pos();
             elems.push_back(p.save_pos(parse_rewrite_element(p, false), pos));
             if (!p.curr_is_token(get_comma_tk()))
                 break;
             p.next();
         }
-        p.check_token_next(get_rbracket_tk(), "invalid rewrite tactic, ',' or ']' expected");
+        p.next();
     } else {
         auto pos = p.pos();
         elems.push_back(p.save_pos(parse_rewrite_element(p, true), pos));

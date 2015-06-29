@@ -476,6 +476,41 @@ section
 
   theorem max_eq_neg_min_neg_neg : max a b = - min (-a) (-b) :=
   by rewrite [min_neg_neg, neg_neg]
+
+  /- absolute value -/
+  variables {a b c}
+
+  definition abs (a : A) : A := max a (-a)
+
+  theorem abs_of_nonneg (H : a ≥ 0) : abs a = a :=
+  have H' : -a ≤ a, from le.trans (neg_nonpos_of_nonneg H) H,
+  max_eq_left H'
+
+  theorem abs_of_pos (H : a > 0) : abs a = a :=
+  abs_of_nonneg (le_of_lt H)
+
+  theorem abs_of_nonpos (H : a ≤ 0) : abs a = -a :=
+  have H' : a ≤ -a, from le.trans H (neg_nonneg_of_nonpos H),
+  max_eq_right H'
+
+  theorem abs_of_neg (H : a < 0) : abs a = -a := abs_of_nonpos (le_of_lt H)
+
+  theorem abs_zero : abs 0 = (0:A) := abs_of_nonneg (le.refl _)
+
+  theorem abs_neg (a : A) : abs (-a) = abs a :=
+  by rewrite [↑abs, max.comm, neg_neg]
+
+  theorem abs_pos_of_pos (H : a > 0) : abs a > 0 :=
+  by rewrite (abs_of_pos H); exact H
+
+  theorem abs_pos_of_neg (H : a < 0) : abs a > 0 :=
+  !abs_neg ▸ abs_pos_of_pos (neg_pos_of_neg H)
+
+  theorem abs_sub (a b : A) : abs (a - b) = abs (b - a) :=
+  by rewrite [-neg_sub, abs_neg]
+
+  theorem ne_zero_of_abs_ne_zero {a : A} (H : abs a ≠ 0) : a ≠ 0 :=
+   assume Ha, H (Ha⁻¹ ▸ abs_zero)
 end
 
 /- linear ordered group with decidable order -/
@@ -513,28 +548,6 @@ section
       have H2: a < 0, from H ▸ neg_neg_of_pos H1,
       absurd H1 (lt.asymm H2))
 
-  definition abs (a : A) : A := if 0 ≤ a then a else -a
-
-  theorem abs_of_nonneg (H : a ≥ 0) : abs a = a := if_pos H
-
-  theorem abs_of_pos (H : a > 0) : abs a = a := if_pos (le_of_lt H)
-
-  theorem abs_of_neg (H : a < 0) : abs a = -a := if_neg (not_le_of_gt H)
-
-  theorem abs_zero : abs 0 = (0:A) := abs_of_nonneg (le.refl _)
-
-  theorem abs_of_nonpos (H : a ≤ 0) : abs a = -a :=
-  decidable.by_cases
-    (assume H1 : a = 0, by rewrite [H1, abs_zero, neg_zero])
-    (assume H1 : a ≠ 0,
-      have H2 : a < 0, from lt_of_le_of_ne H H1,
-      abs_of_neg H2)
-
-  theorem abs_neg (a : A) : abs (-a) = abs a :=
-  or.elim (le.total 0 a)
-    (assume H1 : 0 ≤ a, by rewrite [abs_of_nonpos (neg_nonpos_of_nonneg H1), neg_neg, abs_of_nonneg H1])
-    (assume H1 : a ≤ 0, by rewrite [abs_of_nonneg (neg_nonneg_of_nonpos H1), abs_of_nonpos H1])
-
   theorem abs_nonneg (a : A) : abs a ≥ 0 :=
   or.elim (le.total 0 a)
     (assume H : 0 ≤ a, by rewrite (abs_of_nonneg H); exact H)
@@ -561,17 +574,8 @@ section
   theorem abs_eq_zero_iff_eq_zero (a : A) : abs a = 0 ↔ a = 0 :=
   iff.intro eq_zero_of_abs_eq_zero (assume H, congr_arg abs H ⬝ !abs_zero)
 
-  theorem abs_pos_of_pos (H : a > 0) : abs a > 0 :=
-  by rewrite (abs_of_pos H); exact H
-
-  theorem abs_pos_of_neg (H : a < 0) : abs a > 0 :=
-  !abs_neg ▸ abs_pos_of_pos (neg_pos_of_neg H)
-
   theorem abs_pos_of_ne_zero (H : a ≠ 0) : abs a > 0 :=
   or.elim (lt_or_gt_of_ne H) abs_pos_of_neg abs_pos_of_pos
-
-  theorem abs_sub (a b : A) : abs (a - b) = abs (b - a) :=
-  by rewrite [-neg_sub, abs_neg]
 
   theorem abs.by_cases {P : A → Prop} {a : A} (H1 : P a) (H2 : P (-a)) : P (abs a) :=
   or.elim (le.total 0 a)
@@ -583,9 +587,6 @@ section
 
   theorem abs_lt_of_lt_of_neg_lt (H1 : a < b) (H2 : -a < b) : abs a < b :=
   abs.by_cases H1 H2
-
-  theorem ne_zero_of_abs_ne_zero {a : A} (H : abs a ≠ 0) : a ≠ 0 :=
-   assume Ha, H (Ha⁻¹ ▸ abs_zero)
 
   -- the triangle inequality
   section
@@ -636,7 +637,6 @@ section
           abs (a + b) = abs (-a + -b)   : by rewrite [-abs_neg, neg_add]
               ... ≤ abs (-a) + abs (-b) : aux2 H5
               ... = abs a + abs b       : by rewrite *abs_neg)
-  end
 
   theorem abs_sub_abs_le_abs_sub (a b : A) : abs a - abs b ≤ abs (a - b) :=
   have H1 : abs a - abs b + abs b ≤ abs (a - b) + abs b, from
@@ -656,5 +656,6 @@ section
       apply le.refl
     end
   end
+end
 
 end algebra

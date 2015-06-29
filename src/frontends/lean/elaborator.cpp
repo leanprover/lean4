@@ -81,13 +81,15 @@ struct elaborator::choice_expr_elaborator : public choice_iterator {
     elaborator &  m_elab;
     local_context m_context;
     local_context m_full_context;
+    bool          m_in_equation_lhs;
     expr          m_meta;
     expr          m_type;
     expr          m_choice;
     unsigned      m_idx;
-    choice_expr_elaborator(elaborator & elab, local_context const & ctx, local_context const & full_ctx,
+
+    choice_expr_elaborator(elaborator & elab, local_context const & ctx, local_context const & full_ctx, bool in_equation_lhs,
                            expr const & meta, expr const & type, expr const & c):
-        m_elab(elab), m_context(ctx), m_full_context(full_ctx), m_meta(meta),
+        m_elab(elab), m_context(ctx), m_full_context(full_ctx), m_in_equation_lhs(in_equation_lhs), m_meta(meta),
         m_type(type), m_choice(c), m_idx(get_num_choices(m_choice)) {
     }
 
@@ -98,8 +100,9 @@ struct elaborator::choice_expr_elaborator : public choice_iterator {
             expr const & f = get_app_fn(c);
             m_elab.save_identifier_info(f);
             try {
-                flet<local_context> set1(m_elab.m_context,      m_context);
-                flet<local_context> set2(m_elab.m_full_context, m_full_context);
+                flet<local_context> set1(m_elab.m_context,         m_context);
+                flet<local_context> set2(m_elab.m_full_context,    m_full_context);
+                flet<bool>          set3(m_elab.m_in_equation_lhs, m_in_equation_lhs);
                 pair<expr, constraint_seq> rcs = m_elab.visit(c);
                 expr r                         = rcs.first;
                 constraint_seq cs              = rcs.second;
@@ -314,9 +317,10 @@ expr elaborator::visit_choice(expr const & e, optional<expr> const & t, constrai
     register_meta(m);
     local_context ctx      = m_context;
     local_context full_ctx = m_full_context;
+    bool in_equation_lhs   = m_in_equation_lhs;
     auto fn = [=](expr const & meta, expr const & type, substitution const & /* s */,
                   name_generator && /* ngen */) {
-        return choose(std::make_shared<choice_expr_elaborator>(*this, ctx, full_ctx, meta, type, e));
+        return choose(std::make_shared<choice_expr_elaborator>(*this, ctx, full_ctx, in_equation_lhs, meta, type, e));
     };
     auto pp_fn = [=](formatter const & fmt, pos_info_provider const * pos_prov, substitution const &, bool is_main, bool) {
         format r = pp_previous_error_header(fmt, pos_prov, some_expr(e), is_main);
@@ -553,12 +557,13 @@ pair<expr, constraint_seq> elaborator::mk_delayed_coercion(
 }
 
 /** \brief Given a term <tt>a : a_type</tt>, ensure it has type \c expected_type. Apply coercions if needed */
-pair<expr, constraint_seq> elaborator::ensure_has_type(
-        expr const & a, expr const & a_type, expr const & expected_type, justification const & j) {
+pair<expr, constraint_seq> elaborator::ensure_has_type_core(
+    expr const & a, expr const & a_type, expr const & expected_type, bool use_expensive_coercions, justification const & j) {
     bool lifted_coe = false;
-    if (has_coercions_from(a_type, lifted_coe) && ((!lifted_coe && is_meta(expected_type)) || (lifted_coe && is_pi_meta(expected_type)))) {
+    if (use_expensive_coercions &&
+        has_coercions_from(a_type, lifted_coe) && ((!lifted_coe && is_meta(expected_type)) || (lifted_coe && is_pi_meta(expected_type)))) {
         return mk_delayed_coercion(a, a_type, expected_type, j);
-    } else if (!m_in_equation_lhs && is_meta(a_type) && has_coercions_to(expected_type)) {
+    } else if (use_expensive_coercions && !m_in_equation_lhs && is_meta(a_type) && has_coercions_to(expected_type)) {
         return mk_delayed_coercion(a, a_type, expected_type, j);
     } else {
         pair<bool, constraint_seq> dcs;
@@ -668,7 +673,10 @@ expr elaborator::visit_app(expr const & e, constraint_seq & cs) {
         expr a_type     = infer_type(a, a_cs);
         expr r          = mk_app(f, a, e.get_tag());
         justification j = mk_app_justification(r, f_type, a, a_type);
-        auto new_a_cs   = ensure_has_type(a, a_type, d_type, j);
+        // If the application is an equations expression, then we are compiling a match-with, and expensive
+        // coercions should not be considered.
+        bool use_expensive_coercions = !is_equations(app_fn(e));
+        auto new_a_cs   = ensure_has_type_core(a, a_type, d_type, use_expensive_coercions, j);
         expr new_a      = new_a_cs.first;
         cs += f_cs + new_a_cs.second + a_cs;
         return update_app(r, app_fn(r), new_a);

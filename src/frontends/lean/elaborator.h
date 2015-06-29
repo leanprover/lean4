@@ -124,9 +124,12 @@ class elaborator : public coercion_info_manager {
     expr apply_coercion(expr const & a, expr a_type, expr d_type);
     pair<expr, constraint_seq> mk_delayed_coercion(expr const & a, expr const & a_type, expr const & expected_type,
                                                    justification const & j);
+    pair<expr, constraint_seq> ensure_has_type_core(expr const & a, expr const & a_type, expr const & expected_type,
+                                                    bool use_expensive_coercions, justification const & j);
     pair<expr, constraint_seq> ensure_has_type(expr const & a, expr const & a_type, expr const & expected_type,
-                                               justification const & j);
-
+                                               justification const & j) {
+        return ensure_has_type_core(a, a_type, expected_type, true, j);
+    }
     bool is_choice_app(expr const & e);
     expr visit_choice_app(expr const & e, constraint_seq & cs);
     expr visit_app(expr const & e, constraint_seq & cs);

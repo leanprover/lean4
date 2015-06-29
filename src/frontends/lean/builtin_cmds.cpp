@@ -447,6 +447,12 @@ environment print_cmd(parser & p) {
         for (name const & i : get_class_instances(env, c)) {
             p.regular_stream() << i << " : " << env.get(i).get_type() << endl;
         }
+        if (list<name> derived_insts = get_class_derived_trans_instances(env, c)) {
+            p.regular_stream() << "Derived transitive instances:\n";
+            for (name const & i : derived_insts) {
+                p.regular_stream() << i << " : " << env.get(i).get_type() << endl;
+            }
+        }
     } else if (p.curr_is_token_or_id(get_classes_tk())) {
         p.next();
         environment const & env = p.env();

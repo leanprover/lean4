@@ -446,4 +446,30 @@ decidable.by_cases
     assert H' : b ≤ a, from le_of_lt (lt_of_not_ge H),
     by rewrite (max_eq_left H'); apply H₁)
 
+theorem min_add_add_left (a b c : ℕ) : min (a + b) (a + c) = a + min b c :=
+decidable.by_cases
+  (assume H : b ≤ c,
+    assert H1 : a + b ≤ a + c, from add_le_add_left H _,
+    by rewrite [min_eq_left H, min_eq_left H1])
+  (assume H : ¬ b ≤ c,
+    assert H' : c ≤ b, from le_of_lt (lt_of_not_ge H),
+    assert H1 : a + c ≤ a + b, from add_le_add_left H' _,
+    by rewrite [min_eq_right H', min_eq_right H1])
+
+theorem min_add_add_right (a b c : ℕ) : min (a + c) (b + c) = min a b + c :=
+by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply min_add_add_left
+
+theorem max_add_add_left (a b c : ℕ) : max (a + b) (a + c) = a + max b c :=
+decidable.by_cases
+  (assume H : b ≤ c,
+    assert H1 : a + b ≤ a + c, from add_le_add_left H _,
+    by rewrite [max_eq_right H, max_eq_right H1])
+  (assume H : ¬ b ≤ c,
+    assert H' : c ≤ b, from le_of_lt (lt_of_not_ge H),
+    assert H1 : a + c ≤ a + b, from add_le_add_left H' _,
+    by rewrite [max_eq_left H', max_eq_left H1])
+
+theorem max_add_add_right (a b c : ℕ) : max (a + c) (b + c) = max a b + c :=
+by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply max_add_add_left
+
 end nat

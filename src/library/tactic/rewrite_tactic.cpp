@@ -743,7 +743,7 @@ class rewrite_fn {
         if (!oe)
             return none_expr();
         expr new_e     = *oe;
-        optional<expr> unfolded_e = unfold_app(m_env, new_e);
+        optional<expr> unfolded_e = unfold_term(m_env, new_e);
         if (!unfolded_e)
             return none_expr();
         bool use_cache   = occ.is_all();

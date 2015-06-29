@@ -9,11 +9,12 @@ import data.list.basic data.finset.basic data.fintype.card algebra.group
 open eq.ops nat function list finset fintype
 
 structure fin (n : nat) := (val : nat) (is_lt : val < n)
-attribute fin.val [coercion]
 
 definition less_than [reducible] := fin
 
 namespace fin
+
+attribute fin.val [coercion]
 
 section def_equal
 variable {n : nat}

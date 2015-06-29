@@ -111,7 +111,35 @@ lt_of_lt_of_le H2 H3
 theorem mul_lt_mul_of_pos_right {n m k : ℕ} (H : n < m) (Hk : k > 0) : n * k < m * k :=
 !mul.comm ▸ !mul.comm ▸ mul_lt_mul_of_pos_left H Hk
 
-/- nat is an instance of a linearly ordered semiring -/
+/- min and max -/
+
+-- Because these are defined in init/nat.lean, we cannot use the definitions in algebra.
+
+theorem max_le {n m k : ℕ} (H₁ : n ≤ k) (H₂ : m ≤ k) : max n m ≤ k :=
+decidable.by_cases
+  (assume H : n < m, by rewrite [↑max, if_pos H]; apply H₂)
+  (assume H : ¬ n < m, by rewrite [↑max, if_neg H]; apply H₁)
+
+theorem min_le_left (n m : ℕ) : min n m ≤ n :=
+decidable.by_cases
+  (assume H : n < m, by rewrite [↑min, if_pos H])
+  (assume H : ¬ n < m,
+    assert H' : m ≤ n, from or_resolve_right !lt_or_ge H,
+    by rewrite [↑min, if_neg H]; apply H')
+
+theorem min_le_right (n m : ℕ) : min n m ≤ m :=
+decidable.by_cases
+  (assume H : n < m, by rewrite [↑min, if_pos H]; apply le_of_lt H)
+  (assume H : ¬ n < m,
+    assert H' : m ≤ n, from or_resolve_right !lt_or_ge H,
+    by rewrite [↑min, if_neg H])
+
+theorem le_min {n m k : ℕ} (H₁ : k ≤ n) (H₂ : k ≤ m) : k ≤ min n m :=
+decidable.by_cases
+  (assume H : n < m, by rewrite [↑min, if_pos H]; apply H₁)
+  (assume H : ¬ n < m, by rewrite [↑min, if_neg H]; apply H₂)
+
+/- nat is an instance of a linearly ordered semiring and a lattice-/
 
 section migrate_algebra
   open [classes] algebra
@@ -143,10 +171,22 @@ section migrate_algebra
     mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left,
     mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right ⦄
 
+  protected definition lattice [reducible] : algebra.lattice nat :=
+  ⦃ algebra.lattice, nat.linear_ordered_semiring,
+    min          := min,
+    max          := max,
+    min_le_left  := min_le_left,
+    min_le_right := min_le_right,
+    le_min       := @le_min,
+    le_max_left  := le_max_left,
+    le_max_right := le_max_right,
+    max_le       := @max_le ⦄
+
   local attribute nat.linear_ordered_semiring [instance]
+  local attribute nat.lattice [instance]
 
   migrate from algebra with nat
-    replacing dvd → dvd, has_le.ge → ge, has_lt.gt → gt
+    replacing dvd → dvd, has_le.ge → ge, has_lt.gt → gt, min → min, max → max
     hiding add_pos_of_pos_of_nonneg,  add_pos_of_nonneg_of_pos,
       add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg, le_add_of_nonneg_of_le,
       le_add_of_le_of_nonneg, lt_add_of_nonneg_of_lt, lt_add_of_lt_of_nonneg,
@@ -389,5 +429,21 @@ dvd.elim H
   (take m,
     assume H1 : 1 = n * m,
     eq_one_of_mul_eq_one_right H1⁻¹)
+
+/- min and max -/
+
+theorem lt_min {a b c : ℕ} (H₁ : a < b) (H₂ : a < c) : a < min b c :=
+decidable.by_cases
+  (assume H : b ≤ c, by rewrite (min_eq_left H); apply H₁)
+  (assume H : ¬ b ≤ c,
+    assert H' : c ≤ b, from le_of_lt (lt_of_not_ge H),
+    by rewrite (min_eq_right H'); apply H₂)
+
+theorem max_lt {a b c : ℕ} (H₁ : a < c) (H₂ : b < c) : max a b < c :=
+decidable.by_cases
+  (assume H : a ≤ b, by rewrite (max_eq_right H); apply H₂)
+  (assume H : ¬ a ≤ b,
+    assert H' : b ≤ a, from le_of_lt (lt_of_not_ge H),
+    by rewrite (max_eq_left H'); apply H₁)
 
 end nat

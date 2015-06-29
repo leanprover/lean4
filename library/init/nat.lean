@@ -5,7 +5,6 @@ Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
 import init.wf init.tactic init.num
-
 open eq.ops decidable or
 
 namespace nat
@@ -39,7 +38,6 @@ namespace nat
 
   notation a - b := sub a b
   notation a * b := mul a b
-
 
   /- properties of ℕ -/
 
@@ -226,17 +224,18 @@ namespace nat
   theorem max_self (a : ℕ) : max a a = a :=
   eq.rec_on !if_t_t rfl
 
-  theorem max_eq_right {a b : ℕ} (H : a < b) : max a b = b :=
+  theorem max_eq_right' {a b : ℕ} (H : a < b) : max a b = b :=
   if_pos H
 
-  theorem max_eq_left {a b : ℕ} (H : ¬ a < b) : max a b = a :=
+  -- different versions will be defined in algebra
+  theorem max_eq_left' {a b : ℕ} (H : ¬ a < b) : max a b = a :=
   if_neg H
 
   theorem eq_max_right {a b : ℕ} (H : a < b) : b = max a b :=
-  eq.rec_on (max_eq_right H) rfl
+  eq.rec_on (max_eq_right' H) rfl
 
   theorem eq_max_left {a b : ℕ} (H : ¬ a < b) : a = max a b :=
-  eq.rec_on (max_eq_left H) rfl
+  eq.rec_on (max_eq_left' H) rfl
 
   theorem le_max_left (a b : ℕ) : a ≤ max a b :=
   by_cases

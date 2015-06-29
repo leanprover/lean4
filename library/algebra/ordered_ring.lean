@@ -97,7 +97,6 @@ section
     rewrite zero_mul at  H,
     exact H
   end
-
 end
 
 structure linear_ordered_semiring [class] (A : Type)
@@ -185,7 +184,8 @@ section
       not_le_of_gt (mul_pos H2 H1) H)
 end
 
-structure ordered_ring [class] (A : Type) extends ring A, ordered_comm_group A, zero_ne_one_class A :=
+structure ordered_ring [class] (A : Type)
+    extends ring A, ordered_comm_group A, zero_ne_one_class A :=
 (mul_nonneg : ∀a b, le zero a → le zero b → le zero (mul a b))
 (mul_pos : ∀a b, lt zero a → lt zero b → lt zero (mul a b))
 
@@ -225,7 +225,8 @@ begin
   exact (iff.mp !sub_pos_iff_lt H2)
 end
 
-definition ordered_ring.to_ordered_semiring [trans-instance] [coercion] [reducible] [s : ordered_ring A] :
+definition ordered_ring.to_ordered_semiring [trans-instance] [coercion] [reducible]
+    [s : ordered_ring A] :
   ordered_semiring A :=
 ⦃ ordered_semiring, s,
   mul_zero                   := mul_zero,
@@ -302,10 +303,9 @@ end
 
 -- TODO: we can eliminate mul_pos_of_pos, but now it is not worth the effort to redeclare the
 -- class instance
-structure linear_ordered_ring [class] (A : Type) extends ordered_ring A, linear_strong_order_pair A :=
+structure linear_ordered_ring [class] (A : Type)
+    extends ordered_ring A, linear_strong_order_pair A :=
   (zero_lt_one : lt zero one)
-
--- print fields linear_ordered_semiring
 
 definition linear_ordered_ring.to_linear_ordered_semiring [trans-instance] [coercion] [reducible]
     [s : linear_ordered_ring A] :

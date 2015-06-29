@@ -301,8 +301,7 @@ definition strong_order_pair.to_order_pair [trans-instance] [coercion] [reducibl
   lt_irrefl := lt_irrefl',
   le_of_lt := le_of_lt',
   lt_of_le_of_lt := lt_of_le_of_lt',
-  lt_of_lt_of_le := lt_of_lt_of_le'
-⦄
+  lt_of_lt_of_le := lt_of_lt_of_le' ⦄
 
 /- linear orders -/
 
@@ -313,7 +312,7 @@ structure linear_strong_order_pair [class] (A : Type) extends strong_order_pair 
 
 definition linear_strong_order_pair.to_linear_order_pair [trans-instance] [coercion] [reducible]
     [s : linear_strong_order_pair A] : linear_order_pair A :=
-⦃ linear_order_pair, s, strong_order_pair.to_order_pair⦄
+⦃ linear_order_pair, s, strong_order_pair.to_order_pair ⦄
 
 section
   variable [s : linear_strong_order_pair A]
@@ -450,48 +449,24 @@ section
     le_max_right := le_dlo_max_right,
     max_le := dlo_max_le ⦄
 
-/-
-  definition max (a b : A) : A :=
-  if a < b then b else a
+  /- These don't require decidability, but it is not clear whether it is worth breaking out
+     a new class, linearly_ordered_lattice. Currently nat is the only instance that doesn't
+     use decidable_linear_order (because max and min are defined separately, in init),
+     so we simply reprove these theorems there. -/
 
-  definition min (a b : A) : A :=
-  if a < b then a else b
-
-  theorem max_a_a (a : A) : a = max a a :=
-  eq.rec_on !if_t_t rfl
-
-  theorem max.eq_right {a b : A} (H : a < b) : max a b = b :=
-  if_pos H
-
-  theorem max.eq_left {a b : A} (H : ¬ a < b) : max a b = a :=
-  if_neg H
-
-  theorem max.right_eq {a b : A} (H : a < b) : b = max a b :=
-  eq.rec_on (max.eq_right H) rfl
-
-  theorem max.left_eq {a b : A} (H : ¬ a < b) : a = max a b :=
-  eq.rec_on (max.eq_left H) rfl
-
-  theorem max.left (a b : A) : a ≤ max a b :=
+  theorem lt_min {a b c : A} (H₁ : a < b) (H₂ : a < c) : a < min b c :=
   by_cases
-    (λ h : a < b,   le_of_lt (eq.rec_on (max.right_eq h) h))
-    (λ h : ¬ a < b, eq.rec_on (max.eq_left h) !le.refl)
+    (assume H : b ≤ c, by rewrite (min_eq_left H); apply H₁)
+    (assume H : ¬ b ≤ c,
+      assert H' : c ≤ b, from le_of_lt (lt_of_not_ge H),
+      by rewrite (min_eq_right H'); apply H₂)
 
-  theorem eq_or_lt_of_not_lt (H : ¬ a < b) : a = b ∨ b < a :=
-  have H' : b = a ∨ b < a, from or.swap (lt_or_eq_of_le (le_of_not_gt H)),
-  or.elim H'
-    (take H'' : b = a, or.inl (symm H''))
-    (take H'' : b < a, or.inr H'')
-
-  theorem max.right (a b : A) : b ≤ max a b :=
+  theorem max_lt {a b c : A} (H₁ : a < c) (H₂ : b < c) : max a b < c :=
   by_cases
-    (λ h : a < b,   eq.rec_on (max.eq_right h) !le.refl)
-    (λ h : ¬ a < b, or.rec_on (eq_or_lt_of_not_lt h)
-      (λ heq, eq.rec_on heq (eq.rec_on (max_a_a a) !le.refl))
-      (λ h : b < a,
-        have aux : a = max a b, from max.left_eq (lt.asymm h),
-        eq.rec_on aux (le_of_lt h)))
--/
+    (assume H : a ≤ b, by rewrite (max_eq_right H); apply H₂)
+    (assume H : ¬ a ≤ b,
+      assert H' : b ≤ a, from le_of_lt (lt_of_not_ge H),
+      by rewrite (max_eq_left H'); apply H₁)
 end
 
 end algebra

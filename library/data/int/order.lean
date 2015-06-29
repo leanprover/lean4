@@ -281,6 +281,7 @@ section migrate_algebra
   show decidable (b ≤ a), from _
   definition decidable_gt [instance] (a b : ℤ) : decidable (a > b) :=
   show decidable (b < a), from _
+
   definition min : ℤ → ℤ → ℤ := algebra.min
   definition max : ℤ → ℤ → ℤ := algebra.max
   definition abs : ℤ → ℤ := algebra.abs

@@ -3,10 +3,9 @@ Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Avigad
 
-Partially ordered additive groups, modeled on Isabelle's library. We could refine the structures,
-but we would have to declare more inheritance paths.
+Partially ordered additive groups, modeled on Isabelle's library. These classes can be refined
+if necessary.
 -/
-
 import logic.eq data.unit data.sigma data.prod
 import algebra.function algebra.binary
 import algebra.group algebra.order
@@ -48,16 +47,6 @@ section
   theorem add_le_add (Hab : a ≤ b) (Hcd : c ≤ d) : a + c ≤ b + d :=
   le.trans (add_le_add_right Hab c) (add_le_add_left Hcd b)
 
-/-  theorem add_lt_add_left (H : a < b) (c : A) : c + a < c + b :=
-  have H1 : c + a ≤ c + b, from add_le_add_left (le_of_lt H) c,
-  have H2 : c + a ≠ c + b, from
-    take H3 : c + a = c + b,
-    have H4 : a = b, from add.left_cancel H3,
-    ne_of_lt H H4,
-  sorry--lt_of_le_of_ne H1 H2-/
-
-
-
   theorem le_add_of_nonneg_right (H : b ≥ 0) : a ≤ a + b :=
   begin
     have H1 : a + b ≥ a + 0, from add_le_add_left H a,
@@ -94,10 +83,6 @@ section
 
   theorem lt_of_add_lt_add_left (H : a + b < a + c) : b < c :=
   !ordered_cancel_comm_monoid.lt_of_add_lt_add_left H
-  /-have H1 : b ≤ c, from le_of_add_le_add_left (le_of_lt H),
-  have H2 : b ≠ c, from
-    assume H3 : b = c, lt.irrefl _ (H3 ▸ H),
-  sorry --lt_of_le_of_ne H1 H2-/
 
   theorem lt_of_add_lt_add_right (H : a + b < c + b) : a < c :=
   lt_of_add_lt_add_left ((add.comm a b) ▸ (add.comm c b) ▸ H)
@@ -210,16 +195,11 @@ section
   !add_zero ▸ add_lt_add Hbc Ha
 end
 
--- TODO: add properties of max and min
-
 /- partially ordered groups -/
 
 structure ordered_comm_group [class] (A : Type) extends add_comm_group A, order_pair A :=
 (add_le_add_left : ∀a b, le a b → ∀c, le (add c a) (add c b))
 (add_lt_add_left : ∀a b, lt a b → ∀ c, lt (add c a) (add c b))
---(le_of_add_le_add_left : ∀a b c, le (add a b) (add a c) → le b c)
---(lt_of_add_lt_add_left : ∀a b c, lt (add a b) (add a c) → lt b c)
-
 
 theorem ordered_comm_group.le_of_add_le_add_left [s : ordered_comm_group A] {a b c : A} (H : a + b ≤ a + c) : b ≤ c :=
 assert H' : -a + (a + b) ≤ -a + (a + c), from ordered_comm_group.add_le_add_left _ _ H _,
@@ -441,6 +421,65 @@ section
    add_le_of_le_of_nonpos (le.refl a) (neg_nonpos_of_nonneg H)
 end
 
+/- partially ordered groups with min and max -/
+
+structure lattice_ordered_comm_group [class] (A : Type)
+    extends ordered_comm_group A, lattice A
+
+section
+  variables [s : lattice_ordered_comm_group A]
+  variables (a b c : A)
+  include s
+
+  theorem min_add_add_left : min (a + b) (a + c) = a + min b c :=
+  eq.symm (eq_min
+    (show a + min b c ≤ a + b, from add_le_add_left !min_le_left _)
+    (show a + min b c ≤ a + c, from add_le_add_left !min_le_right _)
+    (take d,
+      assume H₁ : d ≤ a + b,
+      assume H₂ : d ≤ a + c,
+      have H : d - a ≤ min b c,
+        from le_min (iff.mp !le_add_iff_sub_left_le H₁) (iff.mp !le_add_iff_sub_left_le H₂),
+      show d ≤ a + min b c, from iff.mp' !le_add_iff_sub_left_le H))
+
+  theorem min_add_add_right : min (a + c) (b + c) = min a b + c :=
+  by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply min_add_add_left
+
+  theorem max_add_add_left : max (a + b) (a + c) = a + max b c :=
+  eq.symm (eq_max
+    (add_le_add_left !le_max_left _)
+    (add_le_add_left !le_max_right _)
+    (λ d H₁ H₂,
+      have H : max b c ≤ d - a,
+        from max_le (iff.mp !add_le_iff_le_sub_left H₁) (iff.mp !add_le_iff_le_sub_left H₂),
+      show a + max b c ≤ d, from iff.mp' !add_le_iff_le_sub_left H))
+
+  theorem max_add_add_right : max (a + c) (b + c) = max a b + c :=
+  by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply max_add_add_left
+
+  theorem max_neg_neg : max (-a) (-b) = - min a b  :=
+  eq.symm (eq_max
+    (show -a ≤ -(min a b), from neg_le_neg !min_le_left)
+    (show -b ≤ -(min a b), from neg_le_neg !min_le_right)
+    (take d,
+      assume H₁ : -a ≤ d,
+      assume H₂ : -b ≤ d,
+      have H : -d ≤ min a b,
+        from le_min (!iff.mp !neg_le_iff_neg_le H₁) (!iff.mp !neg_le_iff_neg_le H₂),
+      show -(min a b) ≤ d, from !iff.mp !neg_le_iff_neg_le H))
+
+  theorem min_eq_neg_max_neg_neg : min a b = - max (-a) (-b) :=
+  by rewrite [max_neg_neg, neg_neg]
+
+  theorem min_neg_neg : min (-a) (-b) = - max a b :=
+  by rewrite [min_eq_neg_max_neg_neg, *neg_neg]
+
+  theorem max_eq_neg_min_neg_neg : max a b = - min (-a) (-b) :=
+  by rewrite [min_neg_neg, neg_neg]
+end
+
+/- linear ordered group with decidable order -/
+
 structure decidable_linear_ordered_comm_group [class] (A : Type)
     extends add_comm_group A, decidable_linear_order A :=
     (add_le_add_left : ∀ a b, le a b → ∀ c, le (add c a) (add c b))
@@ -450,13 +489,14 @@ private theorem add_le_add_left' (A : Type) (s : decidable_linear_ordered_comm_g
                 a ≤ b → (∀ c : A, c + a ≤ c + b) :=
   decidable_linear_ordered_comm_group.add_le_add_left a b
 
-definition decidable_linear_ordered_comm_group.to_ordered_comm_group [trans-instance] [reducible] [coercion]
-           (A : Type) [s : decidable_linear_ordered_comm_group A] : ordered_comm_group A :=
-   ⦃ordered_comm_group, s,
-   le_of_lt := @le_of_lt A s,
-   add_le_add_left := add_le_add_left' A s,
-   lt_of_le_of_lt := @lt_of_le_of_lt A s,
-   lt_of_lt_of_le := @lt_of_lt_of_le A s⦄
+definition decidable_linear_ordered_comm_group.to_lattice_ordered_comm_group
+      [trans-instance] [reducible] [coercion]
+   (A : Type) [s : decidable_linear_ordered_comm_group A] : lattice_ordered_comm_group A :=
+⦃ lattice_ordered_comm_group, s, decidable_linear_order.to_lattice,
+  le_of_lt := @le_of_lt A s,
+  add_le_add_left := add_le_add_left' A s,
+  lt_of_le_of_lt := @lt_of_le_of_lt A s,
+  lt_of_lt_of_le := @lt_of_lt_of_le A s ⦄
 
 section
   variables [s : decidable_linear_ordered_comm_group A]

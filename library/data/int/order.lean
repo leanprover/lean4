@@ -281,7 +281,6 @@ section migrate_algebra
   show decidable (b ≤ a), from _
   definition decidable_gt [instance] (a b : ℤ) : decidable (a > b) :=
   show decidable (b < a), from _
-
   definition min : ℤ → ℤ → ℤ := algebra.min
   definition max : ℤ → ℤ → ℤ := algebra.max
   definition abs : ℤ → ℤ := algebra.abs
@@ -294,7 +293,6 @@ section migrate_algebra
   attribute le.trans ge.trans lt.trans gt.trans [trans]
   attribute lt_of_lt_of_le lt_of_le_of_lt gt_of_gt_of_ge gt_of_ge_of_gt [trans]
 end migrate_algebra
-
 
 /- more facts specific to int -/
 

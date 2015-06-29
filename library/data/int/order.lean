@@ -363,7 +363,7 @@ theorem lt_of_le_sub_one {a b : ℤ} (H : a ≤ b - 1) : a < b :=
 theorem sign_of_succ (n : nat) : sign (nat.succ n) = 1 :=
 sign_of_pos (of_nat_pos !nat.succ_pos)
 
-theorem exists_eq_neg_succ_of_nat {a : ℤ} : a < 0 → ∃m : ℕ, a = -[m +1] :=
+theorem exists_eq_neg_succ_of_nat {a : ℤ} : a < 0 → ∃m : ℕ, a = -[1+m] :=
 int.cases_on a
   (take m H, absurd (of_nat_nonneg m : 0 ≤ m) (not_le_of_gt H))
   (take m H, exists.intro m rfl)

@@ -85,7 +85,7 @@ definition mul (a b : ℤ) : ℤ :=
 
 /- notation -/
 
-notation `-[` n `+1]` := int.neg_succ_of_nat n    -- for pretty-printing output
+notation `-[1+` n `]` := int.neg_succ_of_nat n    -- for pretty-printing output
 prefix - := int.neg
 infix +  := int.add
 infix *  := int.mul
@@ -101,7 +101,7 @@ iff.intro of_nat.inj !congr_arg
 theorem neg_succ_of_nat.inj {m n : ℕ} (H : neg_succ_of_nat m = neg_succ_of_nat n) : m = n :=
 by injection H; assumption
 
-theorem neg_succ_of_nat_eq (n : ℕ) : -[n +1] = -(n + 1) := rfl
+theorem neg_succ_of_nat_eq (n : ℕ) : -[1+ n] = -(n + 1) := rfl
 
 definition has_decidable_eq [instance] : decidable_eq ℤ :=
 take a b,
@@ -641,7 +641,7 @@ have H1 : m = (#nat m - n + n), from (nat.sub_add_cancel H)⁻¹,
 have H2 : m = (#nat m - n) + n, from congr_arg of_nat H1,
 (sub_eq_of_eq_add H2)⁻¹
 
-theorem neg_succ_of_nat_eq' (m : ℕ) : -[m +1] = -m - 1 :=
+theorem neg_succ_of_nat_eq' (m : ℕ) : -[1+ m] = -m - 1 :=
 by rewrite [neg_succ_of_nat_eq, of_nat_add, neg_add]
 
 definition succ (a : ℤ) := a + (nat.succ zero)

@@ -96,38 +96,38 @@ open nat int algebra
 
 definition ipow (a : A) : ℤ → A
 | (of_nat n) := a^n
-| -[n +1]    := (a^(nat.succ n))⁻¹
+| -[1+n]     := (a^(nat.succ n))⁻¹
 
 private lemma ipow_add_aux (a : A) (m n : nat) :
-  ipow a ((of_nat m) + -[n +1]) = ipow a (of_nat m) * ipow a (-[n +1]) :=
+  ipow a ((of_nat m) + -[1+n]) = ipow a (of_nat m) * ipow a (-[1+n]) :=
 or.elim (nat.lt_or_ge m (nat.succ n))
   (assume H : (#nat m < nat.succ n),
     assert H1 : (#nat nat.succ n - m > nat.zero), from nat.sub_pos_of_lt H,
     calc
-      ipow a ((of_nat m) + -[n +1]) = ipow a (sub_nat_nat m (nat.succ n)) : rfl
-        ... = ipow a (-[nat.pred (nat.sub (nat.succ n) m) +1])            : {sub_nat_nat_of_lt H}
+      ipow a ((of_nat m) + -[1+n]) = ipow a (sub_nat_nat m (nat.succ n))  : rfl
+        ... = ipow a (-[1+ nat.pred (nat.sub (nat.succ n) m)])            : {sub_nat_nat_of_lt H}
         ... = (pow a (nat.succ (nat.pred (nat.sub (nat.succ n) m))))⁻¹    : rfl
         ... = (pow a (nat.succ n) * (pow a m)⁻¹)⁻¹                        :
                 by rewrite [nat.succ_pred_of_pos H1, pow_sub a (nat.le_of_lt H)]
         ... = pow a m * (pow a (nat.succ n))⁻¹                            :
                 by rewrite [mul_inv, inv_inv]
-        ... = ipow a (of_nat m) * ipow a (-[n +1])                        : rfl)
+        ... = ipow a (of_nat m) * ipow a (-[1+n])                         : rfl)
   (assume H : (#nat m ≥ nat.succ n),
     calc
-      ipow a ((of_nat m) + -[n +1]) = ipow a (sub_nat_nat m (nat.succ n)) : rfl
+      ipow a ((of_nat m) + -[1+n]) = ipow a (sub_nat_nat m (nat.succ n))  : rfl
         ... = ipow a (#nat m - nat.succ n)                                : {sub_nat_nat_of_ge H}
         ... = pow a m * (pow a (nat.succ n))⁻¹                            : pow_sub a H
-        ... = ipow a (of_nat m) * ipow a (-[n +1])                        : rfl)
+        ... = ipow a (of_nat m) * ipow a (-[1+n])                         : rfl)
 
 theorem ipow_add (a : A) : ∀i j : int, ipow a (i + j) = ipow a i * ipow a j
 | (of_nat m) (of_nat n) := !pow_add
-| (of_nat m) -[n +1]    := !ipow_add_aux
-| -[ m+1]    (of_nat n) := by rewrite [int.add.comm, ipow_add_aux, ↑ipow, -*inv_pow, pow_inv_comm]
-| -[ m+1]    -[n+1]     :=
+| (of_nat m) -[1+n]     := !ipow_add_aux
+| -[1+m]     (of_nat n) := by rewrite [int.add.comm, ipow_add_aux, ↑ipow, -*inv_pow, pow_inv_comm]
+| -[1+m]     -[1+n]     :=
   calc
-    ipow a (-[ m+1] + -[n+1]) = (a^(#nat nat.succ m + nat.succ n))⁻¹ : rfl
+    ipow a (-[1+m] + -[1+n]) = (a^(#nat nat.succ m + nat.succ n))⁻¹ : rfl
       ... = (a^(nat.succ m))⁻¹ * (a^(nat.succ n))⁻¹ : by rewrite [pow_add, pow_comm, mul_inv]
-      ... = ipow a (-[ m+1]) * ipow a (-[n+1])      : rfl
+      ... = ipow a (-[1+m]) * ipow a (-[1+n])       : rfl
 
 theorem ipow_comm (a : A) (i j : ℤ) : ipow a i * ipow a j = ipow a j * ipow a i :=
 by rewrite [-*ipow_add, int.add.comm]

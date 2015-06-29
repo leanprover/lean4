@@ -105,9 +105,9 @@ theorem of_int.inj {a b : ℤ} : of_int a ≡ of_int b → a = b :=
 by rewrite [↑of_int, ↑equiv, *mul_one]; intros; assumption
 
 definition inv : prerat → prerat
-| inv (prerat.mk nat.zero d dp) := zero
+| inv (prerat.mk nat.zero d dp)     := zero
 | inv (prerat.mk (nat.succ n) d dp) := prerat.mk d (nat.succ n) !of_nat_succ_pos
-| inv (prerat.mk -[n +1] d dp) := prerat.mk (-d) (nat.succ n) !of_nat_succ_pos
+| inv (prerat.mk -[1+n] d dp)       := prerat.mk (-d) (nat.succ n) !of_nat_succ_pos
 
 theorem equiv_zero_of_num_eq_zero {a : prerat} (H : num a = 0) : a ≡ zero :=
 by rewrite [↑equiv, H, ↑zero, ↑num, ↑of_int, *zero_mul]
@@ -132,9 +132,9 @@ obtain (n' : nat) (Hn' : n = of_nat n'), from exists_eq_of_nat (le_of_lt np),
 have H1 : (#nat n' > nat.zero), from lt_of_of_nat_lt_of_nat (Hn' ▸ np),
 obtain (k : nat) (Hk : n' = nat.succ k), from nat.exists_eq_succ_of_lt H1,
 have H2 : -d * n = -d * nat.succ k, by rewrite [Hn', Hk],
-have H3 : inv (mk -[k +1] d dp) ≡ mk (-d) n np, from H2,
-have H4 : -[k +1] = -n, from calc
-  -[k +1] = -(nat.succ k) : rfl
+have H3 : inv (mk -[1+k] d dp) ≡ mk (-d) n np, from H2,
+have H4 : -[1+k] = -n, from calc
+  -[1+k] = -(nat.succ k) : rfl
       ... = -n            : by rewrite [Hk⁻¹, Hn'],
 H4 ▸ H3
 
@@ -298,13 +298,15 @@ theorem reduce_eq_reduce : ∀{a b : prerat}, a ≡ b → reduce a = reduce b
   decidable.by_cases
     (assume anz : an = 0,
       have H' : bn * ad = 0, by rewrite [-H, anz, zero_mul],
-      assert bnz : bn = 0, from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero H') (ne_of_gt adpos),
+      assert bnz : bn = 0,
+        from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero H') (ne_of_gt adpos),
       by rewrite [↑reduce, if_pos anz, if_pos bnz])
     (assume annz : an ≠ 0,
       assert bnnz : bn ≠ 0, from
         assume bnz,
         have H' : an * bd = 0, by rewrite [H, bnz, zero_mul],
-        have anz : an = 0, from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero H') (ne_of_gt bdpos),
+        have anz : an = 0,
+          from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero H') (ne_of_gt bdpos),
         show false, from annz anz,
       begin
         rewrite [↑reduce, if_neg annz, if_neg bnnz],
@@ -395,7 +397,7 @@ calc
                   ... = of_int a - of_int b         : {of_int_neg b}
 
 theorem of_int.inj {a b : ℤ} (H : of_int a = of_int b) : a = b :=
-sorry
+prerat.of_int.inj (quot.exact H)
 
 theorem of_nat_eq (a : ℕ) : of_nat a = of_int (int.of_nat a) := rfl
 

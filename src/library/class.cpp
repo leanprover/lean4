@@ -54,6 +54,7 @@ struct class_state {
     class_instances       m_instances;
     class_instances       m_derived_trans_instances;
     instance_priorities   m_priorities;
+    name_set              m_derived_trans_instance_set;
     name_set              m_multiple; // set of classes that allow multiple solutions/instances
     tc_multigraph         m_mgraph;
 
@@ -68,6 +69,10 @@ struct class_state {
 
     bool is_instance(name const & i) const {
         return m_priorities.contains(i);
+    }
+
+    bool is_derived_trans_instance(name const & i) const {
+        return m_derived_trans_instance_set.contains(i);
     }
 
     bool try_multiple_instances(name const & c) const {
@@ -113,6 +118,7 @@ struct class_state {
             auto lst = filter(*it, [&](name const & i1) { return i1 != i; });
             m_derived_trans_instances.insert(tgt, cons(i, lst));
         }
+        m_derived_trans_instance_set.insert(i);
         m_mgraph.add1(env, src, i, tgt);
     }
 
@@ -333,6 +339,11 @@ bool try_multiple_instances(environment const & env, name const & n) {
 bool is_instance(environment const & env, name const & i) {
     class_state const & s = class_ext::get_state(env);
     return s.is_instance(i);
+}
+
+bool is_derived_trans_instance(environment const & env, name const & i) {
+    class_state const & s = class_ext::get_state(env);
+    return s.is_derived_trans_instance(i);
 }
 
 list<name> get_class_instances(environment const & env, name const & c) {

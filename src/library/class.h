@@ -23,6 +23,8 @@ environment add_trans_instance(environment const & env, name const & n, unsigned
 bool is_class(environment const & env, name const & c);
 /** \brief Return true iff \c i was declared with \c add_instance. */
 bool is_instance(environment const & env, name const & i);
+/** \brief Return true iff \c i is a derived transitive instance. */
+bool is_derived_trans_instance(environment const & env, name const & i);
 /** \brief Return the instances of the given class. */
 list<name> get_class_instances(environment const & env, name const & c);
 /** \brief Return instances from the transitive closure graph of instances added using add_trans_instance */

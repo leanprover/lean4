@@ -870,25 +870,13 @@ justification mk_failed_to_synthesize_jst(environment const & env, expr const & 
         });
 }
 
-template<typename Converter>
-class extra_opaque_converter : public Converter {
-    name_predicate m_pred;
-public:
-    extra_opaque_converter(environment const & env, name_predicate const & p):Converter(env), m_pred(p) {}
-    virtual bool is_opaque(declaration const & d) const {
-        if (m_pred(d.get_name()))
-            return true;
-        return Converter::is_opaque(d);
-    }
-};
-
 type_checker_ptr mk_type_checker(environment const & env, name_generator && ngen, name_predicate const & pred) {
     return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
-                                         std::unique_ptr<converter>(new extra_opaque_converter<projection_converter>(env, pred))));
+                                         std::unique_ptr<converter>(new hint_converter<projection_converter>(env, pred))));
 }
 
 type_checker_ptr mk_simple_type_checker(environment const & env, name_generator && ngen, name_predicate const & pred) {
     return std::unique_ptr<type_checker>(new type_checker(env, std::move(ngen),
-                                         std::unique_ptr<converter>(new extra_opaque_converter<default_converter>(env, pred))));
+                                         std::unique_ptr<converter>(new hint_converter<default_converter>(env, pred))));
 }
 }

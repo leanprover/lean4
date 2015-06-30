@@ -28,6 +28,15 @@ public:
     pair<bool, constraint_seq> is_def_eq(expr const & t, expr const & s, type_checker & c);
 };
 
+/** \brief Converter that allows us to specify constants that should be considered opaque */
+template<typename Converter>
+class hint_converter : public Converter {
+    name_predicate m_pred;
+public:
+    hint_converter(environment const & env, name_predicate const & p):Converter(env), m_pred(p) {}
+    virtual bool is_opaque(declaration const & d) const { return m_pred(d.get_name()) || Converter::is_opaque(d); }
+};
+
 std::unique_ptr<converter> mk_dummy_converter();
 
 void initialize_converter();

@@ -34,9 +34,7 @@ class decl_attributes {
     optional<unsigned> m_priority;
     optional<unsigned> m_unfold_c_hint;
 
-    optional<unsigned> parse_instance_priority(parser & p);
     void parse(name const & n, parser & p);
-
 public:
     decl_attributes(bool is_abbrev = false, bool persistent = true);
     void parse(buffer<name> const & ns, parser & p);

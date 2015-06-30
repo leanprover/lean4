@@ -19,6 +19,8 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/abbreviation.h"
 #include "library/unfold_macros.h"
+#include "library/choice.h"
+#include "library/num.h"
 #include "library/replace_visitor.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parser.h"
@@ -452,5 +454,46 @@ char const * close_binder_string(binder_info const & bi, bool unicode) {
 
 expr postprocess(environment const & env, expr const & e) {
     return eta_reduce(expand_abbreviations(env, unfold_untrusted_macros(env, e)));
+}
+
+
+struct elim_choice_fn : public replace_visitor {
+    name m_prio_ns;
+    elim_choice_fn():m_prio_ns(get_priority_namespace()) {}
+
+    virtual expr visit_macro(expr const & e) {
+        if (is_choice(e)) {
+            for (unsigned i = 0; i < get_num_choices(e); i++) {
+                expr const & c = get_choice(e, i);
+                if (is_constant(c) && const_name(c).get_prefix() == m_prio_ns)
+                    return c;
+            }
+            throw exception("invalid priority expression, it contains overloaded symbols");
+        } else {
+            return replace_visitor::visit_macro(e);
+        }
+    }
+};
+
+optional<unsigned> parse_priority(parser & p) {
+    if (p.curr_is_token(get_priority_tk())) {
+        p.next();
+        auto pos = p.pos();
+        environment env = open_priority_aliases(open_num_notation(p.env()));
+        parser::local_scope scope(p, env);
+        expr val = p.parse_expr();
+        val = elim_choice_fn()(val);
+        val = normalize(p.env(), val);
+        if (optional<mpz> mpz_val = to_num(val)) {
+            if (!mpz_val->is_unsigned_int())
+                throw parser_error("invalid 'priority', argument does not fit in a machine integer", pos);
+            p.check_token_next(get_rbracket_tk(), "invalid 'priority', ']' expected");
+            return optional<unsigned>(mpz_val->get_unsigned_int());
+        } else {
+            throw parser_error("invalid 'priority', argument does not evaluate to a numeral", pos);
+        }
+    } else {
+        return optional<unsigned>();
+    }
 }
 }

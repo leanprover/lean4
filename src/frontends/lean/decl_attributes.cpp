@@ -5,14 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/replace_visitor.h"
-#include "library/choice.h"
 #include "library/normalize.h"
 #include "library/reducible.h"
 #include "library/class.h"
 #include "library/relation_manager.h"
 #include "library/user_recursors.h"
 #include "library/coercion.h"
-#include "library/num.h"
 #include "library/simplifier/rewrite_rule_set.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/parser.h"
@@ -42,46 +40,6 @@ decl_attributes::decl_attributes(bool is_abbrev, bool persistent):
     m_subst                  = false;
     m_recursor               = false;
     m_rewrite                = false;
-}
-
-struct elim_choice_fn : public replace_visitor {
-    name m_prio_ns;
-    elim_choice_fn():m_prio_ns(get_priority_namespace()) {}
-
-    virtual expr visit_macro(expr const & e) {
-        if (is_choice(e)) {
-            for (unsigned i = 0; i < get_num_choices(e); i++) {
-                expr const & c = get_choice(e, i);
-                if (is_constant(c) && const_name(c).get_prefix() == m_prio_ns)
-                    return c;
-            }
-            throw exception("invalid priority expression, it contains overloaded symbols");
-        } else {
-            return replace_visitor::visit_macro(e);
-        }
-    }
-};
-
-optional<unsigned> decl_attributes::parse_instance_priority(parser & p) {
-    if (p.curr_is_token(get_priority_tk())) {
-        p.next();
-        auto pos = p.pos();
-        environment env = open_priority_aliases(open_num_notation(p.env()));
-        parser::local_scope scope(p, env);
-        expr val = p.parse_expr();
-        val = elim_choice_fn()(val);
-        val = normalize(p.env(), val);
-        if (optional<mpz> mpz_val = to_num(val)) {
-            if (!mpz_val->is_unsigned_int())
-                throw parser_error("invalid 'priority', argument does not fit in a machine integer", pos);
-            p.check_token_next(get_rbracket_tk(), "invalid 'priority', ']' expected");
-            return optional<unsigned>(mpz_val->get_unsigned_int());
-        } else {
-            throw parser_error("invalid 'priority', argument does not evaluate to a numeral", pos);
-        }
-    } else {
-        return optional<unsigned>();
-    }
 }
 
 void decl_attributes::parse(buffer<name> const & ns, parser & p) {
@@ -126,7 +84,7 @@ void decl_attributes::parse(buffer<name> const & ns, parser & p) {
         } else if (p.curr_is_token(get_multiple_instances_tk())) {
             m_has_multiple_instances = true;
             p.next();
-        } else if (auto it = parse_instance_priority(p)) {
+        } else if (auto it = parse_priority(p)) {
             m_priority = *it;
             if (!m_is_instance) {
                 if (ns.empty()) {

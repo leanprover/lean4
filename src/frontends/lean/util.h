@@ -109,4 +109,7 @@ char const * close_binder_string(binder_info const & bi, bool unicode);
 
 /** \brief Cleanup expression after elaboration. */
 expr postprocess(environment const & env, expr const & e);
+
+/** \brief Parse `[priority <num>]`. Return none if current token is not `[priority` */
+optional<unsigned> parse_priority(parser & p);
 }

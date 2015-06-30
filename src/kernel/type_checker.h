@@ -243,6 +243,8 @@ void check_no_metavar(environment const & env, name const & n, expr const & e, b
 */
 certified_declaration check(environment const & env, declaration const & d, name_generator && g);
 certified_declaration check(environment const & env, declaration const & d);
+certified_declaration check(environment const & env, declaration const & d, name_generator && g, name_predicate const & opaque_hints);
+certified_declaration check(environment const & env, declaration const & d, name_predicate const & opaque_hints);
 
 /**
     \brief Create a justification for an application \c e where the expected type must be \c d_type and

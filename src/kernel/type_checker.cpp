@@ -472,26 +472,32 @@ static void check_duplicated_params(environment const & env, declaration const &
     }
 }
 
-certified_declaration check(environment const & env, declaration const & d, name_generator && g) {
+certified_declaration check(environment const & env, declaration const & d, name_generator && g, name_predicate const & pred) {
     if (d.is_definition())
         check_no_mlocal(env, d.get_name(), d.get_value(), false);
     check_no_mlocal(env, d.get_name(), d.get_type(), true);
     check_name(env, d.get_name());
     check_duplicated_params(env, d);
-    bool memoize = true;
-    type_checker checker1(env, g.mk_child(), std::unique_ptr<converter>(new default_converter(env, memoize)));
-    expr sort = checker1.check(d.get_type(), d.get_univ_params()).first;
-    checker1.ensure_sort(sort, d.get_type());
+    type_checker checker(env, g.mk_child(), std::unique_ptr<converter>(new hint_converter<default_converter>(env, pred)));
+    expr sort = checker.check(d.get_type(), d.get_univ_params()).first;
+    checker.ensure_sort(sort, d.get_type());
     if (d.is_definition()) {
-        type_checker checker2(env, g.mk_child(), std::unique_ptr<converter>(new default_converter(env, memoize)));
-        expr val_type = checker2.check(d.get_value(), d.get_univ_params()).first;
-        if (!checker2.is_def_eq(val_type, d.get_type()).first) {
+        expr val_type = checker.check(d.get_value(), d.get_univ_params()).first;
+        if (!checker.is_def_eq(val_type, d.get_type()).first) {
             throw_kernel_exception(env, d.get_value(), [=](formatter const & fmt) {
                     return pp_def_type_mismatch(fmt, d.get_name(), d.get_type(), val_type, true);
                 });
         }
     }
     return certified_declaration(env.get_id(), d);
+}
+
+certified_declaration check(environment const & env, declaration const & d, name_generator && g) {
+    return check(env, d, std::move(g), [](name const &) { return false; });
+}
+
+certified_declaration check(environment const & env, declaration const & d, name_predicate const & pred) {
+    return check(env, d, name_generator(*g_tmp_prefix), pred);
 }
 
 certified_declaration check(environment const & env, declaration const & d) {

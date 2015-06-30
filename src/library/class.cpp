@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/tc_multigraph.h"
 #include "library/protected.h"
+#include "library/class.h"
 
 #ifndef LEAN_INSTANCE_DEFAULT_PRIORITY
 #define LEAN_INSTANCE_DEFAULT_PRIORITY 1000
@@ -26,12 +27,25 @@ struct class_entry {
     name             m_class;
     name             m_instance; // only relevant if m_kind == Instance
     unsigned         m_priority; // only relevant if m_kind == Instance
+    name             m_source;   // for TransInstance and DerivedTransInstance, we also store the source class
     class_entry():m_kind(class_entry_kind::Class), m_priority(0) {}
     explicit class_entry(name const & c):m_kind(class_entry_kind::Class), m_class(c), m_priority(0) {}
     class_entry(class_entry_kind k, name const & c, name const & i, unsigned p):
         m_kind(k), m_class(c), m_instance(i), m_priority(p) {}
+    class_entry(name const & src, name const & tgt, name const & i, unsigned p):
+        m_kind(class_entry_kind::TransInstance), m_class(tgt), m_instance(i), m_priority(p), m_source(src) {}
+    class_entry(name const & src, name const & tgt, name const & i):
+        m_kind(class_entry_kind::DerivedTransInstance), m_class(tgt), m_instance(i),
+        m_priority(0), m_source(src) {}
     class_entry(name const & c, bool):
         m_kind(class_entry_kind::Multi), m_class(c) {}
+
+    static class_entry mk_trans_inst(name const & src, name const & tgt, name const & i, unsigned p) {
+        return class_entry(src, tgt, i, p);
+    }
+    static class_entry mk_derived_trans_inst(name const & src, name const & tgt, name const & i) {
+        return class_entry(src, tgt, i);
+    }
 };
 
 struct class_state {
@@ -86,20 +100,20 @@ struct class_state {
         m_priorities.insert(i, p);
     }
 
-    void add_trans_instance(environment const & env, name const & c, name const & i, unsigned p) {
-        add_instance(c, i, p);
-        m_mgraph.add1(env, i);
+    void add_trans_instance(environment const & env, name const & src, name const & tgt, name const & i, unsigned p) {
+        add_instance(tgt, i, p);
+        m_mgraph.add1(env, src, i, tgt);
     }
 
-    void add_derived_trans_instance(environment const & env, name const & c, name const & i) {
-        auto it = m_derived_trans_instances.find(c);
+    void add_derived_trans_instance(environment const & env, name const & src, name const & tgt, name const & i) {
+        auto it = m_derived_trans_instances.find(tgt);
         if (!it) {
-            m_derived_trans_instances.insert(c, to_list(i));
+            m_derived_trans_instances.insert(tgt, to_list(i));
         } else {
             auto lst = filter(*it, [&](name const & i1) { return i1 != i; });
-            m_derived_trans_instances.insert(c, cons(i, lst));
+            m_derived_trans_instances.insert(tgt, cons(i, lst));
         }
-        m_mgraph.add1(env, i);
+        m_mgraph.add1(env, src, i, tgt);
     }
 
     void add_multiple(name const & c) {
@@ -126,10 +140,10 @@ struct class_config {
             s.add_instance(e.m_class, e.m_instance, e.m_priority);
             break;
         case class_entry_kind::TransInstance:
-            s.add_trans_instance(env, e.m_class, e.m_instance, e.m_priority);
+            s.add_trans_instance(env, e.m_source, e.m_class, e.m_instance, e.m_priority);
             break;
         case class_entry_kind::DerivedTransInstance:
-            s.add_derived_trans_instance(env, e.m_class, e.m_instance);
+            s.add_derived_trans_instance(env, e.m_source, e.m_class, e.m_instance);
             break;
         }
     }
@@ -147,11 +161,13 @@ struct class_config {
             s << e.m_class;
             break;
         case class_entry_kind::Instance:
-        case class_entry_kind::TransInstance:
             s << e.m_class << e.m_instance << e.m_priority;
             break;
+        case class_entry_kind::TransInstance:
+            s << e.m_source << e.m_class << e.m_instance << e.m_priority;
+            break;
         case class_entry_kind::DerivedTransInstance:
-            s << e.m_class << e.m_instance;
+            s << e.m_source << e.m_class << e.m_instance;
             break;
         }
     }
@@ -165,11 +181,13 @@ struct class_config {
             d >> e.m_class;
             break;
         case class_entry_kind::Instance:
-        case class_entry_kind::TransInstance:
             d >> e.m_class >> e.m_instance >> e.m_priority;
             break;
+        case class_entry_kind::TransInstance:
+            d >> e.m_source >> e.m_class >> e.m_instance >> e.m_priority;
+            break;
         case class_entry_kind::DerivedTransInstance:
-            d >> e.m_class >> e.m_instance;
+            d >> e.m_source >> e.m_class >> e.m_instance;
             break;
         }
         return e;
@@ -236,7 +254,7 @@ type_checker_ptr mk_class_type_checker(environment const & env, name_generator &
 }
 
 static name * g_tmp_prefix = nullptr;
-static environment add_instance_core(environment const & env, class_entry_kind k, name const & n, unsigned priority, bool persistent) {
+environment add_instance(environment const & env, name const & n, unsigned priority, bool persistent) {
     declaration d = env.get(n);
     expr type = d.get_type();
     name_generator ngen(*g_tmp_prefix);
@@ -249,25 +267,49 @@ static environment add_instance_core(environment const & env, class_entry_kind k
     }
     name c = get_class_name(env, get_app_fn(type));
     check_is_class(env, c);
-    return class_ext::add_entry(env, get_dummy_ios(), class_entry(k, c, n, priority), persistent);
-}
-
-environment add_instance(environment const & env, name const & n, unsigned priority, bool persistent) {
-    return add_instance_core(env, class_entry_kind::Instance, n, priority, persistent);
+    return class_ext::add_entry(env, get_dummy_ios(), class_entry(class_entry_kind::Instance, c, n, priority), persistent);
 }
 
 environment add_instance(environment const & env, name const & n, bool persistent) {
     return add_instance(env, n, LEAN_INSTANCE_DEFAULT_PRIORITY, persistent);
 }
 
+static name * g_source = nullptr;
+
+static pair<name, name> get_source_target(environment const & env, type_checker & tc, name const & n) {
+    buffer<expr> domain;
+    declaration const & d = env.get(n);
+    expr codomain      = to_telescope(tc, d.get_type(), domain);
+    optional<name> tgt = is_ext_class(tc, codomain);
+    if (!tgt)
+        throw exception(sstream() << "invalid transitive instance, resulting type of '" << n << "' is not a class");
+    optional<name> src;
+    for (expr const & d : domain) {
+        if (auto it = is_ext_class(tc, mlocal_type(d))) {
+            if (src) {
+                throw exception(sstream() << "invalid transitive instance, '" << n
+                                << "' has more than one instance argument");
+            }
+            src = it;
+        }
+    }
+    if (!src)
+        src = *g_source;
+    return mk_pair(*src, *tgt);
+}
+
 environment add_trans_instance(environment const & env, name const & n, unsigned priority, bool persistent) {
+    type_checker_ptr  tc     = mk_type_checker(env, name_generator());
+    pair<name, name> src_tgt = get_source_target(env, *tc, n);
     class_state const & s = class_ext::get_state(env);
     tc_multigraph g    = s.m_mgraph;
-    pair<environment, list<name>> new_env_insts = g.add(env, n);
+    pair<environment, list<name>> new_env_insts = g.add(env, src_tgt.first, n, src_tgt.second);
     environment new_env = new_env_insts.first;
-    new_env = add_instance_core(new_env, class_entry_kind::TransInstance, n, priority, persistent);
+    new_env = class_ext::add_entry(new_env, get_dummy_ios(), class_entry::mk_trans_inst(src_tgt.first, src_tgt.second, n, priority), persistent);
+    tc = mk_type_checker(new_env, name_generator());
     for (name const & tn : new_env_insts.second) {
-        new_env = add_instance_core(new_env, class_entry_kind::DerivedTransInstance, tn, 0, persistent);
+        pair<name, name> d_src_tgt = get_source_target(new_env, *tc, tn);
+        new_env = class_ext::add_entry(new_env, get_dummy_ios(), class_entry::mk_derived_trans_inst(d_src_tgt.first, d_src_tgt.second, tn), persistent);
         new_env = set_reducible(new_env, tn, reducible_status::Reducible, persistent);
         new_env = add_protected(new_env, tn);
     }
@@ -401,6 +443,7 @@ list<expr> get_local_instances(type_checker & tc, list<expr> const & ctx, name c
 
 void initialize_class() {
     g_tmp_prefix = new name(name::mk_internal_unique_name());
+    g_source     = new name(*g_tmp_prefix, "source");
     g_class_name = new name("classes");
     g_key = new std::string("class");
     class_ext::initialize();
@@ -410,6 +453,7 @@ void finalize_class() {
     class_ext::finalize();
     delete g_key;
     delete g_class_name;
+    delete g_source;
     delete g_tmp_prefix;
 }
 }

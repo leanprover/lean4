@@ -666,15 +666,15 @@ section migrate_algebra
     decidable_lt := dec_lt
    ⦄
 
+  local attribute real.discrete_linear_ordered_field [trans-instance]
   local attribute real.comm_ring [instance]
   local attribute real.ordered_ring [instance]
-  local attribute real.discrete_linear_ordered_field [instance]
 
   definition abs (n : ℝ) : ℝ := algebra.abs n
   definition sign (n : ℝ) : ℝ := algebra.sign n
-
-  definition max (a b : ℝ) : ℝ := algebra.max a b
-  definition min (a b : ℝ) : ℝ := algebra.min a b
+  definition max (a b : ℝ) : ℝ   := algebra.max a b
+  definition min (a b : ℝ) : ℝ   := algebra.min a b
+  definition divide (a b : ℝ): ℝ := algebra.divide a b
 
   migrate from algebra with real
     replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign, dvd → dvd,

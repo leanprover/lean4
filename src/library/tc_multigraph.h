@@ -17,15 +17,18 @@ class tc_multigraph {
     friend struct add_edge_fn;
 public:
     tc_multigraph(name const & kind):m_kind(kind) {}
-    pair<environment, list<name>> add(environment const & env, name const & e, unsigned num_args);
-    pair<environment, list<name>> add(environment const & env, name const & e);
-    void add1(environment const & env, name const & e, unsigned num_args);
-    void add1(environment const & env, name const & e);
+    pair<environment, list<name>> add(environment const & env, name const & src, name const & e, name const & tgt);
+    void add1(environment const & env, name const & src, name const & e, name const & tgt);
     void erase(name const & e);
     bool is_edge(name const & e) const;
     bool is_node(name const & c) const;
     list<pair<name, name>> get_successors(name const & c) const;
     list<name> get_predecessors(name const & c) const;
+    // TODO(Leo): Remove the following methods. They should be part of the coercion management module.
+    pair<environment, list<name>> add(environment const & env, name const & e, unsigned num_args);
+    pair<environment, list<name>> add(environment const & env, name const & e);
+    void add1(environment const & env, name const & e, unsigned num_args);
+    void add1(environment const & env, name const & e);
     static bool is_fun_sink(name const & c);
     static bool is_sort_sink(name const & c);
 };

@@ -109,7 +109,7 @@ static void tst2() {
     expr c2  = mk_local("c2", Prop);
     expr id = Const("id");
     std::cout << checker.whnf(mk_app(f3, c1, c2)).first << "\n";
-    lean_assert_eq(env.find(name(base, 98))->get_weight(), 98);
+    lean_assert_eq(env.find(name(base, 98))->get_height(), 98);
     lean_assert(checker.is_def_eq(mk_app(f98, c1, c2), mk_app(f97, mk_app(f97, c1, c2), mk_app(f97, c2, c1))).first);
     lean_assert(checker.is_def_eq(mk_app(f98, c1, mk_app(id, Prop, mk_app(id, Prop, c2))), mk_app(f97, mk_app(f97, c1, mk_app(id, Prop, c2)), mk_app(f97, c2, c1))).first);
     name_set s;

@@ -28,10 +28,10 @@ static declaration update_declaration(declaration d, optional<level_param_names>
         if (is_eqp(d.get_type(), _type) && is_eqp(d.get_value(), _value) && is_eqp(d.get_univ_params(), _ps))
             return d;
         if (d.is_theorem())
-            return mk_theorem(d.get_name(), _ps, _type, _value, d.get_weight());
+            return mk_theorem(d.get_name(), _ps, _type, _value, d.get_height());
         else
             return mk_definition(d.get_name(), _ps, _type, _value,
-                                 d.get_weight(), d.use_conv_opt());
+                                 d.get_height(), d.use_conv_opt());
     }
 }
 

@@ -118,13 +118,13 @@ bool default_converter::is_opaque(declaration const &) const {
     return false;
 }
 
-/** \brief Expand \c e if it is non-opaque constant with weight >= w */
-expr default_converter::unfold_name_core(expr e, unsigned w) {
+/** \brief Expand \c e if it is non-opaque constant with height >= h */
+expr default_converter::unfold_name_core(expr e, unsigned h) {
     if (is_constant(e)) {
         if (auto d = m_env.find(const_name(e))) {
-            if (d->is_definition() && !is_opaque(*d) && d->get_weight() >= w &&
+            if (d->is_definition() && !is_opaque(*d) && d->get_height() >= h &&
                 length(const_levels(e)) == d->get_num_univ_params())
-                return unfold_name_core(instantiate_value_univ_params(*d, const_levels(e)), w);
+                return unfold_name_core(instantiate_value_univ_params(*d, const_levels(e)), h);
         }
     }
     return e;
@@ -134,12 +134,12 @@ expr default_converter::unfold_name_core(expr e, unsigned w) {
    \brief Expand constants and application where the function is a constant.
 
    The unfolding is only performend if the constant corresponds to
-   a non-opaque definition with weight >= w.
+   a non-opaque definition with height >= h.
 */
-expr default_converter::unfold_names(expr const & e, unsigned w) {
+expr default_converter::unfold_names(expr const & e, unsigned h) {
     if (is_app(e)) {
         expr f0 = get_app_fn(e);
-        expr f  = unfold_name_core(f0, w);
+        expr f  = unfold_name_core(f0, h);
         if (is_eqp(f, f0)) {
             return e;
         } else {
@@ -148,7 +148,7 @@ expr default_converter::unfold_names(expr const & e, unsigned w) {
             return mk_rev_app(f, args);
         }
     } else {
-        return unfold_name_core(e, w);
+        return unfold_name_core(e, h);
     }
 }
 
@@ -168,15 +168,15 @@ optional<declaration> default_converter::is_delta(expr const & e) const {
 
 /**
    \brief Weak head normal form core procedure that perform delta reduction for non-opaque constants with
-   weight greater than or equal to \c w.
+   height greater than or equal to \c h.
 
    This method is based on <tt>whnf_core(expr const &)</tt> and \c unfold_names.
 
    \remark This method does not use normalization extensions attached in the environment.
 */
-expr default_converter::whnf_core(expr e, unsigned w) {
+expr default_converter::whnf_core(expr e, unsigned h) {
     while (true) {
-        expr new_e = unfold_names(whnf_core(e), w);
+        expr new_e = unfold_names(whnf_core(e), h);
         if (is_eqp(e, new_e))
             return e;
         e = new_e;
@@ -489,13 +489,13 @@ auto default_converter::lazy_delta_reduction_step(expr & t_n, expr & s_n, constr
     } else if (!d_t && d_s) {
         s_n = whnf_core(unfold_names(s_n, 0));
     } else if (!d_t->is_theorem() && d_s->is_theorem()) {
-        t_n = whnf_core(unfold_names(t_n, d_t->get_weight()));
+        t_n = whnf_core(unfold_names(t_n, d_t->get_height()));
     } else if (!d_s->is_theorem() && d_t->is_theorem()) {
-        s_n = whnf_core(unfold_names(s_n, d_s->get_weight()));
-    } else if (!d_t->is_theorem() && d_t->get_weight() > d_s->get_weight()) {
-        t_n = whnf_core(unfold_names(t_n, d_s->get_weight() + 1));
-    } else if (!d_s->is_theorem() && d_t->get_weight() < d_s->get_weight()) {
-        s_n = whnf_core(unfold_names(s_n, d_t->get_weight() + 1));
+        s_n = whnf_core(unfold_names(s_n, d_s->get_height()));
+    } else if (!d_t->is_theorem() && d_t->get_height() > d_s->get_height()) {
+        t_n = whnf_core(unfold_names(t_n, d_s->get_height() + 1));
+    } else if (!d_s->is_theorem() && d_t->get_height() < d_s->get_height()) {
+        s_n = whnf_core(unfold_names(s_n, d_t->get_height() + 1));
     } else {
         if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
             // If t_n and s_n are both applications of the same (non-opaque) definition,
@@ -522,8 +522,8 @@ auto default_converter::lazy_delta_reduction_step(expr & t_n, expr & s_n, constr
                 }
             }
         }
-        t_n = whnf_core(unfold_names(t_n, d_t->get_weight() - 1));
-        s_n = whnf_core(unfold_names(s_n, d_s->get_weight() - 1));
+        t_n = whnf_core(unfold_names(t_n, d_t->get_height() - 1));
+        s_n = whnf_core(unfold_names(s_n, d_s->get_height() - 1));
     }
     switch (quick_is_def_eq(t_n, s_n, cs)) {
     case l_true:  return reduction_status::DefEqual;

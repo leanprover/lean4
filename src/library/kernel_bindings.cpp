@@ -749,7 +749,7 @@ static int declaration_get_value(lua_State * L) {
         return push_expr(L, to_declaration(L, 1).get_value());
     throw exception("arg #1 must be a definition");
 }
-static int declaration_get_weight(lua_State * L) { return push_integer(L, to_declaration(L, 1).get_weight()); }
+static int declaration_get_height(lua_State * L) { return push_integer(L, to_declaration(L, 1).get_height()); }
 static int mk_constant_assumption(lua_State * L) {
     int nargs = lua_gettop(L);
     if (nargs == 2)
@@ -764,58 +764,58 @@ static int mk_axiom(lua_State * L) {
     else
         return push_declaration(L, mk_axiom(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3)));
 }
-static void get_definition_args(lua_State * L, int idx, unsigned & weight, bool & use_conv_opt) {
+static void get_definition_args(lua_State * L, int idx, unsigned & height, bool & use_conv_opt) {
     use_conv_opt = get_bool_named_param(L, idx, "use_conv_opt", use_conv_opt);
-    weight       = get_uint_named_param(L, idx, "weight", weight);
+    height       = get_uint_named_param(L, idx, "height", height);
 }
 static int mk_definition(lua_State * L) {
     int nargs = lua_gettop(L);
-    unsigned weight = 0; bool use_conv_opt = true;
+    unsigned height = 0; bool use_conv_opt = true;
     if (nargs < 3) {
         throw exception("mk_definition must have at least 3 arguments");
     } else if (is_environment(L, 1)) {
         if (nargs < 4) {
             throw exception("mk_definition must have at least 4 arguments, when the first argument is an environment");
         } else if (is_expr(L, 3)) {
-            get_definition_args(L, 5, weight, use_conv_opt);
+            get_definition_args(L, 5, height, use_conv_opt);
             return push_declaration(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), level_param_names(),
                                                     to_expr(L, 3), to_expr(L, 4), use_conv_opt));
         } else {
-            get_definition_args(L, 6, weight, use_conv_opt);
+            get_definition_args(L, 6, height, use_conv_opt);
             return push_declaration(L, mk_definition(to_environment(L, 1), to_name_ext(L, 2), to_level_param_names(L, 3),
                                                     to_expr(L, 4), to_expr(L, 5), use_conv_opt));
         }
     } else {
         if (is_expr(L, 2)) {
-            get_definition_args(L, 4, weight, use_conv_opt);
+            get_definition_args(L, 4, height, use_conv_opt);
             return push_declaration(L, mk_definition(to_name_ext(L, 1), level_param_names(), to_expr(L, 2),
-                                                    to_expr(L, 3), weight, use_conv_opt));
+                                                    to_expr(L, 3), height, use_conv_opt));
         } else {
-            get_definition_args(L, 5, weight, use_conv_opt);
+            get_definition_args(L, 5, height, use_conv_opt);
             return push_declaration(L, mk_definition(to_name_ext(L, 1), to_level_param_names(L, 2),
-                                                    to_expr(L, 3), to_expr(L, 4), weight, use_conv_opt));
+                                                    to_expr(L, 3), to_expr(L, 4), height, use_conv_opt));
         }
     }
 }
-static void get_definition_args(lua_State * L, int idx, unsigned & weight) {
-    weight       = get_uint_named_param(L, idx, "weight", weight);
+static void get_definition_args(lua_State * L, int idx, unsigned & height) {
+    height       = get_uint_named_param(L, idx, "height", height);
 }
 static int mk_theorem(lua_State * L) {
     int nargs = lua_gettop(L);
-    unsigned weight = 0;
+    unsigned height = 0;
     if (nargs == 3) {
           return push_declaration(L, mk_theorem(to_name_ext(L, 1), level_param_names(), to_expr(L, 2), to_expr(L, 3), 0));
     } else if (nargs == 4) {
         if (is_expr(L, 4)) {
             return push_declaration(L, mk_theorem(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3), to_expr(L, 4),
-                                                  weight));
+                                                  height));
         } else {
-            get_definition_args(L, 4, weight);
-            return push_declaration(L, mk_theorem(to_name_ext(L, 1), level_param_names(), to_expr(L, 2), to_expr(L, 3), weight));
+            get_definition_args(L, 4, height);
+            return push_declaration(L, mk_theorem(to_name_ext(L, 1), level_param_names(), to_expr(L, 2), to_expr(L, 3), height));
         }
     } else {
-        get_definition_args(L, 5, weight);
-        return push_declaration(L, mk_theorem(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3), to_expr(L, 4), weight));
+        get_definition_args(L, 5, height);
+        return push_declaration(L, mk_theorem(to_name_ext(L, 1), to_level_param_names(L, 2), to_expr(L, 3), to_expr(L, 4), height));
     }
 }
 
@@ -830,7 +830,7 @@ static const struct luaL_Reg declaration_m[] = {
     {"univ_params",      safe_function<declaration_get_params>},
     {"type",             safe_function<declaration_get_type>},
     {"value",            safe_function<declaration_get_value>},
-    {"weight",           safe_function<declaration_get_weight>},
+    {"height",           safe_function<declaration_get_height>},
     {0, 0}
 };
 

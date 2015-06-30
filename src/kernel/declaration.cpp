@@ -16,8 +16,7 @@ struct declaration::cell {
     expr              m_type;
     bool              m_theorem;
     optional<expr>    m_value;        // if none, then declaration is actually a postulate
-    // The following fields are only meaningful for definitions (which are not theorems)
-    unsigned          m_weight;
+    unsigned          m_height;       // definitional height
     // The following field affects the convertability checker.
     // Let f be this definition, then if the following field is true,
     // then whenever we are checking whether
@@ -29,11 +28,11 @@ struct declaration::cell {
 
     cell(name const & n, level_param_names const & params, expr const & t, bool is_axiom):
         m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(is_axiom),
-        m_weight(0), m_use_conv_opt(false) {}
+        m_height(0), m_use_conv_opt(false) {}
     cell(name const & n, level_param_names const & params, expr const & t, bool is_thm, expr const & v,
-         unsigned w, bool use_conv_opt):
+         unsigned h, bool use_conv_opt):
         m_rc(1), m_name(n), m_params(params), m_type(t), m_theorem(is_thm),
-        m_value(v), m_weight(w), m_use_conv_opt(use_conv_opt) {}
+        m_value(v), m_height(h), m_use_conv_opt(use_conv_opt) {}
 };
 
 static declaration * g_dummy = nullptr;
@@ -58,37 +57,37 @@ unsigned declaration::get_num_univ_params() const { return length(get_univ_param
 expr const & declaration::get_type() const { return m_ptr->m_type; }
 
 expr const & declaration::get_value() const { lean_assert(is_definition()); return *(m_ptr->m_value); }
-unsigned declaration::get_weight() const { return m_ptr->m_weight; }
+unsigned declaration::get_height() const { return m_ptr->m_height; }
 bool declaration::use_conv_opt() const { return m_ptr->m_use_conv_opt; }
 
 declaration mk_definition(name const & n, level_param_names const & params, expr const & t, expr const & v,
-                          unsigned weight, bool use_conv_opt) {
-    return declaration(new declaration::cell(n, params, t, false, v, weight, use_conv_opt));
+                          unsigned height, bool use_conv_opt) {
+    return declaration(new declaration::cell(n, params, t, false, v, height, use_conv_opt));
 }
-static unsigned get_max_weight(environment const & env, expr const & v) {
-    unsigned w = 0;
+static unsigned get_max_height(environment const & env, expr const & v) {
+    unsigned h = 0;
     for_each(v, [&](expr const & e, unsigned) {
             if (is_constant(e)) {
                 auto d = env.find(const_name(e));
-                if (d && d->get_weight() > w)
-                    w = d->get_weight();
+                if (d && d->get_height() > h)
+                    h = d->get_height();
             }
             return true;
         });
-    return w;
+    return h;
 }
 
 declaration mk_definition(environment const & env, name const & n, level_param_names const & params, expr const & t,
                           expr const & v, bool use_conv_opt) {
-    unsigned w = get_max_weight(env, v);
-    return mk_definition(n, params, t, v, w+1, use_conv_opt);
+    unsigned h = get_max_height(env, v);
+    return mk_definition(n, params, t, v, h+1, use_conv_opt);
 }
 declaration mk_theorem(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v) {
-    unsigned w = get_max_weight(env, v);
-    return declaration(new declaration::cell(n, params, t, true, v, w+1, true));
+    unsigned h = get_max_height(env, v);
+    return declaration(new declaration::cell(n, params, t, true, v, h+1, true));
 }
-declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v, unsigned weight) {
-    return declaration(new declaration::cell(n, params, t, true, v, weight, true));
+declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v, unsigned height) {
+    return declaration(new declaration::cell(n, params, t, true, v, height, true));
 }
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t) {
     return declaration(new declaration::cell(n, params, t, true));

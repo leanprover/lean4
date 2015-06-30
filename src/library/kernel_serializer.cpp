@@ -288,7 +288,7 @@ serializer & operator<<(serializer & s, declaration const & d) {
     s << k << d.get_name() << d.get_univ_params() << d.get_type();
     if (d.is_definition()) {
         s << d.get_value();
-        s << d.get_weight();
+        s << d.get_height();
     }
     return s;
 }

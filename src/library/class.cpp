@@ -290,13 +290,13 @@ static pair<name, name> get_source_target(environment const & env, type_checker 
     if (!tgt)
         throw exception(sstream() << "invalid transitive instance, resulting type of '" << n << "' is not a class");
     optional<name> src;
-    for (expr const & d : domain) {
+    unsigned i = domain.size();
+    while (i > 0) {
+        --i;
+        expr const & d = domain[i];
         if (auto it = is_ext_class(tc, mlocal_type(d))) {
-            if (src) {
-                throw exception(sstream() << "invalid transitive instance, '" << n
-                                << "' has more than one instance argument");
-            }
             src = it;
+            break;
         }
     }
     if (!src)

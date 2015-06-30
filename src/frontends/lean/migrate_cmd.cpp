@@ -172,6 +172,11 @@ struct migrate_cmd_fn {
                 out() << "skipped '" << d.get_name() << "': coercions are ignored\n";
             return; // we don't migrate coercions
         }
+        if (is_derived_trans_instance(m_env, d_name)) {
+            if (m_trace)
+                out() << "skipped '" << d.get_name() << "': derived transitive instances are ignored\n";
+            return; // we don't migrate coercions
+        }
 
         bool renamed = false;
         name short_name, full_name;

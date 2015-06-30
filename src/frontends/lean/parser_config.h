@@ -67,15 +67,6 @@ environment add_notation(environment const & env, notation_entry const & e, bool
 
 environment add_expr_token(environment const & env, char const * val, unsigned prec);
 environment add_tactic_token(environment const & env, char const * val, unsigned prec);
-
-environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a,
-                             bool overload = true, notation_entry_group g = notation_entry_group::Main, bool parse_only = false);
-environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts, expr const & a,
-                             bool overload = true, notation_entry_group g = notation_entry_group::Main, bool parse_only = false);
-environment add_nud_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a,
-                             bool overload = true, bool parse_only = false);
-environment add_led_notation(environment const & env, std::initializer_list<notation::transition> const & ts, expr const & a,
-                             bool overload = true, bool parse_only = false);
 token_table const & get_token_table(environment const & env);
 parse_table const & get_nud_table(environment const & env);
 parse_table const & get_led_table(environment const & env);

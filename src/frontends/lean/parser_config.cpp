@@ -346,28 +346,6 @@ environment add_notation(environment const & env, notation_entry const & e, bool
     return notation_ext::add_entry(env, get_dummy_ios(), e, persistent);
 }
 
-environment add_nud_notation(environment const & env, unsigned num, notation::transition const * ts,
-                             expr const & a, bool overload, notation_entry_group g, bool parse_only) {
-    return add_notation(env, notation_entry(true, to_list(ts, ts+num), a, overload, g, parse_only));
-}
-
-environment add_led_notation(environment const & env, unsigned num, notation::transition const * ts,
-                             expr const & a, bool overload, notation_entry_group g, bool parse_only) {
-    return add_notation(env, notation_entry(false, to_list(ts, ts+num), a, overload, g, parse_only));
-}
-
-environment add_nud_notation(environment const & env, std::initializer_list<notation::transition> const & ts,
-                             expr const & a, bool overload, bool parse_only) {
-    notation_entry_group g = notation_entry_group::Main;
-    return add_nud_notation(env, ts.size(), ts.begin(), a, overload, g, parse_only);
-}
-
-environment add_led_notation(environment const & env, std::initializer_list<notation::transition> const & ts,
-                             expr const & a, bool overload, bool parse_only) {
-    notation_entry_group g = notation_entry_group::Main;
-    return add_led_notation(env, ts.size(), ts.begin(), a, overload, g, parse_only);
-}
-
 parse_table const & get_nud_table(environment const & env) {
     return notation_ext::get_state(env).m_nud;
 }

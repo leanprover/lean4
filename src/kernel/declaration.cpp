@@ -85,10 +85,10 @@ declaration mk_definition(environment const & env, name const & n, level_param_n
 }
 declaration mk_theorem(environment const & env, name const & n, level_param_names const & params, expr const & t, expr const & v) {
     unsigned w = get_max_weight(env, v);
-    return declaration(new declaration::cell(n, params, t, true, v, w+1, false));
+    return declaration(new declaration::cell(n, params, t, true, v, w+1, true));
 }
 declaration mk_theorem(name const & n, level_param_names const & params, expr const & t, expr const & v, unsigned weight) {
-    return declaration(new declaration::cell(n, params, t, true, v, weight, false));
+    return declaration(new declaration::cell(n, params, t, true, v, weight, true));
 }
 declaration mk_axiom(name const & n, level_param_names const & params, expr const & t) {
     return declaration(new declaration::cell(n, params, t, true));

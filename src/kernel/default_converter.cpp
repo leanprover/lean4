@@ -488,12 +488,15 @@ auto default_converter::lazy_delta_reduction_step(expr & t_n, expr & s_n, constr
         t_n = whnf_core(unfold_names(t_n, 0));
     } else if (!d_t && d_s) {
         s_n = whnf_core(unfold_names(s_n, 0));
-    } else if (d_t->get_weight() > d_s->get_weight()) {
+    } else if (!d_t->is_theorem() && d_s->is_theorem()) {
+        t_n = whnf_core(unfold_names(t_n, d_t->get_weight()));
+    } else if (!d_s->is_theorem() && d_t->is_theorem()) {
+        s_n = whnf_core(unfold_names(s_n, d_s->get_weight()));
+    } else if (!d_t->is_theorem() && d_t->get_weight() > d_s->get_weight()) {
         t_n = whnf_core(unfold_names(t_n, d_s->get_weight() + 1));
-    } else if (d_t->get_weight() < d_s->get_weight()) {
+    } else if (!d_s->is_theorem() && d_t->get_weight() < d_s->get_weight()) {
         s_n = whnf_core(unfold_names(s_n, d_t->get_weight() + 1));
     } else {
-        lean_assert(d_t && d_s && d_t->get_weight() == d_s->get_weight());
         if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
             // If t_n and s_n are both applications of the same (non-opaque) definition,
             if (has_expr_metavar(t_n) || has_expr_metavar(s_n)) {
@@ -587,21 +590,6 @@ bool default_converter::postpone_is_def_eq(expr const & t, expr const & s) {
     return false;
 }
 
-/** \brief Return true if we should try proof irrelevance eagerly.
-    \remark: We do it whenever t and s do not contain metavariables and one of them is a theorem application.
-*/
-static bool try_eager_proof_irrel(environment const & env, expr const & t, expr const & s) {
-    if (!env.prop_proof_irrel())
-        return false;
-    if (has_expr_metavar(t) || has_expr_metavar(s))
-        return false;
-    expr const & f_t = get_app_fn(t);
-    if (is_constant(f_t) && env.get(const_name(f_t)).is_theorem())
-        return true;
-    expr const & f_s = get_app_fn(s);
-    return is_constant(f_s) && env.get(const_name(f_s)).is_theorem();
-}
-
 pair<bool, constraint_seq> default_converter::is_def_eq_core(expr const & t, expr const & s) {
     check_system("is_definitionally_equal");
     constraint_seq cs;
@@ -612,11 +600,6 @@ pair<bool, constraint_seq> default_converter::is_def_eq_core(expr const & t, exp
     // apply whnf (without using delta-reduction or normalizer extensions)
     expr t_n = whnf_core(t);
     expr s_n = whnf_core(s);
-
-    constraint_seq pi_cs_1;
-    bool eager_proof_irrel = try_eager_proof_irrel(m_env, t, s);
-    if (eager_proof_irrel && is_def_eq_proof_irrel(t, s, pi_cs_1))
-        return to_bcs(true, pi_cs_1);
 
     if (!is_eqp(t_n, t) || !is_eqp(s_n, s)) {
         r = quick_is_def_eq(t_n, s_n, cs);
@@ -642,9 +625,9 @@ pair<bool, constraint_seq> default_converter::is_def_eq_core(expr const & t, exp
     if (try_eta_expansion(t_n, s_n, cs))
         return to_bcs(true, cs);
 
-    constraint_seq pi_cs_2;
-    if (!eager_proof_irrel && is_def_eq_proof_irrel(t, s, pi_cs_2))
-        return to_bcs(true, pi_cs_2);
+    constraint_seq pi_cs;
+    if (is_def_eq_proof_irrel(t, s, pi_cs))
+        return to_bcs(true, pi_cs);
 
     if (is_stuck(t_n) || is_stuck(s_n) || postpone) {
         cs += constraint_seq(mk_eq_cnstr(t_n, s_n, m_jst->get()));

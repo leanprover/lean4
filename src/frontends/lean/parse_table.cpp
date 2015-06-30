@@ -302,7 +302,7 @@ transition replace(transition const & t, std::function<expr(expr const &)> const
 
 struct parse_table::cell {
     bool                                m_nud;
-    list<expr>                          m_accept;
+    list<pair<unsigned, expr>>          m_accept;
     name_map<pair<action, parse_table>> m_children;
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc() { delete this; }
@@ -325,7 +325,7 @@ optional<pair<action, parse_table>> parse_table::find(name const & tk) const {
         return optional<pair<action, parse_table>>();
 }
 
-list<expr> const & parse_table::is_accepting() const {
+list<pair<unsigned, expr>> const & parse_table::is_accepting() const {
     return m_ptr->m_accept;
 }
 
@@ -357,13 +357,26 @@ static void validate_transitions(bool nud, unsigned num, transition const * ts, 
         throw exception("invalid notation declaration, expression template has more free variables than arguments");
 }
 
-parse_table parse_table::add_core(unsigned num, transition const * ts, expr const & a, bool overload) const {
+static list<pair<unsigned, expr>> insert(list<pair<unsigned, expr>> const & l, unsigned priority, expr const & a) {
+    if (!l) {
+        return to_list(mk_pair(priority, a));
+    } else if (priority <= head(l).first) {
+        return cons(mk_pair(priority, a), l);
+    } else {
+        return cons(head(l), insert(tail(l), priority, a));
+    }
+}
+
+parse_table parse_table::add_core(unsigned num, transition const * ts, expr const & a,
+                                  unsigned priority, bool overload) const {
     parse_table r(new cell(*m_ptr));
     if (num == 0) {
-        if (!overload)
-            r.m_ptr->m_accept = to_list(a);
-        else
-            r.m_ptr->m_accept = cons(a, remove(r.m_ptr->m_accept, a));
+        if (!overload) {
+            r.m_ptr->m_accept = to_list(mk_pair(priority, a));
+        } else {
+            auto new_accept   = filter(r.m_ptr->m_accept, [&](pair<unsigned, expr> const & p) { return p.second != a; });
+            r.m_ptr->m_accept = insert(new_accept, priority, a);
+        }
     } else {
         auto * it = r.m_ptr->m_children.find(ts->get_token());
         parse_table new_child;
@@ -371,12 +384,12 @@ parse_table parse_table::add_core(unsigned num, transition const * ts, expr cons
             action const & act        = it->first;
             parse_table const & child = it->second;
             if (act.is_equal(ts->get_action())) {
-                new_child = child.add_core(num-1, ts+1, a, overload);
+                new_child = child.add_core(num-1, ts+1, a, priority, overload);
             } else {
-                new_child = parse_table().add_core(num-1, ts+1, a, overload);
+                new_child = parse_table().add_core(num-1, ts+1, a, priority, overload);
             }
         } else {
-            new_child = parse_table().add_core(num-1, ts+1, a, overload);
+            new_child = parse_table().add_core(num-1, ts+1, a, priority, overload);
         }
         r.m_ptr->m_children.insert(ts->get_token(), mk_pair(ts->get_action(), new_child));
     }
@@ -445,14 +458,15 @@ optional<head_index> get_head_index(unsigned num, transition const * ts, expr co
     return optional<head_index>();
 }
 
-parse_table parse_table::add(unsigned num, transition const * ts, expr const & a, bool overload) const {
+parse_table parse_table::add(unsigned num, transition const * ts, expr const & a, unsigned priority, bool overload) const {
     expr new_a = annotate_macro_subterms(a);
     validate_transitions(is_nud(), num, ts, new_a);
-    return add_core(num, ts, new_a, overload);
+    return add_core(num, ts, new_a, priority, overload);
 }
 
 void parse_table::for_each(buffer<transition> & ts,
-                           std::function<void(unsigned, transition const *, list<expr> const &)> const & fn) const {
+                           std::function<void(unsigned, transition const *,
+                                              list<pair<unsigned, expr>> const &)> const & fn) const {
     if (!is_nil(m_ptr->m_accept))
         fn(ts.size(), ts.data(), m_ptr->m_accept);
     m_ptr->m_children.for_each([&](name const & k, pair<action, parse_table> const & p) {
@@ -462,7 +476,8 @@ void parse_table::for_each(buffer<transition> & ts,
         });
 }
 
-void parse_table::for_each(std::function<void(unsigned, transition const *, list<expr> const &)> const & fn) const {
+void parse_table::for_each(std::function<void(unsigned, transition const *,
+                                              list<pair<unsigned, expr>> const &)> const & fn) const {
     buffer<transition> tmp;
     for_each(tmp, fn);
 }
@@ -471,16 +486,17 @@ parse_table parse_table::merge(parse_table const & s, bool overload) const {
     if (is_nud() != s.is_nud())
         throw exception("invalid parse table merge, tables have different kinds");
     parse_table r(*this);
-    s.for_each([&](unsigned num, transition const * ts, list<expr> const & accept) {
-            for (expr const & a : accept)
-                r = r.add(num, ts, a, overload);
+    s.for_each([&](unsigned num, transition const * ts, list<pair<unsigned, expr>> const & accept) {
+            for (pair<unsigned, expr> const & p : accept) {
+                r = r.add(num, ts, p.second, p.first, overload);
+            }
         });
     return r;
 }
 
 bool parse_table::is_nud() const { return m_ptr->m_nud; }
 
-void display(io_state_stream & out, unsigned num, transition const * ts, list<expr> const & es, bool nud,
+void display(io_state_stream & out, unsigned num, transition const * ts, list<pair<unsigned, expr>> const & es, bool nud,
              optional<token_table> const & tt) {
     if (!nud)
         out << "_ ";
@@ -505,21 +521,24 @@ void display(io_state_stream & out, unsigned num, transition const * ts, list<ex
     }
     out << " :=";
     if (length(es) == 1) {
-        out << " " << head(es) << "\n";
+        out << " " << head(es).second << "\n";
     } else {
-        buffer<expr> tmp;
+        buffer<pair<unsigned, expr>> tmp;
         to_buffer(es, tmp);
         out << "\n";
         unsigned i = tmp.size();
         while (i > 0) {
             --i;
-            out << "  | " << tmp[i] << "\n";
+            out << "  | ";
+            if (tmp[i].first != LEAN_DEFAULT_NOTATION_PRIORITY)
+                out << "[priority " << tmp[i].first << "] ";
+            out << tmp[i].second << "\n";
         }
     }
 }
 
 void parse_table::display(io_state_stream & out, optional<token_table> const & tt) const {
-    for_each([&](unsigned num, transition const * ts, list<expr> const & es) {
+    for_each([&](unsigned num, transition const * ts, list<pair<unsigned, expr>> const & es) {
             ::lean::notation::display(out, num, ts, es, is_nud(), tt);
         });
 }
@@ -683,7 +702,8 @@ static int add(lua_State * L) {
         }
     }
     bool overload = (nargs <= 3) || lua_toboolean(L, 4);
-    return push_parse_table(L, to_parse_table(L, 1).add(ts.size(), ts.data(), to_expr(L, 3), overload));
+    return push_parse_table(L, to_parse_table(L, 1).add(ts.size(), ts.data(), to_expr(L, 3), LEAN_DEFAULT_NOTATION_PRIORITY,
+                                                        overload));
 }
 
 static int merge(lua_State * L) {
@@ -703,34 +723,6 @@ static int find(lua_State * L) {
     }
 }
 
-static int is_accepting(lua_State * L) {
-    list<expr> const & l = to_parse_table(L, 1).is_accepting();
-    if (is_nil(l))
-        return push_nil(L);
-    else
-        return push_list_expr(L, l);
-}
-
-static int for_each(lua_State * L) {
-    parse_table const & t = to_parse_table(L, 1);
-    luaL_checktype(L, 2, LUA_TFUNCTION); // user-fun
-    t.for_each([&](unsigned num, transition const * ts, list<expr> const & as) {
-            lua_pushvalue(L, 2);
-            lua_newtable(L);
-            for (unsigned i = 0; i < num; i++) {
-                lua_newtable(L);
-                push_name(L, ts[i].get_token());
-                lua_rawseti(L, -2, 1);
-                push_notation_action(L, ts[i].get_action());
-                lua_rawseti(L, -2, 2);
-                lua_rawseti(L, -2, i+1);
-            }
-            push_list_expr(L, as);
-            pcall(L, 2, 0, 0);
-        });
-    return 0;
-}
-
 static int is_nud(lua_State * L) {
     return push_boolean(L, to_parse_table(L, 1).is_nud());
 }
@@ -740,8 +732,6 @@ static const struct luaL_Reg parse_table_m[] = {
     {"add",              safe_function<add>},
     {"merge",            safe_function<merge>},
     {"find",             safe_function<find>},
-    {"is_accepting",     safe_function<is_accepting>},
-    {"for_each",         safe_function<for_each>},
     {"is_nud",           safe_function<is_nud>},
     {0, 0}
 };

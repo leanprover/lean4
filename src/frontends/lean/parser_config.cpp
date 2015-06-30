@@ -25,13 +25,14 @@ notation_entry replace(notation_entry const & e, std::function<expr(expr const &
     else
         return notation_entry(e.is_nud(),
                               map(e.get_transitions(), [&](transition const & t) { return notation::replace(t, f); }),
-                              f(e.get_expr()), e.overload(), e.group(), e.parse_only());
+                              f(e.get_expr()), e.overload(), e.priority(), e.group(), e.parse_only());
 }
 
 notation_entry::notation_entry():m_kind(notation_entry_kind::NuD) {}
 notation_entry::notation_entry(notation_entry const & e):
     m_kind(e.m_kind), m_expr(e.m_expr), m_overload(e.m_overload),
-    m_safe_ascii(e.m_safe_ascii), m_group(e.m_group), m_parse_only(e.m_parse_only) {
+    m_safe_ascii(e.m_safe_ascii), m_group(e.m_group), m_parse_only(e.m_parse_only),
+    m_priority(e.m_priority) {
     if (is_numeral())
         new (&m_num) mpz(e.m_num);
     else
@@ -39,9 +40,9 @@ notation_entry::notation_entry(notation_entry const & e):
 }
 
 notation_entry::notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload,
-                               notation_entry_group g, bool parse_only):
+                               unsigned priority, notation_entry_group g, bool parse_only):
     m_kind(is_nud ? notation_entry_kind::NuD : notation_entry_kind::LeD),
-    m_expr(e), m_overload(overload), m_group(g), m_parse_only(parse_only) {
+    m_expr(e), m_overload(overload), m_group(g), m_parse_only(parse_only), m_priority(priority) {
     new (&m_transitions) list<transition>(ts);
     m_safe_ascii = std::all_of(ts.begin(), ts.end(), [](transition const & t) { return t.is_safe_ascii(); });
 }
@@ -273,7 +274,7 @@ struct notation_config {
             if (auto idx = get_head_index(ts.size(), ts.data(), e.get_expr()))
                 updt_inv_map(s, *idx, e);
             parse_table & nud = s.nud(e.group());
-            nud = nud.add(ts.size(), ts.data(), e.get_expr(), e.overload());
+            nud = nud.add(ts.size(), ts.data(), e.get_expr(), e.priority(), e.overload());
             break;
         }
         case notation_entry_kind::LeD: {
@@ -281,7 +282,7 @@ struct notation_config {
             if (auto idx = get_head_index(ts.size(), ts.data(), e.get_expr()))
                 updt_inv_map(s, *idx, e);
             parse_table & led = s.led(e.group());
-            led = led.add(ts.size(), ts.data(), e.get_expr(), e.overload());
+            led = led.add(ts.size(), ts.data(), e.get_expr(), e.priority(), e.overload());
             break;
         }
         case notation_entry_kind::Numeral:
@@ -311,6 +312,7 @@ struct notation_config {
             s << static_cast<char>(e.group()) << length(e.get_transitions());
             for (auto const & t : e.get_transitions())
                 s << t;
+            s << e.priority();
         }
     }
     static entry read_entry(deserializer & d) {
@@ -329,7 +331,9 @@ struct notation_config {
             buffer<transition> ts;
             for (unsigned i = 0; i < sz; i++)
                 ts.push_back(read_transition(d));
-            return entry(is_nud, to_list(ts.begin(), ts.end()), e, overload, g, parse_only);
+            unsigned priority;
+            d >> priority;
+            return entry(is_nud, to_list(ts.begin(), ts.end()), e, overload, priority, g, parse_only);
         }
     }
     static optional<unsigned> get_fingerprint(entry const &) {

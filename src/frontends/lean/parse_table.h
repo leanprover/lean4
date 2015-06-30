@@ -14,6 +14,10 @@ Author: Leonardo de Moura
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/parser_pos_provider.h"
 
+#ifndef LEAN_DEFAULT_NOTATION_PRIORITY
+#define LEAN_DEFAULT_NOTATION_PRIORITY 1000
+#endif
+
 namespace lean {
 class parser;
 class io_state_stream;
@@ -125,7 +129,7 @@ inline bool operator!=(transition const & t1, transition const & t2) {
 /** \brief Apply \c f to expressions embedded in the given transition */
 transition replace(transition const & t, std::function<expr(expr const &)> const & f);
 
-void display(io_state_stream & out, unsigned num, transition const * ts, list<expr> const & es, bool nud,
+void display(io_state_stream & out, unsigned num, transition const * ts, list<pair<unsigned, expr>> const & es, bool nud,
              optional<token_table> const & tt);
 
 /**
@@ -136,8 +140,9 @@ class parse_table {
     struct cell;
     cell * m_ptr;
     explicit parse_table(cell * c);
-    parse_table add_core(unsigned num, transition const * ts, expr const & a, bool overload) const;
-    void for_each(buffer<transition> & ts, std::function<void(unsigned, transition const *, list<expr> const &)> const & fn) const;
+    parse_table add_core(unsigned num, transition const * ts, expr const & a, unsigned priority, bool overload) const;
+    void for_each(buffer<transition> & ts, std::function<void(unsigned, transition const *,
+                                                              list<pair<unsigned, expr>> const &)> const & fn) const;
 public:
     parse_table(bool nud = true);
     parse_table(parse_table const & s);
@@ -147,14 +152,14 @@ public:
     parse_table & operator=(parse_table&& n);
 
     bool is_nud() const;
-    parse_table add(unsigned num, transition const * ts, expr const & a, bool overload) const;
+    parse_table add(unsigned num, transition const * ts, expr const & a, unsigned priority, bool overload) const;
     parse_table add(std::initializer_list<transition> const & ts, expr const & a) const {
-        return add(ts.size(), ts.begin(), a, true);
+        return add(ts.size(), ts.begin(), a, LEAN_DEFAULT_NOTATION_PRIORITY, true);
     }
     parse_table merge(parse_table const & s, bool overload) const;
     optional<pair<action, parse_table>> find(name const & tk) const;
-    list<expr> const & is_accepting() const;
-    void for_each(std::function<void(unsigned, transition const *, list<expr> const &)> const & fn) const;
+    list<pair<unsigned, expr>> const & is_accepting() const;
+    void for_each(std::function<void(unsigned, transition const *, list<pair<unsigned, expr>> const &)> const & fn) const;
 
     void display(io_state_stream & out, optional<token_table> const & tk) const;
 };

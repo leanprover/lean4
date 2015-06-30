@@ -1122,7 +1122,7 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
 
         t = r->second;
     }
-    list<expr> const & as = t.is_accepting();
+    list<pair<unsigned, expr>> const & as = t.is_accepting();
     save_overload_notation(as, p);
     if (is_nil(as)) {
         if (p == pos())
@@ -1131,8 +1131,8 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
             throw parser_error(sstream() << "invalid expression starting at " << p.first << ":" << p.second, pos());
     }
     buffer<expr> cs;
-    for (expr const & a : as) {
-        expr r = copy_with_new_pos(a, p);
+    for (pair<unsigned, expr> const & a : as) {
+        expr r = copy_with_new_pos(a.second, p);
         if (args.empty()) {
             // Notation does not have arguments. Thus, the info-manager should treat is as a single thing.
             r = mk_notation_info(r, r.get_tag());
@@ -1913,7 +1913,12 @@ void parser::save_overload_notation(list<expr> const & as, pos_info const & p) {
         return;
     m_info_manager->add_overload_notation_info(p.first, p.second, as);
 }
-
+void parser::save_overload_notation(list<pair<unsigned, expr>> const & as, pos_info const & p) {
+    if (!m_info_manager || length(as) <= 1)
+        return;
+    list<expr> new_as = map2<expr>(as, [](pair<unsigned, expr> const & p) { return p.second; });
+    save_overload_notation(new_as, p);
+}
 void parser::save_identifier_info(pos_info const & p, name const & full_id) {
     if (!m_info_manager)
         return;

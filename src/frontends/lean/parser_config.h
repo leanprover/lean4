@@ -35,10 +35,12 @@ class notation_entry {
     bool                 m_safe_ascii;
     notation_entry_group m_group;
     bool                 m_parse_only;
+    unsigned             m_priority;
 public:
     notation_entry();
     notation_entry(notation_entry const & e);
-    notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload, notation_entry_group g, bool parse_only);
+    notation_entry(bool is_nud, list<transition> const & ts, expr const & e, bool overload, unsigned priority,
+                   notation_entry_group g, bool parse_only);
     notation_entry(mpz const & val, expr const & e, bool overload, bool parse_only);
     notation_entry(notation_entry const & e, bool overload);
     ~notation_entry();
@@ -52,6 +54,7 @@ public:
     bool is_safe_ascii() const { return m_safe_ascii; }
     notation_entry_group group() const { return m_group; }
     bool reserve() const { return group() == notation_entry_group::Reserve; }
+    unsigned priority() const { return m_priority; }
     bool parse_only() const { return m_parse_only; }
 };
 bool operator==(notation_entry const & e1, notation_entry const & e2);

@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "util/script_state.h"
 #include "library/kernel_bindings.h"
 #include "library/resolve_macro.h"
-#include "library/coercion.h"
 #include "library/private.h"
 #include "library/placeholder.h"
 #include "library/aliases.h"
@@ -24,7 +23,6 @@ namespace lean {
 inline void open_core_module(lua_State * L) {
     open_kernel_module(L);
     open_resolve_macro(L);
-    open_coercion(L);
     open_private(L);
     open_placeholder(L);
     open_aliases(L);

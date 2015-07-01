@@ -96,7 +96,6 @@ typedef std::function<void(name const &, expr const &, level_param_names const &
 void for_each_coercion_user(environment const & env, coercion_user_fn const & f);
 void for_each_coercion_sort(environment const & env, coercion_sort_fn const & f);
 void for_each_coercion_fun(environment const & env, coercion_fun_fn const & f);
-void open_coercion(lua_State * L);
 void initialize_coercion();
 void finalize_coercion();
 }

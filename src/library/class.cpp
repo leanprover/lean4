@@ -309,15 +309,15 @@ environment add_trans_instance(environment const & env, name const & n, unsigned
     pair<name, name> src_tgt = get_source_target(env, *tc, n);
     class_state const & s = class_ext::get_state(env);
     tc_multigraph g    = s.m_mgraph;
-    pair<environment, list<name>> new_env_insts = g.add(env, src_tgt.first, n, src_tgt.second);
+    pair<environment, list<tc_edge>> new_env_insts = g.add(env, src_tgt.first, n, src_tgt.second);
     environment new_env = new_env_insts.first;
-    new_env = class_ext::add_entry(new_env, get_dummy_ios(), class_entry::mk_trans_inst(src_tgt.first, src_tgt.second, n, priority), persistent);
-    tc = mk_type_checker(new_env, name_generator());
-    for (name const & tn : new_env_insts.second) {
-        pair<name, name> d_src_tgt = get_source_target(new_env, *tc, tn);
-        new_env = class_ext::add_entry(new_env, get_dummy_ios(), class_entry::mk_derived_trans_inst(d_src_tgt.first, d_src_tgt.second, tn), persistent);
-        new_env = set_reducible(new_env, tn, reducible_status::Reducible, persistent);
-        new_env = add_protected(new_env, tn);
+    new_env = class_ext::add_entry(new_env, get_dummy_ios(),
+                                   class_entry::mk_trans_inst(src_tgt.first, src_tgt.second, n, priority), persistent);
+    for (tc_edge const & edge : new_env_insts.second) {
+        new_env = class_ext::add_entry(new_env, get_dummy_ios(),
+                                       class_entry::mk_derived_trans_inst(edge.m_from, edge.m_to, edge.m_cnst), persistent);
+        new_env = set_reducible(new_env, edge.m_cnst, reducible_status::Reducible, persistent);
+        new_env = add_protected(new_env, edge.m_cnst);
     }
     return new_env;
 }

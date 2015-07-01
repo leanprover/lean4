@@ -7,6 +7,14 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/environment.h"
 namespace lean {
+struct tc_edge {
+    name m_from;
+    name m_cnst; // constant representing the edge in the environment
+    name m_to;
+    tc_edge(name const & from, name const & e, name const & to):
+        m_from(from), m_cnst(e), m_to(to) {}
+};
+
 /** \brief Transitive closed multigraph */
 class tc_multigraph {
     name                             m_kind;
@@ -17,7 +25,8 @@ class tc_multigraph {
     friend struct add_edge_fn;
 public:
     tc_multigraph(name const & kind):m_kind(kind) {}
-    pair<environment, list<name>> add(environment const & env, name const & src, name const & e, name const & tgt);
+    /** \brief Add a new edge, and return updated environment, and list of transitive edges added to the graph. */
+    pair<environment, list<tc_edge>> add(environment const & env, name const & src, name const & e, name const & tgt);
     void add1(environment const & env, name const & src, name const & e, name const & tgt);
     void erase(name const & e);
     bool is_edge(name const & e) const;

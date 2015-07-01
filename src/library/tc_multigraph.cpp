@@ -87,8 +87,8 @@ struct add_edge_fn {
         return env_e.second;
     }
 
-    pair<environment, list<name>> operator()(name const & src, name const & edge, name const & tgt) {
-        buffer<std::tuple<name, name, name>> new_edges;
+    pair<environment, list<tc_edge>> operator()(name const & src, name const & edge, name const & tgt) {
+        buffer<tc_edge> new_edges;
         if (auto preds = m_graph.m_predecessors.find(src)) {
             for (name const & pred : *preds) {
                 if (pred == tgt)
@@ -104,7 +104,7 @@ struct add_edge_fn {
             }
         }
         m_tc.reset(new type_checker(m_env)); // update to reflect new constants in the environment
-        buffer<std::tuple<name, name, name>> new_back_edges;
+        buffer<tc_edge> new_back_edges;
         new_back_edges.append(new_edges);
         if (auto succs = m_graph.m_successors.find(tgt)) {
             for (pair<name, name> const & p : *succs) {
@@ -113,28 +113,18 @@ struct add_edge_fn {
                 name new_e = compose(src, edge, p.first, p.second);
                 new_edges.emplace_back(src, new_e, p.second);
                 for (auto const & back_edge : new_back_edges) {
-                    name bsrc, bedge, btgt;
-                    std::tie(bsrc, bedge, btgt) = back_edge;
-                    if (bsrc != p.second)
+                    if (back_edge.m_from != p.second)
                         continue;
-                    name new_e = compose(bsrc, bedge, p.first, p.second);
-                    new_edges.emplace_back(bsrc, new_e, p.second);
+                    name new_e = compose(back_edge.m_from, back_edge.m_cnst, p.first, p.second);
+                    new_edges.emplace_back(back_edge.m_from, new_e, p.second);
                 }
             }
         }
-        buffer<name> new_cnsts;
-        add_core(src, edge, tgt);
-        for (auto const & new_edge : new_edges) {
-            name nsrc, nedge, ntgt;
-            std::tie(nsrc, nedge, ntgt) = new_edge;
-            add_core(nsrc, nedge, ntgt);
-            new_cnsts.push_back(nedge);
-        }
-        return mk_pair(m_env, to_list(new_cnsts));
+        return mk_pair(m_env, to_list(new_edges));
     }
 };
 
-pair<environment, list<name>> tc_multigraph::add(environment const & env, name const & src, name const & e, name const & tgt) {
+pair<environment, list<tc_edge>> tc_multigraph::add(environment const & env, name const & src, name const & e, name const & tgt) {
     return add_edge_fn(env, *this)(src, e, tgt);
 }
 

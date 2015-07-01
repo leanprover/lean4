@@ -28,6 +28,8 @@ struct eq_cache {
     eq_cache():m_capacity(LEAN_EQ_CACHE_CAPACITY), m_cache(LEAN_EQ_CACHE_CAPACITY) {}
 
     bool check(expr const & a, expr const & b) {
+        if (!is_shared(a) || !is_shared(b))
+            return false;
         unsigned i = hash(a.hash_alloc(), b.hash_alloc()) % m_capacity;
         if (m_cache[i].m_a == a.raw() && m_cache[i].m_b == b.raw()) {
             return true;

@@ -306,8 +306,9 @@ section migrate_algebra
     zero_lt_one      := zero_lt_one,
     add_lt_add_left  := @add_lt_add_left⦄
 
+  local attribute rat.discrete_linear_ordered_field [trans-instance]
   local attribute rat.discrete_field [instance]
-  local attribute rat.discrete_linear_ordered_field [instance]
+
   definition min : ℚ → ℚ → ℚ := algebra.min
   definition max : ℚ → ℚ → ℚ := algebra.max
   definition abs : ℚ → ℚ := algebra.abs

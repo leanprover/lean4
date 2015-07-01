@@ -16,15 +16,21 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 
 namespace lean {
-coercion_class coercion_class::mk_user(name n) { return coercion_class(coercion_class_kind::User, n); }
-coercion_class coercion_class::mk_sort() { return coercion_class(coercion_class_kind::Sort); }
-coercion_class coercion_class::mk_fun() { return coercion_class(coercion_class_kind::Fun); }
-bool operator==(coercion_class const & c1, coercion_class const & c2) {
-    return c1.m_kind == c2.m_kind && c1.m_name == c2.m_name;
+static name * g_fun  = nullptr;
+static name * g_sort = nullptr;
+
+coercion_class::coercion_class():m_name(*g_sort) {}
+
+coercion_class coercion_class::mk_user(name n) { return coercion_class(n); }
+coercion_class coercion_class::mk_sort() { return coercion_class(*g_sort); }
+coercion_class coercion_class::mk_fun() { return coercion_class(*g_fun); }
+
+coercion_class_kind coercion_class::kind() const {
+    if (m_name == *g_sort) return coercion_class_kind::Sort;
+    else if (m_name == *g_fun) return coercion_class_kind::Fun;
+    else return coercion_class_kind::User;
 }
-bool operator!=(coercion_class const & c1, coercion_class const & c2) {
-    return !(c1 == c2);
-}
+
 
 std::ostream & operator<<(std::ostream & out, coercion_class const & cls) {
     switch (cls.kind()) {
@@ -37,10 +43,7 @@ std::ostream & operator<<(std::ostream & out, coercion_class const & cls) {
 
 struct coercion_class_cmp_fn {
     int operator()(coercion_class const & c1, coercion_class const & c2) const {
-        if (c1.kind() != c2.kind())
-            return c1.kind() < c2.kind() ? -1 : 1;
-        else
-            return quick_cmp(c1.get_name(), c2.get_name());
+        return quick_cmp(c1.get_name(), c2.get_name());
     }
 };
 
@@ -61,6 +64,7 @@ struct coercion_state {
     typedef std::tuple<coercion_class, expr, expr>            from_data;
     name_map<list<from_data>>                                 m_from; // map user-class -> list of (class, coercion-fun)
     rb_map<coercion_class, list<name>, coercion_class_cmp_fn> m_to;
+
     name_map<pair<name, unsigned>>                            m_coercions; // map coercion -> (from-class, num-args)
 
     template<typename F>
@@ -353,6 +357,9 @@ template class scoped_ext<coercion_config>;
 typedef scoped_ext<coercion_config> coercion_ext;
 
 void initialize_coercion() {
+    name p       = name::mk_internal_unique_name();
+    g_fun        = new name(p, "Fun");
+    g_sort       = new name(p, "Sort");
     g_class_name = new name("coercions");
     g_key        = new std::string("coerce");
     coercion_ext::initialize();
@@ -362,6 +369,8 @@ void finalize_coercion() {
     coercion_ext::finalize();
     delete g_key;
     delete g_class_name;
+    delete g_fun;
+    delete g_sort;
 }
 
 environment add_coercion(environment const & env, name const & f, name const & C, io_state const & ios, bool persistent) {

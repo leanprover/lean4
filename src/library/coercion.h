@@ -18,17 +18,16 @@ enum class coercion_class_kind { User, Sort, Fun };
    We support three kinds of classes: User, Sort, Function.
 */
 class coercion_class {
-    coercion_class_kind m_kind;
     name                m_name; // relevant only if m_kind == User
-    coercion_class(coercion_class_kind k, name const & n = name()):m_kind(k), m_name(n) {}
+    coercion_class(name const & n): m_name(n) {}
 public:
-    coercion_class():m_kind(coercion_class_kind::Sort) {}
+    coercion_class();
     static coercion_class mk_user(name n);
     static coercion_class mk_sort();
     static coercion_class mk_fun();
-    friend bool operator==(coercion_class const & c1, coercion_class const & c2);
-    friend bool operator!=(coercion_class const & c1, coercion_class const & c2);
-    coercion_class_kind kind() const { return m_kind; }
+    friend bool operator==(coercion_class const & c1, coercion_class const & c2) { return c1.m_name == c2.m_name; }
+    friend bool operator!=(coercion_class const & c1, coercion_class const & c2) { return c1.m_name != c2.m_name; }
+    coercion_class_kind kind() const;
     name get_name() const { return m_name; }
 };
 

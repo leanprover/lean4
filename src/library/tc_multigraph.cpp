@@ -186,4 +186,12 @@ list<name> tc_multigraph::get_predecessors(name const & c) const {
     else
         return list<name>();
 }
+
+void tc_multigraph::for_each(std::function<void(name const &, name const &, name const &)> const & fn) const {
+    m_successors.for_each([&](name const & from, list<pair<name, name>> const & succs) {
+            for (pair<name, name> const & p : succs) {
+                fn(from, p.first, p.second);
+            }
+        });
+}
 }

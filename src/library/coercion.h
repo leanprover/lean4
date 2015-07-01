@@ -38,7 +38,7 @@ namespace lean {
 
    \remark if persistent == true, then coercion is saved in .olean files
 */
-environment add_coercion(environment const & env, name const & f, io_state const & ios, bool persistent = true);
+environment add_coercion(environment const & env, io_state const & ios, name const & f, bool persistent = true);
 /** \brief If \c f is a coercion, then return the name of the 'from-class' and the number of
     class parameters.
 */
@@ -67,9 +67,9 @@ list<expr> get_coercions_to_fun(environment const & env, expr const & C);
 */
 bool get_coercions_from(environment const & env, expr const & C, buffer<expr> & result);
 
-typedef std::function<void(name const &, name const &, expr const &, level_param_names const &, unsigned)> coercion_user_fn;
-typedef std::function<void(name const &, expr const &, level_param_names const &, unsigned)> coercion_sort_fn;
-typedef std::function<void(name const &, expr const &, level_param_names const &, unsigned)> coercion_fun_fn;
+typedef std::function<void(name const &, name const &, name const &)> coercion_user_fn;
+typedef std::function<void(name const &, name const &)> coercion_sort_fn;
+typedef std::function<void(name const &, name const &)> coercion_fun_fn;
 void for_each_coercion_user(environment const & env, coercion_user_fn const & f);
 void for_each_coercion_sort(environment const & env, coercion_sort_fn const & f);
 void for_each_coercion_fun(environment const & env, coercion_fun_fn const & f);

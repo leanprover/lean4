@@ -33,5 +33,6 @@ public:
     bool is_node(name const & c) const;
     list<pair<name, name>> get_successors(name const & c) const;
     list<name> get_predecessors(name const & c) const;
+    void for_each(std::function<void(name const &, name const &, name const &)> const & fn) const;
 };
 }

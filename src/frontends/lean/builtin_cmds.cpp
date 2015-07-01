@@ -54,15 +54,15 @@ static void print_coercions(parser & p, optional<name> const & C) {
     opts = opts.update(get_pp_coercions_option_name(), true);
     io_state_stream out = p.regular_stream().update_options(opts);
     char const * arrow = get_pp_unicode(opts) ? "↣" : ">->";
-    for_each_coercion_user(env, [&](name const & C1, name const & D, expr const & c, level_param_names const &, unsigned) {
+    for_each_coercion_user(env, [&](name const & C1, name const & c, name const & D) {
             if (!C || *C == C1)
                 out << C1 << " " << arrow << " " << D << " : " << c << endl;
         });
-    for_each_coercion_sort(env, [&](name const & C1, expr const & c, level_param_names const &, unsigned) {
+    for_each_coercion_sort(env, [&](name const & C1, name const & c) {
             if (!C || *C == C1)
                 out << C1 << " " << arrow << " [sort-class] : " << c << endl;
         });
-    for_each_coercion_fun(env, [&](name const & C1, expr const & c, level_param_names const &, unsigned) {
+    for_each_coercion_fun(env, [&](name const & C1, name const & c) {
             if (!C || *C == C1)
                 out << C1 << " " << arrow << " [fun-class] : " << c << endl;
         });
@@ -960,20 +960,6 @@ static environment init_hits_cmd(parser & p) {
     return module::declare_hits(p.env());
 }
 
-static environment compose_cmd(parser & p) {
-    name g = p.check_constant_next("invalid #compose command, constant expected");
-    name f = p.check_constant_next("invalid #compose command, constant expected");
-    optional<name> gf;
-    if (p.curr_is_token(get_arrow_tk())) {
-        p.next();
-        name id = p.check_id_next("invalid #compose command, identifier expected");
-        gf = get_namespace(p.env()) + id;
-    }
-    auto r = compose(p.env(), g, f, gf);
-    p.regular_stream() << ">> " << r.second << "\n";
-    return r.first;
-}
-
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",          "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -997,7 +983,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#erase_cache",  "erase cached definition (for debugging purposes)", erase_cache_cmd));
     add_cmd(r, cmd_info("#projections",  "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
     add_cmd(r, cmd_info("#telescope_eq", "(for debugging purposes)", telescope_eq_cmd));
-    add_cmd(r, cmd_info("#compose",      "(for debugging purposes)", compose_cmd));
     register_decl_cmds(r);
     register_inductive_cmd(r);
     register_structure_cmd(r);

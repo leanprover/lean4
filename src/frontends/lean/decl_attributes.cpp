@@ -181,7 +181,7 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
         }
     }
     if (m_is_coercion)
-        env = add_coercion(env, d, ios, m_persistent);
+        env = add_coercion(env, ios, d, m_persistent);
     auto decl = env.find(d);
     if (decl && decl->is_definition()) {
         if (m_is_reducible)

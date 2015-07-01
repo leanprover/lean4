@@ -3,4 +3,4 @@ f a b : A
 nat ↣ bool : foo
 bla : num
 local_notation_bug.lean:22:8: error: invalid expression
-num ↣ nat : of_num
+num ↣ nat : nat.of_num

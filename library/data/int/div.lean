@@ -72,11 +72,13 @@ calc
   a div b = -((-a - 1) div b + 1) : div_of_neg_of_pos Ha Hb
       ... < 0                     : neg_neg_of_pos H2
 
+set_option pp.coercions true
+
 theorem zero_div (b : ℤ) : 0 div b = 0 :=
 calc
   0 div b = sign b * (#nat 0 div (nat_abs b)) : rfl
-      ... = sign b * 0 : nat.zero_div
-      ... = 0          : mul_zero
+      ... = sign b * (0:nat) : nat.zero_div
+      ... = 0                : mul_zero
 
 theorem div_zero (a : ℤ) : a div 0 = 0 :=
 by rewrite [↑divide, sign_zero, zero_mul]
@@ -98,7 +100,7 @@ int.cases_on a
         assume H : m < n,
         calc
           m div n = #nat m div n : of_nat_div
-              ... = 0            : nat.div_eq_zero_of_lt (lt_of_of_nat_lt_of_nat H))
+              ... = (0:nat)      : nat.div_eq_zero_of_lt (lt_of_of_nat_lt_of_nat H))
       (take n,
         assume H : m < -[1+n],
         have H1 : ¬(m < -[1+n]), from dec_trivial,

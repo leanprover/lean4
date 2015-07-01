@@ -610,7 +610,7 @@ open [classes] s
 
 definition inv (x : ℝ) : ℝ := quot.lift_on x (λ a, quot.mk (s.r_inv a))
            (λ a b H, quot.sound (s.r_inv_well_defined H))
-postfix `⁻¹` := inv
+postfix [priority real.prio] `⁻¹` := inv
 
 theorem le_total (x y : ℝ) : x ≤ y ∨ y ≤ x :=
   quot.induction_on₂ x y (λ s t, s.r_le_total s t)

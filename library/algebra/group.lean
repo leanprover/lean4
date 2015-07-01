@@ -7,7 +7,7 @@ Various multiplicative and additive structures. Partially modeled on Isabelle's 
 -/
 
 import logic.eq data.unit data.sigma data.prod
-import algebra.function algebra.binary
+import algebra.function algebra.binary algebra.priority
 
 open eq eq.ops   -- note: ⁻¹ will be overloaded
 open binary
@@ -36,12 +36,12 @@ structure has_inv [class] (A : Type) :=
 structure has_neg [class] (A : Type) :=
 (neg : A → A)
 
-infixl `*`   := has_mul.mul
-infixl `+`   := has_add.add
-postfix `⁻¹` := has_inv.inv
-prefix `-`   := has_neg.neg
-notation 1   := !has_one.one
-notation 0   := !has_zero.zero
+infixl [priority algebra.prio] `*`   := has_mul.mul
+infixl [priority algebra.prio] `+`   := has_add.add
+postfix [priority algebra.prio] `⁻¹` := has_inv.inv
+prefix [priority algebra.prio] `-`   := has_neg.neg
+notation 1  := !has_one.one
+notation 0  := !has_zero.zero
 
 /- semigroup -/
 
@@ -410,7 +410,7 @@ section add_group
   -- TODO: derive corresponding facts for div in a field
   definition sub [reducible] (a b : A) : A := a + -b
 
-  infix `-` := sub
+  infix [priority algebra.prio] `-` := sub
 
   theorem sub_eq_add_neg (a b : A) : a - b = a + -b := rfl
 

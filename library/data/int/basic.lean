@@ -86,10 +86,12 @@ definition mul (a b : ℤ) : ℤ :=
 
 /- notation -/
 
+protected definition prio : num := num.pred std.priority.default
+
 notation `-[1+` n `]` := int.neg_succ_of_nat n    -- for pretty-printing output
-prefix - := int.neg
-infix +  := int.add
-infix *  := int.mul
+prefix [priority int.prio] - := int.neg
+infix  [priority int.prio] +  := int.add
+infix  [priority int.prio] *  := int.mul
 
 /- some basic functions and properties -/
 
@@ -627,9 +629,9 @@ section migrate_algebra
 
   local attribute int.integral_domain [instance]
   definition sub (a b : ℤ) : ℤ := algebra.sub a b
-  infix - := int.sub
+  infix [priority int.prio] - := int.sub
   definition dvd (a b : ℤ) : Prop := algebra.dvd a b
-  notation a ∣ b := dvd a b
+  notation [priority int.prio] a ∣ b := dvd a b
 
   migrate from algebra with int
   replacing sub → sub, dvd → dvd

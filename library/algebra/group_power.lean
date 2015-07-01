@@ -28,7 +28,7 @@ definition pow (a : A) : ℕ → A
 | 0     := 1
 | (n+1) := pow n * a
 
-infix `^` := pow
+infix [priority algebra.prio] `^` := pow
 
 theorem pow_zero (a : A) : a^0 = 1 := rfl
 theorem pow_succ (a : A) (n : ℕ) : a^(succ n) = a^n * a := rfl
@@ -92,7 +92,7 @@ theorem pow_inv_comm (a : A) : ∀m n, (a⁻¹)^m * a^n = a^n * (a⁻¹)^m
 
 end nat
 
-open nat int algebra
+open int
 
 definition ipow (a : A) : ℤ → A
 | (of_nat n) := a^n

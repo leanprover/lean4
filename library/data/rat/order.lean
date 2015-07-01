@@ -146,12 +146,12 @@ definition le (a b : ℚ) : Prop := nonneg (b - a)
 definition gt [reducible] (a b : ℚ) := lt b a
 definition ge [reducible] (a b : ℚ) := le b a
 
-infix <  := rat.lt
-infix <= := rat.le
-infix ≤  := rat.le
-infix >= := rat.ge
-infix ≥  := rat.ge
-infix >  := rat.gt
+infix [priority rat.prio] <  := rat.lt
+infix [priority rat.prio] <= := rat.le
+infix [priority rat.prio] ≤  := rat.le
+infix [priority rat.prio] >= := rat.ge
+infix [priority rat.prio] ≥  := rat.ge
+infix [priority rat.prio] >  := rat.gt
 
 theorem of_int_lt_of_int (a b : ℤ) : of_int a < of_int b ↔ (#int a < b) :=
 iff.symm (calc

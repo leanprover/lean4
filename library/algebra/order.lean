@@ -5,7 +5,7 @@ Author: Jeremy Avigad
 
 Weak orders "≤", strict orders "<", and structures that include both.
 -/
-import logic.eq logic.connectives algebra.binary
+import logic.eq logic.connectives algebra.binary algebra.priority
 open eq eq.ops
 
 namespace algebra
@@ -20,16 +20,16 @@ structure has_le [class] (A : Type) :=
 structure has_lt [class] (A : Type) :=
 (lt : A → A → Prop)
 
-infixl `<=`  := has_le.le
-infixl `≤`   := has_le.le
-infixl `<`   := has_lt.lt
+infixl [priority algebra.prio] `<=`  := has_le.le
+infixl [priority algebra.prio] `≤`   := has_le.le
+infixl [priority algebra.prio] `<`   := has_lt.lt
 
 definition has_le.ge [reducible] {A : Type} [s : has_le A] (a b : A) := b ≤ a
-notation a ≥ b := has_le.ge a b
-notation a >= b := has_le.ge a b
+notation [priority algebra.prio] a ≥ b := has_le.ge a b
+notation [priority algebra.prio] a >= b := has_le.ge a b
 
 definition has_lt.gt [reducible] {A : Type} [s : has_lt A] (a b : A) := b < a
-notation a > b := has_lt.gt a b
+notation [priority algebra.prio] a > b := has_lt.gt a b
 
 /- weak orders -/
 

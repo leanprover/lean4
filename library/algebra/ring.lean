@@ -73,7 +73,7 @@ section comm_semiring
   include s
 
   definition dvd (a b : A) : Prop := ∃c, b = a * c
-  notation a ∣ b := dvd a b
+  notation [priority algebra.prio] a ∣ b := dvd a b
 
   theorem dvd.intro {a b c : A} (H : a * c = b) : a ∣ b :=
   exists.intro _ H⁻¹

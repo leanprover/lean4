@@ -17,7 +17,7 @@ section migrate_algebra
   local attribute int.decidable_linear_ordered_comm_ring [instance]
 
   definition pow (a : ℤ) (n : ℕ) : ℤ := algebra.pow a n
-  infix ^ := pow
+  infix [priority int.prio] ^ := pow
 
   migrate from algebra with int
     replacing dvd → dvd, has_le.ge → ge, has_lt.gt → gt, pow → pow

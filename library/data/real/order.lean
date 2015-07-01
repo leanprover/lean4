@@ -1018,18 +1018,18 @@ open [classes] s
 namespace real
 
 definition lt (x y : ℝ) := quot.lift_on₂ x y (λ a b, s.r_lt a b) s.r_lt_well_defined
-infix `<` := lt
+infix [priority real.prio] `<` := lt
 
 definition le (x y : ℝ) := quot.lift_on₂ x y (λ a b, s.r_le a b) s.r_le_well_defined
-infix `≤` := le
-infix `<=` := le
+infix [priority real.prio] `≤` := le
+infix [priority real.prio] `<=` := le
 
 definition gt [reducible] (a b : ℝ) := lt b a
 definition ge [reducible] (a b : ℝ) := le b a
 
-infix >= := real.ge
-infix ≥  := real.ge
-infix >  := real.gt
+infix [priority real.prio] >= := real.ge
+infix [priority real.prio] ≥  := real.ge
+infix [priority real.prio] >  := real.gt
 
 definition sep (x y : ℝ) := quot.lift_on₂ x y (λ a b, s.r_sep a b) s.r_sep_well_defined
 infix `≢` : 50 := sep
@@ -1114,9 +1114,9 @@ section migrate_algebra
   local attribute real.ordered_ring [instance]
 
   definition sub (a b : ℝ) : ℝ := algebra.sub a b
-  infix - := real.sub
+  infix [priority real.prio] - := real.sub
   definition dvd (a b : ℝ) : Prop := algebra.dvd a b
-  notation a ∣ b := real.dvd a b
+  notation [priority real.prio] a ∣ b := real.dvd a b
 
   migrate from algebra with real
     replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, dvd → dvd, divide → divide

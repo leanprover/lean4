@@ -1003,18 +1003,19 @@ definition add (x y : ℝ) : ℝ :=
   (quot.lift_on₂ x y (λ a b, quot.mk (a + b))
                      (take a b c d : reg_seq, take Hab : requiv a c, take Hcd : requiv b d,
                        quot.sound (radd_well_defined Hab Hcd)))
-infix `+` := add
+protected definition prio := num.pred rat.prio
+infix [priority real.prio] `+` := add
 
 definition mul (x y : ℝ) : ℝ :=
   (quot.lift_on₂ x y (λ a b, quot.mk (a * b))
                      (take a b c d : reg_seq, take Hab : requiv a c, take Hcd : requiv b d,
                        quot.sound (rmul_well_defined Hab Hcd)))
-infix `*` := mul
+infix [priority real.prio] `*` := mul
 
 definition neg (x : ℝ) : ℝ :=
   (quot.lift_on x (λ a, quot.mk (-a)) (take a b : reg_seq, take Hab : requiv a b,
                                    quot.sound (rneg_well_defined Hab)))
-prefix `-` := neg
+prefix [priority real.prio] `-` := neg
 
 definition zero : ℝ := quot.mk r_zero
 --notation 0 := zero

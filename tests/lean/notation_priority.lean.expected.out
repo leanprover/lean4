@@ -1,0 +1,4 @@
+nat.add a b : nat
+int.add i j : int
+nat.add a b : nat
+int.add i j : int

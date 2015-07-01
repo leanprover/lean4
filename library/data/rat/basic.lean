@@ -371,14 +371,16 @@ definition denom (a : ℚ) : ℤ := prerat.denom (reduce a)
 theorem denom_pos (a : ℚ): denom a > 0 :=
 prerat.denom_pos (reduce a)
 
-infix +    := rat.add
-infix *    := rat.mul
-prefix -   := rat.neg
+protected definition prio := num.pred int.prio
+
+infix [priority rat.prio] +    := rat.add
+infix [priority rat.prio] *    := rat.mul
+prefix [priority rat.prio] -   := rat.neg
 
 definition sub [reducible] (a b : rat) : rat := a + (-b)
 
-postfix ⁻¹ := rat.inv
-infix -    := rat.sub
+postfix [priority rat.prio] ⁻¹ := rat.inv
+infix [priority rat.prio] -    := rat.sub
 
 /- properties -/
 

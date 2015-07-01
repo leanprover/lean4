@@ -18,10 +18,10 @@ private definition nonneg (a : ℤ) : Prop := int.cases_on a (take n, true) (tak
 definition le (a b : ℤ) : Prop := nonneg (sub b a)
 definition lt (a b : ℤ) : Prop := le (add a 1) b
 
-infix - := int.sub
-infix <= := int.le
-infix ≤  := int.le
-infix <  := int.lt
+infix [priority int.prio] - := int.sub
+infix [priority int.prio] <= := int.le
+infix [priority int.prio] ≤  := int.le
+infix [priority int.prio] <  := int.lt
 
 local attribute nonneg [reducible]
 private definition decidable_nonneg [instance] (a : ℤ) : decidable (nonneg a) := int.cases_on a _ _

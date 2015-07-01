@@ -16,6 +16,25 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 
 namespace lean {
+enum class coercion_class_kind { User, Sort, Fun };
+/**
+   \brief A coercion is a mapping between classes.
+   We support three kinds of classes: User, Sort, Function.
+*/
+class coercion_class {
+    name                m_name; // relevant only if m_kind == User
+    coercion_class(name const & n): m_name(n) {}
+public:
+    coercion_class();
+    static coercion_class mk_user(name n);
+    static coercion_class mk_sort();
+    static coercion_class mk_fun();
+    friend bool operator==(coercion_class const & c1, coercion_class const & c2) { return c1.m_name == c2.m_name; }
+    friend bool operator!=(coercion_class const & c1, coercion_class const & c2) { return c1.m_name != c2.m_name; }
+    coercion_class_kind kind() const;
+    name get_name() const { return m_name; }
+};
+
 static name * g_fun  = nullptr;
 static name * g_sort = nullptr;
 
@@ -489,7 +508,7 @@ list<expr> get_coercions_to_fun(environment const & env, expr const & C) {
     return get_coercions(env, C, coercion_class::mk_fun());
 }
 
-bool get_coercions_from(environment const & env, expr const & C, buffer<std::tuple<coercion_class, expr, expr>> & result) {
+bool get_coercions_from(environment const & env, expr const & C, buffer<expr> & result) {
     buffer<expr> args;
     expr const & C_fn = get_app_rev_args(C, args);
     if (!is_constant(C_fn))
@@ -507,7 +526,7 @@ bool get_coercions_from(environment const & env, expr const & C, buffer<std::tup
             expr t = instantiate_univ_params(info.m_fun_type, info.m_level_params, const_levels(C_fn));
             for (unsigned i = 0; i < args.size(); i++) t = binding_body(t);
             t = instantiate(t, args.size(), args.data());
-            result.emplace_back(info.m_to, c, t);
+            result.push_back(c);
             r = true;
         }
     }

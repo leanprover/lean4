@@ -133,7 +133,7 @@ constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coerc
                 it_from  = instantiate(binding_body(it_from), local);
                 it_to    = instantiate(binding_body(it_to), local);
             }
-            buffer<std::tuple<coercion_class, expr, expr>> alts;
+            buffer<expr> alts;
             get_coercions_from(from_tc.env(), it_from, alts);
             expr fn_a;
             if (!locals.empty())
@@ -146,8 +146,7 @@ constraint mk_coercion_cnstr(type_checker & from_tc, type_checker & to_tc, coerc
             unsigned i = alts.size();
             while (i > 0) {
                 --i;
-                auto const & t = alts[i];
-                expr coe = std::get<1>(t);
+                expr coe = alts[i];
                 if (!locals.empty())
                     coe = Fun(fn_a, Fun(locals, mk_app(coe, mk_app(fn_a, locals))));
                 expr new_a = copy_tag(a, mk_app(coe, a));

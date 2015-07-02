@@ -311,8 +311,7 @@ static environment add_coercion_core(environment const & env,
     return new_env;
 }
 
-static environment add_coercion(environment const & env, io_state const & ios,
-                                name const & f, name const & C, bool persistent) {
+static environment add_coercion(environment const & env, name const & f, name const & C, bool persistent) {
     declaration d = env.get(f);
     unsigned num = 0;
     buffer<expr> args;
@@ -340,7 +339,7 @@ static environment add_coercion(environment const & env, io_state const & ios,
     }
 }
 
-environment add_coercion(environment const & env, io_state const & ios, name const & f, bool persistent) {
+environment add_coercion(environment const & env, io_state const &, name const & f, bool persistent) {
     declaration d = env.get(f);
     expr t = d.get_type();
     check_pi(f, t);
@@ -358,10 +357,10 @@ environment add_coercion(environment const & env, io_state const & ios, name con
         --i;
         if (i == 0) {
             // last alternative
-            return add_coercion(env, ios, f, Cs[i], persistent);
+            return add_coercion(env, f, Cs[i], persistent);
         } else {
             try {
-                return add_coercion(env, ios, f, Cs[i], persistent);
+                return add_coercion(env, f, Cs[i], persistent);
             } catch (exception &) {
                 // failed, keep trying...
             }

@@ -22,4 +22,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
                            implicit_infer_kind infer_k = implicit_infer_kind::Implicit, bool inst_implicit = false);
 environment mk_projections(environment const & env, name const & n,
                            implicit_infer_kind infer_k = implicit_infer_kind::Implicit, bool inst_implicit = false);
+
+void initialize_def_projection();
+void finalize_def_projection();
 }

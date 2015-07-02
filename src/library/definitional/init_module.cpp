@@ -6,13 +6,16 @@ Author: Leonardo de Moura
 */
 #include "library/util.h"
 #include "library/definitional/equations.h"
+#include "library/definitional/projection.h"
 
 namespace lean{
 void initialize_definitional_module() {
     initialize_equations();
+    initialize_def_projection();
 }
 
 void finalize_definitional_module() {
+    finalize_def_projection();
     finalize_equations();
 }
 }

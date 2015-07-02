@@ -48,14 +48,6 @@ inline bool is_projection(environment const & env, name const & n) {
     return get_projection_info(env, n) != nullptr;
 }
 
-/** \brief Create a projection macro term that can peform the following reduction efficiently
-
-       pr_i A (mk A f_1 ... f_n) ==> f_i
-
-    \remark proj_name is the name of the definition that implements the actual projection.
-*/
-expr mk_projection_macro(name const & proj_name, expr const & e);
-
 /** \brief Return true iff the type named \c S can be viewed as
     a structure in the given environment.
 

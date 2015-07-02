@@ -4,6 +4,10 @@
 TIME=/usr/bin/time
 REALPATH=realpath
 
+if ! $TIME --format "$rf %e" ls 2> /dev/null > /dev/null; then
+    TIME=gtime
+fi
+
 MY_PATH="`dirname \"$0\"`"
 LEAN=$MY_PATH/../bin/lean
 LIB=$MY_PATH/../library

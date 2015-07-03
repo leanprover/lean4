@@ -223,4 +223,17 @@ begin
       {apply mem_insert_of_mem _ !mem_insert},
       {intro aeqb, subst a, exact absurd !mem_insert nain}}
 end
+
+lemma dvd_Sum_of_dvd (f : A → nat) (n : nat) (s : finset A) : (∀ a, a ∈ s → n ∣ f a) → n ∣ Sum s f :=
+begin
+  induction s with a s nain ih,
+   {intros, rewrite [Sum_empty], apply dvd_zero},
+   {intro h,
+    have h₁ : ∀ a, a ∈ s → n ∣ f a, from
+      take a, assume ains, h a (mem_insert_of_mem _ ains),
+    have h₂ : n ∣ Sum s f, from ih h₁,
+    have h₃ : n ∣ f a, from h a !mem_insert,
+    rewrite [Sum_insert_of_not_mem f nain],
+    apply dvd_add h₃ h₂}
+end
 end finset

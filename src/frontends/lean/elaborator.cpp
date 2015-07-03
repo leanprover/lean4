@@ -286,6 +286,9 @@ expr elaborator::visit_expecting_type(expr const & e, constraint_seq & cs) {
         expr r = m_context.mk_type_meta(m_ngen, e.get_tag());
         save_placeholder_info(e, r);
         return r;
+    } else if (is_no_info(e)) {
+        flet<bool> let(m_no_info, true);
+        return visit_expecting_type(get_annotation_arg(e), cs);
     } else {
         return visit(e, cs);
     }
@@ -297,6 +300,9 @@ expr elaborator::visit_expecting_type_of(expr const & e, expr const & t, constra
         expr r = mk_placeholder_meta(some_expr(t), e.get_tag(), is_strict_placeholder(e), inst_imp, cs);
         save_placeholder_info(e, r);
         return r;
+    } else if (is_no_info(e)) {
+        flet<bool> let(m_no_info, true);
+        return visit_expecting_type_of(get_annotation_arg(e), t, cs);
     } else if (is_choice(e)) {
         return visit_choice(e, some_expr(t), cs);
     } else if (is_by(e)) {

@@ -209,4 +209,18 @@ finset.induction_on s
                 card_union_of_disjoint H8, H6])
 end deceqB
 
+lemma exists_two_of_card_gt_one {s : finset A} : 1 < card s → ∃ a b, a ∈ s ∧ b ∈ s ∧ a ≠ b :=
+begin
+  intro h,
+  induction s with a s nain ih₁,
+   {exact absurd h dec_trivial},
+   {induction s with b s nbin ih₂,
+    {exact absurd h dec_trivial},
+     clear ih₁ ih₂,
+     existsi a, existsi b, split,
+      {apply mem_insert},
+      split,
+      {apply mem_insert_of_mem _ !mem_insert},
+      {intro aeqb, subst a, exact absurd !mem_insert nain}}
+end
 end finset

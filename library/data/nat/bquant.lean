@@ -23,38 +23,38 @@ namespace nat
   definition ball [reducible] (n : nat) (P : nat → Prop) : Prop :=
   ∀ x, x < n → P x
 
-  definition not_bex_zero (P : nat → Prop) : ¬ bex 0 P :=
+  theorem not_bex_zero (P : nat → Prop) : ¬ bex 0 P :=
   λ H, obtain (w : nat) (Hw : w < 0 ∧ P w), from H,
     and.rec_on Hw (λ h₁ h₂, absurd h₁ (not_lt_zero w))
 
-  definition bex_succ {P : nat → Prop} {n : nat} (H : bex n P) : bex (succ n) P :=
+  theorem bex_succ {P : nat → Prop} {n : nat} (H : bex n P) : bex (succ n) P :=
   obtain (w : nat) (Hw : w < n ∧ P w), from H,
     and.rec_on Hw (λ hlt hp, exists.intro w (and.intro (lt.step hlt) hp))
 
-  definition bex_succ_of_pred {P : nat → Prop} {a : nat} (H : P a) : bex (succ a) P :=
+  theorem bex_succ_of_pred {P : nat → Prop} {a : nat} (H : P a) : bex (succ a) P :=
   exists.intro a (and.intro (lt.base a) H)
 
-  definition not_bex_succ {P : nat → Prop} {n : nat} (H₁ : ¬ bex n P) (H₂ : ¬ P n) : ¬ bex (succ n) P :=
+  theorem not_bex_succ {P : nat → Prop} {n : nat} (H₁ : ¬ bex n P) (H₂ : ¬ P n) : ¬ bex (succ n) P :=
   λ H, obtain (w : nat) (Hw : w < succ n ∧ P w), from H,
     and.rec_on Hw (λ hltsn hp, or.rec_on (eq_or_lt_of_le (le_of_succ_le_succ hltsn))
       (λ heq : w = n, absurd (eq.rec_on heq hp) H₂)
       (λ hltn : w < n, absurd (exists.intro w (and.intro hltn hp)) H₁))
 
-  definition ball_zero (P : nat → Prop) : ball zero P :=
+  theorem ball_zero (P : nat → Prop) : ball zero P :=
   λ x Hlt, absurd Hlt !not_lt_zero
 
-  definition ball_of_ball_succ {n : nat} {P : nat → Prop} (H : ball (succ n) P) : ball n P  :=
+  theorem ball_of_ball_succ {n : nat} {P : nat → Prop} (H : ball (succ n) P) : ball n P  :=
   λ x Hlt, H x (lt.step Hlt)
 
-  definition ball_succ_of_ball {n : nat} {P : nat → Prop} (H₁ : ball n P) (H₂ : P n) : ball (succ n) P :=
+  theorem ball_succ_of_ball {n : nat} {P : nat → Prop} (H₁ : ball n P) (H₂ : P n) : ball (succ n) P :=
   λ (x : nat) (Hlt : x < succ n), or.elim (eq_or_lt_of_le (le_of_succ_le_succ Hlt))
     (λ heq : x = n, eq.rec_on (eq.rec_on heq rfl) H₂)
     (λ hlt : x < n, H₁ x hlt)
 
-  definition not_ball_of_not {n : nat} {P : nat → Prop} (H₁ : ¬ P n) : ¬ ball (succ n) P :=
+  theorem not_ball_of_not {n : nat} {P : nat → Prop} (H₁ : ¬ P n) : ¬ ball (succ n) P :=
   λ (H : ball (succ n) P), absurd (H n (lt.base n)) H₁
 
-  definition not_ball_succ_of_not_ball {n : nat} {P : nat → Prop} (H₁ : ¬ ball n P) : ¬ ball (succ n) P :=
+  theorem not_ball_succ_of_not_ball {n : nat} {P : nat → Prop} (H₁ : ¬ ball n P) : ¬ ball (succ n) P :=
   λ (H : ball (succ n) P), absurd (ball_of_ball_succ H) H₁
 end nat
 
@@ -90,5 +90,31 @@ section
   decidable_of_decidable_of_iff
     (decidable_ball (succ n) P)
     (forall_congr (λn, imp_iff_imp !lt_succ_iff_le !iff.refl))
-
 end
+
+namespace nat
+  open decidable
+  variable {P : nat → Prop}
+  variable [decP : decidable_pred P]
+  include decP
+
+  theorem bex_not_of_not_ball : ∀ {n : nat}, ¬ ball n P → bex n (λ n, ¬ P n)
+  | 0        h := absurd (ball_zero P) h
+  | (succ n) h := decidable.by_cases
+    (λ hp : P n,
+      have h₁ : ¬ ball n P, from
+        assume b : ball n P, absurd (ball_succ_of_ball b hp) h,
+      have h₂ : bex n (λ n, ¬ P n), from bex_not_of_not_ball h₁,
+      bex_succ h₂)
+    (λ hn : ¬ P n, bex_succ_of_pred hn)
+
+  theorem ball_not_of_not_bex : ∀ {n : nat}, ¬ bex n P → ball n (λ n, ¬ P n)
+  | 0        h := ball_zero _
+  | (succ n) h := by_cases
+    (λ hp : P n, absurd (bex_succ_of_pred hp) h)
+    (λ hn : ¬ P n,
+      have h₁ : ¬ bex n P, from
+        assume b : bex n P, absurd (bex_succ b) h,
+      have h₂ : ball n (λ n, ¬ P n), from ball_not_of_not_bex h₁,
+      ball_succ_of_ball h₂ hn)
+end nat

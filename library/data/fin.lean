@@ -255,7 +255,47 @@ definition succ : fin n → fin (succ n)
 lemma val_succ : ∀ (i : fin n), val (succ i) = nat.succ (val i)
 | (mk v h) := rfl
 
-definition elim0 {C : Type} : fin 0 → C
+definition elim0 {C : fin 0 → Type} : Π i : fin 0, C i
 | (mk v h) := absurd h !not_lt_zero
+
+definition zero_succ_cases {C : fin (nat.succ n) → Type} :
+  C (zero n) → (Π j : fin n, C (succ j)) → (Π k : fin (nat.succ n), C k) :=
+begin
+  intros CO CS k,
+  induction k with [vk, pk],
+  induction (nat.decidable_lt 0 vk) with [HT, HF],
+  { show C (mk vk pk), from
+    let vj := nat.pred vk in
+    have HSv : vk = nat.succ vj, from
+      eq.symm (succ_pred_of_pos HT),
+    assert pj : vj < n, from
+      lt_of_succ_lt_succ (eq.subst HSv pk),
+    have HS : succ (mk vj pj) = mk vk pk, from
+      val_inj (eq.symm HSv),
+    eq.rec_on HS (CS (mk vj pj)) },
+  { show C (mk vk pk), from
+    have HOv : vk = 0, from
+      eq_zero_of_le_zero (le_of_not_gt HF),
+    have HO : zero n = mk vk pk, from
+      val_inj (eq.symm HOv),
+    eq.rec_on HO CO }
+end
+
+theorem choice {C : fin n → Type} :
+  (∀ i : fin n, nonempty (C i)) → nonempty (Π i : fin n, C i) :=
+begin
+  revert C,
+  induction n with [n, IH],
+  { intros C H,
+    apply nonempty.intro,
+    exact elim0 },
+  { intros C H,
+    fapply nonempty.elim (H (zero n)),
+    intro CO,
+    fapply nonempty.elim (IH (λ i, C (succ i)) (λ i, H (succ i))),
+    intro CS,
+    apply nonempty.intro,
+    exact zero_succ_cases CO CS }
+end
 
 end fin

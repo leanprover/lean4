@@ -399,6 +399,9 @@ dvd.elim H
 theorem dvd_of_mul_dvd_mul_right {m n k : ℕ} (kpos : k > 0) (H : m * k ∣ n * k) : m ∣ n :=
 dvd_of_mul_dvd_mul_left kpos (!mul.comm ▸ !mul.comm ▸ H)
 
+lemma dvd_of_eq_mul (i j n : nat) : n = j*i → j ∣ n :=
+begin intros, subst n, apply dvd_mul_right end
+
 theorem div_dvd_div {k m n : ℕ} (H1 : k ∣ m) (H2 : m ∣ n) : m div k ∣ n div k :=
 have H3 : m = m div k * k, from (div_mul_cancel H1)⁻¹,
 have H4 : n = n div k * k, from (div_mul_cancel (dvd.trans H1 H2))⁻¹,
@@ -439,7 +442,27 @@ theorem div_eq_of_eq_mul_left {m n k : ℕ} (H1 : n > 0) (H2 : m = k * n) :
   m div n = k :=
 !div_eq_of_eq_mul_right H1 (!mul.comm ▸ H2)
 
+lemma add_mod_eq_of_dvd (i j n : nat) : n ∣ j → (i + j) mod n = i mod n :=
+assume h,
+obtain k (hk : j = n * k), from exists_eq_mul_right_of_dvd h,
+begin
+  subst j, rewrite mul.comm,
+  apply add_mul_mod_self
+end
+
 /- div and ordering -/
+
+lemma le_of_dvd {m n} : n > 0 → m ∣ n → m ≤ n :=
+assume (h₁ : n > 0) (h₂ : m ∣ n),
+assert h₃ : n mod m = 0, from mod_eq_zero_of_dvd h₂,
+by_contradiction
+ (λ nle : ¬ m ≤ n,
+   have   h₄ : m > n, from lt_of_not_ge nle,
+   assert h₅ : n mod m = n, from mod_eq_of_lt h₄,
+   begin
+     rewrite h₃ at h₅, subst n,
+     exact absurd h₁ (lt.irrefl 0)
+   end)
 
 theorem div_mul_le (m n : ℕ) : m div n * n ≤ m :=
 calc

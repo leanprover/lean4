@@ -49,4 +49,16 @@ theorem pow_cancel_left : ∀ {a b c : nat}, a > 1 → pow a b = pow a c → b =
 theorem pow_div_cancel : ∀ {a b : nat}, a ≠ 0 → pow a (succ b) div a = pow a b
 | a 0        h := by rewrite [pow_succ', pow_zero, mul_one, div_self (pos_of_ne_zero h)]
 | a (succ b) h := by rewrite [pow_succ', mul_div_cancel_left _ (pos_of_ne_zero h)]
+
+lemma dvd_pow : ∀ (i : nat) {n : nat}, n > 0 → i ∣ i^n
+| i 0        h := absurd h !lt.irrefl
+| i (succ n) h := by rewrite [pow_succ]; apply dvd_mul_left
+
+lemma dvd_pow_of_dvd_of_pos : ∀ {i j n : nat}, i ∣ j → n > 0 → i ∣ j^n
+| i j 0        h₁ h₂ := absurd h₂ !lt.irrefl
+| i j (succ n) h₁ h₂ := by rewrite [pow_succ]; apply dvd_mul_of_dvd_right h₁
+
+lemma pow_mod_eq_zero (i : nat) {n : nat} (h : n > 0) : (i^n) mod i = 0 :=
+iff.mp !dvd_iff_mod_eq_zero (dvd_pow i h)
+
 end nat

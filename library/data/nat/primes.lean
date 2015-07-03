@@ -51,4 +51,63 @@ have h₂ : p ≥ 2, from ge_two_of_prime ipp,
 have h₃ : p ≤ i, from le_of_dvd pos h₁,
 lt_of_succ_le (le.trans h₂ h₃)
 
+theorem has_divisor_of_not_prime {n : nat} : n ≥ 2 → ¬ prime n → ∃ m, m ∣ n ∧ m ≠ 1 ∧ m ≠ n :=
+assume h₁ h₂,
+have h₃ : ¬ prime_ext n, from iff.mp' (not_iff_not_of_iff !prime_ext_iff_prime) h₂,
+have h₄ : ¬ n ≥ 2 ∨ ¬ (∀ m, m ≤ n → m ∣ n → m = 1 ∨ m = n), from iff.mp !not_and_iff_not_or_not h₃,
+have h₅ : ¬ (∀ m, m ≤ n → m ∣ n → m = 1 ∨ m = n), from or_resolve_right h₄ (not_not_intro h₁),
+have h₆ : ¬ (∀ m, m < succ n → m ∣ n → m = 1 ∨ m = n), from
+  assume h, absurd (λ m hl hd, h m (lt_succ_of_le hl) hd) h₅,
+have h₇ : ∃ m, m < succ n ∧ ¬(m ∣ n → m = 1 ∨ m = n), from bex_not_of_not_ball h₆,
+obtain m hlt (h₈ : ¬(m ∣ n → m = 1 ∨ m = n)), from h₇,
+obtain (h₈ : m ∣ n) (h₉ : ¬ (m = 1 ∨ m = n)), from iff.mp !not_implies_iff_and_not h₈,
+have h₁₀ : ¬ m = 1 ∧ ¬ m = n, from iff.mp !not_or_iff_not_and_not h₉,
+exists.intro m (and.intro h₈ h₁₀)
+
+theorem has_divisor_of_not_prime2 {n : nat} : n ≥ 2 → ¬ prime n → ∃ m, m ∣ n ∧ m ≥ 2 ∧ m < n :=
+assume h₁ h₂,
+have n_ne_0 : n ≠ 0, from assume h, begin subst n, exact absurd h₁ dec_trivial end,
+obtain m m_dvd_n m_ne_1 m_ne_n, from has_divisor_of_not_prime h₁ h₂,
+assert m_ne_0 : m ≠ 0, from assume h, begin subst m, exact absurd (eq_zero_of_zero_dvd m_dvd_n) n_ne_0 end,
+begin
+  existsi m, split, assumption,
+  split,
+    {cases m with m, exact absurd rfl m_ne_0, cases m with m, exact absurd rfl m_ne_1, exact succ_le_succ (succ_le_succ (zero_le _))},
+    {have m_le_n : m ≤ n, from le_of_dvd (pos_of_ne_zero n_ne_0) m_dvd_n,
+     exact lt_of_le_and_ne m_le_n m_ne_n}
+end
+
+theorem has_prime_divisor {n : nat} : n ≥ 2 → ∃ p, prime p ∧ p ∣ n :=
+nat.strong_induction_on n
+  (take n,
+   assume ih : ∀ m, m < n → m ≥ 2 → ∃ p, prime p ∧ p ∣ m,
+   assume n_ge_2 : n ≥ 2,
+   by_cases
+    (λ h : prime n, exists.intro n (and.intro h (dvd.refl n)))
+    (λ h : ¬ prime n,
+      obtain m m_dvd_n m_ge_2 m_lt_n, from has_divisor_of_not_prime2 n_ge_2 h,
+      obtain p (hp : prime p) (p_dvd_m : p ∣ m), from ih m m_lt_n m_ge_2,
+      have p_dvd_n : p ∣ n, from dvd.trans p_dvd_m m_dvd_n,
+      exists.intro p (and.intro hp p_dvd_n)))
+
+open eq.ops
+
+theorem infinite_primes (n : nat) : ∃ p, p ≥ n ∧ prime p :=
+let m := fact (n + 1) in
+have Hn1 : n + 1 ≥ 1, from succ_le_succ (zero_le _),
+have m_ge_1 : m ≥ 1,  from le_of_lt_succ (succ_lt_succ (fact_gt_0 _)),
+have m1_ge_2 : m + 1 ≥ 2, from succ_le_succ m_ge_1,
+obtain p (prime_p : prime p) (p_dvd_m1 : p ∣ m + 1), from has_prime_divisor m1_ge_2,
+have p_ge_2 : p ≥ 2, from ge_two_of_prime prime_p,
+have p_gt_0 : p > 0, from lt_of_succ_lt (lt_of_succ_le p_ge_2),
+have p_ge_n : p ≥ n, from by_contradiction
+  (assume h₁ : ¬ p ≥ n,
+    have h₂ : p < n, from lt_of_not_ge h₁,
+    have h₃ : p ≤ n + 1, from le_of_lt (lt.step h₂),
+    have h₄ : p ∣ m, from dvd_fact p_gt_0 h₃,
+    have h₅ : p ∣ 1, from dvd_of_dvd_add_right (!add.comm ▸ p_dvd_m1) h₄,
+    have h₆ : p ≤ 1, from le_of_dvd zero_lt_one h₅,
+    absurd (le.trans p_ge_2 h₆) dec_trivial),
+exists.intro p (and.intro p_ge_n prime_p)
+
 end nat

@@ -5,7 +5,7 @@ Authors: William Peterson, Jeremy Avigad
 
 Extended gcd, Bezout's theorem, chinese remainder theorem.
 -/
-import data.nat.div data.int data.nat.primes
+import data.nat.div data.int .primes
 
 /- Bezout's theorem -/
 

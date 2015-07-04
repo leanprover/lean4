@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 
 Prime numbers
 -/
-import data.nat.fact data.nat.gcd data.nat.bquant data.nat.power data.nat.parity logic.identities
+import data.nat logic.identities
 open bool
 
 namespace nat

@@ -121,4 +121,9 @@ namespace bool
   theorem bnot_true  : bnot tt = ff :=
   rfl
 
+  theorem eq_tt_of_bnot_eq_ff {a : bool} : bnot a = ff → a = tt :=
+  bool.cases_on a (by contradiction) (λ h, rfl)
+
+  theorem eq_ff_of_bnot_eq_tt {a : bool} : bnot a = tt → a = ff :=
+  bool.cases_on a (λ h, rfl) (by contradiction)
 end bool

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Jeremy Avigad
 
 The power function on the natural numbers.
 -/
-import data.nat.basic data.nat.order data.nat.div algebra.group_power
+import data.nat.basic data.nat.order data.nat.div data.nat.gcd algebra.group_power
 
 namespace nat
 
@@ -60,5 +60,18 @@ lemma dvd_pow_of_dvd_of_pos : ∀ {i j n : nat}, i ∣ j → n > 0 → i ∣ j^n
 
 lemma pow_mod_eq_zero (i : nat) {n : nat} (h : n > 0) : (i^n) mod i = 0 :=
 iff.mp !dvd_iff_mod_eq_zero (dvd_pow i h)
+
+lemma coprime_pow_right {a b} : ∀ n, coprime b a → coprime b (a^n)
+| 0        h := !comprime_one_right
+| (succ n) h :=
+  begin
+    rewrite [pow_succ],
+    apply coprime_mul_right,
+      exact coprime_pow_right n h,
+      exact h
+  end
+
+lemma coprime_pow_left {a b} : ∀ n, coprime b a → coprime (b^n) a :=
+λ n h, coprime_swap (coprime_pow_right n (coprime_swap h))
 
 end nat

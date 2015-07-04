@@ -366,6 +366,12 @@ coprime_swap (coprime_of_coprime_mul_left (coprime_swap H))
 theorem coprime_of_coprime_mul_right_right {k m n : ℕ} (H : coprime m (n * k)) : coprime m n :=
 coprime_of_coprime_mul_left_right (!mul.comm ▸ H)
 
+theorem comprime_one_left : ∀ n, coprime 1 n :=
+λ n, !gcd_one_left
+
+theorem comprime_one_right : ∀ n, coprime n 1 :=
+λ n, !gcd_one_right
+
 theorem exists_eq_prod_and_dvd_and_dvd {m n k} (H : k ∣ m * n) :
   ∃ m' n', k = m' * n' ∧ m' ∣ m ∧ n' ∣ n :=
 or.elim (eq_zero_or_pos (gcd k m))

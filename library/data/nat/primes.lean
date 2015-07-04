@@ -159,4 +159,22 @@ lemma dvd_of_prime_of_dvd_pow {p m : nat} : ∀ {n}, prime p → p ∣ m^n → p
     (λ h, dvd_of_prime_of_dvd_pow hp h)
     (λ h, h)
 
+lemma coprime_pow_of_prime_of_not_dvd {p m a : nat} : prime p → ¬ p ∣ a → coprime a (p^m) :=
+λ h₁ h₂, coprime_pow_right m (coprime_swap (coprime_of_prime_of_not_dvd h₁ h₂))
+
+lemma coprime_primes {p q : nat} : prime p → prime q → p ≠ q → coprime p q :=
+λ hp hq hn,
+  assert d₁ : gcd p q ∣ p, from !gcd_dvd_left,
+  assert d₂ : gcd p q ∣ q, from !gcd_dvd_right,
+  or.elim (divisor_of_prime hp d₁)
+    (λ h : gcd p q = 1, h)
+    (λ h : gcd p q = p,
+      have d₃ : p ∣ q, by rewrite -h; exact d₂,
+      or.elim (divisor_of_prime hq d₃)
+        (λ h₁ : p = 1, by subst p; exact absurd hp not_prime_one)
+        (λ he : p = q, by contradiction))
+
+lemma coprime_pow_primes {p q : nat} (n m : nat) : prime p → prime q → p ≠ q → coprime (p^n) (q^m) :=
+λ hp hq hn, coprime_pow_right m (coprime_pow_left n (coprime_primes hp hq hn))
+
 end nat

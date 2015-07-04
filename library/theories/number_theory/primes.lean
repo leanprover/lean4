@@ -177,4 +177,19 @@ lemma coprime_primes {p q : nat} : prime p → prime q → p ≠ q → coprime p
 lemma coprime_pow_primes {p q : nat} (n m : nat) : prime p → prime q → p ≠ q → coprime (p^n) (q^m) :=
 λ hp hq hn, coprime_pow_right m (coprime_pow_left n (coprime_primes hp hq hn))
 
+lemma coprime_or_dvd_of_prime {p} (Pp : prime p) (i : nat) : coprime p i ∨ p ∣ i :=
+by_cases
+ (λ h : p ∣ i, or.inr h)
+ (λ h : ¬ p ∣ i, or.inl (coprime_of_prime_of_not_dvd Pp h))
+
+lemma divisor_of_prime_pow {p : nat} : ∀ {m i : nat}, prime p → i ∣ (p^m) → i = 1 ∨ p ∣ i
+| 0        := take i, assume Pp, begin rewrite [pow_zero], intro Pdvd, apply or.inl (eq_one_of_dvd_one Pdvd) end
+| (succ m) := take i, assume Pp, or.elim (coprime_or_dvd_of_prime Pp i)
+  (λ Pcp, begin
+    rewrite [pow_succ], intro Pdvd,
+    apply divisor_of_prime_pow Pp,
+    apply dvd_of_coprime_of_dvd_mul_right,
+      apply coprime_swap Pcp, exact Pdvd
+  end)
+  (λ Pdvd, assume P, or.inr Pdvd)
 end nat

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 
 Prime numbers
 -/
-import data.nat.fact data.nat.bquant data.nat.power logic.identities
+import data.nat.fact data.nat.gcd data.nat.bquant data.nat.power data.nat.parity logic.identities
 open bool
 
 namespace nat
@@ -32,6 +32,18 @@ decidable_of_decidable_of_iff _ (prime_ext_iff_prime p)
 
 lemma ge_two_of_prime {p : nat} : prime p → p ≥ 2 :=
 assume h, obtain h₁ h₂, from h, h₁
+
+lemma not_prime_zero : ¬ prime 0 :=
+λ h, absurd (ge_two_of_prime h) dec_trivial
+
+lemma not_prime_one : ¬ prime 1 :=
+λ h, absurd (ge_two_of_prime h) dec_trivial
+
+lemma prime_two : prime 2 :=
+dec_trivial
+
+lemma prime_three : prime 3 :=
+dec_trivial
 
 lemma pred_prime_pos {p : nat} : prime p → pred p > 0 :=
 assume h,
@@ -109,5 +121,42 @@ have p_ge_n : p ≥ n, from by_contradiction
     have h₆ : p ≤ 1, from le_of_dvd zero_lt_one h₅,
     absurd (le.trans p_ge_2 h₆) dec_trivial),
 exists.intro p (and.intro p_ge_n prime_p)
+
+lemma odd_of_prime {p : nat} : prime p → p > 2 → odd p :=
+λ h₁ h₂, by_contradiction (λ hn,
+  have he : even p, from even_of_not_odd hn,
+  obtain k (hk : p = 2*k), from exists_of_even he,
+  have h₂ : 2 ∣ p, by rewrite [hk]; apply dvd_mul_right,
+  or.elim (divisor_of_prime h₁ h₂)
+    (λ h : 2 = 1, absurd h dec_trivial)
+    (λ h : 2 = p, by subst h; exact absurd h₂ !lt.irrefl))
+
+lemma coprime_of_prime_of_not_dvd {p n : nat} : prime p → ¬ p ∣ n → coprime p n :=
+λ h₁ h₂,
+  assert d₁ : gcd p n ∣ p, from !gcd_dvd_left,
+  assert d₂ : gcd p n ∣ n, from !gcd_dvd_right,
+  or.elim (divisor_of_prime h₁ d₁)
+    (λ h : gcd p n = 1, h)
+    (λ h : gcd p n = p,
+      assert d₃ : p ∣ n, by rewrite -h; exact d₂,
+      by contradiction)
+
+lemma dvd_or_dvd_of_prime_of_dvd_mul {p m n : nat} : prime p → p ∣ m * n → p ∣ m ∨ p ∣ n :=
+λ h₁ h₂, by_contradiction (λ h,
+  obtain (n₁ : ¬ p ∣ m) (n₂ : ¬ p ∣ n), from iff.mp !not_or_iff_not_and_not h,
+  assert c₁ : coprime p m, from coprime_of_prime_of_not_dvd h₁ n₁,
+  assert n₃ : p ∣ n, from dvd_of_coprime_of_dvd_mul_left c₁ h₂,
+  by contradiction)
+
+lemma dvd_of_prime_of_dvd_pow {p m : nat} : ∀ {n}, prime p → p ∣ m^n → p ∣ m
+| 0 hp hd :=
+  assert h₁ : p = 1, from eq_one_of_dvd_one hd,
+  have h₂ : 1 ≥ 2, by rewrite -h₁; apply ge_two_of_prime hp,
+  absurd h₂ dec_trivial
+| (succ n) hp hd :=
+  have hd₁ : p ∣ (m^n)*m, by rewrite [pow_succ at hd]; exact hd,
+  or.elim (dvd_or_dvd_of_prime_of_dvd_mul hp hd₁)
+    (λ h, dvd_of_prime_of_dvd_pow hp h)
+    (λ h, h)
 
 end nat

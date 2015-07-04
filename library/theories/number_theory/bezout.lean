@@ -5,7 +5,12 @@ Authors: William Peterson, Jeremy Avigad
 
 Extended gcd, Bezout's theorem, chinese remainder theorem.
 -/
-import data.nat.div data.int
+import data.nat.div data.int data.nat.primes
+
+/- Bezout's theorem -/
+
+section Bezout
+
 open nat int
 open eq.ops well_founded decidable prod
 
@@ -54,5 +59,44 @@ gcd.induction x y
       rewrite [sub_add_eq_add_sub, *sub_eq_add_neg, int.add.assoc, of_nat_div, *int.mul.assoc]
     end)
 
-theorem Bezout (x y : ℕ) : ∃ a b : ℤ, a * x + b * y = gcd x y :=
+theorem Bezout_aux (x y : ℕ) : ∃ a b : ℤ, a * x + b * y = gcd x y :=
 exists.intro _ (exists.intro _ (egcd_prop x y))
+
+theorem Bezout (x y : ℤ) : ∃ a b : ℤ, a * x + b * y = gcd x y :=
+obtain a' b' (H : a' * nat_abs x + b' * nat_abs y = gcd x y), from !Bezout_aux,
+begin
+  existsi (a' * sign x),
+  existsi (b' * sign y),
+  rewrite [*int.mul.assoc, -*abs_eq_sign_mul, -*of_nat_nat_abs],
+  apply H
+end
+
+end Bezout
+
+namespace nat
+open int
+
+theorem dvd_or_dvd_of_dvd_mul_of_prime {p x y : ℕ} (pp : prime p) (H : p ∣ x * y) :
+  p ∣ x ∨ p ∣ y :=
+decidable.by_cases
+  (assume Hpx : p ∣ x, or.inl Hpx)
+  (assume Hnpx : ¬ p ∣ x,
+    have cpx : coprime p x, from coprime_of_prime_of_not_dvd pp Hnpx,
+    obtain (a b : ℤ) (Hab : a * p + b * x = gcd p x), from !Bezout_aux,
+    assert H1 : a * p * y + b * x * y = y,
+      by rewrite [-int.mul.right_distrib, Hab, ↑coprime at cpx, cpx, int.one_mul],
+    have H2 : p ∣ y,
+      begin
+        apply dvd_of_of_nat_dvd_of_nat,
+        rewrite [-H1],
+        apply int.dvd_add,
+          {apply int.dvd_mul_of_dvd_left,
+            apply int.dvd_mul_of_dvd_right,
+            apply int.dvd.refl},
+          {rewrite int.mul.assoc,
+            apply int.dvd_mul_of_dvd_right,
+            apply of_nat_dvd_of_nat_of_dvd H}
+      end,
+    or.inr H2)
+
+end nat

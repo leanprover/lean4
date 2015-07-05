@@ -123,19 +123,19 @@ have p_ge_n : p ≥ n, from by_contradiction
 exists.intro p (and.intro p_ge_n prime_p)
 
 lemma odd_of_prime {p : nat} : prime p → p > 2 → odd p :=
-λ h₁ h₂, by_contradiction (λ hn,
-  have he : even p, from even_of_not_odd hn,
-  obtain k (hk : p = 2*k), from exists_of_even he,
-  have h₂ : 2 ∣ p, by rewrite [hk]; apply dvd_mul_right,
-  or.elim (divisor_of_prime h₁ h₂)
+λ pp p_gt_2, by_contradiction (λ hn,
+  have even_p : even p, from even_of_not_odd hn,
+  obtain k (hk : p = 2*k), from exists_of_even even_p,
+  assert two_div_p : 2 ∣ p, by rewrite [hk]; apply dvd_mul_right,
+  or.elim (divisor_of_prime pp two_div_p)
     (λ h : 2 = 1, absurd h dec_trivial)
-    (λ h : 2 = p, by subst h; exact absurd h₂ !lt.irrefl))
+    (λ h : 2 = p, by subst h; exact absurd p_gt_2 !lt.irrefl))
 
 lemma coprime_of_prime_of_not_dvd {p n : nat} : prime p → ¬ p ∣ n → coprime p n :=
-λ h₁ h₂,
+λ pp h₂,
   assert d₁ : gcd p n ∣ p, from !gcd_dvd_left,
   assert d₂ : gcd p n ∣ n, from !gcd_dvd_right,
-  or.elim (divisor_of_prime h₁ d₁)
+  or.elim (divisor_of_prime pp d₁)
     (λ h : gcd p n = 1, h)
     (λ h : gcd p n = p,
       assert d₃ : p ∣ n, by rewrite -h; exact d₂,
@@ -150,14 +150,14 @@ lemma dvd_or_dvd_of_prime_of_dvd_mul {p m n : nat} : prime p → p ∣ m * n →
 
 lemma dvd_of_prime_of_dvd_pow {p m : nat} : ∀ {n}, prime p → p ∣ m^n → p ∣ m
 | 0 hp hd :=
-  assert h₁ : p = 1, from eq_one_of_dvd_one hd,
-  have h₂ : 1 ≥ 2, by rewrite -h₁; apply ge_two_of_prime hp,
+  assert peq1 : p = 1, from eq_one_of_dvd_one hd,
+  have h₂ : 1 ≥ 2, by rewrite -peq1; apply ge_two_of_prime hp,
   absurd h₂ dec_trivial
 | (succ n) hp hd :=
   have hd₁ : p ∣ (m^n)*m, by rewrite [pow_succ at hd]; exact hd,
   or.elim (dvd_or_dvd_of_prime_of_dvd_mul hp hd₁)
-    (λ h, dvd_of_prime_of_dvd_pow hp h)
-    (λ h, h)
+    (λ h : p ∣ m^n, dvd_of_prime_of_dvd_pow hp h)
+    (λ h : p ∣ m, h)
 
 lemma coprime_pow_of_prime_of_not_dvd {p m a : nat} : prime p → ¬ p ∣ a → coprime a (p^m) :=
 λ h₁ h₂, coprime_pow_right m (coprime_swap (coprime_of_prime_of_not_dvd h₁ h₂))

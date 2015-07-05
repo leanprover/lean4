@@ -20,6 +20,12 @@ definition odd (n : nat) := ¬even n
 definition decidable_odd [instance] : ∀ n, decidable (odd n) :=
 λ n, decidable_not
 
+lemma even_of_dvd {n} : 2 ∣ n → even n :=
+mod_eq_zero_of_dvd
+
+lemma dvd_of_even {n} : even n → 2 ∣ n :=
+dvd_of_mod_eq_zero
+
 lemma not_odd_zero : ¬ odd 0 :=
 dec_trivial
 
@@ -38,97 +44,96 @@ lemma odd_eq_not_even : ∀ n, odd n = ¬ even n :=
 lemma odd_iff_not_even : ∀ n, odd n ↔ ¬ even n :=
 λ n, !iff.refl
 
-lemma odd_of_not_even : ∀ {n}, ¬ even n → odd n :=
-λ n h, iff.mp' !odd_iff_not_even h
+lemma odd_of_not_even {n} : ¬ even n → odd n :=
+λ h, iff.mp' !odd_iff_not_even h
 
-lemma even_of_not_odd : ∀ {n}, ¬ odd n → even n :=
-λ n h, not_not_elim (iff.mp (not_iff_not_of_iff !odd_iff_not_even) h)
+lemma even_of_not_odd {n} : ¬ odd n → even n :=
+λ h, not_not_elim (iff.mp (not_iff_not_of_iff !odd_iff_not_even) h)
 
-lemma not_odd_of_even : ∀ {n}, even n → ¬ odd n :=
-λ n h, iff.mp' (not_iff_not_of_iff !odd_iff_not_even) (not_not_intro h)
+lemma not_odd_of_even {n} : even n → ¬ odd n :=
+λ h, iff.mp' (not_iff_not_of_iff !odd_iff_not_even) (not_not_intro h)
 
-lemma not_even_of_odd : ∀ {n}, odd n → ¬ even n :=
-λ n h, iff.mp !odd_iff_not_even h
+lemma not_even_of_odd {n} : odd n → ¬ even n :=
+λ h, iff.mp !odd_iff_not_even h
 
-lemma odd_succ_of_even : ∀ {n}, even n → odd (succ n) :=
-begin
-  intro n, esimp [even, odd], intro h, rewrite [-add_one],
-  have h₁ : n mod 2 = 0 mod 2, from h,
-  have h₂ : (n+1) mod 2 = 1,   from add_mod_eq_add_mod_right 1 h₁,
-  rewrite h₂, contradiction
-end
+lemma odd_succ_of_even {n} : even n → odd (succ n) :=
+λ h, by_contradiction (λ hn : ¬ odd (succ n),
+  assert 0 = 1, from calc
+    0  = (n+1) mod 2 : even_of_not_odd hn
+   ... = 1 mod 2     : add_mod_eq_add_mod_right 1 h,
+  by contradiction)
 
-lemma even_succ_of_odd : ∀ {n}, odd n → even (succ n) :=
-begin
-  intro n, esimp [even, odd], intro h, rewrite [-add_one],
-  have h₁ : n mod 2 < 2, from mod_lt n dec_trivial,
-  have h₂ : n mod 2 = 1, begin
-    revert h h₁, generalize (n mod 2), intro x, cases x, {intro h', exact absurd rfl h'}, cases a,
-      {intros, reflexivity},
-      {intro h hl, exact absurd (lt_of_succ_lt_succ (lt_of_succ_lt_succ hl)) !not_lt_zero}
-  end,
-  have h₃ : n mod 2 = 1 mod 2, from h₂,
-  have h₄ : (n+1) mod 2 = 0, from add_mod_eq_add_mod_right 1 h₃,
-  rewrite h₄
-end
+lemma eq_1_of_ne_0_lt_2 : ∀ {n : nat}, n ≠ 0 → n < 2 → n = 1
+| 0     h₁ h₂ := absurd rfl h₁
+| 1     h₁ h₂ := rfl
+| (n+2) h₁ h₂ := absurd (lt_of_succ_lt_succ (lt_of_succ_lt_succ h₂)) !not_lt_zero
 
-lemma odd_succ_succ_of_odd : ∀ {n}, odd n → odd (succ (succ n)) :=
-λ n h, odd_succ_of_even (even_succ_of_odd h)
+lemma mod_eq_of_odd {n} : odd n → n mod 2 = 1 :=
+λ h,
+  have h₁ : ¬ n mod 2 = 0, from h,
+  have h₂ : n mod 2 < 2, from mod_lt n dec_trivial,
+  eq_1_of_ne_0_lt_2 h₁ h₂
 
-lemma even_succ_succ_of_even : ∀ {n}, even n → even (succ (succ n)) :=
-λ n h, even_succ_of_odd (odd_succ_of_even h)
+lemma odd_of_mod_eq {n} : n mod 2 = 1 → odd n :=
+λ h, by_contradiction (λ hn,
+  assert h₁ : n mod 2 = 0, from even_of_not_odd hn,
+  by rewrite h at h₁; contradiction)
 
-lemma even_of_odd_succ : ∀ {n}, odd (succ n) → even n :=
-λ n h, by_contradiction (λ he,
+lemma even_succ_of_odd {n} : odd n → even (succ n) :=
+λ h,
+  have h₁ : n mod 2 = 1,       from mod_eq_of_odd h,
+  have h₂ : n mod 2 = 1 mod 2, from mod_eq_of_odd h,
+  have h₃ : (n+1) mod 2 = 0,   from add_mod_eq_add_mod_right 1 h₂,
+  h₃
+
+lemma odd_succ_succ_of_odd {n} : odd n → odd (succ (succ n)) :=
+λ h, odd_succ_of_even (even_succ_of_odd h)
+
+lemma even_succ_succ_of_even {n} : even n → even (succ (succ n)) :=
+λ h, even_succ_of_odd (odd_succ_of_even h)
+
+lemma even_of_odd_succ {n} : odd (succ n) → even n :=
+λ h, by_contradiction (λ he,
   have h₁ : odd n, from odd_of_not_even he,
   have h₂ : even (succ n), from even_succ_of_odd h₁,
   absurd h₂ (not_even_of_odd h))
 
-lemma odd_of_even_succ : ∀ {n}, even (succ n) → odd n :=
-λ n h, by_contradiction (λ he,
+lemma odd_of_even_succ {n} : even (succ n) → odd n :=
+λ h, by_contradiction (λ he,
   have h₁ : even n, from even_of_not_odd he,
   have h₂ : odd (succ n), from odd_succ_of_even h₁,
   absurd h (not_even_of_odd h₂))
 
-lemma even_of_even_succ_succ : ∀ {n}, even (succ (succ n)) → even n :=
-λ n h, even_of_odd_succ (odd_of_even_succ h)
+lemma even_of_even_succ_succ {n} : even (succ (succ n)) → even n :=
+λ h, even_of_odd_succ (odd_of_even_succ h)
 
-lemma odd_of_odd_succ_succ : ∀ {n}, odd (succ (succ n)) → odd n :=
-λ n h, odd_of_even_succ (even_of_odd_succ h)
+lemma odd_of_odd_succ_succ {n} : odd (succ (succ n)) → odd n :=
+λ h, odd_of_even_succ (even_of_odd_succ h)
 
-lemma even_or_odd : ∀ n, even n ∨ odd n
-| 0        := or.inl even_zero
-| (succ n) := or.elim (even_or_odd n)
-  (λ h : even n, or.inr (odd_succ_of_even h))
-  (λ h : odd n,  or.inl (even_succ_of_odd h))
+lemma dvd_of_odd {n} : odd n → 2 ∣ n+1 :=
+λ h, dvd_of_even (even_succ_of_odd h)
 
-lemma exists_of_even : ∀ {n}, even n → ∃ k, n = 2*k
-| 0     h := exists.intro 0 rfl
-| 1     h := absurd h not_even_one
-| (n+2) h :=
-  obtain k (hk : n = 2*k), from exists_of_even (even_of_even_succ_succ h),
-  begin existsi (k+1), subst n end
+lemma odd_of_dvd {n} : 2 ∣ n+1 → odd n :=
+λ h, odd_of_even_succ (even_of_dvd h)
+
+lemma even_or_odd : ∀ n, even n ∨ odd n :=
+λ n, by_cases
+  (λ h : even n,   or.inl h)
+  (λ h : ¬ even n, or.inr (odd_of_not_even h))
+
+lemma exists_of_even {n} : even n → ∃ k, n = 2*k :=
+λ h, exists_eq_mul_right_of_dvd (dvd_of_even h)
 
 lemma exists_of_odd : ∀ {n}, odd n → ∃ k, n = 2*k + 1
-| 0     h := absurd h not_odd_zero
-| 1     h := exists.intro 0 rfl
-| (n+2) h :=
-  obtain k (hk : n = 2*k+1), from exists_of_odd (odd_of_odd_succ_succ h),
-  begin existsi (k+1), subst n end
+| 0 h     := absurd h not_odd_zero
+| (n+1) h :=
+  obtain k (hk : n = 2*k), from exists_of_even (even_of_odd_succ h),
+  exists.intro k (by subst n)
 
-lemma even_of_exists : ∀ {n}, (∃ k, n = 2 * k) → even n
-| 0     h := even_zero
-| 1     h :=
-  obtain k (hk : 1 = 2 * k), from h,
-  assert h₁ : 1 mod 2 = (2*k) mod 2, by rewrite hk,
-  begin rewrite mul_mod_right at h₁, contradiction end
-| (n+2) h :=
-  obtain k (hk : n + 2 = 2*k), from h,
-  have hk₁ : n = 2*(k - 1), from calc
-      n = 2*k - 2   : eq_sub_of_add_eq hk
-    ... = 2*(k - 1) : by rewrite mul_sub_left_distrib,
-  have ih : even n, from even_of_exists (exists.intro (k-1) hk₁),
-  even_succ_succ_of_even ih
+lemma even_of_exists {n} : (∃ k, n = 2 * k) → even n :=
+λ h, obtain k (hk : n = 2 * k), from h,
+ have h₁ : 2 ∣ n, by subst n; apply dvd_mul_right,
+ even_of_dvd h₁
 
 lemma odd_of_exists {n} : (∃ k, n = 2 * k + 1) → odd n :=
 λ h, by_contradiction (λ hn,

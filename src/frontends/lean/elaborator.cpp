@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <functional>
 #include <utility>
 #include <vector>
 #include "util/flet.h"
@@ -2053,22 +2054,39 @@ std::tuple<expr, level_param_names> elaborator::apply(substitution & s, expr con
     return std::make_tuple(r, to_list(new_ps.begin(), new_ps.end()));
 }
 
+struct pos_info_hash {
+    unsigned operator()(pos_info const & p) const { return hash(p.first, p.second); }
+};
+
 void elaborator::check_used_local_tactic_hints() {
-    expr_struct_map<name> pretac2name;
-    // the same pretac may be processed several times because of choice-exprs
+    std::unordered_set<pos_info, pos_info_hash, std::equal_to<pos_info>> pos_set;
+    // The same pretac may be processed several times because of choice-exprs.
+    // The pretactics may be structurally different in each branch (because of unique local constant names).
+    // So, we use their positions to identify which tactic hints were used
+    if (!pip())
+        return; // position information is not available
     m_local_tactic_hints.for_each([&](name const & n, expr const & e) {
-            if (m_used_local_tactic_hints.contains(n))
-                pretac2name.insert(mk_pair(e, n));
+            if (m_used_local_tactic_hints.contains(n)) {
+                if (auto p = pip()->get_pos_info(e)) {
+                    pos_set.insert(*p);
+                }
+            }
         });
     m_local_tactic_hints.for_each([&](name const & n, expr const & e) {
-            if (!m_used_local_tactic_hints.contains(n) &&
-                pretac2name.find(e) == pretac2name.end()) {
-                char const * msg = "unnecessary tactic was provided, placeholder was automatically synthesized by the elaborator";
-                if (auto it = m_mvar2meta.find(n))
-                    throw_elaborator_exception(msg, *it);
-                else
-                    throw exception(msg);
+            if (m_used_local_tactic_hints.contains(n))
+                return; // local hint was used
+            if (auto p = pip()->get_pos_info(e)) {
+                if (pos_set.find(*p) == pos_set.end()) {
+                    char const * msg = "unnecessary tactic was provided, placeholder was automatically "
+                        "synthesized by the elaborator";
+                    if (auto it = m_mvar2meta.find(n))
+                        throw_elaborator_exception(msg, *it);
+                    else
+                        throw exception(msg);
+                }
             }
+            // Remark: we are ignoring expressions that do not have location information.
+            // This is a little bit hackish
         });
 }
 

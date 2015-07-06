@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 Type class for encodable types.
 Note that every encodable type is countable.
 -/
-import data.fintype data.list data.sum data.nat data.subtype data.countable
+import data.fintype data.list data.sum data.nat data.subtype data.countable data.equiv
 open option list nat function
 
 structure encodable [class] (A : Type) :=
@@ -221,6 +221,15 @@ encodable.mk
       esimp [option.cases_on],
       rewrite [linv]
     end)
+
+section
+open equiv
+
+definition encodable_of_equiv {A B : Type} [h : encodable A] : A ≃ B → encodable B
+| (mk f g l r) :=
+  encodable_of_left_injection g (λ a, some (f a))
+    (λ b, by rewrite r; reflexivity)
+end
 
 /-
 Choice function for encodable types  and decidable predicates.

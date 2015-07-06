@@ -16,6 +16,7 @@ structure equiv (A B : Type) :=
   (right_inv : right_inverse inv to_fun)
 
 namespace equiv
+attribute equiv.to_fun [coercion]
 
 infix `≃`:50 := equiv
 
@@ -221,4 +222,18 @@ mk (λ s, match s with inl n := 2*n | inr n := 2*n+1 end)
                           mul_div_cancel' (dvd_of_even (even_of_odd_succ (odd_of_not_even h)))]}
             end))
 end
+
+section
+open decidable
+definition decidable_eq_of_equiv {A B : Type} [h : decidable_eq A] : A ≃ B → decidable_eq B
+| (mk f g l r) :=
+  take b₁ b₂, match h (g b₁) (g b₂) with
+  | inl he := inl (assert aux : f (g b₁) = f (g b₂), from congr_arg f he,
+                   begin rewrite *r at aux, exact aux end)
+  | inr hn := inr (λ b₁eqb₂, by subst b₁eqb₂; exact absurd rfl hn)
+  end
+end
+
+definition inhabited_of_equiv {A B : Type} [h : inhabited A] : A ≃ B → inhabited B
+| (mk f g l r) := inhabited.mk (f (inhabited.value h))
 end equiv

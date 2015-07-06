@@ -3,7 +3,7 @@ Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-import data.nat data.list
+import data.nat data.list data.equiv
 open nat function option
 
 definition stream (A : Type) := nat → A
@@ -124,7 +124,7 @@ by rewrite [-stream.eta, map_eq]
 theorem map_id (s : stream A) : map id s = s :=
 rfl
 
-theorem map_compose (g : B → C) (f : A → B) (s : stream A) : map g (map f s) = map (g ∘ f) s :=
+theorem map_map (g : B → C) (f : A → B) (s : stream A) : map g (map f s) = map (g ∘ f) s :=
 rfl
 
 theorem mem_map {a : A} {s : stream A} : a ∈ s → f a ∈ map f s :=
@@ -612,5 +612,14 @@ theorem nats_eq : nats = 0 :: map succ nats :=
 begin
   apply stream.ext, intro n,
   cases n, reflexivity, rewrite [nth_succ]
+end
+
+section
+open equiv
+lemma stream_equiv_of_equiv {A B : Type} : A ≃ B → stream A ≃ stream B
+| (mk f g l r) :=
+  mk (map f) (map g)
+   begin intros, rewrite [map_map, id_of_left_inverse l, map_id] end
+   begin intros, rewrite [map_map, id_of_righ_inverse r, map_id] end
 end
 end stream

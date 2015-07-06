@@ -19,22 +19,22 @@ tag l n
 definition to_nodup_list [h : decidable_eq A] (l : list A) : nodup_list A :=
 @to_nodup_list_of_nodup A (erase_dup l) (nodup_erase_dup l)
 
-private definition equiv (l₁ l₂ : nodup_list A) :=
+private definition eqv (l₁ l₂ : nodup_list A) :=
 perm (elt_of l₁) (elt_of l₂)
 
-local infix ~ := equiv
+local infix ~ := eqv
 
-private definition equiv.refl (l : nodup_list A) : l ~ l :=
+private definition eqv.refl (l : nodup_list A) : l ~ l :=
 !perm.refl
 
-private definition equiv.symm {l₁ l₂ : nodup_list A} : l₁ ~ l₂ → l₂ ~ l₁ :=
+private definition eqv.symm {l₁ l₂ : nodup_list A} : l₁ ~ l₂ → l₂ ~ l₁ :=
 assume p, perm.symm p
 
-private definition equiv.trans {l₁ l₂ l₃ : nodup_list A} : l₁ ~ l₂ → l₂ ~ l₃ → l₁ ~ l₃ :=
+private definition eqv.trans {l₁ l₂ l₃ : nodup_list A} : l₁ ~ l₂ → l₂ ~ l₃ → l₁ ~ l₃ :=
 assume p₁ p₂, perm.trans p₁ p₂
 
 definition finset.nodup_list_setoid [instance] (A : Type) : setoid (nodup_list A) :=
-setoid.mk (@equiv A) (mk_equivalence (@equiv A) (@equiv.refl A) (@equiv.symm A) (@equiv.trans A))
+setoid.mk (@eqv A) (mk_equivalence (@eqv A) (@eqv.refl A) (@eqv.symm A) (@eqv.trans A))
 
 definition finset (A : Type) : Type :=
 quot (finset.nodup_list_setoid A)

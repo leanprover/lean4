@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Haitao Zhang
 
 List combinators.
 -/
-import data.list.basic
+import data.list.basic data.equiv
 open nat prod decidable function helper_tactics
 
 namespace list
@@ -459,6 +459,14 @@ not_imp_not_of_imp (mem_of_dinj_of_mem_dmap Pdi Pa)
 
 end dmap
 
+section
+open equiv
+lemma list_equiv_of_equiv {A B : Type} : A ≃ B → list A ≃ list B
+| (mk f g l r) :=
+  mk (map f) (map g)
+   begin intros, rewrite [map_map, id_of_left_inverse l, map_id] end
+   begin intros, rewrite [map_map, id_of_righ_inverse r, map_id] end
+end
 end list
 
 attribute list.decidable_any [instance]

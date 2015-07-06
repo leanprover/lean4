@@ -104,19 +104,28 @@ and.intro (injective_compose Hginj Hfinj) (surjective_compose Hgsurj Hfsurj)
 -- g is a left inverse to f
 definition left_inverse (g : B → A) (f : A → B) : Prop := ∀x, g (f x) = x
 
+definition id_of_left_inverse {g : B → A} {f : A → B} : left_inverse g f → g ∘ f = id :=
+assume h, funext h
+
 definition has_left_inverse (f : A → B) : Prop := ∃ finv : B → A, left_inverse finv f
 
 -- g is a right inverse to f
 definition right_inverse (g : B → A) (f : A → B) : Prop := left_inverse f g
 
+definition id_of_righ_inverse {g : B → A} {f : A → B} : right_inverse g f → f ∘ g = id :=
+assume h, funext h
+
 definition has_right_inverse (f : A → B) : Prop := ∃ finv : B → A, right_inverse finv f
 
-theorem injective_of_has_left_inverse {f : A → B} : has_left_inverse f → injective f :=
+theorem injective_of_left_inverse {g : B → A} {f : A → B} : left_inverse g f → injective f :=
 assume h, take a b, assume faeqfb,
-obtain (finv : B → A) (inv : left_inverse finv f), from h,
-calc a = finv (f a) : by rewrite inv
-   ... = finv (f b) : faeqfb
-   ... = b          : by rewrite inv
+calc a = g (f a) : by rewrite h
+   ... = g (f b) : faeqfb
+   ... = b       : by rewrite h
+
+theorem injective_of_has_left_inverse {f : A → B} : has_left_inverse f → injective f :=
+assume h, obtain (finv : B → A) (inv : left_inverse finv f), from h,
+injective_of_left_inverse inv
 
 theorem right_inverse_of_injective_of_left_inverse {f : A → B} {g : B → A}
     (injf : injective f) (lfg : left_inverse f g) :

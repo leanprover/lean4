@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 
 Finite type (type class).
 -/
-import data.list.perm data.list.as_type data.bool
+import data.list.perm data.list.as_type data.bool data.equiv
 open list bool unit decidable option function
 
 structure fintype [class] (A : Type) : Type :=
@@ -13,6 +13,19 @@ structure fintype [class] (A : Type) : Type :=
 
 definition elements_of (A : Type) [h : fintype A] : list A :=
 @fintype.elems A h
+
+section
+open equiv
+definition fintype_of_equiv {A B : Type} [h : fintype A] : A ≃ B → fintype B
+| (mk f g l r) :=
+  fintype.mk
+    (map f (elements_of A))
+    (nodup_map (injective_of_left_inverse l) !fintype.unique)
+    (λ b,
+      have h₁ : g b ∈ elements_of A, from fintype.complete (g b),
+      assert h₂ : f (g b) ∈ map f (elements_of A), from mem_map f h₁,
+      by rewrite r at h₂; exact h₂)
+end
 
 definition fintype_unit [instance] : fintype unit :=
 fintype.mk [star] dec_trivial (λ u, match u with star := dec_trivial end)

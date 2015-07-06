@@ -9,16 +9,21 @@ We say two types are equivalent if they are isomorphic.
 import data.sum data.nat
 open function
 
-structure equiv (A B : Type) :=
+structure equiv [class] (A B : Type) :=
   (to_fun    : A → B)
   (inv       : B → A)
   (left_inv  : left_inverse inv to_fun)
   (right_inv : right_inverse inv to_fun)
 
 namespace equiv
-attribute equiv.to_fun [coercion]
-
 infix `≃`:50 := equiv
+
+namespace ops
+  attribute equiv.to_fun [coercion]
+  definition inverse [reducible] {A B : Type} [h : A ≃ B] : B → A :=
+  λ b, @equiv.inv A B h b
+  postfix `⁻¹` := inverse
+end ops
 
 protected theorem refl [refl] (A : Type) : A ≃ A :=
 mk (@id A) (@id A) (λ x, rfl) (λ x, rfl)
@@ -236,4 +241,15 @@ end
 
 definition inhabited_of_equiv {A B : Type} [h : inhabited A] : A ≃ B → inhabited B
 | (mk f g l r) := inhabited.mk (f (inhabited.value h))
+
+section
+open subtype
+override equiv.ops
+definition subtype_equiv_of_subtype {A B : Type} {p : A → Prop} : A ≃ B → {a : A | p a} ≃ {b : B | p (b⁻¹)}
+| (mk f g l r) :=
+  mk (λ s, match s with tag v h := tag (f v) (eq.rec_on (eq.symm (l v)) h) end)
+     (λ s, match s with tag v h := tag (g v) (eq.rec_on (eq.symm (r v)) h) end)
+     (λ s, begin cases s, esimp, congruence, rewrite l, reflexivity end)
+     (λ s, begin cases s, esimp, congruence, rewrite r, reflexivity end)
+end
 end equiv

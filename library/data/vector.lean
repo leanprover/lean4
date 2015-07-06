@@ -100,6 +100,19 @@ namespace vector
   | (succ n) (a :: t) (mk 0 h)        := by reflexivity
   | (succ n) (a :: t) (mk (succ i) h) := by rewrite [map_cons, *nth_succ, nth_map]
 
+  section
+  open function
+  theorem map_id : ∀ {n : nat} (v : vector A n), map id v = v
+  | 0        []      := rfl
+  | (succ n) (x::xs) := by rewrite [map_cons, map_id]
+
+  theorem map_map (g : B → C) (f : A → B) : ∀ {n :nat} (v : vector A n), map g (map f v) = map (g ∘ f) v
+  | 0        []       := rfl
+  | (succ n) (a :: l) :=
+    show (g ∘ f) a :: map g (map f l) = map (g ∘ f) (a :: l),
+    by rewrite (map_map l)
+  end
+
   definition map2 (f : A → B → C) : Π {n : nat}, vector A n → vector B n → vector C n
   | map2 []      []      := []
   | map2 (a::va) (b::vb) := f a b :: map2 va vb
@@ -272,5 +285,14 @@ namespace vector
       | inr Hn := by right; intro h; injection h; contradiction
       end
     | inr Hnab := by right; intro h; injection h; contradiction
+  end
+
+  section
+  open equiv function
+  definition vector_equiv_of_equiv {A B : Type} : A ≃ B → ∀ n, vector A n ≃ vector B n
+  | (mk f g l r) n :=
+    mk (map f) (map g)
+     begin intros, rewrite [map_map, id_of_left_inverse l, map_id], reflexivity end
+     begin intros, rewrite [map_map, id_of_righ_inverse r, map_id], reflexivity end
   end
 end vector

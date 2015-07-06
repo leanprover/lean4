@@ -116,6 +116,22 @@ lemma dvd_of_odd {n} : odd n → 2 ∣ n+1 :=
 lemma odd_of_dvd {n} : 2 ∣ n+1 → odd n :=
 λ h, odd_of_even_succ (even_of_dvd h)
 
+lemma even_two_mul : ∀ n, even (2 * n) :=
+λ n, even_of_dvd (dvd_mul_right 2 n)
+
+lemma odd_two_mul_plus_one : ∀ n, odd (2 * n + 1) :=
+λ n, odd_succ_of_even (even_two_mul n)
+
+lemma not_even_two_mul_plus_one : ∀ n, ¬ even (2 * n + 1) :=
+λ n, not_even_of_odd (odd_two_mul_plus_one n)
+
+lemma not_odd_two_mul : ∀ n, ¬ odd (2 * n) :=
+λ n, not_odd_of_even (even_two_mul n)
+
+lemma even_pred_of_odd : ∀ {n}, odd n → even (pred n)
+| 0     h := absurd h not_odd_zero
+| (n+1) h := even_of_odd_succ h
+
 lemma even_or_odd : ∀ n, even n ∨ odd n :=
 λ n, by_cases
   (λ h : even n,   or.inl h)

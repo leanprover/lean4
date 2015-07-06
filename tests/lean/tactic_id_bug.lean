@@ -1,4 +1,4 @@
-import algebra.function
+--
 
 open function
 

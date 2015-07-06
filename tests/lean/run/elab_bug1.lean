@@ -4,7 +4,7 @@
 --- Author: Jeremy Avigad
 ----------------------------------------------------------------------------------------------------
 
-import logic algebra.function
+import logic
 open eq
 open function
 

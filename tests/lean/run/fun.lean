@@ -1,4 +1,4 @@
-import logic algebra.function
+import logic
 open function bool
 
 

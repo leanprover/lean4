@@ -1,6 +1,8 @@
 import data.nat
 open nat
 
+namespace foo
+
 inductive Parity : nat → Type :=
 | even : ∀ n : nat, Parity (2 * n)
 | odd  : ∀ n : nat, Parity (2 * n + 1)
@@ -14,12 +16,12 @@ definition parity : Π (n : nat), Parity n
     have aux : Parity n, from parity n,
     cases aux with [k, k],
     begin
-      apply (odd k)
+      apply (Parity.odd k)
     end,
     begin
       change (Parity (2*k + 2*1)),
       rewrite -mul.left_distrib,
-      apply (even (k+1))
+      apply (Parity.even (k+1))
     end
   end
 
@@ -30,3 +32,5 @@ match ⟨n, parity n⟩ with
 | ⟨⌞2 * k⌟,     even k⟩ := k
 | ⟨⌞2 * k + 1⌟, odd k⟩  := k
 end
+
+end foo

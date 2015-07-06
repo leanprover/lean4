@@ -1,4 +1,3 @@
-import algebra.function
 open bool nat
 open function
 

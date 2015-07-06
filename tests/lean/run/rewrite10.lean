@@ -11,6 +11,7 @@ end
 example (x y : ℕ) : (x + y) * (x + y) = x * x + y * x + x * y + y * y :=
 by rewrite [*mul.left_distrib, *mul.right_distrib, -add.assoc]
 
+namespace tst
 definition even (a : nat) := ∃b, a = 2*b
 
 theorem even_plus_even {a b : nat} (H1 : even a) (H2 : even b) : even (a + b) :=
@@ -25,3 +26,5 @@ theorem T2 (a b c : nat) (H1 : a = b) (H2 : b = c + 1) : a ≠ 0 :=
 calc
   a     = succ c : by rewrite [H1, H2, add_one]
     ... ≠ 0      : succ_ne_zero c
+
+end tst

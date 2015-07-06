@@ -1,4 +1,4 @@
-import data.fintype algebra.function
+import data.fintype
 open function
 
 section test

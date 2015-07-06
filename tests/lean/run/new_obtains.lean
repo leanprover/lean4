@@ -53,6 +53,7 @@ obtain x y [[pxy qxy] qyx], from ex,
 
 open nat
 
+namespace hidden
 definition even (a : nat) := ∃ x, a = 2*x
 
 example (a b : nat) (H₁ : even a) (H₂ : even b) : even (a+b) :=
@@ -72,3 +73,4 @@ have   aux : m * (c₁ - c₂) = n₂, from calc
            ...  = n₁ + n₂ - n₁     : Hc₂
            ...  = n₂               : add_sub_cancel_left,
 dvd.intro aux
+end hidden

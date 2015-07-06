@@ -1916,7 +1916,7 @@ void parser::save_overload_notation(list<expr> const & as, pos_info const & p) {
 void parser::save_overload_notation(list<pair<unsigned, expr>> const & as, pos_info const & p) {
     if (!m_info_manager || length(as) <= 1)
         return;
-    list<expr> new_as = map2<expr>(as, [](pair<unsigned, expr> const & p) { return p.second; });
+    list<expr> new_as = map2<expr, pair<unsigned, expr>, std::function<expr(pair<unsigned, expr> const &)>>(as, [](pair<unsigned, expr> const & p) { return p.second; });
     save_overload_notation(new_as, p);
 }
 void parser::save_identifier_info(pos_info const & p, name const & full_id) {

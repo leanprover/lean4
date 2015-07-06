@@ -5,7 +5,6 @@ Author: Leonardo de Moura
 
 Define countable types
 -/
-import algebra.function
 open function
 
 definition countable (A : Type) : Prop := ∃ f : A → nat, injective f

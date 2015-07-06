@@ -5,7 +5,8 @@ Author: Leonardo de Moura, Jeremy Avigad, Haitao Zhang
 
 General operations on functions.
 -/
-import logic.cast
+prelude
+import init.prod init.funext init.logic
 
 namespace function
 

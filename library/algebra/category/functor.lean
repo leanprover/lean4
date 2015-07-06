@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Floris van Doorn
 -/
 import .basic
-import logic.cast algebra.function
+import logic.cast
 open function
 open category eq eq.ops heq
 

@@ -3,7 +3,7 @@ Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-import data.nat data.list algebra.function
+import data.nat data.list
 open nat function option
 
 definition stream (A : Type) := nat → A

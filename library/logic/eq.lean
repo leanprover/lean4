@@ -47,12 +47,6 @@ section
   variables {A B C D E F : Type}
   variables {a a' : A} {b b' : B} {c c' : C} {d d' : D} {e e' : E}
 
-  theorem congr_fun {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a :=
-  by substvars
-
-  theorem congr_arg (f : A → B) (H : a = a') : f a = f a' :=
-  by substvars
-
   theorem congr_arg2 (f : A → B → C) (Ha : a = a') (Hb : b = b') : f a b = f a' b' :=
   by substvars
 

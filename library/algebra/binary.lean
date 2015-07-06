@@ -5,7 +5,6 @@ Authors: Leonardo de Moura, Jeremy Avigad
 
 General properties of binary operations.
 -/
-import algebra.function
 open eq.ops function
 
 namespace binary

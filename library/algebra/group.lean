@@ -7,7 +7,7 @@ Various multiplicative and additive structures. Partially modeled on Isabelle's 
 -/
 
 import logic.eq data.unit data.sigma data.prod
-import algebra.function algebra.binary algebra.priority
+import algebra.binary algebra.priority
 
 open eq eq.ops   -- note: ⁻¹ will be overloaded
 open binary

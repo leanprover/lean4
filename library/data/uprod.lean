@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 
 Unordered pairs
 -/
-import data.prod logic.identities algebra.function
+import data.prod logic.identities
 open prod prod.ops quot function
 
 private definition eqv {A : Type} (p₁ p₂ : A × A) : Prop :=

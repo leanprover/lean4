@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 
 vectors as list subtype
 -/
-import logic data.list data.subtype algebra.function
+import logic data.list data.subtype
 open nat list subtype function
 
 definition vec [reducible] (A : Type) (n : nat) := {l : list A | length l = n}

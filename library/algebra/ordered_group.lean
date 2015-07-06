@@ -7,8 +7,7 @@ Partially ordered additive groups, modeled on Isabelle's library. These classes 
 if necessary.
 -/
 import logic.eq data.unit data.sigma data.prod
-import algebra.function algebra.binary
-import algebra.group algebra.order
+import algebra.binary algebra.group algebra.order
 open eq eq.ops   -- note: ⁻¹ will be overloaded
 
 namespace algebra

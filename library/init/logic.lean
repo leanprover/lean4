@@ -70,6 +70,12 @@ end eq
 theorem congr {A B : Type} {f₁ f₂ : A → B} {a₁ a₂ : A} (H₁ : f₁ = f₂) (H₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ :=
 eq.subst H₁ (eq.subst H₂ rfl)
 
+theorem congr_fun {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a :=
+eq.subst H (eq.refl (f a))
+
+theorem congr_arg {A B : Type} {a₁ a₂ : A} (f : A → B) (H : a₁ = a₂) : f a₁ = f a₂ :=
+congr rfl H
+
 section
   variables {A : Type} {a b c: A}
   open eq.ops

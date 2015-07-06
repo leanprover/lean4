@@ -8,7 +8,7 @@ The development is modeled after Isabelle's library.
 -/
 
 import logic.eq logic.connectives data.unit data.sigma data.prod
-import algebra.function algebra.binary algebra.group
+import algebra.binary algebra.group
 open eq eq.ops
 
 namespace algebra

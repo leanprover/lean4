@@ -6,7 +6,6 @@ Author: Jeremy Avigad, Andrew Zipperer, Haitao Zhang
 Functions between subsets of finite types.
 -/
 import .basic
-import algebra.function
 open function eq.ops
 
 namespace set

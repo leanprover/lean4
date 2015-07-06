@@ -9,7 +9,7 @@ The proof uses the classical axioms: choice and excluded middle.
 The excluded middle is being used "behind the scenes" to allow us to write the if-then-else expression
 with (∃ a : A, f a = b).
 -/
-import algebra.function logic.axioms.classical
+import logic.axioms.classical
 open function
 
 definition mk_left_inv {A B : Type} [h : nonempty A] (f : A → B) : B → A :=

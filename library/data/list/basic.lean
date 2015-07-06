@@ -5,7 +5,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura
 
 Basic properties of lists.
 -/
-import logic tools.helper_tactics data.nat.order algebra.function
+import logic tools.helper_tactics data.nat.order
 open eq.ops helper_tactics nat prod function option
 
 inductive list (T : Type) : Type :=

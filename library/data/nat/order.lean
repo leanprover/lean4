@@ -472,4 +472,41 @@ decidable.by_cases
 theorem max_add_add_right (a b c : ℕ) : max (a + c) (b + c) = max a b + c :=
 by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply max_add_add_left
 
+/- greatest -/
+
+section greatest
+  variable (P : ℕ → Prop)
+  variable [decP : ∀ n, decidable (P n)]
+  include decP
+
+  -- returns the largest i < n satisfying P, or n if there is none.
+  definition greatest : ℕ → ℕ
+  | 0        := 0
+  | (succ n) := if P n then n else greatest n
+
+  theorem greatest_of_lt {i n : ℕ} (ltin : i < n) (Hi : P i) : P (greatest P n) :=
+  begin
+    induction n with [m, ih],
+      {exact absurd ltin !not_lt_zero},
+      {cases (decidable.em (P m)) with [Psm, Pnsm],
+        {rewrite [↑greatest, if_pos Psm]; exact Psm},
+        {rewrite [↑greatest, if_neg Pnsm],
+          have neim : i ≠ m, from assume H : i = m, absurd (H ▸ Hi) Pnsm,
+          have ltim : i < m, from lt_of_le_of_ne (le_of_lt_succ ltin) neim,
+          apply ih ltim}}
+  end
+
+  theorem le_greatest_of_lt {i n : ℕ} (ltin : i < n) (Hi : P i) : i ≤ greatest P n :=
+  begin
+    induction n with [m, ih],
+      {exact absurd ltin !not_lt_zero},
+      {cases (decidable.em (P m)) with [Psm, Pnsm],
+        {rewrite [↑greatest, if_pos Psm], apply le_of_lt_succ ltin},
+        {rewrite [↑greatest, if_neg Pnsm],
+          have neim : i ≠ m, from assume H : i = m, absurd (H ▸ Hi) Pnsm,
+          have ltim : i < m, from lt_of_le_of_ne (le_of_lt_succ ltin) neim,
+          apply ih ltim}}
+ end
+end greatest
+
 end nat

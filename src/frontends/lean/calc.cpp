@@ -31,16 +31,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/begin_end_ext.h"
 
 namespace lean {
-optional<std::tuple<name, unsigned, unsigned>> get_calc_refl_info(environment const & env, name const & op) {
-    return get_refl_extra_info(env, op);
-}
-optional<std::tuple<name, unsigned, unsigned>> get_calc_subst_info(environment const & env, name const & op) {
-    return get_subst_extra_info(env, op);
-}
-optional<std::tuple<name, unsigned, unsigned>> get_calc_symm_info(environment const & env, name const & op) {
-    return get_symm_extra_info(env, op);
-}
-
 static name * g_calc_name  = nullptr;
 
 static expr mk_calc_annotation_core(expr const & e) { return mk_annotation(*g_calc_name, e); }
@@ -108,9 +98,9 @@ static void parse_calc_proof(parser & p, buffer<calc_pred> const & preds, std::v
         for (auto const & pred : preds) {
             if (auto refl_it = get_refl_extra_info(env, pred_op(pred))) {
                 if (auto subst_it = get_subst_extra_info(env, pred_op(pred))) {
-                    expr refl     = mk_op_fn(p, std::get<0>(*refl_it), std::get<1>(*refl_it)-1, pos);
+                    expr refl     = mk_op_fn(p, refl_it->m_name, refl_it->m_num_args-1, pos);
                     expr refl_pr  = p.mk_app(refl, pred_lhs(pred), pos);
-                    expr subst    = mk_op_fn(p, std::get<0>(*subst_it), std::get<1>(*subst_it)-2, pos);
+                    expr subst    = mk_op_fn(p, subst_it->m_name, subst_it->m_num_args-2, pos);
                     expr subst_pr = p.mk_app({subst, pr, refl_pr}, pos);
                     steps.emplace_back(pred, subst_pr);
                 }
@@ -156,9 +146,9 @@ static void join(parser & p, std::vector<calc_step> const & steps1, std::vector<
                 continue;
             auto trans_it = get_trans_extra_info(env, pred_op(pred1), pred_op(pred2));
             if (trans_it) {
-                expr trans    = mk_op_fn(p, std::get<0>(*trans_it), std::get<2>(*trans_it)-5, pos);
+                expr trans    = mk_op_fn(p, trans_it->m_name, trans_it->m_num_args-5, pos);
                 expr trans_pr = p.mk_app({trans, pred_lhs(pred1), pred_rhs(pred1), pred_rhs(pred2), pr1, pr2}, pos);
-                res_steps.emplace_back(calc_pred(std::get<1>(*trans_it), pred_lhs(pred1), pred_rhs(pred2)), trans_pr);
+                res_steps.emplace_back(calc_pred(trans_it->m_res_relation, pred_lhs(pred1), pred_rhs(pred2)), trans_pr);
             } else if (pred_op(pred1) == get_eq_name()) {
                 expr trans_right = mk_op_fn(p, get_trans_rel_right_name(), 1, pos);
                 expr R           = mk_op_fn(p, pred_op(pred2), get_arity_of(p, pred_op(pred2))-2, pos);

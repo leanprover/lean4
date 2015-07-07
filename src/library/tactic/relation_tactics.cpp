@@ -65,10 +65,10 @@ tactic trans_tactic(elaborate_fn const & elab, expr const & e) {
         if (!op)
             return proof_state_seq();
         if (auto info = get_trans_extra_info(env, *op, *op)) {
-            expr pr = mk_explicit(mk_constant(std::get<0>(*info)));
-            unsigned nparams = std::get<2>(*info);
-            lean_assert(nparams >= 5);
-            for (unsigned i = 0; i < nparams - 4; i++)
+            expr pr = mk_explicit(mk_constant(info->m_name));
+            unsigned nargs = info->m_num_args;
+            lean_assert(nargs >= 5);
+            for (unsigned i = 0; i < nargs - 4; i++)
                 pr = mk_app(pr, mk_expr_placeholder());
             pr = mk_app(pr, e);
             return apply_tactic(elab, pr)(env, ios, s);

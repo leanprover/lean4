@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/metavar_closure.h"
 #include "library/local_context.h"
+#include "library/relation_manager.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/info_manager.h"
 #include "frontends/lean/calc.h"
@@ -75,10 +76,9 @@ static optional<pair<expr, expr>> apply_symmetry(environment const & env, local_
     buffer<expr> args;
     expr const & op = get_app_args(e_type, args);
     if (is_constant(op)) {
-        if (auto t = get_calc_symm_info(env, const_name(op))) {
-            name symm; unsigned nargs; unsigned nunivs;
-            std::tie(symm, nargs, nunivs) = *t;
-            return mk_op(env, ctx, ngen, tc, symm, nunivs, nargs-1, {e}, cs, g);
+        if (auto info = get_symm_extra_info(env, const_name(op))) {
+            return mk_op(env, ctx, ngen, tc, info->m_name,
+                         info->m_num_univs, info->m_num_args-1, {e}, cs, g);
         }
     }
     return optional<pair<expr, expr>>();
@@ -95,15 +95,12 @@ static optional<pair<expr, expr>> apply_subst(environment const & env, local_con
     buffer<expr> args;
     expr const & op = get_app_args(e_type, args);
     if (is_constant(op) && args.size() >= 2) {
-        if (auto subst_it = get_calc_subst_info(env, const_name(op))) {
-            name subst; unsigned subst_nargs; unsigned subst_univs;
-            std::tie(subst, subst_nargs, subst_univs) = *subst_it;
-            if (auto refl_it = get_calc_refl_info(env, const_name(op))) {
-                name refl; unsigned refl_nargs; unsigned refl_univs;
-                std::tie(refl, refl_nargs, refl_univs) = *refl_it;
-                if (auto refl_pair = mk_op(env, ctx, ngen, tc, refl, refl_univs, refl_nargs-1,
-                                           { pred_args[npargs-2] }, cs, g)) {
-                    return mk_op(env, ctx, ngen, tc, subst, subst_univs, subst_nargs-2, {e, refl_pair->first}, cs, g);
+        if (auto sinfo = get_subst_extra_info(env, const_name(op))) {
+            if (auto rinfo = get_refl_extra_info(env, const_name(op))) {
+                if (auto refl_pair = mk_op(env, ctx, ngen, tc, rinfo->m_name, rinfo->m_num_univs,
+                                           rinfo->m_num_args-1, { pred_args[npargs-2] }, cs, g)) {
+                    return mk_op(env, ctx, ngen, tc, sinfo->m_name, sinfo->m_num_univs,
+                                 sinfo->m_num_args-2, {e, refl_pair->first}, cs, g);
                 }
             }
         }

@@ -27,17 +27,46 @@ public:
 /** \brief Return true if \c rop is a registered equivalence relation in the given manager */
 bool is_equivalence(environment const & env, name const & rop);
 
-/** \brief If \c rop is a registered relation, then return a non-null pointer to the associated information */
+/** \brief If \c rop is a registered relation, then return a non-null pointer to the associated information
+    Lean assumes that the arguments of the binary relation are the last two explicit arguments.
+    Everything else is assumed to be a parameter.
+*/
 relation_info const * get_relation_info(environment const & env, name const & rop);
+inline bool is_relation(environment const & env, name const & rop) { return get_relation_info(env, rop) != nullptr; }
 
+/** \brief Declare a new binary relation named \c n */
+environment add_relation(environment const & env, name const & n, bool persistent = true);
+
+/** \brief Declare subst/refl/symm/trans lemmas for a binary relation,
+ * it also declares the relation if it has not been declared yet */
 environment add_subst(environment const & env, name const & n, bool persistent = true);
 environment add_refl(environment const & env, name const & n, bool persistent = true);
 environment add_symm(environment const & env, name const & n, bool persistent = true);
 environment add_trans(environment const & env, name const & n, bool persistent = true);
-optional<std::tuple<name, unsigned, unsigned>> get_refl_extra_info(environment const & env, name const & op);
-optional<std::tuple<name, unsigned, unsigned>> get_subst_extra_info(environment const & env, name const & op);
-optional<std::tuple<name, unsigned, unsigned>> get_symm_extra_info(environment const & env, name const & op);
-optional<std::tuple<name, name, unsigned>> get_trans_extra_info(environment const & env, name const & op1, name const & op2);
+
+struct relation_lemma_info {
+    name     m_name;
+    unsigned m_num_univs;
+    unsigned m_num_args;
+    relation_lemma_info() {}
+    relation_lemma_info(name const & n, unsigned nunivs, unsigned nargs):m_name(n), m_num_univs(nunivs), m_num_args(nargs) {}
+};
+
+typedef relation_lemma_info refl_info;
+typedef relation_lemma_info symm_info;
+typedef relation_lemma_info subst_info;
+
+struct trans_info : public relation_lemma_info {
+    name  m_res_relation;
+    trans_info() {}
+    trans_info(name const & n, unsigned nunivs, unsigned nargs, name const & rel):
+        relation_lemma_info(n, nunivs, nargs), m_res_relation(rel) {}
+};
+
+optional<subst_info> get_subst_extra_info(environment const & env, name const & op);
+optional<refl_info> get_refl_extra_info(environment const & env, name const & op);
+optional<symm_info> get_symm_extra_info(environment const & env, name const & op);
+optional<trans_info> get_trans_extra_info(environment const & env, name const & op1, name const & op2);
 optional<name> get_refl_info(environment const & env, name const & op);
 optional<name> get_symm_info(environment const & env, name const & op);
 optional<name> get_trans_info(environment const & env, name const & op);

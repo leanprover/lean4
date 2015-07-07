@@ -32,11 +32,7 @@ static pair<expr, unsigned> extract_arg_types_core(environment const & env, name
     return mk_pair(f_type, d.get_num_univ_params());
 }
 
-static expr extract_arg_types(environment const & env, name const & f, buffer<expr> & arg_types) {
-    return extract_arg_types_core(env, f, arg_types).first;
-}
-
-enum class op_kind { Subst, Trans, Refl, Symm };
+enum class op_kind { Relation, Subst, Trans, Refl, Symm };
 
 struct rel_entry {
     op_kind m_kind;
@@ -46,10 +42,10 @@ struct rel_entry {
 };
 
 struct rel_state {
-    typedef name_map<std::tuple<name, unsigned, unsigned>> refl_table;
-    typedef name_map<std::tuple<name, unsigned, unsigned>> subst_table;
-    typedef name_map<std::tuple<name, unsigned, unsigned>> symm_table;
-    typedef rb_map<name_pair, std::tuple<name, name, unsigned>, name_pair_quick_cmp> trans_table;
+    typedef name_map<refl_info> refl_table;
+    typedef name_map<subst_info> subst_table;
+    typedef name_map<symm_info> symm_table;
+    typedef rb_map<name_pair, trans_info, name_pair_quick_cmp> trans_table;
     typedef name_map<relation_info> rop_table;
     trans_table    m_trans_table;
     refl_table     m_refl_table;
@@ -77,12 +73,14 @@ struct rel_state {
         expr type = d.get_type();
         while (is_pi(type)) {
             if (is_explicit(binding_info(type))) {
-                if (!lhs_pos)
+                if (!lhs_pos) {
                     lhs_pos = i;
-                else if (!rhs_pos)
+                } else if (!rhs_pos) {
                     rhs_pos = i;
-                else
-                    throw_invalid_relation(rop);
+                } else {
+                    lhs_pos = rhs_pos;
+                    rhs_pos = i;
+                }
             }
             type = binding_body(type);
             i++;
@@ -103,7 +101,7 @@ struct rel_state {
         if (nargs < 2)
             throw exception("invalid substitution theorem, it must have at least 2 arguments");
         name const & rop = get_fn_const(arg_types[nargs-2], "invalid substitution theorem, penultimate argument must be an operator application");
-        m_subst_table.insert(rop, std::make_tuple(subst, nargs, nunivs));
+        m_subst_table.insert(rop, subst_info(subst, nunivs, nargs));
     }
 
     void add_refl(environment const & env, name const & refl) {
@@ -116,20 +114,22 @@ struct rel_state {
             throw exception("invalid reflexivity rule, it must have at least 1 argument");
         name const & rop = get_fn_const(r_type, "invalid reflexivity rule, result type must be an operator application");
         register_rop(env, rop);
-        m_refl_table.insert(rop, std::make_tuple(refl, nargs, nunivs));
+        m_refl_table.insert(rop, refl_info(refl, nunivs, nargs));
     }
 
     void add_trans(environment const & env, name const & trans) {
         buffer<expr> arg_types;
-        expr r_type = extract_arg_types(env, trans, arg_types);
-        unsigned nargs = arg_types.size();
+        auto p = extract_arg_types_core(env, trans, arg_types);
+        expr r_type     = p.first;
+        unsigned nunivs = p.second;
+        unsigned nargs  = arg_types.size();
         if (nargs < 5)
             throw exception("invalid transitivity rule, it must have at least 5 arguments");
         name const & rop = get_fn_const(r_type, "invalid transitivity rule, result type must be an operator application");
         name const & op1 = get_fn_const(arg_types[nargs-2], "invalid transitivity rule, penultimate argument must be an operator application");
         name const & op2 = get_fn_const(arg_types[nargs-1], "invalid transitivity rule, last argument must be an operator application");
         register_rop(env, rop);
-        m_trans_table.insert(name_pair(op1, op2), std::make_tuple(trans, rop, nargs));
+        m_trans_table.insert(name_pair(op1, op2), trans_info(trans, nunivs, nargs, rop));
     }
 
     void add_symm(environment const & env, name const & symm) {
@@ -142,7 +142,7 @@ struct rel_state {
             throw exception("invalid symmetry rule, it must have at least 1 argument");
         name const & rop = get_fn_const(r_type, "invalid symmetry rule, result type must be an operator application");
         register_rop(env, rop);
-        m_symm_table.insert(rop, std::make_tuple(symm, nargs, nunivs));
+        m_symm_table.insert(rop, symm_info(symm, nunivs, nargs));
     }
 };
 
@@ -154,10 +154,11 @@ struct rel_config {
     typedef rel_entry entry;
     static void add_entry(environment const & env, io_state const &, state & s, entry const & e) {
         switch (e.m_kind) {
-        case op_kind::Refl:  s.add_refl(env, e.m_name); break;
-        case op_kind::Subst: s.add_subst(env, e.m_name); break;
-        case op_kind::Trans: s.add_trans(env, e.m_name); break;
-        case op_kind::Symm:  s.add_symm(env, e.m_name); break;
+        case op_kind::Relation: s.register_rop(env, e.m_name); break;
+        case op_kind::Refl:     s.add_refl(env, e.m_name); break;
+        case op_kind::Subst:    s.add_subst(env, e.m_name); break;
+        case op_kind::Trans:    s.add_trans(env, e.m_name); break;
+        case op_kind::Symm:     s.add_symm(env, e.m_name); break;
         }
     }
     static name const & get_class_name() {
@@ -184,6 +185,10 @@ struct rel_config {
 template class scoped_ext<rel_config>;
 typedef scoped_ext<rel_config> rel_ext;
 
+environment add_relation(environment const & env, name const & n, bool persistent) {
+    return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Relation, n), persistent);
+}
+
 environment add_subst(environment const & env, name const & n, bool persistent) {
     return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Subst, n), persistent);
 }
@@ -200,29 +205,29 @@ environment add_trans(environment const & env, name const & n, bool persistent) 
     return rel_ext::add_entry(env, get_dummy_ios(), rel_entry(op_kind::Trans, n), persistent);
 }
 
-static optional<std::tuple<name, unsigned, unsigned>> get_info(name_map<std::tuple<name, unsigned, unsigned>> const & table, name const & op) {
+static optional<relation_lemma_info> get_info(name_map<relation_lemma_info> const & table, name const & op) {
     if (auto it = table.find(op)) {
-        return optional<std::tuple<name, unsigned, unsigned>>(*it);
+        return optional<relation_lemma_info>(*it);
     } else {
-        return optional<std::tuple<name, unsigned, unsigned>>();
+        return optional<relation_lemma_info>();
     }
 }
 
-optional<std::tuple<name, unsigned, unsigned>> get_refl_extra_info(environment const & env, name const & op) {
+optional<refl_info> get_refl_extra_info(environment const & env, name const & op) {
     return get_info(rel_ext::get_state(env).m_refl_table, op);
 }
-optional<std::tuple<name, unsigned, unsigned>> get_subst_extra_info(environment const & env, name const & op) {
+optional<subst_info> get_subst_extra_info(environment const & env, name const & op) {
     return get_info(rel_ext::get_state(env).m_subst_table, op);
 }
-optional<std::tuple<name, unsigned, unsigned>> get_symm_extra_info(environment const & env, name const & op) {
+optional<symm_info> get_symm_extra_info(environment const & env, name const & op) {
     return get_info(rel_ext::get_state(env).m_symm_table, op);
 }
 
-optional<std::tuple<name, name, unsigned>> get_trans_extra_info(environment const & env, name const & op1, name const & op2) {
+optional<trans_info> get_trans_extra_info(environment const & env, name const & op1, name const & op2) {
     if (auto it = rel_ext::get_state(env).m_trans_table.find(mk_pair(op1, op2))) {
-        return optional<std::tuple<name, name, unsigned>>(*it);
+        return optional<trans_info>(*it);
     } else {
-        return optional<std::tuple<name, name, unsigned>>();
+        return optional<trans_info>();
     }
 }
 
@@ -232,21 +237,21 @@ bool is_subst_relation(environment const & env, name const & op) {
 
 optional<name> get_refl_info(environment const & env, name const & op) {
     if (auto it = get_refl_extra_info(env, op))
-        return optional<name>(std::get<0>(*it));
+        return optional<name>(it->m_name);
     else
         return optional<name>();
 }
 
 optional<name> get_symm_info(environment const & env, name const & op) {
     if (auto it = get_symm_extra_info(env, op))
-        return optional<name>(std::get<0>(*it));
+        return optional<name>(it->m_name);
     else
         return optional<name>();
 }
 
 optional<name> get_trans_info(environment const & env, name const & op) {
     if (auto it = get_trans_extra_info(env, op, op))
-        return optional<name>(std::get<0>(*it));
+        return optional<name>(it->m_name);
     else
         return optional<name>();
 }

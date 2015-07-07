@@ -38,10 +38,10 @@ refl : heq a a
 inductive prod (A B : Type) :=
 mk : A → B → prod A B
 
-definition prod.pr1 [reducible] [unfold-c 3] {A B : Type} (p : prod A B) : A :=
+definition prod.pr1 [reducible] [unfold 3] {A B : Type} (p : prod A B) : A :=
 prod.rec (λ a b, a) p
 
-definition prod.pr2 [reducible] [unfold-c 3] {A B : Type} (p : prod A B) : B :=
+definition prod.pr2 [reducible] [unfold 3] {A B : Type} (p : prod A B) : B :=
 prod.rec (λ a b, b) p
 
 inductive and (a b : Prop) : Prop :=

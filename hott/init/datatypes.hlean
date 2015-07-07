@@ -31,10 +31,10 @@ up :: (down : A)
 inductive prod (A B : Type) :=
 mk : A → B → prod A B
 
-definition prod.pr1 [reducible] [unfold-c 3] {A B : Type} (p : prod A B) : A :=
+definition prod.pr1 [reducible] [unfold 3] {A B : Type} (p : prod A B) : A :=
 prod.rec (λ a b, a) p
 
-definition prod.pr2 [reducible] [unfold-c 3] {A B : Type} (p : prod A B) : B :=
+definition prod.pr2 [reducible] [unfold 3] {A B : Type} (p : prod A B) : B :=
 prod.rec (λ a b, b) p
 
 definition prod.destruct [reducible] := @prod.cases_on
@@ -52,10 +52,10 @@ sum.inr b
 inductive sigma {A : Type} (B : A → Type) :=
 mk : Π (a : A), B a → sigma B
 
-definition sigma.pr1 [reducible] [unfold-c 3] {A : Type} {B : A → Type} (p : sigma B) : A :=
+definition sigma.pr1 [reducible] [unfold 3] {A : Type} {B : A → Type} (p : sigma B) : A :=
 sigma.rec (λ a b, a) p
 
-definition sigma.pr2 [reducible] [unfold-c 3] {A : Type} {B : A → Type} (p : sigma B) : B (sigma.pr1 p) :=
+definition sigma.pr2 [reducible] [unfold 3] {A : Type} {B : A → Type} (p : sigma B) : B (sigma.pr1 p) :=
 sigma.rec (λ a b, b) p
 
 -- pos_num and num are two auxiliary datatypes used when parsing numerals such as 13, 0, 26.

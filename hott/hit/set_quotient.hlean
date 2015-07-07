@@ -71,5 +71,5 @@ end
 end set_quotient
 
 attribute set_quotient.class_of [constructor]
-attribute set_quotient.rec set_quotient.elim [unfold-c 7] [recursor 7]
-attribute set_quotient.rec_on set_quotient.elim_on [unfold-c 4]
+attribute set_quotient.rec set_quotient.elim [unfold 7] [recursor 7]
+attribute set_quotient.rec_on set_quotient.elim_on [unfold 4]

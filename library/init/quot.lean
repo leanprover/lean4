@@ -164,15 +164,15 @@ namespace quot
 end quot
 
 attribute quot.mk                   [constructor]
-attribute quot.lift_on              [unfold-c 4]
-attribute quot.rec                  [unfold-c 6]
-attribute quot.rec_on               [unfold-c 4]
-attribute quot.hrec_on              [unfold-c 4]
-attribute quot.rec_on_subsingleton  [unfold-c 5]
-attribute quot.lift₂                [unfold-c 8]
-attribute quot.lift_on₂             [unfold-c 6]
-attribute quot.hrec_on₂             [unfold-c 6]
-attribute quot.rec_on_subsingleton₂ [unfold-c 7]
+attribute quot.lift_on              [unfold 4]
+attribute quot.rec                  [unfold 6]
+attribute quot.rec_on               [unfold 4]
+attribute quot.hrec_on              [unfold 4]
+attribute quot.rec_on_subsingleton  [unfold 5]
+attribute quot.lift₂                [unfold 8]
+attribute quot.lift_on₂             [unfold 6]
+attribute quot.hrec_on₂             [unfold 6]
+attribute quot.rec_on_subsingleton₂ [unfold 7]
 
 open decidable
 definition quot.has_decidable_eq [instance] {A : Type} {s : setoid A} [decR : ∀ a b : A, decidable (a ≈ b)] : decidable_eq (quot s) :=

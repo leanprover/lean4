@@ -17,9 +17,9 @@ namespace category
     (a : A)
     (b : B)
     (f : S a ⟶ T b)
-  abbreviation ob1 [unfold-c 6] := @comma_object.a
-  abbreviation ob2 [unfold-c 6] := @comma_object.b
-  abbreviation mor [unfold-c 6] := @comma_object.f
+  abbreviation ob1 [unfold 6] := @comma_object.a
+  abbreviation ob2 [unfold 6] := @comma_object.b
+  abbreviation mor [unfold 6] := @comma_object.f
 
   variables {A B C : Precategory} (S : A ⇒ C) (T : B ⇒ C)
 

@@ -51,7 +51,7 @@ namespace trunc
   tr⁻¹
 
   /- Functoriality -/
-  definition trunc_functor [unfold-c 5] (f : X → Y) : trunc n X → trunc n Y :=
+  definition trunc_functor [unfold 5] (f : X → Y) : trunc n X → trunc n Y :=
   λxx, trunc.rec_on xx (λx, tr (f x))
 
   definition trunc_functor_compose (f : X → Y) (g : Y → Z)
@@ -130,6 +130,6 @@ namespace trunc
 
 end trunc
 
-attribute trunc.elim_on [unfold-c 4]
+attribute trunc.elim_on [unfold 4]
 attribute trunc.rec [recursor]
-attribute trunc.elim [recursor 6] [unfold-c 6]
+attribute trunc.elim [recursor 6] [unfold 6]

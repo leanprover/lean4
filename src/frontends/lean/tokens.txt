@@ -94,8 +94,10 @@ variables    variables
 instance     [instance]
 trans_inst   [trans-instance]
 priority     [priority
-unfold_c     [unfold-c
-unfold_f     [unfold-f]
+unfold       [unfold
+unfold_full  [unfold-full]
+unfold_hints_bracket [unfold-hints]
+unfold_hints unfold-hints
 constructor  [constructor]
 coercion     [coercion]
 reducible    [reducible]

@@ -72,10 +72,10 @@ namespace susp
 end susp
 
 attribute susp.north susp.south [constructor]
-attribute susp.rec susp.elim [unfold-c 6] [recursor 6]
-attribute susp.elim_type [unfold-c 5]
-attribute susp.rec_on susp.elim_on [unfold-c 3]
-attribute susp.elim_type_on [unfold-c 2]
+attribute susp.rec susp.elim [unfold 6] [recursor 6]
+attribute susp.elim_type [unfold 5]
+attribute susp.rec_on susp.elim_on [unfold 3]
+attribute susp.elim_type_on [unfold 2]
 
 namespace susp
   open pointed

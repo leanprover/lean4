@@ -87,7 +87,7 @@ namespace torus
 end torus
 
 attribute torus.base [constructor]
-attribute /-torus.rec-/ torus.elim [unfold-c 6] [recursor 6]
---attribute torus.elim_type [unfold-c 9]
-attribute /-torus.rec_on-/ torus.elim_on [unfold-c 2]
---attribute torus.elim_type_on [unfold-c 6]
+attribute /-torus.rec-/ torus.elim [unfold 6] [recursor 6]
+--attribute torus.elim_type [unfold 9]
+attribute /-torus.rec_on-/ torus.elim_on [unfold 2]
+--attribute torus.elim_type_on [unfold 6]

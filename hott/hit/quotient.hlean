@@ -55,7 +55,7 @@ namespace quotient
 end quotient
 
 attribute quotient.rec [recursor]
-attribute quotient.elim [unfold-c 6] [recursor 6]
-attribute quotient.elim_type [unfold-c 5]
-attribute quotient.elim_on [unfold-c 4]
-attribute quotient.elim_type_on [unfold-c 3]
+attribute quotient.elim [unfold 6] [recursor 6]
+attribute quotient.elim_type [unfold 5]
+attribute quotient.elim_on [unfold 4]
+attribute quotient.elim_type_on [unfold 3]

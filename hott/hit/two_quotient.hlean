@@ -34,10 +34,10 @@ namespace simple_two_quotient
   class_of pre_simple_two_quotient_rel (inr ⟨a, r, q⟩)
   protected definition e (s : R a a') : j a = j a' := eq_of_rel _ (pre_Rmk s)
   protected definition et (t : T a a') : j a = j a' := e_closure.elim e t
-  protected definition f [unfold-c 7] (q : Q r) : S¹ → C :=
+  protected definition f [unfold 7] (q : Q r) : S¹ → C :=
   circle.elim (j a) (et r)
 
-  protected definition pre_rec [unfold-c 8] {P : C → Type}
+  protected definition pre_rec [unfold 8] {P : C → Type}
     (Pj : Πa, P (j a)) (Pa : Π⦃a : A⦄ ⦃r : T a a⦄ (q : Q r), P (pre_aux q))
     (Pe : Π⦃a a' : A⦄ (s : R a a'), Pj a =[e s] Pj a') (x : C) : P x :=
   begin
@@ -48,7 +48,7 @@ namespace simple_two_quotient
     { induction H, esimp, apply Pe},
   end
 
-  protected definition pre_elim [unfold-c 8] {P : Type} (Pj : A → P)
+  protected definition pre_elim [unfold 8] {P : Type} (Pj : A → P)
     (Pa : Π⦃a : A⦄ ⦃r : T a a⦄, Q r → P) (Pe : Π⦃a a' : A⦄ (s : R a a'), Pj a = Pj a') (x : C)
     : P :=
   pre_rec Pj Pa (λa a' s, pathover_of_eq (Pe s)) x
@@ -124,7 +124,7 @@ namespace simple_two_quotient
               !ap_constant⁻¹ end
 } end end},
   end
-  local attribute elim [unfold-c 8]
+  local attribute elim [unfold 8]
 
   protected definition elim_on {P : Type} (x : D) (P0 : A → P)
     (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a = P0 a')
@@ -237,10 +237,10 @@ end
 end simple_two_quotient
 
 --attribute simple_two_quotient.j [constructor] --TODO
-attribute /-simple_two_quotient.rec-/ simple_two_quotient.elim [unfold-c 8] [recursor 8]
---attribute simple_two_quotient.elim_type [unfold-c 9]
-attribute /-simple_two_quotient.rec_on-/ simple_two_quotient.elim_on [unfold-c 5]
---attribute simple_two_quotient.elim_type_on [unfold-c 6]
+attribute /-simple_two_quotient.rec-/ simple_two_quotient.elim [unfold 8] [recursor 8]
+--attribute simple_two_quotient.elim_type [unfold 9]
+attribute /-simple_two_quotient.rec_on-/ simple_two_quotient.elim_on [unfold 5]
+--attribute simple_two_quotient.elim_type_on [unfold 6]
 
 namespace two_quotient
   open e_closure simple_two_quotient
@@ -272,11 +272,11 @@ namespace two_quotient
     induction x,
     { exact P0 a},
     { exact P1 s},
-    { exact abstract [unfold-c 10] begin induction q with a a' t t' q,
+    { exact abstract [unfold 10] begin induction q with a a' t t' q,
       rewrite [↑e_closure.elim,↓e_closure.elim P1 t,↓e_closure.elim P1 t'],
       apply con_inv_eq_idp, exact P2 q end end},
   end
-  local attribute elim [unfold-c 8]
+  local attribute elim [unfold 8]
 
   protected definition elim_on {P : Type} (x : two_quotient) (P0 : A → P)
     (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a = P0 a')
@@ -314,7 +314,7 @@ end
 end two_quotient
 
 --attribute two_quotient.j [constructor] --TODO
-attribute /-two_quotient.rec-/ two_quotient.elim [unfold-c 8] [recursor 8]
---attribute two_quotient.elim_type [unfold-c 9]
-attribute /-two_quotient.rec_on-/ two_quotient.elim_on [unfold-c 5]
---attribute two_quotient.elim_type_on [unfold-c 6]
+attribute /-two_quotient.rec-/ two_quotient.elim [unfold 8] [recursor 8]
+--attribute two_quotient.elim_type [unfold 9]
+attribute /-two_quotient.rec_on-/ two_quotient.elim_on [unfold 5]
+--attribute two_quotient.elim_type_on [unfold 6]

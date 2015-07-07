@@ -29,50 +29,50 @@ namespace eq
   definition ids      [reducible] [constructor]         := @square.ids
   definition idsquare [reducible] [constructor] (a : A) := @square.ids A a
 
-  definition hrefl [unfold-c 4] (p : a = a') : square idp idp p p :=
+  definition hrefl [unfold 4] (p : a = a') : square idp idp p p :=
   by induction p; exact ids
 
-  definition vrefl [unfold-c 4] (p : a = a') : square p p idp idp :=
+  definition vrefl [unfold 4] (p : a = a') : square p p idp idp :=
   by induction p; exact ids
 
-  definition hrfl [unfold-c 4] {p : a = a'} : square idp idp p p :=
+  definition hrfl [unfold 4] {p : a = a'} : square idp idp p p :=
   !hrefl
-  definition vrfl [unfold-c 4] {p : a = a'} : square p p idp idp :=
+  definition vrfl [unfold 4] {p : a = a'} : square p p idp idp :=
   !vrefl
 
-  definition hdeg_square [unfold-c 6] {p q : a = a'} (r : p = q) : square idp idp p q :=
+  definition hdeg_square [unfold 6] {p q : a = a'} (r : p = q) : square idp idp p q :=
   by induction r;apply hrefl
 
-  definition vdeg_square [unfold-c 6] {p q : a = a'} (r : p = q) : square p q idp idp :=
+  definition vdeg_square [unfold 6] {p q : a = a'} (r : p = q) : square p q idp idp :=
   by induction r;apply vrefl
 
-  definition hconcat [unfold-c 16] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (s₃₁ : square p₃₀ p₃₂ p₂₁ p₄₁)
+  definition hconcat [unfold 16] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (s₃₁ : square p₃₀ p₃₂ p₂₁ p₄₁)
     : square (p₁₀ ⬝ p₃₀) (p₁₂ ⬝ p₃₂) p₀₁ p₄₁ :=
   by induction s₃₁; exact s₁₁
 
-  definition vconcat [unfold-c 16] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (s₁₃ : square p₁₂ p₁₄ p₀₃ p₂₃)
+  definition vconcat [unfold 16] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (s₁₃ : square p₁₂ p₁₄ p₀₃ p₂₃)
     : square p₁₀ p₁₄ (p₀₁ ⬝ p₀₃) (p₂₁ ⬝ p₂₃) :=
   by induction s₁₃; exact s₁₁
 
-  definition hinverse [unfold-c 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) : square p₁₀⁻¹ p₁₂⁻¹ p₂₁ p₀₁ :=
+  definition hinverse [unfold 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) : square p₁₀⁻¹ p₁₂⁻¹ p₂₁ p₀₁ :=
   by induction s₁₁;exact ids
 
-  definition vinverse [unfold-c 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) : square p₁₂ p₁₀ p₀₁⁻¹ p₂₁⁻¹ :=
+  definition vinverse [unfold 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) : square p₁₂ p₁₀ p₀₁⁻¹ p₂₁⁻¹ :=
   by induction s₁₁;exact ids
 
-  definition eq_vconcat [unfold-c 11] {p : a₀₀ = a₂₀} (r : p = p₁₀) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) :
+  definition eq_vconcat [unfold 11] {p : a₀₀ = a₂₀} (r : p = p₁₀) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) :
     square p p₁₂ p₀₁ p₂₁ :=
   by induction r; exact s₁₁
 
-  definition vconcat_eq [unfold-c 11] {p : a₀₂ = a₂₂} (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (r : p₁₂ = p) :
+  definition vconcat_eq [unfold 11] {p : a₀₂ = a₂₂} (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (r : p₁₂ = p) :
     square p₁₀ p p₀₁ p₂₁ :=
   by induction r; exact s₁₁
 
-  definition eq_hconcat [unfold-c 11] {p : a₀₀ = a₀₂} (r : p = p₀₁) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) :
+  definition eq_hconcat [unfold 11] {p : a₀₀ = a₀₂} (r : p = p₀₁) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) :
     square p₁₀ p₁₂ p p₂₁ :=
   by induction r; exact s₁₁
 
-  definition hconcat_eq [unfold-c 11] {p : a₂₀ = a₂₂} (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (r : p₂₁ = p) :
+  definition hconcat_eq [unfold 11] {p : a₂₀ = a₂₂} (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (r : p₂₁ = p) :
     square p₁₀ p₁₂ p₀₁ p :=
   by induction r; exact s₁₁
 
@@ -86,18 +86,18 @@ namespace eq
   postfix `⁻¹ʰ`:(max+1) := hinverse
   postfix `⁻¹ᵛ`:(max+1) := vinverse
 
-  definition transpose [unfold-c 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) : square p₀₁ p₂₁ p₁₀ p₁₂ :=
+  definition transpose [unfold 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) : square p₀₁ p₂₁ p₁₀ p₁₂ :=
   by induction s₁₁;exact ids
 
   definition aps {B : Type} (f : A → B) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
     : square (ap f p₁₀) (ap f p₁₂) (ap f p₀₁) (ap f p₂₁) :=
   by induction s₁₁;exact ids
 
-  definition natural_square [unfold-c 8] {f g : A → B} (p : f ~ g) (q : a = a') :
+  definition natural_square [unfold 8] {f g : A → B} (p : f ~ g) (q : a = a') :
     square (ap f q) (ap g q) (p a) (p a') :=
   eq.rec_on q hrfl
 
-  definition natural_square_tr [unfold-c 8] {f g : A → B} (p : f ~ g) (q : a = a') :
+  definition natural_square_tr [unfold 8] {f g : A → B} (p : f ~ g) (q : a = a') :
     square (p a) (p a') (ap f q) (ap g q) :=
   eq.rec_on q vrfl
 
@@ -121,13 +121,13 @@ namespace eq
 
   /- equivalences -/
 
-  definition eq_of_square [unfold-c 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) : p₁₀ ⬝ p₂₁ = p₀₁ ⬝ p₁₂ :=
+  definition eq_of_square [unfold 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) : p₁₀ ⬝ p₂₁ = p₀₁ ⬝ p₁₂ :=
   by induction s₁₁; apply idp
 
   definition square_of_eq (r : p₁₀ ⬝ p₂₁ = p₀₁ ⬝ p₁₂) : square p₁₀ p₁₂ p₀₁ p₂₁ :=
   by induction p₁₂; esimp [concat] at r; induction r; induction p₂₁; induction p₁₀; exact ids
 
-  definition eq_top_of_square [unfold-c 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
+  definition eq_top_of_square [unfold 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
     : p₁₀ = p₀₁ ⬝ p₁₂ ⬝ p₂₁⁻¹ :=
   by induction s₁₁; apply idp
 
@@ -186,11 +186,11 @@ namespace eq
   -- example (p q : a = a') : to_inv (hdeg_square_equiv' p q) = hdeg_square := idp -- this fails
   example (p q : a = a') : to_inv (hdeg_square_equiv p q) = hdeg_square := idp
 
-  definition pathover_eq [unfold-c 7] {f g : A → B} {p : a = a'} {q : f a = g a} {r : f a' = g a'}
+  definition pathover_eq [unfold 7] {f g : A → B} {p : a = a'} {q : f a = g a} {r : f a' = g a'}
     (s : square q r (ap f p) (ap g p)) : q =[p] r :=
   by induction p;apply pathover_idp_of_eq;exact eq_of_vdeg_square s
 
-  definition square_of_pathover [unfold-c 7]
+  definition square_of_pathover [unfold 7]
     {f g : A → B} {p : a = a'} {q : f a = g a} {r : f a' = g a'}
     (s : q =[p] r) : square q r (ap f p) (ap g p) :=
   by induction p;apply vdeg_square;exact eq_of_pathover_idp s
@@ -253,15 +253,15 @@ namespace eq
   by induction s₁₁; induction r;reflexivity
 
 
-  -- definition vconcat_eq [unfold-c 11] {p : a₀₂ = a₂₂} (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (r : p₁₂ = p) :
+  -- definition vconcat_eq [unfold 11] {p : a₀₂ = a₂₂} (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (r : p₁₂ = p) :
   --   square p₁₀ p p₀₁ p₂₁ :=
   -- by induction r; exact s₁₁
 
-  -- definition eq_hconcat [unfold-c 11] {p : a₀₀ = a₀₂} (r : p = p₀₁)
+  -- definition eq_hconcat [unfold 11] {p : a₀₀ = a₀₂} (r : p = p₀₁)
   --   (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) : square p₁₀ p₁₂ p p₂₁ :=
   -- by induction r; exact s₁₁
 
-  -- definition hconcat_eq [unfold-c 11] {p : a₂₀ = a₂₂}
+  -- definition hconcat_eq [unfold 11] {p : a₂₀ = a₂₂}
   --   (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (r : p₂₁ = p) : square p₁₀ p₁₂ p₀₁ p :=
   -- by induction r; exact s₁₁
 

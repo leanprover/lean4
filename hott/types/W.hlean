@@ -19,10 +19,10 @@ namespace Wtype
   variables {A A' : Type.{u}} {B B' : A → Type.{v}} {C : Π(a : A), B a → Type}
             {a a' : A} {f : B a → W a, B a} {f' : B a' → W a, B a} {w w' : W(a : A), B a}
 
-  protected definition pr1 [unfold-c 3] (w : W(a : A), B a) : A :=
+  protected definition pr1 [unfold 3] (w : W(a : A), B a) : A :=
   by cases w with a f; exact a
 
-  protected definition pr2 [unfold-c 3] (w : W(a : A), B a) : B (Wtype.pr1 w) → W(a : A), B a :=
+  protected definition pr2 [unfold 3] (w : W(a : A), B a) : B (Wtype.pr1 w) → W(a : A), B a :=
   by cases w with a f; exact f
 
   namespace ops

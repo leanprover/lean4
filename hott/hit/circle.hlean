@@ -148,14 +148,14 @@ namespace circle
 end circle
 
 attribute circle.base1 circle.base2 circle.base [constructor]
-attribute circle.rec2 circle.elim2 [unfold-c 6] [recursor 6]
-attribute circle.elim2_type [unfold-c 5]
-attribute circle.rec2_on circle.elim2_on [unfold-c 2]
-attribute circle.elim2_type [unfold-c 1]
-attribute circle.elim circle.rec [unfold-c 4] [recursor 4]
-attribute circle.elim_type [unfold-c 3]
-attribute circle.rec_on circle.elim_on [unfold-c 2]
-attribute circle.elim_type_on [unfold-c 1]
+attribute circle.rec2 circle.elim2 [unfold 6] [recursor 6]
+attribute circle.elim2_type [unfold 5]
+attribute circle.rec2_on circle.elim2_on [unfold 2]
+attribute circle.elim2_type [unfold 1]
+attribute circle.elim circle.rec [unfold 4] [recursor 4]
+attribute circle.elim_type [unfold 3]
+attribute circle.rec_on circle.elim_on [unfold 2]
+attribute circle.elim_type_on [unfold 1]
 
 namespace circle
   definition pointed_circle [instance] [constructor] : pointed circle :=

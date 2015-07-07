@@ -121,10 +121,10 @@ namespace eq
   --   : f a b c d e ff g h = f a' b' c' d' e' f' g' h' :=
   -- by cases Ha; cases Hb; cases Hc; cases Hd; cases He; cases Hf; cases Hg; cases Hh; reflexivity
 
-  definition apd100 [unfold-c 6] {f g : Πa b, C a b} (p : f = g) : f ~2 g :=
+  definition apd100 [unfold 6] {f g : Πa b, C a b} (p : f = g) : f ~2 g :=
   λa b, apd10 (apd10 p a) b
 
-  definition apd1000 [unfold-c 7] {f g : Πa b c, D a b c} (p : f = g) : f ~3 g :=
+  definition apd1000 [unfold 7] {f g : Πa b c, D a b c} (p : f = g) : f ~3 g :=
   λa b c, apd100 (apd10 p a) b c
 
   /- some properties of these variants of ap -/

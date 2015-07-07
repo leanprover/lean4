@@ -79,7 +79,7 @@ end
 end coeq
 
 attribute coeq.coeq_i [constructor]
-attribute coeq.rec coeq.elim [unfold-c 8] [recursor 8]
-attribute coeq.elim_type [unfold-c 7]
-attribute coeq.rec_on coeq.elim_on [unfold-c 6]
-attribute coeq.elim_type_on [unfold-c 5]
+attribute coeq.rec coeq.elim [unfold 8] [recursor 8]
+attribute coeq.elim_type [unfold 7]
+attribute coeq.rec_on coeq.elim_on [unfold 6]
+attribute coeq.elim_type_on [unfold 5]

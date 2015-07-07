@@ -89,7 +89,7 @@ end
 end cylinder
 
 attribute cylinder.base cylinder.top [constructor]
-attribute cylinder.rec cylinder.elim [unfold-c 8] [recursor 8]
-attribute cylinder.elim_type [unfold-c 7]
-attribute cylinder.rec_on cylinder.elim_on [unfold-c 5]
-attribute cylinder.elim_type_on [unfold-c 4]
+attribute cylinder.rec cylinder.elim [unfold 8] [recursor 8]
+attribute cylinder.elim_type [unfold 7]
+attribute cylinder.rec_on cylinder.elim_on [unfold 5]
+attribute cylinder.elim_type_on [unfold 4]

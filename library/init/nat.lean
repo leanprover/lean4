@@ -25,7 +25,7 @@ namespace nat
   infix `≥` := ge
   infix `>` := gt
 
-  definition pred [unfold-c 1] (a : nat) : nat :=
+  definition pred [unfold 1] (a : nat) : nat :=
   nat.cases_on a zero (λ a₁, a₁)
 
   -- add is defined in init.num

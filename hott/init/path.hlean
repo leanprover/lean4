@@ -22,20 +22,20 @@ namespace eq
   definition idpath [reducible] [constructor] (a : A) := refl a
 
   -- unbased path induction
-  definition rec' [reducible] [unfold-c 6] {P : Π (a b : A), (a = b) → Type}
+  definition rec' [reducible] [unfold 6] {P : Π (a b : A), (a = b) → Type}
     (H : Π (a : A), P a a idp) {a b : A} (p : a = b) : P a b p :=
   eq.rec (H a) p
 
-  definition rec_on' [reducible] [unfold-c 5] {P : Π (a b : A), (a = b) → Type}
+  definition rec_on' [reducible] [unfold 5] {P : Π (a b : A), (a = b) → Type}
     {a b : A} (p : a = b) (H : Π (a : A), P a a idp) : P a b p :=
   eq.rec (H a) p
 
   /- Concatenation and inverse -/
 
-  definition concat [trans] [unfold-c 6] (p : x = y) (q : y = z) : x = z :=
+  definition concat [trans] [unfold 6] (p : x = y) (q : y = z) : x = z :=
   eq.rec (λp', p') q p
 
-  definition inverse [symm] [unfold-c 4] (p : x = y) : y = x :=
+  definition inverse [symm] [unfold 4] (p : x = y) : y = x :=
   eq.rec (refl x) p
 
   infix   ⬝  := concat
@@ -46,11 +46,11 @@ namespace eq
   /- The 1-dimensional groupoid structure -/
 
   -- The identity path is a right unit.
-  definition con_idp [unfold-f] (p : x = y) : p ⬝ idp = p :=
+  definition con_idp [unfold-full] (p : x = y) : p ⬝ idp = p :=
   idp
 
   -- The identity path is a right unit.
-  definition idp_con [unfold-c 4] (p : x = y) : idp ⬝ p = p :=
+  definition idp_con [unfold 4] (p : x = y) : idp ⬝ p = p :=
   eq.rec_on p idp
 
   -- Concatenation is associative.
@@ -63,11 +63,11 @@ namespace eq
   eq.rec_on r (eq.rec_on q idp)
 
   -- The left inverse law.
-  definition con.right_inv [unfold-c 4] (p : x = y) : p ⬝ p⁻¹ = idp :=
+  definition con.right_inv [unfold 4] (p : x = y) : p ⬝ p⁻¹ = idp :=
   eq.rec_on p idp
 
   -- The right inverse law.
-  definition con.left_inv [unfold-c 4] (p : x = y) : p⁻¹ ⬝ p = idp :=
+  definition con.left_inv [unfold 4] (p : x = y) : p⁻¹ ⬝ p = idp :=
   eq.rec_on p idp
 
   /- Several auxiliary theorems about canceling inverses across associativity. These are somewhat
@@ -113,7 +113,7 @@ namespace eq
     p = r⁻¹ ⬝ q → r ⬝ p = q :=
   eq.rec_on r (take p h, !idp_con ⬝ h ⬝ !idp_con) p
 
-  definition con_eq_of_eq_con_inv [unfold-c 5] {p : x = z} {q : y = z} {r : y = x} :
+  definition con_eq_of_eq_con_inv [unfold 5] {p : x = z} {q : y = z} {r : y = x} :
     r = q ⬝ p⁻¹ → r ⬝ p = q :=
   eq.rec_on p (take q h, h) q
 
@@ -121,7 +121,7 @@ namespace eq
     p = r ⬝ q → r⁻¹ ⬝ p = q :=
   eq.rec_on r (take q h, !idp_con ⬝ h ⬝ !idp_con) q
 
-  definition con_inv_eq_of_eq_con [unfold-c 5] {p : z = x} {q : y = z} {r : y = x} :
+  definition con_inv_eq_of_eq_con [unfold 5] {p : z = x} {q : y = z} {r : y = x} :
     r = q ⬝ p → r ⬝ p⁻¹ = q :=
   eq.rec_on p (take r h, h) r
 
@@ -129,7 +129,7 @@ namespace eq
     r⁻¹ ⬝ q = p → q = r ⬝ p :=
   eq.rec_on r (take p h, !idp_con⁻¹ ⬝ h ⬝ !idp_con⁻¹) p
 
-  definition eq_con_of_con_inv_eq [unfold-c 5] {p : x = z} {q : y = z} {r : y = x} :
+  definition eq_con_of_con_inv_eq [unfold 5] {p : x = z} {q : y = z} {r : y = x} :
     q ⬝ p⁻¹ = r → q = r ⬝ p :=
   eq.rec_on p (take q h, h) q
 
@@ -137,17 +137,17 @@ namespace eq
     r ⬝ q = p → q = r⁻¹ ⬝ p :=
   eq.rec_on r (take q h, !idp_con⁻¹ ⬝ h ⬝ !idp_con⁻¹) q
 
-  definition eq_con_inv_of_con_eq [unfold-c 5] {p : z = x} {q : y = z} {r : y = x} :
+  definition eq_con_inv_of_con_eq [unfold 5] {p : z = x} {q : y = z} {r : y = x} :
     q ⬝ p = r → q = r ⬝ p⁻¹ :=
   eq.rec_on p (take r h, h) r
 
-  definition eq_of_con_inv_eq_idp [unfold-c 5] {p q : x = y} : p ⬝ q⁻¹ = idp → p = q :=
+  definition eq_of_con_inv_eq_idp [unfold 5] {p q : x = y} : p ⬝ q⁻¹ = idp → p = q :=
   eq.rec_on q (take p h, h) p
 
   definition eq_of_inv_con_eq_idp {p q : x = y} : q⁻¹ ⬝ p = idp → p = q :=
   eq.rec_on q (take p h, !idp_con⁻¹ ⬝ h) p
 
-  definition eq_inv_of_con_eq_idp' [unfold-c 5] {p : x = y} {q : y = x} : p ⬝ q = idp → p = q⁻¹ :=
+  definition eq_inv_of_con_eq_idp' [unfold 5] {p : x = y} {q : y = x} : p ⬝ q = idp → p = q⁻¹ :=
   eq.rec_on q (take p h, h) p
 
   definition eq_inv_of_con_eq_idp {p : x = y} {q : y = x} : q ⬝ p = idp → p = q⁻¹ :=
@@ -156,10 +156,10 @@ namespace eq
   definition eq_of_idp_eq_inv_con {p q : x = y} : idp = p⁻¹ ⬝ q → p = q :=
   eq.rec_on p (take q h, h ⬝ !idp_con) q
 
-  definition eq_of_idp_eq_con_inv [unfold-c 4] {p q : x = y} : idp = q ⬝ p⁻¹ → p = q :=
+  definition eq_of_idp_eq_con_inv [unfold 4] {p q : x = y} : idp = q ⬝ p⁻¹ → p = q :=
   eq.rec_on p (take q h, h) q
 
-  definition inv_eq_of_idp_eq_con [unfold-c 4] {p : x = y} {q : y = x} : idp = q ⬝ p → p⁻¹ = q :=
+  definition inv_eq_of_idp_eq_con [unfold 4] {p : x = y} {q : y = x} : idp = q ⬝ p → p⁻¹ = q :=
   eq.rec_on p (take q h, h) q
 
   definition inv_eq_of_idp_eq_con' {p : x = y} {q : y = x} : idp = p ⬝ q → p⁻¹ = q :=
@@ -185,20 +185,20 @@ namespace eq
 
   /- Transport -/
 
-  definition transport [subst] [reducible] [unfold-c 5] (P : A → Type) {x y : A} (p : x = y)
+  definition transport [subst] [reducible] [unfold 5] (P : A → Type) {x y : A} (p : x = y)
     (u : P x) : P y :=
   eq.rec_on p u
 
   -- This idiom makes the operation right associative.
   notation p `▸` x := transport _ p x
 
-  definition cast [reducible] [unfold-c 3] {A B : Type} (p : A = B) (a : A) : B :=
+  definition cast [reducible] [unfold 3] {A B : Type} (p : A = B) (a : A) : B :=
   p ▸ a
 
-  definition tr_rev [reducible] [unfold-c 6] (P : A → Type) {x y : A} (p : x = y) (u : P y) : P x :=
+  definition tr_rev [reducible] [unfold 6] (P : A → Type) {x y : A} (p : x = y) (u : P y) : P x :=
   p⁻¹ ▸ u
 
-  definition ap [unfold-c 6] ⦃A B : Type⦄ (f : A → B) {x y:A} (p : x = y) : f x = f y :=
+  definition ap [unfold 6] ⦃A B : Type⦄ (f : A → B) {x y:A} (p : x = y) : f x = f y :=
   eq.rec_on p idp
 
   abbreviation ap01 [parsing-only] := ap
@@ -218,19 +218,19 @@ namespace eq
     (H1 : f ~ g) (H2 : g ~ h) : f ~ h :=
   λ x, H1 x ⬝ H2 x
 
-  definition apd10 [unfold-c 5] {f g : Πx, P x} (H : f = g) : f ~ g :=
+  definition apd10 [unfold 5] {f g : Πx, P x} (H : f = g) : f ~ g :=
   λx, eq.rec_on H idp
 
   --the next theorem is useful if you want to write "apply (apd10' a)"
-  definition apd10' [unfold-c 6] {f g : Πx, P x} (a : A) (H : f = g) : f a = g a :=
+  definition apd10' [unfold 6] {f g : Πx, P x} (a : A) (H : f = g) : f a = g a :=
   eq.rec_on H idp
 
-  definition ap10 [reducible] [unfold-c 5] {f g : A → B} (H : f = g) : f ~ g := apd10 H
+  definition ap10 [reducible] [unfold 5] {f g : A → B} (H : f = g) : f ~ g := apd10 H
 
   definition ap11 {f g : A → B} (H : f = g) {x y : A} (p : x = y) : f x = g y :=
   eq.rec_on H (eq.rec_on p idp)
 
-  definition apd [unfold-c 6] (f : Πa, P a) {x y : A} (p : x = y) : p ▸ f x = f y :=
+  definition apd [unfold 6] (f : Πa, P a) {x y : A} (p : x = y) : p ▸ f x = f y :=
   eq.rec_on p idp
 
   /- More theorems for moving things around in equations -/
@@ -294,7 +294,7 @@ namespace eq
   eq.rec_on p idp
 
   -- The action of constant maps.
-  definition ap_constant [unfold-c 5] (p : x = y) (z : B) : ap (λu, z) p = idp :=
+  definition ap_constant [unfold 5] (p : x = y) (z : B) : ap (λu, z) p = idp :=
   eq.rec_on p idp
 
   -- Naturality of [ap].
@@ -443,7 +443,7 @@ namespace eq
 
 
   -- Dependent transport in a doubly dependent type.
-  definition transportD [unfold-c 6] {P : A → Type} (Q : Πa, P a → Type)
+  definition transportD [unfold 6] {P : A → Type} (Q : Πa, P a → Type)
       {a a' : A} (p : a = a') (b : P a) (z : Q a b) : Q a' (p ▸ b) :=
   eq.rec_on p z
 
@@ -452,7 +452,7 @@ namespace eq
   notation p `▸D`:65 x:64 := transportD _ p _ x
 
   -- Transporting along higher-dimensional paths
-  definition transport2 [unfold-c 7] (P : A → Type) {x y : A} {p q : x = y} (r : p = q) (z : P x) :
+  definition transport2 [unfold 7] (P : A → Type) {x y : A} {p q : x = y} (r : p = q) (z : P x) :
     p ▸ z = q ▸ z :=
   ap (λp', p' ▸ z) r
 
@@ -473,7 +473,7 @@ namespace eq
     transport2 Q r⁻¹ z = (transport2 Q r z)⁻¹ :=
   eq.rec_on r idp
 
-  definition transportD2 [unfold-c 7] (B C : A → Type) (D : Π(a:A), B a → C a → Type)
+  definition transportD2 [unfold 7] (B C : A → Type) (D : Π(a:A), B a → C a → Type)
     {x1 x2 : A} (p : x1 = x2) (y : B x1) (z : C x1) (w : D x1 y z) : D x2 (p ▸ y) (p ▸ z) :=
   eq.rec_on p w
 
@@ -549,7 +549,7 @@ namespace eq
   eq.rec_on h (eq.rec_on h' idp)
 
   -- 2-dimensional path inversion
-  definition inverse2 [unfold-c 6] {p q : x = y} (h : p = q) : p⁻¹ = q⁻¹ :=
+  definition inverse2 [unfold 6] {p q : x = y} (h : p = q) : p⁻¹ = q⁻¹ :=
   eq.rec_on h idp
 
   infixl `◾`:75 := concat2
@@ -631,7 +631,7 @@ namespace eq
     ⬝ (!whisker_left_idp_left ◾ !whisker_right_idp_right)
 
   -- The action of functions on 2-dimensional paths
-  definition ap02 [unfold-c 8] [reducible] (f : A → B) {x y : A} {p q : x = y} (r : p = q)
+  definition ap02 [unfold 8] [reducible] (f : A → B) {x y : A} {p q : x = y} (r : p = q)
     : ap f p = ap f q :=
   ap (ap f) r
 
@@ -646,7 +646,7 @@ namespace eq
                         ⬝ (ap_con f p' q')⁻¹ :=
   eq.rec_on r (eq.rec_on s (eq.rec_on q (eq.rec_on p idp)))
 
-  definition apd02 [unfold-c 8] {p q : x = y} (f : Π x, P x) (r : p = q) :
+  definition apd02 [unfold 8] {p q : x = y} (f : Π x, P x) (r : p = q) :
     apd f p = transport2 P r (f x) ⬝ apd f q :=
   eq.rec_on r !idp_con⁻¹
 

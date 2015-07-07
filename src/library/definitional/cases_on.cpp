@@ -182,7 +182,7 @@ environment mk_cases_on(environment const & env, name const & n) {
                                       use_conv_opt);
     environment new_env = module::add(env, check(env, new_d));
     new_env = set_reducible(new_env, cases_on_name, reducible_status::Reducible);
-    new_env = add_unfold_c_hint(new_env, cases_on_name, cases_on_major_idx);
+    new_env = add_unfold_hint(new_env, cases_on_name, cases_on_major_idx);
     return add_protected(new_env, cases_on_name);
 }
 }

@@ -1,8 +1,8 @@
 import data.nat
 open nat
 
-attribute nat.add [unfold-c 2]
-attribute nat.rec_on [unfold-c 2]
+attribute nat.add [unfold 2]
+attribute nat.rec_on [unfold 2]
 
 infixl `;`:15 := tactic.and_then
 

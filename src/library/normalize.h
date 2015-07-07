@@ -32,7 +32,7 @@ expr normalize(type_checker & tc, expr const & e, constraint_seq & cs, bool eta 
 expr normalize(type_checker & tc, expr const & e, std::function<bool(expr const&)> const & pred, // NOLINT
                constraint_seq & cs, bool eta = false);
 
-/** \brief unfold-c hint instructs the normalizer (and simplifier) that
+/** \brief [unfold] hint instructs the normalizer (and simplifier) that
     a function application (f a_1 ... a_i ... a_n) should be unfolded
     when argument a_i is a constructor.
 
@@ -40,17 +40,17 @@ expr normalize(type_checker & tc, expr const & e, std::function<bool(expr const&
 
     Of course, kernel opaque constants are not unfolded.
 */
-environment add_unfold_c_hint(environment const & env, name const & n, unsigned idx, bool persistent = true);
-environment erase_unfold_c_hint(environment const & env, name const & n, bool persistent = true);
-/** \brief Retrieve the hint added with the procedure add_unfold_c_hint. */
-optional<unsigned> has_unfold_c_hint(environment const & env, name const & d);
+environment add_unfold_hint(environment const & env, name const & n, unsigned idx, bool persistent = true);
+environment erase_unfold_hint(environment const & env, name const & n, bool persistent = true);
+/** \brief Retrieve the hint added with the procedure add_unfold_hint. */
+optional<unsigned> has_unfold_hint(environment const & env, name const & d);
 
-/** \brief unfold-f hint instructs normalizer (and simplifier) that function application
+/** \brief [unfold-full] hint instructs normalizer (and simplifier) that function application
     (f a_1 ... a_n) should be unfolded when it is fully applied */
-environment add_unfold_f_hint(environment const & env, name const & n, bool persistent = true);
-environment erase_unfold_f_hint(environment const & env, name const & n, bool persistent = true);
-/** \brief Retrieve the hint added with the procedure add_unfold_f_hint. */
-optional<unsigned> has_unfold_f_hint(environment const & env, name const & d);
+environment add_unfold_full_hint(environment const & env, name const & n, bool persistent = true);
+environment erase_unfold_full_hint(environment const & env, name const & n, bool persistent = true);
+/** \brief Retrieve the hint added with the procedure add_unfold_full_hint. */
+optional<unsigned> has_unfold_full_hint(environment const & env, name const & d);
 
 
 /** \brief unfold-m hint instructs normalizer (and simplifier) that function application

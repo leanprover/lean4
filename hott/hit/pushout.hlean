@@ -86,7 +86,7 @@ end
 end pushout
 
 attribute pushout.inl pushout.inr [constructor]
-attribute pushout.rec pushout.elim [unfold-c 10] [recursor 10]
-attribute pushout.elim_type [unfold-c 9]
-attribute pushout.rec_on pushout.elim_on [unfold-c 7]
-attribute pushout.elim_type_on [unfold-c 6]
+attribute pushout.rec pushout.elim [unfold 10] [recursor 10]
+attribute pushout.elim_type [unfold 9]
+attribute pushout.rec_on pushout.elim_on [unfold 7]
+attribute pushout.elim_type_on [unfold 6]

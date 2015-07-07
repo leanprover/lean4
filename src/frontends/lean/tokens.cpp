@@ -99,8 +99,10 @@ static name const * g_variables_tk = nullptr;
 static name const * g_instance_tk = nullptr;
 static name const * g_trans_inst_tk = nullptr;
 static name const * g_priority_tk = nullptr;
-static name const * g_unfold_c_tk = nullptr;
-static name const * g_unfold_f_tk = nullptr;
+static name const * g_unfold_tk = nullptr;
+static name const * g_unfold_full_tk = nullptr;
+static name const * g_unfold_hints_bracket_tk = nullptr;
+static name const * g_unfold_hints_tk = nullptr;
 static name const * g_constructor_tk = nullptr;
 static name const * g_coercion_tk = nullptr;
 static name const * g_reducible_tk = nullptr;
@@ -236,8 +238,10 @@ void initialize_tokens() {
     g_instance_tk = new name{"[instance]"};
     g_trans_inst_tk = new name{"[trans-instance]"};
     g_priority_tk = new name{"[priority"};
-    g_unfold_c_tk = new name{"[unfold-c"};
-    g_unfold_f_tk = new name{"[unfold-f]"};
+    g_unfold_tk = new name{"[unfold"};
+    g_unfold_full_tk = new name{"[unfold-full]"};
+    g_unfold_hints_bracket_tk = new name{"[unfold-hints]"};
+    g_unfold_hints_tk = new name{"unfold-hints"};
     g_constructor_tk = new name{"[constructor]"};
     g_coercion_tk = new name{"[coercion]"};
     g_reducible_tk = new name{"[reducible]"};
@@ -374,8 +378,10 @@ void finalize_tokens() {
     delete g_instance_tk;
     delete g_trans_inst_tk;
     delete g_priority_tk;
-    delete g_unfold_c_tk;
-    delete g_unfold_f_tk;
+    delete g_unfold_tk;
+    delete g_unfold_full_tk;
+    delete g_unfold_hints_bracket_tk;
+    delete g_unfold_hints_tk;
     delete g_constructor_tk;
     delete g_coercion_tk;
     delete g_reducible_tk;
@@ -511,8 +517,10 @@ name const & get_variables_tk() { return *g_variables_tk; }
 name const & get_instance_tk() { return *g_instance_tk; }
 name const & get_trans_inst_tk() { return *g_trans_inst_tk; }
 name const & get_priority_tk() { return *g_priority_tk; }
-name const & get_unfold_c_tk() { return *g_unfold_c_tk; }
-name const & get_unfold_f_tk() { return *g_unfold_f_tk; }
+name const & get_unfold_tk() { return *g_unfold_tk; }
+name const & get_unfold_full_tk() { return *g_unfold_full_tk; }
+name const & get_unfold_hints_bracket_tk() { return *g_unfold_hints_bracket_tk; }
+name const & get_unfold_hints_tk() { return *g_unfold_hints_tk; }
 name const & get_constructor_tk() { return *g_constructor_tk; }
 name const & get_coercion_tk() { return *g_coercion_tk; }
 name const & get_reducible_tk() { return *g_reducible_tk; }

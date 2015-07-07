@@ -32,7 +32,7 @@ decl_attributes::decl_attributes(bool is_abbrev, bool persistent):
     m_is_class               = false;
     m_is_parsing_only        = false;
     m_has_multiple_instances = false;
-    m_unfold_f_hint          = false;
+    m_unfold_full_hint       = false;
     m_constructor_hint       = false;
     m_symm                   = false;
     m_trans                  = false;
@@ -104,19 +104,19 @@ void decl_attributes::parse(buffer<name> const & ns, parser & p) {
                                    "marked as '[parsing-only]'", pos);
             m_is_parsing_only = true;
             p.next();
-        } else if (p.curr_is_token(get_unfold_f_tk())) {
+        } else if (p.curr_is_token(get_unfold_full_tk())) {
             p.next();
-            m_unfold_f_hint = true;
+            m_unfold_full_hint = true;
         } else if (p.curr_is_token(get_constructor_tk())) {
             p.next();
             m_constructor_hint = true;
-        } else if (p.curr_is_token(get_unfold_c_tk())) {
+        } else if (p.curr_is_token(get_unfold_tk())) {
             p.next();
             unsigned r = p.parse_small_nat();
             if (r == 0)
-                throw parser_error("invalid '[unfold-c]' attribute, value must be greater than 0", pos);
-            m_unfold_c_hint = r - 1;
-            p.check_token_next(get_rbracket_tk(), "invalid 'unfold-c', ']' expected");
+                throw parser_error("invalid '[unfold]' attribute, value must be greater than 0", pos);
+            m_unfold_hint = r - 1;
+            p.check_token_next(get_rbracket_tk(), "invalid 'unfold', ']' expected");
         } else if (p.curr_is_token(get_symm_tk())) {
             p.next();
             m_symm = true;
@@ -192,10 +192,10 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
             env = set_reducible(env, d, reducible_status::Semireducible, m_persistent);
         if (m_is_quasireducible)
             env = set_reducible(env, d, reducible_status::Quasireducible, m_persistent);
-        if (m_unfold_c_hint)
-            env = add_unfold_c_hint(env, d, *m_unfold_c_hint, m_persistent);
-        if (m_unfold_f_hint)
-            env = add_unfold_f_hint(env, d, m_persistent);
+        if (m_unfold_hint)
+            env = add_unfold_hint(env, d, *m_unfold_hint, m_persistent);
+        if (m_unfold_full_hint)
+            env = add_unfold_full_hint(env, d, m_persistent);
     }
     if (m_constructor_hint)
         env = add_constructor_hint(env, d, m_persistent);
@@ -221,16 +221,16 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
 void decl_attributes::write(serializer & s) const {
     s << m_is_abbrev << m_persistent << m_is_instance << m_is_trans_instance << m_is_coercion
       << m_is_reducible << m_is_irreducible << m_is_semireducible << m_is_quasireducible
-      << m_is_class << m_is_parsing_only << m_has_multiple_instances << m_unfold_f_hint
+      << m_is_class << m_is_parsing_only << m_has_multiple_instances << m_unfold_full_hint
       << m_constructor_hint << m_symm << m_trans << m_refl << m_subst << m_recursor
-      << m_rewrite << m_recursor_major_pos << m_priority << m_unfold_c_hint;
+      << m_rewrite << m_recursor_major_pos << m_priority << m_unfold_hint;
 }
 
 void decl_attributes::read(deserializer & d) {
     d >> m_is_abbrev >> m_persistent >> m_is_instance >> m_is_trans_instance >> m_is_coercion
       >> m_is_reducible >> m_is_irreducible >> m_is_semireducible >> m_is_quasireducible
-      >> m_is_class >> m_is_parsing_only >> m_has_multiple_instances >> m_unfold_f_hint
+      >> m_is_class >> m_is_parsing_only >> m_has_multiple_instances >> m_unfold_full_hint
       >> m_constructor_hint >> m_symm >> m_trans >> m_refl >> m_subst >> m_recursor
-      >> m_rewrite >> m_recursor_major_pos >> m_priority >> m_unfold_c_hint;
+      >> m_rewrite >> m_recursor_major_pos >> m_priority >> m_unfold_hint;
 }
 }

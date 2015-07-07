@@ -670,6 +670,10 @@ environment set_option_cmd(parser & p) {
     return update_fingerprint(env, p.get_options().hash());
 }
 
+static bool is_next_metaclass_tk(parser const & p) {
+    return p.curr_is_token(get_lbracket_tk()) || p.curr_is_token(get_unfold_hints_bracket_tk());
+}
+
 static name parse_metaclass(parser & p) {
     if (p.curr_is_token(get_lbracket_tk())) {
         p.next();
@@ -690,6 +694,9 @@ static name parse_metaclass(parser & p) {
         if (!is_metaclass(n) && n != get_decls_tk() && n != get_declarations_tk())
             throw parser_error(sstream() << "invalid metaclass name '[" << n << "]'", pos);
         return n;
+    } else if (p.curr_is_token(get_unfold_hints_bracket_tk())) {
+        p.next();
+        return get_unfold_hints_tk();
     } else {
         return name();
     }
@@ -701,7 +708,7 @@ static void parse_metaclasses(parser & p, buffer<name> & r) {
         buffer<name> tmp;
         get_metaclasses(tmp);
         tmp.push_back(get_decls_tk());
-        while (p.curr_is_token(get_lbracket_tk())) {
+        while (is_next_metaclass_tk(p)) {
             name m = parse_metaclass(p);
             tmp.erase_elem(m);
             if (m == get_declarations_tk())
@@ -709,7 +716,7 @@ static void parse_metaclasses(parser & p, buffer<name> & r) {
         }
         r.append(tmp);
     } else {
-        while (p.curr_is_token(get_lbracket_tk())) {
+        while (is_next_metaclass_tk(p)) {
             r.push_back(parse_metaclass(p));
         }
     }
@@ -837,7 +844,7 @@ environment open_export_cmd(parser & p, bool open) {
                 }
             }
         }
-        if (!p.curr_is_token(get_lbracket_tk()) && !p.curr_is_identifier())
+        if (!is_next_metaclass_tk(p) && !p.curr_is_identifier())
             break;
     }
     return update_fingerprint(env, fingerprint);

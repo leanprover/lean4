@@ -1,6 +1,6 @@
 open nat
 
-definition id [unfold-f] {A : Type} (a : A) := a
+definition id [unfold-full] {A : Type} (a : A) := a
 definition compose {A B C : Type} (g : B → C) (f : A → B) (a : A) := g (f a)
 notation g ∘ f := compose g f
 
@@ -18,7 +18,7 @@ begin
   exact H
 end
 
-attribute compose [unfold-f]
+attribute compose [unfold-full]
 
 example (a b : nat) (H : a = b) : (id ∘ id) a = b :=
 begin

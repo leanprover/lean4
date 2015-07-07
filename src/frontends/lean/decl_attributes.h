@@ -22,7 +22,7 @@ class decl_attributes {
     bool               m_is_class;
     bool               m_is_parsing_only;
     bool               m_has_multiple_instances;
-    bool               m_unfold_f_hint;
+    bool               m_unfold_full_hint;
     bool               m_constructor_hint;
     bool               m_symm;
     bool               m_trans;
@@ -32,7 +32,7 @@ class decl_attributes {
     bool               m_rewrite;
     optional<unsigned> m_recursor_major_pos;
     optional<unsigned> m_priority;
-    optional<unsigned> m_unfold_c_hint;
+    optional<unsigned> m_unfold_hint;
 
     void parse(name const & n, parser & p);
 public:

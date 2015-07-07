@@ -84,7 +84,7 @@ end
 end refl_quotient
 
 attribute refl_quotient.rclass_of [constructor]
-attribute /-refl_quotient.rec-/ refl_quotient.elim [unfold-c 8] [recursor 8]
---attribute refl_quotient.elim_type [unfold-c 9]
-attribute /-refl_quotient.rec_on-/ refl_quotient.elim_on [unfold-c 5]
---attribute refl_quotient.elim_type_on [unfold-c 6]
+attribute /-refl_quotient.rec-/ refl_quotient.elim [unfold 8] [recursor 8]
+--attribute refl_quotient.elim_type [unfold 9]
+attribute /-refl_quotient.rec_on-/ refl_quotient.elim_on [unfold 5]
+--attribute refl_quotient.elim_type_on [unfold 6]

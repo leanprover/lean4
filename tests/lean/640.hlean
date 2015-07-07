@@ -6,7 +6,7 @@ open quotient eq sum
 
   local abbreviation C := quotient R
 
-  definition f [unfold-c 2] (a : A) (x : unit) : C :=
+  definition f [unfold 2] (a : A) (x : unit) : C :=
   !class_of a
 
   inductive S : C → C → Type :=

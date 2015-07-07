@@ -24,13 +24,13 @@ namespace iso
 
   attribute is_iso [multiple-instances]
   open split_mono split_epi is_iso
-  abbreviation retraction_of [unfold-c 6] := @split_mono.retraction_of
-  abbreviation retraction_comp [unfold-c 6] := @split_mono.retraction_comp
-  abbreviation section_of [unfold-c 6] := @split_epi.section_of
-  abbreviation comp_section [unfold-c 6] := @split_epi.comp_section
-  abbreviation inverse [unfold-c 6] := @is_iso.inverse
-  abbreviation left_inverse [unfold-c 6] := @is_iso.left_inverse
-  abbreviation right_inverse [unfold-c 6] := @is_iso.right_inverse
+  abbreviation retraction_of [unfold 6] := @split_mono.retraction_of
+  abbreviation retraction_comp [unfold 6] := @split_mono.retraction_comp
+  abbreviation section_of [unfold 6] := @split_epi.section_of
+  abbreviation comp_section [unfold 6] := @split_epi.comp_section
+  abbreviation inverse [unfold 6] := @is_iso.inverse
+  abbreviation left_inverse [unfold 6] := @is_iso.left_inverse
+  abbreviation right_inverse [unfold 6] := @is_iso.right_inverse
   postfix `⁻¹` := inverse
   --a second notation for the inverse, which is not overloaded
   postfix [parsing-only] `⁻¹ʰ`:std.prec.max_plus := inverse -- input using \-1h
@@ -145,7 +145,7 @@ namespace iso
     (H1 : g ∘ f = id) (H2 : f ∘ g = id) :=
   @mk _ _ _ _ f (is_iso.mk H1 H2)
 
-  definition to_inv [unfold-c 5] (f : a ≅ b) : b ⟶ a :=
+  definition to_inv [unfold 5] (f : a ≅ b) : b ⟶ a :=
   (to_hom f)⁻¹
 
   protected definition refl [constructor] (a : ob) : a ≅ a :=
@@ -182,13 +182,13 @@ namespace iso
       apply equiv.to_is_equiv (!iso.sigma_char),
   end
 
-  definition iso_of_eq [unfold-c 5] (p : a = b) : a ≅ b :=
+  definition iso_of_eq [unfold 5] (p : a = b) : a ≅ b :=
   eq.rec_on p (iso.refl a)
 
-  definition hom_of_eq [reducible] [unfold-c 5] (p : a = b) : a ⟶ b :=
+  definition hom_of_eq [reducible] [unfold 5] (p : a = b) : a ⟶ b :=
   iso.to_hom (iso_of_eq p)
 
-  definition inv_of_eq [reducible] [unfold-c 5] (p : a = b) : b ⟶ a :=
+  definition inv_of_eq [reducible] [unfold 5] (p : a = b) : b ⟶ a :=
   iso.to_inv (iso_of_eq p)
 
   definition iso_of_eq_inv (p : a = b) : iso_of_eq p⁻¹ = iso.symm (iso_of_eq p) :=

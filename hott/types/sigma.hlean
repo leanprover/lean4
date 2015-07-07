@@ -196,7 +196,7 @@ namespace sigma
   /- Functorial action -/
   variables (f : A → A') (g : Πa, B a → B' (f a))
 
-  definition sigma_functor [unfold-c 7] (u : Σa, B a) : Σa', B' a' :=
+  definition sigma_functor [unfold 7] (u : Σa, B a) : Σa', B' a' :=
   ⟨f u.1, g u.1 u.2⟩
 
   /- Equivalences -/

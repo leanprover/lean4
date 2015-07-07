@@ -58,7 +58,7 @@ environment mk_rec_on(environment const & env, name const & n) {
                                       check(env, mk_definition(env, rec_on_name, rec_decl.get_univ_params(),
                                                                rec_on_type, rec_on_val, use_conv_opt)));
     new_env = set_reducible(new_env, rec_on_name, reducible_status::Reducible);
-    new_env = add_unfold_c_hint(new_env, rec_on_name, rec_on_major_idx);
+    new_env = add_unfold_hint(new_env, rec_on_name, rec_on_major_idx);
     return add_protected(new_env, rec_on_name);
 }
 }

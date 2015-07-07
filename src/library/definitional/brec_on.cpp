@@ -147,7 +147,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     environment new_env = module::add(env, check(env, new_d));
     new_env = set_reducible(new_env, below_name, reducible_status::Reducible);
     if (!ibelow)
-        new_env = add_unfold_c_hint(new_env, below_name, nparams + nindices + ntypeformers);
+        new_env = add_unfold_hint(new_env, below_name, nparams + nindices + ntypeformers);
     return add_protected(new_env, below_name);
 }
 
@@ -333,7 +333,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     environment new_env = module::add(env, check(env, new_d));
     new_env = set_reducible(new_env, brec_on_name, reducible_status::Reducible);
     if (!ind)
-        new_env = add_unfold_c_hint(new_env, brec_on_name, nparams + nindices + ntypeformers);
+        new_env = add_unfold_hint(new_env, brec_on_name, nparams + nindices + ntypeformers);
     return add_protected(new_env, brec_on_name);
 }
 

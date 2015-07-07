@@ -282,7 +282,7 @@ definition unfolds (g : A → B) (f : A → A) (a : A) : stream B :=
 corec g f a
 
 theorem unfolds_eq (g : A → B) (f : A → A) (a : A) : unfolds g f a = g a :: unfolds g f (f a) :=
-by esimp [unfolds]; rewrite [corec_eq]
+by esimp [ unfolds ]; rewrite [corec_eq]
 
 theorem nth_unfolds_head_tail : ∀ (n : nat) (s : stream A), nth n (unfolds head tail s) = nth n s :=
 begin

@@ -81,7 +81,7 @@ end
 end red_susp
 
 attribute red_susp.base [constructor]
-attribute /-red_susp.rec-/ red_susp.elim [unfold-c 6] [recursor 6]
---attribute red_susp.elim_type [unfold-c 9]
-attribute /-red_susp.rec_on-/ red_susp.elim_on [unfold-c 3]
---attribute red_susp.elim_type_on [unfold-c 6]
+attribute /-red_susp.rec-/ red_susp.elim [unfold 6] [recursor 6]
+--attribute red_susp.elim_type [unfold 9]
+attribute /-red_susp.rec_on-/ red_susp.elim_on [unfold 3]
+--attribute red_susp.elim_type_on [unfold 6]

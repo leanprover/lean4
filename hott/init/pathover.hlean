@@ -32,10 +32,10 @@ namespace eq
   definition pathover_of_eq_tr (r : b = p⁻¹ ▸ b₂) : b =[p] b₂ :=
   by cases p; cases r; exact idpo
 
-  definition tr_eq_of_pathover [unfold-c 8] (r : b =[p] b₂) : p ▸ b = b₂ :=
+  definition tr_eq_of_pathover [unfold 8] (r : b =[p] b₂) : p ▸ b = b₂ :=
   by cases r; exact idp
 
-  definition eq_tr_of_pathover [unfold-c 8] (r : b =[p] b₂) : b = p⁻¹ ▸ b₂ :=
+  definition eq_tr_of_pathover [unfold 8] (r : b =[p] b₂) : b = p⁻¹ ▸ b₂ :=
   by cases r; exact idp
 
   definition pathover_equiv_tr_eq [constructor] (p : a = a₂) (b : B a) (b₂ : B a₂)
@@ -58,28 +58,28 @@ namespace eq
     { intro r, cases r, apply idp},
   end
 
-  definition pathover_tr [unfold-c 5] (p : a = a₂) (b : B a) : b =[p] p ▸ b :=
+  definition pathover_tr [unfold 5] (p : a = a₂) (b : B a) : b =[p] p ▸ b :=
   by cases p;exact idpo
 
-  definition tr_pathover [unfold-c 5] (p : a = a₂) (b : B a₂) : p⁻¹ ▸ b =[p] b :=
+  definition tr_pathover [unfold 5] (p : a = a₂) (b : B a₂) : p⁻¹ ▸ b =[p] b :=
   pathover_of_eq_tr idp
 
-  definition concato [unfold-c 12] (r : b =[p] b₂) (r₂ : b₂ =[p₂] b₃) : b =[p ⬝ p₂] b₃ :=
+  definition concato [unfold 12] (r : b =[p] b₂) (r₂ : b₂ =[p₂] b₃) : b =[p ⬝ p₂] b₃ :=
   pathover.rec_on r₂ r
 
-  definition inverseo [unfold-c 8] (r : b =[p] b₂) : b₂ =[p⁻¹] b :=
+  definition inverseo [unfold 8] (r : b =[p] b₂) : b₂ =[p⁻¹] b :=
   pathover.rec_on r idpo
 
-  definition apdo [unfold-c 6] (f : Πa, B a) (p : a = a₂) : f a =[p] f a₂ :=
+  definition apdo [unfold 6] (f : Πa, B a) (p : a = a₂) : f a =[p] f a₂ :=
   eq.rec_on p idpo
 
-  definition oap [unfold-c 6] {C : A → Type} (f : Πa, B a → C a) (p : a = a₂) : f a =[p] f a₂ :=
+  definition oap [unfold 6] {C : A → Type} (f : Πa, B a → C a) (p : a = a₂) : f a =[p] f a₂ :=
   eq.rec_on p idpo
 
-  definition concato_eq [unfold-c 10] (r : b =[p] b₂) (q : b₂ = b₂') : b =[p] b₂' :=
+  definition concato_eq [unfold 10] (r : b =[p] b₂) (q : b₂ = b₂') : b =[p] b₂' :=
   eq.rec_on q r
 
-  definition eq_concato [unfold-c 9] (q : b = b') (r : b' =[p] b₂) : b =[p] b₂ :=
+  definition eq_concato [unfold 9] (q : b = b') (r : b' =[p] b₂) : b =[p] b₂ :=
   by induction q;exact r
 
   -- infix `⬝` := concato
@@ -126,11 +126,11 @@ namespace eq
     { intro r, cases r, exact idp},
   end
 
-  definition eq_of_pathover_idp [unfold-c 6] {b' : B a} (q : b =[idpath a] b') : b = b' :=
+  definition eq_of_pathover_idp [unfold 6] {b' : B a} (q : b =[idpath a] b') : b = b' :=
   tr_eq_of_pathover q
 
   --should B be explicit in the next two definitions?
-  definition pathover_idp_of_eq [unfold-c 6] {b' : B a} (q : b = b') : b =[idpath a] b' :=
+  definition pathover_idp_of_eq [unfold 6] {b' : B a} (q : b = b') : b =[idpath a] b' :=
   eq.rec_on q idpo
 
   definition pathover_idp [constructor] (b : B a) (b' : B a) : b =[idpath a] b' ≃ b = b' :=
@@ -164,7 +164,7 @@ namespace eq
   by cases r; exact H
 
   --pathover with fibration B' ∘ f
-  definition pathover_ap [unfold-c 10] (B' : A' → Type) (f : A → A') {p : a = a₂}
+  definition pathover_ap [unfold 10] (B' : A' → Type) (f : A → A') {p : a = a₂}
     {b : B' (f a)} {b₂ : B' (f a₂)} (q : b =[p] b₂) : b =[ap f p] b₂ :=
   by cases q; exact idpo
 

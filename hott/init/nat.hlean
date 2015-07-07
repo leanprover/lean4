@@ -26,7 +26,7 @@ namespace nat
   infix `≥` := ge
   infix `>` := gt
 
-  definition pred [unfold-c 1] (a : nat) : nat :=
+  definition pred [unfold 1] (a : nat) : nat :=
   nat.cases_on a zero (λ a₁, a₁)
 
   -- add is defined in init.num
@@ -73,16 +73,16 @@ namespace nat
 
   definition le_of_lt {n m : ℕ} (H : n < m) : n ≤ m := le_of_succ_le H
 
-  definition succ_le_succ [unfold-c 3] {n m : ℕ} (H : n ≤ m) : succ n ≤ succ m :=
+  definition succ_le_succ [unfold 3] {n m : ℕ} (H : n ≤ m) : succ n ≤ succ m :=
   by induction H;reflexivity;exact le.step v_0
 
-  definition pred_le_pred [unfold-c 3] {n m : ℕ} (H : n ≤ m) : pred n ≤ pred m :=
+  definition pred_le_pred [unfold 3] {n m : ℕ} (H : n ≤ m) : pred n ≤ pred m :=
   by induction H;reflexivity;cases b;exact v_0;exact le.step v_0
 
-  definition le_of_succ_le_succ [unfold-c 3] {n m : ℕ} (H : succ n ≤ succ m) : n ≤ m :=
+  definition le_of_succ_le_succ [unfold 3] {n m : ℕ} (H : succ n ≤ succ m) : n ≤ m :=
   pred_le_pred H
 
-  definition le_succ_of_pred_le [unfold-c 1] {n m : ℕ} (H : pred n ≤ m) : n ≤ succ m :=
+  definition le_succ_of_pred_le [unfold 1] {n m : ℕ} (H : pred n ≤ m) : n ≤ succ m :=
   by cases n;exact le.step H;exact succ_le_succ H
 
   definition not_succ_le_self {n : ℕ} : ¬succ n ≤ n :=

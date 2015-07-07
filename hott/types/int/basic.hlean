@@ -797,7 +797,7 @@ definition pred_nat_succ (n : ℕ) : pred (nat.succ n) = n := pred_succ n
 definition neg_nat_succ (n : ℕ) : -nat.succ n = pred (-n) := !neg_succ
 definition succ_neg_nat_succ (n : ℕ) : succ (-nat.succ n) = -n := !succ_neg_succ
 
-definition rec_nat_on [unfold-c 2] {P : ℤ → Type} (z : ℤ) (H0 : P 0)
+definition rec_nat_on [unfold 2] {P : ℤ → Type} (z : ℤ) (H0 : P 0)
   (Hsucc : Π⦃n : ℕ⦄, P n → P (succ n)) (Hpred : Π⦃n : ℕ⦄, P (-n) → P (-nat.succ n)) : P z :=
 begin
   induction z with n n,

@@ -1,0 +1,8 @@
+_ `~~~`:50 _:50 := eq #1 #0
+_ `~~~`:50 _:50 := eq #1 #0
+712.lean:15:11: error: invalid notation declaration, invalid ':' occurrence (declaration matches reserved notation)
+_ `~~~`:100 _:100 := eq #1 #0
+`[`:1024 _:1 `][`:10 _:20 `]`:0 := eq #1 #0
+712.lean:24:24: error: invalid notation declaration, invalid ':' occurrence (declaration prefix matches reserved notation)
+_ `~~~`:50 _:50 := eq #1 #0
+`[`:1024 _:1 `][`:1 _:10 `]`:0 := eq #1 #0

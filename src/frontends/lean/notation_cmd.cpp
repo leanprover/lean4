@@ -145,7 +145,9 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
     }
 
     if (p.curr_is_token(get_colon_tk())) {
-        if (reserved_pt)
+        // Remark: we do not throw an exception, if it is local notation.
+        // We allow local notation to override reserved one.
+        if (!g_allow_local && reserved_pt)
             throw parser_error("invalid notation declaration, invalid ':' occurrence "
                                "(declaration matches reserved notation)", p.pos());
         p.next();
@@ -182,7 +184,7 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
                            "solution: use the 'precedence' command", p.pos());
     }
 
-    if (reserved_action) {
+    if (!g_allow_local && reserved_action) {
         switch (k) {
         case mixfix_kind::infixl:
             if (reserved_action->kind() != notation::action_kind::Expr || reserved_action->rbp() != *prec)
@@ -439,6 +441,35 @@ static unsigned parse_binders_rbp(parser & p) {
     }
 }
 
+static transition parse_transition(parser & p, optional<parse_table> const & pt, name const & tk,
+                                   buffer<expr> & locals, buffer<token_entry> & new_tokens, notation_entry_group grp) {
+    if (p.curr_is_token_or_id(get_binder_tk())) {
+        p.next();
+        unsigned rbp = parse_binders_rbp(p);
+        return transition(tk, mk_binder_action(rbp));
+    } else if (p.curr_is_token_or_id(get_binders_tk())) {
+        p.next();
+        unsigned rbp = parse_binders_rbp(p);
+        return transition(tk, mk_binders_action(rbp));
+    } else if (p.curr_is_identifier()) {
+        unsigned default_prec = get_default_prec(pt, tk);
+        name n   = p.get_name_val();
+        p.next();
+        action a = parse_action(p, tk, default_prec, locals, new_tokens, grp);
+        expr local_type = mk_Prop(); // type used in notation local declarations, it is irrelevant
+        expr l = mk_local(n, local_type);
+        p.add_local(l);
+        locals.push_back(l);
+        return transition(tk, a);
+    } else if (p.curr_is_quoted_symbol() || p.curr_is_keyword() ||
+               p.curr_is_token(get_assign_tk()) || p.curr_is_command() || p.curr_is_eof()) {
+        return transition(tk, mk_skip_action());
+    } else {
+        throw parser_error("invalid notation declaration, quoted-symbol, identifier, "
+                           "'binder', 'binders' expected", p.pos());
+    }
+}
+
 static notation_entry parse_notation_core(parser & p, bool overload, notation_entry_group grp, buffer<token_entry> & new_tokens, bool parse_only,
                                           unsigned priority) {
     buffer<expr>       locals;
@@ -477,6 +508,10 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
             switch (a.kind()) {
             case notation::action_kind::Skip:
                 if (!p.curr_is_quoted_symbol() && !p.curr_is_keyword() && !p.curr_is_token(get_assign_tk())) {
+                    if (g_allow_local && !p.curr_is_token_or_id(get_binders_tk())) {
+                        ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp));
+                        break;
+                    }
                     p.check_token_or_id_next(get_binders_tk(),
                                              "invalid notation declaration, quoted-symbol, keyword or `:=` expected "
                                              "(declaration prefix matches reserved notation)");
@@ -484,12 +519,20 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
                 ts.push_back(transition(tk, a));
                 break;
             case notation::action_kind::Binder:
-                p.check_token_or_id_next(get_binders_tk(),
+                if (g_allow_local && !p.curr_is_token_or_id(get_binder_tk())) {
+                    ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp));
+                    break;
+                }
+                p.check_token_or_id_next(get_binder_tk(),
                                          "invalid notation declaration, 'binder' expected "
                                          "(declaration prefix matches reserved notation)");
                 ts.push_back(transition(tk, a));
                 break;
             case notation::action_kind::Binders:
+                if (g_allow_local && !p.curr_is_token_or_id(get_binders_tk())) {
+                    ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp));
+                    break;
+                }
                 p.check_token_or_id_next(get_binders_tk(),
                                          "invalid notation declaration, 'binders' expected "
                                          "(declaration prefix matches reserved notation)");
@@ -497,45 +540,38 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
                 break;
             case notation::action_kind::Expr: case notation::action_kind::Exprs: case notation::action_kind::ScopedExpr:
             case notation::action_kind::Ext:  case notation::action_kind::LuaExt: {
+                if (g_allow_local && !p.curr_is_identifier()) {
+                    ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp));
+                    break;
+                }
                 name n = p.check_id_next("invalid notation declaration, identifier expected "
                                          "(declaration prefix matches reserved notation)");
-                expr local_type = mk_Prop(); // type used in notation local declarations, it is irrelevant
-                expr l = mk_local(n, local_type);
-                p.add_local(l);
-                locals.push_back(l);
-                ts.push_back(transition(tk, a));
-                break;
+                if (p.curr_is_token(get_colon_tk())) {
+                    if (g_allow_local) {
+                        unsigned default_prec = get_default_prec(pt, tk);
+                        action a = parse_action(p, tk, default_prec, locals, new_tokens, grp);
+                        expr local_type = mk_Prop(); // type used in notation local declarations, it is irrelevant
+                        expr l = mk_local(n, local_type);
+                        p.add_local(l);
+                        locals.push_back(l);
+                        ts.push_back(transition(tk, a));
+                        break;
+                    } else {
+                        throw parser_error("invalid notation declaration, invalid ':' occurrence "
+                                           "(declaration prefix matches reserved notation)", p.pos());
+                    }
+                } else {
+                    expr local_type = mk_Prop(); // type used in notation local declarations, it is irrelevant
+                    expr l = mk_local(n, local_type);
+                    p.add_local(l);
+                    locals.push_back(l);
+                    ts.push_back(transition(tk, a));
+                    break;
+                }
             }}
-            if (p.curr_is_token(get_colon_tk()))
-                throw parser_error("invalid notation declaration, invalid ':' occurrence "
-                                   "(declaration prefix matches reserved notation)", p.pos());
         } else {
             reserved_pt = optional<parse_table>();
-            if (p.curr_is_token_or_id(get_binder_tk())) {
-                p.next();
-                unsigned rbp = parse_binders_rbp(p);
-                ts.push_back(transition(tk, mk_binder_action(rbp)));
-            } else if (p.curr_is_token_or_id(get_binders_tk())) {
-                p.next();
-                unsigned rbp = parse_binders_rbp(p);
-                ts.push_back(transition(tk, mk_binders_action(rbp)));
-            } else if (p.curr_is_identifier()) {
-                unsigned default_prec = get_default_prec(pt, tk);
-                name n   = p.get_name_val();
-                p.next();
-                action a = parse_action(p, tk, default_prec, locals, new_tokens, grp);
-                expr local_type = mk_Prop(); // type used in notation local declarations, it is irrelevant
-                expr l = mk_local(n, local_type);
-                p.add_local(l);
-                locals.push_back(l);
-                ts.push_back(transition(tk, a));
-            } else if (p.curr_is_quoted_symbol() || p.curr_is_keyword() ||
-                       p.curr_is_token(get_assign_tk()) || p.curr_is_command() || p.curr_is_eof()) {
-                ts.push_back(transition(tk, mk_skip_action()));
-            } else {
-                throw parser_error("invalid notation declaration, quoted-symbol, identifier, "
-                                   "'binder', 'binders' expected", p.pos());
-            }
+            ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp));
         }
         pt = find_match(pt, ts.back());
     }

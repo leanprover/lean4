@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Jeremy Avigad
 
 The power function on the natural numbers.
 -/
-import data.nat.basic data.nat.order data.nat.div data.nat.gcd algebra.group_power
+import data.nat.basic data.nat.order data.nat.div data.nat.gcd algebra.ring_power
 
 namespace nat
 
@@ -17,13 +17,32 @@ section migrate_algebra
   definition pow (a : ℕ) (n : ℕ) : ℕ := algebra.pow a n
   infix ^ := pow
 
+  theorem pow_le_pow_of_le {x y : ℕ} (i : ℕ) (H : x ≤ y) : x^i ≤ y^i :=
+  algebra.pow_le_pow_of_le i !zero_le H
+
   migrate from algebra with nat
     replacing dvd → dvd, has_le.ge → ge, has_lt.gt → gt, pow → pow
     hiding add_pos_of_pos_of_nonneg,  add_pos_of_nonneg_of_pos,
       add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg, le_add_of_nonneg_of_le,
       le_add_of_le_of_nonneg, lt_add_of_nonneg_of_lt, lt_add_of_lt_of_nonneg,
-      lt_of_mul_lt_mul_left, lt_of_mul_lt_mul_right, pos_of_mul_pos_left, pos_of_mul_pos_right
+      lt_of_mul_lt_mul_left, lt_of_mul_lt_mul_right, pos_of_mul_pos_left, pos_of_mul_pos_right,
+      pow_nonneg_of_nonneg
 end migrate_algebra
+
+-- generalize to semirings?
+theorem le_pow_self {x : ℕ} (H : x > 1) : ∀ i, i ≤ x^i
+| 0        := !zero_le
+| (succ j) := have xpos : x > 0, from lt.trans zero_lt_one H,
+              have xjge1 : x^j ≥ 1, from succ_le_of_lt (pow_pos_of_pos _ xpos),
+              have xge2 : x ≥ 2, from succ_le_of_lt H,
+              calc
+                succ j = j + 1         : rfl
+                   ... ≤ x^j + 1       : add_le_add_right (le_pow_self j)
+                   ... ≤ x^j + x^j     : add_le_add_left xjge1
+                   ... = x^j * (1 + 1) : by rewrite [mul.left_distrib, *mul_one]
+                   ... = x^j * 2       : rfl
+                   ... ≤ x^j * x       : mul_le_mul_left _ xge2
+                   ... = x^(succ j)    : rfl
 
 -- TODO: eventually this will be subsumed under the algebraic theorems
 

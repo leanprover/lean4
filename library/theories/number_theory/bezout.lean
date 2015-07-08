@@ -73,11 +73,15 @@ end
 
 end Bezout
 
+/-
+A sample application of Bezout's theorem, namely, an alternative proof that irreducible
+implies prime (dvd_or_dvd_of_prime_of_dvd_mul).
+-/
+
 namespace nat
 open int
 
-theorem dvd_or_dvd_of_dvd_mul_of_prime {p x y : ℕ} (pp : prime p) (H : p ∣ x * y) :
-  p ∣ x ∨ p ∣ y :=
+example {p x y : ℕ} (pp : prime p) (H : p ∣ x * y) : p ∣ x ∨ p ∣ y :=
 decidable.by_cases
   (assume Hpx : p ∣ x, or.inl Hpx)
   (assume Hnpx : ¬ p ∣ x,

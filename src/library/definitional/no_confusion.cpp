@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/reducible.h"
 #include "library/constants.h"
+#include "library/normalize.h"
 
 namespace lean {
 static void throw_corrupted(name const & n) {
@@ -201,6 +202,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     no_confusion_type_args.push_back(P);
     no_confusion_type_args.push_back(v1);
     no_confusion_type_args.push_back(v1);
+    unsigned unfold_hint_idx = no_confusion_type_args.size();
     expr no_confusion_type_app = mk_app(mk_constant(no_confusion_type_decl.get_name(), ls), no_confusion_type_args);
     expr type_former = Fun(type_former_args, no_confusion_type_app);
     // create cases_on
@@ -273,6 +275,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
                                       use_conv_opt);
     new_env = module::add(new_env, check(new_env, new_d));
     new_env = set_reducible(new_env, no_confusion_name, reducible_status::Reducible);
+    new_env = add_unfold_hint(new_env, no_confusion_name, unfold_hint_idx);
     return add_protected(new_env, no_confusion_name);
 }
 }

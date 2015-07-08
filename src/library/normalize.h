@@ -41,6 +41,9 @@ expr normalize(type_checker & tc, expr const & e, std::function<bool(expr const&
     Of course, kernel opaque constants are not unfolded.
 */
 environment add_unfold_hint(environment const & env, name const & n, list<unsigned> const & idxs, bool persistent = true);
+inline environment add_unfold_hint(environment const & env, name const & n, unsigned idx, bool persistent = true) {
+    return add_unfold_hint(env, n, to_list(idx), persistent);
+}
 environment erase_unfold_hint(environment const & env, name const & n, bool persistent = true);
 /** \brief Retrieve the hint added with the procedure add_unfold_hint. */
 list<unsigned> has_unfold_hint(environment const & env, name const & d);

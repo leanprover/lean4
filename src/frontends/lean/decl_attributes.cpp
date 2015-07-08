@@ -112,11 +112,17 @@ void decl_attributes::parse(buffer<name> const & ns, parser & p) {
             m_constructor_hint = true;
         } else if (p.curr_is_token(get_unfold_tk())) {
             p.next();
-            unsigned r = p.parse_small_nat();
-            if (r == 0)
-                throw parser_error("invalid '[unfold]' attribute, value must be greater than 0", pos);
-            m_unfold_hint = r - 1;
-            p.check_token_next(get_rbracket_tk(), "invalid 'unfold', ']' expected");
+            buffer<unsigned> idxs;
+            while (true) {
+                unsigned r = p.parse_small_nat();
+                if (r == 0)
+                    throw parser_error("invalid '[unfold]' attribute, value must be greater than 0", pos);
+                idxs.push_back(r-1);
+                if (p.curr_is_token(get_rbracket_tk()))
+                    break;
+            }
+            p.next();
+            m_unfold_hint = to_list(idxs);
         } else if (p.curr_is_token(get_symm_tk())) {
             p.next();
             m_symm = true;
@@ -193,7 +199,7 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
         if (m_is_quasireducible)
             env = set_reducible(env, d, reducible_status::Quasireducible, m_persistent);
         if (m_unfold_hint)
-            env = add_unfold_hint(env, d, *m_unfold_hint, m_persistent);
+            env = add_unfold_hint(env, d, m_unfold_hint, m_persistent);
         if (m_unfold_full_hint)
             env = add_unfold_full_hint(env, d, m_persistent);
     }
@@ -223,7 +229,8 @@ void decl_attributes::write(serializer & s) const {
       << m_is_reducible << m_is_irreducible << m_is_semireducible << m_is_quasireducible
       << m_is_class << m_is_parsing_only << m_has_multiple_instances << m_unfold_full_hint
       << m_constructor_hint << m_symm << m_trans << m_refl << m_subst << m_recursor
-      << m_rewrite << m_recursor_major_pos << m_priority << m_unfold_hint;
+      << m_rewrite << m_recursor_major_pos << m_priority;
+    write_list(s, m_unfold_hint);
 }
 
 void decl_attributes::read(deserializer & d) {
@@ -231,6 +238,7 @@ void decl_attributes::read(deserializer & d) {
       >> m_is_reducible >> m_is_irreducible >> m_is_semireducible >> m_is_quasireducible
       >> m_is_class >> m_is_parsing_only >> m_has_multiple_instances >> m_unfold_full_hint
       >> m_constructor_hint >> m_symm >> m_trans >> m_refl >> m_subst >> m_recursor
-      >> m_rewrite >> m_recursor_major_pos >> m_priority >> m_unfold_hint;
+      >> m_rewrite >> m_recursor_major_pos >> m_priority;
+    m_unfold_hint = read_list<unsigned>(d);
 }
 }

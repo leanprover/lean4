@@ -40,10 +40,10 @@ expr normalize(type_checker & tc, expr const & e, std::function<bool(expr const&
 
     Of course, kernel opaque constants are not unfolded.
 */
-environment add_unfold_hint(environment const & env, name const & n, unsigned idx, bool persistent = true);
+environment add_unfold_hint(environment const & env, name const & n, list<unsigned> const & idxs, bool persistent = true);
 environment erase_unfold_hint(environment const & env, name const & n, bool persistent = true);
 /** \brief Retrieve the hint added with the procedure add_unfold_hint. */
-optional<unsigned> has_unfold_hint(environment const & env, name const & d);
+list<unsigned> has_unfold_hint(environment const & env, name const & d);
 
 /** \brief [unfold-full] hint instructs normalizer (and simplifier) that function application
     (f a_1 ... a_n) should be unfolded when it is fully applied */

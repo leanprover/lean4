@@ -184,14 +184,17 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
                            "solution: use the 'precedence' command", p.pos());
     }
 
+    unsigned _prec = 0;
+    if (prec) _prec = *prec; // this is a hack to fix an incorrect warning produced by clang++ on OSX
+
     if (!g_allow_local && reserved_action) {
         switch (k) {
         case mixfix_kind::infixl:
-            if (reserved_action->kind() != notation::action_kind::Expr || reserved_action->rbp() != *prec)
+            if (reserved_action->kind() != notation::action_kind::Expr || reserved_action->rbp() != _prec)
                 throw parser_error("invalid infixl declaration, declaration conflicts with reserved notation", p.pos());
             break;
         case mixfix_kind::infixr:
-            if (reserved_action->kind() != notation::action_kind::Expr || reserved_action->rbp() != *prec)
+            if (reserved_action->kind() != notation::action_kind::Expr || reserved_action->rbp() != _prec)
                 throw parser_error("invalid infixr declaration, declaration conflicts with reserved notation", p.pos());
             break;
         case mixfix_kind::postfix:
@@ -199,7 +202,7 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
                 throw parser_error("invalid postfix declaration, declaration conflicts with reserved notation", p.pos());
             break;
         case mixfix_kind::prefix:
-            if (reserved_action->kind() != notation::action_kind::Expr || reserved_action->rbp() != *prec)
+            if (reserved_action->kind() != notation::action_kind::Expr || reserved_action->rbp() != _prec)
                 throw parser_error("invalid prefix declaration, declaration conflicts with reserved notation", p.pos());
             break;
         }

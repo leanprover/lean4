@@ -165,7 +165,7 @@ section migrate_algebra
     add_lt_add_left            := @add_lt_add_left,
     add_le_add_left            := @add_le_add_left,
     le_of_add_le_add_left      := @le_of_add_le_add_left,
-    zero_ne_one                := ne.symm (succ_ne_zero zero),
+    zero_lt_one                := zero_lt_succ 0,
     mul_le_mul_of_nonneg_left  := (take a b c H1 H2, mul_le_mul_left c H1),
     mul_le_mul_of_nonneg_right := (take a b c H1 H2, mul_le_mul_right c H1),
     mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left,
@@ -223,7 +223,6 @@ section migrate_algebra
 end migrate_algebra
 
 theorem zero_le_one : 0 ≤ 1 := dec_trivial
-theorem zero_lt_one : 0 < 1 := dec_trivial
 
 /- properties specific to nat -/
 

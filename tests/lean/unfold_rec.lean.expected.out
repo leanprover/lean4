@@ -1,0 +1,20 @@
+unfold_rec.lean:11:2: proof state
+n m : ℕ
+⊢ succ (succ n + m) = succ (succ (n + m))
+unfold_rec.lean:24:2: proof state
+n m : ℕ
+⊢ succ (n + succ m) = succ (succ (n + m))
+unfold_rec.lean:39:2: proof state
+fibgt0 : ∀ (b n c : ℕ), fib ℕ b n c > 0,
+b m c : ℕ
+⊢ fib ℕ b m c + fib ℕ b (succ m) c > 0
+unfold_rec.lean:48:2: proof state
+A : Type,
+B : Type,
+unzip_zip : ∀ {n : ℕ} (v₁ : vector A n) (v₂ : vector B n), unzip (zip v₁ v₂) = (v₁, v₂),
+m : ℕ,
+a : A,
+va : vector A m,
+b : B,
+vb : vector B m
+⊢ (a :: prod.pr1 (unzip (zip va vb)), b :: prod.pr2 (unzip (zip va vb))) = (a :: va, b :: vb)

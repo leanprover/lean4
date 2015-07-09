@@ -251,13 +251,15 @@ coinduction
   rfl
   (λ B fr ch, by rewrite [tail_iterate, tail_const]; exact ch)
 
+
+local attribute stream [reducible]
 theorem map_iterate (f : A → A) (a : A) : iterate f (f a) = map f (iterate f a) :=
 begin
   apply funext, intro n,
   induction n with n' IH,
     {reflexivity},
-    {esimp [map, iterate, nth] at *,
-     rewrite IH}
+    { esimp [map, iterate, nth] at *,
+      rewrite IH }
 end
 
 section corec

@@ -725,10 +725,11 @@ theorem not_lt_self (s : seq) : ¬ s_lt s s :=
     intro Hlt,
     rewrite [↑s_lt at Hlt, ↑pos at Hlt],
     apply exists.elim Hlt,
-    intro n Hn,
-    rewrite [↑sadd at Hn, ↑sneg at Hn, sub_self at Hn],
+    intro n Hn, esimp at Hn,
+    rewrite [↑sadd at Hn,↑sneg at Hn, sub_self at Hn],
     apply absurd Hn (rat.not_lt_of_ge (rat.le_of_lt !inv_pos))
   end
+
 
 theorem not_sep_self (s : seq) : ¬ s ≢ s :=
   begin

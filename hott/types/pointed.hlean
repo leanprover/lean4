@@ -206,9 +206,7 @@ namespace pointed
   begin
   revert A B f, induction n with n IH,
   { intros A B f, exact f},
-  { intros A B f, rewrite [↑Iterated_loop_space,↓Iterated_loop_space n (Ω A),
-      ↑Iterated_loop_space, ↓Iterated_loop_space n (Ω B)],
-    apply IH (Ω A),
+  { intros A B f, esimp [Iterated_loop_space], apply IH (Ω A),
     { esimp, fconstructor,
         intro q, refine !respect_pt⁻¹ ⬝ ap f q ⬝ !respect_pt,
         esimp, apply con.left_inv}}

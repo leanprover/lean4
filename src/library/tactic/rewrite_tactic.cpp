@@ -38,7 +38,7 @@ Author: Leonardo de Moura
 #include "library/tactic/rewrite_tactic.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/relation_tactics.h"
-
+#include "library/tactic/unfold_rec.h"
 // #define TRACE_MATCH_PLUGIN
 
 #ifndef LEAN_DEFAULT_REWRITER_MAX_ITERATIONS
@@ -56,7 +56,6 @@ Author: Leonardo de Moura
 #ifndef LEAN_DEFAULT_REWRITER_BETA_ETA
 #define LEAN_DEFAULT_REWRITER_BETA_ETA true
 #endif
-
 
 namespace lean {
 static name * g_rewriter_max_iterations = nullptr;
@@ -82,24 +81,27 @@ bool get_rewriter_beta_eta(options const & opts) {
 
 class unfold_info {
     list<name> m_names;
+    bool       m_force_unfold;
     location   m_location;
 public:
     unfold_info() {}
-    unfold_info(list<name> const & l, location const & loc):m_names(l), m_location(loc) {}
+    unfold_info(list<name> const & l, bool force_unfold, location const & loc):
+        m_names(l), m_force_unfold(force_unfold), m_location(loc) {}
     list<name> const & get_names() const { return m_names; }
     location const & get_location() const { return m_location; }
+    bool force_unfold() const { return m_force_unfold; }
     friend serializer & operator<<(serializer & s, unfold_info const & e) {
         write_list<name>(s, e.m_names);
-        s << e.m_location;
+        s << e.m_force_unfold << e.m_location;
         return s;
     }
     friend deserializer & operator>>(deserializer & d, unfold_info & e) {
         e.m_names = read_list<name>(d);
-        d >> e.m_location;
+        d >> e.m_force_unfold >> e.m_location;
         return d;
     }
 
-    bool operator==(unfold_info const & i) const { return m_names == i.m_names && m_location == i.m_location; }
+    bool operator==(unfold_info const & i) const { return m_names == i.m_names && m_location == i.m_location && m_force_unfold == i.m_force_unfold; }
     bool operator!=(unfold_info const & i) const { return !operator==(i); }
 };
 
@@ -308,8 +310,8 @@ public:
     }
 };
 
-expr mk_rewrite_unfold(list<name> const & ns, location const & loc) {
-    macro_definition def(new rewrite_unfold_macro_cell(unfold_info(ns, loc)));
+expr mk_rewrite_unfold(list<name> const & ns, bool force_unfold, location const & loc) {
+    macro_definition def(new rewrite_unfold_macro_cell(unfold_info(ns, force_unfold, loc)));
     return mk_macro(def);
 }
 
@@ -626,16 +628,30 @@ class rewrite_fn {
         }
     };
 
-    optional<expr> reduce(expr const & e, list<name> const & to_unfold) {
-        bool unfolded          = !to_unfold;
-        type_checker_ptr tc(new type_checker(m_env, m_ngen.mk_child(),
-                            std::unique_ptr<converter>(new rewriter_converter(m_env, to_unfold, unfolded))));
+    optional<expr> reduce(expr const & e, list<name> const & to_unfold, bool force_unfold) {
         constraint_seq cs;
-        bool use_eta = true;
-        expr r = normalize(*tc, e, cs, use_eta);
-        if (!unfolded || cs) // FAIL if didn't unfolded or generated constraints
-            return none_expr();
-        return some_expr(r);
+        bool unfolded = !to_unfold;
+        bool use_eta  = true;
+        // TODO(Leo): should we add add an option that will not try to fold recursive applications
+        if (to_unfold) {
+            auto new_e = unfold_rec(m_env, m_ngen.mk_child(), force_unfold, e, to_unfold);
+            if (!new_e)
+                return none_expr();
+            type_checker_ptr tc(new type_checker(m_env, m_ngen.mk_child(),
+                                                 std::unique_ptr<converter>(new rewriter_converter(m_env, list<name>(), unfolded))));
+            expr r = normalize(*tc, *new_e, cs, use_eta);
+            if (cs) // FAIL if generated constraints
+                return none_expr();
+            return some_expr(r);
+        } else {
+            type_checker_ptr tc(new type_checker(m_env, m_ngen.mk_child(),
+                                                 std::unique_ptr<converter>(new rewriter_converter(m_env, to_unfold, unfolded))));
+
+            expr r = normalize(*tc, e, cs, use_eta);
+            if (!unfolded || cs) // FAIL if didn't unfolded or generated constraints
+                return none_expr();
+            return some_expr(r);
+        }
     }
 
     // Replace goal with definitionally equal one
@@ -646,8 +662,8 @@ class rewrite_fn {
         update_goal(new_g);
     }
 
-    bool process_reduce_goal(list<name> const & to_unfold) {
-        if (auto new_type = reduce(m_g.get_type(), to_unfold)) {
+    bool process_reduce_goal(list<name> const & to_unfold, bool force_unfold) {
+        if (auto new_type = reduce(m_g.get_type(), to_unfold, force_unfold)) {
             replace_goal(*new_type);
             return true;
         } else {
@@ -683,9 +699,9 @@ class rewrite_fn {
         update_goal(new_g);
     }
 
-    bool process_reduce_hypothesis(name const & hyp_internal_name, list<name> const & to_unfold) {
+    bool process_reduce_hypothesis(name const & hyp_internal_name, list<name> const & to_unfold, bool force_unfold) {
         expr hyp = m_g.find_hyp_from_internal_name(hyp_internal_name)->first;
-        if (auto new_hyp_type = reduce(mlocal_type(hyp), to_unfold)) {
+        if (auto new_hyp_type = reduce(mlocal_type(hyp), to_unfold, force_unfold)) {
             replace_hypothesis(hyp, *new_hyp_type);
             return true;
         } else {
@@ -693,20 +709,20 @@ class rewrite_fn {
         }
     }
 
-    bool process_reduce_step(list<name> const & to_unfold, location const & loc) {
+    bool process_reduce_step(list<name> const & to_unfold, bool force_unfold, location const & loc) {
         if (loc.is_goal_only())
-            return process_reduce_goal(to_unfold);
+            return process_reduce_goal(to_unfold, force_unfold);
         bool progress = false;
         buffer<expr> hyps;
         m_g.get_hyps(hyps);
         for (expr const & h : hyps) {
             if (!loc.includes_hypothesis(local_pp_name(h)))
                 continue;
-            if (process_reduce_hypothesis(mlocal_name(h), to_unfold))
+            if (process_reduce_hypothesis(mlocal_name(h), to_unfold, force_unfold))
                 progress = true;
         }
         if (loc.includes_goal()) {
-            if (process_reduce_goal(to_unfold))
+            if (process_reduce_goal(to_unfold, force_unfold))
                 progress = true;
         }
         return progress;
@@ -715,7 +731,7 @@ class rewrite_fn {
     bool process_unfold_step(expr const & elem) {
         lean_assert(is_rewrite_unfold_step(elem));
         auto info = get_rewrite_unfold_info(elem);
-        return process_reduce_step(info.get_names(), info.get_location());
+        return process_reduce_step(info.get_names(), info.force_unfold(), info.get_location());
     }
 
     optional<pair<expr, constraints>> elaborate_core(expr const & e, bool fail_if_cnstrs) {
@@ -874,7 +890,7 @@ class rewrite_fn {
         lean_assert(is_rewrite_reduce_step(elem));
         if (macro_num_args(elem) == 0) {
             auto info = get_rewrite_reduce_info(elem);
-            return process_reduce_step(list<name>(), info.get_location());
+            return process_reduce_step(list<name>(), false, info.get_location());
         } else {
             auto info = get_rewrite_reduce_info(elem);
             return process_reduce_to_step(macro_arg(elem, 0), info.get_location());
@@ -946,7 +962,7 @@ class rewrite_fn {
 
     expr reduce_rule_type(expr const & e) {
         if (m_apply_reduce) {
-            if (auto it = reduce(e, list<name>()))
+            if (auto it = reduce(e, list<name>(), false))
                 return *it;
             else // TODO(Leo): we should fail instead of doing trying again
                 return head_beta_reduce(e);
@@ -1257,6 +1273,10 @@ class rewrite_fn {
                 add_target_failure(src, t, failure::Unification);
                 return unify_result();
             }
+        } catch (kernel_exception & ex) {
+            regular(m_env, m_ios) << ">> " << ex << "\n";
+            add_target_failure(orig_elem, t, ex.what());
+            return unify_result();
         } catch (exception & ex) {
             add_target_failure(orig_elem, t, ex.what());
             return unify_result();
@@ -1620,9 +1640,9 @@ public:
         lean_assert(gs);
         update_goal(head(gs));
         m_subst = m_ps.get_subst();
-        m_max_iter  = get_rewriter_max_iterations(ios.get_options());
-        m_use_trace = get_rewriter_trace(ios.get_options());
-        m_beta_eta  = get_rewriter_beta_eta(ios.get_options());
+        m_max_iter     = get_rewriter_max_iterations(ios.get_options());
+        m_use_trace    = get_rewriter_trace(ios.get_options());
+        m_beta_eta     = get_rewriter_beta_eta(ios.get_options());
         m_apply_reduce = false;
     }
 

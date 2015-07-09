@@ -44,7 +44,7 @@ static void check_not_in_theorem_queue(parser & p, name const & n, pos_info cons
     }
 }
 
-static expr parse_rewrite_unfold_core(parser & p) {
+static expr parse_rewrite_unfold_core(parser & p, bool force_unfold) {
     buffer<name> to_unfold;
     if (p.curr_is_token(get_lbracket_tk())) {
         p.next();
@@ -63,19 +63,21 @@ static expr parse_rewrite_unfold_core(parser & p) {
         check_not_in_theorem_queue(p, to_unfold.back(), pos);
     }
     location loc = parse_tactic_location(p);
-    return mk_rewrite_unfold(to_list(to_unfold), loc);
+    return mk_rewrite_unfold(to_list(to_unfold), force_unfold, loc);
 }
 
-static expr parse_rewrite_unfold(parser & p) {
+static expr parse_rewrite_unfold(parser & p, bool force_unfold) {
     lean_assert(p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk()));
     p.next();
-    return parse_rewrite_unfold_core(p);
+    return parse_rewrite_unfold_core(p, force_unfold);
 }
 
 // If use_paren is true, then lemmas must be identifiers or be wrapped with parenthesis
 static expr parse_rewrite_element(parser & p, bool use_paren) {
-    if (p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk()))
-        return parse_rewrite_unfold(p);
+    if (p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk())) {
+        bool force_unfold = false;
+        return parse_rewrite_unfold(p, force_unfold);
+    }
     if (p.curr_is_token(get_down_tk())) {
         p.next();
         expr e = p.parse_tactic_expr_arg();
@@ -170,10 +172,11 @@ expr parse_krewrite_tactic(parser & p) {
 expr parse_esimp_tactic(parser & p) {
     buffer<expr> elems;
     auto pos = p.pos();
+    bool force_unfold = false;
     if (p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk())) {
-        elems.push_back(p.save_pos(parse_rewrite_unfold(p), pos));
+        elems.push_back(p.save_pos(parse_rewrite_unfold(p, force_unfold), pos));
     } else if (p.curr_is_token(get_lbracket_tk())) {
-        elems.push_back(p.save_pos(parse_rewrite_unfold_core(p), pos));
+        elems.push_back(p.save_pos(parse_rewrite_unfold_core(p, force_unfold), pos));
     } else {
         location loc = parse_tactic_location(p);
         elems.push_back(p.save_pos(mk_rewrite_reduce(loc), pos));
@@ -184,13 +187,14 @@ expr parse_esimp_tactic(parser & p) {
 expr parse_unfold_tactic(parser & p) {
     buffer<expr> elems;
     auto pos = p.pos();
+    bool force_unfold = true;
     if (p.curr_is_identifier()) {
         name c       = p.check_constant_next("invalid unfold tactic, identifier expected");
         check_not_in_theorem_queue(p, c, pos);
         location loc = parse_tactic_location(p);
-        elems.push_back(p.save_pos(mk_rewrite_unfold(to_list(c), loc), pos));
+        elems.push_back(p.save_pos(mk_rewrite_unfold(to_list(c), force_unfold, loc), pos));
     } else if (p.curr_is_token(get_lbracket_tk())) {
-        elems.push_back(p.save_pos(parse_rewrite_unfold_core(p), pos));
+        elems.push_back(p.save_pos(parse_rewrite_unfold_core(p, force_unfold), pos));
     } else {
         throw parser_error("invalid unfold tactic, identifier or `[` expected", pos);
     }

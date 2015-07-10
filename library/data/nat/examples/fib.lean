@@ -34,19 +34,19 @@ lemma fib_fast_aux_lemma : ∀ n, (fib_fast_aux (succ n)).1 = (fib_fast_aux n).2
 | (succ (succ n)) :=
   begin
     rewrite [fib_fast_aux_succ_succ],
-    rewrite [-prod.eta (fib_fast_aux (succ (succ n)))],
+    rewrite [-prod.eta (fib_fast_aux _)],
   end
 
-theorem fib_eq_fib_fast : ∀ n, fib n = fib_fast n
+theorem fib_eq_fib_fast : ∀ n, fib_fast n = fib n
 | 0     := rfl
 | 1     := rfl
 | (n+2) :=
   begin
-    have feq  : fib n = fib_fast n,               from fib_eq_fib_fast n,
-    have f1eq : fib (succ n) = fib_fast (succ n), from fib_eq_fib_fast (succ n),
+    have feq  : fib_fast n = fib n,               from fib_eq_fib_fast n,
+    have f1eq : fib_fast (succ n) = fib (succ n), from fib_eq_fib_fast (succ n),
     unfold [fib, fib_fast, fib_fast_aux],
-    rewrite [-prod.eta (fib_fast_aux (succ n))], esimp,
-    fold fib_fast (succ n), rewrite -f1eq,
+    rewrite [-prod.eta (fib_fast_aux _)],
+    fold fib_fast (succ n), rewrite f1eq,
     rewrite fib_fast_aux_lemma,
-    fold fib_fast n, rewrite -feq,
+    fold fib_fast n, rewrite feq,
   end

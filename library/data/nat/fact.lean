@@ -21,19 +21,11 @@ rfl
 lemma fact_succ (n) : fact (succ n) = succ n * fact n :=
 rfl
 
-lemma fact_ne_zero : ∀ n, fact n ≠ 0
-| 0        := by contradiction
-| (succ n) :=
-  begin
-    intro h,
-    rewrite [fact_succ at h],
-    cases (eq_zero_or_eq_zero_of_mul_eq_zero h) with h₁ h₂,
-      contradiction,
-      exact fact_ne_zero n h₂
-  end
+lemma fact_pos : ∀ n, fact n > 0
+| 0        := zero_lt_one
+| (succ n) := mul_pos !succ_pos (fact_pos n)
 
-lemma fact_gt_0 (n) : fact n > 0 :=
-pos_of_ne_zero (fact_ne_zero n)
+lemma fact_ne_zero (n : ℕ) : fact n ≠ 0 := ne_of_gt !fact_pos
 
 lemma dvd_fact : ∀ {m n}, m > 0 → m ≤ n → m ∣ fact n
 | m 0        h₁ h₂ := absurd h₁ (not_lt_of_ge h₂)

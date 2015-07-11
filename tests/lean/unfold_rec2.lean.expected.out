@@ -1,0 +1,3 @@
+unfold_rec2.lean:8:2: proof state
+a n : ℕ
+⊢ a = 2 → f (a * 2) n = f 4 n

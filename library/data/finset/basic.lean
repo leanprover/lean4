@@ -213,7 +213,7 @@ decidable.by_cases
   (assume H : a ∈ s, by rewrite [card_insert_of_mem H]; apply le_succ)
   (assume H : a ∉ s, by rewrite [card_insert_of_not_mem H])
 
-lemma non_empty_of_card_succ {s : finset A} {n : nat} : card s = succ n → s ≠ ∅ :=
+lemma ne_empty_of_card_eq_succ {s : finset A} {n : nat} : card s = succ n → s ≠ ∅ :=
 by intros; substvars; contradiction
 
 protected theorem induction [recursor 6] {P : finset A → Prop}

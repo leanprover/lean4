@@ -126,7 +126,7 @@ section deceqA
     intros [H1, H2],
     rewrite [Union_insert, H2 _ !mem_insert],
     cases (decidable.em (s' = ∅)) with [seq, sne],
-      {rewrite [seq, Union_empty, union_empty] },
+      {rewrite [seq, Union_empty, union_empty]},
     have H3 : ∀ x, x ∈ s' → f x = t, from (λ x H', H2 x (mem_insert_of_mem _ H')),
     rewrite [IH sne H3, union_self]
   end

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/replace_visitor.h"
 #include "library/constants.h"
+#include "library/tactic/location.h"
 
 extern void pp_detail(lean::environment const & env, lean::expr const & e);
 extern void pp(lean::environment const & env, lean::expr const & e);
@@ -50,6 +51,8 @@ class unfold_rec_fn : public replace_visitor_aux {
     type_checker_ptr    m_tc;
     type_checker_ptr    m_norm_decl_tc;
     list<name>          m_to_unfold;
+    occurrence          m_occs;
+    unsigned            m_occ_idx;
 
     virtual name mk_fresh_name() { return m_ngen.next(); }
 
@@ -292,7 +295,12 @@ class unfold_rec_fn : public replace_visitor_aux {
     }
 
     bool unfold_cnst(expr const & e) {
-        return is_constant(e) && std::find(m_to_unfold.begin(), m_to_unfold.end(), const_name(e)) != m_to_unfold.end();
+        if (!is_constant(e))
+            return false;
+        if (std::find(m_to_unfold.begin(), m_to_unfold.end(), const_name(e)) == m_to_unfold.end())
+            return false;
+        m_occ_idx++;
+        return m_occs.contains(m_occ_idx);
     }
 
     virtual expr visit_app(expr const & e) {
@@ -329,23 +337,28 @@ class unfold_rec_fn : public replace_visitor_aux {
     }
 
 public:
-    unfold_rec_fn(environment const & env, name_generator && ngen, bool force_unfold, list<name> const & to_unfold):
+    unfold_rec_fn(environment const & env, name_generator && ngen, bool force_unfold, list<name> const & to_unfold,
+                  occurrence const & occs):
         m_env(env),
         m_ngen(ngen),
         m_force_unfold(force_unfold),
         m_tc(mk_type_checker(m_env, m_ngen.mk_child(), [](name const &) { return false; })),
         m_norm_decl_tc(mk_type_checker(m_env, m_ngen.mk_child(), [](name const & n) { return !is_rec_building_part(n); })),
-        m_to_unfold(to_unfold)
+        m_to_unfold(to_unfold),
+        m_occs(occs),
+        m_occ_idx(0)
         {}
 
     expr operator()(expr const & e) {
+        m_occ_idx = 0;
         return replace_visitor_aux::operator()(e);
     }
 };
 
-optional<expr> unfold_rec(environment const & env, name_generator && ngen, bool force_unfold, expr const & e, list<name> const & to_unfold) {
+optional<expr> unfold_rec(environment const & env, name_generator && ngen, bool force_unfold, expr const & e, list<name> const & to_unfold,
+                          occurrence const & occs) {
     try {
-        expr r = unfold_rec_fn(env, std::move(ngen), force_unfold, to_unfold)(e);
+        expr r = unfold_rec_fn(env, std::move(ngen), force_unfold, to_unfold, occs)(e);
         if (r == e)
             return none_expr();
         return some_expr(r);

@@ -628,13 +628,15 @@ class rewrite_fn {
         }
     };
 
-    optional<expr> reduce(expr const & e, list<name> const & to_unfold, bool force_unfold) {
+    optional<expr> reduce(expr const & e, list<name> const & to_unfold, optional<occurrence> const & occs, bool force_unfold) {
+        lean_assert(is_nil(to_unfold) == !occs);
         constraint_seq cs;
         bool unfolded = !to_unfold;
         bool use_eta  = true;
         // TODO(Leo): should we add add an option that will not try to fold recursive applications
         if (to_unfold) {
-            auto new_e = unfold_rec(m_env, m_ngen.mk_child(), force_unfold, e, to_unfold);
+            lean_assert(occs);
+            auto new_e = unfold_rec(m_env, m_ngen.mk_child(), force_unfold, e, to_unfold, *occs);
             if (!new_e)
                 return none_expr();
             type_checker_ptr tc(new type_checker(m_env, m_ngen.mk_child(),
@@ -662,8 +664,8 @@ class rewrite_fn {
         update_goal(new_g);
     }
 
-    bool process_reduce_goal(list<name> const & to_unfold, bool force_unfold) {
-        if (auto new_type = reduce(m_g.get_type(), to_unfold, force_unfold)) {
+    bool process_reduce_goal(list<name> const & to_unfold, optional<occurrence> const & occ, bool force_unfold) {
+        if (auto new_type = reduce(m_g.get_type(), to_unfold, occ, force_unfold)) {
             replace_goal(*new_type);
             return true;
         } else {
@@ -699,9 +701,9 @@ class rewrite_fn {
         update_goal(new_g);
     }
 
-    bool process_reduce_hypothesis(name const & hyp_internal_name, list<name> const & to_unfold, bool force_unfold) {
+    bool process_reduce_hypothesis(name const & hyp_internal_name, list<name> const & to_unfold, optional<occurrence> const & occs, bool force_unfold) {
         expr hyp = m_g.find_hyp_from_internal_name(hyp_internal_name)->first;
-        if (auto new_hyp_type = reduce(mlocal_type(hyp), to_unfold, force_unfold)) {
+        if (auto new_hyp_type = reduce(mlocal_type(hyp), to_unfold, occs, force_unfold)) {
             replace_hypothesis(hyp, *new_hyp_type);
             return true;
         } else {
@@ -711,18 +713,19 @@ class rewrite_fn {
 
     bool process_reduce_step(list<name> const & to_unfold, bool force_unfold, location const & loc) {
         if (loc.is_goal_only())
-            return process_reduce_goal(to_unfold, force_unfold);
+            return process_reduce_goal(to_unfold, loc.includes_goal(), force_unfold);
         bool progress = false;
         buffer<expr> hyps;
         m_g.get_hyps(hyps);
         for (expr const & h : hyps) {
-            if (!loc.includes_hypothesis(local_pp_name(h)))
+            auto occs = loc.includes_hypothesis(local_pp_name(h));
+            if (!occs)
                 continue;
-            if (process_reduce_hypothesis(mlocal_name(h), to_unfold, force_unfold))
+            if (process_reduce_hypothesis(mlocal_name(h), to_unfold, occs, force_unfold))
                 progress = true;
         }
-        if (loc.includes_goal()) {
-            if (process_reduce_goal(to_unfold, force_unfold))
+        if (auto occs = loc.includes_goal()) {
+            if (process_reduce_goal(to_unfold, occs, force_unfold))
                 progress = true;
         }
         return progress;
@@ -962,7 +965,7 @@ class rewrite_fn {
 
     expr reduce_rule_type(expr const & e) {
         if (m_apply_reduce) {
-            if (auto it = reduce(e, list<name>(), false))
+            if (auto it = reduce(e, list<name>(), optional<occurrence>(), false))
                 return *it;
             else // TODO(Leo): we should fail instead of doing trying again
                 return head_beta_reduce(e);

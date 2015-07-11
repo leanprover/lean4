@@ -25,15 +25,12 @@ definition fib_fast (n : nat) := (fib_fast_aux n).2
 
 -- We now prove that fib_fast and fib are equal
 
-lemma fib_fast_aux_succ_succ : ∀ n, fib_fast_aux (succ (succ n)) = match fib_fast_aux (succ n) with | (fn, fn1) := (fn1, fn1 + fn) end :=
-λ n, rfl
-
 lemma fib_fast_aux_lemma : ∀ n, (fib_fast_aux (succ n)).1 = (fib_fast_aux n).2
 | 0               := rfl
 | 1               := rfl
 | (succ (succ n)) :=
   begin
-    rewrite [fib_fast_aux_succ_succ],
+    unfold fib_fast_aux at {1},
     rewrite [-prod.eta (fib_fast_aux _)],
   end
 

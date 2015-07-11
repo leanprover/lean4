@@ -160,7 +160,7 @@ quot.lift_on s
   (λ (l₁ l₂ : nodup_list A) (p : l₁ ~ l₂), quot.sound (perm_insert a p))
 
 -- set builder notation
-notation `{[`:max a:(foldr `,` (x b, insert x b) ∅) `]}`:0 := a
+notation `'{`:max a:(foldr `,` (x b, insert x b) ∅) `}`:0 := a
 -- notation `⦃` a:(foldr `,` (x b, insert x b) ∅) `⦄` := a
 
 theorem mem_insert (a : A) (s : finset A) : a ∈ insert a s :=
@@ -184,7 +184,7 @@ propext (iff.intro
     (assume H' : x = a, eq.subst (eq.symm H') !mem_insert)
     (assume H' : x ∈ s, !mem_insert_of_mem H')))
 
-theorem insert_empty_eq (a : A) : {[ a ]} = singleton a := rfl
+theorem insert_empty_eq (a : A) : '{a} = singleton a := rfl
 
 theorem insert_eq_of_mem {a : A} {s : finset A} (H : a ∈ s) : insert a s = s :=
 ext
@@ -384,7 +384,7 @@ ext (take x,
     x ∈ insert a s ↔ x ∈ insert a s            : iff.refl
                ... = (x = a ∨ x ∈ s)           : mem_insert_eq
                ... = (x ∈ singleton a ∨ x ∈ s) : mem_singleton_eq
-               ... = (x ∈ {[ a ]} ∪ s)         : mem_union_eq)
+               ... = (x ∈ '{a} ∪ s)         : mem_union_eq)
 
 theorem insert_union (a : A) (s t : finset A) : insert a (s ∪ t) = insert a s ∪ t :=
 by rewrite [*insert_eq, union.assoc]

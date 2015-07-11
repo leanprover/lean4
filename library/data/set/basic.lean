@@ -148,9 +148,9 @@ notation `{` binders `|` r:(scoped:1 P, set_of P) `}` := r
 definition filter (P : X → Prop) (s : set X) : set X := λx, x ∈ s ∧ P x
 notation `{` binders ∈ s `|` r:(scoped:1 p, filter p s) `}` := r
 
--- {[x, y, z]}
+-- '{x, y, z}
 definition insert (x : X) (a : set X) : set X := {y : X | y = x ∨ y ∈ a}
-notation `{[`:max a:(foldr `,` (x b, insert x b) ∅) `]}`:0 := a
+notation `'{`:max a:(foldr `,` (x b, insert x b) ∅) `}`:0 := a
 
 /- set difference -/
 

@@ -74,6 +74,18 @@ ext (take y, iff.intro
         show y ∈ image f (insert a s), from eq.subst (eq.symm H2) H3)
       (assume H2 : y ∈ image f s,
         show y ∈ image f (insert a s), from mem_image_of_mem_image_of_subset H2 !subset_insert)))
+
+lemma image_compose {C : Type} [deceqC : decidable_eq C] {f : B → C} {g : A → B} {s : finset A} :
+  image (f∘g) s = image f (image g s) :=
+ext (take z, iff.intro
+  (assume Hz : z ∈ image (f∘g) s,
+    obtain x (Hx : x ∈ s) (Hgfx : f (g x) = z), from exists_of_mem_image Hz,
+    by rewrite -Hgfx; apply mem_image_of_mem _ (mem_image_of_mem _ Hx))
+  (assume Hz : z ∈ image f (image g s),
+    obtain y (Hy : y ∈ image g s) (Hfy : f y = z), from exists_of_mem_image Hz,
+    obtain x (Hx : x ∈ s) (Hgx : g x = y), from exists_of_mem_image Hy,
+    mem_image_of_mem_of_eq Hx (by esimp; rewrite [Hgx, Hfy])))
+
 end image
 
 /- filter and set-builder notation -/

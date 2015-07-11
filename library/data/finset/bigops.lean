@@ -118,8 +118,8 @@ section deceqA
         (by rewrite Union_empty)
         (take s1 a Pa IH, by rewrite [image_insert, *Union_insert, IH])
 
-  lemma Union_const [deceqB : decidable_eq B] {f : A → finset B} {s : finset A} {t : finset B}
-    (a : A) : s ≠ ∅ → (∀ x, x ∈ s → f x = t) → Union s f = t :=
+  lemma Union_const [deceqB : decidable_eq B] {f : A → finset B} {s : finset A} {t : finset B} :
+    s ≠ ∅ → (∀ x, x ∈ s → f x = t) → Union s f = t :=
   begin
     induction s with a' s' H IH,
       {intros [H1, H2], exfalso, apply H1 !rfl},

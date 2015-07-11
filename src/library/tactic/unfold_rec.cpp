@@ -172,12 +172,14 @@ class unfold_rec_fn : public replace_visitor_aux {
         unsigned                 m_major_idx; // position of the major premise in the recursor
         unsigned                 m_main_pos;  // position of the (recursive) argument in the function being unfolded
         buffer<unsigned> const & m_rec_arg_pos; // position of the other arguments that are not fixed in the recursion
+        name                     m_prod_rec_name;
 
         fold_rec_fn(type_checker_ptr & tc, expr const & fn, buffer<expr> const & args, rec_kind k, name const & rec_name,
                     unsigned main_pos, buffer<unsigned> const & rec_arg_pos):
             m_tc(tc), m_fn(fn), m_args(args), m_kind(k), m_rec_name(rec_name),
             m_major_idx(*inductive::get_elim_major_idx(m_tc->env(), rec_name)),
             m_main_pos(main_pos), m_rec_arg_pos(rec_arg_pos) {
+            m_prod_rec_name = inductive::get_elim_name(get_prod_name());
             lean_assert(m_main_pos < args.size());
             lean_assert(std::all_of(rec_arg_pos.begin(), rec_arg_pos.end(), [&](unsigned pos) { return pos < args.size(); }));
         }
@@ -199,23 +201,34 @@ class unfold_rec_fn : public replace_visitor_aux {
             return folded_app;
         }
 
-        expr fold_brec(expr const & e, buffer<expr> const & args) {
-            if (args.size() != 3 + m_rec_arg_pos.size())
+        expr fold_brec_core(expr const & e, buffer<expr> const & args, unsigned prefix_size, unsigned major_pos) {
+            if (args.size() != prefix_size + m_rec_arg_pos.size()) {
                 throw fold_failed();
+            }
             buffer<expr> nested_args;
-            get_app_args(args[1], nested_args);
-            if (nested_args.size() != m_major_idx+1)
+            get_app_args(args[major_pos], nested_args);
+
+            if (nested_args.size() != m_major_idx+1) {
                 throw fold_failed();
+            }
             buffer<expr> new_args;
             new_args.append(m_args);
             new_args[m_main_pos] = nested_args[m_major_idx];
             for (unsigned i = 0; i < m_rec_arg_pos.size(); i++) {
-                new_args[m_rec_arg_pos[i]] = args[3 + i];
+                new_args[m_rec_arg_pos[i]] = args[prefix_size + i];
             }
             expr folded_app = mk_app(m_fn, new_args);
             if (!m_tc->is_def_eq(folded_app, e).first)
                 throw fold_failed();
             return folded_app;
+        }
+
+        expr fold_brec_pr1(expr const & e, buffer<expr> const & args) {
+            return fold_brec_core(e, args, 3, 1);
+        }
+
+        expr fold_brec_prod_rec(expr const & e, buffer<expr> const & args) {
+            return fold_brec_core(e, args, 5, 4);
         }
 
         virtual expr visit_app(expr const & e) {
@@ -226,7 +239,12 @@ class unfold_rec_fn : public replace_visitor_aux {
             if (m_kind == BREC && is_constant(fn) && const_name(fn) == get_prod_pr1_name() && args.size() >= 3) {
                 expr rec_fn = get_app_fn(args[1]);
                 if (is_constant(rec_fn) && const_name(rec_fn) == m_rec_name)
-                    return fold_brec(e, args);
+                    return fold_brec_pr1(e, args);
+            }
+            if (m_kind == BREC && is_constant(fn) && const_name(fn) == m_prod_rec_name && args.size() >= 5) {
+                expr rec_fn = get_app_fn(args[4]);
+                if (is_constant(rec_fn) && const_name(rec_fn) == m_rec_name)
+                    return fold_brec_prod_rec(e, args);
             }
             return visit_app_default(e, fn, args);
         }

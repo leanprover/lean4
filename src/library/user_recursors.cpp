@@ -311,6 +311,10 @@ list<name> get_recursors_for(environment const & env, name const & I) {
         return list<name>();
 }
 
+bool is_user_defined_recursor(environment const & env, name const & r) {
+    return recursor_ext::get_state(env).m_recursors.find(r) != nullptr;
+}
+
 has_recursors_pred::has_recursors_pred(environment const & env):
     m_type2recursors(recursor_ext::get_state(env).m_type2recursors) {}
 

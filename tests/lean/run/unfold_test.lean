@@ -12,7 +12,7 @@ theorem last_concat {x : A} : ∀ {l : list A} (h : concat x l ≠ []), last (co
 
 theorem reverse_append : ∀ (s t : list A), reverse (s ++ t) = (reverse t) ++ (reverse s)
 | []         t2 :=
-  by rewrite [↑append, ↑reverse, append_nil_right]
+  by esimp [append, reverse]; rewrite append_nil_right
 | (a2 :: s2) t2 :=
   by rewrite [↑append, ↑reverse, reverse_append, concat_eq_append, append.assoc, -concat_eq_append]
 end

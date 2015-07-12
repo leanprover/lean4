@@ -75,7 +75,7 @@ static expr parse_rewrite_unfold(parser & p, bool force_unfold) {
 // If use_paren is true, then lemmas must be identifiers or be wrapped with parenthesis
 static expr parse_rewrite_element(parser & p, bool use_paren) {
     if (p.curr_is_token(get_up_tk()) || p.curr_is_token(get_caret_tk())) {
-        bool force_unfold = false;
+        bool force_unfold = true;
         return parse_rewrite_unfold(p, force_unfold);
     }
     if (p.curr_is_token(get_down_tk())) {

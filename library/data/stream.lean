@@ -624,4 +624,38 @@ lemma stream_equiv_of_equiv {A B : Type} : A ≃ B → stream A ≃ stream B
    begin intros, rewrite [map_map, id_of_left_inverse l, map_id] end
    begin intros, rewrite [map_map, id_of_righ_inverse r, map_id] end
 end
+
+definition lex (lt : A → A → Prop) (s₁ s₂ : stream A) : Prop :=
+∃ i, lt (nth i s₁) (nth i s₂) ∧ ∀ j, j < i → nth j s₁ = nth j s₂
+
+definition lex.trans {s₁ s₂ s₃} {lt : A → A → Prop} : transitive lt → lex lt s₁ s₂ → lex lt s₂ s₃ → lex lt s₁ s₃ :=
+assume htrans h₁ h₂,
+obtain i₁ hlt₁ he₁, from h₁,
+obtain i₂ hlt₂ he₂, from h₂,
+lt.by_cases
+  (λ i₁lti₂ : i₁ < i₂,
+    assert aux : nth i₁ s₂ = nth i₁ s₃, from he₂ _ i₁lti₂,
+    begin
+      existsi i₁, split,
+       {rewrite -aux, exact hlt₁},
+       {intro j jlti₁, transitivity nth j s₂,
+         exact !he₁ jlti₁,
+         exact !he₂ (lt.trans jlti₁ i₁lti₂)}
+    end)
+  (λ i₁eqi₂ : i₁ = i₂,
+    begin
+      subst i₂, existsi i₁, split, exact htrans hlt₁ hlt₂, intro j jlti₁,
+        transitivity nth j s₂,
+          exact !he₁ jlti₁;
+          exact !he₂ jlti₁
+    end)
+  (λ i₂lti₁ : i₂ < i₁,
+    assert aux : nth i₂ s₁ = nth i₂ s₂, from he₁ _ i₂lti₁,
+    begin
+      existsi i₂, split,
+       {rewrite aux, exact hlt₂},
+       {intro j jlti₂, transitivity nth j s₂,
+         exact !he₁ (lt.trans jlti₂ i₂lti₁),
+         exact !he₂ jlti₂}
+    end)
 end stream

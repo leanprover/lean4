@@ -273,7 +273,7 @@ namespace two_quotient
     { exact P0 a},
     { exact P1 s},
     { exact abstract [unfold 10] begin induction q with a a' t t' q,
-      rewrite [↑e_closure.elim,↓e_closure.elim P1 t,↓e_closure.elim P1 t'],
+      rewrite [↑e_closure.elim],
       apply con_inv_eq_idp, exact P2 q end end},
   end
   local attribute elim [unfold 8]

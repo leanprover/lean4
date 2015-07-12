@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/replace_visitor.h"
 #include "library/constants.h"
+#include "library/user_recursors.h"
 #include "library/tactic/location.h"
 
 extern void pp_detail(lean::environment const & env, lean::expr const & e);
@@ -60,8 +61,10 @@ class unfold_rec_fn : public replace_visitor_aux {
         throw exception("ill-formed expression");
     }
 
-    static bool is_rec_building_part(name const & n) {
+    bool is_rec_building_part(name const & n) {
         if (n == get_prod_pr1_name() || n == get_prod_pr2_name())
+            return true;
+        if (is_user_defined_recursor(m_env, n))
             return true;
         if (n.is_atomic() || !n.is_string())
             return false;
@@ -343,7 +346,7 @@ public:
         m_ngen(ngen),
         m_force_unfold(force_unfold),
         m_tc(mk_type_checker(m_env, m_ngen.mk_child(), [](name const &) { return false; })),
-        m_norm_decl_tc(mk_type_checker(m_env, m_ngen.mk_child(), [](name const & n) { return !is_rec_building_part(n); })),
+        m_norm_decl_tc(mk_type_checker(m_env, m_ngen.mk_child(), [&](name const & n) { return !is_rec_building_part(n); })),
         m_to_unfold(to_unfold),
         m_occs(occs),
         m_occ_idx(0)

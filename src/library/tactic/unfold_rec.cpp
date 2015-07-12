@@ -250,6 +250,10 @@ class unfold_rec_fn : public replace_visitor_aux {
             }
             buffer<expr> new_args;
             new_args.append(m_args);
+            unsigned nindices = m_indices_pos.size();
+            for (unsigned i = 0; i < m_indices_pos.size(); i++) {
+                new_args[m_indices_pos[i]] = nested_args[m_major_idx - nindices + i];
+            }
             new_args[m_main_pos] = nested_args[m_major_idx];
             for (unsigned i = 0; i < m_rec_arg_pos.size(); i++) {
                 new_args[m_rec_arg_pos[i]] = args[prefix_size + i];

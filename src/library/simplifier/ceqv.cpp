@@ -31,10 +31,10 @@ class to_ceqvs_fn {
         return is_sort(m_tc.whnf(m_tc.infer(e).first).first);
     }
 
-    bool is_equivalence(expr const & e) {
+    bool is_transitive(expr const & e) {
         if (!is_app(e)) return false;
         expr const & fn = get_app_fn(e);
-        return is_constant(fn) && ::lean::is_equivalence(m_env, const_name(fn)) && is_type(e);
+        return is_constant(fn) && ::lean::is_trans_relation(m_env, const_name(fn)) && is_type(e);
     }
 
     list<expr_pair> lift(expr const & local, list<expr_pair> const & l) {
@@ -46,7 +46,7 @@ class to_ceqvs_fn {
 
     list<expr_pair> apply(expr const & e, expr const & H) {
         expr c, Hdec, A, arg1, arg2;
-        if (is_equivalence(e)) {
+        if (is_transitive(e)) {
             return mk_singleton(e, H);
         } else if (is_standard(m_env) && is_not(m_env, e, arg1)) {
             expr new_e = mk_iff(e, mk_false());
@@ -110,10 +110,10 @@ list<expr_pair> to_ceqvs(type_checker & tc, expr const & e, expr const & H) {
     return to_ceqvs_fn(tc)(e, H);
 }
 
-bool is_equivalence(environment const & env, expr const & e, expr & rel, expr & lhs, expr & rhs) {
+bool is_transitive(environment const & env, expr const & e, expr & rel, expr & lhs, expr & rhs) {
     buffer<expr> args;
     rel = get_app_args(e, args);
-    if (!is_constant(rel) || !is_equivalence(env, const_name(rel)))
+    if (!is_constant(rel) || !is_trans_relation(env, const_name(rel)))
         return false;
     relation_info const * rel_info = get_relation_info(env, const_name(rel));
     if (!rel_info || rel_info->get_lhs_pos() >= args.size() || rel_info->get_rhs_pos() >= args.size())
@@ -123,9 +123,9 @@ bool is_equivalence(environment const & env, expr const & e, expr & rel, expr & 
     return true;
 }
 
-bool is_equivalence(environment const & env, expr const & e, expr & lhs, expr & rhs) {
+bool is_transitive(environment const & env, expr const & e, expr & lhs, expr & rhs) {
     expr rel;
-    return is_equivalence(env, e, rel, lhs, rhs);
+    return is_transitive(env, e, rel, lhs, rhs);
 }
 
 bool is_ceqv(type_checker & tc, expr e) {
@@ -167,7 +167,7 @@ bool is_ceqv(type_checker & tc, expr e) {
         e = instantiate(binding_body(e), local);
     }
     expr lhs, rhs;
-    if (!is_equivalence(env, e, lhs, rhs))
+    if (!is_transitive(env, e, lhs, rhs))
         return false;
     // traverse lhs, and remove found variables from to_find
     for_each(lhs, visitor_fn);
@@ -230,7 +230,7 @@ bool is_permutation_ceqv(environment const & env, expr e) {
         num_args++;
     }
     expr lhs, rhs;
-    if (is_equivalence(env, e, lhs, rhs)) {
+    if (is_transitive(env, e, lhs, rhs)) {
         buffer<optional<unsigned>> permutation;
         permutation.resize(num_args);
         return is_permutation(lhs, rhs, 0, permutation);

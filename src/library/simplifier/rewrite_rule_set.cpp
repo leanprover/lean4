@@ -117,7 +117,7 @@ rewrite_rule_sets add_core(type_checker & tc, rewrite_rule_sets const & s,
             new_e = instantiate(binding_body(new_e), mvar);
         }
         expr rel, lhs, rhs;
-        if (is_equivalence(env, new_e, rel, lhs, rhs) && is_constant(rel)) {
+        if (is_transitive(env, new_e, rel, lhs, rhs) && is_constant(rel)) {
             new_s.insert(const_name(rel), rewrite_rule(id, univ_metas, to_list(metas), lhs, rhs, new_h, is_perm));
         }
     }

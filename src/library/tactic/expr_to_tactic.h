@@ -26,6 +26,8 @@ bool has_tactic_decls(environment const & env);
    \c register_expr_to_tactic.
 */
 tactic expr_to_tactic(environment const & env, elaborate_fn const & fn, expr const & e, pos_info_provider const * p);
+// auxiliary procedure used to compile nested tactic in tacticals
+tactic expr_to_tactic(type_checker & tc, elaborate_fn const & fn, expr e, pos_info_provider const * p);
 
 name const & get_tactic_name();
 

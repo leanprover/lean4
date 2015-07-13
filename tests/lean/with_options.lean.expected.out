@@ -1,0 +1,37 @@
+with_options.lean:4:53: proof state
+A : Type,
+a b c : A,
+h₁ : @eq A a b,
+h₂ : @eq A b c
+⊢ @eq A a c
+with_options.lean:4:60: proof state
+A : Type,
+a b c : A,
+h₁ : a = b,
+h₂ : b = c
+⊢ a = c
+with_options.lean:5:45: proof state
+A : Type.{l_1},
+a b c : A,
+h₁ : … b,
+h₂ : … c
+⊢ … c
+with_options.lean:6:35: proof state
+A : Type,
+a b c : A,
+h₁ : eq a b,
+h₂ : eq b c
+⊢ eq a c
+with_options.lean:7:36: proof state
+A : Type,
+a b c : A,
+h₁ : eq a b,
+h₂ : eq b c
+⊢ eq a c
+with_options.lean:7:43: proof state
+A : Type,
+a b c : A,
+h₁ : eq a b,
+h₂ : eq b c
+⊢ eq a c
+with_options.lean:14:16: error: invalid 'with_options' tactical, identifier (i.e., option name) expected

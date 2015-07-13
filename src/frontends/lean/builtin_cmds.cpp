@@ -630,21 +630,9 @@ environment exit_cmd(parser & p) {
 }
 
 environment set_option_cmd(parser & p) {
-    auto id_pos = p.pos();
-    name id = p.check_id_next("invalid set option, identifier (i.e., option name) expected");
-    auto decl_it = get_option_declarations().find(id);
-    if (decl_it == get_option_declarations().end()) {
-        // add "lean" prefix
-        name lean_id = name("lean") + id;
-        decl_it = get_option_declarations().find(lean_id);
-        if (decl_it == get_option_declarations().end()) {
-            throw parser_error(sstream() << "unknown option '" << id
-                               << "', type 'help options.' for list of available options", id_pos);
-        } else {
-            id = lean_id;
-        }
-    }
-    option_kind k = decl_it->second.kind();
+    auto id_kind = parse_option_name(p, "invalid set option, identifier (i.e., option name) expected");
+    name id       = id_kind.first;
+    option_kind k = id_kind.second;
     if (k == BoolOption) {
         if (p.curr_is_token_or_id(get_true_tk()))
             p.set_option(id, true);

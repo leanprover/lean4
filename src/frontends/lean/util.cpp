@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "util/sstream.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
@@ -495,5 +496,23 @@ optional<unsigned> parse_priority(parser & p) {
     } else {
         return optional<unsigned>();
     }
+}
+
+pair<name, option_kind> parse_option_name(parser & p, char const * error_msg) {
+    auto id_pos  = p.pos();
+    name id = p.check_id_next(error_msg);
+    auto decl_it = get_option_declarations().find(id);
+    if (decl_it == get_option_declarations().end()) {
+        // add "lean" prefix
+        name lean_id = name("lean") + id;
+        decl_it = get_option_declarations().find(lean_id);
+        if (decl_it == get_option_declarations().end()) {
+            throw parser_error(sstream() << "unknown option '" << id
+                               << "', type 'help options.' for list of available options", id_pos);
+        } else {
+            id = lean_id;
+        }
+    }
+    return mk_pair(id, decl_it->second.kind());
 }
 }

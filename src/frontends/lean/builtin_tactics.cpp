@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/parse_rewrite_tactic.h"
+#include "frontends/lean/parse_with_options_tactic.h"
 
 namespace lean {
 namespace notation {
@@ -47,6 +48,10 @@ static expr parse_let_tactic(parser & p, unsigned, expr const *, pos_info const 
     return p.save_pos(mk_let_tactic_expr(id, value), pos);
 }
 
+static expr parse_with_options_tactic_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return p.save_pos(parse_with_options_tactic(p), pos);
+}
+
 static expr parse_generalize_tactic(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr e = p.parse_tactic_expr_arg();
     name id;
@@ -69,14 +74,15 @@ parse_table init_tactic_nud_table() {
     expr x0 = mk_var(0);
     parse_table r;
     r = r.add({transition("(", Expr), transition(")", mk_ext_action(parse_rparen))}, x0);
-    r = r.add({transition("rewrite",    mk_ext_action(parse_rewrite_tactic_expr))}, x0);
-    r = r.add({transition("krewrite",   mk_ext_action(parse_krewrite_tactic_expr))}, x0);
-    r = r.add({transition("xrewrite",   mk_ext_action(parse_xrewrite_tactic_expr))}, x0);
-    r = r.add({transition("esimp",      mk_ext_action(parse_esimp_tactic_expr))}, x0);
-    r = r.add({transition("generalize", mk_ext_action(parse_generalize_tactic))}, x0);
-    r = r.add({transition("unfold",     mk_ext_action(parse_unfold_tactic_expr))}, x0);
-    r = r.add({transition("fold",       mk_ext_action(parse_fold_tactic_expr))}, x0);
-    r = r.add({transition("let",        mk_ext_action(parse_let_tactic))}, x0);
+    r = r.add({transition("rewrite",      mk_ext_action(parse_rewrite_tactic_expr))}, x0);
+    r = r.add({transition("krewrite",     mk_ext_action(parse_krewrite_tactic_expr))}, x0);
+    r = r.add({transition("xrewrite",     mk_ext_action(parse_xrewrite_tactic_expr))}, x0);
+    r = r.add({transition("esimp",        mk_ext_action(parse_esimp_tactic_expr))}, x0);
+    r = r.add({transition("generalize",   mk_ext_action(parse_generalize_tactic))}, x0);
+    r = r.add({transition("unfold",       mk_ext_action(parse_unfold_tactic_expr))}, x0);
+    r = r.add({transition("fold",         mk_ext_action(parse_fold_tactic_expr))}, x0);
+    r = r.add({transition("let",          mk_ext_action(parse_let_tactic))}, x0);
+    r = r.add({transition("with_options", mk_ext_action(parse_with_options_tactic_expr))}, x0);
     return r;
 }
 

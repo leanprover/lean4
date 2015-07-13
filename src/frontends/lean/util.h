@@ -112,4 +112,7 @@ expr postprocess(environment const & env, expr const & e);
 
 /** \brief Parse `[priority <num>]`. Return none if current token is not `[priority` */
 optional<unsigned> parse_priority(parser & p);
+
+/** \brief Parse option name */
+pair<name, option_kind> parse_option_name(parser & p, char const * error_msg);
 }

@@ -94,4 +94,11 @@ public:
     friend serializer & operator<<(serializer & s, location const & loc);
     friend deserializer & operator>>(deserializer & d, location & loc);
 };
+
+expr mk_location_expr(location const & loc);
+bool is_location_expr(expr const & e);
+location const & get_location_expr_location(expr const & e);
+
+void initialize_location();
+void finalize_location();
 }

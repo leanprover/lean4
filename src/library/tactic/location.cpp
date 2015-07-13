@@ -128,4 +128,60 @@ optional<expr> replace_occurrences(expr const & e, expr const & t, occurrence co
         }, use_cache);
     return replaced ? some_expr(r) : none_expr();
 }
+
+[[ noreturn ]] static void throw_ex() { throw exception("unexpected occurrence of 'location' expression"); }
+
+static name * g_location_name             = nullptr;
+static std::string * g_location_opcode    = nullptr;
+
+// Auxiliary macro for wrapping a location object as an expression
+class location_macro_cell : public macro_definition_cell {
+    location m_info;
+public:
+    location_macro_cell(location const & info):m_info(info) {}
+    virtual name get_name() const { return *g_location_name; }
+    virtual void write(serializer & s) const {
+        s << *g_location_opcode << m_info;
+    }
+    virtual pair<expr, constraint_seq> check_type(expr const &, extension_context &, bool) const { throw_ex(); }
+    virtual optional<expr> expand(expr const &, extension_context &) const { throw_ex(); }
+    virtual bool operator==(macro_definition_cell const & other) const {
+        if (auto o = dynamic_cast<location_macro_cell const *>(&other))
+            return m_info == o->m_info;
+        return false;
+    }
+    location const & get_info() const { return m_info; }
+};
+
+expr mk_location_expr(location const & loc) {
+    macro_definition def(new location_macro_cell(loc));
+    return mk_macro(def);
+}
+
+bool is_location_expr(expr const & e) {
+    return is_macro(e) && macro_def(e).get_name() == *g_location_name;
+}
+
+location const & get_location_expr_location(expr const & e) {
+    lean_assert(is_location_expr(e));
+    return static_cast<location_macro_cell const*>(macro_def(e).raw())->get_info();
+}
+
+void initialize_location() {
+    g_location_name     = new name("location");
+    g_location_opcode   = new std::string("LOC");
+    register_macro_deserializer(*g_location_opcode,
+                                [](deserializer & d, unsigned num, expr const *) {
+                                    if (num > 0)
+                                        throw corrupted_stream_exception();
+                                    location info;
+                                    d >> info;
+                                    return mk_location_expr(info);
+                                });
+}
+
+void finalize_location() {
+    delete g_location_name;
+    delete g_location_opcode;
+}
 }

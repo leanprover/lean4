@@ -19,6 +19,12 @@ theorem map_nil (f : A → B) : map f [] = []
 
 theorem map_cons (f : A → B) (a : A) (l : list A) : map f (a :: l) = f a :: map f l
 
+lemma map_append (f : A → B) : ∀ l₁ l₂, map f (l₁++l₂) = (map f l₁)++(map f l₂)
+| nil    := take l, rfl
+| (a::l) := take l', begin rewrite [append_cons, *map_cons, append_cons, map_append] end
+
+lemma map_singleton (f : A → B) (a : A) : map f [a] = [f a] := rfl
+
 theorem map_id : ∀ l : list A, map id l = l
 | []      := rfl
 | (x::xs) := begin rewrite [map_cons, map_id] end

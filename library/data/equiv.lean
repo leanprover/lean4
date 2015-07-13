@@ -50,22 +50,22 @@ lemma arrow_congr {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → B₁ ≃ B₂
 
 section
 open unit
-lemma arrow_unit_equiv_unit (A : Type) : (A → unit) ≃ unit :=
+lemma arrow_unit_equiv_unit [rewrite] (A : Type) : (A → unit) ≃ unit :=
 mk (λ f, star) (λ u, (λ f, star))
    (λ f, funext (λ x, by cases (f x); reflexivity))
    (λ u, by cases u; reflexivity)
 
-lemma unit_arrow_equiv (A : Type) : (unit → A) ≃ A :=
+lemma unit_arrow_equiv [rewrite] (A : Type) : (unit → A) ≃ A :=
 mk (λ f, f star) (λ a, (λ u, a))
    (λ f, funext (λ x, by cases x; reflexivity))
    (λ u, rfl)
 
-lemma empty_arrow_equiv_unit (A : Type) : (empty → A) ≃ unit :=
+lemma empty_arrow_equiv_unit [rewrite] (A : Type) : (empty → A) ≃ unit :=
 mk (λ f, star) (λ u, λ e, empty.rec _ e)
    (λ f, funext (λ x, empty.rec _ x))
    (λ u, by cases u; reflexivity)
 
-lemma false_arrow_equiv_unit (A : Type) : (false → A) ≃ unit :=
+lemma false_arrow_equiv_unit [rewrite] (A : Type) : (false → A) ≃ unit :=
 calc (false → A) ≃ (empty → A) : arrow_congr false_equiv_empty !equiv.refl
              ... ≃ unit        : empty_arrow_equiv_unit
 end
@@ -78,13 +78,13 @@ lemma prod_congr {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → B₁ ≃ B₂ 
     (λ p, begin cases p, esimp, rewrite [l₁, l₂] end)
     (λ p, begin cases p, esimp, rewrite [r₁, r₂] end)
 
-lemma prod_comm (A B : Type) : (A × B) ≃ (B × A) :=
+lemma prod_comm [rewrite] (A B : Type) : (A × B) ≃ (B × A) :=
 mk (λ p, match p with (a, b) := (b, a) end)
    (λ p, match p with (b, a) := (a, b) end)
    (λ p, begin cases p, esimp end)
    (λ p, begin cases p, esimp end)
 
-lemma prod_assoc (A B C : Type) : ((A × B) × C) ≃ (A × (B × C)) :=
+lemma prod_assoc [rewrite] (A B C : Type) : ((A × B) × C) ≃ (A × (B × C)) :=
 mk (λ t, match t with ((a, b), c) := (a, (b, c)) end)
    (λ t, match t with (a, (b, c)) := ((a, b), c) end)
    (λ t, begin cases t with ab c, cases ab, esimp end)
@@ -92,20 +92,20 @@ mk (λ t, match t with ((a, b), c) := (a, (b, c)) end)
 
 section
 open unit prod.ops
-lemma prod_unit_right (A : Type) : (A × unit) ≃ A :=
+lemma prod_unit_right [rewrite] (A : Type) : (A × unit) ≃ A :=
 mk (λ p, p.1)
    (λ a, (a, star))
    (λ p, begin cases p with a u, cases u, esimp end)
    (λ a, rfl)
 
-lemma prod_unit_left (A : Type) : (unit × A) ≃ A :=
+lemma prod_unit_left [rewrite] (A : Type) : (unit × A) ≃ A :=
 calc (unit × A) ≃ (A × unit) : prod_comm
             ... ≃ A          : prod_unit_right
 
-lemma prod_empty_right (A : Type) : (A × empty) ≃ empty :=
+lemma prod_empty_right [rewrite] (A : Type) : (A × empty) ≃ empty :=
 mk (λ p, empty.rec _ p.2) (λ e, empty.rec _ e) (λ p, empty.rec _ p.2)  (λ e, empty.rec _ e)
 
-lemma prod_empty_left (A : Type) : (empty × A) ≃ empty :=
+lemma prod_empty_left [rewrite] (A : Type) : (empty × A) ≃ empty :=
 calc (empty × A) ≃ (A × empty) : prod_comm
              ... ≃ empty       : prod_empty_right
 end
@@ -127,25 +127,25 @@ mk (λ b, match b with tt := inl star | ff := inr star end)
    (λ b, begin cases b, esimp, esimp end)
    (λ s, begin cases s with u u, {cases u, esimp}, {cases u, esimp} end)
 
-lemma sum_comm (A B : Type) : (A + B) ≃ (B + A) :=
+lemma sum_comm [rewrite] (A B : Type) : (A + B) ≃ (B + A) :=
 mk (λ s, match s with inl a := inr a | inr b := inl b end)
    (λ s, match s with inl b := inr b | inr a := inl a end)
    (λ s, begin cases s, esimp, esimp end)
    (λ s, begin cases s, esimp, esimp end)
 
-lemma sum_assoc (A B C : Type) : ((A + B) + C) ≃ (A + (B + C)) :=
+lemma sum_assoc [rewrite] (A B C : Type) : ((A + B) + C) ≃ (A + (B + C)) :=
 mk (λ s, match s with inl (inl a) := inl a | inl (inr b) := inr (inl b) | inr c := inr (inr c) end)
    (λ s, match s with inl a := inl (inl a) | inr (inl b) := inl (inr b) | inr (inr c) := inr c end)
    (λ s, begin cases s with ab c, cases ab, repeat esimp end)
    (λ s, begin cases s with a bc, esimp, cases bc, repeat esimp end)
 
-lemma sum_empty_right (A : Type) : (A + empty) ≃ A :=
+lemma sum_empty_right [rewrite] (A : Type) : (A + empty) ≃ A :=
 mk (λ s, match s with inl a := a | inr e := empty.rec _ e end)
    (λ a, inl a)
    (λ s, begin cases s with a e, esimp, exact empty.rec _ e end)
    (λ a, rfl)
 
-lemma sum_empty_left (A : Type) : (empty + A) ≃ A :=
+lemma sum_empty_left [rewrite] (A : Type) : (empty + A) ≃ A :=
 calc (empty + A) ≃ (A + empty) : sum_comm
           ...    ≃ A           : sum_empty_right
 end
@@ -191,23 +191,23 @@ mk (λ n, match n with 0 := inr star | succ a := inl a end)
    (λ n, begin cases n, repeat esimp end)
    (λ s, begin cases s with a u, esimp, {cases u, esimp} end)
 
-lemma nat_sum_unit_equiv_nat : (nat + unit) ≃ nat :=
+lemma nat_sum_unit_equiv_nat [rewrite] : (nat + unit) ≃ nat :=
 equiv.symm nat_equiv_nat_sum_unit
 
-lemma nat_prod_nat_equiv_nat : (nat × nat) ≃ nat :=
+lemma nat_prod_nat_equiv_nat [rewrite] : (nat × nat) ≃ nat :=
 mk (λ p, mkpair p.1 p.2)
    (λ n, unpair n)
    (λ p, begin cases p, apply unpair_mkpair end)
    (λ n, mkpair_unpair n)
 
-lemma nat_sum_bool_equiv_nat : (nat + bool) ≃ nat :=
+lemma nat_sum_bool_equiv_nat [rewrite] : (nat + bool) ≃ nat :=
 calc (nat + bool) ≃ (nat + (unit + unit)) : sum_congr !equiv.refl bool_equiv_unit_sum_unit
              ...  ≃ ((nat + unit) + unit) : sum_assoc
              ...  ≃ (nat + unit)          : sum_congr nat_sum_unit_equiv_nat !equiv.refl
              ...  ≃ nat                   : nat_sum_unit_equiv_nat
 
 open decidable
-lemma nat_sum_nat_equiv_nat : (nat + nat) ≃ nat :=
+lemma nat_sum_nat_equiv_nat [rewrite] : (nat + nat) ≃ nat :=
 mk (λ s, match s with inl n := 2*n | inr n := 2*n+1 end)
    (λ n, if even n then inl (n div 2) else inr ((n - 1) div 2))
    (λ s, begin

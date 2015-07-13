@@ -49,10 +49,10 @@ by contradiction
 
 -- add_rewrite succ_ne_zero
 
-theorem pred_zero : pred 0 = 0 :=
+theorem pred_zero [rewrite] : pred 0 = 0 :=
 rfl
 
-theorem pred_succ (n : ℕ) : pred (succ n) = n :=
+theorem pred_succ [rewrite] (n : ℕ) : pred (succ n) = n :=
 rfl
 
 theorem eq_zero_or_eq_succ_pred (n : ℕ) : n = 0 ∨ n = succ (pred n) :=
@@ -103,13 +103,13 @@ general m
 
 /- addition -/
 
-theorem add_zero (n : ℕ) : n + 0 = n :=
+theorem add_zero [rewrite] (n : ℕ) : n + 0 = n :=
 rfl
 
-theorem add_succ (n m : ℕ) : n + succ m = succ (n + m) :=
+theorem add_succ [rewrite] (n m : ℕ) : n + succ m = succ (n + m) :=
 rfl
 
-theorem zero_add (n : ℕ) : 0 + n = n :=
+theorem zero_add [rewrite] (n : ℕ) : 0 + n = n :=
 nat.induction_on n
     !add_zero
     (take m IH, show 0 + succ m = succ m, from
@@ -117,7 +117,7 @@ nat.induction_on n
         0 + succ m = succ (0 + m) : add_succ
                ... = succ m       : IH)
 
-theorem succ_add (n m : ℕ) : (succ n) + m = succ (n + m) :=
+theorem succ_add [rewrite] (n m : ℕ) : (succ n) + m = succ (n + m) :=
 nat.induction_on m
     (!add_zero ▸ !add_zero)
     (take k IH, calc
@@ -125,7 +125,7 @@ nat.induction_on m
                   ... = succ (succ (n + k))  : IH
                   ... = succ (n + succ k)    : add_succ)
 
-theorem add.comm (n m : ℕ) : n + m = m + n :=
+theorem add.comm [rewrite] (n m : ℕ) : n + m = m + n :=
 nat.induction_on m
     (!add_zero ⬝ !zero_add⁻¹)
     (take k IH, calc
@@ -136,7 +136,7 @@ nat.induction_on m
 theorem succ_add_eq_succ_add (n m : ℕ) : succ n + m = n + succ m :=
 !succ_add ⬝ !add_succ⁻¹
 
-theorem add.assoc (n m k : ℕ) : (n + m) + k = n + (m + k) :=
+theorem add.assoc [rewrite] (n m k : ℕ) : (n + m) + k = n + (m + k) :=
 nat.induction_on k
     (!add_zero ▸ !add_zero)
     (take l IH,
@@ -146,7 +146,7 @@ nat.induction_on k
                      ... = n + succ (m + l)    : add_succ
                      ... = n + (m + succ l)    : add_succ)
 
-theorem add.left_comm (n m k : ℕ) : n + (m + k) = m + (n + k) :=
+theorem add.left_comm [rewrite] (n m k : ℕ) : n + (m + k) = m + (n + k) :=
 left_comm add.comm add.assoc n m k
 
 theorem add.right_comm (n m k : ℕ) : n + m + k = n + k + m :=
@@ -186,7 +186,7 @@ eq_zero_of_add_eq_zero_right (!add.comm ⬝ H)
 theorem eq_zero_and_eq_zero_of_add_eq_zero {n m : ℕ} (H : n + m = 0) : n = 0 ∧ m = 0 :=
 and.intro (eq_zero_of_add_eq_zero_right H) (eq_zero_of_add_eq_zero_left H)
 
-theorem add_one (n : ℕ) : n + 1 = succ n :=
+theorem add_one [rewrite] (n : ℕ) : n + 1 = succ n :=
 !add_zero ▸ !add_succ
 
 theorem one_add (n : ℕ) : 1 + n = succ n :=
@@ -194,20 +194,20 @@ theorem one_add (n : ℕ) : 1 + n = succ n :=
 
 /- multiplication -/
 
-theorem mul_zero (n : ℕ) : n * 0 = 0 :=
+theorem mul_zero [rewrite] (n : ℕ) : n * 0 = 0 :=
 rfl
 
-theorem mul_succ (n m : ℕ) : n * succ m = n * m + n :=
+theorem mul_succ [rewrite] (n m : ℕ) : n * succ m = n * m + n :=
 rfl
 
 -- commutativity, distributivity, associativity, identity
 
-theorem zero_mul (n : ℕ) : 0 * n = 0 :=
+theorem zero_mul [rewrite] (n : ℕ) : 0 * n = 0 :=
 nat.induction_on n
   !mul_zero
   (take m IH, !mul_succ ⬝ !add_zero ⬝ IH)
 
-theorem succ_mul (n m : ℕ) : (succ n) * m = (n * m) + m :=
+theorem succ_mul [rewrite] (n m : ℕ) : (succ n) * m = (n * m) + m :=
 nat.induction_on m
   (!mul_zero ⬝ !mul_zero⁻¹ ⬝ !add_zero⁻¹)
   (take k IH, calc
@@ -219,7 +219,7 @@ nat.induction_on m
                 ... = n * k + n + succ k    : add.assoc
                 ... = n * succ k + succ k   : mul_succ)
 
-theorem mul.comm (n m : ℕ) : n * m = m * n :=
+theorem mul.comm [rewrite] (n m : ℕ) : n * m = m * n :=
 nat.induction_on m
   (!mul_zero ⬝ !zero_mul⁻¹)
   (take k IH, calc
@@ -250,7 +250,7 @@ calc
           ... = n * m + k * n  : mul.comm
           ... = n * m + n * k  : mul.comm
 
-theorem mul.assoc (n m k : ℕ) : (n * m) * k = n * (m * k) :=
+theorem mul.assoc [rewrite] (n m k : ℕ) : (n * m) * k = n * (m * k) :=
 nat.induction_on k
   (calc
     (n * m) * 0 = n * (m * 0) : mul_zero)
@@ -261,13 +261,13 @@ nat.induction_on k
                    ... = n * (m * l + m)     : mul.left_distrib
                    ... = n * (m * succ l)    : mul_succ)
 
-theorem mul_one (n : ℕ) : n * 1 = n :=
+theorem mul_one [rewrite] (n : ℕ) : n * 1 = n :=
 calc
   n * 1 = n * 0 + n : mul_succ
     ... = 0 + n     : mul_zero
     ... = n         : zero_add
 
-theorem one_mul (n : ℕ) : 1 * n = n :=
+theorem one_mul [rewrite] (n : ℕ) : 1 * n = n :=
 calc
   1 * n = n * 1 : mul.comm
     ... = n     : mul_one
@@ -314,5 +314,6 @@ section migrate_algebra
   notation a ∣ b := dvd a b
 
   migrate from algebra with nat replacing dvd → dvd
+
 end migrate_algebra
 end nat

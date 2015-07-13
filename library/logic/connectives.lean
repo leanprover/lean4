@@ -61,10 +61,10 @@ have Hnp : ¬a, from
   assume Hp : a, absurd (or.inl Hp) not_em,
 absurd (or.inr Hnp) not_em
 
-theorem not_true : ¬ true ↔ false :=
+theorem not_true [rewrite] : ¬ true ↔ false :=
 iff.intro (assume H, H trivial) (assume H, false.elim H)
 
-theorem not_false_iff : ¬ false ↔ true :=
+theorem not_false_iff [rewrite] : ¬ false ↔ true :=
 iff.intro (assume H, trivial) (assume H H1, H1)
 
 theorem not_iff_not (H : a ↔ b) : ¬a ↔ ¬b :=
@@ -105,19 +105,19 @@ iff.intro
    obtain Ha Hb Hc, from H,
    and.intro (and.intro Ha Hb) Hc)
 
-theorem and_true (a : Prop) : a ∧ true ↔ a :=
+theorem and_true [rewrite] (a : Prop) : a ∧ true ↔ a :=
 iff.intro (assume H, and.left H) (assume H, and.intro H trivial)
 
-theorem true_and (a : Prop) : true ∧ a ↔ a :=
+theorem true_and [rewrite] (a : Prop) : true ∧ a ↔ a :=
 iff.intro (assume H, and.right H) (assume H, and.intro trivial H)
 
-theorem and_false (a : Prop) : a ∧ false ↔ false :=
+theorem and_false [rewrite] (a : Prop) : a ∧ false ↔ false :=
 iff.intro (assume H, and.right H) (assume H, false.elim H)
 
-theorem false_and (a : Prop) : false ∧ a ↔ false :=
+theorem false_and [rewrite] (a : Prop) : false ∧ a ↔ false :=
 iff.intro (assume H, and.left H) (assume H, false.elim H)
 
-theorem and_self (a : Prop) : a ∧ a ↔ a :=
+theorem and_self [rewrite] (a : Prop) : a ∧ a ↔ a :=
 iff.intro (assume H, and.left H) (assume H, and.intro H H)
 
 theorem and_imp_eq (a b c : Prop) : (a ∧ b → c) = (a → b → c) :=
@@ -190,18 +190,18 @@ iff.intro
       (assume Hb, or.inl (or.inr Hb))
       (assume Hc, or.inr Hc)))
 
-theorem or_true (a : Prop) : a ∨ true ↔ true :=
+theorem or_true [rewrite] (a : Prop) : a ∨ true ↔ true :=
 iff.intro (assume H, trivial) (assume H, or.inr H)
 
-theorem true_or (a : Prop) : true ∨ a ↔ true :=
+theorem true_or [rewrite] (a : Prop) : true ∨ a ↔ true :=
 iff.intro (assume H, trivial) (assume H, or.inl H)
 
-theorem or_false (a : Prop) : a ∨ false ↔ a :=
+theorem or_false [rewrite] (a : Prop) : a ∨ false ↔ a :=
 iff.intro
   (assume H, or.elim H (assume H1 : a, H1) (assume H1 : false, false.elim H1))
   (assume H, or.inl H)
 
-theorem false_or (a : Prop) : false ∨ a ↔ a :=
+theorem false_or [rewrite] (a : Prop) : false ∨ a ↔ a :=
 iff.intro
   (assume H, or.elim H (assume H1 : false, false.elim H1) (assume H1 : a, H1))
   (assume H, or.inr H)
@@ -249,22 +249,22 @@ propext (!or.comm) ▸ propext (!or.comm) ▸ propext (!or.comm) ▸ !or.distrib
 definition iff.def : (a ↔ b) = ((a → b) ∧ (b → a)) :=
 !eq.refl
 
-theorem iff_true (a : Prop) : (a ↔ true) ↔ a :=
+theorem iff_true [rewrite] (a : Prop) : (a ↔ true) ↔ a :=
 iff.intro
   (assume H, iff.mp' H trivial)
   (assume H, iff.intro (assume H1, trivial) (assume H1, H))
 
-theorem true_iff (a : Prop) : (true ↔ a) ↔ a :=
+theorem true_iff [rewrite] (a : Prop) : (true ↔ a) ↔ a :=
 iff.intro
   (assume H, iff.mp H trivial)
   (assume H, iff.intro (assume H1, H) (assume H1, trivial))
 
-theorem iff_false (a : Prop) : (a ↔ false) ↔ ¬ a :=
+theorem iff_false [rewrite] (a : Prop) : (a ↔ false) ↔ ¬ a :=
 iff.intro
   (assume H, and.left H)
   (assume H, and.intro H (assume H1, false.elim H1))
 
-theorem false_iff (a : Prop) : (false ↔ a) ↔ ¬ a :=
+theorem false_iff [rewrite] (a : Prop) : (false ↔ a) ↔ ¬ a :=
 iff.intro
   (assume H, and.right H)
   (assume H, and.intro (assume H1, false.elim H1) H)
@@ -272,7 +272,7 @@ iff.intro
 theorem iff_true_of_self (Ha : a) : a ↔ true :=
 iff.intro (assume H, trivial) (assume H, Ha)
 
-theorem iff_self (a : Prop) : (a ↔ a) ↔ true :=
+theorem iff_self [rewrite] (a : Prop) : (a ↔ a) ↔ true :=
 iff_true_of_self !iff.refl
 
 theorem forall_iff_forall {A : Type} {P Q : A → Prop} (H : ∀a, (P a ↔ Q a)) : (∀a, P a) ↔ ∀a, Q a :=
@@ -291,10 +291,10 @@ section
 
   variables {A : Type} {c₁ c₂ : Prop}
 
-  definition if_true (t e : A) : (if true then t else e) = t :=
+  definition if_true [rewrite] (t e : A) : (if true then t else e) = t :=
   if_pos trivial
 
-  definition if_false (t e : A) : (if false then t else e) = e :=
+  definition if_false [rewrite] (t e : A) : (if false then t else e) = e :=
   if_neg not_false
 end
 

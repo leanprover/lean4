@@ -62,6 +62,12 @@ namespace nat
 
   theorem pred_le (n : ℕ) : pred n ≤ n := by cases n;all_goals (repeat constructor)
 
+  theorem le_succ_iff_true [rewrite] (n : ℕ) : n ≤ succ n ↔ true :=
+  iff_true_intro (le_succ n)
+
+  theorem pred_le_iff_true [rewrite] (n : ℕ) : pred n ≤ n ↔ true :=
+  iff_true_intro (pred_le n)
+
   theorem le.trans [trans] {n m k : ℕ} (H1 : n ≤ m) (H2 : m ≤ k) : n ≤ k :=
   by induction H2 with n H2 IH;exact H1;exact le.step IH
 
@@ -86,14 +92,23 @@ namespace nat
   theorem not_succ_le_self {n : ℕ} : ¬succ n ≤ n :=
   by induction n with n IH;all_goals intros;cases a;apply IH;exact le_of_succ_le_succ a
 
+  theorem succ_le_self_iff_false [rewrite] (n : ℕ) : succ n ≤ n ↔ false :=
+  iff_false_intro not_succ_le_self
+
   theorem zero_le (n : ℕ) : 0 ≤ n :=
   by induction n with n IH;apply le.refl;exact le.step IH
+
+  theorem zero_le_iff_true [rewrite] (n : ℕ) : 0 ≤ n ↔ true :=
+  iff_true_intro (zero_le n)
 
   theorem lt.step {n m : ℕ} (H : n < m) : n < succ m :=
   le.step H
 
   theorem zero_lt_succ (n : ℕ) : 0 < succ n :=
   by induction n with n IH;apply le.refl;exact le.step IH
+
+  theorem zero_lt_succ_iff_true [rewrite] (n : ℕ) : 0 < succ n ↔ true :=
+  iff_true_intro (zero_lt_succ n)
 
   theorem lt.trans [trans] {n m k : ℕ} (H1 : n < m) (H2 : m < k) : n < k :=
   le.trans (le.step H1) H2
@@ -116,9 +131,19 @@ namespace nat
   theorem not_succ_le_zero (n : ℕ) : ¬succ n ≤ zero :=
   by intro H; cases H
 
+  theorem succ_le_zero_iff_false (n : ℕ) : succ n ≤ zero ↔ false :=
+  iff_false_intro (not_succ_le_zero n)
+
   theorem lt.irrefl (n : ℕ) : ¬n < n := not_succ_le_self
 
+  theorem lt_self_iff_false [rewrite] (n : ℕ) : n < n ↔ false :=
+  iff_false_intro (lt.irrefl n)
+
   theorem self_lt_succ (n : ℕ) : n < succ n := !le.refl
+
+  theorem self_lt_succ_iff_true [rewrite] (n : ℕ) : n < succ n ↔ true :=
+  iff_true_intro (self_lt_succ n)
+
   theorem lt.base (n : ℕ) : n < succ n := !le.refl
 
   theorem le_lt_antisymm {n m : ℕ} (H1 : n ≤ m) (H2 : m < n) : false :=
@@ -147,14 +172,17 @@ namespace nat
   theorem lt.trichotomy (a b : ℕ) : a < b ∨ a = b ∨ b < a :=
   lt.by_cases (λH, inl H) (λH, inr (inl H)) (λH, inr (inr H))
 
-  definition lt_ge_by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a ≥ b → P) : P :=
+  theorem lt_ge_by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a ≥ b → P) : P :=
   lt.by_cases H1 (λH, H2 (le_of_eq H⁻¹)) (λH, H2 (le_of_lt H))
 
   theorem lt_or_ge (a b : ℕ) : (a < b) ∨ (a ≥ b) :=
   lt_ge_by_cases inl inr
 
-  definition not_lt_zero (a : ℕ) : ¬ a < zero :=
+  theorem not_lt_zero (a : ℕ) : ¬ a < zero :=
   by intro H; cases H
+
+  theorem lt_zero_iff_false [rewrite] (a : ℕ) : a < zero ↔ false :=
+  iff_false_intro (not_lt_zero a)
 
   -- less-than is well-founded
   definition lt.wf [instance] : well_founded lt :=
@@ -221,7 +249,7 @@ namespace nat
   definition max (a b : ℕ) : ℕ := if a < b then b else a
   definition min (a b : ℕ) : ℕ := if a < b then a else b
 
-  theorem max_self (a : ℕ) : max a a = a :=
+  theorem max_self [rewrite] (a : ℕ) : max a a = a :=
   eq.rec_on !if_t_t rfl
 
   theorem max_eq_right' {a b : ℕ} (H : a < b) : max a b = b :=
@@ -242,6 +270,9 @@ namespace nat
     (λ h : a < b,   le_of_lt (eq.rec_on (eq_max_right h) h))
     (λ h : ¬ a < b, eq.rec_on (eq_max_left h) !le.refl)
 
+  theorem le_max_left_iff_true [rewrite] (a b : ℕ) : a ≤ max a b ↔ true :=
+  iff_true_intro (le_max_left a b)
+
   theorem le_max_right (a b : ℕ) : b ≤ max a b :=
   by_cases
     (λ h : a < b,   eq.rec_on (eq_max_right h) !le.refl)
@@ -251,13 +282,16 @@ namespace nat
         have aux : a = max a b, from eq_max_left (lt.asymm h),
         eq.rec_on aux (le_of_lt h)))
 
-  theorem succ_sub_succ_eq_sub (a b : ℕ) : succ a - succ b = a - b :=
+  theorem le_max_right_iff_true [rewrite] (a b : ℕ) : b ≤ max a b ↔ true :=
+  iff_true_intro (le_max_right a b)
+
+  theorem succ_sub_succ_eq_sub [rewrite] (a b : ℕ) : succ a - succ b = a - b :=
   by induction b with b IH;reflexivity; apply congr (eq.refl pred) IH
 
   theorem sub_eq_succ_sub_succ (a b : ℕ) : a - b = succ a - succ b :=
   eq.rec_on (succ_sub_succ_eq_sub a b) rfl
 
-  theorem zero_sub_eq_zero (a : ℕ) : zero - a = zero :=
+  theorem zero_sub_eq_zero [rewrite] (a : ℕ) : zero - a = zero :=
   nat.rec_on a
     rfl
     (λ a₁ (ih : zero - a₁ = zero), congr (eq.refl pred) ih)
@@ -285,5 +319,12 @@ namespace nat
     (le.refl a)
     (λ b₁ ih, le.trans !pred_le ih)
 
-  lemma sub_lt_succ (a b : ℕ) : a - b < succ a := lt_succ_of_le (sub_le a b)
+  theorem sub_le_iff_true [rewrite] (a b : ℕ) : a - b ≤ a ↔ true :=
+  iff_true_intro (sub_le a b)
+
+  theorem sub_lt_succ (a b : ℕ) : a - b < succ a :=
+  lt_succ_of_le (sub_le a b)
+
+  theorem sub_lt_succ_iff_true [rewrite] (a b : ℕ) : a - b < succ a ↔ true :=
+  iff_true_intro (sub_lt_succ a b)
 end nat

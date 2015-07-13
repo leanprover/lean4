@@ -629,7 +629,6 @@ class rewrite_fn {
     };
 
     optional<expr> reduce(expr const & e, list<name> const & to_unfold, optional<occurrence> const & occs, bool force_unfold) {
-        lean_assert(is_nil(to_unfold) == !occs);
         constraint_seq cs;
         bool unfolded = !to_unfold;
         bool use_eta  = true;

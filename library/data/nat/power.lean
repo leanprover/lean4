@@ -80,6 +80,15 @@ lemma dvd_pow_of_dvd_of_pos : ∀ {i j n : nat}, i ∣ j → n > 0 → i ∣ j^n
 lemma pow_mod_eq_zero (i : nat) {n : nat} (h : n > 0) : (i^n) mod i = 0 :=
 iff.mp !dvd_iff_mod_eq_zero (dvd_pow i h)
 
+lemma pow_dvd_of_pow_succ_dvd {p i n : nat} : p^(succ i) ∣ n → p^i ∣ n :=
+assume Psuccdvd,
+assert Pdvdsucc : p^i ∣ p^(succ i), from by rewrite [pow_succ]; apply dvd_of_eq_mul; apply rfl,
+dvd.trans Pdvdsucc Psuccdvd
+
+lemma dvd_of_pow_succ_dvd_mul_pow {p i n : nat} (Ppos : p > 0) :
+  p^(succ i) ∣ (n * p^i) → p ∣ n :=
+by rewrite [pow_succ']; apply dvd_of_mul_dvd_mul_right; apply pow_pos_of_pos _ Ppos
+
 lemma coprime_pow_right {a b} : ∀ n, coprime b a → coprime b (a^n)
 | 0        h := !comprime_one_right
 | (succ n) h :=

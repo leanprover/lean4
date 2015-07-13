@@ -313,6 +313,9 @@ discriminate
 theorem lt_succ_self (n : ℕ) : n < succ n :=
 lt.base n
 
+lemma lt_succ_of_lt {i j : nat} : i < j → i < succ j :=
+assume Plt, lt.trans Plt (self_lt_succ j)
+
 /- other forms of induction -/
 
 protected theorem strong_induction_on {P : nat → Prop} (n : ℕ) (H : ∀n, (∀m, m < n → P m) → P n) :

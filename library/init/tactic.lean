@@ -91,6 +91,18 @@ definition rewrite_tac  (e : expr_list) : tactic := builtin
 definition xrewrite_tac (e : expr_list) : tactic := builtin
 definition krewrite_tac (e : expr_list) : tactic := builtin
 
+-- simp_tac is just a marker for the builtin 'simp' notation
+-- used to create instances of this tactic.
+-- Arguments:
+--  - d : bool.tt if top-down rewrite strategy
+--  - a : bool.tt if assumptions should be used
+--  - e : additional rewrites to be considered
+--  - n : add rewrites from the give namespaces
+--  - x : exclude the give global rewrites
+--  - t : tactic for discharging conditions
+--  - l : location
+definition simp_tac (d a : bool) (e : expr_list) (n : identifier_list) (x : identifier_list) (t : option tactic) (l : expr) : tactic := builtin
+
 definition cases (h : expr) (ids : opt_identifier_list) : tactic := builtin
 
 definition induction (h : expr) (rec : using_expr) (ids : opt_identifier_list) : tactic := builtin

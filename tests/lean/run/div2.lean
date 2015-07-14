@@ -1,8 +1,7 @@
 import logic data.nat.sub algebra.relation data.prod
-import tools.fake_simplifier
 
 open nat relation relation.iff_ops prod
-open fake_simplifier decidable
+open decidable
 open eq.ops
 
 namespace nat

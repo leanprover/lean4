@@ -6,9 +6,7 @@ Authors: Floris van Doorn, Jeremy Avigad
 Subtraction on the natural numbers, as well as min, max, and distance.
 -/
 import .order
-import tools.fake_simplifier
 open eq.ops
-open fake_simplifier
 
 namespace nat
 

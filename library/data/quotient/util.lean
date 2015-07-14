@@ -4,10 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Floris van Doorn
 -/
 import logic ..prod algebra.relation
-import tools.fake_simplifier
-
 open prod eq.ops
-open fake_simplifier
 
 namespace quotient
 

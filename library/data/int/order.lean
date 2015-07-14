@@ -9,7 +9,6 @@ and transfer the results.
 import .basic algebra.ordered_ring
 open nat
 open decidable
-open fake_simplifier
 open int eq.ops
 
 namespace int

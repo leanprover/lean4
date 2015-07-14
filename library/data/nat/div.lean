@@ -5,8 +5,8 @@ Authors: Jeremy Avigad, Leonardo de Moura
 
 Definitions and properties of div and mod. Much of the development follows Isabelle's library.
 -/
-import data.nat.sub tools.fake_simplifier
-open eq.ops well_founded decidable fake_simplifier prod
+import data.nat.sub
+open eq.ops well_founded decidable prod
 
 namespace nat
 

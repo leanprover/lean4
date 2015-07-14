@@ -27,10 +27,9 @@ following:
 -/
 import data.nat.basic data.nat.order data.nat.sub data.prod
 import algebra.relation algebra.binary algebra.ordered_ring
-import tools.fake_simplifier
 open eq.ops
 open prod relation nat
-open decidable binary fake_simplifier
+open decidable binary
 
 /- the type of integers -/
 

@@ -99,7 +99,7 @@ definition krewrite_tac (e : expr_list) : tactic := builtin
 --  - x : exclude the give global rewrites
 --  - t : tactic for discharging conditions
 --  - l : location
-definition simp_tac (d a : bool) (e : expr_list) (n : identifier_list) (x : identifier_list) (t : option tactic) (l : expr) : tactic := builtin
+definition simp_tac (e : expr_list) (n : identifier_list) (x : identifier_list) (t : option tactic) (l : expr) : tactic := builtin
 
 -- with_options_tac is just a marker for the builtin 'with_options' notation
 definition with_options_tac (o : expr) (t : tactic) : tactic := builtin

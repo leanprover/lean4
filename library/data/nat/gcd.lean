@@ -6,7 +6,7 @@ Authors: Jeremy Avigad, Leonardo de Moura
 Definitions and properties of gcd, lcm, and coprime.
 -/
 import .div
-open eq.ops well_founded decidable fake_simplifier prod
+open eq.ops well_founded decidable prod
 
 namespace nat
 

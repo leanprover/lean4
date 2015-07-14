@@ -219,9 +219,9 @@ theorem add_halves (p : ℕ+) : (2 * p)⁻¹ + (2 * p)⁻¹ = p⁻¹ :=
 
 theorem add_halves_double (m n : ℕ+) :
         m⁻¹ + n⁻¹ = ((2 * m)⁻¹ + (2 * n)⁻¹) + ((2 * m)⁻¹ + (2 * n)⁻¹) :=
-  have simp [visible] : ∀ a b : ℚ, (a + a) + (b + b) = (a + b) + (a + b),
+  have hsimp [visible] : ∀ a b : ℚ, (a + a) + (b + b) = (a + b) + (a + b),
     by intros; rewrite [rat.add.assoc, -(rat.add.assoc a b b), {_+b}rat.add.comm, -*rat.add.assoc],
-  by rewrite [-add_halves m, -add_halves n, simp]
+  by rewrite [-add_halves m, -add_halves n, hsimp]
 
 theorem inv_mul_eq_mul_inv {p q : ℕ+} : (p * q)⁻¹ = p⁻¹ * q⁻¹ :=
   by rewrite [↑inv, pnat_to_rat_mul, one_div_mul_one_div''']
@@ -297,8 +297,8 @@ theorem div_le_pnat (q : ℚ) (n : ℕ+) (H : q ≥ n⁻¹) : 1 / q ≤ rat_of_p
 
 theorem pnat_cancel' (n m : ℕ+) : (n * n * m)⁻¹ * (rat_of_pnat n * rat_of_pnat n) = m⁻¹ :=
   begin
-    have simp : ∀ a b c : ℚ, (a * a * (b * b * c)) = (a * b) * (a * b) * c, from sorry, -- simp
-    rewrite [rat.mul.comm, *inv_mul_eq_mul_inv, simp, *inv_cancel_left, *rat.one_mul]
+    have hsimp : ∀ a b c : ℚ, (a * a * (b * b * c)) = (a * b) * (a * b) * c, from sorry, -- simp
+    rewrite [rat.mul.comm, *inv_mul_eq_mul_inv, hsimp, *inv_cancel_left, *rat.one_mul]
   end
 
 definition pceil (a : ℚ) : ℕ+ := pnat.pos (ubound a) !ubound_pos

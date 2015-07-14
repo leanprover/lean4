@@ -164,9 +164,9 @@ theorem eq_of_bdd {s t : seq} (Hs : regular s) (Ht : regular t)
       apply rat.add_le_add,
       apply HNj (max j Nj) (max_right j Nj),
       apply Ht,
-      have simp : ∀ m : ℕ+, n⁻¹ + m⁻¹ + (j⁻¹ + (m⁻¹ + n⁻¹)) = (n⁻¹ + n⁻¹ + j⁻¹) + (m⁻¹ + m⁻¹),
+      have hsimp : ∀ m : ℕ+, n⁻¹ + m⁻¹ + (j⁻¹ + (m⁻¹ + n⁻¹)) = (n⁻¹ + n⁻¹ + j⁻¹) + (m⁻¹ + m⁻¹),
         from sorry, -- simplifier
-      rewrite simp,
+      rewrite hsimp,
       have Hms : (max j Nj)⁻¹ + (max j Nj)⁻¹ ≤ j⁻¹ + j⁻¹, begin
         apply rat.add_le_add,
         apply inv_ge_of_le (max_left j Nj),
@@ -733,7 +733,7 @@ theorem mul_neg_equiv_neg_mul {s t : seq} : smul s (sneg t) ≡ sneg (smul s t) 
 theorem equiv_of_diff_equiv_zero {s t : seq} (Hs : regular s) (Ht : regular t)
         (H : sadd s (sneg t) ≡ zero) : s ≡ t :=
   begin
-    have simp : ∀ a b c d e : ℚ, a + b + c + (d + e) = (b + d) + a + e + c, from sorry,
+    have hsimp : ∀ a b c d e : ℚ, a + b + c + (d + e) = (b + d) + a + e + c, from sorry,
     apply eq_of_bdd Hs Ht,
     intros,
     let He := bdd_of_eq H,
@@ -749,7 +749,7 @@ theorem equiv_of_diff_equiv_zero {s t : seq} (Hs : regular s) (Ht : regular t)
     let He' := λ a b c, !rat.sub_zero ▸ (He a b c),
     apply (He' _ _ Hn),
     apply Ht,
-    rewrite [simp, add_halves, -(add_halves j), -(add_halves (2 * j)), -*rat.add.assoc],
+    rewrite [hsimp, add_halves, -(add_halves j), -(add_halves (2 * j)), -*rat.add.assoc],
     apply rat.add_le_add_right,
     apply add_le_add_three,
     repeat (apply rat.le.trans; apply inv_ge_of_le Hn; apply inv_two_mul_le_inv)

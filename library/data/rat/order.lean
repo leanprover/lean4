@@ -324,10 +324,10 @@ section migrate_algebra
 end migrate_algebra
 
 theorem rat_of_nat_abs (a : ℤ) : abs (of_int a) = of_nat (int.nat_abs a) :=
-  have simp [visible] : ∀ n : ℕ, of_int (int.neg_succ_of_nat n) = - of_nat (nat.succ n), from λ n, rfl,
+  have hsimp [visible] : ∀ n : ℕ, of_int (int.neg_succ_of_nat n) = - of_nat (nat.succ n), from λ n, rfl,
   int.induction_on a
     (take b, abs_of_nonneg (!of_nat_nonneg))
-    (take b, by rewrite [simp, abs_neg, abs_of_nonneg (!of_nat_nonneg)])
+    (take b, by rewrite [hsimp, abs_neg, abs_of_nonneg (!of_nat_nonneg)])
 
 definition ubound : ℚ → ℕ := λ a : ℚ, nat.succ (int.nat_abs (num a))
 

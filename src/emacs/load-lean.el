@@ -11,7 +11,7 @@
 (setq lean-emacs-dependencies-path (format "%s/dependencies" lean-emacs-path))
 
 (setq lean-logo (create-image (format "%s/lean.pgm" lean-emacs-path)))
-(setq lean-required-packages '(company dash dash-functional f fill-column-indicator flycheck lua-mode mmm-mode s))
+(setq lean-required-packages '(company dash dash-functional f fill-column-indicator flycheck let-alist lua-mode mmm-mode s))
 
 (setq load-path
       (append

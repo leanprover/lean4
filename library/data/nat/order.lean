@@ -318,11 +318,10 @@ assume Plt, lt.trans Plt (self_lt_succ j)
 
 /- other forms of induction -/
 
-protected theorem strong_induction_on {P : nat → Prop} (n : ℕ) (H : ∀n, (∀m, m < n → P m) → P n) :
-    P n :=
+protected definition strong_rec_on {P : nat → Type} (n : ℕ) (H : ∀n, (∀m, m < n → P m) → P n) : P n :=
 have H1 : ∀ {n m : nat}, m < n → P m, from
   take n,
-  nat.induction_on n
+  nat.rec_on n
     (show ∀m, m < 0 → P m, from take m H, absurd H !not_lt_zero)
     (take n',
       assume IH : ∀ {m : nat}, m < n' → P m,
@@ -330,10 +329,14 @@ have H1 : ∀ {n m : nat}, m < n → P m, from
       show ∀m, m < succ n' → P m, from
         take m,
         assume H3 : m < succ n',
-        or.elim (lt_or_eq_of_le (le_of_lt_succ H3))
+        or.by_cases (lt_or_eq_of_le (le_of_lt_succ H3))
           (assume H4: m < n', IH H4)
           (assume H4: m = n', by subst m; assumption)),
 H1 !lt_succ_self
+
+protected theorem strong_induction_on {P : nat → Prop} (n : ℕ) (H : ∀n, (∀m, m < n → P m) → P n) :
+    P n :=
+nat.strong_rec_on n H
 
 protected theorem case_strong_induction_on {P : nat → Prop} (a : nat) (H0 : P 0)
   (Hind : ∀(n : nat), (∀m, m ≤ n → P m) → P (succ n)) : P a :=

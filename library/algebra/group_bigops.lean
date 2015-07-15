@@ -8,7 +8,7 @@ Finite products on a monoid, and finite sums on an additive monoid.
 We have to be careful with dependencies. This theory imports files from finset and list, which
 import basic files from nat. Then nat imports this file to instantiate finite products and sums.
 -/
-import .group data.list.basic data.list.perm data.finset.basic
+import .group .group_power data.list.basic data.list.perm data.finset.basic
 open algebra function binary quot subtype list finset
 
 namespace algebra
@@ -65,6 +65,24 @@ section monoid
   theorem Prodl_one : ∀(l : list A), Prodl l (λ x, 1) = (1:B)
   | []     := rfl
   | (a::l) := by rewrite [Prodl_cons, Prodl_one, mul_one]
+
+  lemma Prodl_singleton {a : A} {f : A → B} : Prodl [a] f = f a :=
+  !one_mul
+
+  lemma Prodl_map {f : A → B} :
+    ∀ {l : list A}, Prodl l f = Prodl (map f l) id
+  | nil    := by rewrite [map_nil]
+  | (a::l) := begin rewrite [map_cons, Prodl_cons f, Prodl_cons id (f a), Prodl_map] end
+
+  open nat
+  lemma Prodl_eq_pow_of_const {f : A → B} :
+    ∀ {l : list A} b, (∀ a, a ∈ l → f a = b) → Prodl l f = b ^ length l
+  | nil    := take b, assume Pconst, by rewrite [length_nil, {b^0}algebra.pow_zero]
+  | (a::l) := take b, assume Pconst,
+    assert Pconstl : ∀ a', a' ∈ l → f a' = b,
+      from take a' Pa'in, Pconst a' (mem_cons_of_mem a Pa'in),
+    by rewrite [Prodl_cons f, Pconst a !mem_cons, Prodl_eq_pow_of_const b Pconstl, length_cons, add_one, pow_succ' b]
+
 end monoid
 
 section comm_monoid

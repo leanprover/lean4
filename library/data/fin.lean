@@ -91,6 +91,9 @@ end pigeonhole
 definition zero (n : nat) : fin (succ n) :=
 mk 0 !zero_lt_succ
 
+definition mk_mod [reducible] (n i : nat) : fin (succ n) :=
+mk (i mod (succ n)) (mod_lt _ !zero_lt_succ)
+
 variable {n : nat}
 
 theorem val_lt : ∀ i : fin n, val i < n
@@ -108,7 +111,18 @@ mk n !lt_succ_self
 theorem val_lift : ∀ (i : fin n) (m : nat), val i = val (lift i m)
 | (mk v h) m := rfl
 
+lemma mk_succ_ne_zero {i : nat} : ∀ {P}, mk (succ i) P ≠ zero n :=
+assume P Pe, absurd (veq_of_eq Pe) !succ_ne_zero
+
+lemma mk_mod_eq {i : fin (succ n)} : i = mk_mod n i :=
+eq_of_veq begin rewrite [↑mk_mod, mod_eq_of_lt !is_lt] end
+
+lemma mk_mod_of_lt {i : nat} (Plt : i < succ n) : mk_mod n i = mk i Plt :=
+begin esimp [mk_mod], congruence, exact mod_eq_of_lt Plt end
+
 section lift_lower
+
+lemma lift_zero : lift_succ (zero n) = zero (succ n) := rfl
 
 lemma ne_max_of_lt_max {i : fin (succ n)} : i < n → i ≠ maxi :=
 by intro hlt he; substvars; exact absurd hlt (lt.irrefl n)
@@ -196,6 +210,9 @@ section madd
 definition madd (i j : fin (succ n)) : fin (succ n) :=
 mk ((i + j) mod (succ n)) (mod_lt _ !zero_lt_succ)
 
+definition minv : ∀ i : fin (succ n), fin (succ n)
+| (mk iv ilt) := mk ((succ n - iv) mod succ n) (mod_lt _ !zero_lt_succ)
+
 lemma val_madd : ∀ i j : fin (succ n), val (madd i j) = (i + j) mod (succ n)
 | (mk iv ilt) (mk jv jlt) := by esimp
 
@@ -208,11 +225,11 @@ take j₁ j₂, fin.destruct j₁ (fin.destruct j₂ (λ jv₁ jlt₁ jv₂ jlt�
   apply mod_eq_mod_of_add_mod_eq_add_mod_left Peq
 end))
 
+lemma madd_mk_mod {i j : nat} : madd (mk_mod n i) (mk_mod n j) = mk_mod n (i+j) :=
+eq_of_veq begin esimp [madd, mk_mod], rewrite [ mod_add_mod, add_mod_mod ] end
+
 lemma val_mod : ∀ i : fin (succ n), (val i) mod (succ n) = val i
 | (mk iv ilt) := by esimp; rewrite [(mod_eq_of_lt ilt)]
-
-definition minv : ∀ i : fin (succ n), fin (succ n)
-| (mk iv ilt) := mk ((succ n - iv) mod succ n) (mod_lt _ !zero_lt_succ)
 
 lemma madd_comm (i j : fin (succ n)) : madd i j = madd j i :=
 by apply eq_of_veq; rewrite [*val_madd, add.comm (val i)]
@@ -254,6 +271,11 @@ definition succ : fin n → fin (succ n)
 
 lemma val_succ : ∀ (i : fin n), val (succ i) = nat.succ (val i)
 | (mk v h) := rfl
+
+lemma succ_max : fin.succ maxi = (@maxi (nat.succ n)) := rfl
+
+lemma lift_succ.comm : lift_succ ∘ (@succ n) = succ ∘ lift_succ :=
+funext take i, eq_of_veq (begin rewrite [↑lift_succ, -val_lift, *val_succ, -val_lift] end)
 
 definition elim0 {C : fin 0 → Type} : Π i : fin 0, C i
 | (mk v h) := absurd h !not_lt_zero

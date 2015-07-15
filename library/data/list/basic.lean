@@ -272,6 +272,10 @@ theorem not_mem_append {x : T} {s t : list T} : x ∉ s → x ∉ t → x ∉ s+
   (λ xins, by contradiction)
   (λ xint, by contradiction)
 
+lemma length_pos_of_mem {a : T} : ∀ {l : list T}, a ∈ l → 0 < length l
+| []     := assume Pinnil, by contradiction
+| (b::l) := assume Pin, !zero_lt_succ
+
 local attribute mem [reducible]
 local attribute append [reducible]
 theorem mem_split {x : T} {l : list T} : x ∈ l → ∃s t : list T, l = s ++ (x::t) :=

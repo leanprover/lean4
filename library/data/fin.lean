@@ -99,6 +99,9 @@ variable {n : nat}
 theorem val_lt : ∀ i : fin n, val i < n
 | (mk v h) := h
 
+lemma max_lt (i j : fin n) : max i j < n :=
+max_lt (is_lt i) (is_lt j)
+
 definition lift : fin n → Π m, fin (n + m)
 | (mk v h) m := mk v (lt_add_of_lt_right h m)
 

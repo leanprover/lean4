@@ -489,6 +489,10 @@ begin
   { exact mem_upto_succ_of_mem_upto (mem_upto_of_lt h')}
 end
 
+lemma upto_step : ∀ {n : nat}, upto (succ n) = (map succ (upto n))++[0]
+| 0        := rfl
+| (succ n) := begin rewrite [upto_succ n, map_cons, append_cons, -upto_step] end
+
 /- union -/
 section union
 variable {A : Type}

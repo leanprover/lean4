@@ -6,7 +6,7 @@ Author: Leonardo de Moura, Jeremy Avigad
 Finite sets.
 -/
 import data.fintype.basic data.nat data.list.perm data.subtype algebra.binary
-open nat quot list subtype binary function
+open nat quot list subtype binary function eq.ops
 open [declarations] perm
 
 definition nodup_list (A : Type) := {l : list A | nodup l}
@@ -92,6 +92,9 @@ list.mem_singleton
 
 theorem mem_singleton_eq (x a : A) : (x ∈ singleton a) = (x = a) :=
 propext (iff.intro eq_of_mem_singleton (assume H, eq.subst H !mem_singleton))
+
+lemma eq_of_singleton_eq {a b : A} : singleton a = singleton b → a = b :=
+assume Pseq, eq_of_mem_singleton (Pseq ▸ mem_singleton a)
 
 definition decidable_mem [instance] [h : decidable_eq A] : ∀ (a : A) (s : finset A), decidable (a ∈ s) :=
 λ a s, quot.rec_on_subsingleton s

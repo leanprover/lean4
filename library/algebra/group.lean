@@ -206,6 +206,9 @@ section group
   theorem eq_inv_iff_eq_inv (a b : A) : a = b⁻¹ ↔ b = a⁻¹ :=
   iff.intro !eq_inv_of_eq_inv !eq_inv_of_eq_inv
 
+  theorem eq_inv_of_mul_eq_one {a b : A} (H : a * b = 1) : a = b⁻¹ :=
+  begin rewrite [eq_inv_iff_eq_inv], apply eq.symm, exact inv_eq_of_mul_eq_one H end
+
   theorem mul.right_inv (a : A) : a * a⁻¹ = 1 :=
   calc
     a * a⁻¹ = (a⁻¹)⁻¹ * a⁻¹ : inv_inv

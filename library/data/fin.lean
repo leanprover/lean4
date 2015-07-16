@@ -303,6 +303,30 @@ begin
     eq.rec_on this CO }
 end
 
+definition succ_maxi_cases {C : fin (nat.succ n) → Type} :
+  (Π j : fin n, C (lift_succ j)) → C maxi → (Π k : fin (nat.succ n), C k) :=
+begin
+  intros CL CM k,
+  induction k with [vk, pk],
+  induction (nat.decidable_lt vk n) with [HT, HF],
+  { show C (mk vk pk), from
+    have HL : lift_succ (mk vk HT) = mk vk pk, from
+      val_inj rfl,
+    eq.rec_on HL (CL (mk vk HT)) },
+  { show C (mk vk pk), from
+    have HMv : vk = n, from
+      le.antisymm (le_of_lt_succ pk) (le_of_not_gt HF),
+    have HM : maxi = mk vk pk, from
+      val_inj (eq.symm HMv),
+    eq.rec_on HM CM }
+end
+
+definition foldr {A B : Type} (m : A → B → B) (b : B) : ∀ {n : nat}, (fin n → A) → B :=
+  nat.rec (λ f, b) (λ n IH f, m (f (zero n)) (IH (λ i : fin n, f (succ i))))
+
+definition foldl {A B : Type} (m : B → A → B) (b : B) : ∀ {n : nat}, (fin n → A) → B :=
+  nat.rec (λ f, b) (λ n IH f, m (IH (λ i : fin n, f (lift_succ i))) (f maxi))
+
 theorem choice {C : fin n → Type} :
   (∀ i : fin n, nonempty (C i)) → nonempty (Π i : fin n, C i) :=
 begin

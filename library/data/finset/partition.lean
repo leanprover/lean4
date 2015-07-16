@@ -114,13 +114,27 @@ begin rewrite [binary_union P at {1}], apply Union_union, exact binary_inter_emp
 end
 
 open nat
+section
+open algebra
+
+variables {B : Type} [acmB : add_comm_monoid B]
+include acmB
+
+lemma Sum_binary_union (f : A → B) (P : A → Prop) [decP : decidable_pred P] {S : finset A} :
+  Sum S f = Sum {s ∈ S | P s} f + Sum {s ∈ S | ¬P s} f :=
+calc
+  Sum S f = Sum ({s ∈ S | P s} ∪ {s ∈ S | ¬(P s)}) f : binary_union
+      ... = Sum {s ∈ S | P s} f + Sum {s ∈ S | ¬P s} f : Sum_union f binary_inter_empty
+
+end
+
 lemma card_binary_Union_disjoint_sets (P : finset A → Prop) [decP : decidable_pred P] {S : finset (finset A)} :
-  disjoint_sets S → Sum S card = Sum {s ∈ S | P s} card + Sum {s ∈ S | ¬P s} card :=
+  disjoint_sets S → card (Union S id) = Sum {s ∈ S | P s} card + Sum {s ∈ S | ¬P s} card :=
 assume Pds, calc
-  Sum S card = card (Union S id) : card_Union_of_disjoint S id Pds
-         ... = card (Union {s ∈ S | P s} id ∪ Union {s ∈ S | ¬P s} id) : binary_Union
-         ... = card (Union {s ∈ S | P s} id) + card (Union {s ∈ S | ¬P s} id) : card_union_of_disjoint (binary_inter_empty_Union_disjoint_sets Pds)
-         ... = Sum {s ∈ S | P s} card + Sum {s ∈ S | ¬P s} card : by rewrite [*(card_Union_of_disjoint _ id (disjoint_sets_filter_of_disjoint_sets Pds))]
+        card (Union S id)
+      = card (Union {s ∈ S | P s} id ∪ Union {s ∈ S | ¬P s} id) : binary_Union
+  ... = card (Union {s ∈ S | P s} id) + card (Union {s ∈ S | ¬P s} id) : card_union_of_disjoint (binary_inter_empty_Union_disjoint_sets Pds)
+  ... = Sum {s ∈ S | P s} card + Sum {s ∈ S | ¬P s} card : by rewrite [*(card_Union_of_disjoint _ id (disjoint_sets_filter_of_disjoint_sets Pds))]
 
 end partition
 end finset

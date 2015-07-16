@@ -371,10 +371,11 @@ calc Sum _ _ = Sum (fixed_point_orbits hom H) (λ x, 1) : Sum_ext (take c Pin, o
          ... = card (fixed_point_orbits hom H) * 1 : Sum_const_eq_card_mul
          ... = card (fixed_point_orbits hom H) : mul_one (card (fixed_point_orbits hom H))
 
+local attribute nat.comm_semiring [instance]
 lemma orbit_class_equation' : card S = card (fixed_points hom H) + Sum {cls ∈ orbits hom H | card cls ≠ 1} card :=
 calc card S = Sum (orbits hom H) finset.card : orbit_class_equation
-        ... = Sum (fixed_point_orbits hom H) finset.card + Sum {cls ∈ orbits hom H | card cls ≠ 1} card : card_binary_Union_disjoint_sets _ (equiv_class_disjoint _)
-        ... = card (fixed_point_orbits hom H) + Sum {cls ∈ orbits hom H | card cls ≠ 1} card : card_fixed_point_orbits
+        ... = Sum (fixed_point_orbits hom H) finset.card + Sum {cls ∈ orbits hom H | card cls ≠ 1} card : Sum_binary_union
+        ... = card (fixed_point_orbits hom H) + Sum {cls ∈ orbits hom H | card cls ≠ 1} card : {card_fixed_point_orbits}
         ... = card (fixed_points hom H) + Sum {cls ∈ orbits hom H | card cls ≠ 1} card : card_fixed_point_orbits_eq
 
 end orbit_partition

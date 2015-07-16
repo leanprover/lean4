@@ -227,7 +227,7 @@ theorem r_abs_nonneg {x : ℝ} : zero ≤ x → re_abs x = x :=
 theorem r_abs_nonpos {x : ℝ} : x ≤ zero → re_abs x = -x :=
   quot.induction_on x (λ a Ha, quot.sound (s.r_equiv_neg_abs_of_le_zero Ha))
 
-theorem abs_const' (a : ℚ) : const (rat.abs a) = re_abs (const a) := quot.sound (s.r_abs_const a)
+theorem abs_const' (a : ℚ) : of_rat (rat.abs a) = re_abs (of_rat a) := quot.sound (s.r_abs_const a)
 
 theorem re_abs_is_abs : re_abs = real.abs := funext
   (begin
@@ -242,30 +242,30 @@ theorem re_abs_is_abs : re_abs = real.abs := funext
     rewrite [abs_of_neg (lt_of_not_ge Hor2), r_abs_nonpos Hor2']
   end)
 
-theorem abs_const (a : ℚ) : const (rat.abs a) = abs (const a) :=
+theorem abs_const (a : ℚ) : of_rat (rat.abs a) = abs (of_rat a) :=
   by rewrite -re_abs_is_abs -- ????
 
-theorem rat_approx' (x : ℝ) : ∀ n : ℕ+, ∃ q : ℚ, re_abs (x - const q) ≤ const n⁻¹ :=
+theorem rat_approx' (x : ℝ) : ∀ n : ℕ+, ∃ q : ℚ, re_abs (x - of_rat q) ≤ of_rat n⁻¹ :=
   quot.induction_on x (λ s n, s.r_rat_approx s n)
 
-theorem rat_approx (x : ℝ) : ∀ n : ℕ+, ∃ q : ℚ, abs (x - const q) ≤ const n⁻¹ :=
+theorem rat_approx (x : ℝ) : ∀ n : ℕ+, ∃ q : ℚ, abs (x - of_rat q) ≤ of_rat n⁻¹ :=
   by rewrite -re_abs_is_abs; apply rat_approx'
 
 noncomputable definition approx (x : ℝ) (n : ℕ+) := some (rat_approx x n)
 
-theorem approx_spec (x : ℝ) (n : ℕ+) : abs (x - (const (approx x n))) ≤ const n⁻¹ :=
+theorem approx_spec (x : ℝ) (n : ℕ+) : abs (x - (of_rat (approx x n))) ≤ of_rat n⁻¹ :=
   some_spec (rat_approx x n)
 
-theorem approx_spec' (x : ℝ) (n : ℕ+) : abs ((const (approx x n)) - x) ≤ const n⁻¹ :=
+theorem approx_spec' (x : ℝ) (n : ℕ+) : abs ((of_rat (approx x n)) - x) ≤ of_rat n⁻¹ :=
   by rewrite abs_sub; apply approx_spec
 
 notation `r_seq` := ℕ+ → ℝ
 
 noncomputable definition converges_to (X : r_seq) (a : ℝ) (N : ℕ+ → ℕ+) :=
-  ∀ k : ℕ+, ∀ n : ℕ+, n ≥ N k → abs (X n - a) ≤ const k⁻¹
+  ∀ k : ℕ+, ∀ n : ℕ+, n ≥ N k → abs (X n - a) ≤ of_rat k⁻¹
 
 noncomputable definition cauchy (X : r_seq) (M : ℕ+ → ℕ+) :=
-  ∀ k : ℕ+, ∀ m n : ℕ+, m ≥ M k → n ≥ M k → abs (X m - X n) ≤ const k⁻¹
+  ∀ k : ℕ+, ∀ m n : ℕ+, m ≥ M k → n ≥ M k → abs (X m - X n) ≤ of_rat k⁻¹
 --set_option pp.implicit true
 --set_option pp.coercions true
 
@@ -276,18 +276,18 @@ noncomputable definition cauchy (X : r_seq) (M : ℕ+ → ℕ+) :=
 -- Need to finish the migration to real to fix this.
 
 --set_option pp.all true
-theorem add_consts2 (a b : ℚ) : const a + const b = const (a + b) :=
-  !add_consts --quot.sound (s.r_add_consts a b)
+--theorem add_consts2 (a b : ℚ) : const a + const b = const (a + b) :=
+--  !add_consts --quot.sound (s.r_add_consts a b)
 --check add_consts
 --check add_consts2
 
-theorem sub_consts2 (a b : ℚ) : const a - const b = const (a - b) := !sub_consts
+/-theorem sub_consts2 (a b : ℚ) : const a - const b = const (a - b) := !sub_consts
 
 theorem add_half_const2 (n : ℕ+) : const (2 * n)⁻¹ + const (2 * n)⁻¹ = const (n⁻¹) :=
-  by xrewrite [add_consts2, pnat.add_halves]
+  by xrewrite [add_consts2, pnat.add_halves]-/
 
-set_option pp.all true
-
+--set_option pp.all true
+set_option pp.coercions true
 theorem cauchy_of_converges_to {X : r_seq} {a : ℝ} {N : ℕ+ → ℕ+} (Hc : converges_to X a N) :
         cauchy X (λ k, N (2 * k)) :=
   begin
@@ -302,8 +302,10 @@ theorem cauchy_of_converges_to {X : r_seq} {a : ℝ} {N : ℕ+ → ℕ+} (Hc : c
     krewrite abs_neg,
     apply Hc,
     apply Hn,
-    xrewrite add_half_const2,
-    eapply real.le.refl
+    xrewrite of_rat_add,
+    apply of_rat_le_of_rat_of_le,
+    rewrite pnat.add_halves,
+    apply rat.le.refl
   end
 
 definition Nb (M : ℕ+ → ℕ+) := λ k, pnat.max (3 * k) (M (2 * k))
@@ -317,8 +319,8 @@ noncomputable definition lim_seq {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X 
 
 theorem lim_seq_reg_helper {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) {m n : ℕ+}
         (Hmn : M (2 * n) ≤M (2 * m)) :
-           abs (const (lim_seq Hc m) - X (Nb M m)) + abs (X (Nb M m) - X (Nb M n)) + abs
-            (X (Nb M n) - const (lim_seq Hc n)) ≤ const (m⁻¹ + n⁻¹) :=
+           abs (of_rat (lim_seq Hc m) - X (Nb M m)) + abs (X (Nb M m) - X (Nb M n)) + abs
+            (X (Nb M n) - of_rat (lim_seq Hc n)) ≤ of_rat (m⁻¹ + n⁻¹) :=
   begin
     apply le.trans,
     apply add_le_add_three,
@@ -333,8 +335,8 @@ theorem lim_seq_reg_helper {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) {m 
     apply pnat.le.trans,
     apply Hmn,
     apply Nb_spec_right,
-    rewrite [*add_consts2, rat.add.assoc, pnat.add_halves],
-    apply const_le_const_of_le,
+    rewrite [*of_rat_add, rat.add.assoc, pnat.add_halves],
+    apply of_rat_le_of_rat_of_le,
     apply rat.add_le_add_right,
     apply inv_ge_of_le,
     apply pnat.mul_le_mul_left
@@ -346,8 +348,8 @@ theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : s.regula
   begin
     rewrite ↑s.regular,
     intro m n,
-    apply le_of_const_le_const,
-    rewrite [abs_const, -sub_consts, -sub_eq_add_neg, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],--, -sub_consts2, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],
+    apply le_of_rat_le_of_rat,
+    rewrite [abs_const, -of_rat_sub, -sub_eq_add_neg, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],
     apply real.le.trans,
     apply abs_add_three,
     let Hor := decidable.em (M (2 * m) ≥ M (2 * n)),
@@ -379,22 +381,22 @@ noncomputable definition lim {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
   quot.mk (r_lim_seq Hc)
 
 theorem re_lim_spec {x : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy x M) (k : ℕ+) :
-        re_abs ((lim Hc) - (const ((lim_seq Hc) k))) ≤ const k⁻¹ :=
+        re_abs ((lim Hc) - (of_rat ((lim_seq Hc) k))) ≤ of_rat k⁻¹ :=
   r_lim_seq_spec Hc k
 
 theorem lim_spec' {x : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy x M) (k : ℕ+) :
-        abs ((lim Hc) - (const ((lim_seq Hc) k))) ≤ const k⁻¹ :=
+        abs ((lim Hc) - (of_rat ((lim_seq Hc) k))) ≤ of_rat k⁻¹ :=
   by rewrite -re_abs_is_abs; apply re_lim_spec
 
 theorem lim_spec {x : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy x M) (k : ℕ+) :
-        abs ((const ((lim_seq Hc) k)) - (lim Hc)) ≤ const (k)⁻¹ :=
+        abs ((of_rat ((lim_seq Hc) k)) - (lim Hc)) ≤ of_rat (k)⁻¹ :=
   by rewrite abs_sub; apply lim_spec'
 
 theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
         converges_to X (lim Hc) (Nb M) :=
   begin
     intro k n Hn,
-    rewrite (rewrite_helper10 (X (Nb M n)) (const (lim_seq Hc n))),
+    rewrite (rewrite_helper10 (X (Nb M n)) (of_rat (lim_seq Hc n))),
     apply le.trans,
     apply abs_add_three,
     apply le.trans,
@@ -418,8 +420,8 @@ theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
     rewrite ↑lim_seq,
     apply approx_spec,
     apply lim_spec,
-    rewrite 2 add_consts2,
-    apply const_le_const_of_le,
+    rewrite 2 of_rat_add,
+    apply of_rat_le_of_rat_of_le,
     apply rat.le.trans,
     apply rat.add_le_add_three,
     apply rat.le.refl,

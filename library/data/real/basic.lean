@@ -946,10 +946,10 @@ theorem const_reg (a : ℚ) : regular (const a) :=
   end
 
 theorem add_consts (a b : ℚ) : sadd (const a) (const b) ≡ const (a + b) :=
-  begin
-    rewrite [↑sadd, ↑const],
-    apply equiv.refl
-  end
+  by apply equiv.refl
+
+theorem mul_consts (a b : ℚ) : smul (const a) (const b) ≡ const (a * b) :=
+  by apply equiv.refl
 
 ---------------------------------------------
 -- create the type of regular sequences and lift theorems
@@ -1037,6 +1037,8 @@ theorem r_zero_nequiv_one : ¬ requiv r_zero r_one :=
 definition r_const (a : ℚ) : reg_seq := reg_seq.mk (const a) (const_reg a)
 
 theorem r_add_consts (a b : ℚ) : requiv (r_const a + r_const b) (r_const (a + b)) := add_consts a b
+
+theorem r_mul_consts (a b : ℚ) : requiv (r_const a * r_const b) (r_const (a * b)) := mul_consts a b
 
 end s
 ----------------------------------------------
@@ -1128,14 +1130,17 @@ protected definition comm_ring [reducible] : algebra.comm_ring ℝ :=
     apply mul_comm
   end
 
-definition const (a : ℚ) : ℝ := quot.mk (s.r_const a)
+definition of_rat [coercion] (a : ℚ) : ℝ := quot.mk (s.r_const a)
 
-theorem add_consts (a b : ℚ) : const a + const b = const (a + b) :=
-  quot.sound (s.r_add_consts a b)
+theorem of_rat_add (a b : ℚ) : of_rat a + of_rat b = of_rat (a + b) :=
+   quot.sound (s.r_add_consts a b)
 
-theorem sub_consts (a b : ℚ) : const a + -const b = const (a - b) := !add_consts
+theorem of_rat_sub (a b : ℚ) : of_rat a + - of_rat b = of_rat (a - b) := !of_rat_add
 
-theorem add_half_const (n : ℕ+) : const (2 * n)⁻¹ + const (2 * n)⁻¹ = const (n⁻¹) :=
-  by rewrite [add_consts, pnat.add_halves]
+theorem of_rat_mul (a b : ℚ) : of_rat a * of_rat b = of_rat (a * b) :=
+  quot.sound (s.r_mul_consts a b)
+
+theorem add_half_of_rat (n : ℕ+) : of_rat (2 * n)⁻¹ + of_rat (2 * n)⁻¹ = of_rat (n⁻¹) :=
+  by rewrite [of_rat_add, pnat.add_halves]
 
 end real

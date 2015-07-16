@@ -919,7 +919,7 @@ theorem s_lt_of_le_of_lt {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : r
   end
 
 -----------------------------
--- const theorems
+-- of_rat theorems
 
 theorem const_le_const_of_le {a b : ℚ} (H : a ≤ b) : s_le (const a) (const b) :=
   begin
@@ -1136,10 +1136,10 @@ section migrate_algebra
                    gt_of_ge_of_gt [trans]
 end migrate_algebra
 
-theorem const_le_const_of_le (a b : ℚ) : a ≤ b → const a ≤ const b :=
+theorem of_rat_le_of_rat_of_le (a b : ℚ) : a ≤ b → of_rat a ≤ of_rat b :=
   s.r_const_le_const_of_le
 
-theorem le_of_const_le_const (a b : ℚ) : const a ≤ const b → a ≤ b :=
+theorem le_of_rat_le_of_rat (a b : ℚ) : of_rat a ≤ of_rat b → a ≤ b :=
   s.r_le_of_const_le_const
 
 end real

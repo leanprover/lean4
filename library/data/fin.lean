@@ -323,4 +323,29 @@ begin
     exact zero_succ_cases CO CS }
 end
 
+section
+open list
+local postfix `+1`:100 := nat.succ
+
+lemma dmap_map_lift {n : nat} : ∀ l : list nat, (∀ i, i ∈ l → i < n) → dmap (λ i, i < n +1) mk l = map lift_succ (dmap (λ i, i < n) mk l)
+| []     := assume Plt, rfl
+| (i::l) := assume Plt, begin
+  rewrite [@dmap_cons_of_pos _ _ (λ i, i < n +1) _ _ _ (lt_succ_of_lt (Plt i !mem_cons)), @dmap_cons_of_pos _ _ (λ i, i < n) _ _ _ (Plt i !mem_cons), map_cons],
+  congruence,
+  apply dmap_map_lift,
+  intro j Pjinl, apply Plt, apply mem_cons_of_mem, assumption end
+
+lemma upto_succ (n : nat) : upto (n +1) = maxi :: map lift_succ (upto n) :=
+begin
+  rewrite [↑fin.upto, list.upto_succ, @dmap_cons_of_pos _ _ (λ i, i < n +1) _ _ _ (nat.self_lt_succ n)],
+  congruence,
+  apply dmap_map_lift, apply @list.lt_of_mem_upto
+end
+
+definition upto_step : ∀ {n : nat}, fin.upto (n +1) = (map succ (upto n))++[zero n]
+| 0      := rfl
+| (i +1) := begin rewrite [upto_succ i, map_cons, append_cons, succ_max, upto_succ, -lift_zero],
+  congruence, rewrite [map_map, -lift_succ.comm, -map_map, -(map_singleton _ (zero i)), -map_append, -upto_step] end
+end
+
 end fin

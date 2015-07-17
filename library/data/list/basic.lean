@@ -12,6 +12,9 @@ inductive list (T : Type) : Type :=
 | nil {} : list T
 | cons   : T → list T → list T
 
+protected definition list.is_inhabited [instance] (A : Type) : inhabited (list A) :=
+inhabited.mk list.nil
+
 namespace list
 notation h :: t  := cons h t
 notation `[` l:(foldr `,` (h t, cons h t) nil `]`) := l

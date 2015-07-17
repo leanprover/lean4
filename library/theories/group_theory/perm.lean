@@ -42,7 +42,6 @@ end perm
 structure perm (A : Type) [h : fintype A] : Type :=
   (f : A → A) (inj : injective f)
 local attribute perm.f [coercion]
-check perm.mk
 
 section perm
 variable {A : Type}

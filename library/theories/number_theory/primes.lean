@@ -121,7 +121,6 @@ open eq.ops
 
 definition infinite_primes (n : nat) : {p | p ≥ n ∧ prime p} :=
 let m := fact (n + 1) in
-have Hn1 : n + 1 ≥ 1, from succ_le_succ (zero_le _),
 have m_ge_1 : m ≥ 1,  from le_of_lt_succ (succ_lt_succ (fact_pos _)),
 have m1_ge_2 : m + 1 ≥ 2, from succ_le_succ m_ge_1,
 obtain p (prime_p : prime p) (p_dvd_m1 : p ∣ m + 1), from sub_prime_and_dvd m1_ge_2,

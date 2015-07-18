@@ -64,23 +64,23 @@ assume h d, obtain h₁ h₂, from h, h₂ m d
 
 lemma gt_one_of_pos_of_prime_dvd {i p : nat} : prime p → 0 < i → i mod p = 0 → 1 < i :=
 assume ipp pos h,
-have h₁ : p ∣ i, from dvd_of_mod_eq_zero h,
-have h₂ : p ≥ 2, from ge_two_of_prime ipp,
-have h₃ : p ≤ i, from le_of_dvd pos h₁,
-lt_of_succ_le (le.trans h₂ h₃)
+have h₁ : p ≥ 2, from ge_two_of_prime ipp,
+have p ∣ i,       from dvd_of_mod_eq_zero h,
+have p ≤ i,      from le_of_dvd pos this,
+lt_of_succ_le (le.trans h₁ this)
 
 definition sub_dvd_of_not_prime {n : nat} : n ≥ 2 → ¬ prime n → {m | m ∣ n ∧ m ≠ 1 ∧ m ≠ n} :=
 assume h₁ h₂,
-have h₃ : ¬ prime_ext n, from iff.mpr (not_iff_not_of_iff !prime_ext_iff_prime) h₂,
-have h₄ : ¬ n ≥ 2 ∨ ¬ (∀ m, m ≤ n → m ∣ n → m = 1 ∨ m = n), from iff.mp !not_and_iff_not_or_not h₃,
-have h₅ : ¬ (∀ m, m ≤ n → m ∣ n → m = 1 ∨ m = n), from or_resolve_right h₄ (not_not_intro h₁),
-have h₆ : ¬ (∀ m, m < succ n → m ∣ n → m = 1 ∨ m = n), from
-  assume h, absurd (λ m hl hd, h m (lt_succ_of_le hl) hd) h₅,
-have h₇ : {m | m < succ n ∧ ¬(m ∣ n → m = 1 ∨ m = n)}, from bsub_not_of_not_ball h₆,
-obtain m hlt (h₈ : ¬(m ∣ n → m = 1 ∨ m = n)), from h₇,
-obtain (h₈ : m ∣ n) (h₉ : ¬ (m = 1 ∨ m = n)), from iff.mp !not_implies_iff_and_not h₈,
-have h₁₀ : ¬ m = 1 ∧ ¬ m = n, from iff.mp !not_or_iff_not_and_not h₉,
-subtype.tag m (and.intro h₈ h₁₀)
+have ¬ prime_ext n, from iff.mpr (not_iff_not_of_iff !prime_ext_iff_prime) h₂,
+have ¬ n ≥ 2 ∨ ¬ (∀ m, m ≤ n → m ∣ n → m = 1 ∨ m = n), from iff.mp !not_and_iff_not_or_not this,
+have ¬ (∀ m, m ≤ n → m ∣ n → m = 1 ∨ m = n), from or_resolve_right this (not_not_intro h₁),
+have ¬ (∀ m, m < succ n → m ∣ n → m = 1 ∨ m = n), from
+  assume h, absurd (λ m hl hd, h m (lt_succ_of_le hl) hd) this,
+have {m | m < succ n ∧ ¬(m ∣ n → m = 1 ∨ m = n)}, from bsub_not_of_not_ball this,
+obtain m hlt (h₃ : ¬(m ∣ n → m = 1 ∨ m = n)), from this,
+obtain (h₄ : m ∣ n) (h₅ : ¬ (m = 1 ∨ m = n)), from iff.mp !not_implies_iff_and_not h₃,
+have ¬ m = 1 ∧ ¬ m = n,  from iff.mp !not_or_iff_not_and_not h₅,
+subtype.tag m (and.intro h₄ this)
 
 theorem ex_dvd_of_not_prime {n : nat} : n ≥ 2 → ¬ prime n → ∃ m, m ∣ n ∧ m ≠ 1 ∧ m ≠ n :=
 assume h₁ h₂, ex_of_sub (sub_dvd_of_not_prime h₁ h₂)
@@ -121,20 +121,20 @@ open eq.ops
 
 definition infinite_primes (n : nat) : {p | p ≥ n ∧ prime p} :=
 let m := fact (n + 1) in
-have m_ge_1 : m ≥ 1,  from le_of_lt_succ (succ_lt_succ (fact_pos _)),
-have m1_ge_2 : m + 1 ≥ 2, from succ_le_succ m_ge_1,
-obtain p (prime_p : prime p) (p_dvd_m1 : p ∣ m + 1), from sub_prime_and_dvd m1_ge_2,
+have m ≥ 1,     from le_of_lt_succ (succ_lt_succ (fact_pos _)),
+have m + 1 ≥ 2, from succ_le_succ this,
+obtain p (prime_p : prime p) (p_dvd_m1 : p ∣ m + 1), from sub_prime_and_dvd this,
 have p_ge_2 : p ≥ 2, from ge_two_of_prime prime_p,
 have p_gt_0 : p > 0, from lt_of_succ_lt (lt_of_succ_le p_ge_2),
-have p_ge_n : p ≥ n, from by_contradiction
+have p ≥ n, from by_contradiction
   (assume h₁ : ¬ p ≥ n,
-    have h₂ : p < n, from lt_of_not_ge h₁,
-    have h₃ : p ≤ n + 1, from le_of_lt (lt.step h₂),
-    have h₄ : p ∣ m, from dvd_fact p_gt_0 h₃,
-    have h₅ : p ∣ 1, from dvd_of_dvd_add_right (!add.comm ▸ p_dvd_m1) h₄,
-    have h₆ : p ≤ 1, from le_of_dvd zero_lt_one h₅,
-    absurd (le.trans p_ge_2 h₆) dec_trivial),
-subtype.tag p (and.intro p_ge_n prime_p)
+    have p < n,     from lt_of_not_ge h₁,
+    have p ≤ n + 1, from le_of_lt (lt.step this),
+    have p ∣ m,      from dvd_fact p_gt_0 this,
+    have p ∣ 1,      from dvd_of_dvd_add_right (!add.comm ▸ p_dvd_m1) this,
+    have p ≤ 1,     from le_of_dvd zero_lt_one this,
+    absurd (le.trans p_ge_2 this) dec_trivial),
+subtype.tag p (and.intro this prime_p)
 
 lemma ex_infinite_primes (n : nat) : ∃ p, p ≥ n ∧ prime p :=
 ex_of_sub (infinite_primes n)
@@ -158,10 +158,10 @@ by_contradiction (assume nc : ¬ coprime p n, npdvdn (dvd_of_prime_of_not_coprim
 
 theorem not_dvd_of_prime_of_coprime {p n : ℕ} (primep : prime p) (cop : coprime p n) : ¬ p ∣ n :=
 assume pdvdn : p ∣ n,
-have H1 : p ∣ gcd p n, from dvd_gcd !dvd.refl pdvdn,
-have H2 : p ≤ gcd p n, from le_of_dvd (!gcd_pos_of_pos_left (pos_of_prime primep)) H1,
-have H3 : 2 ≤ 1, from le.trans (ge_two_of_prime primep) (cop ▸ H2),
-show false, from !not_succ_le_self H3
+have p ∣ gcd p n,  from dvd_gcd !dvd.refl pdvdn,
+have p ≤ gcd p n, from le_of_dvd (!gcd_pos_of_pos_left (pos_of_prime primep)) this,
+have 2 ≤ 1,       from le.trans (ge_two_of_prime primep) (cop ▸ this),
+show false,       from !not_succ_le_self this
 
 theorem not_coprime_of_prime_dvd {p n : ℕ} (primep : prime p) (pdvdn : p ∣ n) : ¬ coprime p n :=
 assume cop, not_dvd_of_prime_of_coprime primep cop pdvdn
@@ -169,8 +169,8 @@ assume cop, not_dvd_of_prime_of_coprime primep cop pdvdn
 theorem dvd_of_prime_of_dvd_mul_left {p m n : ℕ} (primep : prime p)
     (Hmn : p ∣ m * n) (Hm : ¬ p ∣ m) :
   p ∣ n :=
-have copm : coprime p m, from coprime_of_prime_of_not_dvd primep Hm,
-show p ∣ n, from dvd_of_coprime_of_dvd_mul_left copm Hmn
+have coprime p m, from coprime_of_prime_of_not_dvd primep Hm,
+show p ∣ n, from dvd_of_coprime_of_dvd_mul_left this Hmn
 
 theorem dvd_of_prime_of_dvd_mul_right {p m n : ℕ} (primep : prime p)
     (Hmn : p ∣ m * n) (Hn : ¬ p ∣ n) :
@@ -188,12 +188,12 @@ lemma dvd_or_dvd_of_prime_of_dvd_mul {p m n : nat} : prime p → p ∣ m * n →
 
 lemma dvd_of_prime_of_dvd_pow {p m : nat} : ∀ {n}, prime p → p ∣ m^n → p ∣ m
 | 0 hp hd :=
-  assert peq1 : p = 1, from eq_one_of_dvd_one hd,
-  have h₂ : 1 ≥ 2, by rewrite -peq1; apply ge_two_of_prime hp,
-  absurd h₂ dec_trivial
+  assert p = 1, from eq_one_of_dvd_one hd,
+  have   1 ≥ 2, by rewrite -this; apply ge_two_of_prime hp,
+  absurd this dec_trivial
 | (succ n) hp hd :=
-  have hd₁ : p ∣ (m^n)*m, by rewrite [pow_succ at hd]; exact hd,
-  or.elim (dvd_or_dvd_of_prime_of_dvd_mul hp hd₁)
+  have p ∣ (m^n)*m, by rewrite [pow_succ at hd]; exact hd,
+  or.elim (dvd_or_dvd_of_prime_of_dvd_mul hp this)
     (λ h : p ∣ m^n, dvd_of_prime_of_dvd_pow hp h)
     (λ h : p ∣ m, h)
 
@@ -202,13 +202,13 @@ lemma coprime_pow_of_prime_of_not_dvd {p m a : nat} : prime p → ¬ p ∣ a →
 
 lemma coprime_primes {p q : nat} : prime p → prime q → p ≠ q → coprime p q :=
 λ hp hq hn,
-  assert d₁ : gcd p q ∣ p, from !gcd_dvd_left,
-  assert d₂ : gcd p q ∣ q, from !gcd_dvd_right,
-  or.elim (eq_one_or_eq_self_of_prime_of_dvd hp d₁)
+  assert gcd p q ∣ p, from !gcd_dvd_left,
+  or.elim (eq_one_or_eq_self_of_prime_of_dvd hp this)
     (λ h : gcd p q = 1, h)
     (λ h : gcd p q = p,
-      have d₃ : p ∣ q, by rewrite -h; exact d₂,
-      or.elim (eq_one_or_eq_self_of_prime_of_dvd hq d₃)
+      assert gcd p q ∣ q, from !gcd_dvd_right,
+      have   p ∣ q, by rewrite -h; exact this,
+      or.elim (eq_one_or_eq_self_of_prime_of_dvd hq this)
         (λ h₁ : p = 1, by subst p; exact absurd hp not_prime_one)
         (λ he : p = q, by contradiction))
 

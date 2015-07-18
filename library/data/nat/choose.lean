@@ -42,12 +42,12 @@ acc.intro x (λ (y : nat) (l : y ≺ x),
 private lemma acc_of_acc_succ {x : nat} : acc gtb (succ x) → acc gtb x :=
 assume h,
 acc.intro x (λ (y : nat) (l : y ≺ x),
-   have ygtx  : x < y,    from and.elim_left l,
    by_cases
-     (λ yeqx : y = succ x, by substvars; assumption)
-     (λ ynex : y ≠ succ x,
-        have ygtsx : succ x < y, from lt_of_le_and_ne ygtx (ne.symm ynex),
-        acc.inv h (and.intro ygtsx (and.elim_right l))))
+     (assume yeqx : y = succ x, by substvars; assumption)
+     (assume ynex : y ≠ succ x,
+        have x < y,      from and.elim_left l,
+        have succ x < y, from lt_of_le_and_ne this (ne.symm ynex),
+        acc.inv h (and.intro this (and.elim_right l))))
 
 private lemma acc_of_px_of_gt {x y : nat} : p x → y > x → acc gtb y :=
 assume px ygtx,

@@ -237,17 +237,17 @@ definition decidable_perm_aux : ∀ (n : nat) (l₁ l₂ : list A), length l₁ 
   by_cases
     (assume xinl₂ : x ∈ l₂,
       let t₂ : list A := erase x l₂ in
-      have len_t₁       : length t₁ = n,                begin injection H₁ with e, exact e end,
-      assert len_t₂_aux : length t₂ = pred (length l₂), from length_erase_of_mem xinl₂,
-      assert len_t₂     : length t₂ = n,                by rewrite [len_t₂_aux, H₂],
-      match decidable_perm_aux n t₁ t₂ len_t₁ len_t₂ with
+      have len_t₁ : length t₁ = n,         begin injection H₁ with e, exact e end,
+      assert length t₂ = pred (length l₂), from length_erase_of_mem xinl₂,
+      assert length t₂ = n,                by rewrite [this, H₂],
+      match decidable_perm_aux n t₁ t₂ len_t₁ this with
       | inl p  := inl (calc
           x::t₁ ~ x::(erase x l₂) : skip x p
            ...  ~ l₂              : perm_erase xinl₂)
       | inr np := inr (λ p : x::t₁ ~ l₂,
-        assert p₁ : erase x (x::t₁) ~ erase x l₂, from erase_perm_erase_of_perm x p,
-        have p₂ : t₁ ~ erase x l₂, by rewrite [erase_cons_head at p₁]; exact p₁,
-        absurd p₂ np)
+        assert erase x (x::t₁) ~ erase x l₂, from erase_perm_erase_of_perm x p,
+        have t₁ ~ erase x l₂, by rewrite [erase_cons_head at this]; exact this,
+        absurd this np)
       end)
     (assume nxinl₂ : x ∉ l₂,
       inr (λ p : x::t₁ ~ l₂, absurd (mem_perm p !mem_cons) nxinl₂))
@@ -450,9 +450,9 @@ perm_induction_on p'
      (r₁ : ∀{a s₁ s₂}, t₁ ≈ a|s₁ → t₂≈a|s₂ → s₁ ~ s₂)
      (r₂ : ∀{a s₁ s₂}, t₂ ≈ a|s₁ → t₃≈a|s₂ → s₁ ~ s₂)
      a s₁ s₂ e₁ e₂,
-    have aint₁ : a ∈ t₁, from mem_head_of_qeq e₁,
-    have aint₂ : a ∈ t₂, from mem_perm p₁ aint₁,
-    obtain (t₂' : list A) (e₂' : t₂≈a|t₂'), from qeq_of_mem aint₂,
+    have a ∈ t₁, from mem_head_of_qeq e₁,
+    have a ∈ t₂, from mem_perm p₁ this,
+    obtain (t₂' : list A) (e₂' : t₂≈a|t₂'), from qeq_of_mem this,
     calc s₁  ~ t₂' : r₁ e₁ e₂'
         ...  ~ s₂  : r₂ e₂' e₂)
 
@@ -688,17 +688,15 @@ theorem perm_ext : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → (∀a
 | []       (a₂::t₂) d₁ d₂ e := absurd (iff.mpr (e a₂) !mem_cons) (not_mem_nil a₂)
 | (a₁::t₁) []       d₁ d₂ e := absurd (iff.mp (e a₁) !mem_cons) (not_mem_nil a₁)
 | (a₁::t₁) (a₂::t₂) d₁ d₂ e :=
-  have a₁inl₂   : a₁ ∈ a₂::t₂, from iff.mp (e a₁) !mem_cons,
-  have dt₁      : nodup t₁, from nodup_of_nodup_cons d₁,
-  have na₁int₁  : a₁ ∉ t₁, from not_mem_of_nodup_cons d₁,
-  have ex : ∃s₁ s₂, a₂::t₂ = s₁++(a₁::s₂), from mem_split a₁inl₂,
-  obtain (s₁ s₂ : list A) (t₂_eq : a₂::t₂ = s₁++(a₁::s₂)), from ex,
+  have a₁ ∈ a₂::t₂, from iff.mp (e a₁) !mem_cons,
+  have ∃s₁ s₂, a₂::t₂ = s₁++(a₁::s₂), from mem_split this,
+  obtain (s₁ s₂ : list A) (t₂_eq : a₂::t₂ = s₁++(a₁::s₂)), from this,
   have dt₂'     : nodup (a₁::(s₁++s₂)), from nodup_head (by rewrite [t₂_eq at d₂]; exact d₂),
   have na₁s₁s₂  : a₁ ∉ s₁++s₂, from not_mem_of_nodup_cons dt₂',
   have na₁s₁    : a₁ ∉ s₁,     from not_mem_of_not_mem_append_left na₁s₁s₂,
   have na₁s₂    : a₁ ∉ s₂,     from not_mem_of_not_mem_append_right na₁s₁s₂,
   have ds₁s₂    : nodup (s₁++s₂), from nodup_of_nodup_cons dt₂',
-  have eqv     : ∀a, a ∈ t₁ ↔ a ∈ s₁++s₂, from
+  have eqv      : ∀a, a ∈ t₁ ↔ a ∈ s₁++s₂, from
     take a, iff.intro
       (λ aint₁   : a ∈ t₁,
          assert aina₂t₂ : a ∈ a₂::t₂,       from iff.mp (e a) (mem_cons_of_mem _ aint₁),
@@ -706,22 +704,25 @@ theorem perm_ext : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → (∀a
          or.elim (mem_or_mem_of_mem_append ains₁a₁s₂)
            (λ ains₁ : a ∈ s₁, mem_append_left s₂ ains₁)
            (λ aina₁s₂ : a ∈ a₁::s₂, or.elim (eq_or_mem_of_mem_cons aina₁s₂)
-             (λ aeqa₁ : a = a₁, absurd (aeqa₁ ▸ aint₁) na₁int₁)
+             (λ aeqa₁ : a = a₁,
+               have a₁ ∉ t₁, from not_mem_of_nodup_cons d₁,
+               absurd (aeqa₁ ▸ aint₁) this)
              (λ ains₂ : a ∈ s₂, mem_append_right s₁ ains₂)))
       (λ ains₁s₂ : a ∈ s₁ ++ s₂, or.elim (mem_or_mem_of_mem_append ains₁s₂)
         (λ ains₁ : a ∈ s₁,
-           have aina₂t₂ : a ∈ a₂::t₂, from by rewrite [t₂_eq]; exact (mem_append_left _ ains₁),
-           have aina₁t₁ : a ∈ a₁::t₁, from iff.mpr (e a) aina₂t₂,
-           or.elim (eq_or_mem_of_mem_cons aina₁t₁)
+           have a ∈ a₂::t₂, from by rewrite [t₂_eq]; exact (mem_append_left _ ains₁),
+           have a ∈ a₁::t₁, from iff.mpr (e a) this,
+           or.elim (eq_or_mem_of_mem_cons this)
              (λ aeqa₁ : a = a₁, absurd (aeqa₁ ▸ ains₁) na₁s₁)
              (λ aint₁ : a ∈ t₁, aint₁))
         (λ ains₂ : a ∈ s₂,
-           have aina₂t₂ : a ∈ a₂::t₂, from by rewrite [t₂_eq]; exact (mem_append_right _ (mem_cons_of_mem _ ains₂)),
-           have aina₁t₁ : a ∈ a₁::t₁, from iff.mpr (e a) aina₂t₂,
-           or.elim (eq_or_mem_of_mem_cons aina₁t₁)
+           have a ∈ a₂::t₂, from by rewrite [t₂_eq]; exact (mem_append_right _ (mem_cons_of_mem _ ains₂)),
+           have a ∈ a₁::t₁, from iff.mpr (e a) this,
+           or.elim (eq_or_mem_of_mem_cons this)
              (λ aeqa₁ : a = a₁, absurd (aeqa₁ ▸ ains₂) na₁s₂)
              (λ aint₁ : a ∈ t₁, aint₁))),
-  calc a₁::t₁ ~ a₁::(s₁++s₂) : skip a₁ (perm_ext dt₁ ds₁s₂ eqv)
+  have nodup t₁, from nodup_of_nodup_cons d₁,
+  calc a₁::t₁ ~ a₁::(s₁++s₂) : skip a₁ (perm_ext this ds₁s₂ eqv)
          ...  ~ s₁++(a₁::s₂) : !perm_middle
          ...  = a₂::t₂       : by rewrite t₂_eq
 end ext

@@ -135,14 +135,14 @@ nat.case_strong_induction_on x
     show succ x mod y < y, from
       by_cases -- (succ x < y)
         (assume H1 : succ x < y,
-          have H2 : succ x mod y = succ x, from mod_eq_of_lt H1,
-          show succ x mod y < y, from H2⁻¹ ▸ H1)
+          have succ x mod y = succ x, from mod_eq_of_lt H1,
+          show succ x mod y < y, from this⁻¹ ▸ H1)
         (assume H1 : ¬ succ x < y,
-          have H2 : y ≤ succ x, from le_of_not_gt H1,
-          have H3 : succ x mod y = (succ x - y) mod y, from mod_eq_sub_mod H H2,
-          have H4 : succ x - y < succ x, from sub_lt !succ_pos H,
-          have H5 : succ x - y ≤ x, from le_of_lt_succ H4,
-          show succ x mod y < y, from H3⁻¹ ▸ IH _ H5))
+          have y ≤ succ x, from le_of_not_gt H1,
+          have h : succ x mod y = (succ x - y) mod y, from mod_eq_sub_mod H this,
+          have succ x - y < succ x, from sub_lt !succ_pos H,
+          have succ x - y ≤ x, from le_of_lt_succ this,
+          show succ x mod y < y, from h⁻¹ ▸ IH _ this))
 
 theorem mod_one (n : ℕ) : n mod 1 = 0 :=
 have H1 : n mod 1 < 1, from !mod_lt !succ_pos,
@@ -368,10 +368,10 @@ by_cases_zero_pos n
     assume H2 : n ∣ m,
     obtain k (Hk : n = m * k), from exists_eq_mul_right_of_dvd H1,
     obtain l (Hl : m = n * l), from exists_eq_mul_right_of_dvd H2,
-    have H3 : n * (l * k) = n, from !mul.assoc ▸ Hl ▸ Hk⁻¹,
-    have H4 : l * k = 1, from eq_one_of_mul_eq_self_right Hpos H3,
-    have H5 : k = 1, from eq_one_of_mul_eq_one_left H4,
-    show m = n, from (mul_one m)⁻¹ ⬝ (H5 ▸ Hk⁻¹))
+    have n * (l * k) = n, from !mul.assoc ▸ Hl ▸ Hk⁻¹,
+    have l * k = 1,       from eq_one_of_mul_eq_self_right Hpos this,
+    have k = 1,           from eq_one_of_mul_eq_one_left this,
+    show m = n,           from (mul_one m)⁻¹ ⬝ (this ▸ Hk⁻¹))
 
 theorem mul_div_assoc (m : ℕ) {n k : ℕ} (H : k ∣ n) : m * n div k = m * (n div k) :=
 or.elim (eq_zero_or_pos k)

@@ -123,10 +123,10 @@ namespace nat
   | 0        h := absurd (ball_zero P) h
   | (succ n) h := decidable.by_cases
     (λ hp : P n,
-      have h₁ : ¬ ball n P, from
+      have ¬ ball n P, from
         assume b : ball n P, absurd (ball_succ_of_ball b hp) h,
-      have h₂ : {i | i < n ∧ ¬ P i}, from bsub_not_of_not_ball h₁,
-      bsub_succ h₂)
+      have {i | i < n ∧ ¬ P i}, from bsub_not_of_not_ball this,
+      bsub_succ this)
     (λ hn : ¬ P n, bsub_succ_of_pred hn)
 
   theorem bex_not_of_not_ball {n : nat} (H : ¬ ball n P) : bex n (λ n, ¬ P n) :=
@@ -137,8 +137,8 @@ namespace nat
   | (succ n) h := by_cases
     (λ hp : P n, absurd (bex_succ_of_pred hp) h)
     (λ hn : ¬ P n,
-      have h₁ : ¬ bex n P, from
+      have ¬ bex n P, from
         assume b : bex n P, absurd (bex_succ b) h,
-      have h₂ : ball n (λ n, ¬ P n), from ball_not_of_not_bex h₁,
-      ball_succ_of_ball h₂ hn)
+      have ball n (λ n, ¬ P n), from ball_not_of_not_bex this,
+      ball_succ_of_ball this hn)
 end nat

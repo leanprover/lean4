@@ -369,7 +369,7 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
     if (p.curr_is_token(get_visible_tk())) {
         p.next();
         is_visible    = true;
-        id            = p.mk_fresh_name();
+        id            = get_this_tk();
         prop          = p.parse_expr();
     } else if (p.curr_is_identifier()) {
         id = p.get_name_val();
@@ -384,11 +384,15 @@ static expr parse_have_core(parser & p, pos_info const & pos, optional<expr> con
             prop      = p.parse_expr();
         } else {
             expr left = p.id_to_expr(id, id_pos);
-            id        = p.mk_fresh_name();
-            prop      = p.parse_led(left);
+            id        = get_this_tk();
+            unsigned rbp = 0;
+            while (rbp < p.curr_expr_lbp()) {
+                left = p.parse_led(left);
+            }
+            prop      = left;
         }
     } else {
-        id            = p.mk_fresh_name();
+        id            = get_this_tk();
         prop          = p.parse_expr();
     }
     expr proof;

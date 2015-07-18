@@ -143,4 +143,5 @@ name const & get_fields_tk();
 name const & get_trust_tk();
 name const & get_metaclasses_tk();
 name const & get_inductive_tk();
+name const & get_this_tk();
 }

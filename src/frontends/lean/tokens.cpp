@@ -141,6 +141,7 @@ static name const * g_fields_tk = nullptr;
 static name const * g_trust_tk = nullptr;
 static name const * g_metaclasses_tk = nullptr;
 static name const * g_inductive_tk = nullptr;
+static name const * g_this_tk = nullptr;
 void initialize_tokens() {
     g_period_tk = new name{"."};
     g_placeholder_tk = new name{"_"};
@@ -280,6 +281,7 @@ void initialize_tokens() {
     g_trust_tk = new name{"trust"};
     g_metaclasses_tk = new name{"metaclasses"};
     g_inductive_tk = new name{"inductive"};
+    g_this_tk = new name{"this"};
 }
 void finalize_tokens() {
     delete g_period_tk;
@@ -420,6 +422,7 @@ void finalize_tokens() {
     delete g_trust_tk;
     delete g_metaclasses_tk;
     delete g_inductive_tk;
+    delete g_this_tk;
 }
 name const & get_period_tk() { return *g_period_tk; }
 name const & get_placeholder_tk() { return *g_placeholder_tk; }
@@ -559,4 +562,5 @@ name const & get_fields_tk() { return *g_fields_tk; }
 name const & get_trust_tk() { return *g_trust_tk; }
 name const & get_metaclasses_tk() { return *g_metaclasses_tk; }
 name const & get_inductive_tk() { return *g_inductive_tk; }
+name const & get_this_tk() { return *g_this_tk; }
 }

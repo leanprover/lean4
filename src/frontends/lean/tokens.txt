@@ -136,3 +136,4 @@ fields       fields
 trust        trust
 metaclasses  metaclasses
 inductive    inductive
+this         this

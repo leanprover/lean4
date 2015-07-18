@@ -157,13 +157,13 @@ nat.induction_on n
   (take H : 0 + m = 0 + k,
     !zero_add⁻¹ ⬝ H ⬝ !zero_add)
   (take (n : ℕ) (IH : n + m = n + k → m = k) (H : succ n + m = succ n + k),
-    have H2 : succ (n + m) = succ (n + k),
+    have succ (n + m) = succ (n + k),
     from calc
       succ (n + m) = succ n + m   : succ_add
                ... = succ n + k   : H
                ... = succ (n + k) : succ_add,
-    have H3 : n + m = n + k, from succ.inj H2,
-    IH H3)
+    have n + m = n + k, from succ.inj this,
+    IH this)
 
 theorem add.cancel_right {n m k : ℕ} (H : n + m = k + m) : n = k :=
 have H2 : m + n = m + k, from !add.comm ⬝ H ⬝ !add.comm,

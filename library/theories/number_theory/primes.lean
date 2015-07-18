@@ -71,7 +71,7 @@ lt_of_succ_le (le.trans h₂ h₃)
 
 definition sub_dvd_of_not_prime {n : nat} : n ≥ 2 → ¬ prime n → {m | m ∣ n ∧ m ≠ 1 ∧ m ≠ n} :=
 assume h₁ h₂,
-have h₃ : ¬ prime_ext n, from iff.mp' (not_iff_not_of_iff !prime_ext_iff_prime) h₂,
+have h₃ : ¬ prime_ext n, from iff.mpr (not_iff_not_of_iff !prime_ext_iff_prime) h₂,
 have h₄ : ¬ n ≥ 2 ∨ ¬ (∀ m, m ≤ n → m ∣ n → m = 1 ∨ m = n), from iff.mp !not_and_iff_not_or_not h₃,
 have h₅ : ¬ (∀ m, m ≤ n → m ∣ n → m = 1 ∨ m = n), from or_resolve_right h₄ (not_not_intro h₁),
 have h₆ : ¬ (∀ m, m < succ n → m ∣ n → m = 1 ∨ m = n), from

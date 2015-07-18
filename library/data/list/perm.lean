@@ -685,7 +685,7 @@ open eq.ops
 
 theorem perm_ext : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → (∀a, a ∈ l₁ ↔ a ∈ l₂) → l₁ ~ l₂
 | []       []       d₁ d₂ e := !perm.nil
-| []       (a₂::t₂) d₁ d₂ e := absurd (iff.mp' (e a₂) !mem_cons) (not_mem_nil a₂)
+| []       (a₂::t₂) d₁ d₂ e := absurd (iff.mpr (e a₂) !mem_cons) (not_mem_nil a₂)
 | (a₁::t₁) []       d₁ d₂ e := absurd (iff.mp (e a₁) !mem_cons) (not_mem_nil a₁)
 | (a₁::t₁) (a₂::t₂) d₁ d₂ e :=
   have a₁inl₂   : a₁ ∈ a₂::t₂, from iff.mp (e a₁) !mem_cons,
@@ -711,13 +711,13 @@ theorem perm_ext : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → (∀a
       (λ ains₁s₂ : a ∈ s₁ ++ s₂, or.elim (mem_or_mem_of_mem_append ains₁s₂)
         (λ ains₁ : a ∈ s₁,
            have aina₂t₂ : a ∈ a₂::t₂, from by rewrite [t₂_eq]; exact (mem_append_left _ ains₁),
-           have aina₁t₁ : a ∈ a₁::t₁, from iff.mp' (e a) aina₂t₂,
+           have aina₁t₁ : a ∈ a₁::t₁, from iff.mpr (e a) aina₂t₂,
            or.elim (eq_or_mem_of_mem_cons aina₁t₁)
              (λ aeqa₁ : a = a₁, absurd (aeqa₁ ▸ ains₁) na₁s₁)
              (λ aint₁ : a ∈ t₁, aint₁))
         (λ ains₂ : a ∈ s₂,
            have aina₂t₂ : a ∈ a₂::t₂, from by rewrite [t₂_eq]; exact (mem_append_right _ (mem_cons_of_mem _ ains₂)),
-           have aina₁t₁ : a ∈ a₁::t₁, from iff.mp' (e a) aina₂t₂,
+           have aina₁t₁ : a ∈ a₁::t₁, from iff.mpr (e a) aina₂t₂,
            or.elim (eq_or_mem_of_mem_cons aina₁t₁)
              (λ aeqa₁ : a = a₁, absurd (aeqa₁ ▸ ains₂) na₁s₂)
              (λ aint₁ : a ∈ t₁, aint₁))),

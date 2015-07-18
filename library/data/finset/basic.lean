@@ -123,7 +123,7 @@ theorem not_mem_empty [rewrite] (a : A) : a ∉ ∅ :=
 λ aine : a ∈ ∅, aine
 
 theorem mem_empty_iff [rewrite] (x : A) : x ∈ ∅ ↔ false :=
-iff.mp' !iff_false_iff_not !not_mem_empty
+iff.mpr !iff_false_iff_not !not_mem_empty
 
 theorem mem_empty_eq (x : A) : x ∈ ∅ = false :=
 propext !mem_empty_iff

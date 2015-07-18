@@ -227,7 +227,7 @@ namespace iff
   theorem elim_right (H : a ↔ b) : b → a :=
   elim (assume H₁ H₂, H₂) H
 
-  definition mp' := @elim_right
+  definition mpr := @elim_right
 
   theorem refl (a : Prop) : a ↔ a :=
   intro (assume H, H) (assume H, H)
@@ -597,14 +597,14 @@ decidable.rec
 theorem dif_ctx_congr {A : Type} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
                       {x : b → A} {u : c → A} {y : ¬b → A} {v : ¬c → A}
                       (h_c : b ↔ c)
-                      (h_t : ∀ (h : c),    x (iff.mp' h_c h)                      = u h)
-                      (h_e : ∀ (h : ¬c),   y (iff.mp' (not_iff_not_of_iff h_c) h) = v h) :
+                      (h_t : ∀ (h : c),    x (iff.mpr h_c h)                      = u h)
+                      (h_e : ∀ (h : ¬c),   y (iff.mpr (not_iff_not_of_iff h_c) h) = v h) :
         (@dite b dec_b A x y) = (@dite c dec_c A u v) :=
 decidable.rec_on dec_b
   (λ hp : b, calc
     (if h : b then x h else y h)
            = x hp                            : dif_pos hp
-      ...  = x (iff.mp' h_c (iff.mp h_c hp)) : proof_irrel
+      ...  = x (iff.mpr h_c (iff.mp h_c hp)) : proof_irrel
       ...  = u (iff.mp h_c hp)               : h_t
       ...  = (if h : c then u h else v h)    : dif_pos (iff.mp h_c hp))
   (λ hn : ¬b,
@@ -612,15 +612,15 @@ decidable.rec_on dec_b
     calc
      (if h : b then x h else y h)
            = y hn                              : dif_neg hn
-      ...  = y (iff.mp' h_nc (iff.mp h_nc hn)) : proof_irrel
+      ...  = y (iff.mpr h_nc (iff.mp h_nc hn)) : proof_irrel
       ...  = v (iff.mp h_nc hn)                : h_e
       ...  = (if h : c then u h else v h)      : dif_neg (iff.mp h_nc hn))
 
 theorem dif_ctx_rw_congr {A : Type} {b c : Prop} [dec_b : decidable b]
                          {x : b → A} {u : c → A} {y : ¬b → A} {v : ¬c → A}
                          (h_c : b ↔ c)
-                         (h_t : ∀ (h : c),    x (iff.mp' h_c h)                      = u h)
-                         (h_e : ∀ (h : ¬c),   y (iff.mp' (not_iff_not_of_iff h_c) h) = v h) :
+                         (h_t : ∀ (h : c),    x (iff.mpr h_c h)                      = u h)
+                         (h_e : ∀ (h : ¬c),   y (iff.mpr (not_iff_not_of_iff h_c) h) = v h) :
         (@dite b dec_b A x y) = (@dite c (decidable_of_decidable_of_iff dec_b h_c) A u v) :=
 @dif_ctx_congr A b c dec_b (decidable_of_decidable_of_iff dec_b h_c) x u y v h_c h_t h_e
 

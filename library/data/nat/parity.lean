@@ -45,13 +45,13 @@ lemma odd_iff_not_even : ∀ n, odd n ↔ ¬ even n :=
 λ n, !iff.refl
 
 lemma odd_of_not_even {n} : ¬ even n → odd n :=
-λ h, iff.mp' !odd_iff_not_even h
+λ h, iff.mpr !odd_iff_not_even h
 
 lemma even_of_not_odd {n} : ¬ odd n → even n :=
 λ h, not_not_elim (iff.mp (not_iff_not_of_iff !odd_iff_not_even) h)
 
 lemma not_odd_of_even {n} : even n → ¬ odd n :=
-λ h, iff.mp' (not_iff_not_of_iff !odd_iff_not_even) (not_not_intro h)
+λ h, iff.mpr (not_iff_not_of_iff !odd_iff_not_even) (not_not_intro h)
 
 lemma not_even_of_odd {n} : odd n → ¬ even n :=
 λ h, iff.mp !odd_iff_not_even h

@@ -181,7 +181,7 @@ theorem of_nat_pos (a : ℕ) : (of_nat a > 0) ↔ (#nat a > nat.zero) :=
 !of_nat_lt_of_nat
 
 theorem of_nat_nonneg (a : ℕ) : (of_nat a ≥ 0) :=
-iff.mp' !of_nat_le_of_nat !nat.zero_le
+iff.mpr !of_nat_le_of_nat !nat.zero_le
 
 theorem le.refl (a : ℚ) : a ≤ a :=
 by rewrite [↑rat.le, sub_self]; apply nonneg_zero
@@ -223,7 +223,7 @@ iff.intro
   (assume H : a ≤ b,
     decidable.by_cases
       (assume H1 : a = b, or.inr H1)
-      (assume H1 : a ≠ b, or.inl (iff.mp' !lt_iff_le_and_ne (and.intro H H1))))
+      (assume H1 : a ≠ b, or.inl (iff.mpr !lt_iff_le_and_ne (and.intro H H1))))
   (assume H : a < b ∨ a = b,
     or.elim H
       (assume H1 : a < b, and.left (iff.mp !lt_iff_le_and_ne H1))
@@ -251,7 +251,7 @@ have H : pos (a * b), from pos_mul (to_pos H1) (to_pos H2),
 definition decidable_lt [instance] : decidable_rel rat.lt :=
 take a b, decidable_pos (b - a)
 
-theorem le_of_lt  (H : a < b) : a ≤ b := iff.mp' !le_iff_lt_or_eq (or.inl H)
+theorem le_of_lt  (H : a < b) : a ≤ b := iff.mpr !le_iff_lt_or_eq (or.inl H)
 
 theorem lt_irrefl (a : ℚ) : ¬ a < a :=
   take Ha,
@@ -266,20 +266,20 @@ theorem not_le_of_gt (H : a < b) : ¬ b ≤ a :=
 theorem lt_of_lt_of_le  (Hab : a < b) (Hbc : b ≤ c) : a < c :=
   let Hab' := le_of_lt Hab in
   let Hac := le.trans Hab' Hbc in
-  (iff.mp' !lt_iff_le_and_ne) (and.intro Hac
+  (iff.mpr !lt_iff_le_and_ne) (and.intro Hac
     (assume Heq, not_le_of_gt (Heq ▸ Hab) Hbc))
 
 theorem lt_of_le_of_lt  (Hab : a ≤ b) (Hbc : b < c) : a < c :=
   let Hbc' := le_of_lt Hbc in
   let Hac := le.trans Hab Hbc' in
-  (iff.mp' !lt_iff_le_and_ne) (and.intro Hac
+  (iff.mpr !lt_iff_le_and_ne) (and.intro Hac
     (assume Heq, not_le_of_gt (Heq⁻¹ ▸ Hbc) Hab))
 
 theorem zero_lt_one : (0 : ℚ) < 1 := trivial
 
 theorem add_lt_add_left (H : a < b) (c : ℚ) : c + a < c + b :=
 let H' := le_of_lt H in
-(iff.mp' (lt_iff_le_and_ne _ _)) (and.intro (add_le_add_left H' _)
+(iff.mpr (lt_iff_le_and_ne _ _)) (and.intro (add_le_add_left H' _)
                                   (take Heq, let Heq' := add_left_cancel Heq in
                                    !lt_irrefl (Heq' ▸ H)))
 
@@ -334,9 +334,9 @@ definition ubound : ℚ → ℕ := λ a : ℚ, nat.succ (int.nat_abs (num a))
 theorem ubound_ge (a : ℚ) : of_nat (ubound a) ≥ a :=
   have H : abs a * abs (of_int (denom a)) = abs (of_int (num a)), from !abs_mul ▸ !mul_denom ▸ rfl,
   have H'' : 1 ≤ abs (of_int (denom a)),  begin
-    have J : of_int (denom a) > 0, from (iff.mp' !of_int_pos) !denom_pos,
+    have J : of_int (denom a) > 0, from (iff.mpr !of_int_pos) !denom_pos,
     rewrite (abs_of_pos J),
-    apply iff.mp' !of_int_le_of_int,
+    apply iff.mpr !of_int_le_of_int,
     apply denom_pos
   end,
   have H' : abs a ≤ abs (of_int (num a)), from

@@ -368,10 +368,10 @@ theorem cons_sub_cons  {l₁ l₂ : list T} (a : T) (s : l₁ ⊆ l₂) : (a::l�
   (λ i : b ∈ l₁, or.inr (s i))
 
 theorem sub_append_left [rewrite] (l₁ l₂ : list T) : l₁ ⊆ l₁++l₂ :=
-λ b i, iff.mp' (mem_append_iff b l₁ l₂) (or.inl i)
+λ b i, iff.mpr (mem_append_iff b l₁ l₂) (or.inl i)
 
 theorem sub_append_right [rewrite] (l₁ l₂ : list T) : l₂ ⊆ l₁++l₂ :=
-λ b i, iff.mp' (mem_append_iff b l₁ l₂) (or.inr i)
+λ b i, iff.mpr (mem_append_iff b l₁ l₂) (or.inr i)
 
 theorem sub_cons_of_sub (a : T) {l₁ l₂ : list T} : l₁ ⊆ l₂ → l₁ ⊆ (a::l₂) :=
 λ (s : l₁ ⊆ l₂) (x : T) (i : x ∈ l₁), or.inr (s i)

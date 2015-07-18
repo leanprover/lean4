@@ -511,7 +511,7 @@ end migrate_algebra
 
 theorem eq_num_div_denom (a : ℚ) : a = num a / denom a :=
 have H : of_int (denom a) ≠ 0, from assume H', ne_of_gt (denom_pos a) (of_int.inj H'),
-iff.mp' (eq_div_iff_mul_eq H) (mul_denom a)
+iff.mpr (eq_div_iff_mul_eq H) (mul_denom a)
 
 theorem of_nat_div {a b : ℤ} (H : b ∣ a) : of_int (a div b) = of_int a / of_int b :=
 decidable.by_cases
@@ -523,7 +523,7 @@ decidable.by_cases
       int.dvd.elim H
         (take c, assume Hc : a = b * c,
           by rewrite [Hc, !int.mul_div_cancel_left bnz, mul.comm]),
-    iff.mp' (eq_div_iff_mul_eq bnz') H')
+    iff.mpr (eq_div_iff_mul_eq bnz') H')
 
 
 end rat

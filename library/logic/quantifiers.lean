@@ -106,12 +106,12 @@ section
   theorem congr_forall : (∀x, p₁ x) ↔ (∀x, p₂ x) :=
   iff.intro
     (assume H', take x, iff.mp (H x) (H' x))
-    (assume H', take x, iff.mp' (H x) (H' x))
+    (assume H', take x, iff.mpr (H x) (H' x))
 
   theorem congr_exists : (∃x, p₁ x) ↔ (∃x, p₂ x) :=
   iff.intro
     (assume H', exists.elim H' (λ x H₁, exists.intro x (iff.mp (H x) H₁)))
-    (assume H', exists.elim H' (λ x H₁, exists.intro x (iff.mp' (H x) H₁)))
+    (assume H', exists.elim H' (λ x H₁, exists.intro x (iff.mpr (H x) H₁)))
 
   include H
   theorem congr_exists_unique : (∃!x, p₁ x) ↔ (∃!x, p₂ x) :=

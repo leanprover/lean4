@@ -304,7 +304,7 @@ have H2 : a mod (abs b) ≥ 0, from
       calc
         -[1+m] mod (abs b) = abs b - 1 - m mod (abs b) : neg_succ_of_nat_mod _ H1
           ... = abs b - (1 + m mod (abs b))    : by rewrite [*sub_eq_add_neg, neg_add, add.assoc]
-          ... ≥ 0                              : iff.mp' !sub_nonneg_iff_le H3),
+          ... ≥ 0                              : iff.mpr !sub_nonneg_iff_le H3),
 !mod_abs ▸ H2
 
 theorem mod_lt (a : ℤ) {b : ℤ} (H : b ≠ 0) : a mod b < (abs b) :=
@@ -419,7 +419,7 @@ by rewrite [↑modulo, !mul_div_mul_of_pos H, mul_sub_left_distrib, mul.left_com
 theorem lt_div_add_one_mul_self (a : ℤ) {b : ℤ} (H : b > 0) : a < (a div b + 1) * b :=
 have H : a - a div b * b < b, from !mod_lt_of_pos H,
 calc
-      a < a div b * b + b    : iff.mp' !lt_add_iff_sub_lt_left H
+      a < a div b * b + b    : iff.mpr !lt_add_iff_sub_lt_left H
     ... = (a div b + 1) * b  : by rewrite [mul.right_distrib, one_mul]
 
 theorem div_le_of_nonneg_of_nonneg {a b : ℤ} (Ha : a ≥ 0) (Hb : b ≥ 0) : a div b ≤ a :=
@@ -488,7 +488,7 @@ nat.by_cases_zero_pos n
 theorem of_nat_dvd_of_nat_of_dvd {m n : ℕ} (H : #nat m ∣ n) : of_nat m ∣ of_nat n :=
 nat.dvd.elim H
   (take k, assume H1 : #nat n = m * k,
-    dvd.intro (!iff.mp' !of_nat_eq_of_nat H1⁻¹))
+    dvd.intro (!iff.mpr !of_nat_eq_of_nat H1⁻¹))
 
 theorem of_nat_dvd_of_nat (m n : ℕ) : of_nat m ∣ of_nat n ↔ (#nat m ∣ n) :=
 iff.intro dvd_of_of_nat_dvd_of_nat of_nat_dvd_of_nat_of_dvd

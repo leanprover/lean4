@@ -251,7 +251,7 @@ definition iff.def : (a ↔ b) = ((a → b) ∧ (b → a)) :=
 
 theorem iff_true [rewrite] (a : Prop) : (a ↔ true) ↔ a :=
 iff.intro
-  (assume H, iff.mp' H trivial)
+  (assume H, iff.mpr H trivial)
   (assume H, iff.intro (assume H1, trivial) (assume H1, H))
 
 theorem true_iff [rewrite] (a : Prop) : (true ↔ a) ↔ a :=

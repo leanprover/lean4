@@ -40,7 +40,7 @@ show nonneg (b - a), from H1⁻¹ ▸ H2
 
 theorem le.elim {a b : ℤ} (H : a ≤ b) : ∃n : ℕ, a + n = b :=
 obtain (n : ℕ) (H1 : b - a = n), from nonneg.elim H,
-exists.intro n (!add.comm ▸ iff.mp' !add_eq_iff_eq_add_neg (H1⁻¹))
+exists.intro n (!add.comm ▸ iff.mpr !add_eq_iff_eq_add_neg (H1⁻¹))
 
 theorem le.total (a b : ℤ) : a ≤ b ∨ b ≤ a :=
 or.elim (nonneg_or_nonneg_neg (b - a))
@@ -91,7 +91,7 @@ theorem lt_of_of_nat_lt_of_nat {m n : ℕ} (H : of_nat m < of_nat n) : #nat m < 
 iff.mp !of_nat_lt_of_nat H
 
 theorem of_nat_lt_of_nat_of_lt {m n : ℕ} (H : #nat m < n) : of_nat m < of_nat n :=
-iff.mp' !of_nat_lt_of_nat H
+iff.mpr !of_nat_lt_of_nat H
 
 /- show that the integers form an ordered additive group -/
 
@@ -186,7 +186,7 @@ le.intro H2
 
 theorem add_lt_add_left {a b : ℤ} (H : a < b) (c : ℤ) : c + a < c + b :=
 let H' := le_of_lt H in
-(iff.mp' (lt_iff_le_and_ne _ _)) (and.intro (add_le_add_left H' _)
+(iff.mpr (lt_iff_le_and_ne _ _)) (and.intro (add_le_add_left H' _)
                                   (take Heq, let Heq' := add_left_cancel Heq in
                                    !lt.irrefl (Heq' ▸ H)))
 
@@ -228,13 +228,13 @@ theorem not_le_of_gt {a b : ℤ} (H : a < b) : ¬ b ≤ a :=
 theorem lt_of_lt_of_le {a b c : ℤ} (Hab : a < b) (Hbc : b ≤ c) : a < c :=
   let Hab' := le_of_lt Hab in
   let Hac := le.trans Hab' Hbc in
-  (iff.mp' !lt_iff_le_and_ne) (and.intro Hac
+  (iff.mpr !lt_iff_le_and_ne) (and.intro Hac
     (assume Heq, not_le_of_gt (Heq ▸ Hab) Hbc))
 
 theorem lt_of_le_of_lt  {a b c : ℤ} (Hab : a ≤ b) (Hbc : b < c) : a < c :=
   let Hbc' := le_of_lt Hbc in
   let Hac := le.trans Hab Hbc' in
-  (iff.mp' !lt_iff_le_and_ne) (and.intro Hac
+  (iff.mpr !lt_iff_le_and_ne) (and.intro Hac
     (assume Heq, not_le_of_gt (Heq⁻¹ ▸ Hbc) Hab))
 
 section migrate_algebra
@@ -308,7 +308,7 @@ obtain (n : ℕ) (H1 : 0 + of_nat n = a), from le.elim H,
 exists.intro n (!zero_add ▸ (H1⁻¹))
 
 theorem exists_eq_neg_of_nat {a : ℤ} (H : a ≤ 0) : ∃n : ℕ, a = -(of_nat n) :=
-have H2 : -a ≥ 0, from iff.mp' !neg_nonneg_iff_nonpos H,
+have H2 : -a ≥ 0, from iff.mpr !neg_nonneg_iff_nonpos H,
 obtain (n : ℕ) (Hn : -a = of_nat n), from exists_eq_of_nat H2,
 exists.intro n (eq_neg_of_eq_neg (Hn⁻¹))
 
@@ -317,7 +317,7 @@ obtain (n : ℕ) (Hn : a = of_nat n), from exists_eq_of_nat H,
 Hn⁻¹ ▸ congr_arg of_nat (nat_abs_of_nat n)
 
 theorem of_nat_nat_abs_of_nonpos {a : ℤ} (H : a ≤ 0) : of_nat (nat_abs a) = -a :=
-have H1 : (-a) ≥ 0, from iff.mp' !neg_nonneg_iff_nonpos H,
+have H1 : (-a) ≥ 0, from iff.mpr !neg_nonneg_iff_nonpos H,
 calc
   of_nat (nat_abs a) = of_nat (nat_abs (-a)) : nat_abs_neg
                  ... = -a                    : of_nat_nat_abs_of_nonneg H1

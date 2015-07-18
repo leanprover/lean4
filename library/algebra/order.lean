@@ -252,7 +252,7 @@ theorem lt_or_eq_of_le [s : strong_order_pair A] {a b : A} (le_ab : a ≤ b) : a
 iff.mp le_iff_lt_or_eq le_ab
 
 theorem le_of_lt_or_eq [s : strong_order_pair A] {a b : A} (lt_or_eq : a < b ∨ a = b) : a ≤ b :=
-iff.mp' le_iff_lt_or_eq lt_or_eq
+iff.mpr le_iff_lt_or_eq lt_or_eq
 
 private theorem lt_irrefl' [s : strong_order_pair A] (a : A) : ¬ a < a :=
 !strong_order_pair.lt_irrefl
@@ -268,7 +268,7 @@ iff.intro
    or_resolve_left Hor (and.right Hand))
 
 theorem lt_of_le_of_ne [s : strong_order_pair A] {a b : A} : a ≤ b → a ≠ b → a < b :=
-take H1 H2, iff.mp' lt_iff_le_and_ne (and.intro H1 H2)
+take H1 H2, iff.mpr lt_iff_le_and_ne (and.intro H1 H2)
 
 private theorem ne_of_lt' [s : strong_order_pair A] {a b : A} (H : a < b) : a ≠ b :=
 and.right ((iff.mp lt_iff_le_and_ne) H)
@@ -282,7 +282,7 @@ have ne_ac : a ≠ c, from
   have le_ba : b ≤ a, from eq_ac⁻¹ ▸ le_bc,
   have eq_ab : a = b, from le.antisymm  (le_of_lt' _ _ lt_ab) le_ba,
   show false, from ne_of_lt' lt_ab eq_ab,
-show a < c, from iff.mp' (lt_iff_le_and_ne) (and.intro le_ac ne_ac)
+show a < c, from iff.mpr (lt_iff_le_and_ne) (and.intro le_ac ne_ac)
 
 theorem lt_of_le_of_lt' [s : strong_order_pair A] (a b c : A) : a ≤ b → b < c → a < c :=
 assume le_ab : a ≤ b,
@@ -293,7 +293,7 @@ have ne_ac : a ≠ c, from
   have le_cb : c ≤ b, from eq_ac ▸ le_ab,
   have eq_bc : b = c, from le.antisymm  (le_of_lt' _ _ lt_bc) le_cb,
   show false, from ne_of_lt' lt_bc eq_bc,
-show a < c, from iff.mp' (lt_iff_le_and_ne) (and.intro le_ac ne_ac)
+show a < c, from iff.mpr (lt_iff_le_and_ne) (and.intro le_ac ne_ac)
 
 definition strong_order_pair.to_order_pair [trans-instance] [coercion] [reducible]
     [s : strong_order_pair A] : order_pair A :=

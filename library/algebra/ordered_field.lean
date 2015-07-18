@@ -64,7 +64,7 @@ section linear_ordered_field
     (iff.mp (one_le_div_iff_le Hb)) H
 
   theorem one_le_div_of_le (Hb : b > 0) (H : b ≤ a) : 1 ≤ a / b :=
-    (iff.mp' (one_le_div_iff_le Hb)) H
+    (iff.mpr (one_le_div_iff_le Hb)) H
 
   theorem one_lt_div_iff_lt (Hb : b > 0) : 1 < a / b ↔ b < a :=
     have Hb' : b ≠ 0, from ne.symm (ne_of_lt Hb),
@@ -83,7 +83,7 @@ section linear_ordered_field
     (iff.mp (one_lt_div_iff_lt Hb)) H
 
   theorem one_lt_div_of_lt (Hb : b > 0) (H : b < a) : 1 < a / b :=
-    (iff.mp' (one_lt_div_iff_lt Hb)) H
+    (iff.mpr (one_lt_div_iff_lt Hb)) H
 
   theorem exists_lt : ∃ x, x < a :=
     have H : a - 1 < a, from add_lt_of_le_of_neg (le.refl _) zero_gt_neg_one,
@@ -296,7 +296,7 @@ theorem nonneg_le_nonneg_of_squares_le  (Ha : a ≥ 0) (Hb : b ≥ 0) (H : a * a
   end
 
   theorem div_two : (a + a) / 2 = a :=
-    symm (iff.mp' (eq_div_iff_mul_eq (ne_of_gt (add_pos zero_lt_one zero_lt_one)))
+    symm (iff.mpr (eq_div_iff_mul_eq (ne_of_gt (add_pos zero_lt_one zero_lt_one)))
            (by rewrite [left_distrib, *mul_one]))
 
 
@@ -434,7 +434,7 @@ section discrete_linear_ordered_field
       rewrite -mul_sub_left_distrib,
       apply mul_neg_of_pos_of_neg,
       exact Hc,
-      apply iff.mp' (sub_neg_iff_lt _ _),
+      apply iff.mpr (sub_neg_iff_lt _ _),
       apply div_lt_div_of_lt,
       exact Hb, exact H
     end
@@ -457,7 +457,7 @@ section discrete_linear_ordered_field
       ... ≥ b - c : sub_le_of_nonneg _ _ (le.trans !abs_nonneg H))
     else
       (have Habs : b - a ≤ c, by rewrite [abs_of_neg (lt_of_not_ge Hz) at H, neg_sub at H]; apply H,
-       have Habs' : b ≤ c + a, from (iff.mp' !le_add_iff_sub_right_le) Habs,
+       have Habs' : b ≤ c + a, from (iff.mpr !le_add_iff_sub_right_le) Habs,
        (iff.mp !le_add_iff_sub_left_le) Habs')
 
   theorem ge_sub_of_abs_sub_le_right (H : abs (a - b) ≤ c) : b ≥ a - c :=

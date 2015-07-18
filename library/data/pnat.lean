@@ -106,16 +106,16 @@ theorem pnat.to_rat_of_nat (n : ℕ+) : rat_of_pnat n = of_nat n~ :=
 theorem rat_of_nat_nonneg (n : ℕ) : 0 ≤ of_nat n := trivial
 
 theorem rat_of_pnat_ge_one (n : ℕ+) : rat_of_pnat n ≥ 1 :=
-  pnat.rec_on n (λ m h, (iff.mp' !of_nat_le_of_nat) (succ_le_of_lt h))
+  pnat.rec_on n (λ m h, (iff.mpr !of_nat_le_of_nat) (succ_le_of_lt h))
 
 theorem rat_of_pnat_is_pos (n : ℕ+) : rat_of_pnat n > 0 :=
-  pnat.rec_on n (λ m h, (iff.mp' !of_nat_pos) h)
+  pnat.rec_on n (λ m h, (iff.mpr !of_nat_pos) h)
 
 theorem of_nat_le_of_nat_of_le {m n : ℕ} (H : m ≤ n) : of_nat m ≤ of_nat n :=
-  (iff.mp' !of_nat_le_of_nat) H
+  (iff.mpr !of_nat_le_of_nat) H
 
 theorem of_nat_lt_of_nat_of_lt {m n : ℕ} (H : m < n) : of_nat m < of_nat n :=
-  (iff.mp' !of_nat_lt_of_nat) H
+  (iff.mpr !of_nat_lt_of_nat) H
 
 theorem rat_of_pnat_le_of_pnat_le {m n : ℕ+} (H : m ≤ n) : rat_of_pnat m ≤ rat_of_pnat n :=
   begin

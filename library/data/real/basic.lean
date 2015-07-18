@@ -31,7 +31,7 @@ theorem find_midpoint {a b : ℚ} (H : a > b) : ∃ c : ℚ, a > b + c ∧ c > 0
      have H3 [visible] : (a + a) / (1 + 1) > ((b + b) + (a - b)) / (1 + 1),
        from div_lt_div_of_lt_of_pos H2 dec_trivial,
      by rewrite [div_two at H3, -div_add_div_same at H3, div_two at H3]; exact H3)
-    (pos_div_of_pos_of_pos (iff.mp' !sub_pos_iff_lt H) dec_trivial))
+    (pos_div_of_pos_of_pos (iff.mpr !sub_pos_iff_lt H) dec_trivial))
 
 theorem add_sub_comm (a b c d : ℚ) : a + b - (c + d) = (a - c) + (b - d) := sorry
 
@@ -73,7 +73,7 @@ theorem squeeze_2 {a b : ℚ} (H : ∀ ε : ℚ, ε > 0 → a ≥ b - ε) : a �
     apply (exists.elim (find_midpoint Hb)),
     intro c Hc,
     let Hc' := H c (and.right Hc),
-    apply (rat.not_le_of_gt (and.left Hc)) ((iff.mp' !le_add_iff_sub_right_le) Hc')
+    apply (rat.not_le_of_gt (and.left Hc)) (iff.mpr !le_add_iff_sub_right_le Hc')
   end
 
 theorem rewrite_helper (a b c d : ℚ) : a * b  - c * d = a * (b - d) + (a - c) * d :=

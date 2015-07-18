@@ -196,8 +196,8 @@ iff.intro
  (assume H,
     obtain Hmaps Hinj Hsurj, from H,
       (and.intro
-        (iff.mp' !injective_iff_inj_on_univ Hinj)
-        (iff.mp' !surjective_iff_surj_on_univ Hsurj)))
+        (iff.mpr !injective_iff_inj_on_univ Hinj)
+        (iff.mpr !surjective_iff_surj_on_univ Hsurj)))
 
 /- left inverse -/
 

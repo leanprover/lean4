@@ -38,7 +38,7 @@ namespace finset
         {intro yinxxs, apply (or.elim (iff.mp !mem_cons_iff yinxxs)),
           intro yeqx,  rewrite -yeqx at xin, exact (iff.mp (ih y) xin),
           intro yeqxs, exact (iff.mp (ih y) yeqxs)},
-        {intro yinnrep, show y ∈ x::xs, from or.inr (iff.mp' (ih y) yinnrep)}
+        {intro yinnrep, show y ∈ x::xs, from or.inr (iff.mpr (ih y) yinnrep)}
       end,
       begin
         intro xnin, rewrite (if_neg xnin),
@@ -48,7 +48,7 @@ namespace finset
           intro yinxs, show y ∈ x:: norep xs, from or.inr (iff.mp (ih y) yinxs)},
         {intro yinxnrep, apply (or.elim (iff.mp !mem_cons_iff yinxnrep)),
           intro yeqx, rewrite yeqx, apply mem_cons,
-          intro yinrep, show y ∈ x::xs, from or.inr (iff.mp' (ih y) yinrep)}
+          intro yinrep, show y ∈ x::xs, from or.inr (iff.mpr (ih y) yinrep)}
       end
     end
 
@@ -63,7 +63,7 @@ namespace finset
   assume h₁ a ainl₁, iff.mp (h₁ a) ainl₁
 
   theorem sub_of_eqv_right {A : Type} {l₁ l₂ : list A} : l₁ ~ l₂ → l₂ ⊆ l₁ :=
-  assume h₁ a ainl₂, iff.mp' (h₁ a) ainl₂
+  assume h₁ a ainl₂, iff.mpr (h₁ a) ainl₂
 
   definition sub_of_cons_sub {A : Type} {a : A} {l₁ l₂ : list A} : a :: l₁ ⊆ l₂ → l₁ ⊆ l₂ :=
   assume s, take b, assume binl₁, s b (or.inr binl₁)
@@ -148,8 +148,8 @@ namespace finset
           intro inl₃l₄,
 
           apply (or.elim (mem_or_mem_of_mem_append inl₃l₄)),
-          intro inl₃, exact (mem_append_of_mem_or_mem (or.inl (iff.mp' (r₁ a) inl₃))),
-          intro inl₄, exact (mem_append_of_mem_or_mem (or.inr (iff.mp' (r₂ a) inl₄)))
+          intro inl₃, exact (mem_append_of_mem_or_mem (or.inl (iff.mpr (r₁ a) inl₃))),
+          intro inl₄, exact (mem_append_of_mem_or_mem (or.inr (iff.mpr (r₂ a) inl₄)))
         end,
       end)
 

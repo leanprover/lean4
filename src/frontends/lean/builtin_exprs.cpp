@@ -446,6 +446,37 @@ static expr parse_assert(parser & p, unsigned, expr const *, pos_info const & po
     return parse_have_core(p, pos, none_expr(), true);
 }
 
+static expr parse_suppose(parser & p, unsigned, expr const *, pos_info const & pos) {
+    auto id_pos = p.pos();
+    name id;
+    expr prop;
+    if (p.curr_is_identifier()) {
+        id = p.get_name_val();
+        p.next();
+        if (p.curr_is_token(get_colon_tk())) {
+            p.next();
+            prop      = p.parse_expr();
+        } else {
+            expr left = p.id_to_expr(id, id_pos);
+            id        = get_this_tk();
+            unsigned rbp = 0;
+            while (rbp < p.curr_expr_lbp()) {
+                left = p.parse_led(left);
+            }
+            prop      = left;
+        }
+    } else {
+        id    = get_this_tk();
+        prop  = p.parse_expr();
+    }
+    p.check_token_next(get_comma_tk(), "invalid 'suppose', ',' expected");
+    parser::local_scope scope(p);
+    expr l = p.save_pos(mk_local(id, prop), id_pos);
+    p.add_local(l);
+    expr body = p.parse_expr();
+    return p.save_pos(Fun(l, body), pos);
+}
+
 static name * H_show = nullptr;
 static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr prop  = p.parse_expr();
@@ -630,6 +661,7 @@ parse_table init_nud_table() {
     r = r.add({transition("by+", mk_ext_action_core(parse_by_plus))}, x0);
     r = r.add({transition("have", mk_ext_action(parse_have))}, x0);
     r = r.add({transition("assert", mk_ext_action(parse_assert))}, x0);
+    r = r.add({transition("suppose", mk_ext_action(parse_suppose))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
     r = r.add({transition("obtain", mk_ext_action(parse_obtain))}, x0);
     r = r.add({transition("abstract", mk_ext_action(parse_nested_declaration))}, x0);

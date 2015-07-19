@@ -311,22 +311,21 @@ list.rec_on l
     decidable.rec_on iH
       (assume Hp : x ∈ l,
         decidable.rec_on (H x h)
-          (assume Heq : x = h,
-            decidable.inl (or.inl Heq))
-          (assume Hne : x ≠ h,
+          (suppose x = h,
+            decidable.inl (or.inl this))
+          (suppose x ≠ h,
             decidable.inl (or.inr Hp)))
-      (assume Hn : ¬x ∈ l,
+      (suppose ¬x ∈ l,
         decidable.rec_on (H x h)
-          (assume Heq : x = h,
-            decidable.inl (or.inl Heq))
-          (assume Hne : x ≠ h,
-            have H1 : ¬(x = h ∨ x ∈ l), from
-              assume H2 : x = h ∨ x ∈ l, or.elim H2
-                (assume Heq, by contradiction)
-                (assume Hp,  by contradiction),
-            have H2 : ¬x ∈ h::l, from
-              iff.elim_right (not_iff_not_of_iff !mem_cons_iff) H1,
-            decidable.inr H2)))
+          (suppose x = h, decidable.inl (or.inl this))
+          (suppose x ≠ h,
+            have ¬(x = h ∨ x ∈ l), from
+              suppose x = h ∨ x ∈ l, or.elim this
+                (suppose x = h, by contradiction)
+                (suppose x ∈ l,  by contradiction),
+            have ¬x ∈ h::l, from
+              iff.elim_right (not_iff_not_of_iff !mem_cons_iff) this,
+            decidable.inr this)))
 
 theorem mem_of_ne_of_mem {x y : T} {l : list T} (H₁ : x ≠ y) (H₂ : x ∈ y :: l) : x ∈ l :=
 or.elim (eq_or_mem_of_mem_cons H₂) (λe, absurd e H₁) (λr, r)
@@ -378,24 +377,24 @@ theorem sub_cons_of_sub (a : T) {l₁ l₂ : list T} : l₁ ⊆ l₂ → l₁ �
 
 theorem sub_app_of_sub_left (l l₁ l₂ : list T) : l ⊆ l₁ → l ⊆ l₁++l₂ :=
 λ (s : l ⊆ l₁) (x : T) (xinl : x ∈ l),
-  have xinl₁ : x ∈ l₁, from s xinl,
-  mem_append_of_mem_or_mem (or.inl xinl₁)
+  have x ∈ l₁, from s xinl,
+  mem_append_of_mem_or_mem (or.inl this)
 
 theorem sub_app_of_sub_right (l l₁ l₂ : list T) : l ⊆ l₂ → l ⊆ l₁++l₂ :=
 λ (s : l ⊆ l₂) (x : T) (xinl : x ∈ l),
-  have xinl₁ : x ∈ l₂, from s xinl,
-  mem_append_of_mem_or_mem (or.inr xinl₁)
+  have x ∈ l₂, from s xinl,
+  mem_append_of_mem_or_mem (or.inr this)
 
 theorem cons_sub_of_sub_of_mem {a : T} {l m : list T} : a ∈ m → l ⊆ m → a::l ⊆ m :=
 λ (ainm : a ∈ m) (lsubm : l ⊆ m) (x : T) (xinal : x ∈ a::l), or.elim (eq_or_mem_of_mem_cons xinal)
-  (assume xeqa : x = a, by substvars; exact ainm)
-  (assume xinl : x ∈ l, lsubm xinl)
+  (suppose x = a, by substvars; exact ainm)
+  (suppose x ∈ l, lsubm this)
 
 theorem app_sub_of_sub_of_sub {l₁ l₂ l : list T} : l₁ ⊆ l → l₂ ⊆ l → l₁++l₂ ⊆ l :=
 λ (l₁subl : l₁ ⊆ l) (l₂subl : l₂ ⊆ l) (x : T) (xinl₁l₂ : x ∈ l₁++l₂),
   or.elim (mem_or_mem_of_mem_append xinl₁l₂)
-    (λ xinl₁ : x ∈ l₁, l₁subl xinl₁)
-    (λ xinl₂ : x ∈ l₂, l₂subl xinl₂)
+    (suppose x ∈ l₁, l₁subl this)
+    (suppose x ∈ l₂, l₂subl this)
 
 /- find -/
 section
@@ -421,13 +420,13 @@ list.rec_on l
    (assume P₁ : ¬x ∈ [], _)
    (take y l,
       assume iH : ¬x ∈ l → find x l = length l,
-      assume P₁ : ¬x ∈ y::l,
-      have P₂ : ¬(x = y ∨ x ∈ l), from iff.elim_right (not_iff_not_of_iff !mem_cons_iff) P₁,
-      have P₃ : ¬x = y ∧ ¬x ∈ l, from (iff.elim_left not_or_iff_not_and_not P₂),
+      suppose ¬x ∈ y::l,
+      have ¬(x = y ∨ x ∈ l), from iff.elim_right (not_iff_not_of_iff !mem_cons_iff) this,
+      have ¬x = y ∧ ¬x ∈ l, from (iff.elim_left not_or_iff_not_and_not this),
       calc
         find x (y::l) = if x = y then 0 else succ (find x l) : !find_cons
-                  ... = succ (find x l)                      : if_neg (and.elim_left P₃)
-                  ... = succ (length l)                      : {iH (and.elim_right P₃)}
+                  ... = succ (find x l)                      : if_neg (and.elim_left this)
+                  ... = succ (length l)                      : {iH (and.elim_right this)}
                   ... = length (y::l)                        : !length_cons⁻¹)
 
 lemma find_le_length : ∀ {a} {l : list T}, find a l ≤ length l
@@ -476,8 +475,8 @@ theorem nth_eq_some : ∀ {l : list T} {n : nat}, n < length l → Σ a : T, nth
 | []     n        h := absurd h !not_lt_zero
 | (a::l) 0        h := ⟨a, rfl⟩
 | (a::l) (succ n) h :=
-  have aux : n < length l,                 from lt_of_succ_lt_succ h,
-  obtain (r : T) (req : nth l n = some r), from nth_eq_some aux,
+  have n < length l,                       from lt_of_succ_lt_succ h,
+  obtain (r : T) (req : nth l n = some r), from nth_eq_some this,
   ⟨r, by rewrite [nth_succ, req]⟩
 
 open decidable
@@ -566,10 +565,10 @@ list.induction_on l
          exists.intro xs (qhead x xs),
        by rewrite aeqx; exact aux)
     (λ ainxs : a ∈ xs,
-       have ex : ∃l', xs ≈ a|l', from r ainxs,
-       obtain (l' : list A) (q : xs ≈ a|l'), from ex,
-       have q₂ : x::xs ≈ a | x::l', from qcons x q,
-       exists.intro (x::l') q₂))
+       have ∃l', xs ≈ a|l', from r ainxs,
+       obtain (l' : list A) (q : xs ≈ a|l'), from this,
+       have x::xs ≈ a | x::l', from qcons x q,
+       exists.intro (x::l') this))
 
 theorem qeq_split {a : A} {l l' : list A} : l'≈a|l → ∃l₁ l₂, l = l₁++l₂ ∧ l' = l₁++(a::l₂) :=
 take q, qeq.induction_on q
@@ -578,20 +577,20 @@ take q, qeq.induction_on q
     exists.intro [] (exists.intro t aux))
   (λ b t t' q r,
     obtain (l₁ l₂ : list A) (h : t = l₁++l₂ ∧ t' = l₁++(a::l₂)), from r,
-    have aux : b::t = (b::l₁)++l₂ ∧ b::t' = (b::l₁)++(a::l₂),
+    have b::t = (b::l₁)++l₂ ∧ b::t' = (b::l₁)++(a::l₂),
       begin
         rewrite [and.elim_right h, and.elim_left h],
         constructor, repeat reflexivity
       end,
-    exists.intro (b::l₁) (exists.intro l₂ aux))
+    exists.intro (b::l₁) (exists.intro l₂ this))
 
 theorem sub_of_mem_of_sub_of_qeq {a : A} {l : list A} {u v : list A} : a ∉ l → a::l ⊆ v → v≈a|u → l ⊆ u :=
 λ (nainl : a ∉ l) (s : a::l ⊆ v) (q : v≈a|u) (x : A) (xinl : x ∈ l),
-  have xinv : x ∈ v, from s (or.inr xinl),
-  have xinau : x ∈ a::u, from mem_cons_of_qeq q x xinv,
-  or.elim (eq_or_mem_of_mem_cons xinau)
-    (λ xeqa : x = a, by substvars; contradiction)
-    (λ xinu : x ∈ u, xinu)
+  have x ∈ v,    from s (or.inr xinl),
+  have x ∈ a::u, from mem_cons_of_qeq q x this,
+  or.elim (eq_or_mem_of_mem_cons this)
+    (suppose x = a, by substvars; contradiction)
+    (suppose x ∈ u, this)
 end qeq
 end list
 

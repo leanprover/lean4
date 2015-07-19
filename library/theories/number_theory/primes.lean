@@ -31,7 +31,8 @@ definition decidable_prime [instance] (p : nat) : decidable (prime p) :=
 decidable_of_decidable_of_iff _ (prime_ext_iff_prime p)
 
 lemma ge_two_of_prime {p : nat} : prime p → p ≥ 2 :=
-assume h, obtain h₁ h₂, from h, h₁
+suppose prime p, obtain h₁ h₂, from this,
+h₁
 
 theorem gt_one_of_prime {p : ℕ} (primep : prime p) : p > 1 :=
 lt_of_succ_le (ge_two_of_prime primep)
@@ -52,9 +53,9 @@ lemma prime_three : prime 3 :=
 dec_trivial
 
 lemma pred_prime_pos {p : nat} : prime p → pred p > 0 :=
-assume h,
-have h₁ : p ≥ 2, from ge_two_of_prime h,
-lt_of_succ_le (pred_le_pred h₁)
+suppose prime p,
+have p ≥ 2,      from ge_two_of_prime this,
+show pred p > 0, from lt_of_succ_le (pred_le_pred this)
 
 lemma succ_pred_prime {p : nat} : prime p → succ (pred p) = p :=
 assume h, succ_pred_of_pos (pos_of_prime h)
@@ -127,8 +128,8 @@ obtain p (prime_p : prime p) (p_dvd_m1 : p ∣ m + 1), from sub_prime_and_dvd th
 have p_ge_2 : p ≥ 2, from ge_two_of_prime prime_p,
 have p_gt_0 : p > 0, from lt_of_succ_lt (lt_of_succ_le p_ge_2),
 have p ≥ n, from by_contradiction
-  (assume h₁ : ¬ p ≥ n,
-    have p < n,     from lt_of_not_ge h₁,
+  (suppose ¬ p ≥ n,
+    have p < n,     from lt_of_not_ge this,
     have p ≤ n + 1, from le_of_lt (lt.step this),
     have p ∣ m,      from dvd_fact p_gt_0 this,
     have p ∣ 1,      from dvd_of_dvd_add_right (!add.comm ▸ p_dvd_m1) this,
@@ -154,11 +155,11 @@ or_resolve_right H nc ▸ !gcd_dvd_right
 
 theorem coprime_of_prime_of_not_dvd {p n : ℕ} (primep : prime p) (npdvdn : ¬ p ∣ n) :
   coprime p n :=
-by_contradiction (assume nc : ¬ coprime p n, npdvdn (dvd_of_prime_of_not_coprime primep nc))
+by_contradiction (suppose ¬ coprime p n, npdvdn (dvd_of_prime_of_not_coprime primep this))
 
 theorem not_dvd_of_prime_of_coprime {p n : ℕ} (primep : prime p) (cop : coprime p n) : ¬ p ∣ n :=
-assume pdvdn : p ∣ n,
-have p ∣ gcd p n,  from dvd_gcd !dvd.refl pdvdn,
+suppose p ∣ n,
+have p ∣ gcd p n,  from dvd_gcd !dvd.refl this,
 have p ≤ gcd p n, from le_of_dvd (!gcd_pos_of_pos_left (pos_of_prime primep)) this,
 have 2 ≤ 1,       from le.trans (ge_two_of_prime primep) (cop ▸ this),
 show false,       from !not_succ_le_self this
@@ -183,8 +184,8 @@ assume Hmn, Hm (dvd_of_prime_of_dvd_mul_right primep Hmn Hn)
 
 lemma dvd_or_dvd_of_prime_of_dvd_mul {p m n : nat} : prime p → p ∣ m * n → p ∣ m ∨ p ∣ n :=
 λ h₁ h₂, by_cases
-  (assume h : p ∣ m, or.inl h)
-  (assume h : ¬ p ∣ m, or.inr (dvd_of_prime_of_dvd_mul_left h₁ h₂ h))
+  (suppose p ∣ m, or.inl this)
+  (suppose ¬ p ∣ m, or.inr (dvd_of_prime_of_dvd_mul_left h₁ h₂ this))
 
 lemma dvd_of_prime_of_dvd_pow {p m : nat} : ∀ {n}, prime p → p ∣ m^n → p ∣ m
 | 0 hp hd :=

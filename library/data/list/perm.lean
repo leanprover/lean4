@@ -64,13 +64,13 @@ theorem mem_perm {a : A} {l₁ l₂ : list A} : l₁ ~ l₂ → a ∈ l₁ → a
 assume p, perm.induction_on p
   (λ h, h)
   (λ x l₁ l₂ p₁ r₁ i, or.elim (eq_or_mem_of_mem_cons i)
-    (assume aeqx : a = x,   by rewrite aeqx; apply !mem_cons)
-    (assume ainl₁ : a ∈ l₁, or.inr (r₁ ainl₁)))
+    (suppose a = x,  by rewrite this; apply !mem_cons)
+    (suppose a ∈ l₁, or.inr (r₁ this)))
   (λ x y l ainyxl, or.elim (eq_or_mem_of_mem_cons ainyxl)
-    (assume aeqy  : a = y, by rewrite aeqy; exact (or.inr !mem_cons))
-    (assume ainxl : a ∈ x::l, or.elim (eq_or_mem_of_mem_cons ainxl)
-      (assume aeqx : a = x, or.inl aeqx)
-      (assume ainl : a ∈ l, or.inr (or.inr ainl))))
+    (suppose a = y, by rewrite this; exact (or.inr !mem_cons))
+    (suppose a ∈ x::l, or.elim (eq_or_mem_of_mem_cons this)
+      (suppose a = x, or.inl this)
+      (suppose a ∈ l, or.inr (or.inr this))))
   (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂ ainl₁, r₂ (r₁ ainl₁))
 
 theorem not_mem_perm {a : A} {l₁ l₂ : list A} : l₁ ~ l₂ → a ∉ l₁ → a ∉ l₂ :=

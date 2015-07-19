@@ -689,38 +689,41 @@ theorem perm_ext : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → (∀a
 | (a₁::t₁) []       d₁ d₂ e := absurd (iff.mp (e a₁) !mem_cons) (not_mem_nil a₁)
 | (a₁::t₁) (a₂::t₂) d₁ d₂ e :=
   have a₁ ∈ a₂::t₂, from iff.mp (e a₁) !mem_cons,
-  have ∃s₁ s₂, a₂::t₂ = s₁++(a₁::s₂), from mem_split this,
+  have ∃ s₁ s₂, a₂::t₂ = s₁++(a₁::s₂), from mem_split this,
   obtain (s₁ s₂ : list A) (t₂_eq : a₂::t₂ = s₁++(a₁::s₂)), from this,
   have dt₂'     : nodup (a₁::(s₁++s₂)), from nodup_head (by rewrite [t₂_eq at d₂]; exact d₂),
-  have na₁s₁s₂  : a₁ ∉ s₁++s₂, from not_mem_of_nodup_cons dt₂',
-  have na₁s₁    : a₁ ∉ s₁,     from not_mem_of_not_mem_append_left na₁s₁s₂,
-  have na₁s₂    : a₁ ∉ s₂,     from not_mem_of_not_mem_append_right na₁s₁s₂,
-  have ds₁s₂    : nodup (s₁++s₂), from nodup_of_nodup_cons dt₂',
   have eqv      : ∀a, a ∈ t₁ ↔ a ∈ s₁++s₂, from
     take a, iff.intro
-      (λ aint₁   : a ∈ t₁,
-         assert aina₂t₂ : a ∈ a₂::t₂,       from iff.mp (e a) (mem_cons_of_mem _ aint₁),
-         have ains₁a₁s₂ : a ∈ s₁++(a₁::s₂), by rewrite [t₂_eq at aina₂t₂]; exact aina₂t₂,
-         or.elim (mem_or_mem_of_mem_append ains₁a₁s₂)
-           (λ ains₁ : a ∈ s₁, mem_append_left s₂ ains₁)
-           (λ aina₁s₂ : a ∈ a₁::s₂, or.elim (eq_or_mem_of_mem_cons aina₁s₂)
-             (λ aeqa₁ : a = a₁,
-               have a₁ ∉ t₁, from not_mem_of_nodup_cons d₁,
-               absurd (aeqa₁ ▸ aint₁) this)
-             (λ ains₂ : a ∈ s₂, mem_append_right s₁ ains₂)))
-      (λ ains₁s₂ : a ∈ s₁ ++ s₂, or.elim (mem_or_mem_of_mem_append ains₁s₂)
-        (λ ains₁ : a ∈ s₁,
-           have a ∈ a₂::t₂, from by rewrite [t₂_eq]; exact (mem_append_left _ ains₁),
+      (suppose  a ∈ t₁,
+         assert a ∈ a₂::t₂,       from iff.mp (e a) (mem_cons_of_mem _ this),
+         have   a ∈ s₁++(a₁::s₂), by rewrite [t₂_eq at this]; exact this,
+         or.elim (mem_or_mem_of_mem_append this)
+           (suppose a ∈ s₁, mem_append_left s₂ this)
+           (suppose a ∈ a₁::s₂, or.elim (eq_or_mem_of_mem_cons this)
+             (suppose a = a₁,
+               assert a₁ ∉ t₁, from not_mem_of_nodup_cons d₁,
+               by subst a; contradiction)
+             (suppose a ∈ s₂, mem_append_right s₁ this)))
+      (suppose a ∈ s₁ ++ s₂, or.elim (mem_or_mem_of_mem_append this)
+        (suppose a ∈ s₁,
+           have a ∈ a₂::t₂, from by rewrite [t₂_eq]; exact (mem_append_left _ this),
            have a ∈ a₁::t₁, from iff.mpr (e a) this,
            or.elim (eq_or_mem_of_mem_cons this)
-             (λ aeqa₁ : a = a₁, absurd (aeqa₁ ▸ ains₁) na₁s₁)
-             (λ aint₁ : a ∈ t₁, aint₁))
-        (λ ains₂ : a ∈ s₂,
-           have a ∈ a₂::t₂, from by rewrite [t₂_eq]; exact (mem_append_right _ (mem_cons_of_mem _ ains₂)),
+             (suppose a = a₁,
+                have   a₁ ∉ s₁++s₂, from not_mem_of_nodup_cons dt₂',
+                assert a₁ ∉ s₁,     from not_mem_of_not_mem_append_left this,
+                by subst a; contradiction)
+             (suppose a ∈ t₁, this))
+        (suppose a ∈ s₂,
+           have a ∈ a₂::t₂, from by rewrite [t₂_eq]; exact (mem_append_right _ (mem_cons_of_mem _ this)),
            have a ∈ a₁::t₁, from iff.mpr (e a) this,
            or.elim (eq_or_mem_of_mem_cons this)
-             (λ aeqa₁ : a = a₁, absurd (aeqa₁ ▸ ains₂) na₁s₂)
-             (λ aint₁ : a ∈ t₁, aint₁))),
+             (suppose a = a₁,
+               have   a₁ ∉ s₁++s₂, from not_mem_of_nodup_cons dt₂',
+               assert a₁ ∉ s₂, from not_mem_of_not_mem_append_right this,
+               by subst a; contradiction)
+             (suppose a ∈ t₁, this))),
+  have ds₁s₂ : nodup (s₁++s₂), from nodup_of_nodup_cons dt₂',
   have nodup t₁, from nodup_of_nodup_cons d₁,
   calc a₁::t₁ ~ a₁::(s₁++s₂) : skip a₁ (perm_ext this ds₁s₂ eqv)
          ...  ~ s₁++(a₁::s₂) : !perm_middle
@@ -761,8 +764,8 @@ assume u, perm.induction_on u
     assume u' : l₁' ~ l₂',
     assume u'' : filter p l₁' ~ filter p l₂',
     decidable.by_cases
-      (assume H : p x, by rewrite [*filter_cons_of_pos _ H]; apply perm.skip; apply u'')
-      (assume H : ¬ p x, by rewrite [*filter_cons_of_neg _ H]; apply u''))
+      (suppose p x, by rewrite [*filter_cons_of_pos _ this]; apply perm.skip; apply u'')
+      (suppose ¬ p x, by rewrite [*filter_cons_of_neg _ this]; apply u''))
   (take x y l,
     decidable.by_cases
       (assume H1 : p x,

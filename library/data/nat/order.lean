@@ -115,6 +115,12 @@ theorem mul_lt_mul_of_pos_right {n m k : ℕ} (H : n < m) (Hk : k > 0) : n * k <
 
 -- Because these are defined in init/nat.lean, we cannot use the definitions in algebra.
 
+definition max (a b : ℕ) : ℕ := if a < b then b else a
+definition min (a b : ℕ) : ℕ := if a < b then a else b
+
+theorem max_self [rewrite] (a : ℕ) : max a a = a :=
+eq.rec_on !if_t_t rfl
+
 theorem max_le {n m k : ℕ} (H₁ : n ≤ k) (H₂ : m ≤ k) : max n m ≤ k :=
 decidable.by_cases
   (assume H : n < m, by rewrite [↑max, if_pos H]; apply H₂)
@@ -138,6 +144,27 @@ theorem le_min {n m k : ℕ} (H₁ : k ≤ n) (H₂ : k ≤ m) : k ≤ min n m :
 decidable.by_cases
   (assume H : n < m, by rewrite [↑min, if_pos H]; apply H₁)
   (assume H : ¬ n < m, by rewrite [↑min, if_neg H]; apply H₂)
+
+theorem eq_max_right {a b : ℕ} (H : a < b) : b = max a b :=
+(if_pos H)⁻¹
+
+theorem eq_max_left {a b : ℕ} (H : ¬ a < b) : a = max a b :=
+(if_neg H)⁻¹
+
+open decidable
+theorem le_max_right (a b : ℕ) : b ≤ max a b :=
+by_cases
+  (suppose a < b,   eq.rec_on (eq_max_right this) !le.refl)
+  (suppose ¬ a < b, or.rec_on (eq_or_lt_of_not_lt this)
+    (suppose a = b, eq.rec_on this (eq.rec_on (eq.symm (max_self a)) !le.refl))
+    (suppose b < a,
+      have h : a = max a b, from eq_max_left (lt.asymm this),
+      eq.rec_on h (le_of_lt this)))
+
+theorem le_max_left (a b : ℕ) : a ≤ max a b :=
+by_cases
+   (λ h : a < b,   le_of_lt (eq.rec_on (eq_max_right h) h))
+   (λ h : ¬ a < b, eq.rec_on (eq_max_left h) !le.refl)
 
 /- nat is an instance of a linearly ordered semiring and a lattice-/
 
@@ -436,6 +463,25 @@ dvd.elim H
     eq_one_of_mul_eq_one_right H1⁻¹)
 
 /- min and max -/
+open decidable
+
+theorem le_max_left_iff_true [rewrite] (a b : ℕ) : a ≤ max a b ↔ true :=
+iff_true_intro (le_max_left a b)
+
+theorem le_max_right_iff_true [rewrite] (a b : ℕ) : b ≤ max a b ↔ true :=
+iff_true_intro (le_max_right a b)
+
+theorem min_zero [rewrite] (a : ℕ) : min a 0 = 0 :=
+by rewrite [min_eq_right !zero_le]
+
+theorem zero_min [rewrite] (a : ℕ) : min 0 a = 0 :=
+by rewrite [min_eq_left !zero_le]
+
+theorem max_zero [rewrite] (a : ℕ) : max a 0 = a :=
+by rewrite [max_eq_left !zero_le]
+
+theorem zero_max [rewrite] (a : ℕ) : max 0 a = a :=
+by rewrite [max_eq_right !zero_le]
 
 theorem lt_min {a b c : ℕ} (H₁ : a < b) (H₂ : a < c) : a < min b c :=
 decidable.by_cases

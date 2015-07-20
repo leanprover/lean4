@@ -246,45 +246,6 @@ namespace nat
 
   theorem succ_le_of_lt {a b : ℕ} (h : a < b) : succ a ≤ b := h
 
-  definition max (a b : ℕ) : ℕ := if a < b then b else a
-  definition min (a b : ℕ) : ℕ := if a < b then a else b
-
-  theorem max_self [rewrite] (a : ℕ) : max a a = a :=
-  eq.rec_on !if_t_t rfl
-
-  theorem max_eq_right' {a b : ℕ} (H : a < b) : max a b = b :=
-  if_pos H
-
-  -- different versions will be defined in algebra
-  theorem max_eq_left' {a b : ℕ} (H : ¬ a < b) : max a b = a :=
-  if_neg H
-
-  theorem eq_max_right {a b : ℕ} (H : a < b) : b = max a b :=
-  eq.rec_on (max_eq_right' H) rfl
-
-  theorem eq_max_left {a b : ℕ} (H : ¬ a < b) : a = max a b :=
-  eq.rec_on (max_eq_left' H) rfl
-
-  theorem le_max_left (a b : ℕ) : a ≤ max a b :=
-  by_cases
-    (λ h : a < b,   le_of_lt (eq.rec_on (eq_max_right h) h))
-    (λ h : ¬ a < b, eq.rec_on (eq_max_left h) !le.refl)
-
-  theorem le_max_left_iff_true [rewrite] (a b : ℕ) : a ≤ max a b ↔ true :=
-  iff_true_intro (le_max_left a b)
-
-  theorem le_max_right (a b : ℕ) : b ≤ max a b :=
-  by_cases
-    (λ h : a < b,   eq.rec_on (eq_max_right h) !le.refl)
-    (λ h : ¬ a < b, or.rec_on (eq_or_lt_of_not_lt h)
-      (λ heq, eq.rec_on heq (eq.rec_on (eq.symm (max_self a)) !le.refl))
-      (λ h : b < a,
-        have aux : a = max a b, from eq_max_left (lt.asymm h),
-        eq.rec_on aux (le_of_lt h)))
-
-  theorem le_max_right_iff_true [rewrite] (a b : ℕ) : b ≤ max a b ↔ true :=
-  iff_true_intro (le_max_right a b)
-
   theorem succ_sub_succ_eq_sub [rewrite] (a b : ℕ) : succ a - succ b = a - b :=
   by induction b with b IH;reflexivity; apply congr (eq.refl pred) IH
 

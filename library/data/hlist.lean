@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 
 Heterogeneous lists
 -/
-import data.list
+import data.list logic.cast
 open list
 
 inductive hlist {A : Type} (B : A → Type) : list A → Type :=
@@ -37,21 +37,25 @@ definition append : Π {l₁ l₂}, hlist B l₁ → hlist B l₂ → hlist B (l
 | ⌞[]⌟    l₂ nil         h₂ := h₂
 | ⌞a::l₁⌟ l₂ (cons b h₁) h₂ := cons b (append h₁ h₂)
 
-lemma append_left_nil : ∀ {l} (h : hlist B l), append nil h = h :=
+lemma append_nil_left : ∀ {l} (h : hlist B l), append nil h = h :=
 by intros; reflexivity
 
-lemma append_right_nil : ∀ {l} (h : hlist B l), append h nil == h
-| []     nil        := !heq.refl
+open eq.ops
+lemma eq_rec_on_cons : ∀ {a₁ a₂ l₁ l₂} (b : B a₁) (h : hlist B l₁) (e : a₁::l₁ = a₂::l₂),
+                         e ▹ cons b h = cons (head_eq_of_cons_eq e ▹ b) (tail_eq_of_cons_eq e ▹ h) :=
+begin
+  intros, injection e with e₁ e₂, revert e, subst a₂, subst l₂, intro e, esimp
+end
+
+lemma append_nil_right : ∀ {l} (h : hlist B l), append h nil = (list.append_nil_right l)⁻¹ ▹ h
+| []     nil        := by esimp
 | (a::l) (cons b h) :=
   begin
-    unfold append,
-    have ih  : append h nil == h, from append_right_nil h,
-    have aux : l ++ [] = l,       from list.append_nil_right l,
-    revert ih, generalize append h nil,
-    esimp [list.append], rewrite aux,
-    intro x ih,
-    rewrite [heq.to_eq ih]
+    unfold append, rewrite [append_nil_right h], xrewrite eq_rec_on_cons
   end
+
+lemma append_nil_right_heq {l} (h : hlist B l) : append h nil == h :=
+by rewrite append_nil_right; apply eq_rec_heq
 
 section get
 variables [decA : decidable_eq A]

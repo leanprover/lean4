@@ -29,9 +29,6 @@ namespace heq
   universe variable u
   variables {A B C : Type.{u}} {a a' : A} {b b' : B} {c : C}
 
-  definition type_eq (H : a == b) : A = B :=
-  heq.rec_on H (eq.refl A)
-
   theorem drec_on {C : Π {B : Type} (b : B), a == b → Type} (H₁ : a == b) (H₂ : C a (refl a)) :
     C b H₁ :=
   heq.rec (λ H₁ : a == a, show C a H₁, from H₂) H₁ H₁

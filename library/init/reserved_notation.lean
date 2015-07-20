@@ -51,6 +51,7 @@ reserve postfix `⁻¹`:std.prec.max_plus  -- input with \sy or \-1 or \inv
 
 reserve infixl `⬝`:75
 reserve infixr `▸`:75
+reserve infixr `▹`:75
 
 /- types and type constructors -/
 

@@ -352,6 +352,7 @@ add_subdirectory(tests/frontends/lean)
 add_subdirectory(tests/shell)
 
 # Include style check
+if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
 include(StyleCheck)
 file(GLOB_RECURSE LEAN_SOURCES
   "${LEAN_SOURCE_DIR}"
@@ -359,6 +360,7 @@ file(GLOB_RECURSE LEAN_SOURCES
   "${LEAN_SOURCE_DIR}/[A-Za-z]*.h")
 add_style_check_target(style "${LEAN_SOURCES}")
 add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
+endif()
 
 # Set PROCESSOR_COUNT
 if(NOT DEFINED PROCESSOR_COUNT)

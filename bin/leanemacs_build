@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+MY_PATH="`dirname \"$0\"`"              # relative
+MY_PATH="`( cd \"$MY_PATH\" && pwd )`"  # absolutized and normalized
+
+export LEAN_ROOTDIR="$MY_PATH/.."
+export LEAN_EMACS_PATH="$LEAN_ROOTDIR/src/emacs"
+
+emacs -load $LEAN_EMACS_PATH/load-lean.el $*

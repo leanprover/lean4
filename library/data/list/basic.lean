@@ -592,6 +592,51 @@ theorem sub_of_mem_of_sub_of_qeq {a : A} {l : list A} {u v : list A} : a ∉ l �
     (suppose x = a, by substvars; contradiction)
     (suppose x ∈ u, this)
 end qeq
+
+section firstn
+variable {A : Type}
+
+definition firstn : nat → list A → list A
+| 0     l      := []
+| (n+1) []     := []
+| (n+1) (a::l) := a :: firstn n l
+
+lemma firstn_zero : ∀ (l : list A), firstn 0 l = [] :=
+by intros; reflexivity
+
+lemma firstn_nil : ∀ n, firstn n [] = ([] : list A)
+| 0     := rfl
+| (n+1) := rfl
+
+lemma firstn_cons : ∀ n (a : A) (l : list A), firstn (succ n) (a::l) = a :: firstn n l :=
+by intros; reflexivity
+
+lemma firstn_all : ∀ (l : list A), firstn (length l) l = l
+| []     := rfl
+| (a::l) := begin unfold [length, firstn], rewrite firstn_all end
+
+lemma firstn_all_of_ge : ∀ {n} {l : list A}, n ≥ length l → firstn n l = l
+| 0     []     h := rfl
+| 0     (a::l) h := absurd h (not_le_of_gt !succ_pos)
+| (n+1) []     h := rfl
+| (n+1) (a::l) h := begin unfold firstn, rewrite [firstn_all_of_ge (le_of_succ_le_succ h)] end
+
+lemma firstn_firstn : ∀ (n m) (l : list A), firstn n (firstn m l) = firstn (min n m) l
+| n         0        l      := by rewrite [min_zero, firstn_zero, firstn_nil]
+| 0         m        l      := by rewrite [zero_min]
+| (succ n)  (succ m) nil    := by rewrite [*firstn_nil]
+| (succ n)  (succ m) (a::l) := by rewrite [*firstn_cons, firstn_firstn, min_succ_succ]
+
+lemma length_firstn_le : ∀ (n) (l : list A), length (firstn n l) ≤ n
+| 0        l      := by rewrite [firstn_zero]
+| (succ n) (a::l) := by rewrite [firstn_cons, length_cons, add_one]; apply succ_le_succ; apply length_firstn_le
+| (succ n) []     := by rewrite [firstn_nil, length_nil]; apply zero_le
+
+lemma length_firstn_eq : ∀ (n) (l : list A), length (firstn n l) = min n (length l)
+| 0        l      := by rewrite [firstn_zero, zero_min]
+| (succ n) (a::l) := by rewrite [firstn_cons, *length_cons, *add_one, min_succ_succ, length_firstn_eq]
+| (succ n) []     := by rewrite [firstn_nil]
+end firstn
 end list
 
 attribute list.has_decidable_eq  [instance]

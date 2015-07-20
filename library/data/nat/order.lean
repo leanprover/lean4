@@ -537,6 +537,13 @@ decidable.by_cases
 theorem max_add_add_right (a b c : ℕ) : max (a + c) (b + c) = max a b + c :=
 by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply max_add_add_left
 
+theorem max_eq_right' {a b : ℕ} (H : a < b) : max a b = b :=
+if_pos H
+
+-- different versions will be defined in algebra
+theorem max_eq_left' {a b : ℕ} (H : ¬ a < b) : max a b = a :=
+if_neg H
+
 /- greatest -/
 
 section greatest

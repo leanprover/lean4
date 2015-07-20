@@ -128,24 +128,12 @@ namespace vector
   | 0        m []     w := w
   | (succ n) m (a::v) w := a :: (append v w)
 
-  theorem nil_append {n : nat} (v : vector A n) : append [] v = v :=
+  theorem append_nil_left {n : nat} (v : vector A n) : append [] v = v :=
   rfl
 
   theorem append_cons {n m : nat} (h : A) (t : vector A n) (v : vector A m) :
     append (h::t) v = h :: (append t v) :=
   rfl
-
-  theorem append_nil : Π {n : nat} (v : vector A n), append v [] == v
-  | 0      []     := !heq.refl
-  | (n+1)  (h::t) :=
-    begin
-      change (h :: append t [] == h :: t),
-      have H₁ : append t [] == t, from append_nil t,
-      revert H₁, generalize (append t []),
-      rewrite [-add_eq_addl, add_zero],
-      intro w H₁,
-      rewrite [heq.to_eq H₁]
-    end
 
   theorem map_append (f : A → B) : ∀ {n m : nat} (v : vector A n) (w : vector A m), map f (append v w) = append (map f v) (map f w)
   | 0     m   []        w   :=  rfl
@@ -234,15 +222,15 @@ namespace vector
 
   /- list <-> vector -/
 
-  definition of_list {A : Type} : Π (l : list A), vector A (list.length l)
+  definition of_list : Π (l : list A), vector A (list.length l)
   | list.nil        := []
   | (list.cons a l) := a :: (of_list l)
 
-  definition to_list {A : Type} : Π {n : nat}, vector A n → list A
+  definition to_list : Π {n : nat}, vector A n → list A
   | 0     []        := list.nil
   | (n+1) (a :: vs) := list.cons a (to_list vs)
 
-  theorem to_list_of_list {A : Type} : ∀ (l : list A), to_list (of_list l) = l
+  theorem to_list_of_list : ∀ (l : list A), to_list (of_list l) = l
   | list.nil         := rfl
   | (list.cons a l)  :=
     begin
@@ -250,7 +238,10 @@ namespace vector
       rewrite to_list_of_list
     end
 
-  theorem length_to_list {A : Type} : ∀ {n : nat} (v : vector A n), list.length (to_list v) = n
+  theorem to_list_nil : to_list [] = (list.nil : list A) :=
+  rfl
+
+  theorem length_to_list : ∀ {n : nat} (v : vector A n), list.length (to_list v) = n
   | 0     []        := rfl
   | (n+1) (a :: vs) :=
     begin
@@ -258,22 +249,74 @@ namespace vector
       rewrite length_to_list
     end
 
-  theorem of_list_to_list {A : Type} : ∀ {n : nat} (v : vector A n), of_list (to_list v) == v
-  | 0     []        := by reflexivity
-  | (n+1) (a :: vs) :=
-    begin
-      change (a :: of_list (to_list vs) == a :: vs),
-      have H₁ : of_list (to_list vs) == vs, from of_list_to_list vs,
-      revert H₁,
-      generalize (of_list (to_list vs)),
-      rewrite length_to_list at *,
-      intro vs', intro H,
-      have H₂ : vs' = vs, from heq.to_eq H,
-      substvars
-   end
+  theorem heq_of_list_eq : ∀ {n m} {v₁ : vector A n} {v₂ : vector A m}, to_list v₁ = to_list v₂ → n = m → v₁ == v₂
+  | 0     0     []      []      h₁ h₂ := !heq.refl
+  | 0     (m+1) []      (y::ys) h₁ h₂ := by contradiction
+  | (n+1) 0     (x::xs) []      h₁ h₂ := by contradiction
+  | (n+1) (m+1) (x::xs) (y::ys) h₁ h₂ :=
+    assert e₁ : n = m, from succ.inj h₂,
+    assert e₂ : x = y, begin unfold to_list at h₁, injection h₁, assumption end,
+    have   to_list xs = to_list ys, begin unfold to_list at h₁, injection h₁, assumption end,
+    assert xs == ys, from heq_of_list_eq this e₁,
+    assert y :: xs == y :: ys, begin clear heq_of_list_eq h₁ h₂, revert xs ys this, induction e₁, intro xs ys h, rewrite [heq.to_eq h] end,
+    show x :: xs == y :: ys, by rewrite e₂; exact this
 
+  theorem list_eq_of_heq {n m} {v₁ : vector A n} {v₂ : vector A m} : v₁ == v₂ → n = m → to_list v₁ = to_list v₂ :=
+  begin
+    intro h₁ h₂, revert v₁ v₂ h₁,
+    subst n, intro v₁ v₂ h₁, rewrite [heq.to_eq h₁]
+  end
 
-   /- decidable equality -/
+  theorem of_list_to_list {n : nat} (v : vector A n) : of_list (to_list v) == v :=
+  begin
+    apply heq_of_list_eq, rewrite to_list_of_list, rewrite length_to_list
+  end
+
+  theorem to_list_append : ∀ {n m : nat} (v₁ : vector A n) (v₂ : vector A m), to_list (append v₁ v₂) = list.append (to_list v₁) (to_list v₂)
+  | 0        m        []      ys      := rfl
+  | (succ n) m        (x::xs) ys      := begin unfold append, unfold to_list at {1,2}, krewrite [to_list_append xs ys] end
+
+  theorem to_list_map (f : A → B) : ∀ {n : nat} (v : vector A n), to_list (map f v) = list.map f (to_list v)
+  | 0        []      := rfl
+  | (succ n) (x::xs) := begin unfold [map, to_list], rewrite to_list_map end
+
+  theorem to_list_concat : ∀ {n : nat} (v : vector A n) (a : A), to_list (concat v a) = list.concat a (to_list v)
+  | 0        []      a := rfl
+  | (succ n) (x::xs) a := begin unfold [concat, to_list], rewrite to_list_concat end
+
+  theorem to_list_reverse : ∀ {n : nat} (v : vector A n), to_list (reverse v) = list.reverse (to_list v)
+  | 0        []      := rfl
+  | (succ n) (x::xs) := begin unfold [reverse], rewrite [to_list_concat, to_list_reverse] end
+
+  theorem append_nil_right {n : nat} (v : vector A n) : append v [] == v :=
+  begin
+    apply heq_of_list_eq,
+      rewrite [to_list_append, to_list_nil, list.append_nil_right],
+      rewrite [-add_eq_addl]
+  end
+
+  theorem append.assoc {n₁ n₂ n₃ : nat} (v₁ : vector A n₁) (v₂ : vector A n₂) (v₃ : vector A n₃) : append v₁ (append v₂ v₃) == append (append v₁ v₂) v₃ :=
+  begin
+    apply heq_of_list_eq,
+      rewrite [*to_list_append, list.append.assoc],
+      rewrite [-*add_eq_addl, add.assoc]
+  end
+
+  theorem reverse_append {n m : nat} (v : vector A n) (w : vector A m) : reverse (append v w) == append (reverse w) (reverse v) :=
+  begin
+    apply heq_of_list_eq,
+      rewrite [to_list_reverse, to_list_append, list.reverse_append, to_list_append, *to_list_reverse],
+      rewrite [-*add_eq_addl, add.comm]
+  end
+
+  theorem concat_eq_append {n : nat} (v : vector A n) (a : A) : concat v a == append v [a] :=
+  begin
+    apply heq_of_list_eq,
+      rewrite [to_list_concat, to_list_append, list.concat_eq_append],
+      rewrite [-add_eq_addl]
+  end
+
+  /- decidable equality -/
   open decidable
   definition decidable_eq [H : decidable_eq A] : ∀ {n : nat} (v₁ v₂ : vector A n), decidable (v₁ = v₂)
   | ⌞0⌟    []      []      := by left; reflexivity

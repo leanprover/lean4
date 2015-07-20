@@ -24,7 +24,7 @@ lemma eq_of_veq : ∀ {i j : fin n}, (val i) = j → i = j
 
 lemma veq_of_eq : ∀ {i j : fin n}, i = j → (val i) = j
 | (mk iv ilt) (mk jv jlt) := assume Peq,
-  have veq : iv = jv, from fin.no_confusion Peq (λ Pe Pqe, Pe), veq
+  show iv = jv, from fin.no_confusion Peq (λ Pe Pqe, Pe)
 
 lemma eq_iff_veq : ∀ {i j : fin n}, (val i) = j ↔ i = j :=
 take i j, iff.intro eq_of_veq veq_of_eq
@@ -57,8 +57,8 @@ dmap_nodup_of_dinj (dinj_lt n) (list.nodup_upto n)
 lemma mem_upto (n : nat) : ∀ (i : fin n), i ∈ upto n :=
 take i, fin.destruct i
   (take ival Piltn,
-    assert Pin : ival ∈ list.upto n, from mem_upto_of_lt Piltn,
-    mem_dmap Piltn Pin)
+    assert ival ∈ list.upto n, from mem_upto_of_lt Piltn,
+    mem_dmap Piltn this)
 
 lemma upto_zero : upto 0 = [] :=
 by rewrite [↑upto, list.upto_nil, dmap_nil]
@@ -132,13 +132,13 @@ by intro hlt he; substvars; exact absurd hlt (lt.irrefl n)
 
 lemma lt_max_of_ne_max {i : fin (succ n)} : i ≠ maxi → i < n :=
 assume hne  : i ≠ maxi,
-assert visn : val i < nat.succ n, from val_lt i,
-assert aux  : val (@maxi n) = n,   from rfl,
 assert vne  : val i ≠ n, from
   assume he,
-    have vivm : val i = val (@maxi n), from he ⬝ aux⁻¹,
-    absurd (eq_of_veq vivm) hne,
-lt_of_le_of_ne (le_of_lt_succ visn) vne
+    have val (@maxi n) = n,   from rfl,
+    have val i = val (@maxi n), from he ⬝ this⁻¹,
+    absurd (eq_of_veq this) hne,
+have val i < nat.succ n, from val_lt i,
+lt_of_le_of_ne (le_of_lt_succ this) vne
 
 lemma lift_succ_ne_max {i : fin n} : lift_succ i ≠ maxi :=
 begin
@@ -199,8 +199,8 @@ end
 
 lemma lift_fun_inj : injective (@lift_fun n) :=
 take f₁ f₂ Peq, funext (λ i,
-assert Peqi : lift_fun f₁ (lift_succ i) = lift_fun f₂ (lift_succ i), from congr_fun Peq _,
-begin revert Peqi, rewrite [*lift_fun_eq], apply lift_succ_inj end)
+assert lift_fun f₁ (lift_succ i) = lift_fun f₂ (lift_succ i), from congr_fun Peq _,
+begin revert this, rewrite [*lift_fun_eq], apply lift_succ_inj end)
 
 lemma lower_inj_apply {f Pinj Pmax} (i : fin n) :
   val (lower_inj f Pinj Pmax i) = val (f (lift_succ i)) :=
@@ -295,15 +295,15 @@ begin
       eq.symm (succ_pred_of_pos HT),
     assert pj : vj < n, from
       lt_of_succ_lt_succ (eq.subst HSv pk),
-    have HS : succ (mk vj pj) = mk vk pk, from
+    have succ (mk vj pj) = mk vk pk, from
       val_inj (eq.symm HSv),
-    eq.rec_on HS (CS (mk vj pj)) },
+    eq.rec_on this (CS (mk vj pj)) },
   { show C (mk vk pk), from
-    have HOv : vk = 0, from
+    have vk = 0, from
       eq_zero_of_le_zero (le_of_not_gt HF),
-    have HO : zero n = mk vk pk, from
-      val_inj (eq.symm HOv),
-    eq.rec_on HO CO }
+    have zero n = mk vk pk, from
+      val_inj (eq.symm this),
+    eq.rec_on this CO }
 end
 
 theorem choice {C : fin n → Type} :

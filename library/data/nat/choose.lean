@@ -60,8 +60,8 @@ private lemma acc_of_acc_of_lt : ∀ {x y : nat}, acc gtb x → y < x → acc gt
 | (succ x) y asx yltsx :=
   assert ax : acc gtb x, from acc_of_acc_succ asx,
   by_cases
-     (λ yeqx : y = x, by substvars; assumption)
-     (λ ynex : y ≠ x, acc_of_acc_of_lt ax (lt_of_le_and_ne (le_of_lt_succ yltsx) ynex))
+     (suppose y = x, by substvars; assumption)
+     (suppose y ≠ x, acc_of_acc_of_lt ax (lt_of_le_and_ne (le_of_lt_succ yltsx) this))
 
 parameter (ex : ∃ a, p a)
 parameter [dp : decidable_pred p]
@@ -70,9 +70,9 @@ include dp
 private lemma acc_of_ex (x : nat) : acc gtb x :=
 obtain (w : nat) (pw : p w), from ex,
 lt.by_cases
-  (λ xltw : x < w, acc_of_acc_of_lt (acc_of_px pw) xltw)
-  (λ xeqw : x = w, by subst x; exact (acc_of_px pw))
-  (λ xgtw : x > w, acc_of_px_of_gt pw xgtw)
+  (suppose x < w, acc_of_acc_of_lt (acc_of_px pw) this)
+  (suppose x = w, by subst x; exact (acc_of_px pw))
+  (suppose x > w, acc_of_px_of_gt pw this)
 
 private lemma wf_gtb : well_founded gtb :=
 well_founded.intro acc_of_ex
@@ -83,14 +83,14 @@ match x with
   (λ p0 : p 0,    tag 0 p0)
   (λ np0 : ¬ p 0,
     have l₁ : lbp 1, from lbp_succ l0 np0,
-    have g  : 1 ≺ 0, from and.intro (lt.base 0) l₁,
-    f 1 g l₁)
+    have 1 ≺ 0, from and.intro (lt.base 0) l₁,
+    f 1 this l₁)
 | (succ n) := λ f lsn, by_cases
   (λ psn : p (succ n), tag (succ n) psn)
   (λ npsn : ¬ p (succ n),
     have lss : lbp (succ (succ n)), from lbp_succ lsn npsn,
-    have g   : succ (succ n) ≺ succ n, from and.intro (lt.base (succ n)) lss,
-    f (succ (succ n)) g lss)
+    have succ (succ n) ≺ succ n, from and.intro (lt.base (succ n)) lss,
+    f (succ (succ n)) this lss)
 end
 
 private definition find_x : {x : nat | p x} :=

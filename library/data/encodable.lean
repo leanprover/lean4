@@ -16,11 +16,11 @@ open encodable
 
 definition countable_of_encodable {A : Type} : encodable A → countable A :=
 assume e : encodable A,
-have inj_encode : injective encode, from
+have injective encode, from
   λ (a₁ a₂ : A) (h : encode a₁ = encode a₂),
-    assert aux : decode A (encode a₁) = decode A (encode a₂), by rewrite h,
-    by rewrite [*encodek at aux]; injection aux; assumption,
-exists.intro encode inj_encode
+    assert decode A (encode a₁) = decode A (encode a₂), by rewrite h,
+    by rewrite [*encodek at this]; injection this; assumption,
+exists.intro encode this
 
 definition encodable_fintype [instance] {A : Type} [h₁ : fintype A] [h₂ : decidable_eq A] : encodable A :=
 encodable.mk
@@ -301,11 +301,11 @@ match decode A n with
 end (eq.refl (decode A n))
 
 private definition find_a : (∃ x, p x) → {a : A | p a} :=
-assume ex : ∃ x, p x,
-have exn  : ∃ x, pn x, from ex_pn_of_ex ex,
-let r     : nat := @nat.choose pn decidable_pn exn in
-have pnr  : pn r, from @nat.choose_spec pn decidable_pn exn,
-of_nat r pnr
+suppose ∃ x, p x,
+have    ∃ x, pn x, from ex_pn_of_ex this,
+let r := @nat.choose pn decidable_pn this in
+have pn r, from @nat.choose_spec pn decidable_pn this,
+of_nat r this
 end find_a
 
 namespace encodable
@@ -320,16 +320,16 @@ has_property (find_a ex)
 theorem axiom_of_choice {A : Type} {B : A → Type} {R : Π x, B x → Prop} [c : Π a, encodable (B a)] [d : ∀ x y, decidable (R x y)]
                         : (∀x, ∃y, R x y) → ∃f, ∀x, R x (f x) :=
 assume H,
-have H₁ : ∀x, R x (choose (H x)), from take x, choose_spec (H x),
-exists.intro _ H₁
+have ∀x, R x (choose (H x)), from take x, choose_spec (H x),
+exists.intro _ this
 
 theorem skolem {A : Type} {B : A → Type} {P : Π x, B x → Prop} [c : Π a, encodable (B a)] [d : ∀ x y, decidable (P x y)]
                : (∀x, ∃y, P x y) ↔ ∃f, (∀x, P x (f x)) :=
 iff.intro
-  (assume H : (∀x, ∃y, P x y), axiom_of_choice H)
-  (assume H : (∃f, (∀x, P x (f x))),
-    take x, obtain (fw : ∀x, B x) (Hw : ∀x, P x (fw x)), from H,
-      exists.intro (fw x) (Hw x))
+  (suppose (∀ x, ∃y, P x y), axiom_of_choice this)
+  (suppose (∃ f, (∀x, P x (f x))),
+   take x, obtain (fw : ∀x, B x) (Hw : ∀x, P x (fw x)), from this,
+     exists.intro (fw x) (Hw x))
 end encodable
 
 namespace quot

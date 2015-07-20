@@ -55,8 +55,8 @@ equiv_zero_of_num_eq_zero H3
 
 theorem nonneg_total (a : prerat) : nonneg a ∨ nonneg (neg a) :=
 or.elim (le.total 0 (num a))
-  (assume H : 0 ≤ num a, or.inl H)
-  (assume H : 0 ≥ num a, or.inr (neg_nonneg_of_nonpos H))
+  (suppose 0 ≤ num a, or.inl this)
+  (suppose 0 ≥ num a, or.inr (neg_nonneg_of_nonpos this))
 
 theorem nonneg_of_pos (H : pos a) : nonneg a := le_of_lt H
 
@@ -64,9 +64,8 @@ theorem ne_zero_of_pos (H : pos a) : ¬ a ≡ zero :=
 assume H', ne_of_gt H (num_eq_zero_of_equiv_zero H')
 
 theorem pos_of_nonneg_of_ne_zero (H1 : nonneg a) (H2 : ¬ a ≡ zero) : pos a :=
-have H3 : num a ≠ 0,
-  from assume H' : num a = 0, H2 (equiv_zero_of_num_eq_zero H'),
-  lt_of_le_of_ne H1 (ne.symm H3)
+have num a ≠ 0, from suppose num a = 0, H2 (equiv_zero_of_num_eq_zero this),
+lt_of_le_of_ne H1 (ne.symm this)
 
 theorem nonneg_mul (H1 : nonneg a) (H2 : nonneg b) : nonneg (mul a b) :=
 mul_nonneg H1 H2
@@ -125,10 +124,10 @@ quot.induction_on a (take u, assume H1 H2, prerat.ne_zero_of_pos H1 (quot.exact 
 private theorem pos_of_nonneg_of_ne_zero : nonneg a → ¬ a = 0 → pos a :=
 quot.induction_on a
   (take u,
-    assume H1 : nonneg ⟦u⟧,
-    assume H2 : ⟦u⟧ ≠ (rat.of_num 0),
-    have H3 : ¬ (prerat.equiv u prerat.zero), from assume H, H2 (quot.sound H),
-    prerat.pos_of_nonneg_of_ne_zero H1 H3)
+   assume h : nonneg ⟦u⟧,
+   suppose ⟦u⟧ ≠ (rat.of_num 0),
+   have ¬ (prerat.equiv u prerat.zero), from assume H, this (quot.sound H),
+   prerat.pos_of_nonneg_of_ne_zero h this)
 
 private theorem nonneg_mul : nonneg a → nonneg b → nonneg (a * b) :=
 quot.induction_on₂ a b @prerat.nonneg_mul
@@ -210,43 +209,43 @@ theorem le.by_cases {P : Prop} (a b : ℚ) (H : a ≤ b → P) (H2 : b ≤ a →
 theorem lt_iff_le_and_ne (a b : ℚ) : a < b ↔ a ≤ b ∧ a ≠ b :=
 iff.intro
   (assume H : a < b,
-    have H1 : b - a ≠ 0, from ne_zero_of_pos H,
-    have H2 : a ≠ b, from ne.symm (assume H', H1 (H' ▸ !sub_self)),
-    and.intro (nonneg_of_pos H) H2)
+    have b - a ≠ 0, from ne_zero_of_pos H,
+    have a ≠ b, from ne.symm (assume H', this (H' ▸ !sub_self)),
+    and.intro (nonneg_of_pos H) this)
   (assume H : a ≤ b ∧ a ≠ b,
     obtain aleb aneb, from H,
-    have H1 : b - a ≠ 0, from (assume H', aneb (eq_of_sub_eq_zero H')⁻¹),
-    pos_of_nonneg_of_ne_zero aleb H1)
+    have b - a ≠ 0, from (assume H', aneb (eq_of_sub_eq_zero H')⁻¹),
+    pos_of_nonneg_of_ne_zero aleb this)
 
 theorem le_iff_lt_or_eq (a b : ℚ) : a ≤ b ↔ a < b ∨ a = b :=
 iff.intro
-  (assume H : a ≤ b,
+  (assume h : a ≤ b,
     decidable.by_cases
-      (assume H1 : a = b, or.inr H1)
-      (assume H1 : a ≠ b, or.inl (iff.mpr !lt_iff_le_and_ne (and.intro H H1))))
-  (assume H : a < b ∨ a = b,
-    or.elim H
-      (assume H1 : a < b, and.left (iff.mp !lt_iff_le_and_ne H1))
-      (assume H1 : a = b, H1 ▸ !le.refl))
+      (suppose a = b, or.inr this)
+      (suppose a ≠ b, or.inl (iff.mpr !lt_iff_le_and_ne (and.intro h this))))
+  (suppose a < b ∨ a = b,
+    or.elim this
+      (suppose a < b, and.left (iff.mp !lt_iff_le_and_ne this))
+      (suppose a = b, this ▸ !le.refl))
 
 theorem to_nonneg : a ≥ 0 → nonneg a :=
 by intros; rewrite -sub_zero; eassumption
 
 theorem add_le_add_left (H : a ≤ b) (c : ℚ) : c + a ≤ c + b :=
-have H1 : c + b - (c + a) = b - a,
+have c + b - (c + a) = b - a,
   by rewrite [↑sub, neg_add, -add.assoc, add.comm c, add_neg_cancel_right],
-show nonneg (c + b - (c + a)), from H1⁻¹ ▸ H
+show nonneg (c + b - (c + a)), from this⁻¹ ▸ H
 
 theorem mul_nonneg (H1 : a ≥ (0 : ℚ)) (H2 : b ≥ (0 : ℚ)) : a * b ≥ (0 : ℚ) :=
-have H : nonneg (a * b), from nonneg_mul (to_nonneg H1) (to_nonneg H2),
-!sub_zero⁻¹ ▸ H
+have nonneg (a * b), from nonneg_mul (to_nonneg H1) (to_nonneg H2),
+!sub_zero⁻¹ ▸ this
 
 theorem to_pos : a > 0 → pos a :=
 by intros; rewrite -sub_zero; eassumption
 
 theorem mul_pos (H1 : a > (0 : ℚ)) (H2 : b > (0 : ℚ)) : a * b > (0 : ℚ) :=
-have H : pos (a * b), from pos_mul (to_pos H1) (to_pos H2),
-!sub_zero⁻¹ ▸ H
+have pos (a * b), from pos_mul (to_pos H1) (to_pos H2),
+!sub_zero⁻¹ ▸ this
 
 definition decidable_lt [instance] : decidable_rel rat.lt :=
 take a b, decidable_pos (b - a)
@@ -254,24 +253,24 @@ take a b, decidable_pos (b - a)
 theorem le_of_lt  (H : a < b) : a ≤ b := iff.mpr !le_iff_lt_or_eq (or.inl H)
 
 theorem lt_irrefl (a : ℚ) : ¬ a < a :=
-  take Ha,
+take Ha,
   let Hand := (iff.mp !lt_iff_le_and_ne) Ha in
   (and.right Hand) rfl
 
 theorem not_le_of_gt (H : a < b) : ¬ b ≤ a :=
-  assume Hba,
+assume Hba,
   let Heq := le.antisymm (le_of_lt H) Hba in
   !lt_irrefl (Heq ▸ H)
 
 theorem lt_of_lt_of_le  (Hab : a < b) (Hbc : b ≤ c) : a < c :=
-  let Hab' := le_of_lt Hab in
-  let Hac := le.trans Hab' Hbc in
+let Hab' := le_of_lt Hab in
+let Hac := le.trans Hab' Hbc in
   (iff.mpr !lt_iff_le_and_ne) (and.intro Hac
     (assume Heq, not_le_of_gt (Heq ▸ Hab) Hbc))
 
 theorem lt_of_le_of_lt  (Hab : a ≤ b) (Hbc : b < c) : a < c :=
-  let Hbc' := le_of_lt Hbc in
-  let Hac := le.trans Hab Hbc' in
+let Hbc' := le_of_lt Hbc in
+let Hac := le.trans Hab Hbc' in
   (iff.mpr !lt_iff_le_and_ne) (and.intro Hac
     (assume Heq, not_le_of_gt (Heq⁻¹ ▸ Hbc) Hab))
 
@@ -324,28 +323,29 @@ section migrate_algebra
 end migrate_algebra
 
 theorem rat_of_nat_abs (a : ℤ) : abs (of_int a) = of_nat (int.nat_abs a) :=
-  have hsimp [visible] : ∀ n : ℕ, of_int (int.neg_succ_of_nat n) = - of_nat (nat.succ n), from λ n, rfl,
-  int.induction_on a
-    (take b, abs_of_nonneg (!of_nat_nonneg))
-    (take b, by rewrite [hsimp, abs_neg, abs_of_nonneg (!of_nat_nonneg)])
+assert ∀ n : ℕ, of_int (int.neg_succ_of_nat n) = - of_nat (nat.succ n), from λ n, rfl,
+int.induction_on a
+  (take b, abs_of_nonneg (!of_nat_nonneg))
+  (take b, by rewrite [this, abs_neg, abs_of_nonneg (!of_nat_nonneg)])
 
 definition ubound : ℚ → ℕ := λ a : ℚ, nat.succ (int.nat_abs (num a))
 
 theorem ubound_ge (a : ℚ) : of_nat (ubound a) ≥ a :=
-  have H : abs a * abs (of_int (denom a)) = abs (of_int (num a)), from !abs_mul ▸ !mul_denom ▸ rfl,
-  have H'' : 1 ≤ abs (of_int (denom a)),  begin
-    have J : of_int (denom a) > 0, from (iff.mpr !of_int_pos) !denom_pos,
-    rewrite (abs_of_pos J),
+have h : abs a * abs (of_int (denom a)) = abs (of_int (num a)), from
+  !abs_mul ▸ !mul_denom ▸ rfl,
+assert of_int (denom a) > 0, from (iff.mpr !of_int_pos) !denom_pos,
+have 1 ≤ abs (of_int (denom a)), begin
+    rewrite (abs_of_pos this),
     apply iff.mpr !of_int_le_of_int,
     apply denom_pos
   end,
-  have H' : abs a ≤ abs (of_int (num a)), from
-                le_of_mul_le_of_ge_one (H ▸ !le.refl) !abs_nonneg H'',
-  calc
-    a ≤ abs a : le_abs_self
-  ... ≤ abs (of_int (num a)) : H'
-  ... ≤ abs (of_int (num a)) + 1 : rat.le_add_of_nonneg_right trivial
-  ... = of_nat (int.nat_abs (num a)) + 1 : rat_of_nat_abs
+have abs a ≤ abs (of_int (num a)), from
+  le_of_mul_le_of_ge_one (h ▸ !le.refl) !abs_nonneg this,
+calc
+    a ≤ abs a                                   : le_abs_self
+  ... ≤ abs (of_int (num a))                    : this
+  ... ≤ abs (of_int (num a)) + 1                : rat.le_add_of_nonneg_right trivial
+  ... = of_nat (int.nat_abs (num a)) + 1        : rat_of_nat_abs
   ... = of_nat (nat.succ (int.nat_abs (num a))) : of_nat_add
 
 theorem ubound_pos (a : ℚ) : nat.gt (ubound a) nat.zero := !nat.succ_pos

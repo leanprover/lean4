@@ -22,9 +22,9 @@ definition fintype_of_equiv {A B : Type} [h : fintype A] : A ≃ B → fintype B
     (map f (elements_of A))
     (nodup_map (injective_of_left_inverse l) !fintype.unique)
     (λ b,
-      have h₁ : g b ∈ elements_of A, from fintype.complete (g b),
-      assert h₂ : f (g b) ∈ map f (elements_of A), from mem_map f h₁,
-      by rewrite r at h₂; exact h₂)
+      have g b ∈ elements_of A, from fintype.complete (g b),
+      assert f (g b) ∈ map f (elements_of A), from mem_map f this,
+      by rewrite r at this; exact this)
 end
 
 definition fintype_unit [instance] : fintype unit :=
@@ -66,23 +66,24 @@ assume eq, if_pos eq
 theorem ne_of_find_discr_eq_some {f g : A → B} {a : A} : ∀ {l}, find_discr f g l = some a → f a ≠ g a
 | []     e := by contradiction
 | (x::l) e := by_cases
-  (λ h : f x = g x,
-     have aux : find_discr f g l = some a, by rewrite [find_discr_cons_of_eq l h at e]; exact e,
-     ne_of_find_discr_eq_some aux)
-  (λ h : f x ≠ g x,
-     have aux : some x = some a, by rewrite [find_discr_cons_of_ne l h at e]; exact e,
-     option.no_confusion aux (λ xeqa : x = a, eq.rec_on xeqa h))
+  (suppose f x = g x,
+     have find_discr f g l = some a, by rewrite [find_discr_cons_of_eq l this at e]; exact e,
+     ne_of_find_discr_eq_some this)
+  (assume h : f x ≠ g x,
+     assert some x = some a, by rewrite [find_discr_cons_of_ne l h at e]; exact e,
+     by clear ne_of_find_discr_eq_some; injection this; subst a; exact h)
 
 theorem all_eq_of_find_discr_eq_none {f g : A → B} : ∀ {l}, find_discr f g l = none → ∀ a, a ∈ l → f a = g a
 | []     e a i := absurd i !not_mem_nil
 | (x::l) e a i := by_cases
-  (λ fx_eq_gx : f x = g x,
-    have aux : find_discr f g l = none, by rewrite [find_discr_cons_of_eq l fx_eq_gx at e]; exact e,
+  (assume fx_eq_gx : f x = g x,
     or.elim (eq_or_mem_of_mem_cons i)
-      (λ aeqx : a = x, by rewrite [-aeqx at fx_eq_gx]; exact fx_eq_gx)
-      (λ ainl : a ∈ l, all_eq_of_find_discr_eq_none aux a ainl))
-  (λ fx_ne_gx : f x ≠ g x,
-    by rewrite [find_discr_cons_of_ne l fx_ne_gx at e]; contradiction)
+      (suppose a = x, by rewrite [-this at fx_eq_gx]; exact fx_eq_gx)
+      (suppose a ∈ l,
+        have aux : find_discr f g l = none, by rewrite [find_discr_cons_of_eq l fx_eq_gx at e]; exact e,
+        all_eq_of_find_discr_eq_none aux a this))
+  (suppose f x ≠ g x,
+    by rewrite [find_discr_cons_of_ne l this at e]; contradiction)
 end find_discr
 
 definition decidable_eq_fun [instance] {A B : Type} [h₁ : fintype A] [h₂ : decidable_eq B] : decidable_eq (A → B) :=

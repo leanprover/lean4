@@ -281,10 +281,10 @@ nat.cases_on n
       (take m',
         assume H : succ n' * succ m' = 0,
         absurd
-          ((calc
+          (calc
             0 = succ n' * succ m' : H
              ... = succ n' * m' + succ n' : mul_succ
-             ... = succ (succ n' * m' + n') : add_succ)⁻¹)
+             ... = succ (succ n' * m' + n') : add_succ)⁻¹
           !succ_ne_zero))
 
 section migrate_algebra

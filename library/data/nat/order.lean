@@ -483,6 +483,20 @@ by rewrite [max_eq_left !zero_le]
 theorem zero_max [rewrite] (a : ℕ) : max 0 a = a :=
 by rewrite [max_eq_right !zero_le]
 
+theorem min_succ_succ [rewrite] (a b : ℕ) : min (succ a) (succ b) = succ (min a b) :=
+by_cases
+  (suppose a < b,   by unfold min; rewrite [if_pos this, if_pos (succ_lt_succ this)])
+  (suppose ¬ a < b,
+   assert h : ¬ succ a < succ b, from assume h, absurd (lt_of_succ_lt_succ h) this,
+   by unfold min; rewrite [if_neg this, if_neg h])
+
+theorem max_succ_succ [rewrite] (a b : ℕ) : max (succ a) (succ b) = succ (max a b) :=
+by_cases
+  (suppose a < b,   by unfold max; rewrite [if_pos this, if_pos (succ_lt_succ this)])
+  (suppose ¬ a < b,
+   assert h : ¬ succ a < succ b, from assume h, absurd (lt_of_succ_lt_succ h) this,
+   by unfold max; rewrite [if_neg this, if_neg h])
+
 theorem lt_min {a b c : ℕ} (H₁ : a < b) (H₂ : a < c) : a < min b c :=
 decidable.by_cases
   (assume H : b ≤ c, by rewrite (min_eq_left H); apply H₁)

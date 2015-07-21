@@ -39,10 +39,10 @@ lemma length_erase_of_mem {a : A} : ∀ {l}, a ∈ l → length (erase a l) = pr
 | [x]        h := by rewrite [mem_singleton h, erase_cons_head]
 | (x::y::xs) h :=
   by_cases
-   (λ aeqx : a = x, by rewrite [aeqx, erase_cons_head])
-   (λ anex : a ≠ x,
-    assert ainyxs : a ∈ y::xs, from or_resolve_right h anex,
-    by rewrite [erase_cons_tail _ anex, *length_cons, length_erase_of_mem ainyxs])
+   (suppose a = x, by rewrite [this, erase_cons_head])
+   (suppose a ≠ x,
+    assert ainyxs : a ∈ y::xs, from or_resolve_right h this,
+    by rewrite [erase_cons_tail _ this, *length_cons, length_erase_of_mem ainyxs])
 
 lemma length_erase_of_not_mem {a : A} : ∀ {l}, a ∉ l → length (erase a l) = length l
 | []      h   := rfl
@@ -227,26 +227,28 @@ theorem nodup_of_nodup_append_right : ∀ {l₁ l₂ : list A}, nodup (l₁++l�
 theorem disjoint_of_nodup_append : ∀ {l₁ l₂ : list A}, nodup (l₁++l₂) → disjoint l₁ l₂
 | []      l₂  d := disjoint_nil_left l₂
 | (x::xs) l₂  d :=
-  have d₁     : nodup (x::(xs++l₂)), from d,
-  have d₂     : nodup (xs++l₂),      from nodup_of_nodup_cons d₁,
-  have nxin   : x ∉ xs++l₂,          from not_mem_of_nodup_cons d₁,
-  have nxinl₂ : x ∉ l₂,              from not_mem_of_not_mem_append_right nxin,
-  have dsj    : disjoint xs l₂,      from disjoint_of_nodup_append d₂,
-  λ a (ainxxs : a ∈ x::xs),
-    or.elim (eq_or_mem_of_mem_cons ainxxs)
-      (λ aeqx  : a = x, aeqx⁻¹ ▸ nxinl₂)
-      (λ ainxs : a ∈ xs, disjoint_left dsj ainxs)
+  have nodup (x::(xs++l₂)),    from d,
+  have x ∉ xs++l₂,             from not_mem_of_nodup_cons this,
+  have nxinl₂ : x ∉ l₂,        from not_mem_of_not_mem_append_right this,
+  take a, suppose a ∈ x::xs,
+    or.elim (eq_or_mem_of_mem_cons this)
+      (suppose a = x, this⁻¹ ▸ nxinl₂)
+      (suppose ainxs : a ∈ xs,
+        have nodup (x::(xs++l₂)), from d,
+        have nodup (xs++l₂),      from nodup_of_nodup_cons this,
+        have disjoint xs l₂,      from disjoint_of_nodup_append this,
+        disjoint_left this ainxs)
 
 theorem nodup_append_of_nodup_of_nodup_of_disjoint : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → disjoint l₁ l₂ → nodup (l₁++l₂)
 | []      l₂ d₁ d₂ dsj := by rewrite [append_nil_left]; exact d₂
 | (x::xs) l₂ d₁ d₂ dsj :=
-  have dsj₁     : disjoint xs l₂,      from disjoint_of_disjoint_cons_left dsj,
   have ndxs     : nodup xs,            from nodup_of_nodup_cons d₁,
-  have ndxsl₂   : nodup (xs++l₂),      from nodup_append_of_nodup_of_nodup_of_disjoint ndxs d₂ dsj₁,
+  have disjoint xs l₂,                 from disjoint_of_disjoint_cons_left dsj,
+  have ndxsl₂   : nodup (xs++l₂),      from nodup_append_of_nodup_of_nodup_of_disjoint ndxs d₂ this,
   have nxinxs   : x ∉ xs,              from not_mem_of_nodup_cons d₁,
-  have nxinl₂   : x ∉ l₂,              from disjoint_left dsj !mem_cons,
-  have nxinxsl₂ : x ∉ xs++l₂,          from not_mem_append nxinxs nxinl₂,
-  nodup_cons nxinxsl₂ ndxsl₂
+  have x ∉ l₂,                         from disjoint_left dsj !mem_cons,
+  have x ∉ xs++l₂,                     from not_mem_append nxinxs this,
+  nodup_cons this ndxsl₂
 
 theorem nodup_app_comm {l₁ l₂ : list A} (d : nodup (l₁++l₂)) : nodup (l₂++l₁) :=
 have d₁  : nodup l₁,       from nodup_of_nodup_append_left d,

@@ -55,18 +55,18 @@ theorem exists_of_mem_map {A B : Type} {f : A → B} {b : B} :
     ∀{l}, b ∈ map f l → ∃a, a ∈ l ∧ f a = b
 | []     H := false.elim H
 | (c::l) H := or.elim (iff.mp !mem_cons_iff H)
-                (assume H1 : b = f c,
-                  exists.intro c (and.intro !mem_cons (eq.symm H1)))
-                (assume H1 : b ∈ map f l,
-                  obtain a (Hl : a ∈ l) (Hr : f a = b), from exists_of_mem_map H1,
+                (suppose b = f c,
+                  exists.intro c (and.intro !mem_cons (eq.symm this)))
+                (suppose b ∈ map f l,
+                  obtain a (Hl : a ∈ l) (Hr : f a = b), from exists_of_mem_map this,
                   exists.intro a (and.intro (mem_cons_of_mem _ Hl) Hr))
 
 theorem eq_of_map_const {A B : Type} {b₁ b₂ : B} : ∀ {l : list A}, b₁ ∈ map (const A b₂) l → b₁ = b₂
 | []     h := absurd h !not_mem_nil
 | (a::l) h :=
   or.elim (eq_or_mem_of_mem_cons h)
-    (λ b₁eqb₂ : b₁ = b₂, b₁eqb₂)
-    (λ b₁inl  : b₁ ∈ map (const A b₂) l, eq_of_map_const b₁inl)
+    (suppose b₁ = b₂, this)
+    (suppose b₁ ∈ map (const A b₂) l, eq_of_map_const this)
 
 definition map₂ (f : A → B → C) : list A → list B → list C
 | []      _       := []
@@ -89,22 +89,22 @@ theorem filter_cons_of_neg {p : A → Prop} [h : decidable_pred p] {a : A} : ∀
 theorem of_mem_filter {p : A → Prop} [h : decidable_pred p] {a : A} : ∀ {l}, a ∈ filter p l → p a
 | []     ain := absurd ain !not_mem_nil
 | (b::l) ain := by_cases
-  (λ pb  : p b,
+  (assume pb  : p b,
     have aux : a ∈ b :: filter p l, by rewrite [filter_cons_of_pos _ pb at ain]; exact ain,
     or.elim (eq_or_mem_of_mem_cons aux)
-      (λ aeqb : a = b, by rewrite [-aeqb at pb]; exact pb)
-      (λ ainl, of_mem_filter ainl))
-  (λ npb : ¬ p b, by rewrite [filter_cons_of_neg _ npb at ain]; exact (of_mem_filter ain))
+      (suppose a = b, by rewrite [-this at pb]; exact pb)
+      (suppose a ∈ filter p l, of_mem_filter this))
+  (suppose ¬ p b, by rewrite [filter_cons_of_neg _ this at ain]; exact (of_mem_filter ain))
 
 theorem mem_of_mem_filter {p : A → Prop} [h : decidable_pred p] {a : A} : ∀ {l}, a ∈ filter p l → a ∈ l
 | []     ain := absurd ain !not_mem_nil
 | (b::l) ain := by_cases
   (λ pb  : p b,
-    have aux : a ∈ b :: filter p l, by rewrite [filter_cons_of_pos _ pb at ain]; exact ain,
-    or.elim (eq_or_mem_of_mem_cons aux)
-      (λ aeqb : a = b, by rewrite [aeqb]; exact !mem_cons)
-      (λ ainl, mem_cons_of_mem _ (mem_of_mem_filter ainl)))
-  (λ npb : ¬ p b, by rewrite [filter_cons_of_neg _ npb at ain]; exact (mem_cons_of_mem _ (mem_of_mem_filter ain)))
+    have a ∈ b :: filter p l, by rewrite [filter_cons_of_pos _ pb at ain]; exact ain,
+    or.elim (eq_or_mem_of_mem_cons this)
+      (suppose a = b, by rewrite this; exact !mem_cons)
+      (suppose a ∈ filter p l, mem_cons_of_mem _ (mem_of_mem_filter this)))
+  (suppose ¬ p b, by rewrite [filter_cons_of_neg _ this at ain]; exact (mem_cons_of_mem _ (mem_of_mem_filter ain)))
 
 theorem mem_filter_of_mem {p : A → Prop} [h : decidable_pred p] {a : A} : ∀ {l}, a ∈ l → p a → a ∈ filter p l
 | []     ain pa := absurd ain !not_mem_nil
@@ -122,8 +122,8 @@ theorem filter_sub {p : A → Prop} [h : decidable_pred p] (l : list A) : filter
 theorem filter_append {p : A → Prop} [h : decidable_pred p] : ∀ (l₁ l₂ : list A), filter p (l₁++l₂) = filter p l₁ ++ filter p l₂
 | []      l₂ := rfl
 | (a::l₁) l₂ := by_cases
-  (λ pa  : p a, by rewrite [append_cons, *filter_cons_of_pos _ pa, filter_append])
-  (λ npa : ¬ p a, by rewrite [append_cons, *filter_cons_of_neg _ npa, filter_append])
+  (suppose p a, by rewrite [append_cons, *filter_cons_of_pos _ this, filter_append])
+  (suppose ¬ p a, by rewrite [append_cons, *filter_cons_of_neg _ this, filter_append])
 
 /- foldl & foldr -/
 definition foldl (f : A → B → A) : A → list B → A
@@ -208,8 +208,8 @@ theorem all_implies {p q : A → Prop} : ∀ {l}, all l p → (∀ x, p x → q 
 | []     h₁ h₂ := trivial
 | (a::l) h₁ h₂ :=
   have allq : all l q, from all_implies (all_of_all_cons h₁) h₂,
-  have qa : q a, from h₂ a (of_all_cons h₁),
-  all_cons_of_all qa allq
+  have q a, from h₂ a (of_all_cons h₁),
+  all_cons_of_all this allq
 
 theorem of_mem_of_all {p : A → Prop} {a : A} : ∀ {l}, a ∈ l → all l p → p a
 | []     h₁ h₂ := absurd h₁ !not_mem_nil
@@ -218,8 +218,8 @@ theorem of_mem_of_all {p : A → Prop} {a : A} : ∀ {l}, a ∈ l → all l p �
     (λ aeqb : a = b,
       by rewrite [all_cons_eq at h₂, -aeqb at h₂]; exact (and.elim_left h₂))
     (λ ainl : a ∈ l,
-      have allp : all l p, by rewrite [all_cons_eq at h₂]; exact (and.elim_right h₂),
-      of_mem_of_all ainl allp)
+      have all l p, by rewrite [all_cons_eq at h₂]; exact (and.elim_right h₂),
+      of_mem_of_all ainl this)
 
 theorem all_of_forall {p : A → Prop} : ∀ {l}, (∀a, a ∈ l → p a) → all l p
 | []     H := !all_nil
@@ -328,47 +328,47 @@ eq_of_map_const h₂
 
 theorem mem_of_mem_map_pair₁ {a₁ a : A} {b₁ : B} {l : list B} : (a₁, b₁) ∈ map (λ b, (a, b)) l → b₁ ∈ l :=
 assume ain,
-assert h₁ : pr2 (a₁, b₁) ∈ map pr2 (map (λ b, (a, b)) l), from mem_map pr2 ain,
-assert h₂ : b₁ ∈ map (λx, x) l, by rewrite [map_map at h₁, ↑pr2 at h₁]; exact h₁,
-by rewrite [map_id at h₂]; exact h₂
+assert pr2 (a₁, b₁) ∈ map pr2 (map (λ b, (a, b)) l), from mem_map pr2 ain,
+assert b₁ ∈ map (λx, x) l, by rewrite [map_map at this, ↑pr2 at this]; exact this,
+by rewrite [map_id at this]; exact this
 
 theorem mem_product {a : A} {b : B} : ∀ {l₁ l₂}, a ∈ l₁ → b ∈ l₂ → (a, b) ∈ product l₁ l₂
 | []      l₂ h₁ h₂ := absurd h₁ !not_mem_nil
 | (x::l₁) l₂ h₁ h₂ :=
   or.elim (eq_or_mem_of_mem_cons h₁)
-    (λ aeqx  : a = x,
-      assert aux : (a, b) ∈ map (λ b, (a, b)) l₂, from mem_map _ h₂,
-      begin rewrite [-aeqx, product_cons], exact mem_append_left _ aux end)
-    (λ ainl₁ : a ∈ l₁,
-      assert inl₁l₂ : (a, b) ∈ product l₁ l₂, from mem_product ainl₁ h₂,
-      begin rewrite [product_cons], exact mem_append_right _ inl₁l₂ end)
+    (assume aeqx  : a = x,
+      assert (a, b) ∈ map (λ b, (a, b)) l₂, from mem_map _ h₂,
+      begin rewrite [-aeqx, product_cons], exact mem_append_left _ this end)
+    (assume ainl₁ : a ∈ l₁,
+      assert (a, b) ∈ product l₁ l₂, from mem_product ainl₁ h₂,
+      begin rewrite [product_cons], exact mem_append_right _ this end)
 
 theorem mem_of_mem_product_left {a : A} {b : B} : ∀ {l₁ l₂}, (a, b) ∈ product l₁ l₂ → a ∈ l₁
 | []      l₂ h := absurd h !not_mem_nil
 | (x::l₁) l₂ h :=
   or.elim (mem_or_mem_of_mem_append h)
-    (λ ain : (a, b) ∈ map (λ b, (x, b)) l₂,
-       assert aeqx : a = x, from eq_of_mem_map_pair₁ ain,
-       by rewrite [aeqx]; exact !mem_cons)
-    (λ ain : (a, b) ∈ product l₁ l₂,
-      have ainl₁ : a ∈ l₁, from mem_of_mem_product_left ain,
-      mem_cons_of_mem _ ainl₁)
+    (suppose (a, b) ∈ map (λ b, (x, b)) l₂,
+       assert a = x, from eq_of_mem_map_pair₁ this,
+       by rewrite this; exact !mem_cons)
+    (suppose (a, b) ∈ product l₁ l₂,
+      have a ∈ l₁, from mem_of_mem_product_left this,
+      mem_cons_of_mem _ this)
 
 theorem mem_of_mem_product_right {a : A} {b : B} : ∀ {l₁ l₂}, (a, b) ∈ product l₁ l₂ → b ∈ l₂
 | []      l₂ h := absurd h !not_mem_nil
 | (x::l₁) l₂ h :=
   or.elim (mem_or_mem_of_mem_append h)
-    (λ abin : (a, b) ∈ map (λ b, (x, b)) l₂,
-      mem_of_mem_map_pair₁ abin)
-    (λ abin : (a, b) ∈ product l₁ l₂,
-      mem_of_mem_product_right abin)
+    (suppose (a, b) ∈ map (λ b, (x, b)) l₂,
+      mem_of_mem_map_pair₁ this)
+    (suppose (a, b) ∈ product l₁ l₂,
+      mem_of_mem_product_right this)
 
 theorem length_product : ∀ (l₁ : list A) (l₂ : list B), length (product l₁ l₂) = length l₁ * length l₂
 | []      l₂ := by rewrite [length_nil, zero_mul]
 | (x::l₁) l₂ :=
-  assert ih : length (product l₁ l₂) = length l₁ * length l₂, from length_product l₁ l₂,
+  assert length (product l₁ l₂) = length l₁ * length l₂, from length_product l₁ l₂,
   by rewrite [product_cons, length_append, length_cons,
-              length_map, ih, mul.right_distrib, one_mul, add.comm]
+              length_map, this, mul.right_distrib, one_mul, add.comm]
 end product
 
 -- new for list/comb dependent map theory

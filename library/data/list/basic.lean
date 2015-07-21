@@ -199,8 +199,8 @@ theorem tail_cons [rewrite] (a : T) (l : list T) : tail (a::l) = l
 
 theorem cons_head_tail [h : inhabited T] {l : list T} : l ≠ [] → (head l)::(tail l) = l :=
 list.cases_on l
-  (assume H : [] ≠ [], absurd rfl H)
-  (take x l, assume H : x::l ≠ [], rfl)
+  (suppose [] ≠ [], absurd rfl this)
+  (take x l, suppose x::l ≠ [], rfl)
 
 /- list membership -/
 
@@ -230,36 +230,36 @@ theorem eq_or_mem_of_mem_cons {x y : T} {l : list T} : x ∈ y::l → x = y ∨ 
 assume h, h
 
 theorem mem_singleton {x a : T} : x ∈ [a] → x = a :=
-assume h : x ∈ [a], or.elim (eq_or_mem_of_mem_cons h)
-  (λ xeqa : x = a, xeqa)
-  (λ xinn : x ∈ [], absurd xinn !not_mem_nil)
+suppose x ∈ [a], or.elim (eq_or_mem_of_mem_cons this)
+  (suppose x = a, this)
+  (suppose x ∈ [], absurd this !not_mem_nil)
 
 theorem mem_of_mem_cons_of_mem {a b : T} {l : list T} : a ∈ b::l → b ∈ l → a ∈ l :=
 assume ainbl binl, or.elim (eq_or_mem_of_mem_cons ainbl)
-  (λ aeqb : a = b, by substvars; exact binl)
-  (λ ainl : a ∈ l, ainl)
+  (suppose a = b, by substvars; exact binl)
+  (suppose a ∈ l, this)
 
 theorem mem_or_mem_of_mem_append {x : T} {s t : list T} : x ∈ s ++ t → x ∈ s ∨ x ∈ t :=
 list.induction_on s or.inr
   (take y s,
     assume IH : x ∈ s ++ t → x ∈ s ∨ x ∈ t,
-    assume H1 : x ∈ y::s ++ t,
-    have H2 : x = y ∨ x ∈ s ++ t, from H1,
-    have H3 : x = y ∨ x ∈ s ∨ x ∈ t, from or_of_or_of_imp_right H2 IH,
-    iff.elim_right or.assoc H3)
+    suppose x ∈ y::s ++ t,
+    have x = y ∨ x ∈ s ++ t, from this,
+    have x = y ∨ x ∈ s ∨ x ∈ t, from or_of_or_of_imp_right this IH,
+    iff.elim_right or.assoc this)
 
 theorem mem_append_of_mem_or_mem {x : T} {s t : list T} : x ∈ s ∨ x ∈ t → x ∈ s ++ t :=
 list.induction_on s
   (take H, or.elim H false.elim (assume H, H))
   (take y s,
     assume IH : x ∈ s ∨ x ∈ t → x ∈ s ++ t,
-    assume H : x ∈ y::s ∨ x ∈ t,
-      or.elim H
-        (assume H1,
-          or.elim (eq_or_mem_of_mem_cons H1)
-            (take H2 : x = y, or.inl H2)
-            (take H2 : x ∈ s, or.inr (IH (or.inl H2))))
-        (assume H1 : x ∈ t, or.inr (IH (or.inr H1))))
+    suppose x ∈ y::s ∨ x ∈ t,
+      or.elim this
+        (suppose x ∈ y::s,
+          or.elim (eq_or_mem_of_mem_cons this)
+            (suppose x = y, or.inl this)
+            (suppose x ∈ s, or.inr (IH (or.inl this))))
+        (suppose x ∈ t, or.inr (IH (or.inr this))))
 
 theorem mem_append_iff (x : T) (s t : list T) : x ∈ s ++ t ↔ x ∈ s ∨ x ∈ t :=
 iff.intro mem_or_mem_of_mem_append mem_append_of_mem_or_mem
@@ -283,19 +283,19 @@ local attribute mem [reducible]
 local attribute append [reducible]
 theorem mem_split {x : T} {l : list T} : x ∈ l → ∃s t : list T, l = s ++ (x::t) :=
 list.induction_on l
-  (take H : x ∈ [], false.elim (iff.elim_left !mem_nil_iff H))
+  (suppose x ∈ [], false.elim (iff.elim_left !mem_nil_iff this))
   (take y l,
     assume IH : x ∈ l → ∃s t : list T, l = s ++ (x::t),
-    assume H : x ∈ y::l,
-    or.elim (eq_or_mem_of_mem_cons H)
-      (assume H1 : x = y,
-        exists.intro [] (!exists.intro (H1 ▸ rfl)))
-      (assume H1 : x ∈ l,
-        obtain s (H2 : ∃t : list T, l = s ++ (x::t)), from IH H1,
+    suppose x ∈ y::l,
+    or.elim (eq_or_mem_of_mem_cons this)
+      (suppose x = y,
+        exists.intro [] (!exists.intro (this ▸ rfl)))
+      (suppose x ∈ l,
+        obtain s (H2 : ∃t : list T, l = s ++ (x::t)), from IH this,
         obtain t (H3 : l = s ++ (x::t)), from H2,
-        have H4 : y :: l = (y::s) ++ (x::t),
+        have y :: l = (y::s) ++ (x::t),
           from H3 ▸ rfl,
-        !exists.intro (!exists.intro H4)))
+        !exists.intro (!exists.intro this)))
 
 theorem mem_append_left {a : T} {l₁ : list T} (l₂ : list T) : a ∈ l₁ → a ∈ l₁ ++ l₂ :=
 assume ainl₁, mem_append_of_mem_or_mem (or.inl ainl₁)
@@ -417,7 +417,7 @@ assume n, if_neg n
 
 theorem find_of_not_mem {l : list T} {x : T} : ¬x ∈ l → find x l = length l :=
 list.rec_on l
-   (assume P₁ : ¬x ∈ [], _)
+   (suppose ¬x ∈ [], _)
    (take y l,
       assume iH : ¬x ∈ l → find x l = length l,
       suppose ¬x ∈ y::l,

@@ -551,15 +551,15 @@ assume p, perm_induction_on p
               exact skip y r
             end)
           (λ xney : x ≠ y,
-            have xint₁     : x ∈ t₁, from or_resolve_right xinyt₁ xney,
-            assert xint₂   : x ∈ t₂, from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup xint₁)),
-            assert nyinxt₂ : y ∉ x::t₂, from
-              assume yinxt₂ : y ∈ x::t₂, or.elim (eq_or_mem_of_mem_cons yinxt₂)
+            have x ∈ t₁, from or_resolve_right xinyt₁ xney,
+            assert x ∈ t₂, from mem_of_mem_erase_dup (mem_perm r (mem_erase_dup this)),
+            assert y ∉ x::t₂, from
+              suppose y ∈ x::t₂, or.elim (eq_or_mem_of_mem_cons this)
                 (λ h, absurd h (ne.symm xney))
                 (λ h, absurd h nyint₂),
             begin
-              rewrite [erase_dup_cons_of_mem xinyt₁, erase_dup_cons_of_not_mem nyinxt₂,
-                       erase_dup_cons_of_not_mem nyint₁, erase_dup_cons_of_mem xint₂],
+              rewrite [erase_dup_cons_of_mem xinyt₁, erase_dup_cons_of_not_mem `y ∉ x::t₂`,
+                       erase_dup_cons_of_not_mem nyint₁, erase_dup_cons_of_mem `x ∈ t₂`],
               exact skip y r
             end)))
     (λ nxinyt₁ : x ∉ y::t₁,

@@ -573,8 +573,8 @@ list.induction_on l
 theorem qeq_split {a : A} {l l' : list A} : l'≈a|l → ∃l₁ l₂, l = l₁++l₂ ∧ l' = l₁++(a::l₂) :=
 take q, qeq.induction_on q
   (λ t,
-    have aux : t = []++t ∧ a::t = []++(a::t), from and.intro rfl rfl,
-    exists.intro [] (exists.intro t aux))
+    have t = []++t ∧ a::t = []++(a::t), from and.intro rfl rfl,
+    exists.intro [] (exists.intro t this))
   (λ b t t' q r,
     obtain (l₁ l₂ : list A) (h : t = l₁++l₂ ∧ t' = l₁++(a::l₂)), from r,
     have b::t = (b::l₁)++l₂ ∧ b::t' = (b::l₁)++(a::l₂),

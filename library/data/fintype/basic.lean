@@ -112,21 +112,21 @@ assume npa, if_neg npa
 theorem all_of_check_pred_eq_tt {p : A → Prop} [h : decidable_pred p] : ∀ {l : list A}, check_pred p l = tt → ∀ {a}, a ∈ l → p a
 | []     eqtt a ainl := absurd ainl !not_mem_nil
 | (b::l) eqtt a ainbl := by_cases
-  (λ pb  : p b, or.elim (eq_or_mem_of_mem_cons ainbl)
-    (λ aeqb : a = b, by rewrite [aeqb]; exact pb)
-    (λ ainl : a ∈ l,
-      have eqtt₁ : check_pred p l = tt, by rewrite [check_pred_cons_of_pos _ pb at eqtt]; exact eqtt,
-      all_of_check_pred_eq_tt eqtt₁ ainl))
-  (λ npb : ¬ p b,
-    by rewrite [check_pred_cons_of_neg _ npb at eqtt]; exact (bool.no_confusion eqtt))
+  (suppose p b, or.elim (eq_or_mem_of_mem_cons ainbl)
+    (suppose a = b, by rewrite [this]; exact `p b`)
+    (suppose a ∈ l,
+      have check_pred p l = tt, by rewrite [check_pred_cons_of_pos _ `p b` at eqtt]; exact eqtt,
+      all_of_check_pred_eq_tt this `a ∈ l`))
+  (suppose ¬ p b,
+    by rewrite [check_pred_cons_of_neg _ this at eqtt]; exact (bool.no_confusion eqtt))
 
 theorem ex_of_check_pred_eq_ff {p : A → Prop} [h : decidable_pred p] : ∀ {l : list A}, check_pred p l = ff → ∃ w, ¬ p w
 | []     eqtt := bool.no_confusion eqtt
 | (a::l) eqtt := by_cases
-  (λ pa  : p a,
-    have eqtt₁ : check_pred p l = ff, by rewrite [check_pred_cons_of_pos _ pa at eqtt]; exact eqtt,
-    ex_of_check_pred_eq_ff eqtt₁)
-  (λ npa : ¬ p a, exists.intro a npa)
+  (suppose p a,
+    have check_pred p l = ff, by rewrite [check_pred_cons_of_pos _ this at eqtt]; exact eqtt,
+    ex_of_check_pred_eq_ff this)
+  (suppose ¬ p a, exists.intro a this)
 end check_pred
 
 definition decidable_forall_finite [instance] {A : Type} {p : A → Prop} [h₁ : fintype A] [h₂ : decidable_pred p]
@@ -134,11 +134,11 @@ definition decidable_forall_finite [instance] {A : Type} {p : A → Prop} [h₁ 
 match h₁ with
 | fintype.mk e u c :=
   match check_pred p e with
-  | tt := λ h : check_pred p e = tt, inl (λ a : A, all_of_check_pred_eq_tt h (c a))
-  | ff := λ h : check_pred p e = ff,
-    inr (λ n : (∀ x, p x),
-         obtain (a : A) (w : ¬ p a), from ex_of_check_pred_eq_ff h,
-         absurd (n a) w)
+  | tt := suppose check_pred p e = tt, inl (take a : A, all_of_check_pred_eq_tt this (c a))
+  | ff := suppose check_pred p e = ff,
+    inr (suppose ∀ x, p x,
+         obtain (a : A) (w : ¬ p a), from ex_of_check_pred_eq_ff `check_pred p e = ff`,
+         absurd (this a) w)
   end rfl
 end
 
@@ -151,8 +151,8 @@ match h₁ with
           obtain x px, from ex,
           absurd px (all_of_check_pred_eq_tt h (c x)))
   | ff := λ h : check_pred (λ a, ¬ p a) e = ff, inl (
-          assert aux₁ : ∃ x, ¬¬p x, from ex_of_check_pred_eq_ff h,
-          obtain x nnpx, from aux₁, exists.intro x (not_not_elim nnpx))
+          assert ∃ x, ¬¬p x, from ex_of_check_pred_eq_ff h,
+          obtain x nnpx, from this, exists.intro x (not_not_elim nnpx))
   end rfl
 end
 
@@ -168,11 +168,11 @@ private theorem mem_of_mem_ltype_elems {A : Type} {a : A} {s : list A}
                 : Π {l : list A} {h : l ⊆ s} {m : a ∈ s}, mk a m ∈ ltype_elems h → a ∈ l
 | []     h m lin := absurd lin !not_mem_nil
 | (b::l) h m lin := or.elim (eq_or_mem_of_mem_cons lin)
-  (λ leq : mk a m = mk b (h b (mem_cons b l)),
-     as_type.no_confusion leq (λ aeqb em, by rewrite [aeqb]; exact !mem_cons))
-  (λ linl : mk a m ∈ ltype_elems (sub_of_cons_sub h),
-     have ainl : a ∈ l, from mem_of_mem_ltype_elems linl,
-     mem_cons_of_mem _ ainl)
+  (suppose mk a m = mk b (h b (mem_cons b l)),
+     as_type.no_confusion this (λ aeqb em, by rewrite [aeqb]; exact !mem_cons))
+  (suppose mk a m ∈ ltype_elems (sub_of_cons_sub h),
+     have a ∈ l, from mem_of_mem_ltype_elems this,
+     mem_cons_of_mem _ this)
 
 private theorem nodup_ltype_elems {A : Type} {s : list A} : Π {l : list A} (d : nodup l) (h : l ⊆ s), nodup (ltype_elems h)
 | []     d h := nodup_nil

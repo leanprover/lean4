@@ -60,29 +60,29 @@ ext (take y, iff.intro
     obtain x (H1l : x ∈ insert a s) (H1r :f x = y), from exists_of_mem_image H,
     have H2 : x = a ∨ x ∈ s, from eq_or_mem_of_mem_insert H1l,
     or.elim H2
-      (assume H3 : x = a,
-        have H4 : f a = y, from eq.subst H3 H1r,
-        show y ∈ insert (f a) (image f s), from eq.subst H4 !mem_insert)
-      (assume H3 : x ∈ s,
-        have H5 : f x ∈ image f s, from mem_image_of_mem f H3,
-        show y ∈ insert (f a) (image f s), from eq.subst H1r (mem_insert_of_mem _ H5)))
-  (assume H : y ∈ insert (f a) (image f s),
-    have H1 : y = f a ∨ y ∈ image f s, from eq_or_mem_of_mem_insert H,
-    or.elim H1
-      (assume H2 : y = f a,
-        have H3 : f a ∈ image f (insert a s), from mem_image_of_mem f !mem_insert,
-        show y ∈ image f (insert a s), from eq.subst (eq.symm H2) H3)
-      (assume H2 : y ∈ image f s,
-        show y ∈ image f (insert a s), from mem_image_of_mem_image_of_subset H2 !subset_insert)))
+      (suppose x = a,
+        have f a = y, from eq.subst this H1r,
+        show y ∈ insert (f a) (image f s), from eq.subst this !mem_insert)
+      (suppose x ∈ s,
+        have f x ∈ image f s, from mem_image_of_mem f this,
+        show y ∈ insert (f a) (image f s), from eq.subst H1r (mem_insert_of_mem _ this)))
+  (suppose y ∈ insert (f a) (image f s),
+    have y = f a ∨ y ∈ image f s, from eq_or_mem_of_mem_insert this,
+    or.elim this
+      (suppose y = f a,
+        have f a ∈ image f (insert a s), from mem_image_of_mem f !mem_insert,
+        show y ∈ image f (insert a s), from eq.subst (eq.symm `y = f a`) this)
+      (suppose y ∈ image f s,
+        show y ∈ image f (insert a s), from mem_image_of_mem_image_of_subset this !subset_insert)))
 
 lemma image_compose {C : Type} [deceqC : decidable_eq C] {f : B → C} {g : A → B} {s : finset A} :
   image (f∘g) s = image f (image g s) :=
 ext (take z, iff.intro
-  (assume Hz : z ∈ image (f∘g) s,
-    obtain x (Hx : x ∈ s) (Hgfx : f (g x) = z), from exists_of_mem_image Hz,
+  (suppose z ∈ image (f∘g) s,
+    obtain x (Hx : x ∈ s) (Hgfx : f (g x) = z), from exists_of_mem_image this,
     by rewrite -Hgfx; apply mem_image_of_mem _ (mem_image_of_mem _ Hx))
-  (assume Hz : z ∈ image f (image g s),
-    obtain y (Hy : y ∈ image g s) (Hfy : f y = z), from exists_of_mem_image Hz,
+  (suppose z ∈ image f (image g s),
+    obtain y (Hy : y ∈ image g s) (Hfy : f y = z), from exists_of_mem_image this,
     obtain x (Hx : x ∈ s) (Hgx : g x = y), from exists_of_mem_image Hy,
     mem_image_of_mem_of_eq Hx (by esimp; rewrite [Hgx, Hfy])))
 
@@ -155,14 +155,14 @@ propext !mem_diff_iff
 
 theorem union_diff_cancel {s t : finset A} (H : s ⊆ t) : s ∪ (t \ s) = t :=
 ext (take x, iff.intro
-  (assume H1 : x ∈ s ∪ (t \ s),
-    or.elim (mem_or_mem_of_mem_union H1)
-      (assume H2 : x ∈ s, mem_of_subset_of_mem H H2)
-      (assume H2 : x ∈ t \ s, mem_of_mem_diff H2))
-  (assume H1 : x ∈ t,
+  (suppose x ∈ s ∪ (t \ s),
+    or.elim (mem_or_mem_of_mem_union this)
+      (suppose x ∈ s, mem_of_subset_of_mem H this)
+      (suppose x ∈ t \ s, mem_of_mem_diff this))
+  (suppose x ∈ t,
     decidable.by_cases
-      (assume H2 : x ∈ s, mem_union_left _ H2)
-      (assume H2 : x ∉ s, mem_union_right _ (mem_diff H1 H2))))
+      (suppose x ∈ s, mem_union_left _ this)
+      (suppose x ∉ s, mem_union_right _ (mem_diff `x ∈ t` this))))
 
 theorem diff_union_cancel {s t : finset A} (H : s ⊆ t) : (t \ s) ∪ s = t :=
 eq.subst !union.comm (!union_diff_cancel H)
@@ -224,8 +224,8 @@ quot.induction_on₂ s₁ s₂ (λ l₁ l₂ h, list.all_inter_of_all_right _ h)
 
 theorem subset_iff_all (s t : finset A) : s ⊆ t ↔ all s (λ x, x ∈ t) :=
 iff.intro
-  (assume H : s ⊆ t, all_of_forall (take x, assume H1, mem_of_subset_of_mem H H1))
-  (assume H : all s (λ x, x ∈ t), subset_of_forall (take x, assume H1 : x ∈ s, of_mem_of_all H1 H))
+  (suppose s ⊆ t, all_of_forall (take x, assume H1, mem_of_subset_of_mem `s ⊆ t` H1))
+  (suppose H : all s (λ x, x ∈ t), subset_of_forall (take x, assume H1 : x ∈ s, of_mem_of_all H1 H))
 
 definition decidable_subset [instance] (s t : finset A) : decidable (s ⊆ t) :=
 decidable_of_decidable_of_iff _ (iff.symm !subset_iff_all)

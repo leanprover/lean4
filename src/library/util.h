@@ -197,6 +197,11 @@ level mk_max(levels const & ls);
 
 expr mk_sigma_mk(type_checker & tc, buffer<expr> const & ts, buffer<expr> const & as, constraint_seq & cs);
 
+/** \brief Return true iff \c e is of the form (@option.none A), and update \c A */
+bool is_none(expr const & e, expr & A);
+/** \brief Return true iff \c e is of the form (@option.some A a), and update \c A and \c a */
+bool is_some(expr const & e, expr & A, expr & a);
+
 enum class implicit_infer_kind { Implicit, RelaxedImplicit, None };
 
 /** \brief Infer implicit parameter annotations for the first \c nparams using mode

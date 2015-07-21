@@ -154,13 +154,15 @@ public:
     location const & get_info() const { return m_info; }
 };
 
-expr mk_location_expr(location const & loc) {
-    macro_definition def(new location_macro_cell(loc));
-    return mk_macro(def);
-}
-
 bool is_location_expr(expr const & e) {
     return is_macro(e) && macro_def(e).get_name() == *g_location_name;
+}
+
+expr mk_location_expr(location const & loc) {
+    macro_definition def(new location_macro_cell(loc));
+    expr r = mk_macro(def);
+    lean_assert(is_location_expr(r));
+    return r;
 }
 
 location const & get_location_expr_location(expr const & e) {

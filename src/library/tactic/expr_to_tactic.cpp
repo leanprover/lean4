@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/string.h"
 #include "library/explicit.h"
+#include "library/placeholder.h"
 #include "library/num.h"
 #include "library/constants.h"
 #include "library/projection.h"
@@ -146,6 +147,14 @@ expr mk_expr_list(unsigned num, expr const * args) {
         r = mk_app(*g_expr_list_cons, args[i], r);
     }
     return r;
+}
+
+expr ids_to_tactic_expr(buffer<name> const & args) {
+    buffer<expr> es;
+    for (name const & id : args) {
+        es.push_back(mk_local(id, mk_expr_placeholder()));
+    }
+    return mk_expr_list(es.size(), es.data());
 }
 
 void get_tactic_expr_list_elements(expr l, buffer<expr> & r, char const * error_msg) {

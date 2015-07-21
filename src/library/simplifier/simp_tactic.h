@@ -18,4 +18,7 @@ namespace lean {
 */
 expr mk_simp_tactic_expr(buffer<expr> const & ls, buffer<name> const & ns, buffer<name> const & ex,
                          optional<expr> const & pre_tac, location const & loc);
+
+void initialize_simp_tactic();
+void finalize_simp_tactic();
 }

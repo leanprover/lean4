@@ -712,6 +712,29 @@ expr mk_sigma_mk(type_checker & tc, buffer<expr> const & ts, buffer<expr> const 
     return mk_sigma_mk(tc, ts.size(), ts.data(), as.data(), cs);
 }
 
+bool is_none(expr const & e, expr & A) {
+    buffer<expr> args;
+    expr const & fn = get_app_args(e, args);
+    if (is_constant(fn) && const_name(fn) == get_option_none_name() && args.size() == 1) {
+        A = args[0];
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool is_some(expr const & e, expr & A, expr & a) {
+    buffer<expr> args;
+    expr const & fn = get_app_args(e, args);
+    if (is_constant(fn) && const_name(fn) == get_option_some_name() && args.size() == 2) {
+        A = args[0];
+        a = args[1];
+        return true;
+    } else {
+        return false;
+    }
+}
+
 expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_kind k) {
     switch (k) {
     case implicit_infer_kind::Implicit: {

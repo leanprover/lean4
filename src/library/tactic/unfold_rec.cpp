@@ -299,7 +299,7 @@ class unfold_rec_fn : public replace_visitor_aux {
             return unfold_simple(fn, args);
         }
         name rec_name;
-        unsigned main_pos;
+        unsigned main_pos = 0;
         buffer<unsigned> indices_pos;
         buffer<unsigned> rec_arg_pos;
         rec_kind k = get_rec_kind(fn_body, fn_locals, rec_name, indices_pos, main_pos, rec_arg_pos);

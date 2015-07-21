@@ -21,4 +21,6 @@ notation_entry parse_notation(parser & p, bool overload, buffer<token_entry> & n
 environment local_notation_cmd(parser & p);
 
 void register_notation_cmds(cmd_table & r);
+
+bool is_notation_cmd(name const & cmd_name);
 }

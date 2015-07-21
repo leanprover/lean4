@@ -65,10 +65,10 @@ assume h d, obtain h₁ h₂, from h, h₂ m d
 
 lemma gt_one_of_pos_of_prime_dvd {i p : nat} : prime p → 0 < i → i mod p = 0 → 1 < i :=
 assume ipp pos h,
-have h₁ : p ≥ 2, from ge_two_of_prime ipp,
-have p ∣ i,       from dvd_of_mod_eq_zero h,
-have p ≤ i,      from le_of_dvd pos this,
-lt_of_succ_le (le.trans h₁ this)
+have p ≥ 2,  from ge_two_of_prime ipp,
+have p ∣ i,   from dvd_of_mod_eq_zero h,
+have p ≤ i,  from le_of_dvd pos this,
+lt_of_succ_le (le.trans `2 ≤ p` this)
 
 definition sub_dvd_of_not_prime {n : nat} : n ≥ 2 → ¬ prime n → {m | m ∣ n ∧ m ≠ 1 ∧ m ≠ n} :=
 assume h₁ h₂,
@@ -124,30 +124,30 @@ definition infinite_primes (n : nat) : {p | p ≥ n ∧ prime p} :=
 let m := fact (n + 1) in
 have m ≥ 1,     from le_of_lt_succ (succ_lt_succ (fact_pos _)),
 have m + 1 ≥ 2, from succ_le_succ this,
-obtain p (prime_p : prime p) (p_dvd_m1 : p ∣ m + 1), from sub_prime_and_dvd this,
-have p_ge_2 : p ≥ 2, from ge_two_of_prime prime_p,
-have p_gt_0 : p > 0, from lt_of_succ_lt (lt_of_succ_le p_ge_2),
+obtain p (pp : prime p) (pd : p ∣ m + 1), from sub_prime_and_dvd this,
+have p ≥ 2, from ge_two_of_prime `prime p`,
+have p > 0, from lt_of_succ_lt (lt_of_succ_le `p ≥ 2`),
 have p ≥ n, from by_contradiction
   (suppose ¬ p ≥ n,
     have p < n,     from lt_of_not_ge this,
     have p ≤ n + 1, from le_of_lt (lt.step this),
-    have p ∣ m,      from dvd_fact p_gt_0 this,
-    have p ∣ 1,      from dvd_of_dvd_add_right (!add.comm ▸ p_dvd_m1) this,
+    have p ∣ m,      from dvd_fact `p > 0` this,
+    have p ∣ 1,      from dvd_of_dvd_add_right (!add.comm ▸ `p ∣ m + 1`) this,
     have p ≤ 1,     from le_of_dvd zero_lt_one this,
-    absurd (le.trans p_ge_2 this) dec_trivial),
-subtype.tag p (and.intro this prime_p)
+    absurd (le.trans `2 ≤ p` `p ≤ 1`) dec_trivial),
+subtype.tag p (and.intro this `prime p`)
 
 lemma ex_infinite_primes (n : nat) : ∃ p, p ≥ n ∧ prime p :=
 ex_of_sub (infinite_primes n)
 
 lemma odd_of_prime {p : nat} : prime p → p > 2 → odd p :=
 λ pp p_gt_2, by_contradiction (λ hn,
-  have even_p : even p, from even_of_not_odd hn,
-  obtain k (hk : p = 2*k), from exists_of_even even_p,
-  assert two_div_p : 2 ∣ p, by rewrite [hk]; apply dvd_mul_right,
-  or.elim (eq_one_or_eq_self_of_prime_of_dvd pp two_div_p)
-    (λ h : 2 = 1, absurd h dec_trivial)
-    (λ h : 2 = p, by subst h; exact absurd p_gt_2 !lt.irrefl))
+  have even p, from even_of_not_odd hn,
+  obtain k (hk : p = 2*k), from exists_of_even this,
+  assert 2 ∣ p, by rewrite [hk]; apply dvd_mul_right,
+  or.elim (eq_one_or_eq_self_of_prime_of_dvd pp this)
+    (suppose 2 = 1, absurd this dec_trivial)
+    (suppose 2 = p, by subst this; exact absurd p_gt_2 !lt.irrefl))
 
 theorem dvd_of_prime_of_not_coprime {p n : ℕ} (primep : prime p) (nc : ¬ coprime p n) : p ∣ n :=
 have H : gcd p n = 1 ∨ gcd p n = p, from eq_one_or_eq_self_of_prime_of_dvd primep !gcd_dvd_left,
@@ -195,8 +195,8 @@ lemma dvd_of_prime_of_dvd_pow {p m : nat} : ∀ {n}, prime p → p ∣ m^n → p
 | (succ n) hp hd :=
   have p ∣ (m^n)*m, by rewrite [pow_succ at hd]; exact hd,
   or.elim (dvd_or_dvd_of_prime_of_dvd_mul hp this)
-    (λ h : p ∣ m^n, dvd_of_prime_of_dvd_pow hp h)
-    (λ h : p ∣ m, h)
+    (suppose p ∣ m^n, dvd_of_prime_of_dvd_pow hp this)
+    (suppose p ∣ m, this)
 
 lemma coprime_pow_of_prime_of_not_dvd {p m a : nat} : prime p → ¬ p ∣ a → coprime a (p^m) :=
 λ h₁ h₂, coprime_pow_right m (coprime_swap (coprime_of_prime_of_not_dvd h₁ h₂))
@@ -205,21 +205,21 @@ lemma coprime_primes {p q : nat} : prime p → prime q → p ≠ q → coprime p
 λ hp hq hn,
   assert gcd p q ∣ p, from !gcd_dvd_left,
   or.elim (eq_one_or_eq_self_of_prime_of_dvd hp this)
-    (λ h : gcd p q = 1, h)
-    (λ h : gcd p q = p,
+    (suppose gcd p q = 1, this)
+    (assume h : gcd p q = p,
       assert gcd p q ∣ q, from !gcd_dvd_right,
       have   p ∣ q, by rewrite -h; exact this,
       or.elim (eq_one_or_eq_self_of_prime_of_dvd hq this)
-        (λ h₁ : p = 1, by subst p; exact absurd hp not_prime_one)
-        (λ he : p = q, by contradiction))
+        (suppose p = 1, by subst p; exact absurd hp not_prime_one)
+        (suppose p = q, by contradiction))
 
 lemma coprime_pow_primes {p q : nat} (n m : nat) : prime p → prime q → p ≠ q → coprime (p^n) (q^m) :=
 λ hp hq hn, coprime_pow_right m (coprime_pow_left n (coprime_primes hp hq hn))
 
 lemma coprime_or_dvd_of_prime {p} (Pp : prime p) (i : nat) : coprime p i ∨ p ∣ i :=
 by_cases
- (λ h : p ∣ i, or.inr h)
- (λ h : ¬ p ∣ i, or.inl (coprime_of_prime_of_not_dvd Pp h))
+ (suppose p ∣ i, or.inr this)
+ (suppose ¬ p ∣ i, or.inl (coprime_of_prime_of_not_dvd Pp this))
 
 lemma eq_one_or_dvd_of_dvd_prime_pow {p : nat} : ∀ {m i : nat}, prime p → i ∣ (p^m) → i = 1 ∨ p ∣ i
 | 0        := take i, assume Pp, begin rewrite [pow_zero], intro Pdvd, apply or.inl (eq_one_of_dvd_one Pdvd) end

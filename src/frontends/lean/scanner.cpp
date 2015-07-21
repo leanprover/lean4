@@ -437,7 +437,12 @@ auto scanner::scan(environment const & env) -> token_kind {
         case '\"':
             return read_string();
         case '`':
-            return read_quoted_symbol();
+            if (m_in_notation) {
+                return read_quoted_symbol();
+            } else {
+                next();
+                return token_kind::Backtick;
+            }
         case -1:
             return token_kind::Eof;
         default:
@@ -471,6 +476,7 @@ scanner::scanner(std::istream & strm, char const * strm_name, unsigned line):
     m_line  = line;
     m_spos  = 0;
     m_upos  = 0;
+    m_in_notation = false;
     if (std::getline(m_stream, m_curr_line)) {
         m_last_line = false;
         m_curr_line.push_back('\n');

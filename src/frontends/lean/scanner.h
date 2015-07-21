@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <iostream>
 #include "util/name.h"
+#include "util/flet.h"
 #include "util/numerics/mpq.h"
 #include "kernel/environment.h"
 #include "frontends/lean/token_table.h"
@@ -22,7 +23,7 @@ namespace lean {
 */
 class scanner {
 public:
-    enum class token_kind {Keyword, CommandKeyword, ScriptBlock, Identifier, Numeral, Decimal, String, QuotedSymbol, Eof};
+    enum class token_kind {Keyword, CommandKeyword, ScriptBlock, Identifier, Numeral, Decimal, String, QuotedSymbol, Backtick, Eof};
 protected:
     token_table const * m_tokens;
     std::istream &      m_stream;
@@ -44,6 +45,9 @@ protected:
     mpq                 m_num_val;
     std::string         m_buffer;
     std::string         m_aux_buffer;
+
+    bool                m_in_notation;
+
 
     [[ noreturn ]] void throw_exception(char const * msg);
     void next();
@@ -80,6 +84,12 @@ public:
     token_info const & get_token_info() const { return m_token_info; }
 
     std::string const & get_stream_name() const { return m_stream_name; }
+
+    class in_notation_ctx {
+        flet<bool> m_in_notation;
+    public:
+        in_notation_ctx(scanner & s):m_in_notation(s.m_in_notation, true) {}
+    };
 };
 std::ostream & operator<<(std::ostream & out, scanner::token_kind k);
 void initialize_scanner();

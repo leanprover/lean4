@@ -233,6 +233,9 @@ class parser {
     elaborator_context mk_elaborator_context(environment const & env, pos_info_provider const & pp);
     elaborator_context mk_elaborator_context(environment const & env, local_level_decls const & lls, pos_info_provider const & pp);
 
+    bool m_in_backtick; // true if parser `expr` notation
+    expr parse_backtick_expr();
+
     optional<expr> is_tactic_command(name & id);
     expr parse_tactic_option_num();
     expr parse_tactic_led(expr left);
@@ -511,6 +514,12 @@ public:
 
     /** parse all commands in the input stream */
     bool operator()() { return parse_commands(); }
+
+    class in_notation_ctx {
+        scanner::in_notation_ctx m_ctx;
+    public:
+        in_notation_ctx(parser & p):m_ctx(p.m_scanner) {}
+    };
 };
 
 bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name,

@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/scoped_ext.h"
 #include "library/explicit.h"
+#include "library/typed_expr.h"
 #include "library/let.h"
 #include "library/num.h"
 #include "library/string.h"
@@ -111,7 +112,8 @@ parser::parser(environment const & env, io_state const & ios,
     m_theorem_queue(*this, num_threads > 1 ? num_threads - 1 : 0),
     m_snapshot_vector(sv), m_info_manager(im), m_cache(nullptr), m_index(nullptr) {
     m_local_decls_size_at_beg_cmd = 0;
-    m_profile    = ios.get_options().get_bool("profile", false);
+    m_in_backtick = false;
+    m_profile     = ios.get_options().get_bool("profile", false);
     if (num_threads > 1 && m_profile)
         throw exception("option --profile cannot be used when theorems are compiled in parallel");
     m_has_params = false;
@@ -961,6 +963,7 @@ local_environment parser::parse_binders(buffer<expr> & r, buffer<notation_entry>
 
 bool parser::parse_local_notation_decl(buffer<notation_entry> * nentries) {
     if (curr_is_notation_decl(*this)) {
+        parser::in_notation_ctx ctx(*this);
         buffer<token_entry> new_tokens;
         bool overload    = false;
         bool allow_local = true;
@@ -1327,6 +1330,19 @@ expr parser::parse_string_expr() {
     return from_string(v);
 }
 
+expr parser::parse_backtick_expr() {
+    auto p = pos();
+    next();
+    flet<bool> set(m_in_backtick, true);
+    expr type = parse_expr();
+    if (curr() != scanner::token_kind::Backtick) {
+        throw parser_error("invalid expression, '`' expected", pos());
+    }
+    next();
+    expr assump = mk_by_plus(save_pos(mk_constant(get_tactic_assumption_name()), p), p);
+    return save_pos(mk_typed_expr(type, assump), p);
+}
+
 expr parser::parse_nud() {
     switch (curr()) {
     case scanner::token_kind::Keyword:     return parse_nud_notation();
@@ -1334,6 +1350,7 @@ expr parser::parse_nud() {
     case scanner::token_kind::Numeral:     return parse_numeral_expr();
     case scanner::token_kind::Decimal:     return parse_decimal_expr();
     case scanner::token_kind::String:      return parse_string_expr();
+    case scanner::token_kind::Backtick:    return parse_backtick_expr();
     default: throw parser_error("invalid expression, unexpected token", pos());
     }
 }
@@ -1355,6 +1372,8 @@ unsigned parser::curr_lbp_core(bool as_tactic) const {
     case scanner::token_kind::CommandKeyword: case scanner::token_kind::Eof:
     case scanner::token_kind::ScriptBlock:    case scanner::token_kind::QuotedSymbol:
         return 0;
+    case scanner::token_kind::Backtick:
+        return m_in_backtick ? 0 : get_max_prec();
     case scanner::token_kind::Identifier:     case scanner::token_kind::Numeral:
     case scanner::token_kind::Decimal:        case scanner::token_kind::String:
         return get_max_prec();
@@ -1636,9 +1655,16 @@ void parser::parse_command() {
     name const & cmd_name = get_token_info().value();
     m_cmd_token = get_token_info().token();
     if (auto it = cmds().find(cmd_name)) {
-        next();
-        m_local_decls_size_at_beg_cmd = m_local_decls.size();
-        m_env = it->get_fn()(*this);
+        if (is_notation_cmd(cmd_name)) {
+            in_notation_ctx ctx(*this);
+            next();
+            m_local_decls_size_at_beg_cmd = m_local_decls.size();
+            m_env = it->get_fn()(*this);
+        } else {
+            next();
+            m_local_decls_size_at_beg_cmd = m_local_decls.size();
+            m_env = it->get_fn()(*this);
+        }
     } else {
         auto p = pos();
         next();

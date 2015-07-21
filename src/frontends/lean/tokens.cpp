@@ -126,12 +126,19 @@ static name const * g_foldr_tk = nullptr;
 static name const * g_foldl_tk = nullptr;
 static name const * g_binder_tk = nullptr;
 static name const * g_binders_tk = nullptr;
+static name const * g_precedence_tk = nullptr;
 static name const * g_infix_tk = nullptr;
 static name const * g_infixl_tk = nullptr;
 static name const * g_infixr_tk = nullptr;
 static name const * g_postfix_tk = nullptr;
 static name const * g_prefix_tk = nullptr;
 static name const * g_notation_tk = nullptr;
+static name const * g_tactic_infix_tk = nullptr;
+static name const * g_tactic_infixl_tk = nullptr;
+static name const * g_tactic_infixr_tk = nullptr;
+static name const * g_tactic_postfix_tk = nullptr;
+static name const * g_tactic_prefix_tk = nullptr;
+static name const * g_tactic_notation_tk = nullptr;
 static name const * g_call_tk = nullptr;
 static name const * g_calc_tk = nullptr;
 static name const * g_obtain_tk = nullptr;
@@ -266,12 +273,19 @@ void initialize_tokens() {
     g_foldl_tk = new name{"foldl"};
     g_binder_tk = new name{"binder"};
     g_binders_tk = new name{"binders"};
+    g_precedence_tk = new name{"precedence"};
     g_infix_tk = new name{"infix"};
     g_infixl_tk = new name{"infixl"};
     g_infixr_tk = new name{"infixr"};
     g_postfix_tk = new name{"postfix"};
     g_prefix_tk = new name{"prefix"};
     g_notation_tk = new name{"notation"};
+    g_tactic_infix_tk = new name{"tactic_infix"};
+    g_tactic_infixl_tk = new name{"tactic_infixl"};
+    g_tactic_infixr_tk = new name{"tactic_infixr"};
+    g_tactic_postfix_tk = new name{"tactic_postfix"};
+    g_tactic_prefix_tk = new name{"tactic_prefix"};
+    g_tactic_notation_tk = new name{"tactic_notation"};
     g_call_tk = new name{"call"};
     g_calc_tk = new name{"calc"};
     g_obtain_tk = new name{"obtain"};
@@ -407,12 +421,19 @@ void finalize_tokens() {
     delete g_foldl_tk;
     delete g_binder_tk;
     delete g_binders_tk;
+    delete g_precedence_tk;
     delete g_infix_tk;
     delete g_infixl_tk;
     delete g_infixr_tk;
     delete g_postfix_tk;
     delete g_prefix_tk;
     delete g_notation_tk;
+    delete g_tactic_infix_tk;
+    delete g_tactic_infixl_tk;
+    delete g_tactic_infixr_tk;
+    delete g_tactic_postfix_tk;
+    delete g_tactic_prefix_tk;
+    delete g_tactic_notation_tk;
     delete g_call_tk;
     delete g_calc_tk;
     delete g_obtain_tk;
@@ -547,12 +568,19 @@ name const & get_foldr_tk() { return *g_foldr_tk; }
 name const & get_foldl_tk() { return *g_foldl_tk; }
 name const & get_binder_tk() { return *g_binder_tk; }
 name const & get_binders_tk() { return *g_binders_tk; }
+name const & get_precedence_tk() { return *g_precedence_tk; }
 name const & get_infix_tk() { return *g_infix_tk; }
 name const & get_infixl_tk() { return *g_infixl_tk; }
 name const & get_infixr_tk() { return *g_infixr_tk; }
 name const & get_postfix_tk() { return *g_postfix_tk; }
 name const & get_prefix_tk() { return *g_prefix_tk; }
 name const & get_notation_tk() { return *g_notation_tk; }
+name const & get_tactic_infix_tk() { return *g_tactic_infix_tk; }
+name const & get_tactic_infixl_tk() { return *g_tactic_infixl_tk; }
+name const & get_tactic_infixr_tk() { return *g_tactic_infixr_tk; }
+name const & get_tactic_postfix_tk() { return *g_tactic_postfix_tk; }
+name const & get_tactic_prefix_tk() { return *g_tactic_prefix_tk; }
+name const & get_tactic_notation_tk() { return *g_tactic_notation_tk; }
 name const & get_call_tk() { return *g_call_tk; }
 name const & get_calc_tk() { return *g_calc_tk; }
 name const & get_obtain_tk() { return *g_obtain_tk; }

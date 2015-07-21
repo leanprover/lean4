@@ -813,6 +813,7 @@ static environment dispatch_notation_cmd(parser & p, bool overload, notation_ent
 }
 
 environment local_notation_cmd(parser & p) {
+    parser::in_notation_ctx ctx(p);
     bool overload   = false; // REMARK: local notation override global one
     notation_entry_group grp = notation_entry_group::Main;
     bool persistent = false;
@@ -820,6 +821,7 @@ environment local_notation_cmd(parser & p) {
 }
 
 static environment reserve_cmd(parser & p) {
+    parser::in_notation_ctx ctx(p);
     bool overload   = false;
     notation_entry_group grp = notation_entry_group::Reserve;
     bool persistent = true;
@@ -848,5 +850,13 @@ void register_notation_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("tactic_prefix",   "declare a new tactic prefix notation", tactic_prefix_cmd));
     add_cmd(r, cmd_info("tactic_notation", "declare a new tacitc notation", tactic_notation_cmd));
     add_cmd(r, cmd_info("reserve",         "reserve notation", reserve_cmd));
+}
+
+bool is_notation_cmd(name const & n) {
+    return
+        n == get_infix_tk() || n == get_infixl_tk() || n == get_infixr_tk() || n == get_postfix_tk() ||
+        n == get_prefix_tk() || n == get_notation_tk() || n == get_precedence_tk() ||
+        n == get_tactic_infix_tk() || n == get_tactic_infixl_tk() || n == get_tactic_infixr_tk() || n == get_tactic_postfix_tk() ||
+        n == get_tactic_prefix_tk() || n == get_tactic_notation_tk();
 }
 }

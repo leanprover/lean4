@@ -114,6 +114,15 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 set(CMAKE_CXX_FLAGS_GPROF          "-O2 -g -pg")
 set(CMAKE_CXX_FLAGS_EMSCRIPTEN     "-Oz -s DISABLE_EXCEPTION_CATCHING=0 -D LEAN_EMSCRIPTEN -Wno-warn-absolute-paths --bind")
 
+# OSX .dmg generation (this is working in progress)
+set(CPACK_DMG_BACKGROUND_IMAGE "${LEAN_SOURCE_DIR}/../images/lean.png")
+set(CPACK_DMG_VOLUME_NAME "Lean-${LEAN_VERSION_MAJOR}.${LEAN_VERSION_MINOR}")
+set(CPACK_BUNDLE_NAME "Lean-${LEAN_VERSION_MAJOR}.${LEAN_VERSION_MINOR}")
+set(CPACK_BUNDLE_STARTUP_COMMAND "bin/leanemacs")
+set(CPACK_PACKAGE_FILE_NAME "Lean-${LEAN_VERSION_MAJOR}.${LEAN_VERSION_MINOR}")
+set(CPACK_PACKAGE_ICON "${LEAN_SOURCE_DIR}/../images/lean.png")
+##################
+
 include(CheckIncludeFileCXX)
 check_include_file_cxx("unistd.h" HAVE_UNISTD)
 

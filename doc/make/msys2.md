@@ -51,6 +51,9 @@ In the [msys2] shell, execute the following commands.
 ```bash
 cd /c/
 git clone https://github.com/leanprover/lean
+git clone http://github.com/leanprover/emacs-dependencies
+mkdir -p lean/src/emacs/dependencies
+cp -R emacs-dependencies/* lean/src/emacs/dependencies
 cd lean
 mkdir build && cd build
 cmake -D CMAKE_CXX_COMPILER=g++.exe -G Ninja ../src

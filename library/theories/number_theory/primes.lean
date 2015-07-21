@@ -66,7 +66,7 @@ assume h d, obtain h₁ h₂, from h, h₂ m d
 lemma gt_one_of_pos_of_prime_dvd {i p : nat} : prime p → 0 < i → i mod p = 0 → 1 < i :=
 assume ipp pos h,
 have p ≥ 2,  from ge_two_of_prime ipp,
-have p ∣ i,   from dvd_of_mod_eq_zero h,
+have p ∣ i,  from dvd_of_mod_eq_zero h,
 have p ≤ i,  from le_of_dvd pos this,
 lt_of_succ_le (le.trans `2 ≤ p` this)
 
@@ -88,14 +88,15 @@ assume h₁ h₂, ex_of_sub (sub_dvd_of_not_prime h₁ h₂)
 
 definition sub_dvd_of_not_prime2 {n : nat} : n ≥ 2 → ¬ prime n → {m | m ∣ n ∧ m ≥ 2 ∧ m < n} :=
 assume h₁ h₂,
-have n_ne_0 : n ≠ 0, from assume h, begin subst n, exact absurd h₁ dec_trivial end,
+have n ≠ 0, from assume h, begin subst n, exact absurd h₁ dec_trivial end,
 obtain m m_dvd_n m_ne_1 m_ne_n, from sub_dvd_of_not_prime h₁ h₂,
-assert m_ne_0 : m ≠ 0, from assume h, begin subst m, exact absurd (eq_zero_of_zero_dvd m_dvd_n) n_ne_0 end,
+assert m_ne_0 : m ≠ 0, from assume h, begin subst m, exact absurd (eq_zero_of_zero_dvd m_dvd_n) `n ≠ 0` end,
 begin
   existsi m, split, assumption,
   split,
-    {cases m with m, exact absurd rfl m_ne_0, cases m with m, exact absurd rfl m_ne_1, exact succ_le_succ (succ_le_succ (zero_le _))},
-    {have m_le_n : m ≤ n, from le_of_dvd (pos_of_ne_zero n_ne_0) m_dvd_n,
+    {cases m with m, exact absurd rfl m_ne_0,
+    cases m with m, exact absurd rfl m_ne_1, exact succ_le_succ (succ_le_succ (zero_le _))},
+    {have m_le_n : m ≤ n, from le_of_dvd (pos_of_ne_zero `n ≠ 0`) m_dvd_n,
      exact lt_of_le_and_ne m_le_n m_ne_n}
 end
 
@@ -106,14 +107,14 @@ definition sub_prime_and_dvd {n : nat} : n ≥ 2 → {p | prime p ∧ p ∣ n} :
 nat.strong_rec_on n
   (take n,
    assume ih : ∀ m, m < n → m ≥ 2 → {p | prime p ∧ p ∣ m},
-   assume n_ge_2 : n ≥ 2,
+   suppose n ≥ 2,
    by_cases
-    (λ h : prime n, subtype.tag n (and.intro h (dvd.refl n)))
-    (λ h : ¬ prime n,
-      obtain m m_dvd_n m_ge_2 m_lt_n, from sub_dvd_of_not_prime2 n_ge_2 h,
+    (suppose prime n, subtype.tag n (and.intro this (dvd.refl n)))
+    (suppose ¬ prime n,
+      obtain m m_dvd_n m_ge_2 m_lt_n, from sub_dvd_of_not_prime2 `n ≥ 2` this,
       obtain p (hp : prime p) (p_dvd_m : p ∣ m), from ih m m_lt_n m_ge_2,
-      have p_dvd_n : p ∣ n, from dvd.trans p_dvd_m m_dvd_n,
-      subtype.tag p (and.intro hp p_dvd_n)))
+      have p ∣ n, from dvd.trans p_dvd_m m_dvd_n,
+      subtype.tag p (and.intro hp this)))
 
 lemma ex_prime_and_dvd {n : nat} : n ≥ 2 → ∃ p, prime p ∧ p ∣ n :=
 assume h, ex_of_sub (sub_prime_and_dvd h)

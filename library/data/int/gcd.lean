@@ -42,12 +42,12 @@ theorem gcd_abs_abs (a b : ℤ) : gcd (abs a) (abs b) = gcd a b :=
 by rewrite [↑gcd, *nat_abs_abs]
 
 theorem gcd_of_ne_zero (a : ℤ) {b : ℤ} (H : b ≠ 0) : gcd a b = gcd b (abs a mod abs b) :=
-have H1 : nat_abs b ≠ nat.zero, from assume H', H (nat_abs_eq_zero H'),
-have H2 : (#nat nat_abs b > nat.zero), from nat.pos_of_ne_zero H1,
-assert H3 : nat.gcd (nat_abs a) (nat_abs b) = (#nat nat.gcd (nat_abs b) (nat_abs a mod nat_abs b)),
-  from @nat.gcd_of_pos (nat_abs a) (nat_abs b) H2,
+have nat_abs b ≠ nat.zero,        from assume H', H (nat_abs_eq_zero H'),
+have (#nat nat_abs b > nat.zero), from nat.pos_of_ne_zero this,
+assert nat.gcd (nat_abs a) (nat_abs b) = (#nat nat.gcd (nat_abs b) (nat_abs a mod nat_abs b)),
+  from @nat.gcd_of_pos (nat_abs a) (nat_abs b) this,
 calc
- gcd a b = nat.gcd (nat_abs b) (#nat nat_abs a mod nat_abs b) : by rewrite [↑gcd, H3]
+ gcd a b = nat.gcd (nat_abs b) (#nat nat_abs a mod nat_abs b) : by rewrite [↑gcd, this]
      ... = gcd (abs b) (abs a mod abs b)                      :
                by rewrite [↑gcd, -*of_nat_nat_abs, of_nat_mod]
      ... = gcd b (abs a mod abs b)                            : by rewrite [↑gcd, *nat_abs_abs]
@@ -62,9 +62,9 @@ theorem gcd_self (a : ℤ) : gcd a a = abs a :=
 by rewrite [↑gcd, nat.gcd_self, of_nat_nat_abs]
 
 theorem gcd_dvd_left (a b : ℤ) : gcd a b ∣ a :=
-have H : gcd a b ∣ abs a,
+have gcd a b ∣ abs a,
   by rewrite [↑gcd, -of_nat_nat_abs, of_nat_dvd_of_nat]; apply nat.gcd_dvd_left,
-iff.mp !dvd_abs_iff H
+iff.mp !dvd_abs_iff this
 
 theorem gcd_dvd_right (a b : ℤ) : gcd a b ∣ b :=
 by rewrite gcd.comm; apply gcd_dvd_left
@@ -92,20 +92,20 @@ theorem gcd_mul_right (a b c : ℤ) : gcd (a * b) (c * b) = gcd a c * abs b :=
 by rewrite [mul.comm a, mul.comm c, mul.comm (gcd a c), gcd_mul_left]
 
 theorem gcd_pos_of_ne_zero_left {a : ℤ} (b : ℤ) (H : a ≠ 0) : gcd a b > 0 :=
-have H1 : gcd a b ≠ 0, from
-  assume H2 : gcd a b = 0,
-  have H3: 0 ∣ a, from H2 ▸ gcd_dvd_left a b,
-  show false, from H (eq_zero_of_zero_dvd H3),
-lt_of_le_of_ne (gcd_nonneg a b) (ne.symm H1)
+have gcd a b ≠ 0, from
+  suppose gcd a b = 0,
+  have 0 ∣ a,    from this ▸ gcd_dvd_left a b,
+  show false,    from H (eq_zero_of_zero_dvd this),
+lt_of_le_of_ne (gcd_nonneg a b) (ne.symm this)
 
 theorem gcd_pos_of_ne_zero_right (a : ℤ) {b : ℤ} (H : b ≠ 0) : gcd a b > 0 :=
 by rewrite gcd.comm; apply !gcd_pos_of_ne_zero_left H
 
 theorem eq_zero_of_gcd_eq_zero_left {a b : ℤ} (H : gcd a b = 0) : a = 0 :=
 decidable.by_contradiction
-  (assume H1 : a ≠ 0,
-    have H2 : gcd a b > 0, from !gcd_pos_of_ne_zero_left H1,
-    ne_of_lt H2 H⁻¹)
+  (suppose a ≠ 0,
+    have gcd a b > 0, from !gcd_pos_of_ne_zero_left this,
+    ne_of_lt this H⁻¹)
 
 theorem eq_zero_of_gcd_eq_zero_right {a b : ℤ} (H : gcd a b = 0) : b = 0 :=
 by rewrite gcd.comm at H; apply !eq_zero_of_gcd_eq_zero_left H
@@ -113,15 +113,15 @@ by rewrite gcd.comm at H; apply !eq_zero_of_gcd_eq_zero_left H
 theorem gcd_div {a b c : ℤ} (H1 : c ∣ a) (H2 : c ∣ b) :
   gcd (a div c) (b div c) = gcd a b div (abs c) :=
 decidable.by_cases
-  (assume H3 : c = 0,
+  (suppose c = 0,
     calc
       gcd (a div c) (b div c) = gcd 0 0             : by subst c; rewrite *div_zero
                           ... = 0                   : gcd_zero_left
                           ... = gcd a b div 0       : div_zero
                           ... = gcd a b div (abs c) : by subst c)
-  (assume H3 : c ≠ 0,
-    have H4 : abs c ≠ 0, from assume H', H3 (eq_zero_of_abs_eq_zero H'),
-    eq.symm (div_eq_of_eq_mul_left H4
+  (suppose c ≠ 0,
+    have abs c ≠ 0, from assume H', this (eq_zero_of_abs_eq_zero H'),
+    eq.symm (div_eq_of_eq_mul_left this
       (eq.symm (calc
         gcd (a div c) (b div c) * abs c = gcd (a div c * c) (b div c * c) : gcd_mul_right
                                 ... = gcd a (b div c * c)                 : div_mul_cancel H1
@@ -314,25 +314,25 @@ coprime_of_coprime_mul_left_right (!mul.comm ▸ H)
 theorem exists_eq_prod_and_dvd_and_dvd {a b c} (H : c ∣ a * b) :
   ∃ a' b', c = a' * b' ∧ a' ∣ a ∧ b' ∣ b :=
 decidable.by_cases
- (assume H1 : gcd c a = 0,
-    have H2 : c = 0, from eq_zero_of_gcd_eq_zero_left H1,
-    have H3 : a = 0, from eq_zero_of_gcd_eq_zero_right H1,
-    have H4 : c = 0 * b, from H2 ⬝ !zero_mul⁻¹,
-    have H5 : 0 ∣ a, from H3⁻¹ ▸ !dvd.refl,
-    have H6 : b ∣ b, from !dvd.refl,
-    exists.intro _ (exists.intro _ (and.intro H4 (and.intro H5 H6))))
-  (assume H1 : gcd c a ≠ 0,
-    have H2 : gcd c a ∣ c, from !gcd_dvd_left,
-    have H3 : c div gcd c a ∣ (a * b) div gcd c a, from div_dvd_div H2 H,
+ (suppose gcd c a = 0,
+    have c = 0, from eq_zero_of_gcd_eq_zero_left `gcd c a = 0`,
+    have a = 0, from eq_zero_of_gcd_eq_zero_right `gcd c a = 0`,
+    have c = 0 * b, from `c = 0` ⬝ !zero_mul⁻¹,
+    have 0 ∣ a, from `a = 0`⁻¹ ▸ !dvd.refl,
+    have b ∣ b, from !dvd.refl,
+    exists.intro _ (exists.intro _ (and.intro `c = 0 * b` (and.intro `0 ∣ a` `b ∣ b`))))
+  (suppose gcd c a ≠ 0,
+    have gcd c a ∣ c, from !gcd_dvd_left,
+    have H3 : c div gcd c a ∣ (a * b) div gcd c a, from div_dvd_div this H,
     have H4 : (a * b) div gcd c a = (a div gcd c a) * b, from
       calc
         a * b div gcd c a = b * a div gcd c a   : mul.comm
                       ... = b * (a div gcd c a) : !mul_div_assoc !gcd_dvd_right
                       ... = a div gcd c a * b   : mul.comm,
     have H5 : c div gcd c a ∣ (a div gcd c a) * b, from H4 ▸ H3,
-    have H6 : coprime (c div gcd c a) (a div gcd c a), from coprime_div_gcd_div_gcd H1,
+    have H6 : coprime (c div gcd c a) (a div gcd c a), from coprime_div_gcd_div_gcd `gcd c a ≠ 0`,
     have H7 : c div gcd c a ∣ b, from dvd_of_coprime_of_dvd_mul_left H6 H5,
-    have H8 : c = gcd c a * (c div gcd c a), from (mul_div_cancel' H2)⁻¹,
+    have H8 : c = gcd c a * (c div gcd c a), from (mul_div_cancel' `gcd c a ∣ c`)⁻¹,
     exists.intro _ (exists.intro _ (and.intro H8 (and.intro !gcd_dvd_right H7))))
 
 end int

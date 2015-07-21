@@ -66,11 +66,11 @@ calc
       ... ≤ 0           : neg_nonpos_of_nonneg (div_nonneg Ha (neg_nonneg_of_nonpos Hb))
 
 theorem div_neg' {a b : ℤ} (Ha : a < 0) (Hb : b > 0) : a div b < 0 :=
-have H1 : -a - 1 ≥ 0, from le_sub_one_of_lt (neg_pos_of_neg Ha),
-have H2 : (-a - 1) div b + 1 > 0, from lt_add_one_of_le (div_nonneg H1 (le_of_lt Hb)),
+have -a - 1 ≥ 0, from le_sub_one_of_lt (neg_pos_of_neg Ha),
+have (-a - 1) div b + 1 > 0, from lt_add_one_of_le (div_nonneg this (le_of_lt Hb)),
 calc
   a div b = -((-a - 1) div b + 1) : div_of_neg_of_pos Ha Hb
-      ... < 0                     : neg_neg_of_pos H2
+      ... < 0                     : neg_neg_of_pos this
 
 set_option pp.coercions true
 
@@ -84,10 +84,10 @@ theorem div_zero (a : ℤ) : a div 0 = 0 :=
 by rewrite [↑divide, sign_zero, zero_mul]
 
 theorem div_one (a : ℤ) :a div 1 = a :=
-assert H : 1 > 0, from dec_trivial,
+assert 1 > 0, from dec_trivial,
 int.cases_on a
   (take m, by rewrite [-of_nat_div, nat.div_one])
-  (take m, by rewrite [!neg_succ_of_nat_div H, -of_nat_div, nat.div_one])
+  (take m, by rewrite [!neg_succ_of_nat_div this, -of_nat_div, nat.div_one])
 
 theorem eq_div_mul_add_mod (a b : ℤ) : a = a div b * b + a mod b :=
 !add.comm ▸ eq_add_of_sub_eq rfl
@@ -107,20 +107,20 @@ int.cases_on a
         absurd H H1))
   (take m,
     assume H : 0 ≤ -[1+m],
-    have H1 : ¬ (0 ≤ -[1+m]), from dec_trivial,
-    absurd H H1)
+    have ¬ (0 ≤ -[1+m]), from dec_trivial,
+    absurd H this)
 
 theorem div_eq_zero_of_lt_abs {a b : ℤ} (H1 : 0 ≤ a) (H2 : a < abs b) : a div b = 0 :=
 lt.by_cases
-  (assume H : b < 0,
-    assert H3 : a < -b, from abs_of_neg H ▸ H2,
+  (suppose b < 0,
+    assert a < -b, from abs_of_neg this ▸ H2,
     calc
       a div b = - (a div -b) : by rewrite [div_neg, neg_neg]
-          ... = 0            : by rewrite [div_eq_zero_of_lt H1 H3, neg_zero])
-  (assume H : b = 0, H⁻¹ ▸ !div_zero)
-  (assume H : b > 0,
-    have H3 : a < b, from abs_of_pos H ▸ H2,
-    div_eq_zero_of_lt H1 H3)
+          ... = 0            : by rewrite [div_eq_zero_of_lt H1 this, neg_zero])
+  (suppose b = 0, this⁻¹ ▸ !div_zero)
+  (suppose b > 0,
+    have a < b, from abs_of_pos this ▸ H2,
+    div_eq_zero_of_lt H1 this)
 
 private theorem add_mul_div_self_aux1 {a : ℤ} {k : ℕ} (n : ℕ)
     (H1 : a ≥ 0) (H2 : #nat k > 0) :

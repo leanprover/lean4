@@ -34,9 +34,9 @@ private theorem nonneg_or_nonneg_neg (a : ℤ) : nonneg a ∨ nonneg (-a) :=
 int.cases_on a (take n, or.inl trivial) (take n, or.inr trivial)
 
 theorem le.intro {a b : ℤ} {n : ℕ} (H : a + n = b) : a ≤ b :=
-have H1 : b - a = n, from (eq_add_neg_of_add_eq (!add.comm ▸ H))⁻¹,
-have H2 : nonneg n, from true.intro,
-show nonneg (b - a), from H1⁻¹ ▸ H2
+have b - a = n,      from (eq_add_neg_of_add_eq (!add.comm ▸ H))⁻¹,
+have nonneg n,       from true.intro,
+show nonneg (b - a), from `b - a = n`⁻¹ ▸ this
 
 theorem le.elim {a b : ℤ} (H : a ≤ b) : ∃n : ℕ, a + n = b :=
 obtain (n : ℕ) (H1 : b - a = n), from nonneg.elim H,
@@ -46,9 +46,9 @@ theorem le.total (a b : ℤ) : a ≤ b ∨ b ≤ a :=
 or.elim (nonneg_or_nonneg_neg (b - a))
   (assume H, or.inl H)
   (assume H : nonneg (-(b - a)),
-    have H0 : -(b - a) = a - b, from neg_sub b a,
-    have H1 : nonneg (a - b), from H0 ▸ H,    -- too bad: can't do it in one step
-    or.inr H1)
+    have -(b - a) = a - b, from neg_sub b a,
+    have nonneg (a - b), from this ▸ H,
+    or.inr this)
 
 theorem of_nat_le_of_nat_of_le {m n : ℕ} (H : #nat m ≤ n) : of_nat m ≤ of_nat n :=
 obtain (k : ℕ) (Hk : m + k = n), from nat.le.elim H,
@@ -56,8 +56,8 @@ le.intro (Hk ▸ (of_nat_add m k)⁻¹)
 
 theorem le_of_of_nat_le_of_nat {m n : ℕ} (H : of_nat m ≤ of_nat n) : (#nat m ≤ n) :=
 obtain (k : ℕ) (Hk : of_nat m + of_nat k = of_nat n), from le.elim H,
-have H1 : m + k = n, from of_nat.inj (of_nat_add m k ⬝ Hk),
-nat.le.intro H1
+have m + k = n, from of_nat.inj (of_nat_add m k ⬝ Hk),
+nat.le.intro this
 
 theorem of_nat_le_of_nat (m n : ℕ) : of_nat m ≤ of_nat n ↔ m ≤ n :=
 iff.intro le_of_of_nat_le_of_nat of_nat_le_of_nat_of_le
@@ -74,11 +74,11 @@ H ▸ lt_add_succ a n
 
 theorem lt.elim {a b : ℤ} (H : a < b) : ∃n : ℕ, a + succ n = b :=
 obtain (n : ℕ) (Hn : a + 1 + n = b), from le.elim H,
-have H2 : a + succ n = b, from
+have a + succ n = b, from
   calc
     a + succ n = a + 1 + n : by simp
       ... = b : Hn,
-exists.intro n H2
+exists.intro n this
 
 theorem of_nat_lt_of_nat (n m : ℕ) : of_nat n < of_nat m ↔ n < m :=
 calc
@@ -101,47 +101,47 @@ le.intro (add_zero a)
 theorem le.trans {a b c : ℤ} (H1 : a ≤ b) (H2 : b ≤ c) : a ≤ c :=
 obtain (n : ℕ) (Hn : a + n = b), from le.elim H1,
 obtain (m : ℕ) (Hm : b + m = c), from le.elim H2,
-have H3 : a + of_nat (n + m) = c, from
+have a + of_nat (n + m) = c, from
   calc
     a + of_nat (n + m) = a + (of_nat n + m) : {of_nat_add n m}
       ... = a + n + m : (add.assoc a n m)⁻¹
       ... = b + m : {Hn}
       ... = c : Hm,
-le.intro H3
+le.intro this
 
 theorem le.antisymm : ∀ {a b : ℤ}, a ≤ b → b ≤ a → a = b :=
 take a b : ℤ, assume (H₁ : a ≤ b) (H₂ : b ≤ a),
 obtain (n : ℕ) (Hn : a + n = b), from le.elim H₁,
 obtain (m : ℕ) (Hm : b + m = a), from le.elim H₂,
-have H₃ : a + of_nat (n + m) = a + 0, from
+have a + of_nat (n + m) = a + 0, from
   calc
     a + of_nat (n + m) = a + (of_nat n + m) : of_nat_add
       ... = a + n + m                       : add.assoc
       ... = b + m                           : Hn
       ... = a                               : Hm
       ... = a + 0                           : add_zero,
-have H₄ : of_nat (n + m) = of_nat 0, from add.left_cancel H₃,
-have H₅ : n + m = 0, from of_nat.inj H₄,
-have H₆ : n = 0, from nat.eq_zero_of_add_eq_zero_right H₅,
+have of_nat (n + m) = of_nat 0, from add.left_cancel this,
+have n + m = 0,                 from of_nat.inj this,
+have n = 0,                     from nat.eq_zero_of_add_eq_zero_right this,
 show a = b, from
   calc
     a = a + 0        : add_zero
-      ... = a + n    : H₆
+      ... = a + n    : this
       ... = b        : Hn
 
 theorem lt.irrefl (a : ℤ) : ¬ a < a :=
-(assume H : a < a,
-  obtain (n : ℕ) (Hn : a + succ n = a), from lt.elim H,
-  have H2 : a + succ n = a + 0, from
+(suppose a < a,
+  obtain (n : ℕ) (Hn : a + succ n = a), from lt.elim this,
+  have a + succ n = a + 0, from
     calc
       a + succ n = a : Hn
         ... = a + 0 : by simp,
-  have H3 : nat.succ n = 0, from add.left_cancel H2,
-  have H4 : nat.succ n = 0, from of_nat.inj H3,
-  absurd H4 !succ_ne_zero)
+  have nat.succ n = 0, from add.left_cancel this,
+  have nat.succ n = 0, from of_nat.inj this,
+  absurd this !succ_ne_zero)
 
 theorem ne_of_lt {a b : ℤ} (H : a < b) : a ≠ b :=
-(assume H2 : a = b, absurd (H2 ▸ H) (lt.irrefl b))
+(suppose a = b, absurd (this ▸ H) (lt.irrefl b))
 
 theorem le_of_lt {a b : ℤ} (H : a < b) : a ≤ b :=
 obtain (n : ℕ) (Hn : a + succ n = b), from lt.elim H,
@@ -151,22 +151,22 @@ theorem lt_iff_le_and_ne (a b : ℤ) : a < b ↔ (a ≤ b ∧ a ≠ b) :=
 iff.intro
   (assume H, and.intro (le_of_lt H) (ne_of_lt H))
   (assume H,
-    have H1 : a ≤ b, from and.elim_left H,
-    have H2 : a ≠ b, from and.elim_right H,
-    obtain (n : ℕ) (Hn : a + n = b), from le.elim H1,
-    have H3 : n ≠ 0, from (assume H' : n = 0, H2 (!add_zero ▸ H' ▸ Hn)),
-    obtain (k : ℕ) (Hk : n = nat.succ k), from nat.exists_eq_succ_of_ne_zero H3,
+    have a ≤ b, from and.elim_left H,
+    have a ≠ b, from and.elim_right H,
+    obtain (n : ℕ) (Hn : a + n = b), from le.elim `a ≤ b`,
+    have n ≠ 0, from (assume H' : n = 0, `a ≠ b` (!add_zero ▸ H' ▸ Hn)),
+    obtain (k : ℕ) (Hk : n = nat.succ k), from nat.exists_eq_succ_of_ne_zero this,
     lt.intro (Hk ▸ Hn))
 
 theorem le_iff_lt_or_eq (a b : ℤ) : a ≤ b ↔ (a < b ∨ a = b) :=
 iff.intro
   (assume H,
     by_cases
-      (assume H1 : a = b, or.inr H1)
-      (assume H1 : a ≠ b,
+      (suppose a = b, or.inr this)
+      (suppose a ≠ b,
         obtain (n : ℕ) (Hn : a + n = b), from le.elim H,
-        have H2 : n ≠ 0, from (assume H' : n = 0, H1 (!add_zero ▸ H' ▸ Hn)),
-        obtain (k : ℕ) (Hk : n = nat.succ k), from nat.exists_eq_succ_of_ne_zero H2,
+        have n ≠ 0, from (assume H' : n = 0, `a ≠ b` (!add_zero ▸ H' ▸ Hn)),
+        obtain (k : ℕ) (Hk : n = nat.succ k), from nat.exists_eq_succ_of_ne_zero this,
         or.inl (lt.intro (Hk ▸ Hn))))
   (assume H,
     or.elim H
@@ -208,8 +208,8 @@ obtain (m : ℕ) (Hm : 0 + nat.succ m = b), from lt.elim Hb,
 lt.intro
   (eq.symm
     (calc
-      a * b = (0 + nat.succ n) * b                 : Hn
-        ... = nat.succ n * b                       : nat.zero_add
+      a * b = (0 + nat.succ n) * b                     : Hn
+        ... = nat.succ n * b                           : nat.zero_add
         ... = nat.succ n * (0 + nat.succ m)            : {Hm⁻¹}
         ... = nat.succ n * nat.succ m                  : nat.zero_add
         ... = of_nat (nat.succ n * nat.succ m)         : of_nat_mul
@@ -308,8 +308,8 @@ obtain (n : ℕ) (H1 : 0 + of_nat n = a), from le.elim H,
 exists.intro n (!zero_add ▸ (H1⁻¹))
 
 theorem exists_eq_neg_of_nat {a : ℤ} (H : a ≤ 0) : ∃n : ℕ, a = -(of_nat n) :=
-have H2 : -a ≥ 0, from iff.mpr !neg_nonneg_iff_nonpos H,
-obtain (n : ℕ) (Hn : -a = of_nat n), from exists_eq_of_nat H2,
+have -a ≥ 0, from iff.mpr !neg_nonneg_iff_nonpos H,
+obtain (n : ℕ) (Hn : -a = of_nat n), from exists_eq_of_nat this,
 exists.intro n (eq_neg_of_eq_neg (Hn⁻¹))
 
 theorem of_nat_nat_abs_of_nonneg {a : ℤ} (H : a ≥ 0) : of_nat (nat_abs a) = a :=
@@ -317,10 +317,10 @@ obtain (n : ℕ) (Hn : a = of_nat n), from exists_eq_of_nat H,
 Hn⁻¹ ▸ congr_arg of_nat (nat_abs_of_nat n)
 
 theorem of_nat_nat_abs_of_nonpos {a : ℤ} (H : a ≤ 0) : of_nat (nat_abs a) = -a :=
-have H1 : (-a) ≥ 0, from iff.mpr !neg_nonneg_iff_nonpos H,
+have -a ≥ 0, from iff.mpr !neg_nonneg_iff_nonpos H,
 calc
   of_nat (nat_abs a) = of_nat (nat_abs (-a)) : nat_abs_neg
-                 ... = -a                    : of_nat_nat_abs_of_nonneg H1
+                 ... = -a                    : of_nat_nat_abs_of_nonneg this
 
 theorem of_nat_nat_abs (b : ℤ) : nat_abs b = abs b :=
 or.elim (le.total 0 b)
@@ -332,13 +332,13 @@ abs.by_cases rfl !nat_abs_neg
 
 theorem lt_of_add_one_le {a b : ℤ} (H : a + 1 ≤ b) : a < b :=
 obtain n (H1 : a + 1 + n = b), from le.elim H,
-have H2 : a + succ n = b, by rewrite [-H1, add.assoc, add.comm 1],
-lt.intro H2
+have a + succ n = b, by rewrite [-H1, add.assoc, add.comm 1],
+lt.intro this
 
 theorem add_one_le_of_lt {a b : ℤ} (H : a < b) : a + 1 ≤ b :=
 obtain n (H1 : a + succ n = b), from lt.elim H,
-have H2 : a + 1 + n = b, by rewrite [-H1, add.assoc, add.comm 1],
-le.intro H2
+have a + 1 + n = b, by rewrite [-H1, add.assoc, add.comm 1],
+le.intro this
 
 theorem lt_add_one_of_le {a b : ℤ} (H : a ≤ b) : a < b + 1 :=
 lt_add_of_le_of_pos H trivial
@@ -368,17 +368,17 @@ int.cases_on a
   (take m H, exists.intro m rfl)
 
 theorem eq_one_of_mul_eq_one_right {a b : ℤ} (H : a ≥ 0) (H' : a * b = 1) : a = 1 :=
-have H2 : a * b > 0, by rewrite H'; apply trivial,
-have H3 : b > 0, from pos_of_mul_pos_left H2 H,
-have H4 : a > 0, from pos_of_mul_pos_right H2 (le_of_lt H3),
+have a * b > 0, by rewrite H'; apply trivial,
+have b > 0, from pos_of_mul_pos_left this H,
+have a > 0, from pos_of_mul_pos_right `a * b > 0` (le_of_lt `b > 0`),
 or.elim (le_or_gt a 1)
-  (assume H5 : a ≤ 1,
-    show a = 1, from le.antisymm H5 (add_one_le_of_lt H4))
-  (assume H5 : a > 1,
-    assert H6 : a * b ≥ 2 * 1,
-      from mul_le_mul (add_one_le_of_lt H5) (add_one_le_of_lt H3) trivial H,
-    have H7 : false, by rewrite [H' at H6]; apply H6,
-    false.elim H7)
+  (suppose a ≤ 1,
+    show a = 1, from le.antisymm this (add_one_le_of_lt `a > 0`))
+  (suppose a > 1,
+    assert a * b ≥ 2 * 1,
+      from mul_le_mul (add_one_le_of_lt `a > 1`) (add_one_le_of_lt `b > 0`) trivial H,
+    have false, by rewrite [H' at this]; exact this,
+    false.elim this)
 
 theorem eq_one_of_mul_eq_one_left {a b : ℤ} (H : b ≥ 0) (H' : a * b = 1) : b = 1 :=
 eq_one_of_mul_eq_one_right H (!mul.comm ▸ H')
@@ -392,7 +392,7 @@ eq_one_of_mul_eq_self_left Hpos (!mul.comm ▸ H)
 theorem eq_one_of_dvd_one {a : ℤ} (H : a ≥ 0) (H' : a ∣ 1) : a = 1 :=
 dvd.elim H'
   (take b,
-    assume H1 : 1 = a * b,
-    eq_one_of_mul_eq_one_right H H1⁻¹)
+    suppose 1 = a * b,
+    eq_one_of_mul_eq_one_right H this⁻¹)
 
 end int

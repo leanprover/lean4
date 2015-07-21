@@ -650,10 +650,10 @@ lt.by_cases
           exact !he₂ jlti₁
     end)
   (λ i₂lti₁ : i₂ < i₁,
-    assert aux : nth i₂ s₁ = nth i₂ s₂, from he₁ _ i₂lti₁,
+    assert nth i₂ s₁ = nth i₂ s₂, from he₁ _ i₂lti₁,
     begin
       existsi i₂, split,
-       {rewrite aux, exact hlt₂},
+       {rewrite this, exact hlt₂},
        {intro j jlti₂, transitivity nth j s₂,
          exact !he₁ (lt.trans jlti₂ i₂lti₁),
          exact !he₂ jlti₂}

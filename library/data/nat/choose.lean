@@ -25,8 +25,8 @@ private lemma lbp_zero : lbp 0 :=
 private lemma lbp_succ {x : nat} : lbp x → ¬ p x → lbp (succ x) :=
 λ lx npx y yltsx,
   or.elim (eq_or_lt_of_le (le_of_succ_le_succ yltsx))
-    (λ yeqx, by substvars; assumption)
-    (λ yltx, lx y yltx)
+    (suppose y = x, by substvars; assumption)
+    (suppose y < x, lx y this)
 
 private definition gtb (a b : nat) : Prop :=
 a > b ∧ lbp a
@@ -43,10 +43,10 @@ private lemma acc_of_acc_succ {x : nat} : acc gtb (succ x) → acc gtb x :=
 assume h,
 acc.intro x (λ (y : nat) (l : y ≺ x),
    by_cases
-     (assume yeqx : y = succ x, by substvars; assumption)
-     (assume ynex : y ≠ succ x,
+     (suppose y = succ x, by substvars; assumption)
+     (suppose y ≠ succ x,
         have x < y,      from and.elim_left l,
-        have succ x < y, from lt_of_le_and_ne this (ne.symm ynex),
+        have succ x < y, from lt_of_le_and_ne this (ne.symm `y ≠ succ x`),
         acc.inv h (and.intro this (and.elim_right l))))
 
 private lemma acc_of_px_of_gt {x y : nat} : p x → y > x → acc gtb y :=
@@ -58,10 +58,10 @@ acc.intro y (λ (z : nat) (l : z ≺ y),
 private lemma acc_of_acc_of_lt : ∀ {x y : nat}, acc gtb x → y < x → acc gtb y
 | 0        y a0  ylt0  := absurd ylt0 !not_lt_zero
 | (succ x) y asx yltsx :=
-  assert ax : acc gtb x, from acc_of_acc_succ asx,
+  assert acc gtb x, from acc_of_acc_succ asx,
   by_cases
      (suppose y = x, by substvars; assumption)
-     (suppose y ≠ x, acc_of_acc_of_lt ax (lt_of_le_and_ne (le_of_lt_succ yltsx) this))
+     (suppose y ≠ x, acc_of_acc_of_lt `acc gtb x` (lt_of_le_and_ne (le_of_lt_succ yltsx) this))
 
 parameter (ex : ∃ a, p a)
 parameter [dp : decidable_pred p]
@@ -81,14 +81,14 @@ private definition find.F (x : nat) : (Π x₁, x₁ ≺ x → lbp x₁ → {a :
 match x with
 | 0 := λ f l0, by_cases
   (λ p0 : p 0,    tag 0 p0)
-  (λ np0 : ¬ p 0,
-    have l₁ : lbp 1, from lbp_succ l0 np0,
-    have 1 ≺ 0, from and.intro (lt.base 0) l₁,
-    f 1 this l₁)
+  (suppose ¬ p 0,
+    have lbp 1, from lbp_succ l0 this,
+    have 1 ≺ 0, from and.intro (lt.base 0) `lbp 1`,
+    f 1 `1 ≺ 0` `lbp 1`)
 | (succ n) := λ f lsn, by_cases
-  (λ psn : p (succ n), tag (succ n) psn)
-  (λ npsn : ¬ p (succ n),
-    have lss : lbp (succ (succ n)), from lbp_succ lsn npsn,
+  (suppose p (succ n), tag (succ n) this)
+  (suppose ¬ p (succ n),
+    have lss : lbp (succ (succ n)), from lbp_succ lsn this,
     have succ (succ n) ≺ succ n, from and.intro (lt.base (succ n)) lss,
     f (succ (succ n)) this lss)
 end

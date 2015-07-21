@@ -15,12 +15,12 @@ namespace pos_num
   theorem succ_bit0 (a : pos_num) : succ (bit0 a) = bit1 a
 
   theorem ne_of_bit0_ne_bit0 {a b : pos_num} (H₁ : bit0 a ≠ bit0 b) : a ≠ b :=
-  assume H : a = b,
-  absurd rfl (H ▸ H₁)
+  suppose a = b,
+  absurd rfl (this ▸ H₁)
 
   theorem ne_of_bit1_ne_bit1 {a b : pos_num} (H₁ : bit1 a ≠ bit1 b) : a ≠ b :=
-  assume H : a = b,
-  absurd rfl (H ▸ H₁)
+  suppose a = b,
+  absurd rfl (this ▸ H₁)
 
   theorem pred_succ : ∀ (a : pos_num), pred (succ a) = a
   | one      := rfl

@@ -59,10 +59,11 @@ namespace bool
 
   theorem or_of_bor_eq {a b : bool} : a || b = tt → a = tt ∨ b = tt :=
   bool.rec_on a
-    (assume H : ff || b = tt,
-      have Hb : b = tt, from !ff_bor ▸ H,
-      or.inr Hb)
-    (assume H, or.inl rfl)
+    (suppose ff || b = tt,
+      have b = tt, from !ff_bor ▸ this,
+      or.inr this)
+    (suppose tt || b = tt,
+      or.inl rfl)
 
   theorem bor_inl {a b : bool} (H : a = tt) : a || b = tt :=
   by rewrite H
@@ -98,13 +99,13 @@ namespace bool
 
   theorem band_elim_left {a b : bool} (H : a && b = tt) : a = tt :=
   or.elim (dichotomy a)
-    (assume H0 : a = ff,
+    (suppose a = ff,
       absurd
         (calc ff = ff && b : ff_band
-             ... = a && b  : H0
+             ... = a && b  : this
              ... = tt      : H)
         ff_ne_tt)
-    (assume H1 : a = tt, H1)
+    (suppose a = tt, this)
 
   theorem band_intro {a b : bool} (H₁ : a = tt) (H₂ : b = tt) : a && b = tt :=
   by rewrite [H₁, H₂]

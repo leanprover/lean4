@@ -149,8 +149,8 @@ theorem nat_abs_of_nat (n : ℕ) : nat_abs (of_nat n) = n := rfl
 
 theorem nat_abs_eq_zero {a : ℤ} : nat_abs a = 0 → a = 0 :=
 int.cases_on a
-  (take m, assume H : nat_abs (of_nat m) = 0, congr_arg of_nat H)
-  (take m', assume H : nat_abs (neg_succ_of_nat m') = 0, absurd H (succ_ne_zero _))
+  (take m,  suppose nat_abs (of_nat m) = 0, congr_arg of_nat this)
+  (take m', suppose nat_abs (neg_succ_of_nat m') = 0, absurd this (succ_ne_zero _))
 
 /- int is a quotient of ordered pairs of natural numbers -/
 
@@ -182,12 +182,12 @@ is_equivalence.mk @equiv.refl @equiv.symm @equiv.trans
 protected theorem equiv_cases {p q : ℕ × ℕ} (H : int.equiv p q) :
     (pr1 p ≥ pr2 p ∧ pr1 q ≥ pr2 q) ∨ (pr1 p < pr2 p ∧ pr1 q < pr2 q) :=
 or.elim (@le_or_gt (pr2 p) (pr1 p))
-  (assume H1: pr1 p ≥ pr2 p,
-    have H2 : pr2 p + pr1 q ≥ pr2 p + pr2 q, from H ▸ add_le_add_right H1 (pr2 q),
-    or.inl (and.intro H1 (le_of_add_le_add_left H2)))
-  (assume H1: pr1 p < pr2 p,
-    have H2 : pr2 p + pr1 q < pr2 p + pr2 q, from H ▸ add_lt_add_right H1 (pr2 q),
-    or.inr (and.intro H1 (lt_of_add_lt_add_left H2)))
+  (suppose pr1 p ≥ pr2 p,
+    have pr2 p + pr1 q ≥ pr2 p + pr2 q, from H ▸ add_le_add_right this (pr2 q),
+    or.inl (and.intro `pr1 p ≥ pr2 p` (le_of_add_le_add_left this)))
+  (suppose pr1 p < pr2 p,
+    have pr2 p + pr1 q < pr2 p + pr2 q, from H ▸ add_lt_add_right this (pr2 q),
+    or.inr (and.intro `pr1 p < pr2 p` (lt_of_add_lt_add_left this)))
 
 protected theorem equiv_of_eq {p q : ℕ × ℕ} (H : p = q) : p ≡ q := H ▸ equiv.refl
 
@@ -209,15 +209,15 @@ int.cases_on a (take m, (sub_nat_nat_of_ge (zero_le m))) (take m, rfl)
 
 theorem repr_sub_nat_nat (m n : ℕ) : repr (sub_nat_nat m n) ≡ (m, n) :=
 or.elim (@le_or_gt n m)
-  (take H : m ≥ n,
-    have H1 : repr (sub_nat_nat m n) = (m - n, 0), from sub_nat_nat_of_ge H ▸ rfl,
-    H1⁻¹ ▸
+  (suppose m ≥ n,
+    have repr (sub_nat_nat m n) = (m - n, 0), from sub_nat_nat_of_ge this ▸ rfl,
+    this⁻¹ ▸
       (calc
-        m - n + n = m : sub_add_cancel H
+        m - n + n = m : sub_add_cancel `m ≥ n`
           ... = 0 + m : zero_add))
-  (take H : m < n,
-    have H1 : repr (sub_nat_nat m n) = (0, succ (pred (n - m))), from sub_nat_nat_of_lt H ▸ rfl,
-    H1⁻¹ ▸
+  (suppose H : m < n,
+    have repr (sub_nat_nat m n) = (0, succ (pred (n - m))), from sub_nat_nat_of_lt H ▸ rfl,
+    this⁻¹ ▸
       (calc
         0 + n = n : zero_add
           ... = n - m + m : sub_add_cancel (le_of_lt H)

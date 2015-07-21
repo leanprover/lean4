@@ -49,14 +49,14 @@ section semiring
   include s
 
   theorem ne_zero_of_mul_ne_zero_right {a b : A} (H : a * b ≠ 0) : a ≠ 0 :=
-  assume H1 : a = 0,
-  have H2 : a * b = 0, from H1⁻¹ ▸ zero_mul b,
-  H H2
+  suppose a = 0,
+  have a * b = 0, from this⁻¹ ▸ zero_mul b,
+  H this
 
   theorem ne_zero_of_mul_ne_zero_left {a b : A} (H : a * b ≠ 0) : b ≠ 0 :=
-  assume H1 : b = 0,
-  have H2 : a * b = 0, from H1⁻¹ ▸ mul_zero a,
-  H H2
+  suppose b = 0,
+  have a * b = 0, from this⁻¹ ▸ mul_zero a,
+  H this
 
   theorem distrib_three_right (a b c d : A) : (a + b + c) * d = a * d + b * d + c * d :=
     by rewrite *right_distrib
@@ -116,21 +116,21 @@ section comm_semiring
   theorem dvd_mul_of_dvd_left {a b : A} (H : a ∣ b) (c : A) : a ∣ b * c :=
   dvd.elim H
     (take d,
-      assume H₁ : b = a * d,
+      suppose b = a * d,
       dvd.intro
-        (show a * (d * c) = b * c, from by rewrite [-mul.assoc, H₁]))
+        (show a * (d * c) = b * c, from by rewrite [-mul.assoc]; substvars))
 
   theorem dvd_mul_of_dvd_right {a b : A} (H : a ∣ b) (c : A) : a ∣ c * b :=
   !mul.comm ▸ (dvd_mul_of_dvd_left H _)
 
   theorem mul_dvd_mul {a b c d : A} (dvd_ab : a ∣ b) (dvd_cd : c ∣ d) : a * c ∣ b * d :=
   dvd.elim dvd_ab
-    (take e, assume Haeb : b = a * e,
+    (take e, suppose b = a * e,
       dvd.elim dvd_cd
-        (take f, assume Hcfd : d = c * f,
+        (take f, suppose d = c * f,
           dvd.intro
             (show a * c * (e * f) = b * d,
-             by rewrite [mul.assoc, {c*_}mul.left_comm, -mul.assoc, Haeb, Hcfd])))
+             by rewrite [mul.assoc, {c*_}mul.left_comm, -mul.assoc]; substvars)))
 
   theorem dvd_of_mul_right_dvd {a b c : A} (H : a * b ∣ c) : a ∣ c :=
   dvd.elim H (take d, assume Habdc : c = a * b * d, dvd.intro (!mul.assoc⁻¹ ⬝ Habdc⁻¹))
@@ -140,11 +140,11 @@ section comm_semiring
 
   theorem dvd_add {a b c : A} (Hab : a ∣ b) (Hac : a ∣ c) : a ∣ b + c :=
   dvd.elim Hab
-    (take d, assume Hadb : b = a * d,
+    (take d, suppose b = a * d,
       dvd.elim Hac
-        (take e, assume Haec : c = a * e,
+        (take e, suppose c = a * e,
           dvd.intro (show a * (d + e) = b + c,
-                     by rewrite [left_distrib, -Hadb, -Haec])))
+                     by rewrite [left_distrib]; substvars)))
 end comm_semiring
 
 /- ring -/
@@ -152,18 +152,18 @@ end comm_semiring
 structure ring [class] (A : Type) extends add_comm_group A, monoid A, distrib A
 
 theorem ring.mul_zero [s : ring A] (a : A) : a * 0 = 0 :=
-have H : a * 0 + 0 = a * 0 + a * 0, from calc
+have a * 0 + 0 = a * 0 + a * 0, from calc
   a * 0 + 0 = a * 0         : by rewrite add_zero
         ... = a * (0 + 0)   : by rewrite add_zero
         ... = a * 0 + a * 0 : by rewrite {a*_}ring.left_distrib,
-show a * 0 = 0, from (add.left_cancel H)⁻¹
+show a * 0 = 0, from (add.left_cancel this)⁻¹
 
 theorem ring.zero_mul [s : ring A] (a : A) : 0 * a = 0 :=
-have H : 0 * a + 0 = 0 * a + 0 * a, from calc
+have 0 * a + 0 = 0 * a + 0 * a, from calc
   0 * a + 0 = 0 * a         : by rewrite add_zero
         ... = (0 + 0) * a   : by rewrite add_zero
         ... = 0 * a + 0 * a : by rewrite {_*a}ring.right_distrib,
-show 0 * a = 0, from  (add.left_cancel H)⁻¹
+show 0 * a = 0, from  (add.left_cancel this)⁻¹
 
 definition ring.to_semiring [trans-instance] [coercion] [reducible] [s : ring A] : semiring A :=
 ⦃ semiring, s,
@@ -223,23 +223,23 @@ section
       ... ↔ (a - b) * e + c = d   : by rewrite mul_sub_right_distrib
 
   theorem mul_neg_one_eq_neg : a * (-1) = -a :=
-    have H : a + a * -1 = 0, from calc
+    have a + a * -1 = 0, from calc
       a + a * -1 = a * 1 + a * -1 : mul_one
              ... = a * (1 + -1)   : left_distrib
              ... = a * 0          : add.right_inv
              ... = 0              : mul_zero,
-    symm (neg_eq_of_add_eq_zero H)
+    symm (neg_eq_of_add_eq_zero this)
 
   theorem ne_zero_and_ne_zero_of_mul_ne_zero {a b : A} (H : a * b ≠ 0) : a ≠ 0 ∧ b ≠ 0 :=
-    have Ha : a ≠ 0, from
-      (assume Ha1 : a = 0,
-        have H1 : a * b = 0, by rewrite [Ha1, zero_mul],
-        absurd H1 H),
-    have Hb : b ≠ 0, from
-      (assume Hb1 : b = 0,
-        have H1 : a * b = 0, by rewrite [Hb1, mul_zero],
-        absurd H1 H),
-    and.intro Ha Hb
+    have a ≠ 0, from
+      (suppose a = 0,
+        have a * b = 0, by rewrite [this, zero_mul],
+        absurd this H),
+    have b ≠ 0, from
+      (suppose b = 0,
+        have a * b = 0, by rewrite [this, mul_zero],
+        absurd this H),
+    and.intro `a ≠ 0` `b ≠ 0`
 end
 
 structure comm_ring [class] (A : Type) extends ring A, comm_semigroup A
@@ -265,31 +265,31 @@ section
 
   theorem dvd_neg_iff_dvd : (a ∣ -b) ↔ (a ∣ b) :=
   iff.intro
-    (assume H : (a ∣ -b),
-      dvd.elim H
-        (take c, assume H' : -b = a * c,
+    (suppose a ∣ -b,
+      dvd.elim this
+        (take c, suppose -b = a * c,
           dvd.intro
             (show a * -c = b,
-             by rewrite [-neg_mul_eq_mul_neg, -H', neg_neg])))
-    (assume H : (a ∣ b),
-      dvd.elim H
-        (take c, assume H' : b = a * c,
+             by rewrite [-neg_mul_eq_mul_neg, -this, neg_neg])))
+    (suppose a ∣ b,
+      dvd.elim this
+        (take c, suppose b = a * c,
           dvd.intro
             (show a * -c = -b,
-             by rewrite [-neg_mul_eq_mul_neg, -H'])))
+             by rewrite [-neg_mul_eq_mul_neg, -this])))
 
   theorem neg_dvd_iff_dvd : (-a ∣ b) ↔ (a ∣ b) :=
   iff.intro
-    (assume H : (-a ∣ b),
-      dvd.elim H
-        (take c, assume H' : b = -a * c,
+    (suppose -a ∣ b,
+      dvd.elim this
+        (take c, suppose b = -a * c,
           dvd.intro
-            (show a * -c = b, by rewrite [-neg_mul_comm, H'])))
-    (assume H : (a ∣ b),
-      dvd.elim H
-        (take c, assume H' : b = a * c,
+            (show a * -c = b, by rewrite [-neg_mul_comm, this])))
+    (suppose a ∣ b,
+      dvd.elim this
+        (take c, suppose b = a * c,
           dvd.intro
-            (show -a * -c = b, by rewrite [neg_mul_neg, H'])))
+            (show -a * -c = b, by rewrite [neg_mul_neg, this])))
 
   theorem dvd_sub (H₁ : (a ∣ b)) (H₂ : (a ∣ c)) : (a ∣ b - c) :=
   dvd_add H₁ (iff.elim_right !dvd_neg_iff_dvd H₂)
@@ -311,56 +311,56 @@ section
   include s
 
   theorem mul_ne_zero {a b : A} (H1 : a ≠ 0) (H2 : b ≠ 0) : a * b ≠ 0 :=
-  assume H : a * b = 0,
-    or.elim (eq_zero_or_eq_zero_of_mul_eq_zero H) (assume H3, H1 H3) (assume H4, H2 H4)
+  suppose a * b = 0,
+    or.elim (eq_zero_or_eq_zero_of_mul_eq_zero this) (assume H3, H1 H3) (assume H4, H2 H4)
 
   theorem eq_of_mul_eq_mul_right {a b c : A} (Ha : a ≠ 0) (H : b * a = c * a) : b = c :=
-  have H1  : b * a - c * a = 0, from iff.mp !eq_iff_sub_eq_zero H,
-  have H2 : (b - c) * a = 0, using H1, by rewrite [mul_sub_right_distrib, H1],
-  have H3 : b - c = 0, from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero H2) Ha,
-  iff.elim_right !eq_iff_sub_eq_zero H3
+  have b * a - c * a = 0, from iff.mp !eq_iff_sub_eq_zero H,
+  have (b - c) * a = 0, using this, by rewrite [mul_sub_right_distrib, this],
+  have b - c = 0, from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero this) Ha,
+  iff.elim_right !eq_iff_sub_eq_zero this
 
   theorem eq_of_mul_eq_mul_left {a b c : A} (Ha : a ≠ 0) (H : a * b = a * c) : b = c :=
-  have H1 : a * b - a * c = 0, from iff.mp !eq_iff_sub_eq_zero H,
-  have H2 : a * (b - c) = 0, using H1, by rewrite [mul_sub_left_distrib, H1],
-  have H3 : b - c = 0, from or_resolve_right (eq_zero_or_eq_zero_of_mul_eq_zero H2) Ha,
-  iff.elim_right !eq_iff_sub_eq_zero H3
+  have a * b - a * c = 0, from iff.mp !eq_iff_sub_eq_zero H,
+  have a * (b - c) = 0, using this, by rewrite [mul_sub_left_distrib, this],
+  have b - c = 0, from or_resolve_right (eq_zero_or_eq_zero_of_mul_eq_zero this) Ha,
+  iff.elim_right !eq_iff_sub_eq_zero this
 
   -- TODO: do we want the iff versions?
 
   theorem mul_self_eq_mul_self_iff (a b : A) : a * a = b * b ↔ a = b ∨ a = -b :=
   iff.intro
-    (λ H : a * a = b * b,
-      have aux₁ : (a - b) * (a + b) = 0,
-        by rewrite [mul.comm, -mul_self_sub_mul_self_eq, H, sub_self],
-      assert aux₂ : a - b = 0 ∨ a + b = 0, from !eq_zero_or_eq_zero_of_mul_eq_zero aux₁,
-      or.elim aux₂
-        (λ H : a - b = 0, or.inl (eq_of_sub_eq_zero H))
-        (λ H : a + b = 0, or.inr (eq_neg_of_add_eq_zero H)))
-    (λ H : a = b ∨ a = -b, or.elim H
-      (λ a_eq_b,  by rewrite a_eq_b)
-      (λ a_eq_mb, by rewrite [a_eq_mb, neg_mul_neg]))
+    (suppose a * a = b * b,
+      have (a - b) * (a + b) = 0,
+        by rewrite [mul.comm, -mul_self_sub_mul_self_eq, this, sub_self],
+      assert a - b = 0 ∨ a + b = 0, from !eq_zero_or_eq_zero_of_mul_eq_zero this,
+      or.elim this
+        (suppose a - b = 0, or.inl (eq_of_sub_eq_zero this))
+        (suppose a + b = 0, or.inr (eq_neg_of_add_eq_zero this)))
+    (suppose a = b ∨ a = -b, or.elim this
+      (suppose a = b,  by rewrite this)
+      (suppose a = -b, by rewrite [this, neg_mul_neg]))
 
   theorem mul_self_eq_one_iff (a : A) : a * a = 1 ↔ a = 1 ∨ a = -1 :=
-  assert aux : a * a = 1 * 1 ↔ a = 1 ∨ a = -1, from mul_self_eq_mul_self_iff a 1,
-  by rewrite mul_one at aux; exact aux
+  assert a * a = 1 * 1 ↔ a = 1 ∨ a = -1, from mul_self_eq_mul_self_iff a 1,
+  by rewrite mul_one at this; exact this
 
   -- TODO: c - b * c → c = 0 ∨ b = 1 and variants
 
   theorem dvd_of_mul_dvd_mul_left {a b c : A} (Ha : a ≠ 0) (Hdvd : (a * b ∣ a * c)) : (b ∣ c) :=
   dvd.elim Hdvd
     (take d,
-      assume H : a * c = a * b * d,
-      have H1 : b * d = c, from eq_of_mul_eq_mul_left Ha (mul.assoc a b d ▸ H⁻¹),
-      dvd.intro H1)
+      suppose a * c = a * b * d,
+      have b * d = c, from eq_of_mul_eq_mul_left Ha (mul.assoc a b d ▸ this⁻¹),
+      dvd.intro this)
 
   theorem dvd_of_mul_dvd_mul_right {a b c : A} (Ha : a ≠ 0) (Hdvd : (b * a ∣ c * a)) : (b ∣ c) :=
   dvd.elim Hdvd
     (take d,
-      assume H : c * a = b * a * d,
-      have H1 : b * d * a = c * a, from by rewrite [mul.right_comm, -H],
-      have H2 : b * d = c, from eq_of_mul_eq_mul_right Ha H1,
-      dvd.intro H2)
+      suppose c * a = b * a * d,
+      have b * d * a = c * a, from by rewrite [mul.right_comm, -this],
+      have b * d = c, from eq_of_mul_eq_mul_right Ha this,
+      dvd.intro this)
 end
 
 end algebra

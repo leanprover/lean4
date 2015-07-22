@@ -169,11 +169,11 @@ calc
 protected theorem equiv.trans [trans] {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q ≡ r) : p ≡ r :=
 have H3 : pr1 p + pr2 r + pr2 q = pr2 p + pr1 r + pr2 q, from
   calc
-   pr1 p + pr2 r + pr2 q = pr1 p + pr2 q + pr2 r : by simp
+   pr1 p + pr2 r + pr2 q = pr1 p + pr2 q + pr2 r : by rewrite [*add.assoc, add.comm (pr₂ q)]
     ... = pr2 p + pr1 q + pr2 r                  : {H1}
-    ... = pr2 p + (pr1 q + pr2 r)                : by simp
+    ... = pr2 p + (pr1 q + pr2 r)                : add.assoc
     ... = pr2 p + (pr2 q + pr1 r)                : {H2}
-    ... = pr2 p + pr1 r + pr2 q                  : by simp,
+    ... = pr2 p + pr1 r + pr2 q                  : by rewrite [add.assoc, add.comm (pr₂ q)],
 show pr1 p + pr2 r = pr2 p + pr1 r, from add.cancel_right H3
 
 protected theorem equiv_equiv : is_equivalence int.equiv :=
@@ -347,10 +347,11 @@ int.cases_on a
 
 theorem padd_congr {p p' q q' : ℕ × ℕ} (Ha : p ≡ p') (Hb : q ≡ q') : padd p q ≡ padd p' q' :=
 calc
-  pr1 (padd p q) + pr2 (padd p' q') = pr1 p + pr2 p' + (pr1 q + pr2 q') : by simp
+  pr1 (padd p q) + pr2 (padd p' q') = pr1 p + pr2 p' + (pr1 q + pr2 q') :
+                 by rewrite [↑padd, *add.assoc, add.left_comm (pr₁ q)]
     ... = pr2 p + pr1 p' + (pr1 q + pr2 q') : {Ha}
     ... = pr2 p + pr1 p' + (pr2 q + pr1 q') : {Hb}
-    ... = pr2 (padd p q) + pr1 (padd p' q') : by simp
+    ... = pr2 (padd p q) + pr1 (padd p' q') : by rewrite [↑padd, *add.assoc, add.left_comm (pr₁ p')]
 
 theorem padd_comm (p q : ℕ × ℕ) : padd p q = padd q p :=
 calc
@@ -422,7 +423,8 @@ theorem padd_pneg (p : ℕ × ℕ) : padd p (pneg p) ≡ (0, 0) :=
 show pr1 p + pr2 p + 0 = pr2 p + pr1 p + 0, from !nat.add.comm ▸ rfl
 
 theorem padd_padd_pneg (p q : ℕ × ℕ) : padd (padd p q) (pneg q) ≡ p :=
-show pr1 p + pr1 q + pr2 q + pr2 p = pr2 p + pr2 q + pr1 q + pr1 p, from by simp
+show pr1 p + pr1 q + pr2 q + pr2 p = pr2 p + pr2 q + pr1 q + pr1 p,
+from sorry -- by simp
 
 theorem add.left_inv (a : ℤ) : -a + a = 0 :=
 have H : repr (-a + a) ≡ repr 0, from
@@ -520,13 +522,13 @@ have H3 : xa * xn + ya * yn + (xb * ym + yb * xm) + (yb * xn + xb * yn + (xb * x
   calc
     xa * xn + ya * yn + (xb * ym + yb * xm) + (yb * xn + xb * yn + (xb * xn + yb * yn))
           = xa * xn + yb * xn + (ya * yn + xb * yn) + (xb * xn + xb * ym + (yb * yn + yb * xm))
-            : by simp
-      ... = (xa + yb) * xn + (ya + xb) * yn + (xb * (xn + ym) + yb * (yn + xm)) : by simp
-      ... = (ya + xb) * xn + (xa + yb) * yn + (xb * (yn + xm) + yb * (xn + ym)) : by simp
+            : sorry -- by simp
+      ... = (xa + yb) * xn + (ya + xb) * yn + (xb * (xn + ym) + yb * (yn + xm)) : sorry -- by simp
+      ... = (ya + xb) * xn + (xa + yb) * yn + (xb * (yn + xm) + yb * (xn + ym)) : sorry -- by simp
       ... = ya * xn + xb * xn + (xa * yn + yb * yn) + (xb * yn + xb * xm + (yb*xn + yb*ym))
-            : by simp
+            : sorry -- by simp
       ... = xa * yn + ya * xn + (xb * xm + yb * ym) + (yb * xn + xb * yn + (xb * xn + yb * yn))
-            : by simp,
+            : sorry, -- by simp,
 nat.add.cancel_right H3
 
 theorem pmul_congr {p p' q q' : ℕ × ℕ} (H1 : p ≡ p') (H2 : q ≡ q') : pmul p q ≡ pmul p' q' :=
@@ -549,7 +551,9 @@ eq_of_repr_equiv_repr
       ... = repr (b * a) : repr_mul) ▸ !equiv.refl)
 
 theorem pmul_assoc (p q r: ℕ × ℕ) : pmul (pmul p q) r = pmul p (pmul q r) :=
-by simp
+begin
+  unfold pmul, apply sorry -- simp
+end
 
 theorem mul.assoc (a b c : ℤ) : (a * b) * c = a * (b * c) :=
 eq_of_repr_equiv_repr
@@ -560,11 +564,17 @@ eq_of_repr_equiv_repr
       ... = pmul (repr a) (repr (b * c)) : repr_mul
       ... = repr (a * (b * c)) : repr_mul) ▸ !equiv.refl)
 
+set_option pp.coercions true
+
 theorem mul_one (a : ℤ) : a * 1 = a :=
 eq_of_repr_equiv_repr (int.equiv_of_eq
   ((calc
     repr (a * 1) = pmul (repr a) (repr 1) : repr_mul
-      ... = (pr1 (repr a), pr2 (repr a)) : by simp
+      ... = (pr1 (repr a), pr2 (repr a)) :
+            begin
+              esimp [pmul, nat.of_num, num.to.int, repr],
+              rewrite [+mul_zero, +mul_one, nat.zero_add]
+            end
       ... = repr a : prod.eta)))
 
 theorem one_mul (a : ℤ) : 1 * a = a :=
@@ -575,7 +585,7 @@ eq_of_repr_equiv_repr
   (calc
     repr ((a + b) * c) = pmul (repr (a + b)) (repr c) : repr_mul
       ... ≡ pmul (padd (repr a) (repr b)) (repr c) : pmul_congr !repr_add equiv.refl
-      ... = padd (pmul (repr a) (repr c)) (pmul (repr b) (repr c)) : by simp
+      ... = padd (pmul (repr a) (repr c)) (pmul (repr b) (repr c)) : sorry -- by simp
       ... = padd (repr (a * c)) (pmul (repr b) (repr c)) : {(repr_mul a c)⁻¹}
       ... = padd (repr (a * c)) (repr (b * c)) : repr_mul
       ... ≡ repr (a * c + b * c) : equiv.symm !repr_add)

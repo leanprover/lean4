@@ -137,13 +137,13 @@ theorem map_pair2_id_right {A B : Type} {f : A → B → A} {e : B} (Hid : ∀a 
   (v : A × A) : map_pair2 f v (pair e e) = v :=
 have Hx : pr1 (map_pair2 f v (pair e e)) = pr1 v, from
   (calc
-    pr1 (map_pair2 f v (pair e e)) = f (pr1 v) (pr1 (pair e e)) : by simp
-      ... = f (pr1 v) e : by simp
+    pr1 (map_pair2 f v (pair e e)) = f (pr1 v) (pr1 (pair e e)) : by esimp
+      ... = f (pr1 v) e : by esimp
       ... = pr1 v : Hid (pr1 v)),
 have Hy : pr2 (map_pair2 f v (pair e e)) = pr2 v, from
   (calc
-    pr2 (map_pair2 f v (pair e e)) = f (pr2 v) (pr2 (pair e e)) : by simp
-      ... = f (pr2 v) e : by simp
+    pr2 (map_pair2 f v (pair e e)) = f (pr2 v) (pr2 (pair e e)) : by esimp
+      ... = f (pr2 v) e : by esimp
       ... = pr2 v : Hid (pr2 v)),
 prod.eq Hx Hy
 
@@ -151,13 +151,13 @@ theorem map_pair2_id_left {A B : Type} {f : B → A → A} {e : B} (Hid : ∀a :
   (v : A × A) : map_pair2 f (pair e e) v = v :=
 have Hx : pr1 (map_pair2 f (pair e e) v) = pr1 v, from
    calc
-    pr1 (map_pair2 f (pair e e) v) = f (pr1 (pair e e)) (pr1 v) : by simp
-      ... = f e (pr1 v) : by simp
+    pr1 (map_pair2 f (pair e e) v) = f (pr1 (pair e e)) (pr1 v) : by esimp
+      ... = f e (pr1 v) : by esimp
       ... = pr1 v : Hid (pr1 v),
 have Hy : pr2 (map_pair2 f (pair e e) v) = pr2 v, from
    calc
-    pr2 (map_pair2 f (pair e e) v) = f (pr2 (pair e e)) (pr2 v) : by simp
-      ... = f e (pr2 v) : by simp
+    pr2 (map_pair2 f (pair e e) v) = f (pr2 (pair e e)) (pr2 v) : by esimp
+      ... = f e (pr2 v) : by esimp
       ... = pr2 v : Hid (pr2 v),
 prod.eq Hx Hy
 

@@ -425,22 +425,26 @@ definition dist_sub_eq_dist_add_right {k m : ℕ} (H : k ≥ m) (n : ℕ) :
 (dist_sub_eq_dist_add_left H n ▸ !dist.comm) ▸ !dist.comm
 
 definition dist.triangle_inequality (n m k : ℕ) : dist n k ≤ dist n m + dist m k :=
-have H : (n - m) + (m - k) + ((k - m) + (m - n)) = (n - m) + (m - n) + ((m - k) + (k - m)),
-  by exact sorry,
-H ▸ add_le_add !sub_lt_sub_add_sub !sub_lt_sub_add_sub
+assert (m - k) + ((k - m) + (m - n)) = (m - n) + ((m - k) + (k - m)),
+  begin
+    generalize m - k, generalize k - m, generalize m - n, intro x y z,
+    rewrite [add.comm y x, add.left_comm]
+  end,
+have (n - m) + (m - k) + ((k - m) + (m - n)) = (n - m) + (m - n) + ((m - k) + (k - m)),
+  by rewrite [add.assoc, this, -add.assoc],
+this ▸ add_le_add !sub_lt_sub_add_sub !sub_lt_sub_add_sub
 
 definition dist_add_add_le_add_dist_dist (n m k l : ℕ) : dist (n + m) (k + l) ≤ dist n k + dist m l :=
 have H : dist (n + m) (k + m) + dist (k + m) (k + l) = dist n k + dist m l, from
   !dist_add_add_left ▸ !dist_add_add_right ▸ rfl,
 H ▸ !dist.triangle_inequality
 
-definition dist_mul_left (k n m : ℕ) : dist (k * n) (k * m) = k * dist n m :=
-have H : Πn m, dist n m = n - m + (m - n), from take n m, rfl,
-by exact sorry
+theorem dist_mul_right (n k m : ℕ) : dist (n * k) (m * k) = dist n m * k :=
+assert ∀ n m, dist n m = n - m + (m - n), from take n m, rfl,
+by rewrite [this, this n m, mul.right_distrib, *mul_sub_right_distrib]
 
-definition dist_mul_right (n k m : ℕ) : dist (n * k) (m * k) = dist n m * k :=
-have H : Πn m, dist n m = n - m + (m - n), from take n m, rfl,
-by exact sorry
+theorem dist_mul_left (k n m : ℕ) : dist (k * n) (k * m) = k * dist n m :=
+by rewrite [mul.comm k n, mul.comm k m, dist_mul_right, mul.comm]
 
 definition dist_mul_dist (n m k l : ℕ) : dist n m * dist k l = dist (n * k + m * l) (n * l + m * k) :=
 have aux : Πk l, k ≥ l → dist n m * dist k l = dist (n * k + m * l) (n * l + m * k), from
@@ -451,7 +455,7 @@ have aux : Πk l, k ≥ l → dist n m * dist k l = dist (n * k + m * l) (n * l 
   calc
     dist n m * dist k l = dist n m * (k - l)       : dist_eq_sub_of_ge H
       ... = dist (n * (k - l)) (m * (k - l))       : dist_mul_right
-      ... = dist (n * k - n * l) (m * k - m * l)   : by exact sorry
+      ... = dist (n * k - n * l) (m * k - m * l)   : by rewrite [*mul_sub_left_distrib]
       ... = dist (n * k) (m * k - m * l + n * l)   : dist_sub_eq_dist_add_left (mul_le_mul_left H n)
       ... = dist (n * k) (n * l + (m * k - m * l)) : add.comm
       ... = dist (n * k) (n * l + m * k - m * l)   : add_sub_assoc H2 (n * l)

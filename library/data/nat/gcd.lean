@@ -96,7 +96,7 @@ aux
 theorem gcd_dvd (m n : ℕ) : (gcd m n ∣ m) ∧ (gcd m n ∣ n) :=
 gcd.induction m n
   (take m,
-    show (gcd m 0 ∣ m) ∧ (gcd m 0 ∣ 0), by simp)
+    show (gcd m 0 ∣ m) ∧ (gcd m 0 ∣ 0), by rewrite [*gcd_zero_right]; split; apply dvd.refl; apply dvd_zero)
   (take m n,
     assume npos : 0 < n,
     assume IH : (gcd n (m mod n) ∣ n) ∧ (gcd n (m mod n) ∣ (m mod n)),
@@ -119,10 +119,10 @@ gcd.induction m n
     assume IH : k ∣ n → k ∣ m mod n → k ∣ gcd n (m mod n),
     assume H1 : k ∣ m,
     assume H2 : k ∣ n,
-    have H3 : k ∣ m div n * n + m mod n, from !eq_div_mul_add_mod ▸ H1,
-    have H4 : k ∣ m mod n, from nat.dvd_of_dvd_add_left H3 (dvd.trans H2 (by simp)),
+    assert k ∣ m div n * n + m mod n, from !eq_div_mul_add_mod ▸ H1,
+    assert k ∣ m mod n, from nat.dvd_of_dvd_add_left this (dvd.trans H2 !dvd_mul_left),
     have gcd_eq : gcd n (m mod n) = gcd m n, from !gcd_rec⁻¹,
-    show k ∣ gcd m n, from gcd_eq ▸ IH H2 H4)
+    show k ∣ gcd m n, from gcd_eq ▸ IH H2 `k ∣ m mod n`)
 
 theorem gcd.comm (m n : ℕ) : gcd m n = gcd n m :=
 dvd.antisymm

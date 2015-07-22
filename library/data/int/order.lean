@@ -76,8 +76,8 @@ theorem lt.elim {a b : ℤ} (H : a < b) : ∃n : ℕ, a + succ n = b :=
 obtain (n : ℕ) (Hn : a + 1 + n = b), from le.elim H,
 have a + succ n = b, from
   calc
-    a + succ n = a + 1 + n : by simp
-      ... = b : Hn,
+    a + succ n = a + 1 + n : by rewrite [add.assoc, add.comm 1 n]
+           ... = b         : Hn,
 exists.intro n this
 
 theorem of_nat_lt_of_nat (n m : ℕ) : of_nat n < of_nat m ↔ n < m :=
@@ -135,7 +135,7 @@ theorem lt.irrefl (a : ℤ) : ¬ a < a :=
   have a + succ n = a + 0, from
     calc
       a + succ n = a : Hn
-        ... = a + 0 : by simp,
+             ... = a + 0 : by rewrite [add_zero],
   have nat.succ n = 0, from add.left_cancel this,
   have nat.succ n = 0, from of_nat.inj this,
   absurd this !succ_ne_zero)

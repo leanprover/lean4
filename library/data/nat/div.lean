@@ -53,9 +53,9 @@ nat.induction_on y
                        ...   = x div z + zero   : add_zero)
   (take y,
     assume IH : (x + y * z) div z = x div z + y, calc
-      (x + succ y * z) div z = (x + y * z + z) div z    : by simp
+      (x + succ y * z) div z = (x + y * z + z) div z    : by rewrite [-add_one, mul.right_distrib, one_mul, add.assoc]
                          ... = succ ((x + y * z) div z) : !add_div_self H
-                         ... = x div z + succ y         : by simp)
+                         ... = x div z + succ y         : by rewrite [IH])
 
 theorem add_mul_div_self_left (x z : ℕ) {y : ℕ} (H : y > 0) : (x + y * z) div y = x div y + z :=
 !mul.comm ▸ add_mul_div_self H
@@ -162,15 +162,15 @@ by_cases_zero_pos y
     assume H : y > 0,
     show x = x div y * y + x mod y, from
       nat.case_strong_induction_on x
-        (show 0 = (0 div y) * y + 0 mod y, by simp)
+        (show 0 = (0 div y) * y + 0 mod y, by rewrite [zero_mod, add_zero, zero_div, zero_mul])
         (take x,
           assume IH : ∀x', x' ≤ x → x' = x' div y * y + x' mod y,
           show succ x = succ x div y * y + succ x mod y, from
             by_cases -- (succ x < y)
               (assume H1 : succ x < y,
-                have H2 : succ x div y = 0, from div_eq_zero_of_lt H1,
-                have H3 : succ x mod y = succ x, from mod_eq_of_lt H1,
-                by simp)
+                assert H2 : succ x div y = 0, from div_eq_zero_of_lt H1,
+                assert H3 : succ x mod y = succ x, from mod_eq_of_lt H1,
+                by rewrite [H2, H3, zero_mul, zero_add])
               (assume H1 : ¬ succ x < y,
                 have H2 : y ≤ succ x, from le_of_not_gt H1,
                 have H3 : succ x div y = succ ((succ x - y) div y), from div_eq_succ_sub_div H H2,
@@ -244,10 +244,10 @@ have H6 : y > 0, from lt_of_le_of_lt !zero_le H1,
 show q1 = q2, from eq_of_mul_eq_mul_right H6 H5
 
 theorem mul_div_mul_left {z : ℕ} (x y : ℕ) (zpos : z > 0) : (z * x) div (z * y) = x div y :=
-by_cases -- (y = 0)
-  (assume H : y = 0, by simp)
-  (assume H : y ≠ 0,
-    have ypos : y > 0, from pos_of_ne_zero H,
+by_cases
+  (suppose y = 0, by rewrite [this, mul_zero, *div_zero])
+  (suppose y ≠ 0,
+    have ypos : y > 0, from pos_of_ne_zero this,
     have zypos : z * y > 0, from mul_pos zpos ypos,
     have H1 : (z * x) mod (z * y) < z * y, from !mod_lt zypos,
     have H2 : z * (x mod y) < z * y, from mul_lt_mul_of_pos_left (!mod_lt ypos) zpos,
@@ -288,11 +288,12 @@ theorem mul_mod_mul_right (x z y : ℕ) : (x * z) mod (y * z) = (x mod y) * z :=
 mul.comm z x ▸ mul.comm z y ▸ !mul.comm ▸ !mul_mod_mul_left
 
 theorem mod_self (n : ℕ) : n mod n = 0 :=
-nat.cases_on n (by simp)
+nat.cases_on n (by unfold modulo)
   (take n,
-    have H : (succ n * 1) mod (succ n * 1) = succ n * (1 mod 1),
+    assert (succ n * 1) mod (succ n * 1) = succ n * (1 mod 1),
       from !mul_mod_mul_left,
-    (by simp) ▸ H)
+    assert (succ n) mod (succ n) = succ n * (1 mod 1), by rewrite [*mul_one at this]; exact this,
+    by rewrite this)
 
 theorem mul_mod_eq_mod_mul_mod (m n k : nat) : (m * n) mod k = ((m mod k) * n) mod k :=
 calc
@@ -304,12 +305,12 @@ theorem mul_mod_eq_mul_mod_mod (m n k : nat) : (m * n) mod k = (m * (n mod k)) m
 !mul.comm ▸ !mul.comm ▸ !mul_mod_eq_mod_mul_mod
 
 theorem div_one (n : ℕ) : n div 1 = n :=
-have H : n div 1 * 1 + n mod 1 = n, from !eq_div_mul_add_mod⁻¹,
-(by simp) ▸ H
+assert n div 1 * 1 + n mod 1 = n, from !eq_div_mul_add_mod⁻¹,
+begin rewrite [-this at {2}, mul_one, mod_one] end
 
 theorem div_self {n : ℕ} (H : n > 0) : n div n = 1 :=
-have H1 : (n * 1) div (n * 1) = 1 div 1, from !mul_div_mul_left H,
-(by simp) ▸ H1
+assert (n * 1) div (n * 1) = 1, from !mul_div_mul_left H,
+by rewrite [-this, *mul_one]
 
 theorem div_mul_cancel_of_mod_eq_zero {m n : ℕ} (H : m mod n = 0) : m div n * n = m :=
 by rewrite [eq_div_mul_add_mod m n at {2}, H, add_zero]

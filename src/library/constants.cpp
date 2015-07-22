@@ -30,6 +30,7 @@ name const * g_eq_subst = nullptr;
 name const * g_exists_elim = nullptr;
 name const * g_false = nullptr;
 name const * g_false_rec = nullptr;
+name const * g_funext = nullptr;
 name const * g_heq = nullptr;
 name const * g_heq_refl = nullptr;
 name const * g_heq_to_eq = nullptr;
@@ -171,6 +172,7 @@ void initialize_constants() {
     g_exists_elim = new name{"exists", "elim"};
     g_false = new name{"false"};
     g_false_rec = new name{"false", "rec"};
+    g_funext = new name{"funext"};
     g_heq = new name{"heq"};
     g_heq_refl = new name{"heq", "refl"};
     g_heq_to_eq = new name{"heq", "to_eq"};
@@ -313,6 +315,7 @@ void finalize_constants() {
     delete g_exists_elim;
     delete g_false;
     delete g_false_rec;
+    delete g_funext;
     delete g_heq;
     delete g_heq_refl;
     delete g_heq_to_eq;
@@ -454,6 +457,7 @@ name const & get_eq_subst_name() { return *g_eq_subst; }
 name const & get_exists_elim_name() { return *g_exists_elim; }
 name const & get_false_name() { return *g_false; }
 name const & get_false_rec_name() { return *g_false_rec; }
+name const & get_funext_name() { return *g_funext; }
 name const & get_heq_name() { return *g_heq; }
 name const & get_heq_refl_name() { return *g_heq_refl; }
 name const & get_heq_to_eq_name() { return *g_heq_to_eq; }

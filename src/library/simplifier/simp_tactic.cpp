@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/util.h"
 #include "library/tactic/expr_to_tactic.h"
-#include "library/tactic/relation_tactics.h"
 #include "library/simplifier/simp_tactic.h"
 
 #ifndef LEAN_DEFAULT_SIMP_SINGLE_PASS
@@ -43,6 +42,14 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_SIMP_ASSUMPTIONS false
 #endif
 
+#ifndef LEAN_DEFAULT_SIMP_FUNEXT
+#define LEAN_DEFAULT_SIMP_FUNEXT true
+#endif
+
+#ifndef LEAN_DEFAULT_SIMP_PROPEXT
+#define LEAN_DEFAULT_SIMP_PROPEXT true
+#endif
+
 namespace lean {
 name const * g_simp_single_pass = nullptr;
 name const * g_simp_bottom_up   = nullptr;
@@ -52,6 +59,8 @@ name const * g_simp_memoize     = nullptr;
 name const * g_simp_max_steps   = nullptr;
 name const * g_simp_trace       = nullptr;
 name const * g_simp_assumptions = nullptr;
+name const * g_simp_funext      = nullptr;
+name const * g_simp_propext     = nullptr;
 
 bool get_simp_single_pass(options const & opts) {
     return opts.get_bool(*g_simp_single_pass, LEAN_DEFAULT_SIMP_SINGLE_PASS);
@@ -85,6 +94,14 @@ bool get_simp_assumptions(options const & opts) {
     return opts.get_bool(*g_simp_assumptions, LEAN_DEFAULT_SIMP_ASSUMPTIONS);
 }
 
+bool get_simp_funext(options const & opts) {
+    return opts.get_bool(*g_simp_funext, LEAN_DEFAULT_SIMP_FUNEXT);
+}
+
+bool get_simp_propext(options const & opts) {
+    return opts.get_bool(*g_simp_propext, LEAN_DEFAULT_SIMP_PROPEXT);
+}
+
 expr const * g_simp_tactic = nullptr;
 
 expr mk_simp_tactic_expr(buffer<expr> const & ls, buffer<name> const & ns,
@@ -111,6 +128,10 @@ class simp_tactic_fn {
     name_generator   m_ngen;
     optional<tactic> m_tactic;
 
+    // transient state
+    unsigned         m_steps;
+    goal             m_g;
+
     // configuration options
     bool     m_single_pass;
     bool     m_bottom_up;
@@ -120,8 +141,11 @@ class simp_tactic_fn {
     unsigned m_max_steps;
     bool     m_trace;
     bool     m_assumptions;
+    bool     m_funext;
+    bool     m_propext;
+    bool     m_standard;
 
-    void set_options(options const & o) {
+    void set_options(environment const & env, options const & o) {
         m_single_pass = get_simp_single_pass(o);
         m_bottom_up   = get_simp_bottom_up(o);
         m_beta_eta    = get_simp_beta_eta(o);
@@ -130,28 +154,43 @@ class simp_tactic_fn {
         m_max_steps   = get_simp_max_steps(o);
         m_trace       = get_simp_trace(o);
         m_assumptions = get_simp_assumptions(o);
+        if (is_standard(env)) {
+            m_funext   = get_simp_funext(o) && env.find(get_funext_name());
+            m_propext  = get_simp_propext(o) && env.find(get_propext_name());
+            m_standard = true;
+        } else {
+            // TODO(Leo): add support for function extensionality in HoTT mode
+            m_funext      = false;
+            m_propext     = false;
+            m_standard    = false;
+        }
     }
 
 public:
     simp_tactic_fn(environment const & env, io_state const & ios, name_generator && ngen,
                    buffer<expr> const & /* ls */, buffer<name> const & /* ns */, buffer<name> const & /* ex */,
                    optional<tactic> const & tac):m_env(env), m_ios(ios), m_ngen(ngen), m_tactic(tac) {
-        set_options(m_ios.get_options());
+        set_options(env, m_ios.get_options());
     }
 
-    pair<goal, substitution> operator()(goal const & g, location const & /* loc */, substitution const & s) {
+    enum res_kind { Simplified, Solved, DidNothing };
+
+    std::tuple<res_kind, goal, substitution> operator()(goal const & g, location const & /* loc */, substitution const & s) {
+        m_g     = g;
+        m_steps = 0;
+
         // TODO(Leo)
-        return mk_pair(g, s);
+        return std::make_tuple(DidNothing, g, s);
     }
 };
 
 tactic mk_simp_tactic(elaborate_fn const & elab, buffer<expr> const & ls, buffer<name> const & ns,
                       buffer<name> const & ex, optional<tactic> tac, location const & loc) {
-    return tactic([=](environment const & env, io_state const & ios, proof_state const & s) {
+    return tactic01([=](environment const & env, io_state const & ios, proof_state const & s) {
             goals const & gs = s.get_goals();
             if (empty(gs)) {
                 throw_no_goal_if_enabled(s);
-                return proof_state_seq();
+                return none_proof_state();
             }
             goal const & g = head(gs);
             name_generator new_ngen  = s.get_ngen();
@@ -166,16 +205,21 @@ tactic mk_simp_tactic(elaborate_fn const & elab, buffer<expr> const & ls, buffer
                 new_ls.push_back(new_l);
             }
             simp_tactic_fn simp(env, ios, new_ngen.mk_child(), new_ls, ns, ex, tac);
-            pair<goal, substitution> r = simp(g, loc, new_subst);
-            goal new_g = r.first;
-            new_subst  = r.second;
-            proof_state new_s(s, cons(new_g, tail(gs)), new_subst, new_ngen);
-
-            bool fail_if_metavars = true;
-            tactic post_tac = try_tactic(refl_tactic(elab, fail_if_metavars));
-            // TODO(Leo): remove now_tactic
-            post_tac = then(post_tac, now_tactic());
-            return post_tac(env, ios, new_s);
+            goal new_g; simp_tactic_fn::res_kind k;
+            std::tie(k, new_g, new_subst) = simp(g, loc, new_subst);
+            switch (k) {
+            case simp_tactic_fn::Simplified: {
+                proof_state new_s(s, cons(new_g, tail(gs)), new_subst, new_ngen);
+                return some_proof_state(new_s);
+            }
+            case simp_tactic_fn::Solved: {
+                proof_state new_s(s, tail(gs), new_subst, new_ngen);
+                return some_proof_state(new_s);
+            }
+            case simp_tactic_fn::DidNothing:
+                return none_proof_state();
+            }
+            lean_unreachable();
         });
 }
 
@@ -243,6 +287,14 @@ void initialize_simp_tactic() {
     g_simp_assumptions = new name{"simp", "assumptions"};
     register_bool_option(*g_simp_assumptions, LEAN_DEFAULT_SIMP_ASSUMPTIONS,
                          "(simp tactic) if true assumptions/hypotheses are automatically used as rewriting rules");
+
+    g_simp_funext = new name{"simp", "funext"};
+    register_bool_option(*g_simp_funext, LEAN_DEFAULT_SIMP_FUNEXT,
+                         "(simp tactic) avoid function extensionality even if theorem/axiom is in the environment");
+
+    g_simp_propext = new name{"simp", "propext"};
+    register_bool_option(*g_simp_funext, LEAN_DEFAULT_SIMP_PROPEXT,
+                         "(simp tactic) avoid proposition extensionality even if axiom is in the environment, this option is ignored in HoTT mode");
 }
 
 void finalize_simp_tactic() {
@@ -255,5 +307,7 @@ void finalize_simp_tactic() {
     delete g_simp_max_steps;
     delete g_simp_trace;
     delete g_simp_assumptions;
+    delete g_simp_funext;
+    delete g_simp_propext;
 }
 }

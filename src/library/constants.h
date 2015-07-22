@@ -32,6 +32,7 @@ name const & get_eq_subst_name();
 name const & get_exists_elim_name();
 name const & get_false_name();
 name const & get_false_rec_name();
+name const & get_funext_name();
 name const & get_heq_name();
 name const & get_heq_refl_name();
 name const & get_heq_to_eq_name();

@@ -25,6 +25,7 @@ eq.subst
 exists.elim
 false
 false.rec
+funext
 heq
 heq.refl
 heq.to_eq

@@ -1,4 +1,4 @@
-rewrite rules for iff
+simplification rules for iff
 #1, ?M_1 ↔ ?M_1 ↦ true
 #1, false ↔ ?M_1 ↦ ¬?M_1
 #1, ?M_1 ↔ false ↦ ¬?M_1
@@ -15,7 +15,7 @@ rewrite rules for iff
 #1, ?M_1 ∨ true ↦ true
 #0, ¬false ↦ true
 #0, ¬true ↦ false
-rewrite rules for eq
+simplification rules for eq
 #2 perm, nat.add ?M_1 ?M_2 ↦ nat.add ?M_2 ?M_1
 #3, ite false ?M_2 ?M_3 ↦ ?M_3
 #3, ite true ?M_2 ?M_3 ↦ ?M_2

@@ -1,4 +1,4 @@
-rewrite rules for iff
+simplification rules for iff
 #2, ?M_1 - ?M_2 < succ ?M_1 ↦ true
 #1, ?M_1 < 0 ↦ false
 #1, ?M_1 < succ ?M_1 ↦ true
@@ -9,7 +9,7 @@ rewrite rules for iff
 #1, succ ?M_1 ≤ ?M_1 ↦ false
 #1, pred ?M_1 ≤ ?M_1 ↦ true
 #1, ?M_1 ≤ succ ?M_1 ↦ true
-rewrite rules for eq
+simplification rules for eq
 #1, g ?M_1 ↦ f ?M_1 + 1
 #2, g ?M_1 ↦ 1
 #2, f ?M_1 ↦ 0

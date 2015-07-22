@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/relation_manager.h"
 #include "library/user_recursors.h"
 #include "library/coercion.h"
-#include "library/simplifier/rewrite_rule_set.h"
+#include "library/simplifier/simp_rule_set.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
@@ -218,7 +218,7 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
     if (m_is_class)
         env = add_class(env, d, m_persistent);
     if (m_simp)
-        env = add_rewrite_rule(env, d, m_persistent);
+        env = add_simp_rule(env, d, m_persistent);
     if (m_has_multiple_instances)
         env = mark_multiple_instances(env, d, m_persistent);
     return env;

@@ -32,7 +32,7 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/composition_manager.h"
 #include "library/definitional/projection.h"
-#include "library/simplifier/rewrite_rule_set.h"
+#include "library/simplifier/simp_rule_set.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"
@@ -190,8 +190,8 @@ void print_attributes(parser & p, name const & n) {
         out << " [class]";
     if (is_instance(env, n))
         out << " [instance]";
-    if (is_rewrite_rule(env, n))
-        out << " [rewrite]";
+    if (is_simp_rule(env, n))
+        out << " [simp]";
     switch (get_reducible_status(env, n)) {
     case reducible_status::Reducible:      out << " [reducible]"; break;
     case reducible_status::Irreducible:    out << " [irreducible]"; break;
@@ -379,13 +379,13 @@ static void print_reducible_info(parser & p, reducible_status s1) {
         out << n << "\n";
 }
 
-static void print_rewrite_sets(parser & p) {
+static void print_simp_sets(parser & p) {
     io_state_stream out = p.regular_stream();
-    rewrite_rule_sets s = get_rewrite_rule_sets(p.env());
+    simp_rule_sets s = get_simp_rule_sets(p.env());
     name prev_eqv;
-    s.for_each([&](name const & eqv, rewrite_rule const & rw) {
+    s.for_each([&](name const & eqv, simp_rule const & rw) {
             if (prev_eqv != eqv) {
-                out << "rewrite rules for " << eqv << "\n";
+                out << "simplification rules for " << eqv << "\n";
                 prev_eqv = eqv;
             }
             out << rw.pp(out.get_formatter()) << "\n";
@@ -496,7 +496,7 @@ environment print_cmd(parser & p) {
         print_recursor_info(p);
     } else if (p.curr_is_token(get_simp_attr_tk())) {
         p.next();
-        print_rewrite_sets(p);
+        print_simp_sets(p);
     } else if (print_polymorphic(p)) {
     } else {
         throw parser_error("invalid print command", p.pos());

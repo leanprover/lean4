@@ -934,6 +934,13 @@ void parser::parse_binders_core(buffer<expr> & r, buffer<notation_entry> * nentr
         if (curr_is_identifier()) {
             parse_binder_block(r, binder_info(), rbp);
             last_block_delimited = false;
+        } else if (curr_is_backtick()) {
+            auto p    = pos();
+            name n    = mk_fresh_name();
+            expr type = parse_backtick_expr_core();
+            expr local = save_pos(mk_local(n, type, binder_info()), p);
+            add_local(local);
+            r.push_back(local);
         } else {
             optional<binder_info> bi = parse_optional_binder_info(simple_only);
             if (bi) {
@@ -1330,8 +1337,8 @@ expr parser::parse_string_expr() {
     return from_string(v);
 }
 
-expr parser::parse_backtick_expr() {
-    auto p = pos();
+
+expr parser::parse_backtick_expr_core() {
     next();
     flet<bool> set(m_in_backtick, true);
     expr type = parse_expr();
@@ -1339,6 +1346,12 @@ expr parser::parse_backtick_expr() {
         throw parser_error("invalid expression, '`' expected", pos());
     }
     next();
+    return type;
+}
+
+expr parser::parse_backtick_expr() {
+    auto p = pos();
+    expr type   = parse_backtick_expr_core();
     expr assump = mk_by_plus(save_pos(mk_constant(get_tactic_assumption_name()), p), p);
     return save_pos(mk_typed_expr(type, assump), p);
 }

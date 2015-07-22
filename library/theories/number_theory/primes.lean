@@ -79,9 +79,9 @@ have ¬ (∀ m, m < succ n → m ∣ n → m = 1 ∨ m = n), from
   assume h, absurd (λ m hl hd, h m (lt_succ_of_le hl) hd) this,
 have {m | m < succ n ∧ ¬(m ∣ n → m = 1 ∨ m = n)}, from bsub_not_of_not_ball this,
 obtain m hlt (h₃ : ¬(m ∣ n → m = 1 ∨ m = n)), from this,
-obtain (h₄ : m ∣ n) (h₅ : ¬ (m = 1 ∨ m = n)), from iff.mp !not_implies_iff_and_not h₃,
+obtain `m ∣ n` (h₅ : ¬ (m = 1 ∨ m = n)), from iff.mp !not_implies_iff_and_not h₃,
 have ¬ m = 1 ∧ ¬ m = n,  from iff.mp !not_or_iff_not_and_not h₅,
-subtype.tag m (and.intro h₄ this)
+subtype.tag m (and.intro `m ∣ n` this)
 
 theorem ex_dvd_of_not_prime {n : nat} : n ≥ 2 → ¬ prime n → ∃ m, m ∣ n ∧ m ≠ 1 ∧ m ≠ n :=
 assume h₁ h₂, ex_of_sub (sub_dvd_of_not_prime h₁ h₂)
@@ -125,7 +125,7 @@ definition infinite_primes (n : nat) : {p | p ≥ n ∧ prime p} :=
 let m := fact (n + 1) in
 have m ≥ 1,     from le_of_lt_succ (succ_lt_succ (fact_pos _)),
 have m + 1 ≥ 2, from succ_le_succ this,
-obtain p (pp : prime p) (pd : p ∣ m + 1), from sub_prime_and_dvd this,
+obtain p `prime p` `p ∣ m + 1`, from sub_prime_and_dvd this,
 have p ≥ 2, from ge_two_of_prime `prime p`,
 have p > 0, from lt_of_succ_lt (lt_of_succ_le `p ≥ 2`),
 have p ≥ n, from by_contradiction
@@ -144,8 +144,8 @@ ex_of_sub (infinite_primes n)
 lemma odd_of_prime {p : nat} : prime p → p > 2 → odd p :=
 λ pp p_gt_2, by_contradiction (λ hn,
   have even p, from even_of_not_odd hn,
-  obtain k (hk : p = 2*k), from exists_of_even this,
-  assert 2 ∣ p, by rewrite [hk]; apply dvd_mul_right,
+  obtain k `p = 2*k`, from exists_of_even this,
+  assert 2 ∣ p, by rewrite [`p = 2*k`]; apply dvd_mul_right,
   or.elim (eq_one_or_eq_self_of_prime_of_dvd pp this)
     (suppose 2 = 1, absurd this dec_trivial)
     (suppose 2 = p, by subst this; exact absurd p_gt_2 !lt.irrefl))

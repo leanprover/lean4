@@ -234,6 +234,7 @@ class parser {
     elaborator_context mk_elaborator_context(environment const & env, local_level_decls const & lls, pos_info_provider const & pp);
 
     bool m_in_backtick; // true if parser `expr` notation
+    expr parse_backtick_expr_core();
     expr parse_backtick_expr();
 
     optional<expr> is_tactic_command(name & id);
@@ -338,6 +339,8 @@ public:
     bool curr_is_token_or_id(name const & tk) const;
     /** \brief Return true iff the current token is a command, EOF, period or script block */
     bool curr_is_command_like() const;
+    /** \brief Return true iff the current token is a backtick ` */
+    bool curr_is_backtick() const { return curr() == scanner::token_kind::Backtick; }
     /** \brief Read the next token if the current one is not End-of-file. */
     void next() { if (m_curr != scanner::token_kind::Eof) scan(); }
     /** \brief Return true iff the current token is a keyword (or command keyword) named \c tk */

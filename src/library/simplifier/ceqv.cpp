@@ -18,6 +18,10 @@ Author: Leonardo de Moura
 namespace lean {
 bool is_ceqv(type_checker & tc, expr e);
 
+bool is_simp_relation(environment const & env, name const & n) {
+    return is_trans_relation(env, n) && is_refl_relation(env, n);
+}
+
 /** \brief Auxiliary functional object for creating "conditional equations" */
 class to_ceqvs_fn {
     environment const &   m_env;
@@ -31,14 +35,10 @@ class to_ceqvs_fn {
         return is_sort(m_tc.whnf(m_tc.infer(e).first).first);
     }
 
-    bool is_transitive(expr const & e) {
+    bool is_relation(expr const & e) {
         if (!is_app(e)) return false;
         expr const & fn = get_app_fn(e);
-        return is_constant(fn) && ::lean::is_trans_relation(m_env, const_name(fn)) && is_type(e);
-    }
-
-    bool is_relation(expr const & e) {
-        return is_transitive(e);
+        return is_constant(fn) && is_simp_relation(m_env, const_name(fn));
     }
 
     list<expr_pair> lift(expr const & local, list<expr_pair> const & l) {
@@ -126,10 +126,10 @@ list<expr_pair> to_ceqvs(type_checker & tc, expr const & e, expr const & H) {
     return to_ceqvs_fn(tc)(e, H);
 }
 
-bool is_transitive(environment const & env, expr const & e, expr & rel, expr & lhs, expr & rhs) {
+bool is_simp_relation(environment const & env, expr const & e, expr & rel, expr & lhs, expr & rhs) {
     buffer<expr> args;
     rel = get_app_args(e, args);
-    if (!is_constant(rel) || !is_trans_relation(env, const_name(rel)))
+    if (!is_constant(rel) || !is_simp_relation(env, const_name(rel)))
         return false;
     relation_info const * rel_info = get_relation_info(env, const_name(rel));
     if (!rel_info || rel_info->get_lhs_pos() >= args.size() || rel_info->get_rhs_pos() >= args.size())
@@ -139,9 +139,9 @@ bool is_transitive(environment const & env, expr const & e, expr & rel, expr & l
     return true;
 }
 
-bool is_transitive(environment const & env, expr const & e, expr & lhs, expr & rhs) {
+bool is_simp_relation(environment const & env, expr const & e, expr & lhs, expr & rhs) {
     expr rel;
-    return is_transitive(env, e, rel, lhs, rhs);
+    return is_simp_relation(env, e, rel, lhs, rhs);
 }
 
 bool is_ceqv(type_checker & tc, expr e) {
@@ -183,7 +183,7 @@ bool is_ceqv(type_checker & tc, expr e) {
         e = instantiate(binding_body(e), local);
     }
     expr lhs, rhs;
-    if (!is_transitive(env, e, lhs, rhs))
+    if (!is_simp_relation(env, e, lhs, rhs))
         return false;
     // traverse lhs, and remove found variables from to_find
     for_each(lhs, visitor_fn);
@@ -246,7 +246,7 @@ bool is_permutation_ceqv(environment const & env, expr e) {
         num_args++;
     }
     expr lhs, rhs;
-    if (is_transitive(env, e, lhs, rhs)) {
+    if (is_simp_relation(env, e, lhs, rhs)) {
         buffer<optional<unsigned>> permutation;
         permutation.resize(num_args);
         return is_permutation(lhs, rhs, 0, permutation);

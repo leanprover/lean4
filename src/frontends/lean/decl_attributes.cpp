@@ -39,7 +39,7 @@ decl_attributes::decl_attributes(bool is_abbrev, bool persistent):
     m_refl                   = false;
     m_subst                  = false;
     m_recursor               = false;
-    m_rewrite                = false;
+    m_simp                   = false;
 }
 
 void decl_attributes::parse(buffer<name> const & ns, parser & p) {
@@ -135,9 +135,9 @@ void decl_attributes::parse(buffer<name> const & ns, parser & p) {
         } else if (p.curr_is_token(get_subst_tk())) {
             p.next();
             m_subst = true;
-        } else if (p.curr_is_token(get_rewrite_attr_tk())) {
+        } else if (p.curr_is_token(get_simp_attr_tk())) {
             p.next();
-            m_rewrite = true;
+            m_simp = true;
         } else if (p.curr_is_token(get_recursor_tk())) {
             p.next();
             if (!p.curr_is_token(get_rbracket_tk())) {
@@ -217,7 +217,7 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
         env = add_user_recursor(env, d, m_recursor_major_pos, m_persistent);
     if (m_is_class)
         env = add_class(env, d, m_persistent);
-    if (m_rewrite)
+    if (m_simp)
         env = add_rewrite_rule(env, d, m_persistent);
     if (m_has_multiple_instances)
         env = mark_multiple_instances(env, d, m_persistent);
@@ -229,7 +229,7 @@ void decl_attributes::write(serializer & s) const {
       << m_is_reducible << m_is_irreducible << m_is_semireducible << m_is_quasireducible
       << m_is_class << m_is_parsing_only << m_has_multiple_instances << m_unfold_full_hint
       << m_constructor_hint << m_symm << m_trans << m_refl << m_subst << m_recursor
-      << m_rewrite << m_recursor_major_pos << m_priority;
+      << m_simp << m_recursor_major_pos << m_priority;
     write_list(s, m_unfold_hint);
 }
 
@@ -238,7 +238,7 @@ void decl_attributes::read(deserializer & d) {
       >> m_is_reducible >> m_is_irreducible >> m_is_semireducible >> m_is_quasireducible
       >> m_is_class >> m_is_parsing_only >> m_has_multiple_instances >> m_unfold_full_hint
       >> m_constructor_hint >> m_symm >> m_trans >> m_refl >> m_subst >> m_recursor
-      >> m_rewrite >> m_recursor_major_pos >> m_priority;
+      >> m_simp >> m_recursor_major_pos >> m_priority;
     m_unfold_hint = read_list<unsigned>(d);
 }
 }

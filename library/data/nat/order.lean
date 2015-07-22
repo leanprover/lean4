@@ -118,7 +118,7 @@ theorem mul_lt_mul_of_pos_right {n m k : ℕ} (H : n < m) (Hk : k > 0) : n * k <
 definition max (a b : ℕ) : ℕ := if a < b then b else a
 definition min (a b : ℕ) : ℕ := if a < b then a else b
 
-theorem max_self [rewrite] (a : ℕ) : max a a = a :=
+theorem max_self [simp] (a : ℕ) : max a a = a :=
 eq.rec_on !if_t_t rfl
 
 theorem max_le {n m k : ℕ} (H₁ : n ≤ k) (H₂ : m ≤ k) : max n m ≤ k :=
@@ -465,32 +465,32 @@ dvd.elim H
 /- min and max -/
 open decidable
 
-theorem le_max_left_iff_true [rewrite] (a b : ℕ) : a ≤ max a b ↔ true :=
+theorem le_max_left_iff_true [simp] (a b : ℕ) : a ≤ max a b ↔ true :=
 iff_true_intro (le_max_left a b)
 
-theorem le_max_right_iff_true [rewrite] (a b : ℕ) : b ≤ max a b ↔ true :=
+theorem le_max_right_iff_true [simp] (a b : ℕ) : b ≤ max a b ↔ true :=
 iff_true_intro (le_max_right a b)
 
-theorem min_zero [rewrite] (a : ℕ) : min a 0 = 0 :=
+theorem min_zero [simp] (a : ℕ) : min a 0 = 0 :=
 by rewrite [min_eq_right !zero_le]
 
-theorem zero_min [rewrite] (a : ℕ) : min 0 a = 0 :=
+theorem zero_min [simp] (a : ℕ) : min 0 a = 0 :=
 by rewrite [min_eq_left !zero_le]
 
-theorem max_zero [rewrite] (a : ℕ) : max a 0 = a :=
+theorem max_zero [simp] (a : ℕ) : max a 0 = a :=
 by rewrite [max_eq_left !zero_le]
 
-theorem zero_max [rewrite] (a : ℕ) : max 0 a = a :=
+theorem zero_max [simp] (a : ℕ) : max 0 a = a :=
 by rewrite [max_eq_right !zero_le]
 
-theorem min_succ_succ [rewrite] (a b : ℕ) : min (succ a) (succ b) = succ (min a b) :=
+theorem min_succ_succ [simp] (a b : ℕ) : min (succ a) (succ b) = succ (min a b) :=
 by_cases
   (suppose a < b,   by unfold min; rewrite [if_pos this, if_pos (succ_lt_succ this)])
   (suppose ¬ a < b,
    assert h : ¬ succ a < succ b, from assume h, absurd (lt_of_succ_lt_succ h) this,
    by unfold min; rewrite [if_neg this, if_neg h])
 
-theorem max_succ_succ [rewrite] (a b : ℕ) : max (succ a) (succ b) = succ (max a b) :=
+theorem max_succ_succ [simp] (a b : ℕ) : max (succ a) (succ b) = succ (max a b) :=
 by_cases
   (suppose a < b,   by unfold max; rewrite [if_pos this, if_pos (succ_lt_succ this)])
   (suppose ¬ a < b,

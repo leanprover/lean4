@@ -1,5 +1,5 @@
 import data.nat
 
-attribute nat.add.comm [rewrite]
+attribute nat.add.comm [simp]
 
-print [rewrite]
+print [simp]

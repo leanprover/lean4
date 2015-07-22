@@ -84,7 +84,7 @@ theorem mem_list_of_mem {a : A} {l : nodup_list A} : a ∈ ⟦l⟧ → a ∈ elt
 definition singleton (a : A) : finset A :=
 to_finset_of_nodup [a] !nodup_singleton
 
-theorem mem_singleton [rewrite] (a : A) : a ∈ singleton a :=
+theorem mem_singleton [simp] (a : A) : a ∈ singleton a :=
 mem_of_mem_list !mem_cons
 
 theorem eq_of_mem_singleton {x a : A} : x ∈ singleton a → x = a :=
@@ -119,10 +119,10 @@ to_finset_of_nodup [] nodup_nil
 
 notation `∅` := !empty
 
-theorem not_mem_empty [rewrite] (a : A) : a ∉ ∅ :=
+theorem not_mem_empty [simp] (a : A) : a ∉ ∅ :=
 λ aine : a ∈ ∅, aine
 
-theorem mem_empty_iff [rewrite] (x : A) : x ∈ ∅ ↔ false :=
+theorem mem_empty_iff [simp] (x : A) : x ∈ ∅ ↔ false :=
 iff.mpr !iff_false_iff_not !not_mem_empty
 
 theorem mem_empty_eq (x : A) : x ∈ ∅ = false :=

@@ -494,7 +494,7 @@ environment print_cmd(parser & p) {
         p.next();
         p.check_token_next(get_rbracket_tk(), "invalid 'print [recursor]', ']' expected");
         print_recursor_info(p);
-    } else if (p.curr_is_token(get_rewrite_attr_tk())) {
+    } else if (p.curr_is_token(get_simp_attr_tk())) {
         p.next();
         print_rewrite_sets(p);
     } else if (print_polymorphic(p)) {

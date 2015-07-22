@@ -114,7 +114,6 @@ expr mk_simp_tactic_expr(buffer<expr> const & ls, buffer<name> const & ns,
     if (pre_tac) {
         t = mk_app(mk_constant(get_option_some_name()), *pre_tac);
     } else {
-
         t = mk_constant(get_option_none_name());
     }
     expr l = mk_location_expr(loc);

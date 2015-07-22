@@ -123,6 +123,9 @@ expr mk_simp_tactic_expr(buffer<expr> const & ls, buffer<name> const & ns,
 }
 
 class simp_tactic_fn {
+public:
+    enum res_kind { Simplified, Solved, DidNothing };
+private:
     environment      m_env;
     io_state         m_ios;
     name_generator   m_ngen;
@@ -131,6 +134,7 @@ class simp_tactic_fn {
     // transient state
     unsigned         m_steps;
     goal             m_g;
+    substitution     m_subst;
 
     // configuration options
     bool     m_single_pass;
@@ -166,6 +170,16 @@ class simp_tactic_fn {
         }
     }
 
+    res_kind simp_goal() {
+        // TODO(Leo)
+        return DidNothing;
+    }
+
+    bool simp_hyp(unsigned hidx) {
+        // TODO(Leo)
+        return false;
+    }
+
 public:
     simp_tactic_fn(environment const & env, io_state const & ios, name_generator && ngen,
                    buffer<expr> const & /* ls */, buffer<name> const & /* ns */, buffer<name> const & /* ex */,
@@ -173,14 +187,33 @@ public:
         set_options(env, m_ios.get_options());
     }
 
-    enum res_kind { Simplified, Solved, DidNothing };
-
-    std::tuple<res_kind, goal, substitution> operator()(goal const & g, location const & /* loc */, substitution const & s) {
+    std::tuple<res_kind, goal, substitution> operator()(goal const & g, location const & loc, substitution const & s) {
         m_g     = g;
-        m_steps = 0;
-
-        // TODO(Leo)
-        return std::make_tuple(DidNothing, g, s);
+        m_subst = s;
+        if (loc.is_goal_only()) {
+            res_kind k = simp_goal();
+            return std::make_tuple(k, m_g, m_subst);
+        } else {
+            buffer<expr> hyps;
+            m_g.get_hyps(hyps);
+            bool progress = false;
+            unsigned hidx = 0;
+            for (expr const & h : hyps) {
+                if (loc.includes_hypothesis(local_pp_name(h))) {
+                    if (simp_hyp(hidx))
+                        progress = true;
+                }
+                hidx++;
+            }
+            if (loc.includes_goal()) {
+                res_kind k = simp_goal();
+                if (k == DidNothing && progress)
+                    k = Simplified;
+                return std::make_tuple(k, m_g, m_subst);
+            } else {
+                return std::make_tuple(progress ? Simplified : DidNothing, m_g, m_subst);
+            }
+        }
     }
 };
 

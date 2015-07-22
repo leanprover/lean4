@@ -32,16 +32,16 @@ end migrate_algebra
 -- generalize to semirings?
 theorem le_pow_self {x : ℕ} (H : x > 1) : ∀ i, i ≤ x^i
 | 0        := !zero_le
-| (succ j) := have xpos : x > 0, from lt.trans zero_lt_one H,
-              have xjge1 : x^j ≥ 1, from succ_le_of_lt (pow_pos_of_pos _ xpos),
-              have xge2 : x ≥ 2, from succ_le_of_lt H,
+| (succ j) := have x > 0, from lt.trans zero_lt_one H,
+              have x^j ≥ 1, from succ_le_of_lt (pow_pos_of_pos _ this),
+              have x ≥ 2, from succ_le_of_lt H,
               calc
                 succ j = j + 1         : rfl
                    ... ≤ x^j + 1       : add_le_add_right (le_pow_self j)
-                   ... ≤ x^j + x^j     : add_le_add_left xjge1
+                   ... ≤ x^j + x^j     : add_le_add_left `x^j ≥ 1`
                    ... = x^j * (1 + 1) : by rewrite [mul.left_distrib, *mul_one]
                    ... = x^j * 2       : rfl
-                   ... ≤ x^j * x       : mul_le_mul_left _ xge2
+                   ... ≤ x^j * x       : mul_le_mul_left _ `x ≥ 2`
                    ... = x^(succ j)    : rfl
 
 -- TODO: eventually this will be subsumed under the algebraic theorems
@@ -53,17 +53,17 @@ by rewrite [*pow_succ, *pow_zero, one_mul]
 theorem pow_cancel_left : ∀ {a b c : nat}, a > 1 → pow a b = pow a c → b = c
 | a 0        0        h₁ h₂ := rfl
 | a (succ b) 0        h₁ h₂ :=
-  assert aeq1 : a = 1, by rewrite [pow_succ' at h₂, pow_zero at h₂]; exact (eq_one_of_mul_eq_one_right h₂),
-  assert h₁   : 1 < 1, by rewrite [aeq1 at h₁]; exact h₁,
-  absurd h₁ !lt.irrefl
+  assert a = 1, by rewrite [pow_succ' at h₂, pow_zero at h₂]; exact (eq_one_of_mul_eq_one_right h₂),
+  assert 1 < 1, by rewrite [this at h₁]; exact h₁,
+  absurd `1 < 1` !lt.irrefl
 | a 0        (succ c) h₁ h₂ :=
-  assert aeq1 : a = 1, by rewrite [pow_succ' at h₂, pow_zero at h₂]; exact (eq_one_of_mul_eq_one_right (eq.symm h₂)),
-  assert h₁   : 1 < 1, by rewrite [aeq1 at h₁]; exact h₁,
-  absurd h₁ !lt.irrefl
+  assert a = 1, by rewrite [pow_succ' at h₂, pow_zero at h₂]; exact (eq_one_of_mul_eq_one_right (eq.symm h₂)),
+  assert 1 < 1, by rewrite [this at h₁]; exact h₁,
+  absurd `1 < 1` !lt.irrefl
 | a (succ b) (succ c) h₁ h₂ :=
-  assert ane0 : a ≠ 0, from assume aeq0, by rewrite [aeq0 at h₁]; exact (absurd h₁ dec_trivial),
-  assert beqc : pow a b = pow a c, by rewrite [*pow_succ' at h₂]; exact (eq_of_mul_eq_mul_left (pos_of_ne_zero ane0) h₂),
-  by rewrite [pow_cancel_left h₁ beqc]
+  assert a ≠ 0, from assume aeq0, by rewrite [aeq0 at h₁]; exact (absurd h₁ dec_trivial),
+  assert pow a b = pow a c, by rewrite [*pow_succ' at h₂]; exact (eq_of_mul_eq_mul_left (pos_of_ne_zero this) h₂),
+  by rewrite [pow_cancel_left h₁ this]
 
 theorem pow_div_cancel : ∀ {a b : nat}, a ≠ 0 → pow a (succ b) div a = pow a b
 | a 0        h := by rewrite [pow_succ', pow_zero, mul_one, div_self (pos_of_ne_zero h)]
@@ -81,9 +81,9 @@ lemma pow_mod_eq_zero (i : nat) {n : nat} (h : n > 0) : (i^n) mod i = 0 :=
 iff.mp !dvd_iff_mod_eq_zero (dvd_pow i h)
 
 lemma pow_dvd_of_pow_succ_dvd {p i n : nat} : p^(succ i) ∣ n → p^i ∣ n :=
-assume Psuccdvd,
-assert Pdvdsucc : p^i ∣ p^(succ i), from by rewrite [pow_succ]; apply dvd_of_eq_mul; apply rfl,
-dvd.trans Pdvdsucc Psuccdvd
+suppose p^(succ i) ∣ n,
+assert p^i ∣ p^(succ i), from by rewrite [pow_succ]; apply dvd_of_eq_mul; apply rfl,
+dvd.trans `p^i ∣ p^(succ i)` `p^(succ i) ∣ n`
 
 lemma dvd_of_pow_succ_dvd_mul_pow {p i n : nat} (Ppos : p > 0) :
   p^(succ i) ∣ (n * p^i) → p ∣ n :=
@@ -100,6 +100,7 @@ lemma coprime_pow_right {a b} : ∀ n, coprime b a → coprime b (a^n)
   end
 
 lemma coprime_pow_left {a b} : ∀ n, coprime b a → coprime (b^n) a :=
-λ n h, coprime_swap (coprime_pow_right n (coprime_swap h))
+take n, suppose coprime b a,
+coprime_swap (coprime_pow_right n (coprime_swap this))
 
 end nat

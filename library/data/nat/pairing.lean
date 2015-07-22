@@ -19,54 +19,54 @@ if n - s*s < s then (n - s*s, s) else (s, n - s*s - s)
 theorem mkpair_unpair (n : nat) : mkpair (pr1 (unpair n)) (pr2 (unpair n)) = n :=
 let s := sqrt n in
 by_cases
-  (λ h₁ : n - s*s < s,
+  (suppose n - s*s < s,
     begin
       esimp [unpair],
-      rewrite [if_pos h₁],
+      rewrite [if_pos this],
       esimp [mkpair],
-      rewrite [if_pos h₁, add_sub_of_le (sqrt_lower n)]
+      rewrite [if_pos this, add_sub_of_le (sqrt_lower n)]
     end)
-  (λ h₂ : ¬ n - s*s < s,
-    have   g₁ : s ≤ n - s*s,             from le_of_not_gt h₂,
-    assert g₂ : s + s*s ≤ n - s*s + s*s, from add_le_add_right g₁ (s*s),
-    assert g₃ : s*s + s ≤ n,             by rewrite [sub_add_cancel (sqrt_lower n) at g₂, add.comm at g₂]; assumption,
-    have l₁   : n ≤ s*s + s + s,         from sqrt_upper n,
-    have l₂   : n - s*s ≤ s + s,         from calc
-        n - s*s ≤ (s*s + s + s) - s*s    : sub_le_sub_right l₁ (s*s)
+  (suppose h₁ : ¬ n - s*s < s,
+    have   s ≤ n - s*s,                  from le_of_not_gt h₁,
+    assert s + s*s ≤ n - s*s + s*s,      from add_le_add_right this (s*s),
+    assert s*s + s ≤ n,                  by rewrite [sub_add_cancel (sqrt_lower n) at this, add.comm at this]; assumption,
+    have   n ≤ s*s + s + s,              from sqrt_upper n,
+    have   n - s*s ≤ s + s,              from calc
+        n - s*s ≤ (s*s + s + s) - s*s    : sub_le_sub_right this (s*s)
             ... = (s*s + (s+s)) - s*s    : by rewrite add.assoc
             ... = s + s                  : by rewrite add_sub_cancel_left,
-    have l₃   : n - s*s - s ≤ s,         from calc
-        n - s*s - s ≤ (s + s) - s        : sub_le_sub_right l₂ s
+    have   n - s*s - s ≤ s,              from calc
+        n - s*s - s ≤ (s + s) - s        : sub_le_sub_right this s
                 ... = s                  : by rewrite add_sub_cancel_left,
-    assert l₄ : ¬ s < n - s*s - s,       from not_lt_of_ge l₃,
+    assert h₂ : ¬ s < n - s*s - s,       from not_lt_of_ge this,
     begin
       esimp [unpair],
-      rewrite [if_neg h₂], esimp,
+      rewrite [if_neg h₁], esimp,
       esimp [mkpair],
-      rewrite [if_neg l₄, sub_sub, add_sub_of_le g₃],
+      rewrite [if_neg h₂, sub_sub, add_sub_of_le `s*s + s ≤ n`],
     end)
 
 theorem unpair_mkpair (a b : nat) : unpair (mkpair a b) = (a, b) :=
 by_cases
- (λ h : a < b,
-  assert aux₁ : a ≤ b + b, from calc
-    a   ≤ b   : le_of_lt h
+ (suppose a < b,
+  assert a ≤ b + b, from calc
+    a   ≤ b   : le_of_lt this
     ... ≤ b+b : !le_add_right,
   begin
     esimp [mkpair],
-    rewrite [if_pos h],
+    rewrite [if_pos `a < b`],
     esimp [unpair],
-    rewrite [sqrt_offset_eq aux₁, add_sub_cancel_left, if_pos h]
+    rewrite [sqrt_offset_eq `a ≤ b + b`, add_sub_cancel_left, if_pos `a < b`]
   end)
- (λ h : ¬ a < b,
-  have h₁ : b ≤ a, from le_of_not_gt h,
-  assert aux₁ : a + b ≤ a + a, from add_le_add_left h₁ a,
-  have   aux₂ : a + b ≥ a,     from !le_add_right,
-  assert aux₃ : ¬ a + b < a,   from not_lt_of_ge aux₂,
+ (suppose ¬ a < b,
+  have   b ≤ a,           from le_of_not_gt this,
+  assert a + b ≤ a + a,   from add_le_add_left this a,
+  have   a + b ≥ a,       from !le_add_right,
+  assert ¬ a + b < a,     from not_lt_of_ge this,
   begin
     esimp [mkpair],
-    rewrite [if_neg h],
+    rewrite [if_neg `¬ a < b`],
     esimp [unpair],
-    rewrite [add.assoc (a * a) a b, sqrt_offset_eq aux₁, *add_sub_cancel_left, if_neg aux₃]
+    rewrite [add.assoc (a * a) a b, sqrt_offset_eq `a + b ≤ a + a`, *add_sub_cancel_left, if_neg `¬ a + b < a`]
   end)
 end nat

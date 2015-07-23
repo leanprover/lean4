@@ -379,7 +379,7 @@ static void print_reducible_info(parser & p, reducible_status s1) {
         out << n << "\n";
 }
 
-static void print_simp_sets(parser & p) {
+static void print_simp_rules(parser & p) {
     io_state_stream out = p.regular_stream();
     simp_rule_sets s;
     name ns;
@@ -400,6 +400,19 @@ static void print_simp_sets(parser & p) {
                 prev_eqv = eqv;
             }
             out << rw.pp(out.get_formatter()) << "\n";
+        });
+}
+
+static void print_congr_rules(parser & p) {
+    io_state_stream out = p.regular_stream();
+    simp_rule_sets s = get_simp_rule_sets(p.env());
+    name prev_eqv;
+    s.for_each_congr([&](name const & eqv, congr_rule const & cr) {
+            if (prev_eqv != eqv) {
+                out << "congruencec rules for " << eqv << "\n";
+                prev_eqv = eqv;
+            }
+            out << cr.pp(out.get_formatter()) << "\n";
         });
 }
 
@@ -507,7 +520,10 @@ environment print_cmd(parser & p) {
         print_recursor_info(p);
     } else if (p.curr_is_token(get_simp_attr_tk())) {
         p.next();
-        print_simp_sets(p);
+        print_simp_rules(p);
+    } else if (p.curr_is_token(get_congr_attr_tk())) {
+        p.next();
+        print_congr_rules(p);
     } else if (print_polymorphic(p)) {
     } else {
         throw parser_error("invalid print command", p.pos());

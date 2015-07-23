@@ -54,12 +54,12 @@ format congr_rule::pp(formatter const & fmt) const {
     r += format("#") + format(length(m_metas));
     format r1;
     for (expr const & h : m_congr_hyps) {
-        r1 += space() + paren(pp_indent_expr(fmt, mlocal_type(h)));
+        r1 += space() + paren(fmt(mlocal_type(h)));
     }
     r += group(r1);
     r += space() + format(":") + space();
-    format r2 = fmt(m_lhs);
-    r2       += space() + format("↦") + pp_indent_expr(fmt, m_rhs);
+    format r2 = paren(fmt(m_lhs));
+    r2       += space() + format("↦") + space() + paren(fmt(m_rhs));
     r += group(r2);
     return r;
 }

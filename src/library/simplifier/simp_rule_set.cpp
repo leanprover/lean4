@@ -309,7 +309,7 @@ void add_congr_core(environment const & env, simp_rule_sets & s, name const & n)
         if (!is_constant(rhs_fn) || const_name(lhs_fn) != const_name(rhs_fn) || lhs_args.size() != rhs_args.size()) {
             throw exception(sstream() << "invalid congruence rule, '" << n
                             << "' resulting type is not of the form (" << const_name(lhs_fn) << "  ...) "
-                            << " ~ (" << const_name(lhs_fn) << " ...), where ~ is '" << const_name(rel) << "'");
+                            << "~ (" << const_name(lhs_fn) << " ...), where ~ is '" << const_name(rel) << "'");
         }
         for (expr const & lhs_arg : lhs_args) {
             if (is_sort(lhs_arg))
@@ -357,18 +357,18 @@ void add_congr_core(environment const & env, simp_rule_sets & s, name const & n)
                 j++;
                 if (!only_found_mvars(mlocal_type(local), found_mvars)) {
                     throw exception(sstream() << "invalid congruence rule, '" << n
-                                    << "' argument #" << j << " is a congruence hypothesis, but it contains "
+                                    << "' argument #" << j << " of parameter #" << (i+1) << " contains "
                                     << "unresolved parameters");
                 }
             }
             if (!only_found_mvars(h_lhs, found_mvars)) {
                 throw exception(sstream() << "invalid congruence rule, '" << n
-                                << "' argument #" << j << " is not a valid hypothesis, the left-hand-side contains "
+                                << "' argument #" << (i+1) << " is not a valid hypothesis, the left-hand-side contains "
                                 << "unresolved parameters");
             }
             if (!is_valid_congr_hyp_rhs(h_rhs, found_mvars)) {
                 throw exception(sstream() << "invalid congruence rule, '" << n
-                                << "' argument #" << j << " is not a valid hypothesis, the right-hand-side must be "
+                                << "' argument #" << (i+1) << " is not a valid hypothesis, the right-hand-side must be "
                                 << "of the form (m l_1 ... l_n) where m is parameter that was not "
                                 << "'assigned/resolved' yet and l_i's are locals");
             }

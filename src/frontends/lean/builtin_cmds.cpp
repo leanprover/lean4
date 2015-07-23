@@ -391,7 +391,7 @@ static void print_simp_sets(parser & p) {
         s = get_simp_rule_sets(p.env());
     }
     name prev_eqv;
-    s.for_each([&](name const & eqv, simp_rule const & rw) {
+    s.for_each_simp([&](name const & eqv, simp_rule const & rw) {
             if (prev_eqv != eqv) {
                 out << "simplification rules for " << eqv;
                 if (!ns.is_anonymous())

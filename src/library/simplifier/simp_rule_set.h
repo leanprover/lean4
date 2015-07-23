@@ -69,6 +69,8 @@ simp_rule_sets add(type_checker & tc, simp_rule_sets const & s, name const & id,
 simp_rule_sets join(simp_rule_sets const & s1, simp_rule_sets const & s2);
 
 environment add_simp_rule(environment const & env, name const & n, bool persistent = true);
+environment add_congr_rule(environment const & env, name const & n, bool persistent = true);
+
 /** \brief Return true if \c n is an active rewrite rule in \c env */
 bool is_simp_rule(environment const & env, name const & n);
 /** \brief Get current rewrite rule sets */

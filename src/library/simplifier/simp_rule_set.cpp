@@ -191,6 +191,11 @@ environment add_simp_rule(environment const & env, name const & n, bool persiste
     return rrs_ext::add_entry(env, get_dummy_ios(), n, persistent);
 }
 
+environment add_congr_rule(environment const & env, name const & n, bool persistent) {
+    // TODO(Leo):
+    return env;
+}
+
 bool is_simp_rule(environment const & env, name const & n) {
     return rrs_ext::get_state(env).m_rnames.contains(n);
 }

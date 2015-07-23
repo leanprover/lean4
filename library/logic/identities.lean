@@ -15,7 +15,7 @@ calc
     ... ↔ a ∨ (c ∨ b)       : {or.comm}
      ... ↔ (a ∨ c) ∨ b      : iff.symm or.assoc
 
-theorem or.left_comm (a b c : Prop) : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c) :=
+theorem or.left_comm [simp] (a b c : Prop) : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c) :=
 calc
   a ∨ (b ∨ c) ↔ (a ∨ b) ∨ c : iff.symm or.assoc
     ... ↔ (b ∨ a) ∨ c       : {or.comm}
@@ -27,7 +27,7 @@ calc
     ... ↔ a ∧ (c ∧ b)       : {and.comm}
      ... ↔ (a ∧ c) ∧ b      : iff.symm and.assoc
 
-theorem and.left_comm (a b c : Prop) : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
+theorem and.left_comm [simp] (a b c : Prop) : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
 calc
   a ∧ (b ∧ c) ↔ (a ∧ b) ∧ c : iff.symm and.assoc
     ... ↔ (b ∧ a) ∧ c       : {and.comm}
@@ -42,10 +42,10 @@ iff.intro
 theorem not_not_elim {a : Prop} [D : decidable a] (H : ¬¬a) : a :=
 iff.mp not_not_iff H
 
-theorem not_true_iff_false : ¬true ↔ false :=
+theorem not_true_iff_false [simp] : ¬true ↔ false :=
 iff.intro (assume H, H trivial) false.elim
 
-theorem not_false_iff_true : ¬false ↔ true :=
+theorem not_false_iff_true [simp] : ¬false ↔ true :=
 iff.intro (assume H, trivial) (assume H H', H')
 
 theorem not_or_iff_not_and_not {a b : Prop} [Da : decidable a] [Db : decidable b] :
@@ -124,27 +124,27 @@ iff.intro
   (assume H, false.of_ne H)
   (assume H, false.elim H)
 
-theorem eq_self_iff_true {A : Type} (a : A) : (a = a) ↔ true :=
+theorem eq_self_iff_true [simp] {A : Type} (a : A) : (a = a) ↔ true :=
 iff_true_intro rfl
 
-theorem heq_self_iff_true {A : Type} (a : A) : (a == a) ↔ true :=
+theorem heq_self_iff_true [simp] {A : Type} (a : A) : (a == a) ↔ true :=
 iff_true_intro (heq.refl a)
 
-theorem iff_not_self (a : Prop) : (a ↔ ¬a) ↔ false :=
+theorem iff_not_self [simp] (a : Prop) : (a ↔ ¬a) ↔ false :=
 iff.intro
   (assume H,
     have H' : ¬a, from assume Ha, (H ▸ Ha) Ha,
     H' (H⁻¹ ▸ H'))
   (assume H, false.elim H)
 
-theorem true_iff_false : (true ↔ false) ↔ false :=
+theorem true_iff_false [simp] : (true ↔ false) ↔ false :=
 not_true_iff_false ▸ (iff_not_self true)
 
-theorem false_iff_true : (false ↔ true) ↔ false :=
+theorem false_iff_true [simp] : (false ↔ true) ↔ false :=
 not_false_iff_true ▸ (iff_not_self false)
 
-theorem iff_true_iff (a : Prop) : (a ↔ true) ↔ a :=
+theorem iff_true_iff [simp] (a : Prop) : (a ↔ true) ↔ a :=
 iff.intro (assume H, of_iff_true H) (assume H, iff_true_intro H)
 
-theorem iff_false_iff_not (a : Prop) : (a ↔ false) ↔ ¬a :=
+theorem iff_false_iff_not [simp] (a : Prop) : (a ↔ false) ↔ ¬a :=
 iff.intro (assume H, not_of_iff_false H) (assume H, iff_false_intro H)

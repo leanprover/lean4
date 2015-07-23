@@ -117,6 +117,7 @@ name const & get_trans_tk();
 name const & get_refl_tk();
 name const & get_subst_tk();
 name const & get_simp_attr_tk();
+name const & get_congr_attr_tk();
 name const & get_recursor_tk();
 name const & get_attribute_tk();
 name const & get_with_tk();

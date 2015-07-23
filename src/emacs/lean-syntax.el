@@ -123,7 +123,7 @@
                "\[irreducible\]" "\[semireducible\]" "\[quasireducible\]" "\[wf\]"
                "\[whnf\]" "\[multiple-instances\]" "\[none\]"
                "\[decls\]" "\[declarations\]" "\[coercions\]" "\[classes\]"
-               "\[symm\]" "\[subst\]" "\[refl\]" "\[trans\]" "\[simp\]"
+               "\[symm\]" "\[subst\]" "\[refl\]" "\[trans\]" "\[simp\]" "\[congr\]"
                "\[notations\]" "\[abbreviations\]" "\[begin-end-hints\]" "\[tactic-hints\]"
                "\[reduce-hints\]" "\[unfold-hints\]" "\[aliases\]" "\[eqv\]" "\[localrefinfo\]"))
       . 'font-lock-doc-face)

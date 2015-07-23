@@ -40,7 +40,7 @@ protected theorem trans [trans] {A B C : Type} : A ≃ B → B ≃ C → A ≃ C
 lemma false_equiv_empty : empty ≃ false :=
 mk (λ e, empty.rec _ e) (λ h, false.rec _ h) (λ e, empty.rec _ e) (λ h, false.rec _ h)
 
-lemma arrow_congr {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → B₁ ≃ B₂ → (A₁ → B₁) ≃ (A₂ → B₂)
+lemma arrow_congr [congr] {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → B₁ ≃ B₂ → (A₁ → B₁) ≃ (A₂ → B₂)
 | (mk f₁ g₁ l₁ r₁) (mk f₂ g₂ l₂ r₂) :=
   mk
    (λ (h : A₁ → B₁) (a : A₂), f₂ (h (g₁ a)))
@@ -70,7 +70,7 @@ calc (false → A) ≃ (empty → A) : arrow_congr false_equiv_empty !equiv.refl
              ... ≃ unit        : empty_arrow_equiv_unit
 end
 
-lemma prod_congr {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → B₁ ≃ B₂ → (A₁ × B₁) ≃ (A₂ × B₂)
+lemma prod_congr [congr] {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → B₁ ≃ B₂ → (A₁ × B₁) ≃ (A₂ × B₂)
 | (mk f₁ g₁ l₁ r₁) (mk f₂ g₂ l₂ r₂) :=
   mk
     (λ p, match p with (a₁, b₁) := (f₁ a₁, f₂ b₁) end)
@@ -112,7 +112,7 @@ end
 
 section
 open sum
-lemma sum_congr {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → B₁ ≃ B₂ → (A₁ + B₁) ≃ (A₂ + B₂)
+lemma sum_congr [congr] {A₁ B₁ A₂ B₂ : Type} : A₁ ≃ A₂ → B₁ ≃ B₂ → (A₁ + B₁) ≃ (A₂ + B₂)
 | (mk f₁ g₁ l₁ r₁) (mk f₂ g₂ l₂ r₂) :=
   mk
    (λ s, match s with inl a₁ := inl (f₁ a₁) | inr b₁ := inr (f₂ b₁) end)

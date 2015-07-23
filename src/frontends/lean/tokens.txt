@@ -110,6 +110,7 @@ trans        [trans]
 refl         [refl]
 subst        [subst]
 simp_attr    [simp]
+congr_attr   [congr]
 recursor     [recursor
 attribute    attribute
 with         with

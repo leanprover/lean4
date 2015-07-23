@@ -25,7 +25,7 @@ lemma map_append (f : A → B) : ∀ l₁ l₂, map f (l₁++l₂) = (map f l₁
 
 lemma map_singleton (f : A → B) (a : A) : map f [a] = [f a] := rfl
 
-theorem map_id : ∀ l : list A, map id l = l
+theorem map_id [simp] : ∀ l : list A, map id l = l
 | []      := rfl
 | (x::xs) := begin rewrite [map_cons, map_id] end
 
@@ -33,13 +33,13 @@ theorem map_id' {f : A → A} (H : ∀x, f x = x) : ∀ l : list A, map f l = l
 | []      := rfl
 | (x::xs) := begin rewrite [map_cons, H, map_id'] end
 
-theorem map_map (g : B → C) (f : A → B) : ∀ l, map g (map f l) = map (g ∘ f) l
+theorem map_map [simp] (g : B → C) (f : A → B) : ∀ l, map g (map f l) = map (g ∘ f) l
 | []       := rfl
 | (a :: l) :=
   show (g ∘ f) a :: map g (map f l) = map (g ∘ f) (a :: l),
   by rewrite (map_map l)
 
-theorem length_map (f : A → B) : ∀ l : list A, length (map f l) = length l
+theorem length_map [simp] (f : A → B) : ∀ l : list A, length (map f l) = length l
 | []       := by esimp
 | (a :: l) :=
   show length (map f l) + 1 = length l + 1,
@@ -78,12 +78,12 @@ definition filter (p : A → Prop) [h : decidable_pred p] : list A → list A
 | []     := []
 | (a::l) := if p a then a :: filter l else filter l
 
-theorem filter_nil (p : A → Prop) [h : decidable_pred p] : filter p [] = []
+theorem filter_nil [simp] (p : A → Prop) [h : decidable_pred p] : filter p [] = []
 
-theorem filter_cons_of_pos {p : A → Prop} [h : decidable_pred p] {a : A} : ∀ l, p a → filter p (a::l) = a :: filter p l :=
+theorem filter_cons_of_pos [simp] {p : A → Prop} [h : decidable_pred p] {a : A} : ∀ l, p a → filter p (a::l) = a :: filter p l :=
 λ l pa, if_pos pa
 
-theorem filter_cons_of_neg {p : A → Prop} [h : decidable_pred p] {a : A} : ∀ l, ¬ p a → filter p (a::l) = filter p l :=
+theorem filter_cons_of_neg [simp] {p : A → Prop} [h : decidable_pred p] {a : A} : ∀ l, ¬ p a → filter p (a::l) = filter p l :=
 λ l pa, if_neg pa
 
 theorem of_mem_filter {p : A → Prop} [h : decidable_pred p] {a : A} : ∀ {l}, a ∈ filter p l → p a
@@ -116,7 +116,7 @@ theorem mem_filter_of_mem {p : A → Prop} [h : decidable_pred p] {a : A} : ∀ 
     (λ aeqb : a = b, absurd (eq.rec_on aeqb pa) npb)
     (λ ainl : a ∈ l, by rewrite [filter_cons_of_neg _ npb]; exact (mem_filter_of_mem ainl pa)))
 
-theorem filter_sub {p : A → Prop} [h : decidable_pred p] (l : list A) : filter p l ⊆ l :=
+theorem filter_sub [simp] {p : A → Prop} [h : decidable_pred p] (l : list A) : filter p l ⊆ l :=
 λ a ain, mem_of_mem_filter ain
 
 theorem filter_append {p : A → Prop} [h : decidable_pred p] : ∀ (l₁ l₂ : list A), filter p (l₁++l₂) = filter p l₁ ++ filter p l₂
@@ -130,17 +130,17 @@ definition foldl (f : A → B → A) : A → list B → A
 | a []       := a
 | a (b :: l) := foldl (f a b) l
 
-theorem foldl_nil (f : A → B → A) (a : A) : foldl f a [] = a
+theorem foldl_nil [simp] (f : A → B → A) (a : A) : foldl f a [] = a
 
-theorem foldl_cons (f : A → B → A) (a : A) (b : B) (l : list B) : foldl f a (b::l) = foldl f (f a b) l
+theorem foldl_cons [simp] (f : A → B → A) (a : A) (b : B) (l : list B) : foldl f a (b::l) = foldl f (f a b) l
 
 definition foldr (f : A → B → B) : B → list A → B
 | b []       := b
 | b (a :: l) := f a (foldr b l)
 
-theorem foldr_nil (f : A → B → B) (b : B) : foldr f b [] = b
+theorem foldr_nil [simp] (f : A → B → B) (b : B) : foldr f b [] = b
 
-theorem foldr_cons (f : A → B → B) (b : B) (a : A) (l : list A) : foldr f b (a::l) = f a (foldr f b l)
+theorem foldr_cons [simp] (f : A → B → B) (b : B) (a : A) (l : list A) : foldr f b (a::l) = f a (foldr f b l)
 
 section foldl_eq_foldr
   -- foldl and foldr coincide when f is commutative and associative
@@ -171,11 +171,11 @@ section foldl_eq_foldr
     end
 end foldl_eq_foldr
 
-theorem foldl_append (f : B → A → B) : ∀ (b : B) (l₁ l₂ : list A), foldl f b (l₁++l₂) = foldl f (foldl f b l₁) l₂
+theorem foldl_append [simp] (f : B → A → B) : ∀ (b : B) (l₁ l₂ : list A), foldl f b (l₁++l₂) = foldl f (foldl f b l₁) l₂
 | b []      l₂ := rfl
 | b (a::l₁) l₂ := by rewrite [append_cons, *foldl_cons, foldl_append]
 
-theorem foldr_append (f : A → B → B) : ∀ (b : B) (l₁ l₂ : list A), foldr f b (l₁++l₂) = foldr f (foldr f b l₂) l₁
+theorem foldr_append [simp] (f : A → B → B) : ∀ (b : B) (l₁ l₂ : list A), foldr f b (l₁++l₂) = foldr f (foldr f b l₂) l₁
 | b []      l₂ := rfl
 | b (a::l₁) l₂ := by rewrite [append_cons, *foldr_cons, foldr_append]
 
@@ -186,7 +186,7 @@ foldr (λ a r, p a ∧ r) true l
 definition any (l : list A) (p : A → Prop) : Prop :=
 foldr (λ a r, p a ∨ r) false l
 
-theorem all_nil_eq (p : A → Prop) : all [] p = true
+theorem all_nil_eq [simp] (p : A → Prop) : all [] p = true
 
 theorem all_nil (p : A → Prop) : all [] p := trivial
 
@@ -226,9 +226,9 @@ theorem all_of_forall {p : A → Prop} : ∀ {l}, (∀a, a ∈ l → p a) → al
 | (a::l) H := all_cons (H a !mem_cons)
                        (all_of_forall (λ a' H', H a' (mem_cons_of_mem _ H')))
 
-theorem any_nil (p : A → Prop) : any [] p = false
+theorem any_nil [simp] (p : A → Prop) : any [] p = false
 
-theorem any_cons (p : A → Prop) (a : A) (l : list A) : any (a::l) p = (p a ∨ any l p)
+theorem any_cons [simp] (p : A → Prop) (a : A) (l : list A) : any (a::l) p = (p a ∨ any l p)
 
 theorem any_of_mem {p : A → Prop} {a : A} : ∀ {l}, a ∈ l → p a → any l p
 | []     i h := absurd i !not_mem_nil
@@ -282,9 +282,9 @@ definition unzip : list (A × B) → list A × list B
   | (la, lb) := (a :: la, b :: lb)
   end
 
-theorem unzip_nil : unzip (@nil (A × B)) = ([], [])
+theorem unzip_nil [simp] : unzip (@nil (A × B)) = ([], [])
 
-theorem unzip_cons (a : A) (b : B) (l : list (A × B)) :
+theorem unzip_cons [simp] (a : A) (b : B) (l : list (A × B)) :
    unzip ((a, b) :: l) = match unzip l with (la, lb) := (a :: la, b :: lb) end :=
 rfl
 

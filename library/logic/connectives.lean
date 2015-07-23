@@ -93,10 +93,10 @@ and.elim H₁ (assume Ha : a, assume Hc : c, and.intro (H Ha) Hc)
 theorem and_of_and_of_imp_right (H₁ : c ∧ a) (H : a → b) : c ∧ b :=
 and.elim H₁ (assume Hc : c, assume Ha : a, and.intro Hc (H Ha))
 
-theorem and.comm : a ∧ b ↔ b ∧ a :=
+theorem and.comm [simp] : a ∧ b ↔ b ∧ a :=
 iff.intro (λH, and.swap H) (λH, and.swap H)
 
-theorem and.assoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
+theorem and.assoc [simp] : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
 iff.intro
   (assume H,
    obtain [Ha Hb] Hc, from H,
@@ -174,10 +174,10 @@ or.elim H₁ (assume Ha, Ha) (assume Hb, absurd Hb H₂)
 theorem or.swap (H : a ∨ b) : b ∨ a :=
 or.elim H (assume Ha, or.inr Ha) (assume Hb, or.inl Hb)
 
-theorem or.comm : a ∨ b ↔ b ∨ a :=
+theorem or.comm [simp] : a ∨ b ↔ b ∨ a :=
 iff.intro (λH, or.swap H) (λH, or.swap H)
 
-theorem or.assoc : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
+theorem or.assoc [simp] : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
 iff.intro
   (assume H, or.elim H
     (assume H₁, or.elim H₁
@@ -309,23 +309,15 @@ section
   variables {a₁ b₁ a₂ b₂ : Prop}
   variables (H₁ : a₁ ↔ b₁) (H₂ : a₂ ↔ b₂)
 
-  theorem congr_and : a₁ ∧ a₂ ↔ b₁ ∧ b₂ :=
-  iff.intro
-    (assume H₃ : a₁ ∧ a₂, and_of_and_of_imp_of_imp H₃ (iff.elim_left H₁) (iff.elim_left H₂))
-    (assume H₃ : b₁ ∧ b₂, and_of_and_of_imp_of_imp H₃ (iff.elim_right H₁) (iff.elim_right H₂))
+  theorem congr_and [congr] : a₁ ∧ a₂ ↔ b₁ ∧ b₂ :=
+  and_iff_and H₁ H₂
 
-  theorem congr_or : a₁ ∨ a₂ ↔ b₁ ∨ b₂ :=
-  iff.intro
-    (assume H₃ : a₁ ∨ a₂, or_of_or_of_imp_of_imp H₃ (iff.elim_left H₁) (iff.elim_left H₂))
-    (assume H₃ : b₁ ∨ b₂, or_of_or_of_imp_of_imp H₃ (iff.elim_right H₁) (iff.elim_right H₂))
+  theorem congr_or [congr] : a₁ ∨ a₂ ↔ b₁ ∨ b₂ :=
+  or_iff_or H₁ H₂
 
-  theorem congr_imp : (a₁ → a₂) ↔ (b₁ → b₂) :=
-  iff.intro
-    (assume H₃ : a₁ → a₂, assume Hb₁ : b₁, iff.elim_left H₂ (H₃ ((iff.elim_right H₁) Hb₁)))
-    (assume H₃ : b₁ → b₂, assume Ha₁ : a₁, iff.elim_right H₂ (H₃ ((iff.elim_left H₁) Ha₁)))
+  theorem congr_imp [congr] : (a₁ → a₂) ↔ (b₁ → b₂) :=
+  imp_iff_imp H₁ H₂
 
-  theorem congr_iff : (a₁ ↔ a₂) ↔ (b₁ ↔ b₂) :=
-  iff.intro
-    (assume H₃ : a₁ ↔ a₂, iff.trans (iff.symm H₁) (iff.trans H₃ H₂))
-    (assume H₃ : b₁ ↔ b₂, iff.trans H₁ (iff.trans H₃ (iff.symm H₂)))
+  theorem congr_iff [congr] : (a₁ ↔ a₂) ↔ (b₁ ↔ b₂) :=
+  iff_iff_iff H₁ H₂
 end

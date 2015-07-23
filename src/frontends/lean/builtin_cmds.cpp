@@ -381,11 +381,22 @@ static void print_reducible_info(parser & p, reducible_status s1) {
 
 static void print_simp_sets(parser & p) {
     io_state_stream out = p.regular_stream();
-    simp_rule_sets s = get_simp_rule_sets(p.env());
+    simp_rule_sets s;
+    name ns;
+    if (p.curr_is_identifier()) {
+        ns = p.get_name_val();
+        p.next();
+        s = get_simp_rule_sets(p.env(), ns);
+    } else {
+        s = get_simp_rule_sets(p.env());
+    }
     name prev_eqv;
     s.for_each([&](name const & eqv, simp_rule const & rw) {
             if (prev_eqv != eqv) {
-                out << "simplification rules for " << eqv << "\n";
+                out << "simplification rules for " << eqv;
+                if (!ns.is_anonymous())
+                    out << " at namespace '" << ns << "'";
+                out << "\n";
                 prev_eqv = eqv;
             }
             out << rw.pp(out.get_formatter()) << "\n";

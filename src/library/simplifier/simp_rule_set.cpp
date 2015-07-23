@@ -100,7 +100,7 @@ void simp_rule_sets::for_each(std::function<void(name const &, simp_rule const &
 static name * g_prefix = nullptr;
 
 simp_rule_sets add_core(type_checker & tc, simp_rule_sets const & s,
-                           name const & id, levels const & univ_metas, expr const & e, expr const & h) {
+                        name const & id, levels const & univ_metas, expr const & e, expr const & h) {
     list<expr_pair> ceqvs   = to_ceqvs(tc, e, h);
     environment const & env = tc.env();
     simp_rule_sets new_s = s;
@@ -139,25 +139,27 @@ simp_rule_sets join(simp_rule_sets const & s1, simp_rule_sets const & s2) {
 static name * g_class_name = nullptr;
 static std::string * g_key = nullptr;
 
+static simp_rule_sets add_core(type_checker & tc, simp_rule_sets const & s, name const & cname) {
+    declaration const & d = tc.env().get(cname);
+    buffer<level> us;
+    unsigned num_univs = d.get_num_univ_params();
+    for (unsigned i = 0; i < num_univs; i++) {
+        us.push_back(mk_meta_univ(name(*g_prefix, i)));
+    }
+    levels ls = to_list(us);
+    expr e    = instantiate_type_univ_params(d, ls);
+    expr h    = mk_constant(cname, ls);
+    return add_core(tc, s, cname, ls, e, h);
+}
+
 struct rrs_state {
     simp_rule_sets           m_sets;
-    name_set                    m_rnames;
-    name_map<simp_rule_sets> m_namespace_cache;
+    name_set                 m_snames;
 
     void add(environment const & env, name const & cname) {
         type_checker tc(env);
-        declaration const & d = env.get(cname);
-        buffer<level> us;
-        unsigned num_univs = d.get_num_univ_params();
-        for (unsigned i = 0; i < num_univs; i++) {
-            us.push_back(mk_meta_univ(name(*g_prefix, i)));
-        }
-        levels ls = to_list(us);
-        expr e    = instantiate_type_univ_params(d, ls);
-        expr h    = mk_constant(cname, ls);
-        m_sets = add_core(tc, m_sets, cname, ls, e, h);
-        m_rnames.insert(cname);
-        m_namespace_cache.erase(get_namespace(env));
+        m_sets = add_core(tc, m_sets, cname);
+        m_snames.insert(cname);
     }
 };
 
@@ -197,11 +199,23 @@ environment add_congr_rule(environment const & env, name const & n, bool persist
 }
 
 bool is_simp_rule(environment const & env, name const & n) {
-    return rrs_ext::get_state(env).m_rnames.contains(n);
+    return rrs_ext::get_state(env).m_snames.contains(n);
 }
 
 simp_rule_sets get_simp_rule_sets(environment const & env) {
     return rrs_ext::get_state(env).m_sets;
+}
+
+simp_rule_sets get_simp_rule_sets(environment const & env, name const & ns) {
+    simp_rule_sets set;
+    list<name> const * cnames = rrs_ext::get_entries(env, ns);
+    if (cnames) {
+        type_checker tc(env);
+        for (name const & cname : *cnames) {
+            set = add_core(tc, set, cname);
+        }
+    }
+    return set;
 }
 
 void initialize_simp_rule_set() {

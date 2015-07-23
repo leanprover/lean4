@@ -76,7 +76,7 @@ bool is_simp_rule(environment const & env, name const & n);
 /** \brief Get current rewrite rule sets */
 simp_rule_sets get_simp_rule_sets(environment const & env);
 /** \brief Get rewrite rule sets in the given namespace. */
-simp_rule_sets get_simp_rule_set(environment const & env, name const & ns);
+simp_rule_sets get_simp_rule_sets(environment const & env, name const & ns);
 void initialize_simp_rule_set();
 void finalize_simp_rule_set();
 }

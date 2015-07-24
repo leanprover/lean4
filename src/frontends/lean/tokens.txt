@@ -42,6 +42,7 @@ show         show
 have         have
 assert       assert
 assume       assume
+suppose      suppose
 take         take
 fun          fun
 match        match

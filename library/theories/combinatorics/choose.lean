@@ -33,10 +33,10 @@ nat.induction_on n
   (take n',
     assume IH: ∀ k, n' < k → choose n' k = 0,
     take k,
-    assume H : succ n' < k,
-    obtain k' (keq : k = succ k'), from exists_eq_succ_of_lt H,
-    assert H' : n' < k', by rewrite keq at H; apply lt_of_succ_lt_succ H,
-    by rewrite [keq, choose_succ_succ, IH _ H', IH _ (lt.trans H' !lt_succ_self)])
+    suppose succ n' < k,
+    obtain k' (keq : k = succ k'), from exists_eq_succ_of_lt this,
+    assert n' < k', by rewrite keq at this; apply lt_of_succ_lt_succ this,
+    by rewrite [keq, choose_succ_succ, IH _ this, IH _ (lt.trans this !lt_succ_self)])
 
 theorem choose_self (n : ℕ) : choose n n = 1 :=
 begin
@@ -68,9 +68,9 @@ begin
   intro k,
   cases k with k,
     {intro H, rewrite [choose_zero_right], apply zero_lt_one},
-  assume H : succ k ≤ succ n,
-  assert H' : k ≤ n, from le_of_succ_le_succ H,
-  by rewrite [choose_succ_succ]; apply add_pos_right (ih H')
+  suppose succ k ≤ succ n,
+  assert k ≤ n, from le_of_succ_le_succ this,
+  by rewrite [choose_succ_succ]; apply add_pos_right (ih this)
 end
 
 -- A key identity. The proof is subtle.
@@ -95,16 +95,16 @@ theorem choose_mul_fact_mul_fact {n : ℕ} :
 begin
   induction n using nat.strong_induction_on with [n, ih],
   cases n with n,
-    {intro k H, have kz : k = 0, from eq_zero_of_le_zero H, rewrite [kz]},
+    {intro k H, have k = 0, from eq_zero_of_le_zero H, rewrite this},
   intro k,
   intro H,  -- k ≤ n,
   cases k with k,
     {rewrite [choose_zero_right, fact_zero, *one_mul]},
-  have kle : k ≤ n, from le_of_succ_le_succ H,
+  have k ≤ n, from le_of_succ_le_succ H,
   show choose (succ n) (succ k) * fact (succ k) * fact (succ n - succ k) = fact (succ n), from
   begin
     rewrite [succ_sub_succ, fact_succ, -mul.assoc, -succ_mul_choose_eq],
-    rewrite [fact_succ n, -ih n !lt_succ_self kle, *mul.assoc]
+    rewrite [fact_succ n, -ih n !lt_succ_self this, *mul.assoc]
   end
 end
 

@@ -76,12 +76,12 @@ ext (take a, iff.intro
 lemma binary_union (P : A → Prop) [decP : decidable_pred P] {S : finset A} :
   S = {a ∈ S | P a} ∪ {a ∈ S | ¬(P a)} :=
 ext take a, iff.intro
-  (assume Pin, decidable.by_cases
-    (λ Pa : P a, mem_union_l (mem_filter_of_mem Pin Pa))
-    (λ nPa, mem_union_r (mem_filter_of_mem Pin nPa)))
-  (assume Pinu, or.elim (mem_or_mem_of_mem_union Pinu)
-    (assume Pin, mem_of_mem_filter Pin)
-    (assume Pin, mem_of_mem_filter Pin))
+  (suppose a ∈ S, decidable.by_cases
+    (suppose P a, mem_union_l (mem_filter_of_mem `a ∈ S` this))
+    (suppose ¬ P a, mem_union_r (mem_filter_of_mem `a ∈ S` this)))
+  (suppose a ∈ filter P S ∪ {a ∈ S | ¬ P a}, or.elim (mem_or_mem_of_mem_union this)
+    (suppose a ∈ filter P S,      mem_of_mem_filter this)
+    (suppose a ∈ {a ∈ S | ¬ P a}, mem_of_mem_filter this))
 
 lemma binary_inter_empty {P : A → Prop} [decP : decidable_pred P] {S : finset A} :
   {a ∈ S | P a} ∩ {a ∈ S | ¬(P a)} = ∅ :=
@@ -99,9 +99,9 @@ lemma binary_inter_empty_Union_disjoint_sets {P : finset A → Prop} [decP : dec
 assume Pds, inter_eq_empty (take a, assume Pa nPa,
   obtain s Psin Pains, from iff.elim_left !mem_Union_iff Pa,
   obtain t Ptin Paint, from iff.elim_left !mem_Union_iff nPa,
-  assert Pneq : s ≠ t,
+  assert s ≠ t,
     from assume Peq, absurd (Peq ▸ of_mem_filter Psin) (of_mem_filter Ptin),
-  Pds s t (mem_of_mem_filter Psin) (mem_of_mem_filter Ptin) Pneq ▸ mem_inter Pains Paint)
+  Pds s t (mem_of_mem_filter Psin) (mem_of_mem_filter Ptin) `s ≠ t` ▸ mem_inter Pains Paint)
 
 section
 variables {B: Type} [deceqB : decidable_eq B]

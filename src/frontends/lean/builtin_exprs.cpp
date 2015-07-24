@@ -184,9 +184,28 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
                 auto pos = p.pos();
                 p.next();
                 auto id_pos = p.pos();
-                name id  = p.check_id_next("invalid 'have' tactic, identifier expected");
-                p.check_token_next(get_colon_tk(), "invalid 'have' tactic, ':' expected");
-                expr A   = p.parse_tactic_expr_arg();
+                name id;
+                expr A;
+                if (p.curr_is_identifier()) {
+                    id = p.get_name_val();
+                    p.next();
+                    if (p.curr_is_token(get_colon_tk())) {
+                        p.next();
+                        A = p.parse_tactic_expr_arg();
+                    } else {
+                        parser::undef_id_to_local_scope scope1(p);
+                        expr left = p.id_to_expr(id, id_pos);
+                        id        = get_this_tk();
+                        unsigned rbp = 0;
+                        while (rbp < p.curr_expr_lbp()) {
+                            left = p.parse_led(left);
+                        }
+                        A = left;
+                    }
+                } else {
+                    id = get_this_tk();
+                    A  = p.parse_tactic_expr_arg();
+                }
                 expr assert_tac = p.save_pos(mk_assert_tactic_expr(id, A), pos);
                 tacs.push_back(mk_begin_end_element_annotation(assert_tac));
                 if (p.curr_is_token(get_bar_tk())) {
@@ -232,7 +251,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
             } else if (p.curr_is_token(get_match_tk()) || p.curr_is_token(get_assume_tk()) ||
                        p.curr_is_token(get_take_tk())  || p.curr_is_token(get_fun_tk()) ||
                        p.curr_is_token(get_calc_tk())  || p.curr_is_token(get_show_tk()) ||
-                       p.curr_is_token(get_obtain_tk())) {
+                       p.curr_is_token(get_obtain_tk()) || p.curr_is_token(get_suppose_tk())) {
                 auto pos = p.pos();
                 expr t = p.parse_tactic_expr_arg();
                 t      = p.mk_app(get_exact_tac_fn(), t, pos);

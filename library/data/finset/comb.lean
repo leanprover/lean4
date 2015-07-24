@@ -58,8 +58,8 @@ theorem image_insert [h' : decidable_eq A] (f : A → B) (s : finset A) (a : A) 
 ext (take y, iff.intro
   (assume H : y ∈ image f (insert a s),
     obtain x (H1l : x ∈ insert a s) (H1r :f x = y), from exists_of_mem_image H,
-    have H2 : x = a ∨ x ∈ s, from eq_or_mem_of_mem_insert H1l,
-    or.elim H2
+    have x = a ∨ x ∈ s, from eq_or_mem_of_mem_insert H1l,
+    or.elim this
       (suppose x = a,
         have f a = y, from eq.subst this H1r,
         show y ∈ insert (f a) (image f s), from eq.subst this !mem_insert)
@@ -224,8 +224,8 @@ quot.induction_on₂ s₁ s₂ (λ l₁ l₂ h, list.all_inter_of_all_right _ h)
 
 theorem subset_iff_all (s t : finset A) : s ⊆ t ↔ all s (λ x, x ∈ t) :=
 iff.intro
-  (suppose s ⊆ t, all_of_forall (take x, assume H1, mem_of_subset_of_mem `s ⊆ t` H1))
-  (suppose H : all s (λ x, x ∈ t), subset_of_forall (take x, assume H1 : x ∈ s, of_mem_of_all H1 H))
+  (suppose s ⊆ t, all_of_forall (take x, suppose x ∈ s, mem_of_subset_of_mem `s ⊆ t` `x ∈ s`))
+  (suppose all s (λ x, x ∈ t), subset_of_forall (take x, suppose x ∈ s, of_mem_of_all `x ∈ s` `all s (λ x, x ∈ t)`))
 
 definition decidable_subset [instance] (s t : finset A) : decidable (s ⊆ t) :=
 decidable_of_decidable_of_iff _ (iff.symm !subset_iff_all)

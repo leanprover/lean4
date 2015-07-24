@@ -155,9 +155,9 @@ lemma lt_of_inj_of_max (f : fin (succ n) → fin (succ n)) :
   injective f → (f maxi = maxi) → ∀ i, i < n → f i < n :=
 assume Pinj Peq, take i, assume Pilt,
 assert P1 : f i = f maxi → i = maxi, from assume Peq, Pinj i maxi Peq,
-have P : f i ≠ maxi, from
+have f i ≠ maxi, from
      begin rewrite -Peq, intro P2, apply absurd (P1 P2) (ne_max_of_lt_max Pilt) end,
-lt_max_of_ne_max P
+lt_max_of_ne_max this
 
 definition lift_fun : (fin n → fin n) → (fin (succ n) → fin (succ n)) :=
 λ f i, dite (i = maxi) (λ Pe, maxi) (λ Pne, lift_succ (f (mk i (lt_max_of_ne_max Pne))))
@@ -291,13 +291,13 @@ begin
   induction (nat.decidable_lt 0 vk) with [HT, HF],
   { show C (mk vk pk), from
     let vj := nat.pred vk in
-    have HSv : vk = nat.succ vj, from
+    have vk = vj+1, from
       eq.symm (succ_pred_of_pos HT),
-    assert pj : vj < n, from
-      lt_of_succ_lt_succ (eq.subst HSv pk),
-    have succ (mk vj pj) = mk vk pk, from
-      val_inj (eq.symm HSv),
-    eq.rec_on this (CS (mk vj pj)) },
+    assert vj < n, from
+      lt_of_succ_lt_succ (eq.subst `vk = vj+1` pk),
+    have succ (mk vj `vj < n`) = mk vk pk, from
+      val_inj (eq.symm `vk = vj+1`),
+    eq.rec_on this (CS (mk vj `vj < n`)) },
   { show C (mk vk pk), from
     have vk = 0, from
       eq_zero_of_le_zero (le_of_not_gt HF),

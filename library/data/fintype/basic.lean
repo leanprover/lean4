@@ -211,7 +211,8 @@ let  e     : list ⟪s⟫ := ltype_elems sub₁ in
 fintype.mk
   e
   (nodup_ltype_elems dnds sub₁)
-  (λ a : ⟪s⟫, show a ∈ e, from
-   have vains   : value a ∈ s,   from is_member a,
-   have vainnds : value a ∈ nds, from sub₂ vains,
-   mem_ltype_elems sub₁ vainnds)
+  (take a : ⟪s⟫,
+   show a ∈ e, from
+     have value a ∈ s,   from is_member a,
+     have value a ∈ nds, from sub₂ this,
+     mem_ltype_elems sub₁ this)

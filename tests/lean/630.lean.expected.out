@@ -1,6 +1,5 @@
-inductive pnat.pnat : Type₁
-constructors:
-pnat.pnat.pos : Π (n : ℕ), nat.gt n (nat.of_num 0) → ℕ+
+definition pnat.pnat : Type₁ :=
+{ (n : ℕ)| nat.gt n (nat.of_num 0)}
 inductive prod : Type → Type → Type
 constructors:
 prod.mk : Π {A : Type} {B : Type}, A → B → A × B

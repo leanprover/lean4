@@ -4,7 +4,7 @@ H : b ∧ a
 ⊢ a
 
 a b : Prop,
-H_1 : b ∧ a,
+H : b ∧ a,
 H : a
 ⊢ a ∧ b
 assert_fail.lean:4:0: error: failed to add declaration 'example' to environment, value has metavariables

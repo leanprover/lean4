@@ -822,9 +822,11 @@ justification mk_type_mismatch_jst(expr const & v, expr const & v_type, expr con
         });
 }
 
-format format_goal(formatter const & fmt, buffer<expr> const & hyps, expr const & conclusion, substitution const & s) {
+format format_goal(formatter const & _fmt, buffer<expr> const & hyps, expr const & conclusion, substitution const & s) {
     substitution tmp_subst(s);
-    options const & opts = fmt.get_options();
+    options opts     = _fmt.get_options();
+    opts             = opts.update_if_undef(get_pp_purify_locals_name(), false);
+    formatter fmt    = _fmt.update_options(opts);
     unsigned indent  = get_pp_indent(opts);
     bool unicode     = get_pp_unicode(opts);
     bool compact     = get_pp_compact_goals(opts);

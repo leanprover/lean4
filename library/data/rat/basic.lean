@@ -92,6 +92,9 @@ prerat.mk (num a * num b) (denom a * denom b) (mul_denom_pos a b)
 definition neg (a : prerat) : prerat :=
 prerat.mk (- num a) (denom a) (denom_pos a)
 
+definition smul (a : ℤ) (b : prerat) (H : a > 0) : prerat :=
+prerat.mk (a * num b) (a * denom b) (mul_pos H (denom_pos b))
+
 theorem of_int_add (a b : ℤ) : of_int (#int a + b) ≡ add (of_int a) (of_int b) :=
 by esimp [equiv, num, denom, one, add, of_int]; rewrite [*int.mul_one]
 
@@ -199,6 +202,9 @@ theorem inv_equiv_inv : ∀{a b : prerat}, a ≡ b → inv a ≡ inv b
                                 by rewrite [↑equiv at *, ▸*, mul.comm ad, mul.comm bd, H]
                        ... ≡ inv (mk bn bd bdp) : (inv_of_pos bn_pos bdp)⁻¹)
 
+theorem smul_equiv {a : ℤ} {b : prerat} (H : a > 0) : smul a b H ≡ b :=
+by esimp[equiv, smul]; rewrite[mul.assoc, mul.left_comm]
+
 /- properties -/
 
 theorem add.comm (a b : prerat) : add a b ≡ add b a :=
@@ -223,12 +229,18 @@ by rewrite [↑mul, ↑equiv, *mul.assoc]
 theorem mul_one (a : prerat) : mul a one ≡ a :=
 by rewrite [↑mul, ↑one, ↑of_int, ↑equiv, ▸*, *mul_one]
 
--- with the simplifier this will be easy
 theorem mul.left_distrib (a b c : prerat) : mul a (add b c) ≡ add (mul a b) (mul a c) :=
-begin
-  rewrite [↑mul, ↑add, ↑equiv, ▸*, *mul.left_distrib, *mul.right_distrib, -*int.mul.assoc],
-  apply sorry
-end
+have H : smul (denom a) (mul a (add b c)) (denom_pos a) =
+   add (mul a b) (mul a c), from begin
+  rewrite[↑smul, ↑mul, ↑add],
+  congruence,
+  rewrite[*mul.left_distrib, *mul.right_distrib, -*int.mul.assoc],
+  have T : ∀ {x y z w : ℤ}, x*y*z*w=y*z*x*w, from
+    λx y z w, (!int.mul.assoc ⬝ !int.mul.comm) ▸ rfl,
+  exact !congr_arg2 T T,
+  exact !mul.left_comm ▸ !int.mul.assoc⁻¹
+end,
+equiv.symm (H ▸ smul_equiv (denom_pos a))
 
 theorem mul_inv_cancel : ∀{a : prerat}, ¬ a ≡ zero → mul a (inv a) ≡ one
 | (mk an ad adp) :=

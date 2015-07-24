@@ -65,7 +65,7 @@ theorem exists_eq_succ_of_ne_zero {n : ℕ} (H : n ≠ 0) : ∃k : ℕ, n = succ
 exists.intro _ (or_resolve_right !eq_zero_or_eq_succ_pred H)
 
 theorem succ.inj {n m : ℕ} (H : succ n = succ m) : n = m :=
-nat.no_confusion H (λe, e)
+nat.no_confusion H imp.id
 
 abbreviation eq_of_succ_eq_succ := @succ.inj
 
@@ -93,8 +93,7 @@ have stronger : P a ∧ P (succ a), from
 
 theorem sub_induction {P : ℕ → ℕ → Prop} (n m : ℕ) (H1 : ∀m, P 0 m)
    (H2 : ∀n, P (succ n) 0) (H3 : ∀n m, P n m → P (succ n) (succ m)) : P n m :=
-have general : ∀m, P n m, from nat.induction_on n
-  (take m : ℕ, H1 m)
+have general : ∀m, P n m, from nat.induction_on n H1
   (take k : ℕ,
     assume IH : ∀m, P k m,
     take m : ℕ,
@@ -146,11 +145,14 @@ nat.induction_on k
                      ... = n + succ (m + l)    : add_succ
                      ... = n + (m + succ l)    : add_succ)
 
-theorem add.left_comm [simp] (n m k : ℕ) : n + (m + k) = m + (n + k) :=
-left_comm add.comm add.assoc n m k
+theorem add.left_comm [simp] : Π (n m k : ℕ), n + (m + k) = m + (n + k) :=
+left_comm add.comm add.assoc
 
-theorem add.right_comm (n m k : ℕ) : n + m + k = n + k + m :=
-right_comm add.comm add.assoc n m k
+theorem add.right_comm : Π (n m k : ℕ), n + m + k = n + k + m :=
+right_comm add.comm add.assoc
+
+theorem add.comm4 : Π {n m k l : ℕ}, n + m + (k + l) = n + k + (m + l) :=
+comm4 add.comm add.assoc
 
 theorem add.cancel_left {n m k : ℕ} : n + m = n + k → m = k :=
 nat.induction_on n

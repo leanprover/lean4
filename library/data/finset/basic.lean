@@ -28,10 +28,10 @@ private definition eqv.refl (l : nodup_list A) : l ~ l :=
 !perm.refl
 
 private definition eqv.symm {l₁ l₂ : nodup_list A} : l₁ ~ l₂ → l₂ ~ l₁ :=
-assume p, perm.symm p
+perm.symm
 
 private definition eqv.trans {l₁ l₂ l₃ : nodup_list A} : l₁ ~ l₂ → l₂ ~ l₃ → l₁ ~ l₃ :=
-assume p₁ p₂, perm.trans p₁ p₂
+perm.trans
 
 definition finset.nodup_list_setoid [instance] (A : Type) : setoid (nodup_list A) :=
 setoid.mk (@eqv A) (mk_equivalence (@eqv A) (@eqv.refl A) (@eqv.symm A) (@eqv.trans A))
@@ -123,7 +123,7 @@ theorem not_mem_empty [simp] (a : A) : a ∉ ∅ :=
 λ aine : a ∈ ∅, aine
 
 theorem mem_empty_iff [simp] (x : A) : x ∈ ∅ ↔ false :=
-iff.mpr !iff_false_iff_not !not_mem_empty
+iff_false_intro !not_mem_empty
 
 theorem mem_empty_eq (x : A) : x ∈ ∅ = false :=
 propext !mem_empty_iff
@@ -177,30 +177,18 @@ quot.induction_on s
 theorem eq_or_mem_of_mem_insert {x a : A} {s : finset A} : x ∈ insert a s → x = a ∨ x ∈ s :=
 quot.induction_on s (λ l : nodup_list A, λ H, list.eq_or_mem_of_mem_insert H)
 
-theorem mem_of_mem_insert_of_ne {x a : A} {s : finset A} : x ∈ insert a s → x ≠ a → x ∈ s :=
-λ xin xne, or.elim (eq_or_mem_of_mem_insert xin) (by contradiction) id
+theorem mem_of_mem_insert_of_ne {x a : A} {s : finset A} (xin : x ∈ insert a s) : x ≠ a → x ∈ s :=
+or_resolve_right (eq_or_mem_of_mem_insert xin)
 
 theorem mem_insert_eq (x a : A) (s : finset A) : x ∈ insert a s = (x = a ∨ x ∈ s) :=
-propext (iff.intro
-  (!eq_or_mem_of_mem_insert)
-  (suppose x = a ∨ x ∈ s, or.elim this
-    (suppose x = a, eq.subst (eq.symm this) !mem_insert)
-    (suppose x ∈ s, !mem_insert_of_mem this)))
+propext (iff.intro !eq_or_mem_of_mem_insert
+  (or.rec (λH', (eq.substr H' !mem_insert)) !mem_insert_of_mem))
 
 theorem insert_empty_eq (a : A) : '{a} = singleton a := rfl
 
 theorem insert_eq_of_mem {a : A} {s : finset A} (H : a ∈ s) : insert a s = s :=
-ext
-  take x,
-  begin
-    rewrite [!mem_insert_eq],
-    show x = a ∨ x ∈ s ↔ x ∈ s, from
-      iff.intro
-        (assume H1, or.elim H1
-           (suppose x = a, eq.subst (eq.symm this) H)
-           (suppose x ∈ s, this))
-        (suppose x ∈ s, or.inr this)
-  end
+ext (λ x, eq.substr (mem_insert_eq x a s)
+   (or_iff_right_of_imp (λH1, eq.substr H1 H)))
 
 theorem card_insert_of_mem {a : A} {s : finset A} : a ∈ s → card (insert a s) = card s :=
 quot.induction_on s
@@ -212,9 +200,8 @@ quot.induction_on s
 
 theorem card_insert_le (a : A) (s : finset A) :
   card (insert a s) ≤ card s + 1 :=
-decidable.by_cases
-  (suppose a ∈ s, by rewrite [card_insert_of_mem this]; apply le_succ)
-  (suppose a ∉ s, by rewrite [card_insert_of_not_mem this])
+if H : a ∈ s then by rewrite [card_insert_of_mem H]; apply le_succ
+else by rewrite [card_insert_of_not_mem H]
 
 lemma ne_empty_of_card_eq_succ {s : finset A} {n : nat} : card s = succ n → s ≠ ∅ :=
 by intros; substvars; contradiction

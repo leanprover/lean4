@@ -22,47 +22,37 @@ local infixl `≺`:50 := pair_nat.lt
 private definition gcd.lt.dec (x y₁ : nat) : (succ y₁, x mod succ y₁) ≺ (x, succ y₁) :=
 !mod_lt (succ_pos y₁)
 
-definition gcd.F (p₁ : nat × nat) : (Π p₂ : nat × nat, p₂ ≺ p₁ → nat) → nat :=
-prod.cases_on p₁ (λx y, nat.cases_on y
-  (λ f, x)
-  (λ y₁ (f : Πp₂, p₂ ≺ (x, succ y₁) → nat), f (succ y₁, x mod succ y₁) !gcd.lt.dec))
+definition gcd.F : Π (p₁ : nat × nat), (Π p₂ : nat × nat, p₂ ≺ p₁ → nat) → nat
+| (x, 0)      f := x
+| (x, succ y) f := f (succ y, x mod succ y) !gcd.lt.dec
 
-definition gcd (x y : nat) := fix gcd.F (pair x y)
+definition gcd (x y : nat) := fix gcd.F (x, y)
 
-theorem gcd_zero_right (x : nat) : gcd x 0 = x :=
-well_founded.fix_eq gcd.F (x, 0)
+theorem gcd_zero_right (x : nat) : gcd x 0 = x := rfl
 
 theorem gcd_succ (x y : nat) : gcd x (succ y) = gcd (succ y) (x mod succ y) :=
 well_founded.fix_eq gcd.F (x, succ y)
 
 theorem gcd_one_right (n : ℕ) : gcd n 1 = 1 :=
-calc gcd n 1 = gcd 1 (n mod 1) : gcd_succ n zero
+calc gcd n 1 = gcd 1 (n mod 1) : gcd_succ
          ... = gcd 1 0         : mod_one
-         ... = 1               : gcd_zero_right
 
-theorem gcd_def (x y : ℕ) : gcd x y = if y = 0 then x else gcd y (x mod y) :=
-nat.cases_on y
-  (calc gcd x 0 = x                                          : gcd_zero_right x
-           ...  = if 0 = 0 then x else gcd zero (x mod zero) : (if_pos rfl)⁻¹)
-  (λy₁, calc
-    gcd x (succ y₁) = gcd (succ y₁) (x mod succ y₁)                  : gcd_succ x y₁
-      ... = if succ y₁ = 0 then x else gcd (succ y₁) (x mod succ y₁) : (if_neg (succ_ne_zero y₁))⁻¹)
+theorem gcd_def (x : ℕ) : Π (y : ℕ), gcd x y = if y = 0 then x else gcd y (x mod y)
+| 0        := !gcd_zero_right
+| (succ y) := !gcd_succ ⬝ (if_neg !succ_ne_zero)⁻¹
 
-theorem gcd_self (n : ℕ) : gcd n n = n :=
-nat.cases_on n
-  rfl
-  (λn₁, calc
-    gcd (succ n₁) (succ n₁) = gcd (succ n₁) (succ n₁ mod succ n₁) : gcd_succ (succ n₁) n₁
-                      ...   = gcd (succ n₁) 0                     : mod_self (succ n₁)
-                      ...   = succ n₁                             : gcd_zero_right)
 
-theorem gcd_zero_left (n : nat) : gcd 0 n = n :=
-nat.cases_on n
-  rfl
-  (λ n₁, calc
+theorem gcd_self : Π (n : ℕ), gcd n n = n
+| 0         := rfl
+| (succ n₁) := calc
+    gcd (succ n₁) (succ n₁) = gcd (succ n₁) (succ n₁ mod succ n₁) : gcd_succ
+                      ...   = gcd (succ n₁) 0                     : mod_self
+
+theorem gcd_zero_left : Π (n : ℕ), gcd 0 n = n
+| 0         := rfl
+| (succ n₁) := calc
     gcd 0 (succ n₁) = gcd (succ n₁) (0 mod succ n₁) : gcd_succ
                 ... = gcd (succ n₁) 0               : zero_mod
-                ... = (succ n₁)                     : gcd_zero_right)
 
 theorem gcd_of_pos (m : ℕ) {n : ℕ} (H : n > 0) : gcd m n = gcd n (m mod n) :=
 gcd_def m n ⬝ if_neg (ne_zero_of_pos H)
@@ -70,8 +60,7 @@ gcd_def m n ⬝ if_neg (ne_zero_of_pos H)
 theorem gcd_rec (m n : ℕ) : gcd m n = gcd n (m mod n) :=
 by_cases_zero_pos n
   (calc
-    gcd m 0 = m               : gcd_zero_right
-        ... = gcd 0 m         : gcd_zero_left
+          m = gcd 0 m         : gcd_zero_left
         ... = gcd 0 (m mod 0) : mod_zero)
   (take n, assume H : 0 < n, gcd_of_pos m H)
 
@@ -80,49 +69,32 @@ theorem gcd.induction {P : ℕ → ℕ → Prop}
                    (H0 : ∀m, P m 0)
                    (H1 : ∀m n, 0 < n → P n (m mod n) → P m n) :
                  P m n :=
-let Q : nat × nat → Prop := λ p : nat × nat, P (pr₁ p) (pr₂ p) in
-have aux : Q (m, n), from
-  well_founded.induction (m, n) (λp, prod.cases_on p
-    (λm n, nat.cases_on n
-      (λ ih, show P (pr₁ (m, 0)) (pr₂ (m, 0)), from H0 m)
-      (λ n₁ (ih : ∀p₂, p₂ ≺ (m, succ n₁) → P (pr₁ p₂) (pr₂ p₂)),
-        have hlt₁ : 0 < succ n₁, from succ_pos n₁,
-        have hlt₂ : (succ n₁, m mod succ n₁) ≺ (m, succ n₁), from gcd.lt.dec _ _,
-        have hp   : P (succ n₁) (m mod succ n₁), from ih _ hlt₂,
-        show P m (succ n₁), from
-          H1 m (succ n₁) hlt₁ hp))),
-aux
+induction (m, n) (prod.rec (λm, nat.rec (λ IH, H0 m)
+   (λ n₁ v (IH : ∀p₂, p₂ ≺ (m, succ n₁) → P (pr₁ p₂) (pr₂ p₂)),
+      H1 m (succ n₁) !succ_pos (IH _ !gcd.lt.dec))))
 
 theorem gcd_dvd (m n : ℕ) : (gcd m n ∣ m) ∧ (gcd m n ∣ n) :=
 gcd.induction m n
-  (take m,
-    show (gcd m 0 ∣ m) ∧ (gcd m 0 ∣ 0), by rewrite [*gcd_zero_right]; split; apply dvd.refl; apply dvd_zero)
-  (take m n,
-    assume npos : 0 < n,
-    assume IH : (gcd n (m mod n) ∣ n) ∧ (gcd n (m mod n) ∣ (m mod n)),
+  (take m, and.intro (!one_mul ▸ !dvd_mul_left) !dvd_zero)
+  (take m n (npos : 0 < n), and.rec
+     (assume (IH₁ : gcd n (m mod n) ∣ n) (IH₂ : gcd n (m mod n) ∣ (m mod n)),
     have H : (gcd n (m mod n) ∣ (m div n * n + m mod n)), from
-      dvd_add (dvd.trans (and.elim_left IH) !dvd_mul_left) (and.elim_right IH),
+      dvd_add (dvd.trans IH₁ !dvd_mul_left) IH₂,
     have H1 : (gcd n (m mod n) ∣ m), from !eq_div_mul_add_mod⁻¹ ▸ H,
-    have gcd_eq : gcd n (m mod n) = gcd m n, from !gcd_rec⁻¹,
-    show (gcd m n ∣ m) ∧ (gcd m n ∣ n), from gcd_eq ▸ (and.intro H1 (and.elim_left IH)))
+    show (gcd m n ∣ m) ∧ (gcd m n ∣ n), from !gcd_rec⁻¹ ▸ (and.intro H1 IH₁)))
 
-theorem gcd_dvd_left (m n : ℕ) : gcd m n ∣ m := and.elim_left !gcd_dvd
+theorem gcd_dvd_left (m n : ℕ) : gcd m n ∣ m := and.left !gcd_dvd
 
-theorem gcd_dvd_right (m n : ℕ) : gcd m n ∣ n := and.elim_right !gcd_dvd
+theorem gcd_dvd_right (m n : ℕ) : gcd m n ∣ n := and.right !gcd_dvd
 
 theorem dvd_gcd {m n k : ℕ} : k ∣ m → k ∣ n → k ∣ gcd m n :=
-gcd.induction m n
-  (take m, assume (h₁ : k ∣ m) (h₂ : k ∣ 0),
-   show k ∣ gcd m 0, from !gcd_zero_right⁻¹ ▸ h₁)
-  (take m n,
-    assume npos : n > 0,
-    assume IH : k ∣ n → k ∣ m mod n → k ∣ gcd n (m mod n),
-    assume H1 : k ∣ m,
-    assume H2 : k ∣ n,
-    assert k ∣ m div n * n + m mod n, from !eq_div_mul_add_mod ▸ H1,
-    assert k ∣ m mod n, from nat.dvd_of_dvd_add_left this (dvd.trans H2 !dvd_mul_left),
-    have gcd_eq : gcd n (m mod n) = gcd m n, from !gcd_rec⁻¹,
-    show k ∣ gcd m n, from gcd_eq ▸ IH H2 `k ∣ m mod n`)
+gcd.induction m n (take m, imp.intro)
+  (take m n (npos : n > 0)
+    (IH : k ∣ n → k ∣ m mod n → k ∣ gcd n (m mod n))
+    (H1 : k ∣ m) (H2 : k ∣ n),
+    have H3 : k ∣ m div n * n + m mod n, from !eq_div_mul_add_mod ▸ H1,
+    have H4 : k ∣ m mod n, from dvd_of_dvd_add_left H3 (dvd.trans H2 !dvd_mul_left),
+    !gcd_rec⁻¹ ▸ IH H2 H4)
 
 theorem gcd.comm (m n : ℕ) : gcd m n = gcd n m :=
 dvd.antisymm
@@ -143,11 +115,7 @@ theorem gcd_one_left (m : ℕ) : gcd 1 m = 1 :=
 
 theorem gcd_mul_left (m n k : ℕ) : gcd (m * n) (m * k) = m * gcd n k :=
 gcd.induction n k
-  (take n,
-    calc
-      gcd (m * n) (m * 0) = gcd (m * n) 0 : mul_zero
-                      ... = m * n         : gcd_zero_right
-                      ... = m * gcd n 0   : gcd_zero_right)
+  (take n, calc gcd (m * n) (m * 0) = gcd (m * n) 0 : mul_zero)
   (take n k,
     assume H : 0 < k,
     assume IH : gcd (m * k) (m * (n mod k)) = m * gcd k (n mod k),
@@ -181,18 +149,11 @@ eq_zero_of_gcd_eq_zero_left (!gcd.comm ▸ H)
 theorem gcd_div {m n k : ℕ} (H1 : k ∣ m) (H2 : k ∣ n) :
   gcd (m div k) (n div k) = gcd m n div k :=
 or.elim (eq_zero_or_pos k)
-  (assume H3 : k = 0,
-    calc
-      gcd (m div k) (n div k) = gcd 0 0         : by subst k; rewrite *div_zero
-                          ... = 0               : gcd_zero_left
-                          ... = gcd m n div 0   : div_zero
-                          ... = gcd m n div k   : by subst k)
-  (assume H3 : k > 0,
-    eq.symm (div_eq_of_eq_mul_left H3
-      (eq.symm (calc
-        gcd (m div k) (n div k) * k = gcd (m div k * k) (n div k * k) : gcd_mul_right
-                                ... = gcd m (n div k * k)             : div_mul_cancel H1
-                                ... = gcd m n                         : div_mul_cancel H2))))
+  (assume H3 : k = 0, by subst k; rewrite *div_zero)
+  (assume H3 : k > 0, (div_eq_of_eq_mul_left H3 (calc
+        gcd m n = gcd m (n div k * k)             : div_mul_cancel H2
+            ... = gcd (m div k * k) (n div k * k) : div_mul_cancel H1
+            ... = gcd (m div k) (n div k) * k     : gcd_mul_right))⁻¹)
 
 theorem gcd_dvd_gcd_mul_left (m n k : ℕ) : gcd m n ∣ gcd (k * m) n :=
 dvd_gcd (dvd.trans !gcd_dvd_left !dvd_mul_left) !gcd_dvd_right

@@ -27,13 +27,18 @@ theorem find_midpoint {a b : ℚ} (H : a > b) : ∃ c : ℚ, a > b + c ∧ c > 0
     (and.intro (have H2 [visible] : a + a > (b + b) + (a - b), from calc
       a + a > b + a : rat.add_lt_add_right H
       ... = b + a + b - b : rat.add_sub_cancel
-      ... = (b + b) + (a - b) : sorry, -- simp
+      ... = b + b + a - b : rat.add.right_comm
+      ... = (b + b) + (a - b) : add_sub,
      have H3 [visible] : (a + a) / (1 + 1) > ((b + b) + (a - b)) / (1 + 1),
        from div_lt_div_of_lt_of_pos H2 dec_trivial,
      by rewrite [div_two at H3, -div_add_div_same at H3, div_two at H3]; exact H3)
     (pos_div_of_pos_of_pos (iff.mpr !sub_pos_iff_lt H) dec_trivial))
 
-theorem add_sub_comm (a b c d : ℚ) : a + b - (c + d) = (a - c) + (b - d) := sorry
+theorem add_sub_comm (a b c d : ℚ) : a + b - (c + d) = (a - c) + (b - d) :=
+  calc
+     a + b - (c + d) = a + b - c - d   : sub_add_eq_sub_sub
+                 ... = a - c + b - d   : sub_add_eq_add_sub
+                 ... = a - c + (b - d) : add_sub
 
 theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0) (H : n ≥ pceil (q / ε)) :
         q * n⁻¹ ≤ ε :=
@@ -52,7 +57,19 @@ theorem s_mul_assoc_lemma_3 (a b n : ℕ+) (p : ℚ) :
         p * ((a * n)⁻¹ + (b * n)⁻¹) = p * (a⁻¹ + b⁻¹) * n⁻¹ :=
   by rewrite [rat.mul.assoc, rat.right_distrib, *inv_mul_eq_mul_inv]
 
-theorem find_thirds (a b : ℚ) : ∃ n : ℕ+, a + n⁻¹ + n⁻¹ + n⁻¹ < a + b := sorry
+theorem find_thirds (a b : ℚ) (H : b > 0) : ∃ n : ℕ+, a + n⁻¹ + n⁻¹ + n⁻¹ < a + b :=
+  let n := pceil (of_nat 4 / b) in
+  have of_nat 3 * n⁻¹ < b, from calc
+   of_nat 3 * n⁻¹ < of_nat 4 * n⁻¹
+                  : rat.mul_lt_mul_of_pos_right dec_trivial !inv_pos
+              ... ≤ of_nat 4 * (b / of_nat 4)
+                  : rat.mul_le_mul_of_nonneg_left (!inv_pceil_div dec_trivial H) !of_nat_nonneg
+              ... = b / of_nat 4 * of_nat 4 : rat.mul.comm
+              ... = b : rat.div_mul_cancel dec_trivial,
+  exists.intro n (calc
+    a + n⁻¹ + n⁻¹ + n⁻¹ = a + (1 + 1 + 1) * n⁻¹ : by rewrite[*rat.right_distrib,*rat.one_mul,-*rat.add.assoc]
+                    ... = a + of_nat 3 * n⁻¹    : {show 1+1+1=of_nat 3, from dec_trivial}
+                    ... < a + b                 : rat.add_lt_add_left this a)
 
 theorem squeeze {a b : ℚ} (H : ∀ j : ℕ+, a ≤ b + j⁻¹ + j⁻¹ + j⁻¹) : a ≤ b :=
   begin
@@ -60,7 +77,7 @@ theorem squeeze {a b : ℚ} (H : ∀ j : ℕ+, a ≤ b + j⁻¹ + j⁻¹ + j⁻�
     intro Hb,
     apply (exists.elim (find_midpoint Hb)),
     intro c Hc,
-    apply (exists.elim (find_thirds b c)),
+    apply (exists.elim (find_thirds b c (and.right Hc))),
     intro j Hbj,
     have Ha : a > b + j⁻¹ + j⁻¹ + j⁻¹, from lt.trans Hbj (and.left Hc),
     exact absurd !H (not_le_of_gt Ha)
@@ -77,26 +94,52 @@ theorem squeeze_2 {a b : ℚ} (H : ∀ ε : ℚ, ε > 0 → a ≥ b - ε) : a �
   end
 
 theorem rewrite_helper (a b c d : ℚ) : a * b  - c * d = a * (b - d) + (a - c) * d :=
-  sorry
+  by rewrite[rat.mul_sub_left_distrib, rat.mul_sub_right_distrib, add_sub, rat.sub_add_cancel]
 
 theorem rewrite_helper3 (a b c d e f g: ℚ) : a * (b + c) - (d * e + f * g) =
-        (a * b - d * e) + (a * c - f * g) := sorry
+        (a * b - d * e) + (a * c - f * g) :=
+  by rewrite[rat.mul.left_distrib, add_sub_comm]
 
-theorem rewrite_helper4 (a b c d : ℚ) : a * b - c * d = (a * b - a * d) + (a * d - c * d) := sorry
+theorem rewrite_helper4 (a b c d : ℚ) : a * b - c * d = (a * b - a * d) + (a * d - c * d) :=
+  by rewrite[add_sub, rat.sub_add_cancel]
 
-theorem rewrite_helper5 (a b x y : ℚ) : a - b = (a - x) + (x - y) + (y - b) := sorry
+theorem rewrite_helper5 (a b x y : ℚ) : a - b = (a - x) + (x - y) + (y - b) :=
+  by rewrite[*add_sub, *rat.sub_add_cancel]
 
 theorem rewrite_helper7 (a b c d x : ℚ) :
-        a * b * c - d = (b * c) * (a - x) + (x * b * c - d) := sorry
+        a * b * c - d = (b * c) * (a - x) + (x * b * c - d) :=
+  by rewrite[rat.mul_sub_left_distrib, add_sub]; exact (calc
+     a * b * c - d = a * b * c - x * b * c + x * b * c - d : rat.sub_add_cancel
+           ... = b * c * a - b * c * x + x * b * c - d :
+       have ∀ {a b c : ℚ}, a * b * c = b * c * a, from
+         λa b c, !rat.mul.comm ▸ !rat.mul.right_comm,
+       this ▸ this ▸ rfl)
 
 theorem ineq_helper (a b : ℚ) (k m n : ℕ+) (H : a ≤ (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹)
                     (H2 : b ≤ (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹) :
-        (rat_of_pnat k) * a + b * (rat_of_pnat k) ≤ m⁻¹ + n⁻¹ := sorry
+        (rat_of_pnat k) * a + b * (rat_of_pnat k) ≤ m⁻¹ + n⁻¹ :=
+  have (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹ = (2 * k)⁻¹ * (m⁻¹ + n⁻¹),
+    by rewrite[rat.mul.left_distrib,*inv_mul_eq_mul_inv]; exact !rat.mul.comm ▸ rfl,
+  have a + b ≤ k⁻¹ * (m⁻¹ + n⁻¹), from calc
+   a + b ≤ (2 * k)⁻¹ * (m⁻¹ + n⁻¹) + (2 * k)⁻¹ * (m⁻¹ + n⁻¹) : rat.add_le_add (this ▸ H) (this ▸ H2)
+     ... = ((2 * k)⁻¹ + (2 * k)⁻¹) * (m⁻¹ + n⁻¹) : rat.mul.right_distrib
+     ... = k⁻¹ * (m⁻¹ + n⁻¹) : (pnat.add_halves k) ▸ rfl,
+  calc (rat_of_pnat k) * a + b * (rat_of_pnat k)
+         = (rat_of_pnat k) * a + (rat_of_pnat k) * b : rat.mul.comm
+     ... = (rat_of_pnat k) * (a + b) : rat.left_distrib
+     ... ≤ (rat_of_pnat k) * (k⁻¹ * (m⁻¹ + n⁻¹)) :
+             iff.mp (!rat.le_iff_mul_le_mul_left !rat_of_pnat_is_pos) this
+     ... = m⁻¹ + n⁻¹ : by rewrite[-rat.mul.assoc, inv_cancel_left, rat.one_mul]
 
 theorem factor_lemma (a b c d e : ℚ) : abs (a + b + c - (d + (b + e))) = abs ((a - d) + (c - e)) :=
-  sorry
+  !congr_arg (calc
+    a + b + c - (d + (b + e)) = a + b + c - (d + b + e)   : rat.add.assoc
+                         ...  = a + b - (d + b) + (c - e) : add_sub_comm
+                         ...  = a + b - b - d + (c - e)   : sub_add_eq_sub_sub_swap
+                         ...  = a - d + (c - e)           : rat.add_sub_cancel)
 
-theorem factor_lemma_2 (a b c d : ℚ) : (a + b) + (c + d) = (a + c) + (d + b) := sorry
+theorem factor_lemma_2 (a b c d : ℚ) : (a + b) + (c + d) = (a + c) + (d + b) :=
+  !rat.add.comm ▸ (binary.comm4 rat.add.comm rat.add.assoc a b c d)
 
 -------------------------------------
 -- The only sorry's after this point are for the simplifier.
@@ -164,8 +207,12 @@ theorem eq_of_bdd {s t : seq} (Hs : regular s) (Ht : regular t)
       apply rat.add_le_add,
       apply HNj (max j Nj) (max_right j Nj),
       apply Ht,
-      have hsimp : ∀ m : ℕ+, n⁻¹ + m⁻¹ + (j⁻¹ + (m⁻¹ + n⁻¹)) = (n⁻¹ + n⁻¹ + j⁻¹) + (m⁻¹ + m⁻¹),
-        from sorry, -- simplifier
+      have hsimp : ∀ m : ℕ+, n⁻¹ + m⁻¹ + (j⁻¹ + (m⁻¹ + n⁻¹)) = n⁻¹ + n⁻¹ + j⁻¹ + (m⁻¹ + m⁻¹),
+        from λm, calc
+           n⁻¹ + m⁻¹ + (j⁻¹ + (m⁻¹ + n⁻¹)) = n⁻¹ + (j⁻¹ + (m⁻¹ + n⁻¹)) + m⁻¹ : rat.add.right_comm
+                                       ... = n⁻¹ + (j⁻¹ + m⁻¹ + n⁻¹) + m⁻¹   : rat.add.assoc
+                                       ... = n⁻¹ + (n⁻¹ + (j⁻¹ + m⁻¹)) + m⁻¹ : rat.add.comm
+                                       ... = n⁻¹ + n⁻¹ + j⁻¹ + (m⁻¹ + m⁻¹)   : by rewrite[-*rat.add.assoc],
       rewrite hsimp,
       have Hms : (max j Nj)⁻¹ + (max j Nj)⁻¹ ≤ j⁻¹ + j⁻¹, begin
         apply rat.add_le_add,
@@ -247,8 +294,8 @@ theorem canon_bound {s : seq} (Hs : regular s) (n : ℕ+) : abs (s n) ≤ rat_of
     ... = abs (s pone) + (1 + 1) :
       by rewrite [add.comm 1 (abs (s pone)), rat.add.comm 1, rat.add.assoc]
     ... ≤ of_nat (ubound (abs (s pone))) + (1 + 1) : rat.add_le_add_right (!ubound_ge)
-    ... = of_nat (ubound (abs (s pone)) + (1 + 1)) : by rewrite of_nat_add
-    ... = of_nat (ubound (abs (s pone)) + 1 + 1) : by rewrite nat.add.assoc
+    ... = of_nat (ubound (abs (s pone)) + (1 + 1)) : of_nat_add
+    ... = of_nat (ubound (abs (s pone)) + 1 + 1) : nat.add.assoc
 
 definition K₂ (s t : seq) := max (K s) (K t)
 
@@ -546,13 +593,13 @@ theorem s_add_zero (s : seq) (H : regular s) : sadd s zero ≡ s :=
     apply rat.le.refl
   end
 
-  theorem s_neg_cancel (s : seq) (H : regular s) : sadd (sneg s) s ≡ zero :=
-    begin
-      rewrite [↑sadd, ↑sneg, ↑regular at H, ↑zero, ↑equiv],
-      intros,
-      rewrite [neg_add_eq_sub, rat.sub_self, rat.sub_zero, abs_zero],
-      apply add_invs_nonneg
-    end
+theorem s_neg_cancel (s : seq) (H : regular s) : sadd (sneg s) s ≡ zero :=
+  begin
+    rewrite [↑sadd, ↑sneg, ↑regular at H, ↑zero, ↑equiv],
+    intros,
+    rewrite [neg_add_eq_sub, rat.sub_self, rat.sub_zero, abs_zero],
+    apply add_invs_nonneg
+  end
 
 theorem neg_s_cancel (s : seq) (H : regular s) : sadd s (sneg s) ≡ zero :=
   begin
@@ -583,6 +630,7 @@ theorem add_well_defined {s t u v : seq} (Hs : regular s) (Ht : regular t) (Hu :
     apply Etv
   end
 
+set_option tactic.goal_names false
 theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : ℕ+) (j : ℕ+) :
         ∃ N : ℕ+, ∀ n : ℕ+, n ≥ N → abs (s (a * n) * t (b * n) - s (c * n) * t (c * n)) ≤ j⁻¹ :=
   begin
@@ -600,7 +648,8 @@ theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : 
         apply rat.le.trans,
         apply rat.mul_le_mul_of_nonneg_right,
         apply pceil_helper Hn,
-        repeat (apply rat.mul_pos | apply rat.add_pos | apply inv_pos | apply rat_of_pnat_is_pos),
+        repeat (apply rat.mul_pos | apply rat.add_pos | apply rat_of_pnat_is_pos | apply inv_pos),
+        --repeat (apply rat.mul_pos | apply rat.add_pos | apply inv_pos | apply rat_of_pnat_is_pos),
         apply rat.le_of_lt,
         apply rat.add_pos,
         apply rat.mul_pos,
@@ -609,15 +658,15 @@ theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : 
         repeat apply inv_pos,
         apply rat.mul_pos,
         apply rat.add_pos,
-        repeat apply inv_pos,
+        apply inv_pos,apply inv_pos, -- repeat apply inv_pos,
         apply rat_of_pnat_is_pos,
         have H : (rat_of_pnat (K s) * (b⁻¹ + c⁻¹) + (a⁻¹ + c⁻¹) * rat_of_pnat (K t)) ≠ 0, begin
           apply rat.ne_of_gt,
-          repeat (apply rat.mul_pos | apply rat.add_pos | apply inv_pos | apply rat_of_pnat_is_pos)
+          repeat (apply rat.mul_pos | apply rat.add_pos | apply rat_of_pnat_is_pos | apply inv_pos),
         end,
         rewrite (rat.div_helper H),
         apply rat.le.refl
-      end,
+    end,
     apply rat.add_le_add,
     rewrite [-rat.mul_sub_left_distrib, abs_mul],
     apply rat.le.trans,
@@ -648,7 +697,7 @@ theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : 
     apply rat.le_of_lt,
     apply rat.mul_pos,
     apply rat.add_pos,
-    repeat apply inv_pos,
+    apply inv_pos,apply inv_pos, -- repeat apply inv_pos,
     apply rat_of_pnat_is_pos,
     apply rat.le_of_lt,
     apply inv_pos
@@ -733,7 +782,11 @@ theorem mul_neg_equiv_neg_mul {s t : seq} : smul s (sneg t) ≡ sneg (smul s t) 
 theorem equiv_of_diff_equiv_zero {s t : seq} (Hs : regular s) (Ht : regular t)
         (H : sadd s (sneg t) ≡ zero) : s ≡ t :=
   begin
-    have hsimp : ∀ a b c d e : ℚ, a + b + c + (d + e) = (b + d) + a + e + c, from sorry,
+    have hsimp : ∀ a b c d e : ℚ, a + b + c + (d + e) = b + d + a + e + c, from
+     λ a b c d e, calc
+         a + b + c + (d + e) = a + b + (d + e) + c : rat.add.right_comm
+                         ... = a + (b + d) + e + c : by rewrite[-*rat.add.assoc]
+                         ... = b + d + a + e + c   : rat.add.comm,
     apply eq_of_bdd Hs Ht,
     intros,
     let He := bdd_of_eq H,

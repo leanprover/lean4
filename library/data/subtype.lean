@@ -22,18 +22,16 @@ namespace subtype
   rfl
 
   theorem tag_eq {a1 a2 : A} {H1 : P a1} {H2 : P a2} (H3 : a1 = a2) : tag a1 H1 = tag a2 H2 :=
-  eq.subst H3 (take H2, tag_irrelevant H1 H2) H2
+  eq.subst H3 (tag_irrelevant H1) H2
 
-  protected theorem eq {a1 a2 : {x | P x}} : ∀(H : elt_of a1 = elt_of a2), a1 = a2 :=
-  destruct a1 (take x1 H1, destruct a2 (take x2 H2 H, tag_eq H))
+  protected theorem eq : ∀ {a1 a2 : {x | P x}} (H : elt_of a1 = elt_of a2), a1 = a2
+  | (tag x1 H1) (tag x2 H2) := tag_eq
 
   protected definition is_inhabited [instance] {a : A} (H : P a) : inhabited {x | P x} :=
   inhabited.mk (tag a H)
 
   protected definition has_decidable_eq [instance] [H : decidable_eq A] : ∀ s₁ s₂ : {x | P x}, decidable (s₁ = s₂)
   | (tag v₁ p₁) (tag v₂ p₂) :=
-    match H v₁ v₂ with
-    | inl veq := begin left, substvars end
-    | inr vne := begin right, intro h, injection h, contradiction end
-    end
+  decidable_of_decidable_of_iff (H v₁ v₂)
+    (iff.intro tag_eq (λh, subtype.no_confusion h (λa b, a)))
 end subtype

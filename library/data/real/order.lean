@@ -17,7 +17,7 @@ open -[coercions] nat
 open eq eq.ops pnat
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1
-notation 2 := pnat.pos (of_num 2) dec_trivial
+notation 2 := subtype.tag (of_num 2) dec_trivial
 
 ----------------------------------------------------------------------------------------------------
 
@@ -43,11 +43,21 @@ theorem sep_by_inv {a b : ℚ} (H : a > b) : ∃ N : ℕ+, a > (b + N⁻¹ + N�
     apply and.right Hc)
   end
 
-theorem helper_1 {a : ℚ} (H : a > 0) : -a + -a ≤ -a := sorry
+theorem helper_1 {a : ℚ} (H : a > 0) : -a + -a ≤ -a :=
+  !neg_add ▸ neg_le_neg (le_add_of_nonneg_left (le_of_lt H))
 
-theorem rewrite_helper8 (a b c : ℚ) : a - b = c - b + (a - c) := sorry -- simp
+theorem rewrite_helper8 (a b c : ℚ) : a - b = c - b + (a - c) :=
+  by rewrite[add_sub,rat.sub_add_cancel] ⬝ !rat.add.comm
 
-theorem nonneg_of_ge_neg_invs (a : ℚ) (H : ∀ n : ℕ+, -n⁻¹ ≤ a) : 0 ≤ a := sorry
+theorem nonneg_of_ge_neg_invs (a : ℚ) (H : ∀ n : ℕ+, -n⁻¹ ≤ a) : 0 ≤ a :=
+  rat.le_of_not_gt (suppose a < 0,
+    have H2 : 0 < -a, from neg_pos_of_neg this,
+   (rat.not_lt_of_ge !H) (iff.mp !lt_neg_iff_lt_neg (calc
+       (pceil (of_num 2 / -a))⁻¹ ≤ -a / of_num 2
+          : !inv_pceil_div dec_trivial H2
+                             ... < -a / 1
+          : div_lt_div_of_pos_of_lt_of_pos dec_trivial dec_trivial H2
+                             ... = -a : div_one)))
 
 ---------
 namespace s

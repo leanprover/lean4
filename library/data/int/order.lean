@@ -14,8 +14,8 @@ open int eq.ops
 namespace int
 
 private definition nonneg (a : ℤ) : Prop := int.cases_on a (take n, true) (take n, false)
-definition le (a b : ℤ) : Prop := nonneg (sub b a)
-definition lt (a b : ℤ) : Prop := le (add a 1) b
+definition le (a b : ℤ) : Prop := nonneg (b - a)
+definition lt (a b : ℤ) : Prop := le (a + 1) b
 
 infix [priority int.prio] - := int.sub
 infix [priority int.prio] <= := int.le
@@ -28,27 +28,25 @@ definition decidable_le [instance] (a b : ℤ) : decidable (a ≤ b) := decidabl
 definition decidable_lt [instance] (a b : ℤ) : decidable (a < b) := decidable_nonneg _
 
 private theorem nonneg.elim {a : ℤ} : nonneg a → ∃n : ℕ, a = n :=
-int.cases_on a (take n H, exists.intro n rfl) (take n' H, false.elim H)
+int.cases_on a (take n H, exists.intro n rfl) (take n', false.elim)
 
 private theorem nonneg_or_nonneg_neg (a : ℤ) : nonneg a ∨ nonneg (-a) :=
 int.cases_on a (take n, or.inl trivial) (take n, or.inr trivial)
 
 theorem le.intro {a b : ℤ} {n : ℕ} (H : a + n = b) : a ≤ b :=
-have b - a = n,      from (eq_add_neg_of_add_eq (!add.comm ▸ H))⁻¹,
-have nonneg n,       from true.intro,
-show nonneg (b - a), from `b - a = n`⁻¹ ▸ this
+have n = b - a, from eq_add_neg_of_add_eq (!add.comm ▸ H),
+show nonneg (b - a), from this ▸ trivial
 
 theorem le.elim {a b : ℤ} (H : a ≤ b) : ∃n : ℕ, a + n = b :=
 obtain (n : ℕ) (H1 : b - a = n), from nonneg.elim H,
 exists.intro n (!add.comm ▸ iff.mpr !add_eq_iff_eq_add_neg (H1⁻¹))
 
 theorem le.total (a b : ℤ) : a ≤ b ∨ b ≤ a :=
-or.elim (nonneg_or_nonneg_neg (b - a))
-  (assume H, or.inl H)
+or.imp_right
   (assume H : nonneg (-(b - a)),
-    have -(b - a) = a - b, from neg_sub b a,
-    have nonneg (a - b), from this ▸ H,
-    or.inr this)
+   have -(b - a) = a - b, from !neg_sub,
+   show nonneg (a - b), from this ▸ H)   -- too bad: can't do it in one step
+  (nonneg_or_nonneg_neg (b - a))
 
 theorem of_nat_le_of_nat_of_le {m n : ℕ} (H : #nat m ≤ n) : of_nat m ≤ of_nat n :=
 obtain (k : ℕ) (Hk : m + k = n), from nat.le.elim H,
@@ -133,12 +131,8 @@ theorem lt.irrefl (a : ℤ) : ¬ a < a :=
 (suppose a < a,
   obtain (n : ℕ) (Hn : a + succ n = a), from lt.elim this,
   have a + succ n = a + 0, from
-    calc
-      a + succ n = a : Hn
-             ... = a + 0 : by rewrite [add_zero],
-  have nat.succ n = 0, from add.left_cancel this,
-  have nat.succ n = 0, from of_nat.inj this,
-  absurd this !succ_ne_zero)
+    Hn ⬝ !add_zero⁻¹,
+  !succ_ne_zero (of_nat.inj (add.left_cancel this)))
 
 theorem ne_of_lt {a b : ℤ} (H : a < b) : a ≠ b :=
 (suppose a = b, absurd (this ▸ H) (lt.irrefl b))

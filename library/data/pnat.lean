@@ -11,105 +11,89 @@ are those needed for that construction.
 -/
 
 import data.rat.order data.nat
-open nat rat
+open nat rat subtype eq.ops
 
 namespace pnat
 
-inductive pnat : Type :=
-  pos : Π n : nat, n > 0 → pnat
+definition pnat := { n : ℕ | n > 0 }
 
 notation `ℕ+` := pnat
 
-definition nat_of_pnat (p : pnat) : ℕ :=
-  pnat.rec_on p (λ n H, n)
+theorem pos (n : ℕ) (H : n > 0) : ℕ+ := tag n H
+
+definition nat_of_pnat (p : ℕ+) : ℕ := elt_of p
 reserve postfix `~`:std.prec.max_plus
 local postfix ~ := nat_of_pnat
 
-theorem nat_of_pnat_pos (p : pnat) : p~ > 0 :=
-  pnat.rec_on p (λ n H, H)
+theorem pnat_pos (p : ℕ+) : p~ > 0 := has_property p
 
-definition add (p q : pnat) : pnat :=
-  pnat.pos (p~ + q~) (nat.add_pos (nat_of_pnat_pos p) (nat_of_pnat_pos q))
+definition add (p q : ℕ+) : ℕ+ :=
+  tag (p~ + q~) (nat.add_pos (pnat_pos p) (pnat_pos q))
 infix `+` := add
 
-definition mul (p q : pnat) : pnat :=
-  pnat.pos (p~ * q~) (nat.mul_pos (nat_of_pnat_pos p) (nat_of_pnat_pos q))
+definition mul (p q : ℕ+) : ℕ+ :=
+  tag (p~ * q~) (nat.mul_pos (pnat_pos p) (pnat_pos q))
 infix `*` := mul
 
-definition le (p q : pnat) := p~ ≤ q~
+definition le (p q : ℕ+) := p~ ≤ q~
 infix `≤` := le
 notation p `≥` q := q ≤ p
 
-definition lt (p q : pnat) := p~ < q~
+definition lt (p q : ℕ+) := p~ < q~
 infix `<` := lt
 
 protected theorem pnat.eq {p q : ℕ+} : p~ = q~ → p = q :=
-  pnat.cases_on p (λ p' Hp, pnat.cases_on q (λ q' Hq,
-  begin
-    rewrite ↑nat_of_pnat,
-    intro H,
-    generalize Hp,
-    generalize Hq,
-    rewrite H,
-    intro Hp Hq,
-    apply rfl
-  end))
+  subtype.eq
 
-definition pnat_le_decidable [instance] (p q : pnat) : decidable (p ≤ q) :=
-  pnat.rec_on p (λ n H, pnat.rec_on q
-    (λ m H2, if Hl : n ≤ m then decidable.inl Hl else decidable.inr Hl))
+definition pnat_le_decidable [instance] (p q : ℕ+) : decidable (p ≤ q) :=
+  nat.decidable_le p~ q~
 
-definition pnat_lt_decidable [instance] {p q : pnat} : decidable (p < q) :=
-  pnat.rec_on p (λ n H, pnat.rec_on q
-    (λ m H2, if Hl : n < m then decidable.inl Hl else decidable.inr Hl))
+definition pnat_lt_decidable [instance] {p q : ℕ+} : decidable (p < q) :=
+  nat.decidable_lt p~ q~
 
-theorem le.trans {p q r : pnat} (H1 : p ≤ q) (H2 : q ≤ r) : p ≤ r := nat.le.trans H1 H2
+theorem le.trans {p q r : ℕ+} (H1 : p ≤ q) (H2 : q ≤ r) : p ≤ r := nat.le.trans H1 H2
 
-definition max (p q : pnat) :=
-  pnat.pos (nat.max (p~) (q~)) (nat.lt_of_lt_of_le (!nat_of_pnat_pos) (!le_max_right))
+definition max (p q : ℕ+) :=
+  tag (nat.max p~ q~) (nat.lt_of_lt_of_le (!pnat_pos) (!le_max_right))
 
 theorem max_right (a b : ℕ+) : max a b ≥ b := !le_max_right
 
 theorem max_left (a b : ℕ+) : max a b ≥ a := !le_max_left
 
 theorem max_eq_right {a b : ℕ+} (H : a < b) : max a b = b :=
-  have Hnat : nat.max a~ b~ = b~, from nat.max_eq_right' H,
-  pnat.eq Hnat
+  pnat.eq (nat.max_eq_right' H)
 
 theorem max_eq_left {a b : ℕ+} (H : ¬ a < b) : max a b = a :=
-  have Hnat : nat.max a~ b~ = a~, from nat.max_eq_left' H,
-  pnat.eq Hnat
+  pnat.eq (nat.max_eq_left' H)
 
-theorem le_of_lt {a b : ℕ+} (H : a < b) : a ≤ b := nat.le_of_lt H
+theorem le_of_lt {a b : ℕ+} : a < b → a ≤ b := nat.le_of_lt
 
-theorem not_lt_of_ge {a b : ℕ+} (H : a ≤ b) : ¬ (b < a) := nat.not_lt_of_ge H
+theorem not_lt_of_ge {a b : ℕ+} : a ≤ b → ¬ (b < a) := nat.not_lt_of_ge
 
-theorem le_of_not_gt {a b : ℕ+} (H : ¬ a < b) : b ≤ a := nat.le_of_not_gt H
+theorem le_of_not_gt {a b : ℕ+} : ¬ a < b → b ≤ a := nat.le_of_not_gt
 
 theorem eq_of_le_of_ge {a b : ℕ+} (H1 : a ≤ b) (H2 : b ≤ a) : a = b :=
   pnat.eq (nat.eq_of_le_of_ge H1 H2)
 
 theorem le.refl (a : ℕ+) : a ≤ a := !nat.le.refl
 
-notation 2 := pnat.pos 2 dec_trivial
-notation 3 := pnat.pos 3 dec_trivial
-definition pone : pnat := pnat.pos 1 dec_trivial
+notation 2 := (tag 2 dec_trivial : ℕ+)
+notation 3 := (tag 3 dec_trivial : ℕ+)
+definition pone : ℕ+ := tag 1 dec_trivial
 
-definition rat_of_pnat [reducible] (n : ℕ+) : ℚ :=
-  pnat.rec_on n (λ n H, of_nat n)
+definition rat_of_pnat [reducible] (n : ℕ+) : ℚ := n~
 
-theorem pnat.to_rat_of_nat (n : ℕ+) : rat_of_pnat n = of_nat n~ :=
-  pnat.rec_on n (λ n H, rfl)
+theorem pnat.to_rat_of_nat (n : ℕ+) : rat_of_pnat n = of_nat n~ := rfl
 
 -- these will come in rat
 
 theorem rat_of_nat_nonneg (n : ℕ) : 0 ≤ of_nat n := trivial
 
 theorem rat_of_pnat_ge_one (n : ℕ+) : rat_of_pnat n ≥ 1 :=
-  pnat.rec_on n (λ m h, (iff.mpr !of_nat_le_of_nat) (succ_le_of_lt h))
+  (iff.mpr !of_nat_le_of_nat) (pnat_pos n)
 
 theorem rat_of_pnat_is_pos (n : ℕ+) : rat_of_pnat n > 0 :=
-  pnat.rec_on n (λ m h, (iff.mpr !of_nat_pos) h)
+  (iff.mpr !of_nat_pos) (pnat_pos n)
 
 theorem of_nat_le_of_nat_of_le {m n : ℕ} (H : m ≤ n) : of_nat m ≤ of_nat n :=
   (iff.mpr !of_nat_le_of_nat) H
@@ -118,22 +102,13 @@ theorem of_nat_lt_of_nat_of_lt {m n : ℕ} (H : m < n) : of_nat m < of_nat n :=
   (iff.mpr !of_nat_lt_of_nat) H
 
 theorem rat_of_pnat_le_of_pnat_le {m n : ℕ+} (H : m ≤ n) : rat_of_pnat m ≤ rat_of_pnat n :=
-  begin
-    rewrite *pnat.to_rat_of_nat,
-    apply of_nat_le_of_nat_of_le H
-  end
+  of_nat_le_of_nat_of_le H
 
 theorem rat_of_pnat_lt_of_pnat_lt {m n : ℕ+} (H : m < n) : rat_of_pnat m < rat_of_pnat n :=
-  begin
-    rewrite *pnat.to_rat_of_nat,
-    apply of_nat_lt_of_nat_of_lt H
-  end
+  of_nat_lt_of_nat_of_lt H
 
 theorem pnat_le_of_rat_of_pnat_le {m n : ℕ+} (H : rat_of_pnat m ≤ rat_of_pnat n) : m ≤ n :=
-  begin
-    rewrite *pnat.to_rat_of_nat at H,
-    apply (iff.mp !of_nat_le_of_nat) H
-  end
+  (iff.mp !of_nat_le_of_nat) H
 
 definition inv (n : ℕ+) : ℚ := (1 : ℚ) / rat_of_pnat n
 postfix `⁻¹` := inv
@@ -173,13 +148,14 @@ theorem one_mul (n : ℕ+) : pone * n = n :=
   end
 
 theorem pone_le (n : ℕ+) : pone ≤ n :=
-  succ_le_of_lt (nat_of_pnat_pos n)
+  succ_le_of_lt (pnat_pos n)
 
-theorem pnat_to_rat_mul (a b : ℕ+) : rat_of_pnat (a * b) = rat_of_pnat a * rat_of_pnat b :=
-  by rewrite *pnat.to_rat_of_nat
+theorem pnat_to_rat_mul (a b : ℕ+) : rat_of_pnat (a * b) = rat_of_pnat a * rat_of_pnat b := rfl
 
 theorem mul_lt_mul_left (a b c : ℕ+) (H : a < b) : a * c < b * c :=
-   nat.mul_lt_mul_of_pos_right H !nat_of_pnat_pos
+   nat.mul_lt_mul_of_pos_right H !pnat_pos
+
+theorem one_lt_two : pone < 2 := !nat.le.refl
 
 theorem inv_two_mul_lt_inv (n : ℕ+) : (2 * n)⁻¹ < n⁻¹ :=
   begin
@@ -189,9 +165,8 @@ theorem inv_two_mul_lt_inv (n : ℕ+) : (2 * n)⁻¹ < n⁻¹ :=
     have H : n~ < (2 * n)~, begin
       rewrite -one_mul at {1},
       apply mul_lt_mul_left,
-      apply dec_trivial
+      apply one_lt_two
     end,
-    rewrite *pnat.to_rat_of_nat,
     apply of_nat_lt_of_nat_of_lt,
     apply H
   end
@@ -238,7 +213,7 @@ theorem inv_mul_le_inv (p q : ℕ+) : (p * q)⁻¹ ≤ q⁻¹ :=
   end
 
 theorem pnat_mul_le_mul_left' (a b c : ℕ+) (H : a ≤ b) : c * a ≤ c * b :=
-  nat.mul_le_mul_of_nonneg_left H (nat.le_of_lt !nat_of_pnat_pos)
+  nat.mul_le_mul_of_nonneg_left H (nat.le_of_lt !pnat_pos)
 
 theorem mul.assoc (a b c : ℕ+) : a * b * c = a * (b * c) :=
   pnat.eq !nat.mul.assoc
@@ -259,8 +234,6 @@ theorem mul_le_mul_left (p q : ℕ+) : q ≤ p * q :=
 theorem mul_le_mul_right (p q : ℕ+) : p ≤ p * q :=
   by rewrite mul.comm; apply mul_le_mul_left
 
-theorem one_lt_two : pone < 2 := dec_trivial
-
 theorem pnat.lt_of_not_le {p q : ℕ+} (H : ¬ p ≤ q) : q < p :=
   nat.lt_of_not_ge H
 
@@ -275,7 +248,7 @@ theorem lt_add_left (p q : ℕ+) : p < p + q :=
     have H : p~ < p~ + q~, begin
       rewrite -nat.add_zero at {1},
       apply nat.add_lt_add_left,
-      apply nat_of_pnat_pos
+      apply pnat_pos
     end,
     apply H
   end
@@ -296,30 +269,19 @@ theorem div_le_pnat (q : ℚ) (n : ℕ+) (H : q ≥ n⁻¹) : 1 / q ≤ rat_of_p
   end
 
 theorem pnat_cancel' (n m : ℕ+) : (n * n * m)⁻¹ * (rat_of_pnat n * rat_of_pnat n) = m⁻¹ :=
-  begin
-    have hsimp : ∀ a b c : ℚ, (a * a * (b * b * c)) = (a * b) * (a * b) * c, from sorry, -- simp
-    rewrite [rat.mul.comm, *inv_mul_eq_mul_inv, hsimp, *inv_cancel_left, *rat.one_mul]
-  end
+  assert hsimp : ∀ a b c : ℚ, (a * a * (b * b * c)) = (a * b) * (a * b) * c, from
+    λa b c, by rewrite[-*rat.mul.assoc]; exact (!rat.mul.right_comm ▸ rfl),
+  by rewrite [rat.mul.comm, *inv_mul_eq_mul_inv, hsimp, *inv_cancel_left, *rat.one_mul]
 
-definition pceil (a : ℚ) : ℕ+ := pnat.pos (ubound a) !ubound_pos
+definition pceil (a : ℚ) : ℕ+ := tag (ubound a) !ubound_pos
 
 theorem pceil_helper {a : ℚ} {n : ℕ+} (H : pceil a ≤ n) (Ha : a > 0) : n⁻¹ ≤ 1 / a :=
-  begin
-    apply rat.le.trans,
-    apply inv_ge_of_le H,
-    apply div_le_div_of_le,
-    apply Ha,
-    apply ubound_ge
-  end
+  rat.le.trans (inv_ge_of_le H) (div_le_div_of_le Ha (ubound_ge a))
 
 theorem inv_pceil_div (a b : ℚ) (Ha : a > 0) (Hb : b > 0) : (pceil (a / b))⁻¹ ≤ b / a :=
-  begin
-    rewrite -(@div_div' (b / a)),
-    apply div_le_div_of_le,
-    apply div_pos_of_pos,
-    apply pos_div_of_pos_of_pos Hb Ha,
-    rewrite [(div_div_eq_mul_div (ne_of_gt Hb) (ne_of_gt Ha)), rat.one_mul],
-    apply ubound_ge
-  end
+  div_div' ▸ div_le_div_of_le
+    (div_pos_of_pos (pos_div_of_pos_of_pos Hb Ha))
+    ((div_div_eq_mul_div (ne_of_gt Hb) (ne_of_gt Ha))⁻¹ ▸
+      !rat.one_mul⁻¹ ▸ !ubound_ge)
 
 end pnat

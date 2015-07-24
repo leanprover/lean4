@@ -26,8 +26,8 @@ lemma veq_of_eq : ∀ {i j : fin n}, i = j → (val i) = j
 | (mk iv ilt) (mk jv jlt) := assume Peq,
   show iv = jv, from fin.no_confusion Peq (λ Pe Pqe, Pe)
 
-lemma eq_iff_veq : ∀ {i j : fin n}, (val i) = j ↔ i = j :=
-take i j, iff.intro eq_of_veq veq_of_eq
+lemma eq_iff_veq {i j : fin n} : (val i) = j ↔ i = j :=
+iff.intro eq_of_veq veq_of_eq
 
 definition val_inj := @eq_of_veq n
 
@@ -37,10 +37,7 @@ section
 open decidable
 protected definition has_decidable_eq [instance] (n : nat) : ∀ (i j : fin n), decidable (i = j)
 | (mk ival ilt) (mk jval jlt) :=
-      match nat.has_decidable_eq ival jval with
-      | inl veq := inl (by substvars)
-      | inr vne := inr (by intro h; injection h; contradiction)
-      end
+  decidable_of_decidable_of_iff (nat.has_decidable_eq ival jval) eq_iff_veq
 end
 
 lemma dinj_lt (n : nat) : dinj (λ i, i < n) fin.mk :=

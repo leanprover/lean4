@@ -21,43 +21,19 @@ relation.is_equivalence.mk @iff.refl @iff.symm @iff.trans
 /- congruences for logic operations -/
 
 theorem is_congruence_not : is_congruence iff iff not :=
-is_congruence.mk
-  (take a b,
-    assume H : a ↔ b, iff.intro
-      (assume H1 : ¬a, assume H2 : b, H1 (iff.elim_right H H2))
-      (assume H1 : ¬b, assume H2 : a, H1 (iff.elim_left H H2)))
+is_congruence.mk @congr_not
 
 theorem is_congruence_and : is_congruence2 iff iff iff and :=
-is_congruence2.mk
-  (take a1 b1 a2 b2,
-    assume H1 : a1 ↔ b1, assume H2 : a2 ↔ b2,
-    iff.intro
-      (assume H3 : a1 ∧ a2, and_of_and_of_imp_of_imp H3 (iff.elim_left H1) (iff.elim_left H2))
-      (assume H3 : b1 ∧ b2, and_of_and_of_imp_of_imp H3 (iff.elim_right H1) (iff.elim_right H2)))
+is_congruence2.mk @congr_and
 
 theorem is_congruence_or : is_congruence2 iff iff iff or :=
-is_congruence2.mk
-  (take a1 b1 a2 b2,
-    assume H1 : a1 ↔ b1, assume H2 : a2 ↔ b2,
-    iff.intro
-      (assume H3 : a1 ∨ a2, or_of_or_of_imp_of_imp H3 (iff.elim_left H1) (iff.elim_left H2))
-      (assume H3 : b1 ∨ b2, or_of_or_of_imp_of_imp H3 (iff.elim_right H1) (iff.elim_right H2)))
+is_congruence2.mk @congr_or
 
 theorem is_congruence_imp : is_congruence2 iff iff iff imp :=
-is_congruence2.mk
-  (take a1 b1 a2 b2,
-    assume H1 : a1 ↔ b1, assume H2 : a2 ↔ b2,
-    iff.intro
-      (assume H3 : a1 → a2, assume Hb1 : b1, iff.elim_left H2 (H3 ((iff.elim_right H1) Hb1)))
-      (assume H3 : b1 → b2, assume Ha1 : a1, iff.elim_right H2 (H3 ((iff.elim_left H1) Ha1))))
+is_congruence2.mk @congr_imp
 
 theorem is_congruence_iff : is_congruence2 iff iff iff iff :=
-is_congruence2.mk
-  (take a1 b1 a2 b2,
-    assume H1 : a1 ↔ b1, assume H2 : a2 ↔ b2,
-    iff.intro
-      (assume H3 : a1 ↔ a2, iff.trans (iff.symm H1) (iff.trans H3 H2))
-      (assume H3 : b1 ↔ b2, iff.trans H1 (iff.trans H3 (iff.symm H2))))
+is_congruence2.mk @congr_iff
 
 definition is_congruence_not_compose [instance] := is_congruence.compose is_congruence_not
 definition is_congruence_and_compose [instance] := is_congruence.compose21 is_congruence_and
@@ -75,7 +51,7 @@ end general_subst
 /- iff can be coerced to implication -/
 
 definition mp_like_iff [instance] : relation.mp_like iff :=
-relation.mp_like.mk (λa b (H : a ↔ b), iff.elim_left H)
+relation.mp_like.mk @iff.mp
 
 /- support for calculations with iff -/
 

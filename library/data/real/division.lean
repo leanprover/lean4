@@ -16,14 +16,15 @@ open eq.ops pnat
 
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1
-local notation 2 := pnat.pos (nat.of_num 2) dec_trivial
+local notation 2 := subtype.tag (nat.of_num 2) dec_trivial
 
 namespace s
 
 -----------------------------
 -- helper lemmas
 
-theorem neg_add_rewrite {a b : ℚ} : a + -b = -(b + -a) := sorry
+theorem neg_add_rewrite {a b : ℚ} : a + -b = -(b + -a) :=
+  by rewrite[neg_add_rev,neg_neg]
 
 theorem abs_abs_sub_abs_le_abs_sub (a b : ℚ) : abs (abs a - abs b) ≤ abs (a - b) :=
   begin
@@ -37,10 +38,6 @@ theorem abs_abs_sub_abs_le_abs_sub (a b : ℚ) : abs (abs a - abs b) ≤ abs (a 
     apply le_abs_self,
     apply trivial
   end
-
--- does this not exist already??
-theorem forall_of_not_exists {A : Type} {P : A → Prop} (H : ¬ ∃ a : A, P a) : ∀ a : A, ¬ P a :=
-  take a, assume Ha, H (exists.intro a Ha)
 
 theorem and_of_not_or {a b : Prop} (H : ¬ (a ∨ b)) : ¬ a ∧ ¬ b :=
   and.intro (assume H', H (or.inl H')) (assume H', H (or.inr H'))
@@ -517,7 +514,7 @@ theorem s_le_total {s t : seq} (Hs : regular s) (Ht : regular t) : s_le s t ∨ 
 theorem s_le_of_not_lt {s t : seq} (Hle : ¬ s_lt s t) : s_le t s :=
   begin
     rewrite [↑s_le, ↑nonneg, ↑s_lt at Hle, ↑pos at Hle],
-    let Hle' := forall_of_not_exists Hle,
+    let Hle' := iff.mp forall_iff_not_exists Hle,
     intro n,
     let Hn := neg_le_neg (rat.le_of_not_gt (Hle' n)),
     rewrite [↑sadd, ↑sneg, neg_add_rewrite],

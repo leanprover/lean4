@@ -110,9 +110,8 @@ section
   assume (Hp : p) (Heq : p = false), Heq ▸ Hp
 
   theorem p_ne_true : ¬p → p ≠ true :=
-  assume (Hnp : ¬p) (Heq : p = true), absurd trivial (Heq ▸ Hnp)
+  assume (Hnp : ¬p) (Heq : p = true), (Heq ▸ Hnp) trivial
 end
 
 theorem true_ne_false : ¬true = false :=
-assume H : true = false,
-  H ▸ trivial
+p_ne_false trivial

@@ -22,8 +22,8 @@ open eq.ops
 open pnat
 
 
-local notation 2 := pnat.pos (nat.of_num 2) dec_trivial
-local notation 3 := pnat.pos (nat.of_num 3) dec_trivial
+local notation 2 := subtype.tag (nat.of_num 2) dec_trivial
+local notation 3 := subtype.tag (nat.of_num 3) dec_trivial
 
 namespace s
 
@@ -206,11 +206,15 @@ theorem sub_consts (a b : ℚ) : const a + -const b = const (a - b) := !add_cons
 theorem add_half_const (n : ℕ+) : const (2 * n)⁻¹ + const (2 * n)⁻¹ = const (n⁻¹) :=
   by rewrite [add_consts, pnat.add_halves]-/
 
-theorem p_add_fractions (n : ℕ+) : (2 * n)⁻¹ + (2 * 3 * n)⁻¹ + (3 * n)⁻¹ = n⁻¹ := sorry
+theorem p_add_fractions (n : ℕ+) : (2 * n)⁻¹ + (2 * 3 * n)⁻¹ + (3 * n)⁻¹ = n⁻¹ :=
+  assert T : 2⁻¹ + 2⁻¹ * 3⁻¹ + 3⁻¹ = 1, from dec_trivial,
+  by rewrite[*inv_mul_eq_mul_inv,-*rat.right_distrib,T,rat.one_mul]
 
-theorem rewrite_helper9 (a b c : ℝ) : b - c = (b - a) - (c - a) := sorry
+theorem rewrite_helper9 (a b c : ℝ) : b - c = (b - a) - (c - a) :=
+  by rewrite[-sub_add_eq_sub_sub_swap,sub_add_cancel]
 
-theorem rewrite_helper10 (a b c d : ℝ) : c - d = (c - a) + (a - b) + (b - d) := sorry
+theorem rewrite_helper10 (a b c d : ℝ) : c - d = (c - a) + (a - b) + (b - d) :=
+  by rewrite[*add_sub,*sub_add_cancel]
 
 definition rep (x : ℝ) : s.reg_seq := some (quot.exists_rep x)
 

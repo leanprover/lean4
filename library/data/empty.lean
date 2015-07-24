@@ -6,8 +6,8 @@ Author: Jeremy Avigad, Floris van Doorn
 import logic.cast
 
 namespace empty
-  protected theorem elim (A : Type) (H : empty) : A :=
-  empty.rec (λe, A) H
+  protected theorem elim (A : Type) : empty → A :=
+  empty.rec (λe, A)
 
   protected theorem subsingleton [instance] : subsingleton empty :=
   subsingleton.intro (λ a b, !empty.elim a)

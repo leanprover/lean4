@@ -12,14 +12,14 @@ open nat
 inductive measurable [class] (A : Type) :=
 mk : (A → nat) → measurable A
 
-definition size_of {A : Type} [s : measurable A] (a : A) : nat :=
-measurable.rec_on s (λ f, f) a
+definition size_of {A : Type} [s : measurable A] : A → nat :=
+measurable.rec_on s (λ f, f)
 
 definition nat.measurable [instance] : measurable nat :=
 measurable.mk (λ a, a)
 
 definition option.measurable [instance] (A : Type) [s : measurable A] : measurable (option A) :=
-measurable.mk (λ a, option.cases_on a zero (λ a, size_of a))
+measurable.mk (λ a, option.cases_on a zero size_of)
 
 definition prod.measurable [instance] (A B : Type) [sa : measurable A] [sb : measurable B] : measurable (prod A B) :=
 measurable.mk (λ p, prod.cases_on p (λ a b, size_of a + size_of b))

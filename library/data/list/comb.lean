@@ -461,7 +461,7 @@ lemma mem_of_dinj_of_mem_dmap (Pdi : dinj p f) :
 
 lemma not_mem_dmap_of_dinj_of_not_mem (Pdi : dinj p f) {l : list A} {a} (Pa : p a) :
   a ∉ l → (f a Pa) ∉ dmap p f l :=
-not_imp_not_of_imp (mem_of_dinj_of_mem_dmap Pdi Pa)
+not.mto (mem_of_dinj_of_mem_dmap Pdi Pa)
 
 end dmap
 

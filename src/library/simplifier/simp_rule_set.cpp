@@ -382,16 +382,18 @@ void add_congr_core(environment const & env, simp_rule_sets & s, name const & n)
 
 struct rrs_state {
     simp_rule_sets           m_sets;
-    name_set                 m_snames;
+    name_set                 m_simp_names;
+    name_set                 m_congr_names;
 
     void add_simp(environment const & env, name const & cname) {
         type_checker tc(env);
         m_sets = add_core(tc, m_sets, cname);
-        m_snames.insert(cname);
+        m_simp_names.insert(cname);
     }
 
     void add_congr(environment const & env, name const & n) {
         add_congr_core(env, m_sets, n);
+        m_congr_names.insert(n);
     }
 };
 
@@ -433,7 +435,11 @@ environment add_congr_rule(environment const & env, name const & n, bool persist
 }
 
 bool is_simp_rule(environment const & env, name const & n) {
-    return rrs_ext::get_state(env).m_snames.contains(n);
+    return rrs_ext::get_state(env).m_simp_names.contains(n);
+}
+
+bool is_congr_rule(environment const & env, name const & n) {
+    return rrs_ext::get_state(env).m_congr_names.contains(n);
 }
 
 simp_rule_sets get_simp_rule_sets(environment const & env) {

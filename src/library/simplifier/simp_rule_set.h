@@ -106,6 +106,8 @@ environment add_congr_rule(environment const & env, name const & n, bool persist
 
 /** \brief Return true if \c n is an active simplification rule in \c env */
 bool is_simp_rule(environment const & env, name const & n);
+/** \brief Return true if \c n is an active congruence rule in \c env */
+bool is_congr_rule(environment const & env, name const & n);
 /** \brief Get current simplification rule sets */
 simp_rule_sets get_simp_rule_sets(environment const & env);
 /** \brief Get simplification rule sets in the given namespace. */

@@ -1,0 +1,20 @@
+theorem perm.perm_erase_dup_of_perm [congr] : ∀ {A : Type} [H : decidable_eq A] {l₁ l₂ : list A}, l₁ ~ l₂ → erase_dup l₁ ~ erase_dup l₂ :=
+λ (A : Type) (H : decidable_eq A) (l₁ l₂ : list A) (p : l₁ ~ l₂),
+  perm_induction_on p nil
+    (λ (x : A) (t₁ t₂ : list A) (p : t₁ ~ t₂) (r : erase_dup t₁ ~ erase_dup t₂),
+       decidable.by_cases
+         (λ (xint₁ : x ∈ t₁), assert xint₂ : x ∈ t₂, from mem_of_mem_erase_dup …, … …)
+         (λ (nxint₁ : x ∉ t₁),
+            assert nxint₂ : x ∉ t₂, from λ (xint₂ : x ∈ t₂), … nxint₁,
+            eq.rec … (eq.symm …)))
+    (λ (y x : A) (t₁ t₂ : list A) (p : t₁ ~ t₂) (r : erase_dup t₁ ~ erase_dup t₂),
+       decidable.by_cases
+         (λ (xinyt₁ : x ∈ y :: t₁),
+            decidable.by_cases (λ (yint₁ : …), …)
+              (λ (nyint₁ : y ∉ t₁), assert nyint₂ : …, from …, …))
+         (λ (nxinyt₁ : x ∉ y :: t₁),
+            have xney : x ≠ y, from ne_of_not_mem_cons nxinyt₁,
+            have nxint₁ : x ∉ t₁, from not_mem_of_not_mem_cons nxinyt₁,
+            assert nxint₂ : x ∉ t₂, from λ (xint₂ : …), …,
+            … …))
+    (λ (t₁ t₂ t₃ : list A) (p₁ : t₁ ~ t₂) (p₂ : t₂ ~ t₃), trans)

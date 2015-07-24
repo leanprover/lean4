@@ -192,6 +192,8 @@ void print_attributes(parser & p, name const & n) {
         out << " [instance]";
     if (is_simp_rule(env, n))
         out << " [simp]";
+    if (is_congr_rule(env, n))
+        out << " [congr]";
     switch (get_reducible_status(env, n)) {
     case reducible_status::Reducible:      out << " [reducible]"; break;
     case reducible_status::Irreducible:    out << " [irreducible]"; break;

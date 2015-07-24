@@ -830,24 +830,27 @@ format format_goal(formatter const & fmt, buffer<expr> const & hyps, expr const 
     bool compact     = get_pp_compact_goals(opts);
     format turnstile = unicode ? format("\u22A2") /* ⊢ */ : format("|-");
     format r;
-    unsigned i = 0;
-    while (i < hyps.size()) {
-        if (i > 0)
-            r += compose(comma(), line());
+    unsigned i = hyps.size();
+    bool first = true;
+    while (i > 0) {
+        i--;
         expr l     = hyps[i];
         format ids = fmt(l);
         expr t     = tmp_subst.instantiate(mlocal_type(l));
         lean_assert(hyps.size() > 0);
-        while (i < hyps.size() - 1) {
-            expr l2 = hyps[i+1];
+        while (i > 0) {
+            expr l2 = hyps[i-1];
             expr t2 = tmp_subst.instantiate(mlocal_type(l2));
             if (t2 != t)
                 break;
-            ids += space() + fmt(l2);
-            i++;
+            ids = fmt(l2) + space() + ids;
+            i--;
         }
-        r += group(ids + space() + colon() + nest(indent, line() + fmt(t)));
-        i++;
+        if (first)
+            first = false;
+        else
+            r = compose(comma(), line()) + r;
+        r = group(ids + space() + colon() + nest(indent, line() + fmt(t))) + r;
     }
     if (compact)
         r = group(r);

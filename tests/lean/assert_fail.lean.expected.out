@@ -4,8 +4,8 @@ H : b ∧ a
 ⊢ a
 
 a b : Prop,
-H : b ∧ a,
-H_1 : a
+H_1 : b ∧ a,
+H : a
 ⊢ a ∧ b
 assert_fail.lean:4:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term

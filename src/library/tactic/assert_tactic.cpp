@@ -28,12 +28,6 @@ tactic assert_tactic(elaborate_fn const & elab, name const & id, expr const & e)
             if (auto new_e = elaborate_with_respect_to(env, ios, elab, new_s, e, none_expr(), report_unassigned)) {
                 goals const & gs   = new_s.get_goals();
                 goal const & g     = head(gs);
-                if (g.find_hyp(id)) {
-                    throw_tactic_exception_if_enabled(s, sstream() << "invalid 'assert' tactic, goal already has a "
-                                                      "hypothesis named '" << id << "'");
-                    // goal already has a hypothesis named id
-                    return none_proof_state();
-                }
                 name_generator ngen = new_s.get_ngen();
                 expr new_meta1      = g.mk_meta(ngen.next(), *new_e);
                 goal new_goal1(new_meta1, *new_e);

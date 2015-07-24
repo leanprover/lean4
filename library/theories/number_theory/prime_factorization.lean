@@ -104,10 +104,10 @@ private theorem mult_pow_mul {p n : ℕ} (i : ℕ) (pgt1 : p > 1) (npos : n > 0)
 begin
   induction i with [i, ih],
     rewrite [pow_zero, one_mul, zero_add],  -- strange: this fails with {brackets} around it
-  have ppos : p > 0, from lt.trans zero_lt_one pgt1,
-  have psin_pos : p^(succ i) * n > 0, from mul_pos (!pow_pos_of_pos ppos) npos,
-  have pdvd : p ∣ p^(succ i) * n, by rewrite [pow_succ', mul.assoc]; apply dvd_mul_right,
-  rewrite [mult_rec pgt1 psin_pos pdvd, pow_succ, mul.right_comm, !mul_div_cancel ppos, ih],
+  have p > 0, from lt.trans zero_lt_one pgt1,
+  have psin_pos : p^(succ i) * n > 0, from mul_pos (!pow_pos_of_pos this) npos,
+  have p ∣ p^(succ i) * n, by rewrite [pow_succ', mul.assoc]; apply dvd_mul_right,
+  rewrite [mult_rec pgt1 psin_pos this, pow_succ, mul.right_comm, !mul_div_cancel `p > 0`, ih],
   rewrite [add.comm i, add.comm (succ i)]
 end
 
@@ -181,7 +181,7 @@ begin
     from exists_eq_mul_right_of_dvd (dvd_of_mult_pos (lt_of_succ_le multpn)),
   assert n'pos : n' > 0, from pos_of_ne_zero
       (assume n'z, by revert npos; rewrite [neq, n'z, mul_zero]; apply not_lt_zero),
-  have H' : ∀q, prime q → mult q m' ≤ mult q n', from
+  have ∀q, prime q → mult q m' ≤ mult q n', from
     (take q,
       assume primeq : prime q,
       have multqm : mult q m = mult q p + mult q m',
@@ -189,7 +189,7 @@ begin
       have multqn : mult q n = mult q p + mult q n',
         by rewrite [neq, mult_mul primeq (pos_of_prime primep) n'pos],
       show mult q m' ≤ mult q n', from le_of_add_le_add_left (multqm ▸ multqn ▸ H primeq)),
-  assert m'dvdn' : m' ∣ n', from ih m' m'ltm m'pos n' H',
+  assert m'dvdn' : m' ∣ n', from ih m' m'ltm m'pos n' this,
   show m ∣ n, by rewrite [meq, neq]; apply mul_dvd_mul !dvd.refl m'dvdn'
 end
 

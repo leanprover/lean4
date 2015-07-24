@@ -63,11 +63,11 @@ theorem choose_pos {n : ℕ} : ∀ {k : ℕ}, k ≤ n → choose n k > 0 :=
 begin
   induction n with [n, ih],
     {intros [k, H],
-      have kz : k = 0, from eq_of_le_of_ge H !zero_le,
-      rewrite [kz, choose_zero_right]; apply zero_lt_one},
+      have k = 0, from eq_of_le_of_ge H !zero_le,
+      subst k, rewrite choose_zero_right; apply zero_lt_one},
   intro k,
   cases k with k,
-    {intro H, rewrite [choose_zero_right], apply zero_lt_one},
+    {intros, rewrite [choose_zero_right], apply zero_lt_one},
   suppose succ k ≤ succ n,
   assert k ≤ n, from le_of_succ_le_succ this,
   by rewrite [choose_succ_succ]; apply add_pos_right (ih this)

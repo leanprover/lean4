@@ -70,7 +70,6 @@ begin
   rewrite [*int.mul.assoc, -*abs_eq_sign_mul, -*of_nat_nat_abs],
   apply H
 end
-
 end Bezout
 
 /-
@@ -83,16 +82,16 @@ open int
 
 example {p x y : ℕ} (pp : prime p) (H : p ∣ x * y) : p ∣ x ∨ p ∣ y :=
 decidable.by_cases
-  (assume Hpx : p ∣ x, or.inl Hpx)
-  (assume Hnpx : ¬ p ∣ x,
-    have cpx : coprime p x, from coprime_of_prime_of_not_dvd pp Hnpx,
+  (suppose p ∣ x, or.inl this)
+  (suppose ¬ p ∣ x,
+    have cpx : coprime p x, from coprime_of_prime_of_not_dvd pp this,
     obtain (a b : ℤ) (Hab : a * p + b * x = gcd p x), from !Bezout_aux,
-    assert H1 : a * p * y + b * x * y = y,
+    assert a * p * y + b * x * y = y,
       by rewrite [-int.mul.right_distrib, Hab, ↑coprime at cpx, cpx, int.one_mul],
-    have H2 : p ∣ y,
+    have p ∣ y,
       begin
         apply dvd_of_of_nat_dvd_of_nat,
-        rewrite [-H1],
+        rewrite [-this],
         apply int.dvd_add,
           {apply int.dvd_mul_of_dvd_left,
             apply int.dvd_mul_of_dvd_right,
@@ -101,6 +100,6 @@ decidable.by_cases
             apply int.dvd_mul_of_dvd_right,
             apply of_nat_dvd_of_nat_of_dvd H}
       end,
-    or.inr H2)
+    or.inr this)
 
 end nat

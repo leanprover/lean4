@@ -222,7 +222,7 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
                         p.next();
                         auto pos = p.pos();
                         expr t = p.parse_tactic_expr_arg();
-                        t      = p.mk_app(get_rexact_tac_fn(), t, pos);
+                        t      = p.mk_app(get_exact_tac_fn(), t, pos);
                         t      = p.save_pos(mk_begin_end_element_annotation(t), pos);
                         t      = p.save_pos(mk_begin_end_annotation(t), pos);
                         add_tac(t, pos);

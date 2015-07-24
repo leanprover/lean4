@@ -1,0 +1,18 @@
+have_tactic.lean:4:31: error: don't know how to synthesize placeholder
+a b c : nat,
+h₁ : a = b,
+h₂ : b = c
+⊢ b = c
+have_tactic.lean:4:19: error:invalid 'exact' tactic, term still contains metavariables after elaboration
+  eq.trans h₁ ?M_1
+proof state:
+a b c : nat,
+h₁ : a = b,
+h₂ : b = c
+⊢ a = c
+have_tactic.lean:5:0: error: don't know how to synthesize placeholder
+a b c : nat
+⊢ a = b → b = c → a = c
+have_tactic.lean:5:0: error: failed to add declaration 'example' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  ?M_1

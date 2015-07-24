@@ -1498,7 +1498,13 @@ struct unifier_fn {
             set_conflict(j);
             return false;
         }
-        expr meta = *m_tc->is_stuck(pr_args[mkidx]);
+        auto stuck_it = m_tc->is_stuck(pr_args[mkidx]);
+        if (!stuck_it) {
+            // TODO(Lean): normalize, and try is_stuck again?
+            // We don't do it because it seems there is very little gain, and it may negatively affect performance.
+            return false;
+        }
+        expr meta = *stuck_it;
         lean_assert(is_meta(meta));
         buffer<expr> meta_args;
         expr const & mvar      = get_app_args(meta, meta_args);

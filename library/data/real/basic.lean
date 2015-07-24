@@ -644,8 +644,7 @@ theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : 
         apply rat.le.trans,
         apply rat.mul_le_mul_of_nonneg_right,
         apply pceil_helper Hn,
-        repeat (apply rat.mul_pos | apply rat.add_pos | apply rat_of_pnat_is_pos | apply inv_pos),
-        --repeat (apply rat.mul_pos | apply rat.add_pos | apply inv_pos | apply rat_of_pnat_is_pos),
+        repeat (apply rat.mul_pos | apply rat.add_pos | apply inv_pos | apply rat_of_pnat_is_pos),
         apply rat.le_of_lt,
         apply rat.add_pos,
         apply rat.mul_pos,
@@ -654,7 +653,7 @@ theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : 
         repeat apply inv_pos,
         apply rat.mul_pos,
         apply rat.add_pos,
-        apply inv_pos,apply inv_pos, -- repeat apply inv_pos,
+        repeat apply inv_pos,
         apply rat_of_pnat_is_pos,
         have H : (rat_of_pnat (K s) * (b⁻¹ + c⁻¹) + (a⁻¹ + c⁻¹) * rat_of_pnat (K t)) ≠ 0, begin
           apply rat.ne_of_gt,
@@ -693,7 +692,7 @@ theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : 
     apply rat.le_of_lt,
     apply rat.mul_pos,
     apply rat.add_pos,
-    apply inv_pos,apply inv_pos, -- repeat apply inv_pos,
+    repeat apply inv_pos,
     apply rat_of_pnat_is_pos,
     apply rat.le_of_lt,
     apply inv_pos

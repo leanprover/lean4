@@ -1042,9 +1042,9 @@ end s
 ----------------------------------------------
 -- take quotients to get ℝ and show it's a comm ring
 
-namespace real
 open s
 definition real := quot reg_seq.to_setoid
+namespace real
 notation `ℝ` := real
 
 definition add (x y : ℝ) : ℝ :=

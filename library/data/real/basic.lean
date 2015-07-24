@@ -6,8 +6,7 @@ The real numbers, constructed as equivalence classes of Cauchy sequences of rati
 This construction follows Bishop and Bridges (1985).
 
 To do:
- o Break positive naturals into their own file and fill in sorry's
- o Fill in sorrys for helper lemmas that will not be handled by simplifier
+ o Break positive naturals into their own file
  o Rename things and possibly make theorems private
 -/
 
@@ -21,15 +20,15 @@ local notation 1 := rat.of_num 1
 -------------------------------------
 -- theorems to add to (ordered) field and/or rat
 
--- this can move to pnat once sorry is filled in
+-- this can move to pnat
 theorem find_midpoint {a b : ℚ} (H : a > b) : ∃ c : ℚ, a > b + c ∧ c > 0 :=
   exists.intro ((a - b) / (1 + 1))
-    (and.intro (have H2 [visible] : a + a > (b + b) + (a - b), from calc
+    (and.intro (assert H2 : a + a > (b + b) + (a - b), from calc
       a + a > b + a : rat.add_lt_add_right H
       ... = b + a + b - b : rat.add_sub_cancel
       ... = b + b + a - b : rat.add.right_comm
       ... = (b + b) + (a - b) : add_sub,
-     have H3 [visible] : (a + a) / (1 + 1) > ((b + b) + (a - b)) / (1 + 1),
+     assert H3 : (a + a) / (1 + 1) > ((b + b) + (a - b)) / (1 + 1),
        from div_lt_div_of_lt_of_pos H2 dec_trivial,
      by rewrite [div_two at H3, -div_add_div_same at H3, div_two at H3]; exact H3)
     (pos_div_of_pos_of_pos (iff.mpr !sub_pos_iff_lt H) dec_trivial))
@@ -140,9 +139,6 @@ theorem factor_lemma (a b c d e : ℚ) : abs (a + b + c - (d + (b + e))) = abs (
 
 theorem factor_lemma_2 (a b c d : ℚ) : (a + b) + (c + d) = (a + c) + (d + b) :=
   !rat.add.comm ▸ (binary.comm4 rat.add.comm rat.add.assoc a b c d)
-
--------------------------------------
--- The only sorry's after this point are for the simplifier.
 
 --------------------------------------
 -- define cauchy sequences and equivalence. show equivalence actually is one
@@ -301,15 +297,15 @@ definition K₂ (s t : seq) := max (K s) (K t)
 
 theorem K₂_symm (s t : seq) : K₂ s t = K₂ t s :=
   if H : K s < K t then
-    (have H1 [visible] : K₂ s t = K t, from max_eq_right H,
-      have H2 [visible] : K₂ t s = K t, from max_eq_left (not_lt_of_ge (le_of_lt H)),
-      by rewrite [H1, -H2])
+    (assert H1 : K₂ s t = K t, from max_eq_right H,
+     assert H2 : K₂ t s = K t, from max_eq_left (not_lt_of_ge (le_of_lt H)),
+     by rewrite [H1, -H2])
   else
-    (have H1 [visible] : K₂ s t = K s, from max_eq_left H,
+    (assert H1 : K₂ s t = K s, from max_eq_left H,
       if J : K t < K s then
-        (have H2 [visible] : K₂ t s = K s, from max_eq_right J, by rewrite [H1, -H2])
+        (assert H2 : K₂ t s = K s, from max_eq_right J, by rewrite [H1, -H2])
       else
-        (have Heq [visible] : K t = K s, from
+        (assert Heq : K t = K s, from
           eq_of_le_of_ge (le_of_not_gt H) (le_of_not_gt J),
         by rewrite [↑K₂, Heq]))
 

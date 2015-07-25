@@ -34,6 +34,9 @@ quot.lift_on b (λ l, ⟦a::l⟧)
 lemma insert_empty_eq_singleton (a : A) : insert a empty = singleton a :=
 rfl
 
+definition insert.comm (a₁ a₂ : A) (b : bag A) : insert a₁ (insert a₂ b) = insert a₂ (insert a₁ b) :=
+quot.induction_on b (λ l, quot.sound !perm.swap)
+
 definition append (b₁ b₂ : bag A) : bag A :=
 quot.lift_on₂ b₁ b₂ (λ l₁ l₂, ⟦l₁++l₂⟧)
   (λ l₁ l₂ l₃ l₄ h₁ h₂, quot.sound (perm_app h₁ h₂))
@@ -128,6 +131,13 @@ quot.induction_on₂ b₁ b₂ (λ l₁ l₂ (h : ∀ a, count a ⟦l₁⟧ = co
          ...  ~ l++(a::r) : perm_middle
          ...  = s₂        : e₁,
  quot.sound (gen l₁ l₂ h))
+
+definition insert.inj {a : A} {b₁ b₂ : bag A} : insert a b₁ = insert a b₂ → b₁ = b₂ :=
+assume h, bag.ext (take x,
+  assert e : count x (insert a b₁) = count x (insert a b₂), by rewrite h,
+  by_cases
+    (suppose x = a, begin subst x, rewrite [*count_insert at e], injection e, assumption end)
+    (suppose x ≠ a, begin rewrite [*count_insert_of_ne this at e], assumption end))
 end count
 
 section extract
@@ -461,6 +471,9 @@ bag.ext (λ a, by rewrite [*count_union, max.comm])
 lemma union.assoc (b₁ b₂ b₃ : bag A) : (b₁ ∪ b₂) ∪ b₃ = b₁ ∪ (b₂ ∪ b₃) :=
 bag.ext (λ a, by rewrite [*count_union, max.assoc])
 
+theorem union.left_comm (s₁ s₂ s₃ : bag A) : s₁ ∪ (s₂ ∪ s₃) = s₂ ∪ (s₁ ∪ s₃) :=
+!left_comm union.comm union.assoc s₁ s₂ s₃
+
 lemma union_self (b : bag A) : b ∪ b = b :=
 bag.ext (λ a, by rewrite [*count_union, max_self])
 
@@ -476,6 +489,9 @@ bag.ext (λ a, by rewrite [*count_inter, min.comm])
 
 lemma inter.assoc (b₁ b₂ b₃ : bag A) : (b₁ ∩ b₂) ∩ b₃ = b₁ ∩ (b₂ ∩ b₃) :=
 bag.ext (λ a, by rewrite [*count_inter, min.assoc])
+
+theorem inter.left_comm (s₁ s₂ s₃ : bag A) : s₁ ∩ (s₂ ∩ s₃) = s₂ ∩ (s₁ ∩ s₃) :=
+!left_comm inter.comm inter.assoc s₁ s₂ s₃
 
 lemma inter_self (b : bag A) : b ∩ b = b :=
 bag.ext (λ a, by rewrite [*count_inter, min_self])
@@ -528,4 +544,86 @@ calc (b₁ ∪ b₂) ∩ b₃ = b₃ ∩ (b₁ ∪ b₂)        : inter.comm
               ...   = (b₁ ∩ b₃) ∪ (b₃ ∩ b₂) : inter.comm
               ...   = (b₁ ∩ b₃) ∪ (b₂ ∩ b₃) : inter.comm
 end union_inter
+
+section subbag
+variable [decA : decidable_eq A]
+include decA
+
+definition subbag (b₁ b₂ : bag A) := ∀ a, count a b₁ ≤ count a b₂
+
+infix ⊆ := subbag
+
+definition subbag.refl (b : bag A) : b ⊆ b :=
+take a, !le.refl
+
+definition subbag.trans {b₁ b₂ b₃ : bag A} : b₁ ⊆ b₂ → b₂ ⊆ b₃ → b₁ ⊆ b₃ :=
+assume h₁ h₂, take a, le.trans (h₁ a) (h₂ a)
+
+definition subbag.antisymm {b₁ b₂ : bag A} : b₁ ⊆ b₂ → b₂ ⊆ b₁ → b₁ = b₂ :=
+assume h₁ h₂, bag.ext (take a, le.antisymm (h₁ a) (h₂ a))
+
+definition count_le_of_subbag {b₁ b₂ : bag A} : b₁ ⊆ b₂ → ∀ a, count a b₁ ≤ count a b₂ :=
+assume h, h
+
+definition subbag.intro {b₁ b₂ : bag A} : (∀ a, count a b₁ ≤ count a b₂) → b₁ ⊆ b₂ :=
+assume h, h
+
+definition empty_subbag (b : bag A) : empty ⊆ b :=
+subbag.intro (take a, !zero_le)
+
+definition eq_empty_of_subbag_empty {b : bag A} : b ⊆ empty → b = empty :=
+assume h, subbag.antisymm h (empty_subbag b)
+
+definition union_subbag_of_subbag_of_subbag {b₁ b₂ b₃ : bag A} : b₁ ⊆ b₃ → b₂ ⊆ b₃ → b₁ ∪ b₂ ⊆ b₃ :=
+assume h₁ h₂, subbag.intro (λ a, calc
+  count a (b₁ ∪ b₂) = max (count a b₁) (count a b₂) : by rewrite count_union
+                ... ≤ count a b₃                    : max_le (h₁ a) (h₂ a))
+
+definition subbag_inter_of_subbag_of_subbag {b₁ b₂ b₃ : bag A} : b₁ ⊆ b₂ → b₁ ⊆ b₃ → b₁ ⊆ b₂ ∩ b₃ :=
+assume h₁ h₂, subbag.intro (λ a, calc
+  count a b₁ ≤ min (count a b₂) (count a b₃) : le_min (h₁ a) (h₂ a)
+         ... = count a (b₂ ∩ b₃)             : by rewrite count_inter)
+
+definition subbag_union_left (b₁ b₂ : bag A) : b₁ ⊆ b₁ ∪ b₂ :=
+subbag.intro (take a, by rewrite [count_union]; apply le_max_left)
+
+definition subbag_union_right (b₁ b₂ : bag A) : b₂ ⊆ b₁ ∪ b₂ :=
+subbag.intro (take a, by rewrite [count_union]; apply le_max_right)
+
+definition inter_subbag_left (b₁ b₂ : bag A) : b₁ ∩ b₂ ⊆ b₁ :=
+subbag.intro (take a, by rewrite [count_inter]; apply min_le_left)
+
+definition inter_subbag_right (b₁ b₂ : bag A) : b₁ ∩ b₂ ⊆ b₂ :=
+subbag.intro (take a, by rewrite [count_inter]; apply min_le_right)
+
+definition subbag_append_left (b₁ b₂ : bag A) : b₁ ⊆ b₁ ++ b₂ :=
+subbag.intro (take a, by rewrite [count_append]; apply le_add_right)
+
+definition subbag_append_right (b₁ b₂ : bag A) : b₂ ⊆ b₁ ++ b₂ :=
+subbag.intro (take a, by rewrite [count_append]; apply le_add_left)
+
+definition inter_subbag_union (b₁ b₂ : bag A) : b₁ ∩ b₂ ⊆ b₁ ∪ b₂ :=
+subbag.trans (inter_subbag_left b₁ b₂) (subbag_union_left b₁ b₂)
+
+open decidable
+
+definition union_subbag_append (b₁ b₂ : bag A) : b₁ ∪ b₂ ⊆ b₁ ++ b₂ :=
+subbag.intro (take a, begin
+  rewrite [count_append, count_union], unfold max,
+  exact by_cases
+   (suppose count a b₁ < count a b₂,   by rewrite [if_pos this]; apply le_add_left)
+   (suppose ¬ count a b₁ < count a b₂, by rewrite [if_neg this]; apply le_add_right)
+end)
+
+definition subbag_insert (a : A) (b : bag A) : b ⊆ insert a b :=
+subbag.intro (take x, by_cases
+  (suppose x = a, by rewrite [this, count_insert]; apply le_succ)
+  (suppose x ≠ a, by rewrite [count_insert_of_ne this]))
+
+definition mem_of_subbag_of_mem {a : A} {b₁ b₂ : bag A} : b₁ ⊆ b₂ → a ∈ b₁ → a ∈ b₂ :=
+assume h₁ h₂,
+have count a b₁ ≤ count a b₂, from count_le_of_subbag h₁ a,
+have count a b₁ > 0,          from h₂,
+show count a b₂ > 0,          from lt_of_lt_of_le `0 < count a b₁` `count a b₁ ≤ count a b₂`
+end subbag
 end bag

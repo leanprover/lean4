@@ -303,8 +303,8 @@ end (eq.refl (decode A n))
 private definition find_a : (∃ x, p x) → {a : A | p a} :=
 suppose ∃ x, p x,
 have    ∃ x, pn x, from ex_pn_of_ex this,
-let r := @nat.choose pn decidable_pn this in
-have pn r, from @nat.choose_spec pn decidable_pn this,
+let r := @nat.find _ decidable_pn this in
+have pn r, from @nat.find_spec pn decidable_pn this,
 of_nat r this
 end find_a
 

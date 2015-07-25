@@ -329,4 +329,100 @@ ext (λ p,
      (λ i, absurd i !not_mem_empty)
   end)
 end product
+
+/- powerset -/
+section powerset
+variables {A : Type} [deceqA : decidable_eq A]
+include deceqA
+
+  section list_powerset
+  open list
+
+  definition list_powerset : list A → finset (finset A)
+  | []       := '{∅}
+  | (a :: l) := list_powerset l ∪ image (insert a) (list_powerset l)
+
+  end list_powerset
+
+private theorem image_insert_comm (a b : A) (s : finset (finset A)) :
+  image (insert a) (image (insert b) s) = image (insert b) (image (insert a) s) :=
+have aux' : ∀ a b : A, ∀ x : finset A,
+  x ∈ image (insert a) (image (insert b) s) →
+    x ∈ image (insert b) (image (insert a) s), from
+  begin
+    intros [a, b, x, H],
+    cases (exists_of_mem_image H) with [y, Hy],
+    cases Hy with [Hy1, Hy2],
+    cases (exists_of_mem_image Hy1) with [z, Hz],
+    cases Hz with [Hz1, Hz2],
+    substvars,
+    rewrite insert.comm,
+    repeat (apply mem_image_of_mem),
+    assumption
+  end,
+ext (take x, iff.intro (aux' a b x) (aux' b a x))
+
+theorem list_powerset_eq_list_powerset_of_perm {l₁ l₂ : list A} (p : l₁ ~ l₂) :
+    list_powerset l₁ = list_powerset l₂ :=
+perm.induction_on p
+  rfl
+  (λ x l₁ l₂ p ih, by rewrite [↑list_powerset, ih])
+  (λ x y l, by rewrite [↑list_powerset, ↑list_powerset, *image_union, image_insert_comm,
+                        *union.assoc, union.left_comm (finset.image (finset.insert x) _)])
+  (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, eq.trans r₁ r₂)
+
+definition powerset (s : finset A) : finset (finset A) :=
+quot.lift_on s
+  (λ l, list_powerset (elt_of l))
+  (λ l₁ l₂ p, list_powerset_eq_list_powerset_of_perm p)
+
+theorem powerset_empty : powerset (∅ : finset A) = '{∅} := rfl
+
+theorem powerset_insert {a : A} {s : finset A} : a ∉ s →
+  powerset (insert a s) = powerset s ∪ image (insert a) (powerset s) :=
+quot.induction_on s
+  (λ l,
+    assume H : a ∉ quot.mk l,
+    calc
+      powerset (insert a (quot.mk l))
+            = list_powerset (list.insert a (elt_of l)) : rfl
+        ... = list_powerset (#list a :: elt_of l)       : by rewrite [list.insert_eq_of_not_mem H]
+        ... = powerset (quot.mk l) ∪ image (insert a) (powerset (quot.mk l)) : rfl)
+
+theorem mem_powerset_iff_subset (s : finset A) : ∀ x, x ∈ powerset s ↔ x ⊆ s :=
+begin
+  induction s with a s nains ih,
+    intro x,
+    rewrite powerset_empty,
+    show x ∈ '{∅} ↔ x ⊆ ∅, by rewrite [mem_singleton_eq', subset_empty_iff],
+  intro x,
+    rewrite [powerset_insert nains, mem_union_iff, ih, mem_image_iff],
+    exact
+      (iff.intro
+        (assume H,
+          or.elim H
+            (suppose x ⊆ s, subset.trans this !subset_insert)
+            (suppose ∃ y, y ∈ powerset s ∧ insert a y = x,
+              obtain y [yps iay], from this,
+              show x ⊆ insert a s,
+                begin
+                  rewrite [-iay],
+                  apply insert_subset_insert,
+                  rewrite -ih,
+                  apply yps
+                end))
+        (assume H : x ⊆ insert a s,
+          assert H' : erase a x ⊆ s, from erase_subset_of_subset_insert H,
+          decidable.by_cases
+            (suppose a ∈ x,
+              or.inr (exists.intro (erase a x)
+                (and.intro
+                  (show erase a x ∈ powerset s, by rewrite ih; apply H')
+                  (show insert a (erase a x) = x, from insert_erase this))))
+            (suppose a ∉ x, or.inl
+              (show x ⊆ s, by rewrite [(erase_eq_of_not_mem this) at H']; apply H'))))
+end
+
+end powerset
+
 end finset

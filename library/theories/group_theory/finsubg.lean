@@ -96,7 +96,7 @@ lemma fin_lrcoset_comm {a b : A} :
 by esimp [fin_lcoset, fin_rcoset]; rewrite [-*image_compose, lmul_rmul]
 
 lemma inv_mem_fin_inv {a : A} : a ∈ H → a⁻¹ ∈ fin_inv H :=
-assume Pin, mem_image_of_mem_of_eq Pin rfl
+assume Pin, mem_image Pin rfl
 
 lemma fin_lcoset_eq (a : A) : ts (fin_lcoset H a) = a ∘> (ts H) := calc
       ts (fin_lcoset H a) = coset.l a (ts H) : to_set_image
@@ -401,11 +401,11 @@ lemma lrcoset_same_of_mem_normalizer {g : G} :
   g ∈ normalizer H → fin_lcoset H g = fin_rcoset H g :=
 assume Pg, ext take h, iff.intro
   (assume Pl, obtain j Pjin Pj, from exists_of_mem_image Pl,
-  mem_image_of_mem_of_eq (of_mem_filter Pg j Pjin)
+  mem_image (of_mem_filter Pg j Pjin)
     (calc g*j*g⁻¹*g = g*j : inv_mul_cancel_right
                 ... = h   : Pj))
   (assume Pr, obtain j Pjin Pj, from exists_of_mem_image Pr,
-  mem_image_of_mem_of_eq (of_mem_filter (finsubg_has_inv (normalizer H) Pg) j Pjin)
+  mem_image (of_mem_filter (finsubg_has_inv (normalizer H) Pg) j Pjin)
     (calc g*(g⁻¹*j*g⁻¹⁻¹) = g*(g⁻¹*j*g)   : inv_inv
                       ... = g*(g⁻¹*(j*g)) : mul.assoc
                       ... = j*g           : mul_inv_cancel_left

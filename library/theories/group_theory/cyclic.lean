@@ -182,7 +182,7 @@ assume Pe, let s := image (pow a) (upto (succ n)) in
 assert Psub: cyc a ⊆ s, from subset_of_forall
   (take g, assume Pgin, obtain i Pilt Pig, from of_mem_filter Pgin, begin
   rewrite [-Pig, pow_mod Pe],
-  apply mem_image_of_mem_of_eq,
+  apply mem_image,
     apply mem_upto_of_lt (mod_lt i !zero_lt_succ),
     exact rfl end),
 #nat calc order a ≤ card s : card_le_card_of_subset Psub

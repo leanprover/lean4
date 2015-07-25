@@ -20,6 +20,7 @@ definition image (f : A → B) (s : finset A) : finset B :=
 quot.lift_on s
   (λ l, to_finset (list.map f (elt_of l)))
   (λ l₁ l₂ p, quot.sound (perm_erase_dup_of_perm (perm_map _ p)))
+notation f `'[`:max a `]` := image f a
 
 theorem image_empty (f : A → B) : image f ∅ = ∅ :=
 rfl
@@ -27,7 +28,7 @@ rfl
 theorem mem_image_of_mem (f : A → B) {s : finset A} {a : A} : a ∈ s → f a ∈ image f s :=
 quot.induction_on s (take l, assume H : a ∈ elt_of l, mem_to_finset (mem_map f H))
 
-theorem mem_image_of_mem_of_eq {f : A → B} {s : finset A} {a : A} {b : B}
+theorem mem_image {f : A → B} {s : finset A} {a : A} {b : B}
     (H1 : a ∈ s) (H2 : f a = b) :
   b ∈ image f s :=
 eq.subst H2 (mem_image_of_mem f H1)
@@ -42,7 +43,7 @@ theorem mem_image_iff (f : A → B) {s : finset A} {y : B} : y ∈ image f s ↔
 iff.intro exists_of_mem_image
   (assume H,
     obtain x (H₁ : x ∈ s) (H₂ : f x = y), from H,
-    mem_image_of_mem_of_eq H₁ H₂)
+    mem_image H₁ H₂)
 
 theorem mem_image_eq (f : A → B) {s : finset A} {y : B} : y ∈ image f s = ∃x, x ∈ s ∧ f x = y :=
 propext (mem_image_iff f)
@@ -51,7 +52,7 @@ theorem mem_image_of_mem_image_of_subset {f : A → B} {s t : finset A} {y : B}
     (H1 : y ∈ image f s) (H2 : s ⊆ t) : y ∈ image f t :=
 obtain x (H3: x ∈ s) (H4 : f x = y), from exists_of_mem_image H1,
 have H5 : x ∈ t, from mem_of_subset_of_mem H2 H3,
-show y ∈ image f t, from mem_image_of_mem_of_eq H5 H4
+show y ∈ image f t, from mem_image H5 H4
 
 theorem image_insert [h' : decidable_eq A] (f : A → B) (s : finset A) (a : A) :
   image f (insert a s) = insert (f a) (image f s) :=
@@ -84,8 +85,30 @@ ext (take z, iff.intro
   (suppose z ∈ image f (image g s),
     obtain y (Hy : y ∈ image g s) (Hfy : f y = z), from exists_of_mem_image this,
     obtain x (Hx : x ∈ s) (Hgx : g x = y), from exists_of_mem_image Hy,
-    mem_image_of_mem_of_eq Hx (by esimp; rewrite [Hgx, Hfy])))
+    mem_image Hx (by esimp; rewrite [Hgx, Hfy])))
 
+lemma image_subset {a b : finset A} (f : A → B) (H : a ⊆ b) : f '[a] ⊆ f '[b] :=
+subset_of_forall
+  (take y, assume Hy : y ∈ f '[a],
+    obtain x (Hx₁ : x ∈ a) (Hx₂ : f x = y), from exists_of_mem_image Hy,
+    mem_image (mem_of_subset_of_mem H Hx₁) Hx₂)
+
+theorem image_union [h' : decidable_eq A] (f : A → B) (s t : finset A) :
+  image f (s ∪ t) = image f s ∪ image f t :=
+ext (take y, iff.intro
+  (assume H : y ∈ image f (s ∪ t),
+    obtain x [(xst : x ∈ s ∪ t) (fxy : f x = y)], from exists_of_mem_image H,
+    or.elim (mem_or_mem_of_mem_union xst)
+      (assume xs, mem_union_l (mem_image xs fxy))
+      (assume xt, mem_union_r (mem_image xt fxy)))
+  (assume H : y ∈ image f s ∪ image f t,
+    or.elim (mem_or_mem_of_mem_union H)
+      (assume yifs : y ∈ image f s,
+        obtain x [(xs : x ∈ s) (fxy : f x = y)], from exists_of_mem_image yifs,
+        mem_image (mem_union_l xs) fxy)
+      (assume yift : y ∈ image f t,
+        obtain x [(xt : x ∈ t) (fxy : f x = y)], from exists_of_mem_image yift,
+        mem_image (mem_union_r xt) fxy)))
 end image
 
 /- filter and set-builder notation -/
@@ -126,7 +149,11 @@ iff.intro
 
 theorem mem_filter_eq : x ∈ filter p s = (x ∈ s ∧ p x) :=
 propext !mem_filter_iff
+
 end filter
+
+theorem mem_singleton_eq' {A : Type} [deceq : decidable_eq A] (x a : A) : x ∈ '{a} = (x = a) :=
+by rewrite [mem_insert_eq, mem_empty_eq, or_false]
 
 /- set difference -/
 section diff

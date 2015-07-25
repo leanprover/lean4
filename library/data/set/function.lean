@@ -58,6 +58,23 @@ take y, assume Hy : y ∈ f '[a],
 obtain x (Hx₁ : x ∈ a) (Hx₂ : f x = y), from Hy,
 mem_image (H Hx₁) Hx₂
 
+theorem image_union (f : X → Y) (s t : set X) :
+  image f (s ∪ t) = image f s ∪ image f t :=
+setext (take y, iff.intro
+  (assume H : y ∈ image f (s ∪ t),
+    obtain x [(xst : x ∈ s ∪ t) (fxy : f x = y)], from H,
+    or.elim xst
+      (assume xs, or.inl (mem_image xs fxy))
+      (assume xt, or.inr (mem_image xt fxy)))
+  (assume H : y ∈ image f s ∪ image f t,
+    or.elim H
+      (assume yifs : y ∈ image f s,
+        obtain x [(xs : x ∈ s) (fxy : f x = y)], from yifs,
+        mem_image (or.inl xs) fxy)
+      (assume yift : y ∈ image f t,
+        obtain x [(xt : x ∈ t) (fxy : f x = y)], from yift,
+        mem_image (or.inr xt) fxy)))
+
 /- maps to -/
 
 definition maps_to [reducible] (f : X → Y) (a : set X) (b : set Y) : Prop := ∀⦃x⦄, x ∈ a → f x ∈ b

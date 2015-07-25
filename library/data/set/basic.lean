@@ -3,8 +3,8 @@ Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Jeremy Avigad, Leonardo de Moura
 -/
-import logic
-open eq.ops
+import logic algebra.binary
+open eq.ops binary
 
 definition set [reducible] (X : Type) := X → Prop
 
@@ -29,8 +29,12 @@ theorem subset.refl (a : set X) : a ⊆ a := take x, assume H, H
 theorem subset.trans (a b c : set X) (subab : a ⊆ b) (subbc : b ⊆ c) : a ⊆ c :=
 take x, assume ax, subbc (subab ax)
 
-theorem subset.antisymm (a b : set X) (h₁ : a ⊆ b) (h₂ : b ⊆ a) : a = b :=
+theorem subset.antisymm {a b : set X} (h₁ : a ⊆ b) (h₂ : b ⊆ a) : a = b :=
 setext (λ x, iff.intro (λ ina, h₁ ina) (λ inb, h₂ inb))
+
+-- an alterantive name
+theorem eq_of_subset_of_subset {a b : set X} (h₁ : a ⊆ b) (h₂ : b ⊆ a) : a = b :=
+subset.antisymm h₁ h₂
 
 definition strict_subset (a b : set X) := a ⊆ b ∧ a ≠ b
 infix `⊂`:50 := strict_subset
@@ -57,6 +61,20 @@ theorem not_mem_empty (x : X) : ¬ (x ∈ ∅) :=
 assume H : x ∈ ∅, H
 
 theorem mem_empty_eq (x : X) : x ∈ ∅ = false := rfl
+
+theorem eq_empty_of_forall_not_mem {s : set X} (H : ∀ x, x ∉ s) : s = ∅ :=
+setext (take x, iff.intro
+  (assume xs, absurd xs (H x))
+  (assume xe, absurd xe !not_mem_empty))
+
+theorem empty_subset (s : set X) : ∅ ⊆ s :=
+take x, assume H, false.elim H
+
+theorem eq_empty_of_subset_empty {s : set X} (H : s ⊆ ∅) : s = ∅ :=
+subset.antisymm H (empty_subset s)
+
+theorem subset_empty_iff (s : set X) : s ⊆ ∅ ↔ s = ∅ :=
+iff.intro eq_empty_of_subset_empty (take xeq, by rewrite xeq; apply subset.refl ∅)
 
 /- universal set -/
 
@@ -94,6 +112,12 @@ setext (take x, or.comm)
 theorem union.assoc (a b c : set X) : (a ∪ b) ∪ c = a ∪ (b ∪ c) :=
 setext (take x, or.assoc)
 
+theorem union.left_comm (s₁ s₂ s₃ : set X) : s₁ ∪ (s₂ ∪ s₃) = s₂ ∪ (s₁ ∪ s₃) :=
+!left_comm union.comm union.assoc s₁ s₂ s₃
+
+theorem union.right_comm (s₁ s₂ s₃ : set X) : (s₁ ∪ s₂) ∪ s₃ = (s₁ ∪ s₃) ∪ s₂ :=
+!right_comm union.comm union.assoc s₁ s₂ s₃
+
 /- intersection -/
 
 definition inter [reducible] (a b : set X) : set X := λx, x ∈ a ∧ x ∈ b
@@ -117,6 +141,12 @@ setext (take x, !and.comm)
 
 theorem inter.assoc (a b c : set X) : (a ∩ b) ∩ c = a ∩ (b ∩ c) :=
 setext (take x, !and.assoc)
+
+theorem inter.left_comm (s₁ s₂ s₃ : set X) : s₁ ∩ (s₂ ∩ s₃) = s₂ ∩ (s₁ ∩ s₃) :=
+!left_comm inter.comm inter.assoc s₁ s₂ s₃
+
+theorem inter.right_comm (s₁ s₂ s₃ : set X) : (s₁ ∩ s₂) ∩ s₃ = (s₁ ∩ s₃) ∩ s₂ :=
+!right_comm inter.comm inter.assoc s₁ s₂ s₃
 
 theorem inter_univ (a : set X) : a ∩ univ = a :=
 setext (take x, !and_true)

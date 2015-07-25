@@ -66,7 +66,7 @@ lemma exists_of_orbit {b : S} : b ∈ orbit hom H a → ∃ h, h ∈ H ∧ hom h
 
 lemma orbit_of_exists {b : S} : (∃ h, h ∈ H ∧ hom h a = b) → b ∈ orbit hom H a :=
 assume Pex, obtain h PinH Phab, from Pex,
-mem_image_of_mem_of_eq (mem_image_of_mem hom PinH) Phab
+mem_image (mem_image_of_mem hom PinH) Phab
 
 lemma is_fixed_point_of_mem_fixed_points :
   a ∈ fixed_points hom H → is_fixed_point hom H a :=
@@ -266,7 +266,7 @@ variables {hom : G → perm S} [Hom : is_hom_class hom] {H : finset G} [subgH : 
 include Hom subgH
 
 lemma in_orbit_refl {a : S} : a ∈ orbit hom H a :=
-mem_image_of_mem_of_eq (mem_image_of_mem_of_eq (finsubg_has_one H) (hom_map_one hom)) rfl
+mem_image (mem_image (finsubg_has_one H) (hom_map_one hom)) rfl
 
 lemma in_orbit_trans {a b c : S} :
   a ∈ orbit hom H b → b ∈ orbit hom H c → a ∈ orbit hom H c :=
@@ -339,7 +339,7 @@ ext take s, iff.intro
   (assume Pin,
    obtain Psin Ps, from iff.elim_left !mem_filter_iff Pin,
    obtain a Pa, from exists_of_mem_orbits Psin,
-   mem_image_of_mem_of_eq
+   mem_image
      (mem_filter_of_mem !mem_univ (eq.symm
        (eq_of_card_eq_of_subset (by rewrite [card_singleton, Pa, Ps])
          (subset_of_forall
@@ -543,7 +543,7 @@ ext (take (pp : perm (fin (succ n))), iff.intro
   mem_filter_of_mem !mem_univ Ppp)
   (assume Pstab,
   assert Ppp : pp maxi = maxi, from of_mem_filter Pstab,
-  mem_image_of_mem_of_eq !mem_univ (lift_lower_eq Ppp)))
+  mem_image !mem_univ (lift_lower_eq Ppp)))
 
 definition move_from_max_to (i : fin (succ n)) : perm (fin (succ n)) :=
 perm.mk (madd (i - maxi)) madd_inj
@@ -552,8 +552,8 @@ lemma orbit_max : orbit (@id (perm (fin (succ n)))) univ maxi = univ :=
 ext (take i, iff.intro
   (assume P, !mem_univ)
   (assume P, begin
-    apply mem_image_of_mem_of_eq,
-      apply mem_image_of_mem_of_eq,
+    apply mem_image,
+      apply mem_image,
         apply mem_univ (move_from_max_to i), apply rfl,
       apply sub_add_cancel
     end))

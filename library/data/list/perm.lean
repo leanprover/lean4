@@ -793,4 +793,22 @@ assume u, perm.induction_on u
           (assume H2 : ¬ p y,
              by rewrite [filter_cons_of_neg _ H1, *filter_cons_of_neg _ H2, filter_cons_of_neg _ H1])))
     (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, trans r₁ r₂)
+
+section count
+variable [decA : decidable_eq A]
+include decA
+
+theorem count_eq_of_perm {l₁ l₂ : list A} : l₁ ~ l₂ → ∀ a, count a l₁ = count a l₂ :=
+suppose l₁ ~ l₂, perm.induction_on this
+  (λ a, rfl)
+  (λ x l₁ l₂ p h a, by rewrite [*count_cons, *h a])
+  (λ x y l a, by_cases
+     (suppose a = x, by_cases
+       (suppose a = y, begin subst x, subst y end)
+       (suppose a ≠ y, begin subst x, rewrite [count_cons_of_ne this, *count_cons_eq, count_cons_of_ne this] end))
+     (suppose a ≠ x, by_cases
+       (suppose a = y, begin subst y, rewrite [count_cons_of_ne this, *count_cons_eq, count_cons_of_ne this] end)
+       (suppose a ≠ y, begin rewrite [count_cons_of_ne `a≠x`, *count_cons_of_ne `a≠y`, count_cons_of_ne `a≠x`] end)))
+  (λ l₁ l₂ l₃ p₁ p₂ h₁ h₂ a, eq.trans (h₁ a) (h₂ a))
+end count
 end perm

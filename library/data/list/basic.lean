@@ -637,7 +637,70 @@ lemma length_firstn_eq : ∀ (n) (l : list A), length (firstn n l) = min n (leng
 | (succ n) (a::l) := by rewrite [firstn_cons, *length_cons, *add_one, min_succ_succ, length_firstn_eq]
 | (succ n) []     := by rewrite [firstn_nil]
 end firstn
+
+section count
+variable {A : Type}
+variable [decA : decidable_eq A]
+include decA
+
+definition count (a : A) : list A → nat
+| []      := 0
+| (x::xs) := if a = x then succ (count xs) else count xs
+
+lemma count_nil (a : A) : count a [] = 0 :=
+rfl
+
+lemma count_cons (a b : A) (l : list A) : count a (b::l) = if a = b then succ (count a l) else count a l :=
+rfl
+
+lemma count_cons_eq (a : A) (l : list A) : count a (a::l) = succ (count a l) :=
+if_pos rfl
+
+lemma count_cons_of_ne {a b : A} (h : a ≠ b) (l : list A) : count a (b::l) = count a l :=
+if_neg h
+
+lemma count_cons_ge_count (a b : A) (l : list A) : count a (b::l) ≥ count a l :=
+by_cases
+  (suppose a = b, begin subst b, rewrite count_cons_eq, apply le_succ end)
+  (suppose a ≠ b, begin rewrite (count_cons_of_ne this), apply le.refl end)
+
+lemma count_singleton (a : A) : count a [a] = 1 :=
+by rewrite count_cons_eq
+
+lemma count_append (a : A) : ∀ l₁ l₂, count a (l₁++l₂) = count a l₁ + count a l₂
+| []      l₂ := by rewrite [append_nil_left, count_nil, zero_add]
+| (b::l₁) l₂ := by_cases
+  (suppose a = b, by rewrite [-this, append_cons, *count_cons_eq, succ_add, count_append])
+  (suppose a ≠ b, by rewrite [append_cons, *count_cons_of_ne this, count_append])
+
+lemma count_concat (a : A) (l : list A) : count a (concat a l) = succ (count a l) :=
+by rewrite [concat_eq_append, count_append, count_singleton]
+
+lemma mem_of_count_gt_zero : ∀ {a : A} {l : list A}, count a l > 0 → a ∈ l
+| a []     h := absurd h !lt.irrefl
+| a (b::l) h := by_cases
+  (suppose a = b, begin subst b, apply mem_cons end)
+  (suppose a ≠ b,
+   have count a l > 0, by rewrite [count_cons_of_ne this at h]; exact h,
+   have a ∈ l,    from mem_of_count_gt_zero this,
+   show a ∈ b::l, from mem_cons_of_mem _ this)
+
+lemma count_gt_zero_of_mem : ∀ {a : A} {l : list A}, a ∈ l → count a l > 0
+| a []     h := absurd h !not_mem_nil
+| a (b::l) h := or.elim h
+  (suppose a = b, begin subst b, rewrite count_cons_eq, apply zero_lt_succ end)
+  (suppose a ∈ l, calc
+   count a (b::l) ≥ count a l : count_cons_ge_count
+           ...    > 0         : count_gt_zero_of_mem this)
+
+lemma count_eq_zero_of_not_mem {a : A} {l : list A} (h : a ∉ l) : count a l = 0 :=
+match count a l with
+| 0        := suppose count a l = 0, this
+| (succ n) := suppose count a l = succ n, absurd (mem_of_count_gt_zero (begin rewrite this, exact dec_trivial end)) h
+end rfl
+
+end count
 end list
 
-attribute list.has_decidable_eq  [instance]
-attribute list.decidable_mem [instance]
+attribute list.has_decidable_eq [instance]
+attribute list.decidable_mem    [instance]

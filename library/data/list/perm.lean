@@ -119,7 +119,7 @@ assume p, perm.induction_on p
   (λ x y l, by rewrite *length_cons)
   (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂, eq.trans r₁ r₂)
 
-theorem eq_singlenton_of_perm_inv (a : A) {l : list A} : [a] ~ l → l = [a] :=
+theorem eq_singleton_of_perm_inv (a : A) {l : list A} : [a] ~ l → l = [a] :=
 have gen : ∀ l₂, perm l₂ l → l₂ = [a] → l = [a], from
   take l₂, assume p, perm.induction_on p
     (λ e, e)
@@ -134,10 +134,10 @@ have gen : ∀ l₂, perm l₂ l → l₂ = [a] → l = [a], from
     (λ l₁ l₂ l₃ p₁ p₂ r₁ r₂ e, r₂ (r₁ e)),
 assume p, gen [a] p rfl
 
-theorem eq_singlenton_of_perm (a b : A) : [a] ~ [b] → a = b :=
+theorem eq_singleton_of_perm (a b : A) : [a] ~ [b] → a = b :=
 assume p,
 begin
-  injection eq_singlenton_of_perm_inv a p with e₁,
+  injection eq_singleton_of_perm_inv a p with e₁,
   rewrite e₁
 end
 

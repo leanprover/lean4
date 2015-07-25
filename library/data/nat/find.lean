@@ -97,9 +97,9 @@ private definition find_x : {x : nat | p x} :=
 @fix _ _ _ wf_gtb find.F 0 lbp_zero
 end find_x
 
-protected definition choose {p : nat → Prop} [d : decidable_pred p] : (∃ x, p x) → nat :=
+protected definition find {p : nat → Prop} [d : decidable_pred p] : (∃ x, p x) → nat :=
 assume h, elt_of (find_x h)
 
-protected theorem choose_spec {p : nat → Prop} [d : decidable_pred p] (ex : ∃ x, p x) : p (nat.choose ex) :=
+protected theorem find_spec {p : nat → Prop} [d : decidable_pred p] (ex : ∃ x, p x) : p (nat.find ex) :=
 has_property (find_x ex)
 end nat

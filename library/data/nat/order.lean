@@ -479,6 +479,12 @@ if_pos H
 theorem max_eq_left' {a b : ℕ} (H : ¬ a < b) : max a b = a :=
 if_neg H
 
+lemma min_eq_left' {a b : nat} (H : a < b) : min a b = a :=
+if_pos H
+
+lemma min_eq_right' {a b : nat} (H : ¬ a < b) : min a b = b :=
+if_neg H
+
 /- greatest -/
 
 section greatest

@@ -429,7 +429,7 @@ quot.lift_on₂ b₁ b₂ (λ l₁ l₂, ⟦min_count l₁ l₂ (union_list l₁
   (λ l₁ l₂ l₃ l₄ p₁ p₂, quot.sound (perm_min_count p₁ p₂ (perm_union_list p₁ p₂)))
 infix ∩ := inter
 
-lemma count_union (a : A) (b₁ b₂ : bag A) : count a (union b₁ b₂) = max (count a b₁) (count a b₂) :=
+lemma count_union (a : A) (b₁ b₂ : bag A) : count a (b₁ ∪ b₂) = max (count a b₁) (count a b₂) :=
 quot.induction_on₂ b₁ b₂ (λ l₁ l₂, by_cases
   (suppose a ∈ union_list l₁ l₂, !max_count_eq this !nodup_union_list)
   (suppose ¬ a ∈ union_list l₁ l₂,
@@ -442,7 +442,7 @@ quot.induction_on₂ b₁ b₂ (λ l₁ l₂, by_cases
       rewrite [count_eq_zero_of_not_mem n]
     end))
 
-lemma count_inter (a : A) (b₁ b₂ : bag A) : count a (inter b₁ b₂) = min (count a b₁) (count a b₂) :=
+lemma count_inter (a : A) (b₁ b₂ : bag A) : count a (b₁ ∩ b₂) = min (count a b₁) (count a b₂) :=
 quot.induction_on₂ b₁ b₂ (λ l₁ l₂, by_cases
   (suppose a ∈ union_list l₁ l₂, !min_count_eq this !nodup_union_list)
   (suppose ¬ a ∈ union_list l₁ l₂,
@@ -454,5 +454,78 @@ quot.induction_on₂ b₁ b₂ (λ l₁ l₂, by_cases
       rewrite [count_eq_zero_of_not_mem `¬ a ∈ l₁`, count_eq_zero_of_not_mem `¬ a ∈ l₂`, min_self],
       rewrite [count_eq_zero_of_not_mem n]
     end))
+
+lemma union.comm (b₁ b₂ : bag A) : b₁ ∪ b₂ = b₂ ∪ b₁ :=
+bag.ext (λ a, by rewrite [*count_union, max.comm])
+
+lemma union.assoc (b₁ b₂ b₃ : bag A) : (b₁ ∪ b₂) ∪ b₃ = b₁ ∪ (b₂ ∪ b₃) :=
+bag.ext (λ a, by rewrite [*count_union, max.assoc])
+
+lemma union_self (b : bag A) : b ∪ b = b :=
+bag.ext (λ a, by rewrite [*count_union, max_self])
+
+lemma union_empty (b : bag A) : b ∪ empty = b :=
+bag.ext (λ a, by rewrite [*count_union, count_empty, max_zero])
+
+lemma empty_union (b : bag A) : empty ∪ b = b :=
+calc empty ∪ b = b ∪ empty : union.comm
+           ... = b         : union_empty
+
+lemma inter.comm (b₁ b₂ : bag A) : b₁ ∩ b₂ = b₂ ∩ b₁ :=
+bag.ext (λ a, by rewrite [*count_inter, min.comm])
+
+lemma inter.assoc (b₁ b₂ b₃ : bag A) : (b₁ ∩ b₂) ∩ b₃ = b₁ ∩ (b₂ ∩ b₃) :=
+bag.ext (λ a, by rewrite [*count_inter, min.assoc])
+
+lemma inter_self (b : bag A) : b ∩ b = b :=
+bag.ext (λ a, by rewrite [*count_inter, min_self])
+
+lemma inter_empty (b : bag A) : b ∩ empty = empty :=
+bag.ext (λ a, by rewrite [*count_inter, count_empty, min_zero])
+
+lemma empty_inter (b : bag A) : empty ∩ b = empty :=
+calc empty ∩ b = b ∩ empty : inter.comm
+           ... = empty     : inter_empty
+
+lemma append_union_inter (b₁ b₂ : bag A) : (b₁ ∪ b₂) ++ (b₁ ∩ b₂) = b₁ ++ b₂ :=
+bag.ext (λ a, begin
+  rewrite [*count_append, count_inter, count_union], unfold [max, min],
+  apply (@by_cases (count a b₁ < count a b₂)),
+  { intro H, rewrite [*if_pos H, add.comm] },
+  { intro H, rewrite [*if_neg H, add.comm] }
+end)
+
+lemma inter.left_distrib (b₁ b₂ b₃ : bag A) : b₁ ∩ (b₂ ∪ b₃) = (b₁ ∩ b₂) ∪ (b₁ ∩ b₃) :=
+bag.ext (λ a, begin
+  rewrite [*count_inter, *count_union, *count_inter],
+  apply (@by_cases (count a b₁ ≤ count a b₂)),
+  { intro H₁₂, apply (@by_cases (count a b₂ ≤ count a b₃)),
+    { intro H₂₃,
+      have H₁₃ : count a b₁ ≤ count a b₃, from le.trans H₁₂ H₂₃,
+      rewrite [max_eq_right H₂₃, min_eq_left H₁₂, min_eq_left H₁₃, max_self]},
+    { intro H₂₃,
+      rewrite [min_eq_left H₁₂, max.comm, max_eq_right' (lt_of_not_ge H₂₃) ],
+      apply (@by_cases (count a b₁ ≤ count a b₃)),
+      { intro H₁₃, rewrite [min_eq_left H₁₃, max_self, min_eq_left H₁₂] },
+      { intro H₁₃,
+        rewrite [min.comm (count a b₁) (count a b₃), min_eq_left' (lt_of_not_ge H₁₃),
+                 min_eq_left H₁₂, max.comm, max_eq_right' (lt_of_not_ge H₁₃)]}}},
+  { intro H₁₂, apply (@by_cases (count a b₂ ≤ count a b₃)),
+    { intro H₂₃,
+      rewrite [max_eq_right H₂₃],
+      apply (@by_cases (count a b₁ ≤ count a b₃)),
+      { intro H₁₃, rewrite [min_eq_left H₁₃, min.comm, min_eq_left' (lt_of_not_ge H₁₂), max_eq_right' (lt_of_not_ge H₁₂)] },
+      { intro H₁₃, rewrite [min.comm, min_eq_left' (lt_of_not_ge H₁₃), min.comm, min_eq_left' (lt_of_not_ge H₁₂), max_eq_right H₂₃] } },
+    { intro H₂₃,
+      have H₁₃ : count a b₁ > count a b₃, from lt.trans (lt_of_not_ge H₂₃) (lt_of_not_ge H₁₂),
+      rewrite [max.comm, max_eq_right' (lt_of_not_ge H₂₃), min.comm, min_eq_left' (lt_of_not_ge H₁₂)],
+      rewrite [min.comm, min_eq_left' H₁₃, max.comm, max_eq_right' (lt_of_not_ge H₂₃)] } }
+end)
+
+lemma inter.right_distrib (b₁ b₂ b₃ : bag A) : (b₁ ∪ b₂) ∩ b₃ = (b₁ ∩ b₃) ∪ (b₂ ∩ b₃) :=
+calc (b₁ ∪ b₂) ∩ b₃ = b₃ ∩ (b₁ ∪ b₂)        : inter.comm
+              ...   = (b₃ ∩ b₁) ∪ (b₃ ∩ b₂) : inter.left_distrib
+              ...   = (b₁ ∩ b₃) ∪ (b₃ ∩ b₂) : inter.comm
+              ...   = (b₁ ∩ b₃) ∪ (b₂ ∩ b₃) : inter.comm
 end union_inter
 end bag

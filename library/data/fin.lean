@@ -5,7 +5,7 @@ Authors: Haitao Zhang, Leonardo de Moura
 
 Finite ordinal types.
 -/
-import data.list.basic data.finset.basic data.fintype.card algebra.group
+import data.list.basic data.finset.basic data.fintype.card algebra.group data.equiv
 open eq.ops nat function list finset fintype
 
 structure fin (n : nat) := (val : nat) (is_lt : val < n)
@@ -345,4 +345,111 @@ definition upto_step : ∀ {n : nat}, fin.upto (n +1) = (map succ (upto n))++[ze
   congruence, rewrite [map_map, -lift_succ.comm, -map_map, -(map_singleton _ (zero i)), -map_append, -upto_step] end
 end
 
+open sum equiv decidable
+
+definition fin_zero_equiv_empty : fin 0 ≃ empty :=
+⦃ equiv,
+  to_fun    := λ f : (fin 0), elim0 f,
+  inv       := λ e : empty, empty.rec _ e,
+  left_inv  := λ f : (fin 0), elim0 f,
+  right_inv := λ e : empty, empty.rec _ e
+⦄
+
+definition fin_one_equiv_unit : fin 1 ≃ unit :=
+⦃ equiv,
+  to_fun := λ f : (fin 1), unit.star,
+  inv    := λ u : unit,    fin.zero 0,
+  left_inv := begin
+    intro f, change mk 0 !zero_lt_succ = f, cases f with v h, congruence,
+    have v +1 ≤ 1, from succ_le_of_lt h,
+    have v ≤ 0, from le_of_succ_le_succ this,
+    have v = 0, from eq_zero_of_le_zero this,
+    subst v
+  end,
+  right_inv := begin
+    intro u, cases u, reflexivity
+  end
+⦄
+
+definition fin_sum_equiv (n m : nat) : (fin n + fin m) ≃ fin (n+m) :=
+assert aux₁ : ∀ {v}, v < m → (v + n) < (n + m), from
+  take v, suppose v < m, calc
+     v + n < m + n   : add_lt_add_of_lt_of_le this !le.refl
+       ... = n + m  : add.comm,
+⦃ equiv,
+  to_fun := λ s : sum (fin n) (fin m),
+    match s with
+    | sum.inl (mk v hlt) := mk v     (lt_add_of_lt_right hlt m)
+    | sum.inr (mk v hlt) := mk (v+n) (aux₁ hlt)
+    end,
+  inv := λ f : fin (n + m),
+    match f with
+    | mk v hlt := if h : v < n then sum.inl (mk v h) else sum.inr (mk (v-n) (sub_lt_of_lt_add hlt (le_of_not_gt h)))
+    end,
+  left_inv := begin
+    intro s, cases s with f₁ f₂,
+    { cases f₁ with v hlt, esimp, rewrite [dif_pos hlt] },
+    { cases f₂ with v hlt, esimp,
+      have ¬ v + n < n, from
+        suppose v + n < n,
+        assert v < n - n, from lt_sub_of_add_lt this !le.refl,
+        have v < 0, by rewrite [sub_self at this]; exact this,
+        absurd this !not_lt_zero,
+      rewrite [dif_neg this], congruence, congruence, rewrite [add_sub_cancel] }
+  end,
+  right_inv := begin
+    intro f, cases f with v hlt, esimp, apply @by_cases (v < n),
+    { intro h₁, rewrite [dif_pos h₁] },
+    { intro h₁, rewrite [dif_neg h₁], esimp, congruence, rewrite [sub_add_cancel (le_of_not_gt h₁)] }
+  end
+⦄
+
+definition fin_prod_equiv_of_pos (n m : nat) : n > 0 → (fin n × fin m) ≃ fin (n*m) :=
+suppose n > 0,
+assert aux₁ : ∀ {v₁ v₂}, v₁ < n → v₂ < m → v₁ + v₂ * n < n*m, from
+  take v₁ v₂, assume h₁ h₂,
+    have   nat.succ v₂ ≤ m, from succ_le_of_lt h₂,
+    assert nat.succ v₂ * n ≤ m * n,       from mul_le_mul_right _ this,
+    have   v₂ * n + n ≤ n * m,            by rewrite [-add_one at this, mul.right_distrib at this, one_mul at this, mul.comm m n at this]; exact this,
+    assert v₁ + (v₂ * n + n) < n + n * m, from add_lt_add_of_lt_of_le h₁ this,
+    have   v₁ + v₂ * n + n < n * m + n,   by rewrite [add.assoc, add.comm (n*m) n]; exact this,
+    lt_of_add_lt_add_right this,
+assert aux₂ : ∀ v, v mod n < n, from
+  take v, mod_lt _ `n > 0`,
+assert aux₃ : ∀ {v}, v < n * m → v div n < m, from
+  take v, assume h, by rewrite mul.comm at h; exact div_lt_of_lt_mul h,
+⦃ equiv,
+  to_fun   := λ p : (fin n × fin m), match p with (mk v₁ hlt₁, mk v₂ hlt₂) := mk (v₁ + v₂ * n) (aux₁ hlt₁ hlt₂) end,
+  inv      := λ f : fin (n*m), match f with (mk v hlt) := (mk (v mod n) (aux₂ v), mk (v div n) (aux₃ hlt)) end,
+  left_inv := begin
+    intro p, cases p with f₁ f₂, cases f₁ with v₁ hlt₁, cases f₂ with v₂ hlt₂, esimp,
+    congruence,
+      {congruence, rewrite [add_mul_mod_self, mod_eq_of_lt hlt₁] },
+      {congruence, rewrite [add_mul_div_self `n > 0`, div_eq_zero_of_lt hlt₁, zero_add]}
+  end,
+  right_inv := begin
+    intro f, cases f with v hlt, esimp, congruence,
+    rewrite [add.comm, -eq_div_mul_add_mod]
+  end
+⦄
+
+definition fin_prod_equiv : Π (n m : nat), (fin n × fin m) ≃ fin (n*m)
+| 0     b := calc
+  (fin 0 × fin b) ≃ (empty × fin b) : prod_congr fin_zero_equiv_empty !equiv.refl
+          ...     ≃ empty           : prod_empty_left
+          ...     ≃ fin 0           : fin_zero_equiv_empty
+          ...     ≃ fin (0 * b)     : by rewrite zero_mul
+| (a+1) b := fin_prod_equiv_of_pos (a+1) b dec_trivial
+
+definition fin_two_equiv_bool : fin 2 ≃ bool :=
+calc
+  fin 2 ≃ fin (1 + 1)   : equiv.refl
+   ...  ≃ fin 1 + fin 1 : fin_sum_equiv
+   ...  ≃ unit + unit   : sum_congr fin_one_equiv_unit fin_one_equiv_unit
+   ...  ≃ bool          : bool_equiv_unit_sum_unit
+
+definition fin_sum_unit_equiv (n : nat) : fin n + unit ≃ fin (n+1) :=
+calc
+  fin n + unit ≃ fin n + fin 1 : sum_congr !equiv.refl (equiv.symm fin_one_equiv_unit)
+          ...  ≃ fin (n+1)     : fin_sum_equiv
 end fin

@@ -353,6 +353,14 @@ lt_of_succ_le (le_sub_of_add_le (calc
     succ m + k = succ (m + k) : succ_add_eq_succ_add
            ... ≤ n            : succ_le_of_lt H))
 
+theorem sub_lt_of_lt_add {v n m : nat} (h₁ : v < n + m) (h₂ : n ≤ v) : v - n < m :=
+have succ v ≤ n + m,   from succ_le_of_lt h₁,
+have succ (v - n) ≤ m, from
+  calc succ (v - n) = succ v - n : succ_sub h₂
+        ...     ≤ n + m - n      : sub_le_sub_right this n
+        ...     = m              : add_sub_cancel_left,
+lt_of_succ_le this
+
 /- distance -/
 
 definition dist [reducible] (n m : ℕ) := (n - m) + (m - n)

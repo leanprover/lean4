@@ -5,6 +5,8 @@ Authors: Leonardo de Moura
 
 In the standard library we cannot assume the univalence axiom.
 We say two types are equivalent if they are isomorphic.
+
+Two equivalent types have the same cardinality.
 -/
 import data.sum data.nat
 open function
@@ -181,12 +183,18 @@ lemma prod_sum_distrib (A B C : Type) : (A × (B + C)) ≃ ((A × B) + (A × C))
 calc (A × (B + C)) ≃ ((B + C) × A)       : prod_comm
              ...   ≃ ((B × A) + (C × A)) : sum_prod_distrib
              ...   ≃ ((A × B) + (A × C)) : sum_congr !prod_comm !prod_comm
+
+lemma bool_prod_equiv_sum (A : Type) : (bool × A) ≃ (A + A) :=
+calc (bool × A) ≃ ((unit + unit) × A)       : prod_congr bool_equiv_unit_sum_unit !equiv.refl
+        ...     ≃ (A × (unit + unit))       : prod_comm
+        ...     ≃ ((A × unit) + (A × unit)) : prod_sum_distrib
+        ...     ≃ (A + A)                   : sum_congr !prod_unit_right !prod_unit_right
 end
 
 section
 open sum nat unit prod.ops
 lemma nat_equiv_nat_sum_unit : nat ≃ (nat + unit) :=
-mk (λ n, match n with 0 := inr star | succ a := inl a end)
+mk (λ n, match n with zero := inr star | succ a := inl a end)
    (λ s, match s with inl n := succ n | inr star := zero end)
    (λ n, begin cases n, repeat esimp end)
    (λ s, begin cases s with a u, esimp, {cases u, esimp} end)
@@ -211,7 +219,7 @@ lemma nat_sum_nat_equiv_nat [simp] : (nat + nat) ≃ nat :=
 mk (λ s, match s with inl n := 2*n | inr n := 2*n+1 end)
    (λ n, if even n then inl (n div 2) else inr ((n - 1) div 2))
    (λ s, begin
-           have two_gt_0 : 2 > 0, from dec_trivial,
+           have two_gt_0 : 2 > zero, from dec_trivial,
            cases s,
              {esimp, rewrite [if_pos (even_two_mul _), mul_div_cancel_left _ two_gt_0]},
              {esimp, rewrite [if_neg (not_even_two_mul_plus_one _), add_sub_cancel, mul_div_cancel_left _ two_gt_0]}
@@ -226,6 +234,12 @@ mk (λ s, match s with inl n := 2*n | inr n := 2*n+1 end)
                 {rewrite [-add_one, add_sub_cancel,
                           mul_div_cancel' (dvd_of_even (even_of_odd_succ (odd_of_not_even h)))]}
             end))
+
+lemma prod_equiv_of_equiv_nat {A : Type} : A ≃ nat → (A × A) ≃ A :=
+take e, calc
+  (A × A) ≃ (nat × nat) : prod_congr e e
+     ...  ≃ nat         : nat_prod_nat_equiv_nat
+     ...  ≃ A           : equiv.symm e
 end
 
 section

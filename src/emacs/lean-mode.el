@@ -53,6 +53,16 @@
               (or arg "")
               (shell-quote-argument (f-full target-file-name))))))
 
+(defun lean-exec-at-pos-sentinel (process event)
+  "Sentinel function used for lean-exec-at-pos. It does the two
+  things: A. display the process buffer, B. scroll to the top"
+  (when (eq (process-status process) 'exit)
+    (let ((b (process-buffer process)))
+      (display-buffer b)
+      ;; Temporary Hack to scroll to the top
+      ;; See https://github.com/leanprover/lean/issues/499#issuecomment-125285231
+      (set-window-point (get-buffer-window b) 0))))
+
 (defun lean-exec-at-pos (process-name process-buffer-name &rest options)
   "Execute Lean by providing current position with optional
 agruments. The output goes to 'process-buffer-name' buffer, which
@@ -99,9 +109,9 @@ will be flushed everytime it's executed."
                                cache-option
                                `(,target-file-name)))
          (p (apply 'start-process process-args)))
+    (set-process-sentinel p 'lean-exec-at-pos-sentinel)
     (set-process-coding-system p 'utf-8 'utf-8)
-    (set-process-query-on-exit-flag p nil)
-    (display-buffer process-buffer-name)))
+    (set-process-query-on-exit-flag p nil)))
 
 (defun lean-std-exe ()
   (interactive)

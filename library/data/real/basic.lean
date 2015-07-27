@@ -6,7 +6,6 @@ The real numbers, constructed as equivalence classes of Cauchy sequences of rati
 This construction follows Bishop and Bridges (1985).
 
 To do:
- o Break positive naturals into their own file
  o Rename things and possibly make theorems private
 -/
 
@@ -687,8 +686,7 @@ theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : 
     apply add_invs_nonneg,
     rewrite [*inv_mul_eq_mul_inv, -rat.right_distrib, mul.comm _ n⁻¹, rat.mul.assoc],
     apply rat.mul_le_mul,
-    apply rat.le.refl,
-    apply rat.le.refl,
+    repeat apply rat.le.refl,
     apply rat.le_of_lt,
     apply rat.mul_pos,
     apply rat.add_pos,

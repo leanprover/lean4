@@ -17,7 +17,6 @@ open -[coercions] rat
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1
 open -[coercions] nat
--- open algebra
 open eq.ops
 open pnat
 
@@ -195,17 +194,6 @@ end s
 namespace real
 open [classes] s
 
-/--
-definition const (a : ℚ) : ℝ := quot.mk (s.r_const a)
-
-theorem add_consts (a b : ℚ) : const a + const b = const (a + b) :=
-  quot.sound (s.r_add_consts a b)
-
-theorem sub_consts (a b : ℚ) : const a + -const b = const (a - b) := !add_consts
-
-theorem add_half_const (n : ℕ+) : const (2 * n)⁻¹ + const (2 * n)⁻¹ = const (n⁻¹) :=
-  by rewrite [add_consts, pnat.add_halves]-/
-
 theorem p_add_fractions (n : ℕ+) : (2 * n)⁻¹ + (2 * 3 * n)⁻¹ + (3 * n)⁻¹ = n⁻¹ :=
   assert T : 2⁻¹ + 2⁻¹ * 3⁻¹ + 3⁻¹ = 1, from dec_trivial,
   by rewrite[*inv_mul_eq_mul_inv,-*rat.right_distrib,T,rat.one_mul]
@@ -266,28 +254,7 @@ noncomputable definition converges_to (X : r_seq) (a : ℝ) (N : ℕ+ → ℕ+) 
 
 noncomputable definition cauchy (X : r_seq) (M : ℕ+ → ℕ+) :=
   ∀ k : ℕ+, ∀ m n : ℕ+, m ≥ M k → n ≥ M k → abs (X m - X n) ≤ of_rat k⁻¹
---set_option pp.implicit true
---set_option pp.coercions true
 
---check add_half_const
---check const
-
--- Lean is using algebra operations in these theorems, instead of the ones defined directly on real.
--- Need to finish the migration to real to fix this.
-
---set_option pp.all true
---theorem add_consts2 (a b : ℚ) : const a + const b = const (a + b) :=
---  !add_consts --quot.sound (s.r_add_consts a b)
---check add_consts
---check add_consts2
-
-/-theorem sub_consts2 (a b : ℚ) : const a - const b = const (a - b) := !sub_consts
-
-theorem add_half_const2 (n : ℕ+) : const (2 * n)⁻¹ + const (2 * n)⁻¹ = const (n⁻¹) :=
-  by xrewrite [add_consts2, pnat.add_halves]-/
-
---set_option pp.all true
-set_option pp.coercions true
 theorem cauchy_of_converges_to {X : r_seq} {a : ℝ} {N : ℕ+ → ℕ+} (Hc : converges_to X a N) :
         cauchy X (λ k, N (2 * k)) :=
   begin
@@ -341,8 +308,6 @@ theorem lim_seq_reg_helper {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) {m 
     apply inv_ge_of_le,
     apply pnat.mul_le_mul_left
   end
-
--- the remainder is commented out temporarily, until migration is finished.
 
 theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : s.regular (lim_seq Hc) :=
   begin
@@ -441,5 +406,118 @@ theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
     rewrite [-*pnat.mul.assoc, p_add_fractions],
     apply rat.le.refl
   end
+
+--------------------------------------------------
+-- archimedean property
+
+theorem archimedean (x y : ℝ) (Hx : x > 0) (Hy : y > 0) : ∃ n : ℕ, (of_rat (of_nat n)) * x ≥ y := sorry
+
+--------------------------------------------------
+-- supremum property
+
+section supremum
+open prod nat
+
+local notation 2 := (1 : ℚ) + 1
+parameter X : ℝ → Prop
+
+definition rpt {A : Type} (op : A → A) : ℕ → A → A
+ | rpt 0 := λ a, a
+ | rpt (succ k) := λ a, ((rpt k) (op a))
+
+
+definition ub (x : ℝ) := ∀ y : ℝ, X y → y ≤ x
+definition bounded := ∃ x : ℝ, ub x
+definition sup (x : ℝ) := ub x ∧ ∀ y : ℝ, ub y → y ≤ x
+
+
+parameter elt : ℝ
+hypothesis inh :  X elt
+parameter bound : ℝ
+hypothesis bdd : ub bound
+
+parameter floor : ℝ → int
+parameter ceil : ℝ → int
+
+definition avg (a b : ℚ) := a / 2 + b / 2
+
+definition bisect (ab : ℚ × ℚ) :=
+  if ub (avg (pr1 ab) (pr2 ab)) then
+    (pr1 ab, (avg (pr1 ab) (pr2 ab)))
+  else
+    (avg (pr1 ab) (pr2 ab), pr2 ab)
+
+definition under : ℚ := of_int (floor (elt - 1))
+
+theorem under_spec : ¬ ub under := sorry
+
+definition over : ℚ := of_int (ceil (bound + 1)) -- b
+
+theorem over_spec : ub over := sorry
+
+definition under_seq := λ n : ℕ, pr1 (rpt bisect n (under, over)) -- A
+
+definition over_seq := λ n : ℕ, pr2 (rpt bisect n (under, over)) -- B
+
+definition avg_seq := λ n : ℕ, avg (over_seq n) (under_seq n) -- C
+
+theorem over_0 : over_seq 0 = over := rfl
+theorem under_0 : under_seq 0 = under := rfl
+
+theorem under_succ (n : ℕ) : under_seq (succ n) = (if ub (avg_seq n) then under_seq n else avg_seq n) := sorry
+
+theorem over_succ (n : ℕ) : over_seq (succ n) = (if ub (avg_seq n) then avg_seq n else over_seq n) := sorry
+
+theorem rat.pow_zero (a : ℚ) : rat.pow a 0 = 1 := sorry
+
+theorem width (n : ℕ) : over_seq n - under_seq n = (over - under) / (rat.pow 2 n) :=
+  nat.induction_on n
+    (by rewrite [over_0, under_0, rat.pow_zero, rat.div_one])
+    (begin
+      intro a Ha,
+      rewrite [over_succ, under_succ],
+      cases (decidable.em (ub (avg_seq a))),
+      rewrite [*if_pos a_1],
+      apply sorry,
+      rewrite [*if_neg a_1],
+      apply sorry
+    end)
+
+theorem twos (y r : ℚ) (H : 0 < r) : ∃ n : ℕ, y / (rat.pow 2 n) < r := sorry
+
+theorem PA (n : ℕ) : ¬ ub (under_seq n) :=
+  nat.induction_on n
+    (by rewrite under_0; apply under_spec)
+    (begin
+      intro a Ha,
+      rewrite under_succ,
+      cases (decidable.em (ub (avg_seq a))),
+      rewrite (if_pos a_1),
+      assumption,
+      rewrite (if_neg a_1),
+      assumption
+    end)
+
+theorem PB (n : ℕ) : ub (over_seq n) :=
+  nat.induction_on n
+    (by rewrite over_0; apply over_spec)
+    (begin
+      intro a Ha,
+      rewrite over_succ,
+      cases (decidable.em (ub (avg_seq a))),
+      rewrite (if_pos a_1),
+      assumption,
+      rewrite (if_neg a_1),
+      assumption
+    end)
+
+theorem und_ov : under < over :=
+  let abv := exists_not_of_not_forall (under_spec) in
+  begin
+    let abv' := exists_not_of_not_forall (under_spec),
+
+  end
+
+end supremum
 
 end real

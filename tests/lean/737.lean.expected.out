@@ -1,0 +1,43 @@
+737.lean:235:5: error: 2 unsolved subgoals
+s t : ℕ+ → ℚ,
+Hs : regular s,
+Ht : regular t,
+a b c j n : ℕ+,
+Hn : pceil ((rat_of_pnat (K s) * (b⁻¹ + c⁻¹) + (a⁻¹ + c⁻¹) * rat_of_pnat (K t)) * rat_of_pnat j) ≤ n
+⊢ 0 ≤ rat_of_pnat (K s) * (b⁻¹ + c⁻¹) + (a⁻¹ + c⁻¹) * rat_of_pnat (K t)
+
+s t : ℕ+ → ℚ,
+Hs : regular s,
+Ht : regular t,
+a b c j n : ℕ+,
+Hn : pceil ((rat_of_pnat (K s) * (b⁻¹ + c⁻¹) + (a⁻¹ + c⁻¹) * rat_of_pnat (K t)) * rat_of_pnat j) ≤ n
+⊢ 1 / ((rat_of_pnat (K s) * (b⁻¹ + c⁻¹) + (a⁻¹ + c⁻¹) * rat_of_pnat (K t)) * rat_of_pnat j) * (rat_of_pnat
+     (K s) * (b⁻¹ + c⁻¹) + (a⁻¹ + c⁻¹) * rat_of_pnat (K t)) ≤ j⁻¹
+737.lean:228:4: error:invalid 'exact' tactic, term still contains metavariables after elaboration
+  show n⁻¹ * (rat_of_pnat (K s) * (b⁻¹ + c⁻¹)) + n⁻¹ * ((a⁻¹ + c⁻¹) * rat_of_pnat
+          (K t)) ≤ j⁻¹, from
+    ?M_1
+proof state:
+s t : ℕ+ → ℚ,
+Hs : regular s,
+Ht : regular t,
+a b c j n : ℕ+,
+Hn : pceil ((rat_of_pnat (K s) * (b⁻¹ + c⁻¹) + (a⁻¹ + c⁻¹) * rat_of_pnat (K t)) * rat_of_pnat j) ≤ n
+⊢ ?M_1 ≤ j⁻¹
+
+s t : ℕ+ → ℚ,
+Hs : regular s,
+Ht : regular t,
+a b c j n : ℕ+,
+Hn : pceil ((rat_of_pnat (K s) * (b⁻¹ + c⁻¹) + (a⁻¹ + c⁻¹) * rat_of_pnat (K t)) * rat_of_pnat j) ≤ n
+⊢ abs (s (a * n) * t (b * n) - s (a * n) * t (c * n)) + abs (s (a * n) * t (c * n) - s (c * n) * t (c * n)) ≤ ?M_1
+737.lean:236:0: error: don't know how to synthesize placeholder
+s t : ℕ+ → ℚ,
+Hs : regular s,
+Ht : regular t,
+a b c j : ℕ+
+⊢ ∃ (N : ℕ+), ∀ (n : ℕ+),
+    N ≤ n → abs (s (a * n) * t (b * n) - s (c * n) * t (c * n)) ≤ j⁻¹
+737.lean:236:0: error: failed to add declaration 's.mul_bound_helper' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  ?M_1

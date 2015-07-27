@@ -1212,7 +1212,6 @@ theorem lt_of_rat_lt_of_rat (a b : ℚ) : of_rat a < of_rat b → a < b :=
 theorem of_rat_sub (a b : ℚ) : of_rat a - of_rat b = of_rat (a - b) := rfl
 
 open s
-set_option pp.coercions true
 theorem le_of_le_reprs (x : ℝ) (t : seq) (Ht : regular t) : (∀ n : ℕ+, x ≤ t n) →
         x ≤ quot.mk (reg_seq.mk t Ht) :=
   quot.induction_on x (take s Hs,

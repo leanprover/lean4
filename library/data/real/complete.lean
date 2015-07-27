@@ -509,7 +509,7 @@ definition under_seq' := λ n, under_seq (n + some width_narrows)
 
 theorem width' (n : ℕ) : over_seq' n - under_seq' n ≤ 1 / rat.pow 2 n := sorry
 
-theorem twos (y r : ℚ) (H : 0 < r) : ∃ n : ℕ, y / (rat.pow 2 n) < r := sorry
+--theorem twos (y r : ℚ) (H : 0 < r) : ∃ n : ℕ, y / (rat.pow 2 n) < r := sorry
 
 theorem PA (n : ℕ) : ¬ ub (under_seq n) :=
   nat.induction_on n
@@ -575,9 +575,63 @@ theorem dist_bdd_within_interval {a b lb ub : ℚ} (H : lb < ub) (Hal : lb ≤ a
 
 --theorem over_dist (n : ℕ) : abs (over - over_seq n) ≤ (over - under) / rat.pow 2 n := sorry
 
-theorem under_seq_mono : ∀ i j : ℕ, i ≤ j → under_seq i ≤ under_seq j := sorry
+theorem rat.div_le_div_of_le_of_pos {a b c : ℚ} (H : a ≤ b) (Hc : c > 0) : a / c ≤ b / c := sorry
 
-theorem over_seq_mono : ∀ i j : ℕ, i ≤ j → over_seq j ≤ over_seq i := sorry
+theorem under_seq_mono_helper (i k : ℕ) : under_seq i ≤ under_seq (i + k) :=
+  (nat.induction_on k
+    (by rewrite nat.add_zero; apply rat.le.refl)
+    (begin
+      intros a Ha,
+      rewrite [add_succ, under_succ],
+      cases (decidable.em (ub (avg_seq (i + a)))) with [Havg, Havg],
+      rewrite (if_pos Havg),
+      apply Ha,
+      rewrite [if_neg Havg, ↑avg_seq, ↑avg],
+      apply rat.le.trans,
+      apply Ha,
+      rewrite -rat.add_halves at {1},
+      apply rat.add_le_add_right,
+      apply rat.div_le_div_of_le_of_pos,
+      apply rat.le_of_lt,
+      apply under_seq_lt_over_seq,
+      apply dec_trivial
+    end))
+
+theorem under_seq_mono (i j : ℕ) (H : i ≤ j) : under_seq i ≤ under_seq j :=
+  begin
+    cases le.elim H with [k, Hk'],
+    rewrite -Hk',
+    apply under_seq_mono_helper
+  end
+
+theorem over_seq_mono_helper (i k : ℕ) : over_seq (i + k) ≤ over_seq i :=
+  nat.induction_on k
+    (by rewrite nat.add_zero; apply rat.le.refl)
+    (begin
+      intros a Ha,
+      rewrite [add_succ, over_succ],
+      cases (decidable.em (ub (avg_seq (i + a)))) with [Havg, Havg],
+      rewrite [if_pos Havg, ↑avg_seq, ↑avg],
+      apply rat.le.trans,
+      rotate 1,
+      apply Ha,
+      rotate 1,
+      rewrite -{over_seq (i + a)}rat.add_halves at {2},
+      apply rat.add_le_add_left,
+      apply rat.div_le_div_of_le_of_pos,
+      apply rat.le_of_lt,
+      apply under_seq_lt_over_seq,
+      apply dec_trivial,
+      rewrite [if_neg Havg],
+      apply Ha
+    end)
+
+theorem over_seq_mono (i j : ℕ) (H : i ≤ j) : over_seq j ≤ over_seq i :=
+  begin
+    cases le.elim H with [k, Hk'],
+    rewrite -Hk',
+    apply over_seq_mono_helper
+  end
 
 theorem rat_power_two_le (k : ℕ+) : rat_of_pnat k ≤ rat.pow 2 k~ := sorry
 

@@ -51,11 +51,7 @@ expr parse_simp_tactic(parser & p) {
             p.next();
             p.check_token_next(get_lbracket_tk(), "invalid 'simp' tactic, '[' expected");
             while (true) {
-                auto id_pos = p.pos();
                 name id = p.check_constant_next("invalid 'simp' tactic, constant expected");
-                if (!is_simp_rule(p.env(), id))
-                    throw parser_error(sstream() << "invalid 'simp' tactic, '" << id
-                                       << "' is not an active simplification rule", id_pos);
                 hiding.push_back(id);
                 if (!p.curr_is_token(get_comma_tk()))
                     break;

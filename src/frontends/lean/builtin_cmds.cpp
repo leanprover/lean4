@@ -392,30 +392,16 @@ static void print_simp_rules(parser & p) {
     } else {
         s = get_simp_rule_sets(p.env());
     }
-    name prev_eqv;
-    s.for_each_simp([&](name const & eqv, simp_rule const & rw) {
-            if (prev_eqv != eqv) {
-                out << "simplification rules for " << eqv;
-                if (!ns.is_anonymous())
-                    out << " at namespace '" << ns << "'";
-                out << "\n";
-                prev_eqv = eqv;
-            }
-            out << rw.pp(out.get_formatter()) << "\n";
-        });
+    format header;
+    if (!ns.is_anonymous())
+        header = format(" at namespace '") + format(ns) + format("'");
+    out << s.pp_simp(out.get_formatter(), header);
 }
 
 static void print_congr_rules(parser & p) {
     io_state_stream out = p.regular_stream();
     simp_rule_sets s = get_simp_rule_sets(p.env());
-    name prev_eqv;
-    s.for_each_congr([&](name const & eqv, congr_rule const & cr) {
-            if (prev_eqv != eqv) {
-                out << "congruencec rules for " << eqv << "\n";
-                prev_eqv = eqv;
-            }
-            out << cr.pp(out.get_formatter()) << "\n";
-        });
+    out << s.pp_congr(out.get_formatter());
 }
 
 environment print_cmd(parser & p) {

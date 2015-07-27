@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/type_checker.h"
 #include "library/head_map.h"
+#include "library/io_state_stream.h"
 
 namespace lean {
 class simp_rule_sets;
@@ -75,6 +76,8 @@ public:
     void erase(simp_rule const & r);
     void insert(congr_rule const & r);
     void erase(congr_rule const & r);
+    void erase_simp(name_set const & ids);
+    void erase_simp(buffer<name> const & ids);
     list<simp_rule> const * find_simp(head_index const & h) const;
     void for_each_simp(std::function<void(simp_rule const &)> const & fn) const;
     list<congr_rule> const * find_congr(head_index const & h) const;
@@ -90,12 +93,19 @@ public:
     void erase(name const & eqv, simp_rule const & r);
     void insert(name const & eqv, congr_rule const & r);
     void erase(name const & eqv, congr_rule const & r);
+    void erase_simp(name_set const & ids);
+    void erase_simp(buffer<name> const & ids);
     void get_relations(buffer<name> & rs) const;
     simp_rule_set const * find(name const & eqv) const;
     list<simp_rule> const * find_simp(name const & eqv, head_index const & h) const;
     list<congr_rule> const * find_congr(name const & eqv, head_index const & h) const;
     void for_each_simp(std::function<void(name const &, simp_rule const &)> const & fn) const;
     void for_each_congr(std::function<void(name const &, congr_rule const &)> const & fn) const;
+    format pp(formatter const & fmt, format const & header, bool simp, bool congr) const;
+    format pp_simp(formatter const & fmt, format const & header) const;
+    format pp_simp(formatter const & fmt) const;
+    format pp_congr(formatter const & fmt) const;
+    format pp(formatter const & fmt) const;
 };
 
 simp_rule_sets add(type_checker & tc, simp_rule_sets const & s, name const & id, expr const & e, expr const & h);
@@ -112,6 +122,9 @@ bool is_congr_rule(environment const & env, name const & n);
 simp_rule_sets get_simp_rule_sets(environment const & env);
 /** \brief Get simplification rule sets in the given namespace. */
 simp_rule_sets get_simp_rule_sets(environment const & env, name const & ns);
+
+io_state_stream const & operator<<(io_state_stream const & out, simp_rule_sets const & s);
+
 void initialize_simp_rule_set();
 void finalize_simp_rule_set();
 }

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/simplifier/simp_tactic.h"
+#include "library/simplifier/simp_rule_set.h"
 
 #ifndef LEAN_DEFAULT_SIMP_SINGLE_PASS
 #define LEAN_DEFAULT_SIMP_SINGLE_PASS false
@@ -135,6 +136,8 @@ private:
     goal             m_g;
     substitution     m_subst;
 
+    simp_rule_sets   m_simp_set;
+
     // configuration options
     bool     m_single_pass;
     bool     m_bottom_up;
@@ -147,6 +150,8 @@ private:
     bool     m_funext;
     bool     m_propext;
     bool     m_standard;
+
+    io_state_stream out() const { return regular(m_env, m_ios); }
 
     void set_options(environment const & env, options const & o) {
         m_single_pass = get_simp_single_pass(o);
@@ -179,11 +184,25 @@ private:
         return false;
     }
 
+    // Initialize m_simp_set with information that is context independent
+    void init_simp_set(buffer<name> const & ns, buffer<name> const & ex) {
+        m_simp_set = get_simp_rule_sets(m_env);
+        for (name const & n : ns) {
+            simp_rule_sets tmp_simp_set = get_simp_rule_sets(m_env, n);
+            m_simp_set = join(m_simp_set, tmp_simp_set);
+        }
+        m_simp_set.erase_simp(ex);
+        if (m_trace) {
+            out() << m_simp_set;
+        }
+    }
+
 public:
     simp_tactic_fn(environment const & env, io_state const & ios, name_generator && ngen,
-                   buffer<expr> const & /* ls */, buffer<name> const & /* ns */, buffer<name> const & /* ex */,
+                   buffer<expr> const & /* ls */, buffer<name> const & ns, buffer<name> const & ex,
                    optional<tactic> const & tac):m_env(env), m_ios(ios), m_ngen(ngen), m_tactic(tac) {
         set_options(env, m_ios.get_options());
+        init_simp_set(ns, ex);
     }
 
     std::tuple<res_kind, goal, substitution> operator()(goal const & g, location const & loc, substitution const & s) {

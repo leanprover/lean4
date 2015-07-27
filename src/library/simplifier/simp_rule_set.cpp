@@ -99,6 +99,24 @@ void simp_rule_set::for_each_congr(std::function<void(congr_rule const &)> const
     m_congr_set.for_each_entry([&](head_index const &, congr_rule const & r) { fn(r); });
 }
 
+void simp_rule_set::erase_simp(name_set const & ids) {
+    // This method is not very smart and doesn't use any indexing or caching.
+    // So, it may be a bottleneck in the future
+    buffer<simp_rule> to_delete;
+    for_each_simp([&](simp_rule const & r) {
+            if (ids.contains(r.get_id())) {
+                to_delete.push_back(r);
+            }
+        });
+    for (simp_rule const & r : to_delete) {
+        erase(r);
+    }
+}
+
+void simp_rule_set::erase_simp(buffer<name> const & ids) {
+    erase_simp(to_name_set(ids));
+}
+
 template<typename R>
 void simp_rule_sets::insert_core(name const & eqv, R const & r) {
     simp_rule_set s(eqv);
@@ -143,6 +161,20 @@ void simp_rule_sets::get_relations(buffer<name> & rs) const {
         });
 }
 
+void simp_rule_sets::erase_simp(name_set const & ids) {
+    name_map<simp_rule_set> new_sets;
+    m_sets.for_each([&](name const & n, simp_rule_set const & s) {
+            simp_rule_set new_s = s;
+            new_s.erase_simp(ids);
+            new_sets.insert(n, new_s);
+        });
+    m_sets = new_sets;
+}
+
+void simp_rule_sets::erase_simp(buffer<name> const & ids) {
+    erase_simp(to_name_set(ids));
+}
+
 simp_rule_set const * simp_rule_sets::find(name const & eqv) const {
     return m_sets.find(eqv);
 }
@@ -173,6 +205,50 @@ void simp_rule_sets::for_each_congr(std::function<void(name const &, congr_rule 
                     fn(eqv, r);
                 });
         });
+}
+
+format simp_rule_sets::pp(formatter const & fmt, format const & header, bool simp, bool congr) const {
+    format r;
+    if (simp) {
+        name prev_eqv;
+        for_each_simp([&](name const & eqv, simp_rule const & rw) {
+                if (prev_eqv != eqv) {
+                    r += format("simplification rules for ") + format(eqv);
+                    r += header;
+                    r += line();
+                    prev_eqv = eqv;
+                }
+                r += rw.pp(fmt) + line();
+            });
+    }
+
+    if (congr) {
+        name prev_eqv;
+        for_each_congr([&](name const & eqv, congr_rule const & cr) {
+                if (prev_eqv != eqv) {
+                    r += format("congruencec rules for ") + format(eqv) + line();
+                    prev_eqv = eqv;
+                }
+                r += cr.pp(fmt) + line();
+            });
+    }
+    return r;
+}
+
+format simp_rule_sets::pp_simp(formatter const & fmt, format const & header) const {
+    return pp(fmt, header, true, false);
+}
+
+format simp_rule_sets::pp_simp(formatter const & fmt) const {
+    return pp(fmt, format(), true, false);
+}
+
+format simp_rule_sets::pp_congr(formatter const & fmt) const {
+    return pp(fmt, format(), false, true);
+}
+
+format simp_rule_sets::pp(formatter const & fmt) const {
+    return pp(fmt, format(), true, true);
 }
 
 static name * g_prefix = nullptr;
@@ -456,6 +532,12 @@ simp_rule_sets get_simp_rule_sets(environment const & env, name const & ns) {
         }
     }
     return set;
+}
+
+io_state_stream const & operator<<(io_state_stream const & out, simp_rule_sets const & s) {
+    options const & opts = out.get_options();
+    out.get_stream() << mk_pair(s.pp(out.get_formatter()), opts);
+    return out;
 }
 
 void initialize_simp_rule_set() {

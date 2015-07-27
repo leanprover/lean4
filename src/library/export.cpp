@@ -37,11 +37,11 @@ class exporter {
         } else if (n.is_string()) {
             unsigned p = export_name(n.get_prefix());
             i = m_name2idx.size();
-            m_out << i << " #s " << p << " " << n.get_string() << "\n";
+            m_out << i << " #NS " << p << " " << n.get_string() << "\n";
         } else {
             unsigned p = export_name(n.get_prefix());
             i = m_name2idx.size();
-            m_out << i << " #i " << p << " " << n.get_numeral() << "\n";
+            m_out << i << " #NI " << p << " " << n.get_numeral() << "\n";
         }
         m_name2idx.insert(mk_pair(n, i));
         return i;
@@ -93,13 +93,13 @@ class exporter {
 
     void display_binder_info(binder_info const & bi) {
         if (bi.is_implicit())
-            m_out << "#I";
+            m_out << "#BI";
         else if (bi.is_strict_implicit())
-            m_out << "#S";
+            m_out << "#BS";
         else if (bi.is_inst_implicit())
-            m_out << "#C";
+            m_out << "#BC";
         else
-            m_out << "#D";
+            m_out << "#BD";
     }
 
     unsigned export_binding(expr const & e, char const * k) {
@@ -119,7 +119,7 @@ class exporter {
         for (level const & l : const_levels(e))
             ls.push_back(export_level(l));
         unsigned i  = m_expr2idx.size();
-        m_out << i << " #C " << n;
+        m_out << i << " #EC " << n;
         for (unsigned l : ls)
             m_out << " " << l;
         m_out << "\n";
@@ -135,12 +135,12 @@ class exporter {
         switch (e.kind()) {
         case expr_kind::Var:
             i = m_expr2idx.size();
-            m_out << i << " #V " << var_idx(e) << "\n";
+            m_out << i << " #EV " << var_idx(e) << "\n";
             break;
         case expr_kind::Sort:
             l = export_level(sort_level(e));
             i = m_expr2idx.size();
-            m_out << i << " #S " << l << "\n";
+            m_out << i << " #ES " << l << "\n";
             break;
         case expr_kind::Constant:
             i = export_const(e);
@@ -149,13 +149,13 @@ class exporter {
             e1 = export_expr(app_fn(e));
             e2 = export_expr(app_arg(e));
             i  = m_expr2idx.size();
-            m_out << i << " #A " << e1 << " " << e2 << "\n";
+            m_out << i << " #EA " << e1 << " " << e2 << "\n";
             break;
         case expr_kind::Lambda:
-            i  = export_binding(e, "#L");
+            i  = export_binding(e, "#EL");
             break;
         case expr_kind::Pi:
-            i  = export_binding(e, "#P");
+            i  = export_binding(e, "#EP");
             break;
         case expr_kind::Meta:
             throw exception("invald 'export', meta-variables cannot be exported");

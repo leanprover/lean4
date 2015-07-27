@@ -941,6 +941,39 @@ theorem le_of_const_le_const {a b : ℚ} (H : s_le (const a) (const b)) : a ≤ 
     apply nonneg_of_ge_neg_invs _ H
   end
 
+theorem nat_inv_lt_rat {a : ℚ} (H : a > 0) : ∃ n : ℕ+, n⁻¹ < a :=
+  begin
+    existsi (pceil (1 / (a / (1 + 1)))),
+    apply lt_of_le_of_lt,
+    rotate 1,
+    apply div_two_lt_of_pos H,
+    rewrite -(@div_div' (a / (1 + 1))),
+    apply pceil_helper,
+    rewrite div_div',
+    apply pnat.le.refl,
+    apply div_pos_of_pos,
+    apply pos_div_of_pos_of_pos H dec_trivial
+  end
+
+
+theorem const_lt_const_of_lt {a b : ℚ} (H : a < b) : s_lt (const a) (const b) :=
+  begin
+    rewrite [↑s_lt, ↑pos, ↑sadd, ↑sneg, ↑const],
+    apply nat_inv_lt_rat,
+    apply (iff.mpr !sub_pos_iff_lt H)
+  end
+
+theorem lt_of_const_lt_const {a b : ℚ} (H : s_lt (const a) (const b)) : a < b :=
+  begin
+    rewrite [↑s_lt at H, ↑pos at H, ↑const at H, ↑sadd at H, ↑sneg at H],
+    cases H with [n, Hn],
+    apply (iff.mp !sub_pos_iff_lt),
+    apply lt.trans,
+    rotate 1,
+    assumption,
+    apply pnat.inv_pos
+  end
+
 -------- lift to reg_seqs
 definition r_lt (s t : reg_seq) := s_lt (reg_seq.sq s) (reg_seq.sq t)
 definition r_le (s t : reg_seq) := s_le (reg_seq.sq s) (reg_seq.sq t)
@@ -1021,6 +1054,12 @@ theorem r_const_le_const_of_le {a b : ℚ} (H : a ≤ b) : r_le (r_const a) (r_c
 
 theorem r_le_of_const_le_const {a b : ℚ} (H : r_le (r_const a) (r_const b)) : a ≤ b :=
   le_of_const_le_const H
+
+theorem r_const_lt_const_of_lt {a b : ℚ} (H : a < b) : r_lt (r_const a) (r_const b) :=
+  const_lt_const_of_lt H
+
+theorem r_lt_of_const_lt_const {a b : ℚ} (H : r_lt (r_const a) (r_const b)) : a < b :=
+  lt_of_const_lt_const H
 
 end s
 
@@ -1141,5 +1180,11 @@ theorem of_rat_le_of_rat_of_le (a b : ℚ) : a ≤ b → of_rat a ≤ of_rat b :
 
 theorem le_of_rat_le_of_rat (a b : ℚ) : of_rat a ≤ of_rat b → a ≤ b :=
   s.r_le_of_const_le_const
+
+theorem of_rat_lt_of_rat_of_lt (a b : ℚ) : a < b → of_rat a < of_rat b :=
+  s.r_const_lt_const_of_lt
+
+theorem lt_of_rat_lt_of_rat (a b : ℚ) : of_rat a < of_rat b → a < b :=
+  s.r_lt_of_const_lt_const
 
 end real

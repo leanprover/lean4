@@ -306,6 +306,12 @@ theorem nonneg_le_nonneg_of_squares_le  (Ha : a ≥ 0) (Hb : b ≥ 0) (H : a * a
       apply le_mul_of_div_le Hc H
     end
 
+  theorem div_two_lt_of_pos (H : a > 0) : a / (1 + 1) < a :=
+    have Ha : a / (1 + 1) > 0, from pos_div_of_pos_of_pos H (add_pos zero_lt_one zero_lt_one),
+    calc
+      a / (1 + 1) < a / (1 + 1) + a / (1 + 1) : lt_add_of_pos_left Ha
+              ... = a : add_halves
+
 end linear_ordered_field
 
 structure discrete_linear_ordered_field [class] (A : Type) extends linear_ordered_field A,

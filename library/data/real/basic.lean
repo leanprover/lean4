@@ -949,6 +949,9 @@ theorem add_consts (a b : ℚ) : sadd (const a) (const b) ≡ const (a + b) :=
 theorem mul_consts (a b : ℚ) : smul (const a) (const b) ≡ const (a * b) :=
   by apply equiv.refl
 
+theorem neg_const (a : ℚ) : sneg (const a) ≡ const (-a) :=
+  by apply equiv.refl
+
 ---------------------------------------------
 -- create the type of regular sequences and lift theorems
 
@@ -1037,6 +1040,8 @@ definition r_const (a : ℚ) : reg_seq := reg_seq.mk (const a) (const_reg a)
 theorem r_add_consts (a b : ℚ) : requiv (r_const a + r_const b) (r_const (a + b)) := add_consts a b
 
 theorem r_mul_consts (a b : ℚ) : requiv (r_const a * r_const b) (r_const (a * b)) := mul_consts a b
+
+theorem r_neg_const (a : ℚ) : requiv (-r_const a) (r_const (-a)) := neg_const a
 
 end s
 ----------------------------------------------
@@ -1133,7 +1138,9 @@ definition of_rat [coercion] (a : ℚ) : ℝ := quot.mk (s.r_const a)
 theorem of_rat_add (a b : ℚ) : of_rat a + of_rat b = of_rat (a + b) :=
    quot.sound (s.r_add_consts a b)
 
-theorem of_rat_sub (a b : ℚ) : of_rat a + - of_rat b = of_rat (a - b) := !of_rat_add
+theorem of_rat_neg (a : ℚ) : -of_rat a = of_rat (-a) := quot.sound (s.r_neg_const a)
+
+--theorem of_rat_sub (a b : ℚ) : of_rat a + - of_rat b = of_rat (a - b) := !of_rat_add
 
 theorem of_rat_mul (a b : ℚ) : of_rat a * of_rat b = of_rat (a * b) :=
   quot.sound (s.r_mul_consts a b)

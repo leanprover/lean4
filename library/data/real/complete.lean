@@ -314,7 +314,7 @@ theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : s.regula
     rewrite ↑s.regular,
     intro m n,
     apply le_of_rat_le_of_rat,
-    rewrite [abs_const, -of_rat_sub, -sub_eq_add_neg, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],
+    rewrite [abs_const, -of_rat_sub, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],
     apply real.le.trans,
     apply abs_add_three,
     let Hor := decidable.em (M (2 * m) ≥ M (2 * n)),
@@ -417,6 +417,7 @@ theorem archimedean (x y : ℝ) (Hx : x > 0) (Hy : y > 0) : ∃ n : ℕ, (of_rat
 
 section supremum
 open prod nat
+local postfix `~` := nat_of_pnat
 
 local notation 2 := (1 : ℚ) + 1
 parameter X : ℝ → Prop
@@ -428,7 +429,7 @@ definition rpt {A : Type} (op : A → A) : ℕ → A → A
 
 definition ub (x : ℝ) := ∀ y : ℝ, X y → y ≤ x
 definition bounded := ∃ x : ℝ, ub x
-definition sup (x : ℝ) := ub x ∧ ∀ y : ℝ, ub y → y ≤ x
+definition sup (x : ℝ) := ub x ∧ ∀ y : ℝ, ub y → x ≤ y
 
 
 parameter elt : ℝ
@@ -470,6 +471,8 @@ theorem over_succ (n : ℕ) : over_seq (succ n) = (if ub (avg_seq n) then avg_se
 
 theorem rat.pow_zero (a : ℚ) : rat.pow a 0 = 1 := sorry
 
+theorem rat.pow_pos {a : ℚ} (H : a > 0) (n : ℕ) : rat.pow a n > 0 := sorry
+
 theorem width (n : ℕ) : over_seq n - under_seq n = (over - under) / (rat.pow 2 n) :=
   nat.induction_on n
     (by rewrite [over_0, under_0, rat.pow_zero, rat.div_one])
@@ -482,6 +485,29 @@ theorem width (n : ℕ) : over_seq n - under_seq n = (over - under) / (rat.pow 2
       rewrite [*if_neg a_1],
       apply sorry
     end)
+
+theorem binary_bound (a : ℚ) : ∃ n : ℕ, a ≤ rat.pow 2 n := sorry
+
+theorem width_narrows : ∃ n : ℕ, over_seq n - under_seq n ≤ 1 :=
+  begin
+    cases binary_bound (over - under) with [a, Ha],
+    existsi a,
+    rewrite (width a),
+    apply rat.div_le_of_le_mul,
+    apply rat.pow_pos dec_trivial,
+    rewrite rat.mul_one,
+    apply Ha
+  end
+
+definition over' := over_seq (some width_narrows)
+
+definition under' := under_seq (some width_narrows)
+
+definition over_seq' := λ n, over_seq (n + some width_narrows)
+
+definition under_seq' := λ n, under_seq (n + some width_narrows)
+
+theorem width' (n : ℕ) : over_seq' n - under_seq' n ≤ 1 / rat.pow 2 n := sorry
 
 theorem twos (y r : ℚ) (H : 0 < r) : ∃ n : ℕ, y / (rat.pow 2 n) < r := sorry
 
@@ -511,12 +537,156 @@ theorem PB (n : ℕ) : ub (over_seq n) :=
       assumption
     end)
 
-theorem und_ov : under < over :=
-  let abv := exists_not_of_not_forall (under_spec) in
+theorem under_lt_over : under < over :=
+  using X,
   begin
-    let abv' := exists_not_of_not_forall (under_spec),
-
+    cases (exists_not_of_not_forall under_spec) with [x, Hx],
+    cases ((iff.mp not_implies_iff_and_not) Hx) with [HXx, Hxu],
+    apply lt_of_rat_lt_of_rat,
+    apply lt_of_lt_of_le,
+    apply lt_of_not_ge Hxu,
+    apply over_spec _ HXx
   end
+
+theorem under_seq_lt_over_seq : ∀ m n : ℕ, under_seq m < over_seq n :=
+  begin
+    intros,
+    cases (exists_not_of_not_forall (PA m)) with [x, Hx],
+    cases ((iff.mp not_implies_iff_and_not) Hx) with [HXx, Hxu],
+    apply lt_of_rat_lt_of_rat,
+    apply lt_of_lt_of_le,
+    apply lt_of_not_ge Hxu,
+    apply PB,
+    apply HXx
+  end
+
+theorem under_seq_lt_over_seq_single : ∀ n : ℕ, under_seq n < over_seq n :=
+  by intros; apply under_seq_lt_over_seq
+
+theorem under_seq'_lt_over_seq' : ∀ m n : ℕ, under_seq' m < over_seq' n :=
+  by intros; apply under_seq_lt_over_seq
+
+theorem under_seq'_lt_over_seq'_single : ∀ n : ℕ, under_seq' n < over_seq' n :=
+  by intros; apply under_seq_lt_over_seq
+
+theorem dist_bdd_within_interval {a b lb ub : ℚ} (H : lb < ub) (Hal : lb ≤ a) (Hau : a ≤ ub) (Hbl : lb ≤ b) (Hbu : b ≤ ub) :
+        rat.abs (a - b) ≤ ub - lb := sorry
+
+
+--theorem over_dist (n : ℕ) : abs (over - over_seq n) ≤ (over - under) / rat.pow 2 n := sorry
+
+theorem under_seq_mono : ∀ i j : ℕ, i ≤ j → under_seq i ≤ under_seq j := sorry
+
+theorem over_seq_mono : ∀ i j : ℕ, i ≤ j → over_seq j ≤ over_seq i := sorry
+
+theorem rat_power_two_le (k : ℕ+) : rat_of_pnat k ≤ rat.pow 2 k~ := sorry
+
+theorem rat_power_two_inv_ge (k : ℕ+) : 1 / rat.pow 2 k~ ≤ k⁻¹ := sorry
+
+open s
+theorem regular_lemma_helper {s : seq} {m n : ℕ+} (Hm : m ≤ n)
+        (H : ∀ n i : ℕ+, i ≥ n → under_seq' n~ ≤ s i ∧ s i ≤ over_seq' n~) : rat.abs (s m - s n) ≤ m⁻¹ + n⁻¹ :=
+  begin
+    cases (H m n Hm) with [T1under, T1over],
+    cases (H m m (!pnat.le.refl)) with [T2under, T2over],
+    apply rat.le.trans,
+    apply dist_bdd_within_interval,
+    apply under_seq'_lt_over_seq'_single,
+    rotate 1,
+    repeat assumption,
+    apply rat.le.trans,
+    apply width',
+    apply rat.le.trans,
+    apply rat_power_two_inv_ge,
+    apply rat.le_add_of_nonneg_right,
+    apply rat.le_of_lt (!inv_pos)
+  end
+
+theorem regular_lemma (s : seq) (H : ∀ n i : ℕ+, i ≥ n → under_seq' n~ ≤ s i ∧ s i ≤ over_seq' n~) :
+        regular s :=
+  begin
+    rewrite ↑regular,
+    intros,
+    cases (decidable.em (m ≤ n)) with [Hm, Hn],
+    apply regular_lemma_helper Hm H,
+    let T := regular_lemma_helper (pnat.le_of_lt (pnat.lt_of_not_le Hn)) H,
+    rewrite [rat.abs_sub at T, {n⁻¹ + _}rat.add.comm at T],
+    exact T
+  end
+
+definition p_under_seq : seq := λ n : ℕ+, under_seq' n~
+
+definition p_over_seq : seq := λ n : ℕ+, over_seq' n~
+
+theorem under_seq_regular : regular p_under_seq :=
+  begin
+    apply regular_lemma,
+    intros n i Hni,
+    apply and.intro,
+    apply under_seq_mono,
+    apply nat.add_le_add_right Hni,
+    apply rat.le_of_lt,
+    apply under_seq_lt_over_seq
+  end
+
+theorem over_seq_regular : regular p_over_seq :=
+  begin
+    apply regular_lemma,
+    intros n i Hni,
+    apply and.intro,
+    apply rat.le_of_lt,
+    apply under_seq_lt_over_seq,
+    apply over_seq_mono,
+    apply nat.add_le_add_right Hni
+  end
+
+definition sup_over : ℝ := quot.mk (reg_seq.mk p_over_seq over_seq_regular)
+
+definition sup_under : ℝ := quot.mk (reg_seq.mk p_under_seq under_seq_regular)
+
+theorem over_bound : ub sup_over :=
+  begin
+    rewrite ↑ub,
+    intros y Hy,
+    apply le_of_le_reprs,
+    intro n,
+    apply PB,
+    apply Hy
+  end
+set_option pp.coercions true
+
+theorem under_lowest_bound : ∀ y : ℝ, ub y → sup_under ≤ y :=
+  begin
+    intros y Hy,
+    apply le_of_reprs_le,
+    intro n,
+    cases (exists_not_of_not_forall (PA _)) with [x, Hx],
+    cases (iff.mp not_implies_iff_and_not Hx) with [HXx, Hxn],
+    apply le.trans,
+    apply le_of_lt,
+    apply lt_of_not_ge Hxn,
+    apply Hy,
+    apply HXx
+  end
+
+theorem under_over_equiv : p_under_seq ≡ p_over_seq :=
+  begin
+    rewrite ↑equiv,
+    intros,
+    apply rat.le.trans,
+    have H : p_under_seq n < p_over_seq n, from !under_seq_lt_over_seq,
+    rewrite [rat.abs_of_neg (iff.mpr !rat.sub_neg_iff_lt H), rat.neg_sub],
+    apply width',
+    apply rat.le.trans,
+    apply rat_power_two_inv_ge,
+    apply rat.le_add_of_nonneg_left,
+    apply rat.le_of_lt !inv_pos
+  end
+
+theorem under_over_eq : sup_under = sup_over := quot.sound under_over_equiv
+
+theorem supremum_of_complete : ∃ x : ℝ, sup x :=
+  exists.intro sup_over (and.intro over_bound (under_over_eq ▸ under_lowest_bound))
 
 end supremum
 

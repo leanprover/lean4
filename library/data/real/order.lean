@@ -918,6 +918,22 @@ theorem s_lt_of_le_of_lt {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : r
     apply max_left
   end
 
+theorem le_of_le_reprs {s t : seq} (Hs : regular s) (Ht : regular t)
+        (Hle : ∀ n : ℕ+, s_le s (const (t n))) : s_le s t :=
+  begin
+    rewrite [↑s_le, ↑nonneg],
+    intro m,
+    apply Hle (2 * m) m
+  end
+
+theorem le_of_reprs_le {s t : seq} (Hs : regular s) (Ht : regular t)
+        (Hle : ∀ n : ℕ+, s_le (const (t n)) s) : s_le t s :=
+  begin
+    rewrite [↑s_le, ↑nonneg],
+    intro m,
+    apply Hle (2 * m) m
+  end
+
 -----------------------------
 -- of_rat theorems
 
@@ -1061,6 +1077,12 @@ theorem r_const_lt_const_of_lt {a b : ℚ} (H : a < b) : r_lt (r_const a) (r_con
 theorem r_lt_of_const_lt_const {a b : ℚ} (H : r_lt (r_const a) (r_const b)) : a < b :=
   lt_of_const_lt_const H
 
+theorem r_le_of_le_reprs (s t : reg_seq) (Hle : ∀ n : ℕ+, r_le s (r_const (reg_seq.sq t n))) : r_le s t :=
+  le_of_le_reprs (reg_seq.is_reg s) (reg_seq.is_reg t) Hle
+
+theorem r_le_of_reprs_le (s t : reg_seq) (Hle : ∀ n : ℕ+, r_le (r_const (reg_seq.sq t n)) s) : r_le t s :=
+  le_of_reprs_le (reg_seq.is_reg s) (reg_seq.is_reg t) Hle
+
 end s
 
 open real
@@ -1186,5 +1208,24 @@ theorem of_rat_lt_of_rat_of_lt (a b : ℚ) : a < b → of_rat a < of_rat b :=
 
 theorem lt_of_rat_lt_of_rat (a b : ℚ) : of_rat a < of_rat b → a < b :=
   s.r_lt_of_const_lt_const
+
+theorem of_rat_sub (a b : ℚ) : of_rat a - of_rat b = of_rat (a - b) := rfl
+
+open s
+set_option pp.coercions true
+theorem le_of_le_reprs (x : ℝ) (t : seq) (Ht : regular t) : (∀ n : ℕ+, x ≤ t n) →
+        x ≤ quot.mk (reg_seq.mk t Ht) :=
+  quot.induction_on x (take s Hs,
+    show s.r_le s (reg_seq.mk t Ht), from
+      have H' : ∀ n : ℕ+, r_le s (r_const (t n)), from Hs,
+      by apply r_le_of_le_reprs; apply Hs)
+
+
+theorem le_of_reprs_le (x : ℝ) (t : seq) (Ht : regular t) : (∀ n : ℕ+, t n ≤ x) →
+        quot.mk (reg_seq.mk t Ht) ≤ x :=
+  quot.induction_on x (take s Hs,
+    show s.r_le (reg_seq.mk t Ht) s, from
+      have H' : ∀ n : ℕ+, r_le (r_const (t n)) s, from Hs,
+      by apply r_le_of_reprs_le; apply Hs)
 
 end real

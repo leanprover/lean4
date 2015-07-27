@@ -150,6 +150,11 @@ iff.intro
 theorem mem_filter_eq : x ∈ filter p s = (x ∈ s ∧ p x) :=
 propext !mem_filter_iff
 
+variable t : finset A
+
+theorem mem_filter_union_iff : x ∈ filter p (s ∪ t) ↔ x ∈ filter p s ∨ x ∈ filter p t :=
+by rewrite [*mem_filter_iff, mem_union_iff, and.right_distrib]
+
 end filter
 
 theorem mem_singleton_eq' {A : Type} [deceq : decidable_eq A] (x a : A) : x ∈ '{a} = (x = a) :=
@@ -422,6 +427,15 @@ begin
             (suppose a ∉ x, or.inl
               (show x ⊆ s, by rewrite [(erase_eq_of_not_mem this) at H']; apply H'))))
 end
+
+theorem subset_of_mem_powerset {s t : finset A} (H : s ∈ powerset t) : s ⊆ t :=
+by rewrite mem_powerset_iff_subset at H; exact H
+
+theorem mem_powerset_of_subset {s t : finset A} (H : s ⊆ t) : s ∈ powerset t :=
+by rewrite -mem_powerset_iff_subset at H; exact H
+
+theorem empty_mem_powerset (s : finset A) : ∅ ∈ powerset s :=
+by rewrite mem_powerset_iff_subset; apply empty_subset
 
 end powerset
 

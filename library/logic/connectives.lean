@@ -152,7 +152,7 @@ theorem and_imp_eq (a b c : Prop) : (a ∧ b → c) = (a → b → c) :=
 propext !and_imp_iff
 
 theorem and_iff_and (H1 : a ↔ c) (H2 : b ↔ d) : (a ∧ b) ↔ (c ∧ d) :=
-iff.intro (and.imp (iff.mp H1) (iff.mp H2)) (and.imp (iff.mpr H1) (iff.mpr H2)) 
+iff.intro (and.imp (iff.mp H1) (iff.mp H2)) (and.imp (iff.mpr H1) (iff.mpr H2))
 
 /- or -/
 
@@ -221,25 +221,25 @@ theorem or_self (a : Prop) : a ∨ a ↔ a :=
 iff.intro (or.rec imp.id imp.id) or.inl
 
 theorem or_iff_or (H1 : a ↔ c) (H2 : b ↔ d) : (a ∨ b) ↔ (c ∨ d) :=
-iff.intro (or.imp (iff.mp H1) (iff.mp H2)) (or.imp (iff.mpr H1) (iff.mpr H2)) 
+iff.intro (or.imp (iff.mp H1) (iff.mp H2)) (or.imp (iff.mpr H1) (iff.mpr H2))
 
 /- distributivity -/
 
-theorem and.distrib_left (a b c : Prop) : a ∧ (b ∨ c) ↔ (a ∧ b) ∨ (a ∧ c) :=
+theorem and.left_distrib (a b c : Prop) : a ∧ (b ∨ c) ↔ (a ∧ b) ∨ (a ∧ c) :=
 iff.intro
   (and.rec (λH, or.imp (and.intro H) (and.intro H)))
   (or.rec (and.imp_right or.inl) (and.imp_right or.inr))
 
-theorem and.distrib_right (a b c : Prop) : (a ∨ b) ∧ c ↔ (a ∧ c) ∨ (b ∧ c) :=
-iff.trans (iff.trans !and.comm !and.distrib_left) (or_iff_or !and.comm !and.comm)
+theorem and.right_distrib (a b c : Prop) : (a ∨ b) ∧ c ↔ (a ∧ c) ∨ (b ∧ c) :=
+iff.trans (iff.trans !and.comm !and.left_distrib) (or_iff_or !and.comm !and.comm)
 
-theorem or.distrib_left (a b c : Prop) : a ∨ (b ∧ c) ↔ (a ∨ b) ∧ (a ∨ c) :=
+theorem or.left_distrib (a b c : Prop) : a ∨ (b ∧ c) ↔ (a ∨ b) ∧ (a ∨ c) :=
 iff.intro
   (or.rec (λH, and.intro (or.inl H) (or.inl H)) (and.imp or.inr or.inr))
   (and.rec (or.rec (imp.syl imp.intro or.inl) (imp.syl or.imp_right and.intro)))
 
-theorem or.distrib_right (a b c : Prop) : (a ∧ b) ∨ c ↔ (a ∨ c) ∧ (b ∨ c) :=
-iff.trans (iff.trans !or.comm !or.distrib_left) (and_iff_and !or.comm !or.comm)
+theorem or.right_distrib (a b c : Prop) : (a ∧ b) ∨ c ↔ (a ∨ c) ∧ (b ∨ c) :=
+iff.trans (iff.trans !or.comm !or.left_distrib) (and_iff_and !or.comm !or.comm)
 
 /- iff -/
 

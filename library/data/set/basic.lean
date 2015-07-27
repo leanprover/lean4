@@ -157,16 +157,16 @@ setext (take x, !true_and)
 /- distributivity laws -/
 
 theorem inter.distrib_left (s t u : set X) : s ∩ (t ∪ u) = (s ∩ t) ∪ (s ∩ u) :=
-setext (take x, !and.distrib_left)
+setext (take x, !and.left_distrib)
 
 theorem inter.distrib_right (s t u : set X) : (s ∪ t) ∩ u = (s ∩ u) ∪ (t ∩ u) :=
-setext (take x, !and.distrib_right)
+setext (take x, !and.right_distrib)
 
 theorem union.distrib_left (s t u : set X) : s ∪ (t ∩ u) = (s ∪ t) ∩ (s ∪ u) :=
-setext (take x, !or.distrib_left)
+setext (take x, !or.left_distrib)
 
 theorem union.distrib_right (s t u : set X) : (s ∩ t) ∪ u = (s ∪ u) ∩ (t ∪ u) :=
-setext (take x, !or.distrib_right)
+setext (take x, !or.right_distrib)
 
 /- set-builder notation -/
 

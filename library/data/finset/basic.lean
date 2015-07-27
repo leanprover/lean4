@@ -297,7 +297,7 @@ theorem mem_erase_eq (a b : A) (s : finset A) : a ∈ erase b s = (a ∈ s ∧ a
 propext !mem_erase_iff
 
 open decidable
-theorem erase_insert (a : A) (s : finset A) : a ∉ s → erase a (insert a s) = s :=
+theorem erase_insert {a : A} {s : finset A} : a ∉ s → erase a (insert a s) = s :=
 λ anins, finset.ext (λ b, by_cases
   (λ beqa : b = a, iff.intro
     (λ bin, by subst b; exact absurd bin !mem_erase)
@@ -481,16 +481,16 @@ variable [h : decidable_eq A]
 include h
 
 theorem inter.distrib_left (s t u : finset A) : s ∩ (t ∪ u) = (s ∩ t) ∪ (s ∩ u) :=
-ext (take x, by rewrite [mem_inter_eq, *mem_union_eq, *mem_inter_eq]; apply and.distrib_left)
+ext (take x, by rewrite [mem_inter_eq, *mem_union_eq, *mem_inter_eq]; apply and.left_distrib)
 
 theorem inter.distrib_right (s t u : finset A) : (s ∪ t) ∩ u = (s ∩ u) ∪ (t ∩ u) :=
-ext (take x, by rewrite [mem_inter_eq, *mem_union_eq, *mem_inter_eq]; apply and.distrib_right)
+ext (take x, by rewrite [mem_inter_eq, *mem_union_eq, *mem_inter_eq]; apply and.right_distrib)
 
 theorem union.distrib_left (s t u : finset A) : s ∪ (t ∩ u) = (s ∪ t) ∩ (s ∪ u) :=
-ext (take x, by rewrite [mem_union_eq, *mem_inter_eq, *mem_union_eq]; apply or.distrib_left)
+ext (take x, by rewrite [mem_union_eq, *mem_inter_eq, *mem_union_eq]; apply or.left_distrib)
 
 theorem union.distrib_right (s t u : finset A) : (s ∩ t) ∪ u = (s ∪ u) ∩ (t ∪ u) :=
-ext (take x, by rewrite [mem_union_eq, *mem_inter_eq, *mem_union_eq]; apply or.distrib_right)
+ext (take x, by rewrite [mem_union_eq, *mem_inter_eq, *mem_union_eq]; apply or.right_distrib)
 end inter
 
 /- disjoint -/

@@ -5,9 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/sexpr/option_declarations.h"
+#include "kernel/instantiate.h"
 #include "library/constants.h"
 #include "library/util.h"
+#include "library/app_builder.h"
+#include "library/relation_manager.h"
 #include "library/tactic/expr_to_tactic.h"
+#include "library/simplifier/ceqv.h"
 #include "library/simplifier/simp_tactic.h"
 #include "library/simplifier/simp_rule_set.h"
 
@@ -129,14 +133,23 @@ private:
     environment      m_env;
     io_state         m_ios;
     name_generator   m_ngen;
+    elaborate_fn     m_elab;
     optional<tactic> m_tactic;
+
+    type_checker     m_elab_tc;
+    app_builder      m_app_builder;
+
 
     // transient state
     unsigned         m_steps;
     goal             m_g;
     substitution     m_subst;
+    // Remark: the following buffer contains pre-terms that need to be elaborated.
+    // The 'simp at *' is not very efficient in the current implementation.
+    // If we have N hypotheses, then m_lemmas_to_process will be processed N+1 times.
+    buffer<expr>     m_lemmas_to_process;
 
-    simp_rule_sets   m_simp_set;
+    simp_rule_sets   m_simp_sets;
 
     // configuration options
     bool     m_single_pass;
@@ -174,33 +187,101 @@ private:
         }
     }
 
-    res_kind simp_goal() {
+    // Add lemmas and assumptions to m_simp_set.
+    // If hidx is none, then we are elaborating the conclusion, otherwise we are elaborating hypothesis hidx.
+    // This method destructively updates m_simp_set
+    void elaborate_lemmas(optional<unsigned> hidx) {
+        name user("user");
+        for (expr const & l : m_lemmas_to_process) {
+            try {
+                expr new_l; constraints cs;
+                bool report_unassigned = true;
+                std::tie(new_l, m_subst, cs) = m_elab(m_g, m_ngen.mk_child(), l, none_expr(), m_subst, report_unassigned);
+                if (cs)
+                    throw tactic_exception("invalid 'simp' tactic, fail to resolve generated constraints");
+                expr new_e = head_beta_reduce(m_elab_tc.infer(new_l).first);
+                m_simp_sets = add(m_elab_tc, m_simp_sets, user, new_e, new_l);
+            } catch (exception &) {
+                if (!hidx) {
+                    // processing conclusion, then report the error
+                    throw;
+                }
+            }
+        }
+        if (m_assumptions) {
+            name assump("assumption");
+            buffer<expr> hyps;
+            m_g.get_hyps(hyps);
+            unsigned end = hidx ? *hidx : hyps.size();
+            for (unsigned i = 0; i < end; i++) {
+                expr H      = hyps[i];
+                expr H_type = mlocal_type(H);
+                expr rel, lhs, rhs;
+                if (is_simp_relation(m_env, H_type, rel, lhs, rhs)) {
+                    // TODO(Leo): we are currently flipping equations when lhs < rhs.
+                    // Should we remove this automatic flipping?
+                    if (get_weight(lhs) >= get_weight(rhs)) {
+                        m_simp_sets = add(m_elab_tc, m_simp_sets, assump, H_type, H);
+                    } else {
+                        // lhs is "smaller" than rhs
+                        // so we try to apply symmetry if available
+                        if (!is_constant(rel))
+                            continue;
+                        name op   = const_name(rel);
+                        auto rel_info = get_relation_info(m_env, op);
+                        auto info = get_symm_extra_info(m_env, op);
+                        if (!info || !rel_info)
+                            continue; // relation is not symmetric
+                        buffer<expr> args;
+                        get_app_args(H_type, args);
+                        expr tmp = args[rel_info->get_lhs_pos()];
+                        args[rel_info->get_lhs_pos()] = args[rel_info->get_rhs_pos()];
+                        args[rel_info->get_rhs_pos()] = tmp;
+                        H_type = mk_app(rel, args);
+                        if (auto new_H = m_app_builder.mk_app(info->m_name, H)) {
+                            H = *new_H;
+                            m_simp_sets = add(m_elab_tc, m_simp_sets, assump, H_type, H);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    res_kind simp_conclusion() {
+        elaborate_lemmas(optional<unsigned>());
+        if (m_trace) {
+            out() << m_simp_sets;
+        }
         // TODO(Leo)
         return DidNothing;
     }
 
     bool simp_hyp(unsigned hidx) {
+        flet<simp_rule_sets> save(m_simp_sets, m_simp_sets);
+        elaborate_lemmas(optional<unsigned>(hidx));
         // TODO(Leo)
         return false;
     }
 
     // Initialize m_simp_set with information that is context independent
     void init_simp_set(buffer<name> const & ns, buffer<name> const & ex) {
-        m_simp_set = get_simp_rule_sets(m_env);
+        // Remark: we cannot initialize explicitly provided lemmas here
+        // since some of them may depend on hypotheses.
+        m_simp_sets = get_simp_rule_sets(m_env);
         for (name const & n : ns) {
             simp_rule_sets tmp_simp_set = get_simp_rule_sets(m_env, n);
-            m_simp_set = join(m_simp_set, tmp_simp_set);
+            m_simp_sets = join(m_simp_sets, tmp_simp_set);
         }
-        m_simp_set.erase_simp(ex);
-        if (m_trace) {
-            out() << m_simp_set;
-        }
+        m_simp_sets.erase_simp(ex);
     }
 
 public:
-    simp_tactic_fn(environment const & env, io_state const & ios, name_generator && ngen,
-                   buffer<expr> const & /* ls */, buffer<name> const & ns, buffer<name> const & ex,
-                   optional<tactic> const & tac):m_env(env), m_ios(ios), m_ngen(ngen), m_tactic(tac) {
+    simp_tactic_fn(environment const & env, io_state const & ios, name_generator && ngen, elaborate_fn const & elab,
+                   buffer<expr> const & ls, buffer<name> const & ns, buffer<name> const & ex,
+                   optional<tactic> const & tac):
+        m_env(env), m_ios(ios), m_ngen(ngen), m_elab(elab), m_tactic(tac), m_elab_tc(m_env), m_app_builder(m_elab_tc),
+        m_lemmas_to_process(ls) {
         set_options(env, m_ios.get_options());
         init_simp_set(ns, ex);
     }
@@ -209,7 +290,7 @@ public:
         m_g     = g;
         m_subst = s;
         if (loc.is_goal_only()) {
-            res_kind k = simp_goal();
+            res_kind k = simp_conclusion();
             return std::make_tuple(k, m_g, m_subst);
         } else {
             buffer<expr> hyps;
@@ -224,7 +305,7 @@ public:
                 hidx++;
             }
             if (loc.includes_goal()) {
-                res_kind k = simp_goal();
+                res_kind k = simp_conclusion();
                 if (k == DidNothing && progress)
                     k = Simplified;
                 return std::make_tuple(k, m_g, m_subst);
@@ -245,18 +326,8 @@ tactic mk_simp_tactic(elaborate_fn const & elab, buffer<expr> const & ls, buffer
             }
             goal const & g = head(gs);
             name_generator new_ngen  = s.get_ngen();
-            substitution   new_subst = s.get_subst();
-            buffer<expr>   new_ls;
-            for (expr const & l : ls) {
-                expr new_l; constraints cs;
-                bool report_unassigned = true;
-                std::tie(new_l, new_subst, cs) = elab(g, new_ngen.mk_child(), l, none_expr(), new_subst, report_unassigned);
-                if (cs)
-                    throw_tactic_exception_if_enabled(s, "invalid 'simp' tactic, fail to resolve generated constraints");
-                new_ls.push_back(new_l);
-            }
-            simp_tactic_fn simp(env, ios, new_ngen.mk_child(), new_ls, ns, ex, tac);
-            goal new_g; simp_tactic_fn::res_kind k;
+            simp_tactic_fn simp(env, ios, new_ngen.mk_child(), elab, ls, ns, ex, tac);
+            goal new_g; simp_tactic_fn::res_kind k; substitution new_subst = s.get_subst();
             std::tie(k, new_g, new_subst) = simp(g, loc, new_subst);
             switch (k) {
             case simp_tactic_fn::Simplified: {

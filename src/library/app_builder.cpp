@@ -225,6 +225,7 @@ struct app_builder::imp {
 };
 
 app_builder::app_builder(type_checker & tc):m_ptr(new imp(tc)) {}
+app_builder::~app_builder() {}
 optional<expr> app_builder::mk_app(declaration const & d, unsigned nargs, expr const * args, bool use_cache) {
     return m_ptr->mk_app(d, nargs, args, use_cache);
 }

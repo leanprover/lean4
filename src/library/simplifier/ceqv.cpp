@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
 #include "library/constants.h"
-#include "library/expr_pair.h"
 #include "library/util.h"
 #include "library/relation_manager.h"
 #include "library/occurs.h"

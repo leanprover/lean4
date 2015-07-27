@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/type_checker.h"
+#include "library/expr_pair.h"
 
 namespace lean {
 bool is_simp_relation(environment const & env, expr const & e, expr & rel, expr & lhs, expr & rhs);

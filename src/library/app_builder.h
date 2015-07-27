@@ -28,6 +28,7 @@ class app_builder {
     std::unique_ptr<imp> m_ptr;
 public:
     app_builder(type_checker & tc);
+    ~app_builder();
     /** \brief Create an application (d.{_ ... _} _ ... _ args[0] ... args[nargs-1]).
         The missing arguments and universes levels are inferred using type inference.
 

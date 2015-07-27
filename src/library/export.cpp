@@ -37,11 +37,11 @@ class exporter {
         } else if (n.is_string()) {
             unsigned p = export_name(n.get_prefix());
             i = m_name2idx.size();
-            m_out << i << " s " << p << " " << n.get_string() << "\n";
+            m_out << i << " #s " << p << " " << n.get_string() << "\n";
         } else {
             unsigned p = export_name(n.get_prefix());
             i = m_name2idx.size();
-            m_out << i << " i " << p << " " << n.get_numeral() << "\n";
+            m_out << i << " #i " << p << " " << n.get_numeral() << "\n";
         }
         m_name2idx.insert(mk_pair(n, i));
         return i;
@@ -60,29 +60,29 @@ class exporter {
         case level_kind::Succ:
             l1 = export_level(succ_of(l));
             i  = m_level2idx.size();
-            m_out << i << " US " << l1 << "\n";
+            m_out << i << " #US " << l1 << "\n";
             break;
         case level_kind::Max:
             l1 = export_level(max_lhs(l));
             l2 = export_level(max_rhs(l));
             i  = m_level2idx.size();
-            m_out << i << " UM " << l1 << " " << l2 << "\n";
+            m_out << i << " #UM " << l1 << " " << l2 << "\n";
             break;
         case level_kind::IMax:
             l1 = export_level(imax_lhs(l));
             l2 = export_level(imax_rhs(l));
             i  = m_level2idx.size();
-            m_out << i << " UIM " << l1 << " " << l2 << "\n";
+            m_out << i << " #UIM " << l1 << " " << l2 << "\n";
             break;
         case level_kind::Param:
             n = export_name(param_id(l));
             i = m_level2idx.size();
-            m_out << i << " UP " << n << "\n";
+            m_out << i << " #UP " << n << "\n";
             break;
         case level_kind::Global:
             n = export_name(global_id(l));
             i = m_level2idx.size();
-            m_out << i << " UG " << n << "\n";
+            m_out << i << " #UG " << n << "\n";
             break;
         case level_kind::Meta:
             throw exception("invald 'export', universe meta-variables cannot be exported");
@@ -93,13 +93,13 @@ class exporter {
 
     void display_binder_info(binder_info const & bi) {
         if (bi.is_implicit())
-            m_out << "I";
+            m_out << "#I";
         else if (bi.is_strict_implicit())
-            m_out << "S";
+            m_out << "#S";
         else if (bi.is_inst_implicit())
-            m_out << "C";
+            m_out << "#C";
         else
-            m_out << "D";
+            m_out << "#D";
     }
 
     unsigned export_binding(expr const & e, char const * k) {
@@ -119,7 +119,7 @@ class exporter {
         for (level const & l : const_levels(e))
             ls.push_back(export_level(l));
         unsigned i  = m_expr2idx.size();
-        m_out << i << " C " << n;
+        m_out << i << " #C " << n;
         for (unsigned l : ls)
             m_out << " " << l;
         m_out << "\n";
@@ -135,12 +135,12 @@ class exporter {
         switch (e.kind()) {
         case expr_kind::Var:
             i = m_expr2idx.size();
-            m_out << i << " V " << var_idx(e) << "\n";
+            m_out << i << " #V " << var_idx(e) << "\n";
             break;
         case expr_kind::Sort:
             l = export_level(sort_level(e));
             i = m_expr2idx.size();
-            m_out << i << " S " << l << "\n";
+            m_out << i << " #S " << l << "\n";
             break;
         case expr_kind::Constant:
             i = export_const(e);
@@ -149,13 +149,13 @@ class exporter {
             e1 = export_expr(app_fn(e));
             e2 = export_expr(app_arg(e));
             i  = m_expr2idx.size();
-            m_out << i << " A " << e1 << " " << e2 << "\n";
+            m_out << i << " #A " << e1 << " " << e2 << "\n";
             break;
         case expr_kind::Lambda:
-            i  = export_binding(e, "L");
+            i  = export_binding(e, "#L");
             break;
         case expr_kind::Pi:
-            i  = export_binding(e, "P");
+            i  = export_binding(e, "#P");
             break;
         case expr_kind::Meta:
             throw exception("invald 'export', meta-variables cannot be exported");
@@ -179,7 +179,7 @@ class exporter {
             ps.push_back(export_name(p));
         unsigned t = export_root_expr(d.get_type());
         unsigned v = export_root_expr(d.get_value());
-        m_out << "DEF " << n;
+        m_out << "#DEF " << n;
         for (unsigned p : ps)
             m_out << " " << p;
         m_out << " | " << t << " " << v << "\n";
@@ -191,7 +191,7 @@ class exporter {
         for (name const & p : d.get_univ_params())
             ps.push_back(export_name(p));
         unsigned t = export_root_expr(d.get_type());
-        m_out << "AX " << n;
+        m_out << "#AX " << n;
         for (unsigned p : ps)
             m_out << " " << p;
         m_out << " | " << t << "\n";
@@ -210,19 +210,19 @@ class exporter {
                 export_root_expr(inductive::intro_rule_type(c));
             }
         }
-        m_out << "BIND " << std::get<1>(decls) << " " << length(std::get<2>(decls));
+        m_out << "#BIND " << std::get<1>(decls) << " " << length(std::get<2>(decls));
         for (name const & p : std::get<0>(decls))
             m_out << " " << export_name(p);
         m_out << "\n";
         for (inductive::inductive_decl const & d : std::get<2>(decls)) {
-            m_out << "IND " << export_name(inductive::inductive_decl_name(d)) << " "
+            m_out << "#IND " << export_name(inductive::inductive_decl_name(d)) << " "
                   << export_root_expr(inductive::inductive_decl_type(d)) << "\n";
             for (inductive::intro_rule const & c : inductive::inductive_decl_intros(d)) {
-                m_out << "INTRO " << export_name(inductive::intro_rule_name(c)) << " "
+                m_out << "#INTRO " << export_name(inductive::intro_rule_name(c)) << " "
                       << export_root_expr(inductive::intro_rule_type(c)) << "\n";
             }
         }
-        m_out << "EIND\n";
+        m_out << "#EIND\n";
     }
 
     void export_declaration(name const & n) {
@@ -252,9 +252,9 @@ class exporter {
         for (module_name const & m : imports) {
             unsigned n = export_name(m.get_name());
             if (m.is_relative()) {
-                m_out << "RI " << *m.get_k() << " " << n << "\n";
+                m_out << "#RI " << *m.get_k() << " " << n << "\n";
             } else {
-                m_out << "DI " << n << "\n";
+                m_out << "#DI " << n << "\n";
             }
         }
     }
@@ -265,7 +265,7 @@ class exporter {
         std::reverse(ns.begin(), ns.end());
         for (name const & u : ns) {
             unsigned n = export_name(u);
-            m_out << "UNI " << n << "\n";
+            m_out << "#UNI " << n << "\n";
         }
     }
 

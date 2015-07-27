@@ -11,3 +11,4 @@ The natural numbers.
 * [gcd](gcd.lean) : gcd, lcm, and coprime
 * [power](power.lean)
 * [bigops](bigops.lean) : finite sums and products
+* [find](find.lean) : search for a witness to an existence statement

@@ -14,6 +14,17 @@ open eq.ops finset well_founded decidable
 
 namespace nat
 
+-- TODO: this should be proved more generally in ring_bigops
+theorem Prod_pos {A : Type} [deceqA : decidable_eq A]
+    {s : finset A} {f : A → ℕ} (fpos : ∀ n, n ∈ s → f n > 0) :
+  (∏ n ∈ s, f n) > 0 :=
+begin
+  induction s with a s anins ih,
+    {rewrite Prod_empty; exact zero_lt_one},
+  rewrite [!Prod_insert_of_not_mem anins],
+  exact (mul_pos (fpos a (mem_insert a _)) (ih (forall_of_forall_insert fpos)))
+end
+
 /- multiplicity -/
 
 theorem mult_rec_decreasing {p n : ℕ} (Hp : p > 1) (Hn : n > 0) : n div p < n :=
@@ -65,6 +76,11 @@ by_contradiction (suppose ¬ p ∣ n, ne_of_gt H (mult_eq_zero_of_not_dvd this))
 
 /- properties of mult -/
 
+theorem mult_eq_zero_of_prime_of_ne {p q : ℕ} (primep : prime p) (primeq : prime q)
+    (pneq : p ≠ q) :
+  mult p q = 0 :=
+mult_eq_zero_of_not_dvd (not_dvd_of_prime_of_coprime primep (coprime_primes primep primeq pneq))
+
 theorem pow_mult_dvd (p n : ℕ) : p^(mult p n) ∣ n :=
 begin
   induction n using nat.strong_induction_on with [n, ih],
@@ -103,7 +119,7 @@ private theorem mult_pow_mul {p n : ℕ} (i : ℕ) (pgt1 : p > 1) (npos : n > 0)
   mult p (p^i * n) = i + mult p n :=
 begin
   induction i with [i, ih],
-    rewrite [pow_zero, one_mul, zero_add],  -- strange: this fails with {brackets} around it
+    {rewrite [pow_zero, one_mul, zero_add]},
   have p > 0, from lt.trans zero_lt_one pgt1,
   have psin_pos : p^(succ i) * n > 0, from mul_pos (!pow_pos_of_pos this) npos,
   have p ∣ p^(succ i) * n, by rewrite [pow_succ', mul.assoc]; apply dvd_mul_right,
@@ -111,7 +127,7 @@ begin
   rewrite [add.comm i, add.comm (succ i)]
 end
 
-theorem mult_pow {p : ℕ} (i : ℕ) (pgt1 : p > 1) : mult p (p^i) = i :=
+theorem mult_pow_self {p : ℕ} (i : ℕ) (pgt1 : p > 1) : mult p (p^i) = i :=
 by rewrite [-(mul_one (p^i)), mult_pow_mul i pgt1 zero_lt_one, mult_one_right]
 
 theorem le_mult {p i n : ℕ} (pgt1 : p > 1) (npos : n > 0) (pidvd : p^i ∣ n) : i ≤ mult p n :=
@@ -194,10 +210,10 @@ begin
 end
 
 theorem eq_of_forall_prime_mult_eq {m n : ℕ} (mpos : m > 0) (npos : n > 0)
-    (H : ∀ {p}, prime p → mult p m = mult p n) : m = n :=
+    (H : ∀ p, prime p → mult p m = mult p n) : m = n :=
 dvd.antisymm
-  (dvd_of_forall_prime_mult_le mpos (take p, assume primep, H primep ▸ !le.refl))
-  (dvd_of_forall_prime_mult_le npos (take p, assume primep, H primep ▸ !le.refl))
+  (dvd_of_forall_prime_mult_le mpos (take p, assume primep, H _ primep ▸ !le.refl))
+  (dvd_of_forall_prime_mult_le npos (take p, assume primep, H _ primep ▸ !le.refl))
 
 /- prime factors -/
 
@@ -214,4 +230,71 @@ theorem mem_prime_factors {p n : ℕ} (npos : n > 0) (primep : prime p) (pdvdn :
 have plen : p ≤ n, from le_of_dvd npos pdvdn,
 mem_filter_of_mem (mem_upto_of_lt (lt_succ_of_le plen)) (and.intro primep pdvdn)
 
+/- prime factorization -/
+
+theorem mult_pow_eq_zero_of_prime_of_ne {p q : ℕ} (primep : prime p) (primeq : prime q)
+  (pneq : p ≠ q) (i : ℕ) : mult p (q^i) = 0 :=
+begin
+  induction i with i ih,
+    {rewrite [pow_zero, mult_one_right]},
+  have qpos : q > 0, from pos_of_prime primeq,
+  have qipos : q^i > 0, from !pow_pos_of_pos qpos,
+  rewrite [pow_succ, mult_mul primep qipos qpos, ih, mult_eq_zero_of_prime_of_ne primep primeq pneq]
+end
+
+theorem mult_prod_pow_of_not_mem {p : ℕ} (primep : prime p) {s : finset ℕ}
+    (sprimes : ∀ p, p ∈ s → prime p) (f : ℕ → ℕ) (pns : p ∉ s) :
+  mult p (∏ q ∈ s, q^(f q)) = 0 :=
+begin
+  induction s with a s anins ih,
+    {rewrite [Prod_empty, mult_one_right]},
+  have pnea : p ≠ a, from assume peqa, by rewrite peqa at pns; exact pns !mem_insert,
+  have primea : prime a, from sprimes a !mem_insert,
+  have afapos : a ^ f a > 0, from !pow_pos_of_pos (pos_of_prime primea),
+  have prodpos : (∏ q ∈ s, q ^ f q) > 0,
+    from Prod_pos (take q, assume qs,
+      !pow_pos_of_pos (pos_of_prime (forall_of_forall_insert sprimes q qs))),
+  rewrite [!Prod_insert_of_not_mem anins, mult_mul primep afapos prodpos],
+  rewrite (mult_pow_eq_zero_of_prime_of_ne primep primea pnea),
+  rewrite (ih (forall_of_forall_insert sprimes) (λ H, pns (!mem_insert_of_mem H)))
+end
+
+theorem mult_prod_pow_of_mem {p : ℕ} (primep : prime p) {s : finset ℕ}
+    (sprimes : ∀ p, p ∈ s → prime p) (f : ℕ → ℕ) (ps : p ∈ s) :
+  mult p (∏ q ∈ s, q^(f q)) = f p :=
+begin
+  induction s with a s anins ih,
+    {exact absurd ps !not_mem_empty},
+  have primea : prime a, from sprimes a !mem_insert,
+  have afapos : a ^ f a > 0, from !pow_pos_of_pos (pos_of_prime primea),
+  have prodpos : (∏ q ∈ s, q ^ f q) > 0,
+    from Prod_pos (take q, assume qs,
+      !pow_pos_of_pos (pos_of_prime (forall_of_forall_insert sprimes q qs))),
+  rewrite [!Prod_insert_of_not_mem anins, mult_mul primep afapos prodpos],
+  cases eq_or_mem_of_mem_insert ps with peqa pins,
+    {rewrite [peqa, !mult_pow_self (gt_one_of_prime primea)],
+      rewrite [mult_prod_pow_of_not_mem primea (forall_of_forall_insert sprimes) _ anins]},
+  have pnea : p ≠ a, from by intro peqa; rewrite peqa at pins; exact anins pins,
+  rewrite [mult_pow_eq_zero_of_prime_of_ne primep primea pnea, zero_add],
+  exact (ih (forall_of_forall_insert sprimes) pins)
+end
+
+theorem eq_prime_factorization {n : ℕ} (npos : n > 0) :
+  n = (∏ p ∈ prime_factors n, p^(mult p n)) :=
+let nprod := ∏ p ∈ prime_factors n, p^(mult p n) in
+assert primefactors : ∀ p, p ∈ prime_factors n → prime p,
+  from take p, @prime_of_mem_prime_factors p n,
+have prodpos : (∏ q ∈ prime_factors n, q^(mult q n)) > 0,
+  from Prod_pos (take q, assume qpf,
+    !pow_pos_of_pos (pos_of_prime (prime_of_mem_prime_factors qpf))),
+eq_of_forall_prime_mult_eq npos prodpos
+  (take p,
+    assume primep,
+    decidable.by_cases
+      (assume pprimefactors : p ∈ prime_factors n,
+        eq.symm (mult_prod_pow_of_mem primep primefactors (λ p, mult p n) pprimefactors))
+      (assume pnprimefactors : p ∉ prime_factors n,
+        have ¬ p ∣ n, from assume H, pnprimefactors (mem_prime_factors npos primep H),
+        assert mult p n = 0, from mult_eq_zero_of_not_dvd this,
+        by rewrite [this, mult_prod_pow_of_not_mem primep primefactors _ pnprimefactors]))
 end nat

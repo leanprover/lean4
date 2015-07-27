@@ -193,6 +193,12 @@ theorem insert_eq_of_mem {a : A} {s : finset A} (H : a ∈ s) : insert a s = s :
 ext (λ x, eq.substr (mem_insert_eq x a s)
    (or_iff_right_of_imp (λH1, eq.substr H1 H)))
 
+-- useful in proofs by induction
+theorem forall_of_forall_insert {P : A → Prop} {a : A} {s : finset A}
+    (H : ∀ x, x ∈ insert a s → P x) :
+  ∀ x, x ∈ s → P x :=
+λ x xs, H x (!mem_insert_of_mem xs)
+
 theorem insert.comm (x y : A) (s : finset A) : insert x (insert y s) = insert y (insert x s) :=
 ext (take a, by rewrite [*mem_insert_eq, propext !or.left_comm])
 

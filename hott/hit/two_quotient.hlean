@@ -296,6 +296,7 @@ namespace two_quotient
     ⦃a a' : A⦄ (t : T a a') : ap (elim P0 P1 P2) (inclt t) = e_closure.elim P1 t :=
   !elim_inclt --ap_e_closure_elim_h incl1 (elim_incl1 P2) t
 
+/-
   --print elim
   theorem elim_incl2 {P : Type} (P0 : A → P)
     (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a = P0 a')
@@ -309,6 +310,7 @@ namespace two_quotient
     xrewrite [eq_top_of_square (elim_incl2 R Q2 P0 P1 (elim_1 A R Q P P0 P1 P2) (Qmk R q)),▸*],
     exact sorry
   end
+-/
 
 end
 end two_quotient

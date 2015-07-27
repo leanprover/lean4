@@ -73,6 +73,7 @@ namespace category
   infix `⋍`:25 := equivalence -- \backsimeq or \equiv
   infix `≌`:25 := isomorphism -- \backcong or \iso
 
+/-
   definition is_hprop_is_left_adjoint {C : Category} {D : Precategory} (F : C ⇒ D)
     : is_hprop (is_left_adjoint F) :=
   begin
@@ -86,7 +87,7 @@ namespace category
         { apply sorry /-rewrite [assoc, -{((G (ε' d)) ∘ (η (G' d))) ∘ (G' (ε d))}(assoc)],-/
 --        apply concat, apply (ap (λc, c ∘ η' _)), rewrite -assoc, apply idp
 },
---/-rewrite [-nat_trans.assoc]-/apply sorry
+-- rewrite [-nat_trans.assoc] apply sorry
 ---assoc (G (ε' d)) (η (G' d)) (G' (ε d))
         { apply sorry}},
       { apply sorry},
@@ -157,5 +158,5 @@ namespace category
 
   definition is_equiv_equivalence_of_eq (C D : Category) : is_equiv (@equivalence_of_eq C D) :=
   sorry
-
+-/
 end category

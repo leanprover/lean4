@@ -59,6 +59,12 @@ namespace binary
       (a*b)*c = a*(b*c) : H_assoc
         ...   = a*(c*b) : H_comm
         ...   = (a*c)*b : H_assoc
+
+    theorem comm4 (a b c d : A) : a*b*(c*d) = a*c*(b*d) :=
+    calc
+      a*b*(c*d) = a*b*c*d   : H_assoc
+        ...     = a*c*b*d   : right_comm H_comm H_assoc
+        ...     = a*c*(b*d) : H_assoc
   end
 
   section

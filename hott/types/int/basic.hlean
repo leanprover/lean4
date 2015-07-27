@@ -160,14 +160,13 @@ calc
     ... = pr2 q + pr1 p         : !add.comm
 
 protected theorem int_equiv.trans [trans] {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q ≡ r) : p ≡ r :=
-have H3 : pr1 p + pr2 r + pr2 q = pr2 p + pr1 r + pr2 q, from
-  calc
-   pr1 p + pr2 r + pr2 q = pr1 p + pr2 q + pr2 r : by exact sorry
+add.cancel_right (calc
+   pr1 p + pr2 r + pr2 q = pr1 p + pr2 q + pr2 r : add.right_comm
     ... = pr2 p + pr1 q + pr2 r                  : {H1}
-    ... = pr2 p + (pr1 q + pr2 r)                : by exact sorry
+    ... = pr2 p + (pr1 q + pr2 r)                : add.assoc
     ... = pr2 p + (pr2 q + pr1 r)                : {H2}
-    ... = pr2 p + pr1 r + pr2 q                  : by exact sorry,
-show pr1 p + pr2 r = pr2 p + pr1 r, from add.cancel_right H3
+    ... = pr2 p + pr2 q + pr1 r                  : add.assoc
+    ... = pr2 p + pr1 r + pr2 q                  : add.right_comm)
 
 definition int_equiv_int_equiv : is_equivalence int_equiv :=
 is_equivalence.mk @int_equiv.refl @int_equiv.symm @int_equiv.trans
@@ -339,11 +338,11 @@ int.cases_on a
        (take n',!repr_sub_nat_nat))
 
 definition padd_congr {p p' q q' : ℕ × ℕ} (Ha : p ≡ p') (Hb : q ≡ q') : padd p q ≡ padd p' q' :=
-calc
-  pr1 (padd p q) + pr2 (padd p' q') = pr1 p + pr2 p' + (pr1 q + pr2 q') : by exact sorry
+calc pr1 p + pr1 q + (pr2 p' + pr2 q')
+        = pr1 p + pr2 p' + (pr1 q + pr2 q') : add.comm4
     ... = pr2 p + pr1 p' + (pr1 q + pr2 q') : {Ha}
     ... = pr2 p + pr1 p' + (pr2 q + pr1 q') : {Hb}
-    ... = pr2 (padd p q) + pr1 (padd p' q') : by exact sorry
+    ... = pr2 p + pr2 q + (pr1 p' + pr1 q') : add.comm4
 
 definition padd_comm (p q : ℕ × ℕ) : padd p q = padd q p :=
 calc
@@ -415,13 +414,19 @@ definition padd_pneg (p : ℕ × ℕ) : padd p (pneg p) ≡ (0, 0) :=
 show pr1 p + pr2 p + 0 = pr2 p + pr1 p + 0, from !nat.add.comm ▸ rfl
 
 definition padd_padd_pneg (p q : ℕ × ℕ) : padd (padd p q) (pneg q) ≡ p :=
-show pr1 p + pr1 q + pr2 q + pr2 p = pr2 p + pr2 q + pr1 q + pr1 p, from by exact sorry
+calc      pr1 p + pr1 q + pr2 q + pr2 p
+        = pr1 p + (pr1 q + pr2 q) + pr2 p : nat.add.assoc
+    ... = pr1 p + (pr1 q + pr2 q + pr2 p) : nat.add.assoc
+    ... = pr1 p + (pr2 q + pr1 q + pr2 p) : nat.add.comm
+    ... = pr1 p + (pr2 q + pr2 p + pr1 q) : add.right_comm
+    ... = pr1 p + (pr2 p + pr2 q + pr1 q) : nat.add.comm
+    ... = pr2 p + pr2 q + pr1 q + pr1 p   : nat.add.comm
 
 definition add.left_inv (a : ℤ) : -a + a = 0 :=
 have H : repr (-a + a) ≡ repr 0, from
   calc
     repr (-a + a) ≡ padd (repr (neg a)) (repr a) : repr_add
-      ... ≡ padd (pneg (repr a)) (repr a) : sorry
+      ... = padd (pneg (repr a)) (repr a) : repr_neg
       ... ≡ repr 0 : padd_pneg,
 eq_of_repr_int_equiv_repr H
 
@@ -508,19 +513,18 @@ int.cases_on a
 definition int_equiv_mul_prep {xa ya xb yb xn yn xm ym : ℕ}
   (H1 : xa + yb = ya + xb) (H2 : xn + ym = yn + xm)
 : xa * xn + ya * yn + (xb * ym + yb * xm) = xa * yn + ya * xn + (xb * xm + yb * ym) :=
-have H3 : xa * xn + ya * yn + (xb * ym + yb * xm) + (yb * xn + xb * yn + (xb * xn + yb * yn))
-    = xa * yn + ya * xn + (xb * xm + yb * ym) + (yb * xn + xb * yn + (xb * xn + yb * yn)), from
-  calc
-    xa * xn + ya * yn + (xb * ym + yb * xm) + (yb * xn + xb * yn + (xb * xn + yb * yn))
-          = xa * xn + yb * xn + (ya * yn + xb * yn) + (xb * xn + xb * ym + (yb * yn + yb * xm))
-            : by exact sorry
-      ... = (xa + yb) * xn + (ya + xb) * yn + (xb * (xn + ym) + yb * (yn + xm)) : by exact sorry
-      ... = (ya + xb) * xn + (xa + yb) * yn + (xb * (yn + xm) + yb * (xn + ym)) : by exact sorry
-      ... = ya * xn + xb * xn + (xa * yn + yb * yn) + (xb * yn + xb * xm + (yb*xn + yb*ym))
-            : by exact sorry
-      ... = xa * yn + ya * xn + (xb * xm + yb * ym) + (yb * xn + xb * yn + (xb * xn + yb * yn))
-            : by exact sorry,
-nat.add.cancel_right H3
+nat.add.cancel_right (calc
+            xa*xn+ya*yn + (xb*ym+yb*xm) + (yb*xn+xb*yn + (xb*xn+yb*yn))
+          = xa*xn+ya*yn + (yb*xn+xb*yn) + (xb*ym+yb*xm + (xb*xn+yb*yn)) : add.comm4
+      ... = xa*xn+ya*yn + (yb*xn+xb*yn) + (xb*xn+yb*yn + (xb*ym+yb*xm)) : nat.add.comm
+      ... = xa*xn+yb*xn + (ya*yn+xb*yn) + (xb*xn+xb*ym + (yb*yn+yb*xm)) : !congr_arg2 add.comm4 add.comm4
+      ... = ya*xn+xb*xn + (xa*yn+yb*yn) + (xb*yn+xb*xm + (yb*xn+yb*ym))
+          : by rewrite[-+mul.left_distrib,-+mul.right_distrib]; exact H1 ▸ H2 ▸ rfl
+      ... = ya*xn+xa*yn + (xb*xn+yb*yn) + (xb*yn+yb*xn + (xb*xm+yb*ym)) : !congr_arg2 add.comm4 add.comm4
+      ... = xa*yn+ya*xn + (xb*xn+yb*yn) + (yb*xn+xb*yn + (xb*xm+yb*ym)) : !nat.add.comm ▸ !nat.add.comm ▸ rfl
+      ... = xa*yn+ya*xn + (yb*xn+xb*yn) + (xb*xn+yb*yn + (xb*xm+yb*ym)) : add.comm4
+      ... = xa*yn+ya*xn + (yb*xn+xb*yn) + (xb*xm+yb*ym + (xb*xn+yb*yn)) : nat.add.comm
+      ... = xa*yn+ya*xn + (xb*xm+yb*ym) + (yb*xn+xb*yn + (xb*xn+yb*yn)) : add.comm4)
 
 definition pmul_congr {p p' q q' : ℕ × ℕ} (H1 : p ≡ p') (H2 : q ≡ q') : pmul p q ≡ pmul p' q' :=
 int_equiv_mul_prep H1 H2
@@ -541,8 +545,19 @@ eq_of_repr_int_equiv_repr
       ... = pmul (repr b) (repr a) : pmul_comm
       ... = repr (b * a) : repr_mul) ▸ !int_equiv.refl)
 
+private theorem pmul_assoc_prep {p1 p2 q1 q2 r1 r2 : ℕ} :
+  ((p1*q1+p2*q2)*r1+(p1*q2+p2*q1)*r2, (p1*q1+p2*q2)*r2+(p1*q2+p2*q1)*r1) =
+   (p1*(q1*r1+q2*r2)+p2*(q1*r2+q2*r1), p1*(q1*r2+q2*r1)+p2*(q1*r1+q2*r2)) :=
+begin
+   rewrite[+mul.left_distrib,+mul.right_distrib,*mul.assoc],
+   rewrite (@add.comm4 (p1 * (q1 * r1)) (p2 * (q2 * r1)) (p1 * (q2 * r2)) (p2 * (q1 * r2))),
+   rewrite (nat.add.comm (p2 * (q2 * r1)) (p2 * (q1 * r2))),
+   rewrite (@add.comm4 (p1 * (q1 * r2)) (p2 * (q2 * r2)) (p1 * (q2 * r1)) (p2 * (q1 * r1))),
+   rewrite (nat.add.comm (p2 * (q2 * r2)) (p2 * (q1 * r1)))
+end
+
 definition pmul_assoc (p q r: ℕ × ℕ) : pmul (pmul p q) r = pmul p (pmul q r) :=
-by exact sorry
+pmul_assoc_prep
 
 definition mul.assoc (a b c : ℤ) : (a * b) * c = a * (b * c) :=
 eq_of_repr_int_equiv_repr
@@ -553,22 +568,29 @@ eq_of_repr_int_equiv_repr
       ... = pmul (repr a) (repr (b * c)) : repr_mul
       ... = repr (a * (b * c)) : repr_mul) ▸ !int_equiv.refl)
 
+set_option pp.coercions true
+
 definition mul_one (a : ℤ) : a * 1 = a :=
 eq_of_repr_int_equiv_repr (int_equiv_of_eq
   ((calc
     repr (a * 1) = pmul (repr a) (repr 1) : repr_mul
-      ... = (pr1 (repr a), pr2 (repr a)) : by exact sorry
+      ... = (pr1 (repr a), pr2 (repr a))  : by unfold [pmul, repr]; krewrite [*mul_zero, *mul_one, *nat.add_zero, *nat.zero_add]
       ... = repr a : prod.eta)))
 
 definition one_mul (a : ℤ) : 1 * a = a :=
 mul.comm a 1 ▸ mul_one a
+
+private theorem mul_distrib_prep {a1 a2 b1 b2 c1 c2 : ℕ} :
+ ((a1+b1)*c1+(a2+b2)*c2, (a1+b1)*c2+(a2+b2)*c1) =
+ (a1*c1+a2*c2+(b1*c1+b2*c2), a1*c2+a2*c1+(b1*c2+b2*c1)) :=
+by rewrite[+mul.right_distrib] ⬝ (!congr_arg2 !add.comm4 !add.comm4)
 
 definition mul.right_distrib (a b c : ℤ) : (a + b) * c = a * c + b * c :=
 eq_of_repr_int_equiv_repr
   (calc
     repr ((a + b) * c) = pmul (repr (a + b)) (repr c) : repr_mul
       ... ≡ pmul (padd (repr a) (repr b)) (repr c) : pmul_congr !repr_add int_equiv.refl
-      ... = padd (pmul (repr a) (repr c)) (pmul (repr b) (repr c)) : by exact sorry
+      ... = padd (pmul (repr a) (repr c)) (pmul (repr b) (repr c)) : mul_distrib_prep
       ... = padd (repr (a * c)) (pmul (repr b) (repr c)) : {(repr_mul a c)⁻¹}
       ... = padd (repr (a * c)) (repr (b * c)) : repr_mul
       ... ≡ repr (a * c + b * c) : int_equiv.symm !repr_add)

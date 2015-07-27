@@ -61,6 +61,12 @@ end eq
 definition congr {A B : Type} {f₁ f₂ : A → B} {a₁ a₂ : A} (H₁ : f₁ = f₂) (H₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ :=
 eq.subst H₁ (eq.subst H₂ rfl)
 
+theorem congr_arg {A B : Type} (a a' : A) (f : A → B) (Ha : a = a') : f a = f a' :=
+eq.subst Ha rfl
+
+theorem congr_arg2 {A B C : Type} (a a' : A) (b b' : B) (f : A → B → C) (Ha : a = a') (Hb : b = b') : f a b = f a' b' :=
+eq.subst Ha (eq.subst Hb rfl)
+
 section
   variables {A : Type} {a b c: A}
   open eq.ops

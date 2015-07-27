@@ -46,9 +46,9 @@ namespace category
   end
 
   --TODO: remove. This is a different version where Hq is not in square brackets
-  definition eq_comp_inverse_of_comp_eq' {ob : Type} {C : precategory ob} {d c b : ob} {r : hom c d}
-    {q : hom b c} {x : hom b d} {Hq : is_iso q} (p : r ∘ q = x) : r = x ∘ q⁻¹ʰ :=
-  sorry --eq_inverse_comp_of_comp_eq p
+  axiom eq_comp_inverse_of_comp_eq' {ob : Type} {C : precategory ob} {d c b : ob} {r : hom c d}
+    {q : hom b c} {x : hom b d} {Hq : is_iso q} (p : r ∘ q = x) : r = x ∘ q⁻¹ʰ
+  -- := sorry --eq_inverse_comp_of_comp_eq p
 
   definition comma_object_eq {x y : comma_object S T} (p : ob1 x = ob1 y) (q : ob2 x = ob2 y)
     (r : T (hom_of_eq q) ∘ mor x ∘ S (inv_of_eq p) = mor y) : x = y :=
@@ -158,6 +158,7 @@ namespace category
     strict_precategory (comma_object S T) :=
   strict_precategory.mk (comma_category S T) !is_trunc_comma_object
 
+/-
   --set_option pp.notation false
   definition is_univalent_comma (HA : is_univalent A) (HB : is_univalent B)
     : is_univalent (comma_category S T) :=
@@ -172,6 +173,6 @@ namespace category
     { apply sorry},
     { apply sorry},
   end
-
+-/
 
 end category

@@ -151,6 +151,9 @@ left_comm add.comm add.assoc n m k
 definition add.right_comm (n m k : ℕ) : n + m + k = n + k + m :=
 right_comm add.comm add.assoc n m k
 
+theorem add.comm4 : Π {n m k l : ℕ}, n + m + (k + l) = n + k + (m + l) :=
+comm4 add.comm add.assoc
+
 definition add.cancel_left {n m k : ℕ} : n + m = n + k → m = k :=
 nat.rec_on n
   (take H : 0 + m = 0 + k,

@@ -81,6 +81,7 @@ namespace eq
     : squareover B (square_of_eq_top s) q₁₀ q₁₂ q₀₁ q₂₁ :=
   by induction q₂₁; induction q₁₂; esimp at r;induction r;induction q₁₀;constructor
 
+/-
   definition squareover_equiv_pathover (q₁₀ : b₀₀ =[p₁₀] b₂₀) (q₁₂ : b₀₂ =[p₁₂] b₂₂)
     (q₀₁ : b₀₀ =[p₀₁] b₀₂) (q₂₁ : b₂₀ =[p₂₁] b₂₂)
     : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁ ≃ q₁₀ ⬝o q₂₁ =[eq_of_square s₁₁] q₀₁ ⬝o q₁₂ :=
@@ -119,5 +120,5 @@ namespace eq
                       (pathover_ap B f (apdo b p)) (change_path !ap_constant⁻¹ idpo))
     : r =[p] r₂ :=
   by induction p; esimp at s; apply pathover_idp_of_eq; apply eq_of_vdeg_squareover; exact s
-
+-/
 end eq

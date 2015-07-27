@@ -18,6 +18,13 @@ name mk_unique(name_set const & s, name const & suggestion) {
     }
 }
 
+name_set to_name_set(buffer<name> const & ns) {
+    name_set r;
+    for (name const & n : ns)
+        r.insert(n);
+    return r;
+}
+
 DECL_UDATA(name_set)
 static int mk_name_set(lua_State * L) {
     name_set r;

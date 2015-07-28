@@ -194,4 +194,9 @@
            'hott)
           (t 'standard))))
 
+(defun lean-in-comment-p ()
+  "t if a current point is inside of comment block
+   nil otherwise"
+  (nth 4 (syntax-ppss)))
+
 (provide 'lean-util)

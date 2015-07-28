@@ -145,6 +145,23 @@ will be flushed everytime it's executed."
     (set-process-coding-system p 'utf-8 'utf-8)
     (set-process-query-on-exit-flag p nil)))
 
+(defun lean-show-goal-at-pos ()
+  "Show goal at the current point. If the current point is a
+placeholder, call lean-server with --hole option, otherwise call
+  lean-server with --goal option"
+  (interactive)
+  (cond ((and (eq (char-after) ?_)               ;; 1. at _
+              (not (lean-in-comment-p))          ;; 2. not in comment
+              (or (bolp)                         ;; 3. either beginning of line
+                  (let ((cb (char-before)))      ;;    or whitespace
+                    (or (char-equal cb ?\s)
+                        (char-equal cb ?\t)
+                        (char-equal cb ?\n)
+                        (char-equal cb ?\r))))
+              (lean-exec-at-pos "lean-hole" "*Lean Goal*" "--hole"))
+         (t
+          (lean-exec-at-pos "lean-goal" "*Lean Goal*" "--goal"))))
+
 (defun lean-std-exe ()
   (interactive)
   (lean-execute))
@@ -186,11 +203,7 @@ will be flushed everytime it's executed."
   (local-set-key "\C-c\C-r"  'lean-server-restart-process)
   (local-set-key "\M-."      'lean-find-tag)
   (local-set-key (kbd "TAB") 'lean-tab-indent-or-complete)
-  (lean-define-key-binding "\C-c\C-p"
-                           '(lean-exec-at-pos "lean-hole" "*Lean Goal*" "--hole"))
-  (lean-define-key-binding "\C-c\C-g"
-                           '(lean-exec-at-pos "lean-goal" "*Lean Goal*" "--goal"))
-  )
+  (lean-define-key-binding "\C-c\C-g" '(lean-show-goal-at-pos)))
 
 (defun lean-define-key-binding (key cmd)
   (local-set-key key `(lambda () (interactive) ,cmd)))

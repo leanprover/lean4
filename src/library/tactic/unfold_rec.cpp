@@ -397,6 +397,7 @@ public:
 
 optional<expr> unfold_rec(environment const & env, name_generator && ngen, bool force_unfold, expr const & e, list<name> const & to_unfold,
                           occurrence const & occs) {
+    lean_assert(std::all_of(to_unfold.begin(), to_unfold.end(), [&](name const & n) { return env.get(n).is_definition(); }));
     try {
         expr r = unfold_rec_fn(env, std::move(ngen), force_unfold, to_unfold, occs)(e);
         if (r == e)

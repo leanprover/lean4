@@ -629,6 +629,15 @@ class rewrite_fn {
     };
 
     optional<expr> reduce(expr const & e, list<name> const & to_unfold, optional<occurrence> const & occs, bool force_unfold) {
+        for (name const & n : to_unfold) {
+            if (!m_env.get(n).is_definition()) {
+                if (m_ps.report_failure()) {
+                    throw_rewrite_exception(sstream() << "invalid 'unfold', '" << n << "' is not a definition");
+                } else {
+                    return none_expr();
+                }
+            }
+        }
         constraint_seq cs;
         bool unfolded = !to_unfold;
         bool use_eta  = true;

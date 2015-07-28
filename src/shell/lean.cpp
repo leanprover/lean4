@@ -38,6 +38,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp.h"
 #include "frontends/lean/server.h"
 #include "frontends/lean/dependencies.h"
+#include "frontends/lean/opt_cmd.h"
 #include "init/init.h"
 #include "shell/emscripten.h"
 #include "shell/simple_pos_info_provider.h"
@@ -366,9 +367,8 @@ int main(int argc, char ** argv) {
         }
     }
 
-    if (show_goal) {
-        std::cout << "SHOW GOAL @ " << *line << " : " << *column << "\n";
-        exit(0);
+    if (show_goal && line && column) {
+        opts = set_show_goal(opts, *line, *column);
     }
 
     #if !defined(LEAN_MULTI_THREAD)

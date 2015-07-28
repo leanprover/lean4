@@ -27,6 +27,16 @@ class elaborator_context {
     bool                      m_fail_missing_field;
     bool                      m_lift_coercions;
     friend class elaborator;
+
+    bool     m_show_goal_at;
+    unsigned m_show_goal_line;
+    unsigned m_show_goal_col;
+
+    /** \brief Support for showing information using hot-keys */
+    void init_options(options const & opts);
+    bool has_show_goal_at(unsigned & line, unsigned & col) const;
+    void reset_show_goal_at();
+
 public:
     elaborator_context(environment const & env, io_state const & ios, local_decls<level> const & lls,
                        pos_info_provider const * pp = nullptr, info_manager * info = nullptr, bool check_unassigned = true);

@@ -153,7 +153,10 @@ will be flushed everytime it's executed."
   (local-set-key "\C-c\C-f"  'lean-fill-placeholder)
   (local-set-key "\C-c\C-r"  'lean-server-restart-process)
   (local-set-key "\M-."      'lean-find-tag)
-  (local-set-key (kbd "TAB") 'lean-tab-indent-or-complete))
+  (local-set-key (kbd "TAB") 'lean-tab-indent-or-complete)
+  (lean-define-key-binding "\C-c\C-g"
+                           '(lean-exec-at-pos "lean-goal" "*Lean Goal*" "--goal"))
+  )
 
 (defun lean-define-key-binding (key cmd)
   (local-set-key key `(lambda () (interactive) ,cmd)))

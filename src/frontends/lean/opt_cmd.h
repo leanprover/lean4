@@ -1,0 +1,15 @@
+/*
+Copyright (c) 2015 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
+#pragma once
+#include "util/sexpr/options.h"
+
+namespace lean {
+// We use options to communicate auxiliary commands set by the lean.exe frontend.
+
+options set_show_goal(options const & opts, unsigned line, unsigned col);
+bool has_show_goal(options const & opts, unsigned & line, unsigned & col);
+}

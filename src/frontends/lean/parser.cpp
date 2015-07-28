@@ -50,6 +50,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parse_rewrite_tactic.h"
 #include "frontends/lean/update_environment_exception.h"
 #include "frontends/lean/local_ref_info.h"
+#include "frontends/lean/opt_cmd.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -101,6 +102,15 @@ parser::undef_id_to_local_scope::undef_id_to_local_scope(parser & p):
 
 static name * g_tmp_prefix = nullptr;
 
+void parser::init_stop_at(options const & opts) {
+    unsigned col;
+    if (has_show_goal(opts, m_stop_at_line, col)) {
+        m_stop_at      = true;
+    } else {
+        m_stop_at      = false;
+    }
+}
+
 parser::parser(environment const & env, io_state const & ios,
                std::istream & strm, char const * strm_name,
                bool use_exceptions, unsigned num_threads,
@@ -114,6 +124,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_local_decls_size_at_beg_cmd = 0;
     m_in_backtick = false;
     m_profile     = ios.get_options().get_bool("profile", false);
+    init_stop_at(ios.get_options());
     if (num_threads > 1 && m_profile)
         throw exception("option --profile cannot be used when theorems are compiled in parallel");
     m_has_params = false;
@@ -1830,6 +1841,9 @@ bool parser::parse_commands() {
 #endif
         }
         while (!done) {
+            if (m_stop_at && pos().first > m_stop_at_line) {
+                throw interrupt_parser();
+            }
             protected_call([&]() {
                     check_interrupted();
                     switch (curr()) {

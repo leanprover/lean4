@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/sexpr/option_declarations.h"
 #include "frontends/lean/elaborator_context.h"
+#include "frontends/lean/opt_cmd.h"
 
 #ifndef LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES
 #define LEAN_DEFAULT_ELABORATOR_LOCAL_INSTANCES true
@@ -71,6 +72,30 @@ elaborator_context::elaborator_context(environment const & env, io_state const &
     m_flycheck_goals      = get_elaborator_flycheck_goals(ios.get_options());
     m_fail_missing_field  = get_elaborator_fail_missing_field(ios.get_options());
     m_lift_coercions      = get_elaborator_lift_coercions(ios.get_options());
+    init_options(ios.get_options());
+}
+
+void elaborator_context::init_options(options const & opts) {
+    if (has_show_goal(opts, m_show_goal_line, m_show_goal_col)) {
+        m_show_goal_at = true;
+    } else {
+        m_show_goal_at = false;
+    }
+
+}
+
+bool elaborator_context::has_show_goal_at(unsigned & line, unsigned & col) const {
+    if (m_show_goal_at) {
+        line = m_show_goal_line;
+        col  = m_show_goal_col;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void elaborator_context::reset_show_goal_at() {
+    m_show_goal_at = false;
 }
 
 void initialize_elaborator_context() {

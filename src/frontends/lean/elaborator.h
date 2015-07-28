@@ -186,6 +186,8 @@ class elaborator : public coercion_info_manager {
     expr visit_obtain_expr(expr const & e, constraint_seq & cs);
 
     void check_used_local_tactic_hints();
+
+    void show_goal(proof_state const & ps, expr const & end, expr const & curr);
 public:
     elaborator(elaborator_context & ctx, name_generator && ngen, bool nice_mvar_names = false);
     std::tuple<expr, level_param_names> operator()(list<expr> const & ctx, expr const & e, bool _ensure_type);

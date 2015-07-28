@@ -1808,11 +1808,36 @@ static void extract_begin_end_tactics(expr pre_tac, buffer<expr> & pre_tac_seq) 
     }
 }
 
+void elaborator::show_goal(proof_state const & ps, expr const & end, expr const & curr) {
+    unsigned line, col;
+    if (!m_ctx.has_show_goal_at(line, col))
+        return;
+    auto end_pos  = pip()->get_pos_info(end);
+    auto curr_pos = pip()->get_pos_info(curr);
+    if (!end_pos || !curr_pos)
+        return;
+    if (end_pos->first < line || (end_pos->first == line && end_pos->second < col))
+        return;
+    if (curr_pos->first < line || (curr_pos->first == line && curr_pos->second < col))
+        return;
+    m_ctx.reset_show_goal_at();
+    goals const & gs = ps.get_goals();
+    auto out = regular(env(), ios());
+    out << "LEAN_GOAL_INFORMATION\n";
+    if (empty(gs)) {
+        out << "no goals\n";
+    } else {
+        out << head(gs) << "\n";
+    }
+    out << "END_LEAN_GOAL_INFORMATION\n";
+}
+
 bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac) {
     lean_assert(is_begin_end_annotation(pre_tac));
     buffer<expr> pre_tac_seq;
     extract_begin_end_tactics(get_annotation_arg(pre_tac), pre_tac_seq);
     for (expr ptac : pre_tac_seq) {
+        show_goal(ps, pre_tac, ptac);
         if (is_begin_end_annotation(ptac)) {
             goals gs = ps.get_goals();
             if (!gs)
@@ -1865,6 +1890,7 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
             }
         }
     }
+    show_goal(ps, pre_tac, pre_tac);
 
     if (!empty(ps.get_goals())) {
         display_unsolved_subgoals(mvar, ps, pre_tac);

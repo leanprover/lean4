@@ -147,6 +147,10 @@ class parser {
     // auxiliary field used to record the size of m_local_decls before a command is executed.
     unsigned               m_local_decls_size_at_beg_cmd;
 
+    // stop at line/col
+    bool                   m_stop_at; // if true, then parser stops execution after the given line and column is reached
+    unsigned               m_stop_at_line;
+
     void display_warning_pos(unsigned line, unsigned pos);
     void display_error_pos(unsigned line, unsigned pos);
     void display_error_pos(pos_info p);
@@ -247,6 +251,8 @@ class parser {
     expr parse_tactic_id_list();
     expr parse_tactic_opt_id_list();
     expr parse_tactic_using_expr();
+
+    void init_stop_at(options const & opts);
 
 public:
     parser(environment const & env, io_state const & ios,

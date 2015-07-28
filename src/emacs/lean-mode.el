@@ -1,6 +1,7 @@
 ;;; lean-mode.el --- Emacs mode for Lean theorem prover
 ;;
 ;; Copyright (c) 2013, 2014 Microsoft Corporation. All rights reserved.
+;; Copyright (c) 2015, 2014 Soonho Kong. All rights reserved.
 ;;
 ;; Author: Leonardo de Moura <leonardo@microsoft.com>
 ;;         Soonho Kong       <soonhok@cs.cmu.edu>
@@ -53,20 +54,43 @@
               (or arg "")
               (shell-quote-argument (f-full target-file-name))))))
 
+(defvar g-lean-exec-at-pos-buf ""
+  "Temp buffer to save the output from lean server (for lean-exec-at-pos)")
+
+(defun lean-exec-at-pos-extract-body (str)
+  "Extract the body of LEAN_INFORMATION"
+  (let*
+      ((begin-regex (rx line-start "LEAN_INFORMATION" (* not-newline) line-end))
+       (end-regex   (rx line-start (group "END_LEAN_INFORMATION") line-end))
+       (pre-body-post
+        (lean-server-split-buffer str begin-regex end-regex))
+       (body (cadr pre-body-post))
+       (lines (s-lines body)))
+    (s-join "\n" (-butlast (-drop 1 lines)))))
+
 (defun lean-exec-at-pos-sentinel (process event)
   "Sentinel function used for lean-exec-at-pos. It does the two
   things: A. display the process buffer, B. scroll to the top"
   (when (eq (process-status process) 'exit)
     (let ((b (process-buffer process)))
+      (with-current-buffer b
+        (insert-string (lean-exec-at-pos-extract-body
+                        g-lean-exec-at-pos-buf)))
       (display-buffer b)
       ;; Temporary Hack to scroll to the top
       ;; See https://github.com/leanprover/lean/issues/499#issuecomment-125285231
       (set-window-point (get-buffer-window b) 0))))
 
+(defun lean-exec-at-pos-filter (process string)
+  "Filter function for lean-exec-at-pos. It append the string to
+  g-lean-exec-at-pos-buf variable"
+  (setq g-lean-exec-at-pos-buf (s-append string g-lean-exec-at-pos-buf)))
+
 (defun lean-exec-at-pos (process-name process-buffer-name &rest options)
   "Execute Lean by providing current position with optional
 agruments. The output goes to 'process-buffer-name' buffer, which
 will be flushed everytime it's executed."
+  (setq g-lean-exec-at-pos-buf "")
   ;; Kill process-name if exists
   (let ((current-process (get-process process-name)))
     (when current-process
@@ -109,6 +133,7 @@ will be flushed everytime it's executed."
                                cache-option
                                `(,target-file-name)))
          (p (apply 'start-process process-args)))
+    (set-process-filter p 'lean-exec-at-pos-filter)
     (set-process-sentinel p 'lean-exec-at-pos-sentinel)
     (set-process-coding-system p 'utf-8 'utf-8)
     (set-process-query-on-exit-flag p nil)))

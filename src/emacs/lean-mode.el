@@ -59,14 +59,20 @@
 
 (defun lean-exec-at-pos-extract-body (str)
   "Extract the body of LEAN_INFORMATION"
-  (let*
-      ((begin-regex (rx line-start "LEAN_INFORMATION" (* not-newline) line-end))
-       (end-regex   (rx line-start (group "END_LEAN_INFORMATION") line-end))
-       (pre-body-post
-        (lean-server-split-buffer str begin-regex end-regex))
-       (body (cadr pre-body-post))
-       (lines (s-lines body)))
-    (s-join "\n" (-butlast (-drop 1 lines)))))
+  (let ((header "LEAN_INFORMATION")
+        (footer "END_LEAN_INFORMATION"))
+    (cond
+     ((and (s-contains? header str)
+           (s-contains? footer str))
+      (let*
+          ((begin-regex (eval `(rx line-start ,header (* not-newline) line-end)))
+           (end-regex   (eval `(rx line-start (group ,footer) line-end)))
+           (pre-body-post
+            (lean-server-split-buffer str begin-regex end-regex))
+           (body (cadr pre-body-post))
+           (lines (s-lines body)))
+        (s-join "\n" (-butlast (-drop 1 lines)))))
+     (t ""))))
 
 (defun lean-exec-at-pos-sentinel (process event)
   "Sentinel function used for lean-exec-at-pos. It does the two

@@ -160,7 +160,7 @@
 (defconst lean-info-font-lock-defaults
   (let ((new-entries
          `(;; Please add more after this:
-           (,(rx word-start (group (+ wordchar)) word-end (+ white) ":")
+           (,(rx (group (+ symbol-start (+ (or word (char ?₁ ?₂ ?₃ ?₄ ?₅ ?₆ ?₇ ?₈ ?₉ ?₀))) symbol-end (* white))) ":")
             (1 'font-lock-variable-name-face))
            (,(rx white ":" white)
             . 'font-lock-keyword-face)

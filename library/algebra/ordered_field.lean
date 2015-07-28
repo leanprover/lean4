@@ -266,10 +266,23 @@ section linear_ordered_field
     exact mul_lt_mul_of_pos_right H (div_pos_of_pos Hc)
   end
 
+
+  theorem div_le_div_of_le_of_pos (H : a ≤ b) (Hc : 0 < c) : a / c ≤ b / c :=
+    begin
+      rewrite [{a/c}div_eq_mul_one_div, {b/c}div_eq_mul_one_div],
+      exact mul_le_mul_of_nonneg_right H (le_of_lt (div_pos_of_pos Hc))
+    end
+
   theorem div_lt_div_of_lt_of_neg (H : b < a) (Hc : c < 0) : a / c < b / c :=
   begin
     rewrite [{a/c}div_eq_mul_one_div, {b/c}div_eq_mul_one_div],
     exact mul_lt_mul_of_neg_right H (div_neg_of_neg Hc)
+  end
+
+  theorem div_le_div_of_le_of_neg (H : b ≤ a) (Hc : c < 0) : a / c ≤ b / c :=
+  begin
+    rewrite [{a/c}div_eq_mul_one_div, {b/c}div_eq_mul_one_div],
+    exact mul_le_mul_of_nonpos_right H (le_of_lt (div_neg_of_neg Hc))
   end
 
   theorem two_ne_zero : (1 : A) + 1 ≠ 0 :=
@@ -311,6 +324,7 @@ theorem nonneg_le_nonneg_of_squares_le  (Ha : a ≥ 0) (Hb : b ≥ 0) (H : a * a
     calc
       a / (1 + 1) < a / (1 + 1) + a / (1 + 1) : lt_add_of_pos_left Ha
               ... = a : add_halves
+
 
 end linear_ordered_field
 

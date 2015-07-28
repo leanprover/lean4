@@ -74,6 +74,7 @@
   (when (eq (process-status process) 'exit)
     (let ((b (process-buffer process)))
       (with-current-buffer b
+        (lean-info-mode)
         (insert-string (lean-exec-at-pos-extract-body
                         g-lean-exec-at-pos-buf)))
       (display-buffer b)

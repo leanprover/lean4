@@ -190,11 +190,16 @@ void parser::add_abbrev_index(name const & a, name const & d) {
 }
 
 bool parser::are_info_lines_valid(unsigned start_line, unsigned end_line) const {
-    if (!m_info_manager)
-        return true; // we are not tracking info
-    for (unsigned i = start_line; i <= end_line; i++)
-        if (m_info_manager->is_invalidated(i))
+    if (m_stop_at) {
+        if (start_line <= m_stop_at_line && m_stop_at_line <= end_line)
             return false;
+    }
+    if (m_info_manager) {
+        // we are tracking info
+        for (unsigned i = start_line; i <= end_line; i++)
+            if (m_info_manager->is_invalidated(i))
+                return false;
+    }
     return true;
 }
 

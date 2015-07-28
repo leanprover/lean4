@@ -1,1 +1,1 @@
-unfold_crash.lean:8:2: error: invalid 'begin-end' expression, ',' expected
+unfold_crash.lean:8:9: error: invalid 'unfold', 'nat.succ' is not a definition

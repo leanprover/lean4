@@ -160,7 +160,7 @@ placeholder, call lean-server with --hole option, otherwise call
                         (char-equal cb ?\r))))
               (lean-exec-at-pos "lean-hole" "*Lean Goal*" "--hole"))
          (t
-          (lean-exec-at-pos "lean-goal" "*Lean Goal*" "--goal"))))
+          (lean-exec-at-pos "lean-goal" "*Lean Goal*" "--goal")))))
 
 (defun lean-std-exe ()
   (interactive)

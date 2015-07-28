@@ -439,6 +439,12 @@ hypothesis bdd : ub bound
 
 parameter floor : ℝ → int
 parameter ceil : ℝ → int
+hypothesis floor_spec : ∀ x : ℝ, of_rat (of_int (floor x)) ≤ x
+hypothesis ceil_spec : ∀ x : ℝ, of_rat (of_int (ceil x)) ≥ x
+hypothesis floor_succ : ∀ x : ℝ, int.lt (floor (x - 1)) (floor x)
+hypothesis ceil_succ : ∀ x : ℝ, int.lt (ceil x) (ceil (x + 1))
+
+include inh bdd floor_spec ceil_spec floor_succ ceil_succ
 
 definition avg (a b : ℚ) := a / 2 + b / 2
 
@@ -448,13 +454,60 @@ definition bisect (ab : ℚ × ℚ) :=
   else
     (avg (pr1 ab) (pr2 ab), pr2 ab)
 
+set_option pp.coercions true
+
 definition under : ℚ := of_int (floor (elt - 1))
 
-theorem under_spec : ¬ ub under := sorry
+theorem under_spec1 : of_rat under < elt :=
+  let fs := floor_succ in
+  have H : of_rat under < of_rat (of_int (floor elt)), begin
+    apply of_rat_lt_of_rat_of_lt,
+    apply iff.mpr !of_int_lt_of_int,
+    apply fs
+  end,
+  lt_of_lt_of_le H !floor_spec
+
+
+theorem not_forall_of_exists_not {A : Type} {P : A → Prop} (H : ∃ a : A, ¬ P a) : ¬ ∀ a : A, P a := sorry
+
+theorem under_spec : ¬ ub under :=
+  using inh,
+  using floor_spec,
+  using floor_succ,
+  begin
+    rewrite ↑ub,
+    apply not_forall_of_exists_not,
+    existsi elt,
+    apply iff.mpr not_implies_iff_and_not,
+    apply and.intro,
+    apply inh,
+    apply not_le_of_gt under_spec1
+  end
 
 definition over : ℚ := of_int (ceil (bound + 1)) -- b
 
-theorem over_spec : ub over := sorry
+theorem over_spec1 : bound < of_rat over :=
+  let cs := ceil_succ in
+  have H : of_rat (of_int (ceil bound)) < of_rat over, begin
+    apply of_rat_lt_of_rat_of_lt,
+    apply iff.mpr !of_int_lt_of_int,
+    apply cs
+  end,
+  lt_of_le_of_lt !ceil_spec H
+
+theorem over_spec : ub over :=
+  using bdd,
+  using ceil_spec,
+  using ceil_succ,
+  begin
+    rewrite ↑ub,
+    intro y Hy,
+    apply le_of_lt,
+    apply lt_of_le_of_lt,
+    apply bdd,
+    apply Hy,
+    apply over_spec1
+  end
 
 definition under_seq := λ n : ℕ, pr1 (rpt bisect n (under, over)) -- A
 
@@ -465,9 +518,11 @@ definition avg_seq := λ n : ℕ, avg (over_seq n) (under_seq n) -- C
 theorem over_0 : over_seq 0 = over := rfl
 theorem under_0 : under_seq 0 = under := rfl
 
-theorem under_succ (n : ℕ) : under_seq (succ n) = (if ub (avg_seq n) then under_seq n else avg_seq n) := sorry
+theorem under_succ (n : ℕ) : under_seq (succ n) =
+        (if ub (avg_seq n) then under_seq n else avg_seq n) := sorry
 
-theorem over_succ (n : ℕ) : over_seq (succ n) = (if ub (avg_seq n) then avg_seq n else over_seq n) := sorry
+theorem over_succ (n : ℕ) : over_seq (succ n) =
+        (if ub (avg_seq n) then avg_seq n else over_seq n) := sorry
 
 theorem rat.pow_zero (a : ℚ) : rat.pow a 0 = 1 := sorry
 
@@ -538,7 +593,6 @@ theorem PB (n : ℕ) : ub (over_seq n) :=
     end)
 
 theorem under_lt_over : under < over :=
-  using X,
   begin
     cases (exists_not_of_not_forall under_spec) with [x, Hx],
     cases ((iff.mp not_implies_iff_and_not) Hx) with [HXx, Hxu],
@@ -569,13 +623,11 @@ theorem under_seq'_lt_over_seq' : ∀ m n : ℕ, under_seq' m < over_seq' n :=
 theorem under_seq'_lt_over_seq'_single : ∀ n : ℕ, under_seq' n < over_seq' n :=
   by intros; apply under_seq_lt_over_seq
 
-theorem dist_bdd_within_interval {a b lb ub : ℚ} (H : lb < ub) (Hal : lb ≤ a) (Hau : a ≤ ub) (Hbl : lb ≤ b) (Hbu : b ≤ ub) :
-        rat.abs (a - b) ≤ ub - lb := sorry
+theorem dist_bdd_within_interval {a b lb ub : ℚ} (H : lb < ub) (Hal : lb ≤ a) (Hau : a ≤ ub)
+        (Hbl : lb ≤ b) (Hbu : b ≤ ub) : rat.abs (a - b) ≤ ub - lb := sorry
 
 
 --theorem over_dist (n : ℕ) : abs (over - over_seq n) ≤ (over - under) / rat.pow 2 n := sorry
-
-theorem rat.div_le_div_of_le_of_pos {a b c : ℚ} (H : a ≤ b) (Hc : c > 0) : a / c ≤ b / c := sorry
 
 theorem under_seq_mono_helper (i k : ℕ) : under_seq i ≤ under_seq (i + k) :=
   (nat.induction_on k
@@ -633,13 +685,25 @@ theorem over_seq_mono (i j : ℕ) (H : i ≤ j) : over_seq j ≤ over_seq i :=
     apply over_seq_mono_helper
   end
 
-theorem rat_power_two_le (k : ℕ+) : rat_of_pnat k ≤ rat.pow 2 k~ := sorry
+theorem rat_of_pnat_add {k : ℕ} (H : succ k > 0) : rat_of_pnat (subtype.tag (succ k) H) = (rat.of_nat k) + 1 := sorry
 
-theorem rat_power_two_inv_ge (k : ℕ+) : 1 / rat.pow 2 k~ ≤ k⁻¹ := sorry
+theorem rat_power_two_le (k : ℕ+) : rat_of_pnat k ≤ rat.pow 2 k~ :=
+  begin
+  apply subtype.rec_on k,
+  intros n Hn,
+  induction n,
+  apply absurd Hn !nat.not_lt_self,
+  rewrite (rat_of_pnat_add Hn),
+  apply sorry
+  end
+
+theorem rat_power_two_inv_ge (k : ℕ+) : 1 / rat.pow 2 k~ ≤ k⁻¹ :=
+  rat.div_le_div_of_le !rat_of_pnat_is_pos !rat_power_two_le
 
 open s
 theorem regular_lemma_helper {s : seq} {m n : ℕ+} (Hm : m ≤ n)
-        (H : ∀ n i : ℕ+, i ≥ n → under_seq' n~ ≤ s i ∧ s i ≤ over_seq' n~) : rat.abs (s m - s n) ≤ m⁻¹ + n⁻¹ :=
+        (H : ∀ n i : ℕ+, i ≥ n → under_seq' n~ ≤ s i ∧ s i ≤ over_seq' n~) :
+        rat.abs (s m - s n) ≤ m⁻¹ + n⁻¹ :=
   begin
     cases (H m n Hm) with [T1under, T1over],
     cases (H m m (!pnat.le.refl)) with [T2under, T2over],

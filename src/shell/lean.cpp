@@ -130,6 +130,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --line=value      line number for query\n";
     std::cout << "  --col=value       column number for query\n";
     std::cout << "  --goal            display goal at close to given position\n";
+    std::cout << "  --hole            display type of the \"hole\" in the given posivition\n";
     std::cout << "  --export=file -E  export final environment as textual low-level file\n";
 }
 
@@ -179,10 +180,11 @@ static struct option g_long_options[] = {
     {"line",         required_argument, 0, 'L'},
     {"col",          required_argument, 0, 'O'},
     {"goal",         no_argument,       0, 'G'},
+    {"hole",         no_argument,       0, 'Z'},
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "PHRXFdD:qrlupgvhk:012t:012o:E:c:i:L:012O:012G"
+#define OPT_STR "PHRXFdD:qrlupgvhk:012t:012o:E:c:i:L:012O:012GZ"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -259,6 +261,7 @@ int main(int argc, char ** argv) {
     optional<unsigned> column;
     optional<std::string> export_txt;
     bool show_goal = false;
+    bool show_hole = false;
     input_kind default_k = input_kind::Unspecified;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
@@ -357,6 +360,9 @@ int main(int argc, char ** argv) {
         case 'G':
             show_goal = true;
             break;
+        case 'Z':
+            show_hole = true;
+            break;
         case 'E':
             export_txt = std::string(optarg);
             break;
@@ -367,6 +373,12 @@ int main(int argc, char ** argv) {
         }
     }
 
+    if (show_hole && line && column) {
+        opts = set_show_hole(opts, *line, *column);
+    }
+    #if defined(__GNUC__) && !defined(__CLANG__)
+    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+    #endif
     if (show_goal && line && column) {
         opts = set_show_goal(opts, *line, *column);
     }

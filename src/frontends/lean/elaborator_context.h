@@ -32,11 +32,17 @@ class elaborator_context {
     unsigned m_show_goal_line;
     unsigned m_show_goal_col;
 
+    bool     m_show_hole_at;
+    unsigned m_show_hole_line;
+    unsigned m_show_hole_col;
+
     /** \brief Support for showing information using hot-keys */
     void init_options(options const & opts);
     bool has_show_goal_at(unsigned & line, unsigned & col) const;
     void reset_show_goal_at();
 
+    bool has_show_hole_at(unsigned & line, unsigned & col) const;
+    void reset_show_hole_at();
 public:
     elaborator_context(environment const & env, io_state const & ios, local_decls<level> const & lls,
                        pos_info_provider const * pp = nullptr, info_manager * info = nullptr, bool check_unassigned = true);

@@ -154,6 +154,8 @@ will be flushed everytime it's executed."
   (local-set-key "\C-c\C-r"  'lean-server-restart-process)
   (local-set-key "\M-."      'lean-find-tag)
   (local-set-key (kbd "TAB") 'lean-tab-indent-or-complete)
+  (lean-define-key-binding "\C-c\C-p"
+                           '(lean-exec-at-pos "lean-hole" "*Lean Goal*" "--hole"))
   (lean-define-key-binding "\C-c\C-g"
                            '(lean-exec-at-pos "lean-goal" "*Lean Goal*" "--goal"))
   )

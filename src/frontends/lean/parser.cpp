@@ -106,6 +106,8 @@ void parser::init_stop_at(options const & opts) {
     unsigned col;
     if (has_show_goal(opts, m_stop_at_line, col)) {
         m_stop_at      = true;
+    } else if (has_show_hole(opts, m_stop_at_line, col)) {
+        m_stop_at      = true;
     } else {
         m_stop_at      = false;
     }

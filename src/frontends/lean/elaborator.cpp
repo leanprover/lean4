@@ -225,6 +225,16 @@ void elaborator::save_placeholder_info(expr const & e, expr const & r) {
         save_type_data(e, r);
         save_synth_data(e, r);
     }
+    unsigned line, col;
+    if (m_ctx.has_show_hole_at(line, col)) {
+        if (auto p = pip()->get_pos_info(e)) {
+            if (p->first == line && p->second == col) {
+                m_to_show_hole = r;
+                m_to_show_hole_ref = e;
+                m_ctx.reset_show_goal_at();
+            }
+        }
+    }
 }
 
 /** \brief Auxiliary function for saving information about which coercion was used by the elaborator.
@@ -247,13 +257,23 @@ void elaborator::erase_coercion_info(expr const & e) {
     }
 }
 
-void elaborator::copy_info_to_manager(substitution s) {
-    if (!infom())
-        return;
-    m_pre_info_data.instantiate(s);
-    bool overwrite = true;
-    infom()->merge(m_pre_info_data, overwrite);
-    m_pre_info_data.clear();
+void elaborator::instantiate_info(substitution s) {
+    if (m_to_show_hole) {
+        expr meta      = s.instantiate(*m_to_show_hole);
+        expr meta_type = s.instantiate(type_checker(env()).infer(meta).first);
+        goal g(meta, meta_type);
+        proof_state ps(goals(g), s, m_ngen, constraints());
+        auto out = regular(env(), ios());
+        out << "LEAN_HOLE_INFORMATION\n";
+        out << ps.pp(env(), ios()) << endl;
+        out << "END_LEAN_HOLE_INFORMATION\n";
+    }
+    if (infom()) {
+        m_pre_info_data.instantiate(s);
+        bool overwrite = true;
+        infom()->merge(m_pre_info_data, overwrite);
+        m_pre_info_data.clear();
+    }
 }
 
 optional<name> elaborator::mk_mvar_suffix(expr const & b) {
@@ -2129,7 +2149,7 @@ auto elaborator::operator()(list<expr> const & ctx, expr const & e, bool _ensure
     substitution s = p->first.first;
     auto result = apply(s, r);
     check_sort_assignments(s);
-    copy_info_to_manager(s);
+    instantiate_info(s);
     check_used_local_tactic_hints();
     return result;
 }
@@ -2156,7 +2176,7 @@ std::tuple<expr, expr, level_param_names> elaborator::operator()(expr const & t,
     expr new_r_t = apply(s, r_t, univ_params, new_params);
     expr new_r_v = apply(s, r_v, univ_params, new_params);
     check_sort_assignments(s);
-    copy_info_to_manager(s);
+    instantiate_info(s);
     check_used_local_tactic_hints();
     return std::make_tuple(new_r_t, new_r_v, to_list(new_params.begin(), new_params.end()));
 }
@@ -2231,7 +2251,7 @@ elaborate_result elaborator::elaborate_nested(list<expr> const & ctx, optional<e
     r = new_subst.instantiate_all(r);
     r = solve_unassigned_mvars(new_subst, r);
     rcs = map(rcs, [&](constraint const & c) { return instantiate_metavars(c, new_subst); });
-    copy_info_to_manager(new_subst);
+    instantiate_info(new_subst);
     if (report_unassigned)
         display_unassigned_mvars(r, new_subst);
     if (expected_type) {

@@ -82,6 +82,11 @@ void elaborator_context::init_options(options const & opts) {
         m_show_goal_at = false;
     }
 
+    if (has_show_hole(opts, m_show_hole_line, m_show_hole_col)) {
+        m_show_hole_at = true;
+    } else {
+        m_show_hole_at = false;
+    }
 }
 
 bool elaborator_context::has_show_goal_at(unsigned & line, unsigned & col) const {
@@ -96,6 +101,20 @@ bool elaborator_context::has_show_goal_at(unsigned & line, unsigned & col) const
 
 void elaborator_context::reset_show_goal_at() {
     m_show_goal_at = false;
+}
+
+bool elaborator_context::has_show_hole_at(unsigned & line, unsigned & col) const {
+    if (m_show_hole_at) {
+        line = m_show_hole_line;
+        col  = m_show_hole_col;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void elaborator_context::reset_show_hole_at() {
+    m_show_hole_at = false;
 }
 
 void initialize_elaborator_context() {

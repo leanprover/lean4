@@ -133,8 +133,7 @@ bool is_quotient_decl(environment const & env, name const & n) {
     if (!get_extension(env).m_initialized)
         return false;
     return
-        n == *g_propext || n == *g_quotient || n == *g_quotient_lift || n == *g_quotient_ind || n == *g_quotient_mk ||
-        n == *g_quotient_sound;
+        n == *g_quotient || n == *g_quotient_lift || n == *g_quotient_ind || n == *g_quotient_mk;
 }
 
 void initialize_quotient_module() {

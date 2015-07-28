@@ -142,10 +142,8 @@ bool is_hits_decl(environment const & env, name const & n) {
         return false;
     return
         n == *g_trunc || n == *g_trunc_tr || n == *g_trunc_rec ||
-        n == *g_trunc_is_trunc_trunc ||
         n == *g_hit_quotient || n == *g_hit_quotient_class_of ||
-        n == *g_hit_quotient_rec || n == *g_hit_quotient_eq_of_rel ||
-        n == *g_hit_quotient_rec_eq_of_rel;
+        n == *g_hit_quotient_rec;
 }
 
 void initialize_hits_module() {

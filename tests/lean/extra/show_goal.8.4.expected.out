@@ -1,0 +1,6 @@
+LEAN_INFORMATION
+a b c d : ℕ,
+h₁ : a + b = 0,
+h₂ : b = 0
+⊢ a = 0
+END_LEAN_INFORMATION

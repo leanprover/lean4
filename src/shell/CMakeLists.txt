@@ -52,8 +52,11 @@ add_test(NAME "issue_597"
 add_test(NAME "issue_616"
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
          COMMAND bash "./issue_616.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
+add_test(NAME "show_goal"
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
+         COMMAND bash "./show_goal.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
 if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
-  # The following test cannot be executed on Windows because of the 
+  # The following test cannot be executed on Windows because of the
   # bash script timeout.sh
   add_test(NAME "normalizer_perf"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"

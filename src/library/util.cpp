@@ -118,6 +118,11 @@ bool has_lift_decls(environment const & env) {
     return has_constructor(env, get_lift_up_name(), get_lift_name(), 2);
 }
 
+// n is considered to be recursive if it is an inductive datatype and
+// 1) It has a constructor that takes n as an argument
+// 2) It is part of a mutually recursive declaration, and some constructor
+//    of an inductive datatype takes another inductive datatype from the
+//    same declaration as an argument.
 bool is_recursive_datatype(environment const & env, name const & n) {
     optional<inductive::inductive_decls> decls = inductive::is_inductive_decl(env, n);
     if (!decls)
@@ -127,7 +132,15 @@ bool is_recursive_datatype(environment const & env, name const & n) {
             expr type = inductive::intro_rule_type(intro);
             while (is_pi(type)) {
                 if (find(binding_domain(type), [&](expr const & e, unsigned) {
-                            return is_constant(e) && const_name(e) == n; })) {
+                            if (is_constant(e)) {
+                                name const & c = const_name(e);
+                                for (auto const & d : std::get<2>(*decls)) {
+                                    if (inductive::inductive_decl_name(d) == c)
+                                        return true;
+                                }
+                            }
+                            return false;
+                        })) {
                     return true;
                 }
                 type = binding_body(type);

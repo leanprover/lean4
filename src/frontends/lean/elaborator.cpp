@@ -1857,7 +1857,6 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
     buffer<expr> pre_tac_seq;
     extract_begin_end_tactics(get_annotation_arg(pre_tac), pre_tac_seq);
     for (expr ptac : pre_tac_seq) {
-        show_goal(ps, pre_tac, ptac);
         if (is_begin_end_annotation(ptac)) {
             goals gs = ps.get_goals();
             if (!gs)
@@ -1870,6 +1869,7 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
                 return false;
             ps = proof_state(ps, tail(gs), subst, ngen);
         } else {
+            show_goal(ps, pre_tac, ptac);
             expr new_ptac = subst.instantiate_all(ptac);
             if (auto tac = pre_tactic_to_tactic(new_ptac)) {
                 try {

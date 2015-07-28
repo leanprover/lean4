@@ -132,6 +132,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --goal            display goal at close to given position\n";
     std::cout << "  --hole            display type of the \"hole\" in the given posivition\n";
     std::cout << "  --export=file -E  export final environment as textual low-level file\n";
+    std::cout << "  --export-all=file -A  export final environment (and all dependencies) as textual low-level file\n";
 }
 
 static char const * get_file_extension(char const * fname) {
@@ -160,6 +161,7 @@ static struct option g_long_options[] = {
     {"githash",      no_argument,       0, 'g'},
     {"output",       required_argument, 0, 'o'},
     {"export",       required_argument, 0, 'E'},
+    {"export-all",   required_argument, 0, 'A'},
     {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
     {"discard",      no_argument,       0, 'r'},
@@ -184,7 +186,7 @@ static struct option g_long_options[] = {
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "PHRXFdD:qrlupgvhk:012t:012o:E:c:i:L:012O:012GZ"
+#define OPT_STR "PHRXFdD:qrlupgvhk:012t:012o:E:c:i:L:012O:012GZA"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -261,6 +263,7 @@ int main(int argc, char ** argv) {
     optional<unsigned> line;
     optional<unsigned> column;
     optional<std::string> export_txt;
+    optional<std::string> export_all_txt;
     bool show_goal = false;
     bool show_hole = false;
     input_kind default_k = input_kind::Unspecified;
@@ -367,6 +370,9 @@ int main(int argc, char ** argv) {
             break;
         case 'E':
             export_txt = std::string(optarg);
+            break;
+        case 'A':
+            export_all_txt = std::string(optarg);
             break;
         default:
             std::cerr << "Unknown command line option\n";
@@ -517,6 +523,10 @@ int main(int argc, char ** argv) {
         if (export_txt) {
             std::ofstream out(*export_txt);
             export_module_as_lowtext(out, env);
+        }
+        if (export_all_txt) {
+            std::ofstream out(*export_all_txt);
+            export_all_as_lowtext(out, env);
         }
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {

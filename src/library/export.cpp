@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <unordered_map>
 #include "kernel/expr_maps.h"
+#include "kernel/for_each_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "library/max_sharing.h"
 #include "library/module.h"
@@ -22,10 +23,20 @@ using name_hmap = typename std::unordered_map<name, T, name_hash, name_eq>;
 class exporter {
     std::ostream &        m_out;
     environment           m_env;
+    bool                  m_all;
+    name_set              m_exported;
     max_sharing_fn        m_max_sharing;
     name_hmap<unsigned>   m_name2idx;
     level_map<unsigned>   m_level2idx;
     expr_map<unsigned>    m_expr2idx;
+
+    void mark(name const & n) {
+        m_exported.insert(n);
+    }
+
+    bool already_exported(name const & n) {
+        return m_exported.contains(n);
+    }
 
     unsigned export_name(name const & n) {
         auto it = m_name2idx.find(n);
@@ -172,9 +183,28 @@ class exporter {
         return export_expr(m_max_sharing(unfold_all_macros(m_env, e)));
     }
 
+    void export_dependencies(expr const & e) {
+        for_each(e, [&](expr const & e, unsigned) {
+                if (is_constant(e)) {
+                    name const & n = const_name(e);
+                    if (!inductive::is_intro_rule(m_env, n) &&
+                        !inductive::is_elim_rule(m_env, n))
+                        export_declaration(n);
+                }
+                return true;
+            });
+    }
+
     void export_definition(declaration const & d) {
+        if (already_exported(d.get_name()))
+            return;
+        mark(d.get_name());
         unsigned n = export_name(d.get_name());
         buffer<unsigned> ps;
+        if (m_all) {
+            export_dependencies(d.get_type());
+            export_dependencies(d.get_value());
+        }
         for (name const & p : d.get_univ_params())
             ps.push_back(export_name(p));
         unsigned t = export_root_expr(d.get_type());
@@ -186,8 +216,13 @@ class exporter {
     }
 
     void export_axiom(declaration const & d) {
+        if (already_exported(d.get_name()))
+            return;
+        mark(d.get_name());
         unsigned n = export_name(d.get_name());
         buffer<unsigned> ps;
+        if (m_all)
+            export_dependencies(d.get_type());
         for (name const & p : d.get_univ_params())
             ps.push_back(export_name(p));
         unsigned t = export_root_expr(d.get_type());
@@ -198,8 +233,19 @@ class exporter {
     }
 
     void export_inductive(name const & n) {
+        if (already_exported(n))
+            return;
+        mark(n);
         std::tuple<level_param_names, unsigned, list<inductive::inductive_decl>> decls =
             *inductive::is_inductive_decl(m_env, n);
+        if (m_all) {
+            for (inductive::inductive_decl const & d : std::get<2>(decls)) {
+                export_dependencies(inductive::inductive_decl_type(d));
+                for (inductive::intro_rule const & c : inductive::inductive_decl_intros(d)) {
+                    export_dependencies(inductive::intro_rule_type(c));
+                }
+            }
+        }
         for (name const & p : std::get<0>(decls))
             export_name(p);
         for (inductive::inductive_decl const & d : std::get<2>(decls)) {
@@ -241,8 +287,9 @@ class exporter {
         buffer<name> ns;
         to_buffer(get_curr_module_decl_names(m_env), ns);
         std::reverse(ns.begin(), ns.end());
-        for (name const & n : ns)
+        for (name const & n : ns) {
             export_declaration(n);
+        }
     }
 
     void export_direct_imports() {
@@ -270,18 +317,23 @@ class exporter {
     }
 
 public:
-    exporter(std::ostream & out, environment const & env):m_out(out), m_env(env) {}
+    exporter(std::ostream & out, environment const & env, bool all):m_out(out), m_env(env), m_all(all) {}
 
     void operator()() {
         m_name2idx.insert(mk_pair(name(), 0));
         m_level2idx.insert(mk_pair(level(), 0));
-        export_direct_imports();
+        if (!m_all)
+            export_direct_imports();
         export_global_universes();
         export_declarations();
     }
 };
 
 void export_module_as_lowtext(std::ostream & out, environment const & env) {
-    exporter(out, env)();
+    exporter(out, env, false)();
+}
+
+void export_all_as_lowtext(std::ostream & out, environment const & env) {
+    exporter(out, env, true)();
 }
 }

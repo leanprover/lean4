@@ -250,7 +250,8 @@ int main(int argc, char ** argv) {
     bool server             = false;
     bool only_deps          = false;
     unsigned num_threads    = 1;
-    bool use_cache          = false;
+    bool read_cache         = false;
+    bool save_cache         = false;
     bool gen_index          = false;
     keep_theorem_mode tmode = keep_theorem_mode::All;
     options opts;
@@ -312,7 +313,8 @@ int main(int argc, char ** argv) {
             break;
         case 'c':
             cache_name = optarg;
-            use_cache  = true;
+            read_cache = true;
+            save_cache = true;
             break;
         case 'i':
             index_name = optarg;
@@ -374,13 +376,15 @@ int main(int argc, char ** argv) {
     }
 
     if (show_hole && line && column) {
-        opts = set_show_hole(opts, *line, *column);
+        opts       = set_show_hole(opts, *line, *column);
+        save_cache = false;
     }
     #if defined(__GNUC__) && !defined(__CLANG__)
     #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     #endif
     if (show_goal && line && column) {
-        opts = set_show_goal(opts, *line, *column);
+        opts       = set_show_goal(opts, *line, *column);
+        save_cache = false;
     }
 
     #if !defined(LEAN_MULTI_THREAD)
@@ -423,7 +427,7 @@ int main(int argc, char ** argv) {
     set_io_state    set2(S, ios);
     definition_cache   cache;
     definition_cache * cache_ptr = nullptr;
-    if (use_cache) {
+    if (read_cache) {
         try {
             cache_ptr = &cache;
             std::ifstream in(cache_name, std::ifstream::binary);
@@ -497,7 +501,7 @@ int main(int argc, char ** argv) {
             if (!Sv(std::cin))
                 ok = false;
         }
-        if (use_cache) {
+        if (save_cache) {
             std::ofstream out(cache_name, std::ofstream::binary);
             cache.save(out);
         }

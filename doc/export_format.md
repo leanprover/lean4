@@ -150,6 +150,10 @@ The command `#DI` is the direct import, it instructs the reader to import the fi
 the hierarchical name `nidx`. The command `#RI` is the relative import, the integer represents how many `../` should be added the path
 represented by the hierarchical name `nidx`.
 
+Optionally, we may request Lean to generate self contained export
+files that include any declaration the exported module depends on. In
+this case, the exported file does not include `#DI` or `#RI` commands.
+
 Global universe level declaration
 ---------------------------------
 
@@ -270,5 +274,8 @@ is encoded by the following sequence of commands
 Exporting declarations
 ----------------------
 
-The command line option `-E filename` is used to export declarations
-in the format described above.
+The command line option `-E filename` (or `--export=filename`) is used
+to export declarations in the format described above.  The command
+line option `-A filename` (or `--export-all=filename`) produces a self
+contained export file that contains any declaration the `.lean` or
+`.hlean` file depends on.

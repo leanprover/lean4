@@ -297,8 +297,6 @@ section field
   theorem div_div_div_div (Hb : b ≠ 0) (Hc : c ≠ 0) (Hd : d ≠ 0) : (a / b) / (c / d) = (a * d) / (b * c) :=
     by rewrite [(div_div_eq_mul_div Hc Hd), (div_mul_eq_mul_div), (div_div_eq_div_mul Hb Hc)]
 
-  -- remaining to transfer from Isabelle fields: ordered fields
-
 end field
 
 structure discrete_field [class] (A : Type) extends field A :=

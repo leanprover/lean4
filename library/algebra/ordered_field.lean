@@ -297,6 +297,12 @@ section linear_ordered_field
       ... = (a * 2) / 2           : by rewrite left_distrib
       ... = a                     : by rewrite [@mul_div_cancel A _ _ _ two_ne_zero]
 
+  theorem sub_self_div_two : a - a / 2 = a / 2 :=
+    by rewrite [-{a}add_halves at {1}, add_sub_cancel]
+
+  theorem div_two_sub_self : a / 2 - a = - (a / 2) :=
+    by rewrite [-{a}add_halves at {2}, sub_add_eq_sub_sub, sub_self, zero_sub]
+
 theorem nonneg_le_nonneg_of_squares_le  (Ha : a ≥ 0) (Hb : b ≥ 0) (H : a * a ≤ b * b) : a ≤ b :=
   begin
     apply le_of_not_gt,

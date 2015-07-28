@@ -654,6 +654,21 @@ section
       apply abs_add_le_abs_add_abs,
       apply le.refl
     end
+
+theorem dist_bdd_within_interval {a b lb ub : A} (H : lb < ub) (Hal : lb ≤ a) (Hau : a ≤ ub)
+        (Hbl : lb ≤ b) (Hbu : b ≤ ub) : abs (a - b) ≤ ub - lb :=
+  begin
+    cases (decidable.em (b ≤ a)) with [Hba, Hba],
+    rewrite (abs_of_nonneg (iff.mpr !sub_nonneg_iff_le Hba)),
+    apply sub_le_sub,
+    apply Hau,
+    apply Hbl,
+    rewrite [abs_of_neg (iff.mpr !sub_neg_iff_lt (lt_of_not_ge Hba)), neg_sub],
+    apply sub_le_sub,
+    apply Hbu,
+    apply Hal
+  end
+
   end
 end
 

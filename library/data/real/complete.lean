@@ -623,10 +623,6 @@ theorem under_seq'_lt_over_seq' : ∀ m n : ℕ, under_seq' m < over_seq' n :=
 theorem under_seq'_lt_over_seq'_single : ∀ n : ℕ, under_seq' n < over_seq' n :=
   by intros; apply under_seq_lt_over_seq
 
-theorem dist_bdd_within_interval {a b lb ub : ℚ} (H : lb < ub) (Hal : lb ≤ a) (Hau : a ≤ ub)
-        (Hbl : lb ≤ b) (Hbu : b ≤ ub) : rat.abs (a - b) ≤ ub - lb := sorry
-
-
 --theorem over_dist (n : ℕ) : abs (over - over_seq n) ≤ (over - under) / rat.pow 2 n := sorry
 
 theorem under_seq_mono_helper (i k : ℕ) : under_seq i ≤ under_seq (i + k) :=
@@ -708,7 +704,7 @@ theorem regular_lemma_helper {s : seq} {m n : ℕ+} (Hm : m ≤ n)
     cases (H m n Hm) with [T1under, T1over],
     cases (H m m (!pnat.le.refl)) with [T2under, T2over],
     apply rat.le.trans,
-    apply dist_bdd_within_interval,
+    apply rat.dist_bdd_within_interval,
     apply under_seq'_lt_over_seq'_single,
     rotate 1,
     repeat assumption,

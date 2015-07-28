@@ -1,4 +1,5 @@
 LEAN_INFORMATION
+position 7:2
 a b c d : ℕ,
 h₁ : a + b = 0,
 h₂ : b = 0

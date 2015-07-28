@@ -1,0 +1,16 @@
+LEAN_INFORMATION
+position 677:47
+A : Type,
+decA : decidable_eq A,
+ex_of_subcount_eq_ff :
+  ∀ {l₁ l₂ : list A},
+    subcount l₁ l₂ = ff → (∃ (a : A), ¬list.count a l₁ ≤ list.count a l₂),
+a : A,
+l₁ l₂ : list A,
+h : subcount (a :: l₁) l₂ = ff,
+i : list.count a (a :: l₁) ≤ list.count a l₂,
+this : subcount l₁ l₂ = ff,
+ih : ∃ (a : A), ¬list.count a l₁ ≤ list.count a l₂,
+hw : ¬list.count a l₁ ≤ list.count a l₂
+⊢ ¬list.count a (a :: l₁) ≤ list.count a l₂
+END_LEAN_INFORMATION

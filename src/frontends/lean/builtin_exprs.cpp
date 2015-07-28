@@ -128,18 +128,21 @@ static expr parse_placeholder(parser & p, unsigned, expr const *, pos_info const
 static expr parse_by(parser & p, unsigned, expr const *, pos_info const & pos) {
     p.next();
     expr t = p.parse_tactic();
+    p.update_pos(t, pos);
     return p.mk_by(t, pos);
 }
 
 static expr parse_by_plus(parser & p, unsigned, expr const *, pos_info const & pos) {
     p.next();
     expr t = p.parse_tactic();
+    p.update_pos(t, pos);
     return p.mk_by_plus(t, pos);
 }
 
-static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & end_token, bool plus, bool nested = false) {
+static expr parse_begin_end_core(parser & p, pos_info const & start_pos,
+                                 name const & end_token, bool plus, bool nested = false) {
     if (!p.has_tactic_decls())
-        throw parser_error("invalid 'begin-end' expression, tactic module has not been imported", pos);
+        throw parser_error("invalid 'begin-end' expression, tactic module has not been imported", start_pos);
     p.next();
     optional<expr> pre_tac = get_begin_end_pre_tactic(p.env());
     buffer<expr> tacs;
@@ -280,10 +283,10 @@ static expr parse_begin_end_core(parser & p, pos_info const & pos, name const & 
     if (tacs.size() == 1) {
         // Hack: for having a uniform squiggle placement for unsolved goals.
         // That is, the result is always of the form and_then(...).
-        r = p.mk_app({get_and_then_tac_fn(), r, mk_begin_end_element_annotation(get_id_tac_fn())}, end_pos);
+        r = p.mk_app({get_and_then_tac_fn(), r, mk_begin_end_element_annotation(get_id_tac_fn())}, start_pos);
     }
     for (unsigned i = 1; i < tacs.size(); i++) {
-        r = p.mk_app({get_and_then_tac_fn(), r, tacs[i]}, end_pos);
+        r = p.mk_app({get_and_then_tac_fn(), r, tacs[i]}, start_pos);
     }
     r = p.save_pos(mk_begin_end_annotation(r), end_pos);
     if (nested)

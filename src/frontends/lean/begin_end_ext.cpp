@@ -72,8 +72,8 @@ typedef scoped_ext<be_config> begin_end_ext;
 static name * g_begin_end = nullptr;
 static name * g_begin_end_element = nullptr;
 
-expr mk_begin_end_annotation(expr const & e) { return mk_annotation(*g_begin_end, e); }
-expr mk_begin_end_element_annotation(expr const & e) { return mk_annotation(*g_begin_end_element, e); }
+expr mk_begin_end_annotation(expr const & e) { return mk_annotation(*g_begin_end, e, nulltag); }
+expr mk_begin_end_element_annotation(expr const & e) { return mk_annotation(*g_begin_end_element, e, nulltag); }
 bool is_begin_end_annotation(expr const & e) { return is_annotation(e, *g_begin_end); }
 bool is_begin_end_element_annotation(expr const & e) { return is_annotation(e, *g_begin_end_element); }
 

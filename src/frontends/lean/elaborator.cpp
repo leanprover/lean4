@@ -1784,6 +1784,7 @@ bool elaborator::try_using(substitution & subst, expr const & mvar, proof_state 
     lean_assert(length(ps.get_goals()) == 1);
     // make sure ps is a really a proof state for mvar.
     lean_assert(mlocal_name(get_app_fn(head(ps.get_goals()).get_meta())) == mlocal_name(mvar));
+    show_goal(ps, pre_tac, pre_tac, pre_tac);
     try {
         proof_state_seq seq = tac(env(), ios(), ps);
         auto r = seq.pull();
@@ -1828,13 +1829,16 @@ static void extract_begin_end_tactics(expr pre_tac, buffer<expr> & pre_tac_seq) 
     }
 }
 
-void elaborator::show_goal(proof_state const & ps, expr const & end, expr const & curr) {
+void elaborator::show_goal(proof_state const & ps, expr const & start, expr const & end, expr const & curr) {
     unsigned line, col;
     if (!m_ctx.has_show_goal_at(line, col))
         return;
-    auto end_pos  = pip()->get_pos_info(end);
-    auto curr_pos = pip()->get_pos_info(curr);
-    if (!end_pos || !curr_pos)
+    auto start_pos = pip()->get_pos_info(start);
+    auto end_pos   = pip()->get_pos_info(end);
+    auto curr_pos  = pip()->get_pos_info(curr);
+    if (!start_pos || !end_pos || !curr_pos)
+        return;
+    if (start_pos->first > line || (start_pos->first == line && start_pos->second > col))
         return;
     if (end_pos->first < line || (end_pos->first == line && end_pos->second < col))
         return;
@@ -1844,6 +1848,7 @@ void elaborator::show_goal(proof_state const & ps, expr const & end, expr const 
     goals const & gs = ps.get_goals();
     auto out = regular(env(), ios());
     out << "LEAN_INFORMATION\n";
+    out << "position " << curr_pos->first << ":" << curr_pos->second << "\n";
     if (empty(gs)) {
         out << "no goals\n";
     } else {
@@ -1854,6 +1859,8 @@ void elaborator::show_goal(proof_state const & ps, expr const & end, expr const 
 
 bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac) {
     lean_assert(is_begin_end_annotation(pre_tac));
+    expr end_expr   = pre_tac;
+    expr start_expr = get_annotation_arg(pre_tac);
     buffer<expr> pre_tac_seq;
     extract_begin_end_tactics(get_annotation_arg(pre_tac), pre_tac_seq);
     for (expr ptac : pre_tac_seq) {
@@ -1869,7 +1876,7 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
                 return false;
             ps = proof_state(ps, tail(gs), subst, ngen);
         } else {
-            show_goal(ps, pre_tac, ptac);
+            show_goal(ps, start_expr, end_expr, ptac);
             expr new_ptac = subst.instantiate_all(ptac);
             if (auto tac = pre_tactic_to_tactic(new_ptac)) {
                 try {
@@ -1910,7 +1917,7 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
             }
         }
     }
-    show_goal(ps, pre_tac, pre_tac);
+    show_goal(ps, start_expr, end_expr, end_expr);
 
     if (!empty(ps.get_goals())) {
         display_unsolved_subgoals(mvar, ps, pre_tac);

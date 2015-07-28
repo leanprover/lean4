@@ -27,7 +27,7 @@ rinv : func ∘ finv = function.id
              (eq.symm rinv))
           (eq.symm (function.compose.assoc finv func finv)))
        (function.compose.assoc (finv ∘ func) finv func)) = id
-550.lean:43:47: error: don't know how to synthesize placeholder
+550.lean:43:44: error: don't know how to synthesize placeholder
 A : Type,
 f : bijection A,
 func finv : A → A,

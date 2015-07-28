@@ -366,6 +366,12 @@ expr parser::save_pos(expr e, pos_info p) {
     return e;
 }
 
+expr parser::update_pos(expr e, pos_info p) {
+    auto t = get_tag(e);
+    m_pos_table.insert(t, p);
+    return e;
+}
+
 expr parser::rec_save_pos(expr const & e, pos_info p) {
     unsigned m = std::numeric_limits<unsigned>::max();
     pos_info dummy(m, 0);

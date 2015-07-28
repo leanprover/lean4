@@ -264,9 +264,9 @@ void elaborator::instantiate_info(substitution s) {
         goal g(meta, meta_type);
         proof_state ps(goals(g), s, m_ngen, constraints());
         auto out = regular(env(), ios());
-        out << "LEAN_HOLE_INFORMATION\n";
+        out << "LEAN_INFORMATION\n";
         out << ps.pp(env(), ios()) << endl;
-        out << "END_LEAN_HOLE_INFORMATION\n";
+        out << "END_LEAN_INFORMATION\n";
     }
     if (infom()) {
         m_pre_info_data.instantiate(s);
@@ -1843,13 +1843,13 @@ void elaborator::show_goal(proof_state const & ps, expr const & end, expr const 
     m_ctx.reset_show_goal_at();
     goals const & gs = ps.get_goals();
     auto out = regular(env(), ios());
-    out << "LEAN_GOAL_INFORMATION\n";
+    out << "LEAN_INFORMATION\n";
     if (empty(gs)) {
         out << "no goals\n";
     } else {
         out << head(gs) << "\n";
     }
-    out << "END_LEAN_GOAL_INFORMATION\n";
+    out << "END_LEAN_INFORMATION\n";
 }
 
 bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac) {

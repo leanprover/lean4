@@ -407,7 +407,6 @@ theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
     apply rat.le.refl
   end
 
-
 --------------------------------------------------
 -- supremum property
 -- this development roughly follows the proof of completeness done in Isabelle.
@@ -415,6 +414,9 @@ theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
 section supremum
 open prod nat
 local postfix `~` := nat_of_pnat
+
+-- The top part of this section could be refactored. What is the appropriate place to define
+-- bounds, supremum, etc? In algebra/ordered_field? They potentially apply to more than just ℝ.
 
 local notation 2 := (1 : ℚ) + 1
 parameter X : ℝ → Prop
@@ -433,6 +435,7 @@ hypothesis inh :  X elt
 parameter bound : ℝ
 hypothesis bdd : ub bound
 
+-- floor and ceil should be defined directly. I'm not sure of the best way to do this yet.
 parameter floor : ℝ → int
 parameter ceil : ℝ → int
 hypothesis floor_spec : ∀ x : ℝ, of_rat (of_int (floor x)) ≤ x
@@ -465,18 +468,14 @@ set_option pp.coercions true
 definition under : ℚ := of_int (floor (elt - 1))
 
 theorem under_spec1 : of_rat under < elt :=
-  let fs := floor_succ in
   have H : of_rat under < of_rat (of_int (floor elt)), begin
     apply of_rat_lt_of_rat_of_lt,
     apply iff.mpr !of_int_lt_of_int,
-    apply fs
+    apply floor_succ
   end,
   lt_of_lt_of_le H !floor_spec
 
 theorem under_spec : ¬ ub under :=
-  using inh,
-  using floor_spec,
-  using floor_succ,
   begin
     rewrite ↑ub,
     apply not_forall_of_exists_not,
@@ -490,18 +489,14 @@ theorem under_spec : ¬ ub under :=
 definition over : ℚ := of_int (ceil (bound + 1)) -- b
 
 theorem over_spec1 : bound < of_rat over :=
-  let cs := ceil_succ in
   have H : of_rat (of_int (ceil bound)) < of_rat over, begin
     apply of_rat_lt_of_rat_of_lt,
     apply iff.mpr !of_int_lt_of_int,
-    apply cs
+    apply ceil_succ
   end,
   lt_of_le_of_lt !ceil_spec H
 
 theorem over_spec : ub over :=
-  using bdd,
-  using ceil_spec,
-  using ceil_succ,
   begin
     rewrite ↑ub,
     intro y Hy,
@@ -555,57 +550,40 @@ theorem over_succ (n : ℕ) : over_seq (succ n) =
     apply H
   end
 
--- rat.pow_zero refers to algebra.pow?
-theorem rat.pow_zero (a : ℚ) : rat.pow a 0 = 1 := sorry
-
-theorem rat.pow_pos {a : ℚ} (H : a > 0) (n : ℕ) : rat.pow a n > 0 := sorry
-
-theorem rat.pow_one (a : ℚ) : rat.pow a 1 = a := sorry
-
-theorem rat.pow_add (a : ℚ) (m : ℕ) : ∀ n, rat.pow a (m + n) = rat.pow a m * rat.pow a n := sorry
-
-theorem div_two_sub_self (a : ℚ) : a / 2 - a = - (a / 2) := sorry
-
-theorem sub_self_div_two (a : ℚ) : a - a / 2 = a / 2 := sorry
-
-theorem rat.div_sub_div_same (a b c : ℚ) : (a / c) - (b / c) = (a - b) / c := sorry
+-- ???
+theorem rat.pow_add (a : ℚ) (m : ℕ) : ∀ n, rat.pow a (m + n) = rat.pow a m * rat.pow a n := rat.pow_add a m
 
 theorem width (n : ℕ) : over_seq n - under_seq n = (over - under) / (rat.pow 2 n) :=
   nat.induction_on n
-    (by rewrite [over_0, under_0, rat.pow_zero, rat.div_one])
+    (by xrewrite [over_0, under_0, rat.pow_zero, rat.div_one])
     (begin
       intro a Ha,
       rewrite [over_succ, under_succ],
       let Hou := calc
         (over_seq a) / 2 - (under_seq a) / 2 = ((over - under) / rat.pow 2 a) / 2 : by rewrite [rat.div_sub_div_same, Ha]
         ... = (over - under) / (rat.pow 2 a * 2) : rat.div_div_eq_div_mul (rat.ne_of_gt (rat.pow_pos dec_trivial _)) dec_trivial
-        ... = (over - under) / rat.pow 2 (a + 1) : by rewrite  rat.pow_add,
+        ... = (over - under) / rat.pow 2 (a + 1) : by rewrite rat.pow_add,
       cases (decidable.em (ub (avg_seq a))),
-      rewrite [*if_pos a_1, -add_one, -Hou, ↑avg_seq, ↑avg, rat.add.assoc, div_two_sub_self],
-      rewrite [*if_neg a_1, -add_one, -Hou, ↑avg_seq, ↑avg, rat.sub_add_eq_sub_sub, sub_self_div_two]
+      rewrite [*if_pos a_1, -add_one, -Hou, ↑avg_seq, ↑avg, rat.add.assoc, rat.div_two_sub_self],
+      rewrite [*if_neg a_1, -add_one, -Hou, ↑avg_seq, ↑avg, rat.sub_add_eq_sub_sub, rat.sub_self_div_two]
     end)
 
-
-
 theorem binary_nat_bound (a : ℕ) : of_nat a ≤ (rat.pow 2 a) :=
-  nat.induction_on a (rat.zero_le_one) (begin apply sorry end)
+  nat.induction_on a (rat.zero_le_one)
+   (take n, assume Hn,
+    calc
+     of_nat (succ n) = (of_nat n) + 1 : of_nat_add
+       ... ≤ rat.pow 2 n + 1 : rat.add_le_add_right Hn
+       ... ≤ rat.pow 2 n + rat.pow 2 n : rat.add_le_add_left (rat.pow_ge_one_of_ge_one rat.two_ge_one _)
+       ... = rat.pow 2 (succ n) : rat.pow_two_add)
 
 theorem binary_bound (a : ℚ) : ∃ n : ℕ, a ≤ rat.pow 2 n :=
   exists.intro (ubound a) (calc
       a ≤ of_nat (ubound a) : ubound_ge
     ... ≤ rat.pow 2 (ubound a) : binary_nat_bound)
 
-theorem rat_of_pnat_add {k : ℕ} (H : succ k > 0) : rat_of_pnat (subtype.tag (succ k) H) = (rat.of_nat k) + 1 := sorry
-
 theorem rat_power_two_le (k : ℕ+) : rat_of_pnat k ≤ rat.pow 2 k~ :=
-  begin
-  apply subtype.rec_on k,
-  intros n Hn,
-  induction n,
-  apply absurd Hn !nat.not_lt_self,
-  rewrite (rat_of_pnat_add Hn),
-  apply sorry
-  end
+  !binary_nat_bound
 
 theorem width_narrows : ∃ n : ℕ, over_seq n - under_seq n ≤ 1 :=
   begin
@@ -626,9 +604,26 @@ definition over_seq' := λ n, over_seq (n + some width_narrows)
 
 definition under_seq' := λ n, under_seq (n + some width_narrows)
 
-theorem width' (n : ℕ) : over_seq' n - under_seq' n ≤ 1 / rat.pow 2 n := sorry
+theorem over_seq'0 : over_seq' 0 = over' :=
+  by rewrite [↑over_seq', nat.zero_add]
 
---theorem twos (y r : ℚ) (H : 0 < r) : ∃ n : ℕ, y / (rat.pow 2 n) < r := sorry
+theorem under_seq'0 : under_seq' 0 = under' :=
+  by rewrite [↑under_seq', nat.zero_add]
+
+theorem under_over' : over' - under' ≤ 1 := some_spec width_narrows
+
+theorem width' (n : ℕ) : over_seq' n - under_seq' n ≤ 1 / rat.pow 2 n :=
+  nat.induction_on n
+    (begin
+      xrewrite [over_seq'0, under_seq'0, rat.pow_zero, rat.div_one],
+      apply under_over'
+    end)
+    (begin
+      intros a Ha,
+      rewrite [↑over_seq' at *, ↑under_seq' at *, *succ_add at *, width at *,
+              -add_one, -(add_one a), rat.pow_add, rat.pow_add _ a 1, *rat.pow_one],
+      apply rat.div_mul_le_div_mul_of_div_le_div_pos' Ha dec_trivial
+    end)
 
 theorem PA (n : ℕ) : ¬ ub (under_seq n) :=
   nat.induction_on n
@@ -687,8 +682,6 @@ theorem under_seq'_lt_over_seq' : ∀ m n : ℕ, under_seq' m < over_seq' n :=
 theorem under_seq'_lt_over_seq'_single : ∀ n : ℕ, under_seq' n < over_seq' n :=
   by intros; apply under_seq_lt_over_seq
 
---theorem over_dist (n : ℕ) : abs (over - over_seq n) ≤ (over - under) / rat.pow 2 n := sorry
-
 theorem under_seq_mono_helper (i k : ℕ) : under_seq i ≤ under_seq (i + k) :=
   (nat.induction_on k
     (by rewrite nat.add_zero; apply rat.le.refl)
@@ -744,8 +737,6 @@ theorem over_seq_mono (i j : ℕ) (H : i ≤ j) : over_seq j ≤ over_seq i :=
     rewrite -Hk',
     apply over_seq_mono_helper
   end
-
-
 
 theorem rat_power_two_inv_ge (k : ℕ+) : 1 / rat.pow 2 k~ ≤ k⁻¹ :=
   rat.div_le_div_of_le !rat_of_pnat_is_pos !rat_power_two_le

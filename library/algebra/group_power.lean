@@ -133,4 +133,38 @@ theorem ipow_comm (a : A) (i j : ℤ) : ipow a i * ipow a j = ipow a j * ipow a 
 by rewrite [-*ipow_add, int.add.comm]
 end group
 
+section ordered_ring
+open nat
+variable [s : linear_ordered_ring A]
+include s
+
+theorem pow_pos {a : A} (H : a > 0) (n : ℕ) : pow a n > 0 :=
+  begin
+    induction n,
+    rewrite pow_zero,
+    apply zero_lt_one,
+    rewrite pow_succ,
+    apply mul_pos,
+    apply v_0, apply H
+  end
+
+theorem pow_ge_one_of_ge_one {a : A} (H : a ≥ 1) (n : ℕ) : pow a n ≥ 1 :=
+  begin
+    induction n,
+    rewrite pow_zero,
+    apply le.refl,
+    rewrite [pow_succ, -{1}mul_one],
+    apply mul_le_mul v_0 H zero_le_one,
+    apply le_of_lt,
+    apply pow_pos,
+    apply gt_of_ge_of_gt H zero_lt_one
+  end
+
+local notation 2 := (1 : A) + 1
+
+theorem pow_two_add (n : ℕ) : pow 2 n + pow 2 n = pow 2 (succ n) :=
+  by rewrite [pow_succ, left_distrib, *mul_one]
+
+end ordered_ring
+
 end algebra

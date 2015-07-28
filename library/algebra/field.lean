@@ -150,11 +150,11 @@ section division_ring
             ... = -(b * (1 / a))  : neg_mul_eq_mul_neg
             ... = - (b * a⁻¹)     : inv_eq_one_div
 
-  theorem neg_div (Ha : a ≠ 0) : (-b) / a = - (b / a) :=
+  theorem neg_div : (-b) / a = - (b / a) :=
     by rewrite [neg_eq_neg_one_mul, mul_div_assoc, -neg_eq_neg_one_mul]
 
   theorem neg_div_neg_eq_div (Hb : b ≠ 0) : (-a) / (-b) = a / b :=
-    by rewrite [(div_neg_eq_neg_div Hb), (neg_div Hb), neg_neg]
+    by rewrite [(div_neg_eq_neg_div Hb), neg_div, neg_neg]
 
   theorem div_div (H : a ≠ 0) : 1 / (1 / a) = a :=
     symm (eq_one_div_of_mul_eq_one_left (mul_one_div_cancel H))
@@ -176,6 +176,9 @@ section division_ring
     by rewrite [↑divide, mul.assoc, (inv_mul_cancel Hb), mul_one]
 
   theorem div_add_div_same : a / c + b / c = (a + b) / c := !right_distrib⁻¹
+
+  theorem div_sub_div_same : (a / c) - (b / c) = (a - b) / c :=
+    by rewrite [sub_eq_add_neg, -neg_div, div_add_div_same]
 
   theorem inv_mul_add_mul_inv_eq_inv_add_inv (Ha : a ≠ 0) (Hb : b ≠ 0) :
           (1 / a) * (a + b) * (1 / b) = 1 / a + 1 / b :=
@@ -297,6 +300,10 @@ section field
   theorem div_div_div_div (Hb : b ≠ 0) (Hc : c ≠ 0) (Hd : d ≠ 0) : (a / b) / (c / d) = (a * d) / (b * c) :=
     by rewrite [(div_div_eq_mul_div Hc Hd), (div_mul_eq_mul_div), (div_div_eq_div_mul Hb Hc)]
 
+  theorem div_mul_eq_div_mul_one_div (Hb : b ≠ 0) (Hc : c ≠ 0) : a / (b * c) = (a / b) * (1 / c) :=
+    by rewrite [-div_div_eq_div_mul Hb Hc, -div_eq_mul_one_div]
+
+
 end field
 
 structure discrete_field [class] (A : Type) extends field A :=
@@ -359,11 +366,6 @@ section discrete_field
     decidable.by_cases
       (suppose a = 0, by rewrite [this, neg_zero, 2 div_zero, neg_zero])
       (suppose a ≠ 0, one_div_neg_eq_neg_one_div this)
-
-  theorem neg_div' : (-b) / a = - (b / a) :=
-    decidable.by_cases
-      (assume Ha : a = 0, by rewrite [Ha, 2 div_zero, neg_zero])
-      (assume Ha : a ≠ 0, neg_div Ha)
 
   theorem neg_div_neg_eq_div' : (-a) / (-b) = a / b :=
     decidable.by_cases
@@ -445,6 +447,9 @@ section discrete_field
 
   theorem div_helper (H : a ≠ 0) : (1 / (a * b)) * a = 1 / b :=
     by rewrite [div_mul_eq_mul_div, one_mul, (div_mul_right' H)]
+
+  theorem div_mul_eq_div_mul_one_div' : a / (b * c) = (a / b) * (1 / c) :=
+    by rewrite [-div_div_eq_div_mul', -div_eq_mul_one_div]
 
 end discrete_field
 

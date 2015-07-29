@@ -292,6 +292,26 @@ theorem canon_bound {s : seq} (Hs : regular s) (n : ℕ+) : abs (s n) ≤ rat_of
     ... = of_nat (ubound (abs (s pone)) + (1 + 1)) : of_nat_add
     ... = of_nat (ubound (abs (s pone)) + 1 + 1) : nat.add.assoc
 
+theorem bdd_of_regular {s : seq} (H : regular s) : ∃ b : ℚ, ∀ n : ℕ+, s n ≤ b :=
+  begin
+    existsi rat_of_pnat (K s),
+    intros,
+    apply rat.le.trans,
+    apply le_abs_self,
+    apply canon_bound H
+  end
+
+theorem bdd_of_regular_strict {s : seq} (H : regular s) : ∃ b : ℚ, ∀ n : ℕ+, s n < b :=
+  begin
+    cases bdd_of_regular H with [b, Hb],
+    existsi b + 1,
+    intro n,
+    apply rat.lt_of_le_of_lt,
+    apply Hb,
+    apply rat.lt_add_of_pos_right,
+    apply rat.zero_lt_one
+  end
+
 definition K₂ (s t : seq) := max (K s) (K t)
 
 theorem K₂_symm (s t : seq) : K₂ s t = K₂ t s :=

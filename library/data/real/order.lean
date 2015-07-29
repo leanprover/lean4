@@ -990,6 +990,19 @@ theorem lt_of_const_lt_const {a b : ℚ} (H : s_lt (const a) (const b)) : a < b 
     apply pnat.inv_pos
   end
 
+theorem s_le_of_le_pointwise {s t : seq} (Hs : regular s) (Ht : s.regular t)
+        (H : ∀ n : ℕ+, s n ≤ t n) : s_le s t :=
+  begin
+    rewrite [↑s_le, ↑nonneg, ↑sadd, ↑sneg],
+    intros,
+    apply rat.le.trans,
+    apply iff.mpr !neg_nonpos_iff_nonneg,
+    apply le_of_lt,
+    apply inv_pos,
+    apply iff.mpr !sub_nonneg_iff_le,
+    apply H
+  end
+
 -------- lift to reg_seqs
 definition r_lt (s t : reg_seq) := s_lt (reg_seq.sq s) (reg_seq.sq t)
 definition r_le (s t : reg_seq) := s_le (reg_seq.sq s) (reg_seq.sq t)

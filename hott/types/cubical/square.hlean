@@ -11,9 +11,9 @@ open eq equiv is_equiv
 namespace eq
 
   variables {A B : Type} {a a' a'' a₀₀ a₂₀ a₄₀ a₀₂ a₂₂ a₂₄ a₀₄ a₄₂ a₄₄ a₁ a₂ a₃ a₄ : A}
-            /-a₀₀-/ {p₁₀ : a₀₀ = a₂₀} /-a₂₀-/ {p₃₀ : a₂₀ = a₄₀} /-a₄₀-/
-       {p₀₁ : a₀₀ = a₀₂} /-s₁₁-/ {p₂₁ : a₂₀ = a₂₂} /-s₃₁-/ {p₄₁ : a₄₀ = a₄₂}
-            /-a₀₂-/ {p₁₂ : a₀₂ = a₂₂} /-a₂₂-/ {p₃₂ : a₂₂ = a₄₂} /-a₄₂-/
+            /-a₀₀-/ {p₁₀ p₁₀' : a₀₀ = a₂₀} /-a₂₀-/ {p₃₀ : a₂₀ = a₄₀} /-a₄₀-/
+       {p₀₁ p₀₁' : a₀₀ = a₀₂} /-s₁₁-/ {p₂₁ p₂₁' : a₂₀ = a₂₂} /-s₃₁-/ {p₄₁ : a₄₀ = a₄₂}
+            /-a₀₂-/ {p₁₂ p₁₂' : a₀₂ = a₂₂} /-a₂₂-/ {p₃₂ : a₂₂ = a₄₂} /-a₄₂-/
        {p₀₃ : a₀₂ = a₀₄} /-s₁₃-/ {p₂₃ : a₂₂ = a₂₄} /-s₃₃-/ {p₄₃ : a₄₂ = a₄₄}
             /-a₀₄-/ {p₁₄ : a₀₄ = a₂₄} /-a₂₄-/ {p₃₄ : a₂₄ = a₄₄} /-a₄₄-/
 
@@ -134,6 +134,10 @@ namespace eq
   definition square_of_eq_top (r : p₁₀ = p₀₁ ⬝ p₁₂ ⬝ p₂₁⁻¹) : square p₁₀ p₁₂ p₀₁ p₂₁ :=
   by induction p₂₁; induction p₁₂; esimp at r;induction r;induction p₁₀;exact ids
 
+  definition eq_bottom_of_square [unfold 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
+    : p₁₂ = p₀₁⁻¹ ⬝ p₁₀ ⬝ p₂₁ :=
+  by induction s₁₁; apply idp
+
   definition square_equiv_eq [constructor] (t : a₀₀ = a₀₂) (b : a₂₀ = a₂₂)
     (l : a₀₀ = a₂₀) (r : a₀₂ = a₂₂) : square t b l r ≃ t ⬝ r = l ⬝ b :=
   begin
@@ -157,7 +161,8 @@ namespace eq
   definition eq_of_vdeg_square [reducible] {p q : a = a'} (s : square p q idp idp) : p = q :=
   to_fun !vdeg_square_equiv' s
 
-  definition top_deg_square (l : a₁ = a₂) (b : a₂ = a₃) (r : a₄ = a₃) : square (l ⬝ b ⬝ r⁻¹) b l r :=
+  definition top_deg_square (l : a₁ = a₂) (b : a₂ = a₃) (r : a₄ = a₃)
+    : square (l ⬝ b ⬝ r⁻¹) b l r :=
   by induction r;induction b;induction l;constructor
 
   /-
@@ -186,7 +191,7 @@ namespace eq
   -- example (p q : a = a') : to_inv (hdeg_square_equiv' p q) = hdeg_square := idp -- this fails
   example (p q : a = a') : to_inv (hdeg_square_equiv p q) = hdeg_square := idp
 
-  definition pathover_eq [unfold 7] {f g : A → B} {p : a = a'} {q : f a = g a} {r : f a' = g a'}
+  definition eq_pathover [unfold 7] {f g : A → B} {p : a = a'} {q : f a = g a} {r : f a' = g a'}
     (s : square q r (ap f p) (ap g p)) : q =[p] r :=
   by induction p;apply pathover_idp_of_eq;exact eq_of_vdeg_square s
 
@@ -197,17 +202,17 @@ namespace eq
 
   /- interaction of equivalences with operations on squares -/
 
-  definition pathover_eq_equiv_square [constructor] {f g : A → B}
+  definition eq_pathover_equiv_square [constructor] {f g : A → B}
     (p : a = a') (q : f a = g a) (r : f a' = g a') : q =[p] r ≃ square q r (ap f p) (ap g p) :=
   equiv.MK square_of_pathover
-           pathover_eq
+           eq_pathover
            begin
-             intro s, induction p, esimp [square_of_pathover,pathover_eq],
+             intro s, induction p, esimp [square_of_pathover,eq_pathover],
              exact ap vdeg_square (to_right_inv !pathover_idp (eq_of_vdeg_square s))
                ⬝ to_left_inv !vdeg_square_equiv s
            end
            begin
-             intro s, induction p, esimp [square_of_pathover,pathover_eq],
+             intro s, induction p, esimp [square_of_pathover,eq_pathover],
              exact ap pathover_idp_of_eq (to_right_inv !vdeg_square_equiv (eq_of_pathover_idp s))
                ⬝ to_left_inv !pathover_idp s
            end
@@ -267,17 +272,17 @@ namespace eq
 
 
   -- the following definition is very slow, maybe it's interesting to see why?
-  -- definition pathover_eq_equiv_square' {f g : A → B}(p : a = a') (q : f a = g a) (r : f a' = g a')
+  -- definition eq_pathover_equiv_square' {f g : A → B}(p : a = a') (q : f a = g a) (r : f a' = g a')
   --   : square q r (ap f p) (ap g p) ≃ q =[p] r :=
-  -- equiv.MK pathover_eq
+  -- equiv.MK eq_pathover
   --          square_of_pathover
   --          (λs, begin
-  --                 induction p, rewrite [↑[square_of_pathover,pathover_eq],
+  --                 induction p, rewrite [↑[square_of_pathover,eq_pathover],
   --                   to_right_inv !vdeg_square_equiv (eq_of_pathover_idp s),
   --                   to_left_inv !pathover_idp s]
   --               end)
   --          (λs, begin
-  --                 induction p, rewrite [↑[square_of_pathover,pathover_eq],▸*,
+  --                 induction p, rewrite [↑[square_of_pathover,eq_pathover],▸*,
   --                   to_right_inv !(@pathover_idp A) (eq_of_vdeg_square s),
   --                   to_left_inv !vdeg_square_equiv s]
   --               end)
@@ -344,6 +349,11 @@ namespace eq
   to_left_inv (!square_equiv_eq) s ▸ !inv_inv ▸ H2
 
   --we can also do the other recursors (tl, tr, bl, br, tbl, tbr, tlr, blr), but let's postpone this until they are needed
+
+  definition whisker_square [unfold 14 15 16 17] (r₁₀ : p₁₀ = p₁₀') (r₁₂ : p₁₂ = p₁₂')
+    (r₀₁ : p₀₁ = p₀₁') (r₂₁ : p₂₁ = p₂₁') (s : square p₁₀ p₁₂ p₀₁ p₂₁)
+      : square p₁₀' p₁₂' p₀₁' p₂₁' :=
+  by induction r₁₀; induction r₁₂; induction r₀₁; induction r₂₁; exact s
 
   /- squares commute with some operations on 2-paths -/
 

@@ -105,7 +105,7 @@ namespace susp
     { intro a, induction a,
       { reflexivity},
       { reflexivity},
-      { apply pathover_eq, apply hdeg_square,
+      { apply eq_pathover, apply hdeg_square,
         rewrite [▸*,ap_compose' _ (Susp_functor f),↑Susp_functor,+elim_merid]}},
     { reflexivity}
   end
@@ -136,7 +136,7 @@ namespace susp
       refine _ ⬝ !con.assoc',
       rewrite inverse2_right_inv,
       refine _ ⬝ !con.assoc',
-      rewrite [ap_con_right_inv,↑Susp_functor,idp_con_idp,-ap_compose]},
+      rewrite [ap_con_right_inv], unfold Susp_functor, xrewrite [idp_con_idp,-ap_compose], },
   end
 
   definition loop_susp_counit [constructor] (X : Pointed) : Susp (Ω X) →* X :=
@@ -154,9 +154,9 @@ namespace susp
     { intro x', induction x' with p,
       { reflexivity},
       { reflexivity},
-      { esimp, apply pathover_eq, apply hdeg_square,
-        xrewrite [ap_compose f,ap_compose (susp.elim (f x) (f x) (λ (a : f x = f x), a)),▸*,
-                  +elim_merid,▸*,idp_con]}},
+      { esimp, apply eq_pathover, apply hdeg_square,
+        xrewrite [ap_compose f,ap_compose (susp.elim (f x) (f x) (λ (a : f x = f x), a)),▸*],
+        xrewrite [+elim_merid,▸*,idp_con]}},
     { reflexivity}
   end
 
@@ -181,7 +181,7 @@ namespace susp
     { intro x', induction x',
       { reflexivity},
       { exact merid pt},
-      { apply pathover_eq,
+      { apply eq_pathover,
         xrewrite [▸*, ap_id, ap_compose (susp.elim north north (λa, a)), +elim_merid,▸*],
         apply square_of_eq, exact !idp_con ⬝ !inv_con_cancel_right⁻¹}},
     { reflexivity}

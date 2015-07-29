@@ -11,7 +11,7 @@ import .path .equiv
 
 open equiv is_equiv equiv.ops
 
-variables {A A' : Type} {B : A → Type} {C : Πa, B a → Type}
+variables {A A' : Type} {B B' : A → Type} {C : Πa, B a → Type}
           {a a₂ a₃ a₄ : A} {p p' : a = a₂} {p₂ : a₂ = a₃} {p₃ : a₃ = a₄}
           {b b' : B a} {b₂ b₂' : B a₂} {b₃ : B a₃} {b₄ : B a₄}
           {c : C a b} {c₂ : C a₂ b₂}
@@ -240,4 +240,9 @@ namespace eq
   definition change_path (q : p = p') (r : b =[p] b₂) : b =[p'] b₂ :=
   by induction q;exact r
 
+  definition change_path_equiv (f : Π{a}, B a ≃ B' a) (r : b =[p] b₂) : f b =[p] f b₂ :=
+  by induction r;constructor
+
+  definition change_path_equiv' (f : Π{a}, B a ≃ B' a) (r : f b =[p] f b₂) : b =[p] b₂ :=
+  (left_inv f b)⁻¹ ⬝po change_path_equiv (λa, f⁻¹ᵉ) r ⬝op left_inv f b₂
 end eq

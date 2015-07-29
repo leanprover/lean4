@@ -31,8 +31,8 @@ namespace is_trunc
     fapply equiv.MK,
     { intro A, exact (⟨carrier A, struct A⟩)},
     { intro S, exact (trunctype.mk S.1 S.2)},
-    { intro S, apply (sigma.rec_on S), intro S1 S2, apply idp},
-    { intro A, apply (trunctype.rec_on A), intro A1 A2, apply idp},
+    { intro S, induction S with S1 S2, reflexivity},
+    { intro A, induction A with A1 A2, reflexivity},
   end
 
   definition trunctype_eq_equiv (n : trunc_index) (A B : n-Type) :
@@ -47,7 +47,7 @@ namespace is_trunc
   definition is_trunc_is_embedding_closed (f : A → B) [Hf : is_embedding f] [HB : is_trunc n B]
     (Hn : -1 ≤ n) : is_trunc n A :=
   begin
-    cases n with n,
+    induction n with n,
       {exact !empty.elim Hn},
       {apply is_trunc_succ_intro, intro a a',
          fapply @is_trunc_is_equiv_closed_rev _ _ n (ap f)}
@@ -57,18 +57,18 @@ namespace is_trunc
     (n : trunc_index) [HA : is_trunc n A] : is_trunc n B :=
   begin
     revert A B f Hf HA,
-    eapply (trunc_index.rec_on n),
-    { clear n, intro A B f Hf HA, cases Hf with g ε, fapply is_contr.mk,
+    induction n with n IH,
+    { intro A B f Hf HA, induction Hf with g ε, fapply is_contr.mk,
       { exact f (center A)},
       { intro b, apply concat,
         { apply (ap f), exact (center_eq (g b))},
         { apply ε}}},
-    { clear n, intro n IH A B f Hf HA, cases Hf with g ε,
+    { intro A B f Hf HA, induction Hf with g ε,
       apply is_trunc_succ_intro, intro b b',
       fapply (IH (g b = g b')),
       { intro q, exact ((ε b)⁻¹ ⬝ ap f q ⬝ ε b')},
       { apply (is_retraction.mk (ap g)),
-        { intro p, cases p, {rewrite [↑ap, con.left_inv]}}},
+        { intro p, induction p, {rewrite [↑ap, con.left_inv]}}},
       { apply is_trunc_eq}}
   end
 
@@ -82,7 +82,7 @@ namespace is_trunc
       {apply equiv.symm, apply trunctype_eq_equiv},
     fapply is_trunc_equiv_closed,
       {apply equiv.symm, apply eq_equiv_equiv},
-    cases n,
+    induction n,
       {apply @is_contr_of_inhabited_hprop,
         {apply is_trunc_is_embedding_closed,
           {apply is_embedding_to_fun} ,
@@ -143,7 +143,7 @@ namespace is_trunc
   begin
     apply is_trunc_succ_intro, intros a a',
     apply is_trunc_of_imp_is_trunc_of_leq Hn, intro p,
-    cases p, apply Hp
+    induction p, apply Hp
   end
 
   definition is_trunc_succ_iff_is_trunc_loop (A : Type) (Hn : -1 ≤ n) :
@@ -176,7 +176,7 @@ namespace is_trunc
   definition is_trunc_iff_is_contr_loop (n : ℕ) (A : Type)
     : is_trunc (n.-2.+1) A ↔ (Π(a : A), is_contr (Ω[n](pointed.Mk a))) :=
   begin
-    cases n with n,
+    induction n with n,
     { esimp [sub_two,Iterated_loop_space], apply iff.intro,
         intro H a, exact is_contr_of_inhabited_hprop a,
         intro H, apply is_hprop_of_imp_is_contr, exact H},
@@ -193,7 +193,7 @@ namespace trunc
 
   protected definition encode (n : trunc_index) (aa aa' : trunc n.+1 A) : aa = aa' → trunc.code n aa aa' :=
   begin
-    intro p, cases p, apply (trunc.rec_on aa),
+    intro p, induction p, apply (trunc.rec_on aa),
     intro a, esimp [trunc.code,trunc.rec_on], exact (tr idp)
   end
 
@@ -212,8 +212,10 @@ namespace trunc
     { apply trunc.decode},
     { eapply (trunc.rec_on aa'), eapply (trunc.rec_on aa),
       intro a a' x, esimp [trunc.code, trunc.rec_on] at x,
-      apply (trunc.rec_on x), intro p, cases p, exact idp},
-    { intro p, cases p, apply (trunc.rec_on aa), intro a, exact idp},
+      refine (@trunc.rec_on n _ _ x _ _),
+        intro x, apply is_trunc_eq,
+        intro p, induction p, reflexivity},
+    { intro p, induction p, apply (trunc.rec_on aa), intro a, exact idp},
   end
 
   definition tr_eq_tr_equiv (n : trunc_index) (a a' : A)
@@ -226,7 +228,7 @@ namespace trunc
     revert A m H, eapply (trunc_index.rec_on n),
     { clear n, intro A m H, apply is_contr_equiv_closed,
       { apply equiv_trunc, apply (@is_trunc_of_leq _ -2), exact unit.star} },
-    { clear n, intro n IH A m H, cases m with m,
+    { clear n, intro n IH A m H, induction m with m,
       { apply (@is_trunc_of_leq _ -2), exact unit.star},
       { apply is_trunc_succ_intro, intro aa aa',
         apply (@trunc.rec_on _ _ _ aa  (λy, !is_trunc_succ_of_is_hprop)),

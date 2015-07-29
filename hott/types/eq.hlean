@@ -220,7 +220,7 @@ namespace eq
 
   /- Path operations are equivalences -/
 
-  definition is_equiv_eq_inverse (a₁ a₂ : A) : is_equiv (@inverse A a₁ a₂) :=
+  definition is_equiv_eq_inverse (a₁ a₂ : A) : is_equiv (inverse : a₁ = a₂ → a₂ = a₁) :=
   is_equiv.mk inverse inverse inv_inv inv_inv (λp, eq.rec_on p idp)
   local attribute is_equiv_eq_inverse [instance]
 
@@ -253,7 +253,7 @@ namespace eq
   equiv.trans (equiv_eq_closed_left a₃ p) (equiv_eq_closed_right a₂ q)
 
   definition is_equiv_whisker_left (p : a₁ = a₂) (q r : a₂ = a₃)
-  : is_equiv (@whisker_left A a₁ a₂ a₃ p q r) :=
+  : is_equiv (whisker_left p : q = r → p ⬝ q = p ⬝ r) :=
   begin
   fapply adjointify,
     {intro s, apply (!cancel_left s)},
@@ -273,7 +273,7 @@ namespace eq
   equiv.mk _ !is_equiv_whisker_left
 
   definition is_equiv_whisker_right {p q : a₁ = a₂} (r : a₂ = a₃)
-    : is_equiv (λs, @whisker_right A a₁ a₂ a₃ p q s r) :=
+    : is_equiv (λs, whisker_right s r : p = q → p ⬝ r = q ⬝ r) :=
   begin
   fapply adjointify,
     {intro s, apply (!cancel_right s)},

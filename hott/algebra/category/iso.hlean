@@ -137,24 +137,27 @@ namespace iso
   include C
 
   infix `≅`:50 := iso
-  attribute iso.struct [instance] [priority 400]
+  attribute struct [instance] [priority 400]
 
   attribute to_hom [coercion]
 
   protected definition MK [constructor] (f : a ⟶ b) (g : b ⟶ a)
     (H1 : g ∘ f = id) (H2 : f ∘ g = id) :=
-  @mk _ _ _ _ f (is_iso.mk H1 H2)
+  @(mk f) (is_iso.mk H1 H2)
 
-  definition to_inv [unfold 5] (f : a ≅ b) : b ⟶ a :=
-  (to_hom f)⁻¹
+  definition to_inv [unfold 5] (f : a ≅ b) : b ⟶ a := (to_hom f)⁻¹
+  definition to_left_inverse  [unfold 5] (f : a ≅ b) : (to_hom f)⁻¹ ∘ (to_hom f) = id :=
+  left_inverse  (to_hom f)
+  definition to_right_inverse [unfold 5] (f : a ≅ b) : (to_hom f) ∘ (to_hom f)⁻¹ = id :=
+  right_inverse (to_hom f)
 
   protected definition refl [constructor] (a : ob) : a ≅ a :=
   mk (ID a)
 
-  protected definition symm ⦃a b : ob⦄ (H : a ≅ b) : b ≅ a :=
+  protected definition symm [constructor] ⦃a b : ob⦄ (H : a ≅ b) : b ≅ a :=
   mk (to_hom H)⁻¹
 
-  protected definition trans ⦃a b c : ob⦄ (H1 : a ≅ b) (H2 : b ≅ c) : a ≅ c :=
+  protected definition trans [constructor] ⦃a b c : ob⦄ (H1 : a ≅ b) (H2 : b ≅ c) : a ≅ c :=
   mk (to_hom H2 ∘ to_hom H1)
 
   definition iso_mk_eq {f f' : a ⟶ b} [H : is_iso f] [H' : is_iso f'] (p : f = f')

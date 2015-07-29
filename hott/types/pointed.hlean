@@ -67,13 +67,15 @@ namespace pointed
   -- | Iterated_loop_space A 0 := A
   -- | Iterated_loop_space A (n+1) := Iterated_loop_space (Loop_space A) n
 
-  definition Iterated_loop_space [reducible] (n : ℕ) (A : Pointed) : Pointed :=
+  definition Iterated_loop_space [unfold 1] [reducible] (n : ℕ) (A : Pointed) : Pointed :=
   nat.rec_on n (λA, A) (λn IH A, IH (Loop_space A)) A
 
   prefix `Ω`:(max+5) := Loop_space
   notation `Ω[`:95 n:0 `]`:0 A:95 := Iterated_loop_space n A
 
-  definition iterated_loop_space (A : Type) [H : pointed A] (n : ℕ) : Type :=
+  definition refln [constructor] {A : Pointed} {n : ℕ} : Ω[n] A := pt
+
+  definition iterated_loop_space [unfold 3] (A : Type) [H : pointed A] (n : ℕ) : Type :=
   Ω[n] (pointed.mk' A)
 
   open equiv.ops
@@ -202,11 +204,11 @@ namespace pointed
       { esimp, exact !con.left_inv⁻¹}},
   end
 
-  definition apn [constructor] (n : ℕ) (f : map₊ A B) : Ω[n] A →* Ω[n] B :=
+  definition apn [unfold 3] (n : ℕ) (f : map₊ A B) : Ω[n] A →* Ω[n] B :=
   begin
   revert A B f, induction n with n IH,
   { intros A B f, exact f},
-  { intros A B f, esimp [Iterated_loop_space], apply IH (Ω A),
+  { intros A B f, esimp, apply IH (Ω A),
     { esimp, fconstructor,
         intro q, refine !respect_pt⁻¹ ⬝ ap f q ⬝ !respect_pt,
         esimp, apply con.left_inv}}

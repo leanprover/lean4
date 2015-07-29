@@ -18,11 +18,15 @@ namespace pi
 
   /- Paths -/
 
-  /- Paths [p : f ≈ g] in a function type [Πx:X, P x] are equivalent to functions taking values in path types, [H : Πx:X, f x ≈ g x], or concisely, [H : f ~ g].
+  /-
+    Paths [p : f ≈ g] in a function type [Πx:X, P x] are equivalent to functions taking values
+    in path types, [H : Πx:X, f x ≈ g x], or concisely, [H : f ~ g].
 
-  This equivalence, however, is just the combination of [apd10] and function extensionality [funext], and as such, [path_forall], et seq. are given in axioms.funext and path:  -/
+    This equivalence, however, is just the combination of [apd10] and function extensionality
+    [funext], and as such, [eq_of_homotopy]
 
-  /- Now we show how these things compute. -/
+    Now we show how these things compute.
+  -/
 
   definition apd10_eq_of_homotopy (h : f ~ g) : apd10 (eq_of_homotopy h) ~ h :=
   apd10 (right_inv apd10 h)
@@ -33,17 +37,19 @@ namespace pi
   definition eq_of_homotopy_idp (f : Πa, B a) : eq_of_homotopy (λx : A, refl (f x)) = refl f :=
   !eq_of_homotopy_eta
 
-  /- The identification of the path space of a dependent function space, up to equivalence, is of course just funext. -/
+  /-
+    The identification of the path space of a dependent function space,
+    up to equivalence, is of course just funext.
+  -/
 
   definition eq_equiv_homotopy (f g : Πx, B x) : (f = g) ≃ (f ~ g) :=
-  equiv.mk _ !is_equiv_apd
+  equiv.mk apd10 _
 
-  definition is_equiv_eq_of_homotopy [instance] (f g : Πx, B x)
-      : is_equiv (@eq_of_homotopy _ _ f g) :=
-  is_equiv_inv apd10
+  definition is_equiv_eq_of_homotopy (f g : Πx, B x) : is_equiv (@eq_of_homotopy _ _ f g) :=
+  _
 
   definition homotopy_equiv_eq (f g : Πx, B x) : (f ~ g) ≃ (f = g) :=
-  equiv.mk _ !is_equiv_eq_of_homotopy
+  equiv.mk eq_of_homotopy _
 
 
   /- Transport -/
@@ -56,7 +62,7 @@ namespace pi
   /- A special case of [transport_pi] where the type [B] does not depend on [A],
       and so it is just a fixed type [B]. -/
   definition pi_transport_constant {C : A → A' → Type} (p : a = a') (f : Π(b : A'), C a b) (b : A')
-    : (transport (λa, Π(b : A'), C a b) p f) b = transport (λa, C a b) p (f b) :=
+    : (transport _ p f) b = p ▸ (f b) :=
   eq.rec_on p idp
 
   /- Pathovers -/
@@ -147,10 +153,11 @@ namespace pi
 
   /- The functoriality of [forall] is slightly subtle: it is contravariant in the domain type and covariant in the codomain, but the codomain is dependent on the domain. -/
 
-  definition pi_functor : (Π(a:A), B a) → (Π(a':A'), B' a') := (λg a', f1 a' (g (f0 a')))
+  definition pi_functor [unfold-full] : (Π(a:A), B a) → (Π(a':A'), B' a') := λg a', f1 a' (g (f0 a'))
 
   definition ap_pi_functor {g g' : Π(a:A), B a} (h : g ~ g')
-      : ap (pi_functor f0 f1) (eq_of_homotopy h) = eq_of_homotopy (λa':A', (ap (f1 a') (h (f0 a')))) :=
+    : ap (pi_functor f0 f1) (eq_of_homotopy h)
+      = eq_of_homotopy (λa':A', (ap (f1 a') (h (f0 a')))) :=
   begin
   apply (equiv_rect (@apd10 A B g g')), intro p, clear h,
   cases p,
@@ -161,32 +168,25 @@ namespace pi
 
   /- Equivalences -/
 
-  definition is_equiv_pi_functor [instance]
-    [H0 : is_equiv f0] [H1 : Πa', @is_equiv (B (f0 a')) (B' a') (f1 a')]
-      : is_equiv (pi_functor f0 f1) :=
+  definition is_equiv_pi_functor [instance] [H0 : is_equiv f0]
+    [H1 : Πa', @is_equiv (B (f0 a')) (B' a') (f1 a')] : is_equiv (pi_functor f0 f1) :=
   begin
     apply (adjointify (pi_functor f0 f1) (pi_functor f0⁻¹
           (λ(a : A) (b' : B' (f0⁻¹ a)), transport B (right_inv f0 a) ((f1 (f0⁻¹ a))⁻¹ b')))),
-    intro h, apply eq_of_homotopy,
-    unfold pi_functor, unfold function.compose, unfold function.id,
     begin
-      intro a',
-      apply (tr_rev _ (adj f0 a')),
-      apply (transport (λx, f1 a' x = h a') (transport_compose B f0 (left_inv f0 a') _)),
-      apply (tr_rev (λx, x = h a') (fn_tr_eq_tr_fn _ f1 _)), unfold function.compose,
-      apply (tr_rev (λx, left_inv f0 a' ▸ x = h a') (right_inv (f1 _) _)), unfold function.id,
+      intro h, apply eq_of_homotopy, intro a', esimp,
+      rewrite [adj f0 a',-transport_compose,fn_tr_eq_tr_fn _ f1,right_inv (f1 _)],
       apply apd
     end,
     begin
-      intro h,
-      apply eq_of_homotopy, intro a,
-      apply (tr_rev (λx, right_inv f0 a ▸ x = h a) (left_inv (f1 _) _)), unfold function.id,
+      intro h, apply eq_of_homotopy, intro a, esimp,
+      rewrite [left_inv (f1 _)],
       apply apd
     end
   end
 
-  definition pi_equiv_pi_of_is_equiv [H : is_equiv f0] [H1 : Πa', @is_equiv (B (f0 a')) (B' a') (f1 a')]
-    : (Πa, B a) ≃ (Πa', B' a') :=
+  definition pi_equiv_pi_of_is_equiv [H : is_equiv f0]
+    [H1 : Πa', @is_equiv (B (f0 a')) (B' a') (f1 a')] : (Πa, B a) ≃ (Πa', B' a') :=
   equiv.mk (pi_functor f0 f1) _
 
   definition pi_equiv_pi (f0 : A' ≃ A) (f1 : Πa', (B (to_fun f0 a') ≃ B' a'))

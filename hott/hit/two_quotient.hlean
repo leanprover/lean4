@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Floris van Doorn
 -/
 
-import hit.circle types.eq2 algebra.e_closure
+import hit.circle types.eq2 algebra.e_closure types.cubical.cube
 
 open quotient eq circle sum sigma equiv function relation
 
@@ -21,17 +21,17 @@ namespace simple_two_quotient
 
   local abbreviation B := A ⊎ Σ(a : A) (r : T a a), Q r
 
-  inductive pre_simple_two_quotient_rel : B → B → Type :=
-  | pre_Rmk {} : Π⦃a a'⦄ (r : R a a'), pre_simple_two_quotient_rel (inl a) (inl a')
+  inductive pre_two_quotient_rel : B → B → Type :=
+  | pre_Rmk {} : Π⦃a a'⦄ (r : R a a'), pre_two_quotient_rel (inl a) (inl a')
   --BUG: if {} not provided, the alias for pre_Rmk is wrong
 
-  definition pre_simple_two_quotient := quotient pre_simple_two_quotient_rel
+  definition pre_two_quotient := quotient pre_two_quotient_rel
 
-  open pre_simple_two_quotient_rel
-  local abbreviation C := quotient pre_simple_two_quotient_rel
-  protected definition j [constructor] (a : A) : C := class_of pre_simple_two_quotient_rel (inl a)
+  open pre_two_quotient_rel
+  local abbreviation C := quotient pre_two_quotient_rel
+  protected definition j [constructor] (a : A) : C := class_of pre_two_quotient_rel (inl a)
   protected definition pre_aux [constructor] (q : Q r) : C :=
-  class_of pre_simple_two_quotient_rel (inr ⟨a, r, q⟩)
+  class_of pre_two_quotient_rel (inr ⟨a, r, q⟩)
   protected definition e (s : R a a') : j a = j a' := eq_of_rel _ (pre_Rmk s)
   protected definition et (t : T a a') : j a = j a' := e_closure.elim e t
   protected definition f [unfold 7] (q : Q r) : S¹ → C :=
@@ -102,7 +102,7 @@ namespace simple_two_quotient
   definition incl2 (q : Q r) : inclt r = idp :=
   inclt_eq_incltw r ⬝ incl2w q
 
-  local attribute simple_two_quotient f i incl0 aux incl1 incl2' inclt [reducible]
+  local attribute simple_two_quotient f i D incl0 aux incl1 incl2' inclt [reducible]
   local attribute i aux incl0 [constructor]
   protected definition elim {P : Type} (P0 : A → P)
     (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a = P0 a')
@@ -116,7 +116,7 @@ namespace simple_two_quotient
       { exact P1}},
     { exact abstract begin induction H, induction x,
       { exact idpath (P0 a)},
-      { unfold f, apply pathover_eq, apply hdeg_square,
+      { unfold f, apply eq_pathover, apply hdeg_square,
         exact abstract ap_compose (pre_elim P0 _ P1) (f q) loop ⬝
               ap _ !elim_loop ⬝
               !elim_et ⬝
@@ -167,7 +167,7 @@ namespace simple_two_quotient
     krewrite [-eq_of_homotopy3_inv,-eq_of_homotopy3_con]
   end
 
-  definition elim_incl2'_incl0 {P : Type} {P0 : A → P}
+  definition elim_incl2' {P : Type} {P0 : A → P}
     {P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a = P0 a'}
     (P2 : Π⦃a : A⦄ ⦃r : T a a⦄ (q : Q r), e_closure.elim P1 r = idp)
     ⦃a : A⦄ ⦃r : T a a⦄ (q : Q r) : ap (elim P0 P1 P2) (incl2' q base) = idpath (P0 a) :=
@@ -198,7 +198,7 @@ namespace simple_two_quotient
     apply eq_vconcat,
     { apply ap (λx, _ ⬝ eq_con_inv_of_con_eq ((_ ⬝ x ⬝ _)⁻¹ ⬝ _) ⬝ _),
       transitivity _, apply ap eq_of_square,
-        apply to_right_inv !pathover_eq_equiv_square (hdeg_square (elim_1 P A R Q P0 P1 a r q P2)),
+        apply to_right_inv !eq_pathover_equiv_square (hdeg_square (elim_1 P A R Q P0 P1 a r q P2)),
       transitivity _, apply eq_of_square_hdeg_square,
       unfold elim_1, reflexivity},
     rewrite [+con_inv,whisker_left_inv,+inv_inv,-whisker_right_inv,
@@ -212,10 +212,10 @@ namespace simple_two_quotient
              right_inv_eq_idp (
                (λ(x : ap (elim P0 P1 P2) (incl2' q base) = idpath
                (elim P0 P1 P2 (class_of simple_two_quotient_rel (f q base)))), x)
-                (elim_incl2'_incl0 P2 q)),
+                (elim_incl2' P2 q)),
              ↑[whisker_left]],
     xrewrite [con2_con_con2],
-    rewrite [idp_con,↑elim_incl2'_incl0,con.left_inv,whisker_right_inv,↑whisker_right],
+    rewrite [idp_con,↑elim_incl2',con.left_inv,whisker_right_inv,↑whisker_right],
     xrewrite [con.assoc _ _ (_ ◾ _)],
     rewrite [con.left_inv,▸*,-+con.assoc,con.assoc _⁻¹,↑[elim,function.compose],con.left_inv,
              ▸*,↑j,con.left_inv,idp_con],

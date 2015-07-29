@@ -123,7 +123,6 @@ namespace category
       {intro c c' f,
         esimp [eq_of_iso_ob, inv_of_eq, hom_of_eq, eq_of_iso],
         rewrite [*right_inv iso_of_eq],
-        esimp [function.id],
         symmetry, apply @naturality_iso _ _ _ _ _ (iso.struct _)
       }
     end

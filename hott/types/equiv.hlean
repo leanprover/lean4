@@ -9,7 +9,7 @@ Theorems about the types equiv and is_equiv
 
 import .fiber .arrow arity .hprop_trunc
 
-open eq is_trunc sigma sigma.ops pi fiber function equiv
+open eq is_trunc sigma sigma.ops pi fiber function equiv equiv.ops
 
 namespace is_equiv
   variables {A B : Type} (f : A → B) [H : is_equiv f]
@@ -18,14 +18,16 @@ namespace is_equiv
   definition is_contr_fiber_of_is_equiv [instance] (b : B) : is_contr (fiber f b) :=
   is_contr.mk
     (fiber.mk (f⁻¹ b) (right_inv f b))
-    (λz, fiber.rec_on z (λa p, fiber_eq ((ap f⁻¹ p)⁻¹ ⬝ left_inv f a) (calc
-      right_inv f b = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ((ap (f ∘ f⁻¹) p) ⬝ right_inv f b) : by rewrite inv_con_cancel_left
-           ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (right_inv f (f a) ⬝ p)       : by rewrite ap_con_eq_con
-           ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (ap f (left_inv f a) ⬝ p)    : by rewrite adj
-           ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ap f (left_inv f a) ⬝ p      : by rewrite con.assoc
-           ... = (ap f (ap f⁻¹ p))⁻¹ ⬝ ap f (left_inv f a) ⬝ p     : by rewrite ap_compose
-           ... = ap f (ap f⁻¹ p)⁻¹ ⬝ ap f (left_inv f a) ⬝ p       : by rewrite ap_inv
-           ... = ap f ((ap f⁻¹ p)⁻¹ ⬝ left_inv f a) ⬝ p            : by rewrite ap_con)))
+    (λz, fiber.rec_on z (λa p,
+      fiber_eq ((ap f⁻¹ p)⁻¹ ⬝ left_inv f a) (calc
+        right_inv f b
+          = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ((ap (f ∘ f⁻¹) p) ⬝ right_inv f b) : by rewrite inv_con_cancel_left
+      ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (right_inv f (f a) ⬝ p)       : by rewrite ap_con_eq_con
+      ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (ap f (left_inv f a) ⬝ p)    : by rewrite adj
+      ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ap f (left_inv f a) ⬝ p      : by rewrite con.assoc
+      ... = (ap f (ap f⁻¹ p))⁻¹ ⬝ ap f (left_inv f a) ⬝ p     : by rewrite ap_compose
+      ... = ap f (ap f⁻¹ p)⁻¹ ⬝ ap f (left_inv f a) ⬝ p       : by rewrite ap_inv
+      ... = ap f ((ap f⁻¹ p)⁻¹ ⬝ left_inv f a) ⬝ p            : by rewrite ap_con)))
 
   definition is_contr_right_inverse : is_contr (Σ(g : B → A), f ∘ g ~ id) :=
   begin
@@ -54,12 +56,12 @@ namespace is_equiv
   equiv.MK (λH, ⟨inv f, right_inv f, left_inv f, adj f⟩)
            (λp, is_equiv.mk f p.1 p.2.1 p.2.2.1 p.2.2.2)
            (λp, begin
-                  cases p with p1 p2,
-                  cases p2 with p21 p22,
-                  cases p22 with p221 p222,
-                  apply idp
+                  induction p with p1 p2,
+                  induction p2 with p21 p22,
+                  induction p22 with p221 p222,
+                  reflexivity
                 end)
-           (λH, is_equiv.rec_on H (λH1 H2 H3 H4, idp))
+           (λH, by induction H; reflexivity)
 
   protected definition sigma_char' : (is_equiv f) ≃
   (Σ(u : Σ(g : B → A), f ∘ g ~ id), Σ(η : u.1 ∘ f ~ id), Π(a : A), u.2 (f a) = ap f (η a)) :=
@@ -116,7 +118,8 @@ namespace equiv
   definition equiv_eq {f f' : A ≃ B} (p : to_fun f = to_fun f') : f = f' :=
   by (cases f; cases f'; apply (equiv_mk_eq p))
 
-  protected definition equiv.sigma_char (A B : Type) : (A ≃ B) ≃ Σ(f : A → B), is_equiv f :=
+  protected definition equiv.sigma_char [constructor]
+    (A B : Type) : (A ≃ B) ≃ Σ(f : A → B), is_equiv f :=
   begin
     fapply equiv.MK,
       {intro F, exact ⟨to_fun F, to_is_equiv F⟩},
@@ -141,6 +144,17 @@ namespace equiv
         apply @concat _ _ (ap to_fun (ap (equiv.mk f') (is_hprop.elim H H'))), {apply idp},
         generalize is_hprop.elim H H', intro q, cases q, apply idp},
       {intro p, cases p, cases f with f H, apply ap (ap (equiv.mk f)), apply is_hset.elim}
+  end
+
+  definition equiv_pathover {A : Type} {a a' : A} (p : a = a')
+    {B : A → Type} {C : A → Type} (f : B a ≃ C a) (g : B a' ≃ C a')
+    (r : Π(b : B a) (b' : B a') (q : b =[p] b'), f b =[p] g b') : f =[p] g :=
+  begin
+    fapply change_path_equiv',
+    { intro a, apply equiv.sigma_char},
+    { fapply sigma_pathover,
+        esimp, apply arrow_pathover, exact r,
+        apply is_hprop.elimo}
   end
 
 end equiv

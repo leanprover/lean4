@@ -17,8 +17,8 @@ open eq function lift
 structure is_equiv [class] {A B : Type} (f : A → B) :=
 mk' ::
   (inv : B → A)
-  (right_inv : (f ∘ inv) ~ id)
-  (left_inv : (inv ∘ f) ~ id)
+  (right_inv : Πb, f (inv b) = b)
+  (left_inv : Πa, inv (f a) = a)
   (adj : Πx, right_inv (f x) = ap f (left_inv x))
 
 attribute is_equiv.inv [quasireducible]
@@ -66,44 +66,43 @@ namespace is_equiv
 
   section
   parameters {A B : Type} (f : A → B) (g : B → A)
-            (ret : f ∘ g ~ id) (sec : g ∘ f ~ id)
+            (ret : Πb, f (g b) = b) (sec : Πa, g (f a) = a)
 
-  private definition adjointify_sect' : g ∘ f ~ id :=
-    (λx, ap g (ap f (inverse (sec x))) ⬝ ap g (ret (f x)) ⬝ sec x)
+  private definition adjointify_left_inv' (a : A) : g (f a) = a :=
+  ap g (ap f (inverse (sec a))) ⬝ ap g (ret (f a)) ⬝ sec a
 
-  private definition adjointify_adj' : Π (x : A), ret (f x) = ap f (adjointify_sect' x) :=
-    (λ (a : A),
-      let fgretrfa := ap f (ap g (ret (f a))) in
-      let fgfinvsect := ap f (ap g (ap f (sec a)⁻¹)) in
-      let fgfa := f (g (f a)) in
-      let retrfa := ret (f a) in
-      have eq1 : ap f (sec a) = _,
-        from calc ap f (sec a)
-              = idp ⬝ ap f (sec a)                                     : by rewrite idp_con
-          ... = (ret (f a) ⬝ (ret (f a))⁻¹) ⬝ ap f (sec a)             : by rewrite con.right_inv
-          ... = ((ret fgfa)⁻¹ ⬝ ap (f ∘ g) (ret (f a))) ⬝ ap f (sec a) : by rewrite con_ap_eq_con
-          ... = ((ret fgfa)⁻¹ ⬝ fgretrfa) ⬝ ap f (sec a)               : by rewrite ap_compose
-          ... = (ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a))               : by rewrite con.assoc,
-      have eq2 : ap f (sec a) ⬝ idp = (ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a)),
-        from !con_idp ⬝ eq1,
-      have eq3 : idp = _,
-        from calc idp
-              = (ap f (sec a))⁻¹ ⬝ ((ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a))) : eq_inv_con_of_con_eq eq2
-          ... = ((ap f (sec a))⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ (fgretrfa ⬝ ap f (sec a)) : by rewrite con.assoc'
-          ... = (ap f (sec a)⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ (fgretrfa ⬝ ap f (sec a))   : by rewrite ap_inv
-          ... = ((ap f (sec a)⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ fgretrfa) ⬝ ap f (sec a)   : by rewrite con.assoc'
-          ... = ((retrfa⁻¹ ⬝ ap (f ∘ g) (ap f (sec a)⁻¹)) ⬝ fgretrfa) ⬝ ap f (sec a) : by rewrite con_ap_eq_con
-          ... = ((retrfa⁻¹ ⬝ fgfinvsect) ⬝ fgretrfa) ⬝ ap f (sec a)           : by rewrite ap_compose
-          ... = (retrfa⁻¹ ⬝ (fgfinvsect ⬝ fgretrfa)) ⬝ ap f (sec a)           : by rewrite con.assoc'
-          ... = retrfa⁻¹ ⬝ ap f (ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ ap f (sec a)   : by rewrite ap_con
-          ... = retrfa⁻¹ ⬝ (ap f (ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ ap f (sec a)) : by rewrite con.assoc'
-          ... = retrfa⁻¹ ⬝ ap f ((ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ sec a)        : by rewrite -ap_con,
-      have eq4 : ret (f a) = ap f ((ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ sec a),
-        from eq_of_idp_eq_inv_con eq3,
-      eq4)
+  private definition adjointify_adj' (a : A) : ret (f a) = ap f (adjointify_left_inv' a) :=
+  let fgretrfa := ap f (ap g (ret (f a))) in
+  let fgfinvsect := ap f (ap g (ap f (sec a)⁻¹)) in
+  let fgfa := f (g (f a)) in
+  let retrfa := ret (f a) in
+  have eq1 : ap f (sec a) = _,
+    from calc ap f (sec a)
+          = idp ⬝ ap f (sec a)                                     : by rewrite idp_con
+      ... = (ret (f a) ⬝ (ret (f a))⁻¹) ⬝ ap f (sec a)             : by rewrite con.right_inv
+      ... = ((ret fgfa)⁻¹ ⬝ ap (f ∘ g) (ret (f a))) ⬝ ap f (sec a) : by rewrite con_ap_eq_con
+      ... = ((ret fgfa)⁻¹ ⬝ fgretrfa) ⬝ ap f (sec a)               : by rewrite ap_compose
+      ... = (ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a))               : by rewrite con.assoc,
+  have eq2 : ap f (sec a) ⬝ idp = (ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a)),
+    from !con_idp ⬝ eq1,
+  have eq3 : idp = _,
+    from calc idp
+          = (ap f (sec a))⁻¹ ⬝ ((ret fgfa)⁻¹ ⬝ (fgretrfa ⬝ ap f (sec a))) : eq_inv_con_of_con_eq eq2
+      ... = ((ap f (sec a))⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ (fgretrfa ⬝ ap f (sec a)) : by rewrite con.assoc'
+      ... = (ap f (sec a)⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ (fgretrfa ⬝ ap f (sec a))   : by rewrite ap_inv
+      ... = ((ap f (sec a)⁻¹ ⬝ (ret fgfa)⁻¹) ⬝ fgretrfa) ⬝ ap f (sec a)   : by rewrite con.assoc'
+      ... = ((retrfa⁻¹ ⬝ ap (f ∘ g) (ap f (sec a)⁻¹)) ⬝ fgretrfa) ⬝ ap f (sec a) : by rewrite con_ap_eq_con
+      ... = ((retrfa⁻¹ ⬝ fgfinvsect) ⬝ fgretrfa) ⬝ ap f (sec a)           : by rewrite ap_compose
+      ... = (retrfa⁻¹ ⬝ (fgfinvsect ⬝ fgretrfa)) ⬝ ap f (sec a)           : by rewrite con.assoc'
+      ... = retrfa⁻¹ ⬝ ap f (ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ ap f (sec a)   : by rewrite ap_con
+      ... = retrfa⁻¹ ⬝ (ap f (ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ ap f (sec a)) : by rewrite con.assoc'
+      ... = retrfa⁻¹ ⬝ ap f ((ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ sec a)        : by rewrite -ap_con,
+  have eq4 : ret (f a) = ap f ((ap g (ap f (sec a)⁻¹) ⬝ ap g (ret (f a))) ⬝ sec a),
+    from eq_of_idp_eq_inv_con eq3,
+  eq4
 
   definition adjointify [constructor] : is_equiv f :=
-  is_equiv.mk f g ret adjointify_sect' adjointify_adj'
+  is_equiv.mk f g ret adjointify_left_inv' adjointify_adj'
   end
 
   -- Any function pointwise equal to an equivalence is an equivalence as well.
@@ -174,11 +173,12 @@ namespace is_equiv
 
   definition equiv_rect_comp (P : B → Type)
       (df : Π (x : A), P (f x)) (x : A) : equiv_rect f P df (f x) = df x :=
-    calc equiv_rect f P df (f x)
-          = transport P (right_inv f (f x)) (df (f⁻¹ (f x)))       : by esimp
-      ... = transport P (eq.ap f (left_inv f x)) (df (f⁻¹ (f x))) : by rewrite adj
-      ... = transport (P ∘ f) (left_inv f x) (df (f⁻¹ (f x)))     : by rewrite -transport_compose
-      ... = df x                                              : by rewrite (apd df (left_inv f x))
+    calc
+      equiv_rect f P df (f x)
+            = right_inv f (f x) ▸ df (f⁻¹ (f x))   : by esimp
+        ... = ap f (left_inv f x) ▸ df (f⁻¹ (f x)) : by rewrite -adj
+        ... = left_inv f x ▸ df (f⁻¹ (f x))        : by rewrite -transport_compose
+        ... = df x                                 : by rewrite (apd df (left_inv f x))
 
   end
 
@@ -229,12 +229,14 @@ namespace equiv
   variables {A B C : Type}
 
   protected definition MK [reducible] [constructor] (f : A → B) (g : B → A)
-    (right_inv : f ∘ g ~ id) (left_inv : g ∘ f ~ id) : A ≃ B :=
+    (right_inv : Πb, f (g b) = b) (left_inv : Πa, g (f a) = a) : A ≃ B :=
   equiv.mk f (adjointify f g right_inv left_inv)
 
   definition to_inv [reducible] [unfold 3] (f : A ≃ B) : B → A := f⁻¹
-  definition to_right_inv [reducible] [unfold 3] (f : A ≃ B) : f ∘ f⁻¹ ~ id := right_inv f
-  definition to_left_inv [reducible] [unfold 3] (f : A ≃ B) : f⁻¹ ∘ f ~ id := left_inv f
+  definition to_right_inv [reducible] [unfold 3] (f : A ≃ B) (b : B) : f (f⁻¹ b) = b :=
+  right_inv f b
+  definition to_left_inv [reducible] [unfold 3] (f : A ≃ B) (a : A) : f⁻¹ (f a) = a :=
+  left_inv f a
 
   protected definition refl [refl] [constructor] : A ≃ A :=
   equiv.mk id !is_equiv_id

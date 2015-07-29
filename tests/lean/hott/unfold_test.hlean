@@ -26,7 +26,7 @@ section
     apply sorry,
     apply sorry,
     {
-      rewrite [↑e_closure.elim, ↑ap_e_closure_elim_h, ap_con (ap h)],
+      rewrite [▸*, ap_con (ap h)],
       refine (transpose !ap_compose_inv)⁻¹ᵛ ⬝h _,
       rewrite [con_inv,inv_inv,-inv2_inv],
       exact !ap_inv2 ⬝v square_inv2 v_0

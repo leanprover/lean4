@@ -112,10 +112,9 @@ namespace pi
   rewrite {f1 a' _}(fn_tr_eq_tr_fn _ f1 _),
   rewrite (right_inv (f1 _) _),
   apply apd,
-  intro h, beta,
+  intro h,
   apply eq_of_homotopy, intro a, esimp,
   apply (transport_V (λx, right_inv f0 a ▸ x = h a) (left_inv (f1 _) _)),
-  esimp [function.id],
   apply apd
   end
 

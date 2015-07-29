@@ -187,7 +187,7 @@ namespace funext
   adjointify _
              eq_of_homotopy2
              begin
-               intro H, esimp [apd100, eq_of_homotopy2, function.compose],
+               intro H, esimp [apd100, eq_of_homotopy2],
                apply eq_of_homotopy, intro a,
                apply concat, apply (ap (λx, apd10 (x a))), apply (right_inv apd10),
                apply (right_inv apd10)

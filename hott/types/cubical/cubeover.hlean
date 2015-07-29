@@ -21,11 +21,11 @@ namespace eq
        {p₁₂₂ : a₀₂₂ = a₂₂₂} {p₂₁₂ : a₂₀₂ = a₂₂₂} {p₂₂₁ : a₂₂₀ = a₂₂₂}
        {s₁₁₀ : square p₀₁₀ p₂₁₀ p₁₀₀ p₁₂₀}
        {s₁₁₂ : square p₀₁₂ p₂₁₂ p₁₀₂ p₁₂₂}
-       {s₁₀₁ : square p₁₀₀ p₁₀₂ p₀₀₁ p₂₀₁}
-       {s₁₂₁ : square p₁₂₀ p₁₂₂ p₀₂₁ p₂₂₁}
        {s₀₁₁ : square p₀₁₀ p₀₁₂ p₀₀₁ p₀₂₁}
        {s₂₁₁ : square p₂₁₀ p₂₁₂ p₂₀₁ p₂₂₁}
-       (c : cube s₁₁₀ s₁₁₂ s₁₀₁ s₁₂₁ s₀₁₁ s₂₁₁)
+       {s₁₀₁ : square p₁₀₀ p₁₀₂ p₀₀₁ p₂₀₁}
+       {s₁₂₁ : square p₁₂₀ p₁₂₂ p₀₂₁ p₂₂₁}
+       (c : cube s₁₁₀ s₁₁₂ s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁)
                        {b₀₂₀ : B a₀₂₀} {b₂₀₀ : B a₂₀₀} {b₂₂₀ : B a₂₂₀}
        {b₀₀₂ : B a₀₀₂} {b₀₂₂ : B a₀₂₂} {b₂₀₂ : B a₂₀₂} {b₂₂₂ : B a₂₂₂}
        {q₁₀₀ : pathover B b₀₀₀ p₁₀₀ b₂₀₀} {q₀₁₀ : pathover B b₀₀₀ p₀₁₀ b₀₂₀}
@@ -36,10 +36,10 @@ namespace eq
        {q₂₁₂ : pathover B b₂₀₂ p₂₁₂ b₂₂₂} {q₂₂₁ : pathover B b₂₂₀ p₂₂₁ b₂₂₂}
        (t₁₁₀ : squareover B s₁₁₀ q₀₁₀ q₂₁₀ q₁₀₀ q₁₂₀)
        (t₁₁₂ : squareover B s₁₁₂ q₀₁₂ q₂₁₂ q₁₀₂ q₁₂₂)
-       (t₁₀₁ : squareover B s₁₀₁ q₁₀₀ q₁₀₂ q₀₀₁ q₂₀₁)
-       (t₁₂₁ : squareover B s₁₂₁ q₁₂₀ q₁₂₂ q₀₂₁ q₂₂₁)
        (t₀₁₁ : squareover B s₀₁₁ q₀₁₀ q₀₁₂ q₀₀₁ q₀₂₁)
-       (t₂₁₁ : squareover B s₂₁₁ q₂₁₀ q₂₁₂ q₂₀₁ q₂₂₁), Type :=
+       (t₂₁₁ : squareover B s₂₁₁ q₂₁₀ q₂₁₂ q₂₀₁ q₂₂₁)
+       (t₁₀₁ : squareover B s₁₀₁ q₁₀₀ q₁₀₂ q₀₀₁ q₂₀₁)
+       (t₁₂₁ : squareover B s₁₂₁ q₁₂₀ q₁₂₂ q₀₂₁ q₂₂₁), Type :=
   idcubeo : cubeover B idc idso idso idso idso idso idso
 
 

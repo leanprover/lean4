@@ -35,8 +35,8 @@ namespace category
     definition equiv_of_iso {A B : Precategory_hset} (f : A ≅ B) : A ≃ B :=
     begin
       apply equiv.MK (to_hom f) (iso.to_inv f),
-       exact ap10 (right_inverse (to_hom f)),
-       exact ap10 (left_inverse  (to_hom f))
+        exact ap10 (to_right_inverse f),
+        exact ap10 (to_left_inverse f)
     end
 
     definition is_equiv_iso_of_equiv (A B : Precategory_hset) : is_equiv (@iso_of_equiv A B) :=
@@ -64,8 +64,8 @@ namespace category
     equiv.MK (λf, iso_of_equiv f)
              (λf, proof equiv.MK (to_hom f)
                            (iso.to_inv f)
-                           (ap10 (right_inverse (to_hom f)))
-                           (ap10 (left_inverse  (to_hom f))) qed)
+                           (ap10 (to_right_inverse f))
+                           (ap10 (to_left_inverse  f)) qed)
              (λf, proof iso_eq idp qed)
              (λf, proof equiv_eq idp qed)
 

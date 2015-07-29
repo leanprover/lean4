@@ -169,15 +169,14 @@ section
               (λ b c p, eq.rec_on p idp))))
 
   private definition isequiv_tgt_compose {A B : Type}
-      : @is_equiv (A → diagonal B)
-                 (A → B)
-                 (compose (pr₂ ∘ pr1)) :=
-    @ua_isequiv_postcompose _ _ _ (pr2 ∘ pr1)
-        (is_equiv.adjointify (pr2 ∘ pr1)
-          (λ x, sigma.mk (x , x) idp) (λx, idp)
-          (λ x, sigma.rec_on x
-            (λ xy, prod.rec_on xy
-              (λ b c p, eq.rec_on p idp))))
+      : is_equiv (compose (pr₂ ∘ pr1) : (A → diagonal B) → (A → B)) :=
+  begin
+    refine @ua_isequiv_postcompose _ _ _ (pr2 ∘ pr1) _,
+    fapply adjointify,
+    { intro b, exact ⟨(b, b), idp⟩},
+    { intro b, reflexivity},
+    { intro a, induction a with q p, induction q, esimp at *, induction p, reflexivity}
+  end
 
   set_option class.conservative false
   theorem nondep_funext_from_ua {A : Type} {B : Type}

@@ -31,8 +31,8 @@ namespace is_trunc
     { intro H x y, apply is_trunc_eq},
     { intro H, cases H, apply idp},
     { intro P, apply eq_of_homotopy, intro a, apply eq_of_homotopy, intro b,
-      esimp [is_trunc_eq], esimp[compose,is_trunc_succ_intro],
-      generalize (P a b), intro H, cases H, apply idp},
+      change is_trunc.mk (to_internal n (a = b)) = P a b,
+      induction (P a b), apply idp},
   end
 
   definition is_hprop_is_trunc [instance] (n : trunc_index) :

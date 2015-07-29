@@ -33,7 +33,7 @@ section
 
   variables ⦃a a' : A⦄ {s : R a a'} {r : T a a}
   parameter {R}
-  protected definition e_closure.elim {B : Type} {f : A → B}
+  protected definition e_closure.elim [unfold 6] {B : Type} {f : A → B}
     (e : Π⦃a a' : A⦄, R a a' → f a = f a') (t : T a a') : f a = f a' :=
   begin
     induction t,
@@ -43,7 +43,7 @@ section
       exact v_0 ⬝ v_1
   end
 
-  definition ap_e_closure_elim_h {B C : Type} {f : A → B} {g : B → C}
+  definition ap_e_closure_elim_h [unfold 12] {B C : Type} {f : A → B} {g : B → C}
     (e : Π⦃a a' : A⦄, R a a' → f a = f a')
     {e' : Π⦃a a' : A⦄, R a a' → g (f a) = g (f a')}
     (p : Π⦃a a' : A⦄ (s : R a a'), ap g (e s) = e' s) (t : T a a')
@@ -84,16 +84,14 @@ section
              (ap_e_closure_elim_h e' (λa a' s, (ap (ap h) (p s))⁻¹) t) :=
   begin
     induction t,
-    { unfold [ap_e_closure_elim_h, e_closure.elim],
+    { esimp,
       apply square_of_eq, exact !con.right_inv ⬝ !con.left_inv⁻¹},
     { apply ids},
-    { unfold [e_closure.elim, ap_e_closure_elim_h],
-      rewrite [ap_con (ap h)],
+    { rewrite [▸*,ap_con (ap h)],
       refine (transpose !ap_compose_inv)⁻¹ᵛ ⬝h _,
       rewrite [con_inv,inv_inv,-inv2_inv],
       exact !ap_inv2 ⬝v square_inv2 v_0},
-    { unfold [e_closure.elim, ap_e_closure_elim_h],
-      rewrite [ap_con (ap h)],
+    { rewrite [▸*,ap_con (ap h)],
       refine (transpose !ap_compose_con)⁻¹ᵛ ⬝h _,
       rewrite [con_inv,inv_inv,con2_inv],
       refine !ap_con2 ⬝v square_con2 v_0 v_1},

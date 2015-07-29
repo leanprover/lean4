@@ -93,7 +93,7 @@ namespace seq_colim
 section
   /-
     we define it directly in terms of quotients. An alternative definition could be
-    definition seq_colim := colimit.colimit A function.id succ f
+    definition seq_colim := colimit.colimit A id succ f
   -/
   parameters {A : ℕ → Type} (f : Π⦃n⦄, A n → A (succ n))
   variables {n : ℕ} (a : A n)

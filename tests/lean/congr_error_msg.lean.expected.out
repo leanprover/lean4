@@ -7,4 +7,4 @@ congr_error_msg.lean:24:0: error: invalid congruence rule, 'C₆' left-hand-side
 congr_error_msg.lean:27:0: error: invalid congruence rule, 'C₇' argument #2 of parameter #5 contains unresolved parameters
 congr_error_msg.lean:30:0: error: invalid congruence rule, 'C₈' argument #5 is not a valid hypothesis, the left-hand-side contains unresolved parameters
 congr_error_msg.lean:33:0: error: invalid congruence rule, 'C₉' argument #6 is not a valid hypothesis, the right-hand-side must be of the form (m l_1 ... l_n) where m is parameter that was not 'assigned/resolved' yet and l_i's are locals
-congr_error_msg.lean: error: unknown declaration 'C₁'
+congr_error_msg.lean:33:0: error: unknown declaration 'C₁'

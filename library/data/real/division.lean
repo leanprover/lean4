@@ -641,7 +641,7 @@ theorem lt_or_eq_of_le (x y : ℝ) : x ≤ y → x < y ∨ x = y :=
 theorem le_iff_lt_or_eq (x y : ℝ) : x ≤ y ↔ x < y ∨ x = y :=
   iff.intro (lt_or_eq_of_le x y) (le_of_lt_or_eq x y)
 
-theorem dec_lt : decidable_rel lt :=
+noncomputable definition dec_lt : decidable_rel lt :=
   begin
     rewrite ↑decidable_rel,
     intros,

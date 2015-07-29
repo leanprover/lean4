@@ -19,11 +19,11 @@ axiom strong_indefinite_description {A : Type} (P : A → Prop) (H : nonempty A)
 theorem exists_true_of_nonempty {A : Type} (H : nonempty A) : ∃x : A, true :=
 nonempty.elim H (take x, exists.intro x trivial)
 
-theorem inhabited_of_nonempty {A : Type} (H : nonempty A) : inhabited A :=
+noncomputable definition inhabited_of_nonempty {A : Type} (H : nonempty A) : inhabited A :=
 let u : {x | (∃y : A, true) → true} := strong_indefinite_description (λa, true) H in
 inhabited.mk (elt_of u)
 
-theorem inhabited_of_exists {A : Type} {P : A → Prop} (H : ∃x, P x) : inhabited A :=
+noncomputable definition inhabited_of_exists {A : Type} {P : A → Prop} (H : ∃x, P x) : inhabited A :=
 inhabited_of_nonempty (obtain w Hw, from H, nonempty.intro w)
 
 /- the Hilbert epsilon function -/

@@ -38,6 +38,7 @@ Author: Leonardo de Moura
 #include "library/sorry.h"
 #include "library/flycheck.h"
 #include "library/pp_options.h"
+#include "library/noncomputable.h"
 #include "library/error_handling/error_handling.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/tokens.h"
@@ -1898,13 +1899,17 @@ bool parser::parse_commands() {
     }
     commit_info(m_scanner.get_line()+1, 0);
 
-    m_theorem_queue.for_each([&](certified_declaration const & thm) {
-            if (keep_new_thms()) {
-                name const & thm_name = thm.get_declaration().get_name();
-                if (m_env.get(thm_name).is_axiom())
-                    m_env = m_env.replace(thm);
-            }
-        });
+    protected_call(
+        [&]() {
+            m_theorem_queue.for_each([&](certified_declaration const & thm) {
+                    if (keep_new_thms()) {
+                        name const & thm_name = thm.get_declaration().get_name();
+                        if (m_env.get(thm_name).is_axiom())
+                            replace_theorem(thm);
+                    }
+                });
+        },
+        []() {});
     return !m_found_errors;
 }
 
@@ -1934,13 +1939,22 @@ void parser::add_delayed_theorem(certified_declaration const & cd) {
     m_theorem_queue.add(cd);
 }
 
+void parser::replace_theorem(certified_declaration const & thm) {
+    m_env = m_env.replace(thm);
+    name const & thm_name = thm.get_declaration().get_name();
+    if (!check_computable(m_env, thm_name)) {
+        throw exception(sstream() << "declaration '" << thm_name
+                        << "' was marked as a theorem, but it is a noncomputable definition");
+    }
+}
+
 environment parser::reveal_theorems(buffer<name> const & ds) {
     m_theorem_queue.for_each([&](certified_declaration const & thm) {
             if (keep_new_thms()) {
                 name const & thm_name = thm.get_declaration().get_name();
                 if (m_env.get(thm_name).is_axiom() &&
                     std::any_of(ds.begin(), ds.end(), [&](name const & n) { return n == thm_name; })) {
-                    m_env = m_env.replace(thm);
+                    replace_theorem(thm);
                     m_theorem_queue_set.erase(thm_name);
                 }
             }

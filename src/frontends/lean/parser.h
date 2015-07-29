@@ -254,6 +254,8 @@ class parser {
 
     void init_stop_at(options const & opts);
 
+    void replace_theorem(certified_declaration const & thm);
+
 public:
     parser(environment const & env, io_state const & ios,
            std::istream & strm, char const * str_name,

@@ -107,9 +107,6 @@ will be flushed everytime it's executed."
     (when process-buffer
       (with-current-buffer process-buffer
         (erase-buffer))))
-  ;; Ask to save current buffer
-  (when (buffer-file-name)
-    (save-some-buffers nil `(lambda () (s-equals? (buffer-file-name) ,(buffer-file-name)))))
   ;; Start process
   (let* ((target-file-name
           (or

@@ -5,4 +5,4 @@ Author: Jeremy Avigad
 
 The standard library together with the classical axioms.
 -/
-import standard logic.axioms.classical
+import standard logic.choice

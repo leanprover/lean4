@@ -1,4 +1,4 @@
-import logic logic.axioms.hilbert
+import logic logic.choice
 open inhabited nonempty
 
 noncomputable definition v1 : Prop := epsilon (λ x, true)

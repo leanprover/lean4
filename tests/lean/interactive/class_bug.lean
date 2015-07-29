@@ -1,4 +1,4 @@
-import logic.axioms.hilbert data.nat.basic
+import logic.choice data.nat.basic
 open nonempty inhabited nat
 
 theorem int_inhabited [instance] : inhabited nat := inhabited.mk zero

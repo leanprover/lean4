@@ -5,7 +5,7 @@ Author: Floris van Doorn
 
 A classical treatment of quotients, using Hilbert choice.
 -/
-import algebra.relation data.subtype logic.axioms.classical logic.axioms.hilbert
+import algebra.relation data.subtype logic.choice
 import .basic
 
 namespace quotient

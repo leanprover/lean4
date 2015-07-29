@@ -6,7 +6,7 @@ Author: Jeremy Avigad, Andrew Zipperer
 Using classical logic, defines an inverse function.
 -/
 import .function .map
-import logic.axioms.classical
+import logic.choice
 open eq.ops
 
 namespace set

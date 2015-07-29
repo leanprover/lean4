@@ -9,7 +9,7 @@ At this point, we no longer proceed constructively: this file makes heavy use of
 and excluded middle.
 -/
 
-import data.real.basic data.real.order data.rat data.nat logic.axioms.classical
+import data.real.basic data.real.order data.rat data.nat logic.choice
 open -[coercions] rat
 open -[coercions] nat
 open eq.ops pnat

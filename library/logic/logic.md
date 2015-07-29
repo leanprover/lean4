@@ -2,10 +2,9 @@ logic
 =====
 
 Logical constructions and theorems, beyond what has already been
-declared in init.datatypes and init.logic. 
+declared in init.datatypes and init.logic.
 
-The subfolder logic.axioms declares additional axioms. The command
-`import logic` does not import any axioms by default.
+The command `import logic` does not import any axioms by default.
 
 * [connectives](connectives.lean) : the propositional connectives
 * [eq](eq.lean) : additional theorems for equality and disequality
@@ -16,7 +15,13 @@ The subfolder logic.axioms declares additional axioms. The command
 * [subsingleton](subsingleton.lean)
 * [default](default.lean)
 
+The file `choice.lean` declares a choice axiom, and uses it to
+prove the excluded middle, propositional completeness, axiom of
+choice, and prove that the decidable class is trivial when the
+choice axiom is assumed.
+
+* [choice](choice.lean)
+
 Subfolders:
 
-* [axioms](axioms/axioms.md) : additional axioms
 * [examples](examples/examples.md)

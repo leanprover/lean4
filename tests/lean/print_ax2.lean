@@ -1,3 +1,3 @@
-import logic.axioms.hilbert logic.axioms.em
+import logic.choice
 
 print axioms

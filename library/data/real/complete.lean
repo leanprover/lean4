@@ -12,7 +12,7 @@ Here, we show that ℝ is complete.
 -/
 
 import data.real.basic data.real.order data.real.division data.rat data.nat data.pnat
-import logic.axioms.classical
+import logic.choice
 open -[coercions] rat
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1

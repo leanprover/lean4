@@ -104,7 +104,6 @@ struct print_axioms_deps {
         if (!m_use_axioms)
             m_ios << "no axioms" << endl;
     }
-
 };
 
 static void print_axioms(parser & p) {

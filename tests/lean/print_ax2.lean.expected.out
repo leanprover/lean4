@@ -1,2 +1,4 @@
+quot.sound : ∀ {A : Type} [s : setoid A] {a b : A}, setoid.r a b → quot.mk a = quot.mk b
 em : ∀ (a : Prop), a ∨ ¬a
+propext : ∀ {a b : Prop}, (a ↔ b) → a = b
 strong_indefinite_description : Π {A : Type} (P : A → Prop), nonempty A → { (x : A)| Exists P → P x}

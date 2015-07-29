@@ -71,7 +71,7 @@ namespace is_congruence
 
   /- tools to build instances -/
 
-  theorem compose
+  definition compose
       {T2 : Type} {R2 : T2 → T2 → Prop}
       {T3 : Type} {R3 : T3 → T3 → Prop}
       {g : T2 → T3} (C2 : is_congruence R2 R3 g)
@@ -80,7 +80,7 @@ namespace is_congruence
     is_congruence R1 R3 (λx, g (f x)) :=
   is_congruence.mk (λx1 x2 H, app C2 (app C1 H))
 
-  theorem compose21
+  definition compose21
       {T2 : Type} {R2 : T2 → T2 → Prop}
       {T3 : Type} {R3 : T3 → T3 → Prop}
       {T4 : Type} {R4 : T4 → T4 → Prop}
@@ -91,19 +91,19 @@ namespace is_congruence
     is_congruence R1 R4 (λx, g (f1 x) (f2 x)) :=
   is_congruence.mk (λx1 x2 H, app2 C3 (app C1 H) (app C2 H))
 
-  theorem const {T2 : Type} (R2 : T2 → T2 → Prop) (H : relation.reflexive R2)
+  definition const {T2 : Type} (R2 : T2 → T2 → Prop) (H : relation.reflexive R2)
       ⦃T1 : Type⦄ (R1 : T1 → T1 → Prop) (c : T2) :
     is_congruence R1 R2 (λu : T1, c) :=
   is_congruence.mk (λx y H1, H c)
 
 end is_congruence
 
-theorem congruence_const [instance] {T2 : Type} (R2 : T2 → T2 → Prop)
+definition congruence_const [instance] {T2 : Type} (R2 : T2 → T2 → Prop)
     [C : is_reflexive R2] ⦃T1 : Type⦄ (R1 : T1 → T1 → Prop) (c : T2) :
   is_congruence R1 R2 (λu : T1, c) :=
 is_congruence.const R2 (is_reflexive.refl R2) R1 c
 
-theorem congruence_trivial [instance] {T : Type} (R : T → T → Prop) :
+definition congruence_trivial [instance] {T : Type} (R : T → T → Prop) :
   is_congruence R R (λu, u) :=
 is_congruence.mk (λx y H, H)
 

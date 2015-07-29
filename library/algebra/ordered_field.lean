@@ -318,8 +318,7 @@ section discrete_linear_ordered_field
   variables [s : discrete_linear_ordered_field A] {a b c : A}
   include s
 
-
-  theorem dec_eq_of_dec_lt : ∀ x y : A, decidable (x = y) :=
+  definition dec_eq_of_dec_lt : ∀ x y : A, decidable (x = y) :=
     take x y,
     decidable.by_cases
     (assume H : x < y, decidable.inr (ne_of_lt H))
@@ -328,8 +327,6 @@ section discrete_linear_ordered_field
       (assume H' : y < x, decidable.inr (ne.symm (ne_of_lt H')))
       (assume H' : ¬ y < x,
         decidable.inl (le.antisymm (le_of_not_gt H') (le_of_not_gt H))))
-
-  reveal dec_eq_of_dec_lt
 
   definition discrete_linear_ordered_field.to_discrete_field [trans-instance] [reducible] [coercion]
      :  discrete_field A :=

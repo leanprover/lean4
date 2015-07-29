@@ -284,8 +284,8 @@ theorem mul_mod_mul_right (x z y : ℕ) : (x * z) mod (y * z) = (x mod y) * z :=
 mul.comm z x ▸ mul.comm z y ▸ !mul.comm ▸ !mul_mod_mul_left
 
 theorem mod_self (n : ℕ) : n mod n = 0 :=
-nat.cases_on n !zero_mod
-  (take n, !mul_zero ▸ !mul_one ▸ !mul_mod_mul_left)
+nat.cases_on n (by rewrite zero_mod)
+  (take n, by rewrite [-zero_add (succ n) at {1}, add_mod_self])
 
 theorem mul_mod_eq_mod_mul_mod (m n k : nat) : (m * n) mod k = ((m mod k) * n) mod k :=
 calc
@@ -301,7 +301,8 @@ assert n div 1 * 1 + n mod 1 = n, from !eq_div_mul_add_mod⁻¹,
 begin rewrite [-this at {2}, mul_one, mod_one] end
 
 theorem div_self {n : ℕ} (H : n > 0) : n div n = 1 :=
-!mul_one ▸ (!mul_div_mul_left H)
+assert (n * 1) div (n * 1) = 1 div 1, from !mul_div_mul_left H,
+by rewrite [div_one at this, -this, *mul_one]
 
 theorem div_mul_cancel_of_mod_eq_zero {m n : ℕ} (H : m mod n = 0) : m div n * n = m :=
 by rewrite [eq_div_mul_add_mod m n at {2}, H, add_zero]

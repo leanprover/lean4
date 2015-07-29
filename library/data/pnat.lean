@@ -19,7 +19,7 @@ definition pnat := { n : ℕ | n > 0 }
 
 notation `ℕ+` := pnat
 
-theorem pos (n : ℕ) (H : n > 0) : ℕ+ := tag n H
+definition pos (n : ℕ) (H : n > 0) : ℕ+ := tag n H
 
 definition nat_of_pnat (p : ℕ+) : ℕ := elt_of p
 reserve postfix `~`:std.prec.max_plus

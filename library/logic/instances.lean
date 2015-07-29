@@ -12,30 +12,28 @@ namespace relation
 
 /- logical equivalence relations -/
 
-theorem is_equivalence_eq [instance] (T : Type) : relation.is_equivalence (@eq T) :=
+definition is_equivalence_eq [instance] (T : Type) : relation.is_equivalence (@eq T) :=
 relation.is_equivalence.mk (@eq.refl T) (@eq.symm T) (@eq.trans T)
 
-theorem is_equivalence_iff [instance] : relation.is_equivalence iff :=
+definition is_equivalence_iff [instance] : relation.is_equivalence iff :=
 relation.is_equivalence.mk @iff.refl @iff.symm @iff.trans
 
 /- congruences for logic operations -/
 
-theorem is_congruence_not : is_congruence iff iff not :=
+definition is_congruence_not : is_congruence iff iff not :=
 is_congruence.mk @congr_not
 
-theorem is_congruence_and : is_congruence2 iff iff iff and :=
+definition is_congruence_and : is_congruence2 iff iff iff and :=
 is_congruence2.mk @congr_and
 
-theorem is_congruence_or : is_congruence2 iff iff iff or :=
+definition is_congruence_or : is_congruence2 iff iff iff or :=
 is_congruence2.mk @congr_or
 
-theorem is_congruence_imp : is_congruence2 iff iff iff imp :=
+definition is_congruence_imp : is_congruence2 iff iff iff imp :=
 is_congruence2.mk @congr_imp
 
-theorem is_congruence_iff : is_congruence2 iff iff iff iff :=
+definition is_congruence_iff : is_congruence2 iff iff iff iff :=
 is_congruence2.mk @congr_iff
-
-reveal is_congruence_not is_congruence_and is_congruence_or is_congruence_imp is_congruence_iff
 
 definition is_congruence_not_compose [instance] := is_congruence.compose is_congruence_not
 definition is_congruence_and_compose [instance] := is_congruence.compose21 is_congruence_and

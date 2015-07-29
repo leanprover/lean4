@@ -628,7 +628,7 @@ if c then true else false
 definition is_false (c : Prop) [H : decidable c] : Prop :=
 if c then false else true
 
-theorem of_is_true {c : Prop} [H₁ : decidable c] (H₂ : is_true c) : c :=
+definition of_is_true {c : Prop} [H₁ : decidable c] (H₂ : is_true c) : c :=
 decidable.rec_on H₁ (λ Hc, Hc) (λ Hnc, !false.rec (if_neg Hnc ▸ H₂))
 
 notation `dec_trivial` := of_is_true trivial

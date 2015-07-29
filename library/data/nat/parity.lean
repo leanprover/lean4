@@ -87,9 +87,9 @@ by_contradiction (suppose ¬ odd n,
 
 lemma even_succ_of_odd {n} : odd n → even (succ n) :=
 suppose odd n,
-  have n mod 2 = 1 mod 2, from mod_eq_of_odd this,
-  have (n+1) mod 2 = 0,   from add_mod_eq_add_mod_right 1 this,
-  this
+  assert n mod 2 = 1 mod 2,     from mod_eq_of_odd this,
+  assert (n+1) mod 2 = 2 mod 2, from add_mod_eq_add_mod_right 1 this,
+  by rewrite mod_self at this; exact this
 
 lemma odd_succ_succ_of_odd {n} : odd n → odd (succ (succ n)) :=
 suppose odd n,

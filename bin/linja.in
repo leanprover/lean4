@@ -551,9 +551,14 @@ def get_lean_names(lean_file, args, using_hlean):
         item['clean'] = args.cache
     return item
 
+def recursive_glob(directory):
+  return [os.path.join(dirpath, f)
+      for dirpath, dirnames, files in os.walk(directory)
+      for f in fnmatch.filter(files, '*')]
+
 def find_files(directory, pattern):
-    if "/" in pattern:
-        return glob.glob(os.path.join(directory, pattern))
+    if pattern.endswith("/"):
+        return recursive_glob(os.path.join(directory, pattern))
     matches = []
     for root, dirnames, filenames in os.walk(directory):
         for filename in fnmatch.filter(filenames, pattern):

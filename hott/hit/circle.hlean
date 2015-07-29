@@ -223,7 +223,7 @@ namespace circle
       --simplify after #587
   end
 
-  definition circle_eq_equiv (x : circle) : (base = x) ≃ circle.code x :=
+  definition circle_eq_equiv [constructor] (x : circle) : (base = x) ≃ circle.code x :=
   begin
     fapply equiv.MK,
     { exact circle.encode},
@@ -232,7 +232,7 @@ namespace circle
     { intro p, cases p, exact idp},
   end
 
-  definition base_eq_base_equiv : base = base ≃ ℤ :=
+  definition base_eq_base_equiv [constructor] : base = base ≃ ℤ :=
   circle_eq_equiv base
 
   definition decode_add (a b : ℤ) :
@@ -247,16 +247,26 @@ namespace circle
   definition fg_carrier_equiv_int : π₁(S¹) ≃ ℤ :=
   trunc_equiv_trunc 0 base_eq_base_equiv ⬝e !equiv_trunc⁻¹ᵉ
 
+  definition con_comm_base (p q : base = base) : p ⬝ q = q ⬝ p :=
+  eq_of_fn_eq_fn base_eq_base_equiv (by esimp;rewrite [+encode_con,add.comm])
+
   definition fundamental_group_of_circle : π₁(S¹) = group_integers :=
   begin
     apply (Group_eq fg_carrier_equiv_int),
     intros g h,
     induction g with g', induction h with h',
-    -- esimp at *,
-    -- esimp [fg_carrier_equiv_int,equiv.trans,equiv.symm,equiv_trunc,trunc_equiv_trunc,
-    --   base_eq_base_equiv,circle_eq_equiv,is_equiv_tr,semigroup.to_has_mul,monoid.to_semigroup,
-    --   group.to_monoid,fundamental_group.mul],
     apply encode_con,
+  end
+
+  definition eq_equiv_Z (x : S¹) : x = x ≃ ℤ :=
+  begin
+    induction x,
+    { apply base_eq_base_equiv},
+    { apply equiv_pathover, intro p p' q, apply pathover_of_eq,
+      let H := eq_of_square (square_of_pathover q),
+      rewrite con_comm_base at H,
+      let H' := cancel_left H,
+      induction H', reflexivity}
   end
 
 end circle

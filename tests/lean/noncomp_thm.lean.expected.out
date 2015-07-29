@@ -1,0 +1,1 @@
+noncomp_thm.lean:1:0: error: invalid 'noncomputable' declaration, it can only be used for definitions

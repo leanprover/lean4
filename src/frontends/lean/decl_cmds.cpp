@@ -1070,6 +1070,10 @@ public:
         m_is_private(is_private), m_is_protected(is_protected), m_is_noncomputable(is_noncomputable),
         m_pos(p.pos()), m_attributes(kind == Abbreviation || kind == LocalAbbreviation) {
         lean_assert(!(m_is_private && m_is_protected));
+        if (!is_standard(m_p.env()) && is_noncomputable)
+            throw exception("invalid 'noncomputable' declarations, it can only be used in the standard library");
+        if (kind != Definition && is_noncomputable)
+            throw exception("invalid 'noncomputable' declaration, it can only be used for definitions");
     }
 
     environment operator()() {

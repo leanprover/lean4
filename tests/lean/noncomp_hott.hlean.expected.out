@@ -1,0 +1,1 @@
+noncomp_hott.hlean:1:0: error: invalid 'noncomputable' declarations, it can only be used in the standard library

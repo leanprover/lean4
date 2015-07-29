@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
+#include "kernel/for_each_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "kernel/quotient/quotient.h"
 #include "kernel/hits/hits.h"
@@ -68,18 +69,61 @@ static void print_coercions(parser & p, optional<name> const & C) {
         });
 }
 
+struct print_axioms_deps {
+    environment     m_env;
+    io_state_stream m_ios;
+    name_set        m_visited;
+    bool            m_use_axioms;
+    print_axioms_deps(environment const & env, io_state_stream const & ios):
+        m_env(env), m_ios(ios), m_use_axioms(false) {}
+
+    void visit(name const & n) {
+        if (m_visited.contains(n))
+            return;
+        m_visited.insert(n);
+        declaration const & d = m_env.get(n);
+        if (!d.is_definition() && !m_env.is_builtin(n)) {
+            m_use_axioms = true;
+            m_ios << d.get_name() << "\n";
+        }
+        visit(d.get_type());
+        if (d.is_definition())
+            visit(d.get_value());
+    }
+
+    void visit(expr const & e) {
+        for_each(e, [&](expr const & e, unsigned) {
+                if (is_constant(e))
+                    visit(const_name(e));
+                return true;
+            });
+    }
+
+    void operator()(name const & n) {
+        visit(n);
+        if (!m_use_axioms)
+            m_ios << "no axioms" << endl;
+    }
+
+};
+
 static void print_axioms(parser & p) {
-    bool has_axioms = false;
-    environment const & env = p.env();
-    env.for_each_declaration([&](declaration const & d) {
-            name const & n = d.get_name();
-            if (!d.is_definition() && !env.is_builtin(n)) {
-                p.regular_stream() << n << " : " << d.get_type() << endl;
-                has_axioms = true;
-            }
-        });
-    if (!has_axioms)
-        p.regular_stream() << "no axioms" << endl;
+    if (p.curr_is_identifier()) {
+        name c = p.check_constant_next("invalid 'print axioms', constant expected");
+        print_axioms_deps(p.env(), p.regular_stream())(c);
+    } else {
+        bool has_axioms = false;
+        environment const & env = p.env();
+        env.for_each_declaration([&](declaration const & d) {
+                name const & n = d.get_name();
+                if (!d.is_definition() && !env.is_builtin(n)) {
+                    p.regular_stream() << n << " : " << d.get_type() << endl;
+                    has_axioms = true;
+                }
+            });
+        if (!has_axioms)
+            p.regular_stream() << "no axioms" << endl;
+    }
 }
 
 static void print_prefix(parser & p) {

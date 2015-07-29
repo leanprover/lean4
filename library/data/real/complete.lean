@@ -406,7 +406,145 @@ theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
     rewrite [-*pnat.mul.assoc, p_add_fractions],
     apply rat.le.refl
   end
+-- archimedean property
+section ints
 
+open int
+
+theorem archimedean (x : ℝ) : ∃ z : ℤ, x ≤ of_rat (of_int z) :=
+  begin
+    apply quot.induction_on x,
+    intro s,
+    cases (s.bdd_of_regular (s.reg_seq.is_reg s)) with [b, Hb],
+    existsi (ubound b),
+    have H : s.s_le (s.reg_seq.sq s) (s.const (rat.of_nat (ubound b))), begin
+      apply s.s_le_of_le_pointwise (s.reg_seq.is_reg s),
+      apply s.const_reg,
+      intro n,
+      apply rat.le.trans,
+      apply Hb,
+      apply ubound_ge
+    end,
+    apply H
+  end
+
+set_option pp.coercions true
+theorem archimedean_strict (x : ℝ) : ∃ z : ℤ, x < of_rat (of_int z) :=
+  begin
+    cases archimedean x with [z, Hz],
+    existsi z + 1,
+    apply lt_of_le_of_lt,
+    apply Hz,
+    apply of_rat_lt_of_rat_of_lt,
+    apply iff.mpr !of_int_lt_of_int,
+    apply int.lt_add_of_pos_right,
+    apply dec_trivial
+  end
+
+theorem archimedean' (x : ℝ) : ∃ z : ℤ, x ≥ of_rat (of_int z) :=
+  begin
+    cases archimedean (-x) with [z, Hz],
+    existsi -z,
+    rewrite [of_int_neg, -of_rat_neg], -- change the direction of of_rat_neg
+    apply iff.mp !neg_le_iff_neg_le Hz
+  end
+
+theorem archimedean_strict' (x : ℝ) : ∃ z : ℤ, x > of_rat (of_int z) :=
+  begin
+    cases archimedean_strict (-x) with [z, Hz],
+    existsi -z,
+    rewrite [of_int_neg, -of_rat_neg],
+    apply iff.mp !neg_lt_iff_neg_lt Hz
+  end
+
+theorem ex_smallest_of_bdd {P : ℤ → Prop} (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z ≤ b → ¬ P z)
+        (Hinh : ∃ z : ℤ, P z) : ∃ lb : ℤ, P lb ∧ (∀ z : ℤ, z < lb → ¬ P z) :=
+  sorry
+
+theorem ex_largest_of_bdd {P : ℤ → Prop} (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z ≥ b → ¬ P z)
+        (Hinh : ∃ z : ℤ, P z) : ∃ ub : ℤ, P ub ∧ (∀ z : ℤ, z > ub → ¬ P z) := sorry
+
+definition ex_floor (x : ℝ) :=
+  (@ex_largest_of_bdd (λ z, x ≥ of_rat (of_int z))
+    (begin
+      existsi (some (archimedean_strict x)),
+      let Har := some_spec (archimedean_strict x),
+      intros z Hz,
+      apply not_le_of_gt,
+      apply lt_of_lt_of_le,
+      apply Har,
+      have H : of_rat (of_int (some (archimedean_strict x))) ≤ of_rat (of_int z), begin
+        apply of_rat_le_of_rat_of_le,
+        apply iff.mpr !of_int_le_of_int,
+        apply Hz
+      end,
+      exact H
+    end)
+    (begin
+      existsi some (archimedean' x),
+      apply some_spec (archimedean' x)
+    end))
+
+definition floor (x : ℝ) :=
+  some (ex_floor x)
+
+definition ceil (x : ℝ) := - floor (-x)
+
+theorem floor_spec (x : ℝ) : of_rat (of_int (floor x)) ≤ x :=
+  and.left (some_spec (ex_floor x))
+
+theorem floor_largest {x : ℝ} {z : ℤ} (Hz : z > floor x) : x < of_rat (of_int z) :=
+  begin
+    apply lt_of_not_ge,
+    cases some_spec (ex_floor x),
+    apply a_1 _ Hz
+  end
+
+theorem ceil_spec (x : ℝ) : of_rat (of_int (ceil x)) ≥ x :=
+  begin
+    rewrite [↑ceil, of_int_neg, -of_rat_neg],
+    apply iff.mp !le_neg_iff_le_neg,
+    apply floor_spec
+  end
+
+theorem ceil_smallest {x : ℝ} {z : ℤ} (Hz : z < ceil x) : x > of_rat (of_int z) :=
+  begin
+    rewrite ↑ceil at Hz,
+    let Hz' := floor_largest (iff.mp !int.lt_neg_iff_lt_neg Hz),
+    rewrite [of_int_neg at Hz', -of_rat_neg at Hz'],
+    apply lt_of_neg_lt_neg Hz'
+  end
+
+theorem floor_succ (x : ℝ) : (floor x) + 1 = floor (x + 1) :=
+  begin
+    apply by_contradiction,
+    intro H,
+    cases int.lt_or_gt_of_ne H with [Hlt, Hgt],
+    let Hl := floor_largest (iff.mp !int.add_lt_add_iff_lt_sub_right Hlt),
+    rewrite [of_int_sub at Hl, -of_rat_sub at Hl],
+    let Hl' := iff.mpr !add_lt_add_iff_lt_sub_right Hl,
+    apply (not_le_of_gt Hl') !floor_spec,
+    let Hl := floor_largest Hgt,
+    rewrite [of_int_add at Hl, -of_rat_add at Hl],
+    let Hl' := lt_of_add_lt_add_right Hl,
+    apply (not_le_of_gt Hl') !floor_spec
+  end
+
+theorem floor_succ_lt (x : ℝ) : floor (x - 1) < floor x :=
+  begin
+    apply @int.lt_of_add_lt_add_right _ 1,
+    rewrite [floor_succ (x - 1), sub_add_cancel],
+    apply int.lt_add_of_pos_right dec_trivial
+  end
+
+theorem ceil_succ (x : ℝ) : ceil x < ceil (x + 1) :=
+  begin
+    rewrite [↑ceil, neg_add],
+    apply int.neg_lt_neg,
+    apply floor_succ_lt
+  end
+
+end ints
 --------------------------------------------------
 -- supremum property
 -- this development roughly follows the proof of completeness done in Isabelle.
@@ -435,16 +573,7 @@ hypothesis inh :  X elt
 parameter bound : ℝ
 hypothesis bdd : ub bound
 
--- floor and ceil should be defined directly. I'm not sure of the best way to do this yet.
-parameter floor : ℝ → int
-parameter ceil : ℝ → int
-hypothesis floor_spec : ∀ x : ℝ, of_rat (of_int (floor x)) ≤ x
-hypothesis ceil_spec : ∀ x : ℝ, of_rat (of_int (ceil x)) ≥ x
-hypothesis floor_succ : ∀ x : ℝ, int.lt (floor (x - 1)) (floor x)
-hypothesis ceil_succ : ∀ x : ℝ, int.lt (ceil x) (ceil (x + 1))
-
-include inh bdd floor_spec ceil_spec floor_succ ceil_succ
-
+include inh bdd
 
 -- this should exist somewhere, no? I can't find it
 theorem not_forall_of_exists_not {A : Type} {P : A → Prop} (H : ∃ a : A, ¬ P a) :
@@ -471,7 +600,7 @@ theorem under_spec1 : of_rat under < elt :=
   have H : of_rat under < of_rat (of_int (floor elt)), begin
     apply of_rat_lt_of_rat_of_lt,
     apply iff.mpr !of_int_lt_of_int,
-    apply floor_succ
+    apply floor_succ_lt
   end,
   lt_of_lt_of_le H !floor_spec
 
@@ -843,7 +972,7 @@ theorem under_over_equiv : p_under_seq ≡ p_over_seq :=
 
 theorem under_over_eq : sup_under = sup_over := quot.sound under_over_equiv
 
-theorem supremum_of_complete : ∃ x : ℝ, sup x :=
+theorem supremum_property : ∃ x : ℝ, sup x :=
   exists.intro sup_over (and.intro over_bound (under_over_eq ▸ under_lowest_bound))
 
 end supremum

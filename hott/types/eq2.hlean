@@ -102,13 +102,18 @@ namespace eq
 --                       (pathover_idp_of_eq (H a)) (pathover_idp_of_eq (H a₂)) :=
 -- by induction p;esimp;exact hrflo
 
-definition naturality_apdo_eq {A : Type} {B : A → Type} {a a₂ : A} {f g : Πa, B a}
-  (H : f ~ g) (p : a = a₂)
-  : apdo f p = concato_eq (eq_concato (H a) (apdo g p)) (H a₂)⁻¹ :=
-begin
-  induction p, esimp,
-  generalizes [H a, g a], intro ga Ha, induction Ha,
-  reflexivity
-end
+  definition naturality_apdo_eq {A : Type} {B : A → Type} {a a₂ : A} {f g : Πa, B a}
+    (H : f ~ g) (p : a = a₂)
+    : apdo f p = concato_eq (eq_concato (H a) (apdo g p)) (H a₂)⁻¹ :=
+  begin
+    induction p, esimp,
+    generalizes [H a, g a], intro ga Ha, induction Ha,
+    reflexivity
+  end
+
+  theorem con_tr_idp {P : A → Type} {x y : A} (q : x = y) (u : P x) :
+    con_tr idp q u = ap (λp, p ▸ u) (idp_con q) :=
+  by induction q;reflexivity
+
 
 end eq

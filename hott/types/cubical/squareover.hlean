@@ -64,6 +64,45 @@ namespace eq
     : squareover B hrfl idpo idpo q₁₀ q₁₀' :=
   by induction r; exact hrflo
 
+  -- relating squareovers to squares
+  definition square_of_squareover (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁) :
+    square (!con_tr ⬝ ap (λa, p₂₁ ▸ a) (tr_eq_of_pathover q₁₀))
+           (tr_eq_of_pathover q₁₂)
+           (ap (λq, q ▸ b₀₀) (eq_of_square s₁₁) ⬝ !con_tr ⬝ ap (λa, p₁₂ ▸ a) (tr_eq_of_pathover q₀₁))
+           (tr_eq_of_pathover q₂₁) :=
+  by induction t₁₁; esimp; constructor
+/-
+  definition squareover_of_square
+    (q : square (!con_tr ⬝ ap (λa, p₂₁ ▸ a) (tr_eq_of_pathover q₁₀))
+           (tr_eq_of_pathover q₁₂)
+           (ap (λq, q ▸ b₀₀) (eq_of_square s₁₁) ⬝ !con_tr ⬝ ap (λa, p₁₂ ▸ a) (tr_eq_of_pathover q₀₁))
+           (tr_eq_of_pathover q₂₁))
+    : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁ :=
+  sorry
+-/
+
+  definition square_of_squareover_ids {b₀₀ b₀₂ b₂₀ b₂₂ : B a}
+    (t : b₀₀ = b₂₀) (b : b₀₂ = b₂₂) (l : b₀₀ = b₀₂) (r : b₂₀ = b₂₂)
+    (so : squareover B ids (pathover_idp_of_eq t)
+                           (pathover_idp_of_eq b)
+                           (pathover_idp_of_eq l)
+                           (pathover_idp_of_eq r)) : square t b l r :=
+  begin
+    let H := square_of_squareover so,  -- use apply ... in
+    rewrite [▸* at H,+idp_con at H,+ap_id at H,↑pathover_idp_of_eq at H],
+    rewrite [+to_right_inv !(pathover_equiv_tr_eq (refl a)) at H],
+    exact H
+  end
+
+  definition squareover_ids_of_square {b₀₀ b₀₂ b₂₀ b₂₂ : B a}
+    (t : b₀₀ = b₂₀) (b : b₀₂ = b₂₂) (l : b₀₀ = b₀₂) (r : b₂₀ = b₂₂) (q : square t b l r)
+    : squareover B ids (pathover_idp_of_eq t)
+                       (pathover_idp_of_eq b)
+                       (pathover_idp_of_eq l)
+                       (pathover_idp_of_eq r) :=
+  square.rec_on q idso
+
+  -- relating pathovers to squareovers
   definition pathover_of_squareover (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁)
     : q₁₀ ⬝o q₂₁ =[eq_of_square s₁₁] q₀₁ ⬝o q₁₂ :=
   by induction t₁₁; constructor
@@ -81,7 +120,7 @@ namespace eq
     : squareover B (square_of_eq_top s) q₁₀ q₁₂ q₀₁ q₂₁ :=
   by induction q₂₁; induction q₁₂; esimp at r;induction r;induction q₁₀;constructor
 
-/-
+  /-
   definition squareover_equiv_pathover (q₁₀ : b₀₀ =[p₁₀] b₂₀) (q₁₂ : b₀₂ =[p₁₂] b₂₂)
     (q₀₁ : b₀₀ =[p₀₁] b₀₂) (q₂₁ : b₂₀ =[p₂₁] b₂₂)
     : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁ ≃ q₁₀ ⬝o q₂₁ =[eq_of_square s₁₁] q₀₁ ⬝o q₁₂ :=
@@ -89,13 +128,20 @@ namespace eq
     fapply equiv.MK,
     { exact pathover_of_squareover},
     { intro r, rewrite [-to_left_inv !square_equiv_eq s₁₁], apply squareover_of_pathover, exact r},
-    { intro r, apply sorry}, --need characterization of squareover lying over ids.
+    { intro r, }, --need characterization of squareover lying over ids.
     { intro s, induction s, apply idp},
   end
+  -/
 
   definition eq_of_vdeg_squareover {q₁₀' : b₀₀ =[p₁₀] b₂₀}
     (p : squareover B vrfl q₁₀ q₁₀' idpo idpo) : q₁₀ = q₁₀' :=
-  sorry
+  begin
+    let H := square_of_squareover p,  -- use apply ... in
+    induction p₁₀, -- if needed we can remove this induction and use con_tr_idp in types/eq2
+    rewrite [▸* at H,idp_con at H,+ap_id at H],
+    let H' := eq_of_vdeg_square H,
+    exact eq_of_fn_eq_fn !pathover_equiv_tr_eq H'
+  end
 
   -- definition vdeg_tr_squareover {q₁₂ : p₀₁ ▸ b₀₀ =[p₁₂] p₂₁ ▸ b₂₀} (r : q₁₀ =[_] q₁₂)
   --   : squareover B s₁₁ q₁₀ q₁₂ !pathover_tr !pathover_tr :=
@@ -112,13 +158,4 @@ namespace eq
     : pathover (λa, pathover B (b a) (q a) (b₂ a)) r p r₂ :=
   by induction p;esimp at s; apply pathover_idp_of_eq; apply eq_of_vdeg_squareover; exact s
 
-  -- TODO: remove
-  definition pathover_pathover_fl {a' a₂' : A'} {p : a' = a₂'} {a₂ : A} {f : A' → A}
-    {b : Πa, B (f a)} {b₂ : B a₂} {q : Π(a' : A'), f a' = a₂} (r : pathover B (b a') (q a') b₂)
-    (r₂ : pathover B (b a₂') (q a₂') b₂)
-    (s : squareover B (natural_square_tr q p) r r₂
-                      (pathover_ap B f (apdo b p)) (change_path !ap_constant⁻¹ idpo))
-    : r =[p] r₂ :=
-  by induction p; esimp at s; apply pathover_idp_of_eq; apply eq_of_vdeg_squareover; exact s
--/
 end eq

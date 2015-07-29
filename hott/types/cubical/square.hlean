@@ -35,9 +35,9 @@ namespace eq
   definition vrefl [unfold 4] (p : a = a') : square p p idp idp :=
   by induction p; exact ids
 
-  definition hrfl [unfold 4] {p : a = a'} : square idp idp p p :=
+  definition hrfl [reducible] [unfold 4] {p : a = a'} : square idp idp p p :=
   !hrefl
-  definition vrfl [unfold 4] {p : a = a'} : square p p idp idp :=
+  definition vrfl [reducible] [unfold 4] {p : a = a'} : square p p idp idp :=
   !vrefl
 
   definition hdeg_square [unfold 6] {p q : a = a'} (r : p = q) : square idp idp p q :=
@@ -232,6 +232,12 @@ namespace eq
     : square_of_pathover (s ⬝o s')
   = ap_con f p p' ⬝ph (square_of_pathover s ⬝v square_of_pathover s') ⬝hp (ap_con g p p')⁻¹ :=
   by induction s';induction s;esimp [ap_con,hconcat_eq];exact !vconcat_vrfl⁻¹
+
+  definition eq_of_square_hrfl [unfold 4] (p : a = a') : eq_of_square hrfl = idp_con p :=
+  by induction p;reflexivity
+
+  definition eq_of_square_vrfl [unfold 4] (p : a = a') : eq_of_square vrfl = (idp_con p)⁻¹ :=
+  by induction p;reflexivity
 
   definition eq_of_square_hdeg_square {p q : a = a'} (r : p = q)
     : eq_of_square (hdeg_square r) = !idp_con ⬝ r⁻¹ :=

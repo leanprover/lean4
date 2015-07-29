@@ -406,9 +406,9 @@ namespace eq
 
   definition idp_tr {P : A → Type} {x : A} (u : P x) : idp ▸ u = u := idp
 
-  definition con_tr {P : A → Type} {x y z : A} (p : x = y) (q : y = z) (u : P x) :
+  definition con_tr [unfold 7] {P : A → Type} {x y z : A} (p : x = y) (q : y = z) (u : P x) :
     p ⬝ q ▸ u = q ▸ p ▸ u :=
-  eq.rec_on q (eq.rec_on p idp)
+  eq.rec_on q idp
 
   definition tr_inv_tr {P : A → Type} {x y : A} (p : x = y) (z : P y) :
     p ▸ p⁻¹ ▸ z = z :=

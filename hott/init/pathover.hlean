@@ -131,7 +131,7 @@ namespace eq
 
   --should B be explicit in the next two definitions?
   definition pathover_idp_of_eq [unfold 6] {b' : B a} (q : b = b') : b =[idpath a] b' :=
-  eq.rec_on q idpo
+  pathover_of_tr_eq q
 
   definition pathover_idp [constructor] (b : B a) (b' : B a) : b =[idpath a] b' ≃ b = b' :=
   equiv.MK eq_of_pathover_idp

@@ -1852,7 +1852,9 @@ void elaborator::show_goal(proof_state const & ps, expr const & start, expr cons
     if (empty(gs)) {
         out << "no goals\n";
     } else {
-        out << head(gs) << "\n";
+        goal g = head(gs);
+        g      = g.instantiate(ps.get_subst());
+        out << g << "\n";
     }
     out << "END_LEAN_INFORMATION\n";
 }

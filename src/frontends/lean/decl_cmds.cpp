@@ -873,8 +873,12 @@ class definition_cmd_fn {
                     throw exception(sstream() << "definition '" << n << "' was marked as noncomputable because '" << *reason
                                     << "' is still in theorem queue (solution: use command 'reveal " << *reason << "'");
                 } else {
-                    throw exception(sstream() << "definition '" << n << "' is noncomputable, it depends on '" << *reason << "'");
+                    throw exception(sstream() << "definition '" << n
+                                    << "' is noncomputable, it depends on '" << *reason << "'");
                 }
+            }
+            if (m_is_noncomputable && !is_marked_noncomputable(m_env, real_n)) {
+                throw exception(sstream() << "definition '" << n << "' was incorrectly marked as noncomputable");
             }
             // TODO(Leo): register aux_decls
             if (!m_is_private)

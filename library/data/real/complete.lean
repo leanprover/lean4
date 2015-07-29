@@ -218,7 +218,7 @@ theorem rewrite_helper10 (a b c d : ℝ) : c - d = (c - a) + (a - b) + (b - d) :
 
 noncomputable definition rep (x : ℝ) : s.reg_seq := some (quot.exists_rep x)
 
-noncomputable definition re_abs (x : ℝ) : ℝ :=
+definition re_abs (x : ℝ) : ℝ :=
   quot.lift_on x (λ a, quot.mk (s.r_abs a)) (take a b Hab, quot.sound (s.r_abs_well_defined Hab))
 
 theorem r_abs_nonneg {x : ℝ} : zero ≤ x → re_abs x = x :=

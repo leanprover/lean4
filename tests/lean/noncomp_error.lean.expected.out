@@ -1,0 +1,1 @@
+noncomp_error.lean:1:0: error: definition 'a' was incorrectly marked as noncomputable

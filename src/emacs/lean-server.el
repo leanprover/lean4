@@ -432,25 +432,28 @@ If it's not the same with file-name (default: buffer-file-name), send VISIT cmd.
                      (lean-server-async-task-queue-len))
   (while lean-global-async-task-queue
     (accept-process-output (lean-server-get-process) 0 50 t)
-    (let* ((front-item (lean-server-async-task-queue-peek-front))
-           (cont       (car front-item))
-           (cmd-type   (cdr front-item))
-           (result (lean-server-check-and-process-buffer-with-cont cont
-                                                                   cmd-type)))
-      (pcase result
-        (`(PROCESSED ,ret)
-         (lean-server-async-task-queue-pop-front)
-                  (lean-debug "lean-server-consume-all-sync-tasks: processed. queue size = %d"
-                            (lean-server-async-task-queue-len)))
-        (`(NOTREADY)
-         (lean-debug "lean-server-consume-all-sync-tasks: not ready. queue size = %d"
-                            (lean-server-async-task-queue-len)))
-        (t
-         (lean-server-async-task-queue-pop-front)
-         (lean-debug "lean-server-consume-all-sync-tasks: either error or quit happend. queue size = %d"
-                            (lean-server-async-task-queue-len))))))
-  (lean-debug "lean-server-consume-all-async-tasks: over. queue size = %d"
-                     (lean-server-async-task-queue-len)))
+    (let ((kill-timer (run-at-time lean-time-to-restart-server nil
+                                   '(lambda () (lean-server-restart-process)))))
+      (let* ((front-item (lean-server-async-task-queue-peek-front))
+             (cont       (car front-item))
+             (cmd-type   (cdr front-item))
+             (result (lean-server-check-and-process-buffer-with-cont cont
+                                                                     cmd-type)))
+        (pcase result
+          (`(PROCESSED ,ret)
+           (lean-server-async-task-queue-pop-front)
+           (lean-debug "lean-server-consume-all-sync-tasks: processed. queue size = %d"
+                       (lean-server-async-task-queue-len)))
+          (`(NOTREADY)
+           (lean-debug "lean-server-consume-all-sync-tasks: not ready. queue size = %d"
+                       (lean-server-async-task-queue-len)))
+          (t
+           (lean-server-async-task-queue-pop-front)
+           (lean-debug "lean-server-consume-all-sync-tasks: either error or quit happend. queue size = %d"
+                       (lean-server-async-task-queue-len)))))
+      (cancel-timer kill-timer)
+      (lean-debug "lean-server-consume-all-async-tasks: over. queue size = %d"
+                  (lean-server-async-task-queue-len)))))
 
 (defun lean-server-send-cmd-sync (cmd &optional cont)
   "Send cmd to lean-server (sync)."
@@ -599,5 +602,14 @@ Otherwise, set an idle-timer to call the handler again"
   "Handle modified buffer when lean-mode start"
   (when (buffer-modified-p)
     (lean-server-send-cmd-async (lean-cmd-sync))))
+
+
+;; Sanity Check
+;; ============
+;; Compare the current buffer and the copy that lean-server is
+;; maintaining.
+(defun lean-server-sanity-check-p ()
+  (interactive)
+  (lean-server-send-cmd-async (lean-cmd-show) (lambda (msg) msg)))
 
 (provide 'lean-server)

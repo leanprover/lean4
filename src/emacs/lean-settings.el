@@ -151,4 +151,8 @@ false (nil)."
   "Disable this if we don't need to keep track of the changes. A usage
   is to batch-process .org files to .html files")
 
+(defcustom lean-time-to-restart-server 1
+  "After lean-time-to-kill-server passed, we restart lean-server if
+  the all jobs in the queue are not process.")
+
 (provide 'lean-settings)

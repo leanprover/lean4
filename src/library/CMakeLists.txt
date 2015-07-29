@@ -15,6 +15,6 @@ add_library(library deep_copy.cpp expr_lt.cpp io_state.cpp occurs.cpp
   unfold_macros.cpp app_builder.cpp projection.cpp abbreviation.cpp
   relation_manager.cpp export.cpp user_recursors.cpp
   class_instance_synth.cpp idx_metavar.cpp composition_manager.cpp
-  tc_multigraph.cpp)
+  tc_multigraph.cpp noncomputable.cpp)
 
 target_link_libraries(library ${LEAN_LIBS})

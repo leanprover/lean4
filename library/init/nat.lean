@@ -196,7 +196,7 @@ namespace nat
     (λh, inl (le_succ_of_le h))
     (λh, elim (eq_or_lt_of_le h) (λe, inl (eq.subst e !le.refl)) inr)) b
 
-  theorem lt_ge_by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a ≥ b → P) : P :=
+  definition lt_ge_by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a ≥ b → P) : P :=
   by_cases H1 (λh, H2 (elim !lt_or_ge (λa, absurd a h) (λa, a)))
 
   definition lt.by_cases {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a = b → P) (H3 : b < a → P) : P :=

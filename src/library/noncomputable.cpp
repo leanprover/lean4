@@ -62,6 +62,11 @@ bool is_noncomputable(environment const & env, name const & n) {
     return is_noncomputable(tc, ext, n);
 }
 
+bool is_marked_noncomputable(environment const & env, name const & n) {
+    auto ext = get_extension(env);
+    return ext.m_noncomputable.contains(n);
+}
+
 environment mark_noncomputable(environment const & env, name const & n) {
     auto ext = get_extension(env);
     ext.m_noncomputable.insert(n);
@@ -69,23 +74,29 @@ environment mark_noncomputable(environment const & env, name const & n) {
     return module::add(new_env, *g_key, [=](environment const &, serializer & s) { s << n; });
 }
 
-void validate_computable_definition(environment const & env, name const & n) {
+optional<name> get_noncomputable_reason(environment const & env, name const & n) {
     if (!is_standard(env))
-        return; // do nothing if it is not a standard kernel
-    type_checker tc(env);
+        return optional<name>(); // do nothing if it is not a standard kernel
     declaration const & d = env.get(n);
     if (!d.is_definition())
-        return;
+        return optional<name>();
+    type_checker tc(env);
     if (tc.is_prop(d.get_type()).first)
-        return; // definition is a proposition, then do nothing
+        return optional<name>(); // definition is a proposition, then do nothing
     expr const & v = d.get_value();
     auto ext = get_extension(env);
+    optional<name> r;
     for_each(v, [&](expr const & e, unsigned) {
             if (is_constant(e) && is_noncomputable(tc, ext, const_name(e))) {
-                throw exception(sstream() << "definition '" << n << "' is noncomputable, it depends on '" << const_name(e) << "'");
+                r = const_name(e);
             }
             return true;
         });
+    return r;
+}
+
+bool check_computable(environment const & env, name const & n) {
+    return !get_noncomputable_reason(env, n);
 }
 
 void initialize_noncomputable() {

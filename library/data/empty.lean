@@ -13,6 +13,8 @@ namespace empty
   subsingleton.intro (λ a b, !empty.elim a)
 end empty
 
+reveal empty.elim
+
 protected definition empty.has_decidable_eq [instance] : decidable_eq empty :=
 take (a b : empty), decidable.inl (!empty.elim a)
 

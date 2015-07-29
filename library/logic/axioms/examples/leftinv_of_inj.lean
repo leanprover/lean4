@@ -12,7 +12,7 @@ with (∃ a : A, f a = b).
 import logic.axioms.classical
 open function
 
-definition mk_left_inv {A B : Type} [h : nonempty A] (f : A → B) : B → A :=
+noncomputable definition mk_left_inv {A B : Type} [h : nonempty A] (f : A → B) : B → A :=
 λ b : B, if ex : (∃ a : A, f a = b) then some ex else inhabited.value (inhabited_of_nonempty h)
 
 theorem has_left_inverse_of_injective {A B : Type} {f : A → B} : nonempty A → injective f → has_left_inverse f :=

@@ -13,20 +13,20 @@ attribute path_fibrant [instance]
 
 notation a ≈ b := path a b
 
-definition test {A : Type} [fA : fibrant A] {x y : A} :
+noncomputable definition test {A : Type} [fA : fibrant A] {x y : A} :
   Π (z : A), y ≈ z → fibrant (x ≈ y → x ≈ z) := take z p, _
 
-definition test2 {A : Type} [fA : fibrant A] {x y : A} :
+noncomputable definition test2 {A : Type} [fA : fibrant A] {x y : A} :
 Π (z : A), y ≈ z → fibrant (x ≈ y → x ≈ z) := _
 
-definition test3 {A : Type} [fA : fibrant A] {x y : A} :
+noncomputable definition test3 {A : Type} [fA : fibrant A] {x y : A} :
   Π (z : A), y ≈ z → fibrant (x ≈ z) := _
 
-definition test4 {A : Type} [fA : fibrant A] {x y z : A} :
+noncomputable definition test4 {A : Type} [fA : fibrant A] {x y z : A} :
   fibrant (x ≈ y → x ≈ z) := _
 
 axiom imp_fibrant {A : Type} {B : Type} [C1 : fibrant A] [C2 : fibrant B] : fibrant (A → B)
 attribute imp_fibrant [instance]
 
-definition test5 {A : Type} [fA : fibrant A] {x y : A} :
+noncomputable definition test5 {A : Type} [fA : fibrant A] {x y : A} :
 Π (z : A), y ≈ z → fibrant (x ≈ y → x ≈ z) := _

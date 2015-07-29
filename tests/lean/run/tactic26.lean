@@ -14,7 +14,7 @@ theorem inr_inhabited (A : Type) {B : Type} (H : inhabited B) : inhabited (sum A
 
 notation `(` h `|` r:(foldl `|` (e r, tactic.or_else r e) h) `)` := r
 infixl `;`:15 := tactic.and_then
-
+reveal inl_inhabited inr_inhabited
 definition my_tac := fixpoint (λ t, ( apply @inl_inhabited; t
                                     | apply @inr_inhabited; t
                                     | apply @num.is_inhabited

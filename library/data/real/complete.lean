@@ -216,9 +216,9 @@ theorem rewrite_helper9 (a b c : ℝ) : b - c = (b - a) - (c - a) :=
 theorem rewrite_helper10 (a b c d : ℝ) : c - d = (c - a) + (a - b) + (b - d) :=
   by rewrite[*add_sub,*sub_add_cancel]
 
-definition rep (x : ℝ) : s.reg_seq := some (quot.exists_rep x)
+noncomputable definition rep (x : ℝ) : s.reg_seq := some (quot.exists_rep x)
 
-definition re_abs (x : ℝ) : ℝ :=
+noncomputable definition re_abs (x : ℝ) : ℝ :=
   quot.lift_on x (λ a, quot.mk (s.r_abs a)) (take a b Hab, quot.sound (s.r_abs_well_defined Hab))
 
 theorem r_abs_nonneg {x : ℝ} : zero ≤ x → re_abs x = x :=
@@ -251,7 +251,7 @@ theorem rat_approx' (x : ℝ) : ∀ n : ℕ+, ∃ q : ℚ, re_abs (x - const q) 
 theorem rat_approx (x : ℝ) : ∀ n : ℕ+, ∃ q : ℚ, abs (x - const q) ≤ const n⁻¹ :=
   by rewrite -re_abs_is_abs; apply rat_approx'
 
-definition approx (x : ℝ) (n : ℕ+) := some (rat_approx x n)
+noncomputable definition approx (x : ℝ) (n : ℕ+) := some (rat_approx x n)
 
 theorem approx_spec (x : ℝ) (n : ℕ+) : abs (x - (const (approx x n))) ≤ const n⁻¹ :=
   some_spec (rat_approx x n)
@@ -261,10 +261,10 @@ theorem approx_spec' (x : ℝ) (n : ℕ+) : abs ((const (approx x n)) - x) ≤ c
 
 notation `r_seq` := ℕ+ → ℝ
 
-definition converges_to (X : r_seq) (a : ℝ) (N : ℕ+ → ℕ+) :=
+noncomputable definition converges_to (X : r_seq) (a : ℝ) (N : ℕ+ → ℕ+) :=
   ∀ k : ℕ+, ∀ n : ℕ+, n ≥ N k → abs (X n - a) ≤ const k⁻¹
 
-definition cauchy (X : r_seq) (M : ℕ+ → ℕ+) :=
+noncomputable definition cauchy (X : r_seq) (M : ℕ+ → ℕ+) :=
   ∀ k : ℕ+, ∀ m n : ℕ+, m ≥ M k → n ≥ M k → abs (X m - X n) ≤ const k⁻¹
 --set_option pp.implicit true
 --set_option pp.coercions true
@@ -312,7 +312,7 @@ theorem Nb_spec_right (M : ℕ+ → ℕ+) (k : ℕ+) : M (2 * k) ≤ Nb M k := !
 
 theorem Nb_spec_left (M : ℕ+ → ℕ+) (k : ℕ+) : 3 * k ≤ Nb M k := !max_left
 
-definition lim_seq {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : ℕ+ → ℚ :=
+noncomputable definition lim_seq {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : ℕ+ → ℚ :=
   λ k, approx (X (Nb M k)) (2 * k)
 
 theorem lim_seq_reg_helper {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) {m n : ℕ+}
@@ -368,14 +368,14 @@ theorem lim_seq_spec {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) (k : ℕ+
     apply lim_seq_reg
   end
 
-definition r_lim_seq {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : s.reg_seq :=
+noncomputable definition r_lim_seq {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : s.reg_seq :=
   s.reg_seq.mk (lim_seq Hc) (lim_seq_reg Hc)
 
 theorem r_lim_seq_spec {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) (k : ℕ+) :
         s.r_le (s.r_abs (( s.radd (r_lim_seq Hc) (s.rneg (s.r_const ((s.reg_seq.sq (r_lim_seq Hc)) k)))))) (s.r_const (k)⁻¹) :=
   lim_seq_spec Hc k
 
-definition lim {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : ℝ :=
+noncomputable definition lim {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : ℝ :=
   quot.mk (r_lim_seq Hc)
 
 theorem re_lim_spec {x : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy x M) (k : ℕ+) :

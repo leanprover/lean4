@@ -18,7 +18,7 @@ definition trivial := true.intro
 definition not (a : Prop) := a → false
 prefix `¬` := not
 
-theorem absurd {a : Prop} {b : Type} (H1 : a) (H2 : ¬a) : b :=
+definition absurd {a : Prop} {b : Type} (H1 : a) (H2 : ¬a) : b :=
 false.rec b (H2 H1)
 
 /- not -/

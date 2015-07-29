@@ -88,6 +88,7 @@ static name const * g_begin_tk = nullptr;
 static name const * g_begin_plus_tk = nullptr;
 static name const * g_end_tk = nullptr;
 static name const * g_private_tk = nullptr;
+static name const * g_protected_tk = nullptr;
 static name const * g_definition_tk = nullptr;
 static name const * g_theorem_tk = nullptr;
 static name const * g_abbreviation_tk = nullptr;
@@ -151,6 +152,7 @@ static name const * g_trust_tk = nullptr;
 static name const * g_metaclasses_tk = nullptr;
 static name const * g_inductive_tk = nullptr;
 static name const * g_this_tk = nullptr;
+static name const * g_noncomputable_tk = nullptr;
 void initialize_tokens() {
     g_period_tk = new name{"."};
     g_placeholder_tk = new name{"_"};
@@ -237,6 +239,7 @@ void initialize_tokens() {
     g_begin_plus_tk = new name{"begin+"};
     g_end_tk = new name{"end"};
     g_private_tk = new name{"private"};
+    g_protected_tk = new name{"protected"};
     g_definition_tk = new name{"definition"};
     g_theorem_tk = new name{"theorem"};
     g_abbreviation_tk = new name{"abbreviation"};
@@ -300,6 +303,7 @@ void initialize_tokens() {
     g_metaclasses_tk = new name{"metaclasses"};
     g_inductive_tk = new name{"inductive"};
     g_this_tk = new name{"this"};
+    g_noncomputable_tk = new name{"noncomputable"};
 }
 void finalize_tokens() {
     delete g_period_tk;
@@ -387,6 +391,7 @@ void finalize_tokens() {
     delete g_begin_plus_tk;
     delete g_end_tk;
     delete g_private_tk;
+    delete g_protected_tk;
     delete g_definition_tk;
     delete g_theorem_tk;
     delete g_abbreviation_tk;
@@ -450,6 +455,7 @@ void finalize_tokens() {
     delete g_metaclasses_tk;
     delete g_inductive_tk;
     delete g_this_tk;
+    delete g_noncomputable_tk;
 }
 name const & get_period_tk() { return *g_period_tk; }
 name const & get_placeholder_tk() { return *g_placeholder_tk; }
@@ -536,6 +542,7 @@ name const & get_begin_tk() { return *g_begin_tk; }
 name const & get_begin_plus_tk() { return *g_begin_plus_tk; }
 name const & get_end_tk() { return *g_end_tk; }
 name const & get_private_tk() { return *g_private_tk; }
+name const & get_protected_tk() { return *g_protected_tk; }
 name const & get_definition_tk() { return *g_definition_tk; }
 name const & get_theorem_tk() { return *g_theorem_tk; }
 name const & get_abbreviation_tk() { return *g_abbreviation_tk; }
@@ -599,4 +606,5 @@ name const & get_trust_tk() { return *g_trust_tk; }
 name const & get_metaclasses_tk() { return *g_metaclasses_tk; }
 name const & get_inductive_tk() { return *g_inductive_tk; }
 name const & get_this_tk() { return *g_this_tk; }
+name const & get_noncomputable_tk() { return *g_noncomputable_tk; }
 }

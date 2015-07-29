@@ -83,6 +83,7 @@ begin        begin
 begin_plus   begin+
 end          end
 private      private
+protected    protected
 definition   definition
 theorem      theorem
 abbreviation abbreviation
@@ -146,3 +147,4 @@ trust        trust
 metaclasses  metaclasses
 inductive    inductive
 this         this
+noncomputable noncomputable

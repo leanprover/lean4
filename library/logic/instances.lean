@@ -35,6 +35,8 @@ is_congruence2.mk @congr_imp
 theorem is_congruence_iff : is_congruence2 iff iff iff iff :=
 is_congruence2.mk @congr_iff
 
+reveal is_congruence_not is_congruence_and is_congruence_or is_congruence_imp is_congruence_iff
+
 definition is_congruence_not_compose [instance] := is_congruence.compose is_congruence_not
 definition is_congruence_and_compose [instance] := is_congruence.compose21 is_congruence_and
 definition is_congruence_or_compose [instance] := is_congruence.compose21 is_congruence_or

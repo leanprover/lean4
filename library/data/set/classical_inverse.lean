@@ -13,7 +13,7 @@ namespace set
 
 variables {X Y : Type}
 
-definition inv_fun (f : X → Y) (a : set X) (dflt : X) (y : Y) : X :=
+noncomputable definition inv_fun (f : X → Y) (a : set X) (dflt : X) (y : Y) : X :=
 if H : ∃₀ x ∈ a, f x = y then some H else dflt
 
 theorem inv_fun_pos {f : X → Y} {a : set X} {dflt : X} {y : Y}
@@ -65,7 +65,7 @@ namespace map
 
 variables {X Y : Type} {a : set X} {b : set Y}
 
-protected definition inverse (f : map a b) {dflt : X} (dflta : dflt ∈ a) :=
+protected noncomputable definition inverse (f : map a b) {dflt : X} (dflta : dflt ∈ a) :=
 map.mk (inv_fun f a dflt) (@maps_to_inv_fun _ _ _ _ b _ dflta)
 
 theorem left_inverse_inverse {f : map a b} {dflt : X} (dflta : dflt ∈ a) (H : map.injective f) :

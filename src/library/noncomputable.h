@@ -8,12 +8,14 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
+bool is_marked_noncomputable(environment const & env, name const & n);
 /** \brief Return true if \c n is noncomputable */
 bool is_noncomputable(environment const & env, name const & n);
 /** \brief Mark \c n as noncomputable */
 environment mark_noncomputable(environment const & env, name const & n);
-/** \brief Throw an exception if \c n depends on a noncomputable definition */
-void validate_computable_definition(environment const & env, name const & n);
+/** \brief In standard mode, check if definitions that are not propositions can compute */
+bool check_computable(environment const & env, name const & n);
+optional<name> get_noncomputable_reason(environment const & env, name const & n);
 void initialize_noncomputable();
 void finalize_noncomputable();
 }

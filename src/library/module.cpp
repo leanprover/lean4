@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "kernel/quotient/quotient.h"
 #include "kernel/hits/hits.h"
 #include "library/module.h"
+#include "library/noncomputable.h"
 #include "library/sorry.h"
 #include "library/kernel_serializer.h"
 #include "library/unfold_macros.h"
@@ -219,11 +220,15 @@ static environment export_decl(environment const & env, declaration const & d) {
 environment add(environment const & env, certified_declaration const & d) {
     environment new_env = env.add(d);
     declaration _d = d.get_declaration();
+    if (!check_computable(new_env, _d.get_name()))
+        new_env = mark_noncomputable(new_env, _d.get_name());
     return export_decl(update_module_defs(new_env, _d), _d);
 }
 
 environment add(environment const & env, declaration const & d) {
     environment new_env = env.add(d);
+    if (!check_computable(new_env, d.get_name()))
+        new_env = mark_noncomputable(new_env, d.get_name());
     return export_decl(update_module_defs(new_env, d), d);
 }
 

@@ -14,7 +14,7 @@ open relation nonempty subtype
 
 /- abstract quotient -/
 
-definition prelim_map {A : Type} (R : A → A → Prop) (a : A) :=
+noncomputable definition prelim_map {A : Type} (R : A → A → Prop) (a : A) :=
 -- TODO: it is interesting how the elaborator fails here
 -- epsilon (fun b, R a b)
 @epsilon _ (nonempty.intro a) (fun b, R a b)
@@ -42,12 +42,12 @@ assert H5 : nonempty A, from
 show epsilon (λc, R a c) = epsilon (λc, R b c), from
   congr_arg _ H4
 
-definition quotient {A : Type} (R : A → A → Prop) : Type := image (prelim_map R)
+noncomputable definition quotient {A : Type} (R : A → A → Prop) : Type := image (prelim_map R)
 
-definition quotient_abs {A : Type} (R : A → A → Prop) : A → quotient R :=
+noncomputable definition quotient_abs {A : Type} (R : A → A → Prop) : A → quotient R :=
 fun_image (prelim_map R)
 
-definition quotient_elt_of {A : Type} (R : A → A → Prop) : quotient R → A := elt_of
+noncomputable definition quotient_elt_of {A : Type} (R : A → A → Prop) : quotient R → A := elt_of
 
 theorem quotient_is_quotient  {A : Type} (R : A → A → Prop) (H : is_equivalence R)
   : is_quotient R (quotient_abs R) (quotient_elt_of R) :=

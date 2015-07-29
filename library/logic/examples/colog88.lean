@@ -32,7 +32,7 @@ axiom recA   : Π {C : A → Type}, (Π (p : Phi A), C (introA p)) → (Π (a : 
 axiom recA_comp : Π {C : A → Type} (H : Π (p : Phi A), C (introA p)) (p : Phi A), recA H (introA p) = H p
 
 -- The recursor could be used to define matchA
-definition matchA (a : A) : Phi A :=
+noncomputable definition matchA (a : A) : Phi A :=
 recA (λ p, p) a
 
 -- and the computation rule would allows us to define
@@ -57,7 +57,7 @@ lemma i_injective {T : Type} {a b : T} : i a = i b → a = b :=
   eq.symm e₃
 
 -- Hence, by composition, we get an injection f from (A → Prop) to A
-definition f : (A → Prop) → A :=
+noncomputable definition f : (A → Prop) → A :=
 λ p, introA (i p)
 
 lemma f_injective : ∀ {p p' : A → Prop}, f p = f p' → p = p':=
@@ -68,11 +68,11 @@ lemma f_injective : ∀ {p p' : A → Prop}, f p = f p' → p = p':=
   We are now back to the usual Cantor-Russel paradox.
   We can define
 -/
-definition P0 (a : A) : Prop :=
+noncomputable definition P0 (a : A) : Prop :=
 ∃ (P : A → Prop), f P = a ∧ ¬ P a
 -- i.e., P0 a := codes a set P such that x∉P
 
-definition x0 : A := f P0
+noncomputable definition x0 : A := f P0
 
 lemma fP0_eq : f P0 = x0 :=
 rfl

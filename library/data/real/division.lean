@@ -107,9 +107,9 @@ theorem sep_zero_of_pos {s : seq} (Hs : regular s) (Hpos : pos s) : sep s zero :
 ------------------------
 -- This section could be cleaned up.
 
-definition pb {s : seq} (Hs : regular s) (Hpos : pos s) :=
+noncomputable definition pb {s : seq} (Hs : regular s) (Hpos : pos s) :=
   some (abs_pos_of_nonzero Hs (sep_zero_of_pos Hs Hpos))
-definition ps {s : seq} (Hs : regular s) (Hsep : sep s zero) :=
+noncomputable definition ps {s : seq} (Hs : regular s) (Hsep : sep s zero) :=
   some (abs_pos_of_nonzero Hs Hsep)
 
 
@@ -121,7 +121,7 @@ theorem ps_spec {s : seq} (Hs : regular s) (Hsep : sep s zero) :
         ∀ m : ℕ+, m ≥ (ps Hs Hsep) → abs (s m) ≥ (ps Hs Hsep)⁻¹ :=
   some_spec (abs_pos_of_nonzero Hs Hsep)
 
-definition s_inv {s : seq} (Hs : regular s) (n : ℕ+) : ℚ :=
+noncomputable definition s_inv {s : seq} (Hs : regular s) (n : ℕ+) : ℚ :=
   if H : sep s zero then
       (if n < (ps Hs H) then 1 / (s ((ps Hs H) * (ps Hs H) * (ps Hs H)))
         else 1 / (s ((ps Hs H) * (ps Hs H) * n)))
@@ -570,7 +570,7 @@ theorem s_le_of_equiv_le_right {s t u : seq} (Hs : regular s) (Ht : regular t) (
 
 -----------------------------
 
-definition r_inv (s : reg_seq) : reg_seq := reg_seq.mk (s_inv (reg_seq.is_reg s))
+noncomputable definition r_inv (s : reg_seq) : reg_seq := reg_seq.mk (s_inv (reg_seq.is_reg s))
   (if H : sep (reg_seq.sq s) zero then reg_inv_reg (reg_seq.is_reg s) H else
     have Hz : s_inv (reg_seq.is_reg s) = zero, from funext (λ n, dif_neg H), Hz⁻¹ ▸ zero_is_reg)
 
@@ -605,7 +605,7 @@ end s
 namespace real
 open [classes] s
 
-definition inv (x : ℝ) : ℝ := quot.lift_on x (λ a, quot.mk (s.r_inv a))
+noncomputable definition inv (x : ℝ) : ℝ := quot.lift_on x (λ a, quot.mk (s.r_inv a))
            (λ a b H, quot.sound (s.r_inv_well_defined H))
 postfix [priority real.prio] `⁻¹` := inv
 
@@ -651,7 +651,7 @@ theorem dec_lt : decidable_rel lt :=
 section migrate_algebra
   open [classes] algebra
 
-  protected definition discrete_linear_ordered_field [reducible] :
+  protected noncomputable definition discrete_linear_ordered_field [reducible] :
       algebra.discrete_linear_ordered_field ℝ :=
   ⦃ algebra.discrete_linear_ordered_field, real.comm_ring, real.ordered_ring,
     le_total := le_total,
@@ -667,11 +667,11 @@ section migrate_algebra
   local attribute real.comm_ring [instance]
   local attribute real.ordered_ring [instance]
 
-  definition abs (n : ℝ) : ℝ := algebra.abs n
-  definition sign (n : ℝ) : ℝ := algebra.sign n
-  definition max (a b : ℝ) : ℝ   := algebra.max a b
-  definition min (a b : ℝ) : ℝ   := algebra.min a b
-  definition divide (a b : ℝ): ℝ := algebra.divide a b
+  noncomputable definition abs (n : ℝ) : ℝ := algebra.abs n
+  noncomputable definition sign (n : ℝ) : ℝ := algebra.sign n
+  noncomputable definition max (a b : ℝ) : ℝ   := algebra.max a b
+  noncomputable definition min (a b : ℝ) : ℝ   := algebra.min a b
+  noncomputable definition divide (a b : ℝ): ℝ := algebra.divide a b
 
   migrate from algebra with real
     replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign, dvd → dvd,

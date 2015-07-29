@@ -30,7 +30,7 @@ end foo
 
 open nat
 
-definition bla : nat :=
+noncomputable definition bla : nat :=
 foo.tst1 0 0 + foo.tst2 0 0 + foo.tst3 nat 1 1
 
 check foo.tst1

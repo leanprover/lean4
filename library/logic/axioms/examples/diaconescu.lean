@@ -18,8 +18,8 @@ parameter  p : Prop
 private definition U (x : Prop) : Prop := x = true ∨ p
 private definition V (x : Prop) : Prop := x = false ∨ p
 
-private definition u := epsilon U
-private definition v := epsilon V
+private noncomputable definition u := epsilon U
+private noncomputable definition v := epsilon V
 
 private lemma u_def : U u :=
 epsilon_spec (exists.intro true (or.inl rfl))

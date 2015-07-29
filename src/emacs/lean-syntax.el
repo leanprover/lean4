@@ -8,7 +8,7 @@
 (require 'rx)
 
 (defconst lean-keywords
-  '("import" "prelude" "tactic_hint" "protected" "private" "definition" "renaming"
+  '("import" "prelude" "tactic_hint" "protected" "private" "noncomputable" "definition" "renaming"
     "hiding" "exposing" "parameter" "parameters" "begin" "begin+" "proof" "qed" "conjecture" "constant" "constants"
     "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises"
     "print" "theorem" "example" "abbreviation" "abstract"

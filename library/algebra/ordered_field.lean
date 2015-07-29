@@ -329,6 +329,8 @@ section discrete_linear_ordered_field
       (assume H' : ¬ y < x,
         decidable.inl (le.antisymm (le_of_not_gt H') (le_of_not_gt H))))
 
+  reveal dec_eq_of_dec_lt
+
   definition discrete_linear_ordered_field.to_discrete_field [trans-instance] [reducible] [coercion]
      :  discrete_field A :=
      ⦃ discrete_field, s, has_decidable_eq := dec_eq_of_dec_lt⦄

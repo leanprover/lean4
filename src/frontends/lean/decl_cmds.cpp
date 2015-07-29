@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/private.h"
 #include "library/protected.h"
+#include "library/noncomputable.h"
 #include "library/placeholder.h"
 #include "library/locals.h"
 #include "library/explicit.h"
@@ -630,6 +631,7 @@ class definition_cmd_fn {
     def_cmd_kind      m_kind;
     bool              m_is_private;
     bool              m_is_protected;
+    bool              m_is_noncomputable;
     pos_info          m_pos;
 
     name              m_name;
@@ -864,6 +866,16 @@ class definition_cmd_fn {
 
     void register_decl(name const & n, name const & real_n, expr const & type) {
         if (m_kind != Example) {
+            if (!m_is_noncomputable && is_marked_noncomputable(m_env, real_n)) {
+                auto reason = get_noncomputable_reason(m_env, real_n);
+                lean_assert(reason);
+                if (m_p.in_theorem_queue(*reason)) {
+                    throw exception(sstream() << "definition '" << n << "' was marked as noncomputable because '" << *reason
+                                    << "' is still in theorem queue (solution: use command 'reveal " << *reason << "'");
+                } else {
+                    throw exception(sstream() << "definition '" << n << "' is noncomputable, it depends on '" << *reason << "'");
+                }
+            }
             // TODO(Leo): register aux_decls
             if (!m_is_private)
                 m_p.add_decl_index(real_n, m_pos, m_p.get_cmd_token(), type);
@@ -995,7 +1007,7 @@ class definition_cmd_fn {
                 m_ls = append(m_ls, new_ls);
                 m_type = postprocess(m_env, m_type);
                 expr type_as_is = m_p.save_pos(mk_as_is(m_type), type_pos);
-                if (!m_p.collecting_info() && m_kind == Theorem && m_p.num_threads() > 1) {
+                if (!m_p.collecting_info() && !m_is_noncomputable && m_kind == Theorem && m_p.num_threads() > 1) {
                     // Add as axiom, and create a task to prove the theorem.
                     // Remark: we don't postpone the "proof" of Examples.
                     m_p.add_delayed_theorem(m_env, m_real_name, m_ls, type_as_is, m_value);
@@ -1053,9 +1065,9 @@ class definition_cmd_fn {
     }
 
 public:
-    definition_cmd_fn(parser & p, def_cmd_kind kind, bool is_private, bool is_protected):
+    definition_cmd_fn(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable):
         m_p(p), m_env(m_p.env()), m_kind(kind),
-        m_is_private(is_private), m_is_protected(is_protected),
+        m_is_private(is_private), m_is_protected(is_protected), m_is_noncomputable(is_noncomputable),
         m_pos(p.pos()), m_attributes(kind == Abbreviation || kind == LocalAbbreviation) {
         lean_assert(!(m_is_private && m_is_protected));
     }
@@ -1082,26 +1094,31 @@ public:
     }
 };
 
-static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected) {
-    return definition_cmd_fn(p, kind, is_private, is_protected)();
+static environment definition_cmd_core(parser & p, def_cmd_kind kind, bool is_private, bool is_protected, bool is_noncomputable) {
+    return definition_cmd_fn(p, kind, is_private, is_protected, is_noncomputable)();
 }
 static environment definition_cmd(parser & p) {
-    return definition_cmd_core(p, Definition, false, false);
+    return definition_cmd_core(p, Definition, false, false, false);
 }
 static environment abbreviation_cmd(parser & p) {
-    return definition_cmd_core(p, Abbreviation, false, false);
+    return definition_cmd_core(p, Abbreviation, false, false, false);
 }
 environment local_abbreviation_cmd(parser & p) {
-    return definition_cmd_core(p, LocalAbbreviation, true, false);
+    return definition_cmd_core(p, LocalAbbreviation, true, false, false);
 }
 static environment theorem_cmd(parser & p) {
-    return definition_cmd_core(p, Theorem, false, false);
+    return definition_cmd_core(p, Theorem, false, false, false);
 }
 static environment example_cmd(parser & p) {
-    definition_cmd_core(p, Example, false, false);
+    definition_cmd_core(p, Example, false, false, false);
     return p.env();
 }
 static environment private_definition_cmd(parser & p) {
+    bool is_noncomputable = false;
+    if (p.curr_is_token(get_noncomputable_tk())) {
+        is_noncomputable = true;
+        p.next();
+    }
     def_cmd_kind kind = Definition;
     if (p.curr_is_token_or_id(get_definition_tk())) {
         p.next();
@@ -1114,7 +1131,7 @@ static environment private_definition_cmd(parser & p) {
     } else {
         throw parser_error("invalid 'private' definition/theorem, 'definition' or 'theorem' expected", p.pos());
     }
-    return definition_cmd_core(p, kind, true, false);
+    return definition_cmd_core(p, kind, true, false, is_noncomputable);
 }
 static environment protected_definition_cmd(parser & p) {
     if (p.curr_is_token_or_id(get_axiom_tk())) {
@@ -1130,6 +1147,11 @@ static environment protected_definition_cmd(parser & p) {
         p.next();
         return variables_cmd_core(p, variable_kind::Constant, true);
     } else {
+        bool is_noncomputable = false;
+        if (p.curr_is_token(get_noncomputable_tk())) {
+            is_noncomputable = true;
+            p.next();
+        }
         def_cmd_kind kind = Definition;
         if (p.curr_is_token_or_id(get_definition_tk())) {
             p.next();
@@ -1142,8 +1164,32 @@ static environment protected_definition_cmd(parser & p) {
         } else {
             throw parser_error("invalid 'protected' definition/theorem, 'definition' or 'theorem' expected", p.pos());
         }
-        return definition_cmd_core(p, kind, false, true);
+        return definition_cmd_core(p, kind, false, true, is_noncomputable);
     }
+}
+static environment noncomputable_cmd(parser & p) {
+    bool is_private   = false;
+    bool is_protected = false;
+    if (p.curr_is_token(get_private_tk())) {
+        is_private = true;
+        p.next();
+    } else if (p.curr_is_token(get_protected_tk())) {
+        is_protected = true;
+        p.next();
+    }
+    def_cmd_kind kind = Definition;
+    if (p.curr_is_token_or_id(get_definition_tk())) {
+        p.next();
+    } else if (p.curr_is_token_or_id(get_abbreviation_tk())) {
+        p.next();
+        kind = Abbreviation;
+    } else if (p.curr_is_token_or_id(get_theorem_tk())) {
+        p.next();
+        kind       = Theorem;
+    } else {
+        throw parser_error("invalid 'noncomputable' definition/theorem, 'definition' or 'theorem' expected", p.pos());
+    }
+    return definition_cmd_core(p, kind, is_private, is_protected, true);
 }
 
 static environment include_cmd_core(parser & p, bool include) {
@@ -1222,6 +1268,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("constants",    "declare new constants (aka top-level variables)", constants_cmd));
     add_cmd(r, cmd_info("axioms",       "declare new axioms", axioms_cmd));
     add_cmd(r, cmd_info("definition",   "add new definition", definition_cmd));
+    add_cmd(r, cmd_info("noncomputable", "add new noncomputable definition", noncomputable_cmd));
     add_cmd(r, cmd_info("example",      "add new example", example_cmd));
     add_cmd(r, cmd_info("private",      "add new private definition/theorem", private_definition_cmd));
     add_cmd(r, cmd_info("protected",    "add new protected definition/theorem", protected_definition_cmd));

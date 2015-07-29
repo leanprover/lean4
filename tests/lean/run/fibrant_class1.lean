@@ -12,5 +12,5 @@ attribute path_fibrant [instance]
 axiom imp_fibrant {A : Type'} {B : Type'} [C1 : fibrant A] [C2 : fibrant B] : fibrant (A → B)
 attribute imp_fibrant [instance]
 
-definition test {A : Type} [fA : fibrant A] {x y : A} :
+noncomputable definition test {A : Type} [fA : fibrant A] {x y : A} :
 Π (z : A), y ≈ z → fibrant (x ≈ y → x ≈ z) := _

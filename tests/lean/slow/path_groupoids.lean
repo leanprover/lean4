@@ -391,10 +391,12 @@ theorem triple_induction
   C x y z w p q r :=
 path.rec_on p (take z q, path.rec_on q (take w r, path.rec_on r H)) z q w r
 
+reveal path.double_induction2
 -- try this again
 definition concat_pV_p_new {A : Type} {x y z : A} (p : x ≈ z) (q : y ≈ z) : (p ⬝ q**) ⬝ q ≈ p :=
 double_induction2 p q idp
 
+reveal path.triple_induction
 definition transport_p_pp {A : Type} (P : A → Type)
      {x y z w : A} (p : x ≈ y) (q : y ≈ z) (r : z ≈ w) (u : P x) :
    ap (λe, e # u) (concat_p_pp p q r) ⬝ (transport_pp P (p ⬝ q) r u) ⬝

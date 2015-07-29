@@ -16,7 +16,7 @@ infixl `..`:10 := append
 
 notation `(` h `|` r:(foldl `|` (e r, tactic.or_else r e) h) `)` := r
 infixl `;`:15 := tactic.and_then
-
+reveal inl_inhabited inr_inhabited
 definition my_tac := repeat (trace "iteration"; state;
                               (  apply @inl_inhabited; trace "used inl"
                               .. apply @inr_inhabited; trace "used inr"

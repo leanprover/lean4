@@ -1,0 +1,1 @@
+noncomp.lean:5:0: error: definition 'f' is noncomputable, it depends on 'n'

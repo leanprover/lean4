@@ -477,7 +477,7 @@ Now, we prove =p ∧ q → q ∧ p= with the following simple proof term.
 Note that the proof term is very similar to a function that just swaps the
 elements of a pair.
 
-*** (disjunction)
+*** Or (disjunction)
 
 The expression =or.intro_left b H1= creates a proof for =a ∨ b= using a proof =H1 : a=.
 Similarly, =or.intro_right a H2= creates a proof for =a ∨ b= using a proof =H2 : b=.

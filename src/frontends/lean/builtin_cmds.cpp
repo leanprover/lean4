@@ -169,7 +169,7 @@ static bool uses_some_token(unsigned num, notation::transition const * ts, buffe
         std::any_of(tokens.begin(), tokens.end(), [&](name const & token) { return uses_token(num, ts, token); });
 }
 
-static bool print_parse_table(parser const & p, parse_table const & t, bool nud, buffer<name> const & tokens) {
+static bool print_parse_table(parser const & p, parse_table const & t, bool nud, buffer<name> const & tokens, bool tactic_table = false) {
     bool found = false;
     io_state ios = p.ios();
     options os   = ios.get_options();
@@ -180,8 +180,10 @@ static bool print_parse_table(parser const & p, parse_table const & t, bool nud,
     optional<token_table> tt(get_token_table(p.env()));
     t.for_each([&](unsigned num, notation::transition const * ts, list<pair<unsigned, expr>> const & overloads) {
             if (uses_some_token(num, ts, tokens)) {
-                found = true;
                 io_state_stream out = regular(p.env(), ios);
+                if (tactic_table)
+                    out << "tactic notation ";
+                found = true;
                 notation::display(out, num, ts, overloads, nud, tt);
             }
         });
@@ -408,6 +410,13 @@ bool print_token_info(parser const & p, name const & tk) {
         found = true;
     }
     if (print_parse_table(p, get_led_table(p.env()), false, tokens)) {
+        found = true;
+    }
+    bool tactic_table = true;
+    if (print_parse_table(p, get_tactic_nud_table(p.env()), true, tokens, tactic_table)) {
+        found = true;
+    }
+    if (print_parse_table(p, get_tactic_led_table(p.env()), false, tokens, tactic_table)) {
         found = true;
     }
     return found;

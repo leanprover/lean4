@@ -176,10 +176,15 @@ void parser::scan() {
                 name const & id = get_name_val();
                 if (p.second <= m_info_at_col && m_info_at_col < p.second + id.size()) {
                     print_lean_info_header(regular_stream().get_stream());
+                    bool ok = true;
                     try {
                         bool show_value = false;
-                        print_id_info(*this, id, show_value, p);
-                    } catch (exception &) {}
+                        ok = print_id_info(*this, id, show_value, p);
+                    } catch (exception &) {
+                        ok = false;
+                    }
+                    if (!ok)
+                        regular_stream() << "unknown identifier '" << id << "'\n";
                     print_lean_info_footer(regular_stream().get_stream());
                     m_info_at = false;
                 }
@@ -190,6 +195,14 @@ void parser::scan() {
                     try {
                         print_token_info(*this, tk);
                     } catch (exception &) {}
+                    print_lean_info_footer(regular_stream().get_stream());
+                    m_info_at = false;
+                }
+            } else if (curr_is_command()) {
+                name const & tk = get_token_info().token();
+                if (p.second <= m_info_at_col && m_info_at_col < p.second + tk.size()) {
+                    print_lean_info_header(regular_stream().get_stream());
+                    regular_stream() << "'" << tk << "' is a command\n";
                     print_lean_info_footer(regular_stream().get_stream());
                     m_info_at = false;
                 }

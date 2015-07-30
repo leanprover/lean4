@@ -187,15 +187,15 @@ class exporter {
         for_each(e, [&](expr const & e, unsigned) {
                 if (is_constant(e)) {
                     name const & n = const_name(e);
-                    if (!inductive::is_intro_rule(m_env, n) &&
-                        !inductive::is_elim_rule(m_env, n))
-                        export_declaration(n);
+                    export_declaration(n);
                 }
                 return true;
             });
     }
 
     void export_definition(declaration const & d) {
+        if (inductive::is_intro_rule(m_env, d.get_name()) || inductive::is_elim_rule(m_env, d.get_name()))
+            return;
         if (already_exported(d.get_name()))
             return;
         mark(d.get_name());
@@ -284,35 +284,50 @@ class exporter {
     }
 
     void export_declarations() {
-        buffer<name> ns;
-        to_buffer(get_curr_module_decl_names(m_env), ns);
-        std::reverse(ns.begin(), ns.end());
-        for (name const & n : ns) {
-            export_declaration(n);
+        if (m_all) {
+            m_env.for_each_declaration([&](declaration const & d) {
+                    export_declaration(d.get_name());
+                });
+        } else {
+            buffer<name> ns;
+            to_buffer(get_curr_module_decl_names(m_env), ns);
+            std::reverse(ns.begin(), ns.end());
+            for (name const & n : ns) {
+                export_declaration(n);
+            }
         }
     }
 
     void export_direct_imports() {
-        buffer<module_name> imports;
-        to_buffer(get_curr_module_imports(m_env), imports);
-        std::reverse(imports.begin(), imports.end());
-        for (module_name const & m : imports) {
-            unsigned n = export_name(m.get_name());
-            if (m.is_relative()) {
-                m_out << "#RI " << *m.get_k() << " " << n << "\n";
-            } else {
-                m_out << "#DI " << n << "\n";
+        if (!m_all) {
+            buffer<module_name> imports;
+            to_buffer(get_curr_module_imports(m_env), imports);
+            std::reverse(imports.begin(), imports.end());
+            for (module_name const & m : imports) {
+                unsigned n = export_name(m.get_name());
+                if (m.is_relative()) {
+                    m_out << "#RI " << *m.get_k() << " " << n << "\n";
+                } else {
+                    m_out << "#DI " << n << "\n";
+                }
             }
         }
     }
 
     void export_global_universes() {
-        buffer<name> ns;
-        to_buffer(get_curr_module_univ_names(m_env), ns);
-        std::reverse(ns.begin(), ns.end());
-        for (name const & u : ns) {
-            unsigned n = export_name(u);
-            m_out << "#UNI " << n << "\n";
+        if (m_all) {
+            m_env.for_each_universe([&](name const & u) {
+                    unsigned n = export_name(u);
+                    m_out << "#UNI " << n << "\n";
+                });
+        } else {
+            buffer<name> ns;
+            to_buffer(get_curr_module_univ_names(m_env), ns);
+            std::reverse(ns.begin(), ns.end());
+            for (name const & u : ns) {
+                unsigned n = export_name(u);
+                m_out << "#UNI " << n << "\n";
+            }
         }
     }
 
@@ -322,8 +337,7 @@ public:
     void operator()() {
         m_name2idx.insert(mk_pair(name(), 0));
         m_level2idx.insert(mk_pair(level(), 0));
-        if (!m_all)
-            export_direct_imports();
+        export_direct_imports();
         export_global_universes();
         export_declarations();
     }

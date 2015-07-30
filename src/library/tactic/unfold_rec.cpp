@@ -275,8 +275,13 @@ class unfold_rec_fn : public replace_visitor_aux {
         virtual expr visit_app(expr const & e) {
             buffer<expr> args;
             expr fn = get_app_args(e, args);
-            if (m_kind == REC && is_constant(fn) && const_name(fn) == m_rec_name)
-                return fold_rec(e, args);
+            if (m_kind == REC && is_constant(fn) && const_name(fn) == m_rec_name) {
+                expr new_e = m_tc->whnf(e).first;
+                if (new_e != e)
+                    return visit_app(new_e);
+                else
+                    return fold_rec(e, args);
+            }
             if (m_kind == BREC && is_constant(fn) && const_name(fn) == get_prod_pr1_name() && args.size() >= 3) {
                 expr rec_fn = get_app_fn(args[1]);
                 if (is_constant(rec_fn) && const_name(rec_fn) == m_rec_name)

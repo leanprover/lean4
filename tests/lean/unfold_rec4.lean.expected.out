@@ -1,0 +1,6 @@
+unfold_rec4.lean:8:0: error: 1 unsolved subgoal
+n : ℕ
+⊢ succ (succ (succ (succ (f n)))) = sorry
+unfold_rec4.lean:8:0: error: failed to add declaration 'example' to environment, value has metavariables
+remark: set 'formatter.hide_full_terms' to false to see the complete term
+  ?M_1

@@ -227,6 +227,8 @@ placeholder, call lean-server with --hole option, otherwise call
     ["Create a new project" (call-interactively 'lean-project-create) (not (lean-project-inside-p))]
     "-----------------"
     ["Show type info"       lean-show-type                    (and lean-eldoc-use eldoc-mode)]
+    ["Show goal"            lean-show-goal-at-pos             t]
+    ["Show id/keyword info" lean-show-id-keyword-info         t]
     ["Fill a placeholder"   lean-fill-placeholder             (looking-at  (rx symbol-start "_"))]
     ["Find tag at point"    lean-find-tag                     t]
     ["Global tag search"    lean-global-search                t]

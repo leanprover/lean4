@@ -1,0 +1,6 @@
+print_info.lean:13:8: warning: using 'sorry'
+LEAN_INFORMATION
+_ `+`:65 _:65 :=
+  | nat.add #1 #0
+  | [priority 999] int.add #1 #0
+END_LEAN_INFORMATION

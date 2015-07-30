@@ -33,6 +33,8 @@ private:
     explicit name(unsigned k);
     // the parameter bool is only used to distinguish this constructor from the public one.
     name(name const & prefix, unsigned k, bool);
+
+    size_t size_core(bool unicode) const;
 public:
     name();
     name(char const * name);
@@ -100,6 +102,8 @@ public:
     std::string to_string(char const * sep = lean_name_separator) const;
     /** \brief Size of the this name (in characters). */
     size_t size() const;
+    /** \brief Size of the this name in unicode. */
+    size_t utf8_size() const;
     unsigned hash() const;
     /** \brief Return true iff the name contains only safe ASCII chars */
     bool is_safe_ascii() const;

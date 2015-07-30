@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "util/hash.h"
 #include "util/trace.h"
 #include "util/ascii.h"
+#include "util/utf8.h"
 #include "util/object_serializer.h"
 #include "util/lua_list.h"
 
@@ -294,7 +295,7 @@ static unsigned num_digits(unsigned k) {
     return r;
 }
 
-size_t name::size() const {
+size_t name::size_core(bool unicode) const {
     if (m_ptr == nullptr) {
         return strlen(anonymous_str);
     } else {
@@ -303,7 +304,7 @@ size_t name::size() const {
         size_t r      = 0;
         while (true) {
             if (i->m_is_string) {
-                r += strlen(i->m_str);
+                r += unicode ? utf8_strlen(i->m_str) : strlen(i->m_str);
             } else {
                 r += num_digits(i->m_k);
             }
@@ -316,6 +317,14 @@ size_t name::size() const {
         }
         return r;
     }
+}
+
+size_t name::size() const {
+    return size_core(false);
+}
+
+size_t name::utf8_size() const {
+    return size_core(true);
 }
 
 unsigned name::hash() const {

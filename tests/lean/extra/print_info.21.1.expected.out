@@ -1,0 +1,4 @@
+print_info.lean:13:8: warning: using 'sorry'
+LEAN_INFORMATION
+parameter a₁ : ℕ
+END_LEAN_INFORMATION

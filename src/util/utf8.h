@@ -8,4 +8,5 @@ Author: Leonardo de Moura
 namespace lean {
 bool is_utf8_next(unsigned char c);
 unsigned get_utf8_size(unsigned char c);
+size_t utf8_strlen(char const * str);
 }

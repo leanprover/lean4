@@ -1,0 +1,6 @@
+LEAN_INFORMATION
+definition int.mul : ℤ → ℤ → ℤ
+
+definition nat.mul : ℕ → ℕ → ℕ
+END_LEAN_INFORMATION
+print_info.lean:13:8: warning: using 'sorry'

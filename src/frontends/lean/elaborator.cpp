@@ -56,6 +56,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/nested_declaration.h"
 #include "frontends/lean/calc.h"
 #include "frontends/lean/decl_cmds.h"
+#include "frontends/lean/opt_cmd.h"
 
 namespace lean {
 type_checker_ptr mk_coercion_from_type_checker(environment const & env, name_generator && ngen) {
@@ -264,9 +265,9 @@ void elaborator::instantiate_info(substitution s) {
         goal g(meta, meta_type);
         proof_state ps(goals(g), s, m_ngen, constraints());
         auto out = regular(env(), ios());
-        out << "LEAN_INFORMATION\n";
+        print_lean_info_header(out.get_stream());
         out << ps.pp(env(), ios()) << endl;
-        out << "END_LEAN_INFORMATION\n";
+        print_lean_info_footer(out.get_stream());
     }
     if (infom()) {
         m_pre_info_data.instantiate(s);
@@ -1850,7 +1851,7 @@ void elaborator::show_goal(proof_state const & ps, expr const & start, expr cons
     m_ctx.reset_show_goal_at();
     goals const & gs = ps.get_goals();
     auto out = regular(env(), ios());
-    out << "LEAN_INFORMATION\n";
+    print_lean_info_header(out.get_stream());
     out << "position " << curr_pos->first << ":" << curr_pos->second << "\n";
     if (empty(gs)) {
         out << "no goals\n";
@@ -1859,7 +1860,7 @@ void elaborator::show_goal(proof_state const & ps, expr const & start, expr cons
         g      = g.instantiate(ps.get_subst());
         out << g << "\n";
     }
-    out << "END_LEAN_INFORMATION\n";
+    print_lean_info_footer(out.get_stream());
 }
 
 bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac) {

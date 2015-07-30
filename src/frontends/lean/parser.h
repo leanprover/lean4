@@ -147,9 +147,12 @@ class parser {
     // auxiliary field used to record the size of m_local_decls before a command is executed.
     unsigned               m_local_decls_size_at_beg_cmd;
 
-    // stop at line/col
+    // stop/info at line/col
     bool                   m_stop_at; // if true, then parser stops execution after the given line and column is reached
     unsigned               m_stop_at_line;
+    bool                   m_info_at;
+    unsigned               m_info_at_line;
+    unsigned               m_info_at_col;
 
     // If the following flag is true we do not raise error messages
     // noncomputable definitions not tagged as noncomputable.
@@ -332,7 +335,7 @@ public:
     bool in_theorem_queue(name const & n) const { return m_theorem_queue_set.contains(n); }
 
     /** \brief Read the next token. */
-    void scan() { m_curr = m_scanner.scan(m_env); }
+    void scan();
     /** \brief Return the current token */
     scanner::token_kind curr() const { return m_curr; }
     /** \brief Return true iff the current token is an identifier */
@@ -370,7 +373,7 @@ public:
     /** \brief Check if the current token is an atomic identifier, if it is, return it and move to next token,
         otherwise throw an exception. */
     name check_atomic_id_next(char const * msg);
-    list<name> to_constants(name const & id, char const * msg, pos_info const & p);
+    list<name> to_constants(name const & id, char const * msg, pos_info const & p) const;
     name to_constant(name const & id, char const * msg, pos_info const & p);
     /** \brief Check if the current token is a constant, if it is, return it and move to next token, otherwise throw an exception. */
     name check_constant_next(char const * msg);

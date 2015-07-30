@@ -15,4 +15,10 @@ bool has_show_goal(options const & opts, unsigned & line, unsigned & col);
 
 options set_show_hole(options const & _opts, unsigned line, unsigned col);
 bool has_show_hole(options const & opts, unsigned & line, unsigned & col);
+
+options set_show_info(options const & opts, unsigned line, unsigned col);
+bool has_show_info(options const & opts, unsigned & line, unsigned & col);
+
+void print_lean_info_header(std::ostream & out);
+void print_lean_info_footer(std::ostream & out);
 }

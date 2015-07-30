@@ -1,0 +1,5 @@
+LEAN_INFORMATION
+definition int.add : ℤ → ℤ → ℤ
+
+definition nat.add : ℕ → ℕ → ℕ
+END_LEAN_INFORMATION

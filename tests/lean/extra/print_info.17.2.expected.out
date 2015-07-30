@@ -1,0 +1,4 @@
+print_info.lean:13:8: warning: using 'sorry'
+LEAN_INFORMATION
+definition rfl : ∀ {A : Type} {a : A}, a = a
+END_LEAN_INFORMATION

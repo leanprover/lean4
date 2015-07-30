@@ -1,0 +1,6 @@
+LEAN_INFORMATION
+inductive nat : Type₁
+constructors:
+nat.zero : ℕ
+nat.succ : ℕ → ℕ
+END_LEAN_INFORMATION

@@ -131,6 +131,8 @@ static void display_help(std::ostream & out) {
     std::cout << "  --col=value       column number for query\n";
     std::cout << "  --goal            display goal at close to given position\n";
     std::cout << "  --hole            display type of the \"hole\" in the given posivition\n";
+    std::cout << "  --info            display information about identifier or token in the given posivition\n";
+    std::cout << "Exporting data:\n";
     std::cout << "  --export=file -E  export final environment as textual low-level file\n";
     std::cout << "  --export-all=file -A  export final environment (and all dependencies) as textual low-level file\n";
 }
@@ -183,10 +185,11 @@ static struct option g_long_options[] = {
     {"col",          required_argument, 0, 'O'},
     {"goal",         no_argument,       0, 'G'},
     {"hole",         no_argument,       0, 'Z'},
+    {"info",         no_argument,       0, 'I'},
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "PHRXFdD:qrlupgvhk:012t:012o:E:c:i:L:012O:012GZA"
+#define OPT_STR "PHRXFdD:qrlupgvhk:012t:012o:E:c:i:L:012O:012GZAI"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -266,6 +269,7 @@ int main(int argc, char ** argv) {
     optional<std::string> export_all_txt;
     bool show_goal = false;
     bool show_hole = false;
+    bool show_info = false;
     input_kind default_k = input_kind::Unspecified;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
@@ -368,6 +372,9 @@ int main(int argc, char ** argv) {
         case 'Z':
             show_hole = true;
             break;
+        case 'I':
+            show_info = true;
+            break;
         case 'E':
             export_txt = std::string(optarg);
             break;
@@ -381,15 +388,17 @@ int main(int argc, char ** argv) {
         }
     }
 
-    if (show_hole && line && column) {
-        opts       = set_show_hole(opts, *line, *column);
-        save_cache = false;
-    }
     #if defined(__GNUC__) && !defined(__CLANG__)
     #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     #endif
-    if (show_goal && line && column) {
+    if (show_hole && line && column) {
+        opts       = set_show_hole(opts, *line, *column);
+        save_cache = false;
+    } else if (show_goal && line && column) {
         opts       = set_show_goal(opts, *line, *column);
+        save_cache = false;
+    } else if (show_info && line && column) {
+        opts       = set_show_info(opts, *line, *column);
         save_cache = false;
     }
 

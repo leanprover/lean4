@@ -52,6 +52,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/update_environment_exception.h"
 #include "frontends/lean/local_ref_info.h"
 #include "frontends/lean/opt_cmd.h"
+#include "frontends/lean/builtin_cmds.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -105,12 +106,16 @@ static name * g_tmp_prefix = nullptr;
 
 void parser::init_stop_at(options const & opts) {
     unsigned col;
+    m_info_at = false;
+    m_stop_at = false;
     if (has_show_goal(opts, m_stop_at_line, col)) {
         m_stop_at      = true;
     } else if (has_show_hole(opts, m_stop_at_line, col)) {
         m_stop_at      = true;
-    } else {
-        m_stop_at      = false;
+    } else if (has_show_info(opts, m_info_at_line, m_info_at_col)) {
+        m_info_at      = true;
+        m_stop_at      = true;
+        m_stop_at_line = m_info_at_line;
     }
 }
 
@@ -160,6 +165,39 @@ parser::~parser() {
             m_theorem_queue.join();
         }
     } catch (...) {}
+}
+
+void parser::scan() {
+    if (m_info_at) {
+        m_curr = m_scanner.scan(m_env);
+        pos_info p = pos();
+        if (p.first == m_info_at_line) {
+            if (curr_is_identifier()) {
+                name const & id = get_name_val();
+                if (p.second <= m_info_at_col && m_info_at_col < p.second + id.size()) {
+                    print_lean_info_header(regular_stream().get_stream());
+                    try {
+                        bool show_value = false;
+                        print_id_info(*this, id, show_value, p);
+                    } catch (exception &) {}
+                    print_lean_info_footer(regular_stream().get_stream());
+                    m_info_at = false;
+                }
+            } else if (curr_is_keyword()) {
+                name const & tk = get_token_info().token();
+                if (p.second <= m_info_at_col && m_info_at_col < p.second + tk.size()) {
+                    print_lean_info_header(regular_stream().get_stream());
+                    try {
+                        print_token_info(*this, tk);
+                    } catch (exception &) {}
+                    print_lean_info_footer(regular_stream().get_stream());
+                    m_info_at = false;
+                }
+            }
+        }
+    } else {
+        m_curr = m_scanner.scan(m_env);
+    }
 }
 
 void parser::cache_definition(name const & n, expr const & pre_type, expr const & pre_value,
@@ -1278,25 +1316,59 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
     return *r;
 }
 
-list<name> parser::to_constants(name const & id, char const * msg, pos_info const & p) {
-    expr e  = id_to_expr(id, p);
-
+list<name> parser::to_constants(name const & id, char const * msg, pos_info const & p) const {
     buffer<name> rs;
-    std::function<void(expr const & e)> visit = [&](expr const & e) {
+
+    std::function<void(expr const & e)> extract_names = [&](expr const & e) {
         if (in_section(m_env) && is_as_atomic(e)) {
-            visit(get_app_fn(get_as_atomic_arg(e)));
+            extract_names(get_app_fn(get_as_atomic_arg(e)));
         } else if (is_explicit(e)) {
-            visit(get_explicit_arg(e));
+            extract_names(get_explicit_arg(e));
         } else if (is_choice(e)) {
             for (unsigned i = 0; i < get_num_choices(e); i++)
-                visit(get_choice(e, i));
+                extract_names(get_choice(e, i));
         } else if (is_constant(e)) {
             rs.push_back(const_name(e));
         } else {
             throw parser_error(msg, p);
         }
     };
-    visit(e);
+
+    // locals
+    if (auto it1 = m_local_decls.find(id)) {
+        extract_names(*it1);
+        return to_list(rs);
+    }
+
+    for (name const & ns : get_namespaces(m_env)) {
+        auto new_id = ns + id;
+        if (!ns.is_anonymous() && m_env.find(new_id) &&
+            (!id.is_atomic() || !is_protected(m_env, new_id))) {
+            return to_list(new_id);
+        }
+    }
+
+    if (!id.is_atomic()) {
+        name new_id = id;
+        new_id = remove_root_prefix(new_id);
+        if (m_env.find(new_id))
+            return to_list(new_id);
+    }
+
+    buffer<expr> alts;
+    // globals
+    if (m_env.find(id))
+        rs.push_back(id);
+    // aliases
+    auto as = get_expr_aliases(m_env, id);
+    for (name const & n : as) {
+        rs.push_back(n);
+    }
+
+    if (rs.empty()) {
+        throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
+    }
+
     return to_list(rs);
 }
 

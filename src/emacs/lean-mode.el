@@ -158,6 +158,13 @@ placeholder, call lean-server with --hole option, otherwise call
               (lean-exec-at-pos "lean-hole" "*Lean Goal*" "--hole"))
          (t
           (lean-exec-at-pos "lean-goal" "*Lean Goal*" "--goal"))))
+(defun lean-show-id-keyword-info ()
+  "Show ID/Keyword Information at the position"
+  (interactive)
+  (lean-exec-at-pos
+   "lean-print-id-keyword-info"
+   "*Lean Print*"
+   "--info"))
 
 (defun lean-std-exe ()
   (interactive)
@@ -200,7 +207,9 @@ placeholder, call lean-server with --hole option, otherwise call
   (local-set-key "\C-c\C-r"  'lean-server-restart-process)
   (local-set-key "\M-."      'lean-find-tag)
   (local-set-key (kbd "TAB") 'lean-tab-indent-or-complete)
-  (lean-define-key-binding "\C-c\C-g" '(lean-show-goal-at-pos)))
+  (local-set-key "\C-c\C-g"  'lean-show-goal-at-pos)
+  (local-set-key "\C-c\C-p"  'lean-show-id-keyword-info)
+  )
 
 (defun lean-define-key-binding (key cmd)
   (local-set-key key `(lambda () (interactive) ,cmd)))

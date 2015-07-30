@@ -709,7 +709,7 @@ for =∃ a : nat, a = w= using
 
 
 Note that =exists.intro= also has implicit arguments. For example, Lean has to infer the implicit argument
-=P : A → Bool=, a predicate (aka function to Prop). This creates complications. For example, suppose
+=P : A → Prop=, a predicate (aka function to Prop). This creates complications. For example, suppose
 we have =Hg : g 0 0 = 0= and we invoke =exists.intro 0 Hg=. There are different possible values for =P=.
 Each possible value corresponds to a different theorem: =∃ x, g x x = x=, =∃ x, g x x = 0=,
 =∃ x, g x 0 = x=, etc. Lean uses the context where =exists.intro= occurs to infer the users intent.

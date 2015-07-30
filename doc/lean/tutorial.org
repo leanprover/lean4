@@ -371,7 +371,7 @@ examples.
 #+END_SRC
 
 In many cases, Lean can automatically infer the type of the variable. Actually,
-In all examples above, the type can be inferred automatically.
+in all examples above, the type can be inferred automatically.
 
 #+BEGIN_SRC lean
   import data.nat

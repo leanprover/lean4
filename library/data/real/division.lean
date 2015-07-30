@@ -678,4 +678,6 @@ section migrate_algebra
       divide → divide, max → max, min → min
 end migrate_algebra
 
+infix / := divide
+
 end real

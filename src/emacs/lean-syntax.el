@@ -10,7 +10,7 @@
 (defconst lean-keywords
   '("import" "prelude" "tactic_hint" "protected" "private" "noncomputable" "definition" "renaming"
     "hiding" "exposing" "parameter" "parameters" "begin" "begin+" "proof" "qed" "conjecture" "constant" "constants"
-    "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises"
+    "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises" "theory"
     "print" "theorem" "example" "abbreviation" "abstract"
     "open" "as" "export" "override" "axiom" "axioms" "inductive" "with" "structure" "record" "universe" "universes"
     "alias" "help" "environment" "options" "precedence" "reserve"

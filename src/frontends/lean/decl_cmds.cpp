@@ -866,19 +866,21 @@ class definition_cmd_fn {
 
     void register_decl(name const & n, name const & real_n, expr const & type) {
         if (m_kind != Example) {
-            if (!m_is_noncomputable && is_marked_noncomputable(m_env, real_n)) {
-                auto reason = get_noncomputable_reason(m_env, real_n);
-                lean_assert(reason);
-                if (m_p.in_theorem_queue(*reason)) {
-                    throw exception(sstream() << "definition '" << n << "' was marked as noncomputable because '" << *reason
-                                    << "' is still in theorem queue (solution: use command 'reveal " << *reason << "'");
-                } else {
-                    throw exception(sstream() << "definition '" << n
-                                    << "' is noncomputable, it depends on '" << *reason << "'");
+            if (!m_p.ignore_noncomputable()) {
+                if (!m_is_noncomputable && is_marked_noncomputable(m_env, real_n)) {
+                    auto reason = get_noncomputable_reason(m_env, real_n);
+                    lean_assert(reason);
+                    if (m_p.in_theorem_queue(*reason)) {
+                        throw exception(sstream() << "definition '" << n << "' was marked as noncomputable because '" << *reason
+                                        << "' is still in theorem queue (solution: use command 'reveal " << *reason << "'");
+                    } else {
+                        throw exception(sstream() << "definition '" << n
+                                        << "' is noncomputable, it depends on '" << *reason << "'");
+                    }
                 }
-            }
-            if (m_is_noncomputable && !is_marked_noncomputable(m_env, real_n)) {
-                throw exception(sstream() << "definition '" << n << "' was incorrectly marked as noncomputable");
+                if (m_is_noncomputable && !is_marked_noncomputable(m_env, real_n)) {
+                    throw exception(sstream() << "definition '" << n << "' was incorrectly marked as noncomputable");
+                }
             }
             // TODO(Leo): register aux_decls
             if (!m_is_private)
@@ -1176,28 +1178,34 @@ static environment protected_definition_cmd(parser & p) {
     }
 }
 static environment noncomputable_cmd(parser & p) {
-    bool is_private   = false;
-    bool is_protected = false;
-    if (p.curr_is_token(get_private_tk())) {
-        is_private = true;
+    if (p.curr_is_token_or_id(get_theory_tk())) {
         p.next();
-    } else if (p.curr_is_token(get_protected_tk())) {
-        is_protected = true;
-        p.next();
-    }
-    def_cmd_kind kind = Definition;
-    if (p.curr_is_token_or_id(get_definition_tk())) {
-        p.next();
-    } else if (p.curr_is_token_or_id(get_abbreviation_tk())) {
-        p.next();
-        kind = Abbreviation;
-    } else if (p.curr_is_token_or_id(get_theorem_tk())) {
-        p.next();
-        kind       = Theorem;
+        p.set_ignore_noncomputable();
+        return p.env();
     } else {
-        throw parser_error("invalid 'noncomputable' definition/theorem, 'definition' or 'theorem' expected", p.pos());
+        bool is_private   = false;
+        bool is_protected = false;
+        if (p.curr_is_token(get_private_tk())) {
+            is_private = true;
+            p.next();
+        } else if (p.curr_is_token(get_protected_tk())) {
+            is_protected = true;
+            p.next();
+        }
+        def_cmd_kind kind = Definition;
+        if (p.curr_is_token_or_id(get_definition_tk())) {
+            p.next();
+        } else if (p.curr_is_token_or_id(get_abbreviation_tk())) {
+            p.next();
+            kind = Abbreviation;
+        } else if (p.curr_is_token_or_id(get_theorem_tk())) {
+            p.next();
+            kind       = Theorem;
+        } else {
+            throw parser_error("invalid 'noncomputable' definition/theorem, 'definition' or 'theorem' expected", p.pos());
+        }
+        return definition_cmd_core(p, kind, is_private, is_protected, true);
     }
-    return definition_cmd_core(p, kind, is_private, is_protected, true);
 }
 
 static environment include_cmd_core(parser & p, bool include) {

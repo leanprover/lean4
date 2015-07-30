@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/normalize.h"
 #include "library/print.h"
+#include "library/noncomputable.h"
 #include "library/class.h"
 #include "library/flycheck.h"
 #include "library/abbreviation.h"
@@ -313,6 +314,8 @@ static void print_recursor_info(parser & p) {
 
 bool print_constant(parser & p, char const * kind, declaration const & d, bool is_def = false) {
     io_state_stream out = p.regular_stream();
+    if (d.is_definition() && is_marked_noncomputable(p.env(), d.get_name()))
+        out << "noncomputable ";
     if (is_protected(p.env(), d.get_name()))
         out << "protected ";
     out << kind << " " << d.get_name();

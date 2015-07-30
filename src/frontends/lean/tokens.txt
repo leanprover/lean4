@@ -148,3 +148,4 @@ metaclasses  metaclasses
 inductive    inductive
 this         this
 noncomputable noncomputable
+theory       theory

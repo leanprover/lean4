@@ -151,6 +151,10 @@ class parser {
     bool                   m_stop_at; // if true, then parser stops execution after the given line and column is reached
     unsigned               m_stop_at_line;
 
+    // If the following flag is true we do not raise error messages
+    // noncomputable definitions not tagged as noncomputable.
+    bool                   m_ignore_noncomputable;
+
     void display_warning_pos(unsigned line, unsigned pos);
     void display_error_pos(unsigned line, unsigned pos);
     void display_error_pos(pos_info p);
@@ -263,6 +267,9 @@ public:
            snapshot const * s = nullptr, snapshot_vector * sv = nullptr,
            info_manager * im = nullptr, keep_theorem_mode tmode = keep_theorem_mode::All);
     ~parser();
+
+    bool ignore_noncomputable() const { return m_ignore_noncomputable; }
+    void set_ignore_noncomputable() { m_ignore_noncomputable = true; }
 
     unsigned curr_expr_lbp() const { return curr_lbp_core(false); }
     unsigned curr_tactic_lbp() const { return curr_lbp_core(true); }

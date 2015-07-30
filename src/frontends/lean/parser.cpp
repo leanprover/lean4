@@ -126,6 +126,7 @@ parser::parser(environment const & env, io_state const & ios,
     m_snapshot_vector(sv), m_info_manager(im), m_cache(nullptr), m_index(nullptr) {
     m_local_decls_size_at_beg_cmd = 0;
     m_in_backtick = false;
+    m_ignore_noncomputable = false;
     m_profile     = ios.get_options().get_bool("profile", false);
     init_stop_at(ios.get_options());
     if (num_threads > 1 && m_profile)
@@ -1942,7 +1943,7 @@ void parser::add_delayed_theorem(certified_declaration const & cd) {
 void parser::replace_theorem(certified_declaration const & thm) {
     m_env = m_env.replace(thm);
     name const & thm_name = thm.get_declaration().get_name();
-    if (!check_computable(m_env, thm_name)) {
+    if (!m_ignore_noncomputable && !check_computable(m_env, thm_name)) {
         throw exception(sstream() << "declaration '" << thm_name
                         << "' was marked as a theorem, but it is a noncomputable definition");
     }

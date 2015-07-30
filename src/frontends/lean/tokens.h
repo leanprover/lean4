@@ -155,4 +155,5 @@ name const & get_metaclasses_tk();
 name const & get_inductive_tk();
 name const & get_this_tk();
 name const & get_noncomputable_tk();
+name const & get_theory_tk();
 }

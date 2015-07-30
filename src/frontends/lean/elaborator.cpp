@@ -1784,27 +1784,30 @@ bool elaborator::try_using(substitution & subst, expr const & mvar, proof_state 
     lean_assert(length(ps.get_goals()) == 1);
     // make sure ps is a really a proof state for mvar.
     lean_assert(mlocal_name(get_app_fn(head(ps.get_goals()).get_meta())) == mlocal_name(mvar));
-    show_goal(ps, pre_tac, pre_tac, pre_tac);
     try {
         proof_state_seq seq = tac(env(), ios(), ps);
         auto r = seq.pull();
         if (!r) {
+            show_goal(ps, pre_tac, pre_tac, pre_tac);
             // tactic failed to produce any result
             if (show_failure)
                 display_unsolved_proof_state(mvar, ps, "tactic failed");
             return false;
         } else if (!empty(r->first.get_goals())) {
             // tactic contains unsolved subgoals
+            show_goal(r->first, pre_tac, pre_tac, pre_tac);
             if (show_failure)
                 display_unsolved_subgoals(mvar, r->first);
             return false;
         } else {
+            show_goal(ps, pre_tac, pre_tac, pre_tac);
             subst = r->first.get_subst();
             expr v = subst.instantiate(mvar);
             subst.assign(mlocal_name(mvar), v);
             return true;
         }
     } catch (tactic_exception & ex) {
+        show_goal(ps, pre_tac, pre_tac, pre_tac);
         if (show_failure)
             display_tactic_exception(ex, ps, pre_tac);
         return false;

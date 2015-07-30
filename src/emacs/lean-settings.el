@@ -6,7 +6,17 @@
 
 (require 'cl-lib)
 
-(defgroup lean nil "Lean mode" :prefix 'lean :group 'languages)
+(defgroup lean nil
+  "Lean Theorem Prover"
+  :prefix "lean-"
+  :group 'languages
+  :link '(url-link :tag "Website" "http://leanprover.github.io")
+  :link '(url-link :tag "Github"  "https://github.com/leanprover/lean"))
+
+(defgroup lean-keybinding nil
+  "Keybindings for lean-mode."
+  :prefix "lean-"
+  :group 'lean)
 
 (defvar-local lean-default-executable-name
   (cl-case system-type
@@ -45,14 +55,20 @@
   :type 'boolean)
 
 (defcustom lean-eldoc-nay-retry-time 0.3
-  "When eldoc-function had nay, try again after this amount of time.")
+  "When eldoc-function had nay, try again after this amount of time."
+  :group 'lean
+  :type 'number)
 
 (defcustom lean-show-only-type-in-parens t
   "Show only types of expression in parens if non-nil. Otherwise,
-show both of expressions and types.")
+show both of expressions and types."
+  :group 'lean
+  :type 'boolean)
 
 (defcustom lean-server-retry-time 0.1
-  "Retry interval for event-handler")
+  "Retry interval for event-handler"
+  :group 'lean
+  :type 'number)
 
 (defcustom lean-server-options nil
   "Additional command line options for the Lean background
@@ -147,12 +163,53 @@ false (nil)."
                  (const :tag "Show only the first" show-first)
                  (const :tag "Show the first goal, and the conclusions of all other goals" show-first-and-other-conclusions)))
 
-(defcustom lean-follow-changes 't
-  "Disable this if we don't need to keep track of the changes. A usage
-  is to batch-process .org files to .html files")
+(defcustom lean-follow-changes t
+  "If it's nil, we don't set up after-change-functions and
+  before-change-functions to update the changes to lean-server.
+  A usage is to batch-process .org files to .html files"
+  :group 'lean
+  :type 'boolean)
 
 (defcustom lean-time-to-restart-server 1
   "After lean-time-to-kill-server passed, we restart lean-server if
-  the all jobs in the queue are not process.")
+  the all jobs in the queue are not process."
+  :group 'lean
+  :type 'number)
 
+(defcustom lean-keybinding-std-exe1 (kbd "C-c C-x")
+  "Lean Keybinding for std-exe #1"
+  :group 'lean-keybinding :type 'key-sequence)
+(defcustom lean-keybinding-std-exe2 (kbd "C-c C-l")
+  "Lean Keybinding for std-exe #2"
+  :group 'lean-keybinding  :type 'key-sequence)
+(defcustom lean-keybinding-show-key (kbd "C-c C-k")
+  "Lean Keybinding for show-key"
+  :group 'lean-keybinding  :type 'key-sequence)
+(defcustom lean-keybinding-set-option (kbd "C-c C-o")
+  "Lean Keybinding for set-option"
+  :group 'lean-keybinding  :type 'key-sequence)
+(defcustom lean-keybinding-eval-cmd (kbd "C-c C-e")
+  "Lean Keybinding for eval-cmd"
+  :group 'lean-keybinding  :type 'key-sequence)
+(defcustom lean-keybinding-show-type (kbd "C-c C-t")
+  "Lean Keybinding for show-type"
+  :group 'lean-keybinding  :type 'key-sequence)
+(defcustom lean-keybinding-fill-placeholder (kbd "C-c C-f")
+  "Lean Keybinding for fill-placeholder"
+  :group 'lean-keybinding  :type 'key-sequence)
+(defcustom lean-keybinding-server-restart-process (kbd "C-c C-r")
+  "Lean Keybinding for server-restart-process"
+  :group 'lean-keybinding  :type 'key-sequence)
+(defcustom lean-keybinding-find-tag (kbd "M-.")
+  "Lean Keybinding for find-tag"
+  :group 'lean-keybinding  :type 'key-sequence)
+(defcustom lean-keybinding-tab-indent-or-complete (kbd "TAB")
+  "Lean Keybinding for tab-indent-or-complete"
+  :group 'lean-keybinding  :type 'key-sequence)
+(defcustom lean-keybinding-lean-show-goal-at-pos (kbd "C-c C-g")
+  "Lean Keybinding for show-goal-at-pos"
+  :group 'lean-keybinding  :type 'key-sequence)
+(defcustom lean-keybinding-lean-show-id-keyword-info (kbd "C-c C-p")
+  "Lean Keybinding for show-id-keyword-info"
+  :group 'lean-keybinding  :type 'key-sequence)
 (provide 'lean-settings)

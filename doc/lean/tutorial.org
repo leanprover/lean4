@@ -233,7 +233,7 @@ What is the type of =Type=?
   check Type
 #+END_SRC
 
-Lean reports =Type : Type=, is it Lean inconsistent? Now, it is not.
+Lean reports =Type : Type=, is Lean inconsistent? No, it is not.
 Internally, Lean maintains a hierarchy of Types. We say each one of
 them _lives_ in a universe. Lean is universe polymorphic, and by
 default all universes are hidden from the user. Like implicit

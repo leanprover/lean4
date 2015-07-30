@@ -639,12 +639,12 @@ equality are all dependent functions.
 
 The universal quantifier is just a dependent function.
 In Lean, if we have a family of types =B : A → Prop=,
-then =∀ x : A, B a= has type =Prop=.
+then =∀ a : A, B a= has type =Prop=.
 This feature complicates the Lean set-theoretic model, but it
 improves usability.
 Several theorem provers have a =forall elimination= (aka
 instantiation) proof rule.
-In Lean (and other systems based on proposition as types), this rule
+In Lean (and other systems based on propositions as types), this rule
 is just function application.
 In the following example we add an axiom stating that =f x= is =0=
 forall =x=.

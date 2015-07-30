@@ -630,7 +630,7 @@ tedious steps. Here is a very simple example.
 
 Lean supports _dependent functions_. In type theory, they are also called dependent product types or Pi-types.
 The idea is quite simple, suppose we have a type =A : Type=, and a family of types =B : A → Type= which assigns to each =a : A= a type =B a=. So a dependent function is a function whose range varies depending on its arguments.
-In Lean, a dependent function is written as =forall a : A, B a=,
+In Lean, the type of a dependent function is written as =forall a : A, B a=,
 =Pi a : A, B a=, =∀ x : A, B a=, or =Π x : A, B a=. We usually use
 =forall= and =∀= for propositions, and =Pi= and =Π= for everything
 else. In the previous examples, we have seen many examples of

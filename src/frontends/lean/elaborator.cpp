@@ -1849,17 +1849,10 @@ void elaborator::show_goal(proof_state const & ps, expr const & start, expr cons
     if (curr_pos->first < line || (curr_pos->first == line && curr_pos->second < col))
         return;
     m_ctx.reset_show_goal_at();
-    goals const & gs = ps.get_goals();
     auto out = regular(env(), ios());
     print_lean_info_header(out.get_stream());
     out << "position " << curr_pos->first << ":" << curr_pos->second << "\n";
-    if (empty(gs)) {
-        out << "no goals\n";
-    } else {
-        goal g = head(gs);
-        g      = g.instantiate(ps.get_subst());
-        out << g << "\n";
-    }
+    out << ps.pp(env(), ios()) << "\n";
     print_lean_info_footer(out.get_stream());
 }
 

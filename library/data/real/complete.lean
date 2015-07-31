@@ -406,7 +406,11 @@ theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
     rewrite [-*pnat.mul.assoc, p_add_fractions],
     apply rat.le.refl
   end
--- archimedean property
+
+-------------------------------------------
+-- int embedding theorems
+-- archimedean properties, integer floor and ceiling
+
 section ints
 
 open int
@@ -428,7 +432,6 @@ theorem archimedean (x : ℝ) : ∃ z : ℤ, x ≤ of_rat (of_int z) :=
     apply H
   end
 
-set_option pp.coercions true
 theorem archimedean_strict (x : ℝ) : ∃ z : ℤ, x < of_rat (of_int z) :=
   begin
     cases archimedean x with [z, Hz],
@@ -552,10 +555,10 @@ definition ex_floor (x : ℝ) :=
       apply some_spec (archimedean' x)
     end))
 
-noncomputable definition floor (x : ℝ) :=
+noncomputable definition floor (x : ℝ) : ℤ :=
   some (ex_floor x)
 
-noncomputable definition ceil (x : ℝ) := - floor (-x)
+noncomputable definition ceil (x : ℝ) : ℤ := - floor (-x)
 
 theorem floor_spec (x : ℝ) : of_rat (of_int (floor x)) ≤ x :=
   and.left (some_spec (ex_floor x))
@@ -615,6 +618,8 @@ end ints
 --------------------------------------------------
 -- supremum property
 -- this development roughly follows the proof of completeness done in Isabelle.
+-- It does not depend on the previous proof of Cauchy completeness. Much of the same
+-- machinery can be used to show that Cauchy completeness implies the supremum property.
 
 section supremum
 open prod nat
@@ -658,8 +663,6 @@ noncomputable definition bisect (ab : ℚ × ℚ) :=
     (pr1 ab, (avg (pr1 ab) (pr2 ab)))
   else
     (avg (pr1 ab) (pr2 ab), pr2 ab)
-
-set_option pp.coercions true
 
 noncomputable definition under : ℚ := of_int (floor (elt - 1))
 
@@ -1039,7 +1042,7 @@ theorem under_over_equiv : p_under_seq ≡ p_over_seq :=
 
 theorem under_over_eq : sup_under = sup_over := quot.sound under_over_equiv
 
-theorem supremum_property : ∃ x : ℝ, sup x :=
+theorem ex_sup_of_inh_of_bdd : ∃ x : ℝ, sup x :=
   exists.intro sup_over (and.intro over_bound (under_over_eq ▸ under_lowest_bound))
 
 end supremum

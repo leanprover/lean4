@@ -458,11 +458,78 @@ theorem archimedean_strict' (x : ℝ) : ∃ z : ℤ, x > of_rat (of_int z) :=
   end
 
 theorem ex_smallest_of_bdd {P : ℤ → Prop} (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z ≤ b → ¬ P z)
-        (Hinh : ∃ z : ℤ, P z) : ∃ lb : ℤ, P lb ∧ (∀ z : ℤ, z < lb → ¬ P z) :=
-  sorry
+        (Hinh : ∃ z : ℤ, P z) : ∃ lb : ℤ, P lb ∧ (∀ z : ℤ, z < lb → ¬ P z) := 
+  begin
+    cases Hbdd with [b, Hb],
+    cases Hinh with [elt, Helt],
+    existsi b + of_nat (least (λ n, P (b + of_nat n)) (succ (nat_abs (elt - b)))),
+    have Heltb : elt > b, begin
+      apply int.lt_of_not_ge,
+      intro Hge,
+      apply false.elim ((Hb _ Hge) Helt)
+    end,
+    have H' : P (b + of_nat (nat_abs (elt - b))), begin
+      rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt (iff.mpr !int.sub_pos_iff_lt Heltb)), 
+              int.add.comm, int.sub_add_cancel],
+      apply Helt
+    end,
+    apply and.intro,
+    apply least_of_lt _ !lt_succ_self H',
+    intros z Hz,
+    cases (decidable.em (z ≤ b)) with [Hzb, Hzb],
+    apply Hb _ Hzb,
+    let Hzb' := int.lt_of_not_ge Hzb,
+    let Hpos := iff.mpr !int.sub_pos_iff_lt Hzb',
+    have Hzbk : z = b + of_nat (nat_abs (z - b)), 
+      by rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos), int.add.comm, int.sub_add_cancel],
+    have Hk : nat_abs (z - b) < least (λ n, P (b + of_nat n)) (succ (nat_abs (elt - b))), begin
+     let Hz' := iff.mp !int.lt_add_iff_sub_lt_left Hz,
+     rewrite [-of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos) at Hz'],
+     apply iff.mp !int.of_nat_lt_of_nat Hz'
+    end,
+    let Hk' := nat.not_le_of_gt Hk,
+    rewrite Hzbk,
+    apply λ p, mt (ge_least_of_lt _ p) Hk',
+    apply nat.lt.trans Hk, 
+    apply least_lt _ !lt_succ_self H'
+  end
 
 theorem ex_largest_of_bdd {P : ℤ → Prop} (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z ≥ b → ¬ P z)
-        (Hinh : ∃ z : ℤ, P z) : ∃ ub : ℤ, P ub ∧ (∀ z : ℤ, z > ub → ¬ P z) := sorry
+        (Hinh : ∃ z : ℤ, P z) : ∃ ub : ℤ, P ub ∧ (∀ z : ℤ, z > ub → ¬ P z) :=
+  begin
+    cases Hbdd with [b, Hb],
+    cases Hinh with [elt, Helt],
+    existsi b - of_nat (least (λ n, P (b - of_nat n)) (succ (nat_abs (b - elt)))),
+    have Heltb : elt < b, begin
+      apply int.lt_of_not_ge,
+      intro Hge,
+      apply false.elim ((Hb _ Hge) Helt)
+    end,
+    have H' : P (b - of_nat (nat_abs (b - elt))), begin
+      rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt (iff.mpr !int.sub_pos_iff_lt Heltb)),
+              int.sub_sub_self],
+      apply Helt
+    end,
+    apply and.intro,
+    apply least_of_lt _ !lt_succ_self H',
+    intros z Hz,
+    cases (decidable.em (z ≥ b)) with [Hzb, Hzb],
+    apply Hb _ Hzb,
+    let Hzb' := int.lt_of_not_ge Hzb,
+    let Hpos := iff.mpr !int.sub_pos_iff_lt Hzb',
+    have Hzbk : z = b - of_nat (nat_abs (b - z)),
+      by rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos), int.sub_sub_self],
+    have Hk : nat_abs (b - z) < least (λ n, P (b - of_nat n)) (succ (nat_abs (b - elt))), begin
+      let Hz' := iff.mp !int.lt_add_iff_sub_lt_left (iff.mpr !int.lt_add_iff_sub_lt_right Hz),
+      rewrite [-of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos) at Hz'],
+      apply iff.mp !int.of_nat_lt_of_nat Hz'
+    end,
+    let Hk' := nat.not_le_of_gt Hk,
+    rewrite Hzbk,
+    apply λ p, mt (ge_least_of_lt _ p) Hk',
+    apply nat.lt.trans Hk,
+    apply least_lt _ !lt_succ_self H'
+  end
 
 definition ex_floor (x : ℝ) :=
   (@ex_largest_of_bdd (λ z, x ≥ of_rat (of_int z))
@@ -485,10 +552,10 @@ definition ex_floor (x : ℝ) :=
       apply some_spec (archimedean' x)
     end))
 
-definition floor (x : ℝ) :=
+noncomputable definition floor (x : ℝ) :=
   some (ex_floor x)
 
-definition ceil (x : ℝ) := - floor (-x)
+noncomputable definition ceil (x : ℝ) := - floor (-x)
 
 theorem floor_spec (x : ℝ) : of_rat (of_int (floor x)) ≤ x :=
   and.left (some_spec (ex_floor x))
@@ -586,7 +653,7 @@ theorem not_forall_of_exists_not {A : Type} {P : A → Prop} (H : ∃ a : A, ¬ 
 
 definition avg (a b : ℚ) := a / 2 + b / 2
 
-definition bisect (ab : ℚ × ℚ) :=
+noncomputable definition bisect (ab : ℚ × ℚ) :=
   if ub (avg (pr1 ab) (pr2 ab)) then
     (pr1 ab, (avg (pr1 ab) (pr2 ab)))
   else
@@ -594,7 +661,7 @@ definition bisect (ab : ℚ × ℚ) :=
 
 set_option pp.coercions true
 
-definition under : ℚ := of_int (floor (elt - 1))
+noncomputable definition under : ℚ := of_int (floor (elt - 1))
 
 theorem under_spec1 : of_rat under < elt :=
   have H : of_rat under < of_rat (of_int (floor elt)), begin
@@ -615,7 +682,7 @@ theorem under_spec : ¬ ub under :=
     apply not_le_of_gt under_spec1
   end
 
-definition over : ℚ := of_int (ceil (bound + 1)) -- b
+noncomputable definition over : ℚ := of_int (ceil (bound + 1)) -- b
 
 theorem over_spec1 : bound < of_rat over :=
   have H : of_rat (of_int (ceil bound)) < of_rat over, begin
@@ -636,11 +703,11 @@ theorem over_spec : ub over :=
     apply over_spec1
   end
 
-definition under_seq := λ n : ℕ, pr1 (rpt bisect n (under, over)) -- A
+noncomputable definition under_seq := λ n : ℕ, pr1 (rpt bisect n (under, over)) -- A
 
-definition over_seq := λ n : ℕ, pr2 (rpt bisect n (under, over)) -- B
+noncomputable definition over_seq := λ n : ℕ, pr2 (rpt bisect n (under, over)) -- B
 
-definition avg_seq := λ n : ℕ, avg (over_seq n) (under_seq n) -- C
+noncomputable definition avg_seq := λ n : ℕ, avg (over_seq n) (under_seq n) -- C
 
 theorem avg_symm (n : ℕ) : avg_seq n = avg (under_seq n) (over_seq n) :=
   by rewrite [↑avg_seq, ↑avg, rat.add.comm]
@@ -725,13 +792,13 @@ theorem width_narrows : ∃ n : ℕ, over_seq n - under_seq n ≤ 1 :=
     apply Ha
   end
 
-definition over' := over_seq (some width_narrows)
+noncomputable definition over' := over_seq (some width_narrows)
 
-definition under' := under_seq (some width_narrows)
+noncomputable definition under' := under_seq (some width_narrows)
 
-definition over_seq' := λ n, over_seq (n + some width_narrows)
+noncomputable definition over_seq' := λ n, over_seq (n + some width_narrows)
 
-definition under_seq' := λ n, under_seq (n + some width_narrows)
+noncomputable definition under_seq' := λ n, under_seq (n + some width_narrows)
 
 theorem over_seq'0 : over_seq' 0 = over' :=
   by rewrite [↑over_seq', nat.zero_add]
@@ -902,9 +969,9 @@ theorem regular_lemma (s : seq) (H : ∀ n i : ℕ+, i ≥ n → under_seq' n~ �
     exact T
   end
 
-definition p_under_seq : seq := λ n : ℕ+, under_seq' n~
+noncomputable definition p_under_seq : seq := λ n : ℕ+, under_seq' n~
 
-definition p_over_seq : seq := λ n : ℕ+, over_seq' n~
+noncomputable definition p_over_seq : seq := λ n : ℕ+, over_seq' n~
 
 theorem under_seq_regular : regular p_under_seq :=
   begin
@@ -928,9 +995,9 @@ theorem over_seq_regular : regular p_over_seq :=
     apply nat.add_le_add_right Hni
   end
 
-definition sup_over : ℝ := quot.mk (reg_seq.mk p_over_seq over_seq_regular)
+noncomputable definition sup_over : ℝ := quot.mk (reg_seq.mk p_over_seq over_seq_regular)
 
-definition sup_under : ℝ := quot.mk (reg_seq.mk p_under_seq under_seq_regular)
+noncomputable definition sup_under : ℝ := quot.mk (reg_seq.mk p_under_seq under_seq_regular)
 
 theorem over_bound : ub sup_over :=
   begin

@@ -290,8 +290,9 @@ lemma lt_succ_of_lt {i j : nat} : i < j → i < succ j :=
 assume Plt, lt.trans Plt (self_lt_succ j)
 
 /- other forms of induction -/
+
 protected definition strong_rec_on {P : nat → Type} (n : ℕ) (H : ∀n, (∀m, m < n → P m) → P n) : P n :=
-nat.rec (λm h, absurd h !not_lt_zero)
+nat.rec (λm, not.elim !not_lt_zero)
   (λn' (IH : ∀ {m : ℕ}, m < n' → P m) m l,
      or.by_cases (lt_or_eq_of_le (le_of_lt_succ l))
     IH (λ e, eq.rec (H n' @IH) e⁻¹)) (succ n) n !lt_succ_self
@@ -519,6 +520,72 @@ section greatest
           have ltim : i < m, from lt_of_le_of_ne (le_of_lt_succ ltin) neim,
           apply ih ltim}}
  end
+
+ definition least : ℕ → ℕ
+   | 0        := 0
+   | (succ n) := if P (least n) then least n else succ n
+
+ theorem least_of_bound {n : ℕ} (H : P n) : P (least P n) :=
+   begin
+     induction n with [m, ih],
+     rewrite ↑least,
+     apply H,
+     rewrite ↑least,
+     cases decidable.em (P (least P m)) with [Hlp, Hlp],
+     rewrite [if_pos Hlp],
+     apply Hlp,
+     rewrite [if_neg Hlp],
+     apply H
+   end
+
+ theorem bound_le_least (n : ℕ) : n ≥ least P n :=
+   begin
+     induction n with [m, ih],
+     rewrite ↑least, apply le.refl,
+     rewrite ↑least,
+     cases decidable.em (P (least P m)) with [Psm, Pnsm],
+     rewrite [if_pos Psm],
+     apply le.trans ih !le_succ,
+     rewrite [if_neg Pnsm],
+     apply le.refl
+   end
+
+ theorem least_of_lt {i n : ℕ} (ltin : i < n) (H : P i) : P (least P n) :=
+   begin
+     induction n with [m, ih],
+     exact absurd ltin !not_lt_zero,
+     rewrite ↑least,
+     cases decidable.em (P (least P m)) with [Psm, Pnsm],
+     rewrite [if_pos Psm],
+     apply Psm,
+     rewrite [if_neg Pnsm],
+     cases (lt_or_eq_of_le (le_of_lt_succ ltin)) with [Hlt, Heq],
+     exact absurd (ih Hlt) Pnsm,
+     rewrite Heq at H,
+     exact absurd (least_of_bound P H) Pnsm
+   end
+
+ theorem ge_least_of_lt {i n : ℕ} (ltin : i < n) (Hi : P i) : i ≥ least P n :=
+   begin
+     induction n with [m, ih],
+     exact absurd ltin !not_lt_zero,
+     rewrite ↑least,
+     cases decidable.em (P (least P m)) with [Psm, Pnsm],
+     rewrite [if_pos Psm],
+     cases (lt_or_eq_of_le (le_of_lt_succ ltin)) with [Hlt, Heq],
+     apply ih Hlt,
+     rewrite Heq,
+     apply bound_le_least,
+     rewrite [if_neg Pnsm],
+     cases (lt_or_eq_of_le (le_of_lt_succ ltin)) with [Hlt, Heq],
+     apply absurd (least_of_lt P Hlt Hi) Pnsm,
+     rewrite Heq at Hi,
+     apply absurd (least_of_bound P Hi) Pnsm
+   end
+
+ theorem least_lt {n i : ℕ} (ltin : i < n) (Hi : P i) : least P n < n :=
+   lt_of_le_of_lt (ge_least_of_lt P ltin Hi) ltin
+
 end greatest
 
 end nat

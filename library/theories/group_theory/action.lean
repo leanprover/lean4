@@ -117,12 +117,15 @@ variables {hom : G → perm S} {H : finset G} {a : S}
 variable [Hom : is_hom_class hom]
 include Hom
 
+lemma perm_f_mul (f g : G): perm.f ((hom f) * (hom g)) a = ((hom f) ∘ (hom g)) a :=
+rfl
+
 lemma stab_lmul {f g : G} : g ∈ stab hom H a → hom (f*g) a = hom f a :=
-      assume Pgstab,
-      assert Pg : hom g a = a, from of_mem_filter Pgstab, calc
-        hom (f*g) a = perm.f ((hom f) * (hom g)) a : is_hom hom
-                ... = ((hom f) ∘ (hom g)) a        : rfl
-                ... = (hom f) a                    : Pg
+assume Pgstab,
+assert hom g a = a, from of_mem_filter Pgstab, calc
+  hom (f*g) a = perm.f ((hom f) * (hom g)) a : is_hom hom
+          ... = ((hom f) ∘ (hom g)) a        : by rewrite perm_f_mul
+          ... = (hom f) a                    : by unfold compose; rewrite this
 
 lemma stab_subset : stab hom H a ⊆ H :=
       begin
@@ -130,15 +133,13 @@ lemma stab_subset : stab hom H a ⊆ H :=
       end
 
 lemma reverse_move {h g : G} : g ∈ moverset hom H a (hom h a) → hom (h⁻¹*g) a = a :=
-      assume Pg,
-      assert Pga : hom g a = hom h a, from of_mem_filter Pg, calc
-      hom (h⁻¹*g) a = perm.f ((hom h⁻¹) * (hom g)) a : is_hom hom
-      ... = ((hom h⁻¹) ∘ hom g) a        : rfl
-      ... = ((hom h⁻¹) ∘ hom h) a        : {Pga}
-      ... = perm.f ((hom h⁻¹) * hom h) a : rfl
-      ... = perm.f ((hom h)⁻¹ * hom h) a : hom_map_inv hom h
-      ... = (1 : perm S) a               : mul.left_inv (hom h)
-      ... = a                            : rfl
+assume Pg,
+assert hom g a = hom h a, from of_mem_filter Pg, calc
+  hom (h⁻¹*g) a = perm.f ((hom h⁻¹) * (hom g)) a : by rewrite (is_hom hom)
+  ... = ((hom h⁻¹) ∘ hom g) a                    : by rewrite perm_f_mul
+  ... = perm.f ((hom h)⁻¹ * hom h) a             : by unfold compose; rewrite [this, perm_f_mul, hom_map_inv hom h]
+  ... = (1 : perm S) a                           : by rewrite (mul.left_inv (hom h))
+  ... = a                                        : by esimp
 
 lemma moverset_inj_on_orbit : set.inj_on (moverset hom H a) (ts (orbit hom H a)) :=
       take b1 b2,
@@ -184,11 +185,11 @@ lemma subg_stab_has_one : 1 ∈ stab hom H a :=
 lemma subg_stab_has_inv : finset_has_inv (stab hom H a) :=
       take f, assume Pfstab, assert Pf : hom f a = a, from of_mem_filter Pfstab,
       assert Pfinv : hom f⁻¹ a = a, from calc
-        hom f⁻¹ a = hom f⁻¹ ((hom f) a) : Pf
-        ... = perm.f ((hom f⁻¹) * (hom f)) a : rfl
-        ... = hom (f⁻¹ * f) a                : is_hom hom
-        ... = hom 1 a                        : mul.left_inv
-        ... = (1 : perm S) a : hom_map_one hom,
+        hom f⁻¹ a = hom f⁻¹ ((hom f) a)      : by rewrite Pf
+        ... = perm.f ((hom f⁻¹) * (hom f)) a : by rewrite perm_f_mul
+        ... = hom (f⁻¹ * f) a                : by rewrite (is_hom hom)
+        ... = hom 1 a                        : by rewrite mul.left_inv
+        ... = (1 : perm S) a                 : by rewrite (hom_map_one hom),
       assert PfinvinH : f⁻¹ ∈ H, from finsubg_has_inv H (mem_of_mem_filter Pfstab),
       mem_filter_of_mem PfinvinH Pfinv
 
@@ -276,20 +277,15 @@ obtain g PginH Pgcb, from exists_of_orbit Pbinc,
 orbit_of_exists (exists.intro (h*g) (and.intro
   (finsubg_mul_closed H PhinH PginH)
   (calc hom (h*g) c = perm.f ((hom h) * (hom g)) c : is_hom hom
-                ... = ((hom h) ∘ (hom g)) c : rfl
-                ... = (hom h) b : Pgcb
-                ... = a : Phba)))
+                ... = ((hom h) ∘ (hom g)) c        : by rewrite perm_f_mul
+                ... = (hom h) b                    : Pgcb
+                ... = a                            : Phba)))
 
 lemma in_orbit_symm {a b : S} : a ∈ orbit hom H b → b ∈ orbit hom H a :=
 assume Painb, obtain h PhinH Phba, from exists_of_orbit Painb,
-assert Phinvab : perm.f (hom h)⁻¹ a = b, from
-  calc perm.f (hom h)⁻¹ a = perm.f (hom h)⁻¹ ((hom h) b) : Phba
-                      ... = perm.f ((hom h)⁻¹ * (hom h)) b : rfl
-                      ... = perm.f (1 : perm S) b : mul.left_inv,
-orbit_of_exists (exists.intro h⁻¹ (and.intro
-  (finsubg_has_inv H PhinH)
-  (calc (hom h⁻¹) a = perm.f (hom h)⁻¹ a : hom_map_inv hom h
-                ... = b : Phinvab)))
+assert perm.f (hom h)⁻¹ a = b, by rewrite [-Phba, -perm_f_mul, mul.left_inv],
+assert (hom h⁻¹) a = b,        by rewrite [hom_map_inv, this],
+orbit_of_exists (exists.intro h⁻¹ (and.intro (finsubg_has_inv H PhinH) this))
 
 lemma orbit_is_partition : is_partition (orbit hom H) :=
 take a b, propext (iff.intro
@@ -373,10 +369,10 @@ calc Sum _ _ = Sum (fixed_point_orbits hom H) (λ x, 1) : Sum_ext (take c Pin, o
 
 local attribute nat.comm_semiring [instance]
 lemma orbit_class_equation' : card S = card (fixed_points hom H) + Sum {cls ∈ orbits hom H | card cls ≠ 1} card :=
-calc card S = Sum (orbits hom H) finset.card : orbit_class_equation
+calc card S = Sum (orbits hom H) finset.card                                                            : orbit_class_equation
         ... = Sum (fixed_point_orbits hom H) finset.card + Sum {cls ∈ orbits hom H | card cls ≠ 1} card : Sum_binary_union
-        ... = card (fixed_point_orbits hom H) + Sum {cls ∈ orbits hom H | card cls ≠ 1} card : {card_fixed_point_orbits}
-        ... = card (fixed_points hom H) + Sum {cls ∈ orbits hom H | card cls ≠ 1} card : card_fixed_point_orbits_eq
+        ... = card (fixed_point_orbits hom H) + Sum {cls ∈ orbits hom H | card cls ≠ 1} card            : by rewrite -card_fixed_point_orbits
+        ... = card (fixed_points hom H) + Sum {cls ∈ orbits hom H | card cls ≠ 1} card                  : by rewrite card_fixed_point_orbits_eq
 
 end orbit_partition
 
@@ -559,21 +555,21 @@ ext (take i, iff.intro
     end))
 
 lemma card_orbit_max : card (orbit (@id (perm (fin (succ n)))) univ maxi) = succ n :=
-calc card (orbit (@id (perm (fin (succ n)))) univ maxi) = card univ : {orbit_max}
-                                                    ... = succ n : card_fin (succ n)
+calc card (orbit (@id (perm (fin (succ n)))) univ maxi) = card univ : by rewrite orbit_max
+                                                    ... = succ n    : card_fin (succ n)
 
 open fintype
 
 lemma card_lift_to_stab : card (stab (@id (perm (fin (succ n)))) univ maxi) = card (perm (fin n)) :=
  calc finset.card (stab (@id (perm (fin (succ n)))) univ maxi)
-    = finset.card (image (@lift_perm n) univ) : {eq.symm lift_to_stab}
-... = card univ : card_image_eq_of_inj_on lift_perm_inj_on_univ
+    = finset.card (image (@lift_perm n) univ) : by rewrite lift_to_stab
+... = card univ                               : by rewrite (card_image_eq_of_inj_on lift_perm_inj_on_univ)
 
 lemma card_perm_step : card (perm (fin (succ n))) = (succ n) * card (perm (fin n)) :=
  calc card (perm (fin (succ n)))
     = card (orbit id univ maxi) * card (stab id univ maxi) : orbit_stabilizer_theorem
-... = (succ n) * card (stab id univ maxi) : {card_orbit_max}
-... = (succ n) * card (perm (fin n)) : {card_lift_to_stab}
+... = (succ n) * card (stab id univ maxi)                  : {card_orbit_max}
+... = (succ n) * card (perm (fin n))                       : by rewrite -card_lift_to_stab
 
 end perm_fin
 end group

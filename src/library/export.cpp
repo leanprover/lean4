@@ -194,8 +194,6 @@ class exporter {
     }
 
     void export_definition(declaration const & d) {
-        if (inductive::is_intro_rule(m_env, d.get_name()) || inductive::is_elim_rule(m_env, d.get_name()))
-            return;
         if (already_exported(d.get_name()))
             return;
         mark(d.get_name());
@@ -216,6 +214,8 @@ class exporter {
     }
 
     void export_axiom(declaration const & d) {
+        if (inductive::is_intro_rule(m_env, d.get_name()) || inductive::is_elim_rule(m_env, d.get_name()))
+            return;
         if (already_exported(d.get_name()))
             return;
         mark(d.get_name());

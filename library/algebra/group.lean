@@ -558,6 +558,10 @@ section add_comm_group
 
   theorem add_eq_of_eq_sub' {a b c : A} (H : b = c - a) : a + b = c :=
   !add.comm ▸ add_eq_of_eq_sub H
+
+  theorem sub_sub_self (a b : A) : a - (a - b) = b :=
+  by rewrite [sub_eq_add_neg, neg_sub, add.comm, sub_add_cancel]
+ 
 end add_comm_group
 
 definition group_of_add_group (A : Type) [G : add_group A] : group A :=

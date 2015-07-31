@@ -125,7 +125,7 @@ quot.lift_on s
     (list.nodup_filter p (subtype.has_property l)))
   (λ l₁ l₂ u, quot.sound (perm.perm_filter u))
 
-notation `{` binders ∈ s `|` r:(scoped:1 p, filter p s) `}` := r
+notation `{` binder ∈ s `|` r:(scoped:1 p, filter p s) `}` := r
 
 theorem filter_empty : filter p ∅ = ∅ := rfl
 

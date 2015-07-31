@@ -172,11 +172,11 @@ setext (take x, !or.right_distrib)
 
 -- {x : X | P}
 definition set_of (P : X → Prop) : set X := P
-notation `{` binders `|` r:(scoped:1 P, set_of P) `}` := r
+notation `{` binder `|` r:(scoped:1 P, set_of P) `}` := r
 
 -- {x ∈ s | P}
 definition filter (P : X → Prop) (s : set X) : set X := λx, x ∈ s ∧ P x
-notation `{` binders ∈ s `|` r:(scoped:1 p, filter p s) `}` := r
+notation `{` binder ∈ s `|` r:(scoped:1 p, filter p s) `}` := r
 
 -- '{x, y, z}
 definition insert (x : X) (a : set X) : set X := {y : X | y = x ∨ y ∈ a}

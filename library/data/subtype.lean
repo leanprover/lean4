@@ -10,7 +10,7 @@ set_option structure.proj_mk_thm true
 structure subtype {A : Type} (P : A → Prop) :=
 tag :: (elt_of : A) (has_property : P elt_of)
 
-notation `{` binders `|` r:(scoped:1 P, subtype P) `}` := r
+notation `{` binder `|` r:(scoped:1 P, subtype P) `}` := r
 
 definition ex_of_sub {A : Type} {P : A → Prop} : { x | P x } → ∃ x, P x
 | (subtype.tag a h) := exists.intro a h

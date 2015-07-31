@@ -81,6 +81,7 @@ private:
     optional<name> is_aliased(name const & n) const;
     optional<name> is_abbreviated(expr const & e) const;
 
+    format pp_binder(expr const & local);
     format pp_binder_block(buffer<name> const & names, expr const & type, binder_info const & bi);
     format pp_binders(buffer<expr> const & locals);
     format pp_level(level const & l);

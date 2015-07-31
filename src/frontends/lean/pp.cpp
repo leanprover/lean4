@@ -648,6 +648,19 @@ auto pretty_fn::pp_app(expr const & e) -> result {
     return result(max_bp()-1, group(compose(fn_fmt, nest(m_indent, compose(line(), res_arg.fmt())))));
 }
 
+format pretty_fn::pp_binder(expr const & local) {
+    format r;
+    auto bi = local_info(local);
+    if (bi != binder_info())
+        r += format(open_binder_string(bi, m_unicode));
+    r += format(local_pp_name(local));
+    r += space();
+    r += compose(colon(), nest(m_indent, compose(line(), pp_child(mlocal_type(local), 0).fmt())));
+    if (bi != binder_info())
+        r += format(close_binder_string(bi, m_unicode));
+    return r;
+}
+
 format pretty_fn::pp_binder_block(buffer<name> const & names, expr const & type, binder_info const & bi) {
     format r;
     r += format(open_binder_string(bi, m_unicode));
@@ -1123,7 +1136,9 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
             case notation::action_kind::Binder:
                 if (locals.size() != 1)
                     return optional<result>();
-                curr = format(tk) + pp_binders(locals);
+                curr = format(tk) + pp_binder(locals[0]);
+                if (!last)
+                    curr = curr + space();
                 break;
             case notation::action_kind::Binders:
                 curr = format(tk) + pp_binders(locals);

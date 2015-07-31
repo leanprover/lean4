@@ -417,8 +417,8 @@ theorem archimedean (x : ℝ) : ∃ z : ℤ, x ≤ of_rat (of_int z) :=
   begin
     apply quot.induction_on x,
     intro s,
-    cases (s.bdd_of_regular (s.reg_seq.is_reg s)) with [b, Hb],
-    existsi (ubound b),
+    cases s.bdd_of_regular (s.reg_seq.is_reg s) with [b, Hb],
+    existsi ubound b,
     have H : s.s_le (s.reg_seq.sq s) (s.const (rat.of_nat (ubound b))), begin
       apply s.s_le_of_le_pointwise (s.reg_seq.is_reg s),
       apply s.const_reg,
@@ -477,7 +477,7 @@ theorem ex_smallest_of_bdd {P : ℤ → Prop} (Hbdd : ∃ b : ℤ, ∀ z : ℤ, 
     apply and.intro,
     apply least_of_lt _ !lt_succ_self H',
     intros z Hz,
-    cases (em (z ≤ b)) with [Hzb, Hzb],
+    cases em (z ≤ b) with [Hzb, Hzb],
     apply Hb _ Hzb,
     let Hzb' := int.lt_of_not_ge Hzb,
     let Hpos := iff.mpr !int.sub_pos_iff_lt Hzb',
@@ -514,7 +514,7 @@ theorem ex_largest_of_bdd {P : ℤ → Prop} (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z
     apply and.intro,
     apply least_of_lt _ !lt_succ_self H',
     intros z Hz,
-    cases (em (z ≥ b)) with [Hzb, Hzb],
+    cases em (z ≥ b) with [Hzb, Hzb],
     apply Hb _ Hzb,
     let Hzb' := int.lt_of_not_ge Hzb,
     let Hpos := iff.mpr !int.sub_pos_iff_lt Hzb',
@@ -535,7 +535,7 @@ theorem ex_largest_of_bdd {P : ℤ → Prop} (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z
 definition ex_floor (x : ℝ) :=
   (@ex_largest_of_bdd (λ z, x ≥ of_rat (of_int z))
     (begin
-      existsi (some (archimedean_strict x)),
+      existsi some (archimedean_strict x),
       let Har := some_spec (archimedean_strict x),
       intros z Hz,
       apply not_le_of_gt,
@@ -548,10 +548,7 @@ definition ex_floor (x : ℝ) :=
       end,
       exact H
     end)
-    (begin
-      existsi some (archimedean' x),
-      apply some_spec (archimedean' x)
-    end))
+    (by existsi some (archimedean' x); apply some_spec (archimedean' x)))
 
 noncomputable definition floor (x : ℝ) : ℤ :=
   some (ex_floor x)
@@ -590,12 +587,10 @@ theorem floor_succ (x : ℝ) : (floor x) + 1 = floor (x + 1) :=
     cases int.lt_or_gt_of_ne H with [Hlt, Hgt],
     let Hl := floor_largest (iff.mp !int.add_lt_add_iff_lt_sub_right Hlt),
     rewrite [of_int_sub at Hl, -of_rat_sub at Hl],
-    let Hl' := iff.mpr !add_lt_add_iff_lt_sub_right Hl,
-    apply (not_le_of_gt Hl') !floor_spec,
+    apply (not_le_of_gt (iff.mpr !add_lt_add_iff_lt_sub_right Hl)) !floor_spec,
     let Hl := floor_largest Hgt,
     rewrite [of_int_add at Hl, -of_rat_add at Hl],
-    let Hl' := lt_of_add_lt_add_right Hl,
-    apply (not_le_of_gt Hl') !floor_spec
+    apply (not_le_of_gt (lt_of_add_lt_add_right Hl)) !floor_spec
   end
 
 theorem floor_succ_lt (x : ℝ) : floor (x - 1) < floor x :=
@@ -629,14 +624,17 @@ local postfix `~` := nat_of_pnat
 local notation 2 := (1 : ℚ) + 1
 parameter X : ℝ → Prop
 
+-- this definition belongs somewhere else. Where?
 definition rpt {A : Type} (op : A → A) : ℕ → A → A
  | rpt 0 := λ a, a
  | rpt (succ k) := λ a, op (rpt k a)
 
 
 definition ub (x : ℝ) := ∀ y : ℝ, X y → y ≤ x
-definition bounded := ∃ x : ℝ, ub x
 definition sup (x : ℝ) := ub x ∧ ∀ y : ℝ, ub y → x ≤ y
+
+definition lb (x : ℝ) := ∀ y : ℝ, X y → x ≤ y
+definition inf (x : ℝ) := lb x ∧ ∀ y : ℝ, lb y → y ≤ x
 
 parameter elt : ℝ
 hypothesis inh :  X elt
@@ -722,7 +720,7 @@ theorem succ_helper (n : ℕ) : avg (pr1 (rpt bisect n (under, over))) (pr2 (rpt
 theorem under_succ (n : ℕ) : under_seq (succ n) =
         (if ub (avg_seq n) then under_seq n else avg_seq n) :=
   begin
-    cases (em (ub (avg_seq n))) with [Hub, Hub],
+    cases em (ub (avg_seq n)) with [Hub, Hub],
     rewrite [if_pos Hub],
     have H :  pr1 (bisect (rpt bisect n (under, over))) = under_seq n, by
       rewrite [↑under_seq, ↑bisect at {2}, -succ_helper at Hub, if_pos Hub],
@@ -736,7 +734,7 @@ theorem under_succ (n : ℕ) : under_seq (succ n) =
 theorem over_succ (n : ℕ) : over_seq (succ n) =
         (if ub (avg_seq n) then avg_seq n else over_seq n) :=
   begin
-    cases (em (ub (avg_seq n))) with [Hub, Hub],
+    cases em (ub (avg_seq n)) with [Hub, Hub],
     rewrite [if_pos Hub],
     have H : pr2 (bisect (rpt bisect n (under, over))) = avg_seq n, by
       rewrite [↑bisect at {2}, -succ_helper at Hub, if_pos Hub, avg_symm],
@@ -757,7 +755,7 @@ theorem width (n : ℕ) : over_seq n - under_seq n = (over - under) / (rat.pow 2
         (over_seq a) / 2 - (under_seq a) / 2 = ((over - under) / rat.pow 2 a) / 2 : by rewrite [rat.div_sub_div_same, Ha]
         ... = (over - under) / (rat.pow 2 a * 2) : rat.div_div_eq_div_mul (rat.ne_of_gt (rat.pow_pos dec_trivial _)) dec_trivial
         ... = (over - under) / rat.pow 2 (a + 1) : by rewrite rat.pow_add,
-      cases (em (ub (avg_seq a))),
+      cases em (ub (avg_seq a)),
       rewrite [*if_pos a_1, -add_one, -Hou, ↑avg_seq, ↑avg, rat.add.assoc, rat.div_two_sub_self],
       rewrite [*if_neg a_1, -add_one, -Hou, ↑avg_seq, ↑avg, rat.sub_add_eq_sub_sub, rat.sub_self_div_two]
     end)
@@ -825,7 +823,7 @@ theorem PA (n : ℕ) : ¬ ub (under_seq n) :=
     (begin
       intro a Ha,
       rewrite under_succ,
-      cases (em (ub (avg_seq a))),
+      cases em (ub (avg_seq a)),
       rewrite (if_pos a_1),
       assumption,
       rewrite (if_neg a_1),
@@ -838,7 +836,7 @@ theorem PB (n : ℕ) : ub (over_seq n) :=
     (begin
       intro a Ha,
       rewrite over_succ,
-      cases (em (ub (avg_seq a))),
+      cases em (ub (avg_seq a)),
       rewrite (if_pos a_1),
       assumption,
       rewrite (if_neg a_1),
@@ -847,8 +845,8 @@ theorem PB (n : ℕ) : ub (over_seq n) :=
 
 theorem under_lt_over : under < over :=
   begin
-    cases (exists_not_of_not_forall under_spec) with [x, Hx],
-    cases ((iff.mp not_implies_iff_and_not) Hx) with [HXx, Hxu],
+    cases exists_not_of_not_forall under_spec with [x, Hx],
+    cases iff.mp not_implies_iff_and_not Hx with [HXx, Hxu],
     apply lt_of_rat_lt_of_rat,
     apply lt_of_lt_of_le,
     apply lt_of_not_ge Hxu,
@@ -858,8 +856,8 @@ theorem under_lt_over : under < over :=
 theorem under_seq_lt_over_seq : ∀ m n : ℕ, under_seq m < over_seq n :=
   begin
     intros,
-    cases (exists_not_of_not_forall (PA m)) with [x, Hx],
-    cases ((iff.mp not_implies_iff_and_not) Hx) with [HXx, Hxu],
+    cases exists_not_of_not_forall (PA m) with [x, Hx],
+    cases (iff.mp not_implies_iff_and_not) Hx with [HXx, Hxu],
     apply lt_of_rat_lt_of_rat,
     apply lt_of_lt_of_le,
     apply lt_of_not_ge Hxu,
@@ -882,7 +880,7 @@ theorem under_seq_mono_helper (i k : ℕ) : under_seq i ≤ under_seq (i + k) :=
     (begin
       intros a Ha,
       rewrite [add_succ, under_succ],
-      cases (em (ub (avg_seq (i + a)))) with [Havg, Havg],
+      cases em (ub (avg_seq (i + a))) with [Havg, Havg],
       rewrite (if_pos Havg),
       apply Ha,
       rewrite [if_neg Havg, ↑avg_seq, ↑avg],
@@ -909,7 +907,7 @@ theorem over_seq_mono_helper (i k : ℕ) : over_seq (i + k) ≤ over_seq i :=
     (begin
       intros a Ha,
       rewrite [add_succ, over_succ],
-      cases (em (ub (avg_seq (i + a)))) with [Havg, Havg],
+      cases em (ub (avg_seq (i + a))) with [Havg, Havg],
       rewrite [if_pos Havg, ↑avg_seq, ↑avg],
       apply rat.le.trans,
       rotate 1,
@@ -940,8 +938,8 @@ theorem regular_lemma_helper {s : seq} {m n : ℕ+} (Hm : m ≤ n)
         (H : ∀ n i : ℕ+, i ≥ n → under_seq' n~ ≤ s i ∧ s i ≤ over_seq' n~) :
         rat.abs (s m - s n) ≤ m⁻¹ + n⁻¹ :=
   begin
-    cases (H m n Hm) with [T1under, T1over],
-    cases (H m m (!pnat.le.refl)) with [T2under, T2over],
+    cases H m n Hm with [T1under, T1over],
+    cases H m m (!pnat.le.refl) with [T2under, T2over],
     apply rat.le.trans,
     apply rat.dist_bdd_within_interval,
     apply under_seq'_lt_over_seq'_single,
@@ -960,7 +958,7 @@ theorem regular_lemma (s : seq) (H : ∀ n i : ℕ+, i ≥ n → under_seq' n~ �
   begin
     rewrite ↑regular,
     intros,
-    cases (em (m ≤ n)) with [Hm, Hn],
+    cases em (m ≤ n) with [Hm, Hn],
     apply regular_lemma_helper Hm H,
     let T := regular_lemma_helper (pnat.le_of_lt (pnat.lt_of_not_le Hn)) H,
     rewrite [rat.abs_sub at T, {n⁻¹ + _}rat.add.comm at T],
@@ -1012,8 +1010,8 @@ theorem under_lowest_bound : ∀ y : ℝ, ub y → sup_under ≤ y :=
     intros y Hy,
     apply le_of_reprs_le,
     intro n,
-    cases (exists_not_of_not_forall (PA _)) with [x, Hx],
-    cases (iff.mp not_implies_iff_and_not Hx) with [HXx, Hxn],
+    cases exists_not_of_not_forall (PA _) with [x, Hx],
+    cases iff.mp not_implies_iff_and_not Hx with [HXx, Hxn],
     apply le.trans,
     apply le_of_lt,
     apply lt_of_not_ge Hxn,
@@ -1041,5 +1039,36 @@ theorem ex_sup_of_inh_of_bdd : ∃ x : ℝ, sup x :=
   exists.intro sup_over (and.intro over_bound (under_over_eq ▸ under_lowest_bound))
 
 end supremum
+
+definition bounding_set (X : ℝ → Prop) (x : ℝ) : Prop := ∀ y : ℝ, X y → x ≤ y
+
+theorem ex_inf_of_inh_of_bdd (X : ℝ → Prop) (elt : ℝ) (inh : X elt) (bound : ℝ) 
+        (bdd : lb X bound) : ∃ x : ℝ, inf X x := 
+  begin
+    have Hinh : bounding_set X bound, begin
+      intros y Hy,
+      apply bdd,
+      apply Hy
+    end,
+    have Hub : ub (bounding_set X) elt, begin
+      intros y Hy,
+      apply Hy,
+      apply inh
+    end,
+    cases ex_sup_of_inh_of_bdd _ _ Hinh _ Hub with [supr, Hsupr],
+    existsi supr,
+    cases Hsupr with [Hubs1, Hubs2],
+    apply and.intro,
+    intros,
+    apply Hubs2,
+    intros z Hz,
+    apply Hz,
+    apply a,
+    intros y Hlby,
+    apply Hubs1,
+    intros z Hz,
+    apply Hlby,
+    apply Hz
+  end
 
 end real

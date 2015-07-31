@@ -20,12 +20,10 @@ open -[coercions] nat
 open eq.ops
 open pnat
 
-
 local notation 2 := subtype.tag (nat.of_num 2) dec_trivial
 local notation 3 := subtype.tag (nat.of_num 3) dec_trivial
 
 namespace s
-
 
 theorem rat_approx_l1 {s : seq} (H : regular s) :
         ∀ n : ℕ+, ∃ q : ℚ, ∃ N : ℕ+, ∀ m : ℕ+, m ≥ N → abs (s m - q) ≤ n⁻¹ :=
@@ -748,9 +746,6 @@ theorem over_succ (n : ℕ) : over_seq (succ n) =
       rewrite [↑over_seq, ↑bisect at {2}, -succ_helper at Hub, if_neg Hub],
     apply H
   end
-
--- ???
-theorem rat.pow_add (a : ℚ) (m : ℕ) : ∀ n, rat.pow a (m + n) = rat.pow a m * rat.pow a n := rat.pow_add a m
 
 theorem width (n : ℕ) : over_seq n - under_seq n = (over - under) / (rat.pow 2 n) :=
   nat.induction_on n

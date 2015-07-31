@@ -512,12 +512,17 @@ section migrate_algebra
     has_decidable_eq := has_decidable_eq⦄
 
   local attribute rat.discrete_field [instance]
+
   definition divide (a b : rat) := algebra.divide a b
-  infix `/` := divide
+  infix [priority rat.prio] `/` := divide
+
   definition dvd (a b : rat) := algebra.dvd a b
 
+  definition pow (a : ℚ) (n : ℕ) : ℚ := algebra.pow a n
+  infix [priority rat.prio] ^ := pow
+
   migrate from algebra with rat
-    replacing sub → rat.sub, divide → divide, dvd → dvd
+    replacing sub → rat.sub, divide → divide, dvd → dvd, pow → pow
 
 end migrate_algebra
 
@@ -536,6 +541,5 @@ decidable.by_cases
         (take c, assume Hc : a = b * c,
           by rewrite [Hc, !int.mul_div_cancel_left bnz, mul.comm]),
     iff.mpr (eq_div_iff_mul_eq bnz') H')
-
 
 end rat

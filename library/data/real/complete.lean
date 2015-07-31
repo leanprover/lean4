@@ -125,7 +125,7 @@ theorem equiv_abs_of_ge_zero {s : seq} (Hs : regular s) (Hz : s_le zero s) : s_a
     let Hz' := s_nonneg_of_ge_zero Hs Hz,
     existsi 2 * j,
     intro n Hn,
-    apply or.elim (decidable.em (s n ≥ 0)),
+    apply or.elim (em (s n ≥ 0)),
     intro Hpos,
     rewrite [rat.abs_of_nonneg Hpos, sub_self, abs_zero],
     apply rat.le_of_lt,
@@ -162,7 +162,7 @@ theorem equiv_neg_abs_of_le_zero {s : seq} (Hs : regular s) (Hz : s_le s zero) :
     end,
     existsi 2 * j,
     intro n Hn,
-    apply or.elim (decidable.em (s n ≥ 0)),
+    apply or.elim (em (s n ≥ 0)),
     intro Hpos,
     have Hsn : s n + s n ≥ 0, from add_nonneg Hpos Hpos,
     rewrite [rat.abs_of_nonneg Hpos, ↑sneg, rat.sub_neg_eq_add, rat.abs_of_nonneg Hsn],
@@ -221,7 +221,7 @@ theorem re_abs_is_abs : re_abs = real.abs := funext
   (begin
     intro x,
     apply eq.symm,
-    let Hor := decidable.em (zero ≤ x),
+    let Hor := em (zero ≤ x),
     apply or.elim Hor,
     intro Hor1,
     rewrite [abs_of_nonneg Hor1, r_abs_nonneg Hor1],
@@ -317,7 +317,7 @@ theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : s.regula
     rewrite [abs_const, -of_rat_sub, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],
     apply real.le.trans,
     apply abs_add_three,
-    let Hor := decidable.em (M (2 * m) ≥ M (2 * n)),
+    let Hor := em (M (2 * m) ≥ M (2 * n)),
     apply or.elim Hor,
     intro Hor1,
     apply lim_seq_reg_helper Hc Hor1,
@@ -461,7 +461,7 @@ theorem archimedean_strict' (x : ℝ) : ∃ z : ℤ, x > of_rat (of_int z) :=
   end
 
 theorem ex_smallest_of_bdd {P : ℤ → Prop} (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z ≤ b → ¬ P z)
-        (Hinh : ∃ z : ℤ, P z) : ∃ lb : ℤ, P lb ∧ (∀ z : ℤ, z < lb → ¬ P z) := 
+        (Hinh : ∃ z : ℤ, P z) : ∃ lb : ℤ, P lb ∧ (∀ z : ℤ, z < lb → ¬ P z) :=
   begin
     cases Hbdd with [b, Hb],
     cases Hinh with [elt, Helt],
@@ -472,18 +472,18 @@ theorem ex_smallest_of_bdd {P : ℤ → Prop} (Hbdd : ∃ b : ℤ, ∀ z : ℤ, 
       apply false.elim ((Hb _ Hge) Helt)
     end,
     have H' : P (b + of_nat (nat_abs (elt - b))), begin
-      rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt (iff.mpr !int.sub_pos_iff_lt Heltb)), 
+      rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt (iff.mpr !int.sub_pos_iff_lt Heltb)),
               int.add.comm, int.sub_add_cancel],
       apply Helt
     end,
     apply and.intro,
     apply least_of_lt _ !lt_succ_self H',
     intros z Hz,
-    cases (decidable.em (z ≤ b)) with [Hzb, Hzb],
+    cases (em (z ≤ b)) with [Hzb, Hzb],
     apply Hb _ Hzb,
     let Hzb' := int.lt_of_not_ge Hzb,
     let Hpos := iff.mpr !int.sub_pos_iff_lt Hzb',
-    have Hzbk : z = b + of_nat (nat_abs (z - b)), 
+    have Hzbk : z = b + of_nat (nat_abs (z - b)),
       by rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos), int.add.comm, int.sub_add_cancel],
     have Hk : nat_abs (z - b) < least (λ n, P (b + of_nat n)) (succ (nat_abs (elt - b))), begin
      let Hz' := iff.mp !int.lt_add_iff_sub_lt_left Hz,
@@ -493,7 +493,7 @@ theorem ex_smallest_of_bdd {P : ℤ → Prop} (Hbdd : ∃ b : ℤ, ∀ z : ℤ, 
     let Hk' := nat.not_le_of_gt Hk,
     rewrite Hzbk,
     apply λ p, mt (ge_least_of_lt _ p) Hk',
-    apply nat.lt.trans Hk, 
+    apply nat.lt.trans Hk,
     apply least_lt _ !lt_succ_self H'
   end
 
@@ -516,7 +516,7 @@ theorem ex_largest_of_bdd {P : ℤ → Prop} (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z
     apply and.intro,
     apply least_of_lt _ !lt_succ_self H',
     intros z Hz,
-    cases (decidable.em (z ≥ b)) with [Hzb, Hzb],
+    cases (em (z ≥ b)) with [Hzb, Hzb],
     apply Hb _ Hzb,
     let Hzb' := int.lt_of_not_ge Hzb,
     let Hpos := iff.mpr !int.sub_pos_iff_lt Hzb',
@@ -724,7 +724,7 @@ theorem succ_helper (n : ℕ) : avg (pr1 (rpt bisect n (under, over))) (pr2 (rpt
 theorem under_succ (n : ℕ) : under_seq (succ n) =
         (if ub (avg_seq n) then under_seq n else avg_seq n) :=
   begin
-    cases (decidable.em (ub (avg_seq n))) with [Hub, Hub],
+    cases (em (ub (avg_seq n))) with [Hub, Hub],
     rewrite [if_pos Hub],
     have H :  pr1 (bisect (rpt bisect n (under, over))) = under_seq n, by
       rewrite [↑under_seq, ↑bisect at {2}, -succ_helper at Hub, if_pos Hub],
@@ -738,7 +738,7 @@ theorem under_succ (n : ℕ) : under_seq (succ n) =
 theorem over_succ (n : ℕ) : over_seq (succ n) =
         (if ub (avg_seq n) then avg_seq n else over_seq n) :=
   begin
-    cases (decidable.em (ub (avg_seq n))) with [Hub, Hub],
+    cases (em (ub (avg_seq n))) with [Hub, Hub],
     rewrite [if_pos Hub],
     have H : pr2 (bisect (rpt bisect n (under, over))) = avg_seq n, by
       rewrite [↑bisect at {2}, -succ_helper at Hub, if_pos Hub, avg_symm],
@@ -762,7 +762,7 @@ theorem width (n : ℕ) : over_seq n - under_seq n = (over - under) / (rat.pow 2
         (over_seq a) / 2 - (under_seq a) / 2 = ((over - under) / rat.pow 2 a) / 2 : by rewrite [rat.div_sub_div_same, Ha]
         ... = (over - under) / (rat.pow 2 a * 2) : rat.div_div_eq_div_mul (rat.ne_of_gt (rat.pow_pos dec_trivial _)) dec_trivial
         ... = (over - under) / rat.pow 2 (a + 1) : by rewrite rat.pow_add,
-      cases (decidable.em (ub (avg_seq a))),
+      cases (em (ub (avg_seq a))),
       rewrite [*if_pos a_1, -add_one, -Hou, ↑avg_seq, ↑avg, rat.add.assoc, rat.div_two_sub_self],
       rewrite [*if_neg a_1, -add_one, -Hou, ↑avg_seq, ↑avg, rat.sub_add_eq_sub_sub, rat.sub_self_div_two]
     end)
@@ -830,7 +830,7 @@ theorem PA (n : ℕ) : ¬ ub (under_seq n) :=
     (begin
       intro a Ha,
       rewrite under_succ,
-      cases (decidable.em (ub (avg_seq a))),
+      cases (em (ub (avg_seq a))),
       rewrite (if_pos a_1),
       assumption,
       rewrite (if_neg a_1),
@@ -843,7 +843,7 @@ theorem PB (n : ℕ) : ub (over_seq n) :=
     (begin
       intro a Ha,
       rewrite over_succ,
-      cases (decidable.em (ub (avg_seq a))),
+      cases (em (ub (avg_seq a))),
       rewrite (if_pos a_1),
       assumption,
       rewrite (if_neg a_1),
@@ -887,7 +887,7 @@ theorem under_seq_mono_helper (i k : ℕ) : under_seq i ≤ under_seq (i + k) :=
     (begin
       intros a Ha,
       rewrite [add_succ, under_succ],
-      cases (decidable.em (ub (avg_seq (i + a)))) with [Havg, Havg],
+      cases (em (ub (avg_seq (i + a)))) with [Havg, Havg],
       rewrite (if_pos Havg),
       apply Ha,
       rewrite [if_neg Havg, ↑avg_seq, ↑avg],
@@ -914,7 +914,7 @@ theorem over_seq_mono_helper (i k : ℕ) : over_seq (i + k) ≤ over_seq i :=
     (begin
       intros a Ha,
       rewrite [add_succ, over_succ],
-      cases (decidable.em (ub (avg_seq (i + a)))) with [Havg, Havg],
+      cases (em (ub (avg_seq (i + a)))) with [Havg, Havg],
       rewrite [if_pos Havg, ↑avg_seq, ↑avg],
       apply rat.le.trans,
       rotate 1,
@@ -965,7 +965,7 @@ theorem regular_lemma (s : seq) (H : ∀ n i : ℕ+, i ≥ n → under_seq' n~ �
   begin
     rewrite ↑regular,
     intros,
-    cases (decidable.em (m ≤ n)) with [Hm, Hn],
+    cases (em (m ≤ n)) with [Hm, Hn],
     apply regular_lemma_helper Hm H,
     let T := regular_lemma_helper (pnat.le_of_lt (pnat.lt_of_not_le Hn)) H,
     rewrite [rat.abs_sub at T, {n⁻¹ + _}rat.add.comm at T],

@@ -6,8 +6,6 @@ The real numbers, constructed as equivalence classes of Cauchy sequences of rati
 This construction follows Bishop and Bridges (1985).
 
 To do:
- o Break positive naturals into their own file and fill in sorry's
- o Fill in sorrys for helper lemmas that will not be handled by simplifier
  o Rename things and possibly make theorems private
 -/
 

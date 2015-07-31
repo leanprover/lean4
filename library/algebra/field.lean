@@ -454,10 +454,3 @@ section discrete_field
 end discrete_field
 
 end algebra
-
-
-/-
-    decidable.by_cases
-      (assume Ha : a = 0, sorry)
-      (assume Ha : a ≠ 0, sorry)
--/

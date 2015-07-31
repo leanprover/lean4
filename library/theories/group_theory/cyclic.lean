@@ -13,59 +13,24 @@ open eq.ops
 namespace group
 
 section cyclic
-open nat fin
-
+open nat fin list
 local attribute madd [reducible]
 
-definition diff [reducible] (i j : nat) :=
-if (i < j) then (j - i) else (i - j)
-
-lemma diff_eq_dist {i j : nat} : diff i j = dist i j :=
-#nat decidable.by_cases
-  (λ Plt : i < j,
-    by rewrite [if_pos Plt, ↑dist, sub_eq_zero_of_le (le_of_lt Plt), zero_add])
-  (λ Pnlt : ¬ i < j,
-    by rewrite [if_neg Pnlt, ↑dist, sub_eq_zero_of_le (le_of_not_gt Pnlt)])
-
-lemma diff_eq_max_sub_min {i j : nat} : diff i j = (max i j) - min i j :=
-decidable.by_cases
-  (λ Plt : i < j, begin rewrite [↑max, ↑min, *(if_pos Plt)] end)
-  (λ Pnlt : ¬ i < j, begin rewrite [↑max, ↑min, *(if_neg Pnlt)] end)
-
-lemma diff_succ {i j : nat} : diff (succ i) (succ j) = diff i j :=
-by rewrite [*diff_eq_dist, ↑dist, *succ_sub_succ]
-
-lemma diff_add {i j k : nat} : diff (i + k) (j + k) = diff i j :=
-by rewrite [*diff_eq_dist, dist_add_add_right]
-
-lemma diff_le_max {i j : nat} : diff i j ≤ max i j :=
-begin rewrite diff_eq_max_sub_min, apply sub_le end
-
-lemma diff_gt_zero_of_ne {i j : nat} : i ≠ j → diff i j > 0 :=
-assume Pne, decidable.by_cases
-  (λ Plt : i < j, begin rewrite [if_pos Plt], apply sub_pos_of_lt Plt end)
-  (λ Pnlt : ¬ i < j, begin
-    rewrite [if_neg Pnlt], apply sub_pos_of_lt,
-    apply lt_of_le_and_ne (nat.le_of_not_gt Pnlt) (ne.symm Pne) end)
-
 variable {A : Type}
-
-open list
-
 variable [ambG : group A]
 include ambG
 
 lemma pow_mod {a : A} {n m : nat} : a ^ m = 1 → a ^ n = a ^ (n mod m) :=
 assume Pid,
-have Pm : a ^ (n div m * m) = 1, from calc
-  a ^ (n div m * m) = a ^ (m * (n div m)) : {mul.comm (n div m) m}
-                ... = (a ^ m) ^ (n div m) : !pow_mul
-                ... = 1 ^ (n div m) : {Pid}
-                ... = 1 : one_pow (n div m),
-calc a ^ n = a ^ (n div m * m + n mod m) : {eq_div_mul_add_mod n m}
-       ... = a ^ (n div m * m) * a ^ (n mod m) : !pow_add
-       ... = 1 * a ^ (n mod m) : {Pm}
-       ... = a ^ (n mod m) : !one_mul
+assert a ^ (n div m * m) = 1, from calc
+  a ^ (n div m * m) = a ^ (m * (n div m)) : by rewrite (mul.comm (n div m) m)
+                ... = (a ^ m) ^ (n div m) : by rewrite pow_mul
+                ... = 1 ^ (n div m)       : by rewrite Pid
+                ... = 1                   : one_pow (n div m),
+calc a ^ n = a ^ (n div m * m + n mod m)       : by rewrite -(eq_div_mul_add_mod n m)
+       ... = a ^ (n div m * m) * a ^ (n mod m) : by rewrite pow_add
+       ... = 1 * a ^ (n mod m)                 : by rewrite this
+       ... = a ^ (n mod m)                     : by rewrite one_mul
 
 lemma pow_sub_eq_one_of_pow_eq {a : A} {i j : nat} :
   a^i = a^j → a^(i - j) = 1 :=
@@ -76,15 +41,15 @@ assume Pe, or.elim (lt_or_ge i j)
 lemma pow_diff_eq_one_of_pow_eq {a : A} {i j : nat} :
   a^i = a^j → a^(diff i j) = 1 :=
 assume Pe, decidable.by_cases
-  (λ Plt : i < j, by rewrite [if_pos Plt]; exact pow_sub_eq_one_of_pow_eq (eq.symm Pe))
-  (λ Pnlt : ¬ i < j, by rewrite [if_neg Pnlt]; exact pow_sub_eq_one_of_pow_eq Pe)
+  (suppose i < j, by rewrite [if_pos this]; exact pow_sub_eq_one_of_pow_eq (eq.symm Pe))
+  (suppose ¬ i < j, by rewrite [if_neg this]; exact pow_sub_eq_one_of_pow_eq Pe)
 
 lemma pow_madd {a : A} {n : nat} {i j : fin (succ n)} :
   a^(succ n) = 1 → a^(val (i + j)) = a^i * a^j :=
 assume Pe, calc
 a^(val (i + j)) = a^((i + j) mod (succ n)) : rfl
-            ... = a^(i + j) : pow_mod Pe
-            ... = a^i * a^j : !pow_add
+            ... = a^(i + j)                : by rewrite [-pow_mod Pe]
+            ... = a^i * a^j                : by rewrite pow_add
 
 lemma mk_pow_mod {a : A} {n m : nat} : a ^ (succ m) = 1 → a ^ n = a ^ (mk_mod m n) :=
 assume Pe, pow_mod Pe
@@ -185,9 +150,9 @@ assert Psub: cyc a ⊆ s, from subset_of_forall
   apply mem_image,
     apply mem_upto_of_lt (mod_lt i !zero_lt_succ),
     exact rfl end),
-#nat calc order a ≤ card s : card_le_card_of_subset Psub
+#nat calc order a ≤ card s               : card_le_card_of_subset Psub
               ... ≤ card (upto (succ n)) : !card_image_le
-              ... = succ n : card_upto (succ n)
+              ... = succ n               : card_upto (succ n)
 
 lemma pow_ne_of_lt_order {a : A} {n : nat} : succ n < order a → a^(succ n) ≠ 1 :=
 assume Plt, not_imp_not_of_imp order_le (nat.not_le_of_gt Plt)
@@ -197,11 +162,12 @@ lemma eq_zero_of_pow_eq_one {a : A} : ∀ {n : nat}, a^n = 1 → n < order a →
 | (succ n) := assume Pe Plt, absurd Pe (pow_ne_of_lt_order Plt)
 
 lemma pow_fin_inj (a : A) (n : nat) : injective (pow_fin a n) :=
-take i j, assume Peq : a^(i + n) = a^(j + n),
-have Pde : a^(diff i j) = 1, from diff_add ▸ pow_diff_eq_one_of_pow_eq Peq,
-have Pdz : diff i j = 0, from eq_zero_of_pow_eq_one Pde
-  (nat.lt_of_le_of_lt diff_le_max (max_lt i j)),
-eq_of_veq (eq_of_dist_eq_zero (diff_eq_dist ▸ Pdz))
+take i j,
+suppose a^(i + n) = a^(j + n),
+have    a^(diff i j) = 1, from diff_add ▸ pow_diff_eq_one_of_pow_eq this,
+have    diff i j = 0,     from
+  eq_zero_of_pow_eq_one this (nat.lt_of_le_of_lt diff_le_max (max_lt i j)),
+eq_of_veq (eq_of_dist_eq_zero (diff_eq_dist ▸ this))
 
 lemma cyc_eq_cyc (a : A) (n : nat) : cyc_pow_fin a n = cyc a :=
 assert Psub : cyc_pow_fin a n ⊆ cyc a, from subset_of_forall
@@ -219,9 +185,9 @@ or.elim (eq_or_lt_of_le (succ_le_of_lt (is_lt i)))
 
 lemma eq_one_of_order_eq_one {a : A} : order a = 1 → a = 1 :=
 assume Porder,
-calc a = a^1 : eq.symm (pow_one a)
-   ... = a^(order a) : Porder
-   ... = 1 : pow_order
+calc a = a^1         : by rewrite (pow_one a)
+   ... = a^(order a) : by rewrite Porder
+   ... = 1           : by rewrite pow_order
 
 lemma order_of_min_pow {a : A} {n : nat}
   (Pone : a^(succ n) = 1) (Pmin : ∀ i, i < n → a^(succ i) ≠ 1) : order a = succ n :=
@@ -368,8 +334,8 @@ lemma rotl_seq_ne_id : ∀ {n : nat}, (∃ a b : A, a ≠ b) → ∀ i, i < n �
   assume Peq, absurd (congr_fun Peq f) P
 
 lemma rotr_rotl_fun {n : nat} (m : nat) (f : seq A n) : rotr_fun m (rotl_fun m f) = f :=
-calc f ∘ (rotl m) ∘ (rotr m) = f ∘ ((rotl m) ∘ (rotr m)) : compose.assoc
-                         ... = f ∘ id : {rotl_rotr m}
+calc f ∘ (rotl m) ∘ (rotr m) = f ∘ ((rotl m) ∘ (rotr m)) : by rewrite -compose.assoc
+                         ... = f ∘ id                    : by rewrite (rotl_rotr m)
 
 lemma rotl_fun_inj {n : nat} {m : nat} : @injective (seq A n) (seq A n) (rotl_fun m) :=
 injective_of_has_left_inverse (exists.intro (rotr_fun m) (rotr_rotl_fun m))
@@ -391,28 +357,26 @@ perm.mk (rotl_fun m) rotl_fun_inj
 
 variable {A : Type}
 variable [finA : fintype A]
-include finA
 variable [deceqA : decidable_eq A]
-include deceqA
-
 variable {n : nat}
+include finA deceqA
 
 lemma rotl_perm_mul {i j : nat} : (rotl_perm A n i) * (rotl_perm A n j) = rotl_perm A n (j+i) :=
 eq_of_feq (funext take f, calc
-  f ∘ (rotl j) ∘ (rotl i) = f ∘ ((rotl j) ∘ (rotl i)) : compose.assoc
-                      ... = f ∘ (rotl (j+i)) : rotl_compose)
+  f ∘ (rotl j) ∘ (rotl i) = f ∘ ((rotl j) ∘ (rotl i)) : by rewrite -compose.assoc
+                      ... = f ∘ (rotl (j+i))          : by rewrite rotl_compose)
 
 lemma rotl_perm_pow_eq : ∀ {i : nat}, (rotl_perm A n 1) ^ i = rotl_perm A n i
-| 0 := begin rewrite [pow_zero, ↑rotl_perm, perm_one, -eq_iff_feq], esimp, rewrite rotl_seq_zero  end
+| 0        := begin rewrite [pow_zero, ↑rotl_perm, perm_one, -eq_iff_feq], esimp, rewrite rotl_seq_zero  end
 | (succ i) := begin rewrite [pow_succ, rotl_perm_pow_eq, rotl_perm_mul, one_add] end
 
 lemma rotl_perm_pow_eq_one : (rotl_perm A n 1) ^ n = 1 :=
 eq.trans rotl_perm_pow_eq (eq_of_feq begin esimp [rotl_perm], rewrite [↑rotl_fun, rotl_id] end)
 
 lemma rotl_perm_mod {i : nat} : rotl_perm A n i = rotl_perm A n (i mod n) :=
-calc rotl_perm A n i = (rotl_perm A n 1) ^ i : rotl_perm_pow_eq
-                 ... = (rotl_perm A n 1) ^ (i mod n) : pow_mod rotl_perm_pow_eq_one
-                 ... = rotl_perm A n (i mod n) : rotl_perm_pow_eq
+calc rotl_perm A n i = (rotl_perm A n 1) ^ i         : by rewrite rotl_perm_pow_eq
+                 ... = (rotl_perm A n 1) ^ (i mod n) : by rewrite (pow_mod rotl_perm_pow_eq_one)
+                 ... = rotl_perm A n (i mod n)       : by rewrite rotl_perm_pow_eq
 
 -- needs A to have at least two elements!
 lemma rotl_perm_pow_ne_one (Pex : ∃ a b : A, a ≠ b) : ∀ i, i < n → (rotl_perm A (succ n) 1)^(succ i) ≠ 1 :=

@@ -469,4 +469,35 @@ or.elim !le.total
   (assume H : k ≤ l, !dist.comm ▸ !dist.comm ▸ aux l k H)
   (assume H : l ≤ k, aux k l H)
 
+definition diff [reducible] (i j : nat) :=
+if (i < j) then (j - i) else (i - j)
+
+open decidable
+lemma diff_eq_dist {i j : nat} : diff i j = dist i j :=
+by_cases
+  (suppose i < j,
+    by rewrite [if_pos this, ↑dist, sub_eq_zero_of_le (le_of_lt this), zero_add])
+  (suppose ¬ i < j,
+    by rewrite [if_neg this, ↑dist, sub_eq_zero_of_le (le_of_not_gt this)])
+
+lemma diff_eq_max_sub_min {i j : nat} : diff i j = (max i j) - min i j :=
+by_cases
+  (suppose i < j, begin rewrite [↑max, ↑min, *(if_pos this)] end)
+  (suppose ¬ i < j, begin rewrite [↑max, ↑min, *(if_neg this)] end)
+
+lemma diff_succ {i j : nat} : diff (succ i) (succ j) = diff i j :=
+by rewrite [*diff_eq_dist, ↑dist, *succ_sub_succ]
+
+lemma diff_add {i j k : nat} : diff (i + k) (j + k) = diff i j :=
+by rewrite [*diff_eq_dist, dist_add_add_right]
+
+lemma diff_le_max {i j : nat} : diff i j ≤ max i j :=
+begin rewrite diff_eq_max_sub_min, apply sub_le end
+
+lemma diff_gt_zero_of_ne {i j : nat} : i ≠ j → diff i j > 0 :=
+assume Pne, by_cases
+  (suppose i < j, begin rewrite [if_pos this], apply sub_pos_of_lt this end)
+  (suppose ¬ i < j, begin
+    rewrite [if_neg this], apply sub_pos_of_lt,
+    apply lt_of_le_and_ne (nat.le_of_not_gt this) (ne.symm Pne) end)
 end nat

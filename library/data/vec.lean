@@ -172,4 +172,53 @@ namespace vec
 
   theorem map_map {n : nat} (g : B → C) (f : A → B) (v : vec A n) : map g (map f v) = map (g ∘ f) v :=
   begin cases v, rewrite *map_tag, apply subtype.eq, apply list.map_map end
+
+  open fin
+
+  definition ith {n : nat} : vec A n → fin n → A
+  | (tag l h₁) (mk i h₂) := list.ith l i (by rewrite h₁; exact h₂)
+
+  lemma ith_zero {n : nat} (a : A) (v : vec A n) (h : 0 < succ n) : ith (a::v) (mk 0 h) = a :=
+  by induction v; reflexivity
+
+  lemma ith_fin_zero {n : nat} (a : A) (v : vec A n) : ith (a::v) (zero n) = a :=
+  by unfold zero; apply ith_zero
+
+  lemma ith_succ {n : nat} (a : A) (v : vec A n) (i : nat) (h : succ i < succ n)
+                 : ith (a::v) (mk (succ i) h) = ith v (mk_pred i h) :=
+  by induction v; reflexivity
+
+  lemma ith_fin_succ {n : nat} (a : A) (v : vec A n) (i : fin n)
+                     : ith (a::v) (succ i) = ith v i :=
+  begin cases i, unfold fin.succ, rewrite ith_succ end
+
+  lemma ith_zero_eq_head {n : nat} (v : vec A (nat.succ n)) : ith v (zero n) = head v :=
+  by rewrite [-eta v, ith_fin_zero, head_cons]
+
+  lemma ith_succ_eq_ith_tail {n : nat} (v : vec A (nat.succ n)) (i : fin n) : ith v (succ i) = ith (tail v) i :=
+  by rewrite [-eta v, ith_fin_succ, tail_cons]
+
+  protected lemma ext {n : nat} (v₁ v₂ : vec A n) (h : ∀ i : fin n, ith v₁ i = ith v₂ i) : v₁ = v₂ :=
+  begin
+    induction n with n ih,
+      rewrite [vec0_eq_nil v₁, vec0_eq_nil v₂],
+      rewrite [-eta v₁, -eta v₂], congruence,
+        show head v₁ = head v₂, by rewrite [-ith_zero_eq_head, -ith_zero_eq_head]; apply h,
+        have ∀ i : fin n, ith (tail v₁) i = ith (tail v₂) i, from
+          take i, by rewrite [-ith_succ_eq_ith_tail, -ith_succ_eq_ith_tail]; apply h,
+        show tail v₁ = tail v₂, from ih _ _ this
+  end
+
+  definition tabulate : Π {n : nat}, (fin n → A) → vec A n
+  | 0     f := nil
+  | (n+1) f := f (@zero n) :: tabulate (λ i : fin n, f (succ i))
+
+  theorem ith_tabulate {n : nat} (f : fin n → A) (i : fin n) : ith (tabulate f) i = f i :=
+  begin
+    induction n with n ih,
+      apply elim0 i,
+      cases i with v hlt, cases v,
+        {unfold tabulate, rewrite ith_zero},
+        {unfold tabulate, rewrite [ith_succ, ih]}
+  end
 end vec

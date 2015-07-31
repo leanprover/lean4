@@ -507,6 +507,20 @@ theorem inth_zero [h : inhabited T] (a : T) (l : list T) : inth (a :: l) 0 = a
 theorem inth_succ [h : inhabited T] (a : T) (l : list T) (n : nat) : inth (a::l) (n+1) = inth l n
 end nth
 
+section ith
+definition ith : Π (l : list T) (i : nat), i < length l → T
+| nil     i        h := absurd h !not_lt_zero
+| (x::xs) 0        h := x
+| (x::xs) (succ i) h := ith xs i (lt_of_succ_lt_succ h)
+
+lemma ith_zero [simp] (a : T) (l : list T) (h : 0 < length (a::l)) : ith (a::l) 0 h = a :=
+rfl
+
+lemma ith_succ [simp] (a : T) (l : list T) (i : nat) (h : succ i < length (a::l))
+                      : ith (a::l) (succ i) h = ith l i (lt_of_succ_lt_succ h) :=
+rfl
+end ith
+
 open decidable
 definition has_decidable_eq {A : Type} [H : decidable_eq A] : ∀ l₁ l₂ : list A, decidable (l₁ = l₂)
 | []      []      := inl rfl

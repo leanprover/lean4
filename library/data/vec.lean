@@ -34,6 +34,35 @@ namespace vec
   protected definition has_decidable_eq [instance] [h : decidable_eq A] : ∀ (n : nat), decidable_eq (vec A n) :=
   _
 
+  definition head {n : nat} : vec A (succ n) → A
+  | (tag []     h) := by contradiction
+  | (tag (a::v) h) := a
+
+  definition tail {n : nat} : vec A (succ n) → vec A n
+  | (tag []     h) := by contradiction
+  | (tag (a::v) h) := tag v (succ.inj h)
+
+  theorem head_cons {n : nat} (a : A) (v : vec A n) : head (a :: v) = a :=
+  by induction v; reflexivity
+
+  theorem tail_cons {n : nat} (a : A) (v : vec A n) : tail (a :: v) = v :=
+  by induction v; reflexivity
+
+  theorem head_lcons {n : nat} (a : A) (l : list A) (h : length (a::l) = succ n) : head (tag (a::l) h) = a :=
+  rfl
+
+  theorem tail_lcons {n : nat} (a : A) (l : list A) (h : length (a::l) = succ n) : tail (tag (a::l) h) = tag l (succ.inj h) :=
+  rfl
+
+  definition last {n : nat} : vec A (succ n) → A
+  | (tag l h) := list.last l (ne_nil_of_length_eq_succ h)
+
+  theorem eta : ∀ {n : nat} (v : vec A (succ n)), head v :: tail v = v
+  | 0     (tag [] h)     := by contradiction
+  | 0     (tag (a::l) h) := rfl
+  | (n+1) (tag [] h)     := by contradiction
+  | (n+1) (tag (a::l) h) := rfl
+
   definition of_list (l : list A) : vec A (list.length l) :=
   tag l rfl
 
@@ -68,6 +97,8 @@ namespace vec
     apply heq_of_list_eq, rewrite to_list_of_list, rewrite length_to_list
   end
 
+  /- append -/
+
   definition append {n m : nat} : vec A n → vec A m → vec A (n + m)
   | (tag l₁ h₁) (tag l₂ h₂) := tag (list.append l₁ l₂) (by rewrite [length_append, h₁, h₂])
 
@@ -97,6 +128,8 @@ namespace vec
   theorem append.assoc_heq {n₁ n₂ n₃} (v₁ : vec A n₁) (v₂ : vec A n₂) (v₃ : vec A n₃) : (v₁ ++ v₂) ++ v₃ == v₁ ++ (v₂ ++ v₃) :=
   heq_of_eq_rec_left !add.assoc (append.assoc v₁ v₂ v₃)
 
+  /- reverse -/
+
   definition reverse {n : nat} : vec A n → vec A n
   | (tag l h) := tag (list.reverse l) (by rewrite [length_reverse, h])
 
@@ -107,31 +140,7 @@ namespace vec
   | (tag []     h) := rfl
   | (tag (a::l) h) := by contradiction
 
-  definition head {n : nat} : vec A (succ n) → A
-  | (tag []     h) := by contradiction
-  | (tag (a::v) h) := a
-
-  definition tail {n : nat} : vec A (succ n) → vec A n
-  | (tag []     h) := by contradiction
-  | (tag (a::v) h) := tag v (succ.inj h)
-
-  theorem head_cons {n : nat} (a : A) (v : vec A n) : head (a :: v) = a :=
-  by induction v; reflexivity
-
-  theorem tail_cons {n : nat} (a : A) (v : vec A n) : tail (a :: v) = v :=
-  by induction v; reflexivity
-
-  theorem head_lcons {n : nat} (a : A) (l : list A) (h : length (a::l) = succ n) : head (tag (a::l) h) = a :=
-  rfl
-
-  theorem tail_lcons {n : nat} (a : A) (l : list A) (h : length (a::l) = succ n) : tail (tag (a::l) h) = tag l (succ.inj h) :=
-  rfl
-
-  theorem eta : ∀ {n : nat} (v : vec A (succ n)), head v :: tail v = v
-  | 0     (tag [] h)     := by contradiction
-  | 0     (tag (a::l) h) := rfl
-  | (n+1) (tag [] h)     := by contradiction
-  | (n+1) (tag (a::l) h) := rfl
+  /- mem -/
 
   definition mem {n : nat} (a : A) (v : vec A n) : Prop :=
   a ∈ elt_of v
@@ -154,8 +163,7 @@ namespace vec
   theorem mem_singleton {n : nat} {x a : A} : x ∈ (a::nil : vec A 1) → x = a :=
   assume h, list.mem_singleton h
 
-  definition last {n : nat} : vec A (succ n) → A
-  | (tag l h) := list.last l (ne_nil_of_length_eq_succ h)
+  /- map -/
 
   definition map {n : nat} (f : A → B) : vec A n → vec B n
   | (tag l h) := tag (list.map f l) (by clear map; substvars; rewrite length_map)
@@ -173,6 +181,42 @@ namespace vec
   theorem map_map {n : nat} (g : B → C) (f : A → B) (v : vec A n) : map g (map f v) = map (g ∘ f) v :=
   begin cases v, rewrite *map_tag, apply subtype.eq, apply list.map_map end
 
+  theorem map_id {n : nat} (v : vec A n) : map id v = v :=
+  begin induction v, unfold map, congruence, apply list.map_id end
+
+  theorem mem_map {n : nat} {a : A} {v : vec A n} (f : A → B) : a ∈ v → f a ∈ map f v :=
+  begin induction v, unfold map, apply list.mem_map end
+
+  theorem exists_of_mem_map {n : nat} {f : A → B} {b : B} {v : vec A n} : b ∈ map f v → ∃a, a ∈ v ∧ f a = b :=
+  begin induction v, unfold map, apply list.exists_of_mem_map end
+
+  theorem eq_of_map_const {n : nat} {b₁ b₂ : B} {v : vec A n} : b₁ ∈ map (const A b₂) v → b₁ = b₂ :=
+  begin induction v, unfold map, apply list.eq_of_map_const end
+
+  /- product -/
+
+  definition product {n m : nat} : vec A n → vec B m → vec (A × B) (n * m)
+  | (tag l₁ h₁) (tag l₂ h₂) := tag (list.product l₁ l₂) (by rewrite [length_product, h₁, h₂])
+
+  theorem nil_product {m : nat} (v : vec B m) : !zero_mul ▹ product (@nil A) v = nil :=
+  begin induction v, unfold [nil, product], rewrite push_eq_rec end
+
+  theorem nil_product_heq {m : nat} (v : vec B m) : product (@nil A) v == (@nil (A × B)) :=
+  heq_of_eq_rec_left _ (nil_product v)
+
+  theorem product_nil {n : nat} (v : vec A n) : product v (@nil B) = nil :=
+  begin induction v, unfold [nil, product], congruence, apply list.product_nil end
+
+  theorem mem_product {n m : nat} {a : A} {b : B} {v₁ : vec A n} {v₂ : vec B m} : a ∈ v₁ → b ∈ v₂ → (a, b) ∈ product v₁ v₂ :=
+  begin cases v₁, cases v₂, unfold product, apply list.mem_product end
+
+  theorem mem_of_mem_product_left {n m : nat} {a : A} {b : B} {v₁ : vec A n} {v₂ : vec B m} : (a, b) ∈ product v₁ v₂ → a ∈ v₁ :=
+  begin cases v₁, cases v₂, unfold product, apply list.mem_of_mem_product_left end
+
+  theorem mem_of_mem_product_right {n m : nat} {a : A} {b : B} {v₁ : vec A n} {v₂ : vec B m} : (a, b) ∈ product v₁ v₂ → b ∈ v₂ :=
+  begin cases v₁, cases v₂, unfold product, apply list.mem_of_mem_product_right end
+
+  /- ith -/
   open fin
 
   definition ith {n : nat} : vec A n → fin n → A
@@ -208,6 +252,8 @@ namespace vec
           take i, by rewrite [-ith_succ_eq_ith_tail, -ith_succ_eq_ith_tail]; apply h,
         show tail v₁ = tail v₂, from ih _ _ this
   end
+
+  /- tabulate -/
 
   definition tabulate : Π {n : nat}, (fin n → A) → vec A n
   | 0     f := nil

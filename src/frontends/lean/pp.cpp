@@ -1000,14 +1000,14 @@ static bool add_extra_space_first(name const & tk) {
     // TODO(Leo): this is a hard-coded temporary solution for deciding whether extra
     // spaces should be added or not when pretty printing notation.
     // We should implement a better solution in the future.
-    return tk != "(" && tk != ")";
+    return tk != "(" && tk != ")" && tk != "[";
 }
 
 static bool add_extra_space(name const & tk) {
     // TODO(Leo): this is a hard-coded temporary solution for deciding whether extra
     // spaces should be added or not when pretty printing notation.
     // We should implement a better solution in the future.
-    return tk != "," && tk != "(" && tk != ")";
+    return tk != "," && tk != "(" && tk != ")" && tk != "[";
 }
 
 static bool is_atomic_notation(notation_entry const & entry) {

@@ -452,7 +452,7 @@ theorem ex_smallest_of_bdd {P : ℤ → Prop} (Hbdd : ∃ b : ℤ, ∀ z : ℤ, 
     have Heltb : elt > b, begin
       apply int.lt_of_not_ge,
       intro Hge,
-      apply false.elim ((Hb _ Hge) Helt)
+      apply (Hb _ Hge) Helt
     end,
     have H' : P (b + of_nat (nat_abs (elt - b))), begin
       rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt (iff.mpr !int.sub_pos_iff_lt Heltb)),
@@ -489,7 +489,7 @@ theorem ex_largest_of_bdd {P : ℤ → Prop} (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z
     have Heltb : elt < b, begin
       apply int.lt_of_not_ge,
       intro Hge,
-      apply false.elim ((Hb _ Hge) Helt)
+      apply (Hb _ Hge) Helt
     end,
     have H' : P (b - of_nat (nat_abs (b - elt))), begin
       rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt (iff.mpr !int.sub_pos_iff_lt Heltb)),

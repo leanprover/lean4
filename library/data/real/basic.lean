@@ -1096,6 +1096,8 @@ protected definition comm_ring [reducible] : algebra.comm_ring ℝ :=
     apply mul_comm
   end
 
+open rat -- no coercions before
+
 definition of_rat [coercion] (a : ℚ) : ℝ := quot.mk (s.r_const a)
 
 theorem of_rat_add (a b : ℚ) : of_rat a + of_rat b = of_rat (a + b) :=

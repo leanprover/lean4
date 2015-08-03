@@ -229,7 +229,7 @@ theorem re_abs_is_abs : re_abs = real.abs := funext
   end)
 
 theorem abs_const (a : ℚ) : of_rat (rat.abs a) = abs (of_rat a) :=
-  by rewrite -re_abs_is_abs -- ????
+  by rewrite -re_abs_is_abs
 
 theorem rat_approx' (x : ℝ) : ∀ n : ℕ+, ∃ q : ℚ, re_abs (x - of_rat q) ≤ of_rat n⁻¹ :=
   quot.induction_on x (λ s n, s.r_rat_approx s n)
@@ -279,13 +279,18 @@ theorem Nb_spec_right (M : ℕ+ → ℕ+) (k : ℕ+) : M (2 * k) ≤ Nb M k := !
 
 theorem Nb_spec_left (M : ℕ+ → ℕ+) (k : ℕ+) : 3 * k ≤ Nb M k := !max_left
 
-noncomputable definition lim_seq {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : ℕ+ → ℚ :=
+section lim_seq
+parameter {X : r_seq}
+parameter {M : ℕ+ → ℕ+}
+hypothesis Hc : cauchy X M
+include Hc
+
+noncomputable definition lim_seq : ℕ+ → ℚ :=
   λ k, approx (X (Nb M k)) (2 * k)
 
-theorem lim_seq_reg_helper {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) {m n : ℕ+}
-        (Hmn : M (2 * n) ≤M (2 * m)) :
-           abs (of_rat (lim_seq Hc m) - X (Nb M m)) + abs (X (Nb M m) - X (Nb M n)) + abs
-            (X (Nb M n) - of_rat (lim_seq Hc n)) ≤ of_rat (m⁻¹ + n⁻¹) :=
+theorem lim_seq_reg_helper {m n : ℕ+} (Hmn : M (2 * n) ≤M (2 * m)) :
+           abs (of_rat (lim_seq m) - X (Nb M m)) + abs (X (Nb M m) - X (Nb M n)) + abs
+            (X (Nb M n) - of_rat (lim_seq n)) ≤ of_rat (m⁻¹ + n⁻¹) :=
   begin
     apply le.trans,
     apply add_le_add_three,
@@ -307,7 +312,7 @@ theorem lim_seq_reg_helper {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) {m 
     apply pnat.mul_le_mul_left
   end
 
-theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : s.regular (lim_seq Hc) :=
+theorem lim_seq_reg : s.regular lim_seq :=
   begin
     rewrite ↑s.regular,
     intro m n,
@@ -318,48 +323,46 @@ theorem lim_seq_reg {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : s.regula
     let Hor := em (M (2 * m) ≥ M (2 * n)),
     apply or.elim Hor,
     intro Hor1,
-    apply lim_seq_reg_helper Hc Hor1,
+    apply lim_seq_reg_helper Hor1,
     intro Hor2,
     let Hor2' := pnat.le_of_lt (pnat.lt_of_not_le Hor2),
     rewrite [real.abs_sub (X (Nb M n)), abs_sub (X (Nb M m)), abs_sub, -- ???
              rat.add.comm, add_comm_three],
-    apply lim_seq_reg_helper Hc Hor2'
+    apply lim_seq_reg_helper Hor2'
   end
 
-theorem lim_seq_spec {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) (k : ℕ+) :
-        s.s_le (s.s_abs (s.sadd (lim_seq Hc) (s.sneg (s.const (lim_seq Hc k))) )) (s.const k⁻¹) :=
+theorem lim_seq_spec (k : ℕ+) :
+        s.s_le (s.s_abs (s.sadd lim_seq (s.sneg (s.const (lim_seq k))))) (s.const k⁻¹) :=
   begin
     apply s.const_bound,
     apply lim_seq_reg
   end
 
-noncomputable definition r_lim_seq {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : s.reg_seq :=
-  s.reg_seq.mk (lim_seq Hc) (lim_seq_reg Hc)
+noncomputable definition r_lim_seq : s.reg_seq :=
+  s.reg_seq.mk lim_seq lim_seq_reg
 
-theorem r_lim_seq_spec {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) (k : ℕ+) :
-        s.r_le (s.r_abs (( s.radd (r_lim_seq Hc) (s.rneg (s.r_const ((s.reg_seq.sq (r_lim_seq Hc)) k)))))) (s.r_const (k)⁻¹) :=
-  lim_seq_spec Hc k
+theorem r_lim_seq_spec (k : ℕ+) : s.r_le 
+        (s.r_abs ((s.radd r_lim_seq (s.rneg (s.r_const ((s.reg_seq.sq r_lim_seq) k)))))) 
+        (s.r_const k⁻¹) :=
+  lim_seq_spec k
 
-noncomputable definition lim {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) : ℝ :=
-  quot.mk (r_lim_seq Hc)
+noncomputable definition lim : ℝ :=
+  quot.mk r_lim_seq
 
-theorem re_lim_spec {x : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy x M) (k : ℕ+) :
-        re_abs ((lim Hc) - (of_rat ((lim_seq Hc) k))) ≤ of_rat k⁻¹ :=
-  r_lim_seq_spec Hc k
+theorem re_lim_spec (k : ℕ+) : re_abs (lim - (of_rat (lim_seq k))) ≤ of_rat k⁻¹ :=
+  r_lim_seq_spec k
 
-theorem lim_spec' {x : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy x M) (k : ℕ+) :
-        abs ((lim Hc) - (of_rat ((lim_seq Hc) k))) ≤ of_rat k⁻¹ :=
+theorem lim_spec' (k : ℕ+) : abs (lim - (of_rat (lim_seq k))) ≤ of_rat k⁻¹ :=
   by rewrite -re_abs_is_abs; apply re_lim_spec
 
-theorem lim_spec {x : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy x M) (k : ℕ+) :
-        abs ((of_rat ((lim_seq Hc) k)) - (lim Hc)) ≤ of_rat (k)⁻¹ :=
+theorem lim_spec (k : ℕ+) :
+        abs ((of_rat (lim_seq k)) - lim) ≤ of_rat k⁻¹ :=
   by rewrite abs_sub; apply lim_spec'
 
-theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
-        converges_to X (lim Hc) (Nb M) :=
+theorem converges_of_cauchy : converges_to X lim (Nb M) :=
   begin
     intro k n Hn,
-    rewrite (rewrite_helper10 (X (Nb M n)) (of_rat (lim_seq Hc n))),
+    rewrite (rewrite_helper10 (X (Nb M n)) (of_rat (lim_seq n))),
     apply le.trans,
     apply abs_add_three,
     apply le.trans,
@@ -405,10 +408,10 @@ theorem converges_of_cauchy {X : r_seq} {M : ℕ+ → ℕ+} (Hc : cauchy X M) :
     apply rat.le.refl
   end
 
+end lim_seq
 -------------------------------------------
 -- int embedding theorems
 -- archimedean properties, integer floor and ceiling
-
 section ints
 
 open int
@@ -714,7 +717,8 @@ theorem avg_symm (n : ℕ) : avg_seq n = avg (under_seq n) (over_seq n) :=
 theorem over_0 : over_seq 0 = over := rfl
 theorem under_0 : under_seq 0 = under := rfl
 
-theorem succ_helper (n : ℕ) : avg (pr1 (rpt bisect n (under, over))) (pr2 (rpt bisect n (under, over))) = avg_seq n :=
+theorem succ_helper (n : ℕ) :
+        avg (pr1 (rpt bisect n (under, over))) (pr2 (rpt bisect n (under, over))) = avg_seq n :=
    by rewrite avg_symm
 
 theorem under_succ (n : ℕ) : under_seq (succ n) =
@@ -752,12 +756,15 @@ theorem width (n : ℕ) : over_seq n - under_seq n = (over - under) / (rat.pow 2
       intro a Ha,
       rewrite [over_succ, under_succ],
       let Hou := calc
-        (over_seq a) / 2 - (under_seq a) / 2 = ((over - under) / rat.pow 2 a) / 2 : by rewrite [rat.div_sub_div_same, Ha]
-        ... = (over - under) / (rat.pow 2 a * 2) : rat.div_div_eq_div_mul (rat.ne_of_gt (rat.pow_pos dec_trivial _)) dec_trivial
+        (over_seq a) / 2 - (under_seq a) / 2 = ((over - under) / rat.pow 2 a) / 2 :
+                                               by rewrite [rat.div_sub_div_same, Ha]
+        ... = (over - under) / (rat.pow 2 a * 2) : 
+               rat.div_div_eq_div_mul (rat.ne_of_gt (rat.pow_pos dec_trivial _)) dec_trivial
         ... = (over - under) / rat.pow 2 (a + 1) : by rewrite rat.pow_add,
       cases em (ub (avg_seq a)),
       rewrite [*if_pos a_1, -add_one, -Hou, ↑avg_seq, ↑avg, rat.add.assoc, rat.div_two_sub_self],
-      rewrite [*if_neg a_1, -add_one, -Hou, ↑avg_seq, ↑avg, rat.sub_add_eq_sub_sub, rat.sub_self_div_two]
+      rewrite [*if_neg a_1, -add_one, -Hou, ↑avg_seq, ↑avg, rat.sub_add_eq_sub_sub,
+              rat.sub_self_div_two]
     end)
 
 theorem binary_nat_bound (a : ℕ) : of_nat a ≤ (rat.pow 2 a) :=
@@ -766,7 +773,8 @@ theorem binary_nat_bound (a : ℕ) : of_nat a ≤ (rat.pow 2 a) :=
     calc
      of_nat (succ n) = (of_nat n) + 1 : of_nat_add
        ... ≤ rat.pow 2 n + 1 : rat.add_le_add_right Hn
-       ... ≤ rat.pow 2 n + rat.pow 2 n : rat.add_le_add_left (rat.pow_ge_one_of_ge_one rat.two_ge_one _)
+       ... ≤ rat.pow 2 n + rat.pow 2 n : 
+             rat.add_le_add_left (rat.pow_ge_one_of_ge_one rat.two_ge_one _)
        ... = rat.pow 2 (succ n) : rat.pow_two_add)
 
 theorem binary_bound (a : ℚ) : ∃ n : ℕ, a ≤ rat.pow 2 n :=
@@ -857,7 +865,7 @@ theorem under_seq_lt_over_seq : ∀ m n : ℕ, under_seq m < over_seq n :=
   begin
     intros,
     cases exists_not_of_not_forall (PA m) with [x, Hx],
-    cases (iff.mp not_implies_iff_and_not) Hx with [HXx, Hxu],
+    cases iff.mp not_implies_iff_and_not Hx with [HXx, Hxu],
     apply lt_of_rat_lt_of_rat,
     apply lt_of_lt_of_le,
     apply lt_of_not_ge Hxu,

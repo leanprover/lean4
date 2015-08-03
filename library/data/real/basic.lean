@@ -15,28 +15,11 @@ open -[coercions] rat
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1
 ----------------------------------------------------------------------------------------------------
+-- small helper lemmas
 
--------------------------------------
--- theorems to add to (ordered) field and/or rat
-
--- this can move to pnat
-theorem find_midpoint {a b : ℚ} (H : a > b) : ∃ c : ℚ, a > b + c ∧ c > 0 :=
-  exists.intro ((a - b) / (1 + 1))
-    (and.intro (assert H2 : a + a > (b + b) + (a - b), from calc
-      a + a > b + a : rat.add_lt_add_right H
-      ... = b + a + b - b : rat.add_sub_cancel
-      ... = b + b + a - b : rat.add.right_comm
-      ... = (b + b) + (a - b) : add_sub,
-     assert H3 : (a + a) / (1 + 1) > ((b + b) + (a - b)) / (1 + 1),
-       from div_lt_div_of_lt_of_pos H2 dec_trivial,
-     by rewrite [div_two at H3, -div_add_div_same at H3, div_two at H3]; exact H3)
-    (pos_div_of_pos_of_pos (iff.mpr !sub_pos_iff_lt H) dec_trivial))
-
-theorem add_sub_comm (a b c d : ℚ) : a + b - (c + d) = (a - c) + (b - d) :=
-  calc
-     a + b - (c + d) = a + b - c - d   : sub_add_eq_sub_sub
-                 ... = a - c + b - d   : sub_add_eq_add_sub
-                 ... = a - c + (b - d) : add_sub
+theorem s_mul_assoc_lemma_3 (a b n : ℕ+) (p : ℚ) :
+        p * ((a * n)⁻¹ + (b * n)⁻¹) = p * (a⁻¹ + b⁻¹) * n⁻¹ :=
+  by rewrite [rat.mul.assoc, rat.right_distrib, *inv_mul_eq_mul_inv]
 
 theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0) (H : n ≥ pceil (q / ε)) :
         q * n⁻¹ ≤ ε :=
@@ -47,13 +30,6 @@ theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0) 
     apply mul_le_mul_of_mul_div_le,
     repeat assumption
   end
-
--------------------------------------
--- small helper lemmas
-
-theorem s_mul_assoc_lemma_3 (a b n : ℕ+) (p : ℚ) :
-        p * ((a * n)⁻¹ + (b * n)⁻¹) = p * (a⁻¹ + b⁻¹) * n⁻¹ :=
-  by rewrite [rat.mul.assoc, rat.right_distrib, *inv_mul_eq_mul_inv]
 
 theorem find_thirds (a b : ℚ) (H : b > 0) : ∃ n : ℕ+, a + n⁻¹ + n⁻¹ + n⁻¹ < a + b :=
   let n := pceil (of_nat 4 / b) in
@@ -152,7 +128,6 @@ infix `≡` := equiv
 
 theorem equiv.refl (s : seq) : s ≡ s :=
   begin
-    rewrite ↑equiv,
     intros,
     rewrite [rat.sub_self, abs_zero],
     apply add_invs_nonneg
@@ -160,7 +135,6 @@ theorem equiv.refl (s : seq) : s ≡ s :=
 
 theorem equiv.symm (s t : seq) (H : s ≡ t) : t ≡ s :=
   begin
-    rewrite ↑equiv at *,
     intros,
     rewrite [-abs_neg, neg_sub],
     exact H n
@@ -169,7 +143,6 @@ theorem equiv.symm (s t : seq) (H : s ≡ t) : t ≡ s :=
 theorem bdd_of_eq {s t : seq} (H : s ≡ t) :
         ∀ j : ℕ+, ∀ n : ℕ+, n ≥ 2 * j → abs (s n - t n) ≤ j⁻¹ :=
   begin
-    rewrite ↑equiv at *,
     intros [j, n, Hn],
     apply rat.le.trans,
     apply H n,
@@ -182,12 +155,10 @@ theorem bdd_of_eq {s t : seq} (H : s ≡ t) :
 theorem eq_of_bdd {s t : seq} (Hs : regular s) (Ht : regular t)
         (H : ∀ j : ℕ+, ∃ Nj : ℕ+, ∀ n : ℕ+, Nj ≤ n → abs (s n - t n) ≤ j⁻¹) : s ≡ t :=
   begin
-    rewrite ↑equiv,
     intros,
     have Hj : (∀ j : ℕ+, abs (s n - t n) ≤ n⁻¹ + n⁻¹ + j⁻¹ + j⁻¹ + j⁻¹), begin
       intros,
-      apply exists.elim (H j),
-      intros [Nj, HNj],
+      cases H j with [Nj, HNj],
       rewrite [-(rat.sub_add_cancel (s n) (s (max j Nj))), rat.add.assoc (s n + -s (max j Nj)),
               ↑regular at *],
       apply rat.le.trans,
@@ -219,21 +190,19 @@ theorem eq_of_bdd {s t : seq} (Hs : regular s) (Ht : regular t)
          rat.add_le_add_left Hms
        ... = n⁻¹ + n⁻¹ + j⁻¹ + j⁻¹ + j⁻¹ : by rewrite *rat.add.assoc)
     end,
-    apply (squeeze Hj)
+    apply squeeze Hj
   end
 
 theorem eq_of_bdd_var {s t : seq} (Hs : regular s) (Ht : regular t)
         (H : ∀ ε : ℚ, ε > 0 → ∃ Nj : ℕ+, ∀ n : ℕ+, Nj ≤ n → abs (s n - t n) ≤ ε) : s ≡ t :=
   begin
     apply eq_of_bdd,
-    apply Hs,
-    apply Ht,
+    repeat assumption,
     intros,
     apply H j⁻¹,
     apply inv_pos
   end
 
-set_option pp.beta false
 theorem pnat_bound {ε : ℚ} (Hε : ε > 0) : ∃ p : ℕ+, p⁻¹ ≤ ε :=
   begin
     existsi (pceil (1 / ε)),
@@ -247,13 +216,11 @@ theorem bdd_of_eq_var {s t : seq} (Hs : regular s) (Ht : regular t) (Heq : s ≡
         ∀ ε : ℚ, ε > 0 → ∃ Nj : ℕ+, ∀ n : ℕ+, Nj ≤ n → abs (s n - t n) ≤ ε :=
   begin
     intro ε Hε,
-    apply (exists.elim (pnat_bound Hε)),
-    intro N HN,
-    let Bd' := bdd_of_eq Heq N,
+    cases pnat_bound Hε with [N, HN],
     existsi 2 * N,
     intro n Hn,
     apply rat.le.trans,
-    apply Bd' n Hn,
+    apply bdd_of_eq Heq N n Hn,
     assumption
   end
 
@@ -500,36 +467,24 @@ theorem s_mul_assoc_lemma_2 {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu 
     (Kq t) * (Kq u) * (a⁻¹ + c⁻¹) + (Kq s) * (Kq t) * (b⁻¹ + d⁻¹) + (Kq s) * (Kq u) * (a⁻¹ + d⁻¹) :=
   begin
     apply add_le_add_three,
-    repeat apply rat.mul_le_mul,
-    apply Kq_bound Ht,
-    apply Kq_bound Hu,
-    apply abs_nonneg,
-    apply Kq_bound_nonneg Ht,
+    repeat (assumption | apply rat.mul_le_mul | apply Kq_bound | apply Kq_bound_nonneg |
+           apply abs_nonneg),
     apply Hs,
     apply abs_nonneg,
     apply rat.mul_nonneg,
-    apply Kq_bound_nonneg Ht,
-    apply Kq_bound_nonneg Hu,
+    repeat (apply Kq_bound_nonneg | assumption),
     repeat apply rat.mul_le_mul,
-    apply Kq_bound Hs,
-    apply Kq_bound Ht,
-    apply abs_nonneg,
-    apply Kq_bound_nonneg Hs,
+    repeat (assumption | apply rat.mul_le_mul | apply Kq_bound | apply Kq_bound_nonneg |
+           apply abs_nonneg),
     apply Hu,
     apply abs_nonneg,
     apply rat.mul_nonneg,
-    apply Kq_bound_nonneg Hs,
-    apply Kq_bound_nonneg Ht,
-    repeat apply rat.mul_le_mul,
-    apply Kq_bound Hs,
-    apply Kq_bound Hu,
-    apply abs_nonneg,
-    apply Kq_bound_nonneg Hs,
+    repeat (assumption | apply rat.mul_le_mul | apply Kq_bound | apply Kq_bound_nonneg |
+           apply abs_nonneg),
     apply Ht,
     apply abs_nonneg,
     apply rat.mul_nonneg,
-    apply Kq_bound_nonneg Hs,
-    apply Kq_bound_nonneg Hu
+    repeat (apply Kq_bound_nonneg; assumption)
   end
 
 theorem s_mul_assoc {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u) :
@@ -543,8 +498,7 @@ theorem s_mul_assoc {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regula
     apply reg_mul_reg Hs,
     apply reg_mul_reg Ht Hu,
     intros,
-    fapply exists.intro,
-    rotate 1,
+    apply exists.intro,
     intros,
     rewrite [↑smul, *DK_rewrite, *TK_rewrite, -*pnat.mul.assoc, -*rat.mul.assoc],
     apply rat.le.trans,
@@ -622,13 +576,7 @@ theorem neg_s_cancel (s : seq) (H : regular s) : sadd s (sneg s) ≡ zero :=
     rotate 3,
     apply s_add_comm,
     apply s_neg_cancel s H,
-    apply reg_add_reg,
-    apply H,
-    apply reg_neg_reg,
-    apply H,
-    apply reg_add_reg,
-    apply reg_neg_reg,
-    repeat apply H,
+    repeat (apply reg_add_reg | apply reg_neg_reg | assumption),
     apply zero_is_reg
   end
 
@@ -757,8 +705,7 @@ theorem mul_zero_equiv_zero {s t : seq} (Hs : regular s) (Ht : regular t) (Htz :
     intro ε Hε,
     let Bd := bdd_of_eq_var Ht zero_is_reg Htz (ε / (Kq s))
                             (pos_div_of_pos_of_pos Hε (Kq_bound_pos Hs)),
-    apply exists.elim Bd,
-    intro N HN,
+    cases Bd with [N, HN],
     existsi N,
     intro n Hn,
     rewrite [↑equiv at Htz, ↑zero at *, rat.sub_zero, ↑smul, abs_mul],
@@ -832,18 +779,15 @@ theorem s_sub_cancel (s : seq) : sadd s (sneg s) ≡ zero :=
 theorem diff_equiv_zero_of_equiv {s t : seq} (Hs : regular s) (Ht : regular t) (H : s ≡ t) :
         sadd s (sneg t) ≡ zero :=
   begin
-    let Hnt := reg_neg_reg Ht,
-    let Hsnt := reg_add_reg Hs Hnt,
-    let Htnt := reg_add_reg Ht Hnt,
     apply equiv.trans,
     rotate 4,
     apply s_sub_cancel t,
     rotate 2,
     apply zero_is_reg,
     apply add_well_defined,
-    repeat assumption,
+    repeat (assumption | apply reg_neg_reg),
     apply equiv.refl,
-    repeat assumption
+    repeat (assumption | apply reg_add_reg | apply reg_neg_reg)
   end
 
 theorem mul_well_defined_half1 {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
@@ -917,7 +861,6 @@ theorem one_is_reg : regular one :=
 
 theorem s_one_mul {s : seq} (H : regular s) : smul one s ≡ s :=
   begin
-    rewrite ↑equiv,
     intros,
     rewrite [↑smul, ↑one, rat.one_mul],
     apply rat.le.trans,
@@ -1158,9 +1101,7 @@ definition of_rat [coercion] (a : ℚ) : ℝ := quot.mk (s.r_const a)
 theorem of_rat_add (a b : ℚ) : of_rat a + of_rat b = of_rat (a + b) :=
    quot.sound (s.r_add_consts a b)
 
-theorem of_rat_neg (a : ℚ) : -of_rat a = of_rat (-a) := quot.sound (s.r_neg_const a)
-
---theorem of_rat_sub (a b : ℚ) : of_rat a + - of_rat b = of_rat (a - b) := !of_rat_add
+theorem of_rat_neg (a : ℚ) : of_rat (-a) = -of_rat a := eq.symm (quot.sound (s.r_neg_const a))
 
 theorem of_rat_mul (a b : ℚ) : of_rat a * of_rat b = of_rat (a * b) :=
   quot.sound (s.r_mul_consts a b)

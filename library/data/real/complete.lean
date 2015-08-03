@@ -44,10 +44,8 @@ theorem rat_approx {s : seq} (H : regular s) :
   begin
     intro m,
     rewrite ↑s_le,
-    apply exists.elim (rat_approx_l1 H m),
-    intro q Hq,
-    apply exists.elim Hq,
-    intro N HN,
+    cases rat_approx_l1 H m with [q, Hq],
+    cases Hq with [N, HN],
     existsi q,
     apply nonneg_of_bdd_within,
     repeat (apply reg_add_reg | apply reg_neg_reg | apply abs_reg_of_reg | apply const_reg
@@ -106,10 +104,7 @@ theorem const_bound {s : seq} (Hs : regular s) (n : ℕ+) :
   end
 
 theorem abs_const (a : ℚ) : const (abs a) ≡ s_abs (const a) :=
-  begin
-    rewrite [↑s_abs, ↑const],
-    apply equiv.refl
-  end
+  by apply equiv.refl
 
 theorem r_abs_const (a : ℚ) : requiv (r_const (abs a) ) (r_abs (r_const a)) := abs_const a
 
@@ -123,12 +118,10 @@ theorem equiv_abs_of_ge_zero {s : seq} (Hs : regular s) (Hz : s_le zero s) : s_a
     let Hz' := s_nonneg_of_ge_zero Hs Hz,
     existsi 2 * j,
     intro n Hn,
-    apply or.elim (em (s n ≥ 0)),
-    intro Hpos,
+    cases em (s n ≥ 0) with [Hpos, Hneg],
     rewrite [rat.abs_of_nonneg Hpos, sub_self, abs_zero],
     apply rat.le_of_lt,
     apply inv_pos,
-    intro Hneg,
     let Hneg' := lt_of_not_ge Hneg,
     have Hsn : -s n - s n > 0, from add_pos (neg_pos_of_neg Hneg') (neg_pos_of_neg Hneg'),
     rewrite [rat.abs_of_neg Hneg', rat.abs_of_pos Hsn],
@@ -160,8 +153,7 @@ theorem equiv_neg_abs_of_le_zero {s : seq} (Hs : regular s) (Hz : s_le s zero) :
     end,
     existsi 2 * j,
     intro n Hn,
-    apply or.elim (em (s n ≥ 0)),
-    intro Hpos,
+    cases em (s n ≥ 0) with [Hpos, Hneg],
     have Hsn : s n + s n ≥ 0, from add_nonneg Hpos Hpos,
     rewrite [rat.abs_of_nonneg Hpos, ↑sneg, rat.sub_neg_eq_add, rat.abs_of_nonneg Hsn],
     rewrite [↑nonneg at Hz', ↑sneg at Hz'],
@@ -173,7 +165,6 @@ theorem equiv_neg_abs_of_le_zero {s : seq} (Hs : regular s) (Hz : s_le s zero) :
     repeat (apply inv_ge_of_le; apply Hn),
     rewrite pnat.add_halves,
     apply rat.le.refl,
-    intro Hneg,
     let Hneg' := lt_of_not_ge Hneg,
     rewrite [rat.abs_of_neg Hneg', ↑sneg, rat.sub_neg_eq_add, rat.neg_add_eq_sub, rat.sub_self,
                 abs_zero],
@@ -219,11 +210,8 @@ theorem re_abs_is_abs : re_abs = real.abs := funext
   (begin
     intro x,
     apply eq.symm,
-    let Hor := em (zero ≤ x),
-    apply or.elim Hor,
-    intro Hor1,
+    cases em (zero ≤ x) with [Hor1, Hor2],
     rewrite [abs_of_nonneg Hor1, r_abs_nonneg Hor1],
-    intro Hor2,
     have Hor2' : x ≤ zero, from le_of_lt (lt_of_not_ge Hor2),
     rewrite [abs_of_neg (lt_of_not_ge Hor2), r_abs_nonpos Hor2']
   end)
@@ -320,29 +308,23 @@ theorem lim_seq_reg : s.regular lim_seq :=
     rewrite [abs_const, -of_rat_sub, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],
     apply real.le.trans,
     apply abs_add_three,
-    let Hor := em (M (2 * m) ≥ M (2 * n)),
-    apply or.elim Hor,
-    intro Hor1,
+    cases em (M (2 * m) ≥ M (2 * n)) with [Hor1, Hor2],
     apply lim_seq_reg_helper Hor1,
-    intro Hor2,
     let Hor2' := pnat.le_of_lt (pnat.lt_of_not_le Hor2),
-    rewrite [real.abs_sub (X (Nb M n)), abs_sub (X (Nb M m)), abs_sub, -- ???
+    rewrite [real.abs_sub (X (Nb M n)), abs_sub (X (Nb M m)), abs_sub,
              rat.add.comm, add_comm_three],
     apply lim_seq_reg_helper Hor2'
   end
 
 theorem lim_seq_spec (k : ℕ+) :
         s.s_le (s.s_abs (s.sadd lim_seq (s.sneg (s.const (lim_seq k))))) (s.const k⁻¹) :=
-  begin
-    apply s.const_bound,
-    apply lim_seq_reg
-  end
+  by apply s.const_bound; apply lim_seq_reg
 
 noncomputable definition r_lim_seq : s.reg_seq :=
   s.reg_seq.mk lim_seq lim_seq_reg
 
-theorem r_lim_seq_spec (k : ℕ+) : s.r_le 
-        (s.r_abs ((s.radd r_lim_seq (s.rneg (s.r_const ((s.reg_seq.sq r_lim_seq) k)))))) 
+theorem r_lim_seq_spec (k : ℕ+) : s.r_le
+        (s.r_abs ((s.radd r_lim_seq (s.rneg (s.r_const ((s.reg_seq.sq r_lim_seq) k))))))
         (s.r_const k⁻¹) :=
   lim_seq_spec k
 
@@ -449,7 +431,7 @@ theorem archimedean' (x : ℝ) : ∃ z : ℤ, x ≥ of_rat (of_int z) :=
   begin
     cases archimedean (-x) with [z, Hz],
     existsi -z,
-    rewrite [of_int_neg, -of_rat_neg], -- change the direction of of_rat_neg
+    rewrite [of_int_neg, of_rat_neg],
     apply iff.mp !neg_le_iff_neg_le Hz
   end
 
@@ -457,7 +439,7 @@ theorem archimedean_strict' (x : ℝ) : ∃ z : ℤ, x > of_rat (of_int z) :=
   begin
     cases archimedean_strict (-x) with [z, Hz],
     existsi -z,
-    rewrite [of_int_neg, -of_rat_neg],
+    rewrite [of_int_neg, of_rat_neg],
     apply iff.mp !neg_lt_iff_neg_lt Hz
   end
 
@@ -570,7 +552,7 @@ theorem floor_largest {x : ℝ} {z : ℤ} (Hz : z > floor x) : x < of_rat (of_in
 
 theorem ceil_spec (x : ℝ) : of_rat (of_int (ceil x)) ≥ x :=
   begin
-    rewrite [↑ceil, of_int_neg, -of_rat_neg],
+    rewrite [↑ceil, of_int_neg, of_rat_neg],
     apply iff.mp !le_neg_iff_le_neg,
     apply floor_spec
   end
@@ -579,7 +561,7 @@ theorem ceil_smallest {x : ℝ} {z : ℤ} (Hz : z < ceil x) : x > of_rat (of_int
   begin
     rewrite ↑ceil at Hz,
     let Hz' := floor_largest (iff.mp !int.lt_neg_iff_lt_neg Hz),
-    rewrite [of_int_neg at Hz', -of_rat_neg at Hz'],
+    rewrite [of_int_neg at Hz', of_rat_neg at Hz'],
     apply lt_of_neg_lt_neg Hz'
   end
 
@@ -758,7 +740,7 @@ theorem width (n : ℕ) : over_seq n - under_seq n = (over - under) / (rat.pow 2
       let Hou := calc
         (over_seq a) / 2 - (under_seq a) / 2 = ((over - under) / rat.pow 2 a) / 2 :
                                                by rewrite [rat.div_sub_div_same, Ha]
-        ... = (over - under) / (rat.pow 2 a * 2) : 
+        ... = (over - under) / (rat.pow 2 a * 2) :
                rat.div_div_eq_div_mul (rat.ne_of_gt (rat.pow_pos dec_trivial _)) dec_trivial
         ... = (over - under) / rat.pow 2 (a + 1) : by rewrite rat.pow_add,
       cases em (ub (avg_seq a)),
@@ -773,7 +755,7 @@ theorem binary_nat_bound (a : ℕ) : of_nat a ≤ (rat.pow 2 a) :=
     calc
      of_nat (succ n) = (of_nat n) + 1 : of_nat_add
        ... ≤ rat.pow 2 n + 1 : rat.add_le_add_right Hn
-       ... ≤ rat.pow 2 n + rat.pow 2 n : 
+       ... ≤ rat.pow 2 n + rat.pow 2 n :
              rat.add_le_add_left (rat.pow_ge_one_of_ge_one rat.two_ge_one _)
        ... = rat.pow 2 (succ n) : rat.pow_two_add)
 
@@ -1050,8 +1032,8 @@ end supremum
 
 definition bounding_set (X : ℝ → Prop) (x : ℝ) : Prop := ∀ y : ℝ, X y → x ≤ y
 
-theorem ex_inf_of_inh_of_bdd (X : ℝ → Prop) (elt : ℝ) (inh : X elt) (bound : ℝ) 
-        (bdd : lb X bound) : ∃ x : ℝ, inf X x := 
+theorem ex_inf_of_inh_of_bdd (X : ℝ → Prop) (elt : ℝ) (inh : X elt) (bound : ℝ)
+        (bdd : lb X bound) : ∃ x : ℝ, inf X x :=
   begin
     have Hinh : bounding_set X bound, begin
       intros y Hy,

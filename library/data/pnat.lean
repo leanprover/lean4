@@ -284,4 +284,35 @@ theorem inv_pceil_div (a b : ℚ) (Ha : a > 0) (Hb : b > 0) : (pceil (a / b))⁻
     ((div_div_eq_mul_div (ne_of_gt Hb) (ne_of_gt Ha))⁻¹ ▸
       !rat.one_mul⁻¹ ▸ !ubound_ge)
 
+theorem sep_by_inv {a b : ℚ} (H : a > b) : ∃ N : ℕ+, a > (b + N⁻¹ + N⁻¹) :=
+  begin
+    apply exists.elim (find_midpoint H),
+    intro c Hc,
+    existsi (pceil ((1 + 1 + 1) / c)),
+    apply rat.lt.trans,
+    rotate 1,
+    apply and.left Hc,
+    rewrite rat.add.assoc,
+    apply rat.add_lt_add_left,
+    rewrite -(@rat.add_halves c) at {3},
+    apply rat.add_lt_add,
+    repeat (apply rat.lt_of_le_of_lt;
+    apply inv_pceil_div;
+    apply dec_trivial;
+    apply and.right Hc;
+    apply div_lt_div_of_pos_of_lt_of_pos;
+    repeat (apply two_pos);
+    apply and.right Hc)
+  end
+
+theorem nonneg_of_ge_neg_invs (a : ℚ) (H : ∀ n : ℕ+, -n⁻¹ ≤ a) : 0 ≤ a :=
+  rat.le_of_not_gt (suppose a < 0,
+    have H2 : 0 < -a, from neg_pos_of_neg this,
+   (rat.not_lt_of_ge !H) (iff.mp !lt_neg_iff_lt_neg (calc
+       (pceil (of_num 2 / -a))⁻¹ ≤ -a / of_num 2
+          : !inv_pceil_div dec_trivial H2
+                             ... < -a / 1
+          : div_lt_div_of_pos_of_lt_of_pos dec_trivial dec_trivial H2
+                             ... = -a : div_one)))
+
 end pnat

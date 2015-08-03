@@ -23,22 +23,6 @@ namespace s
 -----------------------------
 -- helper lemmas
 
-theorem neg_add_rewrite {a b : ℚ} : a + -b = -(b + -a) :=
-  by rewrite[neg_add_rev,neg_neg]
-
-theorem abs_abs_sub_abs_le_abs_sub (a b : ℚ) : abs (abs a - abs b) ≤ abs (a - b) :=
-  begin
-    apply rat.nonneg_le_nonneg_of_squares_le,
-    repeat apply abs_nonneg,
-    rewrite [*abs_sub_square, *abs_abs, *abs_mul_self],
-    apply sub_le_sub_left,
-    rewrite *rat.mul.assoc,
-    apply rat.mul_le_mul_of_nonneg_left,
-    rewrite -abs_mul,
-    apply le_abs_self,
-    apply trivial
-  end
-
 theorem and_of_not_or {a b : Prop} (H : ¬ (a ∨ b)) : ¬ a ∧ ¬ b :=
   and.intro (assume H', H (or.inl H')) (assume H', H (or.inr H'))
 
@@ -49,7 +33,6 @@ definition s_abs (s : seq) : seq := λ n, abs (s n)
 
 theorem abs_reg_of_reg {s : seq} (Hs : regular s) : regular (s_abs s) :=
   begin
-    rewrite ↑regular at *,
     intros,
     apply rat.le.trans,
     apply abs_abs_sub_abs_le_abs_sub,
@@ -70,9 +53,7 @@ theorem abs_pos_of_nonzero {s : seq} (Hs : regular s) (Hnz : sep s zero) :
       apply s_zero_add,
       repeat (assumption | apply reg_add_reg | apply reg_neg_reg | apply zero_is_reg)
     end,
-    let H'' := bdd_away_of_pos (reg_neg_reg Hs) H',
-    apply exists.elim H'',
-    intro N HN,
+    cases bdd_away_of_pos (reg_neg_reg Hs) H' with [N, HN],
     existsi N,
     intro m Hm,
     apply rat.le.trans,
@@ -82,8 +63,7 @@ theorem abs_pos_of_nonzero {s : seq} (Hs : regular s) (Hnz : sep s zero) :
     intro Hnz2,
     let H' := pos_of_pos_equiv (reg_add_reg Hs (reg_neg_reg zero_is_reg)) (s_add_zero s Hs) Hnz2,
     let H'' := bdd_away_of_pos Hs H',
-    apply exists.elim H'',
-    intro N HN,
+    cases H'' with [N, HN],
     existsi N,
     intro m Hm,
     apply rat.le.trans,
@@ -93,9 +73,7 @@ theorem abs_pos_of_nonzero {s : seq} (Hs : regular s) (Hnz : sep s zero) :
 
 theorem sep_zero_of_pos {s : seq} (Hs : regular s) (Hpos : pos s) : sep s zero :=
   begin
-    rewrite ↑sep,
     apply or.inr,
-    rewrite ↑s_lt,
     apply pos_of_pos_equiv,
     rotate 2,
     apply Hpos,
@@ -211,14 +189,11 @@ theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_
     have Hspm : s ((ps Hs Hsep) * (ps Hs Hsep) * m) ≠ 0, from
       s_ne_zero_of_ge_p Hs Hsep (show (ps Hs Hsep) * (ps Hs Hsep) * m ≥ ps Hs Hsep, by
         rewrite pnat.mul.assoc; apply pnat.mul_le_mul_right),
-    apply @decidable.cases_on (m < (ps Hs Hsep)) _ _,
-      intro Hmlt,
-      apply @decidable.cases_on (n < (ps Hs Hsep)) _ _,
-        intro Hnlt,
+    cases em (m < ps Hs Hsep) with [Hmlt, Hmlt],
+      cases em (n < ps Hs Hsep) with [Hnlt, Hnlt],
         rewrite [(s_inv_of_sep_lt_p Hs Hsep Hmlt), (s_inv_of_sep_lt_p Hs Hsep Hnlt)],
         rewrite [sub_self, abs_zero],
         apply add_invs_nonneg,
-       intro Hnlt,
        rewrite [(s_inv_of_sep_lt_p Hs Hsep Hmlt),
                 (s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hnlt))],
        rewrite [(div_sub_div Hsp Hspn), div_eq_mul_one_div, *abs_mul, *mul_one, *one_mul],
@@ -240,9 +215,7 @@ theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_
        apply inv_ge_of_le,
        apply pnat.le_of_lt,
        apply Hmlt,
-      intro Hmlt,
-      apply @decidable.cases_on (n < (ps Hs Hsep)) _ _,
-        intro Hnlt,
+      cases em (n < ps Hs Hsep) with [Hnlt, Hnlt],
         rewrite [(s_inv_of_sep_lt_p Hs Hsep Hnlt),
                  (s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hmlt))],
         rewrite [(div_sub_div Hspm Hsp), div_eq_mul_one_div, *abs_mul, *mul_one, *one_mul],
@@ -264,7 +237,6 @@ theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_
         apply inv_ge_of_le,
         apply pnat.le_of_lt,
         apply Hnlt,
-      intro Hnlt,
       rewrite [(s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hnlt)),
               (s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hmlt))],
       rewrite [(div_sub_div Hspm Hspn), div_eq_mul_one_div, abs_mul, *one_mul, *mul_one],
@@ -517,7 +489,7 @@ theorem s_le_of_not_lt {s t : seq} (Hle : ¬ s_lt s t) : s_le t s :=
     let Hle' := iff.mp forall_iff_not_exists Hle,
     intro n,
     let Hn := neg_le_neg (rat.le_of_not_gt (Hle' n)),
-    rewrite [↑sadd, ↑sneg, neg_add_rewrite],
+    rewrite [↑sadd, ↑sneg, add_neg_eq_neg_add_rev],
     apply Hn
   end
 

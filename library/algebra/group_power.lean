@@ -167,4 +167,71 @@ theorem pow_two_add (n : ℕ) : pow 2 n + pow 2 n = pow 2 (succ n) :=
 
 end ordered_ring
 
+/- additive monoid -/
+
+section add_monoid
+variable [s : add_monoid A]
+include s
+local attribute add_monoid.to_monoid [trans-instance]
+open nat
+
+definition times : ℕ → A → A := λ n a, pow a n
+
+infix [priority algebra.prio] `*` := times
+
+theorem zero_times (a : A) : (0:ℕ) * a = 0 := pow_zero a
+theorem succ_times (n : ℕ) (a : A) : succ n * a = times n a + a := pow_succ a n
+
+theorem succ_times' (n : ℕ) (a : A) : times (succ n) a = a + (times n a) := pow_succ' a n
+
+theorem times_zero (n : ℕ) : n * 0 = (0:A) := one_pow n
+
+theorem one_times (a : A) : 1 * a = a := pow_one a
+
+theorem add_times (m n : ℕ) (a : A) : (m + n) * a = (m * a) + (n * a) := pow_add a m n
+
+theorem mul_times (m n : ℕ) (a : A) : (m * n) * a = m * (n * a) := eq.subst (nat.mul.comm n m) (pow_mul a n m)
+
+theorem times_comm (m n : ℕ) (a : A) : (m * a) + (n * a) = (n * a) + (m * a) := pow_comm a m n
+
+end add_monoid
+
+/- additive commutative monoid -/
+
+section add_comm_monoid
+open nat
+variable [s : add_comm_monoid A]
+include s
+local attribute add_comm_monoid.to_comm_monoid [trans-instance]
+
+theorem times_add (n : ℕ) (a b : A) : n * (a + b) = (n * a) + (n * b) := mul_pow a b n
+
+end add_comm_monoid
+
+section add_group
+variable [s : add_group A]
+include s
+local attribute add_group.to_group [trans-instance]
+
+section nat
+open nat
+theorem times_neg (n : ℕ) (a : A) : n * (-a) = -(n * a) := inv_pow a n
+
+theorem sub_times {m n : ℕ} (a : A) (H : m ≥ n) : (m - n) * a = (m * a) + -(n * a) := pow_sub a H
+
+theorem times_neg_comm (m n : ℕ) (a : A) : (m * (-a)) + (n * a) = (n * a) + (m * (-a)) := pow_inv_comm a m n
+
+end nat
+
+open int
+
+definition itimes : ℤ → A → A := λ i a, ipow a i
+
+theorem add_itimes (i j : ℤ) (a : A) : itimes (i + j) a = itimes i a + itimes j a :=
+  ipow_add a i j
+
+theorem itimes_comm (i j : ℤ) (a : A) : itimes i a + itimes j a = itimes j a + itimes i a := ipow_comm a i j
+
+end add_group
+
 end algebra

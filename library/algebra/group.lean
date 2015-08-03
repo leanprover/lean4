@@ -197,8 +197,11 @@ section group
   theorem inv_eq_inv_iff_eq (a b : A) : a⁻¹ = b⁻¹ ↔ a = b :=
   iff.intro (assume H, inv.inj H) (assume H, congr_arg _ H)
 
-  theorem inv_eq_one_iff_eq_one (a b : A) : a⁻¹ = 1 ↔ a = 1 :=
+  theorem inv_eq_one_iff_eq_one (a : A) : a⁻¹ = 1 ↔ a = 1 :=
   one_inv ▸ inv_eq_inv_iff_eq a 1
+
+  theorem eq_one_of_inv_eq_one (a : A) : a⁻¹ = 1 → a = 1 :=
+    iff.mp !inv_eq_one_iff_eq_one
 
   theorem eq_inv_of_eq_inv {a b : A} (H : a = b⁻¹) : b = a⁻¹ :=
   by rewrite [H, inv_inv]
@@ -379,8 +382,14 @@ section add_group
   theorem neg_eq_neg_iff_eq (a b : A) : -a = -b ↔ a = b :=
   iff.intro (assume H, neg.inj H) (assume H, congr_arg _ H)
 
+  theorem eq_of_neg_eq_neg {a b : A} : -a = -b → a = b :=
+    iff.mp !neg_eq_neg_iff_eq
+
   theorem neg_eq_zero_iff_eq_zero (a : A) : -a = 0 ↔ a = 0 :=
   neg_zero ▸ !neg_eq_neg_iff_eq
+
+  theorem eq_zero_of_neg_eq_zero {a : A} : -a = 0 → a = 0 :=
+    iff.mp !neg_eq_zero_iff_eq_zero
 
   theorem eq_neg_of_eq_neg {a b : A} (H : a = -b) : b = -a :=
   H⁻¹ ▸ (neg_neg b)⁻¹

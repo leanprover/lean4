@@ -570,12 +570,12 @@ theorem floor_succ (x : ℝ) : (floor x) + 1 = floor (x + 1) :=
     apply by_contradiction,
     intro H,
     cases int.lt_or_gt_of_ne H with [Hlt, Hgt],
-    let Hl := floor_largest (iff.mp !int.add_lt_add_iff_lt_sub_right Hlt),
+    let Hl := floor_largest (iff.mp !int.add_lt_iff_lt_sub_right Hlt),
     rewrite [of_int_sub at Hl, -of_rat_sub at Hl],
-    apply (not_le_of_gt (iff.mpr !add_lt_add_iff_lt_sub_right Hl)) !floor_spec,
+    apply not_le_of_gt (iff.mpr !add_lt_iff_lt_sub_right Hl) !floor_spec,
     let Hl := floor_largest Hgt,
     rewrite [of_int_add at Hl, -of_rat_add at Hl],
-    apply (not_le_of_gt (lt_of_add_lt_add_right Hl)) !floor_spec
+    apply not_le_of_gt (lt_of_add_lt_add_right Hl) !floor_spec
   end
 
 theorem floor_succ_lt (x : ℝ) : floor (x - 1) < floor x :=

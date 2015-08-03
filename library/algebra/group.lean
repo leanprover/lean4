@@ -584,6 +584,7 @@ section add_comm_group
 
   theorem sub_eq_sub_add_sub (a b c : A) : a - b = c - b + (a - c) :=
     by rewrite [add_sub, sub_add_cancel] ⬝ !add.comm
+
 end add_comm_group
 
 definition group_of_add_group (A : Type) [G : add_group A] : group A :=

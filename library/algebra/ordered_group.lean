@@ -418,6 +418,9 @@ section
 
   theorem sub_le_of_nonneg (H : b ≥ 0) : a - b ≤ a :=
    add_le_of_le_of_nonpos (le.refl a) (neg_nonpos_of_nonneg H)
+
+  theorem neg_add_neg_le_neg_of_pos {a : A} (H : a > 0) : -a + -a ≤ -a :=
+    !neg_add ▸ neg_le_neg (le_add_of_nonneg_left (le_of_lt H))
 end
 
 /- partially ordered groups with min and max -/

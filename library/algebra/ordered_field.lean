@@ -285,8 +285,11 @@ section linear_ordered_field
     exact mul_le_mul_of_nonpos_right H (le_of_lt (div_neg_of_neg Hc))
   end
 
+  theorem two_pos : (1 : A) + 1 > 0 :=
+    add_pos zero_lt_one zero_lt_one
+
   theorem two_ne_zero : (1 : A) + 1 ≠ 0 :=
-    ne.symm (ne_of_lt (add_pos zero_lt_one zero_lt_one))
+    ne.symm (ne_of_lt two_pos)
 
   notation 2 := 1 + 1
 
@@ -342,6 +345,18 @@ theorem nonneg_le_nonneg_of_squares_le  (Ha : a ≥ 0) (Hb : b ≥ 0) (H : a * a
       apply le_of_lt,
       apply div_pos_of_pos He
     end
+
+  theorem find_midpoint (H : a > b) : ∃ c : A, a > b + c ∧ c > 0 :=
+    exists.intro ((a - b) / (1 + 1))
+      (and.intro (assert H2 : a + a > (b + b) + (a - b), from calc
+        a + a > b + a : add_lt_add_right H
+        ... = b + a + b - b : add_sub_cancel
+        ... = b + b + a - b : add.right_comm
+        ... = (b + b) + (a - b) : add_sub,
+      assert H3 : (a + a) / (1 + 1) > ((b + b) + (a - b)) / (1 + 1),
+        from div_lt_div_of_lt_of_pos H2 two_pos,
+      by rewrite [div_two at H3, -div_add_div_same at H3, div_two at H3]; exact H3)
+      (pos_div_of_pos_of_pos (iff.mpr !sub_pos_iff_lt H) two_pos))
 
 end linear_ordered_field
 
@@ -512,6 +527,20 @@ section discrete_linear_ordered_field
     by rewrite [abs_mul_self, *mul_sub_left_distrib, *mul_sub_right_distrib,
              sub_add_eq_sub_sub, sub_neg_eq_add, *right_distrib, sub_add_eq_sub_sub, *one_mul,
              *add.assoc, {_ + b * b}add.comm, {_ + (b * b + _)}add.comm, mul.comm b a, *add.assoc]
+
+  theorem abs_abs_sub_abs_le_abs_sub (a b : A) : abs (abs a - abs b) ≤ abs (a - b) :=
+  begin
+    apply nonneg_le_nonneg_of_squares_le,
+    repeat apply abs_nonneg,
+    rewrite [*abs_sub_square, *abs_abs, *abs_mul_self],
+    apply sub_le_sub_left,
+    rewrite *mul.assoc,
+    apply mul_le_mul_of_nonneg_left,
+    rewrite -abs_mul,
+    apply le_abs_self,
+    apply le_of_lt,
+    apply two_pos
+  end
 
 end discrete_linear_ordered_field
 end algebra

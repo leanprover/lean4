@@ -456,6 +456,9 @@ section add_group
   ⦃ add_right_cancel_semigroup, s,
     add_right_cancel := @add_right_cancel A s ⦄
 
+  theorem add_neg_eq_neg_add_rev {a b : A} : a + -b = -(b + -a) :=
+  by rewrite [neg_add_rev, neg_neg]
+
   /- sub -/
 
   -- TODO: derive corresponding facts for div in a field
@@ -561,7 +564,13 @@ section add_comm_group
 
   theorem sub_sub_self (a b : A) : a - (a - b) = b :=
   by rewrite [sub_eq_add_neg, neg_sub, add.comm, sub_add_cancel]
- 
+
+  theorem add_sub_comm (a b c d : A) : a + b - (c + d) = (a - c) + (b - d) :=
+    by rewrite [sub_add_eq_sub_sub, -sub_add_eq_add_sub a c b, add_sub]
+
+  theorem sub_eq_sub_add_sub (a b c : A) : a - b = c - b + (a - c) :=
+    by rewrite [add_sub, sub_add_cancel] ⬝ !add.comm
+
 end add_comm_group
 
 definition group_of_add_group (A : Type) [G : add_group A] : group A :=

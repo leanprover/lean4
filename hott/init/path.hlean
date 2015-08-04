@@ -573,19 +573,19 @@ namespace eq
 
   -- Whiskering and identity paths.
 
-  definition whisker_right_idp_right {p q : x = y} (h : p = q) :
+  definition whisker_right_idp {p q : x = y} (h : p = q) :
     whisker_right h idp = h :=
   eq.rec_on h (eq.rec_on p idp)
 
   definition whisker_right_idp_left (p : x = y) (q : y = z) :
     whisker_right idp q = idp :> (p ⬝ q = p ⬝ q) :=
-  eq.rec_on q idp
+  idp
 
   definition whisker_left_idp_right (p : x = y) (q : y = z) :
     whisker_left p idp = idp :> (p ⬝ q = p ⬝ q) :=
-  eq.rec_on q idp
+  idp
 
-  definition whisker_left_idp_left {p q : x = y} (h : p = q) :
+  definition whisker_left_idp {p q : x = y} (h : p = q) :
     (idp_con p) ⁻¹ ⬝ whisker_left idp h ⬝ idp_con q = h :=
   eq.rec_on h (eq.rec_on p idp)
 
@@ -624,11 +624,11 @@ namespace eq
   eq.rec_on q (eq.rec_on p idp)
 
   definition eckmann_hilton {x:A} (p q : idp = idp :> x = x) : p ⬝ q = q ⬝ p :=
-    (!whisker_right_idp_right ◾ !whisker_left_idp_left)⁻¹
+    (!whisker_right_idp ◾ !whisker_left_idp)⁻¹
     ⬝ whisker_left _ !idp_con
     ⬝ !whisker_right_con_whisker_left
     ⬝ whisker_right !idp_con⁻¹ _
-    ⬝ (!whisker_left_idp_left ◾ !whisker_right_idp_right)
+    ⬝ (!whisker_left_idp ◾ !whisker_right_idp)
 
   -- The action of functions on 2-dimensional paths
   definition ap02 [unfold 8] [reducible] (f : A → B) {x y : A} {p q : x = y} (r : p = q)

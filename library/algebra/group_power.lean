@@ -6,8 +6,8 @@ Author: Jeremy Avigad
 The power operation on monoids and groups. We separate this from group, because it depends on
 nat, which in turn depends on other parts of algebra.
 
-We have "pow a n" for natural number powers, and "ipow a i" for integer powers. The notation
-a^n is used for the first, but users can locally redefine it to ipow when needed.
+We have "pow a n" for natural number powers, and "gpow a i" for integer powers. The notation
+a^n is used for the first, but users can locally redefine it to gpow when needed.
 
 Note: power adopts the convention that 0^0=1.
 -/
@@ -94,43 +94,43 @@ end nat
 
 open int
 
-definition ipow (a : A) : ℤ → A
+definition gpow (a : A) : ℤ → A
 | (of_nat n) := a^n
 | -[1+n]     := (a^(nat.succ n))⁻¹
 
-private lemma ipow_add_aux (a : A) (m n : nat) :
-  ipow a ((of_nat m) + -[1+n]) = ipow a (of_nat m) * ipow a (-[1+n]) :=
+private lemma gpow_add_aux (a : A) (m n : nat) :
+  gpow a ((of_nat m) + -[1+n]) = gpow a (of_nat m) * gpow a (-[1+n]) :=
 or.elim (nat.lt_or_ge m (nat.succ n))
   (assume H : (#nat m < nat.succ n),
     assert H1 : (#nat nat.succ n - m > nat.zero), from nat.sub_pos_of_lt H,
     calc
-      ipow a ((of_nat m) + -[1+n]) = ipow a (sub_nat_nat m (nat.succ n))  : rfl
-        ... = ipow a (-[1+ nat.pred (nat.sub (nat.succ n) m)])            : {sub_nat_nat_of_lt H}
+      gpow a ((of_nat m) + -[1+n]) = gpow a (sub_nat_nat m (nat.succ n))  : rfl
+        ... = gpow a (-[1+ nat.pred (nat.sub (nat.succ n) m)])            : {sub_nat_nat_of_lt H}
         ... = (pow a (nat.succ (nat.pred (nat.sub (nat.succ n) m))))⁻¹    : rfl
         ... = (pow a (nat.succ n) * (pow a m)⁻¹)⁻¹                        :
                 by rewrite [nat.succ_pred_of_pos H1, pow_sub a (nat.le_of_lt H)]
         ... = pow a m * (pow a (nat.succ n))⁻¹                            :
                 by rewrite [mul_inv, inv_inv]
-        ... = ipow a (of_nat m) * ipow a (-[1+n])                         : rfl)
+        ... = gpow a (of_nat m) * gpow a (-[1+n])                         : rfl)
   (assume H : (#nat m ≥ nat.succ n),
     calc
-      ipow a ((of_nat m) + -[1+n]) = ipow a (sub_nat_nat m (nat.succ n))  : rfl
-        ... = ipow a (#nat m - nat.succ n)                                : {sub_nat_nat_of_ge H}
+      gpow a ((of_nat m) + -[1+n]) = gpow a (sub_nat_nat m (nat.succ n))  : rfl
+        ... = gpow a (#nat m - nat.succ n)                                : {sub_nat_nat_of_ge H}
         ... = pow a m * (pow a (nat.succ n))⁻¹                            : pow_sub a H
-        ... = ipow a (of_nat m) * ipow a (-[1+n])                         : rfl)
+        ... = gpow a (of_nat m) * gpow a (-[1+n])                         : rfl)
 
-theorem ipow_add (a : A) : ∀i j : int, ipow a (i + j) = ipow a i * ipow a j
+theorem gpow_add (a : A) : ∀i j : int, gpow a (i + j) = gpow a i * gpow a j
 | (of_nat m) (of_nat n) := !pow_add
-| (of_nat m) -[1+n]     := !ipow_add_aux
-| -[1+m]     (of_nat n) := by rewrite [int.add.comm, ipow_add_aux, ↑ipow, -*inv_pow, pow_inv_comm]
+| (of_nat m) -[1+n]     := !gpow_add_aux
+| -[1+m]     (of_nat n) := by rewrite [int.add.comm, gpow_add_aux, ↑gpow, -*inv_pow, pow_inv_comm]
 | -[1+m]     -[1+n]     :=
   calc
-    ipow a (-[1+m] + -[1+n]) = (a^(#nat nat.succ m + nat.succ n))⁻¹ : rfl
+    gpow a (-[1+m] + -[1+n]) = (a^(#nat nat.succ m + nat.succ n))⁻¹ : rfl
       ... = (a^(nat.succ m))⁻¹ * (a^(nat.succ n))⁻¹ : by rewrite [pow_add, pow_comm, mul_inv]
-      ... = ipow a (-[1+m]) * ipow a (-[1+n])       : rfl
+      ... = gpow a (-[1+m]) * gpow a (-[1+n])       : rfl
 
-theorem ipow_comm (a : A) (i j : ℤ) : ipow a i * ipow a j = ipow a j * ipow a i :=
-by rewrite [-*ipow_add, int.add.comm]
+theorem gpow_comm (a : A) (i j : ℤ) : gpow a i * gpow a j = gpow a j * gpow a i :=
+by rewrite [-*gpow_add, int.add.comm]
 end group
 
 section ordered_ring
@@ -175,24 +175,24 @@ include s
 local attribute add_monoid.to_monoid [trans-instance]
 open nat
 
-definition times : ℕ → A → A := λ n a, pow a n
+definition nmul : ℕ → A → A := λ n a, pow a n
 
-infix [priority algebra.prio] `*` := times
+infix [priority algebra.prio] `⬝` := nmul
 
-theorem zero_times (a : A) : (0:ℕ) * a = 0 := pow_zero a
-theorem succ_times (n : ℕ) (a : A) : succ n * a = times n a + a := pow_succ a n
+theorem zero_nmul (a : A) : (0:ℕ) ⬝ a = 0 := pow_zero a
+theorem succ_nmul (n : ℕ) (a : A) : succ n ⬝ a = nmul n a + a := pow_succ a n
 
-theorem succ_times' (n : ℕ) (a : A) : times (succ n) a = a + (times n a) := pow_succ' a n
+theorem succ_nmul' (n : ℕ) (a : A) : nmul (succ n) a = a + (nmul n a) := pow_succ' a n
 
-theorem times_zero (n : ℕ) : n * 0 = (0:A) := one_pow n
+theorem nmul_zero (n : ℕ) : n ⬝ 0 = (0:A) := one_pow n
 
-theorem one_times (a : A) : 1 * a = a := pow_one a
+theorem one_nmul (a : A) : 1 ⬝ a = a := pow_one a
 
-theorem add_times (m n : ℕ) (a : A) : (m + n) * a = (m * a) + (n * a) := pow_add a m n
+theorem add_nmul (m n : ℕ) (a : A) : (m + n) ⬝ a = (m ⬝ a) + (n ⬝ a) := pow_add a m n
 
-theorem mul_times (m n : ℕ) (a : A) : (m * n) * a = m * (n * a) := eq.subst (nat.mul.comm n m) (pow_mul a n m)
+theorem mul_nmul (m n : ℕ) (a : A) : (m * n) ⬝ a = m ⬝ (n ⬝ a) := eq.subst (nat.mul.comm n m) (pow_mul a n m)
 
-theorem times_comm (m n : ℕ) (a : A) : (m * a) + (n * a) = (n * a) + (m * a) := pow_comm a m n
+theorem nmul_comm (m n : ℕ) (a : A) : (m ⬝ a) + (n ⬝ a) = (n ⬝ a) + (m ⬝ a) := pow_comm a m n
 
 end add_monoid
 
@@ -204,7 +204,7 @@ variable [s : add_comm_monoid A]
 include s
 local attribute add_comm_monoid.to_comm_monoid [trans-instance]
 
-theorem times_add (n : ℕ) (a b : A) : n * (a + b) = (n * a) + (n * b) := mul_pow a b n
+theorem nmul_add (n : ℕ) (a b : A) : n ⬝ (a + b) = (n ⬝ a) + (n ⬝ b) := mul_pow a b n
 
 end add_comm_monoid
 
@@ -215,22 +215,22 @@ local attribute add_group.to_group [trans-instance]
 
 section nat
 open nat
-theorem times_neg (n : ℕ) (a : A) : n * (-a) = -(n * a) := inv_pow a n
+theorem nmul_neg (n : ℕ) (a : A) : n ⬝ (-a) = -(n ⬝ a) := inv_pow a n
 
-theorem sub_times {m n : ℕ} (a : A) (H : m ≥ n) : (m - n) * a = (m * a) + -(n * a) := pow_sub a H
+theorem sub_nmul {m n : ℕ} (a : A) (H : m ≥ n) : (m - n) ⬝ a = (m ⬝ a) + -(n ⬝ a) := pow_sub a H
 
-theorem times_neg_comm (m n : ℕ) (a : A) : (m * (-a)) + (n * a) = (n * a) + (m * (-a)) := pow_inv_comm a m n
+theorem nmul_neg_comm (m n : ℕ) (a : A) : (m ⬝ (-a)) + (n ⬝ a) = (n ⬝ a) + (m ⬝ (-a)) := pow_inv_comm a m n
 
 end nat
 
 open int
 
-definition itimes : ℤ → A → A := λ i a, ipow a i
+definition imul : ℤ → A → A := λ i a, gpow a i
 
-theorem add_itimes (i j : ℤ) (a : A) : itimes (i + j) a = itimes i a + itimes j a :=
-  ipow_add a i j
+theorem add_imul (i j : ℤ) (a : A) : imul (i + j) a = imul i a + imul j a :=
+  gpow_add a i j
 
-theorem itimes_comm (i j : ℤ) (a : A) : itimes i a + itimes j a = itimes j a + itimes i a := ipow_comm a i j
+theorem imul_comm (i j : ℤ) (a : A) : imul i a + imul j a = imul j a + imul i a := gpow_comm a i j
 
 end add_group
 

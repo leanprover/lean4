@@ -33,7 +33,7 @@ section
 
   variables ⦃a a' : A⦄ {s : R a a'} {r : T a a}
   parameter {R}
-  protected definition e_closure.elim [unfold 6] {B : Type} {f : A → B}
+  protected definition e_closure.elim [unfold 8] {B : Type} {f : A → B}
     (e : Π⦃a a' : A⦄, R a a' → f a = f a') (t : T a a') : f a = f a' :=
   begin
     induction t,

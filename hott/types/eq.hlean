@@ -252,7 +252,7 @@ namespace eq
   definition eq_equiv_eq_closed [constructor] (p : a₁ = a₂) (q : a₃ = a₄) : (a₁ = a₃) ≃ (a₂ = a₄) :=
   equiv.trans (equiv_eq_closed_left a₃ p) (equiv_eq_closed_right a₂ q)
 
-  definition is_equiv_whisker_left (p : a₁ = a₂) (q r : a₂ = a₃)
+  definition is_equiv_whisker_left [constructor] (p : a₁ = a₂) (q r : a₂ = a₃)
   : is_equiv (whisker_left p : q = r → p ⬝ q = p ⬝ r) :=
   begin
   fapply adjointify,
@@ -269,10 +269,11 @@ namespace eq
     {intro s, induction s, induction q, induction p, reflexivity}
   end
 
-  definition eq_equiv_con_eq_con_left (p : a₁ = a₂) (q r : a₂ = a₃) : (q = r) ≃ (p ⬝ q = p ⬝ r) :=
+  definition eq_equiv_con_eq_con_left [constructor] (p : a₁ = a₂) (q r : a₂ = a₃)
+    : (q = r) ≃ (p ⬝ q = p ⬝ r) :=
   equiv.mk _ !is_equiv_whisker_left
 
-  definition is_equiv_whisker_right {p q : a₁ = a₂} (r : a₂ = a₃)
+  definition is_equiv_whisker_right [constructor] {p q : a₁ = a₂} (r : a₂ = a₃)
     : is_equiv (λs, whisker_right s r : p = q → p ⬝ r = q ⬝ r) :=
   begin
   fapply adjointify,
@@ -281,7 +282,8 @@ namespace eq
     {intro s, induction s, induction r, induction p, reflexivity}
   end
 
-  definition eq_equiv_con_eq_con_right (p q : a₁ = a₂) (r : a₂ = a₃) : (p = q) ≃ (p ⬝ r = q ⬝ r) :=
+  definition eq_equiv_con_eq_con_right [constructor] (p q : a₁ = a₂) (r : a₂ = a₃)
+    : (p = q) ≃ (p ⬝ r = q ⬝ r) :=
   equiv.mk _ !is_equiv_whisker_right
 
   /-
@@ -289,7 +291,7 @@ namespace eq
     However, these proofs have the advantage that the inverse is definitionally equal to
     what we would expect
   -/
-  definition is_equiv_con_eq_of_eq_inv_con (p : a₁ = a₃) (q : a₂ = a₃) (r : a₂ = a₁)
+  definition is_equiv_con_eq_of_eq_inv_con [constructor] (p : a₁ = a₃) (q : a₂ = a₃) (r : a₂ = a₁)
     : is_equiv (con_eq_of_eq_inv_con : p = r⁻¹ ⬝ q → r ⬝ p = q) :=
   begin
     fapply adjointify,
@@ -300,11 +302,11 @@ namespace eq
         con.assoc,con.assoc,con.right_inv,▸*,-con.assoc,con.left_inv,▸* at *,idp_con s] },
   end
 
-  definition eq_inv_con_equiv_con_eq (p : a₁ = a₃) (q : a₂ = a₃) (r : a₂ = a₁)
+  definition eq_inv_con_equiv_con_eq [constructor] (p : a₁ = a₃) (q : a₂ = a₃) (r : a₂ = a₁)
     : (p = r⁻¹ ⬝ q) ≃ (r ⬝ p = q) :=
   equiv.mk _ !is_equiv_con_eq_of_eq_inv_con
 
-  definition is_equiv_con_eq_of_eq_con_inv (p : a₁ = a₃) (q : a₂ = a₃) (r : a₂ = a₁)
+  definition is_equiv_con_eq_of_eq_con_inv [constructor] (p : a₁ = a₃) (q : a₂ = a₃) (r : a₂ = a₁)
     : is_equiv (con_eq_of_eq_con_inv : r = q ⬝ p⁻¹ → r ⬝ p = q) :=
   begin
     fapply adjointify,
@@ -313,11 +315,11 @@ namespace eq
     { intro s, induction p, rewrite [↑[con_eq_of_eq_con_inv,eq_con_inv_of_con_eq]] },
   end
 
-  definition eq_con_inv_equiv_con_eq (p : a₁ = a₃) (q : a₂ = a₃) (r : a₂ = a₁)
+  definition eq_con_inv_equiv_con_eq [constructor] (p : a₁ = a₃) (q : a₂ = a₃) (r : a₂ = a₁)
     : (r = q ⬝ p⁻¹) ≃ (r ⬝ p = q) :=
   equiv.mk _ !is_equiv_con_eq_of_eq_con_inv
 
-  definition is_equiv_inv_con_eq_of_eq_con (p : a₁ = a₃) (q : a₂ = a₃) (r : a₁ = a₂)
+  definition is_equiv_inv_con_eq_of_eq_con [constructor] (p : a₁ = a₃) (q : a₂ = a₃) (r : a₁ = a₂)
     : is_equiv (inv_con_eq_of_eq_con : p = r ⬝ q → r⁻¹ ⬝ p = q) :=
   begin
     fapply adjointify,
@@ -328,11 +330,11 @@ namespace eq
         con.assoc,con.assoc,con.right_inv,▸*,-con.assoc,con.left_inv,▸* at *,idp_con s] },
   end
 
-  definition eq_con_equiv_inv_con_eq (p : a₁ = a₃) (q : a₂ = a₃) (r : a₁ = a₂)
+  definition eq_con_equiv_inv_con_eq [constructor] (p : a₁ = a₃) (q : a₂ = a₃) (r : a₁ = a₂)
     : (p = r ⬝ q) ≃ (r⁻¹ ⬝ p = q) :=
   equiv.mk _ !is_equiv_inv_con_eq_of_eq_con
 
-  definition is_equiv_con_inv_eq_of_eq_con (p : a₃ = a₁) (q : a₂ = a₃) (r : a₂ = a₁)
+  definition is_equiv_con_inv_eq_of_eq_con [constructor] (p : a₃ = a₁) (q : a₂ = a₃) (r : a₂ = a₁)
     : is_equiv (con_inv_eq_of_eq_con : r = q ⬝ p → r ⬝ p⁻¹ = q) :=
   begin
     fapply adjointify,
@@ -365,6 +367,32 @@ namespace eq
   definition is_equiv_eq_inv_con_of_con_eq (p : a₁ = a₃) (q : a₂ = a₃) (r : a₂ = a₁)
     : is_equiv (eq_inv_con_of_con_eq : r ⬝ p = q → p = r⁻¹ ⬝ q) :=
   is_equiv_inv con_eq_of_eq_inv_con
+
+  definition is_equiv_con_inv_eq_idp [constructor] (p q : a₁ = a₂)
+    : is_equiv (con_inv_eq_idp : p = q → p ⬝ q⁻¹ = idp) :=
+  begin
+    fapply adjointify,
+    { apply eq_of_con_inv_eq_idp},
+    { intro s, induction q, esimp at *, cases s, reflexivity},
+    { intro s, induction s, induction p, reflexivity},
+  end
+
+  definition is_equiv_inv_con_eq_idp [constructor] (p q : a₁ = a₂)
+    : is_equiv (inv_con_eq_idp : p = q → q⁻¹ ⬝ p = idp) :=
+  begin
+    fapply adjointify,
+    { apply eq_of_inv_con_eq_idp},
+    { intro s, induction q, esimp [eq_of_inv_con_eq_idp] at *,
+      eapply is_equiv_rect (eq_equiv_con_eq_con_left idp p idp), clear s,
+      intro s, cases s, reflexivity},
+    { intro s, induction s, induction p, reflexivity},
+  end
+
+  definition eq_equiv_con_inv_eq_idp [constructor] (p q : a₁ = a₂) : (p = q) ≃ (p ⬝ q⁻¹ = idp) :=
+  equiv.mk _ !is_equiv_con_inv_eq_idp
+
+  definition eq_equiv_inv_con_eq_idp [constructor] (p q : a₁ = a₂) : (p = q) ≃ (q⁻¹ ⬝ p = idp) :=
+  equiv.mk _ !is_equiv_inv_con_eq_idp
 
   /- Pathover Equivalences -/
 

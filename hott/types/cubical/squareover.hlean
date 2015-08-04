@@ -60,8 +60,8 @@ namespace eq
     : squareover B vrfl q₁₀ q₁₀' idpo idpo :=
   by induction r;exact vrflo
 
-  definition hdeg_squareover {q₁₀' : b₀₀ =[p₁₀] b₂₀} (r : q₁₀ = q₁₀')
-    : squareover B hrfl idpo idpo q₁₀ q₁₀' :=
+  definition hdeg_squareover {q₀₁' : b₀₀ =[p₀₁] b₀₂} (r : q₀₁ = q₀₁')
+    : squareover B hrfl idpo idpo q₀₁ q₀₁' :=
   by induction r; exact hrflo
 
   -- relating squareovers to squares
@@ -120,6 +120,22 @@ namespace eq
     : squareover B (square_of_eq_top s) q₁₀ q₁₂ q₀₁ q₂₁ :=
   by induction q₂₁; induction q₁₂; esimp at r;induction r;induction q₁₀;constructor
 
+  definition squareover_of_eq_top (r : change_path (eq_top_of_square s₁₁) q₁₀ = q₀₁ ⬝o q₁₂ ⬝o q₂₁⁻¹ᵒ)
+    : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁ :=
+  begin
+    induction s₁₁, revert q₁₂ q₁₀ r,
+    eapply idp_rec_on q₂₁, clear q₂₁,
+    intro q₁₂,
+    eapply idp_rec_on q₁₂, clear q₁₂,
+    esimp, intros,
+    induction r, eapply idp_rec_on q₁₀,
+    constructor
+  end
+
+  definition eq_top_of_squareover (r : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁)
+    : change_path (eq_top_of_square s₁₁) q₁₀ = q₀₁ ⬝o q₁₂ ⬝o q₂₁⁻¹ᵒ :=
+  by induction r; reflexivity
+
   /-
   definition squareover_equiv_pathover (q₁₀ : b₀₀ =[p₁₀] b₂₀) (q₁₂ : b₀₂ =[p₁₂] b₂₂)
     (q₀₁ : b₀₀ =[p₀₁] b₀₂) (q₂₁ : b₂₀ =[p₂₁] b₂₂)
@@ -156,6 +172,8 @@ namespace eq
     (s : squareover B (natural_square_tr q p) r r₂
                       (pathover_ap B f (apdo b p)) (pathover_ap B g (apdo b₂ p)))
     : pathover (λa, pathover B (b a) (q a) (b₂ a)) r p r₂ :=
-  by induction p;esimp at s; apply pathover_idp_of_eq; apply eq_of_vdeg_squareover; exact s
+  begin
+    induction p, esimp at s, apply pathover_idp_of_eq, apply eq_of_vdeg_squareover, exact s
+  end
 
 end eq

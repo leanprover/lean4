@@ -165,10 +165,10 @@ namespace eq
   definition inv_eq_of_idp_eq_con' {p : x = y} {q : y = x} : idp = p ⬝ q → p⁻¹ = q :=
   eq.rec_on p (take q h, h ⬝ !idp_con) q
 
-  definition con_inv_eq_idp {p q : x = y} (r : p = q) : p ⬝ q⁻¹ = idp :=
+  definition con_inv_eq_idp [unfold 6] {p q : x = y} (r : p = q) : p ⬝ q⁻¹ = idp :=
   by cases r;apply con.right_inv
 
-  definition inv_con_eq_idp {p q : x = y} (r : p = q) : q⁻¹ ⬝ p = idp :=
+  definition inv_con_eq_idp [unfold 6] {p q : x = y} (r : p = q) : q⁻¹ ⬝ p = idp :=
   by cases r;apply con.left_inv
 
   definition con_eq_idp {p : x = y} {q : y = x} (r : p = q⁻¹) : p ⬝ q = idp :=
@@ -544,7 +544,7 @@ namespace eq
   /- The 2-dimensional groupoid structure -/
 
   -- Horizontal composition of 2-dimensional paths.
-  definition concat2 {p p' : x = y} {q q' : y = z} (h : p = p') (h' : q = q')
+  definition concat2 [unfold 9 10] {p p' : x = y} {q q' : y = z} (h : p = p') (h' : q = q')
     : p ⬝ q = p' ⬝ q' :=
   eq.rec_on h (eq.rec_on h' idp)
 

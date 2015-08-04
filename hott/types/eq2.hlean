@@ -96,6 +96,11 @@ namespace eq
             :=
   by induction q;esimp at *;cases r;reflexivity
 
+  theorem eq_of_con_inv_eq_idp_con2 {p p' q q' : a₁ = a₂} (r : p = p') (s : q = q')
+    (t : p' ⬝ q'⁻¹ = idp)
+  : eq_of_con_inv_eq_idp (r ◾ inverse2 s ⬝ t) = r ⬝ eq_of_con_inv_eq_idp t ⬝ s⁻¹ :=
+  by induction s;induction r;induction q;reflexivity
+
 -- definition naturality_apdo {A : Type} {B : A → Type} {a a₂ : A} {f g : Πa, B a}
 --   (H : f ~ g) (p : a = a₂)
 --   : squareover B vrfl (apdo f p) (apdo g p)

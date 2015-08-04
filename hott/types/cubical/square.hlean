@@ -134,7 +134,7 @@ namespace eq
   definition square_of_eq_top (r : p₁₀ = p₀₁ ⬝ p₁₂ ⬝ p₂₁⁻¹) : square p₁₀ p₁₂ p₀₁ p₂₁ :=
   by induction p₂₁; induction p₁₂; esimp at r;induction r;induction p₁₀;exact ids
 
-  definition eq_bottom_of_square [unfold 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
+  definition eq_bot_of_square [unfold 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
     : p₁₂ = p₀₁⁻¹ ⬝ p₁₀ ⬝ p₂₁ :=
   by induction s₁₁; apply idp
 
@@ -164,6 +164,10 @@ namespace eq
   definition top_deg_square (l : a₁ = a₂) (b : a₂ = a₃) (r : a₄ = a₃)
     : square (l ⬝ b ⬝ r⁻¹) b l r :=
   by induction r;induction b;induction l;constructor
+
+  definition bot_deg_square (l : a₁ = a₂) (t : a₁ = a₃) (r : a₃ = a₄)
+    : square t (l⁻¹ ⬝ t ⬝ r) l r :=
+  by induction r;induction t;induction l;constructor
 
   /-
     the following two equivalences have as underlying inverse function the functions

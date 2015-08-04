@@ -47,7 +47,7 @@ namespace eq
 
   definition eq_of_cube (c : cube s₁₁₀ s₁₁₂ s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁) :
     transpose s₁₀₁⁻¹ᵛ ⬝h s₁₁₀ ⬝h transpose s₁₂₁ =
-      whisker_square (eq_bottom_of_square s₀₁₁) (eq_bottom_of_square s₂₁₁) idp idp s₁₁₂ :=
+      whisker_square (eq_bot_of_square s₀₁₁) (eq_bot_of_square s₂₁₁) idp idp s₁₁₂ :=
   by induction c; reflexivity
 
   --set_option pp.implicit true

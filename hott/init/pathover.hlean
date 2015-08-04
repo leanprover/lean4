@@ -62,7 +62,7 @@ namespace eq
   by cases p;exact idpo
 
   definition tr_pathover [unfold 5] (p : a = a₂) (b : B a₂) : p⁻¹ ▸ b =[p] b :=
-  pathover_of_eq_tr idp
+  by cases p;exact idpo
 
   definition concato [unfold 12] (r : b =[p] b₂) (r₂ : b₂ =[p₂] b₃) : b =[p ⬝ p₂] b₃ :=
   pathover.rec_on r₂ r
@@ -237,7 +237,7 @@ namespace eq
     : eq_concato q⁻¹ (pathover_idp_of_eq q) = (idpo : b' =[refl a] b') :=
   by induction q;constructor
 
-  definition change_path (q : p = p') (r : b =[p] b₂) : b =[p'] b₂ :=
+  definition change_path [unfold 9] (q : p = p') (r : b =[p] b₂) : b =[p'] b₂ :=
   by induction q;exact r
 
   definition change_path_equiv (f : Π{a}, B a ≃ B' a) (r : b =[p] b₂) : f b =[p] f b₂ :=

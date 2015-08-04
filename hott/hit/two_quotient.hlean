@@ -296,21 +296,29 @@ namespace two_quotient
     ⦃a a' : A⦄ (t : T a a') : ap (elim P0 P1 P2) (inclt t) = e_closure.elim P1 t :=
   !elim_inclt --ap_e_closure_elim_h incl1 (elim_incl1 P2) t
 
-/-
-  --print elim
   theorem elim_incl2 {P : Type} (P0 : A → P)
     (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a = P0 a')
     (P2 : Π⦃a a' : A⦄ ⦃t t' : T a a'⦄ (q : Q t t'), e_closure.elim P1 t = e_closure.elim P1 t')
     ⦃a a' : A⦄ ⦃t t' : T a a'⦄ (q : Q t t')
     : square (ap02 (elim P0 P1 P2) (incl2 q)) (P2 q) (elim_inclt P2 t) (elim_inclt P2 t') :=
   begin
-    -- let H := elim_incl2 R Q2 P0 P1 (two_quotient_Q.rec (λ (a a' : A) (t t' : T a a') (q : Q t t'), con_inv_eq_idp (P2 q))) (Qmk R q),
-    -- esimp at H,
     rewrite [↑[incl2,elim],ap_eq_of_con_inv_eq_idp],
-    xrewrite [eq_top_of_square (elim_incl2 R Q2 P0 P1 (elim_1 A R Q P P0 P1 P2) (Qmk R q)),▸*],
-    exact sorry
+    xrewrite [eq_top_of_square (elim_incl2 R Q2 P0 P1 (elim_1 A R Q P P0 P1 P2) (Qmk R q))],
+--    esimp, --doesn't fold elim_inclt back. The following tactic is just a "custom esimp"
+    xrewrite [{simple_two_quotient.elim_inclt R Q2 (elim_1 A R Q P P0 P1 P2)
+           (t ⬝r t'⁻¹ʳ)}
+      idpath (ap_con (simple_two_quotient.elim R Q2 P0 P1 (elim_1 A R Q P P0 P1 P2))
+                     (inclt t) (inclt t')⁻¹ ⬝
+             (simple_two_quotient.elim_inclt R Q2 (elim_1 A R Q P P0 P1 P2) t ◾
+             (ap_inv (simple_two_quotient.elim R Q2 P0 P1 (elim_1 A R Q P P0 P1 P2))
+                     (inclt t') ⬝
+             inverse2 (simple_two_quotient.elim_inclt R Q2 (elim_1 A R Q P P0 P1 P2) t')))),▸*],
+    rewrite [-con.assoc _ _ (con_inv_eq_idp _),-con.assoc _ _ (_ ◾ _),con.assoc _ _ (ap_con _ _ _),
+             con.left_inv,↑whisker_left,con2_con_con2,-con.assoc (ap_inv _ _)⁻¹,
+             con.left_inv,+idp_con,eq_of_con_inv_eq_idp_con2],
+    xrewrite [to_left_inv !eq_equiv_con_inv_eq_idp (P2 q)],
+    apply top_deg_square
   end
--/
 
 end
 end two_quotient

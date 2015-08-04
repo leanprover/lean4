@@ -167,14 +167,14 @@ namespace is_equiv
   -- once pulled back along an equivalence f : A → B, then it has a section
   -- over all of B.
 
-  definition equiv_rect (P : B → Type) :
+  definition is_equiv_rect (P : B → Type) :
       (Πx, P (f x)) → (Πy, P y) :=
     (λg y, eq.transport _ (right_inv f y) (g (f⁻¹ y)))
 
-  definition equiv_rect_comp (P : B → Type)
-      (df : Π (x : A), P (f x)) (x : A) : equiv_rect f P df (f x) = df x :=
+  definition is_equiv_rect_comp (P : B → Type)
+      (df : Π (x : A), P (f x)) (x : A) : is_equiv_rect f P df (f x) = df x :=
     calc
-      equiv_rect f P df (f x)
+      is_equiv_rect f P df (f x)
             = right_inv f (f x) ▸ df (f⁻¹ (f x))   : by esimp
         ... = ap f (left_inv f x) ▸ df (f⁻¹ (f x)) : by rewrite -adj
         ... = left_inv f x ▸ df (f⁻¹ (f x))        : by rewrite -transport_compose
@@ -284,6 +284,20 @@ namespace equiv
   definition equiv_of_eq_of_equiv [trans] {A B C : Type} (p : A ≃ B) (q : B = C) : A ≃ C := q   ▸ p
 
   definition equiv_lift (A : Type) : A ≃ lift A := equiv.mk up _
+
+  definition equiv_rect (f : A ≃ B) (P : B → Type) :
+      (Πx, P (f x)) → (Πy, P y) :=
+    (λg y, eq.transport _ (right_inv f y) (g (f⁻¹ y)))
+
+  definition equiv_rect_comp (f : A ≃ B) (P : B → Type)
+      (df : Π (x : A), P (f x)) (x : A) : equiv_rect f P df (f x) = df x :=
+    calc
+      equiv_rect f P df (f x)
+            = right_inv f (f x) ▸ df (f⁻¹ (f x))   : by esimp
+        ... = ap f (left_inv f x) ▸ df (f⁻¹ (f x)) : by rewrite -adj
+        ... = left_inv f x ▸ df (f⁻¹ (f x))        : by rewrite -transport_compose
+        ... = df x                                 : by rewrite (apd df (left_inv f x))
+
 
   namespace ops
     postfix `⁻¹` := equiv.symm -- overloaded notation for inverse

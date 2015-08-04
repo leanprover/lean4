@@ -159,7 +159,7 @@ namespace pi
     : ap (pi_functor f0 f1) (eq_of_homotopy h)
       = eq_of_homotopy (λa':A', (ap (f1 a') (h (f0 a')))) :=
   begin
-  apply (equiv_rect (@apd10 A B g g')), intro p, clear h,
+  apply (is_equiv_rect (@apd10 A B g g')), intro p, clear h,
   cases p,
   apply concat,
     exact (ap (ap (pi_functor f0 f1)) (eq_of_homotopy_idp g)),

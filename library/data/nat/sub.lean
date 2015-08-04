@@ -45,7 +45,6 @@ nat.induction_on k
                               ... = succ (n + l) - succ (m + l) : {!add_succ}
                               ... = (n + l) - (m + l)           : !succ_sub_succ
                               ... =  n - m                      : IH)
-
 theorem add_sub_add_left (k n m : ℕ) : (k + n) - (k + m) = n - m :=
 !add.comm ▸ !add.comm ▸ !add_sub_add_right
 
@@ -381,13 +380,22 @@ have H4 : m - n = 0, from eq_zero_of_add_eq_zero_left H,
 have H5 : m ≤ n, from le_of_sub_eq_zero H4,
 le.antisymm H3 H5
 
+theorem dist_eq_zero {n m : ℕ} (H : n = m) : dist n m = 0 :=
+by substvars; rewrite [↑dist, *sub_self, add_zero]
+
 theorem dist_eq_sub_of_le {n m : ℕ} (H : n ≤ m) : dist n m = m - n :=
 calc
   dist n m = 0 + (m - n) : {sub_eq_zero_of_le H}
        ... = m - n       : zero_add
 
+theorem dist_eq_sub_of_lt {n m : ℕ} (H : n < m) : dist n m = m - n :=
+dist_eq_sub_of_le (le_of_lt H)
+
 theorem dist_eq_sub_of_ge {n m : ℕ} (H : n ≥ m) : dist n m = n - m :=
 !dist.comm ▸ dist_eq_sub_of_le H
+
+theorem dist_eq_sub_of_gt {n m : ℕ} (H : n > m) : dist n m = n - m :=
+dist_eq_sub_of_ge (le_of_lt H)
 
 theorem dist_zero_right (n : ℕ) : dist n 0 = n :=
 dist_eq_sub_of_ge !zero_le ⬝ !sub_zero
@@ -469,35 +477,21 @@ or.elim !le.total
   (assume H : k ≤ l, !dist.comm ▸ !dist.comm ▸ aux l k H)
   (assume H : l ≤ k, aux k l H)
 
-definition diff [reducible] (i j : nat) :=
-if (i < j) then (j - i) else (i - j)
+lemma dist_eq_max_sub_min {i j : nat} : dist i j = (max i j) - min i j :=
+or.elim (lt_or_ge i j)
+  (suppose i < j, begin rewrite [max_eq_right_of_lt this, min_eq_left_of_lt this, dist_eq_sub_of_lt this] end)
+  (suppose i ≥ j, begin rewrite [max_eq_left this , min_eq_right this, dist_eq_sub_of_ge this] end)
 
-open decidable
-lemma diff_eq_dist {i j : nat} : diff i j = dist i j :=
-by_cases
-  (suppose i < j,
-    by rewrite [if_pos this, ↑dist, sub_eq_zero_of_le (le_of_lt this), zero_add])
-  (suppose ¬ i < j,
-    by rewrite [if_neg this, ↑dist, sub_eq_zero_of_le (le_of_not_gt this)])
+lemma dist_succ {i j : nat} : dist (succ i) (succ j) = dist i j :=
+by rewrite [↑dist, *succ_sub_succ]
 
-lemma diff_eq_max_sub_min {i j : nat} : diff i j = (max i j) - min i j :=
-by_cases
-  (suppose i < j, begin rewrite [↑max, ↑min, *(if_pos this)] end)
-  (suppose ¬ i < j, begin rewrite [↑max, ↑min, *(if_neg this)] end)
+lemma dist_le_max {i j : nat} : dist i j ≤ max i j :=
+begin rewrite dist_eq_max_sub_min, apply sub_le end
 
-lemma diff_succ {i j : nat} : diff (succ i) (succ j) = diff i j :=
-by rewrite [*diff_eq_dist, ↑dist, *succ_sub_succ]
+lemma dist_pos_of_ne {i j : nat} : i ≠ j → dist i j > 0 :=
+assume Pne, lt.by_cases
+  (suppose i < j, begin rewrite [dist_eq_sub_of_lt this], apply sub_pos_of_lt this end)
+  (suppose i = j, by contradiction)
+  (suppose i > j, begin rewrite [dist_eq_sub_of_gt this], apply sub_pos_of_lt this end)
 
-lemma diff_add {i j k : nat} : diff (i + k) (j + k) = diff i j :=
-by rewrite [*diff_eq_dist, dist_add_add_right]
-
-lemma diff_le_max {i j : nat} : diff i j ≤ max i j :=
-begin rewrite diff_eq_max_sub_min, apply sub_le end
-
-lemma diff_gt_zero_of_ne {i j : nat} : i ≠ j → diff i j > 0 :=
-assume Pne, by_cases
-  (suppose i < j, begin rewrite [if_pos this], apply sub_pos_of_lt this end)
-  (suppose ¬ i < j, begin
-    rewrite [if_neg this], apply sub_pos_of_lt,
-    apply lt_of_le_and_ne (nat.le_of_not_gt this) (ne.symm Pne) end)
 end nat

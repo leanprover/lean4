@@ -302,7 +302,7 @@ private lemma max_count_eq (l₁ l₂ : list A) : ∀ {a : A} {l : list A}, a �
      end)
     (suppose i : ¬ list.count a l₁ ≥ list.count a l₂, begin
        unfold max_count, subst b,
-       rewrite [if_neg i, list.count_append, count_gen, max_eq_right' (lt_of_not_ge i), count_eq_zero_of_not_mem `a ∉ max_count l₁ l₂ l`]
+       rewrite [if_neg i, list.count_append, count_gen, max_eq_right_of_lt (lt_of_not_ge i), count_eq_zero_of_not_mem `a ∉ max_count l₁ l₂ l`]
      end))
   (suppose a ∈ l,
     assert a ≠ b, from suppose a = b, by subst b; contradiction,
@@ -531,22 +531,22 @@ bag.ext (λ a, begin
       have H₁₃ : count a b₁ ≤ count a b₃, from le.trans H₁₂ H₂₃,
       rewrite [max_eq_right H₂₃, min_eq_left H₁₂, min_eq_left H₁₃, max_self]},
     { intro H₂₃,
-      rewrite [min_eq_left H₁₂, max.comm, max_eq_right' (lt_of_not_ge H₂₃) ],
+      rewrite [min_eq_left H₁₂, max.comm, max_eq_right_of_lt (lt_of_not_ge H₂₃) ],
       apply (@by_cases (count a b₁ ≤ count a b₃)),
       { intro H₁₃, rewrite [min_eq_left H₁₃, max_self, min_eq_left H₁₂] },
       { intro H₁₃,
-        rewrite [min.comm (count a b₁) (count a b₃), min_eq_left' (lt_of_not_ge H₁₃),
-                 min_eq_left H₁₂, max.comm, max_eq_right' (lt_of_not_ge H₁₃)]}}},
+        rewrite [min.comm (count a b₁) (count a b₃), min_eq_left_of_lt (lt_of_not_ge H₁₃),
+                 min_eq_left H₁₂, max.comm, max_eq_right_of_lt (lt_of_not_ge H₁₃)]}}},
   { intro H₁₂, apply (@by_cases (count a b₂ ≤ count a b₃)),
     { intro H₂₃,
       rewrite [max_eq_right H₂₃],
       apply (@by_cases (count a b₁ ≤ count a b₃)),
-      { intro H₁₃, rewrite [min_eq_left H₁₃, min.comm, min_eq_left' (lt_of_not_ge H₁₂), max_eq_right' (lt_of_not_ge H₁₂)] },
-      { intro H₁₃, rewrite [min.comm, min_eq_left' (lt_of_not_ge H₁₃), min.comm, min_eq_left' (lt_of_not_ge H₁₂), max_eq_right H₂₃] } },
+      { intro H₁₃, rewrite [min_eq_left H₁₃, min.comm, min_eq_left_of_lt (lt_of_not_ge H₁₂), max_eq_right_of_lt (lt_of_not_ge H₁₂)] },
+      { intro H₁₃, rewrite [min.comm, min_eq_left_of_lt (lt_of_not_ge H₁₃), min.comm, min_eq_left_of_lt (lt_of_not_ge H₁₂), max_eq_right H₂₃] } },
     { intro H₂₃,
       have H₁₃ : count a b₁ > count a b₃, from lt.trans (lt_of_not_ge H₂₃) (lt_of_not_ge H₁₂),
-      rewrite [max.comm, max_eq_right' (lt_of_not_ge H₂₃), min.comm, min_eq_left' (lt_of_not_ge H₁₂)],
-      rewrite [min.comm, min_eq_left' H₁₃, max.comm, max_eq_right' (lt_of_not_ge H₂₃)] } }
+      rewrite [max.comm, max_eq_right_of_lt (lt_of_not_ge H₂₃), min.comm, min_eq_left_of_lt (lt_of_not_ge H₁₂)],
+      rewrite [min.comm, min_eq_left_of_lt H₁₃, max.comm, max_eq_right_of_lt (lt_of_not_ge H₂₃)] } }
 end)
 
 lemma inter.right_distrib (b₁ b₂ b₃ : bag A) : (b₁ ∪ b₂) ∩ b₃ = (b₁ ∩ b₃) ∪ (b₂ ∩ b₃) :=

@@ -61,10 +61,10 @@ theorem max_right (a b : ℕ+) : max a b ≥ b := !le_max_right
 theorem max_left (a b : ℕ+) : max a b ≥ a := !le_max_left
 
 theorem max_eq_right {a b : ℕ+} (H : a < b) : max a b = b :=
-  pnat.eq (nat.max_eq_right' H)
+  pnat.eq (nat.max_eq_right_of_lt H)
 
 theorem max_eq_left {a b : ℕ+} (H : ¬ a < b) : max a b = a :=
-  pnat.eq (nat.max_eq_left' H)
+  pnat.eq (nat.max_eq_left (le_of_not_gt H))
 
 theorem le_of_lt {a b : ℕ+} : a < b → a ≤ b := nat.le_of_lt
 

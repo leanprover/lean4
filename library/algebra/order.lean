@@ -467,6 +467,18 @@ section
     (assume H : ¬ a ≤ b,
       assert H' : b ≤ a, from le_of_lt (lt_of_not_ge H),
       by rewrite (max_eq_left H'); apply H₁)
+
+  theorem min_eq_left_of_lt {a b : A} (H : a < b) : min a b = a :=
+  min_eq_left (le_of_lt H)
+
+  theorem min_eq_right_of_lt {a b : A} (H : b < a) : min a b = b :=
+  min_eq_right (le_of_lt H)
+
+  theorem max_eq_left_of_lt {a b : A} (H : b < a) : max a b = a :=
+  max_eq_left (le_of_lt H)
+
+  theorem max_eq_right_of_le {a b : A} (H : a < b) : max a b = b :=
+  max_eq_right (le_of_lt H)
 end
 
 end algebra

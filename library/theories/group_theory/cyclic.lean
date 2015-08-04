@@ -38,11 +38,11 @@ assume Pe, or.elim (lt_or_ge i j)
   (assume Piltj, begin rewrite [sub_eq_zero_of_le (nat.le_of_lt Piltj)] end)
   (assume Pigej, begin rewrite [pow_sub a Pigej, Pe, mul.right_inv] end)
 
-lemma pow_diff_eq_one_of_pow_eq {a : A} {i j : nat} :
-  a^i = a^j → a^(diff i j) = 1 :=
-assume Pe, decidable.by_cases
-  (suppose i < j, by rewrite [if_pos this]; exact pow_sub_eq_one_of_pow_eq (eq.symm Pe))
-  (suppose ¬ i < j, by rewrite [if_neg this]; exact pow_sub_eq_one_of_pow_eq Pe)
+lemma pow_dist_eq_one_of_pow_eq {a : A} {i j : nat} :
+  a^i = a^j → a^(dist i j) = 1 :=
+assume Pe, or.elim (lt_or_ge i j)
+  (suppose i < j, by rewrite [dist_eq_sub_of_lt this]; exact pow_sub_eq_one_of_pow_eq (eq.symm Pe))
+  (suppose i ≥ j, by rewrite [dist_eq_sub_of_ge this]; exact pow_sub_eq_one_of_pow_eq Pe)
 
 lemma pow_madd {a : A} {n : nat} {i j : fin (succ n)} :
   a^(succ n) = 1 → a^(val (i + j)) = a^i * a^j :=
@@ -71,12 +71,12 @@ obtain i₁ P₁, from exists_not_of_not_forall Pninj,
 obtain i₂ P₂, from exists_not_of_not_forall P₁,
 obtain Pfe Pne, from iff.elim_left not_implies_iff_and_not P₂,
 assert Pvne : val i₁ ≠ val i₂, from assume Pveq, absurd (eq_of_veq Pveq) Pne,
-exists.intro (pred (diff i₁ i₂)) (begin
-  rewrite [succ_pred_of_pos (diff_gt_zero_of_ne Pvne)], apply and.intro,
+exists.intro (pred (dist i₁ i₂)) (begin
+  rewrite [succ_pred_of_pos (dist_pos_of_ne Pvne)], apply and.intro,
     apply lt_of_succ_lt_succ,
-    rewrite [succ_pred_of_pos (diff_gt_zero_of_ne Pvne)],
-    apply nat.lt_of_le_of_lt diff_le_max (max_lt i₁ i₂),
-    apply pow_diff_eq_one_of_pow_eq Pfe
+    rewrite [succ_pred_of_pos (dist_pos_of_ne Pvne)],
+    apply nat.lt_of_le_of_lt dist_le_max (max_lt i₁ i₂),
+    apply pow_dist_eq_one_of_pow_eq Pfe
   end)
 
 -- Another possibility is to generate a list of powers and use find to get the first
@@ -164,10 +164,10 @@ lemma eq_zero_of_pow_eq_one {a : A} : ∀ {n : nat}, a^n = 1 → n < order a →
 lemma pow_fin_inj (a : A) (n : nat) : injective (pow_fin a n) :=
 take i j,
 suppose a^(i + n) = a^(j + n),
-have    a^(diff i j) = 1, from diff_add ▸ pow_diff_eq_one_of_pow_eq this,
-have    diff i j = 0,     from
-  eq_zero_of_pow_eq_one this (nat.lt_of_le_of_lt diff_le_max (max_lt i j)),
-eq_of_veq (eq_of_dist_eq_zero (diff_eq_dist ▸ this))
+have    a^(dist i j) = 1, begin apply !dist_add_add_right ▸ (pow_dist_eq_one_of_pow_eq this) end,
+have    dist i j = 0,     from
+  eq_zero_of_pow_eq_one this (nat.lt_of_le_of_lt dist_le_max (max_lt i j)),
+eq_of_veq (eq_of_dist_eq_zero this)
 
 lemma cyc_eq_cyc (a : A) (n : nat) : cyc_pow_fin a n = cyc a :=
 assert Psub : cyc_pow_fin a n ⊆ cyc a, from subset_of_forall

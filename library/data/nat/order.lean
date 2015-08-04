@@ -91,8 +91,6 @@ theorem mul_lt_mul_of_pos_right {n m k : ℕ} (H : n < m) (Hk : k > 0) : n * k <
 
 /- min and max -/
 
--- Because these are defined in init/nat.lean, we cannot use the definitions in algebra.
-
 definition max (a b : ℕ) : ℕ := if a < b then b else a
 definition min (a b : ℕ) : ℕ := if a < b then a else b
 
@@ -472,25 +470,89 @@ decidable.by_cases
 theorem max_add_add_right (a b c : ℕ) : max (a + c) (b + c) = max a b + c :=
 by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply max_add_add_left
 
-theorem max_eq_right' {a b : ℕ} (H : a < b) : max a b = b :=
-if_pos H
+theorem min_eq_left_of_lt {a b : ℕ} (H : a < b) : min a b = a :=
+min_eq_left (le_of_lt H)
 
--- different versions will be defined in algebra
-theorem max_eq_left' {a b : ℕ} (H : ¬ a < b) : max a b = a :=
-if_neg H
+theorem min_eq_right_of_lt {a b : ℕ} (H : b < a) : min a b = b :=
+min_eq_right (le_of_lt H)
 
-lemma min_eq_left' {a b : nat} (H : a < b) : min a b = a :=
-if_pos H
+theorem max_eq_left_of_lt {a b : ℕ} (H : b < a) : max a b = a :=
+max_eq_left (le_of_lt H)
 
-lemma min_eq_right' {a b : nat} (H : ¬ a < b) : min a b = b :=
-if_neg H
+theorem max_eq_right_of_lt {a b : ℕ} (H : a < b) : max a b = b :=
+max_eq_right (le_of_lt H)
 
-/- greatest -/
+/- least and greatest -/
 
-section greatest
+section least_and_greatest
   variable (P : ℕ → Prop)
   variable [decP : ∀ n, decidable (P n)]
   include decP
+
+  -- returns the least i < n satisfying P, or n if there is none
+  definition least : ℕ → ℕ
+    | 0        := 0
+    | (succ n) := if P (least n) then least n else succ n
+
+  theorem least_of_bound {n : ℕ} (H : P n) : P (least P n) :=
+    begin
+      induction n with [m, ih],
+      rewrite ↑least,
+      apply H,
+      rewrite ↑least,
+      cases decidable.em (P (least P m)) with [Hlp, Hlp],
+      rewrite [if_pos Hlp],
+      apply Hlp,
+      rewrite [if_neg Hlp],
+      apply H
+    end
+
+  theorem least_le (n : ℕ) : least P n ≤ n:=
+    begin
+      induction n with [m, ih],
+        {rewrite ↑least},
+      rewrite ↑least,
+      cases decidable.em (P (least P m)) with [Psm, Pnsm],
+      rewrite [if_pos Psm],
+      apply le.trans ih !le_succ,
+      rewrite [if_neg Pnsm]
+    end
+
+ theorem least_of_lt {i n : ℕ} (ltin : i < n) (H : P i) : P (least P n) :=
+   begin
+     induction n with [m, ih],
+     exact absurd ltin !not_lt_zero,
+     rewrite ↑least,
+     cases decidable.em (P (least P m)) with [Psm, Pnsm],
+     rewrite [if_pos Psm],
+     apply Psm,
+     rewrite [if_neg Pnsm],
+     cases (lt_or_eq_of_le (le_of_lt_succ ltin)) with [Hlt, Heq],
+     exact absurd (ih Hlt) Pnsm,
+     rewrite Heq at H,
+     exact absurd (least_of_bound P H) Pnsm
+   end
+
+  theorem ge_least_of_lt {i n : ℕ} (ltin : i < n) (Hi : P i) : i ≥ least P n :=
+    begin
+      induction n with [m, ih],
+      exact absurd ltin !not_lt_zero,
+      rewrite ↑least,
+      cases decidable.em (P (least P m)) with [Psm, Pnsm],
+      rewrite [if_pos Psm],
+      cases (lt_or_eq_of_le (le_of_lt_succ ltin)) with [Hlt, Heq],
+      apply ih Hlt,
+      rewrite Heq,
+      apply least_le,
+      rewrite [if_neg Pnsm],
+      cases (lt_or_eq_of_le (le_of_lt_succ ltin)) with [Hlt, Heq],
+      apply absurd (least_of_lt P Hlt Hi) Pnsm,
+      rewrite Heq at Hi,
+      apply absurd (least_of_bound P Hi) Pnsm
+    end
+
+  theorem least_lt {n i : ℕ} (ltin : i < n) (Hi : P i) : least P n < n :=
+    lt_of_le_of_lt (ge_least_of_lt P ltin Hi) ltin
 
   -- returns the largest i < n satisfying P, or n if there is none.
   definition greatest : ℕ → ℕ
@@ -519,73 +581,8 @@ section greatest
           have neim : i ≠ m, from assume H : i = m, absurd (H ▸ Hi) Pnsm,
           have ltim : i < m, from lt_of_le_of_ne (le_of_lt_succ ltin) neim,
           apply ih ltim}}
- end
+  end
 
- definition least : ℕ → ℕ
-   | 0        := 0
-   | (succ n) := if P (least n) then least n else succ n
-
- theorem least_of_bound {n : ℕ} (H : P n) : P (least P n) :=
-   begin
-     induction n with [m, ih],
-     rewrite ↑least,
-     apply H,
-     rewrite ↑least,
-     cases decidable.em (P (least P m)) with [Hlp, Hlp],
-     rewrite [if_pos Hlp],
-     apply Hlp,
-     rewrite [if_neg Hlp],
-     apply H
-   end
-
- theorem bound_le_least (n : ℕ) : n ≥ least P n :=
-   begin
-     induction n with [m, ih],
-     rewrite ↑least, apply le.refl,
-     rewrite ↑least,
-     cases decidable.em (P (least P m)) with [Psm, Pnsm],
-     rewrite [if_pos Psm],
-     apply le.trans ih !le_succ,
-     rewrite [if_neg Pnsm],
-     apply le.refl
-   end
-
- theorem least_of_lt {i n : ℕ} (ltin : i < n) (H : P i) : P (least P n) :=
-   begin
-     induction n with [m, ih],
-     exact absurd ltin !not_lt_zero,
-     rewrite ↑least,
-     cases decidable.em (P (least P m)) with [Psm, Pnsm],
-     rewrite [if_pos Psm],
-     apply Psm,
-     rewrite [if_neg Pnsm],
-     cases (lt_or_eq_of_le (le_of_lt_succ ltin)) with [Hlt, Heq],
-     exact absurd (ih Hlt) Pnsm,
-     rewrite Heq at H,
-     exact absurd (least_of_bound P H) Pnsm
-   end
-
- theorem ge_least_of_lt {i n : ℕ} (ltin : i < n) (Hi : P i) : i ≥ least P n :=
-   begin
-     induction n with [m, ih],
-     exact absurd ltin !not_lt_zero,
-     rewrite ↑least,
-     cases decidable.em (P (least P m)) with [Psm, Pnsm],
-     rewrite [if_pos Psm],
-     cases (lt_or_eq_of_le (le_of_lt_succ ltin)) with [Hlt, Heq],
-     apply ih Hlt,
-     rewrite Heq,
-     apply bound_le_least,
-     rewrite [if_neg Pnsm],
-     cases (lt_or_eq_of_le (le_of_lt_succ ltin)) with [Hlt, Heq],
-     apply absurd (least_of_lt P Hlt Hi) Pnsm,
-     rewrite Heq at Hi,
-     apply absurd (least_of_bound P Hi) Pnsm
-   end
-
- theorem least_lt {n i : ℕ} (ltin : i < n) (Hi : P i) : least P n < n :=
-   lt_of_le_of_lt (ge_least_of_lt P ltin Hi) ltin
-
-end greatest
+end least_and_greatest
 
 end nat

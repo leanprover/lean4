@@ -200,11 +200,13 @@ structure ordered_comm_group [class] (A : Type) extends add_comm_group A, order_
 (add_le_add_left : ∀a b, le a b → ∀c, le (add c a) (add c b))
 (add_lt_add_left : ∀a b, lt a b → ∀ c, lt (add c a) (add c b))
 
-theorem ordered_comm_group.le_of_add_le_add_left [s : ordered_comm_group A] {a b c : A} (H : a + b ≤ a + c) : b ≤ c :=
+theorem ordered_comm_group.le_of_add_le_add_left [s : ordered_comm_group A] {a b c : A}
+  (H : a + b ≤ a + c) : b ≤ c :=
 assert H' : -a + (a + b) ≤ -a + (a + c), from ordered_comm_group.add_le_add_left _ _ H _,
 by rewrite *neg_add_cancel_left at H'; exact H'
 
-theorem ordered_comm_group.lt_of_add_lt_add_left [s : ordered_comm_group A] {a b c : A} (H : a + b < a + c) : b < c :=
+theorem ordered_comm_group.lt_of_add_lt_add_left [s : ordered_comm_group A] {a b c : A}
+  (H : a + b < a + c) : b < c :=
 assert H' : -a + (a + b) < -a + (a + c), from ordered_comm_group.add_lt_add_left _ _ H _,
 by rewrite *neg_add_cancel_left at H'; exact H'
 
@@ -555,15 +557,27 @@ section
     !neg_add ▸ neg_le_neg (le_add_of_nonneg_left (le_of_lt H))
 end
 
-/- partially ordered groups with min and max -/
+/- linear ordered group with decidable order -/
 
-structure lattice_ordered_comm_group [class] (A : Type)
-    extends ordered_comm_group A, lattice A
+structure decidable_linear_ordered_comm_group [class] (A : Type)
+    extends add_comm_group A, decidable_linear_order A :=
+    (add_le_add_left : ∀ a b, le a b → ∀ c, le (add c a) (add c b))
+    (add_lt_add_left : ∀ a b, lt a b → ∀ c, lt (add c a) (add c b))
+
+definition decidable_linear_ordered_comm_group.to_ordered_comm_group
+      [trans-instance] [reducible] [coercion]
+   (A : Type) [s : decidable_linear_ordered_comm_group A] : ordered_comm_group A :=
+⦃ ordered_comm_group, s,
+  le_of_lt := @le_of_lt A s,
+  lt_of_le_of_lt := @lt_of_le_of_lt A s,
+  lt_of_lt_of_le := @lt_of_lt_of_le A s ⦄
 
 section
-  variables [s : lattice_ordered_comm_group A]
-  variables (a b c : A)
+  variables [s : decidable_linear_ordered_comm_group A]
+  variables {a b c d e : A}
   include s
+
+  /- these can be generalized to a lattice ordered group -/
 
   theorem min_add_add_left : min (a + b) (a + c) = a + min b c :=
   eq.symm (eq_min
@@ -645,32 +659,8 @@ section
 
   theorem ne_zero_of_abs_ne_zero {a : A} (H : abs a ≠ 0) : a ≠ 0 :=
    assume Ha, H (Ha⁻¹ ▸ abs_zero)
-end
 
-/- linear ordered group with decidable order -/
-
-structure decidable_linear_ordered_comm_group [class] (A : Type)
-    extends add_comm_group A, decidable_linear_order A :=
-    (add_le_add_left : ∀ a b, le a b → ∀ c, le (add c a) (add c b))
-    (add_lt_add_left : ∀ a b, lt a b → ∀ c, lt (add c a) (add c b))
-
-private theorem add_le_add_left' (A : Type) (s : decidable_linear_ordered_comm_group A) (a b : A) :
-                a ≤ b → (∀ c : A, c + a ≤ c + b) :=
-  decidable_linear_ordered_comm_group.add_le_add_left a b
-
-definition decidable_linear_ordered_comm_group.to_lattice_ordered_comm_group
-      [trans-instance] [reducible] [coercion]
-   (A : Type) [s : decidable_linear_ordered_comm_group A] : lattice_ordered_comm_group A :=
-⦃ lattice_ordered_comm_group, s, decidable_linear_order.to_lattice,
-  le_of_lt := @le_of_lt A s,
-  add_le_add_left := add_le_add_left' A s,
-  lt_of_le_of_lt := @lt_of_le_of_lt A s,
-  lt_of_lt_of_le := @lt_of_lt_of_le A s ⦄
-
-section
-  variables [s : decidable_linear_ordered_comm_group A]
-  variables {a b c d e : A}
-  include s
+  /- these assume a linear order -/
 
   theorem eq_zero_of_neg_eq (H : -a = a) : a = 0 :=
   lt.by_cases

@@ -3,10 +3,12 @@ algebra
 
 Algebraic structures.
 
+* [prio](prio.lean) : priority for algebraic operations
 * [function](function.lean)
 * [relation](relation.lean)
 * [binary](binary.lean) : binary operations
-* [wf](wf.lean) : well-founded relations
+* [order](order.lean)
+* [lattice](lattice.lean)
 * [group](group.lean)
 * [group_power](group_power.lean) : nat and int powers
 * [group_bigops](group_bigops.lean) : finite products and sums
@@ -19,3 +21,4 @@ Algebraic structures.
 
 * [category](category/category.md) : category theory
 
+We set a low priority for algebraic operations, so that the elaborator tries concrete structures first.

@@ -12,7 +12,7 @@ namespace nat
 section migrate_algebra
   open [classes] algebra
   local attribute nat.comm_semiring [instance]
-  local attribute nat.linear_ordered_semiring [instance]
+  local attribute nat.decidable_linear_ordered_semiring [instance]
 
   definition pow (a : ℕ) (n : ℕ) : ℕ := algebra.pow a n
   infix ^ := pow

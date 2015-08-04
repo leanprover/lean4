@@ -516,10 +516,10 @@ calc empty ∩ b = b ∩ empty : inter.comm
 
 lemma append_union_inter (b₁ b₂ : bag A) : (b₁ ∪ b₂) ++ (b₁ ∩ b₂) = b₁ ++ b₂ :=
 bag.ext (λ a, begin
-  rewrite [*count_append, count_inter, count_union], unfold [max, min],
-  apply (@by_cases (count a b₁ < count a b₂)),
-  { intro H, rewrite [*if_pos H, add.comm] },
-  { intro H, rewrite [*if_neg H, add.comm] }
+  rewrite [*count_append, count_inter, count_union],
+  apply (or.elim (lt_or_ge (count a b₁) (count a b₂))),
+  { intro H, rewrite [min_eq_left_of_lt H, max_eq_right_of_lt H, add.comm] },
+  { intro H, rewrite [min_eq_right H, max_eq_left H, add.comm] }
 end)
 
 lemma inter.left_distrib (b₁ b₂ b₃ : bag A) : b₁ ∩ (b₂ ∪ b₃) = (b₁ ∩ b₂) ∪ (b₁ ∩ b₃) :=
@@ -620,10 +620,10 @@ open decidable
 
 lemma union_subbag_append (b₁ b₂ : bag A) : b₁ ∪ b₂ ⊆ b₁ ++ b₂ :=
 subbag.intro (take a, begin
-  rewrite [count_append, count_union], unfold max,
-  exact by_cases
-   (suppose count a b₁ < count a b₂,   by rewrite [if_pos this]; apply le_add_left)
-   (suppose ¬ count a b₁ < count a b₂, by rewrite [if_neg this]; apply le_add_right)
+  rewrite [count_append, count_union],
+  exact (or.elim !lt_or_ge)
+   (suppose count a b₁ < count a b₂,   by rewrite [max_eq_right_of_lt this]; apply le_add_left)
+   (suppose count a b₁ ≥ count a b₂, by rewrite [max_eq_left this]; apply le_add_right)
 end)
 
 lemma subbag_insert (a : A) (b : bag A) : b ⊆ insert a b :=

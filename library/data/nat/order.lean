@@ -90,7 +90,7 @@ theorem mul_lt_mul_of_pos_right {n m k : ℕ} (H : n < m) (Hk : k > 0) : n * k <
 !mul.comm ▸ !mul.comm ▸ mul_lt_mul_of_pos_left H Hk
 
 /- min and max -/
-
+/-
 definition max (a b : ℕ) : ℕ := if a < b then b else a
 definition min (a b : ℕ) : ℕ := if a < b then a else b
 
@@ -131,16 +131,17 @@ lt.by_cases
 theorem le_max_left (a b : ℕ) : a ≤ max a b :=
 if h : a < b then le_of_lt (eq.rec_on (eq_max_right h) h)
 else (eq_max_left h) ▸ !le.refl
+-/
 
-/- nat is an instance of a linearly ordered semiring and a lattice-/
+/- nat is an instance of a linearly ordered semiring and a lattice -/
 
 section migrate_algebra
   open [classes] algebra
   local attribute nat.comm_semiring [instance]
 
-  protected definition linear_ordered_semiring [reducible] :
-    algebra.linear_ordered_semiring nat :=
-  ⦃ algebra.linear_ordered_semiring, nat.comm_semiring,
+  protected definition decidable_linear_ordered_semiring [reducible] :
+    algebra.decidable_linear_ordered_semiring nat :=
+  ⦃ algebra.decidable_linear_ordered_semiring, nat.comm_semiring,
     add_left_cancel            := @add.cancel_left,
     add_right_cancel           := @add.cancel_right,
     lt                         := lt,
@@ -162,8 +163,10 @@ section migrate_algebra
     mul_le_mul_of_nonneg_left  := (take a b c H1 H2, mul_le_mul_left c H1),
     mul_le_mul_of_nonneg_right := (take a b c H1 H2, mul_le_mul_right c H1),
     mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left,
-    mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right ⦄
+    mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right,
+    decidable_lt               := nat.decidable_lt ⦄
 
+/-
   protected definition lattice [reducible] : algebra.lattice nat :=
   ⦃ algebra.lattice, nat.linear_ordered_semiring,
     min          := min,
@@ -177,6 +180,11 @@ section migrate_algebra
 
   local attribute nat.linear_ordered_semiring [instance]
   local attribute nat.lattice [instance]
+-/
+  local attribute nat.decidable_linear_ordered_semiring [instance]
+
+  definition min : ℕ → ℕ → ℕ := algebra.min
+  definition max : ℕ → ℕ → ℕ := algebra.max
 
   migrate from algebra with nat
     replacing dvd → dvd, has_le.ge → ge, has_lt.gt → gt, min → min, max → max
@@ -417,32 +425,17 @@ theorem zero_max [simp] (a : ℕ) : max 0 a = a :=
 by rewrite [max_eq_right !zero_le]
 
 theorem min_succ_succ [simp] (a b : ℕ) : min (succ a) (succ b) = succ (min a b) :=
-by_cases
-  (suppose a < b,   by unfold min; rewrite [if_pos this, if_pos (succ_lt_succ this)])
-  (suppose ¬ a < b,
-   assert h : ¬ succ a < succ b, from assume h, absurd (lt_of_succ_lt_succ h) this,
-   by unfold min; rewrite [if_neg this, if_neg h])
+or.elim !lt_or_ge
+  (suppose a < b, by rewrite [min_eq_left_of_lt this, min_eq_left_of_lt (succ_lt_succ this)])
+  (suppose a ≥ b, by rewrite [min_eq_right this, min_eq_right (succ_le_succ this)])
 
 theorem max_succ_succ [simp] (a b : ℕ) : max (succ a) (succ b) = succ (max a b) :=
-by_cases
-  (suppose a < b,   by unfold max; rewrite [if_pos this, if_pos (succ_lt_succ this)])
-  (suppose ¬ a < b,
-   assert ¬ succ a < succ b, from assume h, absurd (lt_of_succ_lt_succ h) this,
-   by unfold max; rewrite [if_neg `¬ a < b`, if_neg `¬ succ a < succ b`])
+or.elim !lt_or_ge
+  (suppose a < b, by rewrite [max_eq_right_of_lt this, max_eq_right_of_lt (succ_lt_succ this)])
+  (suppose a ≥ b, by rewrite [max_eq_left this, max_eq_left (succ_le_succ this)])
 
-theorem lt_min {a b c : ℕ} (H₁ : a < b) (H₂ : a < c) : a < min b c :=
-decidable.by_cases
-  (suppose b ≤ c, by rewrite (min_eq_left this); apply H₁)
-  (suppose ¬ b ≤ c,
-   assert c ≤ b, from le_of_lt (lt_of_not_ge this),
-   by rewrite (min_eq_right this); apply H₂)
-
-theorem max_lt {a b c : ℕ} (H₁ : a < c) (H₂ : b < c) : max a b < c :=
-decidable.by_cases
-  (suppose a ≤ b, by rewrite (max_eq_right this); apply H₂)
-  (suppose ¬ a ≤ b,
-   assert b ≤ a, from le_of_lt (lt_of_not_ge this),
-   by rewrite (max_eq_left this); apply H₁)
+/- In algebra.ordered_group, these next four are only proved for additive groups, not additive
+   semigroups. -/
 
 theorem min_add_add_left (a b c : ℕ) : min (a + b) (a + c) = a + min b c :=
 decidable.by_cases
@@ -469,18 +462,6 @@ decidable.by_cases
 
 theorem max_add_add_right (a b c : ℕ) : max (a + c) (b + c) = max a b + c :=
 by rewrite [add.comm a c, add.comm b c, add.comm _ c]; apply max_add_add_left
-
-theorem min_eq_left_of_lt {a b : ℕ} (H : a < b) : min a b = a :=
-min_eq_left (le_of_lt H)
-
-theorem min_eq_right_of_lt {a b : ℕ} (H : b < a) : min a b = b :=
-min_eq_right (le_of_lt H)
-
-theorem max_eq_left_of_lt {a b : ℕ} (H : b < a) : max a b = a :=
-max_eq_left (le_of_lt H)
-
-theorem max_eq_right_of_lt {a b : ℕ} (H : a < b) : max a b = b :=
-max_eq_right (le_of_lt H)
 
 /- least and greatest -/
 

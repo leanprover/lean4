@@ -15,8 +15,10 @@ namespace algebra
 
 variable {A : Type}
 
-definition absurd_a_lt_a {B : Type} {a : A} [s : strict_order A] (H : a < a) : B :=
+private definition absurd_a_lt_a {B : Type} {a : A} [s : strict_order A] (H : a < a) : B :=
 absurd H (lt.irrefl a)
+
+/- semiring structures -/
 
 structure ordered_semiring [class] (A : Type)
   extends semiring A, ordered_cancel_comm_monoid A :=
@@ -186,6 +188,11 @@ section
     (assume H2 : a > 0,
       not_le_of_gt (mul_pos H2 H1) H)
 end
+
+structure decidable_linear_ordered_semiring [class] (A : Type)
+  extends linear_ordered_semiring A, decidable_linear_order A
+
+/- ring structures -/
 
 structure ordered_ring [class] (A : Type)
     extends ring A, ordered_comm_group A, zero_ne_one_class A :=

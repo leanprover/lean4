@@ -18,8 +18,10 @@ while [ $i -lt $size ]; do
     let i=i+1
     produced=bag.$line.$col.produced.out
     expected=bag.$line.$col.expected.out
-    $LEAN --line=$line --col=$col --goal bag.lean &> $produced
-    cp $produced $expected
+    if ! $LEAN --line=$line --col=$col --goal bag.lean &> $produced; then
+        echo "ERROR: lean failed"
+        exit 1
+    fi
     if test -f $expected; then
         if diff --ignore-all-space -I "executing external script" "$produced" "$expected"; then
             echo "-- checked"

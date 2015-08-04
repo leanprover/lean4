@@ -182,6 +182,13 @@ notation `{` binder ∈ s `|` r:(scoped:1 p, filter p s) `}` := r
 definition insert (x : X) (a : set X) : set X := {y : X | y = x ∨ y ∈ a}
 notation `'{`:max a:(foldr `,` (x b, insert x b) ∅) `}`:0 := a
 
+/- filter -/
+
+theorem eq_filter_of_subset {s t : set X} (ssubt : s ⊆ t) : s = {x ∈ t | x ∈ s} :=
+setext (take x, iff.intro
+  (suppose x ∈ s, and.intro (ssubt this) this)
+  (suppose x ∈ {x ∈ t | x ∈ s}, and.right this))
+
 /- set difference -/
 
 definition diff (s t : set X) : set X := {x ∈ s | x ∉ t}
@@ -195,6 +202,8 @@ and.right H
 
 theorem mem_diff {s t : set X} {x : X} (H1 : x ∈ s) (H2 : x ∉ t) : x ∈ s \ t :=
 and.intro H1 H2
+
+theorem diff_eq (s t : set X) : s \ t = {x ∈ s | x ∉ t} := rfl
 
 theorem mem_diff_iff (s t : set X) (x : X) : x ∈ s \ t ↔ x ∈ s ∧ x ∉ t := !iff.refl
 

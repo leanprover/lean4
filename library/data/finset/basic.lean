@@ -41,6 +41,9 @@ quot (finset.nodup_list_setoid A)
 
 namespace finset
 
+-- give finset notation higher priority than set notation, so that it is tried first
+protected definition prio : num := num.succ std.priority.default
+
 definition to_finset_of_nodup (l : list A) (n : nodup l) : finset A :=
 ⟦to_nodup_list_of_nodup n⟧
 
@@ -71,8 +74,8 @@ quot.lift_on s (λ l, a ∈ elt_of l)
    (λ ainl₁, mem_perm e ainl₁)
    (λ ainl₂, mem_perm (perm.symm e) ainl₂)))
 
-infix `∈` := mem
-notation a ∉ b := ¬ mem a b
+infix [priority finset.prio] `∈` := mem
+notation [priority finset.prio] a ∉ b := ¬ mem a b
 
 theorem mem_of_mem_list {a : A} {l : nodup_list A} : a ∈ elt_of l → a ∈ ⟦l⟧ :=
 λ ainl, ainl
@@ -117,7 +120,7 @@ quot.induction_on₂ s₁ s₂ (λ l₁ l₂ e, quot.sound (perm_ext (has_proper
 definition empty : finset A :=
 to_finset_of_nodup [] nodup_nil
 
-notation `∅` := !empty
+notation [priority finset.prio] `∅` := !empty
 
 theorem not_mem_empty [simp] (a : A) : a ∉ ∅ :=
 λ aine : a ∈ ∅, aine
@@ -166,8 +169,7 @@ quot.lift_on s
   (λ (l₁ l₂ : nodup_list A) (p : l₁ ~ l₂), quot.sound (perm_insert a p))
 
 -- set builder notation
-notation `'{`:max a:(foldr `,` (x b, insert x b) ∅) `}`:0 := a
--- notation `⦃` a:(foldr `,` (x b, insert x b) ∅) `⦄` := a
+notation [priority finset.prio] `'{`:max a:(foldr `,` (x b, insert x b) ∅) `}`:0 := a
 
 theorem mem_insert (a : A) (s : finset A) : a ∈ insert a s :=
 quot.induction_on s
@@ -338,7 +340,7 @@ quot.lift_on₂ s₁ s₂
                        (nodup_union_of_nodup_of_nodup (has_property l₁) (has_property l₂)))
   (λ v₁ v₂ w₁ w₂ p₁ p₂, quot.sound (perm_union p₁ p₂))
 
-notation s₁ ∪ s₂ := union s₁ s₂
+infix [priority finset.prio] ∪ := union
 
 theorem mem_union_left {a : A} {s₁ : finset A} (s₂ : finset A) : a ∈ s₁ → a ∈ s₁ ∪ s₂ :=
 quot.induction_on₂ s₁ s₂ (λ l₁ l₂ ainl₁, list.mem_union_left _ ainl₁)
@@ -415,7 +417,7 @@ quot.lift_on₂ s₁ s₂
                        (nodup_inter_of_nodup _ (has_property l₁)))
   (λ v₁ v₂ w₁ w₂ p₁ p₂, quot.sound (perm_inter p₁ p₂))
 
-notation s₁ ∩ s₂ := inter s₁ s₂
+infix [priority finset.prio] ∩ := inter
 
 theorem mem_of_mem_inter_left {a : A} {s₁ s₂ : finset A} : a ∈ s₁ ∩ s₂ → a ∈ s₁ :=
 quot.induction_on₂ s₁ s₂ (λ l₁ l₂ ainl₁l₂, list.mem_of_mem_inter_left ainl₁l₂)
@@ -544,7 +546,7 @@ quot.lift_on₂ s₁ s₂
     (λ s₁ a i, mem_perm p₂ (s₁ a (mem_perm (perm.symm p₁) i)))
     (λ s₂ a i, mem_perm (perm.symm p₂) (s₂ a (mem_perm p₁ i)))))
 
-infix `⊆` := subset
+infix [priority finset.prio] `⊆` := subset
 
 theorem empty_subset (s : finset A) : ∅ ⊆ s :=
 quot.induction_on s (λ l, list.nil_sub (elt_of l))

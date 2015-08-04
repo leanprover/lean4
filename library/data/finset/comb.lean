@@ -20,7 +20,7 @@ definition image (f : A → B) (s : finset A) : finset B :=
 quot.lift_on s
   (λ l, to_finset (list.map f (elt_of l)))
   (λ l₁ l₂ p, quot.sound (perm_erase_dup_of_perm (perm_map _ p)))
-notation f `'[`:max a `]` := image f a
+notation [priority finset.prio] f `'[`:max a `]` := image f a
 
 theorem image_empty (f : A → B) : image f ∅ = ∅ :=
 rfl
@@ -125,7 +125,7 @@ quot.lift_on s
     (list.nodup_filter p (subtype.has_property l)))
   (λ l₁ l₂ u, quot.sound (perm.perm_filter u))
 
-notation `{` binder ∈ s `|` r:(scoped:1 p, filter p s) `}` := r
+notation [priority finset.prio] `{` binder ∈ s `|` r:(scoped:1 p, filter p s) `}` := r
 
 theorem filter_empty : filter p ∅ = ∅ := rfl
 
@@ -157,8 +157,20 @@ by rewrite [*mem_filter_iff, mem_union_iff, and.right_distrib]
 
 end filter
 
-theorem mem_singleton_eq' {A : Type} [deceq : decidable_eq A] (x a : A) : x ∈ '{a} = (x = a) :=
+section
+
+variables {A : Type} [deceqA : decidable_eq A]
+include deceqA
+
+theorem eq_filter_of_subset {s t : finset A} (ssubt : s ⊆ t) : s = {x ∈ t | x ∈ s} :=
+ext (take x, iff.intro
+  (suppose x ∈ s, mem_filter_of_mem (mem_of_subset_of_mem ssubt this) this)
+  (suppose x ∈ {x ∈ t | x ∈ s}, of_mem_filter this))
+
+theorem mem_singleton_eq' (x a : A) : x ∈ '{a} = (x = a) :=
 by rewrite [mem_insert_eq, mem_empty_eq, or_false]
+
+end
 
 /- set difference -/
 section diff
@@ -166,7 +178,7 @@ variables {A : Type} [deceq : decidable_eq A]
 include deceq
 
 definition diff (s t : finset A) : finset A := {x ∈ s | x ∉ t}
-infix `\`:70 := diff
+infix [priority finset.prio] `\`:70 := diff
 
 theorem mem_of_mem_diff {s t : finset A} {x : A} (H : x ∈ s \ t) : x ∈ s :=
 mem_of_mem_filter H
@@ -309,7 +321,7 @@ quot.lift_on₂ s₁ s₂
                        (nodup_product (has_property l₁) (has_property l₂)))
   (λ v₁ v₂ w₁ w₂ p₁ p₂, quot.sound (perm_product p₁ p₂))
 
-infix * := product
+infix [priority finset.prio] * := product
 
 theorem empty_product (s : finset B) : @empty A * s = ∅ :=
 quot.induction_on s (λ l, rfl)

@@ -247,3 +247,9 @@ namespace nat
   theorem sub_lt_succ_iff_true [simp] (a b : ℕ) : a - b < succ a ↔ true :=
   iff_true_intro !sub_lt_succ
 end nat
+
+namespace nat_esimp
+  open nat
+  attribute add mul sub [unfold 2]
+  attribute of_num [unfold 1]
+end nat_esimp

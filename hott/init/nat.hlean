@@ -290,3 +290,9 @@ namespace nat
 
   lemma sub_lt_succ (a b : ℕ) : a - b < succ a := lt_succ_of_le (sub_le a b)
 end nat
+
+namespace nat_esimp
+  open nat
+  attribute add mul sub [unfold 2]
+  attribute of_num [unfold 1]
+end nat_esimp

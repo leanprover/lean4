@@ -314,6 +314,7 @@ order for the change to take effect."
   ("0"   . ("∅"))
   ("empty"   . ("∅"))
   ("C"   . ("∁"))
+  ("powerset" . ("𝒫"))
 
   ;; Corners, ceilings and floors.
 

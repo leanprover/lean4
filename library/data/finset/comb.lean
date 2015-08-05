@@ -393,6 +393,8 @@ quot.lift_on s
   (λ l, list_powerset (elt_of l))
   (λ l₁ l₂ p, list_powerset_eq_list_powerset_of_perm p)
 
+notation [priority finset.prio] `𝒫` s := powerset s
+
 theorem powerset_empty : powerset (∅ : finset A) = '{∅} := rfl
 
 theorem powerset_insert {a : A} {s : finset A} : a ∉ s →

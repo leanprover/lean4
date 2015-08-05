@@ -209,6 +209,11 @@ theorem mem_diff_iff (s t : set X) (x : X) : x ∈ s \ t ↔ x ∈ s ∧ x ∉ t
 
 theorem mem_diff_eq (s t : set X) (x : X) : x ∈ s \ t = (x ∈ s ∧ x ∉ t) := rfl
 
+/- powerset -/
+
+definition powerset (s : set X) : set (set X) := {x : set X | x ⊆ s}
+notation `𝒫` s := powerset s
+
 /- large unions -/
 
 section

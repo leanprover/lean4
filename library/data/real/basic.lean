@@ -49,20 +49,17 @@ theorem squeeze {a b : ℚ} (H : ∀ j : ℕ+, a ≤ b + j⁻¹ + j⁻¹ + j⁻�
   begin
     apply rat.le_of_not_gt,
     intro Hb,
-    apply (exists.elim (find_midpoint Hb)),
-    intro c Hc,
-    apply (exists.elim (find_thirds b c (and.right Hc))),
-    intro j Hbj,
+    cases find_midpoint Hb with [c, Hc],
+    cases find_thirds b c (and.right Hc) with [j, Hbj],
     have Ha : a > b + j⁻¹ + j⁻¹ + j⁻¹, from lt.trans Hbj (and.left Hc),
-    exact absurd !H (not_le_of_gt Ha)
+    apply (not_le_of_gt Ha) !H
   end
 
 theorem squeeze_2 {a b : ℚ} (H : ∀ ε : ℚ, ε > 0 → a ≥ b - ε) : a ≥ b :=
   begin
     apply rat.le_of_not_gt,
     intro Hb,
-    apply (exists.elim (find_midpoint Hb)),
-    intro c Hc,
+    cases find_midpoint Hb with [c, Hc],
     let Hc' := H c (and.right Hc),
     apply (rat.not_le_of_gt (and.left Hc)) (iff.mpr !le_add_iff_sub_right_le Hc')
   end
@@ -145,7 +142,7 @@ theorem bdd_of_eq {s t : seq} (H : s ≡ t) :
   begin
     intros [j, n, Hn],
     apply rat.le.trans,
-    apply H n,
+    apply H,
     rewrite -(add_halves j),
     apply rat.add_le_add,
     apply inv_ge_of_le Hn,
@@ -199,7 +196,7 @@ theorem eq_of_bdd_var {s t : seq} (Hs : regular s) (Ht : regular t)
     apply eq_of_bdd,
     repeat assumption,
     intros,
-    apply H j⁻¹,
+    apply H,
     apply inv_pos
   end
 
@@ -472,8 +469,6 @@ theorem s_mul_assoc_lemma_2 {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu 
     apply Hs,
     apply abs_nonneg,
     apply rat.mul_nonneg,
-    repeat (apply Kq_bound_nonneg | assumption),
-    repeat apply rat.mul_le_mul,
     repeat (assumption | apply rat.mul_le_mul | apply Kq_bound | apply Kq_bound_nonneg |
            apply abs_nonneg),
     apply Hu,

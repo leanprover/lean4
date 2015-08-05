@@ -37,7 +37,7 @@
 
 (defun lean-create-temp-in-system-tempdir (file-name prefix)
   "Create a temp lean file and return its name"
-  (make-temp-file (or prefix "flymake") nil ".lean"))
+  (make-temp-file (or prefix "flymake") nil (f-ext file-name)))
 
 (defun lean-execute (&optional arg)
   "Execute Lean in the current buffer"

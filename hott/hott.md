@@ -10,11 +10,14 @@ files and directories:
 * [algebra](algebra/algebra.md) : algebraic structures
 * [arity](arity.hlean) : a file containing theorems about functions with arity 2 or higher
 
+See [book.md](book.md) for an overview of the sections of the [HoTT book](http://homotopytypetheory.org/book/) which have been covered.
+
 Lean's homotopy type theory kernel is a version of Martin-Löf Type Theory with:
 
 * universe polymorphism
 * a non-cumulative hierarchy of universes, `Type 0`, `Type 1`, ...
 * inductively defined types
+* [Two HITs](init/hit.hlean): `n`-truncation and quotients.
 
 Note that there is no proof-irrelevant or impredicative universe.
 

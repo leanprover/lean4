@@ -7,7 +7,7 @@ Ported from Coq HoTT
 -/
 
 prelude
-import .function .datatypes .relation .tactic
+import .function .tactic
 
 open function eq
 
@@ -557,10 +557,10 @@ namespace eq
 
   /- Whiskering -/
 
-  definition whisker_left (p : x = y) {q r : y = z} (h : q = r) : p ⬝ q = p ⬝ r :=
+  definition whisker_left [unfold 8] (p : x = y) {q r : y = z} (h : q = r) : p ⬝ q = p ⬝ r :=
   idp ◾ h
 
-  definition whisker_right {p q : x = y} (h : p = q) (r : y = z) : p ⬝ r = q ⬝ r :=
+  definition whisker_right [unfold 7] {p q : x = y} (h : p = q) (r : y = z) : p ⬝ r = q ⬝ r :=
   h ◾ idp
 
   -- Unwhiskering, a.k.a. cancelling

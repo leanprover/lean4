@@ -67,6 +67,9 @@ namespace trunc
              (λyy, trunc.rec_on yy (λy, ap tr !right_inv))
              (λxx, trunc.rec_on xx (λx, ap tr !left_inv))
 
+  definition trunc_homotopy {f g : X → Y} (p : f ~ g) : trunc_functor n f ~ trunc_functor n g :=
+  λxx, trunc.rec_on xx (λx, ap tr (p x))
+
   section
     open equiv.ops
     definition trunc_equiv_trunc (f : X ≃ Y) : trunc n X ≃ trunc n Y :=

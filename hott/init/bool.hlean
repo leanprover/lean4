@@ -7,6 +7,8 @@ Authors: Leonardo de Moura
 prelude
 import init.reserved_notation
 
+-- this is not in init.types, because that file depends on init.num,
+-- which depends on these definitions
 namespace bool
   definition cond {A : Type} (b : bool) (t e : A) :=
   bool.rec_on b e t

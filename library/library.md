@@ -21,6 +21,7 @@ Lean's default logical framework is a version of the Calculus of Constructions w
 * universe polymorphism
 * a non-cumulative hierarchy of universes, `Type 1`, `Type 2`, ... above `Prop`
 * inductively defined types
+* quotient types
 
 The `standard` library does not rely on any axioms beyond this framework, and is
 hence constructive. It includes theories of the natural numbers, integers,

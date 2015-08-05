@@ -603,8 +603,14 @@ section
   theorem abs_dvd_iff (a b : A) : abs a ∣ b ↔ a ∣ b :=
   abs.by_cases !iff.refl !neg_dvd_iff_dvd
 
+  theorem abs_dvd_of_dvd {a b : A} : a ∣ b → abs a ∣ b :=
+    iff.mpr !abs_dvd_iff
+
   theorem dvd_abs_iff (a b : A) : a ∣ abs b ↔ a ∣ b :=
   abs.by_cases !iff.refl !dvd_neg_iff_dvd
+
+  theorem dvd_abs_of_dvd {a b : A} : a ∣ b → a ∣ abs b :=
+    iff.mpr !dvd_abs_iff
 
   theorem abs_mul (a b : A) : abs (a * b) = abs a * abs b :=
   or.elim (le.total 0 a)

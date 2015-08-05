@@ -399,7 +399,6 @@ section discrete_linear_ordered_field
     have H3 : 0 < -a, from pos_of_div_pos H2,
     neg_of_neg_pos H3
 
--- why is mul_le_mul under ordered_ring namespace?
   theorem le_of_div_le (H : 0 < a) (Hl : 1 / a ≤ 1 / b) : b ≤ a :=
     have Hb : 0 < b, from pos_of_div_pos (calc
       0   < 1 / a : div_pos_of_pos H
@@ -407,10 +406,9 @@ section discrete_linear_ordered_field
     have H' : 1 ≤ a / b, from (calc
       1   = a / a       : div_self (ne.symm (ne_of_lt H))
       ... = a * (1 / a) :  div_eq_mul_one_div
-      ... ≤ a * (1 / b) : ordered_ring.mul_le_mul_of_nonneg_left Hl (le_of_lt H)
+      ... ≤ a * (1 / b) : mul_le_mul_of_nonneg_left Hl (le_of_lt H)
       ... = a / b       : div_eq_mul_one_div
       ), le_of_one_le_div Hb H'
-
 
   theorem le_of_div_le_neg (H : b < 0) (Hl : 1 / a ≤ 1 / b) : b ≤ a :=
     assert Ha : a ≠ 0, from ne_of_lt (neg_of_div_neg (calc
@@ -480,14 +478,13 @@ section discrete_linear_ordered_field
 
   theorem div_lt_div_of_pos_of_lt_of_pos (Hb : 0 < b) (H : b < a) (Hc : 0 < c) : c / a < c / b :=
     begin
-      apply iff.mp (sub_neg_iff_lt _ _),
-      rewrite [div_eq_mul_one_div, {c / b}div_eq_mul_one_div],
-      rewrite -mul_sub_left_distrib,
+      apply iff.mp !sub_neg_iff_lt,
+      rewrite [div_eq_mul_one_div, {c / b}div_eq_mul_one_div, -mul_sub_left_distrib],
       apply mul_neg_of_pos_of_neg,
       exact Hc,
-      apply iff.mpr (sub_neg_iff_lt _ _),
+      apply iff.mpr !sub_neg_iff_lt,
       apply div_lt_div_of_lt,
-      exact Hb, exact H
+      repeat assumption
     end
 
   theorem div_mul_le_div_mul_of_div_le_div_pos' {d e : A} (H : a / b ≤ c / d)
@@ -507,7 +504,7 @@ section discrete_linear_ordered_field
           by rewrite [abs_of_neg H', abs_of_neg (div_neg_of_neg H'),
                          -(one_div_neg_eq_neg_one_div (ne_of_lt H'))]
        else
-         have Heq [visible] : a = 0, from eq_of_le_of_ge (le_of_not_gt H) (le_of_not_gt H'),
+         assert Heq : a = 0, from eq_of_le_of_ge (le_of_not_gt H) (le_of_not_gt H'),
          by rewrite [Heq, div_zero, *abs_zero, div_zero])
 
   theorem ge_sub_of_abs_sub_le_left (H : abs (a - b) ≤ c) : a ≥ b - c :=

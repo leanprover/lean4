@@ -200,10 +200,19 @@ section division_ring
       a / b = b / b : this
         ... = 1     : div_self Hb)
 
+  theorem eq_of_div_eq_one (Hb : b ≠ 0) : a / b = 1 → a = b :=
+    iff.mp (div_eq_one_iff_eq Hb)
+
   theorem eq_div_iff_mul_eq (Hc : c ≠ 0) : a = b / c ↔ a * c = b :=
     iff.intro
       (suppose a = b / c, by rewrite [this, (div_mul_cancel Hc)])
       (suppose a * c = b, by rewrite [-(mul_div_cancel Hc), this])
+
+  theorem eq_div_of_mul_eq (Hc : c ≠ 0) : a * c = b → a = b / c :=
+    iff.mpr (eq_div_iff_mul_eq Hc)
+
+  theorem mul_eq_of_eq_div (Hc : c ≠ 0) : a = b / c → a * c = b :=
+    iff.mp (eq_div_iff_mul_eq Hc)
 
   theorem add_div_eq_mul_add_div (Hc : c ≠ 0) : a + b / c = (a * c + b) / c :=
     have (a + b / c) * c = a * c + b, by rewrite [right_distrib, (div_mul_cancel Hc)],

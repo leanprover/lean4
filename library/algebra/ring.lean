@@ -222,6 +222,12 @@ section
       ... ↔ a * e - b * e + c = d : by rewrite sub_add_eq_add_sub
       ... ↔ (a - b) * e + c = d   : by rewrite mul_sub_right_distrib
 
+  theorem mul_add_eq_mul_add_of_sub_mul_add_eq : (a - b) * e + c = d → a * e + c = b * e + d :=
+    iff.mpr !mul_add_eq_mul_add_iff_sub_mul_add_eq
+
+  theorem sub_mul_add_eq_of_mul_add_eq_mul_add : a * e + c = b * e + d → (a - b) * e + c = d :=
+    iff.mp !mul_add_eq_mul_add_iff_sub_mul_add_eq
+
   theorem mul_neg_one_eq_neg : a * (-1) = -a :=
     have a + a * -1 = 0, from calc
       a + a * -1 = a * 1 + a * -1 : mul_one
@@ -278,6 +284,12 @@ section
             (show a * -c = -b,
              by rewrite [-neg_mul_eq_mul_neg, -this])))
 
+  theorem dvd_neg_of_dvd : (a ∣ b) → (a ∣ -b) :=
+    iff.mpr !dvd_neg_iff_dvd
+
+  theorem dvd_of_dvd_neg : (a ∣ -b) → (a ∣ b) :=
+    iff.mp !dvd_neg_iff_dvd
+
   theorem neg_dvd_iff_dvd : (-a ∣ b) ↔ (a ∣ b) :=
   iff.intro
     (suppose -a ∣ b,
@@ -291,8 +303,14 @@ section
           dvd.intro
             (show -a * -c = b, by rewrite [neg_mul_neg, this])))
 
+  theorem neg_dvd_of_dvd : (a ∣ b) → (-a ∣ b) :=
+    iff.mpr !neg_dvd_iff_dvd
+
+  theorem dvd_of_neg_dvd : (-a ∣ b) → (a ∣ b) :=
+    iff.mp !neg_dvd_iff_dvd
+
   theorem dvd_sub (H₁ : (a ∣ b)) (H₂ : (a ∣ c)) : (a ∣ b - c) :=
-  dvd_add H₁ (iff.elim_right !dvd_neg_iff_dvd H₂)
+  dvd_add H₁ (!dvd_neg_of_dvd H₂)
 end
 
 /- integral domains -/

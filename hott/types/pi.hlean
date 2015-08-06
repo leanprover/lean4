@@ -175,7 +175,7 @@ namespace pi
           (λ(a : A) (b' : B' (f0⁻¹ a)), transport B (right_inv f0 a) ((f1 (f0⁻¹ a))⁻¹ b')))),
     begin
       intro h, apply eq_of_homotopy, intro a', esimp,
-      rewrite [adj f0 a',-transport_compose,fn_tr_eq_tr_fn _ f1,right_inv (f1 _)],
+      rewrite [adj f0 a',-tr_compose,fn_tr_eq_tr_fn _ f1,right_inv (f1 _)],
       apply apd
     end,
     begin

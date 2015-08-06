@@ -154,7 +154,7 @@ namespace functor
   by (cases F; apply functor_mk_eq'_idp)
 
   definition functor_eq_eta' {F₁ F₂ : C ⇒ D} (p : F₁ = F₂)
-      : functor_eq' (ap to_fun_ob p) (!transport_compose⁻¹ ⬝ apd to_fun_hom p) = p :=
+      : functor_eq' (ap to_fun_ob p) (!tr_compose⁻¹ ⬝ apd to_fun_hom p) = p :=
   begin
     cases p, cases F₁,
     apply concat, rotate_left 1, apply functor_eq'_idp,

@@ -177,7 +177,7 @@ namespace is_equiv
       is_equiv_rect f P df (f x)
             = right_inv f (f x) ▸ df (f⁻¹ (f x))   : by esimp
         ... = ap f (left_inv f x) ▸ df (f⁻¹ (f x)) : by rewrite -adj
-        ... = left_inv f x ▸ df (f⁻¹ (f x))        : by rewrite -transport_compose
+        ... = left_inv f x ▸ df (f⁻¹ (f x))        : by rewrite -tr_compose
         ... = df x                                 : by rewrite (apd df (left_inv f x))
 
   end
@@ -295,7 +295,7 @@ namespace equiv
       equiv_rect f P df (f x)
             = right_inv f (f x) ▸ df (f⁻¹ (f x))   : by esimp
         ... = ap f (left_inv f x) ▸ df (f⁻¹ (f x)) : by rewrite -adj
-        ... = left_inv f x ▸ df (f⁻¹ (f x))        : by rewrite -transport_compose
+        ... = left_inv f x ▸ df (f⁻¹ (f x))        : by rewrite -tr_compose
         ... = df x                                 : by rewrite (apd df (left_inv f x))
 
 

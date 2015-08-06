@@ -509,8 +509,7 @@ namespace eq
   eq.rec_on r !idp_con⁻¹
 
   -- Transporting in a pulled back fibration.
-  -- rename: tr_compose
-  definition transport_compose (P : B → Type) (f : A → B) (p : x = y) (z : P (f x)) :
+  definition tr_compose (P : B → Type) (f : A → B) (p : x = y) (z : P (f x)) :
     transport (P ∘ f) p z  =  transport P (ap f p) z :=
   eq.rec_on p idp
 
@@ -526,7 +525,7 @@ namespace eq
     apd10 (ap (λh : A → B, f ∘ h) p) a = ap f (apd10 p a) :=
   eq.rec_on p idp
 
-  -- A special case of [transport_compose] which seems to come up a lot.
+  -- A special case of [tr_compose] which seems to come up a lot.
   definition tr_eq_cast_ap {P : A → Type} {x y} (p : x = y) (u : P x) : p ▸ u = cast (ap P p) u :=
   eq.rec_on p idp
 

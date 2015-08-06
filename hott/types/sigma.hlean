@@ -216,7 +216,7 @@ namespace sigma
     apply (sigma_eq (left_inv f a)),
     apply pathover_of_tr_eq,
     rewrite [▸*,adj f,-(fn_tr_eq_tr_fn (left_inv f a) (λ a, (g a)⁻¹)),
-             ▸*,transport_compose B' f,tr_inv_tr,left_inv]
+             ▸*,tr_compose B' f,tr_inv_tr,left_inv]
   end
 
   definition sigma_equiv_sigma_of_is_equiv [H1 : is_equiv f] [H2 : Π a, is_equiv (g a)]
@@ -237,7 +237,7 @@ namespace sigma
   -- definition ap_sigma_functor_eq (p : u.1 = v.1) (q : u.2 =[p] v.2)
   --   : ap (sigma_functor f g) (sigma_eq p q) =
   --     sigma_eq (ap f p)
-  --      ((transport_compose B' f p (g u.1 u.2))⁻¹ ⬝ (fn_tr_eq_tr_fn p g u.2)⁻¹ ⬝ ap (g v.1) q) :=
+  --      ((tr_compose B' f p (g u.1 u.2))⁻¹ ⬝ (fn_tr_eq_tr_fn p g u.2)⁻¹ ⬝ ap (g v.1) q) :=
   -- by induction u; induction v; apply ap_sigma_functor_eq_dpair
 
   /- definition 3.11.9(i): Summing up a contractible family of types does nothing. -/

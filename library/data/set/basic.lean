@@ -178,9 +178,15 @@ notation `{` binder `|` r:(scoped:1 P, set_of P) `}` := r
 definition filter (P : X → Prop) (s : set X) : set X := λx, x ∈ s ∧ P x
 notation `{` binder ∈ s `|` r:(scoped:1 p, filter p s) `}` := r
 
--- '{x, y, z}
+/- insert -/
+
 definition insert (x : X) (a : set X) : set X := {y : X | y = x ∨ y ∈ a}
+
+-- '{x, y, z}
 notation `'{`:max a:(foldr `,` (x b, insert x b) ∅) `}`:0 := a
+
+theorem subset_insert (x : X) (a : set X) : a ⊆ insert x a :=
+take y, assume ys, or.inr ys
 
 /- filter -/
 

@@ -67,10 +67,11 @@ theorem to_set_image {B : Type} [h : decidable_eq B] (f : A → B) (s : finset A
 definition decidable_mem_to_set [instance] (x : A) (s : finset A) : decidable (x ∈ ts s) :=
 decidable_of_decidable_of_eq _ !mem_eq_mem_to_set
 
+theorem eq_of_to_set_eq_to_set {s t : finset A} (H : to_set s = to_set t) : s = t :=
+ext (take x, by rewrite [mem_eq_mem_to_set s, H])
+
 theorem eq_eq_to_set_eq : (s = t) = (ts s = ts t) :=
-propext (iff.intro
-  (assume H, H ▸ rfl)
-  (assume H, ext (take x, by rewrite [mem_eq_mem_to_set s, H])))
+propext (iff.intro (assume H, H ▸ rfl) !eq_of_to_set_eq_to_set)
 
 definition decidable_to_set_eq [instance] (s t : finset A) : decidable (ts s = ts t) :=
 decidable_of_decidable_of_eq _ !eq_eq_to_set_eq

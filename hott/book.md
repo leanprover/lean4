@@ -16,7 +16,7 @@ The rows indicate the chapters, the columns the sections.
 |       | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
 |-------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|
 | Ch 1  | . | . | . | . | + | + | + | + | + | .  | +  | +  |    |    |    |
-| Ch 2  | + | + | + | + | . | + | + | + | + | +  | +  | -  | +  | +  | +  |
+| Ch 2  | + | + | + | + | . | + | + | + | + | +  | +  | +  | +  | +  | +  |
 | Ch 3  | + | - | + | + | ½ | + | + | - | ½ | .  | +  |    |    |    |    |
 | Ch 4  | - | + | - | + | . | + | - | - | + |    |    |    |    |    |    |
 | Ch 5  | - | . | - | - | - | . | . | ½ |   |    |    |    |    |    |    |
@@ -61,7 +61,7 @@ Chapter 2: Homotopy type theory
 - 2.9 (Π-types and the function extensionality axiom): [init.funext](init/funext.hlean) and [types.pi](types/pi.hlean)
 - 2.10 (Universes and the univalence axiom): [init.ua](init/ua.hlean)
 - 2.11 (Identity type): [init.equiv](init/equiv.hlean) (ap is equivalence), [types.eq](types/eq.hlean) and [types.cubical.square](types/cubical/square.hlean) (characterization of pathovers in equality types)
-- 2.12 (Coproducts): not formalized
+- 2.12 (Coproducts): [types.sum](types/sum.hlean)
 - 2.13 (Natural numbers): [types.nat.hott](types/nat/hott.hlean)
 - 2.14 (Example: equality of structures): algebra formalized in [algebra.group](algebra/group.hlean).
 - 2.15 (Universal properties): in the corresponding file in the [types](types/types.md) folder.

@@ -9,6 +9,7 @@ Types (not necessarily HoTT-related):
 * [int](int/int.md) (subfolder)
 * [prod](prod.hlean)
 * [sigma](sigma.hlean)
+* [sum](sum.hlean)
 * [pi](pi.hlean)
 * [arrow](arrow.hlean)
 * [W](W.hlean): W-types (not loaded by default)

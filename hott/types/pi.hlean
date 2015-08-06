@@ -45,6 +45,8 @@ namespace pi
   definition eq_equiv_homotopy (f g : Πx, B x) : (f = g) ≃ (f ~ g) :=
   equiv.mk apd10 _
 
+  definition pi_eq_equiv (f g : Πx, B x) : (f = g) ≃ (f ~ g) := !eq_equiv_homotopy
+
   definition is_equiv_eq_of_homotopy (f g : Πx, B x) : is_equiv (@eq_of_homotopy _ _ f g) :=
   _
 

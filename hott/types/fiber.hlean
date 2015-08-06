@@ -31,9 +31,9 @@ namespace fiber
     : (x = y) ≃ (Σ(p : point x = point y), point_eq x = ap f p ⬝ point_eq y) :=
   begin
     apply equiv.trans,
-      {apply eq_equiv_fn_eq_of_equiv, apply sigma_char},
+      apply eq_equiv_fn_eq_of_equiv, apply sigma_char,
     apply equiv.trans,
-      {apply equiv.symm, apply equiv_sigma_eq},
+      apply sigma_eq_equiv,
     apply sigma_equiv_sigma_id,
     intro p,
     apply pathover_eq_equiv_Fl,

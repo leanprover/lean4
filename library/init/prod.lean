@@ -12,10 +12,9 @@ notation A × B := prod A B
 notation `(` h `,` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
 
 namespace prod
-  notation A * B := prod A B
-  notation A × B := prod A B  -- repeat, so this takes precedence
+  notation [parsing-only] A * B := prod A B
   namespace low_precedence_times
-    reserve infixr `*`:30     -- conflicts with notation for multiplication
+    reserve infixr [parsing-only] `*`:30     -- conflicts with notation for multiplication
     infixr `*` := prod
   end low_precedence_times
 

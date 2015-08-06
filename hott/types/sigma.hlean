@@ -95,8 +95,8 @@ namespace sigma
              sigma_eq_eta_unc
              dpair_sigma_eq_unc
 
-  definition equiv_sigma_eq (u v : Σa, B a) : (Σ(p : u.1 = v.1),  u.2 =[p] v.2) ≃ (u = v) :=
-  equiv.mk sigma_eq_unc !is_equiv_sigma_eq
+  definition sigma_eq_equiv (u v : Σa, B a) : (u = v) ≃ (Σ(p : u.1 = v.1),  u.2 =[p] v.2) :=
+  (equiv.mk sigma_eq_unc _)⁻¹ᵉ
 
   definition dpair_eq_dpair_con (p1 : a  = a' ) (q1 : b  =[p1] b' )
                                 (p2 : a' = a'') (q2 : b' =[p2] b'') :
@@ -157,18 +157,18 @@ namespace sigma
 
   In particular, this indicates why `transport` alone cannot be fully defined by induction on the structure of types, although Id-elim/transportD can be (cf. Observational Type Theory).  A more thorough set of lemmas, along the lines of the present ones but dealing with Id-elim rather than just transport, might be nice to have eventually? -/
 
-  definition transport_eq (p : a = a') (bc : Σ(b : B a), C a b)
+  definition sigma_transport (p : a = a') (bc : Σ(b : B a), C a b)
     : p ▸ bc = ⟨p ▸ bc.1, p ▸D bc.2⟩ :=
   by induction p; induction bc; reflexivity
 
   /- The special case when the second variable doesn't depend on the first is simpler. -/
-  definition tr_eq_nondep {B : Type} {C : A → B → Type} (p : a = a') (bc : Σ(b : B), C a b)
+  definition sigma_transport_nondep {B : Type} {C : A → B → Type} (p : a = a') (bc : Σ(b : B), C a b)
       : p ▸ bc = ⟨bc.1, p ▸ bc.2⟩ :=
   by induction p; induction bc; reflexivity
 
   /- Or if the second variable contains a first component that doesn't depend on the first. -/
 
-  definition tr_eq2_nondep {C : A → Type} {D : Π a:A, B a → C a → Type} (p : a = a')
+  definition sigma_transport2_nondep {C : A → Type} {D : Π a:A, B a → C a → Type} (p : a = a')
       (bcd : Σ(b : B a) (c : C a), D a b c) : p ▸ bcd = ⟨p ▸ bcd.1, p ▸ bcd.2.1, p ▸D2 bcd.2.2⟩ :=
   begin
     induction p, induction bcd with b cd, induction cd, reflexivity
@@ -362,17 +362,11 @@ namespace sigma
   induction n with n IH,
   { intro A B HA HB, fapply is_trunc_equiv_closed_rev, apply sigma_equiv_of_is_contr_pr1},
   { intro A B HA HB, apply is_trunc_succ_intro, intro u v,
-    apply is_trunc_equiv_closed,
-      apply equiv_sigma_eq,
+    apply is_trunc_equiv_closed_rev,
+      apply sigma_eq_equiv,
       exact IH _ _ _ _}
   end
 
 end sigma
 
-attribute sigma.is_trunc_sigma [instance] [priority 1505]
-
-open is_trunc sigma prod
-/- truncatedness -/
-definition prod.is_trunc_prod [instance] [priority 1490] (A B : Type) (n : trunc_index)
-  [HA : is_trunc n A] [HB : is_trunc n B] : is_trunc n (A × B) :=
-is_trunc.is_trunc_equiv_closed n !equiv_prod
+attribute sigma.is_trunc_sigma [instance] [priority 1490]

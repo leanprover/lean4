@@ -17,11 +17,8 @@ namespace bool
   begin
     fapply is_equiv.mk,
       exact bnot,
-      do 3 focus (intro b;cases b;all_goals (exact idp))
-      --should information be propagated with all_goals?
-      -- all_goals (intro b;cases b),
-      -- all_goals (exact idp)
---      all_goals (focus (intro b;cases b;all_goals (exact idp))),
+      all_goals (intro b;cases b), do 6 reflexivity
+--      all_goals (focus (intro b;cases b;all_goals reflexivity)),
   end
 
   definition equiv_bnot : bool ≃ bool := equiv.mk bnot _

@@ -189,11 +189,19 @@ namespace is_trunc
     : is_contr (Σ(x : A), a = x) :=
   is_contr.mk (sigma.mk a idp) (λp, sigma.rec_on p (λ b q, eq.rec_on q idp))
 
-  definition is_contr_unit [instance] : is_contr unit :=
+  definition is_contr_unit : is_contr unit :=
   is_contr.mk star (λp, unit.rec_on p idp)
 
-  definition is_hprop_empty [instance] : is_hprop empty :=
+  definition is_hprop_empty : is_hprop empty :=
   is_hprop.mk (λx, !empty.elim x)
+
+  local attribute is_contr_unit is_hprop_empty [instance]
+
+  definition is_trunc_unit [instance] (n : trunc_index) : is_trunc n unit :=
+  !is_trunc_of_is_contr
+
+  definition is_trunc_empty [instance] (n : trunc_index) : is_trunc (n.+1) empty :=
+  !is_trunc_succ_of_is_hprop
 
   /- truncated universe -/
 
@@ -291,6 +299,11 @@ namespace is_trunc
   variables {p c c₂}
   theorem is_hset.elimo (q q' : c =[p] c₂) [H : is_hset (C a)] : q = q' :=
   !is_hprop.elim
+
+  /- truncatedness of lift -/
+  definition is_trunc_lift [instance] (A : Type) (n : trunc_index) [H : is_trunc n A]
+    : is_trunc n (lift A) :=
+  is_trunc_equiv_closed _ !equiv_lift
 
   -- TODO: port "Truncated morphisms"
 

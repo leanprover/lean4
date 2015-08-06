@@ -77,38 +77,38 @@ namespace nat
         exfalso, apply lt.irrefl, apply lt_of_le_of_lt H H'}
   end
 
-  definition code [reducible] [unfold 1 2] : ℕ → ℕ → Type₀
-  | code 0 0               := unit
+  protected definition code [reducible] [unfold 1 2] : ℕ → ℕ → Type₀
+  | code 0        0        := unit
+  | code 0        (succ m) := empty
   | code (succ n) 0        := empty
-  | code 0 (succ m)        := empty
   | code (succ n) (succ m) := code n m
 
-  definition refl : Πn, code n n
-  | refl 0 := star
+  protected definition refl : Πn, nat.code n n
+  | refl 0        := star
   | refl (succ n) := refl n
 
-  definition encode [unfold 3] {n m : ℕ} (p : n = m) : code n m :=
-  p ▸ refl n
+  protected definition encode [unfold 3] {n m : ℕ} (p : n = m) : nat.code n m :=
+  p ▸ nat.refl n
 
-  definition decode : Π(n m : ℕ), code n m → n = m
-  | decode 0 0               := λc, idp
-  | decode 0 (succ l)        := λc, empty.elim c _
+  protected definition decode : Π(n m : ℕ), nat.code n m → n = m
+  | decode 0        0        := λc, idp
+  | decode 0        (succ l) := λc, empty.elim c _
   | decode (succ k) 0        := λc, empty.elim c _
   | decode (succ k) (succ l) := λc, ap succ (decode k l c)
 
-  definition nat_eq_equiv (n m : ℕ) : (n = m) ≃ code n m :=
-  equiv.MK encode
-           !decode
+  definition nat_eq_equiv (n m : ℕ) : (n = m) ≃ nat.code n m :=
+  equiv.MK nat.encode
+           !nat.decode
            begin
              revert m, induction n, all_goals (intro m;induction m;all_goals intro c),
                all_goals try contradiction,
                induction c, reflexivity,
-               xrewrite [↑decode,-tr_compose,v_0],
+               xrewrite [↑nat.decode,-tr_compose,v_0],
            end
            begin
              intro p, induction p, esimp, induction n,
                reflexivity,
-               rewrite [↑decode,↑refl,v_0]
+               rewrite [↑nat.decode,↑nat.refl,v_0]
            end
 
 end nat

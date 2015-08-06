@@ -108,7 +108,7 @@ namespace pi
   --first subgoal
   intro a', esimp,
   rewrite adj,
-  rewrite -transport_compose,
+  rewrite -tr_compose,
   rewrite {f1 a' _}(fn_tr_eq_tr_fn _ f1 _),
   rewrite (right_inv (f1 _) _),
   apply apd,

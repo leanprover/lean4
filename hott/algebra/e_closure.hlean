@@ -7,7 +7,7 @@ The "equivalence closure" of a type-valued relation.
 Given a binary type-valued relation (fibration), we add reflexivity, symmetry and transitivity terms
 -/
 
-import .relation types.eq2 arity
+import .relation eq2 arity
 
 open eq
 

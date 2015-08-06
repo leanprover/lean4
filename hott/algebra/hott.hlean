@@ -6,7 +6,7 @@ Author: Floris van Doorn
 Theorems about algebra specific to HoTT
 -/
 
-import .group arity types.pi types.hprop_trunc
+import .group arity types.pi hprop_trunc
 
 open equiv eq equiv.ops is_trunc
 

@@ -7,7 +7,7 @@ Authors: Floris van Doorn
 Quotient of a reflexive relation
 -/
 
-import hit.circle types.cubical.squareover .two_quotient
+import hit.circle cubical.squareover .two_quotient
 
 open eq simple_two_quotient e_closure
 

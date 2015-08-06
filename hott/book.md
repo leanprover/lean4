@@ -29,7 +29,7 @@ The rows indicate the chapters, the columns the sections.
 
 Things not in the book:
 
-* One major difference is that in this library we heavily use pathovers, so we need less theorems about transports, but instead corresponding theorems about pathovers. These are in [init.pathover](init/pathover.hlean). For higher paths there are [squares](types/cubical/square.hlean), [squareovers](types/cubical/squareover.hlean), and the rudiments of [cubes](types/cubical/cube.hlean) and [cubeovers](types/cubical/cubeover.hlean).
+* One major difference is that in this library we heavily use pathovers, so we need less theorems about transports, but instead corresponding theorems about pathovers. These are in [init.pathover](init/pathover.hlean). For higher paths there are [squares](cubical/square.hlean), [squareovers](cubical/squareover.hlean), and the rudiments of [cubes](cubical/cube.hlean) and [cubeovers](cubical/cubeover.hlean).
 
 Chapter 1: Type theory
 ---------
@@ -60,7 +60,7 @@ Chapter 2: Homotopy type theory
 - 2.8 (The unit type): special case of [init.trunc](init/trunc.hlean)
 - 2.9 (Π-types and the function extensionality axiom): [init.funext](init/funext.hlean) and [types.pi](types/pi.hlean)
 - 2.10 (Universes and the univalence axiom): [init.ua](init/ua.hlean)
-- 2.11 (Identity type): [init.equiv](init/equiv.hlean) (ap is equivalence), [types.eq](types/eq.hlean) and [types.cubical.square](types/cubical/square.hlean) (characterization of pathovers in equality types)
+- 2.11 (Identity type): [init.equiv](init/equiv.hlean) (ap is equivalence), [types.eq](types/eq.hlean) and [cubical.square](cubical/square.hlean) (characterization of pathovers in equality types)
 - 2.12 (Coproducts): [types.sum](types/sum.hlean)
 - 2.13 (Natural numbers): [types.nat.hott](types/nat/hott.hlean)
 - 2.14 (Example: equality of structures): algebra formalized in [algebra.group](algebra/group.hlean).
@@ -71,7 +71,7 @@ Chapter 3: Sets and logic
 
 - 3.1 (Sets and n-types): [init.trunc](init/trunc.hlean)
 - 3.2 (Propositions as types?): not formalized
-- 3.3 (Mere propositions): [init.trunc](init/trunc.hlean) and [types.hprop_trunc](types/hprop_trunc.hlean) (Lemma 3.3.5).
+- 3.3 (Mere propositions): [init.trunc](init/trunc.hlean) and [hprop_trunc](hprop_trunc.hlean) (Lemma 3.3.5).
 - 3.4 (Classical vs. intuitionistic logic): decidable is defined in [init.logic](init/logic.hlean)
 - 3.5 (Subsets and propositional resizing): Lemma 3.5.1 is subtype_eq in [types.sigma](types/sigma.hlean), we don't have propositional resizing as axiom yet.
 - 3.6 (The logic of mere propositions): in the corresponding file in the [types](types/types.md) folder. (is_trunc_prod is defined in [types.sigma](types/sigma.hlean))
@@ -89,7 +89,7 @@ Chapter 4: Equivalences
 - 4.3 (Bi-invertible maps): not formalized
 - 4.4 (Contractible fibers): [types.equiv](types/equiv.hlean)
 - 4.5 (On the definition of equivalences): no formalizable content
-- 4.6 (Surjections and embeddings): [types.function](types/function.hlean)
+- 4.6 (Surjections and embeddings): [function](function.hlean)
 - 4.7 (Closure properties of equivalences): not formalized
 - 4.8 (The object classifier): not formalized
 - 4.9 (Univalence implies function extensionality): [init.funext](init/funext.hlean)
@@ -126,7 +126,7 @@ Chapter 6: Higher inductive types
 Chapter 7: Homotopy n-types
 ---------
 
-- 7.1 (Definition of n-types): [init.trunc](init/trunc.hlean), [types.trunc](types/trunc.hlean), [types.sigma](types/sigma.hlean) (Theorem 7.1.8), [types.pi](types/pi.hlean) (Theorem 7.1.9), [types.hprop_trunc](types/hprop_trunc.hlean) (Theorem 7.1.10)
+- 7.1 (Definition of n-types): [init.trunc](init/trunc.hlean), [types.trunc](types/trunc.hlean), [types.sigma](types/sigma.hlean) (Theorem 7.1.8), [types.pi](types/pi.hlean) (Theorem 7.1.9), [hprop_trunc](hprop_trunc.hlean) (Theorem 7.1.10)
 - 7.2 (Uniqueness of identity proofs and Hedberg’s theorem): [init.hedberg](init/hedberg.hlean) and [types.trunc](types/trunc.hlean)
 - 7.3 (Truncations): [init.hit](init/hit.hlean), [hit.trunc](hit/trunc.hlean) and [types.trunc](types/trunc.hlean)
 - 7.4 (Colimits of n-types): not formalized

@@ -7,7 +7,7 @@ Ported from Coq HoTT
 Theorems about embeddings and surjections
 -/
 
-import hit.trunc .pi .fiber .equiv
+import hit.trunc types.equiv
 
 open equiv sigma sigma.ops eq trunc is_trunc pi is_equiv fiber prod
 

@@ -5,5 +5,5 @@ Authors: Floris van Doorn
 -/
 
 import .bool .prod .sigma .pi .arrow .pointed .fiber
-import .nat .int .cubical
-import .eq .equiv .function .trunc
+import .nat .int
+import .eq .equiv .trunc

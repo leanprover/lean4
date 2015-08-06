@@ -7,5 +7,6 @@ The core of the HoTT library
 -/
 
 import types
+import cubical
 import hit.circle
 import algebra.hott

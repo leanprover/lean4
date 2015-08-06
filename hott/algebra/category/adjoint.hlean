@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Floris van Doorn
 -/
 
-import algebra.category.constructions .constructions types.function arity
+import algebra.category.constructions .constructions function arity
 
 open category functor nat_trans eq is_trunc iso equiv prod trunc function
 

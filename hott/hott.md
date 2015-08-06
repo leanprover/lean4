@@ -1,14 +1,19 @@
 The Lean Homotopy Type Theory Library
 =====================================
 
-The Lean homotopy type theory library is contained in the following
-files and directories:
+The Lean Homotopy Type Theory library consists of the following directories:
 
 * [init](init/init.md) : constants and theorems needed for low-level system operations
 * [types](types/types.md) : concrete datatypes and type constructors
 * [hit](hit/hit.md): higher inductive types
 * [algebra](algebra/algebra.md) : algebraic structures
-* [arity](arity.hlean) : a file containing theorems about functions with arity 2 or higher
+* [cubical](cubical/cubical.md): cubical types
+
+The following files don't fit in any of the subfolders:
+* [hprop_trunc](hprop_trunc.hlean): in this file we prove that `is_trunc n A` is a mere proposition. We separate this from [types.trunc](types/trunc.hlean) to avoid circularity in imports.
+* [eq2](eq2.hlean): coherence rules for the higher dimensional structure of equality
+* [function](function.hlean): embeddings, (split) surjections, retractions
+* [arity](arity.hlean) : equality theorems about functions with arity 2 or higher
 
 See [book.md](book.md) for an overview of the sections of the [HoTT book](http://homotopytypetheory.org/book/) which have been covered.
 

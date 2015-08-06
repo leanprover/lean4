@@ -8,7 +8,7 @@ We prove this here to avoid circular dependency of files
 We want to use this in .equiv; .equiv is imported by .function and .function is imported by .trunc
 -/
 
-import .pi
+import types.pi
 
 open equiv sigma sigma.ops eq function pi
 

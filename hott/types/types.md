@@ -16,14 +16,9 @@ Types (not necessarily HoTT-related):
 
 HoTT types
 
-* [hprop_trunc](hprop_trunc.hlean): in this file we prove that `is_trunc n A` is a mere proposition. We separate this from [trunc](trunc.hlean) to avoid circularity in imports.
 * [eq](eq.hlean): show that functions related to the identity type are equivalences
-* [eq2](eq2.hlean): higher dimensional structure of equality
 * [pointed](pointed.hlean)
 * [fiber](fiber.hlean)
 * [equiv](equiv.hlean)
-* [function](function.hlean): embeddings, (split) surjections, retractions
 * [trunc](trunc.hlean): truncation levels, n-Types, truncation
-* [cubical](cubical/cubical.md): cubical types (subfolder)
-
 

@@ -8,7 +8,7 @@ Properties of is_trunc and trunctype
 
 -- NOTE: the fact that (is_trunc n A) is a mere proposition is proved in .hprop_trunc
 
-import types.pi types.eq types.equiv .function
+import types.pi types.eq types.equiv ..function
 
 open eq sigma sigma.ops pi function equiv is_trunc.trunctype
      is_equiv prod is_trunc.trunc_index pointed nat

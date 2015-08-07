@@ -123,6 +123,12 @@ by rewrite [finset.subset_eq_to_set_subset, *to_set_to_finset]
 theorem finite_of_finite_insert {s : set A} {a : A} (finias : finite (insert a s)) : finite s :=
 finite_subset (subset_insert a s)
 
+theorem finite_upto [instance] (n : ℕ) : finite {i | i < n} :=
+by rewrite [-finset.to_set_upto n]; apply finite_finset
+
+theorem to_finset_upto (n : ℕ) : to_finset {i | i < n} = finset.upto n :=
+by apply (to_finset_eq_of_to_set_eq !finset.to_set_upto)
+
 -- question: how can I avoid the parenthesis in the notation below?
 -- this didn't work: notation `𝒫`:max s := powerset s, nor variants
 
@@ -150,7 +156,7 @@ by rewrite H; apply finite_image
 theorem induction_finite [recursor 6] {P : set A → Prop}
     (H1 : P ∅)
     (H2 : ∀ ⦃a : A⦄, ∀ {s : set A} [fins : finite s], a ∉ s → P s → P (insert a s)) :
-  ∀ (s : set A), finite s → P s :=
+  ∀ (s : set A) [fins : finite s], P s :=
 begin
   intro s fins,
   rewrite [-to_set_to_finset s],
@@ -164,11 +170,11 @@ begin
   exact ih
 end
 
-theorem induction_on_finite {P : set A → Prop} (s : set A) (fins : finite s)
+theorem induction_on_finite {P : set A → Prop} (s : set A) [fins : finite s]
     (H1 : P ∅)
     (H2 : ∀ ⦃a : A⦄, ∀ {s : set A} [fins : finite s], a ∉ s → P s → P (insert a s)) :
   P s :=
-induction_finite H1 H2 s fins
+induction_finite H1 H2 s
 
 /- cardinality -/
 
@@ -202,18 +208,19 @@ else by rewrite [card_insert_of_not_mem H]
 theorem card_singleton (a : A) : card '{a} = 1 :=
 by rewrite [card_insert_of_not_mem !not_mem_empty, card_empty]
 
-/-
--- TODO: get induction working somehow.
-set_option formatter.hide_full_terms false
+/- Note: the induction tactic does not work well with the set induction principle with the
+   extra predicate "finite". -/
+theorem eq_empty_of_card_eq_zero {s : set A} [fins : finite s] : card s = 0 → s = ∅ :=
+induction_on_finite s 
+  (by intro H; exact rfl)
+  (begin
+    intro a s' fins' anins IH H,
+    rewrite (card_insert_of_not_mem anins) at H,
+    apply nat.no_confusion H 
+  end)
 
-theorem eq_empty_of_card_eq_zero {s : set A} [fins : finite s] (H : card s = 0) : s = ∅ :=
-begin
-  induction s with a s' fins' anins IH,
-    {rewrite card_empty at H},
-  rewrite (card_insert_of_not_mem anins) at H,
-    apply nat.no_confusion H,
-end
--/
+theorem card_upto (n : ℕ) : card {i | i < n} = n :=
+by rewrite [↑card, to_finset_upto, finset.card_upto]
 
 theorem card_add_card (s₁ s₂ : set A) [fins₁ : finite s₁] [fins₂ : finite s₂] :
   card s₁ + card s₂ = card (s₁ ∪ s₂) + card (s₁ ∩ s₂) :=
@@ -222,5 +229,30 @@ begin
   rewrite [-finset.to_set_union, -finset.to_set_inter, *card_to_set],
   apply finset.card_add_card
 end
+
+theorem card_union (s₁ s₂ : set A) [fins₁ : finite s₁] [fins₂ : finite s₂] : 
+  card (s₁ ∪ s₂) = card s₁ + card s₂ - card (s₁ ∩ s₂) :=
+calc
+  card (s₁ ∪ s₂) = card (s₁ ∪ s₂) + card (s₁ ∩ s₂) - card (s₁ ∩ s₂) : add_sub_cancel
+             ... = card s₁ + card s₂ - card (s₁ ∩ s₂)               : card_add_card s₁ s₂
+
+theorem card_union_of_disjoint {s₁ s₂ : set A} [fins₁ : finite s₁] [fins₂ : finite s₂] (H : s₁ ∩ s₂ = ∅) :
+  card (s₁ ∪ s₂) = card s₁ + card s₂ :=
+by rewrite [card_union, H, card_empty]
+
+theorem card_eq_card_add_card_diff {s₁ s₂ : set A} [fins₁ : finite s₁] [fins₂ : finite s₂] (H : s₁ ⊆ s₂) :
+  card s₂ = card s₁ + card (s₂ \ s₁) :=
+have H1 : s₁ ∩ (s₂ \ s₁) = ∅,
+  from eq_empty_of_forall_not_mem (take x, assume H, (and.right (and.right H)) (and.left H)),
+have s₂ = s₁ ∪ (s₂ \ s₁), from eq.symm (union_diff_cancel H),
+calc
+  card s₂ = card (s₁ ∪ (s₂ \ s₁))    : {this}
+      ... = card s₁ + card (s₂ \ s₁) : card_union_of_disjoint H1
+
+theorem card_le_card_of_subset {s₁ s₂ : set A} [fins₁ : finite s₁] [fins₂ : finite s₂] (H : s₁ ⊆ s₂) : 
+  card s₁ ≤ card s₂ :=
+calc
+  card s₂ = card s₁ + card (s₂ \ s₁) : card_eq_card_add_card_diff H
+      ... ≥ card s₁                  : le_add_right
 
 end set

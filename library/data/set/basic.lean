@@ -215,6 +215,14 @@ theorem mem_diff_iff (s t : set X) (x : X) : x ∈ s \ t ↔ x ∈ s ∧ x ∉ t
 
 theorem mem_diff_eq (s t : set X) (x : X) : x ∈ s \ t = (x ∈ s ∧ x ∉ t) := rfl
 
+theorem union_diff_cancel {s t : set X} [dec : Π x, decidable (x ∈ s)] (H : s ⊆ t) : s ∪ (t \ s) = t :=
+setext (take x, iff.intro
+  (assume H1 : x ∈ s ∪ (t \ s), or.elim H1 (assume H2, !H H2) (assume H2, and.left H2))
+  (assume H1 : x ∈ t,
+    decidable.by_cases 
+      (suppose x ∈ s, or.inl this)
+      (suppose x ∉ s, or.inr (and.intro H1 this))))
+
 /- powerset -/
 
 definition powerset (s : set X) : set (set X) := {x : set X | x ⊆ s}

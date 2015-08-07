@@ -499,16 +499,15 @@ static expr parse_suppose(parser & p, unsigned, expr const *, pos_info const & p
     return p.save_pos(Fun(l, body), pos);
 }
 
-static name * H_show = nullptr;
 static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr prop  = p.parse_expr();
     if (p.curr_is_token(get_bar_tk())) {
-        expr fn = p.save_pos(mk_local(*H_show, prop), pos);
+        expr fn = p.save_pos(mk_local(get_this_tk(), prop), pos);
         return parse_local_equations(p, fn);
     } else {
         p.check_token_next(get_comma_tk(), "invalid 'show' declaration, ',' expected");
         expr proof = parse_proof(p, prop);
-        expr b = p.save_pos(mk_lambda(*H_show, prop, Var(0)), pos);
+        expr b = p.save_pos(mk_lambda(get_this_tk(), prop, Var(0)), pos);
         expr r = p.mk_app(b, proof, pos);
         return p.save_pos(mk_show_annotation(r), pos);
     }
@@ -717,7 +716,6 @@ parse_table init_led_table() {
     return r;
 }
 }
-bool is_show_aux_name(name const & n) { return n == *notation::H_show; }
 
 static parse_table * g_nud_table = nullptr;
 static parse_table * g_led_table = nullptr;
@@ -731,7 +729,6 @@ parse_table get_builtin_led_table() {
 }
 
 void initialize_builtin_exprs() {
-    notation::H_show        = new name("H_show");
     notation::H_obtain_from = new name("H_obtain_from");
     notation::g_not         = new expr(mk_constant(get_not_name()));
     g_nud_table             = new parse_table();
@@ -743,7 +740,6 @@ void initialize_builtin_exprs() {
 void finalize_builtin_exprs() {
     delete g_led_table;
     delete g_nud_table;
-    delete notation::H_show;
     delete notation::H_obtain_from;
     delete notation::g_not;
 }

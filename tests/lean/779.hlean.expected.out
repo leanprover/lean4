@@ -1,0 +1,2 @@
+definition foo : empty → empty :=
+empty.rec (λ (e : empty), empty)

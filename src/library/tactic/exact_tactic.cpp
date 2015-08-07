@@ -34,7 +34,7 @@ tactic exact_tactic(elaborate_fn const & elab, expr const & e, bool enforce_type
                 return none_proof_state();
             }
             expr t                 = head(gs).get_type();
-            bool report_unassigned = !allow_metavars && enforce_type_during_elaboration;
+            bool report_unassigned = !allow_metavars && enforce_type_during_elaboration && s.report_failure();
             optional<expr> new_e;
             try {
                 new_e = elaborate_with_respect_to(env, ios, elab, new_s, e, some_expr(t),

@@ -27,8 +27,8 @@ The `standard` library does not rely on any axioms beyond this framework, and is
 hence constructive. It includes theories of the natural numbers, integers,
 lists, and so on.
 
-The `classical` library imports the law of the excluded middle, choice functions,
-and propositional extensionality. See `logic/axioms` for details.
+The `classical` library also imports a choice function axiom, which implies 
+the law of the excluded middle and propositional extensionality. See [logic.choice](logic/choice.lean) for details.
 
 See also the [hott library](../hott/hott.md), a library for homotopy
 type theory based on a predicative foundation.

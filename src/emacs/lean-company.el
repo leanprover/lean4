@@ -57,10 +57,13 @@
     (let* ((target-ext (pcase (lean-choose-minor-mode-based-on-extension)
                          (`hott     "hlean")
                          (`standard "lean")))
-           (lean-files (f-files root-dir
-                                (lambda (file) (equal (f-ext file) target-ext))
-                                t))
-           ;; Relative to project root-dir
+           (dummy (message "finding files under %s..." root-dir))
+           (lean-files (with-timeout (lean-company-import-timeout
+                                      (message "finding files under %s... timeout (%S sec)"
+                                               root-dir lean-company-import-timeout) nil)
+                         (lean-find-files root-dir
+                                          (lambda (file) (equal (f-ext file) target-ext))
+                                          t)))
            (lean-files-r (--map (f-relative it root-dir) lean-files))
            (candidates
             (--map (s-replace-all `((,(f-path-separator)  . "."))

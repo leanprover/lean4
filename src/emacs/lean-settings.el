@@ -176,6 +176,13 @@ false (nil)."
   :group 'lean
   :type 'number)
 
+(defcustom lean-company-import-timeout 1
+  "After lean-company-import-timeout (seconds) passed,
+   company-lean--import stops collecting files.
+   See the body of company-lean--import-candidates-main"
+  :group 'lean
+  :type 'number)
+
 (defcustom lean-keybinding-std-exe1 (kbd "C-c C-x")
   "Lean Keybinding for std-exe #1"
   :group 'lean-keybinding :type 'key-sequence)

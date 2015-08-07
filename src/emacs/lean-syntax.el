@@ -7,7 +7,7 @@
 
 (require 'rx)
 
-(defconst lean-keywords
+(defconst lean-keywords1
   '("import" "prelude" "tactic_hint" "protected" "private" "noncomputable" "definition" "renaming"
     "hiding" "exposing" "parameter" "parameters" "begin" "begin+" "proof" "qed" "conjecture" "constant" "constants"
     "hypothesis" "lemma" "corollary" "variable" "variables" "premise" "premises" "theory"
@@ -19,8 +19,39 @@
     "eval" "check" "end" "reveal" "this" "suppose"
     "using" "namespace" "section" "fields" "find_decl"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes"
-    "instances" "coercions" "metaclasses" "raw" "migrate" "replacing")
-  "lean keywords")
+    "instances" "coercions" "metaclasses" "raw" "migrate" "replacing"
+    "calc" "have" "show" "by" "in" "at" "let" "forall" "fun"
+    "exists" "if" "dif" "then" "else" "assume" "assert" "take"
+    "obtain" "from")
+  "lean keywords ending with 'word' (not symbol)")
+(defconst lean-keywords1-regexp
+  (eval `(rx word-start (or ,@lean-keywords1) word-end)))
+(defconst lean-keywords2
+  '("by+")
+  "lean keywords ending with 'symbol'")
+(defconst lean-keywords2-regexp
+  (eval `(rx word-start (or ,@lean-keywords2) symbol-end)))
+(defconst lean-constants
+  '("#" "@" "->" "∼" "↔" "/" "==" "=" ":=" "<->" "/\\" "\\/" "∧" "∨"
+    "≠" "<" ">" "≤" "≥" "¬" "<=" ">=" "⁻¹" "⬝" "▸" "+" "*" "-" "/" "λ"
+    "→" "∃" "∀")
+  "lean constants")
+(defconst lean-constants-regexp (regexp-opt lean-constants))
+(defconst lean-modifiers
+  (--map (s-concat "[" it "]")
+         '("persistent" "notation" "visible" "instance" "trans-instance"
+           "class" "parsing-only" "coercion" "unfold-full" "constructor"
+           "reducible" "irreducible" "semireducible" "quasireducible" "wf"
+           "whnf" "multiple-instances" "none" "decls" "declarations"
+           "coercions" "classes" "symm" "subst" "refl" "trans" "simp" "congr"
+           "notations" "abbreviations" "begin-end-hints" "tactic-hints"
+           "reduce-hints" "unfold-hints" "aliases" "eqv"
+           "localrefinfo"))
+  "lean modifiers")
+(defconst lean-modifiers-regexp
+  (regexp-opt lean-modifiers))
+(defconst lean-warnings '("sorry" "exit") "lean warnings")
+(defconst lean-warnings-regexp (eval `(rx word-start (or ,@lean-warnings) word-end)))
 
 (defconst lean-syntax-table
   (let ((st (make-syntax-table)))
@@ -98,15 +129,12 @@
 
 (defconst lean-font-lock-defaults
   `((;; Keywords
-     (,(rx word-start (or "calc" "have" "show" "by" "by+" "in" "at" "let" "forall" "fun"
-                            "exists" "if" "dif" "then" "else" "assume" "assert" "take" "obtain" "from") word-end)
-      . font-lock-keyword-face)
+     (,lean-keywords2-regexp . 'font-lock-keyword-face)
+     (,lean-keywords1-regexp . 'font-lock-keyword-face)
      ;; String
      ("\"[^\"]*\"" . 'font-lock-string-face)
-     ;; Constants
-     (,(rx symbol-start (or "#" "@" "->" "∼" "↔" "/" "==" "=" ":=" "<->" "/\\" "\\/" "∧" "∨" "≠" "<" ">" "≤" "≥" "¬" "<=" ">=" "⁻¹" "⬝" "▸" "+" "*" "-" "/") symbol-end)
-      . 'font-lock-constant-face)
-     (,(rx symbol-start (or "λ" "→" "∃" "∀" ":=") symbol-end) . 'font-lock-constant-face )
+     ;; ;; Constants
+     (,lean-constants-regexp . 'font-lock-constant-face)
      ;; universe/inductive/theorem... "names"
      (,(rx word-start
            (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "hypothesis" "definition" "constant" "abbreviation"))
@@ -118,15 +146,7 @@
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
      ;; modifiers
-     (,(rx (or "\[persistent\]" "\[notation\]" "\[visible\]" "\[instance\]" "\[trans-instance\]" "\[class\]" "\[parsing-only\]"
-               "\[coercion\]" "\[unfold-full\]" "\[constructor\]" "\[reducible\]"
-               "\[irreducible\]" "\[semireducible\]" "\[quasireducible\]" "\[wf\]"
-               "\[whnf\]" "\[multiple-instances\]" "\[none\]"
-               "\[decls\]" "\[declarations\]" "\[coercions\]" "\[classes\]"
-               "\[symm\]" "\[subst\]" "\[refl\]" "\[trans\]" "\[simp\]" "\[congr\]"
-               "\[notations\]" "\[abbreviations\]" "\[begin-end-hints\]" "\[tactic-hints\]"
-               "\[reduce-hints\]" "\[unfold-hints\]" "\[aliases\]" "\[eqv\]" "\[localrefinfo\]"))
-      . 'font-lock-doc-face)
+     (,lean-modifiers-regexp . 'font-lock-doc-face)
      (,(rx "\[priority" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      (,(rx "\[recursor" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      (,(rx "\[unfold" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
@@ -147,14 +167,10 @@
      ;; Types
      (,(rx word-start (or "Prop" "Type" "Type'" "Type₊" "Type₀" "Type₁" "Type₂" "Type₃") symbol-end) . 'font-lock-type-face)
      (,(rx word-start (group "Type") ".") (1 'font-lock-type-face))
-     ;; sorry
-     (,(rx word-start "sorry" word-end) . 'font-lock-warning-face)
-     (,(rx word-start "exit" word-end) . 'font-lock-warning-face)
+     ;; warnings
+     (,lean-warnings-regexp . 'font-lock-warning-face)
      ;; extra-keywords
-     (,(rx (or "∎")) . 'font-lock-keyword-face)
-     ;; lean-keywords
-     (, (concat "\\(" (regexp-opt lean-keywords 'words) "\\)")
-        (1 'font-lock-keyword-face)))))
+     (,(rx (or "∎")) . 'font-lock-keyword-face))))
 
 ;; Syntax Highlighting for Lean Info Mode
 (defconst lean-info-font-lock-defaults

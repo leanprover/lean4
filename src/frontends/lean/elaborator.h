@@ -164,13 +164,13 @@ class elaborator : public coercion_info_manager {
     bool try_using(substitution & subst, expr const & mvar, proof_state const & ps,
                    expr const & pre_tac, tactic const & tac, bool show_failure);
     bool try_using_begin_end(substitution & subst, expr const & mvar, proof_state ps, expr const & pre_tac);
-    void solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited);
-    expr solve_unassigned_mvars(substitution & subst, expr e, name_set & visited);
-    expr solve_unassigned_mvars(substitution & subst, expr const & e);
+    void solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited, bool reject_type_is_meta);
+    expr solve_unassigned_mvars(substitution & subst, expr e, name_set & visited, bool reject_type_is_meta);
+    expr solve_unassigned_mvars(substitution & subst, expr const & e, bool reject_type_is_meta);
     bool display_unassigned_mvars(expr const & e, substitution const & s);
     void check_sort_assignments(substitution const & s);
-    expr apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params);
-    std::tuple<expr, level_param_names> apply(substitution & s, expr const & e);
+    expr apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params, bool is_def_value);
+    std::tuple<expr, level_param_names> apply(substitution & s, expr const & e, bool is_def_value);
     elaborate_result elaborate_nested(list<expr> const & ctx, optional<expr> const & expected_type, expr const & e,
                                       bool use_tactic_hints, substitution const &, bool report_unassigned);
 

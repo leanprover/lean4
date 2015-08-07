@@ -1,0 +1,1 @@
+771.lean:3:3: error: failed to synthesize placeholder, type is a unknown (i.e., it is a metavariable) (solution: provide type explicitly)

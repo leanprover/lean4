@@ -1,22 +1,2 @@
-626a.lean:3:42: error: don't know how to synthesize placeholder
-c : C¹
-⊢ ?M_1
-626a.lean:3:44: error: don't know how to synthesize placeholder
-c : C¹
-⊢ Π (a : nat),
-    ?M_1 → ?M_1
-626a.lean:3:29: error: failed to add declaration 'foo.foo' to environment, value has metavariables
-remark: set 'formatter.hide_full_terms' to false to see the complete term
-  λ (c : C¹),
-    nat.rec_on c ?M_2 ?M_3
-626a.lean:8:42: error: don't know how to synthesize placeholder
-c : C¹
-⊢ ?M_1
-626a.lean:8:44: error: don't know how to synthesize placeholder
-c : C¹
-⊢ Π (a : C¹),
-    ?M_1 → ?M_1
-626a.lean:8:29: error: failed to add declaration 'boo.foo' to environment, value has metavariables
-remark: set 'formatter.hide_full_terms' to false to see the complete term
-  λ (c : C¹),
-    nat.rec_on c ?M_2 ?M_3
+626a.lean:3:42: error: failed to synthesize placeholder, type is a unknown (i.e., it is a metavariable) (solution: provide type explicitly)
+626a.lean:8:42: error: failed to synthesize placeholder, type is a unknown (i.e., it is a metavariable) (solution: provide type explicitly)

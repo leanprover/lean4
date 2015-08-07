@@ -1148,7 +1148,8 @@ constraint elaborator::mk_equations_cnstr(expr const & m, expr const & eqns) {
                          name_generator && ngen) {
         substitution new_s  = s;
         expr new_eqns       = new_s.instantiate_all(eqns);
-        new_eqns            = solve_unassigned_mvars(new_s, new_eqns);
+        bool reject_type_is_meta = false;
+        new_eqns            = solve_unassigned_mvars(new_s, new_eqns, reject_type_is_meta);
         if (display_unassigned_mvars(new_eqns, new_s))
             return lazy_list<constraints>();
         type_checker_ptr tc = mk_type_checker(_env, std::move(ngen));
@@ -1930,7 +1931,9 @@ bool elaborator::try_using_begin_end(substitution & subst, expr const & mvar, pr
     }
 }
 
-void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited) {
+// The parameters univs_fixed is true if the elaborator has instantiated the universe metavariables with universe parameters.
+// See issue #771
+void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set & visited, bool reject_type_is_meta) {
     if (visited.contains(mlocal_name(mvar)))
         return;
     visited.insert(mlocal_name(mvar));
@@ -1941,7 +1944,11 @@ void elaborator::solve_unassigned_mvar(substitution & subst, expr mvar, name_set
     // TODO(Leo): we are discarding constraints here
     expr type = m_tc->infer(*meta).first;
     // first solve unassigned metavariables in type
-    type = solve_unassigned_mvars(subst, type, visited);
+    type = solve_unassigned_mvars(subst, type, visited, reject_type_is_meta);
+    if (reject_type_is_meta && is_meta(type)) {
+        throw_elaborator_exception("failed to synthesize placeholder, type is a unknown (i.e., it is a metavariable) "
+                                   "(solution: provide type explicitly)", mvar);
+    }
     proof_state ps = to_proof_state(*meta, type, subst, m_ngen.mk_child());
     if (auto pre_tac = get_pre_tactic_for(mvar)) {
         if (is_begin_end_annotation(*pre_tac)) {
@@ -2027,17 +2034,17 @@ static void visit_unassigned_mvars(expr const & e, std::function<void(expr const
     visit(e);
 }
 
-expr elaborator::solve_unassigned_mvars(substitution & subst, expr e, name_set & visited) {
+expr elaborator::solve_unassigned_mvars(substitution & subst, expr e, name_set & visited, bool reject_type_is_meta) {
     e = subst.instantiate(e);
     visit_unassigned_mvars(e, [&](expr const & mvar) {
-            solve_unassigned_mvar(subst, mvar, visited);
+            solve_unassigned_mvar(subst, mvar, visited, reject_type_is_meta);
         });
     return subst.instantiate(e);
 }
 
-expr elaborator::solve_unassigned_mvars(substitution & subst, expr const & e) {
+expr elaborator::solve_unassigned_mvars(substitution & subst, expr const & e, bool reject_type_is_meta) {
     name_set visited;
-    return solve_unassigned_mvars(subst, e, visited);
+    return solve_unassigned_mvars(subst, e, visited, reject_type_is_meta);
 }
 
 bool elaborator::display_unassigned_mvars(expr const & e, substitution const & s) {
@@ -2090,19 +2097,20 @@ void elaborator::check_sort_assignments(substitution const & s) {
 }
 
 /** \brief Apply substitution and solve remaining metavariables using tactics. */
-expr elaborator::apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params) {
+expr elaborator::apply(substitution & s, expr const & e, name_set & univ_params, buffer<name> & new_params, bool is_def_value) {
     expr r = s.instantiate(e);
     if (has_univ_metavar(r))
         r = univ_metavars_to_params(env(), lls(), s, univ_params, new_params, r);
-    r = solve_unassigned_mvars(s, r);
+    bool reject_type_is_meta = is_def_value;
+    r = solve_unassigned_mvars(s, r, reject_type_is_meta);
     display_unassigned_mvars(r, s);
     return r;
 }
 
-std::tuple<expr, level_param_names> elaborator::apply(substitution & s, expr const & e) {
+std::tuple<expr, level_param_names> elaborator::apply(substitution & s, expr const & e, bool is_def_value) {
     auto ps = collect_univ_params(e);
     buffer<name> new_ps;
-    expr r = apply(s, e, ps, new_ps);
+    expr r = apply(s, e, ps, new_ps, is_def_value);
     return std::make_tuple(r, to_list(new_ps.begin(), new_ps.end()));
 }
 
@@ -2153,7 +2161,8 @@ auto elaborator::operator()(list<expr> const & ctx, expr const & e, bool _ensure
     auto p  = solve(cs).pull();
     lean_assert(p);
     substitution s = p->first.first;
-    auto result = apply(s, r);
+    bool is_value = false;
+    auto result = apply(s, r, is_value);
     check_sort_assignments(s);
     instantiate_info(s);
     check_used_local_tactic_hints();
@@ -2179,8 +2188,10 @@ std::tuple<expr, expr, level_param_names> elaborator::operator()(expr const & t,
     substitution s = p->first.first;
     name_set univ_params = collect_univ_params(r_v, collect_univ_params(r_t));
     buffer<name> new_params;
-    expr new_r_t = apply(s, r_t, univ_params, new_params);
-    expr new_r_v = apply(s, r_v, univ_params, new_params);
+    bool is_value = false;
+    expr new_r_t = apply(s, r_t, univ_params, new_params, is_value);
+    is_value = true;
+    expr new_r_v = apply(s, r_v, univ_params, new_params, is_value);
     check_sort_assignments(s);
     instantiate_info(s);
     check_used_local_tactic_hints();
@@ -2255,7 +2266,8 @@ elaborate_result elaborator::elaborate_nested(list<expr> const & ctx, optional<e
     substitution new_subst = p->first.first;
     constraints rcs        = p->first.second;
     r = new_subst.instantiate_all(r);
-    r = solve_unassigned_mvars(new_subst, r);
+    bool reject_type_is_meta = false;
+    r = solve_unassigned_mvars(new_subst, r, reject_type_is_meta);
     rcs = map(rcs, [&](constraint const & c) { return instantiate_metavars(c, new_subst); });
     instantiate_info(new_subst);
     if (report_unassigned)

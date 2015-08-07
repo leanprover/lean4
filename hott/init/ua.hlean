@@ -15,11 +15,16 @@ section
   universe variable l
   variables {A B : Type.{l}}
 
-  definition is_equiv_cast_of_eq (H : A = B) : is_equiv (cast H) :=
-    (@is_equiv_tr Type (λX, X) A B H)
+  definition is_equiv_cast_of_eq [constructor] (H : A = B) : is_equiv (cast H) :=
+  is_equiv_tr (λX, X) H
 
-  definition equiv_of_eq (H : A = B) : A ≃ B :=
-    equiv.mk _ (is_equiv_cast_of_eq H)
+  definition equiv_of_eq [constructor] (H : A = B) : A ≃ B :=
+  equiv.mk _ (is_equiv_cast_of_eq H)
+
+  definition equiv_of_eq_refl [reducible] [unfold-full] (A : Type)
+    : equiv_of_eq (refl A) = equiv.refl :=
+  idp
+
 
 end
 
@@ -50,6 +55,9 @@ definition eq_of_equiv_lift {A B : Type} (f : A ≃ B) : A = lift B :=
 ua (f ⬝e !equiv_lift)
 
 namespace equiv
+  definition ua_refl (A : Type) : ua erfl = idpath A :=
+  eq_of_fn_eq_fn !eq_equiv_equiv (right_inv !eq_equiv_equiv erfl)
+
   -- One consequence of UA is that we can transport along equivalencies of types
   -- We can use this for calculation evironments
   protected definition transport_of_equiv [subst] (P : Type → Type) {A B : Type} (H : A ≃ B)

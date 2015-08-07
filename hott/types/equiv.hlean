@@ -109,7 +109,7 @@ end is_equiv
 
 namespace equiv
   open is_equiv
-  variables {A B : Type}
+  variables {A B C : Type}
 
   definition equiv_mk_eq {f f' : A → B} [H : is_equiv f] [H' : is_equiv f'] (p : f = f')
       : equiv.mk f H = equiv.mk f' H' :=
@@ -117,6 +117,15 @@ namespace equiv
 
   definition equiv_eq {f f' : A ≃ B} (p : to_fun f = to_fun f') : f = f' :=
   by (cases f; cases f'; apply (equiv_mk_eq p))
+
+  definition equiv_eq' {f f' : A ≃ B} (p : to_fun f ~ to_fun f') : f = f' :=
+  by apply equiv_eq;apply eq_of_homotopy p
+
+  definition trans_symm (f : A ≃ B) (g : B ≃ C) : (f ⬝e g)⁻¹ᵉ = g⁻¹ᵉ ⬝e f⁻¹ᵉ :> (C ≃ A) :=
+  equiv_eq idp
+
+  definition symm_symm (f : A ≃ B) : f⁻¹ᵉ⁻¹ᵉ = f :> (A ≃ B) :=
+  equiv_eq idp
 
   protected definition equiv.sigma_char [constructor]
     (A B : Type) : (A ≃ B) ≃ Σ(f : A → B), is_equiv f :=

@@ -29,9 +29,6 @@ namespace bool
   assert H2 : bnot = id, from !cast_ua_fn⁻¹ ⬝ ap cast H,
   absurd (ap10 H2 tt) ff_ne_tt
 
-  definition not_is_hset_type : ¬is_hset Type₀ :=
-  assume H : is_hset Type₀,
-  absurd !is_hset.elim eq_bnot_ne_idp
 
   definition bool_equiv_option_unit : bool ≃ option unit :=
   begin

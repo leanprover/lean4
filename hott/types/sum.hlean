@@ -31,7 +31,7 @@ namespace sum
   by induction p; induction z; all_goals exact up idp
 
   variables (z z')
-  definition sum_eq_equiv : (z = z') ≃ sum.code z z' :=
+  definition sum_eq_equiv [constructor] : (z = z') ≃ sum.code z z' :=
   equiv.MK sum.encode
            !sum.decode
            abstract begin
@@ -63,7 +63,8 @@ namespace sum
   | sum_functor (inl a) := inl (f a)
   | sum_functor (inr b) := inr (g b)
 
-  definition is_equiv_sum_functor [Hf : is_equiv f] [Hg : is_equiv g] : is_equiv (sum_functor f g) :=
+  definition is_equiv_sum_functor [constructor] [Hf : is_equiv f] [Hg : is_equiv g]
+    : is_equiv (sum_functor f g) :=
   adjointify (sum_functor f   g)
              (sum_functor f⁻¹ g⁻¹)
              abstract begin
@@ -75,23 +76,24 @@ namespace sum
                all_goals (esimp; (apply ap inl | apply ap inr); apply right_inv)
              end end
 
-  definition sum_equiv_sum_of_is_equiv [Hf : is_equiv f] [Hg : is_equiv g] : A + B ≃ A' + B' :=
+  definition sum_equiv_sum_of_is_equiv [constructor] [Hf : is_equiv f] [Hg : is_equiv g]
+    : A + B ≃ A' + B' :=
   equiv.mk _ (is_equiv_sum_functor f g)
 
-  definition sum_equiv_sum (f : A ≃ A') (g : B ≃ B') : A + B ≃ A' + B' :=
+  definition sum_equiv_sum [constructor] (f : A ≃ A') (g : B ≃ B') : A + B ≃ A' + B' :=
   equiv.mk _ (is_equiv_sum_functor f g)
 
-  definition sum_equiv_sum_left (g : B ≃ B') : A + B ≃ A + B' :=
+  definition sum_equiv_sum_left [constructor] (g : B ≃ B') : A + B ≃ A + B' :=
   sum_equiv_sum equiv.refl g
 
-  definition sum_equiv_sum_right (f : A ≃ A') : A + B ≃ A' + B :=
+  definition sum_equiv_sum_right [constructor] (f : A ≃ A') : A + B ≃ A' + B :=
   sum_equiv_sum f equiv.refl
 
-  definition flip : A + B → B + A
+  definition flip [unfold 3] : A + B → B + A
   | flip (inl a) := inr a
   | flip (inr b) := inl b
 
-  definition sum_comm_equiv (A B : Type) : A + B ≃ B + A :=
+  definition sum_comm_equiv [constructor] (A B : Type) : A + B ≃ B + A :=
   begin
     fapply equiv.MK,
       exact flip,
@@ -107,7 +109,7 @@ namespace sum
   --     all_goals try (repeat (apply inl | apply inr | assumption); now),
   -- end
 
-  definition sum_empty_equiv (A : Type) : A + empty ≃ A :=
+  definition sum_empty_equiv [constructor] (A : Type) : A + empty ≃ A :=
   begin
     fapply equiv.MK,
       intro z, induction z, assumption, contradiction,
@@ -119,7 +121,7 @@ namespace sum
   definition sum_rec_unc {P : A + B → Type} (fg : (Πa, P (inl a)) × (Πb, P (inr b))) : Πz, P z :=
   sum.rec fg.1 fg.2
 
-  definition is_equiv_sum_rec (P : A + B → Type)
+  definition is_equiv_sum_rec [constructor] (P : A + B → Type)
     : is_equiv (sum_rec_unc : (Πa, P (inl a)) × (Πb, P (inr b)) → Πz, P z) :=
   begin
      apply adjointify sum_rec_unc (λf, (λa, f (inl a), λb, f (inr b))),
@@ -127,13 +129,15 @@ namespace sum
        intro h, induction h with f g, reflexivity
   end
 
-  definition equiv_sum_rec (P : A + B → Type) : (Πa, P (inl a)) × (Πb, P (inr b)) ≃ Πz, P z :=
+  definition equiv_sum_rec [constructor] (P : A + B → Type)
+    : (Πa, P (inl a)) × (Πb, P (inr b)) ≃ Πz, P z :=
   equiv.mk _ !is_equiv_sum_rec
 
-  definition imp_prod_imp_equiv_sum_imp (A B C : Type) : (A → C) × (B → C) ≃ (A + B → C) :=
+  definition imp_prod_imp_equiv_sum_imp [constructor] (A B C : Type)
+    : (A → C) × (B → C) ≃ (A + B → C) :=
   !equiv_sum_rec
 
-  definition is_trunc_sum  (n : trunc_index) [HA : is_trunc (n.+2) A]  [HB : is_trunc (n.+2) B]
+  definition is_trunc_sum (n : trunc_index) [HA : is_trunc (n.+2) A]  [HB : is_trunc (n.+2) B]
     : is_trunc (n.+2) (A + B) :=
   begin
     apply is_trunc_succ_intro, intro z z',
@@ -150,7 +154,8 @@ namespace sum
   definition sigma_bool_of_sum {A B : Type} (z : A + B) : Σ(b : bool), bool.rec A B b :=
   by induction z with a b; exact ⟨ff, a⟩; exact ⟨tt, b⟩
 
-  definition sum_equiv_sigma_bool (A B : Type) : A + B ≃ Σ(b : bool), bool.rec A B b :=
+  definition sum_equiv_sigma_bool [constructor] (A B : Type)
+    : A + B ≃ Σ(b : bool), bool.rec A B b :=
   equiv.MK sigma_bool_of_sum
            sum_of_sigma_bool
            begin intro v, induction v with b x, induction b, all_goals reflexivity end

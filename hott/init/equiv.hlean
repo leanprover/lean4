@@ -45,18 +45,19 @@ namespace is_equiv
   is_equiv.mk id id (λa, idp) (λa, idp) (λa, idp)
 
   -- The composition of two equivalences is, again, an equivalence.
-  definition is_equiv_compose [Hf : is_equiv f] [Hg : is_equiv g] : is_equiv (g ∘ f) :=
-    is_equiv.mk (g ∘ f) (f⁻¹ ∘ g⁻¹)
-               (λc, ap g (right_inv f (g⁻¹ c)) ⬝ right_inv g c)
-               (λa, ap (inv f) (left_inv g (f a)) ⬝ left_inv f a)
-               (λa, (whisker_left _ (adj g (f a))) ⬝
-                    (ap_con g _ _)⁻¹ ⬝
-                    ap02 g ((ap_con_eq_con (right_inv f) (left_inv g (f a)))⁻¹ ⬝
-                            (ap_compose f (inv f) _ ◾  adj f a) ⬝
-                            (ap_con f _ _)⁻¹
-                           ) ⬝
-                    (ap_compose g f _)⁻¹
-               )
+  definition is_equiv_compose [constructor] [Hf : is_equiv f] [Hg : is_equiv g]
+    : is_equiv (g ∘ f) :=
+  is_equiv.mk (g ∘ f) (f⁻¹ ∘ g⁻¹)
+             (λc, ap g (right_inv f (g⁻¹ c)) ⬝ right_inv g c)
+             (λa, ap (inv f) (left_inv g (f a)) ⬝ left_inv f a)
+             (λa, (whisker_left _ (adj g (f a))) ⬝
+                  (ap_con g _ _)⁻¹ ⬝
+                  ap02 g ((ap_con_eq_con (right_inv f) (left_inv g (f a)))⁻¹ ⬝
+                          (ap_compose f (inv f) _ ◾  adj f a) ⬝
+                          (ap_con f _ _)⁻¹
+                         ) ⬝
+                  (ap_compose g f _)⁻¹
+             )
 
   -- Any function equal to an equivalence is an equivlance as well.
   variable {f}
@@ -106,7 +107,7 @@ namespace is_equiv
   end
 
   -- Any function pointwise equal to an equivalence is an equivalence as well.
-  definition homotopy_closed [constructor] {A B : Type} {f f' : A → B} [Hf : is_equiv f]
+  definition homotopy_closed [constructor] {A B : Type} (f : A → B) {f' : A → B} [Hf : is_equiv f]
     (Hty : f ~ f') : is_equiv f' :=
   adjointify f'
              (inv f)
@@ -120,7 +121,7 @@ namespace is_equiv
              (λ b, ap f !Hty⁻¹ ⬝ right_inv f b)
              (λ a, !Hty⁻¹ ⬝ left_inv f a)
 
-  definition is_equiv_up [instance] (A : Type) : is_equiv (up : A → lift A) :=
+  definition is_equiv_up [instance] [constructor] (A : Type) : is_equiv (up : A → lift A) :=
   adjointify up down (λa, by induction a;reflexivity) (λa, idp)
 
   section
@@ -128,7 +129,7 @@ namespace is_equiv
   include Hf
 
   --The inverse of an equivalence is, again, an equivalence.
-  definition is_equiv_inv [instance] : is_equiv f⁻¹ :=
+  definition is_equiv_inv [instance] [constructor] : is_equiv f⁻¹ :=
   adjointify f⁻¹ f (left_inv f) (right_inv f)
 
   definition cancel_right (g : B → C) [Hgf : is_equiv (g ∘ f)] : (is_equiv g) :=
@@ -201,8 +202,9 @@ namespace is_equiv
   end
 
   --Transporting is an equivalence
-  definition is_equiv_tr [instance] {A : Type} (P : A → Type) {x y : A} (p : x = y) : (is_equiv (transport P p)) :=
-    is_equiv.mk _ (transport P p⁻¹) (tr_inv_tr p) (inv_tr_tr p) (tr_inv_tr_lemma p)
+  definition is_equiv_tr [instance] [constructor] {A : Type} (P : A → Type) {x y : A} (p : x = y)
+    : (is_equiv (transport P p)) :=
+  is_equiv.mk _ (transport P p⁻¹) (tr_inv_tr p) (inv_tr_tr p) (tr_inv_tr_lemma p)
 
 end is_equiv
 open is_equiv
@@ -241,10 +243,10 @@ namespace equiv
   protected definition refl [refl] [constructor] : A ≃ A :=
   equiv.mk id !is_equiv_id
 
-  protected definition symm [symm] [unfold 3] (f : A ≃ B) : B ≃ A :=
+  protected definition symm [symm] (f : A ≃ B) : B ≃ A :=
   equiv.mk f⁻¹ !is_equiv_inv
 
-  protected definition trans [trans] (f : A ≃ B) (g: B ≃ C) : A ≃ C :=
+  protected definition trans [trans] (f : A ≃ B) (g : B ≃ C) : A ≃ C :=
   equiv.mk (g ∘ f) !is_equiv_compose
 
   infixl `⬝e`:75 := equiv.trans
@@ -252,8 +254,12 @@ namespace equiv
     -- notation for inverse which is not overloaded
   abbreviation erfl [constructor] := @equiv.refl
 
+  definition to_inv_trans [reducible] [unfold-full] (f : A ≃ B) (g : B ≃ C)
+    : to_inv (f ⬝e g) = to_fun (g⁻¹ᵉ ⬝e f⁻¹ᵉ) :=
+  idp
+
   definition equiv_change_fun [constructor] (f : A ≃ B) {f' : A → B} (Heq : f ~ f') : A ≃ B :=
-  equiv.mk f' (is_equiv.homotopy_closed Heq)
+  equiv.mk f' (is_equiv.homotopy_closed f Heq)
 
   definition equiv_change_inv [constructor] (f : A ≃ B) {f' : B → A} (Heq : f⁻¹ ~ f')
     : A ≃ B :=

@@ -138,4 +138,7 @@ namespace lift
       apply ua_refl}
   end
 
+  -- is_trunc_lift is defined in init.trunc
+
+
 end lift

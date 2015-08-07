@@ -300,11 +300,14 @@ namespace is_trunc
   theorem is_hset.elimo (q q' : c =[p] c₂) [H : is_hset (C a)] : q = q' :=
   !is_hprop.elim
 
-  /- truncatedness of lift -/
-  definition is_trunc_lift [instance] (A : Type) (n : trunc_index) [H : is_trunc n A]
-    : is_trunc n (lift A) :=
-  is_trunc_equiv_closed _ !equiv_lift
-
   -- TODO: port "Truncated morphisms"
 
 end is_trunc
+
+/- truncatedness of lift -/
+namespace lift
+  open is_trunc equiv
+  definition is_trunc_lift [instance] [priority 1450] (A : Type) (n : trunc_index)
+    [H : is_trunc n A] : is_trunc n (lift A) :=
+  is_trunc_equiv_closed _ !equiv_lift
+end lift

@@ -144,7 +144,7 @@ namespace circle
 
   theorem elim_type_loop_inv (Pbase : Type) (Ploop : Pbase ≃ Pbase) :
     transport (circle.elim_type Pbase Ploop) loop⁻¹ = to_inv Ploop :=
-  by rewrite [tr_inv_fn,↑to_inv]; apply inv_eq_inv; apply elim_type_loop
+  by rewrite [tr_inv_fn]; apply inv_eq_inv; apply elim_type_loop
 end circle
 
 attribute circle.base1 circle.base2 circle.base [constructor]
@@ -245,7 +245,7 @@ namespace circle
   --the carrier of π₁(S¹) is the set-truncation of base = base.
   open core algebra trunc equiv.ops
   definition fg_carrier_equiv_int : π₁(S¹) ≃ ℤ :=
-  trunc_equiv_trunc 0 base_eq_base_equiv ⬝e !equiv_trunc⁻¹ᵉ
+  trunc_equiv_trunc 0 base_eq_base_equiv ⬝e !trunc_equiv
 
   definition con_comm_base (p q : base = base) : p ⬝ q = q ⬝ p :=
   eq_of_fn_eq_fn base_eq_base_equiv (by esimp;rewrite [+encode_con,add.comm])

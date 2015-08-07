@@ -341,18 +341,22 @@ namespace sigma
   equiv.mk sigma.coind_unc _
   end
 
-  /- ** Subtypes (sigma types whose second components are hprops) -/
+  /- Subtypes (sigma types whose second components are hprops) -/
+
+  definition subtype [reducible] {A : Type} (P : A → Type) [H : Πa, is_hprop (P a)] :=
+  Σ(a : A), P a
+  notation [parsing-only] `{` binder `|` r:(scoped:1 P, subtype P) `}` := r
 
   /- To prove equality in a subtype, we only need equality of the first component. -/
-  definition subtype_eq [H : Πa, is_hprop (B a)] (u v : Σa, B a) : u.1 = v.1 → u = v :=
+  definition subtype_eq [H : Πa, is_hprop (B a)] (u v : {a | B a}) : u.1 = v.1 → u = v :=
   sigma_eq_unc ∘ inv pr1
 
-  definition is_equiv_subtype_eq [H : Πa, is_hprop (B a)] (u v : Σa, B a)
+  definition is_equiv_subtype_eq [H : Πa, is_hprop (B a)] (u v : {a | B a})
       : is_equiv (subtype_eq u v) :=
   !is_equiv_compose
   local attribute is_equiv_subtype_eq [instance]
 
-  definition equiv_subtype [H : Πa, is_hprop (B a)] (u v : Σa, B a) : (u.1 = v.1) ≃ (u = v) :=
+  definition equiv_subtype [H : Πa, is_hprop (B a)] (u v : {a | B a}) : (u.1 = v.1) ≃ (u = v) :=
   equiv.mk !subtype_eq _
 
   /- truncatedness -/

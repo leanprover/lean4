@@ -41,8 +41,8 @@ namespace trunc
              (λaa, trunc.rec_on aa (λa, idp))
              (λa, idp)
 
-  definition equiv_trunc [H : is_trunc n A] : A ≃ trunc n A :=
-  equiv.mk tr _
+  definition trunc_equiv [H : is_trunc n A] : trunc n A ≃ A :=
+  (equiv.mk tr _)⁻¹ᵉ
 
   definition is_trunc_of_is_equiv_tr [H : is_equiv (@tr n A)] : is_trunc n A :=
   is_trunc_is_equiv_closed n (@tr n _)⁻¹
@@ -128,7 +128,7 @@ namespace trunc
     : trunc n (Σ x, P x) ≃ Σ x, trunc n (P x) :=
   calc
     trunc n (Σ x, P x) ≃ trunc n (Σ x, trunc n (P x)) : trunc_sigma_equiv
-      ... ≃ Σ x, trunc n (P x) : equiv.symm !equiv_trunc
+      ... ≃ Σ x, trunc n (P x) : !trunc_equiv
   end
 
 end trunc

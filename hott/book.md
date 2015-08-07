@@ -17,7 +17,7 @@ The rows indicate the chapters, the columns the sections.
 |-------|---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|
 | Ch 1  | . | . | . | . | + | + | + | + | + | .  | +  | +  |    |    |    |
 | Ch 2  | + | + | + | + | . | + | + | + | + | +  | +  | +  | +  | +  | +  |
-| Ch 3  | + | - | + | + | ½ | + | + | - | ½ | .  | +  |    |    |    |    |
+| Ch 3  | + | + | + | + | ½ | + | + | - | ½ | .  | +  |    |    |    |    |
 | Ch 4  | - | + | - | + | . | + | - | - | + |    |    |    |    |    |    |
 | Ch 5  | - | . | - | - | - | . | . | ½ |   |    |    |    |    |    |    |
 | Ch 6  | . | + | + | + | + | ½ | ½ | ¼ | ¼ | ¼  | ¾  | -  | .  |    |    |
@@ -69,8 +69,8 @@ Chapter 2: Homotopy type theory
 Chapter 3: Sets and logic
 ---------
 
-- 3.1 (Sets and n-types): [init.trunc](init/trunc.hlean)
-- 3.2 (Propositions as types?): not formalized
+- 3.1 (Sets and n-types): [init.trunc](init/trunc.hlean). Example 3.1.9 in [types.univ](types/univ.hlean)
+- 3.2 (Propositions as types?): [types.univ](types/univ.hlean)
 - 3.3 (Mere propositions): [init.trunc](init/trunc.hlean) and [hprop_trunc](hprop_trunc.hlean) (Lemma 3.3.5).
 - 3.4 (Classical vs. intuitionistic logic): decidable is defined in [init.logic](init/logic.hlean)
 - 3.5 (Subsets and propositional resizing): Lemma 3.5.1 is subtype_eq in [types.sigma](types/sigma.hlean), we don't have propositional resizing as axiom yet.

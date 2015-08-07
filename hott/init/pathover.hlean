@@ -205,6 +205,10 @@ namespace eq
   definition tr_pathover_of_eq (q : b₂ = b₂') : p⁻¹ ▸ b₂ =[p] b₂' :=
   by cases q;apply tr_pathover
 
+  definition apo (f : Πa, B a → B' a) (Ha : a = a₂) (Hb : b =[Ha] b₂)
+      : f a b =[Ha] f a₂ b₂ :=
+  by induction Hb; exact idpo
+
   definition apo011 (f : Πa, B a → A') (Ha : a = a₂) (Hb : b =[Ha] b₂)
       : f a b = f a₂ b₂ :=
   by cases Hb; exact idp
@@ -217,8 +221,12 @@ namespace eq
     {b : B a} {b₂ : B a₂} (q : b =[p] b₂) : f b =[apo011 C p q] g b₂ :=
   by cases r; apply (idp_rec_on q); exact idpo
 
-  definition apo10 {f : Πb, C a b} {g : Πb₂, C a₂ b₂} (r : f =[p] g)
-    {b : B a} : f b =[apo011 C p !pathover_tr] g (p ▸ b) :=
+  definition apdo10 {f : Πb, C a b} {g : Πb₂, C a₂ b₂} (r : f =[p] g)
+    (b : B a) : f b =[apo011 C p !pathover_tr] g (p ▸ b) :=
+  by cases r; exact idpo
+
+  definition apo10 {f : B a → B' a} {g : B a₂ → B' a₂} (r : f =[p] g)
+    (b : B a) : f b =[p] g (p ▸ b) :=
   by cases r; exact idpo
 
   definition cono.right_inv_eq (q : b = b')

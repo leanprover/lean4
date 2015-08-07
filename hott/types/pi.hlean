@@ -228,6 +228,9 @@ namespace pi
     apply eq_equiv_homotopy
   end
 
+  definition is_trunc_not [instance] (n : trunc_index) (A : Type) : is_trunc (n.+1) ¬A :=
+  by unfold not;exact _
+
   definition is_hprop_pi_eq [instance] [priority 490] (a : A) : is_hprop (Π(a' : A), a = a') :=
   is_hprop_of_imp_is_contr
   ( assume (f : Πa', a = a'),

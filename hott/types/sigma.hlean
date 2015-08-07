@@ -18,6 +18,8 @@ namespace sigma
 
   definition destruct := @sigma.cases_on
 
+  /- Paths in a sigma-type -/
+
   protected definition eta : Π (u : Σa, B a), ⟨u.1 , u.2⟩ = u
   | eta ⟨u₁, u₂⟩ := idp
 
@@ -32,8 +34,6 @@ namespace sigma
 
   definition sigma_eq (p : u.1 = v.1) (q : u.2 =[p] v.2) : u = v :=
   by induction u; induction v; exact (dpair_eq_dpair p q)
-
-  /- Projections of paths from a total space -/
 
   definition eq_pr1 (p : u = v) : u.1 = v.1 :=
   ap pr1 p
@@ -176,7 +176,7 @@ namespace sigma
 
   /- Pathovers -/
 
-  definition eta_pathover (p : a = a') (bc : Σ(b : B a), C a b)
+  definition etao (p : a = a') (bc : Σ(b : B a), C a b)
     : bc =[p] ⟨p ▸ bc.1, p ▸D bc.2⟩ :=
   by induction p; induction bc; apply idpo
 
@@ -187,7 +187,8 @@ namespace sigma
     esimp [apo011] at s, induction s using idp_rec_on, apply idpo
   end
 
-  /- TODO:
+  /-
+    TODO:
     * define the projections from the type u =[p] v
     * show that the uncurried version of sigma_pathover is an equivalence
   -/

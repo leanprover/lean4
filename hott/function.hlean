@@ -26,6 +26,16 @@ structure is_retraction [class] (f : A → B) :=
   (sect : B → A)
   (right_inverse : Π(b : B), f (sect b) = b)
 
+definition is_weakly_constant [class] (f : A → B) (a a' : A) := f a = f a'
+
+structure is_constant [class] (f : A → B) :=
+  (pt : B)
+  (eq : Π(a : A), f a = pt)
+
+structure conditionally_constant [class] (f : A → B) :=
+  (g : ∥A∥ → B)
+  (eq : Π(a : A), f a = g (tr a))
+
 namespace function
 
   attribute is_embedding.elim [instance]

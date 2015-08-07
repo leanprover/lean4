@@ -9,8 +9,8 @@ Theorems about sums/coproducts/disjoint unions
 open lift eq is_equiv equiv equiv.ops prod prod.ops is_trunc sigma bool
 
 namespace sum
-  universe variables u v
-  variables {A : Type.{u}} {B : Type.{v}} (z z' : A + B)
+  universe variables u v u' v'
+  variables {A : Type.{u}} {B : Type.{v}} (z z' : A + B) {P : A → Type.{u'}} {Q : A → Type.{v'}}
 
   protected definition eta : sum.rec inl inr z = z :=
   by induction z; all_goals reflexivity
@@ -53,15 +53,59 @@ namespace sum
   definition empty_of_inl_eq_inr (p : inl a = inr b) : empty := down (sum.encode p)
   definition empty_of_inr_eq_inl (p : inr b = inl a) : empty := down (sum.encode p)
 
-  definition sum_transport {P Q : A → Type} (p : a = a') (z : P a + Q a)
+  /- Transport -/
+
+  definition sum_transport (p : a = a') (z : P a + Q a)
     : p ▸ z = sum.rec (λa, inl (p ▸ a)) (λb, inr (p ▸ b)) z :=
   by induction p; induction z; all_goals reflexivity
+
+  /- Pathovers -/
+
+  definition etao (p : a = a') (z : P a + Q a)
+    : z =[p] sum.rec (λa, inl (p ▸ a)) (λb, inr (p ▸ b)) z :=
+  by induction p; induction z; all_goals constructor
+
+  protected definition codeo (p : a = a') : P a + Q a → P a' + Q a' → Type.{max u' v'}
+  | codeo (inl x) (inl x') := lift.{u' v'} (x =[p] x')
+  | codeo (inr y) (inr y') := lift.{v' u'} (y =[p] y')
+  | codeo _       _        := lift empty
+
+  protected definition decodeo (p : a = a') : Π(z : P a + Q a) (z' : P a' + Q a'),
+    sum.codeo p z z' → z =[p] z'
+  | decodeo (inl x) (inl x') := λc, apo (λa, inl) p (down c)
+  | decodeo (inl x) (inr y') := λc, empty.elim (down c) _
+  | decodeo (inr y) (inl x') := λc, empty.elim (down c) _
+  | decodeo (inr y) (inr y') := λc, apo (λa, inr) p (down c)
+
+  variables {z z'}
+  protected definition encodeo {p : a = a'} {z : P a + Q a} {z' : P a' + Q a'} (q : z =[p] z')
+    : sum.codeo p z z' :=
+  by induction q; induction z; all_goals exact up idpo
+
+  variables (z z')
+  definition sum_pathover_equiv [constructor] (p : a = a') (z : P a + Q a) (z' : P a' + Q a')
+    : (z =[p] z') ≃ sum.codeo p z z' :=
+  equiv.MK sum.encodeo
+           !sum.decodeo
+           abstract begin
+             intro c, induction z with a b, all_goals induction z' with a' b',
+             all_goals (esimp at *; induction c with c),
+             all_goals induction c, -- c either has type empty or a pathover
+             all_goals reflexivity
+           end end
+           abstract begin
+             intro q, induction q, induction z, all_goals reflexivity
+           end end
   end
+
+  /- Functorial action -/
 
   variables {A' B' : Type} (f : A → A') (g : B → B')
   definition sum_functor [unfold 7] : A + B → A' + B'
   | sum_functor (inl a) := inl (f a)
   | sum_functor (inr b) := inr (g b)
+
+  /- Equivalences -/
 
   definition is_equiv_sum_functor [constructor] [Hf : is_equiv f] [Hg : is_equiv g]
     : is_equiv (sum_functor f g) :=
@@ -101,13 +145,14 @@ namespace sum
       all_goals (intro z; induction z; all_goals reflexivity)
   end
 
-  -- definition sum_assoc_equiv (A B C : Type) : A + (B + C) ≃ (A + B) + C :=
-  -- begin
-  --   fapply equiv.MK,
-  --     all_goals try (intro z; induction z with u v;
-  --                    all_goals try induction u; all_goals try induction v),
-  --     all_goals try (repeat (apply inl | apply inr | assumption); now),
-  -- end
+  definition sum_assoc_equiv (A B C : Type) : A + (B + C) ≃ (A + B) + C :=
+  begin
+    fapply equiv.MK,
+      all_goals try (intro z; induction z with u v;
+                     all_goals try induction u; all_goals try induction v),
+      all_goals try (repeat append (append (apply inl) (apply inr)) assumption; now),
+      all_goals reflexivity
+  end
 
   definition sum_empty_equiv [constructor] (A : Type) : A + empty ≃ A :=
   begin
@@ -146,15 +191,21 @@ namespace sum
     all_goals exact _,
   end
 
-  /- Sums are equivalent to dependent sigmas where the first component is a bool. -/
+  /-
+    Sums are equivalent to dependent sigmas where the first component is a bool.
 
-  definition sum_of_sigma_bool {A B : Type} (v : Σ(b : bool), bool.rec A B b) : A + B :=
+    The current construction only works for A and B in the same universe.
+    If we need it for A and B in different universes, we need to insert some lifts.
+  -/
+
+
+  definition sum_of_sigma_bool {A B : Type.{u}} (v : Σ(b : bool), bool.rec A B b) : A + B :=
   by induction v with b x; induction b; exact inl x; exact inr x
 
-  definition sigma_bool_of_sum {A B : Type} (z : A + B) : Σ(b : bool), bool.rec A B b :=
+  definition sigma_bool_of_sum {A B : Type.{u}} (z : A + B) : Σ(b : bool), bool.rec A B b :=
   by induction z with a b; exact ⟨ff, a⟩; exact ⟨tt, b⟩
 
-  definition sum_equiv_sigma_bool [constructor] (A B : Type)
+  definition sum_equiv_sigma_bool [constructor] (A B : Type.{u})
     : A + B ≃ Σ(b : bool), bool.rec A B b :=
   equiv.MK sigma_bool_of_sum
            sum_of_sigma_bool

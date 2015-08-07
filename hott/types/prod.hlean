@@ -9,10 +9,12 @@ Theorems about products
 
 open eq equiv is_equiv is_trunc prod prod.ops unit equiv.ops
 
-variables {A A' B B' C D : Type}
+variables {A A' B B' C D : Type} {P Q : A → Type}
           {a a' a'' : A} {b b₁ b₂ b' b'' : B} {u v w : A × B}
 
 namespace prod
+
+  /- Paths in a product space -/
 
   protected definition eta (u : A × B) : (pr₁ u, pr₂ u) = u :=
   by cases u; apply idp
@@ -22,8 +24,6 @@ namespace prod
 
   definition prod_eq [unfold 3 4 5 6] (H₁ : u.1 = v.1) (H₂ : u.2 = v.2) : u = v :=
   by cases u; cases v; exact pair_eq H₁ H₂
-
-  /- Projections of paths from a total space -/
 
   definition eq_pr1 (p : u = v) : u.1 = v.1 :=
   ap pr1 p
@@ -50,8 +50,7 @@ namespace prod
   definition prod_eq_eta (p : u = v) : prod_eq (p..1) (p..2) = p :=
   by induction p; induction u; reflexivity
 
-  /- the uncurried version of prod_eq. We will prove that this is an equivalence -/
-
+  -- the uncurried version of prod_eq. We will prove that this is an equivalence
   definition prod_eq_unc (H : u.1 = v.1 × u.2 = v.2) : u = v :=
   by cases H with H₁ H₂;exact prod_eq H₁ H₂
 
@@ -80,9 +79,28 @@ namespace prod
 
   /- Transport -/
 
-  definition prod_transport {P Q : A → Type} {a a' : A} (p : a = a') (u : P a × Q a)
+  definition prod_transport (p : a = a') (u : P a × Q a)
     : p ▸ u = (p ▸ u.1, p ▸ u.2) :=
   by induction p; induction u; reflexivity
+
+  /- Pathovers -/
+
+  definition etao (p : a = a') (bc : P a × Q a) : bc =[p] (p ▸ bc.1, p ▸ bc.2) :=
+  by induction p; induction bc; apply idpo
+
+  definition prod_pathover (p : a = a') (u : P a × Q a) (v : P a' × Q a')
+    (r : u.1 =[p] v.1) (s : u.2 =[p] v.2) : u =[p] v :=
+  begin
+    induction u, induction v, esimp at *, induction r,
+    induction s using idp_rec_on,
+    apply idpo
+  end
+
+  /-
+    TODO:
+    * define the projections from the type u =[p] v
+    * show that the uncurried version of prod_pathover is an equivalence
+  -/
 
   /- Functorial action -/
 

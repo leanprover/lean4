@@ -160,7 +160,7 @@
                 "refine" "repeat" "whnf" "rotate" "rotate_left" "rotate_right" "inversion" "cases" "rewrite"
                 "xrewrite" "krewrite" "simp" "esimp" "unfold" "change" "check_expr" "contradiction"
                 "exfalso" "split" "existsi" "constructor" "fconstructor" "left" "right" "injection" "congruence" "reflexivity"
-                "symmetry" "transitivity" "state" "induction" "induction_using"
+                "symmetry" "transitivity" "state" "induction" "induction_using" "fail" "append"
                 "substvars" "now" "with_options"))
            word-end)
       (1 'font-lock-constant-face))

@@ -199,4 +199,42 @@
    nil otherwise"
   (nth 4 (syntax-ppss)))
 
+;; The following function is a slightly modified version of
+;; f--collect-entries written by Johan Andersson
+;; The URL is at https://github.com/rejeep/f.el/blob/master/f.el#L416-L435
+(defun lean--collect-entries (path recursive)
+  (let (result
+        (entries
+         (-reject
+          (lambda (file)
+            (or
+             (equal (f-filename file) ".")
+             (equal (f-filename file) "..")))
+          (directory-files path t))))
+    ;; The following line is the only modification that I made
+    ;; It waits 0.0001 second for an event. This wait allows
+    ;; wait-timeout function to check the timer and kill the execution
+    ;; of this function.
+    (sit-for 0.0001)
+    (cond (recursive
+           (-map
+            (lambda (entry)
+              (if (f-file? entry)
+                  (setq result (cons entry result))
+                (when (f-directory? entry)
+                  (setq result (cons entry result))
+                  (setq result (append result (lean--collect-entries entry recursive))))))
+            entries))
+          (t (setq result entries)))
+    result))
+
+;; The following function is a slightly modified version of
+;; f-files function written by Johan Andersson The URL is at
+;; https://github.com/rejeep/f.el/blob/master/f.el#L478-L481
+(defun lean-find-files (path &optional fn recursive)
+  "Find all files in PATH."
+  ;; It calls lean--collect-entries instead of f--collect-entries
+  (let ((files (-select 'f-file? (lean--collect-entries path recursive))))
+    (if fn (-select fn files) files)))
+
 (provide 'lean-util)

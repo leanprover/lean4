@@ -669,7 +669,7 @@ class definition_cmd_fn {
 
     void parse_name() {
         if (m_kind == Example)
-            m_name = name{"example"};
+            m_name = get_this_tk();
         else
             m_name = m_p.check_id_next("invalid declaration, identifier expected");
     }
@@ -763,6 +763,8 @@ class definition_cmd_fn {
                 m_env      = env_n.first;
                 m_real_aux_names.push_back(env_n.second);
             }
+        } else if (m_kind == Example) {
+            m_real_name = name("example");
         } else {
             name const & ns = get_namespace(m_env);
             m_real_name     = ns + m_name;
@@ -952,14 +954,15 @@ class definition_cmd_fn {
     }
 
     std::tuple<expr, expr, level_param_names> elaborate_definition(expr const & type, expr const & value) {
+        name const & def_name = m_kind == Example ? m_real_name : m_name;
         if (m_p.profiling()) {
             std::ostringstream msg;
             display_pos(msg);
             msg << " elaboration time for " << m_name;
             timeit timer(m_p.diagnostic_stream().get_stream(), msg.str().c_str());
-            return m_p.elaborate_definition(m_name, type, value);
+            return m_p.elaborate_definition(def_name, type, value);
         } else {
-            return m_p.elaborate_definition(m_name, type, value);
+            return m_p.elaborate_definition(def_name, type, value);
         }
     }
 

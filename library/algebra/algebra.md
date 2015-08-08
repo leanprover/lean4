@@ -11,7 +11,8 @@ Algebraic structures.
 * [lattice](lattice.lean)
 * [group](group.lean)
 * [group_power](group_power.lean) : nat and int powers
-* [group_bigops](group_bigops.lean) : finite products and sums
+* [group_bigops](group_bigops.lean) : products and sums over finsets
+* [group_set_bigops](group_set_bigops.lean) : products and sums over finite sets
 * [ring](ring.lean)
 * [ordered_group](ordered_group.lean)
 * [ordered_ring](ordered_ring.lean)

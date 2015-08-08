@@ -2574,6 +2574,57 @@ struct unifier_fn {
         return try_merge_max_core(rhs, lhs, j);
     }
 
+
+    static void get_max_args(level const & m, buffer<level> & args) {
+        if (is_max(m)) {
+            get_max_args(max_lhs(m), args);
+            get_max_args(max_rhs(m), args);
+        } else {
+            args.push_back(m);
+        }
+    }
+
+    static level mk_max_args(buffer<level> const & args) {
+        lean_assert(!args.empty());
+        level r = args[0];
+        for (unsigned i = 1; i < args.size(); i++)
+            r = mk_max(r, args[i]);
+        return r;
+    }
+
+    /**
+        Given a constraint of the form (or commutative variants)
+           max u t =?= max u v
+        reduce it to t =?= v
+
+        \remark we may miss solutions since this is an approximation
+
+        see issue #777
+    */
+    status try_max_max_cancel(constraint const & c) {
+        lean_assert(is_level_eq_cnstr(c));
+        level const & lhs = cnstr_lhs_level(c);
+        level const & rhs = cnstr_rhs_level(c);
+        justification const & j = c.get_justification();
+        if (is_max(lhs) && is_max(rhs)) {
+            buffer<level> lhs_args, rhs_args;
+            get_max_args(lhs, lhs_args);
+            get_max_args(rhs, rhs_args);
+            for (level const & l : lhs_args) {
+                if (std::find(rhs_args.begin(), rhs_args.end(), l) != rhs_args.end()) {
+                    lhs_args.erase_elem(l);
+                    rhs_args.erase_elem(l);
+                    constraint new_c = mk_level_eq_cnstr(mk_max_args(lhs_args), mk_max_args(rhs_args), j);
+                    if (process_constraint(new_c))
+                        return Solved;
+                    else
+                        return Continue;
+                }
+            }
+        }
+        return Continue;
+    }
+
     /** \brief Process the next constraint in the constraint queue m_cnstrs */
     bool process_next() {
         lean_assert(!m_cnstrs.empty());
@@ -2604,16 +2655,24 @@ struct unifier_fn {
                 st = process_succ_eq_max(c);
                 if (st != Continue) return st == Solved;
                 if (m_config.m_discard) {
-                    // we only try try_level_eq_zero and try_merge_max when we are discarding
-                    // constraints that canno be solved.
+                    // we only try try_level_eq_zero, try_max_max_cancel and try_merge_max when we are discarding
+                    // constraints that cannot be solved.
                     st = try_level_eq_zero(c);
-                    if (st != Continue) return st == Solved;
+                    if (st != Continue) {
+                        return st == Solved;
+                    }
                     if (cidx < get_group_first_index(cnstr_group::FlexFlex)) {
                         add_cnstr(c, cnstr_group::FlexFlex);
                         return true;
                     }
+                    st = try_max_max_cancel(c);
+                    if (st != Continue) {
+                        return st == Solved;
+                    }
                     st = try_merge_max(c);
-                    if (st != Continue) return st == Solved;
+                    if (st != Continue) {
+                        return st == Solved;
+                    }
                     return process_plugin_constraint(c);
                 } else {
                     discard(c);

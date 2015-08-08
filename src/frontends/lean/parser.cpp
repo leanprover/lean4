@@ -1418,7 +1418,7 @@ expr parser::parse_numeral_expr(bool user_notation) {
     }
     buffer<expr> cs;
     if (*m_has_num)
-        cs.push_back(save_pos(from_num(n), p));
+        cs.push_back(save_pos(copy(from_num(n)), p));
     for (expr const & c : vals)
         cs.push_back(copy_with_new_pos(c, p));
     // Remark: choices are processed from right to left.

@@ -1,0 +1,18 @@
+778.hlean:7:4: proof state
+
+⊢ bnot (bnot ff) = ff
+
+
+⊢ bnot (bnot tt) = tt
+
+
+⊢ bnot (bnot ff) = ff
+
+
+⊢ bnot (bnot tt) = tt
+
+
+⊢ bool.cases_on (bnot ff) ?M_1 ?M_2 = eq.ap bnot (bool.cases_on ff ?M_3 ?M_4)
+
+
+⊢ bool.cases_on (bnot tt) ?M_1 ?M_2 = eq.ap bnot (bool.cases_on tt ?M_3 ?M_4)

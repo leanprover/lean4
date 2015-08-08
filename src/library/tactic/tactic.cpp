@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
 #include "library/normalize.h"
+#include "library/util.h"
 #include "library/kernel_bindings.h"
 #include "library/tactic/tactic.h"
 #include "library/io_state_stream.h"
@@ -108,7 +109,26 @@ tactic then(tactic const & t1, tactic const & t2) {
     return tactic([=](environment const & env, io_state const & ios, proof_state const & s1) -> proof_state_seq {
             return map_append(t1(env, ios, s1), [=](proof_state const & s2) {
                     check_interrupted();
-                    return t2(env, ios, s2);
+                    bool has_meta = false;
+                    goals const & gs = s2.get_goals();
+                    for (goal const & g : gs) {
+                        if (has_expr_metavar_relaxed(g.get_type())) {
+                            has_meta = true;
+                            break;
+                        }
+                    }
+                    if (has_meta) {
+                        buffer<goal> gs;
+                        substitution subst = s2.get_subst();
+                        to_buffer(s2.get_goals(), gs);
+                        for (unsigned i = 0; i < gs.size(); i++) {
+                            gs[i] = gs[i].instantiate(subst);
+                        }
+                        proof_state new_s2(s2, to_list(gs));
+                        return t2(env, ios, new_s2);
+                    } else {
+                        return t2(env, ios, s2);
+                    }
                 }, "THEN tactical");
         });
 }

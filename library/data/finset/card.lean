@@ -6,7 +6,7 @@ Author: Jeremy Avigad
 Cardinality calculations for finite sets.
 -/
 import .to_set .bigops data.set.function data.nat.power data.nat.bigops
-open nat eq.ops
+open nat nat.finset eq.ops
 
 namespace finset
 

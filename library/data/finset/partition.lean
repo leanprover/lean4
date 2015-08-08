@@ -45,13 +45,13 @@ begin
 end
 
 theorem class_equation (f : @partition A _) :
-  card (partition.set f) = nat.Sum (equiv_classes f) card :=
+  card (partition.set f) = nat.finset.Sum (equiv_classes f) card :=
 let s := (partition.set f), p := (partition.part f), img := image p s in
   calc
     card s = card (Union s p) : partition.complete f
        ... = card (Union img id) : image_eq_Union_index_image s p
        ... = card (Union (equiv_classes f) id) : rfl
-       ... = nat.Sum (equiv_classes f) card : card_Union_of_disjoint _ id (equiv_class_disjoint f)
+       ... = nat.finset.Sum (equiv_classes f) card : card_Union_of_disjoint _ id (equiv_class_disjoint f)
 
 lemma equiv_class_refl {f : A → finset A} (Pequiv : is_partition f) : ∀ a, a ∈ f a :=
 take a, by rewrite [Pequiv a a]
@@ -113,9 +113,9 @@ begin rewrite [binary_union P at {1}], apply Union_union, exact binary_inter_emp
 
 end
 
-open nat
+open nat nat.finset
 section
-open algebra
+open algebra algebra.finset
 
 variables {B : Type} [acmB : add_comm_monoid B]
 include acmB

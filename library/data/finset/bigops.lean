@@ -36,7 +36,7 @@ include deceqB
 
 definition Unionl (l : list A) (f : A → finset B) : finset B := algebra.Prodl l f
 notation `⋃` binders `←` l, r:(scoped f, Unionl l f) := r
-definition Union (s : finset A) (f : A → finset B) : finset B := algebra.Prod s f
+definition Union (s : finset A) (f : A → finset B) : finset B := algebra.finset.Prod s f
 notation `⋃` binders `∈` s, r:(scoped f, finset.Union s f) := r
 
 theorem Unionl_nil (f : A → finset B) : Unionl [] f = ∅ := algebra.Prodl_nil f
@@ -57,20 +57,20 @@ section deceqA
   theorem Unionl_empty (l : list A) : Unionl l (λ x, ∅) = (∅ : finset B) := algebra.Prodl_one l
 end deceqA
 
-theorem Union_empty (f : A → finset B) : Union ∅ f = ∅ := algebra.Prod_empty f
+theorem Union_empty (f : A → finset B) : Union ∅ f = ∅ := algebra.finset.Prod_empty f
 theorem Union_mul (s : finset A) (f g : A → finset B) :
-  Union s (λx, f x ∪ g x) = Union s f ∪ Union s g := algebra.Prod_mul s f g
+  Union s (λx, f x ∪ g x) = Union s f ∪ Union s g := algebra.finset.Prod_mul s f g
 section deceqA
   include deceqA
   theorem Union_insert_of_mem (f : A → finset B) {a : A} {s : finset A} (H : a ∈ s) :
-    Union (insert a s) f = Union s f := algebra.Prod_insert_of_mem f H
+    Union (insert a s) f = Union s f := algebra.finset.Prod_insert_of_mem f H
   private theorem Union_insert_of_not_mem (f : A → finset B) {a : A} {s : finset A} (H : a ∉ s) :
-    Union (insert a s) f = f a ∪ Union s f := algebra.Prod_insert_of_not_mem f H
+    Union (insert a s) f = f a ∪ Union s f := algebra.finset.Prod_insert_of_not_mem f H
   theorem Union_union (f : A → finset B) {s₁ s₂ : finset A} (disj : s₁ ∩ s₂ = ∅) :
-    Union (s₁ ∪ s₂) f = Union s₁ f ∪ Union s₂ f := algebra.Prod_union f disj
+    Union (s₁ ∪ s₂) f = Union s₁ f ∪ Union s₂ f := algebra.finset.Prod_union f disj
   theorem Union_ext {s : finset A} {f g : A → finset B} (H : ∀x, x ∈ s → f x = g x) :
-    Union s f = Union s g := algebra.Prod_ext H
-  theorem Union_empty' (s : finset A) : Union s (λ x, ∅) = (∅ : finset B) := algebra.Prod_one s
+    Union s f = Union s g := algebra.finset.Prod_ext H
+  theorem Union_empty' (s : finset A) : Union s (λ x, ∅) = (∅ : finset B) := algebra.finset.Prod_one s
 
   -- this will eventually be an instance of something more general
   theorem inter_Union (s : finset B) (t : finset A) (f : A → finset B) :

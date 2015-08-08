@@ -173,8 +173,8 @@ definition fin_lcoset_partition_subg (Psub : H ⊆ G) :=
 open nat
 
 theorem lagrange_theorem (Psub : H ⊆ G) : card G = card (fin_lcosets H G) * card H := calc
-        card G = nat.Sum (fin_lcosets H G) card : class_equation (fin_lcoset_partition_subg Psub)
-        ... = nat.Sum (fin_lcosets H G) (λ x, card H) : nat.Sum_ext (take g P, fin_lcosets_card_eq g P)
+        card G = nat.finset.Sum (fin_lcosets H G) card : class_equation (fin_lcoset_partition_subg Psub)
+        ... = nat.finset.Sum (fin_lcosets H G) (λ x, card H) : nat.finset.Sum_ext (take g P, fin_lcosets_card_eq g P)
         ... = card (fin_lcosets H G) * card H : Sum_const_eq_card_mul
 
 end fin_lcoset
@@ -304,7 +304,7 @@ fintype.mk (all_lcosets G H)
 lemma card_lcoset_type : card (lcoset_type G H) = card (fin_lcosets H G) :=
 length_all_lcosets
 
-open nat
+open nat nat.finset
 variable [finsubgH : is_finsubg H]
 include finsubgH
 

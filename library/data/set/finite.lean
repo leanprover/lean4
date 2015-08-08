@@ -7,7 +7,7 @@ The notion of "finiteness" for sets. This approach is not computational: for exa
 an element  s : set A  satsifies  finite s  doesn't mean that we can compute the cardinality. For
 a computational representation, use the finset type.
 -/
-import data.set.function data.finset logic.choice
+import data.set.function data.finset.card logic.choice
 open nat
 
 variable {A : Type}

@@ -3,7 +3,7 @@ Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Jeremy Avigad, Leonardo de Moura
 -/
-import logic algebra.binary
+import logic.connectives algebra.binary
 open eq.ops binary
 
 definition set [reducible] (X : Type) := X → Prop
@@ -219,7 +219,7 @@ theorem union_diff_cancel {s t : set X} [dec : Π x, decidable (x ∈ s)] (H : s
 setext (take x, iff.intro
   (assume H1 : x ∈ s ∪ (t \ s), or.elim H1 (assume H2, !H H2) (assume H2, and.left H2))
   (assume H1 : x ∈ t,
-    decidable.by_cases 
+    decidable.by_cases
       (suppose x ∈ s, or.inl this)
       (suppose x ∉ s, or.inr (and.intro H1 this))))
 

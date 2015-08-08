@@ -7,6 +7,9 @@ Finite products on a monoid, and finite sums on an additive monoid.
 
 We have to be careful with dependencies. This theory imports files from finset and list, which
 import basic files from nat. Then nat imports this file to instantiate finite products and sums.
+
+Bigops based on finsets go in the namespace algebra.finset. There are also versions based on sets,
+defined in group_set_bigops.lean.
 -/
 import .group .group_power data.list.basic data.list.perm data.finset.basic
 open algebra function binary quot subtype list finset
@@ -99,7 +102,7 @@ end comm_monoid
 
 /- Prod: product indexed by a finset -/
 
-section comm_monoid
+namespace finset
   variable [cmB : comm_monoid B]
   include cmB
 
@@ -159,7 +162,7 @@ section comm_monoid
 
   theorem Prod_one (s : finset A) : Prod s (λ x, 1) = (1:B) :=
   quot.induction_on s (take u, !Prodl_one)
-end comm_monoid
+end finset
 
 section add_monoid
   variable [amB : add_monoid B]
@@ -201,7 +204,7 @@ end add_comm_monoid
 
 /- Sum -/
 
-section add_comm_monoid
+namespace finset
   variable [acmB : add_comm_monoid B]
   include acmB
   local attribute add_comm_monoid.to_comm_monoid [trans-instance]
@@ -228,6 +231,6 @@ section add_comm_monoid
   end deceqA
 
   theorem Sum_zero (s : finset A) : Sum s (λ x, 0) = (0:B) := Prod_one s
-end add_comm_monoid
+end finset
 
 end algebra

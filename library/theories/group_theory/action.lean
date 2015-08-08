@@ -72,11 +72,11 @@ lemma is_fixed_point_of_mem_fixed_points :
   a ∈ fixed_points hom H → is_fixed_point hom H a :=
 assume Pain, take h, assume Phin,
   eq_of_mem_singleton
-    (of_mem_filter Pain ▸ orbit_of_exists (exists.intro h (and.intro Phin rfl)))
+    (of_mem_sep Pain ▸ orbit_of_exists (exists.intro h (and.intro Phin rfl)))
 
 lemma mem_fixed_points_of_exists_of_is_fixed_point :
   (∃ h, h ∈ H) → is_fixed_point hom H a → a ∈ fixed_points hom H :=
-assume Pex Pfp, mem_filter_of_mem !mem_univ
+assume Pex Pfp, mem_sep_of_mem !mem_univ
   (ext take x, iff.intro
     (assume Porb, obtain h Phin Pha, from exists_of_orbit Porb,
       by rewrite [mem_singleton_eq, -Pha, Pfp h Phin])
@@ -122,19 +122,19 @@ rfl
 
 lemma stab_lmul {f g : G} : g ∈ stab hom H a → hom (f*g) a = hom f a :=
 assume Pgstab,
-assert hom g a = a, from of_mem_filter Pgstab, calc
+assert hom g a = a, from of_mem_sep Pgstab, calc
   hom (f*g) a = perm.f ((hom f) * (hom g)) a : is_hom hom
           ... = ((hom f) ∘ (hom g)) a        : by rewrite perm_f_mul
           ... = (hom f) a                    : by unfold compose; rewrite this
 
 lemma stab_subset : stab hom H a ⊆ H :=
       begin
-        apply subset_of_forall, intro f Pfstab, apply mem_of_mem_filter Pfstab
+        apply subset_of_forall, intro f Pfstab, apply mem_of_mem_sep Pfstab
       end
 
 lemma reverse_move {h g : G} : g ∈ moverset hom H a (hom h a) → hom (h⁻¹*g) a = a :=
 assume Pg,
-assert hom g a = hom h a, from of_mem_filter Pg, calc
+assert hom g a = hom h a, from of_mem_sep Pg, calc
   hom (h⁻¹*g) a = perm.f ((hom h⁻¹) * (hom g)) a : by rewrite (is_hom hom)
   ... = ((hom h⁻¹) ∘ hom g) a                    : by rewrite perm_f_mul
   ... = perm.f ((hom h)⁻¹ * hom h) a             : by unfold compose; rewrite [this, perm_f_mul, hom_map_inv hom h]
@@ -145,11 +145,11 @@ lemma moverset_inj_on_orbit : set.inj_on (moverset hom H a) (ts (orbit hom H a))
       take b1 b2,
       assume Pb1, obtain h1 Ph1₁ Ph1₂, from exists_of_orbit Pb1,
       assert Ph1b1 : h1 ∈ moverset hom H a b1,
-        from mem_filter_of_mem Ph1₁ Ph1₂,
+        from mem_sep_of_mem Ph1₁ Ph1₂,
       assume Psetb2 Pmeq, begin
         subst b1,
         rewrite Pmeq at Ph1b1,
-        apply of_mem_filter Ph1b1
+        apply of_mem_sep Ph1b1
       end
 
 variable [subgH : is_finsubg H]
@@ -161,37 +161,37 @@ lemma subg_stab_of_move {h g : G} :
       assert Phinvg : h⁻¹*g ∈ H, from begin
         apply finsubg_mul_closed H,
           apply finsubg_has_inv H, assumption,
-          apply mem_of_mem_filter Pg
+          apply mem_of_mem_sep Pg
         end,
-      mem_filter_of_mem Phinvg (reverse_move Pg)
+      mem_sep_of_mem Phinvg (reverse_move Pg)
 
 lemma subg_stab_closed : finset_mul_closed_on (stab hom H a) :=
-      take f g, assume Pfstab, assert Pf : hom f a = a, from of_mem_filter Pfstab,
+      take f g, assume Pfstab, assert Pf : hom f a = a, from of_mem_sep Pfstab,
       assume Pgstab,
       assert Pfg : hom (f*g) a = a, from calc
         hom (f*g) a = (hom f) a : stab_lmul Pgstab
         ... = a : Pf,
       assert PfginH : (f*g) ∈ H,
-        from finsubg_mul_closed H (mem_of_mem_filter Pfstab) (mem_of_mem_filter Pgstab),
-      mem_filter_of_mem PfginH Pfg
+        from finsubg_mul_closed H (mem_of_mem_sep Pfstab) (mem_of_mem_sep Pgstab),
+      mem_sep_of_mem PfginH Pfg
 
 lemma subg_stab_has_one : 1 ∈ stab hom H a :=
       assert P : hom 1 a = a, from calc
         hom 1 a = perm.f (1 : perm S) a : {hom_map_one hom}
         ... = a                         : rfl,
       assert PoneinH : 1 ∈ H, from finsubg_has_one H,
-      mem_filter_of_mem PoneinH P
+      mem_sep_of_mem PoneinH P
 
 lemma subg_stab_has_inv : finset_has_inv (stab hom H a) :=
-      take f, assume Pfstab, assert Pf : hom f a = a, from of_mem_filter Pfstab,
+      take f, assume Pfstab, assert Pf : hom f a = a, from of_mem_sep Pfstab,
       assert Pfinv : hom f⁻¹ a = a, from calc
         hom f⁻¹ a = hom f⁻¹ ((hom f) a)      : by rewrite Pf
         ... = perm.f ((hom f⁻¹) * (hom f)) a : by rewrite perm_f_mul
         ... = hom (f⁻¹ * f) a                : by rewrite (is_hom hom)
         ... = hom 1 a                        : by rewrite mul.left_inv
         ... = perm.f (1 : perm S) a          : by rewrite (hom_map_one hom),
-      assert PfinvinH : f⁻¹ ∈ H, from finsubg_has_inv H (mem_of_mem_filter Pfstab),
-      mem_filter_of_mem PfinvinH Pfinv
+      assert PfinvinH : f⁻¹ ∈ H, from finsubg_has_inv H (mem_of_mem_sep Pfstab),
+      mem_sep_of_mem PfinvinH Pfinv
 
 definition subg_stab_is_finsubg [instance] :
            is_finsubg (stab hom H a) :=
@@ -201,17 +201,17 @@ lemma subg_lcoset_eq_moverset {h : G} :
       h ∈ H → fin_lcoset (stab hom H a) h = moverset hom H a (hom h a) :=
       assume Ph, ext (take g, iff.intro
       (assume Pl, obtain f (Pf₁ : f ∈ stab hom H a) (Pf₂ : h*f = g), from exists_of_mem_image Pl,
-       assert Pfstab : hom f a = a, from of_mem_filter Pf₁,
+       assert Pfstab : hom f a = a, from of_mem_sep Pf₁,
        assert PginH : g ∈ H, begin
         subst Pf₂,
         apply finsubg_mul_closed H,
           assumption,
-          apply mem_of_mem_filter Pf₁
+          apply mem_of_mem_sep Pf₁
         end,
       assert Pga : hom g a = hom h a, from calc
         hom g a = hom (h*f) a : by subst g
         ... = hom h a         : stab_lmul Pf₁,
-      mem_filter_of_mem PginH Pga)
+      mem_sep_of_mem PginH Pga)
       (assume Pr, begin
        rewrite [↑fin_lcoset, mem_image_iff],
        existsi h⁻¹*g,
@@ -333,24 +333,24 @@ iff.elim_left (exists_iff_mem_orbits orb)
 lemma fixed_point_orbits_eq : fixed_point_orbits hom H = image (orbit hom H) (fixed_points hom H) :=
 ext take s, iff.intro
   (assume Pin,
-   obtain Psin Ps, from iff.elim_left !mem_filter_iff Pin,
+   obtain Psin Ps, from iff.elim_left !mem_sep_iff Pin,
    obtain a Pa, from exists_of_mem_orbits Psin,
    mem_image
-     (mem_filter_of_mem !mem_univ (eq.symm
+     (mem_sep_of_mem !mem_univ (eq.symm
        (eq_of_card_eq_of_subset (by rewrite [card_singleton, Pa, Ps])
          (subset_of_forall
            take x, assume Pxin, eq_of_mem_singleton Pxin ▸ in_orbit_refl))))
      Pa)
   (assume Pin,
    obtain a Pain Porba, from exists_of_mem_image Pin,
-   mem_filter_of_mem
+   mem_sep_of_mem
      (begin esimp [orbits, equiv_classes, orbit_partition], rewrite [mem_image_iff],
        existsi a, exact and.intro !mem_univ Porba end)
-     (begin substvars, rewrite [of_mem_filter Pain] end))
+     (begin substvars, rewrite [of_mem_sep Pain] end))
 
 lemma orbit_inj_on_fixed_points : set.inj_on (orbit hom H) (ts (fixed_points hom H)) :=
 take a₁ a₂, begin
-  rewrite [-*mem_eq_mem_to_set, ↑fixed_points, *mem_filter_iff],
+  rewrite [-*mem_eq_mem_to_set, ↑fixed_points, *mem_sep_iff],
   intro Pa₁ Pa₂,
   rewrite [and.right Pa₁, and.right Pa₂],
   exact eq_of_singleton_eq
@@ -363,7 +363,7 @@ lemma orbit_class_equation : card S = Sum (orbits hom H) card :=
 class_equation (orbit_partition hom H)
 
 lemma card_fixed_point_orbits : Sum (fixed_point_orbits hom H) card = card (fixed_point_orbits hom H) :=
-calc Sum _ _ = Sum (fixed_point_orbits hom H) (λ x, 1) : Sum_ext (take c Pin, of_mem_filter Pin)
+calc Sum _ _ = Sum (fixed_point_orbits hom H) (λ x, 1) : Sum_ext (take c Pin, of_mem_sep Pin)
          ... = card (fixed_point_orbits hom H) * 1 : Sum_const_eq_card_mul
          ... = card (fixed_point_orbits hom H) : mul_one (card (fixed_point_orbits hom H))
 
@@ -448,7 +448,7 @@ subset_of_forall take g, begin
   intro Pg,
   rewrite -Pg at PH,
   apply finsubg_has_inv,
-  apply mem_filter_of_mem !mem_univ,
+  apply mem_sep_of_mem !mem_univ,
   intro h Ph,
   assert Phg : fin_lcoset (fin_lcoset H g) h = fin_lcoset H g, exact PH Ph,
   revert Phg,
@@ -536,9 +536,9 @@ ext (take (pp : perm (fin (succ n))), iff.intro
     pp maxi = lift_perm p maxi : {eq.symm Pp}
         ... = lift_fun p maxi : rfl
         ... = maxi : lift_fun_max,
-  mem_filter_of_mem !mem_univ Ppp)
+  mem_sep_of_mem !mem_univ Ppp)
   (assume Pstab,
-  assert Ppp : pp maxi = maxi, from of_mem_filter Pstab,
+  assert Ppp : pp maxi = maxi, from of_mem_sep Pstab,
   mem_image !mem_univ (lift_lower_eq Ppp)))
 
 definition move_from_max_to (i : fin (succ n)) : perm (fin (succ n)) :=

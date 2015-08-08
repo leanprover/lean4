@@ -96,7 +96,7 @@ card_le_card_of_subset !subset_univ
 
 lemma cyc_has_one (a : A) : 1 ∈ cyc a :=
 begin
-  apply mem_filter_of_mem !mem_univ,
+  apply mem_sep_of_mem !mem_univ,
   existsi 0, apply and.intro,
     apply zero_lt_succ,
     apply pow_zero
@@ -108,11 +108,11 @@ length_pos_of_mem (cyc_has_one a)
 lemma cyc_mul_closed (a : A) : finset_mul_closed_on (cyc a) :=
 take g h, assume Pgin Phin,
 obtain n Plt Pe, from exists_pow_eq_one a,
-obtain i Pilt Pig, from of_mem_filter Pgin,
-obtain j Pjlt Pjh, from of_mem_filter Phin,
+obtain i Pilt Pig, from of_mem_sep Pgin,
+obtain j Pjlt Pjh, from of_mem_sep Phin,
 begin
   rewrite [-Pig, -Pjh, -pow_add, pow_mod Pe],
-  apply mem_filter_of_mem !mem_univ,
+  apply mem_sep_of_mem !mem_univ,
   existsi ((i + j) mod (succ n)), apply and.intro,
     apply nat.lt.trans (mod_lt (i+j) !zero_lt_succ) (succ_lt_succ Plt),
     apply rfl
@@ -121,20 +121,20 @@ end
 lemma cyc_has_inv (a : A) : finset_has_inv (cyc a) :=
 take g, assume Pgin,
 obtain n Plt Pe, from exists_pow_eq_one a,
-obtain i Pilt Pig, from of_mem_filter Pgin,
+obtain i Pilt Pig, from of_mem_sep Pgin,
 let ni := -(mk_mod n i) in
 assert Pinv : g*a^ni = 1, by
   rewrite [-Pig, mk_pow_mod Pe, -(pow_madd Pe), add.right_inv],
 begin
   rewrite [inv_eq_of_mul_eq_one Pinv],
-  apply mem_filter_of_mem !mem_univ,
+  apply mem_sep_of_mem !mem_univ,
   existsi ni, apply and.intro,
     apply nat.lt.trans (is_lt ni) (succ_lt_succ Plt),
     apply rfl
 end
 
 lemma self_mem_cyc (a : A) : a ∈ cyc a :=
-mem_filter_of_mem !mem_univ
+mem_sep_of_mem !mem_univ
   (exists.intro (1 : nat) (and.intro (succ_lt_succ card_pos) !pow_one))
 
 lemma mem_cyc (a : A) : ∀ {n : nat}, a^n ∈ cyc a
@@ -145,7 +145,7 @@ lemma mem_cyc (a : A) : ∀ {n : nat}, a^n ∈ cyc a
 lemma order_le {a : A} {n : nat} : a^(succ n) = 1 → order a ≤ succ n :=
 assume Pe, let s := image (pow a) (upto (succ n)) in
 assert Psub: cyc a ⊆ s, from subset_of_forall
-  (take g, assume Pgin, obtain i Pilt Pig, from of_mem_filter Pgin, begin
+  (take g, assume Pgin, obtain i Pilt Pig, from of_mem_sep Pgin, begin
   rewrite [-Pig, pow_mod Pe],
   apply mem_image,
     apply mem_upto_of_lt (mod_lt i !zero_lt_succ),

@@ -35,7 +35,7 @@ lemma card_mod_eq_of_action_by_psubg {p : nat} :
   rewrite [@orbit_class_equation' G S ambientG finS deceqS hom Hom H subgH],
   apply add_mod_eq_of_dvd, apply dvd_Sum_of_dvd,
   intro s Psin,
-  rewrite mem_filter_iff at Psin,
+  rewrite mem_sep_iff at Psin,
   cases Psin with Psinorbs Pcardne,
   esimp [orbits, equiv_classes, orbit_partition] at Psinorbs,
   rewrite mem_image_iff at Psinorbs,

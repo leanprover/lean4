@@ -175,8 +175,8 @@ definition set_of (P : X → Prop) : set X := P
 notation `{` binder `|` r:(scoped:1 P, set_of P) `}` := r
 
 -- {x ∈ s | P}
-definition filter (P : X → Prop) (s : set X) : set X := λx, x ∈ s ∧ P x
-notation `{` binder ∈ s `|` r:(scoped:1 p, filter p s) `}` := r
+definition sep (P : X → Prop) (s : set X) : set X := λx, x ∈ s ∧ P x
+notation `{` binder ∈ s `|` r:(scoped:1 p, sep p s) `}` := r
 
 /- insert -/
 
@@ -188,9 +188,9 @@ notation `'{`:max a:(foldr `,` (x b, insert x b) ∅) `}`:0 := a
 theorem subset_insert (x : X) (a : set X) : a ⊆ insert x a :=
 take y, assume ys, or.inr ys
 
-/- filter -/
+/- separation -/
 
-theorem eq_filter_of_subset {s t : set X} (ssubt : s ⊆ t) : s = {x ∈ t | x ∈ s} :=
+theorem eq_sep_of_subset {s t : set X} (ssubt : s ⊆ t) : s = {x ∈ t | x ∈ s} :=
 setext (take x, iff.intro
   (suppose x ∈ s, and.intro (ssubt this) this)
   (suppose x ∈ {x ∈ t | x ∈ s}, and.right this))

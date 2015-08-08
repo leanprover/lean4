@@ -111,61 +111,61 @@ ext (take y, iff.intro
         mem_image (mem_union_r xt) fxy)))
 end image
 
-/- filter and set-builder notation -/
-section filter
+/- separation and set-builder notation -/
+section sep
 variables {A : Type} [deceq : decidable_eq A]
 include deceq
 variables (p : A → Prop) [decp : decidable_pred p] (s : finset A) {x : A}
 include decp
 
-definition filter : finset A :=
+definition sep : finset A :=
 quot.lift_on s
   (λl, to_finset_of_nodup
     (list.filter p (subtype.elt_of l))
     (list.nodup_filter p (subtype.has_property l)))
   (λ l₁ l₂ u, quot.sound (perm.perm_filter u))
 
-notation [priority finset.prio] `{` binder ∈ s `|` r:(scoped:1 p, filter p s) `}` := r
+notation [priority finset.prio] `{` binder ∈ s `|` r:(scoped:1 p, sep p s) `}` := r
 
-theorem filter_empty : filter p ∅ = ∅ := rfl
+theorem sep_empty : sep p ∅ = ∅ := rfl
 
 variables {p s}
 
-theorem of_mem_filter : x ∈ filter p s → p x :=
+theorem of_mem_sep : x ∈ sep p s → p x :=
 quot.induction_on s (take l, list.of_mem_filter)
 
-theorem mem_of_mem_filter : x ∈ filter p s → x ∈ s :=
+theorem mem_of_mem_sep : x ∈ sep p s → x ∈ s :=
 quot.induction_on s (take l, list.mem_of_mem_filter)
 
-theorem mem_filter_of_mem {x : A} : x ∈ s → p x → x ∈ filter p s :=
+theorem mem_sep_of_mem {x : A} : x ∈ s → p x → x ∈ sep p s :=
 quot.induction_on s (take l, list.mem_filter_of_mem)
 
 variables (p s)
 
-theorem mem_filter_iff : x ∈ filter p s ↔ x ∈ s ∧ p x :=
+theorem mem_sep_iff : x ∈ sep p s ↔ x ∈ s ∧ p x :=
 iff.intro
-  (assume H, and.intro (mem_of_mem_filter H) (of_mem_filter H))
-  (assume H, mem_filter_of_mem (and.left H) (and.right H))
+  (assume H, and.intro (mem_of_mem_sep H) (of_mem_sep H))
+  (assume H, mem_sep_of_mem (and.left H) (and.right H))
 
-theorem mem_filter_eq : x ∈ filter p s = (x ∈ s ∧ p x) :=
-propext !mem_filter_iff
+theorem mem_sep_eq : x ∈ sep p s = (x ∈ s ∧ p x) :=
+propext !mem_sep_iff
 
 variable t : finset A
 
-theorem mem_filter_union_iff : x ∈ filter p (s ∪ t) ↔ x ∈ filter p s ∨ x ∈ filter p t :=
-by rewrite [*mem_filter_iff, mem_union_iff, and.right_distrib]
+theorem mem_sep_union_iff : x ∈ sep p (s ∪ t) ↔ x ∈ sep p s ∨ x ∈ sep p t :=
+by rewrite [*mem_sep_iff, mem_union_iff, and.right_distrib]
 
-end filter
+end sep
 
 section
 
 variables {A : Type} [deceqA : decidable_eq A]
 include deceqA
 
-theorem eq_filter_of_subset {s t : finset A} (ssubt : s ⊆ t) : s = {x ∈ t | x ∈ s} :=
+theorem eq_sep_of_subset {s t : finset A} (ssubt : s ⊆ t) : s = {x ∈ t | x ∈ s} :=
 ext (take x, iff.intro
-  (suppose x ∈ s, mem_filter_of_mem (mem_of_subset_of_mem ssubt this) this)
-  (suppose x ∈ {x ∈ t | x ∈ s}, of_mem_filter this))
+  (suppose x ∈ s, mem_sep_of_mem (mem_of_subset_of_mem ssubt this) this)
+  (suppose x ∈ {x ∈ t | x ∈ s}, of_mem_sep this))
 
 theorem mem_singleton_eq' (x a : A) : x ∈ '{a} = (x = a) :=
 by rewrite [mem_insert_eq, mem_empty_eq, or_false]
@@ -181,13 +181,13 @@ definition diff (s t : finset A) : finset A := {x ∈ s | x ∉ t}
 infix [priority finset.prio] `\`:70 := diff
 
 theorem mem_of_mem_diff {s t : finset A} {x : A} (H : x ∈ s \ t) : x ∈ s :=
-mem_of_mem_filter H
+mem_of_mem_sep H
 
 theorem not_mem_of_mem_diff {s t : finset A} {x : A} (H : x ∈ s \ t) : x ∉ t :=
-of_mem_filter H
+of_mem_sep H
 
 theorem mem_diff {s t : finset A} {x : A} (H1 : x ∈ s) (H2 : x ∉ t) : x ∈ s \ t :=
-mem_filter_of_mem H1 H2
+mem_sep_of_mem H1 H2
 
 theorem mem_diff_iff (s t : finset A) (x : A) : x ∈ s \ t ↔ x ∈ s ∧ x ∉ t :=
 iff.intro

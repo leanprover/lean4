@@ -85,15 +85,15 @@ theorem to_finset_inter (s t : set A) [fins : finite s] [fint : finite t] :
   to_finset (s ∩ t) = (#finset to_finset s ∩ to_finset t) :=
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_inter, *to_set_to_finset]
 
-theorem finite_filter [instance] (s : set A) (p : A → Prop) [h : decidable_pred p]
+theorem finite_sep [instance] (s : set A) (p : A → Prop) [h : decidable_pred p]
     [fins : finite s] :
   finite {x ∈ s | p x}  :=
-exists.intro (finset.filter p (to_finset s))
-  (by rewrite [finset.to_set_filter, *to_set_to_finset])
+exists.intro (finset.sep p (to_finset s))
+  (by rewrite [finset.to_set_sep, *to_set_to_finset])
 
-theorem to_finset_filter (s : set A) (p : A → Prop) [h : decidable_pred p] [fins : finite s] :
+theorem to_finset_sep (s : set A) (p : A → Prop) [h : decidable_pred p] [fins : finite s] :
   to_finset {x ∈ s | p x} = (#finset {x ∈ to_finset s | p x}) :=
-by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_filter, to_set_to_finset]
+by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_sep, to_set_to_finset]
 
 theorem finite_image [instance] {B : Type} [h : decidable_eq B] (f : A → B) (s : set A)
     [fins : finite s] :
@@ -107,14 +107,14 @@ theorem to_finset_image {B : Type} [h : decidable_eq B] (f : A → B) (s : set A
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_image, to_set_to_finset]
 
 theorem finite_diff [instance] (s t : set A) [fins : finite s] : finite (s \ t) :=
-!finite_filter
+!finite_sep
 
 theorem to_finset_diff (s t : set A) [fins : finite s] [fint : finite t] :
   to_finset (s \ t) = (#finset to_finset s \ to_finset t) :=
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_diff, *to_set_to_finset]
 
 theorem finite_subset {s t : set A} [fint : finite t] (ssubt : s ⊆ t) : finite s :=
-by rewrite (eq_filter_of_subset ssubt); apply finite_filter
+by rewrite (eq_sep_of_subset ssubt); apply finite_sep
 
 theorem to_finset_subset_to_finset_eq (s t : set A) [fins : finite s] [fint : finite t] :
   (#finset to_finset s ⊆ to_finset t) = (s ⊆ t) :=

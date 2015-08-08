@@ -220,15 +220,15 @@ dvd.antisymm
 definition prime_factors (n : ℕ) : finset ℕ := { p ∈ upto (succ n) | prime p ∧ p ∣ n }
 
 theorem prime_of_mem_prime_factors {p n : ℕ} (H : p ∈ prime_factors n) : prime p :=
-and.left (of_mem_filter H)
+and.left (of_mem_sep H)
 
 theorem dvd_of_mem_prime_factors {p n : ℕ} (H : p ∈ prime_factors n) : p ∣ n :=
-and.right (of_mem_filter H)
+and.right (of_mem_sep H)
 
 theorem mem_prime_factors {p n : ℕ} (npos : n > 0) (primep : prime p) (pdvdn : p ∣ n) :
   p ∈ prime_factors n :=
 have plen : p ≤ n, from le_of_dvd npos pdvdn,
-mem_filter_of_mem (mem_upto_of_lt (lt_succ_of_le plen)) (and.intro primep pdvdn)
+mem_sep_of_mem (mem_upto_of_lt (lt_succ_of_le plen)) (and.intro primep pdvdn)
 
 /- prime factorization -/
 

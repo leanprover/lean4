@@ -52,10 +52,10 @@ theorem to_set_inter : ts (s ∩ t) = ts s ∩ ts t := funext (λ x, !mem_to_set
 theorem mem_to_set_diff : x ∈ s \ t = (x ∈ ts s \ ts t) := !mem_diff_eq
 theorem to_set_diff : ts (s \ t) = ts s \ ts t := funext (λ x, !mem_to_set_diff)
 
-theorem mem_to_set_filter (p : A → Prop) [h : decidable_pred p] : x ∈ filter p s = (x ∈ set.filter p s) :=
-  !finset.mem_filter_eq
-theorem to_set_filter (p : A → Prop) [h : decidable_pred p] : filter p s = set.filter p s :=
-  funext (λ x, !mem_to_set_filter)
+theorem mem_to_set_sep (p : A → Prop) [h : decidable_pred p] : x ∈ sep p s = (x ∈ set.sep p s) :=
+  !finset.mem_sep_eq
+theorem to_set_sep (p : A → Prop) [h : decidable_pred p] : sep p s = set.sep p s :=
+  funext (λ x, !mem_to_set_sep)
 
 theorem mem_to_set_image {B : Type} [h : decidable_eq B] (f : A → B) {s : finset A} {y : B} :
   y ∈ image f s = (y ∈ set.image f s) := !mem_image_eq

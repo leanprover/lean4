@@ -77,22 +77,22 @@ lemma binary_union (P : A → Prop) [decP : decidable_pred P] {S : finset A} :
   S = {a ∈ S | P a} ∪ {a ∈ S | ¬(P a)} :=
 ext take a, iff.intro
   (suppose a ∈ S, decidable.by_cases
-    (suppose P a, mem_union_l (mem_filter_of_mem `a ∈ S` this))
-    (suppose ¬ P a, mem_union_r (mem_filter_of_mem `a ∈ S` this)))
-  (suppose a ∈ filter P S ∪ {a ∈ S | ¬ P a}, or.elim (mem_or_mem_of_mem_union this)
-    (suppose a ∈ filter P S,      mem_of_mem_filter this)
-    (suppose a ∈ {a ∈ S | ¬ P a}, mem_of_mem_filter this))
+    (suppose P a, mem_union_l (mem_sep_of_mem `a ∈ S` this))
+    (suppose ¬ P a, mem_union_r (mem_sep_of_mem `a ∈ S` this)))
+  (suppose a ∈ sep P S ∪ {a ∈ S | ¬ P a}, or.elim (mem_or_mem_of_mem_union this)
+    (suppose a ∈ sep P S,      mem_of_mem_sep this)
+    (suppose a ∈ {a ∈ S | ¬ P a}, mem_of_mem_sep this))
 
 lemma binary_inter_empty {P : A → Prop} [decP : decidable_pred P] {S : finset A} :
   {a ∈ S | P a} ∩ {a ∈ S | ¬(P a)} = ∅ :=
-inter_eq_empty (take a, assume Pa nPa, absurd (of_mem_filter Pa) (of_mem_filter nPa))
+inter_eq_empty (take a, assume Pa nPa, absurd (of_mem_sep Pa) (of_mem_sep nPa))
 
 definition disjoint_sets (S : finset (finset A)) : Prop :=
   ∀ s₁ s₂ (P₁ : s₁ ∈ S) (P₂ : s₂ ∈ S), s₁ ≠ s₂ → s₁ ∩ s₂ = ∅
 
-lemma disjoint_sets_filter_of_disjoint_sets {P : finset A → Prop} [decP : decidable_pred P] {S : finset (finset A)} :
+lemma disjoint_sets_sep_of_disjoint_sets {P : finset A → Prop} [decP : decidable_pred P] {S : finset (finset A)} :
   disjoint_sets S → disjoint_sets {s ∈ S | P s} :=
-assume Pds, take s₁ s₂, assume P₁ P₂, Pds s₁ s₂ (mem_of_mem_filter P₁) (mem_of_mem_filter P₂)
+assume Pds, take s₁ s₂, assume P₁ P₂, Pds s₁ s₂ (mem_of_mem_sep P₁) (mem_of_mem_sep P₂)
 
 lemma binary_inter_empty_Union_disjoint_sets {P : finset A → Prop} [decP : decidable_pred P] {S : finset (finset A)} :
   disjoint_sets S → Union {s ∈ S | P s} id ∩ Union {s ∈ S | ¬P s} id = ∅ :=
@@ -100,8 +100,8 @@ assume Pds, inter_eq_empty (take a, assume Pa nPa,
   obtain s Psin Pains, from iff.elim_left !mem_Union_iff Pa,
   obtain t Ptin Paint, from iff.elim_left !mem_Union_iff nPa,
   assert s ≠ t,
-    from assume Peq, absurd (Peq ▸ of_mem_filter Psin) (of_mem_filter Ptin),
-  Pds s t (mem_of_mem_filter Psin) (mem_of_mem_filter Ptin) `s ≠ t` ▸ mem_inter Pains Paint)
+    from assume Peq, absurd (Peq ▸ of_mem_sep Psin) (of_mem_sep Ptin),
+  Pds s t (mem_of_mem_sep Psin) (mem_of_mem_sep Ptin) `s ≠ t` ▸ mem_inter Pains Paint)
 
 section
 variables {B: Type} [deceqB : decidable_eq B]
@@ -134,7 +134,7 @@ assume Pds, calc
         card (Union S id)
       = card (Union {s ∈ S | P s} id ∪ Union {s ∈ S | ¬P s} id) : binary_Union
   ... = card (Union {s ∈ S | P s} id) + card (Union {s ∈ S | ¬P s} id) : card_union_of_disjoint (binary_inter_empty_Union_disjoint_sets Pds)
-  ... = Sum {s ∈ S | P s} card + Sum {s ∈ S | ¬P s} card : by rewrite [*(card_Union_of_disjoint _ id (disjoint_sets_filter_of_disjoint_sets Pds))]
+  ... = Sum {s ∈ S | P s} card + Sum {s ∈ S | ¬P s} card : by rewrite [*(card_Union_of_disjoint _ id (disjoint_sets_sep_of_disjoint_sets Pds))]
 
 end partition
 end finset

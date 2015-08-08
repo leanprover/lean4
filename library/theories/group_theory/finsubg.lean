@@ -355,7 +355,7 @@ variable [finsubgH : is_finsubg H]
 include finsubgH
 
 lemma subset_normalizer : H ⊆ normalizer H :=
-subset_of_forall take g, assume PginH, mem_filter_of_mem !mem_univ
+subset_of_forall take g, assume PginH, mem_sep_of_mem !mem_univ
   (take h, assume PhinH, finsubg_conj_closed PginH PhinH)
 
 lemma normalizer_has_one : 1 ∈ normalizer H :=
@@ -363,10 +363,10 @@ mem_of_subset_of_mem subset_normalizer (finsubg_has_one H)
 
 lemma normalizer_mul_closed : finset_mul_closed_on (normalizer H) :=
 take f g, assume Pfin Pgin,
-mem_filter_of_mem !mem_univ take h, assume Phin, begin
+mem_sep_of_mem !mem_univ take h, assume Phin, begin
   rewrite [-conj_compose],
-  apply of_mem_filter Pfin,
-  apply of_mem_filter Pgin,
+  apply of_mem_sep Pfin,
+  apply of_mem_sep Pgin,
   exact Phin
 end
 
@@ -375,11 +375,11 @@ assume Pgin,
 eq_of_card_eq_of_subset (card_image_eq_of_inj_on (take h j, assume P1 P2, !conj_inj))
   (subset_of_forall take h, assume Phin,
   obtain j Pjin Pj, from exists_of_mem_image Phin,
-  begin substvars, apply of_mem_filter Pgin, exact Pjin end)
+  begin substvars, apply of_mem_sep Pgin, exact Pjin end)
 
 lemma normalizer_has_inv : finset_has_inv (normalizer H) :=
 take g, assume Pgin,
-mem_filter_of_mem !mem_univ take h, begin
+mem_sep_of_mem !mem_univ take h, begin
   rewrite [-(conj_eq_of_mem_normalizer Pgin) at {1}, mem_image_iff],
   intro Pex, cases Pex with k Pk,
   rewrite [-(and.right Pk), conj_compose, mul.left_inv, conj_id],
@@ -401,11 +401,11 @@ lemma lrcoset_same_of_mem_normalizer {g : G} :
   g ∈ normalizer H → fin_lcoset H g = fin_rcoset H g :=
 assume Pg, ext take h, iff.intro
   (assume Pl, obtain j Pjin Pj, from exists_of_mem_image Pl,
-  mem_image (of_mem_filter Pg j Pjin)
+  mem_image (of_mem_sep Pg j Pjin)
     (calc g*j*g⁻¹*g = g*j : inv_mul_cancel_right
                 ... = h   : Pj))
   (assume Pr, obtain j Pjin Pj, from exists_of_mem_image Pr,
-  mem_image (of_mem_filter (finsubg_has_inv (normalizer H) Pg) j Pjin)
+  mem_image (of_mem_sep (finsubg_has_inv (normalizer H) Pg) j Pjin)
     (calc g*(g⁻¹*j*g⁻¹⁻¹) = g*(g⁻¹*j*g)   : inv_inv
                       ... = g*(g⁻¹*(j*g)) : mul.assoc
                       ... = j*g           : mul_inv_cancel_left

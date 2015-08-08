@@ -138,7 +138,7 @@ assert hom g a = hom h a, from of_mem_filter Pg, calc
   hom (h⁻¹*g) a = perm.f ((hom h⁻¹) * (hom g)) a : by rewrite (is_hom hom)
   ... = ((hom h⁻¹) ∘ hom g) a                    : by rewrite perm_f_mul
   ... = perm.f ((hom h)⁻¹ * hom h) a             : by unfold compose; rewrite [this, perm_f_mul, hom_map_inv hom h]
-  ... = (1 : perm S) a                           : by rewrite (mul.left_inv (hom h))
+  ... = perm.f (1 : perm S) a                    : by rewrite (mul.left_inv (hom h))
   ... = a                                        : by esimp
 
 lemma moverset_inj_on_orbit : set.inj_on (moverset hom H a) (ts (orbit hom H a)) :=
@@ -177,8 +177,8 @@ lemma subg_stab_closed : finset_mul_closed_on (stab hom H a) :=
 
 lemma subg_stab_has_one : 1 ∈ stab hom H a :=
       assert P : hom 1 a = a, from calc
-        hom 1 a = (1 : perm S) a : {hom_map_one hom}
-        ... = a : rfl,
+        hom 1 a = perm.f (1 : perm S) a : {hom_map_one hom}
+        ... = a                         : rfl,
       assert PoneinH : 1 ∈ H, from finsubg_has_one H,
       mem_filter_of_mem PoneinH P
 
@@ -189,7 +189,7 @@ lemma subg_stab_has_inv : finset_has_inv (stab hom H a) :=
         ... = perm.f ((hom f⁻¹) * (hom f)) a : by rewrite perm_f_mul
         ... = hom (f⁻¹ * f) a                : by rewrite (is_hom hom)
         ... = hom 1 a                        : by rewrite mul.left_inv
-        ... = (1 : perm S) a                 : by rewrite (hom_map_one hom),
+        ... = perm.f (1 : perm S) a          : by rewrite (hom_map_one hom),
       assert PfinvinH : f⁻¹ ∈ H, from finsubg_has_inv H (mem_of_mem_filter Pfstab),
       mem_filter_of_mem PfinvinH Pfinv
 

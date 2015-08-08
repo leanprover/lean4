@@ -72,6 +72,20 @@ static void parse_let_modifiers(parser & p, bool & is_visible) {
     }
 }
 
+// Distribute mk_typed_expr over choice expression.
+// see issue #768
+static expr mk_typed_expr_distrib_choice(parser & p, expr const & type, expr const & value, pos_info const & pos) {
+    if (is_choice(value)) {
+        buffer<expr> new_choices;
+        for (unsigned i = 0; i < get_num_choices(value); i++) {
+            new_choices.push_back(mk_typed_expr_distrib_choice(p, type, get_choice(value, i), pos));
+        }
+        return p.save_pos(mk_choice(new_choices.size(), new_choices.data()), pos);
+    } else {
+        return p.save_pos(mk_typed_expr(type, value), pos);
+    }
+}
+
 static expr parse_let(parser & p, pos_info const & pos) {
     parser::local_scope scope1(p);
     if (p.parse_local_notation_decl()) {
@@ -107,7 +121,7 @@ static expr parse_let(parser & p, pos_info const & pos) {
         }
         expr v;
         if (type)
-            v = p.save_pos(mk_typed_expr(*type, value), p.pos_of(value));
+            v = mk_typed_expr_distrib_choice(p, *type, value, p.pos_of(value));
         else
             v = value;
         v = p.save_pos(mk_let_value(v), id_pos);
@@ -668,7 +682,7 @@ static expr parse_inaccessible(parser & p, unsigned, expr const * args, pos_info
 }
 
 static expr parse_typed_expr(parser & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_typed_expr(args[1], args[0]), pos);
+    return mk_typed_expr_distrib_choice(p, args[1], args[0], pos);
 }
 
 parse_table init_nud_table() {

@@ -3,7 +3,7 @@ definition id_1 (n : nat) :=
    by exact n
 
 definition id_2 (n : nat) :=
-   (by exact n : nat)
+   ((by exact n) : nat)
 
 definition id_3 (n : nat) : nat :=
 by exact n

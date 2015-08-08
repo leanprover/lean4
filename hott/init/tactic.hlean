@@ -148,4 +148,5 @@ nat.rec id (λn t', and_then t t') (nat.of_num n)
 
 end tactic
 tactic_infixl `;`:15 := tactic.and_then
+tactic_notation T1 `:`:15 T2 := tactic.focus (tactic.and_then T1 (tactic.all_goals T2))
 tactic_notation `(` h `|` r:(foldl `|` (e r, tactic.or_else r e) h) `)` := r

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 Type class for encodable types.
 Note that every encodable type is countable.
 -/
-import data.fintype data.list data.sum data.nat data.subtype data.countable data.equiv
+import data.fintype data.list data.sum data.nat.div data.subtype data.countable data.equiv
 open option list nat function
 
 structure encodable [class] (A : Type) :=
@@ -72,7 +72,7 @@ theorem decode_encode_sum : ∀ s : sum A B, decode_sum (encode_sum s) = some s
   assert aux : 2 > 0, from dec_trivial,
   begin
     esimp [encode_sum, decode_sum],
-    rewrite [mul_mod_right, if_pos (eq.refl 0), mul_div_cancel_left _ aux, encodable.encodek]
+    rewrite [mul_mod_right, if_pos (eq.refl (0 : nat)), mul_div_cancel_left _ aux, encodable.encodek]
   end
 | (sum.inr b) :=
   assert aux₁ : 2 > 0,       from dec_trivial,

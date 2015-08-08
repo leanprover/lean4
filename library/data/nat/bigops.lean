@@ -5,8 +5,8 @@ Author: Jeremy Avigad
 
 Finite products and sums on the natural numbers.
 -/
-import data.nat.basic data.nat.order algebra.group_bigops
-open list finset
+import data.nat.basic data.nat.order algebra.group_bigops algebra.group_set_bigops
+open list
 
 namespace nat
 open [classes] algebra
@@ -36,9 +36,10 @@ section deceqA
   theorem Prodl_one (l : list A) : Prodl l (λ x, nat.succ 0) = 1 := algebra.Prodl_one l
 end deceqA
 
-/- Prod -/
+/- Prod over finset -/
 
 namespace finset
+open finset
 
 definition Prod (s : finset A) (f : A → nat) : nat := algebra.finset.Prod s f
 notation `∏` binders `∈` s, r:(scoped f, Prod s f) := r
@@ -60,6 +61,32 @@ section deceqA
 end deceqA
 
 end finset
+
+/- Prod over set -/
+
+namespace set
+open set
+
+noncomputable definition Prod (s : set A) (f : A → nat) : nat := algebra.set.Prod s f
+notation `∏` binders `∈` s, r:(scoped f, Prod s f) := r
+
+theorem Prod_empty (f : A → nat) : Prod ∅ f = 1 := algebra.set.Prod_empty f
+theorem Prod_of_not_finite {s : set A} (nfins : ¬ finite s) (f : A → nat) : Prod s f = 1 :=
+  algebra.set.Prod_of_not_finite nfins f
+theorem Prod_mul (s : set A) (f g : A → nat) : Prod s (λx, f x * g x) = Prod s f * Prod s g :=
+  algebra.set.Prod_mul s f g
+theorem Prod_insert_of_mem (f : A → nat) {a : A} {s : set A} (H : a ∈ s) :
+  Prod (insert a s) f = Prod s f := algebra.set.Prod_insert_of_mem f H
+theorem Prod_insert_of_not_mem (f : A → nat) {a : A} {s : set A} [fins : finite s] (H : a ∉ s) :
+  Prod (insert a s) f = f a * Prod s f := algebra.set.Prod_insert_of_not_mem f H
+theorem Prod_union (f : A → nat) {s₁ s₂ : set A} [fins₁ : finite s₁] [fins₂ : finite s₂]
+    (disj : s₁ ∩ s₂ = ∅) :
+  Prod (s₁ ∪ s₂) f = Prod s₁ f * Prod s₂ f := algebra.set.Prod_union f disj
+theorem Prod_ext {s : set A} {f g : A → nat} (H : ∀x, x ∈ s → f x = g x) :
+  Prod s f = Prod s g := algebra.set.Prod_ext H
+theorem Prod_one (s : set A) : Prod s (λ x, nat.succ 0) = 1 := algebra.set.Prod_one s
+
+end set
 
 /- Suml -/
 
@@ -84,10 +111,10 @@ section deceqA
   theorem Suml_zero (l : list A) : Suml l (λ x, zero) = 0 := algebra.Suml_zero l
 end deceqA
 
-/- Sum -/
+/- Sum over a finset -/
 
 namespace finset
-
+open finset
 definition Sum (s : finset A) (f : A → nat) : nat := algebra.finset.Sum s f
 notation `∑` binders `∈` s, r:(scoped f, Sum s f) := r
 
@@ -108,5 +135,31 @@ section deceqA
 end deceqA
 
 end finset
+
+/- Sum over a set -/
+
+namespace set
+open set
+
+noncomputable definition Sum (s : set A) (f : A → nat) : nat := algebra.set.Sum s f
+notation `∏` binders `∈` s, r:(scoped f, Sum s f) := r
+
+theorem Sum_empty (f : A → nat) : Sum ∅ f = 0 := algebra.set.Sum_empty f
+theorem Sum_of_not_finite {s : set A} (nfins : ¬ finite s) (f : A → nat) : Sum s f = 0 :=
+  algebra.set.Sum_of_not_finite nfins f
+theorem Sum_add (s : set A) (f g : A → nat) : Sum s (λx, f x + g x) = Sum s f + Sum s g :=
+  algebra.set.Sum_add s f g
+theorem Sum_insert_of_mem (f : A → nat) {a : A} {s : set A} (H : a ∈ s) :
+  Sum (insert a s) f = Sum s f := algebra.set.Sum_insert_of_mem f H
+theorem Sum_insert_of_not_mem (f : A → nat) {a : A} {s : set A} [fins : finite s] (H : a ∉ s) :
+  Sum (insert a s) f = f a + Sum s f := algebra.set.Sum_insert_of_not_mem f H
+theorem Sum_union (f : A → nat) {s₁ s₂ : set A} [fins₁ : finite s₁] [fins₂ : finite s₂]
+    (disj : s₁ ∩ s₂ = ∅) :
+  Sum (s₁ ∪ s₂) f = Sum s₁ f + Sum s₂ f := algebra.set.Sum_union f disj
+theorem Sum_ext {s : set A} {f g : A → nat} (H : ∀x, x ∈ s → f x = g x) :
+  Sum s f = Sum s g := algebra.set.Sum_ext H
+theorem Sum_zero (s : set A) : Sum s (λ x, 0) = 0 := algebra.set.Sum_zero s
+
+end set
 
 end nat

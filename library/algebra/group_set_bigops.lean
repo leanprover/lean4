@@ -82,6 +82,8 @@ section Sum
   notation `∑` binders `∈` s, r:(scoped f, Sum s f) := r
 
   theorem Sum_empty (f : A → B) : Sum ∅ f = 0 := Prod_empty f
+  theorem Sum_of_not_finite {s : set A} (nfins : ¬ finite s) (f : A → B) : Sum s f = 0 :=
+    Prod_of_not_finite nfins f
   theorem Sum_add (s : set A) (f g : A → B) :
     Sum s (λx, f x + g x) = Sum s f + Sum s g := Prod_mul s f g
 

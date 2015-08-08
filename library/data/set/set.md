@@ -8,4 +8,5 @@ Subsets of an arbitrary type.
 * [function](function.lean) : functions from one set to another
 * [map](map.lean) : set functions bundled with their domain and codomain
 * [finite](finite.lean) : the "finite" predicate on sets
+* [card](card.lean) : cardinality (for finite sets)
 * [classical_inverse](classical_inverse.lean) : inverse functions, defined classically

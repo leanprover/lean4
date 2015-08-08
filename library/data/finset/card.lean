@@ -170,6 +170,21 @@ have H : card s₁ + 0 = card s₁ + card (s₂ \ s₁),
 assert H1 : s₂ \ s₁ = ∅, from eq_empty_of_card_eq_zero (add.left_cancel H)⁻¹,
 by rewrite [-union_diff_cancel Hsub, H1, union_empty]
 
+lemma exists_two_of_card_gt_one {s : finset A} : 1 < card s → ∃ a b, a ∈ s ∧ b ∈ s ∧ a ≠ b :=
+begin
+  intro h,
+  induction s with a s nain ih₁,
+   {exact absurd h dec_trivial},
+   {induction s with b s nbin ih₂,
+    {exact absurd h dec_trivial},
+     clear ih₁ ih₂,
+     existsi a, existsi b, split,
+      {apply mem_insert},
+      split,
+      {apply mem_insert_of_mem _ !mem_insert},
+      {intro aeqb, subst a, exact absurd !mem_insert nain}}
+end
+
 theorem Sum_const_eq_card_mul (s : finset A) (n : nat) : (∑ x ∈ s, n) = card s * n :=
 begin
   induction s with a s' H IH,
@@ -208,21 +223,6 @@ finset.induction_on s
     by rewrite [Union_insert, Sum_insert_of_not_mem _ H,
                 card_union_of_disjoint H8, H6])
 end deceqB
-
-lemma exists_two_of_card_gt_one {s : finset A} : 1 < card s → ∃ a b, a ∈ s ∧ b ∈ s ∧ a ≠ b :=
-begin
-  intro h,
-  induction s with a s nain ih₁,
-   {exact absurd h dec_trivial},
-   {induction s with b s nbin ih₂,
-    {exact absurd h dec_trivial},
-     clear ih₁ ih₂,
-     existsi a, existsi b, split,
-      {apply mem_insert},
-      split,
-      {apply mem_insert_of_mem _ !mem_insert},
-      {intro aeqb, subst a, exact absurd !mem_insert nain}}
-end
 
 lemma dvd_Sum_of_dvd (f : A → nat) (n : nat) (s : finset A) : (∀ a, a ∈ s → n ∣ f a) → n ∣ Sum s f :=
 begin

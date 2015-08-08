@@ -94,4 +94,10 @@ definition decidable_bounded_exists (s : finset A) (p : A → Prop) [h : decidab
   decidable (∃₀ x ∈ ts s, p x) :=
 decidable_of_decidable_of_iff _ !any_iff_exists
 
+/- properties -/
+
+theorem inj_on_to_set {B : Type} [h : decidable_eq B] (f : A → B) (s : finset A) :
+  inj_on f s = inj_on f (ts s) :=
+rfl
+
 end finset

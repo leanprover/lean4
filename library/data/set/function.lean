@@ -75,6 +75,12 @@ setext (take y, iff.intro
         obtain x [(xt : x ∈ t) (fxy : f x = y)], from yift,
         mem_image (or.inr xt) fxy)))
 
+theorem image_empty (f : X → Y) : image f ∅ = ∅ :=
+eq_empty_of_forall_not_mem
+  (take y, suppose y ∈ image f ∅,
+    obtain x [(H : x ∈ empty) H'], from this,
+    H)
+
 /- maps to -/
 
 definition maps_to [reducible] (f : X → Y) (a : set X) (b : set Y) : Prop := ∀⦃x⦄, x ∈ a → f x ∈ b

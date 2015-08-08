@@ -8,3 +8,4 @@ The integers.
 * [div](div.lean) : div and mod
 * [power](power.lean) 
 * [gcd](gcd.lean) : gcd, lcm, and coprime    
+* [bigops](bigops.lean)

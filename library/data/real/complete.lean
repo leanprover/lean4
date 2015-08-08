@@ -1011,7 +1011,6 @@ theorem under_lowest_bound : ∀ y : ℝ, ub y → sup_under ≤ y :=
 
 theorem under_over_equiv : p_under_seq ≡ p_over_seq :=
   begin
-    rewrite ↑equiv,
     intros,
     apply rat.le.trans,
     have H : p_under_seq n < p_over_seq n, from !under_seq_lt_over_seq,

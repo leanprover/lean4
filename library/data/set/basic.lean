@@ -3,7 +3,7 @@ Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Jeremy Avigad, Leonardo de Moura
 -/
-import logic.connectives algebra.binary
+import logic.connectives logic.identities algebra.binary
 open eq.ops binary
 
 definition set [reducible] (X : Type) := X → Prop
@@ -31,6 +31,9 @@ take x, assume ax, subbc (subab ax)
 
 theorem subset.antisymm {a b : set X} (h₁ : a ⊆ b) (h₂ : b ⊆ a) : a = b :=
 setext (λ x, iff.intro (λ ina, h₁ ina) (λ inb, h₂ inb))
+
+theorem mem_of_subset_of_mem {s₁ s₂ : set X} {a : X} : s₁ ⊆ s₂ → a ∈ s₁ → a ∈ s₂ :=
+assume h₁ h₂, h₁ _ h₂
 
 -- an alterantive name
 theorem eq_of_subset_of_subset {a b : set X} (h₁ : a ⊆ b) (h₂ : b ⊆ a) : a = b :=
@@ -96,6 +99,12 @@ notation a ∪ b := union a b
 theorem mem_union (x : X) (a b : set X) : x ∈ a ∪ b ↔ x ∈ a ∨ x ∈ b := !iff.refl
 
 theorem mem_union_eq (x : X) (a b : set X) : x ∈ a ∪ b = (x ∈ a ∨ x ∈ b) := rfl
+
+theorem mem_union_of_mem_left {x : X} {a : set X} (b : set X) : x ∈ a → x ∈ a ∪ b :=
+assume h, or.inl h
+
+theorem mem_union_of_mem_right {x : X} {b : set X} (a : set X) : x ∈ b → x ∈ a ∪ b :=
+assume h, or.inr h
 
 theorem union_self (a : set X) : a ∪ a = a :=
 setext (take x, !or_self)
@@ -187,6 +196,34 @@ notation `'{`:max a:(foldr `,` (x b, insert x b) ∅) `}`:0 := a
 
 theorem subset_insert (x : X) (a : set X) : a ⊆ insert x a :=
 take y, assume ys, or.inr ys
+
+theorem mem_insert (x : X) (s : set X) : x ∈ insert x s :=
+or.inl rfl
+
+theorem mem_insert_of_mem {x : X} {s : set X} (y : X) : x ∈ s → x ∈ insert y s :=
+assume h, or.inr h
+
+theorem eq_or_mem_of_mem_insert {x a : X} {s : set X} : x ∈ insert a s → x = a ∨ x ∈ s :=
+assume h, h
+
+theorem mem_of_mem_insert_of_ne {x a : X} {s : set X} (xin : x ∈ insert a s) : x ≠ a → x ∈ s :=
+or_resolve_right (eq_or_mem_of_mem_insert xin)
+
+theorem mem_insert_eq (x a : X) (s : set X) : x ∈ insert a s = (x = a ∨ x ∈ s) :=
+propext (iff.intro !eq_or_mem_of_mem_insert
+  (or.rec (λH', (eq.substr H' !mem_insert)) !mem_insert_of_mem))
+
+theorem insert_eq_of_mem {a : X} {s : set X} (H : a ∈ s) : insert a s = s :=
+setext (λ x, eq.substr (mem_insert_eq x a s)
+   (or_iff_right_of_imp (λH1, eq.substr H1 H)))
+
+theorem insert.comm (x y : X) (s : set X) : insert x (insert y s) = insert y (insert x s) :=
+setext (take a, by rewrite [*mem_insert_eq, propext !or.left_comm])
+
+theorem eq_of_mem_singleton {x y : X} : x ∈ insert y ∅ → x = y :=
+assume h, or.elim (eq_or_mem_of_mem_insert h)
+  (suppose x = y, this)
+  (suppose x ∈ ∅, absurd this !not_mem_empty)
 
 /- separation -/
 

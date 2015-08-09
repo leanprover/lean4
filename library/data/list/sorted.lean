@@ -41,7 +41,6 @@ lemma sorted.rect_on {P : list A → Type} : ∀ {l}, sorted R l → P [] → (�
 lemma sorted_singleton (a : A) : sorted R [a] :=
 sorted.step !hd_rel.base !sorted.base
 
-
 lemma sorted_of_locally_sorted : ∀ {l}, locally_sorted R l → sorted R l
 | []        h := !sorted.base
 | [a]       h := !sorted_singleton

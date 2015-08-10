@@ -78,8 +78,12 @@ section comm_semiring
   theorem dvd.intro {a b c : A} (H : a * c = b) : a ∣ b :=
   exists.intro _ H⁻¹
 
+  theorem dvd_of_mul_right_eq {a b c : A} (H : a * c = b) : a ∣ b := dvd.intro H
+
   theorem dvd.intro_left {a b c : A} (H : c * a = b) : a ∣ b :=
   dvd.intro (!mul.comm ▸ H)
+
+  theorem dvd_of_mul_left_eq {a b c : A} (H : c * a = b) : a ∣ b := dvd.intro_left H
 
   theorem exists_eq_mul_right_of_dvd {a b : A} (H : a ∣ b) : ∃c, b = a * c := H
 

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 
 Naive sort for lists
 -/
-import data.list.comb data.list.set data.list.perm logic.connectives
+import data.list.comb data.list.set data.list.perm data.list.sorted logic.connectives
 
 namespace list
 open decidable nat
@@ -70,9 +70,9 @@ assume h : b ∈ l, min_core_lemma to tr rf a (or.inl h)
 lemma min_core_le {l : list A} (a : A) : R (min_core R l a) a :=
 min_core_lemma to tr rf a (or.inr rfl)
 
-lemma min_lemma : ∀ {a : A} {l} (h : l ≠ nil), all l (R (min R l h))
-| a []     h := absurd rfl h
-| a (b::l) h :=
+lemma min_lemma : ∀ {l} (h : l ≠ nil), all l (R (min R l h))
+| []     h := absurd rfl h
+| (b::l) h :=
   all_of_forall (take x, suppose x ∈ b::l,
    or.elim (eq_or_mem_of_mem_cons this)
      (suppose x = b,
@@ -138,12 +138,30 @@ lemma sort_aux_perm : ∀ {n : nat} {l : list A} (h : length l = n), sort_aux R 
 | 0        l h := by rewrite [↑sort_aux, eq_nil_of_length_eq_zero h]
 | (succ n) l h :=
   let m := min R l (ne_nil h) in
-  assert leq : length (erase m l) = n,             from sort_aux_lemma R h,
+  assert leq : length (erase m l) = n, from sort_aux_lemma R h,
   calc m :: sort_aux R n (erase m l) leq
          ~ m :: erase m l                   : perm.skip m (sort_aux_perm leq)
      ... ~ l                                : perm_erase (min_mem _ _ _)
 
 lemma sort_perm (l : list A) : sort R l ~ l :=
 sort_aux_perm R rfl
+
+lemma strongly_sorted_sort_aux : ∀ {n : nat} {l : list A} (h : length l = n), strongly_sorted R (sort_aux R n l h)
+| 0        l h := !strongly_sorted.base
+| (succ n) l h :=
+  let m := min R l (ne_nil h) in
+  assert leq    : length (erase m l) = n,                       from sort_aux_lemma R h,
+  assert ss : strongly_sorted R (sort_aux R n (erase m l) leq), from strongly_sorted_sort_aux leq,
+  assert all l (R m),                                           from min_lemma to tr rf (ne_nil h),
+  assert hall : all (sort_aux R n (erase m l) leq) (R m),       from
+    all_of_forall (take x,
+      suppose x ∈ sort_aux R n (erase m l) leq,
+      have x ∈ erase m l, from mem_perm (sort_aux_perm R leq) this,
+      have x ∈ l,         from mem_of_mem_erase this,
+      show R m x,         from of_mem_of_all this `all l (R m)`),
+  strongly_sorted.step hall ss
+
+lemma strongly_sorted_sort (to : total R) (tr : transitive R) (rf : reflexive R) (l : list A) : strongly_sorted R (sort R l) :=
+@strongly_sorted_sort_aux _ _ _ _ to tr rf (length l) l rfl
 
 end list

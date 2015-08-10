@@ -7,7 +7,7 @@ Complete lattices
 
 TODO: define dual complete lattice and simplify proof of dual theorems.
 -/
-import algebra.lattice data.set
+import algebra.lattice data.set.basic
 open set
 
 namespace algebra

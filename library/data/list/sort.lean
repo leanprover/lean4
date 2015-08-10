@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 
 Naive sort for lists
 -/
-import data.list.comb data.list.set data.list.perm data.list.sorted logic.connectives
+import data.list.comb data.list.set data.list.perm data.list.sorted logic.connectives algebra.order
 
 namespace list
 open decidable nat
@@ -161,7 +161,27 @@ lemma strongly_sorted_sort_aux : ∀ {n : nat} {l : list A} (h : length l = n), 
       show R m x,         from of_mem_of_all this `all l (R m)`),
   strongly_sorted.step hall ss
 
-lemma strongly_sorted_sort (to : total R) (tr : transitive R) (rf : reflexive R) (l : list A) : strongly_sorted R (sort R l) :=
+variable {R}
+
+lemma strongly_sorted_sort_core (to : total R) (tr : transitive R) (rf : reflexive R) (l : list A) : strongly_sorted R (sort R l) :=
 @strongly_sorted_sort_aux _ _ _ _ to tr rf (length l) l rfl
 
+lemma sort_eq_of_perm_core {l₁ l₂ : list A} (to : total R) (tr : transitive R) (rf : reflexive R) (asy : anti_symmetric R) (h : l₁ ~ l₂) : sort R l₁ = sort R l₂ :=
+have s₁ : sorted R (sort R l₁),  from sorted_of_strongly_sorted (strongly_sorted_sort_core to tr rf l₁),
+have s₂ : sorted R (sort R l₂),  from sorted_of_strongly_sorted (strongly_sorted_sort_core to tr rf l₂),
+have p  : sort R l₁ ~ sort R l₂, from calc
+  sort R l₁ ~ l₁        : sort_perm
+    ...     ~ l₂        : h
+    ...     ~ sort R l₂ : sort_perm,
+eq_of_sorted_of_perm tr asy p s₁ s₂
+
+section
+open algebra
+omit decR
+lemma strongly_sorted_sort [ord : decidable_linear_order A] (l : list A) : strongly_sorted has_le.le (sort has_le.le l) :=
+strongly_sorted_sort_core le.total (@le.trans A ord) le.refl l
+
+lemma sort_eq_of_perm {l₁ l₂ : list A} [ord : decidable_linear_order A] (h : l₁ ~ l₂) : sort has_le.le l₁ = sort has_le.le l₂ :=
+sort_eq_of_perm_core le.total (@le.trans A ord) le.refl (@le.antisymm A ord) h
+end
 end list

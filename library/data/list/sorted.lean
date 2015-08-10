@@ -3,7 +3,7 @@ Copyright (c) 2015 Leonardo de Moura. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import data.list.comb
+import data.list.comb data.list.perm
 
 namespace list
 variable {A : Type}
@@ -94,4 +94,39 @@ theorem strongly_sorted_of_sorted_of_transitive (trans : transitive R) : ∀ {l}
   have strongly_sorted R l, from strongly_sorted_of_sorted_of_transitive this,
   have all l (R a),         from sorted_extends trans h,
   strongly_sorted.step `all l (R a)` `strongly_sorted R l`
+
+open perm
+
+lemma eq_of_sorted_of_perm (tr : transitive R) (anti : anti_symmetric R) : ∀ {l₁ l₂ : list A}, l₁ ~ l₂ → sorted R l₁ → sorted R l₂ → l₁ = l₂
+| []       []       h₁ h₂ h₃ := rfl
+| (a₁::l₁) []       h₁ h₂ h₃ := absurd (perm.symm h₁) !not_perm_nil_cons
+| []       (a₂::l₂) h₁ h₂ h₃ := absurd h₁ !not_perm_nil_cons
+| (a::l₁)  l₂       h₁ h₂ h₃ :=
+  have aux : ∀ {t}, l₂ = a::t → a::l₁ = l₂, from
+    take t, suppose l₂ = a::t,
+    have   l₁ ~ t,      by rewrite [this at h₁]; apply perm_cons_inv h₁,
+    have   sorted R l₁, from and.right (sorted_inv h₂),
+    have   sorted R t,  by rewrite [`l₂ = a::t` at h₃]; exact and.right (sorted_inv h₃),
+    assert l₁ = t,      from eq_of_sorted_of_perm `l₁ ~ t` `sorted R l₁` `sorted R t`,
+    show a :: l₁ = l₂,  by rewrite [`l₂ = a::t`, this],
+  have   a ∈ l₂,                       from mem_perm h₁ !mem_cons,
+  obtain s t (e₁ : l₂ = s ++ (a::t)),  from mem_split this,
+  begin
+    cases s with b s,
+    { have l₂ = a::t, by exact e₁,
+      exact aux this },
+    { have e₁   : l₂ = b::(s++(a::t)), by exact e₁,
+      have b ∈ l₂,                by rewrite e₁; apply mem_cons,
+      have hall₂ : all (s++(a::t)) (R b), begin rewrite [e₁ at h₃], apply sorted_extends tr h₃ end,
+      have a ∈ s++(a::t),         from mem_append_right _ !mem_cons,
+      have R b a,                 from of_mem_of_all this hall₂,
+      have b ∈ a::l₁,             from mem_perm (perm.symm h₁) `b ∈ l₂`,
+      have hall₁ : all l₁ (R a),  from sorted_extends tr h₂,
+      apply or.elim (eq_or_mem_of_mem_cons `b ∈ a::l₁`),
+        suppose b = a,  by rewrite this at e₁; exact aux e₁,
+        suppose b ∈ l₁,
+          have   R a b, from of_mem_of_all this hall₁,
+          assert b = a, from anti `R b a` `R a b`,
+          by rewrite this at e₁; exact aux e₁ }
+  end
 end list

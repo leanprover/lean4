@@ -298,7 +298,7 @@ assume Plt, lt.trans Plt (self_lt_succ j)
 /- other forms of induction -/
 
 protected definition strong_rec_on {P : nat → Type} (n : ℕ) (H : ∀n, (∀m, m < n → P m) → P n) : P n :=
-nat.rec (λm, not.elim !not_lt_zero)
+nat.rec (λm h, absurd h !not_lt_zero)
   (λn' (IH : ∀ {m : ℕ}, m < n' → P m) m l,
      or.by_cases (lt_or_eq_of_le (le_of_lt_succ l))
     IH (λ e, eq.rec (H n' @IH) e⁻¹)) (succ n) n !lt_succ_self

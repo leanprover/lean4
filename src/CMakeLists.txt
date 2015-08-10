@@ -112,7 +112,7 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 set(CMAKE_CXX_FLAGS_GPROF          "-O2 -g -pg")
-set(CMAKE_CXX_FLAGS_EMSCRIPTEN     "-Oz -s DISABLE_EXCEPTION_CATCHING=0 -D LEAN_EMSCRIPTEN -Wno-warn-absolute-paths --bind")
+set(CMAKE_CXX_FLAGS_EMSCRIPTEN     "-Oz -O3 -s ALLOW_MEMORY_GROWTH=1 --llvm-lto 1 -s DISABLE_EXCEPTION_CATCHING=0 -D LEAN_EMSCRIPTEN -Wno-warn-absolute-paths --bind")
 
 # OSX .dmg generation (this is working in progress)
 set(CPACK_DMG_BACKGROUND_IMAGE "${LEAN_SOURCE_DIR}/../images/lean.png")

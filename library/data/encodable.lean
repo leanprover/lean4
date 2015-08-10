@@ -272,6 +272,38 @@ encodable.mk
   decode_encode_finset
 end finset
 
+section subtype
+open subtype decidable
+variable {A : Type}
+variable {P : A → Prop}
+variable [encA : encodable A]
+variable [decP : decidable_pred P]
+
+include encA
+definition encode_subtype : {a : A | P a} → nat
+| (tag v h) := encode v
+
+include decP
+definition decode_subtype (v : nat) : option {a : A | P a} :=
+match decode A v with
+| some a := if h : P a then some (tag a h) else none
+| none   := none
+end
+
+lemma decode_encode_subtype : ∀ s : {a : A | P a}, decode_subtype (encode_subtype s) = some s
+| (tag v h) :=
+  begin
+    unfold [encode_subtype, decode_subtype], rewrite encodek, esimp,
+    rewrite [dif_pos h]
+  end
+
+definition encodable_subtype [instance] : encodable {a : A | P a} :=
+encodable.mk
+  encode_subtype
+  decode_subtype
+  decode_encode_subtype
+end subtype
+
 definition encodable_of_left_injection
              {A B : Type} [h₁ : encodable A]
              (f : B → A) (finv : A → option B) (linv : ∀ b, finv (f b) = some b) : encodable B :=

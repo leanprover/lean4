@@ -662,8 +662,9 @@ expr elaborator::visit_app(expr const & e, constraint_seq & cs) {
     if (!expl) {
         bool first = true;
         while (binding_info(f_type).is_strict_implicit() ||
-               (!first && binding_info(f_type).is_implicit()) ||
-               (!first && binding_info(f_type).is_inst_implicit())) {
+               binding_info(f_type).is_implicit() ||
+               binding_info(f_type).is_inst_implicit()) {
+            lean_assert(binding_info(f_type).is_strict_implicit() || !first);
             tag g          = f.get_tag();
             bool is_strict = true;
             bool inst_imp  = binding_info(f_type).is_inst_implicit();

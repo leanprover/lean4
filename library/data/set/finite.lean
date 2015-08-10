@@ -134,7 +134,7 @@ by apply (to_finset_eq_of_to_set_eq !finset.to_set_upto)
 
 theorem finite_powerset (s : set A) [fins : finite s] : finite (𝒫 s) :=
 assert H : (𝒫 s) = finset.to_set '[finset.to_set (#finset 𝒫 (to_finset s))],
-  from setext (take t, iff.intro
+  from ext (take t, iff.intro
     (suppose t ∈ 𝒫 s,
       assert t ⊆ s, from this,
       assert finite t, from finite_subset this,

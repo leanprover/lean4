@@ -84,7 +84,7 @@ lemma lmul_inj_on (a : A) (H : set A) : inj_on (lmul_by a) H :=
       inj_on_of_left_inv_on (lmul_inv_on a H)
 
 lemma glcoset_eq_lcoset a (H : set A) : a ∘> H = coset.l a H :=
-      setext
+      ext
       begin
       intro x,
       rewrite [↑glcoset, ↑coset.l, ↑image, ↑set_of, ↑mem, ↑coset.lmul],
@@ -103,7 +103,7 @@ lemma glcoset_eq_lcoset a (H : set A) : a ∘> H = coset.l a H :=
 lemma grcoset_eq_rcoset a (H : set A) : H <∘ a = coset.r a H :=
       begin
         rewrite [↑grcoset, ↑coset.r, ↑image, ↑coset.rmul, ↑set_of],
-        apply setext, rewrite ↑mem,
+        apply ext, rewrite ↑mem,
         intro x,
         apply iff.intro,
           show H (x * a⁻¹) → (∃ (x_1 : A), H x_1 ∧ x_1 * a = x), from
@@ -215,14 +215,14 @@ lemma subgroup_coset_id : ∀ a, a ∈ H → (a ∘> H = H ∧ H <∘ a = H) :=
       assert Pr : H <∘ a ⊆ H, from closed_rcontract a H subg_mul_closed PHa,
       assert PHainv : H a⁻¹, from subg_has_inv a PHa,
       and.intro
-      (setext (assume x,
+      (ext (assume x,
         begin
           esimp [glcoset, mem],
           apply iff.intro,
             apply Pl,
             intro PHx, exact (subg_mul_closed a⁻¹ x PHainv PHx)
         end))
-      (setext (assume x,
+      (ext (assume x,
         begin
           esimp [grcoset, mem],
           apply iff.intro,

@@ -22,7 +22,7 @@ notation f `'[`:max a `]` := image f a
 
 theorem image_eq_image_of_eq_on {f1 f2 : X → Y} {a : set X} (H1 : eq_on f1 f2 a) :
   f1 '[a] = f2 '[a] :=
-setext (take y, iff.intro
+ext (take y, iff.intro
   (assume H2,
     obtain x (H3 : x ∈ a ∧ f1 x = y), from H2,
     have H4 : x ∈ a, from and.left H3,
@@ -42,7 +42,7 @@ theorem mem_image_of_mem (f : X → Y) {x : X} {a : set X} (H : x ∈ a) : f x �
 mem_image H rfl
 
 lemma image_compose (f : Y → Z) (g : X → Y) (a : set X) : (f ∘ g) '[a] = f '[g '[a]] :=
-setext (take z,
+ext (take z,
   iff.intro
     (assume Hz : z ∈ (f ∘ g) '[a],
       obtain x (Hx₁ : x ∈ a) (Hx₂ : f (g x) = z), from Hz,
@@ -60,7 +60,7 @@ mem_image (H Hx₁) Hx₂
 
 theorem image_union (f : X → Y) (s t : set X) :
   image f (s ∪ t) = image f s ∪ image f t :=
-setext (take y, iff.intro
+ext (take y, iff.intro
   (assume H : y ∈ image f (s ∪ t),
     obtain x [(xst : x ∈ s ∪ t) (fxy : f x = y)], from H,
     or.elim xst

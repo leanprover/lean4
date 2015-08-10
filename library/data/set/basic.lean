@@ -18,19 +18,22 @@ definition mem [reducible] (x : X) (a : set X) := a x
 infix `∈` := mem
 notation a ∉ b := ¬ mem a b
 
-theorem setext {a b : set X} (H : ∀x, x ∈ a ↔ x ∈ b) : a = b :=
+theorem ext {a b : set X} (H : ∀x, x ∈ a ↔ x ∈ b) : a = b :=
 funext (take x, propext (H x))
 
 definition subset (a b : set X) := ∀⦃x⦄, x ∈ a → x ∈ b
 infix `⊆` := subset
 
+definition superset [reducible] (s t : set X) : Prop := t ⊆ s
+infix `⊇` := superset
+
 theorem subset.refl (a : set X) : a ⊆ a := take x, assume H, H
 
-theorem subset.trans (a b c : set X) (subab : a ⊆ b) (subbc : b ⊆ c) : a ⊆ c :=
+theorem subset.trans {a b c : set X} (subab : a ⊆ b) (subbc : b ⊆ c) : a ⊆ c :=
 take x, assume ax, subbc (subab ax)
 
 theorem subset.antisymm {a b : set X} (h₁ : a ⊆ b) (h₂ : b ⊆ a) : a = b :=
-setext (λ x, iff.intro (λ ina, h₁ ina) (λ inb, h₂ inb))
+ext (λ x, iff.intro (λ ina, h₁ ina) (λ inb, h₂ inb))
 
 theorem mem_of_subset_of_mem {s₁ s₂ : set X} {a : X} : s₁ ⊆ s₂ → a ∈ s₁ → a ∈ s₂ :=
 assume h₁ h₂, h₁ _ h₂
@@ -55,6 +58,10 @@ abbreviation bounded_exists (a : set X) (P : X → Prop) := ∃⦃x⦄, x ∈ a 
 notation `existsb` binders `∈` a `,` r:(scoped:1 P, P) := bounded_exists a r
 notation `∃₀` binders `∈` a `,` r:(scoped:1 P, P) := bounded_exists a r
 
+theorem bounded_exists.intro {P : X → Prop} {s : set X} {x : X} (xs : x ∈ s) (Px : P x) :
+  ∃₀ x ∈ s, P x :=
+exists.intro x (and.intro xs Px)
+
 /- empty set -/
 
 definition empty [reducible] : set X := λx, false
@@ -66,7 +73,7 @@ assume H : x ∈ ∅, H
 theorem mem_empty_eq (x : X) : x ∈ ∅ = false := rfl
 
 theorem eq_empty_of_forall_not_mem {s : set X} (H : ∀ x, x ∉ s) : s = ∅ :=
-setext (take x, iff.intro
+ext (take x, iff.intro
   (assume xs, absurd xs (H x))
   (assume xe, absurd xe !not_mem_empty))
 
@@ -91,6 +98,14 @@ theorem empty_ne_univ [h : inhabited X] : (empty : set X) ≠ univ :=
 assume H : empty = univ,
 absurd (mem_univ (inhabited.value h)) (eq.rec_on H (not_mem_empty _))
 
+theorem subset_univ (s : set X) : s ⊆ univ := λ x H, trivial
+
+theorem eq_univ_of_univ_subset {s : set X} (H : univ ⊆ s) : s = univ :=
+eq_of_subset_of_subset (subset_univ s) H
+
+theorem eq_univ_of_forall {s : set X} (H : ∀ x, x ∈ s) : s = univ :=
+ext (take x, iff.intro (assume H', trivial) (assume H', H x))
+
 /- union -/
 
 definition union [reducible] (a b : set X) : set X := λx, x ∈ a ∨ x ∈ b
@@ -107,25 +122,32 @@ theorem mem_union_of_mem_right {x : X} {b : set X} (a : set X) : x ∈ b → x �
 assume h, or.inr h
 
 theorem union_self (a : set X) : a ∪ a = a :=
-setext (take x, !or_self)
+ext (take x, !or_self)
 
 theorem union_empty (a : set X) : a ∪ ∅ = a :=
-setext (take x, !or_false)
+ext (take x, !or_false)
 
 theorem empty_union (a : set X) : ∅ ∪ a = a :=
-setext (take x, !false_or)
+ext (take x, !false_or)
 
 theorem union.comm (a b : set X) : a ∪ b = b ∪ a :=
-setext (take x, or.comm)
+ext (take x, or.comm)
 
 theorem union.assoc (a b c : set X) : (a ∪ b) ∪ c = a ∪ (b ∪ c) :=
-setext (take x, or.assoc)
+ext (take x, or.assoc)
 
 theorem union.left_comm (s₁ s₂ s₃ : set X) : s₁ ∪ (s₂ ∪ s₃) = s₂ ∪ (s₁ ∪ s₃) :=
 !left_comm union.comm union.assoc s₁ s₂ s₃
 
 theorem union.right_comm (s₁ s₂ s₃ : set X) : (s₁ ∪ s₂) ∪ s₃ = (s₁ ∪ s₃) ∪ s₂ :=
 !right_comm union.comm union.assoc s₁ s₂ s₃
+
+theorem subset_union_left (s t : set X) : s ⊆ s ∪ t := λ x H, or.inl H
+
+theorem subset_union_right (s t : set X) : t ⊆ s ∪ t := λ x H, or.inr H
+
+theorem union_subset {s t r : set X} (sr : s ⊆ r) (tr : t ⊆ r) : s ∪ t ⊆ r :=
+λ x xst, or.elim xst (λ xs, sr xs) (λ xt, tr xt)
 
 /- intersection -/
 
@@ -137,19 +159,19 @@ theorem mem_inter (x : X) (a b : set X) : x ∈ a ∩ b ↔ x ∈ a ∧ x ∈ b 
 theorem mem_inter_eq (x : X) (a b : set X) : x ∈ a ∩ b = (x ∈ a ∧ x ∈ b) := rfl
 
 theorem inter_self (a : set X) : a ∩ a = a :=
-setext (take x, !and_self)
+ext (take x, !and_self)
 
 theorem inter_empty (a : set X) : a ∩ ∅ = ∅ :=
-setext (take x, !and_false)
+ext (take x, !and_false)
 
 theorem empty_inter (a : set X) : ∅ ∩ a = ∅ :=
-setext (take x, !false_and)
+ext (take x, !false_and)
 
 theorem inter.comm (a b : set X) : a ∩ b = b ∩ a :=
-setext (take x, !and.comm)
+ext (take x, !and.comm)
 
 theorem inter.assoc (a b c : set X) : (a ∩ b) ∩ c = a ∩ (b ∩ c) :=
-setext (take x, !and.assoc)
+ext (take x, !and.assoc)
 
 theorem inter.left_comm (s₁ s₂ s₃ : set X) : s₁ ∩ (s₂ ∩ s₃) = s₂ ∩ (s₁ ∩ s₃) :=
 !left_comm inter.comm inter.assoc s₁ s₂ s₃
@@ -158,24 +180,31 @@ theorem inter.right_comm (s₁ s₂ s₃ : set X) : (s₁ ∩ s₂) ∩ s₃ = (
 !right_comm inter.comm inter.assoc s₁ s₂ s₃
 
 theorem inter_univ (a : set X) : a ∩ univ = a :=
-setext (take x, !and_true)
+ext (take x, !and_true)
 
 theorem univ_inter (a : set X) : univ ∩ a = a :=
-setext (take x, !true_and)
+ext (take x, !true_and)
+
+theorem inter_subset_left (s t : set X) : s ∩ t ⊆ s := λ x H, and.left H
+
+theorem inter_subset_right (s t : set X) : s ∩ t ⊆ t := λ x H, and.right H
+
+theorem subset_inter {s t r : set X} (rs : r ⊆ s) (rt : r ⊆ t) : r ⊆ s ∩ t :=
+λ x xr, and.intro (rs xr) (rt xr)
 
 /- distributivity laws -/
 
 theorem inter.distrib_left (s t u : set X) : s ∩ (t ∪ u) = (s ∩ t) ∪ (s ∩ u) :=
-setext (take x, !and.left_distrib)
+ext (take x, !and.left_distrib)
 
 theorem inter.distrib_right (s t u : set X) : (s ∪ t) ∩ u = (s ∩ u) ∪ (t ∩ u) :=
-setext (take x, !and.right_distrib)
+ext (take x, !and.right_distrib)
 
 theorem union.distrib_left (s t u : set X) : s ∪ (t ∩ u) = (s ∪ t) ∩ (s ∪ u) :=
-setext (take x, !or.left_distrib)
+ext (take x, !or.left_distrib)
 
 theorem union.distrib_right (s t u : set X) : (s ∩ t) ∪ u = (s ∪ u) ∩ (t ∪ u) :=
-setext (take x, !or.right_distrib)
+ext (take x, !or.right_distrib)
 
 /- set-builder notation -/
 
@@ -214,21 +243,26 @@ propext (iff.intro !eq_or_mem_of_mem_insert
   (or.rec (λH', (eq.substr H' !mem_insert)) !mem_insert_of_mem))
 
 theorem insert_eq_of_mem {a : X} {s : set X} (H : a ∈ s) : insert a s = s :=
-setext (λ x, eq.substr (mem_insert_eq x a s)
+ext (λ x, eq.substr (mem_insert_eq x a s)
    (or_iff_right_of_imp (λH1, eq.substr H1 H)))
 
 theorem insert.comm (x y : X) (s : set X) : insert x (insert y s) = insert y (insert x s) :=
-setext (take a, by rewrite [*mem_insert_eq, propext !or.left_comm])
+ext (take a, by rewrite [*mem_insert_eq, propext !or.left_comm])
 
 theorem eq_of_mem_singleton {x y : X} : x ∈ insert y ∅ → x = y :=
 assume h, or.elim (eq_or_mem_of_mem_insert h)
   (suppose x = y, this)
   (suppose x ∈ ∅, absurd this !not_mem_empty)
 
+theorem mem_singleton_iff (a b : X) : a ∈ '{b} ↔ a = b :=
+iff.intro
+  (assume ainb, or.elim ainb (λ aeqb, aeqb) (λ f, false.elim f))
+  (assume aeqb, or.inl aeqb)
+
 /- separation -/
 
 theorem eq_sep_of_subset {s t : set X} (ssubt : s ⊆ t) : s = {x ∈ t | x ∈ s} :=
-setext (take x, iff.intro
+ext (take x, iff.intro
   (suppose x ∈ s, and.intro (ssubt this) this)
   (suppose x ∈ {x ∈ t | x ∈ s}, and.right this))
 
@@ -253,7 +287,7 @@ theorem mem_diff_iff (s t : set X) (x : X) : x ∈ s \ t ↔ x ∈ s ∧ x ∉ t
 theorem mem_diff_eq (s t : set X) (x : X) : x ∈ s \ t = (x ∈ s ∧ x ∉ t) := rfl
 
 theorem union_diff_cancel {s t : set X} [dec : Π x, decidable (x ∈ s)] (H : s ⊆ t) : s ∪ (t \ s) = t :=
-setext (take x, iff.intro
+ext (take x, iff.intro
   (assume H1 : x ∈ s ∪ (t \ s), or.elim H1 (assume H2, !H H2) (assume H2, and.left H2))
   (assume H1 : x ∈ t,
     decidable.by_cases

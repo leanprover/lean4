@@ -182,7 +182,7 @@ lemma closed_lcontract_set a (H G : set A) : mul_closed_on G → H ⊆ G → a�
       assert PaGsubG : a ∘> G ⊆ G, from closed_lcontract a G Pclosed PainG,
       assert PaHsubaG : a ∘> H ⊆ a ∘> G, from
         eq.symm (glcoset_eq_lcoset a H) ▸ eq.symm (glcoset_eq_lcoset a G) ▸ (coset.l_sub a H G PHsubG),
-      subset.trans _ _ _ PaHsubaG PaGsubG
+      subset.trans PaHsubaG PaGsubG
 definition subgroup.has_inv H := ∀ (a : A), a ∈ H → a⁻¹ ∈ H
 -- two ways to define the same equivalence relatiohship for subgroups
 definition in_lcoset [reducible] H (a b : A) := a ∈ b ∘> H

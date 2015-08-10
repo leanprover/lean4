@@ -11,23 +11,38 @@ import algebra.lattice data.set.basic
 open set
 
 namespace algebra
-
 variable {A : Type}
 
-structure complete_lattice [class] (A : Type) extends weak_order A :=
+structure complete_lattice [class] (A : Type) extends lattice A :=
+(Inf : set A → A)
+(Sup : set A → A)
+(Inf_le : ∀ {a : A} {s : set A}, a ∈ s → le (Inf s) a)
+(le_Inf : ∀ {b : A} {s : set A}, (∀ (a : A), a ∈ s → le b a) → le b (Inf s))
+(le_Sup : ∀ {a : A} {s : set A}, a ∈ s → le a (Sup s))
+(Sup_le : ∀ {b : A} {s : set A} (h : ∀ (a : A), a ∈ s → le a b), le (Sup s) b)
+
+-- Minimal complete_lattice definition based just on Inf.
+-- We latet show that complete_lattice_Inf is a complete_lattice
+structure complete_lattice_Inf [class] (A : Type) extends weak_order A :=
 (Inf : set A → A)
 (Inf_le : ∀ {a : A} {s : set A}, a ∈ s → le (Inf s) a)
 (le_Inf : ∀ {b : A} {s : set A}, (∀ (a : A), a ∈ s → le b a) → le b (Inf s))
 
-namespace complete_lattice
-variable [C : complete_lattice A]
-include C
+-- Minimal complete_lattice definition based just on Sup.
+-- We later show that complete_lattice_Sup is a complete_lattice
+structure complete_lattice_Sup [class] (A : Type) extends weak_order A :=
+(Sup : set A → A)
+(le_Sup : ∀ {a : A} {s : set A}, a ∈ s → le a (Sup s))
+(Sup_le : ∀ {b : A} {s : set A} (h : ∀ (a : A), a ∈ s → le a b), le (Sup s) b)
 
+namespace complete_lattice_Inf
+variable [C : complete_lattice_Inf A]
+include C
 definition Sup (s : set A) : A :=
 Inf {b | ∀ a, a ∈ s → a ≤ b}
 
-prefix `⨅`:70 := Inf
-prefix `⨆`:65 := Sup
+local prefix `⨅`:70 := Inf
+local prefix `⨆`:65 := Sup
 
 lemma le_Sup {a : A} {s : set A} : a ∈ s → a ≤ ⨆ s :=
 suppose a ∈ s, le_Inf
@@ -39,8 +54,9 @@ Inf_le h
 
 definition inf (a b : A) := ⨅ '{a, b}
 definition sup (a b : A) := ⨆ '{a, b}
-infix `⊓` := inf
-infix `⊔` := sup
+
+local infix `⊓` := inf
+local infix `⊔` := sup
 
 lemma inf_le_left (a b : A) : a ⊓ b ≤ a :=
 Inf_le !mem_insert
@@ -71,17 +87,46 @@ Sup_le (take x, suppose x ∈ '{a, b},
     (suppose x ∈ '{b},
       assert x = b, from !eq_of_mem_singleton this,
       by subst x; assumption))
+end complete_lattice_Inf
 
-definition complete_lattice_is_lattice [instance] : lattice A :=
-⦃ lattice, C,
-  inf := inf,
-  sup := sup,
-  inf_le_left  := inf_le_left,
-  inf_le_right := inf_le_right,
-  le_inf       := @le_inf A C,
-  le_sup_left  := le_sup_left,
-  le_sup_right := le_sup_right,
-  sup_le       := @sup_le A C ⦄
+-- Every complete_lattice_Inf is a complete_lattice_Sup
+definition complete_lattice_Inf_to_complete_lattice_Sup [instance] [C : complete_lattice_Inf A] : complete_lattice_Sup A :=
+⦃ complete_lattice_Sup, C ⦄
+
+-- Every complete_lattice_Inf is a complete_lattice
+definition complete_lattice_Inf_to_complete_lattice [instance] [C : complete_lattice_Inf A] : complete_lattice A :=
+⦃ complete_lattice, C ⦄
+
+namespace complete_lattice_Sup
+variable [C : complete_lattice_Sup A]
+include C
+definition Inf (s : set A) : A :=
+Sup {b | ∀ a, a ∈ s → b ≤ a}
+
+lemma Inf_le {a : A} {s : set A} : a ∈ s → Inf s ≤ a :=
+suppose a ∈ s, Sup_le
+  (show ∀ (b : A), (∀ (a : A), a ∈ s → b ≤ a) → b ≤ a, from
+   take b, assume h, h a `a ∈ s`)
+
+lemma le_Inf {b : A} {s : set A} (h : ∀ (a : A), a ∈ s → b ≤ a) : b ≤ Inf s :=
+le_Sup h
+end complete_lattice_Sup
+
+-- Every complete_lattice_Sup is a complete_lattice_Inf
+definition complete_lattice_Sup_to_complete_lattice_Inf [instance] [C : complete_lattice_Sup A] : complete_lattice_Inf A :=
+⦃ complete_lattice_Inf, C ⦄
+
+-- Every complete_lattice_Sup is a complete_lattice
+definition complete_lattice_Sup_to_complete_lattice [instance] [C : complete_lattice_Sup A] : complete_lattice A :=
+_
+
+namespace complete_lattice
+variable [C : complete_lattice A]
+include C
+prefix `⨅`:70 := Inf
+prefix `⨆`:65 := Sup
+infix `⊓` := inf
+infix `⊔` := sup
 
 variable {f : A → A}
 premise  (mono : ∀ x y : A, x ≤ y → f x ≤ f y)
@@ -174,9 +219,9 @@ suppose s₁ ⊆ s₂, Sup_le (take a : A, suppose a ∈ s₁, le_Sup (mem_of_su
 
 lemma Inf_union (s₁ s₂ : set A) : ⨅ (s₁ ∪ s₂) = (⨅s₁) ⊓ (⨅s₂) :=
 have le₁ : ⨅ (s₁ ∪ s₂) ≤ (⨅s₁) ⊓ (⨅s₂), from
-  le_inf
-    (le_Inf (take a : A, suppose a ∈ s₁, Inf_le (mem_union_of_mem_left _ `a ∈ s₁`)))
-    (le_Inf (take a : A, suppose a ∈ s₂, Inf_le (mem_union_of_mem_right _ `a ∈ s₂`))),
+ !le_inf
+     (le_Inf (take a : A, suppose a ∈ s₁, Inf_le (mem_union_of_mem_left _ `a ∈ s₁`)))
+     (le_Inf (take a : A, suppose a ∈ s₂, Inf_le (mem_union_of_mem_right _ `a ∈ s₂`))),
 have le₂ : (⨅s₁) ⊓ (⨅s₂) ≤ ⨅ (s₁ ∪ s₂), from
   le_Inf (take a : A, suppose a ∈ s₁ ∪ s₂,
     or.elim this
@@ -203,7 +248,7 @@ have le₁ : ⨆ (s₁ ∪ s₂) ≤ (⨆s₁) ⊔ (⨆s₂), from
         have ⨆s₂ ≤ (⨆s₁) ⊔ (⨆s₂), from !le_sup_right,
         le.trans `a ≤ ⨆s₂` `⨆s₂ ≤ (⨆s₁) ⊔ (⨆s₂)`)),
 have le₂ : (⨆s₁) ⊔ (⨆s₂) ≤ ⨆ (s₁ ∪ s₂), from
-  sup_le
+  !sup_le
     (Sup_le (take a : A, suppose a ∈ s₁, le_Sup (mem_union_of_mem_left _ `a ∈ s₁`)))
     (Sup_le (take a : A, suppose a ∈ s₂, le_Sup (mem_union_of_mem_right _ `a ∈ s₂`))),
 le.antisymm le₁ le₂

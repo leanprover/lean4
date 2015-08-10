@@ -26,6 +26,14 @@ theorem sqrt_aux_of_le : ∀ {s n : nat}, s * s ≤ n → sqrt_aux s n = s
 | 0        n h := rfl
 | (succ s) n h := by rewrite [sqrt_aux_succ_of_pos h]
 
+theorem sqrt_aux_le : ∀ (s n), sqrt_aux s n ≤ s
+| 0        n := !zero_le
+| (succ s) n := or.elim (em ((succ s)*(succ s) ≤ n))
+  (λ h, begin unfold sqrt_aux, rewrite [if_pos h] end)
+  (λ h,
+    assert sqrt_aux s n ≤ succ s, from le.step (sqrt_aux_le s n),
+    begin unfold sqrt_aux, rewrite [if_neg h], assumption end)
+
 definition sqrt (n : nat) : nat :=
 sqrt_aux n n
 
@@ -60,6 +68,57 @@ private theorem le_squared : ∀ (n : nat), n ≤ n*n
   have   aux₁ : 1 ≤ succ n, from succ_le_succ !zero_le,
   assert aux₂ : 1 * succ n ≤ succ n * succ n, from mul_le_mul aux₁ !le.refl,
   by rewrite [one_mul at aux₂]; exact aux₂
+
+private theorem lt_squared : ∀ {n}, n > 1 → n < n * n
+| 0               h := absurd h dec_trivial
+| 1               h := absurd h dec_trivial
+| (succ (succ n)) h :=
+  have 1 < succ (succ n),                                   from dec_trivial,
+  assert succ (succ n) * 1 < succ (succ n) * succ (succ n), from mul_lt_mul_of_pos_left this dec_trivial,
+  by rewrite [mul_one at this]; exact this
+
+theorem sqrt_le (n : nat) : sqrt n ≤ n :=
+calc sqrt n ≤ sqrt n * sqrt n : le_squared
+        ... ≤ n               : sqrt_lower
+
+theorem eq_zero_of_sqrt_eq_zero {n : nat} : sqrt n = 0 → n = 0 :=
+suppose sqrt n = 0,
+assert n ≤ sqrt n * sqrt n + sqrt n + sqrt n, from !sqrt_upper,
+have   n ≤ 0, by rewrite [*`sqrt n = 0` at this]; exact this,
+eq_zero_of_le_zero this
+
+theorem le_three_of_sqrt_eq_one {n : nat} : sqrt n = 1 → n ≤ 3 :=
+suppose sqrt n = 1,
+assert n ≤ sqrt n * sqrt n + sqrt n + sqrt n, from !sqrt_upper,
+show   n ≤ 3, by rewrite [*`sqrt n = 1` at this]; exact this
+
+theorem sqrt_lt : ∀ {n : nat}, n > 1 → sqrt n < n
+| 0     h := absurd h dec_trivial
+| 1     h := absurd h dec_trivial
+| 2     h := dec_trivial
+| 3     h := dec_trivial
+| (n+4) h :=
+  have sqrt (n+4) > 1, from by_contradiction
+    (suppose ¬ sqrt (n+4) > 1,
+     have sqrt (n+4) ≤ 1, from le_of_not_gt this,
+       or.elim (eq_or_lt_of_le this)
+         (suppose sqrt (n+4) = 1,
+          have n+4 ≤ 3, from le_three_of_sqrt_eq_one this,
+          absurd this dec_trivial)
+         (suppose sqrt (n+4) < 1,
+          have sqrt (n+4) = 0, from eq_zero_of_le_zero (le_of_lt_succ this),
+          have n + 4 = 0,      from eq_zero_of_sqrt_eq_zero this,
+          absurd this dec_trivial)),
+  calc sqrt (n+4) < sqrt (n+4) * sqrt (n+4) : lt_squared this
+              ... ≤ n+4                     : sqrt_lower
+
+theorem sqrt_pos_of_pos {n : nat} : n > 0 → sqrt n > 0 :=
+suppose n > 0,
+have sqrt n ≠ 0, from
+  suppose sqrt n = 0,
+  assert n = 0, from eq_zero_of_sqrt_eq_zero this,
+  by subst n; exact absurd `0 > 0` !lt.irrefl,
+pos_of_ne_zero this
 
 theorem sqrt_aux_offset_eq {n k : nat} (h₁ : k ≤ n + n) : ∀ {s}, s ≥ n → sqrt_aux s (n*n + k) = n
 | 0        h₂ :=

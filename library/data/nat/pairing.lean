@@ -69,4 +69,26 @@ by_cases
     esimp [unpair],
     rewrite [add.assoc (a * a) a b, sqrt_offset_eq `a + b ≤ a + a`, *add_sub_cancel_left, if_neg `¬ a + b < a`]
   end)
+
+open prod.ops
+
+theorem unpair_lt_aux {n : nat} : n ≥ 1 → (unpair n).1 < n :=
+suppose n ≥ 1,
+or.elim (eq_or_lt_of_le this)
+  (suppose 1 = n, by subst n; exact dec_trivial)
+  (suppose n > 1,
+   let s := sqrt n in
+   by_cases
+    (suppose h : n - s*s < s,
+      assert n > 0, from lt_of_succ_lt `n > 1`,
+      assert sqrt n > 0, from sqrt_pos_of_pos this,
+      assert sqrt n * sqrt n > 0, from mul_pos this this,
+      begin unfold unpair, rewrite [if_pos h], esimp, exact sub_lt `n > 0` `sqrt n * sqrt n > 0` end)
+    (suppose ¬ n - s*s < s, begin unfold unpair, rewrite [if_neg this], esimp, apply sqrt_lt `n > 1` end))
+
+theorem unpair_lt : ∀ (n : nat), (unpair n).1 < succ n
+| 0        := dec_trivial
+| (succ n) :=
+  have (unpair (succ n)).1 < succ n, from unpair_lt_aux dec_trivial,
+  lt.step this
 end nat

@@ -472,6 +472,49 @@ lemma list_equiv_of_equiv {A B : Type} : A ≃ B → list A ≃ list B
   mk (map f) (map g)
    begin intros, rewrite [map_map, id_of_left_inverse l, map_id] end
    begin intros, rewrite [map_map, id_of_righ_inverse r, map_id] end
+
+private definition to_nat : list nat → nat
+| []      := 0
+| (x::xs) := succ (mkpair (to_nat xs) x)
+
+open prod.ops
+
+private definition of_nat.F : Π (n : nat), (Π m, m < n → list nat) → list nat
+| 0        f := []
+| (succ n) f := (unpair n).2 :: f (unpair n).1 (unpair_lt n)
+
+private definition of_nat : nat → list nat :=
+well_founded.fix of_nat.F
+
+private lemma of_nat_zero : of_nat 0 = [] :=
+well_founded.fix_eq of_nat.F 0
+
+private lemma of_nat_succ (n : nat)
+      : of_nat (succ n) = (unpair n).2 :: of_nat (unpair n).1 :=
+well_founded.fix_eq of_nat.F (succ n)
+
+private lemma to_nat_of_nat (n : nat) : to_nat (of_nat n) = n :=
+nat.case_strong_induction_on n
+ _
+ (λ n ih,
+  begin
+    rewrite of_nat_succ, unfold to_nat,
+    have to_nat (of_nat (unpair n).1) = (unpair n).1, from ih _ (le_of_lt_succ (unpair_lt n)),
+    rewrite this, rewrite mkpair_unpair
+  end)
+
+private lemma of_nat_to_nat : ∀ (l : list nat), of_nat (to_nat l) = l
+| []      := rfl
+| (x::xs) := begin unfold to_nat, rewrite of_nat_succ, rewrite *unpair_mkpair, esimp, congruence, apply of_nat_to_nat end
+
+lemma list_nat_equiv_nat : list nat ≃ nat :=
+mk to_nat of_nat of_nat_to_nat to_nat_of_nat
+
+lemma list_equiv_self_of_equiv_nat {A : Type} : A ≃ nat → list A ≃ A :=
+suppose A ≃ nat, calc
+  list A ≃ list nat : list_equiv_of_equiv this
+     ... ≃ nat      : list_nat_equiv_nat
+     ... ≃ A        : this
 end
 end list
 

@@ -11,7 +11,6 @@ true_ne_false|¬true = false
 nat.lt_self_iff_false|∀ (n : nat), nat.lt n n ↔ false
 not_of_is_false|is_false ?c → ¬?c
 not_of_iff_false|(?a ↔ false) → ¬?a
-p_ne_false|?p → ?p ≠ false
 is_false|Π (c : Prop) [H : decidable c], Prop
 nat.lt_zero_iff_false|∀ (a : nat), nat.lt a nat.zero ↔ false
 not_of_eq_false|?p = false → ¬?p
@@ -21,6 +20,7 @@ not_false|¬false
 decidable_false|decidable false
 of_not_is_false|¬is_false ?c → ?c
 iff_false_intro|¬?a → (?a ↔ false)
+ne_false_of_self|?p → ?p ≠ false
 nat.succ_le_zero_iff_false|∀ (n : nat), nat.le (nat.succ n) nat.zero ↔ false
 tactic.exfalso|tactic
 -- ENDFINDP

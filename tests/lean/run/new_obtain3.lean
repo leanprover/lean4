@@ -4,7 +4,7 @@ open set function eq.ops
 variables {X Y Z : Type}
 
 lemma image_compose (f : Y → X) (g : X → Y) (a : set X) : (f ∘ g) '[a] = f '[g '[a]] :=
-setext (take z,
+ext (take z,
   iff.intro
     (assume Hz : z ∈ (f ∘ g) '[a],
       obtain x (Hx₁ : x ∈ a) (Hx₂ : f (g x) = z), from Hz,

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 Type class for encodable types.
 Note that every encodable type is countable.
 -/
-import data.fintype data.list data.sum data.nat.div data.subtype data.countable data.equiv
+import data.fintype data.list data.list.sort data.sum data.nat.div data.subtype data.countable data.equiv data.finset
 open option list nat function
 
 structure encodable [class] (A : Type) :=
@@ -203,6 +203,74 @@ encodable.mk
   decode_list
   decode_encode_list
 end list
+
+section finset
+variable {A : Type}
+variable [encA : encodable A]
+include encA
+
+private definition enle (a b : A) : Prop := encode a ≤ encode b
+
+private lemma enle.refl (a : A) : enle a a :=
+!le.refl
+
+private lemma enle.trans (a b c : A) : enle a b → enle b c → enle a c :=
+assume h₁ h₂, le.trans h₁ h₂
+
+private lemma enle.total (a b : A) : enle a b ∨ enle b a :=
+le.total
+
+private lemma enle.antisymm (a b : A) : enle a b → enle b a → a = b :=
+assume h₁ h₂,
+assert encode a = encode b, from le.antisymm h₁ h₂,
+assert decode A (encode a) = decode A (encode b), by rewrite this,
+assert some a = some b, by rewrite [*encodek at this]; exact this,
+option.no_confusion this (λ e, e)
+
+private definition decidable_enle [instance] (a b : A) : decidable (enle a b) :=
+decidable_le (encode a) (encode b)
+
+variables [decA : decidable_eq A]
+include decA
+
+private definition ensort (l : list A) : list A :=
+sort enle l
+
+open subtype perm
+private lemma sorted_eq_of_perm {l₁ l₂ : list A} (h : l₁ ~ l₂) : ensort l₁ = ensort l₂ :=
+list.sort_eq_of_perm_core enle.total enle.trans enle.refl enle.antisymm h
+
+definition encode_finset (s : finset A) : nat :=
+quot.lift_on s
+  (λ l, encode (ensort (elt_of l)))
+  (λ l₁ l₂ p,
+    have elt_of l₁ ~ elt_of l₂,                     from p,
+    assert ensort (elt_of l₁) = ensort (elt_of l₂), from sorted_eq_of_perm this,
+    by rewrite this)
+
+definition decode_finset (n : nat) : option (finset A) :=
+match decode (list A) n with
+| some l₁ := some (finset.to_finset l₁)
+| none    := none
+end
+
+theorem decode_encode_finset (s : finset A) : decode_finset (encode_finset s) = some s :=
+quot.induction_on s (λ l,
+  begin
+    unfold encode_finset, unfold decode_finset, rewrite encodek, esimp, congruence,
+    apply quot.sound, cases l with l nd,
+    show erase_dup (ensort l) ~ l, from
+      have nodup (ensort l), from nodup_of_perm_of_nodup (perm.symm !sort_perm) nd,
+      calc erase_dup (ensort l) = ensort l : erase_dup_eq_of_nodup this
+                ...             ~ l        : sort_perm
+  end)
+
+definition encodable_finset [instance] : encodable (finset A) :=
+encodable.mk
+  encode_finset
+  decode_finset
+  decode_encode_finset
+end finset
 
 definition encodable_of_left_injection
              {A B : Type} [h₁ : encodable A]

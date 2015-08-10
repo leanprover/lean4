@@ -739,6 +739,27 @@ theorem perm_ext : ∀ {l₁ l₂ : list A}, nodup l₁ → nodup l₂ → (∀a
          ...  = a₂::t₂       : by rewrite t₂_eq
 end ext
 
+theorem nodup_of_perm_of_nodup {l₁ l₂ : list A} : l₁ ~ l₂ → nodup l₁ → nodup l₂ :=
+assume h, perm.induction_on h
+  (λ h, h)
+  (λ a l₁ l₂ p ih nd,
+    have nodup l₁, from nodup_of_nodup_cons nd,
+    have nodup l₂, from ih this,
+    have a ∉ l₁,   from not_mem_of_nodup_cons nd,
+    have a ∉ l₂,   from suppose a ∈ l₂, absurd (mem_perm (perm.symm p) this) `a ∉ l₁`,
+    nodup_cons `a ∉ l₂` `nodup l₂`)
+  (λ x y l₁ nd,
+    have nodup (x::l₁),    from nodup_of_nodup_cons nd,
+    have nodup l₁,         from nodup_of_nodup_cons this,
+    have x ∉ l₁,           from not_mem_of_nodup_cons `nodup (x::l₁)`,
+    have y ∉ x::l₁,        from not_mem_of_nodup_cons nd,
+    have x ≠ y,            using this, from suppose x = y, begin subst x, exact absurd !mem_cons `y ∉ y::l₁` end,
+    have y ∉ l₁,           from not_mem_of_not_mem_cons `y ∉ x::l₁`,
+    have x ∉ y::l₁,        from not_mem_cons_of_ne_of_not_mem `x ≠ y` `x ∉ l₁`,
+    have nodup (y::l₁),    from nodup_cons `y ∉ l₁` `nodup l₁`,
+    show nodup (x::y::l₁), from nodup_cons `x ∉ y::l₁` `nodup (y::l₁)`)
+  (λ l₁ l₂ l₃ p₁ p₂ ih₁ ih₂ nd, ih₂ (ih₁ nd))
+
 /- product -/
 section product
 theorem perm_product_left {l₁ l₂ : list A} (t₁ : list B) : l₁ ~ l₂ → (product l₁ t₁) ~ (product l₂ t₁) :=

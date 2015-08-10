@@ -106,12 +106,12 @@ end
 section
   variables {p : Prop}
 
-  theorem p_ne_false : p → p ≠ false :=
+  theorem ne_false_of_self : p → p ≠ false :=
   assume (Hp : p) (Heq : p = false), Heq ▸ Hp
 
-  theorem p_ne_true : ¬p → p ≠ true :=
+  theorem ne_true_of_not : ¬p → p ≠ true :=
   assume (Hnp : ¬p) (Heq : p = true), (Heq ▸ Hnp) trivial
 end
 
 theorem true_ne_false : ¬true = false :=
-p_ne_false trivial
+ne_false_of_self trivial

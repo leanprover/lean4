@@ -594,4 +594,21 @@ begin
      rewrite [mul_zero, *div_zero],
      apply div_div_aux a (succ b) (succ c) dec_trivial dec_trivial
 end
+
+lemma div_lt_of_ne_zero : ∀ {n : nat}, n ≠ 0 → n div 2 < n
+| 0        h := absurd rfl h
+| (succ n) h :=
+  begin
+    apply div_lt_of_lt_mul,
+    rewrite [-add_one, mul.right_distrib],
+    change n + 1 < (n * 1 + n) + (1 + 1),
+    rewrite [mul_one, -add.assoc],
+    apply add_lt_add_right,
+    show n < n + n + 1,
+    begin
+      rewrite [add.assoc, -add_zero n at {1}],
+      apply add_lt_add_left,
+      apply zero_lt_succ
+    end
+  end
 end nat

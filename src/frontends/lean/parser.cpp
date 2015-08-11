@@ -741,6 +741,13 @@ level parser::parse_level_id() {
     next();
     if (auto it = m_local_level_decls.find(id))
         return *it;
+
+    for (name const & ns : get_namespaces(m_env)) {
+        auto new_id = ns + id;
+        if (!ns.is_anonymous() && m_env.is_universe(new_id))
+            return mk_global_univ(new_id);
+    }
+
     if (m_env.is_universe(id))
         return mk_global_univ(id);
     if (auto it = get_level_alias(m_env, id))

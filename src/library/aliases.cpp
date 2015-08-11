@@ -106,8 +106,6 @@ struct aliases_ext : public environment_extension {
         aliases_ext ext = get_extension(env);
         ext.push(k != scope_kind::Namespace);
         environment new_env = update(env, ext);
-        if (!::lean::in_section(new_env))
-            new_env = add_aliases(new_env, get_namespace(new_env), name());
         return new_env;
     }
 

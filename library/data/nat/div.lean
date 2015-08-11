@@ -555,4 +555,43 @@ calc
      ... = n - k div m - 1                                              :
                by rewrite [div_eq_zero_of_lt H6, zero_add]
 
+
+private lemma div_div_aux (a b c : nat) : b > 0 → c > 0 → (a div b) div c = a div (b * c) :=
+suppose b > 0, suppose c > 0,
+nat.strong_induction_on a
+(λ a ih,
+  let k₁ := a div (b*c) in
+  let k₂ := a mod (b*c) in
+  assert bc_pos : b*c > 0, from mul_pos `b > 0` `c > 0`,
+  assert k₂ < b * c,       from mod_lt _ bc_pos,
+  assert k₂ ≤ a,           from !mod_le,
+  or.elim (eq_or_lt_of_le this)
+    (suppose k₂ = a,
+     assert i₁ : a < b * c,   by rewrite -this; assumption,
+     assert k₁ = 0,           from div_eq_zero_of_lt i₁,
+     assert a div b < c,      by rewrite [mul.comm at i₁]; exact div_lt_of_lt_mul i₁,
+     begin
+       rewrite [`k₁ = 0`],
+       show (a div b) div c = 0, from div_eq_zero_of_lt `a div b < c`
+     end)
+    (suppose k₂ < a,
+     assert a = k₁*(b*c) + k₂,         from eq_div_mul_add_mod a (b*c),
+     assert a div b = k₁*c + k₂ div b, by
+       rewrite [this at {1}, mul.comm b c at {2}, -mul.assoc,
+                add.comm, add_mul_div_self `b > 0`, add.comm],
+     assert e₁ : (a div b) div c = k₁ + (k₂ div b) div c, by
+       rewrite [this, add.comm, add_mul_div_self `c > 0`, add.comm],
+     assert e₂ : (k₂ div b) div c = k₂ div (b * c), from ih k₂ `k₂ < a`,
+     assert e₃ : k₂ div (b * c)   = 0,              from div_eq_zero_of_lt `k₂ < b * c`,
+     assert (k₂ div b) div c      = 0,              by rewrite [e₂, e₃],
+     show (a div b) div c = k₁,                     by rewrite [e₁, this]))
+
+lemma div_div_eq_div_mul (a b c : nat) : (a div b) div c = a div (b * c) :=
+begin
+ cases b with b,
+   rewrite [zero_mul, *div_zero, zero_div],
+   cases c with c,
+     rewrite [mul_zero, *div_zero],
+     apply div_div_aux a (succ b) (succ c) dec_trivial dec_trivial
+end
 end nat

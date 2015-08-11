@@ -217,4 +217,28 @@ by_contradiction (suppose ¬ odd (n*m),
   assert even (n*m), from even_of_not_odd this,
   absurd `even (n * m + n)` (not_even_of_odd (odd_add_of_even_of_odd this `odd n`)))
 
+lemma eq_of_div2_of_even {n m : nat} : n div 2 = m div 2 → (even n ↔ even m) → n = m :=
+assume h₁ h₂,
+ or.elim (em (even n))
+   (suppose even n, or.elim (em (even m))
+     (suppose even m,
+      obtain w₁ (hw₁ : n = 2*w₁), from exists_of_even `even n`,
+      obtain w₂ (hw₂ : m = 2*w₂), from exists_of_even `even m`,
+      begin
+        substvars, rewrite [mul.comm 2 w₁ at h₁, mul.comm 2 w₂ at h₁,
+                            *mul_div_cancel _ (dec_trivial : 2 > 0) at h₁, h₁]
+      end)
+     (suppose odd m,  absurd `odd m` (not_odd_of_even (iff.mp h₂ `even n`))))
+   (suppose odd n,  or.elim (em (even m))
+     (suppose even m, absurd `odd n` (not_odd_of_even (iff.mpr h₂ `even m`)))
+     (suppose odd m,
+      assert d : 1 div 2 = 0,         from dec_trivial,
+      obtain w₁ (hw₁ : n = 2*w₁ + 1), from exists_of_odd `odd n`,
+      obtain w₂ (hw₂ : m = 2*w₂ + 1), from exists_of_odd `odd m`,
+      begin
+        substvars,
+        rewrite [add.comm at h₁, add_mul_div_self_left _ _ (dec_trivial : 2 > 0) at h₁, d at h₁, zero_add at h₁],
+        rewrite [add.comm at h₁, add_mul_div_self_left _ _ (dec_trivial : 2 > 0) at h₁, d at h₁, zero_add at h₁],
+        rewrite h₁
+      end))
 end nat

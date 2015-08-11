@@ -183,6 +183,14 @@ false (nil)."
   :group 'lean
   :type 'number)
 
+(defcustom lean-exec-at-pos-wait-time 0.1
+  "When flycheck process is running, wait for
+  lean-exec-at-pos-wait-time (seconds) and try to run
+  lean-exec-at-pos-with-timer again.
+  See the body of lean-exec-at-pos-with-timer"
+  :group 'lean
+  :type 'number)
+
 (defcustom lean-keybinding-std-exe1 (kbd "C-c C-x")
   "Lean Keybinding for std-exe #1"
   :group 'lean-keybinding :type 'key-sequence)

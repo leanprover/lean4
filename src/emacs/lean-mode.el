@@ -1,7 +1,7 @@
 ;;; lean-mode.el --- Emacs mode for Lean theorem prover
 ;;
 ;; Copyright (c) 2013, 2014 Microsoft Corporation. All rights reserved.
-;; Copyright (c) 2015, 2014 Soonho Kong. All rights reserved.
+;; Copyright (c) 2014, 2015 Soonho Kong. All rights reserved.
 ;;
 ;; Author: Leonardo de Moura <leonardo@microsoft.com>
 ;;         Soonho Kong       <soonhok@cs.cmu.edu>
@@ -93,6 +93,31 @@
   g-lean-exec-at-pos-buf variable"
   (setq g-lean-exec-at-pos-buf (s-append string g-lean-exec-at-pos-buf)))
 
+(defun lean-start-process (args filter-fn sentinel-fn)
+  "Start process with filter and sentinel functions"
+  (let ((p (apply 'start-process args)))
+    (set-process-filter p filter-fn)
+    (set-process-sentinel p sentinel-fn)
+    (set-process-coding-system p 'utf-8 'utf-8)
+    (set-process-query-on-exit-flag p nil)))
+
+(defvar lean-exec-at-pos-timer nil
+  "Timer for `lean-exec-at-pos-with-timer' to reschedule itself, or nil.")
+
+(defun lean-exec-at-pos-with-timer (args filter-fn sentinel-fn)
+  "Run lean-exec-at-pos with a timer. It waits until flycheck is finished."
+ (when lean-exec-at-pos-timer
+    (cancel-timer lean-exec-at-pos-timer))
+ (cond ((flycheck-running-p)
+        (message "flycheck-lean is running...")
+         (setq lean-exec-at-pos-timer
+               (run-at-time
+                lean-exec-at-pos-wait-time nil
+                `(lambda () (lean-exec-at-pos-with-timer ',args ',filter-fn ',sentinel-fn)))))
+        (t
+         (message "flycheck is over, start lean-process...")
+         (lean-start-process args filter-fn sentinel-fn))))
+
 (defun lean-exec-at-pos (process-name process-buffer-name &rest options)
   "Execute Lean by providing current position with optional
 agruments. The output goes to 'process-buffer-name' buffer, which
@@ -135,12 +160,13 @@ will be flushed everytime it's executed."
                                  ,(int-to-string (current-column)))
                                options
                                cache-option
-                               `(,target-file-name)))
-         (p (apply 'start-process process-args)))
-    (set-process-filter p 'lean-exec-at-pos-filter)
-    (set-process-sentinel p 'lean-exec-at-pos-sentinel)
-    (set-process-coding-system p 'utf-8 'utf-8)
-    (set-process-query-on-exit-flag p nil)))
+                               `(,target-file-name))))
+    (cond ((and cache-option (flycheck-running-p))
+           ;; Cache is used and flycheck is running
+           (lean-exec-at-pos-with-timer process-args 'lean-exec-at-pos-filter 'lean-exec-at-pos-sentinel))
+          (t
+           ;; start lean-process immediately
+           (lean-start-process process-args 'lean-exec-at-pos-filter 'lean-exec-at-pos-sentinel)))))
 
 (defun lean-show-goal-at-pos ()
   "Show goal at the current point. If the current point is a

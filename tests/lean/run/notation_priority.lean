@@ -13,15 +13,15 @@ example : a + b = f a b := rfl
 infix [priority 15] + := g
 example : a + b = g a b := rfl
 
-infix [priority default+1] + := f
+infix [priority std.priority.default+1] + := f
 infix + := g
 example : a + b = f a b := rfl
-infix [priority default+2] + := g
+infix [priority std.priority.default+2] + := g
 example : a + b = g a b := rfl
 
 infix + := f
 infix + := g
 example : a + b = f a b := rfl
 
-infix [priority default+1] + := g
+infix [priority std.priority.default+1] + := g
 example : a + b = g a b := rfl

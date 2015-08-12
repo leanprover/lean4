@@ -429,14 +429,6 @@ environment open_prec_aliases(environment const & env) {
     return overwrite_aliases(env, prec, name());
 }
 
-name get_priority_namespace() {
-    return name("std", "priority");
-}
-
-environment open_priority_aliases(environment const & env) {
-    return overwrite_aliases(env, get_priority_namespace(), name());
-}
-
 char const * open_binder_string(binder_info const & bi, bool unicode) {
     if (bi.is_implicit()) return "{";
     else if (bi.is_inst_implicit()) return "[";
@@ -457,33 +449,18 @@ expr postprocess(environment const & env, expr const & e) {
     return eta_reduce(expand_abbreviations(env, unfold_untrusted_macros(env, e)));
 }
 
-
-struct elim_choice_fn : public replace_visitor {
-    name m_prio_ns;
-    elim_choice_fn():m_prio_ns(get_priority_namespace()) {}
-
-    virtual expr visit_macro(expr const & e) {
-        if (is_choice(e)) {
-            for (unsigned i = 0; i < get_num_choices(e); i++) {
-                expr const & c = get_choice(e, i);
-                if (is_constant(c) && const_name(c).get_prefix() == m_prio_ns)
-                    return c;
-            }
-            throw exception("invalid priority expression, it contains overloaded symbols");
-        } else {
-            return replace_visitor::visit_macro(e);
-        }
-    }
-};
-
 optional<unsigned> parse_priority(parser & p) {
     if (p.curr_is_token(get_priority_tk())) {
         p.next();
         auto pos = p.pos();
-        environment env = open_priority_aliases(open_num_notation(p.env()));
+        environment env = open_num_notation(p.env());
         parser::local_scope scope(p, env);
         expr val = p.parse_expr();
-        val = elim_choice_fn()(val);
+        for_each(val, [](expr const & e, unsigned) {
+                if (is_choice(e))
+                    throw exception("invalid priority expression, it contains overloaded symbols");
+                return true;
+            });
         val = normalize(p.env(), val);
         if (optional<mpz> mpz_val = to_num(val)) {
             if (!mpz_val->is_unsigned_int())

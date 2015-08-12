@@ -127,7 +127,11 @@ environment add_namespace(environment const & env, name const & ns) {
     if (!ext.m_namespace_set.contains(ns)) {
         ext.m_namespace_set.insert(ns);
         environment r = update(env, ext);
-        return module::add(r, *g_new_namespace_key, [=](environment const &, serializer & s) { s << ns; });
+        r = module::add(r, *g_new_namespace_key, [=](environment const &, serializer & s) { s << ns; });
+        if (ns.is_atomic())
+            return r;
+        else
+            return add_namespace(r, ns.get_prefix());
     } else {
         return env;
     }

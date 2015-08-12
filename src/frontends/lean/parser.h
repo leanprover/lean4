@@ -119,6 +119,7 @@ class parser {
     undef_id_behavior       m_undef_id_behavior;
     optional<bool>          m_has_num;
     optional<bool>          m_has_string;
+    optional<bool>          m_has_rat_of_num;
     optional<bool>          m_has_tactic_decls;
     // We process theorems in parallel
     theorem_queue           m_theorem_queue;

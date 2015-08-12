@@ -1438,9 +1438,24 @@ expr parser::parse_numeral_expr(bool user_notation) {
 }
 
 expr parser::parse_decimal_expr() {
-    // TODO(Leo)
-    next();  // to avoid loop
-    return expr();
+    auto p  = pos();
+    mpq val = get_num_val();
+    next();
+    if (!m_has_rat_of_num) {
+        m_has_rat_of_num = static_cast<bool>(m_env.find(get_rat_of_num_name()));
+    }
+    if (!*m_has_rat_of_num) {
+        throw parser_error("invalid decimal number, environment does not contain 'rat.of_num' "
+                           "(solution: use 'import data.rat')", p);
+    }
+    expr of_num = save_pos(mk_constant(get_rat_of_num_name()), p);
+    expr num    = mk_app(of_num, save_pos(copy(from_num(val.get_numerator())), p), p);
+    if (val.get_denominator() == 1) {
+        return num;
+    } else {
+        expr den    = mk_app(of_num, save_pos(copy(from_num(val.get_denominator())), p), p);
+        return mk_app({save_pos(mk_constant(get_rat_divide_name()), p), num, den}, p);
+    }
 }
 
 expr parser::parse_string_expr() {

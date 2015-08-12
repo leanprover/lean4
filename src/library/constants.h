@@ -74,6 +74,8 @@ name const & get_prod_mk_name();
 name const & get_prod_pr1_name();
 name const & get_prod_pr2_name();
 name const & get_propext_name();
+name const & get_rat_divide_name();
+name const & get_rat_of_num_name();
 name const & get_sigma_name();
 name const & get_sigma_mk_name();
 name const & get_string_name();

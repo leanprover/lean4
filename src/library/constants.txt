@@ -67,6 +67,8 @@ prod.mk
 prod.pr1
 prod.pr2
 propext
+rat.divide
+rat.of_num
 sigma
 sigma.mk
 string

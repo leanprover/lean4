@@ -263,6 +263,7 @@ class parser {
     void init_stop_at(options const & opts);
 
     void replace_theorem(certified_declaration const & thm);
+    environment reveal_theorems_core(buffer<name> const & ds, bool all);
 
 public:
     parser(environment const & env, io_state const & ios,
@@ -333,6 +334,7 @@ public:
     void add_delayed_theorem(environment const & env, name const & n, level_param_names const & ls, expr const & t, expr const & v);
     void add_delayed_theorem(certified_declaration const & cd);
     environment reveal_theorems(buffer<name> const & ds);
+    environment reveal_all_theorems();
     bool in_theorem_queue(name const & n) const { return m_theorem_queue_set.contains(n); }
 
     /** \brief Read the next token. */

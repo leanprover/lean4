@@ -2056,18 +2056,26 @@ void parser::replace_theorem(certified_declaration const & thm) {
     }
 }
 
-environment parser::reveal_theorems(buffer<name> const & ds) {
+environment parser::reveal_theorems_core(buffer<name> const & ds, bool all) {
     m_theorem_queue.for_each([&](certified_declaration const & thm) {
             if (keep_new_thms()) {
                 name const & thm_name = thm.get_declaration().get_name();
                 if (m_env.get(thm_name).is_axiom() &&
-                    std::any_of(ds.begin(), ds.end(), [&](name const & n) { return n == thm_name; })) {
+                    (all || std::any_of(ds.begin(), ds.end(), [&](name const & n) { return n == thm_name; }))) {
                     replace_theorem(thm);
                     m_theorem_queue_set.erase(thm_name);
                 }
             }
         });
     return m_env;
+}
+
+environment parser::reveal_theorems(buffer<name> const & ds) {
+    return reveal_theorems_core(ds, false);
+}
+
+environment parser::reveal_all_theorems() {
+    return reveal_theorems_core(buffer<name>(), true);
 }
 
 void parser::save_snapshot() {

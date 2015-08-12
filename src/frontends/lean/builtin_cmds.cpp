@@ -107,22 +107,25 @@ struct print_axioms_deps {
     }
 };
 
-static void print_axioms(parser & p) {
+static environment print_axioms(parser & p) {
     if (p.curr_is_identifier()) {
         name c = p.check_constant_next("invalid 'print axioms', constant expected");
+        environment new_env = p.reveal_all_theorems();
         print_axioms_deps(p.env(), p.regular_stream())(c);
+        return new_env;
     } else {
         bool has_axioms = false;
         environment const & env = p.env();
         env.for_each_declaration([&](declaration const & d) {
                 name const & n = d.get_name();
-                if (!d.is_definition() && !env.is_builtin(n)) {
+                if (!d.is_definition() && !env.is_builtin(n) && !p.in_theorem_queue(n)) {
                     p.regular_stream() << n << " : " << d.get_type() << endl;
                     has_axioms = true;
                 }
             });
         if (!has_axioms)
             p.regular_stream() << "no axioms" << endl;
+        return p.env();
     }
 }
 
@@ -566,7 +569,7 @@ environment print_cmd(parser & p) {
         print_metaclasses(p);
     } else if (p.curr_is_token_or_id(get_axioms_tk())) {
         p.next();
-        print_axioms(p);
+        return print_axioms(p);
     } else if (p.curr_is_token_or_id(get_fields_tk())) {
         p.next();
         auto pos = p.pos();

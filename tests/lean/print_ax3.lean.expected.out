@@ -1,0 +1,7 @@
+no axioms
+------
+quot.sound : ∀ {A : Type} [s : setoid A] {a b : A}, setoid.r a b → quot.mk a = quot.mk b
+propext : ∀ {a b : Prop}, (a ↔ b) → a = b
+------
+theorem foo3 : 0 = 0 :=
+foo2

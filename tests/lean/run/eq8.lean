@@ -1,4 +1,4 @@
-import data.vector
+import data.examples.vector
 open vector
 
 definition map {A B C : Type} (f : A → B → C) : Π {n}, vector A n → vector B n → vector C n

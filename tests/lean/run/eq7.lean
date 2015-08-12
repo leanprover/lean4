@@ -1,4 +1,4 @@
-import data.vector
+import data.examples.vector
 open nat vector
 
 definition diag {A : Type} : Π {n}, vector (vector A n) n → vector A n

@@ -2,8 +2,11 @@
 Copyright (c) 2014 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Floris van Doorn, Leonardo de Moura
+
+This file demonstrates how to encode vectors using indexed inductive families.
+In standard library we do not use this approach.
 -/
-import data.nat data.list data.fin
+import data.nat data.list data.fin data.fixed_list
 open nat prod fin
 
 inductive vector (A : Type) : nat → Type :=

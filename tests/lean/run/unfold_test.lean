@@ -1,4 +1,4 @@
-import data.list data.vector
+import data.list data.examples.vector
 
 variables {A B : Type}
 

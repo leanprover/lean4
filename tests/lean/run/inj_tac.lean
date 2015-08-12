@@ -1,4 +1,4 @@
-import data.vector
+import data.examples.vector
 open nat vector
 
 example (a b : nat) : succ a = succ b → a + 2 = b + 2 :=

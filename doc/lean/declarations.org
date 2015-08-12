@@ -16,9 +16,9 @@ the expression =v = w= since it would not be able to establish that
 _definitionally equal_.
 
 #+BEGIN_SRC lean
-  import data.vector data.nat
+  import data.fixed_list data.nat
   open nat
-  check λ (v : vector nat (2+3)) (w : vector nat 5), v = w
+  check λ (v : fixed_list nat (2+3)) (w : fixed_list nat 5), v = w
 #+END_SRC
 
 Similarly, the following definition only type checks because =id= is transparent, and the type checker can establish that

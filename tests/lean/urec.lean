@@ -1,4 +1,4 @@
-import data.nat data.vector data.list.basic
+import data.nat data.examples.vector data.list.basic
 
 attribute nat [recursor]
 

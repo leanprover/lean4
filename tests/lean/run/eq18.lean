@@ -1,4 +1,4 @@
-import data.vector
+import data.examples.vector
 open nat vector
 
 definition last {A : Type} : Π {n}, vector A (succ n) → A

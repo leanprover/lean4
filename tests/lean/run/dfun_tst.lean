@@ -1,4 +1,4 @@
-import logic data.prod data.vector
+import logic data.prod data.examples.vector
 open prod nat inhabited vector
 
 theorem tst1 : inhabited (vector nat 2)

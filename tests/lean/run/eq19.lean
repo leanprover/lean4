@@ -1,4 +1,4 @@
-import data.vector data.prod
+import data.examples.vector data.prod
 open nat vector prod
 
 variables {A B : Type}

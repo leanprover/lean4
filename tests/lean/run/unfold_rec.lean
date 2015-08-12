@@ -1,4 +1,4 @@
-import data.vector
+import data.examples.vector
 open nat vector
 
 variables {A B : Type}

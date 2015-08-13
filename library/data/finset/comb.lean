@@ -443,14 +443,13 @@ begin
 end
 
 theorem subset_of_mem_powerset {s t : finset A} (H : s ∈ powerset t) : s ⊆ t :=
-by rewrite mem_powerset_iff_subset at H; exact H
+iff.mp (mem_powerset_iff_subset t s) H
 
 theorem mem_powerset_of_subset {s t : finset A} (H : s ⊆ t) : s ∈ powerset t :=
-by rewrite -mem_powerset_iff_subset at H; exact H
+iff.mpr (mem_powerset_iff_subset t s) H
 
 theorem empty_mem_powerset (s : finset A) : ∅ ∈ powerset s :=
-by rewrite mem_powerset_iff_subset; apply empty_subset
+mem_powerset_of_subset (empty_subset s)
 
 end powerset
-
 end finset

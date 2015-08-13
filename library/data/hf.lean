@@ -364,4 +364,39 @@ begin unfold [subset, image], intro h, rewrite *to_finset_of_finset, apply finse
 theorem image_union (f : hf → hf) (s t : hf) : image f (s ∪ t) = image f s ∪ image f t :=
 begin unfold [image, union], rewrite [*to_finset_of_finset, finset.image_union] end
 
+/- powerset -/
+definition powerset (s : hf) : hf :=
+of_finset (finset.image of_finset (finset.powerset (to_finset s)))
+
+notation [priority hf.prio] `𝒫` s := powerset s
+
+theorem powerset_empty : powerset ∅ = insert ∅ ∅ :=
+rfl
+
+theorem powerset_insert {a : hf} {s : hf} : a ∉ s → powerset (insert a s) = powerset s ∪ image (insert a) (powerset s) :=
+begin unfold [not_mem, mem, powerset, insert, union, image], rewrite [*to_finset_of_finset], intro h,
+      have (λ (x : finset hf), of_finset (finset.insert a x)) = (λ (x : finset hf), of_finset (finset.insert a (to_finset (of_finset x)))), from
+        funext (λ x, by rewrite to_finset_of_finset),
+      rewrite [finset.powerset_insert h, finset.image_union, -*finset.image_compose,↑compose,this]
+end
+
+theorem mem_powerset_iff_subset (s : hf) : ∀ x : hf, x ∈ powerset s ↔ x ⊆ s :=
+begin
+  intro x, unfold [mem, powerset, subset], rewrite [to_finset_of_finset, finset.mem_image_eq], apply iff.intro,
+  suppose (∃ (w : finset hf), finset.mem w (finset.powerset (to_finset s)) ∧ of_finset w = x),
+    obtain w h₁ h₂, from this,
+    begin subst x, rewrite to_finset_of_finset, exact iff.mp !finset.mem_powerset_iff_subset h₁ end,
+  suppose finset.subset (to_finset x) (to_finset s),
+    assert finset.mem (to_finset x) (finset.powerset (to_finset s)), from iff.mpr !finset.mem_powerset_iff_subset this,
+    exists.intro (to_finset x) (and.intro this (of_finset_to_finset x))
+end
+
+theorem subset_of_mem_powerset {s t : hf} (H : s ∈ powerset t) : s ⊆ t :=
+iff.mp (mem_powerset_iff_subset t s) H
+
+theorem mem_powerset_of_subset {s t : hf} (H : s ⊆ t) : s ∈ powerset t :=
+iff.mpr (mem_powerset_iff_subset t s) H
+
+theorem empty_mem_powerset (s : hf) : ∅ ∈ powerset s :=
+mem_powerset_of_subset (empty_subset s)
 end hf

@@ -354,6 +354,7 @@ endif()
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
 add_library(leanstatic ${LEAN_OBJS})
 add_library(leanshared SHARED ${LEAN_OBJS})
+target_link_libraries(leanshared ${EXTRA_LIBS})
 
 add_subdirectory(shell)
 add_subdirectory(emacs)

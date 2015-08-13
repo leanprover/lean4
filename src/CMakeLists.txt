@@ -367,6 +367,7 @@ add_subdirectory(tests/library)
 add_subdirectory(tests/library/blast)
 add_subdirectory(tests/frontends/lean)
 add_subdirectory(tests/shell)
+add_subdirectory(tests/shared)
 
 # Include style check
 if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))

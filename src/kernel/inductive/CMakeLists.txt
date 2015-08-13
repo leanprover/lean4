@@ -1,2 +1,1 @@
-add_library(inductive inductive.cpp)
-target_link_libraries(inductive ${LEAN_LIBS})
+add_library(inductive OBJECT inductive.cpp)

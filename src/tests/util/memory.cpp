@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include "util/test.h"
-#include "util/memory.cpp"
+#include "util/memory.h"
 
 static void tst1() {
     std::cout << "Initial: " << lean::get_allocated_memory() << "\n";

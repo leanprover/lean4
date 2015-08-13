@@ -1,9 +1,9 @@
 if(${EMSCRIPTEN})
   add_executable(lean.js lean.cpp emscripten.cpp)
-  target_link_libraries(lean.js ${ALL_LIBS} "--embed-file library --memory-init-file 0")
+  target_link_libraries(lean.js leanstatic ${EXTRA_LIBS} "--embed-file library --memory-init-file 0")
 else()
   add_executable(lean lean.cpp emscripten.cpp)
-  target_link_libraries(lean ${ALL_LIBS})
+  target_link_libraries(lean leanstatic ${EXTRA_LIBS})
   ADD_CUSTOM_COMMAND(TARGET lean
     POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
@@ -12,8 +12,7 @@ else()
   install(TARGETS lean DESTINATION bin)
 endif()
 
-add_library(shell emscripten.cpp)
-target_link_libraries(shell ${LEAN_LIBS})
+add_library(shell OBJECT emscripten.cpp)
 
 # add_test(example1_stdin1 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")
 # add_test(example1_stdin2 ${LEAN_SOURCE_DIR}/cmake/redirect.sh ${CMAKE_CURRENT_BINARY_DIR}/lean "-l" "${LEAN_SOURCE_DIR}/../tests/lean/single.lean")

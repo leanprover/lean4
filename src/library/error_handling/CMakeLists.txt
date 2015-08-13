@@ -1,2 +1,1 @@
-add_library(error_handling error_handling.cpp)
-target_link_libraries(error_handling ${LEAN_LIBS})
+add_library(error_handling OBJECT error_handling.cpp)

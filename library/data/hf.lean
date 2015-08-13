@@ -368,19 +368,19 @@ begin unfold [image, union], rewrite [*to_finset_of_finset, finset.image_union] 
 definition powerset (s : hf) : hf :=
 of_finset (finset.image of_finset (finset.powerset (to_finset s)))
 
-notation [priority hf.prio] `𝒫` s := powerset s
+prefix [priority hf.prio] `𝒫`:100 := powerset
 
-theorem powerset_empty : powerset ∅ = insert ∅ ∅ :=
+theorem powerset_empty : 𝒫 ∅ = insert ∅ ∅ :=
 rfl
 
-theorem powerset_insert {a : hf} {s : hf} : a ∉ s → powerset (insert a s) = powerset s ∪ image (insert a) (powerset s) :=
+theorem powerset_insert {a : hf} {s : hf} : a ∉ s → 𝒫 (insert a s) = 𝒫 s ∪ image (insert a) (𝒫 s) :=
 begin unfold [not_mem, mem, powerset, insert, union, image], rewrite [*to_finset_of_finset], intro h,
       have (λ (x : finset hf), of_finset (finset.insert a x)) = (λ (x : finset hf), of_finset (finset.insert a (to_finset (of_finset x)))), from
         funext (λ x, by rewrite to_finset_of_finset),
       rewrite [finset.powerset_insert h, finset.image_union, -*finset.image_compose,↑compose,this]
 end
 
-theorem mem_powerset_iff_subset (s : hf) : ∀ x : hf, x ∈ powerset s ↔ x ⊆ s :=
+theorem mem_powerset_iff_subset (s : hf) : ∀ x : hf, x ∈ 𝒫 s ↔ x ⊆ s :=
 begin
   intro x, unfold [mem, powerset, subset], rewrite [to_finset_of_finset, finset.mem_image_eq], apply iff.intro,
   suppose (∃ (w : finset hf), finset.mem w (finset.powerset (to_finset s)) ∧ of_finset w = x),
@@ -391,12 +391,12 @@ begin
     exists.intro (to_finset x) (and.intro this (of_finset_to_finset x))
 end
 
-theorem subset_of_mem_powerset {s t : hf} (H : s ∈ powerset t) : s ⊆ t :=
+theorem subset_of_mem_powerset {s t : hf} (H : s ∈ 𝒫 t) : s ⊆ t :=
 iff.mp (mem_powerset_iff_subset t s) H
 
-theorem mem_powerset_of_subset {s t : hf} (H : s ⊆ t) : s ∈ powerset t :=
+theorem mem_powerset_of_subset {s t : hf} (H : s ⊆ t) : s ∈ 𝒫 t :=
 iff.mpr (mem_powerset_iff_subset t s) H
 
-theorem empty_mem_powerset (s : hf) : ∅ ∈ powerset s :=
+theorem empty_mem_powerset (s : hf) : ∅ ∈ 𝒫 s :=
 mem_powerset_of_subset (empty_subset s)
 end hf

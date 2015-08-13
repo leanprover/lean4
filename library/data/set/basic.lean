@@ -297,7 +297,7 @@ ext (take x, iff.intro
 /- powerset -/
 
 definition powerset (s : set X) : set (set X) := {x : set X | x ⊆ s}
-notation `𝒫` s := powerset s
+prefix `𝒫`:100 := powerset
 
 /- large unions -/
 

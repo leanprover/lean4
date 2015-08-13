@@ -393,22 +393,21 @@ quot.lift_on s
   (λ l, list_powerset (elt_of l))
   (λ l₁ l₂ p, list_powerset_eq_list_powerset_of_perm p)
 
-notation [priority finset.prio] `𝒫` s := powerset s
+prefix [priority finset.prio] `𝒫`:100 := powerset
 
-theorem powerset_empty : powerset (∅ : finset A) = '{∅} := rfl
+theorem powerset_empty : 𝒫 (∅ : finset A) = '{∅} := rfl
 
-theorem powerset_insert {a : A} {s : finset A} : a ∉ s →
-  powerset (insert a s) = powerset s ∪ image (insert a) (powerset s) :=
+theorem powerset_insert {a : A} {s : finset A} : a ∉ s → 𝒫 (insert a s) = 𝒫 s ∪ image (insert a) (𝒫 s) :=
 quot.induction_on s
   (λ l,
     assume H : a ∉ quot.mk l,
     calc
-      powerset (insert a (quot.mk l))
+      𝒫 (insert a (quot.mk l))
             = list_powerset (list.insert a (elt_of l)) : rfl
         ... = list_powerset (#list a :: elt_of l)       : by rewrite [list.insert_eq_of_not_mem H]
-        ... = powerset (quot.mk l) ∪ image (insert a) (powerset (quot.mk l)) : rfl)
+        ... = 𝒫 (quot.mk l) ∪ image (insert a) (𝒫 (quot.mk l)) : rfl)
 
-theorem mem_powerset_iff_subset (s : finset A) : ∀ x, x ∈ powerset s ↔ x ⊆ s :=
+theorem mem_powerset_iff_subset (s : finset A) : ∀ x, x ∈ 𝒫 s ↔ x ⊆ s :=
 begin
   induction s with a s nains ih,
     intro x,
@@ -421,7 +420,7 @@ begin
         (assume H,
           or.elim H
             (suppose x ⊆ s, subset.trans this !subset_insert)
-            (suppose ∃ y, y ∈ powerset s ∧ insert a y = x,
+            (suppose ∃ y, y ∈ 𝒫 s ∧ insert a y = x,
               obtain y [yps iay], from this,
               show x ⊆ insert a s,
                 begin
@@ -436,19 +435,19 @@ begin
             (suppose a ∈ x,
               or.inr (exists.intro (erase a x)
                 (and.intro
-                  (show erase a x ∈ powerset s, by rewrite ih; apply H')
+                  (show erase a x ∈ 𝒫 s, by rewrite ih; apply H')
                   (show insert a (erase a x) = x, from insert_erase this))))
             (suppose a ∉ x, or.inl
               (show x ⊆ s, by rewrite [(erase_eq_of_not_mem this) at H']; apply H'))))
 end
 
-theorem subset_of_mem_powerset {s t : finset A} (H : s ∈ powerset t) : s ⊆ t :=
+theorem subset_of_mem_powerset {s t : finset A} (H : s ∈ 𝒫 t) : s ⊆ t :=
 iff.mp (mem_powerset_iff_subset t s) H
 
-theorem mem_powerset_of_subset {s t : finset A} (H : s ⊆ t) : s ∈ powerset t :=
+theorem mem_powerset_of_subset {s t : finset A} (H : s ⊆ t) : s ∈ 𝒫 t :=
 iff.mpr (mem_powerset_iff_subset t s) H
 
-theorem empty_mem_powerset (s : finset A) : ∅ ∈ powerset s :=
+theorem empty_mem_powerset (s : finset A) : ∅ ∈ 𝒫 s :=
 mem_powerset_of_subset (empty_subset s)
 
 end powerset

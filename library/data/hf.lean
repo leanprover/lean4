@@ -9,7 +9,7 @@ Remark: all definitions compute, however the performace is quite poor since
 we implement this module using a bijection from (finset nat) to nat, and
 this bijection is implemeted using the Ackermann coding.
 -/
-import data.nat data.finset.equiv
+import data.nat data.finset.equiv data.list
 open nat binary
 open -[notations]finset
 
@@ -468,4 +468,86 @@ iff.mpr (mem_powerset_iff_subset t s) H
 
 theorem empty_mem_powerset (s : hf) : ∅ ∈ 𝒫 s :=
 mem_powerset_of_subset (empty_subset s)
+
+/- hf as lists -/
+open - [notations] list
+
+definition of_list (s : list hf) : hf :=
+@equiv.to_fun _ _ list_nat_equiv_nat s
+
+definition to_list (h : hf) : list hf :=
+@equiv.inv _ _ list_nat_equiv_nat h
+
+lemma to_list_of_list (s : list hf) : to_list (of_list s) = s :=
+@equiv.left_inv _ _ list_nat_equiv_nat s
+
+lemma of_list_to_list (s : hf) : of_list (to_list s) = s :=
+@equiv.right_inv _ _ list_nat_equiv_nat s
+
+lemma to_list_inj {s₁ s₂ : hf} : to_list s₁ = to_list s₂ → s₁ = s₂ :=
+λ h, function.injective_of_left_inverse of_list_to_list h
+
+lemma of_list_inj {s₁ s₂ : list hf} : of_list s₁ = of_list s₂ → s₁ = s₂ :=
+λ h, function.injective_of_left_inverse to_list_of_list h
+
+definition nil : hf :=
+of_list list.nil
+
+lemma empty_eq_nil : ∅ = nil :=
+rfl
+
+definition cons (a l : hf) : hf :=
+of_list (list.cons a (to_list l))
+
+infixr :: := cons
+
+lemma cons_ne_nil (a l : hf) : a::l ≠ nil :=
+by contradiction
+
+lemma head_eq_of_cons_eq {h₁ h₂ t₁ t₂ : hf} : (h₁::t₁) = (h₂::t₂) → h₁ = h₂ :=
+begin unfold cons, intro h, apply list.head_eq_of_cons_eq (of_list_inj h) end
+
+lemma tail_eq_of_cons_eq {h₁ h₂ t₁ t₂ : hf} : (h₁::t₁) = (h₂::t₂) → t₁ = t₂ :=
+begin unfold cons, intro h, apply to_list_inj (list.tail_eq_of_cons_eq (of_list_inj h)) end
+
+lemma cons_inj {a : hf} : injective (cons a) :=
+take l₁ l₂, assume Pe, tail_eq_of_cons_eq Pe
+
+/- append -/
+definition append (l₁ l₂ : hf) : hf :=
+of_list (list.append (to_list l₁) (to_list l₂))
+
+notation l₁ ++ l₂ := append l₁ l₂
+
+theorem append_nil_left [simp] (t : hf) : nil ++ t = t :=
+begin unfold [nil, append], rewrite [to_list_of_list, list.append_nil_left, of_list_to_list] end
+
+theorem append_cons [simp] (x s t : hf) : (x::s) ++ t = x::(s ++ t) :=
+begin unfold [cons, append], rewrite [*to_list_of_list, list.append_cons] end
+
+theorem append_nil_right [simp] (t : hf) : t ++ nil = t :=
+begin unfold [nil, append], rewrite [to_list_of_list, list.append_nil_right, of_list_to_list] end
+
+theorem append.assoc [simp] (s t u : hf) : s ++ t ++ u = s ++ (t ++ u) :=
+begin unfold append, rewrite [*to_list_of_list, list.append.assoc] end
+
+/- length -/
+definition length (l : hf) : nat :=
+list.length (to_list l)
+
+theorem length_nil [simp] : length nil = 0 :=
+begin unfold [length, nil] end
+
+theorem length_cons [simp] (x t : hf) : length (x::t) = length t + 1 :=
+begin unfold [length, cons], rewrite to_list_of_list end
+
+theorem length_append [simp] (s t : hf) : length (s ++ t) = length s + length t :=
+begin unfold [length, append], rewrite [to_list_of_list, list.length_append] end
+
+theorem eq_nil_of_length_eq_zero {l : hf} : length l = 0 → l = nil :=
+begin unfold [length, nil], intro h, rewrite [-list.eq_nil_of_length_eq_zero h, of_list_to_list] end
+
+theorem ne_nil_of_length_eq_succ {l : hf} {n : nat} : length l = succ n → l ≠ nil :=
+begin unfold [length, nil], intro h₁ h₂, subst l, rewrite to_list_of_list at h₁, contradiction end
+
 end hf

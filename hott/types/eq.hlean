@@ -7,13 +7,14 @@ Partially ported from Coq HoTT
 Theorems about path types (identity types)
 -/
 
-open eq sigma sigma.ops equiv is_equiv equiv.ops
+import types.sigma
+open eq sigma sigma.ops equiv is_equiv equiv.ops is_trunc
 
 -- TODO: Rename transport_eq_... and pathover_eq_... to eq_transport_... and eq_pathover_...
 
 namespace eq
   /- Path spaces -/
-
+  section
   variables {A B : Type} {a a₁ a₂ a₃ a₄ a' : A} {b b1 b2 : B} {f g : A → B} {h : B → A}
             {p p' p'' : a₁ = a₂}
 
@@ -432,6 +433,63 @@ namespace eq
 
   -- a lot of this library still needs to be ported from Coq HoTT
 
+  -- encode decode method
+
+  open is_trunc
+  definition encode_decode_method' (a₀ a : A) (code : A → Type) (c₀ : code a₀)
+    (decode : Π(a : A) (c : code a), a₀ = a)
+    (encode_decode : Π(a : A) (c : code a), c₀ =[decode a c] c)
+    (decode_encode : decode a₀ c₀ = idp) : (a₀ = a) ≃ code a :=
+  begin
+    fapply equiv.MK,
+    { intro p, exact p ▸ c₀},
+    { apply decode},
+    { intro c, apply tr_eq_of_pathover, apply encode_decode},
+    { intro p, induction p, apply decode_encode},
+  end
+
+  end
+
+  section
+    parameters {A : Type} (a₀ : A) (code : A → Type) (H : is_contr (Σa, code a))
+      (p : (center (Σa, code a)).1 = a₀)
+    include p
+    definition encode {a : A} (q : a₀ = a) : code a :=
+    (p ⬝ q) ▸ (center (Σa, code a)).2
+
+    definition decode' {a : A} (c : code a) : a₀ = a :=
+    (is_hprop.elim ⟨a₀, encode idp⟩ ⟨a, c⟩)..1
+
+    definition decode {a : A} (c : code a) : a₀ = a :=
+    (decode' (encode idp))⁻¹ ⬝ decode' c
+
+    definition total_space_method (a : A) : (a₀ = a) ≃ code a :=
+    begin
+      fapply equiv.MK,
+      { exact encode},
+      { exact decode},
+      { intro c,
+        unfold [encode, decode, decode'],
+        induction p, esimp, rewrite [is_hprop_elim_self,▸*,+idp_con], apply tr_eq_of_pathover,
+        eapply @sigma.rec_on _ _ (λx, x.2 =[(is_hprop.elim ⟨x.1, x.2⟩ ⟨a, c⟩)..1] c)
+          (center (sigma code)), -- BUG(?): induction fails
+        intro a c, apply eq_pr2},
+      { intro q, induction q, esimp, apply con.left_inv, },
+    end
+  end
+
+  definition encode_decode_method {A : Type} (a₀ a : A) (code : A → Type) (c₀ : code a₀)
+    (decode : Π(a : A) (c : code a), a₀ = a)
+    (encode_decode : Π(a : A) (c : code a), c₀ =[decode a c] c) : (a₀ = a) ≃ code a :=
+  begin
+    fapply total_space_method,
+    { fapply @is_contr.mk,
+      { exact ⟨a₀, c₀⟩},
+      { intro p, fapply sigma_eq,
+          apply decode, exact p.2,
+        apply encode_decode}},
+    { reflexivity}
+  end
 
 
 end eq

@@ -9,7 +9,7 @@ Theorems about sigma-types (dependent sums)
 
 import types.prod
 
-open eq sigma sigma.ops equiv is_equiv function
+open eq sigma sigma.ops equiv is_equiv function is_trunc
 
 namespace sigma
   variables {A A' : Type} {B : A → Type} {B' : A' → Type} {C : Πa, B a → Type}
@@ -35,7 +35,7 @@ namespace sigma
   definition sigma_eq (p : u.1 = v.1) (q : u.2 =[p] v.2) : u = v :=
   by induction u; induction v; exact (dpair_eq_dpair p q)
 
-  definition eq_pr1 (p : u = v) : u.1 = v.1 :=
+  definition eq_pr1 [unfold 5] (p : u = v) : u.1 = v.1 :=
   ap pr1 p
 
   postfix `..1`:(max+1) := eq_pr1
@@ -162,8 +162,8 @@ namespace sigma
   by induction p; induction bc; reflexivity
 
   /- The special case when the second variable doesn't depend on the first is simpler. -/
-  definition sigma_transport_nondep {B : Type} {C : A → B → Type} (p : a = a') (bc : Σ(b : B), C a b)
-      : p ▸ bc = ⟨bc.1, p ▸ bc.2⟩ :=
+  definition sigma_transport_nondep {B : Type} {C : A → B → Type} (p : a = a')
+    (bc : Σ(b : B), C a b) : p ▸ bc = ⟨bc.1, p ▸ bc.2⟩ :=
   by induction p; induction bc; reflexivity
 
   /- Or if the second variable contains a first component that doesn't depend on the first. -/
@@ -242,7 +242,7 @@ namespace sigma
   -- by induction u; induction v; apply ap_sigma_functor_eq_dpair
 
   /- definition 3.11.9(i): Summing up a contractible family of types does nothing. -/
-  open is_trunc
+
   definition is_equiv_pr1 [instance] (B : A → Type) [H : Π a, is_contr (B a)]
       : is_equiv (@pr1 A B) :=
   adjointify pr1

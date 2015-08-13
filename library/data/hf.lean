@@ -18,6 +18,9 @@ definition hf := nat
 namespace hf
 protected definition prio : num := num.succ std.priority.default
 
+protected definition is_inhabited [instance] : inhabited hf :=
+nat.is_inhabited
+
 protected definition has_decidable_eq [instance] : decidable_eq hf :=
 nat.has_decidable_eq
 
@@ -550,4 +553,41 @@ begin unfold [length, nil], intro h, rewrite [-list.eq_nil_of_length_eq_zero h, 
 theorem ne_nil_of_length_eq_succ {l : hf} {n : nat} : length l = succ n → l ≠ nil :=
 begin unfold [length, nil], intro h₁ h₂, subst l, rewrite to_list_of_list at h₁, contradiction end
 
+/- head and tail -/
+definition head (l : hf) : hf :=
+list.head (to_list l)
+
+theorem head_cons [simp] (a l : hf) : head (a::l) = a :=
+begin unfold [head, cons], rewrite to_list_of_list end
+
+private lemma to_list_ne_list_nil {s : hf} : s ≠ nil → to_list s ≠ list.nil :=
+begin
+  unfold nil,
+  intro h,
+  suppose to_list s = list.nil,
+  by rewrite [-this at h, of_list_to_list at h]; exact absurd rfl h
+end
+
+theorem head_append [simp] (t : hf) {s : hf} : s ≠ nil → head (s ++ t) = head s :=
+begin
+  unfold [nil, head, append], rewrite to_list_of_list,
+  suppose s ≠ of_list list.nil,
+  by rewrite [list.head_append _ (to_list_ne_list_nil this)]
+end
+
+definition tail (l : hf) : hf :=
+of_list (list.tail (to_list l))
+
+theorem tail_nil [simp] : tail nil = nil :=
+begin unfold [tail, nil] end
+
+theorem tail_cons [simp] (a l : hf) : tail (a::l) = l :=
+begin unfold [tail, cons], rewrite [to_list_of_list, list.tail_cons, of_list_to_list] end
+
+theorem cons_head_tail {l : hf} : l ≠ nil → (head l)::(tail l) = l :=
+begin
+  unfold [nil, head, tail, cons],
+  suppose l ≠ of_list list.nil,
+  by rewrite [to_list_of_list, list.cons_head_tail (to_list_ne_list_nil this), of_list_to_list]
+end
 end hf

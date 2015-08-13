@@ -71,6 +71,15 @@ begin
   apply pow_pos_of_pos _ dec_trivial
 end
 
+lemma insert_lt_insert_of_not_mem_of_not_mem_of_lt {a s₁ s₂ : hf}
+      : a ∉ s₁ → a ∉ s₂ → s₁ < s₂ → insert a s₁ < insert a s₂ :=
+begin
+  unfold [insert, of_finset, equiv.to_fun, finset_nat_equiv_nat, mem, to_finset, equiv.inv],
+  intro h₁ h₂ h₃,
+  krewrite [finset.to_nat_insert h₁, finset.to_nat_insert h₂, *to_nat_of_nat],
+  apply add_lt_add_left h₃
+end
+
 open decidable
 protected definition decidable_mem [instance] : ∀ a s, decidable (a ∈ s) :=
 λ a s, finset.decidable_mem a (to_finset s)
@@ -86,10 +95,10 @@ begin unfold [mem, empty], rewrite to_finset_of_finset, apply finset.not_mem_emp
 lemma mem_insert (a s : hf) : a ∈ insert a s :=
 begin unfold [mem, insert], rewrite to_finset_of_finset, apply finset.mem_insert end
 
-lemma mem_insert_of_mem (a b s : hf) : a ∈ s → a ∈ insert b s :=
+lemma mem_insert_of_mem {a s : hf} (b : hf) : a ∈ s → a ∈ insert b s :=
 begin unfold [mem, insert], intros, rewrite to_finset_of_finset, apply finset.mem_insert_of_mem, assumption end
 
-lemma eq_or_mem_of_mem_insert (a b s : hf) : a ∈ insert b s → a = b ∨ a ∈ s :=
+lemma eq_or_mem_of_mem_insert {a b s : hf} : a ∈ insert b s → a = b ∨ a ∈ s :=
 begin unfold [mem, insert], rewrite to_finset_of_finset, intros, apply eq_or_mem_of_mem_insert, assumption  end
 
 theorem mem_of_mem_insert_of_ne {x a : hf} {s : hf} : x ∈ insert a s → x ≠ a → x ∈ s :=
@@ -118,6 +127,21 @@ assert P (of_finset (to_finset s)), from
        end)
     (to_finset s),
 by rewrite of_finset_to_finset at this; exact this
+
+lemma insert_le_insert_of_le {a s₁ s₂ : hf} : a ∈ s₁ ∨ a ∉ s₂ → s₁ ≤ s₂ → insert a s₁ ≤ insert a s₂ :=
+suppose a ∈ s₁ ∨ a ∉ s₂,
+suppose s₁ ≤ s₂,
+by_cases
+  (suppose s₁ = s₂, by rewrite this)
+  (suppose s₁ ≠ s₂,
+    have s₁ < s₂, from lt_of_le_of_ne `s₁ ≤ s₂` `s₁ ≠ s₂`,
+    by_cases
+      (suppose a ∈ s₁, by_cases
+        (suppose a ∈ s₂, by rewrite [insert_eq_of_mem `a ∈ s₁`, insert_eq_of_mem `a ∈ s₂`]; assumption)
+        (suppose a ∉ s₂, by rewrite [insert_eq_of_mem `a ∈ s₁`]; exact le.trans `s₁ ≤ s₂` !insert_le))
+      (suppose a ∉ s₁, by_cases
+        (suppose a ∈ s₂, or.elim `a ∈ s₁ ∨ a ∉ s₂` (by contradiction) (by contradiction))
+        (suppose a ∉ s₂, le_of_lt (insert_lt_insert_of_not_mem_of_not_mem_of_lt `a ∉ s₁` `a ∉ s₂` `s₁ < s₂`))))
 
 /- union -/
 definition union (s₁ s₂ : hf) : hf :=
@@ -349,6 +373,25 @@ subset.trans (insert_erase_subset a s) (!insert_subset_insert H)
 
 theorem subset_insert_iff (s t : hf) (a : hf) : s ⊆ insert a t ↔ erase a s ⊆ t :=
 iff.intro !erase_subset_of_subset_insert !subset_insert_of_erase_subset
+
+theorem le_of_subset {s₁ s₂ : hf} : s₁ ⊆ s₂ → s₁ ≤ s₂ :=
+begin
+  revert s₂, induction s₁ with a s₁ nain ih,
+   take s₂, suppose ∅ ⊆ s₂, !zero_le,
+   take s₂, suppose insert a s₁ ⊆ s₂,
+     assert a ∈ s₂,          from mem_of_subset_of_mem this !mem_insert,
+     have   a ∉ erase a s₂,  from !mem_erase,
+     have   s₁ ⊆ erase a s₂, from subset_of_forall
+       (take x xin, by_cases
+         (suppose x = a, by subst x; contradiction)
+         (suppose x ≠ a,
+           have x ∈ s₂, from mem_of_subset_of_mem `insert a s₁ ⊆ s₂` (mem_insert_of_mem _ `x ∈ s₁`),
+           mem_erase_of_ne_of_mem `x ≠ a` `x ∈ s₂`)),
+     have   s₁ ≤ erase a s₂, from ih _ this,
+     assert insert a s₁ ≤ insert a (erase a s₂), from
+       insert_le_insert_of_le (or.inr `a ∉ erase a s₂`) this,
+     by rewrite [insert_erase `a ∈ s₂` at this]; exact this
+end
 
 /- image -/
 definition image (f : hf → hf) (s : hf) : hf :=

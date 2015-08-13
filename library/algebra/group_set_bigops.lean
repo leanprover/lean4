@@ -6,7 +6,7 @@ Author: Jeremy Avigad
 Set-based version of group_bigops.
 -/
 import .group_bigops data.set.finite
-open set
+open set classical
 
 namespace algebra
 namespace set

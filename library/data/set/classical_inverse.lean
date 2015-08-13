@@ -7,7 +7,7 @@ Using classical logic, defines an inverse function.
 -/
 import .function .map
 import logic.choice
-open eq.ops
+open eq.ops classical
 
 namespace set
 

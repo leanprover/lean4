@@ -161,9 +161,8 @@ propext (iff.intro
 end aux
 
 /- All propositions are decidable -/
-section all_decidable
+namespace classical
 open decidable sum
-
 noncomputable definition decidable_inhabited [instance] [priority 0] (a : Prop) : inhabited (decidable a) :=
 inhabited_of_nonempty
   (or.elim (em a)
@@ -178,4 +177,4 @@ match prop_decidable (nonempty A) with
 | inl Hp := sum.inl (inhabited.value (inhabited_of_nonempty Hp))
 | inr Hn := sum.inr (λ a, absurd (nonempty.intro a) Hn)
 end
-end all_decidable
+end classical

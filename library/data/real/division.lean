@@ -12,7 +12,7 @@ and excluded middle.
 import data.real.basic data.real.order data.rat data.nat logic.choice
 open -[coercions] rat
 open -[coercions] nat
-open eq.ops pnat
+open eq.ops pnat classical
 
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1

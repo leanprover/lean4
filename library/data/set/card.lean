@@ -6,7 +6,7 @@ Author: Jeremy Avigad
 Cardinality of finite sets.
 -/
 import .finite data.finset.card
-open nat
+open nat classical
 
 namespace set
 

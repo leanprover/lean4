@@ -10,7 +10,7 @@ The excluded middle is being used "behind the scenes" to allow us to write the i
 with (∃ a : A, f a = b).
 -/
 import logic.choice
-open function
+open function classical
 
 noncomputable definition mk_left_inv {A B : Type} [h : nonempty A] (f : A → B) : B → A :=
 λ b : B, if ex : (∃ a : A, f a = b) then some ex else inhabited.value (inhabited_of_nonempty h)

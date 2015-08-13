@@ -65,6 +65,10 @@ definition not_mem (a : hf) (s : hf) : Prop := ¬ a ∈ s
 
 infix `∉` := not_mem
 
+open decidable
+protected definition decidable_mem [instance] : ∀ a s, decidable (a ∈ s) :=
+λ a s, finset.decidable_mem a (to_finset s)
+
 lemma not_mem_empty (a : hf) : a ∉ ∅ :=
 begin unfold [not_mem, mem, empty], rewrite to_finset_of_finset, apply finset.not_mem_empty end
 

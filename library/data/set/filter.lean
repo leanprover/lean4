@@ -7,8 +7,8 @@ Filters, following Hölzl, Immler, and Huffman, "Type classes and filters for ma
 analysis in Isabelle/HOL".
 -/
 import data.set.function logic.identities logic.choice algebra.complete_lattice
-
 namespace set
+open classical
 
 structure filter (A : Type) :=
 (sets           : set (set A))

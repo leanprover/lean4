@@ -8,7 +8,7 @@ an element  s : set A  satsifies  finite s  doesn't mean that we can compute the
 a computational representation, use the finset type.
 -/
 import data.set.function data.finset.to_set logic.choice
-open nat
+open nat classical
 
 variable {A : Type}
 

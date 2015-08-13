@@ -448,5 +448,24 @@ choose (exists_rep q)
 
 theorem rep_spec (q : quot s) : ⟦rep q⟧ = q :=
 choose_spec (exists_rep q)
+
+definition encode_quot (q : quot s) : nat :=
+encode (rep q)
+
+definition decode_quot (n : nat) : option (quot s) :=
+match decode A n with
+| some a := some ⟦ a ⟧
+| none   := none
+end
+
+lemma decode_encode_quot (q : quot s) : decode_quot (encode_quot q) = some q :=
+quot.induction_on q (λ l, begin unfold [encode_quot, decode_quot], rewrite encodek, esimp, rewrite rep_spec end)
+
+definition encodable_quot : encodable (quot s) :=
+encodable.mk
+  encode_quot
+  decode_quot
+  decode_encode_quot
 end
 end quot
+attribute quot.encodable_quot [instance]

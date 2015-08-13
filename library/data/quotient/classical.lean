@@ -5,12 +5,11 @@ Author: Floris van Doorn
 
 A classical treatment of quotients, using Hilbert choice.
 -/
-import algebra.relation data.subtype logic.choice
+import algebra.relation
 import .basic
 
 namespace quotient
-
-open relation nonempty subtype
+open relation nonempty subtype classical
 
 /- abstract quotient -/
 

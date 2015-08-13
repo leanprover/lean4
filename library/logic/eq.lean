@@ -102,16 +102,3 @@ section
   theorem eq_imp_trans (H₁ : a = b) (H₂ : b → c) : a → c :=
   assume Ha, H₂ (H₁ ▸ Ha)
 end
-
-section
-  variables {p : Prop}
-
-  theorem ne_false_of_self : p → p ≠ false :=
-  assume (Hp : p) (Heq : p = false), Heq ▸ Hp
-
-  theorem ne_true_of_not : ¬p → p ≠ true :=
-  assume (Hnp : ¬p) (Heq : p = true), (Heq ▸ Hnp) trivial
-end
-
-theorem true_ne_false : ¬true = false :=
-ne_false_of_self trivial

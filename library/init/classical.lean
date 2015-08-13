@@ -3,10 +3,11 @@ Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad
 -/
-import logic.quantifiers logic.eq
-import data.subtype data.sum
+prelude
+import init.subtype init.funext
 
-open subtype inhabited nonempty
+namespace classical
+open subtype
 
 /- the axiom -/
 
@@ -161,8 +162,7 @@ propext (iff.intro
 end aux
 
 /- All propositions are decidable -/
-namespace classical
-open decidable sum
+open decidable
 noncomputable definition decidable_inhabited [instance] [priority 0] (a : Prop) : inhabited (decidable a) :=
 inhabited_of_nonempty
   (or.elim (em a)
@@ -172,7 +172,7 @@ inhabited_of_nonempty
 noncomputable definition prop_decidable [instance] [priority 0] (a : Prop) : decidable a :=
 arbitrary (decidable a)
 
-noncomputable definition type_decidable (A : Type) : A + (A → false) :=
+noncomputable definition type_decidable (A : Type) : sum A (A → false) :=
 match prop_decidable (nonempty A) with
 | inl Hp := sum.inl (inhabited.value (inhabited_of_nonempty Hp))
 | inr Hn := sum.inr (λ a, absurd (nonempty.intro a) Hn)

@@ -1,4 +1,4 @@
-import data.subtype data.nat
+import data.nat
 open nat
 
 notation `{` binders:55 `|` r:(scoped P, subtype P) `}` := r

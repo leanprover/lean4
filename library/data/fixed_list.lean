@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 The length of a list is encoded into its type.
 It is implemented as a subtype.
 -/
-import logic data.list data.subtype data.fin
+import logic data.list data.fin
 open nat list subtype function
 
 definition fixed_list [reducible] (A : Type) (n : nat) := {l : list A | length l = n}

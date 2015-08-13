@@ -9,17 +9,9 @@ open eq.ops
 
 variables {a b c d : Prop}
 
-/- false -/
-
-theorem false.elim {c : Prop} (H : false) : c :=
-false.rec c H
-
 /- implies -/
 
 definition imp (a b : Prop) : Prop := a → b
-
-theorem mt (H1 : a → b) (H2 : ¬b) : ¬a :=
-assume Ha : a, absurd (H1 Ha) H2
 
 theorem imp.id (H : a) : a := H
 

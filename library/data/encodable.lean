@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 Type class for encodable types.
 Note that every encodable type is countable.
 -/
-import data.fintype data.list data.list.sort data.sum data.nat.div data.subtype data.countable data.equiv data.finset
+import data.fintype data.list data.list.sort data.sum data.nat.div data.countable data.equiv data.finset
 open option list nat function
 
 structure encodable [class] (A : Type) :=

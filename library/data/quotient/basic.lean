@@ -5,7 +5,7 @@ Author: Floris van Doorn
 
 An explicit treatment of quotients, without using Lean's built-in quotient types.
 -/
-import logic data.subtype logic.cast algebra.relation data.prod
+import logic logic.cast algebra.relation data.prod
 import logic.instances
 import .util
 

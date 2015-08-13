@@ -1,5 +1,5 @@
-import logic.choice data.nat.basic
-open nonempty inhabited nat
+import data.nat.basic
+open nonempty inhabited nat classical
 
 theorem int_inhabited [instance] : inhabited nat := inhabited.mk zero
 

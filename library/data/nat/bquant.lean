@@ -14,7 +14,7 @@ without assuming classical axioms.
 
 More importantly, they can be reduced inside of the Lean kernel.
 -/
-import data.subtype data.nat.order data.nat.div
+import data.nat.order data.nat.div
 
 namespace nat
   open subtype

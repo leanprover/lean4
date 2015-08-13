@@ -1,5 +1,5 @@
-import logic logic.choice
-open inhabited nonempty
+import logic
+open inhabited nonempty classical
 
 noncomputable definition v1 : Prop := epsilon (λ x, true)
 inductive Empty : Type

@@ -21,6 +21,9 @@ prefix `¬` := not
 definition absurd {a : Prop} {b : Type} (H1 : a) (H2 : ¬a) : b :=
 false.rec b (H2 H1)
 
+theorem mt {a b : Prop} (H1 : a → b) (H2 : ¬b) : ¬a :=
+assume Ha : a, absurd (H1 Ha) H2
+
 /- not -/
 
 theorem not_false : ¬false :=
@@ -30,6 +33,12 @@ definition non_contradictory (a : Prop) : Prop := ¬¬a
 
 theorem non_contradictory_intro {a : Prop} (Ha : a) : ¬¬a :=
 assume Hna : ¬a, absurd Ha Hna
+
+/- false -/
+
+theorem false.elim {c : Prop} (H : false) : c :=
+false.rec c H
+
 
 /- eq -/
 
@@ -128,6 +137,20 @@ namespace ne
 end ne
 
 theorem false.of_ne {A : Type} {a : A} : a ≠ a → false := ne.irrefl
+
+section
+  open eq.ops
+  variables {p : Prop}
+
+  theorem ne_false_of_self : p → p ≠ false :=
+  assume (Hp : p) (Heq : p = false), Heq ▸ Hp
+
+  theorem ne_true_of_not : ¬p → p ≠ true :=
+  assume (Hnp : ¬p) (Heq : p = true), (Heq ▸ Hnp) trivial
+
+  theorem true_ne_false : ¬true = false :=
+  ne_false_of_self trivial
+end
 
 infixl `==`:50 := heq
 
@@ -470,6 +493,9 @@ nonempty.rec H2 H1
 
 theorem nonempty_of_inhabited [instance] {A : Type} [H : inhabited A] : nonempty A :=
 nonempty.intro !default
+
+theorem nonempty_of_exists {A : Type} {P : A → Prop} : (∃x, P x) → nonempty A :=
+Exists.rec (λw H, nonempty.intro w)
 
 /- subsingleton -/
 

@@ -125,13 +125,13 @@ Because we use _proposition as types_, we must support _empty types_. For exampl
 the type =false= must be empty, since we don't have a proof for =false=.
 
 Most systems based on the _propositions as types_ paradigm are based on constructive logic.
-In Lean, we support classical and constructive logic. We can load
-_classical choice axiom_ by using =import logic.choice= or =import classical=. When the classical
+In Lean, we support classical and constructive logic. We can use
+_classical choice axiom_ by using =open classical=. When the classical
 extensions are loaded, the _excluded middle_ is a theorem,
 and =em p= is a proof for =p ∨ ¬ p=.
 
 #+BEGIN_SRC lean
-  import logic.choice
+  open classical
   constant p : Prop
   check em p
 #+END_SRC

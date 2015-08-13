@@ -52,9 +52,6 @@ iff.intro
   (or.rec (exists_imp_exists (λx, or.inl))
           (exists_imp_exists (λx, or.inr)))
 
-theorem nonempty_of_exists {A : Type} {P : A → Prop} : (∃x, P x) → nonempty A :=
-Exists.rec (λw H, intro w)
-
 section
   open decidable eq.ops
 

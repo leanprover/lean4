@@ -5,7 +5,7 @@
 (ℕ → Prop) → ℕ
 -- ACK
 -- IDENTIFIER|6|6
-epsilon
+classical.epsilon
 -- ACK
 -- SYMBOL|6|14
 (

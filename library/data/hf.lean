@@ -323,4 +323,45 @@ subset.trans (insert_erase_subset a s) (!insert_subset_insert H)
 
 theorem subset_insert_iff (s t : hf) (a : hf) : s ⊆ insert a t ↔ erase a s ⊆ t :=
 iff.intro !erase_subset_of_subset_insert !subset_insert_of_erase_subset
+
+/- image -/
+definition image (f : hf → hf) (s : hf) : hf :=
+of_finset (finset.image f (to_finset s))
+
+theorem image_empty (f : hf → hf) : image f ∅ = ∅ :=
+rfl
+
+theorem mem_image_of_mem (f : hf → hf) {s : hf} {a : hf} : a ∈ s → f a ∈ image f s :=
+begin unfold [mem, image], intro h, rewrite to_finset_of_finset, apply finset.mem_image_of_mem f h end
+
+theorem mem_image {f : hf → hf} {s : hf} {a : hf} {b : hf} (H1 : a ∈ s) (H2 : f a = b) : b ∈ image f s :=
+eq.subst H2 (mem_image_of_mem f H1)
+
+theorem exists_of_mem_image {f : hf → hf} {s : hf} {b : hf} : b ∈ image f s → ∃a, a ∈ s ∧ f a = b :=
+begin unfold [mem, image], rewrite to_finset_of_finset, intro h, apply finset.exists_of_mem_image h end
+
+theorem mem_image_iff (f : hf → hf) {s : hf} {y : hf} : y ∈ image f s ↔ ∃x, x ∈ s ∧ f x = y :=
+begin unfold [mem, image], rewrite to_finset_of_finset, apply finset.mem_image_iff end
+
+theorem mem_image_eq (f : hf → hf) {s : hf} {y : hf} : y ∈ image f s = ∃x, x ∈ s ∧ f x = y :=
+propext (mem_image_iff f)
+
+theorem mem_image_of_mem_image_of_subset {f : hf → hf} {s t : hf} {y : hf} (H1 : y ∈ image f s) (H2 : s ⊆ t) : y ∈ image f t :=
+obtain x `x ∈ s` `f x = y`, from exists_of_mem_image H1,
+have x ∈ t, from mem_of_subset_of_mem H2 `x ∈ s`,
+show y ∈ image f t, from mem_image `x ∈ t` `f x = y`
+
+theorem image_insert (f : hf → hf) (s : hf) (a : hf) : image f (insert a s) = insert (f a) (image f s) :=
+begin unfold [image, insert], rewrite [*to_finset_of_finset, finset.image_insert] end
+
+open function
+lemma image_compose {f : hf → hf} {g : hf → hf} {s : hf} : image (f∘g) s = image f (image g s) :=
+begin unfold image, rewrite [*to_finset_of_finset, finset.image_compose] end
+
+lemma image_subset {a b : hf} (f : hf → hf) : a ⊆ b → image f a ⊆ image f b :=
+begin unfold [subset, image], intro h, rewrite *to_finset_of_finset, apply finset.image_subset f h end
+
+theorem image_union (f : hf → hf) (s t : hf) : image f (s ∪ t) = image f s ∪ image f t :=
+begin unfold [image, union], rewrite [*to_finset_of_finset, finset.image_union] end
+
 end hf

@@ -9,17 +9,21 @@ open nat nat.finset decidable
 namespace finset
 variable {A : Type}
 
-private definition to_nat (s : finset nat) : nat :=
+protected definition to_nat (s : finset nat) : nat :=
 nat.finset.Sum s (λ n, 2^n)
 
-private lemma to_nat_empty : to_nat ∅ = 0 :=
+open finset (to_nat)
+
+lemma to_nat_empty : to_nat ∅ = 0 :=
 rfl
 
-private lemma to_nat_insert {n : nat} {s : finset nat} : n ∉ s → to_nat (insert n s) = 2^n + to_nat s :=
+lemma to_nat_insert {n : nat} {s : finset nat} : n ∉ s → to_nat (insert n s) = 2^n + to_nat s :=
 assume h, Sum_insert_of_not_mem _ h
 
-private definition of_nat (s : nat) : finset nat :=
+protected definition of_nat (s : nat) : finset nat :=
 { n ∈ upto (succ s) | odd (s div 2^n) }
+
+open finset (of_nat)
 
 private lemma of_nat_zero : of_nat 0 = ∅ :=
 rfl
@@ -175,7 +179,7 @@ private lemma of_nat_eq_insert : ∀ {n s : nat}, n ∉ of_nat s → of_nat (2^n
                                  ...   ↔ succ m ∈ insert (succ n) (of_nat s) : aux,
   gen x)
 
-private lemma of_nat_to_nat (s : finset nat) : of_nat (to_nat s) = s :=
+lemma of_nat_to_nat (s : finset nat) : of_nat (to_nat s) = s :=
 finset.induction_on s rfl
   (λ a s nains ih, by rewrite [to_nat_insert nains, -ih at nains, of_nat_eq_insert nains, ih])
 
@@ -258,7 +262,7 @@ begin
               add_mul_div_self (dec_trivial : 2 > 0), -ih, to_nat_insert this, add.comm] }
 end
 
-private lemma to_nat_of_nat (s : nat) : to_nat (of_nat s) = s :=
+lemma to_nat_of_nat (s : nat) : to_nat (of_nat s) = s :=
 nat.strong_induction_on s
   (λ n ih, by_cases
     (suppose n = 0, by rewrite this)

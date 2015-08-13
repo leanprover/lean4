@@ -60,17 +60,28 @@ definition mem (a : hf) (s : hf) : Prop :=
 finset.mem a (to_finset s)
 
 infix `∈` := mem
+notation [priority finset.prio] a ∉ b := ¬ mem a b
 
-definition not_mem (a : hf) (s : hf) : Prop := ¬ a ∈ s
-
-infix `∉` := not_mem
+lemma insert_lt_of_not_mem {a s : hf} : a ∉ s → s < insert a s :=
+begin
+  unfold [insert, of_finset, equiv.to_fun, finset_nat_equiv_nat, mem, to_finset, equiv.inv],
+  intro h,
+  krewrite [finset.to_nat_insert h, to_nat_of_nat, -zero_add s at {1}],
+  apply add_lt_add_right,
+  apply pow_pos_of_pos _ dec_trivial
+end
 
 open decidable
 protected definition decidable_mem [instance] : ∀ a s, decidable (a ∈ s) :=
 λ a s, finset.decidable_mem a (to_finset s)
 
+lemma insert_le (a s : hf) : s ≤ insert a s :=
+by_cases
+  (suppose a ∈ s, by rewrite [↑insert, insert_eq_of_mem this, of_finset_to_finset])
+  (suppose a ∉ s, le_of_lt (insert_lt_of_not_mem this))
+
 lemma not_mem_empty (a : hf) : a ∉ ∅ :=
-begin unfold [not_mem, mem, empty], rewrite to_finset_of_finset, apply finset.not_mem_empty end
+begin unfold [mem, empty], rewrite to_finset_of_finset, apply finset.not_mem_empty end
 
 lemma mem_insert (a s : hf) : a ∈ insert a s :=
 begin unfold [mem, insert], rewrite to_finset_of_finset, apply finset.mem_insert end
@@ -92,6 +103,21 @@ by rewrite [*of_finset_to_finset at this]; exact this
 
 theorem insert_eq_of_mem {a : hf} {s : hf} : a ∈ s → insert a s = s :=
 begin unfold mem, intro h, unfold [mem, insert], rewrite (finset.insert_eq_of_mem h), rewrite of_finset_to_finset end
+
+protected theorem induction [recursor 4] {P : hf → Prop}
+    (h₁ : P empty) (h₂ : ∀ (a s : hf), a ∉ s → P s → P (insert a s)) (s : hf) : P s :=
+assert P (of_finset (to_finset s)), from
+  @finset.induction _ _ _ h₁
+    (λ a s nain ih,
+       begin
+         unfold [mem, insert] at h₂,
+         rewrite -(to_finset_of_finset s) at nain,
+         have P (insert a (of_finset s)), by exact h₂ a (of_finset s) nain ih,
+         rewrite [↑insert at this, to_finset_of_finset at this],
+         exact this
+       end)
+    (to_finset s),
+by rewrite of_finset_to_finset at this; exact this
 
 /- union -/
 definition union (s₁ s₂ : hf) : hf :=
@@ -214,13 +240,13 @@ definition erase (a : hf) (s : hf) : hf :=
 of_finset (erase a (to_finset s))
 
 theorem mem_erase (a : hf) (s : hf) : a ∉ erase a s :=
-begin unfold [not_mem, mem, erase], rewrite to_finset_of_finset, apply finset.mem_erase end
+begin unfold [mem, erase], rewrite to_finset_of_finset, apply finset.mem_erase end
 
 theorem card_erase_of_mem {a : hf} {s : hf} : a ∈ s → card (erase a s) = pred (card s) :=
 begin unfold mem, intro h, unfold [erase, card], rewrite to_finset_of_finset, apply finset.card_erase_of_mem h end
 
 theorem card_erase_of_not_mem {a : hf} {s : hf} : a ∉ s → card (erase a s) = card s :=
-begin unfold [not_mem, mem], intro h, unfold [erase, card], rewrite to_finset_of_finset, apply finset.card_erase_of_not_mem h end
+begin unfold [mem], intro h, unfold [erase, card], rewrite to_finset_of_finset, apply finset.card_erase_of_not_mem h end
 
 theorem erase_empty (a : hf) : erase a ∅ = ∅ :=
 rfl
@@ -244,7 +270,7 @@ propext !mem_erase_iff
 
 theorem erase_insert {a : hf} {s : hf} : a ∉ s → erase a (insert a s) = s :=
 begin
-  unfold [not_mem, mem, erase, insert],
+  unfold [mem, erase, insert],
   intro h, rewrite [to_finset_of_finset, finset.erase_insert h, of_finset_to_finset]
 end
 
@@ -299,7 +325,7 @@ theorem erase_subset  (a : hf) (s : hf) : erase a s ⊆ s :=
 begin unfold [subset, erase], rewrite to_finset_of_finset, apply finset.erase_subset a (to_finset s) end
 
 theorem erase_eq_of_not_mem {a : hf} {s : hf} : a ∉ s → erase a s = s :=
-begin unfold [not_mem, mem, erase], intro h, rewrite [finset.erase_eq_of_not_mem h, of_finset_to_finset] end
+begin unfold [mem, erase], intro h, rewrite [finset.erase_eq_of_not_mem h, of_finset_to_finset] end
 
 theorem erase_insert_subset (a : hf) (s : hf) : erase a (insert a s) ⊆ s :=
 begin unfold [erase, insert, subset], rewrite [*to_finset_of_finset], apply finset.erase_insert_subset a (to_finset s) end
@@ -374,7 +400,7 @@ theorem powerset_empty : 𝒫 ∅ = insert ∅ ∅ :=
 rfl
 
 theorem powerset_insert {a : hf} {s : hf} : a ∉ s → 𝒫 (insert a s) = 𝒫 s ∪ image (insert a) (𝒫 s) :=
-begin unfold [not_mem, mem, powerset, insert, union, image], rewrite [*to_finset_of_finset], intro h,
+begin unfold [mem, powerset, insert, union, image], rewrite [*to_finset_of_finset], intro h,
       have (λ (x : finset hf), of_finset (finset.insert a x)) = (λ (x : finset hf), of_finset (finset.insert a (to_finset (of_finset x)))), from
         funext (λ x, by rewrite to_finset_of_finset),
       rewrite [finset.powerset_insert h, finset.image_union, -*finset.image_compose,↑compose,this]

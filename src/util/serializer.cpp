@@ -24,10 +24,15 @@ void finalize_serializer() {
 
 void serializer_core::write_unsigned(unsigned i) {
     static_assert(sizeof(i) == 4, "unexpected unsigned size");
-    m_out.put((i >> 24) & 0xff);
-    m_out.put((i >> 16) & 0xff);
-    m_out.put((i >> 8) & 0xff);
-    m_out.put(i & 0xff);
+    if (i < 255) {
+        m_out.put(i & 0xff);
+    } else {
+        m_out.put(0xff);
+        m_out.put((i >> 24) & 0xff);
+        m_out.put((i >> 16) & 0xff);
+        m_out.put((i >> 8) & 0xff);
+        m_out.put(i & 0xff);
+    }
 }
 
 void serializer_core::write_uint64(uint64 i) {
@@ -71,13 +76,17 @@ std::string deserializer_core::read_string() {
 }
 
 unsigned deserializer_core::read_unsigned() {
-    unsigned r;
+    unsigned r = static_cast<unsigned>(m_in.get());
     static_assert(sizeof(r) == 4, "unexpected unsigned size");
-    r  = static_cast<unsigned>(m_in.get()) << 24;
-    r |= static_cast<unsigned>(m_in.get()) << 16;
-    r |= static_cast<unsigned>(m_in.get()) << 8;
-    r |= static_cast<unsigned>(m_in.get());
-    return r;
+    if (r < 255) {
+        return r;
+    } else {
+        r  = static_cast<unsigned>(m_in.get()) << 24;
+        r |= static_cast<unsigned>(m_in.get()) << 16;
+        r |= static_cast<unsigned>(m_in.get()) << 8;
+        r |= static_cast<unsigned>(m_in.get());
+        return r;
+    }
 }
 
 uint64 deserializer_core::read_uint64() {

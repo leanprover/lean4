@@ -366,7 +366,9 @@ environment add_coercion(environment const & env, io_state const &, name const &
         t = binding_body(t);
     }
     if (Cs.empty())
-        throw exception(sstream() << "invalid coercion, '" << f << "' cannot be used as a coercion");
+        throw exception(sstream() << "invalid coercion, '" << f << "' cannot be used as a coercion "
+                        << "because there is no acceptable source type; coercions must be of the form\n"
+                        << "coe : Pi (x_1 : A_1) ... (x_n : A_n) (y: C x_1 ... x_n), <target>");
     unsigned i = Cs.size();
     while (i > 0) {
         --i;

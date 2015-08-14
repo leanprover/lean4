@@ -341,8 +341,9 @@ static environment add_coercion(environment const & env, name const & f, name co
             check_levels(const_levels(C_fn), d.get_univ_params())) {
             optional<name> cls = type_to_coercion_class(binding_body(t));
             if (!cls)
-                throw exception(sstream() << "invalid coercion, '" << f << "' cannot be used as a coercion from '"
-                                << C << "'");
+                throw exception(sstream() << "invalid coercion, '" << f << "' cannot be used as a coercion from source '"
+                                << C << "', since target does not match any of the acceptable forms\n"
+                                << "D t_1 ... t_m\n" << "Type\n" << "Pi x : A, B x\n");
             else if (is_user_class(*cls) && *cls == C)
                 throw exception(sstream() << "invalid coercion, '" << f << "' is a coercion from '" << C << "' to itself");
             return add_coercion_core(env, C, f, num, *cls, persistent);

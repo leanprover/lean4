@@ -384,7 +384,7 @@ theorem first_sylow_theorem {p : nat} (Pp : prime p) :
   obtain J PJ, from cauchy_theorem Pp Ppdvd,
   exists.intro (fin_coset_Union (cyc J))
     (exists.intro _
-      (by rewrite [pow_succ', -PcardH, -PJ]; apply card_Union_lcosets))
+      (by rewrite [pow_succ, -PcardH, -PJ]; apply card_Union_lcosets))
 
 end sylow
 

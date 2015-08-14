@@ -98,7 +98,7 @@ begin
       assert n' < n,
         by rewrite -this; apply mult_rec_decreasing pgt1 npos,
       begin
-        rewrite [mult_rec pgt1 npos pdvdn, `n div p = n'`, pow_succ'], subst n,
+        rewrite [mult_rec pgt1 npos pdvdn, `n div p = n'`, pow_succ], subst n,
         apply mul_dvd_mul !dvd.refl,
         apply ih _ this
       end)
@@ -122,8 +122,8 @@ begin
     {rewrite [pow_zero, one_mul, zero_add]},
   have p > 0, from lt.trans zero_lt_one pgt1,
   have psin_pos : p^(succ i) * n > 0, from mul_pos (!pow_pos_of_pos this) npos,
-  have p ∣ p^(succ i) * n, by rewrite [pow_succ', mul.assoc]; apply dvd_mul_right,
-  rewrite [mult_rec pgt1 psin_pos this, pow_succ, mul.right_comm, !mul_div_cancel `p > 0`, ih],
+  have p ∣ p^(succ i) * n, by rewrite [pow_succ, mul.assoc]; apply dvd_mul_right,
+  rewrite [mult_rec pgt1 psin_pos this, pow_succ', mul.right_comm, !mul_div_cancel `p > 0`, ih],
   rewrite [add.comm i, add.comm (succ i)]
 end
 
@@ -143,7 +143,7 @@ obtain m (H : n div p^(mult p n) = p * m), from exists_eq_mul_right_of_dvd pdvd,
 assert n = p^(succ (mult p n)) * m, from
   calc
     n     = p^mult p n * (n div p^mult p n) : by rewrite (mul_div_cancel' !pow_mult_dvd)
-      ... = p^(succ (mult p n)) * m         : by rewrite [H, pow_succ, mul.assoc],
+      ... = p^(succ (mult p n)) * m         : by rewrite [H, pow_succ', mul.assoc],
 have p^(succ (mult p n)) ∣ n,    by rewrite this at {2}; apply dvd_mul_right,
 have succ (mult p n) ≤ mult p n, from le_mult pgt1 npos this,
 show false,                      from !not_succ_le_self this
@@ -239,7 +239,7 @@ begin
     {rewrite [pow_zero, mult_one_right]},
   have qpos : q > 0, from pos_of_prime primeq,
   have qipos : q^i > 0, from !pow_pos_of_pos qpos,
-  rewrite [pow_succ, mult_mul primep qipos qpos, ih, mult_eq_zero_of_prime_of_ne primep primeq pneq]
+  rewrite [pow_succ', mult_mul primep qipos qpos, ih, mult_eq_zero_of_prime_of_ne primep primeq pneq]
 end
 
 theorem mult_prod_pow_of_not_mem {p : ℕ} (primep : prime p) {s : finset ℕ}

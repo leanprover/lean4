@@ -26,30 +26,45 @@ include s
 
 definition pow (a : A) : ℕ → A
 | 0     := 1
-| (n+1) := pow n * a
+| (n+1) := a * pow n
 
 infix [priority algebra.prio] `^` := pow
 
 theorem pow_zero (a : A) : a^0 = 1 := rfl
-theorem pow_succ (a : A) (n : ℕ) : a^(succ n) = a^n * a := rfl
+theorem pow_succ (a : A) (n : ℕ) : a^(succ n) = a * a^n := rfl
 
-theorem pow_succ' (a : A) : ∀n, a^(succ n) = a * a^n
+theorem pow_one (a : A) : a^1 = a := !mul_one
+theorem pow_two (a : A) : a^2 = a * a :=
+calc
+  a^2 = a * (a * 1) : rfl
+  ... = a * a       : mul_one
+theorem pow_three (a : A) : a^3 = a * (a * a) :=
+calc
+  a^3 = a * (a * (a * 1)) : rfl
+  ... = a * (a * a)       : mul_one
+theorem pow_four (a : A) : a^4 = a * (a * (a * a))  :=
+calc
+  a^4 = a * a^3           : rfl
+  ... = a * (a * (a * a)) : pow_three
+
+theorem pow_succ' (a : A) : ∀n, a^(succ n) = a^n * a
 | 0        := by rewrite [pow_succ, *pow_zero, one_mul, mul_one]
 | (succ n) := by rewrite [pow_succ, pow_succ' at {1}, pow_succ, mul.assoc]
 
 theorem one_pow : ∀ n : ℕ, 1^n = (1:A)
 | 0        := rfl
-| (succ n) := by rewrite [pow_succ, mul_one, one_pow]
+| (succ n) := by rewrite [pow_succ, one_mul, one_pow]
 
-theorem pow_one (a : A) : a^1 = a := !one_mul
-
-theorem pow_add (a : A) (m : ℕ) : ∀ n, a^(m + n) = a^m * a^n
-| 0        := by rewrite [nat.add_zero, pow_zero, mul_one]
-| (succ n) := by rewrite [add_succ, *pow_succ, pow_add, mul.assoc]
+theorem pow_add (a : A) (m n : ℕ) : a^(m + n) = a^m * a^n :=
+begin
+  induction n with n ih,
+    {rewrite [nat.add_zero, pow_zero, mul_one]},
+  rewrite [add_succ, *pow_succ', ih, mul.assoc]
+end
 
 theorem pow_mul (a : A) (m : ℕ) : ∀ n, a^(m * n) = (a^m)^n
 | 0        := by rewrite [nat.mul_zero, pow_zero]
-| (succ n) := by rewrite [nat.mul_succ, pow_add, pow_succ, pow_mul]
+| (succ n) := by rewrite [nat.mul_succ, pow_add, pow_succ', pow_mul]
 
 theorem pow_comm (a : A) (m n : ℕ)  : a^m * a^n = a^n * a^m :=
 by rewrite [-*pow_add, nat.add.comm]
@@ -65,7 +80,7 @@ include s
 
 theorem mul_pow (a b : A) : ∀ n, (a * b)^n = a^n * b^n
 | 0        := by rewrite [*pow_zero, mul_one]
-| (succ n) := by rewrite [*pow_succ, mul_pow, *mul.assoc, mul.left_comm a]
+| (succ n) := by rewrite [*pow_succ', mul_pow, *mul.assoc, mul.left_comm a]
 
 end comm_monoid
 
@@ -87,7 +102,7 @@ eq_mul_inv_of_mul_eq H2
 theorem pow_inv_comm (a : A) : ∀m n, (a⁻¹)^m * a^n = a^n * (a⁻¹)^m
 | 0 n               := by rewrite [*pow_zero, one_mul, mul_one]
 | m 0               := by rewrite [*pow_zero, one_mul, mul_one]
-| (succ m) (succ n) := by rewrite [pow_succ at {1}, pow_succ' at {1}, pow_succ, pow_succ',
+| (succ m) (succ n) := by rewrite [pow_succ' at {1}, pow_succ at {1}, pow_succ', pow_succ,
                             *mul.assoc, inv_mul_cancel_left, mul_inv_cancel_left, pow_inv_comm]
 
 end nat
@@ -143,7 +158,7 @@ theorem pow_pos {a : A} (H : a > 0) (n : ℕ) : pow a n > 0 :=
     induction n,
     rewrite pow_zero,
     apply zero_lt_one,
-    rewrite pow_succ,
+    rewrite pow_succ',
     apply mul_pos,
     apply v_0, apply H
   end
@@ -153,7 +168,7 @@ theorem pow_ge_one_of_ge_one {a : A} (H : a ≥ 1) (n : ℕ) : pow a n ≥ 1 :=
     induction n,
     rewrite pow_zero,
     apply le.refl,
-    rewrite [pow_succ, -{1}mul_one],
+    rewrite [pow_succ', -{1}mul_one],
     apply mul_le_mul v_0 H zero_le_one,
     apply le_of_lt,
     apply pow_pos,
@@ -163,7 +178,7 @@ theorem pow_ge_one_of_ge_one {a : A} (H : a ≥ 1) (n : ℕ) : pow a n ≥ 1 :=
 local notation 2 := (1 : A) + 1
 
 theorem pow_two_add (n : ℕ) : pow 2 n + pow 2 n = pow 2 (succ n) :=
-  by rewrite [pow_succ, left_distrib, *mul_one]
+  by rewrite [pow_succ', left_distrib, *mul_one]
 
 end ordered_ring
 
@@ -180,9 +195,9 @@ definition nmul : ℕ → A → A := λ n a, pow a n
 infix [priority algebra.prio] `⬝` := nmul
 
 theorem zero_nmul (a : A) : (0:ℕ) ⬝ a = 0 := pow_zero a
-theorem succ_nmul (n : ℕ) (a : A) : succ n ⬝ a = nmul n a + a := pow_succ a n
+theorem succ_nmul (n : ℕ) (a : A) : nmul (succ n) a = a + (nmul n a) := pow_succ a n
 
-theorem succ_nmul' (n : ℕ) (a : A) : nmul (succ n) a = a + (nmul n a) := pow_succ' a n
+theorem succ_nmul' (n : ℕ) (a : A) : succ n ⬝ a = nmul n a + a := pow_succ' a n
 
 theorem nmul_zero (n : ℕ) : n ⬝ 0 = (0:A) := one_pow n
 

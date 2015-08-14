@@ -140,7 +140,7 @@ mem_sep_of_mem !mem_univ
 lemma mem_cyc (a : A) : ∀ {n : nat}, a^n ∈ cyc a
 | 0        := cyc_has_one a
 | (succ n) :=
-  begin rewrite pow_succ, apply cyc_mul_closed a, exact mem_cyc, apply self_mem_cyc end
+  begin rewrite pow_succ', apply cyc_mul_closed a, exact mem_cyc, apply self_mem_cyc end
 
 lemma order_le {a : A} {n : nat} : a^(succ n) = 1 → order a ≤ succ n :=
 assume Pe, let s := image (pow a) (upto (succ n)) in
@@ -243,7 +243,7 @@ local infix ^ := algebra.pow
 lemma pow_eq_mul {n : nat} {i : fin (succ n)} : ∀ {k : nat}, i^k = mk_mod n (i*k)
 | 0        := by rewrite [pow_zero]
 | (succ k) := begin
-  assert Psucc : i^(succ k) = madd (i^k) i, apply pow_succ,
+  assert Psucc : i^(succ k) = madd (i^k) i, apply pow_succ',
   rewrite [Psucc, pow_eq_mul],
   apply eq_of_veq,
   rewrite [mul_succ, val_madd, ↑mk_mod, mod_add_mod]
@@ -368,7 +368,7 @@ eq_of_feq (funext take f, calc
 
 lemma rotl_perm_pow_eq : ∀ {i : nat}, (rotl_perm A n 1) ^ i = rotl_perm A n i
 | 0        := begin rewrite [pow_zero, ↑rotl_perm, perm_one, -eq_iff_feq], esimp, rewrite rotl_seq_zero  end
-| (succ i) := begin rewrite [pow_succ, rotl_perm_pow_eq, rotl_perm_mul, one_add] end
+| (succ i) := begin rewrite [pow_succ', rotl_perm_pow_eq, rotl_perm_mul, one_add] end
 
 lemma rotl_perm_pow_eq_one : (rotl_perm A n 1) ^ n = 1 :=
 eq.trans rotl_perm_pow_eq (eq_of_feq begin esimp [rotl_perm], rewrite [↑rotl_fun, rotl_id] end)

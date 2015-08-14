@@ -194,7 +194,7 @@ lemma dvd_of_prime_of_dvd_pow {p m : nat} : ∀ {n}, prime p → p ∣ m^n → p
   have   1 ≥ 2, by rewrite -this; apply ge_two_of_prime hp,
   absurd this dec_trivial
 | (succ n) hp hd :=
-  have p ∣ (m^n)*m, by rewrite [pow_succ at hd]; exact hd,
+  have p ∣ (m^n)*m, by rewrite [pow_succ' at hd]; exact hd,
   or.elim (dvd_or_dvd_of_prime_of_dvd_mul hp this)
     (suppose p ∣ m^n, dvd_of_prime_of_dvd_pow hp this)
     (suppose p ∣ m, this)
@@ -226,7 +226,7 @@ lemma eq_one_or_dvd_of_dvd_prime_pow {p : nat} : ∀ {m i : nat}, prime p → i 
 | 0        := take i, assume Pp, begin rewrite [pow_zero], intro Pdvd, apply or.inl (eq_one_of_dvd_one Pdvd) end
 | (succ m) := take i, assume Pp, or.elim (coprime_or_dvd_of_prime Pp i)
   (λ Pcp, begin
-    rewrite [pow_succ], intro Pdvd,
+    rewrite [pow_succ'], intro Pdvd,
     apply eq_one_or_dvd_of_dvd_prime_pow Pp,
     apply dvd_of_coprime_of_dvd_mul_right,
       apply coprime_swap Pcp, exact Pdvd

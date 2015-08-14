@@ -84,7 +84,7 @@ section monoid
   | (a::l) := take b, assume Pconst,
     assert Pconstl : ∀ a', a' ∈ l → f a' = b,
       from take a' Pa'in, Pconst a' (mem_cons_of_mem a Pa'in),
-    by rewrite [Prodl_cons f, Pconst a !mem_cons, Prodl_eq_pow_of_const b Pconstl, length_cons, add_one, pow_succ' b]
+    by rewrite [Prodl_cons f, Pconst a !mem_cons, Prodl_eq_pow_of_const b Pconstl, length_cons, add_one, pow_succ b]
 
 end monoid
 

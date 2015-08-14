@@ -22,14 +22,14 @@ theorem pow_pos_of_pos {x : A} (i : ℕ) (H : x > 0) : x^i > 0 :=
 begin
   induction i with [j, ih],
     {show (1 : A) > 0, from zero_lt_one},
-    {show x^(succ j) > 0, from mul_pos ih H}
+    {show x^(succ j) > 0, from mul_pos H ih}
 end
 
 theorem pow_nonneg_of_nonneg {x : A} (i : ℕ) (H : x ≥ 0) : x^i ≥ 0 :=
 begin
   induction i with [j, ih],
     {show (1 : A) ≥ 0, from le_of_lt zero_lt_one},
-    {show x^(succ j) ≥ 0, from mul_nonneg ih H}
+    {show x^(succ j) ≥ 0, from mul_nonneg H ih}
 end
 
 theorem pow_le_pow_of_le {x y : A} (i : ℕ) (H₁ : 0 ≤ x) (H₂ : x ≤ y) : x^i ≤ y^i :=
@@ -37,8 +37,8 @@ begin
   induction i with [i, ih],
     {rewrite *pow_zero, apply le.refl},
   rewrite *pow_succ,
-  have H : 0 ≤ y^i, from pow_nonneg_of_nonneg i (le.trans H₁ H₂),
-  apply mul_le_mul ih H₂ H₁ H
+  have H : 0 ≤ x^i, from pow_nonneg_of_nonneg i H₁,
+  apply mul_le_mul H₂ ih H (le.trans H₁ H₂)
 end
 
 theorem pow_ge_one {x : A} (i : ℕ) (xge1 : x ≥ 1) : x^i ≥ 1 :=
@@ -53,7 +53,7 @@ begin
   induction i with [i, ih],
     {exfalso, exact !nat.lt.irrefl ipos},
   have xige1 : x^i ≥ 1, from pow_ge_one _ (le_of_lt xgt1),
-  rewrite [pow_succ', -mul_one 1, ↑has_lt.gt],
+  rewrite [pow_succ, -mul_one 1, ↑has_lt.gt],
   apply mul_lt_mul xgt1 xige1 zero_lt_one,
   apply le_of_lt xpos
 end

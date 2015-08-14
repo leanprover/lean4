@@ -573,6 +573,14 @@ decidable.by_cases
       (take c, assume H' : a = b * c,
         by rewrite [H', neg_mul_eq_mul_neg, *!mul_div_cancel_left H1]))
 
+theorem sign_eq_div_abs (a : ℤ) : sign a = a div (abs a) :=
+decidable.by_cases
+  (suppose a = 0, by subst a)
+  (suppose a ≠ 0,
+    have abs a ≠ 0, from assume H, this (eq_zero_of_abs_eq_zero H),
+    have abs a ∣ a, from abs_dvd_of_dvd !dvd.refl,
+    eq.symm (iff.mpr (!div_eq_iff_eq_mul_left `abs a ≠ 0` this) !eq_sign_mul_abs))
+
 /- div and ordering -/
 
 theorem div_mul_le (a : ℤ) {b : ℤ} (H : b ≠ 0) : a div b * b ≤ a :=

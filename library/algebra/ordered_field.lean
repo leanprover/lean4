@@ -539,5 +539,12 @@ section discrete_linear_ordered_field
     apply two_pos
   end
 
+  theorem sign_eq_div_abs (a : A) : sign a = a / (abs a) :=
+  decidable.by_cases
+    (suppose a = 0, by subst a; rewrite [zero_div, sign_zero])
+    (suppose a ≠ 0,
+      have abs a ≠ 0, from assume H, this (eq_zero_of_abs_eq_zero H),
+      eq_div_of_mul_eq this !eq_sign_mul_abs⁻¹)
+
 end discrete_linear_ordered_field
 end algebra

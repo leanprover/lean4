@@ -1496,7 +1496,7 @@ class equation_compiler_fn {
                                     << "trying to pattern match inductive datatype parameter '" << p << "'");
                     } else {
                         list<expr> new_local_ctx = remove(e.m_local_context, p);
-                        list<expr> new_patterns  = ::lean::remove(e.m_patterns, p);
+                        list<expr> new_patterns  = remove_ith(e.m_patterns, i);
                         expr       new_rhs       = fix_rec_arg(new_fn, new_new_fn, i, e.m_rhs);
                         e = replace(eqn(new_local_ctx, new_patterns, new_rhs), p, param);
                     }

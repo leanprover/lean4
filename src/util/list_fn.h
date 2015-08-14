@@ -303,5 +303,14 @@ T const & get_ith(list<T> const & l, unsigned idx) {
     return idx == 0 ? head(l) : get_ith(tail(l), idx - 1);
 }
 
+/** \brief Remove the i-th element of the list (starting a 0) */
+template<typename T>
+list<T> remove_ith(list<T> const & l, unsigned idx) {
+    if (is_nil(l))
+        return l;
+    else
+        return idx == 0 ? tail(l) : cons(head(l), remove_ith(tail(l), idx-1));
+}
+
 list<unsigned> mk_list_range(unsigned from, unsigned to);
 }

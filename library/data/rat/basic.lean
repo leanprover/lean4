@@ -484,6 +484,19 @@ theorem mul_denom (a : ℚ) : a * denom a = num a :=
 have H : ⟦reduce a⟧ * of_int (denom a) = of_int (num a), from quot.sound (!prerat.mul_denom_equiv),
 quot_reduce a ▸ H
 
+theorem coprime_num_denom (a : ℚ) : coprime (num a) (denom a) :=
+decidable.by_cases
+  (suppose a = 0, by substvars)
+  (quot.induction_on a
+    (take u H,
+      assert H' : prerat.num u ≠ 0, from take H'', H (quot.sound (prerat.equiv_zero_of_num_eq_zero H'')),
+      begin
+        cases u with un ud udpos,
+        rewrite [▸*, ↑num, ↑denom, ↑reduce, ↑prerat.reduce, if_neg H', ▸*],
+        have gcd un ud ≠ 0, from ne_of_gt (!gcd_pos_of_ne_zero_left H'),
+        apply coprime_div_gcd_div_gcd this
+      end))
+
 section migrate_algebra
   open [classes] algebra
 

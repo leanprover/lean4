@@ -521,7 +521,7 @@ section discrete_linear_ordered_field
     ge_sub_of_abs_sub_le_left (!abs_sub ▸ H)
 
   theorem abs_sub_square : abs (a - b) * abs (a - b) = a * a + b * b - 2 * a * b :=
-    by rewrite [abs_mul_self, *mul_sub_left_distrib, *mul_sub_right_distrib,
+    by rewrite [abs_mul_abs_self, *mul_sub_left_distrib, *mul_sub_right_distrib,
              sub_add_eq_sub_sub, sub_neg_eq_add, *right_distrib, sub_add_eq_sub_sub, *one_mul,
              *add.assoc, {_ + b * b}add.comm, {_ + (b * b + _)}add.comm, mul.comm b a, *add.assoc]
 
@@ -529,7 +529,7 @@ section discrete_linear_ordered_field
   begin
     apply nonneg_le_nonneg_of_squares_le,
     repeat apply abs_nonneg,
-    rewrite [*abs_sub_square, *abs_abs, *abs_mul_self],
+    rewrite [*abs_sub_square, *abs_abs, *abs_mul_abs_self],
     apply sub_le_sub_left,
     rewrite *mul.assoc,
     apply mul_le_mul_of_nonneg_left,

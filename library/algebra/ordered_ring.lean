@@ -642,8 +642,11 @@ section
                     ... = abs a * -b    : by rewrite (abs_of_nonpos H1)
                     ... = abs a * abs b : by rewrite (abs_of_nonpos H2)))
 
-  theorem abs_mul_self (a : A) : abs a * abs a = a * a :=
+  theorem abs_mul_abs_self (a : A) : abs a * abs a = a * a :=
   abs.by_cases rfl !neg_mul_neg
+
+  theorem abs_mul_self (a : A) : abs (a * a) = a * a :=
+  by rewrite [abs_mul, abs_mul_abs_self]
 end
 
 /- TODO: Multiplication and one, starting with mult_right_le_one_le. -/

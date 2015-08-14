@@ -543,7 +543,7 @@ theorem eq_num_div_denom (a : ℚ) : a = num a / denom a :=
 have H : of_int (denom a) ≠ 0, from assume H', ne_of_gt (denom_pos a) (of_int.inj H'),
 iff.mpr (eq_div_iff_mul_eq H) (mul_denom a)
 
-theorem of_nat_div {a b : ℤ} (H : b ∣ a) : of_int (a div b) = of_int a / of_int b :=
+theorem of_int_div {a b : ℤ} (H : b ∣ a) : of_int (a div b) = of_int a / of_int b :=
 decidable.by_cases
   (assume bz : b = 0,
     by rewrite [bz, div_zero, int.div_zero])

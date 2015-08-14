@@ -217,6 +217,18 @@ by_contradiction (suppose ¬ odd (n*m),
   assert even (n*m), from even_of_not_odd this,
   absurd `even (n * m + n)` (not_even_of_odd (odd_add_of_even_of_odd this `odd n`)))
 
+lemma even_of_even_mul_self {n} : even (n * n) → even n :=
+suppose even (n * n),
+by_contradiction (suppose odd n,
+  have odd (n * n), from odd_mul_of_odd_of_odd this this,
+  show false, from this `even (n * n)`)
+
+lemma odd_of_odd_mul_self {n} : odd (n * n) → odd n :=
+suppose odd (n * n),
+  suppose even n,
+  have even (n * n), from !even_mul_of_even_left this,
+  show false, from `odd (n * n)` this
+
 lemma eq_of_div2_of_even {n m : nat} : n div 2 = m div 2 → (even n ↔ even m) → n = m :=
 assume h₁ h₂,
  or.elim (em (even n))

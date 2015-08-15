@@ -367,8 +367,7 @@ struct import_modules_fn {
 
             unsigned code_size    = d1.read_unsigned();
             std::vector<char> code(code_size);
-            for (unsigned i = 0; i < code_size; i++)
-                code[i] = d1.read_char();
+            d1.read(code);
 
             unsigned computed_hash = hash(code_size, [&](unsigned i) { return code[i]; });
             if (claimed_hash != computed_hash)

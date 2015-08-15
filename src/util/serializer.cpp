@@ -108,4 +108,9 @@ double deserializer_core::read_double() {
     in >> r;
     return r;
 }
+
+void deserializer_core::read(std::vector<char> & data) {
+    unsigned sz = data.size();
+    m_in.read(data.data(), sz);
+}
 }

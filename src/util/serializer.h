@@ -60,6 +60,8 @@ public:
     char read_char() { return m_in.get(); }
     bool read_bool() { return m_in.get() != 0; }
     double read_double();
+    // read data.size() bytes from input stream and store it at data
+    void read(std::vector<char> & data);
 };
 
 typedef extensible_object<deserializer_core> deserializer;

@@ -210,7 +210,7 @@ environment certified_inductive_decl::add_core(environment const & env, bool upd
         inductive_decl const & d = dt.m_decl;
         if (!update_ext_only)
             new_env = add_constant(new_env, inductive_decl_name(d), levels, inductive_decl_type(d));
-        ext.add_inductive_info(levels, m_num_params, map2<inductive_decl>(m_decl_data, [](data const & d) { return d.m_decl; }));
+        ext.add_inductive_info(levels, m_num_params, map2<inductive_decl>(m_decl_data, [](data const & d) -> inductive_decl { return d.m_decl; }));
     }
     // declare introduction rules
     for (data const & dt : m_decl_data) {
@@ -247,7 +247,7 @@ environment certified_inductive_decl::add(environment const & env) const {
         level_param_names levels = m_levels;
         if (!m_elim_prop)
             levels = tail(levels);
-        return add_inductive(env, levels, m_num_params, map2<inductive_decl>(m_decl_data, [](data const & d) { return d.m_decl; })).first;
+        return add_inductive(env, levels, m_num_params, map2<inductive_decl>(m_decl_data, [](data const & d) -> inductive_decl { return d.m_decl; })).first;
     } else {
         return add_core(env, false);
     }

@@ -29,6 +29,7 @@ namespace lean {
 class type_checker;
 class environment;
 class certified_declaration;
+namespace inductive { class certified_inductive_decl; }
 
 typedef std::function<bool(name const &)> extra_opaque_pred; // NOLINT
 extra_opaque_pred const & no_extra_opaque();
@@ -116,6 +117,7 @@ class environment {
     environment(header const & h, environment_id const & id, declarations const & d, name_set const & global_levels, extensions const & ext);
 
     friend class shared_environment;
+    friend class inductive::certified_inductive_decl;
     /**
        \brief Adds a declaration that was not type checked.
 

@@ -317,6 +317,7 @@ declaration read_declaration(deserializer & d) {
     }
 }
 
+using inductive::certified_inductive_decl;
 using inductive::inductive_decl;
 using inductive::intro_rule;
 using inductive::inductive_decl_name;
@@ -325,36 +326,75 @@ using inductive::inductive_decl_intros;
 using inductive::intro_rule_name;
 using inductive::intro_rule_type;
 
-serializer & operator<<(serializer & s, inductive_decls const & ds) {
-    s << std::get<0>(ds) << std::get<1>(ds);
-    auto const & ls = std::get<2>(ds);
-    s << length(ls);
-    for (inductive_decl const & d : ls) {
-        s << inductive_decl_name(d) << inductive_decl_type(d) << length(inductive_decl_intros(d));
-        for (intro_rule const & r : inductive_decl_intros(d))
-            s << intro_rule_name(r) << intro_rule_type(r);
-    }
+serializer & operator<<(serializer & s, certified_inductive_decl::comp_rule const & r) {
+    s << r.m_num_bu << r.m_comp_rhs;
     return s;
 }
 
-inductive_decls read_inductive_decls(deserializer & d) {
-    level_param_names ps = read_level_params(d);
-    unsigned num_params, num_decls;
-    d >> num_params >> num_decls;
-    buffer<inductive_decl> decls;
-    for (unsigned i = 0; i < num_decls; i++) {
-        name d_name = read_name(d);
-        expr d_type = read_expr(d);
-        unsigned num_intros = d.read_unsigned();
-        buffer<intro_rule> rules;
-        for (unsigned j = 0; j < num_intros; j++) {
-            name r_name = read_name(d);
-            expr r_type = read_expr(d);
-            rules.push_back(intro_rule(r_name, r_type));
-        }
-        decls.push_back(inductive_decl(d_name, d_type, to_list(rules.begin(), rules.end())));
+certified_inductive_decl::comp_rule read_comp_rule(deserializer & d) {
+    unsigned n; expr e;
+    d >> n >> e;
+    return certified_inductive_decl::comp_rule(n, e);
+}
+
+serializer & operator<<(serializer & s, inductive_decl const & d) {
+    s << inductive_decl_name(d) << inductive_decl_type(d) << length(inductive_decl_intros(d));
+    for (intro_rule const & r : inductive_decl_intros(d))
+        s << intro_rule_name(r) << intro_rule_type(r);
+    return s;
+}
+
+inductive_decl read_inductive_decl(deserializer & d) {
+    name d_name = read_name(d);
+    expr d_type = read_expr(d);
+    unsigned num_intros = d.read_unsigned();
+    buffer<intro_rule> rules;
+    for (unsigned j = 0; j < num_intros; j++) {
+        name r_name = read_name(d);
+        expr r_type = read_expr(d);
+        rules.push_back(intro_rule(r_name, r_type));
     }
-    return inductive_decls(ps, num_params, to_list(decls.begin(), decls.end()));
+    return inductive_decl(d_name, d_type, to_list(rules.begin(), rules.end()));
+}
+
+serializer & operator<<(serializer & s, certified_inductive_decl::data const & d) {
+    s << d.m_decl << d.m_K_target << d.m_num_indices;
+    write_list<certified_inductive_decl::comp_rule>(s, d.m_comp_rules);
+    return s;
+}
+
+certified_inductive_decl::data read_certified_inductive_decl_data(deserializer & d) {
+    inductive_decl decl = read_inductive_decl(d);
+    bool       K        = d.read_bool();
+    unsigned   nind     = d.read_unsigned();
+    auto rs             = read_list<certified_inductive_decl::comp_rule>(d, read_comp_rule);
+    return certified_inductive_decl::data(decl, K, nind, rs);
+}
+
+serializer & operator<<(serializer & s, certified_inductive_decl const & d) {
+    s << d.get_univ_params() << d.get_num_params() << d.get_num_ACe()
+      << d.elim_prop_only() << d.has_dep_elim();
+    write_list<expr>(s, d.get_elim_types());
+    write_list<certified_inductive_decl::data>(s, d.get_decl_data());
+    return s;
+}
+
+class read_certified_inductive_decl_fn {
+public:
+    certified_inductive_decl operator()(deserializer & d) {
+        level_param_names ls = read_list<name>(d, read_name);
+        unsigned nparams = d.read_unsigned();
+        unsigned nACe    = d.read_unsigned();
+        bool elim_prop   = d.read_bool();
+        bool dep_elim    = d.read_bool();
+        list<expr> ets   = read_list<expr>(d, read_expr);
+        auto ds          = read_list<certified_inductive_decl::data>(d, read_certified_inductive_decl_data);
+        return certified_inductive_decl(ls, nparams, nACe, elim_prop, dep_elim, ets, ds);
+    }
+};
+
+certified_inductive_decl read_certified_inductive_decl(deserializer & d) {
+    return read_certified_inductive_decl_fn()(d);
 }
 
 void initialize_kernel_serializer() {

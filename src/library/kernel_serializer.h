@@ -29,9 +29,8 @@ inline deserializer & operator>>(deserializer & d, expr & e) { e = read_expr(d);
 serializer & operator<<(serializer & s, declaration const & d);
 declaration read_declaration(deserializer & d);
 
-typedef std::tuple<level_param_names, unsigned, list<inductive::inductive_decl>> inductive_decls;
-serializer & operator<<(serializer & s, inductive_decls const & ds);
-inductive_decls read_inductive_decls(deserializer & d);
+serializer & operator<<(serializer & s, inductive::certified_inductive_decl const & d);
+inductive::certified_inductive_decl read_certified_inductive_decl(deserializer & d);
 
 void register_macro_deserializer(std::string const & k, macro_definition_cell::reader rd);
 void initialize_kernel_serializer();

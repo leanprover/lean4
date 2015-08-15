@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
+class read_certified_inductive_decl_fn;
 namespace inductive {
 /** \brief Normalizer extension for applying inductive datatype computational rules. */
 class inductive_normalizer_extension : public normalizer_extension {
@@ -70,24 +71,28 @@ private:
     list<data>         m_decl_data;
 
     friend struct add_inductive_fn;
+    friend class ::lean::read_certified_inductive_decl_fn;
+
+    environment add_core(environment const & env, bool update_ext_only) const;
+    environment add_constant(environment const & env, name const & n, level_param_names const & ls, expr const & t) const;
 
     certified_inductive_decl(level_param_names const & ps, unsigned num_params, unsigned num_ACe,
                              bool elim_prop, bool dep_delim, list<expr> const & ets, list<data> const & d):
         m_levels(ps), m_num_params(num_params), m_num_ACe(num_ACe),
         m_elim_prop(elim_prop), m_dep_elim(dep_delim), m_elim_types(ets), m_decl_data(d) {}
-
-    /** \brief Update the environment with this "certified declaration"
-        \remark This method throws an exception if trust level is 0.
-        \remark This method is used to import modules efficiently.
-    */
-    environment add(environment const & env);
-
 public:
-    level_param_names const & get_univ_param() const { return m_levels; }
+    level_param_names const & get_univ_params() const { return m_levels; }
     unsigned get_num_params() const { return m_num_params; }
     unsigned get_num_ACe() const { return m_num_ACe; }
+    bool elim_prop_only() const { return m_elim_prop; }
     bool has_dep_elim() const { return m_dep_elim; }
+    list<expr> const & get_elim_types() const { return m_elim_types; }
     list<data> const & get_decl_data() const { return m_decl_data; }
+
+    /** \brief Update the environment with this "certified declaration"
+        \remark If trust_level is 0, then declaration is rechecked.
+    */
+    environment add(environment const & env) const;
 };
 
 /** \brief Declare a finite set of mutually dependent inductive datatypes. */

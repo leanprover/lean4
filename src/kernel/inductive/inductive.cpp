@@ -190,7 +190,14 @@ name get_elim_name(name const & n) {
     return n + name("rec");
 }
 
-environment certified_inductive_decl::add(environment const & env) {
+environment certified_inductive_decl::add_constant(environment const & env, name const & n, level_param_names const & ls, expr const & t) const {
+    if (env.trust_lvl() == 0)
+        return env.add(check(env, mk_constant_assumption(n, ls, t)));
+    else
+        return env.add(mk_constant_assumption(n, ls, t));
+}
+
+environment certified_inductive_decl::add_core(environment const & env, bool update_ext_only) const {
     lean_assert(m_data);
     lean_assert(length(m_data) == length(m_elim_types));
     environment new_env = env;
@@ -198,23 +205,19 @@ environment certified_inductive_decl::add(environment const & env) {
     level_param_names levels = m_levels;
     if (!m_elim_prop)
         levels = tail(levels);
-    // declarate inductive types, introduction/elimination rules if they have not been declared yet
-    bool declare = !new_env.find(inductive_decl_name(head(m_decl_data).m_decl));
-    if (declare && env.trust_lvl() == 0)
-        throw_kernel_exception(env, "environment trust level does not allow users to add inductive declarations that were not type checked");
     // declare inductive types
     for (data const & dt : m_decl_data) {
         inductive_decl const & d = dt.m_decl;
-        if (declare)
-            new_env = new_env.add(check(new_env, mk_constant_assumption(inductive_decl_name(d), levels, inductive_decl_type(d))));
+        if (!update_ext_only)
+            new_env = add_constant(new_env, inductive_decl_name(d), levels, inductive_decl_type(d));
         ext.add_inductive_info(levels, m_num_params, map2<inductive_decl>(m_decl_data, [](data const & d) { return d.m_decl; }));
     }
     // declare introduction rules
     for (data const & dt : m_decl_data) {
         inductive_decl const & d = dt.m_decl;
         for (auto ir : inductive_decl_intros(d)) {
-            if (declare)
-                new_env = new_env.add(check(new_env, mk_constant_assumption(intro_rule_name(ir), levels, intro_rule_type(ir))));
+            if (!update_ext_only)
+                new_env = add_constant(new_env, intro_rule_name(ir), levels, intro_rule_type(ir));
             ext.add_intro_info(intro_rule_name(ir), inductive_decl_name(d));
         }
     }
@@ -223,8 +226,8 @@ environment certified_inductive_decl::add(environment const & env) {
     for (data const & dt : m_decl_data) {
         inductive_decl const & d = dt.m_decl;
         name elim_name = get_elim_name(inductive_decl_name(d));
-        if (declare)
-            new_env = new_env.add(check(new_env, mk_constant_assumption(elim_name, m_levels, head(types))));
+        if (!update_ext_only)
+            new_env = add_constant(new_env, elim_name, m_levels, head(types));
         ext.add_elim(elim_name, inductive_decl_name(d), m_levels, m_num_params,
                      m_num_ACe, dt.m_num_indices, dt.m_K_target, m_dep_elim);
         lean_assert(length(inductive_decl_intros(d)) == length(dt.m_comp_rules));
@@ -237,6 +240,17 @@ environment certified_inductive_decl::add(environment const & env) {
         types = tail(types);
     }
     return update(new_env, ext);
+}
+
+environment certified_inductive_decl::add(environment const & env) const {
+    if (env.trust_lvl() == 0) {
+        level_param_names levels = m_levels;
+        if (!m_elim_prop)
+            levels = tail(levels);
+        return add_inductive(env, levels, m_num_params, map2<inductive_decl>(m_decl_data, [](data const & d) { return d.m_decl; })).first;
+    } else {
+        return add_core(env, false);
+    }
 }
 
 /** \brief Helper functional object for processing inductive datatype declarations. */
@@ -853,7 +867,7 @@ struct add_inductive_fn {
         check_intro_rules();
         declare_intro_rules();
         certified_inductive_decl c = mk_certified_decl(declare_elim_rules());
-        m_env = c.add(m_env);
+        m_env = c.add_core(m_env, true);
         return mk_pair(m_env, c);
     }
 };

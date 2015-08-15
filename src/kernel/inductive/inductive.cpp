@@ -190,6 +190,55 @@ name get_elim_name(name const & n) {
     return n + name("rec");
 }
 
+environment certified_inductive_decl::add(environment const & env) {
+    lean_assert(m_data);
+    lean_assert(length(m_data) == length(m_elim_types));
+    environment new_env = env;
+    inductive_env_ext ext(get_extension(new_env));
+    level_param_names levels = m_levels;
+    if (!m_elim_prop)
+        levels = tail(levels);
+    // declarate inductive types, introduction/elimination rules if they have not been declared yet
+    bool declare = !new_env.find(inductive_decl_name(head(m_decl_data).m_decl));
+    if (declare && env.trust_lvl() == 0)
+        throw_kernel_exception(env, "environment trust level does not allow users to add inductive declarations that were not type checked");
+    // declare inductive types
+    for (data const & dt : m_decl_data) {
+        inductive_decl const & d = dt.m_decl;
+        if (declare)
+            new_env = new_env.add(check(new_env, mk_constant_assumption(inductive_decl_name(d), levels, inductive_decl_type(d))));
+        ext.add_inductive_info(levels, m_num_params, map2<inductive_decl>(m_decl_data, [](data const & d) { return d.m_decl; }));
+    }
+    // declare introduction rules
+    for (data const & dt : m_decl_data) {
+        inductive_decl const & d = dt.m_decl;
+        for (auto ir : inductive_decl_intros(d)) {
+            if (declare)
+                new_env = new_env.add(check(new_env, mk_constant_assumption(intro_rule_name(ir), levels, intro_rule_type(ir))));
+            ext.add_intro_info(intro_rule_name(ir), inductive_decl_name(d));
+        }
+    }
+    // declare elimination rules
+    list<expr> types = m_elim_types;
+    for (data const & dt : m_decl_data) {
+        inductive_decl const & d = dt.m_decl;
+        name elim_name = get_elim_name(inductive_decl_name(d));
+        if (declare)
+            new_env = new_env.add(check(new_env, mk_constant_assumption(elim_name, m_levels, head(types))));
+        ext.add_elim(elim_name, inductive_decl_name(d), m_levels, m_num_params,
+                     m_num_ACe, dt.m_num_indices, dt.m_K_target, m_dep_elim);
+        lean_assert(length(inductive_decl_intros(d)) == length(dt.m_comp_rules));
+        list<comp_rule> rules = dt.m_comp_rules;
+        for (auto ir : inductive_decl_intros(d)) {
+            comp_rule const & rule = head(rules);
+            ext.add_comp_rhs(intro_rule_name(ir), elim_name, rule.m_num_bu, rule.m_comp_rhs);
+            rules = tail(rules);
+        }
+        types = tail(types);
+    }
+    return update(new_env, ext);
+}
+
 /** \brief Helper functional object for processing inductive datatype declarations. */
 struct add_inductive_fn {
     typedef std::unique_ptr<type_checker> type_checker_ptr;
@@ -315,9 +364,6 @@ struct add_inductive_fn {
         for (auto d : m_decls) {
             m_env = m_env.add(check(m_env, mk_constant_assumption(inductive_decl_name(d), m_level_names, inductive_decl_type(d))));
         }
-        inductive_env_ext ext(get_extension(m_env));
-        ext.add_inductive_info(m_level_names, m_num_params, m_decls);
-        m_env = update(m_env, ext);
         updt_type_checker();
     }
 
@@ -456,14 +502,11 @@ struct add_inductive_fn {
 
     /** \brief Add all introduction rules (aka constructors) to environment. */
     void declare_intro_rules() {
-        inductive_env_ext ext(get_extension(m_env));
         for (auto d : m_decls) {
             for (auto ir : inductive_decl_intros(d)) {
                 m_env = m_env.add(check(m_env, mk_constant_assumption(intro_rule_name(ir), m_level_names, intro_rule_type(ir))));
-                ext.add_intro_info(intro_rule_name(ir), inductive_decl_name(d));
             }
         }
-        m_env = update(m_env, ext);
         updt_type_checker();
     }
 
@@ -682,7 +725,7 @@ struct add_inductive_fn {
     }
 
     /** \brief Declare elimination rule. */
-    void declare_elim_rule(inductive_decl const & d, unsigned d_idx) {
+    expr declare_elim_rule(inductive_decl const & d, unsigned d_idx) {
         elim_info const & info = m_elim_info[d_idx];
         expr C_app   = mk_app(info.m_C, info.m_indices);
         if (m_dep_elim)
@@ -708,19 +751,22 @@ struct add_inductive_fn {
         elim_ty   = Pi(m_param_consts, elim_ty);
         elim_ty   = infer_implicit(elim_ty, true /* strict */);
         m_env = m_env.add(check(m_env, mk_constant_assumption(get_elim_name(d), get_elim_level_param_names(), elim_ty)));
+        return elim_ty;
     }
 
     /** \brief Declare the eliminator/recursor for each datatype. */
-    void declare_elim_rules() {
+    list<expr> declare_elim_rules() {
         set_dep_elim();
         mk_elim_level();
         mk_elim_info();
         unsigned i = 0;
+        buffer<expr> elim_types;
         for (auto d : m_decls) {
-            declare_elim_rule(d, i);
+            elim_types.push_back(declare_elim_rule(d, i));
             i++;
         }
         updt_type_checker();
+        return to_list(elim_types);
     }
 
     /** \brief Store all type formers in \c Cs */
@@ -741,17 +787,16 @@ struct add_inductive_fn {
     /** \brief Return true iff it is a target of a K-like reduction */
     bool is_K_target(unsigned i) { return m_elim_info[i].m_K_target; }
 
-    /** \brief Create computional rules RHS. They are used by the normalizer extension. */
-    void mk_comp_rules_rhs() {
+    /** \brief Create computional rules RHS, and return certified_inductive_decl object. */
+    certified_inductive_decl mk_certified_decl(list<expr> const & elim_types) {
         unsigned d_idx  = 0;
         unsigned minor_idx = 0;
         buffer<expr> C; collect_Cs(C);
         buffer<expr> e; collect_minor_premises(e);
         levels ls = get_elim_level_params();
-        inductive_env_ext ext(get_extension(m_env));
+        buffer<certified_inductive_decl::data> data_decls;
         for (auto d : m_decls) {
-            ext.add_elim(get_elim_name(d), inductive_decl_name(d), get_elim_level_param_names(), m_num_params,
-                         m_num_params + C.size() + e.size(), get_num_indices(d_idx), is_K_target(d_idx), m_dep_elim);
+            buffer<certified_inductive_decl::comp_rule> comp_rules;
             for (auto ir : inductive_decl_intros(d)) {
                 buffer<expr> b;
                 buffer<expr> u;
@@ -789,33 +834,37 @@ struct add_inductive_fn {
                 expr e_app = mk_app(mk_app(mk_app(e[minor_idx], b), u), v);
                 expr comp_rhs   = Fun(m_param_consts, Fun(C, Fun(e, Fun(b, Fun(u, e_app)))));
                 tc().check(comp_rhs, get_elim_level_param_names());
-                ext.add_comp_rhs(intro_rule_name(ir), get_elim_name(d_idx), b.size() + u.size(), comp_rhs);
+                comp_rules.emplace_back(b.size() + u.size(), comp_rhs);
                 minor_idx++;
             }
+            data_decls.emplace_back(d, is_K_target(d_idx), get_num_indices(d_idx), to_list(comp_rules));
             d_idx++;
         }
-        m_env = update(m_env, ext);
+        bool elim_Prop = !is_param(m_elim_level);
+        return certified_inductive_decl(get_elim_level_param_names(), m_num_params, m_num_params + C.size() + e.size(),
+                                        elim_Prop, m_dep_elim, elim_types, to_list(data_decls));
     }
 
-    environment operator()() {
-        if (!m_env.norm_ext().supports(*g_inductive_extension))
-            throw kernel_exception(m_env, "environment does not support inductive datatypes");
+    pair<environment, certified_inductive_decl> operator()() {
         if (get_num_its() == 0)
             throw kernel_exception(m_env, "at least one inductive datatype declaration expected");
         check_inductive_types();
         declare_inductive_types();
         check_intro_rules();
         declare_intro_rules();
-        declare_elim_rules();
-        mk_comp_rules_rhs();
-        return m_env;
+        certified_inductive_decl c = mk_certified_decl(declare_elim_rules());
+        m_env = c.add(m_env);
+        return mk_pair(m_env, c);
     }
 };
 
-environment add_inductive(environment                  env,
-                          level_param_names const &    level_params,
-                          unsigned                     num_params,
-                          list<inductive_decl> const & decls) {
+pair<environment, certified_inductive_decl>
+add_inductive(environment                  env,
+              level_param_names const &    level_params,
+              unsigned                     num_params,
+              list<inductive_decl> const & decls) {
+    if (!env.norm_ext().supports(*g_inductive_extension))
+        throw kernel_exception(env, "environment does not support inductive datatypes");
     return add_inductive_fn(env, level_params, num_params, decls)();
 }
 

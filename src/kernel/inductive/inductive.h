@@ -39,11 +39,63 @@ inline name const & inductive_decl_name(inductive_decl const & d) { return std::
 inline expr const & inductive_decl_type(inductive_decl const & d) { return std::get<1>(d); }
 inline list<intro_rule> const & inductive_decl_intros(inductive_decl const & d) { return std::get<2>(d); }
 
+/** \brief Auxiliary class that stores the "compiled" version of an inductive declaration.
+    It is used to save/read compiled .olean files efficiently.
+*/
+class certified_inductive_decl {
+public:
+    struct comp_rule {
+        unsigned          m_num_bu;        // sum of number of arguments u and v in the corresponding introduction rule.
+        expr              m_comp_rhs;      // computational rule RHS: Fun (A, C, e, b, u), (e_k_i b u v)
+        comp_rule(unsigned num_bu, expr const & rhs):m_num_bu(num_bu), m_comp_rhs(rhs) {}
+    };
+
+    struct data {
+        inductive_decl    m_decl;
+        bool              m_K_target;
+        unsigned          m_num_indices;
+        list<comp_rule>   m_comp_rules;
+        data(inductive_decl const & decl, bool is_K_target, unsigned num_indices, list<comp_rule> const & rules):
+            m_decl(decl), m_K_target(is_K_target), m_num_indices(num_indices), m_comp_rules(rules) {}
+    };
+
+private:
+    level_param_names  m_levels; // eliminator levels
+    unsigned           m_num_params;
+    unsigned           m_num_ACe;
+    bool               m_elim_prop;
+    // remark: if m_elim_prop == true, then inductive datatype levels == m_levels, otherwise it is tail(m_levels)
+    bool               m_dep_elim;
+    list<expr>         m_elim_types;
+    list<data>         m_decl_data;
+
+    friend struct add_inductive_fn;
+
+    certified_inductive_decl(level_param_names const & ps, unsigned num_params, unsigned num_ACe,
+                             bool elim_prop, bool dep_delim, list<expr> const & ets, list<data> const & d):
+        m_levels(ps), m_num_params(num_params), m_num_ACe(num_ACe),
+        m_elim_prop(elim_prop), m_dep_elim(dep_delim), m_elim_types(ets), m_decl_data(d) {}
+
+    /** \brief Update the environment with this "certified declaration"
+        \remark This method throws an exception if trust level is 0.
+        \remark This method is used to import modules efficiently.
+    */
+    environment add(environment const & env);
+
+public:
+    level_param_names const & get_univ_param() const { return m_levels; }
+    unsigned get_num_params() const { return m_num_params; }
+    unsigned get_num_ACe() const { return m_num_ACe; }
+    bool has_dep_elim() const { return m_dep_elim; }
+    list<data> const & get_decl_data() const { return m_decl_data; }
+};
+
 /** \brief Declare a finite set of mutually dependent inductive datatypes. */
-environment add_inductive(environment                  env,
-                          level_param_names const &    level_params,
-                          unsigned                     num_params,
-                          list<inductive_decl> const & decls);
+pair<environment, certified_inductive_decl>
+add_inductive(environment                  env,
+              level_param_names const &    level_params,
+              unsigned                     num_params,
+              list<inductive_decl> const & decls);
 
 typedef std::tuple<level_param_names, unsigned, list<inductive::inductive_decl>> inductive_decls;
 

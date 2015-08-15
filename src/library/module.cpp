@@ -260,7 +260,7 @@ environment add_inductive(environment                  env,
                           level_param_names const &    level_params,
                           unsigned                     num_params,
                           list<inductive::inductive_decl> const & decls) {
-    environment new_env = inductive::add_inductive(env, level_params, num_params, decls);
+    environment new_env = inductive::add_inductive(env, level_params, num_params, decls).first;
     module_ext ext = get_extension(env);
     ext.m_module_decls = cons(inductive::inductive_decl_name(head(decls)), ext.m_module_decls);
     new_env = update(new_env, ext);
@@ -274,7 +274,7 @@ static void inductive_reader(deserializer & d, shared_environment & senv,
                              std::function<void(delayed_update_fn const &)> &) {
     inductive_decls ds = read_inductive_decls(d);
     senv.update([&](environment const & env) {
-            return inductive::add_inductive(env, std::get<0>(ds), std::get<1>(ds), std::get<2>(ds));
+            return inductive::add_inductive(env, std::get<0>(ds), std::get<1>(ds), std::get<2>(ds)).first;
         });
 }
 

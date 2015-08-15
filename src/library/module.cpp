@@ -369,9 +369,11 @@ struct import_modules_fn {
             std::vector<char> code(code_size);
             d1.read(code);
 
-            unsigned computed_hash = hash(code_size, [&](unsigned i) { return code[i]; });
-            if (claimed_hash != computed_hash)
-                throw exception(sstream() << "file '" << fname << "' has been corrupted, checksum mismatch");
+            if (m_senv.env().trust_lvl() <= LEAN_BELIEVER_TRUST_LEVEL) {
+                unsigned computed_hash = hash(code_size, [&](unsigned i) { return code[i]; });
+                if (claimed_hash != computed_hash)
+                    throw exception(sstream() << "file '" << fname << "' has been corrupted, checksum mismatch");
+            }
 
             module_info_ptr r = std::make_shared<module_info>();
             r->m_fname        = fname;

@@ -1022,10 +1022,7 @@ static int environment_is_universe(lua_State * L) { return push_boolean(L, to_en
 static int environment_find(lua_State * L) { return push_optional_declaration(L, to_environment(L, 1).find(to_name_ext(L, 2))); }
 static int environment_get(lua_State * L) { return push_declaration(L, to_environment(L, 1).get(to_name_ext(L, 2))); }
 static int environment_add(lua_State * L) {
-    if (is_declaration(L, 2))
-        return push_environment(L, module::add(to_environment(L, 1), to_declaration(L, 2)));
-    else
-        return push_environment(L, module::add(to_environment(L, 1), to_certified_declaration(L, 2)));
+    return push_environment(L, module::add(to_environment(L, 1), to_certified_declaration(L, 2)));
 }
 static int environment_replace(lua_State * L) { return push_environment(L, to_environment(L, 1).replace(to_certified_declaration(L, 2))); }
 static int mk_bare_environment(lua_State * L) {

@@ -115,6 +115,14 @@ class environment {
 
     environment(header const & h, environment_id const & id, declarations const & d, name_set const & global_levels, extensions const & ext);
 
+    friend class shared_environment;
+    /**
+       \brief Adds a declaration that was not type checked.
+
+       \remark This method throws an excetion if trust_lvl() == 0
+       It is mainly when importing pre-compiled .olean files, and trust_lvl() > 0.
+    */
+    environment add(declaration const & d) const;
 public:
     environment(unsigned trust_lvl = 0, bool prop_proof_irrel = true, bool eta = true, bool impredicative = true);
     environment(unsigned trust_lvl, bool prop_proof_irrel, bool eta, bool impredicative,
@@ -168,16 +176,6 @@ public:
           - The environment already contains a declaration with the given name.
     */
     environment add(certified_declaration const & d) const;
-
-    /**
-       \brief Adds a declaration that was not type checked. This method throws an excetion if
-       trust_lvl() <= LEAN_BELIEVER_TRUST_LEVEL.
-       It is mainly when importing pre-compiled .olean files, and trust_lvl() > LEAN_BELIEVER_TRUST_LEVEL.
-
-       \remark If trust_lvl() == 0, then this method will always throw an exception. No matter what is
-       the value of LEAN_BELIEVER_TRUST_LEVEL used to compile Lean.
-    */
-    environment add(declaration const & d) const;
 
     /**
        \brief Replace the axiom with name <tt>t.get_declaration().get_name()</tt> with the theorem t.get_declaration().

@@ -12,8 +12,17 @@ Author: Leonardo de Moura
 namespace lean {
 /** \brief Auxiliary object used when multiple threads are trying to populate the same environment. */
 class shared_environment {
+    friend class import_modules_fn;
     environment          m_env;
     mutable mutex        m_mutex;
+    /**
+        \brief Add declaration that was not type checked.
+        The method throws an exception if trust_level() == 0
+        It blocks this object for a small amount of time.
+
+        Only module
+    */
+    void add(declaration const & d);
 public:
     shared_environment();
     shared_environment(environment const & env);
@@ -26,12 +35,6 @@ public:
         It blocks this object for a small amount of time.
     */
     void add(certified_declaration const & d);
-    /**
-        \brief Add declaration that was not type checked.
-        The method throws an exception if trust_level() <= LEAN_BELIEVER_TRUST_LEVEL
-        It blocks this object for a small amount of time.
-    */
-    void add(declaration const & d);
     /**
         \brief Replace the axiom with name <tt>t.get_declaration().get_name()</tt> with the theorem t.get_declaration().
         This is a constant time operation.

@@ -225,13 +225,6 @@ environment add(environment const & env, certified_declaration const & d) {
     return export_decl(update_module_defs(new_env, _d), _d);
 }
 
-environment add(environment const & env, declaration const & d) {
-    environment new_env = env.add(d);
-    if (!check_computable(new_env, d.get_name()))
-        new_env = mark_noncomputable(new_env, d.get_name());
-    return export_decl(update_module_defs(new_env, d), d);
-}
-
 bool is_definition(environment const & env, name const & n) {
     module_ext const & ext = get_extension(env);
     return ext.m_module_defs.contains(n);
@@ -330,7 +323,7 @@ struct import_modules_fn {
         if (m_num_threads > 1)
             m_num_threads = 1;
 #endif
-        if (env.trust_lvl() > LEAN_BELIEVER_TRUST_LEVEL) {
+        if (env.trust_lvl() > 0) {
             // it doesn't payoff to use multiple threads if we will not type check anything
             m_num_threads = 1;
         }
@@ -424,7 +417,7 @@ struct import_modules_fn {
         decl = unfold_untrusted_macros(env, decl);
         if (decl.get_name() == get_sorry_name() && has_sorry(env))
             return;
-        if (env.trust_lvl() > LEAN_BELIEVER_TRUST_LEVEL) {
+        if (env.trust_lvl() > 0) {
             if (!m_keep_proofs && decl.is_theorem())
                 m_senv.add(theorem2axiom(decl));
             else

@@ -102,7 +102,7 @@ declaration environment::get(name const & n) const {
 }
 
 environment environment::add(declaration const & d) const {
-    if (trust_lvl() <= LEAN_BELIEVER_TRUST_LEVEL)
+    if (trust_lvl() == 0)
         throw_kernel_exception(*this, "environment trust level does not allow users to add declarations that were not type checked");
     name const & n = d.get_name();
     if (find(n))

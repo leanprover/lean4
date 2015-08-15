@@ -467,11 +467,11 @@ end dmap
 
 section
 open equiv
-lemma list_equiv_of_equiv {A B : Type} : A ≃ B → list A ≃ list B
+definition list_equiv_of_equiv {A B : Type} : A ≃ B → list A ≃ list B
 | (mk f g l r) :=
   mk (map f) (map g)
-   begin intros, rewrite [map_map, id_of_left_inverse l, map_id] end
-   begin intros, rewrite [map_map, id_of_righ_inverse r, map_id] end
+   begin intros, rewrite [map_map, id_of_left_inverse l, map_id], try reflexivity end
+   begin intros, rewrite [map_map, id_of_righ_inverse r, map_id], try reflexivity end
 
 private definition to_nat : list nat → nat
 | []      := 0
@@ -507,10 +507,10 @@ private lemma of_nat_to_nat : ∀ (l : list nat), of_nat (to_nat l) = l
 | []      := rfl
 | (x::xs) := begin unfold to_nat, rewrite of_nat_succ, rewrite *unpair_mkpair, esimp, congruence, apply of_nat_to_nat end
 
-lemma list_nat_equiv_nat : list nat ≃ nat :=
+definition list_nat_equiv_nat : list nat ≃ nat :=
 mk to_nat of_nat of_nat_to_nat to_nat_of_nat
 
-lemma list_equiv_self_of_equiv_nat {A : Type} : A ≃ nat → list A ≃ A :=
+definition list_equiv_self_of_equiv_nat {A : Type} : A ≃ nat → list A ≃ A :=
 suppose A ≃ nat, calc
   list A ≃ list nat : list_equiv_of_equiv this
      ... ≃ nat      : list_nat_equiv_nat

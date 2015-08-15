@@ -280,7 +280,7 @@ nat.strong_induction_on s
 
 open equiv
 
-lemma finset_nat_equiv_nat : finset nat ≃ nat :=
+definition finset_nat_equiv_nat : finset nat ≃ nat :=
 mk to_nat of_nat of_nat_to_nat to_nat_of_nat
 
 end finset

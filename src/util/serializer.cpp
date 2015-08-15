@@ -75,18 +75,14 @@ std::string deserializer_core::read_string() {
     return r;
 }
 
-unsigned deserializer_core::read_unsigned() {
-    unsigned r = static_cast<unsigned>(m_in.get());
+unsigned deserializer_core::read_unsigned_ext() {
+    unsigned r;
     static_assert(sizeof(r) == 4, "unexpected unsigned size");
-    if (r < 255) {
-        return r;
-    } else {
-        r  = static_cast<unsigned>(m_in.get()) << 24;
-        r |= static_cast<unsigned>(m_in.get()) << 16;
-        r |= static_cast<unsigned>(m_in.get()) << 8;
-        r |= static_cast<unsigned>(m_in.get());
-        return r;
-    }
+    r  = static_cast<unsigned>(m_in.get()) << 24;
+    r |= static_cast<unsigned>(m_in.get()) << 16;
+    r |= static_cast<unsigned>(m_in.get()) << 8;
+    r |= static_cast<unsigned>(m_in.get());
+    return r;
 }
 
 uint64 deserializer_core::read_uint64() {
@@ -95,10 +91,6 @@ uint64 deserializer_core::read_uint64() {
     r  = static_cast<uint64>(read_unsigned()) << 32;
     r |= static_cast<uint64>(read_unsigned());
     return r;
-}
-
-int deserializer_core::read_int() {
-    return read_unsigned();
 }
 
 double deserializer_core::read_double() {

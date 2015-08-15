@@ -51,12 +51,16 @@ inline serializer & operator<<(serializer & s, double b) { s.write_double(b); re
 */
 class deserializer_core {
     std::istream & m_in;
+    unsigned read_unsigned_ext();
 public:
     deserializer_core(std::istream & in):m_in(in) {}
     std::string read_string();
-    unsigned read_unsigned();
+    unsigned read_unsigned() {
+        unsigned r = static_cast<unsigned>(m_in.get());
+        return r < 255 ? r : read_unsigned_ext();
+    }
     uint64 read_uint64();
-    int read_int();
+    int read_int() { return read_unsigned(); }
     char read_char() { return m_in.get(); }
     bool read_bool() { return m_in.get() != 0; }
     double read_double();

@@ -232,7 +232,7 @@ static void check_pi(name const & f, expr const & t) {
 // similar to check_pi, but produces a more informative message
 static void check_valid_coercion(name const & f, expr const & t) {
     if (!is_pi(t)) {
-        throw_generic_exception(optional<expr>(),[=](formatter const & fmt) {
+        throw_generic_exception(optional<expr>(), [=](formatter const & fmt) {
                 options o = fmt.get_options();
                 bool show_universes = get_pp_universes(o) || get_pp_all(o);
                 std::string ls = show_universes ? ".{ls}" : "";

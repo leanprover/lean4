@@ -237,6 +237,13 @@ expr beta_eta_reduce(expr t) {
 
 class normalize_fn {
     type_checker   &                  m_tc;
+    // Remark: the normalizer/type-checker m_tc has been provided by the "user".
+    // It may be a constrained one (e.g., it may only unfold definitions marked as [reducible].
+    // So, we should not use it for inferring types and/or checking whether an expression is
+    // a proposition or not. Such checks may fail because of the restrictions on m_tc.
+    // So, we use m_full_tc for this kind of operation. It is an unconstrained type checker.
+    // See issue #801
+    type_checker                      m_full_tc;
     name_generator                    m_ngen;
     std::function<bool(expr const &)> m_pred;  // NOLINT
     bool                              m_save_cnstrs;
@@ -318,16 +325,17 @@ class normalize_fn {
         expr f = get_app_rev_args(e, args);
         for (expr & a : args) {
             expr new_a = a;
-            if (m_eval_nested_prop || !m_tc.is_prop(m_tc.infer(a).first).first)
+            if (m_eval_nested_prop || !m_full_tc.is_prop(m_full_tc.infer(a).first).first)
                  new_a = normalize(a);
             if (new_a != a)
                 modified = true;
             a = new_a;
         }
         if (has_unfold_full_hint(f)) {
-            if (!is_pi(m_tc.whnf(m_tc.infer(e).first).first)) {
-                if (optional<expr> r = unfold_app(env(), mk_rev_app(f, args)))
+            if (!is_pi(m_full_tc.whnf(m_full_tc.infer(e).first).first)) {
+                if (optional<expr> r = unfold_app(env(), mk_rev_app(f, args))) {
                     return normalize(*r);
+                }
             }
         }
         if (auto idxs = has_unfold_hint(f)) {
@@ -379,7 +387,7 @@ class normalize_fn {
 
 public:
     normalize_fn(type_checker & tc, bool save, bool eta, bool nested_prop = true):
-        m_tc(tc), m_ngen(m_tc.mk_ngen()),
+        m_tc(tc), m_full_tc(tc.env()), m_ngen(m_tc.mk_ngen()),
         m_pred([](expr const &) { return true; }),
         m_save_cnstrs(save), m_use_eta(eta), m_eval_nested_prop(nested_prop) {
         if (!is_standard(env()))
@@ -387,7 +395,7 @@ public:
     }
 
     normalize_fn(type_checker & tc, std::function<bool(expr const &)> const & fn, bool eta, bool nested_prop = true): // NOLINT
-        m_tc(tc), m_ngen(m_tc.mk_ngen()),
+        m_tc(tc), m_full_tc(tc.env()), m_ngen(m_tc.mk_ngen()),
         m_pred(fn), m_save_cnstrs(true), m_use_eta(eta), m_eval_nested_prop(nested_prop) {
         if (!is_standard(env()))
             m_eval_nested_prop = true;

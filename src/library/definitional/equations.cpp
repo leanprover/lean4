@@ -935,7 +935,7 @@ class equation_compiler_fn {
             expr t = subst.instantiate_all(g.get_meta());
             return some_expr(t);
         } else {
-            throw_error(sstream() << "patter matching failed");
+            throw_error(sstream() << "pattern matching failed");
         }
     }
 

@@ -1086,7 +1086,8 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
         auto r = t.find(get_token_info().value());
         if (!r)
             break;
-        notation::action const & a = r->first;
+        // TODO(Leo): handle multiple actions
+        notation::action const & a = head(r).first;
         switch (a.kind()) {
         case notation::action_kind::Skip:
             next();
@@ -1214,7 +1215,7 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
             break;
         }
 
-        t = r->second;
+        t = head(r).second; // TODO(Leo):
     }
     list<pair<unsigned, expr>> const & as = t.is_accepting();
     save_overload_notation(as, p);

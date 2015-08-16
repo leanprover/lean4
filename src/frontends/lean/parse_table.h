@@ -157,7 +157,7 @@ public:
         return add(ts.size(), ts.begin(), a, LEAN_DEFAULT_NOTATION_PRIORITY, true);
     }
     parse_table merge(parse_table const & s, bool overload) const;
-    optional<pair<action, parse_table>> find(name const & tk) const;
+    list<pair<action, parse_table>> find(name const & tk) const;
     list<pair<unsigned, expr>> const & is_accepting() const;
     void for_each(std::function<void(unsigned, transition const *, list<pair<unsigned, expr>> const &)> const & fn) const;
 

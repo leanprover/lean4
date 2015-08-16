@@ -132,14 +132,16 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
     optional<action> reserved_action;
     if (grp == notation_entry_group::Main) {
         if (k == mixfix_kind::prefix) {
-            if (auto at = get_reserved_nud_table(p.env()).find(tks)) {
-                reserved_pt     = at->second;
-                reserved_action = at->first;
+            if (auto ls = get_reserved_nud_table(p.env()).find(tks)) {
+                // Remark: we are ignoring multiple actions in the reserved notation table
+                reserved_pt     = head(ls).second;
+                reserved_action = head(ls).first;
             }
         } else {
-            if (auto at = get_reserved_led_table(p.env()).find(tks)) {
-                reserved_pt     = at->second;
-                reserved_action = at->first;
+            if (auto ls = get_reserved_led_table(p.env()).find(tks)) {
+                // Remark: we are ignoring multiple actions in the reserved notation table
+                reserved_pt     = head(ls).second;
+                reserved_action = head(ls).first;
             }
         }
     }
@@ -408,9 +410,11 @@ static action parse_action(parser & p, name const & prev_token, unsigned default
 static unsigned get_default_prec(optional<parse_table> const & pt, name const & tk) {
     if (!pt)
         return LEAN_DEFAULT_PRECEDENCE;
-    if (auto at = pt->find(tk)) {
-        if (at->first.kind() == notation::action_kind::Expr)
-            return at->first.rbp();
+    if (auto ls = pt->find(tk)) {
+        for (auto at : ls) {
+            if (at.first.kind() == notation::action_kind::Expr)
+                return at.first.rbp();
+        }
     }
     return LEAN_DEFAULT_PRECEDENCE;
 }
@@ -419,20 +423,22 @@ static unsigned get_default_prec(optional<parse_table> const & pt, name const & 
     transition in \c pt, then return the successor table */
 static optional<parse_table> find_match(optional<parse_table> const & pt, transition const & new_trans) {
     if (pt) {
-        if (auto at = pt->find(new_trans.get_token())) {
-            if (new_trans.get_action().is_equal(at->first))
-                return optional<parse_table>(at->second);
+        if (auto ls = pt->find(new_trans.get_token())) {
+            for (auto at : ls) {
+                if (new_trans.get_action().is_equal(at.first))
+                    return optional<parse_table>(at.second);
+            }
         }
     }
     return optional<parse_table>();
 }
 
 /** \brief Lift parse_table::find method to optional<parse_table> */
-static optional<pair<action, parse_table>> find_next(optional<parse_table> const & pt, name const & tk) {
+static list<pair<action, parse_table>> find_next(optional<parse_table> const & pt, name const & tk) {
     if (pt)
         return pt->find(tk);
     else
-        return optional<pair<action, parse_table>>();
+        return list<pair<action, parse_table>>();
 }
 
 static unsigned parse_binders_rbp(parser & p) {
@@ -506,8 +512,9 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
            (grp == notation_entry_group::Reserve && !p.curr_is_command() && !p.curr_is_eof())) {
         name tk = parse_quoted_symbol_or_token(p, new_tokens, used_default, grp);
         if (auto at = find_next(reserved_pt, tk)) {
-            action const & a = at->first;
-            reserved_pt      = at->second;
+            // Remark: we are ignoring multiple actions in the reserved notation table
+            action const & a = head(at).first;
+            reserved_pt      = head(at).second;
             switch (a.kind()) {
             case notation::action_kind::Skip:
                 if (!p.curr_is_quoted_symbol() && !p.curr_is_keyword() && !p.curr_is_token(get_assign_tk())) {

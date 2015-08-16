@@ -301,9 +301,9 @@ transition replace(transition const & t, std::function<expr(expr const &)> const
 }
 
 struct parse_table::cell {
-    bool                                m_nud;
-    list<pair<unsigned, expr>>          m_accept;
-    name_map<pair<action, parse_table>> m_children;
+    bool                                      m_nud;
+    list<pair<unsigned, expr>>                m_accept;
+    name_map<list<pair<action, parse_table>>> m_children;
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc() { delete this; }
     cell(bool nud = true):m_nud(nud), m_rc(1) {}
@@ -317,12 +317,12 @@ parse_table::parse_table(parse_table && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
 parse_table::~parse_table() { if (m_ptr) m_ptr->dec_ref(); }
 parse_table & parse_table::operator=(parse_table const & s) { LEAN_COPY_REF(s); }
 parse_table & parse_table::operator=(parse_table && s) { LEAN_MOVE_REF(s); }
-optional<pair<action, parse_table>> parse_table::find(name const & tk) const {
-    auto * it = m_ptr->m_children.find(tk);
+list<pair<action, parse_table>> parse_table::find(name const & tk) const {
+    list<pair<action, parse_table>> const * it = m_ptr->m_children.find(tk);
     if (it)
-        return optional<pair<action, parse_table>>(*it);
+        return *it;
     else
-        return optional<pair<action, parse_table>>();
+        return list<pair<action, parse_table>>();
 }
 
 list<pair<unsigned, expr>> const & parse_table::is_accepting() const {
@@ -378,11 +378,12 @@ parse_table parse_table::add_core(unsigned num, transition const * ts, expr cons
             r.m_ptr->m_accept = insert(new_accept, priority, a);
         }
     } else {
-        auto * it = r.m_ptr->m_children.find(ts->get_token());
+        list<pair<action, parse_table>> const * it = r.m_ptr->m_children.find(ts->get_token());
         parse_table new_child;
         if (it) {
-            action const & act        = it->first;
-            parse_table const & child = it->second;
+            // TODO(Leo): support multiple actions
+            action const & act        = head(*it).first;
+            parse_table const & child = head(*it).second;
             if (act.is_equal(ts->get_action())) {
                 new_child = child.add_core(num-1, ts+1, a, priority, overload);
             } else {
@@ -391,7 +392,7 @@ parse_table parse_table::add_core(unsigned num, transition const * ts, expr cons
         } else {
             new_child = parse_table().add_core(num-1, ts+1, a, priority, overload);
         }
-        r.m_ptr->m_children.insert(ts->get_token(), mk_pair(ts->get_action(), new_child));
+        r.m_ptr->m_children.insert(ts->get_token(), to_list(mk_pair(ts->get_action(), new_child)));
     }
     return r;
 }
@@ -469,10 +470,12 @@ void parse_table::for_each(buffer<transition> & ts,
                                               list<pair<unsigned, expr>> const &)> const & fn) const {
     if (!is_nil(m_ptr->m_accept))
         fn(ts.size(), ts.data(), m_ptr->m_accept);
-    m_ptr->m_children.for_each([&](name const & k, pair<action, parse_table> const & p) {
-            ts.push_back(transition(k, p.first));
-            p.second.for_each(ts, fn);
-            ts.pop_back();
+    m_ptr->m_children.for_each([&](name const & k, list<pair<action, parse_table>> const & lst) {
+            for (auto const & p : lst) {
+                ts.push_back(transition(k, p.first));
+                p.second.for_each(ts, fn);
+                ts.pop_back();
+            }
         });
 }
 
@@ -713,10 +716,12 @@ static int merge(lua_State * L) {
 }
 
 static int find(lua_State * L) {
-    auto p = to_parse_table(L, 1).find(to_name_ext(L, 2));
-    if (p) {
-        push_notation_action(L, p->first);
-        push_parse_table(L, p->second);
+    list<pair<action, parse_table>> it = to_parse_table(L, 1).find(to_name_ext(L, 2));
+    if (it) {
+        // TODO(Leo): support multiple actions
+        auto p = head(it);
+        push_notation_action(L, p.first);
+        push_parse_table(L, p.second);
         return 2;
     } else {
         return push_nil(L);

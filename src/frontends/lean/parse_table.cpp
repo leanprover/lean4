@@ -182,6 +182,7 @@ bool action::is_equal(action const & a) const {
     case action_kind::Exprs:
         return
             rbp() == a.rbp() &&
+            get_sep() == a.get_sep() &&
             get_rec() == a.get_rec() &&
             get_initial() == a.get_initial() &&
             get_terminator() == a.get_terminator() &&

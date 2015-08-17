@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 namespace lean {
 /** \brief Auxiliary object used when multiple threads are trying to populate the same environment. */
 class shared_environment {
-    friend class import_modules_fn;
+    friend struct import_modules_fn;
     environment          m_env;
     mutable mutex        m_mutex;
     /**

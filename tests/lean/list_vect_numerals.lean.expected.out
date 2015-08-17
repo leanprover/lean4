@@ -1,0 +1,9 @@
+[n, m] : list ℕ
+[n, i] : list ℤ
+[i, n] : list ℤ
+[i, n, x] : list ℝ
+[i, n, x, y] : vector ℝ 4
+tail [i, n, x, y] = v : Prop
+[i, n, x] = v : Prop
+eq (vector.cons i (vector.cons n (vector.cons x vector.nil))) v : Prop
+eq (vector.tail (vector.cons i (vector.cons n (vector.cons x (vector.cons y vector.nil))))) v : Prop

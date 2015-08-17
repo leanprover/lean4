@@ -202,6 +202,9 @@ class parser {
     void parse_script(bool as_expr = false);
     bool parse_commands();
     unsigned curr_lbp_core(bool as_tactic) const;
+    void process_postponed(buffer<expr> const & args, bool is_left, buffer<notation::action_kind> const & kinds,
+                           buffer<list<expr>> const & nargs, buffer<expr> const & ps, buffer<pair<unsigned, pos_info>> const & scoped_info,
+                           list<notation::action> const & postponed, pos_info const & p, buffer<expr> & new_args);
     expr parse_notation_core(parse_table t, expr * left, bool as_tactic);
     expr parse_expr_or_tactic(unsigned rbp, bool as_tactic) {
         return as_tactic ? parse_tactic(rbp) : parse_expr(rbp);
@@ -234,7 +237,7 @@ class parser {
     void save_snapshot();
     void save_overload(expr const & e);
     void save_overload_notation(list<expr> const & as, pos_info const & p);
-    void save_overload_notation(list<pair<unsigned, expr>> const & as, pos_info const & p);
+    void save_overload_notation(list<notation::accepting> const & as, pos_info const & p);
     void save_type_info(expr const & e);
     void save_pre_info_data();
     void save_identifier_info(pos_info const & p, name const & full_id);

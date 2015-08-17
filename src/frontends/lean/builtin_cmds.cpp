@@ -181,7 +181,7 @@ static bool print_parse_table(parser const & p, parse_table const & t, bool nud,
     os = os.update(get_pp_preterm_name(), true);
     ios.set_options(os);
     optional<token_table> tt(get_token_table(p.env()));
-    t.for_each([&](unsigned num, notation::transition const * ts, list<pair<unsigned, expr>> const & overloads) {
+    t.for_each([&](unsigned num, notation::transition const * ts, list<notation::accepting> const & overloads) {
             if (uses_some_token(num, ts, tokens)) {
                 io_state_stream out = regular(p.env(), ios);
                 if (tactic_table)

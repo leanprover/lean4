@@ -1069,13 +1069,126 @@ bool parser::parse_local_notation_decl(buffer<notation_entry> * nentries) {
     }
 }
 
+void parser::process_postponed(buffer<expr> const & args, bool is_left,
+                               buffer<notation::action_kind> const & kinds,
+                               buffer<list<expr>> const & nargs,
+                               buffer<expr> const & ps,
+                               buffer<pair<unsigned, pos_info>> const & scoped_info,
+                               list<notation::action> const & postponed,
+                               pos_info const & p,
+                               buffer<expr> & new_args) {
+    unsigned args_idx = 0;
+    if (is_left) {
+        new_args.push_back(args[0]);
+        args_idx = 1;
+    }
+    unsigned kinds_idx  = 0;
+    unsigned nargs_idx  = 0;
+    unsigned scoped_idx = 0;
+    list<notation::action> it = postponed;
+    for (; kinds_idx < kinds.size(); kinds_idx++, args_idx++) {
+        auto k = kinds[kinds_idx];
+        switch (k) {
+        case notation::action_kind::Exprs: {
+            if (!it || head(it).kind() != k || nargs_idx >= nargs.size())
+                throw exception("ill-formed parsing tables");
+            notation::action const & a = head(it);
+            buffer<expr> r_args;
+            to_buffer(nargs[nargs_idx], r_args);
+            nargs_idx++;
+            expr rec = copy_with_new_pos(a.get_rec(), p);
+            expr r;
+            if (a.is_fold_right()) {
+                if (a.get_initial()) {
+                    r = instantiate_rev(copy_with_new_pos(*a.get_initial(), p), new_args.size(), new_args.data());
+                } else {
+                    r = r_args.back();
+                    r_args.pop_back();
+                }
+                unsigned i = r_args.size();
+                while (i > 0) {
+                    --i;
+                    new_args.push_back(r_args[i]);
+                    new_args.push_back(r);
+                    r = instantiate_rev(rec, new_args.size(), new_args.data());
+                    new_args.pop_back(); new_args.pop_back();
+                }
+            } else {
+                unsigned fidx = 0;
+                if (a.get_initial()) {
+                    r = instantiate_rev(copy_with_new_pos(*a.get_initial(), p), new_args.size(), new_args.data());
+                } else {
+                    r = r_args[0];
+                    fidx++;
+                }
+                for (unsigned i = fidx; i < r_args.size(); i++) {
+                    new_args.push_back(r_args[i]);
+                    new_args.push_back(r);
+                    r = instantiate_rev(rec, new_args.size(), new_args.data());
+                    new_args.pop_back(); new_args.pop_back();
+                }
+            }
+            new_args.push_back(r);
+            it = tail(it);
+            break;
+        }
+        case notation::action_kind::ScopedExpr: {
+            if (!it || head(it).kind() != k || scoped_idx >= scoped_info.size())
+                throw exception("ill-formed parsing tables");
+            expr r = args[args_idx];
+            notation::action const & a = head(it);
+            bool no_cache = false;
+            unsigned ps_sz      = scoped_info[scoped_idx].first;
+            pos_info binder_pos = scoped_info[scoped_idx].second;
+            scoped_idx++;
+            if (is_var(a.get_rec(), 0)) {
+                if (a.use_lambda_abstraction())
+                    r = Fun(ps_sz, ps.data(), r, no_cache);
+                else
+                    r = Pi(ps_sz, ps.data(), r, no_cache);
+                r = rec_save_pos(r, binder_pos);
+            } else {
+                expr rec = copy_with_new_pos(a.get_rec(), p);
+                unsigned i = ps_sz;
+                while (i > 0) {
+                    --i;
+                    expr const & l = ps[i];
+                    if (a.use_lambda_abstraction())
+                        r = Fun(l, r, no_cache);
+                    else
+                        r = Pi(l, r, no_cache);
+                    r = save_pos(r, binder_pos);
+                    new_args.push_back(r);
+                    r = instantiate_rev(rec, new_args.size(), new_args.data());
+                    new_args.pop_back();
+                }
+            }
+            new_args.push_back(r);
+            it = tail(it);
+            break;
+        }
+        default:
+            new_args.push_back(args[args_idx]);
+            break;
+        }
+    }
+}
+
 expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
     lean_assert(curr() == scanner::token_kind::Keyword);
     auto p = pos();
     if (m_info_manager)
         m_info_manager->add_symbol_info(p.first, p.second, get_token_info().token());
-    buffer<expr>  args;
-    buffer<expr>  ps;
+    buffer<expr>                     args;
+    buffer<notation::action_kind>    kinds;
+    buffer<list<expr>>               nargs; // nary args
+    buffer<expr>                     ps;
+    buffer<pair<unsigned, pos_info>> scoped_info; // size of ps and binder_pos for scoped_exprs
+    // Invariants:
+    //  args.size()  == kinds.size() if not left
+    //  args.size()  == kinds.size()+1 if left
+    //  nargs.size() == number of Exprs in kinds
+    //  scoped_info.size() == number of Scoped_Exprs in kinds
     local_environment lenv(m_env);
     pos_info binder_pos;
     if (left)
@@ -1095,6 +1208,7 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
         case notation::action_kind::Expr:
             next();
             args.push_back(parse_expr_or_tactic(a.rbp(), as_tactic));
+            kinds.push_back(a.kind());
             break;
         case notation::action_kind::Exprs: {
             next();
@@ -1114,39 +1228,9 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
                     throw parser_error(sstream() << "invalid composite expression, '" << *terminator << "' expected", pos());
                 }
             }
-            expr rec = copy_with_new_pos(a.get_rec(), p);
-            expr r;
-            if (a.is_fold_right()) {
-                if (a.get_initial()) {
-                    r = instantiate_rev(copy_with_new_pos(*a.get_initial(), p), args.size(), args.data());
-                } else {
-                    r = r_args.back();
-                    r_args.pop_back();
-                }
-                unsigned i = r_args.size();
-                while (i > 0) {
-                    --i;
-                    args.push_back(r_args[i]);
-                    args.push_back(r);
-                    r = instantiate_rev(rec, args.size(), args.data());
-                    args.pop_back(); args.pop_back();
-                }
-            } else {
-                unsigned fidx = 0;
-                if (a.get_initial()) {
-                    r = instantiate_rev(copy_with_new_pos(*a.get_initial(), p), args.size(), args.data());
-                } else {
-                    r = r_args[0];
-                    fidx++;
-                }
-                for (unsigned i = fidx; i < r_args.size(); i++) {
-                    args.push_back(r_args[i]);
-                    args.push_back(r);
-                    r = instantiate_rev(rec, args.size(), args.data());
-                    args.pop_back(); args.pop_back();
-                }
-            }
-            args.push_back(r);
+            args.push_back(expr()); // placeholder
+            kinds.push_back(a.kind());
+            nargs.push_back(to_list(r_args));
             break;
         }
         case notation::action_kind::Binder:
@@ -1162,30 +1246,9 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
         case notation::action_kind::ScopedExpr: {
             next();
             expr r   = parse_scoped_expr(ps, lenv, a.rbp());
-            bool no_cache = false;
-            if (is_var(a.get_rec(), 0)) {
-                if (a.use_lambda_abstraction())
-                    r = Fun(ps, r, no_cache);
-                else
-                    r = Pi(ps, r, no_cache);
-                r = rec_save_pos(r, binder_pos);
-            } else {
-                expr rec = copy_with_new_pos(a.get_rec(), p);
-                unsigned i = ps.size();
-                while (i > 0) {
-                    --i;
-                    expr const & l = ps[i];
-                    if (a.use_lambda_abstraction())
-                        r = Fun(l, r, no_cache);
-                    else
-                        r = Pi(l, r, no_cache);
-                    r = save_pos(r, binder_pos);
-                    args.push_back(r);
-                    r = instantiate_rev(rec, args.size(), args.data());
-                    args.pop_back();
-                }
-            }
             args.push_back(r);
+            kinds.push_back(a.kind());
+            scoped_info.push_back(mk_pair(ps.size(), binder_pos));
             break;
         }
         case notation::action_kind::LuaExt:
@@ -1207,17 +1270,18 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
                         throw parser_error(sstream() << "failed to use notation implemented in Lua, value returned by function '"
                                            << a.get_lua_fn() << "' is not an expression", p);
                     args.push_back(rec_save_pos(to_expr(L, -1), p));
+                    kinds.push_back(a.kind());
                     lua_pop(L, 1);
                 });
             break;
         case notation::action_kind::Ext:
             args.push_back(a.get_parse_fn()(*this, args.size(), args.data(), p));
+            kinds.push_back(a.kind());
             break;
         }
-
         t = head(r).second; // TODO(Leo):
     }
-    list<pair<unsigned, expr>> const & as = t.is_accepting();
+    list<notation::accepting> const & as = t.is_accepting();
     save_overload_notation(as, p);
     if (is_nil(as)) {
         if (p == pos())
@@ -1225,16 +1289,28 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
         else
             throw parser_error(sstream() << "invalid expression starting at " << p.first << ":" << p.second, pos());
     }
+    lean_assert(left  || args.size() == kinds.size());
+    lean_assert(!left || args.size() == kinds.size() + 1);
     buffer<expr> cs;
-    for (pair<unsigned, expr> const & a : as) {
-        expr r = copy_with_new_pos(a.second, p);
-        if (args.empty()) {
-            // Notation does not have arguments. Thus, the info-manager should treat is as a single thing.
-            r = mk_notation_info(r, r.get_tag());
+    for (notation::accepting const & a : as) {
+        expr r = copy_with_new_pos(a.get_expr(), p);
+        list<notation::action> const & postponed = a.get_postponed();
+        if (postponed) {
+            buffer<expr> new_args;
+            process_postponed(args, left, kinds, nargs, ps, scoped_info, postponed, p, new_args);
+            lean_assert(!args.empty());
+            r = instantiate_rev(r, new_args.size(), new_args.data());
+            cs.push_back(r);
         } else {
-            r = instantiate_rev(r, args.size(), args.data());
+            lean_assert(nargs.empty() && ps_sz.empty());
+            if (args.empty()) {
+                // Notation does not have arguments. Thus, the info-manager should treat is as a single thing.
+                r = mk_notation_info(r, r.get_tag());
+            } else {
+                r = instantiate_rev(r, args.size(), args.data());
+            }
+            cs.push_back(r);
         }
-        cs.push_back(r);
     }
     expr r = save_pos(mk_choice(cs.size(), cs.data()), p);
     save_type_info(r);
@@ -2110,10 +2186,12 @@ void parser::save_overload_notation(list<expr> const & as, pos_info const & p) {
         return;
     m_info_manager->add_overload_notation_info(p.first, p.second, as);
 }
-void parser::save_overload_notation(list<pair<unsigned, expr>> const & as, pos_info const & p) {
+void parser::save_overload_notation(list<notation::accepting> const & as, pos_info const & p) {
     if (!m_info_manager || length(as) <= 1)
         return;
-    list<expr> new_as = map2<expr, pair<unsigned, expr>, std::function<expr(pair<unsigned, expr> const &)>>(as, [](pair<unsigned, expr> const & p) { return p.second; });
+    list<expr> new_as =
+        map2<expr, notation::accepting, std::function<expr(notation::accepting const &)>>
+        (as, [](notation::accepting const & p) { return p.get_expr(); });
     save_overload_notation(new_as, p);
 }
 void parser::save_identifier_info(pos_info const & p, name const & full_id) {

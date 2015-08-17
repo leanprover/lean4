@@ -86,6 +86,8 @@ public:
     std::string const & get_lua_fn() const;
 
     bool is_equal(action const & a) const;
+    bool is_equivalent(action const & a) const;
+
     void display(io_state_stream & out) const;
 
     /** \brief Return true iff the action is not Ext or LuaExt */
@@ -129,7 +131,19 @@ inline bool operator!=(transition const & t1, transition const & t2) {
 /** \brief Apply \c f to expressions embedded in the given transition */
 transition replace(transition const & t, std::function<expr(expr const &)> const & f);
 
-void display(io_state_stream & out, unsigned num, transition const * ts, list<pair<unsigned, expr>> const & es, bool nud,
+class accepting {
+    unsigned     m_prio;
+    list<action> m_postponed; // exprs and scoped_expr actions
+    expr         m_expr;      // resulting expression
+public:
+    accepting(unsigned prio, list<action> const & post, expr const & e):
+        m_prio(prio), m_postponed(post), m_expr(e) {}
+    unsigned get_prio() const { return m_prio; }
+    list<action> const & get_postponed() const { return m_postponed; }
+    expr const & get_expr() const { return m_expr; }
+};
+
+void display(io_state_stream & out, unsigned num, transition const * ts, list<accepting> const & es, bool nud,
              optional<token_table> const & tt);
 
 /**
@@ -140,9 +154,9 @@ class parse_table {
     struct cell;
     cell * m_ptr;
     explicit parse_table(cell * c);
-    parse_table add_core(unsigned num, transition const * ts, expr const & a, unsigned priority, bool overload) const;
+    parse_table add_core(unsigned num, transition const * ts, expr const & a, unsigned priority, bool overload, buffer<action> & postponed) const;
     void for_each(buffer<transition> & ts, std::function<void(unsigned, transition const *,
-                                                              list<pair<unsigned, expr>> const &)> const & fn) const;
+                                                              list<accepting> const &)> const & fn) const;
 public:
     parse_table(bool nud = true);
     parse_table(parse_table const & s);
@@ -156,10 +170,10 @@ public:
     parse_table add(std::initializer_list<transition> const & ts, expr const & a) const {
         return add(ts.size(), ts.begin(), a, LEAN_DEFAULT_NOTATION_PRIORITY, true);
     }
-    parse_table merge(parse_table const & s, bool overload) const;
+    parse_table merge(parse_table const & s, bool overload) const;\
     list<pair<action, parse_table>> find(name const & tk) const;
-    list<pair<unsigned, expr>> const & is_accepting() const;
-    void for_each(std::function<void(unsigned, transition const *, list<pair<unsigned, expr>> const &)> const & fn) const;
+    list<accepting> const & is_accepting() const;
+    void for_each(std::function<void(unsigned, transition const *, list<accepting> const &)> const & fn) const;
 
     void display(io_state_stream & out, optional<token_table> const & tk) const;
 };

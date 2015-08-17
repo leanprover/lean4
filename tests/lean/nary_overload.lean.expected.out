@@ -1,0 +1,5 @@
+[a, b, c] : vec A
+[a, b, c] : vec A
+[a, b, c] : lst A
+@vec.cons.{1} A a (@vec.cons.{1} A b (@vec.cons.{1} A c (@vec.nil.{1} A))) : vec.{1} A
+@lst.cons.{1} A a (@lst.cons.{1} A b (@lst.cons.{1} A c (@lst.nil.{1} A))) : lst.{1} A

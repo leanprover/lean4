@@ -300,6 +300,14 @@ calc
   gcd (m div gcd m n) (n div gcd m n) = gcd m n div gcd m n : gcd_div !gcd_dvd_left !gcd_dvd_right
      ... = 1 : div_self H
 
+theorem not_coprime_of_dvd_of_dvd {m n d : ℕ} (dgt1 : d > 1) (Hm : d ∣ m) (Hn : d ∣ n) :
+  ¬ coprime m n :=
+assume co : coprime m n,
+assert d ∣ gcd m n, from dvd_gcd Hm Hn,
+have d ∣ 1, by rewrite [↑coprime at co, co at this]; apply this,
+have d ≤ 1, from le_of_dvd dec_trivial this,
+show false, from not_lt_of_ge `d ≤ 1` `d > 1`
+
 theorem exists_coprime {m n : ℕ} (H : gcd m n > 0) :
   exists m' n', coprime m' n' ∧ m = m' * gcd m n ∧ n = n' * gcd m n :=
 have H1 : m = (m div gcd m n) * gcd m n, from (div_mul_cancel !gcd_dvd_left)⁻¹,

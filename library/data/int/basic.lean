@@ -126,7 +126,7 @@ definition nat_abs (a : ℤ) : ℕ := int.cases_on a function.id succ
 
 theorem nat_abs_of_nat (n : ℕ) : nat_abs n = n := rfl
 
-theorem nat_abs_eq_zero : Π {a : ℤ}, nat_abs a = 0 → a = 0
+theorem eq_zero_of_nat_abs_eq_zero : Π {a : ℤ}, nat_abs a = 0 → a = 0
 | (of_nat m) H := congr_arg of_nat H
 | -[1+ m']   H := absurd H !succ_ne_zero
 
@@ -375,7 +375,7 @@ calc
 
 theorem nat_abs_add_le (a b : ℤ) : nat_abs (a + b) ≤ nat_abs a + nat_abs b :=
 calc
-  nat_abs (a + b) = pabs (repr (a + b)) : nat_abs_eq_pabs_repr 
+  nat_abs (a + b) = pabs (repr (a + b)) : nat_abs_eq_pabs_repr
               ... = pabs (padd (repr a) (repr b)) : pabs_congr !repr_add
               ... ≤ pabs (repr a) + pabs (repr b) : dist_add_add_le_add_dist_dist
               ... = pabs (repr a) + nat_abs b     : nat_abs_eq_pabs_repr
@@ -469,7 +469,7 @@ theorem one_mul (a : ℤ) : 1 * a = a :=
 mul.comm a 1 ▸ mul_one a
 
 private theorem mul_distrib_prep {a1 a2 b1 b2 c1 c2 : ℕ} :
- ((a1+b1)*c1+(a2+b2)*c2, (a1+b1)*c2+(a2+b2)*c1) = 
+ ((a1+b1)*c1+(a2+b2)*c2, (a1+b1)*c2+(a2+b2)*c1) =
  (a1*c1+a2*c2+(b1*c1+b2*c2), a1*c2+a2*c1+(b1*c2+b2*c1)) :=
 by rewrite[+mul.right_distrib] ⬝ (!congr_arg2 !add.comm4 !add.comm4)
 
@@ -494,7 +494,8 @@ theorem zero_ne_one : (0 : int) ≠ 1 :=
 assume H : 0 = 1, !succ_ne_zero (of_nat.inj H)⁻¹
 
 theorem eq_zero_or_eq_zero_of_mul_eq_zero {a b : ℤ} (H : a * b = 0) : a = 0 ∨ b = 0 :=
-or.imp nat_abs_eq_zero nat_abs_eq_zero (eq_zero_or_eq_zero_of_mul_eq_zero (H ▸ (nat_abs_mul a b)⁻¹))
+or.imp eq_zero_of_nat_abs_eq_zero eq_zero_of_nat_abs_eq_zero
+  (eq_zero_or_eq_zero_of_mul_eq_zero (H ▸ (nat_abs_mul a b)⁻¹))
 
 section migrate_algebra
   open [classes] algebra
@@ -517,6 +518,7 @@ section migrate_algebra
     left_distrib   := mul.left_distrib,
     right_distrib  := mul.right_distrib,
     mul_comm       := mul.comm,
+    zero_ne_one    := zero_ne_one,
     eq_zero_or_eq_zero_of_mul_eq_zero := @eq_zero_or_eq_zero_of_mul_eq_zero⦄
 
   local attribute int.integral_domain [instance]
@@ -526,7 +528,7 @@ section migrate_algebra
   notation [priority int.prio] a ∣ b := dvd a b
 
   migrate from algebra with int
-  replacing sub → sub, dvd → dvd
+    replacing sub → sub, dvd → dvd
 end migrate_algebra
 
 /- additional properties -/

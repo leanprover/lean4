@@ -647,7 +647,7 @@ section migrate_algebra
 
   migrate from algebra with real
     replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign, dvd → dvd,
-      divide → divide, max → max, min → min
+      divide → divide, max → max, min → min, pow → pow, nmul → nmul, imul → imul
 end migrate_algebra
 
 infix / := divide

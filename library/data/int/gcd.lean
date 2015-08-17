@@ -42,7 +42,7 @@ theorem gcd_abs_abs (a b : ℤ) : gcd (abs a) (abs b) = gcd a b :=
 by rewrite [↑gcd, *nat_abs_abs]
 
 theorem gcd_of_ne_zero (a : ℤ) {b : ℤ} (H : b ≠ 0) : gcd a b = gcd b (abs a mod abs b) :=
-have nat_abs b ≠ nat.zero,        from assume H', H (nat_abs_eq_zero H'),
+have nat_abs b ≠ nat.zero,        from assume H', H (eq_zero_of_nat_abs_eq_zero H'),
 have (#nat nat_abs b > nat.zero), from nat.pos_of_ne_zero this,
 assert nat.gcd (nat_abs a) (nat_abs b) = (#nat nat.gcd (nat_abs b) (nat_abs a mod nat_abs b)),
   from @nat.gcd_of_pos (nat_abs a) (nat_abs b) this,
@@ -283,6 +283,14 @@ calc
   gcd (a div gcd a b) (b div gcd a b)
          = gcd a b div abs (gcd a b)  : gcd_div !gcd_dvd_left !gcd_dvd_right
      ... = 1                          : by rewrite [abs_of_nonneg !gcd_nonneg, div_self H]
+
+theorem not_coprime_of_dvd_of_dvd {m n d : ℤ} (dgt1 : d > 1) (Hm : d ∣ m) (Hn : d ∣ n) :
+  ¬ coprime m n :=
+assume co : coprime m n,
+assert d ∣ gcd m n, from dvd_gcd Hm Hn,
+have d ∣ 1, by rewrite [↑coprime at co, co at this]; apply this,
+have d ≤ 1, from le_of_dvd dec_trivial this,
+show false, from not_lt_of_ge `d ≤ 1` `d > 1`
 
 theorem exists_coprime {a b : ℤ} (H : gcd a b ≠ 0) :
   exists a' b', coprime a' b' ∧ a = a' * gcd a b ∧ b = b' * gcd a b :=

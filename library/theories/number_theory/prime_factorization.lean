@@ -130,6 +130,9 @@ end
 theorem mult_pow_self {p : ℕ} (i : ℕ) (pgt1 : p > 1) : mult p (p^i) = i :=
 by rewrite [-(mul_one (p^i)), mult_pow_mul i pgt1 zero_lt_one, mult_one_right]
 
+theorem mult_self {p : ℕ} (pgt1 : p > 1) : mult p p = 1 :=
+by rewrite [-pow_one p at {2}]; apply mult_pow_self 1 pgt1
+
 theorem le_mult {p i n : ℕ} (pgt1 : p > 1) (npos : n > 0) (pidvd : p^i ∣ n) : i ≤ mult p n :=
 dvd.elim pidvd
   (take m,
@@ -168,6 +171,13 @@ calc
              ... = mult p m + mult p n                          :
                      by rewrite [!mult_pow_mul `p > 1` m'n'pos, multm'n']
 
+theorem mult_pow {p m : ℕ} (n : ℕ) (mpos : m > 0) (primep : prime p) : mult p (m^n) = n * mult p m :=
+begin
+  induction n with n ih,
+    rewrite [pow_zero, mult_one_right, zero_mul],
+  rewrite [pow_succ, mult_mul primep mpos (!pow_pos_of_pos mpos), ih, succ_mul, add.comm]
+end
+
 theorem dvd_of_forall_prime_mult_le {m n : ℕ} (mpos : m > 0)
     (H : ∀ {p}, prime p → mult p m ≤ mult p n) :
   m ∣ n :=
@@ -178,7 +188,7 @@ begin
     {intros, rewrite meq, apply one_dvd},
   have mgt1 : m > 1, from lt_of_le_of_ne (succ_le_of_lt mpos) (ne.symm mneq),
   have mge2 : m ≥ 2, from succ_le_of_lt mgt1,
-  have hpd : ∃ p, prime p ∧ p ∣ m, from ex_prime_and_dvd mge2,
+  have hpd : ∃ p, prime p ∧ p ∣ m, from exists_prime_and_dvd mge2,
   cases hpd with [p, H1],
   cases H1 with [primep, pdvdm],
   intro n,

@@ -1122,9 +1122,15 @@ section migrate_algebra
   infix [priority real.prio] - := real.sub
   definition dvd (a b : ℝ) : Prop := algebra.dvd a b
   notation [priority real.prio] a ∣ b := real.dvd a b
+  definition pow (a : ℝ) (n : ℕ) : ℝ := algebra.pow a n
+  notation [priority real.prio] a^n := real.pow a n
+  definition nmul (n : ℕ) (a : ℝ) : ℝ := algebra.nmul n a
+  infix [priority real.prio] `⬝` := nmul
+  definition imul (i : ℤ) (a : ℝ) : ℝ := algebra.imul i a
 
   migrate from algebra with real
-    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, dvd → dvd, divide → divide
+    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, dvd → dvd, divide → divide,
+              pow → pow, nmul → nmul, imul → imul
 
   attribute le.trans lt.trans lt_of_lt_of_le lt_of_le_of_lt ge.trans gt.trans gt_of_gt_of_ge
                    gt_of_ge_of_gt [trans]

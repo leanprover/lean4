@@ -83,7 +83,7 @@ obtain `m ∣ n` (h₅ : ¬ (m = 1 ∨ m = n)), from iff.mp !not_implies_iff_and
 have ¬ m = 1 ∧ ¬ m = n,  from iff.mp !not_or_iff_not_and_not h₅,
 subtype.tag m (and.intro `m ∣ n` this)
 
-theorem ex_dvd_of_not_prime {n : nat} : n ≥ 2 → ¬ prime n → ∃ m, m ∣ n ∧ m ≠ 1 ∧ m ≠ n :=
+theorem exists_dvd_of_not_prime {n : nat} : n ≥ 2 → ¬ prime n → ∃ m, m ∣ n ∧ m ≠ 1 ∧ m ≠ n :=
 assume h₁ h₂, ex_of_sub (sub_dvd_of_not_prime h₁ h₂)
 
 definition sub_dvd_of_not_prime2 {n : nat} : n ≥ 2 → ¬ prime n → {m | m ∣ n ∧ m ≥ 2 ∧ m < n} :=
@@ -100,7 +100,7 @@ begin
      exact lt_of_le_and_ne m_le_n m_ne_n}
 end
 
-theorem ex_dvd_of_not_prime2 {n : nat} : n ≥ 2 → ¬ prime n → ∃ m, m ∣ n ∧ m ≥ 2 ∧ m < n :=
+theorem exists_dvd_of_not_prime2 {n : nat} : n ≥ 2 → ¬ prime n → ∃ m, m ∣ n ∧ m ≥ 2 ∧ m < n :=
 assume h₁ h₂, ex_of_sub (sub_dvd_of_not_prime2 h₁ h₂)
 
 definition sub_prime_and_dvd {n : nat} : n ≥ 2 → {p | prime p ∧ p ∣ n} :=
@@ -116,7 +116,7 @@ nat.strong_rec_on n
       have p ∣ n, from dvd.trans p_dvd_m m_dvd_n,
       subtype.tag p (and.intro hp this)))
 
-lemma ex_prime_and_dvd {n : nat} : n ≥ 2 → ∃ p, prime p ∧ p ∣ n :=
+lemma exists_prime_and_dvd {n : nat} : n ≥ 2 → ∃ p, prime p ∧ p ∣ n :=
 assume h, ex_of_sub (sub_prime_and_dvd h)
 
 open eq.ops

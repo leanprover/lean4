@@ -326,7 +326,8 @@ theorem eq_zero_or_eq_zero_of_mul_eq_zero {A : Type} [s : no_zero_divisors A] {a
     (H : a * b = 0) :
   a = 0 ∨ b = 0 := !no_zero_divisors.eq_zero_or_eq_zero_of_mul_eq_zero H
 
-structure integral_domain [class] (A : Type) extends comm_ring A, no_zero_divisors A
+structure integral_domain [class] (A : Type) extends comm_ring A, no_zero_divisors A,
+    zero_ne_one_class A
 
 section
   variables [s : integral_domain A] (a b c d e : A)

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 
 Parity
 -/
-import data.nat.div logic.identities
+import data.nat.power logic.identities
 
 namespace nat
 open decidable
@@ -228,6 +228,32 @@ suppose odd (n * n),
   suppose even n,
   have even (n * n), from !even_mul_of_even_left this,
   show false, from `odd (n * n)` this
+
+lemma odd_pow {n m} (h : odd n) : odd (n^m) :=
+nat.induction_on m
+  (show odd (n^0), from dec_trivial)
+  (take m, suppose odd (n^m),
+    show odd (n^(m+1)), from odd_mul_of_odd_of_odd h this)
+
+lemma even_pow {n m} (mpos : m > 0) (h : even n) : even (n^m) :=
+have h₁ : ∀ m, even (n^succ m),
+  from take m, nat.induction_on m
+    (show even (n^1), by rewrite pow_one; apply h)
+    (take m, suppose even (n^succ m),
+      show even (n^(succ (succ m))), from !even_mul_of_even_left h),
+obtain m' (h₂ : m = succ m'), from exists_eq_succ_of_pos mpos,
+show even (n^m), by rewrite h₂; apply h₁
+
+lemma odd_of_odd_pow {n m} (mpos : m > 0) (h : odd (n^m)) : odd n :=
+suppose even n,
+have even (n^m), from even_pow mpos this,
+show false, from `odd (n^m)` this
+
+lemma even_of_even_pow {n m} (h : even (n^m)) : even n :=
+by_contradiction
+  (suppose odd n,
+    have odd (n^m), from odd_pow this,
+    show false, from this `even (n^m)`)
 
 lemma eq_of_div2_of_even {n m : nat} : n div 2 = m div 2 → (even n ↔ even m) → n = m :=
 assume h₁ h₂,

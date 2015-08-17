@@ -533,9 +533,12 @@ section migrate_algebra
 
   definition pow (a : ℚ) (n : ℕ) : ℚ := algebra.pow a n
   infix [priority rat.prio] ^ := pow
+  definition nmul (n : ℕ) (a : ℚ) : ℚ := algebra.nmul n a
+  infix [priority rat.prio] `⬝` := nmul
+  definition imul (i : ℤ) (a : ℚ) : ℚ := algebra.imul i a
 
   migrate from algebra with rat
-    replacing sub → rat.sub, divide → divide, dvd → dvd, pow → pow
+    replacing sub → rat.sub, divide → divide, dvd → dvd, pow → pow, nmul → nmul, imul → imul
 
 end migrate_algebra
 
@@ -554,5 +557,12 @@ decidable.by_cases
         (take c, assume Hc : a = b * c,
           by rewrite [Hc, !int.mul_div_cancel_left bnz, mul.comm]),
     iff.mpr (eq_div_iff_mul_eq bnz') H')
+
+theorem of_int_pow (a : ℤ) (n : ℕ) : of_int (a^n) = (of_int a)^n :=
+begin
+  induction n with n ih,
+    apply eq.refl,
+  rewrite [pow_succ, int.pow_succ, of_int_mul, ih]
+end
 
 end rat

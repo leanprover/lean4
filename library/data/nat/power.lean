@@ -29,6 +29,25 @@ section migrate_algebra
       pow_nonneg_of_nonneg
 end migrate_algebra
 
+theorem eq_zero_of_pow_eq_zero {a m : ℕ} (H : a^m = 0) : a = 0 :=
+or.elim (eq_zero_or_pos m)
+  (suppose m = 0,
+    by rewrite [`m = 0` at H, pow_zero at H]; contradiction)
+  (suppose m > 0,
+    have h₁ : ∀ m, a^succ m = 0 → a = 0,
+      begin
+        intro m,
+        induction m with m ih,
+          {rewrite pow_one; intros; assumption},
+        rewrite pow_succ,
+        intro H,
+        cases eq_zero_or_eq_zero_of_mul_eq_zero H with h₃ h₄,
+          assumption,
+        exact ih h₄
+      end,
+    obtain m' (h₂ : m = succ m'), from exists_eq_succ_of_pos `m > 0`,
+    show a = 0, by rewrite h₂ at H; apply h₁ m' H)
+
 -- generalize to semirings?
 theorem le_pow_self {x : ℕ} (H : x > 1) : ∀ i, i ≤ x^i
 | 0        := !zero_le

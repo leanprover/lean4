@@ -267,9 +267,9 @@ section migrate_algebra
 
   definition ge [reducible] (a b : ℤ) := algebra.has_le.ge a b
   definition gt [reducible] (a b : ℤ) := algebra.has_lt.gt a b
-  infix >= := int.ge
-  infix ≥  := int.ge
-  infix >  := int.gt
+  infix [priority int.prio] >= := int.ge
+  infix [priority int.prio] ≥  := int.ge
+  infix [priority int.prio] >  := int.gt
   definition decidable_ge [instance] (a b : ℤ) : decidable (a ≥ b) :=
   show decidable (b ≤ a), from _
   definition decidable_gt [instance] (a b : ℤ) : decidable (a > b) :=
@@ -280,7 +280,7 @@ section migrate_algebra
   definition sign : ℤ → ℤ := algebra.sign
 
   migrate from algebra with int
-  replacing has_le.ge → ge, has_lt.gt → gt, dvd → dvd, sub → sub, min → min, max → max,
+    replacing dvd → dvd, sub → sub, has_le.ge → ge, has_lt.gt → gt, min → min, max → max,
             abs → abs, sign → sign
 
   attribute le.trans ge.trans lt.trans gt.trans [trans]

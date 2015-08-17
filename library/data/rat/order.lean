@@ -228,7 +228,7 @@ iff.intro
       (suppose a < b, and.left (iff.mp !lt_iff_le_and_ne this))
       (suppose a = b, this ▸ !le.refl))
 
-theorem to_nonneg : a ≥ 0 → nonneg a :=
+private theorem to_nonneg : a ≥ 0 → nonneg a :=
 by intros; rewrite -sub_zero; eassumption
 
 theorem add_le_add_left (H : a ≤ b) (c : ℚ) : c + a ≤ c + b :=
@@ -240,7 +240,7 @@ theorem mul_nonneg (H1 : a ≥ (0 : ℚ)) (H2 : b ≥ (0 : ℚ)) : a * b ≥ (0 
 have nonneg (a * b), from nonneg_mul (to_nonneg H1) (to_nonneg H2),
 !sub_zero⁻¹ ▸ this
 
-theorem to_pos : a > 0 → pos a :=
+private theorem to_pos : a > 0 → pos a :=
 by intros; rewrite -sub_zero; eassumption
 
 theorem mul_pos (H1 : a > (0 : ℚ)) (H2 : b > (0 : ℚ)) : a * b > (0 : ℚ) :=
@@ -314,8 +314,9 @@ section migrate_algebra
   definition sign : ℚ → ℚ := algebra.sign
 
   migrate from algebra with rat
-    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, dvd → dvd,
-              divide → divide, max → max, min → min, abs → abs, sign → sign
+    replacing sub → sub, dvd → dvd, has_le.ge → ge, has_lt.gt → gt,
+              divide → divide, max → max, min → min, abs → abs, sign → sign,
+              nmul → nmul, imul → imul
 
   attribute le.trans lt.trans lt_of_lt_of_le lt_of_le_of_lt ge.trans gt.trans gt_of_gt_of_ge
                    gt_of_ge_of_gt [trans]
@@ -327,6 +328,52 @@ assert ∀ n : ℕ, of_int (int.neg_succ_of_nat n) = - of_nat (nat.succ n), from
 int.induction_on a
   (take b, abs_of_nonneg (!of_nat_nonneg))
   (take b, by rewrite [this, abs_neg, abs_of_nonneg (!of_nat_nonneg)])
+
+section
+  open int
+
+  set_option pp.coercions true
+
+  theorem num_nonneg_of_nonneg {q : ℚ} (H : q ≥ 0) : num q ≥ 0 :=
+  have of_int (num q) ≥ of_int 0,
+    begin
+      rewrite [-mul_denom],
+      apply mul_nonneg H,
+      rewrite [of_int_le_of_int],
+      exact int.le_of_lt !denom_pos
+    end,
+  show num q ≥ 0, from iff.mp !of_int_le_of_int this
+
+  theorem num_pos_of_pos {q : ℚ} (H : q > 0) : num q > 0 :=
+  have of_int (num q) > of_int 0,
+    begin
+      rewrite [-mul_denom],
+      apply mul_pos H,
+      rewrite [of_int_lt_of_int],
+      exact !denom_pos
+    end,
+  show num q > 0, from iff.mp !of_int_lt_of_int this
+
+  theorem num_neg_of_neg {q : ℚ} (H : q < 0) : num q < 0 :=
+  have of_int (num q) < of_int 0,
+    begin
+      rewrite [-mul_denom],
+      apply mul_neg_of_neg_of_pos H,
+      rewrite [of_int_lt_of_int],
+      exact !denom_pos
+    end,
+  show num q < 0, from iff.mp !of_int_lt_of_int this
+
+  theorem num_nonpos_of_nonpos {q : ℚ} (H : q ≤ 0) : num q ≤ 0 :=
+  have of_int (num q) ≤ of_int 0,
+    begin
+      rewrite [-mul_denom],
+      apply mul_nonpos_of_nonpos_of_nonneg H,
+      rewrite [of_int_le_of_int],
+      exact int.le_of_lt !denom_pos
+    end,
+  show num q ≤ 0, from iff.mp !of_int_le_of_int this
+end
 
 definition ubound : ℚ → ℕ := λ a : ℚ, nat.succ (int.nat_abs (num a))
 

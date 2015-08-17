@@ -581,6 +581,18 @@ decidable.by_cases
     have abs a ∣ a, from abs_dvd_of_dvd !dvd.refl,
     eq.symm (iff.mpr (!div_eq_iff_eq_mul_left `abs a ≠ 0` this) !eq_sign_mul_abs))
 
+theorem le_of_dvd {a b : ℤ} (bpos : b > 0) (H : a ∣ b) : a ≤ b :=
+or.elim !le_or_gt
+  (suppose a ≤ 0, le.trans this (le_of_lt bpos))
+  (suppose a > 0,
+    obtain c (Hc : b = a * c), from exists_eq_mul_right_of_dvd H,
+    have a * c > 0, by rewrite -Hc; exact bpos,
+    have c > 0, from int.pos_of_mul_pos_left this (le_of_lt `a > 0`),
+    show a ≤ b, from calc
+      a     = a * 1 : mul_one
+        ... ≤ a * c : mul_le_mul_of_nonneg_left (add_one_le_of_lt `c > 0`) (le_of_lt `a > 0`)
+        ... = b     : Hc)
+
 /- div and ordering -/
 
 theorem div_mul_le (a : ℤ) {b : ℤ} (H : b ≠ 0) : a div b * b ≤ a :=

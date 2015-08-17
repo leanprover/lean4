@@ -1174,6 +1174,41 @@ void parser::process_postponed(buffer<expr> const & args, bool is_left,
     }
 }
 
+// Return true iff the current token is the terminator of some Exprs action, and store the matching pair in r
+static bool curr_is_terminator_of_exprs_action(parser const & p, list<pair<notation::action, parse_table>> const & lst, pair<notation::action, parse_table> const * & r) {
+    for (auto const & pr : lst) {
+        notation::action const & a = pr.first;
+        if (a.kind() == notation::action_kind::Exprs &&
+            a.get_terminator() &&
+            p.curr_is_token(*a.get_terminator())) {
+            r = &pr;
+            return true;
+        }
+    }
+    return false;
+}
+
+// Return true iff \c lst contains a Skip action, and store the matching pair in r.
+static bool has_skip(list<pair<notation::action, parse_table>> const & lst, pair<notation::action, parse_table> const * & r) {
+    for (auto const & p : lst) {
+        notation::action const & a = p.first;
+        if (a.kind() == notation::action_kind::Skip) {
+            r = &p;
+            return true;
+        }
+    }
+    return false;
+}
+
+static pair<notation::action, parse_table> const * get_non_skip(list<pair<notation::action, parse_table>> const & lst) {
+    for (auto const & p : lst) {
+        notation::action const & a = p.first;
+        if (a.kind() != notation::action_kind::Skip)
+            return &p;
+    }
+    return nullptr;
+}
+
 expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
     lean_assert(curr() == scanner::token_kind::Keyword);
     auto p = pos();
@@ -1199,19 +1234,34 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
         auto r = t.find(get_token_info().value());
         if (!r)
             break;
-        // TODO(Leo): handle multiple actions
-        notation::action const & a = head(r).first;
+        pair<notation::action, parse_table> const * curr_pair = nullptr;
+        if (tail(r)) {
+            // There is more than one possible actions.
+            // In the current implementation, we support the following possible cases (Skip, Expr), (Skip, Exprs) amd (Skip, ScopedExpr)
+            next();
+            if (curr_is_terminator_of_exprs_action(*this, r, curr_pair)) {
+                lean_assert(curr_pair->first.kind() == notation::action_kind::Exprs);
+            } else if (has_skip(r, curr_pair) && !curr_starts_expr()) {
+                lean_assert(curr_pair->first.kind() == notation::action_kind::Skip);
+            } else {
+                curr_pair = get_non_skip(r);
+            }
+        } else {
+            // there is only one possible action
+            curr_pair = &head(r);
+            if (curr_pair->first.kind() != notation::action_kind::Ext)
+                next();
+        }
+        lean_assert(curr_pair);
+        notation::action const & a = curr_pair->first;
         switch (a.kind()) {
         case notation::action_kind::Skip:
-            next();
             break;
         case notation::action_kind::Expr:
-            next();
             args.push_back(parse_expr_or_tactic(a.rbp(), as_tactic));
             kinds.push_back(a.kind());
             break;
         case notation::action_kind::Exprs: {
-            next();
             buffer<expr> r_args;
             auto terminator = a.get_terminator();
             if (!terminator || !curr_is_token(*terminator)) {
@@ -1234,17 +1284,14 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
             break;
         }
         case notation::action_kind::Binder:
-            next();
             binder_pos = pos();
             ps.push_back(parse_binder(a.rbp()));
             break;
         case notation::action_kind::Binders:
-            next();
             binder_pos = pos();
             lenv = parse_binders(ps, a.rbp());
             break;
         case notation::action_kind::ScopedExpr: {
-            next();
             expr r   = parse_scoped_expr(ps, lenv, a.rbp());
             args.push_back(r);
             kinds.push_back(a.kind());
@@ -1252,7 +1299,6 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
             break;
         }
         case notation::action_kind::LuaExt:
-            next();
             m_last_script_pos = p;
             using_script([&](lua_State * L) {
                     scoped_set_parser scope(L, *this);
@@ -1279,7 +1325,7 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
             kinds.push_back(a.kind());
             break;
         }
-        t = head(r).second; // TODO(Leo):
+        t = curr_pair->second;
     }
     list<notation::accepting> const & as = t.is_accepting();
     save_overload_notation(as, p);
@@ -1575,6 +1621,22 @@ expr parser::parse_nud() {
     case scanner::token_kind::String:      return parse_string_expr();
     case scanner::token_kind::Backtick:    return parse_backtick_expr();
     default: throw parser_error("invalid expression, unexpected token", pos());
+    }
+}
+
+// Return true if the current token can be the beginning of an expression
+bool parser::curr_starts_expr() {
+    switch (curr()) {
+    case scanner::token_kind::Keyword:
+        return !is_nil(nud().find(get_token_info().value()));
+    case scanner::token_kind::Identifier:
+    case scanner::token_kind::Numeral:
+    case scanner::token_kind::Decimal:
+    case scanner::token_kind::String:
+    case scanner::token_kind::Backtick:
+        return true;
+    default:
+        return false;
     }
 }
 

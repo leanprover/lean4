@@ -212,18 +212,17 @@ bool action::is_equivalent(action const & a) const {
         return is_equal(a);
     }
 }
+
+static bool is_compatible_core(action_kind k1, action_kind k2) {
+    return k1 == action_kind::Skip && (k2 == action_kind::Expr || k2 == action_kind::Exprs || k2 == action_kind::ScopedExpr);
+}
+
 bool action::is_compatible(action const & a) const {
     if (is_equivalent(a))
         return true;
     auto k1 = kind();
     auto k2 = a.kind();
-    if (k1 == action_kind::Skip && (k2 == action_kind::Expr || k2 == action_kind::Exprs))
-        return true;
-    if (k1 == action_kind::Expr && k2 == action_kind::Skip)
-        return true;
-    if (k2 == action_kind::Exprs && (k2 == action_kind::Skip || k2 == action_kind::Exprs))
-        return true;
-    return false;
+    return is_compatible_core(k1, k2) || is_compatible_core(k2, k1);
 }
 void action::display(io_state_stream & out) const {
     switch (kind()) {

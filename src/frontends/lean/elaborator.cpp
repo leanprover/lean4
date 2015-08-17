@@ -544,32 +544,47 @@ bool elaborator::has_coercions_to(expr d_type) {
     }
 }
 
-expr elaborator::apply_coercion(expr const & a, expr a_type, expr d_type) {
+pair<expr, constraint_seq> elaborator::apply_coercion(expr const & a, expr a_type, expr d_type, justification const & j) {
     a_type = m_coercion_from_tc->whnf(a_type).first;
     d_type = m_coercion_to_tc->whnf(d_type).first;
     constraint_seq aux_cs;
     list<expr> coes = get_coercions_from_to(*m_coercion_from_tc, *m_coercion_to_tc, a_type, d_type, aux_cs, m_ctx.m_lift_coercions);
     if (is_nil(coes)) {
         erase_coercion_info(a);
-        return a;
+        return to_ecs(a);
     } else if (is_nil(tail(coes))) {
         expr r = mk_coercion_app(head(coes), a);
         save_coercion_info(a, r);
-        return r;
+        return to_ecs(r);
     } else {
+        optional<expr> r;
         for (expr const & coe : coes) {
-            expr r = mk_coercion_app(coe, a);
-            expr r_type = infer_type(r).first;
+            expr new_r = mk_coercion_app(coe, a);
+            expr new_r_type = infer_type(new_r).first;
             try {
-                if (m_tc->is_def_eq(r_type, d_type).first) {
-                    save_coercion_info(a, r);
-                    return r;
+                if (m_tc->is_def_eq(new_r_type, d_type).first) {
+                    if (!r) {
+                        r = new_r;
+                    } else {
+                        // More than one coercion seems to be applicable.
+                        // This can happen when the types new_r_type and d_type contain
+                        // metavariables. That is, we don't have sufficient information
+                        // to decide which one should be used.
+                        // So, we switch to the delayed_coercions approach.
+                        // See issue #803
+                        return mk_delayed_coercion(a, a_type, d_type, j);
+                    }
                 }
             } catch (exception&) {
             }
         }
-        erase_coercion_info(a);
-        return a;
+        if (r) {
+            save_coercion_info(a, *r);
+            return to_ecs(*r);
+        } else {
+            erase_coercion_info(a);
+            return to_ecs(a);
+        }
     }
 }
 
@@ -603,8 +618,9 @@ pair<expr, constraint_seq> elaborator::ensure_has_type_core(
         if (dcs.first) {
             return to_ecs(a, dcs.second);
         } else {
-            expr new_a = apply_coercion(a, a_type, expected_type);
-            constraint_seq cs;
+            auto new_a_cs = apply_coercion(a, a_type, expected_type, j);
+            expr new_a    = new_a_cs.first;
+            constraint_seq cs = new_a_cs.second;
             bool coercion_worked = false;
             if (!is_eqp(a, new_a)) {
                 expr new_a_type = infer_type(new_a, cs);

@@ -1302,7 +1302,7 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
             r = instantiate_rev(r, new_args.size(), new_args.data());
             cs.push_back(r);
         } else {
-            lean_assert(nargs.empty() && ps_sz.empty());
+            lean_assert(nargs.empty() && scoped_info.empty());
             if (args.empty()) {
                 // Notation does not have arguments. Thus, the info-manager should treat is as a single thing.
                 r = mk_notation_info(r, r.get_tag());

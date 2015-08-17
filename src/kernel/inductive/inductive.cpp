@@ -198,8 +198,8 @@ environment certified_inductive_decl::add_constant(environment const & env, name
 }
 
 environment certified_inductive_decl::add_core(environment const & env, bool update_ext_only) const {
-    lean_assert(m_data);
-    lean_assert(length(m_data) == length(m_elim_types));
+    lean_assert(m_decl_data);
+    lean_assert(length(m_decl_data) == length(m_elim_types));
     environment new_env = env;
     inductive_env_ext ext(get_extension(new_env));
     level_param_names levels = m_levels;

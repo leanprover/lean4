@@ -129,11 +129,8 @@ by rewrite [-finset.to_set_upto n]; apply finite_finset
 theorem to_finset_upto (n : ℕ) : to_finset {i | i < n} = finset.upto n :=
 by apply (to_finset_eq_of_to_set_eq !finset.to_set_upto)
 
--- question: how can I avoid the parenthesis in the notation below?
--- this didn't work: notation `𝒫`:max s := powerset s, nor variants
-
-theorem finite_powerset (s : set A) [fins : finite s] : finite (𝒫 s) :=
-assert H : (𝒫 s) = finset.to_set '[finset.to_set (#finset 𝒫 (to_finset s))],
+theorem finite_powerset (s : set A) [fins : finite s] : finite 𝒫 s :=
+assert H : 𝒫 s = finset.to_set '[finset.to_set (#finset 𝒫 (to_finset s))],
   from ext (take t, iff.intro
     (suppose t ∈ 𝒫 s,
       assert t ⊆ s, from this,

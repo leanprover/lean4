@@ -135,6 +135,8 @@ expr unfold_all_macros(environment const & env, expr const & e) {
 }
 
 static bool contains_untrusted_macro(environment const & env, unsigned trust_lvl, declaration const & d) {
+    if (env.trust_lvl() > LEAN_BELIEVER_TRUST_LEVEL)
+        return false;
     if (contains_untrusted_macro(env, trust_lvl, d.get_type()))
         return true;
     return (d.is_definition() || d.is_theorem()) && contains_untrusted_macro(env, trust_lvl, d.get_value());

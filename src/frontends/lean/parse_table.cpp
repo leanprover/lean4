@@ -212,6 +212,19 @@ bool action::is_equivalent(action const & a) const {
         return is_equal(a);
     }
 }
+bool action::is_compatible(action const & a) const {
+    if (is_equivalent(a))
+        return true;
+    auto k1 = kind();
+    auto k2 = a.kind();
+    if (k1 == action_kind::Skip && (k2 == action_kind::Expr || k2 == action_kind::Exprs))
+        return true;
+    if (k1 == action_kind::Expr && k2 == action_kind::Skip)
+        return true;
+    if (k2 == action_kind::Exprs && (k2 == action_kind::Skip || k2 == action_kind::Exprs))
+        return true;
+    return false;
+}
 void action::display(io_state_stream & out) const {
     switch (kind()) {
     case action_kind::Skip:    out << "skip"; break;
@@ -384,6 +397,14 @@ static list<accepting> insert(list<accepting> const & l, unsigned priority, list
     }
 }
 
+static bool contains_equivalent_action(list<pair<action, parse_table>> const & l, action const & a) {
+    for (auto const & p : l) {
+        if (p.first.is_equivalent(a))
+            return true;
+    }
+    return false;
+}
+
 parse_table parse_table::add_core(unsigned num, transition const * ts, expr const & a,
                                   unsigned priority, bool overload, buffer<action> & post_buffer) const {
     parse_table r(new cell(*m_ptr));
@@ -403,20 +424,31 @@ parse_table parse_table::add_core(unsigned num, transition const * ts, expr cons
         action_kind k = ts_act.kind();
         if (k == action_kind::Exprs || k == action_kind::ScopedExpr)
             post_buffer.push_back(ts_act);
-        parse_table new_child;
+        list<pair<action, parse_table>> new_lst;
         if (it) {
-            // TODO(Leo): support multiple actions
-            action const & act        = head(*it).first;
-            parse_table const & child = head(*it).second;
-            if (act.is_equivalent(ts_act)) {
-                new_child = child.add_core(num-1, ts+1, a, priority, overload, post_buffer);
+            if (contains_equivalent_action(*it, ts_act)) {
+                buffer<pair<action, parse_table>> tmp;
+                to_buffer(*it, tmp);
+                for (pair<action, parse_table> & p : tmp) {
+                    if (p.first.is_equivalent(ts_act)) {
+                        p.second = p.second.add_core(num-1, ts+1, a, priority, overload, post_buffer);
+                        break;
+                    }
+                }
+                new_lst = to_list(tmp);
             } else {
-                new_child = parse_table().add_core(num-1, ts+1, a, priority, overload, post_buffer);
+                // remove incompatible actions
+                new_lst = filter(*it, [&](pair<action, parse_table> const & p) {
+                        return p.first.is_compatible(ts_act);
+                    });
+                parse_table new_child = parse_table().add_core(num-1, ts+1, a, priority, overload, post_buffer);
+                new_lst   = cons(mk_pair(ts_act, new_child), new_lst);
             }
         } else {
-            new_child = parse_table().add_core(num-1, ts+1, a, priority, overload, post_buffer);
+            parse_table new_child = parse_table().add_core(num-1, ts+1, a, priority, overload, post_buffer);
+            new_lst   = to_list(mk_pair(ts_act, new_child));
         }
-        r.m_ptr->m_children.insert(ts->get_token(), to_list(mk_pair(ts->get_action(), new_child)));
+        r.m_ptr->m_children.insert(ts->get_token(), new_lst);
     }
     return r;
 }

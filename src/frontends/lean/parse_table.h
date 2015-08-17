@@ -87,6 +87,8 @@ public:
 
     bool is_equal(action const & a) const;
     bool is_equivalent(action const & a) const;
+    // We say two actions are compatible if the parser can decide which one to choose by looking at the next token.
+    bool is_compatible(action const & a) const;
 
     void display(io_state_stream & out) const;
 

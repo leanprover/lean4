@@ -10,12 +10,13 @@ void check(int v) {
 }
 
 int main() {
-    printf("Started name test\n");
     lean_exception ex;
-    lean_name a, n1, n2, n3, n4;
+    lean_name a, n1, n2, n3, n4, n5;
     char const * s1;
     char const * s2;
+    char const * s3;
     unsigned idx;
+    printf("Started name test\n");
     check(lean_mk_anonymous_name(&a, &ex));
     check(lean_is_anonymous_name(a));
     check(lean_mk_str_name(a, "foo", &n1, &ex));
@@ -33,6 +34,9 @@ int main() {
     check(lean_name_eq(n2, n4));
     check(lean_get_name_idx(n3, &idx, &ex));
     check(idx == 1);
+    check(!lean_get_name_prefix(a, &n5, &ex));
+    s3 = lean_get_exception_message(ex);
+    printf("Lean exception: %s\n", s3);
     lean_del_name(a);
     lean_del_name(n1);
     lean_del_name(n2);
@@ -40,5 +44,7 @@ int main() {
     lean_del_name(n4);
     lean_del_string(s1);
     lean_del_string(s2);
+    lean_del_string(s3);
+    lean_del_exception(ex);
     return 0;
 }

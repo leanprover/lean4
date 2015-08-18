@@ -57,7 +57,7 @@ lean_bool lean_get_name_prefix(lean_name n, lean_name * r, lean_exception * ex) 
     LEAN_TRY;
     check_nonnull(n);
     if (to_name_ref(n).is_anonymous())
-        throw lean::exception("invalid argument, anonymous names does not have a prefix");
+        throw lean::exception("invalid argument, argument is an anonymous name");
     else if (to_name_ref(n).is_atomic())
         *r = of_name(new name());
     else

@@ -360,7 +360,7 @@ if(MULTI_THREAD AND (NOT ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")) AND (NOT BOO
 endif()
 set(CMAKE_EXE_LINKER_FLAGS_TESTCOV "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
 add_library(leanstatic ${LEAN_OBJS})
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if ((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-all")
 endif()
 add_subdirectory(api)

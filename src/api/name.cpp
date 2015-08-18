@@ -7,6 +7,16 @@ Author: Leonardo de Moura
 #include "api/name.h"
 #include "api/string.h"
 #include "api/exception.h"
+namespace lean {
+void to_buffer(unsigned sz, lean_name const * ns, buffer<name> & r) {
+    check_nonnull(ns);
+    for (unsigned i = 0; i < sz; i++) {
+        check_nonnull(ns[i]);
+        r.push_back(to_name_ref(ns[i]));
+    }
+}
+}
+
 using namespace lean; // NOLINT
 
 lean_bool lean_name_mk_anonymous(lean_name * r, lean_exception * ex) {

@@ -12,4 +12,5 @@ namespace lean {
 inline name * to_name(lean_name n) { return reinterpret_cast<name *>(n); }
 inline name const & to_name_ref(lean_name n) { return *reinterpret_cast<name *>(n); }
 inline lean_name of_name(name * n) { return reinterpret_cast<lean_name>(n); }
+void to_buffer(unsigned sz, lean_name const * ns, buffer<name> & r);
 }

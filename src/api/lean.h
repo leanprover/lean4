@@ -13,5 +13,6 @@ Author: Leonardo de Moura
 #include "lean_exception.h"     // NOLINT
 #include "lean_name.h"          // NOLINT
 #include "lean_options.h"       // NOLINT
+#include "lean_univ.h"          // NOLINT
 
 #endif

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "api/name.h"
 #include "api/string.h"
 #include "api/exception.h"
-using namespace lean;
+using namespace lean; // NOLINT
 
 lean_bool lean_mk_anonymous_name(lean_name * r, lean_exception * ex) {
     LEAN_TRY;

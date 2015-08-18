@@ -7,10 +7,10 @@ Author: Leonardo de Moura
 #ifndef _LEAN_H
 #define _LEAN_H
 
-#include "lean_macros.h"
-#include "lean_bool.h"
-#include "lean_string.h"
-#include "lean_exception.h"
-#include "lean_name.h"
+#include "lean_macros.h"        // NOLINT
+#include "lean_bool.h"          // NOLINT
+#include "lean_string.h"        // NOLINT
+#include "lean_exception.h"     // NOLINT
+#include "lean_name.h"          // NOLINT
 
 #endif

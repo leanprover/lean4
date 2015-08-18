@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "api/lean_bool.h"
+#include <string>
 #include "api/lean_macros.h"
 #include "api/lean_bool.h"
 #include "api/lean_exception.h"
@@ -40,7 +40,6 @@ void check_nonnull(void const *);
 }
 
 #define LEAN_TRY try {
-
 #define LEAN_CATCH                                      \
 } catch (lean::exception & e) {                         \
     *ex = of_exception(e.clone());                      \

@@ -1,6 +1,3 @@
-755.hlean:56:10: warning: using 'sorry'
-755.hlean:57:10: warning: using 'sorry'
-755.hlean:58:10: warning: using 'sorry'
 LEAN_INFORMATION
 position 55:52
 A : Type,

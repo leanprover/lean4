@@ -1,7 +1,7 @@
 import types.eq types.pi hit.colimit
 
 open eq is_trunc unit quotient seq_colim equiv
-
+axiom mysorry : ∀ {A : Type}, A
 namespace one_step_tr
 section
   parameters {A : Type}
@@ -53,7 +53,7 @@ definition one_step_tr_up (A B : Type)
 begin
   fapply equiv.MK,
   { intro f, fconstructor, intro a, exact f (tr a), intros, exact ap f !tr_eq},
-  { exact sorry},
-  { exact sorry},
-  { exact sorry},
+  { exact mysorry},
+  { exact mysorry},
+  { exact mysorry},
 end

@@ -1,4 +1,3 @@
-print_info.lean:13:8: warning: using 'sorry'
 LEAN_INFORMATION
 _ `+`:65 _:65 :=
   | nat.add #1 #0

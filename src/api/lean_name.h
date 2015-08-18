@@ -10,6 +10,15 @@ Author: Leonardo de Moura
 #ifdef __cplusplus
 extern "C" {
 #endif
+/**
+   \defgroup capi C API
+*/
+/*@{*/
+
+/**
+   @name Hierarchical names API
+*/
+/*@{*/
 
 LEAN_DEFINE_TYPE(lean_name);
 
@@ -22,7 +31,7 @@ lean_bool lean_name_mk_str(lean_name pre, char const * s, lean_name * r, lean_ex
     \pre !lean_name_is_anonymous(pre)
     \remark \c r must be disposed using #lean_name_del */
 lean_bool lean_name_mk_idx(lean_name pre, unsigned i, lean_name * r, lean_exception * ex);
-/** \brief Delete/dispose a Lean hierarchical name */
+/** \brief Delete/dispose the given hierarchical name */
 void lean_name_del(lean_name n);
 /** \brief Return lean_true iff \c n is the anonymous */
 lean_bool lean_name_is_anonymous(lean_name n);
@@ -50,6 +59,9 @@ lean_bool lean_name_get_idx(lean_name n, unsigned * r, lean_exception * ex);
     \remark \c r must be deleted using #lean_string_del
 */
 lean_bool lean_name_to_string(lean_name n, char const **r, lean_exception * ex);
+
+/*@}*/
+/*@}*/
 
 #ifdef __cplusplus
 };

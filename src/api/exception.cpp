@@ -20,14 +20,14 @@ void check_nonnull(void const * ptr) {
 }
 }
 
-void lean_del_exception(lean_exception e) {
+void lean_exception_del(lean_exception e) {
     lean::throwable * t = lean::to_exception(e);
     if (t != lean::get_memout_exception()) {
         delete t;
     }
 }
 
-char const * lean_get_exception_message(lean_exception e) {
+char const * lean_exception_get_message(lean_exception e) {
     if (!e)
         return 0;
     try {
@@ -37,7 +37,7 @@ char const * lean_get_exception_message(lean_exception e) {
     }
 }
 
-lean_exception_kind lean_get_exception_kind(lean_exception e) {
+lean_exception_kind lean_exception_get_kind(lean_exception e) {
     lean::throwable * ex = lean::to_exception(e);
     if (!ex)
         return LEAN_NULL_EXCEPTION;

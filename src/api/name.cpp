@@ -9,13 +9,13 @@ Author: Leonardo de Moura
 #include "api/exception.h"
 using namespace lean; // NOLINT
 
-lean_bool lean_mk_anonymous_name(lean_name * r, lean_exception * ex) {
+lean_bool lean_name_mk_anonymous(lean_name * r, lean_exception * ex) {
     LEAN_TRY;
     *r = of_name(new name());
     LEAN_CATCH;
 }
 
-lean_bool lean_mk_str_name(lean_name pre, char const * s, lean_name * r, lean_exception * ex) {
+lean_bool lean_name_mk_str(lean_name pre, char const * s, lean_name * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(pre);
     check_nonnull(s);
@@ -23,7 +23,7 @@ lean_bool lean_mk_str_name(lean_name pre, char const * s, lean_name * r, lean_ex
     LEAN_CATCH;
 }
 
-lean_bool lean_mk_idx_name(lean_name pre, unsigned i, lean_name * r, lean_exception * ex) {
+lean_bool lean_name_mk_idx(lean_name pre, unsigned i, lean_name * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(pre);
     name const & p = to_name_ref(pre);
@@ -33,19 +33,19 @@ lean_bool lean_mk_idx_name(lean_name pre, unsigned i, lean_name * r, lean_except
     LEAN_CATCH;
 }
 
-void lean_del_name(lean_name n) {
+void lean_name_del(lean_name n) {
     delete to_name(n);
 }
 
-lean_bool lean_is_anonymous_name(lean_name n) {
+lean_bool lean_name_is_anonymous(lean_name n) {
     return n && to_name_ref(n).is_anonymous();
 }
 
-lean_bool lean_is_str_name(lean_name n) {
+lean_bool lean_name_is_str(lean_name n) {
     return n && to_name_ref(n).is_string();
 }
 
-lean_bool lean_is_idx_name(lean_name n) {
+lean_bool lean_name_is_idx(lean_name n) {
     return n && to_name_ref(n).is_numeral();
 }
 
@@ -53,7 +53,7 @@ lean_bool lean_name_eq(lean_name n1, lean_name n2) {
     return n1 && n2 && to_name_ref(n1) == to_name_ref(n2);
 }
 
-lean_bool lean_get_name_prefix(lean_name n, lean_name * r, lean_exception * ex) {
+lean_bool lean_name_get_prefix(lean_name n, lean_name * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(n);
     if (to_name_ref(n).is_anonymous())
@@ -65,19 +65,19 @@ lean_bool lean_get_name_prefix(lean_name n, lean_name * r, lean_exception * ex) 
     LEAN_CATCH;
 }
 
-lean_bool lean_get_name_str(lean_name n, char const ** r, lean_exception * ex) {
+lean_bool lean_name_get_str(lean_name n, char const ** r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(n);
-    if (!lean_is_str_name(n))
+    if (!lean_name_is_str(n))
         throw lean::exception("invalid argument, it is not a string name");
     *r = mk_string(to_name_ref(n).get_string());
     LEAN_CATCH;
 }
 
-lean_bool lean_get_name_idx(lean_name n, unsigned * r, lean_exception * ex) {
+lean_bool lean_name_get_idx(lean_name n, unsigned * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(n);
-    if (!lean_is_idx_name(n))
+    if (!lean_name_is_idx(n))
         throw lean::exception("invalid argument, it is not an indexed name");
     *r = to_name_ref(n).get_numeral();
     LEAN_CATCH;

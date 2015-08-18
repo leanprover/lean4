@@ -32,6 +32,6 @@ void del_string(char const * s) {
 }
 }
 
-void lean_del_string(char const * s) {
+void lean_string_del(char const * s) {
     lean::del_string(s);
 }

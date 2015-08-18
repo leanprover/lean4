@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 /** \brief Delete a string allocated by Lean */
-void lean_del_string(char const * s);
+void lean_string_del(char const * s);
 
 #ifdef __cplusplus
 };

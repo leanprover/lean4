@@ -16,17 +16,17 @@ LEAN_DEFINE_TYPE(lean_exception);
 /** \brief Delete an exception object allocated by Lean.
     This is a NOOP if \c e is null.
 */
-void lean_del_exception(lean_exception e);
+void lean_exception_del(lean_exception e);
 
 /** \brief Return basic string/message describing the exception.
-    \remark The string must be deallocated using #lean_del_string.
+    \remark The string must be deallocated using #lean_string_del.
 
     \remark After we define the Lean environment object, we can
     provide richer messages.
 
     \remark The result is null if the operation failed or \c e is null.
 */
-char const * lean_get_exception_message(lean_exception e);
+char const * lean_exception_get_message(lean_exception e);
 
 typedef enum {
     LEAN_NULL_EXCEPTION,   // null (aka there is no exception)
@@ -38,7 +38,7 @@ typedef enum {
 } lean_exception_kind;
 
 /** \brief Return the kind of the given exception. */
-lean_exception_kind lean_get_exception_kind(lean_exception e);
+lean_exception_kind lean_exception_get_kind(lean_exception e);
 
 #ifdef __cplusplus
 };

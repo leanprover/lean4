@@ -1,13 +1,21 @@
+/*
+Copyright (c) 2015 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
 #include <stdlib.h>
 #include <stdio.h>
 #include "api/lean.h"
 
-void check(int v) {
+void check_core(int v, unsigned l) {
     if (!v) {
-        printf("test failed\n");
+        printf("Test failed at line %d\n", l);
         exit(1);
     }
 }
+
+#define check(v) check_core(v, __LINE__)
 
 void anonymous_unique() {
     lean_exception ex;

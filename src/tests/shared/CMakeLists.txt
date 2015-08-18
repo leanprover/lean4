@@ -9,3 +9,9 @@ target_link_libraries(c_name_test ${EXTRA_LIBS} leanshared)
 add_test(NAME c_name_test
          WORKING_DIRECTORY "${LEAN_BINARY_DIR}"
          COMMAND "${CMAKE_CURRENT_BINARY_DIR}/c_name_test")
+
+add_executable(c_options_test options.c)
+target_link_libraries(c_options_test ${EXTRA_LIBS} leanshared)
+add_test(OPTIONS c_options_test
+         WORKING_DIRECTORY "${LEAN_BINARY_DIR}"
+         COMMAND "${CMAKE_CURRENT_BINARY_DIR}/c_options_test")

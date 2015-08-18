@@ -9,6 +9,17 @@ void check(int v) {
     }
 }
 
+void anonymous_unique() {
+    lean_exception ex;
+    lean_name a1, a2;
+    check(lean_mk_anonymous_name(&a1, &ex));
+    check(lean_mk_anonymous_name(&a2, &ex));
+    check(lean_name_eq(a1, a2));
+    lean_del_name(a1);
+    lean_del_name(a2);
+    lean_del_exception(ex);
+}
+
 int main() {
     lean_exception ex;
     lean_name a, n1, n2, n3, n4, n5;
@@ -37,6 +48,7 @@ int main() {
     check(!lean_get_name_prefix(a, &n5, &ex));
     s3 = lean_get_exception_message(ex);
     printf("Lean exception: %s\n", s3);
+    anonymous_unique();
     lean_del_name(a);
     lean_del_name(n1);
     lean_del_name(n2);

@@ -25,7 +25,6 @@ void anonymous_unique() {
     check(lean_name_eq(a1, a2));
     lean_name_del(a1);
     lean_name_del(a2);
-    lean_exception_del(ex);
 }
 
 int main() {

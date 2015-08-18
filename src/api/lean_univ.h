@@ -48,7 +48,7 @@ lean_bool lean_univ_mk_global(lean_name n, lean_univ * r, lean_exception * ex);
 /** \brief Create a universe meta-variable with the given name. */
 lean_bool lean_univ_mk_meta(lean_name n, lean_univ * r, lean_exception * ex);
 
-/** \brief Store in \c r a string representation of the given options object.
+/** \brief Store in \c r a string representation of the given universe object.
     \remark \c r must be deleted using #lean_string_del */
 lean_bool lean_univ_to_string(lean_univ u, char const ** r, lean_exception * ex);
 

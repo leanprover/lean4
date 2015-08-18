@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string.h>
+#include "api/lean_string.h"
 #include "api/string.h"
 
 namespace lean {

@@ -29,6 +29,8 @@ lean_bool lean_is_anonymous_name(lean_name n);
 lean_bool lean_is_str_name(lean_name n);
 /** \brief Return lean_true iff \c n is a name of the form <tt>pre.i</tt> where \c i is an unsigned integer. */
 lean_bool lean_is_idx_name(lean_name n);
+/** \brief Return true iff the two given hierarchical names are equal */
+lean_bool lean_name_eq(lean_name n1, lean_name n2);
 /** \brief Return the prefix of the given name.
     \pre !lean_is_anonymous_name(n)
 */

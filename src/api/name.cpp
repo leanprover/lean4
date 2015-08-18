@@ -49,6 +49,10 @@ lean_bool lean_is_idx_name(lean_name n) {
     return n && to_name_ref(n).is_numeral();
 }
 
+lean_bool lean_name_eq(lean_name n1, lean_name n2) {
+    return n1 && n2 && to_name_ref(n1) == to_name_ref(n2);
+}
+
 lean_bool lean_get_name_prefix(lean_name n, lean_name * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(n);

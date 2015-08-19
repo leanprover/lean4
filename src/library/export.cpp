@@ -96,7 +96,7 @@ class exporter {
             m_out << i << " #UG " << n << "\n";
             break;
         case level_kind::Meta:
-            throw exception("invald 'export', universe meta-variables cannot be exported");
+            throw exception("invalid 'export', universe meta-variables cannot be exported");
         }
         m_level2idx.insert(mk_pair(l, i));
         return i;
@@ -169,11 +169,11 @@ class exporter {
             i  = export_binding(e, "#EP");
             break;
         case expr_kind::Meta:
-            throw exception("invald 'export', meta-variables cannot be exported");
+            throw exception("invalid 'export', meta-variables cannot be exported");
         case expr_kind::Local:
-            throw exception("invald 'export', local constants cannot be exported");
+            throw exception("invalid 'export', local constants cannot be exported");
         case expr_kind::Macro:
-            throw exception("invald 'export', macros cannot be exported");
+            throw exception("invalid 'export', macros cannot be exported");
         }
         m_expr2idx.insert(mk_pair(e, i));
         return i;

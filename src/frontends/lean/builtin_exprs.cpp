@@ -527,6 +527,28 @@ static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos)
     }
 }
 
+static expr parse_suffices_to_show(parser & p, unsigned, expr const *, pos_info const & pos) {
+    p.check_token_or_id_next(get_to_tk(), "invalid 'suffices to show' declaration, 'to' expected");
+    p.check_token_next(get_show_tk(), "invalid 'suffices to show' declaration, 'show' expected");
+    auto prop_pos = p.pos();
+    expr from  = p.parse_expr();
+    expr to    = p.save_pos(mk_expr_placeholder(), prop_pos);
+    expr prop  = p.save_pos(mk_arrow(from, to), prop_pos);
+    expr local = p.save_pos(mk_local(get_this_tk(), from), prop_pos);
+    p.check_token_next(get_comma_tk(), "invalid 'suffices to show' declaration, ',' expected");
+    expr body;
+    {
+        parser::local_scope scope(p);
+        p.add_local(local);
+        body = parse_proof(p, prop);
+    }
+    expr proof = p.save_pos(Fun(local, body), pos);
+    p.check_token_next(get_comma_tk(), "invalid 'suffices to show' declaration, ',' expected");
+    expr rest  = p.parse_expr();
+    expr r = p.mk_app(proof, rest, pos);
+    return r;
+}
+
 static obtain_struct parse_obtain_decls (parser & p, buffer<expr> & ps) {
     buffer<obtain_struct> children;
     parser::local_scope scope(p);
@@ -698,6 +720,7 @@ parse_table init_nud_table() {
     r = r.add({transition("assert", mk_ext_action(parse_assert))}, x0);
     r = r.add({transition("suppose", mk_ext_action(parse_suppose))}, x0);
     r = r.add({transition("show", mk_ext_action(parse_show))}, x0);
+    r = r.add({transition("suffices", mk_ext_action(parse_suffices_to_show))}, x0);
     r = r.add({transition("obtain", mk_ext_action(parse_obtain))}, x0);
     r = r.add({transition("abstract", mk_ext_action(parse_nested_declaration))}, x0);
     r = r.add({transition("if", mk_ext_action(parse_if_then_else))}, x0);

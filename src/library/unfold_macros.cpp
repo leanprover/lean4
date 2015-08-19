@@ -110,8 +110,8 @@ public:
     expr operator()(expr const & e) { return visit(e); }
 };
 
-static bool contains_untrusted_macro(environment const & env, unsigned trust_lvl, expr const & e) {
-    if (env.trust_lvl() > LEAN_BELIEVER_TRUST_LEVEL)
+static bool contains_untrusted_macro(unsigned trust_lvl, expr const & e) {
+    if (trust_lvl > LEAN_BELIEVER_TRUST_LEVEL)
         return false;
     return static_cast<bool>(find(e, [&](expr const & e, unsigned) {
                 return is_macro(e) && macro_def(e).trust_level() >= trust_lvl;
@@ -119,7 +119,7 @@ static bool contains_untrusted_macro(environment const & env, unsigned trust_lvl
 }
 
 expr unfold_untrusted_macros(environment const & env, expr const & e, unsigned trust_lvl) {
-    if (contains_untrusted_macro(env, trust_lvl, e)) {
+    if (contains_untrusted_macro(trust_lvl, e)) {
         return unfold_untrusted_macros_fn(env, trust_lvl)(e);
     } else {
         return e;
@@ -134,16 +134,16 @@ expr unfold_all_macros(environment const & env, expr const & e) {
     return unfold_untrusted_macros(env, e, 0);
 }
 
-static bool contains_untrusted_macro(environment const & env, unsigned trust_lvl, declaration const & d) {
-    if (env.trust_lvl() > LEAN_BELIEVER_TRUST_LEVEL)
+static bool contains_untrusted_macro(unsigned trust_lvl, declaration const & d) {
+    if (trust_lvl > LEAN_BELIEVER_TRUST_LEVEL)
         return false;
-    if (contains_untrusted_macro(env, trust_lvl, d.get_type()))
+    if (contains_untrusted_macro(trust_lvl, d.get_type()))
         return true;
-    return (d.is_definition() || d.is_theorem()) && contains_untrusted_macro(env, trust_lvl, d.get_value());
+    return (d.is_definition() || d.is_theorem()) && contains_untrusted_macro(trust_lvl, d.get_value());
 }
 
 declaration unfold_untrusted_macros(environment const & env, declaration const & d, unsigned trust_lvl) {
-    if (contains_untrusted_macro(env, trust_lvl, d)) {
+    if (contains_untrusted_macro(trust_lvl, d)) {
         expr new_t = unfold_untrusted_macros(env, d.get_type(), trust_lvl);
         if (d.is_theorem()) {
             expr new_v = unfold_untrusted_macros(env, d.get_value(), trust_lvl);

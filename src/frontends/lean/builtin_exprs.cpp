@@ -528,14 +528,12 @@ static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos)
 }
 
 static expr parse_suffices_to_show(parser & p, unsigned, expr const *, pos_info const & pos) {
-    p.check_token_or_id_next(get_to_tk(), "invalid 'suffices to show' declaration, 'to' expected");
-    p.check_token_next(get_show_tk(), "invalid 'suffices to show' declaration, 'show' expected");
     auto prop_pos = p.pos();
     expr from  = p.parse_expr();
     expr to    = p.save_pos(mk_expr_placeholder(), prop_pos);
     expr prop  = p.save_pos(mk_arrow(from, to), prop_pos);
     expr local = p.save_pos(mk_local(get_this_tk(), from), prop_pos);
-    p.check_token_next(get_comma_tk(), "invalid 'suffices to show' declaration, ',' expected");
+    p.check_token_next(get_comma_tk(), "invalid 'suffices' declaration, ',' expected");
     expr body;
     {
         parser::local_scope scope(p);
@@ -543,7 +541,7 @@ static expr parse_suffices_to_show(parser & p, unsigned, expr const *, pos_info 
         body = parse_proof(p, prop);
     }
     expr proof = p.save_pos(Fun(local, body), pos);
-    p.check_token_next(get_comma_tk(), "invalid 'suffices to show' declaration, ',' expected");
+    p.check_token_next(get_comma_tk(), "invalid 'suffices' declaration, ',' expected");
     expr rest  = p.parse_expr();
     expr r = p.mk_app(proof, rest, pos);
     return r;

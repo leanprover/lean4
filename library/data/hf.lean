@@ -364,7 +364,7 @@ theorem insert_erase_subset (a : hf) (s : hf) : s ⊆ insert a (erase a s) :=
 decidable.by_cases
   (assume ains : a ∈ s, by rewrite [!insert_erase ains]; apply subset.refl)
   (assume nains : a ∉ s,
-    suffices to show s ⊆ insert a s, by rewrite [erase_eq_of_not_mem nains]; assumption,
+    suffices s ⊆ insert a s, by rewrite [erase_eq_of_not_mem nains]; assumption,
     subset_insert s a)
 
 theorem insert_subset_insert (a : hf) {s t : hf} : s ⊆ t → insert a s ⊆ insert a t :=

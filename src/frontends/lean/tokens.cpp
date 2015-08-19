@@ -50,7 +50,6 @@ static name const * g_assume_tk = nullptr;
 static name const * g_suppose_tk = nullptr;
 static name const * g_take_tk = nullptr;
 static name const * g_fun_tk = nullptr;
-static name const * g_to_tk = nullptr;
 static name const * g_match_tk = nullptr;
 static name const * g_ellipsis_tk = nullptr;
 static name const * g_raw_tk = nullptr;
@@ -203,7 +202,6 @@ void initialize_tokens() {
     g_suppose_tk = new name{"suppose"};
     g_take_tk = new name{"take"};
     g_fun_tk = new name{"fun"};
-    g_to_tk = new name{"to"};
     g_match_tk = new name{"match"};
     g_ellipsis_tk = new name{"..."};
     g_raw_tk = new name{"raw"};
@@ -357,7 +355,6 @@ void finalize_tokens() {
     delete g_suppose_tk;
     delete g_take_tk;
     delete g_fun_tk;
-    delete g_to_tk;
     delete g_match_tk;
     delete g_ellipsis_tk;
     delete g_raw_tk;
@@ -510,7 +507,6 @@ name const & get_assume_tk() { return *g_assume_tk; }
 name const & get_suppose_tk() { return *g_suppose_tk; }
 name const & get_take_tk() { return *g_take_tk; }
 name const & get_fun_tk() { return *g_fun_tk; }
-name const & get_to_tk() { return *g_to_tk; }
 name const & get_match_tk() { return *g_match_tk; }
 name const & get_ellipsis_tk() { return *g_ellipsis_tk; }
 name const & get_raw_tk() { return *g_raw_tk; }

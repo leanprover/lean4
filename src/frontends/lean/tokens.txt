@@ -45,7 +45,6 @@ assume       assume
 suppose      suppose
 take         take
 fun          fun
-to           to
 match        match
 ellipsis     ...
 raw          raw

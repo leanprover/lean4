@@ -1483,7 +1483,7 @@ expr elaborator::process_obtain_expr(list<obtain_struct> const & s_list, list<ex
         expr r = process_obtain_expr(tail(s_list), tail(from_list), new_goal, false, cs, src);
         return Fun(new_from, r);
     } else {
-        lean_assert(!first || is_local(from));
+        lean_assert(first || is_local(from));
         expr from_type  = whnf(infer_type(from, cs), cs);
         buffer<expr> I_args;
         expr I          = get_app_args(from_type, I_args);

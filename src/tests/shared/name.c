@@ -29,10 +29,11 @@ void anonymous_unique() {
 
 int main() {
     lean_exception ex;
-    lean_name a, n1, n2, n3, n4, n5;
+    lean_name a, n1, n2, n3, n4, n5, n6;
     char const * s1;
     char const * s2;
     char const * s3;
+    lean_list_name l1, l2, l3, l4;
     unsigned idx;
     printf("Started name test\n");
     check(lean_name_mk_anonymous(&a, &ex));
@@ -55,12 +56,29 @@ int main() {
     check(!lean_name_get_prefix(a, &n5, &ex));
     s3 = lean_exception_get_message(ex);
     printf("Lean exception: %s\n", s3);
+
+    check(lean_list_name_mk_nil(&l1, &ex));
+    check(!lean_list_name_is_cons(l1));
+    check(lean_list_name_mk_cons(n1, l1, &l2, &ex));
+    check(lean_list_name_is_cons(l2));
+    check(lean_list_name_mk_cons(n2, l2, &l3, &ex));
+    check(lean_list_name_head(l3, &n6, &ex));
+    check(lean_name_eq(n6, n2));
+    check(lean_list_name_tail(l3, &l4, &ex));
+    check(lean_list_name_eq(l4, l2));
+
     anonymous_unique();
     lean_name_del(a);
     lean_name_del(n1);
     lean_name_del(n2);
     lean_name_del(n3);
     lean_name_del(n4);
+    lean_name_del(n5);
+    lean_name_del(n6);
+    lean_list_name_del(l1);
+    lean_list_name_del(l2);
+    lean_list_name_del(l3);
+    lean_list_name_del(l4);
     lean_string_del(s1);
     lean_string_del(s2);
     lean_string_del(s3);

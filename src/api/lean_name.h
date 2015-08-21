@@ -70,9 +70,13 @@ lean_bool lean_list_name_mk_cons(lean_name h, lean_list_name t, lean_list_name *
 void lean_list_name_del(lean_list_name l);
 /** \brief Return true iff the list is a "cons" (i.e., it is not the nil list) */
 lean_bool lean_list_name_is_cons(lean_list_name l);
-/** \brief Store in \c r the head of the given list */
+/** \brief Return true iff the two given lists are equal */
+lean_bool lean_list_name_eq(lean_list_name n1, lean_list_name n2);
+/** \brief Store in \c r the head of the given list
+    \pre lean_list_name_is_cons(l) */
 lean_bool lean_list_name_head(lean_list_name l, lean_name * r, lean_exception * ex);
-/** \brief Store in \c r the tail of the given list */
+/** \brief Store in \c r the tail of the given list
+    \pre lean_list_name_is_cons(l) */
 lean_bool lean_list_name_tail(lean_list_name l, lean_list_name * r, lean_exception * ex);
 
 /*@}*/

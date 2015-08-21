@@ -122,9 +122,15 @@ lean_bool lean_list_name_is_cons(lean_list_name l) {
     return l && !is_nil(to_list_name_ref(l));
 }
 
+lean_bool lean_list_name_eq(lean_list_name l1, lean_list_name l2) {
+    return l1 && l2 && to_list_name_ref(l1) == to_list_name_ref(l2);
+}
+
 lean_bool lean_list_name_head(lean_list_name l, lean_name * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(l);
+    if (!lean_list_name_is_cons(l))
+        throw lean::exception("invalid argument, non-nil list expected");
     *r = of_name(new name(head(to_list_name_ref(l))));
     LEAN_CATCH;
 }
@@ -132,6 +138,8 @@ lean_bool lean_list_name_head(lean_list_name l, lean_name * r, lean_exception * 
 lean_bool lean_list_name_tail(lean_list_name l, lean_list_name * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(l);
+    if (!lean_list_name_is_cons(l))
+        throw lean::exception("invalid argument, non-nil list expected");
     *r = of_list_name(new list<name>(tail(to_list_name_ref(l))));
     LEAN_CATCH;
 }

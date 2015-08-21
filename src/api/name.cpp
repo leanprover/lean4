@@ -99,3 +99,39 @@ lean_bool lean_name_to_string(lean_name n, char const **r, lean_exception * ex) 
     *r = mk_string(to_name_ref(n).to_string());
     LEAN_CATCH;
 }
+
+lean_bool lean_list_name_mk_nil(lean_list_name * r, lean_exception * ex) {
+    LEAN_TRY;
+    *r = of_list_name(new list<name>());
+    LEAN_CATCH;
+}
+
+lean_bool lean_list_name_mk_cons(lean_name h, lean_list_name t, lean_list_name * r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(h);
+    check_nonnull(t);
+    *r = of_list_name(new list<name>(to_name_ref(h), to_list_name_ref(t)));
+    LEAN_CATCH;
+}
+
+void lean_list_name_del(lean_list_name l) {
+    delete to_list_name(l);
+}
+
+lean_bool lean_list_name_is_cons(lean_list_name l) {
+    return l && !is_nil(to_list_name_ref(l));
+}
+
+lean_bool lean_list_name_head(lean_list_name l, lean_name * r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(l);
+    *r = of_name(new name(head(to_list_name_ref(l))));
+    LEAN_CATCH;
+}
+
+lean_bool lean_list_name_tail(lean_list_name l, lean_list_name * r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(l);
+    *r = of_list_name(new list<name>(tail(to_list_name_ref(l))));
+    LEAN_CATCH;
+}

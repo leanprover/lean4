@@ -60,6 +60,21 @@ lean_bool lean_name_get_idx(lean_name n, unsigned * r, lean_exception * ex);
 */
 lean_bool lean_name_to_string(lean_name n, char const **r, lean_exception * ex);
 
+LEAN_DEFINE_TYPE(lean_list_name);
+
+/** \brief Create the empty list of names */
+lean_bool lean_list_name_mk_nil(lean_list_name * r, lean_exception * ex);
+/** \brief Create the list <tt>h :: t</tt> */
+lean_bool lean_list_name_mk_cons(lean_name h, lean_list_name t, lean_list_name * r, lean_exception * ex);
+/** \brief Delete/dispose the given list of names */
+void lean_list_name_del(lean_list_name l);
+/** \brief Return true iff the list is a "cons" (i.e., it is not the nil list) */
+lean_bool lean_list_name_is_cons(lean_list_name l);
+/** \brief Store in \c r the head of the given list */
+lean_bool lean_list_name_head(lean_list_name l, lean_name * r, lean_exception * ex);
+/** \brief Store in \c r the tail of the given list */
+lean_bool lean_list_name_tail(lean_list_name l, lean_list_name * r, lean_exception * ex);
+
 /*@}*/
 /*@}*/
 

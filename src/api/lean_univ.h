@@ -90,12 +90,30 @@ lean_bool lean_univ_get_name(lean_univ u, lean_name * r, lean_exception * ex);
 /** \brief Store in \c r the normal for of the given universe */
 lean_bool lean_univ_normalize(lean_univ u, lean_univ * r, lean_exception * ex);
 
-/** \brief Instantiate the universe parameters names <tt>ns[i]</tt> with <tt>us[i]</tt> in \c u,
+LEAN_DEFINE_TYPE(lean_list_univ);
+
+/** \brief Create the empty list of univs */
+lean_bool lean_list_univ_mk_nil(lean_list_univ * r, lean_exception * ex);
+/** \brief Create the list <tt>h :: t</tt> */
+lean_bool lean_list_univ_mk_cons(lean_univ h, lean_list_univ t, lean_list_univ * r, lean_exception * ex);
+/** \brief Delete/dispose the given list of univs */
+void lean_list_univ_del(lean_list_univ l);
+/** \brief Return true iff the list is a "cons" (i.e., it is not the nil list) */
+lean_bool lean_list_univ_is_cons(lean_list_univ l);
+/** \brief Return true iff the two given lists are equal */
+lean_bool lean_list_univ_eq(lean_list_univ n1, lean_list_univ n2);
+/** \brief Store in \c r the head of the given list
+    \pre lean_list_univ_is_cons(l) */
+lean_bool lean_list_univ_head(lean_list_univ l, lean_univ * r, lean_exception * ex);
+/** \brief Store in \c r the tail of the given list
+    \pre lean_list_univ_is_cons(l) */
+lean_bool lean_list_univ_tail(lean_list_univ l, lean_list_univ * r, lean_exception * ex);
+
+/** \brief Instantiate the universe parameters names in <tt>ns</tt> with <tt>us</tt> in \c u,
     and store the result in \c r.
-    \remark \c ns and \c us are arrays of names and universes, and both have size \c sz.
+    \remark The given lists must have the same length.
 */
-lean_bool lean_univ_instantiate(lean_univ u, unsigned sz, lean_name const * ns, lean_univ const * us,
-                                lean_univ * r, lean_exception * ex);
+lean_bool lean_univ_instantiate(lean_univ u, lean_list_name ns, lean_list_univ us, lean_univ * r, lean_exception * ex);
 
 /*@}*/
 /*@}*/

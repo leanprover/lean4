@@ -179,18 +179,61 @@ lean_bool lean_univ_normalize(lean_univ u, lean_univ * r, lean_exception * ex) {
     LEAN_CATCH;
 }
 
+lean_bool lean_list_univ_mk_nil(lean_list_univ * r, lean_exception * ex) {
+    LEAN_TRY;
+    *r = of_list_level(new list<level>());
+    LEAN_CATCH;
+}
+
+lean_bool lean_list_univ_mk_cons(lean_univ h, lean_list_univ t, lean_list_univ * r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(h);
+    check_nonnull(t);
+    *r = of_list_level(new list<level>(to_level_ref(h), to_list_level_ref(t)));
+    LEAN_CATCH;
+}
+
+void lean_list_univ_del(lean_list_univ l) {
+    delete to_list_level(l);
+}
+
+lean_bool lean_list_univ_is_cons(lean_list_univ l) {
+    return l && !is_nil(to_list_level_ref(l));
+}
+
+lean_bool lean_list_univ_eq(lean_list_univ l1, lean_list_univ l2) {
+    return l1 && l2 && to_list_level_ref(l1) == to_list_level_ref(l2);
+}
+
+lean_bool lean_list_univ_head(lean_list_univ l, lean_univ * r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(l);
+    if (!lean_list_univ_is_cons(l))
+        throw lean::exception("invalid argument, non-nil list expected");
+    *r = of_level(new level(head(to_list_level_ref(l))));
+    LEAN_CATCH;
+}
+
+lean_bool lean_list_univ_tail(lean_list_univ l, lean_list_univ * r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(l);
+    if (!lean_list_univ_is_cons(l))
+        throw lean::exception("invalid argument, non-nil list expected");
+    *r = of_list_level(new list<level>(tail(to_list_level_ref(l))));
+    LEAN_CATCH;
+}
+
 /** \brief Instantiate the universe parameters names <tt>ns[i]</tt> with <tt>us[i]</tt> in \c u,
     and store the result in \c r.
     \remark \c ns and \c us are arrays of names and universes, and both have size \c sz.
 */
-lean_bool lean_univ_instantiate(lean_univ u, unsigned sz, lean_name const * ns, lean_univ const * us,
-                                lean_univ * r, lean_exception * ex) {
+lean_bool lean_univ_instantiate(lean_univ u, lean_list_name ns, lean_list_univ us, lean_univ * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(u);
-    buffer<name> tmp_ns;
-    buffer<level> tmp_us;
-    to_buffer(sz, ns, tmp_ns);
-    to_buffer(sz, us, tmp_us);
-    *r = of_level(new level(instantiate(to_level_ref(u), to_list(tmp_ns), to_list(tmp_us))));
+    check_nonnull(ns);
+    check_nonnull(us);
+    if (length(to_list_name_ref(ns)) != length(to_list_level_ref(us)))
+        throw lean::exception("invalid arguments, the given lists must have the same length");
+    *r = of_level(new level(instantiate(to_level_ref(u), to_list_name_ref(ns), to_list_level_ref(us))));
     LEAN_CATCH;
 }

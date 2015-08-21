@@ -22,6 +22,8 @@ int main() {
     lean_name a, l, U, pp, pp_unicode, rn;
     lean_options o1, o2;
     lean_univ zero, one, p1, g1, m1, u, n, i, ru;
+    lean_list_name ln1, ln2;
+    lean_list_univ lu1, lu2;
     char const * s1;
     lean_bool r;
 
@@ -48,7 +50,15 @@ int main() {
     check(lean_univ_geq(one, zero, &r, &ex) && r);
 
     /* replace l_1 with one in u */
-    check(lean_univ_instantiate(u, 1, &l, &one, &i, &ex));
+    check(lean_list_name_mk_nil(&ln1, &ex));
+    check(lean_list_name_mk_cons(l, ln1, &ln2, &ex));
+    check(lean_list_univ_mk_nil(&lu1, &ex));
+    check(lean_list_univ_mk_cons(one, lu1, &lu2, &ex));
+    check(lean_univ_instantiate(u, ln2, lu2, &i, &ex));
+    lean_list_name_del(ln1);
+    lean_list_name_del(ln2);
+    lean_list_univ_del(lu1);
+    lean_list_univ_del(lu2);
     lean_string_del(s1);
     check(lean_univ_to_string_using(i, o2, &s1, &ex));
     printf("universe: %s\n", s1);

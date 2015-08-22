@@ -73,7 +73,6 @@ int main() {
     lean_name_del(n2);
     lean_name_del(n3);
     lean_name_del(n4);
-    lean_name_del(n5);
     lean_name_del(n6);
     lean_list_name_del(l1);
     lean_list_name_del(l2);

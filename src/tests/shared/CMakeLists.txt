@@ -27,3 +27,9 @@ target_link_libraries(c_expr_test ${EXTRA_LIBS} leanshared)
 add_test(EXPR c_expr_test
          WORKING_DIRECTORY "${LEAN_BINARY_DIR}"
          COMMAND "${CMAKE_CURRENT_BINARY_DIR}/c_expr_test")
+
+add_executable(c_env_test env.c)
+target_link_libraries(c_env_test ${EXTRA_LIBS} leanshared)
+add_test(ENV c_env_test
+         WORKING_DIRECTORY "${LEAN_BINARY_DIR}"
+         COMMAND "${CMAKE_CURRENT_BINARY_DIR}/c_env_test")

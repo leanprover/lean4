@@ -69,7 +69,7 @@ lean_bool lean_decl_mk_thm(lean_env e, lean_name n, lean_list_name p, lean_expr 
     LEAN_CATCH;
 }
 
-void lean_decl_decl(lean_decl d) {
+void lean_decl_del(lean_decl d) {
     delete to_decl(d);
 }
 

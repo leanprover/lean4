@@ -1,0 +1,215 @@
+/*
+Copyright (c) 2015 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
+#include <stdlib.h>
+#include <stdio.h>
+#include "api/lean.h"
+
+void check_core(int v, unsigned l) {
+    if (!v) {
+        printf("Test failed at line %d\n", l);
+        exit(1);
+    }
+}
+
+#define check(v) check_core(v, __LINE__)
+
+lean_name mk_name(char const * n) {
+    lean_exception ex;
+    lean_name a, r;
+    check(lean_name_mk_anonymous(&a, &ex));
+    check(lean_name_mk_str(a, n, &r, &ex));
+    lean_name_del(a);
+    return r;
+}
+
+lean_univ mk_uparam(char const * n) {
+    lean_exception ex;
+    lean_univ r;
+    lean_name _n = mk_name(n);
+    check(lean_univ_mk_param(_n, &r, &ex));
+    lean_name_del(_n);
+    return r;
+}
+
+lean_list_name mk_unary_name_list(lean_name u) {
+    lean_exception ex;
+    lean_list_name n, r;
+    check(lean_list_name_mk_nil(&n, &ex));
+    check(lean_list_name_mk_cons(u, n, &r, &ex));
+    lean_list_name_del(n);
+    return r;
+}
+
+lean_env mk_env() {
+    lean_exception ex;
+    lean_env r;
+    check(lean_env_mk_std(LEAN_TRUST_HIGH, &r, &ex));
+    return r;
+}
+
+lean_expr mk_constant(char const * n, lean_list_univ us) {
+    lean_exception ex;
+    lean_name _n = mk_name(n);
+    lean_expr r;
+    check(lean_expr_mk_const(_n, us, &r, &ex));
+    lean_name_del(_n);
+    return r;
+}
+
+lean_expr mk_var(unsigned i) {
+   lean_exception ex;
+   lean_expr r;
+   check(lean_expr_mk_var(i, &r, &ex));
+   return r;
+}
+
+lean_expr mk_sort(lean_univ u) {
+   lean_exception ex;
+   lean_expr r;
+   check(lean_expr_mk_sort(u, &r, &ex));
+   return r;
+}
+
+lean_expr mk_pi(char const * n, lean_expr d, lean_expr c) {
+    lean_exception ex;
+    lean_name name = mk_name(n);
+    lean_expr r;
+    check(lean_expr_mk_pi(name, d, c, LEAN_BINDER_DEFAULT, &r, &ex));
+    lean_name_del(name);
+    return r;
+}
+
+lean_expr mk_lambda(char const * n, lean_expr d, lean_expr c) {
+    lean_exception ex;
+    lean_name name = mk_name(n);
+    lean_expr r;
+    check(lean_expr_mk_lambda(name, d, c, LEAN_BINDER_DEFAULT, &r, &ex));
+    lean_name_del(name);
+    return r;
+}
+
+lean_decl mk_def(char const * n, lean_list_name p, lean_expr t, lean_expr v) {
+    lean_exception ex;
+    lean_name name = mk_name(n);
+    lean_decl r;
+    check(lean_decl_mk_def(name, p, t, v, 0, lean_true, &r, &ex));
+    lean_name_del(name);
+    return r;
+}
+
+void print_univ_and_del(lean_name n) {
+    lean_exception ex;
+    char const * s;
+    check(lean_name_to_string(n, &s, &ex));
+    printf("universe: %s\n", s);
+    lean_string_del(s);
+    lean_name_del(n);
+}
+
+void print_expr(lean_expr e) {
+    lean_exception ex;
+    char const * s;
+    check(lean_expr_to_string(e, &s, &ex));
+    printf("%s\n", s);
+    lean_string_del(s);
+}
+
+void print_decl_and_del(lean_decl d) {
+    lean_exception ex;
+    lean_name n;
+    lean_expr t;
+    char const * s;
+    check(lean_decl_get_name(d, &n, &ex));
+    check(lean_name_to_string(n, &s, &ex));
+    printf("declaration name: %s\n", s);
+    check(lean_decl_get_type(d, &t, &ex));
+    printf("  type: ");
+    print_expr(t);
+    if (lean_decl_get_kind(d) == LEAN_DECL_DEF || lean_decl_get_kind(d) == LEAN_DECL_THM) {
+        lean_expr v;
+        check(lean_decl_get_value(d, &v, &ex));
+        printf("  value: ");
+        print_expr(v);
+        lean_expr_del(v);
+    }
+    lean_expr_del(t);
+    lean_name_del(n);
+    lean_string_del(s);
+    lean_decl_del(d);
+}
+
+void test_add_univ() {
+    lean_exception ex;
+    lean_name u  = mk_name("u");
+    lean_name v  = mk_name("v");
+    lean_env env = mk_env();
+    lean_env new_env;
+    check(lean_env_add_univ(env, u, &new_env, &ex));
+    check(lean_env_contains_univ(new_env, u));
+    check(!lean_env_contains_univ(new_env, v));
+    check(lean_env_for_each_univ(new_env, print_univ_and_del, &ex));
+    lean_name_del(u);
+    lean_name_del(v);
+    lean_env_del(env);
+    lean_env_del(new_env);
+}
+
+void test_id() {
+    lean_exception ex;
+    lean_univ l          = mk_uparam("l");
+    lean_env env         = mk_env();
+    lean_expr v0         = mk_var(0);
+    lean_expr v1         = mk_var(1);
+    lean_expr AA         = mk_pi("a", v0, v1);
+    lean_expr Type       = mk_sort(l);
+    lean_expr id_type    = mk_pi("A", Type, AA);
+    lean_expr f          = mk_lambda("a", v0, v0);
+    lean_expr id_val     = mk_lambda("A", Type, f);
+    lean_name l_name     = mk_name("l");
+    lean_list_name id_ps = mk_unary_name_list(l_name);
+    lean_decl id_def     = mk_def("id", id_ps, id_type, id_val);
+    lean_name id_name    = mk_name("id");
+    lean_cert_decl id_cert_def;
+    lean_env new_env;
+
+    printf("id type:  ");
+    print_expr(id_type);
+    printf("id value: ");
+    print_expr(id_val);
+    printf("-------\n");
+
+    /* type check definition */
+    check(lean_decl_check(env, id_def, &id_cert_def, &ex));
+    /* add certified definition to environment */
+    check(lean_env_add(env, id_cert_def, &new_env, &ex));
+
+    check(!lean_env_contains_decl(env, id_name));
+    check(lean_env_contains_decl(new_env, id_name));
+    check(lean_env_for_each_decl(new_env, print_decl_and_del, &ex));
+
+    lean_univ_del(l);
+    lean_env_del(env);
+    lean_expr_del(v0);
+    lean_expr_del(v1);
+    lean_expr_del(Type);
+    lean_expr_del(AA);
+    lean_expr_del(id_type);
+    lean_expr_del(f);
+    lean_expr_del(id_val);
+    lean_decl_del(id_def);
+    lean_list_name_del(id_ps);
+    lean_name_del(l_name);
+    lean_cert_decl_del(id_cert_def);
+    lean_env_del(new_env);
+    lean_name_del(id_name);
+}
+
+int main() {
+    test_add_univ();
+    test_id();
+    return 0;
+}

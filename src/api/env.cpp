@@ -96,7 +96,7 @@ lean_bool lean_env_for_each_decl(lean_env e, void (*f)(lean_decl), lean_exceptio
     LEAN_TRY;
     check_nonnull(e);
     to_env_ref(e).for_each_declaration([&](declaration const & d) {
-            f(of_decl(const_cast<declaration*>(&d)));
+            f(of_decl(new declaration(d)));
         });
     return lean_true;
     LEAN_CATCH;
@@ -106,7 +106,7 @@ lean_bool lean_env_for_each_univ(lean_env e, void (*f)(lean_name), lean_exceptio
     LEAN_TRY;
     check_nonnull(e);
     to_env_ref(e).for_each_universe([&](name const & u) {
-            f(of_name(const_cast<name*>(&u)));
+            f(of_name(new name(u)));
         });
     return lean_true;
     LEAN_CATCH;

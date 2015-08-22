@@ -58,7 +58,7 @@ lean_bool lean_decl_mk_thm(lean_name n, lean_list_name p, lean_expr t, lean_expr
 lean_bool lean_decl_mk_thm_with(lean_env e, lean_name n, lean_list_name p, lean_expr t, lean_expr v, lean_decl * r, lean_exception * ex);
 
 /** \brief Delete/dispose the given declaration. */
-void lean_decl_decl(lean_decl d);
+void lean_decl_del(lean_decl d);
 /** \brief Return the kind of the given declaration.
     \remark Return LEAN_DECL_CONST if d is null. */
 lean_decl_kind lean_decl_get_kind(lean_decl d);

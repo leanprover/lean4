@@ -23,6 +23,7 @@ extern "C" {
 
 LEAN_DEFINE_TYPE(lean_env);
 LEAN_DEFINE_TYPE(lean_decl);
+LEAN_DEFINE_TYPE(lean_cert_decl);
 
 typedef enum {
     LEAN_DECL_CONST,
@@ -77,6 +78,11 @@ lean_bool lean_decl_get_height(lean_decl d, unsigned * r, lean_exception * ex);
 /** \brief Store in \c r whether lazy unfolding is considered for the given definition.
     \pre lean_decl_get_kind(d) == LEAN_DECL_DEF */
 lean_bool lean_decl_get_conv_opt(lean_decl d, lean_bool * r, lean_exception * ex);
+
+/** \brief Create a certified declaration by type checking the given declaration with respect to the given environment */
+lean_bool lean_decl_check(lean_env e, lean_decl d, lean_cert_decl * r, lean_exception * ex);
+/** \brief Delete/dispose the given certified declaration. */
+void lean_cert_decl_del(lean_cert_decl d);
 
 /*@}*/
 /*@}*/

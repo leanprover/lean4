@@ -141,3 +141,15 @@ lean_bool lean_decl_get_conv_opt(lean_decl d, lean_bool * r, lean_exception * ex
     *r = to_decl_ref(d).use_conv_opt();
     LEAN_CATCH;
 }
+
+lean_bool lean_decl_check(lean_env e, lean_decl d, lean_cert_decl * r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(e);
+    check_nonnull(d);
+    *r = of_cert_decl(new certified_declaration(check(to_env_ref(e), to_decl_ref(d))));
+    LEAN_CATCH;
+}
+
+void lean_cert_decl_del(lean_cert_decl d) {
+    delete to_cert_decl(d);
+}

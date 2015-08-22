@@ -5,12 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/name.h"
 #include "kernel/expr.h"
-#include "api/exception.h"
-#include "api/options.h"
-#include "api/lean_name.h"
-#include "api/lean_univ.h"
+#include "api/univ.h"
 #include "api/lean_expr.h"
 namespace lean {
 inline expr * to_expr(lean_expr n) { return reinterpret_cast<expr *>(n); }

@@ -93,7 +93,7 @@ lean_bool lean_expr_get_var_idx(lean_expr e, unsigned * i, lean_exception * ex);
 /** \brief Stgore in \c u the universe of the given sort.
     \pre lean_expr_get_kind(e) == LEAN_EXPR_SORT */
 lean_bool lean_expr_get_sort_univ(lean_expr e, lean_univ * u, lean_exception * ex);
-/** \brief Store in \c n the name the given constant.
+/** \brief Store in \c n the name of the given constant.
     \pre lean_expr_get_kind(e) == LEAN_EXPR_CONST */
 lean_bool lean_expr_get_const_name(lean_expr e, lean_name * n, lean_exception * ex);
 /** \brief Store in \c us the universes parameters of the given constant.

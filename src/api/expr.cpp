@@ -338,8 +338,12 @@ lean_bool lean_list_expr_is_cons(lean_list_expr l) {
     return l && !is_nil(to_list_expr_ref(l));
 }
 
-lean_bool lean_list_expr_eq(lean_list_expr l1, lean_list_expr l2) {
-    return l1 && l2 && to_list_expr_ref(l1) == to_list_expr_ref(l2);
+lean_bool lean_list_expr_eq(lean_list_expr l1, lean_list_expr l2, lean_bool * b, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(l1);
+    check_nonnull(l2);
+    *b = to_list_expr_ref(l1) == to_list_expr_ref(l2);
+    LEAN_CATCH;
 }
 
 lean_bool lean_list_expr_head(lean_list_expr l, lean_expr * r, lean_exception * ex) {

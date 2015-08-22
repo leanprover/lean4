@@ -144,8 +144,8 @@ lean_bool lean_list_expr_mk_cons(lean_expr h, lean_list_expr t, lean_list_expr *
 void lean_list_expr_del(lean_list_expr l);
 /** \brief Return true iff the list is a "cons" (i.e., it is not the nil list) */
 lean_bool lean_list_expr_is_cons(lean_list_expr l);
-/** \brief Return true iff the two given lists are equal */
-lean_bool lean_list_expr_eq(lean_list_expr n1, lean_list_expr n2);
+/** \brief Return true in \c b iff the two given lists are equal */
+lean_bool lean_list_expr_eq(lean_list_expr n1, lean_list_expr n2, lean_bool * b, lean_exception * ex);
 /** \brief Store in \c r the head of the given list
     \pre lean_list_expr_is_cons(l) */
 lean_bool lean_list_expr_head(lean_list_expr l, lean_expr * r, lean_exception * ex);

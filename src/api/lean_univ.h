@@ -100,8 +100,8 @@ lean_bool lean_list_univ_mk_cons(lean_univ h, lean_list_univ t, lean_list_univ *
 void lean_list_univ_del(lean_list_univ l);
 /** \brief Return true iff the list is a "cons" (i.e., it is not the nil list) */
 lean_bool lean_list_univ_is_cons(lean_list_univ l);
-/** \brief Return true iff the two given lists are equal */
-lean_bool lean_list_univ_eq(lean_list_univ n1, lean_list_univ n2);
+/** \brief Store true in \c b iff the two given lists are equal */
+lean_bool lean_list_univ_eq(lean_list_univ n1, lean_list_univ n2, lean_bool * b, lean_exception * ex);
 /** \brief Store in \c r the head of the given list
     \pre lean_list_univ_is_cons(l) */
 lean_bool lean_list_univ_head(lean_list_univ l, lean_univ * r, lean_exception * ex);

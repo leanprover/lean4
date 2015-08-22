@@ -201,8 +201,12 @@ lean_bool lean_list_univ_is_cons(lean_list_univ l) {
     return l && !is_nil(to_list_level_ref(l));
 }
 
-lean_bool lean_list_univ_eq(lean_list_univ l1, lean_list_univ l2) {
-    return l1 && l2 && to_list_level_ref(l1) == to_list_level_ref(l2);
+lean_bool lean_list_univ_eq(lean_list_univ l1, lean_list_univ l2, lean_bool * b, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(l1);
+    check_nonnull(l2);
+    *b = to_list_level_ref(l1) == to_list_level_ref(l2);
+    LEAN_CATCH;
 }
 
 lean_bool lean_list_univ_head(lean_list_univ l, lean_univ * r, lean_exception * ex) {

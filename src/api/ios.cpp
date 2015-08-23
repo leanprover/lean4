@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp.h"
 #include "api/string.h"
 #include "api/exception.h"
+#include "api/decl.h"
+#include "api/lean_env.h"
 #include "api/ios.h"
 using namespace lean; // NOLINT
 
@@ -84,5 +86,18 @@ lean_bool lean_ios_reset_diagnostic(lean_ios ios, lean_exception * ex) {
     LEAN_TRY;
     check_nonstd(ios);
     to_io_state(ios)->set_diagnostic_channel(std::make_shared<string_output_channel>());
+    LEAN_CATCH;
+}
+
+lean_bool lean_expr_to_pp_string(lean_env env, lean_ios ios, lean_expr e, char const ** r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(env);
+    check_nonnull(ios);
+    check_nonnull(e);
+    options const & o = to_io_state_ref(ios).get_options();
+    formatter fmt = to_io_state_ref(ios).get_formatter_factory()(to_env_ref(env), o);
+    std::ostringstream out;
+    out << mk_pair(fmt(to_expr_ref(e)), o);
+    *r = mk_string(out.str());
     LEAN_CATCH;
 }

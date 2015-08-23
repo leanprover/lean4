@@ -238,16 +238,32 @@ void test_import() {
     lean_options o;
     lean_ios ios;
     lean_env new_env;
+    lean_decl nat_gcd_decl;
+    lean_name nat = mk_name("nat");
+    lean_name nat_gcd;
+    lean_expr nat_gcd_val;
+    char const * s;
     check(lean_options_mk_empty(&o, &ex));
     check(lean_ios_mk_std(o, &ios, &ex));
     check(lean_env_import(env, ios, ms, &new_env, &ex));
     check(lean_env_for_each_decl(new_env, print_decl_name_and_del, &ex));
+
+    check(lean_name_mk_str(nat, "gcd", &nat_gcd, &ex));
+    check(lean_env_get_decl(new_env, nat_gcd, &nat_gcd_decl, &ex));
+    check(lean_decl_get_value(nat_gcd_decl, &nat_gcd_val, &ex));
+    check(lean_expr_to_pp_string(new_env, ios, nat_gcd_val, &s, &ex));
+    printf("nat.gcd\n%s\n", s);
     lean_env_del(env);
     lean_name_del(std);
     lean_list_name_del(ms);
     lean_options_del(o);
     lean_ios_del(ios);
     lean_env_del(new_env);
+    lean_name_del(nat);
+    lean_name_del(nat_gcd);
+    lean_decl_del(nat_gcd_decl);
+    lean_expr_del(nat_gcd_val);
+    lean_string_del(s);
 }
 
 int main() {

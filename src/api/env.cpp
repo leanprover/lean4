@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "library/standard_kernel.h"
 #include "library/hott_kernel.h"
+#include "library/module.h"
 #include "api/decl.h"
 #include "api/string.h"
 #include "api/exception.h"
@@ -29,7 +30,7 @@ lean_bool lean_env_add_univ(lean_env e, lean_name u, lean_env * r, lean_exceptio
     LEAN_TRY;
     check_nonnull(e);
     check_nonnull(u);
-    *r = of_env(new environment(to_env_ref(e).add_universe(to_name_ref(u))));
+    *r = of_env(new environment(module::add_universe(to_env_ref(e), to_name_ref(u))));
     LEAN_CATCH;
 }
 
@@ -37,7 +38,7 @@ lean_bool lean_env_add(lean_env e, lean_cert_decl d, lean_env * r, lean_exceptio
     LEAN_TRY;
     check_nonnull(e);
     check_nonnull(d);
-    *r = of_env(new environment(to_env_ref(e).add(to_cert_decl_ref(d))));
+    *r = of_env(new environment(module::add(to_env_ref(e), to_cert_decl_ref(d))));
     LEAN_CATCH;
 }
 

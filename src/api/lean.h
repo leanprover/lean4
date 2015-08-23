@@ -17,5 +17,7 @@ Author: Leonardo de Moura
 #include "lean_expr.h"          // NOLINT
 #include "lean_decl.h"          // NOLINT
 #include "lean_env.h"           // NOLINT
+#include "lean_ios.h"           // NOLINT
+#include "lean_module.h"        // NOLINT
 
 #endif

@@ -208,8 +208,52 @@ void test_id() {
     lean_name_del(id_name);
 }
 
+void test_path() {
+    lean_exception ex;
+    char const * p;
+    check(lean_get_std_path(&p, &ex));
+    printf("LEAN_PATH: %s\n", p);
+    lean_string_del(p);
+    check(lean_get_hott_path(&p, &ex));
+    printf("HLEAN_PATH: %s\n", p);
+    lean_string_del(p);
+}
+
+void print_decl_name_and_del(lean_decl d) {
+    lean_exception ex;
+    lean_name n;
+    char const * s;
+    check(lean_decl_get_name(d, &n, &ex));
+    check(lean_name_to_string(n, &s, &ex));
+    printf("declaration name: %s\n", s);
+    lean_string_del(s);
+    lean_decl_del(d);
+}
+
+void test_import() {
+    lean_exception ex;
+    lean_env  env = mk_env();
+    lean_name std = mk_name("standard");
+    lean_list_name ms = mk_unary_name_list(std);
+    lean_options o;
+    lean_ios ios;
+    lean_env new_env;
+    check(lean_options_mk_empty(&o, &ex));
+    check(lean_ios_mk_std(o, &ios, &ex));
+    check(lean_env_import(env, ios, ms, &new_env, &ex));
+    check(lean_env_for_each_decl(new_env, print_decl_name_and_del, &ex));
+    lean_env_del(env);
+    lean_name_del(std);
+    lean_list_name_del(ms);
+    lean_options_del(o);
+    lean_ios_del(ios);
+    lean_env_del(new_env);
+}
+
 int main() {
     test_add_univ();
     test_id();
+    test_path();
+    test_import();
     return 0;
 }

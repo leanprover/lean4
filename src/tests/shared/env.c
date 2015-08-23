@@ -74,6 +74,22 @@ lean_expr mk_sort(lean_univ u) {
    return r;
 }
 
+/** create a constant with a single universe parameter */
+lean_expr mk_const(char const * n, lean_univ u) {
+    lean_exception ex;
+    lean_name _n = mk_name(n);
+    lean_list_univ l1, l2;
+    check(lean_list_univ_mk_nil(&l1, &ex));
+    check(lean_list_univ_mk_cons(u, l1, &l2, &ex));
+    lean_expr r;
+    check(lean_expr_mk_const(_n, l2, &r, &ex));
+    lean_name_del(_n);
+    lean_list_univ_del(l1);
+    lean_list_univ_del(l2);
+    return r;
+}
+
+
 lean_expr mk_pi(char const * n, lean_expr d, lean_expr c) {
     lean_exception ex;
     lean_name name = mk_name(n);
@@ -175,6 +191,7 @@ void test_id() {
     lean_name id_name    = mk_name("id");
     lean_cert_decl id_cert_def;
     lean_env new_env;
+    lean_univ zero, one;
 
     printf("id type:  ");
     print_expr(id_type);
@@ -191,6 +208,43 @@ void test_id() {
     check(lean_env_contains_decl(new_env, id_name));
     check(lean_env_for_each_decl(new_env, print_decl_and_del, &ex));
 
+    check(lean_univ_mk_zero(&zero, &ex));
+    check(lean_univ_mk_succ(zero, &one, &ex));
+    {
+        lean_type_checker tc;
+        lean_expr T0  = mk_sort(zero);
+        lean_expr T1  = mk_sort(one);
+        lean_expr id1 = mk_const("id", one);
+        lean_expr id1T1, id1T1T0;
+        lean_expr n1;
+        lean_cnstr_seq s1;
+        check(lean_expr_mk_app(id1, T1, &id1T1, &ex));
+        check(lean_expr_mk_app(id1T1, T0, &id1T1T0, &ex));
+        check(lean_type_checker_mk(new_env, &tc, &ex));
+        printf("WHNF test\n");
+        print_expr(id1T1T0);
+        check(lean_type_checker_whnf(tc, id1T1T0, &n1, &s1, &ex));
+        printf("=====>\n");
+        print_expr(n1);
+        lean_expr_del(n1);
+        lean_cnstr_seq_del(s1);
+
+        printf("Infer type test\n");
+        print_expr(id1T1);
+        check(lean_type_checker_infer(tc, id1T1, &n1, &s1, &ex));
+        printf("=====>\n");
+        print_expr(n1);
+        lean_expr_del(n1);
+        lean_cnstr_seq_del(s1);
+
+        lean_type_checker_del(tc);
+        lean_expr_del(T0);
+        lean_expr_del(T1);
+        lean_expr_del(id1);
+        lean_expr_del(id1T1);
+        lean_expr_del(id1T1T0);
+    }
+
     lean_univ_del(l);
     lean_env_del(env);
     lean_expr_del(v0);
@@ -206,6 +260,8 @@ void test_id() {
     lean_cert_decl_del(id_cert_def);
     lean_env_del(new_env);
     lean_name_del(id_name);
+    lean_univ_del(zero);
+    lean_univ_del(one);
 }
 
 void test_path() {

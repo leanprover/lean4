@@ -226,6 +226,7 @@ void print_decl_name_and_del(lean_decl d) {
     check(lean_decl_get_name(d, &n, &ex));
     check(lean_name_to_string(n, &s, &ex));
     printf("declaration name: %s\n", s);
+    lean_name_del(n);
     lean_string_del(s);
     lean_decl_del(d);
 }

@@ -192,6 +192,10 @@ void test_id() {
     lean_cert_decl id_cert_def;
     lean_env new_env;
     lean_univ zero, one;
+    lean_bool is_lt;
+
+    check(lean_expr_lt(f, id_val, &is_lt, &ex) && is_lt);
+    check(lean_expr_lt(id_val, f, &is_lt, &ex) && !is_lt);
 
     printf("id type:  ");
     print_expr(id_type);
@@ -210,6 +214,8 @@ void test_id() {
 
     check(lean_univ_mk_zero(&zero, &ex));
     check(lean_univ_mk_succ(zero, &one, &ex));
+    check(lean_univ_lt(zero, one, &is_lt, &ex) && is_lt);
+    check(lean_univ_lt(one, zero, &is_lt, &ex) && !is_lt);
     {
         lean_type_checker tc;
         lean_expr T0  = mk_sort(zero);

@@ -29,6 +29,27 @@ void lean_inductive_type_del(lean_inductive_type t) {
     delete to_inductive_type(t);
 }
 
+lean_bool lean_inductive_type_get_name(lean_inductive_type t, lean_name * r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(t);
+    *r = of_name(new name(inductive_decl_name(to_inductive_type_ref(t))));
+    LEAN_CATCH;
+}
+
+lean_bool lean_inductive_type_get_type(lean_inductive_type t, lean_expr * r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(t);
+    *r = of_expr(new expr(inductive_decl_type(to_inductive_type_ref(t))));
+    LEAN_CATCH;
+}
+
+lean_bool lean_inductive_type_get_constructors(lean_inductive_type t, lean_list_expr * r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(t);
+    *r = of_list_expr(new list<expr>(inductive_decl_intros(to_inductive_type_ref(t))));
+    LEAN_CATCH;
+}
+
 lean_bool lean_list_inductive_type_mk_nil(lean_list_inductive_type * r, lean_exception * ex) {
     LEAN_TRY;
     *r = of_list_inductive_type(new list<inductive_decl>());
@@ -89,6 +110,27 @@ lean_bool lean_inductive_decl_mk(lean_list_name ps, unsigned n, lean_list_induct
 
 void lean_inductive_decl_del(lean_inductive_decl d) {
     delete to_inductive_decl(d);
+}
+
+lean_bool lean_inductive_decl_get_univ_params(lean_inductive_decl d, lean_list_name * r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(d);
+    *r = of_list_name(new list<name>(std::get<0>(to_inductive_decl_ref(d))));
+    LEAN_CATCH;
+}
+
+lean_bool lean_inductive_decl_get_num_params(lean_inductive_decl d, unsigned * r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(d);
+    *r = std::get<1>(to_inductive_decl_ref(d));
+    LEAN_CATCH;
+}
+
+lean_bool lean_inductive_decl_get_types(lean_inductive_decl d, lean_list_inductive_type * r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(d);
+    *r = of_list_inductive_type(new list<inductive_decl>(std::get<2>(to_inductive_decl_ref(d))));
+    LEAN_CATCH;
 }
 
 lean_bool lean_env_add_inductive(lean_env env, lean_inductive_decl d, lean_env * r, lean_exception * ex) {

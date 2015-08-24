@@ -89,7 +89,6 @@ lean_expr mk_const(char const * n, lean_univ u) {
     return r;
 }
 
-
 lean_expr mk_pi(char const * n, lean_expr d, lean_expr c) {
     lean_exception ex;
     lean_name name = mk_name(n);
@@ -105,6 +104,15 @@ lean_expr mk_lambda(char const * n, lean_expr d, lean_expr c) {
     lean_expr r;
     check(lean_expr_mk_lambda(name, d, c, LEAN_BINDER_DEFAULT, &r, &ex));
     lean_name_del(name);
+    return r;
+}
+
+lean_expr mk_local(char const * n, lean_expr t) {
+    lean_exception ex;
+    lean_name _n = mk_name(n);
+    lean_expr r;
+    check(lean_expr_mk_local(_n, t, &r, &ex));
+    lean_name_del(_n);
     return r;
 }
 
@@ -329,10 +337,138 @@ void test_import() {
     lean_string_del(s);
 }
 
+lean_univ mk_one() {
+    lean_exception ex;
+    lean_univ zero, one;
+    check(lean_univ_mk_zero(&zero, &ex));
+    check(lean_univ_mk_succ(zero, &one, &ex));
+    lean_univ_del(zero);
+    return one;
+}
+
+lean_univ mk_max(lean_univ u1, lean_univ u2) {
+    lean_exception ex;
+    lean_univ r;
+    check(lean_univ_mk_max(u1, u2, &r, &ex));
+    return r;
+}
+
+lean_expr mk_app(lean_expr f, lean_expr a) {
+    lean_exception ex;
+    lean_expr r;
+    check(lean_expr_mk_app(f, a, &r, &ex));
+    return r;
+}
+
+void test_inductive() {
+    // declare list type
+    lean_exception ex = 0;
+    lean_env env         = mk_env();
+    lean_name l_name     = mk_name("l");
+    lean_univ l          = mk_uparam("l");
+    lean_univ one        = mk_one();
+    lean_univ m1l        = mk_max(one, l);
+    lean_expr Typel      = mk_sort(l);
+    lean_expr Typem1l    = mk_sort(m1l);
+    lean_expr list_type  = mk_pi("A", Typel, Typem1l);
+    lean_name list_name  = mk_name("list");
+    lean_expr list       = mk_const("list", l);
+    lean_expr v0         = mk_var(0);
+    // nil : Pi (A : Type.{l}), list.{l} A
+    lean_expr list_v0    = mk_app(list, v0);
+    lean_expr nil_type   = mk_pi("A", Typel, list_v0);
+    lean_expr nil        = mk_local("nil", nil_type);
+    // cons : Pi (A : Type.{l}), A -> list.{l} A -> list.{l} A
+    lean_expr v1         = mk_var(1);
+    lean_expr v2         = mk_var(2);
+    lean_expr list_v2    = mk_app(list, v2);
+    lean_expr list_v1    = mk_app(list, v1);
+    lean_expr cons_type1 = mk_pi("tail", list_v1, list_v2);
+    lean_expr cons_type2 = mk_pi("head", v0, cons_type1);
+    lean_expr cons_type  = mk_pi("A", Typel, cons_type2);
+    lean_expr cons       = mk_local("cons", cons_type);
+    //
+    lean_list_expr cs1, cs2, list_cs;
+    lean_inductive_type list_ind_type;
+    lean_list_inductive_type li1, list_ind_types;
+    lean_list_name ls1, ls;
+    lean_inductive_decl list_decl;
+    lean_env new_env;
+
+    check(lean_list_name_mk_nil(&ls1, &ex));
+    check(lean_list_name_mk_cons(l_name, ls1, &ls, &ex));
+
+    check(lean_list_expr_mk_nil(&cs1, &ex));
+    check(lean_list_expr_mk_cons(nil,  cs1, &cs2, &ex));
+    check(lean_list_expr_mk_cons(cons, cs2, &list_cs, &ex));
+
+    check(lean_inductive_type_mk(list_name, list_type, list_cs, &list_ind_type, &ex));
+
+    check(lean_list_inductive_type_mk_nil(&li1, &ex));
+    check(lean_list_inductive_type_mk_cons(list_ind_type, li1, &list_ind_types, &ex));
+
+    check(lean_inductive_decl_mk(ls, 1, list_ind_types, &list_decl, &ex));
+
+    check(lean_env_add_inductive(env, list_decl, &new_env, &ex));
+
+    {
+        unsigned n;
+        lean_inductive_decl d;
+        lean_name cons_name = mk_name("cons");
+        lean_name r_name;
+        lean_list_inductive_type types;
+        check(lean_env_get_inductive_type_num_indices(new_env, list_name, &n, &ex) && n == 0);
+        check(lean_env_get_inductive_type_num_minor_premises(new_env, list_name, &n, &ex) && n == 2);
+        check(!lean_env_is_inductive_type(env, list_name, &d, &ex));
+        check(lean_env_is_inductive_type(new_env, list_name, &d, &ex));
+        check(lean_inductive_decl_get_num_params(d, &n, &ex) && n == 1);
+        check(lean_inductive_decl_get_types(d, &types, &ex));
+        check(lean_list_inductive_type_is_cons(types));
+        check(lean_env_is_constructor(new_env, cons_name, &r_name, &ex) && lean_name_eq(list_name, r_name));
+        lean_inductive_decl_del(d);
+        lean_name_del(cons_name);
+        lean_name_del(r_name);
+    }
+
+    lean_env_del(env);
+    lean_name_del(list_name);
+    lean_name_del(l_name);
+    lean_univ_del(l);
+    lean_univ_del(one);
+    lean_univ_del(m1l);
+    lean_expr_del(Typel);
+    lean_expr_del(Typem1l);
+    lean_expr_del(list_type);
+    lean_expr_del(list);
+    lean_expr_del(v0);
+    lean_expr_del(list_v0);
+    lean_expr_del(nil_type);
+    lean_expr_del(nil);
+    lean_expr_del(v1);
+    lean_expr_del(v2);
+    lean_expr_del(list_v2);
+    lean_expr_del(list_v1);
+    lean_expr_del(cons_type1);
+    lean_expr_del(cons_type2);
+    lean_expr_del(cons_type);
+    lean_expr_del(cons);
+    lean_list_expr_del(cs1);
+    lean_list_expr_del(cs2);
+    lean_list_expr_del(list_cs);
+    lean_inductive_type_del(list_ind_type);
+    lean_list_inductive_type_del(li1);
+    lean_list_inductive_type_del(list_ind_types);
+    lean_list_name_del(ls1);
+    lean_list_name_del(ls);
+    lean_inductive_decl_del(list_decl);
+    lean_env_del(new_env);
+}
+
 int main() {
     test_add_univ();
     test_id();
     test_path();
     test_import();
+    test_inductive();
     return 0;
 }

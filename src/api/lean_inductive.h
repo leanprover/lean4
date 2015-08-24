@@ -31,6 +31,13 @@ lean_bool lean_inductive_type_mk(lean_name n, lean_expr t, lean_list_expr cs, le
 /** \brief Dispose/delete the given inductive type */
 void lean_inductive_type_del(lean_inductive_type t);
 
+/** \brief Store in \c r the name of the given inductive type. */
+lean_bool lean_inductive_type_get_name(lean_inductive_type t, lean_name * r, lean_exception * ex);
+/** \brief Store in \c r the type of the given inductive type. */
+lean_bool lean_inductive_type_get_type(lean_inductive_type t, lean_expr * r, lean_exception * ex);
+/** \brief Store in \c r the list of constructors of the given inductive type. */
+lean_bool lean_inductive_type_get_constructors(lean_inductive_type t, lean_list_expr * r, lean_exception * ex);
+
 /** \brief Create the empty list of inductive_types */
 lean_bool lean_list_inductive_type_mk_nil(lean_list_inductive_type * r, lean_exception * ex);
 /** \brief Create the list <tt>h :: t</tt> */
@@ -54,6 +61,13 @@ lean_bool lean_list_inductive_type_tail(lean_list_inductive_type l, lean_list_in
 lean_bool lean_inductive_decl_mk(lean_list_name ps, unsigned n, lean_list_inductive_type ts, lean_inductive_decl * r, lean_exception * ex);
 /** \brief Delete/dispose the given inductive declaration */
 void lean_inductive_decl_del(lean_inductive_decl d);
+
+/** \brief Store in \c r the list of universe parameter names of the given inductive declaration. */
+lean_bool lean_inductive_decl_get_univ_params(lean_inductive_decl d, lean_list_name * r, lean_exception * ex);
+/** \brief Store in \c r the number of parameters of the given inductive declaration. */
+lean_bool lean_inductive_decl_get_num_params(lean_inductive_decl d, unsigned * r, lean_exception * ex);
+/** \brief Store in \c r the list of inductive types in the given inductive declaration. */
+lean_bool lean_inductive_decl_get_types(lean_inductive_decl d, lean_list_inductive_type * r, lean_exception * ex);
 
 /** \brief Add the inductive declaration \c d to the given environment */
 lean_bool lean_env_add_inductive(lean_env env, lean_inductive_decl d, lean_env * r, lean_exception * ex);

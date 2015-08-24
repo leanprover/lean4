@@ -63,6 +63,12 @@ lean_univ_kind lean_univ_get_kind(lean_univ u);
 
 /** \brief Store \c lean_true in \c r iff the two given universe object are equal. */
 lean_bool lean_univ_eq(lean_univ u1, lean_univ u2, lean_bool * r, lean_exception * ex);
+/** \brief Store true in \c b if \c u1 is smaller than \c u2 in the internal total order. */
+lean_bool lean_univ_lt(lean_univ u1, lean_univ u2, lean_bool * b, lean_exception * ex);
+/** \brief Store true in \c b if \c u1 is smaller than \c u2 in the internal total order.
+    Similar to #lean_univ_lt, but it is more efficient because it first compares
+    the hashcodes associated with \c u1 and \c u2. */
+lean_bool lean_univ_quick_lt(lean_univ u1, lean_univ u2, lean_bool * b, lean_exception * ex);
 /** \brief If \c r contains \c lean_true, then forall assignments \c A that assigns all parameters,
     globals and metavariables occuring in \c u1 and \c u2, we have that the
     universe level u1[A] is bigger or equal to u2[A]. */

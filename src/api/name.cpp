@@ -63,6 +63,14 @@ lean_bool lean_name_eq(lean_name n1, lean_name n2) {
     return n1 && n2 && to_name_ref(n1) == to_name_ref(n2);
 }
 
+lean_bool lean_name_lt(lean_name n1, lean_name n2) {
+    return n1 && n2 && cmp(to_name_ref(n1), to_name_ref(n2)) < 0;
+}
+
+lean_bool lean_name_quick_lt(lean_name n1, lean_name n2) {
+    return n1 && n2 && quick_cmp(to_name_ref(n1), to_name_ref(n2)) < 0;
+}
+
 lean_bool lean_name_get_prefix(lean_name n, lean_name * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(n);

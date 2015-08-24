@@ -86,6 +86,12 @@ void lean_macro_def_del(lean_macro_def m);
 lean_expr_kind lean_expr_get_kind(lean_expr e);
 /** \brief Store \c lean_true in \c r iff the two given expressions are equal. */
 lean_bool lean_expr_eq(lean_expr e1, lean_expr e2, lean_bool * r, lean_exception * ex);
+/** \brief Store true in \c b if \c e1 is smaller than \c e2 in the internal total order. */
+lean_bool lean_expr_lt(lean_expr e1, lean_expr e2, lean_bool * b, lean_exception * ex);
+/** \brief Store true in \c b if \c e1 is smaller than \c e2 in the internal total order.
+    Similar to #lean_expr_lt, but it is more efficient because it first compares
+    the hashcodes associated with \c e1 and \c e2. */
+lean_bool lean_expr_quick_lt(lean_expr e1, lean_expr e2, lean_bool * b, lean_exception * ex);
 
 /** \brief Store in \c i the de-Brujin index of the given variable.
     \pre lean_expr_get_kind(e) == LEAN_EXPR_VAR */

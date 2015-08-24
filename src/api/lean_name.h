@@ -44,6 +44,12 @@ lean_bool lean_name_eq(lean_name n1, lean_name n2);
 /** \brief Return the prefix of the given name.
     \pre !lean_name_is_anonymous(n)
 */
+/** \brief Return true if \c n1 is smaller than \c n2 in the internal total order. */
+lean_bool lean_name_lt(lean_name n1, lean_name n2);
+/** \brief Return true if \c n1 is smaller than \c n2 in the internal total order.
+    Similar to #lean_name_lt, but it is more efficient because it first compares
+    the hashcodes associated with \c n1 and \c n2. */
+lean_bool lean_name_quick_lt(lean_name n1, lean_name n2);
 lean_bool lean_name_get_prefix(lean_name n, lean_name * r, lean_exception * ex);
 /** \brief Store in \c r the suffix of the given name as a string.
     \pre lean_name_is_str(n)

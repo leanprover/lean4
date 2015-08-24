@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/expr_lt.h"
 #include "api/univ.h"
 #include "api/expr.h"
 #include "api/string.h"
@@ -165,6 +166,22 @@ lean_bool lean_expr_eq(lean_expr e1, lean_expr e2, lean_bool * r, lean_exception
     check_nonnull(e1);
     check_nonnull(e2);
     *r = to_expr_ref(e1) == to_expr_ref(e2);
+    LEAN_CATCH;
+}
+
+lean_bool lean_expr_lt(lean_expr e1, lean_expr e2, lean_bool * b, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(e1);
+    check_nonnull(e2);
+    *b = is_lt(to_expr_ref(e1), to_expr_ref(e2), false);
+    LEAN_CATCH;
+}
+
+lean_bool lean_expr_quick_lt(lean_expr e1, lean_expr e2, lean_bool * b, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(e1);
+    check_nonnull(e2);
+    *b = is_lt(to_expr_ref(e1), to_expr_ref(e2), true);
     LEAN_CATCH;
 }
 

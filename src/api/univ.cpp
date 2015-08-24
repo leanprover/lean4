@@ -117,6 +117,22 @@ lean_bool lean_univ_eq(lean_univ u1, lean_univ u2, lean_bool * r, lean_exception
     LEAN_CATCH;
 }
 
+lean_bool lean_univ_lt(lean_univ u1, lean_univ u2, lean_bool * b, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(u1);
+    check_nonnull(u2);
+    *b = is_lt(to_level_ref(u1), to_level_ref(u2), false);
+    LEAN_CATCH;
+}
+
+lean_bool lean_univ_quick_lt(lean_univ u1, lean_univ u2, lean_bool * b, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(u1);
+    check_nonnull(u2);
+    *b = is_lt(to_level_ref(u1), to_level_ref(u2), true);
+    LEAN_CATCH;
+}
+
 lean_bool lean_univ_geq(lean_univ u1, lean_univ u2, lean_bool * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(u1);

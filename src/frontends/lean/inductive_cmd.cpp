@@ -40,6 +40,7 @@ using inductive::inductive_decl;
 using inductive::inductive_decl_name;
 using inductive::inductive_decl_type;
 using inductive::inductive_decl_intros;
+using inductive::mk_intro_rule;
 using inductive::intro_rule_name;
 using inductive::intro_rule_type;
 
@@ -52,7 +53,7 @@ inductive_decl update_inductive_decl(inductive_decl const & d, buffer<intro_rule
 }
 
 intro_rule update_intro_rule(intro_rule const & r, expr const & t) {
-    return intro_rule(intro_rule_name(r), t);
+    return mk_intro_rule(intro_rule_name(r), t);
 }
 
 static name * g_tmp_prefix  = nullptr;
@@ -255,10 +256,10 @@ struct inductive_cmd_fn {
             if (!m_params.empty() || m_p.curr_is_token(get_colon_tk())) {
                 m_p.check_token_next(get_colon_tk(), "invalid introduction rule, ':' expected");
                 expr intro_type = m_p.parse_expr();
-                intros.push_back(intro_rule(intro_name, intro_type));
+                intros.push_back(mk_intro_rule(intro_name, intro_type));
             } else {
                 expr intro_type = mk_constant(ind_name);
-                intros.push_back(intro_rule(intro_name, intro_type));
+                intros.push_back(mk_intro_rule(intro_name, intro_type));
             }
             if (!curr_is_intro_prefix())
                 break;
@@ -794,7 +795,8 @@ struct inductive_cmd_fn {
             out << "inductive " << d_name << " : " << d_type << "\n";
             for (auto const & ir : d_irules) {
                 name ir_name; expr ir_type;
-                std::tie(ir_name, ir_type) = ir;
+                ir_name = intro_rule_name(ir);
+                ir_type = intro_rule_type(ir);
                 out << "  | " << ir_name << " : " << ir_type << "\n";
             }
         }

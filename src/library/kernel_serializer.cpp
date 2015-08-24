@@ -352,7 +352,7 @@ inductive_decl read_inductive_decl(deserializer & d) {
     for (unsigned j = 0; j < num_intros; j++) {
         name r_name = read_name(d);
         expr r_type = read_expr(d);
-        rules.push_back(intro_rule(r_name, r_type));
+        rules.push_back(inductive::mk_intro_rule(r_name, r_type));
     }
     return inductive_decl(d_name, d_type, to_list(rules.begin(), rules.end()));
 }

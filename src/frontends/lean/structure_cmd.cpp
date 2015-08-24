@@ -680,7 +680,7 @@ struct structure_cmd_fn {
         expr intro_type     = mk_intro_type();
 
         level_param_names lnames = to_list(m_level_names.begin(), m_level_names.end());
-        inductive::intro_rule intro(m_mk, intro_type);
+        inductive::intro_rule intro = inductive::mk_intro_rule(m_mk, intro_type);
         inductive::inductive_decl  decl(m_name, structure_type, to_list(intro));
         m_env = module::add_inductive(m_env, lnames, m_params.size(), to_list(decl));
         save_info(m_name, "structure", m_name_pos);

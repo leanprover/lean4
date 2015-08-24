@@ -25,10 +25,10 @@ public:
 };
 
 /** \brief Introduction rule */
-typedef pair<name, expr> intro_rule;
-
-inline name const & intro_rule_name(intro_rule const & r) { return r.first; }
-inline expr const & intro_rule_type(intro_rule const & r) { return r.second; }
+typedef expr intro_rule;
+inline intro_rule mk_intro_rule(name const & n, expr const & t) { return mk_local(n, t); }
+inline name const & intro_rule_name(intro_rule const & r) { return mlocal_name(r); }
+inline expr const & intro_rule_type(intro_rule const & r) { return mlocal_type(r); }
 
 /** \brief Inductive datatype */
 typedef std::tuple<name,                // datatype name

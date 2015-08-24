@@ -1878,7 +1878,7 @@ static int add_inductive1(lua_State * L) {
     int nargs = lua_gettop(L);
     buffer<intro_rule> irules;
     for (int i = idx+1; i <= nargs; i+=2)
-        irules.push_back(intro_rule(to_name_ext(L, i), to_expr(L, i+1)));
+        irules.push_back(mk_intro_rule(to_name_ext(L, i), to_expr(L, i+1)));
     return push_environment(L, module::add_inductive(env, Iname, ls, num_params, Itype, to_list(irules.begin(), irules.end())));
 }
 static int add_inductivek(lua_State * L) {
@@ -1904,7 +1904,7 @@ static int add_inductivek(lua_State * L) {
         for (int i = 3; i <= decl_sz; i+=2) {
             lua_rawgeti(L, idx, i);
             lua_rawgeti(L, idx, i+1);
-            irules.push_back(intro_rule(to_name_ext(L, -2), to_expr(L, -1)));
+            irules.push_back(mk_intro_rule(to_name_ext(L, -2), to_expr(L, -1)));
             lua_pop(L, 2);
         }
         decls.push_back(inductive_decl(Iname, Itype, to_list(irules.begin(), irules.end())));

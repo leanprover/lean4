@@ -97,7 +97,7 @@ size_t get_stack_size(int main) {
 }
 #endif
 
-static bool g_stack_info_init = false;
+LEAN_THREAD_VALUE(bool, g_stack_info_init, false);
 LEAN_THREAD_VALUE(size_t, g_stack_size, 0);
 LEAN_THREAD_VALUE(size_t, g_stack_base, 0);
 
@@ -123,7 +123,9 @@ size_t get_available_stack_size() {
 }
 
 void check_stack(char const * component_name) {
-    if (g_stack_info_init && get_used_stack_size() + LEAN_MIN_STACK_SPACE > g_stack_size)
+    if (!g_stack_info_init)
+        save_stack_info(false);
+    if (get_used_stack_size() + LEAN_MIN_STACK_SPACE > g_stack_size)
         throw stack_space_exception(component_name);
 }
 }

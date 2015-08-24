@@ -35,3 +35,11 @@ add_test(ENV c_env_test
          COMMAND "${CMAKE_CURRENT_BINARY_DIR}/c_env_test")
 SET_TESTS_PROPERTIES(ENV
   PROPERTIES ENVIRONMENT "LEAN_PATH=${LEAN_SOURCE_DIR}/../library")
+
+add_executable(thread_test thread.cpp)
+target_link_libraries(thread_test ${EXTRA_LIBS} leanshared)
+add_test(thread_test thread_test
+         WORKING_DIRECTORY "${LEAN_BINARY_DIR}"
+         COMMAND "${CMAKE_CURRENT_BINARY_DIR}/thread_test")
+SET_TESTS_PROPERTIES(thread_test
+  PROPERTIES ENVIRONMENT "LEAN_PATH=${LEAN_SOURCE_DIR}/../library")

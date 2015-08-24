@@ -31,6 +31,9 @@ lean_bool lean_inductive_type_mk(lean_name n, lean_expr t, lean_list_expr cs, le
 /** \brief Dispose/delete the given inductive type */
 void lean_inductive_type_del(lean_inductive_type t);
 
+/** \brief Return the name of the recursor (aka eliminator) associated with an inductive type name \c n */
+lean_bool lean_get_recursor_name(lean_name n, lean_name * r, lean_exception * ex);
+
 /** \brief Store in \c r the name of the given inductive type. */
 lean_bool lean_inductive_type_get_name(lean_inductive_type t, lean_name * r, lean_exception * ex);
 /** \brief Store in \c r the type of the given inductive type. */

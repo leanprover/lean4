@@ -29,6 +29,13 @@ void lean_inductive_type_del(lean_inductive_type t) {
     delete to_inductive_type(t);
 }
 
+lean_bool lean_get_recursor_name(lean_name n, lean_name * r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(n);
+    *r = of_name(new name(get_elim_name(to_name_ref(n))));
+    LEAN_CATCH;
+}
+
 lean_bool lean_inductive_type_get_name(lean_inductive_type t, lean_name * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(t);

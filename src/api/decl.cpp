@@ -58,7 +58,7 @@ lean_bool lean_decl_mk_thm(lean_name n, lean_list_name p, lean_expr t, lean_expr
     LEAN_CATCH;
 }
 
-lean_bool lean_decl_mk_thm(lean_env e, lean_name n, lean_list_name p, lean_expr t, lean_expr v, lean_decl * r, lean_exception * ex) {
+lean_bool lean_decl_mk_thm_with(lean_env e, lean_name n, lean_list_name p, lean_expr t, lean_expr v, lean_decl * r, lean_exception * ex) {
     LEAN_TRY;
     check_nonnull(e);
     check_nonnull(n);

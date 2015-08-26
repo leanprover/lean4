@@ -68,7 +68,7 @@ lean_bool lean_env_forget(lean_env e, lean_env * r, lean_exception * ex);
     \remark Every declaration passed to \c f must be disposed using \c lean_decl_del. */
 lean_bool lean_env_for_each_decl(lean_env e, void (*f)(lean_decl), lean_exception * ex);
 /** \brief Execute \c f for each global universe in \c env.
-    \remark Every name passed to \c f must be disposed using \c lean_nam_del. */
+    \remark Every name passed to \c f must be disposed using \c lean_name_del. */
 lean_bool lean_env_for_each_univ(lean_env e, void (*f)(lean_name), lean_exception * ex);
 /*@}*/
 /*@}*/

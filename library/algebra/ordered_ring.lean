@@ -437,6 +437,17 @@ section
         ... ≤ b * c : mul_le_mul_of_nonneg_left Hc Hb,
     le_of_mul_le_mul_right H' (lt_of_lt_of_le zero_lt_one Hc)
 
+  theorem nonneg_le_nonneg_of_squares_le {a b : A} (Ha : a ≥ 0) (Hb : b ≥ 0) (H : a * a ≤ b * b) :
+      a ≤ b :=
+    begin
+      apply le_of_not_gt,
+      intro Hab,
+      let Hposa := lt_of_le_of_lt Hb Hab,
+      let H' := calc
+        b * b ≤ a * b : mul_le_mul_of_nonneg_right (le_of_lt Hab) Hb
+        ... < a * a : mul_lt_mul_of_pos_left Hab Hposa,
+      apply (not_le_of_gt H') H
+    end
 end
 
 /- TODO: Isabelle's library has all kinds of cancelation rules for the simplifier.
@@ -647,6 +658,41 @@ section
 
   theorem abs_mul_self (a : A) : abs (a * a) = a * a :=
   by rewrite [abs_mul, abs_mul_abs_self]
+
+  theorem sub_le_of_abs_sub_le_left (H : abs (a - b) ≤ c) : b - c ≤ a :=
+    if Hz : 0 ≤ a - b then
+      (calc
+        a ≥ b : (iff.mp !sub_nonneg_iff_le) Hz
+      ... ≥ b - c : sub_le_of_nonneg _ _ (le.trans !abs_nonneg H))
+    else
+      (have Habs : b - a ≤ c, by rewrite [abs_of_neg (lt_of_not_ge Hz) at H, neg_sub at H]; apply H,
+       have Habs' : b ≤ c + a, from (iff.mpr !le_add_iff_sub_right_le) Habs,
+       (iff.mp !le_add_iff_sub_left_le) Habs')
+
+  theorem sub_le_of_abs_sub_le_right (H : abs (a - b) ≤ c) : a - c ≤ b :=
+    sub_le_of_abs_sub_le_left (!abs_sub ▸ H)
+
+  theorem abs_sub_square (a b : A) : abs (a - b) * abs (a - b) = a * a + b * b - (1 + 1) * a * b :=
+    by rewrite [abs_mul_abs_self, *mul_sub_left_distrib, *mul_sub_right_distrib,
+             sub_add_eq_sub_sub, sub_neg_eq_add, *right_distrib, sub_add_eq_sub_sub, *one_mul,
+             *add.assoc, {_ + b * b}add.comm, {_ + (b * b + _)}add.comm, mul.comm b a, *add.assoc]
+
+  theorem abs_abs_sub_abs_le_abs_sub (a b : A) : abs (abs a - abs b) ≤ abs (a - b) :=
+  begin
+    apply nonneg_le_nonneg_of_squares_le,
+    repeat apply abs_nonneg,
+    rewrite [*abs_sub_square, *abs_abs, *abs_mul_abs_self],
+    apply sub_le_sub_left,
+    rewrite *mul.assoc,
+    apply mul_le_mul_of_nonneg_left,
+    rewrite -abs_mul,
+    apply le_abs_self,
+    apply le_of_lt,
+    apply add_pos,
+    apply zero_lt_one,
+    apply zero_lt_one
+  end
+
 end
 
 /- TODO: Multiplication and one, starting with mult_right_le_one_le. -/

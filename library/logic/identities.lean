@@ -48,6 +48,14 @@ iff.intro
   (λH, by_cases (λa, or.inr (not.mto (and.intro a) H)) or.inl)
   (or.rec (not.mto and.left) (not.mto and.right))
 
+theorem or_iff_not_and_not {a b : Prop} [Da : decidable a] [Db : decidable b] :
+  a ∨ b ↔ ¬ (¬a ∧ ¬b) :=
+by rewrite [-not_or_iff_not_and_not, not_not_iff]
+
+theorem and_iff_not_or_not {a b : Prop} [Da : decidable a] [Db : decidable b] :
+  a ∧ b ↔ ¬ (¬ a ∨ ¬ b) :=
+by rewrite [-not_and_iff_not_or_not, not_not_iff]
+
 theorem imp_iff_not_or {a b : Prop} [Da : decidable a] : (a → b) ↔ ¬a ∨ b :=
 iff.intro
   (by_cases (λHa H, or.inr (H Ha)) (λHa H, or.inl Ha))

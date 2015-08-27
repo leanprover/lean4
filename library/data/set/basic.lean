@@ -266,6 +266,25 @@ ext (take x, iff.intro
   (suppose x ∈ s, and.intro (ssubt this) this)
   (suppose x ∈ {x ∈ t | x ∈ s}, and.right this))
 
+/- complement -/
+
+definition complement (s : set X) : set X := {x | x ∉ s}
+prefix `-` := complement
+
+theorem mem_complement {s : set X} {x : X} (H : x ∉ s) : x ∈ -s := H
+
+theorem not_mem_of_mem_complement {s : set X} {x : X} (H : x ∈ -s) : x ∉ s := H
+
+section
+  open classical
+
+  theorem union_eq_comp_comp_inter_comp (s t : set X) : s ∪ t = -(-s ∩ -t) :=
+  ext (take x, !or_iff_not_and_not)
+
+  theorem inter_eq_comp_comp_union_comp (s t : set X) : s ∩ t = -(-s ∪ -t) :=
+  ext (take x, !and_iff_not_or_not)
+end
+
 /- set difference -/
 
 definition diff (s t : set X) : set X := {x ∈ s | x ∉ t}

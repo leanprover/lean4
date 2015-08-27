@@ -212,6 +212,38 @@ theorem diff_union_cancel {s t : finset A} (H : s ⊆ t) : (t \ s) ∪ s = t :=
 eq.subst !union.comm (!union_diff_cancel H)
 end diff
 
+/- set complement -/
+section complement
+
+variables {A : Type} [deceqA : decidable_eq A] [h : fintype A]
+include deceqA h
+
+definition complement (s : finset A) : finset A := univ \ s
+prefix [priority finset.prio] - := complement
+
+theorem mem_complement {s : finset A} {x : A} (H : x ∉ s) : x ∈ -s :=
+mem_diff !mem_univ H
+
+theorem not_mem_of_mem_complement {s : finset A} {x : A} (H : x ∈ -s) : x ∉ s :=
+not_mem_of_mem_diff H
+
+theorem mem_complement_iff (s : finset A) (x : A) : x ∈ -s ↔ x ∉ s :=
+iff.intro not_mem_of_mem_complement mem_complement
+
+section
+  open classical
+
+  theorem union_eq_comp_comp_inter_comp (s t : finset A) : s ∪ t = -(-s ∩ -t) :=
+  ext (take x, by rewrite [mem_union_iff, mem_complement_iff, mem_inter_iff, *mem_complement_iff,
+                           or_iff_not_and_not])
+
+  theorem inter_eq_comp_comp_union_comp (s t : finset A) : s ∩ t = -(-s ∪ -t) :=
+  ext (take x, by rewrite [mem_inter_iff, mem_complement_iff, mem_union_iff, *mem_complement_iff,
+                           and_iff_not_or_not])
+end
+
+end complement
+
 /- all -/
 section all
 variables {A : Type}

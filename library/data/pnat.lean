@@ -185,7 +185,7 @@ theorem two_mul (p : ℕ+) : rat_of_pnat (2 * p) = (1 + 1) * rat_of_pnat p :=
 
 theorem add_halves (p : ℕ+) : (2 * p)⁻¹ + (2 * p)⁻¹ = p⁻¹ :=
   begin
-    rewrite [↑inv, -(@add_halves (1 / (rat_of_pnat p))), *div_div_eq_div_mul'],
+    rewrite [↑inv, -(@add_halves (1 / (rat_of_pnat p))), rat.div_div_eq_div_mul],
     have H : rat_of_pnat (2 * p) = rat_of_pnat p * (1 + 1), by rewrite [rat.mul.comm, two_mul],
     rewrite *H
   end
@@ -197,7 +197,7 @@ theorem add_halves_double (m n : ℕ+) :
   by rewrite [-add_halves m, -add_halves n, hsimp]
 
 theorem inv_mul_eq_mul_inv {p q : ℕ+} : (p * q)⁻¹ = p⁻¹ * q⁻¹ :=
-  by rewrite [↑inv, pnat_to_rat_mul, one_div_mul_one_div''']
+  by rewrite [↑inv, pnat_to_rat_mul, one_div_mul_one_div]
 
 theorem inv_mul_le_inv (p q : ℕ+) : (p * q)⁻¹ ≤ q⁻¹ :=
   begin
@@ -277,10 +277,9 @@ theorem pceil_helper {a : ℚ} {n : ℕ+} (H : pceil a ≤ n) (Ha : a > 0) : n�
   rat.le.trans (inv_ge_of_le H) (div_le_div_of_le Ha (ubound_ge a))
 
 theorem inv_pceil_div (a b : ℚ) (Ha : a > 0) (Hb : b > 0) : (pceil (a / b))⁻¹ ≤ b / a :=
-  div_div' ▸ div_le_div_of_le
+  !one_div_one_div ▸ div_le_div_of_le
     (one_div_pos_of_pos (div_pos_of_pos_of_pos Hb Ha))
-    ((div_div_eq_mul_div (ne_of_gt Hb) (ne_of_gt Ha))⁻¹ ▸
-      !rat.one_mul⁻¹ ▸ !ubound_ge)
+    (!div_div_eq_mul_div⁻¹ ▸ !rat.one_mul⁻¹ ▸ !ubound_ge)
 
 theorem sep_by_inv {a b : ℚ} (H : a > b) : ∃ N : ℕ+, a > (b + N⁻¹ + N⁻¹) :=
   begin
@@ -311,6 +310,6 @@ theorem nonneg_of_ge_neg_invs (a : ℚ) (H : ∀ n : ℕ+, -n⁻¹ ≤ a) : 0 �
           : !inv_pceil_div dec_trivial H2
                              ... < -a / 1
           : div_lt_div_of_pos_of_lt_of_pos dec_trivial dec_trivial H2
-                             ... = -a : div_one)))
+                             ... = -a : !div_one)))
 
 end pnat

@@ -738,8 +738,7 @@ theorem width (n : ℕ) : over_seq n - under_seq n = (over - under) / (rat.pow 2
       let Hou := calc
         (over_seq a) / 2 - (under_seq a) / 2 = ((over - under) / rat.pow 2 a) / 2 :
                                                by rewrite [rat.div_sub_div_same, Ha]
-        ... = (over - under) / (rat.pow 2 a * 2) :
-               rat.div_div_eq_div_mul (rat.ne_of_gt (rat.pow_pos dec_trivial _)) dec_trivial
+        ... = (over - under) / (rat.pow 2 a * 2) : rat.div_div_eq_div_mul
         ... = (over - under) / rat.pow 2 (a + 1) : by rewrite rat.pow_add,
       cases em (ub (avg_seq a)),
       rewrite [*if_pos a_1, -add_one, -Hou, ↑avg_seq, ↑avg, rat.add.assoc, rat.div_two_sub_self],

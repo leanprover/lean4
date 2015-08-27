@@ -8,7 +8,6 @@ This construction follows Bishop and Bridges (1985).
 To do:
  o Rename things and possibly make theorems private
 -/
-
 import data.real.basic data.rat data.nat
 open -[coercions] rat
 open -[coercions] nat
@@ -881,9 +880,9 @@ theorem nat_inv_lt_rat {a : ℚ} (H : a > 0) : ∃ n : ℕ+, n⁻¹ < a :=
     apply lt_of_le_of_lt,
     rotate 1,
     apply div_two_lt_of_pos H,
-    rewrite -(@div_div' (a / (1 + 1))),
+    rewrite -(one_div_one_div (a / (1 + 1))),
     apply pceil_helper,
-    rewrite div_div',
+    rewrite one_div_one_div,
     apply pnat.le.refl,
     apply one_div_pos_of_pos,
     apply div_pos_of_pos_of_pos H dec_trivial

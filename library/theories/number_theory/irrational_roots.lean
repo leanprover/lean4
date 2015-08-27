@@ -73,8 +73,8 @@ section
   have b ≠ 0, from ne_of_gt (denom_pos q),
   have bnz : b ≠ (0 : ℚ), from assume H, `b ≠ 0` (of_int.inj H),
   have bnnz : (#rat b^n ≠ 0), from assume bneqz, bnz (eq_zero_of_pow_eq_zero bneqz),
-  have a^n / b^n = c, using bnz, by rewrite [*of_int_pow, -(!div_pow bnz), -eq_num_div_denom, -H],
-  have a^n = c * b^n, from eq.symm (mul_eq_of_eq_div bnnz this⁻¹),
+  have a^n / b^n = c, using bnz, by rewrite [*of_int_pow, -div_pow, -eq_num_div_denom, -H],
+  have a^n = c * b^n, from eq.symm (!mul_eq_of_eq_div bnnz this⁻¹),
   have a^n = c * b^n,  -- int version
     using this, by rewrite [-of_int_pow at this, -of_int_mul at this]; exact of_int.inj this,
   have (abs a)^n = abs c * (abs b)^n,

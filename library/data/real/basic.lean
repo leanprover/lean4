@@ -8,13 +8,12 @@ This construction follows Bishop and Bridges (1985).
 To do:
  o Rename things and possibly make theorems private
 -/
-
 import data.nat data.rat.order data.pnat
 open nat eq eq.ops pnat
 open -[coercions] rat
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1
-----------------------------------------------------------------------------------------------------
+
 -- small helper lemmas
 
 theorem s_mul_assoc_lemma_3 (a b n : ℕ+) (p : ℚ) :
@@ -39,7 +38,7 @@ theorem find_thirds (a b : ℚ) (H : b > 0) : ∃ n : ℕ+, a + n⁻¹ + n⁻¹ 
               ... ≤ of_nat 4 * (b / of_nat 4)
                   : rat.mul_le_mul_of_nonneg_left (!inv_pceil_div dec_trivial H) !of_nat_nonneg
               ... = b / of_nat 4 * of_nat 4 : rat.mul.comm
-              ... = b : rat.div_mul_cancel dec_trivial,
+              ... = b : !rat.div_mul_cancel dec_trivial,
   exists.intro n (calc
     a + n⁻¹ + n⁻¹ + n⁻¹ = a + (1 + 1 + 1) * n⁻¹ : by rewrite[*rat.right_distrib,*rat.one_mul,-*rat.add.assoc]
                     ... = a + of_nat 3 * n⁻¹    : {show 1+1+1=of_nat 3, from dec_trivial}
@@ -203,7 +202,7 @@ theorem eq_of_bdd_var {s t : seq} (Hs : regular s) (Ht : regular t)
 theorem pnat_bound {ε : ℚ} (Hε : ε > 0) : ∃ p : ℕ+, p⁻¹ ≤ ε :=
   begin
     existsi (pceil (1 / ε)),
-    rewrite -(rat.div_div (rat.ne_of_gt Hε)) at {2},
+    rewrite -(rat.one_div_one_div ε) at {2},
     apply pceil_helper,
     apply le.refl,
     apply one_div_pos_of_pos Hε
@@ -622,7 +621,7 @@ theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : 
           apply rat.ne_of_gt,
           repeat (apply rat.mul_pos | apply rat.add_pos | apply rat_of_pnat_is_pos | apply inv_pos),
         end,
-        rewrite (rat.div_helper H),
+        rewrite (!rat.div_helper H),
         apply rat.le.refl
     end,
     apply rat.add_le_add,

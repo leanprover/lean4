@@ -52,7 +52,32 @@ or.elim (eq_zero_or_pos m)
     obtain m' (h₂ : m = succ m'), from exists_eq_succ_of_pos `m > 0`,
     show a = 0, by rewrite h₂ at H; apply h₁ m' H)
 
+theorem pow_ne_zero_of_ne_zero {a : A} {m : ℕ} (H : a ≠ 0) : a^m ≠ 0 :=
+assume H', H (eq_zero_of_pow_eq_zero H')
+
 end integral_domain
+
+section division_ring
+variable [s : division_ring A]
+include s
+
+theorem division_ring.pow_ne_zero_of_ne_zero {a : A} {m : ℕ} (H : a ≠ 0) : a^m ≠ 0 :=
+or.elim (eq_zero_or_pos m)
+  (suppose m = 0,
+    by rewrite [`m = 0`, pow_zero]; exact (ne.symm zero_ne_one))
+  (suppose m > 0,
+    have h₁ : ∀ m, a^succ m ≠ 0,
+      begin
+        intro m,
+        induction m with m ih,
+          {rewrite pow_one; assumption},
+        rewrite pow_succ,
+        apply division_ring.mul_ne_zero H ih
+      end,
+    obtain m' (h₂ : m = succ m'), from exists_eq_succ_of_pos `m > 0`,
+    show a^m ≠ 0, by rewrite h₂; apply h₁ m')
+
+end division_ring
 
 section linear_ordered_semiring
 variable [s : linear_ordered_semiring A]
@@ -111,16 +136,29 @@ end
 
 end decidable_linear_ordered_comm_ring
 
+section field
+variable [s : field A]
+include s
+
+theorem field.div_pow (a : A) {b : A} {n : ℕ} (bnz : b ≠ 0) : (a / b)^n = a^n / b^n :=
+begin
+  induction n with n ih,
+    rewrite [*pow_zero, div_one],
+  have bnnz : b^n ≠ 0, from division_ring.pow_ne_zero_of_ne_zero bnz,
+  rewrite [*pow_succ, ih, !field.div_mul_div bnz bnnz]
+end
+
+end field
+
 section discrete_field
 variable [s : discrete_field A]
 include s
 
-theorem div_pow (a : A) {b : A} {n : ℕ} (bnz : b ≠ 0) : (a / b)^n = a^n / b^n :=
+theorem div_pow (a : A) {b : A} {n : ℕ} : (a / b)^n = a^n / b^n :=
 begin
   induction n with n ih,
     rewrite [*pow_zero, div_one],
-  have bnnz : b^n ≠ 0, from suppose b^n = 0, bnz (eq_zero_of_pow_eq_zero this),
-  rewrite [*pow_succ, ih, div_mul_div bnz bnnz]
+  rewrite [*pow_succ, ih, div_mul_div]
 end
 
 end discrete_field

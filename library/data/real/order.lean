@@ -82,7 +82,7 @@ theorem nonneg_of_bdd_within {s : seq} (Hs : regular s)
     cases H (pceil ((1 + 1) / ε)) with [N, HN],
     apply le.trans,
     rotate 1,
-    apply ge_sub_of_abs_sub_le_left,
+    apply sub_le_of_abs_sub_le_left,
     apply Hs,
     apply (max (pceil ((1+1)/ε)) N),
     rewrite [↑rat.sub, neg_add, {_ + (-k⁻¹ + _)}add.comm, *add.assoc],
@@ -115,7 +115,7 @@ theorem pos_of_pos_equiv {s t : seq} (Hs : regular s) (Heq : s ≡ t) (Hp : pos 
     existsi 2 * 2 * N,
     apply lt_of_lt_of_le,
     rotate 1,
-    apply ge_sub_of_abs_sub_le_right,
+    apply sub_le_of_abs_sub_le_right,
     apply Heq,
     have Hs4 : N⁻¹ ≤ s (2 * 2 * N), from HN _ (!mul_le_mul_left),
     apply lt_of_lt_of_le,
@@ -138,7 +138,7 @@ theorem nonneg_of_nonneg_equiv {s t : seq} (Hs : regular s) (Ht : regular t) (He
     intro m Hm,
     apply le.trans,
     rotate 1,
-    apply ge_sub_of_abs_sub_le_right,
+    apply sub_le_of_abs_sub_le_right,
     apply Heq,
     apply le.trans,
     rotate 1,
@@ -384,7 +384,7 @@ theorem le_and_sep_of_lt {s t : seq} (Hs : regular s) (Ht : regular t) (Lst : s_
     cases Lst with [N, HN],
     let Rns := reg_neg_reg Hs,
     let Rtns := reg_add_reg Ht Rns,
-    let Habs := ge_sub_of_abs_sub_le_right (Rtns N n),
+    let Habs := sub_le_of_abs_sub_le_right (Rtns N n),
     rewrite [sub_add_eq_sub_sub at Habs],
     exact (calc
       sadd t (sneg s) n ≥ sadd t (sneg s) N -  N⁻¹ - n⁻¹ : Habs
@@ -885,8 +885,8 @@ theorem nat_inv_lt_rat {a : ℚ} (H : a > 0) : ∃ n : ℕ+, n⁻¹ < a :=
     apply pceil_helper,
     rewrite div_div',
     apply pnat.le.refl,
-    apply div_pos_of_pos,
-    apply pos_div_of_pos_of_pos H dec_trivial
+    apply one_div_pos_of_pos,
+    apply div_pos_of_pos_of_pos H dec_trivial
   end
 
 

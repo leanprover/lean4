@@ -7,9 +7,7 @@ Basic facts about the positive natural numbers.
 
 Developed primarily for use in the construction of ℝ. For the most part, the only theorems here
 are those needed for that construction.
-
 -/
-
 import data.rat.order data.nat
 open nat rat subtype eq.ops
 
@@ -113,7 +111,7 @@ theorem pnat_le_of_rat_of_pnat_le {m n : ℕ+} (H : rat_of_pnat m ≤ rat_of_pna
 definition inv (n : ℕ+) : ℚ := (1 : ℚ) / rat_of_pnat n
 postfix `⁻¹` := inv
 
-theorem inv_pos (n : ℕ+) : n⁻¹ > 0 := div_pos_of_pos !rat_of_pnat_is_pos
+theorem inv_pos (n : ℕ+) : n⁻¹ > 0 := one_div_pos_of_pos !rat_of_pnat_is_pos
 
 theorem inv_le_one (n : ℕ+) : n⁻¹ ≤ (1 : ℚ) :=
   begin
@@ -180,7 +178,7 @@ theorem inv_gt_of_lt {p q : ℕ+} (H : p < q) : q⁻¹ < p⁻¹ :=
   div_lt_div_of_lt !rat_of_pnat_is_pos (rat_of_pnat_lt_of_pnat_lt H)
 
 theorem ge_of_inv_le {p q : ℕ+} (H : p⁻¹ ≤ q⁻¹) : q ≤ p :=
-  pnat_le_of_rat_of_pnat_le (le_of_div_le !rat_of_pnat_is_pos H)
+  pnat_le_of_rat_of_pnat_le (le_of_one_div_le_one_div !rat_of_pnat_is_pos H)
 
 theorem two_mul (p : ℕ+) : rat_of_pnat (2 * p) = (1 + 1) * rat_of_pnat p :=
   by rewrite pnat_to_rat_mul
@@ -280,13 +278,13 @@ theorem pceil_helper {a : ℚ} {n : ℕ+} (H : pceil a ≤ n) (Ha : a > 0) : n�
 
 theorem inv_pceil_div (a b : ℚ) (Ha : a > 0) (Hb : b > 0) : (pceil (a / b))⁻¹ ≤ b / a :=
   div_div' ▸ div_le_div_of_le
-    (div_pos_of_pos (pos_div_of_pos_of_pos Hb Ha))
+    (one_div_pos_of_pos (div_pos_of_pos_of_pos Hb Ha))
     ((div_div_eq_mul_div (ne_of_gt Hb) (ne_of_gt Ha))⁻¹ ▸
       !rat.one_mul⁻¹ ▸ !ubound_ge)
 
 theorem sep_by_inv {a b : ℚ} (H : a > b) : ∃ N : ℕ+, a > (b + N⁻¹ + N⁻¹) :=
   begin
-    apply exists.elim (find_midpoint H),
+    apply exists.elim (exists_add_lt_and_pos_of_lt H),
     intro c Hc,
     existsi (pceil ((1 + 1 + 1) / c)),
     apply rat.lt.trans,

@@ -24,8 +24,8 @@ theorem s_mul_assoc_lemma_3 (a b n : ℕ+) (p : ℚ) :
 theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0) (H : n ≥ pceil (q / ε)) :
         q * n⁻¹ ≤ ε :=
   begin
-    let H2 := pceil_helper H (pos_div_of_pos_of_pos Hq Hε),
-    let H3 := mul_le_of_le_div (pos_div_of_pos_of_pos Hq Hε) H2,
+    let H2 := pceil_helper H (div_pos_of_pos_of_pos Hq Hε),
+    let H3 := mul_le_of_le_div (div_pos_of_pos_of_pos Hq Hε) H2,
     rewrite -(one_mul ε),
     apply mul_le_mul_of_mul_div_le,
     repeat assumption
@@ -49,7 +49,7 @@ theorem squeeze {a b : ℚ} (H : ∀ j : ℕ+, a ≤ b + j⁻¹ + j⁻¹ + j⁻�
   begin
     apply rat.le_of_not_gt,
     intro Hb,
-    cases find_midpoint Hb with [c, Hc],
+    cases exists_add_lt_and_pos_of_lt Hb with [c, Hc],
     cases find_thirds b c (and.right Hc) with [j, Hbj],
     have Ha : a > b + j⁻¹ + j⁻¹ + j⁻¹, from lt.trans Hbj (and.left Hc),
     apply (not_le_of_gt Ha) !H
@@ -59,7 +59,7 @@ theorem squeeze_2 {a b : ℚ} (H : ∀ ε : ℚ, ε > 0 → a ≥ b - ε) : a �
   begin
     apply rat.le_of_not_gt,
     intro Hb,
-    cases find_midpoint Hb with [c, Hc],
+    cases exists_add_lt_and_pos_of_lt Hb with [c, Hc],
     let Hc' := H c (and.right Hc),
     apply (rat.not_le_of_gt (and.left Hc)) (iff.mpr !le_add_iff_sub_right_le Hc')
   end
@@ -206,7 +206,7 @@ theorem pnat_bound {ε : ℚ} (Hε : ε > 0) : ∃ p : ℕ+, p⁻¹ ≤ ε :=
     rewrite -(rat.div_div (rat.ne_of_gt Hε)) at {2},
     apply pceil_helper,
     apply le.refl,
-    apply div_pos_of_pos Hε
+    apply one_div_pos_of_pos Hε
   end
 
 theorem bdd_of_eq_var {s t : seq} (Hs : regular s) (Ht : regular t) (Heq : s ≡ t) :
@@ -700,7 +700,7 @@ theorem mul_zero_equiv_zero {s t : seq} (Hs : regular s) (Ht : regular t) (Htz :
     apply zero_is_reg,
     intro ε Hε,
     let Bd := bdd_of_eq_var Ht zero_is_reg Htz (ε / (Kq s))
-                            (pos_div_of_pos_of_pos Hε (Kq_bound_pos Hs)),
+                            (div_pos_of_pos_of_pos Hε (Kq_bound_pos Hs)),
     cases Bd with [N, HN],
     existsi N,
     intro n Hn,

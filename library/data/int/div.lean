@@ -11,7 +11,6 @@ import data.int.order data.nat.div
 open [coercions] [reduce-hints] nat
 open [declarations] nat (succ)
 open eq.ops
-notation `ℕ` := nat
 
 namespace int
 

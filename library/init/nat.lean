@@ -7,8 +7,9 @@ prelude
 import init.wf init.tactic init.num
 open eq.ops decidable or
 
+notation `ℕ` := nat
+
 namespace nat
-  notation `ℕ` := nat
 
   /- basic definitions on natural numbers -/
   inductive le (a : ℕ) : ℕ → Prop :=

@@ -17,8 +17,6 @@ local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1
 local notation 2 := subtype.tag (of_num 2) dec_trivial
 
-----------------------------------------------------------------------------------------------------
-
 namespace s
 definition pos (s : seq) := ∃ n : ℕ+, n⁻¹ < (s n)
 
@@ -1026,8 +1024,8 @@ definition lt (x y : ℝ) := quot.lift_on₂ x y (λ a b, s.r_lt a b) s.r_lt_wel
 infix [priority real.prio] `<` := lt
 
 definition le (x y : ℝ) := quot.lift_on₂ x y (λ a b, s.r_le a b) s.r_le_well_defined
-infix [priority real.prio] `≤` := le
 infix [priority real.prio] `<=` := le
+infix [priority real.prio] `≤` := le
 
 definition gt [reducible] (a b : ℝ) := lt b a
 definition ge [reducible] (a b : ℝ) := le b a
@@ -1084,7 +1082,7 @@ theorem add_lt_add_left_var (x y z : ℝ) : x < y → z + x < z + y :=
 theorem add_lt_add_left (x y : ℝ) : x < y → ∀ z : ℝ, z + x < z + y :=
   take H z, add_lt_add_left_var x y z H
 
-theorem zero_lt_one : zero < one := s.r_zero_lt_one
+theorem zero_lt_one : (0 : ℝ) < (1 : ℝ) := s.r_zero_lt_one
 
 theorem le_of_lt_or_eq (x y : ℝ) : x < y ∨ x = y → x ≤ y :=
     (quot.induction_on₂ x y (λ s t H, or.elim H (take H', begin

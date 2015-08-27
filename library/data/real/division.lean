@@ -584,10 +584,10 @@ postfix [priority real.prio] `⁻¹` := inv
 theorem le_total (x y : ℝ) : x ≤ y ∨ y ≤ x :=
   quot.induction_on₂ x y (λ s t, s.r_le_total s t)
 
-theorem mul_inv' (x : ℝ) : x ≢ zero → x * x⁻¹ = one :=
+theorem mul_inv' (x : ℝ) : x ≢ 0 → x * x⁻¹ = 1 :=
   quot.induction_on x (λ s H, quot.sound (s.r_mul_inv s H))
 
-theorem inv_mul' (x : ℝ) : x ≢ zero → x⁻¹ * x = one :=
+theorem inv_mul' (x : ℝ) : x ≢ 0 → x⁻¹ * x = 1 :=
   by rewrite real.mul_comm; apply mul_inv'
 
 theorem neq_of_sep {x y : ℝ} (H : x ≢ y) : ¬ x = y :=
@@ -599,11 +599,11 @@ theorem sep_of_neq {x y : ℝ} : ¬ x = y → x ≢ y :=
 theorem sep_is_neq (x y : ℝ) : (x ≢ y) = (¬ x = y) :=
   propext (iff.intro neq_of_sep sep_of_neq)
 
-theorem mul_inv (x : ℝ) : x ≠ zero → x * x⁻¹ = one := !sep_is_neq ▸ !mul_inv'
+theorem mul_inv (x : ℝ) : x ≠ 0 → x * x⁻¹ = 1 := !sep_is_neq ▸ !mul_inv'
 
-theorem inv_mul (x : ℝ) : x ≠ zero → x⁻¹ * x = one := !sep_is_neq ▸ !inv_mul'
+theorem inv_mul (x : ℝ) : x ≠ 0 → x⁻¹ * x = 1 := !sep_is_neq ▸ !inv_mul'
 
-theorem inv_zero : zero⁻¹ = zero := quot.sound (s.r_inv_zero)
+theorem inv_zero : (0 : ℝ)⁻¹ = 0 := quot.sound (s.r_inv_zero)
 
 theorem lt_or_eq_of_le (x y : ℝ) : x ≤ y → x < y ∨ x = y :=
   quot.induction_on₂ x y (λ s t H, or.elim (s.r_lt_or_equiv_of_le s t H)

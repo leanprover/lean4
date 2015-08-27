@@ -1029,10 +1029,17 @@ definition neg (x : ℝ) : ℝ :=
                                    quot.sound (rneg_well_defined Hab)))
 prefix [priority real.prio] `-` := neg
 
-definition zero : ℝ := quot.mk r_zero
+open rat -- no coercions before
+
+definition of_rat [coercion] (a : ℚ) : ℝ := quot.mk (s.r_const a)
+definition of_num [coercion] [reducible] (n : num) : ℝ := of_rat (rat.of_num n)
+
+--definition zero : ℝ := 0
+--definition one : ℝ := 1
+--definition zero : ℝ := quot.mk r_zero
 --notation 0 := zero
 
-definition one : ℝ := quot.mk r_one
+--definition one : ℝ := quot.mk r_one
 
 theorem add_comm (x y : ℝ) : x + y = y + x :=
   quot.induction_on₂ x y (λ s t, quot.sound (r_add_comm s t))
@@ -1040,13 +1047,13 @@ theorem add_comm (x y : ℝ) : x + y = y + x :=
 theorem add_assoc (x y z : ℝ) : x + y + z = x + (y + z) :=
   quot.induction_on₃ x y z (λ s t u, quot.sound (r_add_assoc s t u))
 
-theorem zero_add (x : ℝ) : zero + x = x :=
+theorem zero_add (x : ℝ) : 0 + x = x :=
   quot.induction_on x (λ s, quot.sound (r_zero_add s))
 
-theorem add_zero (x : ℝ) : x + zero = x :=
+theorem add_zero (x : ℝ) : x + 0 = x :=
   quot.induction_on x (λ s, quot.sound (r_add_zero s))
 
-theorem neg_cancel (x : ℝ) : -x + x = zero :=
+theorem neg_cancel (x : ℝ) : -x + x = 0 :=
   quot.induction_on x (λ s, quot.sound (r_neg_cancel s))
 
 theorem mul_assoc (x y z : ℝ) : x * y * z = x * (y * z) :=
@@ -1055,10 +1062,10 @@ theorem mul_assoc (x y z : ℝ) : x * y * z = x * (y * z) :=
 theorem mul_comm (x y : ℝ) : x * y = y * x :=
   quot.induction_on₂ x y (λ s t, quot.sound (r_mul_comm s t))
 
-theorem one_mul (x : ℝ) : one * x = x :=
+theorem one_mul (x : ℝ) : 1 * x = x :=
   quot.induction_on x (λ s, quot.sound (r_one_mul s))
 
-theorem mul_one (x : ℝ) : x * one = x :=
+theorem mul_one (x : ℝ) : x * 1 = x :=
   quot.induction_on x (λ s, quot.sound (r_mul_one s))
 
 theorem distrib (x y z : ℝ) : x * (y + z) = x * y + x * z :=
@@ -1067,8 +1074,8 @@ theorem distrib (x y z : ℝ) : x * (y + z) = x * y + x * z :=
 theorem distrib_l (x y z : ℝ) : (x + y) * z = x * z + y * z :=
   by rewrite [mul_comm, distrib, {x * _}mul_comm, {y * _}mul_comm] -- this shouldn't be necessary
 
-theorem zero_ne_one : ¬ zero = one :=
-  take H : zero = one,
+theorem zero_ne_one : ¬ (0 : ℝ) = 1 :=
+  take H : 0 = 1,
   absurd (quot.exact H) (r_zero_nequiv_one)
 
 protected definition comm_ring [reducible] : algebra.comm_ring ℝ :=
@@ -1076,7 +1083,7 @@ protected definition comm_ring [reducible] : algebra.comm_ring ℝ :=
     fapply algebra.comm_ring.mk,
     exact add,
     exact add_assoc,
-    exact zero,
+    exact of_num 0,
     exact zero_add,
     exact add_zero,
     exact neg,
@@ -1084,17 +1091,13 @@ protected definition comm_ring [reducible] : algebra.comm_ring ℝ :=
     exact add_comm,
     exact mul,
     exact mul_assoc,
-    apply one,
+    apply of_num 1,
     apply one_mul,
     apply mul_one,
     apply distrib,
     apply distrib_l,
     apply mul_comm
   end
-
-open rat -- no coercions before
-
-definition of_rat [coercion] (a : ℚ) : ℝ := quot.mk (s.r_const a)
 
 theorem of_rat_add (a b : ℚ) : of_rat a + of_rat b = of_rat (a + b) :=
    quot.sound (s.r_add_consts a b)

@@ -512,7 +512,7 @@ section migrate_algebra
     add_comm         := add.comm,
     mul              := mul,
     mul_assoc        := mul.assoc,
-    one              := (of_num 1),
+    one              := 1,
     one_mul          := one_mul,
     mul_one          := mul_one,
     left_distrib     := mul.left_distrib,

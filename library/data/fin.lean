@@ -374,15 +374,15 @@ open sum equiv decidable
 definition fin_zero_equiv_empty : fin 0 ≃ empty :=
 ⦃ equiv,
   to_fun    := λ f : (fin 0), elim0 f,
-  inv       := λ e : empty, empty.rec _ e,
+  inv_fun   := λ e : empty, empty.rec _ e,
   left_inv  := λ f : (fin 0), elim0 f,
   right_inv := λ e : empty, empty.rec _ e
 ⦄
 
 definition fin_one_equiv_unit : fin 1 ≃ unit :=
 ⦃ equiv,
-  to_fun := λ f : (fin 1), unit.star,
-  inv    := λ u : unit,    fin.zero 0,
+  to_fun  := λ f : (fin 1), unit.star,
+  inv_fun := λ u : unit,    fin.zero 0,
   left_inv := begin
     intro f, change mk 0 !zero_lt_succ = f, cases f with v h, congruence,
     have v +1 ≤ 1, from succ_le_of_lt h,
@@ -406,7 +406,7 @@ assert aux₁ : ∀ {v}, v < m → (v + n) < (n + m), from
     | sum.inl (mk v hlt) := mk v     (lt_add_of_lt_right hlt m)
     | sum.inr (mk v hlt) := mk (v+n) (aux₁ hlt)
     end,
-  inv := λ f : fin (n + m),
+  inv_fun := λ f : fin (n + m),
     match f with
     | mk v hlt := if h : v < n then sum.inl (mk v h) else sum.inr (mk (v-n) (sub_lt_of_lt_add hlt (le_of_not_gt h)))
     end,
@@ -444,7 +444,7 @@ assert aux₃ : ∀ {v}, v < n * m → v div n < m, from
   take v, assume h, by rewrite mul.comm at h; exact div_lt_of_lt_mul h,
 ⦃ equiv,
   to_fun   := λ p : (fin n × fin m), match p with (mk v₁ hlt₁, mk v₂ hlt₂) := mk (v₁ + v₂ * n) (aux₁ hlt₁ hlt₂) end,
-  inv      := λ f : fin (n*m), match f with (mk v hlt) := (mk (v mod n) (aux₂ v), mk (v div n) (aux₃ hlt)) end,
+  inv_fun  := λ f : fin (n*m), match f with (mk v hlt) := (mk (v mod n) (aux₂ v), mk (v div n) (aux₃ hlt)) end,
   left_inv := begin
     intro p, cases p with f₁ f₂, cases f₁ with v₁ hlt₁, cases f₂ with v₂ hlt₂, esimp,
     congruence,

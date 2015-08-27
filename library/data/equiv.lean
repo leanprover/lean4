@@ -13,19 +13,31 @@ open function
 
 structure equiv [class] (A B : Type) :=
   (to_fun    : A → B)
-  (inv       : B → A)
-  (left_inv  : left_inverse inv to_fun)
-  (right_inv : right_inverse inv to_fun)
+  (inv_fun   : B → A)
+  (left_inv  : left_inverse inv_fun to_fun)
+  (right_inv : right_inverse inv_fun to_fun)
 
 namespace equiv
+definition perm [reducible] (A : Type) := equiv A A
+
 infix `≃`:50 := equiv
 
-namespace ops
-  attribute equiv.to_fun [coercion]
-  definition inverse [reducible] {A B : Type} [h : A ≃ B] : B → A :=
-  λ b, @equiv.inv A B h b
-  postfix `⁻¹` := inverse
-end ops
+definition fn {A B : Type} (e : equiv A B) : A → B :=
+@equiv.to_fun A B e
+
+infixr `∙`:100 := fn
+
+definition inv {A B : Type} [e : equiv A B] : B → A :=
+@equiv.inv_fun A B e
+
+lemma eq_of_to_fun_eq {A B : Type} : ∀ {e₁ e₂ : equiv A B}, fn e₁ = fn e₂ → e₁ = e₂
+| (mk f₁ g₁ l₁ r₁) (mk f₂ g₂ l₂ r₂) h :=
+  assert f₁ = f₂, from h,
+  assert g₁ = g₂, from funext (λ x,
+    assert f₁ (g₁ x) = f₂ (g₂ x), from eq.trans (r₁ x) (eq.symm (r₂ x)),
+    have f₁ (g₁ x) = f₁ (g₂ x),   by rewrite [-h at this]; exact this,
+    show g₁ x = g₂ x,             from injective_of_left_inverse l₁ this),
+  by congruence; repeat assumption
 
 protected definition refl [refl] (A : Type) : A ≃ A :=
 mk (@id A) (@id A) (λ x, rfl) (λ x, rfl)
@@ -38,6 +50,40 @@ protected definition trans [trans] {A B C : Type} : A ≃ B → B ≃ C → A �
   mk (f₂ ∘ f₁) (g₁ ∘ g₂)
    (show ∀ x, g₁ (g₂ (f₂ (f₁ x))) = x, by intros; rewrite [l₂, l₁]; reflexivity)
    (show ∀ x, f₂ (f₁ (g₁ (g₂ x))) = x, by intros; rewrite [r₁, r₂]; reflexivity)
+
+abbreviation id {A : Type} := equiv.refl A
+
+namespace ops
+  postfix `⁻¹` := equiv.symm
+  postfix `⁻¹` := equiv.inv
+  notation e₁ `∘` e₂  := equiv.trans e₂ e₁
+end ops
+open equiv.ops
+
+lemma id_apply {A : Type} (x : A) : id ∙ x = x :=
+rfl
+
+lemma compose_apply {A B C : Type} (g : B ≃ C) (f : A ≃ B) (x : A) : (g ∘ f) ∙ x = g ∙ f ∙ x :=
+begin cases g, cases f, esimp end
+
+lemma inverse_apply_apply {A B : Type} : ∀ (e : A ≃ B) (x : A), e⁻¹ ∙ e ∙ x = x
+| (mk f₁ g₁ l₁ r₁) x := begin unfold [equiv.symm, fn], rewrite l₁ end
+
+lemma eq_iff_eq_of_injective {A B : Type} {f : A → B} (inj : injective f) (a b : A) : f a = f b ↔ a = b :=
+iff.intro
+  (suppose f a = f b, inj this)
+  (suppose a = b,     by rewrite this)
+
+lemma apply_eq_iff_eq {A B : Type} : ∀ (f : A ≃ B) (x y : A), f ∙ x = f ∙ y ↔ x = y
+| (mk f₁ g₁ l₁ r₁) x y := eq_iff_eq_of_injective (injective_of_left_inverse l₁) x y
+
+lemma apply_eq_iff_eq_inverse_apply {A B : Type} : ∀ (f : A ≃ B) (x : A) (y : B), f ∙ x = y ↔ x = f⁻¹ ∙ y
+| (mk f₁ g₁ l₁ r₁) x y :=
+  begin
+    esimp, unfold [equiv.symm, fn], apply iff.intro,
+    suppose f₁ x = y, by subst y; rewrite l₁,
+    suppose x = g₁ y, by subst x; rewrite r₁
+  end
 
 definition false_equiv_empty : empty ≃ false :=
 mk (λ e, empty.rec _ e) (λ h, false.rec _ h) (λ e, empty.rec _ e) (λ h, false.rec _ h)
@@ -258,12 +304,81 @@ definition inhabited_of_equiv {A B : Type} [h : inhabited A] : A ≃ B → inhab
 
 section
 open subtype
-override equiv.ops
-definition subtype_equiv_of_subtype {A B : Type} {p : A → Prop} : A ≃ B → {a : A | p a} ≃ {b : B | p (b⁻¹)}
+definition subtype_equiv_of_subtype {A B : Type} {p : A → Prop} : A ≃ B → {a : A | p a} ≃ {b : B | p b⁻¹}
 | (mk f g l r) :=
   mk (λ s, match s with tag v h := tag (f v) (eq.rec_on (eq.symm (l v)) h) end)
      (λ s, match s with tag v h := tag (g v) (eq.rec_on (eq.symm (r v)) h) end)
      (λ s, begin cases s, esimp, congruence, rewrite l, reflexivity end)
      (λ s, begin cases s, esimp, congruence, rewrite r, reflexivity end)
 end
+
+section swap
+variable {A : Type}
+variable [h : decidable_eq A]
+include h
+open decidable
+
+definition swap_core (a b r : A) : A :=
+if r = a then b
+else if r = b then a
+else r
+
+lemma swap_core_swap_core (r a b : A) : swap_core a b (swap_core a b r) = r :=
+by_cases
+  (suppose r = a, by_cases
+    (suppose r = b,   begin unfold swap_core, rewrite [if_pos `r = a`, if_pos (eq.refl b), -`r = a`, -`r = b`, if_pos (eq.refl r)] end)
+    (suppose ¬ r = b,
+      assert b ≠ a, from assume h, begin rewrite h at this, contradiction end,
+      begin unfold swap_core, rewrite [*if_pos `r = a`, if_pos (eq.refl b), if_neg `b ≠ a`, `r = a`] end))
+  (suppose ¬ r = a, by_cases
+    (suppose r = b,   begin unfold swap_core, rewrite [if_neg `¬ r = a`, *if_pos `r = b`, if_pos (eq.refl a), this] end)
+    (suppose ¬ r = b, begin unfold swap_core, rewrite [*if_neg `¬ r = a`, *if_neg `¬ r = b`, if_neg `¬ r = a`] end))
+
+lemma swap_core_self (r a : A) : swap_core a a r = r :=
+by_cases
+  (suppose r = a, begin unfold swap_core, rewrite [*if_pos this, this] end)
+  (suppose r ≠ a, begin unfold swap_core, rewrite [*if_neg this] end)
+
+lemma swap_core_comm (r a b : A) : swap_core a b r = swap_core b a r :=
+by_cases
+  (suppose r = a, by_cases
+    (suppose r = b,   begin unfold swap_core, rewrite [if_pos `r = a`, if_pos `r = b`, -`r = a`, -`r = b`] end)
+    (suppose ¬ r = b, begin unfold swap_core, rewrite [*if_pos `r = a`, if_neg `¬ r = b`] end))
+  (suppose ¬ r = a, by_cases
+    (suppose r = b,   begin unfold swap_core, rewrite [if_neg `¬ r = a`, *if_pos `r = b`]    end)
+    (suppose ¬ r = b, begin unfold swap_core, rewrite [*if_neg `¬ r = a`, *if_neg `¬ r = b`] end))
+
+definition swap (a b : A) : perm A :=
+mk (swap_core a b)
+   (swap_core a b)
+   (λ x, abstract by rewrite swap_core_swap_core end)
+   (λ x, abstract by rewrite swap_core_swap_core end)
+
+lemma swap_self (a : A) : swap a a = id :=
+eq_of_to_fun_eq (funext (λ x, begin unfold [swap, fn], rewrite swap_core_self end))
+
+lemma swap_comm (a b : A) : swap a b = swap b a :=
+eq_of_to_fun_eq (funext (λ x, begin unfold [swap, fn], rewrite swap_core_comm end))
+
+lemma swap_apply_def (a b : A) (x : A) : swap a b ∙ x = if x = a then b else if x = b then a else x :=
+rfl
+
+lemma swap_apply_left (a b : A) : swap a b ∙ a = b :=
+if_pos rfl
+
+lemma swap_apply_right (a b : A) : swap a b ∙ b = a :=
+by_cases
+  (suppose b = a, by rewrite [swap_apply_def, this, *if_pos rfl])
+  (suppose b ≠ a, by rewrite [swap_apply_def, if_pos rfl, if_neg this])
+
+lemma swap_apply_of_ne_of_ne {a b : A} {x : A} : x ≠ a → x ≠ b → swap a b ∙ x = x :=
+assume h₁ h₂, by rewrite [swap_apply_def, if_neg h₁, if_neg h₂]
+
+lemma swap_swap (a b : A) : swap a b ∘ swap a b = id :=
+eq_of_to_fun_eq (funext (λ x, begin unfold [swap, fn, equiv.trans, equiv.refl], rewrite swap_core_swap_core end))
+
+lemma swap_compose_apply (a b : A) (π : perm A) (x : A) : (swap a b ∘ π) ∙ x = if π ∙ x = a then b else if π ∙ x = b then a else π ∙ x :=
+begin cases π, reflexivity end
+
+end swap
 end equiv

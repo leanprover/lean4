@@ -206,7 +206,15 @@ namespace iso
     variables {X : Type} {x y : X} {F G : X → ob}
     definition transport_hom_of_eq (p : F = G) (f : hom (F x) (F y))
       : p ▸ f = hom_of_eq (apd10 p y) ∘ f ∘ inv_of_eq (apd10 p x) :=
-    eq.rec_on p !id_leftright⁻¹
+    by induction p; exact !id_leftright⁻¹
+
+    definition transport_hom_of_eq_right (p : x = y) (f : hom c (F x))
+      : p ▸ f = hom_of_eq (ap F p) ∘ f :=
+    by induction p; exact !id_left⁻¹
+
+    definition transport_hom_of_eq_left (p : x = y) (f : hom (F x) c)
+      : p ▸ f = f ∘ inv_of_eq (ap F p) :=
+    by induction p; exact !id_right⁻¹
 
     definition transport_hom (p : F ~ G) (f : hom (F x) (F y))
       : eq_of_homotopy p ▸ f = hom_of_eq (p y) ∘ f ∘ inv_of_eq (p x) :=

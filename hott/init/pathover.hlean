@@ -11,10 +11,10 @@ import .path .equiv
 
 open equiv is_equiv equiv.ops
 
-variables {A A' : Type} {B B' : A → Type} {C : Πa, B a → Type}
+variables {A A' : Type} {B B' : A → Type} {C : Π⦃a⦄, B a → Type}
           {a a₂ a₃ a₄ : A} {p p' : a = a₂} {p₂ : a₂ = a₃} {p₃ : a₃ = a₄}
           {b b' : B a} {b₂ b₂' : B a₂} {b₃ : B a₃} {b₄ : B a₄}
-          {c : C a b} {c₂ : C a₂ b₂}
+          {c : C b} {c₂ : C b₂}
 
 namespace eq
   inductive pathover.{l} (B : A → Type.{l}) (b : B a) : Π{a₂ : A}, a = a₂ → B a₂ → Type.{l} :=
@@ -26,10 +26,10 @@ namespace eq
   pathover.idpatho b
 
   /- equivalences with equality using transport -/
-  definition pathover_of_tr_eq (r : p ▸ b = b₂) : b =[p] b₂ :=
+  definition pathover_of_tr_eq [unfold 5 8] (r : p ▸ b = b₂) : b =[p] b₂ :=
   by cases p; cases r; exact idpo
 
-  definition pathover_of_eq_tr (r : b = p⁻¹ ▸ b₂) : b =[p] b₂ :=
+  definition pathover_of_eq_tr [unfold 5 8] (r : b = p⁻¹ ▸ b₂) : b =[p] b₂ :=
   by cases p; cases r; exact idpo
 
   definition tr_eq_of_pathover [unfold 8] (r : b =[p] b₂) : p ▸ b = b₂ :=
@@ -205,7 +205,17 @@ namespace eq
   definition tr_pathover_of_eq (q : b₂ = b₂') : p⁻¹ ▸ b₂ =[p] b₂' :=
   by cases q;apply tr_pathover
 
-  definition apo (f : Πa, B a → B' a) (Ha : a = a₂) (Hb : b =[Ha] b₂)
+  variable (C)
+  definition transporto (r : b =[p] b₂) (c : C b) : C b₂ :=
+  by induction r;exact c
+  infix `▸o`:75 := transporto _
+
+  definition fn_tro_eq_tro_fn (C' : Π ⦃a : A⦄, B a → Type) (q : b =[p] b₂)
+    (f : Π(b : B a), C b → C' b) (c : C b) : f b (q ▸o c) = (q ▸o (f b c)) :=
+  by induction q;reflexivity
+  variable {C}
+
+  definition apo (f : Πa, B a → B' a) {Ha : a = a₂} (Hb : b =[Ha] b₂)
       : f a b =[Ha] f a₂ b₂ :=
   by induction Hb; exact idpo
 
@@ -213,15 +223,15 @@ namespace eq
       : f a b = f a₂ b₂ :=
   by cases Hb; exact idp
 
-  definition apo0111 (f : Πa b, C a b → A') (Ha : a = a₂) (Hb : b =[Ha] b₂)
+  definition apo0111 (f : Πa b, C b → A') (Ha : a = a₂) (Hb : b =[Ha] b₂)
     (Hc : c =[apo011 C Ha Hb] c₂) : f a b c = f a₂ b₂ c₂ :=
   by cases Hb; apply (idp_rec_on Hc); apply idp
 
-  definition apo11 {f : Πb, C a b} {g : Πb₂, C a₂ b₂} (r : f =[p] g)
+  definition apo11 {f : Πb, C b} {g : Πb₂, C b₂} (r : f =[p] g)
     {b : B a} {b₂ : B a₂} (q : b =[p] b₂) : f b =[apo011 C p q] g b₂ :=
   by cases r; apply (idp_rec_on q); exact idpo
 
-  definition apdo10 {f : Πb, C a b} {g : Πb₂, C a₂ b₂} (r : f =[p] g)
+  definition apdo10 {f : Πb, C b} {g : Πb₂, C b₂} (r : f =[p] g)
     (b : B a) : f b =[apo011 C p !pathover_tr] g (p ▸ b) :=
   by cases r; exact idpo
 

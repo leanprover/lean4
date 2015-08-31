@@ -101,13 +101,102 @@ namespace eq
     square (p a) (p a') (ap f q) (ap g q) :=
   eq.rec_on q vrfl
 
+  /- canceling, whiskering and moving thinks along the sides of the square -/
   definition whisker_tl (p : a = a₀₀) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
     : square (p ⬝ p₁₀) p₁₂ (p ⬝ p₀₁) p₂₁ :=
-  by induction s₁₁;induction p;exact ids
+  by induction s₁₁;induction p;constructor
 
   definition whisker_br (p : a₂₂ = a) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
     : square p₁₀ (p₁₂ ⬝ p) p₀₁ (p₂₁ ⬝ p) :=
   by induction p;exact s₁₁
+
+  definition whisker_rt (p : a = a₂₀) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
+    : square (p₁₀ ⬝ p⁻¹) p₁₂ p₀₁ (p ⬝ p₂₁) :=
+  by induction s₁₁;induction p;constructor
+
+  definition whisker_tr (p : a₂₀ = a) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
+    : square (p₁₀ ⬝ p) p₁₂ p₀₁ (p⁻¹ ⬝ p₂₁) :=
+  by induction s₁₁;induction p;constructor
+
+  definition whisker_bl (p : a = a₀₂) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
+    : square p₁₀ (p ⬝ p₁₂) (p₀₁ ⬝ p⁻¹) p₂₁ :=
+  by induction s₁₁;induction p;constructor
+
+  definition whisker_lb (p : a₀₂ = a) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
+    : square p₁₀ (p⁻¹ ⬝ p₁₂) (p₀₁ ⬝ p) p₂₁ :=
+  by induction s₁₁;induction p;constructor
+
+  definition cancel_tl (p : a = a₀₀) (s₁₁ : square (p ⬝ p₁₀) p₁₂ (p ⬝ p₀₁) p₂₁)
+    : square p₁₀ p₁₂ p₀₁ p₂₁ :=
+  by induction p; rewrite +idp_con at s₁₁; exact s₁₁
+
+  definition cancel_br (p : a₂₂ = a) (s₁₁ : square p₁₀ (p₁₂ ⬝ p) p₀₁ (p₂₁ ⬝ p))
+    : square p₁₀ p₁₂ p₀₁ p₂₁ :=
+  by induction p;exact s₁₁
+
+  definition cancel_rt (p : a = a₂₀) (s₁₁ : square (p₁₀ ⬝ p⁻¹) p₁₂ p₀₁ (p ⬝ p₂₁))
+    : square p₁₀ p₁₂ p₀₁ p₂₁ :=
+  by induction p; rewrite idp_con at s₁₁; exact s₁₁
+
+  definition cancel_tr (p : a₂₀ = a) (s₁₁ : square (p₁₀ ⬝ p) p₁₂ p₀₁ (p⁻¹ ⬝ p₂₁))
+    : square p₁₀ p₁₂ p₀₁ p₂₁ :=
+  by induction p; rewrite [▸* at s₁₁,idp_con at s₁₁]; exact s₁₁
+
+  definition cancel_bl (p : a = a₀₂) (s₁₁ : square p₁₀ (p ⬝ p₁₂) (p₀₁ ⬝ p⁻¹) p₂₁)
+    : square p₁₀ p₁₂ p₀₁ p₂₁ :=
+  by induction p; rewrite idp_con at s₁₁; exact s₁₁
+
+  definition cancel_lb (p : a₀₂ = a) (s₁₁ : square p₁₀ (p⁻¹ ⬝ p₁₂) (p₀₁ ⬝ p) p₂₁)
+    : square p₁₀ p₁₂ p₀₁ p₂₁ :=
+  by induction p; rewrite [▸* at s₁₁,idp_con at s₁₁]; exact s₁₁
+
+  definition move_top_of_left   {p : a₀₀ = a} {q : a = a₀₂} (s : square p₁₀ p₁₂ (p ⬝ q) p₂₁)
+    : square (p⁻¹ ⬝ p₁₀) p₁₂ q p₂₁ :=
+  by apply cancel_tl p; rewrite con_inv_cancel_left; exact s
+
+  definition move_top_of_left'  {p : a = a₀₀} {q : a = a₀₂} (s : square p₁₀ p₁₂ (p⁻¹ ⬝ q) p₂₁)
+    : square (p ⬝ p₁₀) p₁₂ q p₂₁ :=
+  by apply cancel_tl p⁻¹; rewrite inv_con_cancel_left; exact s
+
+  definition move_left_of_top   {p : a₀₀ = a} {q : a = a₂₀} (s : square (p ⬝ q) p₁₂ p₀₁ p₂₁)
+    : square q p₁₂ (p⁻¹ ⬝ p₀₁) p₂₁ :=
+  by apply cancel_tl p; rewrite con_inv_cancel_left; exact s
+
+  definition move_left_of_top'  {p : a = a₀₀} {q : a = a₂₀} (s : square (p⁻¹ ⬝ q) p₁₂ p₀₁ p₂₁)
+    : square q p₁₂ (p ⬝ p₀₁) p₂₁ :=
+  by apply cancel_tl p⁻¹; rewrite inv_con_cancel_left; exact s
+
+  definition move_bot_of_right  {p : a₂₀ = a} {q : a = a₂₂} (s : square p₁₀ p₁₂ p₀₁ (p ⬝ q))
+    : square p₁₀ (p₁₂ ⬝ q⁻¹) p₀₁ p :=
+  by apply cancel_br q; rewrite inv_con_cancel_right; exact s
+
+  definition move_bot_of_right' {p : a₂₀ = a} {q : a₂₂ = a} (s : square p₁₀ p₁₂ p₀₁ (p ⬝ q⁻¹))
+    : square p₁₀ (p₁₂ ⬝ q) p₀₁ p :=
+  by apply cancel_br q⁻¹; rewrite con_inv_cancel_right; exact s
+
+  definition move_right_of_bot  {p : a₀₂ = a} {q : a = a₂₂} (s : square p₁₀ (p ⬝ q) p₀₁ p₂₁)
+    : square p₁₀ p p₀₁ (p₂₁ ⬝ q⁻¹) :=
+  by apply cancel_br q; rewrite inv_con_cancel_right; exact s
+
+  definition move_right_of_bot' {p : a₀₂ = a} {q : a₂₂ = a} (s : square p₁₀ (p ⬝ q⁻¹) p₀₁ p₂₁)
+    : square p₁₀ p p₀₁ (p₂₁ ⬝ q) :=
+  by apply cancel_br q⁻¹; rewrite con_inv_cancel_right; exact s
+
+  definition move_top_of_right  {p : a₂₀ = a} {q : a = a₂₂} (s : square p₁₀ p₁₂ p₀₁ (p ⬝ q))
+    : square (p₁₀ ⬝ p) p₁₂ p₀₁ q :=
+  by apply cancel_rt p; rewrite con_inv_cancel_right; exact s
+
+  definition move_right_of_top  {p : a₀₀ = a} {q : a = a₂₀} (s : square (p ⬝ q) p₁₂ p₀₁ p₂₁)
+    : square p p₁₂ p₀₁ (q ⬝ p₂₁) :=
+  by apply cancel_tr q; rewrite inv_con_cancel_left; exact s
+
+  definition move_bot_of_left   {p : a₀₀ = a} {q : a = a₀₂} (s : square p₁₀ p₁₂ (p ⬝ q) p₂₁)
+    : square  p₁₀ (q ⬝ p₁₂) p p₂₁ :=
+  by apply cancel_lb q; rewrite inv_con_cancel_left; exact s
+
+  definition move_left_of_bot   {p : a₀₂ = a} {q : a = a₂₂} (s : square p₁₀ (p ⬝ q) p₀₁ p₂₁)
+    : square p₁₀ q (p₀₁ ⬝ p) p₂₁ :=
+  by apply cancel_bl p; rewrite con_inv_cancel_right; exact s
 
   /- some higher ∞-groupoid operations -/
 
@@ -125,7 +214,7 @@ namespace eq
   by induction s₁₁; apply idp
 
   definition square_of_eq (r : p₁₀ ⬝ p₂₁ = p₀₁ ⬝ p₁₂) : square p₁₀ p₁₂ p₀₁ p₂₁ :=
-  by induction p₁₂; esimp [concat] at r; induction r; induction p₂₁; induction p₁₀; exact ids
+  by induction p₁₂; esimp at r; induction r; induction p₂₁; induction p₁₀; exact ids
 
   definition eq_top_of_square [unfold 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
     : p₁₀ = p₀₁ ⬝ p₁₂ ⬝ p₂₁⁻¹ :=

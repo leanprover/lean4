@@ -9,7 +9,7 @@ import init.reserved_notation
 
 /- not -/
 
-definition not (a : Type) := a → empty
+definition not [reducible] (a : Type) := a → empty
 prefix `¬` := not
 
 definition absurd {a b : Type} (H₁ : a) (H₂ : ¬a) : b :=

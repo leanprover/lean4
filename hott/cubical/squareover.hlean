@@ -103,9 +103,17 @@ namespace eq
   square.rec_on q idso
 
   -- relating pathovers to squareovers
-  definition pathover_of_squareover (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁)
+  definition pathover_of_squareover' (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁)
     : q₁₀ ⬝o q₂₁ =[eq_of_square s₁₁] q₀₁ ⬝o q₁₂ :=
   by induction t₁₁; constructor
+
+  definition pathover_of_squareover {s : p₁₀ ⬝ p₂₁ = p₀₁ ⬝ p₁₂}
+    (t₁₁ : squareover B (square_of_eq s) q₁₀ q₁₂ q₀₁ q₂₁)
+    : q₁₀ ⬝o q₂₁ =[s] q₀₁ ⬝o q₁₂ :=
+  begin
+    revert s t₁₁, refine equiv_rect' !square_equiv_eq⁻¹ᵉ (λa b, squareover B b _ _ _ _ → _) _,
+    intro s, exact pathover_of_squareover'
+  end
 
   definition squareover_of_pathover {s : p₁₀ ⬝ p₂₁ = p₀₁ ⬝ p₁₂}
     (r : q₁₀ ⬝o q₂₁ =[s] q₀₁ ⬝o q₁₂) : squareover B (square_of_eq s) q₁₀ q₁₂ q₀₁ q₂₁ :=
@@ -119,6 +127,14 @@ namespace eq
   (r : q₁₀ =[s] q₀₁ ⬝o q₁₂ ⬝o q₂₁⁻¹ᵒ)
     : squareover B (square_of_eq_top s) q₁₀ q₁₂ q₀₁ q₂₁ :=
   by induction q₂₁; induction q₁₂; esimp at r;induction r;induction q₁₀;constructor
+
+  definition pathover_of_hdeg_squareover {p₀₁' : a₀₀ = a₀₂} {r : p₀₁ = p₀₁'} {q₀₁' : b₀₀ =[p₀₁'] b₀₂}
+    (t : squareover B (hdeg_square r) idpo idpo q₀₁ q₀₁') : q₀₁ =[r] q₀₁' :=
+  by induction r; induction q₀₁'; exact (pathover_of_squareover' t)⁻¹ᵒ
+
+  definition pathover_of_vdeg_squareover {p₁₀' : a₀₀ = a₂₀} {r : p₁₀ = p₁₀'} {q₁₀' : b₀₀ =[p₁₀'] b₂₀}
+    (t : squareover B (vdeg_square r) q₁₀ q₁₀' idpo idpo) : q₁₀ =[r] q₁₀' :=
+  by induction r; induction q₁₀'; exact pathover_of_squareover' t
 
   definition squareover_of_eq_top (r : change_path (eq_top_of_square s₁₁) q₁₀ = q₀₁ ⬝o q₁₂ ⬝o q₂₁⁻¹ᵒ)
     : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁ :=

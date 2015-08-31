@@ -44,6 +44,9 @@ namespace pi
   definition arrow_equiv_arrow_left (f0 : A ≃ A') : (A → B) ≃ (A' → B) :=
   arrow_equiv_arrow f0 equiv.refl
 
+  definition arrow_equiv_arrow_right' (f1 : A → (B ≃ B')) : (A → B) ≃ (A → B') :=
+  pi_equiv_pi_id f1
+
   /- Transport -/
 
   definition arrow_transport {B C : A → Type} (p : a = a') (f : B a → C a)

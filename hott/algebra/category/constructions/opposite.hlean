@@ -38,7 +38,7 @@ namespace category
   definition opposite_opposite : Opposite (Opposite C) = C :=
   (ap (Precategory.mk C) (opposite_opposite' C)) ⬝ !Precategory.eta
 
-  postfix `ᵒᵖ`:(max+1) := Opposite
+  postfix `ᵒᵖ`:(max+2) := Opposite
 
   definition opposite_functor [reducible] {C D : Precategory} (F : C ⇒ D) : Cᵒᵖ ⇒ Dᵒᵖ :=
   begin
@@ -47,6 +47,6 @@ namespace category
       intros, apply (@respect_comp C D)
   end
 
-  infixr `ᵒᵖᶠ`:(max+1) := opposite_functor
+  infixr `ᵒᵖᶠ`:(max+2) := opposite_functor
 
 end category

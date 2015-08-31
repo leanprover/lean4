@@ -143,6 +143,16 @@ namespace is_trunc
            @is_trunc_succ_intro A m (λx y, IHm n (x = y) (trunc_index.le_of_succ_le_succ Hnm) _)),
   trunc_index.rec_on m base step n A Hnm Hn
 
+  definition is_trunc_of_imp_is_trunc {n : trunc_index} (H : A → is_trunc (n.+1) A)
+    : is_trunc (n.+1) A :=
+  @is_trunc_succ_intro _ _ (λx y, @is_trunc_eq _ _ (H x) x y)
+
+  definition is_trunc_of_imp_is_trunc_of_leq {n : trunc_index} (Hn : -1 ≤ n) (H : A → is_trunc n A)
+    : is_trunc n A :=
+  trunc_index.rec_on n (λHn H, empty.rec _ Hn)
+                       (λn IH Hn, is_trunc_of_imp_is_trunc)
+                       Hn H
+
   -- the following cannot be instances in their current form, because they are looping
   theorem is_trunc_of_is_contr (A : Type) (n : trunc_index) [H : is_contr A] : is_trunc n A :=
   trunc_index.rec_on n H _

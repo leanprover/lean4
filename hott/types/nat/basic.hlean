@@ -59,8 +59,7 @@ rfl
 definition eq_zero_or_eq_succ_pred (n : ℕ) : n = 0 ⊎ n = succ (pred n) :=
 nat.rec_on n
   (sum.inl rfl)
-  (take m IH, sum.inr
-    (show succ m = succ (pred (succ m)), from ap succ !pred_succ⁻¹))
+  (take m IH, sum.inr rfl)
 
 definition exists_eq_succ_of_ne_zero {n : ℕ} (H : n ≠ 0) : Σk : ℕ, n = succ k :=
 sigma.mk _ (sum_resolve_right !eq_zero_or_eq_succ_pred H)
@@ -118,11 +117,8 @@ nat.rec_on n
 
 definition succ_add (n m : ℕ) : (succ n) + m = succ (n + m) :=
 nat.rec_on m
-    (!add_zero ▸ !add_zero)
-    (take k IH, calc
-      succ n + succ k = succ (succ n + k)    : add_succ
-                  ... = succ (succ (n + k))  : IH
-                  ... = succ (n + succ k)    : add_succ)
+    (rfl)
+    (take k IH, eq.ap succ IH)
 
 definition add.comm (n m : ℕ) : n + m = m + n :=
 nat.rec_on m

@@ -26,7 +26,8 @@ namespace functor
 
   -- The following lemmas will later be used to prove that the type of
   -- precategories forms a precategory itself
-  protected definition compose [reducible] (G : functor D E) (F : functor C D) : functor C E :=
+  protected definition compose [reducible] [constructor] (G : functor D E) (F : functor C D)
+    : functor C E :=
   functor.mk
     (λ x, G (F x))
     (λ a b f, G (F f))
@@ -39,10 +40,11 @@ namespace functor
 
   infixr `∘f`:60 := functor.compose
 
-  protected definition id [reducible] {C : Precategory} : functor C C :=
+  protected definition id [reducible] [constructor] {C : Precategory} : functor C C :=
   mk (λa, a) (λ a b f, f) (λ a, idp) (λ a b c f g, idp)
 
-  protected definition ID [reducible] (C : Precategory) : functor C C := @functor.id C
+  protected definition ID [reducible] [constructor] (C : Precategory) : functor C C := @functor.id C
+  notation 1 := functor.id
 
   definition functor_mk_eq' {F₁ F₂ : C → D} {H₁ : Π(a b : C), hom a b → hom (F₁ a) (F₁ b)}
     {H₂ : Π(a b : C), hom a b → hom (F₂ a) (F₂ b)} (id₁ id₂ comp₁ comp₂)
@@ -53,7 +55,7 @@ namespace functor
   definition functor_eq' {F₁ F₂ : C ⇒ D}
     : Π(p : to_fun_ob F₁ = to_fun_ob F₂),
           (transport (λx, Πa b f, hom (x a) (x b)) p (to_fun_hom F₁) = to_fun_hom F₂) → F₁ = F₂ :=
-  functor.rec_on F₁ (λO₁ H₁ id₁ comp₁, functor.rec_on F₂ (λO₂ H₂ id₂ comp₂ p, !functor_mk_eq'))
+  by induction F₁; induction F₂; apply functor_mk_eq'
 
   definition functor_mk_eq {F₁ F₂ : C → D} {H₁ : Π(a b : C), hom a b → hom (F₁ a) (F₁ b)}
     {H₂ : Π(a b : C), hom a b → hom (F₂ a) (F₂ b)} (id₁ id₂ comp₁ comp₂) (pF : F₁ ~ F₂)
@@ -68,7 +70,7 @@ namespace functor
 
   definition functor_eq {F₁ F₂ : C ⇒ D} : Π(p : to_fun_ob F₁ ~ to_fun_ob F₂),
     (Π(a b : C) (f : hom a b), hom_of_eq (p b) ∘ F₁ f ∘ inv_of_eq (p a) = F₂ f) → F₁ = F₂ :=
-  functor.rec_on F₁ (λO₁ H₁ id₁ comp₁, functor.rec_on F₂ (λO₂ H₂ id₂ comp₂ p, !functor_mk_eq))
+  by induction F₁; induction F₂; apply functor_mk_eq
 
   definition functor_mk_eq_constant {F : C → D} {H₁ : Π(a b : C), hom a b → hom (F a) (F b)}
     {H₂ : Π(a b : C), hom a b → hom (F a) (F b)} (id₁ id₂ comp₁ comp₂)
@@ -108,13 +110,13 @@ namespace functor
       H ∘f (G ∘f F) = (H ∘f G) ∘f F :=
   !functor_mk_eq_constant (λa b f, idp)
 
-  protected definition id_left  (F : C ⇒ D) : functor.id ∘f F = F :=
+  protected definition id_left  (F : C ⇒ D) : 1 ∘f F = F :=
   functor.rec_on F (λF1 F2 F3 F4, !functor_mk_eq_constant (λa b f, idp))
 
-  protected definition id_right (F : C ⇒ D) : F ∘f functor.id = F :=
+  protected definition id_right (F : C ⇒ D) : F ∘f 1 = F :=
   functor.rec_on F (λF1 F2 F3 F4, !functor_mk_eq_constant (λa b f, idp))
 
-  protected definition comp_id_eq_id_comp (F : C ⇒ D) : F ∘f functor.id = functor.id ∘f F :=
+  protected definition comp_id_eq_id_comp (F : C ⇒ D) : F ∘f 1 = 1 ∘f F :=
   !functor.id_right ⬝ !functor.id_left⁻¹
 
   -- "functor C D" is equivalent to a certain sigma type

@@ -47,7 +47,8 @@ namespace pi
 
   definition pi_eq_equiv (f g : Πx, B x) : (f = g) ≃ (f ~ g) := !eq_equiv_homotopy
 
-  definition is_equiv_eq_of_homotopy (f g : Πx, B x) : is_equiv (@eq_of_homotopy _ _ f g) :=
+  definition is_equiv_eq_of_homotopy (f g : Πx, B x)
+    : is_equiv (eq_of_homotopy : f ~ g → f = g) :=
   _
 
   definition homotopy_equiv_eq (f g : Πx, B x) : (f ~ g) ≃ (f = g) :=
@@ -57,15 +58,14 @@ namespace pi
   /- Transport -/
 
   definition pi_transport (p : a = a') (f : Π(b : B a), C a b)
-    : (transport (λa, Π(b : B a), C a b) p f)
-      ~ (λb, transport (C a') !tr_inv_tr (transportD _ p _ (f (p⁻¹ ▸ b)))) :=
-  eq.rec_on p (λx, idp)
+    : (transport (λa, Π(b : B a), C a b) p f) ~ (λb, !tr_inv_tr ▸ (p ▸D (f (p⁻¹ ▸ b)))) :=
+  by induction p; reflexivity
 
   /- A special case of [transport_pi] where the type [B] does not depend on [A],
       and so it is just a fixed type [B]. -/
   definition pi_transport_constant {C : A → A' → Type} (p : a = a') (f : Π(b : A'), C a b) (b : A')
     : (transport _ p f) b = p ▸ (f b) :=
-  eq.rec_on p idp
+  by induction p; reflexivity
 
   /- Pathovers -/
 
@@ -171,7 +171,7 @@ namespace pi
   /- Equivalences -/
 
   definition is_equiv_pi_functor [instance] [H0 : is_equiv f0]
-    [H1 : Πa', @is_equiv (B (f0 a')) (B' a') (f1 a')] : is_equiv (pi_functor f0 f1) :=
+    [H1 : Πa', is_equiv (f1 a')] : is_equiv (pi_functor f0 f1) :=
   begin
     apply (adjointify (pi_functor f0 f1) (pi_functor f0⁻¹
           (λ(a : A) (b' : B' (f0⁻¹ a)), transport B (right_inv f0 a) ((f1 (f0⁻¹ a))⁻¹ b')))),
@@ -188,7 +188,7 @@ namespace pi
   end
 
   definition pi_equiv_pi_of_is_equiv [H : is_equiv f0]
-    [H1 : Πa', @is_equiv (B (f0 a')) (B' a') (f1 a')] : (Πa, B a) ≃ (Πa', B' a') :=
+    [H1 : Πa', is_equiv (f1 a')] : (Πa, B a) ≃ (Πa', B' a') :=
   equiv.mk (pi_functor f0 f1) _
 
   definition pi_equiv_pi (f0 : A' ≃ A) (f1 : Πa', (B (to_fun f0 a') ≃ B' a'))
@@ -237,8 +237,11 @@ namespace pi
     assert H : is_contr A, from is_contr.mk a f,
     _)
 
+  definition is_hprop_neg (A : Type) : is_hprop (¬A) := _
+
   /- Symmetry of Π -/
-  definition is_equiv_flip [instance] {P : A → A' → Type} : is_equiv (@function.flip A A' P) :=
+  definition is_equiv_flip [instance] {P : A → A' → Type}
+    : is_equiv (@function.flip A A' P) :=
   begin
     fapply is_equiv.mk,
     exact (@function.flip _ _ (function.flip P)),

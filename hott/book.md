@@ -23,7 +23,7 @@ The rows indicate the chapters, the columns the sections.
 | Ch 6  | . | + | + | + | + | ½ | ½ | ¼ | ¼ | ¼  | ¾  | -  | .  |    |    |
 | Ch 7  | + | + | + | - | - | - | - |   |   |    |    |    |    |    |    |
 | Ch 8  | ¾ | - | - | - | - | - | - | - | - | -  |    |    |    |    |    |
-| Ch 9  | ¾ | + | ¼ | ¼ | ½ | ½ | - | - | - |    |    |    |    |    |    |
+| Ch 9  | ¾ | + | + | ¼ | ½ | ½ | - | - | - |    |    |    |    |    |    |
 | Ch 10 | - | - | - | - | - |   |   |   |   |    |    |    |    |    |    |
 | Ch 11 | - | - | - | - | - | - |   |   |   |    |    |    |    |    |    |
 
@@ -155,7 +155,7 @@ Every file is in the folder [algebra.category](algebra/category/category.md)
 
 - 9.1 (Categories and precategories): [precategory](algebra/category/precategory.hlean), [iso](algebra/category/iso.hlean), [category](algebra/category/category.hlean), [groupoid](algebra/category/groupoid.hlean) (mostly)
 - 9.2 (Functors and transformations): [functor](algebra/category/functor.hlean), [nat_trans](algebra/category/nat_trans.hlean), [constructions.functor](algebra/category/constructions/functor.hlean)
-- 9.3 (Adjunctions): [adjoint](algebra/category/adjoint.hlean) (only definition)
+- 9.3 (Adjunctions): [adjoint](algebra/category/adjoint.hlean)
 - 9.4 (Equivalences): [adjoint](algebra/category/adjoint.hlean) (only definitions)
 - 9.5 (The Yoneda lemma): [constructions.opposite](algebra/category/constructions/opposite.hlean), [constructions.product](algebra/category/constructions/product.hlean), [yoneda](algebra/category/yoneda.hlean) (up to definition of Yoneda embedding)
 - 9.6 (Strict categories): [strict](algebra/category/strict.hlean) (only definition)

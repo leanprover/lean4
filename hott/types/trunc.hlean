@@ -16,14 +16,6 @@ open eq sigma sigma.ops pi function equiv is_trunc.trunctype
 namespace is_trunc
   variables {A B : Type} {n : trunc_index}
 
-  definition is_trunc_succ_of_imp_is_trunc_succ (H : A → is_trunc (n.+1) A) : is_trunc (n.+1) A :=
-  @is_trunc_succ_intro _ _ (λx y, @is_trunc_eq _ _ (H x) x y)
-
-  definition is_trunc_of_imp_is_trunc_of_leq (Hn : -1 ≤ n) (H : A → is_trunc n A) : is_trunc n A :=
-  trunc_index.rec_on n (λHn H, empty.rec _ Hn)
-                       (λn IH Hn, is_trunc_succ_of_imp_is_trunc_succ)
-                       Hn H
-
   /- theorems about trunctype -/
   protected definition trunctype.sigma_char.{l} (n : trunc_index) :
     (trunctype.{l} n) ≃ (Σ (A : Type.{l}), is_trunc n A) :=

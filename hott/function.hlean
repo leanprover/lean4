@@ -91,6 +91,39 @@ namespace function
     exact H,
   end
 
+  -- definition is_hprop_is_split_surjective [instance] (f : A → B) : is_hprop (is_split_surjective f) :=
+  -- begin
+  --   have H : (Π(b : B), fiber f b) ≃ is_split_surjective f,
+  --   begin
+  --     fapply equiv.MK,
+  --       {exact is_split_surjective.mk},
+  --       {intro h, cases h, exact elim},
+  --       {intro h, cases h, apply idp},
+  --       {intro p, apply idp},
+  --   end,
+  --   apply is_trunc_equiv_closed,
+  --   exact H,
+  --   apply is_trunc_pi, intro b,
+  --   apply is_trunc_equiv_closed_rev,
+  --   apply fiber.sigma_char,
+  -- end
+
+  -- definition is_hprop_is_retraction [instance] (f : A → B) : is_hprop (is_retraction f) :=
+  -- begin
+  --   have H : (Σ(g : B → A), Πb, f (g b) = b) ≃ is_retraction f,
+  --   begin
+  --     fapply equiv.MK,
+  --       {intro x, induction x with g p, constructor, exact p},
+  --       {intro h, induction h, apply sigma.mk, assumption},
+  --       {intro h, induction h, reflexivity},
+  --       {intro x, induction x, reflexivity},
+  --   end,
+  --   apply is_trunc_equiv_closed,
+  --   exact H,
+  --   apply is_trunc_of_imp_is_trunc, intro x, induction x with g p,
+  --   apply is_contr_right_inverse
+  -- end
+
   definition is_embedding_of_is_equiv [instance] (f : A → B) [H : is_equiv f] : is_embedding f :=
   is_embedding.mk _
 

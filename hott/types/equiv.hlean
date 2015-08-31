@@ -20,14 +20,14 @@ namespace is_equiv
     (fiber.mk (f⁻¹ b) (right_inv f b))
     (λz, fiber.rec_on z (λa p,
       fiber_eq ((ap f⁻¹ p)⁻¹ ⬝ left_inv f a) (calc
-        right_inv f b
-          = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ((ap (f ∘ f⁻¹) p) ⬝ right_inv f b) : by rewrite inv_con_cancel_left
-      ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (right_inv f (f a) ⬝ p)       : by rewrite ap_con_eq_con
-      ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (ap f (left_inv f a) ⬝ p)    : by rewrite adj
-      ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ap f (left_inv f a) ⬝ p      : by rewrite con.assoc
-      ... = (ap f (ap f⁻¹ p))⁻¹ ⬝ ap f (left_inv f a) ⬝ p     : by rewrite ap_compose
-      ... = ap f (ap f⁻¹ p)⁻¹ ⬝ ap f (left_inv f a) ⬝ p       : by rewrite ap_inv
-      ... = ap f ((ap f⁻¹ p)⁻¹ ⬝ left_inv f a) ⬝ p            : by rewrite ap_con)))
+        right_inv f b = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ((ap (f ∘ f⁻¹) p) ⬝ right_inv f b)
+                                                           : by rewrite inv_con_cancel_left
+      ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (right_inv f (f a) ⬝ p)   : by rewrite ap_con_eq_con
+      ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (ap f (left_inv f a) ⬝ p) : by rewrite adj
+      ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ap f (left_inv f a) ⬝ p   : by rewrite con.assoc
+      ... = (ap f (ap f⁻¹ p))⁻¹ ⬝ ap f (left_inv f a) ⬝ p  : by rewrite ap_compose
+      ... = ap f (ap f⁻¹ p)⁻¹ ⬝ ap f (left_inv f a) ⬝ p    : by rewrite ap_inv
+      ... = ap f ((ap f⁻¹ p)⁻¹ ⬝ left_inv f a) ⬝ p         : by rewrite ap_con)))
 
   definition is_contr_right_inverse : is_contr (Σ(g : B → A), f ∘ g ~ id) :=
   begin
@@ -76,7 +76,8 @@ namespace is_equiv
   local attribute is_contr_right_coherence [instance] [priority 1600]
 
   theorem is_hprop_is_equiv [instance] : is_hprop (is_equiv f) :=
-  is_hprop_of_imp_is_contr (λ(H : is_equiv f), is_trunc_equiv_closed -2 (equiv.symm !is_equiv.sigma_char'))
+  is_hprop_of_imp_is_contr
+    (λ(H : is_equiv f), is_trunc_equiv_closed -2 (equiv.symm !is_equiv.sigma_char'))
 
   definition inv_eq_inv {A B : Type} {f f' : A → B} {Hf : is_equiv f} {Hf' : is_equiv f'}
     (p : f = f') : f⁻¹ = f'⁻¹ :=

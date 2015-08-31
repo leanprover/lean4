@@ -6,6 +6,8 @@ Author: Floris van Doorn
 Theorems about sums/coproducts/disjoint unions
 -/
 
+import .pi
+
 open lift eq is_equiv equiv equiv.ops prod prod.ops is_trunc sigma bool
 
 namespace sum
@@ -16,8 +18,8 @@ namespace sum
   by induction z; all_goals reflexivity
 
   protected definition code [unfold 3 4] : A + B → A + B → Type.{max u v}
-  | code (inl a) (inl a') := lift.{u v} (a = a')
-  | code (inr b) (inr b') := lift.{v u} (b = b')
+  | code (inl a) (inl a') := lift (a = a')
+  | code (inr b) (inr b') := lift (b = b')
   | code _       _        := lift empty
 
   protected definition decode [unfold 3 4] : Π(z z' : A + B), sum.code z z' → z = z'
@@ -72,10 +74,10 @@ namespace sum
 
   protected definition decodeo (p : a = a') : Π(z : P a + Q a) (z' : P a' + Q a'),
     sum.codeo p z z' → z =[p] z'
-  | decodeo (inl x) (inl x') := λc, apo (λa, inl) p (down c)
+  | decodeo (inl x) (inl x') := λc, apo (λa, inl) (down c)
   | decodeo (inl x) (inr y') := λc, empty.elim (down c) _
   | decodeo (inr y) (inl x') := λc, empty.elim (down c) _
-  | decodeo (inr y) (inr y') := λc, apo (λa, inr) p (down c)
+  | decodeo (inr y) (inr y') := λc, apo (λa, inr) (down c)
 
   variables {z z'}
   protected definition encodeo {p : a = a'} {z : P a + Q a} {z' : P a' + Q a'} (q : z =[p] z')
@@ -157,11 +159,16 @@ namespace sum
   definition sum_empty_equiv [constructor] (A : Type) : A + empty ≃ A :=
   begin
     fapply equiv.MK,
-      intro z, induction z, assumption, contradiction,
-      exact inl,
-      intro a, reflexivity,
-      intro z, induction z, reflexivity, contradiction
+    { intro z, induction z, assumption, contradiction},
+    { exact inl},
+    { intro a, reflexivity},
+    { intro z, induction z, reflexivity, contradiction}
   end
+
+  definition empty_sum_equiv (A : Type) : empty + A ≃ A :=
+  !sum_comm_equiv ⬝e !sum_empty_equiv
+
+  /- universal property -/
 
   definition sum_rec_unc {P : A + B → Type} (fg : (Πa, P (inl a)) × (Πb, P (inr b))) : Πz, P z :=
   sum.rec fg.1 fg.2
@@ -182,6 +189,9 @@ namespace sum
     : (A → C) × (B → C) ≃ (A + B → C) :=
   !equiv_sum_rec
 
+  /- truncatedness -/
+
+  variables (A B)
   definition is_trunc_sum (n : trunc_index) [HA : is_trunc (n.+2) A]  [HB : is_trunc (n.+2) B]
     : is_trunc (n.+2) (A + B) :=
   begin
@@ -191,13 +201,29 @@ namespace sum
     all_goals exact _,
   end
 
+  definition is_trunc_sum_excluded (n : trunc_index) [HA : is_trunc n A]  [HB : is_trunc n B]
+    (H : A → B → empty) : is_trunc n (A + B) :=
+  begin
+    induction n with n IH,
+    { exfalso, exact H !center !center},
+    { clear IH, induction n with n IH,
+      { apply is_hprop.mk, intros x y,
+        induction x, all_goals induction y, all_goals esimp,
+        all_goals try (exfalso;apply H;assumption;assumption), all_goals apply ap _ !is_hprop.elim},
+      { apply is_trunc_sum}}
+  end
+
+  variable {B}
+  definition is_contr_sum_left [HA : is_contr A] (H : ¬B) : is_contr (A + B) :=
+  is_contr.mk (inl !center)
+              (λx, sum.rec_on x (λa, ap inl !center_eq) (λb, empty.elim (H b)))
+
   /-
     Sums are equivalent to dependent sigmas where the first component is a bool.
 
     The current construction only works for A and B in the same universe.
     If we need it for A and B in different universes, we need to insert some lifts.
   -/
-
 
   definition sum_of_sigma_bool {A B : Type.{u}} (v : Σ(b : bool), bool.rec A B b) : A + B :=
   by induction v with b x; induction b; exact inl x; exact inr x
@@ -213,3 +239,24 @@ namespace sum
            begin intro z, induction z with a b, all_goals reflexivity end
 
 end sum
+
+namespace decidable
+  open sum pi
+
+  definition decidable_equiv (A : Type) : decidable A ≃ A + ¬A :=
+  begin
+    fapply equiv.MK:intro a;induction a:try (constructor;assumption;now),
+    all_goals reflexivity
+  end
+
+  definition is_trunc_decidable (A : Type) (n : trunc_index) [H : is_trunc n A] :
+    is_trunc n (decidable A) :=
+  begin
+    apply is_trunc_equiv_closed_rev,
+    apply decidable_equiv,
+    induction n with n IH,
+    { apply is_contr_sum_left, exact λna, na !center},
+    { apply is_trunc_sum_excluded, exact λa na, na a}
+  end
+
+end decidable

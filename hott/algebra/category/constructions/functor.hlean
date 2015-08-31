@@ -31,7 +31,7 @@ namespace category
   variables {C D : Precategory} {F G : C ⇒ D} (η : F ⟹ G) [iso : Π(a : C), is_iso (η a)]
   include iso
 
-  definition nat_trans_inverse : G ⟹ F :=
+  definition nat_trans_inverse [constructor] : G ⟹ F :=
   nat_trans.mk
     (λc, (η c)⁻¹)
     (λc d f,
@@ -58,16 +58,20 @@ namespace category
     apply is_hset.elim
   end
 
-  definition is_iso_nat_trans : is_iso η :=
+  definition is_iso_nat_trans [constructor] [instance] : is_iso η :=
   is_iso.mk (nat_trans_left_inverse η) (nat_trans_right_inverse η)
+
+  variable (iso)
+  definition functor_iso [constructor] : F ≅ G :=
+  @(iso.mk η) !is_iso_nat_trans
 
   end
 
   section
   /- and conversely, if a natural transformation is an iso, it is componentwise an iso -/
-  variables {C D : Precategory} {F G : D ^c C} (η : hom F G) [isoη : is_iso η] (c : C)
+  variables {A B C D : Precategory} {F G : D ^c C} (η : hom F G) [isoη : is_iso η] (c : C)
   include isoη
-  definition componentwise_is_iso : is_iso (η c) :=
+  definition componentwise_is_iso [instance] : is_iso (η c) :=
   @is_iso.mk _ _ _ _ _ (natural_map η⁻¹ c) (ap010 natural_map ( left_inverse η) c)
                                            (ap010 natural_map (right_inverse η) c)
 
@@ -106,6 +110,61 @@ namespace category
   definition natural_map_inv_of_eq (p : F = G) (c : C)
     : natural_map (inv_of_eq p) c = hom_of_eq (ap010 to_fun_ob p c)⁻¹ :=
   eq.rec_on p idp
+
+  definition hom_of_eq_compose_right {H : C ^c B} (p : F = G)
+    : hom_of_eq (ap (λx, x ∘f H) p) = hom_of_eq p ∘nf H :=
+  eq.rec_on p idp
+
+  definition inv_of_eq_compose_right {H : C ^c B} (p : F = G)
+    : inv_of_eq (ap (λx, x ∘f H) p) = inv_of_eq p ∘nf H :=
+  eq.rec_on p idp
+
+  definition hom_of_eq_compose_left {H : B ^c D} (p : F = G)
+    : hom_of_eq (ap (λx, H ∘f x) p) = H ∘fn hom_of_eq p :=
+  by induction p; exact !fn_id⁻¹
+
+  definition inv_of_eq_compose_left {H : B ^c D} (p : F = G)
+    : inv_of_eq (ap (λx, H ∘f x) p) = H ∘fn inv_of_eq p :=
+  by induction p; exact !fn_id⁻¹
+
+  definition assoc_natural [constructor] (H : C ⇒ D) (G : B ⇒ C) (F : A ⇒ B)
+    : H ∘f (G ∘f F) ⟹ (H ∘f G) ∘f F :=
+  change_natural_map (hom_of_eq !functor.assoc)
+                     (λa, id)
+                     (λa, !natural_map_hom_of_eq ⬝ ap hom_of_eq !ap010_assoc)
+
+  definition assoc_natural_rev [constructor] (H : C ⇒ D) (G : B ⇒ C) (F : A ⇒ B)
+    : (H ∘f G) ∘f F ⟹ H ∘f (G ∘f F) :=
+  change_natural_map (inv_of_eq !functor.assoc)
+                     (λa, id)
+                     (λa, !natural_map_inv_of_eq ⬝ ap (λx, hom_of_eq x⁻¹) !ap010_assoc)
+
+  definition id_left_natural [constructor] (F : C ⇒ D) : functor.id ∘f F ⟹ F :=
+  change_natural_map
+    (hom_of_eq !functor.id_left)
+    (λc, id)
+    (λc, by induction F; exact !natural_map_hom_of_eq ⬝ ap hom_of_eq !ap010_functor_mk_eq_constant)
+
+
+  definition id_left_natural_rev [constructor] (F : C ⇒ D) : F ⟹ functor.id ∘f F :=
+  change_natural_map
+    (inv_of_eq !functor.id_left)
+    (λc, id)
+    (λc, by induction F; exact !natural_map_inv_of_eq ⬝
+                                 ap (λx, hom_of_eq x⁻¹) !ap010_functor_mk_eq_constant)
+
+  definition id_right_natural [constructor] (F : C ⇒ D) : F ∘f functor.id ⟹ F :=
+  change_natural_map
+    (hom_of_eq !functor.id_right)
+    (λc, id)
+    (λc, by induction F; exact !natural_map_hom_of_eq ⬝ ap hom_of_eq !ap010_functor_mk_eq_constant)
+
+  definition id_right_natural_rev [constructor] (F : C ⇒ D) : F ⟹ F ∘f functor.id :=
+  change_natural_map
+    (inv_of_eq !functor.id_right)
+    (λc, id)
+    (λc, by induction F; exact !natural_map_inv_of_eq ⬝
+                                 ap (λx, hom_of_eq x⁻¹) !ap010_functor_mk_eq_constant)
 
   end
 
@@ -171,5 +230,24 @@ namespace category
     infixr `^c2`:35 := Category_functor
   end ops
 
+  namespace functor
+    variables {C : Precategory} {D : Category} {F G : D ^c C}
+
+    definition eq_of_pointwise_iso (η : F ⟹ G) (iso : Π(a : C), is_iso (η a)) : F = G :=
+    eq_of_iso (functor_iso η iso)
+
+   definition iso_of_eq_eq_of_pointwise_iso (η : F ⟹ G) (iso : Π(c : C), is_iso (η c))
+      : iso_of_eq (eq_of_pointwise_iso η iso) = functor_iso η iso :=
+   !iso_of_eq_eq_of_iso
+
+   definition hom_of_eq_eq_of_pointwise_iso (η : F ⟹ G) (iso : Π(c : C), is_iso (η c))
+      : hom_of_eq (eq_of_pointwise_iso η iso) = η :=
+   !hom_of_eq_eq_of_iso
+
+   definition inv_of_eq_eq_of_pointwise_iso (η : F ⟹ G) (iso : Π(c : C), is_iso (η c))
+      : inv_of_eq (eq_of_pointwise_iso η iso) = nat_trans_inverse η :=
+   !inv_of_eq_eq_of_iso
+
+  end functor
 
 end category

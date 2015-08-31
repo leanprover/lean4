@@ -37,7 +37,7 @@ void lean_ios_del(lean_ios ios) {
 lean_bool lean_ios_is_std(lean_ios ios) {
     if (!ios)
         return lean_false;
-    return dynamic_cast<string_output_channel*>(&to_io_state_ref(ios).get_regular_channel()) != nullptr;
+    return dynamic_cast<string_output_channel*>(&to_io_state_ref(ios).get_regular_channel()) == nullptr;
 }
 
 lean_bool lean_ios_set_options(lean_ios ios, lean_options o, lean_exception * ex) {

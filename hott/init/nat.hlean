@@ -8,8 +8,9 @@ import init.wf init.tactic init.hedberg init.util init.types
 
 open eq decidable sum lift is_trunc
 
+notation `ℕ` := nat
+
 namespace nat
-  notation `ℕ` := nat
 
   /- basic definitions on natural numbers -/
   inductive le (a : ℕ) : ℕ → Type₀ :=

@@ -39,7 +39,7 @@ syn match leanOp        ":"
 syn match leanOp        "="
 
 " constants
-syn keyword leanConstant # @ -> ∼ ↔ / == := <-> /\\ \\/ ∧ ∨
+syn keyword leanConstant "#" "@" "->" "∼" "↔" "/" "==" ":=" "<->" "/\\" "\\/" "∧" "∨"
 syn keyword leanConstant ≠ < > ≤ ≥ ¬ <= >= ⁻¹ ⬝ ▸ + * - / λ
 syn keyword leanConstant → ∃ ∀
 

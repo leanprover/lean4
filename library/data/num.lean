@@ -510,3 +510,14 @@ namespace pos_num
   end
 
 end pos_num
+
+namespace num
+  open pos_num
+
+  theorem decidable_eq [instance] : ∀ (a b : num), decidable (a = b)
+  | zero zero       := inl rfl
+  | zero (pos b)    := inr (by contradiction)
+  | (pos a) zero    := inr (by contradiction)
+  | (pos a) (pos b) :=
+    if H : a = b then inl (by rewrite H) else inr (suppose pos a = pos b, begin injection this, contradiction end)
+end num

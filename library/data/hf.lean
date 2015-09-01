@@ -16,6 +16,8 @@ open -[notations]finset
 definition hf := nat
 
 namespace hf
+local attribute hf [reducible]
+
 protected definition prio : num := num.succ std.priority.default
 
 protected definition is_inhabited [instance] : inhabited hf :=

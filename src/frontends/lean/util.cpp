@@ -449,6 +449,24 @@ expr postprocess(environment const & env, expr const & e) {
     return eta_reduce(expand_abbreviations(env, unfold_untrusted_macros(env, e)));
 }
 
+// Auxiliary object for eliminating choice-expressions associated with numerals.
+// That is, it replaces every (choice a_0 ... a_n), where a_0 is a numeral, with
+// a_0.
+class elim_choice_num_fn : public replace_visitor {
+    virtual expr visit_macro(expr const & m) {
+        if (is_choice(m)) {
+            expr const & e = macro_arg(m, 0);
+            if (to_num(e)) {
+                return e;
+            } else {
+                throw exception("invalid priority expression, it contains overloaded symbols");
+            }
+        } else {
+            return replace_visitor::visit_macro(m);
+        }
+    }
+};
+
 optional<unsigned> parse_priority(parser & p) {
     if (p.curr_is_token(get_priority_tk())) {
         p.next();
@@ -456,11 +474,9 @@ optional<unsigned> parse_priority(parser & p) {
         environment env = open_num_notation(p.env());
         parser::local_scope scope(p, env);
         expr val = p.parse_expr();
-        for_each(val, [](expr const & e, unsigned) {
-                if (is_choice(e))
-                    throw exception("invalid priority expression, it contains overloaded symbols");
-                return true;
-            });
+        // Remark: open_num_notation will not override numeral overloading.
+        // So, we use the following helper class for eliminating it.
+        val = elim_choice_num_fn()(val);
         val = normalize(p.env(), val);
         if (optional<mpz> mpz_val = to_num(val)) {
             if (!mpz_val->is_unsigned_int())

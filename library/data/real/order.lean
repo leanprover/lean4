@@ -15,7 +15,7 @@ open -[coercions] nat
 open eq eq.ops pnat
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1
-notation 2 := subtype.tag (of_num 2) dec_trivial
+local notation 2 := subtype.tag (of_num 2) dec_trivial
 
 ----------------------------------------------------------------------------------------------------
 

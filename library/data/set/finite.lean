@@ -129,23 +129,25 @@ by rewrite [-finset.to_set_upto n]; apply finite_finset
 theorem to_finset_upto (n : ℕ) : to_finset {i | i < n} = finset.upto n :=
 by apply (to_finset_eq_of_to_set_eq !finset.to_set_upto)
 
+set_option pp.notation false
 theorem finite_powerset (s : set A) [fins : finite s] : finite 𝒫 s :=
 assert H : 𝒫 s = finset.to_set '[finset.to_set (#finset 𝒫 (to_finset s))],
   from ext (take t, iff.intro
     (suppose t ∈ 𝒫 s,
       assert t ⊆ s, from this,
       assert finite t, from finite_subset this,
-      have (#finset to_finset t ∈ 𝒫 (to_finset s)),
+      assert (#finset to_finset t ∈ 𝒫 (to_finset s)),
         by rewrite [finset.mem_powerset_iff_subset, to_finset_subset_to_finset_eq]; apply `t ⊆ s`,
+      assert to_finset t ∈ (finset.to_set (finset.powerset (to_finset s))), from this,
       mem_image this (by rewrite to_set_to_finset))
     (assume H',
       obtain t' [(tmem : (#finset t' ∈ 𝒫 (to_finset s))) (teq : finset.to_set t' = t)],
         from H',
       show t ⊆ s,
-        begin
-          rewrite [-teq, finset.mem_powerset_iff_subset at tmem, -to_set_to_finset s],
-          rewrite -finset.subset_eq_to_set_subset, assumption
-        end)),
+      begin
+        rewrite [-teq, finset.mem_powerset_iff_subset at tmem, -to_set_to_finset s],
+        rewrite -finset.subset_eq_to_set_subset, assumption
+     end)),
 by rewrite H; apply finite_image
 
 /- induction for finite sets -/

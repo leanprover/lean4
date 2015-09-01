@@ -817,6 +817,17 @@ struct unifier_fn {
         lean_unreachable(); // LCOV_EXCL_LINE
     }
 
+    /** \brief Return true if type of \c e is Type.
+        \remark constraints are discarded */
+    bool is_type(expr const & e) {
+        constraint_seq cs;
+        optional<expr> t = infer(e, cs);
+        if (!t)
+            return false;
+        t = whnf(*t, cs);
+        return is_sort(*t);
+    }
+
     optional<declaration> is_delta(expr const & e) {
         return m_tc->is_delta(e);
     }
@@ -1030,9 +1041,14 @@ struct unifier_fn {
         }
 
         if (is_eq_deltas(lhs, rhs)) {
-            // we need to create a backtracking point for this one
-            add_cnstr(c, cnstr_group::Basic);
-            return true;
+            if (!split_delta(lhs) && is_type(lhs)) {
+                // If lhs (and consequently rhs) is a type, and not case-split is generated, then process delta constraint eagerly.
+                return process_delta(c);
+            } else {
+                // we need to create a backtracking point for this one
+                add_cnstr(c, cnstr_group::Basic);
+                return true;
+            }
         } else if (is_meta(lhs) && is_meta(rhs)) {
             // flex-flex constraints are delayed the most.
             unsigned cidx = add_cnstr(c, cnstr_group::FlexFlex);
@@ -1651,6 +1667,15 @@ struct unifier_fn {
         return true;
     }
 
+    // Return true if we should case-split on a delta constraint where \c lhs is the left-hand-side
+    bool split_delta(expr const & lhs) {
+        expr lhs_fn     = get_app_fn(lhs);
+        lean_assert(is_constant(lhs_fn));
+        declaration d   = *m_env.find(const_name(lhs_fn));
+        return (m_config.m_kind == unifier_kind::Liberal &&
+                (m_config.m_computation || module::is_definition(m_env, d.get_name()) || is_at_least_quasireducible(m_env, d.get_name())));
+    }
+
     /**
         \brief Solve constraints of the form (f a_1 ... a_n) =?= (f b_1 ... b_n) where f can be expanded.
         We consider two possible solutions:
@@ -1679,8 +1704,7 @@ struct unifier_fn {
             return unfold_delta(c, justification());
 
         justification a;
-        if (m_config.m_kind == unifier_kind::Liberal &&
-            (m_config.m_computation || module::is_definition(m_env, d.get_name()) || is_at_least_quasireducible(m_env, d.get_name()))) {
+        if (split_delta(lhs)) {
             // add case_split for t =?= s
             a = mk_assumption_justification(m_next_assumption_idx);
             add_case_split(std::unique_ptr<case_split>(new delta_unfold_case_split(*this, j, c)));

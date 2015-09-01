@@ -467,6 +467,10 @@ class elim_choice_num_fn : public replace_visitor {
     }
 };
 
+expr elim_choice_num(expr const & e) {
+    return elim_choice_num_fn()(e);
+}
+
 optional<unsigned> parse_priority(parser & p) {
     if (p.curr_is_token(get_priority_tk())) {
         p.next();
@@ -476,7 +480,7 @@ optional<unsigned> parse_priority(parser & p) {
         expr val = p.parse_expr();
         // Remark: open_num_notation will not override numeral overloading.
         // So, we use the following helper class for eliminating it.
-        val = elim_choice_num_fn()(val);
+        val = elim_choice_num(val);
         val = normalize(p.env(), val);
         if (optional<mpz> mpz_val = to_num(val)) {
             if (!mpz_val->is_unsigned_int())

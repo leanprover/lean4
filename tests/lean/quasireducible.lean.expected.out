@@ -2,11 +2,11 @@ quasireducible.lean:11:11: error:invalid 'rewrite' tactic, rewrite step failed u
   f a
 no subterm in the goal matched the pattern
 proof state:
-a : nat,
+a : ℕ,
 H : f a = a
 ⊢ g a = a
 quasireducible.lean:11:0: error: don't know how to synthesize placeholder
-a : nat,
+a : ℕ,
 H : f a = a
 ⊢ g a = a
 quasireducible.lean:11:0: error: failed to add declaration 'example' to environment, value has metavariables
@@ -16,11 +16,11 @@ quasireducible.lean:16:11: error:invalid 'rewrite' tactic, rewrite step failed u
   f a
 no subterm in the goal matched the pattern
 proof state:
-a : nat,
+a : ℕ,
 H : f a = a
 ⊢ g a = a
 quasireducible.lean:16:0: error: don't know how to synthesize placeholder
-a : nat,
+a : ℕ,
 H : f a = a
 ⊢ g a = a
 quasireducible.lean:16:0: error: failed to add declaration 'example' to environment, value has metavariables

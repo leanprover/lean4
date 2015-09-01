@@ -1,17 +1,17 @@
 exact_partial2.lean:3:21: error: don't know how to synthesize placeholder
-a b c : nat,
+a b c : ℕ,
 h₁ : a = b,
 h₂ : b = c
 ⊢ b = c
 exact_partial2.lean:3:2: error:invalid 'exact' tactic, term still contains metavariables after elaboration
   eq.trans h₁ ?M_1
 proof state:
-a b c : nat,
+a b c : ℕ,
 h₁ : a = b,
 h₂ : b = c
 ⊢ a = c
 exact_partial2.lean:4:0: error: don't know how to synthesize placeholder
-a b c : nat,
+a b c : ℕ,
 h₁ : a = b,
 h₂ : b = c
 ⊢ a = c

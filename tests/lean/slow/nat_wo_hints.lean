@@ -77,7 +77,7 @@ theorem succ_ne_self (n : ℕ) : succ n ≠ n
       absurd H ne)
     (take k IH H, IH (succ.inj H))
 
-theorem decidable_eq [instance] (n m : ℕ) : decidable (n = m)
+theorem decidable_eq [instance] (n m : nat) : decidable (n = m)
 := have general : ∀n, decidable (n = m), from
      nat.rec_on m
        (take n,

@@ -1,12 +1,12 @@
 subst_bug.lean:4:2: error:invalid 'subst' tactic, 'a' occurs in the other side of the equation
 proof state:
-f : nat → nat,
-a b : nat,
+f : ℕ → ℕ,
+a b : ℕ,
 h₁ : f a = a
 ⊢ f (f a) = a
 subst_bug.lean:5:0: error: don't know how to synthesize placeholder
-f : nat → nat,
-a b : nat
+f : ℕ → ℕ,
+a b : ℕ
 ⊢ f a = a → f (f a) = a
 subst_bug.lean:5:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term

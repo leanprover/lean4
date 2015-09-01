@@ -1,2 +1,2 @@
-definition nat.add : nat → nat → nat :=
-λ (a b : nat), nat.rec_on b a (λ (b₁ : nat), nat.succ)
+definition nat.add : ℕ → ℕ → ℕ :=
+λ (a b : ℕ), nat.rec_on b a (λ (b₁ : ℕ), nat.succ)

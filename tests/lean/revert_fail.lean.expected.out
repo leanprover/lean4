@@ -1,12 +1,12 @@
 revert_fail.lean:5:2: error:invalid 'revert' tactic, hypothesis 'v' depends on 'n'
 proof state:
 A : Type,
-n : nat,
+n : ℕ,
 v : vector A n
 ⊢ v = v
 revert_fail.lean:6:0: error: don't know how to synthesize placeholder
 A : Type,
-n : nat,
+n : ℕ,
 v : vector A n
 ⊢ v = v
 revert_fail.lean:6:0: error: failed to add declaration 'example' to environment, value has metavariables
@@ -16,17 +16,17 @@ revert_fail.lean:11:2: error:invalid tactic, there are no goals to be solved
 proof state:
 no goals
 revert_fail.lean:12:0: error: don't know how to synthesize placeholder
-n : nat
+n : ℕ
 ⊢ n = n
 revert_fail.lean:12:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   ?M_1
 revert_fail.lean:16:2: error:invalid 'revert' tactic, unknown hypothesis 'm'
 proof state:
-n : nat
+n : ℕ
 ⊢ n = n
 revert_fail.lean:17:0: error: don't know how to synthesize placeholder
-n : nat
+n : ℕ
 ⊢ n = n
 revert_fail.lean:17:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term

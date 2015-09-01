@@ -1,10 +1,10 @@
 constr_tac_errors.lean:3:2: error:invalid 'constructor' tactic, goal is an inductive datatype, but it does not have 1 constructor(s)
 proof state:
 
-⊢ nat
+⊢ ℕ
 constr_tac_errors.lean:4:0: error: don't know how to synthesize placeholder
 
-⊢ nat
+⊢ ℕ
 constr_tac_errors.lean:4:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   ?M_1
@@ -47,10 +47,10 @@ remark: set 'formatter.hide_full_terms' to false to see the complete term
 constr_tac_errors.lean:39:2: error:invalid 'constructor' tactic, goal is not an inductive datatype
 proof state:
 
-⊢ nat → nat
+⊢ ℕ → ℕ
 constr_tac_errors.lean:40:0: error: don't know how to synthesize placeholder
 
-⊢ nat → nat
+⊢ ℕ → ℕ
 constr_tac_errors.lean:40:0: error: failed to add declaration 'example' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   ?M_1

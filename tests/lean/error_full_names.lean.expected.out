@@ -11,6 +11,6 @@ error_full_names.lean:8:6: error: type mismatch at application
 term
   nat.zero
 has type
-  foo.nat
-but is expected to have type
   nat
+but is expected to have type
+  ℕ

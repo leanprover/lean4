@@ -1,7 +1,7 @@
 bad_structures2.lean:7:27: error: invalid 'structure' header, field 'x' from 'boo' has already been declared with a different type
   bool
 and
-  nat
+  ℕ
 bad_structures2.lean:12:27: error: invalid 'structure' header, field 'x' has already been declared with a different binder annotation
 bad_structures2.lean:15:1: error: field 'x' has been declared in parent structure
 bad_structures2.lean:18:2: error: invalid field, identifier expected

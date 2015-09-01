@@ -1,5 +1,5 @@
 errors.lean:4:0: error: unknown identifier 'a'
-tst1 : nat → nat → nat
+tst1 : ℕ → ℕ → ℕ
 errors.lean:12:8: error: unknown identifier 'add'
 errors.lean:22:12: error: unknown identifier 'b'
 tst3 : A → A → A

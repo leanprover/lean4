@@ -61,6 +61,8 @@ syn region      leanEncl            matchgroup=leanDelim start="(" end=")" conta
 syn region      leanBracketEncl     matchgroup=leanDelim start="\[" end="\]" contains=ALLBUT,leanBrackErr keepend
 syn region      leanEncl            matchgroup=leanDelim start="{"  end="}" contains=ALLBUT,leanBraceErr,leanModifier keepend
 
+syn region      leanNotation        start=+`+    end=+`+
+
 syn keyword	leanTodo	containedin=leanComment TODO FIXME BUG FIX
 
 syn region      leanComment	start=+/-+ end=+-/+ contains=leanTodo
@@ -86,6 +88,8 @@ if version >= 508 || !exists("did_lean_syntax_inits")
   HiLink leanModifier           Special
   HiLink leanDelim              Keyword  " Delimiter is bad
   HiLink leanOp                 Keyword
+
+  HiLink leanNotation           String
 
   HiLink leanBraceError         Error
   HiLink leanParenError         Error

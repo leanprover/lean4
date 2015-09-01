@@ -323,29 +323,32 @@ namespace iso
   H⁻¹ ▸ comp_inverse_cancel_left q g
   definition comp_eq_of_eq_comp_inverse (H : w = f ∘ q⁻¹) : w ∘ q = f :=
   H⁻¹ ▸ inverse_comp_cancel_right f q
-  definition inverse_comp_eq_of_eq_comp (H : z = q ∘ p) : q⁻¹ ∘ z = p :=
-  H⁻¹ ▸ inverse_comp_cancel_left q p
-  definition comp_inverse_eq_of_eq_comp (H : x = r ∘ q) : x ∘ q⁻¹ = r :=
-  H⁻¹ ▸ comp_inverse_cancel_right r q
   definition eq_comp_of_inverse_comp_eq (H : q⁻¹ ∘ g = y) : g = q ∘ y :=
   (comp_eq_of_eq_inverse_comp H⁻¹)⁻¹
   definition eq_comp_of_comp_inverse_eq (H : f ∘ q⁻¹ = w) : f = w ∘ q :=
   (comp_eq_of_eq_comp_inverse H⁻¹)⁻¹
+  variable {Hq}
+  definition inverse_comp_eq_of_eq_comp (H : z = q ∘ p) : q⁻¹ ∘ z = p :=
+  H⁻¹ ▸ inverse_comp_cancel_left q p
+  definition comp_inverse_eq_of_eq_comp (H : x = r ∘ q) : x ∘ q⁻¹ = r :=
+  H⁻¹ ▸ comp_inverse_cancel_right r q
   definition eq_inverse_comp_of_comp_eq (H : q ∘ p = z) : p = q⁻¹ ∘ z :=
   (inverse_comp_eq_of_eq_comp H⁻¹)⁻¹
   definition eq_comp_inverse_of_comp_eq (H : r ∘ q = x) : r = x ∘ q⁻¹ :=
   (comp_inverse_eq_of_eq_comp H⁻¹)⁻¹
+
   definition eq_inverse_of_comp_eq_id' (H : h ∘ q = id) : h = q⁻¹ := (inverse_eq_left H)⁻¹
   definition eq_inverse_of_comp_eq_id (H : q ∘ h = id) : h = q⁻¹ := (inverse_eq_right H)⁻¹
+  definition inverse_eq_of_id_eq_comp (H : id = h ∘ q) : q⁻¹ = h :=
+  (eq_inverse_of_comp_eq_id' H⁻¹)⁻¹
+  definition inverse_eq_of_id_eq_comp' (H : id = q ∘ h) : q⁻¹ = h :=
+  (eq_inverse_of_comp_eq_id H⁻¹)⁻¹
+  variable [Hq]
   definition eq_of_comp_inverse_eq_id (H : i ∘ q⁻¹ = id) : i = q :=
   eq_inverse_of_comp_eq_id' H ⬝ inverse_involutive q
   definition eq_of_inverse_comp_eq_id (H : q⁻¹ ∘ i = id) : i = q :=
   eq_inverse_of_comp_eq_id H ⬝ inverse_involutive q
   definition eq_of_id_eq_comp_inverse (H : id = i ∘ q⁻¹) : q = i := (eq_of_comp_inverse_eq_id H⁻¹)⁻¹
   definition eq_of_id_eq_inverse_comp (H : id = q⁻¹ ∘ i) : q = i := (eq_of_inverse_comp_eq_id H⁻¹)⁻¹
-  definition inverse_eq_of_id_eq_comp (H : id = h ∘ q) : q⁻¹ = h :=
-  (eq_inverse_of_comp_eq_id' H⁻¹)⁻¹
-  definition inverse_eq_of_id_eq_comp' (H : id = q ∘ h) : q⁻¹ = h :=
-  (eq_inverse_of_comp_eq_id H⁻¹)⁻¹
   end
 end iso

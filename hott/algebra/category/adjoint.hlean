@@ -11,10 +11,10 @@ open category functor nat_trans eq is_trunc iso equiv prod trunc function pi is_
 namespace category
   variables {C D : Precategory} {F : C ⇒ D} {G : D ⇒ C}
 
-  -- do we want to have a structure "is_adjoint" and define
+  -- TODO: define a structure "adjoint" and then define
   -- structure is_left_adjoint (F : C ⇒ D) :=
-  --   (right_adjoint : D ⇒ C) -- G
-  --   (is_adjoint : adjoint F right_adjoint)
+  --   (G : D ⇒ C) -- G
+  --   (is_adjoint : adjoint F G)
 
   structure is_left_adjoint [class] (F : C ⇒ D) :=
     (G : D ⇒ C)
@@ -27,13 +27,6 @@ namespace category
   abbreviation unit          := @is_left_adjoint.η
   abbreviation counit        := @is_left_adjoint.ε
 
-  -- structure is_left_adjoint [class] (F : C ⇒ D) :=
-  --   (right_adjoint : D ⇒ C) -- G
-  --   (unit : functor.id ⟹ right_adjoint ∘f F) -- η
-  --   (counit : F ∘f right_adjoint ⟹ functor.id) -- ε
-  --   (H : Π(c : C), (counit (F c)) ∘ (F (unit c)) = ID (F c))
-  --   (K : Π(d : D), (right_adjoint (counit d)) ∘ (unit (right_adjoint d)) = ID (right_adjoint d))
-
   structure is_equivalence [class] (F : C ⇒ D) extends is_left_adjoint F :=
     mk' ::
     (is_iso_unit : is_iso η)
@@ -44,10 +37,6 @@ namespace category
   --a second notation for the inverse, which is not overloaded
   postfix [parsing-only] `⁻¹F`:std.prec.max_plus := inverse
 
-  structure equivalence (C D : Precategory) :=
-    (to_functor : C ⇒ D)
-    (struct : is_equivalence to_functor)
-
   --TODO: review and change
   definition faithful [class] (F : C ⇒ D) := Π⦃c c' : C⦄ ⦃f f' : c ⟶ c'⦄, F f = F f' → f = f'
   definition full [class] (F : C ⇒ D) := Π⦃c c' : C⦄, is_surjective (@(to_fun_hom F) c c')
@@ -56,6 +45,10 @@ namespace category
   definition essentially_surjective [class] (F : C ⇒ D) := Π(d : D), ∃(c : C), F c ≅ d
   definition is_weak_equivalence [class] (F : C ⇒ D) := fully_faithful F × essentially_surjective F
   definition is_isomorphism [class] (F : C ⇒ D) := fully_faithful F × is_equiv (to_fun_ob F)
+
+  structure equivalence (C D : Precategory) :=
+    (to_functor : C ⇒ D)
+    (struct : is_equivalence to_functor)
 
   structure isomorphism (C D : Precategory) :=
     (to_functor : C ⇒ D)
@@ -69,10 +62,10 @@ namespace category
     : is_equiv (@(to_fun_hom F) c c') :=
   !H
 
-  definition is_iso_unit [instance] (F : C ⇒ D) (H : is_equivalence F) : is_iso (unit F) :=
+  definition is_iso_unit [instance] (F : C ⇒ D) [H : is_equivalence F] : is_iso (unit F) :=
   !is_equivalence.is_iso_unit
 
-  definition is_iso_counit [instance] (F : C ⇒ D) (H : is_equivalence F) : is_iso (counit F) :=
+  definition is_iso_counit [instance] (F : C ⇒ D) [H : is_equivalence F] : is_iso (counit F) :=
   !is_equivalence.is_iso_counit
 
   -- theorem is_hprop_is_left_adjoint {C : Category} {D : Precategory} (F : C ⇒ D)
@@ -127,19 +120,6 @@ namespace category
   --     rewrite [respect_comp,assoc,nf_fn_eq_fn_nf_pt ε' ε d,-assoc,▸*,H (G' d),id_right]},
   -- end
 
-  section
-    variables (F G)
-    variables (η : G ∘f F ≅ 1) (ε : F ∘f G ≅ 1)
-    include η ε
-    --definition inverse_of_unit_counit
-
-    definition is_equivalence.mk : is_equivalence F :=
-    begin
-      exact sorry
-    end
-
-  end
-
   definition full_of_fully_faithful (H : fully_faithful F) : full F :=
   λc c', is_surjective.mk (λg, tr (fiber.mk ((@(to_fun_hom F) c c')⁻¹ᶠ g) !right_inv))
 
@@ -155,16 +135,6 @@ namespace category
     { apply K}
   end
 
-  definition fully_faithful_of_is_equivalence (F : C ⇒ D) [H : is_equivalence F]
-    : fully_faithful F :=
-  begin
-    intro c c',
-    fapply adjointify,
-    { intro g, exact natural_map (@(iso.inverse (unit F)) !is_iso_unit) c' ∘ F⁻¹ g ∘ unit F c},
-    { intro g, rewrite [+respect_comp], exact sorry},
-    { exact sorry},
-  end
-
   definition split_essentially_surjective_of_is_equivalence (F : C ⇒ D) [H : is_equivalence F]
     : split_essentially_surjective F :=
   begin
@@ -174,6 +144,32 @@ namespace category
   end
 
 /-
+
+  definition fully_faithful_of_is_equivalence (F : C ⇒ D) [H : is_equivalence F]
+    : fully_faithful F :=
+  begin
+    intro c c',
+    fapply adjointify,
+    { intro g, exact natural_map (@(iso.inverse (unit F)) !is_iso_unit) c' ∘ F⁻¹ g ∘ unit F c},
+    { intro g, rewrite [+respect_comp,▸*],
+      krewrite [natural_map_inverse], xrewrite [respect_inv'],
+      apply inverse_comp_eq_of_eq_comp,
+      exact sorry /-this is basically the naturality of the counit-/ },
+    { exact sorry},
+  end
+
+  section
+    variables (F G)
+    variables (η : G ∘f F ≅ 1) (ε : F ∘f G ≅ 1)
+    include η ε
+    --definition inverse_of_unit_counit
+
+    definition is_equivalence.mk : is_equivalence F :=
+    begin
+      exact sorry
+    end
+
+  end
 
   definition fully_faithful_equiv (F : C ⇒ D) : fully_faithful F ≃ (faithful F × full F) :=
   sorry

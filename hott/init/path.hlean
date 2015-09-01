@@ -208,13 +208,14 @@ namespace eq
 
   infix ~ := homotopy
 
-  protected definition homotopy.refl [refl] [reducible] (f : Πx, P x) : f ~ f :=
+  protected definition homotopy.refl [refl] [reducible] [unfold-full] (f : Πx, P x) : f ~ f :=
   λ x, idp
 
-  protected definition homotopy.symm [symm] [reducible] {f g : Πx, P x} (H : f ~ g) : g ~ f :=
+  protected definition homotopy.symm [symm] [reducible] [unfold-full] {f g : Πx, P x} (H : f ~ g)
+    : g ~ f :=
   λ x, (H x)⁻¹
 
-  protected definition homotopy.trans [trans] [reducible] {f g h : Πx, P x}
+  protected definition homotopy.trans [trans] [reducible] [unfold-full] {f g h : Πx, P x}
     (H1 : f ~ g) (H2 : g ~ h) : f ~ h :=
   λ x, H1 x ⬝ H2 x
 
@@ -287,12 +288,12 @@ namespace eq
   definition ap_id (p : x = y) : ap id p = p :=
   eq.rec_on p idp
 
-  definition ap_compose (g : B → C) (f : A → B) {x y : A} (p : x = y) :
+  definition ap_compose [unfold 8] (g : B → C) (f : A → B) {x y : A} (p : x = y) :
     ap (g ∘ f) p = ap g (ap f p) :=
   eq.rec_on p idp
 
   -- Sometimes we don't have the actual function [compose].
-  definition ap_compose' (g : B → C) (f : A → B) {x y : A} (p : x = y) :
+  definition ap_compose' [unfold 8] (g : B → C) (f : A → B) {x y : A} (p : x = y) :
     ap (λa, g (f a)) p = ap g (ap f p) :=
   eq.rec_on p idp
 

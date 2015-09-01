@@ -77,7 +77,9 @@ namespace category
 
   local attribute componentwise_is_iso [instance]
 
+  variable {isoη}
   definition natural_map_inverse : natural_map η⁻¹ c = (η c)⁻¹ := idp
+  variable [isoη]
 
   definition naturality_iso {c c' : C} (f : c ⟶ c') : G f = η c' ∘ F f ∘ (η c)⁻¹ :=
   calc

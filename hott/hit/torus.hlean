@@ -76,7 +76,7 @@ namespace torus
     (Ps : Pl1 ⬝ Pl2 = Pl2 ⬝ Pl1) : ap (torus.elim Pb Pl1 Pl2 Ps) loop2 = Pl2 :=
   !elim_incl1
 
-  definition elim_surf {P : Type} (Pb : P) (Pl1 : Pb = Pb) (Pl2 : Pb = Pb)
+  theorem elim_surf {P : Type} (Pb : P) (Pl1 : Pb = Pb) (Pl2 : Pb = Pb)
     (Ps : Pl1 ⬝ Pl2 = Pl2 ⬝ Pl1)
     : square (ap02 (torus.elim Pb Pl1 Pl2 Ps) surf)
              Ps

@@ -26,7 +26,7 @@ namespace trunc
 
   /-
     there are no theorems to eliminate to the universe here,
-    because the universe is generally not a set
+    because the universe is not a set
   -/
 
   --export is_trunc

@@ -21,7 +21,7 @@ namespace category
                  (λ a b f, !nat_trans.id_left)
                  (λ a b f, !nat_trans.id_right)
 
-  definition Precategory_functor [reducible] (D C : Precategory) : Precategory :=
+  definition Precategory_functor [reducible] [constructor] (D C : Precategory) : Precategory :=
   precategory.Mk (precategory_functor D C)
 
   infixr `^c`:35 := Precategory_functor

@@ -10,7 +10,7 @@ import .constructions.functor .constructions.hset .constructions.product .constr
 open category eq category.ops functor prod.ops is_trunc iso
 
 namespace yoneda
-  set_option class.conservative false
+--  set_option class.conservative false
 
   definition representable_functor_assoc [C : Precategory] {a1 a2 a3 a4 a5 a6 : C}
     (f1 : hom a5 a6) (f2 : hom a4 a5) (f3 : hom a3 a4) (f4 : hom a2 a3) (f5 : hom a1 a2)
@@ -21,11 +21,11 @@ namespace yoneda
       ... = f1 ∘ ((f2 ∘ f3) ∘ f4) ∘ f5 : by rewrite -(assoc (f2 ∘ f3) _ _)
       ... = _                          : by rewrite (assoc f2 f3 f4)
 
-  definition hom_functor (C : Precategory) : Cᵒᵖ ×c C ⇒ set :=
+  definition hom_functor.{u v} [constructor] (C : Precategory.{u v}) : Cᵒᵖ ×c C ⇒ set.{v} :=
   functor.mk
     (λ (x : Cᵒᵖ ×c C), @homset (Cᵒᵖ) C x.1 x.2)
     (λ (x y : Cᵒᵖ ×c C) (f : @category.precategory.hom (Cᵒᵖ ×c C) (Cᵒᵖ ×c C) x y) (h : @homset (Cᵒᵖ) C x.1 x.2),
-       f.2 ∘⁅ C ⁆ (h ∘⁅ C ⁆ f.1))
+       f.2 ∘[C] (h ∘[C] f.1))
     (λ x, @eq_of_homotopy _ _ _ (ID (@homset Cᵒᵖ C x.1 x.2)) (λ h, concat (by apply @id_left) (by apply @id_right)))
     (λ x y z g f,
        eq_of_homotopy (by intros; apply @representable_functor_assoc))
@@ -36,7 +36,7 @@ open is_equiv equiv
 namespace functor
   open prod nat_trans
   variables {C D E : Precategory} (F : C ×c D ⇒ E) (G : C ⇒ E ^c D)
-  definition functor_curry_ob [reducible] (c : C) : E ^c D :=
+  definition functor_curry_ob [reducible] [constructor] (c : C) : E ^c D :=
   functor.mk (λd, F (c,d))
              (λd d' g, F (id, g))
              (λd, !respect_id)
@@ -47,7 +47,7 @@ namespace functor
 
   local abbreviation Fob := @functor_curry_ob
 
-  definition functor_curry_hom ⦃c c' : C⦄ (f : c ⟶ c') : Fob F c ⟹ Fob F c' :=
+  definition functor_curry_hom [constructor] ⦃c c' : C⦄ (f : c ⟶ c') : Fob F c ⟹ Fob F c' :=
   begin
     fapply @nat_trans.mk,
       {intro d, exact F (f, id)},
@@ -80,7 +80,7 @@ namespace functor
       ... = natural_map ((Fhom F f') ∘ (Fhom F f)) d : by esimp
   end
 
-  definition functor_curry [reducible] : C ⇒ E ^c D :=
+  definition functor_curry [reducible] [constructor] : C ⇒ E ^c D :=
   functor.mk (functor_curry_ob F)
              (functor_curry_hom F)
              (functor_curry_id F)
@@ -107,19 +107,17 @@ namespace functor
     Ghom G (f' ∘ f)
           = to_fun_hom (to_fun_ob G p''.1) (f'.2 ∘ f.2) ∘ natural_map (to_fun_hom G (f'.1 ∘ f.1)) p.2 : by esimp
       ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)
-              ∘ natural_map (to_fun_hom G (f'.1 ∘ f.1)) p.2                   : by rewrite respect_comp
+              ∘ natural_map (to_fun_hom G (f'.1 ∘ f.1)) p.2                : by rewrite respect_comp
       ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)
-              ∘ natural_map (to_fun_hom G f'.1 ∘ to_fun_hom G f.1) p.2        : by rewrite respect_comp
+              ∘ natural_map (to_fun_hom G f'.1 ∘ to_fun_hom G f.1) p.2     : by rewrite respect_comp
       ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)
-              ∘ (natural_map (to_fun_hom G f'.1) p.2 ∘ natural_map (to_fun_hom G f.1) p.2) : by esimp
-      ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ to_fun_hom (to_fun_ob G p''.1) f.2)
-              ∘ (natural_map (to_fun_hom G f'.1) p.2 ∘ natural_map (to_fun_hom G f.1) p.2) : by esimp
+             ∘ (natural_map (to_fun_hom G f'.1) p.2 ∘ natural_map (to_fun_hom G f.1) p.2) : by esimp
       ... = (to_fun_hom (to_fun_ob G p''.1) f'.2 ∘ natural_map (to_fun_hom G f'.1) p'.2)
               ∘ (to_fun_hom (to_fun_ob G p'.1) f.2 ∘ natural_map (to_fun_hom G f.1) p.2) :
                   by rewrite [square_prepostcompose (!naturality⁻¹ᵖ) _ _]
       ... = Ghom G f' ∘ Ghom G f : by esimp
 
-  definition functor_uncurry [reducible] : C ×c D ⇒ E :=
+  definition functor_uncurry [reducible] [constructor] : C ×c D ⇒ E :=
   functor.mk (functor_uncurry_ob G)
              (functor_uncurry_hom G)
              (functor_uncurry_id G)
@@ -174,7 +172,7 @@ namespace functor
   apply id_left
   end
 
-  definition prod_functor_equiv_functor_functor (C D E : Precategory)
+  definition prod_functor_equiv_functor_functor [constructor] (C D E : Precategory)
     : (C ×c D ⇒ E) ≃ (C ⇒ E ^c D) :=
   equiv.MK functor_curry
            functor_uncurry
@@ -182,7 +180,7 @@ namespace functor
            functor_uncurry_functor_curry
 
 
-  definition functor_prod_flip (C D : Precategory) : C ×c D ⇒ D ×c C :=
+  definition functor_prod_flip [constructor] (C D : Precategory) : C ×c D ⇒ D ×c C :=
   functor.mk (λp, (p.2, p.1))
              (λp p' h, (h.2, h.1))
              (λp, idp)
@@ -199,11 +197,47 @@ end functor
 open functor
 
 namespace yoneda
+  open category.set nat_trans lift
   --should this be defined as "yoneda_embedding Cᵒᵖ"?
   definition contravariant_yoneda_embedding (C : Precategory) : Cᵒᵖ ⇒ set ^c C :=
   functor_curry !hom_functor
 
   definition yoneda_embedding (C : Precategory) : C ⇒ set ^c Cᵒᵖ :=
   functor_curry (!hom_functor ∘f !functor_prod_flip)
+
+  notation `ɏ` := yoneda_embedding _
+
+  -- set_option pp.implicit true
+  -- set_option pp.notation false
+  -- -- -- set_option pp.full_names true
+  -- set_option pp.coercions true -- [constructor]
+
+  set_option formatter.hide_full_terms false
+  definition yoneda_lemma_hom [constructor] {C : Precategory} (c : C) (F : Cᵒᵖ ⇒ set)
+    (x : trunctype.carrier (F c)) : ɏ c ⟹ F :=
+  begin
+    fapply nat_trans.mk,
+    { intro c', esimp [yoneda_embedding], intro f, exact F f x},
+    { intro c' c'' f, esimp [yoneda_embedding], apply eq_of_homotopy, intro f',
+      refine _ ⬝ ap (λy, to_fun_hom F y x) !(@id_left _ C)⁻¹,
+      exact ap10 !(@respect_comp Cᵒᵖ set)⁻¹ x}
+  end
+
+  -- set_option pp.implicit true
+  definition yoneda_lemma {C : Precategory} (c : C) (F : Cᵒᵖ ⇒ set) :
+    homset (ɏ c) F ≅ lift_functor (F c) :=
+  begin
+    apply iso_of_equiv, esimp,
+    fapply equiv.MK,
+    { intro η, exact up (η c id)},
+    { intro x, induction x with x, exact yoneda_lemma_hom c F x},
+    { intro x, induction x with x, esimp, apply ap up,
+      exact ap10 !respect_id x},
+    { intro η, esimp, apply nat_trans_eq,
+      intro c', esimp, apply eq_of_homotopy,
+      intro f, esimp [yoneda_embedding] at f,
+      transitivity (F f ∘ η c) id, reflexivity,
+      rewrite naturality, esimp [yoneda_embedding], rewrite [id_left], apply ap _ !id_left},
+  end
 
 end yoneda

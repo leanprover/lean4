@@ -6,7 +6,8 @@ Author: Floris van Doorn, Jakob von Raumer
 import .functor .iso
 open eq category functor is_trunc equiv sigma.ops sigma is_equiv function pi funext iso
 
-structure nat_trans {C D : Precategory} (F G : C ⇒ D) :=
+structure nat_trans {C : Precategory} {D : Precategory} (F G : C ⇒ D)
+  : Type :=
  (natural_map : Π (a : C), hom (F a) (G a))
  (naturality : Π {a b : C} (f : hom a b), G f ∘ natural_map a = natural_map b ∘ F f)
 

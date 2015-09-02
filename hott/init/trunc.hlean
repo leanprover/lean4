@@ -213,25 +213,6 @@ namespace is_trunc
   definition is_trunc_empty [instance] (n : trunc_index) : is_trunc (n.+1) empty :=
   !is_trunc_succ_of_is_hprop
 
-  /- truncated universe -/
-
-  -- TODO: move to root namespace?
-  structure trunctype (n : trunc_index) :=
-  (carrier : Type) (struct : is_trunc n carrier)
-  attribute trunctype.carrier [coercion]
-  attribute trunctype.struct [instance]
-
-  notation n `-Type` := trunctype n
-  abbreviation hprop := -1-Type
-  abbreviation hset := 0-Type
-
-  protected abbreviation hprop.mk := @trunctype.mk -1
-  protected abbreviation hset.mk := @trunctype.mk (-1.+1)
-
-  protected abbreviation trunctype.mk' [parsing-only] (n : trunc_index) (A : Type)
-    [H : is_trunc n A] : n-Type :=
-  trunctype.mk A H
-
   /- interaction with equivalences -/
 
   section
@@ -282,6 +263,11 @@ namespace is_trunc
   definition equiv_of_iff_of_is_hprop [unfold 5] [HA : is_hprop A] [HB : is_hprop B] (H : A ↔ B) : A ≃ B :=
   equiv_of_is_hprop (iff.elim_left H) (iff.elim_right H)
 
+  /- truncatedness of lift -/
+  definition is_trunc_lift [instance] [priority 1450] (A : Type) (n : trunc_index)
+    [H : is_trunc n A] : is_trunc n (lift A) :=
+  is_trunc_equiv_closed _ !equiv_lift
+
   end
 
   /- interaction with the Unit type -/
@@ -312,12 +298,27 @@ namespace is_trunc
 
   -- TODO: port "Truncated morphisms"
 
-end is_trunc
+  /- truncated universe -/
 
-/- truncatedness of lift -/
-namespace lift
-  open is_trunc equiv
-  definition is_trunc_lift [instance] [priority 1450] (A : Type) (n : trunc_index)
-    [H : is_trunc n A] : is_trunc n (lift A) :=
-  is_trunc_equiv_closed _ !equiv_lift
-end lift
+  -- TODO: move to root namespace?
+  structure trunctype (n : trunc_index) :=
+  (carrier : Type) (struct : is_trunc n carrier)
+  attribute trunctype.carrier [coercion]
+  attribute trunctype.struct [instance]
+
+  notation n `-Type` := trunctype n
+  abbreviation hprop := -1-Type
+  abbreviation hset := 0-Type
+
+  protected abbreviation hprop.mk := @trunctype.mk -1
+  protected abbreviation hset.mk := @trunctype.mk (-1.+1)
+
+  protected abbreviation trunctype.mk' [parsing-only] (n : trunc_index) (A : Type)
+    [H : is_trunc n A] : n-Type :=
+  trunctype.mk A H
+
+  definition tlift.{u v} [constructor] {n : trunc_index} (A : trunctype.{u} n)
+    : trunctype.{max u v} n :=
+  trunctype.mk (lift A) (is_trunc_lift _ _)
+
+end is_trunc

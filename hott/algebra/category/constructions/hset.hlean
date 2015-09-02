@@ -6,14 +6,13 @@ Authors: Floris van Doorn, Jakob von Raumer
 Category of hsets
 -/
 
-import ..category types.equiv
+import ..category types.equiv ..functor types.lift
 
---open eq is_trunc sigma equiv iso is_equiv
 open eq category equiv iso is_equiv is_trunc function sigma
 
 namespace category
 
-  definition precategory_hset [reducible] : precategory hset :=
+  definition precategory_hset.{u} [reducible] [constructor] : precategory hset.{u} :=
   precategory.mk (λx y : hset, x → y)
                  (λx y z g f a, g (f a))
                  (λx a, a)
@@ -21,14 +20,14 @@ namespace category
                  (λx y f, eq_of_homotopy (λa, idp))
                  (λx y f, eq_of_homotopy (λa, idp))
 
-  definition Precategory_hset [reducible] : Precategory :=
+  definition Precategory_hset [reducible] [constructor] : Precategory :=
   Precategory.mk hset precategory_hset
 
   namespace set
     local attribute is_equiv_subtype_eq [instance]
     definition iso_of_equiv {A B : Precategory_hset} (f : A ≃ B) : A ≅ B :=
     iso.MK (to_fun f)
-           (equiv.to_inv f)
+           (to_inv f)
            (eq_of_homotopy (left_inv (to_fun f)))
            (eq_of_homotopy (right_inv (to_fun f)))
 
@@ -89,11 +88,18 @@ namespace category
     end
   end set
 
-  definition category_hset [instance] : category hset :=
+  definition category_hset [instance] [constructor] : category hset :=
   category.mk precategory_hset set.is_univalent_hset
 
-  definition Category_hset [reducible] : Category :=
+  definition Category_hset [reducible] [constructor] : Category :=
   Category.mk hset category_hset
 
-  abbreviation set := Category_hset
+  abbreviation set [constructor] := Category_hset
+
+  open functor lift
+  definition lift_functor.{u v} [constructor] : set.{u} ⇒ set.{max u v} :=
+  functor.mk tlift
+             (λa b, lift_functor)
+             (λa, eq_of_homotopy (λx, by induction x; reflexivity))
+             (λa b c g f, eq_of_homotopy (λx, by induction x; reflexivity))
 end category

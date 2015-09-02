@@ -991,6 +991,8 @@ order for the change to take effect."
   ("(x)"  . ,(lean-input-to-string-list "⒳Ⓧⓧ"))
   ("(y)"  . ,(lean-input-to-string-list "⒴Ⓨⓨ"))
   ("(z)"  . ,(lean-input-to-string-list "⒵Ⓩⓩ"))
+  ("y"    . ("ɏ"))
+
 
   ))
   "A list of translations specific to the Lean input method.

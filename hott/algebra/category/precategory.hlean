@@ -40,15 +40,15 @@ namespace category
     infixl `⟶`:25 := precategory.hom -- if you open this namespace, hom a b is printed as a ⟶ b
   end hom
 
-  abbreviation hom         := @precategory.hom
-  abbreviation comp        := @precategory.comp
-  abbreviation ID          := @precategory.ID
-  abbreviation assoc       := @precategory.assoc
-  abbreviation assoc'      := @precategory.assoc'
-  abbreviation id_left     := @precategory.id_left
-  abbreviation id_right    := @precategory.id_right
-  abbreviation id_id       := @precategory.id_id
-  abbreviation is_hset_hom := @precategory.is_hset_hom
+  abbreviation hom         [unfold 2] := @precategory.hom
+  abbreviation comp        [unfold 2] := @precategory.comp
+  abbreviation ID          [unfold 2] := @precategory.ID
+  abbreviation assoc       [unfold 2] := @precategory.assoc
+  abbreviation assoc'      [unfold 2] := @precategory.assoc'
+  abbreviation id_left     [unfold 2] := @precategory.id_left
+  abbreviation id_right    [unfold 2] := @precategory.id_right
+  abbreviation id_id       [unfold 2] := @precategory.id_id
+  abbreviation is_hset_hom [unfold 2] := @precategory.is_hset_hom
 
   -- the constructor you want to use in practice
   protected definition precategory.mk [constructor] {ob : Type} (hom : ob → ob → Type)
@@ -80,7 +80,7 @@ namespace category
     calc i = id ∘ i : by rewrite id_left
        ... = id     : by rewrite H
 
-    definition homset [reducible] (x y : ob) : hset :=
+    definition homset [reducible] [constructor] (x y : ob) : hset :=
     hset.mk (hom x y) _
 
   end basic_lemmas
@@ -150,7 +150,7 @@ namespace category
   attribute Precategory.struct [instance] [priority 10000] [coercion]
   -- definition precategory.carrier [coercion] [reducible] := Precategory.carrier
   -- definition precategory.struct [instance] [coercion] [reducible] := Precategory.struct
-  notation g `∘⁅`:60 C:0 `⁆`:0 f:60 :=
+  notation g `∘[`:60 C:0 `]`:0 f:60 :=
   @comp (Precategory.carrier C) (Precategory.struct C) _ _ _ g f
   -- TODO: make this left associative
   -- TODO: change this notation?

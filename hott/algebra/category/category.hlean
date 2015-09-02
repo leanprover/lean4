@@ -22,7 +22,7 @@ namespace category
 
   abbreviation iso_of_path_equiv := @category.iso_of_path_equiv
 
-  definition category.mk [reducible] {ob : Type} (C : precategory ob)
+  definition category.mk [reducible] [unfold 2] {ob : Type} (C : precategory ob)
     (H : Π (a b : ob), is_equiv (iso_of_eq : a = b → a ≅ b)) : category ob :=
   precategory.rec_on C category.mk' H
 
@@ -62,12 +62,14 @@ namespace category
     (struct : category carrier)
 
   attribute Category.struct [instance] [coercion]
+  attribute Category.to.precategory category.to_precategory [constructor]
 
-  definition Category.to_Precategory [coercion] [reducible] (C : Category) : Precategory :=
+  definition Category.to_Precategory [constructor] [coercion] [reducible] (C : Category)
+    : Precategory :=
   Precategory.mk (Category.carrier C) C
 
-  definition category.Mk [reducible] := Category.mk
-  definition category.MK [reducible] (C : Precategory)
+  definition category.Mk [constructor] [reducible] := Category.mk
+  definition category.MK [constructor] [reducible] (C : Precategory)
     (H : is_univalent C) : Category := Category.mk C (category.mk C H)
 
   definition Category.eta (C : Category) : Category.mk C C = C :=

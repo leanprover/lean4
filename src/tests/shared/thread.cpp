@@ -64,6 +64,8 @@ void test_import() {
 
 int main() {
     std::thread t1(test_import);
+    std::thread t2(test_import);
     t1.join();
+    t2.join();
     return 0;
 }

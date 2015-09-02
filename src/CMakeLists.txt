@@ -37,6 +37,9 @@ option(INCLUDE_MSYS2_DLLS "INCLUDE_MSYS2_DLLS" OFF)
 option(LEAN_BIN_DEP       "LEAN_BIN_DEP"      ON)
 # When ON we include githash in the version string
 option(USE_GITHASH        "GIT_HASH"          ON)
+# When ON thread storage is automatically finalized, it assumes platform support pthreads.
+# This option is important when using Lean as library that is invoked from a different programming language (e.g., Haskell).
+option(AUTO_THREAD_FINALIZATION "AUTO_THREAD_FINALIZATION" ON)
 # Directory that include lean emacs mode dependecies
 set(EMACS_DEPENDENCIES "${CMAKE_SOURCE_DIR}/emacs/dependencies")
 
@@ -81,6 +84,10 @@ endif()
 if(CACHE_EXPRS)
   message(STATUS "Lean expression caching enabled (aka partial hashconsing)")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_CACHE_EXPRS")
+endif()
+
+if(AUTO_THREAD_FINALIZATION)
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_AUTO_THREAD_FINALIZATION")
 endif()
 
 if(CONSERVE_MEMORY AND ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU"))

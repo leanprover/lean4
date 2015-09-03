@@ -35,12 +35,14 @@ take x, assume ax, subbc (subab ax)
 theorem subset.antisymm {a b : set X} (h₁ : a ⊆ b) (h₂ : b ⊆ a) : a = b :=
 ext (λ x, iff.intro (λ ina, h₁ ina) (λ inb, h₂ inb))
 
-theorem mem_of_subset_of_mem {s₁ s₂ : set X} {a : X} : s₁ ⊆ s₂ → a ∈ s₁ → a ∈ s₂ :=
-assume h₁ h₂, h₁ _ h₂
-
 -- an alterantive name
 theorem eq_of_subset_of_subset {a b : set X} (h₁ : a ⊆ b) (h₂ : b ⊆ a) : a = b :=
 subset.antisymm h₁ h₂
+
+theorem mem_of_subset_of_mem {s₁ s₂ : set X} {a : X} : s₁ ⊆ s₂ → a ∈ s₁ → a ∈ s₂ :=
+assume h₁ h₂, h₁ _ h₂
+
+/- strict subset -/
 
 definition strict_subset (a b : set X) := a ⊆ b ∧ a ≠ b
 infix `⊂`:50 := strict_subset
@@ -92,6 +94,8 @@ definition univ : set X := λx, true
 
 theorem mem_univ (x : X) : x ∈ univ := trivial
 
+theorem mem_univ_iff (x : X) : x ∈ univ ↔ true := !iff.refl
+
 theorem mem_univ_eq (x : X) : x ∈ univ = true := rfl
 
 theorem empty_ne_univ [h : inhabited X] : (empty : set X) ≠ univ :=
@@ -111,15 +115,27 @@ ext (take x, iff.intro (assume H', trivial) (assume H', H x))
 definition union [reducible] (a b : set X) : set X := λx, x ∈ a ∨ x ∈ b
 notation a ∪ b := union a b
 
-theorem mem_union (x : X) (a b : set X) : x ∈ a ∪ b ↔ x ∈ a ∨ x ∈ b := !iff.refl
-
-theorem mem_union_eq (x : X) (a b : set X) : x ∈ a ∪ b = (x ∈ a ∨ x ∈ b) := rfl
-
-theorem mem_union_of_mem_left {x : X} {a : set X} (b : set X) : x ∈ a → x ∈ a ∪ b :=
+theorem mem_union_left {x : X} {a : set X} (b : set X) : x ∈ a → x ∈ a ∪ b :=
 assume h, or.inl h
 
-theorem mem_union_of_mem_right {x : X} {b : set X} (a : set X) : x ∈ b → x ∈ a ∪ b :=
+theorem mem_union_right {x : X} {b : set X} (a : set X) : x ∈ b → x ∈ a ∪ b :=
 assume h, or.inr h
+
+theorem mem_unionl {x : X} {a b : set X} : x ∈ a → x ∈ a ∪ b :=
+assume h, or.inl h
+
+theorem mem_unionr {x : X} {a b : set X} : x ∈ b → x ∈ a ∪ b :=
+assume h, or.inr h
+
+theorem mem_or_mem_of_mem_union {x : X} {a b : set X} (H : x ∈ a ∪ b) : x ∈ a ∨ x ∈ b := H
+
+theorem mem_union.elim {x : X} {a b : set X} {P : Prop}
+    (H₁ : x ∈ a ∪ b) (H₂ : x ∈ a → P) (H₃ : x ∈ b → P) : P :=
+or.elim H₁ H₂ H₃
+
+theorem mem_union_iff (x : X) (a b : set X) : x ∈ a ∪ b ↔ x ∈ a ∨ x ∈ b := !iff.refl
+
+theorem mem_union_eq (x : X) (a b : set X) : x ∈ a ∪ b = (x ∈ a ∨ x ∈ b) := rfl
 
 theorem union_self (a : set X) : a ∪ a = a :=
 ext (take x, !or_self)
@@ -154,9 +170,18 @@ theorem union_subset {s t r : set X} (sr : s ⊆ r) (tr : t ⊆ r) : s ∪ t ⊆
 definition inter [reducible] (a b : set X) : set X := λx, x ∈ a ∧ x ∈ b
 notation a ∩ b := inter a b
 
-theorem mem_inter (x : X) (a b : set X) : x ∈ a ∩ b ↔ x ∈ a ∧ x ∈ b := !iff.refl
+theorem mem_inter_iff (x : X) (a b : set X) : x ∈ a ∩ b ↔ x ∈ a ∧ x ∈ b := !iff.refl
 
 theorem mem_inter_eq (x : X) (a b : set X) : x ∈ a ∩ b = (x ∈ a ∧ x ∈ b) := rfl
+
+theorem mem_inter {x : X} {a b : set X} (Ha : x ∈ a) (Hb : x ∈ b) : x ∈ a ∩ b :=
+and.intro Ha Hb
+
+theorem mem_of_mem_inter_left {x : X} {a b : set X} (H : x ∈ a ∩ b) : x ∈ a :=
+and.left H
+
+theorem mem_of_mem_inter_right {x : X} {a b : set X} (H : x ∈ a ∩ b) : x ∈ b :=
+and.right H
 
 theorem inter_self (a : set X) : a ∩ a = a :=
 ext (take x, !and_self)
@@ -249,31 +274,43 @@ ext (λ x, eq.substr (mem_insert_eq x a s)
 theorem insert.comm (x y : X) (s : set X) : insert x (insert y s) = insert y (insert x s) :=
 ext (take a, by rewrite [*mem_insert_eq, propext !or.left_comm])
 
-theorem eq_of_mem_singleton {x y : X} : x ∈ insert y ∅ → x = y :=
-assume h, or.elim (eq_or_mem_of_mem_insert h)
-  (suppose x = y, this)
-  (suppose x ∈ ∅, absurd this !not_mem_empty)
+/- singleton -/
 
 theorem mem_singleton_iff (a b : X) : a ∈ '{b} ↔ a = b :=
 iff.intro
   (assume ainb, or.elim ainb (λ aeqb, aeqb) (λ f, false.elim f))
   (assume aeqb, or.inl aeqb)
 
+theorem mem_singleton (a : X) : a ∈ '{a} := !mem_insert
+
+theorem eq_of_mem_singleton {x y : X} : x ∈ insert y ∅ → x = y :=
+assume h, or.elim (eq_or_mem_of_mem_insert h)
+  (suppose x = y, this)
+  (suppose x ∈ ∅, absurd this !not_mem_empty)
+
 /- separation -/
+
+theorem mem_sep {s : set X} {P : X → Prop} {x : X} (xs : x ∈ s) (Px : P x) : x ∈ {x ∈ s | P x} :=
+and.intro xs Px
 
 theorem eq_sep_of_subset {s t : set X} (ssubt : s ⊆ t) : s = {x ∈ t | x ∈ s} :=
 ext (take x, iff.intro
   (suppose x ∈ s, and.intro (ssubt this) this)
   (suppose x ∈ {x ∈ t | x ∈ s}, and.right this))
 
+theorem mem_sep_iff {s : set X} {P : X → Prop} {x : X} : x ∈ {x ∈ s | P x} ↔ x ∈ s ∧ P x :=
+!iff.refl
+
 /- complement -/
 
 definition complement (s : set X) : set X := {x | x ∉ s}
 prefix `-` := complement
 
-theorem mem_complement {s : set X} {x : X} (H : x ∉ s) : x ∈ -s := H
+theorem mem_comp {s : set X} {x : X} (H : x ∉ s) : x ∈ -s := H
 
-theorem not_mem_of_mem_complement {s : set X} {x : X} (H : x ∈ -s) : x ∉ s := H
+theorem not_mem_of_mem_comp {s : set X} {x : X} (H : x ∈ -s) : x ∉ s := H
+
+theorem mem_comp_iff {s : set X} {x : X} : x ∈ -s ↔ x ∉ s := !iff.refl
 
 section
   open classical
@@ -290,20 +327,20 @@ end
 definition diff (s t : set X) : set X := {x ∈ s | x ∉ t}
 infix `\`:70 := diff
 
+theorem mem_diff {s t : set X} {x : X} (H1 : x ∈ s) (H2 : x ∉ t) : x ∈ s \ t :=
+and.intro H1 H2
+
 theorem mem_of_mem_diff {s t : set X} {x : X} (H : x ∈ s \ t) : x ∈ s :=
 and.left H
 
 theorem not_mem_of_mem_diff {s t : set X} {x : X} (H : x ∈ s \ t) : x ∉ t :=
 and.right H
 
-theorem mem_diff {s t : set X} {x : X} (H1 : x ∈ s) (H2 : x ∉ t) : x ∈ s \ t :=
-and.intro H1 H2
-
-theorem diff_eq (s t : set X) : s \ t = {x ∈ s | x ∉ t} := rfl
-
 theorem mem_diff_iff (s t : set X) (x : X) : x ∈ s \ t ↔ x ∈ s ∧ x ∉ t := !iff.refl
 
 theorem mem_diff_eq (s t : set X) (x : X) : x ∈ s \ t = (x ∈ s ∧ x ∉ t) := rfl
+
+theorem diff_eq (s t : set X) : s \ t = s ∩ -t := rfl
 
 theorem union_diff_cancel {s t : set X} [dec : Π x, decidable (x ∈ s)] (H : s ⊆ t) : s ∪ (t \ s) = t :=
 ext (take x, iff.intro
@@ -317,6 +354,12 @@ ext (take x, iff.intro
 
 definition powerset (s : set X) : set (set X) := {x : set X | x ⊆ s}
 prefix `𝒫`:100 := powerset
+
+theorem mem_powerset {x s : set X} (H : x ⊆ s) : x ∈ 𝒫 s := H
+
+theorem subset_of_mem_powerset {x s : set X} (H : x ∈ 𝒫 s) : x ⊆ s := H
+
+theorem mem_powerset_iff (x s : set X) : x ∈ 𝒫 s ↔ x ⊆ s := !iff.refl
 
 /- large unions -/
 

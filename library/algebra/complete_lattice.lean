@@ -220,8 +220,8 @@ suppose s₁ ⊆ s₂, Sup_le (take a : A, suppose a ∈ s₁, le_Sup (mem_of_su
 lemma Inf_union (s₁ s₂ : set A) : ⨅ (s₁ ∪ s₂) = (⨅s₁) ⊓ (⨅s₂) :=
 have le₁ : ⨅ (s₁ ∪ s₂) ≤ (⨅s₁) ⊓ (⨅s₂), from
  !le_inf
-     (le_Inf (take a : A, suppose a ∈ s₁, Inf_le (mem_union_of_mem_left _ `a ∈ s₁`)))
-     (le_Inf (take a : A, suppose a ∈ s₂, Inf_le (mem_union_of_mem_right _ `a ∈ s₂`))),
+     (le_Inf (take a : A, suppose a ∈ s₁, Inf_le (mem_unionl `a ∈ s₁`)))
+     (le_Inf (take a : A, suppose a ∈ s₂, Inf_le (mem_unionr `a ∈ s₂`))),
 have le₂ : (⨅s₁) ⊓ (⨅s₂) ≤ ⨅ (s₁ ∪ s₂), from
   le_Inf (take a : A, suppose a ∈ s₁ ∪ s₂,
     or.elim this
@@ -249,8 +249,8 @@ have le₁ : ⨆ (s₁ ∪ s₂) ≤ (⨆s₁) ⊔ (⨆s₂), from
         le.trans `a ≤ ⨆s₂` `⨆s₂ ≤ (⨆s₁) ⊔ (⨆s₂)`)),
 have le₂ : (⨆s₁) ⊔ (⨆s₂) ≤ ⨆ (s₁ ∪ s₂), from
   !sup_le
-    (Sup_le (take a : A, suppose a ∈ s₁, le_Sup (mem_union_of_mem_left _ `a ∈ s₁`)))
-    (Sup_le (take a : A, suppose a ∈ s₂, le_Sup (mem_union_of_mem_right _ `a ∈ s₂`))),
+    (Sup_le (take a : A, suppose a ∈ s₁, le_Sup (mem_unionl `a ∈ s₁`)))
+    (Sup_le (take a : A, suppose a ∈ s₂, le_Sup (mem_unionr `a ∈ s₂`))),
 le.antisymm le₁ le₂
 
 lemma Inf_empty_eq_Sup_univ : ⨅ (∅ : set A) = ⨆ univ :=

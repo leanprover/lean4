@@ -123,26 +123,25 @@ struct script_state_ref {
 LEAN_THREAD_PTR(bool, g_registered);
 LEAN_THREAD_PTR(script_state_ref, g_thread_state_ref);
 
-static void finalize_thread_state_ref() {
-    delete g_thread_state_ref;
-    g_thread_state_ref = nullptr;
-    delete g_registered;
+static void finalize_registered(void * p) {
+    delete reinterpret_cast<bool*>(p);
     g_registered = nullptr;
+}
+
+static void finalize_thread_state_ref(void * p) {
+    delete reinterpret_cast<script_state_ref*>(p);
+    g_thread_state_ref = nullptr;
 }
 
 script_state get_thread_script_state() {
     if (!g_thread_state_ref) {
         g_thread_state_ref = new script_state_ref();
-        if (!g_registered) {
-            g_registered = new bool(true);
-            register_thread_finalizer(finalize_thread_state_ref);
-        }
+        register_thread_finalizer(finalize_thread_state_ref, g_thread_state_ref);
+    }
+    if (!g_registered) {
+        g_registered = new bool(true);
+        register_thread_finalizer(finalize_registered, g_registered);
     }
     return g_thread_state_ref->m_state;
-}
-
-void release_thread_script_state() {
-    delete g_thread_state_ref;
-    g_thread_state_ref = nullptr;
 }
 }

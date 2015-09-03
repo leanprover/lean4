@@ -30,83 +30,131 @@ void initialize_thread() {}
 void finalize_thread() {}
 #endif
 
-typedef std::vector<thread_finalizer> thread_finalizers;
+typedef std::vector<std::pair<thread_finalizer, void*>> thread_finalizers;
+
+void run_thread_finalizers_core(thread_finalizers & fns) {
+    unsigned i = fns.size();
+    while (i > 0) {
+        --i;
+        auto fn = fns[i].first;
+        fn(fns[i].second);
+    }
+    fns.clear();
+}
+
+// We have two different implementations of the following procedures.
+//
+//   void register_thread_finalizer(thread_finalizer fn, void * p);
+//   void register_post_thread_finalizer(thread_finalizer fn, void * p);
+//   void run_thread_finalizers();
+//
+// The implementation is selected by using the LEAN_AUTO_THREAD_FINALIZATION compilation directive.
+// We can remove the implementation based on pthreads after the new thread_local C++11 keyword is properly
+// implemented in all platforms.
+// In the meantime, when LEAN_AUTO_THREAD_FINALIZATION is defined/set, we use a thread finalization
+// procedure based on the pthread API.
+// Remark: we only need this feature when Lean is being used as a library.
+// Example: the C API is being used from Haskell, and the execution threads
+// are being created by Haskell.
+// Remark: for the threads created by Lean, we explicitly create the thread finalizers.
+// The idea is to avoid memory leaks even when LEAN_AUTO_THREAD_FINALIZATION is not used.
+
+#if defined(LEAN_AUTO_THREAD_FINALIZATION)
+// pthread based implementation
+
+typedef std::pair<thread_finalizers, thread_finalizers> thread_finalizers_pair;
+
+class thread_finalizers_manager {
+    pthread_key_t g_key;
+public:
+    thread_finalizers_manager() {
+        pthread_key_create(&g_key, finalize_thread);
+        init_thread(); // initialize main thread
+    }
+
+    ~thread_finalizers_manager() {
+        finalize_thread(get_pair()); // finalize main thread
+        pthread_key_delete(g_key);
+    }
+
+    thread_finalizers_pair * get_pair() {
+        return reinterpret_cast<thread_finalizers_pair*>(pthread_getspecific(g_key));
+    }
+
+    void init_thread() {
+        if (get_pair() == nullptr) {
+            thread_finalizers_pair * p = new thread_finalizers_pair();
+            pthread_setspecific(g_key, p);
+        }
+    }
+
+    thread_finalizers & get_thread_finalizers() {
+        init_thread();
+        return get_pair()->first;
+    }
+
+    thread_finalizers & get_post_thread_finalizers() {
+        init_thread();
+        return get_pair()->second;
+    }
+
+    static void finalize_thread(void * d) {
+        if (d) {
+            thread_finalizers_pair * p = reinterpret_cast<thread_finalizers_pair*>(d);
+            run_thread_finalizers_core(p->first);
+            run_thread_finalizers_core(p->second);
+            delete p;
+        }
+    }
+};
+
+static thread_finalizers_manager g_aux;
+
+void register_thread_finalizer(thread_finalizer fn, void * p) {
+    g_aux.get_thread_finalizers().emplace_back(fn, p);
+}
+
+void register_post_thread_finalizer(thread_finalizer fn, void * p) {
+    g_aux.get_post_thread_finalizers().emplace_back(fn, p);
+}
+
+void run_thread_finalizers() {
+}
+
+void run_post_thread_finalizers() {
+}
+#else
+// reference implementation
 LEAN_THREAD_PTR(thread_finalizers, g_finalizers);
 LEAN_THREAD_PTR(thread_finalizers, g_post_finalizers);
 
+void register_thread_finalizer(thread_finalizer fn, void * p) {
+    if (!g_finalizers)
+        g_finalizers = new thread_finalizers();
+    g_finalizers->emplace_back(fn, p);
+}
+
+void register_post_thread_finalizer(thread_finalizer fn, void * p) {
+    if (!g_post_finalizers)
+        g_post_finalizers = new thread_finalizers();
+    g_post_finalizers->emplace_back(fn, p);
+}
+
 void run_thread_finalizers(thread_finalizers * fns) {
     if (fns) {
-        unsigned i = fns->size();
-        while (i > 0) {
-            --i;
-            auto fn = (*fns)[i];
-            fn();
-        }
+        run_thread_finalizers_core(*fns);
         delete fns;
     }
 }
 
 void run_thread_finalizers() {
     run_thread_finalizers(g_finalizers);
-    g_finalizers = nullptr;
+    g_finalizers      = nullptr;
 }
 
 void run_post_thread_finalizers() {
     run_thread_finalizers(g_post_finalizers);
     g_post_finalizers = nullptr;
 }
-
-#if defined(LEAN_AUTO_THREAD_FINALIZATION)
-// This is an auxiliary class used to finalize thread local storage.
-// It can be removed after the new thread_local C++11 keyword is properly
-// implemented in all platforms.
-// In the meantime, we create a "fake" key that is only used to trigger
-// the Lean thread finalization procedures.
-// We only need this feature when Lean is being used as a library.
-// Example: the C API is being used from Haskell, and the execution threads
-// are being created by Haskell.
-// Remark: for the threads created by Lean, we explicitly create the thread finalizers.
-// The idea is to avoid memory leaks even when LEAN_AUTO_THREAD_FINALIZATION is not used.
-class thread_key_init {
-    pthread_key_t g_key;
-public:
-    static void finalize_thread(void *) { // NOLINT
-        run_thread_finalizers();
-        run_post_thread_finalizers();
-    }
-
-    thread_key_init() {
-        pthread_key_create(&g_key, finalize_thread);
-    }
-
-    ~thread_key_init() {
-        pthread_key_delete(g_key);
-    }
-
-    void init_thread() {
-        void * p;
-        if ((p = pthread_getspecific(g_key)) == nullptr) {
-            pthread_setspecific(g_key, reinterpret_cast<void*>(1));
-        }
-    }
-};
-
-static thread_key_init g_aux;
 #endif
-
-void register_thread_finalizer(thread_finalizer fn) {
-    if (!g_finalizers) {
-        g_finalizers = new thread_finalizers();
-        #if defined(LEAN_AUTO_THREAD_FINALIZATION)
-        g_aux.init_thread();
-        #endif
-    }
-    g_finalizers->push_back(fn);
-}
-
-void register_post_thread_finalizer(thread_finalizer fn) {
-    if (!g_post_finalizers)
-        g_post_finalizers = new thread_finalizers();
-    g_post_finalizers->push_back(fn);
-}
 }

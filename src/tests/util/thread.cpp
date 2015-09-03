@@ -17,14 +17,13 @@ using namespace lean;
 
 #if defined(LEAN_MULTI_THREAD) && !defined(__APPLE__)
 LEAN_THREAD_PTR(std::vector<int>, g_v);
-void finalize_vector() {
-    delete g_v;
-    g_v = nullptr;
+void finalize_vector(void * p) {
+    delete reinterpret_cast<std::vector<int>*>(p);
 }
 void foo() {
     if (!g_v) {
         g_v = new std::vector<int>(1024);
-        register_thread_finalizer(finalize_vector);
+        register_thread_finalizer(finalize_vector, g_v);
     }
     if (g_v->size() != 1024) {
         std::cerr << "Error\n";

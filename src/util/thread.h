@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <iostream>
 #if defined(LEAN_MULTI_THREAD)
 #if !defined(LEAN_USE_BOOST)
 // MULTI THREADING SUPPORT BASED ON THE STANDARD LIBRARY
@@ -169,42 +170,41 @@ public:
 #define LEAN_THREAD_VALUE(T, V, VAL) static __thread T V = VAL
 #endif
 
-#define MK_THREAD_LOCAL_GET(T, GETTER_NAME, DEF_VALUE)          \
-LEAN_THREAD_PTR(T, GETTER_NAME ## _tlocal);                     \
-static void finalize_ ## GETTER_NAME() {                        \
-    delete GETTER_NAME ## _tlocal;                              \
-    GETTER_NAME ## _tlocal = nullptr;                           \
-}                                                               \
-static T & GETTER_NAME() {                                      \
-    if (!GETTER_NAME ## _tlocal) {                              \
-        GETTER_NAME ## _tlocal  = new T(DEF_VALUE);             \
-        register_thread_finalizer(finalize_ ## GETTER_NAME);    \
-    }                                                           \
-    return *(GETTER_NAME ## _tlocal);                           \
+#define MK_THREAD_LOCAL_GET(T, GETTER_NAME, DEF_VALUE)                  \
+LEAN_THREAD_PTR(T, GETTER_NAME ## _tlocal);                             \
+static void finalize_ ## GETTER_NAME(void * p) {                        \
+    delete reinterpret_cast<T*>(p);                                     \
+    GETTER_NAME ## _tlocal = nullptr;                                   \
+}                                                                       \
+static T & GETTER_NAME() {                                              \
+    if (!GETTER_NAME ## _tlocal) {                                      \
+        GETTER_NAME ## _tlocal  = new T(DEF_VALUE);                     \
+        register_thread_finalizer(finalize_ ## GETTER_NAME, GETTER_NAME ## _tlocal); \
+    }                                                                   \
+    return *(GETTER_NAME ## _tlocal);                                   \
 }
 
-#define MK_THREAD_LOCAL_GET_DEF(T, GETTER_NAME)                 \
-LEAN_THREAD_PTR(T, GETTER_NAME ## _tlocal);                     \
-static void finalize_ ## GETTER_NAME() {                        \
-    delete GETTER_NAME ## _tlocal;                              \
-    GETTER_NAME ## _tlocal = nullptr;                           \
-}                                                               \
-static T & GETTER_NAME() {                                      \
-    if (!GETTER_NAME ## _tlocal) {                              \
-        GETTER_NAME ## _tlocal  = new T();                      \
-        register_thread_finalizer(finalize_ ## GETTER_NAME);    \
-    }                                                           \
-    return *(GETTER_NAME ## _tlocal);                           \
+#define MK_THREAD_LOCAL_GET_DEF(T, GETTER_NAME)                         \
+LEAN_THREAD_PTR(T, GETTER_NAME ## _tlocal);                             \
+static void finalize_ ## GETTER_NAME(void * p) {                        \
+    delete reinterpret_cast<T*>(p);                                     \
+    GETTER_NAME ## _tlocal = nullptr;                                   \
+}                                                                       \
+static T & GETTER_NAME() {                                              \
+    if (!GETTER_NAME ## _tlocal) {                                      \
+        GETTER_NAME ## _tlocal  = new T();                              \
+        register_thread_finalizer(finalize_ ## GETTER_NAME, GETTER_NAME ## _tlocal); \
+    }                                                                   \
+    return *(GETTER_NAME ## _tlocal);                                   \
 }
-
 
 namespace lean {
 void initialize_thread();
 void finalize_thread();
 
-typedef void (*thread_finalizer)();
-void register_post_thread_finalizer(thread_finalizer fn);
-void register_thread_finalizer(thread_finalizer fn);
-void run_post_thread_finalizers();
+typedef void (*thread_finalizer)(void *);
+void register_post_thread_finalizer(thread_finalizer fn, void * p);
+void register_thread_finalizer(thread_finalizer fn, void * p);
 void run_thread_finalizers();
+void run_post_thread_finalizers();
 }

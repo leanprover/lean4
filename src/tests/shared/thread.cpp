@@ -53,7 +53,6 @@ void test_import() {
     check(lean_options_mk_empty(&o, &ex));
     check(lean_ios_mk_std(o, &ios, &ex));
     check(lean_env_import(env, ios, ms, &new_env, &ex));
-    std::cout << "standard library has been imported\n";
     lean_env_del(env);
     lean_env_del(new_env);
     lean_name_del(std);

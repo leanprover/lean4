@@ -25,19 +25,13 @@ void system_dostring(char const * code);
 void system_import(char const * fname);
 /**
    \brief Retrieve a script_state object for the current thread.
-   The thread has exclusive access until the thread is destroyed,
-   or the method \c release_thread_script_state is invoked.
+   The thread has exclusive access until the thread is destroyed.
 
    \remark For performance reasons global script_state objects
    are recycled. So, users should not delete/redefine functions
    defined using #system_dostring. So, side-effects are discouraged.
 */
 script_state get_thread_script_state();
-/**
-   \brief Put the thread script_state back on the state pool,
-   and available for other threads.
-*/
-void release_thread_script_state();
 
 void enable_script_state_recycling(bool flag);
 void initialize_thread_script_state();

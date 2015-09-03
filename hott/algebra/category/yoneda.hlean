@@ -134,7 +134,7 @@ namespace functor
     show (functor_uncurry (functor_curry F)) (f, g) = F (f,g),
       from calc
         (functor_uncurry (functor_curry F)) (f, g) = to_fun_hom F (id, g) ∘ to_fun_hom F (f, id) : by esimp
-          ... = F (id ∘ f, g ∘ id) : by krewrite [respect_comp F (id,g) (f,id)]
+          ... = F (id ∘ f, g ∘ id) : by krewrite [-respect_comp F (id,g) (f,id)]
           ... = F (f, g ∘ id)      : by rewrite id_left
           ... = F (f,g)            : by rewrite id_right,
   end
@@ -267,7 +267,7 @@ namespace yoneda
       rewrite [id_left,id_right]}
   end
 
-  definition injective_on_objects_yoneda_embedding (C : Category) :
+  definition embedding_on_objects_yoneda_embedding (C : Category) :
     is_embedding (ɏ : C → Cᵒᵖ ⇒ set) :=
   begin
     apply is_embedding.mk, intro c c', fapply is_equiv_of_equiv_of_homotopy,
@@ -279,6 +279,19 @@ namespace yoneda
       apply nat_trans_eq, intro c',
       apply eq_of_homotopy, esimp [yoneda_embedding], intro f,
       rewrite [category.category.id_left], apply id_right}
+  end
+
+  definition is_representable {C : Precategory} (F : Cᵒᵖ ⇒ set) := Σ(c : C), ɏ c ≅ F
+
+  definition is_hprop_representable {C : Category} (F : Cᵒᵖ ⇒ set)
+    : is_hprop (is_representable F) :=
+  begin
+    fapply is_trunc_equiv_closed,
+    { transitivity _, rotate 1,
+      { apply sigma.sigma_equiv_sigma_id, intro c, exact !eq_equiv_iso},
+      { apply fiber.sigma_char}},
+    { apply function.is_hprop_fiber_of_is_embedding,
+      apply embedding_on_objects_yoneda_embedding}
   end
 
 end yoneda

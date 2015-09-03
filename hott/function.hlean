@@ -40,14 +40,6 @@ namespace function
 
   attribute is_embedding.elim [instance]
 
-  definition is_surjective_rec_on {P : Type} (H : is_surjective f) (b : B) [Pt : is_hprop P]
-    (IH : fiber f b → P) : P :=
-  trunc.rec_on (is_surjective.elim f b) IH
-
-  definition is_surjective_of_is_split_surjective [instance] [H : is_split_surjective f]
-    : is_surjective f :=
-  is_surjective.mk (λb, tr (is_split_surjective.elim f b))
-
   definition is_injective_of_is_embedding [reducible] [H : is_embedding f] {a a' : A}
     : f a = f a' → a = a' :=
   (ap f)⁻¹
@@ -76,6 +68,24 @@ namespace function
     apply is_trunc_equiv_closed,
     exact H,
   end
+
+  definition is_hprop_fiber_of_is_embedding (f : A → B) [H : is_embedding f] (b : B) :
+    is_hprop (fiber f b) :=
+  begin
+    apply is_hprop.mk, intro v w,
+    induction v with a p, induction w with a' q, induction q,
+    fapply fiber_eq,
+    { esimp, apply is_injective_of_is_embedding p},
+    { esimp [is_injective_of_is_embedding], symmetry, apply right_inv}
+  end
+
+  definition is_surjective_rec_on {P : Type} (H : is_surjective f) (b : B) [Pt : is_hprop P]
+    (IH : fiber f b → P) : P :=
+  trunc.rec_on (is_surjective.elim f b) IH
+
+  definition is_surjective_of_is_split_surjective [instance] [H : is_split_surjective f]
+    : is_surjective f :=
+  is_surjective.mk (λb, tr (is_split_surjective.elim f b))
 
   definition is_hprop_is_surjective [instance] (f : A → B) : is_hprop (is_surjective f) :=
   begin

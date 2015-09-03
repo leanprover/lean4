@@ -91,10 +91,6 @@ namespace is_equiv
 
   definition is_hprop_is_contr_fun (f : A → B) : is_hprop (is_contr_fun f) := _
 
-  /-
-    we cannot make the next theorem an instance, because it loops together with
-    is_contr_fiber_of_is_equiv
-  -/
   definition is_equiv_of_is_contr_fun [H : is_contr_fun f] : is_equiv f :=
   adjointify _ (λb, point (center (fiber f b)))
                (λb, point_eq (center (fiber f b)))

@@ -202,7 +202,7 @@ namespace lean {
 void initialize_thread();
 void finalize_thread();
 
-typedef void (*thread_finalizer)(void *);
+typedef void (*thread_finalizer)(void *); // NOLINT
 void register_post_thread_finalizer(thread_finalizer fn, void * p);
 void register_thread_finalizer(thread_finalizer fn, void * p);
 void run_thread_finalizers();

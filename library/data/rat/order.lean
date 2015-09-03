@@ -321,6 +321,8 @@ section migrate_algebra
   attribute le.trans lt.trans lt_of_lt_of_le lt_of_le_of_lt ge.trans gt.trans gt_of_gt_of_ge
                    gt_of_ge_of_gt [trans]
 
+  attribute decidable_le [instance]
+
 end migrate_algebra
 
 theorem rat_of_nat_abs (a : ℤ) : abs (of_int a) = of_nat (int.nat_abs a) :=

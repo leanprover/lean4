@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "library/kernel_bindings.h"
 #include "library/io_state_stream.h"
+#include "library/tactic/expr_to_tactic.h"
 #include "frontends/lean/parse_table.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/info_annotation.h"
@@ -25,7 +26,7 @@ namespace notation {
     3- Every other subterm is annotated with no_info.
 */
 static expr annotate_macro_subterms(expr const & e, bool root = true) {
-    if (is_var(e) || is_no_info(e))
+    if (is_var(e) || is_no_info(e) || is_by(e) || is_by_plus(e))
         return e;
     if (is_binding(e))
         return update_binding(e,

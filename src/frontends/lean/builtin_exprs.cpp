@@ -529,10 +529,30 @@ static expr parse_show(parser & p, unsigned, expr const *, pos_info const & pos)
 
 static expr parse_suffices_to_show(parser & p, unsigned, expr const *, pos_info const & pos) {
     auto prop_pos = p.pos();
-    expr from  = p.parse_expr();
+    name id;
+    expr from;
+    if (p.curr_is_identifier()) {
+        id = p.get_name_val();
+        p.next();
+        if (p.curr_is_token(get_colon_tk())) {
+            p.next();
+            from = p.parse_expr();
+        } else {
+            expr left = p.id_to_expr(id, prop_pos);
+            id        = get_this_tk();
+            unsigned rbp = 0;
+            while (rbp < p.curr_expr_lbp()) {
+                left = p.parse_led(left);
+            }
+            from = left;
+        }
+    } else {
+        id    = get_this_tk();
+        from  = p.parse_expr();
+    }
     expr to    = p.save_pos(mk_expr_placeholder(), prop_pos);
     expr prop  = p.save_pos(mk_arrow(from, to), prop_pos);
-    expr local = p.save_pos(mk_local(get_this_tk(), from), prop_pos);
+    expr local = p.save_pos(mk_local(id, from), prop_pos);
     p.check_token_next(get_comma_tk(), "invalid 'suffices' declaration, ',' expected");
     expr body;
     {

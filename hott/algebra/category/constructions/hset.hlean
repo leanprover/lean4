@@ -25,26 +25,28 @@ namespace category
 
   namespace set
     local attribute is_equiv_subtype_eq [instance]
-    definition iso_of_equiv {A B : Precategory_hset} (f : A ≃ B) : A ≅ B :=
+    definition iso_of_equiv [constructor] {A B : Precategory_hset} (f : A ≃ B) : A ≅ B :=
     iso.MK (to_fun f)
            (to_inv f)
            (eq_of_homotopy (left_inv (to_fun f)))
            (eq_of_homotopy (right_inv (to_fun f)))
 
-    definition equiv_of_iso {A B : Precategory_hset} (f : A ≅ B) : A ≃ B :=
+    definition equiv_of_iso [constructor] {A B : Precategory_hset} (f : A ≅ B) : A ≃ B :=
     begin
       apply equiv.MK (to_hom f) (iso.to_inv f),
         exact ap10 (to_right_inverse f),
         exact ap10 (to_left_inverse f)
     end
 
-    definition is_equiv_iso_of_equiv (A B : Precategory_hset) : is_equiv (@iso_of_equiv A B) :=
+    definition is_equiv_iso_of_equiv [constructor] (A B : Precategory_hset)
+      : is_equiv (@iso_of_equiv A B) :=
     adjointify _ (λf, equiv_of_iso f)
                  (λf, proof iso_eq idp qed)
                  (λf, equiv_eq idp)
 
     local attribute is_equiv_iso_of_equiv [instance]
 
+    -- TODO: move
     open sigma.ops
     definition subtype_eq_inv {A : Type} {B : A → Type} [H : Πa, is_hprop (B a)] (u v : Σa, B a)
       : u = v → u.1 = v.1 :=

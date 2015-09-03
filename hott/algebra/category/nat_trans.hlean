@@ -32,10 +32,10 @@ namespace nat_trans
 
   infixr `∘n`:60 := nat_trans.compose
 
-  protected definition id [reducible] {F : C ⇒ D} : nat_trans F F :=
+  protected definition id [reducible] [constructor] {F : C ⇒ D} : nat_trans F F :=
   mk (λa, id) (λa b f, !id_right ⬝ !id_left⁻¹)
 
-  protected definition ID [reducible] (F : C ⇒ D) : nat_trans F F :=
+  protected definition ID [reducible] [constructor] (F : C ⇒ D) : nat_trans F F :=
   (@nat_trans.id C D F)
 
   notation 1 := nat_trans.id

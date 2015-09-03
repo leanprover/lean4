@@ -6,6 +6,7 @@ Authors: Floris van Doorn
 
 --note: modify definition in category.set
 import .constructions.functor .constructions.hset .constructions.product .constructions.opposite
+       .adjoint
 
 open category eq category.ops functor prod.ops is_trunc iso
 
@@ -198,7 +199,7 @@ open functor
 
 namespace yoneda
   open category.set nat_trans lift
-  --should this be defined as "yoneda_embedding Cᵒᵖ"?
+  -- should this be defined as "yoneda_embedding Cᵒᵖ"?
   definition contravariant_yoneda_embedding (C : Precategory) : Cᵒᵖ ⇒ set ^c C :=
   functor_curry !hom_functor
 
@@ -207,12 +208,6 @@ namespace yoneda
 
   notation `ɏ` := yoneda_embedding _
 
-  -- set_option pp.implicit true
-  -- set_option pp.notation false
-  -- -- -- set_option pp.full_names true
-  -- set_option pp.coercions true -- [constructor]
-
-  set_option formatter.hide_full_terms false
   definition yoneda_lemma_hom [constructor] {C : Precategory} (c : C) (F : Cᵒᵖ ⇒ set)
     (x : trunctype.carrier (F c)) : ɏ c ⟹ F :=
   begin
@@ -223,7 +218,6 @@ namespace yoneda
       exact ap10 !(@respect_comp Cᵒᵖ set)⁻¹ x}
   end
 
-  -- set_option pp.implicit true
   definition yoneda_lemma {C : Precategory} (c : C) (F : Cᵒᵖ ⇒ set) :
     homset (ɏ c) F ≅ lift_functor (F c) :=
   begin
@@ -231,13 +225,60 @@ namespace yoneda
     fapply equiv.MK,
     { intro η, exact up (η c id)},
     { intro x, induction x with x, exact yoneda_lemma_hom c F x},
-    { intro x, induction x with x, esimp, apply ap up,
-      exact ap10 !respect_id x},
-    { intro η, esimp, apply nat_trans_eq,
+    { exact abstract begin intro x, induction x with x, esimp, apply ap up,
+      exact ap10 !respect_id x end end},
+    { exact abstract begin intro η, esimp, apply nat_trans_eq,
       intro c', esimp, apply eq_of_homotopy,
       intro f, esimp [yoneda_embedding] at f,
       transitivity (F f ∘ η c) id, reflexivity,
-      rewrite naturality, esimp [yoneda_embedding], rewrite [id_left], apply ap _ !id_left},
+      rewrite naturality, esimp [yoneda_embedding], rewrite [id_left], apply ap _ !id_left end end},
+  end
+
+  theorem yoneda_lemma_natural_ob {C : Precategory} (F : Cᵒᵖ ⇒ set) {c c' : C} (f : c' ⟶ c)
+    (η : ɏ c ⟹ F) :
+     to_fun_hom (lift_functor ∘f F) f (to_hom (yoneda_lemma c F) η) =
+     proof to_hom (yoneda_lemma c' F) (η ∘n to_fun_hom ɏ f) qed :=
+  begin
+    esimp [yoneda_lemma,yoneda_embedding], apply ap up,
+    transitivity (F f ∘ η c) id, reflexivity,
+    rewrite naturality,
+    esimp [yoneda_embedding],
+    apply ap (η c'),
+    esimp [yoneda_embedding, Opposite],
+    rewrite [+id_left,+id_right],
+  end
+
+  theorem yoneda_lemma_natural_functor.{u v} {C : Precategory.{u v}} (c : C) (F F' : Cᵒᵖ ⇒ set)
+    (θ : F ⟹ F') (η : to_fun_ob ɏ c ⟹ F) :
+     proof (lift_functor.{v u} ∘fn θ) c (to_hom (yoneda_lemma c F) η) qed =
+     (to_hom (yoneda_lemma c F') proof (θ ∘n η : (to_fun_ob ɏ c : Cᵒᵖ ⇒ set) ⟹ F') qed) :=
+  by reflexivity
+
+  definition fully_faithful_yoneda_embedding [instance] (C : Precategory) :
+    fully_faithful (ɏ : C ⇒ set ^c Cᵒᵖ) :=
+  begin
+    intro c c',
+    fapply is_equiv_of_equiv_of_homotopy,
+    { symmetry, transitivity _, apply @equiv_of_iso (homset _ _),
+      rexact yoneda_lemma c (ɏ c'), esimp [yoneda_embedding], exact !equiv_lift⁻¹ᵉ},
+    { intro f, apply nat_trans_eq, intro c, apply eq_of_homotopy, intro f',
+      esimp [equiv.symm,equiv.trans],
+      esimp [yoneda_lemma,yoneda_embedding,Opposite],
+      rewrite [id_left,id_right]}
+  end
+
+  definition injective_on_objects_yoneda_embedding (C : Category) :
+    is_embedding (ɏ : C → Cᵒᵖ ⇒ set) :=
+  begin
+    apply is_embedding.mk, intro c c', fapply is_equiv_of_equiv_of_homotopy,
+    { exact !eq_equiv_iso ⬝e !iso_equiv_F_iso_F ⬝e !eq_equiv_iso⁻¹ᵉ},
+    { intro p, induction p, esimp [equiv.trans, equiv.symm],
+      esimp [preserve_iso],
+      rewrite -eq_of_iso_refl,
+      apply ap eq_of_iso, apply iso_eq, esimp,
+      apply nat_trans_eq, intro c',
+      apply eq_of_homotopy, esimp [yoneda_embedding], intro f,
+      rewrite [category.category.id_left], apply id_right}
   end
 
 end yoneda

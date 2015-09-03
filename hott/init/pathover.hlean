@@ -172,7 +172,7 @@ namespace eq
     {b : B' (f a)} {b₂ : B' (f a₂)} (q : b =[ap f p] b₂) : b =[p] b₂ :=
   by cases p; apply (idp_rec_on q); apply idpo
 
-  definition pathover_compose (B' : A' → Type) (f : A → A') (p : a = a₂)
+  definition pathover_compose [constructor] (B' : A' → Type) (f : A → A') (p : a = a₂)
     (b : B' (f a)) (b₂ : B' (f a₂)) : b =[p] b₂ ≃ b =[ap f p] b₂ :=
   begin
     fapply equiv.MK,

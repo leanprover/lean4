@@ -78,8 +78,8 @@ namespace functor
       : functor.mk F H₁ id₁ comp₁ = functor.mk F H₂ id₂ comp₂ :=
   functor_eq (λc, idp) (λa b f, !id_leftright ⬝ !pH)
 
-  protected definition preserve_iso (F : C ⇒ D) {a b : C} (f : hom a b) [H : is_iso f] :
-    is_iso (F f) :=
+  definition preserve_is_iso [constructor] (F : C ⇒ D) {a b : C} (f : hom a b) [H : is_iso f]
+    : is_iso (F f) :=
   begin
     fapply @is_iso.mk, apply (F (f⁻¹)),
     repeat (apply concat ; symmetry ;  apply (respect_comp F) ;
@@ -88,8 +88,7 @@ namespace functor
       apply (respect_id F) ),
   end
 
-  definition respect_inv (F : C ⇒ D) {a b : C} (f : hom a b)
-    [H : is_iso f] [H' : is_iso (F f)] :
+  definition respect_inv (F : C ⇒ D) {a b : C} (f : hom a b) [H : is_iso f] [H' : is_iso (F f)] :
     F (f⁻¹) = (F f)⁻¹ :=
   begin
     fapply @left_inverse_eq_right_inverse, apply (F f),
@@ -101,7 +100,10 @@ namespace functor
       apply right_inverse
   end
 
-  attribute functor.preserve_iso [instance]
+  attribute preserve_is_iso [instance] [priority 100]
+
+  definition preserve_iso [constructor] (F : C ⇒ D) {a b : C} (f : a ≅ b) : F a ≅ F b :=
+  iso.mk (F f)
 
   definition respect_inv' (F : C ⇒ D) {a b : C} (f : hom a b) {H : is_iso f} : F (f⁻¹) = (F f)⁻¹ :=
   respect_inv F f
@@ -163,11 +165,11 @@ namespace functor
     esimp
   end
 
-  definition functor_eq2' {F₁ F₂ : C ⇒ D} {p₁ p₂ : to_fun_ob F₁ = to_fun_ob F₂} (q₁ q₂)
+  theorem functor_eq2' {F₁ F₂ : C ⇒ D} {p₁ p₂ : to_fun_ob F₁ = to_fun_ob F₂} (q₁ q₂)
     (r : p₁ = p₂) : functor_eq' p₁ q₁ = functor_eq' p₂ q₂ :=
   by cases r; apply (ap (functor_eq' p₂)); apply is_hprop.elim
 
-  definition functor_eq2 {F₁ F₂ : C ⇒ D} (p q : F₁ = F₂) (r : ap010 to_fun_ob p ~ ap010 to_fun_ob q)
+  theorem functor_eq2 {F₁ F₂ : C ⇒ D} (p q : F₁ = F₂) (r : ap010 to_fun_ob p ~ ap010 to_fun_ob q)
     : p = q :=
   begin
     cases F₁ with ob₁ hom₁ id₁ comp₁,
@@ -178,12 +180,12 @@ namespace functor
     exact r,
   end
 
-  definition ap010_apd01111_functor {F₁ F₂ : C → D} {H₁ : Π(a b : C), hom a b → hom (F₁ a) (F₁ b)}
+  theorem ap010_apd01111_functor {F₁ F₂ : C → D} {H₁ : Π(a b : C), hom a b → hom (F₁ a) (F₁ b)}
     {H₂ : Π(a b : C), hom a b → hom (F₂ a) (F₂ b)} {id₁ id₂ comp₁ comp₂}
     (pF : F₁ = F₂) (pH : pF ▸ H₁ = H₂) (pid : cast (apd011 _ pF pH) id₁ = id₂)
     (pcomp : cast (apd0111 _ pF pH pid) comp₁ = comp₂) (c : C)
       : ap010 to_fun_ob (apd01111 functor.mk pF pH pid pcomp) c = ap10 pF c :=
-  by cases pF; cases pH; cases pid; cases pcomp; apply idp
+  by induction pF; induction pH; induction pid; induction pcomp; reflexivity
 
   definition ap010_functor_eq {F₁ F₂ : C ⇒ D} (p : to_fun_ob F₁ ~ to_fun_ob F₂)
     (q : (λ(a b : C) (f : hom a b), hom_of_eq (p b) ∘ F₁ f ∘ inv_of_eq (p a)) ~3 to_fun_hom F₂) (c : C) :

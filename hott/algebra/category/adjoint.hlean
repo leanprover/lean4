@@ -62,6 +62,42 @@ namespace category
     : is_equiv (@(to_fun_hom F) c c') :=
   !H
 
+  definition hom_equiv_F_hom_F [constructor] (F : C ⇒ D)
+    [H : fully_faithful F] (c c' : C) : (c ⟶ c') ≃ (F c ⟶ F c') :=
+  equiv.mk _ !H
+
+  definition iso_of_F_iso_F (F : C ⇒ D)
+    [H : fully_faithful F] (c c' : C) (g : F c ≅ F c') : c ≅ c' :=
+  begin
+    induction g with g G, induction G with h p q, fapply iso.MK,
+      { rexact (@(to_fun_hom F) c c')⁻¹ᶠ g},
+      { rexact (@(to_fun_hom F) c' c)⁻¹ᶠ h},
+      { exact abstract begin
+        apply eq_of_fn_eq_fn' (@(to_fun_hom F) c c),
+        rewrite [respect_comp, respect_id,
+                 right_inv (@(to_fun_hom F) c c'), right_inv (@(to_fun_hom F) c' c), p],
+        end end},
+      { exact abstract begin
+        apply eq_of_fn_eq_fn' (@(to_fun_hom F) c' c'),
+        rewrite [respect_comp, respect_id,
+                 right_inv (@(to_fun_hom F) c c'), right_inv (@(to_fun_hom F) c' c), q],
+        end end}
+  end
+
+  definition iso_equiv_F_iso_F [constructor] (F : C ⇒ D)
+    [H : fully_faithful F] (c c' : C) : (c ≅ c') ≃ (F c ≅ F c') :=
+  begin
+    fapply equiv.MK,
+    { exact preserve_iso F},
+    { apply iso_of_F_iso_F},
+    { exact abstract begin
+      intro f, induction f with f F', induction F' with g p q, apply iso_eq,
+      esimp [iso_of_F_iso_F], apply right_inv end end},
+    { exact abstract begin
+      intro f, induction f with f F', induction F' with g p q, apply iso_eq,
+      esimp [iso_of_F_iso_F], apply right_inv end end},
+  end
+
   definition is_iso_unit [instance] (F : C ⇒ D) [H : is_equivalence F] : is_iso (unit F) :=
   !is_equivalence.is_iso_unit
 
@@ -83,18 +119,18 @@ namespace category
                     to_fun_hom G' (natural_map ε d) ∘
                     natural_map η' (to_fun_ob G d) = id,
     { intro d, esimp,
-      rewrite [assoc],
+      rewrite [category.assoc],
       rewrite [-assoc (G (ε' d))],
       esimp, rewrite [nf_fn_eq_fn_nf_pt' G' ε η d],
-      esimp, rewrite [assoc],
-      esimp, rewrite [-assoc],
+      esimp, rewrite [category.assoc],
+      esimp, rewrite [-category.assoc],
       rewrite [↑functor.compose, -respect_comp G],
       rewrite [nf_fn_eq_fn_nf_pt ε ε' d,nf_fn_eq_fn_nf_pt η' η (G d),▸*],
       rewrite [respect_comp G],
-      rewrite [assoc,-assoc (G (ε d))],
+      rewrite [category.assoc,▸*,-category.assoc (G (ε d))],
       rewrite [↑functor.compose, -respect_comp G],
       rewrite [H' (G d)],
-      rewrite [respect_id,id_right],
+      rewrite [respect_id,▸*,category.id_right],
       apply K},
     assert lem₃ : Π (d : carrier D),
                     (to_fun_hom G' (natural_map ε d) ∘
@@ -102,17 +138,17 @@ namespace category
                     to_fun_hom G (natural_map ε' d) ∘
                     natural_map η (to_fun_ob G' d) = id,
     { intro d, esimp,
-      rewrite [assoc, -assoc (G' (ε d))],
+      rewrite [category.assoc, -assoc (G' (ε d))],
       esimp, rewrite [nf_fn_eq_fn_nf_pt' G ε' η' d],
-      esimp, rewrite [assoc], esimp, rewrite [-assoc],
+      esimp, rewrite [category.assoc], esimp, rewrite [-category.assoc],
       rewrite [↑functor.compose, -respect_comp G'],
       rewrite [nf_fn_eq_fn_nf_pt ε' ε d,nf_fn_eq_fn_nf_pt η η' (G' d)],
       esimp,
       rewrite [respect_comp G'],
-      rewrite [assoc,-assoc (G' (ε' d))],
+      rewrite [category.assoc,▸*,-category.assoc (G' (ε' d))],
       rewrite [↑functor.compose, -respect_comp G'],
       rewrite [H (G' d)],
-      rewrite [respect_id,id_right],
+      rewrite [respect_id,▸*,category.id_right],
       apply K'},
     fapply lem₁,
     { fapply functor.eq_of_pointwise_iso,
@@ -129,12 +165,13 @@ namespace category
       rewrite functor.hom_of_eq_eq_of_pointwise_iso,
       apply nat_trans_eq, intro c, esimp,
       refine !assoc⁻¹ ⬝ ap (λx, _ ∘ x) (nf_fn_eq_fn_nf_pt η η' c) ⬝ !assoc ⬝ _,
-      esimp, rewrite [-respect_comp G',H c,respect_id G',id_left]},
+      esimp, rewrite [-respect_comp G',H c,respect_id G',▸*,category.id_left]},
    { clear lem₁, refine transport_hom_of_eq_left _ ε ⬝ _,
      krewrite inv_of_eq_compose_left,
      rewrite functor.inv_of_eq_eq_of_pointwise_iso,
      apply nat_trans_eq, intro d, esimp,
-     rewrite [respect_comp,assoc,nf_fn_eq_fn_nf_pt ε' ε d,-assoc,▸*,H (G' d),id_right]}
+     krewrite [respect_comp],
+     rewrite [assoc,nf_fn_eq_fn_nf_pt ε' ε d,-assoc,▸*,H (G' d),id_right]}
    end
 
   definition full_of_fully_faithful (H : fully_faithful F) : full F :=

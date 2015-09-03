@@ -6,7 +6,7 @@ Author: Jakob von Raumer
 
 import .iso
 
-open iso is_equiv eq is_trunc
+open iso is_equiv equiv eq is_trunc
 
 -- A category is a precategory extended by a witness
 -- that the function from paths to isomorphisms,
@@ -34,6 +34,9 @@ namespace category
   -- TODO: Unsafe class instance?
   attribute iso_of_path_equiv [instance]
 
+  definition eq_equiv_iso [constructor] (a b : ob) : (a = b) ≃ (a ≅ b) :=
+  equiv.mk iso_of_eq _
+
   definition eq_of_iso [reducible] {a b : ob} : a ≅ b → a = b :=
   iso_of_eq⁻¹ᶠ
 
@@ -45,6 +48,9 @@ namespace category
 
   definition inv_of_eq_eq_of_iso {a b : ob} (p : a ≅ b) : inv_of_eq (eq_of_iso p) = to_inv p :=
   ap to_inv !iso_of_eq_eq_of_iso
+
+  theorem eq_of_iso_refl {a : ob}  : eq_of_iso (iso.refl a) = idp :=
+  inv_eq_of_eq idp
 
   definition is_trunc_1_ob : is_trunc 1 ob :=
   begin

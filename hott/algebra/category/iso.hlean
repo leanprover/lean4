@@ -131,13 +131,13 @@ structure iso {ob : Type} [C : precategory ob] (a b : ob) :=
   (to_hom : hom a b)
   [struct : is_iso to_hom]
 
+  infix `≅`:50 := iso
+  attribute iso.struct [instance] [priority 4000]
+
 namespace iso
   variables {ob : Type} [C : precategory ob]
   variables {a b c : ob} {g : b ⟶ c} {f : a ⟶ b} {h : b ⟶ a}
   include C
-
-  infix `≅`:50 := iso
-  attribute struct [instance] [priority 400]
 
   attribute to_hom [coercion]
 

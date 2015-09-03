@@ -108,14 +108,24 @@ public:
     }
 };
 
-static thread_finalizers_manager g_aux;
+thread_finalizers_manager * g_aux = nullptr;
+
+thread_finalizers_manager & get_manager() {
+    if (!g_aux)
+        g_aux = new thread_finalizers_manager();
+    return *g_aux;
+}
+
+void delete_thread_finalizer_manager() {
+    delete g_aux;
+}
 
 void register_thread_finalizer(thread_finalizer fn, void * p) {
-    g_aux.get_thread_finalizers().emplace_back(fn, p);
+    get_manager().get_thread_finalizers().emplace_back(fn, p);
 }
 
 void register_post_thread_finalizer(thread_finalizer fn, void * p) {
-    g_aux.get_post_thread_finalizers().emplace_back(fn, p);
+    get_manager().get_post_thread_finalizers().emplace_back(fn, p);
 }
 
 void run_thread_finalizers() {
@@ -127,6 +137,8 @@ void run_post_thread_finalizers() {
 // reference implementation
 LEAN_THREAD_PTR(thread_finalizers, g_finalizers);
 LEAN_THREAD_PTR(thread_finalizers, g_post_finalizers);
+
+void delete_thread_finalizer_manager() {}
 
 void register_thread_finalizer(thread_finalizer fn, void * p) {
     if (!g_finalizers)

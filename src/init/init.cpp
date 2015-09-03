@@ -63,5 +63,6 @@ initializer::initializer() {
 
 initializer::~initializer() {
     finalize();
+    delete_thread_finalizer_manager();
 }
 }

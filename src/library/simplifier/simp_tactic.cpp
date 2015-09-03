@@ -196,7 +196,7 @@ private:
             try {
                 expr new_l; constraints cs;
                 bool report_unassigned = true;
-                std::tie(new_l, m_subst, cs) = m_elab(m_g, m_ngen.mk_child(), l, none_expr(), m_subst, report_unassigned);
+                std::tie(new_l, m_subst, cs) = m_elab(m_g, m_ios.get_options(), m_ngen.mk_child(), l, none_expr(), m_subst, report_unassigned);
                 if (cs)
                     throw tactic_exception("invalid 'simp' tactic, fail to resolve generated constraints");
                 expr new_e = head_beta_reduce(m_elab_tc.infer(new_l).first);

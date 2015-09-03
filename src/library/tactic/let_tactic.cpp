@@ -19,7 +19,7 @@ expr mk_let_tactic_expr(name const & id, expr const & e) {
 }
 
 tactic let_tactic(elaborate_fn const & elab, name const & id, expr const & e) {
-    return tactic01([=](environment const & env, io_state const &, proof_state const & s) {
+    return tactic01([=](environment const & env, io_state const & ios, proof_state const & s) {
             proof_state new_s = s;
             goals const & gs  = new_s.get_goals();
             if (!gs) {
@@ -29,7 +29,7 @@ tactic let_tactic(elaborate_fn const & elab, name const & id, expr const & e) {
             goal const & g         = head(gs);
             name_generator ngen    = s.get_ngen();
             bool report_unassigned = true;
-            elaborate_result esc = elab(g, ngen.mk_child(), e, none_expr(), new_s.get_subst(), report_unassigned);
+            elaborate_result esc = elab(g, ios.get_options(), ngen.mk_child(), e, none_expr(), new_s.get_subst(), report_unassigned);
             expr new_e; substitution new_subst; constraints cs;
             std::tie(new_e, new_subst, cs) = esc;
             if (cs)

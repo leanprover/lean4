@@ -1742,14 +1742,21 @@ optional<expr> elaborator::get_pre_tactic_for(expr const & mvar) {
 
 optional<tactic> elaborator::pre_tactic_to_tactic(expr const & pre_tac) {
     try {
-        auto fn = [=](goal const & g, name_generator && ngen, expr const & e, optional<expr> const & expected_type,
+        auto fn = [=](goal const & g, options const & o, name_generator && ngen, expr const & e, optional<expr> const & expected_type,
                       substitution const & subst, bool report_unassigned) {
-            elaborator aux_elaborator(m_ctx, std::move(ngen));
             // Disable tactic hints when processing expressions nested in tactics.
             // We must do it otherwise, it is easy to make the system loop.
             bool use_tactic_hints = false;
-            return aux_elaborator.elaborate_nested(g.to_context(), expected_type, e,
-                                                   use_tactic_hints, subst, report_unassigned);
+            if (o == m_ctx.m_options) {
+                elaborator aux_elaborator(m_ctx, std::move(ngen));
+                return aux_elaborator.elaborate_nested(g.to_context(), expected_type, e,
+                                                       use_tactic_hints, subst, report_unassigned);
+            } else {
+                elaborator_context aux_ctx(m_ctx, o);
+                elaborator aux_elaborator(aux_ctx, std::move(ngen));
+                return aux_elaborator.elaborate_nested(g.to_context(), expected_type, e,
+                                                       use_tactic_hints, subst, report_unassigned);
+            }
         };
         return optional<tactic>(expr_to_tactic(env(), fn, pre_tac, pip()));
     } catch (expr_to_tactic_exception & ex) {

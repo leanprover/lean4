@@ -20,6 +20,7 @@ class elaborator_context {
     pos_info_provider const * m_pos_provider;
     info_manager *            m_info_manager;
     // configuration
+    options                   m_options;
     bool                      m_check_unassigned;
     bool                      m_use_local_instances;
     bool                      m_ignore_instances;
@@ -36,8 +37,9 @@ class elaborator_context {
     unsigned m_show_hole_line;
     unsigned m_show_hole_col;
 
+    void set_options(options const & opts);
+
     /** \brief Support for showing information using hot-keys */
-    void init_options(options const & opts);
     bool has_show_goal_at(unsigned & line, unsigned & col) const;
     void reset_show_goal_at();
 
@@ -46,6 +48,7 @@ class elaborator_context {
 public:
     elaborator_context(environment const & env, io_state const & ios, local_decls<level> const & lls,
                        pos_info_provider const * pp = nullptr, info_manager * info = nullptr, bool check_unassigned = true);
+    elaborator_context(elaborator_context const & ctx, options const & o);
 };
 void initialize_elaborator_context();
 void finalize_elaborator_context();

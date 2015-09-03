@@ -32,11 +32,11 @@ struct scoped_info_tactic_proof_state {
 };
 
 tactic mk_info_tactic(elaborate_fn const & fn, expr const & e) {
-    return tactic1([=](environment const &, io_state const &, proof_state const & ps) -> proof_state {
+    return tactic1([=](environment const &, io_state const & ios, proof_state const & ps) -> proof_state {
             // create dummy variable just to communicate position to the elaborator
             expr dummy = mk_sort(mk_level_zero(), e.get_tag());
             scoped_info_tactic_proof_state scope(ps);
-            fn(goal(), name_generator("dummy"), dummy, none_expr(), substitution(), false);
+            fn(goal(), ios.get_options(), name_generator("dummy"), dummy, none_expr(), substitution(), false);
             return ps;
         });
 }

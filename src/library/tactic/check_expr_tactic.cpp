@@ -21,7 +21,7 @@ tactic check_expr_tactic(elaborate_fn const & elab, expr const & e,
             }
             goal const & g      = head(gs);
             name_generator ngen = s.get_ngen();
-            expr new_e = std::get<0>(elab(g, ngen.mk_child(), e, none_expr(), s.get_subst(), false));
+            expr new_e = std::get<0>(elab(g, ios.get_options(), ngen.mk_child(), e, none_expr(), s.get_subst(), false));
             auto tc = mk_type_checker(env, ngen.mk_child());
             expr new_t = tc->infer(new_e).first;
             auto out = regular(env, ios);

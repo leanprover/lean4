@@ -208,7 +208,7 @@ tactic apply_tactic_core(elaborate_fn const & elab, expr const & e, add_meta_kin
             name_generator ngen = s.get_ngen();
             expr       new_e; substitution new_subst; constraints cs_;
             try {
-                auto ecs = elab(g, ngen.mk_child(), e, none_expr(), s.get_subst(), false);
+                auto ecs = elab(g, ios.get_options(), ngen.mk_child(), e, none_expr(), s.get_subst(), false);
                 std::tie(new_e, new_subst, cs_) = ecs;
                 buffer<constraint> cs;
                 to_buffer(cs_, cs);

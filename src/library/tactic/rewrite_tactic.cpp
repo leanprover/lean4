@@ -747,7 +747,7 @@ class rewrite_fn {
 
     optional<pair<expr, constraints>> elaborate_core(expr const & e, bool fail_if_cnstrs) {
         expr new_expr; substitution new_subst; constraints cs;
-        std::tie(new_expr, new_subst, cs) = m_elab(m_g, m_ngen.mk_child(), e, none_expr(), m_ps.get_subst(), false);
+        std::tie(new_expr, new_subst, cs) = m_elab(m_g, m_ios.get_options(), m_ngen.mk_child(), e, none_expr(), m_ps.get_subst(), false);
         if (fail_if_cnstrs && cs)
             return optional<pair<expr, constraints>>();
         m_ps = proof_state(m_ps, new_subst);

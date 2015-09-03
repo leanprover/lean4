@@ -45,7 +45,7 @@ optional<expr> elaborate_with_respect_to(environment const & env, io_state const
     optional<expr> elab_expected_type;
     if (enforce_type_during_elaboration)
         elab_expected_type = expected_type;
-    auto esc   = elab(head(gs), ngen.mk_child(), e, elab_expected_type, subst, report_unassigned);
+    auto esc   = elab(head(gs), ios.get_options(), ngen.mk_child(), e, elab_expected_type, subst, report_unassigned);
     expr new_e; substitution new_subst; constraints cs_;
     std::tie(new_e, new_subst, cs_) = esc;
     buffer<constraint> cs;

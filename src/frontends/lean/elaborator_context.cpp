@@ -67,15 +67,23 @@ bool get_elaborator_lift_coercions(options const & opts) {
 elaborator_context::elaborator_context(environment const & env, io_state const & ios, local_decls<level> const & lls,
                                        pos_info_provider const * pp, info_manager * info, bool check_unassigned):
     m_env(env), m_ios(ios), m_lls(lls), m_pos_provider(pp), m_info_manager(info), m_check_unassigned(check_unassigned) {
-    m_use_local_instances = get_elaborator_local_instances(ios.get_options());
-    m_ignore_instances    = get_elaborator_ignore_instances(ios.get_options());
-    m_flycheck_goals      = get_elaborator_flycheck_goals(ios.get_options());
-    m_fail_missing_field  = get_elaborator_fail_missing_field(ios.get_options());
-    m_lift_coercions      = get_elaborator_lift_coercions(ios.get_options());
-    init_options(ios.get_options());
+    set_options(ios.get_options());
 }
 
-void elaborator_context::init_options(options const & opts) {
+elaborator_context::elaborator_context(elaborator_context const & ctx, options const & o):
+    m_env(ctx.m_env), m_ios(ctx.m_ios), m_lls(ctx.m_lls), m_pos_provider(ctx.m_pos_provider),
+    m_info_manager(ctx.m_info_manager), m_check_unassigned(ctx.m_check_unassigned) {
+    set_options(o);
+}
+
+void elaborator_context::set_options(options const & opts) {
+    m_options             = opts;
+    m_use_local_instances = get_elaborator_local_instances(opts);
+    m_ignore_instances    = get_elaborator_ignore_instances(opts);
+    m_flycheck_goals      = get_elaborator_flycheck_goals(opts);
+    m_fail_missing_field  = get_elaborator_fail_missing_field(opts);
+    m_lift_coercions      = get_elaborator_lift_coercions(opts);
+
     if (has_show_goal(opts, m_show_goal_line, m_show_goal_col)) {
         m_show_goal_at = true;
     } else {

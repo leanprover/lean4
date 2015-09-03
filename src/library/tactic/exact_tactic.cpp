@@ -99,7 +99,7 @@ static tactic assumption_tactic_core(bool conservative) {
             goal g = head(gs);
             buffer<expr> hs;
             g.get_hyps(hs);
-            auto elab = [](goal const &, name_generator const &, expr const & H,
+            auto elab = [](goal const &, options const &, name_generator const &, expr const & H,
                            optional<expr> const &, substitution const & s, bool) -> elaborate_result {
                 return elaborate_result(H, s, constraints());
             };

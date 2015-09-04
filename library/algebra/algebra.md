@@ -4,7 +4,6 @@ algebra
 Algebraic structures.
 
 * [prio](prio.lean) : priority for algebraic operations
-* [function](function.lean)
 * [relation](relation.lean)
 * [binary](binary.lean) : binary operations
 * [order](order.lean)

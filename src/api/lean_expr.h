@@ -73,14 +73,20 @@ lean_bool lean_expr_mk_local_ext(lean_name n, lean_name pp_n, lean_expr t, lean_
 /** \brief Create a meta-variable (aka unification variable) with name \c n and type \c t, and store the result in \c r. */
 lean_bool lean_expr_mk_metavar(lean_name n, lean_expr t, lean_expr * r, lean_exception * ex);
 
+/** \brief Delete/dispose the given macro definition. */
+void lean_macro_def_del(lean_macro_def m);
+/** \brief Store \c lean_true in \c r iff the two given macro definitions are equal. */
+lean_bool lean_macro_def_eq(lean_macro_def m1, lean_macro_def m2, lean_bool * r, lean_exception * ex);
+/** \brief Store in \c r a (crude) string representation of the given macro definition.
+    \remark \c r must be deleted using #lean_string_del. */
+lean_bool lean_macro_def_to_string(lean_macro_def m, char const ** r, lean_exception * ex);
+
 /** \brief Store in \c r a (crude) string representation of the given expression.
     \remark \c r must be deleted using #lean_string_del.
     \remark To use the nicer pretty printer, we have an API that also takes a lean_environment object as argument. */
 lean_bool lean_expr_to_string(lean_expr e, char const ** r, lean_exception * ex);
 /** \brief Delete/dispose the given expression. */
 void lean_expr_del(lean_expr e);
-/** \brief Delete/dispose the given macro definition. */
-void lean_macro_def_del(lean_macro_def m);
 /** \brief Return the kind of the given expression.
     \remark Return LEAN_EXPR_VAR if e is null. */
 lean_expr_kind lean_expr_get_kind(lean_expr e);

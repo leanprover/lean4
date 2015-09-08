@@ -144,6 +144,23 @@ void lean_macro_def_del(lean_macro_def m) {
     delete to_macro_definition(m);
 }
 
+lean_bool lean_macro_def_eq(lean_macro_def m1, lean_macro_def m2, lean_bool * r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(m1);
+    check_nonnull(m2);
+    *r = to_macro_definition_ref(m1) == to_macro_definition_ref(m2);
+    LEAN_CATCH;
+}
+
+lean_bool lean_macro_def_to_string(lean_macro_def m, char const ** r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(m);
+    std::ostringstream out;
+    to_macro_definition_ref(m).display(out);
+    *r = mk_string(out.str());
+    LEAN_CATCH;
+}
+
 lean_expr_kind lean_expr_get_kind(lean_expr e) {
     if (!e)
         return LEAN_EXPR_VAR;

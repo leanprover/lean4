@@ -464,11 +464,59 @@ void test_inductive() {
     lean_env_del(new_env);
 }
 
+void test_parser() {
+    lean_exception ex = 0;
+    lean_env env      = mk_env();
+    lean_ios ios;
+    lean_env new_env;
+    lean_ios new_ios;
+    lean_options o;
+    check(lean_options_mk_empty(&o, &ex));
+    check(lean_ios_mk_std(o, &ios, &ex));
+    check(lean_parse_commands(env, ios, "import standard open nat definition double (a : nat) := a + a check double 4 eval double 4",
+                              &new_env, &new_ios, &ex));
+    {
+        lean_name double_name = mk_name("double");
+        lean_decl double_decl;
+        lean_expr double_decl_value;
+        char const * s;
+        check(lean_env_get_decl(new_env, double_name, &double_decl, &ex));
+        check(lean_decl_get_value(double_decl, &double_decl_value, &ex));
+        check(lean_expr_to_pp_string(new_env, new_ios, double_decl_value, &s, &ex));
+        printf("definition of double\n%s\n", s);
+        lean_name_del(double_name);
+        lean_decl_del(double_decl);
+        lean_expr_del(double_decl_value);
+        lean_string_del(s);
+    }
+
+    {
+        lean_expr e;
+        lean_list_name ps;
+        // remark: we can use notation from the namespace nat because we have executed 'open nat'
+        // when we created new_env
+        check(lean_parse_expr(new_env, new_ios, "double (2 + 3)", &e, &ps, &ex));
+        char const * s;
+        check(lean_expr_to_pp_string(new_env, new_ios, e, &s, &ex));
+        printf("parsed expression: %s\n", s);
+        lean_string_del(s);
+        lean_expr_del(e);
+        lean_list_name_del(ps);
+    }
+
+    lean_options_del(o);
+    lean_env_del(env);
+    lean_env_del(new_env);
+    lean_ios_del(ios);
+    lean_ios_del(new_ios);
+}
+
 int main() {
     test_add_univ();
     test_id();
     test_path();
     test_import();
     test_inductive();
+    test_parser();
     return 0;
 }

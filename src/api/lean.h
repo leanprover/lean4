@@ -21,5 +21,6 @@ Author: Leonardo de Moura
 #include "lean_module.h"        // NOLINT
 #include "lean_type_checker.h"  // NOLINT
 #include "lean_inductive.h"     // NOLINT
+#include "lean_parser.h"        // NOLINT
 
 #endif

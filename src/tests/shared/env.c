@@ -425,6 +425,7 @@ void test_inductive() {
         check(lean_inductive_decl_get_types(d, &types, &ex));
         check(lean_list_inductive_type_is_cons(types));
         check(lean_env_is_constructor(new_env, cons_name, &r_name, &ex) && lean_name_eq(list_name, r_name));
+        lean_list_inductive_type_del(types);
         lean_inductive_decl_del(d);
         lean_name_del(cons_name);
         lean_name_del(r_name);
@@ -536,6 +537,7 @@ void test_parser_error() {
         lean_string_del(s2);
         lean_string_del(s3);
     }
+    lean_options_del(o);
     lean_exception_del(ex);
     lean_env_del(env);
     lean_ios_del(ios);

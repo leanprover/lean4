@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/error_handling/error_handling.h"
 #include "frontends/lean/pp.h"
 #include "api/string.h"
 #include "api/exception.h"
@@ -99,5 +100,21 @@ lean_bool lean_expr_to_pp_string(lean_env env, lean_ios ios, lean_expr e, char c
     std::ostringstream out;
     out << mk_pair(fmt(to_expr_ref(e)), o);
     *r = mk_string(out.str());
+    LEAN_CATCH;
+}
+
+lean_bool lean_exception_to_pp_string(lean_env env, lean_ios ios, lean_exception e, char const ** r, lean_exception * ex) {
+    LEAN_TRY;
+    check_nonnull(env);
+    check_nonnull(ios);
+    check_nonnull(e);
+    io_state new_ios(to_io_state_ref(ios));
+    std::shared_ptr<output_channel> aux(new string_output_channel());
+    new_ios.set_regular_channel(aux);
+    new_ios.set_diagnostic_channel(aux);
+    io_state_stream ioss(to_env_ref(env), new_ios);
+    throwable * _e = to_exception(e);
+    display_error(ioss, nullptr, *_e);
+    *r = mk_string(static_cast<string_output_channel const *>(aux.get())->str());
     LEAN_CATCH;
 }

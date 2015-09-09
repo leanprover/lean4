@@ -6,11 +6,12 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
+#include "util/exception.h"
+#include "library/parser_nested_exception.h"
 #include "api/lean_macros.h"
 #include "api/lean_bool.h"
 #include "api/lean_exception.h"
 #include "api/exception.h"
-#include "util/exception.h"
 
 namespace lean {
 inline throwable * to_exception(lean_exception e) { return reinterpret_cast<throwable *>(e); }
@@ -41,6 +42,9 @@ void check_nonnull(void const *);
 
 #define LEAN_TRY try {
 #define LEAN_CATCH                                      \
+} catch (lean::parser_nested_exception & e) {           \
+    *ex = of_exception(e.get_exception().clone());      \
+    return lean_false;                                  \
 } catch (lean::exception & e) {                         \
     *ex = of_exception(e.clone());                      \
     return lean_false;                                  \

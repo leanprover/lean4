@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/kernel_exception.h"
+#include "library/unifier.h"
+#include "library/tactic/tactic.h"
 #include "api/exception.h"
 #include "api/string.h"
 
@@ -49,5 +51,11 @@ lean_exception_kind lean_exception_get_kind(lean_exception e) {
         return LEAN_KERNEL_EXCEPTION;
     if (dynamic_cast<lean::interrupted*>(ex))
         return LEAN_INTERRUPTED;
+    if (dynamic_cast<lean::unifier_exception*>(ex))
+        return LEAN_UNIFIER_EXCEPTION;
+    if (dynamic_cast<lean::tactic_exception*>(ex))
+        return LEAN_TACTIC_EXCEPTION;
+    if (dynamic_cast<lean::parser_exception*>(ex))
+        return LEAN_PARSER_EXCEPTION;
     return LEAN_OTHER_EXCEPTION;
 }

@@ -60,6 +60,9 @@ lean_bool lean_ios_reset_diagnostic(lean_ios ios, lean_exception * ex);
 /** \brief Store in \c r a pretty printed representation of \c e */
 lean_bool lean_expr_to_pp_string(lean_env env, lean_ios ios, lean_expr e, char const ** r, lean_exception * ex);
 
+/** \brief Store in \c r a pretty printed representation of the exception \c e */
+lean_bool lean_exception_to_pp_string(lean_env env, lean_ios ios, lean_exception e, char const ** r, lean_exception * ex);
+
 /*@}*/
 /*@}*/
 

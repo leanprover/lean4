@@ -511,6 +511,31 @@ void test_parser() {
     lean_ios_del(new_ios);
 }
 
+void test_parser_error() {
+    lean_exception ex = 0;
+    lean_env env      = mk_env();
+    lean_ios ios;
+    lean_env new_env;
+    lean_ios new_ios;
+    lean_options o;
+    check(lean_options_mk_empty(&o, &ex));
+    check(lean_ios_mk_std(o, &ios, &ex));
+    check(!lean_parse_commands(env, ios, "import data.nat open nat definition double (a : nat) := a + true",
+                               &new_env, &new_ios, &ex));
+    {
+        lean_exception ex2 = 0;
+        char const * s;
+        printf("\nexception kind: %d\n", lean_exception_get_kind(ex));
+        check(lean_exception_to_pp_string(env, ios, ex, &s, &ex2));
+        printf("exception\n%s", s);
+        lean_string_del(s);
+    }
+    lean_exception_del(ex);
+    lean_env_del(env);
+    lean_ios_del(ios);
+}
+
+
 int main() {
     test_add_univ();
     test_id();
@@ -518,5 +543,6 @@ int main() {
     test_import();
     test_inductive();
     test_parser();
+    test_parser_error();
     return 0;
 }

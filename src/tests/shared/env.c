@@ -524,11 +524,17 @@ void test_parser_error() {
                                &new_env, &new_ios, &ex));
     {
         lean_exception ex2 = 0;
-        char const * s;
+        char const * s1 = lean_exception_get_message(ex);
+        char const * s2 = lean_exception_get_detailed_message(ex);
+        char const * s3;
         printf("\nexception kind: %d\n", lean_exception_get_kind(ex));
-        check(lean_exception_to_pp_string(env, ios, ex, &s, &ex2));
-        printf("exception\n%s", s);
-        lean_string_del(s);
+        printf("exception message: %s\n", s1);
+        printf("exception detailed message: %s\n", s2);
+        check(lean_exception_to_pp_string(env, ios, ex, &s3, &ex2));
+        printf("exception: %s\n", s3);
+        lean_string_del(s1);
+        lean_string_del(s2);
+        lean_string_del(s3);
     }
     lean_exception_del(ex);
     lean_env_del(env);

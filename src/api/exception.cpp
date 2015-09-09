@@ -6,9 +6,12 @@ Author: Leonardo de Moura
 */
 #include "kernel/kernel_exception.h"
 #include "library/unifier.h"
+#include "library/print.h"
 #include "library/tactic/tactic.h"
+#include "library/error_handling/error_handling.h"
 #include "api/exception.h"
 #include "api/string.h"
+using namespace lean; // NOLINT
 
 namespace lean {
 memout_exception * get_memout_exception() {
@@ -34,6 +37,24 @@ char const * lean_exception_get_message(lean_exception e) {
         return 0;
     try {
         return lean::mk_string(lean::to_exception(e)->what());
+    } catch (...) {
+        return 0;
+    }
+}
+
+char const * lean_exception_get_detailed_message(lean_exception e) {
+    if (!e)
+        return 0;
+    try {
+        formatter_factory fmtf = mk_print_formatter_factory();
+        std::shared_ptr<output_channel> out(new string_output_channel());
+        io_state ios(fmtf);
+        ios.set_regular_channel(out);
+        ios.set_diagnostic_channel(out);
+        environment env;
+        io_state_stream ioss(env, ios);
+        display_error(ioss, nullptr, *lean::to_exception(e));
+        return mk_string(static_cast<string_output_channel const *>(out.get())->str());
     } catch (...) {
         return 0;
     }

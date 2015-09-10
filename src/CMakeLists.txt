@@ -467,21 +467,19 @@ else()
 endif()
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/../library" DESTINATION "${LIBRARY_DIR}"
-        FILES_MATCHING PATTERN "*.lean")
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/../library" DESTINATION "${LIBRARY_DIR}"
         FILES_MATCHING
         PATTERN "*.lean"
         PATTERN "*.olean"
         PATTERN ".project"
+        PATTERN "*.md"
         PATTERN "TAGS")
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/../hott" DESTINATION "${LIBRARY_DIR}"
-        FILES_MATCHING PATTERN "*.hlean")
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/../hott" DESTINATION "${LIBRARY_DIR}"
         FILES_MATCHING
-        PATTERN "*.lean"
+        PATTERN "*.hlean"
         PATTERN "*.olean"
         PATTERN ".project"
+        PATTERN "*.md"
         PATTERN "TAGS")
 
 install(FILES "${CMAKE_SOURCE_DIR}/../src/emacs/lean.pgm"

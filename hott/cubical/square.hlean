@@ -64,7 +64,7 @@ namespace eq
     square p p₁₂ p₀₁ p₂₁ :=
   by induction r; exact s₁₁
 
-  definition vconcat_eq [unfold 11] {p : a₀₂ = a₂₂} (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (r : p₁₂ = p) :
+  definition vconcat_eq [unfold 12] {p : a₀₂ = a₂₂} (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (r : p₁₂ = p) :
     square p₁₀ p p₀₁ p₂₁ :=
   by induction r; exact s₁₁
 
@@ -72,10 +72,9 @@ namespace eq
     square p₁₀ p₁₂ p p₂₁ :=
   by induction r; exact s₁₁
 
-  definition hconcat_eq [unfold 11] {p : a₂₀ = a₂₂} (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (r : p₂₁ = p) :
+  definition hconcat_eq [unfold 12] {p : a₂₀ = a₂₂} (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (r : p₂₁ = p) :
     square p₁₀ p₁₂ p₀₁ p :=
   by induction r; exact s₁₁
-
 
   infix `⬝h`:75 := hconcat
   infix `⬝v`:75 := vconcat

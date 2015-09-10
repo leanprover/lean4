@@ -32,7 +32,9 @@ namespace eq
             /-a₀₂-/ {p₁₂ : a₀₂ = a₂₂} /-a₂₂-/ {p₃₂ : a₂₂ = a₄₂} /-a₄₂-/
        {p₀₃ : a₀₂ = a₀₄} /-s₁₃-/ {p₂₃ : a₂₂ = a₂₄} /-s₃₃-/ {p₄₃ : a₄₂ = a₄₄}
             /-a₀₄-/ {p₁₄ : a₀₄ = a₂₄} /-a₂₄-/ {p₃₄ : a₂₄ = a₄₄} /-a₄₄-/
-            {s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁}
+            {s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁} {s₃₁ : square p₃₀ p₃₂ p₂₁ p₄₁}
+            {s₁₃ : square p₁₂ p₁₄ p₀₃ p₂₃} {s₃₃ : square p₃₂ p₃₄ p₂₃ p₄₃}
+
             {b₀₀ : B a₀₀} {b₂₀ : B a₂₀} {b₄₀ : B a₄₀}
             {b₀₂ : B a₀₂} {b₂₂ : B a₂₂} {b₄₂ : B a₄₂}
             {b₀₄ : B a₀₄} {b₂₄ : B a₂₄} {b₄₄ : B a₄₄}
@@ -58,11 +60,65 @@ namespace eq
 
   definition vdeg_squareover {q₁₀' : b₀₀ =[p₁₀] b₂₀} (r : q₁₀ = q₁₀')
     : squareover B vrfl q₁₀ q₁₀' idpo idpo :=
-  by induction r;exact vrflo
+  by induction r; exact vrflo
 
   definition hdeg_squareover {q₀₁' : b₀₀ =[p₀₁] b₀₂} (r : q₀₁ = q₀₁')
     : squareover B hrfl idpo idpo q₀₁ q₀₁' :=
   by induction r; exact hrflo
+
+  definition hconcato
+    (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁) (t₃₁ : squareover B s₃₁ q₃₀ q₃₂ q₂₁ q₄₁)
+    : squareover B (hconcat s₁₁ s₃₁) (q₁₀ ⬝o q₃₀) (q₁₂ ⬝o q₃₂) q₀₁ q₄₁ :=
+  by induction t₃₁; exact t₁₁
+
+  definition vconcato
+    (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁) (t₁₃ : squareover B s₁₃ q₁₂ q₁₄ q₀₃ q₂₃)
+    : squareover B (vconcat s₁₁ s₁₃) q₁₀ q₁₄ (q₀₁ ⬝o q₀₃) (q₂₁ ⬝o q₂₃) :=
+  by induction t₁₃; exact t₁₁
+
+  definition hinverseo (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁)
+    : squareover B (hinverse s₁₁) q₁₀⁻¹ᵒ q₁₂⁻¹ᵒ q₂₁ q₀₁ :=
+  by induction t₁₁; constructor
+
+  definition vinverseo (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁)
+    : squareover B (vinverse s₁₁) q₁₂ q₁₀ q₀₁⁻¹ᵒ q₂₁⁻¹ᵒ :=
+  by induction t₁₁; constructor
+
+  definition eq_vconcato {q : b₀₀ =[p₁₀] b₂₀}
+    (r : q = q₁₀) (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁) : squareover B s₁₁ q q₁₂ q₀₁ q₂₁ :=
+  by induction r; exact t₁₁
+
+  definition vconcato_eq {q : b₀₂ =[p₁₂] b₂₂}
+    (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁) (r : q₁₂ = q) : squareover B s₁₁ q₁₀ q q₀₁ q₂₁ :=
+  by induction r; exact t₁₁
+
+  definition eq_hconcato {q : b₀₀ =[p₀₁] b₀₂}
+    (r : q = q₀₁) (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁) : squareover B s₁₁ q₁₀ q₁₂ q q₂₁ :=
+  by induction r; exact t₁₁
+
+  definition hconcato_eq {q : b₂₀ =[p₂₁] b₂₂}
+    (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁) (r : q₂₁ = q) : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q :=
+  by induction r; exact t₁₁
+
+  definition pathover_vconcato {p : a₀₀ = a₂₀} {sp : p = p₁₀} {q : b₀₀ =[p] b₂₀}
+    (r : change_path sp q = q₁₀) (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁)
+    : squareover B (sp ⬝pv s₁₁) q q₁₂ q₀₁ q₂₁ :=
+  by induction sp; induction r; exact t₁₁
+
+  definition vconcato_pathover {p : a₀₂ = a₂₂} {sp : p₁₂ = p} {q : b₀₂ =[p] b₂₂}
+    (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁) (r : change_path sp q₁₂ = q)
+    : squareover B (s₁₁ ⬝vp sp) q₁₀ q q₀₁ q₂₁ :=
+  by induction sp; induction r; exact t₁₁
+
+  definition pathover_hconcato {p : a₀₀ = a₀₂} {sp : p = p₀₁} {q : b₀₀ =[p] b₀₂}
+    (r : change_path sp q = q₀₁) (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁) :
+    squareover B (sp ⬝ph s₁₁) q₁₀ q₁₂ q q₂₁ :=
+  by induction sp; induction r; exact t₁₁
+
+  definition hconcato_pathover {p : a₂₀ = a₂₂} {sp : p₂₁ = p} {q : b₂₀ =[p] b₂₂}
+    (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁) (r : change_path sp q₂₁ = q) :
+    squareover B (s₁₁ ⬝hp sp) q₁₀ q₁₂ q₀₁ q :=
+  by induction sp; induction r; exact t₁₁
 
   -- relating squareovers to squares
   definition square_of_squareover (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁) :

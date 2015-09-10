@@ -65,7 +65,7 @@ namespace is_trunc
   end
 
   definition is_embedding_to_fun (A B : Type) : is_embedding (@to_fun A B)  :=
-  is_embedding.mk (λf f', !is_equiv_ap_to_fun)
+  λf f', !is_equiv_ap_to_fun
 
   definition is_trunc_trunctype [instance] (n : trunc_index) : is_trunc n.+1 (n-Type) :=
   begin
@@ -241,7 +241,7 @@ end trunc open trunc
 namespace function
   variables {A B : Type}
   definition is_surjective_of_is_equiv [instance] (f : A → B) [H : is_equiv f] : is_surjective f :=
-  is_surjective.mk (λb, !center)
+  λb, !center
 
   definition is_equiv_equiv_is_embedding_times_is_surjective (f : A → B)
     : is_equiv f ≃ (is_embedding f × is_surjective f) :=

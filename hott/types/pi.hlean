@@ -170,7 +170,7 @@ namespace pi
 
   /- Equivalences -/
 
-  definition is_equiv_pi_functor [instance] [H0 : is_equiv f0]
+  definition is_equiv_pi_functor [instance] [constructor] [H0 : is_equiv f0]
     [H1 : Πa', is_equiv (f1 a')] : is_equiv (pi_functor f0 f1) :=
   begin
     apply (adjointify (pi_functor f0 f1) (pi_functor f0⁻¹
@@ -187,15 +187,16 @@ namespace pi
     end
   end
 
-  definition pi_equiv_pi_of_is_equiv [H : is_equiv f0]
+  definition pi_equiv_pi_of_is_equiv [constructor] [H : is_equiv f0]
     [H1 : Πa', is_equiv (f1 a')] : (Πa, B a) ≃ (Πa', B' a') :=
   equiv.mk (pi_functor f0 f1) _
 
-  definition pi_equiv_pi (f0 : A' ≃ A) (f1 : Πa', (B (to_fun f0 a') ≃ B' a'))
+  definition pi_equiv_pi [constructor] (f0 : A' ≃ A) (f1 : Πa', (B (to_fun f0 a') ≃ B' a'))
     : (Πa, B a) ≃ (Πa', B' a') :=
   pi_equiv_pi_of_is_equiv (to_fun f0) (λa', to_fun (f1 a'))
 
-  definition pi_equiv_pi_id {P Q : A → Type} (g : Πa, P a ≃ Q a) : (Πa, P a) ≃ (Πa, Q a) :=
+  definition pi_equiv_pi_id [constructor] {P Q : A → Type} (g : Πa, P a ≃ Q a)
+    : (Πa, P a) ≃ (Πa, Q a) :=
   pi_equiv_pi equiv.refl g
 
   /- Truncatedness: any dependent product of n-types is an n-type -/

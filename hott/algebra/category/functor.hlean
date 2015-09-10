@@ -84,29 +84,40 @@ namespace functor
     fapply @is_iso.mk, apply (F (f⁻¹)),
     repeat (apply concat ; symmetry ;  apply (respect_comp F) ;
       apply concat ; apply (ap (λ x, to_fun_hom F x)) ;
-      (apply left_inverse | apply right_inverse);
+      (apply iso.left_inverse | apply iso.right_inverse);
       apply (respect_id F) ),
   end
 
-  definition respect_inv (F : C ⇒ D) {a b : C} (f : hom a b) [H : is_iso f] [H' : is_iso (F f)] :
+  theorem respect_inv (F : C ⇒ D) {a b : C} (f : hom a b) [H : is_iso f] [H' : is_iso (F f)] :
     F (f⁻¹) = (F f)⁻¹ :=
   begin
     fapply @left_inverse_eq_right_inverse, apply (F f),
       transitivity to_fun_hom F (f⁻¹ ∘ f),
         {symmetry, apply (respect_comp F)},
         {transitivity to_fun_hom F category.id,
-          {congruence, apply left_inverse},
+          {congruence, apply iso.left_inverse},
           {apply respect_id}},
-      apply right_inverse
+      apply iso.right_inverse
   end
 
   attribute preserve_is_iso [instance] [priority 100]
 
-  definition preserve_iso [constructor] (F : C ⇒ D) {a b : C} (f : a ≅ b) : F a ≅ F b :=
+  definition to_fun_iso [constructor] (F : C ⇒ D) {a b : C} (f : a ≅ b) : F a ≅ F b :=
   iso.mk (F f)
 
-  definition respect_inv' (F : C ⇒ D) {a b : C} (f : hom a b) {H : is_iso f} : F (f⁻¹) = (F f)⁻¹ :=
+  theorem respect_inv' (F : C ⇒ D) {a b : C} (f : hom a b) {H : is_iso f} : F (f⁻¹) = (F f)⁻¹ :=
   respect_inv F f
+
+  theorem respect_refl (F : C ⇒ D) (a : C) : to_fun_iso F (iso.refl a) = iso.refl (F a) :=
+  iso_eq !respect_id
+
+  theorem respect_symm (F : C ⇒ D) {a b : C} (f : a ≅ b)
+    : to_fun_iso F f⁻¹ⁱ = (to_fun_iso F f)⁻¹ⁱ :=
+  iso_eq !respect_inv
+
+  theorem respect_trans (F : C ⇒ D) {a b c : C} (f : a ≅ b) (g : b ≅ c)
+    : to_fun_iso F (f ⬝i g) = to_fun_iso F f ⬝i to_fun_iso F g :=
+  iso_eq !respect_comp
 
   protected definition assoc (H : C ⇒ D) (G : B ⇒ C) (F : A ⇒ B) :
       H ∘f (G ∘f F) = (H ∘f G) ∘f F :=

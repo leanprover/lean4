@@ -31,9 +31,9 @@ section
              (R : A → A → Type)
   local abbreviation T := e_closure R
 
-  variables ⦃a a' : A⦄ {s : R a a'} {r : T a a}
+  variables ⦃a a' a'' : A⦄ {s : R a a'} {r : T a a} {B C : Type}
   parameter {R}
-  protected definition e_closure.elim [unfold 8] {B : Type} {f : A → B}
+  protected definition e_closure.elim [unfold 8] {f : A → B}
     (e : Π⦃a a' : A⦄, R a a' → f a = f a') (t : T a a') : f a = f a' :=
   begin
     induction t,
@@ -114,6 +114,53 @@ section
       intro a a' t, exact t⁻¹ʳ,
       intro a a' a'' t t', exact t ⬝r t',
   end
+
+  definition e_closure.transport_left {f : A → B} (e : Π⦃a a' : A⦄, R a a' → f a = f a')
+    (t : e_closure R a a') (p : a = a'')
+    : e_closure.elim e (p ▸ t) = (ap f p)⁻¹ ⬝ e_closure.elim e t :=
+  by induction p; exact !idp_con⁻¹
+
+  definition e_closure.transport_right {f : A → B} (e : Π⦃a a' : A⦄, R a a' → f a = f a')
+    (t : e_closure R a a') (p : a' = a'')
+    : e_closure.elim e (p ▸ t) = e_closure.elim e t ⬝ (ap f p) :=
+  by induction p; reflexivity
+
+  definition e_closure.transport_lr {f : A → B} (e : Π⦃a a' : A⦄, R a a' → f a = f a')
+    (t : e_closure R a a) (p : a = a')
+    : e_closure.elim e (p ▸ t) = (ap f p)⁻¹ ⬝ e_closure.elim e t ⬝ (ap f p) :=
+  by induction p; esimp; exact !idp_con⁻¹
+
+  --dependent elimination:
+
+  variables {P : B → Type} {Q : C → Type} {f : A → B} {g : B → C} {f' : Π(a : A), P (f a)}
+  protected definition e_closure.elimo [unfold 6]
+    (p : Π⦃a a' : A⦄, R a a' → f a = f a')
+    (po : Π⦃a a' : A⦄ (s : R a a'), f' a =[p s] f' a')
+    (t : T a a') : f' a =[e_closure.elim p t] f' a' :=
+  begin
+    induction t,
+      exact po r,
+      constructor,
+      exact v_0⁻¹ᵒ,
+      exact v_0 ⬝o v_1
+  end
+
+  definition ap_e_closure_elimo_h [unfold 12]  {g' : Πb, Q (g b)}
+    (p : Π⦃a a' : A⦄, R a a' → f a = f a')
+    --(po : Π⦃a a' : A⦄ (s : R a a'), f' a =[p s] f' a')
+    (po : Π⦃a a' : A⦄ (s : R a a'), g' (f a) =[p s] g' (f a'))
+    (q : Π⦃a a' : A⦄ (s : R a a'), apdo g' (p s) = po s)
+    (t : T a a') : apdo g' (e_closure.elim p t) = e_closure.elimo p po t :=
+  begin
+    induction t,
+      apply q,
+      reflexivity,
+      esimp [e_closure.elim],
+      exact apdo_inv g' (e_closure.elim p r) ⬝ v_0⁻²ᵒ,
+      exact apdo_con g' (e_closure.elim p r) (e_closure.elim p r') ⬝ (v_0 ◾o v_1)
+  end
+
+
 
 end
 end relation

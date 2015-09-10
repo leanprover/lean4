@@ -129,7 +129,7 @@ namespace lift
 
   definition is_embedding_lift [instance] : is_embedding lift :=
   begin
-    apply is_embedding.mk, intro A A', fapply is_equiv.homotopy_closed,
+    intro A A', fapply is_equiv.homotopy_closed,
       exact to_inv !lift_eq_lift_equiv,
       exact _,
     { intro p, induction p,

@@ -68,7 +68,6 @@ namespace category
     (struct : category carrier)
 
   attribute Category.struct [instance] [coercion]
-  attribute Category.to.precategory category.to_precategory [constructor]
 
   definition Category.to_Precategory [constructor] [coercion] [reducible] (C : Category)
     : Precategory :=

@@ -21,30 +21,34 @@ namespace pi
   /- Functorial action -/
   variables (f0 : A' → A) (f1 : B → B')
 
-  definition arrow_functor : (A → B) → (A' → B') := pi_functor f0 (λa, f1)
+  definition arrow_functor [unfold-full] : (A → B) → (A' → B') := pi_functor f0 (λa, f1)
 
   /- Equivalences -/
 
-  definition is_equiv_arrow_functor
+  definition is_equiv_arrow_functor [constructor]
     [H0 : is_equiv f0] [H1 : is_equiv f1] : is_equiv (arrow_functor f0 f1) :=
   is_equiv_pi_functor f0 (λa, f1)
 
-  definition arrow_equiv_arrow_rev (f0 : A' ≃ A) (f1 : B ≃ B') : (A → B) ≃ (A' → B') :=
+  definition arrow_equiv_arrow_rev [constructor] (f0 : A' ≃ A) (f1 : B ≃ B')
+    : (A → B) ≃ (A' → B') :=
   equiv.mk _ (is_equiv_arrow_functor f0 f1)
 
-  definition arrow_equiv_arrow (f0 : A ≃ A') (f1 : B ≃ B') : (A → B) ≃ (A' → B') :=
+  definition arrow_equiv_arrow [constructor] (f0 : A ≃ A') (f1 : B ≃ B') : (A → B) ≃ (A' → B') :=
   arrow_equiv_arrow_rev (equiv.symm f0) f1
 
-  definition arrow_equiv_arrow_right (f1 : B ≃ B') : (A → B) ≃ (A → B') :=
+  variable (A)
+  definition arrow_equiv_arrow_right [constructor] (f1 : B ≃ B') : (A → B) ≃ (A → B') :=
   arrow_equiv_arrow_rev equiv.refl f1
 
-  definition arrow_equiv_arrow_left_rev (f0 : A' ≃ A) : (A → B) ≃ (A' → B) :=
+  variables {A} (B)
+  definition arrow_equiv_arrow_left_rev [constructor] (f0 : A' ≃ A) : (A → B) ≃ (A' → B) :=
   arrow_equiv_arrow_rev f0 equiv.refl
 
-  definition arrow_equiv_arrow_left (f0 : A ≃ A') : (A → B) ≃ (A' → B) :=
+  definition arrow_equiv_arrow_left [constructor] (f0 : A ≃ A') : (A → B) ≃ (A' → B) :=
   arrow_equiv_arrow f0 equiv.refl
 
-  definition arrow_equiv_arrow_right' (f1 : A → (B ≃ B')) : (A → B) ≃ (A → B') :=
+  variables {B}
+  definition arrow_equiv_arrow_right' [constructor] (f1 : A → (B ≃ B')) : (A → B) ≃ (A → B') :=
   pi_equiv_pi_id f1
 
   /- Transport -/

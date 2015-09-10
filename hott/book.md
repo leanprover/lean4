@@ -19,7 +19,7 @@ The rows indicate the chapters, the columns the sections.
 | Ch 2  | + | + | + | + | . | + | + | + | + | +  | +  | +  | +  | +  | +  |
 | Ch 3  | + | + | + | + | ½ | + | + | - | + | .  | +  |    |    |    |    |
 | Ch 4  | - | + | - | + | . | + | - | - | + |    |    |    |    |    |    |
-| Ch 5  | - | . | - | - | - | . | . | ½ |   |    |    |    |    |    |    |
+| Ch 5  | - | . | ½ | - | - | . | . | ½ |   |    |    |    |    |    |    |
 | Ch 6  | . | + | + | + | + | ½ | ½ | ¼ | ¼ | ¼  | ¾  | -  | .  |    |    |
 | Ch 7  | + | + | + | - | - | - | - |   |   |    |    |    |    |    |    |
 | Ch 8  | ¾ | - | - | - | - | - | - | - | - | -  |    |    |    |    |    |
@@ -27,7 +27,7 @@ The rows indicate the chapters, the columns the sections.
 | Ch 10 | - | - | - | - | - |   |   |   |   |    |    |    |    |    |    |
 | Ch 11 | - | - | - | - | - | - |   |   |   |    |    |    |    |    |    |
 
-Things not in the book:
+Theorems and definitions in the library which are not in the book:
 
 * One major difference is that in this library we heavily use pathovers, so we need less theorems about transports, but instead corresponding theorems about pathovers. These are in [init.pathover](init/pathover.hlean). For higher paths there are [squares](cubical/square.hlean), [squareovers](cubical/squareover.hlean), and the rudiments of [cubes](cubical/cube.hlean) and [cubeovers](cubical/cubeover.hlean).
 
@@ -99,7 +99,7 @@ Chapter 5: Induction
 
 - 5.1 (Introduction to inductive types): not formalized
 - 5.2 (Uniqueness of inductive types): no formalizable content
-- 5.3 (W-types): related: [types.W](types/W.hlean)
+- 5.3 (W-types): [types.W](types/W.hlean) defines W-types.
 - 5.4 (Inductive types are initial algebras): not formalized
 - 5.5 (Homotopy-inductive types): not formalized
 - 5.6 (The general syntax of inductive definitions): no formalizable content

@@ -199,6 +199,14 @@ open functor
 
 namespace yoneda
   open category.set nat_trans lift
+
+  /-
+    These attributes make sure that the fields of the category "set" reduce to the right things
+    However, we don't want to have them globally, because that will unfold the composition g ∘ f
+    in a Category to category.category.comp g f
+  -/
+  local attribute Category.to.precategory category.to_precategory [constructor]
+
   -- should this be defined as "yoneda_embedding Cᵒᵖ"?
   definition contravariant_yoneda_embedding (C : Precategory) : Cᵒᵖ ⇒ set ^c C :=
   functor_curry !hom_functor
@@ -270,10 +278,10 @@ namespace yoneda
   definition embedding_on_objects_yoneda_embedding (C : Category) :
     is_embedding (ɏ : C → Cᵒᵖ ⇒ set) :=
   begin
-    apply is_embedding.mk, intro c c', fapply is_equiv_of_equiv_of_homotopy,
+    intro c c', fapply is_equiv_of_equiv_of_homotopy,
     { exact !eq_equiv_iso ⬝e !iso_equiv_F_iso_F ⬝e !eq_equiv_iso⁻¹ᵉ},
     { intro p, induction p, esimp [equiv.trans, equiv.symm],
-      esimp [preserve_iso],
+      esimp [to_fun_iso],
       rewrite -eq_of_iso_refl,
       apply ap eq_of_iso, apply iso_eq, esimp,
       apply nat_trans_eq, intro c',

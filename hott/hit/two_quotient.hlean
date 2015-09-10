@@ -9,6 +9,26 @@ import hit.circle eq2 algebra.e_closure cubical.cube
 
 open quotient eq circle sum sigma equiv function relation
 
+  /-
+    This files defines a general class of nonrecursive HITs using just quotients.
+    We can define any HIT X which has
+    - a single 0-constructor
+       f : A → X (for some type A)
+    - a single 1-constructor
+       e : Π{a a' : A}, R a a' → a = a' (for some (type-valued) relation R on A)
+    and furthermore has 2-constructors which are all of the form
+    p = p'
+    where p, p' are of the form
+    - refl (f a), for some a : A;
+    - e r, for some r : R a a';
+    - ap f q, where q : a = a';
+    - inverses of such paths;
+    - concatenations of such paths.
+
+    so an example 2-constructor could be (as long as it typechecks):
+      ap f q' ⬝ ((e r)⁻¹ ⬝ ap f q)⁻¹ ⬝ e r' = idp
+  -/
+
 namespace simple_two_quotient
 
   section
@@ -73,7 +93,8 @@ namespace simple_two_quotient
   ap_e_closure_elim_h e (elim_e Pj Pa Pe) t
 
   inductive simple_two_quotient_rel : C → C → Type :=
-  | Rmk {} : Π{a : A} {r : T a a} (q : Q r) (x : circle), simple_two_quotient_rel (f q x) (pre_aux q)
+  | Rmk {} : Π{a : A} {r : T a a} (q : Q r) (x : circle),
+               simple_two_quotient_rel (f q x) (pre_aux q)
 
   open simple_two_quotient_rel
   definition simple_two_quotient := quotient simple_two_quotient_rel
@@ -84,7 +105,7 @@ namespace simple_two_quotient
   definition incl1 (s : R a a') : incl0 a = incl0 a' := ap i (e s)
   definition inclt (t : T a a') : incl0 a = incl0 a' := e_closure.elim incl1 t
   -- "wrong" version inclt, which is ap i (p ⬝ q) instead of ap i p ⬝ ap i q
-  -- it is used in the proof, because inclt is easier to work with
+  -- it is used in the proof, because incltw is easier to work with
   protected definition incltw (t : T a a') : incl0 a = incl0 a' := ap i (et t)
 
   protected definition inclt_eq_incltw (t : T a a') : inclt t = incltw t :=
@@ -96,7 +117,7 @@ namespace simple_two_quotient
   protected definition incl2w (q : Q r) : incltw r = idp :=
   (ap02 i (elim_loop (j a) (et r))⁻¹) ⬝
   (ap_compose i (f q) loop)⁻¹ ⬝
-  ap_weakly_constant (incl2' q) loop ⬝
+  ap_is_constant (incl2' q) loop ⬝
   !con.right_inv
 
   definition incl2 (q : Q r) : inclt r = idp :=
@@ -187,11 +208,11 @@ namespace simple_two_quotient
     xrewrite [eq_top_of_square
                ((ap_compose_natural (elim P0 P1 P2) i (elim_loop (j a) (et r)))⁻¹ʰ⁻¹ᵛ ⬝h
                (ap_ap_compose (elim P0 P1 P2) i (f q) loop)⁻¹ʰ⁻¹ᵛ ⬝h
-               ap_ap_weakly_constant (elim P0 P1 P2) (incl2' q) loop ⬝h
+               ap_ap_is_constant (elim P0 P1 P2) (incl2' q) loop ⬝h
                ap_con_right_inv_sq (elim P0 P1 P2) (incl2' q base)),
                ↑[elim_incltw]],
     apply whisker_tl,
-    rewrite [ap_weakly_constant_eq],
+    rewrite [ap_is_constant_eq],
     xrewrite [naturality_apdo_eq (λx, !elim_eq_of_rel) loop],
     rewrite [↑elim_2,rec_loop,square_of_pathover_concato_eq,square_of_pathover_eq_concato,
             eq_of_square_vconcat_eq,eq_of_square_eq_vconcat],

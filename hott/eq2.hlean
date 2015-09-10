@@ -12,8 +12,8 @@ open function
 namespace eq
   variables {A B C : Type} {f : A → B} {a a' a₁ a₂ a₃ a₄ : A} {b b' : B}
 
-  theorem ap_weakly_constant_eq (p : Πx, f x = b) (q : a = a') :
-      ap_weakly_constant p q =
+  theorem ap_is_constant_eq (p : Πx, f x = b) (q : a = a') :
+      ap_is_constant p q =
       eq_con_inv_of_con_eq ((eq_of_square (square_of_pathover (apdo p q)))⁻¹ ⬝
       whisker_left (p a) (ap_constant q b)) :=
   begin
@@ -48,10 +48,10 @@ namespace eq
            idp :=
   by cases p;apply vrefl
 
-  theorem ap_ap_weakly_constant {A B C : Type} (g : B → C) {f : A → B} {b : B}
+  theorem ap_ap_is_constant {A B C : Type} (g : B → C) {f : A → B} {b : B}
     (p : Πx, f x = b) {x y : A} (q : x = y) :
-    square (ap (ap g) (ap_weakly_constant p q))
-           (ap_weakly_constant (λa, ap g (p a)) q)
+    square (ap (ap g) (ap_is_constant p q))
+           (ap_is_constant (λa, ap g (p a)) q)
            (ap_compose g f q)⁻¹
            (!ap_con ⬝ whisker_left _ !ap_inv) :=
   begin

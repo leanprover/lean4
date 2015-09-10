@@ -74,7 +74,7 @@ class obj {
     obj apply() const;
     obj_cell * steal_ptr() { obj_cell * r = m_data; m_data = LEAN_BOX(0); return r; }
 public:
-    obj():m_data(LEAN_BOX(0)) { static_assert(sizeof(obj) == sizeof(void *), "unexpected class obj size"); }
+    obj():m_data(LEAN_BOX(0)) { static_assert(sizeof(obj) == sizeof(void *), "unexpected class obj size"); } // NOLINT
     obj(unsigned cidx):m_data(LEAN_BOX(cidx)) {}
     obj(obj_cell * c):m_data(c) { m_data->inc_ref(); }
     obj(obj const & o):m_data(o.m_data) { if (LEAN_IS_PTR(m_data)) m_data->inc_ref(); }

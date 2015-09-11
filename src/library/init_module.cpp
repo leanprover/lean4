@@ -41,6 +41,7 @@ Author: Leonardo de Moura
 #include "library/class_instance_synth.h"
 #include "library/composition_manager.h"
 #include "library/noncomputable.h"
+#include "library/aux_recursors.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -81,9 +82,11 @@ void initialize_library_module() {
     initialize_class_instance_elaborator();
     initialize_composition_manager();
     initialize_noncomputable();
+    initialize_aux_recursors();
 }
 
 void finalize_library_module() {
+    finalize_aux_recursors();
     finalize_noncomputable();
     finalize_composition_manager();
     finalize_class_instance_elaborator();

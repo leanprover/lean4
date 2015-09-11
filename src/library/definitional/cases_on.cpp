@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/constants.h"
 #include "library/normalize.h"
+#include "library/aux_recursors.h"
 
 namespace lean {
 static void throw_corrupted(name const & n) {
@@ -183,6 +184,7 @@ environment mk_cases_on(environment const & env, name const & n) {
     environment new_env = module::add(env, check(env, new_d));
     new_env = set_reducible(new_env, cases_on_name, reducible_status::Reducible);
     new_env = add_unfold_hint(new_env, cases_on_name, cases_on_major_idx);
+    new_env = add_aux_recursor(new_env, cases_on_name);
     return add_protected(new_env, cases_on_name);
 }
 }

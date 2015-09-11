@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/protected.h"
 #include "library/util.h"
+#include "library/aux_recursors.h"
 
 namespace lean {
 environment mk_induction_on(environment const & env, name const & n) {
@@ -43,6 +44,7 @@ environment mk_induction_on(environment const & env, name const & n) {
                                             mk_definition(new_env, induction_on_name, induction_on_univs,
                                                           induction_on_type, induction_on_value,
                                                           use_conv_opt));
+        new_env = add_aux_recursor(new_env, induction_on_name);
         new_env = module::add(new_env, cdecl);
     }
     return add_protected(new_env, induction_on_name);

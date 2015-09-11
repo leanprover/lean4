@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/bin_app.h"
 #include "library/util.h"
 #include "library/normalize.h"
+#include "library/aux_recursors.h"
 
 namespace lean {
 static void throw_corrupted(name const & n) {
@@ -334,6 +335,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     new_env = set_reducible(new_env, brec_on_name, reducible_status::Reducible);
     if (!ind)
         new_env = add_unfold_hint(new_env, brec_on_name, nparams + nindices + ntypeformers);
+    new_env = add_aux_recursor(new_env, brec_on_name);
     return add_protected(new_env, brec_on_name);
 }
 

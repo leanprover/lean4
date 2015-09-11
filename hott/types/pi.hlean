@@ -249,7 +249,7 @@ namespace pi
 
   /- Truncatedness: any dependent product of n-types is an n-type -/
 
-  definition is_trunc_pi (B : A → Type) (n : trunc_index)
+  theorem is_trunc_pi (B : A → Type) (n : trunc_index)
       [H : ∀a, is_trunc n (B a)] : is_trunc n (Πa, B a) :=
   begin
     revert B H,
@@ -269,23 +269,23 @@ namespace pi
               is_trunc_eq n (f a) (g a)}
   end
   local attribute is_trunc_pi [instance]
-  definition is_trunc_pi_eq [instance] [priority 500] (n : trunc_index) (f g : Πa, B a)
+  theorem is_trunc_pi_eq [instance] [priority 500] (n : trunc_index) (f g : Πa, B a)
       [H : ∀a, is_trunc n (f a = g a)] : is_trunc n (f = g) :=
   begin
     apply is_trunc_equiv_closed_rev,
     apply eq_equiv_homotopy
   end
 
-  definition is_trunc_not [instance] (n : trunc_index) (A : Type) : is_trunc (n.+1) ¬A :=
+  theorem is_trunc_not [instance] (n : trunc_index) (A : Type) : is_trunc (n.+1) ¬A :=
   by unfold not;exact _
 
-  definition is_hprop_pi_eq [instance] [priority 490] (a : A) : is_hprop (Π(a' : A), a = a') :=
+  theorem is_hprop_pi_eq [instance] [priority 490] (a : A) : is_hprop (Π(a' : A), a = a') :=
   is_hprop_of_imp_is_contr
   ( assume (f : Πa', a = a'),
     assert H : is_contr A, from is_contr.mk a f,
     _)
 
-  definition is_hprop_neg (A : Type) : is_hprop (¬A) := _
+  theorem is_hprop_neg (A : Type) : is_hprop (¬A) := _
 
   /- Symmetry of Π -/
   definition is_equiv_flip [instance] {P : A → A' → Type}

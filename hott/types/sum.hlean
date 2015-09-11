@@ -147,7 +147,7 @@ namespace sum
       all_goals (intro z; induction z; all_goals reflexivity)
   end
 
-  definition sum_assoc_equiv (A B C : Type) : A + (B + C) ≃ (A + B) + C :=
+  definition sum_assoc_equiv [constructor] (A B C : Type) : A + (B + C) ≃ (A + B) + C :=
   begin
     fapply equiv.MK,
       all_goals try (intro z; induction z with u v;
@@ -170,7 +170,8 @@ namespace sum
 
   /- universal property -/
 
-  definition sum_rec_unc {P : A + B → Type} (fg : (Πa, P (inl a)) × (Πb, P (inr b))) : Πz, P z :=
+  definition sum_rec_unc [unfold 5] {P : A + B → Type} (fg : (Πa, P (inl a)) × (Πb, P (inr b)))
+    : Πz, P z :=
   sum.rec fg.1 fg.2
 
   definition is_equiv_sum_rec [constructor] (P : A + B → Type)
@@ -192,7 +193,7 @@ namespace sum
   /- truncatedness -/
 
   variables (A B)
-  definition is_trunc_sum (n : trunc_index) [HA : is_trunc (n.+2) A]  [HB : is_trunc (n.+2) B]
+  theorem is_trunc_sum (n : trunc_index) [HA : is_trunc (n.+2) A]  [HB : is_trunc (n.+2) B]
     : is_trunc (n.+2) (A + B) :=
   begin
     apply is_trunc_succ_intro, intro z z',
@@ -201,7 +202,7 @@ namespace sum
     all_goals exact _,
   end
 
-  definition is_trunc_sum_excluded (n : trunc_index) [HA : is_trunc n A]  [HB : is_trunc n B]
+  theorem is_trunc_sum_excluded (n : trunc_index) [HA : is_trunc n A]  [HB : is_trunc n B]
     (H : A → B → empty) : is_trunc n (A + B) :=
   begin
     induction n with n IH,
@@ -243,13 +244,13 @@ end sum
 namespace decidable
   open sum pi
 
-  definition decidable_equiv (A : Type) : decidable A ≃ A + ¬A :=
+  definition decidable_equiv [constructor] (A : Type) : decidable A ≃ A + ¬A :=
   begin
     fapply equiv.MK:intro a;induction a:try (constructor;assumption;now),
     all_goals reflexivity
   end
 
-  definition is_trunc_decidable (A : Type) (n : trunc_index) [H : is_trunc n A] :
+  definition is_trunc_decidable [constructor] (A : Type) (n : trunc_index) [H : is_trunc n A] :
     is_trunc n (decidable A) :=
   begin
     apply is_trunc_equiv_closed_rev,

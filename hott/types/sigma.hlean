@@ -410,7 +410,7 @@ namespace sigma
   equiv.mk !subtype_eq _
 
   /- truncatedness -/
-  definition is_trunc_sigma (B : A → Type) (n : trunc_index)
+  theorem is_trunc_sigma (B : A → Type) (n : trunc_index)
       [HA : is_trunc n A] [HB : Πa, is_trunc n (B a)] : is_trunc n (Σa, B a) :=
   begin
   revert A B HA HB,

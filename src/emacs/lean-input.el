@@ -678,13 +678,15 @@ order for the change to take effect."
   ;; \omicron \Omicron
   ;; \pi \Pi
   ("Gr"  . ("ρ"))  ("GR"  . ("Ρ"))
-  ("Gs"  . ("σ"))  ("GS"  . ("Σ")) ("S"  . ("Σ"))
+  ("Gs"  . ("σ"))  ("GS"  . ("Σ")) 
   ("Gt"  . ("τ"))  ("GT"  . ("Τ"))
   ("Gu"  . ("υ"))  ("GU"  . ("Υ"))
   ("Gf"  . ("φ"))  ("GF"  . ("Φ"))
   ("Gc"  . ("χ"))  ("GC"  . ("Χ"))
   ("Gp"  . ("ψ"))  ("GP"  . ("Ψ"))
   ("Go"  . ("ω"))  ("GO"  . ("Ω"))
+  ;; even shorter versions for central type constructors
+  ("S"   . ("Σ"))  ("P"   . ("Π")) 
 
   ;; Mathematical characters
 

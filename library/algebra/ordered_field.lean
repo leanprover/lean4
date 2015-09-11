@@ -342,6 +342,15 @@ section linear_ordered_field
            exact H3)
       (div_pos_of_pos_of_pos (iff.mpr !sub_pos_iff_lt H) two_pos))
 
+  theorem ge_of_forall_ge_sub {a b : A} (H : ∀ ε : A, ε > 0 → a ≥ b - ε) : a ≥ b :=
+   begin
+    apply le_of_not_gt,
+    intro Hb,
+    cases exists_add_lt_and_pos_of_lt Hb with [c, Hc],
+    let Hc' := H c (and.right Hc),
+    apply (not_le_of_gt (and.left Hc)) (iff.mpr !le_add_iff_sub_right_le Hc')
+   end
+
 end linear_ordered_field
 
 structure discrete_linear_ordered_field [class] (A : Type) extends linear_ordered_field A,

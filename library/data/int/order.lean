@@ -388,5 +388,80 @@ dvd.elim H'
   (take b,
     suppose 1 = a * b,
     eq_one_of_mul_eq_one_right H this⁻¹)
+--
+
+theorem ex_smallest_of_bdd {P : ℤ → Prop} [HP : decidable_pred P] (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z ≤ b → ¬ P z)
+        (Hinh : ∃ z : ℤ, P z) : ∃ lb : ℤ, P lb ∧ (∀ z : ℤ, z < lb → ¬ P z) :=
+  begin
+    cases Hbdd with [b, Hb],
+    cases Hinh with [elt, Helt],
+    existsi b + of_nat (least (λ n, P (b + of_nat n)) (nat.succ (nat_abs (elt - b)))),
+    have Heltb : elt > b, begin
+      apply int.lt_of_not_ge,
+      intro Hge,
+      apply (Hb _ Hge) Helt
+    end,
+    have H' : P (b + of_nat (nat_abs (elt - b))), begin
+      rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt (iff.mpr !int.sub_pos_iff_lt Heltb)),
+              int.add.comm, int.sub_add_cancel],
+      apply Helt
+    end,
+    apply and.intro,
+    apply least_of_lt _ !lt_succ_self H',
+    intros z Hz,
+    cases em (z ≤ b) with [Hzb, Hzb],
+    apply Hb _ Hzb,
+    let Hzb' := int.lt_of_not_ge Hzb,
+    let Hpos := iff.mpr !int.sub_pos_iff_lt Hzb',
+    have Hzbk : z = b + of_nat (nat_abs (z - b)),
+      by rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos), int.add.comm, int.sub_add_cancel],
+    have Hk : nat_abs (z - b) < least (λ n, P (b + of_nat n)) (nat.succ (nat_abs (elt - b))), begin
+     let Hz' := iff.mp !int.lt_add_iff_sub_lt_left Hz,
+     rewrite [-of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos) at Hz'],
+     apply iff.mp !int.of_nat_lt_of_nat Hz'
+    end,
+    let Hk' := nat.not_le_of_gt Hk,
+    rewrite Hzbk,
+    apply λ p, mt (ge_least_of_lt _ p) Hk',
+    apply nat.lt.trans Hk,
+    apply least_lt _ !lt_succ_self H'
+  end
+
+theorem ex_largest_of_bdd {P : ℤ → Prop} [HP : decidable_pred P] (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z ≥ b → ¬ P z)
+        (Hinh : ∃ z : ℤ, P z) : ∃ ub : ℤ, P ub ∧ (∀ z : ℤ, z > ub → ¬ P z) :=
+  begin
+    cases Hbdd with [b, Hb],
+    cases Hinh with [elt, Helt],
+    existsi b - of_nat (least (λ n, P (b - of_nat n)) (nat.succ (nat_abs (b - elt)))),
+    have Heltb : elt < b, begin
+      apply int.lt_of_not_ge,
+      intro Hge,
+      apply (Hb _ Hge) Helt
+    end,
+    have H' : P (b - of_nat (nat_abs (b - elt))), begin
+      rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt (iff.mpr !int.sub_pos_iff_lt Heltb)),
+              int.sub_sub_self],
+      apply Helt
+    end,
+    apply and.intro,
+    apply least_of_lt _ !lt_succ_self H',
+    intros z Hz,
+    cases em (z ≥ b) with [Hzb, Hzb],
+    apply Hb _ Hzb,
+    let Hzb' := int.lt_of_not_ge Hzb,
+    let Hpos := iff.mpr !int.sub_pos_iff_lt Hzb',
+    have Hzbk : z = b - of_nat (nat_abs (b - z)),
+      by rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos), int.sub_sub_self],
+    have Hk : nat_abs (b - z) < least (λ n, P (b - of_nat n)) (nat.succ (nat_abs (b - elt))), begin
+      let Hz' := iff.mp !int.lt_add_iff_sub_lt_left (iff.mpr !int.lt_add_iff_sub_lt_right Hz),
+      rewrite [-of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos) at Hz'],
+      apply iff.mp !int.of_nat_lt_of_nat Hz'
+    end,
+    let Hk' := nat.not_le_of_gt Hk,
+    rewrite Hzbk,
+    apply λ p, mt (ge_least_of_lt _ p) Hk',
+    apply nat.lt.trans Hk,
+    apply least_lt _ !lt_succ_self H'
+  end
 
 end int

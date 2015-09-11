@@ -5,8 +5,20 @@ Author: Robert Y. Lewis
 The real numbers, constructed as equivalence classes of Cauchy sequences of rationals.
 This construction follows Bishop and Bridges (1985).
 
-To do:
- o Rename things and possibly make theorems private
+The construction of the reals is arranged in four files.
+
+- basic.lean proves properties about regular sequences of rationals in the namespace rat_seq,
+  defines ℝ to be the quotient type of regular sequences mod equivalence, and shows ℝ is a ring
+  in namespace real. No classical axioms are used.
+
+- order.lean defines an order on regular sequences and lifts the order to ℝ. In the namespace real,
+  ℝ is shown to be an ordered ring. No classical axioms are used.
+
+- division.lean defines the inverse of a regular sequence and lifts this to ℝ. If a sequence is
+  equivalent to the 0 sequence, its inverse is the zero sequence. In the namespace real, ℝ is shown
+  to be an ordered field. This construction is classical.
+
+- complete.lean
 -/
 import data.nat data.rat.order data.pnat
 open nat eq eq.ops pnat
@@ -16,11 +28,11 @@ local notation 1 := rat.of_num 1
 
 -- small helper lemmas
 
-theorem s_mul_assoc_lemma_3 (a b n : ℕ+) (p : ℚ) :
+private theorem s_mul_assoc_lemma_3 (a b n : ℕ+) (p : ℚ) :
         p * ((a * n)⁻¹ + (b * n)⁻¹) = p * (a⁻¹ + b⁻¹) * n⁻¹ :=
   by rewrite [rat.mul.assoc, rat.right_distrib, *inv_mul_eq_mul_inv]
 
-theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0) (H : n ≥ pceil (q / ε)) :
+private theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0) (H : n ≥ pceil (q / ε)) :
         q * n⁻¹ ≤ ε :=
   begin
     let H2 := pceil_helper H (div_pos_of_pos_of_pos Hq Hε),
@@ -30,7 +42,7 @@ theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0) 
     repeat assumption
   end
 
-theorem find_thirds (a b : ℚ) (H : b > 0) : ∃ n : ℕ+, a + n⁻¹ + n⁻¹ + n⁻¹ < a + b :=
+private theorem find_thirds (a b : ℚ) (H : b > 0) : ∃ n : ℕ+, a + n⁻¹ + n⁻¹ + n⁻¹ < a + b :=
   let n := pceil (of_nat 4 / b) in
   have of_nat 3 * n⁻¹ < b, from calc
    of_nat 3 * n⁻¹ < of_nat 4 * n⁻¹
@@ -44,7 +56,7 @@ theorem find_thirds (a b : ℚ) (H : b > 0) : ∃ n : ℕ+, a + n⁻¹ + n⁻¹ 
                     ... = a + of_nat 3 * n⁻¹    : {show 1+1+1=of_nat 3, from dec_trivial}
                     ... < a + b                 : rat.add_lt_add_left this a)
 
-theorem squeeze {a b : ℚ} (H : ∀ j : ℕ+, a ≤ b + j⁻¹ + j⁻¹ + j⁻¹) : a ≤ b :=
+private theorem squeeze {a b : ℚ} (H : ∀ j : ℕ+, a ≤ b + j⁻¹ + j⁻¹ + j⁻¹) : a ≤ b :=
   begin
     apply rat.le_of_not_gt,
     intro Hb,
@@ -54,29 +66,20 @@ theorem squeeze {a b : ℚ} (H : ∀ j : ℕ+, a ≤ b + j⁻¹ + j⁻¹ + j⁻�
     apply (not_le_of_gt Ha) !H
   end
 
-theorem squeeze_2 {a b : ℚ} (H : ∀ ε : ℚ, ε > 0 → a ≥ b - ε) : a ≥ b :=
-  begin
-    apply rat.le_of_not_gt,
-    intro Hb,
-    cases exists_add_lt_and_pos_of_lt Hb with [c, Hc],
-    let Hc' := H c (and.right Hc),
-    apply (rat.not_le_of_gt (and.left Hc)) (iff.mpr !le_add_iff_sub_right_le Hc')
-  end
-
-theorem rewrite_helper (a b c d : ℚ) : a * b  - c * d = a * (b - d) + (a - c) * d :=
+private theorem rewrite_helper (a b c d : ℚ) : a * b  - c * d = a * (b - d) + (a - c) * d :=
   by rewrite[rat.mul_sub_left_distrib, rat.mul_sub_right_distrib, add_sub, rat.sub_add_cancel]
 
-theorem rewrite_helper3 (a b c d e f g: ℚ) : a * (b + c) - (d * e + f * g) =
+private theorem rewrite_helper3 (a b c d e f g: ℚ) : a * (b + c) - (d * e + f * g) =
         (a * b - d * e) + (a * c - f * g) :=
   by rewrite[rat.mul.left_distrib, add_sub_comm]
 
-theorem rewrite_helper4 (a b c d : ℚ) : a * b - c * d = (a * b - a * d) + (a * d - c * d) :=
+private theorem rewrite_helper4 (a b c d : ℚ) : a * b - c * d = (a * b - a * d) + (a * d - c * d) :=
   by rewrite[add_sub, rat.sub_add_cancel]
 
-theorem rewrite_helper5 (a b x y : ℚ) : a - b = (a - x) + (x - y) + (y - b) :=
+private theorem rewrite_helper5 (a b x y : ℚ) : a - b = (a - x) + (x - y) + (y - b) :=
   by rewrite[*add_sub, *rat.sub_add_cancel]
 
-theorem rewrite_helper7 (a b c d x : ℚ) :
+private theorem rewrite_helper7 (a b c d x : ℚ) :
         a * b * c - d = (b * c) * (a - x) + (x * b * c - d) :=
   by rewrite[rat.mul_sub_left_distrib, add_sub]; exact (calc
      a * b * c - d = a * b * c - x * b * c + x * b * c - d : rat.sub_add_cancel
@@ -85,7 +88,7 @@ theorem rewrite_helper7 (a b c d x : ℚ) :
          λa b c, !rat.mul.comm ▸ !rat.mul.right_comm,
        this ▸ this ▸ rfl)
 
-theorem ineq_helper (a b : ℚ) (k m n : ℕ+) (H : a ≤ (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹)
+private theorem ineq_helper (a b : ℚ) (k m n : ℕ+) (H : a ≤ (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹)
                     (H2 : b ≤ (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹) :
         (rat_of_pnat k) * a + b * (rat_of_pnat k) ≤ m⁻¹ + n⁻¹ :=
   have (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹ = (2 * k)⁻¹ * (m⁻¹ + n⁻¹),
@@ -101,19 +104,19 @@ theorem ineq_helper (a b : ℚ) (k m n : ℕ+) (H : a ≤ (k * 2 * m)⁻¹ + (k 
              iff.mp (!rat.le_iff_mul_le_mul_left !rat_of_pnat_is_pos) this
      ... = m⁻¹ + n⁻¹ : by rewrite[-rat.mul.assoc, inv_cancel_left, rat.one_mul]
 
-theorem factor_lemma (a b c d e : ℚ) : abs (a + b + c - (d + (b + e))) = abs ((a - d) + (c - e)) :=
+private theorem factor_lemma (a b c d e : ℚ) : abs (a + b + c - (d + (b + e))) = abs ((a - d) + (c - e)) :=
   !congr_arg (calc
     a + b + c - (d + (b + e)) = a + b + c - (d + b + e)   : rat.add.assoc
                          ...  = a + b - (d + b) + (c - e) : add_sub_comm
                          ...  = a + b - b - d + (c - e)   : sub_add_eq_sub_sub_swap
                          ...  = a - d + (c - e)           : rat.add_sub_cancel)
 
-theorem factor_lemma_2 (a b c d : ℚ) : (a + b) + (c + d) = (a + c) + (d + b) :=
+private theorem factor_lemma_2 (a b c d : ℚ) : (a + b) + (c + d) = (a + c) + (d + b) :=
   !rat.add.comm ▸ (binary.comm4 rat.add.comm rat.add.assoc a b c d)
 
 --------------------------------------
 -- define cauchy sequences and equivalence. show equivalence actually is one
-namespace s
+namespace rat_seq
 
 notation `seq` := ℕ+ → ℚ
 
@@ -199,15 +202,6 @@ theorem eq_of_bdd_var {s t : seq} (Hs : regular s) (Ht : regular t)
     apply inv_pos
   end
 
-theorem pnat_bound {ε : ℚ} (Hε : ε > 0) : ∃ p : ℕ+, p⁻¹ ≤ ε :=
-  begin
-    existsi (pceil (1 / ε)),
-    rewrite -(rat.one_div_one_div ε) at {2},
-    apply pceil_helper,
-    apply le.refl,
-    apply one_div_pos_of_pos Hε
-  end
-
 theorem bdd_of_eq_var {s t : seq} (Hs : regular s) (Ht : regular t) (Heq : s ≡ t) :
         ∀ ε : ℚ, ε > 0 → ∃ Nj : ℕ+, ∀ n : ℕ+, Nj ≤ n → abs (s n - t n) ≤ ε :=
   begin
@@ -240,9 +234,9 @@ theorem equiv.trans (s t u : seq) (Hs : regular s) (Ht : regular t) (Hu : regula
 -----------------------------------
 -- define operations on cauchy sequences. show operations preserve regularity
 
-definition K (s : seq) : ℕ+ := pnat.pos (ubound (abs (s pone)) + 1 + 1) dec_trivial
+private definition K (s : seq) : ℕ+ := pnat.pos (ubound (abs (s pone)) + 1 + 1) dec_trivial
 
-theorem canon_bound {s : seq} (Hs : regular s) (n : ℕ+) : abs (s n) ≤ rat_of_pnat (K s) :=
+private theorem canon_bound {s : seq} (Hs : regular s) (n : ℕ+) : abs (s n) ≤ rat_of_pnat (K s) :=
   calc
     abs (s n) = abs (s n - s pone + s pone) : by rewrite rat.sub_add_cancel
     ... ≤ abs (s n - s pone) + abs (s pone) : abs_add_le_abs_add_abs
@@ -278,7 +272,7 @@ theorem bdd_of_regular_strict {s : seq} (H : regular s) : ∃ b : ℚ, ∀ n : �
 
 definition K₂ (s t : seq) := max (K s) (K t)
 
-theorem K₂_symm (s t : seq) : K₂ s t = K₂ t s :=
+private theorem K₂_symm (s t : seq) : K₂ s t = K₂ t s :=
   if H : K s < K t then
     (assert H1 : K₂ s t = K t, from max_eq_right H,
      assert H2 : K₂ t s = K t, from max_eq_left (not_lt_of_ge (le_of_lt H)),
@@ -394,15 +388,15 @@ theorem s_mul_comm (s t : seq) : smul s t ≡ smul t s :=
     apply add_invs_nonneg
   end
 
-definition DK (s t : seq) := (K₂ s t) * 2
-theorem DK_rewrite (s t : seq) : (K₂ s t) * 2 = DK s t := rfl
+private definition DK (s t : seq) := (K₂ s t) * 2
+private theorem DK_rewrite (s t : seq) : (K₂ s t) * 2 = DK s t := rfl
 
-definition TK (s t u : seq) := (DK (λ (n : ℕ+), s (mul (DK s t) n) * t (mul (DK s t) n)) u)
+private definition TK (s t u : seq) := (DK (λ (n : ℕ+), s (mul (DK s t) n) * t (mul (DK s t) n)) u)
 
-theorem TK_rewrite (s t u : seq) :
+private theorem TK_rewrite (s t u : seq) :
         (DK (λ (n : ℕ+), s (mul (DK s t) n) * t (mul (DK s t) n)) u) = TK s t u := rfl
 
-theorem s_mul_assoc_lemma (s t u : seq) (a b c d : ℕ+) :
+private theorem s_mul_assoc_lemma (s t u : seq) (a b c d : ℕ+) :
         abs (s a * t a * u b - s c * t d * u d) ≤ abs (t a) * abs (u b) * abs (s a - s c) +
                abs (s c) * abs (t a) * abs (u b - u d) + abs (s c) * abs (u d) * abs (t a - t d) :=
   begin
@@ -424,8 +418,8 @@ theorem s_mul_assoc_lemma (s t u : seq) (a b c d : ℕ+) :
     apply abs_nonneg
   end
 
-definition Kq (s : seq) := rat_of_pnat (K s) + 1
-theorem Kq_bound {s : seq} (H : regular s) : ∀ n, abs (s n) ≤ Kq s :=
+private definition Kq (s : seq) := rat_of_pnat (K s) + 1
+private theorem Kq_bound {s : seq} (H : regular s) : ∀ n, abs (s n) ≤ Kq s :=
   begin
     intros,
     apply rat.le_of_lt,
@@ -435,14 +429,14 @@ theorem Kq_bound {s : seq} (H : regular s) : ∀ n, abs (s n) ≤ Kq s :=
     apply rat.zero_lt_one
   end
 
-theorem Kq_bound_nonneg {s : seq} (H : regular s) : 0 ≤ Kq s :=
+private theorem Kq_bound_nonneg {s : seq} (H : regular s) : 0 ≤ Kq s :=
   rat.le.trans !abs_nonneg (Kq_bound H 2)
 
-theorem Kq_bound_pos {s : seq} (H : regular s) : 0 < Kq s :=
+private theorem Kq_bound_pos {s : seq} (H : regular s) : 0 < Kq s :=
   have H1 : 0 ≤ rat_of_pnat (K s), from rat.le.trans (!abs_nonneg) (canon_bound H 2),
   add_pos_of_nonneg_of_pos H1 rat.zero_lt_one
 
-theorem s_mul_assoc_lemma_5 {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
+private theorem s_mul_assoc_lemma_5 {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
     (a b c : ℕ+) : abs (t a) * abs (u b) * abs (s a - s c) ≤ (Kq t) * (Kq u) * (a⁻¹ + c⁻¹) :=
   begin
     repeat apply rat.mul_le_mul,
@@ -457,7 +451,7 @@ theorem s_mul_assoc_lemma_5 {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu 
     apply Kq_bound_nonneg Hu,
   end
 
-theorem s_mul_assoc_lemma_2 {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
+private theorem s_mul_assoc_lemma_2 {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
   (a b c d : ℕ+) :
      abs (t a) * abs (u b) * abs (s a - s c) + abs (s c) * abs (t a) * abs (u b - u d)
                + abs (s c) * abs (u d) * abs (t a - t d) ≤
@@ -589,7 +583,7 @@ theorem add_well_defined {s t u v : seq} (Hs : regular s) (Ht : regular t) (Hu :
   end
 
 set_option tactic.goal_names false
-theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : ℕ+) (j : ℕ+) :
+private theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : ℕ+) (j : ℕ+) :
         ∃ N : ℕ+, ∀ n : ℕ+, n ≥ N → abs (s (a * n) * t (b * n) - s (c * n) * t (c * n)) ≤ j⁻¹ :=
   begin
     existsi pceil (((rat_of_pnat (K s)) * (b⁻¹ + c⁻¹) + (a⁻¹ + c⁻¹) *
@@ -717,13 +711,13 @@ theorem mul_zero_equiv_zero {s t : seq} (Hs : regular s) (Ht : regular t) (Htz :
     apply rat.le.refl
   end
 
-theorem neg_bound_eq_bound (s : seq) : K (sneg s) = K s  :=
+private theorem neg_bound_eq_bound (s : seq) : K (sneg s) = K s  :=
   by rewrite [↑K, ↑sneg, abs_neg]
 
-theorem neg_bound2_eq_bound2 (s t : seq) : K₂ s (sneg t) = K₂ s t :=
+private theorem neg_bound2_eq_bound2 (s t : seq) : K₂ s (sneg t) = K₂ s t :=
   by rewrite [↑K₂, neg_bound_eq_bound]
 
-theorem sneg_def (s : seq) : (λ (n : ℕ+), -(s n)) = sneg s := rfl
+private theorem sneg_def (s : seq) : (λ (n : ℕ+), -(s n)) = sneg s := rfl
 
 theorem mul_neg_equiv_neg_mul {s t : seq} : smul s (sneg t) ≡ sneg (smul s t) :=
   begin
@@ -785,7 +779,7 @@ theorem diff_equiv_zero_of_equiv {s t : seq} (Hs : regular s) (Ht : regular t) (
     repeat (assumption | apply reg_add_reg | apply reg_neg_reg)
   end
 
-theorem mul_well_defined_half1 {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
+private theorem mul_well_defined_half1 {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
         (Etu : t ≡ u) : smul s t ≡ smul s u :=
   begin
     apply equiv_of_diff_equiv_zero,
@@ -809,7 +803,7 @@ theorem mul_well_defined_half1 {s t u : seq} (Hs : regular s) (Ht : regular t) (
             apply zero_is_reg)
   end
 
-theorem mul_well_defined_half2 {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
+private theorem mul_well_defined_half2 {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
         (Est : s ≡ t) : smul s u ≡ smul t u :=
   begin
     apply equiv.trans,
@@ -1001,11 +995,11 @@ theorem r_mul_consts (a b : ℚ) : requiv (r_const a * r_const b) (r_const (a * 
 
 theorem r_neg_const (a : ℚ) : requiv (-r_const a) (r_const (-a)) := neg_const a
 
-end s
+end rat_seq
 ----------------------------------------------
 -- take quotients to get ℝ and show it's a comm ring
 
-open s
+open rat_seq
 definition real := quot reg_seq.to_setoid
 namespace real
 notation `ℝ` := real
@@ -1030,7 +1024,7 @@ prefix [priority real.prio] `-` := neg
 
 open rat -- no coercions before
 
-definition of_rat [coercion] (a : ℚ) : ℝ := quot.mk (s.r_const a)
+definition of_rat [coercion] (a : ℚ) : ℝ := quot.mk (r_const a)
 definition of_num [coercion] [reducible] (n : num) : ℝ := of_rat (rat.of_num n)
 
 --definition zero : ℝ := 0
@@ -1099,12 +1093,12 @@ protected definition comm_ring [reducible] : algebra.comm_ring ℝ :=
   end
 
 theorem of_rat_add (a b : ℚ) : of_rat a + of_rat b = of_rat (a + b) :=
-   quot.sound (s.r_add_consts a b)
+   quot.sound (r_add_consts a b)
 
-theorem of_rat_neg (a : ℚ) : of_rat (-a) = -of_rat a := eq.symm (quot.sound (s.r_neg_const a))
+theorem of_rat_neg (a : ℚ) : of_rat (-a) = -of_rat a := eq.symm (quot.sound (r_neg_const a))
 
 theorem of_rat_mul (a b : ℚ) : of_rat a * of_rat b = of_rat (a * b) :=
-  quot.sound (s.r_mul_consts a b)
+  quot.sound (r_mul_consts a b)
 
 theorem add_half_of_rat (n : ℕ+) : of_rat (2 * n)⁻¹ + of_rat (2 * n)⁻¹ = of_rat (n⁻¹) :=
   by rewrite [of_rat_add, pnat.add_halves]

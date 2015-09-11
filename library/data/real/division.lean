@@ -17,13 +17,7 @@ local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1
 local notation 2 := subtype.tag (nat.of_num 2) dec_trivial
 
-namespace s
-
------------------------------
--- helper lemmas
-
-theorem and_of_not_or {a b : Prop} (H : ¬ (a ∨ b)) : ¬ a ∧ ¬ b :=
-  and.intro (assume H', H (or.inl H')) (assume H', H (or.inr H'))
+namespace rat_seq
 
 -----------------------------
 -- Facts about absolute values of sequences, to define inverse
@@ -70,6 +64,17 @@ theorem abs_pos_of_nonzero {s : seq} (Hs : regular s) (Hnz : sep s zero) :
     apply le_abs_self
   end
 
+theorem abs_well_defined {s t : seq} (Hs : regular s) (Ht : regular t) (Heq : s ≡ t) :
+        s_abs s ≡ s_abs t :=
+  begin
+    rewrite [↑equiv at *],
+    intro n,
+    rewrite ↑s_abs,
+    apply rat.le.trans,
+    apply abs_abs_sub_abs_le_abs_sub,
+    apply Heq
+  end
+
 theorem sep_zero_of_pos {s : seq} (Hs : regular s) (Hpos : pos s) : sep s zero :=
   begin
     apply or.inr,
@@ -84,17 +89,17 @@ theorem sep_zero_of_pos {s : seq} (Hs : regular s) (Hpos : pos s) : sep s zero :
 ------------------------
 -- This section could be cleaned up.
 
-noncomputable definition pb {s : seq} (Hs : regular s) (Hpos : pos s) :=
+private noncomputable definition pb {s : seq} (Hs : regular s) (Hpos : pos s) :=
   some (abs_pos_of_nonzero Hs (sep_zero_of_pos Hs Hpos))
-noncomputable definition ps {s : seq} (Hs : regular s) (Hsep : sep s zero) :=
+private noncomputable definition ps {s : seq} (Hs : regular s) (Hsep : sep s zero) :=
   some (abs_pos_of_nonzero Hs Hsep)
 
 
-theorem pb_spec {s : seq} (Hs : regular s) (Hpos : pos s) :
+private theorem pb_spec {s : seq} (Hs : regular s) (Hpos : pos s) :
         ∀ m : ℕ+, m ≥ (pb Hs Hpos) → abs (s m) ≥ (pb Hs Hpos)⁻¹ :=
   some_spec (abs_pos_of_nonzero Hs (sep_zero_of_pos Hs Hpos))
 
-theorem ps_spec {s : seq} (Hs : regular s) (Hsep : sep s zero) :
+private theorem ps_spec {s : seq} (Hs : regular s) (Hsep : sep s zero) :
         ∀ m : ℕ+, m ≥ (ps Hs Hsep) → abs (s m) ≥ (ps Hs Hsep)⁻¹ :=
   some_spec (abs_pos_of_nonzero Hs Hsep)
 
@@ -104,11 +109,10 @@ noncomputable definition s_inv {s : seq} (Hs : regular s) (n : ℕ+) : ℚ :=
         else 1 / (s ((ps Hs H) * (ps Hs H) * n)))
   else 0
 
-theorem peq {s : seq} (Hsep : sep s zero) (Hpos : pos s)  (Hs : regular s) :
+private theorem peq {s : seq} (Hsep : sep s zero) (Hpos : pos s)  (Hs : regular s) :
         pb Hs Hpos = ps Hs Hsep := rfl
 
-
-theorem s_inv_of_sep_lt_p {s : seq} (Hs : regular s) (Hsep : sep s zero) {n : ℕ+}
+private theorem s_inv_of_sep_lt_p {s : seq} (Hs : regular s) (Hsep : sep s zero) {n : ℕ+}
         (Hn : n < (ps Hs Hsep)) : s_inv Hs n = 1 / s ((ps Hs Hsep) * (ps Hs Hsep) * (ps Hs Hsep)) :=
   begin
     apply eq.trans,
@@ -116,7 +120,7 @@ theorem s_inv_of_sep_lt_p {s : seq} (Hs : regular s) (Hsep : sep s zero) {n : �
     apply dif_pos Hn
   end
 
-theorem s_inv_of_sep_gt_p {s : seq} (Hs : regular s) (Hsep : sep s zero) {n : ℕ+}
+private theorem s_inv_of_sep_gt_p {s : seq} (Hs : regular s) (Hsep : sep s zero) {n : ℕ+}
         (Hn : n ≥ (ps Hs Hsep)) : s_inv Hs n = 1 / s ((ps Hs Hsep) * (ps Hs Hsep) * n) :=
   begin
     apply eq.trans,
@@ -124,16 +128,15 @@ theorem s_inv_of_sep_gt_p {s : seq} (Hs : regular s) (Hsep : sep s zero) {n : �
     apply dif_neg (pnat.not_lt_of_ge Hn)
   end
 
-theorem s_inv_of_pos_lt_p {s : seq} (Hs : regular s) (Hpos : pos s) {n : ℕ+}
+private theorem s_inv_of_pos_lt_p {s : seq} (Hs : regular s) (Hpos : pos s) {n : ℕ+}
         (Hn : n < (pb Hs Hpos)) : s_inv Hs n = 1 / s ((pb Hs Hpos) * (pb Hs Hpos) * (pb Hs Hpos)) :=
   s_inv_of_sep_lt_p Hs (sep_zero_of_pos Hs Hpos) Hn
 
-
-theorem s_inv_of_pos_gt_p {s : seq} (Hs : regular s) (Hpos : pos s) {n : ℕ+}
+private theorem s_inv_of_pos_gt_p {s : seq} (Hs : regular s) (Hpos : pos s) {n : ℕ+}
         (Hn : n ≥ (pb Hs Hpos)) : s_inv Hs n = 1 / s ((pb Hs Hpos) * (pb Hs Hpos) * n) :=
   s_inv_of_sep_gt_p Hs (sep_zero_of_pos Hs Hpos) Hn
 
-theorem le_ps {s : seq} (Hs : regular s) (Hsep : sep s zero) (n : ℕ+) :
+private theorem le_ps {s : seq} (Hs : regular s) (Hsep : sep s zero) (n : ℕ+) :
         abs (s_inv Hs n) ≤ (rat_of_pnat (ps Hs Hsep)) :=
   if Hn : n < ps Hs Hsep then
     (begin
@@ -154,7 +157,7 @@ theorem le_ps {s : seq} (Hs : regular s) (Hsep : sep s zero) (n : ℕ+) :
 theorem s_inv_zero : s_inv zero_is_reg = zero :=
   funext (λ n, dif_neg (!not_sep_self))
 
-theorem s_inv_of_zero' {s : seq} (Hs : regular s) (Hz : ¬ sep s zero) (n : ℕ+) : s_inv Hs n = 0 :=
+private theorem s_inv_of_zero' {s : seq} (Hs : regular s) (Hz : ¬ sep s zero) (n : ℕ+) : s_inv Hs n = 0 :=
   dif_neg Hz
 
 theorem s_inv_of_zero {s : seq} (Hs : regular s) (Hz : ¬ sep s zero) : s_inv Hs = zero :=
@@ -164,7 +167,7 @@ theorem s_inv_of_zero {s : seq} (Hs : regular s) (Hz : ¬ sep s zero) : s_inv Hs
     apply s_inv_of_zero' Hs Hz n
   end
 
-theorem s_ne_zero_of_ge_p {s : seq} (Hs : regular s) (Hsep : sep s zero) {n : ℕ+}
+private theorem s_ne_zero_of_ge_p {s : seq} (Hs : regular s) (Hsep : sep s zero) {n : ℕ+}
         (Hn : n ≥ (ps Hs Hsep)) : s n ≠ 0 :=
   begin
     let Hps := ps_spec Hs Hsep,
@@ -498,7 +501,7 @@ theorem sep_of_nequiv {s t : seq} (Hs : regular s) (Ht : regular t) (Hneq : ¬ e
     rewrite ↑sep,
     apply by_contradiction,
     intro Hnor,
-    let Hand := and_of_not_or Hnor,
+    let Hand := iff.mp !not_or_iff_not_and_not Hnor,
     let Hle1 := s_le_of_not_lt (and.left Hand),
     let Hle2 := s_le_of_not_lt (and.right Hand),
     apply Hneq (equiv_of_le_of_ge Hs Ht Hle2 Hle1)
@@ -570,21 +573,26 @@ theorem r_le_of_equiv_le_left {s t u : reg_seq} (Heq : requiv s t) (Hle : r_le s
 theorem r_le_of_equiv_le_right {s t u : reg_seq} (Heq : requiv t u) (Hle : r_le s t) : r_le s u :=
   s_le_of_equiv_le_right (reg_seq.is_reg s) (reg_seq.is_reg t) (reg_seq.is_reg u) Heq Hle
 
-end s
+definition r_abs (s : reg_seq) : reg_seq :=
+  reg_seq.mk (s_abs (reg_seq.sq s)) (abs_reg_of_reg (reg_seq.is_reg s))
 
+theorem r_abs_well_defined {s t : reg_seq} (H : requiv s t) : requiv (r_abs s) (r_abs t) :=
+  abs_well_defined (reg_seq.is_reg s) (reg_seq.is_reg t) H
+
+end rat_seq
 
 namespace real
-open [classes] s
+open [classes] rat_seq
 
-noncomputable definition inv (x : ℝ) : ℝ := quot.lift_on x (λ a, quot.mk (s.r_inv a))
-           (λ a b H, quot.sound (s.r_inv_well_defined H))
+noncomputable definition inv (x : ℝ) : ℝ := quot.lift_on x (λ a, quot.mk (rat_seq.r_inv a))
+           (λ a b H, quot.sound (rat_seq.r_inv_well_defined H))
 postfix [priority real.prio] `⁻¹` := inv
 
 theorem le_total (x y : ℝ) : x ≤ y ∨ y ≤ x :=
-  quot.induction_on₂ x y (λ s t, s.r_le_total s t)
+  quot.induction_on₂ x y (λ s t, rat_seq.r_le_total s t)
 
 theorem mul_inv' (x : ℝ) : x ≢ 0 → x * x⁻¹ = 1 :=
-  quot.induction_on x (λ s H, quot.sound (s.r_mul_inv s H))
+  quot.induction_on x (λ s H, quot.sound (rat_seq.r_mul_inv s H))
 
 theorem inv_mul' (x : ℝ) : x ≢ 0 → x⁻¹ * x = 1 :=
   by rewrite real.mul_comm; apply mul_inv'
@@ -593,7 +601,7 @@ theorem neq_of_sep {x y : ℝ} (H : x ≢ y) : ¬ x = y :=
   assume Heq, !not_sep_self (Heq ▸ H)
 
 theorem sep_of_neq {x y : ℝ} : ¬ x = y → x ≢ y :=
-  quot.induction_on₂ x y (λ s t H, s.r_sep_of_nequiv s t (assume Heq, H (quot.sound Heq)))
+  quot.induction_on₂ x y (λ s t H, rat_seq.r_sep_of_nequiv s t (assume Heq, H (quot.sound Heq)))
 
 theorem sep_is_neq (x y : ℝ) : (x ≢ y) = (¬ x = y) :=
   propext (iff.intro neq_of_sep sep_of_neq)
@@ -602,10 +610,10 @@ theorem mul_inv (x : ℝ) : x ≠ 0 → x * x⁻¹ = 1 := !sep_is_neq ▸ !mul_i
 
 theorem inv_mul (x : ℝ) : x ≠ 0 → x⁻¹ * x = 1 := !sep_is_neq ▸ !inv_mul'
 
-theorem inv_zero : (0 : ℝ)⁻¹ = 0 := quot.sound (s.r_inv_zero)
+theorem inv_zero : (0 : ℝ)⁻¹ = 0 := quot.sound (rat_seq.r_inv_zero)
 
 theorem lt_or_eq_of_le (x y : ℝ) : x ≤ y → x < y ∨ x = y :=
-  quot.induction_on₂ x y (λ s t H, or.elim (s.r_lt_or_equiv_of_le s t H)
+  quot.induction_on₂ x y (λ s t H, or.elim (rat_seq.r_lt_or_equiv_of_le s t H)
     (assume H1, or.inl H1)
     (assume H2, or.inr (quot.sound H2)))
 

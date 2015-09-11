@@ -312,4 +312,18 @@ theorem nonneg_of_ge_neg_invs (a : ℚ) (H : ∀ n : ℕ+, -n⁻¹ ≤ a) : 0 �
           : div_lt_div_of_pos_of_lt_of_pos dec_trivial dec_trivial H2
                              ... = -a : !div_one)))
 
+theorem pnat_bound {ε : ℚ} (Hε : ε > 0) : ∃ p : ℕ+, p⁻¹ ≤ ε :=
+  begin
+    existsi (pceil (1 / ε)),
+    rewrite -(rat.one_div_one_div ε) at {2},
+    apply pceil_helper,
+    apply le.refl,
+    apply one_div_pos_of_pos Hε
+  end
+
+theorem p_add_fractions (n : ℕ+) : (2 * n)⁻¹ + (2 * 3 * n)⁻¹ + (3 * n)⁻¹ = n⁻¹ :=
+  assert T : 2⁻¹ + 2⁻¹ * 3⁻¹ + 3⁻¹ = 1, from dec_trivial,
+  by rewrite[*inv_mul_eq_mul_inv,-*rat.right_distrib,T,rat.one_mul]
+
+
 end pnat

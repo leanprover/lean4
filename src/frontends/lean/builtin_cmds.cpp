@@ -35,6 +35,7 @@ Author: Leonardo de Moura
 #include "library/composition_manager.h"
 #include "library/definitional/projection.h"
 #include "library/simplifier/simp_rule_set.h"
+#include "compiler/elim_rec.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"
@@ -1051,6 +1052,14 @@ static environment init_hits_cmd(parser & p) {
     return module::declare_hits(p.env());
 }
 
+static environment compile_cmd(parser & p) {
+    name n = p.check_constant_next("invalid #compile command, constant expected");
+    declaration d = p.env().get(n);
+    buffer<declaration> aux_decls;
+    elim_rec(p.env(), d, aux_decls);
+    return p.env();
+}
+
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",          "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -1074,6 +1083,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#erase_cache",  "erase cached definition (for debugging purposes)", erase_cache_cmd));
     add_cmd(r, cmd_info("#projections",  "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
     add_cmd(r, cmd_info("#telescope_eq", "(for debugging purposes)", telescope_eq_cmd));
+    add_cmd(r, cmd_info("#compile",      "(for debugging purposes)", compile_cmd));
     register_decl_cmds(r);
     register_inductive_cmd(r);
     register_structure_cmd(r);

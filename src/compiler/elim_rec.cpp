@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/user_recursors.h"
 #include "library/normalize.h"
 #include "library/util.h"
+#include "compiler/eta_expansion.h"
 
 void pp(lean::environment const & env, lean::expr const & e);
 
@@ -29,7 +30,9 @@ public:
     elim_rec_fn(environment const & env, buffer<declaration> & aux_decls): m_env(env), m_aux_decls(aux_decls) {}
 
     declaration operator()(declaration const & d) {
-        expr v = expand_aux_recursors(m_env, d.get_value());
+        expr v = d.get_value();
+        v = expand_aux_recursors(m_env, v);
+        v = eta_expand(m_env, v);
         ::pp(m_env, v);
         // TODO(Leo)
         return d;

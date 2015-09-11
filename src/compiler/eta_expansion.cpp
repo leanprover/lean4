@@ -70,7 +70,7 @@ class eta_expand_fn : public replace_visitor {
     virtual expr visit_binding(expr const & b) {
         expr new_domain = visit(binding_domain(b));
         expr l          = mk_local(m_tc.mk_fresh_name(), new_domain);
-        expr new_body   = abstract(visit(instantiate(binding_body(b), l)), l);
+        expr new_body   = abstract_local(visit(instantiate(binding_body(b), l)), l);
         return update_binding(b, new_domain, new_body);
     }
 

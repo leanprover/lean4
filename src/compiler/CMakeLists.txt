@@ -1,1 +1,1 @@
-add_library(compiler OBJECT elim_rec.cpp eta_expansion.cpp)
+add_library(compiler OBJECT rec_args.cpp eta_expansion.cpp simp_pr1_rec.cpp elim_rec.cpp)

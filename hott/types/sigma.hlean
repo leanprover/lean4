@@ -9,7 +9,7 @@ Theorems about sigma-types (dependent sums)
 
 import types.prod
 
-open eq sigma sigma.ops equiv is_equiv function is_trunc
+open eq sigma sigma.ops equiv is_equiv function is_trunc sum unit
 
 namespace sigma
   variables {A A' : Type} {B : A → Type} {B' : A' → Type} {C : Πa, B a → Type}
@@ -243,25 +243,26 @@ namespace sigma
 
   /- definition 3.11.9(i): Summing up a contractible family of types does nothing. -/
 
-  definition is_equiv_pr1 [instance] (B : A → Type) [H : Π a, is_contr (B a)]
+  definition is_equiv_pr1 [instance] [constructor] (B : A → Type) [H : Π a, is_contr (B a)]
       : is_equiv (@pr1 A B) :=
   adjointify pr1
              (λa, ⟨a, !center⟩)
              (λa, idp)
              (λu, sigma_eq idp (pathover_idp_of_eq !center_eq))
 
-  definition sigma_equiv_of_is_contr_pr2 [H : Π a, is_contr (B a)] : (Σa, B a) ≃ A :=
+  definition sigma_equiv_of_is_contr_right [constructor] [H : Π a, is_contr (B a)]
+    : (Σa, B a) ≃ A :=
   equiv.mk pr1 _
 
   /- definition 3.11.9(ii): Dually, summing up over a contractible type does nothing. -/
 
-  definition sigma_equiv_of_is_contr_pr1 (B : A → Type) [H : is_contr A] : (Σa, B a) ≃ B (center A)
-  :=
-  equiv.mk _ (adjointify
+  definition sigma_equiv_of_is_contr_left [constructor] (B : A → Type) [H : is_contr A]
+    : (Σa, B a) ≃ B (center A) :=
+  equiv.MK
     (λu, (center_eq u.1)⁻¹ ▸ u.2)
     (λb, ⟨!center, b⟩)
     (λb, ap (λx, x ▸ b) !hprop_eq_of_is_contr)
-    (λu, sigma_eq !center_eq !tr_pathover))
+    (λu, sigma_eq !center_eq !tr_pathover)
 
   /- Associativity -/
 
@@ -305,6 +306,55 @@ namespace sigma
     (Σ(a : A), B) ≃ A × B       : equiv_prod
               ... ≃ B × A       : prod_comm_equiv
               ... ≃ Σ(b : B), A : equiv_prod
+
+  /- Interaction with other type constructors -/
+
+  definition sigma_empty_left [constructor] (B : empty → Type) : (Σx, B x) ≃ empty :=
+  begin
+    fapply equiv.MK,
+    { intro v, induction v, contradiction},
+    { intro x, contradiction},
+    { intro x, contradiction},
+    { intro v, induction v, contradiction},
+  end
+
+  definition sigma_empty_right [constructor] (A : Type) : (Σ(a : A), empty) ≃ empty :=
+  begin
+    fapply equiv.MK,
+    { intro v, induction v, contradiction},
+    { intro x, contradiction},
+    { intro x, contradiction},
+    { intro v, induction v, contradiction},
+  end
+
+  definition sigma_unit_left [constructor] (B : unit → Type) : (Σx, B x) ≃ B star :=
+  !sigma_equiv_of_is_contr_left
+
+  definition sigma_unit_right [constructor] (A : Type) : (Σ(a : A), unit) ≃ A :=
+  !sigma_equiv_of_is_contr_right
+
+  definition sigma_sum_left [constructor] (B : A + A' → Type)
+    : (Σp, B p) ≃ (Σa, B (inl a)) + (Σa, B (inr a)) :=
+  begin
+    fapply equiv.MK,
+    { intro v,
+      induction v with p b, induction p: append (apply inl) (apply inr); constructor; assumption },
+    { intro p, induction p with v v: induction v; constructor; assumption},
+    { intro p, induction p with v v: induction v; reflexivity},
+    { intro v, induction v with p b, induction p: reflexivity},
+  end
+
+  definition sigma_sum_right [constructor] (B C : A → Type)
+    : (Σa, B a + C a) ≃ (Σa, B a) + (Σa, C a) :=
+  begin
+    fapply equiv.MK,
+    { intro v,
+      induction v with a p, induction p: append (apply inl) (apply inr); constructor; assumption},
+    { intro p,
+      induction p with v v: induction v; constructor; append (apply inl) (apply inr); assumption},
+    { intro p, induction p with v v: induction v; reflexivity},
+    { intro v, induction v with a p, induction p: reflexivity},
+  end
 
   /- ** Universal mapping properties -/
   /- *** The positive universal property. -/
@@ -365,7 +415,7 @@ namespace sigma
   begin
   revert A B HA HB,
   induction n with n IH,
-  { intro A B HA HB, fapply is_trunc_equiv_closed_rev, apply sigma_equiv_of_is_contr_pr1},
+  { intro A B HA HB, fapply is_trunc_equiv_closed_rev, apply sigma_equiv_of_is_contr_left},
   { intro A B HA HB, apply is_trunc_succ_intro, intro u v,
     apply is_trunc_equiv_closed_rev,
       apply sigma_eq_equiv,

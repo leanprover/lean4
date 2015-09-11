@@ -214,4 +214,4 @@ namespace prod
 
 end prod
 
-attribute prod.is_trunc_prod [instance] [priority 1505]
+attribute prod.is_trunc_prod [instance] [priority 1510]

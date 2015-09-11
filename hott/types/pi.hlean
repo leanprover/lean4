@@ -9,7 +9,7 @@ Theorems about pi-types (dependent function spaces)
 
 import types.sigma arity
 
-open eq equiv is_equiv funext sigma
+open eq equiv is_equiv funext sigma unit bool is_trunc prod
 
 namespace pi
   variables {A A' : Type} {B : A → Type} {B' : A' → Type} {C : Πa, B a → Type}
@@ -199,9 +199,56 @@ namespace pi
     : (Πa, P a) ≃ (Πa, Q a) :=
   pi_equiv_pi equiv.refl g
 
+  /- Equivalence if one of the types is contractible -/
+
+  definition pi_equiv_of_is_contr_left [constructor] (B : A → Type) [H : is_contr A]
+    : (Πa, B a) ≃ B (center A) :=
+  begin
+    fapply equiv.MK,
+    { intro f, exact f (center A)},
+    { intro b a, exact (center_eq a) ▸ b},
+    { intro b, rewrite [hprop_eq_of_is_contr (center_eq (center A)) idp]},
+    { intro f, apply eq_of_homotopy, intro a, induction (center_eq a),
+      rewrite [hprop_eq_of_is_contr (center_eq (center A)) idp]}
+  end
+
+  definition pi_equiv_of_is_contr_right [constructor] [H : Πa, is_contr (B a)]
+    : (Πa, B a) ≃ unit :=
+  begin
+    fapply equiv.MK,
+    { intro f, exact star},
+    { intro u a, exact !center},
+    { intro u, induction u, reflexivity},
+    { intro f, apply eq_of_homotopy, intro a, apply is_hprop.elim}
+  end
+
+  /- Interaction with other type constructors -/
+
+  -- most of these are in the file of the other type constructor
+
+  definition pi_empty_left [constructor] (B : empty → Type) : (Πx, B x) ≃ unit :=
+  begin
+    fapply equiv.MK,
+    { intro f, exact star},
+    { intro x y, contradiction},
+    { intro x, induction x, reflexivity},
+    { intro f, apply eq_of_homotopy, intro y, contradiction},
+  end
+
+  definition pi_unit_left [constructor] (B : unit → Type) : (Πx, B x) ≃ B star :=
+  !pi_equiv_of_is_contr_left
+
+  definition pi_bool_left [constructor] (B : bool → Type) : (Πx, B x) ≃ B ff × B tt :=
+  begin
+    fapply equiv.MK,
+    { intro f, exact (f ff, f tt)},
+    { intro x b, induction x, induction b: assumption},
+    { intro x, induction x, reflexivity},
+    { intro f, apply eq_of_homotopy, intro b, induction b: reflexivity},
+  end
+
   /- Truncatedness: any dependent product of n-types is an n-type -/
 
-  open is_trunc
   definition is_trunc_pi (B : A → Type) (n : trunc_index)
       [H : ∀a, is_trunc n (B a)] : is_trunc n (Πa, B a) :=
   begin
@@ -222,7 +269,7 @@ namespace pi
               is_trunc_eq n (f a) (g a)}
   end
   local attribute is_trunc_pi [instance]
-  definition is_trunc_eq_pi [instance] [priority 500] (n : trunc_index) (f g : Πa, B a)
+  definition is_trunc_pi_eq [instance] [priority 500] (n : trunc_index) (f g : Πa, B a)
       [H : ∀a, is_trunc n (f a = g a)] : is_trunc n (f = g) :=
   begin
     apply is_trunc_equiv_closed_rev,
@@ -254,4 +301,4 @@ namespace pi
 
 end pi
 
-attribute pi.is_trunc_pi [instance] [priority 1510]
+attribute pi.is_trunc_pi [instance] [priority 1520]

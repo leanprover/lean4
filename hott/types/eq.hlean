@@ -433,6 +433,8 @@ namespace eq
 
   -- a lot of this library still needs to be ported from Coq HoTT
 
+  -- the behavior of equality in other types is described in the corresponding type files
+
   -- encode decode method
 
   open is_trunc

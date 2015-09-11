@@ -260,3 +260,5 @@ namespace decidable
   end
 
 end decidable
+
+attribute sum.is_trunc_sum [instance] [priority 1480]

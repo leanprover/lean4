@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/constants.h"
 #include "library/util.h"
-#include "compiler/rec_args.h"
+#include "compiler/util.h"
 
 namespace lean {
 class simp_pr1_rec_fn : public replace_visitor {

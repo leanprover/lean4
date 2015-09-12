@@ -13,4 +13,10 @@ namespace lean {
     \pre inductive::is_inductive_decl(env, n)
 */
 void get_rec_args(environment const & env, name const & n, buffer<buffer<bool>> & r);
+
+/** \brief Return true iff \c e is of the form <tt>(C.rec ...)</tt> and is recursive.
+    That is, \c C is a recursive inductive datatype, \c C is *not* an inductive predicate,
+    and at least one minor premise uses a recursive argument.
+*/
+bool is_recursive_rec_app(environment const & env, expr const & e);
 }

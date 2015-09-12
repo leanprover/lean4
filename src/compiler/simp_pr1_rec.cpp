@@ -147,7 +147,7 @@ class simp_pr1_rec_fn : public replace_visitor {
             rec_args[i] = Fun(minor_ctx, minor_body);
         }
         expr new_rec = mk_app(rec_fn, rec_args.size(), rec_args.data());
-        return some_expr(mk_app(new_rec, args.size() - 3, args.data() + 3));
+        return some_expr(visit(mk_app(new_rec, args.size() - 3, args.data() + 3)));
     }
 
     virtual expr visit_app(expr const & e) {

@@ -1061,11 +1061,11 @@ theorem one_mul (x : ℝ) : 1 * x = x :=
 theorem mul_one (x : ℝ) : x * 1 = x :=
   quot.induction_on x (λ s, quot.sound (r_mul_one s))
 
-theorem distrib (x y z : ℝ) : x * (y + z) = x * y + x * z :=
+theorem left_distrib (x y z : ℝ) : x * (y + z) = x * y + x * z :=
   quot.induction_on₃ x y z (λ s t u, quot.sound (r_distrib s t u))
 
-theorem distrib_l (x y z : ℝ) : (x + y) * z = x * z + y * z :=
-  by rewrite [mul_comm, distrib, {x * _}mul_comm, {y * _}mul_comm] -- this shouldn't be necessary
+theorem right_distrib (x y z : ℝ) : (x + y) * z = x * z + y * z :=
+  by rewrite [mul_comm, left_distrib, {x * _}mul_comm, {y * _}mul_comm] -- this shouldn't be necessary
 
 theorem zero_ne_one : ¬ (0 : ℝ) = 1 :=
   take H : 0 = 1,
@@ -1087,8 +1087,8 @@ protected definition comm_ring [reducible] : algebra.comm_ring ℝ :=
     apply of_num 1,
     apply one_mul,
     apply mul_one,
-    apply distrib,
-    apply distrib_l,
+    apply left_distrib,
+    apply right_distrib,
     apply mul_comm
   end
 

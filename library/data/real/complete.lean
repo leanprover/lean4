@@ -399,7 +399,7 @@ theorem archimedean_upper_strict (x : ℝ) : ∃ z : ℤ, x < of_rat (of_int z) 
     apply lt_of_le_of_lt,
     apply Hz,
     apply of_rat_lt_of_rat_of_lt,
-    apply iff.mpr !of_int_lt_of_int,
+    apply of_int_lt_of_int_of_lt,
     apply int.lt_add_of_pos_right,
     apply dec_trivial
   end
@@ -431,7 +431,7 @@ definition ex_floor (x : ℝ) :=
       apply Har,
       have H : of_rat (of_int (some (archimedean_upper_strict x))) ≤ of_rat (of_int z), begin
         apply of_rat_le_of_rat_of_le,
-        apply iff.mpr !of_int_le_of_int,
+        apply of_int_le_of_int_of_le,
         apply Hz
       end,
       exact H
@@ -553,7 +553,7 @@ noncomputable definition under : ℚ := of_int (floor (elt - 1))
 theorem under_spec1 : of_rat under < elt :=
   have H : of_rat under < of_rat (of_int (floor elt)), begin
     apply of_rat_lt_of_rat_of_lt,
-    apply iff.mpr !of_int_lt_of_int,
+    apply of_int_lt_of_int_of_lt,
     apply floor_succ_lt
   end,
   lt_of_lt_of_le H !floor_spec
@@ -574,7 +574,7 @@ noncomputable definition over : ℚ := of_int (ceil (bound + 1)) -- b
 theorem over_spec1 : bound < of_rat over :=
   have H : of_rat (of_int (ceil bound)) < of_rat over, begin
     apply of_rat_lt_of_rat_of_lt,
-    apply iff.mpr !of_int_lt_of_int,
+    apply of_int_lt_of_int_of_lt,
     apply ceil_succ
   end,
   lt_of_le_of_lt !ceil_spec H

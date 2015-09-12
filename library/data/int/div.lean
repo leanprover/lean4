@@ -288,7 +288,7 @@ obtain m (Hm : a = of_nat m), from exists_eq_of_nat H1,
 obtain n (Hn : b = of_nat n), from exists_eq_of_nat (le_of_lt (lt_of_le_of_lt H1 H2)),
 begin
   revert H2,
-  rewrite [Hm, Hn, of_nat_mod, of_nat_lt_of_nat, of_nat_eq_of_nat],
+  rewrite [Hm, Hn, of_nat_mod, of_nat_lt_of_nat_iff, of_nat_eq_of_nat_iff],
   apply nat.mod_eq_of_lt
 end
 
@@ -481,21 +481,21 @@ nat.by_cases_zero_pos n
         assume H4 : of_nat n' = of_nat m * c,
         have H5 : c > 0, from pos_of_mul_pos_left (H4 ▸ H2) !of_nat_nonneg,
         obtain k (H6 : c = of_nat k), from exists_eq_of_nat (le_of_lt H5),
-        have H7 : n' = (#nat m * k), from (!iff.mp !of_nat_eq_of_nat (H6 ▸ H4)),
+        have H7 : n' = (#nat m * k), from (of_nat.inj (H6 ▸ H4)),
         nat.dvd.intro H7⁻¹))
 
 theorem of_nat_dvd_of_nat_of_dvd {m n : ℕ} (H : #nat m ∣ n) : of_nat m ∣ of_nat n :=
 nat.dvd.elim H
   (take k, assume H1 : #nat n = m * k,
-    dvd.intro (!iff.mpr !of_nat_eq_of_nat H1⁻¹))
+    dvd.intro (H1⁻¹ ▸ rfl))
 
-theorem of_nat_dvd_of_nat (m n : ℕ) : of_nat m ∣ of_nat n ↔ (#nat m ∣ n) :=
+theorem of_nat_dvd_of_nat_iff (m n : ℕ) : of_nat m ∣ of_nat n ↔ (#nat m ∣ n) :=
 iff.intro dvd_of_of_nat_dvd_of_nat of_nat_dvd_of_nat_of_dvd
 
 theorem dvd.antisymm {a b : ℤ} (H1 : a ≥ 0) (H2 : b ≥ 0) : a ∣ b → b ∣ a → a = b :=
 begin
   rewrite [-abs_of_nonneg H1, -abs_of_nonneg H2, -*of_nat_nat_abs],
-  rewrite [*of_nat_dvd_of_nat, *of_nat_eq_of_nat],
+  rewrite [*of_nat_dvd_of_nat_iff, *of_nat_eq_of_nat_iff],
   apply nat.dvd.antisymm
 end
 

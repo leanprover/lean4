@@ -87,7 +87,10 @@ infix  [priority int.prio] *  := int.mul
 theorem of_nat.inj {m n : ℕ} (H : of_nat m = of_nat n) : m = n :=
 int.no_confusion H imp.id
 
-theorem of_nat_eq_of_nat (m n : ℕ) : of_nat m = of_nat n ↔ m = n :=
+theorem eq_of_of_nat_eq_of_nat {m n : ℕ} (H : of_nat m = of_nat n) : m = n :=
+of_nat.inj H
+
+theorem of_nat_eq_of_nat_iff (m n : ℕ) : of_nat m = of_nat n ↔ m = n :=
 iff.intro of_nat.inj !congr_arg
 
 theorem neg_succ_of_nat.inj {m n : ℕ} (H : neg_succ_of_nat m = neg_succ_of_nat n) : m = n :=
@@ -97,7 +100,7 @@ theorem neg_succ_of_nat_eq (n : ℕ) : -[1+ n] = -(n + 1) := rfl
 
 private definition has_decidable_eq₂ : Π (a b : ℤ), decidable (a = b)
 | (of_nat m) (of_nat n) := decidable_of_decidable_of_iff
-    (nat.has_decidable_eq m n) (iff.symm (of_nat_eq_of_nat m n))
+    (nat.has_decidable_eq m n) (iff.symm (of_nat_eq_of_nat_iff m n))
 | (of_nat m) -[1+ n]    := inr (by contradiction)
 | -[1+ m]    (of_nat n) := inr (by contradiction)
 | -[1+ m]    -[1+ n]    := if H : m = n then

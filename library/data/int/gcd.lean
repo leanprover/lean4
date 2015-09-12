@@ -63,7 +63,7 @@ by rewrite [↑gcd, nat.gcd_self, of_nat_nat_abs]
 
 theorem gcd_dvd_left (a b : ℤ) : gcd a b ∣ a :=
 have gcd a b ∣ abs a,
-  by rewrite [↑gcd, -of_nat_nat_abs, of_nat_dvd_of_nat]; apply nat.gcd_dvd_left,
+  by rewrite [↑gcd, -of_nat_nat_abs, of_nat_dvd_of_nat_iff]; apply nat.gcd_dvd_left,
 iff.mp !dvd_abs_iff this
 
 theorem gcd_dvd_right (a b : ℤ) : gcd a b ∣ b :=
@@ -72,7 +72,7 @@ by rewrite gcd.comm; apply gcd_dvd_left
 theorem dvd_gcd {a b c : ℤ} : a ∣ b → a ∣ c → a ∣ gcd b c :=
 begin
   rewrite [↑gcd, -*(abs_dvd_iff a), -(dvd_abs_iff _ b), -(dvd_abs_iff _ c), -*of_nat_nat_abs],
-  rewrite [*of_nat_dvd_of_nat] ,
+  rewrite [*of_nat_dvd_of_nat_iff] ,
   apply nat.dvd_gcd
 end
 
@@ -212,21 +212,21 @@ theorem lcm_self (a : ℤ) : lcm a a = abs a :=
 by krewrite [↑lcm, nat.lcm_self, of_nat_nat_abs]
 
 theorem dvd_lcm_left (a b : ℤ) : a ∣ lcm a b :=
-by rewrite [↑lcm, -abs_dvd_iff, -of_nat_nat_abs, of_nat_dvd_of_nat]; apply nat.dvd_lcm_left
+by rewrite [↑lcm, -abs_dvd_iff, -of_nat_nat_abs, of_nat_dvd_of_nat_iff]; apply nat.dvd_lcm_left
 
 theorem dvd_lcm_right (a b : ℤ) : b ∣ lcm a b :=
 !lcm.comm ▸ !dvd_lcm_left
 
 theorem gcd_mul_lcm (a b : ℤ) : gcd a b * lcm a b = abs (a * b) :=
 begin
-  rewrite [↑gcd, ↑lcm, -of_nat_nat_abs, -of_nat_mul, of_nat_eq_of_nat, nat_abs_mul],
+  rewrite [↑gcd, ↑lcm, -of_nat_nat_abs, -of_nat_mul, of_nat_eq_of_nat_iff, nat_abs_mul],
   apply nat.gcd_mul_lcm
 end
 
 theorem lcm_dvd {a b c : ℤ} : a ∣ c → b ∣ c → lcm a b ∣ c :=
 begin
   rewrite [↑lcm, -(abs_dvd_iff a), -(abs_dvd_iff b), -*(dvd_abs_iff _ c), -*of_nat_nat_abs],
-  rewrite [*of_nat_dvd_of_nat] ,
+  rewrite [*of_nat_dvd_of_nat_iff] ,
   apply nat.lcm_dvd
 end
 
@@ -261,7 +261,7 @@ dvd_of_coprime_of_dvd_mul_right H1 (!mul.comm ▸ H2)
 theorem gcd_mul_left_cancel_of_coprime {c : ℤ} (a : ℤ) {b : ℤ} (H : coprime c b) :
    gcd (c * a) b = gcd a b :=
 begin
-  revert H, rewrite [↑coprime, ↑gcd, *of_nat_eq_of_nat, nat_abs_mul],
+  revert H, rewrite [↑coprime, ↑gcd, *of_nat_eq_of_nat_iff, nat_abs_mul],
   apply nat.gcd_mul_left_cancel_of_coprime
 end
 

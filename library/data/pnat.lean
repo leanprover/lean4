@@ -88,16 +88,16 @@ theorem pnat.to_rat_of_nat (n : ℕ+) : rat_of_pnat n = of_nat n~ := rfl
 theorem rat_of_nat_nonneg (n : ℕ) : 0 ≤ of_nat n := trivial
 
 theorem rat_of_pnat_ge_one (n : ℕ+) : rat_of_pnat n ≥ 1 :=
-  (iff.mpr !of_nat_le_of_nat) (pnat_pos n)
+  of_nat_le_of_nat_of_le (pnat_pos n)
 
 theorem rat_of_pnat_is_pos (n : ℕ+) : rat_of_pnat n > 0 :=
-  (iff.mpr !of_nat_pos) (pnat_pos n)
+  of_nat_lt_of_nat_of_lt (pnat_pos n)
 
 theorem of_nat_le_of_nat_of_le {m n : ℕ} (H : m ≤ n) : of_nat m ≤ of_nat n :=
-  (iff.mpr !of_nat_le_of_nat) H
+  of_nat_le_of_nat_of_le H
 
 theorem of_nat_lt_of_nat_of_lt {m n : ℕ} (H : m < n) : of_nat m < of_nat n :=
-  (iff.mpr !of_nat_lt_of_nat) H
+  of_nat_lt_of_nat_of_lt H
 
 theorem rat_of_pnat_le_of_pnat_le {m n : ℕ+} (H : m ≤ n) : rat_of_pnat m ≤ rat_of_pnat n :=
   of_nat_le_of_nat_of_le H
@@ -106,7 +106,7 @@ theorem rat_of_pnat_lt_of_pnat_lt {m n : ℕ+} (H : m < n) : rat_of_pnat m < rat
   of_nat_lt_of_nat_of_lt H
 
 theorem pnat_le_of_rat_of_pnat_le {m n : ℕ+} (H : rat_of_pnat m ≤ rat_of_pnat n) : m ≤ n :=
-  (iff.mp !of_nat_le_of_nat) H
+  le_of_of_nat_le_of_nat H
 
 definition inv (n : ℕ+) : ℚ := (1 : ℚ) / rat_of_pnat n
 postfix `⁻¹` := inv

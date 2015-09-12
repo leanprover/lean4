@@ -349,8 +349,8 @@ namespace rat
 /- operations -/
 
 definition of_int [coercion] (i : ℤ) : ℚ := ⟦prerat.of_int i⟧
-definition of_nat [coercion] (n : ℕ) : ℚ := ⟦prerat.of_int n⟧
-definition of_num [coercion] [reducible] (n : num) : ℚ := of_int (int.of_num n)
+definition of_nat [coercion] (n : ℕ) : ℚ := nat.to.rat n
+definition of_num [coercion] [reducible] (n : num) : ℚ := num.to.rat n
 
 definition add : ℚ → ℚ → ℚ :=
 quot.lift₂
@@ -413,16 +413,28 @@ calc
 theorem of_int.inj {a b : ℤ} (H : of_int a = of_int b) : a = b :=
 prerat.of_int.inj (quot.exact H)
 
+theorem eq_of_of_int_eq_of_int {a b : ℤ} (H : of_int a = of_int b) : a = b :=
+of_int.inj H
+
 theorem of_nat_eq (a : ℕ) : of_nat a = of_int (int.of_nat a) := rfl
 
 theorem of_nat_add (a b : ℕ) : of_nat (#nat a + b) = of_nat a + of_nat b :=
-by rewrite [*of_nat_eq, int.of_nat_add, rat.of_int_add]
+by rewrite [of_nat_eq, int.of_nat_add, rat.of_int_add]
 
 theorem of_nat_mul (a b : ℕ) : of_nat (#nat a * b) = of_nat a * of_nat b :=
-by rewrite [*of_nat_eq, int.of_nat_mul, rat.of_int_mul]
+by rewrite [of_nat_eq, int.of_nat_mul, rat.of_int_mul]
 
 theorem of_nat_sub {a b : ℕ} (H : #nat a ≥ b) : of_nat (#nat a - b) = of_nat a - of_nat b :=
-by rewrite [*of_nat_eq, int.of_nat_sub H, rat.of_int_sub]
+by rewrite [of_nat_eq, int.of_nat_sub H, rat.of_int_sub]
+
+theorem of_nat.inj {a b : ℕ} (H : of_nat a = of_nat b) : a = b :=
+int.of_nat.inj (of_int.inj H)
+
+theorem eq_of_of_nat_eq_of_nat {a b : ℕ} (H : of_nat a = of_nat b) : a = b :=
+of_nat.inj H
+
+theorem of_nat_eq_of_nat_iff (a b : ℕ) : of_nat a = of_nat b ↔ a = b :=
+iff.intro of_nat.inj !congr_arg
 
 theorem add.comm (a b : ℚ) : a + b = b + a :=
 quot.induction_on₂ a b (take u v, quot.sound !prerat.add.comm)

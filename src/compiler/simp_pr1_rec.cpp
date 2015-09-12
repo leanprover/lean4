@@ -118,14 +118,14 @@ class simp_pr1_rec_fn : public replace_visitor {
             //   3- In c1, all occurrences of recursive arguments r are of the form (prod.pr1 A B r)
 
             // Step 1.
-            for (unsigned i = 0; i < minor_ctx.size(); i++) {
-                if (minor_is_rec_arg[i]) {
-                    expr type = m_tc.whnf(mlocal_type(minor_ctx[i])).first;
+            for (unsigned k = 0; k < minor_ctx.size(); k++) {
+                if (minor_is_rec_arg[k]) {
+                    expr type = m_tc.whnf(mlocal_type(minor_ctx[k])).first;
                     buffer<expr> type_args;
                     expr type_fn = get_app_args(type, type_args);
                     if (!is_constant(type_fn) || const_name(type_fn) != get_prod_name() || type_args.size() != 2)
                         return none_expr();
-                    minor_ctx[i] = update_mlocal(minor_ctx[i], type_args[0]);
+                    minor_ctx[k] = update_mlocal(minor_ctx[k], type_args[0]);
                 }
             }
 

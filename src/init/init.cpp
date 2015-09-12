@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/tactic/init_module.h"
 #include "library/definitional/init_module.h"
 #include "library/print.h"
+#include "compiler/init_module.h"
 #include "frontends/lean/init_module.h"
 #include "frontends/lua/register_modules.h"
 #include "init/init.h"
@@ -37,12 +38,14 @@ void initialize() {
     initialize_tactic_module();
     initialize_simplifier_module();
     initialize_definitional_module();
+    initialize_compiler_module();
     initialize_frontend_lean_module();
     register_modules();
 }
 void finalize() {
     run_thread_finalizers();
     finalize_frontend_lean_module();
+    finalize_compiler_module();
     finalize_definitional_module();
     finalize_simplifier_module();
     finalize_tactic_module();

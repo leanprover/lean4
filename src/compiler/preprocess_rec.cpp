@@ -25,22 +25,24 @@ static expr expand_aux_recursors(environment const & env, expr const & e) {
     return normalize(*tc, e, cs);
 }
 
-class elim_rec_fn {
-    environment           m_env;
-    buffer<declaration> & m_aux_decls;
+static name * g_tmp_prefix = nullptr;
+
+class preprocess_rec_fn {
+    environment    m_env;
+    buffer<name> & m_aux_decls;
 
     bool check(declaration const & d, expr const & v) {
         type_checker tc(m_env);
         expr t = tc.check(v, d.get_univ_params()).first;
         if (!tc.is_def_eq(d.get_type(), t).first)
-            throw exception("elim_rec failed");
+            throw exception("preprocess_rec failed");
         return true;
     }
 
 public:
-    elim_rec_fn(environment const & env, buffer<declaration> & aux_decls): m_env(env), m_aux_decls(aux_decls) {}
+    preprocess_rec_fn(environment const & env, buffer<name> & aux_decls): m_env(env), m_aux_decls(aux_decls) {}
 
-    declaration operator()(declaration const & d) {
+    environment operator()(declaration const & d) {
         expr v = d.get_value();
         v = expand_aux_recursors(m_env, v);
         v = eta_expand(m_env, v);
@@ -48,11 +50,19 @@ public:
         ::pp(m_env, v);
         // TODO(Leo)
         check(d, v);
-        return d;
+        return m_env;
     }
 };
 
-declaration elim_rec(environment const & env, declaration const & d, buffer<declaration> & aux_decls) {
-    return elim_rec_fn(env, aux_decls)(d);
+environment preprocess_rec(environment const & env, declaration const & d, buffer<name> & aux_decls) {
+    return preprocess_rec_fn(env, aux_decls)(d);
+}
+
+void initialize_preprocess_rec() {
+    g_tmp_prefix = new name(name::mk_internal_unique_name());
+}
+
+void finalize_preprocess_rec() {
+    delete g_tmp_prefix;
 }
 }

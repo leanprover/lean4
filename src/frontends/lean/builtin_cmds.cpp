@@ -35,7 +35,7 @@ Author: Leonardo de Moura
 #include "library/composition_manager.h"
 #include "library/definitional/projection.h"
 #include "library/simplifier/simp_rule_set.h"
-#include "compiler/elim_rec.h"
+#include "compiler/preprocess_rec.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/calc.h"
@@ -1055,8 +1055,8 @@ static environment init_hits_cmd(parser & p) {
 static environment compile_cmd(parser & p) {
     name n = p.check_constant_next("invalid #compile command, constant expected");
     declaration d = p.env().get(n);
-    buffer<declaration> aux_decls;
-    elim_rec(p.env(), d, aux_decls);
+    buffer<name> aux_decls;
+    preprocess_rec(p.env(), d, aux_decls);
     return p.env();
 }
 

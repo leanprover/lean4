@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
 #include "kernel/find_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "library/util.h"

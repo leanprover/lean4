@@ -14,15 +14,18 @@ iff.intro (λ e x H, e (exists.intro x H)) Exists.rec
 theorem forall_iff_not_exists {A : Type} {P : A → Prop} : (¬ ∃ a : A, P a) ↔ ∀ a : A, ¬ P a :=
 exists_imp_distrib
 
-theorem not_forall_not_of_exists {A : Type} {p : A → Prop} (H : ∃x, p x) : ¬ ∀ x, ¬ p x :=
+theorem not_forall_not_of_exists {A : Type} {p : A → Prop} (H : ∃ x, p x) : ¬ ∀ x, ¬ p x :=
 assume H1 : ∀ x, ¬ p x,
   obtain (w : A) (Hw : p w), from H,
   absurd Hw (H1 w)
 
-theorem not_exists_not_of_forall {A : Type} {p : A → Prop} (H2 : ∀x, p x) : ¬ ∃ x, ¬p x :=
+theorem not_exists_not_of_forall {A : Type} {p : A → Prop} (H2 : ∀ x, p x) : ¬ ∃ x, ¬p x :=
 assume H1 : ∃ x, ¬ p x,
   obtain (w : A) (Hw : ¬ p w), from H1,
   absurd (H2 w) Hw
+
+theorem not_forall_of_exists_not {A : Type} {P : A → Prop} (H : ∃ a : A, ¬ P a) : ¬ ∀ a : A, P a :=
+assume H', not_exists_not_of_forall H' H
 
 theorem forall_congr {A : Type} {φ ψ : A → Prop} : (∀ x, φ x ↔ ψ x) → ((∀ x, φ x) ↔ (∀ x, ψ x)) :=
 forall_iff_forall

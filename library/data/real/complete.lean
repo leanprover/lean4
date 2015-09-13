@@ -212,14 +212,15 @@ theorem approx_spec' (x : ℝ) (n : ℕ+) : abs ((of_rat (approx x n)) - x) ≤ 
 
 notation `r_seq` := ℕ+ → ℝ
 
-noncomputable definition converges_to (X : r_seq) (a : ℝ) (N : ℕ+ → ℕ+) :=
+noncomputable definition converges_to_with_rate (X : r_seq) (a : ℝ) (N : ℕ+ → ℕ+) :=
   ∀ k : ℕ+, ∀ n : ℕ+, n ≥ N k → abs (X n - a) ≤ of_rat k⁻¹
 
-noncomputable definition cauchy (X : r_seq) (M : ℕ+ → ℕ+) :=
+noncomputable definition cauchy_with_rate (X : r_seq) (M : ℕ+ → ℕ+) :=
   ∀ k : ℕ+, ∀ m n : ℕ+, m ≥ M k → n ≥ M k → abs (X m - X n) ≤ of_rat k⁻¹
 
-theorem cauchy_of_converges_to {X : r_seq} {a : ℝ} {N : ℕ+ → ℕ+} (Hc : converges_to X a N) :
-        cauchy X (λ k, N (2 * k)) :=
+theorem cauchy_with_rate_of_converges_to_with_rate {X : r_seq} {a : ℝ} {N : ℕ+ → ℕ+}
+    (Hc : converges_to_with_rate X a N) :
+        cauchy_with_rate X (λ k, N (2 * k)) :=
   begin
     intro k m n Hm Hn,
     rewrite (rewrite_helper9 a),
@@ -247,7 +248,7 @@ private theorem Nb_spec_left (M : ℕ+ → ℕ+) (k : ℕ+) : 3 * k ≤ Nb M k :
 section lim_seq
 parameter {X : r_seq}
 parameter {M : ℕ+ → ℕ+}
-hypothesis Hc : cauchy X M
+hypothesis Hc : cauchy_with_rate X M
 include Hc
 
 noncomputable definition lim_seq : ℕ+ → ℚ :=
@@ -294,14 +295,16 @@ theorem lim_seq_reg : rat_seq.regular lim_seq :=
   end
 
 theorem lim_seq_spec (k : ℕ+) :
-        rat_seq.s_le (rat_seq.s_abs (rat_seq.sadd lim_seq (rat_seq.sneg (rat_seq.const (lim_seq k))))) (rat_seq.const k⁻¹) :=
+        rat_seq.s_le (rat_seq.s_abs (rat_seq.sadd lim_seq
+            (rat_seq.sneg (rat_seq.const (lim_seq k))))) (rat_seq.const k⁻¹) :=
   by apply rat_seq.const_bound; apply lim_seq_reg
 
 private noncomputable definition r_lim_seq : rat_seq.reg_seq :=
   rat_seq.reg_seq.mk lim_seq lim_seq_reg
 
 private theorem r_lim_seq_spec (k : ℕ+) : rat_seq.r_le
-        (rat_seq.r_abs ((rat_seq.radd r_lim_seq (rat_seq.rneg (rat_seq.r_const ((rat_seq.reg_seq.sq r_lim_seq) k))))))
+        (rat_seq.r_abs ((rat_seq.radd r_lim_seq (rat_seq.rneg
+            (rat_seq.r_const ((rat_seq.reg_seq.sq r_lim_seq) k))))))
         (rat_seq.r_const k⁻¹) :=
   lim_seq_spec k
 
@@ -318,7 +321,7 @@ theorem lim_spec (k : ℕ+) :
         abs ((of_rat (lim_seq k)) - lim) ≤ of_rat k⁻¹ :=
   by rewrite abs_sub; apply lim_spec'
 
-theorem converges_of_cauchy : converges_to X lim (Nb M) :=
+theorem converges_to_with_rate_of_cauchy_with_rate : converges_to_with_rate X lim (Nb M) :=
   begin
     intro k n Hn,
     rewrite (rewrite_helper10 (X (Nb M n)) (of_rat (lim_seq n))),
@@ -419,7 +422,7 @@ theorem archimedean_lower_strict (x : ℝ) : ∃ z : ℤ, x > of_int z :=
     apply iff.mp !neg_lt_iff_neg_lt Hz
   end
 
-definition ex_floor (x : ℝ) :=
+private definition ex_floor (x : ℝ) :=
   (@ex_largest_of_bdd (λ z, x ≥ of_int z) _
     (begin
       existsi some (archimedean_upper_strict x),
@@ -441,57 +444,76 @@ noncomputable definition floor (x : ℝ) : ℤ :=
 
 noncomputable definition ceil (x : ℝ) : ℤ := - floor (-x)
 
-theorem floor_spec (x : ℝ) : of_int (floor x) ≤ x :=
+theorem floor_le (x : ℝ) : floor x ≤ x :=
   and.left (some_spec (ex_floor x))
 
-theorem floor_largest {x : ℝ} {z : ℤ} (Hz : z > floor x) : x < of_int z :=
+theorem lt_of_floor_lt {x : ℝ} {z : ℤ} (Hz : floor x < z) : x < z :=
   begin
     apply lt_of_not_ge,
     cases some_spec (ex_floor x),
     apply a_1 _ Hz
   end
 
-theorem ceil_spec (x : ℝ) : of_int (ceil x) ≥ x :=
+theorem le_ceil (x : ℝ) : x ≤ ceil x :=
   begin
     rewrite [↑ceil, of_int_neg],
     apply iff.mp !le_neg_iff_le_neg,
-    apply floor_spec
+    apply floor_le
   end
 
-theorem ceil_smallest {x : ℝ} {z : ℤ} (Hz : z < ceil x) : x > of_int z :=
+theorem lt_of_lt_ceil {x : ℝ} {z : ℤ} (Hz : z < ceil x) : z < x :=
   begin
     rewrite ↑ceil at Hz,
-    let Hz' := floor_largest (iff.mp !int.lt_neg_iff_lt_neg Hz),
+    let Hz' := lt_of_floor_lt (iff.mp !int.lt_neg_iff_lt_neg Hz),
     rewrite [of_int_neg at Hz'],
     apply lt_of_neg_lt_neg Hz'
   end
 
-theorem floor_succ (x : ℝ) : (floor x) + 1 = floor (x + 1) :=
+theorem floor_succ (x : ℝ) : floor (x + 1) = floor x + 1 :=
   begin
     apply by_contradiction,
     intro H,
-    cases int.lt_or_gt_of_ne H with [Hlt, Hgt],
-    let Hl := floor_largest (iff.mp !int.add_lt_iff_lt_sub_right Hlt),
-    rewrite [of_int_sub at Hl],
-    apply not_le_of_gt (iff.mpr !add_lt_iff_lt_sub_right Hl) !floor_spec,
-    let Hl := floor_largest Hgt,
+    cases int.lt_or_gt_of_ne H with [Hgt, Hlt],
+    let Hl := lt_of_floor_lt Hgt,
     rewrite [of_int_add at Hl],
-    apply not_le_of_gt (lt_of_add_lt_add_right Hl) !floor_spec
+    apply not_le_of_gt (lt_of_add_lt_add_right Hl) !floor_le,
+    let Hl := lt_of_floor_lt (iff.mp !int.add_lt_iff_lt_sub_right Hlt),
+    rewrite [of_int_sub at Hl],
+    apply not_le_of_gt (iff.mpr !add_lt_iff_lt_sub_right Hl) !floor_le
   end
 
-theorem floor_succ_lt (x : ℝ) : floor (x - 1) < floor x :=
+theorem floor_sub_one_lt_floor (x : ℝ) : floor (x - 1) < floor x :=
   begin
     apply @int.lt_of_add_lt_add_right _ 1,
-    rewrite [floor_succ (x - 1), sub_add_cancel],
+    rewrite [-floor_succ (x - 1), sub_add_cancel],
     apply int.lt_add_of_pos_right dec_trivial
   end
 
-theorem ceil_succ (x : ℝ) : ceil x < ceil (x + 1) :=
+theorem ceil_lt_ceil_succ (x : ℝ) : ceil x < ceil (x + 1) :=
   begin
     rewrite [↑ceil, neg_add],
     apply int.neg_lt_neg,
-    apply floor_succ_lt
+    apply floor_sub_one_lt_floor
   end
+
+section
+open int
+
+theorem archimedean_small {ε : ℝ} (H : ε > 0) : ∃ (n : ℕ), 1 / succ n < ε :=
+let n := int.nat_abs (ceil (2 / ε)) in
+have int.of_nat n ≥ ceil (2 / ε),
+  by rewrite int.of_nat_nat_abs; apply int.le_abs_self,
+have int.of_nat (succ n) ≥ ceil (2 / ε),
+  from int.le.trans this (int.of_nat_le_of_nat_of_le !le_succ),
+have H₁ : succ n ≥ ceil (2 / ε), from of_int_le_of_int_of_le this,
+have H₂ : succ n ≥ 2 / ε, from !le.trans !le_ceil H₁,
+have H₃ : 2 / ε > 0, from div_pos_of_pos_of_pos two_pos H,
+have 1 / succ n < ε, from calc
+  1 / succ n ≤ 1 / (2 / ε) : div_le_div_of_le H₃ H₂
+    ... = ε / 2       : one_div_div
+    ... < ε           : div_two_lt_of_pos H,
+exists.intro n this
+end
 
 end ints
 --------------------------------------------------
@@ -517,10 +539,10 @@ definition rpt {A : Type} (op : A → A) : ℕ → A → A
 
 
 definition ub (x : ℝ) := ∀ y : ℝ, X y → y ≤ x
-definition sup (x : ℝ) := ub x ∧ ∀ y : ℝ, ub y → x ≤ y
+definition is_sup (x : ℝ) := ub x ∧ ∀ y : ℝ, ub y → x ≤ y
 
 definition lb (x : ℝ) := ∀ y : ℝ, X y → x ≤ y
-definition inf (x : ℝ) := lb x ∧ ∀ y : ℝ, lb y → y ≤ x
+definition is_inf (x : ℝ) := lb x ∧ ∀ y : ℝ, lb y → y ≤ x
 
 parameter elt : ℝ
 hypothesis inh :  X elt
@@ -528,15 +550,6 @@ parameter bound : ℝ
 hypothesis bdd : ub bound
 
 include inh bdd
-
--- this should exist somewhere, no? I can't find it
-theorem not_forall_of_exists_not {A : Type} {P : A → Prop} (H : ∃ a : A, ¬ P a) :
-        ¬ ∀ a : A, P a :=
-  begin
-    intro Hall,
-    cases H with [a, Ha],
-    apply Ha (Hall a)
-  end
 
 definition avg (a b : ℚ) := a / 2 + b / 2
 
@@ -551,9 +564,9 @@ noncomputable definition under : ℚ := rat.of_int (floor (elt - 1))
 theorem under_spec1 : of_rat under < elt :=
   have H : of_rat under < of_int (floor elt), begin
     apply of_int_lt_of_int_of_lt,
-    apply floor_succ_lt
+    apply floor_sub_one_lt_floor
   end,
-  lt_of_lt_of_le H !floor_spec
+  lt_of_lt_of_le H !floor_le
 
 theorem under_spec : ¬ ub under :=
   begin
@@ -571,9 +584,9 @@ noncomputable definition over : ℚ := rat.of_int (ceil (bound + 1)) -- b
 theorem over_spec1 : bound < of_rat over :=
   have H : of_int (ceil bound) < of_rat over, begin
     apply of_int_lt_of_int_of_lt,
-    apply ceil_succ
+    apply ceil_lt_ceil_succ
   end,
-  lt_of_le_of_lt !ceil_spec H
+  lt_of_le_of_lt !le_ceil H
 
 theorem over_spec : ub over :=
   begin
@@ -922,15 +935,15 @@ theorem under_over_equiv : p_under_seq ≡ p_over_seq :=
 
 theorem under_over_eq : sup_under = sup_over := quot.sound under_over_equiv
 
-theorem ex_sup_of_inh_of_bdd : ∃ x : ℝ, sup x :=
+theorem exists_is_sup_of_inh_of_bdd : ∃ x : ℝ, is_sup x :=
   exists.intro sup_over (and.intro over_bound (under_over_eq ▸ under_lowest_bound))
 
 end supremum
 
 definition bounding_set (X : ℝ → Prop) (x : ℝ) : Prop := ∀ y : ℝ, X y → x ≤ y
 
-theorem ex_inf_of_inh_of_bdd (X : ℝ → Prop) (elt : ℝ) (inh : X elt) (bound : ℝ)
-        (bdd : lb X bound) : ∃ x : ℝ, inf X x :=
+theorem exists_is_inf_of_inh_of_bdd (X : ℝ → Prop) (elt : ℝ) (inh : X elt) (bound : ℝ)
+        (bdd : lb X bound) : ∃ x : ℝ, is_inf X x :=
   begin
     have Hinh : bounding_set X bound, begin
       intros y Hy,
@@ -942,7 +955,7 @@ theorem ex_inf_of_inh_of_bdd (X : ℝ → Prop) (elt : ℝ) (inh : X elt) (bound
       apply Hy,
       apply inh
     end,
-    cases ex_sup_of_inh_of_bdd _ _ Hinh _ Hub with [supr, Hsupr],
+    cases exists_is_sup_of_inh_of_bdd _ _ Hinh _ Hub with [supr, Hsupr],
     existsi supr,
     cases Hsupr with [Hubs1, Hubs2],
     apply and.intro,

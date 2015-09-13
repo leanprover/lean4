@@ -676,4 +676,37 @@ by rewrite [of_int_eq, rat.of_int_div H, of_rat_divide]
 theorem of_nat_div (x y : ℕ) (H : (#nat y ∣ x)) : of_nat (#nat x div y) = of_nat x / of_nat y :=
 by rewrite [of_nat_eq, rat.of_nat_div H, of_rat_divide]
 
+/- useful for proving equalities -/
+
+theorem eq_zero_of_nonneg_of_forall_lt {x : ℝ} (xnonneg : x ≥ 0) (H : ∀ ε : ℝ, ε > 0 → x < ε) :
+  x = 0 :=
+decidable.by_contradiction
+  (suppose x ≠ 0,
+   have x > 0, from real.lt_of_le_of_ne xnonneg (ne.symm this),
+   have x < x, from H x this,
+   show false, from !lt.irrefl this)
+
+theorem eq_zero_of_nonneg_of_forall_le {x : ℝ} (xnonneg : x ≥ 0) (H : ∀ ε : ℝ, ε > 0 → x ≤ ε) :
+  x = 0 :=
+have ∀ ε : ℝ, ε > 0 → x < ε, from
+  take ε, suppose ε > 0,
+  have e2pos : ε / 2 > 0, from div_pos_of_pos_of_pos `ε > 0` two_pos,
+  have ε / 2 < ε, from div_two_lt_of_pos `ε > 0`,
+  calc
+    x ≤ ε / 2 : H _ e2pos
+      ... < ε : div_two_lt_of_pos (by assumption),
+eq_zero_of_nonneg_of_forall_lt xnonneg this
+
+theorem eq_zero_of_forall_abs_le {x : ℝ} (H : ∀ ε : ℝ, ε > 0 → abs x ≤ ε) :
+  x = 0 :=
+by_contradiction
+  (suppose x ≠ 0,
+   have abs x = 0, from eq_zero_of_nonneg_of_forall_le !abs_nonneg H,
+   show false, from `x ≠ 0` (eq_zero_of_abs_eq_zero this))
+
+theorem eq_of_forall_abs_sub_le {x y : ℝ} (H : ∀ ε : ℝ, ε > 0 → abs (x - y) ≤ ε) :
+  x = y :=
+have x - y = 0, from eq_zero_of_forall_abs_le H,
+eq_of_sub_eq_zero this
+
 end real

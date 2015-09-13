@@ -1161,4 +1161,7 @@ theorem of_nat_mul (a b : ℕ) : of_nat (#nat a * b) = of_nat a * of_nat b :=
 theorem add_half_of_rat (n : ℕ+) : of_rat (2 * n)⁻¹ + of_rat (2 * n)⁻¹ = of_rat (n⁻¹) :=
   by rewrite [-of_rat_add, pnat.add_halves]
 
+theorem one_add_one : 1 + 1 = (2 : ℝ) :=
+by rewrite -of_rat_add
+
 end real

@@ -31,7 +31,7 @@ expr local_context::abstract_locals(expr const & e, list<expr> const & locals) {
                         return some_expr(copy_tag(m, mk_var(offset + i)));
                     i++;
                 }
-                return some_expr(m);
+                return none_expr();
             }
             return none_expr();
         });

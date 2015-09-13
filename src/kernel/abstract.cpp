@@ -43,7 +43,7 @@ expr abstract_locals(expr const & e, unsigned n, expr const * subst) {
                     if (mlocal_name(subst[i]) == mlocal_name(m))
                         return some_expr(mk_var(offset + n - i - 1, m.get_tag()));
                 }
-                return some_expr(m);
+                return none_expr();
             }
             return none_expr();
         });

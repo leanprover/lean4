@@ -698,6 +698,10 @@ section
   theorem abs_eq_zero_iff_eq_zero (a : A) : abs a = 0 ↔ a = 0 :=
   iff.intro eq_zero_of_abs_eq_zero (assume H, congr_arg abs H ⬝ !abs_zero)
 
+  theorem eq_of_abs_sub_eq_zero {a b : A} (H : abs (a - b) = 0) : a = b :=
+  have a - b = 0, from eq_zero_of_abs_eq_zero H,
+  show a = b, from eq_of_sub_eq_zero this
+
   theorem abs_pos_of_ne_zero (H : a ≠ 0) : abs a > 0 :=
   or.elim (lt_or_gt_of_ne H) abs_pos_of_neg abs_pos_of_pos
 
@@ -770,6 +774,12 @@ section
         ... ≤ abs (a - b) + abs b   : abs_add_le_abs_add_abs,
   algebra.le_of_add_le_add_right H1
 
+  theorem abs_sub_le (a b c : A) : abs (a - c) ≤ abs (a - b) + abs (b - c) :=
+  calc
+    abs (a - c) = abs (a - b + (b - c))     :
+                    by rewrite [sub_eq_add_neg, add.assoc, neg_add_cancel_left]
+            ... ≤ abs (a - b) + abs (b - c) : abs_add_le_abs_add_abs
+
   theorem abs_add_three (a b c : A) : abs (a + b + c) ≤ abs a + abs b + abs c :=
     begin
       apply le.trans,
@@ -780,7 +790,7 @@ section
       apply le.refl
     end
 
-theorem dist_bdd_within_interval {a b lb ub : A} (H : lb < ub) (Hal : lb ≤ a) (Hau : a ≤ ub)
+  theorem dist_bdd_within_interval {a b lb ub : A} (H : lb < ub) (Hal : lb ≤ a) (Hau : a ≤ ub)
         (Hbl : lb ≤ b) (Hbu : b ≤ ub) : abs (a - b) ≤ ub - lb :=
   begin
     cases (decidable.em (b ≤ a)) with [Hba, Hba],

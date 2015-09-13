@@ -423,7 +423,7 @@ theorem archimedean_lower_strict (x : ℝ) : ∃ z : ℤ, x > of_int z :=
   end
 
 private definition ex_floor (x : ℝ) :=
-  (@ex_largest_of_bdd (λ z, x ≥ of_int z) _
+  (@exists_greatest_of_bdd (λ z, x ≥ of_int z) _
     (begin
       existsi some (archimedean_upper_strict x),
       let Har := some_spec (archimedean_upper_strict x),

@@ -389,7 +389,8 @@ dvd.elim H'
     suppose 1 = a * b,
     eq_one_of_mul_eq_one_right H this⁻¹)
 
-theorem ex_smallest_of_bdd {P : ℤ → Prop} [HP : decidable_pred P] (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z ≤ b → ¬ P z)
+theorem exists_least_of_bdd {P : ℤ → Prop} [HP : decidable_pred P]
+    (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z ≤ b → ¬ P z)
         (Hinh : ∃ z : ℤ, P z) : ∃ lb : ℤ, P lb ∧ (∀ z : ℤ, z < lb → ¬ P z) :=
   begin
     cases Hbdd with [b, Hb],
@@ -426,7 +427,8 @@ theorem ex_smallest_of_bdd {P : ℤ → Prop} [HP : decidable_pred P] (Hbdd : �
     apply least_lt _ !lt_succ_self H'
   end
 
-theorem ex_largest_of_bdd {P : ℤ → Prop} [HP : decidable_pred P] (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z ≥ b → ¬ P z)
+theorem exists_greatest_of_bdd {P : ℤ → Prop} [HP : decidable_pred P]
+    (Hbdd : ∃ b : ℤ, ∀ z : ℤ, z ≥ b → ¬ P z)
         (Hinh : ∃ z : ℤ, P z) : ∃ ub : ℤ, P ub ∧ (∀ z : ℤ, z > ub → ¬ P z) :=
   begin
     cases Hbdd with [b, Hb],

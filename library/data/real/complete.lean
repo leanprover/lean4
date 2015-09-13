@@ -232,7 +232,7 @@ theorem cauchy_of_converges_to {X : r_seq} {a : ℝ} {N : ℕ+ → ℕ+} (Hc : c
     krewrite abs_neg,
     apply Hc,
     apply Hn,
-    xrewrite of_rat_add,
+    xrewrite -of_rat_add,
     apply of_rat_le_of_rat_of_le,
     rewrite pnat.add_halves,
     apply rat.le.refl
@@ -270,7 +270,7 @@ private theorem lim_seq_reg_helper {m n : ℕ+} (Hmn : M (2 * n) ≤M (2 * m)) :
     apply pnat.le.trans,
     apply Hmn,
     apply Nb_spec_right,
-    rewrite [*of_rat_add, rat.add.assoc, pnat.add_halves],
+    rewrite [-*of_rat_add, rat.add.assoc, pnat.add_halves],
     apply of_rat_le_of_rat_of_le,
     apply rat.add_le_add_right,
     apply inv_ge_of_le,
@@ -281,8 +281,8 @@ theorem lim_seq_reg : rat_seq.regular lim_seq :=
   begin
     rewrite ↑rat_seq.regular,
     intro m n,
-    apply le_of_rat_le_of_rat,
-    rewrite [abs_const, -of_rat_sub, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],
+    apply le_of_of_rat_le_of_rat,
+    rewrite [abs_const, of_rat_sub, (rewrite_helper10 (X (Nb M m)) (X (Nb M n)))],
     apply real.le.trans,
     apply abs_add_three,
     cases em (M (2 * m) ≥ M (2 * n)) with [Hor1, Hor2],
@@ -345,7 +345,7 @@ theorem converges_of_cauchy : converges_to X lim (Nb M) :=
     rewrite ↑lim_seq,
     apply approx_spec,
     apply lim_spec,
-    rewrite 2 of_rat_add,
+    rewrite [-*of_rat_add],
     apply of_rat_le_of_rat_of_le,
     apply rat.le.trans,
     apply rat.add_le_add_three,
@@ -375,7 +375,7 @@ section ints
 
 open int
 
-theorem archimedean_upper (x : ℝ) : ∃ z : ℤ, x ≤ of_rat (of_int z) :=
+theorem archimedean_upper (x : ℝ) : ∃ z : ℤ, x ≤ of_int z :=
   begin
     apply quot.induction_on x,
     intro s,
@@ -392,36 +392,35 @@ theorem archimedean_upper (x : ℝ) : ∃ z : ℤ, x ≤ of_rat (of_int z) :=
     apply H
   end
 
-theorem archimedean_upper_strict (x : ℝ) : ∃ z : ℤ, x < of_rat (of_int z) :=
+theorem archimedean_upper_strict (x : ℝ) : ∃ z : ℤ, x < of_int z :=
   begin
     cases archimedean_upper x with [z, Hz],
     existsi z + 1,
     apply lt_of_le_of_lt,
     apply Hz,
-    apply of_rat_lt_of_rat_of_lt,
     apply of_int_lt_of_int_of_lt,
     apply int.lt_add_of_pos_right,
     apply dec_trivial
   end
 
-theorem archimedean_lower (x : ℝ) : ∃ z : ℤ, x ≥ of_rat (of_int z) :=
+theorem archimedean_lower (x : ℝ) : ∃ z : ℤ, x ≥ of_int z :=
   begin
     cases archimedean_upper (-x) with [z, Hz],
     existsi -z,
-    rewrite [of_int_neg, of_rat_neg],
+    rewrite [of_int_neg],
     apply iff.mp !neg_le_iff_neg_le Hz
   end
 
-theorem archimedean_lower_strict (x : ℝ) : ∃ z : ℤ, x > of_rat (of_int z) :=
+theorem archimedean_lower_strict (x : ℝ) : ∃ z : ℤ, x > of_int z :=
   begin
     cases archimedean_upper_strict (-x) with [z, Hz],
     existsi -z,
-    rewrite [of_int_neg, of_rat_neg],
+    rewrite [of_int_neg],
     apply iff.mp !neg_lt_iff_neg_lt Hz
   end
 
 definition ex_floor (x : ℝ) :=
-  (@ex_largest_of_bdd (λ z, x ≥ of_rat (of_int z)) _
+  (@ex_largest_of_bdd (λ z, x ≥ of_int z) _
     (begin
       existsi some (archimedean_upper_strict x),
       let Har := some_spec (archimedean_upper_strict x),
@@ -429,8 +428,7 @@ definition ex_floor (x : ℝ) :=
       apply not_le_of_gt,
       apply lt_of_lt_of_le,
       apply Har,
-      have H : of_rat (of_int (some (archimedean_upper_strict x))) ≤ of_rat (of_int z), begin
-        apply of_rat_le_of_rat_of_le,
+      have H : of_int (some (archimedean_upper_strict x)) ≤ of_int z, begin
         apply of_int_le_of_int_of_le,
         apply Hz
       end,
@@ -443,28 +441,28 @@ noncomputable definition floor (x : ℝ) : ℤ :=
 
 noncomputable definition ceil (x : ℝ) : ℤ := - floor (-x)
 
-theorem floor_spec (x : ℝ) : of_rat (of_int (floor x)) ≤ x :=
+theorem floor_spec (x : ℝ) : of_int (floor x) ≤ x :=
   and.left (some_spec (ex_floor x))
 
-theorem floor_largest {x : ℝ} {z : ℤ} (Hz : z > floor x) : x < of_rat (of_int z) :=
+theorem floor_largest {x : ℝ} {z : ℤ} (Hz : z > floor x) : x < of_int z :=
   begin
     apply lt_of_not_ge,
     cases some_spec (ex_floor x),
     apply a_1 _ Hz
   end
 
-theorem ceil_spec (x : ℝ) : of_rat (of_int (ceil x)) ≥ x :=
+theorem ceil_spec (x : ℝ) : of_int (ceil x) ≥ x :=
   begin
-    rewrite [↑ceil, of_int_neg, of_rat_neg],
+    rewrite [↑ceil, of_int_neg],
     apply iff.mp !le_neg_iff_le_neg,
     apply floor_spec
   end
 
-theorem ceil_smallest {x : ℝ} {z : ℤ} (Hz : z < ceil x) : x > of_rat (of_int z) :=
+theorem ceil_smallest {x : ℝ} {z : ℤ} (Hz : z < ceil x) : x > of_int z :=
   begin
     rewrite ↑ceil at Hz,
     let Hz' := floor_largest (iff.mp !int.lt_neg_iff_lt_neg Hz),
-    rewrite [of_int_neg at Hz', of_rat_neg at Hz'],
+    rewrite [of_int_neg at Hz'],
     apply lt_of_neg_lt_neg Hz'
   end
 
@@ -474,10 +472,10 @@ theorem floor_succ (x : ℝ) : (floor x) + 1 = floor (x + 1) :=
     intro H,
     cases int.lt_or_gt_of_ne H with [Hlt, Hgt],
     let Hl := floor_largest (iff.mp !int.add_lt_iff_lt_sub_right Hlt),
-    rewrite [of_int_sub at Hl, -of_rat_sub at Hl],
+    rewrite [of_int_sub at Hl],
     apply not_le_of_gt (iff.mpr !add_lt_iff_lt_sub_right Hl) !floor_spec,
     let Hl := floor_largest Hgt,
-    rewrite [of_int_add at Hl, -of_rat_add at Hl],
+    rewrite [of_int_add at Hl],
     apply not_le_of_gt (lt_of_add_lt_add_right Hl) !floor_spec
   end
 
@@ -548,11 +546,10 @@ noncomputable definition bisect (ab : ℚ × ℚ) :=
   else
     (avg (pr1 ab) (pr2 ab), pr2 ab)
 
-noncomputable definition under : ℚ := of_int (floor (elt - 1))
+noncomputable definition under : ℚ := rat.of_int (floor (elt - 1))
 
 theorem under_spec1 : of_rat under < elt :=
-  have H : of_rat under < of_rat (of_int (floor elt)), begin
-    apply of_rat_lt_of_rat_of_lt,
+  have H : of_rat under < of_int (floor elt), begin
     apply of_int_lt_of_int_of_lt,
     apply floor_succ_lt
   end,
@@ -569,11 +566,10 @@ theorem under_spec : ¬ ub under :=
     apply not_le_of_gt under_spec1
   end
 
-noncomputable definition over : ℚ := of_int (ceil (bound + 1)) -- b
+noncomputable definition over : ℚ := rat.of_int (ceil (bound + 1)) -- b
 
 theorem over_spec1 : bound < of_rat over :=
-  have H : of_rat (of_int (ceil bound)) < of_rat over, begin
-    apply of_rat_lt_of_rat_of_lt,
+  have H : of_int (ceil bound) < of_rat over, begin
     apply of_int_lt_of_int_of_lt,
     apply ceil_succ
   end,
@@ -651,11 +647,11 @@ theorem width (n : ℕ) : over_seq n - under_seq n = (over - under) / (rat.pow 2
               rat.sub_self_div_two]
     end)
 
-theorem binary_nat_bound (a : ℕ) : of_nat a ≤ (rat.pow 2 a) :=
+theorem binary_nat_bound (a : ℕ) : rat.of_nat a ≤ (rat.pow 2 a) :=
   nat.induction_on a (rat.zero_le_one)
    (take n, assume Hn,
     calc
-     of_nat (succ n) = (of_nat n) + 1 : of_nat_add
+     rat.of_nat (succ n) = (rat.of_nat n) + 1 : rat.of_nat_add
        ... ≤ rat.pow 2 n + 1 : rat.add_le_add_right Hn
        ... ≤ rat.pow 2 n + rat.pow 2 n :
              rat.add_le_add_left (rat.pow_ge_one_of_ge_one rat.two_ge_one _)
@@ -663,7 +659,7 @@ theorem binary_nat_bound (a : ℕ) : of_nat a ≤ (rat.pow 2 a) :=
 
 theorem binary_bound (a : ℚ) : ∃ n : ℕ, a ≤ rat.pow 2 n :=
   exists.intro (ubound a) (calc
-      a ≤ of_nat (ubound a) : ubound_ge
+      a ≤ rat.of_nat (ubound a) : ubound_ge
     ... ≤ rat.pow 2 (ubound a) : binary_nat_bound)
 
 theorem rat_power_two_le (k : ℕ+) : rat_of_pnat k ≤ rat.pow 2 k~ :=
@@ -739,7 +735,7 @@ theorem under_lt_over : under < over :=
   begin
     cases exists_not_of_not_forall under_spec with [x, Hx],
     cases iff.mp not_implies_iff_and_not Hx with [HXx, Hxu],
-    apply lt_of_rat_lt_of_rat,
+    apply lt_of_of_rat_lt_of_rat,
     apply lt_of_lt_of_le,
     apply lt_of_not_ge Hxu,
     apply over_spec _ HXx
@@ -750,7 +746,7 @@ theorem under_seq_lt_over_seq : ∀ m n : ℕ, under_seq m < over_seq n :=
     intros,
     cases exists_not_of_not_forall (PA m) with [x, Hx],
     cases iff.mp not_implies_iff_and_not Hx with [HXx, Hxu],
-    apply lt_of_rat_lt_of_rat,
+    apply lt_of_of_rat_lt_of_rat,
     apply lt_of_lt_of_le,
     apply lt_of_not_ge Hxu,
     apply PB,

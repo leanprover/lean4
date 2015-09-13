@@ -904,6 +904,22 @@ theorem mul_consts (a b : ℚ) : smul (const a) (const b) ≡ const (a * b) :=
 theorem neg_const (a : ℚ) : sneg (const a) ≡ const (-a) :=
   by apply equiv.refl
 
+section
+  open rat
+
+  lemma eq_of_const_equiv {a b : ℚ} (H : const a ≡ const b) : a = b :=
+  have H₁ : ∀ n : ℕ+, abs (a - b) ≤ n⁻¹ + n⁻¹, from H,
+  eq_of_forall_abs_sub_le
+    (take ε,
+      suppose ε > 0,
+      have ε / 2 > 0, from div_pos_of_pos_of_pos this two_pos,
+      obtain n (Hn : n⁻¹ ≤ ε / 2), from pnat_bound this,
+      show abs (a - b) ≤ ε, from calc
+        abs (a - b) ≤ n⁻¹ + n⁻¹     : H₁ n
+                ... ≤ ε / 2 + ε / 2 : add_le_add Hn Hn
+                ... = ε             : rat.add_halves)
+end
+
 ---------------------------------------------
 -- create the type of regular sequences and lift theorems
 
@@ -1025,14 +1041,9 @@ prefix [priority real.prio] `-` := neg
 open rat -- no coercions before
 
 definition of_rat [coercion] (a : ℚ) : ℝ := quot.mk (r_const a)
+definition of_int [coercion] (i : ℤ) : ℝ := int.to.real i
+definition of_nat [coercion] (n : ℕ) : ℝ := nat.to.real n
 definition of_num [coercion] [reducible] (n : num) : ℝ := of_rat (rat.of_num n)
-
---definition zero : ℝ := 0
---definition one : ℝ := 1
---definition zero : ℝ := quot.mk r_zero
---notation 0 := zero
-
---definition one : ℝ := quot.mk r_one
 
 theorem add_comm (x y : ℝ) : x + y = y + x :=
   quot.induction_on₂ x y (λ s t, quot.sound (r_add_comm s t))
@@ -1092,15 +1103,62 @@ protected definition comm_ring [reducible] : algebra.comm_ring ℝ :=
     apply mul_comm
   end
 
-theorem of_rat_add (a b : ℚ) : of_rat a + of_rat b = of_rat (a + b) :=
+theorem of_int_eq (a : ℤ) : of_int a = of_rat (rat.of_int a) := rfl
+
+theorem of_nat_eq (a : ℕ) : of_nat a = of_rat (rat.of_nat a) := rfl
+
+theorem of_rat.inj {x y : ℚ} (H : of_rat x = of_rat y) : x = y :=
+eq_of_const_equiv (quot.exact H)
+
+theorem eq_of_of_rat_eq_of_rat {x y : ℚ} (H : of_rat x = of_rat y) : x = y :=
+of_rat.inj H
+
+theorem of_rat_eq_of_rat_iff (x y : ℚ) : of_rat x = of_rat y ↔ x = y :=
+iff.intro eq_of_of_rat_eq_of_rat !congr_arg
+
+theorem of_int.inj {a b : ℤ} (H : of_int a = of_int b) : a = b :=
+rat.of_int.inj (of_rat.inj H)
+
+theorem eq_of_of_int_eq_of_int {a b : ℤ} (H : of_int a = of_int b) : a = b :=
+of_int.inj H
+
+theorem of_int_eq_of_int_iff (a b : ℤ) : of_int a = of_int b ↔ a = b :=
+iff.intro of_int.inj !congr_arg
+
+theorem of_nat.inj {a b : ℕ} (H : of_nat a = of_nat b) : a = b :=
+int.of_nat.inj (of_int.inj H)
+
+theorem eq_of_of_nat_eq_of_nat {a b : ℕ} (H : of_nat a = of_nat b) : a = b :=
+of_nat.inj H
+
+theorem of_nat_eq_of_nat_iff (a b : ℕ) : of_nat a = of_nat b ↔ a = b :=
+iff.intro of_nat.inj !congr_arg
+
+theorem of_rat_add (a b : ℚ) : of_rat (a + b) = of_rat a + of_rat b :=
    quot.sound (r_add_consts a b)
 
-theorem of_rat_neg (a : ℚ) : of_rat (-a) = -of_rat a := eq.symm (quot.sound (r_neg_const a))
+theorem of_rat_neg (a : ℚ) : of_rat (-a) = -of_rat a :=
+  eq.symm (quot.sound (r_neg_const a))
 
-theorem of_rat_mul (a b : ℚ) : of_rat a * of_rat b = of_rat (a * b) :=
+theorem of_rat_mul (a b : ℚ) : of_rat (a * b) = of_rat a * of_rat b :=
   quot.sound (r_mul_consts a b)
 
+theorem of_int_add (a b : ℤ) : of_int (#int a + b) = of_int a + of_int b :=
+  by rewrite [of_int_eq, rat.of_int_add, of_rat_add]
+
+theorem of_int_neg (a : ℤ) : of_int (#int -a) = -of_int a :=
+  by rewrite [of_int_eq, rat.of_int_neg, of_rat_neg]
+
+theorem of_int_mul (a b : ℤ) : of_int (#int a * b) = of_int a * of_int b :=
+  by rewrite [of_int_eq, rat.of_int_mul, of_rat_mul]
+
+theorem of_nat_add (a b : ℕ) : of_nat (#nat a + b) = of_nat a + of_nat b :=
+  by rewrite [of_nat_eq, rat.of_nat_add, of_rat_add]
+
+theorem of_nat_mul (a b : ℕ) : of_nat (#nat a * b) = of_nat a * of_nat b :=
+  by rewrite [of_nat_eq, rat.of_nat_mul, of_rat_mul]
+
 theorem add_half_of_rat (n : ℕ+) : of_rat (2 * n)⁻¹ + of_rat (2 * n)⁻¹ = of_rat (n⁻¹) :=
-  by rewrite [of_rat_add, pnat.add_halves]
+  by rewrite [-of_rat_add, pnat.add_halves]
 
 end real

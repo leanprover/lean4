@@ -653,10 +653,27 @@ section migrate_algebra
   noncomputable definition divide (a b : ℝ): ℝ := algebra.divide a b
 
   migrate from algebra with real
-    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign, dvd → dvd,
+    hiding dvd, dvd.elim, dvd.elim_left, dvd.intro, dvd.intro_left, dvd.refl, dvd.trans,
+      dvd_mul_left, dvd_mul_of_dvd_left, dvd_mul_of_dvd_right, dvd_mul_right, dvd_neg_iff_dvd,
+      dvd_neg_of_dvd, dvd_of_dvd_neg, dvd_of_mul_left_dvd, dvd_of_mul_left_eq,
+      dvd_of_mul_right_dvd, dvd_of_mul_right_eq, dvd_of_neg_dvd, dvd_sub, dvd_zero
+    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign,
       divide → divide, max → max, min → min, pow → pow, nmul → nmul, imul → imul
 end migrate_algebra
 
 infix / := divide
+
+theorem of_rat_divide (x y : ℚ) : of_rat (x / y) = of_rat x / of_rat y :=
+by_cases
+  (assume yz : y = 0, by rewrite [yz, rat.div_zero, real.div_zero])
+  (assume ynz : y ≠ 0,
+    have ynz' : of_rat y ≠ 0, from assume yz', ynz (of_rat.inj yz'),
+    !eq_div_of_mul_eq ynz' (by rewrite [-of_rat_mul, !rat.div_mul_cancel ynz]))
+
+theorem of_int_div (x y : ℤ) (H : (#int y ∣ x)) : of_int (#int x div y) = of_int x / of_int y :=
+by rewrite [of_int_eq, rat.of_int_div H, of_rat_divide]
+
+theorem of_nat_div (x y : ℕ) (H : (#nat y ∣ x)) : of_nat (#nat x div y) = of_nat x / of_nat y :=
+by rewrite [of_nat_eq, rat.of_nat_div H, of_rat_divide]
 
 end real

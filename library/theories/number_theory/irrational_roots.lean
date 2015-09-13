@@ -81,7 +81,7 @@ section
     using this, by rewrite [-int.abs_pow, this, int.abs_mul, int.abs_pow],
   have H₁ : (nat_abs a)^n = nat_abs c * (nat_abs b)^n,
     using this,
-      by apply int.of_nat.inj; rewrite [int.of_nat_mul, +of_nat_pow, +of_nat_nat_abs]; assumption,
+      by apply int.of_nat.inj; rewrite [int.of_nat_mul, +int.of_nat_pow, +of_nat_nat_abs]; assumption,
   have H₂ : nat.coprime (nat_abs a) (nat_abs b), from of_nat.inj !coprime_num_denom,
   have nat_abs b = 1, from
     by_cases

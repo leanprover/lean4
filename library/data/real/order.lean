@@ -669,7 +669,6 @@ theorem not_lt_self (s : seq) : ¬ s_lt s s :=
     apply absurd Hn (rat.not_lt_of_ge (rat.le_of_lt !inv_pos))
   end
 
-
 theorem not_sep_self (s : seq) : ¬ s ≢ s :=
   begin
     intro Hsep,
@@ -738,7 +737,6 @@ theorem lt_well_defined {s t u v : seq} (Hs : regular s) (Ht : regular t) (Hu : 
     repeat (apply reg_add_reg | apply reg_neg_reg | assumption)
   end)
 
-
 theorem sep_well_defined {s t u v : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
         (Hv : regular v) (Hsu : s ≡ u) (Htv : t ≡ v) : s ≢ t ↔ u ≢ v :=
   begin
@@ -765,7 +763,6 @@ theorem sep_well_defined {s t u v : seq} (Hs : regular s) (Ht : regular t) (Hu :
     apply iff.mpr (lt_well_defined Ht Hs Hv Hu Htv Hsu),
     assumption
   end
-
 
 theorem s_lt_of_lt_of_le {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
         (Hst : s_lt s t) (Htu : s_le t u) : s_lt s u :=
@@ -1117,8 +1114,6 @@ section migrate_algebra
 
   definition sub (a b : ℝ) : ℝ := algebra.sub a b
   infix [priority real.prio] - := real.sub
-  definition dvd (a b : ℝ) : Prop := algebra.dvd a b
-  notation [priority real.prio] a ∣ b := real.dvd a b
   definition pow (a : ℝ) (n : ℕ) : ℝ := algebra.pow a n
   notation [priority real.prio] a^n := real.pow a n
   definition nmul (n : ℕ) (a : ℝ) : ℝ := algebra.nmul n a
@@ -1126,26 +1121,91 @@ section migrate_algebra
   definition imul (i : ℤ) (a : ℝ) : ℝ := algebra.imul i a
 
   migrate from algebra with real
-    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, dvd → dvd, divide → divide,
+    hiding dvd, dvd.elim, dvd.elim_left, dvd.intro, dvd.intro_left, dvd.refl, dvd.trans,
+      dvd_mul_left, dvd_mul_of_dvd_left, dvd_mul_of_dvd_right, dvd_mul_right, dvd_neg_iff_dvd,
+      dvd_neg_of_dvd, dvd_of_dvd_neg, dvd_of_mul_left_dvd, dvd_of_mul_left_eq,
+      dvd_of_mul_right_dvd, dvd_of_mul_right_eq, dvd_of_neg_dvd, dvd_sub, dvd_zero
+    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, divide → divide,
               pow → pow, nmul → nmul, imul → imul
 
   attribute le.trans lt.trans lt_of_lt_of_le lt_of_le_of_lt ge.trans gt.trans gt_of_gt_of_ge
                    gt_of_ge_of_gt [trans]
 end migrate_algebra
 
-theorem of_rat_le_of_rat_of_le (a b : ℚ) : a ≤ b → of_rat a ≤ of_rat b :=
+theorem of_rat_sub (a b : ℚ) : of_rat (a - b) = of_rat a - of_rat b := rfl
+
+theorem of_int_sub (a b : ℤ) : of_int (#int a - b) = of_int a - of_int b :=
+  by rewrite [of_int_eq, rat.of_int_sub, of_rat_sub]
+
+theorem of_rat_le_of_rat_of_le {a b : ℚ} : a ≤ b → of_rat a ≤ of_rat b :=
   rat_seq.r_const_le_const_of_le
 
-theorem le_of_rat_le_of_rat (a b : ℚ) : of_rat a ≤ of_rat b → a ≤ b :=
+theorem le_of_of_rat_le_of_rat {a b : ℚ} : of_rat a ≤ of_rat b → a ≤ b :=
   rat_seq.r_le_of_const_le_const
 
-theorem of_rat_lt_of_rat_of_lt (a b : ℚ) : a < b → of_rat a < of_rat b :=
+theorem of_rat_le_of_rat_iff (a b : ℚ) : of_rat a ≤ of_rat b ↔ a ≤ b :=
+  iff.intro le_of_of_rat_le_of_rat of_rat_le_of_rat_of_le
+
+theorem of_rat_lt_of_rat_of_lt {a b : ℚ} : a < b → of_rat a < of_rat b :=
   rat_seq.r_const_lt_const_of_lt
 
-theorem lt_of_rat_lt_of_rat (a b : ℚ) : of_rat a < of_rat b → a < b :=
+theorem lt_of_of_rat_lt_of_rat {a b : ℚ} : of_rat a < of_rat b → a < b :=
   rat_seq.r_lt_of_const_lt_const
 
-theorem of_rat_sub (a b : ℚ) : of_rat a - of_rat b = of_rat (a - b) := rfl
+theorem of_rat_lt_of_rat_iff (a b : ℚ) : of_rat a < of_rat b ↔ a < b :=
+  iff.intro lt_of_of_rat_lt_of_rat of_rat_lt_of_rat_of_lt
+
+theorem of_int_le_of_int_iff (a b : ℤ) : of_int a ≤ of_int b ↔ (#int a ≤ b) :=
+  by rewrite [*of_int_eq, of_rat_le_of_rat_iff, rat.of_int_le_of_int_iff]
+
+theorem of_int_le_of_int_of_le {a b : ℤ} : (#int a ≤ b) → of_int a ≤ of_int b :=
+  iff.mpr !of_int_le_of_int_iff
+
+theorem le_of_of_int_le_of_int {a b : ℤ} : of_int a ≤ of_int b → (#int a ≤ b) :=
+  iff.mp !of_int_le_of_int_iff
+
+theorem of_int_lt_of_int_iff (a b : ℤ) : of_int a < of_int b ↔ (#int a < b) :=
+  by rewrite [*of_int_eq, of_rat_lt_of_rat_iff, rat.of_int_lt_of_int_iff]
+
+theorem of_int_lt_of_int_of_lt {a b : ℤ} : (#int a < b) → of_int a < of_int b :=
+  iff.mpr !of_int_lt_of_int_iff
+
+theorem lt_of_of_int_lt_of_int {a b : ℤ} : of_int a < of_int b → (#int a < b) :=
+  iff.mp !of_int_lt_of_int_iff
+
+theorem of_nat_le_of_nat_iff (a b : ℕ) : of_nat a ≤ of_nat b ↔ (#nat a ≤ b) :=
+  by rewrite [*of_nat_eq, of_rat_le_of_rat_iff, rat.of_nat_le_of_nat_iff]
+
+theorem of_nat_le_of_nat_of_le {a b : ℕ} : (#nat a ≤ b) → of_nat a ≤ of_nat b :=
+  iff.mpr !of_nat_le_of_nat_iff
+
+theorem le_of_of_nat_le_of_nat {a b : ℕ} : of_nat a ≤ of_nat b → (#nat a ≤ b) :=
+  iff.mp !of_nat_le_of_nat_iff
+
+theorem of_nat_lt_of_nat_iff (a b : ℕ) : of_nat a < of_nat b ↔ (#nat a < b) :=
+  by rewrite [*of_nat_eq, of_rat_lt_of_rat_iff, rat.of_nat_lt_of_nat_iff]
+
+theorem of_nat_lt_of_nat_of_lt {a b : ℕ} : (#nat a < b) → of_nat a < of_nat b :=
+  iff.mpr !of_nat_lt_of_nat_iff
+
+theorem lt_of_of_nat_lt_of_nat {a b : ℕ} : of_nat a < of_nat b → (#nat a < b) :=
+  iff.mp !of_nat_lt_of_nat_iff
+
+theorem of_nat_nonneg (a : ℕ) : of_nat a ≥ 0 :=
+of_rat_le_of_rat_of_le !rat.of_nat_nonneg
+
+theorem of_rat_pow (a : ℚ) (n : ℕ) : of_rat (a^n) = (of_rat a)^n :=
+begin
+  induction n with n ih,
+    apply eq.refl,
+  rewrite [pow_succ, rat.pow_succ, of_rat_mul, ih]
+end
+
+theorem of_int_pow (a : ℤ) (n : ℕ) : of_int (#int a^n) = (of_int a)^n :=
+by rewrite [of_int_eq, rat.of_int_pow, of_rat_pow]
+
+theorem of_nat_pow (a : ℕ) (n : ℕ) : of_nat (#nat a^n) = (of_nat a)^n :=
+by rewrite [of_nat_eq, rat.of_nat_pow, of_rat_pow]
 
 open rat_seq
 theorem le_of_le_reprs (x : ℝ) (t : seq) (Ht : regular t) : (∀ n : ℕ+, x ≤ t n) →
@@ -1154,7 +1214,6 @@ theorem le_of_le_reprs (x : ℝ) (t : seq) (Ht : regular t) : (∀ n : ℕ+, x �
     show r_le s (reg_seq.mk t Ht), from
       have H' : ∀ n : ℕ+, r_le s (r_const (t n)), from Hs,
       by apply r_le_of_le_reprs; apply Hs)
-
 
 theorem le_of_reprs_le (x : ℝ) (t : seq) (Ht : regular t) : (∀ n : ℕ+, t n ≤ x) →
         quot.mk (reg_seq.mk t Ht) ≤ x :=

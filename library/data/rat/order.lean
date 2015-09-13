@@ -331,7 +331,11 @@ section migrate_algebra
   definition sign : ℚ → ℚ := algebra.sign
 
   migrate from algebra with rat
-    replacing sub → sub, dvd → dvd, has_le.ge → ge, has_lt.gt → gt,
+    hiding dvd, dvd.elim, dvd.elim_left, dvd.intro, dvd.intro_left, dvd.refl, dvd.trans,
+      dvd_mul_left, dvd_mul_of_dvd_left, dvd_mul_of_dvd_right, dvd_mul_right, dvd_neg_iff_dvd,
+      dvd_neg_of_dvd, dvd_of_dvd_neg, dvd_of_mul_left_dvd, dvd_of_mul_left_eq,
+      dvd_of_mul_right_dvd, dvd_of_mul_right_eq, dvd_of_neg_dvd, dvd_sub, dvd_zero
+    replacing sub → sub, has_le.ge → ge, has_lt.gt → gt,
               divide → divide, max → max, min → min, abs → abs, sign → sign,
               nmul → nmul, imul → imul
 
@@ -342,11 +346,40 @@ section migrate_algebra
 
 end migrate_algebra
 
-theorem rat_of_nat_abs (a : ℤ) : abs (of_int a) = of_nat (int.nat_abs a) :=
+theorem of_nat_abs (a : ℤ) : abs (of_int a) = of_nat (int.nat_abs a) :=
 assert ∀ n : ℕ, of_int (int.neg_succ_of_nat n) = - of_nat (nat.succ n), from λ n, rfl,
 int.induction_on a
   (take b, abs_of_nonneg !of_nat_nonneg)
   (take b, by rewrite [this, abs_neg, abs_of_nonneg !of_nat_nonneg])
+
+theorem eq_zero_of_nonneg_of_forall_lt {x : ℚ} (xnonneg : x ≥ 0) (H : ∀ ε, ε > 0 → x < ε) :
+  x = 0 :=
+  decidable.by_contradiction
+    (suppose x ≠ 0,
+      have x > 0, from lt_of_le_of_ne xnonneg (ne.symm this),
+      have x < x, from H x this,
+      show false, from !lt.irrefl this)
+
+theorem eq_zero_of_nonneg_of_forall_le {x : ℚ} (xnonneg : x ≥ 0) (H : ∀ ε, ε > 0 → x ≤ ε) :
+  x = 0 :=
+have H' : ∀ ε, ε > 0 → x < ε, from
+  take ε, suppose ε > 0,
+  have ε / 2 > 0, from div_pos_of_pos_of_pos this two_pos,
+  have x ≤ ε / 2, from H _ this,
+  show x < ε, from lt_of_le_of_lt this (rat.div_two_lt_of_pos `ε > 0`),
+eq_zero_of_nonneg_of_forall_lt xnonneg H'
+
+theorem eq_zero_of_forall_abs_le {x : ℚ} (H : ∀ ε, ε > 0 → abs x ≤ ε) :
+  x = 0 :=
+decidable.by_contradiction
+  (suppose x ≠ 0,
+    have abs x = 0, from eq_zero_of_nonneg_of_forall_le !abs_nonneg H,
+    show false, from `x ≠ 0` (eq_zero_of_abs_eq_zero this))
+
+theorem eq_of_forall_abs_sub_le {x y : ℚ} (H : ∀ ε, ε > 0 → abs (x - y) ≤ ε) :
+  x = y :=
+have x - y = 0, from eq_zero_of_forall_abs_le H,
+eq_of_sub_eq_zero this
 
 section
   open int
@@ -411,7 +444,7 @@ calc
     a ≤ abs a                                   : le_abs_self
   ... ≤ abs (of_int (num a))                    : this
   ... ≤ abs (of_int (num a)) + 1                : rat.le_add_of_nonneg_right trivial
-  ... = of_nat (int.nat_abs (num a)) + 1        : rat_of_nat_abs
+  ... = of_nat (int.nat_abs (num a)) + 1        : of_nat_abs
   ... = of_nat (nat.succ (int.nat_abs (num a))) : of_nat_add
 
 theorem ubound_pos (a : ℚ) : nat.gt (ubound a) nat.zero := !nat.succ_pos

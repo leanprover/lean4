@@ -116,7 +116,7 @@ theorem inv_pos (n : ℕ+) : n⁻¹ > 0 := one_div_pos_of_pos !rat_of_pnat_is_po
 theorem inv_le_one (n : ℕ+) : n⁻¹ ≤ (1 : ℚ) :=
   begin
     rewrite [↑inv, -one_div_one],
-    apply div_le_div_of_le,
+    apply one_div_le_one_div_of_le,
     apply rat.zero_lt_one,
     apply rat_of_pnat_ge_one
   end
@@ -124,7 +124,7 @@ theorem inv_le_one (n : ℕ+) : n⁻¹ ≤ (1 : ℚ) :=
 theorem inv_lt_one_of_gt {n : ℕ+} (H : n~ > 1) : n⁻¹ < (1 : ℚ) :=
   begin
     rewrite [↑inv, -one_div_one],
-    apply div_lt_div_of_lt,
+    apply one_div_lt_one_div_of_lt,
     apply rat.zero_lt_one,
     rewrite pnat.to_rat_of_nat,
     apply (of_nat_lt_of_nat_of_lt H)
@@ -158,7 +158,7 @@ theorem one_lt_two : pone < 2 := !nat.le.refl
 theorem inv_two_mul_lt_inv (n : ℕ+) : (2 * n)⁻¹ < n⁻¹ :=
   begin
     rewrite ↑inv,
-    apply div_lt_div_of_lt,
+    apply one_div_lt_one_div_of_lt,
     apply rat_of_pnat_is_pos,
     have H : n~ < (2 * n)~, begin
       rewrite -one_mul at {1},
@@ -172,10 +172,10 @@ theorem inv_two_mul_lt_inv (n : ℕ+) : (2 * n)⁻¹ < n⁻¹ :=
 theorem inv_two_mul_le_inv (n : ℕ+) : (2 * n)⁻¹ ≤ n⁻¹ := rat.le_of_lt !inv_two_mul_lt_inv
 
 theorem inv_ge_of_le {p q : ℕ+} (H : p ≤ q) : q⁻¹ ≤ p⁻¹ :=
-  div_le_div_of_le !rat_of_pnat_is_pos (rat_of_pnat_le_of_pnat_le H)
+  one_div_le_one_div_of_le !rat_of_pnat_is_pos (rat_of_pnat_le_of_pnat_le H)
 
 theorem inv_gt_of_lt {p q : ℕ+} (H : p < q) : q⁻¹ < p⁻¹ :=
-  div_lt_div_of_lt !rat_of_pnat_is_pos (rat_of_pnat_lt_of_pnat_lt H)
+  one_div_lt_one_div_of_lt !rat_of_pnat_is_pos (rat_of_pnat_lt_of_pnat_lt H)
 
 theorem ge_of_inv_le {p q : ℕ+} (H : p⁻¹ ≤ q⁻¹) : q ≤ p :=
   pnat_le_of_rat_of_pnat_le (le_of_one_div_le_one_div !rat_of_pnat_is_pos H)
@@ -274,10 +274,10 @@ theorem pnat_cancel' (n m : ℕ+) : (n * n * m)⁻¹ * (rat_of_pnat n * rat_of_p
 definition pceil (a : ℚ) : ℕ+ := tag (ubound a) !ubound_pos
 
 theorem pceil_helper {a : ℚ} {n : ℕ+} (H : pceil a ≤ n) (Ha : a > 0) : n⁻¹ ≤ 1 / a :=
-  rat.le.trans (inv_ge_of_le H) (div_le_div_of_le Ha (ubound_ge a))
+  rat.le.trans (inv_ge_of_le H) (one_div_le_one_div_of_le Ha (ubound_ge a))
 
 theorem inv_pceil_div (a b : ℚ) (Ha : a > 0) (Hb : b > 0) : (pceil (a / b))⁻¹ ≤ b / a :=
-  !one_div_one_div ▸ div_le_div_of_le
+  !one_div_one_div ▸ one_div_le_one_div_of_le
     (one_div_pos_of_pos (div_pos_of_pos_of_pos Hb Ha))
     (!div_div_eq_mul_div⁻¹ ▸ !rat.one_mul⁻¹ ▸ !ubound_ge)
 

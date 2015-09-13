@@ -509,7 +509,7 @@ have H₁ : succ n ≥ ceil (2 / ε), from of_int_le_of_int_of_le this,
 have H₂ : succ n ≥ 2 / ε, from !le.trans !le_ceil H₁,
 have H₃ : 2 / ε > 0, from div_pos_of_pos_of_pos two_pos H,
 have 1 / succ n < ε, from calc
-  1 / succ n ≤ 1 / (2 / ε) : div_le_div_of_le H₃ H₂
+  1 / succ n ≤ 1 / (2 / ε) : one_div_le_one_div_of_le H₃ H₂
     ... = ε / 2       : one_div_div
     ... < ε           : div_two_lt_of_pos H,
 exists.intro n this
@@ -832,7 +832,7 @@ theorem over_seq_mono (i j : ℕ) (H : i ≤ j) : over_seq j ≤ over_seq i :=
   end
 
 theorem rat_power_two_inv_ge (k : ℕ+) : 1 / rat.pow 2 k~ ≤ k⁻¹ :=
-  rat.div_le_div_of_le !rat_of_pnat_is_pos !rat_power_two_le
+  rat.one_div_le_one_div_of_le !rat_of_pnat_is_pos !rat_power_two_le
 
 open rat_seq
 theorem regular_lemma_helper {s : seq} {m n : ℕ+} (Hm : m ≤ n)

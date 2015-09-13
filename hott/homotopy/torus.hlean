@@ -7,7 +7,7 @@ Authors: Floris van Doorn
 Declaration of the torus
 -/
 
-import .two_quotient
+import hit.two_quotient
 
 open two_quotient eq bool unit relation
 

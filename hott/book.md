@@ -137,6 +137,8 @@ Chapter 7: Homotopy n-types
 Chapter 8: Homotopy theory
 ---------
 
+Unless otherwise noted, the files are in the folder [homotopy](homotopy/homotopy.md)
+
 - 8.1 (π_1(S^1)): [hit.circle](hit/circle.hlean) (only one of the proofs)
 - 8.2 (Connectedness of suspensions): not formalized
 - 8.3 (πk≤n of an n-connected space and π_{k<n}(S^n)): not formalized

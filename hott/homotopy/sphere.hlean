@@ -13,7 +13,7 @@ open eq nat susp bool is_trunc unit pointed
 /-
   We can define spheres with the following possible indices:
   - trunc_index (defining S^-2 = S^-1 = empty)
-  - nat (forgetting that S^1 = empty)
+  - nat (forgetting that S^-1 = empty)
   - nat, but counting wrong (S^0 = empty, S^1 = bool, ...)
   - some new type "integers >= -1"
   We choose the last option here.

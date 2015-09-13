@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Declaration of mapping cylinders
 -/
 
-import .quotient
+import hit.quotient
 
 open quotient eq sum equiv equiv.ops
 

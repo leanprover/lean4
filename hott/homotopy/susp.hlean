@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Declaration of suspension
 -/
 
-import .pushout types.pointed cubical.square
+import hit.pushout types.pointed cubical.square
 
 open pushout unit eq equiv equiv.ops
 

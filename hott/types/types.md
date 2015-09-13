@@ -13,6 +13,7 @@ Types (not necessarily HoTT-related):
 * [pi](pi.hlean)
 * [arrow](arrow.hlean)
 * [W](W.hlean): W-types (not loaded by default)
+* [arrow_2](arrow_2.hlean): alternative development of properties of arrows
 
 HoTT types
 

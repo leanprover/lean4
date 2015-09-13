@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Declaration of the reduced suspension
 -/
 
-import .two_quotient types.pointed algebra.e_closure
+import hit.two_quotient types.pointed algebra.e_closure
 
 open simple_two_quotient eq unit pointed e_closure
 

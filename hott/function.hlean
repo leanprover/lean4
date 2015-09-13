@@ -223,6 +223,16 @@ namespace function
 
   variable {f}
 
+  -- Lemma 3.11.7
+  definition is_contr_retract {A B : Type} (r : A → B) [H : is_retraction r]
+    : is_contr A → is_contr B :=
+  begin
+    intro CA,
+    apply is_contr.mk (r (center A)),
+    intro b,
+    exact ap r (center_eq (is_retraction.sect r b)) ⬝ (is_retraction.right_inverse r b)
+  end
+
   local attribute is_hprop_is_retraction_prod_is_section [instance]
   definition is_retraction_prod_is_section_equiv_is_equiv
     : (is_retraction f × is_section f) ≃ is_equiv f :=

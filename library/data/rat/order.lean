@@ -449,4 +449,19 @@ calc
 
 theorem ubound_pos (a : ℚ) : nat.gt (ubound a) nat.zero := !nat.succ_pos
 
+theorem binary_nat_bound (a : ℕ) : of_nat a ≤ pow 2 a :=
+  nat.induction_on a (zero_le_one)
+   (take n, assume Hn,
+    calc
+     of_nat (nat.succ n) = (of_nat n) + 1 : of_nat_add
+       ... ≤ pow 2 n + 1 : add_le_add_right Hn
+       ... ≤ pow 2 n + rat.pow 2 n :
+             add_le_add_left (pow_ge_one_of_ge_one two_ge_one _)
+       ... = pow 2 (nat.succ n) : pow_two_add)
+
+theorem binary_bound (a : ℚ) : ∃ n : ℕ, a ≤ pow 2 n :=
+  exists.intro (ubound a) (calc
+      a ≤ of_nat (ubound a) : ubound_ge
+    ... ≤ pow 2 (ubound a) : binary_nat_bound)
+
 end rat

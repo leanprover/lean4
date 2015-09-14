@@ -325,5 +325,7 @@ theorem p_add_fractions (n : ℕ+) : (2 * n)⁻¹ + (2 * 3 * n)⁻¹ + (3 * n)�
   assert T : 2⁻¹ + 2⁻¹ * 3⁻¹ + 3⁻¹ = 1, from dec_trivial,
   by rewrite[*inv_mul_eq_mul_inv,-*rat.right_distrib,T,rat.one_mul]
 
+theorem rat_power_two_le (k : ℕ+) : rat_of_pnat k ≤ rat.pow 2 k~ :=
+  !binary_nat_bound
 
 end pnat

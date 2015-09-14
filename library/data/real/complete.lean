@@ -6,9 +6,13 @@ The real numbers, constructed as equivalence classes of Cauchy sequences of rati
 This construction follows Bishop and Bridges (1985).
 
 At this point, we no longer proceed constructively: this file makes heavy use of decidability,
- excluded middle, and Hilbert choice.
+excluded middle, and Hilbert choice. Two sets of definitions of Cauchy sequences, convergence,
+etc are available, one with rates and one without. The definitions with rates are amenable
+to be used constructively, if and when that development takes place. The second set of
+definitions are the usual classical ones.
 
-Here, we show that ℝ is complete.
+Here, we show that ℝ is complete. The proofs of Cauchy completeness and the supremum property
+are independent of each other.
 -/
 
 import data.real.basic data.real.order data.real.division data.rat data.nat data.pnat
@@ -496,9 +500,6 @@ theorem ceil_lt_ceil_succ (x : ℝ) : ceil x < ceil (x + 1) :=
     apply floor_sub_one_lt_floor
   end
 
-section
-open int
-
 theorem archimedean_small {ε : ℝ} (H : ε > 0) : ∃ (n : ℕ), 1 / succ n < ε :=
 let n := int.nat_abs (ceil (2 / ε)) in
 have int.of_nat n ≥ ceil (2 / ε),
@@ -513,7 +514,6 @@ have 1 / succ n < ε, from calc
     ... = ε / 2       : one_div_div
     ... < ε           : div_two_lt_of_pos H,
 exists.intro n this
-end
 
 end ints
 --------------------------------------------------
@@ -533,7 +533,7 @@ local notation 2 := (1 : ℚ) + 1
 parameter X : ℝ → Prop
 
 -- this definition belongs somewhere else. Where?
-definition rpt {A : Type} (op : A → A) : ℕ → A → A
+private definition rpt {A : Type} (op : A → A) : ℕ → A → A
  | rpt 0 := λ a, a
  | rpt (succ k) := λ a, op (rpt k a)
 
@@ -551,24 +551,24 @@ hypothesis bdd : ub bound
 
 include inh bdd
 
-definition avg (a b : ℚ) := a / 2 + b / 2
+private definition avg (a b : ℚ) := a / 2 + b / 2
 
-noncomputable definition bisect (ab : ℚ × ℚ) :=
+private noncomputable definition bisect (ab : ℚ × ℚ) :=
   if ub (avg (pr1 ab) (pr2 ab)) then
     (pr1 ab, (avg (pr1 ab) (pr2 ab)))
   else
     (avg (pr1 ab) (pr2 ab), pr2 ab)
 
-noncomputable definition under : ℚ := rat.of_int (floor (elt - 1))
+private noncomputable definition under : ℚ := rat.of_int (floor (elt - 1))
 
-theorem under_spec1 : of_rat under < elt :=
+private theorem under_spec1 : of_rat under < elt :=
   have H : of_rat under < of_int (floor elt), begin
     apply of_int_lt_of_int_of_lt,
     apply floor_sub_one_lt_floor
   end,
   lt_of_lt_of_le H !floor_le
 
-theorem under_spec : ¬ ub under :=
+private theorem under_spec : ¬ ub under :=
   begin
     rewrite ↑ub,
     apply not_forall_of_exists_not,
@@ -579,16 +579,16 @@ theorem under_spec : ¬ ub under :=
     apply not_le_of_gt under_spec1
   end
 
-noncomputable definition over : ℚ := rat.of_int (ceil (bound + 1)) -- b
+private noncomputable definition over : ℚ := rat.of_int (ceil (bound + 1)) -- b
 
-theorem over_spec1 : bound < of_rat over :=
+private theorem over_spec1 : bound < of_rat over :=
   have H : of_int (ceil bound) < of_rat over, begin
     apply of_int_lt_of_int_of_lt,
     apply ceil_lt_ceil_succ
   end,
   lt_of_le_of_lt !le_ceil H
 
-theorem over_spec : ub over :=
+private theorem over_spec : ub over :=
   begin
     rewrite ↑ub,
     intro y Hy,
@@ -599,23 +599,24 @@ theorem over_spec : ub over :=
     apply over_spec1
   end
 
-noncomputable definition under_seq := λ n : ℕ, pr1 (rpt bisect n (under, over)) -- A
+private noncomputable definition under_seq := λ n : ℕ, pr1 (rpt bisect n (under, over)) -- A
 
-noncomputable definition over_seq := λ n : ℕ, pr2 (rpt bisect n (under, over)) -- B
+private noncomputable definition over_seq := λ n : ℕ, pr2 (rpt bisect n (under, over)) -- B
 
-noncomputable definition avg_seq := λ n : ℕ, avg (over_seq n) (under_seq n) -- C
+private noncomputable definition avg_seq := λ n : ℕ, avg (over_seq n) (under_seq n) -- C
 
-theorem avg_symm (n : ℕ) : avg_seq n = avg (under_seq n) (over_seq n) :=
+private theorem avg_symm (n : ℕ) : avg_seq n = avg (under_seq n) (over_seq n) :=
   by rewrite [↑avg_seq, ↑avg, rat.add.comm]
 
-theorem over_0 : over_seq 0 = over := rfl
-theorem under_0 : under_seq 0 = under := rfl
+private theorem over_0 : over_seq 0 = over := rfl
 
-theorem succ_helper (n : ℕ) :
+private theorem under_0 : under_seq 0 = under := rfl
+
+private theorem succ_helper (n : ℕ) :
         avg (pr1 (rpt bisect n (under, over))) (pr2 (rpt bisect n (under, over))) = avg_seq n :=
    by rewrite avg_symm
 
-theorem under_succ (n : ℕ) : under_seq (succ n) =
+private theorem under_succ (n : ℕ) : under_seq (succ n) =
         (if ub (avg_seq n) then under_seq n else avg_seq n) :=
   begin
     cases em (ub (avg_seq n)) with [Hub, Hub],
@@ -629,7 +630,7 @@ theorem under_succ (n : ℕ) : under_seq (succ n) =
     apply H
   end
 
-theorem over_succ (n : ℕ) : over_seq (succ n) =
+private theorem over_succ (n : ℕ) : over_seq (succ n) =
         (if ub (avg_seq n) then avg_seq n else over_seq n) :=
   begin
     cases em (ub (avg_seq n)) with [Hub, Hub],
@@ -643,7 +644,7 @@ theorem over_succ (n : ℕ) : over_seq (succ n) =
     apply H
   end
 
-theorem width (n : ℕ) : over_seq n - under_seq n = (over - under) / (rat.pow 2 n) :=
+private theorem width (n : ℕ) : over_seq n - under_seq n = (over - under) / (rat.pow 2 n) :=
   nat.induction_on n
     (by xrewrite [over_0, under_0, rat.pow_zero, rat.div_one])
     (begin
@@ -660,25 +661,7 @@ theorem width (n : ℕ) : over_seq n - under_seq n = (over - under) / (rat.pow 2
               rat.sub_self_div_two]
     end)
 
-theorem binary_nat_bound (a : ℕ) : rat.of_nat a ≤ (rat.pow 2 a) :=
-  nat.induction_on a (rat.zero_le_one)
-   (take n, assume Hn,
-    calc
-     rat.of_nat (succ n) = (rat.of_nat n) + 1 : rat.of_nat_add
-       ... ≤ rat.pow 2 n + 1 : rat.add_le_add_right Hn
-       ... ≤ rat.pow 2 n + rat.pow 2 n :
-             rat.add_le_add_left (rat.pow_ge_one_of_ge_one rat.two_ge_one _)
-       ... = rat.pow 2 (succ n) : rat.pow_two_add)
-
-theorem binary_bound (a : ℚ) : ∃ n : ℕ, a ≤ rat.pow 2 n :=
-  exists.intro (ubound a) (calc
-      a ≤ rat.of_nat (ubound a) : ubound_ge
-    ... ≤ rat.pow 2 (ubound a) : binary_nat_bound)
-
-theorem rat_power_two_le (k : ℕ+) : rat_of_pnat k ≤ rat.pow 2 k~ :=
-  !binary_nat_bound
-
-theorem width_narrows : ∃ n : ℕ, over_seq n - under_seq n ≤ 1 :=
+private theorem width_narrows : ∃ n : ℕ, over_seq n - under_seq n ≤ 1 :=
   begin
     cases binary_bound (over - under) with [a, Ha],
     existsi a,
@@ -689,23 +672,23 @@ theorem width_narrows : ∃ n : ℕ, over_seq n - under_seq n ≤ 1 :=
     apply Ha
   end
 
-noncomputable definition over' := over_seq (some width_narrows)
+private noncomputable definition over' := over_seq (some width_narrows)
 
-noncomputable definition under' := under_seq (some width_narrows)
+private noncomputable definition under' := under_seq (some width_narrows)
 
-noncomputable definition over_seq' := λ n, over_seq (n + some width_narrows)
+private noncomputable definition over_seq' := λ n, over_seq (n + some width_narrows)
 
-noncomputable definition under_seq' := λ n, under_seq (n + some width_narrows)
+private noncomputable definition under_seq' := λ n, under_seq (n + some width_narrows)
 
-theorem over_seq'0 : over_seq' 0 = over' :=
+private theorem over_seq'0 : over_seq' 0 = over' :=
   by rewrite [↑over_seq', nat.zero_add]
 
-theorem under_seq'0 : under_seq' 0 = under' :=
+private theorem under_seq'0 : under_seq' 0 = under' :=
   by rewrite [↑under_seq', nat.zero_add]
 
-theorem under_over' : over' - under' ≤ 1 := some_spec width_narrows
+private theorem under_over' : over' - under' ≤ 1 := some_spec width_narrows
 
-theorem width' (n : ℕ) : over_seq' n - under_seq' n ≤ 1 / rat.pow 2 n :=
+private theorem width' (n : ℕ) : over_seq' n - under_seq' n ≤ 1 / rat.pow 2 n :=
   nat.induction_on n
     (begin
       xrewrite [over_seq'0, under_seq'0, rat.pow_zero, rat.div_one],
@@ -718,7 +701,7 @@ theorem width' (n : ℕ) : over_seq' n - under_seq' n ≤ 1 / rat.pow 2 n :=
       apply rat.div_mul_le_div_mul_of_div_le_div_pos' Ha dec_trivial
     end)
 
-theorem PA (n : ℕ) : ¬ ub (under_seq n) :=
+private theorem PA (n : ℕ) : ¬ ub (under_seq n) :=
   nat.induction_on n
     (by rewrite under_0; apply under_spec)
     (begin
@@ -731,7 +714,7 @@ theorem PA (n : ℕ) : ¬ ub (under_seq n) :=
       assumption
     end)
 
-theorem PB (n : ℕ) : ub (over_seq n) :=
+private theorem PB (n : ℕ) : ub (over_seq n) :=
   nat.induction_on n
     (by rewrite over_0; apply over_spec)
     (begin
@@ -744,7 +727,7 @@ theorem PB (n : ℕ) : ub (over_seq n) :=
       assumption
     end)
 
-theorem under_lt_over : under < over :=
+private theorem under_lt_over : under < over :=
   begin
     cases exists_not_of_not_forall under_spec with [x, Hx],
     cases iff.mp not_implies_iff_and_not Hx with [HXx, Hxu],
@@ -754,7 +737,7 @@ theorem under_lt_over : under < over :=
     apply over_spec _ HXx
   end
 
-theorem under_seq_lt_over_seq : ∀ m n : ℕ, under_seq m < over_seq n :=
+private theorem under_seq_lt_over_seq : ∀ m n : ℕ, under_seq m < over_seq n :=
   begin
     intros,
     cases exists_not_of_not_forall (PA m) with [x, Hx],
@@ -766,16 +749,16 @@ theorem under_seq_lt_over_seq : ∀ m n : ℕ, under_seq m < over_seq n :=
     apply HXx
   end
 
-theorem under_seq_lt_over_seq_single : ∀ n : ℕ, under_seq n < over_seq n :=
+private theorem under_seq_lt_over_seq_single : ∀ n : ℕ, under_seq n < over_seq n :=
   by intros; apply under_seq_lt_over_seq
 
-theorem under_seq'_lt_over_seq' : ∀ m n : ℕ, under_seq' m < over_seq' n :=
+private theorem under_seq'_lt_over_seq' : ∀ m n : ℕ, under_seq' m < over_seq' n :=
   by intros; apply under_seq_lt_over_seq
 
-theorem under_seq'_lt_over_seq'_single : ∀ n : ℕ, under_seq' n < over_seq' n :=
+private theorem under_seq'_lt_over_seq'_single : ∀ n : ℕ, under_seq' n < over_seq' n :=
   by intros; apply under_seq_lt_over_seq
 
-theorem under_seq_mono_helper (i k : ℕ) : under_seq i ≤ under_seq (i + k) :=
+private theorem under_seq_mono_helper (i k : ℕ) : under_seq i ≤ under_seq (i + k) :=
   (nat.induction_on k
     (by rewrite nat.add_zero; apply rat.le.refl)
     (begin
@@ -795,14 +778,14 @@ theorem under_seq_mono_helper (i k : ℕ) : under_seq i ≤ under_seq (i + k) :=
       apply dec_trivial
     end))
 
-theorem under_seq_mono (i j : ℕ) (H : i ≤ j) : under_seq i ≤ under_seq j :=
+private theorem under_seq_mono (i j : ℕ) (H : i ≤ j) : under_seq i ≤ under_seq j :=
   begin
     cases le.elim H with [k, Hk'],
     rewrite -Hk',
     apply under_seq_mono_helper
   end
 
-theorem over_seq_mono_helper (i k : ℕ) : over_seq (i + k) ≤ over_seq i :=
+private theorem over_seq_mono_helper (i k : ℕ) : over_seq (i + k) ≤ over_seq i :=
   nat.induction_on k
     (by rewrite nat.add_zero; apply rat.le.refl)
     (begin
@@ -824,18 +807,18 @@ theorem over_seq_mono_helper (i k : ℕ) : over_seq (i + k) ≤ over_seq i :=
       apply Ha
     end)
 
-theorem over_seq_mono (i j : ℕ) (H : i ≤ j) : over_seq j ≤ over_seq i :=
+private theorem over_seq_mono (i j : ℕ) (H : i ≤ j) : over_seq j ≤ over_seq i :=
   begin
     cases le.elim H with [k, Hk'],
     rewrite -Hk',
     apply over_seq_mono_helper
   end
 
-theorem rat_power_two_inv_ge (k : ℕ+) : 1 / rat.pow 2 k~ ≤ k⁻¹ :=
+private theorem rat_power_two_inv_ge (k : ℕ+) : 1 / rat.pow 2 k~ ≤ k⁻¹ :=
   rat.one_div_le_one_div_of_le !rat_of_pnat_is_pos !rat_power_two_le
 
 open rat_seq
-theorem regular_lemma_helper {s : seq} {m n : ℕ+} (Hm : m ≤ n)
+private theorem regular_lemma_helper {s : seq} {m n : ℕ+} (Hm : m ≤ n)
         (H : ∀ n i : ℕ+, i ≥ n → under_seq' n~ ≤ s i ∧ s i ≤ over_seq' n~) :
         rat.abs (s m - s n) ≤ m⁻¹ + n⁻¹ :=
   begin
@@ -854,7 +837,7 @@ theorem regular_lemma_helper {s : seq} {m n : ℕ+} (Hm : m ≤ n)
     apply rat.le_of_lt (!inv_pos)
   end
 
-theorem regular_lemma (s : seq) (H : ∀ n i : ℕ+, i ≥ n → under_seq' n~ ≤ s i ∧ s i ≤ over_seq' n~) :
+private theorem regular_lemma (s : seq) (H : ∀ n i : ℕ+, i ≥ n → under_seq' n~ ≤ s i ∧ s i ≤ over_seq' n~) :
         regular s :=
   begin
     rewrite ↑regular,
@@ -866,11 +849,11 @@ theorem regular_lemma (s : seq) (H : ∀ n i : ℕ+, i ≥ n → under_seq' n~ �
     exact T
   end
 
-noncomputable definition p_under_seq : seq := λ n : ℕ+, under_seq' n~
+private noncomputable definition p_under_seq : seq := λ n : ℕ+, under_seq' n~
 
-noncomputable definition p_over_seq : seq := λ n : ℕ+, over_seq' n~
+private noncomputable definition p_over_seq : seq := λ n : ℕ+, over_seq' n~
 
-theorem under_seq_regular : regular p_under_seq :=
+private theorem under_seq_regular : regular p_under_seq :=
   begin
     apply regular_lemma,
     intros n i Hni,
@@ -881,7 +864,7 @@ theorem under_seq_regular : regular p_under_seq :=
     apply under_seq_lt_over_seq
   end
 
-theorem over_seq_regular : regular p_over_seq :=
+private theorem over_seq_regular : regular p_over_seq :=
   begin
     apply regular_lemma,
     intros n i Hni,
@@ -892,11 +875,11 @@ theorem over_seq_regular : regular p_over_seq :=
     apply nat.add_le_add_right Hni
   end
 
-noncomputable definition sup_over : ℝ := quot.mk (reg_seq.mk p_over_seq over_seq_regular)
+private noncomputable definition sup_over : ℝ := quot.mk (reg_seq.mk p_over_seq over_seq_regular)
 
-noncomputable definition sup_under : ℝ := quot.mk (reg_seq.mk p_under_seq under_seq_regular)
+private noncomputable definition sup_under : ℝ := quot.mk (reg_seq.mk p_under_seq under_seq_regular)
 
-theorem over_bound : ub sup_over :=
+private theorem over_bound : ub sup_over :=
   begin
     rewrite ↑ub,
     intros y Hy,
@@ -906,7 +889,7 @@ theorem over_bound : ub sup_over :=
     apply Hy
   end
 
-theorem under_lowest_bound : ∀ y : ℝ, ub y → sup_under ≤ y :=
+private theorem under_lowest_bound : ∀ y : ℝ, ub y → sup_under ≤ y :=
   begin
     intros y Hy,
     apply le_of_reprs_le,
@@ -920,7 +903,7 @@ theorem under_lowest_bound : ∀ y : ℝ, ub y → sup_under ≤ y :=
     apply HXx
   end
 
-theorem under_over_equiv : p_under_seq ≡ p_over_seq :=
+private theorem under_over_equiv : p_under_seq ≡ p_over_seq :=
   begin
     intros,
     apply rat.le.trans,
@@ -933,13 +916,12 @@ theorem under_over_equiv : p_under_seq ≡ p_over_seq :=
     apply rat.le_of_lt !inv_pos
   end
 
-theorem under_over_eq : sup_under = sup_over := quot.sound under_over_equiv
+private theorem under_over_eq : sup_under = sup_over := quot.sound under_over_equiv
 
 theorem exists_is_sup_of_inh_of_bdd : ∃ x : ℝ, is_sup x :=
   exists.intro sup_over (and.intro over_bound (under_over_eq ▸ under_lowest_bound))
 
 end supremum
-
 definition bounding_set (X : ℝ → Prop) (x : ℝ) : Prop := ∀ y : ℝ, X y → x ≤ y
 
 theorem exists_is_inf_of_inh_of_bdd (X : ℝ → Prop) (elt : ℝ) (inh : X elt) (bound : ℝ)

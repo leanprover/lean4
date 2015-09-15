@@ -290,6 +290,17 @@ section
     (assume H : ¬ a ≤ b,
       (inr (assume H1 : a = b, H (H1 ▸ !le.refl))))
 
+  theorem eq_or_lt_of_not_lt {a b : A} (H : ¬ a < b) : a = b ∨ b < a :=
+    if Heq : a = b then or.inl Heq else or.inr (lt_of_not_ge (λ Hge, H (lt_of_le_of_ne Hge Heq)))
+
+  theorem eq_or_lt_of_le {a b : A} (H : a ≤ b) : a = b ∨ a < b :=
+    begin
+      cases eq_or_lt_of_not_lt (not_lt_of_ge H),
+      exact or.inl a_1⁻¹,
+      exact or.inr a_1
+    end
+
+
   -- testing equality first may result in more definitional equalities
   definition lt.cases {B : Type} (a b : A) (t_lt t_eq t_gt : B) : B :=
   if a = b then t_eq else (if a < b then t_lt else t_gt)

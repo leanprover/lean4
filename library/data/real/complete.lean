@@ -7,9 +7,9 @@ This construction follows Bishop and Bridges (1985).
 
 At this point, we no longer proceed constructively: this file makes heavy use of decidability,
 excluded middle, and Hilbert choice. Two sets of definitions of Cauchy sequences, convergence,
-etc are available, one with rates and one without. The definitions with rates are amenable
-to be used constructively, if and when that development takes place. The second set of
-definitions are the usual classical ones.
+etc are available in the libray, one with rates and one without. The definitions here, with rates,
+ are amenable to be used constructively if and when that development takes place. The second set of
+definitions available in /library/theories/analysis/metric_space.lean are the usual classical ones.
 
 Here, we show that ℝ is complete. The proofs of Cauchy completeness and the supremum property
 are independent of each other.

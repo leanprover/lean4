@@ -541,6 +541,7 @@ section add_group
 
   theorem add_eq_of_eq_sub {a b c : A} (H : a = c - b) : a + b = c :=
   add_eq_of_eq_add_neg H
+
 end add_group
 
 structure add_comm_group [class] (A : Type) extends add_group A, add_comm_monoid A
@@ -585,6 +586,8 @@ section add_comm_group
   theorem sub_eq_sub_add_sub (a b c : A) : a - b = c - b + (a - c) :=
     by rewrite [add_sub, sub_add_cancel] ⬝ !add.comm
 
+  theorem neg_neg_sub_neg (a b : A) : - (-a - -b) = a - b :=
+    by rewrite [neg_sub, sub_neg_eq_add, neg_add_eq_sub]
 end add_comm_group
 
 definition group_of_add_group (A : Type) [G : add_group A] : group A :=

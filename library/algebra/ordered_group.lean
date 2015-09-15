@@ -493,6 +493,20 @@ section
   theorem sub_lt_right_of_lt_add : a < b + c → a - c < b :=
     iff.mp !lt_add_iff_sub_lt_right
 
+  theorem sub_lt_of_sub_lt : a - b < c → a - c < b :=
+    begin
+      intro H,
+      apply sub_lt_left_of_lt_add,
+      apply lt_add_of_sub_lt_right _ _ _ H
+    end
+
+  theorem sub_le_of_sub_le : a - b ≤ c → a - c ≤ b :=
+    begin
+      intro H,
+      apply sub_left_le_of_le_add,
+      apply le_add_of_sub_right_le _ _ _ H
+    end
+
   -- TODO: the Isabelle library has varations on a + b ≤ b ↔ a ≤ 0
   theorem le_iff_le_of_sub_eq_sub {a b c d : A} (H : a - b = c - d) : a ≤ b ↔ c ≤ d :=
   calc
@@ -552,6 +566,9 @@ section
 
   theorem sub_le_of_nonneg (H : b ≥ 0) : a - b ≤ a :=
    add_le_of_le_of_nonpos (le.refl a) (neg_nonpos_of_nonneg H)
+
+  theorem sub_lt_of_pos {b : A} (H : b > 0) : a - b < a :=
+   add_lt_of_le_of_neg (le.refl a) (neg_neg_of_pos H)
 
   theorem neg_add_neg_le_neg_of_pos {a : A} (H : a > 0) : -a + -a ≤ -a :=
     !neg_add ▸ neg_le_neg (le_add_of_nonneg_left (le_of_lt H))

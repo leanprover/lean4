@@ -672,6 +672,19 @@ section
   theorem sub_le_of_abs_sub_le_right (H : abs (a - b) ≤ c) : a - c ≤ b :=
     sub_le_of_abs_sub_le_left (!abs_sub ▸ H)
 
+  theorem sub_lt_of_abs_sub_lt_left (H : abs (a - b) < c) : b - c < a :=
+    if Hz : 0 ≤ a - b then
+      (calc
+        a ≥ b : (iff.mp !sub_nonneg_iff_le) Hz
+      ... > b - c : sub_lt_of_pos _ (lt_of_le_of_lt !abs_nonneg H))
+    else
+      (have Habs : b - a < c, by rewrite [abs_of_neg (lt_of_not_ge Hz) at H, neg_sub at H]; apply H,
+       have Habs' : b < c + a, from lt_add_of_sub_lt_right _ _ _ Habs,
+       sub_lt_left_of_lt_add _ _ _ Habs')
+
+  theorem sub_lt_of_abs_sub_lt_right (H : abs (a - b) < c) : a - c < b :=
+    sub_lt_of_abs_sub_lt_left (!abs_sub ▸ H)
+
   theorem abs_sub_square (a b : A) : abs (a - b) * abs (a - b) = a * a + b * b - (1 + 1) * a * b :=
     by rewrite [abs_mul_abs_self, *mul_sub_left_distrib, *mul_sub_right_distrib,
              sub_add_eq_sub_sub, sub_neg_eq_add, *right_distrib, sub_add_eq_sub_sub, *one_mul,

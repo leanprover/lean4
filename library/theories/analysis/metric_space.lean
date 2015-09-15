@@ -136,6 +136,48 @@ proposition converges_to_limit_at (f : M → N) (x : M) [H : converges_at f x] :
   (f ⟶ limit_at f x at x) :=
 some_spec H
 
+definition continuous_at (f : M → N) (x : M) := converges_to_at f (f x) x
+
+definition continuous (f : M → N) := ∀ x, continuous_at f x
+
+theorem continuous_at_spec {f : M → N} {x : M} (Hf : continuous_at f x)  :
+        ∀ ⦃ε⦄, ε > 0 → ∃ δ, δ > 0 ∧ ∀ x', dist x x' < δ → dist (f x') (f x) < ε :=
+take ε, suppose ε > 0,
+obtain δ Hδ, from Hf this,
+exists.intro δ (and.intro
+  (and.left Hδ)
+  (take x', suppose dist x x' < δ,
+   if Heq : x = x' then
+     by rewrite [Heq, dist_self]; assumption
+   else
+     (suffices dist x x' < δ, from and.right Hδ _ (and.intro Heq this),
+      this)))
+
+definition image_seq (X : ℕ → M) (f : M → N) : ℕ → N := λ n, f (X n)
+
+theorem image_seq_converges_of_converges [instance] (X : ℕ → M) [HX : converges_seq X] {f : M → N} (Hf : continuous f) :
+        converges_seq (image_seq X f) :=
+  begin
+    cases HX with xlim Hxlim,
+    existsi f xlim,
+    rewrite ↑converges_to_seq at *,
+    intros ε Hε,
+    let Hcont := Hf xlim Hε,
+    cases Hcont with δ Hδ,
+    cases Hxlim (and.left Hδ) with B HB,
+    existsi B,
+    intro n Hn,
+    cases em (xlim = X n),
+    rewrite [↑image_seq, a, dist_self],
+    assumption,
+    rewrite ↑image_seq,
+    apply and.right Hδ,
+    split,
+    exact a,
+    rewrite dist_comm,
+    apply HB Hn
+  end
+
 end metric_space_M_N
 
 end metric_space

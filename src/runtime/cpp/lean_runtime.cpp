@@ -36,7 +36,7 @@ public:
             m_free_list[n] = *(reinterpret_cast<void **>(r));
             return r;
         } else {
-            return malloc(sizeof(obj) + sizeof(void*)*n); // NOLINT
+            return malloc(sizeof(obj_cell) + sizeof(void*)*n); // NOLINT
         }
     }
 

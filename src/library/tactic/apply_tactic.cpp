@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 #include "library/occurs.h"
 #include "library/constants.h"
-#include "library/metavar_closure.h"
 #include "library/type_util.h"
 #include "library/local_context.h"
 #include "library/class_instance_synth.h"
@@ -131,8 +130,6 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
             metas.push_back(meta);
         }
     }
-    metavar_closure cls(t);
-    cls.mk_constraints(s.get_subst(), justification());
     pair<bool, constraint_seq> dcs = tc->is_def_eq(t, e_t);
     if (!dcs.first) {
         throw_tactic_exception_if_enabled(s, [=](formatter const & fmt) {

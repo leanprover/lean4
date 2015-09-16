@@ -10,6 +10,5 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 class state {
-
 };
 }}

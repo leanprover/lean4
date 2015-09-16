@@ -68,6 +68,7 @@ void * alloc_obj(unsigned n) {
 
 obj_cell::obj_cell(unsigned cidx, unsigned sz, obj const * fs):
     m_rc(0), m_kind(static_cast<unsigned>(obj_kind::Constructor)), m_size(sz), m_cidx(cidx) {
+    static_assert(sizeof(obj_cell) % sizeof(void*) == 0); // make sure the hack used to store obj_cell fields satisfies alignment constraints.
     void ** mem = field_addr();
     for (unsigned i = 0; i < sz; i++, mem++)
         new (mem) obj(fs[i]);

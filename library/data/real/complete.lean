@@ -532,12 +532,6 @@ local postfix `~` := nat_of_pnat
 local notation 2 := (1 : ℚ) + 1
 parameter X : ℝ → Prop
 
--- this definition belongs somewhere else. Where?
-private definition rpt {A : Type} (op : A → A) : ℕ → A → A
- | rpt 0 := λ a, a
- | rpt (succ k) := λ a, op (rpt k a)
-
-
 definition ub (x : ℝ) := ∀ y : ℝ, X y → y ≤ x
 definition is_sup (x : ℝ) := ub x ∧ ∀ y : ℝ, ub y → x ≤ y
 
@@ -599,9 +593,9 @@ private theorem over_spec : ub over :=
     apply over_spec1
   end
 
-private noncomputable definition under_seq := λ n : ℕ, pr1 (rpt bisect n (under, over)) -- A
+private noncomputable definition under_seq := λ n : ℕ, pr1 (iterate bisect n (under, over)) -- A
 
-private noncomputable definition over_seq := λ n : ℕ, pr2 (rpt bisect n (under, over)) -- B
+private noncomputable definition over_seq := λ n : ℕ, pr2 (iterate bisect n (under, over)) -- B
 
 private noncomputable definition avg_seq := λ n : ℕ, avg (over_seq n) (under_seq n) -- C
 
@@ -613,7 +607,7 @@ private theorem over_0 : over_seq 0 = over := rfl
 private theorem under_0 : under_seq 0 = under := rfl
 
 private theorem succ_helper (n : ℕ) :
-        avg (pr1 (rpt bisect n (under, over))) (pr2 (rpt bisect n (under, over))) = avg_seq n :=
+        avg (pr1 (iterate bisect n (under, over))) (pr2 (iterate bisect n (under, over))) = avg_seq n :=
    by rewrite avg_symm
 
 private theorem under_succ (n : ℕ) : under_seq (succ n) =
@@ -621,11 +615,11 @@ private theorem under_succ (n : ℕ) : under_seq (succ n) =
   begin
     cases em (ub (avg_seq n)) with [Hub, Hub],
     rewrite [if_pos Hub],
-    have H :  pr1 (bisect (rpt bisect n (under, over))) = under_seq n, by
+    have H :  pr1 (bisect (iterate bisect n (under, over))) = under_seq n, by
       rewrite [↑under_seq, ↑bisect at {2}, -succ_helper at Hub, if_pos Hub],
     apply H,
     rewrite [if_neg Hub],
-    have H : pr1 (bisect (rpt bisect n (under, over))) = avg_seq n, by
+    have H : pr1 (bisect (iterate bisect n (under, over))) = avg_seq n, by
       rewrite [↑bisect at {2}, -succ_helper at Hub, if_neg Hub, avg_symm],
     apply H
   end
@@ -635,11 +629,11 @@ private theorem over_succ (n : ℕ) : over_seq (succ n) =
   begin
     cases em (ub (avg_seq n)) with [Hub, Hub],
     rewrite [if_pos Hub],
-    have H : pr2 (bisect (rpt bisect n (under, over))) = avg_seq n, by
+    have H : pr2 (bisect (iterate bisect n (under, over))) = avg_seq n, by
       rewrite [↑bisect at {2}, -succ_helper at Hub, if_pos Hub, avg_symm],
     apply H,
     rewrite [if_neg Hub],
-    have H : pr2 (bisect (rpt bisect n (under, over))) = over_seq n, by
+    have H : pr2 (bisect (iterate bisect n (under, over))) = over_seq n, by
       rewrite [↑over_seq, ↑bisect at {2}, -succ_helper at Hub, if_neg Hub],
     apply H
   end

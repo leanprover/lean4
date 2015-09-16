@@ -319,3 +319,12 @@ section migrate_algebra
 
 end migrate_algebra
 end nat
+
+section
+open nat
+definition iterate {A : Type} (op : A → A) : ℕ → A → A
+ | 0 := λ a, a
+ | (succ k) := λ a, op (iterate k a)
+
+notation f`^[`n`]` := iterate f n
+end

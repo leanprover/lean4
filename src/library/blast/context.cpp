@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/context.h"
 #include "library/kernel_serializer.h"
+#include "library/blast/context.h"
 
 namespace lean {
 LEAN_THREAD_PTR(context, g_context);

@@ -214,112 +214,103 @@ private theorem Hmem : ∀ x, x ∈ {x | x < b ∧ f x < 0} → x ≤ b := λ x 
 
 private theorem Hsupleb : inter_sup a b f ≤ b := sup_le (Hinh) Hmem
 
-private theorem sup_fn_interval_aux1 : ∀ ε : ℝ, ε > 0 → f (inter_sup a b f) ≥ 0 - ε :=
-  (take ε, suppose ε > 0,
-   have ¬ f (inter_sup a b f) < 0 - ε, from
-     (suppose f (inter_sup a b f) < 0 - ε,
-      have ∃ δ, δ > (0 : ℝ) ∧ inter_sup a b f + δ < b ∧ f (inter_sup a b f + δ) < 0, begin
-        let Hcont := Hf (inter_sup a b f)
-          (show -f (inter_sup a b f) > 0, begin
-            rewrite zero_sub at this,
-            apply lt.trans,
-            exact `ε > 0`,
-            apply lt_neg_of_lt_neg,
-            exact this
-          end),
-        cases Hcont with δ Hδ,
-        cases em (inter_sup a b f + δ / 2 < b),
-        existsi δ / 2,
-        split,
-        apply div_pos_of_pos_of_pos (and.left Hδ) two_pos,
-        split,
-        assumption,
-        have Habs : abs (inter_sup a b f - (inter_sup a b f + δ / 2)) < δ, begin
-          krewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
-                  abs_of_pos (div_pos_of_pos_of_pos (and.left Hδ) two_pos)],
-          apply div_two_lt_of_pos (and.left Hδ)
-        end,
-        let Hlt := and.right Hδ _ Habs,
-        let Hlt' := sub_lt_of_abs_sub_lt_left Hlt,
-        let Hlt'' := lt_add_of_sub_lt_right _ _ _ Hlt',
-        rewrite [-sub_eq_add_neg at Hlt'', sub_self at Hlt''],
-        assumption,
-        let Hble := le_of_not_gt a_1,
-        have Habs : abs (inter_sup a b f - b) < δ, begin
-          apply abs_lt_of_lt_of_neg_lt,
-          apply sub_lt_left_of_lt_add,
-          apply lt_of_le_of_lt,
-          apply Hsupleb,
-          apply lt_add_of_pos_right (and.left Hδ),
-          rewrite neg_sub,
-          apply sub_lt_left_of_lt_add,
-          apply lt_of_le_of_lt,
-          apply Hble,
-          apply add_lt_add_left,
-          apply div_two_lt_of_pos (and.left Hδ)
-        end,
-        let Hlt := and.right Hδ _ Habs,
-        let Hlt' := sub_lt_of_abs_sub_lt_left Hlt,
-        let Hlt'' := lt_add_of_sub_lt_right _ _ _ Hlt',
-        rewrite [-sub_eq_add_neg at Hlt'', sub_self at Hlt''],
-        apply absurd Hb (not_lt_of_ge (le_of_lt Hlt''))
-      end,
-      obtain δ Hδ, from this,
-      have inter_sup a b f + δ ∈ {x | x < b ∧ f x < 0},
-        from and.intro (and.left (and.right Hδ)) (and.right (and.right Hδ)),
-      have Hle : ¬ inter_sup a b f < inter_sup a b f + δ,
-        from not_lt_of_ge (le_sup this Hmem),
-      show false, from Hle (lt_add_of_pos_right (and.left Hδ))),
-   le_of_not_gt this)
+private theorem sup_fn_interval_aux1 : f (inter_sup a b f) ≥ 0 :=
+  have ¬ f (inter_sup a b f) < 0, from
+  (suppose f (inter_sup a b f) < 0,
+   have ∃ δ, δ > (0 : ℝ) ∧ inter_sup a b f + δ < b ∧ f (inter_sup a b f + δ) < 0, begin
+     let Hcont := Hf (inter_sup a b f) (neg_pos_of_neg this),
+     cases Hcont with δ Hδ,
+     cases em (inter_sup a b f + δ / 2 < b),
+     existsi δ / 2,
+     split,
+     apply div_pos_of_pos_of_pos (and.left Hδ) two_pos,
+     split,
+     assumption,
+     have Habs : abs (inter_sup a b f - (inter_sup a b f + δ / 2)) < δ, begin
+       krewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
+               abs_of_pos (div_pos_of_pos_of_pos (and.left Hδ) two_pos)],
+       apply div_two_lt_of_pos (and.left Hδ)
+     end,
+     let Hlt := and.right Hδ _ Habs,
+     let Hlt' := sub_lt_of_abs_sub_lt_left Hlt,
+     let Hlt'' := lt_add_of_sub_lt_right _ _ _ Hlt',
+     rewrite [-sub_eq_add_neg at Hlt'', sub_self at Hlt''],
+     assumption,
+     let Hble := le_of_not_gt a_1,
+     have Habs : abs (inter_sup a b f - b) < δ, begin
+       apply abs_lt_of_lt_of_neg_lt,
+       apply sub_lt_left_of_lt_add,
+       apply lt_of_le_of_lt,
+       apply Hsupleb,
+       apply lt_add_of_pos_right (and.left Hδ),
+       rewrite neg_sub,
+       apply sub_lt_left_of_lt_add,
+       apply lt_of_le_of_lt,
+       apply Hble,
+       apply add_lt_add_left,
+       apply div_two_lt_of_pos (and.left Hδ)
+     end,
+     let Hlt := and.right Hδ _ Habs,
+     let Hlt' := sub_lt_of_abs_sub_lt_left Hlt,
+     let Hlt'' := lt_add_of_sub_lt_right _ _ _ Hlt',
+     rewrite [-sub_eq_add_neg at Hlt'', sub_self at Hlt''],
+     apply absurd Hb (not_lt_of_ge (le_of_lt Hlt''))
+   end,
+   obtain δ Hδ, from this,
+   have inter_sup a b f + δ ∈ {x | x < b ∧ f x < 0},
+     from and.intro (and.left (and.right Hδ)) (and.right (and.right Hδ)),
+   have Hle : ¬ inter_sup a b f < inter_sup a b f + δ,
+     from not_lt_of_ge (le_sup this Hmem),
+   show false, from Hle (lt_add_of_pos_right (and.left Hδ))),
+  le_of_not_gt this
 
-private theorem sup_fn_interval_aux2 : ∀ ε : ℝ, ε > 0 → f (inter_sup a b f) < ε :=
- (take ε, suppose ε > 0,
-   have ¬ f (inter_sup a b f) ≥ ε, from
-     (suppose f (inter_sup a b f) ≥ ε,
-      have ∃ δ : ℝ, δ > 0 ∧ ∀ x' : ℝ, abs (inter_sup a b f - x') < δ → f x' > 0, begin
-        let Hcont := Hf (inter_sup a b f) (show f (inter_sup a b f) > 0, from gt_of_ge_of_gt this `ε > 0`),
-        cases Hcont with δ Hδ,
-        existsi δ,
-        split,
-        exact and.left Hδ,
-        intro x Hx,
-        let Hlt := and.right Hδ _ Hx,
-        let Hlt' := sub_lt_of_abs_sub_lt_right Hlt,
-        rewrite sub_self at Hlt',
-        exact Hlt'
-      end,
-      obtain δ Hδ, from this,
-      have ∀ x, x ∈ {x | x < b ∧ f x < 0} → x ≤ inter_sup a b f - δ / 2, from
-       (take x, suppose x ∈ {x | x < b ∧ f x < 0},
-        have x ≤ inter_sup a b f, from le_sup this Hmem,
-        have ¬ x > inter_sup a b f - δ / 2, from
-          (assume Hngt,
-           have abs (inter_sup a b f - x) < δ, begin
-             apply abs_lt_of_lt_of_neg_lt,
-             apply sub_lt_of_sub_lt,
-             apply gt.trans,
-             exact Hngt,
-             apply sub_lt_sub_left,
-             exact div_two_lt_of_pos (and.left Hδ),
-             rewrite neg_sub,
-             apply lt_of_le_of_lt,
-             rotate 1,
-             apply and.left Hδ,
-             apply sub_nonpos_of_le,
-             apply le_sup,
-             exact this,
-             exact Hmem
-           end,
-           have f x > 0, from and.right Hδ _ this,
-           show false, from (not_lt_of_gt this) (and.right `x ∈ {x | x < b ∧ f x < 0}`)),
-        le_of_not_gt this),
-      have Hle : inter_sup a b f ≤ inter_sup a b f - δ / 2, from sup_le Hinh this,
-      show false, from not_le_of_gt (sub_lt_of_pos _ (div_pos_of_pos_of_pos (and.left Hδ) (two_pos))) Hle),
-   lt_of_not_ge this)
+private theorem sup_fn_interval_aux2 : f (inter_sup a b f) ≤ 0 :=
+  have ¬ f (inter_sup a b f) > 0, from
+  (suppose f (inter_sup a b f) > 0,
+    have ∃ δ : ℝ, δ > 0 ∧ ∀ x' : ℝ, abs (inter_sup a b f - x') < δ → f x' > 0, begin
+      let Hcont := Hf (inter_sup a b f) this,
+      cases Hcont with δ Hδ,
+      existsi δ,
+      split,
+      exact and.left Hδ,
+      intro x Hx,
+      let Hlt := and.right Hδ _ Hx,
+      let Hlt' := sub_lt_of_abs_sub_lt_right Hlt,
+      rewrite sub_self at Hlt',
+      exact Hlt'
+    end,
+    obtain δ Hδ, from this,
+    have ∀ x, x ∈ {x | x < b ∧ f x < 0} → x ≤ inter_sup a b f - δ / 2, from
+     (take x, suppose x ∈ {x | x < b ∧ f x < 0},
+      have x ≤ inter_sup a b f, from le_sup this Hmem,
+      have ¬ x > inter_sup a b f - δ / 2, from
+        (assume Hngt,
+         have abs (inter_sup a b f - x) < δ, begin
+           apply abs_lt_of_lt_of_neg_lt,
+           apply sub_lt_of_sub_lt,
+           apply gt.trans,
+           exact Hngt,
+           apply sub_lt_sub_left,
+           exact div_two_lt_of_pos (and.left Hδ),
+           rewrite neg_sub,
+           apply lt_of_le_of_lt,
+           rotate 1,
+           apply and.left Hδ,
+           apply sub_nonpos_of_le,
+           apply le_sup,
+           exact this,
+           exact Hmem
+         end,
+         have f x > 0, from and.right Hδ _ this,
+         show false, from (not_lt_of_gt this) (and.right `x ∈ {x | x < b ∧ f x < 0}`)),
+      le_of_not_gt this),
+    have Hle : inter_sup a b f ≤ inter_sup a b f - δ / 2, from sup_le Hinh this,
+    show false, from not_le_of_gt
+                     (sub_lt_of_pos _ (div_pos_of_pos_of_pos (and.left Hδ) (two_pos))) Hle),
+  le_of_not_gt this
 
 private theorem sup_fn_interval : f (inter_sup a b f) = 0 :=
-  have Hnlt : f (inter_sup a b f) ≥ 0, from ge_of_forall_ge_sub sup_fn_interval_aux1,
-  eq_zero_of_nonneg_of_forall_lt Hnlt sup_fn_interval_aux2
+  eq_of_le_of_ge sup_fn_interval_aux2 sup_fn_interval_aux1
 
 private theorem intermediate_value_incr_aux1 : ∃ δ : ℝ, δ > 0 ∧ ∀ y, abs (b - y) < δ → f y > 0 :=
   begin
@@ -448,6 +439,7 @@ theorem intermediate_value_decr {f : ℝ → ℝ} (Hf : continuous f) {a b : ℝ
   end
 
 end inter_val
+
 /-
 proposition converges_to_at_unique {f : M → N} {y₁ y₂ : N} {x : M}
   (H₁ : f ⟶ y₁ '[at x]) (H₂ : f ⟶ y₂ '[at x]) : y₁ = y₂ :=

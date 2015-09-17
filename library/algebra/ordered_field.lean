@@ -296,6 +296,14 @@ section linear_ordered_field
   theorem sub_self_div_two (a : A) : a - a / 2 = a / 2 :=
     by rewrite [-{a}add_halves at {1}, add_sub_cancel]
 
+  theorem add_midpoint {a b : A} (H : a < b) : a + (b - a) / 2 < b :=
+  begin
+    rewrite [-div_sub_div_same, sub_eq_add_neg, {b / 2 + _}add.comm, -add.assoc, -sub_eq_add_neg],
+    apply add_lt_of_lt_sub_right,
+    rewrite *sub_self_div_two,
+    apply div_lt_div_of_lt_of_pos H two_pos
+  end
+
   theorem div_two_sub_self (a : A) : a / 2 - a = - (a / 2) :=
     by rewrite [-{a}add_halves at {2}, sub_add_eq_sub_sub, sub_self, zero_sub]
 

@@ -150,13 +150,11 @@ exists.intro δ (and.intro
    if Heq : x = x' then
      by rewrite [Heq, dist_self]; assumption
    else
-     (suffices dist x x' < δ, from and.right Hδ _ (and.intro Heq this),
+     (suffices dist x x' < δ, from and.right Hδ x' (and.intro Heq this),
       this)))
 
-definition image_seq (X : ℕ → M) (f : M → N) : ℕ → N := λ n, f (X n)
-
 theorem image_seq_converges_of_converges [instance] (X : ℕ → M) [HX : converges_seq X] {f : M → N} (Hf : continuous f) :
-        converges_seq (image_seq X f) :=
+        converges_seq (λ n, f (X n)) :=
   begin
     cases HX with xlim Hxlim,
     existsi f xlim,
@@ -168,9 +166,8 @@ theorem image_seq_converges_of_converges [instance] (X : ℕ → M) [HX : conver
     existsi B,
     intro n Hn,
     cases em (xlim = X n),
-    rewrite [↑image_seq, a, dist_self],
+    rewrite [a, dist_self],
     assumption,
-    rewrite ↑image_seq,
     apply and.right Hδ,
     split,
     exact a,

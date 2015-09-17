@@ -190,22 +190,77 @@ end
 
 end nat
 
-section inter_val
-open set
+section continuous
 
 -- this definition should be inherited from metric_space once a migrate is done.
 definition continuous (f : ℝ → ℝ) :=
   ∀ x : ℝ, ∀ ⦃ε : ℝ⦄, ε > 0 → ∃ δ : ℝ, δ > 0 ∧ ∀ x' : ℝ, abs (x - x') < δ → abs (f x - f x') < ε
 
-private definition inter_sup (a b : ℝ) (f : ℝ → ℝ) := sup {x | x < b ∧ f x < 0}
-
-private theorem add_midpoint {a b : ℝ} (H : a < b) : a + (b - a) / 2 < b :=
+theorem pos_on_nbhd_of_cts_of_pos {f : ℝ → ℝ} (Hf : continuous f) {b : ℝ} (Hb : f b > 0) :
+                ∃ δ : ℝ, δ > 0 ∧ ∀ y, abs (b - y) < δ → f y > 0 :=
   begin
-    rewrite [-div_sub_div_same, sub_eq_add_neg, {b / 2 + _}add.comm, -add.assoc, -sub_eq_add_neg],
-    apply add_lt_of_lt_sub_right,
-    krewrite *sub_self_div_two,
-    apply div_lt_div_of_lt_of_pos H two_pos
+    let Hcont := Hf b Hb,
+    cases Hcont with δ Hδ,
+    existsi δ,
+    split,
+    exact and.left Hδ,
+    intro y Hy,
+    let Hy' := and.right Hδ y Hy,
+    let Hlt := sub_lt_of_abs_sub_lt_right Hy',
+    rewrite sub_self at Hlt,
+    assumption
   end
+
+theorem neg_on_nbhd_of_cts_of_neg {f : ℝ → ℝ} (Hf : continuous f) {b : ℝ} (Hb : f b < 0) :
+                ∃ δ : ℝ, δ > 0 ∧ ∀ y, abs (b - y) < δ → f y < 0 :=
+  begin
+    let Hcont := Hf b (neg_pos_of_neg Hb),
+    cases Hcont with δ Hδ,
+    existsi δ,
+    split,
+    exact and.left Hδ,
+    intro y Hy,
+    let Hy' := and.right Hδ y Hy,
+    let Hlt := sub_lt_of_abs_sub_lt_left Hy',
+    let Hlt' := lt_add_of_sub_lt_right _ _ _ Hlt,
+    rewrite [-sub_eq_add_neg at Hlt', sub_self at Hlt'],
+    assumption
+  end
+
+theorem neg_continuous_of_continuous {f : ℝ → ℝ} (Hcon : continuous f) : continuous (λ x, - f x) :=
+  begin
+    intros x ε Hε,
+    cases Hcon x Hε with δ Hδ,
+    cases Hδ with Hδ₁ Hδ₂,
+    existsi δ,
+    split,
+    assumption,
+    intros x' Hx',
+    let HD := Hδ₂ x' Hx',
+    rewrite [-abs_neg, neg_neg_sub_neg],
+    assumption
+  end
+
+theorem translate_continuous_of_continuous {f : ℝ → ℝ} (Hcon : continuous f) (a : ℝ) :
+        continuous (λ x, (f x) + a) :=
+  begin
+    intros x ε Hε,
+    cases Hcon x Hε with δ Hδ,
+    cases Hδ with Hδ₁ Hδ₂,
+    existsi δ,
+    split,
+    assumption,
+    intros x' Hx',
+    rewrite [add_sub_comm, sub_self, add_zero],
+    apply Hδ₂,
+    assumption
+  end
+end continuous
+
+section inter_val
+open set
+
+private definition inter_sup (a b : ℝ) (f : ℝ → ℝ) := sup {x | x < b ∧ f x < 0}
 
 section
 parameters {f : ℝ → ℝ} (Hf : continuous f) {a b : ℝ} (Hab : a < b) (Ha : f a < 0) (Hb : f b > 0)
@@ -218,6 +273,39 @@ private theorem Hmem : ∀ x, x ∈ {x | x < b ∧ f x < 0} → x ≤ b := λ x 
 private theorem Hsupleb : inter_sup a b f ≤ b := sup_le (Hinh) Hmem
 
 local notation 2 := of_num 1 + of_num 1
+
+private theorem ex_delta_lt {x : ℝ} (Hx : f x < 0) (Hxb : x < b) : ∃ δ : ℝ, δ > 0 ∧ x + δ < b ∧ f (x + δ) < 0 :=
+  begin
+    let Hcont := neg_on_nbhd_of_cts_of_neg Hf Hx,
+    cases Hcont with δ Hδ,
+    {cases em (x + δ < b) with Haδ Haδ,
+    existsi δ / 2,
+    split,
+    {exact div_pos_of_pos_of_pos (and.left Hδ) two_pos},
+    split,
+    {apply lt.trans,
+    apply add_lt_add_left,
+    exact div_two_lt_of_pos (and.left Hδ),
+    exact Haδ},
+    {apply and.right Hδ,
+    rewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
+             abs_of_pos (div_pos_of_pos_of_pos (and.left Hδ) two_pos)],
+    exact div_two_lt_of_pos (and.left Hδ)},
+    existsi (b - x) / 2,
+    split,
+    {apply div_pos_of_pos_of_pos,
+    exact sub_pos_of_lt _ _ Hxb,
+    exact two_pos},
+    split,
+    {apply add_midpoint Hxb},
+    {apply and.right Hδ,
+    rewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
+            abs_of_pos (div_pos_of_pos_of_pos (sub_pos_of_lt _ _ Hxb) two_pos)],
+    apply lt_of_lt_of_le,
+    apply div_two_lt_of_pos (sub_pos_of_lt _ _ Hxb),
+    apply sub_left_le_of_le_add,
+    apply le_of_not_gt Haδ}}
+  end
 
 private lemma sup_near_b {δ : ℝ} (Hpos : 0 < δ)
                 (Hgeb : inter_sup a b f + δ / 2 ≥ b) : abs (inter_sup a b f - b) < δ :=
@@ -237,29 +325,15 @@ private lemma sup_near_b {δ : ℝ} (Hpos : 0 < δ)
 
 private lemma delta_of_lt (Hflt : f (inter_sup a b f) < 0) :
               ∃ δ : ℝ, δ > 0 ∧ inter_sup a b f + δ < b ∧ f (inter_sup a b f + δ) < 0 :=
-begin
-     let Hcont := Hf (inter_sup a b f) (neg_pos_of_neg Hflt),
-     cases Hcont with δ Hδ,
-     cases em (inter_sup a b f + δ / 2 < b),
-     existsi δ / 2,
-     split,
-     apply div_pos_of_pos_of_pos (and.left Hδ) two_pos,
-     split,
-     exact a_1,
-     have Habs : abs (inter_sup a b f - (inter_sup a b f + δ / 2)) < δ, begin
-       rewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
-                abs_of_pos (div_pos_of_pos_of_pos (and.left Hδ) two_pos)],
-       apply div_two_lt_of_pos (and.left Hδ)
-     end,
-     let Hlt := and.right Hδ _ Habs,
-     let Hlt' := lt_add_of_sub_lt_right _ _ _ (sub_lt_of_abs_sub_lt_left Hlt),
-     rewrite [-sub_eq_add_neg at Hlt', sub_self at Hlt'],
-     exact Hlt',
-     let Hlt := and.right Hδ _ (sup_near_b (and.left Hδ) (le_of_not_gt a_1)),
-     let Hlt' := lt_add_of_sub_lt_right _ _ _ (sub_lt_of_abs_sub_lt_left Hlt),
-     rewrite [-sub_eq_add_neg at Hlt', sub_self at Hlt'],
-     apply absurd Hb (not_lt_of_ge (le_of_lt Hlt'))
-   end
+  if Hlt : inter_sup a b f < b then ex_delta_lt Hflt Hlt else
+  begin
+    let Heq := eq_of_le_of_ge Hsupleb (le_of_not_gt Hlt),
+    apply absurd Hflt,
+    apply not_lt_of_ge,
+    apply le_of_lt,
+    rewrite Heq,
+    exact Hb
+  end
 
 private theorem sup_fn_interval_aux1 : f (inter_sup a b f) ≥ 0 :=
   have ¬ f (inter_sup a b f) < 0, from
@@ -272,31 +346,15 @@ private theorem sup_fn_interval_aux1 : f (inter_sup a b f) ≥ 0 :=
      show false, from this (lt_add_of_pos_right (and.left Hδ))),
   le_of_not_gt this
 
-private lemma delta_of_gt (Hfpos : f (inter_sup a b f) > 0) :
-              ∃ δ : ℝ, δ > 0 ∧ ∀ x' : ℝ, abs (inter_sup a b f - x') < δ → f x' > 0 :=
-begin
-      let Hcont := Hf (inter_sup a b f) Hfpos,
-      cases Hcont with δ Hδ,
-      existsi δ,
-      split,
-      exact and.left Hδ,
-      intro x Hx,
-      let Hlt := and.right Hδ _ Hx,
-      let Hlt' := sub_lt_of_abs_sub_lt_right Hlt,
-      rewrite sub_self at Hlt',
-      exact Hlt'
-    end
-
 private theorem sup_fn_interval_aux2 : f (inter_sup a b f) ≤ 0 :=
   have ¬ f (inter_sup a b f) > 0, from
-  (suppose f (inter_sup a b f) > 0,
-    obtain δ Hδ, from delta_of_gt this,
+  (assume Hfsup : f (inter_sup a b f) > 0,
+    obtain δ Hδ, from pos_on_nbhd_of_cts_of_pos Hf Hfsup,
     have ∀ x, x ∈ {x | x < b ∧ f x < 0} → x ≤ inter_sup a b f - δ / 2, from
-     (take x, suppose x ∈ {x | x < b ∧ f x < 0},
-      have x ≤ inter_sup a b f, from le_sup this Hmem,
+     (take x, assume Hxset : x ∈ {x | x < b ∧ f x < 0},
       have ¬ x > inter_sup a b f - δ / 2, from
         (assume Hngt,
-         have abs (inter_sup a b f - x) < δ, begin
+         have Habs : abs (inter_sup a b f - x) < δ, begin
            apply abs_lt_of_lt_of_neg_lt,
            apply sub_lt_of_sub_lt,
            apply gt.trans,
@@ -309,11 +367,11 @@ private theorem sup_fn_interval_aux2 : f (inter_sup a b f) ≤ 0 :=
            apply and.left Hδ,
            apply sub_nonpos_of_le,
            apply le_sup,
-           exact this,
+           exact Hxset,
            exact Hmem
          end,
-         have f x > 0, from and.right Hδ _ this,
-         show false, from (not_lt_of_gt this) (and.right `x ∈ {x | x < b ∧ f x < 0}`)),
+         have f x > 0, from and.right Hδ x Habs,
+         show false, from (not_lt_of_gt this) (and.right Hxset)),
       le_of_not_gt this),
     have Hle : inter_sup a b f ≤ inter_sup a b f - δ / 2, from sup_le Hinh this,
     show false, from not_le_of_gt
@@ -323,71 +381,45 @@ private theorem sup_fn_interval_aux2 : f (inter_sup a b f) ≤ 0 :=
 private theorem sup_fn_interval : f (inter_sup a b f) = 0 :=
   eq_of_le_of_ge sup_fn_interval_aux2 sup_fn_interval_aux1
 
-private theorem intermediate_value_incr_aux1 : ∃ δ : ℝ, δ > 0 ∧ ∀ y, abs (b - y) < δ → f y > 0 :=
-  begin
-    let Hcont := Hf b Hb,
-    cases Hcont with δ Hδ,
-    existsi δ,
-    split,
-    exact and.left Hδ,
-    intro y Hy,
-    let Hy' := and.right Hδ _ Hy,
-    let Hlt := sub_lt_of_abs_sub_lt_right Hy',
-    rewrite sub_self at Hlt,
-    assumption
-  end
 
 private theorem intermediate_value_incr_aux2 : ∃ δ : ℝ, δ > 0 ∧ a + δ < b ∧ f (a + δ) < 0 :=
   begin
-    have Hnfa : - (f a) > 0, from neg_pos_of_neg Ha,
-    let Hcont := Hf a Hnfa,
+    let Hcont := neg_on_nbhd_of_cts_of_neg Hf Ha,
     cases Hcont with δ Hδ,
-    cases em (a + δ < b) with Haδ Haδ,
+    {cases em (a + δ < b) with Haδ Haδ,
     existsi δ / 2,
     split,
-    exact div_pos_of_pos_of_pos (and.left Hδ) two_pos,
+    {exact div_pos_of_pos_of_pos (and.left Hδ) two_pos},
     split,
-    apply lt.trans,
+    {apply lt.trans,
     apply add_lt_add_left,
     exact div_two_lt_of_pos (and.left Hδ),
-    assumption,
-    have Habs : abs (a - (a + δ / 2)) < δ, begin
-      rewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
-               abs_of_pos (div_pos_of_pos_of_pos (and.left Hδ) two_pos)],
-      exact div_two_lt_of_pos (and.left Hδ)
-    end,
-    let Hlt := and.right Hδ _ Habs,
-    let Hlt' := sub_lt_of_abs_sub_lt_left Hlt,
-    let Hlt'' := lt_add_of_sub_lt_right _ _ _ Hlt',
-    rewrite [-sub_eq_add_neg at Hlt'', sub_self at Hlt''],
-    assumption,
+    exact Haδ},
+    {apply and.right Hδ,
+    rewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
+             abs_of_pos (div_pos_of_pos_of_pos (and.left Hδ) two_pos)],
+    exact div_two_lt_of_pos (and.left Hδ)},
     existsi (b - a) / 2,
     split,
-    apply div_pos_of_pos_of_pos,
+    {apply div_pos_of_pos_of_pos,
     exact sub_pos_of_lt _ _ Hab,
-    exact two_pos,
+    exact two_pos},
     split,
-    apply add_midpoint Hab,
-    have Habs : abs (a - (a + (b - a) / 2)) < δ, begin
-      krewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
-                abs_of_pos (div_pos_of_pos_of_pos (sub_pos_of_lt _ _ Hab) two_pos)],
-      apply lt_of_lt_of_le,
-      apply div_two_lt_of_pos (sub_pos_of_lt _ _ Hab),
-      apply sub_left_le_of_le_add,
-      apply le_of_not_gt Haδ
-    end,
-    let Hlt := and.right Hδ _ Habs,
-    let Hlt' := sub_lt_of_abs_sub_lt_left Hlt,
-    let Hlt'' := lt_add_of_sub_lt_right _ _ _ Hlt',
-    rewrite [-sub_eq_add_neg at Hlt'', sub_self at Hlt''],
-    assumption
+    {apply add_midpoint Hab},
+    {apply and.right Hδ,
+    rewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
+            abs_of_pos (div_pos_of_pos_of_pos (sub_pos_of_lt _ _ Hab) two_pos)],
+    apply lt_of_lt_of_le,
+    apply div_two_lt_of_pos (sub_pos_of_lt _ _ Hab),
+    apply sub_left_le_of_le_add,
+    apply le_of_not_gt Haδ}}
   end
 
-theorem intermediate_value_incr : ∃ c, a < c ∧ c < b ∧ f c = 0 :=
+theorem intermediate_value_incr_zero : ∃ c, a < c ∧ c < b ∧ f c = 0 :=
   begin
     existsi inter_sup a b f,
     split,
-    cases intermediate_value_incr_aux2 with δ Hδ,
+    {cases intermediate_value_incr_aux2 with δ Hδ,
     apply lt_of_lt_of_le,
     apply lt_add_of_pos_right,
     exact and.left Hδ,
@@ -395,14 +427,14 @@ theorem intermediate_value_incr : ∃ c, a < c ∧ c < b ∧ f c = 0 :=
     exact and.right Hδ,
     intro x Hx,
     apply le_of_lt,
-    exact and.left Hx,
+    exact and.left Hx},
     split,
-    cases intermediate_value_incr_aux1 with δ Hδ,
+    {cases pos_on_nbhd_of_cts_of_pos Hf Hb with δ Hδ,
     apply lt_of_le_of_lt,
     rotate 1,
     apply sub_lt_of_pos,
     exact and.left Hδ,
-    exact sup_fn_interval,
+    rotate_right 1,
     apply sup_le,
     exact exists.intro a (and.intro Hab Ha),
     intro x Hx,
@@ -411,34 +443,19 @@ theorem intermediate_value_incr : ∃ c, a < c ∧ c < b ∧ f c = 0 :=
     have Hxgt' : b - x < δ, from sub_lt_of_sub_lt _ _ _ Hxgt,
     rewrite -(abs_of_pos (sub_pos_of_lt _ _ (and.left Hx))) at Hxgt',
     let Hxgt'' := and.right Hδ _ Hxgt',
-    exact not_lt_of_ge (le_of_lt Hxgt'') (and.right Hx)
+    exact not_lt_of_ge (le_of_lt Hxgt'') (and.right Hx)},
+    {exact sup_fn_interval}
   end
 
 end
 
-private definition neg_f (f : ℝ → ℝ) := λ x, - f x
-
-private theorem neg_continuous_of_continuous {f : ℝ → ℝ} (Hcon : continuous f) : continuous (neg_f f) :=
-  begin
-    intros x ε Hε,
-    cases Hcon x Hε with δ Hδ,
-    cases Hδ with Hδ₁ Hδ₂,
-    existsi δ,
-    split,
-    assumption,
-    intros x' Hx',
-    let HD := Hδ₂ x' Hx',
-    rewrite [-abs_neg, ↑neg_f, neg_neg_sub_neg],
-    assumption
-  end
-
-theorem intermediate_value_decr {f : ℝ → ℝ} (Hf : continuous f) {a b : ℝ} (Hab : a < b)
+theorem intermediate_value_decr_zero {f : ℝ → ℝ} (Hf : continuous f) {a b : ℝ} (Hab : a < b)
         (Ha : f a > 0) (Hb : f b < 0) : ∃ c, a < c ∧ c < b ∧ f c = 0 :=
   begin
-    have Ha' : (neg_f f) a < 0, from neg_neg_of_pos Ha,
-    have Hb' : (neg_f f) b > 0, from neg_pos_of_neg Hb,
-    have Hcon : continuous (neg_f f), from neg_continuous_of_continuous Hf,
-    let Hiv := intermediate_value_incr Hcon Hab Ha' Hb',
+    have Ha' : - f a < 0, from neg_neg_of_pos Ha,
+    have Hb' : - f b > 0, from neg_pos_of_neg Hb,
+    have Hcon : continuous (λ x, - f x), from neg_continuous_of_continuous Hf,
+    let Hiv := intermediate_value_incr_zero Hcon Hab Ha' Hb',
     cases Hiv with c Hc,
     existsi c,
     split,
@@ -448,6 +465,26 @@ theorem intermediate_value_decr {f : ℝ → ℝ} (Hf : continuous f) {a b : ℝ
     apply eq_zero_of_neg_eq_zero,
     apply and.right (and.right Hc)
   end
+
+theorem intermediate_value_incr {f : ℝ → ℝ} (Hf : continuous f) {a b : ℝ} (Hab : a < b) {v : ℝ}
+        (Hav : f a < v) (Hbv : f b > v) : ∃ c, a < c ∧ c < b ∧ f c = v :=
+  have Hav' : f a - v < 0, from sub_neg_of_lt _ _ Hav,
+  have Hbv' : f b - v > 0, from sub_pos_of_lt _ _ Hbv,
+  have Hcon : continuous (λ x, f x - v), from translate_continuous_of_continuous Hf _,
+  have Hiv : ∃ c, a < c ∧ c < b ∧ f c - v = 0, from intermediate_value_incr_zero Hcon Hab Hav' Hbv',
+  obtain c Hc, from Hiv,
+  exists.intro c
+    (and.intro (and.left Hc) (and.intro (and.left (and.right Hc)) (eq_of_sub_eq_zero (and.right (and.right Hc)))))
+
+theorem intermediate_value_decr {f : ℝ → ℝ} (Hf : continuous f) {a b : ℝ} (Hab : a < b) {v : ℝ}
+        (Hav : f a > v) (Hbv : f b < v) : ∃ c, a < c ∧ c < b ∧ f c = v :=
+  have Hav' : f a - v > 0, from sub_pos_of_lt _ _ Hav,
+  have Hbv' : f b - v < 0, from sub_neg_of_lt _ _ Hbv,
+  have Hcon : continuous (λ x, f x - v), from translate_continuous_of_continuous Hf _,
+  have Hiv : ∃ c, a < c ∧ c < b ∧ f c - v = 0, from intermediate_value_decr_zero Hcon Hab Hav' Hbv',
+  obtain c Hc, from Hiv,
+  exists.intro c
+    (and.intro (and.left Hc) (and.intro (and.left (and.right Hc)) (eq_of_sub_eq_zero (and.right (and.right Hc)))))
 
 end inter_val
 

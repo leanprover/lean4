@@ -83,6 +83,7 @@ name const & get_using_tk();
 name const & get_then_tk();
 name const & get_else_tk();
 name const & get_by_tk();
+name const & get_by_plus_tk();
 name const & get_rewrite_tk();
 name const & get_proof_tk();
 name const & get_qed_tk();

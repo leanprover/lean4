@@ -383,11 +383,11 @@ static expr parse_proof(parser & p, expr const & prop) {
         auto pos = p.pos();
         return parse_begin_end_core(p, pos, get_end_tk(), true);
     } else if (p.curr_is_token(get_by_tk())) {
-        // parse: 'by' tactic
         auto pos = p.pos();
-        p.next();
-        expr t = p.parse_tactic();
-        return p.mk_by(t, pos);
+        return parse_by(p, 0, nullptr, pos);
+    } else if (p.curr_is_token(get_by_plus_tk())) {
+        auto pos = p.pos();
+        return parse_by_plus(p, 0, nullptr, pos);
     } else if (p.curr_is_token(get_using_tk())) {
         // parse: 'using' locals* ',' proof
         auto using_pos = p.pos();

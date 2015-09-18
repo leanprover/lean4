@@ -76,6 +76,7 @@ using        using
 then         then
 else         else
 by           by
+by_plus      by+
 rewrite      rewrite
 proof        proof
 qed          qed

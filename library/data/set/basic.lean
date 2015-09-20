@@ -234,7 +234,7 @@ ext (take x, !or.right_distrib)
 /- set-builder notation -/
 
 -- {x : X | P}
-definition set_of (P : X → Prop) : set X := P
+definition set_of [reducible] (P : X → Prop) : set X := P
 notation `{` binder `|` r:(scoped:1 P, set_of P) `}` := r
 
 -- {x ∈ s | P}

@@ -121,10 +121,17 @@ scope_hash_consing::~scope_hash_consing() {
     g_lref_array  = reinterpret_cast<expr_array*>(m_lref_array);
 }
 
+#ifdef LEAN_DEBUG
 static bool is_cached(level const & l) {
     lean_assert(g_level_table);
     return g_level_table->find(l) != g_level_table->end();
 }
+
+static bool is_cached(expr const & l) {
+    lean_assert(g_expr_table);
+    return g_expr_table->find(l) != g_expr_table->end();
+}
+#endif
 
 static level cache(level const & l) {
     lean_assert(g_level_table);
@@ -133,11 +140,6 @@ static level cache(level const & l) {
         return *r;
     g_level_table->insert(l);
     return l;
-}
-
-static bool is_cached(expr const & l) {
-    lean_assert(g_expr_table);
-    return g_expr_table->find(l) != g_expr_table->end();
 }
 
 static expr cache(expr const & e) {

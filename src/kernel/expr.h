@@ -138,8 +138,6 @@ public:
     friend expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi,
                          tag g);
     friend expr mk_app(expr const & f, expr const & a, tag g);
-    friend expr mk_pair(expr const & f, expr const & s, expr const & t, tag g);
-    friend expr mk_proj(bool fst, expr const & p, tag g);
     friend expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & i,
                            tag g);
     friend expr mk_macro(macro_definition const & m, unsigned num, expr const * args, tag g);

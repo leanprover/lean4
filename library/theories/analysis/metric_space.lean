@@ -38,8 +38,10 @@ eq_of_dist_eq_zero (eq_zero_of_nonneg_of_forall_le !dist_nonneg H)
 
 open nat
 
+/- convergence of a sequence -/
+
 definition converges_to_seq (X : ℕ → M) (y : M) : Prop :=
-∀ ⦃ε : ℝ⦄, ε > 0 → ∃ N : ℕ, ∀ {n}, n ≥ N → dist (X n) y < ε
+∀ ⦃ε : ℝ⦄, ε > 0 → ∃ N : ℕ, ∀ ⦃n⦄, n ≥ N → dist (X n) y < ε
 
 -- the same, with ≤ in place of <; easier to prove, harder to use
 definition converges_to_seq.intro {X : ℕ → M} {y : M}
@@ -81,17 +83,71 @@ eq_of_forall_dist_le
              ... = ε                             : add_halves,
     show dist y₁ y₂ ≤ ε, from le_of_lt this)
 
-proposition eq_limit_of_converges_to_seq {X : ℕ → M} (y : M) (H : X ⟶ y in ℕ) :
+proposition eq_limit_of_converges_to_seq {X : ℕ → M} {y : M} (H : X ⟶ y in ℕ) :
   y = @limit_seq M _ X (exists.intro y H) :=
 converges_to_seq_unique H (@converges_to_limit_seq M _ X (exists.intro y H))
 
 proposition converges_to_seq_constant (y : M) : (λn, y) ⟶ y in ℕ :=
 take ε, assume egt0 : ε > 0,
-  exists.intro 0
-    (take n, suppose n ≥ 0,
-      calc
-        dist y y = 0 : !dist_self
-             ... < ε : egt0)
+exists.intro 0
+  (take n, suppose n ≥ 0,
+    calc
+      dist y y = 0 : !dist_self
+           ... < ε : egt0)
+
+proposition converges_to_seq_offset {X : ℕ → M} {y : M} (k : ℕ) (H : X ⟶ y in ℕ) :
+  (λ n, X (n + k)) ⟶ y in ℕ :=
+take ε, suppose ε > 0,
+obtain N HN, from H `ε > 0`,
+exists.intro N
+  (take n : ℕ, assume ngtN : n ≥ N,
+    show dist (X (n + k)) y < ε, from HN (n + k) (le.trans ngtN !le_add_right))
+
+proposition converges_to_seq_offset_left {X : ℕ → M} {y : M} (k : ℕ) (H : X ⟶ y in ℕ) :
+  (λ n, X (k + n)) ⟶ y in ℕ :=
+have aux : (λ n, X (k + n)) = (λ n, X (n + k)), from funext (take n, by rewrite nat.add.comm),
+by+ rewrite aux; exact converges_to_seq_offset k H
+
+proposition converges_to_seq_offset_succ {X : ℕ → M} {y : M} (H : X ⟶ y in ℕ) :
+  (λ n, X (succ n)) ⟶ y in ℕ :=
+converges_to_seq_offset 1 H
+
+proposition converges_to_seq_of_converges_to_seq_offset
+    {X : ℕ → M} {y : M} {k : ℕ} (H : (λ n, X (n + k)) ⟶ y in ℕ) :
+  X ⟶ y in ℕ :=
+take ε, suppose ε > 0,
+obtain N HN, from H `ε > 0`,
+exists.intro (N + k)
+  (take n : ℕ, assume nge : n ≥ N + k,
+    have n - k ≥ N, from le_sub_of_add_le nge,
+    have dist (X (n - k + k)) y < ε, from HN (n - k) this,
+    show dist (X n) y < ε, using this,
+      by rewrite [(nat.sub_add_cancel (le.trans !le_add_left nge)) at this]; exact this)
+
+proposition converges_to_seq_of_converges_to_seq_offset_left
+    {X : ℕ → M} {y : M} {k : ℕ} (H : (λ n, X (k + n)) ⟶ y in ℕ) :
+  X ⟶ y in ℕ :=
+have aux : (λ n, X (k + n)) = (λ n, X (n + k)), from funext (take n, by rewrite nat.add.comm),
+by+ rewrite aux at H; exact converges_to_seq_of_converges_to_seq_offset H
+
+proposition converges_to_seq_of_converges_to_seq_offset_succ
+    {X : ℕ → M} {y : M} (H : (λ n, X (succ n)) ⟶ y in ℕ) :
+  X ⟶ y in ℕ :=
+@converges_to_seq_of_converges_to_seq_offset M strucM X y 1 H
+
+proposition converges_to_seq_offset_iff (X : ℕ → M) (y : M) (k : ℕ) :
+  ((λ n, X (n + k)) ⟶ y in ℕ) ↔ (X ⟶ y in ℕ) :=
+iff.intro converges_to_seq_of_converges_to_seq_offset !converges_to_seq_offset
+
+proposition converges_to_seq_offset_left_iff (X : ℕ → M) (y : M) (k : ℕ) :
+  ((λ n, X (k + n)) ⟶ y in ℕ) ↔ (X ⟶ y in ℕ) :=
+iff.intro converges_to_seq_of_converges_to_seq_offset_left !converges_to_seq_offset_left
+
+proposition converges_to_seq_offset_succ_iff (X : ℕ → M) (y : M) :
+  ((λ n, X (succ n)) ⟶ y in ℕ) ↔ (X ⟶ y in ℕ) :=
+iff.intro converges_to_seq_of_converges_to_seq_offset_succ !converges_to_seq_offset_succ
+
+/- cauchy sequences -/
 
 definition cauchy (X : ℕ → M) : Prop :=
 ∀ ε : ℝ, ε > 0 → ∃ N, ∀ m n, m ≥ N → n ≥ N → dist (X m) (X n) < ε
@@ -116,6 +172,8 @@ take ε, suppose ε > 0,
                        ... = ε                           : add_halves)
 
 end metric_space_M
+
+/- convergence of a function at a point -/
 
 section metric_space_M_N
 variables {M N : Type} [strucM : metric_space M] [strucN : metric_space N]

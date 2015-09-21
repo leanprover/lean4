@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2015 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Jeremy Avigad
+Authors: Jeremy Avigad, Robert Y. Lewis
 
 Instantiates the reals as a metric space, and expresses completeness, sup, and inf in
 a manner that is less constructive, but more convenient, than the way it is done in
@@ -37,7 +37,6 @@ protected definition to_metric_space [instance] : metric_space ℝ :=
   dist_triangle      := abs_sub_le
 ⦄
 
-section nat
 open nat
 
 definition converges_to_seq (X : ℕ → ℝ) (y : ℝ) : Prop :=
@@ -68,6 +67,45 @@ converges_to_seq_unique H (@converges_to_limit_seq X (exists.intro y H))
 
 proposition converges_to_seq_constant (y : ℝ) : (λn, y) ⟶ y in ℕ :=
 metric_space.converges_to_seq_constant y
+
+proposition converges_to_seq_offset {X : ℕ → ℝ} {y : ℝ} (k : ℕ) (H : X ⟶ y in ℕ) :
+  (λ n, X (n + k)) ⟶ y in ℕ :=
+metric_space.converges_to_seq_offset k H
+
+proposition converges_to_seq_offset_left {X : ℕ → ℝ} {y : ℝ} (k : ℕ) (H : X ⟶ y in ℕ) :
+  (λ n, X (k + n)) ⟶ y in ℕ :=
+metric_space.converges_to_seq_offset_left k H
+
+proposition converges_to_set_offset_succ {X : ℕ → ℝ} {y : ℝ} (H : X ⟶ y in ℕ) :
+  (λ n, X (succ n)) ⟶ y in ℕ :=
+metric_space.converges_to_seq_offset_succ H
+
+proposition converges_to_seq_of_converges_to_seq_offset
+    {X : ℕ → ℝ} {y : ℝ} {k : ℕ} (H : (λ n, X (n + k)) ⟶ y in ℕ) :
+  X ⟶ y in ℕ :=
+metric_space.converges_to_seq_of_converges_to_seq_offset H
+
+proposition converges_to_seq_of_converges_to_seq_offset_left
+    {X : ℕ → ℝ} {y : ℝ} {k : ℕ} (H : (λ n, X (k + n)) ⟶ y in ℕ) :
+  X ⟶ y in ℕ :=
+metric_space.converges_to_seq_of_converges_to_seq_offset_left H
+
+proposition converges_to_seq_of_converges_to_seq_offset_succ
+    {X : ℕ → ℝ} {y : ℝ} (H : (λ n, X (succ n)) ⟶ y in ℕ) :
+  X ⟶ y in ℕ :=
+metric_space.converges_to_seq_of_converges_to_seq_offset_succ H
+
+proposition converges_to_seq_offset_iff (X : ℕ → ℝ) (y : ℝ) (k : ℕ) :
+  ((λ n, X (n + k)) ⟶ y in ℕ) ↔ (X ⟶ y in ℕ) :=
+metric_space.converges_to_seq_offset_iff X y k
+
+proposition converges_to_seq_offset_left_iff (X : ℕ → ℝ) (y : ℝ) (k : ℕ) :
+  ((λ n, X (k + n)) ⟶ y in ℕ) ↔ (X ⟶ y in ℕ) :=
+metric_space.converges_to_seq_offset_left_iff X y k
+
+proposition converges_to_seq_offset_succ_iff (X : ℕ → ℝ) (y : ℝ) :
+  ((λ n, X (succ n)) ⟶ y in ℕ) ↔ (X ⟶ y in ℕ) :=
+metric_space.converges_to_seq_offset_succ_iff X y
 
 /- the completeness of the reals, "translated" from data.real.complete -/
 
@@ -159,6 +197,14 @@ have H : (∃ x, x ∈ X) ∧ (∃ b, ∀ x, x ∈ X → x ≤ b),
   from and.intro HX (exists.intro b Hb),
 by+ rewrite [↑sup, dif_pos H]; exact and.right (sup_aux_spec H) b Hb
 
+proposition exists_mem_and_lt_of_lt_sup {X : set ℝ} (HX : ∃ x, x ∈ X) {b : ℝ} (Hb : b < sup X) :
+∃ x, x ∈ X ∧ b < x :=
+have ¬ ∀ x, x ∈ X → x ≤ b, from assume H, not_le_of_gt Hb (sup_le HX H),
+obtain x (Hx : ¬ (x ∈ X → x ≤ b)), from exists_not_of_not_forall this,
+exists.intro x
+  (have x ∈ X ∧ ¬ x ≤ b, by rewrite [-not_implies_iff_and_not]; apply Hx,
+     and.intro (and.left this) (lt_of_not_ge (and.right this)))
+
 private definition exists_is_inf {X : set ℝ} (H : (∃ x, x ∈ X) ∧ (∃ b, ∀ x, x ∈ X → b ≤ x)) :
   ∃ y, is_inf X y :=
 let x := some (and.left H), b := some (and.right H) in
@@ -186,9 +232,297 @@ have H : (∃ x, x ∈ X) ∧ (∃ b, ∀ x, x ∈ X → b ≤ x),
   from and.intro HX (exists.intro b Hb),
 by+ rewrite [↑inf, dif_pos H]; exact and.right (inf_aux_spec H) b Hb
 
+proposition exists_mem_and_lt_of_inf_lt {X : set ℝ} (HX : ∃ x, x ∈ X) {b : ℝ} (Hb : inf X < b) :
+∃ x, x ∈ X ∧ x < b :=
+have ¬ ∀ x, x ∈ X → b ≤ x, from assume H, not_le_of_gt Hb (le_inf HX H),
+obtain x (Hx : ¬ (x ∈ X → b ≤ x)), from exists_not_of_not_forall this,
+exists.intro x
+  (have x ∈ X ∧ ¬ b ≤ x, by rewrite [-not_implies_iff_and_not]; apply Hx,
+     and.intro (and.left this) (lt_of_not_ge (and.right this)))
+
+-- TODO: is there a better place to put this?
+proposition image_neg_eq (X : set ℝ) : (λ x, -x) '[X] = {x | -x ∈ X} :=
+set.ext (take x, iff.intro
+  (assume H, obtain y [(Hy₁ : y ∈ X) (Hy₂ : -y = x)], from H,
+    show -x ∈ X, by rewrite [-Hy₂, neg_neg]; exact Hy₁)
+  (assume H : -x ∈ X, exists.intro (-x) (and.intro H !neg_neg)))
+
+proposition sup_neg {X : set ℝ} (nonempty_X : ∃ x, x ∈ X) {b : ℝ} (Hb : ∀ x, x ∈ X → b ≤ x) :
+  sup {x | -x ∈ X} = - inf X :=
+let negX := {x | -x ∈ X} in
+have nonempty_negX : ∃ x, x ∈ negX, from
+  obtain x Hx, from nonempty_X,
+  have -(-x) ∈ X,
+    by rewrite neg_neg; apply Hx,
+  exists.intro (-x) this,
+have H₁ : ∀ x, x ∈ negX → x ≤ - inf X, from
+  take x,
+  assume H,
+  have inf X ≤ -x,
+    from inf_le H Hb,
+  show x ≤ - inf X,
+    from le_neg_of_le_neg this,
+have H₂ : ∀ x, x ∈ X → -sup negX ≤ x, from
+  take x,
+  assume H,
+  have -(-x) ∈ X, by rewrite neg_neg; apply H,
+  have -x ≤ sup negX, from le_sup this H₁,
+  show -sup negX ≤ x,
+    from !neg_le_of_neg_le this,
+eq_of_le_of_ge
+  (show sup negX ≤ - inf X,
+    from sup_le nonempty_negX H₁)
+  (show -inf X ≤ sup negX,
+    from !neg_le_of_neg_le (le_inf nonempty_X H₂))
+
+proposition inf_neg {X : set ℝ} (nonempty_X : ∃ x, x ∈ X) {b : ℝ} (Hb : ∀ x, x ∈ X → x ≤ b) :
+  inf {x | -x ∈ X} = - sup X :=
+let negX := {x | -x ∈ X} in
+have nonempty_negX : ∃ x, x ∈ negX, from
+  obtain x Hx, from nonempty_X,
+  have -(-x) ∈ X,
+    by rewrite neg_neg; apply Hx,
+  exists.intro (-x) this,
+have Hb' : ∀ x, x ∈ negX → -b ≤ x,
+  from take x, assume H, !neg_le_of_neg_le (Hb _ H),
+have HX : X = {x | -x ∈ negX},
+  from set.ext (take x, by rewrite [↑set_of, ↑mem, +neg_neg]),
+show inf {x | -x ∈ X} = - sup X,
+  using HX Hb' nonempty_negX, by rewrite [HX at {2}, sup_neg nonempty_negX Hb', neg_neg]
+
 end
 
-end nat
+/- limits under pointwise operations -/
+
+section limit_operations
+open nat
+
+variables {X Y : ℕ → ℝ}
+variables {x y : ℝ}
+
+proposition add_converges_to_seq (HX : X ⟶ x in ℕ) (HY : Y ⟶ y in ℕ) :
+  (λ n, X n + Y n) ⟶ x + y in ℕ :=
+take ε, suppose ε > 0,
+have e2pos : ε / 2 > 0, from  div_pos_of_pos_of_pos `ε > 0` two_pos,
+obtain N₁ (HN₁ : ∀ {n}, n ≥ N₁ → abs (X n - x) < ε / 2), from HX e2pos,
+obtain N₂ (HN₂ : ∀ {n}, n ≥ N₂ → abs (Y n - y) < ε / 2), from HY e2pos,
+let N := nat.max N₁ N₂ in
+exists.intro N
+  (take n,
+    suppose n ≥ N,
+    have ngtN₁ : n ≥ N₁, from nat.le.trans !nat.le_max_left `n ≥ N`,
+    have ngtN₂ : n ≥ N₂, from nat.le.trans !nat.le_max_right `n ≥ N`,
+    show abs ((X n + Y n) - (x + y)) < ε, from calc
+      abs ((X n + Y n) - (x + y))
+            = abs ((X n - x) + (Y n - y))   : by rewrite [sub_add_eq_sub_sub, *sub_eq_add_neg,
+                                                         *add.assoc, add.left_comm (-x)]
+        ... ≤ abs (X n - x) + abs (Y n - y) : abs_add_le_abs_add_abs
+        ... < ε / 2 + ε / 2                 : add_lt_add (HN₁ ngtN₁) (HN₂ ngtN₂)
+        ... = ε                             : add_halves)
+
+private lemma mul_left_converges_to_seq_of_pos {c : ℝ} (cnz : c ≠ 0) (HX : X ⟶ x in ℕ) :
+  (λ n, c * X n) ⟶ c * x in ℕ :=
+take ε, suppose ε > 0,
+have abscpos : abs c > 0, from abs_pos_of_ne_zero cnz,
+have epos : ε / abs c > 0, from  div_pos_of_pos_of_pos `ε > 0` abscpos,
+obtain N (HN : ∀ {n}, n ≥ N → abs (X n - x) < ε / abs c), from HX epos,
+exists.intro N
+  (take n,
+    suppose n ≥ N,
+    have H : abs (X n - x) < ε / abs c, from HN this,
+    show abs (c * X n - c * x) < ε, from calc
+      abs (c * X n - c * x) = abs c * abs (X n - x) : by rewrite [-mul_sub_left_distrib, abs_mul]
+                        ... < abs c * (ε / abs c)   : mul_lt_mul_of_pos_left H abscpos
+                        ... = ε                     : mul_div_cancel' (ne_of_gt abscpos))
+
+proposition mul_left_converges_to_seq (c : ℝ) (HX : X ⟶ x in ℕ) :
+  (λ n, c * X n) ⟶ c * x in ℕ :=
+by_cases
+  (assume cz : c = 0,
+    have (λ n, c * X n) = (λ n, 0), from funext (take x, by rewrite [cz, zero_mul]),
+    by+ rewrite [this, cz, zero_mul]; apply converges_to_seq_constant)
+  (suppose c ≠ 0, mul_left_converges_to_seq_of_pos this HX)
+
+proposition mul_right_converges_to_seq (c : ℝ) (HX : X ⟶ x in ℕ) :
+  (λ n, X n * c) ⟶ x * c in ℕ :=
+have (λ n, X n * c) = (λ n, c * X n), from funext (take x, !mul.comm),
+by+ rewrite [this, mul.comm]; apply mul_left_converges_to_seq c HX
+
+-- TODO: converges_to_seq_div, converges_to_seq_mul_left_iff, etc.
+
+proposition neg_converges_to_seq (HX : X ⟶ x in ℕ) :
+  (λ n, - X n) ⟶ - x in ℕ :=
+take ε, suppose ε > 0,
+obtain N (HN : ∀ {n}, n ≥ N → abs (X n - x) < ε), from HX this,
+exists.intro N
+  (take n,
+    suppose n ≥ N,
+    show abs (- X n - (- x)) < ε,
+      by rewrite [-neg_neg_sub_neg, *neg_neg, abs_neg]; exact HN `n ≥ N`)
+
+proposition neg_converges_to_seq_iff (X : ℕ → ℝ) :
+  ((λ n, - X n) ⟶ - x in ℕ) ↔ (X ⟶ x in ℕ) :=
+have aux : X = λ n, (- (- X n)), from funext (take n, by rewrite neg_neg),
+iff.intro
+  (assume H : (λ n, -X n)⟶ -x in ℕ,
+    show X ⟶ x in ℕ, by+ rewrite [aux, -neg_neg x]; exact neg_converges_to_seq H)
+  neg_converges_to_seq
+
+proposition abs_converges_to_seq_zero (HX : X ⟶ 0 in ℕ) : (λ n, abs (X n)) ⟶ 0 in ℕ :=
+take ε, suppose ε > 0,
+obtain N (HN : ∀ n, n ≥ N → abs (X n - 0) < ε), from HX `ε > 0`,
+exists.intro N
+  (take n, assume Hn : n ≥ N,
+    have abs (X n) < ε, from (!sub_zero ▸ HN n Hn),
+    show abs (abs (X n) - 0) < ε, using this,
+      by rewrite [sub_zero, abs_of_nonneg !abs_nonneg]; apply this)
+
+proposition converges_to_seq_zero_of_abs_converges_to_seq_zero (HX : (λ n, abs (X n)) ⟶ 0 in ℕ) :
+  X ⟶ 0 in ℕ :=
+take ε, suppose ε > 0,
+obtain N (HN : ∀ n, n ≥ N → abs (abs (X n) - 0) < ε), from HX `ε > 0`,
+exists.intro (N : ℕ)
+  (take n : ℕ, assume Hn : n ≥ N,
+    have HN' : abs (abs (X n) - 0) < ε, from HN n Hn,
+    have abs (X n) < ε,
+      by+ rewrite [real.sub_zero at HN', abs_of_nonneg !abs_nonneg at HN']; apply HN',
+    show abs (X n - 0) < ε, using this,
+      by rewrite sub_zero; apply this)
+
+proposition abs_converges_to_seq_zero_iff (X : ℕ → ℝ) :
+  ((λ n, abs (X n)) ⟶ 0 in ℕ) ↔ (X ⟶ 0 in ℕ) :=
+iff.intro converges_to_seq_zero_of_abs_converges_to_seq_zero abs_converges_to_seq_zero
+
+-- TODO: products of two sequences, converges_seq, limit_seq
+
+end limit_operations
+
+/- monotone sequences -/
+
+section monotone_sequences
+open nat set
+
+variable {X : ℕ → ℝ}
+
+definition nondecreasing (X : ℕ → ℝ) : Prop := ∀ ⦃i j⦄, i ≤ j → X i ≤ X j
+
+proposition nondecreasing_of_forall_le_succ (H : ∀ i, X i ≤ X (succ i)) : nondecreasing X :=
+take i j, suppose i ≤ j,
+have ∀ n, X i ≤ X (i + n), from
+  take n, nat.induction_on n
+    (by rewrite nat.add_zero; apply le.refl)
+    (take n, assume ih, le.trans ih (H (i + n))),
+have X i ≤ X (i + (j - i)), from !this,
+by+ rewrite [add_sub_of_le `i ≤ j` at this]; exact this
+
+proposition converges_to_seq_sup_of_nondecreasing (nondecX : nondecreasing X) {b : ℝ}
+    (Hb : ∀ i, X i ≤ b) : X ⟶ sup (X '[univ]) in ℕ :=
+let sX := sup (X '[univ]) in
+have Xle : ∀ i, X i ≤ sX, from
+  take i,
+  have ∀ x, x ∈ X '[univ] → x ≤ b, from
+    (take x, assume H,
+      obtain i [H' (Hi : X i = x)], from H,
+      by rewrite -Hi; exact Hb i),
+  show X i ≤ sX, from le_sup (mem_image_of_mem X !mem_univ) this,
+have exX : ∃ x, x ∈ X '[univ],
+  from exists.intro (X 0) (mem_image_of_mem X !mem_univ),
+take ε, assume epos : ε > 0,
+have sX - ε < sX, from !sub_lt_of_pos epos,
+obtain x' [(H₁x' : x' ∈ X '[univ]) (H₂x' : sX - ε < x')],
+  from exists_mem_and_lt_of_lt_sup exX this,
+obtain i [H' (Hi : X i = x')], from H₁x',
+have Hi' : ∀ j, j ≥ i → sX - ε < X j, from
+  take j, assume Hj, lt_of_lt_of_le (Hi⁻¹ ▸ H₂x') (nondecX Hj),
+exists.intro i
+  (take j, assume Hj : j ≥ i,
+    have X j - sX ≤ 0, from sub_nonpos_of_le (Xle j),
+    have eq₁ : abs (X j - sX) = sX - X j, using this, by rewrite [abs_of_nonpos this, neg_sub],
+    have sX - ε < X j, from lt_of_lt_of_le (Hi⁻¹ ▸ H₂x') (nondecX Hj),
+    have sX < X j + ε, from lt_add_of_sub_lt_right this,
+    have sX - X j < ε, from sub_lt_left_of_lt_add this,
+    show (abs (X j - sX)) < ε, using eq₁ this, by rewrite eq₁; exact this)
+
+definition nonincreasing (X : ℕ → ℝ) : Prop := ∀ ⦃i j⦄, i ≤ j → X i ≥ X j
+
+proposition nodecreasing_of_nonincreasing_neg (nonincX : nonincreasing (λ n, - X n)) :
+  nondecreasing (λ n, X n) :=
+take i j, suppose i ≤ j,
+show X i ≤ X j, from le_of_neg_le_neg (nonincX this)
+
+proposition noincreasing_neg_of_nondecreasing (nondecX : nondecreasing X) :
+  nonincreasing (λ n, - X n) :=
+take i j, suppose i ≤ j,
+show - X i ≥ - X j, from neg_le_neg (nondecX this)
+
+proposition nonincreasing_neg_iff (X : ℕ → ℝ) : nonincreasing (λ n, - X n) ↔ nondecreasing X :=
+iff.intro nodecreasing_of_nonincreasing_neg noincreasing_neg_of_nondecreasing
+
+proposition nonincreasing_of_nondecreasing_neg (nondecX : nondecreasing (λ n, - X n)) :
+  nonincreasing (λ n, X n) :=
+take i j, suppose i ≤ j,
+show X i ≥ X j, from le_of_neg_le_neg (nondecX this)
+
+proposition nodecreasing_neg_of_nonincreasing (nonincX : nonincreasing X) :
+  nondecreasing (λ n, - X n) :=
+take i j, suppose i ≤ j,
+show - X i ≤ - X j, from neg_le_neg (nonincX this)
+
+proposition nondecreasing_neg_iff (X : ℕ → ℝ) : nondecreasing (λ n, - X n) ↔ nonincreasing X :=
+iff.intro nonincreasing_of_nondecreasing_neg nodecreasing_neg_of_nonincreasing
+
+proposition nonincreasing_of_forall_succ_le (H : ∀ i, X (succ i) ≤ X i) : nonincreasing X :=
+begin
+  rewrite -nondecreasing_neg_iff,
+  show nondecreasing (λ n : ℕ, - X n), from
+    nondecreasing_of_forall_le_succ (take i, neg_le_neg (H i))
+end
+
+proposition converges_to_seq_inf_of_nonincreasing (nonincX : nonincreasing X) {b : ℝ}
+    (Hb : ∀ i, b ≤ X i) : X ⟶ inf (X '[univ]) in ℕ :=
+have H₁ : ∃ x, x ∈ X '[univ], from exists.intro (X 0) (mem_image_of_mem X !mem_univ),
+have H₂ : ∀ x, x ∈ X '[univ] → b ≤ x, from
+  (take x, assume H,
+    obtain i [Hi₁ (Hi₂ : X i = x)], from H,
+    show b ≤ x, by rewrite -Hi₂; apply Hb i),
+have H₃ : {x : ℝ | -x ∈ X '[univ]} = {x : ℝ | x ∈ (λ n, -X n) '[univ]}, from calc
+  {x : ℝ | -x ∈ X '[univ]} = (λ y, -y) '[X '[univ]] : !image_neg_eq⁻¹
+                       ... = {x : ℝ | x ∈ (λ n, -X n) '[univ]} : !image_compose⁻¹,
+have H₄ : ∀ i, - X i ≤ - b, from take i, neg_le_neg (Hb i),
+begin+
+  rewrite [-neg_converges_to_seq_iff, -sup_neg H₁ H₂, H₃, -nondecreasing_neg_iff at nonincX],
+  apply converges_to_seq_sup_of_nondecreasing nonincX H₄
+end
+
+end monotone_sequences
+
+section xn
+open nat set
+
+theorem pow_converges_to_seq_zero {x : ℝ} (H : abs x < 1) :
+  (λ n, x^n) ⟶ 0 in ℕ :=
+suffices H' : (λ n, (abs x)^n) ⟶ 0 in ℕ, from
+  have (λ n, (abs x)^n) = (λ n, abs (x^n)), from funext (take n, !abs_pow⁻¹),
+  using this,
+    by rewrite this at H'; exact converges_to_seq_zero_of_abs_converges_to_seq_zero H',
+let  aX := (λ n, (abs x)^n),
+    iaX := inf (aX '[univ]),
+    asX := (λ n, (abs x)^(succ n)) in
+have noninc_aX : nonincreasing aX, from
+  nonincreasing_of_forall_succ_le
+    (take i,
+      have (abs x) * (abs x)^i ≤ 1 * (abs x)^i,
+        from mul_le_mul_of_nonneg_right (le_of_lt H) (!pow_nonneg_of_nonneg !abs_nonneg),
+      show (abs x) * (abs x)^i ≤ (abs x)^i, from !one_mul ▸ this),
+have bdd_aX : ∀ i, 0 ≤ aX i, from take i, !pow_nonneg_of_nonneg !abs_nonneg,
+have aXconv : aX ⟶ iaX in ℕ, from converges_to_seq_inf_of_nonincreasing noninc_aX bdd_aX,
+have asXconv : asX ⟶ iaX in ℕ, from metric_space.converges_to_seq_offset_succ aXconv,
+have asXconv' : asX ⟶ (abs x) * iaX in ℕ, from mul_left_converges_to_seq (abs x) aXconv,
+have iaX = (abs x) * iaX, from converges_to_seq_unique asXconv asXconv',
+have iaX = 0, from eq_zero_of_mul_eq_self_left (ne_of_lt H) this⁻¹,
+show aX ⟶ 0 in ℕ, from this ▸ aXconv
+
+end xn
 
 section continuous
 
@@ -222,7 +556,7 @@ theorem neg_on_nbhd_of_cts_of_neg {f : ℝ → ℝ} (Hf : continuous f) {b : ℝ
     intro y Hy,
     let Hy' := and.right Hδ y Hy,
     let Hlt := sub_lt_of_abs_sub_lt_left Hy',
-    let Hlt' := lt_add_of_sub_lt_right _ _ _ Hlt,
+    let Hlt' := lt_add_of_sub_lt_right Hlt,
     rewrite [-sub_eq_add_neg at Hlt', sub_self at Hlt'],
     assumption
   end
@@ -294,15 +628,15 @@ private theorem ex_delta_lt {x : ℝ} (Hx : f x < 0) (Hxb : x < b) : ∃ δ : �
     existsi (b - x) / 2,
     split,
     {apply div_pos_of_pos_of_pos,
-    exact sub_pos_of_lt _ _ Hxb,
+    exact sub_pos_of_lt Hxb,
     exact two_pos},
     split,
     {apply add_midpoint Hxb},
     {apply and.right Hδ,
     rewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
-            abs_of_pos (div_pos_of_pos_of_pos (sub_pos_of_lt _ _ Hxb) two_pos)],
+            abs_of_pos (div_pos_of_pos_of_pos (sub_pos_of_lt Hxb) two_pos)],
     apply lt_of_lt_of_le,
-    apply div_two_lt_of_pos (sub_pos_of_lt _ _ Hxb),
+    apply div_two_lt_of_pos (sub_pos_of_lt Hxb),
     apply sub_left_le_of_le_add,
     apply le_of_not_gt Haδ}}
   end
@@ -402,15 +736,15 @@ private theorem intermediate_value_incr_aux2 : ∃ δ : ℝ, δ > 0 ∧ a + δ <
     existsi (b - a) / 2,
     split,
     {apply div_pos_of_pos_of_pos,
-    exact sub_pos_of_lt _ _ Hab,
+    exact sub_pos_of_lt Hab,
     exact two_pos},
     split,
     {apply add_midpoint Hab},
     {apply and.right Hδ,
     rewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
-            abs_of_pos (div_pos_of_pos_of_pos (sub_pos_of_lt _ _ Hab) two_pos)],
+            abs_of_pos (div_pos_of_pos_of_pos (sub_pos_of_lt Hab) two_pos)],
     apply lt_of_lt_of_le,
-    apply div_two_lt_of_pos (sub_pos_of_lt _ _ Hab),
+    apply div_two_lt_of_pos (sub_pos_of_lt Hab),
     apply sub_left_le_of_le_add,
     apply le_of_not_gt Haδ}}
   end
@@ -440,8 +774,8 @@ theorem intermediate_value_incr_zero : ∃ c, a < c ∧ c < b ∧ f c = 0 :=
     intro x Hx,
     apply le_of_not_gt,
     intro Hxgt,
-    have Hxgt' : b - x < δ, from sub_lt_of_sub_lt _ _ _ Hxgt,
-    rewrite -(abs_of_pos (sub_pos_of_lt _ _ (and.left Hx))) at Hxgt',
+    have Hxgt' : b - x < δ, from sub_lt_of_sub_lt Hxgt,
+    rewrite -(abs_of_pos (sub_pos_of_lt (and.left Hx))) at Hxgt',
     let Hxgt'' := and.right Hδ _ Hxgt',
     exact not_lt_of_ge (le_of_lt Hxgt'') (and.right Hx)},
     {exact sup_fn_interval}
@@ -468,8 +802,8 @@ theorem intermediate_value_decr_zero {f : ℝ → ℝ} (Hf : continuous f) {a b 
 
 theorem intermediate_value_incr {f : ℝ → ℝ} (Hf : continuous f) {a b : ℝ} (Hab : a < b) {v : ℝ}
         (Hav : f a < v) (Hbv : f b > v) : ∃ c, a < c ∧ c < b ∧ f c = v :=
-  have Hav' : f a - v < 0, from sub_neg_of_lt _ _ Hav,
-  have Hbv' : f b - v > 0, from sub_pos_of_lt _ _ Hbv,
+  have Hav' : f a - v < 0, from sub_neg_of_lt Hav,
+  have Hbv' : f b - v > 0, from sub_pos_of_lt Hbv,
   have Hcon : continuous (λ x, f x - v), from translate_continuous_of_continuous Hf _,
   have Hiv : ∃ c, a < c ∧ c < b ∧ f c - v = 0, from intermediate_value_incr_zero Hcon Hab Hav' Hbv',
   obtain c Hc, from Hiv,
@@ -478,8 +812,8 @@ theorem intermediate_value_incr {f : ℝ → ℝ} (Hf : continuous f) {a b : ℝ
 
 theorem intermediate_value_decr {f : ℝ → ℝ} (Hf : continuous f) {a b : ℝ} (Hab : a < b) {v : ℝ}
         (Hav : f a > v) (Hbv : f b < v) : ∃ c, a < c ∧ c < b ∧ f c = v :=
-  have Hav' : f a - v > 0, from sub_pos_of_lt _ _ Hav,
-  have Hbv' : f b - v < 0, from sub_neg_of_lt _ _ Hbv,
+  have Hav' : f a - v > 0, from sub_pos_of_lt Hav,
+  have Hbv' : f b - v < 0, from sub_neg_of_lt Hbv,
   have Hcon : continuous (λ x, f x - v), from translate_continuous_of_continuous Hf _,
   have Hiv : ∃ c, a < c ∧ c < b ∧ f c - v = 0, from intermediate_value_decr_zero Hcon Hab Hav' Hbv',
   obtain c Hc, from Hiv,

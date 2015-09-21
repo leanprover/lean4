@@ -663,7 +663,7 @@ section
     if Hz : 0 ≤ a - b then
       (calc
         a ≥ b : (iff.mp !sub_nonneg_iff_le) Hz
-      ... ≥ b - c : sub_le_of_nonneg _ _ (le.trans !abs_nonneg H))
+      ... ≥ b - c : sub_le_of_nonneg _ (le.trans !abs_nonneg H))
     else
       (have Habs : b - a ≤ c, by rewrite [abs_of_neg (lt_of_not_ge Hz) at H, neg_sub at H]; apply H,
        have Habs' : b ≤ c + a, from (iff.mpr !le_add_iff_sub_right_le) Habs,
@@ -679,8 +679,8 @@ section
       ... > b - c : sub_lt_of_pos _ (lt_of_le_of_lt !abs_nonneg H))
     else
       (have Habs : b - a < c, by rewrite [abs_of_neg (lt_of_not_ge Hz) at H, neg_sub at H]; apply H,
-       have Habs' : b < c + a, from lt_add_of_sub_lt_right _ _ _ Habs,
-       sub_lt_left_of_lt_add _ _ _ Habs')
+       have Habs' : b < c + a, from lt_add_of_sub_lt_right Habs,
+       sub_lt_left_of_lt_add Habs')
 
   theorem sub_lt_of_abs_sub_lt_right (H : abs (a - b) < c) : a - c < b :=
     sub_lt_of_abs_sub_lt_left (!abs_sub ▸ H)

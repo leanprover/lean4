@@ -351,6 +351,16 @@ section
 
   -- TODO: do we want the iff versions?
 
+  theorem eq_zero_of_mul_eq_self_right {a b : A} (H₁ : b ≠ 1) (H₂ : a * b = a) : a = 0 :=
+  have b - 1 ≠ 0, from
+    suppose b - 1 = 0, H₁ (!zero_add ▸ eq_add_of_sub_eq this),
+  have a * b - a = 0, by rewrite H₂; apply sub_self,
+  have a * (b - 1) = 0, by+ rewrite [mul_sub_left_distrib, mul_one]; apply this,
+    show a = 0, from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero this) `b - 1 ≠ 0`
+
+  theorem eq_zero_of_mul_eq_self_left {a b : A} (H₁ : b ≠ 1) (H₂ : b * a = a) : a = 0 :=
+    eq_zero_of_mul_eq_self_right H₁ (!mul.comm ▸ H₂)
+
   theorem mul_self_eq_mul_self_iff (a b : A) : a * a = b * b ↔ a = b ∨ a = -b :=
   iff.intro
     (suppose a * a = b * b,

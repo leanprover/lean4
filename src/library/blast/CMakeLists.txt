@@ -1,1 +1,1 @@
-add_library(blast OBJECT state.cpp context.cpp expr.cpp)
+add_library(blast OBJECT state.cpp expr.cpp)

@@ -93,6 +93,7 @@ expr lift_free_vars(expr const & e, unsigned s, unsigned d);
 expr lift_free_vars(expr const & e, unsigned d);
 
 expr instantiate(expr const & e, unsigned n, expr const * s);
+expr instantiate_rev(expr const & e, unsigned n, expr const * s);
 
 level instantiate(level const & l, level_param_names const & ps, levels const & ls);
 expr  instantiate_univ_params(expr const & e, level_param_names const & ps, levels const & ls);

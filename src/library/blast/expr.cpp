@@ -420,9 +420,9 @@ expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
     if (s >= get_free_var_range(a) || n == 0)
         return a;
     if (s == 0)
-        if (auto r = instantiate_easy_fn<false>(n, subst)(a, true))
+        if (auto r = blast::instantiate_easy_fn<false>(n, subst)(a, true))
             return *r;
-    return replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
+    return blast::replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
             unsigned s1 = s + offset;
             if (s1 < s)
                 return some_expr(m); // overflow, vidx can't be >= max unsigned
@@ -445,6 +445,29 @@ expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
 
 expr instantiate(expr const & e, unsigned n, expr const * s) {
     return blast::instantiate(e, 0, n, s);
+}
+
+expr instantiate_rev(expr const & a, unsigned n, expr const * subst) {
+    if (closed(a))
+        return a;
+    if (auto r = blast::instantiate_easy_fn<true>(n, subst)(a, true))
+        return *r;
+    return blast::replace(a, [=](expr const & m, unsigned offset) -> optional<expr> {
+            if (offset >= get_free_var_range(m))
+                return some_expr(m); // expression m does not contain free variables with idx >= offset
+            if (is_var(m)) {
+                unsigned vidx = var_idx(m);
+                if (vidx >= offset) {
+                    unsigned h = offset + n;
+                    if (h < offset /* overflow, h is bigger than any vidx */ || vidx < h) {
+                        return some_expr(blast::lift_free_vars(subst[n - (vidx - offset) - 1], offset));
+                    } else {
+                        return some_expr(blast::mk_var(vidx - n));
+                    }
+                }
+            }
+            return none_expr();
+        });
 }
 
 class replace_level_fn {

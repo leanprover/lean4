@@ -11,7 +11,7 @@ open pi
 
 structure functor (C D : Precategory) : Type :=
   (to_fun_ob : C → D)
-  (to_fun_hom : Π ⦃a b : C⦄, hom a b → hom (to_fun_ob a) (to_fun_ob b))
+  (to_fun_hom : Π {a b : C}, hom a b → hom (to_fun_ob a) (to_fun_ob b))
   (respect_id : Π (a : C), to_fun_hom (ID a) = ID (to_fun_ob a))
   (respect_comp : Π {a b c : C} (g : hom b c) (f : hom a b),
     to_fun_hom (g ∘ f) = to_fun_hom g ∘ to_fun_hom f)
@@ -52,9 +52,8 @@ namespace functor
       : functor.mk F₁ H₁ id₁ comp₁ = functor.mk F₂ H₂ id₂ comp₂ :=
   apd01111 functor.mk pF pH !is_hprop.elim !is_hprop.elim
 
-  definition functor_eq' {F₁ F₂ : C ⇒ D}
-    : Π(p : to_fun_ob F₁ = to_fun_ob F₂),
-          (transport (λx, Πa b f, hom (x a) (x b)) p (to_fun_hom F₁) = to_fun_hom F₂) → F₁ = F₂ :=
+  definition functor_eq' {F₁ F₂ : C ⇒ D} : Π(p : to_fun_ob F₁ = to_fun_ob F₂),
+    (transport (λx, Πa b f, hom (x a) (x b)) p @(to_fun_hom F₁) = @(to_fun_hom F₂)) → F₁ = F₂ :=
   by induction F₁; induction F₂; apply functor_mk_eq'
 
   definition functor_mk_eq {F₁ F₂ : C → D} {H₁ : Π(a b : C), hom a b → hom (F₁ a) (F₁ b)}
@@ -141,13 +140,11 @@ namespace functor
       to_fun_hom (g ∘ f) = to_fun_hom g ∘ to_fun_hom f)) ≃ (functor C D) :=
   begin
     fapply equiv.MK,
-      {intro S, fapply functor.mk,
-        exact (S.1), exact (S.2.1),
-        -- TODO(Leo): investigate why we need to use relaxed-exact (rexact) tactic here
-        exact (pr₁ S.2.2), rexact (pr₂ S.2.2)},
-      {intro F, cases F with d1 d2 d3 d4, exact ⟨d1, d2, (d3, @d4)⟩},
-      {intro F, cases F, reflexivity},
-      {intro S, cases S with d1 S2, cases S2 with d2 P1, cases P1, reflexivity},
+      {intro S, induction S with d1 S2, induction S2 with d2 P1, induction P1 with P11 P12,
+       exact functor.mk d1 d2 P11 @P12},
+      {intro F, induction F with d1 d2 d3 d4, exact ⟨d1, @d2, (d3, @d4)⟩},
+      {intro F, induction F, reflexivity},
+      {intro S, induction S with d1 S2, induction S2 with d2 P1, induction P1, reflexivity},
   end
 
   section
@@ -199,8 +196,8 @@ namespace functor
   by induction pF; induction pH; induction pid; induction pcomp; reflexivity
 
   definition ap010_functor_eq {F₁ F₂ : C ⇒ D} (p : to_fun_ob F₁ ~ to_fun_ob F₂)
-    (q : (λ(a b : C) (f : hom a b), hom_of_eq (p b) ∘ F₁ f ∘ inv_of_eq (p a)) ~3 to_fun_hom F₂) (c : C) :
-    ap010 to_fun_ob (functor_eq p q) c = p c :=
+    (q : (λ(a b : C) (f : hom a b), hom_of_eq (p b) ∘ F₁ f ∘ inv_of_eq (p a)) ~3 @(to_fun_hom F₂))
+    (c : C) : ap010 to_fun_ob (functor_eq p q) c = p c :=
   begin
     cases F₁ with F₁o F₁h F₁id F₁comp, cases F₂ with F₂o F₂h F₂id F₂comp,
     esimp [functor_eq,functor_mk_eq,functor_mk_eq'],

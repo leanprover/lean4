@@ -11,7 +11,7 @@ import ..category ..functor
 open eq prod is_trunc functor
 
 namespace category
-  definition precategory_product [reducible] {obC obD : Type}
+  definition precategory_prod [constructor] [reducible] {obC obD : Type}
     (C : precategory obC) (D : precategory obD) : precategory (obC × obD) :=
   precategory.mk' (λ a b, hom (pr1 a) (pr1 b) × hom (pr2 a) (pr2 b))
                   (λ a b c g f, (pr1 g ∘ pr1 f , pr2 g ∘ pr2 f))
@@ -22,13 +22,12 @@ namespace category
                   (λ a b f,         prod_eq !id_right !id_right)
                   (λ a,             prod_eq !id_id    !id_id)
                   _
+  definition Precategory_prod [reducible] [constructor] (C D : Precategory) : Precategory :=
+  precategory.Mk (precategory_prod C D)
 
-  definition Precategory_product [reducible] (C D : Precategory) : Precategory :=
-  precategory.Mk (precategory_product C D)
+  infixr `×c`:30 := Precategory_prod
 
-  infixr `×c`:30 := Precategory_product
-
-  definition prod_functor [reducible] {C C' D D' : Precategory}
+  definition prod_functor [constructor] [reducible] {C C' D D' : Precategory}
     (F : C ⇒ D) (G : C' ⇒ D') : C ×c C' ⇒ D ×c D' :=
   functor.mk (λ a, pair (F (pr1 a)) (G (pr2 a)))
              (λ a b f, pair (F (pr1 f)) (G (pr2 f)))

@@ -208,7 +208,7 @@ namespace yoneda
   local attribute Category.to.precategory category.to_precategory [constructor]
 
   -- should this be defined as "yoneda_embedding Cᵒᵖ"?
-  definition contravariant_yoneda_embedding (C : Precategory) : Cᵒᵖ ⇒ set ^c C :=
+  definition contravariant_yoneda_embedding [reducible] (C : Precategory) : Cᵒᵖ ⇒ set ^c C :=
   functor_curry !hom_functor
 
   definition yoneda_embedding (C : Precategory) : C ⇒ set ^c Cᵒᵖ :=
@@ -226,10 +226,9 @@ namespace yoneda
       exact ap10 !(@respect_comp Cᵒᵖ set)⁻¹ x}
   end
 
-  definition yoneda_lemma {C : Precategory} (c : C) (F : Cᵒᵖ ⇒ set) :
-    homset (ɏ c) F ≅ lift_functor (F c) :=
+  definition yoneda_lemma_equiv [constructor] {C : Precategory} (c : C)
+    (F : Cᵒᵖ ⇒ set) : hom (ɏ c) F ≃ lift (F c) :=
   begin
-    apply iso_of_equiv, esimp,
     fapply equiv.MK,
     { intro η, exact up (η c id)},
     { intro x, induction x with x, exact yoneda_lemma_hom c F x},
@@ -242,10 +241,16 @@ namespace yoneda
       rewrite naturality, esimp [yoneda_embedding], rewrite [id_left], apply ap _ !id_left end end},
   end
 
+  definition yoneda_lemma {C : Precategory} (c : C) (F : Cᵒᵖ ⇒ set) :
+    homset (ɏ c) F ≅ lift_functor (F c) :=
+  begin
+    apply iso_of_equiv, esimp, apply yoneda_lemma_equiv,
+  end
+
   theorem yoneda_lemma_natural_ob {C : Precategory} (F : Cᵒᵖ ⇒ set) {c c' : C} (f : c' ⟶ c)
     (η : ɏ c ⟹ F) :
      to_fun_hom (lift_functor ∘f F) f (to_hom (yoneda_lemma c F) η) =
-     proof to_hom (yoneda_lemma c' F) (η ∘n to_fun_hom ɏ f) qed :=
+     to_hom (yoneda_lemma c' F) (η ∘n to_fun_hom ɏ f) :=
   begin
     esimp [yoneda_lemma,yoneda_embedding], apply ap up,
     transitivity (F f ∘ η c) id, reflexivity,
@@ -256,11 +261,28 @@ namespace yoneda
     rewrite [+id_left,+id_right],
   end
 
+  -- TODO: Investigate what is the bottleneck to type check the next theorem
+
+  -- attribute yoneda_lemma lift_functor Precategory_hset precategory_hset homset
+  --   yoneda_embedding nat_trans.compose functor_nat_trans_compose [reducible]
+  -- attribute tlift functor.compose [reducible]
   theorem yoneda_lemma_natural_functor.{u v} {C : Precategory.{u v}} (c : C) (F F' : Cᵒᵖ ⇒ set)
     (θ : F ⟹ F') (η : to_fun_ob ɏ c ⟹ F) :
-     proof (lift_functor.{v u} ∘fn θ) c (to_hom (yoneda_lemma c F) η) qed =
-     (to_hom (yoneda_lemma c F') proof (θ ∘n η : (to_fun_ob ɏ c : Cᵒᵖ ⇒ set) ⟹ F') qed) :=
+     (lift_functor.{v u} ∘fn θ) c (to_hom (yoneda_lemma c F) η) =
+     proof to_hom (yoneda_lemma c F') (θ ∘n η) qed :=
   by reflexivity
+
+  -- theorem xx.{u v} {C : Precategory.{u v}} (c : C) (F F' : Cᵒᵖ ⇒ set)
+  --   (θ : F ⟹ F') (η : to_fun_ob ɏ c ⟹ F) :
+  --    proof _ qed =
+  --    to_hom (yoneda_lemma c F') (θ ∘n η) :=
+  -- by reflexivity
+
+  -- theorem yy.{u v} {C : Precategory.{u v}} (c : C) (F F' : Cᵒᵖ ⇒ set)
+  --   (θ : F ⟹ F') (η : to_fun_ob ɏ c ⟹ F) :
+  --    (lift_functor.{v u} ∘fn θ) c (to_hom (yoneda_lemma c F) η) =
+  --    proof _ qed :=
+  -- by reflexivity
 
   definition fully_faithful_yoneda_embedding [instance] (C : Precategory) :
     fully_faithful (ɏ : C ⇒ set ^c Cᵒᵖ) :=
@@ -275,7 +297,7 @@ namespace yoneda
       rewrite [id_left,id_right]}
   end
 
-  definition embedding_on_objects_yoneda_embedding (C : Category) :
+  definition is_embedding_yoneda_embedding (C : Category) :
     is_embedding (ɏ : C → Cᵒᵖ ⇒ set) :=
   begin
     intro c c', fapply is_equiv_of_equiv_of_homotopy,
@@ -298,8 +320,7 @@ namespace yoneda
     { transitivity _, rotate 1,
       { apply sigma.sigma_equiv_sigma_id, intro c, exact !eq_equiv_iso},
       { apply fiber.sigma_char}},
-    { apply function.is_hprop_fiber_of_is_embedding,
-      apply embedding_on_objects_yoneda_embedding}
+    { apply function.is_hprop_fiber_of_is_embedding, apply is_embedding_yoneda_embedding}
   end
 
 end yoneda

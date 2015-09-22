@@ -58,9 +58,13 @@ namespace category
   infix `⋍`:25 := equivalence -- \backsimeq or \equiv
   infix `≌`:25 := isomorphism -- \backcong or \iso
 
-  definition is_equiv_of_fully_faithful [instance] (F : C ⇒ D) [H : fully_faithful F] (c c' : C)
-    : is_equiv (@(to_fun_hom F) c c') :=
+  definition is_equiv_of_fully_faithful [instance] [reducible] (F : C ⇒ D) [H : fully_faithful F]
+    (c c' : C) : is_equiv (@(to_fun_hom F) c c') :=
   !H
+
+  definition hom_inv [reducible] (F : C ⇒ D) [H : fully_faithful F] (c c' : C) (f : F c ⟶ F c')
+    : c ⟶ c' :=
+  (to_fun_hom F)⁻¹ᶠ f
 
   definition hom_equiv_F_hom_F [constructor] (F : C ⇒ D)
     [H : fully_faithful F] (c c' : C) : (c ⟶ c') ≃ (F c ⟶ F c') :=
@@ -70,17 +74,17 @@ namespace category
     [H : fully_faithful F] (c c' : C) (g : F c ≅ F c') : c ≅ c' :=
   begin
     induction g with g G, induction G with h p q, fapply iso.MK,
-      { rexact (@(to_fun_hom F) c c')⁻¹ᶠ g},
-      { rexact (@(to_fun_hom F) c' c)⁻¹ᶠ h},
+      { rexact (to_fun_hom F)⁻¹ᶠ g},
+      { rexact (to_fun_hom F)⁻¹ᶠ h},
       { exact abstract begin
-        apply eq_of_fn_eq_fn' (@(to_fun_hom F) c c),
+        apply eq_of_fn_eq_fn' (to_fun_hom F),
         rewrite [respect_comp, respect_id,
-                 right_inv (@(to_fun_hom F) c c'), right_inv (@(to_fun_hom F) c' c), p],
+                 right_inv (to_fun_hom F), right_inv (to_fun_hom F), p],
         end end},
       { exact abstract begin
-        apply eq_of_fn_eq_fn' (@(to_fun_hom F) c' c'),
+        apply eq_of_fn_eq_fn' (to_fun_hom F),
         rewrite [respect_comp, respect_id,
-                 right_inv (@(to_fun_hom F) c c'), right_inv (@(to_fun_hom F) c' c), q],
+                 right_inv (to_fun_hom F), right_inv (@(to_fun_hom F) c' c), q],
         end end}
   end
 
@@ -196,6 +200,31 @@ namespace category
    { exact F⁻¹ d},
    { exact componentwise_iso (@(iso.mk (counit F)) !is_iso_counit) d}
   end
+
+  definition reflect_is_iso [constructor] (F : C ⇒ D) [H : fully_faithful F] {c c' : C} (f : c ⟶ c')
+    [H : is_iso (F f)] : is_iso f :=
+  begin
+    fconstructor,
+    { exact (to_fun_hom F)⁻¹ᶠ (F f)⁻¹},
+    { apply eq_of_fn_eq_fn' (to_fun_hom F),
+      rewrite [respect_comp,right_inv (to_fun_hom F),respect_id,left_inverse]},
+    { apply eq_of_fn_eq_fn' (to_fun_hom F),
+      rewrite [respect_comp,right_inv (to_fun_hom F),respect_id,right_inverse]},
+  end
+
+  definition reflect_iso [constructor] (F : C ⇒ D) [H : fully_faithful F] {c c' : C}
+    (f : F c ≅ F c') : c ≅ c' :=
+  begin
+    fconstructor,
+    { exact (to_fun_hom F)⁻¹ᶠ f},
+    { assert H : is_iso (F ((to_fun_hom F)⁻¹ᶠ f)),
+      { have H' : is_iso (to_hom f), from _, exact (right_inv (to_fun_hom F) (to_hom f))⁻¹ ▸ H'},
+      exact reflect_is_iso F _},
+  end
+
+  theorem reflect_inverse (F : C ⇒ D) [H : fully_faithful F] {c c' : C} (f : c ⟶ c')
+    [H : is_iso f] : (to_fun_hom F)⁻¹ᶠ (F f)⁻¹ = f⁻¹ :=
+  inverse_eq_inverse (idp : to_hom (@(iso.mk f) (reflect_is_iso F f)) = f)
 
 /-
   section

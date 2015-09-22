@@ -76,7 +76,7 @@ end sum
 -- Product type
 -- ------------
 
-abbreviation pair := @prod.mk
+abbreviation pair [constructor] := @prod.mk
 
 namespace prod
 
@@ -101,7 +101,7 @@ namespace prod
 
   open prod.ops
 
-  definition flip {A B : Type} (a : A × B) : B × A := pair (pr2 a) (pr1 a)
+  definition flip [unfold 3] {A B : Type} (a : A × B) : B × A := pair (pr2 a) (pr1 a)
 
   open well_founded
 

@@ -8,13 +8,13 @@ Theorems about the universe
 
 -- see also init.ua
 
-import .bool .trunc .lift
+import .bool .trunc .lift .pullback
 
-open is_trunc bool lift unit eq pi equiv equiv.ops sum
-
+open is_trunc bool lift unit eq pi equiv equiv.ops sum sigma fiber prod pullback is_equiv sigma.ops
+     pointed
 namespace univ
 
-  universe variable u
+  universe variables u v
   variables {A B : Type.{u}} {a : A} {b : B}
 
   /- Pathovers -/
@@ -43,7 +43,7 @@ namespace univ
   assume H : is_hset Type₀,
   absurd !is_hset.elim eq_bnot_ne_idp
 
-  definition not_is_hset_type.{v} : ¬is_hset Type.{v} :=
+  definition not_is_hset_type : ¬is_hset Type.{u} :=
   assume H : is_hset Type,
   absurd (is_trunc_is_embedding_closed lift star) not_is_hset_type0
 
@@ -80,5 +80,51 @@ namespace univ
       exact absurd na nna
   end
 
+  definition characteristic_map [unfold 2] {B : Type.{u}} (p : Σ(A : Type.{max u v}), A → B)
+    (b : B) : Type.{max u v} :=
+  by induction p with A f; exact fiber f b
+
+  definition characteristic_map_inv [unfold 2] {B : Type.{u}} (P : B → Type.{max u v}) :
+    Σ(A : Type.{max u v}), A → B :=
+  ⟨(Σb, P b), pr1⟩
+
+  definition sigma_arrow_equiv_arrow_univ [constructor] (B : Type.{u}) :
+    (Σ(A : Type.{max u v}), A → B) ≃ (B → Type.{max u v}) :=
+  begin
+    fapply equiv.MK,
+    { exact characteristic_map},
+    { exact characteristic_map_inv},
+    { intro P, apply eq_of_homotopy, intro b, esimp, apply ua, apply fiber_pr1},
+    { intro p, induction p with A f, fapply sigma_eq: esimp,
+      { apply ua, apply sigma_fiber_equiv },
+      { apply arrow_pathover_constant_right, intro v,
+        rewrite [-cast_def _ v, cast_ua_fn],
+        esimp [sigma_fiber_equiv,equiv.trans,equiv.symm,sigma_comm_equiv,comm_equiv_unc],
+        induction v with b w, induction w with a p, esimp, exact p⁻¹}}
+  end
+
+  definition is_object_classifier (f : A → B)
+    : pullback_square (pointed_fiber f) (fiber f) f Pointed.carrier :=
+  pullback_square.mk
+    (λa, idp)
+    (is_equiv_of_equiv_of_homotopy
+      (calc
+        A ≃ Σb, fiber f b                      : sigma_fiber_equiv
+      ... ≃ Σb (v : ΣX, X = fiber f b), v.1    : sigma_equiv_sigma_id
+                                                   (λb, !sigma_equiv_of_is_contr_left)
+      ... ≃ Σb X (p : X = fiber f b), X        : sigma_equiv_sigma_id
+                                                   (λb, !sigma_assoc_equiv)
+      ... ≃ Σb X (x : X), X = fiber f b        : sigma_equiv_sigma_id
+                                                   (λb, sigma_equiv_sigma_id
+                                                   (λX, !comm_equiv_nondep))
+      ... ≃ Σb (v : ΣX, X), v.1 = fiber f b    : sigma_equiv_sigma_id
+                                                   (λb, !sigma_assoc_equiv⁻¹)
+      ... ≃ Σb (Y : Type*), Y = fiber f b      : sigma_equiv_sigma_id
+                                     (λb, sigma_equiv_sigma (Pointed.sigma_char)⁻¹
+                                                            (λv, sigma.rec_on v (λx y, equiv.refl)))
+      ... ≃ Σ(Y : Type*) b, Y = fiber f b      : sigma_comm_equiv
+      ... ≃ pullback Pointed.carrier (fiber f) : !pullback.sigma_char⁻¹ᵉ
+        )
+      proof λb, idp qed)
 
 end univ

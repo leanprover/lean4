@@ -18,15 +18,18 @@ structure Pointed :=
 
 open Pointed
 
+notation `Type*` := Pointed
+
 namespace pointed
   attribute Pointed.carrier [coercion]
   variables {A B : Type}
 
   definition pt [unfold 2] [H : pointed A] := point A
-  protected abbreviation Mk [constructor] := @Pointed.mk
-  protected definition mk' [constructor] (A : Type) [H : pointed A] : Pointed :=
+  protected definition Mk [constructor] := @Pointed.mk
+  protected definition MK [constructor] (A : Type) (a : A) := Pointed.mk a
+  protected definition mk' [constructor] (A : Type) [H : pointed A] : Type* :=
   Pointed.mk (point A)
-  definition pointed_carrier [instance] [constructor] (A : Pointed) : pointed A :=
+  definition pointed_carrier [instance] [constructor] (A : Type*) : pointed A :=
   pointed.mk (Point A)
 
   -- Any contractible type is pointed
@@ -54,32 +57,32 @@ namespace pointed
   definition pointed_bool [instance] [constructor] : pointed bool :=
   pointed.mk ff
 
-  definition Bool [constructor] : Pointed :=
+  definition Bool [constructor] : Type* :=
   pointed.mk' bool
 
   definition pointed_fun_closed [constructor] (f : A → B) [H : pointed A] : pointed B :=
   pointed.mk (f pt)
 
-  definition Loop_space [reducible] [constructor] (A : Pointed) : Pointed :=
+  definition Loop_space [reducible] [constructor] (A : Type*) : Type* :=
   pointed.mk' (point A = point A)
 
-  -- definition Iterated_loop_space : Pointed → ℕ → Pointed
+  -- definition Iterated_loop_space : Type* → ℕ → Type*
   -- | Iterated_loop_space A 0 := A
   -- | Iterated_loop_space A (n+1) := Iterated_loop_space (Loop_space A) n
 
-  definition Iterated_loop_space [unfold 1] [reducible] (n : ℕ) (A : Pointed) : Pointed :=
+  definition Iterated_loop_space [unfold 1] [reducible] (n : ℕ) (A : Type*) : Type* :=
   nat.rec_on n (λA, A) (λn IH A, IH (Loop_space A)) A
 
   prefix `Ω`:(max+5) := Loop_space
   notation `Ω[`:95 n:0 `]`:0 A:95 := Iterated_loop_space n A
 
-  definition refln [constructor] {A : Pointed} {n : ℕ} : Ω[n] A := pt
+  definition refln [constructor] {A : Type*} {n : ℕ} : Ω[n] A := pt
 
   definition iterated_loop_space [unfold 3] (A : Type) [H : pointed A] (n : ℕ) : Type :=
   Ω[n] (pointed.mk' A)
 
   open equiv.ops
-  definition Pointed_eq {A B : Pointed} (f : A ≃ B) (p : f pt = pt) : A = B :=
+  definition Pointed_eq {A B : Type*} (f : A ≃ B) (p : f pt = pt) : A = B :=
   begin
     cases A with A a, cases B with B b, esimp at *,
     fapply apd011 @Pointed.mk,
@@ -87,14 +90,24 @@ namespace pointed
     { rewrite [cast_ua,p]},
   end
 
-  definition add_point [constructor] (A : Type) : Pointed :=
+  protected definition Pointed.sigma_char.{u} : Pointed.{u} ≃ Σ(X : Type.{u}), X :=
+  begin
+    fapply equiv.MK,
+    { intro x, induction x with X x, exact ⟨X, x⟩},
+    { intro x, induction x with X x, exact pointed.MK X x},
+    { intro x, induction x with X x, reflexivity},
+    { intro x, induction x with X x, reflexivity},
+  end
+
+
+  definition add_point [constructor] (A : Type) : Type* :=
   Pointed.mk (none : option A)
   postfix `₊`:(max+1) := add_point
   -- the inclusion A → A₊ is called "some", the extra point "pt" or "none" ("@none A")
 end pointed
 
 open pointed
-structure pmap (A B : Pointed) :=
+structure pmap (A B : Type*) :=
   (map : A → B)
   (resp_pt : map (Point A) = Point B)
 
@@ -106,7 +119,7 @@ namespace pointed
   notation `map₊` := pmap
   infix `→*`:30 := pmap
   attribute pmap.map [coercion]
-  variables {A B C D : Pointed} {f g h : A →* B}
+  variables {A B C D : Type*} {f g h : A →* B}
 
   definition pmap_eq (r : Πa, f a = g a) (s : respect_pt f = (r pt) ⬝ respect_pt g) : f = g :=
   begin
@@ -118,7 +131,7 @@ namespace pointed
       rewrite [ap_eq_ap10,↑ap10,apd10_eq_of_homotopy,s]}
   end
 
-  definition pid [constructor] (A : Pointed) : A →* A :=
+  definition pid [constructor] (A : Type*) : A →* A :=
   pmap.mk function.id idp
 
   definition pcompose [constructor] (g : B →* C) (f : A →* B) : A →* C :=
@@ -157,7 +170,7 @@ namespace pointed
     { reflexivity}
   end
 
-  definition pmap_equiv_left (A : Type) (B : Pointed) : A₊ →* B ≃ (A → B) :=
+  definition pmap_equiv_left (A : Type) (B : Type*) : A₊ →* B ≃ (A → B) :=
   begin
     fapply equiv.MK,
     { intro f a, cases f with f p, exact f (some a)},
@@ -177,7 +190,7 @@ namespace pointed
   -- end
 
   -- set_option pp.notation false
-  -- definition pmap_equiv_right (A : Pointed) (B : Type)
+  -- definition pmap_equiv_right (A : Type*) (B : Type)
   --   : (Σ(b : B), map₊ A (pointed.Mk b)) ≃ (A → B) :=
   -- begin
   --   fapply equiv.MK,
@@ -191,7 +204,7 @@ namespace pointed
   --     }
   -- end
 
-  definition pmap_bool_equiv (B : Pointed) : map₊ Bool B ≃ B :=
+  definition pmap_bool_equiv (B : Type*) : map₊ Bool B ≃ B :=
   begin
     fapply equiv.MK,
     { intro f, cases f with f p, exact f tt},
@@ -278,7 +291,7 @@ namespace pointed
       exact !idp_con⁻¹}
   end
 
-  structure pequiv (A B : Pointed) :=
+  structure pequiv (A B : Type*) :=
     (to_pmap : A →* B)
     (is_equiv_to_pmap : is_equiv to_pmap)
 

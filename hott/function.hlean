@@ -37,6 +37,19 @@ structure is_conditionally_constant [class] (f : A → B) :=
   (g : ∥A∥ → B)
   (eq : Π(a : A), f a = g (tr a))
 
+-- structure is_retract (g : A → B) :=
+--   (X Y : Type)
+--   (f : X → Y)
+--   (s : A → X)
+--   (r : X → A)
+--   (s' : B → Y)
+--   (r' : Y → B)
+--   (R : Πa, r (s a) = a)
+--   (R' : Πb, r' (s' b) = b)
+--   (L : Πa, f (s a) = s' (g a))
+--   (K : Πx, g (r x) = r' (f x))
+--   (H : Πa, square (K (s a)) (R' (g a))⁻¹ (ap g (R a)) (ap r' (L a)))
+
 namespace function
 
   abbreviation sect          [unfold 4] := @is_retraction.sect
@@ -204,7 +217,7 @@ namespace function
     : is_equiv f :=
   let g := sect f in let h := retr f in
   adjointify f
-             (g)
+             g
              (right_inverse f)
              (λa, calc
                     g (f a) = h (f (g (f a))) : left_inverse
@@ -220,8 +233,6 @@ namespace function
       exact _,
     end
   end
-
-  variable {f}
 
   definition is_retraction_trunc_functor [instance] (r : A → B) [H : is_retraction r]
     (n : trunc_index) : is_retraction (trunc_functor n r) :=
@@ -242,12 +253,22 @@ namespace function
   end
 
   local attribute is_hprop_is_retraction_prod_is_section [instance]
-  definition is_retraction_prod_is_section_equiv_is_equiv
+  definition is_retraction_prod_is_section_equiv_is_equiv [constructor]
     : (is_retraction f × is_section f) ≃ is_equiv f :=
   begin
     apply equiv_of_is_hprop,
     intro H, induction H, apply is_equiv_of_is_section_of_is_retraction,
     intro H, split, repeat exact _
+  end
+
+  definition is_retraction_equiv_is_split_surjective :
+    is_retraction f ≃ is_split_surjective f :=
+  begin
+    fapply equiv.MK,
+    { intro H, induction H with g p, intro b, constructor, exact p b},
+    { intro H, constructor, intro b, exact point_eq (H b)},
+    { intro H, esimp, apply eq_of_homotopy, intro b, esimp, induction H b, reflexivity},
+    { intro H, induction H with g p, reflexivity},
   end
 
   /-

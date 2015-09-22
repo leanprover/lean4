@@ -107,9 +107,13 @@ namespace pi
     exact eq_of_pathover_idp (r b),
   end
 
-  definition arrow_pathover_constant {B : Type} {C : A → Type} {f : B → C a} {g : B → C a'}
+  definition arrow_pathover_constant_left {B : Type} {C : A → Type} {f : B → C a} {g : B → C a'}
     {p : a = a'} (r : Π(b : B), f b =[p] g b) : f =[p] g :=
   pi_pathover_constant r
+
+  definition arrow_pathover_constant_right {B : A → Type} {C : Type} {f : B a → C} {g : B a' → C}
+    {p : a = a'} (r : Π(b : B a), f b = g (p ▸ b)) : f =[p] g :=
+  arrow_pathover_left (λb, pathover_of_eq (r b))
 
   /-
      The fact that the arrow type preserves truncation level is a direct consequence

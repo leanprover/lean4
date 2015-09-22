@@ -16,13 +16,13 @@ namespace susp
   variable {A : Type}
 
   definition north {A : Type} : susp A :=
-  inl _ _ star
+  inl star
 
   definition south {A : Type} : susp A :=
-  inr _ _ star
+  inr star
 
   definition merid (a : A) : @north A = @south A :=
-  glue _ _ a
+  glue a
 
   protected definition rec {P : susp A → Type} (PN : P north) (PS : P south)
     (Pm : Π(a : A), PN =[merid a] PS) (x : susp A) : P x :=

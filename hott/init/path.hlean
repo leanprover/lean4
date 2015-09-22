@@ -195,6 +195,10 @@ namespace eq
   definition cast [reducible] [unfold 3] {A B : Type} (p : A = B) (a : A) : B :=
   p ▸ a
 
+  definition cast_def [reducible] [unfold-full] {A B : Type} (p : A = B) (a : A)
+    : cast p a = p ▸ a :=
+  idp
+
   definition tr_rev [reducible] [unfold 6] (P : A → Type) {x y : A} (p : x = y) (u : P y) : P x :=
   p⁻¹ ▸ u
 

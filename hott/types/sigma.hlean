@@ -220,15 +220,16 @@ namespace sigma
              ▸*,tr_compose B' f,tr_inv_tr,left_inv]
   end
 
-  definition sigma_equiv_sigma_of_is_equiv [H1 : is_equiv f] [H2 : Π a, is_equiv (g a)]
-    : (Σa, B a) ≃ (Σa', B' a') :=
+  definition sigma_equiv_sigma_of_is_equiv [constructor]
+    [H1 : is_equiv f] [H2 : Π a, is_equiv (g a)] : (Σa, B a) ≃ (Σa', B' a') :=
   equiv.mk (sigma_functor f g) !is_equiv_sigma_functor
 
-  definition sigma_equiv_sigma (Hf : A ≃ A') (Hg : Π a, B a ≃ B' (to_fun Hf a)) :
+  definition sigma_equiv_sigma [constructor] (Hf : A ≃ A') (Hg : Π a, B a ≃ B' (to_fun Hf a)) :
       (Σa, B a) ≃ (Σa', B' a') :=
   sigma_equiv_sigma_of_is_equiv (to_fun Hf) (λ a, to_fun (Hg a))
 
-  definition sigma_equiv_sigma_id {B' : A → Type} (Hg : Π a, B a ≃ B' a) : (Σa, B a) ≃ Σa, B' a :=
+  definition sigma_equiv_sigma_id [constructor] {B' : A → Type} (Hg : Π a, B a ≃ B' a)
+    : (Σa, B a) ≃ Σa, B' a :=
   sigma_equiv_sigma equiv.refl Hg
 
   definition ap_sigma_functor_eq_dpair (p : a = a') (q : b =[p] b') :
@@ -267,7 +268,8 @@ namespace sigma
   /- Associativity -/
 
   --this proof is harder than in Coq because we don't have eta definitionally for sigma
-  definition sigma_assoc_equiv (C : (Σa, B a) → Type) : (Σa b, C ⟨a, b⟩) ≃ (Σu, C u) :=
+  definition sigma_assoc_equiv [constructor] (C : (Σa, B a) → Type)
+    : (Σa b, C ⟨a, b⟩) ≃ (Σu, C u) :=
   equiv.mk _ (adjointify
     (λav, ⟨⟨av.1, av.2.1⟩, av.2.2⟩)
     (λuc, ⟨uc.1.1, uc.1.2, !sigma.eta⁻¹ ▸ uc.2⟩)
@@ -275,7 +277,7 @@ namespace sigma
     begin intro av, induction av with a v, induction v, reflexivity end)
 
   open prod prod.ops
-  definition assoc_equiv_prod (C : (A × A') → Type) : (Σa a', C (a,a')) ≃ (Σu, C u) :=
+  definition assoc_equiv_prod [constructor] (C : (A × A') → Type) : (Σa a', C (a,a')) ≃ (Σu, C u) :=
   equiv.mk _ (adjointify
     (λav, ⟨(av.1, av.2.1), av.2.2⟩)
     (λuc, ⟨pr₁ (uc.1), pr₂ (uc.1), !prod.eta⁻¹ ▸ uc.2⟩)
@@ -286,15 +288,16 @@ namespace sigma
 
   definition comm_equiv_unc (C : A × A' → Type) : (Σa a', C (a, a')) ≃ (Σa' a, C (a, a')) :=
   calc
-    (Σa a', C (a, a')) ≃ Σu, C u : assoc_equiv_prod
-                 ... ≃ Σv, C (flip v) : sigma_equiv_sigma !prod_comm_equiv
-                                          (λu, prod.destruct u (λa a', equiv.refl))
-                 ... ≃ (Σa' a, C (a, a')) : assoc_equiv_prod
+    (Σa a', C (a, a')) ≃ Σu, C u          : assoc_equiv_prod
+                   ... ≃ Σv, C (flip v)   : sigma_equiv_sigma !prod_comm_equiv
+                                              (λu, prod.destruct u (λa a', equiv.refl))
+                   ... ≃ Σa' a, C (a, a') : assoc_equiv_prod
 
-  definition sigma_comm_equiv (C : A → A' → Type) : (Σa a', C a a') ≃ (Σa' a, C a a') :=
+  definition sigma_comm_equiv [constructor] (C : A → A' → Type)
+    : (Σa a', C a a') ≃ (Σa' a, C a a') :=
   comm_equiv_unc (λu, C (prod.pr1 u) (prod.pr2 u))
 
-  definition equiv_prod (A B : Type) : (Σ(a : A), B) ≃ A × B :=
+  definition equiv_prod [constructor] (A B : Type) : (Σ(a : A), B) ≃ A × B :=
   equiv.mk _ (adjointify
     (λs, (s.1, s.2))
     (λp, ⟨pr₁ p, pr₂ p⟩)

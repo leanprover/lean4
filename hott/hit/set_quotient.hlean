@@ -6,16 +6,17 @@ Authors: Floris van Doorn
 Declaration of set-quotients, i.e. quotient of a mere relation which is then set-truncated.
 -/
 
-import .quotient .trunc
+import .quotient .trunc function
 
 open eq is_trunc trunc quotient equiv
 
 namespace set_quotient
 section
-parameters {A : Type} (R : A → A → hprop)
+  parameters {A : Type} (R : A → A → hprop)
   -- set-quotients are just truncations of (type) quotients
   definition set_quotient : Type := trunc 0 (quotient (λa a', trunctype.carrier (R a a')))
 
+  parameter {R}
   definition class_of (a : A) : set_quotient :=
   tr (class_of _ a)
 
@@ -73,3 +74,28 @@ end set_quotient
 attribute set_quotient.class_of [constructor]
 attribute set_quotient.rec set_quotient.elim [unfold 7] [recursor 7]
 attribute set_quotient.rec_on set_quotient.elim_on [unfold 4]
+
+open sigma
+
+namespace set_quotient
+  variables {A : Type} (R : A → A → hprop)
+
+  definition is_surjective_class_of : is_surjective (class_of : A → set_quotient R) :=
+  λx, set_quotient.rec_on x (λa, tr (fiber.mk a idp)) (λa a' r, !is_hprop.elimo)
+
+  /- non-dependent universal property -/
+
+  definition set_quotient_arrow_equiv (B : Type) [H : is_hset B] :
+    (set_quotient R → B) ≃ (Σ(f : A → B), Π(a a' : A), R a a' → f a = f a') :=
+  begin
+    fapply equiv.MK,
+    { intro f, exact ⟨λa, f (class_of a), λa a' r, ap f (eq_of_rel r)⟩},
+    { intro v x, induction v with f p, exact set_quotient.elim_on x f p},
+    { intro v, induction v with f p, esimp, apply ap (sigma.mk f),
+      apply eq_of_homotopy3, intro a a' r, apply elim_eq_of_rel},
+    { intro f, apply eq_of_homotopy, intro x, refine set_quotient.rec_on x _ _: esimp,
+        intro a, reflexivity,
+        intro a a' r, apply eq_pathover, apply hdeg_square, apply elim_eq_of_rel}
+  end
+
+end set_quotient

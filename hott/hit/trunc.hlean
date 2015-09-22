@@ -29,26 +29,34 @@ namespace trunc
     because the universe is not a set
   -/
 
-  --export is_trunc
+end trunc
+
+attribute trunc.elim_on [unfold 4]
+attribute trunc.rec [recursor]
+attribute trunc.elim [recursor 6] [unfold 6]
+
+namespace trunc
 
   variables {X Y Z : Type} {P : X → Type} (A B : Type) (n : trunc_index)
 
   local attribute is_trunc_eq [instance]
 
-  definition is_equiv_tr [instance] [H : is_trunc n A] : is_equiv (@tr n A) :=
+  variables {A n}
+  definition untrunc_of_is_trunc [reducible] [H : is_trunc n A] : trunc n A → A :=
+  trunc.rec id
+
+  variables (A n)
+  definition is_equiv_tr [instance] [constructor] [H : is_trunc n A] : is_equiv (@tr n A) :=
   adjointify _
-             (trunc.rec id)
+             (untrunc_of_is_trunc)
              (λaa, trunc.rec_on aa (λa, idp))
              (λa, idp)
 
-  definition trunc_equiv [H : is_trunc n A] : trunc n A ≃ A :=
+  definition trunc_equiv [constructor] [H : is_trunc n A] : trunc n A ≃ A :=
   (equiv.mk tr _)⁻¹ᵉ
 
   definition is_trunc_of_is_equiv_tr [H : is_equiv (@tr n A)] : is_trunc n A :=
   is_trunc_is_equiv_closed n (@tr n _)⁻¹
-
-  definition untrunc_of_is_trunc [reducible] [H : is_trunc n A] : trunc n A → A :=
-  tr⁻¹
 
   /- Functoriality -/
   definition trunc_functor [unfold 5] (f : X → Y) : trunc n X → trunc n Y :=
@@ -61,7 +69,8 @@ namespace trunc
   definition trunc_functor_id : trunc_functor n (@id A) ~ id :=
   λxx, trunc.rec_on xx (λx, idp)
 
-  definition is_equiv_trunc_functor (f : X → Y) [H : is_equiv f] : is_equiv (trunc_functor n f) :=
+  definition is_equiv_trunc_functor [constructor] (f : X → Y) [H : is_equiv f]
+    : is_equiv (trunc_functor n f) :=
   adjointify _
              (trunc_functor n f⁻¹)
              (λyy, trunc.rec_on yy (λy, ap tr !right_inv))
@@ -72,13 +81,13 @@ namespace trunc
 
   section
     open equiv.ops
-    definition trunc_equiv_trunc (f : X ≃ Y) : trunc n X ≃ trunc n Y :=
+    definition trunc_equiv_trunc [constructor] (f : X ≃ Y) : trunc n X ≃ trunc n Y :=
     equiv.mk _ (is_equiv_trunc_functor n f)
   end
 
   section
   open prod.ops
-  definition trunc_prod_equiv : trunc n (X × Y) ≃ trunc n X × trunc n Y :=
+  definition trunc_prod_equiv [constructor] : trunc n (X × Y) ≃ trunc n X × trunc n Y :=
   begin
     fapply equiv.MK,
       {exact (λpp, trunc.rec_on pp (λp, (tr p.1, tr p.2)))},
@@ -108,17 +117,17 @@ namespace trunc
   notation A `\/` B := or A B
   notation A ∨ B    := or A B
 
-  definition merely.intro   [reducible] (a : A) : ∥ A ∥                            := tr a
-  definition exists.intro   [reducible] (x : X) (p : P x) : ∃x, P x                := tr ⟨x, p⟩
-  definition or.intro_left  [reducible] (x : X) : X ∨ Y                            := tr (inl x)
-  definition or.intro_right [reducible] (y : Y) : X ∨ Y                            := tr (inr y)
+  definition merely.intro   [reducible] [constructor] (a : A) : ∥ A ∥             := tr a
+  definition exists.intro   [reducible] [constructor] (x : X) (p : P x) : ∃x, P x := tr ⟨x, p⟩
+  definition or.intro_left  [reducible] [constructor] (x : X) : X ∨ Y             := tr (inl x)
+  definition or.intro_right [reducible] [constructor] (y : Y) : X ∨ Y             := tr (inr y)
 
   definition is_contr_of_merely_hprop [H : is_hprop A] (aa : merely A) : is_contr A :=
   is_contr_of_inhabited_hprop (trunc.rec_on aa id)
 
   section
   open sigma.ops
-  definition trunc_sigma_equiv : trunc n (Σ x, P x) ≃ trunc n (Σ x, trunc n (P x)) :=
+  definition trunc_sigma_equiv [constructor] : trunc n (Σ x, P x) ≃ trunc n (Σ x, trunc n (P x)) :=
   equiv.MK (λpp, trunc.rec_on pp (λp, tr ⟨p.1, tr p.2⟩))
            (λpp, trunc.rec_on pp (λp, trunc.rec_on p.2 (λb, tr ⟨p.1, b⟩)))
            (λpp, trunc.rec_on pp (λp, sigma.rec_on p (λa bb, trunc.rec_on bb (λb, by esimp))))
@@ -131,8 +140,15 @@ namespace trunc
       ... ≃ Σ x, trunc n (P x) : !trunc_equiv
   end
 
-end trunc
+  /- the (non-dependent) universal property -/
+  definition trunc_arrow_equiv [constructor] [H : is_trunc n B] :
+    (trunc n A → B) ≃ (A → B) :=
+  begin
+    fapply equiv.MK,
+    { intro g a, exact g (tr a)},
+    { intro f x, exact trunc.rec_on x f},
+    { intro f, apply eq_of_homotopy, intro a, reflexivity},
+    { intro g, apply eq_of_homotopy, intro x, exact trunc.rec_on x (λa, idp)},
+  end
 
-attribute trunc.elim_on [unfold 4]
-attribute trunc.rec [recursor]
-attribute trunc.elim [recursor 6] [unfold 6]
+end trunc

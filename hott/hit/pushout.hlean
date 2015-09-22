@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Declaration of the pushout
 -/
 
-import .quotient
+import .quotient cubical.square
 
 open quotient eq sum equiv equiv.ops
 
@@ -23,6 +23,7 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
 
   definition pushout : Type := quotient R -- TODO: define this in root namespace
 
+  parameters {f g}
   definition inl (x : BL) : pushout :=
   class_of R (inl x)
 
@@ -90,3 +91,26 @@ attribute pushout.rec pushout.elim [unfold 10] [recursor 10]
 attribute pushout.elim_type [unfold 9]
 attribute pushout.rec_on pushout.elim_on [unfold 7]
 attribute pushout.elim_type_on [unfold 6]
+
+open sigma
+
+namespace pushout
+
+  variables {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
+
+  /- The non-dependent universal property -/
+  definition pushout_arrow_equiv (C : Type)
+    : (pushout f g → C) ≃ (Σ(i : BL → C) (j : TR → C), Πc, i (f c) = j (g c)) :=
+  begin
+    fapply equiv.MK,
+    { intro f, exact ⟨λx, f (inl x), λx, f (inr x), λx, ap f (glue x)⟩},
+    { intro v x, induction v with i w, induction w with j p, induction x,
+        exact (i a), exact (j a), exact (p x)},
+    { intro v, induction v with i w, induction w with j p, esimp,
+      apply ap (λp, ⟨i, j, p⟩), apply eq_of_homotopy, intro x, apply elim_glue},
+    { intro f, apply eq_of_homotopy, intro x, induction x: esimp,
+      apply eq_pathover, apply hdeg_square, esimp, apply elim_glue},
+  end
+
+
+end pushout

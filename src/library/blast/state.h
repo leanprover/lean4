@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/expr.h"
-
 namespace lean {
 namespace blast {
 class state {

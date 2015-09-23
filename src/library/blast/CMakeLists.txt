@@ -1,1 +1,1 @@
-add_library(blast OBJECT state.cpp expr.cpp)
+add_library(blast OBJECT state.cpp expr.cpp hypothesis.cpp)

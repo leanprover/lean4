@@ -71,6 +71,7 @@ namespace category
 
     definition id_leftright       (f : hom a b) : id ∘ f ∘ id = f := !id_left ⬝ !id_right
     definition comp_id_eq_id_comp (f : hom a b) : f ∘ id = id ∘ f := !id_right ⬝ !id_left⁻¹
+    definition id_comp_eq_comp_id (f : hom a b) : id ∘ f = f ∘ id := !id_left ⬝ !id_right⁻¹
 
     definition left_id_unique (H : Π{b} {f : hom b a}, i ∘ f = f) : i = id :=
     calc i = i ∘ id : by rewrite id_right
@@ -142,7 +143,7 @@ namespace category
 
   definition precategory.Mk [reducible] [constructor] {ob} (C) : Precategory := Precategory.mk ob C
   definition precategory.MK [reducible] [constructor] (a b c d e f g h) : Precategory :=
-  Precategory.mk a (@precategory.mk _ b c d e f g h)
+  Precategory.mk a (@precategory.mk a b c d e f g h)
 
   abbreviation carrier := @Precategory.carrier
 

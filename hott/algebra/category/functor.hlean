@@ -46,6 +46,12 @@ namespace functor
   protected definition ID [reducible] [constructor] (C : Precategory) : functor C C := @functor.id C
   notation 1 := functor.id
 
+  definition constant_functor [constructor] (C : Precategory) {D : Precategory} (d : D) : C ⇒ D :=
+  functor.mk (λc, d)
+             (λc c' f, id)
+             (λc, idp)
+             (λa b c g f, !id_id⁻¹)
+
   definition functor_mk_eq' {F₁ F₂ : C → D} {H₁ : Π(a b : C), hom a b → hom (F₁ a) (F₁ b)}
     {H₂ : Π(a b : C), hom a b → hom (F₂ a) (F₂ b)} (id₁ id₂ comp₁ comp₂)
     (pF : F₁ = F₂) (pH : pF ▸ H₁ = H₂)

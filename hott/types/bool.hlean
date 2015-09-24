@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Theorems about the booleans
 -/
 
-open is_equiv eq equiv function is_trunc option unit
+open is_equiv eq equiv function is_trunc option unit decidable
 
 namespace bool
 
@@ -42,4 +42,11 @@ namespace bool
     { intro u, cases u with u, reflexivity, cases u, reflexivity},
     { intro b, cases b, reflexivity, reflexivity},
   end
+
+  protected definition has_decidable_eq [instance] : ∀ x y : bool, decidable (x = y)
+  | has_decidable_eq ff ff := inl rfl
+  | has_decidable_eq ff tt := inr (by contradiction)
+  | has_decidable_eq tt ff := inr (by contradiction)
+  | has_decidable_eq tt tt := inl rfl
+
 end bool

@@ -76,22 +76,21 @@ lean_bool lean_univ_geq(lean_univ u1, lean_univ u2, lean_bool * r, lean_exceptio
 
 /** \brief Store the predecessor universe of \c u in \c r.
     \pre lean_univ_get_kind(u) == LEAN_UNIV_SUCC
-*/
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_univ_get_pred(lean_univ u, lean_univ * r, lean_exception * ex);
 /** \brief Store the left-hand-side of the max/imax universe \c u in \c r.
     \pre lean_univ_get_kind(u) == LEAN_UNIV_MAX || lean_univ_get_kind(u) == LEAN_UNIV_IMAX
-*/
-
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_univ_get_max_lhs(lean_univ u, lean_univ * r, lean_exception * ex);
 /** \brief Store the right-hand-side of the max/imax universe \c u in \c r.
     \pre lean_univ_get_kind(u) == LEAN_UNIV_MAX || lean_univ_get_kind(u) == LEAN_UNIV_IMAX
-*/
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_univ_get_max_rhs(lean_univ u, lean_univ * r, lean_exception * ex);
 /** \brief Store the name of the given universe in \c r.
     \pre lean_univ_get_kind(u) == LEAN_UNIV_PARAM ||
          lean_univ_get_kind(u) == LEAN_UNIV_GLOBAL ||
          lean_univ_get_kind(u) == LEAN_UNIV_META
-*/
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_univ_get_name(lean_univ u, lean_name * r, lean_exception * ex);
 /** \brief Store in \c r the normal for of the given universe */
 lean_bool lean_univ_normalize(lean_univ u, lean_univ * r, lean_exception * ex);
@@ -109,16 +108,17 @@ lean_bool lean_list_univ_is_cons(lean_list_univ l);
 /** \brief Store true in \c b iff the two given lists are equal */
 lean_bool lean_list_univ_eq(lean_list_univ n1, lean_list_univ n2, lean_bool * b, lean_exception * ex);
 /** \brief Store in \c r the head of the given list
-    \pre lean_list_univ_is_cons(l) */
+    \pre lean_list_univ_is_cons(l)
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_list_univ_head(lean_list_univ l, lean_univ * r, lean_exception * ex);
 /** \brief Store in \c r the tail of the given list
-    \pre lean_list_univ_is_cons(l) */
+    \pre lean_list_univ_is_cons(l)
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_list_univ_tail(lean_list_univ l, lean_list_univ * r, lean_exception * ex);
 
 /** \brief Instantiate the universe parameters names in <tt>ns</tt> with <tt>us</tt> in \c u,
     and store the result in \c r.
-    \remark The given lists must have the same length.
-*/
+    \remark The given lists must have the same length. */
 lean_bool lean_univ_instantiate(lean_univ u, lean_list_name ns, lean_list_univ us, lean_univ * r, lean_exception * ex);
 
 /*@}*/

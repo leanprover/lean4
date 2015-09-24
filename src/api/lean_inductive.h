@@ -26,7 +26,8 @@ LEAN_DEFINE_TYPE(lean_list_inductive_type);
 LEAN_DEFINE_TYPE(lean_inductive_decl);
 
 /** \brief Create a new inductive type with name \c n, type \c t, and constructors (aka introduction rules \c cs)
-    \remark \c cs must be a list of local constants. */
+    \remark \c cs must be a list of local constants.
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_inductive_type_mk(lean_name n, lean_expr t, lean_list_expr cs, lean_inductive_type * r, lean_exception * ex);
 /** \brief Dispose/delete the given inductive type */
 void lean_inductive_type_del(lean_inductive_type t);
@@ -52,10 +53,12 @@ lean_bool lean_list_inductive_type_is_cons(lean_list_inductive_type l);
 /** \brief Return true in \c b iff the two given lists are equal */
 lean_bool lean_list_inductive_type_eq(lean_list_inductive_type l1, lean_list_inductive_type l2, lean_bool * b, lean_exception * ex);
 /** \brief Store in \c r the head of the given list
-    \pre lean_list_inductive_type_is_cons(l) */
+    \pre lean_list_inductive_type_is_cons(l)
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_list_inductive_type_head(lean_list_inductive_type l, lean_inductive_type * r, lean_exception * ex);
 /** \brief Store in \c r the tail of the given list
-    \pre lean_list_inductive_type_is_cons(l) */
+    \pre lean_list_inductive_type_is_cons(l)
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_list_inductive_type_tail(lean_list_inductive_type l, lean_list_inductive_type * r, lean_exception * ex);
 
 /** \brief Create a mutually recursive inductive datatype declaration with universe parameters \c ps,

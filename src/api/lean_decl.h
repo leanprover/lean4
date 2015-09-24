@@ -70,16 +70,20 @@ lean_bool lean_decl_get_univ_params(lean_decl d, lean_list_name * r, lean_except
 /** \brief Store in \c r the type of the given declaration. */
 lean_bool lean_decl_get_type(lean_decl d, lean_expr * r, lean_exception * ex);
 /** \brief Store in \c r the value of the given theorem or definition.
-    \pre lean_decl_get_kind(d) == LEAN_DECL_THM || lean_decl_get_kind(d) == LEAN_DECL_DEF */
+    \pre lean_decl_get_kind(d) == LEAN_DECL_THM || lean_decl_get_kind(d) == LEAN_DECL_DEF
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_decl_get_value(lean_decl d, lean_expr * r, lean_exception * ex);
 /** \brief Store in \c r the definitional height of the given theorem or definition.
-    \pre lean_decl_get_kind(d) == LEAN_DECL_THM || lean_decl_get_kind(d) == LEAN_DECL_DEF */
+    \pre lean_decl_get_kind(d) == LEAN_DECL_THM || lean_decl_get_kind(d) == LEAN_DECL_DEF
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_decl_get_height(lean_decl d, unsigned * r, lean_exception * ex);
 /** \brief Store in \c r whether lazy unfolding is considered for the given definition.
-    \pre lean_decl_get_kind(d) == LEAN_DECL_DEF */
+    \pre lean_decl_get_kind(d) == LEAN_DECL_DEF
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_decl_get_conv_opt(lean_decl d, lean_bool * r, lean_exception * ex);
 
-/** \brief Create a certified declaration by type checking the given declaration with respect to the given environment */
+/** \brief Create a certified declaration by type checking the given declaration with respect to the given environment
+    \remark exceptions: LEAN_KERNEL_EXCEPTION */
 lean_bool lean_decl_check(lean_env e, lean_decl d, lean_cert_decl * r, lean_exception * ex);
 /** \brief Delete/dispose the given certified declaration. */
 void lean_cert_decl_del(lean_cert_decl d);

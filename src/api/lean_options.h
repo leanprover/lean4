@@ -64,28 +64,28 @@ lean_bool lean_options_contains(lean_options o, lean_name n);
 /** \brief Store in \c r the value assigned to \c n in the options \c o.
     \pre lean_options_contains(o, n)
     \remark If the value associated with \c n is not a Boolean, the result is lean_false
-*/
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_options_get_bool(lean_options o, lean_name n, lean_bool * r, lean_exception * ex);
 /** \brief Store in \c r the value assigned to \c n in the options \c o.
     \pre lean_options_contains(o, n)
     \remark If the value associated with \c n is not a numeric value, the result is 0
-*/
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_options_get_int(lean_options o, lean_name n, int * r, lean_exception * ex);
 /** \brief Store in \c r the value assigned to \c n in the options \c o.
     \pre lean_options_contains(o, n)
     \remark If the value associated with \c n is not a numeric value, the result is 0
-*/
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_options_get_unsigned(lean_options o, lean_name n, unsigned * r, lean_exception * ex);
 /** \brief Store in \c r the value assigned to \c n in the options \c o.
     \pre lean_options_contains(o, n)
     \remark If the value associated with \c n is not a double, the result is 0.0
-*/
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_options_get_double(lean_options o, lean_name n, double * r, lean_exception * ex);
 /** \brief Store in \c r the value assigned to \c n in the options \c o.
     \pre lean_options_contains(o, n)
     \remark If the value associated with \c n is not a double, the result is the empty string ""
     \remark \c r must be deleted using #lean_string_del.
-*/
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_options_get_string(lean_options o, lean_name n, char const ** r, lean_exception * ex);
 
 /*@}*/

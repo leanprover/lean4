@@ -21,10 +21,12 @@ extern "C" {
 */
 /*@{*/
 
-/** \brief Import the given modules (i.e., pre-compiled .olean files) */
+/** \brief Import the given modules (i.e., pre-compiled .olean files)
+    \remark exceptions: LEAN_KERNEL_EXCEPTION, LEAN_OTHER_EXCEPTION */
 lean_bool lean_env_import(lean_env env, lean_ios ios, lean_list_name modules, lean_env * r, lean_exception * ex);
 
-/** \brief Export to the given file name the declarations added to the environment */
+/** \brief Export to the given file name the declarations added to the environment
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_env_export(lean_env env, char const * fname, lean_exception * ex);
 
 /** \brief Store in \c r the LEAN_PATH */

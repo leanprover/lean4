@@ -42,19 +42,23 @@ lean_bool lean_ios_set_options(lean_ios ios, lean_options o, lean_exception * ex
 lean_bool lean_ios_get_options(lean_ios ios, lean_options * r, lean_exception * ex);
 
 /** \brief Store in \c r the content of the regular output stream.
-    \pre !lean_ios_is_std(ios) */
+    \pre !lean_ios_is_std(ios)
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_ios_get_regular(lean_ios ios, char const ** r, lean_exception * ex);
 
 /** \brief Store in \c r the content of the diagnostic output stream.
-    \pre !lean_ios_is_std(ios) */
+    \pre !lean_ios_is_std(ios)
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_ios_get_diagnostic(lean_ios ios, char const ** r, lean_exception * ex);
 
 /** \brief Reset the regular output stream.
-    \pre !lean_ios_is_std(ios) */
+    \pre !lean_ios_is_std(ios)
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_ios_reset_regular(lean_ios ios, lean_exception * ex);
 
 /** \brief Reset the diagnostic output stream.
-    \pre !lean_ios_is_std(ios) */
+    \pre !lean_ios_is_std(ios)
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_ios_reset_diagnostic(lean_ios ios, lean_exception * ex);
 
 /** \brief Store in \c r a pretty printed representation of \c e */

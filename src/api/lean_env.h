@@ -30,14 +30,17 @@ lean_bool lean_env_mk_hott(unsigned t, lean_env * r, lean_exception * ex);
 /** Trust all macros implemented in Lean, and do no retype-check imported modules */
 #define LEAN_TRUST_HIGH 100000
 
-/** \brief Add a new global universe with name \c u. */
+/** \brief Add a new global universe with name \c u.
+    \remark exceptions: LEAN_KERNEL_EXCEPTION */
 lean_bool lean_env_add_univ(lean_env e, lean_name u, lean_env * r, lean_exception * ex);
-/** \brief Create a new environment by adding the given certified declaration \c d to the environment \c e. */
+/** \brief Create a new environment by adding the given certified declaration \c d to the environment \c e.
+    \remark exceptions: LEAN_KERNEL_EXCEPTION */
 lean_bool lean_env_add(lean_env e, lean_cert_decl d, lean_env * r, lean_exception * ex);
 /** \brief Replace the axiom with the name of the given certified theorem \c d with \c d.
     This procedure throws an exception if:
     - The theorem was certified in an environment which is not an ancestor of \c e.
-    - The environment does not contain an axiom with the given name. */
+    - The environment does not contain an axiom with the given name.
+    \remark exceptions: LEAN_KERNEL_EXCEPTION */
 lean_bool lean_env_replace(lean_env e, lean_cert_decl d, lean_env * r, lean_exception * ex);
 
 /** \brief Delete/dispose the given environment. */
@@ -54,7 +57,8 @@ lean_bool lean_env_impredicative(lean_env e);
 lean_bool lean_env_contains_univ(lean_env e, lean_name n);
 /** \brief Return true iff \c e contains a declaration with name \c n. */
 lean_bool lean_env_contains_decl(lean_env e, lean_name n);
-/** \brief Store in \c d the declaration with name \c n in \c e. */
+/** \brief Store in \c d the declaration with name \c n in \c e.
+    \remark exceptions: LEAN_KERNEL_EXCEPTION */
 lean_bool lean_env_get_decl(lean_env e, lean_name n, lean_decl * d, lean_exception * ex);
 
 /** \brief Return true when \c e1 is a descendant of \c e2, that is, \c e1 was created by adding declarations to \c e2. */

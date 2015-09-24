@@ -100,52 +100,68 @@ lean_bool lean_expr_lt(lean_expr e1, lean_expr e2, lean_bool * b, lean_exception
 lean_bool lean_expr_quick_lt(lean_expr e1, lean_expr e2, lean_bool * b, lean_exception * ex);
 
 /** \brief Store in \c i the de-Brujin index of the given variable.
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_VAR */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_VAR
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_var_idx(lean_expr e, unsigned * i, lean_exception * ex);
 /** \brief Stgore in \c u the universe of the given sort.
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_SORT */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_SORT
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_sort_univ(lean_expr e, lean_univ * u, lean_exception * ex);
 /** \brief Store in \c n the name of the given constant.
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_CONST */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_CONST
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_const_name(lean_expr e, lean_name * n, lean_exception * ex);
 /** \brief Store in \c us the universes parameters of the given constant.
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_CONST */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_CONST
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_const_univs(lean_expr e, lean_list_univ * us, lean_exception * ex);
 /** \brief Store in \c f the function of the given function application.
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_APP */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_APP
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_app_fun(lean_expr e, lean_expr * f, lean_exception * ex);
 /** \brief Store in \c a the argument of the given function application.
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_APP */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_APP
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_app_arg(lean_expr e, lean_expr * a, lean_exception * ex);
 /** \brief Store in \c n the name the given local constant or meta-variable.
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_LOCAL || lean_expr_get_kind(e) == LEAN_EXPR_META */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_LOCAL || lean_expr_get_kind(e) == LEAN_EXPR_META
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_mlocal_name(lean_expr e, lean_name * n, lean_exception * ex);
 /** \brief Store in \c t the type the given local constant or meta-variable.
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_LOCAL || lean_expr_get_kind(e) == LEAN_EXPR_META */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_LOCAL || lean_expr_get_kind(e) == LEAN_EXPR_META
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_mlocal_type(lean_expr e, lean_expr * t, lean_exception * ex);
 /** \brief Store in \c n the pretty printing name the given local constant.
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_LOCAL */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_LOCAL
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_local_pp_name(lean_expr e, lean_name * n, lean_exception * ex);
 /** \brief Store in \c k the binder_kind associated with the given local constant.
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_LOCAL */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_LOCAL
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_local_binder_kind(lean_expr e, lean_binder_kind * k, lean_exception * ex);
 /** \brief Store in \c n the name associated with the given binding expression (i.e., lambda or Pi).
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_LAMBDA || lean_expr_get_kind(e) == LEAN_EXPR_PI */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_LAMBDA || lean_expr_get_kind(e) == LEAN_EXPR_PI
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_binding_name(lean_expr e, lean_name * n, lean_exception * ex);
 /** \brief Store in \c d the domain of the given binding (i.e., lambda or Pi).
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_LAMBDA || lean_expr_get_kind(e) == LEAN_EXPR_PI */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_LAMBDA || lean_expr_get_kind(e) == LEAN_EXPR_PI
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_binding_domain(lean_expr e, lean_expr * d, lean_exception * ex);
 /** \brief Store in \c b the body of the given binding (i.e., lambda or Pi).
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_LAMBDA || lean_expr_get_kind(e) == LEAN_EXPR_PI */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_LAMBDA || lean_expr_get_kind(e) == LEAN_EXPR_PI
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_binding_body(lean_expr e, lean_expr * b, lean_exception * ex);
 /** \brief Store in \c k the binder_kind of the given binding (i.e., lambda or Pi).
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_LAMBDA || lean_expr_get_kind(e) == LEAN_EXPR_PI */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_LAMBDA || lean_expr_get_kind(e) == LEAN_EXPR_PI
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_binding_binder_kind(lean_expr e, lean_binder_kind * k, lean_exception * ex);
 /** \brief Store in \c d the macro definition of the given macro application.
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_MACRO */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_MACRO
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_macro_def(lean_expr e, lean_macro_def * d, lean_exception * ex);
 /** \brief Store in \c as the arguments of the given macro application.
-    \pre lean_expr_get_kind(e) == LEAN_EXPR_MACRO */
+    \pre lean_expr_get_kind(e) == LEAN_EXPR_MACRO
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_expr_get_macro_args(lean_expr e, lean_list_expr * as, lean_exception * ex);
 
 /** \brief Create the empty list of exprs */
@@ -159,10 +175,12 @@ lean_bool lean_list_expr_is_cons(lean_list_expr l);
 /** \brief Return true in \c b iff the two given lists are equal */
 lean_bool lean_list_expr_eq(lean_list_expr n1, lean_list_expr n2, lean_bool * b, lean_exception * ex);
 /** \brief Store in \c r the head of the given list
-    \pre lean_list_expr_is_cons(l) */
+    \pre lean_list_expr_is_cons(l)
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_list_expr_head(lean_list_expr l, lean_expr * r, lean_exception * ex);
 /** \brief Store in \c r the tail of the given list
-    \pre lean_list_expr_is_cons(l) */
+    \pre lean_list_expr_is_cons(l)
+    \remark exceptions: LEAN_OTHER_EXCEPTION */
 lean_bool lean_list_expr_tail(lean_list_expr l, lean_list_expr * r, lean_exception * ex);
 
 /*@}*/

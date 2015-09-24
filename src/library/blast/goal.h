@@ -14,8 +14,9 @@ namespace blast {
 class goal {
     typedef rb_map<unsigned, hypothesis, unsigned_cmp> context;
     friend class state;
-    unsigned m_next;
-    context  m_context;
+    unsigned      m_next;
+    context       m_context;
+    expr          m_type;
     expr const & mk_lref(expr const & type, optional<expr> const & value);
 public:
     goal():m_next(0) {}

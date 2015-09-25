@@ -1,4 +1,4 @@
-import hit.circle
+import homotopy.circle
 open circle
 
 attribute circle.elim_on [recursor 2]

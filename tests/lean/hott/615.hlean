@@ -1,5 +1,5 @@
 -- HoTT
-import hit.circle
+import homotopy.circle
 open circle eq int pi
 
 attribute circle.rec circle.elim [recursor 4]

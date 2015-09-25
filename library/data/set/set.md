@@ -11,3 +11,4 @@ Subsets of an arbitrary type.
 * [card](card.lean) : cardinality (for finite sets)
 * [filter](filter.lean) : filters on sets
 * [classical_inverse](classical_inverse.lean) : inverse functions, defined classically
+* [equinumerosity](equinumerosity.lean)

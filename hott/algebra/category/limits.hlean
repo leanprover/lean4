@@ -75,6 +75,16 @@ namespace category
   definition has_limits_of_shape_of_is_complete [instance] [H : is_complete D] (I : Precategory)
     : has_limits_of_shape D I := H I
 
+  section
+    open pi
+    theorem is_hprop_has_limits_of_shape [instance] (D : Category) (I : Precategory)
+      : is_hprop (has_limits_of_shape D I) :=
+    by apply is_trunc_pi; intro F; exact is_hprop_has_terminal_object (Category_cone F)
+
+    local attribute is_complete [reducible]
+    theorem is_hprop_is_complete [instance] (D : Category) : is_hprop (is_complete D) := _
+  end
+
   variables {I D}
   definition has_terminal_object_cone [H : has_limits_of_shape D I]
     (F : I ⇒ D) : has_terminal_object (cone F) := H F

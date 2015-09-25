@@ -99,7 +99,7 @@ namespace category
   local attribute Category.to.precategory [unfold 1]
   local attribute category.to_precategory [unfold 2]
 
-  definition is_complete_cone.{u v w} [constructor]
+  definition is_complete_set_cone.{u v w} [constructor]
     (I : Precategory.{v w}) (F : I ⇒ set.{max u v w}) : cone_obj F :=
   begin
   fapply cone_obj.mk,
@@ -120,7 +120,7 @@ namespace category
   definition is_complete_set.{u v w} : is_complete.{(max u v w)+1 (max u v w) v w} set :=
   begin
     intro I F, fapply has_terminal_object.mk,
-    { exact is_complete_cone.{u v w} I F},
+    { exact is_complete_set_cone.{u v w} I F},
     { intro c, esimp at *, induction c with X η, induction η with η p, esimp at *,
       fapply is_contr.mk,
       { fapply cone_hom.mk,

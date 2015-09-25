@@ -117,7 +117,7 @@ namespace category
       esimp, apply p}}
   end
 
-  definition is_complete_set.{u v w} : is_complete.{(max u v w)+1 (max u v w) v w} set :=
+  definition is_complete_set.{u v w} [instance] : is_complete.{(max u v w)+1 (max u v w) v w} set :=
   begin
     intro I F, fapply has_terminal_object.mk,
     { exact is_complete_set_cone.{u v w} I F},
@@ -137,4 +137,5 @@ namespace category
           apply is_trunc_pi, intro f,
           apply is_trunc_eq}}}
   end
+
 end category

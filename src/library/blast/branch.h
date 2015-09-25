@@ -11,13 +11,15 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-class goal {
+typedef rb_tree<unsigned, unsigned_cmp> metavar_set;
+
+class branch {
     typedef rb_map<unsigned, hypothesis, unsigned_cmp> context;
     friend class state;
     unsigned      m_next;
     context       m_context;
-    expr          m_type;
-    expr const & mk_lref(expr const & type, optional<expr> const & value);
+    expr          m_target;
+    metavar_set   m_mvars;
 public:
     goal():m_next(0) {}
     hypothesis const * get(unsigned idx) const { return m_context.find(idx); }

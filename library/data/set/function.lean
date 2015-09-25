@@ -100,6 +100,16 @@ take x, assume H : x ∈ a, H1 (H2 H)
 theorem maps_to_univ_univ (f : X → Y) : maps_to f univ univ :=
 take x, assume H, trivial
 
+theorem image_subset_of_maps_to {f : X → Y} {a : set X} {b : set Y} (mfab : maps_to f a b)
+    {c : set X} (csuba : c ⊆ a) :
+  f '[c] ⊆ b :=
+take y,
+suppose y ∈ f '[c],
+obtain x [(xc : x ∈ c) (yeq : f x = y)], from this,
+have x ∈ a, from csuba `x ∈ c`,
+have f x ∈ b, from mfab this,
+show y ∈ b, from yeq ▸ this
+
 /- injectivity -/
 
 definition inj_on [reducible] (f : X → Y) (a : set X) : Prop :=

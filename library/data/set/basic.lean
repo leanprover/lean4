@@ -301,6 +301,9 @@ ext (take x, iff.intro
 theorem mem_sep_iff {s : set X} {P : X → Prop} {x : X} : x ∈ {x ∈ s | P x} ↔ x ∈ s ∧ P x :=
 !iff.refl
 
+theorem sep_subset (s : set X) (P : X → Prop) : {x ∈ s | P x} ⊆ s :=
+take x, assume H, and.left H
+
 /- complement -/
 
 definition complement (s : set X) : set X := {x | x ∉ s}
@@ -310,7 +313,15 @@ theorem mem_comp {s : set X} {x : X} (H : x ∉ s) : x ∈ -s := H
 
 theorem not_mem_of_mem_comp {s : set X} {x : X} (H : x ∈ -s) : x ∉ s := H
 
-theorem mem_comp_iff {s : set X} {x : X} : x ∈ -s ↔ x ∉ s := !iff.refl
+theorem mem_comp_iff (s : set X) (x : X) : x ∈ -s ↔ x ∉ s := !iff.refl
+
+theorem inter_comp_self (s : set X) : s ∩ -s = ∅ :=
+ext (take x, !and_not_self_iff)
+
+theorem comp_inter_self (s : set X) : -s ∩ s = ∅ :=
+ext (take x, !not_and_self_iff)
+
+/- some classical identities -/
 
 section
   open classical
@@ -320,6 +331,12 @@ section
 
   theorem inter_eq_comp_comp_union_comp (s t : set X) : s ∩ t = -(-s ∪ -t) :=
   ext (take x, !and_iff_not_or_not)
+
+  theorem union_comp_self (s : set X) : s ∪ -s = univ :=
+  ext (take x, !or_not_self_iff)
+
+  theorem comp_union_self (s : set X) : -s ∪ s = univ :=
+  ext (take x, !not_or_self_iff)
 end
 
 /- set difference -/
@@ -350,6 +367,8 @@ ext (take x, iff.intro
       (suppose x ∈ s, or.inl this)
       (suppose x ∉ s, or.inr (and.intro H1 this))))
 
+theorem diff_subset (s t : set X) : s \ t ⊆ s := inter_subset_left s _
+
 /- powerset -/
 
 definition powerset (s : set X) : set (set X) := {x : set X | x ⊆ s}
@@ -377,6 +396,12 @@ section
   definition sUnion : set X := {x : X | ∃₀ c ∈ C, x ∈ c}
 
   -- TODO: need notation for these
+
+  theorem Union_subset {b : I → set X} {c : set X} (H : ∀ i, b i ⊆ c) : Union b ⊆ c :=
+  take x,
+  suppose x ∈ Union b,
+  obtain i (Hi : x ∈ b i), from this,
+  show x ∈ c, from H i Hi
 end
 
 end set

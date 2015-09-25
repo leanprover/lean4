@@ -27,6 +27,18 @@ calc
     ... ↔ a ∧ (c ∧ b)       : {and.comm}
      ... ↔ (a ∧ c) ∧ b      : iff.symm and.assoc
 
+theorem or_not_self_iff {a : Prop} [D : decidable a] : a ∨ ¬ a ↔ true :=
+iff.intro (assume H, trivial) (assume H, em a)
+
+theorem not_or_self_iff {a : Prop} [D : decidable a] : ¬ a ∨ a ↔ true :=
+!or.comm ▸ !or_not_self_iff
+
+theorem and_not_self_iff {a : Prop} : a ∧ ¬ a ↔ false :=
+iff.intro (assume H, (and.right H) (and.left H)) (assume H, false.elim H)
+
+theorem not_and_self_iff {a : Prop} : ¬ a ∧ a ↔ false :=
+!and.comm ▸ !and_not_self_iff
+
 theorem and.left_comm [simp] (a b c : Prop) : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
 calc
   a ∧ (b ∧ c) ↔ (a ∧ b) ∧ c : iff.symm and.assoc

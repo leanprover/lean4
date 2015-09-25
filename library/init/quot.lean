@@ -13,6 +13,10 @@ constant quot.{l}   : Π {A : Type.{l}}, setoid A → Type.{l}
 -- Remark: if we do not use propext here, then we would need a quot.lift for propositions.
 constant propext {a b : Prop} : (a ↔ b) → a = b
 
+-- iff can now be used to do substitutions in a calculation
+theorem iff_subst [subst] {a b : Prop} {P : Prop → Prop} (H₁ : a ↔ b) (H₂ : P a) : P b :=
+eq.subst (propext H₁) H₂
+
 namespace quot
   protected constant mk        : Π {A : Type}   [s : setoid A], A → quot s
   notation `⟦`:max a `⟧`:0 := quot.mk a

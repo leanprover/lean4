@@ -18,6 +18,8 @@ class metavar_decl {
 
 class state {
     typedef rb_map<unsigned, metavar_decl, unsigned_cmp> metavar_decls;
+    typedef rb_map<unsigned, expr, unsigned_cmp>         assignment;
     metavar_decls m_metavar_decls;
+    assignment    m_assignment;
 };
 }}

@@ -158,7 +158,7 @@
                 "apply" "fapply" "eapply" "rename" "intro" "intros" "all_goals" "fold" "focus" "focus_at"
                 "generalize" "generalizes" "clear" "clears" "revert" "reverts" "back" "beta" "done" "exact" "rexact"
                 "refine" "repeat" "whnf" "rotate" "rotate_left" "rotate_right" "inversion" "cases" "rewrite"
-                "xrewrite" "krewrite" "simp" "esimp" "unfold" "change" "check_expr" "contradiction"
+                "xrewrite" "krewrite" "blast" "simp" "esimp" "unfold" "change" "check_expr" "contradiction"
                 "exfalso" "split" "existsi" "constructor" "fconstructor" "left" "right" "injection" "congruence" "reflexivity"
                 "symmetry" "transitivity" "state" "induction" "induction_using" "fail" "append"
                 "substvars" "now" "with_options"))

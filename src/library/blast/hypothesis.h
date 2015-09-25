@@ -12,13 +12,13 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 class hypothesis;
+class branch;
 class state;
-class goal;
 
 typedef rb_tree<unsigned, unsigned_cmp> hypothesis_set;
 
 class hypothesis {
-    friend class goal;
+    friend class branch;
     bool           m_active;
     unsigned       m_depth;
     hypothesis_set m_backward_deps;
@@ -36,5 +36,4 @@ public:
     optional<expr> const & get_value() const { return m_value; }
     optional<expr> const & get_justification() const { return m_justification; }
 };
-}
-}
+}}

@@ -1,1 +1,1 @@
-add_library(blast OBJECT state.cpp expr.cpp blast_tactic.cpp init_module.cpp blast.cpp)
+add_library(blast OBJECT expr.cpp state.cpp blast.cpp blast_tactic.cpp init_module.cpp)

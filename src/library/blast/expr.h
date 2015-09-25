@@ -47,6 +47,8 @@ expr mk_mref(unsigned idx);
 expr mk_sort(level const & l);
 expr mk_constant(name const & n, levels const & ls);
 expr mk_app(expr const & f, expr const & a);
+expr mk_app(expr const & f, unsigned num_args, expr const * args);
+expr mk_app(unsigned num_args, expr const * args);
 expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & bi);
 inline expr mk_pi(name const & n, expr const & t, expr const & e, binder_info const & bi) {
     return blast::mk_binding(expr_kind::Pi, n, t, e, bi);
@@ -71,7 +73,9 @@ bool is_mref(expr const & e);
 bool is_lref(expr const & e);
 /** \brief Return the index of the give lref/mref.
     \pre is_mref(e) || is_lref(e) */
-unsigned get_lmindex(expr const & e);
+unsigned lmref_index(expr const & e);
+inline unsigned mref_index(expr const & e) { return lmref_index(e); }
+inline unsigned lref_index(expr const & e) { return lmref_index(e); }
 
 level update_succ(level const & l, level const & new_arg);
 level update_max(level const & l, level const & new_lhs, level const & new_rhs);

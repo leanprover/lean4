@@ -21,11 +21,11 @@ class branch {
     expr          m_target;
     metavar_set   m_mvars;
 public:
-    goal():m_next(0) {}
+    branch():m_next(0) {}
     hypothesis const * get(unsigned idx) const { return m_context.find(idx); }
     hypothesis const * get(expr const & e) const {
         lean_assert(is_lref(e));
-        return get(get_lmindex(e));
+        return get(lref_index(e));
     }
 };
 }}

@@ -78,7 +78,7 @@ bool is_mref(expr const & e) {
     return is_lmref(e) && !is_lref(e);
 }
 
-unsigned get_lmindex(expr const & e) {
+unsigned lmref_index(expr const & e) {
     lean_assert(is_lmref(e));
     return static_cast<ref_definition_cell const *>(macro_def(e).raw())->get_index();
 }
@@ -252,6 +252,18 @@ expr mk_app(expr const & f, expr const & a) {
     lean_assert(is_cached(f));
     lean_assert(is_cached(a));
     return cache(lean::mk_app(f, a));
+}
+
+expr mk_app(expr const & f, unsigned num_args, expr const * args) {
+    expr r = f;
+    for (unsigned i = 0; i < num_args; i++)
+        r = blast::mk_app(r, args[i]);
+    return r;
+}
+
+expr mk_app(unsigned num_args, expr const * args) {
+    lean_assert(num_args >= 2);
+    return blast::mk_app(blast::mk_app(args[0], args[1]), num_args - 2, args+2);
 }
 
 expr mk_sort(level const & l) {
@@ -572,7 +584,7 @@ expr abstract_lrefs(expr const & e, unsigned n, expr const * subst) {
                 unsigned i = n;
                 while (i > 0) {
                     --i;
-                    if (get_lmindex(subst[i]) == get_lmindex(m))
+                    if (lref_index(subst[i]) == lref_index(m))
                         return some_expr(blast::mk_var(offset + n - i - 1));
                 }
                 return none_expr();

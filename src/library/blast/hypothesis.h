@@ -19,6 +19,7 @@ typedef rb_tree<unsigned, unsigned_cmp> hypothesis_set;
 
 class hypothesis {
     friend class branch;
+    name           m_name; // for pretty printing
     bool           m_active;
     unsigned       m_depth;
     hypothesis_set m_backward_deps;
@@ -27,7 +28,7 @@ class hypothesis {
     optional<expr> m_value;
     optional<expr> m_justification;
 public:
-    hypothesis();
+    hypothesis():m_active(0), m_depth(0) {}
     bool is_active() const { return m_active; }
     unsigned get_depth() const { return m_depth; }
     hypothesis_set const & get_backward_deps() const { return m_backward_deps; }

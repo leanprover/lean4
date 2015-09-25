@@ -10,4 +10,6 @@ Author: Leonardo de Moura
 namespace lean {
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
                           goal const & g);
+void initialize_blast();
+void finalize_blast();
 }

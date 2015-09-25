@@ -3,7 +3,7 @@ Copyright (c) 2015 Ulrik Buchholtz. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Ulrik Buchholtz
 -/
-import types.trunc hit.sphere hit.pushout
+import types.trunc homotopy.sphere hit.pushout
 
 open eq is_trunc is_equiv nat equiv trunc prod pushout sigma sphere_index unit
 

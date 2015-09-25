@@ -8,5 +8,5 @@ The core of the HoTT library
 
 import types
 import cubical
-import hit.circle
+import homotopy.circle
 import algebra.hott

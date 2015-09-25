@@ -375,8 +375,13 @@ if ((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--export-all")
 endif()
 add_subdirectory(api)
-add_library(leanshared SHARED shared/init.cpp $<TARGET_OBJECTS:api> ${LEAN_OBJS})
-target_link_libraries(leanshared ${EXTRA_LIBS})
+# The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
+# For some strange reason, it contains a copy of pthread_equal.
+# Remark: this problem does not happen when we generate the DLL using msys2 on Windows.
+if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
+  add_library(leanshared SHARED shared/init.cpp $<TARGET_OBJECTS:api> ${LEAN_OBJS})
+  target_link_libraries(leanshared ${EXTRA_LIBS})
+endif()
 
 add_subdirectory(shell)
 add_subdirectory(emacs)
@@ -389,7 +394,11 @@ add_subdirectory(tests/library)
 add_subdirectory(tests/library/blast)
 add_subdirectory(tests/frontends/lean)
 add_subdirectory(tests/shell)
-add_subdirectory(tests/shared)
+# The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
+# For some strange reason, it contains a copy of pthread_equal.
+if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
+  add_subdirectory(tests/shared)
+endif()
 
 # Include style check
 if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))

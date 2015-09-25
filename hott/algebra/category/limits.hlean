@@ -41,15 +41,16 @@ namespace category
 
   structure has_terminal_object [class] (D : Precategory) :=
     (d : D)
-    (is_term : is_terminal d)
+    (is_terminal : is_terminal d)
 
-  abbreviation terminal_object [constructor] := @has_terminal_object.d
-  attribute has_terminal_object.is_term [instance]
+  definition terminal_object [reducible] [unfold 2] := @has_terminal_object.d
+  attribute has_terminal_object.is_terminal [instance]
 
   variable {D}
   definition terminal_object_iso_terminal_object (H₁ H₂ : has_terminal_object D)
     : @terminal_object D H₁ ≅ @terminal_object D H₂ :=
-  terminal_iso_terminal (@has_terminal_object.is_term D H₁) (@has_terminal_object.is_term D H₂)
+  terminal_iso_terminal (@has_terminal_object.is_terminal D H₁)
+                        (@has_terminal_object.is_terminal D H₂)
 
   theorem is_hprop_has_terminal_object [instance] (D : Category)
     : is_hprop (has_terminal_object D) :=
@@ -96,7 +97,7 @@ namespace category
   definition limit_cone : cone F := !terminal_object
 
   definition is_terminal_limit_cone [instance] : is_terminal (limit_cone F) :=
-  has_terminal_object.is_term _
+  has_terminal_object.is_terminal _
 
   definition limit_object : D :=
   cone_obj.c (limit_cone F)

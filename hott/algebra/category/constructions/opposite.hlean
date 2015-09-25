@@ -8,7 +8,7 @@ Opposite precategory and (TODO) category
 
 import ..functor ..category
 
-open eq functor
+open eq functor iso equiv is_equiv
 
 namespace category
 
@@ -49,5 +49,49 @@ namespace category
   end
 
   postfix `ᵒᵖ`:(max+2) := opposite_functor
+
+  definition opposite_iso [constructor] {ob : Type} [C : precategory ob] {a b : ob}
+    (H : @iso _ C a b) : @iso _ (opposite C) a b :=
+  begin
+    fapply @iso.MK,
+    { exact to_inv H},
+    { exact to_hom H},
+    { exact to_left_inverse  H},
+    { exact to_right_inverse H},
+  end
+
+  definition iso_of_opposite_iso [constructor]  {ob : Type} [C : precategory ob] {a b : ob}
+    (H : @iso _ (opposite C) a b) : @iso _ C a b :=
+  begin
+    fapply iso.MK,
+    { exact to_inv H},
+    { exact to_hom H},
+    { exact to_left_inverse  H},
+    { exact to_right_inverse H},
+  end
+
+  definition opposite_iso_equiv [constructor]  {ob : Type} [C : precategory ob] (a b : ob)
+    : @iso _ (opposite C) a b ≃ @iso _ C a b :=
+  begin
+    fapply equiv.MK,
+    { exact iso_of_opposite_iso},
+    { exact opposite_iso},
+    { intro H, apply iso_eq, reflexivity},
+    { intro H, apply iso_eq, reflexivity},
+  end
+
+  definition is_univalent_opposite (C : Category) : is_univalent (Opposite C) :=
+  begin
+    intro x y,
+    fapply is_equiv_of_equiv_of_homotopy,
+    { refine @eq_equiv_iso C C x y ⬝e _, symmetry, apply opposite_iso_equiv},
+    { intro p, induction p, reflexivity}
+  end
+
+  definition category_opposite [constructor] (C : Category) : category (Opposite C) :=
+  category.mk _ (is_univalent_opposite C)
+
+  definition Category_opposite [constructor] (C : Category) : Category :=
+  Category.mk _ (category_opposite C)
 
 end category

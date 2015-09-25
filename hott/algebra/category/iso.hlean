@@ -48,7 +48,7 @@ namespace iso
   split_epi.mk !right_inverse
 
   definition is_iso_id [instance] [priority 500] (a : ob) : is_iso (ID a) :=
-  is_iso.mk !id_comp !id_comp
+  is_iso.mk !id_id !id_id
 
   definition is_iso_inverse [instance] [priority 200] (f : a ⟶ b) [H : is_iso f] : is_iso f⁻¹ :=
   is_iso.mk !right_inverse !left_inverse
@@ -89,13 +89,13 @@ namespace iso
   by cases p;apply inverse_unique
 
   definition retraction_id (a : ob) : retraction_of (ID a) = id :=
-  retraction_eq !id_comp
+  retraction_eq !id_id
 
   definition section_id (a : ob) : section_of (ID a) = id :=
-  section_eq !id_comp
+  section_eq !id_id
 
   definition id_inverse (a : ob) [H : is_iso (ID a)] : (ID a)⁻¹ = id :=
-  inverse_eq_left !id_comp
+  inverse_eq_left !id_id
 
   definition split_mono_comp [instance] [priority 150] (g : b ⟶ c) (f : a ⟶ b)
     [Hf : split_mono f] [Hg : split_mono g] : split_mono (g ∘ f) :=
@@ -202,7 +202,7 @@ namespace iso
 
   definition iso_of_eq_con (p : a = b) (q : b = c)
     : iso_of_eq (p ⬝ q) = iso.trans (iso_of_eq p) (iso_of_eq q) :=
-  eq.rec_on q (eq.rec_on p (iso_eq !id_comp⁻¹))
+  eq.rec_on q (eq.rec_on p (iso_eq !id_id⁻¹))
 
   section
     open funext

@@ -412,6 +412,16 @@ namespace sigma
   definition equiv_subtype [H : Πa, is_hprop (B a)] (u v : {a | B a}) : (u.1 = v.1) ≃ (u = v) :=
   equiv.mk !subtype_eq _
 
+  definition subtype_eq_inv {A : Type} {B : A → Type} [H : Πa, is_hprop (B a)] (u v : Σa, B a)
+    : u = v → u.1 = v.1 :=
+  (subtype_eq u v)⁻¹ᶠ
+
+  local attribute subtype_eq_inv [reducible]
+  definition is_equiv_subtype_eq_inv {A : Type} {B : A → Type} [H : Πa, is_hprop (B a)]
+    (u v : Σa, B a) : is_equiv (subtype_eq_inv u v) :=
+  _
+
+
   /- truncatedness -/
   theorem is_trunc_sigma (B : A → Type) (n : trunc_index)
       [HA : is_trunc n A] [HB : Πa, is_trunc n (B a)] : is_trunc n (Σa, B a) :=

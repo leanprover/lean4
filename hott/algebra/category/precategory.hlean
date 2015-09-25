@@ -65,9 +65,7 @@ namespace category
     variables {a b c d : ob} {h : c ⟶ d} {g : hom b c} {f f' : hom a b} {i : a ⟶ a}
     include C
 
-    definition id [reducible] := ID a
-
-    definition id_comp (a : ob) : ID a ∘ ID a = ID a := !id_left
+    definition id [reducible] [unfold 2] := ID a
 
     definition id_leftright       (f : hom a b) : id ∘ f ∘ id = f := !id_left ⬝ !id_right
     definition comp_id_eq_id_comp (f : hom a b) : f ∘ id = id ∘ f := !id_right ⬝ !id_left⁻¹

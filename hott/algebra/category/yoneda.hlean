@@ -42,7 +42,7 @@ namespace functor
              (λd d' g, F (id, g))
              (λd, !respect_id)
              (λd₁ d₂ d₃ g' g, calc
-               F (id, g' ∘ g) = F (id ∘ id, g' ∘ g) : by rewrite id_comp
+               F (id, g' ∘ g) = F (id ∘ id, g' ∘ g) : by rewrite id_id
                  ... = F ((id,g') ∘ (id, g))        : by esimp
                  ... = F (id,g') ∘ F (id, g)        : by rewrite respect_comp)
 
@@ -75,7 +75,7 @@ namespace functor
     apply @nat_trans_eq,
     intro d, calc
     natural_map (Fhom F (f' ∘ f)) d = F (f' ∘ f, id) : by rewrite functor_curry_hom_def
-      ... = F (f' ∘ f, id ∘ id)                      : by rewrite id_comp
+      ... = F (f' ∘ f, id ∘ id)                      : by rewrite id_id
       ... = F ((f',id) ∘ (f, id))                    : by esimp
       ... = F (f',id) ∘ F (f, id)                    : by rewrite [respect_comp F]
       ... = natural_map ((Fhom F f') ∘ (Fhom F f)) d : by esimp
@@ -100,7 +100,7 @@ namespace functor
     Ghom G (ID p) = to_fun_hom (to_fun_ob G p.1) id ∘ natural_map (to_fun_hom G id) p.2 : by esimp
       ... = id ∘ natural_map (to_fun_hom G id) p.2 : by rewrite respect_id
       ... = id ∘ natural_map nat_trans.id p.2      : by rewrite respect_id
-      ... = id                                     : id_comp
+      ... = id                                     : id_id
 
   theorem functor_uncurry_comp ⦃p p' p'' : C ×c D⦄ (f' : p' ⟶ p'') (f : p ⟶ p')
     : Ghom G (f' ∘ f) = Ghom G f' ∘ Ghom G f :=

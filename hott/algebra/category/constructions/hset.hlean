@@ -6,7 +6,7 @@ Authors: Floris van Doorn, Jakob von Raumer
 Category of hsets
 -/
 
-import ..category types.equiv ..functor types.lift
+import ..category types.equiv ..functor types.lift ..limits
 
 open eq category equiv iso is_equiv is_trunc function sigma
 
@@ -46,16 +46,6 @@ namespace category
 
     local attribute is_equiv_iso_of_equiv [instance]
 
-    -- TODO: move
-    open sigma.ops
-    definition subtype_eq_inv {A : Type} {B : A → Type} [H : Πa, is_hprop (B a)] (u v : Σa, B a)
-      : u = v → u.1 = v.1 :=
-    (subtype_eq u v)⁻¹ᶠ
-    local attribute subtype_eq_inv [reducible]
-    definition is_equiv_subtype_eq_inv {A : Type} {B : A → Type} [H : Πa, is_hprop (B a)] (u v : Σa, B a)
-      : is_equiv (subtype_eq_inv u v) :=
-    _
-
     definition iso_of_eq_eq_compose (A B : hset) : @iso_of_eq _ _ A B =
       @iso_of_equiv A B ∘ @equiv_of_eq A B ∘ subtype_eq_inv _ _ ∘
       @ap _ _ (to_fun (trunctype.sigma_char 0)) A B :=
@@ -83,7 +73,7 @@ namespace category
            (@is_equiv_subtype_eq_inv _ _ _ _ _))
          !univalence)
        !is_equiv_iso_of_equiv,
-    assert H₂ : _, from (iso_of_eq_eq_compose A B)⁻¹,
+    let H₂ := (iso_of_eq_eq_compose A B)⁻¹ in
     begin
       rewrite H₂ at H₁,
       assumption
@@ -104,4 +94,47 @@ namespace category
              (λa b, lift_functor)
              (λa, eq_of_homotopy (λx, by induction x; reflexivity))
              (λa b c g f, eq_of_homotopy (λx, by induction x; reflexivity))
+
+  open pi sigma.ops
+  local attribute Category.to.precategory [unfold 1]
+  local attribute category.to_precategory [unfold 2]
+
+  definition is_complete_cone.{u v w} [constructor]
+    (I : Precategory.{v w}) (F : I ⇒ set.{max u v w}) : cone_obj F :=
+  begin
+  fapply cone_obj.mk,
+  { fapply trunctype.mk,
+    { exact Σ(s : Π(i : I), trunctype.carrier (F i)),
+        Π{i j : I} (f : i ⟶ j), F f (s i) = (s j)},
+    { exact abstract begin apply is_trunc_sigma, intro s,
+      apply is_trunc_pi, intro i,
+      apply is_trunc_pi, intro j,
+      apply is_trunc_pi, intro f,
+      apply is_trunc_eq end end}},
+  { fapply nat_trans.mk,
+    { intro i x, esimp at x, exact x.1 i},
+    { intro i j f, esimp, apply eq_of_homotopy, intro x, esimp at x, induction x with s p,
+      esimp, apply p}}
+  end
+
+  definition is_complete_set.{u v w} : is_complete.{(max u v w)+1 (max u v w) v w} set :=
+  begin
+    intro I F, fapply has_terminal_object.mk,
+    { exact is_complete_cone.{u v w} I F},
+    { intro c, esimp at *, induction c with X η, induction η with η p, esimp at *,
+      fapply is_contr.mk,
+      { fapply cone_hom.mk,
+        { intro x, esimp at *, fapply sigma.mk,
+          { intro i, exact η i x},
+          { intro i j f, exact ap10 (p f) x}},
+        { intro i, reflexivity}},
+      { esimp, intro h, induction h with f q, apply cone_hom_eq, esimp at *,
+        apply eq_of_homotopy, intro x, fapply sigma_eq: esimp,
+        { apply eq_of_homotopy, intro i, exact (ap10 (q i) x)⁻¹},
+        { apply is_hprop.elimo,
+          apply is_trunc_pi, intro i,
+          apply is_trunc_pi, intro j,
+          apply is_trunc_pi, intro f,
+          apply is_trunc_eq}}}
+  end
 end category

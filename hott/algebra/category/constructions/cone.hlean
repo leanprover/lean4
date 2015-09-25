@@ -37,7 +37,7 @@ namespace category
     : is_hprop (f = g) :=
   _
 
-  theorem cone_hom_eq (f f' : cone_hom x y) (q : cone_hom.f f = cone_hom.f f') : f = f' :=
+  theorem cone_hom_eq {f f' : cone_hom x y} (q : cone_hom.f f = cone_hom.f f') : f = f' :=
   begin
     induction f, induction f', esimp at *, induction q, apply ap (cone_hom.mk f),
     apply @is_hprop.elim, apply pi.is_trunc_pi, intro x, apply is_trunc_eq, -- type class fails

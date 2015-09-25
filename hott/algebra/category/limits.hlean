@@ -6,8 +6,8 @@ Authors: Floris van Doorn
 Limits in a category
 -/
 
-import .constructions.cone .groupoid .constructions.discrete .constructions.product
-       .constructions.finite_cats
+import .constructions.cone .constructions.discrete .constructions.product
+       .constructions.finite_cats .category
 
 open is_trunc functor nat_trans eq
 
@@ -33,6 +33,10 @@ namespace category
   definition terminal_iso_terminal {c c' : ob} (H : is_terminal c) (K : is_terminal c') : c ≅ c' :=
   iso.MK !terminal_morphism !terminal_morphism !hom_terminal_eq !hom_terminal_eq
 
+  local attribute is_terminal [reducible]
+  theorem is_hprop_is_terminal [instance] : is_hprop (is_terminal c) :=
+  _
+
   omit C
 
   structure has_terminal_object [class] (D : Precategory) :=
@@ -42,16 +46,39 @@ namespace category
   abbreviation terminal_object [constructor] := @has_terminal_object.d
   attribute has_terminal_object.is_term [instance]
 
+  variable {D}
   definition terminal_object_iso_terminal_object (H₁ H₂ : has_terminal_object D)
     : @terminal_object D H₁ ≅ @terminal_object D H₂ :=
   terminal_iso_terminal (@has_terminal_object.is_term D H₁) (@has_terminal_object.is_term D H₂)
 
+  theorem is_hprop_has_terminal_object [instance] (D : Category)
+    : is_hprop (has_terminal_object D) :=
+  begin
+    apply is_hprop.mk, intro t₁ t₂, induction t₁ with d₁ H₁, induction t₂ with d₂ H₂,
+    assert p : d₁ = d₂,
+    { apply eq_of_iso, apply terminal_iso_terminal H₁ H₂},
+    induction p, exact ap _ !is_hprop.elim
+  end
+
+  variable (D)
   definition has_limits_of_shape [class] := Π(F : I ⇒ D), has_terminal_object (cone F)
 
+  /-
+    The next definitions states that a category is complete with respect to diagrams
+    in a certain universe. "is_complete.{o₁ h₁ o₂ h₂}" means that D is complete
+    with respect to diagrams of type Precategory.{o₂ h₂}
+  -/
+
+  definition is_complete.{o₁ h₁ o₂ h₂} [class] (D : Precategory.{o₁ h₁}) :=
+  Π(I : Precategory.{o₂ h₂}), has_limits_of_shape D I
+
+  definition has_limits_of_shape_of_is_complete [instance] [H : is_complete D] (I : Precategory)
+    : has_limits_of_shape D I := H I
+
   variables {I D}
-  definition has_terminal_object_of_has_limits_of_shape [instance] [H : has_limits_of_shape D I]
-    (F : I ⇒ D) : has_terminal_object (cone F) :=
-  H F
+  definition has_terminal_object_cone [H : has_limits_of_shape D I]
+    (F : I ⇒ D) : has_terminal_object (cone F) := H F
+  local attribute has_terminal_object_cone [instance]
 
   variables (F : I ⇒ D) [H : has_limits_of_shape D I] {i j : I}
   include H

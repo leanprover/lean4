@@ -3,38 +3,9 @@ Copyright (c) 2015 Ulrik Buchholtz. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Ulrik Buchholtz
 -/
-import types.trunc
+import types.trunc types.arrow_2 types.fiber
 
 open eq is_trunc is_equiv nat equiv trunc function
-
--- TODO(Ulrik) move this to somewhere else (cannot be sigma b/c dep. on fiber)
-namespace sigma
-  variables {A : Type} {P Q : A → Type}
-
-  definition total [reducible] (f : Πa, P a → Q a) : (Σa, P a) → (Σa, Q a) :=
-  sigma.rec (λa p, ⟨a , f a p⟩)
-
-  -- Theorem 4.7.6
-  --definition fiber_total_equiv (f : Πa, P a → Q a) {a : A} (q : Q a)
-  --  : fiber (total f) ⟨a , q⟩ ≃ fiber (f a) q :=
-  --sorry
-
-end sigma
-
--- TODO(Ulrik) move this to somewhere else (cannot be unit b/c dep. on fiber)
-namespace unit
-
-  definition fiber_star_equiv (A : Type) : fiber (λx : A, star) star ≃ A :=
-  begin
-    fapply equiv.MK,
-    { intro f, cases f with a H, exact a },
-    { intro a, apply fiber.mk a, reflexivity },
-    { intro a, reflexivity },
-    { intro f, cases f with a H, change fiber.mk a (refl star) = fiber.mk a H,
-      rewrite [is_hset.elim H (refl star)] }
-  end
-
-end unit
 
 namespace homotopy
 
@@ -48,7 +19,7 @@ namespace homotopy
     : is_conn_map n (λx : A, unit.star) → is_conn n A :=
   begin
     intro H, unfold is_conn_map at H,
-    rewrite [-(ua (unit.fiber_star_equiv A))],
+    rewrite [-(ua (fiber.fiber_star_equiv A))],
     exact (H unit.star)
   end
 

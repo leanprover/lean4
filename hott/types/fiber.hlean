@@ -45,7 +45,23 @@ namespace fiber
 
 end fiber
 
-open function is_equiv is_trunc
+open unit is_trunc
+
+namespace fiber
+
+  definition fiber_star_equiv (A : Type) : fiber (λx : A, star) star ≃ A :=
+  begin
+    fapply equiv.MK,
+    { intro f, cases f with a H, exact a },
+    { intro a, apply fiber.mk a, reflexivity },
+    { intro a, reflexivity },
+    { intro f, cases f with a H, change fiber.mk a (refl star) = fiber.mk a H,
+      rewrite [is_hset.elim H (refl star)] }
+  end
+
+end fiber
+
+open function is_equiv
 
 namespace fiber
   /- Theorem 4.7.6 -/

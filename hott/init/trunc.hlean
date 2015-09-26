@@ -199,6 +199,10 @@ namespace is_trunc
     : is_contr (Σ(x : A), a = x) :=
   is_contr.mk (sigma.mk a idp) (λp, sigma.rec_on p (λ b q, eq.rec_on q idp))
 
+  definition is_contr_sigma_eq' [instance] [priority 800] {A : Type} (a : A)
+    : is_contr (Σ(x : A), x = a) :=
+  is_contr.mk (sigma.mk a idp) (λp, sigma.rec_on p (λ b q, eq.rec_on q idp))
+
   definition is_contr_unit : is_contr unit :=
   is_contr.mk star (λp, unit.rec_on p idp)
 

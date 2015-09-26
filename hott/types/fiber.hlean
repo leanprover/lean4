@@ -44,3 +44,48 @@ namespace fiber
   to_inv !fiber_eq_equiv ⟨p, q⟩
 
 end fiber
+
+open function is_equiv is_trunc
+
+namespace fiber
+  /- Theorem 4.7.6 -/
+  variables {A : Type} {P Q : A → Type}
+
+  /- Note that the map on total spaces/sigmas is just sigma_functor id -/
+  definition fiber_total_equiv (f : Πa, P a → Q a) {a : A} (q : Q a)
+    : fiber (sigma_functor id f) ⟨a , q⟩ ≃ fiber (f a) q :=
+  calc
+    fiber (sigma_functor id f) ⟨a , q⟩
+          ≃ Σ(w : Σx, P x), ⟨w.1 , f w.1 w.2 ⟩ = ⟨a , q⟩
+            : sigma_char
+      ... ≃ Σ(x : A), Σ(p : P x), ⟨x , f x p⟩ = ⟨a , q⟩
+            : sigma_assoc_equiv
+      ... ≃ Σ(x : A), Σ(p : P x), Σ(H : x = a), f x p =[H] q
+            :
+            begin
+              apply sigma_equiv_sigma_id, intro x,
+              apply sigma_equiv_sigma_id, intro p,
+              apply sigma_eq_equiv
+            end
+      ... ≃ Σ(x : A), Σ(H : x = a), Σ(p : P x), f x p =[H] q
+            :
+            begin
+              apply sigma_equiv_sigma_id, intro x,
+              apply sigma_comm_equiv
+            end
+      ... ≃ Σ(w : Σx, x = a), Σ(p : P w.1), f w.1 p =[w.2] q
+            : sigma_assoc_equiv
+      ... ≃ Σ(p : P (center (Σx, x=a)).1), f (center (Σx, x=a)).1 p =[(center (Σx, x=a)).2] q
+            : sigma_equiv_of_is_contr_left
+      ... ≃ Σ(p : P a), f a p =[idpath a] q
+            : equiv_of_eq idp
+      ... ≃ Σ(p : P a), f a p = q
+            :
+            begin
+              apply sigma_equiv_sigma_id, intro p,
+              apply pathover_idp
+            end
+      ... ≃ fiber (f a) q
+            : sigma_char
+
+end fiber

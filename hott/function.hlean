@@ -223,9 +223,17 @@ namespace function
 
   variable {f}
 
+  definition is_retraction_trunc_functor [instance] (r : A → B) [H : is_retraction r]
+    (n : trunc_index) : is_retraction (trunc_functor n r) :=
+  is_retraction.mk
+    (trunc_functor n (sect r))
+    (λb,
+      ((trunc_functor_compose n (sect r) r) b)⁻¹
+      ⬝ trunc_homotopy n (right_inverse r) b
+      ⬝ trunc_functor_id B n b)
+
   -- Lemma 3.11.7
-  definition is_contr_retract {A B : Type} (r : A → B) [H : is_retraction r]
-    : is_contr A → is_contr B :=
+  definition is_contr_retract (r : A → B) [H : is_retraction r] : is_contr A → is_contr B :=
   begin
     intro CA,
     apply is_contr.mk (r (center A)),

@@ -18,6 +18,9 @@ namespace arrow
   abbreviation dom [unfold 2] := @arrow.dom
   abbreviation cod [unfold 2] := @arrow.cod
 
+  definition arrow_of_fn {A B : Type} (f : A → B) : arrow :=
+  arrow.mk A B f
+
   structure morphism (A B : Type) :=
     (mor : A → B)
 
@@ -88,5 +91,21 @@ namespace arrow
     apply is_contr_retract (retraction_on_fiber r b),
     exact is_contr_fun_of_is_equiv f (on_cod (is_retraction.sect r) b)
   end
+
+end arrow
+
+namespace arrow
+  variables {A B : Type} {f g : A → B} (p : f ~ g)
+
+  definition arrow_hom_of_homotopy : arrow_hom (arrow_of_fn f) (arrow_of_fn g) :=
+  arrow_hom.mk id id (λx, (p x)⁻¹)
+
+  definition is_retraction_arrow_hom_of_homotopy [instance]
+    : is_retraction (arrow_hom_of_homotopy p) :=
+  is_retraction.mk
+    (arrow_hom_of_homotopy (λx, (p x)⁻¹))
+    (λa, idp)
+    (λb, idp)
+    (λa, con_eq_of_eq_inv_con (ap_id _))
 
 end arrow

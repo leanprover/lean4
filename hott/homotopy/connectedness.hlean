@@ -9,7 +9,7 @@ open eq is_trunc is_equiv nat equiv trunc function
 
 namespace homotopy
 
-  definition is_conn (n : trunc_index) (A : Type) : Type :=
+  definition is_conn [reducible] (n : trunc_index) (A : Type) : Type :=
   is_contr (trunc n A)
 
   definition is_conn_map (n : trunc_index) {A B : Type} (f : A → B) : Type :=
@@ -38,10 +38,31 @@ namespace homotopy
     exact @center (∥fiber f b∥) (H b),
   end
 
-  definition merely_of_minus_one_conn {A : Type} : is_conn -1 A → ∥ A ∥ :=
+  definition merely_of_minus_one_conn {A : Type} : is_conn -1 A → ∥A∥ :=
   λH, @center (∥A∥) H
 
   definition minus_one_conn_of_merely {A : Type} : ∥A∥ → is_conn -1 A :=
   @is_contr_of_inhabited_hprop (∥A∥) (is_trunc_trunc -1 A)
+
+  section
+    open arrow
+
+    variables {f g : arrow}
+
+    -- Lemma 7.5.4
+    definition retract_of_conn_is_conn [instance] (r : arrow_hom f g) [H : is_retraction r]
+      (n : trunc_index) [K : is_conn_map n f] : is_conn_map n g :=
+    begin
+      intro b, unfold is_conn,
+      apply is_contr_retract (trunc_functor n (retraction_on_fiber r b)),
+      exact K (on_cod (arrow.is_retraction.sect r) b)
+    end
+
+  end
+
+  -- Corollary 7.5.5
+  definition is_conn_homotopy (n : trunc_index) {A B : Type} {f g : A → B}
+    (p : f ~ g) (H : is_conn_map n f) : is_conn_map n g :=
+  @retract_of_conn_is_conn _ _ (arrow.arrow_hom_of_homotopy p) (arrow.is_retraction_arrow_hom_of_homotopy p) n H 
 
 end homotopy

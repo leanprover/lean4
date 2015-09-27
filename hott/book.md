@@ -90,7 +90,7 @@ Chapter 4: Equivalences
 - 4.4 (Contractible fibers): [types.equiv](types/equiv.hlean)
 - 4.5 (On the definition of equivalences): no formalizable content
 - 4.6 (Surjections and embeddings): [function](function.hlean)
-- 4.7 (Closure properties of equivalences): Theorem 4.7.6 in [types.fiber](types/fiber.hlean) (the rest not formalized)
+- 4.7 (Closure properties of equivalences): Theorem 4.7.6 in [types.fiber](types/fiber.hlean), Theorem 4.7.7 in [types.equiv](types/equiv.hlean)
 - 4.8 (The object classifier): not formalized
 - 4.9 (Univalence implies function extensionality): [init.funext](init/funext.hlean)
 

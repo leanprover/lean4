@@ -66,9 +66,10 @@ open function is_equiv
 namespace fiber
   /- Theorem 4.7.6 -/
   variables {A : Type} {P Q : A → Type}
+  variable (f : Πa, P a → Q a)
 
   /- Note that the map on total spaces/sigmas is just sigma_functor id -/
-  definition fiber_total_equiv (f : Πa, P a → Q a) {a : A} (q : Q a)
+  definition fiber_total_equiv {a : A} (q : Q a)
     : fiber (sigma_functor id f) ⟨a , q⟩ ≃ fiber (f a) q :=
   calc
     fiber (sigma_functor id f) ⟨a , q⟩

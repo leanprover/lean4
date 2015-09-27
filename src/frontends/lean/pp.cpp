@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <limits>
+#include <string>
+#include <util/utf8.h>
 #include "util/flet.h"
 #include "kernel/replace_fn.h"
 #include "kernel/free_vars.h"
@@ -36,6 +38,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/local_ref_info.h"
+#include "frontends/lean/scanner.h"
 
 namespace lean {
 static format * g_ellipsis_n_fmt  = nullptr;
@@ -996,20 +999,6 @@ auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) ->
     }
 }
 
-static bool add_extra_space_first(name const & tk) {
-    // TODO(Leo): this is a hard-coded temporary solution for deciding whether extra
-    // spaces should be added or not when pretty printing notation.
-    // We should implement a better solution in the future.
-    return tk != "(" && tk != ")" && tk != "[";
-}
-
-static bool add_extra_space(name const & tk) {
-    // TODO(Leo): this is a hard-coded temporary solution for deciding whether extra
-    // spaces should be added or not when pretty printing notation.
-    // We should implement a better solution in the future.
-    return tk != "," && tk != "(" && tk != ")" && tk != "[";
-}
-
 static bool is_atomic_notation(notation_entry const & entry) {
     if (!entry.is_nud())
         return false;
@@ -1034,21 +1023,18 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
         unsigned i         = ts.size();
         unsigned last_rbp  = inf_bp()-1;
         unsigned token_lbp = 0;
-        bool extra_space   = false;
-        bool last_is_skip  = false;
         bool last          = true;
         while (i > 0) {
             --i;
             format curr;
             notation::action const & a = ts[i].get_action();
             name const & tk = ts[i].get_token();
+            format tk_fmt = format(tk);
             switch (a.kind()) {
             case notation::action_kind::Skip:
-                curr = format(tk);
-                if (last) {
-                    last_rbp     = inf_bp();
-                    last_is_skip = true;
-                }
+                curr = tk_fmt;
+                if (last)
+                    last_rbp = inf_bp();
                 break;
             case notation::action_kind::Expr:
                 if (args.empty() || !args.back()) {
@@ -1057,14 +1043,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                     expr e = *args.back();
                     args.pop_back();
                     result e_r   = pp_notation_child(e, token_lbp, a.rbp());
-                    format e_fmt = e_r.fmt();
-                    curr = format(tk);
-                    // we add space after the token only when
-                    // 1- add_extra_space(tk) is true AND
-                    // 2- tk is the first token in a nud notation
-                    if (add_extra_space(tk) && (!entry.is_nud() || i != 0 || m_extra_spaces))
-                        curr = curr + space();
-                    curr = curr + e_fmt;
+                    curr = tk_fmt + e_r.fmt();
                     if (last)
                         last_rbp = a.rbp();
                     break;
@@ -1109,8 +1088,6 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                     unsigned curr_lbp = token_lbp;
                     if (auto t = a.get_terminator()) {
                         curr = format(*t);
-                        if (add_extra_space(*t) && m_extra_spaces)
-                            curr = space() + curr;
                         curr_lbp = get_some_precedence(m_token_table, *t);
                     }
                     unsigned j       = rec_args.size();
@@ -1120,15 +1097,10 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                         --j;
                         result arg_res = pp_notation_child(rec_args[j], curr_lbp, a.rbp());
                         if (j == 0) {
-                            if (add_extra_space_first(tk) && (!entry.is_nud() || i != 0 || m_extra_spaces))
-                                curr = format(tk) + space() + arg_res.fmt() + curr;
-                            else
-                                curr = format(tk) + arg_res.fmt() + curr;
+                            curr = tk_fmt + arg_res.fmt() + curr;
                         } else {
-                            curr = sep_fmt + space() + arg_res.fmt() + curr;
+                            curr = sep_fmt + arg_res.fmt() + curr;
                         }
-                        if (j > 0 && add_extra_space(a.get_sep()))
-                            curr = space() + curr;
                         curr_lbp = sep_lbp;
                     }
                     break;
@@ -1136,12 +1108,10 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
             case notation::action_kind::Binder:
                 if (locals.size() != 1)
                     return optional<result>();
-                curr = format(tk) + pp_binder(locals[0]);
-                if (!last)
-                    curr = curr + space();
+                curr = tk_fmt + pp_binder(locals[0]);
                 break;
             case notation::action_kind::Binders:
-                curr = format(tk) + pp_binders(locals);
+                curr = tk_fmt + pp_binders(locals);
                 break;
             case notation::action_kind::ScopedExpr:
                 if (args.empty() || !args.back()) {
@@ -1177,8 +1147,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                     if (locals.empty())
                         return optional<result>();
                     result e_r   = pp_notation_child(e, token_lbp, a.rbp());
-                    format e_fmt = e_r.fmt();
-                    curr = format(tk) + space() + e_fmt;
+                    curr = tk_fmt + e_r.fmt();
                     if (last)
                         last_rbp = a.rbp();
                     break;
@@ -1192,12 +1161,8 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
                 fmt = curr;
                 last = false;
             } else {
-                if (extra_space)
-                    curr = curr + space();
                 fmt = curr + fmt;
             }
-            if (m_extra_spaces || !last_is_skip)
-                extra_space = add_extra_space(tk);
         }
         unsigned first_lbp = inf_bp();
         if (!entry.is_nud()) {
@@ -1208,10 +1173,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
             expr e = *args.back();
             args.pop_back();
             format e_fmt = pp_notation_child(e, token_lbp, 0).fmt();
-            if (m_extra_spaces || !last_is_skip)
-                fmt = e_fmt + space() + fmt;
-            else
-                fmt = e_fmt + fmt;
+            fmt = e_fmt + fmt;
         }
         return optional<result>(result(first_lbp, last_rbp, fmt));
     }
@@ -1221,7 +1183,7 @@ auto pretty_fn::pp_notation(expr const & e) -> optional<result> {
     if (!m_notation || is_var(e))
         return optional<result>();
     for (notation_entry const & entry : get_notation_entries(m_env, head_index(e))) {
-        if (entry.group() != notation_entry_group::Main)
+        if (entry.group() == notation_entry_group::Reserve)
             continue;
         if (!m_unicode && !entry.is_safe_ascii())
             continue; // ignore this notation declaration since unicode support is not enabled
@@ -1338,12 +1300,50 @@ class pp_beta_reduce_fn : public replace_visitor {
     }
 };
 
+std::string sexpr_to_string(sexpr const & s) {
+    if (is_string(s))
+        return to_string(s);
+    std::stringstream ss;
+    ss << s;
+    return ss.str();
+}
+
+// check whether a space must be inserted between the strings so that lexing them would
+// produce separate tokens
+bool pretty_fn::needs_space_sep(std::string const & s1, std::string const & s2) const {
+    if (is_id_rest(get_utf8_last_char(s1.data()), s1.data() + s1.size()) && is_id_rest(s2.data(), s2.data() + s2.size()))
+        return true; // would be lexed as a single identifier without space
+
+
+    // check whether s1 + s2 has a longer prefix in the token table than s1
+    token_table const * t = &m_token_table;
+    for (char c : s1) {
+        t = t->find(c);
+        if (!t)
+            return false; // s1 must be an identifier, and we know s2 does not start with is_id_rest
+    }
+    for (char c : s2) {
+        t = t->find(c);
+        if (!t)
+            return false;
+        if (t->value())
+            return true;
+    }
+    return true; // the next identifier may expand s1 + s2 to a token
+}
+
 format pretty_fn::operator()(expr const & e) {
     m_depth = 0; m_num_steps = 0;
+    result r;
     if (m_beta)
-        return pp_child(purify(pp_beta_reduce_fn()(e)), 0).fmt();
+        r = pp_child(purify(pp_beta_reduce_fn()(e)), 0);
     else
-        return pp_child(purify(e), 0).fmt();
+        r = pp_child(purify(e), 0);
+
+    // insert spaces so that lexing the result round-trips
+    std::function<bool(sexpr const &, sexpr const &)> sep; // NOLINT
+    sep = [&](sexpr const & s1, sexpr const & s2) { return needs_space_sep(sexpr_to_string(s1), sexpr_to_string(s2)); };
+    return r.fmt().separate_tokens(sep);
 }
 
 formatter_factory mk_pretty_formatter_factory() {

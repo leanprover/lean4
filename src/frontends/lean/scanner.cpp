@@ -314,10 +314,10 @@ static bool is_id_first(buffer<char> const & cs, unsigned i) {
     return is_letter_like_unicode(u);
 }
 
-static bool is_id_rest(buffer<char> const & cs, unsigned i)  {
-    if (std::isalnum(cs[i]) || cs[i] == '_' || cs[i] == '\'')
+bool is_id_rest(char const * begin, char const * end) {
+    if (std::isalnum(*begin) || *begin == '_' || *begin == '\'')
         return true;
-    unsigned u = utf8_to_unicode(cs.begin() + i, cs.end());
+    unsigned u = utf8_to_unicode(begin, end);
     return is_letter_like_unicode(u) || is_super_sub_script_alnum_unicode(u);
 }
 
@@ -337,7 +337,7 @@ auto scanner::read_key_cmd_id() -> token_kind {
             unsigned i = id_sz;
             next_utf(cs);
             num_utfs++;
-            if (is_id_rest(cs, i)) {
+            if (is_id_rest(&cs[i], cs.end())) {
             } else if (cs[i] == '.') {
                 next_utf(cs);
                 num_utfs++;

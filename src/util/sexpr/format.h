@@ -120,6 +120,10 @@ private:
         return sexpr(sexpr(format::format_kind::LINE), sexpr());
     }
 
+    std::tuple<sexpr, sexpr const *> separate_tokens(sexpr const & s, sexpr const * last,
+                                                     std::function<bool(sexpr const &, sexpr const &)> sep //NOLINT
+    ) const;
+
     // Functions used inside of pretty printing
     static bool space_upto_line_break_list_exceeded(sexpr const & s, int available, std::vector<pair<sexpr, unsigned>> const & todo);
     static int space_upto_line_break(sexpr const & s, int available, bool & found);
@@ -168,6 +172,8 @@ public:
     }
     bool is_nil_fmt() const { return kind() == format_kind::NIL; }
     unsigned hash() const { return m_value.hash(); }
+
+    format separate_tokens(std::function<bool(sexpr const &, sexpr const &)> sep) const; // NOLINT
 
     friend format compose(format const & f1, format const & f2);
     friend format nest(int i, format const & f);

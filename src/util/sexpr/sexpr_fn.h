@@ -32,7 +32,8 @@ sexpr map(sexpr const & l, F f) {
         return l;
     } else {
         lean_assert(is_cons(l));
-        return sexpr(f(head(l)), map(tail(l), f));
+        auto x = f(head(l)); // force left-to-right evaluation order
+        return sexpr(x, map(tail(l), f));
     }
 }
 

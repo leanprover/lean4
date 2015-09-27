@@ -177,6 +177,64 @@ format wrap(format const & f1, format const & f2) {
     return f1 + choice(format(" "), line()) + f2;
 }
 
+std::tuple<sexpr, sexpr const *> format::separate_tokens(sexpr const & s, sexpr const * last,
+                                                         std::function<bool(sexpr const &, sexpr const &)> sep // NOLINT
+) const {
+    switch (sexpr_kind(s)) {
+        case format_kind::NIL:
+        case format_kind::LINE:
+        case format_kind::COLOR_BEGIN:
+        case format_kind::COLOR_END:
+            return std::make_tuple(s, last);
+        case format_kind::COMPOSE:
+        case format_kind::FLAT_COMPOSE:
+        {
+            sexpr list = sexpr_compose_list(s);
+            list = map(list, [&](sexpr const & s) {
+                sexpr t;
+                std::tie(t, last) = separate_tokens(s, last, sep);
+                return t;
+            });
+            sexpr t = sexpr_kind(m_value) == format_kind::COMPOSE ? sexpr_compose(list) : sexpr_flat_compose(list);
+            return std::make_tuple(t, last);
+        }
+        case format_kind::NEST:
+        {
+            sexpr t;
+            std::tie(t, last) = separate_tokens(sexpr_nest_s(s), last, sep);
+            return std::make_tuple(sexpr_nest(sexpr_nest_i(s), t), last);
+        }
+        case format_kind::TEXT:
+        {
+            sexpr const & text = sexpr_text_t(s);
+            if (last && sep(*last, text))
+                return std::make_tuple(sexpr_compose({*g_sexpr_space, s}), &text);
+            else
+                return std::make_tuple(s, &text);
+        }
+        case format_kind::CHOICE:
+        {
+            // we assume that choices only differ in spacing and thus share their last token
+            sexpr s1, s2; sexpr const * last1, * last2;
+            std::tie(s1, last1) = separate_tokens(sexpr_choice_1(s), last, sep);
+            std::tie(s2, last2) = separate_tokens(sexpr_choice_2(s), last, sep);
+            lean_assert(last1 == last2 || (last1 && last2 && *last1 == *last2));
+            return std::make_tuple(sexpr_choice(s1, s2), last1);
+        }
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+/**
+   \brief Replaces every text sepxr \c t with <tt>compose(" ", t)</tt> if there is a preceding
+   text sexpr \c s and <tt>sep(s, t)</tt> is true
+*/
+format format::separate_tokens(
+            std::function<bool(sexpr const &, sexpr const &)> sep // NOLINT
+) const {
+    return format(std::get<0>(separate_tokens(m_value, nullptr, sep)));
+}
+
 /**
    \brief Auxiliary exception used to sign that the amount of
    available space was exhausted. It is used in \c space_upto_line_break and

@@ -93,6 +93,7 @@ private:
     optional<result> pp_notation(expr const & e);
 
     result add_paren_if_needed(result const & r, unsigned bp);
+    bool needs_space_sep(std::string const &s1, std::string const &s2) const;
 
     result pp_overriden_local_ref(expr const & e);
     bool ignore_local_ref(expr const & e);

@@ -97,7 +97,7 @@ namespace fiber
   calc
     fiber (sigma_functor id f) ⟨a , q⟩
           ≃ Σ(w : Σx, P x), ⟨w.1 , f w.1 w.2 ⟩ = ⟨a , q⟩
-            : sigma_char
+            : fiber.sigma_char
       ... ≃ Σ(x : A), Σ(p : P x), ⟨x , f x p⟩ = ⟨a , q⟩
             : sigma_assoc_equiv
       ... ≃ Σ(x : A), Σ(p : P x), Σ(H : x = a), f x p =[H] q
@@ -126,6 +126,6 @@ namespace fiber
               apply pathover_idp
             end
       ... ≃ fiber (f a) q
-            : sigma_char
+            : fiber.sigma_char
 
 end fiber

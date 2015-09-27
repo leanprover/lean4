@@ -110,17 +110,13 @@ namespace is_equiv
   variables {A : Type} {P Q : A → Type}
   variable (f : Πa, P a → Q a)
 
-  definition is_fiberwise_equiv [class] := Πa, is_equiv (f a)
+  definition is_fiberwise_equiv [reducible] := Πa, is_equiv (f a)
 
-  definition is_equiv_total_of_is_fiberwise_equiv [H : is_fiberwise_equiv f] : is_equiv (sigma_functor id f) :=
-  begin
-    apply is_equiv_of_is_contr_fun, apply sigma.rec, intros a q,
-    apply @is_contr_equiv_closed _ _ (fiber_total_equiv f q)⁻¹ᵉ,
-    apply @is_contr_fun_of_is_equiv _ _ (f a),
-    exact H a
-  end
+  definition is_equiv_total_of_is_fiberwise_equiv [H : is_fiberwise_equiv f] : is_equiv (total f) :=
+  is_equiv_sigma_functor id f
 
-  definition is_fiberwise_equiv_of_is_equiv_total [H : is_equiv (sigma_functor id f)] : is_fiberwise_equiv f :=
+  definition is_fiberwise_equiv_of_is_equiv_total [H : is_equiv (sigma_functor id f)]
+    : is_fiberwise_equiv f :=
   begin
     intro a,
     apply is_equiv_of_is_contr_fun, intro q,

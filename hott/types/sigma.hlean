@@ -199,6 +199,10 @@ namespace sigma
   definition sigma_functor [unfold 7] (u : Σa, B a) : Σa', B' a' :=
   ⟨f u.1, g u.1 u.2⟩
 
+  definition total [reducible] [unfold 5] {B' : A → Type} (g : Πa, B a → B' a) (u : Σa, B a)
+    : Σa', B' a' :=
+  sigma_functor id g u
+
   /- Equivalences -/
   definition is_equiv_sigma_functor [H1 : is_equiv f] [H2 : Π a, is_equiv (g a)]
       : is_equiv (sigma_functor f g) :=

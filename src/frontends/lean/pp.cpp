@@ -1221,6 +1221,8 @@ auto pretty_fn::pp_notation(expr const & e) -> optional<result> {
     if (!m_notation || is_var(e))
         return optional<result>();
     for (notation_entry const & entry : get_notation_entries(m_env, head_index(e))) {
+        if (entry.group() != notation_entry_group::Main)
+            continue;
         if (!m_unicode && !entry.is_safe_ascii())
             continue; // ignore this notation declaration since unicode support is not enabled
         unsigned num_params = get_num_parameters(entry);

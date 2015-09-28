@@ -204,6 +204,14 @@ unsigned lref_index(expr const & e) {
     return mlocal_name(e).get_numeral();
 }
 
+bool has_lref(expr const & e) {
+    return has_local(e);
+}
+
+bool has_mref(expr const & e) {
+    return has_expr_metavar(e);
+}
+
 expr mk_var(unsigned idx) {
     lean_assert(g_var_array);
     lean_assert(g_expr_table);

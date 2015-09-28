@@ -71,6 +71,10 @@ bool is_lref(expr const & e);
 unsigned lref_index(expr const & e);
 bool is_mref(expr const & e);
 unsigned mref_index(expr const & e);
+/** \brief Return true iff \c e contain lref's */
+bool has_lref(expr const & e);
+/** \brief Return true iff \c e contain mref's */
+bool has_mref(expr const & e);
 
 level update_succ(level const & l, level const & new_arg);
 level update_max(level const & l, level const & new_lhs, level const & new_rhs);

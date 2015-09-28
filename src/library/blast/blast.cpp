@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "kernel/for_each_fn.h"
 #include "kernel/type_checker.h"
 #include "library/replace_visitor.h"
 #include "library/blast/expr.h"
@@ -31,16 +32,16 @@ level to_blast_level(level const & l) {
 }
 
 class context {
-    environment m_env;
-    io_state    m_ios;
-    name_set    m_lemma_hints;
-    name_set    m_unfold_hints;
+    environment    m_env;
+    io_state       m_ios;
+    name_set       m_lemma_hints;
+    name_set       m_unfold_hints;
+    name_map<expr> m_mvar2mref; // map goal metavariables to blast mref's
 
     class to_blast_expr_fn : public replace_visitor {
         type_checker                 m_tc;
         state &                      m_state;
-        // We map each metavariable to a metavariable application that contains only pairwise
-        // distinct local constants (that have been converted into lrefs).
+        // We map each metavariable to a metavariable application and the mref associated with it.
         name_map<pair<expr, expr>> & m_mvar2meta_mref;
         name_map<expr> &             m_local2lref;
 
@@ -90,38 +91,49 @@ class context {
                 get_app_args(meta_mref->first, decl_args);
                 if (decl_args.size() > args.size())
                     throw_unsupported_metavar_occ(e);
+                // Make sure the the current metavariable application prefix matches the one
+                // found before.
                 for (unsigned i = 0; i < decl_args.size(); i++) {
-                    lean_assert(is_local(decl_args[i]));
-                    if (!is_local(args[i]) || mlocal_name(args[i]) != mlocal_name(decl_args[i]))
+                    if (is_local(decl_args[i])) {
+                        if (!is_local(args[i]) || mlocal_name(args[i]) != mlocal_name(decl_args[i]))
+                            throw_unsupported_metavar_occ(e);
+                    } else if (decl_args[i] != args[i]) {
                         throw_unsupported_metavar_occ(e);
+                    }
                 }
                 return mk_mref_app(meta_mref->second, args.size() - decl_args.size(), args.data() + decl_args.size());
             } else {
                 unsigned i = 0;
-                hypothesis_set ctx;
-                // find prefix of pair-wise distinct local constants that have already been processed.
+                hypothesis_idx_buffer ctx;
+                // Find prefix that contains only closed terms.
                 for (; i < args.size(); i++) {
-                    if (!is_local(args[i]))
+                    if (!closed(args[i]))
                         break;
+                    if (!is_local(args[i])) {
+                        // Ignore arguments that are not local constants.
+                        // In the blast tactic we only support higher-order patterns.
+                        continue;
+                    }
                     expr const & l = args[i];
                     if (!std::all_of(args.begin(), args.begin() + i,
-                                     [&](expr const & prev) { return mlocal_name(prev) != mlocal_name(l); }))
-                        break;
-                    if (auto lref = m_local2lref.find(mlocal_name(l))) {
-                        ctx.insert(lref_index(*lref));
-                    } else {
-                        break;
+                                     [&](expr const & prev) { return mlocal_name(prev) != mlocal_name(l); })) {
+                        // Local has already been processed
+                        continue;
                     }
+                    auto lref = m_local2lref.find(mlocal_name(l));
+                    if (!lref) {
+                        // One of the arguments is a local constant that is not in m_local2lref
+                        throw_unsupported_metavar_occ(e);
+                    }
+                    ctx.push_back(lref_index(*lref));
                 }
                 unsigned  prefix_sz = i;
                 expr aux  = e;
                 for (; i < args.size(); i++)
                     aux = app_fn(aux);
                 lean_assert(is_meta(aux));
-                expr type           = visit(m_tc.infer(aux).first);
-                unsigned mref_index = m_state.add_metavar_decl(metavar_decl(ctx, type));
-                expr mref           = blast::mk_mref(mref_index);
-                m_mvar2meta_mref.insert(mlocal_name(mvar), mk_pair(aux, mref));
+                expr type = visit(m_tc.infer(aux).first);
+                expr mref = m_state.mk_metavar(ctx, type);
                 return mk_mref_app(mref, args.size() - prefix_sz, args.data() + prefix_sz);
             }
         }
@@ -157,16 +169,21 @@ class context {
         }
 
     public:
-        to_blast_expr_fn(environment const & env, state & s, name_map<pair<expr, expr>> & mvar2meta_mref,
-                         name_map<expr> & local2lref):
+        to_blast_expr_fn(environment const & env, state & s,
+                         name_map<pair<expr, expr>> & mvar2meta_mref, name_map<expr> & local2lref):
             m_tc(env), m_state(s), m_mvar2meta_mref(mvar2meta_mref), m_local2lref(local2lref) {}
     };
 
+    void init_mvar2mref(name_map<pair<expr, expr>> & m) {
+        m.for_each([&](name const & n, pair<expr, expr> const & p) {
+                m_mvar2mref.insert(n, p.second);
+            });
+    }
+
     state to_state(goal const & g) {
         state s;
-        branch b;
         name_map<pair<expr, expr>> mvar2meta_mref;
-        name_map<expr> local2lref;
+        name_map<expr>             local2lref;
         to_blast_expr_fn to_blast_expr(m_env, s, mvar2meta_mref, local2lref);
         buffer<expr> hs;
         g.get_hyps(hs);
@@ -175,7 +192,7 @@ class context {
             // TODO(Leo): create hypothesis using new_type
         }
         expr new_target = to_blast_expr(g.get_type());
-        // TODO(Leo): create branch and store in the state.
+        init_mvar2mref(mvar2meta_mref);
         return s;
     }
 

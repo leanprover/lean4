@@ -129,6 +129,7 @@
 
 (defconst lean-font-lock-defaults
   `((;; Keywords
+     ("\\(set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
      (,lean-keywords2-regexp . 'font-lock-keyword-face)
      (,lean-keywords1-regexp . 'font-lock-keyword-face)
      ;; String
@@ -142,7 +143,6 @@
            (zero-or-more (or whitespace "(" "{" "["))
            (group (zero-or-more (not (any " \t\n\r{([")))))
       (2 'font-lock-function-name-face))
-     ("\\(set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
      ;; modifiers

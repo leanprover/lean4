@@ -173,7 +173,7 @@ public:
         return add(ts.size(), ts.begin(), a, LEAN_DEFAULT_NOTATION_PRIORITY, true);
     }
     parse_table merge(parse_table const & s, bool overload) const;\
-    list<pair<action, parse_table>> find(name const & tk) const;
+    list<pair<transition, parse_table>> find(name const & tk) const;
     list<accepting> const & is_accepting() const;
     void for_each(std::function<void(unsigned, transition const *, list<accepting> const &)> const & fn) const;
 

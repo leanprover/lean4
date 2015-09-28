@@ -136,13 +136,13 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
             if (auto ls = get_reserved_nud_table(p.env()).find(tks)) {
                 // Remark: we are ignoring multiple actions in the reserved notation table
                 reserved_pt     = head(ls).second;
-                reserved_action = head(ls).first;
+                reserved_action = head(ls).first.get_action();
             }
         } else {
             if (auto ls = get_reserved_led_table(p.env()).find(tks)) {
                 // Remark: we are ignoring multiple actions in the reserved notation table
                 reserved_pt     = head(ls).second;
-                reserved_action = head(ls).first;
+                reserved_action = head(ls).first.get_action();
             }
         }
     }
@@ -413,8 +413,8 @@ static unsigned get_default_prec(optional<parse_table> const & pt, name const & 
         return LEAN_DEFAULT_PRECEDENCE;
     if (auto ls = pt->find(tk)) {
         for (auto at : ls) {
-            if (at.first.kind() == notation::action_kind::Expr)
-                return at.first.rbp();
+            if (at.first.get_action().kind() == notation::action_kind::Expr)
+                return at.first.get_action().rbp();
         }
     }
     return LEAN_DEFAULT_PRECEDENCE;
@@ -426,7 +426,7 @@ static optional<parse_table> find_match(optional<parse_table> const & pt, transi
     if (pt) {
         if (auto ls = pt->find(new_trans.get_token())) {
             for (auto at : ls) {
-                if (new_trans.get_action().is_equal(at.first))
+                if (new_trans.get_action().is_equal(at.first.get_action()))
                     return optional<parse_table>(at.second);
             }
         }
@@ -435,11 +435,11 @@ static optional<parse_table> find_match(optional<parse_table> const & pt, transi
 }
 
 /** \brief Lift parse_table::find method to optional<parse_table> */
-static list<pair<action, parse_table>> find_next(optional<parse_table> const & pt, name const & tk) {
+static list<pair<transition, parse_table>> find_next(optional<parse_table> const & pt, name const & tk) {
     if (pt)
         return pt->find(tk);
     else
-        return list<pair<action, parse_table>>();
+        return list<pair<transition, parse_table>>();
 }
 
 static unsigned parse_binders_rbp(parser & p) {
@@ -514,7 +514,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
         name tk = parse_quoted_symbol_or_token(p, new_tokens, used_default, grp);
         if (auto at = find_next(reserved_pt, tk)) {
             // Remark: we are ignoring multiple actions in the reserved notation table
-            action const & a = head(at).first;
+            action const & a = head(at).first.get_action();
             reserved_pt      = head(at).second;
             switch (a.kind()) {
             case notation::action_kind::Skip:

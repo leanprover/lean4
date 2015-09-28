@@ -331,9 +331,9 @@ transition replace(transition const & t, std::function<expr(expr const &)> const
 }
 
 struct parse_table::cell {
-    bool                                      m_nud;
-    list<accepting>                           m_accept;
-    name_map<list<pair<action, parse_table>>> m_children;
+    bool                                          m_nud;
+    list<accepting>                               m_accept;
+    name_map<list<pair<transition, parse_table>>> m_children;
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc() { delete this; }
     cell(bool nud = true):m_nud(nud), m_rc(1) {}
@@ -347,12 +347,12 @@ parse_table::parse_table(parse_table && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
 parse_table::~parse_table() { if (m_ptr) m_ptr->dec_ref(); }
 parse_table & parse_table::operator=(parse_table const & s) { LEAN_COPY_REF(s); }
 parse_table & parse_table::operator=(parse_table && s) { LEAN_MOVE_REF(s); }
-list<pair<action, parse_table>> parse_table::find(name const & tk) const {
-    list<pair<action, parse_table>> const * it = m_ptr->m_children.find(tk);
+list<pair<transition, parse_table>> parse_table::find(name const & tk) const {
+    list<pair<transition, parse_table>> const * it = m_ptr->m_children.find(tk);
     if (it)
         return *it;
     else
-        return list<pair<action, parse_table>>();
+        return list<pair<transition, parse_table>>();
 }
 
 list<accepting> const & parse_table::is_accepting() const {
@@ -397,9 +397,9 @@ static list<accepting> insert(list<accepting> const & l, unsigned priority, list
     }
 }
 
-static bool contains_equivalent_action(list<pair<action, parse_table>> const & l, action const & a) {
+static bool contains_equivalent_action(list<pair<transition, parse_table>> const & l, action const & a) {
     for (auto const & p : l) {
-        if (p.first.is_equivalent(a))
+        if (p.first.get_action().is_equivalent(a))
             return true;
     }
     return false;
@@ -419,18 +419,18 @@ parse_table parse_table::add_core(unsigned num, transition const * ts, expr cons
             r.m_ptr->m_accept = insert(new_accept, priority, postponed, a);
         }
     } else {
-        list<pair<action, parse_table>> const * it = r.m_ptr->m_children.find(ts->get_token());
+        list<pair<transition, parse_table>> const * it = r.m_ptr->m_children.find(ts->get_token());
         action const & ts_act = ts->get_action();
         action_kind k = ts_act.kind();
         if (k == action_kind::Exprs || k == action_kind::ScopedExpr)
             post_buffer.push_back(ts_act);
-        list<pair<action, parse_table>> new_lst;
+        list<pair<transition, parse_table>> new_lst;
         if (it) {
             if (contains_equivalent_action(*it, ts_act)) {
-                buffer<pair<action, parse_table>> tmp;
+                buffer<pair<transition, parse_table>> tmp;
                 to_buffer(*it, tmp);
-                for (pair<action, parse_table> & p : tmp) {
-                    if (p.first.is_equivalent(ts_act)) {
+                for (pair<transition, parse_table> & p : tmp) {
+                    if (p.first.get_action().is_equivalent(ts_act)) {
                         p.second = p.second.add_core(num-1, ts+1, a, priority, overload, post_buffer);
                         break;
                     }
@@ -438,15 +438,15 @@ parse_table parse_table::add_core(unsigned num, transition const * ts, expr cons
                 new_lst = to_list(tmp);
             } else {
                 // remove incompatible actions
-                new_lst = filter(*it, [&](pair<action, parse_table> const & p) {
-                        return p.first.is_compatible(ts_act);
+                new_lst = filter(*it, [&](pair<transition, parse_table> const & p) {
+                        return p.first.get_action().is_compatible(ts_act);
                     });
                 parse_table new_child = parse_table().add_core(num-1, ts+1, a, priority, overload, post_buffer);
-                new_lst   = cons(mk_pair(ts_act, new_child), new_lst);
+                new_lst   = cons(mk_pair(*ts, new_child), new_lst);
             }
         } else {
             parse_table new_child = parse_table().add_core(num-1, ts+1, a, priority, overload, post_buffer);
-            new_lst   = to_list(mk_pair(ts_act, new_child));
+            new_lst   = to_list(mk_pair(*ts, new_child));
         }
         r.m_ptr->m_children.insert(ts->get_token(), new_lst);
     }
@@ -527,9 +527,9 @@ void parse_table::for_each(buffer<transition> & ts,
                                               list<accepting> const &)> const & fn) const {
     if (!is_nil(m_ptr->m_accept))
         fn(ts.size(), ts.data(), m_ptr->m_accept);
-    m_ptr->m_children.for_each([&](name const & k, list<pair<action, parse_table>> const & lst) {
+    m_ptr->m_children.for_each([&](name const & k, list<pair<transition, parse_table>> const & lst) {
             for (auto const & p : lst) {
-                ts.push_back(transition(k, p.first));
+                ts.push_back(p.first);
                 p.second.for_each(ts, fn);
                 ts.pop_back();
             }
@@ -773,11 +773,11 @@ static int merge(lua_State * L) {
 }
 
 static int find(lua_State * L) {
-    list<pair<action, parse_table>> it = to_parse_table(L, 1).find(to_name_ext(L, 2));
+    list<pair<transition, parse_table>> it = to_parse_table(L, 1).find(to_name_ext(L, 2));
     if (it) {
         // TODO(Leo): support multiple actions
         auto p = head(it);
-        push_notation_action(L, p.first);
+        push_notation_action(L, p.first.get_action());
         push_parse_table(L, p.second);
         return 2;
     } else {

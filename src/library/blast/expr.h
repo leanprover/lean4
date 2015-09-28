@@ -40,8 +40,8 @@ level mk_global_univ(name const & n);
 level mk_meta_univ(name const & n);
 
 expr mk_var(unsigned idx);
-// Remark: lref and mref expressions are implemented using kernel macros.
-// We use them to encode local constants and meta-variables in the blast tactic.
+// mk_lref and mk_mref are helper functions for creating local constants and meta-variables used in the blast tactic.
+// Remark: the local constants and metavariables manipulated by the blast tactic do **not** store their types.
 expr mk_lref(unsigned idx);
 expr mk_mref(unsigned idx);
 expr mk_sort(level const & l);
@@ -67,15 +67,10 @@ inline expr mk_lambda(name const & n, expr const & t, expr const & e) {
 }
 expr mk_macro(macro_definition const & m, unsigned num, expr const * args);
 
-// Return true iff \c e is a lref of mref.
-bool is_lmref(expr const & e);
-bool is_mref(expr const & e);
 bool is_lref(expr const & e);
-/** \brief Return the index of the give lref/mref.
-    \pre is_mref(e) || is_lref(e) */
-unsigned lmref_index(expr const & e);
-inline unsigned mref_index(expr const & e) { return lmref_index(e); }
-inline unsigned lref_index(expr const & e) { return lmref_index(e); }
+unsigned lref_index(expr const & e);
+bool is_mref(expr const & e);
+unsigned mref_index(expr const & e);
 
 level update_succ(level const & l, level const & new_arg);
 level update_max(level const & l, level const & new_lhs, level const & new_rhs);
@@ -83,6 +78,7 @@ level update_max(level const & l, level const & new_lhs, level const & new_rhs);
 level replace(level const & l, std::function<optional<level>(level const & l)> const & f);
 
 expr update_app(expr const & e, expr const & new_fn, expr const & new_arg);
+expr update_metavar(expr const & e, expr const & new_type);
 expr update_binding(expr const & e, expr const & new_domain, expr const & new_body);
 expr update_sort(expr const & e, level const & new_level);
 expr update_constant(expr const & e, levels const & new_levels);
@@ -105,5 +101,8 @@ expr  instantiate_type_univ_params(declaration const & d, levels const & ls);
 expr  instantiate_value_univ_params(declaration const & d, levels const & ls);
 
 expr abstract_lrefs(expr const & e, unsigned n, expr const * s);
+
+void initialize_expr();
+void finalize_expr();
 }
 }

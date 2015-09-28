@@ -23,66 +23,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-/** \brief Auxiliary macro used to encode mref and lref expressions used by the blast tactic
-    \remark This macro should never occur in fully elaborated terms. */
-class ref_definition_cell : public macro_definition_cell {
-    bool     m_local;
-    unsigned m_idx;
-public:
-    ref_definition_cell(bool local, unsigned idx):m_local(local), m_idx(idx) {}
-
-    bool     is_local() const { return m_local; }
-    unsigned get_index() const { return m_idx; }
-
-    virtual name get_name() const { return name("ref"); }
-
-    virtual pair<expr, constraint_seq> check_type(expr const &, extension_context &, bool) const {
-        lean_unreachable();
-    }
-
-    virtual optional<expr> expand(expr const &, extension_context &) const {
-        lean_unreachable();
-    }
-
-    virtual void write(serializer &) const {
-        lean_unreachable();
-    }
-
-    virtual bool operator==(macro_definition_cell const & other) const {
-        return
-            dynamic_cast<ref_definition_cell const *>(&other) != nullptr &&
-            m_idx   == static_cast<ref_definition_cell const&>(other).m_idx &&
-            m_local == static_cast<ref_definition_cell const&>(other).m_local;
-    }
-
-    virtual unsigned hash() const { return lean::hash(m_local, m_idx); }
-};
-
-static expr mk_lref_core(unsigned idx) {
-    return lean::mk_macro(macro_definition(new ref_definition_cell(true, idx)), 0, nullptr);
-}
-
-static expr mk_mref_core(unsigned idx) {
-    return lean::mk_macro(macro_definition(new ref_definition_cell(false, idx)), 0, nullptr);
-}
-
-bool is_lmref(expr const & e) {
-    return is_macro(e) && dynamic_cast<ref_definition_cell const *>(macro_def(e).raw());
-}
-
-bool is_lref(expr const & e) {
-    return is_lmref(e) && static_cast<ref_definition_cell const *>(macro_def(e).raw())->is_local();
-}
-
-bool is_mref(expr const & e) {
-    return is_lmref(e) && !is_lref(e);
-}
-
-unsigned lmref_index(expr const & e) {
-    lean_assert(is_lmref(e));
-    return static_cast<ref_definition_cell const *>(macro_def(e).raw())->get_index();
-}
-
 typedef typename std::unordered_set<expr, expr_hash, is_bi_equal_proc> expr_table;
 typedef typename std::unordered_set<level, level_hash>                 level_table;
 typedef typename std::vector<expr>                                     expr_array;
@@ -209,17 +149,11 @@ level update_max(level const & l, level const & new_lhs, level const & new_rhs) 
     }
 }
 
-expr mk_var(unsigned idx) {
-    lean_assert(g_var_array);
-    lean_assert(g_expr_table);
-    while (g_var_array->size() <= idx) {
-        unsigned j   = g_var_array->size();
-        expr new_var = lean::mk_var(j);
-        g_var_array->push_back(new_var);
-        g_expr_table->insert(new_var);
-    }
-    lean_assert(idx < g_var_array->size());
-    return (*g_var_array)[idx];
+static name * g_prefix = nullptr;
+static expr * g_dummy_type = nullptr; // dummy type for lref/mref
+
+static expr mk_lref_core(unsigned idx) {
+    return mk_local(name(*g_prefix, idx), *g_dummy_type);
 }
 
 expr mk_lref(unsigned idx) {
@@ -235,6 +169,14 @@ expr mk_lref(unsigned idx) {
     return (*g_lref_array)[idx];
 }
 
+bool is_lref(expr const & e) {
+    return is_local(e) && mlocal_type(e) == *g_dummy_type;
+}
+
+static expr mk_mref_core(unsigned idx) {
+    return mk_metavar(name(*g_prefix, idx), *g_dummy_type);
+}
+
 expr mk_mref(unsigned idx) {
     lean_assert(g_mref_array);
     lean_assert(g_expr_table);
@@ -246,6 +188,33 @@ expr mk_mref(unsigned idx) {
     }
     lean_assert(idx < g_mref_array->size());
     return (*g_mref_array)[idx];
+}
+
+bool is_mref(expr const & e) {
+    return is_metavar(e) && mlocal_type(e) == *g_dummy_type;
+}
+
+unsigned mref_index(expr const & e) {
+    lean_assert(is_mref(e));
+    return mlocal_name(e).get_numeral();
+}
+
+unsigned lref_index(expr const & e) {
+    lean_assert(is_lref(e));
+    return mlocal_name(e).get_numeral();
+}
+
+expr mk_var(unsigned idx) {
+    lean_assert(g_var_array);
+    lean_assert(g_expr_table);
+    while (g_var_array->size() <= idx) {
+        unsigned j   = g_var_array->size();
+        expr new_var = lean::mk_var(j);
+        g_var_array->push_back(new_var);
+        g_expr_table->insert(new_var);
+    }
+    lean_assert(idx < g_var_array->size());
+    return (*g_var_array)[idx];
 }
 
 expr mk_app(expr const & f, expr const & a) {
@@ -351,8 +320,12 @@ class replace_rec_fn {
             switch (e.kind()) {
             case expr_kind::Constant: case expr_kind::Sort: case expr_kind::Var:
                 return save_result(e, offset, e);
-            case expr_kind::Meta:     case expr_kind::Local:
-                lean_unreachable();
+            case expr_kind::Meta:
+                lean_assert(is_mref(e));
+                return save_result(e, offset, e);
+            case expr_kind::Local:
+                lean_assert(is_lref(e));
+                return save_result(e, offset, e);
             case expr_kind::App: {
                 expr new_f = apply(app_fn(e), offset);
                 expr new_a = apply(app_arg(e), offset);
@@ -592,5 +565,14 @@ expr abstract_lrefs(expr const & e, unsigned n, expr const * subst) {
             return none_expr();
         });
 }
+
+void initialize_expr() {
+    g_prefix     = new name(name::mk_internal_unique_name());
+    g_dummy_type = new expr(mk_constant(*g_prefix));
 }
+
+void finalize_expr() {
+    delete g_prefix;
+    delete g_dummy_type;
 }
+}}

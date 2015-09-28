@@ -559,8 +559,12 @@ expr instantiate_value_univ_params(declaration const & d, levels const & ls) {
 }
 
 expr abstract_lrefs(expr const & e, unsigned n, expr const * subst) {
+    if (!has_lref(e))
+        return e;
     lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return closed(e) && is_lref(e); }));
     return blast::replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {
+            if (!has_lref(m))
+                return some_expr(m); // skip: m does not contain lref's
             if (is_lref(m)) {
                 unsigned i = n;
                 while (i > 0) {

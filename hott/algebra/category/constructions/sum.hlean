@@ -3,7 +3,7 @@ Copyright (c) 2015 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Floris van Doorn, Jakob von Raumer
 
-Functor product precategory and (TODO) category
+Sum precategory and (TODO) category
 -/
 
 import ..category ..functor types.sum

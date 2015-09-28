@@ -50,7 +50,7 @@ namespace iso
   definition is_iso_id [instance] [priority 500] (a : ob) : is_iso (ID a) :=
   is_iso.mk !id_id !id_id
 
-  definition is_iso_inverse [instance] [priority 200] (f : a ⟶ b) [H : is_iso f] : is_iso f⁻¹ :=
+  definition is_iso_inverse [instance] [priority 200] (f : a ⟶ b) {H : is_iso f} : is_iso f⁻¹ :=
   is_iso.mk !right_inverse !left_inverse
 
   definition left_inverse_eq_right_inverse {f : a ⟶ b} {g g' : hom b a}
@@ -165,6 +165,12 @@ namespace iso
   infixl ` ⬝i `:75 := iso.trans
   postfix [parsing_only] `⁻¹ⁱ`:(max + 1) := iso.symm
 
+  definition change_hom (H : a ≅ b) (f : a ⟶ b) (p : to_hom H = f) : a ≅ b :=
+  iso.MK f (to_inv H) (p ▸ to_left_inverse H) (p ▸ to_right_inverse H)
+
+  definition change_inv (H : a ≅ b) (g : b ⟶ a) (p : to_inv H = g) : a ≅ b :=
+  iso.MK (to_hom H) g (p ▸ to_left_inverse H) (p ▸ to_right_inverse H)
+
   definition iso_mk_eq {f f' : a ⟶ b} [H : is_iso f] [H' : is_iso f'] (p : f = f')
       : iso.mk f = iso.mk f' :=
   apd011 iso.mk p !is_hprop.elim
@@ -278,6 +284,10 @@ namespace iso
     !epi.elim (!epi.elim H2))
 
 end iso
+
+attribute iso.refl [refl]
+attribute iso.symm [symm]
+attribute iso.trans [trans]
 
 namespace iso
   /-

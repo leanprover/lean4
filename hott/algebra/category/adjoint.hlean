@@ -2,6 +2,10 @@
 Copyright (c) 2015 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Floris van Doorn
+
+Properties of functors such as adjoint functors, equivalences, faithful or full functors
+
+TODO: Split this file in different files
 -/
 
 import algebra.category.constructions function arity
@@ -225,16 +229,40 @@ namespace category
   theorem reflect_inverse (F : C ⇒ D) [H : fully_faithful F] {c c' : C} (f : c ⟶ c')
     [H : is_iso f] : (to_fun_hom F)⁻¹ᶠ (F f)⁻¹ = f⁻¹ :=
   inverse_eq_inverse (idp : to_hom (@(iso.mk f) (reflect_is_iso F f)) = f)
+end category
 
-/-
+namespace category
   section
-    variables (η : Πc, G (F c) ≅ c) (ε : Πd, F (G d) ≅ d) -- we need some kind of naturality
-    include η ε
-    --definition inverse_of_unit_counit
+    parameters {C D : Precategory} {F : C ⇒ D} {G : D ⇒ C} (η : G ∘f F ≅ 1) (ε : F ∘f G ≅ 1)
 
-     private definition adj_η (c : C) : G (F c) ≅ c :=
-     to_fun_iso G (to_fun_iso F (η c)⁻¹ⁱ) ⬝i to_fun_iso G (ε (F c)) ⬝i η c
-     open iso
+      -- variables (η : Πc, G (F c) ≅ c) (ε : Πd, F (G d) ≅ d)
+      -- (pη : Π(c c' : C) (f : hom c c'), f ∘ to_hom (η c) = to_hom (η c') ∘ G (F f))
+      -- (pε : Π⦃d d' : D⦄ (f : hom d d'), f ∘ to_hom (ε d) = to_hom (ε d') ∘ F (G f))
+
+     private definition ηn : 1 ⟹ G ∘f F := to_inv η
+     private definition εn : F ∘f G ⟹ 1 := to_hom ε
+
+     private definition ηi (c : C) : G (F c) ≅ c := componentwise_iso η c
+     private definition εi (d : D) : F (G d) ≅ d := componentwise_iso ε d
+
+     private definition ηi' (c : C) : G (F c) ≅ c :=
+     to_fun_iso G (to_fun_iso F (ηi c)⁻¹ⁱ) ⬝i to_fun_iso G (εi (F c)) ⬝i ηi c
+exit
+  set_option pp.implicit true
+     private theorem adj_η_natural {c c' : C} (f : hom c c')
+       : G (F f) ∘ to_inv (ηi' c) = to_inv (ηi c') ∘ f :=
+     let ηi'_nat : G ∘f F ⟹ 1 :=
+         /-    1  ⇐ G ∘f F               :-/ to_hom η
+      ∘n /-   ... ⇐ (G ∘f 1) ∘f F        :-/ hom_of_eq !functor.id_right ∘nf F
+      ∘n /-   ... ⇐ (G ∘f (F ∘f G)) ∘f F :-/ (G ∘fn εn) ∘nf F
+      ∘n /-   ... ⇐ ((G ∘f F) ∘f G) ∘f F :-/ hom_of_eq !functor.assoc⁻¹ ∘nf F
+      ∘n /-   ... ⇐ (G ∘f F) ∘f (G ∘f F) :-/ hom_of_eq !functor.assoc
+      ∘n /-   ... ⇐ (G ∘f F) ∘f 1        :-/ (G ∘f F) ∘fn ηn
+      ∘n /-   ... ⇐ G ∘f F               :-/ hom_of_eq !functor.id_right⁻¹
+       in
+     have ηi'_nat ~ ηi', begin intro c, fold [precategory_functor C C]
+       /-rewrite [+natural_map_hom_of_eq],-/ end,
+     _
 
      private theorem adjointify_adjH (c : C) :
        to_hom (ε (F c)) ∘ F (to_hom (adj_η η ε c)⁻¹ⁱ) = id  :=
@@ -248,15 +276,87 @@ namespace category
        exact sorry
      end
 
+    attribute functor.id [reducible]
     variables (F G)
     definition is_equivalence.mk : is_equivalence F :=
     begin
-      fconstructor,
+      fapply is_equivalence.mk',
       { exact G},
-      { }
+      { fapply nat_trans.mk,
+        { intro c, exact to_inv (adj_η η ε c)},
+        { intro c c' f, exact adj_η_natural η ε pη pε f}},
+      { fapply nat_trans.mk,
+        { exact λd, to_hom (ε d)},
+        { exact pε}},
+      { exact adjointify_adjH η ε pη pε},
+      { exact adjointify_adjK η ε pη pε},
+      { exact @(is_iso_nat_trans _) (λc, !is_iso_inverse)},
+      { apply is_iso_nat_trans},
     end
 
   end
+
+  definition is_equivalence.mk2 (η : G ∘f F ≅ 1) (ε : F ∘f G ≅ 1) : is_equivalence F :=
+  is_equivalence.mk F G
+    (componentwise_iso η) (componentwise_iso ε)
+    begin intro c c' f, esimp, apply naturality (to_hom η) f end
+    begin intro c c' f, esimp, apply naturality (to_hom ε) f end
+
+exit
+
+  section
+    variables (η : G ∘f F ≅ 1) (ε : F ∘f G ≅ 1) -- we need some kind of naturality
+    include η ε
+
+     -- private definition adj_η : G ∘f F ≅ functor.id :=
+     -- change_inv
+     -- ( calc
+     --     G ∘f F ≅ (G ∘f F) ∘f 1        : iso_of_eq !functor.id_right
+     --        ... ≅ (G ∘f F) ∘f (G ∘f F) : _
+     --        ... ≅ G ∘f (F ∘f (G ∘f F)) : _
+     --        ... ≅ G ∘f ((F ∘f G) ∘f F) : _
+     --        ... ≅ G ∘f (1 ∘f F)        : _
+     --        ... ≅ G ∘f F               : _
+     --        ... ≅ 1                    : η)
+     --   _
+     --   _ --change_natural_map _ _
+     --sorry --to_fun_iso G (to_fun_iso F (η c)⁻¹ⁱ) ⬝i to_fun_iso G (ε (F c)) ⬝i η c
+     open iso
+
+     -- definition nat_map_of_iso [reducible] {C D : Precategory} {F G : C ⇒ D} (η : F ≅ G) (c : C)
+     --   : F c ⟶ G c :=
+     -- natural_map (to_hom η) c
+
+     private theorem adjointify_adjH (c : C) :
+       natural_map (to_hom ε) (F c) ∘ F (natural_map (to_inv (adj_η η ε)) c) = id  :=
+     begin
+       exact sorry
+     end
+
+    -- (H : Π(c : C), ε (F c) ∘ F (η c) = ID (F c))
+    -- (K : Π(d : D), G (ε d) ∘ η (G d) = ID (G d))
+
+     private theorem adjointify_adjK (d : D) :
+       G (natural_map (to_hom ε) d) ∘ natural_map (to_inv (adj_η η ε)) (G d) = id :=
+     begin
+       exact sorry
+     end
+
+    variables (F G)
+    definition is_equivalence.mk : is_equivalence F :=
+    begin
+      fapply is_equivalence.mk',
+      { exact G},
+      { exact to_inv (adj_η η ε)},
+      { exact to_hom ε},
+      { exact adjointify_adjH η ε},
+      { exact adjointify_adjK η ε},
+      { unfold to_inv, apply is_iso_inverse},
+      { apply iso.struct},
+    end
+
+  end
+/-
 
   definition fully_faithful_of_is_equivalence (F : C ⇒ D) [H : is_equivalence F]
     : fully_faithful F :=

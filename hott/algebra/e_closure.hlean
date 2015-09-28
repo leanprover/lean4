@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Floris van Doorn
 
 The "equivalence closure" of a type-valued relation.
-Given a binary type-valued relation (fibration), we add reflexivity, symmetry and transitivity terms
+A more appropriate intuition is the type of words formed from the relation,
+  and inverses, concatenations and reflexivity
 -/
 
 import .relation eq2 arity

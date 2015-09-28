@@ -175,4 +175,9 @@ namespace nat_trans
   nat_trans.mk (λc, hom_of_eq (ap010 to_fun_ob p c))
                (λa b f, eq.rec_on p (!id_right ⬝ !id_left⁻¹))
 
+  definition compose_rev (θ : F ⟹ G) (η : G ⟹ H) : F ⟹ H := η ∘n θ
+
 end nat_trans
+
+attribute nat_trans.compose_rev [trans] -- TODO: this doesn't work
+attribute nat_trans.id [refl]

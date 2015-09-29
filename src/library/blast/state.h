@@ -27,13 +27,24 @@ public:
 
 class state {
     friend class context;
-    typedef metavar_idx_map<metavar_decl> metavar_decls;
-    typedef metavar_idx_map<expr>         assignment;
+    typedef metavar_idx_map<metavar_decl>       metavar_decls;
+    typedef metavar_idx_map<expr>               assignment;
+    typedef hypothesis_idx_map<metavar_idx_set> fixed_by;
     unsigned      m_next_mref_index;
     metavar_decls m_metavar_decls;
     assignment    m_assignment;
     branch        m_main;
+    // In the following mapping, each entry (h -> {m_1 ... m_n}) means that hypothesis `h` cannot be cleared
+    // in any branch where the metavariables m_1 ... m_n have not been replaced with the values assigned to them.
+    // That is, to be able to clear `h` in a branch `B`, we first need to check whether it
+    // is contained in this mapping or not. If it is, we should check whether any of the
+    // metavariables `m_1` ... `m_n` occur in `B` (this is a relatively quick check since
+    // `B` contains an over-approximation of all meta-variables occuring in it (i.e., m_mvar_idxs).
+    // If this check fails, then we should replace any assigned `m_i` with its value, if the intersection is still
+    // non-empty, then we cannot clear `h`.
+    fixed_by      m_fixed_by;
 
+    void add_fixed_by(unsigned hidx, unsigned midx);
     unsigned add_metavar_decl(metavar_decl const & decl);
     goal to_goal(branch const &) const;
 

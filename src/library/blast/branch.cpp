@@ -10,14 +10,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-void branch::fix_hypothesis(unsigned idx) {
-    auto h = m_context.find(idx);
-    lean_assert(h);
-    hypothesis new_h(*h);
-    new_h.mark_fixed();
-    m_context.insert(idx, new_h);
-}
-
 struct hypothesis_depth_lt {
     branch const & m_branch;
     hypothesis_depth_lt(branch const & b): m_branch(b) {}

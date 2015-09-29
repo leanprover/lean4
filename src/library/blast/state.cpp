@@ -13,24 +13,40 @@ namespace lean {
 namespace blast {
 state::state():m_next_mref_index(0) {}
 
+/** \brief Mark that hypothesis h with index hidx is fixed by the meta-variable midx.
+    That is, `h` occurs in the type of `midx`. */
+void state::add_fixed_by(unsigned hidx, unsigned midx) {
+    if (auto s = m_fixed_by.find(hidx)) {
+        if (!s->contains(midx)) {
+            metavar_idx_set new_s(*s);
+            new_s.insert(midx);
+            m_fixed_by.insert(hidx, new_s);
+        }
+    } else {
+        metavar_idx_set new_s;
+        new_s.insert(midx);
+        m_fixed_by.insert(hidx, new_s);
+    }
+}
+
 expr state::mk_metavar(hypothesis_idx_buffer const & ctx, expr const & type) {
     hypothesis_idx_set  ctx_as_set;
     for (unsigned const & hidx : ctx)
         ctx_as_set.insert(hidx);
+    unsigned midx = m_next_mref_index;
     for_each(type, [&](expr const & e, unsigned) {
             if (!has_href(e))
                 return false;
             if (is_href(e)) {
                 lean_assert(ctx_as_set.contains(href_index(e)));
-                m_main.fix_hypothesis(e);
+                add_fixed_by(href_index(e), midx);
                 return false;
             }
             return true; // continue search
         });
-    unsigned idx = m_next_mref_index;
     m_next_mref_index++;
-    m_metavar_decls.insert(idx, metavar_decl(to_list(ctx), ctx_as_set, type));
-    return blast::mk_mref(idx);
+    m_metavar_decls.insert(midx, metavar_decl(to_list(ctx), ctx_as_set, type));
+    return blast::mk_mref(midx);
 }
 
 expr state::mk_metavar(expr const & type) {

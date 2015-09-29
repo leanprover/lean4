@@ -26,14 +26,6 @@ class branch {
     hypothesis_idx_set m_target_deps;
     metavar_idx_set    m_mvar_idxs;
 
-    /** \brief Mark a hypothesis as fixed. The type/value of a fixed hypothesis cannot be
-        modified. A hypothesis is fixed when it occurs in the type of some metavariable. */
-    void fix_hypothesis(unsigned idx);
-    void fix_hypothesis(expr const & e) {
-        lean_assert(is_href(e));
-        fix_hypothesis(href_index(e));
-    }
-
     void add_forward_dep(unsigned hidx_user, unsigned hidx_provider);
     void add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user);
     void add_deps(hypothesis & h_user, unsigned hidx_user);

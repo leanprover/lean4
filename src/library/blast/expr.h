@@ -46,6 +46,7 @@ expr mk_href(unsigned idx);
 expr mk_mref(unsigned idx);
 expr mk_sort(level const & l);
 expr mk_constant(name const & n, levels const & ls);
+expr mk_local(unsigned idx, expr const & t);
 expr mk_app(expr const & f, expr const & a);
 expr mk_app(expr const & f, unsigned num_args, expr const * args);
 expr mk_app(unsigned num_args, expr const * args);
@@ -76,6 +77,11 @@ bool has_href(expr const & e);
 /** \brief Return true iff \c e contain mref's */
 bool has_mref(expr const & e);
 
+bool is_local(expr const & e);
+unsigned local_index(expr const & e);
+expr const & local_type(expr const & e);
+bool has_local(expr const & e);
+
 level update_succ(level const & l, level const & new_arg);
 level update_max(level const & l, level const & new_lhs, level const & new_rhs);
 
@@ -105,6 +111,7 @@ expr  instantiate_type_univ_params(declaration const & d, levels const & ls);
 expr  instantiate_value_univ_params(declaration const & d, levels const & ls);
 
 expr abstract_hrefs(expr const & e, unsigned n, expr const * s);
+expr abstract_locals(expr const & e, unsigned n, expr const * s);
 
 void initialize_expr();
 void finalize_expr();

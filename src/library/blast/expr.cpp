@@ -153,7 +153,7 @@ static name * g_prefix = nullptr;
 static expr * g_dummy_type = nullptr; // dummy type for href/mref
 
 static expr mk_href_core(unsigned idx) {
-    return mk_local(name(*g_prefix, idx), *g_dummy_type);
+    return lean::mk_local(name(*g_prefix, idx), *g_dummy_type);
 }
 
 expr mk_href(unsigned idx) {
@@ -205,11 +205,34 @@ unsigned href_index(expr const & e) {
 }
 
 bool has_href(expr const & e) {
-    return has_local(e);
+    return lean::has_local(e);
 }
 
 bool has_mref(expr const & e) {
-    return has_expr_metavar(e);
+    return lean::has_expr_metavar(e);
+}
+
+expr mk_local(unsigned idx, expr const & t) {
+    lean_assert(is_cached(t));
+    return cache(lean::mk_local(name(*g_prefix, idx), t));
+}
+
+bool is_local(expr const & e) {
+    return is_local(e) && mlocal_type(e) != *g_dummy_type;
+}
+
+bool has_local(expr const & e) {
+    return lean::has_local(e);
+}
+
+unsigned local_index(expr const & e) {
+    lean_assert(blast::is_local(e));
+    return mlocal_name(e).get_numeral();
+}
+
+expr const & local_type(expr const & e) {
+    lean_assert(blast::is_local(e));
+    return mlocal_type(e);
 }
 
 expr mk_var(unsigned idx) {
@@ -570,6 +593,26 @@ expr abstract_hrefs(expr const & e, unsigned n, expr const * subst) {
                 while (i > 0) {
                     --i;
                     if (href_index(subst[i]) == href_index(m))
+                        return some_expr(blast::mk_var(offset + n - i - 1));
+                }
+                return none_expr();
+            }
+            return none_expr();
+        });
+}
+
+expr abstract_locals(expr const & e, unsigned n, expr const * subst) {
+    if (!blast::has_local(e))
+        return e;
+    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return closed(e) && blast::is_local(e); }));
+    return blast::replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {
+            if (!blast::has_local(m))
+                return some_expr(m); // skip: m does not contain locals
+            if (is_local(m)) {
+                unsigned i = n;
+                while (i > 0) {
+                    --i;
+                    if (local_index(subst[i]) == local_index(m)) //
                         return some_expr(blast::mk_var(offset + n - i - 1));
                 }
                 return none_expr();

@@ -188,10 +188,12 @@ class context {
         buffer<expr> hs;
         g.get_hyps(hs);
         for (expr const & h : hs) {
+            lean_assert(is_local(h));
             expr new_type = to_blast_expr(mlocal_type(h));
-            // TODO(Leo): create hypothesis using new_type
+            s.add_hypothesis(local_pp_name(h), new_type, none_expr(), some_expr(h));
         }
         expr new_target = to_blast_expr(g.get_type());
+        s.set_target(new_target);
         init_mvar2mref(mvar2meta_mref);
         return s;
     }

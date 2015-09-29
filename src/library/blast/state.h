@@ -42,7 +42,24 @@ public:
         The context of this metavariable will be all hypotheses occurring in the main branch. */
     expr mk_metavar(expr const & type);
 
+    /** \brief Add a new hypothesis to the main branch */
+    expr add_hypothesis(name const & n, expr const & type, optional<expr> const & value, optional<expr> const & jst) {
+        return m_main.add_hypothesis(n, type, value, jst);
+    }
+
+    /** \brief Add a new hypothesis to the main branch */
+    expr add_hypothesis(expr const & type, optional<expr> const & value, optional<expr> const & jst) {
+        return m_main.add_hypothesis(type, value, jst);
+    }
+
+    /** \brief Set target (aka conclusion, aka type of the goal, aka type of the term that must be synthesize in this branch)
+        of the main branch */
+    void set_target(expr const & type) {
+        return m_main.set_target(type);
+    }
+
     metavar_decl const * get_metavar_decl(unsigned idx) const { return m_metavar_decls.find(idx); }
+
     metavar_decl const * get_metavar_decl(expr const & e) const { return get_metavar_decl(mref_index(e)); }
 };
 }}

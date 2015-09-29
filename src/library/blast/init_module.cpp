@@ -5,18 +5,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/blast/expr.h"
+#include "library/blast/branch.h"
 #include "library/blast/blast.h"
 #include "library/blast/blast_tactic.h"
 
 namespace lean {
 void initialize_blast_module() {
     blast::initialize_expr();
+    blast::initialize_branch();
     initialize_blast();
     initialize_blast_tactic();
 }
 void finalize_blast_module() {
-    blast::finalize_expr();
-    finalize_blast();
     finalize_blast_tactic();
+    finalize_blast();
+    blast::finalize_branch();
+    blast::finalize_expr();
 }
 }

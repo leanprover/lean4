@@ -103,6 +103,7 @@ void state::display(environment const & env, io_state const & ios) const {
 #ifdef LEAN_DEBUG
 bool state::check_deps(expr const & e, branch const & b, unsigned hidx, hypothesis const & h) const {
     for_each(e, [&](expr const & n, unsigned) {
+            lean_assert(!blast::is_local(n));
             if (is_href(n)) {
                 lean_assert(h.depends_on(n));
                 lean_assert(b.hidx_depends_on(hidx, href_index(n)));
@@ -126,6 +127,7 @@ bool state::check_invariant(branch const & b) const {
             lean_assert(check_deps(b, hidx, h));
         });
     for_each(b.get_target(), [&](expr const & n, unsigned) {
+            lean_assert(!blast::is_local(n));
             if (is_href(n)) {
                 lean_assert(b.target_depends_on(n));
             } else if (is_mref(n)) {

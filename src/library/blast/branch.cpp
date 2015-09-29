@@ -27,7 +27,7 @@ struct hypothesis_depth_lt {
     }
 };
 
-void branch::get_sorted_hypotheses(hypothesis_idx_buffer & r) {
+void branch::get_sorted_hypotheses(hypothesis_idx_buffer & r) const {
     m_context.for_each([&](unsigned hidx, hypothesis const &) {
             r.push_back(hidx);
         });
@@ -66,7 +66,7 @@ void branch::add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user) {
                 }
                 return false;
             } else if (is_mref(l)) {
-                m_mvars.insert(mref_index(l));
+                m_mvar_idxs.insert(mref_index(l));
                 return false;
             } else {
                 return true;
@@ -110,7 +110,7 @@ void branch::set_target(expr const & t) {
                     m_target_deps.insert(lref_index(e));
                     return false;
                 } else if (is_mref(e)) {
-                    m_mvars.insert(mref_index(e));
+                    m_mvar_idxs.insert(mref_index(e));
                     return false;
                 } else {
                     return true;

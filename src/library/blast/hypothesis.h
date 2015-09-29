@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "util/rc.h"
-#include "util/rb_tree.h"
+#include "util/rb_map.h"
 #include "kernel/expr.h"
 
 namespace lean {
@@ -18,6 +18,8 @@ class state;
 typedef rb_tree<unsigned, unsigned_cmp> hypothesis_idx_set;
 typedef list<unsigned>                  hypothesis_idx_list;
 typedef buffer<unsigned>                hypothesis_idx_buffer;
+template<typename T>
+using hypothesis_idx_map = typename lean::rb_map<unsigned, T, unsigned_cmp>;
 
 class hypothesis {
     friend class branch;
@@ -31,6 +33,7 @@ class hypothesis {
     optional<expr>     m_justification;
 public:
     hypothesis():m_active(true), m_fixed(false), m_depth(0) {}
+    name const & get_name() const { return m_name; }
     bool is_active() const { return m_active; }
     unsigned get_depth() const { return m_depth; }
     hypothesis_idx_set const & get_backward_deps() const { return m_deps; }

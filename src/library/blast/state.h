@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/rb_map.h"
 #include "kernel/expr.h"
+#include "library/tactic/goal.h"
 #include "library/blast/hypothesis.h"
 #include "library/blast/branch.h"
 
@@ -20,18 +21,21 @@ public:
     metavar_decl() {}
     metavar_decl(hypothesis_idx_list const & c, hypothesis_idx_set const & s, expr const & t):
         m_context(c), m_context_as_set(s), m_type(t) {}
+    hypothesis_idx_list get_context() const { return m_context; }
+    expr const & get_type() const { return m_type; }
 };
 
 class state {
     friend class context;
-    unsigned m_next_mref_index;
-    typedef rb_map<unsigned, metavar_decl, unsigned_cmp> metavar_decls;
-    typedef rb_map<unsigned, expr, unsigned_cmp>         assignment;
+    typedef metavar_idx_map<metavar_decl> metavar_decls;
+    typedef metavar_idx_map<expr>         assignment;
+    unsigned      m_next_mref_index;
     metavar_decls m_metavar_decls;
     assignment    m_assignment;
     branch        m_main;
 
     unsigned add_metavar_decl(metavar_decl const & decl);
+    goal to_goal(branch const &) const;
 
 public:
     state();
@@ -61,5 +65,10 @@ public:
     metavar_decl const * get_metavar_decl(unsigned idx) const { return m_metavar_decls.find(idx); }
 
     metavar_decl const * get_metavar_decl(expr const & e) const { return get_metavar_decl(mref_index(e)); }
+
+    /** \brief Convert main branch to a goal.
+        This is mainly used for pretty printing. However, in the future, we may use this capability
+        to invoke the tactic framework from the blast tactic. */
+    goal to_goal() const;
 };
 }}

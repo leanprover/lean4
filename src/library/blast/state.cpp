@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/replace_fn.h"
 #include "library/blast/state.h"
 
 namespace lean {
@@ -43,7 +44,7 @@ goal state::to_goal(branch const & b) const {
     metavar_idx_map<expr>    midx2meta;
     name M("M");
     std::function<expr(expr const &)> convert = [&](expr const & e) {
-        return replace(e, [&](expr const & e) {
+        return lean::replace(e, [&](expr const & e) {
                 if (is_lref(e)) {
                     auto r = hidx2local.find(lref_index(e));
                     lean_assert(r);

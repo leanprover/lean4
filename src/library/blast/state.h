@@ -37,6 +37,11 @@ class state {
     unsigned add_metavar_decl(metavar_decl const & decl);
     goal to_goal(branch const &) const;
 
+    #ifdef LEAN_DEBUG
+    bool check_deps(expr const & e, branch const & b, unsigned hidx, hypothesis const & h) const;
+    bool check_deps(branch const & b, unsigned hidx, hypothesis const & h) const;
+    bool check_invariant(branch const &) const;
+    #endif
 public:
     state();
     /** \brief Create a new metavariable using the given type and context.
@@ -63,12 +68,15 @@ public:
     }
 
     metavar_decl const * get_metavar_decl(unsigned idx) const { return m_metavar_decls.find(idx); }
-
     metavar_decl const * get_metavar_decl(expr const & e) const { return get_metavar_decl(mref_index(e)); }
 
     /** \brief Convert main branch to a goal.
         This is mainly used for pretty printing. However, in the future, we may use this capability
         to invoke the tactic framework from the blast tactic. */
     goal to_goal() const;
+
+    #ifdef LEAN_DEBUG
+    bool check_invariant() const;
+    #endif
 };
 }}

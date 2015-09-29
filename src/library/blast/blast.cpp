@@ -195,6 +195,7 @@ class context {
         expr new_target = to_blast_expr(g.get_type());
         s.set_target(new_target);
         init_mvar2mref(mvar2meta_mref);
+        lean_assert(s.check_invariant());
         return s;
     }
 

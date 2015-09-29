@@ -40,21 +40,29 @@ class branch {
 
 public:
     branch():m_next(0) {}
-    /** \brief Store in \c r the hypotheses in this branch sorted by depth */
-    void get_sorted_hypotheses(hypothesis_idx_buffer & r) const;
 
     expr add_hypothesis(name const & n, expr const & type, optional<expr> const & value, optional<expr> const & jst);
     expr add_hypothesis(expr const & type, optional<expr> const & value, optional<expr> const & jst);
 
-    void set_target(expr const & t);
+    /** \brief Return true iff the hypothesis with index \c hidx_user depends on the hypothesis with index
+        \c hidx_provider. */
+    bool hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const;
 
-    hypothesis const * get(unsigned idx) const { return m_context.find(idx); }
-    hypothesis const * get(expr const & e) const {
-        lean_assert(is_lref(e));
-        return get(lref_index(e));
+    hypothesis const * get(unsigned hidx) const { return m_context.find(hidx); }
+    hypothesis const * get(expr const & h) const {
+        lean_assert(is_lref(h));
+        return get(lref_index(h));
     }
+    void for_each_hypothesis(std::function<void(unsigned, hypothesis const &)> const & fn) const { m_context.for_each(fn); }
+    /** \brief Store in \c r the hypotheses in this branch sorted by depth */
+    void get_sorted_hypotheses(hypothesis_idx_buffer & r) const;
 
+    void set_target(expr const & t);
     expr const & get_target() const { return m_target; }
+    /** \brief Return true iff the target depends on the given hypothesis */
+    bool target_depends_on(expr const & h) const { return m_target_deps.contains(lref_index(h)); }
+
+    bool has_mvar(expr const & e) const { return m_mvar_idxs.contains(mref_index(e)); }
 };
 
 void initialize_branch();

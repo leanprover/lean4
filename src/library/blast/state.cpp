@@ -93,4 +93,46 @@ goal state::to_goal(branch const & b) const {
 goal state::to_goal() const {
     return to_goal(m_main);
 }
+
+#ifdef LEAN_DEBUG
+bool state::check_deps(expr const & e, branch const & b, unsigned hidx, hypothesis const & h) const {
+    for_each(e, [&](expr const & n, unsigned) {
+            if (is_lref(n)) {
+                lean_assert(h.depends_on(n));
+                lean_assert(b.hidx_depends_on(hidx, lref_index(n)));
+            } else if (is_mref(n)) {
+                // metavariable is in the set of used metavariables
+                lean_assert(b.has_mvar(n));
+            }
+            return true;
+        });
+    return true;
+}
+
+bool state::check_deps(branch const & b, unsigned hidx, hypothesis const & h) const {
+    lean_assert(check_deps(h.get_type(), b, hidx, h));
+    lean_assert(!h.get_value() || check_deps(*h.get_value(), b, hidx, h));
+    return true;
+}
+
+bool state::check_invariant(branch const & b) const {
+    b.for_each_hypothesis([&](unsigned hidx, hypothesis const & h) {
+            lean_assert(check_deps(b, hidx, h));
+        });
+    for_each(b.get_target(), [&](expr const & n, unsigned) {
+            if (is_lref(n)) {
+                lean_assert(b.target_depends_on(n));
+            } else if (is_mref(n)) {
+                // metavariable is in the set of used metavariables
+                lean_assert(b.has_mvar(n));
+            }
+            return true;
+        });
+    return true;
+}
+
+bool state::check_invariant() const {
+    return check_invariant(m_main);
+}
+#endif
 }}

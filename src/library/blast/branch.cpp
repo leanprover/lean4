@@ -99,6 +99,14 @@ expr branch::add_hypothesis(expr const & type, optional<expr> const & value, opt
     return add_hypothesis(name(*g_prefix, m_next), type, value, jst);
 }
 
+bool branch::hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const {
+    if (auto s = m_forward_deps.find(hidx_provider)) {
+        return s->contains(hidx_user);
+    } else {
+        return false;
+    }
+}
+
 void branch::set_target(expr const & t) {
     m_target = t;
     m_target_deps.clear();

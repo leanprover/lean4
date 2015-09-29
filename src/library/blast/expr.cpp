@@ -31,19 +31,19 @@ LEAN_THREAD_PTR(level_table, g_level_table);
 LEAN_THREAD_PTR(expr_table,  g_expr_table);
 LEAN_THREAD_PTR(expr_array,  g_var_array);
 LEAN_THREAD_PTR(expr_array,  g_mref_array);
-LEAN_THREAD_PTR(expr_array,  g_lref_array);
+LEAN_THREAD_PTR(expr_array,  g_href_array);
 
 scope_hash_consing::scope_hash_consing() {
     m_level_table = g_level_table;
     m_expr_table  = g_expr_table;
     m_var_array   = g_var_array;
     m_mref_array  = g_mref_array;
-    m_lref_array  = g_lref_array;
+    m_href_array  = g_href_array;
     g_level_table = new level_table();
     g_expr_table  = new expr_table();
     g_var_array   = new expr_array();
     g_mref_array  = new expr_array();
-    g_lref_array  = new expr_array();
+    g_href_array  = new expr_array();
     g_level_table->insert(lean::mk_level_zero());
     g_level_table->insert(lean::mk_level_one());
 }
@@ -53,12 +53,12 @@ scope_hash_consing::~scope_hash_consing() {
     delete g_expr_table;
     delete g_var_array;
     delete g_mref_array;
-    delete g_lref_array;
+    delete g_href_array;
     g_level_table = reinterpret_cast<level_table*>(m_level_table);
     g_expr_table  = reinterpret_cast<expr_table*>(m_expr_table);
     g_var_array   = reinterpret_cast<expr_array*>(m_var_array);
     g_mref_array  = reinterpret_cast<expr_array*>(m_mref_array);
-    g_lref_array  = reinterpret_cast<expr_array*>(m_lref_array);
+    g_href_array  = reinterpret_cast<expr_array*>(m_href_array);
 }
 
 #ifdef LEAN_DEBUG
@@ -150,26 +150,26 @@ level update_max(level const & l, level const & new_lhs, level const & new_rhs) 
 }
 
 static name * g_prefix = nullptr;
-static expr * g_dummy_type = nullptr; // dummy type for lref/mref
+static expr * g_dummy_type = nullptr; // dummy type for href/mref
 
-static expr mk_lref_core(unsigned idx) {
+static expr mk_href_core(unsigned idx) {
     return mk_local(name(*g_prefix, idx), *g_dummy_type);
 }
 
-expr mk_lref(unsigned idx) {
-    lean_assert(g_lref_array);
+expr mk_href(unsigned idx) {
+    lean_assert(g_href_array);
     lean_assert(g_expr_table);
-    while (g_lref_array->size() <= idx) {
-        unsigned j   = g_lref_array->size();
-        expr new_ref = mk_lref_core(j);
-        g_lref_array->push_back(new_ref);
+    while (g_href_array->size() <= idx) {
+        unsigned j   = g_href_array->size();
+        expr new_ref = mk_href_core(j);
+        g_href_array->push_back(new_ref);
         g_expr_table->insert(new_ref);
     }
-    lean_assert(idx < g_lref_array->size());
-    return (*g_lref_array)[idx];
+    lean_assert(idx < g_href_array->size());
+    return (*g_href_array)[idx];
 }
 
-bool is_lref(expr const & e) {
+bool is_href(expr const & e) {
     return is_local(e) && mlocal_type(e) == *g_dummy_type;
 }
 
@@ -199,12 +199,12 @@ unsigned mref_index(expr const & e) {
     return mlocal_name(e).get_numeral();
 }
 
-unsigned lref_index(expr const & e) {
-    lean_assert(is_lref(e));
+unsigned href_index(expr const & e) {
+    lean_assert(is_href(e));
     return mlocal_name(e).get_numeral();
 }
 
-bool has_lref(expr const & e) {
+bool has_href(expr const & e) {
     return has_local(e);
 }
 
@@ -332,7 +332,7 @@ class replace_rec_fn {
                 lean_assert(is_mref(e));
                 return save_result(e, offset, e);
             case expr_kind::Local:
-                lean_assert(is_lref(e));
+                lean_assert(is_href(e));
                 return save_result(e, offset, e);
             case expr_kind::App: {
                 expr new_f = apply(app_fn(e), offset);
@@ -558,18 +558,18 @@ expr instantiate_value_univ_params(declaration const & d, levels const & ls) {
     return r;
 }
 
-expr abstract_lrefs(expr const & e, unsigned n, expr const * subst) {
-    if (!has_lref(e))
+expr abstract_hrefs(expr const & e, unsigned n, expr const * subst) {
+    if (!has_href(e))
         return e;
-    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return closed(e) && is_lref(e); }));
+    lean_assert(std::all_of(subst, subst+n, [](expr const & e) { return closed(e) && is_href(e); }));
     return blast::replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {
-            if (!has_lref(m))
-                return some_expr(m); // skip: m does not contain lref's
-            if (is_lref(m)) {
+            if (!has_href(m))
+                return some_expr(m); // skip: m does not contain href's
+            if (is_href(m)) {
                 unsigned i = n;
                 while (i > 0) {
                     --i;
-                    if (lref_index(subst[i]) == lref_index(m))
+                    if (href_index(subst[i]) == href_index(m))
                         return some_expr(blast::mk_var(offset + n - i - 1));
                 }
                 return none_expr();

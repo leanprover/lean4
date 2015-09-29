@@ -24,7 +24,7 @@ class scope_hash_consing {
     void * m_expr_table;
     void * m_var_array;
     void * m_mref_array;
-    void * m_lref_array;
+    void * m_href_array;
 public:
     scope_hash_consing();
     ~scope_hash_consing();
@@ -40,9 +40,9 @@ level mk_global_univ(name const & n);
 level mk_meta_univ(name const & n);
 
 expr mk_var(unsigned idx);
-// mk_lref and mk_mref are helper functions for creating local constants and meta-variables used in the blast tactic.
+// mk_href and mk_mref are helper functions for creating hypotheses and meta-variables used in the blast tactic.
 // Remark: the local constants and metavariables manipulated by the blast tactic do **not** store their types.
-expr mk_lref(unsigned idx);
+expr mk_href(unsigned idx);
 expr mk_mref(unsigned idx);
 expr mk_sort(level const & l);
 expr mk_constant(name const & n, levels const & ls);
@@ -67,12 +67,12 @@ inline expr mk_lambda(name const & n, expr const & t, expr const & e) {
 }
 expr mk_macro(macro_definition const & m, unsigned num, expr const * args);
 
-bool is_lref(expr const & e);
-unsigned lref_index(expr const & e);
+bool is_href(expr const & e);
+unsigned href_index(expr const & e);
 bool is_mref(expr const & e);
 unsigned mref_index(expr const & e);
-/** \brief Return true iff \c e contain lref's */
-bool has_lref(expr const & e);
+/** \brief Return true iff \c e contain href's */
+bool has_href(expr const & e);
 /** \brief Return true iff \c e contain mref's */
 bool has_mref(expr const & e);
 
@@ -104,7 +104,7 @@ expr  instantiate_univ_params(expr const & e, level_param_names const & ps, leve
 expr  instantiate_type_univ_params(declaration const & d, levels const & ls);
 expr  instantiate_value_univ_params(declaration const & d, levels const & ls);
 
-expr abstract_lrefs(expr const & e, unsigned n, expr const * s);
+expr abstract_hrefs(expr const & e, unsigned n, expr const * s);
 
 void initialize_expr();
 void finalize_expr();

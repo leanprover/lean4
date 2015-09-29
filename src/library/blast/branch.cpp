@@ -50,13 +50,13 @@ void branch::add_forward_dep(unsigned hidx_user, unsigned hidx_provider) {
 }
 
 void branch::add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user) {
-    if (!has_lref(e) && !has_mref(e))
+    if (!has_href(e) && !has_mref(e))
         return; // nothing to be done
     for_each(e, [&](expr const & l, unsigned) {
-            if (!has_lref(l) && !has_mref(l)) {
+            if (!has_href(l) && !has_mref(l)) {
                 return false;
-            } else if (is_lref(l)) {
-                unsigned hidx_provider = lref_index(l);
+            } else if (is_href(l)) {
+                unsigned hidx_provider = href_index(l);
                 hypothesis const * h_provider = get(hidx_provider);
                 lean_assert(h_provider);
                 if (h_user.m_depth <= h_provider->m_depth)
@@ -91,7 +91,7 @@ expr branch::add_hypothesis(name const & n, expr const & type, optional<expr> co
     m_next++;
     add_deps(new_h, new_hidx);
     m_context.insert(new_hidx, new_h);
-    return blast::mk_lref(new_hidx);
+    return blast::mk_href(new_hidx);
 }
 
 static name * g_prefix = nullptr;
@@ -111,12 +111,12 @@ bool branch::hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const {
 void branch::set_target(expr const & t) {
     m_target = t;
     m_target_deps.clear();
-    if (has_lref(t) || has_mref(t)) {
+    if (has_href(t) || has_mref(t)) {
         for_each(t, [&](expr const & e, unsigned) {
-                if (!has_lref(e) && !has_mref(e)) {
+                if (!has_href(e) && !has_mref(e)) {
                     return false;
-                } else if (is_lref(e)) {
-                    m_target_deps.insert(lref_index(e));
+                } else if (is_href(e)) {
+                    m_target_deps.insert(href_index(e));
                     return false;
                 } else if (is_mref(e)) {
                     m_mvar_idxs.insert(mref_index(e));

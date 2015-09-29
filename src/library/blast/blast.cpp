@@ -51,7 +51,7 @@ class context {
         state &                      m_state;
         // We map each metavariable to a metavariable application and the mref associated with it.
         name_map<pair<expr, expr>> & m_mvar2meta_mref;
-        name_map<expr> &             m_local2lref;
+        name_map<expr> &             m_local2href;
 
         expr visit_sort(expr const & e) {
             return blast::mk_sort(to_blast_level(sort_level(e)));
@@ -129,12 +129,12 @@ class context {
                         // Local has already been processed
                         continue;
                     }
-                    auto lref = m_local2lref.find(mlocal_name(l));
-                    if (!lref) {
-                        // One of the arguments is a local constant that is not in m_local2lref
+                    auto href = m_local2href.find(mlocal_name(l));
+                    if (!href) {
+                        // One of the arguments is a local constant that is not in m_local2href
                         throw_unsupported_metavar_occ(e);
                     }
-                    ctx.push_back(lref_index(*lref));
+                    ctx.push_back(href_index(*href));
                 }
                 unsigned  prefix_sz = i;
                 expr aux  = e;
@@ -152,7 +152,7 @@ class context {
         }
 
         virtual expr visit_local(expr const & e) {
-            if (auto r = m_local2lref.find(mlocal_name(e)))
+            if (auto r = m_local2href.find(mlocal_name(e)))
                 return * r;
             else
                 throw blast_exception("blast tactic failed, ill-formed input goal", e);
@@ -179,8 +179,8 @@ class context {
 
     public:
         to_blast_expr_fn(environment const & env, state & s,
-                         name_map<pair<expr, expr>> & mvar2meta_mref, name_map<expr> & local2lref):
-            m_tc(env), m_state(s), m_mvar2meta_mref(mvar2meta_mref), m_local2lref(local2lref) {}
+                         name_map<pair<expr, expr>> & mvar2meta_mref, name_map<expr> & local2href):
+            m_tc(env), m_state(s), m_mvar2meta_mref(mvar2meta_mref), m_local2href(local2href) {}
     };
 
     void init_mvar2mref(name_map<pair<expr, expr>> & m) {
@@ -193,16 +193,16 @@ class context {
         state s;
         type_checker_ptr norm_tc = mk_type_checker(m_env, name_generator(*g_prefix), UnfoldReducible);
         name_map<pair<expr, expr>> mvar2meta_mref;
-        name_map<expr>             local2lref;
-        to_blast_expr_fn to_blast_expr(m_env, s, mvar2meta_mref, local2lref);
+        name_map<expr>             local2href;
+        to_blast_expr_fn to_blast_expr(m_env, s, mvar2meta_mref, local2href);
         buffer<expr> hs;
         g.get_hyps(hs);
         for (expr const & h : hs) {
             lean_assert(is_local(h));
             expr type     = normalize(*norm_tc, mlocal_type(h));
             expr new_type = to_blast_expr(type);
-            expr lref     = s.add_hypothesis(local_pp_name(h), new_type, none_expr(), some_expr(h));
-            local2lref.insert(mlocal_name(h), lref);
+            expr href     = s.add_hypothesis(local_pp_name(h), new_type, none_expr(), some_expr(h));
+            local2href.insert(mlocal_name(h), href);
         }
         expr target     = normalize(*norm_tc, g.get_type());
         expr new_target = to_blast_expr(target);

@@ -30,8 +30,8 @@ class branch {
         modified. A hypothesis is fixed when it occurs in the type of some metavariable. */
     void fix_hypothesis(unsigned idx);
     void fix_hypothesis(expr const & e) {
-        lean_assert(is_lref(e));
-        fix_hypothesis(lref_index(e));
+        lean_assert(is_href(e));
+        fix_hypothesis(href_index(e));
     }
 
     void add_forward_dep(unsigned hidx_user, unsigned hidx_provider);
@@ -50,8 +50,8 @@ public:
 
     hypothesis const * get(unsigned hidx) const { return m_context.find(hidx); }
     hypothesis const * get(expr const & h) const {
-        lean_assert(is_lref(h));
-        return get(lref_index(h));
+        lean_assert(is_href(h));
+        return get(href_index(h));
     }
     void for_each_hypothesis(std::function<void(unsigned, hypothesis const &)> const & fn) const { m_context.for_each(fn); }
     /** \brief Store in \c r the hypotheses in this branch sorted by depth */
@@ -60,7 +60,7 @@ public:
     void set_target(expr const & t);
     expr const & get_target() const { return m_target; }
     /** \brief Return true iff the target depends on the given hypothesis */
-    bool target_depends_on(expr const & h) const { return m_target_deps.contains(lref_index(h)); }
+    bool target_depends_on(expr const & h) const { return m_target_deps.contains(href_index(h)); }
 
     bool has_mvar(expr const & e) const { return m_mvar_idxs.contains(mref_index(e)); }
 };

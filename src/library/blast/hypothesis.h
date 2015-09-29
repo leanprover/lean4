@@ -42,6 +42,6 @@ public:
     optional<expr> const & get_justification() const { return m_justification; }
     void mark_fixed() { m_fixed = true; }
     /** \brief Return true iff this hypothesis depends on \c h. */
-    bool depends_on(expr const & h) const { return m_deps.contains(lref_index(h)); }
+    bool depends_on(expr const & h) const { return m_deps.contains(href_index(h)); }
 };
 }}

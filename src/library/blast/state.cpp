@@ -18,10 +18,10 @@ expr state::mk_metavar(hypothesis_idx_buffer const & ctx, expr const & type) {
     for (unsigned const & hidx : ctx)
         ctx_as_set.insert(hidx);
     for_each(type, [&](expr const & e, unsigned) {
-            if (!has_lref(e))
+            if (!has_href(e))
                 return false;
-            if (is_lref(e)) {
-                lean_assert(ctx_as_set.contains(lref_index(e)));
+            if (is_href(e)) {
+                lean_assert(ctx_as_set.contains(href_index(e)));
                 m_main.fix_hypothesis(e);
                 return false;
             }
@@ -45,8 +45,8 @@ goal state::to_goal(branch const & b) const {
     name M("M");
     std::function<expr(expr const &)> convert = [&](expr const & e) {
         return lean::replace(e, [&](expr const & e) {
-                if (is_lref(e)) {
-                    auto r = hidx2local.find(lref_index(e));
+                if (is_href(e)) {
+                    auto r = hidx2local.find(href_index(e));
                     lean_assert(r);
                     return some_expr(*r);
                 } else if (is_mref(e)) {
@@ -103,9 +103,9 @@ void state::display(environment const & env, io_state const & ios) const {
 #ifdef LEAN_DEBUG
 bool state::check_deps(expr const & e, branch const & b, unsigned hidx, hypothesis const & h) const {
     for_each(e, [&](expr const & n, unsigned) {
-            if (is_lref(n)) {
+            if (is_href(n)) {
                 lean_assert(h.depends_on(n));
-                lean_assert(b.hidx_depends_on(hidx, lref_index(n)));
+                lean_assert(b.hidx_depends_on(hidx, href_index(n)));
             } else if (is_mref(n)) {
                 // metavariable is in the set of used metavariables
                 lean_assert(b.has_mvar(n));
@@ -126,7 +126,7 @@ bool state::check_invariant(branch const & b) const {
             lean_assert(check_deps(b, hidx, h));
         });
     for_each(b.get_target(), [&](expr const & n, unsigned) {
-            if (is_lref(n)) {
+            if (is_href(n)) {
                 lean_assert(b.target_depends_on(n));
             } else if (is_mref(n)) {
                 // metavariable is in the set of used metavariables

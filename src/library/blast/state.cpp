@@ -101,7 +101,8 @@ void state::display(environment const & env, io_state const & ios) const {
 }
 
 #ifdef LEAN_DEBUG
-bool state::check_deps(expr const & e, branch const & b, unsigned hidx, hypothesis const & h) const {
+bool state::check_hypothesis(expr const & e, branch const & b, unsigned hidx, hypothesis const & h) const {
+    lean_assert(closed(e));
     for_each(e, [&](expr const & n, unsigned) {
             lean_assert(!blast::is_local(n));
             if (is_href(n)) {
@@ -116,16 +117,14 @@ bool state::check_deps(expr const & e, branch const & b, unsigned hidx, hypothes
     return true;
 }
 
-bool state::check_deps(branch const & b, unsigned hidx, hypothesis const & h) const {
-    lean_assert(check_deps(h.get_type(), b, hidx, h));
-    lean_assert(!h.get_value() || check_deps(*h.get_value(), b, hidx, h));
+bool state::check_hypothesis(branch const & b, unsigned hidx, hypothesis const & h) const {
+    lean_assert(check_hypothesis(h.get_type(), b, hidx, h));
+    lean_assert(!h.get_value() || check_hypothesis(*h.get_value(), b, hidx, h));
     return true;
 }
 
-bool state::check_invariant(branch const & b) const {
-    b.for_each_hypothesis([&](unsigned hidx, hypothesis const & h) {
-            lean_assert(check_deps(b, hidx, h));
-        });
+bool state::check_target(branch const & b) const {
+    lean_assert(closed(b.get_target()));
     for_each(b.get_target(), [&](expr const & n, unsigned) {
             lean_assert(!blast::is_local(n));
             if (is_href(n)) {
@@ -136,6 +135,14 @@ bool state::check_invariant(branch const & b) const {
             }
             return true;
         });
+    return true;
+}
+
+bool state::check_invariant(branch const & b) const {
+    b.for_each_hypothesis([&](unsigned hidx, hypothesis const & h) {
+            lean_assert(check_hypothesis(b, hidx, h));
+        });
+    lean_assert(check_target(b));
     return true;
 }
 

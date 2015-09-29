@@ -38,8 +38,9 @@ class state {
     goal to_goal(branch const &) const;
 
     #ifdef LEAN_DEBUG
-    bool check_deps(expr const & e, branch const & b, unsigned hidx, hypothesis const & h) const;
-    bool check_deps(branch const & b, unsigned hidx, hypothesis const & h) const;
+    bool check_hypothesis(expr const & e, branch const & b, unsigned hidx, hypothesis const & h) const;
+    bool check_hypothesis(branch const & b, unsigned hidx, hypothesis const & h) const;
+    bool check_target(branch const & b) const;
     bool check_invariant(branch const &) const;
     #endif
 public:

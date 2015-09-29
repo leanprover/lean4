@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/blast/expr.h"
 #include "library/blast/state.h"
 #include "library/blast/blast.h"
+#include "library/blast/blast_exception.h"
 
 namespace lean {
 namespace blast {
@@ -66,9 +67,10 @@ class context {
             return blast::mk_var(var_idx(e));
         }
 
-        void throw_unsupported_metavar_occ(expr const &) {
+        void throw_unsupported_metavar_occ(expr const & e) {
             // TODO(Leo): improve error message
-            throw exception("'blast' tactic failed, goal contains a meta-variable application that is not supported");
+            throw blast_exception("'blast' tactic failed, goal contains a "
+                                  "meta-variable application that is not supported", e);
         }
 
         expr mk_mref_app(expr const & mref, unsigned nargs, expr const * args) {
@@ -146,7 +148,7 @@ class context {
             if (auto r = m_local2lref.find(mlocal_name(e)))
                 return * r;
             else
-                throw exception("blast tactic failed, ill-formed input goal");
+                throw blast_exception("blast tactic failed, ill-formed input goal", e);
         }
 
         virtual expr visit_app(expr const & e) {

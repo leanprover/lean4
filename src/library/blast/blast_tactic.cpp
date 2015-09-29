@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "library/tactic/expr_to_tactic.h"
 #include "library/blast/blast.h"
+#include "library/blast/blast_exception.h"
 
 namespace lean {
 tactic mk_blast_tactic(list<name> const & ls, list<name> const & ds) {
@@ -17,13 +18,18 @@ tactic mk_blast_tactic(list<name> const & ls, list<name> const & ds) {
                 return none_proof_state();
             }
             goal const & g = head(gs);
-            if (auto pr = blast_goal(env, ios, ls, ds, g)) {
-                goals new_gs           = tail(gs);
-                substitution new_subst = s.get_subst();
-                assign(new_subst, g, *pr);
-                return some_proof_state(proof_state(s, new_gs, new_subst));
-            } else {
-                throw_tactic_exception_if_enabled(s, "blast tactic failed");
+            try {
+                if (auto pr = blast_goal(env, ios, ls, ds, g)) {
+                    goals new_gs           = tail(gs);
+                    substitution new_subst = s.get_subst();
+                    assign(new_subst, g, *pr);
+                    return some_proof_state(proof_state(s, new_gs, new_subst));
+                } else {
+                    throw_tactic_exception_if_enabled(s, "blast tactic failed");
+                    return none_proof_state();
+                }
+            } catch (blast_exception & ex) {
+                throw_tactic_exception_if_enabled(s, ex.what());
                 return none_proof_state();
             }
         });

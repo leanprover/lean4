@@ -192,7 +192,8 @@ class context {
         for (expr const & h : hs) {
             lean_assert(is_local(h));
             expr new_type = to_blast_expr(mlocal_type(h));
-            s.add_hypothesis(local_pp_name(h), new_type, none_expr(), some_expr(h));
+            expr lref     = s.add_hypothesis(local_pp_name(h), new_type, none_expr(), some_expr(h));
+            local2lref.insert(mlocal_name(h), lref);
         }
         expr new_target = to_blast_expr(g.get_type());
         s.set_target(new_target);

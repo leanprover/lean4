@@ -170,7 +170,7 @@ expr mk_href(unsigned idx) {
 }
 
 bool is_href(expr const & e) {
-    return is_local(e) && mlocal_type(e) == *g_dummy_type;
+    return lean::is_local(e) && mlocal_type(e) == *g_dummy_type;
 }
 
 static expr mk_mref_core(unsigned idx) {
@@ -218,7 +218,7 @@ expr mk_local(unsigned idx, expr const & t) {
 }
 
 bool is_local(expr const & e) {
-    return is_local(e) && mlocal_type(e) != *g_dummy_type;
+    return lean::is_local(e) && mlocal_type(e) != *g_dummy_type;
 }
 
 bool has_local(expr const & e) {
@@ -608,7 +608,7 @@ expr abstract_locals(expr const & e, unsigned n, expr const * subst) {
     return blast::replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {
             if (!blast::has_local(m))
                 return some_expr(m); // skip: m does not contain locals
-            if (is_local(m)) {
+            if (blast::is_local(m)) {
                 unsigned i = n;
                 while (i > 0) {
                     --i;

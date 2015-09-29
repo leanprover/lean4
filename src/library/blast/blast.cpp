@@ -7,6 +7,9 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/type_checker.h"
 #include "library/replace_visitor.h"
+#include "library/util.h"
+#include "library/reducible.h"
+#include "library/normalize.h"
 #include "library/blast/expr.h"
 #include "library/blast/state.h"
 #include "library/blast/blast.h"
@@ -32,6 +35,8 @@ level to_blast_level(level const & l) {
     }
     lean_unreachable();
 }
+
+static name * g_prefix = nullptr;
 
 class context {
     environment    m_env;
@@ -186,6 +191,7 @@ class context {
 
     state to_state(goal const & g) {
         state s;
+        type_checker_ptr norm_tc = mk_type_checker(m_env, name_generator(*g_prefix), UnfoldReducible);
         name_map<pair<expr, expr>> mvar2meta_mref;
         name_map<expr>             local2lref;
         to_blast_expr_fn to_blast_expr(m_env, s, mvar2meta_mref, local2lref);
@@ -193,11 +199,13 @@ class context {
         g.get_hyps(hs);
         for (expr const & h : hs) {
             lean_assert(is_local(h));
-            expr new_type = to_blast_expr(mlocal_type(h));
+            expr type     = normalize(*norm_tc, mlocal_type(h));
+            expr new_type = to_blast_expr(type);
             expr lref     = s.add_hypothesis(local_pp_name(h), new_type, none_expr(), some_expr(h));
             local2lref.insert(mlocal_name(h), lref);
         }
-        expr new_target = to_blast_expr(g.get_type());
+        expr target     = normalize(*norm_tc, g.get_type());
+        expr new_target = to_blast_expr(target);
         s.set_target(new_target);
         init_mvar2mref(mvar2meta_mref);
         lean_assert(s.check_invariant());
@@ -211,7 +219,11 @@ public:
 
     optional<expr> operator()(goal const & g) {
         m_curr_state = to_state(g);
+
         // TODO(Leo): blast main loop
+        display("Blast tactic initial state");
+        display_curr_state();
+
         return none_expr();
     }
 
@@ -265,6 +277,10 @@ optional<expr> blast_goal(environment const & env, io_state const & ios, list<na
     blast::scope_context scope2(c);
     return c(g);
 }
-void initialize_blast() {}
-void finalize_blast() {}
+void initialize_blast() {
+    blast::g_prefix = new name(name::mk_internal_unique_name());
+}
+void finalize_blast() {
+    delete blast::g_prefix;
+}
 }

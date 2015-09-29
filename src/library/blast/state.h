@@ -75,6 +75,8 @@ public:
         to invoke the tactic framework from the blast tactic. */
     goal to_goal() const;
 
+    void display(environment const & env, io_state const & ios) const;
+
     #ifdef LEAN_DEBUG
     bool check_invariant() const;
     #endif

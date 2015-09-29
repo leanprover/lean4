@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/blast/expr.h"
 #include "library/blast/state.h"
 #include "library/blast/blast.h"
+#include "library/blast/blast_context.h"
 #include "library/blast/blast_exception.h"
 
 namespace lean {
@@ -37,7 +38,8 @@ class context {
     io_state       m_ios;
     name_set       m_lemma_hints;
     name_set       m_unfold_hints;
-    name_map<expr> m_mvar2mref; // map goal metavariables to blast mref's
+    name_map<expr> m_mvar2mref;    // map goal metavariables to blast mref's
+    state          m_curr_state;   // current state
 
     class to_blast_expr_fn : public replace_visitor {
         type_checker                 m_tc;
@@ -208,15 +210,59 @@ public:
     }
 
     optional<expr> operator()(goal const & g) {
-        state s = to_state(g);
+        m_curr_state = to_state(g);
+        // TODO(Leo): blast main loop
         return none_expr();
     }
+
+    environment const & get_env() const { return m_env; }
+
+    io_state const & get_ios() const { return m_ios; }
+
+    state const & get_curr_state() const { return m_curr_state; }
 };
+
+LEAN_THREAD_PTR(context, g_context);
+struct scope_context {
+    context * m_prev_context;
+public:
+    scope_context(context & c):m_prev_context(g_context) { g_context = &c; }
+    ~scope_context() { g_context = m_prev_context; }
+};
+
+environment const & env() {
+    lean_assert(g_context);
+    return g_context->get_env();
+}
+
+io_state const & ios() {
+    lean_assert(g_context);
+    return g_context->get_ios();
+}
+
+state const & curr_state() {
+    lean_assert(g_context);
+    return g_context->get_curr_state();
+}
+
+void display_curr_state() {
+    curr_state().display(env(), ios());
+    display("\n");
+}
+
+void display(char const * msg) {
+    ios().get_diagnostic_channel() << msg;
+}
+
+void display(sstream const & msg) {
+    ios().get_diagnostic_channel() << msg.str();
+}
 }
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
                           goal const & g) {
-    blast::scope_hash_consing scope;
+    blast::scope_hash_consing scope1;
     blast::context c(env, ios, ls, ds);
+    blast::scope_context scope2(c);
     return c(g);
 }
 void initialize_blast() {}

@@ -79,7 +79,7 @@ goal state::to_goal(branch const & b) const {
         hypothesis const * h = b.get(hidx);
         lean_assert(h);
         // after we add support for let-decls in goals, we must convert back h->get_value() if it is available
-        expr new_h = lean::mk_local(h->get_name(), name(H, hidx), convert(h->get_type()), binder_info());
+        expr new_h = lean::mk_local(name(H, hidx), h->get_name(), convert(h->get_type()), binder_info());
         hidx2local.insert(hidx, new_h);
         hyps.push_back(new_h);
     }
@@ -92,6 +92,11 @@ goal state::to_goal(branch const & b) const {
 
 goal state::to_goal() const {
     return to_goal(m_main);
+}
+
+void state::display(environment const & env, io_state const & ios) const {
+    formatter fmt = ios.get_formatter_factory()(env, ios.get_options());
+    ios.get_diagnostic_channel() << mk_pair(to_goal().pp(fmt), ios.get_options());
 }
 
 #ifdef LEAN_DEBUG

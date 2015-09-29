@@ -1283,6 +1283,10 @@ static const struct luaL_Reg io_state_m[] = {
     {0, 0}
 };
 
+static int get_global_io_state(lua_State * L) {
+    return push_io_state(L, get_io_state(L));
+}
+
 void open_io_state(lua_State * L) {
     luaL_newmetatable(L, io_state_mt);
     lua_pushvalue(L, -1);
@@ -1292,6 +1296,8 @@ void open_io_state(lua_State * L) {
     SET_GLOBAL_FUN(io_state_pred, "is_io_state");
     SET_GLOBAL_FUN(mk_io_state, "io_state");
     SET_GLOBAL_FUN(print, "print");
+    SET_GLOBAL_FUN(get_global_io_state, "get_io_state");
+    SET_GLOBAL_FUN(get_global_io_state, "get_ios");
 }
 
 static char g_set_state_key;

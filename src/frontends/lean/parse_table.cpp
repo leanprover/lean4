@@ -527,7 +527,7 @@ void parse_table::for_each(buffer<transition> & ts,
                                               list<accepting> const &)> const & fn) const {
     if (!is_nil(m_ptr->m_accept))
         fn(ts.size(), ts.data(), m_ptr->m_accept);
-    m_ptr->m_children.for_each([&](name const & k, list<pair<transition, parse_table>> const & lst) {
+    m_ptr->m_children.for_each([&](name const &, list<pair<transition, parse_table>> const & lst) {
             for (auto const & p : lst) {
                 ts.push_back(p.first);
                 p.second.for_each(ts, fn);

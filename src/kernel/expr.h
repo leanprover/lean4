@@ -484,6 +484,8 @@ struct scoped_expr_caching {
     scoped_expr_caching(bool f) { m_old = enable_expr_caching(f); }
     ~scoped_expr_caching() { enable_expr_caching(m_old); }
 };
+/** \brief Return true iff \c e is in the cache */
+bool is_cached(expr const & e);
 // =======================================
 
 // =======================================

@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "util/memory_pool.h"
 #include "kernel/expr.h"
 #include "kernel/expr_eq_fn.h"
+#include "kernel/expr_sets.h"
 #include "kernel/free_vars.h"
 #include "kernel/for_each_fn.h"
 
@@ -303,27 +304,29 @@ expr_macro::~expr_macro() {
 
 // =======================================
 // Constructors
-
-#ifdef LEAN_CACHE_EXPRS
-typedef lru_cache<expr, expr_hash, is_bi_equal_proc> expr_cache;
 LEAN_THREAD_VALUE(bool, g_expr_cache_enabled, true);
-MK_THREAD_LOCAL_GET(expr_cache, get_expr_cache, LEAN_INITIAL_EXPR_CACHE_CAPACITY);
+MK_THREAD_LOCAL_GET_DEF(expr_struct_set, get_expr_cache);
 bool enable_expr_caching(bool f) {
     bool r = g_expr_cache_enabled;
     g_expr_cache_enabled = f;
+    get_expr_cache().clear();
     return r;
 }
 inline expr cache(expr const & e) {
     if (g_expr_cache_enabled) {
-        if (auto r = get_expr_cache().insert(e))
-            return *r;
+        expr_struct_set & cache = get_expr_cache();
+        auto it = cache.find(e);
+        if (it != cache.end()) {
+            return *it;
+        } else {
+            cache.insert(e);
+        }
     }
     return e;
 }
-#else
-inline expr cache(expr && e) { return e; }
-bool enable_expr_caching(bool) { return true; } // NOLINT
-#endif
+bool is_cached(expr const & e) {
+    return get_expr_cache().find(e) != get_expr_cache().end();
+}
 
 expr mk_var(unsigned idx, tag g) {
     return cache(expr(new (get_var_allocator().allocate()) expr_var(idx, g)));

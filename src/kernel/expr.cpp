@@ -307,10 +307,12 @@ expr_macro::~expr_macro() {
 LEAN_THREAD_VALUE(bool, g_expr_cache_enabled, true);
 MK_THREAD_LOCAL_GET_DEF(expr_struct_set, get_expr_cache);
 bool enable_expr_caching(bool f) {
-    bool r = g_expr_cache_enabled;
+    bool r1 = enable_level_caching(f);
+    bool r2 = g_expr_cache_enabled;
+    lean_verify(r1 == r2);
     g_expr_cache_enabled = f;
     get_expr_cache().clear();
-    return r;
+    return r2;
 }
 inline expr cache(expr const & e) {
     if (g_expr_cache_enabled) {

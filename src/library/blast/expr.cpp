@@ -19,52 +19,28 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-typedef typename std::unordered_set<level, level_hash>                 level_table;
-typedef typename std::vector<expr>                                     expr_array;
-
-LEAN_THREAD_PTR(level_table, g_level_table);
+typedef typename std::vector<expr> expr_array;
 LEAN_THREAD_PTR(expr_array,  g_var_array);
 LEAN_THREAD_PTR(expr_array,  g_mref_array);
 LEAN_THREAD_PTR(expr_array,  g_href_array);
 
-scope_hash_consing::scope_hash_consing() {
-    lean_assert(g_level_table == nullptr);
+scope_hash_consing::scope_hash_consing():
+    scoped_expr_caching(true) {
     lean_assert(g_var_array   == nullptr);
     lean_assert(g_mref_array  == nullptr);
     lean_assert(g_href_array  == nullptr);
-    g_level_table = new level_table();
     g_var_array   = new expr_array();
     g_mref_array  = new expr_array();
     g_href_array  = new expr_array();
-    g_level_table->insert(lean::mk_level_zero());
-    g_level_table->insert(lean::mk_level_one());
 }
 
 scope_hash_consing::~scope_hash_consing() {
-    delete g_level_table;
     delete g_var_array;
     delete g_mref_array;
     delete g_href_array;
-    g_level_table = nullptr;
     g_var_array   = nullptr;
     g_mref_array  = nullptr;
     g_href_array  = nullptr;
-}
-
-#ifdef LEAN_DEBUG
-static bool is_cached(level const & l) {
-    lean_assert(g_level_table);
-    return g_level_table->find(l) != g_level_table->end();
-}
-#endif
-
-static level cache(level const & l) {
-    lean_assert(g_level_table);
-    auto r = g_level_table->find(l);
-    if (r != g_level_table->end())
-        return *r;
-    g_level_table->insert(l);
-    return l;
 }
 
 level mk_level_zero() {
@@ -78,30 +54,30 @@ level mk_level_one() {
 level mk_max(level const & l1, level const & l2) {
     lean_assert(is_cached(l1));
     lean_assert(is_cached(l2));
-    return cache(lean::mk_max(l1, l2));
+    return lean::mk_max(l1, l2);
 }
 
 level mk_imax(level const & l1, level const & l2) {
     lean_assert(is_cached(l1));
     lean_assert(is_cached(l2));
-    return cache(lean::mk_max(l1, l2));
+    return lean::mk_max(l1, l2);
 }
 
 level mk_succ(level const & l) {
     lean_assert(is_cached(l));
-    return cache(lean::mk_succ(l));
+    return lean::mk_succ(l);
 }
 
 level mk_param_univ(name const & n) {
-    return cache(lean::mk_param_univ(n));
+    return lean::mk_param_univ(n);
 }
 
 level mk_global_univ(name const & n) {
-    return cache(lean::mk_global_univ(n));
+    return lean::mk_global_univ(n);
 }
 
 level mk_meta_univ(name const & n) {
-    return cache(lean::mk_meta_univ(n));
+    return lean::mk_meta_univ(n);
 }
 
 level update_succ(level const & l, level const & new_arg) {

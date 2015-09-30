@@ -79,6 +79,10 @@ inline optional<level> none_level() { return optional<level>(); }
 inline optional<level> some_level(level const & e) { return optional<level>(e); }
 inline optional<level> some_level(level && e) { return optional<level>(std::forward<level>(e)); }
 
+bool enable_level_caching(bool f);
+level cache(level const & l);
+bool is_cached(level const & l);
+
 level const & mk_level_zero();
 level const & mk_level_one();
 level mk_max(level const & l1, level const & l2);

@@ -3,6 +3,6 @@ have e2 : a = c, from e1 ⬝ H2,
 have e3 : c = a, from e2⁻¹,
 assert e4 : b = a, from e1⁻¹,
 have e5 : b = c, from e4 ⬝ e2,
-have e6 : a = a, from H1 ⬝ H2 ⬝ H2 ⁻¹ ⬝ H1 ⁻¹ ⬝ H1 ⬝ H2 ⬝ H2 ⁻¹ ⬝ H1 ⁻¹,
+have e6 : a = a, from H1 ⬝ H2 ⬝ H2⁻¹ ⬝ H1⁻¹ ⬝ H1 ⬝ H2 ⬝ H2⁻¹ ⬝ H1⁻¹,
 e3 ⬝ e2 :
   c = c

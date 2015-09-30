@@ -7,14 +7,14 @@ u₂ : B u₁,
 v₁ : A,
 v₂ : B v₁,
 p : ⟨u₁, u₂⟩.1 = ⟨v₁, v₂⟩.1,
-q : u₂ =[ p ] v₂
+q : u₂ =[p] v₂
 ⊢ ⟨(sigma_eq p q)..1, (sigma_eq p q)..2⟩ = ⟨p, q⟩
 690.hlean:12:0: error: don't know how to synthesize placeholder
 A : Type,
 B : A → Type,
 u v : Σ (a : A), B a,
 p : u.1 = v.1,
-q : u.2 =[ p ] v.2
+q : u.2 =[p] v.2
 ⊢ ⟨(sigma_eq p q)..1, (sigma_eq p q)..2⟩ = ⟨p, q⟩
 690.hlean:12:0: error: failed to add declaration 'dpair_sigma_eq' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term

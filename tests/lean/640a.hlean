@@ -12,8 +12,8 @@ end
 section
   parameter {A : Type}
   definition relation' : A → A → Type := λa b, a = b
-  local infix `~1`:50 := relation'
-  local infix [parsing-only] `~2`:50 := relation'
+  local infix ` ~1 `:50 := relation'
+  local infix [parsing-only] ` ~2 `:50 := relation'
   variable {a : A}
   check relation' a a
   check a ~1 a
@@ -23,7 +23,7 @@ end
 section
   parameter {A : Type}
   definition relation'' : A → A → Type := λa b, a = b
-  local infix [parsing-only] `~2`:50 := relation''
+  local infix [parsing-only] ` ~2 `:50 := relation''
   variable {a : A}
   check relation'' a a
   check a ~2 a

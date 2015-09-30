@@ -1,12 +1,12 @@
 prelude constant A : Type.{1}
 definition bool : Type.{1} := Type.{0}
 constant eq : A → A → bool
-infixl `=`:50 := eq
+infixl ` = `:50 := eq
 axiom subst (P : A → bool) (a b : A) (H1 : a = b) (H2 : P a) : P b
 axiom eq_trans (a b c : A) (H1 : a = b) (H2 : b = c) : a = c
 axiom eq_refl (a : A) : a = a
 constant le : A → A → bool
-infixl `≤`:50 := le
+infixl ` ≤ `:50 := le
 axiom le_trans (a b c : A) (H1 : a ≤ b) (H2 : b ≤ c) : a ≤ c
 axiom le_refl (a : A) : a ≤ a
 axiom eq_le_trans (a b c : A) (H1 : a = b) (H2 : b ≤ c) : a ≤ c
@@ -29,7 +29,7 @@ check calc a   = b : H1
            ... = e : H4
 
 constant lt : A → A → bool
-infixl `<`:50 := lt
+infixl ` < `:50 := lt
 axiom lt_trans (a b c : A) (H1 : a < b) (H2 : b < c) : a < c
 axiom le_lt_trans (a b c : A) (H1 : a ≤ b) (H2 : b < c) : a < c
 axiom lt_le_trans (a b c : A) (H1 : a < b) (H2 : b ≤ c) : a < c
@@ -41,7 +41,7 @@ check calc b  ≤ c : H2
           ... < d : H5
 
 constant le2 : A → A → bool
-infixl `≤`:50 := le2
+infixl ` ≤ `:50 := le2
 constant le2_trans (a b c : A) (H1 : le2 a b) (H2 : le2 b c) : le2 a c
 attribute le2_trans [trans]
 print raw calc b   ≤ c : H2

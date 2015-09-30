@@ -1,3 +1,3 @@
-a + b * a : N
+a+b*a : N
 t9.lean:16:7: error: invalid expression
-a + b * a : N
+a+b*a : N

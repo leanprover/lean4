@@ -39,7 +39,7 @@ namespace PropF
 
   definition valuation   := PropVar → bool
 
-  reserve infix `⊢`:26
+  reserve infix ` ⊢ `:26
 
   /- Provability -/
 

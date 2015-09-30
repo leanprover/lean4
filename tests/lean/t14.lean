@@ -32,7 +32,7 @@ end
 
 namespace foo
   constant f : A → A → A
-  infix `*`:75 := f
+  infix ` * `:75 := f
 end foo
 
 section

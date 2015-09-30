@@ -7,6 +7,6 @@ has type
   B
 but is expected to have type
   N
-[ x, y, z, x, y, y ] : list
-[ x ] : list
-[ ] : list
+[x, y, z, x, y, y] : list
+[x] : list
+[] : list

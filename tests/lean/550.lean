@@ -19,7 +19,7 @@ namespace bijection
     (by rewrite [compose.assoc, -{finv f ∘ _}compose.assoc, linv f, compose.left_id, linv g])
     (by rewrite [-compose.assoc, {_ ∘ finv g}compose.assoc, rinv g, compose.right_id, rinv f])
 
-  infixr `∘b`:100 := compose
+  infixr ` ∘b `:100 := compose
 
   lemma compose.assoc (f g h : bijection A) : (f ∘b g) ∘b h = f ∘b (g ∘b h) := rfl
 

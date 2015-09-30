@@ -16,15 +16,15 @@ namespace nat
   | refl : le a a
   | step : Π {b}, le a b → le a (succ b)
 
-  infix `≤` := le
+  infix ≤ := le
   attribute le.refl [refl]
 
   definition lt [reducible] (n m : ℕ) := succ n ≤ m
   definition ge [reducible] (n m : ℕ) := m ≤ n
   definition gt [reducible] (n m : ℕ) := succ m ≤ n
-  infix `<` := lt
-  infix `≥` := ge
-  infix `>` := gt
+  infix < := lt
+  infix ≥ := ge
+  infix > := gt
 
   definition pred [unfold 1] (a : nat) : nat :=
   nat.cases_on a zero (λ a₁, a₁)

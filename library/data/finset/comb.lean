@@ -125,7 +125,7 @@ quot.lift_on s
     (list.nodup_filter p (subtype.has_property l)))
   (λ l₁ l₂ u, quot.sound (perm.perm_filter u))
 
-notation [priority finset.prio] `{` binder ∈ s `|` r:(scoped:1 p, sep p s) `}` := r
+notation [priority finset.prio] `{` binder ` ∈ ` s ` | ` r:(scoped:1 p, sep p s) `}` := r
 
 theorem sep_empty : sep p ∅ = ∅ := rfl
 
@@ -178,7 +178,7 @@ variables {A : Type} [deceq : decidable_eq A]
 include deceq
 
 definition diff (s t : finset A) : finset A := {x ∈ s | x ∉ t}
-infix [priority finset.prio] `\`:70 := diff
+infix [priority finset.prio] ` \ `:70 := diff
 
 theorem mem_of_mem_diff {s t : finset A} {x : A} (H : x ∈ s \ t) : x ∈ s :=
 mem_of_mem_sep H

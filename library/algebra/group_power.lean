@@ -28,7 +28,7 @@ definition pow (a : A) : ℕ → A
 | 0     := 1
 | (n+1) := a * pow n
 
-infix [priority algebra.prio] `^` := pow
+infix [priority algebra.prio] ` ^ ` := pow
 
 theorem pow_zero (a : A) : a^0 = 1 := rfl
 theorem pow_succ (a : A) (n : ℕ) : a^(succ n) = a * a^n := rfl

@@ -20,9 +20,9 @@ structure has_le [class] (A : Type) :=
 structure has_lt [class] (A : Type) :=
 (lt : A → A → Prop)
 
-infixl [priority algebra.prio] `<=`  := has_le.le
-infixl [priority algebra.prio] `≤`   := has_le.le
-infixl [priority algebra.prio] `<`   := has_lt.lt
+infixl [priority algebra.prio] <=  := has_le.le
+infixl [priority algebra.prio] ≤   := has_le.le
+infixl [priority algebra.prio] <   := has_lt.lt
 
 definition has_le.ge [reducible] {A : Type} [s : has_le A] (a b : A) := b ≤ a
 notation [priority algebra.prio] a ≥ b := has_le.ge a b

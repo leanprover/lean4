@@ -26,7 +26,7 @@ notation [priority int.prio] a div b := divide a b
 
 definition modulo (a b : ℤ) : ℤ := a - a div b * b
 notation [priority int.prio] a mod b := modulo a b
-notation [priority int.prio] a `≡` b `[mod`:100 c `]`:0 := a mod c = b mod c
+notation [priority int.prio] a ≡ b `[mod `:100 c `]`:0 := a mod c = b mod c
 
 /- div  -/
 

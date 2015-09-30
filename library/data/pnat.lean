@@ -27,18 +27,18 @@ theorem pnat_pos (p : ℕ+) : p~ > 0 := has_property p
 
 definition add (p q : ℕ+) : ℕ+ :=
   tag (p~ + q~) (nat.add_pos (pnat_pos p) (pnat_pos q))
-infix `+` := add
+infix + := add
 
 definition mul (p q : ℕ+) : ℕ+ :=
   tag (p~ * q~) (nat.mul_pos (pnat_pos p) (pnat_pos q))
-infix `*` := mul
+infix * := mul
 
 definition le (p q : ℕ+) := p~ ≤ q~
-infix `≤` := le
-notation p `≥` q := q ≤ p
+infix ≤ := le
+notation p ≥ q := q ≤ p
 
 definition lt (p q : ℕ+) := p~ < q~
-infix `<` := lt
+infix < := lt
 
 protected theorem pnat.eq {p q : ℕ+} : p~ = q~ → p = q :=
   subtype.eq

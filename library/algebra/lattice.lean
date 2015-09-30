@@ -23,8 +23,8 @@ structure lattice [class] (A : Type) extends weak_order A :=
 
 definition inf := @lattice.inf
 definition sup := @lattice.sup
-infix `⊓`:70 := inf
-infix `⊔`:65 := sup
+infix ` ⊓ `:70 := inf
+infix ` ⊔ `:65 := sup
 
 section
   variable [s : lattice A]

@@ -17,7 +17,7 @@ definition val [reducible] (M : matrix A m n) (i : fin m) (j : fin n) : A :=
 M i j
 
 namespace ops
-notation M `[` i `,` j `]` := val M i j
+notation M `[` i `, ` j `]` := val M i j
 end ops
 
 open ops

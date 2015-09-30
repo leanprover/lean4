@@ -15,17 +15,17 @@ variable {X : Type}
 /- membership and subset -/
 
 definition mem [reducible] (x : X) (a : set X) := a x
-infix `∈` := mem
+infix ∈ := mem
 notation a ∉ b := ¬ mem a b
 
 theorem ext {a b : set X} (H : ∀x, x ∈ a ↔ x ∈ b) : a = b :=
 funext (take x, propext (H x))
 
 definition subset (a b : set X) := ∀⦃x⦄, x ∈ a → x ∈ b
-infix `⊆` := subset
+infix ⊆ := subset
 
 definition superset [reducible] (s t : set X) : Prop := t ⊆ s
-infix `⊇` := superset
+infix ⊇ := superset
 
 theorem subset.refl (a : set X) : a ⊆ a := take x, assume H, H
 
@@ -45,7 +45,7 @@ assume h₁ h₂, h₁ _ h₂
 /- strict subset -/
 
 definition strict_subset (a b : set X) := a ⊆ b ∧ a ≠ b
-infix `⊂`:50 := strict_subset
+infix ` ⊂ `:50 := strict_subset
 
 theorem strict_subset.irrefl (a : set X) : ¬ a ⊂ a :=
 assume h, absurd rfl (and.elim_right h)
@@ -235,18 +235,18 @@ ext (take x, !or.right_distrib)
 
 -- {x : X | P}
 definition set_of [reducible] (P : X → Prop) : set X := P
-notation `{` binder `|` r:(scoped:1 P, set_of P) `}` := r
+notation `{` binder ` | ` r:(scoped:1 P, set_of P) `}` := r
 
 -- {x ∈ s | P}
 definition sep (P : X → Prop) (s : set X) : set X := λx, x ∈ s ∧ P x
-notation `{` binder ∈ s `|` r:(scoped:1 p, sep p s) `}` := r
+notation `{` binder ` ∈ ` s ` | ` r:(scoped:1 p, sep p s) `}` := r
 
 /- insert -/
 
 definition insert (x : X) (a : set X) : set X := {y : X | y = x ∨ y ∈ a}
 
 -- '{x, y, z}
-notation `'{`:max a:(foldr `,` (x b, insert x b) ∅) `}`:0 := a
+notation `'{`:max a:(foldr `, ` (x b, insert x b) ∅) `}`:0 := a
 
 theorem subset_insert (x : X) (a : set X) : a ⊆ insert x a :=
 take y, assume ys, or.inr ys

@@ -19,7 +19,7 @@ section migrate_algebra
   definition pow (a : ℤ) (n : ℕ) : ℤ := algebra.pow a n
   infix [priority int.prio] ^ := pow
   definition nmul (n : ℕ) (a : ℤ) : ℤ := algebra.nmul n a
-  infix [priority int.prio] `⬝` := nmul
+  infix [priority int.prio] ⬝ := nmul
   definition imul (i : ℤ) (a : ℤ) : ℤ := algebra.imul i a
 
   migrate from algebra with int

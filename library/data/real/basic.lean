@@ -936,16 +936,16 @@ definition requiv.trans (s t u : reg_seq) (H : requiv s t) (H2 : requiv t u) : r
 definition radd (s t : reg_seq) : reg_seq :=
   reg_seq.mk (sadd (reg_seq.sq s) (reg_seq.sq t))
              (reg_add_reg (reg_seq.is_reg s) (reg_seq.is_reg t))
-infix `+` := radd
+infix + := radd
 
 definition rmul (s t : reg_seq) : reg_seq :=
   reg_seq.mk (smul (reg_seq.sq s) (reg_seq.sq t))
              (reg_mul_reg (reg_seq.is_reg s) (reg_seq.is_reg t))
-infix `*` := rmul
+infix * := rmul
 
 definition rneg (s : reg_seq) : reg_seq :=
   reg_seq.mk (sneg (reg_seq.sq s)) (reg_neg_reg (reg_seq.is_reg s))
-prefix `-` := rneg
+prefix - := rneg
 
 definition radd_well_defined {s t u v : reg_seq} (H : requiv s u) (H2 : requiv t v) :
            requiv (s + t) (u + v) :=
@@ -1025,13 +1025,13 @@ definition add (x y : ℝ) : ℝ :=
                      (take a b c d : reg_seq, take Hab : requiv a c, take Hcd : requiv b d,
                        quot.sound (radd_well_defined Hab Hcd)))
 protected definition prio := num.pred rat.prio
-infix [priority real.prio] `+` := add
+infix [priority real.prio] + := add
 
 definition mul (x y : ℝ) : ℝ :=
   (quot.lift_on₂ x y (λ a b, quot.mk (a * b))
                      (take a b c d : reg_seq, take Hab : requiv a c, take Hcd : requiv b d,
                        quot.sound (rmul_well_defined Hab Hcd)))
-infix [priority real.prio] `*` := mul
+infix [priority real.prio] * := mul
 
 definition neg (x : ℝ) : ℝ :=
   (quot.lift_on x (λ a, quot.mk (-a)) (take a b : reg_seq, take Hab : requiv a b,

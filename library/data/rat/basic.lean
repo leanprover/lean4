@@ -22,7 +22,7 @@ namespace prerat
 
 definition equiv (a b : prerat) : Prop := num a * denom b = num b * denom a
 
-infix `≡` := equiv
+infix ≡ := equiv
 
 theorem equiv.refl [refl] (a : prerat) : a ≡ a := rfl
 
@@ -539,12 +539,12 @@ section migrate_algebra
   local attribute rat.discrete_field [instance]
 
   definition divide (a b : rat) := algebra.divide a b
-  infix [priority rat.prio] `/` := divide
+  infix [priority rat.prio] / := divide
 
   definition pow (a : ℚ) (n : ℕ) : ℚ := algebra.pow a n
   infix [priority rat.prio] ^ := pow
   definition nmul (n : ℕ) (a : ℚ) : ℚ := algebra.nmul n a
-  infix [priority rat.prio] `⬝` := nmul
+  infix [priority rat.prio] ⬝ := nmul
   definition imul (i : ℤ) (a : ℚ) : ℚ := algebra.imul i a
 
   migrate from algebra with rat

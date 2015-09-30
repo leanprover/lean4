@@ -125,8 +125,8 @@ variable [C : complete_lattice A]
 include C
 prefix `⨅`:70 := Inf
 prefix `⨆`:65 := Sup
-infix `⊓` := inf
-infix `⊔` := sup
+infix ` ⊓ ` := inf
+infix ` ⊔ ` := sup
 
 variable {f : A → A}
 premise  (mono : ∀ x y : A, x ≤ y → f x ≤ f y)

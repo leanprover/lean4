@@ -77,7 +77,7 @@ namespace pos_num
     end
 
   local notation a < b         := (lt a b = tt)
-  local notation a `≮`:50 b:50 := (lt a b = ff)
+  local notation a ` ≮ `:50 b:50 := (lt a b = ff)
 
   theorem lt_one_right_eq_ff : ∀ a : pos_num, a ≮ one
   | one      := rfl

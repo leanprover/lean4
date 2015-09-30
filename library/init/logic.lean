@@ -152,7 +152,7 @@ section
   ne_false_of_self trivial
 end
 
-infixl `==`:50 := heq
+infixl ` == `:50 := heq
 
 namespace heq
   universe variable u
@@ -233,7 +233,7 @@ and.rec H₂ H₁
 
 /- or -/
 
-notation a `\/` b := or a b
+notation a \/ b := or a b
 notation a ∨ b := or a b
 
 namespace or
@@ -321,8 +321,8 @@ intro : ∀ (a : A), P a → Exists P
 
 definition exists.intro := @Exists.intro
 
-notation `exists` binders `,` r:(scoped P, Exists P) := r
-notation `∃` binders `,` r:(scoped P, Exists P) := r
+notation `exists` binders `, ` r:(scoped P, Exists P) := r
+notation `∃` binders `, ` r:(scoped P, Exists P) := r
 
 theorem exists.elim {A : Type} {p : A → Prop} {B : Prop}
   (H1 : ∃x, p x) (H2 : ∀ (a : A), p a → B) : B :=

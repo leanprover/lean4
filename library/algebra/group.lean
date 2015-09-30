@@ -36,8 +36,8 @@ structure has_inv [class] (A : Type) :=
 structure has_neg [class] (A : Type) :=
 (neg : A → A)
 
-infixl [priority algebra.prio] `*`   := has_mul.mul
-infixl [priority algebra.prio] `+`   := has_add.add
+infixl [priority algebra.prio] ` * `   := has_mul.mul
+infixl [priority algebra.prio] ` + `   := has_add.add
 postfix [priority algebra.prio] `⁻¹` := has_inv.inv
 prefix [priority algebra.prio] `-`   := has_neg.neg
 notation 1  := !has_one.one
@@ -287,8 +287,8 @@ section group
   definition conj_by (g a : A) := g * a * g⁻¹
   definition is_conjugate (a b : A) := ∃ x, conj_by x b = a
 
-  local infixl `~` := is_conjugate
-  local infixr `∘c`:55 := conj_by
+  local infixl ` ~ ` := is_conjugate
+  local infixr ` ∘c `:55 := conj_by
 
   lemma conj_compose (f g a : A) : f ∘c g ∘c a = f*g ∘c a :=
       calc f ∘c g ∘c a = f * (g * a * g⁻¹) * f⁻¹ : rfl
@@ -478,7 +478,7 @@ section add_group
   -- TODO: derive corresponding facts for div in a field
   definition sub [reducible] (a b : A) : A := a + -b
 
-  infix [priority algebra.prio] `-` := sub
+  infix [priority algebra.prio] - := sub
 
   theorem sub_eq_add_neg (a b : A) : a - b = a + -b := rfl
 

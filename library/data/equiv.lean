@@ -20,12 +20,12 @@ structure equiv [class] (A B : Type) :=
 namespace equiv
 definition perm [reducible] (A : Type) := equiv A A
 
-infix `≃`:50 := equiv
+infix ` ≃ `:50 := equiv
 
 definition fn {A B : Type} (e : equiv A B) : A → B :=
 @equiv.to_fun A B e
 
-infixr `∙`:100 := fn
+infixr ` ∙ `:100 := fn
 
 definition inv {A B : Type} [e : equiv A B] : B → A :=
 @equiv.inv_fun A B e
@@ -54,9 +54,9 @@ protected definition trans [trans] {A B C : Type} : A ≃ B → B ≃ C → A �
 abbreviation id {A : Type} := equiv.refl A
 
 namespace ops
-  postfix `⁻¹` := equiv.symm
-  postfix `⁻¹` := equiv.inv
-  notation e₁ `∘` e₂  := equiv.trans e₂ e₁
+  postfix ⁻¹ := equiv.symm
+  postfix ⁻¹ := equiv.inv
+  notation e₁ ∘ e₂  := equiv.trans e₂ e₁
 end ops
 open equiv.ops
 

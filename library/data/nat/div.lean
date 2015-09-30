@@ -78,7 +78,7 @@ if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y else x
 
 definition modulo := fix mod.F
 notation a mod b := modulo a b
-notation a `≡` b `[mod`:100 c `]`:0 := a mod c = b mod c
+notation a ≡ b `[mod `:100 c `]`:0 := a mod c = b mod c
 
 theorem modulo_def (x y : nat) : modulo x y = if 0 < y ∧ y ≤ x then modulo (x - y) y else x :=
 congr_fun (fix_eq mod.F x) y

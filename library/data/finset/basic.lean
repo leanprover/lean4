@@ -74,7 +74,7 @@ quot.lift_on s (λ l, a ∈ elt_of l)
    (λ ainl₁, mem_perm e ainl₁)
    (λ ainl₂, mem_perm (perm.symm e) ainl₂)))
 
-infix [priority finset.prio] `∈` := mem
+infix [priority finset.prio] ∈ := mem
 notation [priority finset.prio] a ∉ b := ¬ mem a b
 
 theorem mem_of_mem_list {a : A} {l : nodup_list A} : a ∈ elt_of l → a ∈ ⟦l⟧ :=
@@ -169,7 +169,7 @@ quot.lift_on s
   (λ (l₁ l₂ : nodup_list A) (p : l₁ ~ l₂), quot.sound (perm_insert a p))
 
 -- set builder notation
-notation [priority finset.prio] `'{`:max a:(foldr `,` (x b, insert x b) ∅) `}`:0 := a
+notation [priority finset.prio] `'{`:max a:(foldr `, ` (x b, insert x b) ∅) `}`:0 := a
 
 theorem mem_insert (a : A) (s : finset A) : a ∈ insert a s :=
 quot.induction_on s
@@ -546,7 +546,7 @@ quot.lift_on₂ s₁ s₂
     (λ s₁ a i, mem_perm p₂ (s₁ a (mem_perm (perm.symm p₁) i)))
     (λ s₂ a i, mem_perm (perm.symm p₂) (s₂ a (mem_perm p₁ i)))))
 
-infix [priority finset.prio] `⊆` := subset
+infix [priority finset.prio] ⊆ := subset
 
 theorem empty_subset (s : finset A) : ∅ ⊆ s :=
 quot.induction_on s (λ l, list.nil_sub (elt_of l))

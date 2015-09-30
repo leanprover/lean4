@@ -25,7 +25,7 @@ section division_ring
   include s
 
   definition divide (a b : A) : A := a * b⁻¹
-  infix [priority algebra.prio] `/` := divide
+  infix [priority algebra.prio] / := divide
 
   -- only in this file
   local attribute divide [reducible]

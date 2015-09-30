@@ -45,7 +45,7 @@ namespace int
 
 attribute int.of_nat [coercion]
 
-notation `-[1+` n `]` := int.neg_succ_of_nat n    -- for pretty-printing output
+notation `-[1+ ` n `]` := int.neg_succ_of_nat n    -- for pretty-printing output
 
 /- definitions of basic functions -/
 
@@ -137,7 +137,7 @@ theorem eq_zero_of_nat_abs_eq_zero : Π {a : ℤ}, nat_abs a = 0 → a = 0
 
 protected definition equiv (p q : ℕ × ℕ) : Prop :=  pr1 p + pr2 q = pr2 p + pr1 q
 
-local infix `≡` := int.equiv
+local infix ≡ := int.equiv
 
 protected theorem equiv.refl [refl] {p : ℕ × ℕ} : p ≡ p := !add.comm
 

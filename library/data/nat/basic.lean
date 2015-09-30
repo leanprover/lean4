@@ -14,7 +14,7 @@ namespace nat
 
 definition addl (x y : ℕ) : ℕ :=
 nat.rec y (λ n r, succ r) x
-infix `⊕`:65 := addl
+infix ` ⊕ `:65 := addl
 
 theorem addl_succ_right (n m : ℕ) : n ⊕ succ m = succ (n ⊕ m) :=
 nat.induction_on n

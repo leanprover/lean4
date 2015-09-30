@@ -17,7 +17,7 @@ inhabited.mk list.nil
 
 namespace list
 notation h :: t  := cons h t
-notation `[` l:(foldr `,` (h t, cons h t) nil `]`) := l
+notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
 
 variable {T : Type}
 
@@ -352,7 +352,7 @@ assume P, and.intro (ne_of_not_mem_cons P) (not_mem_of_not_mem_cons P)
 
 definition sublist (l₁ l₂ : list T) := ∀ ⦃a : T⦄, a ∈ l₁ → a ∈ l₂
 
-infix `⊆` := sublist
+infix ⊆ := sublist
 
 theorem nil_sub [simp] (l : list T) : [] ⊆ l :=
 λ b i, false.elim (iff.mp (mem_nil_iff b) i)

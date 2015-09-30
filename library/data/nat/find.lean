@@ -31,7 +31,7 @@ private lemma lbp_succ {x : nat} : lbp x → ¬ p x → lbp (succ x) :=
 private definition gtb (a b : nat) : Prop :=
 a > b ∧ lbp a
 
-local infix `≺`:50 := gtb
+local infix ` ≺ `:50 := gtb
 
 private lemma acc_of_px {x : nat} : p x → acc gtb x :=
 assume h,

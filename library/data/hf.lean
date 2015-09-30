@@ -64,7 +64,7 @@ of_finset (finset.insert a (to_finset s))
 definition mem (a : hf) (s : hf) : Prop :=
 finset.mem a (to_finset s)
 
-infix `∈` := mem
+infix ∈ := mem
 notation [priority finset.prio] a ∉ b := ¬ mem a b
 
 lemma insert_lt_of_not_mem {a s : hf} : a ∉ s → s < insert a s :=
@@ -314,7 +314,7 @@ end
 definition subset (s₁ s₂ : hf) : Prop :=
 finset.subset (to_finset s₁) (to_finset s₂)
 
-infix [priority hf.prio] `⊆` := subset
+infix [priority hf.prio] ⊆ := subset
 
 theorem empty_subset (s : hf) : ∅ ⊆ s :=
 begin unfold [empty, subset], rewrite to_finset_of_finset, apply finset.empty_subset (to_finset s) end

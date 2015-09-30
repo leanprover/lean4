@@ -15,7 +15,7 @@ inductive vector (A : Type) : nat → Type :=
 
 namespace vector
   notation a :: b := cons a b
-  notation `[` l:(foldr `,` (h t, cons h t) nil `]`) := l
+  notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
 
   variables {A B C : Type}
 

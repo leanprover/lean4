@@ -7,9 +7,9 @@ prelude
 import init.datatypes init.num init.wf init.logic init.tactic
 
 definition dpair := @sigma.mk
-notation `Σ` binders `,` r:(scoped P, sigma P) := r
+notation `Σ` binders `, ` r:(scoped P, sigma P) := r
 -- notation for n-ary tuples; input ⟨ ⟩ as \< \>
-notation `⟨`:max t:(foldr `,` (e r, sigma.mk e r)) `⟩`:0 := t
+notation `⟨`:max t:(foldr `, ` (e r, sigma.mk e r)) `⟩`:0 := t
 
 lemma ex_of_sig {A : Type} {P : A → Prop} : (Σ x, P x) → ∃ x, P x :=
 assume h, obtain x hx, from h, exists.intro x hx

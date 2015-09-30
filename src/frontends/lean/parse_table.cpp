@@ -327,7 +327,7 @@ action replace(action const & a, std::function<expr(expr const &)> const & f) {
 }
 
 transition replace(transition const & t, std::function<expr(expr const &)> const & f) {
-    return transition(t.get_token(), replace(t.get_action(), f));
+    return transition(t.get_token(), replace(t.get_action(), f), t.get_pp_token());
 }
 
 struct parse_table::cell {

@@ -121,8 +121,7 @@ private:
     }
 
     std::tuple<sexpr, sexpr const *> separate_tokens(sexpr const & s, sexpr const * last,
-                                                     std::function<bool(sexpr const &, sexpr const &)> sep //NOLINT
-    ) const;
+                                                     std::function<bool(sexpr const &, sexpr const &)> sep) const; //NOLINT
 
     // Functions used inside of pretty printing
     static bool space_upto_line_break_list_exceeded(sexpr const & s, int available, std::vector<pair<sexpr, unsigned>> const & todo);

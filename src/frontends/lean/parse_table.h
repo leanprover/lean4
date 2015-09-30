@@ -114,11 +114,13 @@ action replace(action const & a, std::function<expr(expr const &)> const & f);
 
 class transition {
     name           m_token;
+    name           m_pp_token;
     action         m_action;
 public:
-    transition(name const & t, action const & a):
-        m_token(t), m_action(a) {}
+    transition(name const & t, action const & a, name pp_token = name::anonymous()):
+        m_token(t), m_pp_token(pp_token ? pp_token : t), m_action(a) {}
     name const & get_token() const { return m_token; }
+    name const & get_pp_token() const { return m_pp_token; }
     action const & get_action() const { return m_action; }
     bool is_simple() const { return m_action.is_simple(); }
     bool is_safe_ascii() const { return m_token.is_safe_ascii(); }

@@ -1029,7 +1029,7 @@ auto pretty_fn::pp_notation(notation_entry const & entry, buffer<optional<expr>>
             format curr;
             notation::action const & a = ts[i].get_action();
             name const & tk = ts[i].get_token();
-            format tk_fmt = format(tk);
+            format tk_fmt = format(ts[i].get_pp_token());
             switch (a.kind()) {
             case notation::action_kind::Skip:
                 curr = tk_fmt;

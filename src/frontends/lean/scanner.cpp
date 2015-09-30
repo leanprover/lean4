@@ -157,9 +157,10 @@ auto scanner::read_quoted_symbol() -> token_kind {
         if (c == '`') {
             m_name_val = name(m_buffer.c_str());
             return token_kind::QuotedSymbol;
-        } else if (c != ' ' && c != '\"' && c != '\n' && c != '\t') {
+        } else if (c != '\"' && c != '\n' && c != '\t') {
             m_buffer += c;
         } else {
+            // TODO: intra-token space
             throw_exception("invalid quoted symbol, invalid character");
         }
     }

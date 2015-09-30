@@ -204,14 +204,15 @@ action read_action(deserializer & d) {
 }
 
 serializer & operator<<(serializer & s, transition const & t) {
-    s << t.get_token() << t.get_action();
+    s << t.get_token() << t.get_pp_token() << t.get_action();
     return s;
 }
 
 transition read_transition(deserializer & d) {
-    name   n = read_name(d);
-    action a = read_action(d);
-    return transition(n, a);
+    name   n  = read_name(d);
+    name   pp = read_name(d);
+    action a  = read_action(d);
+    return transition(n, a, pp);
 }
 
 struct notation_state {

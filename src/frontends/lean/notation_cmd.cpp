@@ -122,7 +122,9 @@ static token_entry mk_token_entry(std::string const & tk, unsigned prec, notatio
 static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, notation_entry_group grp, bool parse_only,
                                   unsigned priority)
 -> pair<notation_entry, optional<token_entry>> {
-    std::string tk = parse_symbol(p, "invalid notation declaration, quoted symbol or identifier expected");
+    bool explicit_pp = p.curr_is_quoted_symbol();
+    std::string pp_tk = parse_symbol(p, "invalid notation declaration, quoted symbol or identifier expected");
+    std::string tk = utf8_trim(pp_tk);
     char const * tks = tk.c_str();
     check_not_forbidden(tks);
     environment const & env = p.env();
@@ -130,19 +132,22 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
     optional<unsigned> prec;
 
     optional<parse_table> reserved_pt;
+    optional<transition> reserved_transition;
     optional<action> reserved_action;
     if (grp == notation_entry_group::Main) {
         if (k == mixfix_kind::prefix) {
             if (auto ls = get_reserved_nud_table(p.env()).find(tks)) {
                 // Remark: we are ignoring multiple actions in the reserved notation table
                 reserved_pt     = head(ls).second;
-                reserved_action = head(ls).first.get_action();
+                reserved_transition = head(ls).first;
+                reserved_action = reserved_transition->get_action();
             }
         } else {
             if (auto ls = get_reserved_led_table(p.env()).find(tks)) {
                 // Remark: we are ignoring multiple actions in the reserved notation table
                 reserved_pt     = head(ls).second;
-                reserved_action = head(ls).first.get_action();
+                reserved_transition = head(ls).first;
+                reserved_action = reserved_transition->get_action();
             }
         }
     }
@@ -211,6 +216,9 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
         }
     }
 
+    if (reserved_action && !explicit_pp)
+        pp_tk = reserved_transition->get_pp_token().to_string();
+
     if (grp == notation_entry_group::Reserve) {
         // reserve notation commands do not have a denotation
         expr dummy = mk_Prop();
@@ -218,16 +226,16 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
             throw parser_error("invalid reserve notation, found `:=`", p.pos());
         switch (k) {
         case mixfix_kind::infixl:
-            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
+            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec), pp_tk)),
                                           dummy, overload, priority, grp, parse_only), new_token);
         case mixfix_kind::infixr:
-            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
+            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec), pp_tk)),
                                           dummy, overload, priority, grp, parse_only), new_token);
         case mixfix_kind::postfix:
-            return mk_pair(notation_entry(false, to_list(transition(tks, mk_skip_action())),
+            return mk_pair(notation_entry(false, to_list(transition(tks, mk_skip_action(), pp_tk)),
                                           dummy, overload, priority, grp, parse_only), new_token);
         case mixfix_kind::prefix:
-            return mk_pair(notation_entry(true, to_list(transition(tks, mk_expr_action(*prec))),
+            return mk_pair(notation_entry(true, to_list(transition(tks, mk_expr_action(*prec), pp_tk)),
                                           dummy, overload, priority, grp, parse_only), new_token);
         }
     } else {
@@ -239,17 +247,17 @@ static auto parse_mixfix_notation(parser & p, mixfix_kind k, bool overload, nota
         case mixfix_kind::infixl:
 #if defined(__GNUC__) && !defined(__CLANG__)
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
+            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec), pp_tk)),
                                           mk_app(f, Var(1), Var(0)), overload, priority, grp, parse_only), new_token);
 #endif
         case mixfix_kind::infixr:
-            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec))),
+            return mk_pair(notation_entry(false, to_list(transition(tks, mk_expr_action(*prec), pp_tk)),
                                           mk_app(f, Var(1), Var(0)), overload, priority, grp, parse_only), new_token);
         case mixfix_kind::postfix:
-            return mk_pair(notation_entry(false, to_list(transition(tks, mk_skip_action())),
+            return mk_pair(notation_entry(false, to_list(transition(tks, mk_skip_action(), pp_tk)),
                                           mk_app(f, Var(0)), overload, priority, grp, parse_only), new_token);
         case mixfix_kind::prefix:
-            return mk_pair(notation_entry(true, to_list(transition(tks, mk_expr_action(*prec))),
+            return mk_pair(notation_entry(true, to_list(transition(tks, mk_expr_action(*prec), pp_tk)),
                                           mk_app(f, Var(0)), overload, priority, grp, parse_only), new_token);
         }
     }
@@ -268,9 +276,9 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
     used_default = false;
     if (p.curr_is_quoted_symbol()) {
         environment const & env = p.env();
-        auto tk   = p.get_name_val();
-        auto tks  = tk.to_string();
-        auto tkcs = tks.c_str();
+        auto pp_tk = p.get_name_val();
+        auto tks   = utf8_trim(pp_tk.to_string());
+        auto tkcs  = tks.c_str();
         check_not_forbidden(tkcs);
         p.next();
         if (p.curr_is_token(get_colon_tk())) {
@@ -281,7 +289,7 @@ static name parse_quoted_symbol_or_token(parser & p, buffer<token_entry> & new_t
             new_tokens.push_back(mk_token_entry(tkcs, LEAN_DEFAULT_PRECEDENCE, grp));
             used_default = true;
         }
-        return tk;
+        return pp_tk;
     } else if (p.curr_is_keyword()) {
         auto tk = p.get_token_info().token();
         check_not_forbidden(tk.to_string().c_str());
@@ -452,15 +460,16 @@ static unsigned parse_binders_rbp(parser & p) {
 }
 
 static transition parse_transition(parser & p, optional<parse_table> const & pt, name const & tk,
-                                   buffer<expr> & locals, buffer<token_entry> & new_tokens, notation_entry_group grp) {
+                                   buffer<expr> & locals, buffer<token_entry> & new_tokens, notation_entry_group grp,
+                                   name const & pp_tk) {
     if (p.curr_is_token_or_id(get_binder_tk())) {
         p.next();
         unsigned rbp = parse_binders_rbp(p);
-        return transition(tk, mk_binder_action(rbp));
+        return transition(tk, mk_binder_action(rbp), pp_tk);
     } else if (p.curr_is_token_or_id(get_binders_tk())) {
         p.next();
         unsigned rbp = parse_binders_rbp(p);
-        return transition(tk, mk_binders_action(rbp));
+        return transition(tk, mk_binders_action(rbp), pp_tk);
     } else if (p.curr_is_identifier()) {
         unsigned default_prec = get_default_prec(pt, tk);
         name n   = p.get_name_val();
@@ -470,10 +479,10 @@ static transition parse_transition(parser & p, optional<parse_table> const & pt,
         expr l = mk_local(n, local_type);
         p.add_local(l);
         locals.push_back(l);
-        return transition(tk, a);
+        return transition(tk, a, pp_tk);
     } else if (p.curr_is_quoted_symbol() || p.curr_is_keyword() ||
                p.curr_is_token(get_assign_tk()) || p.curr_is_command() || p.curr_is_eof()) {
-        return transition(tk, mk_skip_action());
+        return transition(tk, mk_skip_action(), pp_tk);
     } else {
         throw parser_error("invalid notation declaration, quoted-symbol, identifier, "
                            "'binder', 'binders' expected", p.pos());
@@ -511,48 +520,52 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
     bool used_default = false;
     while ((grp != notation_entry_group::Reserve && !p.curr_is_token(get_assign_tk())) ||
            (grp == notation_entry_group::Reserve && !p.curr_is_command() && !p.curr_is_eof())) {
-        name tk = parse_quoted_symbol_or_token(p, new_tokens, used_default, grp);
+        name pp_tk = parse_quoted_symbol_or_token(p, new_tokens, used_default, grp).to_string();
+        name tk = utf8_trim(pp_tk.to_string());
         if (auto at = find_next(reserved_pt, tk)) {
             // Remark: we are ignoring multiple actions in the reserved notation table
-            action const & a = head(at).first.get_action();
+            transition const & trans = head(at).first;
+            action const & a = trans.get_action();
             reserved_pt      = head(at).second;
+            if (!p.curr_is_quoted_symbol())
+                pp_tk = trans.get_pp_token();
             switch (a.kind()) {
             case notation::action_kind::Skip:
                 if (!p.curr_is_quoted_symbol() && !p.curr_is_keyword() && !p.curr_is_token(get_assign_tk())) {
                     if (g_allow_local && !p.curr_is_token_or_id(get_binders_tk())) {
-                        ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp));
+                        ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp, pp_tk));
                         break;
                     }
                     p.check_token_or_id_next(get_binders_tk(),
                                              "invalid notation declaration, quoted-symbol, keyword or `:=` expected "
                                              "(declaration prefix matches reserved notation)");
                 }
-                ts.push_back(transition(tk, a));
+                ts.push_back(transition(tk, a, pp_tk));
                 break;
             case notation::action_kind::Binder:
                 if (g_allow_local && !p.curr_is_token_or_id(get_binder_tk())) {
-                    ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp));
+                    ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp, pp_tk));
                     break;
                 }
                 p.check_token_or_id_next(get_binder_tk(),
                                          "invalid notation declaration, 'binder' expected "
                                          "(declaration prefix matches reserved notation)");
-                ts.push_back(transition(tk, a));
+                ts.push_back(transition(tk, a, pp_tk));
                 break;
             case notation::action_kind::Binders:
                 if (g_allow_local && !p.curr_is_token_or_id(get_binders_tk())) {
-                    ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp));
+                    ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp, pp_tk));
                     break;
                 }
                 p.check_token_or_id_next(get_binders_tk(),
                                          "invalid notation declaration, 'binders' expected "
                                          "(declaration prefix matches reserved notation)");
-                ts.push_back(transition(tk, a));
+                ts.push_back(transition(tk, a, pp_tk));
                 break;
             case notation::action_kind::Expr: case notation::action_kind::Exprs: case notation::action_kind::ScopedExpr:
             case notation::action_kind::Ext:  case notation::action_kind::LuaExt: {
                 if (g_allow_local && !p.curr_is_identifier()) {
-                    ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp));
+                    ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp, pp_tk));
                     break;
                 }
                 name n = p.check_id_next("invalid notation declaration, identifier expected "
@@ -565,7 +578,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
                         expr l = mk_local(n, local_type);
                         p.add_local(l);
                         locals.push_back(l);
-                        ts.push_back(transition(tk, a));
+                        ts.push_back(transition(tk, a, pp_tk));
                         break;
                     } else {
                         throw parser_error("invalid notation declaration, invalid ':' occurrence "
@@ -576,13 +589,13 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
                     expr l = mk_local(n, local_type);
                     p.add_local(l);
                     locals.push_back(l);
-                    ts.push_back(transition(tk, a));
+                    ts.push_back(transition(tk, a, pp_tk));
                     break;
                 }
             }}
         } else {
             reserved_pt = optional<parse_table>();
-            ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp));
+            ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, grp, pp_tk));
         }
         pt = find_match(pt, ts.back());
     }

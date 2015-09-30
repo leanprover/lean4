@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <limits>
 #include <vector>
+#include <util/utf8.h>
 #include "util/interrupt.h"
 #include "util/script_exception.h"
 #include "util/sstream.h"
@@ -1266,7 +1267,8 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
             auto terminator = a.get_terminator();
             if (!terminator || !curr_is_token(*terminator)) {
                 r_args.push_back(parse_expr_or_tactic(a.rbp(), as_tactic));
-                while (curr_is_token(a.get_sep())) {
+                name sep = utf8_trim(a.get_sep().to_string());
+                while (curr_is_token(sep)) {
                     next();
                     r_args.push_back(parse_expr_or_tactic(a.rbp(), as_tactic));
                 }

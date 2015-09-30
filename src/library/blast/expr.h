@@ -12,19 +12,15 @@ namespace lean {
 namespace blast {
 // API for creating maximally shared terms used by the blast tactic.
 // The API assumes there is a single blast tactic using theses terms.
-// The hash-consing tables are thread local.
+// The expression hash-consing tables are thread local and implemented
+// in the kernel
 
 // Remark: All procedures assume the children levels and expressions are maximally shared.
 // That is, it assumes they have been created using the APIs provided by this module.
 
 // Auxiliary object for resetting the the thread local hash-consing tables.
-// Its destructor restores the state of the hash-consing tables.
+// It also uses an assertion to make sure it is not being used in a recursion.
 class scope_hash_consing {
-    void * m_level_table;
-    void * m_expr_table;
-    void * m_var_array;
-    void * m_mref_array;
-    void * m_href_array;
 public:
     scope_hash_consing();
     ~scope_hash_consing();

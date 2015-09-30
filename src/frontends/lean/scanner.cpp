@@ -160,7 +160,7 @@ auto scanner::read_quoted_symbol() -> token_kind {
         } else if (c != '\"' && c != '\n' && c != '\t') {
             m_buffer += c;
         } else {
-            // TODO: intra-token space
+            // TODO(Leo): intra-token space
             throw_exception("invalid quoted symbol, invalid character");
         }
     }

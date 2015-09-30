@@ -32,10 +32,10 @@ end unit
 -- Sigma type
 -- ----------
 
-notation `Σ` binders `,` r:(scoped P, sigma P) := r
+notation `Σ` binders `, ` r:(scoped P, sigma P) := r
 
 namespace sigma
-  notation `⟨`:max t:(foldr `,` (e r, mk e r)) `⟩`:0 := t --input ⟨ ⟩ as \< \>
+  notation `⟨`:max t:(foldr `, ` (e r, mk e r)) `⟩`:0 := t --input ⟨ ⟩ as \< \>
 
   namespace ops
   postfix `.1`:(max+1) := pr1
@@ -52,8 +52,8 @@ namespace sum
   infixr ⊎ := sum
   infixr + := sum
   namespace low_precedence_plus
-    reserve infixr `+`:25  -- conflicts with notation for addition
-    infixr `+` := sum
+    reserve infixr ` + `:25  -- conflicts with notation for addition
+    infixr ` + ` := sum
   end low_precedence_plus
 
   variables {a b c d : Type}
@@ -81,7 +81,7 @@ abbreviation pair [constructor] := @prod.mk
 namespace prod
 
   -- notation for n-ary tuples
-  notation `(` h `,` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
+  notation `(` h `, ` t:(foldl `,` (e r, prod.mk r e) h) `)` := t
   infixr × := prod
 
   namespace ops
@@ -94,8 +94,8 @@ namespace prod
 
   namespace low_precedence_times
 
-    reserve infixr `*`:30  -- conflicts with notation for multiplication
-    infixr `*` := prod
+    reserve infixr ` * `:30  -- conflicts with notation for multiplication
+    infixr ` * ` := prod
 
   end low_precedence_times
 

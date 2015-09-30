@@ -56,15 +56,11 @@ rfl
 theorem uncurry_curry (f : A × B → C) : uncurry (curry f) = f :=
 funext (λ p, match p with (a, b) := rfl end)
 
-precedence `∘'`:60
-precedence `on`:1
-precedence `$`:1
-
-infixr  ∘                  := compose
-infixr  ∘'                 := dcompose
-infixl  on                 := on_fun
-infixr  $                  := app
-notation f `-[` op `]-` g  := combine f op g
+infixr  ` ∘ `            := compose
+infixr  ` ∘' `:60        := dcompose
+infixl  ` on `:1         := on_fun
+infixr  ` $ `:1          := app
+notation f ` -[` op `]- ` g  := combine f op g
 
 lemma left_id (f : A → B) : id ∘ f = f := rfl
 

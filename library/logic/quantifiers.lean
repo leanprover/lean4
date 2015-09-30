@@ -75,7 +75,7 @@ end
 definition exists_unique {A : Type} (p : A → Prop) :=
 ∃x, p x ∧ ∀y, p y → y = x
 
-notation `∃!` binders `,` r:(scoped P, exists_unique P) := r
+notation `∃!` binders `, ` r:(scoped P, exists_unique P) := r
 
 theorem exists_unique.intro {A : Type} {p : A → Prop} (w : A) (H1 : p w) (H2 : ∀y, p y → y = w) :
   ∃!x, p x :=

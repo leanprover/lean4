@@ -53,12 +53,12 @@ assume h, absurd rfl (and.elim_right h)
 /- bounded quantification -/
 
 abbreviation bounded_forall (a : set X) (P : X → Prop) := ∀⦃x⦄, x ∈ a → P x
-notation `forallb` binders `∈` a `,` r:(scoped:1 P, P) := bounded_forall a r
-notation `∀₀` binders `∈` a `,` r:(scoped:1 P, P) := bounded_forall a r
+notation `forallb` binders `∈` a `, ` r:(scoped:1 P, P) := bounded_forall a r
+notation `∀₀` binders `∈` a `, ` r:(scoped:1 P, P) := bounded_forall a r
 
 abbreviation bounded_exists (a : set X) (P : X → Prop) := ∃⦃x⦄, x ∈ a ∧ P x
-notation `existsb` binders `∈` a `,` r:(scoped:1 P, P) := bounded_exists a r
-notation `∃₀` binders `∈` a `,` r:(scoped:1 P, P) := bounded_exists a r
+notation `existsb` binders `∈` a `, ` r:(scoped:1 P, P) := bounded_exists a r
+notation `∃₀` binders `∈` a `, ` r:(scoped:1 P, P) := bounded_exists a r
 
 theorem bounded_exists.intro {P : X → Prop} {s : set X} {x : X} (xs : x ∈ s) (Px : P x) :
   ∃₀ x ∈ s, P x :=

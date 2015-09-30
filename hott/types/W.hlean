@@ -13,7 +13,7 @@ inductive Wtype.{l k} {A : Type.{l}} (B : A → Type.{k}) : Type.{max l k} :=
 sup : Π (a : A), (B a → Wtype.{l k} B) → Wtype.{l k} B
 
 namespace Wtype
-  notation `W` binders `,` r:(scoped B, Wtype B) := r
+  notation `W` binders `, ` r:(scoped B, Wtype B) := r
 
   universe variables u v
   variables {A A' : Type.{u}} {B B' : A → Type.{v}} {C : Π(a : A), B a → Type}
@@ -28,7 +28,7 @@ namespace Wtype
   namespace ops
   postfix `.1`:(max+1) := Wtype.pr1
   postfix `.2`:(max+1) := Wtype.pr2
-  notation `⟨` a `,` f `⟩`:0 := Wtype.sup a f --input ⟨ ⟩ as \< \>
+  notation `⟨` a `, ` f `⟩`:0 := Wtype.sup a f --input ⟨ ⟩ as \< \>
   end ops
   open ops
 

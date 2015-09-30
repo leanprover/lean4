@@ -33,62 +33,62 @@ num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (
 /- Logical operations and relations -/
 
 reserve prefix `¬`:40
-reserve prefix `~`:40
-reserve infixr `∧`:35
-reserve infixr `/\`:35
-reserve infixr `\/`:30
-reserve infixr `∨`:30
-reserve infix `<->`:20
-reserve infix `↔`:20
-reserve infix `=`:50
-reserve infix `≠`:50
-reserve infix `≈`:50
-reserve infix `~`:50
-reserve infix `≡`:50
+reserve prefix ` ~ `:40
+reserve infixr ` ∧ `:35
+reserve infixr ` /\ `:35
+reserve infixr ` \/ `:30
+reserve infixr ` ∨ `:30
+reserve infix ` <-> `:20
+reserve infix ` ↔ `:20
+reserve infix ` = `:50
+reserve infix ` ≠ `:50
+reserve infix ` ≈ `:50
+reserve infix ` ~ `:50
+reserve infix ` ≡ `:50
 
-reserve infixr `∘`:60                   -- input with \comp
+reserve infixr ` ∘ `:60                   -- input with \comp
 reserve postfix `⁻¹`:std.prec.max_plus  -- input with \sy or \-1 or \inv
 
-reserve infixl `⬝`:75
-reserve infixr `▸`:75
+reserve infixl ` ⬝ `:75
+reserve infixr ` ▸ `:75
 
 /- types and type constructors -/
 
-reserve infixr `⊎`:25
-reserve infixr `×`:30
+reserve infixr ` ⊎ `:25
+reserve infixr ` × `:30
 
 /- arithmetic operations -/
 
-reserve infixl `+`:65
-reserve infixl `-`:65
-reserve infixl `*`:70
-reserve infixl `div`:70
-reserve infixl `mod`:70
-reserve infixl `/`:70
-reserve prefix `-`:100
-reserve infix `^`:80
+reserve infixl ` + `:65
+reserve infixl ` - `:65
+reserve infixl ` * `:70
+reserve infixl ` div `:70
+reserve infixl ` mod `:70
+reserve infixl ` / `:70
+reserve prefix ` - `:100
+reserve infix ` ^ `:80
 
-reserve infix `<=`:50
-reserve infix `≤`:50
-reserve infix `<`:50
-reserve infix `>=`:50
-reserve infix `≥`:50
-reserve infix `>`:50
+reserve infix ` <= `:50
+reserve infix ` ≤ `:50
+reserve infix ` < `:50
+reserve infix ` >= `:50
+reserve infix ` ≥ `:50
+reserve infix ` > `:50
 
 /- boolean operations -/
 
-reserve infixl `&&`:70
-reserve infixl `||`:65
+reserve infixl ` && `:70
+reserve infixl ` || `:65
 
 /- set operations -/
 
-reserve infix `∈`:50
-reserve infix `∉`:50
-reserve infixl `∩`:70
-reserve infixl `∪`:65
+reserve infix ` ∈ `:50
+reserve infix ` ∉ `:50
+reserve infixl ` ∩ `:70
+reserve infixl ` ∪ `:65
 
 /- other symbols -/
 
-reserve infix `∣`:50
-reserve infixl `++`:65
-reserve infixr `::`:65
+reserve infix ` ∣ `:50
+reserve infixl ` ++ `:65
+reserve infixr ` :: `:65

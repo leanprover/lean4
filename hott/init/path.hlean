@@ -458,14 +458,14 @@ namespace eq
 
   -- In Coq the variables P, Q and b are explicit, but in Lean we can probably have them implicit
   -- using the following notation
-  notation p `▸D`:65 x:64 := transportD _ p _ x
+  notation p ` ▸D `:65 x:64 := transportD _ p _ x
 
   -- Transporting along higher-dimensional paths
   definition transport2 [unfold 7] (P : A → Type) {x y : A} {p q : x = y} (r : p = q) (z : P x) :
     p ▸ z = q ▸ z :=
   ap (λp', p' ▸ z) r
 
-  notation p `▸2`:65 x:64 := transport2 _ p _ x
+  notation p ` ▸2 `:65 x:64 := transport2 _ p _ x
 
   -- An alternative definition.
   definition tr2_eq_ap10 (Q : A → Type) {x y : A} {p q : x = y} (r : p = q)
@@ -486,7 +486,7 @@ namespace eq
     {x1 x2 : A} (p : x1 = x2) (y : B x1) (z : C x1) (w : D x1 y z) : D x2 (p ▸ y) (p ▸ z) :=
   eq.rec_on p w
 
-  notation p `▸D2`:65 x:64 := transportD2 _ _ _ p _ _ x
+  notation p ` ▸D2 `:65 x:64 := transportD2 _ _ _ p _ _ x
 
   definition ap_tr_con_tr2 (P : A → Type) {x y : A} {p q : x = y} {z w : P x} (r : p = q)
       (s : z = w) :

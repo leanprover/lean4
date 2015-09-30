@@ -11,7 +11,7 @@ structure setoid [class] (A : Type) :=
 (r : A → A → Prop) (iseqv : equivalence r)
 
 namespace setoid
-  infix `≈` := setoid.r
+  infix ` ≈ ` := setoid.r
 
   variable {A : Type}
   variable [s : setoid A]

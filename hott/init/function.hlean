@@ -58,11 +58,11 @@ precedence `on`:1
 precedence `$`:1
 
 
-infixr  ∘                  := compose
-infixr  ∘'                 := dcompose
-infixl  on                 := on_fun
-infixr  $                  := app
-notation f `-[` op `]-` g  := combine f op g
+infixr  ∘                    := compose
+infixr  ∘'                   := dcompose
+infixl  on                   := on_fun
+infixr  $                    := app
+notation f ` -[` op `]- ` g  := combine f op g
 
 end function
 

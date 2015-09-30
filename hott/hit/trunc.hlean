@@ -114,7 +114,7 @@ namespace trunc
 
   notation `exists` binders `,` r:(scoped P, Exists P) := r
   notation `∃` binders `,` r:(scoped P, Exists P) := r
-  notation A `\/` B := or A B
+  notation A ` \/ ` B := or A B
   notation A ∨ B    := or A B
 
   definition merely.intro   [reducible] [constructor] (a : A) : ∥ A ∥             := tr a

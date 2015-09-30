@@ -20,7 +20,7 @@ namespace eq
   inductive pathover.{l} (B : A → Type.{l}) (b : B a) : Π{a₂ : A}, a = a₂ → B a₂ → Type.{l} :=
   idpatho : pathover B b (refl a) b
 
-  notation b `=[`:50 p:0 `]`:0 b₂:50 := pathover _ b p b₂
+  notation b ` =[`:50 p:0 `] `:0 b₂:50 := pathover _ b p b₂
 
   definition idpo [reducible] [constructor] : b =[refl a] b :=
   pathover.idpatho b

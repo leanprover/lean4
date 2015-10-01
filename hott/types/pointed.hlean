@@ -74,7 +74,7 @@ namespace pointed
   nat.rec_on n (λA, A) (λn IH A, IH (Loop_space A)) A
 
   prefix `Ω`:(max+5) := Loop_space
-  notation `Ω[`:95 n:0 `]`:0 A:95 := Iterated_loop_space n A
+  notation `Ω[`:95 n:0 `] `:0 A:95 := Iterated_loop_space n A
 
   definition refln [constructor] {A : Type*} {n : ℕ} : Ω[n] A := pt
 
@@ -117,7 +117,7 @@ namespace pointed
 
   abbreviation respect_pt [unfold 3] := @pmap.resp_pt
   notation `map₊` := pmap
-  infix `→*`:30 := pmap
+  infix ` →* `:30 := pmap
   attribute pmap.map [coercion]
   variables {A B C D : Type*} {f g h : A →* B}
 
@@ -137,13 +137,13 @@ namespace pointed
   definition pcompose [constructor] (g : B →* C) (f : A →* B) : A →* C :=
   pmap.mk (λa, g (f a)) (ap g (respect_pt f) ⬝ respect_pt g)
 
-  infixr `∘*`:60 := pcompose
+  infixr ` ∘* `:60 := pcompose
 
   structure phomotopy (f g : A →* B) :=
     (homotopy : f ~ g)
     (homotopy_pt : homotopy pt ⬝ respect_pt g = respect_pt f)
 
-  infix `~*`:50 := phomotopy
+  infix ` ~* `:50 := phomotopy
   abbreviation to_homotopy_pt [unfold 5] := @phomotopy.homotopy_pt
   abbreviation to_homotopy [coercion] [unfold 5] (p : f ~* g) : Πa, f a = g a :=
   phomotopy.homotopy p
@@ -262,7 +262,7 @@ namespace pointed
       induction p', esimp, apply inv_con_cancel_left}
   end
 
-  infix `⬝*`:75 := phomotopy.trans
+  infix ` ⬝* `:75 := phomotopy.trans
   postfix `⁻¹*`:(max+1) := phomotopy.symm
 
   definition eq_of_phomotopy (p : f ~* g) : f = g :=
@@ -295,7 +295,7 @@ namespace pointed
     (to_pmap : A →* B)
     (is_equiv_to_pmap : is_equiv to_pmap)
 
-  infix `≃*`:25 := pequiv
+  infix ` ≃* `:25 := pequiv
   attribute pequiv.to_pmap [coercion]
   attribute pequiv.is_equiv_to_pmap [instance]
 

@@ -26,8 +26,8 @@ namespace is_trunc
      notation for trunc_index is -2, -1, 0, 1, ...
      from 0 and up this comes from a coercion from num to trunc_index (via nat)
   -/
-  postfix `.+1`:(max+1) := trunc_index.succ
-  postfix `.+2`:(max+1) := λn, (n .+1 .+1)
+  postfix ` .+1`:(max+1) := trunc_index.succ
+  postfix ` .+2`:(max+1) := λn, (n .+1 .+1)
   notation `-2` := trunc_index.minus_two
   notation `-1` := -2.+1 -- ISSUE: -1 gets printed as -2.+1
   export [coercions] nat
@@ -56,7 +56,7 @@ namespace is_trunc
   definition sub_two [reducible] (n : nat) : trunc_index :=
   nat.rec_on n -2 (λ n k, k.+1)
 
-  postfix `.-2`:(max+1) := sub_two
+  postfix ` .-2`:(max+1) := sub_two
 
   /- truncated types -/
 

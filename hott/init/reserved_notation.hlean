@@ -33,7 +33,7 @@ num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (num.succ (
 /- Logical operations and relations -/
 
 reserve prefix `¬`:40
-reserve prefix ` ~ `:40
+reserve prefix `~`:40
 reserve infixr ` ∧ `:35
 reserve infixr ` /\ `:35
 reserve infixr ` \/ `:30

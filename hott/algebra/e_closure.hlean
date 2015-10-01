@@ -18,7 +18,7 @@ inductive e_closure {A : Type} (R : A → A → Type) : A → A → Type :=
 | trans : Π{a a' a''} (r : e_closure R a a') (r' : e_closure R a' a''), e_closure R a a''
 
 namespace e_closure
-  infix `⬝r`:75 := e_closure.trans
+  infix ` ⬝r `:75 := e_closure.trans
   postfix `⁻¹ʳ`:(max+10) := e_closure.symm
   notation `[`:max a `]`:0 := e_closure.of_rel a
   abbreviation rfl {A : Type} {R : A → A → Type} {a : A} := refl R a

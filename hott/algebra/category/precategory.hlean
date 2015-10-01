@@ -33,11 +33,11 @@ namespace category
   attribute precategory [multiple-instances]
   attribute precategory.is_hset_hom [instance]
 
-  infixr `∘` := precategory.comp
+  infixr ∘ := precategory.comp
   -- input ⟶ using \--> (this is a different arrow than \-> (→))
-  infixl [parsing-only] `⟶`:25 := precategory.hom
+  infixl [parsing-only] ` ⟶ `:25 := precategory.hom
   namespace hom
-    infixl `⟶`:25 := precategory.hom -- if you open this namespace, hom a b is printed as a ⟶ b
+    infixl ` ⟶ `:25 := precategory.hom -- if you open this namespace, hom a b is printed as a ⟶ b
   end hom
 
   abbreviation hom         [unfold 2] := @precategory.hom
@@ -85,8 +85,8 @@ namespace category
   end basic_lemmas
   section squares
     parameters {ob : Type} [C : precategory ob]
-    local infixl `⟶`:25 := @precategory.hom ob C
-    local infixr `∘`    := @precategory.comp ob C _ _ _
+    local infixl ` ⟶ `:25 := @precategory.hom ob C
+    local infixr ∘    := @precategory.comp ob C _ _ _
     definition compose_squares {xa xb xc ya yb yc : ob}
       {xg : xb ⟶ xc} {xf : xa ⟶ xb} {yg : yb ⟶ yc} {yf : ya ⟶ yb}
       {wa : xa ⟶ ya} {wb : xb ⟶ yb} {wc : xc ⟶ yc}
@@ -149,10 +149,9 @@ namespace category
   attribute Precategory.struct [instance] [priority 10000] [coercion]
   -- definition precategory.carrier [coercion] [reducible] := Precategory.carrier
   -- definition precategory.struct [instance] [coercion] [reducible] := Precategory.struct
-  notation g `∘[`:60 C:0 `]`:0 f:60 :=
+  notation g ` ∘[`:60 C:0 `] `:0 f:60 :=
   @comp (Precategory.carrier C) (Precategory.struct C) _ _ _ g f
   -- TODO: make this left associative
-  -- TODO: change this notation?
 
   definition Precategory.eta (C : Precategory) : Precategory.mk C C = C :=
   Precategory.rec (λob c, idp) C

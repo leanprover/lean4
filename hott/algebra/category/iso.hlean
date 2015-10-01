@@ -31,7 +31,7 @@ namespace iso
   abbreviation inverse [unfold 6] := @is_iso.inverse
   abbreviation left_inverse [unfold 6] := @is_iso.left_inverse
   abbreviation right_inverse [unfold 6] := @is_iso.right_inverse
-  postfix `⁻¹` := inverse
+  postfix ⁻¹ := inverse
   --a second notation for the inverse, which is not overloaded
   postfix [parsing-only] `⁻¹ʰ`:std.prec.max_plus := inverse -- input using \-1h
 
@@ -131,7 +131,7 @@ structure iso {ob : Type} [C : precategory ob] (a b : ob) :=
   (to_hom : hom a b)
   [struct : is_iso to_hom]
 
-  infix `≅`:50 := iso
+  infix ` ≅ `:50 := iso
   attribute iso.struct [instance] [priority 4000]
 
 namespace iso
@@ -162,7 +162,7 @@ namespace iso
   protected definition trans [constructor] ⦃a b c : ob⦄ (H1 : a ≅ b) (H2 : b ≅ c) : a ≅ c :=
   mk (to_hom H2 ∘ to_hom H1)
 
-  infixl `⬝i`:75 := iso.trans
+  infixl ` ⬝i `:75 := iso.trans
   postfix [parsing-only] `⁻¹ⁱ`:(max + 1) := iso.symm
 
   definition iso_mk_eq {f f' : a ⟶ b} [H : is_iso f] [H' : is_iso f'] (p : f = f')

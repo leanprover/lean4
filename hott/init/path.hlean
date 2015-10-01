@@ -559,7 +559,7 @@ namespace eq
   definition inverse2 [unfold 6] {p q : x = y} (h : p = q) : p⁻¹ = q⁻¹ :=
   eq.rec_on h idp
 
-  infixl `◾`:75 := concat2
+  infixl ` ◾ `:75 := concat2
   postfix [parsing-only] `⁻²`:(max+10) := inverse2 --this notation is abusive, should we use it?
 
   /- Whiskering -/
@@ -584,11 +584,11 @@ namespace eq
     whisker_right h idp = h :=
   eq.rec_on h (eq.rec_on p idp)
 
-  definition whisker_right_idp_left (p : x = y) (q : y = z) :
+  definition whisker_right_idp_left [unfold-full] (p : x = y) (q : y = z) :
     whisker_right idp q = idp :> (p ⬝ q = p ⬝ q) :=
   idp
 
-  definition whisker_left_idp_right (p : x = y) (q : y = z) :
+  definition whisker_left_idp_right [unfold-full] (p : x = y) (q : y = z) :
     whisker_left p idp = idp :> (p ⬝ q = p ⬝ q) :=
   idp
 
@@ -596,11 +596,11 @@ namespace eq
     (idp_con p) ⁻¹ ⬝ whisker_left idp h ⬝ idp_con q = h :=
   eq.rec_on h (eq.rec_on p idp)
 
-  definition con2_idp {p q : x = y} (h : p = q) :
+  definition con2_idp [unfold-full] {p q : x = y} (h : p = q) :
     h ◾ idp = whisker_right h idp :> (p ⬝ idp = q ⬝ idp) :=
   idp
 
-  definition idp_con2 {p q : x = y} (h : p = q) :
+  definition idp_con2 [unfold-full] {p q : x = y} (h : p = q) :
     idp ◾ h = whisker_left idp h :> (idp ⬝ p = idp ⬝ q) :=
   idp
 

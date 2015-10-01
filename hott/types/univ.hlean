@@ -47,7 +47,6 @@ namespace univ
   assume H : is_hset Type,
   absurd (is_trunc_is_embedding_closed lift star) not_is_hset_type0
 
-  --set_option pp.notation false
   definition not_double_negation_elimination0 : ¬Π(A : Type₀), ¬¬A → A :=
   begin
     intro f,

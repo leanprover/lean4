@@ -13,7 +13,7 @@ structure nat_trans {C : Precategory} {D : Precategory} (F G : C ⇒ D)
 
 namespace nat_trans
 
-  infixl `⟹`:25 := nat_trans -- \==>
+  infixl ` ⟹ `:25 := nat_trans -- \==>
   variables {B C D E : Precategory} {F G H I : C ⇒ D} {F' G' : D ⇒ E} {F'' G'' : E ⇒ B} {J : C ⇒ C}
 
   attribute natural_map [coercion]
@@ -30,7 +30,7 @@ namespace nat_trans
                       ... = (η b ∘ θ b) ∘ F f : by rewrite assoc
       end)
 
-  infixr `∘n`:60 := nat_trans.compose
+  infixr ` ∘n `:60 := nat_trans.compose
 
   protected definition id [reducible] [constructor] {F : C ⇒ D} : nat_trans F F :=
   mk (λa, id) (λa b f, !id_right ⬝ !id_left⁻¹)
@@ -130,12 +130,12 @@ namespace nat_trans
         ... = F (η b ∘ f)               : by rewrite (naturality η f)
         ... = F (η b) ∘ F f             : by rewrite respect_comp)
 
-  infixr `∘nf`:62 := nat_trans_functor_compose
-  infixr `∘fn`:62 := functor_nat_trans_compose
-  infixr `∘n1f`:62 := nat_trans_id_functor_compose
-  infixr `∘1nf`:62 := id_nat_trans_functor_compose
-  infixr `∘f1n`:62 := functor_id_nat_trans_compose
-  infixr `∘fn1`:62 := functor_nat_trans_id_compose
+  infixr ` ∘nf ` :62 := nat_trans_functor_compose
+  infixr ` ∘fn ` :62 := functor_nat_trans_compose
+  infixr ` ∘n1f `:62 := nat_trans_id_functor_compose
+  infixr ` ∘1nf `:62 := id_nat_trans_functor_compose
+  infixr ` ∘f1n `:62 := functor_id_nat_trans_compose
+  infixr ` ∘fn1 `:62 := functor_nat_trans_id_compose
 
   definition nf_fn_eq_fn_nf_pt (η : F ⟹ G) (θ : F' ⟹ G') (c : C)
     : (θ (G c)) ∘ (F' (η c)) = (G' (η c)) ∘ (θ (F c)) :=

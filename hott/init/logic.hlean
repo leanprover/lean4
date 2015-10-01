@@ -10,7 +10,7 @@ import init.reserved_notation
 /- not -/
 
 definition not [reducible] (a : Type) := a → empty
-prefix `¬` := not
+prefix ¬ := not
 
 definition absurd {a b : Type} (H₁ : a) (H₂ : ¬a) : b :=
 empty.rec (λ e, b) (H₂ H₁)
@@ -36,7 +36,7 @@ assume Hb : b, absurd (assume Ha : a, Hb) H
 
 /- eq -/
 
-notation a = b := eq a b
+infix = := eq
 definition rfl {A : Type} {a : A} := eq.refl a
 
 namespace eq
@@ -52,9 +52,9 @@ namespace eq
   subst H (refl a)
 
   namespace ops
-    notation H `⁻¹` := symm H --input with \sy or \-1 or \inv
-    notation H1 ⬝ H2 := trans H1 H2
-    notation H1 ▸ H2 := subst H1 H2
+    postfix ⁻¹ := symm --input with \sy or \-1 or \inv
+    infixl ⬝ := trans
+    infixr ▸ := subst
   end ops
 end eq
 
@@ -94,7 +94,7 @@ end lift
 /- ne -/
 
 definition ne {A : Type} (a b : A) := ¬(a = b)
-notation a ≠ b := ne a b
+infix ≠ := ne
 
 namespace ne
   open eq.ops
@@ -132,8 +132,8 @@ end
 
 definition iff (a b : Type) := prod (a → b) (b → a)
 
-notation a <-> b := iff a b
-notation a ↔ b := iff a b
+infix <-> := iff
+infix ↔ := iff
 
 namespace iff
   variables {a b c : Type}

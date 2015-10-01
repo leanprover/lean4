@@ -53,15 +53,11 @@ definition curry [reducible] [unfold-full] : (A × B → C) → A → B → C :=
 definition uncurry [reducible] [unfold 5] : (A → B → C) → (A × B → C) :=
 λ f p, match p with (a, b) := f a b end
 
-precedence `∘'`:60
-precedence `on`:1
-precedence `$`:1
 
-
-infixr  ∘                    := compose
-infixr  ∘'                   := dcompose
-infixl  on                   := on_fun
-infixr  $                    := app
+infixr  ` ∘ `            := compose
+infixr  ` ∘' `:60        := dcompose
+infixl  ` on `:1         := on_fun
+infixr  ` $ `:1          := app
 notation f ` -[` op `]- ` g  := combine f op g
 
 end function

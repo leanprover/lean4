@@ -24,7 +24,7 @@ namespace category
   definition Precategory_functor [reducible] [constructor] (D C : Precategory) : Precategory :=
   precategory.Mk (precategory_functor D C)
 
-  infixr `^c`:35 := Precategory_functor
+  infixr ` ^c `:35 := Precategory_functor
 
   section
   /- we prove that if a natural transformation is pointwise an iso, then it is an iso -/
@@ -229,7 +229,7 @@ namespace category
   Category_functor D C
 
   namespace ops
-    infixr `^c2`:35 := Category_functor
+    infixr ` ^c2 `:35 := Category_functor
   end ops
 
   namespace functor

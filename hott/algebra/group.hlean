@@ -34,12 +34,12 @@ structure has_inv [class] (A : Type) :=
 structure has_neg [class] (A : Type) :=
 (neg : A → A)
 
-infixl `*`   := has_mul.mul
-infixl `+`   := has_add.add
-postfix `⁻¹` := has_inv.inv
-prefix `-`   := has_neg.neg
-notation 1   := !has_one.one
-notation 0   := !has_zero.zero
+infixl   * := has_mul.mul
+infixl   + := has_add.add
+postfix ⁻¹ := has_inv.inv
+prefix   - := has_neg.neg
+notation 1 := !has_one.one
+notation 0 := !has_zero.zero
 
 --a second notation for the inverse, which is not overloaded
 postfix [parsing-only] `⁻¹ᵍ`:std.prec.max_plus := has_inv.inv
@@ -387,7 +387,7 @@ section add_group
   -- TODO: derive corresponding facts for div in a field
   definition sub [reducible] (a b : A) : A := a + -b
 
-  infix `-` := sub
+  infix - := sub
 
   theorem sub_eq_add_neg (a b : A) : a - b = a + -b := rfl
 

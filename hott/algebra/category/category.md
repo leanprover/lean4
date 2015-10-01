@@ -11,5 +11,7 @@ Development of Category Theory. The following files are in this folder (sorted s
 * [nat_trans](nat_trans.hlean) : Natural transformations
 * [strict](strict.hlean) : Strict categories
 * [constructions](constructions/constructions.md) (subfolder) : basic constructions on categories and examples of categories
-* [adjoint](adjoint.hlean) : Adjoint functors and Equivalences (TODO)
-* [yoneda](yoneda.hlean) : Yoneda Embedding (TODO)
+* [adjoint](adjoint.hlean) : Adjoint functors and Equivalences (WIP)
+* [yoneda](yoneda.hlean) : Yoneda Embedding (WIP)
+* [limits](limits.hlean) : Limits in a category, defined as terminal object in the cone category
+* [colimits](colimits.hlean) : Colimits in a category, defined as the limit of the opposite functor

@@ -18,7 +18,7 @@ structure functor (C D : Precategory) : Type :=
 
 namespace functor
 
-  infixl `⇒`:25 := functor
+  infixl ` ⇒ `:25 := functor
   variables {A B C D E : Precategory}
 
   attribute to_fun_ob [coercion]
@@ -38,7 +38,7 @@ namespace functor
       G (F (g ∘ f)) = G (F g ∘ F f)     : by rewrite respect_comp
                 ... = G (F g) ∘ G (F f) : by rewrite respect_comp end)
 
-  infixr `∘f`:60 := functor.compose
+  infixr ` ∘f `:60 := functor.compose
 
   protected definition id [reducible] [constructor] {C : Precategory} : functor C C :=
   mk (λa, a) (λ a b f, f) (λ a, idp) (λ a b c f g, idp)

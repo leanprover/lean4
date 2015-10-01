@@ -30,7 +30,7 @@ structure equiv (A B : Type) :=
 
 namespace is_equiv
   /- Some instances and closure properties of equivalences -/
-  postfix `⁻¹` := inv
+  postfix ⁻¹ := inv
   /- a second notation for the inverse, which is not overloaded -/
   postfix [parsing-only] `⁻¹ᶠ`:std.prec.max_plus := inv
 
@@ -261,7 +261,7 @@ namespace equiv
   open equiv.ops
   attribute to_is_equiv [instance]
 
-  infix `≃`:25 := equiv
+  infix ` ≃ `:25 := equiv
 
   section
   variables {A B C : Type}
@@ -358,7 +358,7 @@ namespace equiv
 
 
   namespace ops
-    postfix `⁻¹` := equiv.symm -- overloaded notation for inverse
+    postfix ⁻¹ := equiv.symm -- overloaded notation for inverse
   end ops
 end equiv
 

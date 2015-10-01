@@ -29,9 +29,9 @@ structure has_le.{l} [class] (A : Type.{l}) : Type.{l+1} :=
 structure has_lt [class] (A : Type) :=
 (lt : A → A → Type₀)
 
-infixl `<=`   := has_le.le
-infixl `≤`   := has_le.le
-infixl `<`   := has_lt.lt
+infixl <=  := has_le.le
+infixl ≤   := has_le.le
+infixl <   := has_lt.lt
 
 definition has_le.ge [reducible] {A : Type} [s : has_le A] (a b : A) := b ≤ a
 notation a ≥ b := has_le.ge a b

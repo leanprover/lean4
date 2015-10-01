@@ -47,7 +47,7 @@ namespace binary
     variable {f : A → A → A}
     variable H_comm : commutative f
     variable H_assoc : associative f
-    local infixl `*` := f
+    local infixl * := f
     theorem left_comm : left_commutative f :=
     take a b c, calc
       a*(b*c) = (a*b)*c  : H_assoc
@@ -71,7 +71,7 @@ namespace binary
     variable {A : Type}
     variable {f : A → A → A}
     variable H_assoc : associative f
-    local infixl `*` := f
+    local infixl * := f
     theorem assoc4helper (a b c d) : (a*b)*(c*d) = a*((b*c)*d) :=
     calc
       (a*b)*(c*d) = a*(b*(c*d)) : H_assoc

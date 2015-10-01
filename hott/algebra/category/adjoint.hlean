@@ -33,7 +33,7 @@ namespace category
     (is_iso_counit : is_iso ε)
 
   abbreviation inverse := @is_equivalence.G
-  postfix `⁻¹` := inverse
+  postfix ⁻¹ := inverse
   --a second notation for the inverse, which is not overloaded
   postfix [parsing-only] `⁻¹F`:std.prec.max_plus := inverse
 
@@ -55,8 +55,8 @@ namespace category
     (struct : is_isomorphism to_functor)
   --   infix `⊣`:55 := adjoint
 
-  infix `⋍`:25 := equivalence -- \backsimeq or \equiv
-  infix `≌`:25 := isomorphism -- \backcong or \iso
+  infix ` ⋍ `:25 := equivalence -- \backsimeq or \equiv
+  infix ` ≌ `:25 := isomorphism -- \backcong or \iso
 
   definition is_equiv_of_fully_faithful [instance] [reducible] (F : C ⇒ D) [H : fully_faithful F]
     (c c' : C) : is_equiv (@(to_fun_hom F) c c') :=

@@ -76,6 +76,10 @@ optional<name> hidden_to_user_name(environment const & env, name const & n) {
     return it ? optional<name>(*it) : optional<name>();
 }
 
+bool is_private(environment const & env, name const & n) {
+    return static_cast<bool>(hidden_to_user_name(env, n));
+}
+
 static int add_private_name(lua_State * L) {
     int nargs = lua_gettop(L);
     optional<unsigned> h;

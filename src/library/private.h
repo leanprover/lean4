@@ -31,6 +31,8 @@ pair<environment, name> add_private_name(environment const & env, name const & n
 */
 optional<name> hidden_to_user_name(environment const & env, name const & n);
 
+bool is_private(environment const & env, name const & n);
+
 void open_private(lua_State * L);
 void initialize_private();
 void finalize_private();

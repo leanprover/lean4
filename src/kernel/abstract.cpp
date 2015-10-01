@@ -81,6 +81,11 @@ public:
     expr get_abstract_type(unsigned i) const {
         return *m_abstract_types[i];
     }
+
+    void clear() {
+        m_locals.clear();
+        m_abstract_types.clear();
+    }
 };
 
 MK_THREAD_LOCAL_GET_DEF(mk_binding_cache, get_mk_binding_cache);
@@ -105,4 +110,8 @@ expr mk_binding(unsigned num, expr const * locals, expr const & b, bool use_cach
 
 expr Pi(unsigned num, expr const * locals, expr const & b, bool use_cache) { return mk_binding<false>(num, locals, b, use_cache); }
 expr Fun(unsigned num, expr const * locals, expr const & b, bool use_cache) { return mk_binding<true>(num, locals, b, use_cache); }
+
+void clear_abstract_cache() {
+    get_mk_binding_cache().clear();
+}
 }

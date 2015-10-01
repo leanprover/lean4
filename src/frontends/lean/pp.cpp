@@ -1310,26 +1310,42 @@ std::string sexpr_to_string(sexpr const & s) {
 
 // check whether a space must be inserted between the strings so that lexing them would
 // produce separate tokens
-bool pretty_fn::needs_space_sep(std::string const & s1, std::string const & s2) const {
+std::pair<bool, token_table const *> pretty_fn::needs_space_sep(token_table const * last, std::string const & s1, std::string const & s2) const {
     if (is_id_rest(get_utf8_last_char(s1.data()), s1.data() + s1.size()) && is_id_rest(s2.data(), s2.data() + s2.size()))
-        return true; // would be lexed as a single identifier without space
+        return mk_pair(true, nullptr); // would be lexed as a single identifier without space
 
+    if (last) {
+        // complete deferred two-token lookahead
+        for (char c : s2) {
+            last = last->find(c);
+            if (!last)
+                break;
+            if (last->value())
+                return mk_pair(true, nullptr);
+        }
+        if (last) {
+            // would need an even larger lookahead, give up
+            return mk_pair(true, nullptr);
+        }
+    }
 
     // check whether s1 + s2 has a longer prefix in the token table than s1
     token_table const * t = &m_token_table;
     for (char c : s1) {
         t = t->find(c);
         if (!t)
-            return false; // s1 must be an identifier, and we know s2 does not start with is_id_rest
+            return mk_pair(false, nullptr); // s1 must be an identifier, and we know s2 does not start with is_id_rest
     }
     for (char c : s2) {
         t = t->find(c);
         if (!t)
-            return false;
+            return mk_pair(false, nullptr);
         if (t->value())
-            return true;
+            return mk_pair(true, nullptr);
     }
-    return true; // the next identifier may expand s1 + s2 to a token
+
+    // the next identifier may expand s1 + s2 to a token, defer decision
+    return mk_pair(false, t);
 }
 
 format pretty_fn::operator()(expr const & e) {
@@ -1342,7 +1358,12 @@ format pretty_fn::operator()(expr const & e) {
 
     // insert spaces so that lexing the result round-trips
     std::function<bool(sexpr const &, sexpr const &)> sep; // NOLINT
-    sep = [&](sexpr const & s1, sexpr const & s2) { return needs_space_sep(sexpr_to_string(s1), sexpr_to_string(s2)); };
+    token_table const * last = nullptr;
+    sep = [&](sexpr const & s1, sexpr const & s2) {
+        bool b;
+        std::tie(b, last) = needs_space_sep(last, sexpr_to_string(s1), sexpr_to_string(s2));
+        return b;
+    };
     return r.fmt().separate_tokens(sep);
 }
 

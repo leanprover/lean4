@@ -437,10 +437,7 @@ assert(not max_univ(u, l):has_meta())
 -- The is_eqp method checks for pointer equality
 local e1 = max_univ(l, u)
 local e2 = max_univ(l, u)
--- e1 and e2 are structurally equal, but are stored in different
--- positions in memory.
 assert(e1 == e2)
-assert(not e1:is_eqp(e2))
 local e3 = e1
 -- e1 and e3 are references to the same level expression.
 assert(e1:is_eqp(e3))

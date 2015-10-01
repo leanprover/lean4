@@ -39,4 +39,9 @@ expr instantiate_type_univ_params(declaration const & d, levels const & ls);
     \pre d.get_num_univ_params() == length(ls)
 */
 expr instantiate_value_univ_params(declaration const & d, levels const & ls);
+
+/** \brief Clear thread local caches used by instantiate_value_univ_params and instantiate_type_univ_params.
+    We clear the caches whenever we enable expression caching (aka max sharing).
+    We do that because the cache may still contain expressions that are not maximally shared. */
+void clear_instantiate_cache();
 }

@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "kernel/free_vars.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
+#include "kernel/instantiate.h"
 
 #ifndef LEAN_INITIAL_EXPR_CACHE_CAPACITY
 #define LEAN_INITIAL_EXPR_CACHE_CAPACITY 1024*16
@@ -312,10 +313,13 @@ bool enable_expr_caching(bool f) {
     bool r1 = enable_level_caching(f);
     bool r2 = g_expr_cache_enabled;
     lean_verify(r1 == r2);
-    g_expr_cache_enabled = f;
     expr_cache new_cache;
     get_expr_cache().swap(new_cache);
-    clear_abstract_cache();
+    if (f) {
+        clear_abstract_cache();
+        clear_instantiate_cache();
+    }
+    g_expr_cache_enabled = f;
     return r2;
 }
 inline expr cache(expr const & e) {

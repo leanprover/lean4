@@ -13,14 +13,19 @@ Author: Leonardo de Moura
 namespace lean {
 class instantiate_univ_cache {
     typedef std::tuple<declaration, levels, expr> entry;
+    unsigned                     m_capacity;
     std::vector<optional<entry>> m_cache;
 public:
-    instantiate_univ_cache(unsigned capacity) {
-        m_cache.resize(capacity);
+    instantiate_univ_cache(unsigned capacity):m_capacity(capacity) {
+        if (m_capacity == 0)
+            m_capacity++;
     }
 
     optional<expr> is_cached(declaration const & d, levels const & ls) {
-        unsigned idx = d.get_name().hash() % m_cache.size();
+        if (m_cache.empty())
+            return none_expr();
+        lean_assert(m_cache.size() == m_capacity);
+        unsigned idx = d.get_name().hash() % m_capacity;
         if (auto it = m_cache[idx]) {
             declaration d_c; levels ls_c; expr r_c;
             std::tie(d_c, ls_c, r_c) = *it;
@@ -35,8 +40,16 @@ public:
     }
 
     void save(declaration const & d, levels const & ls, expr const & r) {
+        if (m_cache.empty())
+            m_cache.resize(m_capacity);
+        lean_assert(m_cache.size() == m_capacity);
         unsigned idx = d.get_name().hash() % m_cache.size();
         m_cache[idx] = entry(d, ls, r);
+    }
+
+    void clear() {
+        m_cache.clear();
+        lean_assert(m_cache.empty());
     }
 };
 }

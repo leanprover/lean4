@@ -166,4 +166,9 @@ expr instantiate_value_univ_params(declaration const & d, levels const & ls) {
     cache.save(d, ls, r);
     return r;
 }
+
+void clear_instantiate_cache() {
+    get_type_univ_cache().clear();
+    get_value_univ_cache().clear();
+}
 }

@@ -33,6 +33,10 @@ Author: Leonardo de Moura
 #include "library/user_recursors.h"
 #include "library/pp_options.h"
 #include "library/composition_manager.h"
+#include "library/aux_recursors.h"
+#include "library/relation_manager.h"
+#include "library/projection.h"
+#include "library/private.h"
 #include "library/definitional/projection.h"
 #include "library/simplifier/simp_rule_set.h"
 #include "compiler/preprocess_rec.h"
@@ -1060,6 +1064,30 @@ static environment compile_cmd(parser & p) {
     return p.env();
 }
 
+static environment accessible_cmd(parser & p) {
+    environment const & env = p.env();
+    unsigned total               = 0;
+    unsigned accessible          = 0;
+    unsigned accessible_theorems = 0;
+    env.for_each_declaration([&](declaration const & d) {
+            name const & n = d.get_name();
+            total++;
+            if ((d.is_theorem() || d.is_definition()) &&
+                !is_instance(env, n) && !is_simp_rule(env, n) && !is_congr_rule(env, n) &&
+                !is_user_defined_recursor(env, n) && !is_aux_recursor(env, n) &&
+                !is_projection(env, n) && !is_private(env, n) &&
+                !is_user_defined_recursor(env, n) && !is_aux_recursor(env, n) &&
+                !is_subst_relation(env, n) && !is_trans_relation(env, n) &&
+                !is_symm_relation(env, n) && !is_refl_relation(env, n)) {
+                accessible++;
+                if (d.is_theorem())
+                    accessible_theorems++;
+            }
+        });
+    p.regular_stream() << "total: " << total << ", accessible: " << accessible << ", accessible theorems: " << accessible_theorems << "\n";
+    return env;
+}
+
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",          "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -1084,6 +1112,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#projections",  "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
     add_cmd(r, cmd_info("#telescope_eq", "(for debugging purposes)", telescope_eq_cmd));
     add_cmd(r, cmd_info("#compile",      "(for debugging purposes)", compile_cmd));
+    add_cmd(r, cmd_info("#accessible",   "(for debugging purposes) display number of accessible declarations for blast tactic", accessible_cmd));
     register_decl_cmds(r);
     register_inductive_cmd(r);
     register_structure_cmd(r);

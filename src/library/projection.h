@@ -48,6 +48,9 @@ inline bool is_projection(environment const & env, name const & n) {
     return get_projection_info(env, n) != nullptr;
 }
 
+/** \brief Return the mapping from projection name to associated information */
+name_map<projection_info> const & get_projection_info_map(environment const & env);
+
 /** \brief Return true iff the type named \c S can be viewed as
     a structure in the given environment.
 

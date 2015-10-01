@@ -59,6 +59,10 @@ projection_info const * get_projection_info(environment const & env, name const 
     return ext.m_info.find(p);
 }
 
+name_map<projection_info> const & get_projection_info_map(environment const & env) {
+    return get_extension(env).m_info;
+}
+
 static void projection_info_reader(deserializer & d, shared_environment & senv,
                                    std::function<void(asynch_update_fn const &)> &,
                                    std::function<void(delayed_update_fn const &)> &) {

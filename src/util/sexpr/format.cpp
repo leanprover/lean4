@@ -182,10 +182,11 @@ std::tuple<sexpr, sexpr const *> format::separate_tokens(sexpr const & s, sexpr 
 ) const {
     switch (sexpr_kind(s)) {
         case format_kind::NIL:
-        case format_kind::LINE:
         case format_kind::COLOR_BEGIN:
         case format_kind::COLOR_END:
             return std::make_tuple(s, last);
+        case format_kind::LINE:
+            return std::make_tuple(s, nullptr);
         case format_kind::COMPOSE:
         case format_kind::FLAT_COMPOSE:
         {

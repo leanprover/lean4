@@ -305,7 +305,8 @@ expr_macro::~expr_macro() {
 // =======================================
 // Constructors
 LEAN_THREAD_VALUE(bool, g_expr_cache_enabled, true);
-MK_THREAD_LOCAL_GET_DEF(expr_struct_set, get_expr_cache);
+typedef typename std::unordered_set<expr, expr_hash, is_bi_equal_proc> expr_cache;
+MK_THREAD_LOCAL_GET_DEF(expr_cache, get_expr_cache);
 bool enable_expr_caching(bool f) {
     bool r1 = enable_level_caching(f);
     bool r2 = g_expr_cache_enabled;
@@ -316,7 +317,7 @@ bool enable_expr_caching(bool f) {
 }
 inline expr cache(expr const & e) {
     if (g_expr_cache_enabled) {
-        expr_struct_set & cache = get_expr_cache();
+        expr_cache & cache = get_expr_cache();
         auto it = cache.find(e);
         if (it != cache.end()) {
             return *it;

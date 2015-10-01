@@ -10,8 +10,10 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/reducible.h"
 #include "library/normalize.h"
+#include "library/projection.h"
 #include "library/blast/expr.h"
 #include "library/blast/state.h"
+#include "library/blast/infer_type.h"
 #include "library/blast/blast.h"
 #include "library/blast/blast_context.h"
 #include "library/blast/blast_exception.h"
@@ -39,12 +41,14 @@ level to_blast_level(level const & l) {
 static name * g_prefix = nullptr;
 
 class context {
-    environment    m_env;
-    io_state       m_ios;
-    name_set       m_lemma_hints;
-    name_set       m_unfold_hints;
-    name_map<expr> m_mvar2mref;    // map goal metavariables to blast mref's
-    state          m_curr_state;   // current state
+    environment               m_env;
+    io_state                  m_ios;
+    name_set                  m_lemma_hints;
+    name_set                  m_unfold_hints;
+    name_map<expr>            m_mvar2mref;    // map goal metavariables to blast mref's
+    name_predicate            m_not_reducible_pred;
+    name_map<projection_info> m_projection_info;
+    state                     m_curr_state;   // current state
 
     class to_blast_expr_fn : public replace_visitor {
         type_checker                 m_tc;
@@ -214,7 +218,8 @@ class context {
 
 public:
     context(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds):
-        m_env(env), m_ios(ios), m_lemma_hints(to_name_set(ls)), m_unfold_hints(to_name_set(ds)) {
+        m_env(env), m_ios(ios), m_lemma_hints(to_name_set(ls)), m_unfold_hints(to_name_set(ds)),
+        m_not_reducible_pred(mk_not_reducible_pred(env)) {
     }
 
     optional<expr> operator()(goal const & g) {
@@ -231,7 +236,17 @@ public:
 
     io_state const & get_ios() const { return m_ios; }
 
-    state const & get_curr_state() const { return m_curr_state; }
+    state & get_curr_state() { return m_curr_state; }
+
+    bool is_reducible(name const & n) const {
+        if (m_not_reducible_pred(n))
+            return false;
+        return !m_projection_info.contains(n);
+    }
+
+    projection_info const * get_projection_info(name const & n) const {
+        return m_projection_info.find(n);
+    }
 };
 
 LEAN_THREAD_PTR(context, g_context);
@@ -252,9 +267,19 @@ io_state const & ios() {
     return g_context->get_ios();
 }
 
-state const & curr_state() {
+state & curr_state() {
     lean_assert(g_context);
     return g_context->get_curr_state();
+}
+
+bool is_reducible(name const & n) {
+    lean_assert(g_context);
+    return g_context->is_reducible(n);
+}
+
+projection_info const * get_projection_info(name const & n) {
+    lean_assert(g_context);
+    return g_context->get_projection_info(n);
 }
 
 void display_curr_state() {
@@ -269,12 +294,54 @@ void display(char const * msg) {
 void display(sstream const & msg) {
     ios().get_diagnostic_channel() << msg.str();
 }
+
+/** \brief Auxiliary object to interface blast state with existing kernel extensions */
+class ext_context : public extension_context {
+    name_generator m_ngen;
+public:
+    virtual environment const & env() const { return env(); }
+
+    virtual pair<expr, constraint_seq> whnf(expr const & e) {
+        return mk_pair(blast::whnf(e), constraint_seq());
+    }
+
+    virtual pair<bool, constraint_seq> is_def_eq(expr const & e1, expr const & e2, delayed_justification &) {
+        return mk_pair(blast::is_def_eq(e1, e2), constraint_seq());
+    }
+
+    virtual pair<expr, constraint_seq> check_type(expr const & e, bool) {
+        return mk_pair(blast::infer_type(e), constraint_seq());
+    }
+
+    virtual name mk_fresh_name() {
+        return m_ngen.next();
+    }
+
+    virtual optional<expr> is_stuck(expr const &) {
+        return none_expr();
+    }
+};
+
+LEAN_THREAD_PTR(ext_context, g_ext_context);
+struct scope_ext_context {
+    ext_context * m_prev_context;
+public:
+    scope_ext_context(ext_context & c):m_prev_context(g_ext_context) { g_ext_context = &c; }
+    ~scope_ext_context() { g_ext_context = m_prev_context; }
+};
+
+extension_context & ext_ctx() {
+    lean_assert(g_ext_context);
+    return *g_ext_context;
+}
 }
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
                           goal const & g) {
     blast::scope_hash_consing scope1;
     blast::context c(env, ios, ls, ds);
+    blast::ext_context x;
     blast::scope_context scope2(c);
+    blast::scope_ext_context scope3(x);
     return c(g);
 }
 void initialize_blast() {

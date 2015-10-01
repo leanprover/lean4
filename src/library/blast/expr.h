@@ -46,6 +46,8 @@ expr mk_local(unsigned idx, expr const & t);
 expr mk_app(expr const & f, expr const & a);
 expr mk_app(expr const & f, unsigned num_args, expr const * args);
 expr mk_app(unsigned num_args, expr const * args);
+expr mk_rev_app(expr const & f, unsigned num_args, expr const * args);
+expr mk_rev_app(unsigned num_args, expr const * args);
 expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & bi);
 inline expr mk_pi(name const & n, expr const & t, expr const & e, binder_info const & bi) {
     return blast::mk_binding(expr_kind::Pi, n, t, e, bi);

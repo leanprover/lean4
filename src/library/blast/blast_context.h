@@ -11,6 +11,7 @@ Remark: the API is implemented in the file blast.cpp
 */
 #pragma once
 #include "util/sstream.h"
+#include "library/projection.h"
 #include "library/blast/state.h"
 
 namespace lean {
@@ -20,7 +21,14 @@ environment const & env();
 /** \brief Return the thread local io_state being used by the blast tactic. */
 io_state const & ios();
 /** \brief Return the thread local current state begin processed by the blast tactic. */
-state const & curr_state();
+state & curr_state();
+/** \brief Return the thead local extension context associated with the blast tactic. */
+extension_context & ext_ctx();
+/** \brief Return true iff the given constant name is marked as reducible in env() */
+bool is_reducible(name const & n);
+/** \brief Return a nonnull projection_info object if \c n is the name of a projection in env() */
+projection_info const * get_projection_info(name const & n);
+
 /** \brief Display the current state of the blast tactic in the diagnostic channel. */
 void display_curr_state();
 /** \brief Display message in the blast tactic diagnostic channel. */

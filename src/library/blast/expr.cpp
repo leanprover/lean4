@@ -195,21 +195,32 @@ expr mk_var(unsigned idx) {
 }
 
 expr mk_app(expr const & f, expr const & a) {
-    lean_assert(is_cached(f));
-    lean_assert(is_cached(a));
+    lean_assert(is_cached(f) && is_cached(a));
     return lean::mk_app(f, a);
 }
 
+bool is_cached(unsigned num, expr const * args) {
+    return std::all_of(args, args+num, [](expr const & e) { return is_cached(e); });
+}
+
 expr mk_app(expr const & f, unsigned num_args, expr const * args) {
-    expr r = f;
-    for (unsigned i = 0; i < num_args; i++)
-        r = blast::mk_app(r, args[i]);
-    return r;
+    lean_assert(is_cached(f) && is_cached(num_args, args));
+    return lean::mk_app(f, num_args, args);
 }
 
 expr mk_app(unsigned num_args, expr const * args) {
     lean_assert(num_args >= 2);
     return blast::mk_app(blast::mk_app(args[0], args[1]), num_args - 2, args+2);
+}
+
+expr mk_rev_app(expr const & f, unsigned num_args, expr const * args) {
+    lean_assert(is_cached(f) && is_cached(num_args, args));
+    return lean::mk_rev_app(f, num_args, args);
+}
+
+expr mk_rev_app(unsigned num_args, expr const * args) {
+    lean_assert(num_args >= 2);
+    return blast::mk_rev_app(blast::mk_app(args[num_args-1], args[num_args-2]), num_args-2, args);
 }
 
 expr mk_sort(level const & l) {
@@ -223,13 +234,12 @@ expr mk_constant(name const & n, levels const & ls) {
 }
 
 expr mk_binding(expr_kind k, name const & n, expr const & t, expr const & e, binder_info const & bi) {
-    lean_assert(is_cached(t));
-    lean_assert(is_cached(e));
+    lean_assert(is_cached(t) && is_cached(e));
     return lean::mk_binding(k, n, t, e, bi);
 }
 
 expr mk_macro(macro_definition const & m, unsigned num, expr const * args) {
-    lean_assert(std::all_of(args, args+num, [](expr const & e) { return is_cached(e); }));
+    lean_assert(is_cached(num, args));
     return lean::mk_macro(m, num, args);
 }
 

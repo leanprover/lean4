@@ -261,20 +261,21 @@ level const & mk_level_zero() { return *g_level_zero; }
 level const & mk_level_one() { return *g_level_one; }
 bool is_one(level const & l) { return l == mk_level_one(); }
 
-typedef typename std::unordered_set<level, level_hash> level_table;
+typedef typename std::unordered_set<level, level_hash> level_cache;
 LEAN_THREAD_VALUE(bool, g_level_cache_enabled, true);
-MK_THREAD_LOCAL_GET_DEF(level_table, get_level_cache);
+MK_THREAD_LOCAL_GET_DEF(level_cache, get_level_cache);
 bool enable_level_caching(bool f) {
     bool r = g_level_cache_enabled;
     g_level_cache_enabled = f;
-    get_level_cache().clear();
+    level_cache new_cache;
+    get_level_cache().swap(new_cache);
     get_level_cache().insert(mk_level_zero());
     get_level_cache().insert(mk_level_one());
     return r;
 }
 level cache(level const & e) {
     if (g_level_cache_enabled) {
-        level_table & cache = get_level_cache();
+        level_cache & cache = get_level_cache();
         auto it = cache.find(e);
         if (it != cache.end()) {
             return *it;

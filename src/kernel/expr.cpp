@@ -312,7 +312,8 @@ bool enable_expr_caching(bool f) {
     bool r2 = g_expr_cache_enabled;
     lean_verify(r1 == r2);
     g_expr_cache_enabled = f;
-    get_expr_cache().clear();
+    expr_cache new_cache;
+    get_expr_cache().swap(new_cache);
     return r2;
 }
 inline expr cache(expr const & e) {

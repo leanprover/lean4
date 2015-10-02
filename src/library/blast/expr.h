@@ -42,7 +42,7 @@ expr mk_href(unsigned idx);
 expr mk_mref(unsigned idx);
 expr mk_sort(level const & l);
 expr mk_constant(name const & n, levels const & ls);
-expr mk_local(unsigned idx, expr const & t);
+expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi);
 expr mk_app(expr const & f, expr const & a);
 expr mk_app(expr const & f, unsigned num_args, expr const * args);
 expr mk_app(unsigned num_args, expr const * args);

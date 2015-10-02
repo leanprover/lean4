@@ -160,9 +160,9 @@ bool has_mref(expr const & e) {
     return lean::has_expr_metavar(e);
 }
 
-expr mk_local(unsigned idx, expr const & t) {
+expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info const & bi) {
     lean_assert(is_cached(t));
-    return lean::mk_local(name(*g_prefix, idx), t);
+    return lean::mk_local(n, pp_n, t, bi);
 }
 
 bool is_local(expr const & e) {

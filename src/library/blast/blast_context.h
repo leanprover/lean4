@@ -24,6 +24,8 @@ io_state const & ios();
 state & curr_state();
 /** \brief Return the thead local extension context associated with the blast tactic. */
 extension_context & ext_ctx();
+/** \brief Return a thread local fresh name meant to be used to name local constants. */
+name mk_fresh_local_name();
 /** \brief Return true iff the given constant name is marked as reducible in env() */
 bool is_reducible(name const & n);
 /** \brief Return a nonnull projection_info object if \c n is the name of a projection in env() */

@@ -247,6 +247,9 @@ public:
     projection_info const * get_projection_info(name const & n) const {
         return m_projection_info.find(n);
     }
+
+    name mk_fresh_local_name() {
+    }
 };
 
 LEAN_THREAD_PTR(context, g_context);
@@ -333,6 +336,11 @@ public:
 extension_context & ext_ctx() {
     lean_assert(g_ext_context);
     return *g_ext_context;
+}
+
+name mk_fresh_local_name() {
+    lean_assert(g_ext_context);
+    return g_ext_context->mk_fresh_name();
 }
 }
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,

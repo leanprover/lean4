@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-state::state():m_next_mref_index(0) {}
+state::state():m_next_uvar_index(0), m_next_mref_index(0) {}
 
 /** \brief Mark that hypothesis h with index hidx is fixed by the meta-variable midx.
     That is, `h` occurs in the type of `midx`. */

@@ -28,12 +28,15 @@ public:
 class state {
     friend class context;
     typedef metavar_idx_map<metavar_decl>       metavar_decls;
-    typedef metavar_idx_map<expr>               assignment;
+    typedef metavar_idx_map<expr>               eassignment;
+    typedef metavar_idx_map<level>              uassignment;
     typedef hypothesis_idx_map<metavar_idx_set> fixed_by;
-    unsigned      m_next_mref_index;
-    metavar_decls m_metavar_decls;
-    assignment    m_assignment;
-    branch        m_main;
+    unsigned       m_next_uvar_index; // index of the next universe metavariable
+    uassignment    m_uassignment;
+    unsigned       m_next_mref_index; // index of the next metavariable
+    metavar_decls  m_metavar_decls;
+    eassignment    m_eassignment;
+    branch         m_main;
     // In the following mapping, each entry (h -> {m_1 ... m_n}) means that hypothesis `h` cannot be cleared
     // in any branch where the metavariables m_1 ... m_n have not been replaced with the values assigned to them.
     // That is, to be able to clear `h` in a branch `B`, we first need to check whether it
@@ -67,6 +70,9 @@ public:
     expr add_hypothesis(name const & n, expr const & type, optional<expr> const & value, optional<expr> const & jst) {
         return m_main.add_hypothesis(n, type, value, jst);
     }
+
+    branch & get_main_branch() { return m_main; }
+    branch const & get_main_branch() const { return m_main; }
 
     /** \brief Add a new hypothesis to the main branch */
     expr add_hypothesis(expr const & type, optional<expr> const & value, optional<expr> const & jst) {

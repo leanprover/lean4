@@ -33,7 +33,10 @@ level mk_imax(level const & l1, level const & l2);
 level mk_succ(level const & l);
 level mk_param_univ(name const & n);
 level mk_global_univ(name const & n);
-level mk_meta_univ(name const & n);
+level mk_uref(unsigned idx);
+
+bool is_uref(level const & l);
+unsigned uref_index(level const & l);
 
 expr mk_var(unsigned idx);
 // mk_href and mk_mref are helper functions for creating hypotheses and meta-variables used in the blast tactic.

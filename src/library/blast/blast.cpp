@@ -20,24 +20,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-level to_blast_level(level const & l) {
-    level lhs;
-    switch (l.kind()) {
-    case level_kind::Succ:    return blast::mk_succ(to_blast_level(succ_of(l)));
-    case level_kind::Zero:    return blast::mk_level_zero();
-    case level_kind::Param:   return blast::mk_param_univ(param_id(l));
-    case level_kind::Meta:    return blast::mk_meta_univ(meta_id(l));
-    case level_kind::Global:  return blast::mk_global_univ(global_id(l));
-    case level_kind::Max:
-        lhs = to_blast_level(max_lhs(l));
-        return blast::mk_max(lhs, to_blast_level(max_rhs(l)));
-    case level_kind::IMax:
-        lhs = to_blast_level(imax_lhs(l));
-        return blast::mk_imax(lhs, to_blast_level(imax_rhs(l)));
-    }
-    lean_unreachable();
-}
-
 static name * g_prefix = nullptr;
 
 class context {
@@ -45,7 +27,8 @@ class context {
     io_state                  m_ios;
     name_set                  m_lemma_hints;
     name_set                  m_unfold_hints;
-    name_map<expr>            m_mvar2mref;    // map goal metavariables to blast mref's
+    name_map<level>           m_uvar2uref;    // map global universe metavariables to blast uref's
+    name_map<expr>            m_mvar2mref;    // map global metavariables to blast mref's
     name_predicate            m_not_reducible_pred;
     name_map<projection_info> m_projection_info;
     state                     m_curr_state;   // current state
@@ -54,8 +37,34 @@ class context {
         type_checker                 m_tc;
         state &                      m_state;
         // We map each metavariable to a metavariable application and the mref associated with it.
+        name_map<level> &            m_uvar2uref;
         name_map<pair<expr, expr>> & m_mvar2meta_mref;
         name_map<expr> &             m_local2href;
+
+        level to_blast_level(level const & l) {
+            level lhs;
+            switch (l.kind()) {
+            case level_kind::Succ:    return blast::mk_succ(to_blast_level(succ_of(l)));
+            case level_kind::Zero:    return blast::mk_level_zero();
+            case level_kind::Param:   return blast::mk_param_univ(param_id(l));
+            case level_kind::Global:  return blast::mk_global_univ(global_id(l));
+            case level_kind::Max:
+                lhs = to_blast_level(max_lhs(l));
+                return blast::mk_max(lhs, to_blast_level(max_rhs(l)));
+            case level_kind::IMax:
+                lhs = to_blast_level(imax_lhs(l));
+                return blast::mk_imax(lhs, to_blast_level(imax_rhs(l)));
+            case level_kind::Meta:
+                if (auto r = m_uvar2uref.find(meta_id(l))) {
+                    return *r;
+                } else {
+                    level uref = m_state.mk_uref();
+                    m_uvar2uref.insert(meta_id(l), uref);
+                    return uref;
+                }
+            }
+            lean_unreachable();
+        }
 
         expr visit_sort(expr const & e) {
             return blast::mk_sort(to_blast_level(sort_level(e)));
@@ -183,8 +192,9 @@ class context {
 
     public:
         to_blast_expr_fn(environment const & env, state & s,
-                         name_map<pair<expr, expr>> & mvar2meta_mref, name_map<expr> & local2href):
-            m_tc(env), m_state(s), m_mvar2meta_mref(mvar2meta_mref), m_local2href(local2href) {}
+                         name_map<level> & uvar2uref, name_map<pair<expr, expr>> & mvar2meta_mref,
+                         name_map<expr> & local2href):
+            m_tc(env), m_state(s), m_uvar2uref(uvar2uref), m_mvar2meta_mref(mvar2meta_mref), m_local2href(local2href) {}
     };
 
     void init_mvar2mref(name_map<pair<expr, expr>> & m) {
@@ -198,7 +208,7 @@ class context {
         type_checker_ptr norm_tc = mk_type_checker(m_env, name_generator(*g_prefix), UnfoldReducible);
         name_map<pair<expr, expr>> mvar2meta_mref;
         name_map<expr>             local2href;
-        to_blast_expr_fn to_blast_expr(m_env, s, mvar2meta_mref, local2href);
+        to_blast_expr_fn to_blast_expr(m_env, s, m_uvar2uref, mvar2meta_mref, local2href);
         buffer<expr> hs;
         g.get_hyps(hs);
         for (expr const & h : hs) {
@@ -246,9 +256,6 @@ public:
 
     projection_info const * get_projection_info(name const & n) const {
         return m_projection_info.find(n);
-    }
-
-    name mk_fresh_local_name() {
     }
 };
 

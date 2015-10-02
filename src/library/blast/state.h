@@ -31,7 +31,7 @@ class state {
     typedef metavar_idx_map<expr>               eassignment;
     typedef metavar_idx_map<level>              uassignment;
     typedef hypothesis_idx_map<metavar_idx_set> fixed_by;
-    unsigned       m_next_uvar_index; // index of the next universe metavariable
+    unsigned       m_next_uref_index; // index of the next universe metavariable
     uassignment    m_uassignment;
     unsigned       m_next_mref_index; // index of the next metavariable
     metavar_decls  m_metavar_decls;
@@ -59,6 +59,8 @@ class state {
     #endif
 public:
     state();
+    level mk_uref();
+
     /** \brief Create a new metavariable using the given type and context.
         \pre ctx must be a subset of the hypotheses in the main branch. */
     expr mk_metavar(hypothesis_idx_buffer const & ctx, expr const & type);

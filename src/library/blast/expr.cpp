@@ -19,6 +19,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
+static name * g_prefix = nullptr;
+static expr * g_dummy_type = nullptr; // dummy type for href/mref
+
 typedef typename std::vector<expr> expr_array;
 LEAN_THREAD_PTR(expr_array,  g_var_array);
 LEAN_THREAD_PTR(expr_array,  g_mref_array);
@@ -76,8 +79,17 @@ level mk_global_univ(name const & n) {
     return lean::mk_global_univ(n);
 }
 
-level mk_meta_univ(name const & n) {
-    return lean::mk_meta_univ(n);
+level mk_uref(unsigned idx) {
+    return lean::mk_meta_univ(name(*g_prefix, idx));
+}
+
+bool is_uref(level const & l) {
+    return is_meta(l) && meta_id(l).is_numeral();
+}
+
+unsigned uref_index(level const & l) {
+    lean_assert(is_uref(l));
+    return meta_id(l).get_numeral();
 }
 
 level update_succ(level const & l, level const & new_arg) {
@@ -100,9 +112,6 @@ level update_max(level const & l, level const & new_lhs, level const & new_rhs) 
             return blast::mk_imax(new_lhs, new_rhs);
     }
 }
-
-static name * g_prefix = nullptr;
-static expr * g_dummy_type = nullptr; // dummy type for href/mref
 
 static expr mk_href_core(unsigned idx) {
     return lean::mk_local(name(*g_prefix, idx), *g_dummy_type);

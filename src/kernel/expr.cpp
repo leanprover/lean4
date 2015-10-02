@@ -309,19 +309,6 @@ expr_macro::~expr_macro() {
 LEAN_THREAD_VALUE(bool, g_expr_cache_enabled, true);
 typedef typename std::unordered_set<expr, expr_hash, is_bi_equal_proc> expr_cache;
 MK_THREAD_LOCAL_GET_DEF(expr_cache, get_expr_cache);
-bool enable_expr_caching(bool f) {
-    bool r1 = enable_level_caching(f);
-    bool r2 = g_expr_cache_enabled;
-    lean_verify(r1 == r2);
-    expr_cache new_cache;
-    get_expr_cache().swap(new_cache);
-    if (f) {
-        clear_abstract_cache();
-        clear_instantiate_cache();
-    }
-    g_expr_cache_enabled = f;
-    return r2;
-}
 inline expr cache(expr const & e) {
     if (g_expr_cache_enabled) {
         expr_cache & cache = get_expr_cache();
@@ -333,6 +320,21 @@ inline expr cache(expr const & e) {
         }
     }
     return e;
+}
+bool enable_expr_caching(bool f) {
+    bool r1 = enable_level_caching(f);
+    bool r2 = g_expr_cache_enabled;
+    lean_verify(r1 == r2);
+    expr_cache new_cache;
+    get_expr_cache().swap(new_cache);
+    if (f) {
+        clear_abstract_cache();
+        clear_instantiate_cache();
+        cache(mk_Prop());
+        cache(mk_Type());
+    }
+    g_expr_cache_enabled = f;
+    return r2;
 }
 bool is_cached(expr const & e) {
     return get_expr_cache().find(e) != get_expr_cache().end();

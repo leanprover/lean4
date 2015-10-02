@@ -23,24 +23,24 @@ namespace category
   definition Precategory_hset [reducible] [constructor] : Precategory :=
   Precategory.mk hset precategory_hset
 
-  abbreviation pset [constructor] := Precategory_hset
+  abbreviation set [constructor] := Precategory_hset
 
   namespace set
     local attribute is_equiv_subtype_eq [instance]
-    definition iso_of_equiv [constructor] {A B : pset} (f : A ≃ B) : A ≅ B :=
+    definition iso_of_equiv [constructor] {A B : set} (f : A ≃ B) : A ≅ B :=
     iso.MK (to_fun f)
            (to_inv f)
            (eq_of_homotopy (left_inv (to_fun f)))
            (eq_of_homotopy (right_inv (to_fun f)))
 
-    definition equiv_of_iso [constructor] {A B : pset} (f : A ≅ B) : A ≃ B :=
+    definition equiv_of_iso [constructor] {A B : set} (f : A ≅ B) : A ≃ B :=
     begin
       apply equiv.MK (to_hom f) (iso.to_inv f),
         exact ap10 (to_right_inverse f),
         exact ap10 (to_left_inverse f)
     end
 
-    definition is_equiv_iso_of_equiv [constructor] (A B : pset)
+    definition is_equiv_iso_of_equiv [constructor] (A B : set)
       : is_equiv (@iso_of_equiv A B) :=
     adjointify _ (λf, equiv_of_iso f)
                  (λf, proof iso_eq idp qed)
@@ -53,7 +53,7 @@ namespace category
       @ap _ _ (to_fun (trunctype.sigma_char 0)) A B :=
     eq_of_homotopy (λp, eq.rec_on p idp)
 
-    definition equiv_equiv_iso (A B : pset) : (A ≃ B) ≃ (A ≅ B) :=
+    definition equiv_equiv_iso (A B : set) : (A ≃ B) ≃ (A ≅ B) :=
     equiv.MK (λf, iso_of_equiv f)
              (λf, proof equiv.MK (to_hom f)
                            (iso.to_inv f)
@@ -62,10 +62,10 @@ namespace category
              (λf, proof iso_eq idp qed)
              (λf, proof equiv_eq idp qed)
 
-    definition equiv_eq_iso (A B : pset) : (A ≃ B) = (A ≅ B) :=
+    definition equiv_eq_iso (A B : set) : (A ≃ B) = (A ≅ B) :=
     ua !equiv_equiv_iso
 
-    definition is_univalent_hset (A B : pset) : is_equiv (iso_of_eq : A = B → A ≅ B) :=
+    definition is_univalent_hset (A B : set) : is_equiv (iso_of_eq : A = B → A ≅ B) :=
     assert H₁ : is_equiv (@iso_of_equiv A B ∘ @equiv_of_eq A B ∘ subtype_eq_inv _ _ ∘
                   @ap _ _ (to_fun (trunctype.sigma_char 0)) A B), from
       @is_equiv_compose _ _ _ _ _
@@ -88,10 +88,10 @@ namespace category
   definition Category_hset [reducible] [constructor] : Category :=
   Category.mk hset category_hset
 
-  abbreviation set [constructor] := Category_hset
+  abbreviation cset [constructor] := Category_hset
 
   open functor lift
-  definition lift_functor.{u v} [constructor] : pset.{u} ⇒ pset.{max u v} :=
+  definition lift_functor.{u v} [constructor] : set.{u} ⇒ set.{max u v} :=
   functor.mk tlift
              (λa b, lift_functor)
              (λa, eq_of_homotopy (λx, by induction x; reflexivity))
@@ -102,24 +102,27 @@ namespace category
   local attribute category.to_precategory [unfold 2]
 
   definition is_complete_set_cone.{u v w} [constructor]
-    (I : Precategory.{v w}) (F : I ⇒ pset.{max u v w}) : cone_obj F :=
+    (I : Precategory.{v w}) (F : I ⇒ set.{max u v w}) : cone_obj F :=
   begin
   fapply cone_obj.mk,
   { fapply trunctype.mk,
     { exact Σ(s : Π(i : I), trunctype.carrier (F i)),
         Π{i j : I} (f : i ⟶ j), F f (s i) = (s j)},
-    { exact sorry /-abstract begin apply is_trunc_sigma, intro s,
-      apply is_trunc_pi, intro i,
-      apply is_trunc_pi, intro j,
-      apply is_trunc_pi, intro f,
-      apply is_trunc_eq end end-/}},
+    { with_options [elaborator.ignore_instances true] -- TODO: fix
+      ( refine is_trunc_sigma _ _;
+        ( apply is_trunc_pi);
+        ( intro s;
+          refine is_trunc_pi _ _; intro i;
+          refine is_trunc_pi _ _; intro j;
+          refine is_trunc_pi _ _; intro f;
+          apply is_trunc_eq))}},
   { fapply nat_trans.mk,
     { intro i x, esimp at x, exact x.1 i},
     { intro i j f, esimp, apply eq_of_homotopy, intro x, esimp at x, induction x with s p,
       esimp, apply p}}
   end
 
-  definition is_complete_set.{u v w} [instance] : is_complete.{(max u v w)+1 (max u v w) v w} pset :=
+  definition is_complete_set.{u v w} [instance] : is_complete.{(max u v w)+1 (max u v w) v w} set :=
   begin
     intro I F, fapply has_terminal_object.mk,
     { exact is_complete_set_cone.{u v w} I F},
@@ -133,15 +136,16 @@ namespace category
       { esimp, intro h, induction h with f q, apply cone_hom_eq, esimp at *,
         apply eq_of_homotopy, intro x, fapply sigma_eq: esimp,
         { apply eq_of_homotopy, intro i, exact (ap10 (q i) x)⁻¹},
-        { exact sorry /-apply is_hprop.elimo,
-          apply is_trunc_pi, intro i,
-          apply is_trunc_pi, intro j,
-          apply is_trunc_pi, intro f,
-          apply is_trunc_eq-/}}}
+        { with_options [elaborator.ignore_instances true] -- TODO: fix
+          ( refine is_hprop.elimo _ _ _;
+            refine is_trunc_pi _ _; intro i;
+            refine is_trunc_pi _ _; intro j;
+            refine is_trunc_pi _ _; intro f;
+            apply is_trunc_eq)}}}
   end
 
   definition is_cocomplete_set_cone_rel.{u v w} [unfold 3 4]
-    (I : Precategory.{v w}) (F : I ⇒ pset.{max u v w}ᵒᵖ) : (Σ(i : I), trunctype.carrier (F i)) →
+    (I : Precategory.{v w}) (F : I ⇒ set.{max u v w}ᵒᵖ) : (Σ(i : I), trunctype.carrier (F i)) →
     (Σ(i : I), trunctype.carrier (F i)) → hprop.{max u v w} :=
   begin
     intro v w, induction v with i x, induction w with j y,
@@ -151,7 +155,7 @@ namespace category
   end
 
   definition is_cocomplete_set_cone.{u v w} [constructor]
-    (I : Precategory.{v w}) (F : I ⇒ pset.{max u v w}ᵒᵖ) : cone_obj F :=
+    (I : Precategory.{v w}) (F : I ⇒ set.{max u v w}ᵒᵖ) : cone_obj F :=
   begin
   fapply cone_obj.mk,
   { fapply trunctype.mk,
@@ -163,18 +167,18 @@ namespace category
       exact exists.intro f idp}}
   end
 
--- adding the following step explicitly slightly reduces the elaboration time of the next proof
+-- giving the following step explicitly slightly reduces the elaboration time of the next proof
 
 --   definition is_cocomplete_set_cone_hom.{u v w} [constructor]
---     (I : Precategory.{v w}) (F : I ⇒ Opposite pset.{max u v w})
+--     (I : Precategory.{v w}) (F : I ⇒ Opposite set.{max u v w})
 -- (X : hset.{max u v w})
 -- (η : Π (i : carrier I), trunctype.carrier (to_fun_ob F i) → trunctype.carrier X)
 -- (p : Π {i j : carrier I} (f : hom i j), (λ (x : trunctype.carrier (to_fun_ob F j)), η i (to_fun_hom F f x)) = η j)
 
 -- : --cone_hom (cone_obj.mk X (nat_trans.mk η @p)) (is_cocomplete_set_cone.{u v w} I F)
---   @cone_hom I psetᵒᵖ F
---     (@cone_obj.mk I psetᵒᵖ F X
---       (@nat_trans.mk I (Opposite pset) (@constant_functor I (Opposite pset) X) F η @p))
+--   @cone_hom I setᵒᵖ F
+--     (@cone_obj.mk I setᵒᵖ F X
+--       (@nat_trans.mk I (Opposite set) (@constant_functor I (Opposite set) X) F η @p))
 --     (is_cocomplete_set_cone.{u v w} I F)
 -- :=
 --   begin

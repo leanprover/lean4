@@ -8,12 +8,21 @@ import .iso
 
 open iso is_equiv equiv eq is_trunc
 
--- A category is a precategory extended by a witness
--- that the function from paths to isomorphisms,
--- is an equivalecnce.
+/-
+  A category is a precategory extended by a witness
+  that the function from paths to isomorphisms is an equivalence.
+-/
 namespace category
-  definition is_univalent [reducible] {ob : Type} (C : precategory ob) :=
+  /-
+    TODO: restructure this. is_univalent should probably be a class with as argument
+    (C : Precategory)
+  -/
+  definition is_univalent [class] {ob : Type} (C : precategory ob) :=
   Π(a b : ob), is_equiv (iso_of_eq : a = b → a ≅ b)
+
+  definition is_equiv_of_is_univalent [instance] {ob : Type} [C : precategory ob]
+    [H : is_univalent C] (a b : ob) : is_equiv (iso_of_eq : a = b → a ≅ b) :=
+  H a b
 
   structure category [class] (ob : Type) extends parent : precategory ob :=
   mk' :: (iso_of_path_equiv : is_univalent parent)
@@ -21,9 +30,10 @@ namespace category
   attribute category [multiple_instances]
 
   abbreviation iso_of_path_equiv := @category.iso_of_path_equiv
+  attribute category.iso_of_path_equiv [instance]
 
   definition category.mk [reducible] [unfold 2] {ob : Type} (C : precategory ob)
-    (H : Π (a b : ob), is_equiv (iso_of_eq : a = b → a ≅ b)) : category ob :=
+    (H : is_univalent C) : category ob :=
   precategory.rec_on C category.mk' H
 
   section basic
@@ -31,7 +41,6 @@ namespace category
   include C
 
   -- Make iso_of_path_equiv a class instance
-  -- TODO: Unsafe class instance?
   attribute iso_of_path_equiv [instance]
 
   definition eq_equiv_iso [constructor] (a b : ob) : (a = b) ≃ (a ≅ b) :=

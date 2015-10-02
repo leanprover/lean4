@@ -225,7 +225,8 @@ namespace function
                     ... = a : left_inverse)
 
   section
-    local attribute is_equiv_of_is_section_of_is_retraction [instance]
+    local attribute is_equiv_of_is_section_of_is_retraction [instance] [priority 10000]
+    local attribute trunctype.struct [priority 1] -- remove after #842 is closed
     variable (f)
     definition is_hprop_is_retraction_prod_is_section : is_hprop (is_retraction f × is_section f) :=
     begin

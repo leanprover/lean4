@@ -8,7 +8,7 @@ Properties of functors such as adjoint functors, equivalences, faithful or full 
 TODO: Split this file in different files
 -/
 
-import algebra.category.constructions function arity
+import .constructions.functor function arity
 
 open category functor nat_trans eq is_trunc iso equiv prod trunc function pi is_equiv
 

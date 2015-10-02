@@ -8,9 +8,9 @@ Functor precategory and category
 
 import ..nat_trans ..category
 
-open eq functor is_trunc nat_trans iso is_equiv
+open eq category is_trunc nat_trans iso is_equiv category.hom
 
-namespace category
+namespace functor
 
   definition precategory_functor [instance] [reducible] [constructor] (D C : Precategory)
     : precategory (functor C D) :=
@@ -252,4 +252,23 @@ namespace category
 
   end functor
 
-end category
+  variables {C D I : Precategory}
+  definition constant2_functor [constructor] (F : I ⇒ D ^c C) (c : C) : I ⇒ D :=
+  functor.mk (λi, to_fun_ob (F i) c)
+             (λi j f, natural_map (F f) c)
+             abstract (λi, ap010 natural_map !respect_id c ⬝ proof idp qed) end
+             abstract (λi j k g f, ap010 natural_map !respect_comp c) end
+
+  definition constant2_functor_natural [constructor] (F : I ⇒ D ^c C) {c d : C} (f : c ⟶ d)
+    : constant2_functor F c ⟹ constant2_functor F d :=
+  nat_trans.mk (λi, to_fun_hom (F i) f)
+               (λi j k, (naturality (F k) f)⁻¹)
+
+  definition functor_flip [constructor] (F : I ⇒ D ^c C) : C ⇒ D ^c I :=
+  functor.mk (constant2_functor F)
+             @(constant2_functor_natural F)
+             abstract begin intros, apply nat_trans_eq, intro i, esimp, apply respect_id end end
+             abstract begin intros, apply nat_trans_eq, intro i, esimp, apply respect_comp end end
+
+
+end functor

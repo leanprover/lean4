@@ -155,6 +155,7 @@ namespace functor
 
   section
     local attribute precategory.is_hset_hom [priority 1001]
+    local attribute trunctype.struct [priority 1] -- remove after #842 is closed
     protected theorem is_hset_functor [instance]
       [HD : is_hset D] : is_hset (functor C D) :=
     by apply is_trunc_equiv_closed; apply functor.sigma_char

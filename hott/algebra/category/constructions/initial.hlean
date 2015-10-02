@@ -28,7 +28,7 @@ namespace category
              (λx, empty.elim x)
              (λx y z g f, empty.elim x)
 
-  definition is_contr_zero_functor [instance] (C : Precategory) : is_contr (0 ⇒ C) :=
+  definition is_contr_initial_functor [instance] (C : Precategory) : is_contr (0 ⇒ C) :=
   is_contr.mk (initial_functor C)
               begin
                 intro F, fapply functor_eq,

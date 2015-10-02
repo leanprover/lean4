@@ -308,7 +308,7 @@ namespace is_trunc
   structure trunctype (n : trunc_index) :=
   (carrier : Type) (struct : is_trunc n carrier)
   attribute trunctype.carrier [coercion]
-  attribute trunctype.struct [instance]
+  attribute trunctype.struct [instance] [priority 1400]
 
   notation n `-Type` := trunctype n
   abbreviation hprop := -1-Type

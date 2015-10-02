@@ -59,7 +59,7 @@ namespace category
   is_hprop_has_terminal_object (Category_opposite D)
 
   variable (D)
-  definition has_colimits_of_shape [reducible] := has_limits_of_shape Dᵒᵖ Iᵒᵖ
+  abbreviation has_colimits_of_shape := has_limits_of_shape Dᵒᵖ Iᵒᵖ
 
   /-
     The next definitions states that a category is cocomplete with respect to diagrams
@@ -67,7 +67,7 @@ namespace category
     with respect to diagrams of type Precategory.{o₂ h₂}
   -/
 
-  definition is_cocomplete [reducible] (D : Precategory) := is_complete Dᵒᵖ
+  abbreviation is_cocomplete (D : Precategory) := is_complete Dᵒᵖ
 
   definition has_colimits_of_shape_of_is_cocomplete [instance] [H : is_cocomplete D]
     (I : Precategory) : has_colimits_of_shape D I := H Iᵒᵖ
@@ -85,7 +85,7 @@ namespace category
   variables {D I} (F : I ⇒ D) [H : has_colimits_of_shape D I] {i j : I}
   include H
 
-  definition cocone [reducible] := (cone Fᵒᵖ)ᵒᵖ
+  abbreviation cocone := (cone Fᵒᵖ)ᵒᵖ
 
   definition has_initial_object_cocone [H : has_colimits_of_shape D I]
     (F : I ⇒ D) : has_initial_object (cocone F) :=
@@ -146,6 +146,11 @@ namespace category
     {h₁ : colimit_object F ⟶ d} (q₁ : Πi, h₁ ∘ colimit_morphism F i = η i)
     {h₂ : colimit_object F ⟶ d} (q₂ : Πi, h₂ ∘ colimit_morphism F i = η i) : h₁ = h₂ :=
   @limit_cone_unique _ _ Fᵒᵖ _ _ _ proof p qed _ proof q₁ qed _ proof q₂ qed
+
+  definition colimit_hom_colimit [reducible] {F G : I ⇒ D} (η : F ⟹ G)
+    : colimit_object F ⟶ colimit_object G :=
+  colimit_hom _ (λi, colimit_morphism G i ∘ η i)
+              abstract by intro i j f; rewrite [-assoc,-naturality,assoc,colimit_commute] end
 
   omit H
 
@@ -307,5 +312,9 @@ namespace category
   iso_of_opposite_iso !(@pullback_object_iso_pullback_object (Opposite D))
 
   end pushouts
+
+  definition has_limits_of_shape_op_op [H : has_limits_of_shape D Iᵒᵖᵒᵖ]
+    : has_limits_of_shape D I :=
+  by induction I with I Is; induction Is; exact H
 
 end category

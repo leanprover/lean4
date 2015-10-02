@@ -32,6 +32,8 @@ namespace nat_trans
 
   infixr ` ∘n `:60 := nat_trans.compose
 
+  definition compose_def (η : G ⟹ H) (θ : F ⟹ G) (c : C) : (η ∘n θ) c = η c ∘ θ c := idp
+
   protected definition id [reducible] [constructor] {F : C ⇒ D} : nat_trans F F :=
   mk (λa, id) (λa b f, !id_right ⬝ !id_left⁻¹)
 

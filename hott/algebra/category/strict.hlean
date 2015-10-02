@@ -30,19 +30,19 @@ namespace category
 
   open functor
 
-  definition precat_strict_precat : precategory Strict_precategory :=
-  precategory.mk (λ a b, functor a b)
-                 (λ a b c g f, functor.compose g f)
-                 (λ a, functor.id)
-                 (λ a b c d h g f, !functor.assoc)
-                 (λ a b f, !functor.id_left)
-                 (λ a b f, !functor.id_right)
+  -- TODO: move to constructions.cat?
+  definition precategory_strict_precategory [constructor] : precategory Strict_precategory :=
+  precategory.mk (λ A B, A ⇒ B)
+                 (λ A B C G F, G ∘f F)
+                 (λ A, 1)
+                 (λ A B C D, functor.assoc)
+                 (λ A B, functor.id_left)
+                 (λ A B, functor.id_right)
 
-  definition Precat_of_strict_precats := precategory.Mk precat_strict_precat
+  definition Precategory_strict_precategory [constructor] := precategory.Mk precategory_strict_precategory
 
   namespace ops
-    abbreviation SPreCat := Precat_of_strict_precats
-    --attribute precat_strict_precat [instance]
+    abbreviation Cat := Precategory_strict_precategory
   end ops
 
 end category

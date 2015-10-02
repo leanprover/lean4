@@ -112,8 +112,8 @@ Here is the sequence of commands for creating the term `fun {A : Type.{1}} (a : 
 1 #US 0
 1 #ES 1
 2 #EV 0
-3 #EL #BD 2 2
-4 #EL #BI 1 3
+3 #EL #BD 2 2 2
+4 #EL #BI 1 1 3
 ```
 Now, assume the environment contains the following constant declarations:
 `nat : Type.{1}`, `nat.zero : nat`, `nat.succ : nat -> nat`, and `vector.{l} : Type.{l} -> nat -> Type.{max 1 l}`.

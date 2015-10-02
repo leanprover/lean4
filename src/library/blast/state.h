@@ -66,6 +66,11 @@ public:
         The context of this metavariable will be all hypotheses occurring in the main branch. */
     expr mk_metavar(expr const & type);
 
+    bool is_mref_assigned(expr const & e) const {
+        lean_assert(is_mref(e));
+        return m_eassignment.contains(mref_index(e));
+    }
+
     /** \brief Add a new hypothesis to the main branch */
     expr add_hypothesis(name const & n, expr const & type, optional<expr> const & value, optional<expr> const & jst) {
         return m_main.add_hypothesis(n, type, value, jst);

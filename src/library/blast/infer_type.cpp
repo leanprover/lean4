@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "library/normalize.h"
 #include "library/blast/infer_type.h"
 #include "library/blast/blast_context.h"
 #include "library/blast/blast_exception.h"
@@ -105,11 +106,6 @@ expr whnf(expr const & e) {
     }
 }
 
-bool is_def_eq(expr const & e1, expr const & e2) {
-    // TODO(Leo)
-    return e1 == e2;
-}
-
 static expr infer_constant(expr const & e) {
     declaration d    = env().get(const_name(e));
     auto const & ps = d.get_univ_params();
@@ -184,6 +180,8 @@ static void ensure_pi(expr const & e, expr const & ref) {
     // Remark: for simplicity reasons, we just fail if \c e is not a Pi.
     if (!is_pi(e))
         throw blast_exception("infer type failed, Pi expected", ref);
+    // Potential problem: e is of the form (f ...) where f is a constant that is not marked as reducible.
+    // So, whnf does not reduce it, and we fail to detect that e is can be reduced to a Pi-expression.
 }
 
 static expr infer_app(expr const & e) {
@@ -249,5 +247,168 @@ expr infer_type(expr const & e) {
     }
     // TODO(Leo): cache results if we have performance problems
     return r;
+}
+
+bool is_prop(expr const & e) {
+    if (env().impredicative()) {
+        expr t   = whnf(infer_type(e));
+        return t == mk_Prop();
+    } else {
+        return false;
+    }
+}
+
+bool is_def_eq(level const & l1, level const & l2) {
+    if (is_equivalent(l1, l2)) {
+        return true;
+    } else {
+        // TODO(Leo): check/update universe level assignment
+        lean_unreachable();
+        return false;
+    }
+}
+
+bool is_def_eq(levels const & ls1, levels const & ls2) {
+    if (is_nil(ls1) && is_nil(ls2)) {
+        return true;
+    } else if (!is_nil(ls1) && !is_nil(ls2)) {
+        return
+            is_def_eq(head(ls1), head(ls2)) &&
+            is_def_eq(tail(ls1), tail(ls2));
+    } else {
+        return false;
+    }
+}
+
+/** \brief Given \c e of the form <tt>?m t_1 ... t_n</tt>, where
+    ?m is an assigned mref, substitute \c ?m with its assignment. */
+static expr subst_mref(expr const & e) {
+    // TODO(Leo):
+    lean_unreachable();
+}
+
+/** \brief Given \c m of the form <tt>?m t_1 ... t_n</tt>, (try to) assign
+    ?m to (an abstraction of) v. Return true if success and false otherwise. */
+static bool assign_mref(expr const & m, expr const & v) {
+    // TODO(Leo):
+    lean_unreachable();
+}
+
+static bool is_def_eq_binding(expr e1, expr e2) {
+    lean_assert(e1.kind() == e2.kind());
+    lean_assert(is_binding(e1));
+    expr_kind k = e1.kind();
+    buffer<expr> subst;
+    do {
+        optional<expr> var_e1_type;
+        if (binding_domain(e1) != binding_domain(e2)) {
+            var_e1_type = instantiate_rev(binding_domain(e1), subst.size(), subst.data());
+            expr var_e2_type = instantiate_rev(binding_domain(e2), subst.size(), subst.data());
+            if (!is_def_eq(var_e2_type, *var_e1_type))
+                return false;
+        }
+        if (!closed(binding_body(e1)) || !closed(binding_body(e2))) {
+            // local is used inside t or s
+            if (!var_e1_type)
+                var_e1_type = instantiate_rev(binding_domain(e1), subst.size(), subst.data());
+            subst.push_back(blast::mk_local(mk_fresh_local_name(), binding_name(e1),
+                                            *var_e1_type, binding_info(e1)));
+        } else {
+            expr const & dont_care = mk_Prop();
+            subst.push_back(dont_care);
+        }
+        e1 = binding_body(e1);
+        e2 = binding_body(e2);
+    } while (e1.kind() == k && e2.kind() == k);
+    return is_def_eq(instantiate_rev(e1, subst.size(), subst.data()),
+                     instantiate_rev(e2, subst.size(), subst.data()));
+}
+
+static bool is_def_eq_app(expr const & e1, expr const & e2) {
+    lean_assert(is_app(e1) && is_app(e2));
+    buffer<expr> args1, args2;
+    expr const & f1 = get_app_args(e1, args1);
+    expr const & f2 = get_app_args(e2, args2);
+    if (args1.size() != args2.size() || !is_def_eq(f1, f2))
+        return false;
+    for (unsigned i = 0; i < args1.size(); i++) {
+        if (!is_def_eq(args1[i], args2[i]))
+            return false;
+    }
+    return true;
+}
+
+static bool is_def_eq_eta(expr const & e1, expr const & e2) {
+    expr new_e1 = try_eta(e1);
+    expr new_e2 = try_eta(e2);
+    if (e1 != new_e1 || e2 != new_e2)
+        return is_def_eq(new_e1, new_e2);
+    return false;
+}
+
+static bool is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
+    if (!env().prop_proof_irrel())
+        return false;
+    expr e1_type = infer_type(e1);
+    expr e2_type = infer_type(e2);
+    return is_prop(e1_type) && is_def_eq(e1_type, e2_type);
+}
+
+bool is_def_eq(expr const & e1, expr const & e2) {
+    check_system("is_def_eq");
+    if (e1 == e2)
+        return true;
+    state & s = curr_state();
+    expr const & f1 = get_app_fn(e1);
+    if (is_mref(f1)) {
+        if (s.is_mref_assigned(f1)) {
+            return is_def_eq(subst_mref(e1), e2);
+        } else {
+            return assign_mref(e1, e2);
+        }
+    }
+    expr const & f2 = get_app_fn(e2);
+    if (is_mref(f2)) {
+        if (s.is_mref_assigned(f2)) {
+            return is_def_eq(e1, subst_mref(e2));
+        } else {
+            return assign_mref(e2, e1);
+        }
+    }
+    expr e1_n = whnf(e1);
+    expr e2_n = whnf(e2);
+    if (e1 != e1_n || e2 != e2_n)
+        return is_def_eq(e1_n, e2_n);
+    if (e1.kind() == e2.kind()) {
+        switch (e1.kind()) {
+        case expr_kind::Lambda:
+        case expr_kind::Pi:
+            if (is_def_eq_binding(e1, e2))
+                return true;
+            break;
+        case expr_kind::Sort:
+            if (is_def_eq(sort_level(e1), sort_level(e2)))
+                return true;
+            break;
+        case expr_kind::Meta:
+        case expr_kind::Var:
+            lean_unreachable(); // LCOV_EXCL_LINE
+        case expr_kind::Local:
+        case expr_kind::Macro:
+            break;
+        case expr_kind::Constant:
+            if (const_name(e1) == const_name(e2) &&
+                is_def_eq(const_levels(e1), const_levels(e2)))
+                return true;
+            break;
+        case expr_kind::App:
+            if (is_def_eq_app(e1, e2))
+                return true;
+            break;
+        }
+    }
+    if (is_def_eq_eta(e1, e2))
+        return true;
+    return is_def_eq_proof_irrel(e1, e2);
 }
 }}

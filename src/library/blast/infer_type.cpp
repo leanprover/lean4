@@ -212,7 +212,7 @@ expr infer_type(expr const & e) {
     switch (e.kind()) {
     case expr_kind::Local:
         if (is_href(e)) {
-            if (hypothesis const * h = state().get_main_branch().get(e)) {
+            if (hypothesis const * h = curr_state().get_main_branch().get(e)) {
                 r = h->get_type();
             } else {
                 throw blast_exception("infer type failed, unknown hypothesis", e);
@@ -222,8 +222,13 @@ expr infer_type(expr const & e) {
         }
         break;
     case expr_kind::Meta:
-        r = mlocal_type(e);
-        break;
+        if (is_mref(e)) {
+            if (metavar_decl const * d = curr_state().get_metavar_decl(mref_index(e))) {
+                r = d->get_type();
+                break;
+            }
+        }
+        throw blast_exception("infer type failed, invalid occurrence of metavariable", e);
     case expr_kind::Var:
         lean_unreachable();  // LCOV_EXCL_LINE
     case expr_kind::Sort:

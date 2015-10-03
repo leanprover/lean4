@@ -668,6 +668,7 @@ void initialize_expr() {
 }
 
 void finalize_expr() {
+    enable_expr_caching(false);
     delete g_Prop;
     delete g_Type1;
     delete g_dummy;

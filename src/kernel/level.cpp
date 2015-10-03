@@ -747,10 +747,11 @@ levels param_names_to_levels(level_param_names const & ps) {
 
 void initialize_level() {
     g_level_zero = new level(new level_cell(level_kind::Zero, 7u));
-    g_level_one  = new level(mk_succ(mk_level_zero()));
+    g_level_one  = new level(new level_succ(*g_level_zero));
 }
 
 void finalize_level() {
+    enable_level_caching(false);
     delete g_level_one;
     delete g_level_zero;
 }

@@ -69,10 +69,12 @@ int main() {
     initialize_kernel_module();
     initialize_library_module();
     init_default_print_fn();
-    scoped_expr_caching set(false);
-    tst1();
-    tst2();
-    tst3();
+    {
+        scoped_expr_caching set(false);
+        tst1();
+        tst2();
+        tst3();
+    }
     finalize_library_module();
     finalize_kernel_module();
     finalize_sexpr_module();

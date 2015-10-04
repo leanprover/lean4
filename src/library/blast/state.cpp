@@ -4,13 +4,31 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
+#include "library/replace_visitor.h"
 #include "library/blast/state.h"
 
 namespace lean {
 namespace blast {
+bool metavar_decl::restrict_context_using(metavar_decl const & other) {
+    buffer<unsigned> new_ctx;
+    bool modified = false;
+    for (unsigned href : m_context) {
+        if (other.m_context_as_set.contains(href)) {
+            new_ctx.push_back(href);
+        } else {
+            modified = true;
+            m_context_as_set.erase(href);
+        }
+    }
+    if (modified)
+        m_context = to_list(new_ctx);
+    return modified;
+}
+
 state::state():m_next_uref_index(0), m_next_mref_index(0) {}
 
 /** \brief Mark that hypothesis h with index hidx is fixed by the meta-variable midx.
@@ -59,6 +77,16 @@ expr state::mk_metavar(expr const & type) {
     hypothesis_idx_buffer ctx;
     m_main.get_sorted_hypotheses(ctx);
     return state::mk_metavar(ctx, type);
+}
+
+void state::restrict_mref_context_using(expr const & mref1, expr const & mref2) {
+    metavar_decl const * d1 = m_metavar_decls.find(mref_index(mref1));
+    metavar_decl const * d2 = m_metavar_decls.find(mref_index(mref2));
+    lean_assert(d1);
+    lean_assert(d2);
+    metavar_decl new_d1(*d1);
+    if (new_d1.restrict_context_using(*d2))
+        m_metavar_decls.insert(mref_index(mref1), new_d1);
 }
 
 goal state::to_goal(branch const & b) const {
@@ -120,6 +148,178 @@ goal state::to_goal() const {
 void state::display(environment const & env, io_state const & ios) const {
     formatter fmt = ios.get_formatter_factory()(env, ios.get_options());
     ios.get_diagnostic_channel() << mk_pair(to_goal().pp(fmt), ios.get_options());
+}
+
+bool state::has_assigned_uref(level const & l) const {
+    if (!has_meta(l))
+        return false;
+    if (m_uassignment.empty())
+        return false;
+    bool found = false;
+    for_each(l, [&](level const & l) {
+            if (!has_meta(l))
+                return false; // stop search
+            if (found)
+                return false;  // stop search
+            if (is_uref(l) && is_uref_assigned(l)) {
+                found = true;
+                return false; // stop search
+            }
+            return true; // continue search
+        });
+    return found;
+}
+
+bool state::has_assigned_uref(levels const & ls) const {
+    for (level const & l : ls) {
+        if (has_assigned_uref(l))
+            return true;
+    }
+    return false;
+}
+
+bool state::has_assigned_uref_mref(expr const & e) const {
+    if (!has_mref(e) && !has_univ_metavar(e))
+        return false;
+    if (m_eassignment.empty() && m_uassignment.empty())
+        return false;
+    bool found = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!has_mref(e) && !has_univ_metavar(e))
+                return false; // stop search
+            if (found)
+                return false; // stop search
+            if ((is_mref(e) && is_mref_assigned(e)) ||
+                (is_constant(e) && has_assigned_uref(const_levels(e))) ||
+                (is_sort(e) && has_assigned_uref(sort_level(e)))) {
+                found = true;
+                return false; // stop search
+            }
+            return true; // continue search
+        });
+    return found;
+}
+
+level state::instantiate_urefs(level const & l) {
+    if (!has_assigned_uref(l))
+        return l;
+    return replace(l, [&](level const & l) {
+            if (!has_meta(l)) {
+                return some_level(l);
+            } else if (is_uref(l)) {
+                level const * v1 = get_uref_assignment(l);
+                if (v1) {
+                    level v2 = instantiate_urefs(*v1);
+                    if (*v1 != v2) {
+                        assign_uref(l, v2);
+                        return some_level(v2);
+                    } else {
+                        return some_level(*v1);
+                    }
+                }
+            }
+            return none_level();
+        });
+}
+
+struct instantiate_urefs_mrefs_fn : public replace_visitor {
+    state & m_state;
+
+    level visit_level(level const & l) {
+        return m_state.instantiate_urefs(l);
+    }
+
+    levels visit_levels(levels const & ls) {
+        return map_reuse(ls,
+                         [&](level const & l) { return visit_level(l); },
+                         [](level const & l1, level const & l2) { return is_eqp(l1, l2); });
+    }
+
+    virtual expr visit_sort(expr const & s) {
+        return blast::update_sort(s, visit_level(sort_level(s)));
+    }
+
+    virtual expr visit_constant(expr const & c) {
+        return blast::update_constant(c, visit_levels(const_levels(c)));
+    }
+
+    virtual expr visit_local(expr const & e) {
+        if (blast::is_local(e)) {
+            return blast::update_local(e, visit(mlocal_type(e)));
+        } else {
+            lean_assert(is_href(e));
+            return e;
+        }
+    }
+
+    virtual expr visit_meta(expr const & m) {
+        lean_assert(is_mref(m));
+        if (auto v1 = m_state.get_mref_assignment(m)) {
+            if (!has_mref(*v1)) {
+                return *v1;
+            } else {
+                expr v2 = m_state.instantiate_urefs_mrefs(*v1);
+                if (v2 != *v1)
+                    m_state.assign_mref(m, v2);
+                return v2;
+            }
+        } else {
+            return m;
+        }
+    }
+
+    virtual expr visit_app(expr const & e) {
+        buffer<expr> args;
+        expr const & f = get_app_rev_args(e, args);
+        if (is_mref(f)) {
+            if (auto v = m_state.get_mref_assignment(f)) {
+                expr new_app = apply_beta(*v, args.size(), args.data());
+                if (has_mref(new_app))
+                    return visit(new_app);
+                else
+                    return new_app;
+            }
+        }
+        expr new_f = visit(f);
+        buffer<expr> new_args;
+        bool modified = !is_eqp(new_f, f);
+        for (expr const & arg : args) {
+            expr new_arg = visit(arg);
+            if (!is_eqp(arg, new_arg))
+                modified = true;
+            new_args.push_back(new_arg);
+        }
+        if (!modified)
+            return e;
+        else
+            return mk_rev_app(new_f, new_args, e.get_tag());
+    }
+
+    virtual expr visit_macro(expr const & e) {
+        lean_assert(is_macro(e));
+        buffer<expr> new_args;
+        for (unsigned i = 0; i < macro_num_args(e); i++)
+            new_args.push_back(visit(macro_arg(e, i)));
+        return blast::update_macro(e, new_args.size(), new_args.data());
+    }
+
+    virtual expr visit(expr const & e) {
+        if (!has_mref(e) || !has_univ_metavar(e))
+            return e;
+        else
+            return replace_visitor::visit(e);
+    }
+
+public:
+    instantiate_urefs_mrefs_fn(state & s):m_state(s) {}
+    expr operator()(expr const & e) { return visit(e); }
+};
+
+expr state::instantiate_urefs_mrefs(expr const & e) {
+    if (!has_assigned_uref_mref(e))
+        return e;
+    else
+        return instantiate_urefs_mrefs_fn(*this)(e);
 }
 
 #ifdef LEAN_DEBUG

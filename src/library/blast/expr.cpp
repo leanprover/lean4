@@ -280,6 +280,13 @@ expr update_constant(expr const & e, levels const & new_levels) {
         return e;
 }
 
+expr update_local(expr const & e, expr const & new_type) {
+    if (!is_eqp(mlocal_type(e), new_type))
+        return blast::mk_local(mlocal_name(e), local_pp_name(e), new_type, local_info(e));
+    else
+        return e;
+}
+
 expr update_macro(expr const & e, unsigned num, expr const * args) {
     if (num == macro_num_args(e)) {
         unsigned i = 0;

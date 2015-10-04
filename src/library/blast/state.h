@@ -22,7 +22,14 @@ public:
     metavar_decl(hypothesis_idx_list const & c, hypothesis_idx_set const & s, expr const & t):
         m_context(c), m_context_as_set(s), m_type(t) {}
     hypothesis_idx_list get_context() const { return m_context; }
+    /** \brief Return true iff \c h is in the context of the this metavar declaration */
+    bool contains_href(expr const & h) const {
+        return m_context_as_set.contains(href_index(h));
+    }
     expr const & get_type() const { return m_type; }
+    /** \brief Make sure the declaration context of this declaration is a subset of \c other.
+        \remark Return true iff the context has been modified. */
+    bool restrict_context_using(metavar_decl const & other);
 };
 
 class state {
@@ -59,7 +66,28 @@ class state {
     #endif
 public:
     state();
+
     level mk_uref();
+
+    bool is_uref_assigned(level const & l) const {
+        lean_assert(is_uref(l));
+        return m_uassignment.contains(uref_index(l));
+    }
+
+    // u := l
+    void assign_uref(level const & u, level const & l) {
+        lean_assert(!is_uref_assigned(u));
+        m_uassignment.insert(uref_index(u), l);
+    }
+
+    level const * get_uref_assignment(level const & l) const {
+        lean_assert(is_uref_assigned(l));
+        return m_uassignment.find(uref_index(l));
+    }
+
+    /** \brief Instantiate any assigned uref in \c l with its assignment.
+        \remark This is not a const method because it may normalize the assignment. */
+    level instantiate_urefs(level const & l);
 
     /** \brief Create a new metavariable using the given type and context.
         \pre ctx must be a subset of the hypotheses in the main branch. */
@@ -68,10 +96,36 @@ public:
         The context of this metavariable will be all hypotheses occurring in the main branch. */
     expr mk_metavar(expr const & type);
 
+    /** \brief Make sure the metavariable declaration context of mref1 is a
+        subset of the metavariable declaration context of mref2. */
+    void restrict_mref_context_using(expr const & mref1, expr const & mref2);
+
     bool is_mref_assigned(expr const & e) const {
         lean_assert(is_mref(e));
         return m_eassignment.contains(mref_index(e));
     }
+
+    /** \brief Return true iff \c l contains an assigned uref */
+    bool has_assigned_uref(level const & l) const;
+    bool has_assigned_uref(levels const & ls) const;
+
+    expr const * get_mref_assignment(expr const & e) const {
+        lean_assert(is_mref(e));
+        return m_eassignment.find(mref_index(e));
+    }
+
+    // m := e
+    void assign_mref(expr const & m, expr const & e) {
+        lean_assert(!is_mref_assigned(m));
+        m_eassignment.insert(mref_index(m), e);
+    }
+
+    /** \brief Return true if \c e contains an assigned mref or uref */
+    bool has_assigned_uref_mref(expr const & e) const;
+
+    /** \brief Instantiate any assigned mref in \c e with its assignment.
+        \remark This is not a const method because it may normalize the assignment. */
+    expr instantiate_urefs_mrefs(expr const & e);
 
     /** \brief Add a new hypothesis to the main branch */
     expr add_hypothesis(name const & n, expr const & type, optional<expr> const & value, optional<expr> const & jst) {
@@ -101,6 +155,23 @@ public:
     goal to_goal() const;
 
     void display(environment const & env, io_state const & ios) const;
+
+    /** Auxiliary object for creating snapshots of the metavariable assignments.
+        \remark The snapshots are created (and restored) in constant time */
+    class assignment_snapshot {
+        state &     m_state;
+        uassignment m_old_uassignment;
+        eassignment m_old_eassignment;
+    public:
+        assignment_snapshot(state & s):
+            m_state(s),
+            m_old_uassignment(s.m_uassignment),
+            m_old_eassignment(s.m_eassignment) {}
+        void restore() {
+            m_state.m_uassignment = m_old_uassignment;
+            m_state.m_eassignment = m_old_eassignment;
+        }
+    };
 
     #ifdef LEAN_DEBUG
     bool check_invariant() const;

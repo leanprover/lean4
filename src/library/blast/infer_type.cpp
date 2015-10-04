@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "kernel/for_each_fn.h"
 #include "library/normalize.h"
 #include "library/blast/infer_type.h"
 #include "library/blast/blast_context.h"
@@ -267,8 +268,23 @@ bool is_def_eq(level const & l1, level const & l2) {
     if (is_equivalent(l1, l2)) {
         return true;
     } else {
-        // TODO(Leo): check/update universe level assignment
-        lean_unreachable();
+        state & s = curr_state();
+        if (is_uref(l1)) {
+            if (s.is_uref_assigned(l1)) {
+                return is_def_eq(*s.get_uref_assignment(l1), l2);
+            } else {
+                s.assign_uref(l1, l2);
+                return true;
+            }
+        }
+        if (is_uref(l2)) {
+            if (s.is_uref_assigned(l2)) {
+                return is_def_eq(l1, *s.get_uref_assignment(l2));
+            } else {
+                s.assign_uref(l2, l1);
+                return true;
+            }
+        }
         return false;
     }
 }
@@ -285,18 +301,105 @@ bool is_def_eq(levels const & ls1, levels const & ls2) {
     }
 }
 
+static bool is_def_eq_core(expr const & e1, expr const & e2);
+
 /** \brief Given \c e of the form <tt>?m t_1 ... t_n</tt>, where
     ?m is an assigned mref, substitute \c ?m with its assignment. */
 static expr subst_mref(expr const & e) {
-    // TODO(Leo):
-    lean_unreachable();
+    buffer<expr> args;
+    expr const & u = get_app_args(e, args);
+    expr const * v = curr_state().get_mref_assignment(u);
+    lean_assert(v);
+    return apply_beta(*v, args.size(), args.data());
 }
 
-/** \brief Given \c m of the form <tt>?m t_1 ... t_n</tt>, (try to) assign
+/** \brief Given \c ma of the form <tt>?m t_1 ... t_n</tt>, (try to) assign
     ?m to (an abstraction of) v. Return true if success and false otherwise. */
-static bool assign_mref(expr const & m, expr const & v) {
-    // TODO(Leo):
-    lean_unreachable();
+static bool assign_mref_core(expr const & ma, expr const & v) {
+    buffer<expr> args;
+    expr const & m = get_app_args(ma, args);
+    buffer<expr> locals;
+    for (expr const & arg : args) {
+        if (!blast::is_local(arg))
+            break; // is not local
+        if (std::any_of(locals.begin(), locals.end(), [&](expr const & local) { return local_index(local) == local_index(arg); }))
+            break; // duplicate local
+        locals.push_back(arg);
+    }
+    lean_assert(is_mref(m));
+    state & s = curr_state();
+    metavar_decl const * d = s.get_metavar_decl(m);
+    lean_assert(d);
+    expr new_v = s.instantiate_urefs_mrefs(v);
+    // We must check
+    //   1. All href in new_v are in the context of m.
+    //   2. The context of any (unassigned) mref in new_v must be a subset of the context of m.
+    //      If it is not we force it to be.
+    //   3. Any local constant occurring in new_v occurs in locals
+    //   4. m does not occur in new_v
+    bool ok = true;
+    for_each(v, [&](expr const & e, unsigned) {
+            if (!ok)
+                return false; // stop search
+            if (is_href(e)) {
+                if (!d->contains_href(e)) {
+                    ok = false; // failed 1
+                    return false;
+                }
+            } else if (blast::is_local(e)) {
+                if (std::all_of(locals.begin(), locals.end(), [&](expr const & a) { return local_index(a) != local_index(e); })) {
+                    ok = false; // failed 3
+                    return false;
+                }
+            } else if (is_mref(e)) {
+                if (m == e) {
+                    ok = false; // failed 4
+                    return false;
+                }
+                s.restrict_mref_context_using(e, m); // enforce 2
+                return false;
+            }
+            return true;
+        });
+    if (!ok)
+        return false;
+    if (args.empty()) {
+        // easy case
+        s.assign_mref(m, new_v);
+        return true;
+    } else if (args.size() == locals.size()) {
+        s.assign_mref(m, Fun(locals, v));
+        return true;
+    } else {
+        // This case is imprecise since it is not a higher order pattern.
+        // That the term \c ma is of the form (?m t_1 ... t_n) and the t_i's are not pairwise
+        // distinct local constants.
+        expr m_type = d->get_type();
+        for (unsigned i = 0; i < args.size(); i++) {
+            m_type = whnf(m_type);
+            if (!is_pi(m_type))
+                return false;
+            lean_assert(i <= locals.size());
+            if (i == locals.size())
+                locals.push_back(blast::mk_local(mk_fresh_local_name(), binding_name(m_type), binding_domain(m_type), binding_info(m_type)));
+            lean_assert(i < locals.size());
+            m_type = instantiate(binding_body(m_type), locals[i]);
+        }
+        lean_assert(locals.size() == args.size());
+        s.assign_mref(m, Fun(locals, v));
+        return true;
+    }
+}
+
+/** \brief Given \c ma of the form <tt>?m t_1 ... t_n</tt>, (try to) assign
+    ?m to (an abstraction of) v. Return true if success and false otherwise. */
+static bool assign_mref(expr const & ma, expr const & v) {
+    if (assign_mref_core(ma, v))
+        return true;
+    expr const & f = get_app_fn(v);
+    if (is_mref(f) && curr_state().is_mref_assigned(f))
+        return assign_mref_core(v, ma);
+    return false;
 }
 
 static bool is_def_eq_binding(expr e1, expr e2) {
@@ -309,7 +412,7 @@ static bool is_def_eq_binding(expr e1, expr e2) {
         if (binding_domain(e1) != binding_domain(e2)) {
             var_e1_type = instantiate_rev(binding_domain(e1), subst.size(), subst.data());
             expr var_e2_type = instantiate_rev(binding_domain(e2), subst.size(), subst.data());
-            if (!is_def_eq(var_e2_type, *var_e1_type))
+            if (!is_def_eq_core(var_e2_type, *var_e1_type))
                 return false;
         }
         if (!closed(binding_body(e1)) || !closed(binding_body(e2))) {
@@ -325,8 +428,8 @@ static bool is_def_eq_binding(expr e1, expr e2) {
         e1 = binding_body(e1);
         e2 = binding_body(e2);
     } while (e1.kind() == k && e2.kind() == k);
-    return is_def_eq(instantiate_rev(e1, subst.size(), subst.data()),
-                     instantiate_rev(e2, subst.size(), subst.data()));
+    return is_def_eq_core(instantiate_rev(e1, subst.size(), subst.data()),
+                          instantiate_rev(e2, subst.size(), subst.data()));
 }
 
 static bool is_def_eq_app(expr const & e1, expr const & e2) {
@@ -334,10 +437,10 @@ static bool is_def_eq_app(expr const & e1, expr const & e2) {
     buffer<expr> args1, args2;
     expr const & f1 = get_app_args(e1, args1);
     expr const & f2 = get_app_args(e2, args2);
-    if (args1.size() != args2.size() || !is_def_eq(f1, f2))
+    if (args1.size() != args2.size() || !is_def_eq_core(f1, f2))
         return false;
     for (unsigned i = 0; i < args1.size(); i++) {
-        if (!is_def_eq(args1[i], args2[i]))
+        if (!is_def_eq_core(args1[i], args2[i]))
             return false;
     }
     return true;
@@ -347,7 +450,7 @@ static bool is_def_eq_eta(expr const & e1, expr const & e2) {
     expr new_e1 = try_eta(e1);
     expr new_e2 = try_eta(e2);
     if (e1 != new_e1 || e2 != new_e2)
-        return is_def_eq(new_e1, new_e2);
+        return is_def_eq_core(new_e1, new_e2);
     return false;
 }
 
@@ -356,26 +459,25 @@ static bool is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
         return false;
     expr e1_type = infer_type(e1);
     expr e2_type = infer_type(e2);
-    return is_prop(e1_type) && is_def_eq(e1_type, e2_type);
+    return is_prop(e1_type) && is_def_eq_core(e1_type, e2_type);
 }
 
-bool is_def_eq(expr const & e1, expr const & e2) {
+static bool is_def_eq_core(expr const & e1, expr const & e2) {
     check_system("is_def_eq");
     if (e1 == e2)
         return true;
-    state & s = curr_state();
     expr const & f1 = get_app_fn(e1);
     if (is_mref(f1)) {
-        if (s.is_mref_assigned(f1)) {
-            return is_def_eq(subst_mref(e1), e2);
+        if (curr_state().is_mref_assigned(f1)) {
+            return is_def_eq_core(subst_mref(e1), e2);
         } else {
             return assign_mref(e1, e2);
         }
     }
     expr const & f2 = get_app_fn(e2);
     if (is_mref(f2)) {
-        if (s.is_mref_assigned(f2)) {
-            return is_def_eq(e1, subst_mref(e2));
+        if (curr_state().is_mref_assigned(f2)) {
+            return is_def_eq_core(e1, subst_mref(e2));
         } else {
             return assign_mref(e2, e1);
         }
@@ -383,7 +485,7 @@ bool is_def_eq(expr const & e1, expr const & e2) {
     expr e1_n = whnf(e1);
     expr e2_n = whnf(e2);
     if (e1 != e1_n || e2 != e2_n)
-        return is_def_eq(e1_n, e2_n);
+        return is_def_eq_core(e1_n, e2_n);
     if (e1.kind() == e2.kind()) {
         switch (e1.kind()) {
         case expr_kind::Lambda:
@@ -415,5 +517,18 @@ bool is_def_eq(expr const & e1, expr const & e2) {
     if (is_def_eq_eta(e1, e2))
         return true;
     return is_def_eq_proof_irrel(e1, e2);
+}
+
+/** \remark Precision of is_def_eq can be improved if mrefs and urefs in e1 and e2 are instantiated
+    before we invoke is_def_eq */
+bool is_def_eq(expr const & e1, expr const & e2) {
+    if (e1 == e2)
+        return true; // quick check
+    state & s = curr_state();
+    state::assignment_snapshot saved(s);
+    bool r = is_def_eq_core(e1, e2);
+    if (!r)
+        saved.restore();
+    return r;
 }
 }}

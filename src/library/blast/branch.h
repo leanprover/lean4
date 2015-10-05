@@ -34,8 +34,8 @@ class branch {
 public:
     branch():m_next(0) {}
 
-    expr add_hypothesis(name const & n, expr const & type, optional<expr> const & value, optional<expr> const & jst);
-    expr add_hypothesis(expr const & type, optional<expr> const & value, optional<expr> const & jst);
+    expr add_hypothesis(name const & n, expr const & type, expr const & value);
+    expr add_hypothesis(expr const & type, expr const & value);
 
     /** \brief Return true iff the hypothesis with index \c hidx_user depends on the hypothesis with index
         \c hidx_provider. */

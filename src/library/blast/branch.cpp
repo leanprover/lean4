@@ -69,16 +69,16 @@ void branch::add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user) {
 
 void branch::add_deps(hypothesis & h_user, unsigned hidx_user) {
     add_deps(h_user.m_type, h_user, hidx_user);
-    if (h_user.m_value)
-        add_deps(*h_user.m_value, h_user, hidx_user);
+    if (!blast::is_local(h_user.m_value)) {
+        add_deps(h_user.m_value, h_user, hidx_user);
+    }
 }
 
-expr branch::add_hypothesis(name const & n, expr const & type, optional<expr> const & value, optional<expr> const & jst) {
+expr branch::add_hypothesis(name const & n, expr const & type, expr const & value) {
     hypothesis new_h;
     new_h.m_name          = n;
     new_h.m_type          = type;
     new_h.m_value         = value;
-    new_h.m_justification = jst;
     unsigned new_hidx = m_next;
     m_next++;
     add_deps(new_h, new_hidx);
@@ -88,8 +88,8 @@ expr branch::add_hypothesis(name const & n, expr const & type, optional<expr> co
 
 static name * g_prefix = nullptr;
 
-expr branch::add_hypothesis(expr const & type, optional<expr> const & value, optional<expr> const & jst) {
-    return add_hypothesis(name(*g_prefix, m_next), type, value, jst);
+expr branch::add_hypothesis(expr const & type, expr const & value) {
+    return add_hypothesis(name(*g_prefix, m_next), type, value);
 }
 
 bool branch::hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const {

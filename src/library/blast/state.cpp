@@ -341,7 +341,7 @@ bool state::check_hypothesis(expr const & e, branch const & b, unsigned hidx, hy
 
 bool state::check_hypothesis(branch const & b, unsigned hidx, hypothesis const & h) const {
     lean_assert(check_hypothesis(h.get_type(), b, hidx, h));
-    lean_assert(!h.get_value() || check_hypothesis(*h.get_value(), b, hidx, h));
+    lean_assert(h.is_assumption() || check_hypothesis(h.get_value(), b, hidx, h));
     return true;
 }
 

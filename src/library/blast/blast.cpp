@@ -215,7 +215,7 @@ class blastenv {
             lean_assert(is_local(h));
             expr type     = normalize(*norm_tc, mlocal_type(h));
             expr new_type = to_blast_expr(type);
-            expr href     = s.add_hypothesis(local_pp_name(h), new_type, none_expr(), some_expr(h));
+            expr href     = s.add_hypothesis(local_pp_name(h), new_type, h);
             local2href.insert(mlocal_name(h), href);
         }
         expr target     = normalize(*norm_tc, g.get_type());

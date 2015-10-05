@@ -126,16 +126,16 @@ public:
     expr instantiate_urefs_mrefs(expr const & e);
 
     /** \brief Add a new hypothesis to the main branch */
-    expr add_hypothesis(name const & n, expr const & type, optional<expr> const & value, optional<expr> const & jst) {
-        return m_main.add_hypothesis(n, type, value, jst);
+    expr add_hypothesis(name const & n, expr const & type, expr const & value) {
+        return m_main.add_hypothesis(n, type, value);
     }
 
     branch & get_main_branch() { return m_main; }
     branch const & get_main_branch() const { return m_main; }
 
     /** \brief Add a new hypothesis to the main branch */
-    expr add_hypothesis(expr const & type, optional<expr> const & value, optional<expr> const & jst) {
-        return m_main.add_hypothesis(type, value, jst);
+    expr add_hypothesis(expr const & type, expr const & value) {
+        return m_main.add_hypothesis(type, value);
     }
 
     /** \brief Set target (aka conclusion, aka type of the goal, aka type of the term that must be synthesize in this branch)

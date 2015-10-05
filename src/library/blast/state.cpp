@@ -14,18 +14,13 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 bool metavar_decl::restrict_context_using(metavar_decl const & other) {
-    buffer<unsigned> new_ctx;
     bool modified = false;
-    for (unsigned href : m_context) {
-        if (other.m_context_as_set.contains(href)) {
-            new_ctx.push_back(href);
-        } else {
-            modified = true;
-            m_context_as_set.erase(href);
-        }
-    }
-    if (modified)
-        m_context = to_list(new_ctx);
+    m_context.for_each([&](unsigned hidx, hypothesis const &) {
+            if (!other.contains_href(hidx)) {
+                modified = true;
+                m_context.erase(hidx);
+            }
+        });
     return modified;
 }
 
@@ -53,30 +48,35 @@ level state::mk_uref() {
     return blast::mk_uref(idx);
 }
 
-expr state::mk_metavar(hypothesis_idx_buffer const & ctx, expr const & type) {
-    hypothesis_idx_set  ctx_as_set;
-    for (unsigned const & hidx : ctx)
-        ctx_as_set.insert(hidx);
+expr state::mk_metavar(context const & ctx, expr const & type) {
     unsigned midx = m_next_mref_index;
     for_each(type, [&](expr const & e, unsigned) {
             if (!has_href(e))
                 return false;
             if (is_href(e)) {
-                lean_assert(ctx_as_set.contains(href_index(e)));
+                lean_assert(ctx.contains(href_index(e)));
                 add_fixed_by(href_index(e), midx);
                 return false;
             }
             return true; // continue search
         });
     m_next_mref_index++;
-    m_metavar_decls.insert(midx, metavar_decl(to_list(ctx), ctx_as_set, type));
+    m_metavar_decls.insert(midx, metavar_decl(ctx, type));
     return blast::mk_mref(midx);
 }
 
+expr state::mk_metavar(hypothesis_idx_buffer const & b, expr const & type) {
+    context ctx;
+    for (unsigned const & hidx : b) {
+        hypothesis const * h = m_main.get(hidx);
+        lean_assert(h);
+        ctx.insert(hidx, *h);
+    }
+    return mk_metavar(ctx, type);
+}
+
 expr state::mk_metavar(expr const & type) {
-    hypothesis_idx_buffer ctx;
-    m_main.get_sorted_hypotheses(ctx);
-    return state::mk_metavar(ctx, type);
+    return state::mk_metavar(m_main.m_context, type);
 }
 
 void state::restrict_mref_context_using(expr const & mref1, expr const & mref2) {
@@ -107,9 +107,9 @@ goal state::to_goal(branch const & b) const {
                         metavar_decl const * decl = m_metavar_decls.find(mref_index(e));
                         lean_assert(decl);
                         buffer<expr> ctx;
-                        for (unsigned hidx : decl->get_context()) {
-                            ctx.push_back(*hidx2local.find(hidx));
-                        }
+                        decl->get_context().for_each([&](unsigned hidx, hypothesis const &) {
+                                ctx.push_back(*hidx2local.find(hidx));
+                            });
                         expr type     = convert(decl->get_type());
                         expr new_type = Pi(ctx, type);
                         expr new_mvar = lean::mk_metavar(name(M, mref_index(e)), new_type);

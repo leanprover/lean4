@@ -22,7 +22,7 @@ namespace lean {
 namespace blast {
 static name * g_prefix = nullptr;
 
-class context {
+class blastenv {
     environment               m_env;
     io_state                  m_ios;
     name_set                  m_lemma_hints;
@@ -227,7 +227,7 @@ class context {
     }
 
 public:
-    context(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds):
+    blastenv(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds):
         m_env(env), m_ios(ios), m_lemma_hints(to_name_set(ls)), m_unfold_hints(to_name_set(ds)),
         m_not_reducible_pred(mk_not_reducible_pred(env)) {
     }
@@ -236,7 +236,7 @@ public:
         m_curr_state = to_state(g);
 
         // TODO(Leo): blast main loop
-        display("Blast tactic initial state");
+        display("Blast tactic initial state\n");
         display_curr_state();
 
         return none_expr();
@@ -259,37 +259,37 @@ public:
     }
 };
 
-LEAN_THREAD_PTR(context, g_context);
-struct scope_context {
-    context * m_prev_context;
+LEAN_THREAD_PTR(blastenv, g_blastenv);
+struct scope_blastenv {
+    blastenv * m_prev_blastenv;
 public:
-    scope_context(context & c):m_prev_context(g_context) { g_context = &c; }
-    ~scope_context() { g_context = m_prev_context; }
+    scope_blastenv(blastenv & c):m_prev_blastenv(g_blastenv) { g_blastenv = &c; }
+    ~scope_blastenv() { g_blastenv = m_prev_blastenv; }
 };
 
 environment const & env() {
-    lean_assert(g_context);
-    return g_context->get_env();
+    lean_assert(g_blastenv);
+    return g_blastenv->get_env();
 }
 
 io_state const & ios() {
-    lean_assert(g_context);
-    return g_context->get_ios();
+    lean_assert(g_blastenv);
+    return g_blastenv->get_ios();
 }
 
 state & curr_state() {
-    lean_assert(g_context);
-    return g_context->get_curr_state();
+    lean_assert(g_blastenv);
+    return g_blastenv->get_curr_state();
 }
 
 bool is_reducible(name const & n) {
-    lean_assert(g_context);
-    return g_context->is_reducible(n);
+    lean_assert(g_blastenv);
+    return g_blastenv->is_reducible(n);
 }
 
 projection_info const * get_projection_info(name const & n) {
-    lean_assert(g_context);
-    return g_context->get_projection_info(n);
+    lean_assert(g_blastenv);
+    return g_blastenv->get_projection_info(n);
 }
 
 void display_curr_state() {
@@ -353,11 +353,11 @@ name mk_fresh_local_name() {
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
                           goal const & g) {
     blast::scope_hash_consing scope1;
-    blast::context c(env, ios, ls, ds);
+    blast::blastenv b(env, ios, ls, ds);
     blast::ext_context x;
-    blast::scope_context scope2(c);
+    blast::scope_blastenv    scope2(b);
     blast::scope_ext_context scope3(x);
-    return c(g);
+    return b(g);
 }
 void initialize_blast() {
     blast::g_prefix = new name(name::mk_internal_unique_name());

@@ -14,18 +14,16 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 class metavar_decl {
-    hypothesis_idx_list m_context;
-    hypothesis_idx_set  m_context_as_set;
-    expr                m_type;
+    context m_context;
+    expr    m_type;
 public:
     metavar_decl() {}
-    metavar_decl(hypothesis_idx_list const & c, hypothesis_idx_set const & s, expr const & t):
-        m_context(c), m_context_as_set(s), m_type(t) {}
-    hypothesis_idx_list get_context() const { return m_context; }
+    metavar_decl(context const & c, expr const & t):
+        m_context(c), m_type(t) {}
+    context get_context() const { return m_context; }
     /** \brief Return true iff \c h is in the context of the this metavar declaration */
-    bool contains_href(expr const & h) const {
-        return m_context_as_set.contains(href_index(h));
-    }
+    bool contains_href(expr const & h) const { return m_context.contains(href_index(h)); }
+    bool contains_href(unsigned hidx) const { return m_context.contains(hidx); }
     expr const & get_type() const { return m_type; }
     /** \brief Make sure the declaration context of this declaration is a subset of \c other.
         \remark Return true iff the context has been modified. */
@@ -33,7 +31,6 @@ public:
 };
 
 class state {
-    friend class context;
     typedef metavar_idx_map<metavar_decl>       metavar_decls;
     typedef metavar_idx_map<expr>               eassignment;
     typedef metavar_idx_map<level>              uassignment;
@@ -92,7 +89,8 @@ public:
     /** \brief Create a new metavariable using the given type and context.
         \pre ctx must be a subset of the hypotheses in the main branch. */
     expr mk_metavar(hypothesis_idx_buffer const & ctx, expr const & type);
-    /** \brief Create a new metavariable using the given type.
+    expr mk_metavar(context const & ctx, expr const & type);
+/** \brief Create a new metavariable using the given type.
         The context of this metavariable will be all hypotheses occurring in the main branch. */
     expr mk_metavar(expr const & type);
 

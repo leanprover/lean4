@@ -12,11 +12,12 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 typedef rb_tree<unsigned, unsigned_cmp> metavar_idx_set;
+typedef hypothesis_idx_map<hypothesis> context;
+
 template<typename T>
 using metavar_idx_map = typename lean::rb_map<unsigned, T, unsigned_cmp>;
 
 class branch {
-    typedef hypothesis_idx_map<hypothesis>         context;
     typedef hypothesis_idx_map<hypothesis_idx_set> forward_deps;
     friend class state;
     unsigned           m_next;

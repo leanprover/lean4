@@ -14,20 +14,22 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 class metavar_decl {
-    context m_context;
-    expr    m_type;
+    // A metavariable can be assigned to a value that contains references only to the assumptions
+    // that were available when the metavariable was defined.
+    hypothesis_idx_set m_assumptions;
+    expr               m_type;
 public:
     metavar_decl() {}
-    metavar_decl(context const & c, expr const & t):
-        m_context(c), m_type(t) {}
-    context get_context() const { return m_context; }
+    metavar_decl(hypothesis_idx_set const & a, expr const & t):
+        m_assumptions(a), m_type(t) {}
     /** \brief Return true iff \c h is in the context of the this metavar declaration */
-    bool contains_href(expr const & h) const { return m_context.contains(href_index(h)); }
-    bool contains_href(unsigned hidx) const { return m_context.contains(hidx); }
+    bool contains_href(unsigned hidx) const { return m_assumptions.contains(hidx); }
+    bool contains_href(expr const & h) const { return contains_href(href_index(h)); }
     expr const & get_type() const { return m_type; }
     /** \brief Make sure the declaration context of this declaration is a subset of \c other.
         \remark Return true iff the context has been modified. */
     bool restrict_context_using(metavar_decl const & other);
+    hypothesis_idx_set get_assumptions() const { return m_assumptions; }
 };
 
 class state {
@@ -89,9 +91,9 @@ public:
     /** \brief Create a new metavariable using the given type and context.
         \pre ctx must be a subset of the hypotheses in the main branch. */
     expr mk_metavar(hypothesis_idx_buffer const & ctx, expr const & type);
-    expr mk_metavar(context const & ctx, expr const & type);
+    expr mk_metavar(hypothesis_idx_set const & ctx, expr const & type);
 /** \brief Create a new metavariable using the given type.
-        The context of this metavariable will be all hypotheses occurring in the main branch. */
+        The context of this metavariable will be all assumption hypotheses occurring in the main branch. */
     expr mk_metavar(expr const & type);
 
     /** \brief Make sure the metavariable declaration context of mref1 is a

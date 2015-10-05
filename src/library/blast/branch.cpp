@@ -83,6 +83,9 @@ expr branch::add_hypothesis(name const & n, expr const & type, expr const & valu
     m_next++;
     add_deps(new_h, new_hidx);
     m_context.insert(new_hidx, new_h);
+    if (new_h.is_assumption())
+        m_assumption.insert(new_hidx);
+    m_todo.insert(new_hidx);
     return blast::mk_href(new_hidx);
 }
 

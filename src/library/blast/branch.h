@@ -22,6 +22,24 @@ class branch {
     friend class state;
     unsigned           m_next;
     context            m_context;
+    // We break the set of hypotheses in m_context in 3 sets that are not necessarily disjoint:
+    //   - assumption
+    //   - active
+    //   - todo
+    //
+    // The sets active and todo are disjoint.
+    //
+    // A hypothesis is an "assumption" if it comes from the input goal,
+    // "intros" proof step, or an assumption obtained when applying an elimination step.
+    //
+    // A hypothesis is derived when it is obtained by forward chaining.
+    // A derived hypothesis can be in the to-do or active sets.
+    //
+    // We say a hypothesis is in the to-do set when the blast haven't process it yet.
+    hypothesis_idx_set m_assumption;
+    hypothesis_idx_set m_active;
+    hypothesis_idx_set m_todo;
+
     forward_deps       m_forward_deps; // given an entry (h -> {h_1, ..., h_n}), we have that each h_i uses h.
     expr               m_target;
     hypothesis_idx_set m_target_deps;
@@ -30,7 +48,6 @@ class branch {
     void add_forward_dep(unsigned hidx_user, unsigned hidx_provider);
     void add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user);
     void add_deps(hypothesis & h_user, unsigned hidx_user);
-
 public:
     branch():m_next(0) {}
 
@@ -56,6 +73,8 @@ public:
     bool target_depends_on(expr const & h) const { return m_target_deps.contains(href_index(h)); }
 
     bool has_mvar(expr const & e) const { return m_mvar_idxs.contains(mref_index(e)); }
+
+    hypothesis_idx_set get_assumptions() const { return m_assumption; }
 };
 
 void initialize_branch();

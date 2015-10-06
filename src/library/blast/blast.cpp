@@ -66,7 +66,7 @@ class blastenv {
             lean_unreachable();
         }
 
-        expr visit_sort(expr const & e) {
+        virtual expr visit_sort(expr const & e) {
             return blast::mk_sort(to_blast_level(sort_level(e)));
         }
 

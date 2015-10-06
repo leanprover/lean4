@@ -338,7 +338,7 @@ static bool assign_mref_core(expr const & ma, expr const & v) {
     //   3. Any local constant occurring in new_v occurs in locals
     //   4. m does not occur in new_v
     bool ok = true;
-    for_each(v, [&](expr const & e, unsigned) {
+    for_each(new_v, [&](expr const & e, unsigned) {
             if (!ok)
                 return false; // stop search
             if (is_href(e)) {

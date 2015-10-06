@@ -31,7 +31,7 @@ class hypothesis {
     expr               m_value;    // justification for this object.
     // Remark: if blast::is_local(m_value) is true, then the hypothesis is an assumption
 public:
-    hypothesis():m_active(true), m_depth(0) {}
+    hypothesis():m_active(false), m_depth(0) {}
     name const & get_name() const { return m_name; }
     bool is_active() const { return m_active; }
     unsigned get_depth() const { return m_depth; }

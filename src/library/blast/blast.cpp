@@ -23,15 +23,15 @@ namespace blast {
 static name * g_prefix = nullptr;
 
 class blastenv {
-    environment               m_env;
-    io_state                  m_ios;
-    name_set                  m_lemma_hints;
-    name_set                  m_unfold_hints;
-    name_map<level>           m_uvar2uref;    // map global universe metavariables to blast uref's
-    name_map<expr>            m_mvar2mref;    // map global metavariables to blast mref's
-    name_predicate            m_not_reducible_pred;
-    name_map<projection_info> m_projection_info;
-    state                     m_curr_state;   // current state
+    environment                m_env;
+    io_state                   m_ios;
+    name_set                   m_lemma_hints;
+    name_set                   m_unfold_hints;
+    name_map<level>            m_uvar2uref;    // map global universe metavariables to blast uref's
+    name_map<pair<expr, expr>> m_mvar2meta_mref; // map global metavariables to blast mref's
+    name_predicate             m_not_reducible_pred;
+    name_map<projection_info>  m_projection_info;
+    state                      m_curr_state;   // current state
 
     class to_blast_expr_fn : public replace_visitor {
         type_checker                 m_tc;
@@ -156,6 +156,7 @@ class blastenv {
                 lean_assert(is_meta(aux));
                 expr type = visit(m_tc.infer(aux).first);
                 expr mref = m_state.mk_metavar(ctx, type);
+                m_mvar2meta_mref.insert(mlocal_name(mvar), mk_pair(e, mref));
                 return mk_mref_app(mref, args.size() - prefix_sz, args.data() + prefix_sz);
             }
         }
@@ -197,18 +198,11 @@ class blastenv {
             m_tc(env), m_state(s), m_uvar2uref(uvar2uref), m_mvar2meta_mref(mvar2meta_mref), m_local2href(local2href) {}
     };
 
-    void init_mvar2mref(name_map<pair<expr, expr>> & m) {
-        m.for_each([&](name const & n, pair<expr, expr> const & p) {
-                m_mvar2mref.insert(n, p.second);
-            });
-    }
-
     state to_state(goal const & g) {
         state s;
         type_checker_ptr norm_tc = mk_type_checker(m_env, name_generator(*g_prefix), UnfoldReducible);
-        name_map<pair<expr, expr>> mvar2meta_mref;
         name_map<expr>             local2href;
-        to_blast_expr_fn to_blast_expr(m_env, s, m_uvar2uref, mvar2meta_mref, local2href);
+        to_blast_expr_fn to_blast_expr(m_env, s, m_uvar2uref, m_mvar2meta_mref, local2href);
         buffer<expr> hs;
         g.get_hyps(hs);
         for (expr const & h : hs) {
@@ -221,7 +215,6 @@ class blastenv {
         expr target     = normalize(*norm_tc, g.get_type());
         expr new_target = to_blast_expr(target);
         s.set_target(new_target);
-        init_mvar2mref(mvar2meta_mref);
         lean_assert(s.check_invariant());
         return s;
     }

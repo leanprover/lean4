@@ -126,7 +126,7 @@ nat.induction_on m
 
 theorem add.comm [simp] (n m : ℕ) : n + m = m + n :=
 nat.induction_on m
-    (!add_zero ⬝ !zero_add⁻¹)
+    (by rewrite [add_zero, zero_add])
     (take k IH, calc
         n + succ k = succ (n+k)   : add_succ
                ... = succ (k + n) : IH
@@ -137,7 +137,7 @@ theorem succ_add_eq_succ_add (n m : ℕ) : succ n + m = n + succ m :=
 
 theorem add.assoc [simp] (n m k : ℕ) : (n + m) + k = n + (m + k) :=
 nat.induction_on k
-    (!add_zero ▸ !add_zero)
+    (by rewrite +add_zero)
     (take l IH,
       calc
         (n + m) + succ l = succ ((n + m) + l)  : add_succ

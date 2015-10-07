@@ -137,7 +137,7 @@ section
       have Hb' : b ≤ 0, from
         calc
           b     = 0 + b : by rewrite zero_add
-            ... ≤ a + b : add_le_add_right Ha
+            ... ≤ a + b : by exact add_le_add_right Ha _
             ... = 0     : Hab,
       have Hbz : b = 0, from le.antisymm Hb' Hb,
       and.intro Haz Hbz)
@@ -368,7 +368,7 @@ section
 
   theorem le_add_iff_sub_right_le : a ≤ b + c ↔ a - c ≤ b :=
   assert H: a ≤ b + c ↔ a - c ≤ b + c - c, from iff.symm (!add_le_add_right_iff),
-  by rewrite add_neg_cancel_right at H; exact H
+  by rewrite [sub_eq_add_neg (b+c) c at H, add_neg_cancel_right at H]; exact H
 
   theorem le_add_of_sub_right_le {a b c : A} : a - c ≤ b → a ≤ b + c :=
     iff.mpr !le_add_iff_sub_right_le
@@ -448,7 +448,7 @@ section
 
   theorem add_lt_iff_lt_sub_right : a + b < c ↔ a < c - b :=
   assert H: a + b < c ↔ a + b - b < c - b, from iff.symm (!add_lt_add_right_iff),
-  by rewrite add_neg_cancel_right at H; exact H
+  by rewrite [sub_eq_add_neg at H, add_neg_cancel_right at H]; exact H
 
   theorem add_lt_of_lt_sub_right {a b c : A} : a < c - b → a + b < c :=
     iff.mpr !add_lt_iff_lt_sub_right
@@ -793,8 +793,7 @@ section
 
   theorem abs_sub_le (a b c : A) : abs (a - c) ≤ abs (a - b) + abs (b - c) :=
   calc
-    abs (a - c) = abs (a - b + (b - c))     :
-                    by rewrite [sub_eq_add_neg, add.assoc, neg_add_cancel_left]
+    abs (a - c) = abs (a - b + (b - c)) :  by rewrite [*sub_eq_add_neg, add.assoc, neg_add_cancel_left]
             ... ≤ abs (a - b) + abs (b - c) : abs_add_le_abs_add_abs
 
   theorem abs_add_three (a b c : A) : abs (a + b + c) ≤ abs a + abs b + abs c :=

@@ -7,6 +7,7 @@ Elegant pairing function.
 -/
 import data.nat.sqrt data.nat.div
 open prod decidable
+open - [notations] algebra
 
 namespace nat
 definition mkpair (a b : nat) : nat :=

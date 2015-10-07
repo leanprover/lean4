@@ -78,7 +78,7 @@ namespace quotient
 theorem map_pair2_comm {A B : Type} {f : A → A → B} (Hcomm : ∀a b : A, f a b = f b a)
   : Π (v w : A × A), map_pair2 f v w = map_pair2 f w v
 | (pair v₁ v₂) (pair w₁ w₂) :=
-  !map_pair2_pair ⬝ by rewrite [Hcomm v₁ w₁, Hcomm v₂ w₂] ⬝ !map_pair2_pair⁻¹
+  !map_pair2_pair ⬝ by rewrite [Hcomm v₁ w₁, Hcomm v₂ w₂] ⬝ (eq.symm !map_pair2_pair)
 
 theorem map_pair2_assoc {A : Type} {f : A → A → A}
     (Hassoc : ∀a b c : A, f (f a b) c = f a (f b c)) (u v w : A × A) :

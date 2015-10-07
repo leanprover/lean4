@@ -50,7 +50,7 @@ theorem add_sub_add_left (k n m : ℕ) : (k + n) - (k + m) = n - m :=
 
 theorem add_sub_cancel (n m : ℕ) : n + m - m = n :=
 nat.induction_on m
-  (!add_zero⁻¹ ▸ !sub_zero)
+  (begin rewrite add_zero end)
   (take k : ℕ,
     assume IH : n + k - k = n,
     calc
@@ -72,7 +72,7 @@ nat.induction_on k
       n - m - succ l = pred (n - m - l)   : !sub_succ
                  ... = pred (n - (m + l)) : IH
                  ... = n - succ (m + l)   : sub_succ
-                 ... = n - (m + succ l)   : {!add_succ⁻¹})
+                 ... = n - (m + succ l)   : by rewrite add_succ)
 
 theorem succ_sub_sub_succ (n m k : ℕ) : succ n - m - succ k = n - m - k :=
 calc
@@ -206,7 +206,7 @@ theorem exists_sub_eq_of_le {n m : ℕ} (H : n ≤ m) : ∃k, m - k = n :=
 obtain (k : ℕ) (Hk : n + k = m), from le.elim H,
 exists.intro k
   (calc
-    m - k = n + k - k : Hk⁻¹
+    m - k = n + k - k : by rewrite Hk
       ... = n         : add_sub_cancel)
 
 theorem add_sub_assoc {m k : ℕ} (H : k ≤ m) (n : ℕ) : n + m - k = n + (m - k) :=
@@ -289,9 +289,11 @@ sub.cases
                ... = k - n + n    : sub_add_cancel H3,
     le.intro (add.cancel_right H4))
 
+open -[notations] algebra
+
 theorem sub_pos_of_lt {m n : ℕ} (H : m < n) : n - m > 0 :=
-have H1 : n = n - m + m, from (sub_add_cancel (le_of_lt H))⁻¹,
-have H2 : 0 + m < n - m + m, from (zero_add m)⁻¹ ▸ H1 ▸ H,
+assert H1 : n = n - m + m, from (sub_add_cancel (le_of_lt H))⁻¹,
+have   H2 : 0 + m < n - m + m, begin rewrite [zero_add, -H1], exact H end,
 !lt_of_add_lt_add_right H2
 
 theorem lt_of_sub_pos {m n : ℕ} (H : n - m > 0) : m < n :=
@@ -319,9 +321,9 @@ sub.cases
     assume Hmn : m + mn = n,
     sub.cases
       (assume H : m ≤ k,
-        have H2 : n - k ≤ n - m, from sub_le_sub_left H n,
-        have H3 : n - k ≤ mn, from sub_eq_of_add_eq Hmn ▸ H2,
-        show n - k ≤ mn + 0, from !add_zero⁻¹ ▸ H3)
+        have   H2 : n - k ≤ n - m, from sub_le_sub_left H n,
+        assert H3 : n - k ≤ mn, from sub_eq_of_add_eq Hmn ▸ H2,
+        show   n - k ≤ mn + 0,  begin rewrite add_zero, assumption end)
       (take km : ℕ,
         assume Hkm : k + km = m,
         have H : k + (mn + km) = n, from
@@ -444,7 +446,9 @@ theorem dist_sub_eq_dist_add_right {k m : ℕ} (H : k ≥ m) (n : ℕ) :
 
 theorem dist.triangle_inequality (n m k : ℕ) : dist n k ≤ dist n m + dist m k :=
 have (n - m) + (m - k) + ((k - m) + (m - n)) = (n - m) + (m - n) + ((m - k) + (k - m)),
-from (!add.comm ▸ !add.left_comm ▸ !add.assoc) ⬝ !add.assoc⁻¹,
+begin rewrite [add.comm (k - m) (m - n),
+               {n - m + _ + _}add.assoc,
+               {m - k + _}add.left_comm, -add.assoc] end,
 this ▸ add_le_add !sub_lt_sub_add_sub !sub_lt_sub_add_sub
 
 theorem dist_add_add_le_add_dist_dist (n m k l : ℕ) : dist (n + m) (k + l) ≤ dist n k + dist m l :=
@@ -457,7 +461,7 @@ assert ∀ n m, dist n m = n - m + (m - n), from take n m, rfl,
 by rewrite [this, this n m, mul.right_distrib, *mul_sub_right_distrib]
 
 theorem dist_mul_left (k n m : ℕ) : dist (k * n) (k * m) = k * dist n m :=
-!mul.comm ▸ !mul.comm ▸ !dist_mul_right ⬝ !mul.comm
+begin rewrite [mul.comm k n, mul.comm k m, dist_mul_right, mul.comm] end
 
 theorem dist_mul_dist (n m k l : ℕ) : dist n m * dist k l = dist (n * k + m * l) (n * l + m * k) :=
 have aux : ∀k l, k ≥ l → dist n m * dist k l = dist (n * k + m * l) (n * l + m * k), from

@@ -9,38 +9,50 @@ Following SSReflect and the SMTlib standard, we define a mod b so that 0 ≤ a m
 -/
 import data.int.order data.nat.div
 open [coercions] [reduce-hints] nat
-open [declarations] nat (succ)
+open [declarations] [classes] nat (succ)
+open - [notations] algebra
 open eq.ops
 
 namespace int
 
 /- definitions -/
 
-definition divide (a b : ℤ) : ℤ :=
+protected definition divide (a b : ℤ) : ℤ :=
 sign b *
   (match a with
-    | of_nat m := #nat m div (nat_abs b)
-    | -[1+m]   := -[1+ (#nat m div (nat_abs b))]
+    | of_nat m := (m div (nat_abs b) : nat)
+    | -[1+m]   := -[1+ ((m:nat) div (nat_abs b))]
   end)
-notation [priority int.prio] a div b := divide a b
 
-definition modulo (a b : ℤ) : ℤ := a - a div b * b
-notation [priority int.prio] a mod b := modulo a b
+definition int_has_divides [reducible] [instance] [priority int.prio] : has_divides int :=
+has_divides.mk int.divide
+
+lemma divide_of_nat (a : nat) (b : ℤ) : (of_nat a) div b = sign b * (a div (nat_abs b) : nat) :=
+rfl
+
+lemma divide_of_neg_succ (a : nat) (b : ℤ) : -[1+a] div b = sign b * -[1+ (a div (nat_abs b))] :=
+rfl
+
+protected definition modulo (a b : ℤ) : ℤ := a - a div b * b
+
+definition int_has_modulo [reducible] [instance] [priority int.prio] : has_modulo int :=
+has_modulo.mk int.modulo
+
 notation [priority int.prio] a ≡ b `[mod `:100 c `]`:0 := a mod c = b mod c
 
 /- div  -/
 
-theorem of_nat_div (m n : nat) : of_nat (#nat m div n) = m div n :=
+theorem of_nat_div (m n : nat) : of_nat (m div n) = m div n :=
 nat.cases_on n
-  (by rewrite [↑divide, sign_zero, zero_mul, nat.div_zero])
-  (take n, by rewrite [↑divide, sign_of_succ, one_mul])
+  (begin krewrite [divide_of_nat, sign_zero, zero_mul, nat.div_zero] end)
+  (take (n : nat), by krewrite [divide_of_nat, sign_of_succ, one_mul])
 
 theorem neg_succ_of_nat_div (m : nat) {b : ℤ} (H : b > 0) :
   -[1+m] div b = -(m div b + 1) :=
 calc
   -[1+m] div b = sign b * _               : rfl
-     ... = -[1+(#nat m div (nat_abs b))]  : by rewrite [sign_of_pos H, one_mul]
-     ... = -(m div b + 1)                 : by rewrite [↑divide, sign_of_pos H, one_mul]
+     ... = -[1+(m div (nat_abs b))]  : begin krewrite [sign_of_pos H, one_mul] end
+     ... = -(m div b + 1)                 : by krewrite [sign_of_pos H, one_mul]
 
 theorem div_neg (a b : ℤ) : a div -b = -(a div b) :=
 by rewrite [↑divide, sign_neg, neg_mul_eq_neg_mul, nat_abs_neg]

@@ -7,6 +7,7 @@ Definitions and properties of gcd, lcm, and coprime.
 -/
 import .div
 open eq.ops well_founded decidable prod
+open - [notations] algebra
 
 namespace nat
 
@@ -341,7 +342,7 @@ theorem comprime_one_left : ∀ n, coprime 1 n :=
 theorem comprime_one_right : ∀ n, coprime n 1 :=
 λ n, !gcd_one_right
 
-theorem exists_eq_prod_and_dvd_and_dvd {m n k} (H : k ∣ m * n) :
+theorem exists_eq_prod_and_dvd_and_dvd {m n k : nat} (H : k ∣ m * n) :
   ∃ m' n', k = m' * n' ∧ m' ∣ m ∧ n' ∣ n :=
 or.elim (eq_zero_or_pos (gcd k m))
  (assume H1 : gcd k m = 0,

@@ -16,29 +16,30 @@ namespace nat
   | refl : le a a
   | step : Π {b}, le a b → le a (succ b)
 
-  infix ≤ := le
-  attribute le.refl [refl]
+  definition nat_has_le [instance] [reducible] [priority nat.prio]: has_le nat := has_le.mk nat.le
 
-  definition lt [reducible] (n m : ℕ) := succ n ≤ m
-  definition ge [reducible] (n m : ℕ) := m ≤ n
-  definition gt [reducible] (n m : ℕ) := succ m ≤ n
-  infix < := lt
-  infix ≥ := ge
-  infix > := gt
+  lemma le_refl [refl] : ∀ a : nat, a ≤ a :=
+  le.refl
+
+  protected definition lt [reducible] (n m : ℕ) := succ n ≤ m
+  definition nat_has_lt [instance] [reducible] [priority nat.prio] : has_lt nat := has_lt.mk nat.lt
 
   definition pred [unfold 1] (a : nat) : nat :=
   nat.cases_on a zero (λ a₁, a₁)
 
   -- add is defined in init.num
 
-  definition sub (a b : nat) : nat :=
+  protected definition sub (a b : nat) : nat :=
   nat.rec_on b a (λ b₁, pred)
 
-  definition mul (a b : nat) : nat :=
+  protected definition mul (a b : nat) : nat :=
   nat.rec_on b zero (λ b₁ r, r + a)
 
-  notation a - b := sub a b
-  notation a * b := mul a b
+  definition nat_has_sub [instance] [reducible] [priority nat.prio] : has_sub nat :=
+  has_sub.mk nat.sub
+
+  definition nat_has_mul [instance] [reducible] [priority nat.prio] : has_mul nat :=
+  has_mul.mk nat.mul
 
   /- properties of ℕ -/
 
@@ -182,15 +183,14 @@ namespace nat
   theorem lt_of_succ_lt_succ {a b : ℕ} : succ a < succ b → a < b :=
   le_of_succ_le_succ
 
-  definition decidable_le [instance] : decidable_rel le :=
+  definition decidable_le [instance] : ∀ a b : nat, decidable (a ≤ b)  :=
   nat.rec (λm, (decidable.inl !zero_le))
      (λn IH m, !nat.cases_on (decidable.inr (not_succ_le_zero n))
        (λm, decidable.rec (λH, inl (succ_le_succ H))
           (λH, inr (λa, H (le_of_succ_le_succ a))) (IH m)))
 
-  definition decidable_lt [instance] : decidable_rel lt := _
-  definition decidable_gt [instance] : decidable_rel gt := _
-  definition decidable_ge [instance] : decidable_rel ge := _
+  definition decidable_lt [instance] : ∀ a b : nat, decidable (a < b) :=
+  λ a b, decidable_le (succ a) b
 
   theorem lt_or_ge (a b : ℕ) : a < b ∨ a ≥ b :=
   nat.rec (inr !zero_le) (λn, or.rec
@@ -220,7 +220,7 @@ namespace nat
   theorem succ_le_of_lt {a b : ℕ} (h : a < b) : succ a ≤ b := h
 
   theorem succ_sub_succ_eq_sub [simp] (a b : ℕ) : succ a - succ b = a - b :=
-  nat.rec rfl (λ b, congr_arg pred) b
+  nat.rec (by esimp) (λ b, congr_arg pred) b
 
   theorem sub_eq_succ_sub_succ (a b : ℕ) : a - b = succ a - succ b :=
   eq.symm !succ_sub_succ_eq_sub
@@ -248,9 +248,3 @@ namespace nat
   theorem sub_lt_succ_iff_true [simp] (a b : ℕ) : a - b < succ a ↔ true :=
   iff_true_intro !sub_lt_succ
 end nat
-
-namespace nat_esimp
-  open nat
-  attribute add mul sub [unfold 2]
-  attribute of_num [unfold 1]
-end nat_esimp

@@ -135,92 +135,72 @@ else (eq_max_left h) ▸ !le.refl
 
 /- nat is an instance of a linearly ordered semiring and a lattice -/
 
-section migrate_algebra
-  open [classes] algebra
-  local attribute nat.comm_semiring [instance]
+open -[notations] algebra
 
-  protected definition decidable_linear_ordered_semiring [reducible] :
-    algebra.decidable_linear_ordered_semiring nat :=
-  ⦃ algebra.decidable_linear_ordered_semiring, nat.comm_semiring,
-    add_left_cancel            := @add.cancel_left,
-    add_right_cancel           := @add.cancel_right,
-    lt                         := lt,
-    le                         := le,
-    le_refl                    := le.refl,
-    le_trans                   := @le.trans,
-    le_antisymm                := @le.antisymm,
-    le_total                   := @le.total,
-    le_iff_lt_or_eq            := @le_iff_lt_or_eq,
-    le_of_lt                   := @le_of_lt,
-    lt_irrefl                  := @lt.irrefl,
-    lt_of_lt_of_le             := @lt_of_lt_of_le,
-    lt_of_le_of_lt             := @lt_of_le_of_lt,
-    lt_of_add_lt_add_left      := @lt_of_add_lt_add_left,
-    add_lt_add_left            := @add_lt_add_left,
-    add_le_add_left            := @add_le_add_left,
-    le_of_add_le_add_left      := @le_of_add_le_add_left,
-    zero_lt_one                := zero_lt_succ 0,
-    mul_le_mul_of_nonneg_left  := (take a b c H1 H2, mul_le_mul_left c H1),
-    mul_le_mul_of_nonneg_right := (take a b c H1 H2, mul_le_mul_right c H1),
-    mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left,
-    mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right,
-    decidable_lt               := nat.decidable_lt ⦄
+protected definition decidable_linear_ordered_semiring [reducible] [instance] :
+algebra.decidable_linear_ordered_semiring nat :=
+⦃ algebra.decidable_linear_ordered_semiring, nat.comm_semiring,
+  add_left_cancel            := @add.cancel_left,
+  add_right_cancel           := @add.cancel_right,
+  lt                         := nat.lt,
+  le                         := nat.le,
+  le_refl                    := le.refl,
+  le_trans                   := @le.trans,
+  le_antisymm                := @le.antisymm,
+  le_total                   := @le.total,
+  le_iff_lt_or_eq            := @le_iff_lt_or_eq,
+  le_of_lt                   := @le_of_lt,
+  lt_irrefl                  := @lt.irrefl,
+  lt_of_lt_of_le             := @lt_of_lt_of_le,
+  lt_of_le_of_lt             := @lt_of_le_of_lt,
+  lt_of_add_lt_add_left      := @lt_of_add_lt_add_left,
+  add_lt_add_left            := @add_lt_add_left,
+  add_le_add_left            := @add_le_add_left,
+  le_of_add_le_add_left      := @le_of_add_le_add_left,
+  zero_lt_one                := zero_lt_succ 0,
+  mul_le_mul_of_nonneg_left  := (take a b c H1 H2, mul_le_mul_left c H1),
+  mul_le_mul_of_nonneg_right := (take a b c H1 H2, mul_le_mul_right c H1),
+  mul_lt_mul_of_pos_left     := @mul_lt_mul_of_pos_left,
+  mul_lt_mul_of_pos_right    := @mul_lt_mul_of_pos_right,
+  decidable_lt               := nat.decidable_lt ⦄
 
-/-
-  protected definition lattice [reducible] : algebra.lattice nat :=
-  ⦃ algebra.lattice, nat.linear_ordered_semiring,
-    min          := min,
-    max          := max,
-    min_le_left  := min_le_left,
-    min_le_right := min_le_right,
-    le_min       := @le_min,
-    le_max_left  := le_max_left,
-    le_max_right := le_max_right,
-    max_le       := @max_le ⦄
 
-  local attribute nat.linear_ordered_semiring [instance]
-  local attribute nat.lattice [instance]
--/
-  local attribute nat.decidable_linear_ordered_semiring [instance]
+definition nat_has_dvd [reducible] [instance] [priority nat.prio] : has_dvd nat :=
+has_dvd.mk algebra.dvd
 
-  definition min : ℕ → ℕ → ℕ := algebra.min
-  definition max : ℕ → ℕ → ℕ := algebra.max
+theorem add_pos_left {a : ℕ} (H : 0 < a) (b : ℕ) : 0 < a + b :=
+@algebra.add_pos_of_pos_of_nonneg _ _ a b H !zero_le
 
-  migrate from algebra with nat
-    replacing dvd → dvd, has_le.ge → ge, has_lt.gt → gt, min → min, max → max
-    hiding add_pos_of_pos_of_nonneg,  add_pos_of_nonneg_of_pos,
-      add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg, le_add_of_nonneg_of_le,
-      le_add_of_le_of_nonneg, lt_add_of_nonneg_of_lt, lt_add_of_lt_of_nonneg,
-      lt_of_mul_lt_mul_left, lt_of_mul_lt_mul_right, pos_of_mul_pos_left, pos_of_mul_pos_right,
-      mul_lt_mul
+theorem add_pos_right {a : ℕ} (H : 0 < a) (b : ℕ) : 0 < b + a :=
+by rewrite add.comm; apply add_pos_left H b
 
-  attribute le.trans ge.trans lt.trans gt.trans [trans]
-  attribute lt_of_lt_of_le lt_of_le_of_lt gt_of_gt_of_ge gt_of_ge_of_gt [trans]
+theorem add_eq_zero_iff_eq_zero_and_eq_zero {a b : ℕ} :
+a + b = 0 ↔ a = 0 ∧ b = 0 :=
+@algebra.add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg _ _ a b !zero_le !zero_le
 
-  theorem add_pos_left {a : ℕ} (H : 0 < a) (b : ℕ) : 0 < a + b :=
-    @algebra.add_pos_of_pos_of_nonneg _ _ a b H !zero_le
-  theorem add_pos_right {a : ℕ} (H : 0 < a) (b : ℕ) : 0 < b + a :=
-    !add.comm ▸ add_pos_left H b
-  theorem add_eq_zero_iff_eq_zero_and_eq_zero {a b : ℕ} :
-    a + b = 0 ↔ a = 0 ∧ b = 0 :=
-    @algebra.add_eq_zero_iff_eq_zero_and_eq_zero_of_nonneg_of_nonneg _ _ a b !zero_le !zero_le
-  theorem le_add_of_le_left {a b c : ℕ} (H : b ≤ c) : b ≤ a + c :=
-    @algebra.le_add_of_nonneg_of_le _ _ a b c !zero_le H
-  theorem le_add_of_le_right {a b c : ℕ} (H : b ≤ c) : b ≤ c + a :=
-    @algebra.le_add_of_le_of_nonneg _ _ a b c H !zero_le
-  theorem lt_add_of_lt_left {b c : ℕ} (H : b < c) (a : ℕ) : b < a + c :=
-    @algebra.lt_add_of_nonneg_of_lt _ _ a b c !zero_le H
-  theorem lt_add_of_lt_right {b c : ℕ} (H : b < c) (a : ℕ) : b < c + a :=
-    @algebra.lt_add_of_lt_of_nonneg _ _ a b c H !zero_le
-  theorem lt_of_mul_lt_mul_left {a b c : ℕ} (H : c * a < c * b) : a < b :=
-    @algebra.lt_of_mul_lt_mul_left _ _ a b c H !zero_le
-  theorem lt_of_mul_lt_mul_right {a b c : ℕ} (H : a * c < b * c) : a < b :=
-    @algebra.lt_of_mul_lt_mul_right _ _ a b c H !zero_le
-  theorem pos_of_mul_pos_left {a b : ℕ} (H : 0 < a * b) : 0 < b :=
-    @algebra.pos_of_mul_pos_left _ _ a b H !zero_le
-  theorem pos_of_mul_pos_right {a b : ℕ} (H : 0 < a * b) : 0 < a :=
-    @algebra.pos_of_mul_pos_right _ _ a b H !zero_le
-end migrate_algebra
+theorem le_add_of_le_left {a b c : ℕ} (H : b ≤ c) : b ≤ a + c :=
+@algebra.le_add_of_nonneg_of_le _ _ a b c !zero_le H
+
+theorem le_add_of_le_right {a b c : ℕ} (H : b ≤ c) : b ≤ c + a :=
+@algebra.le_add_of_le_of_nonneg _ _ a b c H !zero_le
+
+theorem lt_add_of_lt_left {b c : ℕ} (H : b < c) (a : ℕ) : b < a + c :=
+@algebra.lt_add_of_nonneg_of_lt _ _ a b c !zero_le H
+
+theorem lt_add_of_lt_right {b c : ℕ} (H : b < c) (a : ℕ) : b < c + a :=
+@algebra.lt_add_of_lt_of_nonneg _ _ a b c H !zero_le
+
+theorem lt_of_mul_lt_mul_left {a b c : ℕ} (H : c * a < c * b) : a < b :=
+@algebra.lt_of_mul_lt_mul_left _ _ a b c H !zero_le
+
+theorem lt_of_mul_lt_mul_right {a b c : ℕ} (H : a * c < b * c) : a < b :=
+@algebra.lt_of_mul_lt_mul_right _ _ a b c H !zero_le
+
+theorem pos_of_mul_pos_left {a b : ℕ} (H : 0 < a * b) : 0 < b :=
+@algebra.pos_of_mul_pos_left _ _ a b H !zero_le
+
+theorem pos_of_mul_pos_right {a b : ℕ} (H : 0 < a * b) : 0 < a :=
+@algebra.pos_of_mul_pos_right _ _ a b H !zero_le
 
 theorem zero_le_one : 0 ≤ 1 := dec_trivial
 

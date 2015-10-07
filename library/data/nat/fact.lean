@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 Factorial
 -/
 import data.nat.div
+open - [notations] algebra
 
 namespace nat
 definition fact : nat → nat

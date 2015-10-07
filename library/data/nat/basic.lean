@@ -211,7 +211,7 @@ nat.induction_on n
 
 theorem succ_mul [simp] (n m : ℕ) : (succ n) * m = (n * m) + m :=
 nat.induction_on m
-  (!mul_zero ⬝ !mul_zero⁻¹ ⬝ !add_zero⁻¹)
+  (by rewrite mul_zero)
   (take k IH, calc
     succ n * succ k = succ n * k + succ n   : mul_succ
                 ... = n * k + k + succ n    : IH
@@ -289,35 +289,31 @@ nat.cases_on n
              ... = succ (succ n' * m' + n') : add_succ)⁻¹
           !succ_ne_zero))
 
-section migrate_algebra
-  open [classes] algebra
+open - [notations] algebra
+protected definition comm_semiring [reducible] [instance] : algebra.comm_semiring nat :=
+⦃algebra.comm_semiring,
+ add            := nat.add,
+ add_assoc      := add.assoc,
+ zero           := nat.zero,
+ zero_add       := zero_add,
+ add_zero       := add_zero,
+ add_comm       := add.comm,
+ mul            := nat.mul,
+ mul_assoc      := mul.assoc,
+ one            := nat.succ nat.zero,
+ one_mul        := one_mul,
+ mul_one        := mul_one,
+ left_distrib   := mul.left_distrib,
+ right_distrib  := mul.right_distrib,
+ zero_mul       := zero_mul,
+ mul_zero       := mul_zero,
+ mul_comm       := mul.comm⦄
 
-  protected definition comm_semiring [reducible] : algebra.comm_semiring nat :=
-  ⦃algebra.comm_semiring,
-    add            := add,
-    add_assoc      := add.assoc,
-    zero           := zero,
-    zero_add       := zero_add,
-    add_zero       := add_zero,
-    add_comm       := add.comm,
-    mul            := mul,
-    mul_assoc      := mul.assoc,
-    one            := succ zero,
-    one_mul        := one_mul,
-    mul_one        := mul_one,
-    left_distrib   := mul.left_distrib,
-    right_distrib  := mul.right_distrib,
-    zero_mul       := zero_mul,
-    mul_zero       := mul_zero,
-    mul_comm       := mul.comm⦄
+definition nat_has_zero [reducible] [instance] [priority nat.prio] : has_zero nat :=
+has_zero.mk zero
 
-  local attribute nat.comm_semiring [instance]
-  definition dvd (a b : ℕ) : Prop := algebra.dvd a b
-  notation a ∣ b := dvd a b
-
-  migrate from algebra with nat replacing dvd → dvd
-
-end migrate_algebra
+definition nat_has_one [reducible] [instance] [priority nat.prio] : has_one nat :=
+has_one.mk (succ zero)
 end nat
 
 section

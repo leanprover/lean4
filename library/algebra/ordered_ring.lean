@@ -686,9 +686,13 @@ section
     sub_lt_of_abs_sub_lt_left (!abs_sub ▸ H)
 
   theorem abs_sub_square (a b : A) : abs (a - b) * abs (a - b) = a * a + b * b - (1 + 1) * a * b :=
-    by rewrite [abs_mul_abs_self, *mul_sub_left_distrib, *mul_sub_right_distrib,
-             sub_add_eq_sub_sub, sub_neg_eq_add, *right_distrib, sub_add_eq_sub_sub, *one_mul,
-             *add.assoc, {_ + b * b}add.comm, {_ + (b * b + _)}add.comm, mul.comm b a, *add.assoc]
+    begin
+      rewrite [abs_mul_abs_self, *mul_sub_left_distrib, *mul_sub_right_distrib,
+               sub_eq_add_neg (a*b), sub_add_eq_sub_sub, sub_neg_eq_add, *right_distrib, sub_add_eq_sub_sub, *one_mul,
+               *add.assoc, {_ + b * b}add.comm, *sub_eq_add_neg],
+      rewrite [{a*a + b*b}add.comm],
+      rewrite [mul.comm b a, *add.assoc]
+    end
 
   theorem abs_abs_sub_abs_le_abs_sub (a b : A) : abs (abs a - abs b) ≤ abs (a - b) :=
   begin

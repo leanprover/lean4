@@ -6,7 +6,8 @@ Author: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 Sigma types, aka dependent sum.
 -/
 import logic.cast
-open inhabited eq.ops sigma.ops
+open inhabited sigma.ops
+override eq.ops
 
 namespace sigma
   universe variables u v

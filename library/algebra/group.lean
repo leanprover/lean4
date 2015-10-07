@@ -16,30 +16,12 @@ namespace algebra
 
 variable {A : Type}
 
-/- overloaded symbols -/
-
-structure has_mul [class] (A : Type) :=
-(mul : A → A → A)
-
-structure has_add [class] (A : Type) :=
-(add : A → A → A)
-
 structure has_one [class] (A : Type) :=
 (one : A)
 
 structure has_zero [class] (A : Type) :=
 (zero : A)
 
-structure has_inv [class] (A : Type) :=
-(inv : A → A)
-
-structure has_neg [class] (A : Type) :=
-(neg : A → A)
-
-infixl [priority algebra.prio] ` * `   := has_mul.mul
-infixl [priority algebra.prio] ` + `   := has_add.add
-postfix [priority algebra.prio] `⁻¹` := has_inv.inv
-prefix [priority algebra.prio] `-`   := has_neg.neg
 notation 1  := !has_one.one
 notation 0  := !has_zero.zero
 
@@ -478,7 +460,8 @@ section add_group
   -- TODO: derive corresponding facts for div in a field
   definition sub [reducible] (a b : A) : A := a + -b
 
-  infix [priority algebra.prio] - := sub
+  definition add_group_has_sub [reducible] [instance] : has_sub A :=
+  has_sub.mk algebra.sub
 
   theorem sub_eq_add_neg (a b : A) : a - b = a + -b := rfl
 
@@ -499,7 +482,8 @@ section add_group
 
   theorem zero_sub (a : A) : 0 - a = -a := !zero_add
 
-  theorem sub_zero (a : A) : a - 0 = a := subst (eq.symm neg_zero) !add_zero
+  theorem sub_zero (a : A) : a - 0 = a :=
+  by rewrite [sub_eq_add_neg, neg_zero, add_zero]
 
   theorem sub_neg_eq_add (a b : A) : a - (-b) = a + b :=
   by change a + -(-b) = a + b; rewrite neg_neg
@@ -515,7 +499,7 @@ section add_group
 
   theorem sub_add_eq_sub_sub_swap (a b c : A) : a - (b + c) = a - c - b :=
   calc
-    a - (b + c) = a + (-c - b) : neg_add_rev
+    a - (b + c) = a + (-c - b) : by rewrite [sub_eq_add_neg, neg_add_rev]
             ... = a - c - b    : by krewrite -add.assoc
 
   theorem sub_eq_iff_eq_add (a b c : A) : a - b = c ↔ a = c + b :=

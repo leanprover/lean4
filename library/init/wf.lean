@@ -131,8 +131,8 @@ section
   definition accessible {z} (ac: acc R z) : acc R⁺ z :=
   begin
     induction ac with x acx ih,
-    constructor, intro y lt,
-    induction lt with a b rab a b c rab rbc ih₁ ih₂,
+    constructor, intro y rel,
+    induction rel with a b rab a b c rab rbc ih₁ ih₂,
       {exact ih a rab},
       {exact acc.inv (ih₂ acx ih) rab}
   end

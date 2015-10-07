@@ -12,25 +12,6 @@ namespace algebra
 
 variable {A : Type}
 
-/- overloaded symbols -/
-
-structure has_le [class] (A : Type) :=
-(le : A → A → Prop)
-
-structure has_lt [class] (A : Type) :=
-(lt : A → A → Prop)
-
-infixl [priority algebra.prio] <=  := has_le.le
-infixl [priority algebra.prio] ≤   := has_le.le
-infixl [priority algebra.prio] <   := has_lt.lt
-
-definition has_le.ge [reducible] {A : Type} [s : has_le A] (a b : A) := b ≤ a
-notation [priority algebra.prio] a ≥ b := has_le.ge a b
-notation [priority algebra.prio] a >= b := has_le.ge a b
-
-definition has_lt.gt [reducible] {A : Type} [s : has_lt A] (a b : A) := b < a
-notation [priority algebra.prio] a > b := has_lt.gt a b
-
 /- weak orders -/
 
 structure weak_order [class] (A : Type) extends has_le A :=
@@ -443,18 +424,3 @@ section
 end
 
 end algebra
-
-/-
-For reference, these are all the transitivity rules defined in this file:
-calc_trans le.trans
-calc_trans lt.trans
-
-calc_trans lt_of_lt_of_le
-calc_trans lt_of_le_of_lt
-
-calc_trans ge.trans
-calc_trans gt.trans
-
-calc_trans gt_of_gt_of_ge
-calc_trans gt_of_ge_of_gt
--/

@@ -30,6 +30,7 @@ import algebra.relation algebra.binary algebra.ordered_ring
 open eq.ops
 open prod relation nat
 open decidable binary
+open - [notations] algebra
 
 /- the type of integers -/
 
@@ -54,21 +55,21 @@ definition neg_of_nat : ℕ → ℤ
 | (succ m) := -[1+ m]
 
 definition sub_nat_nat (m n : ℕ) : ℤ :=
-match n - m with
-  | 0        := m - n       -- m ≥ n
-  | (succ k) := -[1+ k]     -- m < n, and n - m = succ k
+match (n - m : nat) with
+  | 0        := (m - n : nat)  -- m ≥ n
+  | (succ k) := -[1+ k]       -- m < n, and n - m = succ k
 end
 
-definition neg (a : ℤ) : ℤ :=
+protected definition neg (a : ℤ) : ℤ :=
 int.cases_on a neg_of_nat succ
 
-definition add : ℤ → ℤ → ℤ
+protected definition add : ℤ → ℤ → ℤ
 | (of_nat m) (of_nat n) := m + n
 | (of_nat m) -[1+ n]    := sub_nat_nat m (succ n)
 | -[1+ m]    (of_nat n) := sub_nat_nat n (succ m)
 | -[1+ m]    -[1+ n]    := neg_of_nat (succ m + succ n)
 
-definition mul : ℤ → ℤ → ℤ
+protected definition mul : ℤ → ℤ → ℤ
 | (of_nat m) (of_nat n) := m * n
 | (of_nat m) -[1+ n]    := neg_of_nat (m * succ n)
 | -[1+ m]    (of_nat n) := neg_of_nat (succ m * n)
@@ -76,11 +77,11 @@ definition mul : ℤ → ℤ → ℤ
 
 /- notation -/
 
-protected definition prio : num := num.pred std.priority.default
+protected definition prio : num := num.pred nat.prio
 
-prefix [priority int.prio] - := int.neg
-infix  [priority int.prio] +  := int.add
-infix  [priority int.prio] *  := int.mul
+definition int_has_add [reducible] [instance] [priority int.prio] : has_add int := has_add.mk int.add
+definition int_has_neg [reducible] [instance] [priority int.prio] : has_neg int := has_neg.mk int.neg
+definition int_has_mul [reducible] [instance] [priority int.prio] : has_mul int := has_mul.mk int.mul
 
 /- some basic functions and properties -/
 
@@ -115,14 +116,14 @@ theorem of_nat_succ (n : ℕ) : of_nat (succ n) = of_nat n + 1 := rfl
 theorem of_nat_mul (n m : ℕ) : of_nat (n * m) = of_nat n * of_nat m := rfl
 
 theorem sub_nat_nat_of_ge {m n : ℕ} (H : m ≥ n) : sub_nat_nat m n = of_nat (m - n) :=
-show sub_nat_nat m n = nat.cases_on 0 (m - n) _, from (sub_eq_zero_of_le H) ▸ rfl
+show sub_nat_nat m n = nat.cases_on 0 (m - n : nat) _, from (sub_eq_zero_of_le H) ▸ rfl
 
 section
 local attribute sub_nat_nat [reducible]
 theorem sub_nat_nat_of_lt {m n : ℕ} (H : m < n) :
   sub_nat_nat m n = -[1+ pred (n - m)] :=
-have H1 : n - m = succ (pred (n - m)), from (succ_pred_of_pos (sub_pos_of_lt H))⁻¹,
-show sub_nat_nat m n = nat.cases_on (succ (pred (n - m))) (m - n) _, from H1 ▸ rfl
+have H1 : n - m = succ (pred (n - m)), from eq.symm (succ_pred_of_pos (sub_pos_of_lt H)),
+show sub_nat_nat m n = nat.cases_on (succ (nat.pred (n - m))) (m - n : nat) _, from H1 ▸ rfl
 end
 
 definition nat_abs (a : ℤ) : ℕ := int.cases_on a function.id succ
@@ -143,31 +144,31 @@ protected theorem equiv.refl [refl] {p : ℕ × ℕ} : p ≡ p := !add.comm
 
 protected theorem equiv.symm [symm] {p q : ℕ × ℕ} (H : p ≡ q) : q ≡ p :=
 calc
-  pr1 q + pr2 p = pr2 p + pr1 q : add.comm
+  pr1 q + pr2 p = pr2 p + pr1 q : by rewrite add.comm
     ... = pr1 p + pr2 q         : H⁻¹
-    ... = pr2 q + pr1 p         : add.comm
+    ... = pr2 q + pr1 p         : by rewrite add.comm
 
 protected theorem equiv.trans [trans] {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q ≡ r) : p ≡ r :=
 add.cancel_right (calc
-   pr1 p + pr2 r + pr2 q = pr1 p + pr2 q + pr2 r : add.right_comm
+   pr1 p + pr2 r + pr2 q = pr1 p + pr2 q + pr2 r : by rewrite add.right_comm
     ... = pr2 p + pr1 q + pr2 r                  : {H1}
-    ... = pr2 p + (pr1 q + pr2 r)                : add.assoc
+    ... = pr2 p + (pr1 q + pr2 r)                : by rewrite add.assoc
     ... = pr2 p + (pr2 q + pr1 r)                : {H2}
-    ... = pr2 p + pr2 q + pr1 r                  : add.assoc
-    ... = pr2 p + pr1 r + pr2 q                  : add.right_comm)
+    ... = pr2 p + pr2 q + pr1 r                  : by rewrite add.assoc
+    ... = pr2 p + pr1 r + pr2 q                  : by rewrite add.right_comm)
 
 protected theorem equiv_equiv : is_equivalence int.equiv :=
 is_equivalence.mk @equiv.refl @equiv.symm @equiv.trans
 
 protected theorem equiv_cases {p q : ℕ × ℕ} (H : p ≡ q) :
     (pr1 p ≥ pr2 p ∧ pr1 q ≥ pr2 q) ∨ (pr1 p < pr2 p ∧ pr1 q < pr2 q) :=
-or.elim (@le_or_gt (pr2 p) (pr1 p))
+or.elim (@le_or_gt _ _ (pr2 p) (pr1 p))
   (suppose pr1 p ≥ pr2 p,
     have pr2 p + pr1 q ≥ pr2 p + pr2 q, from H ▸ add_le_add_right this (pr2 q),
     or.inl (and.intro `pr1 p ≥ pr2 p` (le_of_add_le_add_left this)))
-  (suppose pr1 p < pr2 p,
-    have pr2 p + pr1 q < pr2 p + pr2 q, from H ▸ add_lt_add_right this (pr2 q),
-    or.inr (and.intro `pr1 p < pr2 p` (lt_of_add_lt_add_left this)))
+  (suppose H₁ : pr1 p < pr2 p,
+    have pr2 p + pr1 q < pr2 p + pr2 q, from H ▸ add_lt_add_right H₁ (pr2 q),
+    or.inr (and.intro H₁ (lt_of_add_lt_add_left this)))
 
 protected theorem equiv_of_eq {p q : ℕ × ℕ} (H : p = q) : p ≡ q := H ▸ equiv.refl
 
@@ -208,20 +209,20 @@ or.elim (int.equiv_cases Hequiv)
   (and.rec (assume (Hp : pr1 p ≥ pr2 p) (Hq : pr1 q ≥ pr2 q),
     have H : pr1 p - pr2 p = pr1 q - pr2 q, from
       calc pr1 p - pr2 p
-           = pr1 p + pr2 q - pr2 q - pr2 p   : add_sub_cancel
+           = pr1 p + pr2 q - pr2 q - pr2 p   : by rewrite add_sub_cancel
        ... = pr2 p + pr1 q - pr2 q - pr2 p   : Hequiv
        ... = pr2 p + (pr1 q - pr2 q) - pr2 p : add_sub_assoc Hq
-       ... = pr1 q - pr2 q + pr2 p - pr2 p   : add.comm
-       ... = pr1 q - pr2 q                   : add_sub_cancel,
+       ... = pr1 q - pr2 q + pr2 p - pr2 p   : by rewrite add.comm
+       ... = pr1 q - pr2 q                   : by rewrite add_sub_cancel,
     abstr_of_ge Hp ⬝ (H ▸ rfl) ⬝ (abstr_of_ge Hq)⁻¹))
   (and.rec (assume (Hp : pr1 p < pr2 p) (Hq : pr1 q < pr2 q),
     have H : pr2 p - pr1 p = pr2 q - pr1 q, from
       calc pr2 p - pr1 p
-           = pr2 p + pr1 q - pr1 q - pr1 p   : add_sub_cancel
+           = pr2 p + pr1 q - pr1 q - pr1 p   : by rewrite add_sub_cancel
        ... = pr1 p + pr2 q - pr1 q - pr1 p   : Hequiv
        ... = pr1 p + (pr2 q - pr1 q) - pr1 p : add_sub_assoc (le_of_lt Hq)
-       ... = pr2 q - pr1 q + pr1 p - pr1 p   : add.comm
-       ... = pr2 q - pr1 q                   : add_sub_cancel,
+       ... = pr2 q - pr1 q + pr1 p - pr1 p   : by rewrite add.comm
+       ... = pr2 q - pr1 q                   : by rewrite add_sub_cancel,
     abstr_of_lt Hp ⬝ (H ▸ rfl) ⬝ (abstr_of_lt Hq)⁻¹))
 
 theorem equiv_iff (p q : ℕ × ℕ) : (p ≡ q) ↔ (abstr p = abstr q) :=
@@ -280,8 +281,8 @@ definition padd (p q : ℕ × ℕ) : ℕ × ℕ := (pr1 p + pr1 q, pr2 p + pr2 q
 
 theorem repr_add : Π (a b : ℤ), repr (add a b) ≡ padd (repr a) (repr b)
 | (of_nat m) (of_nat n) := !equiv.refl
-| (of_nat m) -[1+ n]    := (!zero_add ▸ rfl)⁻¹ ▸ !repr_sub_nat_nat
-| -[1+ m]    (of_nat n) := (!zero_add ▸ rfl)⁻¹ ▸ !repr_sub_nat_nat
+| (of_nat m) -[1+ n]    := sorry -- begin end -- (!zero_add ▸ rfl)⁻¹ ▸ !repr_sub_nat_nat
+| -[1+ m]    (of_nat n) := sorry -- begin end -- (!zero_add ▸ rfl)⁻¹ ▸ !repr_sub_nat_nat
 | -[1+ m]    -[1+ n]    := !repr_sub_nat_nat
 
 theorem padd_congr {p p' q q' : ℕ × ℕ} (Ha : p ≡ p') (Hb : q ≡ q') : padd p q ≡ padd p' q' :=
@@ -293,13 +294,13 @@ calc pr1 p + pr1 q + (pr2 p' + pr2 q')
 
 theorem padd_comm (p q : ℕ × ℕ) : padd p q = padd q p :=
 calc (pr1 p + pr1 q, pr2 p + pr2 q)
-        = (pr1 q + pr1 p, pr2 p + pr2 q) : add.comm
-    ... = (pr1 q + pr1 p, pr2 q + pr2 p) : add.comm
+        = (pr1 q + pr1 p, pr2 p + pr2 q) : by rewrite add.comm
+    ... = (pr1 q + pr1 p, pr2 q + pr2 p) : by rewrite (add.comm (pr2 p) (pr2 q))
 
 theorem padd_assoc (p q r : ℕ × ℕ) : padd (padd p q) r = padd p (padd q r) :=
 calc (pr1 p + pr1 q + pr1 r, pr2 p + pr2 q + pr2 r)
-        = (pr1 p + (pr1 q + pr1 r), pr2 p + pr2 q + pr2 r) : add.assoc
-    ... = (pr1 p + (pr1 q + pr1 r), pr2 p + (pr2 q + pr2 r)) : add.assoc
+        = (pr1 p + (pr1 q + pr1 r), pr2 p + pr2 q + pr2 r)   : by rewrite add.assoc
+    ... = (pr1 p + (pr1 q + pr1 r), pr2 p + (pr2 q + pr2 r)) : by rewrite add.assoc
 
 theorem add.comm (a b : ℤ) : a + b = b + a :=
 eq_of_repr_equiv_repr (equiv.trans !repr_add
@@ -349,7 +350,7 @@ calc      pr1 p + pr1 q + pr2 q + pr2 p
         = pr1 p + (pr1 q + pr2 q) + pr2 p : nat.add.assoc
     ... = pr1 p + (pr1 q + pr2 q + pr2 p) : nat.add.assoc
     ... = pr1 p + (pr2 q + pr1 q + pr2 p) : nat.add.comm
-    ... = pr1 p + (pr2 q + pr2 p + pr1 q) : add.right_comm
+    ... = pr1 p + (pr2 q + pr2 p + pr1 q) : by rewrite add.right_comm
     ... = pr1 p + (pr2 p + pr2 q + pr1 q) : nat.add.comm
     ... = pr2 p + pr2 q + pr1 q + pr1 p   : nat.add.comm
 
@@ -404,16 +405,16 @@ nat.cases_on m rfl (take m', rfl)
 -- note: we have =, not just ≡
 theorem repr_mul : Π (a b : ℤ), repr (a * b) = pmul (repr a) (repr b)
 | (of_nat m) (of_nat n) := calc
-          (m * n + 0 * 0, m * 0 + 0) = (m * n + 0 * 0, m * 0 + 0 * n) : zero_mul
+          (m * n + 0 * 0, m * 0 + 0) = (m * n + 0 * 0, m * 0 + 0 * n) : by rewrite *zero_mul
 | (of_nat m) -[1+ n]    := calc
-          repr (m * -[1+ n]) = (m * 0 + 0, m * succ n + 0 * 0) : repr_neg_of_nat
-            ... = (m * 0 + 0 * succ n, m * succ n + 0 * 0) : zero_mul
+          repr ((m : int) * -[1+ n]) = (m * 0 + 0, m * succ n + 0 * 0) : repr_neg_of_nat
+            ... = (m * 0 + 0 * succ n, m * succ n + 0 * 0) : by rewrite *zero_mul
 | -[1+ m]    (of_nat n) := calc
-          repr (-[1+ m] * n) = (0 + succ m * 0, succ m * n) : repr_neg_of_nat
+          repr (-[1+ m] * (n:int)) = (0 + succ m * 0, succ m * n) : repr_neg_of_nat
             ... = (0 + succ m * 0, 0 + succ m * n) : nat.zero_add
-            ... = (0 * n + succ m * 0, 0 + succ m * n) : zero_mul
+            ... = (0 * n + succ m * 0, 0 + succ m * n) : by rewrite zero_mul
 | -[1+ m]    -[1+ n]    := calc
-          (succ m * succ n, 0) = (succ m * succ n, 0 * succ n) : zero_mul
+          (succ m * succ n, 0) = (succ m * succ n, 0 * succ n) : by rewrite zero_mul
             ... = (0 + succ m * succ n, 0 * succ n) : nat.zero_add
 
 theorem equiv_mul_prep {xa ya xb yb xn yn xm ym : ℕ}
@@ -421,16 +422,16 @@ theorem equiv_mul_prep {xa ya xb yb xn yn xm ym : ℕ}
 : xa*xn+ya*yn+(xb*ym+yb*xm) = xa*yn+ya*xn+(xb*xm+yb*ym) :=
 nat.add.cancel_right (calc
             xa*xn+ya*yn + (xb*ym+yb*xm) + (yb*xn+xb*yn + (xb*xn+yb*yn))
-          = xa*xn+ya*yn + (yb*xn+xb*yn) + (xb*ym+yb*xm + (xb*xn+yb*yn)) : add.comm4
-      ... = xa*xn+ya*yn + (yb*xn+xb*yn) + (xb*xn+yb*yn + (xb*ym+yb*xm)) : nat.add.comm
-      ... = xa*xn+yb*xn + (ya*yn+xb*yn) + (xb*xn+xb*ym + (yb*yn+yb*xm)) : !congr_arg2 add.comm4 add.comm4
-      ... = ya*xn+xb*xn + (xa*yn+yb*yn) + (xb*yn+xb*xm + (yb*xn+yb*ym))
-          : by rewrite[-+mul.left_distrib,-+mul.right_distrib]; exact H1 ▸ H2 ▸ rfl
-      ... = ya*xn+xa*yn + (xb*xn+yb*yn) + (xb*yn+yb*xn + (xb*xm+yb*ym)) : !congr_arg2 add.comm4 add.comm4
-      ... = xa*yn+ya*xn + (xb*xn+yb*yn) + (yb*xn+xb*yn + (xb*xm+yb*ym)) : !nat.add.comm ▸ !nat.add.comm ▸ rfl
-      ... = xa*yn+ya*xn + (yb*xn+xb*yn) + (xb*xn+yb*yn + (xb*xm+yb*ym)) : add.comm4
-      ... = xa*yn+ya*xn + (yb*xn+xb*yn) + (xb*xm+yb*ym + (xb*xn+yb*yn)) : nat.add.comm
-      ... = xa*yn+ya*xn + (xb*xm+yb*ym) + (yb*xn+xb*yn + (xb*xn+yb*yn)) : add.comm4)
+          = xa*xn+ya*yn + (yb*xn+xb*yn) + (xb*ym+yb*xm + (xb*xn+yb*yn)) : by rewrite add.comm4
+      ... = xa*xn+ya*yn + (yb*xn+xb*yn) + (xb*xn+yb*yn + (xb*ym+yb*xm)) : by rewrite {xb*ym+yb*xm +_}nat.add.comm
+      ... = xa*xn+yb*xn + (ya*yn+xb*yn) + (xb*xn+xb*ym + (yb*yn+yb*xm)) : by exact !congr_arg2 add.comm4 add.comm4
+      ... = ya*xn+xb*xn + (xa*yn+yb*yn) + (xb*yn+xb*xm + (yb*xn+yb*ym)) : by rewrite[-+mul.left_distrib,-+mul.right_distrib]; exact H1 ▸ H2 ▸ rfl
+      ... = ya*xn+xa*yn + (xb*xn+yb*yn) + (xb*yn+yb*xn + (xb*xm+yb*ym)) : by exact !congr_arg2 add.comm4 add.comm4
+      ... = xa*yn+ya*xn + (xb*xn+yb*yn) + (xb*yn+yb*xn + (xb*xm+yb*ym)) : by rewrite {xa*yn + _}nat.add.comm
+      ... = xa*yn+ya*xn + (xb*xn+yb*yn) + (yb*xn+xb*yn + (xb*xm+yb*ym)) : by rewrite {xb*yn + _}nat.add.comm
+      ... = xa*yn+ya*xn + (yb*xn+xb*yn) + (xb*xn+yb*yn + (xb*xm+yb*ym)) : by rewrite add.comm4
+      ... = xa*yn+ya*xn + (yb*xn+xb*yn) + (xb*xm+yb*ym + (xb*xn+yb*yn)) : by rewrite {xb*xn+yb*yn + _}nat.add.comm
+      ... = xa*yn+ya*xn + (xb*xm+yb*ym) + (yb*xn+xb*yn + (xb*xn+yb*yn)) : by rewrite add.comm4)
 
 theorem pmul_congr {p p' q q' : ℕ × ℕ} : p ≡ p' → q ≡ q' → pmul p q ≡ pmul p' q' := equiv_mul_prep
 
@@ -498,41 +499,34 @@ assume H : 0 = 1, !succ_ne_zero (of_nat.inj H)⁻¹
 
 theorem eq_zero_or_eq_zero_of_mul_eq_zero {a b : ℤ} (H : a * b = 0) : a = 0 ∨ b = 0 :=
 or.imp eq_zero_of_nat_abs_eq_zero eq_zero_of_nat_abs_eq_zero
-  (eq_zero_or_eq_zero_of_mul_eq_zero (H ▸ (nat_abs_mul a b)⁻¹))
+  (eq_zero_or_eq_zero_of_mul_eq_zero (by rewrite [-nat_abs_mul, H]))
 
-section migrate_algebra
-  open [classes] algebra
+protected definition integral_domain [reducible] [instance] : algebra.integral_domain int :=
+⦃algebra.integral_domain,
+  add            := int.add,
+  add_assoc      := add.assoc,
+  zero           := zero,
+  zero_add       := zero_add,
+  add_zero       := add_zero,
+  neg            := int.neg,
+  add_left_inv   := add.left_inv,
+  add_comm       := add.comm,
+  mul            := int.mul,
+  mul_assoc      := mul.assoc,
+  one            := 1,
+  one_mul        := one_mul,
+  mul_one        := mul_one,
+  left_distrib   := mul.left_distrib,
+  right_distrib  := mul.right_distrib,
+  mul_comm       := mul.comm,
+  zero_ne_one    := zero_ne_one,
+  eq_zero_or_eq_zero_of_mul_eq_zero := @eq_zero_or_eq_zero_of_mul_eq_zero⦄
 
-  protected definition integral_domain [reducible] : algebra.integral_domain int :=
-  ⦃algebra.integral_domain,
-    add            := add,
-    add_assoc      := add.assoc,
-    zero           := zero,
-    zero_add       := zero_add,
-    add_zero       := add_zero,
-    neg            := neg,
-    add_left_inv   := add.left_inv,
-    add_comm       := add.comm,
-    mul            := mul,
-    mul_assoc      := mul.assoc,
-    one            := 1,
-    one_mul        := one_mul,
-    mul_one        := mul_one,
-    left_distrib   := mul.left_distrib,
-    right_distrib  := mul.right_distrib,
-    mul_comm       := mul.comm,
-    zero_ne_one    := zero_ne_one,
-    eq_zero_or_eq_zero_of_mul_eq_zero := @eq_zero_or_eq_zero_of_mul_eq_zero⦄
+definition int_has_sub [reducible] [instance] [priority int.prio] : has_sub int :=
+has_sub.mk algebra.sub
 
-  local attribute int.integral_domain [instance]
-  definition sub (a b : ℤ) : ℤ := algebra.sub a b
-  infix [priority int.prio] - := int.sub
-  definition dvd (a b : ℤ) : Prop := algebra.dvd a b
-  notation [priority int.prio] a ∣ b := dvd a b
-
-  migrate from algebra with int
-    replacing sub → sub, dvd → dvd
-end migrate_algebra
+definition int_has_dvd [reducible] [instance] [priority int.prio] : has_dvd int :=
+has_dvd.mk algebra.dvd
 
 /- additional properties -/
 theorem of_nat_sub {m n : ℕ} (H : m ≥ n) : m - n = sub m n :=
@@ -540,24 +534,28 @@ assert m - n + n = m,     from nat.sub_add_cancel H,
 begin
   symmetry,
   apply sub_eq_of_eq_add,
-  rewrite [-of_nat_add, this]
+  rewrite this
 end
 
 -- (sub_eq_of_eq_add (!congr_arg (nat.sub_add_cancel H)⁻¹))⁻¹
 
 theorem neg_succ_of_nat_eq' (m : ℕ) : -[1+ m] = -m - 1 :=
-by rewrite [neg_succ_of_nat_eq, of_nat_add, neg_add]
+by rewrite [neg_succ_of_nat_eq, neg_add]
 
 definition succ (a : ℤ) := a + (succ zero)
 definition pred (a : ℤ) := a - (succ zero)
 theorem pred_succ (a : ℤ) : pred (succ a) = a := !sub_add_cancel
 theorem succ_pred (a : ℤ) : succ (pred a) = a := !add_sub_cancel
+
 theorem neg_succ (a : ℤ) : -succ a = pred (-a) :=
 by rewrite [↑succ,neg_add]
+
 theorem succ_neg_succ (a : ℤ) : succ (-succ a) = -a :=
 by rewrite [neg_succ,succ_pred]
+
 theorem neg_pred (a : ℤ) : -pred a = succ (-a) :=
-by rewrite [↑pred,neg_sub,sub_eq_add_neg,add.comm]
+by krewrite [↑pred,neg_sub,sub_eq_add_neg,add.comm]
+
 theorem pred_neg_pred (a : ℤ) : pred (-pred a) = -a :=
 by rewrite [neg_pred,pred_succ]
 

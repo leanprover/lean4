@@ -72,8 +72,10 @@ section comm_semiring
   variables [s : comm_semiring A] (a b c : A)
   include s
 
-  definition dvd (a b : A) : Prop := ∃c, b = a * c
-  notation [priority algebra.prio] a ∣ b := dvd a b
+  protected definition dvd (a b : A) : Prop := ∃c, b = a * c
+
+  definition comm_semiring_has_dvd [reducible] [instance] [priority algebra.prio] : has_dvd A :=
+  has_dvd.mk algebra.dvd
 
   theorem dvd.intro {a b c : A} (H : a * c = b) : a ∣ b :=
   exists.intro _ H⁻¹

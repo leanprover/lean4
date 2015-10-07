@@ -7,6 +7,7 @@ Definitions and properties of div and mod. Much of the development follows Isabe
 -/
 import data.nat.sub
 open eq.ops well_founded decidable prod
+open - [notations] algebra
 
 namespace nat
 
@@ -20,7 +21,9 @@ private definition div.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : 
 if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y + 1 else zero
 
 definition divide := fix div.F
-notation a div b := divide a b
+
+definition nat_has_divides [reducible] [instance] [priority nat.prio] : has_divides nat :=
+has_divides.mk divide
 
 theorem divide_def (x y : nat) : divide x y = if 0 < y ∧ y ≤ x then divide (x - y) y + 1 else 0 :=
 congr_fun (fix_eq div.F x) y
@@ -76,8 +79,11 @@ theorem mul_div_cancel_left {m : ℕ} (n : ℕ) (H : m > 0) : m * n div m = n :=
 private definition mod.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
 if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y else x
 
-definition modulo := fix mod.F
-notation a mod b := modulo a b
+protected definition modulo := fix mod.F
+
+definition nat_has_modulo [reducible] [instance] [priority nat.prio] : has_modulo nat :=
+has_modulo.mk nat.modulo
+
 notation a ≡ b `[mod `:100 c `]`:0 := a mod c = b mod c
 
 theorem modulo_def (x y : nat) : modulo x y = if 0 < y ∧ y ≤ x then modulo (x - y) y else x :=
@@ -150,41 +156,44 @@ have H1 : n mod 1 < 1, from !mod_lt !succ_pos,
 eq_zero_of_le_zero (le_of_lt_succ H1)
 
 /- properties of div and mod -/
+set_option pp.all true
 
 -- the quotient / remainder theorem
 theorem eq_div_mul_add_mod (x y : ℕ) : x = x div y * y + x mod y :=
-by_cases_zero_pos y
-  (show x = x div 0 * 0 + x mod 0, from
+begin
+  eapply by_cases_zero_pos y,
+  show x = x div 0 * 0 + x mod 0, from
     (calc
       x div 0 * 0 + x mod 0 = 0 + x mod 0 : mul_zero
         ... = x mod 0                     : zero_add
-        ... = x                           : mod_zero)⁻¹)
-  (take y,
-    assume H : y > 0,
-    show x = x div y * y + x mod y, from
-      nat.case_strong_induction_on x
-        (show 0 = (0 div y) * y + 0 mod y, by rewrite [zero_mod, add_zero, zero_div, zero_mul])
-        (take x,
-          assume IH : ∀x', x' ≤ x → x' = x' div y * y + x' mod y,
-          show succ x = succ x div y * y + succ x mod y, from
-            if H1 : succ x < y then
-                have H2 : succ x div y = 0, from div_eq_zero_of_lt H1,
-                have H3 : succ x mod y = succ x, from mod_eq_of_lt H1,
-                H2⁻¹ ▸ H3⁻¹ ▸ !zero_mul⁻¹ ▸ !zero_add⁻¹
-            else
-                have H2 : y ≤ succ x, from le_of_not_gt H1,
-                have H3 : succ x div y = succ ((succ x - y) div y), from div_eq_succ_sub_div H H2,
-                have H4 : succ x mod y = (succ x - y) mod y, from mod_eq_sub_mod H H2,
-                have H5 : succ x - y < succ x, from sub_lt !succ_pos H,
-                have H6 : succ x - y ≤ x, from le_of_lt_succ H5,
-                (calc
-                  succ x div y * y + succ x mod y =
-                          succ ((succ x - y) div y) * y + succ x mod y      : H3
-                    ... = ((succ x - y) div y) * y + y + succ x mod y       : succ_mul
-                    ... = ((succ x - y) div y) * y + y + (succ x - y) mod y : H4
-                    ... = ((succ x - y) div y) * y + (succ x - y) mod y + y : add.right_comm
-                    ... = succ x - y + y                                    : {!(IH _ H6)⁻¹}
-                    ... = succ x                                         : sub_add_cancel H2)⁻¹))
+        ... = x                           : mod_zero)⁻¹,
+  intro y H,
+  show x = x div y * y + x mod y,
+  begin
+    eapply nat.case_strong_induction_on x,
+    show 0 = (0 div y) * y + 0 mod y, by rewrite [zero_mod, add_zero, zero_div, zero_mul],
+    intro x IH,
+    show succ x = succ x div y * y + succ x mod y, from
+      if H1 : succ x < y then
+         assert H2 : succ x div y = 0, from div_eq_zero_of_lt H1,
+         assert H3 : succ x mod y = succ x, from mod_eq_of_lt H1,
+         begin rewrite [H2, H3, zero_mul, zero_add] end
+      else
+         have H2 : y ≤ succ x, from le_of_not_gt H1,
+         assert H3 : succ x div y = succ ((succ x - y) div y), from div_eq_succ_sub_div H H2,
+         assert H4 : succ x mod y = (succ x - y) mod y, from mod_eq_sub_mod H H2,
+         have H5 : succ x - y < succ x, from sub_lt !succ_pos H,
+         assert H6 : succ x - y ≤ x, from le_of_lt_succ H5,
+         (calc
+             succ x div y * y + succ x mod y =
+                  succ ((succ x - y) div y) * y + succ x mod y      : by rewrite H3
+            ... = ((succ x - y) div y) * y + y + succ x mod y       : by rewrite succ_mul
+            ... = ((succ x - y) div y) * y + y + (succ x - y) mod y : by rewrite H4
+            ... = ((succ x - y) div y) * y + (succ x - y) mod y + y : add.right_comm
+            ... = succ x - y + y                                    : by rewrite -(IH _ H6)
+            ... = succ x                                            : sub_add_cancel H2)⁻¹
+  end
+end
 
 theorem mod_eq_sub_div_mul (x y : ℕ) : x mod y = x - x div y * y :=
 eq_sub_of_add_eq (!add.comm ▸ !eq_div_mul_add_mod)⁻¹
@@ -244,7 +253,8 @@ have H6 : y > 0, from lt_of_le_of_lt !zero_le H1,
 show q1 = q2, from eq_of_mul_eq_mul_right H6 H5
 
 theorem mul_div_mul_left {z : ℕ} (x y : ℕ) (zpos : z > 0) : (z * x) div (z * y) = x div y :=
-if H : y = 0 then H⁻¹ ▸ !mul_zero⁻¹ ▸ !div_zero⁻¹ ▸ !div_zero
+if H : y = 0 then
+    by rewrite [H, mul_zero, *div_zero]
 else
     have ypos : y > 0, from pos_of_ne_zero H,
     have zypos : z * y > 0, from mul_pos zpos ypos,
@@ -533,15 +543,16 @@ iff.mp (!div_le_iff_le_mul_of_div H1 H2) H3
 -- needed for integer division
 theorem mul_sub_div_of_lt {m n k : ℕ} (H : k < m * n) :
   (m * n - (k + 1)) div m = n - k div m - 1 :=
-have H1 : k div m < n, from div_lt_of_lt_mul (!mul.comm ▸ H),
-have H2 : n - k div m ≥ 1, from
-  le_sub_of_add_le (calc
-    1 + k div m = succ (k div m) : add.comm
-            ... ≤ n              : succ_le_of_lt H1),
-assert H3 : n - k div m = n - k div m - 1 + 1, from (sub_add_cancel H2)⁻¹,
-assert H4 : m > 0, from pos_of_ne_zero (assume H': m = 0, not_lt_zero _ (!zero_mul ▸ H' ▸ H)),
-have H5   : k mod m + 1 ≤ m, from succ_le_of_lt (!mod_lt H4),
-assert H6 : m - (k mod m + 1) < m, from sub_lt_self H4 !succ_pos,
+begin
+  have H1 : k div m < n, from div_lt_of_lt_mul (!mul.comm ▸ H),
+  have H2 : n - k div m ≥ 1, from
+    le_sub_of_add_le (calc
+       1 + k div m = succ (k div m) : add.comm
+               ... ≤ n              : succ_le_of_lt H1),
+  have H3 : n - k div m = n - k div m - 1 + 1, from (sub_add_cancel H2)⁻¹,
+  have H4 : m > 0, from pos_of_ne_zero (assume H': m = 0, not_lt_zero _ (!zero_mul ▸ H' ▸ H)),
+  have H5   : k mod m + 1 ≤ m, from succ_le_of_lt (!mod_lt H4),
+  have H6 : m - (k mod m + 1) < m, from sub_lt_self H4 !succ_pos,
 calc
   (m * n - (k + 1)) div m = (m * n - (k div m * m + k mod m + 1)) div m : eq_div_mul_add_mod
      ... = (m * n - k div m * m - (k mod m + 1)) div m                  : by rewrite [*sub_sub]
@@ -554,7 +565,7 @@ calc
                by rewrite [add.comm, (add_mul_div_self H4)]
      ... = n - k div m - 1                                              :
                by rewrite [div_eq_zero_of_lt H6, zero_add]
-
+end
 
 private lemma div_div_aux (a b c : nat) : b > 0 → c > 0 → (a div b) div c = a div (b * c) :=
 suppose b > 0, suppose c > 0,

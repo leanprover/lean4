@@ -169,14 +169,14 @@ section linear_ordered_field
     assert H1 : (a * d - c * b) / (c * d) < 0,     by rewrite [mul.comm c b]; exact H,
     assert H2 : a / c - b / d < 0,                 by rewrite [!div_sub_div Hc Hd]; exact H1,
     assert H3 : a / c - b / d + b / d < 0 + b / d, from add_lt_add_right H2 _,
-    begin rewrite [zero_add at H3, neg_add_cancel_right at H3], exact H3 end
+    begin rewrite [zero_add at H3, sub_eq_add_neg at H3, neg_add_cancel_right at H3], exact H3 end
 
   theorem div_le_div_of_mul_sub_mul_div_nonpos (Hc : c ≠ 0) (Hd : d ≠ 0)
       (H : (a * d - b * c) / (c * d) ≤ 0) : a / c ≤ b / d :=
     assert H1 : (a * d - c * b) / (c * d) ≤ 0,     by rewrite [mul.comm c b]; exact H,
     assert H2 : a / c - b / d ≤ 0,                 by rewrite [!div_sub_div Hc Hd]; exact H1,
     assert H3 : a / c - b / d + b / d ≤ 0 + b / d, from add_le_add_right H2 _,
-    begin rewrite [zero_add at H3, neg_add_cancel_right at H3], exact H3 end
+    begin rewrite [zero_add at H3, sub_eq_add_neg at H3, neg_add_cancel_right at H3], exact H3 end
 
   theorem div_pos_of_pos_of_pos (Ha : 0 < a) (Hb : 0 < b) : 0 < a / b :=
     begin

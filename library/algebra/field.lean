@@ -24,11 +24,13 @@ section division_ring
   variables [s : division_ring A] {a b c : A}
   include s
 
-  definition divide (a b : A) : A := a * b⁻¹
-  infix [priority algebra.prio] / := divide
+  protected definition division (a b : A) : A := a * b⁻¹
 
-  -- only in this file
-  local attribute divide [reducible]
+  definition division_ring_has_division [reducible] [instance] : has_division A :=
+  has_division.mk algebra.division
+
+  lemma division.def (a b : A) : a / b = a * b⁻¹ :=
+  rfl
 
   theorem mul_inv_cancel (H : a ≠ 0) : a * a⁻¹ = 1 :=
   division_ring.mul_inv_cancel H
@@ -39,7 +41,7 @@ section division_ring
   theorem inv_eq_one_div (a : A) : a⁻¹ = 1 / a := !one_mul⁻¹
 
   theorem div_eq_mul_one_div (a b : A) : a / b = a * (1 / b) :=
-    by rewrite [↑divide, one_mul]
+    by rewrite [*division.def, one_mul]
 
   theorem mul_one_div_cancel (H : a ≠ 0) : a * (1 / a) = 1 :=
     by rewrite [-inv_eq_one_div, (mul_inv_cancel H)]
@@ -62,7 +64,7 @@ section division_ring
   by rewrite [-mul_one, inv_mul_cancel (ne.symm (@zero_ne_one A _))]
 
   theorem div_one (a : A) : a / 1 = a :=
-    by rewrite [↑divide, one_inv_eq, mul_one]
+    by rewrite [*division.def, one_inv_eq, mul_one]
 
   theorem zero_div (a : A) : 0 / a = 0 := !zero_mul
 
@@ -129,7 +131,7 @@ section division_ring
 
   theorem div_neg_eq_neg_div (b : A) (Ha : a ≠ 0) : b / (- a) = - (b / a) :=
     calc
-      b / (- a) = b * (1 / (- a)) : inv_eq_one_div
+      b / (- a) = b * (1 / (- a)) : by rewrite -inv_eq_one_div
             ... = b * -(1 / a)    : division_ring.one_div_neg_eq_neg_one_div Ha
             ... = -(b * (1 / a))  : neg_mul_eq_mul_neg
             ... = - (b * a⁻¹)     : inv_eq_one_div
@@ -155,10 +157,10 @@ section division_ring
       ... = (b * a)⁻¹           : inv_eq_one_div)
 
   theorem mul_div_cancel (a : A) {b : A} (Hb : b ≠ 0) : a * b / b = a :=
-    by rewrite [↑divide, mul.assoc, (mul_inv_cancel Hb), mul_one]
+    by rewrite [*division.def, mul.assoc, (mul_inv_cancel Hb), mul_one]
 
   theorem div_mul_cancel (a : A) {b : A} (Hb : b ≠ 0) : a / b * b = a :=
-    by rewrite [↑divide, mul.assoc, (inv_mul_cancel Hb), mul_one]
+    by rewrite [*division.def, mul.assoc, (inv_mul_cancel Hb), mul_one]
 
   theorem div_add_div_same (a b c : A) : a / c + b / c = (a + b) / c := !right_distrib⁻¹
 
@@ -173,7 +175,7 @@ section division_ring
   theorem one_div_mul_sub_mul_one_div_eq_one_div_add_one_div (Ha : a ≠ 0) (Hb : b ≠ 0) :
           (1 / a) * (b - a) * (1 / b) = 1 / a - 1 / b :=
     by rewrite [(mul_sub_left_distrib (1 / a)), (one_div_mul_cancel Ha), mul_sub_right_distrib,
-      one_mul, mul.assoc, (mul_one_div_cancel Hb), mul_one, one_mul]
+      one_mul, mul.assoc, (mul_one_div_cancel Hb), mul_one]
 
   theorem div_eq_one_iff_eq (a : A) {b : A} (Hb : b ≠ 0) : a / b = 1 ↔ a = b :=
     iff.intro
@@ -218,7 +220,6 @@ structure field [class] (A : Type) extends division_ring A, comm_ring A
 section field
   variables [s : field A] {a b c d: A}
   include s
-  local attribute divide [reducible]
 
   theorem field.one_div_mul_one_div (Ha : a ≠ 0) (Hb : b ≠ 0) : (1 / a) * (1 / b) =  1 / (a * b) :=
      by rewrite [(division_ring.one_div_mul_one_div Ha Hb), mul.comm b]
@@ -246,12 +247,12 @@ section field
 
   theorem one_div_add_one_div (Ha : a ≠ 0) (Hb : b ≠ 0) : 1 / a + 1 / b = (a + b) / (a * b) :=
     assert a * b ≠ 0, from (division_ring.mul_ne_zero Ha Hb),
-    by rewrite [add.comm, -(field.div_mul_left Ha this), -(field.div_mul_right Hb this), ↑divide,
+    by rewrite [add.comm, -(field.div_mul_left Ha this), -(field.div_mul_right Hb this), *division.def,
                 -right_distrib]
 
   theorem field.div_mul_div (a : A) {b : A} (c : A) {d : A} (Hb : b ≠ 0) (Hd : d ≠ 0) :
       (a / b) * (c / d) = (a * c) / (b * d) :=
-     by rewrite [↑divide, 2 mul.assoc, (mul.comm b⁻¹), mul.assoc, (mul_inv_eq Hd Hb)]
+     by rewrite [*division.def, 2 mul.assoc, (mul.comm b⁻¹), mul.assoc, (mul_inv_eq Hd Hb)]
 
   theorem mul_div_mul_left (a : A) {b c : A} (Hb : b ≠ 0) (Hc : c ≠ 0) :
       (c * a) / (c * b) = a / b :=
@@ -262,7 +263,7 @@ section field
     by rewrite [(mul.comm a), (mul.comm b), (!mul_div_mul_left Hb Hc)]
 
   theorem div_mul_eq_mul_div (a b c : A) : (b / c) * a = (b * a) / c :=
-    by rewrite [↑divide, mul.assoc, (mul.comm c⁻¹), -mul.assoc]
+    by rewrite [*division.def, mul.assoc, (mul.comm c⁻¹), -mul.assoc]
 
   theorem field.div_mul_eq_mul_div_comm (a b : A) {c : A} (Hc : c ≠ 0) :
       (b / c) * a = b * (a / c) :=
@@ -275,7 +276,7 @@ section field
 
   theorem div_sub_div (a : A) {b : A} (c : A) {d : A} (Hb : b ≠ 0) (Hd : d ≠ 0) :
       (a / b) - (c / d) = ((a * d) - (b * c)) / (b * d) :=
-      by rewrite [↑sub, neg_eq_neg_one_mul, -mul_div_assoc, (!div_add_div Hb Hd),
+      by rewrite [*sub_eq_add_neg, neg_eq_neg_one_mul, -mul_div_assoc, (!div_add_div Hb Hd),
          -mul.assoc, (mul.comm b), mul.assoc, -neg_eq_neg_one_mul]
 
   theorem mul_eq_mul_of_div_eq_div (a : A) {b : A} (c : A) {d : A} (Hb : b ≠ 0)
@@ -339,7 +340,7 @@ section discrete_field
   theorem one_div_zero : 1 / 0 = (0:A) :=
     calc
       1 / 0 = 1 * 0⁻¹ : refl
-        ... = 1 * 0 : discrete_field.inv_zero A
+        ... = 1 * 0   : inv_zero
         ... = 0 : mul_zero
 
   theorem div_zero (a : A) : a / 0 = 0 := by rewrite [div_eq_mul_one_div, one_div_zero, mul_zero]

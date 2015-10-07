@@ -116,7 +116,7 @@ begin
   induction i with [i, ih],
     {exfalso, exact !nat.lt.irrefl ipos},
   have xige1 : x^i ≥ 1, from pow_ge_one _ (le_of_lt xgt1),
-  rewrite [pow_succ, -mul_one 1, ↑has_lt.gt],
+  rewrite [pow_succ, -mul_one 1],
   apply mul_lt_mul xgt1 xige1 zero_lt_one,
   apply le_of_lt xpos
 end

@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 
 prelude
-import init.logic init.bool
+import init.logic init.bool init.priority
 open bool
 
 definition pos_num.is_inhabited [instance] : inhabited pos_num :=
@@ -117,11 +117,12 @@ end num
 -- the coercion from num to nat is defined here,
 -- so that it can already be used in init.tactic
 namespace nat
+  protected definition prio := num.add std.priority.default 100
 
-  definition add (a b : nat) : nat :=
+  protected definition add (a b : nat) : nat :=
   nat.rec_on b a (λ b₁ r, succ r)
 
-  notation a + b := add a b
+  definition nat_has_add [reducible] [instance] [priority nat.prio] : has_add nat := has_add.mk nat.add
 
   definition of_num [coercion] (n : num) : nat :=
   num.rec zero

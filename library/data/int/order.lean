@@ -8,19 +8,22 @@ and transfer the results.
 -/
 import .basic algebra.ordered_ring
 open nat
+open - [notations] algebra
 open decidable
 open int eq.ops
 
 namespace int
 
 private definition nonneg (a : ℤ) : Prop := int.cases_on a (take n, true) (take n, false)
-definition le (a b : ℤ) : Prop := nonneg (b - a)
-definition lt (a b : ℤ) : Prop := le (a + 1) b
+protected definition le (a b : ℤ) : Prop := nonneg (b - a)
 
-infix [priority int.prio] - := int.sub
-infix [priority int.prio] <= := int.le
-infix [priority int.prio] ≤  := int.le
-infix [priority int.prio] <  := int.lt
+definition int_has_le [instance] [reducible] [priority int.prio]: has_le int :=
+has_le.mk int.le
+
+protected definition lt (a b : ℤ) : Prop := (a + 1) ≤ b
+
+definition int_has_lt [instance] [reducible] [priority int.prio]: has_lt int :=
+has_lt.mk int.lt
 
 local attribute nonneg [reducible]
 private definition decidable_nonneg [instance] (a : ℤ) : decidable (nonneg a) := int.cases_on a _ _
@@ -34,7 +37,7 @@ private theorem nonneg_or_nonneg_neg (a : ℤ) : nonneg a ∨ nonneg (-a) :=
 int.cases_on a (take n, or.inl trivial) (take n, or.inr trivial)
 
 theorem le.intro {a b : ℤ} {n : ℕ} (H : a + n = b) : a ≤ b :=
-have n = b - a, from eq_add_neg_of_add_eq (!add.comm ▸ H),
+have n = b - a, from eq_add_neg_of_add_eq (begin rewrite [add.comm, H] end), -- !add.comm ▸ H),
 show nonneg (b - a), from this ▸ trivial
 
 theorem le.elim {a b : ℤ} (H : a ≤ b) : ∃n : ℕ, a + n = b :=
@@ -64,7 +67,7 @@ theorem lt_add_succ (a : ℤ) (n : ℕ) : a < a + succ n :=
 le.intro (show a + 1 + n = a + succ n, from
   calc
     a + 1 + n = a + (1 + n) : add.assoc
-      ... = a + (n + 1)     : nat.add.comm
+      ... = a + (n + 1)     : by rewrite (add.comm 1 n)
       ... = a + succ n      : rfl)
 
 theorem lt.intro {a b : ℤ} {n : ℕ} (H : a + succ n = b) : a < b :=
@@ -191,9 +194,9 @@ le.intro
   (eq.symm
     (calc
       a * b = (0 + n) * b : Hn
-        ... = n * b       : nat.zero_add
+        ... = n * b       : zero_add
         ... = n * (0 + m) : {Hm⁻¹}
-        ... = n * m       : nat.zero_add
+        ... = n * m       : zero_add
         ... = 0 + n * m   : zero_add))
 
 theorem mul_pos {a b : ℤ} (Ha : 0 < a) (Hb : 0 < b) : 0 < a * b :=
@@ -203,14 +206,13 @@ lt.intro
   (eq.symm
     (calc
       a * b = (0 + nat.succ n) * b                     : Hn
-        ... = nat.succ n * b                           : nat.zero_add
+        ... = nat.succ n * b                           : zero_add
         ... = nat.succ n * (0 + nat.succ m)            : {Hm⁻¹}
-        ... = nat.succ n * nat.succ m                  : nat.zero_add
+        ... = nat.succ n * nat.succ m                  : zero_add
         ... = of_nat (nat.succ n * nat.succ m)         : of_nat_mul
         ... = of_nat (nat.succ n * m + nat.succ n)     : nat.mul_succ
         ... = of_nat (nat.succ (nat.succ n * m + n))   : nat.add_succ
         ... = 0 + nat.succ (nat.succ n * m + n)        : zero_add))
-
 
 theorem zero_lt_one : (0 : ℤ) < 1 := trivial
 
@@ -231,61 +233,32 @@ theorem lt_of_le_of_lt  {a b c : ℤ} (Hab : a ≤ b) (Hbc : b < c) : a < c :=
   (iff.mpr !lt_iff_le_and_ne) (and.intro Hac
     (assume Heq, not_le_of_gt (Heq⁻¹ ▸ Hbc) Hab))
 
-section migrate_algebra
-  open [classes] algebra
-
-  protected definition linear_ordered_comm_ring [reducible] :
+protected definition linear_ordered_comm_ring [reducible] [instance] :
     algebra.linear_ordered_comm_ring int :=
-  ⦃algebra.linear_ordered_comm_ring, int.integral_domain,
-    le               := le,
-    le_refl          := le.refl,
-    le_trans         := @le.trans,
-    le_antisymm      := @le.antisymm,
-    lt               := lt,
-    le_of_lt         := @le_of_lt,
-    lt_irrefl        := lt.irrefl,
-    lt_of_lt_of_le   := @lt_of_lt_of_le,
-    lt_of_le_of_lt   := @lt_of_le_of_lt,
-    add_le_add_left  := @add_le_add_left,
-    mul_nonneg       := @mul_nonneg,
-    mul_pos          := @mul_pos,
-    le_iff_lt_or_eq  := le_iff_lt_or_eq,
-    le_total         := le.total,
-    zero_ne_one      := zero_ne_one,
-    zero_lt_one      := zero_lt_one,
-    add_lt_add_left  := @add_lt_add_left⦄
+⦃algebra.linear_ordered_comm_ring, int.integral_domain,
+  le               := int.le,
+  le_refl          := le.refl,
+  le_trans         := @le.trans,
+  le_antisymm      := @le.antisymm,
+  lt               := int.lt,
+  le_of_lt         := @le_of_lt,
+  lt_irrefl        := lt.irrefl,
+  lt_of_lt_of_le   := @lt_of_lt_of_le,
+  lt_of_le_of_lt   := @lt_of_le_of_lt,
+  add_le_add_left  := @add_le_add_left,
+  mul_nonneg       := @mul_nonneg,
+  mul_pos          := @mul_pos,
+  le_iff_lt_or_eq  := le_iff_lt_or_eq,
+  le_total         := le.total,
+  zero_ne_one      := zero_ne_one,
+  zero_lt_one      := zero_lt_one,
+  add_lt_add_left  := @add_lt_add_left⦄
 
-  protected definition decidable_linear_ordered_comm_ring [reducible] :
+protected definition decidable_linear_ordered_comm_ring [reducible] [instance] :
     algebra.decidable_linear_ordered_comm_ring int :=
-  ⦃algebra.decidable_linear_ordered_comm_ring,
-    int.linear_ordered_comm_ring,
-    decidable_lt := decidable_lt⦄
-
-  local attribute int.integral_domain [instance]
-  local attribute int.linear_ordered_comm_ring [instance]
-  local attribute int.decidable_linear_ordered_comm_ring [instance]
-
-  definition ge [reducible] (a b : ℤ) := algebra.has_le.ge a b
-  definition gt [reducible] (a b : ℤ) := algebra.has_lt.gt a b
-  infix [priority int.prio] >= := int.ge
-  infix [priority int.prio] ≥  := int.ge
-  infix [priority int.prio] >  := int.gt
-  definition decidable_ge [instance] (a b : ℤ) : decidable (a ≥ b) :=
-  show decidable (b ≤ a), from _
-  definition decidable_gt [instance] (a b : ℤ) : decidable (a > b) :=
-  show decidable (b < a), from _
-  definition min : ℤ → ℤ → ℤ := algebra.min
-  definition max : ℤ → ℤ → ℤ := algebra.max
-  definition abs : ℤ → ℤ := algebra.abs
-  definition sign : ℤ → ℤ := algebra.sign
-
-  migrate from algebra with int
-    replacing dvd → dvd, sub → sub, has_le.ge → ge, has_lt.gt → gt, min → min, max → max,
-            abs → abs, sign → sign
-
-  attribute le.trans ge.trans lt.trans gt.trans [trans]
-  attribute lt_of_lt_of_le lt_of_le_of_lt gt_of_gt_of_ge gt_of_ge_of_gt [trans]
-end migrate_algebra
+⦃algebra.decidable_linear_ordered_comm_ring,
+ int.linear_ordered_comm_ring,
+ decidable_lt := decidable_lt⦄
 
 /- more facts specific to int -/
 
@@ -325,12 +298,12 @@ theorem nat_abs_abs (a : ℤ) : nat_abs (abs a) = nat_abs a :=
 abs.by_cases rfl !nat_abs_neg
 
 theorem lt_of_add_one_le {a b : ℤ} (H : a + 1 ≤ b) : a < b :=
-obtain n (H1 : a + 1 + n = b), from le.elim H,
+obtain (n : nat) (H1 : a + 1 + n = b), from le.elim H,
 have a + succ n = b, by rewrite [-H1, add.assoc, add.comm 1],
 lt.intro this
 
 theorem add_one_le_of_lt {a b : ℤ} (H : a < b) : a + 1 ≤ b :=
-obtain n (H1 : a + succ n = b), from lt.elim H,
+obtain (n : nat) (H1 : a + succ n = b), from lt.elim H,
 have a + 1 + n = b, by rewrite [-H1, add.assoc, add.comm 1],
 le.intro this
 
@@ -342,7 +315,7 @@ have H1 : a + 1 ≤ b + 1, from add_one_le_of_lt H,
 le_of_add_le_add_right H1
 
 theorem sub_one_le_of_lt {a b : ℤ} (H : a ≤ b) : a - 1 < b :=
-lt_of_add_one_le (!sub_add_cancel⁻¹ ▸ H)
+lt_of_add_one_le (begin rewrite algebra.sub_add_cancel, exact H end)
 
 theorem lt_of_sub_one_le {a b : ℤ} (H : a - 1 < b) : a ≤ b :=
 !sub_add_cancel ▸ add_one_le_of_lt H
@@ -358,8 +331,8 @@ sign_of_pos (of_nat_pos !nat.succ_pos)
 
 theorem exists_eq_neg_succ_of_nat {a : ℤ} : a < 0 → ∃m : ℕ, a = -[1+m] :=
 int.cases_on a
-  (take m H, absurd (of_nat_nonneg m : 0 ≤ m) (not_le_of_gt H))
-  (take m H, exists.intro m rfl)
+  (take (m : nat) H, absurd (of_nat_nonneg m : 0 ≤ m) (not_le_of_gt H))
+  (take (m : nat) H, exists.intro m rfl)
 
 theorem eq_one_of_mul_eq_one_right {a b : ℤ} (H : a ≥ 0) (H' : a * b = 1) : a = 1 :=
 have a * b > 0, by rewrite H'; apply trivial,
@@ -397,13 +370,13 @@ theorem exists_least_of_bdd {P : ℤ → Prop} [HP : decidable_pred P]
     cases Hinh with [elt, Helt],
     existsi b + of_nat (least (λ n, P (b + of_nat n)) (nat.succ (nat_abs (elt - b)))),
     have Heltb : elt > b, begin
-      apply int.lt_of_not_ge,
+      apply lt_of_not_ge,
       intro Hge,
       apply (Hb _ Hge) Helt
     end,
     have H' : P (b + of_nat (nat_abs (elt - b))), begin
-      rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt (iff.mpr !int.sub_pos_iff_lt Heltb)),
-              int.add.comm, int.sub_add_cancel],
+      rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt (iff.mpr !sub_pos_iff_lt Heltb)),
+              add.comm, algebra.sub_add_cancel],
       apply Helt
     end,
     apply and.intro,
@@ -411,16 +384,16 @@ theorem exists_least_of_bdd {P : ℤ → Prop} [HP : decidable_pred P]
     intros z Hz,
     cases em (z ≤ b) with [Hzb, Hzb],
     apply Hb _ Hzb,
-    let Hzb' := int.lt_of_not_ge Hzb,
-    let Hpos := iff.mpr !int.sub_pos_iff_lt Hzb',
+    let Hzb' := lt_of_not_ge Hzb,
+    let Hpos := iff.mpr !sub_pos_iff_lt Hzb',
     have Hzbk : z = b + of_nat (nat_abs (z - b)),
-      by rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos), int.add.comm, int.sub_add_cancel],
+      by rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos), int.add.comm, algebra.sub_add_cancel],
     have Hk : nat_abs (z - b) < least (λ n, P (b + of_nat n)) (nat.succ (nat_abs (elt - b))), begin
-     let Hz' := iff.mp !int.lt_add_iff_sub_lt_left Hz,
+     let Hz' := iff.mp !lt_add_iff_sub_lt_left Hz,
      rewrite [-of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos) at Hz'],
      apply lt_of_of_nat_lt_of_nat Hz'
     end,
-    let Hk' := nat.not_le_of_gt Hk,
+    let Hk' := algebra.not_le_of_gt Hk,
     rewrite Hzbk,
     apply λ p, mt (ge_least_of_lt _ p) Hk',
     apply nat.lt.trans Hk,
@@ -435,13 +408,13 @@ theorem exists_greatest_of_bdd {P : ℤ → Prop} [HP : decidable_pred P]
     cases Hinh with [elt, Helt],
     existsi b - of_nat (least (λ n, P (b - of_nat n)) (nat.succ (nat_abs (b - elt)))),
     have Heltb : elt < b, begin
-      apply int.lt_of_not_ge,
+      apply lt_of_not_ge,
       intro Hge,
       apply (Hb _ Hge) Helt
     end,
     have H' : P (b - of_nat (nat_abs (b - elt))), begin
-      rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt (iff.mpr !int.sub_pos_iff_lt Heltb)),
-              int.sub_sub_self],
+      rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt (iff.mpr !sub_pos_iff_lt Heltb)),
+              sub_sub_self],
       apply Helt
     end,
     apply and.intro,
@@ -449,16 +422,16 @@ theorem exists_greatest_of_bdd {P : ℤ → Prop} [HP : decidable_pred P]
     intros z Hz,
     cases em (z ≥ b) with [Hzb, Hzb],
     apply Hb _ Hzb,
-    let Hzb' := int.lt_of_not_ge Hzb,
-    let Hpos := iff.mpr !int.sub_pos_iff_lt Hzb',
+    let Hzb' := lt_of_not_ge Hzb,
+    let Hpos := iff.mpr !sub_pos_iff_lt Hzb',
     have Hzbk : z = b - of_nat (nat_abs (b - z)),
-      by rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos), int.sub_sub_self],
+      by rewrite [of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos), sub_sub_self],
     have Hk : nat_abs (b - z) < least (λ n, P (b - of_nat n)) (nat.succ (nat_abs (b - elt))), begin
-      let Hz' := iff.mp !int.lt_add_iff_sub_lt_left (iff.mpr !int.lt_add_iff_sub_lt_right Hz),
+      let Hz' := iff.mp !lt_add_iff_sub_lt_left (iff.mpr !lt_add_iff_sub_lt_right Hz),
       rewrite [-of_nat_nat_abs_of_nonneg (int.le_of_lt Hpos) at Hz'],
       apply lt_of_of_nat_lt_of_nat Hz'
     end,
-    let Hk' := nat.not_le_of_gt Hk,
+    let Hk' := algebra.not_le_of_gt Hk,
     rewrite Hzbk,
     apply λ p, mt (ge_least_of_lt _ p) Hk',
     apply nat.lt.trans Hk,

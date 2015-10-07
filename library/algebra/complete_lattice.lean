@@ -68,10 +68,10 @@ lemma le_inf {a b c : A} : c ≤ a → c ≤ b → c ≤ a ⊓ b :=
 assume h₁ h₂,
 le_Inf (take x, suppose x ∈ '{a, b},
   or.elim (eq_or_mem_of_mem_insert this)
-    (suppose x = a, by subst x; assumption)
+    (suppose x = a, begin subst x, exact h₁ end)
     (suppose x ∈ '{b},
       assert x = b, from !eq_of_mem_singleton this,
-      by subst x; assumption))
+      begin subst x, exact h₂ end))
 
 lemma le_sup_left (a b : A) : a ≤ a ⊔ b :=
 le_Sup !mem_insert

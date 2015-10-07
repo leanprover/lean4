@@ -107,23 +107,24 @@ theorem pow_inv_comm (a : A) : ∀m n, (a⁻¹)^m * a^n = a^n * (a⁻¹)^m
 
 end nat
 
-open int
+open nat int
 
 definition gpow (a : A) : ℤ → A
 | (of_nat n) := a^n
 | -[1+n]     := (a^(nat.succ n))⁻¹
 
+/-
 private lemma gpow_add_aux (a : A) (m n : nat) :
   gpow a ((of_nat m) + -[1+n]) = gpow a (of_nat m) * gpow a (-[1+n]) :=
 or.elim (nat.lt_or_ge m (nat.succ n))
-  (assume H : (#nat m < nat.succ n),
-    assert H1 : (#nat nat.succ n - m > nat.zero), from nat.sub_pos_of_lt H,
+  (assume H : (m < nat.succ n),
+    assert H1 : (nat.succ n - m > nat.zero), from nat.sub_pos_of_lt H,
     calc
       gpow a ((of_nat m) + -[1+n]) = gpow a (sub_nat_nat m (nat.succ n))  : rfl
-        ... = gpow a (-[1+ nat.pred (nat.sub (nat.succ n) m)])            : {sub_nat_nat_of_lt H}
-        ... = (pow a (nat.succ (nat.pred (nat.sub (nat.succ n) m))))⁻¹    : rfl
+        ... = gpow a (-[1+ nat.pred (sub (nat.succ n) m)])            : {sub_nat_nat_of_lt H}
+        ... = (pow a (nat.succ (nat.pred (sub (nat.succ n) m))))⁻¹    : rfl
         ... = (pow a (nat.succ n) * (pow a m)⁻¹)⁻¹                        :
-                by rewrite [nat.succ_pred_of_pos H1, pow_sub a (nat.le_of_lt H)]
+                by rewrite [succ_pred_of_pos H1, pow_sub a (nat.le_of_lt H)]
         ... = pow a m * (pow a (nat.succ n))⁻¹                            :
                 by rewrite [mul_inv, inv_inv]
         ... = gpow a (of_nat m) * gpow a (-[1+n])                         : rfl)
@@ -146,8 +147,9 @@ theorem gpow_add (a : A) : ∀i j : int, gpow a (i + j) = gpow a i * gpow a j
 
 theorem gpow_comm (a : A) (i j : ℤ) : gpow a i * gpow a j = gpow a j * gpow a i :=
 by rewrite [-*gpow_add, int.add.comm]
+-/
 end group
-
+/-
 section ordered_ring
 open nat
 variable [s : linear_ordered_ring A]
@@ -248,5 +250,6 @@ theorem add_imul (i j : ℤ) (a : A) : imul (i + j) a = imul i a + imul j a :=
 theorem imul_comm (i j : ℤ) (a : A) : imul i a + imul j a = imul j a + imul i a := gpow_comm a i j
 
 end add_group
+-/
 
 end algebra

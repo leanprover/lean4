@@ -7,6 +7,7 @@ Prime numbers.
 -/
 import data.nat logic.identities
 open bool
+open - [notations] algebra
 
 namespace nat
 open decidable

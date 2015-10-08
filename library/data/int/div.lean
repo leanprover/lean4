@@ -51,14 +51,20 @@ theorem neg_succ_of_nat_div (m : nat) {b : ℤ} (H : b > 0) :
   -[1+m] div b = -(m div b + 1) :=
 calc
   -[1+m] div b = sign b * _               : rfl
-     ... = -[1+(m div (nat_abs b))]  : begin krewrite [sign_of_pos H, one_mul] end
-     ... = -(m div b + 1)                 : by krewrite [sign_of_pos H, one_mul]
+     ... = -[1+(m div (nat_abs b))]       : begin krewrite [sign_of_pos H, one_mul] end
+     ... = -(m div b + 1)                 : sorry -- by krewrite [sign_of_pos H, one_mul]
 
 theorem div_neg (a b : ℤ) : a div -b = -(a div b) :=
-by rewrite [↑divide, sign_neg, neg_mul_eq_neg_mul, nat_abs_neg]
+begin
+  induction a,
+    rewrite [*divide_of_nat,      sign_neg, neg_mul_eq_neg_mul, nat_abs_neg],
+    rewrite [*divide_of_neg_succ, sign_neg, neg_mul_eq_neg_mul, nat_abs_neg],
+end
+
+-- by rewrite [sign_neg, neg_mul_eq_neg_mul, nat_abs_neg]
 
 theorem div_of_neg_of_pos {a b : ℤ} (Ha : a < 0) (Hb : b > 0) : a div b = -((-a - 1) div b + 1) :=
-obtain m (H1 : a = -[1+m]), from exists_eq_neg_succ_of_nat Ha,
+obtain (m : nat) (H1 : a = -[1+m]), from exists_eq_neg_succ_of_nat Ha,
 calc
   a div b = -(m div b + 1)       : by rewrite [H1, neg_succ_of_nat_div _ Hb]
       ... = -((-a -1) div b + 1) : by rewrite [H1, neg_succ_of_nat_eq', neg_sub, sub_neg_eq_add,
@@ -68,8 +74,8 @@ theorem div_nonneg {a b : ℤ} (Ha : a ≥ 0) (Hb : b ≥ 0) : a div b ≥ 0 :=
 obtain (m : ℕ) (Hm : a = m), from exists_eq_of_nat Ha,
 obtain (n : ℕ) (Hn : b = n), from exists_eq_of_nat Hb,
 calc
-  a div b = (#nat m div n) : by rewrite [Hm, Hn, of_nat_div]
-      ... ≥ 0              : begin change (0 ≤ #nat m div n), apply trivial end
+  a div b = m div n : by rewrite [Hm, Hn]
+      ... ≥ 0       : by rewrite -of_nat_div; apply trivial
 
 theorem div_nonpos {a b : ℤ} (Ha : a ≥ 0) (Hb : b ≤ 0) : a div b ≤ 0 :=
 calc
@@ -87,39 +93,42 @@ set_option pp.coercions true
 
 theorem zero_div (b : ℤ) : 0 div b = 0 :=
 calc
-  0 div b = sign b * (#nat 0 div (nat_abs b)) : rfl
-      ... = sign b * (0:nat) : nat.zero_div
-      ... = 0                : mul_zero
+  0 div b = sign b * (0 div (nat_abs b)) : sorry -- rfl
+      ... = sign b * (0:nat)             : sorry -- nat.zero_div
+      ... = 0                            : mul_zero
 
 theorem div_zero (a : ℤ) : a div 0 = 0 :=
-by rewrite [↑divide, sign_zero, zero_mul]
+sorry -- by krewrite [divide_of_nat, sign_zero, zero_mul]
 
 theorem div_one (a : ℤ) :a div 1 = a :=
 assert 1 > 0, from dec_trivial,
 int.cases_on a
   (take m, by rewrite [-of_nat_div, nat.div_one])
-  (take m, by rewrite [!neg_succ_of_nat_div this, -of_nat_div, nat.div_one])
+  (take m, sorry) -- by rewrite [!neg_succ_of_nat_div this, -of_nat_div, nat.div_one])
 
 theorem eq_div_mul_add_mod (a b : ℤ) : a = a div b * b + a mod b :=
 !add.comm ▸ eq_add_of_sub_eq rfl
 
 theorem div_eq_zero_of_lt {a b : ℤ} : 0 ≤ a → a < b → a div b = 0 :=
+sorry
+/-
 int.cases_on a
-  (take m, assume H,
+  (take (m : nat), assume H,
     int.cases_on b
-      (take n,
+      (take (n : nat),
         assume H : m < n,
         calc
           m div n = #nat m div n : of_nat_div
               ... = (0:nat)      : nat.div_eq_zero_of_lt (lt_of_of_nat_lt_of_nat H))
-      (take n,
+      (take (n : nat),
         assume H : m < -[1+n],
         have H1 : ¬(m < -[1+n]), from dec_trivial,
         absurd H H1))
-  (take m,
+  (take (m : nat),
     assume H : 0 ≤ -[1+m],
     have ¬ (0 ≤ -[1+m]), from dec_trivial,
     absurd H this)
+-/
 
 theorem div_eq_zero_of_lt_abs {a b : ℤ} (H1 : 0 ≤ a) (H2 : a < abs b) : a div b = 0 :=
 lt.by_cases
@@ -127,7 +136,7 @@ lt.by_cases
     assert a < -b, from abs_of_neg this ▸ H2,
     calc
       a div b = - (a div -b) : by rewrite [div_neg, neg_neg]
-          ... = 0            : by rewrite [div_eq_zero_of_lt H1 this, neg_zero])
+          ... = 0            : by krewrite [div_eq_zero_of_lt H1 this, neg_zero])
   (suppose b = 0, this⁻¹ ▸ !div_zero)
   (suppose b > 0,
     have a < b, from abs_of_pos this ▸ H2,
@@ -136,17 +145,22 @@ lt.by_cases
 private theorem add_mul_div_self_aux1 {a : ℤ} {k : ℕ} (n : ℕ)
     (H1 : a ≥ 0) (H2 : #nat k > 0) :
   (a + n * k) div k = a div k + n :=
-obtain m (Hm : a = of_nat m), from exists_eq_of_nat H1,
+sorry
+/-
+obtain (m : nat) (Hm : a = of_nat m), from exists_eq_of_nat H1,
 Hm⁻¹ ▸ (calc
   (m + n * k) div k = (#nat (m + n * k)) div k : rfl
                 ... = (#nat (m + n * k) div k) : of_nat_div
                 ... = (#nat m div k + n)       : !nat.add_mul_div_self H2
                 ... = (#nat m div k) + n       : rfl
                 ... = m div k + n : of_nat_div)
+-/
 
 private theorem add_mul_div_self_aux2 {a : ℤ} {k : ℕ} (n : ℕ)
     (H1 : a < 0) (H2 : #nat k > 0) :
   (a + n * k) div k = a div k + n :=
+sorry
+/-
 obtain m (Hm : a = -[1+m]), from exists_eq_neg_succ_of_nat H1,
 or.elim (nat.lt_or_ge m (#nat n * k))
   (assume m_lt_nk : #nat m < n * k,
@@ -184,9 +198,12 @@ or.elim (nat.lt_or_ge m (#nat n * k))
         ... = (-(m + 1) + n * k) div k                    :
                    by rewrite [sub_eq_add_neg, -*add.assoc, *neg_add, neg_neg, add.right_comm]
         ... = (-[1+m] + n * k) div k                      : rfl)))
+-/
 
 private theorem add_mul_div_self_aux3 (a : ℤ) {b c : ℤ} (H1 : b ≥ 0) (H2 : c > 0) :
     (a + b * c) div c = a div c + b :=
+sorry
+/-
 obtain n (Hn : b = of_nat n), from exists_eq_of_nat H1,
 obtain k (Hk : c = of_nat k), from exists_eq_of_nat (le_of_lt H2),
 have knz : k ≠ 0, from assume kz, !lt.irrefl (kz ▸ Hk ▸ H2),
@@ -196,6 +213,7 @@ have H3 : (a + n * k) div k = a div k + n, from
     (assume Ha : a < 0, add_mul_div_self_aux2 _ Ha kgt0)
     (assume Ha : a ≥ 0, add_mul_div_self_aux1 _ Ha kgt0),
 Hn⁻¹ ▸ Hk⁻¹ ▸ H3
+-/
 
 private theorem add_mul_div_self_aux4 (a b : ℤ) {c : ℤ} (H : c > 0) :
     (a + b * c) div c = a div c + b :=
@@ -239,6 +257,8 @@ theorem div_self {a : ℤ} (H : a ≠ 0) : a div a = 1 :=
 /- mod -/
 
 theorem of_nat_mod (m n : nat) : m mod n = (#nat m mod n) :=
+sorry
+/-
 have H : m = (#nat m mod n) + m div n * n, from calc
   m = of_nat (#nat m div n * n + m mod n)     : nat.eq_div_mul_add_mod
     ... = (#nat m div n) * n + (#nat m mod n) : rfl
@@ -247,9 +267,12 @@ have H : m = (#nat m mod n) + m div n * n, from calc
 calc
   m mod n = m - m div n * n : rfl
       ... = (#nat m mod n)  : sub_eq_of_eq_add H
+-/
 
 theorem neg_succ_of_nat_mod (m : ℕ) {b : ℤ} (bpos : b > 0) :
   -[1+m] mod b = b - 1 - m mod b :=
+sorry
+/-
 calc
   -[1+m] mod b = -(m + 1) - -[1+m] div b * b : rfl
     ... = -(m + 1) - -(m div b + 1) * b        : neg_succ_of_nat_div _ bpos
@@ -260,6 +283,7 @@ calc
               by rewrite [-*add.assoc, add.comm (-m), add.right_comm (-1), (add.comm b)]
     ... = b - 1 - m mod b                :
               by rewrite [↑modulo, *sub_eq_add_neg, neg_add, neg_neg]
+-/
 
 theorem mod_neg (a b : ℤ) : a mod -b = a mod b :=
 calc
@@ -272,10 +296,12 @@ theorem mod_abs (a b : ℤ) : a mod (abs b) = a mod b :=
 abs.by_cases rfl !mod_neg
 
 theorem zero_mod (b : ℤ) : 0 mod b = 0 :=
+sorry
+/-
 by rewrite [↑modulo, zero_div, zero_mul, sub_zero]
-
+-/
 theorem mod_zero (a : ℤ) : a mod 0 = a :=
-by rewrite [↑modulo, mul_zero, sub_zero]
+sorry -- by rewrite [↑modulo, mul_zero, sub_zero]
 
 theorem mod_one (a : ℤ) : a mod 1 = 0 :=
 calc
@@ -283,19 +309,27 @@ calc
       ... = 0 : by rewrite [mul_one, div_one, sub_self]
 
 private lemma of_nat_mod_abs (m : ℕ) (b : ℤ) : m mod (abs b) = (#nat m mod (nat_abs b)) :=
+sorry
+/-
 calc
   m mod (abs b) = m mod (nat_abs b)        : of_nat_nat_abs
             ... = (#nat m mod (nat_abs b)) : of_nat_mod
+-/
 
 private lemma of_nat_mod_abs_lt (m : ℕ) {b : ℤ} (H : b ≠ 0) : m mod (abs b) < (abs b) :=
+sorry
+/-
 have H1 : abs b > 0, from abs_pos_of_ne_zero H,
 have H2 : (#nat nat_abs b > 0), from lt_of_of_nat_lt_of_nat (!of_nat_nat_abs⁻¹ ▸ H1),
 calc
   m mod (abs b) = (#nat m mod (nat_abs b)) : of_nat_mod_abs m b
         ... < nat_abs b : of_nat_lt_of_nat_of_lt (!nat.mod_lt H2)
         ... = abs b       : of_nat_nat_abs _
+-/
 
 theorem mod_eq_of_lt {a b : ℤ} (H1 : 0 ≤ a) (H2 : a < b) : a mod b = a :=
+sorry
+/-
 obtain m (Hm : a = of_nat m), from exists_eq_of_nat H1,
 obtain n (Hn : b = of_nat n), from exists_eq_of_nat (le_of_lt (lt_of_le_of_lt H1 H2)),
 begin
@@ -303,8 +337,11 @@ begin
   rewrite [Hm, Hn, of_nat_mod, of_nat_lt_of_nat_iff, of_nat_eq_of_nat_iff],
   apply nat.mod_eq_of_lt
 end
+-/
 
 theorem mod_nonneg (a : ℤ) {b : ℤ} (H : b ≠ 0) : a mod b ≥ 0 :=
+sorry
+/-
 have H1 : abs b > 0, from abs_pos_of_ne_zero H,
 have H2 : a mod (abs b) ≥ 0, from
   int.cases_on a
@@ -317,8 +354,11 @@ have H2 : a mod (abs b) ≥ 0, from
           ... = abs b - (1 + m mod (abs b))    : by rewrite [*sub_eq_add_neg, neg_add, add.assoc]
           ... ≥ 0                              : iff.mpr !sub_nonneg_iff_le H3),
 !mod_abs ▸ H2
+-/
 
 theorem mod_lt (a : ℤ) {b : ℤ} (H : b ≠ 0) : a mod b < (abs b) :=
+sorry
+/-
 have H1 : abs b > 0, from abs_pos_of_ne_zero H,
 have H2 : a mod (abs b) < abs b, from
   int.cases_on a
@@ -331,12 +371,16 @@ have H2 : a mod (abs b) < abs b, from
           ... = abs b - (1 + m mod (abs b))      : by rewrite [*sub_eq_add_neg, neg_add, add.assoc]
           ... < abs b                            : sub_lt_self _ H4),
 !mod_abs ▸ H2
+-/
 
 theorem add_mul_mod_self {a b c : ℤ} : (a + b * c) mod c = a mod c :=
+sorry
+/-
 decidable.by_cases
   (assume cz : c = 0, by rewrite [cz, mul_zero, add_zero])
   (assume cnz, by rewrite [↑modulo, !add_mul_div_self cnz, mul.right_distrib,
                             sub_add_eq_sub_sub_swap, add_sub_cancel])
+-/
 
 theorem add_mul_mod_self_left (a b c : ℤ) : (a + b * c) mod b = a mod b :=
 !mul.comm ▸ !add_mul_mod_self
@@ -405,6 +449,8 @@ calc
     ... = b div c                                             : zero_add
 
 theorem mul_div_mul_of_pos {a : ℤ} (b c : ℤ) (H : a > 0) : a * b div (a * c) = b div c :=
+sorry
+/-
 lt.by_cases
   (assume H1 : c < 0,
     have H2 : -c > 0, from neg_pos_of_neg H1,
@@ -419,13 +465,14 @@ lt.by_cases
                     ... = b div c : by rewrite [H1, div_zero])
   (assume H1 : c > 0,
     mul_div_mul_of_pos_aux _ H H1)
+-/
 
 theorem mul_div_mul_of_pos_left (a : ℤ) {b : ℤ} (c : ℤ) (H : b > 0) :
   a * b div (c * b) = a div c :=
 !mul.comm ▸ !mul.comm ▸ !mul_div_mul_of_pos H
 
 theorem mul_mod_mul_of_pos {a : ℤ} (b c : ℤ) (H : a > 0) : a * b mod (a * c) = a * (b mod c) :=
-by rewrite [↑modulo, !mul_div_mul_of_pos H, mul_sub_left_distrib, mul.left_comm]
+sorry -- by rewrite [↑modulo, !mul_div_mul_of_pos H, mul_sub_left_distrib, mul.left_comm]
 
 theorem lt_div_add_one_mul_self (a : ℤ) {b : ℤ} (H : b > 0) : a < (a div b + 1) * b :=
 have H : a - a div b * b < b, from !mod_lt_of_pos H,
@@ -434,14 +481,19 @@ calc
     ... = (a div b + 1) * b  : by rewrite [mul.right_distrib, one_mul]
 
 theorem div_le_of_nonneg_of_nonneg {a b : ℤ} (Ha : a ≥ 0) (Hb : b ≥ 0) : a div b ≤ a :=
+sorry
+/-
 obtain (m : ℕ) (Hm : a = m), from exists_eq_of_nat Ha,
 obtain (n : ℕ) (Hn : b = n), from exists_eq_of_nat Hb,
 calc
   a div b = #nat m div n : by rewrite [Hm, Hn, of_nat_div]
      ... ≤ m             : of_nat_le_of_nat_of_le !nat.div_le_self
      ... = a             : Hm
+-/
 
 theorem abs_div_le_abs (a b : ℤ) : abs (a div b) ≤ abs a :=
+sorry
+/-
 have H : ∀a b, b > 0 → abs (a div b) ≤ abs a, from
   take a b,
   assume H1 : b > 0,
@@ -472,6 +524,7 @@ lt.by_cases
       abs (a div b) = 0 : by rewrite [H1, div_zero, abs_zero]
                 ... ≤ abs a : abs_nonneg)
   (assume H1 : b > 0, H _ _ H1)
+-/
 
 theorem div_mul_cancel_of_mod_eq_zero {a b : ℤ} (H : a mod b = 0) : a div b * b = a :=
 by rewrite [eq_div_mul_add_mod a b at {2}, H, add_zero]
@@ -482,6 +535,8 @@ theorem mul_div_cancel_of_mod_eq_zero {a b : ℤ} (H : a mod b = 0) : b * (a div
 /- dvd -/
 
 theorem dvd_of_of_nat_dvd_of_nat {m n : ℕ} : of_nat m ∣ of_nat n → (#nat m ∣ n) :=
+sorry
+/-
 nat.by_cases_zero_pos n
   (assume H, nat.dvd_zero m)
   (take n',
@@ -495,11 +550,15 @@ nat.by_cases_zero_pos n
         obtain k (H6 : c = of_nat k), from exists_eq_of_nat (le_of_lt H5),
         have H7 : n' = (#nat m * k), from (of_nat.inj (H6 ▸ H4)),
         nat.dvd.intro H7⁻¹))
+-/
 
 theorem of_nat_dvd_of_nat_of_dvd {m n : ℕ} (H : #nat m ∣ n) : of_nat m ∣ of_nat n :=
+sorry
+/-
 nat.dvd.elim H
   (take k, assume H1 : #nat n = m * k,
     dvd.intro (H1⁻¹ ▸ rfl))
+-/
 
 theorem of_nat_dvd_of_nat_iff (m n : ℕ) : of_nat m ∣ of_nat n ↔ (#nat m ∣ n) :=
 iff.intro dvd_of_of_nat_dvd_of_nat of_nat_dvd_of_nat_of_dvd
@@ -530,11 +589,14 @@ theorem mul_div_cancel' {a b : ℤ} (H : a ∣ b) : a * (b div a) = b :=
 !mul.comm ▸ !div_mul_cancel H
 
 theorem mul_div_assoc (a : ℤ) {b c : ℤ} (H : c ∣ b) : (a * b) div c = a * (b div c) :=
+sorry
+/-
 decidable.by_cases
   (assume cz : c = 0, by rewrite [cz, *div_zero, mul_zero])
   (assume cnz : c ≠ 0,
     obtain d (H' : b = d * c), from exists_eq_mul_left_of_dvd H,
     by rewrite [H', -mul.assoc, *(!mul_div_cancel cnz)])
+-/
 
 theorem div_dvd_div {a b c : ℤ} (H1 : a ∣ b) (H2 : b ∣ c) : b div a ∣ c div a :=
 have H3 : b = b div a * a, from (div_mul_cancel H1)⁻¹,
@@ -577,12 +639,15 @@ theorem div_eq_of_eq_mul_left {a b c : ℤ} (H1 : b ≠ 0) (H2 : a = c * b) :
 div_eq_of_eq_mul_right H1 (!mul.comm ▸ H2)
 
 theorem neg_div_of_dvd {a b : ℤ} (H : b ∣ a) : -a div b = -(a div b) :=
+sorry
+/-
 decidable.by_cases
   (assume H1 : b = 0, by rewrite [H1, *div_zero, neg_zero])
   (assume H1 : b ≠ 0,
     dvd.elim H
       (take c, assume H' : a = b * c,
         by rewrite [H', neg_mul_eq_mul_neg, *!mul_div_cancel_left H1]))
+-/
 
 theorem sign_eq_div_abs (a : ℤ) : sign a = a div (abs a) :=
 decidable.by_cases
@@ -593,6 +658,8 @@ decidable.by_cases
     eq.symm (iff.mpr (!div_eq_iff_eq_mul_left `abs a ≠ 0` this) !eq_sign_mul_abs))
 
 theorem le_of_dvd {a b : ℤ} (bpos : b > 0) (H : a ∣ b) : a ≤ b :=
+sorry
+/-
 or.elim !le_or_gt
   (suppose a ≤ 0, le.trans this (le_of_lt bpos))
   (suppose a > 0,
@@ -603,6 +670,7 @@ or.elim !le_or_gt
       a     = a * 1 : mul_one
         ... ≤ a * c : mul_le_mul_of_nonneg_left (add_one_le_of_lt `c > 0`) (le_of_lt `a > 0`)
         ... = b     : Hc)
+-/
 
 /- div and ordering -/
 

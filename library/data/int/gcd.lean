@@ -7,6 +7,7 @@ Definitions and properties of gcd, lcm, and coprime.
 -/
 import .div data.nat.gcd
 open eq.ops
+open - [notations] algebra
 
 namespace int
 
@@ -42,6 +43,8 @@ theorem gcd_abs_abs (a b : ℤ) : gcd (abs a) (abs b) = gcd a b :=
 by rewrite [↑gcd, *nat_abs_abs]
 
 theorem gcd_of_ne_zero (a : ℤ) {b : ℤ} (H : b ≠ 0) : gcd a b = gcd b (abs a mod abs b) :=
+sorry
+/-
 have nat_abs b ≠ nat.zero,        from assume H', H (eq_zero_of_nat_abs_eq_zero H'),
 have (#nat nat_abs b > nat.zero), from nat.pos_of_ne_zero this,
 assert nat.gcd (nat_abs a) (nat_abs b) = (#nat nat.gcd (nat_abs b) (nat_abs a mod nat_abs b)),
@@ -51,6 +54,7 @@ calc
      ... = gcd (abs b) (abs a mod abs b)                      :
                by rewrite [↑gcd, -*of_nat_nat_abs, of_nat_mod]
      ... = gcd b (abs a mod abs b)                            : by rewrite [↑gcd, *nat_abs_abs]
+-/
 
 theorem gcd_of_pos (a : ℤ) {b : ℤ} (H : b > 0) : gcd a b = gcd b (abs a mod b) :=
 by rewrite [!gcd_of_ne_zero (ne_of_gt H), abs_of_pos H]
@@ -319,7 +323,7 @@ coprime_swap (coprime_of_coprime_mul_left (coprime_swap H))
 theorem coprime_of_coprime_mul_right_right {c a b : ℤ} (H : coprime a (b * c)) : coprime a b :=
 coprime_of_coprime_mul_left_right (!mul.comm ▸ H)
 
-theorem exists_eq_prod_and_dvd_and_dvd {a b c} (H : c ∣ a * b) :
+theorem exists_eq_prod_and_dvd_and_dvd {a b c : ℤ} (H : c ∣ a * b) :
   ∃ a' b', c = a' * b' ∧ a' ∣ a ∧ b' ∣ b :=
 decidable.by_cases
  (suppose gcd c a = 0,

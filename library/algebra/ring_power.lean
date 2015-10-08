@@ -19,11 +19,12 @@ variable [s : semiring A]
 include s
 
 theorem zero_pow {m : ℕ} (mpos : m > 0) : 0^m = (0 : A) :=
-have h₁ : ∀ m, 0^succ m = (0 : A),
-  from take m, nat.induction_on m
-    (show 0^1 = 0, by rewrite pow_one)
-    (take m, suppose 0^(succ m) = 0,
-      show 0^(succ (succ m)) = 0, from !zero_mul),
+have h₁ : ∀ m : nat, (0 : A)^(succ m) = (0 : A),
+  begin
+    intro m, induction m,
+      rewrite pow_one,
+      apply zero_mul
+  end,
 obtain m' (h₂ : m = succ m'), from exists_eq_succ_of_pos mpos,
 show 0^m = 0, by rewrite h₂; apply h₁
 

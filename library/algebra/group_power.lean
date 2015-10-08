@@ -13,10 +13,23 @@ Note: power adopts the convention that 0^0=1.
 -/
 import data.nat.basic data.int.basic
 
-namespace algebra
-
 variables {A : Type}
 
+structure has_pow_nat [class] (A : Type) :=
+(pow_nat : A → nat → A)
+
+definition pow_nat {A : Type} [s : has_pow_nat A] : A → nat → A :=
+has_pow_nat.pow_nat
+
+infix ` ^ ` := pow_nat
+
+structure has_pow_int [class] (A : Type) :=
+(pow_int : A → int → A)
+
+definition pow_int {A : Type} [s : has_pow_int A] : A → int → A :=
+has_pow_int.pow_int
+
+namespace algebra
 /- monoid -/
 
 section monoid
@@ -24,11 +37,12 @@ open nat
 variable [s : monoid A]
 include s
 
-definition pow (a : A) : ℕ → A
+definition monoid.pow (a : A) : ℕ → A
 | 0     := 1
-| (n+1) := a * pow n
+| (n+1) := a * monoid.pow n
 
-infix [priority algebra.prio] ` ^ ` := pow
+definition monoid_has_pow_nat [reducible] [instance] : has_pow_nat A :=
+has_pow_nat.mk monoid.pow
 
 theorem pow_zero (a : A) : a^0 = 1 := rfl
 theorem pow_succ (a : A) (n : ℕ) : a^(succ n) = a * a^n := rfl

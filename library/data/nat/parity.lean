@@ -9,6 +9,7 @@ import data.nat.power logic.identities
 
 namespace nat
 open decidable
+open - [notations] algebra
 
 definition even (n : nat) := n mod 2 = 0
 

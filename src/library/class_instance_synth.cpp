@@ -45,6 +45,7 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+static name * g_tmp_prefix                   = nullptr;
 static name * g_class_unique_class_instances = nullptr;
 static name * g_class_trace_instances        = nullptr;
 static name * g_class_instance_max_depth     = nullptr;
@@ -55,6 +56,7 @@ static name * g_class_trans_instances        = nullptr;
 [[ noreturn ]] void throw_class_exception(expr const & m, pp_fn const & fn) { throw_generic_exception(m, fn); }
 
 void initialize_class_instance_elaborator() {
+    g_tmp_prefix                   = new name(name::mk_internal_unique_name());
     g_class_unique_class_instances = new name{"class", "unique_instances"};
     g_class_trace_instances        = new name{"class", "trace_instances"};
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
@@ -79,6 +81,7 @@ void initialize_class_instance_elaborator() {
 }
 
 void finalize_class_instance_elaborator() {
+    delete g_tmp_prefix;
     delete g_class_unique_class_instances;
     delete g_class_trace_instances;
     delete g_class_instance_max_depth;
@@ -512,6 +515,10 @@ optional<expr> mk_class_instance(environment const & env, io_state const & ios, 
                                  unifier_config const & cfg) {
     local_context lctx(ctx);
     return mk_class_instance(env, ios, lctx, prefix, type, use_local_instances, cfg);
+}
+
+optional<expr> mk_class_instance(environment const & env, local_context const & ctx, expr const & type) {
+    return mk_class_instance(env, get_dummy_ios(), ctx, *g_tmp_prefix, type);
 }
 
 optional<expr> mk_hset_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type) {

@@ -41,6 +41,8 @@ optional<expr> mk_class_instance(environment const & env, io_state const & ios, 
                                  name const & prefix, expr const & type, bool use_local_instances = true,
                                  unifier_config const & cfg = unifier_config());
 
+optional<expr> mk_class_instance(environment const & env, local_context const & ctx, expr const & type);
+
 /** \brief Try to synthesize an inhabitant for (is_hset type) using class instance resolution */
 optional<expr> mk_hset_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type);
 

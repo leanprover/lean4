@@ -46,6 +46,7 @@ definition congruence  : tactic := builtin
 definition rotate_left (k : num) := builtin
 definition rotate_right (k : num) := builtin
 definition rotate (k : num) := rotate_left k
+definition norm_num    : tactic := builtin
 
 -- This is just a trick to embed expressions into tactics.
 -- The nested expressions are "raw". They tactic should

@@ -23,9 +23,11 @@ tactic norm_num_tactic() {
                 throw_tactic_exception_if_enabled(s, "norm_num tactic failed, conclusion is not an equality");
                 return none_proof_state();
             }
-
+            buffer<expr> hyps;
+            g.get_hyps(hyps);
+            local_context ctx(to_list(hyps));
             try {
-                pair<expr, expr> p = mk_norm_num(env, lhs);
+                pair<expr, expr> p = mk_norm_num(env, ctx, lhs);
                 expr new_lhs = p.first;
                 expr new_pr  = p.second;
                 if (new_lhs != rhs) {

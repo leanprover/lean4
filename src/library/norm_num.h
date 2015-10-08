@@ -6,22 +6,24 @@ Author: Rob Lewis
 */
 #pragma once
 #include "kernel/environment.h"
+#include "library/local_context.h"
 
 namespace lean {
 class norm_num_context {
-    environment m_env;
+    environment   m_env;
+    local_context m_ctx;
 public:
-    norm_num_context(environment const & env):m_env(env) {}
+    norm_num_context(environment const & env, local_context const & ctx):m_env(env), m_ctx(ctx) {}
 
     bool is_numeral(expr const & e) const;
     pair<expr, expr> mk_norm(expr const & e);
 };
 
 inline bool is_numeral(environment const & env, expr const & e) {
-    return norm_num_context(env).is_numeral(e);
+    return norm_num_context(env, local_context()).is_numeral(e);
 }
 
-inline pair<expr, expr> mk_norm_num(environment const & env, expr const & e) {
-    return norm_num_context(env).mk_norm(e);
+inline pair<expr, expr> mk_norm_num(environment const & env, local_context const & ctx, expr const & e) {
+    return norm_num_context(env, ctx).mk_norm(e);
 }
 }

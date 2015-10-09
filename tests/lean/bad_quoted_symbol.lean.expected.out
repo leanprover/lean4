@@ -1,0 +1,5 @@
+tests/lean/bad_quoted_symbol.lean:2:12: error: first character of a quoted symbols cannot be a digit
+tests/lean/bad_quoted_symbol.lean:3:16: error: unexpected space inside of quoted symbol
+tests/lean/bad_quoted_symbol.lean:4:14: error: unexpected end of quoted symbol
+tests/lean/bad_quoted_symbol.lean:5:10: error: invalid quoted symbol, invalid character
+tests/lean/bad_quoted_symbol.lean:5:10: error: invalid notation declaration, symbol expected

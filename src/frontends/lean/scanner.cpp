@@ -150,18 +150,32 @@ auto scanner::read_quoted_symbol() -> token_kind {
     if (std::isdigit(curr()))
         throw_exception("first character of a quoted symbols cannot be a digit");
     m_buffer.clear();
+    bool start = true;
+    bool trailing_space = false;
     while (true) {
         check_not_eof("unexpected quoted identifier");
         char c = curr();
         next();
-        if (c == '`') {
-            m_name_val = name(m_buffer.c_str());
-            return token_kind::QuotedSymbol;
-        } else if (c != '\"' && c != '\n' && c != '\t') {
-            m_buffer += c;
-        } else {
-            // TODO(Leo): intra-token space
-            throw_exception("invalid quoted symbol, invalid character");
+        switch (c) {
+            case '`':
+                if (start)
+                    throw_exception("unexpected end of quoted symbol");
+                m_name_val = name(m_buffer.c_str());
+                return token_kind::QuotedSymbol;
+            case '\"':
+            case '\n':
+            case '\t':
+                throw_exception("invalid quoted symbol, invalid character");
+            case ' ':
+                if (!start)
+                    trailing_space = true;
+                m_buffer += c;
+                break;
+            default:
+                start = false;
+                if (trailing_space)
+                    throw_exception("unexpected space inside of quoted symbol");
+                m_buffer += c;
         }
     }
 }

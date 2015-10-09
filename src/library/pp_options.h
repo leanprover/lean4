@@ -32,7 +32,6 @@ bool     get_pp_purify_metavars(options const & opts);
 bool     get_pp_purify_locals(options const & opts);
 bool     get_pp_numerals(options const & opts);
 bool     get_pp_abbreviations(options const & opts);
-bool     get_pp_extra_spaces(options const & opts);
 bool     get_pp_preterm(options const & opts);
 bool     get_pp_compact_goals(options const & opts);
 bool     get_pp_all(options const & opts);

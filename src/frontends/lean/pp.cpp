@@ -290,7 +290,6 @@ void pretty_fn::set_options_core(options const & o) {
     m_beta            = !all && get_pp_beta(o);
     m_numerals        = get_pp_numerals(o);
     m_abbreviations   = !all && get_pp_abbreviations(o);
-    m_extra_spaces    = get_pp_extra_spaces(o);
     m_preterm         = get_pp_preterm(o);
     m_hide_full_terms = get_formatter_hide_full_terms(o);
     m_num_nat_coe     = m_numerals && !m_coercion && has_coercion_num_nat(m_env);

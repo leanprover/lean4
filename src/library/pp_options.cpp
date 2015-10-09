@@ -63,10 +63,6 @@ Author: Leonardo de Moura
 #define LEAN_DEFAULT_PP_ABBREVIATIONS true
 #endif
 
-#ifndef LEAN_DEFAULT_PP_EXTRA_SPACES
-#define LEAN_DEFAULT_PP_EXTRA_SPACES false
-#endif
-
 #ifndef LEAN_DEFAULT_PP_PRETERM
 #define LEAN_DEFAULT_PP_PRETERM false
 #endif
@@ -94,7 +90,6 @@ static name * g_pp_purify_locals   = nullptr;
 static name * g_pp_beta            = nullptr;
 static name * g_pp_numerals        = nullptr;
 static name * g_pp_abbreviations   = nullptr;
-static name * g_pp_extra_spaces    = nullptr;
 static name * g_pp_preterm         = nullptr;
 static name * g_pp_compact_goals   = nullptr;
 static name * g_pp_all             = nullptr;
@@ -115,7 +110,6 @@ void initialize_pp_options() {
     g_pp_beta            = new name{"pp", "beta"};
     g_pp_numerals        = new name{"pp", "numerals"};
     g_pp_abbreviations   = new name{"pp", "abbreviations"};
-    g_pp_extra_spaces    = new name{"pp", "extra_spaces"};
     g_pp_preterm         = new name{"pp", "preterm"};
     g_pp_all             = new name{"pp", "all"};
     g_pp_compact_goals   = new name{"pp", "compact_goals"};
@@ -149,8 +143,6 @@ void initialize_pp_options() {
                          "(pretty printer) display nat/num numerals in decimal notation");
     register_bool_option(*g_pp_abbreviations, LEAN_DEFAULT_PP_ABBREVIATIONS,
                          "(pretty printer) display abbreviations (i.e., revert abbreviation expansion when pretty printing)");
-    register_bool_option(*g_pp_extra_spaces, LEAN_DEFAULT_PP_EXTRA_SPACES,
-                         "(pretty printer) add space after prefix operators and before postfix ones");
     register_bool_option(*g_pp_preterm, LEAN_DEFAULT_PP_PRETERM,
                          "(pretty printer) assume the term is a preterm (i.e., a term before elaboration)");
     register_bool_option(*g_pp_compact_goals, LEAN_DEFAULT_PP_COMPACT_GOALS,
@@ -172,7 +164,6 @@ void initialize_pp_options() {
 
 void finalize_pp_options() {
     delete g_pp_preterm;
-    delete g_pp_extra_spaces;
     delete g_pp_abbreviations;
     delete g_pp_numerals;
     delete g_pp_max_depth;
@@ -217,7 +208,6 @@ bool     get_pp_purify_locals(options const & opts)   { return opts.get_bool(*g_
 bool     get_pp_beta(options const & opts)            { return opts.get_bool(*g_pp_beta, LEAN_DEFAULT_PP_BETA); }
 bool     get_pp_numerals(options const & opts)        { return opts.get_bool(*g_pp_numerals, LEAN_DEFAULT_PP_NUMERALS); }
 bool     get_pp_abbreviations(options const & opts)   { return opts.get_bool(*g_pp_abbreviations, LEAN_DEFAULT_PP_ABBREVIATIONS); }
-bool     get_pp_extra_spaces(options const & opts)    { return opts.get_bool(*g_pp_extra_spaces, LEAN_DEFAULT_PP_EXTRA_SPACES); }
 bool     get_pp_preterm(options const & opts)         { return opts.get_bool(*g_pp_preterm, LEAN_DEFAULT_PP_PRETERM); }
 bool     get_pp_compact_goals(options const & opts)   { return opts.get_bool(*g_pp_compact_goals, LEAN_DEFAULT_PP_COMPACT_GOALS); }
 bool     get_pp_all(options const & opts)             { return opts.get_bool(*g_pp_all, LEAN_DEFAULT_PP_ALL); }

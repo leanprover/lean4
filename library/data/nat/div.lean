@@ -20,10 +20,10 @@ and.rec (λ ypos ylex, sub_lt (lt_of_lt_of_le ypos ylex) ypos)
 private definition div.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
 if H : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma H) y + 1 else zero
 
-definition divide := fix div.F
+protected definition divide := fix div.F
 
-definition nat_has_divides [reducible] [instance] [priority nat.prio] : has_divides nat :=
-has_divides.mk divide
+definition nat_has_divide [reducible] [instance] [priority nat.prio] : has_divide nat :=
+has_divide.mk nat.divide
 
 theorem divide_def (x y : nat) : divide x y = if 0 < y ∧ y ≤ x then divide (x - y) y + 1 else 0 :=
 congr_fun (fix_eq div.F x) y

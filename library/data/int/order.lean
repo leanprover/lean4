@@ -116,11 +116,11 @@ obtain (n : ℕ) (Hn : a + n = b), from le.elim H₁,
 obtain (m : ℕ) (Hm : b + m = a), from le.elim H₂,
 have a + of_nat (n + m) = a + 0, from
   calc
-    a + of_nat (n + m) = a + (of_nat n + m) : of_nat_add
-      ... = a + n + m                       : add.assoc
-      ... = b + m                           : Hn
-      ... = a                               : Hm
-      ... = a + 0                           : add_zero,
+    a + of_nat (n + m) = a + (of_nat n + m) : by rewrite of_nat_add
+      ... = a + n + m                       : by rewrite add.assoc
+      ... = b + m                           : by rewrite Hn
+      ... = a                               : by rewrite Hm
+      ... = a + 0                           : by rewrite add_zero,
 have of_nat (n + m) = of_nat 0, from add.left_cancel this,
 have n + m = 0,                 from of_nat.inj this,
 have n = 0,                     from nat.eq_zero_of_add_eq_zero_right this,
@@ -193,11 +193,11 @@ obtain (m : ℕ) (Hm : 0 + m = b), from le.elim Hb,
 le.intro
   (eq.symm
     (calc
-      a * b = (0 + n) * b : Hn
-        ... = n * b       : zero_add
-        ... = n * (0 + m) : {Hm⁻¹}
-        ... = n * m       : zero_add
-        ... = 0 + n * m   : zero_add))
+      a * b = (0 + n) * b : by rewrite Hn
+        ... = n * b       : by rewrite zero_add
+        ... = n * (0 + m) : by rewrite Hm
+        ... = n * m       : by rewrite zero_add
+        ... = 0 + n * m   : by rewrite zero_add))
 
 theorem mul_pos {a b : ℤ} (Ha : 0 < a) (Hb : 0 < b) : 0 < a * b :=
 obtain (n : ℕ) (Hn : 0 + nat.succ n = a), from lt.elim Ha,
@@ -205,14 +205,14 @@ obtain (m : ℕ) (Hm : 0 + nat.succ m = b), from lt.elim Hb,
 lt.intro
   (eq.symm
     (calc
-      a * b = (0 + nat.succ n) * b                     : Hn
-        ... = nat.succ n * b                           : zero_add
-        ... = nat.succ n * (0 + nat.succ m)            : {Hm⁻¹}
-        ... = nat.succ n * nat.succ m                  : zero_add
-        ... = of_nat (nat.succ n * nat.succ m)         : of_nat_mul
-        ... = of_nat (nat.succ n * m + nat.succ n)     : nat.mul_succ
-        ... = of_nat (nat.succ (nat.succ n * m + n))   : nat.add_succ
-        ... = 0 + nat.succ (nat.succ n * m + n)        : zero_add))
+      a * b = (0 + nat.succ n) * b                     : by rewrite Hn
+        ... = nat.succ n * b                           : by rewrite zero_add
+        ... = nat.succ n * (0 + nat.succ m)            : by rewrite Hm
+        ... = nat.succ n * nat.succ m                  : by rewrite zero_add
+        ... = of_nat (nat.succ n * nat.succ m)         : by rewrite of_nat_mul
+        ... = of_nat (nat.succ n * m + nat.succ n)     : by rewrite nat.mul_succ
+        ... = of_nat (nat.succ (nat.succ n * m + n))   : by rewrite nat.add_succ
+        ... = 0 + nat.succ (nat.succ n * m + n)        : by rewrite zero_add))
 
 theorem zero_lt_one : (0 : ℤ) < 1 := trivial
 
@@ -321,7 +321,7 @@ theorem lt_of_sub_one_le {a b : ℤ} (H : a - 1 < b) : a ≤ b :=
 !sub_add_cancel ▸ add_one_le_of_lt H
 
 theorem le_sub_one_of_lt {a b : ℤ} (H : a < b) : a ≤ b - 1 :=
-le_of_lt_add_one (!sub_add_cancel⁻¹ ▸ H)
+le_of_lt_add_one begin rewrite algebra.sub_add_cancel, exact H end
 
 theorem lt_of_le_sub_one {a b : ℤ} (H : a ≤ b - 1) : a < b :=
 !sub_add_cancel ▸ (lt_add_one_of_le H)

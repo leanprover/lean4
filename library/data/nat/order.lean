@@ -134,7 +134,7 @@ else (eq_max_left h) ▸ !le.refl
 
 /- nat is an instance of a linearly ordered semiring and a lattice -/
 
-open -[notations] algebra
+open - [notations] algebra
 
 protected definition decidable_linear_ordered_semiring [reducible] [instance] :
 algebra.decidable_linear_ordered_semiring nat :=
@@ -165,7 +165,7 @@ algebra.decidable_linear_ordered_semiring nat :=
 
 
 definition nat_has_dvd [reducible] [instance] [priority nat.prio] : has_dvd nat :=
-has_dvd.mk algebra.dvd
+has_dvd.mk has_dvd.dvd
 
 theorem add_pos_left {a : ℕ} (H : 0 < a) (b : ℕ) : 0 < a + b :=
 @algebra.add_pos_of_pos_of_nonneg _ _ a b H !zero_le

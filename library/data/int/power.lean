@@ -11,7 +11,7 @@ namespace int
 open - [notations] algebra
 
 definition int_has_pow_nat : has_pow_nat int :=
-has_pow_nat.mk pow_nat
+has_pow_nat.mk has_pow_nat.pow_nat
 
 /-
   definition nmul (n : ℕ) (a : ℤ) : ℤ := algebra.nmul n a

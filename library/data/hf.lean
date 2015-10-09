@@ -11,8 +11,8 @@ this bijection is implemeted using the Ackermann coding.
 -/
 import data.nat data.finset.equiv data.list
 open nat binary
-open -[notations] finset
-open -[notations] algebra
+open - [notations] finset
+open - [notations] algebra
 
 definition hf := nat
 

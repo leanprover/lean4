@@ -257,6 +257,9 @@ dvd.antisymm
 
 definition coprime [reducible] (m n : ℕ) : Prop := gcd m n = 1
 
+lemma gcd_eq_one_of_coprime {m n : ℕ} : coprime m n → gcd m n = 1 :=
+λ h, h
+
 theorem coprime_swap {m n : ℕ} (H : coprime n m) : coprime m n :=
 !gcd.comm ▸ H
 

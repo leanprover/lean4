@@ -10,23 +10,22 @@ open - [notations] algebra
 
 namespace nat
 
-definition nat_has_pow_nat : has_pow_nat nat :=
-has_pow_nat.mk pow_nat
+definition nat_has_pow_nat [instance] [reducible] [priority nat.prio] : has_pow_nat nat :=
+has_pow_nat.mk has_pow_nat.pow_nat
 
 theorem pow_le_pow_of_le {x y : ℕ} (i : ℕ) (H : x ≤ y) : x^i ≤ y^i :=
 algebra.pow_le_pow_of_le i !zero_le H
 
-
 theorem eq_zero_of_pow_eq_zero {a m : ℕ} (H : a^m = 0) : a = 0 :=
 or.elim (eq_zero_or_pos m)
   (suppose m = 0,
-    by rewrite [`m = 0` at H, pow_zero at H]; contradiction)
+    by krewrite [`m = 0` at H, pow_zero at H]; contradiction)
   (suppose m > 0,
     have h₁ : ∀ m, a^succ m = 0 → a = 0,
       begin
         intro m,
         induction m with m ih,
-          {rewrite pow_one; intros; assumption},
+          {krewrite pow_one; intros; assumption},
         rewrite pow_succ,
         intro H,
         cases eq_zero_or_eq_zero_of_mul_eq_zero H with h₃ h₄,

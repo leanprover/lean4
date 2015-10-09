@@ -10,6 +10,7 @@ are those needed for that construction.
 -/
 import data.rat.order data.nat
 open nat rat subtype eq.ops
+open - [notations] algebra
 
 namespace pnat
 

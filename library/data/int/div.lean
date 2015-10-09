@@ -24,8 +24,8 @@ sign b *
     | -[1+m]   := -[1+ ((m:nat) div (nat_abs b))]
   end)
 
-definition int_has_divides [reducible] [instance] [priority int.prio] : has_divides int :=
-has_divides.mk int.divide
+definition int_has_divide [reducible] [instance] [priority int.prio] : has_divide int :=
+has_divide.mk int.divide
 
 lemma divide_of_nat (a : nat) (b : ℤ) : (of_nat a) div b = sign b * (a div (nat_abs b) : nat) :=
 rfl

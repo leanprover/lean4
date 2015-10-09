@@ -523,10 +523,10 @@ protected definition integral_domain [reducible] [instance] : algebra.integral_d
   eq_zero_or_eq_zero_of_mul_eq_zero := @eq_zero_or_eq_zero_of_mul_eq_zero⦄
 
 definition int_has_sub [reducible] [instance] [priority int.prio] : has_sub int :=
-has_sub.mk algebra.sub
+has_sub.mk has_sub.sub
 
 definition int_has_dvd [reducible] [instance] [priority int.prio] : has_dvd int :=
-has_dvd.mk algebra.dvd
+has_dvd.mk has_dvd.dvd
 
 set_option pp.coercions true
 

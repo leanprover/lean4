@@ -536,11 +536,8 @@ assert m - n + n = m,     from nat.sub_add_cancel H,
 begin
   symmetry,
   apply algebra.sub_eq_of_eq_add,
-  rewrite -of_nat_add,
-  rewrite this
+  rewrite [-of_nat_add, this]
 end
-
--- (sub_eq_of_eq_add (!congr_arg (nat.sub_add_cancel H)⁻¹))⁻¹
 
 theorem neg_succ_of_nat_eq' (m : ℕ) : -[1+ m] = -m - 1 :=
 by rewrite [neg_succ_of_nat_eq, neg_add]

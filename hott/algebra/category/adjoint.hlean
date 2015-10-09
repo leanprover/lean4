@@ -35,7 +35,7 @@ namespace category
   abbreviation inverse := @is_equivalence.G
   postfix ⁻¹ := inverse
   --a second notation for the inverse, which is not overloaded
-  postfix [parsing-only] `⁻¹F`:std.prec.max_plus := inverse
+  postfix [parsing_only] `⁻¹F`:std.prec.max_plus := inverse
 
   --TODO: review and change
   definition faithful [class] (F : C ⇒ D) := Π⦃c c' : C⦄ ⦃f f' : c ⟶ c'⦄, F f = F f' → f = f'

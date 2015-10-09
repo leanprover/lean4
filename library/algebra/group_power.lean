@@ -203,7 +203,7 @@ end ordered_ring
 section add_monoid
 variable [s : add_monoid A]
 include s
-local attribute add_monoid.to_monoid [trans-instance]
+local attribute add_monoid.to_monoid [trans_instance]
 open nat
 
 definition nmul : ℕ → A → A := λ n a, a^n
@@ -233,7 +233,7 @@ section add_comm_monoid
 open nat
 variable [s : add_comm_monoid A]
 include s
-local attribute add_comm_monoid.to_comm_monoid [trans-instance]
+local attribute add_comm_monoid.to_comm_monoid [trans_instance]
 
 theorem nmul_add (n : ℕ) (a b : A) : n ⬝ (a + b) = (n ⬝ a) + (n ⬝ b) := mul_pow a b n
 
@@ -242,7 +242,7 @@ end add_comm_monoid
 section add_group
 variable [s : add_group A]
 include s
-local attribute add_group.to_group [trans-instance]
+local attribute add_group.to_group [trans_instance]
 
 section nat
 open nat

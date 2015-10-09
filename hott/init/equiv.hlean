@@ -32,7 +32,7 @@ namespace is_equiv
   /- Some instances and closure properties of equivalences -/
   postfix ⁻¹ := inv
   /- a second notation for the inverse, which is not overloaded -/
-  postfix [parsing-only] `⁻¹ᶠ`:std.prec.max_plus := inv
+  postfix [parsing_only] `⁻¹ᶠ`:std.prec.max_plus := inv
 
   section
   variables {A B C : Type} (f : A → B) (g : B → C) {f' : A → B}
@@ -286,11 +286,11 @@ namespace equiv
   equiv.mk (g ∘ f) !is_equiv_compose
 
   infixl `⬝e`:75 := equiv.trans
-  postfix [parsing-only] `⁻¹ᵉ`:(max + 1) := equiv.symm
+  postfix [parsing_only] `⁻¹ᵉ`:(max + 1) := equiv.symm
     -- notation for inverse which is not overloaded
   abbreviation erfl [constructor] := @equiv.refl
 
-  definition to_inv_trans [reducible] [unfold-full] (f : A ≃ B) (g : B ≃ C)
+  definition to_inv_trans [reducible] [unfold_full] (f : A ≃ B) (g : B ≃ C)
     : to_inv (f ⬝e g) = to_fun (g⁻¹ᵉ ⬝e f⁻¹ᵉ) :=
   idp
 
@@ -371,4 +371,5 @@ namespace is_equiv
 
 end is_equiv
 
-export [unfold-hints] equiv [unfold-hints] is_equiv
+export [unfold_hints] equiv
+export [unfold_hints] is_equiv

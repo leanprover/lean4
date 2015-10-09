@@ -41,12 +41,12 @@ namespace eq
   infix   ⬝  := concat
   postfix ⁻¹ := inverse
   --a second notation for the inverse, which is not overloaded
-  postfix [parsing-only] `⁻¹ᵖ`:std.prec.max_plus := inverse
+  postfix [parsing_only] `⁻¹ᵖ`:std.prec.max_plus := inverse
 
   /- The 1-dimensional groupoid structure -/
 
   -- The identity path is a right unit.
-  definition con_idp [unfold-full] (p : x = y) : p ⬝ idp = p :=
+  definition con_idp [unfold_full] (p : x = y) : p ⬝ idp = p :=
   idp
 
   -- The identity path is a right unit.
@@ -195,7 +195,7 @@ namespace eq
   definition cast [reducible] [unfold 3] {A B : Type} (p : A = B) (a : A) : B :=
   p ▸ a
 
-  definition cast_def [reducible] [unfold-full] {A B : Type} (p : A = B) (a : A)
+  definition cast_def [reducible] [unfold_full] {A B : Type} (p : A = B) (a : A)
     : cast p a = p ▸ a :=
   idp
 
@@ -205,21 +205,21 @@ namespace eq
   definition ap [unfold 6] ⦃A B : Type⦄ (f : A → B) {x y:A} (p : x = y) : f x = f y :=
   eq.rec_on p idp
 
-  abbreviation ap01 [parsing-only] := ap
+  abbreviation ap01 [parsing_only] := ap
 
   definition homotopy [reducible] (f g : Πx, P x) : Type :=
   Πx : A, f x = g x
 
   infix ~ := homotopy
 
-  protected definition homotopy.refl [refl] [reducible] [unfold-full] (f : Πx, P x) : f ~ f :=
+  protected definition homotopy.refl [refl] [reducible] [unfold_full] (f : Πx, P x) : f ~ f :=
   λ x, idp
 
-  protected definition homotopy.symm [symm] [reducible] [unfold-full] {f g : Πx, P x} (H : f ~ g)
+  protected definition homotopy.symm [symm] [reducible] [unfold_full] {f g : Πx, P x} (H : f ~ g)
     : g ~ f :=
   λ x, (H x)⁻¹
 
-  protected definition homotopy.trans [trans] [reducible] [unfold-full] {f g h : Πx, P x}
+  protected definition homotopy.trans [trans] [reducible] [unfold_full] {f g h : Πx, P x}
     (H1 : f ~ g) (H2 : g ~ h) : f ~ h :=
   λ x, H1 x ⬝ H2 x
 
@@ -560,7 +560,7 @@ namespace eq
   eq.rec_on h idp
 
   infixl ` ◾ `:75 := concat2
-  postfix [parsing-only] `⁻²`:(max+10) := inverse2 --this notation is abusive, should we use it?
+  postfix [parsing_only] `⁻²`:(max+10) := inverse2 --this notation is abusive, should we use it?
 
   /- Whiskering -/
 
@@ -584,11 +584,11 @@ namespace eq
     whisker_right h idp = h :=
   eq.rec_on h (eq.rec_on p idp)
 
-  definition whisker_right_idp_left [unfold-full] (p : x = y) (q : y = z) :
+  definition whisker_right_idp_left [unfold_full] (p : x = y) (q : y = z) :
     whisker_right idp q = idp :> (p ⬝ q = p ⬝ q) :=
   idp
 
-  definition whisker_left_idp_right [unfold-full] (p : x = y) (q : y = z) :
+  definition whisker_left_idp_right [unfold_full] (p : x = y) (q : y = z) :
     whisker_left p idp = idp :> (p ⬝ q = p ⬝ q) :=
   idp
 
@@ -596,11 +596,11 @@ namespace eq
     (idp_con p) ⁻¹ ⬝ whisker_left idp h ⬝ idp_con q = h :=
   eq.rec_on h (eq.rec_on p idp)
 
-  definition con2_idp [unfold-full] {p q : x = y} (h : p = q) :
+  definition con2_idp [unfold_full] {p q : x = y} (h : p = q) :
     h ◾ idp = whisker_right h idp :> (p ⬝ idp = q ⬝ idp) :=
   idp
 
-  definition idp_con2 [unfold-full] {p q : x = y} (h : p = q) :
+  definition idp_con2 [unfold_full] {p q : x = y} (h : p = q) :
     idp ◾ h = whisker_left idp h :> (idp ⬝ p = idp ⬝ q) :=
   idp
 

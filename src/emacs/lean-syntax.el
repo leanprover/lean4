@@ -39,13 +39,13 @@
 (defconst lean-constants-regexp (regexp-opt lean-constants))
 (defconst lean-modifiers
   (--map (s-concat "[" it "]")
-         '("persistent" "notation" "visible" "instance" "trans-instance"
-           "class" "parsing-only" "coercion" "unfold-full" "constructor"
+         '("persistent" "notation" "visible" "instance" "trans_instance"
+           "class" "parsing_only" "coercion" "unfold_full" "constructor"
            "reducible" "irreducible" "semireducible" "quasireducible" "wf"
-           "whnf" "multiple-instances" "none" "decls" "declarations"
+           "whnf" "multiple_instances" "none" "decls" "declarations"
            "coercions" "classes" "symm" "subst" "refl" "trans" "simp" "congr"
-           "notations" "abbreviations" "begin-end-hints" "tactic-hints"
-           "reduce-hints" "unfold-hints" "aliases" "eqv"
+           "notations" "abbreviations" "begin_end_hints" "tactic_hints"
+           "reduce_hints" "unfold_hints" "aliases" "eqv"
            "localrefinfo"))
   "lean modifiers")
 (defconst lean-modifiers-regexp

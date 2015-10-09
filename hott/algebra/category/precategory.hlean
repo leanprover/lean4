@@ -30,12 +30,12 @@ namespace category
     (id_id : Π (a : ob), comp !ID !ID = ID a)
     (is_hset_hom : Π(a b : ob), is_hset (hom a b))
 
-  attribute precategory [multiple-instances]
+  attribute precategory [multiple_instances]
   attribute precategory.is_hset_hom [instance]
 
   infixr ∘ := precategory.comp
   -- input ⟶ using \--> (this is a different arrow than \-> (→))
-  infixl [parsing-only] ` ⟶ `:25 := precategory.hom
+  infixl [parsing_only] ` ⟶ `:25 := precategory.hom
   namespace hom
     infixl ` ⟶ `:25 := precategory.hom -- if you open this namespace, hom a b is printed as a ⟶ b
   end hom

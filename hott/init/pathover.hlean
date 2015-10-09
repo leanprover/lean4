@@ -295,6 +295,6 @@ namespace eq
   by induction s; induction s₂; reflexivity
 
   infixl `◾o`:75 := concato2
-  postfix [parsing-only] `⁻²ᵒ`:(max+10) := inverseo2 --this notation is abusive, should we use it?
+  postfix [parsing_only] `⁻²ᵒ`:(max+10) := inverseo2 --this notation is abusive, should we use it?
 
 end eq

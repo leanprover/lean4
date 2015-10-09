@@ -155,7 +155,7 @@ namespace pi
 
   /- The functoriality of [forall] is slightly subtle: it is contravariant in the domain type and covariant in the codomain, but the codomain is dependent on the domain. -/
 
-  definition pi_functor [unfold-full] : (Π(a:A), B a) → (Π(a':A'), B' a') := λg a', f1 a' (g (f0 a'))
+  definition pi_functor [unfold_full] : (Π(a:A), B a) → (Π(a':A'), B' a') := λg a', f1 a' (g (f0 a'))
 
   definition ap_pi_functor {g g' : Π(a:A), B a} (h : g ~ g')
     : ap (pi_functor f0 f1) (eq_of_homotopy h)

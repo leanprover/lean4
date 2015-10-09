@@ -134,7 +134,7 @@ environment erase_unfold_hint(environment const & env, name const & n, bool pers
 environment add_unfold_full_hint(environment const & env, name const & n, bool persistent) {
     declaration const & d = env.get(n);
     if (!d.is_definition())
-        throw exception("invalid [unfold-full] hint, declaration must be a non-opaque definition");
+        throw exception("invalid [unfold_full] hint, declaration must be a non-opaque definition");
     return unfold_hint_ext::add_entry(env, get_dummy_ios(), mk_add_unfold_full_entry(n), persistent);
 }
 
@@ -162,7 +162,7 @@ environment erase_constructor_hint(environment const & env, name const & n, bool
 }
 
 void initialize_normalize() {
-    g_unfold_hint_name = new name("unfold-hints");
+    g_unfold_hint_name = new name("unfold_hints");
     g_key = new std::string("unfoldh");
     unfold_hint_ext::initialize();
 }

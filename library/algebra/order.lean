@@ -108,7 +108,7 @@ section
   private theorem lt_trans (s' : order_pair A) (a b c: A) (lt_ab : a < b) (lt_bc : b < c) : a < c :=
     lt_of_lt_of_le lt_ab (le_of_lt lt_bc)
 
-  definition order_pair.to_strict_order [trans-instance] [coercion] [reducible] : strict_order A :=
+  definition order_pair.to_strict_order [trans_instance] [coercion] [reducible] : strict_order A :=
   ⦃ strict_order, s, lt_irrefl := lt_irrefl s, lt_trans := lt_trans s ⦄
 
   theorem gt_of_gt_of_ge [trans] (H1 : a > b) (H2 : b ≥ c) : a > c := lt_of_le_of_lt H2 H1
@@ -178,7 +178,7 @@ have ne_ac : a ≠ c, from
   show false, from ne_of_lt' lt_bc eq_bc,
 show a < c, from iff.mpr (lt_iff_le_and_ne) (and.intro le_ac ne_ac)
 
-definition strong_order_pair.to_order_pair [trans-instance] [coercion] [reducible]
+definition strong_order_pair.to_order_pair [trans_instance] [coercion] [reducible]
     [s : strong_order_pair A] : order_pair A :=
 ⦃ order_pair, s,
   lt_irrefl := lt_irrefl',
@@ -193,7 +193,7 @@ structure linear_order_pair [class] (A : Type) extends order_pair A, linear_weak
 structure linear_strong_order_pair [class] (A : Type) extends strong_order_pair A,
     linear_weak_order A
 
-definition linear_strong_order_pair.to_linear_order_pair [trans-instance] [coercion] [reducible]
+definition linear_strong_order_pair.to_linear_order_pair [trans_instance] [coercion] [reducible]
     [s : linear_strong_order_pair A] : linear_order_pair A :=
 ⦃ linear_order_pair, s, strong_order_pair.to_order_pair ⦄
 

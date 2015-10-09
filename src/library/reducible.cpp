@@ -65,7 +65,7 @@ typedef scoped_ext<reducible_config> reducible_ext;
 static name * g_tmp_prefix = nullptr;
 
 void initialize_reducible() {
-    g_class_name = new name("reduce-hints");
+    g_class_name = new name("reduce_hints");
     g_key        = new std::string("redu");
     g_tmp_prefix = new name(name::mk_internal_unique_name());
     reducible_ext::initialize();

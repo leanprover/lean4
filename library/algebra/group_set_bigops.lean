@@ -74,7 +74,7 @@ end Prod
 section Sum
   variable [acmB : add_comm_monoid B]
   include acmB
-  local attribute add_comm_monoid.to_comm_monoid [trans-instance]
+  local attribute add_comm_monoid.to_comm_monoid [trans_instance]
 
   noncomputable definition Sum (s : set A) (f : A → B) : B := Prod s f
 

@@ -21,7 +21,7 @@ section
   definition equiv_of_eq [constructor] (H : A = B) : A ≃ B :=
   equiv.mk _ (is_equiv_cast_of_eq H)
 
-  definition equiv_of_eq_refl [reducible] [unfold-full] (A : Type)
+  definition equiv_of_eq_refl [reducible] [unfold_full] (A : Type)
     : equiv_of_eq (refl A) = equiv.refl :=
   idp
 

@@ -317,7 +317,7 @@ namespace is_trunc
   protected abbreviation hprop.mk := @trunctype.mk -1
   protected abbreviation hset.mk := @trunctype.mk (-1.+1)
 
-  protected abbreviation trunctype.mk' [parsing-only] (n : trunc_index) (A : Type)
+  protected abbreviation trunctype.mk' [parsing_only] (n : trunc_index) (A : Type)
     [H : is_trunc n A] : n-Type :=
   trunctype.mk A H
 

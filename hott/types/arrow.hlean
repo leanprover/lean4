@@ -21,7 +21,7 @@ namespace pi
   /- Functorial action -/
   variables (f0 : A' → A) (f1 : B → B')
 
-  definition arrow_functor [unfold-full] : (A → B) → (A' → B') := pi_functor f0 (λa, f1)
+  definition arrow_functor [unfold_full] : (A → B) → (A' → B') := pi_functor f0 (λa, f1)
 
   /- Equivalences -/
 

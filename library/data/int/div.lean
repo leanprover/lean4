@@ -8,7 +8,7 @@ Definitions and properties of div and mod, following the SSReflect library.
 Following SSReflect and the SMTlib standard, we define a mod b so that 0 ≤ a mod b < |b| when b ≠ 0.
 -/
 import data.int.order data.nat.div
-open [coercions] [reduce-hints] nat
+open [coercions] [reduce_hints] nat
 open [declarations] [classes] nat (succ)
 open - [notations] algebra
 open eq.ops

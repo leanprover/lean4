@@ -49,12 +49,12 @@ void decl_attributes::parse(buffer<name> const & ns, parser & p) {
         if (p.curr_is_token(get_instance_tk())) {
             m_is_instance = true;
             if (m_is_trans_instance)
-                throw parser_error("invalid '[instance]' attribute, '[trans-instance]' was already provided", pos);
+                throw parser_error("invalid '[instance]' attribute, '[trans_instance]' was already provided", pos);
             p.next();
         } else if (p.curr_is_token(get_trans_inst_tk())) {
             m_is_trans_instance = true;
             if (m_is_instance)
-                throw parser_error("invalid '[trans-instance]' attribute, '[instance]' was already provided", pos);
+                throw parser_error("invalid '[trans_instance]' attribute, '[instance]' was already provided", pos);
             p.next();
         } else if (p.curr_is_token(get_coercion_tk())) {
             p.next();
@@ -101,8 +101,8 @@ void decl_attributes::parse(buffer<name> const & ns, parser & p) {
             }
         } else if (p.curr_is_token(get_parsing_only_tk())) {
             if (!m_is_abbrev)
-                throw parser_error("invalid '[parsing-only]' attribute, only abbreviations can be "
-                                   "marked as '[parsing-only]'", pos);
+                throw parser_error("invalid '[parsing_only]' attribute, only abbreviations can be "
+                                   "marked as '[parsing_only]'", pos);
             m_is_parsing_only = true;
             p.next();
         } else if (p.curr_is_token(get_unfold_full_tk())) {

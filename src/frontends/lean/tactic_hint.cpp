@@ -57,7 +57,7 @@ template class scoped_ext<tactic_hint_config>;
 typedef scoped_ext<tactic_hint_config> tactic_hint_ext;
 
 void initialize_tactic_hint() {
-    g_class_name = new name("tactic-hints");
+    g_class_name = new name("tactic_hints");
     g_key        = new std::string("tachint");
     tactic_hint_ext::initialize();
 }

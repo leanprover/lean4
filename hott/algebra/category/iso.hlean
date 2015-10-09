@@ -22,7 +22,7 @@ namespace iso
 
   attribute is_iso.inverse [quasireducible]
 
-  attribute is_iso [multiple-instances]
+  attribute is_iso [multiple_instances]
   open split_mono split_epi is_iso
   abbreviation retraction_of [unfold 6] := @split_mono.retraction_of
   abbreviation retraction_comp [unfold 6] := @split_mono.retraction_comp
@@ -33,7 +33,7 @@ namespace iso
   abbreviation right_inverse [unfold 6] := @is_iso.right_inverse
   postfix ⁻¹ := inverse
   --a second notation for the inverse, which is not overloaded
-  postfix [parsing-only] `⁻¹ʰ`:std.prec.max_plus := inverse -- input using \-1h
+  postfix [parsing_only] `⁻¹ʰ`:std.prec.max_plus := inverse -- input using \-1h
 
   variables {ob : Type} [C : precategory ob]
   variables {a b c : ob} {g : b ⟶ c} {f : a ⟶ b} {h : b ⟶ a}
@@ -163,7 +163,7 @@ namespace iso
   mk (to_hom H2 ∘ to_hom H1)
 
   infixl ` ⬝i `:75 := iso.trans
-  postfix [parsing-only] `⁻¹ⁱ`:(max + 1) := iso.symm
+  postfix [parsing_only] `⁻¹ⁱ`:(max + 1) := iso.symm
 
   definition iso_mk_eq {f f' : a ⟶ b} [H : is_iso f] [H' : is_iso f'] (p : f = f')
       : iso.mk f = iso.mk f' :=

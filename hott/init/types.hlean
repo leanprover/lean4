@@ -85,7 +85,7 @@ namespace prod
   infixr × := prod
 
   namespace ops
-  infixr [parsing-only] * := prod
+  infixr [parsing_only] * := prod
   postfix `.1`:(max+1) := pr1
   postfix `.2`:(max+1) := pr2
   abbreviation pr₁ := @pr1

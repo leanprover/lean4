@@ -42,7 +42,7 @@ notation 1 := !has_one.one
 notation 0 := !has_zero.zero
 
 --a second notation for the inverse, which is not overloaded
-postfix [parsing-only] `⁻¹ᵍ`:std.prec.max_plus := has_inv.inv
+postfix [parsing_only] `⁻¹ᵍ`:std.prec.max_plus := has_inv.inv
 
 /- semigroup -/
 

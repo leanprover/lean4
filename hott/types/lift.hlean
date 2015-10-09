@@ -75,7 +75,7 @@ namespace lift
   definition lift_equiv_lift_refl (A : Type) : lift_equiv_lift (erfl : A ≃ A) = erfl :=
   by apply equiv_eq'; intro z; induction z with a; reflexivity
 
-  definition lift_inv_functor [unfold-full] (a : A) : A' :=
+  definition lift_inv_functor [unfold_full] (a : A) : A' :=
   down (g (up a))
 
   definition is_equiv_lift_inv_functor [constructor] [Hf : is_equiv g]

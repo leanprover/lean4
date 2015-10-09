@@ -18,7 +18,7 @@ namespace category
   structure category [class] (ob : Type) extends parent : precategory ob :=
   mk' :: (iso_of_path_equiv : is_univalent parent)
 
-  attribute category [multiple-instances]
+  attribute category [multiple_instances]
 
   abbreviation iso_of_path_equiv := @category.iso_of_path_equiv
 

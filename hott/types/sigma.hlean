@@ -402,7 +402,7 @@ namespace sigma
 
   definition subtype [reducible] {A : Type} (P : A → Type) [H : Πa, is_hprop (P a)] :=
   Σ(a : A), P a
-  notation [parsing-only] `{` binder `|` r:(scoped:1 P, subtype P) `}` := r
+  notation [parsing_only] `{` binder `|` r:(scoped:1 P, subtype P) `}` := r
 
   /- To prove equality in a subtype, we only need equality of the first component. -/
   definition subtype_eq [H : Πa, is_hprop (B a)] (u v : {a | B a}) : u.1 = v.1 → u = v :=

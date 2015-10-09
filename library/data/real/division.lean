@@ -642,7 +642,7 @@ section migrate_algebra
     decidable_lt := dec_lt
    ⦄
 
-  local attribute real.discrete_linear_ordered_field [trans-instance]
+  local attribute real.discrete_linear_ordered_field [trans_instance]
   local attribute real.comm_ring [instance]
   local attribute real.ordered_ring [instance]
 

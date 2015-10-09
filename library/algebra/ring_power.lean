@@ -18,6 +18,9 @@ section semiring
 variable [s : semiring A]
 include s
 
+definition semiring_has_pow_nat [reducible] [instance] : has_pow_nat A :=
+monoid_has_pow_nat
+
 theorem zero_pow {m : ℕ} (mpos : m > 0) : 0^m = (0 : A) :=
 have h₁ : ∀ m : nat, (0 : A)^(succ m) = (0 : A),
   begin
@@ -33,6 +36,9 @@ end semiring
 section integral_domain
 variable [s : integral_domain A]
 include s
+
+definition integral_domain_has_pow_nat [reducible] [instance] : has_pow_nat A :=
+monoid_has_pow_nat
 
 theorem eq_zero_of_pow_eq_zero {a : A} {m : ℕ} (H : a^m = 0) : a = 0 :=
 or.elim (eq_zero_or_pos m)
@@ -127,6 +133,9 @@ end linear_ordered_semiring
 section decidable_linear_ordered_comm_ring
 variable [s : decidable_linear_ordered_comm_ring A]
 include s
+
+definition decidable_linear_ordered_comm_ring_has_pow_nat [reducible] [instance] : has_pow_nat A :=
+monoid_has_pow_nat
 
 theorem abs_pow (a : A) (n : ℕ) : abs (a^n) = abs a^n :=
 begin

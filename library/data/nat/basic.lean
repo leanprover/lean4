@@ -290,9 +290,10 @@ nat.cases_on n
           !succ_ne_zero))
 
 open - [notations] algebra
-protected definition comm_semiring [reducible] [instance] : algebra.comm_semiring nat :=
+protected definition comm_semiring [reducible] [trans_instance] : algebra.comm_semiring nat :=
 ⦃algebra.comm_semiring,
  add            := nat.add,
+
  add_assoc      := add.assoc,
  zero           := nat.zero,
  zero_add       := zero_add,

@@ -233,7 +233,7 @@ theorem lt_of_le_of_lt  {a b c : ℤ} (Hab : a ≤ b) (Hbc : b < c) : a < c :=
   (iff.mpr !lt_iff_le_and_ne) (and.intro Hac
     (assume Heq, not_le_of_gt (Heq⁻¹ ▸ Hbc) Hab))
 
-protected definition linear_ordered_comm_ring [reducible] [instance] :
+protected definition linear_ordered_comm_ring [reducible] [trans_instance] :
     algebra.linear_ordered_comm_ring int :=
 ⦃algebra.linear_ordered_comm_ring, int.integral_domain,
   le               := int.le,

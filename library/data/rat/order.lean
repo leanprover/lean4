@@ -302,7 +302,7 @@ let H' := le_of_lt H in
                                   (take Heq, let Heq' := add_left_cancel Heq in
                                    !lt_irrefl (Heq' ▸ H)))
 
-protected definition discrete_linear_ordered_field [reducible] [instance] :
+protected definition discrete_linear_ordered_field [reducible] [trans_instance] :
     algebra.discrete_linear_ordered_field rat :=
 ⦃algebra.discrete_linear_ordered_field,
  rat.discrete_field,
@@ -386,7 +386,7 @@ section
       rewrite [-mul_denom],
       apply mul_neg_of_neg_of_pos H,
       change of_int (denom q) > of_int 0,
-      rewrite [of_int_lt_of_int_iff],
+      xrewrite [of_int_lt_of_int_iff],
       exact !denom_pos
     end,
   show num q < 0, from lt_of_of_int_lt_of_int this
@@ -397,7 +397,7 @@ section
       rewrite [-mul_denom],
       apply mul_nonpos_of_nonpos_of_nonneg H,
       change of_int (denom q) ≥ of_int 0,
-      rewrite [of_int_le_of_int_iff],
+      xrewrite [of_int_le_of_int_iff],
       exact int.le_of_lt !denom_pos
     end,
   show num q ≤ 0, from le_of_of_int_le_of_int this

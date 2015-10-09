@@ -107,7 +107,7 @@ private definition has_decidable_eq₂ : Π (a b : ℤ), decidable (a = b)
 | -[1+ m]    -[1+ n]    := if H : m = n then
     inl (congr_arg neg_succ_of_nat H) else inr (not.mto neg_succ_of_nat.inj H)
 
-definition has_decidable_eq [instance] : decidable_eq ℤ := has_decidable_eq₂
+definition has_decidable_eq [instance] [priority int.prio] : decidable_eq ℤ := has_decidable_eq₂
 
 theorem of_nat_add (n m : nat) : of_nat (n + m) = of_nat n + of_nat m := rfl
 
@@ -501,7 +501,7 @@ theorem eq_zero_or_eq_zero_of_mul_eq_zero {a b : ℤ} (H : a * b = 0) : a = 0 �
 or.imp eq_zero_of_nat_abs_eq_zero eq_zero_of_nat_abs_eq_zero
   (eq_zero_or_eq_zero_of_mul_eq_zero (by rewrite [-nat_abs_mul, H]))
 
-protected definition integral_domain [reducible] [instance] : algebra.integral_domain int :=
+protected definition integral_domain [reducible] [trans_instance] : algebra.integral_domain int :=
 ⦃algebra.integral_domain,
   add            := int.add,
   add_assoc      := add.assoc,

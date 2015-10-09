@@ -136,7 +136,7 @@ else (eq_max_left h) ▸ !le.refl
 
 open - [notations] algebra
 
-protected definition decidable_linear_ordered_semiring [reducible] [instance] :
+protected definition decidable_linear_ordered_semiring [reducible] [trans_instance] :
 algebra.decidable_linear_ordered_semiring nat :=
 ⦃ algebra.decidable_linear_ordered_semiring, nat.comm_semiring,
   add_left_cancel            := @add.cancel_left,

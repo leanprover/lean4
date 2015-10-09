@@ -535,7 +535,7 @@ decidable.by_cases
       end))
 
 
-protected definition discrete_field [reducible] [instance] : algebra.discrete_field rat :=
+protected definition discrete_field [reducible] [trans_instance] : algebra.discrete_field rat :=
 ⦃algebra.discrete_field,
  add              := rat.add,
  add_assoc        := add.assoc,
@@ -560,10 +560,10 @@ protected definition discrete_field [reducible] [instance] : algebra.discrete_fi
  has_decidable_eq := has_decidable_eq⦄
 
 definition rat_has_division [instance] [reducible] [priority rat.prio] : has_division rat :=
-has_division.mk algebra.division
+has_division.mk has_division.division
 
 definition rat_has_pow_nat [instance] [reducible] [priority rat.prio] : has_pow_nat rat :=
-has_pow_nat.mk pow_nat
+has_pow_nat.mk has_pow_nat.pow_nat
 
 theorem eq_num_div_denom (a : ℚ) : a = num a / denom a :=
 have H : of_int (denom a) ≠ 0, from assume H', ne_of_gt (denom_pos a) (of_int.inj H'),

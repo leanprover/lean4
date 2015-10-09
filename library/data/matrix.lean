@@ -53,26 +53,35 @@ definition identity (n : nat) : matrix A n n :=
 definition I {n : nat} : matrix A n n :=
 identity n
 
-definition zero (m n : nat) : matrix A m n :=
+protected definition zero (m n : nat) : matrix A m n :=
 λ i j, 0
 
-definition add (M : matrix A m n) (N : matrix A m n) : matrix A m n :=
+protected definition add (M : matrix A m n) (N : matrix A m n) : matrix A m n :=
 λ i j, M[i, j] + N[i, j]
 
-definition sub (M : matrix A m n) (N : matrix A m n) : matrix A m n :=
+protected definition sub (M : matrix A m n) (N : matrix A m n) : matrix A m n :=
 λ i j, M[i, j] - N[i, j]
+
+protected definition mul (M : matrix A m n) (N : matrix A n p) : matrix A m p :=
+λ i j, fin.foldl has_add.add 0 (λ k : fin n, M[i,k] * N[k,j])
 
 definition smul (a : A) (M : matrix A m n) : matrix A m n :=
 λ i j, a * M[i, j]
 
-definition mul (M : matrix A m n) (N : matrix A n p) : matrix A m p :=
-λ i j, fin.foldl has_add.add 0 (λ k : fin n, M[i,k] * N[k,j])
+definition matrix_has_zero [reducible] [instance] (m n : nat) : has_zero (matrix A m n) :=
+has_zero.mk (matrix.zero m n)
 
-infix + := add
-infix - := sub
-infix * := mul
-infix * := smul
-notation 0 := zero _ _
+definition matrix_has_one [reducible] [instance] (n : nat) : has_one (matrix A n n) :=
+has_one.mk (identity n)
+
+definition matrix_has_add [reducible] [instance] (m n : nat) : has_add (matrix A m n) :=
+has_add.mk matrix.add
+
+definition matrix_has_mul [reducible] [instance] (n : nat) : has_mul (matrix A n n) :=
+has_mul.mk matrix.mul
+
+infix ` × ` := mul
+infix `⬝`    := smul
 
 lemma add_zero (M : matrix A m n) : M + 0 = M :=
 matrix.ext (λ i j, !algebra.add_zero)
@@ -93,10 +102,10 @@ definition is_zero (M : matrix A m n) :=
 ∀ i j, M[i, j] = 0
 
 definition is_upper_triangular (M : matrix A n n) :=
-∀ i j, i > j → M[i, j] = 0
+∀ i j : fin n, i > j → M[i, j] = 0
 
 definition is_lower_triangular (M : matrix A n n) :=
-∀ i j, i < j → M[i, j] = 0
+∀ i j : fin n, i < j → M[i, j] = 0
 
 definition inverse (M : matrix A n n) (N : matrix A n n) :=
 M * N = I ∧ N * M = I

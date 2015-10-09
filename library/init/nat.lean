@@ -46,7 +46,7 @@ namespace nat
   protected definition is_inhabited [instance] : inhabited nat :=
   inhabited.mk zero
 
-  protected definition has_decidable_eq [instance] : ∀ x y : nat, decidable (x = y)
+  protected definition has_decidable_eq [instance] [priority nat.prio] : ∀ x y : nat, decidable (x = y)
   | has_decidable_eq zero     zero     := inl rfl
   | has_decidable_eq (succ x) zero     := inr (by contradiction)
   | has_decidable_eq zero     (succ y) := inr (by contradiction)
@@ -70,7 +70,7 @@ namespace nat
   theorem pred_le_iff_true [simp] (n : ℕ) : pred n ≤ n ↔ true :=
   iff_true_intro (pred_le n)
 
-  theorem le.trans [trans] {n m k : ℕ} (H1 : n ≤ m) : m ≤ k → n ≤ k :=
+  theorem le.trans {n m k : ℕ} (H1 : n ≤ m) : m ≤ k → n ≤ k :=
   le.rec H1 (λp H2, le.step)
 
   theorem le_succ_of_le {n m : ℕ} (H : n ≤ m) : n ≤ succ m := le.trans H !le_succ
@@ -117,13 +117,13 @@ namespace nat
   theorem zero_lt_succ_iff_true [simp] (n : ℕ) : 0 < succ n ↔ true :=
   iff_true_intro (zero_lt_succ n)
 
-  theorem lt.trans [trans] {n m k : ℕ} (H1 : n < m) : m < k → n < k :=
+  theorem lt.trans {n m k : ℕ} (H1 : n < m) : m < k → n < k :=
   le.trans (le.step H1)
 
-  theorem lt_of_le_of_lt [trans] {n m k : ℕ} (H1 : n ≤ m) : m < k → n < k :=
+  theorem lt_of_le_of_lt {n m k : ℕ} (H1 : n ≤ m) : m < k → n < k :=
   le.trans (succ_le_succ H1)
 
-  theorem lt_of_lt_of_le [trans] {n m k : ℕ} : n < m → m ≤ k → n < k := le.trans
+  theorem lt_of_lt_of_le {n m k : ℕ} : n < m → m ≤ k → n < k := le.trans
 
   theorem lt.irrefl (n : ℕ) : ¬n < n := not_succ_le_self
 
@@ -183,13 +183,13 @@ namespace nat
   theorem lt_of_succ_lt_succ {a b : ℕ} : succ a < succ b → a < b :=
   le_of_succ_le_succ
 
-  definition decidable_le [instance] : ∀ a b : nat, decidable (a ≤ b)  :=
+  definition decidable_le [instance] [priority nat.prio] : ∀ a b : nat, decidable (a ≤ b)  :=
   nat.rec (λm, (decidable.inl !zero_le))
      (λn IH m, !nat.cases_on (decidable.inr (not_succ_le_zero n))
        (λm, decidable.rec (λH, inl (succ_le_succ H))
           (λH, inr (λa, H (le_of_succ_le_succ a))) (IH m)))
 
-  definition decidable_lt [instance] : ∀ a b : nat, decidable (a < b) :=
+  definition decidable_lt [instance] [priority nat.prio] : ∀ a b : nat, decidable (a < b) :=
   λ a b, decidable_le (succ a) b
 
   theorem lt_or_ge (a b : ℕ) : a < b ∨ a ≥ b :=

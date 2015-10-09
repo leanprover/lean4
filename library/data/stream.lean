@@ -625,13 +625,13 @@ lemma stream_equiv_of_equiv {A B : Type} : A ≃ B → stream A ≃ stream B
    begin intros, rewrite [map_map, id_of_righ_inverse r, map_id] end
 end
 
-definition lex (lt : A → A → Prop) (s₁ s₂ : stream A) : Prop :=
-∃ i, lt (nth i s₁) (nth i s₂) ∧ ∀ j, j < i → nth j s₁ = nth j s₂
+definition lex (rel : A → A → Prop) (s₁ s₂ : stream A) : Prop :=
+∃ i, rel (nth i s₁) (nth i s₂) ∧ ∀ j, j < i → nth j s₁ = nth j s₂
 
-definition lex.trans {s₁ s₂ s₃} {lt : A → A → Prop} : transitive lt → lex lt s₁ s₂ → lex lt s₂ s₃ → lex lt s₁ s₃ :=
+definition lex.trans {s₁ s₂ s₃} {rel : A → A → Prop} : transitive rel → lex rel s₁ s₂ → lex rel s₂ s₃ → lex rel s₁ s₃ :=
 assume htrans h₁ h₂,
-obtain i₁ hlt₁ he₁, from h₁,
-obtain i₂ hlt₂ he₂, from h₂,
+obtain (i₁ : nat) hlt₁ he₁, from h₁,
+obtain (i₂ : nat) hlt₂ he₂, from h₂,
 lt.by_cases
   (λ i₁lti₂ : i₁ < i₂,
     assert aux : nth i₁ s₂ = nth i₁ s₃, from he₂ _ i₁lti₂,

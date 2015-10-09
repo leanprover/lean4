@@ -7,6 +7,7 @@ Finite ordinal types.
 -/
 import data.list.basic data.finset.basic data.fintype.card algebra.group data.equiv
 open eq.ops nat function list finset fintype
+open - [notations] algebra
 
 structure fin (n : nat) := (val : nat) (is_lt : val < n)
 
@@ -149,7 +150,7 @@ take i j, destruct i (destruct j (take iv ilt jv jlt Pmkeq,
   begin congruence, apply fin.no_confusion Pmkeq, intros, assumption end))
 
 lemma lt_of_inj_of_max (f : fin (succ n) → fin (succ n)) :
-  injective f → (f maxi = maxi) → ∀ i, i < n → f i < n :=
+  injective f → (f maxi = maxi) → ∀ i : fin (succ n), i < n → f i < n :=
 assume Pinj Peq, take i, assume Pilt,
 assert P1 : f i = f maxi → i = maxi, from assume Peq, Pinj i maxi Peq,
 have f i ≠ maxi, from
@@ -399,7 +400,7 @@ definition fin_sum_equiv (n m : nat) : (fin n + fin m) ≃ fin (n+m) :=
 assert aux₁ : ∀ {v}, v < m → (v + n) < (n + m), from
   take v, suppose v < m, calc
      v + n < m + n   : add_lt_add_of_lt_of_le this !le.refl
-       ... = n + m  : add.comm,
+       ... = n + m   : algebra.add.comm,
 ⦃ equiv,
   to_fun := λ s : sum (fin n) (fin m),
     match s with

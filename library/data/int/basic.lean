@@ -528,12 +528,15 @@ has_sub.mk algebra.sub
 definition int_has_dvd [reducible] [instance] [priority int.prio] : has_dvd int :=
 has_dvd.mk algebra.dvd
 
+set_option pp.coercions true
+
 /- additional properties -/
-theorem of_nat_sub {m n : ℕ} (H : m ≥ n) : m - n = sub m n :=
+theorem of_nat_sub {m n : ℕ} (H : m ≥ n) : of_nat (m - n) = of_nat m - of_nat n :=
 assert m - n + n = m,     from nat.sub_add_cancel H,
 begin
   symmetry,
-  apply sub_eq_of_eq_add,
+  apply algebra.sub_eq_of_eq_add,
+  rewrite -of_nat_add,
   rewrite this
 end
 

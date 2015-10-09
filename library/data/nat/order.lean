@@ -83,8 +83,7 @@ theorem mul_le_mul {n m k l : ℕ} (H1 : n ≤ k) (H2 : m ≤ l) : n * m ≤ k *
 le.trans (!mul_le_mul_right H1) (!mul_le_mul_left H2)
 
 theorem mul_lt_mul_of_pos_left {n m k : ℕ} (H : n < m) (Hk : k > 0) : k * n < k * m :=
-calc k * n < k * n + k : lt_add_of_pos_right Hk
-      ...  ≤ k * m     : !mul_succ ▸ mul_le_mul_left k (succ_le_of_lt H)
+lt_of_lt_of_le (lt_add_of_pos_right Hk) (!mul_succ ▸ mul_le_mul_left k (succ_le_of_lt H))
 
 theorem mul_lt_mul_of_pos_right {n m k : ℕ} (H : n < m) (Hk : k > 0) : n * k < m * k :=
 !mul.comm ▸ !mul.comm ▸ mul_lt_mul_of_pos_left H Hk

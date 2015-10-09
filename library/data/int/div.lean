@@ -38,11 +38,15 @@ protected definition modulo (a b : ℤ) : ℤ := a - a div b * b
 definition int_has_modulo [reducible] [instance] [priority int.prio] : has_modulo int :=
 has_modulo.mk int.modulo
 
+
+lemma modulo.def (a b : ℤ) : a mod b = a - a div b * b :=
+rfl
+
 notation [priority int.prio] a ≡ b `[mod `:100 c `]`:0 := a mod c = b mod c
 
 /- div  -/
 
-theorem of_nat_div (m n : nat) : of_nat (m div n) = m div n :=
+theorem of_nat_div (m n : nat) : of_nat (m div n) = (of_nat m) div (of_nat n) :=
 nat.cases_on n
   (begin krewrite [divide_of_nat, sign_zero, zero_mul, nat.div_zero] end)
   (take (n : nat), by krewrite [divide_of_nat, sign_of_succ, one_mul])
@@ -256,7 +260,7 @@ theorem div_self {a : ℤ} (H : a ≠ 0) : a div a = 1 :=
 
 /- mod -/
 
-theorem of_nat_mod (m n : nat) : m mod n = (#nat m mod n) :=
+theorem of_nat_mod (m n : nat) : (of_nat m) mod (of_nat n) = of_nat (m mod n) :=
 sorry
 /-
 have H : m = (#nat m mod n) + m div n * n, from calc

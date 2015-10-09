@@ -13,6 +13,7 @@ section Bezout
 
 open nat int
 open eq.ops well_founded decidable prod
+open - [notations] algebra
 
 private definition pair_nat.lt : ℕ × ℕ → ℕ × ℕ → Prop := measure pr₂
 private definition pair_nat.lt.wf : well_founded pair_nat.lt := intro_k (measure.wf pr₂) 20
@@ -40,23 +41,36 @@ theorem egcd_succ (x y : ℕ) :
   egcd x (succ y) = prod.cases_on (egcd (succ y) (x mod succ y)) (egcd_rec_f (x div succ y)) :=
 well_founded.fix_eq egcd.F (x, succ y)
 
+set_option pp.coercions true
+
 theorem egcd_of_pos (x : ℕ) {y : ℕ} (ypos : y > 0) :
   let erec := egcd y (x mod y), u := pr₁ erec, v := pr₂ erec in
     egcd x y = (v, u - v * (x div y)) :=
-obtain y' (yeq : y = succ y'), from exists_eq_succ_of_pos ypos,
-by rewrite [yeq, egcd_succ, -prod.eta (egcd _ _)]
+obtain (y' : nat) (yeq : y = succ y'), from exists_eq_succ_of_pos ypos,
+begin
+  rewrite [yeq, egcd_succ, -prod.eta (egcd _ _)],
+  esimp, unfold egcd_rec_f,
+  rewrite [of_nat_div]
+end
 
 theorem egcd_prop (x y : ℕ) : (pr₁ (egcd x y)) * x + (pr₂ (egcd x y)) * y = gcd x y :=
 gcd.induction x y
-  (take m, by rewrite [egcd_zero, ▸*, int.mul_zero, int.one_mul])
+  (take m, by krewrite [egcd_zero, algebra.mul_zero, algebra.one_mul])
   (take m n,
     assume npos : 0 < n,
     assume IH,
     begin
       let H := egcd_of_pos m npos, esimp at H,
-      rewrite [H, ▸*, gcd_rec, -IH, add.comm (#int _ * _), -of_nat_mod, ↑modulo],
-      rewrite [*int.mul_sub_right_distrib, *int.mul_sub_left_distrib, *mul.left_distrib],
-      rewrite [sub_add_eq_add_sub, *sub_eq_add_neg, int.add.assoc, of_nat_div, *int.mul.assoc]
+      rewrite H,
+      esimp,
+      rewrite [gcd_rec, -IH],
+      rewrite [algebra.add.comm],
+      rewrite [-of_nat_mod],
+      rewrite [int.modulo.def],
+      rewrite [+algebra.mul_sub_right_distrib],
+      rewrite [+algebra.mul_sub_left_distrib, *mul.left_distrib],
+      rewrite [*sub_eq_add_neg, {pr₂ (egcd n (m mod n)) * of_nat m + - _}algebra.add.comm, -algebra.add.assoc],
+      rewrite [algebra.mul.assoc]
     end)
 
 theorem Bezout_aux (x y : ℕ) : ∃ a b : ℤ, a * x + b * y = gcd x y :=
@@ -79,25 +93,26 @@ implies prime (dvd_or_dvd_of_prime_of_dvd_mul).
 
 namespace nat
 open int
+open - [notations] algebra
 
 example {p x y : ℕ} (pp : prime p) (H : p ∣ x * y) : p ∣ x ∨ p ∣ y :=
 decidable.by_cases
   (suppose p ∣ x, or.inl this)
   (suppose ¬ p ∣ x,
     have cpx : coprime p x, from coprime_of_prime_of_not_dvd pp this,
-    obtain (a b : ℤ) (Hab : a * p + b * x = gcd p x), from !Bezout_aux,
+    obtain (a b : ℤ) (Hab : a * p + b * x = gcd p x), from Bezout_aux p x,
     assert a * p * y + b * x * y = y,
       by rewrite [-int.mul.right_distrib, Hab, ↑coprime at cpx, cpx, int.one_mul],
     have p ∣ y,
       begin
         apply dvd_of_of_nat_dvd_of_nat,
         rewrite [-this],
-        apply int.dvd_add,
-          {apply int.dvd_mul_of_dvd_left,
-            apply int.dvd_mul_of_dvd_right,
-            apply int.dvd.refl},
+        apply @dvd_add,
+          {apply dvd_mul_of_dvd_left,
+            apply dvd_mul_of_dvd_right,
+            apply dvd.refl},
           {rewrite int.mul.assoc,
-            apply int.dvd_mul_of_dvd_right,
+            apply dvd_mul_of_dvd_right,
             apply of_nat_dvd_of_nat_of_dvd H}
       end,
     or.inr this)

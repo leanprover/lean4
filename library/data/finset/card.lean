@@ -7,6 +7,7 @@ Cardinality calculations for finite sets.
 -/
 import .to_set .bigops data.set.function data.nat.power data.nat.bigops
 open nat nat.finset eq.ops
+open - [notations] algebra
 
 namespace finset
 
@@ -42,7 +43,7 @@ end
 
 theorem card_union (s₁ s₂ : finset A) : card (s₁ ∪ s₂) = card s₁ + card s₂ - card (s₁ ∩ s₂) :=
 calc
-  card (s₁ ∪ s₂) = card (s₁ ∪ s₂) + card (s₁ ∩ s₂) - card (s₁ ∩ s₂) : add_sub_cancel
+  card (s₁ ∪ s₂) = card (s₁ ∪ s₂) + card (s₁ ∩ s₂) - card (s₁ ∩ s₂) : nat.add_sub_cancel
              ... = card s₁ + card s₂ - card (s₁ ∩ s₂)               : card_add_card
 
 theorem card_union_of_disjoint {s₁ s₂ : finset A} (H : s₁ ∩ s₂ = ∅) :

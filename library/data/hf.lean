@@ -11,7 +11,8 @@ this bijection is implemeted using the Ackermann coding.
 -/
 import data.nat data.finset.equiv data.list
 open nat binary
-open -[notations]finset
+open -[notations] finset
+open -[notations] algebra
 
 definition hf := nat
 
@@ -23,7 +24,7 @@ protected definition prio : num := num.succ std.priority.default
 protected definition is_inhabited [instance] : inhabited hf :=
 nat.is_inhabited
 
-protected definition has_decidable_eq [instance] : decidable_eq hf :=
+protected definition has_decidable_eq [reducible] [instance] : decidable_eq hf :=
 nat.has_decidable_eq
 
 definition of_finset (s : finset hf) : hf :=
@@ -71,7 +72,8 @@ lemma insert_lt_of_not_mem {a s : hf} : a ∉ s → s < insert a s :=
 begin
   unfold [insert, of_finset, equiv.to_fun, finset_nat_equiv_nat, mem, to_finset, equiv.inv],
   intro h,
-  krewrite [finset.to_nat_insert h, to_nat_of_nat, -zero_add s at {1}],
+  rewrite [finset.to_nat_insert h],
+  rewrite [to_nat_of_nat, -zero_add s at {1}],
   apply add_lt_add_right,
   apply pow_pos_of_pos _ dec_trivial
 end
@@ -81,7 +83,8 @@ lemma insert_lt_insert_of_not_mem_of_not_mem_of_lt {a s₁ s₂ : hf}
 begin
   unfold [insert, of_finset, equiv.to_fun, finset_nat_equiv_nat, mem, to_finset, equiv.inv],
   intro h₁ h₂ h₃,
-  krewrite [finset.to_nat_insert h₁, finset.to_nat_insert h₂, *to_nat_of_nat],
+  rewrite [finset.to_nat_insert h₁],
+  rewrite [finset.to_nat_insert h₂, *to_nat_of_nat],
   apply add_lt_add_left h₃
 end
 

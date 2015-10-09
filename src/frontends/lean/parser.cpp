@@ -1181,7 +1181,7 @@ static bool curr_is_terminator_of_exprs_action(parser const & p, list<pair<notat
         notation::action const & a = pr.first.get_action();
         if (a.kind() == notation::action_kind::Exprs &&
             a.get_terminator() &&
-            p.curr_is_token(*a.get_terminator())) {
+            p.curr_is_token(name(utf8_trim(a.get_terminator()->to_string())))) {
             r = &pr;
             return true;
         }
@@ -1265,9 +1265,11 @@ expr parser::parse_notation_core(parse_table t, expr * left, bool as_tactic) {
         case notation::action_kind::Exprs: {
             buffer<expr> r_args;
             auto terminator = a.get_terminator();
+            if (terminator)
+                terminator = some(name(utf8_trim(terminator->to_string()))); // remove padding
             if (!terminator || !curr_is_token(*terminator)) {
                 r_args.push_back(parse_expr_or_tactic(a.rbp(), as_tactic));
-                name sep = utf8_trim(a.get_sep().to_string());
+                name sep = utf8_trim(a.get_sep().to_string()); // remove padding
                 while (curr_is_token(sep)) {
                     next();
                     r_args.push_back(parse_expr_or_tactic(a.rbp(), as_tactic));

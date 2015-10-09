@@ -52,8 +52,6 @@ rfl
 
 notation [priority int.prio] a ≡ b `[mod `:100 c `]`:0 := a mod c = b mod c
 
-lemma modulo.def (a b : ℤ) : a mod b = a - a div b * b := rfl
-
 /- div  -/
 
 theorem of_nat_div (m n : nat) : of_nat (m div n) = (of_nat m) div (of_nat n) :=

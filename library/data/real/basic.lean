@@ -21,8 +21,11 @@ The construction of the reals is arranged in four files.
 - complete.lean
 -/
 import data.nat data.rat.order data.pnat
-open nat eq eq.ops pnat
-open -[coercions] rat
+open nat eq pnat
+open - [coercions] rat
+open - [notations] algebra
+
+local postfix `⁻¹` := pnat.inv
 local notation 0 := rat.of_num 0
 local notation 1 := rat.of_num 1
 
@@ -30,89 +33,117 @@ local notation 1 := rat.of_num 1
 
 private theorem s_mul_assoc_lemma_3 (a b n : ℕ+) (p : ℚ) :
         p * ((a * n)⁻¹ + (b * n)⁻¹) = p * (a⁻¹ + b⁻¹) * n⁻¹ :=
-  by rewrite [rat.mul.assoc, rat.right_distrib, *inv_mul_eq_mul_inv]
+by rewrite [rat.mul.assoc, right_distrib, *inv_mul_eq_mul_inv]
 
 private theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0) (H : n ≥ pceil (q / ε)) :
         q * n⁻¹ ≤ ε :=
-  begin
-    let H2 := pceil_helper H (div_pos_of_pos_of_pos Hq Hε),
-    let H3 := mul_le_of_le_div (div_pos_of_pos_of_pos Hq Hε) H2,
-    rewrite -(one_mul ε),
-    apply mul_le_mul_of_mul_div_le,
-    repeat assumption
-  end
+begin
+  let H2 := pceil_helper H (div_pos_of_pos_of_pos Hq Hε),
+  let H3 := mul_le_of_le_div (div_pos_of_pos_of_pos Hq Hε) H2,
+  rewrite -(one_mul ε),
+  apply mul_le_mul_of_mul_div_le,
+  repeat assumption
+end
 
 private theorem find_thirds (a b : ℚ) (H : b > 0) : ∃ n : ℕ+, a + n⁻¹ + n⁻¹ + n⁻¹ < a + b :=
-  let n := pceil (of_nat 4 / b) in
-  have of_nat 3 * n⁻¹ < b, from calc
+let n := pceil (of_nat 4 / b) in
+have of_nat 3 * n⁻¹ < b, from calc
    of_nat 3 * n⁻¹ < of_nat 4 * n⁻¹
-                  : rat.mul_lt_mul_of_pos_right dec_trivial !inv_pos
+                  : mul_lt_mul_of_pos_right dec_trivial !inv_pos
               ... ≤ of_nat 4 * (b / of_nat 4)
-                  : rat.mul_le_mul_of_nonneg_left (!inv_pceil_div dec_trivial H) !of_nat_nonneg
-              ... = b / of_nat 4 * of_nat 4 : rat.mul.comm
-              ... = b : !rat.div_mul_cancel dec_trivial,
+                  : mul_le_mul_of_nonneg_left (!inv_pceil_div dec_trivial H) !of_nat_nonneg
+              ... = b / of_nat 4 * of_nat 4 : algebra.mul.comm
+              ... = b : !div_mul_cancel dec_trivial,
   exists.intro n (calc
-    a + n⁻¹ + n⁻¹ + n⁻¹ = a + (1 + 1 + 1) * n⁻¹ : by rewrite[*rat.right_distrib,*rat.one_mul,-*rat.add.assoc]
+    a + n⁻¹ + n⁻¹ + n⁻¹ = a + (1 + 1 + 1) * n⁻¹ : by rewrite [+right_distrib, +rat.one_mul, -+algebra.add.assoc]
                     ... = a + of_nat 3 * n⁻¹    : {show 1+1+1=of_nat 3, from dec_trivial}
                     ... < a + b                 : rat.add_lt_add_left this a)
 
+
 private theorem squeeze {a b : ℚ} (H : ∀ j : ℕ+, a ≤ b + j⁻¹ + j⁻¹ + j⁻¹) : a ≤ b :=
-  begin
-    apply rat.le_of_not_gt,
-    intro Hb,
-    cases exists_add_lt_and_pos_of_lt Hb with [c, Hc],
-    cases find_thirds b c (and.right Hc) with [j, Hbj],
-    have Ha : a > b + j⁻¹ + j⁻¹ + j⁻¹, from lt.trans Hbj (and.left Hc),
-    apply (not_le_of_gt Ha) !H
-  end
+begin
+  apply algebra.le_of_not_gt,
+  intro Hb,
+  cases exists_add_lt_and_pos_of_lt Hb with [c, Hc],
+  cases find_thirds b c (and.right Hc) with [j, Hbj],
+  have Ha : a > b + j⁻¹ + j⁻¹ + j⁻¹, from lt.trans Hbj (and.left Hc),
+  apply (not_le_of_gt Ha) !H
+end
 
 private theorem rewrite_helper (a b c d : ℚ) : a * b  - c * d = a * (b - d) + (a - c) * d :=
-  by rewrite[rat.mul_sub_left_distrib, rat.mul_sub_right_distrib, add_sub, rat.sub_add_cancel]
+by rewrite [algebra.mul_sub_left_distrib, algebra.mul_sub_right_distrib, add_sub, algebra.sub_add_cancel]
 
 private theorem rewrite_helper3 (a b c d e f g: ℚ) : a * (b + c) - (d * e + f * g) =
         (a * b - d * e) + (a * c - f * g) :=
-  by rewrite[rat.mul.left_distrib, add_sub_comm]
+by rewrite [rat.mul.left_distrib, add_sub_comm]
 
 private theorem rewrite_helper4 (a b c d : ℚ) : a * b - c * d = (a * b - a * d) + (a * d - c * d) :=
-  by rewrite[add_sub, rat.sub_add_cancel]
+by rewrite[add_sub, algebra.sub_add_cancel]
 
 private theorem rewrite_helper5 (a b x y : ℚ) : a - b = (a - x) + (x - y) + (y - b) :=
-  by rewrite[*add_sub, *rat.sub_add_cancel]
+by rewrite[*add_sub, *algebra.sub_add_cancel]
 
 private theorem rewrite_helper7 (a b c d x : ℚ) :
         a * b * c - d = (b * c) * (a - x) + (x * b * c - d) :=
-  by rewrite[rat.mul_sub_left_distrib, add_sub]; exact (calc
-     a * b * c - d = a * b * c - x * b * c + x * b * c - d : rat.sub_add_cancel
-           ... = b * c * a - b * c * x + x * b * c - d :
-       have ∀ {a b c : ℚ}, a * b * c = b * c * a, from
-         λa b c, !rat.mul.comm ▸ !rat.mul.right_comm,
-       this ▸ this ▸ rfl)
+begin
+  have ∀ (a b c : ℚ), a * b * c = b * c * a,
+    begin
+      intros a b c,
+      rewrite (algebra.mul.right_comm b c a),
+      rewrite (algebra.mul.comm b a)
+    end,
+  rewrite[algebra.mul_sub_left_distrib, add_sub],
+  calc
+     a * b * c - d = a * b * c - x * b * c + x * b * c - d : algebra.sub_add_cancel
+               ... = b * c * a - b * c * x + x * b * c - d :
+       begin
+         rewrite [this a b c, this x b c]
+       end
+end
 
 private theorem ineq_helper (a b : ℚ) (k m n : ℕ+) (H : a ≤ (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹)
                     (H2 : b ≤ (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹) :
         (rat_of_pnat k) * a + b * (rat_of_pnat k) ≤ m⁻¹ + n⁻¹ :=
-  have (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹ = (2 * k)⁻¹ * (m⁻¹ + n⁻¹),
-    by rewrite[rat.mul.left_distrib,*inv_mul_eq_mul_inv]; exact !rat.mul.comm ▸ rfl,
-  have a + b ≤ k⁻¹ * (m⁻¹ + n⁻¹), from calc
-   a + b ≤ (2 * k)⁻¹ * (m⁻¹ + n⁻¹) + (2 * k)⁻¹ * (m⁻¹ + n⁻¹) : rat.add_le_add (this ▸ H) (this ▸ H2)
-     ... = ((2 * k)⁻¹ + (2 * k)⁻¹) * (m⁻¹ + n⁻¹) : rat.mul.right_distrib
-     ... = k⁻¹ * (m⁻¹ + n⁻¹) : (pnat.add_halves k) ▸ rfl,
-  calc (rat_of_pnat k) * a + b * (rat_of_pnat k)
-         = (rat_of_pnat k) * a + (rat_of_pnat k) * b : rat.mul.comm
-     ... = (rat_of_pnat k) * (a + b) : rat.left_distrib
-     ... ≤ (rat_of_pnat k) * (k⁻¹ * (m⁻¹ + n⁻¹)) :
-             iff.mp (!rat.le_iff_mul_le_mul_left !rat_of_pnat_is_pos) this
-     ... = m⁻¹ + n⁻¹ : by rewrite[-rat.mul.assoc, inv_cancel_left, rat.one_mul]
+assert H3 : (k * 2 * m)⁻¹ + (k * 2 * n)⁻¹ = (2 * k)⁻¹ * (m⁻¹ + n⁻¹),
+  begin
+    rewrite [rat.mul.left_distrib,*inv_mul_eq_mul_inv],
+    rewrite (rat.mul.comm k⁻¹)
+  end,
+have H' : a ≤ (2 * k)⁻¹ * (m⁻¹ + n⁻¹),
+  begin
+    rewrite H3 at H,
+    exact H
+  end,
+have H2' : b ≤ (2 * k)⁻¹ * (m⁻¹ + n⁻¹),
+  begin
+    rewrite H3 at H2,
+    exact H2
+  end,
+have a + b ≤ k⁻¹ * (m⁻¹ + n⁻¹), from calc
+   a + b ≤ (2 * k)⁻¹ * (m⁻¹ + n⁻¹) + (2 * k)⁻¹ * (m⁻¹ + n⁻¹) : algebra.add_le_add H' H2'
+     ... = ((2 * k)⁻¹ + (2 * k)⁻¹) * (m⁻¹ + n⁻¹)             : by rewrite rat.mul.right_distrib
+     ... = k⁻¹ * (m⁻¹ + n⁻¹)                                 : by rewrite (pnat.add_halves k),
+calc (rat_of_pnat k) * a + b * (rat_of_pnat k)
+         = (rat_of_pnat k) * a + (rat_of_pnat k) * b         : by rewrite (algebra.mul.comm b)
+     ... = (rat_of_pnat k) * (a + b)                         : algebra.left_distrib
+     ... ≤ (rat_of_pnat k) * (k⁻¹ * (m⁻¹ + n⁻¹))             :
+             iff.mp (!algebra.le_iff_mul_le_mul_left !rat_of_pnat_is_pos) this
+     ... = m⁻¹ + n⁻¹                                         :
+             by rewrite[-rat.mul.assoc, inv_cancel_left, rat.one_mul]
 
 private theorem factor_lemma (a b c d e : ℚ) : abs (a + b + c - (d + (b + e))) = abs ((a - d) + (c - e)) :=
   !congr_arg (calc
     a + b + c - (d + (b + e)) = a + b + c - (d + b + e)   : rat.add.assoc
                          ...  = a + b - (d + b) + (c - e) : add_sub_comm
                          ...  = a + b - b - d + (c - e)   : sub_add_eq_sub_sub_swap
-                         ...  = a - d + (c - e)           : rat.add_sub_cancel)
+                         ...  = a - d + (c - e)           : algebra.add_sub_cancel)
 
 private theorem factor_lemma_2 (a b c d : ℚ) : (a + b) + (c + d) = (a + c) + (d + b) :=
-  !rat.add.comm ▸ (binary.comm4 rat.add.comm rat.add.assoc a b c d)
+begin
+   let H := (binary.comm4 rat.add.comm rat.add.assoc a b c d),
+   rewrite [algebra.add.comm b d at H],
+   exact H
+end
 
 --------------------------------------
 -- define cauchy sequences and equivalence. show equivalence actually is one
@@ -126,30 +157,30 @@ definition equiv (s t : seq) := ∀ n : ℕ+, abs (s n - t n) ≤ n⁻¹ + n⁻�
 infix `≡` := equiv
 
 theorem equiv.refl (s : seq) : s ≡ s :=
-  begin
-    intros,
-    rewrite [rat.sub_self, abs_zero],
-    apply add_invs_nonneg
-  end
+begin
+  intros,
+  rewrite [algebra.sub_self, abs_zero],
+  apply add_invs_nonneg
+end
 
 theorem equiv.symm (s t : seq) (H : s ≡ t) : t ≡ s :=
-  begin
-    intros,
-    rewrite [-abs_neg, neg_sub],
-    exact H n
-  end
+begin
+  intros,
+  rewrite [-abs_neg, neg_sub],
+  exact H n
+end
 
 theorem bdd_of_eq {s t : seq} (H : s ≡ t) :
         ∀ j : ℕ+, ∀ n : ℕ+, n ≥ 2 * j → abs (s n - t n) ≤ j⁻¹ :=
-  begin
-    intros [j, n, Hn],
-    apply rat.le.trans,
-    apply H,
-    rewrite -(add_halves j),
-    apply rat.add_le_add,
-    apply inv_ge_of_le Hn,
-    apply inv_ge_of_le Hn
-  end
+begin
+  intros [j, n, Hn],
+  apply algebra.le.trans,
+  apply H,
+  rewrite -(add_halves j),
+  apply algebra.add_le_add,
+  apply inv_ge_of_le Hn,
+  apply inv_ge_of_le Hn
+end
 
 theorem eq_of_bdd {s t : seq} (Hs : regular s) (Ht : regular t)
         (H : ∀ j : ℕ+, ∃ Nj : ℕ+, ∀ n : ℕ+, Nj ≤ n → abs (s n - t n) ≤ j⁻¹) : s ≡ t :=

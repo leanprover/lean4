@@ -128,7 +128,9 @@
     st))
 
 (defconst lean-font-lock-defaults
-  `((;; Keywords
+  `((;; modifiers
+     (,lean-modifiers-regexp . 'font-lock-doc-face)
+     ;; Keywords
      ("\\(set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
      (,lean-keywords2-regexp . 'font-lock-keyword-face)
      (,lean-keywords1-regexp . 'font-lock-keyword-face)
@@ -145,8 +147,6 @@
       (2 'font-lock-function-name-face))
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
-     ;; modifiers
-     (,lean-modifiers-regexp . 'font-lock-doc-face)
      (,(rx "\[priority" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      (,(rx "\[recursor" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      (,(rx "\[unfold" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
@@ -170,7 +170,8 @@
      ;; warnings
      (,lean-warnings-regexp . 'font-lock-warning-face)
      ;; extra-keywords
-     (,(rx (or "∎")) . 'font-lock-keyword-face))))
+     (,(rx (or "∎")) . 'font-lock-keyword-face)
+     )))
 
 ;; Syntax Highlighting for Lean Info Mode
 (defconst lean-info-font-lock-defaults

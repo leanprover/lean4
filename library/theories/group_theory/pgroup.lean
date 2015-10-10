@@ -320,10 +320,12 @@ lemma generator_of_prime_of_dvd_order {p : nat}
 assume Pprime Pdvd,
 let pp := nat.pred p, spp := nat.succ pp in
 assert Peq : spp = p, from succ_pred_prime Pprime,
-have Ppsubg : psubg (@univ (fin spp) _) spp 1,
+assert Ppsubg : psubg (@univ (fin spp) _) spp 1,
   from and.intro (eq.symm Peq ▸ Pprime) (by rewrite [Peq, card_fin, pow_one]),
-have Pcardmod : (nat.pow (card A) pp) mod p = (card (fixed_points (rotl_perm_ps A pp) univ)) mod p,
-  from Peq ▸ card_peo_seq ▸ card_mod_eq_of_action_by_psubg Ppsubg,
+have (pow_nat (card A) pp) mod spp = (card (fixed_points (rotl_perm_ps A pp) univ)) mod spp,
+  by rewrite -card_peo_seq; apply card_mod_eq_of_action_by_psubg Ppsubg,
+have Pcardmod : (pow_nat (card A) pp) mod p = (card (fixed_points (rotl_perm_ps A pp) univ)) mod p,
+  from Peq ▸ this,
 have Pfpcardmod : (card (fixed_points (rotl_perm_ps A pp) univ)) mod p = 0,
   from eq.trans (eq.symm Pcardmod) (mod_eq_zero_of_dvd (dvd_pow_of_dvd_of_pos Pdvd (pred_prime_pos Pprime))),
 have Pfpcardpos : card (fixed_points (rotl_perm_ps A pp) univ) > 0,
@@ -345,7 +347,6 @@ decidable.by_cases
       (and.intro Pne₂ (Peq ▸ pow_eq_one_of_mem_fixed_points Pin₂)))
   (λ Pne, exists.intro (elt_of s₁ !zero)
     (and.intro Pne (Peq ▸ pow_eq_one_of_mem_fixed_points Pin₁)))
-
 end
 
 theorem cauchy_theorem {p : nat} : prime p → p ∣ card A → ∃ g : A, order g = p :=

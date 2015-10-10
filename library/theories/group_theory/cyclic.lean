@@ -48,7 +48,7 @@ lemma pow_madd {a : A} {n : nat} {i j : fin (succ n)} :
   a^(succ n) = 1 → a^(val (i + j)) = a^i * a^j :=
 assume Pe, calc
 a^(val (i + j)) = a^((i + j) mod (succ n)) : rfl
-            ... = a^(i + j)                : by rewrite [-pow_mod Pe]
+            ... = a^(val i + val j)        : by rewrite [-pow_mod Pe]
             ... = a^i * a^j                : by rewrite pow_add
 
 lemma mk_pow_mod {a : A} {n m : nat} : a ^ (succ m) = 1 → a ^ n = a ^ (mk_mod m n) :=
@@ -87,7 +87,7 @@ definition cyc (a : A) : finset A := {x ∈ univ | bex (succ (card A)) (λ n, a 
 
 definition order (a : A) := card (cyc a)
 
-definition pow_fin (a : A) (n : nat) (i : fin (order a)) := pow a (i + n)
+definition pow_fin (a : A) (n : nat) (i : fin (order a)) := a ^ (i + n)
 
 definition cyc_pow_fin (a : A) (n : nat) : finset A := image (pow_fin a n) univ
 
@@ -143,7 +143,7 @@ lemma mem_cyc (a : A) : ∀ {n : nat}, a^n ∈ cyc a
   begin rewrite pow_succ', apply cyc_mul_closed a, exact mem_cyc, apply self_mem_cyc end
 
 lemma order_le {a : A} {n : nat} : a^(succ n) = 1 → order a ≤ succ n :=
-assume Pe, let s := image (pow a) (upto (succ n)) in
+assume Pe, let s := image (pow_nat a) (upto (succ n)) in
 assert Psub: cyc a ⊆ s, from subset_of_forall
   (take g, assume Pgin, obtain i Pilt Pig, from of_mem_sep Pgin, begin
   rewrite [-Pig, pow_mod Pe],
@@ -155,14 +155,14 @@ assert Psub: cyc a ⊆ s, from subset_of_forall
               ... = succ n               : card_upto (succ n)
 
 lemma pow_ne_of_lt_order {a : A} {n : nat} : succ n < order a → a^(succ n) ≠ 1 :=
-assume Plt, not_imp_not_of_imp order_le (nat.not_le_of_gt Plt)
+assume Plt, not_imp_not_of_imp order_le (not_le_of_gt Plt)
 
 lemma eq_zero_of_pow_eq_one {a : A} : ∀ {n : nat}, a^n = 1 → n < order a → n = 0
 | 0        := assume Pe Plt, rfl
 | (succ n) := assume Pe Plt, absurd Pe (pow_ne_of_lt_order Plt)
 
 lemma pow_fin_inj (a : A) (n : nat) : injective (pow_fin a n) :=
-take i j,
+take i j : fin (order a),
 suppose a^(i + n) = a^(j + n),
 have    a^(dist i j) = 1, begin apply !dist_add_add_right ▸ (pow_dist_eq_one_of_pow_eq this) end,
 have    dist i j = 0,     from
@@ -214,12 +214,12 @@ is_finsubg.mk (cyc_has_one a) (cyc_mul_closed a) (cyc_has_inv a)
 lemma order_dvd_group_order (a : A) : order a ∣ card A :=
 dvd.intro (eq.symm (!mul.comm ▸ lagrange_theorem (subset_univ (cyc a))))
 
-definition pow_fin' (a : A) (i : fin (succ (pred (order a)))) := pow a i
+definition pow_fin' (a : A) (i : fin (succ (pred (order a)))) := pow_nat a i
 
 local attribute group_of_add_group [instance]
 
 lemma pow_fin_hom (a : A) : homomorphic (pow_fin' a) :=
-take i j,
+take i j : fin (succ (pred (order a))),
 begin
   rewrite [↑pow_fin'],
   apply pow_madd,
@@ -239,7 +239,6 @@ open fin fintype list
 
 section
 local attribute group_of_add_group [instance]
-local infix ^ := algebra.pow
 lemma pow_eq_mul {n : nat} {i : fin (succ n)} : ∀ {k : nat}, i^k = mk_mod n (i*k)
 | 0        := by rewrite [pow_zero]
 | (succ k) := begin
@@ -290,7 +289,7 @@ lemma rotl_rotr : ∀ {n : nat} (m : nat), (@rotl n m) ∘ (rotr m) = id
 | (nat.succ n) := take m, funext take i, calc (mk_mod n (n*m)) + (-(mk_mod n (n*m)) + i) = i : add_neg_cancel_left
 
 lemma rotl_succ {n : nat} : (rotl 1) ∘ (@succ n) = lift_succ :=
-funext (take i, eq_of_veq (begin rewrite [↑compose, ↑rotl, ↑madd, mul_one n, ↑mk_mod, mod_add_mod, ↑lift_succ, val_succ, -succ_add_eq_succ_add, add_mod_self_left, mod_eq_of_lt (lt.trans (is_lt i) !lt_succ_self), -val_lift] end))
+funext (take i, eq_of_veq (begin krewrite [↑compose, ↑rotl, ↑madd, mul_one n, ↑mk_mod, mod_add_mod, ↑lift_succ, val_succ, -succ_add_eq_succ_add, add_mod_self_left, mod_eq_of_lt (lt.trans (is_lt i) !lt_succ_self), -val_lift] end))
 
 definition list.rotl {A : Type} : ∀ l : list A, list A
 | []     := []

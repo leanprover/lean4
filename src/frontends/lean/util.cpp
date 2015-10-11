@@ -16,6 +16,8 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/explicit.h"
 #include "library/aliases.h"
+#include "library/constants.h"
+#include "library/typed_expr.h"
 #include "library/normalize.h"
 #include "library/placeholder.h"
 #include "library/abbreviation.h"
@@ -475,14 +477,11 @@ optional<unsigned> parse_priority(parser & p) {
     if (p.curr_is_token(get_priority_tk())) {
         p.next();
         auto pos = p.pos();
-        environment env = open_num_notation(p.env());
-        parser::local_scope scope(p, env);
-        expr val = p.parse_expr();
-        // Remark: open_num_notation will not override numeral overloading.
-        // So, we use the following helper class for eliminating it.
-        val = elim_choice_num(val);
+        expr pre_val = p.parse_expr(get_max_prec());
+        pre_val  = mk_typed_expr(mk_constant(get_num_name()), pre_val);
+        expr val = std::get<0>(p.elaborate(pre_val, list<expr>()));
         val = normalize(p.env(), val);
-        if (optional<mpz> mpz_val = to_num(val)) {
+        if (optional<mpz> mpz_val = to_num_core(val)) {
             if (!mpz_val->is_unsigned_int())
                 throw parser_error("invalid 'priority', argument does not fit in a machine integer", pos);
             p.check_token_next(get_rbracket_tk(), "invalid 'priority', ']' expected");

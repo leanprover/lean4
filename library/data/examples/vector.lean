@@ -76,14 +76,14 @@ namespace vector
 
   definition tabulate : Π {n : nat}, (fin n → A) → vector A n
   | 0      f :=  []
-  | (n+1)  f :=  f (@zero n) :: tabulate (λ i : fin n, f (succ i))
+  | (n+1)  f :=  f (fin.zero n) :: tabulate (λ i : fin n, f (succ i))
 
   theorem nth_tabulate : ∀ {n : nat} (f : fin n → A) (i : fin n), nth (tabulate f) i = f i
   | 0     f i               := elim0 i
   | (n+1) f (mk 0 h)        := by reflexivity
   | (n+1) f (mk (succ i) h) :=
     begin
-      change nth (f (@zero n) :: tabulate (λ i : fin n, f (succ i))) (mk (succ i) h) = f (mk (succ i) h),
+      change nth (f (fin.zero n) :: tabulate (λ i : fin n, f (succ i))) (mk (succ i) h) = f (mk (succ i) h),
       rewrite nth_succ,
       rewrite nth_tabulate
     end

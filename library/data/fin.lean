@@ -86,8 +86,11 @@ assume Pex, absurd Pmltn (not_lt_of_ge
 
 end pigeonhole
 
-definition zero (n : nat) : fin (succ n) :=
+protected definition zero (n : nat) : fin (succ n) :=
 mk 0 !zero_lt_succ
+
+definition fin_has_zero [instance] [reducible] (n : nat) : has_zero (fin (succ n)) :=
+has_zero.mk (fin.zero n)
 
 definition mk_mod [reducible] (n i : nat) : fin (succ n) :=
 mk (i mod (succ n)) (mod_lt _ !zero_lt_succ)
@@ -112,7 +115,7 @@ mk n !lt_succ_self
 theorem val_lift : ∀ (i : fin n) (m : nat), val i = val (lift i m)
 | (mk v h) m := rfl
 
-lemma mk_succ_ne_zero {i : nat} : ∀ {P}, mk (succ i) P ≠ zero n :=
+lemma mk_succ_ne_zero {i : nat} : ∀ {P}, mk (succ i) P ≠ fin.zero n :=
 assume P Pe, absurd (veq_of_eq Pe) !succ_ne_zero
 
 lemma mk_mod_eq {i : fin (succ n)} : i = mk_mod n i :=
@@ -123,7 +126,7 @@ begin esimp [mk_mod], congruence, exact mod_eq_of_lt Plt end
 
 section lift_lower
 
-lemma lift_zero : lift_succ (zero n) = zero (succ n) := rfl
+lemma lift_zero : lift_succ (fin.zero n) = fin.zero (succ n) := rfl
 
 lemma ne_max_of_lt_max {i : fin (succ n)} : i < n → i ≠ maxi :=
 by intro hlt he; substvars; exact absurd hlt (lt.irrefl n)
@@ -235,23 +238,23 @@ lemma val_mod : ∀ i : fin (succ n), (val i) mod (succ n) = val i
 lemma madd_comm (i j : fin (succ n)) : madd i j = madd j i :=
 by apply eq_of_veq; rewrite [*val_madd, add.comm (val i)]
 
-lemma zero_madd (i : fin (succ n)) : madd (zero n) i = i :=
-by apply eq_of_veq; rewrite [val_madd, ↑zero, nat.zero_add, mod_eq_of_lt (is_lt i)]
+lemma zero_madd (i : fin (succ n)) : madd (fin.zero n) i = i :=
+by apply eq_of_veq; rewrite [val_madd, ↑fin.zero, nat.zero_add, mod_eq_of_lt (is_lt i)]
 
-lemma madd_zero (i : fin (succ n)) : madd i (zero n) = i :=
+lemma madd_zero (i : fin (succ n)) : madd i (fin.zero n) = i :=
 !madd_comm ▸ zero_madd i
 
 lemma madd_assoc (i j k : fin (succ n)) : madd (madd i j) k = madd i (madd j k) :=
 by apply eq_of_veq; rewrite [*val_madd, mod_add_mod, add_mod_mod, add.assoc (val i)]
 
-lemma madd_left_inv : ∀ i : fin (succ n), madd (minv i) i = zero n
+lemma madd_left_inv : ∀ i : fin (succ n), madd (minv i) i = fin.zero n
 | (mk iv ilt) := eq_of_veq (by
-  rewrite [val_madd, ↑minv, ↑zero, mod_add_mod, sub_add_cancel (le_of_lt ilt), mod_self])
+  rewrite [val_madd, ↑minv, ↑fin.zero, mod_add_mod, sub_add_cancel (le_of_lt ilt), mod_self])
 
 open algebra
 
 definition madd_is_comm_group [instance] : add_comm_group (fin (succ n)) :=
-add_comm_group.mk madd madd_assoc (zero n) zero_madd madd_zero minv madd_left_inv madd_comm
+add_comm_group.mk madd madd_assoc (fin.zero n) zero_madd madd_zero minv madd_left_inv madd_comm
 
 end madd
 
@@ -261,7 +264,7 @@ definition pred : fin n → fin n
 lemma val_pred : ∀ (i : fin n), val (pred i) = nat.pred (val i)
 | (mk v h) := rfl
 
-lemma pred_zero : pred (zero n) = zero n :=
+lemma pred_zero : pred (fin.zero n) = fin.zero n :=
 rfl
 
 definition mk_pred (i : nat) (h : succ i < succ n) : fin n :=
@@ -282,7 +285,7 @@ definition elim0 {C : fin 0 → Type} : Π i : fin 0, C i
 | (mk v h) := absurd h !not_lt_zero
 
 definition zero_succ_cases {C : fin (nat.succ n) → Type} :
-  C (zero n) → (Π j : fin n, C (succ j)) → (Π k : fin (nat.succ n), C k) :=
+  C (fin.zero n) → (Π j : fin n, C (succ j)) → (Π k : fin (nat.succ n), C k) :=
 begin
   intros CO CS k,
   induction k with [vk, pk],
@@ -299,7 +302,7 @@ begin
   { show C (mk vk pk), from
     have vk = 0, from
       eq_zero_of_le_zero (le_of_not_gt HF),
-    have zero n = mk vk pk, from
+    have fin.zero n = mk vk pk, from
       val_inj (eq.symm this),
     eq.rec_on this CO }
 end
@@ -323,7 +326,7 @@ begin
 end
 
 definition foldr {A B : Type} (m : A → B → B) (b : B) : ∀ {n : nat}, (fin n → A) → B :=
-  nat.rec (λ f, b) (λ n IH f, m (f (zero n)) (IH (λ i : fin n, f (succ i))))
+  nat.rec (λ f, b) (λ n IH f, m (f (fin.zero n)) (IH (λ i : fin n, f (succ i))))
 
 definition foldl {A B : Type} (m : B → A → B) (b : B) : ∀ {n : nat}, (fin n → A) → B :=
   nat.rec (λ f, b) (λ n IH f, m (IH (λ i : fin n, f (lift_succ i))) (f maxi))
@@ -337,7 +340,7 @@ begin
     apply nonempty.intro,
     exact elim0 },
   { intros C H,
-    fapply nonempty.elim (H (zero n)),
+    fapply nonempty.elim (H (fin.zero n)),
     intro CO,
     fapply nonempty.elim (IH (λ i, C (succ i)) (λ i, H (succ i))),
     intro CS,
@@ -364,10 +367,10 @@ begin
   apply dmap_map_lift, apply @list.lt_of_mem_upto
 end
 
-definition upto_step : ∀ {n : nat}, fin.upto (n +1) = (map succ (upto n))++[zero n]
+definition upto_step : ∀ {n : nat}, fin.upto (n +1) = (map succ (upto n))++[fin.zero n]
 | 0      := rfl
 | (i +1) := begin rewrite [upto_succ i, map_cons, append_cons, succ_max, upto_succ, -lift_zero],
-  congruence, rewrite [map_map, -lift_succ.comm, -map_map, -(map_singleton _ (zero i)), -map_append, -upto_step] end
+  congruence, rewrite [map_map, -lift_succ.comm, -map_map, -(map_singleton _ (fin.zero i)), -map_append, -upto_step] end
 end
 
 open sum equiv decidable

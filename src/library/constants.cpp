@@ -8,6 +8,8 @@ name const * g_and = nullptr;
 name const * g_and_elim_left = nullptr;
 name const * g_and_elim_right = nullptr;
 name const * g_and_intro = nullptr;
+name const * g_bit0 = nullptr;
+name const * g_bit1 = nullptr;
 name const * g_bool = nullptr;
 name const * g_bool_ff = nullptr;
 name const * g_bool_tt = nullptr;
@@ -15,6 +17,7 @@ name const * g_char = nullptr;
 name const * g_char_mk = nullptr;
 name const * g_congr = nullptr;
 name const * g_dite = nullptr;
+name const * g_div = nullptr;
 name const * g_empty = nullptr;
 name const * g_empty_rec = nullptr;
 name const * g_eq = nullptr;
@@ -31,6 +34,9 @@ name const * g_exists_elim = nullptr;
 name const * g_false = nullptr;
 name const * g_false_rec = nullptr;
 name const * g_funext = nullptr;
+name const * g_has_zero = nullptr;
+name const * g_has_one = nullptr;
+name const * g_has_add = nullptr;
 name const * g_heq = nullptr;
 name const * g_heq_refl = nullptr;
 name const * g_heq_to_eq = nullptr;
@@ -54,6 +60,7 @@ name const * g_not = nullptr;
 name const * g_num = nullptr;
 name const * g_num_zero = nullptr;
 name const * g_num_pos = nullptr;
+name const * g_one = nullptr;
 name const * g_option = nullptr;
 name const * g_option_some = nullptr;
 name const * g_option_none = nullptr;
@@ -146,12 +153,15 @@ name const * g_true_intro = nullptr;
 name const * g_is_trunc_is_hset = nullptr;
 name const * g_is_trunc_is_hprop = nullptr;
 name const * g_well_founded = nullptr;
+name const * g_zero = nullptr;
 void initialize_constants() {
     g_absurd = new name{"absurd"};
     g_and = new name{"and"};
     g_and_elim_left = new name{"and", "elim_left"};
     g_and_elim_right = new name{"and", "elim_right"};
     g_and_intro = new name{"and", "intro"};
+    g_bit0 = new name{"bit0"};
+    g_bit1 = new name{"bit1"};
     g_bool = new name{"bool"};
     g_bool_ff = new name{"bool", "ff"};
     g_bool_tt = new name{"bool", "tt"};
@@ -159,6 +169,7 @@ void initialize_constants() {
     g_char_mk = new name{"char", "mk"};
     g_congr = new name{"congr"};
     g_dite = new name{"dite"};
+    g_div = new name{"div"};
     g_empty = new name{"empty"};
     g_empty_rec = new name{"empty", "rec"};
     g_eq = new name{"eq"};
@@ -175,6 +186,9 @@ void initialize_constants() {
     g_false = new name{"false"};
     g_false_rec = new name{"false", "rec"};
     g_funext = new name{"funext"};
+    g_has_zero = new name{"has_zero"};
+    g_has_one = new name{"has_one"};
+    g_has_add = new name{"has_add"};
     g_heq = new name{"heq"};
     g_heq_refl = new name{"heq", "refl"};
     g_heq_to_eq = new name{"heq", "to_eq"};
@@ -198,6 +212,7 @@ void initialize_constants() {
     g_num = new name{"num"};
     g_num_zero = new name{"num", "zero"};
     g_num_pos = new name{"num", "pos"};
+    g_one = new name{"one"};
     g_option = new name{"option"};
     g_option_some = new name{"option", "some"};
     g_option_none = new name{"option", "none"};
@@ -290,6 +305,7 @@ void initialize_constants() {
     g_is_trunc_is_hset = new name{"is_trunc", "is_hset"};
     g_is_trunc_is_hprop = new name{"is_trunc", "is_hprop"};
     g_well_founded = new name{"well_founded"};
+    g_zero = new name{"zero"};
 }
 void finalize_constants() {
     delete g_absurd;
@@ -297,6 +313,8 @@ void finalize_constants() {
     delete g_and_elim_left;
     delete g_and_elim_right;
     delete g_and_intro;
+    delete g_bit0;
+    delete g_bit1;
     delete g_bool;
     delete g_bool_ff;
     delete g_bool_tt;
@@ -304,6 +322,7 @@ void finalize_constants() {
     delete g_char_mk;
     delete g_congr;
     delete g_dite;
+    delete g_div;
     delete g_empty;
     delete g_empty_rec;
     delete g_eq;
@@ -320,6 +339,9 @@ void finalize_constants() {
     delete g_false;
     delete g_false_rec;
     delete g_funext;
+    delete g_has_zero;
+    delete g_has_one;
+    delete g_has_add;
     delete g_heq;
     delete g_heq_refl;
     delete g_heq_to_eq;
@@ -343,6 +365,7 @@ void finalize_constants() {
     delete g_num;
     delete g_num_zero;
     delete g_num_pos;
+    delete g_one;
     delete g_option;
     delete g_option_some;
     delete g_option_none;
@@ -435,12 +458,15 @@ void finalize_constants() {
     delete g_is_trunc_is_hset;
     delete g_is_trunc_is_hprop;
     delete g_well_founded;
+    delete g_zero;
 }
 name const & get_absurd_name() { return *g_absurd; }
 name const & get_and_name() { return *g_and; }
 name const & get_and_elim_left_name() { return *g_and_elim_left; }
 name const & get_and_elim_right_name() { return *g_and_elim_right; }
 name const & get_and_intro_name() { return *g_and_intro; }
+name const & get_bit0_name() { return *g_bit0; }
+name const & get_bit1_name() { return *g_bit1; }
 name const & get_bool_name() { return *g_bool; }
 name const & get_bool_ff_name() { return *g_bool_ff; }
 name const & get_bool_tt_name() { return *g_bool_tt; }
@@ -448,6 +474,7 @@ name const & get_char_name() { return *g_char; }
 name const & get_char_mk_name() { return *g_char_mk; }
 name const & get_congr_name() { return *g_congr; }
 name const & get_dite_name() { return *g_dite; }
+name const & get_div_name() { return *g_div; }
 name const & get_empty_name() { return *g_empty; }
 name const & get_empty_rec_name() { return *g_empty_rec; }
 name const & get_eq_name() { return *g_eq; }
@@ -464,6 +491,9 @@ name const & get_exists_elim_name() { return *g_exists_elim; }
 name const & get_false_name() { return *g_false; }
 name const & get_false_rec_name() { return *g_false_rec; }
 name const & get_funext_name() { return *g_funext; }
+name const & get_has_zero_name() { return *g_has_zero; }
+name const & get_has_one_name() { return *g_has_one; }
+name const & get_has_add_name() { return *g_has_add; }
 name const & get_heq_name() { return *g_heq; }
 name const & get_heq_refl_name() { return *g_heq_refl; }
 name const & get_heq_to_eq_name() { return *g_heq_to_eq; }
@@ -487,6 +517,7 @@ name const & get_not_name() { return *g_not; }
 name const & get_num_name() { return *g_num; }
 name const & get_num_zero_name() { return *g_num_zero; }
 name const & get_num_pos_name() { return *g_num_pos; }
+name const & get_one_name() { return *g_one; }
 name const & get_option_name() { return *g_option; }
 name const & get_option_some_name() { return *g_option_some; }
 name const & get_option_none_name() { return *g_option_none; }
@@ -579,4 +610,5 @@ name const & get_true_intro_name() { return *g_true_intro; }
 name const & get_is_trunc_is_hset_name() { return *g_is_trunc_is_hset; }
 name const & get_is_trunc_is_hprop_name() { return *g_is_trunc_is_hprop; }
 name const & get_well_founded_name() { return *g_well_founded; }
+name const & get_zero_name() { return *g_zero; }
 }

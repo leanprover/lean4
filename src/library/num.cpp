@@ -9,88 +9,92 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 
 namespace lean {
-static expr * g_num     = nullptr;
-static expr * g_pos_num = nullptr;
-static expr * g_zero    = nullptr;
-static expr * g_pos     = nullptr;
-static expr * g_one     = nullptr;
-static expr * g_bit0    = nullptr;
-static expr * g_bit1    = nullptr;
-
-void initialize_num() {
-    g_num = new expr(Const(get_num_name()));
-    g_pos_num = new expr(Const(get_pos_num_name()));
-    g_zero = new expr(Const(get_num_zero_name()));
-    g_pos = new expr(Const(get_num_pos_name()));
-    g_one = new expr(Const(get_pos_num_one_name()));
-    g_bit0 = new expr(Const(get_pos_num_bit0_name()));
-    g_bit1 = new expr(Const(get_pos_num_bit1_name()));
-}
-
-void finalize_num() {
-    delete g_num;
-    delete g_pos_num;
-    delete g_zero;
-    delete g_pos;
-    delete g_one;
-    delete g_bit0;
-    delete g_bit1;
-}
-
 bool has_num_decls(environment const & env) {
-    try {
-        type_checker tc(env);
-        return
-            tc.infer(*g_zero).first == *g_num &&
-            tc.infer(*g_pos).first  == mk_arrow(*g_pos_num, *g_num) &&
-            tc.infer(*g_one).first  == *g_pos_num &&
-            tc.infer(*g_bit0).first == mk_arrow(*g_pos_num, *g_pos_num) &&
-            tc.infer(*g_bit1).first == mk_arrow(*g_pos_num, *g_pos_num);
-    } catch (exception&) {
+    return
+        env.find(get_zero_name()) &&
+        env.find(get_one_name()) &&
+        env.find(get_bit0_name()) &&
+        env.find(get_bit1_name());
+}
+
+static bool is_const_app(expr const & e, name const & n, unsigned nargs) {
+    expr const & f = get_app_fn(e);
+    return is_constant(f) && const_name(f) == n && get_app_num_args(e) == nargs;
+}
+
+bool is_zero(expr const & e) {
+    return is_const_app(e, get_zero_name(), 2);
+}
+
+bool is_one(expr const & e) {
+    return is_const_app(e, get_one_name(), 2);
+}
+
+optional<expr> is_bit0(expr const & e) {
+    if (!is_const_app(e, get_bit0_name(), 3))
+        return none_expr();
+    return some_expr(app_arg(e));
+}
+
+optional<expr> is_bit1(expr const & e) {
+    if (!is_const_app(e, get_bit1_name(), 4))
+        return none_expr();
+    return some_expr(app_arg(e));
+}
+
+static bool is_num(expr const & e, bool first) {
+    if (is_zero(e))
+        return first;
+    else if (is_one(e))
+        return true;
+    else if (auto a = is_bit0(e))
+        return is_num(*a, false);
+    else if (auto a = is_bit1(e))
+        return is_num(*a, false);
+    else
         return false;
-    }
 }
 
-expr from_pos_num(mpz const & n) {
-    lean_assert(n > 0);
-    if (n == 1)
-        return *g_one;
-    if (n % mpz(2) == 1)
-        return mk_app(*g_bit1, from_pos_num(n / 2));
-    else
-        return mk_app(*g_bit0, from_pos_num(n / 2));
+bool is_num(expr const & e) {
+    return is_num(e, true);
 }
 
-expr from_num(mpz const & n) {
-    expr r;
-    lean_assert(n >= 0);
-    if (n == 0)
-        r = *g_zero;
-    else
-        r = mk_app(*g_pos, from_pos_num(n));
-    lean_assert(*to_num(r) == n);
-    return r;
-}
-
-optional<mpz> to_pos_num(expr const & e) {
-    if (e == *g_one) {
+static optional<mpz> to_num(expr const & e, bool first) {
+    if (is_zero(e)) {
+        return first ? some(mpz(0)) : optional<mpz>();
+    } else if (is_one(e)) {
         return some(mpz(1));
-    } else if (is_app(e)) {
-        if (app_fn(e) == *g_bit0) {
-            if (auto r = to_pos_num(app_arg(e)))
-                return some(2*(*r));
-        } else if (app_fn(e) == *g_bit1) {
-            if (auto r = to_pos_num(app_arg(e)))
-                return some(2*(*r) + 1);
-        }
+    } else if (auto a = is_bit0(e)) {
+        if (auto r = to_num(*a, false))
+            return some(2*(*r));
+    } else if (auto a = is_bit1(e)) {
+        if (auto r = to_num(*a, false))
+            return some(2*(*r)+1);
     }
     return optional<mpz>();
 }
 
 optional<mpz> to_num(expr const & e) {
-    if (e == *g_zero)
+    return to_num(e, true);
+}
+
+optional<mpz> to_pos_num(expr const & e) {
+    if (is_constant(e, get_pos_num_one_name())) {
+         return some(mpz(1));
+    } else if (is_const_app(e, get_pos_num_bit0_name(), 1)) {
+        if (auto r = to_pos_num(app_arg(e)))
+            return some(2*(*r));
+    } else if (is_const_app(e, get_pos_num_bit1_name(), 1)) {
+        if (auto r = to_pos_num(app_arg(e)))
+            return some(2*(*r) + 1);
+    }
+    return optional<mpz>();
+}
+
+optional<mpz> to_num_core(expr const & e) {
+    if (is_constant(e, get_num_zero_name()))
         return some(mpz(0));
-    else if (is_app(e) && app_fn(e) == *g_pos)
+    else if (is_const_app(e, get_num_pos_name(), 1))
         return to_pos_num(app_arg(e));
     else
         return optional<mpz>();

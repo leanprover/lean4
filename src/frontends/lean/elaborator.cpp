@@ -57,6 +57,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/calc.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/opt_cmd.h"
+#include "frontends/lean/prenum.h"
 
 namespace lean {
 type_checker_ptr mk_coercion_from_type_checker(environment const & env, name_generator && ngen) {
@@ -1579,8 +1580,53 @@ expr elaborator::visit_obtain_expr(expr const & e, constraint_seq & cs) {
     return process_obtain_expr(to_list(s), to_list(from), decls_goal, true, cs, e);
 }
 
+expr elaborator::visit_prenum(expr const & e, constraint_seq & cs) {
+    lean_assert(is_prenum(e));
+    mpz const & v  = prenum_value(e);
+    tag e_tag      = e.get_tag();
+    levels ls      = levels(mk_meta_univ(m_ngen.next()));
+    expr A         = m_full_context.mk_meta(m_ngen, none_expr(), e_tag);
+    bool is_strict = true;
+    bool inst_imp  = true;
+    if (v.is_neg())
+        throw_elaborator_exception("invalid pre-numeral, it must be a non-negative value", e);
+    if (v.is_zero()) {
+        expr has_zero_A = mk_app(mk_constant(get_has_zero_name(), ls), A, e_tag);
+        expr S          = mk_placeholder_meta(optional<name>(), some_expr(has_zero_A),
+                                              e_tag, is_strict, inst_imp, cs);
+        return mk_app(mk_app(mk_constant(get_zero_name(), ls), A, e_tag), S, e_tag);
+    } else {
+        expr has_one_A = mk_app(mk_constant(get_has_one_name(), ls), A, e_tag);
+        expr S_one     = mk_placeholder_meta(optional<name>(), some_expr(has_one_A),
+                                             e_tag, is_strict, inst_imp, cs);
+        expr one       = mk_app(mk_app(mk_constant(get_one_name(), ls), A, e_tag), S_one, e_tag);
+        if (v == 1) {
+            return one;
+        } else {
+            expr has_add_A = mk_app(mk_constant(get_has_add_name(), ls), A, e_tag);
+            expr S_add     = mk_placeholder_meta(optional<name>(), some_expr(has_add_A),
+                                                 e_tag, is_strict, inst_imp, cs);
+            std::function<expr(mpz const & v)> convert = [&](mpz const & v) {
+                lean_assert(v > 0);
+                if (v == 1)
+                    return one;
+                else if (v % mpz(2) == 0) {
+                    expr r = convert(v / 2);
+                    return mk_app(mk_app(mk_app(mk_constant(get_bit0_name(), ls), A, e_tag), S_add, e_tag), r, e_tag);
+                } else {
+                    expr r = convert(v / 2);
+                    return mk_app(mk_app(mk_app(mk_app(mk_constant(get_bit1_name(), ls), A, e_tag), S_one, e_tag), S_add, e_tag), r, e_tag);
+                }
+            };
+            return convert(v);
+        }
+    }
+}
+
 expr elaborator::visit_core(expr const & e, constraint_seq & cs) {
-    if (is_placeholder(e)) {
+    if (is_prenum(e)) {
+        return visit_prenum(e, cs);
+    } else if (is_placeholder(e)) {
         return visit_placeholder(e, cs);
     } else if (is_choice(e)) {
         return visit_choice(e, none_expr(), cs);

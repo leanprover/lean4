@@ -3,6 +3,8 @@ and
 and.elim_left
 and.elim_right
 and.intro
+bit0
+bit1
 bool
 bool.ff
 bool.tt
@@ -10,6 +12,7 @@ char
 char.mk
 congr
 dite
+div
 empty
 empty.rec
 eq
@@ -26,6 +29,9 @@ exists.elim
 false
 false.rec
 funext
+has_zero
+has_one
+has_add
 heq
 heq.refl
 heq.to_eq
@@ -49,6 +55,7 @@ not
 num
 num.zero
 num.pos
+one
 option
 option.some
 option.none
@@ -141,3 +148,4 @@ true.intro
 is_trunc.is_hset
 is_trunc.is_hprop
 well_founded
+zero

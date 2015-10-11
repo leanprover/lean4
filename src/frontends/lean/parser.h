@@ -119,7 +119,6 @@ class parser {
     undef_id_behavior       m_undef_id_behavior;
     optional<bool>          m_has_num;
     optional<bool>          m_has_string;
-    optional<bool>          m_has_rat_of_num;
     optional<bool>          m_has_tactic_decls;
     // We process theorems in parallel
     theorem_queue           m_theorem_queue;
@@ -215,7 +214,7 @@ class parser {
     expr parse_led_notation(expr left);
     expr parse_nud();
     bool curr_starts_expr();
-    expr parse_numeral_expr(bool user_notation = true);
+    expr parse_numeral_expr();
     expr parse_decimal_expr();
     expr parse_string_expr();
     expr parse_binder_core(binder_info const & bi, unsigned rbp);

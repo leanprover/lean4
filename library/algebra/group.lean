@@ -16,15 +16,6 @@ namespace algebra
 
 variable {A : Type}
 
-structure has_one [class] (A : Type) :=
-(one : A)
-
-structure has_zero [class] (A : Type) :=
-(zero : A)
-
-notation 1  := !has_one.one
-notation 0  := !has_zero.zero
-
 /- semigroup -/
 
 structure semigroup [class] (A : Type) extends has_mul A :=

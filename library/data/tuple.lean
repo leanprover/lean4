@@ -227,8 +227,8 @@ namespace tuple
   lemma ith_zero {n : nat} (a : A) (v : tuple A n) (h : 0 < succ n) : ith (a::v) (mk 0 h) = a :=
   by induction v; reflexivity
 
-  lemma ith_fin_zero {n : nat} (a : A) (v : tuple A n) : ith (a::v) (zero n) = a :=
-  by unfold zero; apply ith_zero
+  lemma ith_fin_zero {n : nat} (a : A) (v : tuple A n) : ith (a::v) (fin.zero n) = a :=
+  by unfold fin.zero; apply ith_zero
 
   lemma ith_succ {n : nat} (a : A) (v : tuple A n) (i : nat) (h : succ i < succ n)
                  : ith (a::v) (mk (succ i) h) = ith v (mk_pred i h) :=
@@ -238,7 +238,7 @@ namespace tuple
                      : ith (a::v) (succ i) = ith v i :=
   begin cases i, unfold fin.succ, rewrite ith_succ end
 
-  lemma ith_zero_eq_head {n : nat} (v : tuple A (nat.succ n)) : ith v (zero n) = head v :=
+  lemma ith_zero_eq_head {n : nat} (v : tuple A (nat.succ n)) : ith v (fin.zero n) = head v :=
   by rewrite [-eta v, ith_fin_zero, head_cons]
 
   lemma ith_succ_eq_ith_tail {n : nat} (v : tuple A (nat.succ n)) (i : fin n) : ith v (succ i) = ith (tail v) i :=
@@ -259,7 +259,7 @@ namespace tuple
 
   definition tabulate : Π {n : nat}, (fin n → A) → tuple A n
   | 0     f := nil
-  | (n+1) f := f (@zero n) :: tabulate (λ i : fin n, f (succ i))
+  | (n+1) f := f (fin.zero n) :: tabulate (λ i : fin n, f (succ i))
 
   theorem ith_tabulate {n : nat} (f : fin n → A) (i : fin n) : ith (tabulate f) i = f i :=
   begin

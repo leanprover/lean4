@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/choice.h"
 #include "library/class.h"
 #include "library/string.h"
-#include "library/num.h"
 #include "library/resolve_macro.h"
 #include "library/annotation.h"
 #include "library/explicit.h"
@@ -57,7 +56,6 @@ void initialize_library_module() {
     initialize_let();
     initialize_typed_expr();
     initialize_choice();
-    initialize_num();
     initialize_string();
     initialize_resolve_macro();
     initialize_annotation();
@@ -111,7 +109,6 @@ void finalize_library_module() {
     finalize_annotation();
     finalize_resolve_macro();
     finalize_string();
-    finalize_num();
     finalize_choice();
     finalize_typed_expr();
     finalize_let();

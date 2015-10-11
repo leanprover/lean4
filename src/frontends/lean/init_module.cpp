@@ -32,9 +32,11 @@ Author: Leonardo de Moura
 #include "frontends/lean/obtain_expr.h"
 #include "frontends/lean/decl_cmds.h"
 #include "frontends/lean/nested_declaration.h"
+#include "frontends/lean/prenum.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
+    initialize_prenum();
     initialize_info_annotation();
     initialize_tokens();
     initialize_token_table();
@@ -93,5 +95,6 @@ void finalize_frontend_lean_module() {
     finalize_token_table();
     finalize_tokens();
     finalize_info_annotation();
+    finalize_prenum();
 }
 }

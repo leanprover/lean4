@@ -54,6 +54,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_ref_info.h"
 #include "frontends/lean/opt_cmd.h"
 #include "frontends/lean/builtin_cmds.h"
+#include "frontends/lean/prenum.h"
 
 #ifndef LEAN_DEFAULT_PARSER_SHOW_ERRORS
 #define LEAN_DEFAULT_PARSER_SHOW_ERRORS true
@@ -1536,52 +1537,30 @@ expr parser::parse_id() {
     return id_to_expr(id, p);
 }
 
-expr parser::parse_numeral_expr(bool user_notation) {
+expr parser::parse_numeral_expr() {
     auto p = pos();
     mpz n = get_num_val().get_numerator();
     next();
     if (!m_has_num)
         m_has_num = has_num_decls(m_env);
-    list<expr> vals;
-    if (user_notation)
-        vals = get_mpz_notation(m_env, n);
-    if (!*m_has_num && !vals) {
-        throw parser_error("numeral cannot be encoded as expression, environment does not contain the type 'num' "
-                           "nor notation was defined for the given numeral "
-                           "(solution: use 'import data.num', or define notation for the given numeral)", p);
+    if (!*m_has_num) {
+        throw parser_error("numeral cannot be encoded as expression, environment does not contain "
+                           "the auxiliary declarations zero, one, bit0 and bit1", p);
     }
-    buffer<expr> cs;
-    for (expr const & c : vals)
-        cs.push_back(copy_with_new_pos(c, p));
-    if (*m_has_num)
-        cs.push_back(save_pos(copy(from_num(n)), p));
-    // Remark: choices are processed from right to left.
-    // We want to process user provided notation before the default 'num'.
-    lean_assert(!cs.empty());
-    if (cs.size() == 1)
-        return cs[0];
-    else
-        return save_pos(mk_choice(cs.size(), cs.data()), p);
+    return mk_prenum(n);
 }
 
 expr parser::parse_decimal_expr() {
     auto p  = pos();
     mpq val = get_num_val();
     next();
-    if (!m_has_rat_of_num) {
-        m_has_rat_of_num = static_cast<bool>(m_env.find(get_rat_of_num_name()));
-    }
-    if (!*m_has_rat_of_num) {
-        throw parser_error("invalid decimal number, environment does not contain 'rat.of_num' "
-                           "(solution: use 'import data.rat')", p);
-    }
-    expr of_num = save_pos(mk_constant(get_rat_of_num_name()), p);
-    expr num    = mk_app(of_num, save_pos(copy(from_num(val.get_numerator())), p), p);
+    expr num = save_pos(mk_prenum(val.get_numerator()), p);
     if (val.get_denominator() == 1) {
         return num;
     } else {
-        expr den    = mk_app(of_num, save_pos(copy(from_num(val.get_denominator())), p), p);
-        return mk_app({save_pos(mk_constant(get_rat_divide_name()), p), num, den}, p);
+        expr den = save_pos(mk_prenum(val.get_denominator()), p);
+        expr div = save_pos(mk_constant(get_div_name()), p);
+        return save_pos(lean::mk_app(div, num, den), p);
     }
 }
 
@@ -1851,7 +1830,7 @@ expr parser::parse_tactic_opt_id_list() {
 expr parser::parse_tactic_option_num() {
     auto p = pos();
     if (curr_is_numeral()) {
-        expr n = parse_numeral_expr(false);
+        expr n = parse_numeral_expr(); // TODO(Leo): it should be a num
         return mk_app(save_pos(mk_constant(get_option_some_name()), p), n, p);
     } else {
         return save_pos(mk_constant(get_option_none_name()), p);

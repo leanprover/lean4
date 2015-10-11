@@ -4,6 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.datatypes
+import init.reserved_notation
 definition std.priority.default : num := 1000
 definition std.priority.max     : num := 4294967295

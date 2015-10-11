@@ -281,8 +281,18 @@ definition padd (p q : ℕ × ℕ) : ℕ × ℕ := (pr1 p + pr1 q, pr2 p + pr2 q
 
 theorem repr_add : Π (a b : ℤ), repr (add a b) ≡ padd (repr a) (repr b)
 | (of_nat m) (of_nat n) := !equiv.refl
-| (of_nat m) -[1+ n]    := sorry -- begin end -- (!zero_add ▸ rfl)⁻¹ ▸ !repr_sub_nat_nat
-| -[1+ m]    (of_nat n) := sorry -- begin end -- (!zero_add ▸ rfl)⁻¹ ▸ !repr_sub_nat_nat
+| (of_nat m) -[1+ n]    :=
+  begin
+    change repr (sub_nat_nat m (succ n)) ≡ (m + 0, 0 + succ n),
+    rewrite [zero_add, add_zero],
+    apply repr_sub_nat_nat
+  end
+| -[1+ m]    (of_nat n) :=
+  begin
+    change repr (-[1+ m] + n) ≡ (0 + n, succ m + 0),
+    rewrite [zero_add, add_zero],
+    apply repr_sub_nat_nat
+  end
 | -[1+ m]    -[1+ n]    := !repr_sub_nat_nat
 
 theorem padd_congr {p p' q q' : ℕ × ℕ} (Ha : p ≡ p') (Hb : q ≡ q') : padd p q ≡ padd p' q' :=
@@ -527,8 +537,6 @@ has_sub.mk has_sub.sub
 
 definition int_has_dvd [reducible] [instance] [priority int.prio] : has_dvd int :=
 has_dvd.mk has_dvd.dvd
-
-set_option pp.coercions true
 
 /- additional properties -/
 theorem of_nat_sub {m n : ℕ} (H : m ≥ n) : of_nat (m - n) = of_nat m - of_nat n :=

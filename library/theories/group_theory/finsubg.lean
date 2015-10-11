@@ -84,7 +84,7 @@ definition fin_rcoset (H : finset A) (a : A) : finset A := image (rmul_by a) H
 
 definition fin_lcosets (H G : finset A) := image (fin_lcoset H) G
 
-definition fin_inv : finset A → finset A := image has_inv.inv
+definition fin_inv : finset A → finset A := image inv
 
 variable {H : finset A}
 

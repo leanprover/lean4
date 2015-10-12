@@ -7,7 +7,7 @@ Cardinality calculations for finite sets.
 -/
 import .to_set .bigops data.set.function data.nat.power data.nat.bigops
 open nat nat.finset eq.ops
-open - [notations] algebra
+open algebra
 
 namespace finset
 

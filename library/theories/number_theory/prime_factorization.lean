@@ -11,7 +11,7 @@ Multiplicity and prime factors. We have:
 -/
 import data.nat data.finset .primes
 open eq.ops finset well_founded decidable nat.finset
-open - [notations] algebra
+open algebra
 
 namespace nat
 

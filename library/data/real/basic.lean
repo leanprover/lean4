@@ -22,8 +22,8 @@ The construction of the reals is arranged in four files.
 -/
 import data.nat data.rat.order data.pnat
 open nat eq pnat
+open algebra
 open - [coercions] rat
-open - [notations] algebra
 
 local postfix `⁻¹` := pnat.inv
 local notation 0 := rat.of_num 0

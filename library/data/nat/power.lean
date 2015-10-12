@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Jeremy Avigad
 The power function on the natural numbers.
 -/
 import data.nat.basic data.nat.order data.nat.div data.nat.gcd algebra.ring_power
-open - [notations] algebra
+open algebra
 
 namespace nat
 

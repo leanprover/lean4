@@ -10,7 +10,7 @@ import data.nat.order data.nat.sub
 
 namespace nat
 open decidable
-open - [notations] algebra
+open algebra
 
 -- This is the simplest possible function that just performs a linear search
 definition sqrt_aux : nat → nat → nat

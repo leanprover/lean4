@@ -289,7 +289,7 @@ sub.cases
                ... = k - n + n    : sub_add_cancel H3,
     le.intro (add.cancel_right H4))
 
-open - [notations] algebra
+open algebra
 
 theorem sub_pos_of_lt {m n : ℕ} (H : m < n) : n - m > 0 :=
 assert H1 : n = n - m + m, from (sub_add_cancel (le_of_lt H))⁻¹,

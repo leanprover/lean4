@@ -10,9 +10,8 @@ we implement this module using a bijection from (finset nat) to nat, and
 this bijection is implemeted using the Ackermann coding.
 -/
 import data.nat data.finset.equiv data.list
-open nat binary
+open nat binary algebra
 open - [notations] finset
-open - [notations] algebra
 
 definition hf := nat
 

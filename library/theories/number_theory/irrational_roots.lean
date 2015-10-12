@@ -7,7 +7,7 @@ A proof that if n > 1 and a > 0, then the nth root of a is irrational, unless a 
 -/
 import data.rat .prime_factorization
 open eq.ops
-open - [notations] algebra
+open algebra
 
 /- First, a textbook proof that sqrt 2 is irrational. -/
 

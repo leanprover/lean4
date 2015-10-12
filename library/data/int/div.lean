@@ -10,7 +10,7 @@ Following SSReflect and the SMTlib standard, we define a mod b so that 0 ≤ a m
 import data.int.order data.nat.div
 open [coercions] [reduce_hints] nat
 open [declarations] [classes] nat (succ)
-open - [notations] algebra
+open algebra
 open eq.ops
 
 namespace int

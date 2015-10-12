@@ -7,7 +7,7 @@ Adds the ordering, and instantiates the rationals as an ordered field.
 -/
 import data.int algebra.ordered_field algebra.group_power data.rat.basic
 open quot eq.ops
-open - [notations] algebra
+open algebra
 
 /- the ordering on representations -/
 

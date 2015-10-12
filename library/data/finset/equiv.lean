@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 import data.finset.card
 open nat nat.finset decidable
-open - [notations] algebra
+open algebra
 
 namespace finset
 variable {A : Type}

@@ -8,7 +8,7 @@ and transfer the results.
 -/
 import .basic algebra.ordered_ring
 open nat
-open - [notations] algebra
+open algebra
 open decidable
 open int eq.ops
 

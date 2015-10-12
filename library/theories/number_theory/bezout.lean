@@ -13,7 +13,7 @@ section Bezout
 
 open nat int
 open eq.ops well_founded decidable prod
-open - [notations] algebra
+open algebra
 
 private definition pair_nat.lt : ℕ × ℕ → ℕ × ℕ → Prop := measure pr₂
 private definition pair_nat.lt.wf : well_founded pair_nat.lt := intro_k (measure.wf pr₂) 20
@@ -92,8 +92,7 @@ implies prime (dvd_or_dvd_of_prime_of_dvd_mul).
 -/
 
 namespace nat
-open int
-open - [notations] algebra
+open int algebra
 
 example {p x y : ℕ} (pp : prime p) (H : p ∣ x * y) : p ∣ x ∨ p ∣ y :=
 decidable.by_cases

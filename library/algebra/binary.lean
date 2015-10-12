@@ -14,15 +14,14 @@ namespace binary
 
     local notation a * b := op₁ a b
     local notation a ⁻¹  := inv a
-    local notation 1     := one
 
-    definition commutative [reducible] := ∀a b, a * b = b * a
-    definition associative [reducible] := ∀a b c, (a * b) * c = a * (b * c)
-    definition left_identity [reducible] := ∀a, 1 * a = a
-    definition right_identity [reducible] := ∀a, a * 1 = a
-    definition left_inverse [reducible] := ∀a, a⁻¹ * a = 1
-    definition right_inverse [reducible] := ∀a, a * a⁻¹ = 1
-    definition left_cancelative [reducible] := ∀a b c, a * b = a * c → b = c
+    definition commutative [reducible]       := ∀a b, a * b = b * a
+    definition associative [reducible]       := ∀a b c, (a * b) * c = a * (b * c)
+    definition left_identity [reducible]     := ∀a, one * a = a
+    definition right_identity [reducible]    := ∀a, a * one = a
+    definition left_inverse [reducible]      := ∀a, a⁻¹ * a = one
+    definition right_inverse [reducible]     := ∀a, a * a⁻¹ = one
+    definition left_cancelative [reducible]  := ∀a b c, a * b = a * c → b = c
     definition right_cancelative [reducible] := ∀a b c, a * b = c * b → a = c
 
     definition inv_op_cancel_left [reducible] := ∀a b, a⁻¹ * (a * b) = b

@@ -718,7 +718,7 @@ lemma count_gt_zero_of_mem : ∀ {a : A} {l : list A}, a ∈ l → count a l > 0
 
 lemma count_eq_zero_of_not_mem {a : A} {l : list A} (h : a ∉ l) : count a l = 0 :=
 match count a l with
-| 0        := suppose count a l = 0, this
+| zero     := suppose count a l = zero, this
 | (succ n) := suppose count a l = succ n, absurd (mem_of_count_gt_zero (begin rewrite this, exact dec_trivial end)) h
 end rfl
 

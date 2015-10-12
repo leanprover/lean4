@@ -69,15 +69,15 @@ else
 open decidable
 theorem decode_encode_sum : ∀ s : sum A B, decode_sum (encode_sum s) = some s
 | (sum.inl a) :=
-  assert aux : 2 > 0, from dec_trivial,
+  assert aux : 2 > (0:nat), from dec_trivial,
   begin
     esimp [encode_sum, decode_sum],
     rewrite [mul_mod_right, if_pos (eq.refl (0 : nat)), mul_div_cancel_left _ aux, encodable.encodek]
   end
 | (sum.inr b) :=
-  assert aux₁ : 2 > 0,       from dec_trivial,
-  assert aux₂ : 1 mod 2 = 1, by rewrite [nat.modulo_def],
-  assert aux₃ : 1 ≠ 0,       from dec_trivial,
+  assert aux₁ : 2 > (0:nat),       from dec_trivial,
+  assert aux₂ : 1 mod 2 = (1:nat), by rewrite [nat.modulo_def],
+  assert aux₃ : 1 ≠ (0:nat),       from dec_trivial,
   begin
     esimp [encode_sum, decode_sum],
     rewrite [add.comm, add_mul_mod_self_left, aux₂, if_neg aux₃, add_sub_cancel_left,

@@ -309,12 +309,6 @@ protected definition comm_semiring [reducible] [trans_instance] : algebra.comm_s
  zero_mul       := zero_mul,
  mul_zero       := mul_zero,
  mul_comm       := mul.comm⦄
-
-definition nat_has_zero [reducible] [instance] [priority nat.prio] : has_zero nat :=
-has_zero.mk zero
-
-definition nat_has_one [reducible] [instance] [priority nat.prio] : has_one nat :=
-has_one.mk (succ zero)
 end nat
 
 section

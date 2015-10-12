@@ -478,7 +478,7 @@ theorem take_lemma (s₁ s₂ : stream A) : (∀ (n : nat), approx n s₁ = appr
 begin
   intro h, apply stream.ext, intro n,
     induction n with n ih,
-     {injection (h 1), assumption},
+     {injection (h 1) with aux, exact aux},
      {have h₁ : some (nth (succ n) s₁) = some (nth (succ n) s₂), by rewrite [-*nth_approx, h (succ (succ n))],
       injection h₁, assumption}
 end

@@ -65,8 +65,6 @@ theorem to_finset_insert (a : A) (s : set A) [fins : finite s] :
   to_finset (insert a s) = finset.insert a (to_finset s) :=
 by apply to_finset_eq_of_to_set_eq; rewrite [finset.to_set_insert, to_set_to_finset]
 
-example : finite '{1, 2, 3} := _
-
 theorem finite_union [instance] (s t : set A) [fins : finite s] [fint : finite t] :
   finite (s ∪ t) :=
 exists.intro (#finset to_finset s ∪ to_finset t)

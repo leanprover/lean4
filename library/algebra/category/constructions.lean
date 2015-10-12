@@ -121,8 +121,6 @@ namespace category
 
   namespace ops
     notation `type`:max := Type_category
-    notation 1 := Category_one
-    notation 2 := Category_two
     postfix `ᵒᵖ`:max := opposite.Opposite
     infixr `×c`:30 := product.Prod_category
     attribute type_category [instance]

@@ -201,7 +201,8 @@ theorem pos_of_mul_pos_left {a b : ℕ} (H : 0 < a * b) : 0 < b :=
 theorem pos_of_mul_pos_right {a b : ℕ} (H : 0 < a * b) : 0 < a :=
 @algebra.pos_of_mul_pos_right _ _ a b H !zero_le
 
-theorem zero_le_one : 0 ≤ 1 := dec_trivial
+theorem zero_le_one : (0:nat) ≤ 1 :=
+dec_trivial
 
 /- properties specific to nat -/
 

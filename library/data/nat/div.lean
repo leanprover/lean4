@@ -51,9 +51,9 @@ theorem add_div_self_left {x : ℕ} (z : ℕ) (H : x > 0) : (x + z) div x = succ
 
 theorem add_mul_div_self {x y z : ℕ} (H : z > 0) : (x + y * z) div z = x div z + y :=
 nat.induction_on y
-  (calc (x + zero * z) div z = (x + zero) div z : zero_mul
-                       ...   = x div z          : add_zero
-                       ...   = x div z + zero   : add_zero)
+  (calc (x + 0 * z) div z = (x + 0) div z : zero_mul
+                    ...   = x div z       : add_zero
+                    ...   = x div z + 0   : add_zero)
   (take y,
     assume IH : (x + y * z) div z = x div z + y, calc
       (x + succ y * z) div z = (x + (y * z + z)) div z  : succ_mul
@@ -84,7 +84,7 @@ protected definition modulo := fix mod.F
 definition nat_has_modulo [reducible] [instance] [priority nat.prio] : has_modulo nat :=
 has_modulo.mk nat.modulo
 
-notation a ≡ b `[mod `:100 c `]`:0 := a mod c = b mod c
+notation [priority nat.prio] a ≡ b `[mod `:0 c:0 `]` := a mod c = b mod c
 
 theorem modulo_def (x y : nat) : modulo x y = if 0 < y ∧ y ≤ x then modulo (x - y) y else x :=
 congr_fun (fix_eq mod.F x) y
@@ -115,8 +115,8 @@ theorem add_mod_self_left (x z : ℕ) : (x + z) mod x = z mod x :=
 
 theorem add_mul_mod_self (x y z : ℕ) : (x + y * z) mod z = x mod z :=
 nat.induction_on y
-  (calc (x + zero * z) mod z = (x + zero) mod z : zero_mul
-                         ... = x mod z          : add_zero)
+  (calc (x + 0 * z) mod z = (x + 0) mod z : zero_mul
+                      ... = x mod z       : add_zero)
   (take y,
     assume IH : (x + y * z) mod z = x mod z,
     calc
@@ -156,7 +156,6 @@ have H1 : n mod 1 < 1, from !mod_lt !succ_pos,
 eq_zero_of_le_zero (le_of_lt_succ H1)
 
 /- properties of div and mod -/
-set_option pp.all true
 
 -- the quotient / remainder theorem
 theorem eq_div_mul_add_mod (x y : ℕ) : x = x div y * y + x mod y :=
@@ -455,7 +454,7 @@ end
 
 /- div and ordering -/
 
-lemma le_of_dvd {m n} : n > 0 → m ∣ n → m ≤ n :=
+lemma le_of_dvd {m n : nat} : n > 0 → m ∣ n → m ≤ n :=
 assume (h₁ : n > 0) (h₂ : m ∣ n),
 assert h₃ : n mod m = 0, from mod_eq_zero_of_dvd h₂,
 by_contradiction
@@ -550,7 +549,7 @@ begin
        1 + k div m = succ (k div m) : add.comm
                ... ≤ n              : succ_le_of_lt H1),
   have H3 : n - k div m = n - k div m - 1 + 1, from (sub_add_cancel H2)⁻¹,
-  have H4 : m > 0, from pos_of_ne_zero (assume H': m = 0, not_lt_zero _ (!zero_mul ▸ H' ▸ H)),
+  have H4 : m > 0, from pos_of_ne_zero (assume H': m = 0, not_lt_zero k (begin rewrite [H' at H, zero_mul at H], exact H end)),
   have H5   : k mod m + 1 ≤ m, from succ_le_of_lt (!mod_lt H4),
   have H6 : m - (k mod m + 1) < m, from sub_lt_self H4 !succ_pos,
 calc

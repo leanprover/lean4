@@ -93,7 +93,7 @@ finset.induction_on s dec_trivial
               (suppose 0 ∈ s,
                 assert a ≠ 0, from suppose a = 0, by subst a; contradiction,
                 begin
-                  cases a with a, contradiction,
+                  cases a with a, exact absurd rfl `zero ≠ 0`,
                   have odd (2*2^a),  by rewrite [pow_succ' at o, mul.comm]; exact o,
                   have even (2*2^a), from !even_two_mul,
                   exact absurd `even (2*2^a)` `odd (2*2^a)`
@@ -123,7 +123,7 @@ begin
     match n with
     | 0      := iff.intro (λ h, !mem_insert) (λ h, by rewrite [hw at zmem]; exact zmem)
     | succ m :=
-       assert d₁  : 1 div 2 = 0,           from dec_trivial,
+       assert d₁  : 1 div 2 = (0:nat),  from dec_trivial,
        assert aux : _, from calc
          succ m ∈ of_nat (2 * w + 1) ↔ m ∈ of_nat ((2*w+1) div 2) : succ_mem_of_nat
                   ...                ↔ m ∈ of_nat w               : by rewrite [add.comm, add_mul_div_self_left _ _ (dec_trivial : 2 > 0), d₁, zero_add]
@@ -248,12 +248,12 @@ begin
    reflexivity,
    cases a with a,
    { rewrite [predimage_insert_zero, ih, to_nat_insert nains, pow_zero],
-     have 0 ∉ of_nat (to_nat s), by rewrite of_nat_to_nat; assumption,
+     have 0 ∉ of_nat (to_nat s), begin rewrite of_nat_to_nat, exact nains end,
      have even (to_nat s), from iff.mp !even_of_not_zero_mem this,
-     obtain w (hw : to_nat s = 2*w), from exists_of_even this,
+     obtain (w : nat) (hw : to_nat s = 2*w), from exists_of_even this,
      begin
        rewrite hw,
-       have d₁ : 1 div 2 = 0,                from dec_trivial,
+       have d₁ : 1 div 2 = (0:nat),          from dec_trivial,
        show 2 * w div 2 = (1 + 2 * w) div 2, by
          rewrite [add_mul_div_self_left _ _ (dec_trivial : 2 > 0), mul.comm,
                   mul_div_cancel _ (dec_trivial : 2 > 0), d₁, zero_add]

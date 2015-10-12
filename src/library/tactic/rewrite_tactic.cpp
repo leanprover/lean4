@@ -33,6 +33,7 @@ Author: Leonardo de Moura
 #include "library/unfold_macros.h"
 #include "library/generic_exception.h"
 #include "library/class_instance_synth.h"
+#include "library/num.h"
 #include "library/tactic/clear_tactic.h"
 #include "library/tactic/trace_tactic.h"
 #include "library/tactic/rewrite_tactic.h"
@@ -489,7 +490,19 @@ public:
             constraint_seq cs;
             expr p1 = m_tc.whnf(p, cs);
             expr t1 = m_tc.whnf(t, cs);
-            return !cs && (p1 != p || t1 != t) && ctx.match(p1, t1);
+            if (!cs && (p1 != p || t1 != t) && ctx.match(p1, t1)) {
+                return true;
+            } else if (!has_expr_metavar(p1)) {
+                // special support for numerals
+                if (auto p2 = unfold_num_app(m_tc.env(), p1)) {
+                    // unfold nested projection
+                    if (auto p3 = unfold_app(m_tc.env(), *p2)) {
+                        p3 = m_tc.whnf(*p3, cs);
+                        return !cs && p1 != *p3 && ctx.match(*p3, t1);
+                    }
+                }
+            }
+            return false;
         } catch (exception&) {
             return false;
         }
@@ -1592,6 +1605,13 @@ class rewrite_fn {
         }
     }
 
+    type_checker_ptr mk_tc(bool full) {
+        auto aux_pred = full ? mk_irreducible_pred(m_env) : mk_not_quasireducible_pred(m_env);
+        return mk_type_checker(m_env, m_ngen.mk_child(),[=](name const & n) {
+                return aux_pred(n) && !is_numeral_const_name(n);
+            });
+    }
+
     void process_failure(expr const & elem, bool type_error, kernel_exception * ex = nullptr) {
         std::shared_ptr<kernel_exception> saved_ex;
         if (ex)
@@ -1641,7 +1661,7 @@ public:
     rewrite_fn(environment const & env, io_state const & ios, elaborate_fn const & elab, proof_state const & ps,
                bool full, bool keyed):
         m_env(env), m_ios(ios), m_elab(elab), m_ps(ps), m_ngen(ps.get_ngen()),
-        m_tc(mk_type_checker(m_env, m_ngen.mk_child(), full ? UnfoldSemireducible : UnfoldQuasireducible)),
+        m_tc(mk_tc(full)),
         m_matcher_tc(mk_matcher_tc(full)),
         m_relaxed_tc(mk_type_checker(m_env, m_ngen.mk_child())),
         m_mplugin(m_ios, *m_matcher_tc) {

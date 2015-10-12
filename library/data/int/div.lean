@@ -20,14 +20,14 @@ namespace int
 protected definition divide (a b : ℤ) : ℤ :=
 sign b *
   (match a with
-    | of_nat m := (m div (nat_abs b) : nat)
+    | of_nat m := of_nat (m div (nat_abs b))
     | -[1+m]   := -[1+ ((m:nat) div (nat_abs b))]
   end)
 
 definition int_has_divide [reducible] [instance] [priority int.prio] : has_divide int :=
 has_divide.mk int.divide
 
-lemma of_nat_div_eq (m : nat) (b : ℤ) : (of_nat m) div b = sign b * (m div (nat_abs b) : nat) :=
+lemma of_nat_div_eq (m : nat) (b : ℤ) : (of_nat m) div b = sign b * of_nat (m div (nat_abs b)) :=
 rfl
 
 lemma neg_succ_div_eq (m: nat) (b : ℤ) : -[1+m] div b = sign b * -[1+ (m div (nat_abs b))] :=
@@ -36,7 +36,7 @@ rfl
 lemma divide.def (a b : ℤ) : a div b =
   sign b *
     (match a with
-      | of_nat m := (m div (nat_abs b) : nat)
+      | of_nat m := of_nat (m div (nat_abs b))
       | -[1+m]   := -[1+ ((m:nat) div (nat_abs b))]
     end) :=
 rfl
@@ -50,7 +50,7 @@ has_modulo.mk int.modulo
 lemma modulo.def (a b : ℤ) : a mod b = a - a div b * b :=
 rfl
 
-notation [priority int.prio] a ≡ b `[mod `:100 c `]`:0 := a mod c = b mod c
+notation [priority int.prio] a ≡ b `[mod `:0 c:0 `]` := a mod c = b mod c
 
 /- div  -/
 
@@ -105,11 +105,11 @@ by krewrite [of_nat_div_eq, nat.zero_div, mul_zero]
 theorem div_zero (a : ℤ) : a div 0 = 0 :=
 by krewrite [divide.def, sign_zero, zero_mul]
 
-theorem div_one (a : ℤ) :a div 1 = a :=
+theorem div_one (a : ℤ) : a div 1 = a :=
 assert (1 : int) > 0, from dec_trivial,
 int.cases_on a
-  (take m, by rewrite [-of_nat_div, nat.div_one])
-  (take m, by rewrite [!neg_succ_of_nat_div this, -of_nat_div, nat.div_one])
+  (take m : nat, by rewrite [int_one_eq_nat_one, -of_nat_div, nat.div_one])
+  (take m : nat, by rewrite [!neg_succ_of_nat_div this, int_one_eq_nat_one, -of_nat_div, nat.div_one])
 
 theorem eq_div_mul_add_mod (a b : ℤ) : a = a div b * b + a mod b :=
 !add.comm ▸ eq_add_of_sub_eq rfl
@@ -231,7 +231,7 @@ theorem add_mul_div_self_left (a : ℤ) {b : ℤ} (c : ℤ) (H : b ≠ 0) :
 
 theorem mul_div_cancel (a : ℤ) {b : ℤ} (H : b ≠ 0) : a * b div b = a :=
 calc
-  a * b div b = (0 + a * b) div b : zero_add
+  a * b div b = (0 + a * b) div b : algebra.zero_add
           ... = 0 div b + a       : !add_mul_div_self H
           ... = a                 : by rewrite [zero_div, zero_add]
 

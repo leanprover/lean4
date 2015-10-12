@@ -86,17 +86,19 @@ section
   have nat_abs b = 1, from
     by_cases
       (suppose q = 0, by rewrite this)
-      (suppose q ≠ 0,
-        have ane0 : a ≠ 0, from
-          suppose aeq0 : a = 0,
-          have q = 0, begin rewrite eq_num_div_denom, rewrite aeq0, krewrite zero_div end,
-            absurd `q = 0` `q ≠ 0`,
-        have nat_abs a ≠ 0, from
-          suppose nat_abs a = 0,
-          have a = 0, from eq_zero_of_nat_abs_eq_zero this,
-          absurd `a = 0` `a ≠ 0`,
-        show nat_abs b = 1, from (root_irrational npos (pos_of_ne_zero this) H₂ H₁)),
-  show b = 1, using this, by rewrite [-of_nat_nat_abs_of_nonneg (le_of_lt !denom_pos), this]
+      (suppose qne0 : q ≠ 0,
+        using H₁ H₂, begin
+          have ane0 : a ≠ 0, from
+            suppose aeq0 : a = 0,
+            have qeq0 : q = 0, begin rewrite eq_num_div_denom, rewrite aeq0, krewrite algebra.zero_div end,
+              absurd qeq0 qne0,
+          have nat_abs a ≠ 0, from
+            suppose nat_abs a = 0,
+            have aeq0 : a = 0, from eq_zero_of_nat_abs_eq_zero this,
+            absurd aeq0 ane0,
+          show nat_abs b = 1, from (root_irrational npos (pos_of_ne_zero this) H₂ H₁)
+        end),
+  show b = 1, using this, begin rewrite [-of_nat_nat_abs_of_nonneg (le_of_lt !denom_pos), this] end
 
   theorem eq_num_pow_of_pow_eq {q : ℚ} {n : ℕ} {c : ℤ} (npos : n > 0) (H : q^n = c) :
     c = (num q)^n :=

@@ -44,7 +44,7 @@ section depchoice
   Recall that ⟨f, H⟩ is notation for (sigma.mk f H)
   -/
   theorem stronger_dependent_choice_of_encodable_of_decidable
-          : (∀ a, ∃ b, R a b) → (∀ a, Σ f, f 0 = a ∧ ∀ n, f n ~ f (n+1))  :=
+          : (∀ a, ∃ b, R a b) → (∀ a, Σ f, f (0:nat) = a ∧ ∀ n, f n ~ f (n+1))  :=
   assume H : ∀ a, ∃ b, a ~ b,
   take   a : A,
   let    f : nat → A := f_aux a H in
@@ -71,7 +71,7 @@ section sigma_depchoice
   | 0     := a
   | (n+1) := (H (f_aux n)).1
 
-  theorem sigma_dependent_choice : (∀ a, Σ b, R a b) → (∀ a, Σ f, f 0 = a ∧ ∀ n, f n ~ f (n+1)) :=
+  theorem sigma_dependent_choice : (∀ a, Σ b, R a b) → (∀ a, Σ f, f (0:nat) = a ∧ ∀ n, f n ~ f (n+1)) :=
   assume H : ∀ a, Σ b, a ~ b,
   take   a : A,
   let    f : nat → A := f_aux a H in

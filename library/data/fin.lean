@@ -7,7 +7,7 @@ Finite ordinal types.
 -/
 import data.list.basic data.finset.basic data.fintype.card algebra.group data.equiv
 open eq.ops nat function list finset fintype
-open - [notations] algebra
+open algebra
 
 structure fin (n : nat) := (val : nat) (is_lt : val < n)
 
@@ -103,11 +103,12 @@ theorem val_lt : ∀ i : fin n, val i < n
 lemma max_lt (i j : fin n) : max i j < n :=
 max_lt (is_lt i) (is_lt j)
 
-definition lift : fin n → Π m, fin (n + m)
+definition lift : fin n → Π m : nat, fin (n + m)
 | (mk v h) m := mk v (lt_add_of_lt_right h m)
 
 definition lift_succ (i : fin n) : fin (nat.succ n) :=
-lift i 1
+have r : fin (n+1), from lift i 1,
+r
 
 definition maxi [reducible] : fin (succ n) :=
 mk n !lt_succ_self

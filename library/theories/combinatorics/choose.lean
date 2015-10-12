@@ -7,7 +7,7 @@ Binomial coefficients, "n choose k".
 -/
 import data.nat.div data.nat.fact data.finset
 open decidable
-open - [notations] algebra
+open algebra
 
 namespace nat
 
@@ -58,7 +58,8 @@ theorem choose_one_right (n : ℕ) : choose n 1 = n :=
 begin
   induction n with [n, ih],
     {apply rfl},
-  rewrite [choose_succ_succ, ih, choose_zero_right]
+  change choose (succ n) (succ 0) = succ n,
+  krewrite [choose_succ_succ, ih, choose_zero_right]
 end
 
 theorem choose_pos {n : ℕ} : ∀ {k : ℕ}, k ≤ n → choose n k > 0 :=

@@ -35,9 +35,9 @@ lemma fib_fast_aux_lemma : ∀ n, (fib_fast_aux (succ n)).1 = (fib_fast_aux n).2
   end
 
 theorem fib_eq_fib_fast : ∀ n, fib_fast n = fib n
-| 0     := rfl
-| 1     := rfl
-| (n+2) :=
+| 0               := rfl
+| 1               := rfl
+| (succ (succ n)) :=
   begin
     have feq  : fib_fast n = fib n,               from fib_eq_fib_fast n,
     have f1eq : fib_fast (succ n) = fib (succ n), from fib_eq_fib_fast (succ n),

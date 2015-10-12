@@ -29,5 +29,5 @@ lemma two_mul_partial_sum_eq : ∀ n, 2 * partial_sum n = (succ n) * n
 theorem partial_sum_eq : ∀ n, partial_sum n = ((n + 1) * n) div 2 :=
 take n,
 assert h₁ : (2 * partial_sum n) div 2 = ((succ n) * n) div 2, by rewrite two_mul_partial_sum_eq,
-assert h₂ : 2 > 0, from dec_trivial,
+assert h₂ : (2:nat) > 0, from dec_trivial,
 by rewrite [mul_div_cancel_left _ h₂ at h₁]; exact h₁

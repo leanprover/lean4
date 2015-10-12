@@ -195,8 +195,8 @@ theorem inv_equiv_inv : ∀{a b : prerat}, a ≡ b → inv a ≡ inv b
       have bn_zero : bn = 0, from num_eq_zero_of_equiv H an_zero,
       eq.subst (calc
         inv (mk an ad adp) = inv (mk 0 ad adp)  : {an_zero}
-                       ... = zero               : inv_zero
-                       ... = inv (mk 0 bd bdp)  : inv_zero
+                       ... = zero               : inv_zero adp
+                       ... = inv (mk 0 bd bdp)  : inv_zero bdp
                        ... = inv (mk bn bd bdp) : bn_zero) !equiv.refl)
     (assume an_pos : an > 0,
       have bn_pos : bn > 0, from num_pos_of_equiv H an_pos,
@@ -356,6 +356,20 @@ definition of_int [coercion] (i : ℤ) : ℚ := ⟦prerat.of_int i⟧
 definition of_nat [coercion] (n : ℕ) : ℚ := nat.to.rat n
 definition of_num [coercion] [reducible] (n : num) : ℚ := num.to.rat n
 
+protected definition prio := num.pred int.prio
+
+definition rat_has_zero [reducible] [instance] [priority rat.prio] : has_zero rat :=
+has_zero.mk (0:int)
+
+definition rat_has_one [reducible] [instance] [priority rat.prio] : has_one rat :=
+has_one.mk (1:int)
+
+theorem rat_zero_eq_int_zero : (0:rat) = of_int (0:int) :=
+rfl
+
+theorem rat_one_eq_int_one : (1:rat) = of_int (1:int) :=
+rfl
+
 protected definition add : ℚ → ℚ → ℚ :=
 quot.lift₂
   (λ a b : prerat, ⟦prerat.add a b⟧)
@@ -386,8 +400,6 @@ definition denom (a : ℚ) : ℤ := prerat.denom (reduce a)
 
 theorem denom_pos (a : ℚ): denom a > 0 :=
 prerat.denom_pos (reduce a)
-
-protected definition prio := num.pred int.prio
 
 definition rat_has_add [reducible] [instance] [priority rat.prio] : has_add rat :=
 has_add.mk rat.add
@@ -508,7 +520,7 @@ take a b, quot.rec_on_subsingleton₂ a b
        then decidable.inl (quot.sound H)
        else decidable.inr (assume H1, H (quot.exact H1)))
 
-theorem inv_zero : inv 0 = 0 :=
+theorem inv_zero : inv 0 = (0 : ℚ) :=
 quot.sound (prerat.inv_zero' ▸ !prerat.equiv.refl)
 
 theorem quot_reduce (a : ℚ) : ⟦reduce a⟧ = a :=

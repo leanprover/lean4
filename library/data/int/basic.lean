@@ -30,7 +30,7 @@ import algebra.relation algebra.binary algebra.ordered_ring
 open eq.ops
 open prod relation nat
 open decidable binary
-open - [notations] algebra
+open algebra
 
 /- the type of integers -/
 
@@ -48,16 +48,28 @@ attribute int.of_nat [coercion]
 
 notation `-[1+ ` n `]` := int.neg_succ_of_nat n    -- for pretty-printing output
 
+definition int_has_zero [reducible] [instance] : has_zero int :=
+has_zero.mk (of_nat 0)
+
+definition int_has_one [reducible] [instance] : has_one int :=
+has_one.mk (of_nat 1)
+
+theorem int_zero_eq_nat_zero : (0:int) = of_nat (0:nat) :=
+rfl
+
+theorem int_one_eq_nat_one : (1:int) = of_nat (1:nat) :=
+rfl
+
 /- definitions of basic functions -/
 
 definition neg_of_nat : ℕ → ℤ
-| 0 := 0
+| 0        := 0
 | (succ m) := -[1+ m]
 
 definition sub_nat_nat (m n : ℕ) : ℤ :=
 match (n - m : nat) with
-  | 0        := (m - n : nat)  -- m ≥ n
-  | (succ k) := -[1+ k]       -- m < n, and n - m = succ k
+  | 0        := of_nat (m - n)  -- m ≥ n
+  | (succ k) := -[1+ k]         -- m < n, and n - m = succ k
 end
 
 protected definition neg (a : ℤ) : ℤ :=
@@ -116,14 +128,13 @@ theorem of_nat_succ (n : ℕ) : of_nat (succ n) = of_nat n + 1 := rfl
 theorem of_nat_mul (n m : ℕ) : of_nat (n * m) = of_nat n * of_nat m := rfl
 
 theorem sub_nat_nat_of_ge {m n : ℕ} (H : m ≥ n) : sub_nat_nat m n = of_nat (m - n) :=
-show sub_nat_nat m n = nat.cases_on 0 (m - n : nat) _, from (sub_eq_zero_of_le H) ▸ rfl
+show sub_nat_nat m n = nat.cases_on 0 (m -[nat] n) _, from (sub_eq_zero_of_le H) ▸ rfl
 
 section
 local attribute sub_nat_nat [reducible]
-theorem sub_nat_nat_of_lt {m n : ℕ} (H : m < n) :
-  sub_nat_nat m n = -[1+ pred (n - m)] :=
+theorem sub_nat_nat_of_lt {m n : ℕ} (H : m < n) : sub_nat_nat m n = -[1+ pred (n - m)] :=
 have H1 : n - m = succ (pred (n - m)), from eq.symm (succ_pred_of_pos (sub_pos_of_lt H)),
-show sub_nat_nat m n = nat.cases_on (succ (nat.pred (n - m))) (m - n : nat) _, from H1 ▸ rfl
+show sub_nat_nat m n = nat.cases_on (succ (nat.pred (n - m))) (m -[nat] n) _, from H1 ▸ rfl
 end
 
 definition nat_abs (a : ℤ) : ℕ := int.cases_on a function.id succ
@@ -562,7 +573,7 @@ theorem succ_neg_succ (a : ℤ) : succ (-succ a) = -a :=
 by rewrite [neg_succ,succ_pred]
 
 theorem neg_pred (a : ℤ) : -pred a = succ (-a) :=
-by krewrite [↑pred,neg_sub,sub_eq_add_neg,add.comm]
+by rewrite [↑pred,neg_sub,sub_eq_add_neg,add.comm]
 
 theorem pred_neg_pred (a : ℤ) : pred (-pred a) = -a :=
 by rewrite [neg_pred,pred_succ]

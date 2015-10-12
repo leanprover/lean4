@@ -70,7 +70,7 @@ private theorem le_squared : ∀ (n : nat), n ≤ n*n
   assert aux₂ : 1 * succ n ≤ succ n * succ n, from mul_le_mul aux₁ !le.refl,
   by rewrite [one_mul at aux₂]; exact aux₂
 
-private theorem lt_squared : ∀ {n}, n > 1 → n < n * n
+private theorem lt_squared : ∀ {n : nat}, n > 1 → n < n * n
 | 0               h := absurd h dec_trivial
 | 1               h := absurd h dec_trivial
 | (succ (succ n)) h :=

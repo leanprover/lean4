@@ -48,6 +48,9 @@ has_le.mk pnat.le
 definition pnat_has_lt [instance] [reducible] : has_lt pnat :=
 has_lt.mk pnat.lt
 
+definition pnat_has_one [instance] [reducible] : has_one pnat :=
+has_one.mk (pos (1:nat) dec_trivial)
+
 lemma mul.def (p q : ℕ+) : p * q = tag (p~ * q~) (mul_pos (pnat_pos p) (pnat_pos q)) :=
 rfl
 

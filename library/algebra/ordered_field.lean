@@ -281,16 +281,18 @@ section linear_ordered_field
   theorem two_pos : (1 : A) + 1 > 0 :=
     add_pos zero_lt_one zero_lt_one
 
-  theorem two_ne_zero : (1 : A) + 1 ≠ 0 :=
-    ne.symm (ne_of_lt two_pos)
+  theorem one_add_one_ne_zero : 1 + 1 ≠ (0:A) :=
+  ne.symm (ne_of_lt two_pos)
 
-  notation 2 := 1 + 1
+  theorem two_ne_zero : 2 ≠ (0:A) :=
+  by unfold bit0; apply one_add_one_ne_zero
 
   theorem add_halves (a : A) : a / 2 + a / 2 = a :=
     calc
       a / 2 + a / 2 = (a + a) / 2 : by rewrite div_add_div_same
       ... = (a * 1 + a * 1) / 2   : by rewrite mul_one
-      ... = (a * 2) / 2           : by rewrite left_distrib
+      ... = (a * (1 + 1)) / 2     : by rewrite left_distrib
+      ... = (a * 2) / 2           : by rewrite one_add_one_eq_two
       ... = a                     : by rewrite [@mul_div_cancel A _ _ _ two_ne_zero]
 
   theorem sub_self_div_two (a : A) : a - a / 2 = a / 2 :=
@@ -305,27 +307,28 @@ section linear_ordered_field
   end
 
   theorem div_two_sub_self (a : A) : a / 2 - a = - (a / 2) :=
-    by rewrite [-{a}add_halves at {2}, sub_add_eq_sub_sub, sub_self, zero_sub]
+  by rewrite [-{a}add_halves at {2}, sub_add_eq_sub_sub, sub_self, zero_sub]
 
   theorem add_self_div_two (a : A) : (a + a) / 2 = a :=
-    symm (iff.mpr (!eq_div_iff_mul_eq (ne_of_gt (add_pos zero_lt_one zero_lt_one)))
-           (by rewrite [left_distrib, *mul_one]))
+  symm (iff.mpr (!eq_div_iff_mul_eq (ne_of_gt (add_pos zero_lt_one zero_lt_one)))
+       (by rewrite [left_distrib, *mul_one]))
 
-  theorem two_ge_one : (2 : A) ≥ 1 :=
-    by rewrite -(add_zero 1) at {3}; apply add_le_add_left; apply zero_le_one
+  theorem two_ge_one : (2:A) ≥ 1 :=
+  calc (2:A) = 1+1 : one_add_one_eq_two
+       ...   ≥ 1+0 : add_le_add_left (le_of_lt zero_lt_one)
+       ...   = 1   : add_zero
 
   theorem mul_le_mul_of_mul_div_le (H : a * (b / c) ≤ d) (Hc : c > 0) : b * a ≤ d * c :=
-    begin
-      rewrite [-mul_div_assoc at H, mul.comm b],
-      apply le_mul_of_div_le Hc H
-    end
+  begin
+    rewrite [-mul_div_assoc at H, mul.comm b],
+    apply le_mul_of_div_le Hc H
+  end
 
   theorem div_two_lt_of_pos (H : a > 0) : a / (1 + 1) < a :=
-    have Ha : a / (1 + 1) > 0, from div_pos_of_pos_of_pos H (add_pos zero_lt_one zero_lt_one),
-    calc
+  have Ha : a / (1 + 1) > 0, from div_pos_of_pos_of_pos H (add_pos zero_lt_one zero_lt_one),
+  calc
       a / (1 + 1) < a / (1 + 1) + a / (1 + 1) : lt_add_of_pos_left Ha
               ... = a : add_halves
-
 
   theorem div_mul_le_div_mul_of_div_le_div_pos {e : A} (Hb : b ≠ 0) (Hd : d ≠ 0) (H : a / b ≤ c / d)
           (He : e > 0) : a / (b * e) ≤ c / (d * e) :=
@@ -338,26 +341,26 @@ section linear_ordered_field
     end
 
   theorem exists_add_lt_and_pos_of_lt (H : b < a) : ∃ c : A, b + c < a ∧ c > 0 :=
-    exists.intro ((a - b) / (1 + 1))
+  exists.intro ((a - b) / (1 + 1))
       (and.intro (assert H2 : a + a > (b + b) + (a - b), from calc
         a + a > b + a : add_lt_add_right H
         ... = b + a + b - b : add_sub_cancel
         ... = b + b + a - b : add.right_comm
         ... = (b + b) + (a - b) : add_sub,
-      assert H3 : (a + a) / (1 + 1) > ((b + b) + (a - b)) / (1 + 1),
+      assert H3 : (a + a) / 2 > ((b + b) + (a - b)) / 2,
         from div_lt_div_of_lt_of_pos H2 two_pos,
-      by rewrite [add_self_div_two at H3, -div_add_div_same at H3, add_self_div_two at H3];
+      by rewrite [one_add_one_eq_two, sub_eq_add_neg, add_self_div_two at H3, -div_add_div_same at H3, add_self_div_two at H3];
            exact H3)
       (div_pos_of_pos_of_pos (iff.mpr !sub_pos_iff_lt H) two_pos))
 
   theorem ge_of_forall_ge_sub {a b : A} (H : ∀ ε : A, ε > 0 → a ≥ b - ε) : a ≥ b :=
-   begin
+  begin
     apply le_of_not_gt,
     intro Hb,
     cases exists_add_lt_and_pos_of_lt Hb with [c, Hc],
     let Hc' := H c (and.right Hc),
     apply (not_le_of_gt (and.left Hc)) (iff.mpr !le_add_iff_sub_right_le Hc')
-   end
+  end
 
 end linear_ordered_field
 

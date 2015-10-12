@@ -123,12 +123,12 @@ have a + of_nat (n + m) = a + 0, from
       ... = a + 0                           : by rewrite add_zero,
 have of_nat (n + m) = of_nat 0, from add.left_cancel this,
 have n + m = 0,                 from of_nat.inj this,
-have n = 0,                     from nat.eq_zero_of_add_eq_zero_right this,
+assert n = 0,                     from nat.eq_zero_of_add_eq_zero_right this,
 show a = b, from
   calc
-    a = a + 0        : add_zero
-      ... = a + n    : this
-      ... = b        : Hn
+    a = a + 0    : add_zero
+  ... = a + n    : by rewrite this
+  ... = b        : Hn
 
 theorem lt.irrefl (a : ℤ) : ¬ a < a :=
 (suppose a < a,

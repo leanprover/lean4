@@ -191,8 +191,8 @@ lemma dvd_or_dvd_of_prime_of_dvd_mul {p m n : nat} : prime p → p ∣ m * n →
 
 lemma dvd_of_prime_of_dvd_pow {p m : nat} : ∀ {n}, prime p → p ∣ m^n → p ∣ m
 | 0 hp hd :=
-  assert p = 1, from eq_one_of_dvd_one hd,
-  have   1 ≥ 2, by rewrite -this; apply ge_two_of_prime hp,
+  assert p = 1,       from eq_one_of_dvd_one hd,
+  have   (1:nat) ≥ 2, begin rewrite -this at {1}, apply ge_two_of_prime hp end,
   absurd this dec_trivial
 | (succ n) hp hd :=
   have p ∣ (m^n)*m, by rewrite [pow_succ' at hd]; exact hd,

@@ -56,7 +56,7 @@ namespace pos_num
   pos_num.rec_on a tt (λn r, ff) (λn r, ff)
 
   definition pred (a : pos_num) : pos_num :=
-  pos_num.rec_on a one (λn r, bit0 n) (λn r, bool.rec_on (is_one n) one (bit1 r))
+  pos_num.rec_on a one (λn r, bit0 n) (λn r, bool.rec_on (is_one n) (bit1 r) one)
 
   definition size (a : pos_num) : pos_num :=
   pos_num.rec_on a one (λn r, succ r) (λn r, succ r)
@@ -87,6 +87,29 @@ end num
 
 definition num_has_add [reducible] [instance] : has_add num :=
 has_add.mk num.add
+
+definition std.priority.default : num := 1000
+definition std.priority.max     : num := 4294967295
+
+namespace nat
+  protected definition prio := num.add std.priority.default 100
+
+  protected definition add (a b : nat) : nat :=
+  nat.rec_on b a (λ b₁ r, succ r)
+
+  definition nat_has_zero [reducible] [instance] : has_zero nat :=
+  has_zero.mk nat.zero
+
+  definition nat_has_one [reducible] [instance] : has_one nat :=
+  has_one.mk (nat.succ (nat.zero))
+
+  definition nat_has_add [reducible] [instance] [priority nat.prio] : has_add nat :=
+  has_add.mk nat.add
+
+  definition of_num (n : num) : nat :=
+  num.rec zero
+    (λ n, pos_num.rec (succ zero) (λ n r, add (add r r) (succ zero)) (λ n r, add r r) n) n
+end nat
 
 /-
   Global declarations of right binding strength

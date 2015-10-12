@@ -91,10 +91,10 @@ namespace nat
   theorem le_succ_of_pred_le {n m : ℕ} : pred n ≤ m → n ≤ succ m :=
   nat.cases_on n le.step (λa, succ_le_succ)
 
-  theorem not_succ_le_zero (n : ℕ) : ¬succ n ≤ zero :=
+  theorem not_succ_le_zero (n : ℕ) : ¬succ n ≤ 0 :=
   by intro H; cases H
 
-  theorem succ_le_zero_iff_false (n : ℕ) : succ n ≤ zero ↔ false :=
+  theorem succ_le_zero_iff_false (n : ℕ) : succ n ≤ 0 ↔ false :=
   iff_false_intro !not_succ_le_zero
 
   theorem not_succ_le_self : Π {n : ℕ}, ¬succ n ≤ n :=
@@ -149,9 +149,9 @@ namespace nat
   theorem lt.asymm {n m : ℕ} (H1 : n < m) : ¬ m < n :=
   le_lt_antisymm (le_of_lt H1)
 
-  theorem not_lt_zero (a : ℕ) : ¬ a < zero := !not_succ_le_zero
+  theorem not_lt_zero (a : ℕ) : ¬ a < 0 := !not_succ_le_zero
 
-  theorem lt_zero_iff_false [simp] (a : ℕ) : a < zero ↔ false :=
+  theorem lt_zero_iff_false [simp] (a : ℕ) : a < 0 ↔ false :=
   iff_false_intro (not_lt_zero a)
 
   theorem eq_or_lt_of_le {a b : ℕ} (H : a ≤ b) : a = b ∨ a < b :=
@@ -225,10 +225,10 @@ namespace nat
   theorem sub_eq_succ_sub_succ (a b : ℕ) : a - b = succ a - succ b :=
   eq.symm !succ_sub_succ_eq_sub
 
-  theorem zero_sub_eq_zero [simp] (a : ℕ) : zero - a = zero :=
+  theorem zero_sub_eq_zero [simp] (a : ℕ) : 0 - a = 0 :=
   nat.rec rfl (λ a, congr_arg pred) a
 
-  theorem zero_eq_zero_sub (a : ℕ) : zero = zero - a :=
+  theorem zero_eq_zero_sub (a : ℕ) : 0 = 0 - a :=
   eq.symm !zero_sub_eq_zero
 
   theorem sub_le (a b : ℕ) : a - b ≤ a :=
@@ -237,7 +237,7 @@ namespace nat
   theorem sub_le_iff_true [simp] (a b : ℕ) : a - b ≤ a ↔ true :=
   iff_true_intro (sub_le a b)
 
-  theorem sub_lt {a b : ℕ} (H1 : zero < a) (H2 : zero < b) : a - b < a :=
+  theorem sub_lt {a b : ℕ} (H1 : 0 < a) (H2 : 0 < b) : a - b < a :=
   !nat.cases_on (λh, absurd h !lt.irrefl)
     (λa h, succ_le_succ (!nat.cases_on (λh, absurd h !lt.irrefl)
       (λb c, eq.substr !succ_sub_succ_eq_sub !sub_le) H2)) H1

@@ -360,12 +360,15 @@ eq_of_sub_eq_zero this
 section
   open int
 
+  set_option pp.numerals false
+  set_option pp.implicit true
+
   theorem num_nonneg_of_nonneg {q : ℚ} (H : q ≥ 0) : num q ≥ 0 :=
   have of_int (num q) ≥ of_int 0,
     begin
       rewrite [-mul_denom],
       apply mul_nonneg H,
-      rewrite [of_int_le_of_int_iff],
+      rewrite [rat_zero_eq_int_zero, of_int_le_of_int_iff],
       exact int.le_of_lt !denom_pos
     end,
   show num q ≥ 0, from le_of_of_int_le_of_int this
@@ -375,7 +378,7 @@ section
     begin
       rewrite [-mul_denom],
       apply mul_pos H,
-      rewrite [of_int_lt_of_int_iff],
+      rewrite [rat_zero_eq_int_zero, of_int_lt_of_int_iff],
       exact !denom_pos
     end,
   show num q > 0, from lt_of_of_int_lt_of_int this

@@ -489,6 +489,8 @@ auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> resul
     if (is_app(e)) {
         if (auto r = pp_local_ref(e))
             return add_paren_if_needed(*r, bp);
+        if (m_numerals)
+            if (auto n = to_num(e)) return pp_num(*n);
         expr const & f = app_fn(e);
         if (auto it = is_abbreviated(f)) {
             return pp_abbreviation(e, *it, true, bp, ignore_hide);
@@ -982,6 +984,8 @@ auto pretty_fn::pp_notation_child(expr const & e, unsigned lbp, unsigned rbp) ->
     if (auto it = is_abbreviated(e))
         return pp_abbreviation(e, *it, false, rbp);
     if (is_app(e)) {
+        if (m_numerals)
+            if (auto n = to_num(e)) return pp_num(*n);
         expr const & f = app_fn(e);
         if (auto it = is_abbreviated(f)) {
             return pp_abbreviation(e, *it, true, rbp);
@@ -1233,9 +1237,10 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     flet<unsigned> let_d(m_depth, m_depth+1);
     m_num_steps++;
 
+    if (m_numerals)
+        if (auto n = to_num(e)) return pp_num(*n);
     if (auto n = is_abbreviated(e))
         return pp_abbreviation(e, *n, false);
-
     if (auto r = pp_notation(e))
         return *r;
 
@@ -1245,8 +1250,6 @@ auto pretty_fn::pp(expr const & e, bool ignore_hide) -> result {
     if (is_let(e))          return pp_let(e);
     if (is_typed_expr(e))   return pp(get_typed_expr_expr(e));
     if (is_let_value(e))    return pp(get_let_value_expr(e));
-    if (m_numerals)
-        if (auto n = to_num(e)) return pp_num(*n);
     if (m_num_nat_coe)
         if (auto k = to_unsigned(e))
             return format(*k);

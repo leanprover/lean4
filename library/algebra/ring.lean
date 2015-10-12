@@ -48,6 +48,9 @@ section semiring
   variables [s : semiring A] (a b c : A)
   include s
 
+  theorem one_add_one_eq_two : 1 + 1 = (2:A) :=
+  by unfold bit0
+
   theorem ne_zero_of_mul_ne_zero_right {a b : A} (H : a * b ≠ 0) : a ≠ 0 :=
   suppose a = 0,
   have a * b = 0, from this⁻¹ ▸ zero_mul b,

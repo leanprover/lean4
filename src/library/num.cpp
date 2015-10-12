@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/type_checker.h"
 #include "library/num.h"
+#include "library/util.h"
 #include "library/constants.h"
 
 namespace lean {
@@ -40,6 +41,18 @@ optional<expr> is_bit1(expr const & e) {
     if (!is_const_app(e, get_bit1_name(), 4))
         return none_expr();
     return some_expr(app_arg(e));
+}
+
+optional<expr> unfold_num_app(environment const & env, expr const & e) {
+    if (is_zero(e) || is_one(e) || is_bit0(e) || is_bit1(e)) {
+        return unfold_app(env, e);
+    } else {
+        return none_expr();
+    }
+}
+
+bool is_numeral_const_name(name const & n) {
+    return n == get_zero_name() || n == get_one_name() || n == get_bit0_name() || n == get_bit1_name();
 }
 
 static bool is_num(expr const & e, bool first) {

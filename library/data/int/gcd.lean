@@ -7,7 +7,7 @@ Definitions and properties of gcd, lcm, and coprime.
 -/
 import .div data.nat.gcd
 open eq.ops
-open - [notations] algebra
+open algebra
 
 namespace int
 
@@ -264,8 +264,10 @@ dvd_of_coprime_of_dvd_mul_right H1 (!mul.comm ▸ H2)
 theorem gcd_mul_left_cancel_of_coprime {c : ℤ} (a : ℤ) {b : ℤ} (H : coprime c b) :
    gcd (c * a) b = gcd a b :=
 begin
-  revert H, rewrite [↑coprime, ↑gcd, *of_nat_eq_of_nat_iff, nat_abs_mul],
-  apply nat.gcd_mul_left_cancel_of_coprime
+  revert H, unfold [coprime, gcd],
+  rewrite [int_one_eq_nat_one],
+  rewrite [+of_nat_eq_of_nat_iff, nat_abs_mul],
+  apply nat.gcd_mul_left_cancel_of_coprime,
 end
 
 theorem gcd_mul_right_cancel_of_coprime (a : ℤ) {c b : ℤ} (H : coprime c b) :

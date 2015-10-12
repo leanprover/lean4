@@ -191,10 +191,8 @@ theorem pow_ge_one_of_ge_one {a : A} (H : a ≥ 1) (n : ℕ) : a ^ n ≥ 1 :=
     apply gt_of_ge_of_gt H zero_lt_one
   end
 
-local notation 2 := (1 : A) + 1
-
-theorem pow_two_add (n : ℕ) : 2^n + 2^n = 2^(succ n) :=
-  by rewrite [pow_succ', left_distrib, *mul_one]
+theorem pow_two_add (n : ℕ) : (2:A)^n + 2^n = 2^(succ n) :=
+  by rewrite [pow_succ', -one_add_one_eq_two, left_distrib, *mul_one]
 
 end ordered_ring
 

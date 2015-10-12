@@ -9,7 +9,7 @@ import data.nat.power logic.identities
 
 namespace nat
 open decidable
-open - [notations] algebra
+open algebra
 
 definition even (n : nat) := n mod 2 = 0
 
@@ -63,10 +63,13 @@ iff.mp !odd_iff_not_even this
 
 lemma odd_succ_of_even {n} : even n → odd (succ n) :=
 suppose even n,
+have n ≡ 0 [mod 2],       from this,
+have n+1 ≡ 0+1 [mod 2],   from add_mod_eq_add_mod_right 1 this,
+have h : n+1 ≡ 1 [mod 2], from this,
 by_contradiction (suppose ¬ odd (succ n),
-  assert 0 = 1, from calc
-    0  = (n+1) mod 2 : even_of_not_odd this
-   ... = 1 mod 2     : add_mod_eq_add_mod_right 1 `even n`,
+  have n+1 ≡ 0 [mod 2], from even_of_not_odd this,
+  have 1 ≡ 0 [mod 2],   from eq.trans (eq.symm h) this,
+  assert 1 = 0,         from this,
   by contradiction)
 
 lemma eq_1_of_ne_0_lt_2 : ∀ {n : nat}, n ≠ 0 → n < 2 → n = 1
@@ -271,7 +274,7 @@ assume h₁ h₂,
    (suppose odd n,  or.elim (em (even m))
      (suppose even m, absurd `odd n` (not_odd_of_even (iff.mpr h₂ `even m`)))
      (suppose odd m,
-      assert d : 1 div 2 = 0,         from dec_trivial,
+      assert d : 1 div 2 = (0:nat),   from dec_trivial,
       obtain w₁ (hw₁ : n = 2*w₁ + 1), from exists_of_odd `odd n`,
       obtain w₂ (hw₂ : m = 2*w₂ + 1), from exists_of_odd `odd m`,
       begin

@@ -229,7 +229,8 @@ end
 
 definition pow_fin_is_iso (a : A) : is_iso_class (pow_fin' a) :=
 is_iso_class.mk (pow_fin_hom a)
-  (begin rewrite [↑pow_fin', succ_pred_of_pos !order_pos], exact pow_fin_inj a 0 end)
+  (have H : injective (λ (i : fin (order a)), a ^ (val i + 0)), from pow_fin_inj a 0,
+    begin+ rewrite [↑pow_fin', succ_pred_of_pos !order_pos]; exact H end)
 
 end cyclic
 
@@ -262,16 +263,16 @@ lemma rotl_succ' {n m : nat} : rotl m = madd (mk_mod n (n*m)) := rfl
 
 lemma rotl_zero : ∀ {n : nat}, @rotl n 0 = id
 | 0        := funext take i, elim0 i
-| (succ n) := funext take i, zero_add i
+| (nat.succ n) := funext take i, begin rewrite [↑rotl, mul_zero, mk_mod_zero_eq, zero_madd] end
 
 lemma rotl_id : ∀ {n : nat}, @rotl n n = id
 | 0        := funext take i, elim0 i
-| (succ n) :=
+| (nat.succ n) :=
   assert P : mk_mod n (n * succ n) = mk_mod n 0,
-    from eq_of_veq !mul_mod_left,
+    from eq_of_veq (by rewrite [↑mk_mod, mul_mod_left]),
   begin rewrite [rotl_succ', P], apply rotl_zero end
 
-lemma rotl_to_zero {n i : nat} : rotl i (mk_mod n i) = zero n :=
+lemma rotl_to_zero {n i : nat} : rotl i (mk_mod n i) = 0 :=
 eq_of_veq begin rewrite [↑rotl, val_madd], esimp [mk_mod], rewrite [ mod_add_mod, add_mod_mod, -succ_mul, mul_mod_right] end
 
 lemma rotl_compose : ∀ {n : nat} {j k : nat}, (@rotl n j) ∘ (rotl k) = rotl (j + k)
@@ -307,8 +308,8 @@ lemma rotl_eq_rotl : ∀ {n : nat}, map (rotl 1) (upto n) = list.rotl (upto n)
   rewrite [upto_step at {1}, upto_succ, rotl_cons, map_append],
   congruence,
     rewrite [map_map], congruence, exact rotl_succ,
-    rewrite [map_singleton], congruence, rewrite [↑rotl, mul_one n, ↑mk_mod, ↑zero, ↑maxi, ↑madd],
-      congruence, rewrite [ mod_add_mod, nat.add_zero, mod_eq_of_lt !lt_succ_self ]
+    rewrite [map_singleton], congruence, rewrite [↑rotl, mul_one n, ↑mk_mod, ↑maxi, ↑madd],
+      congruence, rewrite [ mod_add_mod, val_zero, add_zero, mod_eq_of_lt !lt_succ_self ]
   end
 
 definition seq [reducible] (A : Type) (n : nat) := fin n → A
@@ -322,9 +323,9 @@ lemma rotl_seq_zero {n : nat} : rotl_fun 0 = @id (seq A n) :=
 funext take f, begin rewrite [↑rotl_fun, rotl_zero] end
 
 lemma rotl_seq_ne_id : ∀ {n : nat}, (∃ a b : A, a ≠ b) → ∀ i, i < n → rotl_fun (succ i) ≠ (@id (seq A (succ n)))
-| 0        := assume Pex, take i, assume Piltn, absurd Piltn !not_lt_zero
-| (succ n) := assume Pex, obtain a b Pne, from Pex, take i, assume Pilt,
-  let f := (λ j : fin (succ (succ n)), if j = zero (succ n) then a else b),
+| 0            := assume Pex, take i, assume Piltn, absurd Piltn !not_lt_zero
+| (nat.succ n) := assume Pex, obtain a b Pne, from Pex, take i, assume Pilt,
+  let f := (λ j : fin (succ (succ n)), if j = 0 then a else b),
       fi := mk_mod (succ n) (succ i) in
   have Pfne : rotl_fun (succ i) f fi ≠ f fi,
     from begin rewrite [↑rotl_fun, rotl_to_zero, mk_mod_of_lt (succ_lt_succ Pilt), if_pos rfl, if_neg mk_succ_ne_zero], assumption end,

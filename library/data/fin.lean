@@ -92,8 +92,13 @@ mk 0 !zero_lt_succ
 definition fin_has_zero [instance] [reducible] (n : nat) : has_zero (fin (succ n)) :=
 has_zero.mk (fin.zero n)
 
+theorem val_zero (n : nat) : val (0 : fin (succ n)) = 0 := rfl
+
 definition mk_mod [reducible] (n i : nat) : fin (succ n) :=
 mk (i mod (succ n)) (mod_lt _ !zero_lt_succ)
+
+theorem mk_mod_zero_eq (n : nat) : mk_mod n 0 = 0 :=
+rfl
 
 variable {n : nat}
 
@@ -116,7 +121,7 @@ mk n !lt_succ_self
 theorem val_lift : ∀ (i : fin n) (m : nat), val i = val (lift i m)
 | (mk v h) m := rfl
 
-lemma mk_succ_ne_zero {i : nat} : ∀ {P}, mk (succ i) P ≠ fin.zero n :=
+lemma mk_succ_ne_zero {i : nat} : ∀ {P}, mk (succ i) P ≠ (0 : fin (succ n)) :=
 assume P Pe, absurd (veq_of_eq Pe) !succ_ne_zero
 
 lemma mk_mod_eq {i : fin (succ n)} : i = mk_mod n i :=
@@ -127,7 +132,7 @@ begin esimp [mk_mod], congruence, exact mod_eq_of_lt Plt end
 
 section lift_lower
 
-lemma lift_zero : lift_succ (fin.zero n) = fin.zero (succ n) := rfl
+lemma lift_zero : lift_succ (0 : fin (succ n)) = (0 : fin (succ (succ n))) := rfl
 
 lemma ne_max_of_lt_max {i : fin (succ n)} : i < n → i ≠ maxi :=
 by intro hlt he; substvars; exact absurd hlt (lt.irrefl n)
@@ -239,8 +244,10 @@ lemma val_mod : ∀ i : fin (succ n), (val i) mod (succ n) = val i
 lemma madd_comm (i j : fin (succ n)) : madd i j = madd j i :=
 by apply eq_of_veq; rewrite [*val_madd, add.comm (val i)]
 
-lemma zero_madd (i : fin (succ n)) : madd (fin.zero n) i = i :=
-by apply eq_of_veq; rewrite [val_madd, ↑fin.zero, nat.zero_add, mod_eq_of_lt (is_lt i)]
+lemma zero_madd (i : fin (succ n)) : madd 0 i = i :=
+have H : madd (fin.zero n) i = i, 
+  by apply eq_of_veq; rewrite [val_madd, ↑fin.zero, nat.zero_add, mod_eq_of_lt (is_lt i)],
+H
 
 lemma madd_zero (i : fin (succ n)) : madd i (fin.zero n) = i :=
 !madd_comm ▸ zero_madd i
@@ -368,10 +375,10 @@ begin
   apply dmap_map_lift, apply @list.lt_of_mem_upto
 end
 
-definition upto_step : ∀ {n : nat}, fin.upto (n +1) = (map succ (upto n))++[fin.zero n]
+definition upto_step : ∀ {n : nat}, fin.upto (n +1) = (map succ (upto n))++[0]
 | 0      := rfl
 | (i +1) := begin rewrite [upto_succ i, map_cons, append_cons, succ_max, upto_succ, -lift_zero],
-  congruence, rewrite [map_map, -lift_succ.comm, -map_map, -(map_singleton _ (fin.zero i)), -map_append, -upto_step] end
+  congruence, rewrite [map_map, -lift_succ.comm, -map_map, -(map_singleton _ 0), -map_append, -upto_step] end
 end
 
 open sum equiv decidable

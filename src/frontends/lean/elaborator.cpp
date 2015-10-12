@@ -1585,7 +1585,14 @@ expr elaborator::visit_prenum(expr const & e, constraint_seq & cs) {
     mpz const & v  = prenum_value(e);
     tag e_tag      = e.get_tag();
     levels ls      = levels(mk_meta_univ(m_ngen.next()));
-    expr A         = m_full_context.mk_meta(m_ngen, none_expr(), e_tag);
+    // Remark: In HoTT mode, we only partially support the new encoding for numerals.
+    // We fix A to num, and we rely on coercions to cast them to other types.
+    // This is quite different from the approach used in the standard library
+    expr A;
+    if (is_standard(env()))
+        A = m_full_context.mk_meta(m_ngen, none_expr(), e_tag);
+    else
+        A = mk_constant(get_num_name()).set_tag(e_tag);
     bool is_strict = true;
     bool inst_imp  = true;
     if (v.is_neg())

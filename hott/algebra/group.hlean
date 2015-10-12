@@ -19,15 +19,6 @@ variable {A : Type}
 structure has_mul [class] (A : Type) :=
 (mul : A → A → A)
 
-structure has_add [class] (A : Type) :=
-(add : A → A → A)
-
-structure has_one [class] (A : Type) :=
-(one : A)
-
-structure has_zero [class] (A : Type) :=
-(zero : A)
-
 structure has_inv [class] (A : Type) :=
 (inv : A → A)
 

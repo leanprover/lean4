@@ -112,4 +112,12 @@ optional<mpz> to_num_core(expr const & e) {
     else
         return optional<mpz>();
 }
+
+bool is_num_leaf_constant(name const & n) {
+    return
+        n == get_zero_name() ||
+        n == get_one_name() ||
+        n == get_has_zero_zero_name() ||
+        n == get_has_one_one_name();
+}
 }

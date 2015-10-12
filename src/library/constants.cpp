@@ -36,6 +36,8 @@ name const * g_false_rec = nullptr;
 name const * g_funext = nullptr;
 name const * g_has_zero = nullptr;
 name const * g_has_one = nullptr;
+name const * g_has_zero_zero = nullptr;
+name const * g_has_one_one = nullptr;
 name const * g_has_add = nullptr;
 name const * g_heq = nullptr;
 name const * g_heq_refl = nullptr;
@@ -188,6 +190,8 @@ void initialize_constants() {
     g_funext = new name{"funext"};
     g_has_zero = new name{"has_zero"};
     g_has_one = new name{"has_one"};
+    g_has_zero_zero = new name{"has_zero", "zero"};
+    g_has_one_one = new name{"has_one", "one"};
     g_has_add = new name{"has_add"};
     g_heq = new name{"heq"};
     g_heq_refl = new name{"heq", "refl"};
@@ -341,6 +345,8 @@ void finalize_constants() {
     delete g_funext;
     delete g_has_zero;
     delete g_has_one;
+    delete g_has_zero_zero;
+    delete g_has_one_one;
     delete g_has_add;
     delete g_heq;
     delete g_heq_refl;
@@ -493,6 +499,8 @@ name const & get_false_rec_name() { return *g_false_rec; }
 name const & get_funext_name() { return *g_funext; }
 name const & get_has_zero_name() { return *g_has_zero; }
 name const & get_has_one_name() { return *g_has_one; }
+name const & get_has_zero_zero_name() { return *g_has_zero_zero; }
+name const & get_has_one_one_name() { return *g_has_one_one; }
 name const & get_has_add_name() { return *g_has_add; }
 name const & get_heq_name() { return *g_heq; }
 name const & get_heq_refl_name() { return *g_heq_refl; }

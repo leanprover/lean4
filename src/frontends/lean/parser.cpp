@@ -1537,17 +1537,32 @@ expr parser::parse_id() {
     return id_to_expr(id, p);
 }
 
-expr parser::parse_numeral_expr() {
+expr parser::parse_numeral_expr(bool user_notation) {
     auto p = pos();
     mpz n = get_num_val().get_numerator();
     next();
     if (!m_has_num)
         m_has_num = has_num_decls(m_env);
-    if (!*m_has_num) {
+    list<expr> vals;
+    if (user_notation)
+        vals = get_mpz_notation(m_env, n);
+    if (!*m_has_num && !vals) {
         throw parser_error("numeral cannot be encoded as expression, environment does not contain "
                            "the auxiliary declarations zero, one, bit0 and bit1", p);
     }
-    return mk_prenum(n);
+    if (!vals) {
+        return save_pos(mk_prenum(n), p);
+    } else {
+        buffer<expr> cs;
+        if (*m_has_num)
+            cs.push_back(save_pos(mk_prenum(n), p));
+        for (expr const & c : vals)
+            cs.push_back(copy_with_new_pos(c, p));
+        if (cs.size() == 1)
+            return cs[0];
+        else
+            return save_pos(mk_choice(cs.size(), cs.data()), p);
+    }
 }
 
 expr parser::parse_decimal_expr() {
@@ -1830,7 +1845,7 @@ expr parser::parse_tactic_opt_id_list() {
 expr parser::parse_tactic_option_num() {
     auto p = pos();
     if (curr_is_numeral()) {
-        expr n = parse_numeral_expr(); // TODO(Leo): it should be a num
+        expr n = parse_numeral_expr(false);
         return mk_app(save_pos(mk_constant(get_option_some_name()), p), n, p);
     } else {
         return save_pos(mk_constant(get_option_none_name()), p);

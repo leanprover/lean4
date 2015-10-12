@@ -33,6 +33,13 @@ optional<mpz> to_num(expr const & e);
 /** \brief If the given expression is a numeral encode the num and pos_num types, return the encoded numeral */
 optional<mpz> to_num_core(expr const & e);
 
+/** \brief Return true iff n is zero/one/has_zero.zero/has_one.one.
+    These constants are used to encode numerals, and some tactics may have to treat them in a special way.
+
+    \remark This kind of hard-coded solution is not ideal. One alternative solution is to have yet another
+    annotation to let user mark constants that should be treated in a different way by some tactics. */
+bool is_num_leaf_constant(name const & n);
+
 void initialize_num();
 void finalize_num();
 }

@@ -12,28 +12,6 @@ definition pos_num.is_inhabited [instance] : inhabited pos_num :=
 inhabited.mk pos_num.one
 
 namespace pos_num
-  definition is_one (a : pos_num) : bool :=
-  pos_num.rec_on a tt (λn r, ff) (λn r, ff)
-
-  definition pred (a : pos_num) : pos_num :=
-  pos_num.rec_on a one (λn r, bit0 n) (λn r, cond (is_one n) one (bit1 r))
-
-  definition size (a : pos_num) : pos_num :=
-  pos_num.rec_on a one (λn r, succ r) (λn r, succ r)
-
-  definition add (a b : pos_num) : pos_num :=
-  pos_num.rec_on a
-    succ
-    (λn f b, pos_num.rec_on b
-      (succ (bit1 n))
-      (λm r, succ (bit1 (f m)))
-      (λm r, bit1 (f m)))
-    (λn f b, pos_num.rec_on b
-      (bit1 n)
-      (λm r, bit1 (f m))
-      (λm r, bit0 (f m)))
-    b
-
   notation a + b := add a b
 
   definition mul (a b : pos_num) : pos_num :=
@@ -79,9 +57,6 @@ namespace num
 
   definition size (a : num) : num :=
   num.rec_on a (pos one) (λp, pos (size p))
-
-  definition add (a b : num) : num :=
-  num.rec_on a b (λpa, num.rec_on b (pos pa) (λpb, pos (pos_num.add pa pb)))
 
   definition mul (a b : num) : num :=
   num.rec_on a zero (λpa, num.rec_on b zero (λpb, pos (pos_num.mul pa pb)))

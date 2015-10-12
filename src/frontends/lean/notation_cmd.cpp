@@ -41,7 +41,14 @@ static unsigned parse_precedence_core(parser & p) {
     if (p.curr_is_numeral()) {
         return p.parse_small_nat();
     } else {
-        environment env = open_prec_aliases(p.env());
+        environment env = p.env();
+        if (!is_standard(env)) {
+            // TODO(Leo): remove this if we decide to implement
+            // arithmetical notation using type classes in the HoTT
+            // library.
+            env = open_num_notation(p.env());
+        }
+        env = open_prec_aliases(env);
         parser::local_scope scope(p, env);
         expr pre_val = p.parse_expr(get_max_prec());
         pre_val  = mk_typed_expr(mk_constant(get_num_name()), pre_val);

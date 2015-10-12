@@ -214,7 +214,7 @@ class parser {
     expr parse_led_notation(expr left);
     expr parse_nud();
     bool curr_starts_expr();
-    expr parse_numeral_expr();
+    expr parse_numeral_expr(bool user_notation = true);
     expr parse_decimal_expr();
     expr parse_string_expr();
     expr parse_binder_core(binder_info const & bi, unsigned rbp);

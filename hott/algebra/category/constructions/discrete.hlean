@@ -14,8 +14,7 @@ open eq is_trunc iso bool functor
 namespace category
 
   definition precategory_of_1_type [constructor] (A : Type) [H : is_trunc 1 A] : precategory A :=
-  precategory.mk
-    (λ (a b : A), a = b)
+  @precategory.mk _ _ (@is_trunc_eq _ _ H)
     (λ (a b c : A) (p : b = c) (q : a = b), q ⬝ p)
     (λ (a : A), refl a)
     (λ (a b c d : A) (p : c = d) (q : b = c) (r : a = b), con.assoc r q p)

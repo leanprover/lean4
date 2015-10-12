@@ -490,19 +490,7 @@ public:
             constraint_seq cs;
             expr p1 = m_tc.whnf(p, cs);
             expr t1 = m_tc.whnf(t, cs);
-            if (!cs && (p1 != p || t1 != t) && ctx.match(p1, t1)) {
-                return true;
-            } else if (!has_expr_metavar(p1)) {
-                // special support for numerals
-                if (auto p2 = unfold_num_app(m_tc.env(), p1)) {
-                    // unfold nested projection
-                    if (auto p3 = unfold_app(m_tc.env(), *p2)) {
-                        p3 = m_tc.whnf(*p3, cs);
-                        return !cs && p1 != *p3 && ctx.match(*p3, t1);
-                    }
-                }
-            }
-            return false;
+            return !cs && (p1 != p || t1 != t) && ctx.match(p1, t1);
         } catch (exception&) {
             return false;
         }
@@ -1600,7 +1588,10 @@ class rewrite_fn {
         } else {
             auto aux_pred = full ? mk_irreducible_pred(m_env) : mk_not_reducible_pred(m_env);
             return mk_simple_type_checker(m_env, m_ngen.mk_child(), [=](name const & n) {
-                    return is_projection(m_env, n) || aux_pred(n);
+                    // Remark: the condition !is_num_leaf_constant(n) is a little bit hackish.
+                    // It is here to allow us to match terms such as (@zero nat nat_has_zero) with nat.zero.
+                    // The idea is to treat zero and has_zero.zero as reducible terms and unfold them here.
+                    return (is_projection(m_env, n) || aux_pred(n)) && !is_num_leaf_constant(n);
                 });
         }
     }

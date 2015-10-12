@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn, Jakob von Raumer
 -/
 
 prelude
-import .num .wf
+import init.num init.wf
 
 -- Empty type
 -- ----------

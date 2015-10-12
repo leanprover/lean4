@@ -38,6 +38,8 @@ name const & get_false_rec_name();
 name const & get_funext_name();
 name const & get_has_zero_name();
 name const & get_has_one_name();
+name const & get_has_zero_zero_name();
+name const & get_has_one_one_name();
 name const & get_has_add_name();
 name const & get_heq_name();
 name const & get_heq_refl_name();

@@ -31,6 +31,8 @@ false.rec
 funext
 has_zero
 has_one
+has_zero.zero
+has_one.one
 has_add
 heq
 heq.refl

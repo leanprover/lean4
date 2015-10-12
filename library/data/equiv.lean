@@ -277,7 +277,7 @@ mk (λ s, match s with inl n := 2*n | inr n := 2*n+1 end)
               rewrite [if_neg h], esimp,
               cases n,
                 {exact absurd even_zero h},
-                {rewrite [-add_one, add_sub_cancel,
+                {rewrite [-(add_one a), add_sub_cancel,
                           mul_div_cancel' (dvd_of_even (even_of_odd_succ (odd_of_not_even h)))]}
             end))
 

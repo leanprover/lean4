@@ -1,24 +1,6 @@
 set_option structure.eta_thm true
 set_option structure.proj_mk_thm true
 
-structure has_mul [class] (A : Type) :=
-(mul : A → A → A)
-
-structure has_add [class] (A : Type) :=
-(add : A → A → A)
-
-structure has_one [class] (A : Type) :=
-(one : A)
-
-structure has_zero [class] (A : Type) :=
-(zero : A)
-
-structure has_inv [class] (A : Type) :=
-(inv : A → A)
-
-structure has_neg [class] (A : Type) :=
-(neg : A → A)
-
 structure semigroup [class] (A : Type) extends has_mul A :=
 (mul_assoc : ∀a b c, mul (mul a b) c = mul a (mul b c))
 

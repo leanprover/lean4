@@ -26,10 +26,10 @@ definition group_to_struct [instance] (g : group) : group_struct (carrier g)
 
 check group_struct
 
-definition mul {A : Type} {s : group_struct A} (a b : A) : A
+definition mul1 {A : Type} {s : group_struct A} (a b : A) : A
 := group_struct.rec (λ mul one inv h1 h2 h3, mul) s a b
 
-infixl `*` := mul
+infixl `*` := mul1
 
 constant  G1 : group.{1}
 constant  G2 : group.{1}

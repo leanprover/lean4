@@ -19,9 +19,9 @@ namespace nat
   definition fib (n : nat) :=
   nat.brec_on n (λ (n : nat),
     nat.cases_on n
-      (λ (b₀ : nat.below zero), succ zero)
+      (λ (b₀ : nat.below 0), succ 0)
       (λ (n₁ : nat), nat.cases_on n₁
-          (λ b₁ : nat.below (succ zero), succ zero)
+          (λ b₁ : nat.below (succ 0), succ zero)
           (λ (n₂ : nat) (b₂ : nat.below (succ (succ n₂))), pr₁ b₂ + pr₁ (pr₂ b₂))))
 
   theorem fib_0 : fib 0 = 1 :=

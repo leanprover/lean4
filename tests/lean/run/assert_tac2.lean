@@ -1,5 +1,5 @@
 import data.nat
-open nat eq.ops
+open nat eq.ops algebra
 
 theorem lcm_dvd {m n k : nat} (H1 : m ∣ k) (H2 : (n ∣ k)) : (lcm m n ∣ k) :=
 match eq_zero_or_pos k with

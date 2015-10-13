@@ -1,7 +1,7 @@
 import data.num
 
-inductive one.{l} : Type.{l} :=
-unit : one
+inductive one1.{l} : Type.{l} :=
+unit : one1
 
 inductive pone : Type.{0} :=
 unit : pone
@@ -17,7 +17,7 @@ inductive wrap2.{l} (A : Type.{l}) : Type.{max 1 l} :=
 mk : A → wrap2 A
 
 set_option pp.universes true
-check @one.rec
+check @one1.rec
 check @pone.rec
 check @two.rec
 check @wrap.rec

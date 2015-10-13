@@ -75,7 +75,7 @@ namespace vector
       (λ (n₁ : nat) (a₁ : A) (v₁ : vector A n₁) (B : bw (vcons a₁ v₁)),
          vcons a₁ (pr₁ B)))
 
-  example : append (1 :: 2 :: vnil) (3 :: vnil) = 1 :: 2 :: 3 :: vnil :=
+  example : append ((1:nat) :: 2 :: vnil) (3 :: vnil) = 1 :: 2 :: 3 :: vnil :=
   rfl
 
   definition head {A : Type} {n : nat} (v : vector A (succ n)) : A :=

@@ -19,13 +19,12 @@ definition num_to_nat (n : num) : nat
 := num.rec zero (λ n, pos_num_to_nat n) n
 attribute num_to_nat [coercion]
 
--- Now we can write 2 + 3, the coercion will be applied
-check 2 + 3
+check (2:num) + 3
 
 -- Define an assump as an alias for the eassumption tactic
 definition assump : tactic := tactic.eassumption
 
-theorem T1 {p : nat → Prop} {a : nat } (H : p (a+2)) : ∃ x, p (succ x)
+theorem T1 {p : nat → Prop} {a : nat } (H : p (a+(2:num))) : ∃ x, p (succ x)
 := by apply exists.intro; assump
 
 definition is_zero (n : nat)

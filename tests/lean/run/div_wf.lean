@@ -26,7 +26,7 @@ rfl
 -- The actual definitional package would not do that.
 -- It will always pack things.
 
-definition pair_nat.lt    := lex lt lt  -- Could also be (lex lt empty_rel)
+definition pair_nat.lt    := lex nat.lt nat.lt  -- Could also be (lex lt empty_rel)
 definition pair_nat.lt.wf [instance] : well_founded pair_nat.lt :=
 prod.lex.wf lt.wf lt.wf
 infixl `≺`:50 := pair_nat.lt

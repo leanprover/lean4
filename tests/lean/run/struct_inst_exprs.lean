@@ -7,11 +7,11 @@ definition s : nat × nat := pair 10 20
 structure test :=
 (A : Type) (a : A) (B : A → Type) (b : B a)
 
-definition s2 := ⦃ test, a := 3, b := 10 ⦄
+definition s2 := ⦃ test, a := (3:nat), b := (10:nat) ⦄
 
 eval s2
 
-definition s3 := {| test, a := 20, s2 |}
+definition s3 := {| test, a := (20:nat), s2 |}
 
 eval s3
 

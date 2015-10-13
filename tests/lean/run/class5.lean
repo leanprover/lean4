@@ -44,7 +44,7 @@ section
   -- check mul_struct nat  << This is an error, we opened only the notation from algebra
   variables a b c : nat
   check a*b*c
-  definition tst3 : nat := #nat a*b*c
+  definition tst3 : nat := a*b*c
 end
 
 section

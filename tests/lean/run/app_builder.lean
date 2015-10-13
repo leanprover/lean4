@@ -1,4 +1,4 @@
-definition a := 10
+definition a :num := 10
 
 constant b : num
 constant c : num

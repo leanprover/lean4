@@ -1,6 +1,6 @@
 open nat
 
-definition foo := 30
+definition foo : nat := 30
 
 namespace foo
   definition x : nat := 10

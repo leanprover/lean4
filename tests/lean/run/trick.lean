@@ -1,7 +1,7 @@
 import logic
 
 definition proj1 (x : num) (y : num) := x
-definition One := 1
+definition One : num := 1
 
 (*
 local num   = Const("num")

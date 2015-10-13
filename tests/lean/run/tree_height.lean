@@ -1,5 +1,5 @@
 import logic data.nat
-open eq.ops nat
+open eq.ops nat algebra
 
 inductive tree (A : Type) :=
 | leaf : A → tree A
@@ -27,10 +27,10 @@ lt_succ_of_le (le_max_right (height t₁) (height t₂))
 theorem height_lt.trans {A : Type} : transitive (@height_lt A) :=
 inv_image.trans lt height @lt.trans
 
-example : height_lt (leaf 2) (node (leaf 1) (leaf 2)) :=
+example : height_lt (leaf (2:nat)) (node (leaf 1) (leaf 2)) :=
 !height_lt.node_right
 
-example : height_lt  (leaf 2) (node (node (leaf 1) (leaf 2)) (leaf 3)) :=
+example : height_lt  (leaf (2:nat)) (node (node (leaf 1) (leaf 2)) (leaf 3)) :=
 height_lt.trans !height_lt.node_right !height_lt.node_left
 
 end tree

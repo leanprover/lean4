@@ -1,5 +1,5 @@
 import data.rat
-open rat
+open rat int
 
 attribute rat.of_int [coercion]
 

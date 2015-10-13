@@ -36,11 +36,11 @@ definition subterm {A : Type} : tree A → tree A → Prop := tc (@direct_subter
 
 definition subterm.wf {A : Type} : well_founded (@subterm A) :=
 tc.wf (@direct_subterm.wf A)
-
-example : subterm (leaf 2) (node (leaf 1) (leaf 2)) :=
+open nat
+example : subterm (leaf (2:nat)) (node (leaf 1) (leaf 2)) :=
 !tc.base !direct_subterm.node_r
 
-example : subterm (leaf 2) (node (node (leaf 1) (leaf 2)) (leaf 3)) :=
+example : subterm (leaf (2:nat)) (node (node (leaf 1) (leaf 2)) (leaf 3)) :=
 have s₁ : subterm (leaf 2) (node (leaf 1) (leaf 2)), from
   !tc.base !direct_subterm.node_r,
 have s₂ : subterm (node (leaf 1) (leaf 2)) (node (node (leaf 1) (leaf 2)) (leaf 3)), from

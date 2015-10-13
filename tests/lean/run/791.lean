@@ -1,5 +1,6 @@
-definition foo.bar := 10
-definition boo.bla.foo := 20
+open nat
+definition foo.bar : nat := 10
+definition boo.bla.foo : nat := 20
 
 open foo
 open boo.bla

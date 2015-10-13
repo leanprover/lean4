@@ -7,5 +7,5 @@ intro a, exact a
 end
 check @foo
 
-example : foo 10 = 10 :=
+example : foo 10 = (10:num) :=
 rfl

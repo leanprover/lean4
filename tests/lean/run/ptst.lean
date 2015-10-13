@@ -1,5 +1,5 @@
-import logic data.prod
-open prod
+import data.nat logic data.prod
+open prod nat
 
 -- Test tuple notation
-check (3, false, 1, true)
+check ((3:nat), false, (1:num), true)

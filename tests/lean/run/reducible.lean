@@ -1,7 +1,9 @@
-definition x [reducible]   := 10
-definition y               := 20
-definition z [irreducible] := 30
-definition w               := 40
+open nat
+definition x [reducible]   := (10:nat)
+definition y               := (20:nat)
+definition z [irreducible] := (30:nat)
+definition w               := (40:nat)
+
 
 (*
  local env   = get_env()
@@ -21,8 +23,6 @@ definition w               := 40
  assert(tc:whnf(w) == w)
  -- Opaque and definitions marked as irreducibled are not unfolded
  local tc  = non_irreducible_type_checker(env)
- assert(tc:whnf(x) == val_x)
- assert(tc:whnf(y) == val_y)
  assert(tc:whnf(z) == z)
  -- Only definitions marked as reducible are unfolded
  local tc  = reducible_type_checker(env)
@@ -30,12 +30,6 @@ definition w               := 40
  assert(tc:whnf(y) == y)
  assert(tc:whnf(z) == z)
  assert(tc:whnf(w) == w)
- -- Default: only opaque definitions are not unfolded.
- -- Opaqueness is a feature of the kernel.
- local tc  = type_checker(env)
- assert(tc:whnf(x) == val_x)
- assert(tc:whnf(y) == val_y)
- assert(tc:whnf(z) == val_z)
 *)
 
 eval [whnf] x

@@ -1,5 +1,5 @@
 import data.nat data.sum data.sigma data.bool
-open nat sigma
+open nat sigma algebra
 
 inductive tree (A : Type) : Type :=
 | node : A → forest A → tree A

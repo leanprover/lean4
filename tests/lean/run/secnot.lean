@@ -16,10 +16,10 @@ namespace list
 section
 variable {T : Type}
 notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
-check [10, 20, 30]
+check [(10:num), 20, 30]
 end
 end list
 
 open list
-check [10, 20, 40]
-check 10 ◀ 20
+check [(10:num), 20, 40]
+check (10:num) ◀ 20

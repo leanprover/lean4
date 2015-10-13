@@ -8,7 +8,7 @@ inductive univ :=
 
 open univ
 
-definition interp : univ → Type₁
+definition interp [reducible] : univ → Type₁
 | ubool          := bool
 | unat           := nat
 | (uarrow fr to) := interp fr → interp to
@@ -23,7 +23,7 @@ definition is_even : nat → bool
 | zero     := tt
 | (succ n) := bnot (is_even n)
 
-example : foo unat 10  = 11 := rfl
+example : foo unat (10:nat)  = 11 := rfl
 example : foo ubool tt = ff := rfl
 example : foo (uarrow unat ubool) (λ x : nat, is_even x) 3 = tt := rfl
 example : foo (uarrow unat ubool) (λ x : nat, is_even x) 4 = ff := rfl

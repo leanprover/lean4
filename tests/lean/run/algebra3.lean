@@ -1,14 +1,5 @@
 import logic
 
-structure has_mul [class] (A : Type) :=
-(mul : A → A → A)
-
-structure has_one [class] (A : Type) :=
-(one : A)
-
-structure has_inv [class] (A : Type) :=
-(inv : A → A)
-
 infixl `*`   := has_mul.mul
 postfix `⁻¹` := has_inv.inv
 notation 1   := has_one.one

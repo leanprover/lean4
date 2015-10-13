@@ -40,12 +40,6 @@ check x + i
 check n + x
 check x + n
 check x + i + n
-check n + 0
-check 0 + n
-check 0 + i
-check i + 0
-check 0 + x
-check x + 0
 namespace foo
 constant eq {A : Type} : A → A → Prop
 infixl `=` := eq

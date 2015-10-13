@@ -20,7 +20,7 @@ axiom add_one (n:nat) : n + (succ zero) = succ n
 axiom add_le_right {n m : nat} (H : n ≤ m) (k : nat) : n + k ≤ m + k
 
 theorem succ_le {n m : nat} (H : n ≤ m) : succ n ≤ succ m
-:= add_one m ▸ add_one n ▸ add_le_right H 1
+:= add_one m ▸ add_one n ▸ add_le_right H (1:num)
 
 end nat
 end experiment

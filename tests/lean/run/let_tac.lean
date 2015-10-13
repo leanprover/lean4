@@ -1,4 +1,5 @@
 import data.nat
+open algebra
 
 example (a b : Prop) : a → b → a ∧ b :=
 begin

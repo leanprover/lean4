@@ -14,5 +14,5 @@ rfl
 theorem append_cons (h : A) (t l : list A) : append (h :: t) l = h :: (append t l) :=
 rfl
 
-example : append (1 :: 2 :: nil) (3 :: 4 :: 5 :: nil) = (1 :: 2 :: 3 :: 4 :: 5 :: nil) :=
+example : append ((1:num) :: 2 :: nil) (3 :: 4 :: 5 :: nil) = (1 :: 2 :: 3 :: 4 :: 5 :: nil) :=
 rfl

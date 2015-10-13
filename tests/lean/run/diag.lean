@@ -11,7 +11,7 @@ nat.rec_on n
     let t₁ : vector (vector A n₁) n₁ := map tail (tail v) in
     h₁ :: r t₁)
 
-example : diag ((1 :: 2 :: 3 :: nil) :: (4 :: 5 :: 6 :: nil) :: (7 :: 8 :: 9 :: nil) :: nil) = 1 :: 5 :: 9 :: nil :=
+example : diag ((1 :: 2 :: 3 :: nil) :: (4 :: 5 :: 6 :: nil) :: (7 :: 8 :: 9 :: nil) :: nil) = (1 :: 5 :: 9 :: nil : vector num 3)  :=
 rfl
 
 end vector

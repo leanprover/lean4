@@ -1,9 +1,9 @@
 import data.int
-open [coercions] int
+open [coercions] [classes] int
 open [coercions] nat
 
-definition lt (a b : int) := int.le (int.add a 1) b
-infix `<`     := lt
+definition lt1 (a b : int) := int.le (int.add a 1) b
+infix `<`     := lt1
 infixl `+` := int.add
 
 theorem lt_add_succ2 (a : int) (n : nat) : a < a + nat.succ n :=

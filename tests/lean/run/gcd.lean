@@ -4,7 +4,7 @@ open nat well_founded decidable prod eq.ops
 namespace playground
 
 -- Setup
-definition pair_nat.lt    := lex lt lt
+definition pair_nat.lt    := lex nat.lt nat.lt
 definition pair_nat.lt.wf [instance] : well_founded pair_nat.lt :=
 intro_k (prod.lex.wf lt.wf lt.wf) 20 -- the '20' is for being able to execute the examples... it means 20 recursive call without proof computation
 infixl `≺`:50 := pair_nat.lt

@@ -12,5 +12,6 @@ section
 
   local attribute foo [coercion]
 
-  check s 10
+  check let a : nat := 10 in s a
+
 end

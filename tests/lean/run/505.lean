@@ -1,5 +1,5 @@
 import data.set
-open set
+open set nat
 
 section
   variable {A : Type}
@@ -13,8 +13,8 @@ section
   notation `⦃` s:(foldr `,` (a t, insert a t) ∅) `⦄` := s
   notation `{` `{` s:(foldr `,` (a t, insert a t) ∅) `}` `}` := s
 
-  check ⦃1, 2, 3⦄
-  check {{1, 2, 3}}
+  check ⦃(1:nat), 2, 3⦄
+  check {{(1:nat), 2, 3}}
 
   definition foo  {X : Type} {{ x : X }} : X := x
 end

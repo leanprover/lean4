@@ -5,7 +5,7 @@ example (a b : nat) (f : nat → nat) (h : f (succ a) = 0) : f (a+1) = 0 :=
 by rewrite [add_one, h]
 
 example (a b : nat) (f : nat → nat) (h : f (succ a) = 0) : f (a+1) = 0 :=
-by xrewrite h
+by krewrite h
 
 definition g (a : nat) := a + 1
 definition h (a : nat) := a

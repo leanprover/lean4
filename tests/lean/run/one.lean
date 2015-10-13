@@ -1,8 +1,8 @@
-inductive one.{l} : Type.{max 1 l} :=
-unit : one.{l}
+inductive one1.{l} : Type.{max 1 l} :=
+unit : one1.{l}
 
 set_option pp.universes true
-check one
+check one1
 
 
 inductive one2.{l} : Type.{max 1 l} :=

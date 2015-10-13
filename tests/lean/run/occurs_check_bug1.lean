@@ -3,8 +3,8 @@ import logic data.nat data.prod
 open nat prod
 open decidable
 
-constant modulo (x : ℕ) (y : ℕ) : ℕ
-infixl `mod` := modulo
+constant modulo1 (x : ℕ) (y : ℕ) : ℕ
+infixl `mod` := modulo1
 
 constant gcd_aux : ℕ × ℕ → ℕ
 

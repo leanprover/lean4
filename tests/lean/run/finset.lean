@@ -167,7 +167,7 @@ namespace finset
   theorem empty_union {A : Type} (s : finset A) : ∅ ∪ s = s :=
   quot.induction_on s (λ l, quot.sound (λ a, by rewrite append_nil_left))
 
-  example : to_finset (1::2::nil) ∪ to_finset (2::3::nil) = ⟦1 :: 2 :: 2 :: 3 :: nil⟧ :=
+  example : to_finset ((1:nat)::2::nil) ∪ to_finset (2::3::nil) = ⟦1 :: 2 :: 2 :: 3 :: nil⟧ :=
   rfl
 
   example : to_finset [(1:nat), 1, 2, 3] = to_finset [2, 3, 1, 2, 2, 3] :=

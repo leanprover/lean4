@@ -3,7 +3,7 @@ open finset num nat int algebra
 
 check @finset.insert _ _ 1 (@finset.empty ℕ)
 
-check '{1, 2, 3}               -- finset num
+check '{(1:nat), 2, 3}
 check ('{1, 2, 3} : finset ℕ)
 check ('{1, 2, 3} : finset ℕ)  -- finset ℕ
 check ('{1, 2, 3} : finset ℤ)  -- finset ℤ

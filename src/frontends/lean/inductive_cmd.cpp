@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "util/sstream.h"
 #include "util/name_map.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/replace_fn.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
@@ -34,6 +35,22 @@ Author: Leonardo de Moura
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/type_util.h"
 
+#ifndef LEAN_DEFAULT_INDUCTIVE_REC_ON
+#define LEAN_DEFAULT_INDUCTIVE_REC_ON true
+#endif
+
+#ifndef LEAN_DEFAULT_INDUCTIVE_CASES_ON
+#define LEAN_DEFAULT_INDUCTIVE_CASES_ON true
+#endif
+
+#ifndef LEAN_DEFAULT_INDUCTIVE_NO_CONFUSION
+#define LEAN_DEFAULT_INDUCTIVE_NO_CONFUSION true
+#endif
+
+#ifndef LEAN_DEFAULT_INDUCTIVE_BREC_ON
+#define LEAN_DEFAULT_INDUCTIVE_BREC_ON true
+#endif
+
 namespace lean {
 using inductive::intro_rule;
 using inductive::inductive_decl;
@@ -43,6 +60,27 @@ using inductive::inductive_decl_intros;
 using inductive::mk_intro_rule;
 using inductive::intro_rule_name;
 using inductive::intro_rule_type;
+
+static name * g_inductive_rec_on       = nullptr;
+static name * g_inductive_cases_on     = nullptr;
+static name * g_inductive_no_confusion = nullptr;
+static name * g_inductive_brec_on      = nullptr;
+
+bool get_inductive_rec_on(options const & opts) {
+    return opts.get_bool(*g_inductive_rec_on, LEAN_DEFAULT_INDUCTIVE_REC_ON);
+}
+
+bool get_inductive_cases_on(options const & opts) {
+    return opts.get_bool(*g_inductive_cases_on, LEAN_DEFAULT_INDUCTIVE_CASES_ON);
+}
+
+bool get_inductive_brec_on(options const & opts) {
+    return opts.get_bool(*g_inductive_brec_on, LEAN_DEFAULT_INDUCTIVE_BREC_ON);
+}
+
+bool get_inductive_no_confusion(options const & opts) {
+    return opts.get_bool(*g_inductive_no_confusion, LEAN_DEFAULT_INDUCTIVE_NO_CONFUSION);
+}
 
 inductive_decl update_inductive_decl(inductive_decl const & d, expr const & t) {
     return inductive_decl(inductive_decl_name(d), t, inductive_decl_intros(d));
@@ -68,6 +106,24 @@ void initialize_inductive_cmd() {
     g_intro      = new name("intro");
     g_recursor   = new name("recursor");
     g_definition = new name("definition");
+
+    g_inductive_rec_on       = new name{"inductive", "rec_on"};
+    g_inductive_cases_on     = new name{"inductive", "cases_on"};
+    g_inductive_brec_on      = new name{"inductive", "brec_on"};
+    g_inductive_no_confusion = new name{"inductive", "no_confusion"};
+
+    register_bool_option(*g_inductive_rec_on, LEAN_DEFAULT_INDUCTIVE_REC_ON,
+                         "(inductive) automatically generate the auxiliary declarations C.rec_on and C.induction_on  for each inductive datatype C");
+
+    register_bool_option(*g_inductive_brec_on, LEAN_DEFAULT_INDUCTIVE_BREC_ON,
+                         "(inductive) automatically generate the auxiliary declaration C.brec_on for each inductive datatype C");
+
+    register_bool_option(*g_inductive_cases_on, LEAN_DEFAULT_INDUCTIVE_CASES_ON,
+                         "(inductive) automatically generate the auxiliary declaration C.cases_on for each inductive datatype C"
+                         "(remark: if cases_on is disabled, then the auxiliary declaration C.no_confusion is also disabled");
+
+    register_bool_option(*g_inductive_no_confusion, LEAN_DEFAULT_INDUCTIVE_NO_CONFUSION,
+                         "(inductive) automatically generate the auxiliary declaration C.no_confusion for each inductive datatype C");
 }
 
 void finalize_inductive_cmd() {
@@ -76,6 +132,11 @@ void finalize_inductive_cmd() {
     delete g_inductive;
     delete g_definition;
     delete g_tmp_prefix;
+
+    delete g_inductive_rec_on;
+    delete g_inductive_cases_on;
+    delete g_inductive_brec_on;
+    delete g_inductive_no_confusion;
 }
 
 struct inductive_cmd_fn {
@@ -732,24 +793,35 @@ struct inductive_cmd_fn {
         bool has_heq  = has_heq_decls(env);
         bool has_prod = has_prod_decls(env);
         bool has_lift = has_lift_decls(env);
+        options opts  = m_p.get_options();
+
+        bool gen_rec_on       = get_inductive_rec_on(opts);
+        bool gen_brec_on      = get_inductive_brec_on(opts);
+        bool gen_cases_on     = get_inductive_cases_on(opts);
+        bool gen_no_confusion = get_inductive_no_confusion(opts);
+
         for (inductive_decl const & d : decls) {
             name const & n = inductive_decl_name(d);
             pos_info pos   = *m_decl_pos_map.find(n);
-            env = mk_rec_on(env, n);
-            save_def_info(name(n, "rec_on"), pos);
-            if (env.impredicative()) {
+            if (gen_rec_on) {
+                env = mk_rec_on(env, n);
+                save_def_info(name(n, "rec_on"), pos);
+            }
+            if (gen_rec_on && env.impredicative()) {
                 env = mk_induction_on(env, n);
                 save_def_info(name(n, "induction_on"), pos);
             }
             if (has_unit) {
-                env = mk_cases_on(env, n);
-                save_def_info(name(n, "cases_on"), pos);
-                if (has_eq && ((env.prop_proof_irrel() && has_heq) || (!env.prop_proof_irrel() && has_lift))) {
+                if (gen_cases_on) {
+                    env = mk_cases_on(env, n);
+                    save_def_info(name(n, "cases_on"), pos);
+                }
+                if (gen_cases_on && gen_no_confusion && has_eq && ((env.prop_proof_irrel() && has_heq) || (!env.prop_proof_irrel() && has_lift))) {
                     env = mk_no_confusion(env, n);
                     save_if_defined(name{n, "no_confusion_type"}, pos);
                     save_if_defined(name(n, "no_confusion"), pos);
                 }
-                if (has_prod) {
+                if (gen_brec_on && has_prod) {
                     env = mk_below(env, n);
                     save_if_defined(name{n, "below"}, pos);
                     if (env.impredicative()) {
@@ -762,7 +834,7 @@ struct inductive_cmd_fn {
         for (inductive_decl const & d : decls) {
             name const & n = inductive_decl_name(d);
             pos_info pos   = *m_decl_pos_map.find(n);
-            if (has_unit && has_prod) {
+            if (gen_brec_on && has_unit && has_prod) {
                 env = mk_brec_on(env, n);
                 save_if_defined(name{n, "brec_on"}, pos);
                 if (env.impredicative()) {

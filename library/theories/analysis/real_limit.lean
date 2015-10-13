@@ -21,7 +21,7 @@ These could be avoided in a constructive theory of analysis, but here we will no
 follow that route.
 -/
 import .metric_space data.real.complete
-open real eq.ops classical
+open real classical algebra
 noncomputable theory
 
 namespace real
@@ -32,7 +32,7 @@ protected definition to_metric_space [instance] : metric_space ℝ :=
 ⦃ metric_space,
   dist               := λ x y, abs (x - y),
   dist_self          := λ x, abstract by rewrite [sub_self, abs_zero] end,
-  eq_of_dist_eq_zero := @eq_of_abs_sub_eq_zero,
+  eq_of_dist_eq_zero := λ x y, algebra.eq_of_abs_sub_eq_zero,
   dist_comm          := abs_sub,
   dist_triangle      := abs_sub_le
 ⦄

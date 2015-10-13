@@ -1574,7 +1574,7 @@ expr parser::parse_decimal_expr() {
         return num;
     } else {
         expr den = save_pos(mk_prenum(val.get_denominator()), p);
-        expr div = save_pos(mk_constant(get_div_name()), p);
+        expr div = save_pos(mk_constant(get_division_name()), p);
         return save_pos(lean::mk_app(div, num, den), p);
     }
 }

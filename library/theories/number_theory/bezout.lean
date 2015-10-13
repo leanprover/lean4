@@ -41,8 +41,6 @@ theorem egcd_succ (x y : ℕ) :
   egcd x (succ y) = prod.cases_on (egcd (succ y) (x mod succ y)) (egcd_rec_f (x div succ y)) :=
 well_founded.fix_eq egcd.F (x, succ y)
 
-set_option pp.coercions true
-
 theorem egcd_of_pos (x : ℕ) {y : ℕ} (ypos : y > 0) :
   let erec := egcd y (x mod y), u := pr₁ erec, v := pr₂ erec in
     egcd x y = (v, u - v * (x div y)) :=

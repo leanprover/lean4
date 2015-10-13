@@ -139,9 +139,6 @@ lemma fin_lcoset_subset {S : finset A} (Psub : S ⊆ H) : ∀ x, x ∈ H → fin
 lemma finsubg_lcoset_id {a : A} : a ∈ H → fin_lcoset H a = H :=
 by rewrite [eq_eq_to_set_eq, fin_lcoset_eq, mem_eq_mem_to_set]; apply subgroup_lcoset_id
 
-set_option pp.notation false
-set_option pp.full_names true
-
 lemma finsubg_inv_lcoset_eq_rcoset {a : A} :
   fin_inv (fin_lcoset H a) = fin_rcoset H a⁻¹ :=
 begin

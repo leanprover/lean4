@@ -299,7 +299,6 @@ begin
   intros, apply rfl
 end
 
-set_option pp.full_names true
 theorem reduce_equiv : ∀ a : prerat, reduce a ≡ a
 | (mk an ad adpos) :=
     decidable.by_cases

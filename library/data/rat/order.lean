@@ -360,9 +360,6 @@ eq_of_sub_eq_zero this
 section
   open int
 
-  set_option pp.numerals false
-  set_option pp.implicit true
-
   theorem num_nonneg_of_nonneg {q : ℚ} (H : q ≥ 0) : num q ≥ 0 :=
   have of_int (num q) ≥ of_int 0,
     begin

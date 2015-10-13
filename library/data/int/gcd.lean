@@ -21,9 +21,6 @@ of_nat_nonneg (nat.gcd (nat_abs a) (nat_abs b))
 theorem gcd.comm (a b : ℤ) : gcd a b = gcd b a :=
 by rewrite [↑gcd, nat.gcd.comm]
 
-set_option pp.all true
-set_option pp.numerals false
-
 theorem gcd_zero_right (a : ℤ) : gcd a 0 = abs a :=
 by rewrite [↑gcd, nat_abs_zero, nat.gcd_zero_right, of_nat_nat_abs]
 

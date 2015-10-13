@@ -1015,71 +1015,66 @@ open real
 open [classes] rat_seq
 namespace real
 
-definition lt (x y : ℝ) := quot.lift_on₂ x y (λ a b, rat_seq.r_lt a b) rat_seq.r_lt_well_defined
---infix [priority real.prio] `<` := lt
+protected definition lt (x y : ℝ) := quot.lift_on₂ x y (λ a b, rat_seq.r_lt a b) rat_seq.r_lt_well_defined
+protected definition le (x y : ℝ) := quot.lift_on₂ x y (λ a b, rat_seq.r_le a b) rat_seq.r_le_well_defined
 
-definition le (x y : ℝ) := quot.lift_on₂ x y (λ a b, rat_seq.r_le a b) rat_seq.r_le_well_defined
---infix [priority real.prio] `<=` := le
---infix [priority real.prio] `≤` := le
+definition real_has_lt [reducible] [instance] [priority real.prio] : has_lt ℝ :=
+has_lt.mk real.lt
 
-definition gt [reducible] (a b : ℝ) := lt b a
-definition ge [reducible] (a b : ℝ) := le b a
-
---infix [priority real.prio] >= := real.ge
---infix [priority real.prio] ≥  := real.ge
---infix [priority real.prio] >  := real.gt
+definition real_has_le [reducible] [instance] [priority real.prio] : has_le ℝ :=
+has_le.mk real.le
 
 definition sep (x y : ℝ) := quot.lift_on₂ x y (λ a b, rat_seq.r_sep a b) rat_seq.r_sep_well_defined
 infix `≢` : 50 := sep
 
-theorem le.refl (x : ℝ) : le x x :=
+theorem le.refl (x : ℝ) : x ≤ x :=
   quot.induction_on x (λ t, rat_seq.r_le.refl t)
 
-theorem le.trans {x y z : ℝ} : le x y → le y z → le x z :=
+theorem le.trans {x y z : ℝ} : x ≤ y → y ≤ z → x ≤ z :=
   quot.induction_on₃ x y z (λ s t u, rat_seq.r_le.trans)
 
-theorem eq_of_le_of_ge {x y : ℝ} : le x y → le y x → x = y :=
+theorem eq_of_le_of_ge {x y : ℝ} : x ≤ y → y ≤ x → x = y :=
   quot.induction_on₂ x y (λ s t Hst Hts, quot.sound (rat_seq.r_equiv_of_le_of_ge Hst Hts))
 
-theorem lt_iff_le_and_sep (x y : ℝ) : lt x y ↔ le x y ∧ x ≢ y :=
+theorem lt_iff_le_and_sep (x y : ℝ) : x < y ↔ x ≤ y ∧ x ≢ y :=
   quot.induction_on₂ x y (λ s t, rat_seq.r_lt_iff_le_and_sep s t)
 
-theorem add_le_add_of_le_right_var (x y z : ℝ) : le x y → le (z + x) (z + y) :=
+theorem add_le_add_of_le_right_var (x y z : ℝ) : x ≤ y → z + x ≤ z + y :=
   quot.induction_on₃ x y z (λ s t u, rat_seq.r_add_le_add_of_le_right_var s t u)
 
-theorem add_le_add_of_le_right (x y : ℝ) : le x y → ∀ z : ℝ, le (z + x) (z + y) :=
+theorem add_le_add_of_le_right (x y : ℝ) : x ≤ y → ∀ z : ℝ, z + x ≤ z + y :=
   take H z, add_le_add_of_le_right_var x y z H
 
-theorem mul_gt_zero_of_gt_zero (x y : ℝ) : lt zero x → lt zero y → lt zero (x * y) :=
+theorem mul_gt_zero_of_gt_zero (x y : ℝ) : 0 < x → 0 < y → 0 < x * y :=
   quot.induction_on₂ x y (λ s t, rat_seq.r_mul_pos_of_pos)
 
-theorem mul_ge_zero_of_ge_zero (x y : ℝ) : le zero x → le zero y → le zero (x * y) :=
+theorem mul_ge_zero_of_ge_zero (x y : ℝ) : 0 ≤ x → 0 ≤ y → 0 ≤ x * y :=
   quot.induction_on₂ x y (λ s t, rat_seq.r_mul_nonneg_of_nonneg)
 
 theorem not_sep_self (x : ℝ) : ¬ x ≢ x :=
   quot.induction_on x (λ s, rat_seq.r_not_sep_self s)
 
-theorem not_lt_self (x : ℝ) : ¬ lt x x :=
+theorem not_lt_self (x : ℝ) : ¬ x < x :=
   quot.induction_on x (λ s, rat_seq.r_not_lt_self s)
 
-theorem le_of_lt {x y : ℝ} : lt x y → le x y :=
+theorem le_of_lt {x y : ℝ} : x < y → x ≤ y :=
   quot.induction_on₂ x y (λ s t H', rat_seq.r_le_of_lt H')
 
-theorem lt_of_le_of_lt {x y z : ℝ} : le x y → lt y z → lt x z :=
+theorem lt_of_le_of_lt {x y z : ℝ} : x ≤ y → y < z → x < z :=
   quot.induction_on₃ x y z (λ s t u H H', rat_seq.r_lt_of_le_of_lt H H')
 
-theorem lt_of_lt_of_le {x y z : ℝ} : lt x y → le y z → lt x z :=
+theorem lt_of_lt_of_le {x y z : ℝ} : x < y → y ≤ z → x < z :=
   quot.induction_on₃ x y z (λ s t u H H', rat_seq.r_lt_of_lt_of_le H H')
 
-theorem add_lt_add_left_var (x y z : ℝ) : lt x y → lt (z + x) (z + y) :=
+theorem add_lt_add_left_var (x y z : ℝ) : x < y → z + x < z + y :=
   quot.induction_on₃ x y z (λ s t u, rat_seq.r_add_lt_add_left_var s t u)
 
-theorem add_lt_add_left (x y : ℝ) : lt x y → ∀ z : ℝ, lt (z + x) (z + y) :=
+theorem add_lt_add_left (x y : ℝ) : x < y → ∀ z : ℝ, z + x < z + y :=
   take H z, add_lt_add_left_var x y z H
 
-theorem zero_lt_one : lt (0 : ℝ) (1 : ℝ) := rat_seq.r_zero_lt_one
+theorem zero_lt_one : (0 : ℝ) < (1 : ℝ) := rat_seq.r_zero_lt_one
 
-theorem le_of_lt_or_eq (x y : ℝ) : lt x y ∨ x = y → le x y :=
+theorem le_of_lt_or_eq (x y : ℝ) : x < y ∨ x = y → x ≤ y :=
     (quot.induction_on₂ x y (λ s t H, or.elim H (take H', begin
         apply rat_seq.r_le_of_lt_or_eq,
         apply or.inl H'
@@ -1089,21 +1084,21 @@ theorem le_of_lt_or_eq (x y : ℝ) : lt x y ∨ x = y → le x y :=
         apply (or.inr (quot.exact H'))
       end)))
 
- definition ordered_ring [reducible] [instance] : algebra.ordered_ring ℝ :=
-  ⦃ algebra.ordered_ring, real.comm_ring,
-    le_refl := le.refl,
-    le_trans := @le.trans,
-    mul_pos := mul_gt_zero_of_gt_zero,
-    mul_nonneg := mul_ge_zero_of_ge_zero,
-    zero_ne_one := zero_ne_one,
-    add_le_add_left := add_le_add_of_le_right,
-    le_antisymm := @eq_of_le_of_ge,
-    lt_irrefl := not_lt_self,
-    lt_of_le_of_lt := @lt_of_le_of_lt,
-    lt_of_lt_of_le := @lt_of_lt_of_le,
-    le_of_lt := @le_of_lt,
-    add_lt_add_left := add_lt_add_left
-  ⦄
+definition ordered_ring [reducible] [instance] : algebra.ordered_ring ℝ :=
+⦃ algebra.ordered_ring, real.comm_ring,
+  le_refl := le.refl,
+  le_trans := @le.trans,
+  mul_pos := mul_gt_zero_of_gt_zero,
+  mul_nonneg := mul_ge_zero_of_ge_zero,
+  zero_ne_one := zero_ne_one,
+  add_le_add_left := add_le_add_of_le_right,
+  le_antisymm := @eq_of_le_of_ge,
+  lt_irrefl := not_lt_self,
+  lt_of_le_of_lt := @lt_of_le_of_lt,
+  lt_of_lt_of_le := @lt_of_lt_of_le,
+  le_of_lt := @le_of_lt,
+  add_lt_add_left := add_lt_add_left
+⦄
 
 open int
 theorem of_rat_sub (a b : ℚ) : of_rat (a - b) = of_rat a - of_rat b := rfl
@@ -1128,7 +1123,6 @@ theorem lt_of_of_rat_lt_of_rat {a b : ℚ} : of_rat a < of_rat b → a < b :=
 
 theorem of_rat_lt_of_rat_iff (a b : ℚ) : of_rat a < of_rat b ↔ a < b :=
   iff.intro lt_of_of_rat_lt_of_rat of_rat_lt_of_rat_of_lt
-set_option pp.coercions true
 
 theorem of_int_le_of_int_iff (a b : ℤ) : of_int a ≤ of_int b ↔ (a ≤ b) :=
   begin rewrite [+of_int_eq, of_rat_le_of_rat_iff], apply rat.of_int_le_of_int_iff end

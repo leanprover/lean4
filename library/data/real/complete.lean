@@ -17,8 +17,6 @@ are independent of each other.
 
 import data.real.basic data.real.order data.real.division data.rat data.nat data.pnat
 open rat algebra -- nat
-local notation 0 := rat.of_num 0
-local notation 1 := rat.of_num 1
 local postfix ⁻¹ := pnat.inv
 open eq.ops pnat classical
 
@@ -116,7 +114,7 @@ theorem equiv_abs_of_ge_zero {s : seq} (Hs : regular s) (Hz : s_le zero s) : s_a
     apply rat.le.trans,
     apply add_le_add,
     repeat (apply inv_ge_of_le; apply Hn),
-    rewrite pnat.add_halves,
+    krewrite pnat.add_halves,
     apply rat.le.refl
   end
 
@@ -147,7 +145,7 @@ theorem equiv_neg_abs_of_le_zero {s : seq} (Hs : regular s) (Hz : s_le s zero) :
     apply rat.le.trans,
     apply add_le_add,
     repeat (apply inv_ge_of_le; apply Hn),
-    rewrite pnat.add_halves,
+    krewrite pnat.add_halves,
     apply rat.le.refl,
     let Hneg' := lt_of_not_ge Hneg,
     rewrite [abs_of_neg Hneg', ↑sneg, sub_neg_eq_add, neg_add_eq_sub, algebra.sub_self,
@@ -238,7 +236,7 @@ theorem cauchy_with_rate_of_converges_to_with_rate {X : r_seq} {a : ℝ} {N : �
     apply Hn,
     xrewrite -of_rat_add,
     apply of_rat_le_of_rat_of_le,
-    rewrite pnat.add_halves,
+    krewrite pnat.add_halves,
     apply rat.le.refl
   end
 
@@ -274,7 +272,10 @@ private theorem lim_seq_reg_helper {m n : ℕ+} (Hmn : M (2 * n) ≤M (2 * m)) :
     apply pnat.le.trans,
     apply Hmn,
     apply Nb_spec_right,
-    rewrite [-*of_rat_add, rat.add.assoc, pnat.add_halves],
+    krewrite [-+of_rat_add],
+    change of_rat ((2 * m)⁻¹ + (2 * n)⁻¹ + (2 * n)⁻¹) ≤ of_rat (m⁻¹ + n⁻¹),
+    rewrite [algebra.add.assoc],
+    krewrite pnat.add_halves,
     apply of_rat_le_of_rat_of_le,
     apply add_le_add_right,
     apply inv_ge_of_le,
@@ -292,7 +293,7 @@ theorem lim_seq_reg : rat_seq.regular lim_seq :=
     cases em (M (2 * m) ≥ M (2 * n)) with [Hor1, Hor2],
     apply lim_seq_reg_helper Hor1,
     let Hor2' := pnat.le_of_lt (pnat.lt_of_not_le Hor2),
-    rewrite [abs_sub (X (Nb M n)), abs_sub (X (Nb M m)), abs_sub,
+    krewrite [abs_sub (X (Nb M n)), abs_sub (X (Nb M m)), abs_sub,
              rat.add.comm, add_comm_three],
     apply lim_seq_reg_helper Hor2'
   end
@@ -351,9 +352,10 @@ theorem converges_to_with_rate_of_cauchy_with_rate : converges_to_with_rate X li
     rewrite ↑lim_seq,
     apply approx_spec,
     apply lim_spec,
-    rewrite [-*of_rat_add],
+    krewrite [-+of_rat_add],
+    change of_rat ((2 * k)⁻¹ + (2 * n)⁻¹ + n⁻¹) ≤ of_rat k⁻¹,
     apply of_rat_le_of_rat_of_le,
-    apply rat.le.trans,
+    apply algebra.le.trans,
     apply add_le_add_three,
     apply rat.le.refl,
     apply inv_ge_of_le,
@@ -369,7 +371,8 @@ theorem converges_to_with_rate_of_cauchy_with_rate : converges_to_with_rate X li
     apply Hn,
     rotate_right 1,
     apply Nb_spec_left,
-    rewrite [-*pnat.mul.assoc, pnat.p_add_fractions],
+    rewrite -*pnat.mul.assoc,
+    krewrite pnat.p_add_fractions,
     apply rat.le.refl
   end
 
@@ -500,7 +503,7 @@ theorem ceil_lt_ceil_succ (x : ℝ) : ceil x < ceil (x + 1) :=
     apply floor_sub_one_lt_floor
   end
 open nat
-set_option pp.coercions true
+
 theorem archimedean_small {ε : ℝ} (H : ε > 0) : ∃ (n : ℕ), 1 / succ n < ε :=
 let n := int.nat_abs (ceil (2 / ε)) in
 assert int.of_nat n ≥ ceil (2 / ε),
@@ -529,8 +532,6 @@ local postfix `~` := nat_of_pnat
 
 -- The top part of this section could be refactored. What is the appropriate place to define
 -- bounds, supremum, etc? In algebra/ordered_field? They potentially apply to more than just ℝ.
-
-local notation 2 := (1 : ℚ) + 1
 parameter X : ℝ → Prop
 
 definition ub (x : ℝ) := ∀ y : ℝ, X y → y ≤ x
@@ -781,7 +782,7 @@ private theorem under_seq_mono (i j : ℕ) (H : i ≤ j) : under_seq i ≤ under
     rewrite -Hk',
     apply under_seq_mono_helper
   end
-set_option pp.coercions true
+
 private theorem over_seq_mono_helper (i k : ℕ) : over_seq (i + k) ≤ over_seq i :=
   nat.induction_on k
     (by rewrite nat.add_zero; apply rat.le.refl)

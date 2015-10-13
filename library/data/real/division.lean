@@ -619,15 +619,15 @@ theorem lt_or_eq_of_le (x y : ℝ) : x ≤ y → x < y ∨ x = y :=
 theorem le_iff_lt_or_eq (x y : ℝ) : x ≤ y ↔ x < y ∨ x = y :=
   iff.intro (lt_or_eq_of_le x y) (le_of_lt_or_eq x y)
 
-noncomputable definition dec_lt : decidable_rel lt :=
+noncomputable definition dec_lt : decidable_rel real.lt :=
   begin
     rewrite ↑decidable_rel,
     intros,
     apply prop_decidable
   end
 
-  protected noncomputable definition discrete_linear_ordered_field [reducible] [trans_instance]:
-      algebra.discrete_linear_ordered_field ℝ :=
+protected noncomputable definition discrete_linear_ordered_field [reducible] [trans_instance]:
+  algebra.discrete_linear_ordered_field ℝ :=
   ⦃ algebra.discrete_linear_ordered_field, real.comm_ring, real.ordered_ring,
     le_total := le_total,
     mul_inv_cancel := mul_inv,
@@ -640,13 +640,12 @@ noncomputable definition dec_lt : decidable_rel lt :=
 
 theorem of_rat_zero : of_rat 0 = 0 := rfl
 
-set_option pp.coercions true
 theorem of_rat_divide (x y : ℚ) : of_rat (x / y) = of_rat x / of_rat y :=
 by_cases
   (assume yz : y = 0, by rewrite [yz, algebra.div_zero, *of_rat_zero, algebra.div_zero])
   (assume ynz : y ≠ 0,
     have ynz' : of_rat y ≠ 0, from assume yz', ynz (of_rat.inj yz'),
-    !eq_div_of_mul_eq ynz' (by rewrite [-of_rat_mul, !div_mul_cancel ynz]))
+    !eq_div_of_mul_eq ynz' (by krewrite [-of_rat_mul, !div_mul_cancel ynz]))
 
 open int
 

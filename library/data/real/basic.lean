@@ -1055,20 +1055,20 @@ notation `ℝ` := real
 
 protected definition prio := num.pred rat.prio
 
-definition add (x y : ℝ) : ℝ :=
+protected definition add (x y : ℝ) : ℝ :=
   (quot.lift_on₂ x y (λ a b, quot.mk (a + b))
                      (take a b c d : reg_seq, take Hab : requiv a c, take Hcd : requiv b d,
                        quot.sound (radd_well_defined Hab Hcd)))
 
 --infix [priority real.prio] + := add
 
-definition mul (x y : ℝ) : ℝ :=
+protected definition mul (x y : ℝ) : ℝ :=
   (quot.lift_on₂ x y (λ a b, quot.mk (a * b))
                      (take a b c d : reg_seq, take Hab : requiv a c, take Hcd : requiv b d,
                        quot.sound (rmul_well_defined Hab Hcd)))
 --infix [priority real.prio] * := mul
 
-definition neg (x : ℝ) : ℝ :=
+protected definition neg (x : ℝ) : ℝ :=
   (quot.lift_on x (λ a, quot.mk (-a)) (take a b : reg_seq, take Hab : requiv a b,
                                    quot.sound (rneg_well_defined Hab)))
 --prefix [priority real.prio] `-` := neg
@@ -1094,10 +1094,10 @@ definition of_int [coercion] (i : ℤ) : ℝ := int.to.real i
 definition of_nat [coercion] (n : ℕ) : ℝ := nat.to.real n
 definition of_num [coercion] [reducible] (n : num) : ℝ := of_rat (rat.of_num n)
 
-definition real_has_zero [reducible] [instance] [priority rat.prio] : has_zero real :=
+definition real_has_zero [reducible] [instance] [priority real.prio] : has_zero real :=
 has_zero.mk (0:rat)
 
-definition real_has_one [reducible] [instance] [priority rat.prio] : has_one real :=
+definition real_has_one [reducible] [instance] [priority real.prio] : has_one real :=
 has_one.mk (1:rat)
 
 theorem real_zero_eq_rat_zero : (0:real) = of_rat (0:rat) :=

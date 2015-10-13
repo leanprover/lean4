@@ -1,1 +1,1 @@
-793b.lean:1:6: error: invalid decimal number, environment does not contain 'rat.of_num' (solution: use 'import data.rat')
+6 / 5 : ℚ

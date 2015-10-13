@@ -2,5 +2,5 @@ definition tst : ℕ
 (λ (a : Type₁), 2 + 3) ℕ
 definition tst : ℕ
 foo ℕ
-definition tst1 : num
-(λ (A : Type₁) (a : A), a) num 10
+definition tst1 : ℕ
+(λ (A : Type₁) (a : A), a) ℕ 10

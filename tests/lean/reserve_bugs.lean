@@ -17,9 +17,9 @@ infixr `&` := h
 
 set_option pp.notation false
 
-check -1 + 2
+check -(1:num) + 2
 check 1 & 2 & 3 & 4
-check 1 - 2 - 3 - 4
+check (1:num) - 2 - 3 - 4
 
 infixr `~~`:60 := h
 infixl `!!`:60 := h

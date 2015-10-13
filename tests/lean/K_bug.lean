@@ -11,7 +11,7 @@ theorem pred_succ (n : Nat) : pred (succ n) = n := rfl
 
 theorem succ.inj {n m : Nat} (H : succ n = succ m) : n = m
 := calc
-    n = pred (succ n) : pred_succ n⁻¹
+    n = pred (succ n) : pred_succ n
   ... = pred (succ m) : {H}
   ... = m             : pred_succ m
 

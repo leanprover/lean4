@@ -1,18 +1,18 @@
 simplification rules for iff
-#2, ?M_1 - ?M_2 < succ ?M_1 ↦ true
-#1, ?M_1 < 0 ↦ false
-#1, ?M_1 < succ ?M_1 ↦ true
-#1, ?M_1 < ?M_1 ↦ false
-#1, 0 < succ ?M_1 ↦ true
 #2, ?M_1 - ?M_2 ≤ ?M_1 ↦ true
 #1, 0 ≤ ?M_1 ↦ true
 #1, succ ?M_1 ≤ ?M_1 ↦ false
 #1, pred ?M_1 ≤ ?M_1 ↦ true
 #1, ?M_1 ≤ succ ?M_1 ↦ true
+#2, ?M_1 - ?M_2 < succ ?M_1 ↦ true
+#1, ?M_1 < 0 ↦ false
+#1, ?M_1 < succ ?M_1 ↦ true
+#1, ?M_1 < ?M_1 ↦ false
+#1, 0 < succ ?M_1 ↦ true
 simplification rules for eq
 #1, g ?M_1 ↦ f ?M_1 + 1
 #2, g ?M_1 ↦ 1
 #2, f ?M_1 ↦ 0
+#4, ite ?M_1 ?M_4 ?M_4 ↦ ?M_4
 #1, 0 - ?M_1 ↦ 0
 #2, succ ?M_1 - succ ?M_2 ↦ ?M_1 - ?M_2
-#4, ite ?M_1 ?M_4 ?M_4 ↦ ?M_4

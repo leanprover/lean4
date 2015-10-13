@@ -1,7 +1,7 @@
 693.lean:10:2: proof state
 c : ℕ,
 h : c = 1
-⊢ 1 * c = 1
+⊢ foo 1 c 0 = foo 1 1 0
 693.lean:18:2: proof state
 b c : ℕ,
 h : c = 1
@@ -13,4 +13,4 @@ h : c = 1
 693.lean:34:2: proof state
 b c : ℕ,
 h : c = 1
-⊢ 2 * c = foo c 1 1
+⊢ foo 1 c 1 = foo c 1 1

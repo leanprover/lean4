@@ -1,6 +1,6 @@
-g (f 1) 2 : num
+add (f 1) 2 : num
+h 1 (h 2 (h 3 4)) : num
+sub (sub (sub 1 2) 3) 4 : num
 h 1 (h 2 (h 3 4)) : num
 h (h (h 1 2) 3) 4 : num
-h 1 (h 2 (h 3 4)) : num
-h (h (h 1 2) 3) 4 : num
-h 1 (h (g 2 3) 4) : num
+h 1 (h (add 2 3) 4) : num

@@ -1,4 +1,4 @@
-open nat nat_esimp
+open nat
 
 definition foo [unfold 1 3] (a : nat) (b : nat) (c :nat) : nat :=
 (a + c) * b

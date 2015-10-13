@@ -10,9 +10,7 @@ To do:
 -/
 import data.real.basic data.rat data.nat
 open rat nat eq pnat algebra
-local notation 0 := rat.of_num 0
-local notation 1 := rat.of_num 1
-local notation 2 := subtype.tag (nat.of_num 2) dec_trivial
+
 local postfix `⁻¹` := pnat.inv
 
 namespace rat_seq
@@ -1092,9 +1090,6 @@ theorem le_of_lt_or_eq (x y : ℝ) : lt x y ∨ x = y → le x y :=
         apply (or.inr (quot.exact H'))
       end)))
 
---section migrate_algebra
---  open [classes] algebra
-
  definition ordered_ring [reducible] [instance] : algebra.ordered_ring ℝ :=
   ⦃ algebra.ordered_ring, real.comm_ring,
     le_refl := le.refl,
@@ -1111,28 +1106,6 @@ theorem le_of_lt_or_eq (x y : ℝ) : lt x y ∨ x = y → le x y :=
     add_lt_add_left := add_lt_add_left
   ⦄
 
-  /-local attribute real.comm_ring [instance]
-  local attribute real.ordered_ring [instance]
-
-  definition sub (a b : ℝ) : ℝ := algebra.sub a b
-  infix [priority real.prio] - := real.sub
-  definition pow (a : ℝ) (n : ℕ) : ℝ := algebra.pow a n
-  notation [priority real.prio] a^n := real.pow a n
-  definition nmul (n : ℕ) (a : ℝ) : ℝ := algebra.nmul n a
-  infix [priority real.prio] `⬝` := nmul
-  definition imul (i : ℤ) (a : ℝ) : ℝ := algebra.imul i a
-
-  migrate from algebra with real
-    hiding dvd, dvd.elim, dvd.elim_left, dvd.intro, dvd.intro_left, dvd.refl, dvd.trans,
-      dvd_mul_left, dvd_mul_of_dvd_left, dvd_mul_of_dvd_right, dvd_mul_right, dvd_neg_iff_dvd,
-      dvd_neg_of_dvd, dvd_of_dvd_neg, dvd_of_mul_left_dvd, dvd_of_mul_left_eq,
-      dvd_of_mul_right_dvd, dvd_of_mul_right_eq, dvd_of_neg_dvd, dvd_sub, dvd_zero
-    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, divide → divide,
-              pow → pow, nmul → nmul, imul → imul
-
-  attribute le.trans lt.trans lt_of_lt_of_le lt_of_le_of_lt ge.trans gt.trans gt_of_gt_of_ge
-                   gt_of_ge_of_gt [trans]
-end migrate_algebra-/
 open int
 theorem of_rat_sub (a b : ℚ) : of_rat (a - b) = of_rat a - of_rat b := rfl
 

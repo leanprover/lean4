@@ -9,13 +9,11 @@ At this point, we no longer proceed constructively: this file makes heavy use of
 and excluded middle.
 -/
 import data.real.basic data.real.order data.rat data.nat
-open -[coercions] rat
-open -[coercions] nat
-open eq.ops pnat classical
+open rat
+open nat
+open eq.ops pnat classical algebra
 
-local notation 0 := rat.of_num 0
-local notation 1 := rat.of_num 1
-local notation 2 := subtype.tag (nat.of_num 2) dec_trivial
+local postfix ⁻¹ := pnat.inv
 
 namespace rat_seq
 
@@ -27,8 +25,8 @@ definition s_abs (s : seq) : seq := λ n, abs (s n)
 theorem abs_reg_of_reg {s : seq} (Hs : regular s) : regular (s_abs s) :=
   begin
     intros,
-    apply rat.le.trans,
-    apply abs_abs_sub_abs_le_abs_sub,
+    apply algebra.le.trans,
+    apply algebra.abs_abs_sub_abs_le_abs_sub,
     apply Hs
   end
 
@@ -194,16 +192,16 @@ theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_
     cases em (m < ps Hs Hsep) with [Hmlt, Hmlt],
       cases em (n < ps Hs Hsep) with [Hnlt, Hnlt],
         rewrite [(s_inv_of_sep_lt_p Hs Hsep Hmlt), (s_inv_of_sep_lt_p Hs Hsep Hnlt)],
-        rewrite [sub_self, abs_zero],
+        rewrite [algebra.sub_self, abs_zero],
         apply add_invs_nonneg,
        rewrite [(s_inv_of_sep_lt_p Hs Hsep Hmlt),
                 (s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hnlt))],
        rewrite [(!div_sub_div Hsp Hspn), div_eq_mul_one_div, *abs_mul, *mul_one, *one_mul],
        apply rat.le.trans,
-       apply rat.mul_le_mul,
+       apply algebra.mul_le_mul,
        apply Hs,
        rewrite [-(mul_one 1), -(!field.div_mul_div Hsp Hspn), abs_mul],
-       apply rat.mul_le_mul,
+       apply algebra.mul_le_mul,
        rewrite -(s_inv_of_sep_lt_p Hs Hsep Hmlt),
        apply le_ps Hs Hsep,
        rewrite  -(s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hnlt)),
@@ -213,7 +211,7 @@ theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_
        apply abs_nonneg,
        apply add_invs_nonneg,
        rewrite [right_distrib, *pnat_cancel', rat.add.comm],
-       apply rat.add_le_add_right,
+       apply algebra.add_le_add_right,
        apply inv_ge_of_le,
        apply pnat.le_of_lt,
        apply Hmlt,
@@ -222,10 +220,10 @@ theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_
                  (s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hmlt))],
         rewrite [(!div_sub_div Hspm Hsp), div_eq_mul_one_div, *abs_mul, *mul_one, *one_mul],
         apply rat.le.trans,
-        apply rat.mul_le_mul,
+        apply algebra.mul_le_mul,
         apply Hs,
         rewrite [-(mul_one 1), -(!field.div_mul_div Hspm Hsp), abs_mul],
-        apply rat.mul_le_mul,
+        apply algebra.mul_le_mul,
         rewrite -(s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hmlt)),
         apply le_ps Hs Hsep,
         rewrite -(s_inv_of_sep_lt_p Hs Hsep Hnlt),
@@ -243,10 +241,10 @@ theorem reg_inv_reg {s : seq} (Hs : regular s) (Hsep : sep s zero) : regular (s_
               (s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hmlt))],
       rewrite [(!div_sub_div Hspm Hspn), div_eq_mul_one_div, abs_mul, *one_mul, *mul_one],
       apply rat.le.trans,
-      apply rat.mul_le_mul,
+      apply algebra.mul_le_mul,
       apply Hs,
       rewrite [-(mul_one 1), -(!field.div_mul_div Hspm Hspn), abs_mul],
-      apply rat.mul_le_mul,
+      apply algebra.mul_le_mul,
       rewrite -(s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hmlt)),
       apply le_ps Hs Hsep,
       rewrite -(s_inv_of_sep_gt_p Hs Hsep (le_of_not_gt Hnlt)),
@@ -271,7 +269,7 @@ theorem s_inv_ne_zero {s : seq} (Hs : regular s) (Hsep : sep s zero) (n : ℕ+) 
     end)
   else
     (begin
-      rewrite (s_inv_of_sep_lt_p Hs Hsep (lt_of_not_ge H)),
+      rewrite (s_inv_of_sep_lt_p Hs Hsep (pnat.lt_of_not_le H)),
       apply one_div_ne_zero,
       apply s_ne_zero_of_ge_p,
       apply pnat.mul_le_mul_left
@@ -287,9 +285,9 @@ theorem mul_inv {s : seq} (Hs : regular s) (Hsep : sep s zero) : smul s (s_inv H
     intro n Hn,
     have Hnz : s_inv Hs ((K₂ s (s_inv Hs)) * 2 * n) ≠ 0, from s_inv_ne_zero Hs Hsep _,
     rewrite [↑smul, ↑one, rat.mul.comm, -(mul_one_div_cancel Hnz),
-            -rat.mul_sub_left_distrib, abs_mul],
+            -algebra.mul_sub_left_distrib, abs_mul],
     apply rat.le.trans,
-    apply rat.mul_le_mul_of_nonneg_right,
+    apply mul_le_mul_of_nonneg_right,
     apply canon_2_bound_right s,
     apply Rsi,
     apply abs_nonneg,
@@ -307,14 +305,14 @@ theorem mul_inv {s : seq} (Hs : regular s) (Hsep : sep s zero) : smul s (s_inv H
           by rewrite *pnat.mul.assoc; apply pnat.mul_le_mul_right),
     rewrite [(s_inv_of_sep_gt_p Hs Hsep Hp), (division_ring.one_div_one_div Hnz')],
     apply rat.le.trans,
-    apply rat.mul_le_mul_of_nonneg_left,
+    apply mul_le_mul_of_nonneg_left,
     apply Hs,
     apply le_of_lt,
     apply rat_of_pnat_is_pos,
     rewrite [rat.mul.left_distrib, mul.comm ((ps Hs Hsep) * (ps Hs Hsep)), *pnat.mul.assoc,
             *(@inv_mul_eq_mul_inv (K₂ s (s_inv Hs))), -*rat.mul.assoc, *inv_cancel_left,
             *one_mul, -(add_halves j)],
-    apply rat.add_le_add,
+    apply add_le_add,
     apply inv_ge_of_le,
     apply pnat_mul_le_mul_left',
     apply pnat.le.trans,
@@ -423,17 +421,17 @@ theorem inv_well_defined {s t : seq} (Hs : regular s) (Ht : regular t) (Heq : s 
        apply one_is_reg
      end)
   else
-    (have H : s_inv Hs = zero, from funext (λ n, dif_neg Hsep),
+    (assert H : s_inv Hs = zero, from funext (λ n, dif_neg Hsep),
      have Hsept : ¬ sep t zero, from
        assume H', Hsep (sep_of_equiv_sep Ht Hs (equiv.symm _ _ Heq) H'),
-     have H' : s_inv Ht = zero, from funext (λ n, dif_neg Hsept),
-     H'⁻¹ ▸ (H⁻¹ ▸ equiv.refl zero))
+     assert H' : s_inv Ht = zero, from funext (λ n, dif_neg Hsept),
+     by rewrite [H', H]; apply equiv.refl)
 
 theorem s_neg_neg {s : seq} : sneg (sneg s) ≡ s :=
   begin
     rewrite [↑equiv, ↑sneg],
     intro n,
-    rewrite [neg_neg, sub_self, abs_zero],
+    rewrite [neg_neg, algebra.sub_self, abs_zero],
     apply add_invs_nonneg
   end
 
@@ -463,7 +461,7 @@ theorem s_le_total {s t : seq} (Hs : regular s) (Ht : regular t) : s_le s t ∨ 
           intro m,
           apply by_contradiction,
           intro Hm,
-          let Hm' := rat.lt_of_not_ge Hm,
+          let Hm' := lt_of_not_ge Hm,
           let Hex'' := exists.intro m Hm',
           apply Hex Hex''
         end,
@@ -490,7 +488,7 @@ theorem s_le_of_not_lt {s t : seq} (Hle : ¬ s_lt s t) : s_le t s :=
     rewrite [↑s_le, ↑nonneg, ↑s_lt at Hle, ↑pos at Hle],
     let Hle' := iff.mp forall_iff_not_exists Hle,
     intro n,
-    let Hn := neg_le_neg (rat.le_of_not_gt (Hle' n)),
+    let Hn := neg_le_neg (le_of_not_gt (Hle' n)),
     rewrite [↑sadd, ↑sneg, add_neg_eq_neg_add_rev],
     apply Hn
   end
@@ -546,7 +544,7 @@ theorem s_le_of_equiv_le_right {s t u : seq} (Hs : regular s) (Ht : regular t) (
 
 noncomputable definition r_inv (s : reg_seq) : reg_seq := reg_seq.mk (s_inv (reg_seq.is_reg s))
   (if H : sep (reg_seq.sq s) zero then reg_inv_reg (reg_seq.is_reg s) H else
-    have Hz : s_inv (reg_seq.is_reg s) = zero, from funext (λ n, dif_neg H), Hz⁻¹ ▸ zero_is_reg)
+    assert Hz : s_inv (reg_seq.is_reg s) = zero, from funext (λ n, dif_neg H), by rewrite Hz; apply zero_is_reg)
 
 theorem r_inv_zero : requiv (r_inv r_zero) r_zero :=
   s_zero_inv_equiv_zero
@@ -586,7 +584,8 @@ open [classes] rat_seq
 
 noncomputable definition inv (x : ℝ) : ℝ := quot.lift_on x (λ a, quot.mk (rat_seq.r_inv a))
            (λ a b H, quot.sound (rat_seq.r_inv_well_defined H))
-postfix [priority real.prio] `⁻¹` := inv
+
+local postfix [priority real.prio] `⁻¹` := inv
 
 theorem le_total (x y : ℝ) : x ≤ y ∨ y ≤ x :=
   quot.induction_on₂ x y (λ s t, rat_seq.r_le_total s t)
@@ -627,10 +626,7 @@ noncomputable definition dec_lt : decidable_rel lt :=
     apply prop_decidable
   end
 
-section migrate_algebra
-  open [classes] algebra
-
-  protected noncomputable definition discrete_linear_ordered_field [reducible] :
+  protected noncomputable definition discrete_linear_ordered_field [reducible] [trans_instance]:
       algebra.discrete_linear_ordered_field ℝ :=
   ⦃ algebra.discrete_linear_ordered_field, real.comm_ring, real.ordered_ring,
     le_total := le_total,
@@ -642,38 +638,22 @@ section migrate_algebra
     decidable_lt := dec_lt
    ⦄
 
-  local attribute real.discrete_linear_ordered_field [trans_instance]
-  local attribute real.comm_ring [instance]
-  local attribute real.ordered_ring [instance]
+theorem of_rat_zero : of_rat 0 = 0 := rfl
 
-  noncomputable definition abs (n : ℝ) : ℝ := algebra.abs n
-  noncomputable definition sign (n : ℝ) : ℝ := algebra.sign n
-  noncomputable definition max (a b : ℝ) : ℝ   := algebra.max a b
-  noncomputable definition min (a b : ℝ) : ℝ   := algebra.min a b
-  noncomputable definition divide (a b : ℝ): ℝ := algebra.divide a b
-
-  migrate from algebra with real
-    hiding dvd, dvd.elim, dvd.elim_left, dvd.intro, dvd.intro_left, dvd.refl, dvd.trans,
-      dvd_mul_left, dvd_mul_of_dvd_left, dvd_mul_of_dvd_right, dvd_mul_right, dvd_neg_iff_dvd,
-      dvd_neg_of_dvd, dvd_of_dvd_neg, dvd_of_mul_left_dvd, dvd_of_mul_left_eq,
-      dvd_of_mul_right_dvd, dvd_of_mul_right_eq, dvd_of_neg_dvd, dvd_sub, dvd_zero
-    replacing has_le.ge → ge, has_lt.gt → gt, sub → sub, abs → abs, sign → sign,
-      divide → divide, max → max, min → min, pow → pow, nmul → nmul, imul → imul
-end migrate_algebra
-
-infix / := divide
-
+set_option pp.coercions true
 theorem of_rat_divide (x y : ℚ) : of_rat (x / y) = of_rat x / of_rat y :=
 by_cases
-  (assume yz : y = 0, by rewrite [yz, rat.div_zero, real.div_zero])
+  (assume yz : y = 0, by rewrite [yz, algebra.div_zero, *of_rat_zero, algebra.div_zero])
   (assume ynz : y ≠ 0,
     have ynz' : of_rat y ≠ 0, from assume yz', ynz (of_rat.inj yz'),
-    !eq_div_of_mul_eq ynz' (by rewrite [-of_rat_mul, !rat.div_mul_cancel ynz]))
+    !eq_div_of_mul_eq ynz' (by rewrite [-of_rat_mul, !div_mul_cancel ynz]))
 
-theorem of_int_div (x y : ℤ) (H : (#int y ∣ x)) : of_int (#int x div y) = of_int x / of_int y :=
+open int
+
+theorem of_int_div (x y : ℤ) (H : (#int y ∣ x)) : of_int ((x div y)) = of_int x / of_int y :=
 by rewrite [of_int_eq, rat.of_int_div H, of_rat_divide]
 
-theorem of_nat_div (x y : ℕ) (H : (#nat y ∣ x)) : of_nat (#nat x div y) = of_nat x / of_nat y :=
+theorem of_nat_div (x y : ℕ) (H : (#nat y ∣ x)) : of_nat (x div y) = of_nat x / of_nat y :=
 by rewrite [of_nat_eq, rat.of_nat_div H, of_rat_divide]
 
 /- useful for proving equalities -/
@@ -682,7 +662,7 @@ theorem eq_zero_of_nonneg_of_forall_lt {x : ℝ} (xnonneg : x ≥ 0) (H : ∀ ε
   x = 0 :=
 decidable.by_contradiction
   (suppose x ≠ 0,
-   have x > 0, from real.lt_of_le_of_ne xnonneg (ne.symm this),
+   have x > 0, from lt_of_le_of_ne xnonneg (ne.symm this),
    have x < x, from H x this,
    show false, from !lt.irrefl this)
 
@@ -690,11 +670,9 @@ theorem eq_zero_of_nonneg_of_forall_le {x : ℝ} (xnonneg : x ≥ 0) (H : ∀ ε
   x = 0 :=
 have ∀ ε : ℝ, ε > 0 → x < ε, from
   take ε, suppose ε > 0,
-  have e2pos : ε / 2 > 0, from div_pos_of_pos_of_pos `ε > 0` two_pos,
-  have ε / 2 < ε, from div_two_lt_of_pos `ε > 0`,
-  calc
-    x ≤ ε / 2 : H _ e2pos
-      ... < ε : div_two_lt_of_pos (by assumption),
+  assert e2pos : ε / 2 > 0, from div_pos_of_pos_of_pos `ε > 0` two_pos,
+  assert ε / 2 < ε, from div_two_lt_of_pos `ε > 0`,
+  begin apply algebra.lt_of_le_of_lt, apply H _ e2pos, apply this end,
 eq_zero_of_nonneg_of_forall_lt xnonneg this
 
 theorem eq_zero_of_forall_abs_le {x : ℝ} (H : ∀ ε : ℝ, ε > 0 → abs x ≤ ε) :

@@ -477,7 +477,7 @@ optional<unsigned> parse_priority(parser & p) {
     if (p.curr_is_token(get_priority_tk())) {
         p.next();
         auto pos = p.pos();
-        expr pre_val = p.parse_expr(get_max_prec());
+        expr pre_val = p.parse_expr();
         pre_val  = mk_typed_expr(mk_constant(get_num_name()), pre_val);
         expr val = std::get<0>(p.elaborate(pre_val, list<expr>()));
         val = normalize(p.env(), val);

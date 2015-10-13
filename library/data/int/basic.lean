@@ -54,10 +54,10 @@ has_zero.mk (of_nat 0)
 definition int_has_one [reducible] [instance] : has_one int :=
 has_one.mk (of_nat 1)
 
-theorem int_zero_eq_nat_zero : (0:int) = of_nat (0:nat) :=
+theorem of_nat_zero : of_nat (0:nat) = (0:int) :=
 rfl
 
-theorem int_one_eq_nat_one : (1:int) = of_nat (1:nat) :=
+theorem of_nat_one : of_nat (1:nat) = (1:int) :=
 rfl
 
 /- definitions of basic functions -/

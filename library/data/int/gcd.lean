@@ -265,7 +265,7 @@ theorem gcd_mul_left_cancel_of_coprime {c : ℤ} (a : ℤ) {b : ℤ} (H : coprim
    gcd (c * a) b = gcd a b :=
 begin
   revert H, unfold [coprime, gcd],
-  rewrite [int_one_eq_nat_one],
+  rewrite [-of_nat_one],
   rewrite [+of_nat_eq_of_nat_iff, nat_abs_mul],
   apply nat.gcd_mul_left_cancel_of_coprime,
 end

@@ -364,10 +364,10 @@ has_zero.mk (0:int)
 definition rat_has_one [reducible] [instance] [priority rat.prio] : has_one rat :=
 has_one.mk (1:int)
 
-theorem rat_zero_eq_int_zero : (0:rat) = of_int (0:int) :=
+theorem of_int_zero : of_int (0:int) = (0:rat) :=
 rfl
 
-theorem rat_one_eq_int_one : (1:rat) = of_int (1:int) :=
+theorem of_int_one : of_int (1:int) = (1:rat) :=
 rfl
 
 protected definition add : ℚ → ℚ → ℚ :=

@@ -368,7 +368,7 @@ section
     begin
       rewrite [-mul_denom],
       apply mul_nonneg H,
-      rewrite [rat_zero_eq_int_zero, of_int_le_of_int_iff],
+      rewrite [-of_int_zero, of_int_le_of_int_iff],
       exact int.le_of_lt !denom_pos
     end,
   show num q ≥ 0, from le_of_of_int_le_of_int this
@@ -378,7 +378,7 @@ section
     begin
       rewrite [-mul_denom],
       apply mul_pos H,
-      rewrite [rat_zero_eq_int_zero, of_int_lt_of_int_iff],
+      rewrite [-of_int_zero, of_int_lt_of_int_iff],
       exact !denom_pos
     end,
   show num q > 0, from lt_of_of_int_lt_of_int this

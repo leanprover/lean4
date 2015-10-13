@@ -108,8 +108,8 @@ by krewrite [divide.def, sign_zero, zero_mul]
 theorem div_one (a : ℤ) : a div 1 = a :=
 assert (1 : int) > 0, from dec_trivial,
 int.cases_on a
-  (take m : nat, by rewrite [int_one_eq_nat_one, -of_nat_div, nat.div_one])
-  (take m : nat, by rewrite [!neg_succ_of_nat_div this, int_one_eq_nat_one, -of_nat_div, nat.div_one])
+  (take m : nat, by rewrite [-of_nat_one, -of_nat_div, nat.div_one])
+  (take m : nat, by rewrite [!neg_succ_of_nat_div this, -of_nat_one, -of_nat_div, nat.div_one])
 
 theorem eq_div_mul_add_mod (a b : ℤ) : a = a div b * b + a mod b :=
 !add.comm ▸ eq_add_of_sub_eq rfl

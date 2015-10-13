@@ -26,8 +26,6 @@ open algebra
 open - [coercions] rat
 
 local postfix `⁻¹` := pnat.inv
-local notation 0 := rat.of_num 0
-local notation 1 := rat.of_num 1
 
 -- small helper lemmas
 
@@ -631,7 +629,7 @@ private theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (
         apply rat.le.trans,
         apply mul_le_mul_of_nonneg_right,
         apply pceil_helper Hn,
-        { repeat (apply algebra.mul_pos | apply algebra.add_pos | apply rat_of_pnat_is_pos | 
+        { repeat (apply algebra.mul_pos | apply algebra.add_pos | apply rat_of_pnat_is_pos |
                   apply pnat.inv_pos) },
         apply rat.le_of_lt,
         apply add_pos,

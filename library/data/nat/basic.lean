@@ -29,14 +29,14 @@ nat.induction_on x
   (λ y, nat.induction_on y
     rfl
     (λ y₁ ih, calc
-      zero + succ y₁ = succ (zero + y₁)  : rfl
-              ...    = succ (zero ⊕ y₁) : {ih}
-              ...    = zero ⊕ (succ y₁) : rfl))
+      0 + succ y₁ = succ (0 + y₁)  : rfl
+           ...    = succ (0 ⊕ y₁) : {ih}
+           ...    = 0 ⊕ (succ y₁) : rfl))
   (λ x₁ ih₁ y, nat.induction_on y
     (calc
-      succ x₁ + zero  = succ (x₁ + zero)  : rfl
-                  ... = succ (x₁ ⊕ zero) : {ih₁ zero}
-                  ... = succ x₁ ⊕ zero   : rfl)
+      succ x₁ + 0  = succ (x₁ + 0)  : rfl
+               ... = succ (x₁ ⊕ 0) : {ih₁ 0}
+               ... = succ x₁ ⊕ 0   : rfl)
     (λ y₁ ih₂, calc
       succ x₁ + succ y₁ = succ (succ x₁ + y₁) : rfl
                    ...  = succ (succ x₁ ⊕ y₁) : {ih₂}

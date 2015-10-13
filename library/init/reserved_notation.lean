@@ -95,7 +95,7 @@ namespace nat
   protected definition prio := num.add std.priority.default 100
 
   protected definition add (a b : nat) : nat :=
-  nat.rec_on b a (λ b₁ r, succ r)
+  nat.rec a (λ b₁ r, succ r) b
 
   definition nat_has_zero [reducible] [instance] : has_zero nat :=
   has_zero.mk nat.zero

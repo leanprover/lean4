@@ -21,14 +21,17 @@ of_nat_nonneg (nat.gcd (nat_abs a) (nat_abs b))
 theorem gcd.comm (a b : ℤ) : gcd a b = gcd b a :=
 by rewrite [↑gcd, nat.gcd.comm]
 
+set_option pp.all true
+set_option pp.numerals false
+
 theorem gcd_zero_right (a : ℤ) : gcd a 0 = abs a :=
-by krewrite [↑gcd, nat.gcd_zero_right, of_nat_nat_abs]
+by rewrite [↑gcd, nat_abs_zero, nat.gcd_zero_right, of_nat_nat_abs]
 
 theorem gcd_zero_left (a : ℤ) : gcd 0 a = abs a :=
 by rewrite [gcd.comm, gcd_zero_right]
 
 theorem gcd_one_right (a : ℤ) : gcd a 1 = 1 :=
-by krewrite [↑gcd, nat.gcd_one_right]
+by rewrite [↑gcd, nat_abs_one, nat.gcd_one_right]
 
 theorem gcd_one_left (a : ℤ) : gcd 1 a = 1 :=
 by rewrite [gcd.comm, gcd_one_right]
@@ -191,13 +194,13 @@ theorem lcm.comm (a b : ℤ) : lcm a b = lcm b a :=
 by rewrite [↑lcm, nat.lcm.comm]
 
 theorem lcm_zero_left (a : ℤ) : lcm 0 a = 0 :=
-by krewrite [↑lcm, nat.lcm_zero_left]
+by rewrite [↑lcm, nat_abs_zero, nat.lcm_zero_left]
 
 theorem lcm_zero_right (a : ℤ) : lcm a 0 = 0 :=
 !lcm.comm ▸ !lcm_zero_left
 
 theorem lcm_one_left (a : ℤ) : lcm 1 a = abs a :=
-by krewrite [↑lcm, nat.lcm_one_left, of_nat_nat_abs]
+by rewrite [↑lcm, nat_abs_one, nat.lcm_one_left, of_nat_nat_abs]
 
 theorem lcm_one_right (a : ℤ) : lcm a 1 = abs a :=
 !lcm.comm ▸ !lcm_one_left
@@ -212,7 +215,7 @@ theorem lcm_abs_abs (a b : ℤ) : lcm (abs a) (abs b) = lcm a b :=
 by rewrite [↑lcm, *nat_abs_abs]
 
 theorem lcm_self (a : ℤ) : lcm a a = abs a :=
-by krewrite [↑lcm, nat.lcm_self, of_nat_nat_abs]
+by rewrite [↑lcm, nat.lcm_self, of_nat_nat_abs]
 
 theorem dvd_lcm_left (a b : ℤ) : a ∣ lcm a b :=
 by rewrite [↑lcm, -abs_dvd_iff, -of_nat_nat_abs, of_nat_dvd_of_nat_iff]; apply nat.dvd_lcm_left

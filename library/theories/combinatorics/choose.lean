@@ -59,7 +59,7 @@ begin
   induction n with [n, ih],
     {apply rfl},
   change choose (succ n) (succ 0) = succ n,
-  krewrite [choose_succ_succ, ih, choose_zero_right]
+  rewrite [choose_succ_succ, ih, choose_zero_right]
 end
 
 theorem choose_pos {n : ℕ} : ∀ {k : ℕ}, k ≤ n → choose n k > 0 :=

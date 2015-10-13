@@ -145,6 +145,12 @@ theorem eq_zero_of_nat_abs_eq_zero : Π {a : ℤ}, nat_abs a = 0 → a = 0
 | (of_nat m) H := congr_arg of_nat H
 | -[1+ m']   H := absurd H !succ_ne_zero
 
+theorem nat_abs_zero : nat_abs (0:int) = (0:nat) :=
+rfl
+
+theorem nat_abs_one : nat_abs (1:int) = (1:nat) :=
+rfl
+
 /- int is a quotient of ordered pairs of natural numbers -/
 
 protected definition equiv (p q : ℕ × ℕ) : Prop :=  pr1 p + pr2 q = pr2 p + pr1 q
@@ -526,7 +532,7 @@ protected definition integral_domain [reducible] [trans_instance] : algebra.inte
 ⦃algebra.integral_domain,
   add            := int.add,
   add_assoc      := add.assoc,
-  zero           := zero,
+  zero           := 0,
   zero_add       := zero_add,
   add_zero       := add_zero,
   neg            := int.neg,

@@ -41,7 +41,7 @@ section
       (H : a^n = c * b^n) : b = 1 :=
   have bpos : b > 0, from pos_of_ne_zero
     (suppose b = 0,
-      have a^n = 0, by krewrite [H, this, zero_pow npos],
+      have a^n = 0, by rewrite [H, this, zero_pow npos],
       assert a = 0, from eq_zero_of_pow_eq_zero this,
       show false,   from ne_of_lt `0 < a` this⁻¹),
   have H₁ : ∀ p, prime p → ¬ p ∣ b, from
@@ -90,7 +90,7 @@ section
         using H₁ H₂, begin
           have ane0 : a ≠ 0, from
             suppose aeq0 : a = 0,
-            have qeq0 : q = 0, begin rewrite eq_num_div_denom, rewrite aeq0, krewrite algebra.zero_div end,
+            have qeq0 : q = 0, by rewrite [eq_num_div_denom, aeq0, of_int_zero, algebra.zero_div],
               absurd qeq0 qne0,
           have nat_abs a ≠ 0, from
             suppose nat_abs a = 0,
@@ -104,7 +104,7 @@ section
     c = (num q)^n :=
   have denom q = 1, from denom_eq_one_of_pow_eq npos H,
   have of_int c = of_int ((num q)^n), using this,
-    by krewrite [-H, eq_num_div_denom q at {1}, this, div_one, of_int_pow],
+    by rewrite [-H, eq_num_div_denom q at {1}, this, of_int_one, div_one, of_int_pow],
   show c = (num q)^n , from of_int.inj this
 end
 
@@ -122,9 +122,9 @@ section
         by let H := (pos_of_prime primep); rewrite this at H; exfalso; exact !lt.irrefl H),
   assert agtz : a > 0, from pos_of_ne_zero
     (suppose a = 0,
-      show false, using npos pnez, by revert peq; krewrite [this, zero_pow npos]; exact pnez),
+      show false, using npos pnez, by revert peq; rewrite [this, zero_pow npos]; exact pnez),
   have n * mult p a = 1, from calc
-    n * mult p a = mult p (a^n) : begin krewrite [mult_pow n agtz primep] end
+    n * mult p a = mult p (a^n) : begin rewrite [mult_pow n agtz primep] end
              ... = mult p p     : peq
              ... = 1            : mult_self (gt_one_of_prime primep),
   have n ∣ 1, from dvd_of_mul_right_eq this,
@@ -162,7 +162,7 @@ section
   have a * a = c * b * b, by rewrite -mul.assoc at H; apply H,
   have a div (gcd a b) = c * b div gcd (c * b) a, from div_gcd_eq_div_gcd this bpos apos,
   have a = c * b div gcd c a,
-    using this, by revert this; krewrite [↑coprime at co, co, int.div_one, H₁]; intros; assumption,
+    using this, by revert this; rewrite [↑coprime at co, co, int.div_one, H₁]; intros; assumption,
   have a = b * (c div gcd c a),
     using this,
       by revert this; rewrite [mul.comm, !mul_div_assoc !gcd_dvd_left]; intros; assumption,

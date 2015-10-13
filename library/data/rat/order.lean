@@ -209,7 +209,7 @@ theorem le.trans (H1 : a ≤ b) (H2 : b ≤ c) : a ≤ c :=
 assert H3 : nonneg (c - b + (b - a)), from nonneg_add H2 H1,
 begin
   revert H3,
-  krewrite [rat.sub.def, add.assoc, neg_add_cancel_left],
+  rewrite [rat.sub.def, add.assoc, sub_eq_add_neg, neg_add_cancel_left],
   intro H3, apply H3
 end
 

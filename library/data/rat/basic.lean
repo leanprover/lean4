@@ -47,7 +47,7 @@ have -num b > 0, from pos_of_mul_pos_right (pos_of_neg_neg this) (le_of_lt (deno
 neg_of_neg_pos this
 
 theorem equiv_of_num_eq_zero {a b : prerat} (H1 : num a = 0) (H2 : num b = 0) : a ≡ b :=
-by krewrite [↑equiv, H1, H2, *zero_mul]
+by rewrite [↑equiv, H1, H2, *zero_mul]
 
 theorem equiv.trans [trans] {a b c : prerat} (H1 : a ≡ b) (H2 : b ≡ c) : a ≡ c :=
 decidable.by_cases
@@ -115,10 +115,10 @@ definition inv : prerat → prerat
 | inv (prerat.mk -[1+n] d dp)       := prerat.mk (-d) (nat.succ n) !of_nat_succ_pos
 
 theorem equiv_zero_of_num_eq_zero {a : prerat} (H : num a = 0) : a ≡ zero :=
-by krewrite [↑equiv, H, ↑zero, ↑num, ↑of_int, *zero_mul]
+by rewrite [↑equiv, H, ↑zero, ↑num, ↑of_int, *zero_mul]
 
 theorem num_eq_zero_of_equiv_zero {a : prerat} : a ≡ zero → num a = 0 :=
-by krewrite [↑equiv, ↑zero, ↑of_int, mul_one, zero_mul]; intro H; exact H
+by rewrite [↑equiv, ↑zero, ↑of_int, mul_one, zero_mul]; intro H; exact H
 
 theorem inv_zero {d : int} (dp : d > 0) : inv (mk nat.zero d dp) = zero :=
 begin rewrite [↑inv, ▸*] end
@@ -219,10 +219,10 @@ by rewrite [↑add, ↑equiv, ▸*, *(mul.comm (num c)), *(λy, mul.comm y (deno
             *mul.right_distrib, *mul.assoc, *add.assoc]
 
 theorem add_zero (a : prerat) : add a zero ≡ a :=
-by krewrite [↑add, ↑equiv, ↑zero, ↑of_int, ▸*, *mul_one, zero_mul, add_zero]
+by rewrite [↑add, ↑equiv, ↑zero, ↑of_int, ▸*, *mul_one, zero_mul, add_zero]
 
 theorem add.left_inv (a : prerat) : add (neg a) a ≡ zero :=
-by krewrite [↑add, ↑equiv, ↑neg, ↑zero, ↑of_int, ▸*, -neg_mul_eq_neg_mul, add.left_inv, *zero_mul]
+by rewrite [↑add, ↑equiv, ↑neg, ↑zero, ↑of_int, ▸*, -neg_mul_eq_neg_mul, add.left_inv, *zero_mul]
 
 theorem mul.comm (a b : prerat) : mul a b ≡ mul b a :=
 by rewrite [↑mul, ↑equiv, mul.comm (num a), mul.comm (denom a)]
@@ -273,7 +273,7 @@ theorem mul_inv_cancel : ∀{a : prerat}, ¬ a ≡ zero → mul a (inv a) ≡ on
 theorem zero_not_equiv_one : ¬ zero ≡ one :=
 begin
   esimp [equiv, zero, one, of_int],
-  krewrite [zero_mul, int.mul_one],
+  rewrite [zero_mul, int.mul_one],
   exact zero_ne_one
 end
 
@@ -299,28 +299,29 @@ begin
   intros, apply rfl
 end
 
+set_option pp.full_names true
 theorem reduce_equiv : ∀ a : prerat, reduce a ≡ a
 | (mk an ad adpos) :=
     decidable.by_cases
       (assume anz : an = 0,
-        by krewrite [↑reduce, if_pos anz, ↑equiv, anz, *zero_mul])
+        begin rewrite [↑reduce, if_pos anz, ↑equiv, anz], krewrite zero_mul end)
       (assume annz : an ≠ 0,
         by rewrite [↑reduce, if_neg annz, ↑equiv, int.mul.comm, -!mul_div_assoc !gcd_dvd_left,
-                       -!mul_div_assoc !gcd_dvd_right, int.mul.comm])
+                    -!mul_div_assoc !gcd_dvd_right, int.mul.comm])
 
 theorem reduce_eq_reduce : ∀{a b : prerat}, a ≡ b → reduce a = reduce b
 | (mk an ad adpos) (mk bn bd bdpos) :=
   assume H : an * bd = bn * ad,
   decidable.by_cases
     (assume anz : an = 0,
-      have H' : bn * ad = 0, by krewrite [-H, anz, zero_mul],
+      have H' : bn * ad = 0, by rewrite [-H, anz, zero_mul],
       assert bnz : bn = 0,
         from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero H') (ne_of_gt adpos),
       by rewrite [↑reduce, if_pos anz, if_pos bnz])
     (assume annz : an ≠ 0,
       assert bnnz : bn ≠ 0, from
         assume bnz,
-        have H' : an * bd = 0, by krewrite [H, bnz, zero_mul],
+        have H' : an * bd = 0, by rewrite [H, bnz, zero_mul],
         have anz : an = 0,
           from or_resolve_left (eq_zero_or_eq_zero_of_mul_eq_zero H') (ne_of_gt bdpos),
         show false, from annz anz,
@@ -584,7 +585,7 @@ iff.mpr (!eq_div_iff_mul_eq H) (mul_denom a)
 theorem of_int_div {a b : ℤ} (H : b ∣ a) : of_int (a div b) = of_int a / of_int b :=
 decidable.by_cases
   (assume bz : b = 0,
-    by krewrite [bz, div_zero, algebra.div_zero])
+    by rewrite [bz, div_zero, of_int_zero, algebra.div_zero])
   (assume bnz : b ≠ 0,
     have bnz' : of_int b ≠ 0, from assume oibz, bnz (of_int.inj oibz),
     have H' : of_int (a div b) * of_int b = of_int a, from
@@ -601,7 +602,7 @@ theorem of_int_pow (a : ℤ) (n : ℕ) : of_int (a^n) = (of_int a)^n :=
 begin
   induction n with n ih,
     apply eq.refl,
-  krewrite [pow_succ, pow_succ, of_int_mul, ih]
+  rewrite [pow_succ, pow_succ, of_int_mul, ih]
 end
 
 theorem of_nat_pow (a : ℕ) (n : ℕ) : of_nat (a^n) = (of_nat a)^n :=

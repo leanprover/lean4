@@ -120,7 +120,7 @@ private theorem mult_pow_mul {p n : ℕ} (i : ℕ) (pgt1 : p > 1) (npos : n > 0)
   mult p (p^i * n) = i + mult p n :=
 begin
   induction i with [i, ih],
-    {krewrite [pow_zero, one_mul, zero_add]},
+    {rewrite [pow_zero, one_mul, zero_add]},
   have p > 0, from lt.trans zero_lt_one pgt1,
   have psin_pos : p^(succ i) * n > 0, from mul_pos (!pow_pos_of_pos this) npos,
   have p ∣ p^(succ i) * n, by rewrite [pow_succ, mul.assoc]; apply dvd_mul_right,
@@ -129,7 +129,7 @@ begin
 end
 
 theorem mult_pow_self {p : ℕ} (i : ℕ) (pgt1 : p > 1) : mult p (p^i) = i :=
-by krewrite [-(mul_one (p^i)), mult_pow_mul i pgt1 zero_lt_one, mult_one_right]
+by rewrite [-(mul_one (p^i)), mult_pow_mul i pgt1 zero_lt_one, mult_one_right]
 
 theorem mult_self {p : ℕ} (pgt1 : p > 1) : mult p p = 1 :=
 by rewrite [-pow_one p at {2}]; apply mult_pow_self 1 pgt1
@@ -175,7 +175,7 @@ calc
 theorem mult_pow {p m : ℕ} (n : ℕ) (mpos : m > 0) (primep : prime p) : mult p (m^n) = n * mult p m :=
 begin
   induction n with n ih,
-    krewrite [pow_zero, mult_one_right, zero_mul],
+    rewrite [pow_zero, mult_one_right, zero_mul],
   rewrite [pow_succ, mult_mul primep mpos (!pow_pos_of_pos mpos), ih, succ_mul, add.comm]
 end
 
@@ -247,7 +247,7 @@ theorem mult_pow_eq_zero_of_prime_of_ne {p q : ℕ} (primep : prime p) (primeq :
   (pneq : p ≠ q) (i : ℕ) : mult p (q^i) = 0 :=
 begin
   induction i with i ih,
-    {krewrite [pow_zero, mult_one_right]},
+    {rewrite [pow_zero, mult_one_right]},
   have qpos : q > 0, from pos_of_prime primeq,
   have qipos : q^i > 0, from !pow_pos_of_pos qpos,
   rewrite [pow_succ', mult_mul primep qipos qpos, ih, mult_eq_zero_of_prime_of_ne primep primeq pneq]

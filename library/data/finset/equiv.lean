@@ -58,7 +58,7 @@ iff.intro
 
 private lemma odd_of_zero_mem (s : nat) : 0 ∈ of_nat s ↔ odd s :=
 begin
-  unfold of_nat, krewrite [mem_sep_eq, pow_zero, div_one, mem_upto_eq],
+  unfold of_nat, rewrite [mem_sep_eq, pow_zero, div_one, mem_upto_eq],
   show 0 < succ s ∧ odd s ↔ odd s, from
   iff.intro
     (assume h, and.right h)
@@ -93,7 +93,7 @@ finset.induction_on s dec_trivial
               (suppose 0 ∈ s,
                 assert a ≠ 0, from suppose a = 0, by subst a; contradiction,
                 begin
-                  cases a with a, exact absurd rfl `zero ≠ 0`,
+                  cases a with a, exact absurd rfl `0 ≠ 0`,
                   have odd (2*2^a),  by rewrite [pow_succ' at o, mul.comm]; exact o,
                   have even (2*2^a), from !even_two_mul,
                   exact absurd `even (2*2^a)` `odd (2*2^a)`

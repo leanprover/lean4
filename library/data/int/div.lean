@@ -56,15 +56,15 @@ notation [priority int.prio] a ≡ b `[mod `:0 c:0 `]` := a mod c = b mod c
 
 theorem of_nat_div (m n : nat) : of_nat (m div n) = (of_nat m) div (of_nat n) :=
 nat.cases_on n
-  (begin krewrite [of_nat_div_eq, sign_zero, zero_mul, nat.div_zero] end)
-  (take (n : nat), by krewrite [of_nat_div_eq, sign_of_succ, one_mul])
+  (begin rewrite [of_nat_div_eq, of_nat_zero, sign_zero, zero_mul, nat.div_zero] end)
+  (take (n : nat), by rewrite [of_nat_div_eq, sign_of_succ, one_mul])
 
 theorem neg_succ_of_nat_div (m : nat) {b : ℤ} (H : b > 0) :
   -[1+m] div b = -(m div b + 1) :=
 calc
   -[1+m] div b = sign b * _               : rfl
-     ... = -[1+(m div (nat_abs b))]       : by krewrite [sign_of_pos H, one_mul]
-     ... = -(m div b + 1)                 : by krewrite [of_nat_div_eq, sign_of_pos H, one_mul]
+     ... = -[1+(m div (nat_abs b))]       : by rewrite [sign_of_pos H, one_mul]
+     ... = -(m div b + 1)                 : by rewrite [of_nat_div_eq, sign_of_pos H, one_mul]
 
 theorem div_neg (a b : ℤ) : a div -b = -(a div b) :=
 begin
@@ -100,10 +100,10 @@ calc
       ... < 0                     : neg_neg_of_pos this
 
 theorem zero_div (b : ℤ) : 0 div b = 0 :=
-by krewrite [of_nat_div_eq, nat.zero_div, mul_zero]
+by rewrite [of_nat_div_eq, nat.zero_div, of_nat_zero, mul_zero]
 
 theorem div_zero (a : ℤ) : a div 0 = 0 :=
-by krewrite [divide.def, sign_zero, zero_mul]
+by rewrite [divide.def, sign_zero, zero_mul]
 
 theorem div_one (a : ℤ) : a div 1 = a :=
 assert (1 : int) > 0, from dec_trivial,
@@ -137,7 +137,7 @@ lt.by_cases
     assert a < -b, from abs_of_neg this ▸ H2,
     calc
       a div b = - (a div -b) : by rewrite [div_neg, neg_neg]
-          ... = 0            : by krewrite [div_eq_zero_of_lt H1 this, neg_zero])
+          ... = 0            : by rewrite [div_eq_zero_of_lt H1 this, neg_zero])
   (suppose b = 0, this⁻¹ ▸ !div_zero)
   (suppose b > 0,
     have a < b, from abs_of_pos this ▸ H2,
@@ -277,10 +277,10 @@ theorem mod_abs (a b : ℤ) : a mod (abs b) = a mod b :=
 abs.by_cases rfl !mod_neg
 
 theorem zero_mod (b : ℤ) : 0 mod b = 0 :=
-by krewrite [(modulo.def), zero_div, zero_mul, sub_zero]
+by rewrite [(modulo.def), zero_div, zero_mul, sub_zero]
 
 theorem mod_zero (a : ℤ) : a mod 0 = a :=
-by krewrite [(modulo.def), mul_zero, sub_zero]
+by rewrite [(modulo.def), mul_zero, sub_zero]
 
 theorem mod_one (a : ℤ) : a mod 1 = 0 :=
 calc
@@ -340,7 +340,7 @@ have H2 : a mod (abs b) < abs b, from
 
 theorem add_mul_mod_self {a b c : ℤ} : (a + b * c) mod c = a mod c :=
 decidable.by_cases
-  (assume cz : c = 0, by krewrite [cz, mul_zero, add_zero])
+  (assume cz : c = 0, by rewrite [cz, mul_zero, add_zero])
   (assume cnz, by rewrite [(modulo.def), !add_mul_div_self cnz, mul.right_distrib,
                             sub_add_eq_sub_sub_swap, add_sub_cancel])
 
@@ -421,7 +421,7 @@ lt.by_cases
                     ... = b div c : by rewrite [div_neg, neg_neg])
   (assume H1 : c = 0,
     calc
-      a * b div (a * c) = 0       : by krewrite [H1, mul_zero, div_zero]
+      a * b div (a * c) = 0       : by rewrite [H1, mul_zero, div_zero]
                     ... = b div c : by rewrite [H1, div_zero])
   (assume H1 : c > 0,
     mul_div_mul_of_pos_aux _ H H1)
@@ -476,7 +476,7 @@ lt.by_cases
                 ... ≤ abs a          : H _ _ (neg_pos_of_neg H1))
   (assume H1 : b = 0,
     calc
-      abs (a div b) = 0 : by krewrite [H1, div_zero, abs_zero]
+      abs (a div b) = 0 : by rewrite [H1, div_zero, abs_zero]
                 ... ≤ abs a : abs_nonneg)
   (assume H1 : b > 0, H _ _ H1)
 
@@ -538,7 +538,7 @@ theorem mul_div_cancel' {a b : ℤ} (H : a ∣ b) : a * (b div a) = b :=
 
 theorem mul_div_assoc (a : ℤ) {b c : ℤ} (H : c ∣ b) : (a * b) div c = a * (b div c) :=
 decidable.by_cases
-  (assume cz : c = 0, by krewrite [cz, *div_zero, mul_zero])
+  (assume cz : c = 0, by rewrite [cz, *div_zero, mul_zero])
   (assume cnz : c ≠ 0,
     obtain d (H' : b = d * c), from exists_eq_mul_left_of_dvd H,
     by rewrite [H', -mul.assoc, *(!mul_div_cancel cnz)])
@@ -585,7 +585,7 @@ div_eq_of_eq_mul_right H1 (!mul.comm ▸ H2)
 
 theorem neg_div_of_dvd {a b : ℤ} (H : b ∣ a) : -a div b = -(a div b) :=
 decidable.by_cases
-  (assume H1 : b = 0, by krewrite [H1, *div_zero, neg_zero])
+  (assume H1 : b = 0, by rewrite [H1, *div_zero, neg_zero])
   (assume H1 : b ≠ 0,
     dvd.elim H
       (take c, assume H' : a = b * c,

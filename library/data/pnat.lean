@@ -234,7 +234,7 @@ have hsimp [visible] : ∀ a b : ℚ, (a + a) + (b + b) = (a + b) + (a + b),
 by rewrite [-add_halves m, -add_halves n, hsimp]
 
 theorem inv_mul_eq_mul_inv {p q : ℕ+} : (p * q)⁻¹ = p⁻¹ * q⁻¹ :=
-begin krewrite [↑inv, pnat_to_rat_mul, algebra.one_div_mul_one_div] end
+begin rewrite [↑inv, pnat_to_rat_mul, algebra.one_div_mul_one_div] end
 
 theorem inv_mul_le_inv (p q : ℕ+) : (p * q)⁻¹ ≤ q⁻¹ :=
 begin
@@ -331,12 +331,12 @@ assert (pceil (a / b))⁻¹ ≤ 1 / (1 / (b / a)),
     show 1 / (b / a) ≤ rat_of_pnat (pceil (a / b)),
     begin
       rewrite div_div_eq_mul_div,
-      krewrite algebra.one_mul,
+      rewrite algebra.one_mul,
       apply ubound_ge
     end
   end,
 begin
-  krewrite one_div_one_div at this,
+  rewrite one_div_one_div at this,
   exact this
 end
 

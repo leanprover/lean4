@@ -10,6 +10,33 @@ open eq.ops decidable or
 notation `ℕ` := nat
 
 namespace nat
+  protected definition rec_on [reducible] [recursor] [unfold 2]
+                       {C : ℕ → Type} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C a → C (succ a)) : C n :=
+  nat.rec H₁ H₂ n
+
+  protected definition induction_on [recursor]
+                       {C : ℕ → Prop} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C a → C (succ a)) : C n :=
+  nat.rec H₁ H₂ n
+
+  protected definition cases_on [reducible] [recursor] [unfold 2]
+                       {C : ℕ → Type} (n : ℕ) (H₁ : C 0) (H₂ : Π (a : ℕ), C (succ a)) : C n :=
+  nat.rec H₁ (λ a ih, H₂ a) n
+
+  protected definition no_confusion_type [reducible] (P : Type) (v₁ v₂ : ℕ) : Type :=
+  nat.rec
+    (nat.rec
+       (P → P)
+       (λ a₂ ih, P)
+       v₂)
+    (λ a₁ ih, nat.rec
+       P
+       (λ a₂ ih, (a₁ = a₂ → P) → P)
+       v₂)
+    v₁
+
+  protected definition no_confusion [reducible] [unfold 4]
+                       {P : Type} {v₁ v₂ : ℕ} (H : v₁ = v₂) : nat.no_confusion_type P v₁ v₂ :=
+  eq.rec (λ H₁ : v₁ = v₁, nat.rec (λ h, h) (λ a ih h, h (eq.refl a)) v₁) H H
 
   /- basic definitions on natural numbers -/
   inductive le (a : ℕ) : ℕ → Prop :=

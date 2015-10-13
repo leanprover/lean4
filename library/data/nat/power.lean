@@ -19,13 +19,13 @@ algebra.pow_le_pow_of_le i !zero_le H
 theorem eq_zero_of_pow_eq_zero {a m : ℕ} (H : a^m = 0) : a = 0 :=
 or.elim (eq_zero_or_pos m)
   (suppose m = 0,
-    by krewrite [`m = 0` at H, pow_zero at H]; contradiction)
+    by rewrite [`m = 0` at H, pow_zero at H]; contradiction)
   (suppose m > 0,
     have h₁ : ∀ m, a^succ m = 0 → a = 0,
       begin
         intro m,
         induction m with m ih,
-          {krewrite pow_one; intros; assumption},
+          {rewrite pow_one; intros; assumption},
         rewrite pow_succ,
         intro H,
         cases eq_zero_or_eq_zero_of_mul_eq_zero H with h₃ h₄,
@@ -54,7 +54,7 @@ theorem le_pow_self {x : ℕ} (H : x > 1) : ∀ i, i ≤ x^i
 
 theorem mul_self_eq_pow_2 (a : nat) : a * a = a ^ 2 :=
 show a * a = a ^ (succ (succ zero)), from
-by krewrite [*pow_succ, *pow_zero, mul_one] -- TODO(Leo): krewrite -> rewrite after new numeral encoding
+by rewrite [*pow_succ, *pow_zero, mul_one]
 
 theorem pow_cancel_left : ∀ {a b c : nat}, a > 1 → a^b = a^c → b = c
 | a 0        0        h₁ h₂ := rfl
@@ -72,8 +72,7 @@ theorem pow_cancel_left : ∀ {a b c : nat}, a > 1 → a^b = a^c → b = c
   by rewrite [pow_cancel_left h₁ this]
 
 theorem pow_div_cancel : ∀ {a b : nat}, a ≠ 0 → (a ^ succ b) div a = a ^ b
--- TODO(Leo): krewrite -> rewrite after new numeral encoding
-| a 0        h := by krewrite [pow_succ, pow_zero, mul_one, div_self (pos_of_ne_zero h)]
+| a 0        h := by rewrite [pow_succ, pow_zero, mul_one, div_self (pos_of_ne_zero h)]
 | a (succ b) h := by rewrite [pow_succ, mul_div_cancel_left _ (pos_of_ne_zero h)]
 
 lemma dvd_pow : ∀ (i : nat) {n : nat}, n > 0 → i ∣ i^n

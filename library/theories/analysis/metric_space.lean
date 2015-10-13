@@ -6,7 +6,7 @@ Author: Jeremy Avigad
 Metric spaces.
 -/
 import data.real.division
-open real eq.ops classical
+open real eq.ops classical algebra
 
 structure metric_space [class] (M : Type) : Type :=
   (dist : M → M → ℝ)
@@ -27,7 +27,7 @@ iff.intro eq_of_dist_eq_zero (suppose x = y, this ▸ !dist_self)
 proposition dist_nonneg (x y : M) : 0 ≤ dist x y :=
 have dist x y + dist y x ≥ 0, by rewrite -(dist_self x); apply dist_triangle,
 have 2 * dist x y ≥ 0, using this,
-  by rewrite [-real.one_add_one, right_distrib, +one_mul, dist_comm at {2}]; apply this,
+  by krewrite [-real.one_add_one, right_distrib, +one_mul, dist_comm at {2}]; apply this,
 nonneg_of_mul_nonneg_left this two_pos
 
 proposition dist_pos_of_ne {x y : M} (H : x ≠ y) : dist x y > 0 :=

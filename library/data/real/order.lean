@@ -872,18 +872,17 @@ theorem le_of_const_le_const {a b : ℚ} (H : s_le (const a) (const b)) : a ≤ 
   end
 
 theorem nat_inv_lt_rat {a : ℚ} (H : a > 0) : ∃ n : ℕ+, n⁻¹ < a :=
-  /-begin
+  begin
     existsi (pceil (1 / (a / (2)))),
     apply lt_of_le_of_lt,
     rotate 1,
     apply div_two_lt_of_pos H,
     rewrite -(one_div_one_div (a / (1 + 1))),
     apply pceil_helper,
-    rewrite one_div_one_div,
     apply pnat.le.refl,
     apply one_div_pos_of_pos,
     apply div_pos_of_pos_of_pos H dec_trivial
-  end-/sorry
+  end
 
 
 theorem const_lt_const_of_lt {a b : ℚ} (H : a < b) : s_lt (const a) (const b) :=

@@ -79,14 +79,6 @@ public:
         m_succ(mk_constant(get_nat_succ_name())) {
     }
 
-    // Return ture if the environment has a coercion from num->nat
-    bool has_coercion_num_nat(environment const & env) const {
-        list<expr> coes = get_coercions(env, m_num_type, m_nat);
-        if (length(coes) != 1)
-            return false;
-        return head(coes) == m_nat_of_num;
-    }
-
     // Return an unsigned if \c e if of the form (succ^k zero), and k
     // fits in a machine unsigned integer.
     optional<unsigned> to_unsigned(expr const & e) const {
@@ -108,10 +100,6 @@ public:
 };
 
 static nat_numeral_pp * g_nat_numeral_pp = nullptr;
-
-static bool has_coercion_num_nat(environment const & env) {
-    return g_nat_numeral_pp->has_coercion_num_nat(env);
-}
 
 static optional<unsigned> to_unsigned(expr const & e) {
     return g_nat_numeral_pp->to_unsigned(e);
@@ -292,7 +280,7 @@ void pretty_fn::set_options_core(options const & o) {
     m_abbreviations   = !all && get_pp_abbreviations(o);
     m_preterm         = get_pp_preterm(o);
     m_hide_full_terms = get_formatter_hide_full_terms(o);
-    m_num_nat_coe     = m_numerals && !m_coercion && has_coercion_num_nat(m_env);
+    m_num_nat_coe     = m_numerals && !m_coercion;
 }
 
 void pretty_fn::set_options(options const & o) {

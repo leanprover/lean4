@@ -97,19 +97,19 @@ namespace nat
   protected definition add (a b : nat) : nat :=
   nat.rec a (λ b₁ r, succ r) b
 
-  definition nat_has_zero [reducible] [instance] : has_zero nat :=
-  has_zero.mk nat.zero
-
-  definition nat_has_one [reducible] [instance] : has_one nat :=
-  has_one.mk (nat.succ (nat.zero))
-
-  definition nat_has_add [reducible] [instance] [priority nat.prio] : has_add nat :=
-  has_add.mk nat.add
-
   definition of_num (n : num) : nat :=
   num.rec zero
-    (λ n, pos_num.rec (succ zero) (λ n r, add (add r r) (succ zero)) (λ n r, add r r) n) n
+    (λ n, pos_num.rec (succ zero) (λ n r, nat.add (nat.add r r) (succ zero)) (λ n r, nat.add r r) n) n
 end nat
+
+definition nat_has_zero [reducible] [instance] [priority nat.prio] : has_zero nat :=
+has_zero.mk nat.zero
+
+definition nat_has_one [reducible] [instance] [priority nat.prio] : has_one nat :=
+has_one.mk (nat.succ (nat.zero))
+
+definition nat_has_add [reducible] [instance] [priority nat.prio] : has_add nat :=
+has_add.mk nat.add
 
 /-
   Global declarations of right binding strength

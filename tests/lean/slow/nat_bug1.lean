@@ -17,8 +17,14 @@ namespace nat
 definition plus (x y : ℕ) : ℕ
 := nat.rec x (λ n r, succ r) y
 
-definition to_nat [coercion] (n : num) : ℕ
-:= num.rec zero (λ n, pos_num.rec (succ zero) (λ n r, plus r (plus r (succ zero))) (λ n r, plus r r) n) n
+definition nat_has_zero [reducible] [instance] [priority nat.prio] : has_zero nat :=
+has_zero.mk nat.zero
+
+definition nat_has_one [reducible] [instance] [priority nat.prio] : has_one nat :=
+has_one.mk (nat.succ (nat.zero))
+
+definition nat_has_add [reducible] [instance] [priority nat.prio] : has_add nat :=
+has_add.mk plus
 
 print "=================="
 theorem nat_rec_zero {P : ℕ → Type} (x : P 0) (f : ∀m, P m → P (succ m)) : nat.rec x f 0 = x :=

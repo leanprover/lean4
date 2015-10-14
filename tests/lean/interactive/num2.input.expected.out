@@ -27,7 +27,10 @@ pos_num.lt|pos_num → pos_num → bool
 pos_num.rec_on|Π (n : pos_num), ?C pos_num.one → (Π (a : pos_num), ?C a → ?C (pos_num.bit1 a)) → (Π (a : pos_num), ?C a → ?C (pos_num.bit0 a)) → ?C n
 pos_num.brec_on|Π (n : pos_num), (Π (n : pos_num), pos_num.below n → ?C n) → ?C n
 pos_num.add|pos_num → pos_num → pos_num
+pos_num_has_mul|has_mul pos_num
 pos_num|Type
+pos_num_has_one|has_one pos_num
+pos_num_has_add|has_add pos_num
 -- ENDFINDP
 -- BEGINWAIT
 -- ENDWAIT
@@ -57,7 +60,10 @@ pos_num.lt|pos_num → pos_num → bool
 pos_num.rec_on|Π (n : pos_num), ?C pos_num.one → (Π (a : pos_num), ?C a → ?C (pos_num.bit1 a)) → (Π (a : pos_num), ?C a → ?C (pos_num.bit0 a)) → ?C n
 pos_num.brec_on|Π (n : pos_num), (Π (n : pos_num), pos_num.below n → ?C n) → ?C n
 pos_num.add|pos_num → pos_num → pos_num
+pos_num_has_mul|has_mul pos_num
 pos_num|Type
+pos_num_has_one|has_one pos_num
+pos_num_has_add|has_add pos_num
 -- ENDFINDP
 -- BEGINFINDP
 pos_num.size|pos_num → pos_num
@@ -83,5 +89,8 @@ pos_num.lt|pos_num → pos_num → bool
 pos_num.rec_on|Π (n : pos_num), ?C pos_num.one → (Π (a : pos_num), ?C a → ?C (pos_num.bit1 a)) → (Π (a : pos_num), ?C a → ?C (pos_num.bit0 a)) → ?C n
 pos_num.brec_on|Π (n : pos_num), (Π (n : pos_num), pos_num.below n → ?C n) → ?C n
 pos_num.add|pos_num → pos_num → pos_num
+pos_num_has_mul|has_mul pos_num
 pos_num|Type
+pos_num_has_one|has_one pos_num
+pos_num_has_add|has_add pos_num
 -- ENDFINDP

@@ -5,4 +5,4 @@ constants a b : num
 check [a, b, b]
 check (a, true, a = b, b)
 check (a, b)
-check [1, 2+2, 3]
+check [(1:num), 2+2, 3]

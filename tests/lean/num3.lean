@@ -12,3 +12,4 @@ notation 1 := o
 
 check a = 0
 check 2 = 1
+check (2:num) = 1

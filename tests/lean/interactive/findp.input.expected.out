@@ -9,15 +9,15 @@ false.rec_on|Π (C : Type), false → C
 false.cases_on|Π (C : Type), false → C
 false.induction_on|∀ (C : Prop), false → C
 true_ne_false|¬true = false
-nat.lt_self_iff_false|∀ (n : ℕ), nat.lt n n ↔ false
+nat.lt_self_iff_false|∀ (n : ℕ), n < n ↔ false
 not_of_is_false|is_false ?c → ¬?c
 not_of_iff_false|(?a ↔ false) → ¬?a
 is_false|Π (c : Prop) [H : decidable c], Prop
 classical.eq_true_or_eq_false|∀ (a : Prop), a = true ∨ a = false
 classical.eq_false_or_eq_true|∀ (a : Prop), a = false ∨ a = true
-nat.lt_zero_iff_false|∀ (a : ℕ), nat.lt a nat.zero ↔ false
+nat.lt_zero_iff_false|∀ (a : ℕ), a < 0 ↔ false
 not_of_eq_false|?p = false → ¬?p
-nat.succ_le_self_iff_false|∀ (n : ℕ), nat.le (nat.succ n) n ↔ false
+nat.succ_le_self_iff_false|∀ (n : ℕ), nat.succ n ≤ n ↔ false
 decidable.rec_on_false|Π (H3 : ¬?p), ?H2 H3 → decidable.rec_on ?H ?H1 ?H2
 not_false|¬false
 decidable_false|decidable false
@@ -25,6 +25,6 @@ of_not_is_false|¬is_false ?c → ?c
 classical.cases_true_false|∀ (P : Prop → Prop), P true → P false → (∀ (a : Prop), P a)
 iff_false_intro|¬?a → (?a ↔ false)
 ne_false_of_self|?p → ?p ≠ false
-nat.succ_le_zero_iff_false|∀ (n : ℕ), nat.le (nat.succ n) nat.zero ↔ false
+nat.succ_le_zero_iff_false|∀ (n : ℕ), nat.succ n ≤ 0 ↔ false
 tactic.exfalso|tactic
 -- ENDFINDP

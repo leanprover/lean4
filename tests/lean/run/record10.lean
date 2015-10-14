@@ -1,8 +1,5 @@
 import logic
 
-structure has_mul [class] (A : Type) :=
-(mul : A → A → A)
-
 structure semigroup [class] (A : Type) extends has_mul A :=
 (assoc : ∀ a b c, mul (mul a b) c = mul a (mul b c))
 

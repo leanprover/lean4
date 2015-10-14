@@ -1,6 +1,0 @@
-K_bug.lean:14:24: error: type mismatch at term
-  pred_succ n⁻¹
-has type
-  pred (succ n⁻¹) = n⁻¹
-but is expected to have type
-  n = pred (succ n)

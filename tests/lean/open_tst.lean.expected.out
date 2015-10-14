@@ -1,31 +1,23 @@
 1 + 2 : ℕ
-open_tst.lean:4:8: error: unknown identifier 'add'
-a + a : ℕ
-a + a : ℕ
-open_tst.lean:12:10: error: type mismatch at application
-  a + 1
-term
-  1
-has type
-  num
-but is expected to have type
-  ℕ
+add : ?A → ?A → ?A
 a + a : ℕ
 a + a : ℕ
 a + 1 : ℕ
-open_tst.lean:22:2: error: don't know how to synthesize placeholder
+a + a : ℕ
+a + a : ℕ
+a + 1 : ℕ
+open_tst.lean:20:2: error: don't know how to synthesize placeholder
 
 ⊢ inhabited ℕ
-open_tst.lean:22:2: error: failed to add declaration 'foo1' to environment, value has metavariables
+open_tst.lean:20:2: error: failed to add declaration 'foo1' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   ?M_1
 a + a : ℕ
-open_tst.lean:29:8: error: unknown identifier 'add'
 a + 1 : ℕ
-open_tst.lean:32:2: error: don't know how to synthesize placeholder
+open_tst.lean:29:2: error: don't know how to synthesize placeholder
 
 ⊢ inhabited ℕ
-open_tst.lean:32:2: error: failed to add declaration 'foo2' to environment, value has metavariables
+open_tst.lean:29:2: error: failed to add declaration 'foo2' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term
   ?M_1
-open_tst.lean:41:10: error: invalid expression
+a + a : ℕ

@@ -1,15 +1,13 @@
 section
-  open [notations] [coercions] nat
-  check 1 + 2
-  check add -- Error aliases were not created
+  check (1:nat) + 2
+  check add
 end
 
 section
-  open [declarations] [notations] nat
   variable a : nat
   check a + a
   check add a a
-  check a + 1 -- Error coercion from num to nat was not loaded
+  check a + 1
 end
 
 section
@@ -26,7 +24,6 @@ section
   open - [classes] [decls] nat
   variable a : nat
   check a + a
-  check add a a -- Error aliases were not created
   check a + 1
   definition foo2 : inhabited nat :=
   _ -- Error inhabited instances was not loaded
@@ -38,5 +35,5 @@ section
   _
 
   variable a : nat
-  check a + a -- Error notation declarations were not loaded
+  check a + a
 end

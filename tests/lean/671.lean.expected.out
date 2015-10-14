@@ -1,2 +1,2 @@
-definition nat.add : ℕ → ℕ → ℕ :=
-λ (a b : ℕ), nat.rec_on b a (λ (b₁ : ℕ), nat.succ)
+protected definition nat.add : ℕ → ℕ → ℕ :=
+λ (a : ℕ), nat.rec a (λ (b₁ : ℕ), nat.succ)

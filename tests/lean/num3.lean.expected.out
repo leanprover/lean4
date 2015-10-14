@@ -1,2 +1,3 @@
 @eq N a z : Prop
+@eq ?M_1 2 1 : Prop
 @eq num 2 1 : Prop

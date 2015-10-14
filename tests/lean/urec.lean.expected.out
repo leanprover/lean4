@@ -21,7 +21,7 @@ recursor information
   dep. elimination:         1
 vector.induction_on.{l_1} :
   ∀ {A : Type.{l_1}} {C : Π (a : ℕ), vector.{l_1} A a → Prop} {a : ℕ} (n : vector.{l_1} A a),
-    C nat.zero (@vector.nil.{l_1} A) →
+    C 0 (@vector.nil.{l_1} A) →
     (∀ {n : ℕ} (a : A) (a_1 : vector.{l_1} A n), C n a_1 → C (nat.succ n) (@vector.cons.{l_1} A n a a_1)) →
     C a n
 recursor information

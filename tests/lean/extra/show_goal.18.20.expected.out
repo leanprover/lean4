@@ -6,6 +6,6 @@ h₂ : b = 0,
 aeq0 : a = 0,
 h₃ : succ c = 1,
 h₄ : d = c - 1,
-a_eq : c = 0
+a_1 : c = 0
 ⊢ c = 0
 END_LEAN_INFORMATION

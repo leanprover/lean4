@@ -10,37 +10,30 @@ a
 -- TYPE|5|8
 ℕ → ℕ → ℕ
 -- ACK
--- OVERLOAD|5|8
-num.add #1 #0
---
-nat.add #1 #0
--- ACK
 -- SYMBOL|5|8
 +
 -- ACK
--- IDENTIFIER|5|8
-nat.add
--- ACK
 -- TYPE|5|10
-num
--- ACK
--- COERCION|5|10
-of_num b
---
-ℕ
+num → ℕ
 -- ACK
 -- IDENTIFIER|5|10
+nat.of_num
+-- ACK
+-- TYPE|5|17
+num
+-- ACK
+-- IDENTIFIER|5|17
 b
 -- ACK
 -- ENDINFO
 -- BEGININFO STALE
 -- TYPE|6|6
-ℕ → ℕ → ℕ
+num → num → num
 -- ACK
 -- OVERLOAD|6|6
-num.add
+add
 --
-nat.add
+num.add
 -- ACK
 -- TYPE|6|10
 ℕ

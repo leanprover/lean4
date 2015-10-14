@@ -4,7 +4,7 @@ open nat num
 variable a : nat
 variable b : num
 variable c : bool
-check a + b
+check a + of_num b
 check add a c
 WAIT
 INFO 5

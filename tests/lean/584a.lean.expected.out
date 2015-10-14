@@ -1,5 +1,5 @@
 foo : Π (A : Type) [H : inhabited A], A → A
 foo' : Π {A : Type} [H : inhabited A] {x : A}, A
 foo ℕ 10 : ℕ
-definition test : ∀ {A : Type} [H : inhabited A], @foo' num num.is_inhabited 10 = 10 :=
-λ (A : Type) (H : inhabited A), @rfl num (@foo' num num.is_inhabited 10)
+definition test : ∀ {A : Type} [H : inhabited A], @foo' ℕ nat.is_inhabited (@has_add.add ℕ nat_has_add 5 5) = 10 :=
+λ (A : Type) (H : inhabited A), @rfl ℕ (@foo' ℕ nat.is_inhabited (@has_add.add ℕ nat_has_add 5 5))

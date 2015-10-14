@@ -1,1 +1,13 @@
-quot.mk (prerat.mk 14 6 (mul_denom_pos (prerat.mul (prerat.of_int 8) (prerat.inv (prerat.of_int 6))) (prerat.of_int 1)))
+quot.mk
+  (prerat.mk 14 6
+     (mul_denom_pos
+        (prerat.mul
+           (prerat.add
+              (prerat.add (prerat.add (prerat.of_int 1) (prerat.of_int 1))
+                 (prerat.add (prerat.of_int 1) (prerat.of_int 1)))
+              (prerat.add (prerat.add (prerat.of_int 1) (prerat.of_int 1))
+                 (prerat.add (prerat.of_int 1) (prerat.of_int 1))))
+           (prerat.inv
+              (prerat.add (prerat.add (prerat.add (prerat.of_int 1) (prerat.of_int 1)) (prerat.of_int 1))
+                 (prerat.add (prerat.add (prerat.of_int 1) (prerat.of_int 1)) (prerat.of_int 1)))))
+        (prerat.of_int 1)))

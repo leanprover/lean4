@@ -1,7 +1,7 @@
 {x : ℕ ∈ S | x > 0} : set ℕ
 {x : ℕ ∈ s | x > 0} : finset ℕ
-@set.sep.{1} nat (λ (x : nat), nat.gt x (nat.of_num 0)) S : set.{1} nat
-@finset.sep.{1} nat (λ (a b : nat), nat.has_decidable_eq a b) (λ (x : nat), nat.gt x (nat.of_num 0))
-  (λ (a : nat), nat.decidable_ge a (nat.succ (nat.of_num 0)))
+@set.sep.{1} nat (λ (x : nat), @gt.{1} nat 11.source.to.has_lt x 0) S : set.{1} nat
+@finset.sep.{1} nat (λ (a b : nat), nat.has_decidable_eq a b) (λ (x : nat), @gt.{1} nat 11.source.to.has_lt x 0)
+  (λ (a : nat), nat.decidable_lt 0 a)
   s :
   finset.{1} nat

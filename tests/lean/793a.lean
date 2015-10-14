@@ -1,15 +1,14 @@
 import data.rat
-
-check 4.0
-check 2.3
-check 1.00
-check 10.213
-
 open rat
 
-check -0.3
-check 10.213
-check 2.3
-check 1.0
+check (4.0:rat)
+check (2.3:rat)
+check (1.00:rat)
+check (10.213:rat)
 
-eval (λ v, 1.0) 2
+check -(0.3:rat)
+check (10.213:rat)
+check (2.3:rat)
+check (1.0:rat)
+
+eval (λ v, (1.0:rat)) (2:nat)

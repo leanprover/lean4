@@ -1,4 +1,4 @@
 M[row,col] : A
 M[row,:] : row_vector A n
 M[row,col] : A
-[1, 2, 3] : list num
+[1, 2, 3] : list ℕ

@@ -9,7 +9,7 @@ definition tst2 : nat → nat → nat :=
 begin
   intro a,
   intro b,
-  cases add wth (a, b), -- ERROR
+  cases nat.add wth (a, b), -- ERROR
   exact a,
   exact b,
 end

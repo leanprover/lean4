@@ -1,7 +1,7 @@
-mismatch.lean:3:7: error: type mismatch at application
-  @id ℕ 1
+mismatch.lean:4:7: error: type mismatch at application
+  @id ℕ o
 term
-  1
+  o
 has type
   num
 but is expected to have type

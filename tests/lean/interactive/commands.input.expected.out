@@ -27,7 +27,6 @@ true
 -- ACK
 -- ENDINFO
 -- BEGINFINDG
-add.assoc|∀ (n m k : ℕ), n + m + k = n + (m + k)
 -- ENDFINDG
 -- BEGINWAIT
 -- ENDWAIT

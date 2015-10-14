@@ -7,7 +7,6 @@ variable {n : nat}
 theorem tst1 : ∀ n m, succ n + succ m = succ (succ (n + m)) :=
 begin
   intro n m,
-  esimp [add],
   state,
   rewrite [succ_add]
 end

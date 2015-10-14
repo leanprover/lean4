@@ -2,11 +2,11 @@
 -- ENDWAIT
 -- BEGINFINDP
 le.rec_on|le ?a ?a → (Π (a : nat), ?C a a) → ?C ?a ?a
-nat.rec_on|Π (n : nat), ?C zero → (Π (a : nat), ?C a → ?C (succ a)) → ?C n
+nat.rec_on|Π (n : nat), ?C 0 → (Π (a : nat), ?C a → ?C (succ a)) → ?C n
 bool.rec_on|Π (n : bool), ?C bool.ff → ?C bool.tt → ?C n
 -- ENDFINDP
 -- BEGINFINDP
 nat.le.rec_on|nat.le ?a ?a → (Π (a : nat), ?C a a) → ?C ?a ?a
-nat.rec_on|Π (n : nat), ?C nat.zero → (Π (a : nat), ?C a → ?C (nat.succ a)) → ?C n
+nat.rec_on|Π (n : nat), ?C 0 → (Π (a : nat), ?C a → ?C (nat.succ a)) → ?C n
 bool.rec_on|Π (n : bool), ?C bool.ff → ?C bool.tt → ?C n
 -- ENDFINDP

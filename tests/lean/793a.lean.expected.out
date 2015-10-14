@@ -1,9 +1,9 @@
-rat.of_num 4 : ℚ
-rat.divide (rat.of_num 23) (rat.of_num 10) : ℚ
-rat.of_num 1 : ℚ
-rat.divide (rat.of_num 10213) (rat.of_num 1000) : ℚ
+4 : ℚ
+23 / 10 : ℚ
+1 : ℚ
+10213 / 1000 : ℚ
 -(3 / 10) : ℚ
 10213 / 1000 : ℚ
 23 / 10 : ℚ
 1 : ℚ
-quot.mk (prerat.mk (int.of_nat (nat.succ nat.zero)) (int.of_nat (nat.succ nat.zero)) (int.of_nat_succ_pos nat.zero))
+quot.mk (prerat.mk (int.of_nat 1) (int.of_nat 1) (int.of_nat_succ_pos 0))

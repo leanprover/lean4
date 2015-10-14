@@ -14,4 +14,4 @@ check M[row,col]
 notation M `[` i `,` `:` `]` := get_row M i
 check M[row,:]
 check M[row,col]
-check [1, 2, 3]
+check [(1:nat), 2, 3]

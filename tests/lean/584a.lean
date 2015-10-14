@@ -12,7 +12,7 @@ open nat
 
 check foo nat 10
 
-definition test : foo' = 10 := rfl
+definition test : foo' = (10:nat) := rfl
 
 set_option pp.implicit true
 print test

@@ -1,4 +1,4 @@
 @eq N a z : Prop
-@eq num 2 1 : Prop
+@eq nat 2 1 : Prop
 @eq foo.N foo.a foo.o : Prop
 @eq N a o : Prop

@@ -1,1 +1,1 @@
-noncomputable definition a := 2
+noncomputable definition a :nat := 2

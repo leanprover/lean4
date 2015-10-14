@@ -1,7 +1,7 @@
 protected_test.lean:2:8: error: unknown identifier 'induction_on'
 protected_test.lean:3:8: error: unknown identifier 'rec_on'
 nat.induction_on : ∀ (n : ℕ), ?C 0 → (∀ (a : ℕ), ?C a → ?C (succ a)) → ?C n
-le.rec_on : ?a ≤ ?a_1 → ?C ?a → (∀ {b : ℕ}, ?a ≤ b → ?C b → ?C (succ b)) → ?C ?a_1
-le.rec_on : ?a ≤ ?a_1 → ?C ?a → (∀ {b : ℕ}, ?a ≤ b → ?C b → ?C (succ b)) → ?C ?a_1
+le.rec_on : le ?a ?a_1 → ?C ?a → (∀ {b : ℕ}, le ?a b → ?C b → ?C (succ b)) → ?C ?a_1
+le.rec_on : le ?a ?a_1 → ?C ?a → (∀ {b : ℕ}, le ?a b → ?C b → ?C (succ b)) → ?C ?a_1
 protected_test.lean:8:10: error: unknown identifier 'rec_on'
-le.rec_on : ?a ≤ ?a_1 → ?C ?a → (∀ {b : ℕ}, ?a ≤ b → ?C b → ?C (succ b)) → ?C ?a_1
+le.rec_on : le ?a ?a_1 → ?C ?a → (∀ {b : ℕ}, le ?a b → ?C b → ?C (succ b)) → ?C ?a_1

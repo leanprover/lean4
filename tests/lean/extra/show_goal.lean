@@ -15,11 +15,11 @@ begin
       rewrite add_zero at h₃,
       rewrite add_succ at h₃,
       rewrite add_zero at h₃,
-      injection h₃, assumption
+      injection h₃, exact a_1
     end,
     rewrite ceq at h₄,
     repeat (esimp [sub, pred] at h₄),
-    assumption
+    exact h₄
   end,
   exact deq0
 end

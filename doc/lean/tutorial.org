@@ -57,10 +57,10 @@ The command =import= loads existing libraries and extensions.
 
 #+BEGIN_SRC lean
   import data.nat
-  check nat.ge
+  check nat.gcd
 #+END_SRC
 
-We say =nat.ge= is a hierarchical name comprised of two parts: =nat= and =ge=.
+We say =nat.gcd= is a hierarchical name comprised of two parts: =nat= and =gcd=.
 
 The command =open= creates aliases based on a given prefix. The
 command also imports notation, hints, and other features. We will
@@ -71,7 +71,7 @@ the following command creates aliases for all objects starting with
 #+BEGIN_SRC lean
   import data.nat
   open nat
-  check ge -- display the type of nat.ge
+  check gcd -- display the type of nat.gcd
 #+END_SRC
 
 The command =constant= assigns a type to an identifier. The following command postulates/assumes
@@ -370,18 +370,19 @@ examples.
   check λ (x : nat) (p : Prop), x = 0 ∨ p
 #+END_SRC
 
-In many cases, Lean can automatically infer the type of the variable. Actually,
-in all examples above, the type can be inferred automatically.
+In many cases, Lean can automatically infer the type of the variable.
 
 #+BEGIN_SRC lean
   import data.nat
   open nat
 
-  check fun x, x + 1
-  check fun x y, x + 2 * y
+  check fun x, x + (1:nat)
+  check fun x : nat, x + 1
+  check fun x, (x:nat) + 1
+  check fun x y, x + (2:nat) * y
   check fun x y, not (x ∧ y)
-  check λ x, x + 1
-  check λ x p, x = 0 ∨ p
+  check λ x, x + (1:nat)
+  check λ x p, x = (0:nat) ∨ p
 #+END_SRC
 
 However, Lean will complain that it cannot infer the type of the
@@ -393,8 +394,8 @@ function applications
 #+BEGIN_SRC lean
   import data.nat
   open nat
-  check (fun x y, x + 2 * y) 1
-  check (fun x y, x + 2 * y) 1 2
+  check (fun x y, x + 2 * y) (1:nat)
+  check (fun x y, x + 2 * y) (1:nat) 2
   check (fun x y, not (x ∧ y)) true false
 #+END_SRC
 

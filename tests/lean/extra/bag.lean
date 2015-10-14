@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 Finite bags.
 -/
 import data.nat data.list.perm algebra.binary
-open nat quot list subtype binary function eq.ops
+open nat quot list subtype binary function eq.ops algebra
 open [declarations] perm
 
 variable {A : Type}

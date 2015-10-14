@@ -49,7 +49,7 @@ definition rec_measure {dom codom : Type} (default : codom) (measure : dom → �
     (rec_val : dom → (dom → codom) → codom) (x : dom) : codom :=
 rec_measure_aux default measure rec_val (succ (measure x)) x
 
-attribute decidable [multiple-instances]
+attribute decidable [multiple_instances]
 
 theorem rec_measure_aux_spec {dom codom : Type} (default : codom) (measure : dom → ℕ)
     (rec_val : dom → (dom → codom) → codom)

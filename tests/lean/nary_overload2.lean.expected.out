@@ -1,5 +1,5 @@
-[1, 2, 3] : list num
+[1, 2, 3] : list ℕ
 [1, 2, 3] : vector ℕ 3
 [1, 2, 3] : list ℕ
-[1, 2, 3] : list num
-[1, 2, 3] : vector num 3
+[1, 2, 3] : list ℕ
+[1, 2, 3] : vector ℕ 3

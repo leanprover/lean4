@@ -13,9 +13,8 @@ open rat
 open nat
 open eq.ops pnat classical algebra
 
-local postfix ⁻¹ := pnat.inv
-
 namespace rat_seq
+local postfix ⁻¹ := pnat.inv
 
 -----------------------------
 -- Facts about absolute values of sequences, to define inverse
@@ -582,10 +581,17 @@ end rat_seq
 namespace real
 open [classes] rat_seq
 
-noncomputable definition inv (x : ℝ) : ℝ := quot.lift_on x (λ a, quot.mk (rat_seq.r_inv a))
+noncomputable protected definition inv (x : ℝ) : ℝ := quot.lift_on x (λ a, quot.mk (rat_seq.r_inv a))
            (λ a b H, quot.sound (rat_seq.r_inv_well_defined H))
 
-local postfix [priority real.prio] `⁻¹` := inv
+noncomputable definition real_has_inv [instance] [reducible] [priority real.prio] : has_inv real :=
+has_inv.mk real.inv
+
+noncomputable protected definition division (x y : ℝ) : ℝ :=
+x * y⁻¹
+
+noncomputable definition real_has_division [instance] [reducible] [priority real.prio] : has_division real :=
+has_division.mk real.division
 
 theorem le_total (x y : ℝ) : x ≤ y ∨ y ≤ x :=
   quot.induction_on₂ x y (λ s t, rat_seq.r_le_total s t)
@@ -638,11 +644,13 @@ protected noncomputable definition discrete_linear_ordered_field [reducible] [tr
     decidable_lt := dec_lt
    ⦄
 
-theorem of_rat_zero : of_rat 0 = 0 := rfl
+theorem of_rat_zero : of_rat (0:rat) = (0:real) := rfl
+
+theorem of_rat_one : of_rat (1:rat) = (1:real) := rfl
 
 theorem of_rat_divide (x y : ℚ) : of_rat (x / y) = of_rat x / of_rat y :=
 by_cases
-  (assume yz : y = 0, by rewrite [yz, algebra.div_zero, *of_rat_zero, algebra.div_zero])
+  (assume yz : y = 0, by krewrite [yz, algebra.div_zero, +of_rat_zero, algebra.div_zero])
   (assume ynz : y ≠ 0,
     have ynz' : of_rat y ≠ 0, from assume yz', ynz (of_rat.inj yz'),
     !eq_div_of_mul_eq ynz' (by krewrite [-of_rat_mul, !div_mul_cancel ynz]))
@@ -685,5 +693,4 @@ theorem eq_of_forall_abs_sub_le {x y : ℝ} (H : ∀ ε : ℝ, ε > 0 → abs (x
   x = y :=
 have x - y = 0, from eq_zero_of_forall_abs_le H,
 eq_of_sub_eq_zero this
-
 end real

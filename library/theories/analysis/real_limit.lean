@@ -25,7 +25,7 @@ open real classical algebra
 noncomputable theory
 
 namespace real
-
+local postfix ⁻¹ := pnat.inv
 /- the reals form a metric space -/
 
 protected definition to_metric_space [instance] : metric_space ℝ :=
@@ -38,6 +38,7 @@ protected definition to_metric_space [instance] : metric_space ℝ :=
 ⦄
 
 open nat
+open [classes] rat
 
 definition converges_to_seq (X : ℕ → ℝ) (y : ℝ) : Prop :=
 ∀ ⦃ε : ℝ⦄, ε > 0 → ∃ N : ℕ, ∀ {n}, n ≥ N → abs (X n - y) < ε
@@ -122,15 +123,15 @@ section
     ∀ k : ℕ+, ∃ N : ℕ+, ∀ m n : ℕ+,
       m ≥ N → n ≥ N → abs (X (elt_of m) - X (elt_of n)) ≤ of_rat k⁻¹ :=
   take k : ℕ+,
-  have H1 : (rat.gt k⁻¹ (rat.of_num 0)), from !inv_pos,
+  have H1 : (k⁻¹ > (rat.of_num 0)), from !inv_pos,
   have H2 : (of_rat k⁻¹ > of_rat (rat.of_num 0)), from !of_rat_lt_of_rat_of_lt H1,
   obtain (N : ℕ) (H : ∀ m n, m ≥ N → n ≥ N → abs (X m - X n) < of_rat k⁻¹), from H _ H2,
   exists.intro (pnat.succ N)
     (take m n : ℕ+,
       assume Hm : m ≥ (pnat.succ N),
       assume Hn : n ≥ (pnat.succ N),
-      have Hm' : elt_of m ≥ N, from nat.le.trans !le_succ Hm,
-      have Hn' : elt_of n ≥ N, from nat.le.trans !le_succ Hn,
+      have Hm' : elt_of m ≥ N, begin apply algebra.le.trans, apply le_succ, apply Hm end,
+      have Hn' : elt_of n ≥ N, begin apply algebra.le.trans, apply le_succ, apply Hn end,
       show abs (X (elt_of m) - X (elt_of n)) ≤ of_rat k⁻¹, from le_of_lt (H _ _ Hm' Hn'))
 
   private definition rate_of_cauchy {X : ℕ → ℝ} (H : cauchy X) (k : ℕ+) : ℕ+ :=
@@ -165,7 +166,7 @@ exists.intro l
       (take n : ℕ,
         assume Hn : n ≥ elt_of N,
         let n' : ℕ+ := tag n (nat.lt_of_lt_of_le (has_property N) Hn) in
-        have abs (X n - l) ≤ real.of_rat k⁻¹, from conv k n' Hn,
+        have abs (X n - l) ≤ real.of_rat k⁻¹, by apply conv k n' Hn,
         show abs (X n - l) < ε, from lt_of_le_of_lt this Hk))
 
 open set
@@ -306,12 +307,12 @@ take ε, suppose ε > 0,
 have e2pos : ε / 2 > 0, from  div_pos_of_pos_of_pos `ε > 0` two_pos,
 obtain N₁ (HN₁ : ∀ {n}, n ≥ N₁ → abs (X n - x) < ε / 2), from HX e2pos,
 obtain N₂ (HN₂ : ∀ {n}, n ≥ N₂ → abs (Y n - y) < ε / 2), from HY e2pos,
-let N := nat.max N₁ N₂ in
+let N := max N₁ N₂ in
 exists.intro N
   (take n,
     suppose n ≥ N,
-    have ngtN₁ : n ≥ N₁, from nat.le.trans !nat.le_max_left `n ≥ N`,
-    have ngtN₂ : n ≥ N₂, from nat.le.trans !nat.le_max_right `n ≥ N`,
+    have ngtN₁ : n ≥ N₁, from nat.le.trans !le_max_left `n ≥ N`,
+    have ngtN₂ : n ≥ N₂, from nat.le.trans !le_max_right `n ≥ N`,
     show abs ((X n + Y n) - (x + y)) < ε, from calc
       abs ((X n + Y n) - (x + y))
             = abs ((X n - x) + (Y n - y))   : by rewrite [sub_add_eq_sub_sub, *sub_eq_add_neg,
@@ -373,7 +374,7 @@ take ε, suppose ε > 0,
 obtain N (HN : ∀ n, n ≥ N → abs (X n - 0) < ε), from HX `ε > 0`,
 exists.intro N
   (take n, assume Hn : n ≥ N,
-    have abs (X n) < ε, from (!sub_zero ▸ HN n Hn),
+    have abs (X n) < ε, begin rewrite -(sub_zero (X n)), apply HN n Hn end,
     show abs (abs (X n) - 0) < ε, using this,
       by rewrite [sub_zero, abs_of_nonneg !abs_nonneg]; apply this)
 
@@ -385,7 +386,7 @@ exists.intro (N : ℕ)
   (take n : ℕ, assume Hn : n ≥ N,
     have HN' : abs (abs (X n) - 0) < ε, from HN n Hn,
     have abs (X n) < ε,
-      by+ rewrite [real.sub_zero at HN', abs_of_nonneg !abs_nonneg at HN']; apply HN',
+      by+ rewrite [sub_zero at HN', abs_of_nonneg !abs_nonneg at HN']; apply HN',
     show abs (X n - 0) < ε, using this,
       by rewrite sub_zero; apply this)
 
@@ -433,12 +434,12 @@ obtain x' [(H₁x' : x' ∈ X '[univ]) (H₂x' : sX - ε < x')],
   from exists_mem_and_lt_of_lt_sup exX this,
 obtain i [H' (Hi : X i = x')], from H₁x',
 have Hi' : ∀ j, j ≥ i → sX - ε < X j, from
-  take j, assume Hj, lt_of_lt_of_le (Hi⁻¹ ▸ H₂x') (nondecX Hj),
+  take j, assume Hj, lt_of_lt_of_le (by rewrite Hi; apply H₂x') (nondecX Hj),
 exists.intro i
   (take j, assume Hj : j ≥ i,
     have X j - sX ≤ 0, from sub_nonpos_of_le (Xle j),
     have eq₁ : abs (X j - sX) = sX - X j, using this, by rewrite [abs_of_nonpos this, neg_sub],
-    have sX - ε < X j, from lt_of_lt_of_le (Hi⁻¹ ▸ H₂x') (nondecX Hj),
+    have sX - ε < X j, from lt_of_lt_of_le (by rewrite Hi; apply H₂x') (nondecX Hj),
     have sX < X j + ε, from lt_add_of_sub_lt_right this,
     have sX - X j < ε, from sub_lt_left_of_lt_add this,
     show (abs (X j - sX)) < ε, using eq₁ this, by rewrite eq₁; exact this)
@@ -486,8 +487,8 @@ have H₂ : ∀ x, x ∈ X '[univ] → b ≤ x, from
     obtain i [Hi₁ (Hi₂ : X i = x)], from H,
     show b ≤ x, by rewrite -Hi₂; apply Hb i),
 have H₃ : {x : ℝ | -x ∈ X '[univ]} = {x : ℝ | x ∈ (λ n, -X n) '[univ]}, from calc
-  {x : ℝ | -x ∈ X '[univ]} = (λ y, -y) '[X '[univ]] : !image_neg_eq⁻¹
-                       ... = {x : ℝ | x ∈ (λ n, -X n) '[univ]} : !image_compose⁻¹,
+  {x : ℝ | -x ∈ X '[univ]} = (λ y, -y) '[X '[univ]] : by rewrite image_neg_eq
+                       ... = {x : ℝ | x ∈ (λ n, -X n) '[univ]} : image_compose,
 have H₄ : ∀ i, - X i ≤ - b, from take i, neg_le_neg (Hb i),
 begin+
   rewrite [-neg_converges_to_seq_iff, -sup_neg H₁ H₂, H₃, -nondecreasing_neg_iff at nonincX],
@@ -502,7 +503,7 @@ open nat set
 theorem pow_converges_to_seq_zero {x : ℝ} (H : abs x < 1) :
   (λ n, x^n) ⟶ 0 in ℕ :=
 suffices H' : (λ n, (abs x)^n) ⟶ 0 in ℕ, from
-  have (λ n, (abs x)^n) = (λ n, abs (x^n)), from funext (take n, !abs_pow⁻¹),
+  have (λ n, (abs x)^n) = (λ n, abs (x^n)), from funext (take n, eq.symm !abs_pow),
   using this,
     by rewrite this at H'; exact converges_to_seq_zero_of_abs_converges_to_seq_zero H',
 let  aX := (λ n, (abs x)^n),
@@ -511,16 +512,17 @@ let  aX := (λ n, (abs x)^n),
 have noninc_aX : nonincreasing aX, from
   nonincreasing_of_forall_succ_le
     (take i,
-      have (abs x) * (abs x)^i ≤ 1 * (abs x)^i,
+      assert (abs x) * (abs x)^i ≤ 1 * (abs x)^i,
         from mul_le_mul_of_nonneg_right (le_of_lt H) (!pow_nonneg_of_nonneg !abs_nonneg),
-      show (abs x) * (abs x)^i ≤ (abs x)^i, from !one_mul ▸ this),
+      assert (abs x) * (abs x)^i ≤ (abs x)^i, by krewrite one_mul at this; exact this,
+      show (abs x) ^ (succ i) ≤ (abs x)^i, by rewrite pow_succ; apply this),
 have bdd_aX : ∀ i, 0 ≤ aX i, from take i, !pow_nonneg_of_nonneg !abs_nonneg,
-have aXconv : aX ⟶ iaX in ℕ, from converges_to_seq_inf_of_nonincreasing noninc_aX bdd_aX,
+assert aXconv : aX ⟶ iaX in ℕ, from converges_to_seq_inf_of_nonincreasing noninc_aX bdd_aX,
 have asXconv : asX ⟶ iaX in ℕ, from metric_space.converges_to_seq_offset_succ aXconv,
 have asXconv' : asX ⟶ (abs x) * iaX in ℕ, from mul_left_converges_to_seq (abs x) aXconv,
 have iaX = (abs x) * iaX, from converges_to_seq_unique asXconv asXconv',
-have iaX = 0, from eq_zero_of_mul_eq_self_left (ne_of_lt H) this⁻¹,
-show aX ⟶ 0 in ℕ, from this ▸ aXconv
+assert iaX = 0, from eq_zero_of_mul_eq_self_left (ne_of_lt H) (eq.symm this),
+show aX ⟶ 0 in ℕ, begin rewrite -this, exact aXconv end --from this ▸ aXconv
 
 end xn
 
@@ -572,7 +574,7 @@ theorem neg_continuous_of_continuous {f : ℝ → ℝ} (Hcon : continuous f) : c
     intros x' Hx',
     let HD := Hδ₂ x' Hx',
     rewrite [-abs_neg, neg_neg_sub_neg],
-    assumption
+    exact HD
   end
 
 theorem translate_continuous_of_continuous {f : ℝ → ℝ} (Hcon : continuous f) (a : ℝ) :
@@ -585,7 +587,7 @@ theorem translate_continuous_of_continuous {f : ℝ → ℝ} (Hcon : continuous 
     split,
     assumption,
     intros x' Hx',
-    rewrite [add_sub_comm, sub_self, add_zero],
+    rewrite [add_sub_comm, sub_self, algebra.add_zero],
     apply Hδ₂,
     assumption
   end
@@ -622,7 +624,7 @@ private theorem ex_delta_lt {x : ℝ} (Hx : f x < 0) (Hxb : x < b) : ∃ δ : �
     exact div_two_lt_of_pos (and.left Hδ),
     exact Haδ},
     {apply and.right Hδ,
-    rewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
+    krewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
              abs_of_pos (div_pos_of_pos_of_pos (and.left Hδ) two_pos)],
     exact div_two_lt_of_pos (and.left Hδ)},
     existsi (b - x) / 2,
@@ -633,7 +635,7 @@ private theorem ex_delta_lt {x : ℝ} (Hx : f x < 0) (Hxb : x < b) : ∃ δ : �
     split,
     {apply add_midpoint Hxb},
     {apply and.right Hδ,
-    rewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
+    krewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
             abs_of_pos (div_pos_of_pos_of_pos (sub_pos_of_lt Hxb) two_pos)],
     apply lt_of_lt_of_le,
     apply div_two_lt_of_pos (sub_pos_of_lt Hxb),
@@ -730,7 +732,7 @@ private theorem intermediate_value_incr_aux2 : ∃ δ : ℝ, δ > 0 ∧ a + δ <
     exact div_two_lt_of_pos (and.left Hδ),
     exact Haδ},
     {apply and.right Hδ,
-    rewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
+    krewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
              abs_of_pos (div_pos_of_pos_of_pos (and.left Hδ) two_pos)],
     exact div_two_lt_of_pos (and.left Hδ)},
     existsi (b - a) / 2,
@@ -741,7 +743,7 @@ private theorem intermediate_value_incr_aux2 : ∃ δ : ℝ, δ > 0 ∧ a + δ <
     split,
     {apply add_midpoint Hab},
     {apply and.right Hδ,
-    rewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
+    krewrite [sub_add_eq_sub_sub, sub_self, zero_sub, abs_neg,
             abs_of_pos (div_pos_of_pos_of_pos (sub_pos_of_lt Hab) two_pos)],
     apply lt_of_lt_of_le,
     apply div_two_lt_of_pos (sub_pos_of_lt Hab),
@@ -775,7 +777,7 @@ theorem intermediate_value_incr_zero : ∃ c, a < c ∧ c < b ∧ f c = 0 :=
     apply le_of_not_gt,
     intro Hxgt,
     have Hxgt' : b - x < δ, from sub_lt_of_sub_lt Hxgt,
-    rewrite -(abs_of_pos (sub_pos_of_lt (and.left Hx))) at Hxgt',
+    krewrite -(abs_of_pos (sub_pos_of_lt (and.left Hx))) at Hxgt',
     let Hxgt'' := and.right Hδ _ Hxgt',
     exact not_lt_of_ge (le_of_lt Hxgt'') (and.right Hx)},
     {exact sup_fn_interval}

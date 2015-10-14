@@ -1,9 +1,0 @@
-VISIT ac_bug.lean
-SYNC 4
-import data.nat
-namespace nat
-check mul.as
-exit
-WAIT
-FINDP 3
-mul.as

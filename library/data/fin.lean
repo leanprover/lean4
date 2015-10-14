@@ -245,7 +245,7 @@ lemma madd_comm (i j : fin (succ n)) : madd i j = madd j i :=
 by apply eq_of_veq; rewrite [*val_madd, add.comm (val i)]
 
 lemma zero_madd (i : fin (succ n)) : madd 0 i = i :=
-have H : madd (fin.zero n) i = i, 
+have H : madd (fin.zero n) i = i,
   by apply eq_of_veq; rewrite [val_madd, ↑fin.zero, nat.zero_add, mod_eq_of_lt (is_lt i)],
 H
 
@@ -446,7 +446,7 @@ assert aux₁ : ∀ {v₁ v₂}, v₁ < n → v₂ < m → v₁ + v₂ * n < n*m
   take v₁ v₂, assume h₁ h₂,
     have   nat.succ v₂ ≤ m, from succ_le_of_lt h₂,
     assert nat.succ v₂ * n ≤ m * n,       from mul_le_mul_right _ this,
-    have   v₂ * n + n ≤ n * m,            by rewrite [-add_one at this, mul.right_distrib at this, one_mul at this, mul.comm m n at this]; exact this,
+    have   v₂ * n + n ≤ n * m,            by rewrite [-add_one at this, right_distrib at this, one_mul at this, mul.comm m n at this]; exact this,
     assert v₁ + (v₂ * n + n) < n + n * m, from add_lt_add_of_lt_of_le h₁ this,
     have   v₁ + v₂ * n + n < n * m + n,   by rewrite [add.assoc, add.comm (n*m) n]; exact this,
     lt_of_add_lt_add_right this,

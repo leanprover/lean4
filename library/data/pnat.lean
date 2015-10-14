@@ -177,7 +177,7 @@ theorem one_mul (n : ℕ+) : pone * n = n :=
 begin
   apply pnat.eq,
   unfold pone,
-  rewrite [mul.def, ↑nat_of_pnat, one_mul]
+  rewrite [mul.def, ↑nat_of_pnat, algebra.one_mul]
 end
 
 theorem pone_le (n : ℕ+) : pone ≤ n :=
@@ -256,13 +256,13 @@ begin
 end
 
 theorem mul.assoc (a b c : ℕ+) : a * b * c = a * (b * c) :=
-pnat.eq !nat.mul.assoc
+pnat.eq !mul.assoc
 
 theorem mul.comm (a b : ℕ+) : a * b = b * a :=
-pnat.eq !nat.mul.comm
+pnat.eq !mul.comm
 
 theorem add.assoc (a b c : ℕ+) : a + b + c = a + (b + c) :=
-pnat.eq !nat.add.assoc
+pnat.eq !add.assoc
 
 theorem mul_le_mul_left (p q : ℕ+) : q ≤ p * q :=
 begin

@@ -6,7 +6,7 @@ Authors: Floris van Doorn, Leonardo de Moura, Jeremy Avigad
 The order relation on the natural numbers.
 -/
 import data.nat.basic algebra.ordered_ring
-open eq.ops
+open eq.ops algebra
 
 namespace nat
 
@@ -73,7 +73,7 @@ theorem lt_add_of_pos_right {n k : ℕ} (H : k > 0) : n < n + k :=
 
 theorem mul_le_mul_left {n m : ℕ} (k : ℕ) (H : n ≤ m) : k * n ≤ k * m :=
 obtain (l : ℕ) (Hl : n + l = m), from le.elim H,
-have k * n + k * l = k * m, by rewrite [-mul.left_distrib, Hl],
+have k * n + k * l = k * m, by rewrite [-left_distrib, Hl],
 le.intro this
 
 theorem mul_le_mul_right {n m : ℕ} (k : ℕ) (H : n ≤ m) : n * k ≤ m * k :=

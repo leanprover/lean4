@@ -242,7 +242,7 @@ an additional indent for every line after the first, as in the following
 example:
 #+BEGIN_SRC lean
 import data.nat
-open nat eq
+open nat eq algebra
 theorem add_right_inj {n m k : nat} : n + m = n + k → m = k :=
 nat.induction_on n
   (take H : 0 + m = 0 + k,

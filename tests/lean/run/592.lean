@@ -1,5 +1,5 @@
 import data.nat
-open nat
+open nat algebra
 
 definition foo (a b : nat) := a * b
 

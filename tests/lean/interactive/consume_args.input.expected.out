@@ -44,7 +44,7 @@ b
 a + c + b = a + (c + b)
 -- ACK
 -- IDENTIFIER|7|33
-nat.add.assoc
+algebra.add.assoc
 -- ACK
 -- TYPE|7|43
 a + c + b = a + (c + b) → a + (c + b) = a + c + b

@@ -12,7 +12,7 @@
 import logic data.nat
 -- import congr
 
-open nat
+open nat algebra
 -- open congr
 open eq.ops eq
 

@@ -263,7 +263,7 @@ else
       (calc
         ((z * x) div (z * y)) * (z * y) + (z * x) mod (z * y) = z * x : eq_div_mul_add_mod
           ... = z * (x div y * y + x mod y)                           : eq_div_mul_add_mod
-          ... = z * (x div y * y) + z * (x mod y)                     : mul.left_distrib
+          ... = z * (x div y * y) + z * (x mod y)                     : left_distrib
           ... = (x div y) * (z * y) + z * (x mod y)                   : mul.left_comm)
 
 theorem mul_div_mul_right {x z y : ℕ} (zpos : z > 0) : (x * z) div (y * z) = x div y :=
@@ -286,7 +286,7 @@ or.elim (eq_zero_or_pos z)
           (calc
             ((z * x) div (z * y)) * (z * y) + (z * x) mod (z * y) = z * x : eq_div_mul_add_mod
               ... = z * (x div y * y + x mod y)                           : eq_div_mul_add_mod
-              ... = z * (x div y * y) + z * (x mod y)                     : mul.left_distrib
+              ... = z * (x div y * y) + z * (x mod y)                     : left_distrib
               ... = (x div y) * (z * y) + z * (x mod y)                   : mul.left_comm)))
 
 theorem mul_mod_mul_right (x z y : ℕ) : (x * z) mod (y * z) = (x mod y) * z :=
@@ -300,7 +300,7 @@ theorem mul_mod_eq_mod_mul_mod (m n k : nat) : (m * n) mod k = ((m mod k) * n) m
 calc
   (m * n) mod k = (((m div k) * k + m mod k) * n) mod k : eq_div_mul_add_mod
             ... = ((m mod k) * n) mod k                 :
-                    by rewrite [mul.right_distrib, mul.right_comm, add.comm, add_mul_mod_self]
+                    by rewrite [right_distrib, mul.right_comm, add.comm, add_mul_mod_self]
 
 theorem mul_mod_eq_mul_mod_mod (m n k : nat) : (m * n) mod k = (m * (n mod k)) mod k :=
 !mul.comm ▸ !mul.comm ▸ !mul_mod_eq_mod_mul_mod
@@ -558,7 +558,7 @@ calc
      ... = ((n - k div m) * m - (k mod m + 1)) div m                    :
                by rewrite [mul.comm m, mul_sub_right_distrib]
      ... = ((n - k div m - 1) * m + m - (k mod m + 1)) div m            :
-               by rewrite [H3 at {1}, mul.right_distrib, nat.one_mul]
+               by rewrite [H3 at {1}, right_distrib, nat.one_mul]
      ... = ((n - k div m - 1) * m + (m - (k mod m + 1))) div m          : {add_sub_assoc H5 _}
      ... = (m - (k mod m + 1)) div m + (n - k div m - 1)                :
                by rewrite [add.comm, (add_mul_div_self H4)]
@@ -610,7 +610,7 @@ lemma div_lt_of_ne_zero : ∀ {n : nat}, n ≠ 0 → n div 2 < n
 | (succ n) h :=
   begin
     apply div_lt_of_lt_mul,
-    rewrite [-add_one, mul.right_distrib],
+    rewrite [-add_one, right_distrib],
     change n + 1 < (n * 1 + n) + (1 + 1),
     rewrite [mul_one, -add.assoc],
     apply add_lt_add_right,

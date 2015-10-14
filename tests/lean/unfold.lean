@@ -1,5 +1,5 @@
 import data.nat
-open nat
+open nat algebra
 
 definition f (a b : nat) := a + b
 

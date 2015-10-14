@@ -81,7 +81,7 @@ theorem pow_mul (a : A) (m : ℕ) : ∀ n, a^(m * n) = (a^m)^n
 | (succ n) := by rewrite [nat.mul_succ, pow_add, pow_succ', pow_mul]
 
 theorem pow_comm (a : A) (m n : ℕ)  : a^m * a^n = a^n * a^m :=
-by rewrite [-*pow_add, nat.add.comm]
+by rewrite [-*pow_add, add.comm]
 
 end monoid
 
@@ -219,7 +219,7 @@ theorem one_nmul (a : A) : 1 ⬝ a = a := pow_one a
 
 theorem add_nmul (m n : ℕ) (a : A) : (m + n) ⬝ a = (m ⬝ a) + (n ⬝ a) := pow_add a m n
 
-theorem mul_nmul (m n : ℕ) (a : A) : (m * n) ⬝ a = m ⬝ (n ⬝ a) := eq.subst (nat.mul.comm n m) (pow_mul a n m)
+theorem mul_nmul (m n : ℕ) (a : A) : (m * n) ⬝ a = m ⬝ (n ⬝ a) := eq.subst (mul.comm n m) (pow_mul a n m)
 
 theorem nmul_comm (m n : ℕ) (a : A) : (m ⬝ a) + (n ⬝ a) = (n ⬝ a) + (m ⬝ a) := pow_comm a m n
 

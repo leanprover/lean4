@@ -1,5 +1,5 @@
 import data.nat
-open nat
+open nat algebra
 
 attribute nat.add [unfold 2]
 attribute nat.rec_on [unfold 2]

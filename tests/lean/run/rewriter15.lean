@@ -1,5 +1,5 @@
 import data.nat
-open nat
+open nat algebra
 
 set_option rewriter.syntactic true
 

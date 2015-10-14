@@ -120,7 +120,7 @@ private theorem mult_pow_mul {p n : ℕ} (i : ℕ) (pgt1 : p > 1) (npos : n > 0)
   mult p (p^i * n) = i + mult p n :=
 begin
   induction i with [i, ih],
-    {rewrite [pow_zero, one_mul, zero_add]},
+    {krewrite [pow_zero, one_mul, zero_add]},
   have p > 0, from lt.trans zero_lt_one pgt1,
   have psin_pos : p^(succ i) * n > 0, from mul_pos (!pow_pos_of_pos this) npos,
   have p ∣ p^(succ i) * n, by rewrite [pow_succ, mul.assoc]; apply dvd_mul_right,
@@ -175,7 +175,7 @@ calc
 theorem mult_pow {p m : ℕ} (n : ℕ) (mpos : m > 0) (primep : prime p) : mult p (m^n) = n * mult p m :=
 begin
   induction n with n ih,
-    rewrite [pow_zero, mult_one_right, zero_mul],
+    krewrite [pow_zero, mult_one_right, zero_mul],
   rewrite [pow_succ, mult_mul primep mpos (!pow_pos_of_pos mpos), ih, succ_mul, add.comm]
 end
 

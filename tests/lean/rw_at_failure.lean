@@ -1,5 +1,5 @@
 import data.nat
-open nat
+open nat algebra
 
 example (a b : nat) : a = b → 0 + a = 0 + b :=
 begin

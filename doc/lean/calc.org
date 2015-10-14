@@ -25,7 +25,7 @@ Here is an example
 
 #+BEGIN_SRC lean
   import data.nat
-  open nat
+  open nat algebra
   constants a b c d e : nat.
   axiom Ax1 : a = b.
   axiom Ax2 : b = c + 1.
@@ -53,7 +53,7 @@ some form of transitivity. It can even combine different relations.
 
 #+BEGIN_SRC lean
   import data.nat
-  open nat
+  open nat algebra
 
   theorem T2 (a b c : nat) (H1 : a = b) (H2 : b = c + 1) : a ≠ 0
   := calc  a = b      : H1

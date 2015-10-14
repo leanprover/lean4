@@ -191,7 +191,7 @@ begin
   induction s with a s' H IH,
     rewrite [Sum_empty, card_empty, zero_mul],
     rewrite [Sum_insert_of_not_mem _ H, IH, card_insert_of_not_mem H, add.comm,
-             mul.right_distrib, one_mul]
+             right_distrib, one_mul]
 end
 
 theorem Sum_one_eq_card (s : finset A) : (∑ x ∈ s, (1 : nat)) = card s :=

@@ -18,7 +18,7 @@ private definition fib_fast_aux : nat → nat → nat → nat
 | (succ n) i j := fib_fast_aux n j (j+i)
 
 lemma fib_fast_aux_lemma : ∀ n m, fib_fast_aux n (fib m) (fib (succ m)) = fib (succ (n + m))
-| 0        m := by rewrite zero_add
+| 0        m := by rewrite nat.zero_add
 | (succ n) m :=
   begin
     have ih : fib_fast_aux n (fib (succ m)) (fib (succ (succ m))) = fib (succ (n + succ m)), from fib_fast_aux_lemma n (succ m),

@@ -85,12 +85,12 @@ begin
       cases k with k',
         {rewrite [*choose_self, one_mul, mul_one]},
         {have H : 1 < succ (succ k'), from succ_lt_succ !zero_lt_succ,
-          rewrite [one_mul, choose_zero_succ, choose_eq_zero_of_lt H, zero_mul]}},
+         krewrite [one_mul, choose_zero_succ, choose_eq_zero_of_lt H, zero_mul]}},
   intro k,
   cases k with k',
     {rewrite [choose_zero_right, choose_one_right]},
-  rewrite [choose_succ_succ (succ n), mul.right_distrib, -ih (succ k')],
-  rewrite [choose_succ_succ at {1}, mul.left_distrib, *succ_mul (succ n), mul_succ, -ih k'],
+  rewrite [choose_succ_succ (succ n), right_distrib, -ih (succ k')],
+  rewrite [choose_succ_succ at {1}, left_distrib, *succ_mul (succ n), mul_succ, -ih k'],
   rewrite [*add.assoc, add.left_comm (choose n _)]
 end
 

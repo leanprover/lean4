@@ -276,7 +276,7 @@ private theorem canon_bound {s : seq} (Hs : regular s) (n : ℕ+) : abs (s n) �
       by rewrite [add.comm 1 (abs (s pone)), rat.add.comm 1, rat.add.assoc]
     ... ≤ of_nat (ubound (abs (s pone))) + (1 + 1) : algebra.add_le_add_right (!ubound_ge)
     ... = of_nat (ubound (abs (s pone)) + (1 + 1)) : of_nat_add
-    ... = of_nat (ubound (abs (s pone)) + 1 + 1)   : nat.add.assoc
+    ... = of_nat (ubound (abs (s pone)) + 1 + 1)   : algebra.add.assoc
     ... = rat_of_pnat (K s)                        : by esimp
 
 theorem bdd_of_regular {s : seq} (H : regular s) : ∃ b : ℚ, ∀ n : ℕ+, s n ≤ b :=

@@ -1,5 +1,5 @@
 import data.nat
-open nat
+open nat algebra
 constant f : nat → nat
 
 example (x y : nat) (H1 : (λ z, z + 0) x = y) : f x = f y :=

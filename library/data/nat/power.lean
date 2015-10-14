@@ -45,7 +45,7 @@ theorem le_pow_self {x : ℕ} (H : x > 1) : ∀ i, i ≤ x^i
                 succ j = j + 1         : rfl
                    ... ≤ x^j + 1       : add_le_add_right (le_pow_self j)
                    ... ≤ x^j + x^j     : add_le_add_left h₁
-                   ... = x^j * (1 + 1) : by rewrite [mul.left_distrib, *mul_one]
+                   ... = x^j * (1 + 1) : by rewrite [left_distrib, *mul_one]
                    ... = x^j * 2       : rfl
                    ... ≤ x^j * x       : mul_le_mul_left _ `x ≥ 2`
                    ... = x^(succ j)    : pow_succ'

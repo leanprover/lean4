@@ -131,10 +131,14 @@ definition add_comm_monoid.to_comm_monoid {A : Type} [s : add_comm_monoid A] : c
 ⦄
 
 section add_comm_monoid
+  variables [s : add_comm_monoid A]
+  include s
 
-  theorem add_comm_three {A : Type} [s : add_comm_monoid A] (a b c : A) : a + b + c = c + b + a :=
+  theorem add_comm_three  (a b c : A) : a + b + c = c + b + a :=
     by rewrite [{a + _}add.comm, {_ + c}add.comm, -*add.assoc]
 
+  theorem add.comm4 : ∀ (n m k l : A), n + m + (k + l) = n + k + (m + l) :=
+  comm4 add.comm add.assoc
 end add_comm_monoid
 
 /- group -/

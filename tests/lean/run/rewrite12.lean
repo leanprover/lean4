@@ -1,5 +1,5 @@
 import data.nat
-open nat
+open nat algebra
 variables (f : nat → nat → nat → nat) (a b c : nat)
 
 example (H₁ : a = b) (H₂ : f b a b = 0) : f a a a = 0 :=

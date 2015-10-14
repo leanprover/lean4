@@ -1,5 +1,5 @@
 import data.nat
-open nat
+open nat algebra
 
 theorem tst (x : nat) (H1 : x = 0) : x = 0 :=
 begin

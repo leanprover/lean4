@@ -1,4 +1,5 @@
 import data.nat
+open algebra
 
 theorem tst2 (A B C D : Type) : (A × B) × (C × D) → C × B × A :=
 assume p : (A × B) × (C × D),
@@ -62,5 +63,5 @@ obtain y (Hy : b = 2*y), from H₂,
 exists.intro
   (x+y)
   (calc a+b = 2*x + 2*y : by rewrite [Hx, Hy]
-        ... = 2*(x+y)   : by rewrite mul.left_distrib)
+        ... = 2*(x+y)   : by rewrite left_distrib)
 end hidden

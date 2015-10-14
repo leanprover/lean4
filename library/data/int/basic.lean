@@ -370,16 +370,16 @@ calc
     ... = nat_abs a : abstr_repr
 
 theorem padd_pneg (p : ℕ × ℕ) : padd p (pneg p) ≡ (0, 0) :=
-show pr1 p + pr2 p + 0 = pr2 p + pr1 p + 0, from !nat.add.comm ▸ rfl
+show pr1 p + pr2 p + 0 = pr2 p + pr1 p + 0, from !nat.add_comm ▸ rfl
 
 theorem padd_padd_pneg (p q : ℕ × ℕ) : padd (padd p q) (pneg q) ≡ p :=
 calc      pr1 p + pr1 q + pr2 q + pr2 p
-        = pr1 p + (pr1 q + pr2 q) + pr2 p : nat.add.assoc
-    ... = pr1 p + (pr1 q + pr2 q + pr2 p) : nat.add.assoc
-    ... = pr1 p + (pr2 q + pr1 q + pr2 p) : nat.add.comm
-    ... = pr1 p + (pr2 q + pr2 p + pr1 q) : by rewrite add.right_comm
-    ... = pr1 p + (pr2 p + pr2 q + pr1 q) : nat.add.comm
-    ... = pr2 p + pr2 q + pr1 q + pr1 p   : nat.add.comm
+        = pr1 p + (pr1 q + pr2 q) + pr2 p : algebra.add.assoc
+    ... = pr1 p + (pr1 q + pr2 q + pr2 p) : algebra.add.assoc
+    ... = pr1 p + (pr2 q + pr1 q + pr2 p) : algebra.add.comm
+    ... = pr1 p + (pr2 q + pr2 p + pr1 q) : algebra.add.right_comm
+    ... = pr1 p + (pr2 p + pr2 q + pr1 q) : algebra.add.comm
+    ... = pr2 p + pr2 q + pr1 q + pr1 p   : algebra.add.comm
 
 theorem add.left_inv (a : ℤ) : -a + a = 0 :=
 have H : repr (-a + a) ≡ repr 0, from
@@ -450,21 +450,25 @@ theorem equiv_mul_prep {xa ya xb yb xn yn xm ym : ℕ}
 nat.add.cancel_right (calc
             xa*xn+ya*yn + (xb*ym+yb*xm) + (yb*xn+xb*yn + (xb*xn+yb*yn))
           = xa*xn+ya*yn + (yb*xn+xb*yn) + (xb*ym+yb*xm + (xb*xn+yb*yn)) : by rewrite add.comm4
-      ... = xa*xn+ya*yn + (yb*xn+xb*yn) + (xb*xn+yb*yn + (xb*ym+yb*xm)) : by rewrite {xb*ym+yb*xm +_}nat.add.comm
-      ... = xa*xn+yb*xn + (ya*yn+xb*yn) + (xb*xn+xb*ym + (yb*yn+yb*xm)) : by exact !congr_arg2 add.comm4 add.comm4
-      ... = ya*xn+xb*xn + (xa*yn+yb*yn) + (xb*yn+xb*xm + (yb*xn+yb*ym)) : by rewrite[-+mul.left_distrib,-+mul.right_distrib]; exact H1 ▸ H2 ▸ rfl
-      ... = ya*xn+xa*yn + (xb*xn+yb*yn) + (xb*yn+yb*xn + (xb*xm+yb*ym)) : by exact !congr_arg2 add.comm4 add.comm4
-      ... = xa*yn+ya*xn + (xb*xn+yb*yn) + (xb*yn+yb*xn + (xb*xm+yb*ym)) : by rewrite {xa*yn + _}nat.add.comm
-      ... = xa*yn+ya*xn + (xb*xn+yb*yn) + (yb*xn+xb*yn + (xb*xm+yb*ym)) : by rewrite {xb*yn + _}nat.add.comm
-      ... = xa*yn+ya*xn + (yb*xn+xb*yn) + (xb*xn+yb*yn + (xb*xm+yb*ym)) : by rewrite add.comm4
-      ... = xa*yn+ya*xn + (yb*xn+xb*yn) + (xb*xm+yb*ym + (xb*xn+yb*yn)) : by rewrite {xb*xn+yb*yn + _}nat.add.comm
+      ... = xa*xn+ya*yn + (yb*xn+xb*yn) + (xb*xn+yb*yn + (xb*ym+yb*xm)) : by rewrite {xb*ym+yb*xm +_}nat.add_comm
+      ... = xa*xn+yb*xn + (ya*yn+xb*yn) + (xb*xn+xb*ym + (yb*yn+yb*xm)) : by exact !congr_arg2 !add.comm4 !add.comm4
+      ... = ya*xn+xb*xn + (xa*yn+yb*yn) + (xb*yn+xb*xm + (yb*xn+yb*ym)) : by rewrite[-+left_distrib,-+right_distrib]; exact H1 ▸ H2 ▸ rfl
+      ... = ya*xn+xa*yn + (xb*xn+yb*yn) + (xb*yn+yb*xn + (xb*xm+yb*ym)) : by exact !congr_arg2 !add.comm4 !add.comm4
+      ... = xa*yn+ya*xn + (xb*xn+yb*yn) + (xb*yn+yb*xn + (xb*xm+yb*ym)) : by rewrite {xa*yn + _}nat.add_comm
+      ... = xa*yn+ya*xn + (xb*xn+yb*yn) + (yb*xn+xb*yn + (xb*xm+yb*ym)) : by rewrite {xb*yn + _}nat.add_comm
+      ... = xa*yn+ya*xn + (yb*xn+xb*yn) + (xb*xn+yb*yn + (xb*xm+yb*ym)) : by rewrite (!add.comm4)
+      ... = xa*yn+ya*xn + (yb*xn+xb*yn) + (xb*xm+yb*ym + (xb*xn+yb*yn)) : by rewrite {xb*xn+yb*yn + _}nat.add_comm
       ... = xa*yn+ya*xn + (xb*xm+yb*ym) + (yb*xn+xb*yn + (xb*xn+yb*yn)) : by rewrite add.comm4)
 
 theorem pmul_congr {p p' q q' : ℕ × ℕ} : p ≡ p' → q ≡ q' → pmul p q ≡ pmul p' q' := equiv_mul_prep
 
 theorem pmul_comm (p q : ℕ × ℕ) : pmul p q = pmul q p :=
-show (_,_) = (_,_), from !congr_arg2
-   (!congr_arg2 !mul.comm !mul.comm) (!nat.add.comm ⬝ (!congr_arg2 !mul.comm !mul.comm))
+show (_,_) = (_,_),
+begin
+  congruence,
+    { congruence, repeat rewrite mul.comm },
+    { rewrite algebra.add.comm, congruence, repeat rewrite mul.comm }
+end
 
 theorem mul.comm (a b : ℤ) : a * b = b * a :=
 eq_of_repr_equiv_repr
@@ -476,9 +480,11 @@ eq_of_repr_equiv_repr
 private theorem pmul_assoc_prep {p1 p2 q1 q2 r1 r2 : ℕ} :
   ((p1*q1+p2*q2)*r1+(p1*q2+p2*q1)*r2, (p1*q1+p2*q2)*r2+(p1*q2+p2*q1)*r1) =
    (p1*(q1*r1+q2*r2)+p2*(q1*r2+q2*r1), p1*(q1*r2+q2*r1)+p2*(q1*r1+q2*r2)) :=
-by rewrite[+mul.left_distrib,+mul.right_distrib,*mul.assoc];
-   exact (congr_arg2 pair (!add.comm4 ⬝ (!congr_arg !nat.add.comm))
-                          (!add.comm4 ⬝ (!congr_arg !nat.add.comm)))
+begin
+  rewrite[+left_distrib,+right_distrib,*algebra.mul.assoc],
+  exact (congr_arg2 pair (!add.comm4 ⬝ (!congr_arg !nat.add_comm))
+                         (!add.comm4 ⬝ (!congr_arg !nat.add_comm)))
+end
 
 theorem pmul_assoc (p q r: ℕ × ℕ) : pmul (pmul p q) r = pmul p (pmul q r) := pmul_assoc_prep
 
@@ -500,19 +506,23 @@ theorem one_mul (a : ℤ) : 1 * a = a :=
 mul.comm a 1 ▸ mul_one a
 
 private theorem mul_distrib_prep {a1 a2 b1 b2 c1 c2 : ℕ} :
- ((a1+b1)*c1+(a2+b2)*c2, (a1+b1)*c2+(a2+b2)*c1) =
+ ((a1+b1)*c1+(a2+b2)*c2,     (a1+b1)*c2+(a2+b2)*c1) =
  (a1*c1+a2*c2+(b1*c1+b2*c2), a1*c2+a2*c1+(b1*c2+b2*c1)) :=
-by rewrite[+mul.right_distrib] ⬝ (!congr_arg2 !add.comm4 !add.comm4)
+begin
+  rewrite +right_distrib, congruence,
+    {rewrite add.comm4},
+    {rewrite add.comm4}
+end
 
 theorem mul.right_distrib (a b c : ℤ) : (a + b) * c = a * c + b * c :=
 eq_of_repr_equiv_repr
   (calc
     repr ((a + b) * c) = pmul (repr (a + b)) (repr c) : repr_mul
-      ... ≡ pmul (padd (repr a) (repr b)) (repr c) : pmul_congr !repr_add equiv.refl
+      ... ≡ pmul (padd (repr a) (repr b)) (repr c)    : pmul_congr !repr_add equiv.refl
       ... = padd (pmul (repr a) (repr c)) (pmul (repr b) (repr c)) : mul_distrib_prep
-      ... = padd (repr (a * c)) (pmul (repr b) (repr c)) : repr_mul
-      ... = padd (repr (a * c)) (repr (b * c)) : repr_mul
-      ... ≡ repr (a * c + b * c) : repr_add)
+      ... = padd (repr (a * c)) (pmul (repr b) (repr c))           : repr_mul
+      ... = padd (repr (a * c)) (repr (b * c))                     : repr_mul
+      ... ≡ repr (a * c + b * c)                                   : repr_add)
 
 theorem mul.left_distrib (a b c : ℤ) : a * (b + c) = a * b + a * c :=
 calc

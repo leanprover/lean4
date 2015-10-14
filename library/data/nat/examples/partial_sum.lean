@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 import data.nat
-open nat
+open nat algebra
 
 definition partial_sum : nat → nat
 | 0        := 0
@@ -19,10 +19,10 @@ rfl
 lemma two_mul_partial_sum_eq : ∀ n, 2 * partial_sum n = (succ n) * n
 | 0        := by reflexivity
 | (succ n) := calc
-   2 * (succ n + partial_sum n) = 2 * succ n + 2 * partial_sum n  : mul.left_distrib
+   2 * (succ n + partial_sum n) = 2 * succ n + 2 * partial_sum n  : left_distrib
                    ...   = 2 * succ n + succ n * n  : two_mul_partial_sum_eq
                    ...   = 2 * succ n + n * succ n  : mul.comm
-                   ...   = (2 + n) * succ n         : mul.right_distrib
+                   ...   = (2 + n) * succ n         : right_distrib
                    ...   = (n + 2) * succ n         : add.comm
                    ...   = (succ (succ n)) * succ n : rfl
 

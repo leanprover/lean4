@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Haitao Zhang
 List combinators.
 -/
 import data.list.basic data.equiv
-open nat prod decidable function helper_tactics
+open nat prod decidable function helper_tactics algebra
 
 namespace list
 variables {A B C : Type}
@@ -368,7 +368,7 @@ theorem length_product : ∀ (l₁ : list A) (l₂ : list B), length (product l�
 | (x::l₁) l₂ :=
   assert length (product l₁ l₂) = length l₁ * length l₂, from length_product l₁ l₂,
   by rewrite [product_cons, length_append, length_cons,
-              length_map, this, mul.right_distrib, one_mul, add.comm]
+              length_map, this, right_distrib, one_mul, add.comm]
 end product
 
 -- new for list/comb dependent map theory

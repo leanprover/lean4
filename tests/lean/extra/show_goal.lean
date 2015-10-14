@@ -1,5 +1,5 @@
 import data.nat
-open nat
+open nat algebra
 
 example (a b c d : nat) : a + b = 0 → b = 0 → c + 1 + a = 1 → d = c - 1 → d = 0 :=
 begin
@@ -14,7 +14,7 @@ begin
       rewrite aeq0 at h₃,
       rewrite add_zero at h₃,
       rewrite add_succ at h₃,
-      rewrite add_zero at h₃,
+      krewrite add_zero at h₃,
       injection h₃, exact a_1
     end,
     rewrite ceq at h₄,

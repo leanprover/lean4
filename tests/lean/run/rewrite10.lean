@@ -1,5 +1,5 @@
 import data.nat
-open nat
+open nat algebra
 
 section
   variables (a b c d e : nat)
@@ -9,7 +9,7 @@ section
 end
 
 example (x y : ℕ) : (x + y) * (x + y) = x * x + y * x + x * y + y * y :=
-by rewrite [*mul.left_distrib, *mul.right_distrib, -add.assoc]
+by rewrite [*left_distrib, *right_distrib, -add.assoc]
 
 namespace tst
 definition even (a : nat) := ∃b, a = 2*b
@@ -19,7 +19,7 @@ exists.elim H1 (fun (w1 : nat) (Hw1 : a = 2*w1),
 exists.elim H2 (fun (w2 : nat) (Hw2 : b = 2*w2),
   exists.intro (w1 + w2)
     begin
-      rewrite [Hw1, Hw2, mul.left_distrib]
+      rewrite [Hw1, Hw2, left_distrib]
     end))
 
 theorem T2 (a b c : nat) (H1 : a = b) (H2 : b = c + 1) : a ≠ 0 :=

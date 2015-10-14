@@ -185,7 +185,7 @@ lemma even_add_of_even_of_even {n m} : even n → even m → even (n+m) :=
 suppose even n, suppose even m,
 obtain k₁ (hk₁ : n = 2 * k₁), from exists_of_even `even n`,
 obtain k₂ (hk₂ : m = 2 * k₂), from exists_of_even `even m`,
-even_of_exists (exists.intro (k₁+k₂) (by rewrite [hk₁, hk₂, mul.left_distrib]))
+even_of_exists (exists.intro (k₁+k₂) (by rewrite [hk₁, hk₂, left_distrib]))
 
 lemma even_add_of_odd_of_odd {n m} : odd n → odd m → even (n+m) :=
 suppose odd n, suppose odd m,

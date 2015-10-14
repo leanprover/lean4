@@ -1,5 +1,5 @@
 import data.nat
-open nat
+open nat algebra
 
 namespace foo
 
@@ -20,7 +20,7 @@ definition parity : Π (n : nat), Parity n
     end,
     begin
       change (Parity (2*k + 2*1)),
-      rewrite -mul.left_distrib,
+      rewrite -left_distrib,
       apply (Parity.even (k+1))
     end
   end

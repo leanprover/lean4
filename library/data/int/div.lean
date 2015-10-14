@@ -162,10 +162,10 @@ or.elim (nat.lt_or_ge m (n * k))
     have (-[1+m] + n * k) div k = -[1+m] div k + n, from calc
       (-[1+m] + n * k) div k
             = of_nat ((k * n - (m + 1)) div k) :
-                by rewrite [add.comm, neg_succ_of_nat_eq, of_nat_div, nat.mul.comm k n,
+                by rewrite [add.comm, neg_succ_of_nat_eq, of_nat_div, algebra.mul.comm k n,
                             of_nat_sub H3]
         ... = of_nat (n - m div k - 1)         :
-                nat.mul_sub_div_of_lt (!nat.mul.comm ▸ m_lt_nk)
+                nat.mul_sub_div_of_lt (!nat.mul_comm ▸ m_lt_nk)
         ... = -[1+m] div k + n :
                 by rewrite [nat.sub_sub, of_nat_sub H4, add.comm, sub_eq_add_neg,
                             !neg_succ_of_nat_div (of_nat_lt_of_nat_of_lt H2),

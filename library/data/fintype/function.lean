@@ -94,7 +94,7 @@ lemma length_all_lists : ∀ {n : nat}, length (@all_lists_of_len A _ n) = (card
 | 0         := calc length [[]] = 1 : length_cons
 | (succ n)  := calc length _ = card A * length (all_lists_of_len n) : length_cons_all
                          ... = card A * (card A ^ n) : length_all_lists
-                         ... = (card A ^ n) * card A : nat.mul.comm
+                         ... = (card A ^ n) * card A : mul.comm
                          ... = (card A) ^ (succ n) : pow_succ'
 
 

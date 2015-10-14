@@ -18,6 +18,6 @@ example (a b c : nat) : (a + 0 = 0 + a ∧ b + 0 = 0 + b) ∧ c = c :=
 
 begin
   apply and.intro,
-  apply and.intro ;; (state; rewrite zero_add),
+  apply and.intro ;; (state; rewrite nat.zero_add),
   apply rfl
 end

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 Show that tail recursive fib is equal to standard one.
 -/
 import data.nat
-open nat
+open nat algebra
 
 definition fib : nat → nat
 | 0     := 1

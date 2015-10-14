@@ -752,7 +752,7 @@ of two even numbers is an even number.
 
 #+BEGIN_SRC lean
   import data.nat
-  open nat
+  open nat algebra
 
   namespace hide
   definition even (a : nat) := ∃ b, a = 2*b
@@ -762,7 +762,7 @@ of two even numbers is an even number.
     exists.intro (w1 + w2)
       (calc a + b  =  2*w1 + b      : {Hw1}
               ...  =  2*w1 + 2*w2   : {Hw2}
-              ...  =  2*(w1 + w2)   : eq.symm !mul.left_distrib)))
+              ...  =  2*(w1 + w2)   : eq.symm !left_distrib)))
   end hide
 #+END_SRC
 
@@ -774,7 +774,7 @@ With this macro we can write the example above in a more natural way
 
 #+BEGIN_SRC lean
   import data.nat
-  open nat
+  open nat algebra
 
   namespace hide
   definition even (a : nat) := ∃ b, a = 2*b
@@ -784,6 +784,6 @@ With this macro we can write the example above in a more natural way
     exists.intro (w1 + w2)
       (calc a + b  =  2*w1 + b      : {Hw1}
               ...  =  2*w1 + 2*w2   : {Hw2}
-              ...  =  2*(w1 + w2)   : eq.symm !mul.left_distrib)
+              ...  =  2*(w1 + w2)   : eq.symm !left_distrib)
   end hide
 #+END_SRC

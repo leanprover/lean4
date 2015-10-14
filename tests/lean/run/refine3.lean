@@ -1,5 +1,5 @@
 import data.nat.basic
-open nat
+open nat algebra
 
 theorem zero_left (n : ℕ) : 0 + n = n :=
 nat.induction_on n

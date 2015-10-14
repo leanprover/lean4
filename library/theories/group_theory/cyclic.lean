@@ -278,7 +278,7 @@ eq_of_veq begin rewrite [↑rotl, val_madd], esimp [mk_mod], rewrite [ mod_add_m
 lemma rotl_compose : ∀ {n : nat} {j k : nat}, (@rotl n j) ∘ (rotl k) = rotl (j + k)
 | 0        := take j k, funext take i, elim0 i
 | (succ n) :=  take j k, funext take i, eq.symm begin
-  rewrite [*rotl_succ', mul.left_distrib, -(@madd_mk_mod n (n*j)), madd_assoc],
+  rewrite [*rotl_succ', left_distrib, -(@madd_mk_mod n (n*j)), madd_assoc],
   end
 
 lemma rotr_rotl : ∀ {n : nat} (m : nat) {i : fin n}, rotr m (rotl m i) = i

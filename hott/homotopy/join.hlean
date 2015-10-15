@@ -8,7 +8,7 @@ Declaration of a join as a special case of a pushout
 
 import hit.pushout .susp
 
-open eq prod equiv pushout is_trunc bool
+open eq function prod equiv pushout is_trunc bool
 
 namespace join
 
@@ -60,55 +60,102 @@ namespace join
       apply square_of_eq_top, rewrite idp_con, apply !con.right_inv⁻¹,   
   end
 
-  set_option unifier.max_steps 40000
+  protected definition swap (A B : Type) :
+    join A B → join B A :=
+  begin
+    intro x, induction x with a b, exact inr a, exact inl b,
+    apply !jglue⁻¹
+  end
+
+  protected definition swap_involutive (A B : Type) (x : join A B) :
+    join.swap B A (join.swap A B x) = x :=
+  begin
+    induction x with a b, do 2 reflexivity,
+    induction x with a b, esimp,
+    apply eq_pathover, rewrite ap_id,
+    apply hdeg_square, esimp[join.swap],
+    apply concat, apply ap_compose' (pushout.elim _ _ _),
+    krewrite [elim_glue, ap_inv, elim_glue], apply inv_inv,
+  end
+
+  protected definition symm (A B : Type) : join A B ≃ join B A :=
+  begin
+    fapply equiv.MK, do 2 apply join.swap,
+    do 2 apply join.swap_involutive,
+  end
+
+exit
+  section
+  parameters (A B C : Type)
+
+  private definition assoc_fun [reducible] :
+    join (join A B) C → join A (join B C) :=
+  begin
+    intro x, induction x with ab c, induction ab with a b,
+    exact inl a, exact inr (inl b),
+    induction x with a b, apply jglue, exact inr (inr c),
+    induction x with ab c, induction ab with a b, apply jglue,
+    apply ap inr, apply jglue, induction x with a b, 
+    let H := apdo (jglue a) (jglue b c), esimp at H, esimp,
+    let H' := transpose (square_of_pathover H), esimp at H',
+    rewrite ap_constant at H', apply eq_pathover, 
+    krewrite [elim_glue, ap_constant], esimp,
+    apply square_of_eq, apply concat, rotate 1, exact eq_of_square H',
+    rewrite [con_idp, idp_con],
+  end
+
+  private definition assoc_inv [reducible] :
+    join A (join B C) → join (join A B) C :=
+  begin
+    intro x, induction x with a bc, exact inl (inl a),
+    induction bc with b c, exact inl (inr b), exact inr c,
+    induction x with b c, apply jglue, esimp,
+    induction x with a bc, induction bc with b c,
+    apply ap inl, apply jglue, apply jglue, induction x with b c,
+    let H := apdo (λ x, jglue x c) (jglue a b), esimp at H, esimp,
+    let H' := transpose (square_of_pathover H), esimp at H',
+    rewrite ap_constant at H', apply eq_pathover,
+    krewrite [elim_glue, ap_constant], esimp,
+    apply square_of_eq, apply concat, exact eq_of_square H',
+    rewrite [con_idp, idp_con],
+  end
+
+  private definition assoc_right_inv (x : join A (join B C)) :
+    assoc_fun (assoc_inv x) = x :=
+  begin
+    induction x with a bc, reflexivity,
+    induction bc with b c, reflexivity, reflexivity,
+    induction x with b c, esimp, apply eq_pathover,
+    apply hdeg_square, esimp,
+    apply concat, apply ap_compose' (pushout.elim _ _ _),
+    apply concat, apply ap (ap _), unfold assoc_inv, apply elim_glue, esimp,
+    krewrite elim_glue,
+    induction x with a bc, induction bc with b c, esimp,
+    { apply eq_pathover, apply hdeg_square, esimp,
+      apply concat, apply ap_compose' (pushout.elim _ _ _),
+      krewrite elim_glue,
+      apply concat, apply !(ap_compose' (pushout.elim _ _ _))⁻¹,
+      esimp, krewrite [elim_glue, ap_id],
+    },
+    { esimp, apply eq_pathover, apply hdeg_square, esimp,
+      apply concat, apply ap_compose' (pushout.elim _ _ _),
+      krewrite elim_glue,
+      esimp[jglue], apply concat, apply (refl (ap _ (glue (inl a, c)))),
+      esimp, krewrite [elim_glue, ap_id],
+    },
+    { esimp, induction x with b c, esimp,
+      apply eq_pathover,
+    },
+  end
+
+exit
+
   protected definition assoc (A B C : Type) :
     join (join A B) C ≃ join A (join B C) :=
   begin
     fapply equiv.MK,
-    { intro x, induction x with ab c, induction ab with a b,
-      exact inl a, exact inr (inl b),
-      induction x with a b, apply jglue, exact inr (inr c),
-      induction x with ab c, induction ab with a b, apply jglue,
-      apply ap inr, apply jglue, induction x with a b, 
-      let H := apdo (jglue a) (jglue b c), esimp at H, esimp,
-      let H' := transpose (square_of_pathover H), esimp at H',
-      rewrite ap_constant at H', apply eq_pathover, 
-      krewrite [elim_glue, ap_constant], esimp,
-      apply square_of_eq, apply concat, rotate 1, exact eq_of_square H',
-      rewrite [con_idp, idp_con],
-    },
-    { intro x, induction x with a bc, exact inl (inl a),
-      induction bc with b c, exact inl (inr b), exact inr c,
-      induction x with b c, apply jglue, esimp,
-      induction x with a bc, induction bc with b c,
-      apply ap inl, apply jglue, apply jglue, induction x with b c,
-      let H := apdo (λ x, jglue x c) (jglue a b), esimp at H, esimp,
-      let H' := transpose (square_of_pathover H), esimp at H',
-      rewrite ap_constant at H', apply eq_pathover,
-      krewrite [elim_glue, ap_constant], esimp,
-      apply square_of_eq, apply concat, exact eq_of_square H',
-      rewrite [con_idp, idp_con],
-    },
-    { intro x, induction x with a bc, reflexivity,
-      induction bc with b c, reflexivity, reflexivity,
-      induction x with b c, esimp, apply eq_pathover,
-      apply hdeg_square, esimp,
-      apply concat, apply ap_compose' (pushout.elim _ _ _),
-      apply concat, apply ap (ap _), apply elim_glue, esimp,
-      apply concat, apply elim_glue, esimp,
-      induction x with a bc, induction bc with b c, esimp,
-      apply eq_pathover, apply hdeg_square, esimp,
-      apply concat, apply ap_compose' (pushout.elim _ _ _),
-      apply concat, apply ap (ap _), krewrite elim_glue, reflexivity,
-      apply inverse, apply concat, apply ap_id,
-      apply inverse, apply concat, apply inverse, 
-      apply ap_compose' (pushout.elim _ _ _), apply elim_glue,
-      esimp, apply eq_pathover, apply hdeg_square,
-      apply concat, apply ap_compose' (pushout.elim _ _ _),
-      apply concat, apply ap (ap _), krewrite elim_glue, reflexivity,
-      apply inverse, apply concat, apply ap_id,
-      apply inverse, apply concat,
-      --apply ap_compose' (pushout.elim _ _ _),
+    {     },
+    { 
     },
   end
   check elim_glue

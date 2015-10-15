@@ -41,6 +41,7 @@ Author: Leonardo de Moura
 #include "library/composition_manager.h"
 #include "library/noncomputable.h"
 #include "library/aux_recursors.h"
+#include "library/decl_stats.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -81,9 +82,11 @@ void initialize_library_module() {
     initialize_composition_manager();
     initialize_noncomputable();
     initialize_aux_recursors();
+    initialize_decl_stats();
 }
 
 void finalize_library_module() {
+    finalize_decl_stats();
     finalize_aux_recursors();
     finalize_noncomputable();
     finalize_composition_manager();

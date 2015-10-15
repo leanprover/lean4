@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "library/sorry.h"
 #include "library/kernel_serializer.h"
 #include "library/unfold_macros.h"
+#include "library/decl_stats.h"
 #include "version.h"
 
 #ifndef LEAN_ASYNCH_IMPORT_THEOREM
@@ -220,6 +221,7 @@ static environment export_decl(environment const & env, declaration const & d) {
 environment add(environment const & env, certified_declaration const & d) {
     environment new_env = env.add(d);
     declaration _d = d.get_declaration();
+    new_env = update_decl_stats(new_env, _d);
     if (!check_computable(new_env, _d.get_name()))
         new_env = mark_noncomputable(new_env, _d.get_name());
     return export_decl(update_module_defs(new_env, _d), _d);

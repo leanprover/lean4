@@ -696,7 +696,9 @@ unsigned parser::parse_small_nat() {
 double parser::parse_double() {
     if (curr() != scanner::token_kind::Decimal)
         throw parser_error("decimal value expected", pos());
-    return get_num_val().get_double();
+    double r =get_num_val().get_double();
+    next();
+    return r;
 }
 
 static level lift(level l, unsigned k) {

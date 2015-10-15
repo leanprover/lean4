@@ -151,7 +151,6 @@ public:
                             Rel.insert(T);
                             A.insert(T);
                         });
-
                 });
             if (Rel.empty())
                 break;

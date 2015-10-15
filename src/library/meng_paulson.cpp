@@ -130,12 +130,13 @@ public:
 
     name_set operator()() {
         name_set A;
+        name_set Fs = m_relevant;
         // unsigned i = 1;
         while (true) {
             // std::cout << "#" << i << ", p: " << m_p << "\n";
             name_set Rel;
-            m_relevant.for_each([&](name const & c) {
-                    name_set used_by = get_used_by_set(m_env, c);
+            Fs.for_each([&](name const & F) {
+                    name_set used_by = get_used_by_set(m_env, F);
                     used_by.for_each([&](name const & T) {
                             declaration const & T_decl = m_env.get(T);
                             if (A.contains(T))
@@ -155,6 +156,7 @@ public:
             if (Rel.empty())
                 break;
             // include symbols of new theorems in m_relevant
+            Fs = name_set(); // reset Fs
             Rel.for_each([&](name const & T) {
                     name_set uses = get_use_set(m_env, T);
                     uses.for_each([&](name const & F) {
@@ -166,6 +168,7 @@ public:
                             // if (!m_relevant.contains(F))
                             //    std::cout << "new relevant: " << F << "\n";
                             m_relevant.insert(F);
+                            Fs.insert(F);
                         });
                 });
             m_p = m_p + (1.0 - m_p) / m_c;

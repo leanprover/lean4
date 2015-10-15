@@ -1132,16 +1132,9 @@ static environment relevant_thms_cmd(parser & p) {
     }
     name_set TS = get_relevant_thms(env, p.get_options(), R);
     io_state_stream out = p.regular_stream();
-    out << "{";
-    bool first = true;
     TS.for_each([&](name const & T) {
-            if (first)
-                first = false;
-            else
-                out << ", ";
-            out << T;
+            out << T << "\n";
         });
-    out << "}";
     return env;
 }
 

@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/tc_multigraph.h"
 #include "library/protected.h"
 #include "library/class.h"
+#include "library/decl_stats.h"
 
 #ifndef LEAN_INSTANCE_DEFAULT_PRIORITY
 #define LEAN_INSTANCE_DEFAULT_PRIORITY 1000
@@ -236,7 +237,8 @@ name get_class_name(environment const & env, expr const & e) {
 
 environment add_class(environment const & env, name const & n, bool persistent) {
     check_class(env, n);
-    return class_ext::add_entry(env, get_dummy_ios(), class_entry(n), persistent);
+    environment new_env = class_ext::add_entry(env, get_dummy_ios(), class_entry(n), persistent);
+    return mark_class_instance_somewhere(new_env, n);
 }
 
 void get_classes(environment const & env, buffer<name> & classes) {
@@ -273,7 +275,8 @@ environment add_instance(environment const & env, name const & n, unsigned prior
     }
     name c = get_class_name(env, get_app_fn(type));
     check_is_class(env, c);
-    return class_ext::add_entry(env, get_dummy_ios(), class_entry(class_entry_kind::Instance, c, n, priority), persistent);
+    environment new_env = class_ext::add_entry(env, get_dummy_ios(), class_entry(class_entry_kind::Instance, c, n, priority), persistent);
+    return mark_class_instance_somewhere(new_env, n);
 }
 
 environment add_instance(environment const & env, name const & n, bool persistent) {
@@ -313,11 +316,13 @@ environment add_trans_instance(environment const & env, name const & n, unsigned
     environment new_env = new_env_insts.first;
     new_env = class_ext::add_entry(new_env, get_dummy_ios(),
                                    class_entry::mk_trans_inst(src_tgt.first, src_tgt.second, n, priority), persistent);
+    new_env = mark_class_instance_somewhere(new_env, n);
     for (tc_edge const & edge : new_env_insts.second) {
         new_env = class_ext::add_entry(new_env, get_dummy_ios(),
                                        class_entry::mk_derived_trans_inst(edge.m_from, edge.m_to, edge.m_cnst), persistent);
         new_env = set_reducible(new_env, edge.m_cnst, reducible_status::Reducible, persistent);
         new_env = add_protected(new_env, edge.m_cnst);
+        new_env = mark_class_instance_somewhere(new_env, edge.m_cnst);
     }
     return new_env;
 }

@@ -20,6 +20,12 @@ unsigned get_num_occs(environment const & env, name const & n);
 name_set get_use_set(environment const & env, name const & n);
 /** \brief Return the set of constants s.t. \c n occur in their type. */
 name_set get_used_by_set(environment const & env, name const & n);
+
+/** \brief Mark that \c n is a class or class-instance in some namespace. */
+environment mark_class_instance_somewhere(environment const & env, name const & n);
+/** \brief Return true iff \c n is a class or class-instance in some namespace. */
+bool is_class_instance_somewhere(environment const & env, name const & n);
+
 void initialize_decl_stats();
 void finalize_decl_stats();
 }

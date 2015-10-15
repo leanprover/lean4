@@ -4,12 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <string>
 #include "kernel/environment.h"
 #include "kernel/for_each_fn.h"
 #include "library/reducible.h"
+#include "library/module.h"
 
 namespace lean {
 struct decl_stats_ext : public environment_extension {
+    name_set           m_class_instance; // set of all classes and class instances declared in some namespace
     name_map<unsigned> m_num_occs;
     name_map<name_set> m_use_set;
     name_map<name_set> m_used_by_set;
@@ -89,6 +92,33 @@ public:
     }
 };
 
+environment mark_class_instance_somewhere_core(environment const & env, name const & n) {
+    decl_stats_ext ext = get_extension(env);
+    ext.m_class_instance.insert(n);
+    return update(env, ext);
+}
+
+static std::string * g_key = nullptr;
+
+environment mark_class_instance_somewhere(environment const & env, name const & n) {
+    environment new_env = mark_class_instance_somewhere_core(env, n);
+    return module::add(new_env, *g_key, [=](environment const &, serializer & s) { s << n; });
+}
+
+bool is_class_instance_somewhere(environment const & env, name const & n) {
+    return get_extension(env).m_class_instance.contains(n);
+}
+
+static void class_instance_mark_reader(deserializer & d, shared_environment & senv,
+                                       std::function<void(asynch_update_fn const &)> &,
+                                       std::function<void(delayed_update_fn const &)> &) {
+    name n;
+    d >> n;
+    senv.update([=](environment const & env) -> environment {
+            return mark_class_instance_somewhere_core(env, n);
+        });
+}
+
 environment update_decl_stats(environment const & env, declaration const & d) {
     return update_decl_stats_fn(env)(d);
 }
@@ -115,10 +145,13 @@ name_set get_used_by_set(environment const & env, name const & n) {
 }
 
 void initialize_decl_stats() {
-    g_ext     = new decl_stats_ext_reg();
+    g_ext = new decl_stats_ext_reg();
+    g_key = new std::string("CIGLB");
+    register_module_object_reader(*g_key, class_instance_mark_reader);
 }
 
 void finalize_decl_stats() {
     delete g_ext;
+    delete g_key;
 }
 }

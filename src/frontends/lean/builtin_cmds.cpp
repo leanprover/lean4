@@ -38,6 +38,7 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/private.h"
 #include "library/decl_stats.h"
+#include "library/meng_paulson.h"
 #include "library/definitional/projection.h"
 #include "library/simplifier/simp_rule_set.h"
 #include "compiler/preprocess_rec.h"
@@ -1109,12 +1110,13 @@ static void display_name_set(parser & p, name const & n, name_set const & s) {
 
 static environment decl_stats_cmd(parser & p) {
     environment const & env = p.env();
-    std::cout << "Use sets\n";
+    io_state_stream out = p.regular_stream();
+    out << "Use sets\n";
     env.for_each_declaration([&](declaration const & d) {
             if ((d.is_theorem() || d.is_axiom()) && !is_private(env, d.get_name()))
                 display_name_set(p, d.get_name(), get_use_set(env, d.get_name()));
         });
-    std::cout << "Used-by sets\n";
+    out << "Used-by sets\n";
     env.for_each_declaration([&](declaration const & d) {
             if (!d.is_theorem() && !d.is_axiom() && !is_private(env, d.get_name()))
                 display_name_set(p, d.get_name(), get_used_by_set(env, d.get_name()));
@@ -1122,32 +1124,54 @@ static environment decl_stats_cmd(parser & p) {
     return env;
 }
 
+static environment relevant_thms_cmd(parser & p) {
+    environment const & env = p.env();
+    name_set R;
+    while (p.curr_is_identifier()) {
+        R.insert(p.check_constant_next("invalid #relevant_thms command, constant expected"));
+    }
+    name_set TS = get_relevant_thms(env, p.get_options(), R);
+    io_state_stream out = p.regular_stream();
+    out << "{";
+    bool first = true;
+    TS.for_each([&](name const & T) {
+            if (first)
+                first = false;
+            else
+                out << ", ";
+            out << T;
+        });
+    out << "}";
+    return env;
+}
+
 void init_cmd_table(cmd_table & r) {
-    add_cmd(r, cmd_info("open",          "create aliases for declarations, and use objects defined in other namespaces",
+    add_cmd(r, cmd_info("open",           "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
-    add_cmd(r, cmd_info("export",        "create abbreviations for declarations, "
+    add_cmd(r, cmd_info("export",         "create abbreviations for declarations, "
                         "and export objects defined in other namespaces", export_cmd));
-    add_cmd(r, cmd_info("override",      "override notation declarations using the ones defined in the given namespace",
+    add_cmd(r, cmd_info("override",       "override notation declarations using the ones defined in the given namespace",
                         override_cmd));
-    add_cmd(r, cmd_info("set_option",    "set configuration option", set_option_cmd));
-    add_cmd(r, cmd_info("exit",          "exit", exit_cmd));
-    add_cmd(r, cmd_info("print",         "print a string", print_cmd));
-    add_cmd(r, cmd_info("section",       "open a new section", section_cmd));
-    add_cmd(r, cmd_info("namespace",     "open a new namespace", namespace_cmd));
-    add_cmd(r, cmd_info("end",           "close the current namespace/section", end_scoped_cmd));
-    add_cmd(r, cmd_info("check",         "type check given expression, and display its type", check_cmd));
-    add_cmd(r, cmd_info("eval",          "evaluate given expression", eval_cmd));
-    add_cmd(r, cmd_info("find_decl",     "find definitions and/or theorems", find_cmd));
-    add_cmd(r, cmd_info("local",         "define local attributes or notation", local_cmd));
-    add_cmd(r, cmd_info("help",          "brief description of available commands and options", help_cmd));
-    add_cmd(r, cmd_info("init_quotient", "initialize quotient type computational rules", init_quotient_cmd));
-    add_cmd(r, cmd_info("init_hits",     "initialize builtin HITs", init_hits_cmd));
-    add_cmd(r, cmd_info("#erase_cache",  "erase cached definition (for debugging purposes)", erase_cache_cmd));
-    add_cmd(r, cmd_info("#projections",  "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
-    add_cmd(r, cmd_info("#telescope_eq", "(for debugging purposes)", telescope_eq_cmd));
-    add_cmd(r, cmd_info("#compile",      "(for debugging purposes)", compile_cmd));
-    add_cmd(r, cmd_info("#accessible",   "(for debugging purposes) display number of accessible declarations for blast tactic", accessible_cmd));
-    add_cmd(r, cmd_info("#decl_stats",   "(for debugging purposes) display declaration statistics", decl_stats_cmd));
+    add_cmd(r, cmd_info("set_option",     "set configuration option", set_option_cmd));
+    add_cmd(r, cmd_info("exit",           "exit", exit_cmd));
+    add_cmd(r, cmd_info("print",          "print a string", print_cmd));
+    add_cmd(r, cmd_info("section",        "open a new section", section_cmd));
+    add_cmd(r, cmd_info("namespace",      "open a new namespace", namespace_cmd));
+    add_cmd(r, cmd_info("end",            "close the current namespace/section", end_scoped_cmd));
+    add_cmd(r, cmd_info("check",          "type check given expression, and display its type", check_cmd));
+    add_cmd(r, cmd_info("eval",           "evaluate given expression", eval_cmd));
+    add_cmd(r, cmd_info("find_decl",      "find definitions and/or theorems", find_cmd));
+    add_cmd(r, cmd_info("local",          "define local attributes or notation", local_cmd));
+    add_cmd(r, cmd_info("help",           "brief description of available commands and options", help_cmd));
+    add_cmd(r, cmd_info("init_quotient",  "initialize quotient type computational rules", init_quotient_cmd));
+    add_cmd(r, cmd_info("init_hits",      "initialize builtin HITs", init_hits_cmd));
+    add_cmd(r, cmd_info("#erase_cache",   "erase cached definition (for debugging purposes)", erase_cache_cmd));
+    add_cmd(r, cmd_info("#projections",   "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
+    add_cmd(r, cmd_info("#telescope_eq",  "(for debugging purposes)", telescope_eq_cmd));
+    add_cmd(r, cmd_info("#compile",       "(for debugging purposes)", compile_cmd));
+    add_cmd(r, cmd_info("#accessible",    "(for debugging purposes) display number of accessible declarations for blast tactic", accessible_cmd));
+    add_cmd(r, cmd_info("#decl_stats",    "(for debugging purposes) display declaration statistics", decl_stats_cmd));
+    add_cmd(r, cmd_info("#relevant_thms", "(for debugging purposes) select relevant theorems using Meng&Paulson heuristic", relevant_thms_cmd));
 
     register_decl_cmds(r);
     register_inductive_cmd(r);

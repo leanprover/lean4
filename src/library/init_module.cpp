@@ -42,6 +42,7 @@ Author: Leonardo de Moura
 #include "library/noncomputable.h"
 #include "library/aux_recursors.h"
 #include "library/decl_stats.h"
+#include "library/meng_paulson.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -83,9 +84,11 @@ void initialize_library_module() {
     initialize_noncomputable();
     initialize_aux_recursors();
     initialize_decl_stats();
+    initialize_meng_paulson();
 }
 
 void finalize_library_module() {
+    finalize_meng_paulson();
     finalize_decl_stats();
     finalize_aux_recursors();
     finalize_noncomputable();

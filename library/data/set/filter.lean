@@ -278,7 +278,8 @@ Sup_refines H
 theorem refines_Inf {F : filter A} {S : set (filter A)} (FS : F ∈ S) : F ≽ ⨅ S :=
 refines_Sup (λ G GS, GS F FS)
 
-protected definition complete_lattice_Inf [reducible] : algebra.complete_lattice_Inf (filter A) :=
+open algebra
+protected definition complete_lattice_Inf [reducible] [instance] : complete_lattice_Inf (filter A) :=
 ⦃ algebra.complete_lattice_Inf,
   le           := weakens,
   le_refl      := weakens.refl,
@@ -297,12 +298,9 @@ protected definition complete_lattice_Inf [reducible] : algebra.complete_lattice
   le_Inf       := @Inf_refines A
 ⦄
 
-protected definition complete_lattice [reducible] : algebra.complete_lattice (filter A) :=
-@algebra.complete_lattice_Inf_to_complete_lattice _ (@filter.complete_lattice_Inf A)
-
--- TODO: migrate theorems from weak order, lattice
-
--- TODO: continue porting
+-- The previous instance is enough for showing that (filter A) is a complete_lattice
+example {A : Type} : complete_lattice (filter A) :=
+_
 
 end filter
 end set

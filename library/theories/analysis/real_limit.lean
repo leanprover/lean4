@@ -241,6 +241,8 @@ exists.intro x
   (have x ∈ X ∧ ¬ b ≤ x, by rewrite [-not_implies_iff_and_not]; apply Hx,
      and.intro (and.left this) (lt_of_not_ge (and.right this)))
 
+section
+local attribute mem [quasireducible]
 -- TODO: is there a better place to put this?
 proposition image_neg_eq (X : set ℝ) : (λ x, -x) '[X] = {x | -x ∈ X} :=
 set.ext (take x, iff.intro
@@ -290,7 +292,7 @@ have HX : X = {x | -x ∈ negX},
   from set.ext (take x, by rewrite [↑set_of, ↑mem, +neg_neg]),
 show inf {x | -x ∈ X} = - sup X,
   using HX Hb' nonempty_negX, by rewrite [HX at {2}, sup_neg nonempty_negX Hb', neg_neg]
-
+end
 end
 
 /- limits under pointwise operations -/

@@ -205,7 +205,8 @@ include s
 variable {H : set A}
 variable [is_subg : is_subgroup H]
 include is_subg
-
+section set_reducible
+local attribute set [reducible]
 lemma subg_has_one : H (1 : A) := @is_subgroup.has_one A s H is_subg
 lemma subg_mul_closed : mul_closed_on H := @is_subgroup.mul_closed A s H is_subg
 lemma subg_has_inv : subgroup.has_inv H := @is_subgroup.has_inv A s H is_subg
@@ -240,6 +241,7 @@ lemma subg_in_coset_refl (a : A) : a ∈ a ∘> H ∧ a ∈ H <∘ a :=
       assert PHinvaa : H (a⁻¹*a), from (eq.symm (mul.left_inv a)) ▸ PH1,
       assert PHainva : H (a*a⁻¹), from (eq.symm (mul.right_inv a)) ▸ PH1,
       and.intro PHinvaa PHainva
+end set_reducible
 lemma subg_in_lcoset_same_lcoset (a b : A) : in_lcoset H a b → same_lcoset H a b :=
       assume Pa_in_b : H (b⁻¹*a),
       have Pbinva : b⁻¹*a ∘> H = H, from subgroup_lcoset_id (b⁻¹*a) Pa_in_b,

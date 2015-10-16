@@ -6,7 +6,7 @@ Author: Jeremy Avigad, Leonardo de Moura
 import logic.connectives logic.identities algebra.binary
 open eq.ops binary
 
-definition set [reducible] (X : Type) := X → Prop
+definition set (X : Type) := X → Prop
 
 namespace set
 
@@ -14,7 +14,7 @@ variable {X : Type}
 
 /- membership and subset -/
 
-definition mem [reducible] (x : X) (a : set X) := a x
+definition mem (x : X) (a : set X) := a x
 infix ∈ := mem
 notation a ∉ b := ¬ mem a b
 
@@ -24,7 +24,7 @@ funext (take x, propext (H x))
 definition subset (a b : set X) := ∀⦃x⦄, x ∈ a → x ∈ b
 infix ⊆ := subset
 
-definition superset [reducible] (s t : set X) : Prop := t ⊆ s
+definition superset (s t : set X) : Prop := t ⊆ s
 infix ⊇ := superset
 
 theorem subset.refl (a : set X) : a ⊆ a := take x, assume H, H
@@ -66,7 +66,7 @@ exists.intro x (and.intro xs Px)
 
 /- empty set -/
 
-definition empty [reducible] : set X := λx, false
+definition empty : set X := λx, false
 notation `∅` := empty
 
 theorem not_mem_empty (x : X) : ¬ (x ∈ ∅) :=
@@ -112,7 +112,7 @@ ext (take x, iff.intro (assume H', trivial) (assume H', H x))
 
 /- union -/
 
-definition union [reducible] (a b : set X) : set X := λx, x ∈ a ∨ x ∈ b
+definition union (a b : set X) : set X := λx, x ∈ a ∨ x ∈ b
 notation a ∪ b := union a b
 
 theorem mem_union_left {x : X} {a : set X} (b : set X) : x ∈ a → x ∈ a ∪ b :=
@@ -167,7 +167,7 @@ theorem union_subset {s t r : set X} (sr : s ⊆ r) (tr : t ⊆ r) : s ∪ t ⊆
 
 /- intersection -/
 
-definition inter [reducible] (a b : set X) : set X := λx, x ∈ a ∧ x ∈ b
+definition inter (a b : set X) : set X := λx, x ∈ a ∧ x ∈ b
 notation a ∩ b := inter a b
 
 theorem mem_inter_iff (x : X) (a b : set X) : x ∈ a ∩ b ↔ x ∈ a ∧ x ∈ b := !iff.refl
@@ -234,7 +234,7 @@ ext (take x, !or.right_distrib)
 /- set-builder notation -/
 
 -- {x : X | P}
-definition set_of [reducible] (P : X → Prop) : set X := P
+definition set_of (P : X → Prop) : set X := P
 notation `{` binder ` | ` r:(scoped:1 P, set_of P) `}` := r
 
 -- {x ∈ s | P}

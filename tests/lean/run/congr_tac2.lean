@@ -30,6 +30,7 @@ example (A : Type) (s₁ s₂ : set A) [fxs₁ : finite_set s₁] [fxs₂ : fini
 begin
   intros,
   congruence,
+  unfold set at *,
   assumption
 end
 

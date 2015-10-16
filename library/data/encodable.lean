@@ -50,11 +50,11 @@ variables {A B : Type}
 variables [h₁ : encodable A] [h₂ : encodable B]
 include h₁ h₂
 
-definition encode_sum : sum A B → nat
+private definition encode_sum : sum A B → nat
 | (sum.inl a) := 2 * encode a
 | (sum.inr b) := 2 * encode b + 1
 
-definition decode_sum (n : nat) : option (sum A B) :=
+private definition decode_sum (n : nat) : option (sum A B) :=
 if n mod 2 = 0 then
    match decode A (n div 2) with
    | some a := some (sum.inl a)
@@ -67,7 +67,7 @@ else
    end
 
 open decidable
-theorem decode_encode_sum : ∀ s : sum A B, decode_sum (encode_sum s) = some s
+private theorem decode_encode_sum : ∀ s : sum A B, decode_sum (encode_sum s) = some s
 | (sum.inl a) :=
   assert aux : 2 > (0:nat), from dec_trivial,
   begin
@@ -96,10 +96,10 @@ variables {A B : Type}
 variables [h₁ : encodable A] [h₂ : encodable B]
 include h₁ h₂
 
-definition encode_prod : A × B → nat
+private definition encode_prod : A × B → nat
 | (a, b) := mkpair (encode a) (encode b)
 
-definition decode_prod (n : nat) : option (A × B) :=
+private definition decode_prod (n : nat) : option (A × B) :=
 match unpair n with
 | (n₁, n₂) :=
   match decode A n₁ with
@@ -112,7 +112,7 @@ match unpair n with
   end
 end
 
-theorem decode_encode_prod : ∀ p : A × B, decode_prod (encode_prod p) = some p
+private theorem decode_encode_prod : ∀ p : A × B, decode_prod (encode_prod p) = some p
 | (a, b) :=
   begin
     esimp [encode_prod, decode_prod, prod.cases_on],
@@ -133,17 +133,17 @@ variables {A : Type}
 variables [h : encodable A]
 include h
 
-definition encode_list_core : list A → nat
+private definition encode_list_core : list A → nat
 | []     := 0
 | (a::l) := mkpair (encode a) (encode_list_core l)
 
-theorem encode_list_core_cons (a : A) (l : list A) : encode_list_core (a::l) = mkpair (encode a) (encode_list_core l) :=
+private theorem encode_list_core_cons (a : A) (l : list A) : encode_list_core (a::l) = mkpair (encode a) (encode_list_core l) :=
 rfl
 
-definition encode_list (l : list A) : nat :=
+private definition encode_list (l : list A) : nat :=
 mkpair (length l) (encode_list_core l)
 
-definition decode_list_core : nat → nat → option (list A)
+private definition decode_list_core : nat → nat → option (list A)
 | 0        v  := some []
 | (succ n) v  :=
   match unpair v with
@@ -158,7 +158,7 @@ definition decode_list_core : nat → nat → option (list A)
     end
   end
 
-theorem decode_list_core_succ (n v : nat) :
+private theorem decode_list_core_succ (n v : nat) :
   decode_list_core (succ n) v =
     match unpair v with
     | (v₁, v₂) :=
@@ -173,12 +173,12 @@ theorem decode_list_core_succ (n v : nat) :
     end
 := rfl
 
-definition decode_list (n : nat) : option (list A) :=
+private definition decode_list (n : nat) : option (list A) :=
 match unpair n with
 | (l, v) := decode_list_core l v
 end
 
-theorem decode_encode_list_core : ∀ l : list A, decode_list_core (length l) (encode_list_core l) = some l
+private theorem decode_encode_list_core : ∀ l : list A, decode_list_core (length l) (encode_list_core l) = some l
 | []     := rfl
 | (a::l) :=
   begin
@@ -189,7 +189,7 @@ theorem decode_encode_list_core : ∀ l : list A, decode_list_core (length l) (e
     rewrite [encodable.encodek],
   end
 
-theorem decode_encode_list (l : list A) : decode_list (encode_list l) = some l :=
+private theorem decode_encode_list (l : list A) : decode_list (encode_list l) = some l :=
 begin
   esimp [encode_list, decode_list],
   rewrite [unpair_mkpair],
@@ -240,7 +240,7 @@ open subtype perm
 private lemma sorted_eq_of_perm {l₁ l₂ : list A} (h : l₁ ~ l₂) : ensort l₁ = ensort l₂ :=
 list.sort_eq_of_perm_core enle.total enle.trans enle.refl enle.antisymm h
 
-definition encode_finset (s : finset A) : nat :=
+private definition encode_finset (s : finset A) : nat :=
 quot.lift_on s
   (λ l, encode (ensort (elt_of l)))
   (λ l₁ l₂ p,
@@ -248,13 +248,13 @@ quot.lift_on s
     assert ensort (elt_of l₁) = ensort (elt_of l₂), from sorted_eq_of_perm this,
     by rewrite this)
 
-definition decode_finset (n : nat) : option (finset A) :=
+private definition decode_finset (n : nat) : option (finset A) :=
 match decode (list A) n with
 | some l₁ := some (finset.to_finset l₁)
 | none    := none
 end
 
-theorem decode_encode_finset (s : finset A) : decode_finset (encode_finset s) = some s :=
+private theorem decode_encode_finset (s : finset A) : decode_finset (encode_finset s) = some s :=
 quot.induction_on s (λ l,
   begin
     unfold encode_finset, unfold decode_finset, rewrite encodek, esimp, congruence,
@@ -280,17 +280,17 @@ variable [encA : encodable A]
 variable [decP : decidable_pred P]
 
 include encA
-definition encode_subtype : {a : A | P a} → nat
+private definition encode_subtype : {a : A | P a} → nat
 | (tag v h) := encode v
 
 include decP
-definition decode_subtype (v : nat) : option {a : A | P a} :=
+private definition decode_subtype (v : nat) : option {a : A | P a} :=
 match decode A v with
 | some a := if h : P a then some (tag a h) else none
 | none   := none
 end
 
-lemma decode_encode_subtype : ∀ s : {a : A | P a}, decode_subtype (encode_subtype s) = some s
+private lemma decode_encode_subtype : ∀ s : {a : A | P a}, decode_subtype (encode_subtype s) = some s
 | (tag v h) :=
   begin
     unfold [encode_subtype, decode_subtype], rewrite encodek, esimp,
@@ -449,16 +449,16 @@ choose (exists_rep q)
 theorem rep_spec (q : quot s) : ⟦rep q⟧ = q :=
 choose_spec (exists_rep q)
 
-definition encode_quot (q : quot s) : nat :=
+private definition encode_quot (q : quot s) : nat :=
 encode (rep q)
 
-definition decode_quot (n : nat) : option (quot s) :=
+private definition decode_quot (n : nat) : option (quot s) :=
 match decode A n with
 | some a := some ⟦ a ⟧
 | none   := none
 end
 
-lemma decode_encode_quot (q : quot s) : decode_quot (encode_quot q) = some q :=
+private lemma decode_encode_quot (q : quot s) : decode_quot (encode_quot q) = some q :=
 quot.induction_on q (λ l, begin unfold [encode_quot, decode_quot], rewrite encodek, esimp, rewrite rep_spec end)
 
 definition encodable_quot : encodable (quot s) :=

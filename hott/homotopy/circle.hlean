@@ -167,7 +167,7 @@ namespace circle
     from λA a p, calc
       p   = ap (circle.elim a p) loop : elim_loop
       ... = ap (circle.elim a p) (refl base) : by rewrite H,
-  absurd H2 eq_bnot_ne_idp
+  eq_bnot_ne_idp H2
 
   definition nonidp (x : circle) : x = x :=
   begin

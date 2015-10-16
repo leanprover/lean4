@@ -168,7 +168,8 @@ namespace category
   definition coproduct_object : D :=
   colimit_object (c2_functor D d d')
 
-  infixr + := coproduct_object
+  infixr `+l`:27 := coproduct_object
+  local infixr + := coproduct_object
 
   definition inl : d ⟶ d + d' :=
   colimit_morphism (c2_functor D d d') ff
@@ -316,5 +317,9 @@ namespace category
   definition has_limits_of_shape_op_op [H : has_limits_of_shape D Iᵒᵖᵒᵖ]
     : has_limits_of_shape D I :=
   by induction I with I Is; induction Is; exact H
+
+  namespace ops
+  infixr + := coproduct_object
+  end ops
 
 end category

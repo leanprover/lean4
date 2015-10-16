@@ -14,8 +14,9 @@ open iso is_equiv equiv eq is_trunc
 -/
 namespace category
   /-
-    TODO: restructure this. is_univalent should probably be a class with as argument
-    (C : Precategory)
+    TODO: restructure this. Should is_univalent be a class with as argument
+    (C : Precategory). Or is that problematic if we want to apply this to cases where e.g.
+    a b are functors, and we need to synthesize ? : precategory (functor C D).
   -/
   definition is_univalent [class] {ob : Type} (C : precategory ob) :=
   Π(a b : ob), is_equiv (iso_of_eq : a = b → a ≅ b)

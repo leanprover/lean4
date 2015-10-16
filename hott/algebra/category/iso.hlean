@@ -132,7 +132,7 @@ structure iso {ob : Type} [C : precategory ob] (a b : ob) :=
   [struct : is_iso to_hom]
 
   infix ` ≅ `:50 := iso
-  attribute iso.struct [instance] [priority 4000]
+  attribute iso.struct [instance] [priority 2000]
 
 namespace iso
   variables {ob : Type} [C : precategory ob]
@@ -146,7 +146,7 @@ namespace iso
   @(mk f) (is_iso.mk H1 H2)
 
   variable {C}
-  definition to_inv [unfold 5] (f : a ≅ b) : b ⟶ a := (to_hom f)⁻¹
+  definition to_inv [reducible] [unfold 5] (f : a ≅ b) : b ⟶ a := (to_hom f)⁻¹
   definition to_left_inverse  [unfold 5] (f : a ≅ b) : (to_hom f)⁻¹ ∘ (to_hom f) = id :=
   left_inverse  (to_hom f)
   definition to_right_inverse [unfold 5] (f : a ≅ b) : (to_hom f) ∘ (to_hom f)⁻¹ = id :=
@@ -300,72 +300,79 @@ namespace iso
                            (r : c ⟶ d) (q : b ⟶ c) (p : a ⟶ b)
                            (g : d ⟶ c)
   variable [Hq : is_iso q] include Hq
-  definition comp.right_inverse : q ∘ q⁻¹ = id := !right_inverse
-  definition comp.left_inverse : q⁻¹ ∘ q = id := !left_inverse
-  definition inverse_comp_cancel_left : q⁻¹ ∘ (q ∘ p) = p :=
+  theorem comp.right_inverse : q ∘ q⁻¹ = id := !right_inverse
+  theorem comp.left_inverse : q⁻¹ ∘ q = id := !left_inverse
+
+  theorem inverse_comp_cancel_left : q⁻¹ ∘ (q ∘ p) = p :=
    by rewrite [assoc, left_inverse, id_left]
-  definition comp_inverse_cancel_left : q ∘ (q⁻¹ ∘ g) = g :=
+  theorem comp_inverse_cancel_left : q ∘ (q⁻¹ ∘ g) = g :=
    by rewrite [assoc, right_inverse, id_left]
-  definition comp_inverse_cancel_right : (r ∘ q) ∘ q⁻¹ = r :=
+  theorem comp_inverse_cancel_right : (r ∘ q) ∘ q⁻¹ = r :=
   by rewrite [-assoc, right_inverse, id_right]
-  definition inverse_comp_cancel_right : (f ∘ q⁻¹) ∘ q = f :=
+  theorem inverse_comp_cancel_right : (f ∘ q⁻¹) ∘ q = f :=
   by rewrite [-assoc, left_inverse, id_right]
 
-  definition comp_inverse [Hp : is_iso p] [Hpq : is_iso (q ∘ p)] : (q ∘ p)⁻¹ʰ = p⁻¹ʰ ∘ q⁻¹ʰ :=
+  theorem comp_inverse [Hp : is_iso p] [Hpq : is_iso (q ∘ p)] : (q ∘ p)⁻¹ʰ = p⁻¹ʰ ∘ q⁻¹ʰ :=
   inverse_eq_left
     (show (p⁻¹ʰ ∘ q⁻¹ʰ) ∘ q ∘ p = id, from
      by rewrite [-assoc, inverse_comp_cancel_left, left_inverse])
 
-  definition inverse_comp_inverse_left [H' : is_iso g] : (q⁻¹ ∘ g)⁻¹ = g⁻¹ ∘ q :=
+  theorem inverse_comp_inverse_left [H' : is_iso g] : (q⁻¹ ∘ g)⁻¹ = g⁻¹ ∘ q :=
   inverse_involutive q ▸ comp_inverse q⁻¹ g
 
-  definition inverse_comp_inverse_right [H' : is_iso f] : (q ∘ f⁻¹)⁻¹ = f ∘ q⁻¹ :=
+  theorem inverse_comp_inverse_right [H' : is_iso f] : (q ∘ f⁻¹)⁻¹ = f ∘ q⁻¹ :=
   inverse_involutive f ▸ comp_inverse q f⁻¹
 
-  definition inverse_comp_inverse_inverse [H' : is_iso r] : (q⁻¹ ∘ r⁻¹)⁻¹ = r ∘ q :=
+  theorem inverse_comp_inverse_inverse [H' : is_iso r] : (q⁻¹ ∘ r⁻¹)⁻¹ = r ∘ q :=
   inverse_involutive r ▸ inverse_comp_inverse_left q r⁻¹
   end
 
   section
   variables {ob : Type} {C : precategory ob} include C
   variables {d           c           b           a : ob}
-                          {i : b ⟶ c} {f : b ⟶ a}
+             {r' : c ⟶ d} {i : b ⟶ c} {f : b ⟶ a}
               {r : c ⟶ d} {q : b ⟶ c} {p : a ⟶ b}
-              {g : d ⟶ c} {h : c ⟶ b}
+              {g : d ⟶ c} {h : c ⟶ b} {p' : a ⟶ b}
                    {x : b ⟶ d} {z : a ⟶ c}
                    {y : d ⟶ b} {w : c ⟶ a}
   variable [Hq : is_iso q] include Hq
 
-  definition comp_eq_of_eq_inverse_comp (H : y = q⁻¹ ∘ g) : q ∘ y = g :=
+  theorem comp_eq_of_eq_inverse_comp (H : y = q⁻¹ ∘ g) : q ∘ y = g :=
   H⁻¹ ▸ comp_inverse_cancel_left q g
-  definition comp_eq_of_eq_comp_inverse (H : w = f ∘ q⁻¹) : w ∘ q = f :=
+  theorem comp_eq_of_eq_comp_inverse (H : w = f ∘ q⁻¹) : w ∘ q = f :=
   H⁻¹ ▸ inverse_comp_cancel_right f q
-  definition eq_comp_of_inverse_comp_eq (H : q⁻¹ ∘ g = y) : g = q ∘ y :=
+  theorem eq_comp_of_inverse_comp_eq (H : q⁻¹ ∘ g = y) : g = q ∘ y :=
   (comp_eq_of_eq_inverse_comp H⁻¹)⁻¹
-  definition eq_comp_of_comp_inverse_eq (H : f ∘ q⁻¹ = w) : f = w ∘ q :=
+  theorem eq_comp_of_comp_inverse_eq (H : f ∘ q⁻¹ = w) : f = w ∘ q :=
   (comp_eq_of_eq_comp_inverse H⁻¹)⁻¹
   variable {Hq}
-  definition inverse_comp_eq_of_eq_comp (H : z = q ∘ p) : q⁻¹ ∘ z = p :=
+  theorem inverse_comp_eq_of_eq_comp (H : z = q ∘ p) : q⁻¹ ∘ z = p :=
   H⁻¹ ▸ inverse_comp_cancel_left q p
-  definition comp_inverse_eq_of_eq_comp (H : x = r ∘ q) : x ∘ q⁻¹ = r :=
+  theorem comp_inverse_eq_of_eq_comp (H : x = r ∘ q) : x ∘ q⁻¹ = r :=
   H⁻¹ ▸ comp_inverse_cancel_right r q
-  definition eq_inverse_comp_of_comp_eq (H : q ∘ p = z) : p = q⁻¹ ∘ z :=
+  theorem eq_inverse_comp_of_comp_eq (H : q ∘ p = z) : p = q⁻¹ ∘ z :=
   (inverse_comp_eq_of_eq_comp H⁻¹)⁻¹
-  definition eq_comp_inverse_of_comp_eq (H : r ∘ q = x) : r = x ∘ q⁻¹ :=
+  theorem eq_comp_inverse_of_comp_eq (H : r ∘ q = x) : r = x ∘ q⁻¹ :=
   (comp_inverse_eq_of_eq_comp H⁻¹)⁻¹
 
-  definition eq_inverse_of_comp_eq_id' (H : h ∘ q = id) : h = q⁻¹ := (inverse_eq_left H)⁻¹
-  definition eq_inverse_of_comp_eq_id (H : q ∘ h = id) : h = q⁻¹ := (inverse_eq_right H)⁻¹
-  definition inverse_eq_of_id_eq_comp (H : id = h ∘ q) : q⁻¹ = h :=
+  theorem eq_inverse_of_comp_eq_id' (H : h ∘ q = id) : h = q⁻¹ := (inverse_eq_left H)⁻¹
+  theorem eq_inverse_of_comp_eq_id (H : q ∘ h = id) : h = q⁻¹ := (inverse_eq_right H)⁻¹
+  theorem inverse_eq_of_id_eq_comp (H : id = h ∘ q) : q⁻¹ = h :=
   (eq_inverse_of_comp_eq_id' H⁻¹)⁻¹
-  definition inverse_eq_of_id_eq_comp' (H : id = q ∘ h) : q⁻¹ = h :=
+  theorem inverse_eq_of_id_eq_comp' (H : id = q ∘ h) : q⁻¹ = h :=
   (eq_inverse_of_comp_eq_id H⁻¹)⁻¹
   variable [Hq]
-  definition eq_of_comp_inverse_eq_id (H : i ∘ q⁻¹ = id) : i = q :=
+  theorem eq_of_comp_inverse_eq_id (H : i ∘ q⁻¹ = id) : i = q :=
   eq_inverse_of_comp_eq_id' H ⬝ inverse_involutive q
-  definition eq_of_inverse_comp_eq_id (H : q⁻¹ ∘ i = id) : i = q :=
+  theorem eq_of_inverse_comp_eq_id (H : q⁻¹ ∘ i = id) : i = q :=
   eq_inverse_of_comp_eq_id H ⬝ inverse_involutive q
-  definition eq_of_id_eq_comp_inverse (H : id = i ∘ q⁻¹) : q = i := (eq_of_comp_inverse_eq_id H⁻¹)⁻¹
-  definition eq_of_id_eq_inverse_comp (H : id = q⁻¹ ∘ i) : q = i := (eq_of_inverse_comp_eq_id H⁻¹)⁻¹
+  theorem eq_of_id_eq_comp_inverse (H : id = i ∘ q⁻¹) : q = i := (eq_of_comp_inverse_eq_id H⁻¹)⁻¹
+  theorem eq_of_id_eq_inverse_comp (H : id = q⁻¹ ∘ i) : q = i := (eq_of_inverse_comp_eq_id H⁻¹)⁻¹
+
+  variables (q)
+  theorem comp.cancel_left  (H : q ∘ p = q ∘ p') : p = p' :=
+  by rewrite [-inverse_comp_cancel_left q, H, inverse_comp_cancel_left q]
+  theorem comp.cancel_right (H : r ∘ q = r' ∘ q) : r = r' :=
+  by rewrite [-comp_inverse_cancel_right _ q, H, comp_inverse_cancel_right _ q]
   end
 end iso

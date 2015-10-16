@@ -180,7 +180,8 @@ namespace category
   definition product_object : D :=
   limit_object (c2_functor D d d')
 
-  infixr × := product_object
+  infixr `×l`:30 := product_object
+  local infixr × := product_object
 
   definition pr1 : d × d' ⟶ d :=
   limit_morphism (c2_functor D d d') ff
@@ -339,5 +340,9 @@ namespace category
   limit_object_iso_limit_object _ H₁ H₂
 
   end pullbacks
+
+  namespace ops
+  infixr × := product_object
+  end ops
 
 end category

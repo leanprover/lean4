@@ -65,13 +65,27 @@ namespace functor
   definition functor_iso [constructor] : F ≅ G :=
   @(iso.mk η) !is_iso_nat_trans
 
+  omit iso
+  variables (F G)
+
+  definition is_natural_inverse (η : Πc, F c ≅ G c)
+    (nat : Π⦃a b : C⦄ (f : hom a b), G f ∘ to_hom (η a) = to_hom (η b) ∘ F f)
+    {a b : C} (f : hom a b) : F f ∘ to_inv (η a) = to_inv (η b) ∘ G f :=
+  let η' : F ⟹ G := nat_trans.mk (λc, to_hom (η c)) @nat in
+  naturality (nat_trans_inverse η') f
+
+  definition is_natural_inverse' (η₁ : Πc, F c ≅ G c) (η₂ : F ⟹ G) (p : η₁ ~ η₂)
+    {a b : C} (f : hom a b) : F f ∘ to_inv (η₁ a) = to_inv (η₁ b) ∘ G f :=
+  is_natural_inverse F G η₁ abstract λa b g, (p a)⁻¹ ▸ (p b)⁻¹ ▸ naturality η₂ g end f
+
   end
+
 
   section
   /- and conversely, if a natural transformation is an iso, it is componentwise an iso -/
   variables {A B C D : Precategory} {F G : C ⇒ D} (η : hom F G) [isoη : is_iso η] (c : C)
   include isoη
-  definition componentwise_is_iso [instance] [constructor] : is_iso (η c) :=
+  definition componentwise_is_iso [constructor] : is_iso (η c) :=
   @is_iso.mk _ _ _ _ _ (natural_map η⁻¹ c) (ap010 natural_map ( left_inverse η) c)
                                            (ap010 natural_map (right_inverse η) c)
 
@@ -104,6 +118,11 @@ namespace functor
   definition componentwise_iso_iso_of_eq (p : F = G) (c : C)
     : componentwise_iso (iso_of_eq p) c = iso_of_eq (ap010 to_fun_ob p c) :=
   eq.rec_on p !componentwise_iso_id
+
+  theorem naturality_iso_id {F : C ⇒ C} (η : F ≅ 1) (c : C)
+    : componentwise_iso η (F c) = F (componentwise_iso η c) :=
+  comp.cancel_left (to_hom (componentwise_iso η c))
+    ((naturality (to_hom η)) (to_hom (componentwise_iso η c)))
 
   definition natural_map_hom_of_eq (p : F = G) (c : C)
     : natural_map (hom_of_eq p) c = hom_of_eq (ap010 to_fun_ob p c) :=

@@ -40,6 +40,7 @@ namespace sphere_index
   postfix `.+2`:(max+1) := λ(n : sphere_index), (n .+1 .+1)
   notation `-1` := minus_one
   export [coercions] nat
+  notation `ℕ₋₁` := sphere_index
 
   definition add (n m : sphere_index) : sphere_index :=
   sphere_index.rec_on m n (λ k l, l .+1)

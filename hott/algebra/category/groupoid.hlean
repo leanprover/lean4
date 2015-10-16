@@ -16,7 +16,7 @@ namespace category
   mk' :: (all_iso : Π ⦃a b : ob⦄ (f : hom a b), @is_iso ob parent a b f)
 
   abbreviation all_iso := @groupoid.all_iso
-  attribute groupoid.all_iso [instance] [priority 100000]
+  attribute groupoid.all_iso [instance] [priority 3000]
 
   definition groupoid.mk [reducible] {ob : Type} (C : precategory ob)
     (H : Π (a b : ob) (f : a ⟶ b), is_iso f) : groupoid ob :=

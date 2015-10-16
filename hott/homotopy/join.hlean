@@ -84,81 +84,33 @@ namespace join
     do 2 apply join.swap_involutive,
   end
 
-exit
-  section
-  parameters (A B C : Type)
-
-  private definition assoc_fun [reducible] :
-    join (join A B) C → join A (join B C) :=
+  protected definition switch (A B C : Type) :
+    join (join A B) C → join (join C B) A :=
   begin
-    intro x, induction x with ab c, induction ab with a b,
-    exact inl a, exact inr (inl b),
-    induction x with a b, apply jglue, exact inr (inr c),
-    induction x with ab c, induction ab with a b, apply jglue,
-    apply ap inr, apply jglue, induction x with a b, 
-    let H := apdo (jglue a) (jglue b c), esimp at H, esimp,
-    let H' := transpose (square_of_pathover H), esimp at H',
-    rewrite ap_constant at H', apply eq_pathover, 
-    krewrite [elim_glue, ap_constant], esimp,
-    apply square_of_eq, apply concat, rotate 1, exact eq_of_square H',
-    rewrite [con_idp, idp_con],
+    intro x, induction x with ab c,
+    induction ab with a b, exact inr a, exact inl (inr b),
+    apply !jglue⁻¹, exact inl (inl c), esimp,
+    induction x with ab c, induction ab with a b, apply !jglue⁻¹,
+    apply ap inl, apply !jglue⁻¹, induction x with a b, esimp,
+    let H := eq_of_square (square_of_pathover (apdo (λ x, jglue x a) (jglue c b))),
+    rewrite [ap_constant at H, con_idp at H], apply eq_pathover, esimp,
+    krewrite [elim_glue, ap_constant, ap_inv], esimp, apply hinverse,
+    esimp at *, apply square_of_eq, krewrite [H, con.assoc, con.right_inv],
+    krewrite [idp_con],
   end
+  print definition join.switch
 
-  private definition assoc_inv [reducible] :
-    join A (join B C) → join (join A B) C :=
-  begin
-    intro x, induction x with a bc, exact inl (inl a),
-    induction bc with b c, exact inl (inr b), exact inr c,
-    induction x with b c, apply jglue, esimp,
-    induction x with a bc, induction bc with b c,
-    apply ap inl, apply jglue, apply jglue, induction x with b c,
-    let H := apdo (λ x, jglue x c) (jglue a b), esimp at H, esimp,
-    let H' := transpose (square_of_pathover H), esimp at H',
-    rewrite ap_constant at H', apply eq_pathover,
-    krewrite [elim_glue, ap_constant], esimp,
-    apply square_of_eq, apply concat, exact eq_of_square H',
-    rewrite [con_idp, idp_con],
-  end
+  protected definition switch_involutive (A B C : Type) (x : join (join A B) C) :
+    join.switch C B A (join.switch A B C x) = x := sorry
 
-  private definition assoc_right_inv (x : join A (join B C)) :
-    assoc_fun (assoc_inv x) = x :=
-  begin
-    induction x with a bc, reflexivity,
-    induction bc with b c, reflexivity, reflexivity,
-    induction x with b c, esimp, apply eq_pathover,
-    apply hdeg_square, esimp,
-    apply concat, apply ap_compose' (pushout.elim _ _ _),
-    apply concat, apply ap (ap _), unfold assoc_inv, apply elim_glue, esimp,
-    krewrite elim_glue,
-    induction x with a bc, induction bc with b c, esimp,
-    { apply eq_pathover, apply hdeg_square, esimp,
-      apply concat, apply ap_compose' (pushout.elim _ _ _),
-      krewrite elim_glue,
-      apply concat, apply !(ap_compose' (pushout.elim _ _ _))⁻¹,
-      esimp, krewrite [elim_glue, ap_id],
-    },
-    { esimp, apply eq_pathover, apply hdeg_square, esimp,
-      apply concat, apply ap_compose' (pushout.elim _ _ _),
-      krewrite elim_glue,
-      esimp[jglue], apply concat, apply (refl (ap _ (glue (inl a, c)))),
-      esimp, krewrite [elim_glue, ap_id],
-    },
-    { esimp, induction x with b c, esimp,
-      apply eq_pathover,
-    },
-  end
-
-exit
+  protected definition switch_equiv (A B C : Type) :
+    join (join A B) C ≃ join (join C B) A :=
+  by apply equiv.MK; do 2 apply join.switch_involutive
 
   protected definition assoc (A B C : Type) :
     join (join A B) C ≃ join A (join B C) :=
-  begin
-    fapply equiv.MK,
-    {     },
-    { 
-    },
-  end
-  check elim_glue
-  check pushout.elim
+  calc join (join A B) C ≃ join (join C B) A : join.switch_equiv
+                     ... ≃ join A (join C B) : join.symm
+                     ... ≃ join A (join B C) : join.symm
 
 end join

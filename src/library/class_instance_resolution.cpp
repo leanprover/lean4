@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/reducible.h"
 #include "library/class.h"
+#include "library/generic_exception.h"
 #include "library/io_state_stream.h"
 #include "library/replace_visitor.h"
 #include "library/class_instance_resolution.h"
@@ -34,6 +35,9 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
+[[ noreturn ]] void throw_class_exception(char const * msg, expr const & m) { throw_generic_exception(msg, m); }
+[[ noreturn ]] void throw_class_exception(expr const & m, pp_fn const & fn) { throw_generic_exception(m, fn); }
+
 typedef std::shared_ptr<ci_type_inference> ci_type_inference_ptr;
 
 static name * g_class_unique_class_instances = nullptr;
@@ -936,6 +940,12 @@ struct cienv {
 
     bool mk_choice_point(expr const & mvar) {
         lean_assert(is_mvar(mvar));
+        if (m_choices.size() > m_max_depth) {
+            throw_class_exception("maximum class-instance resolution depth has been reached "
+                                  "(the limit can be increased by setting option 'class.instance_max_depth') "
+                                  "(the class-instance resolution trace can be visualized by setting option 'class.trace_instances')",
+                                  mlocal_type(m_main_mvar));
+        }
         expr mvar_type = instantiate_uvars_mvars(mlocal_type(mvar));
         if (has_expr_metavar(mvar_type))
             return false;

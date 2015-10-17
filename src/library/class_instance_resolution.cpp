@@ -98,12 +98,12 @@ struct cienv {
     optional<pos_info>        m_pos;
     ci_type_inference_ptr     m_tc_ptr;
     expr_struct_map<expr>     m_cache;
-    name_generator            m_ngen;
     name_predicate            m_not_reducible_pred;
 
     list<expr>                m_ctx;
     buffer<pair<name, expr>>  m_local_instances;
 
+    unsigned                  m_next_local_idx;
     unsigned                  m_next_uvar_idx;
     unsigned                  m_next_mvar_idx;
 
@@ -135,7 +135,7 @@ struct cienv {
     bool                      m_trace_instances;
 
     cienv(bool multiple_instances = false):
-        m_ngen(*g_prefix2),
+        m_next_local_idx(0),
         m_next_uvar_idx(0),
         m_next_mvar_idx(0),
         m_multiple_instances(multiple_instances) {}
@@ -216,12 +216,17 @@ struct cienv {
         }
     }
 
-    name mk_fresh_name() {
-        return m_ngen.next();
+    expr mk_local(expr const & type) {
+        unsigned idx = m_next_local_idx;
+        m_next_local_idx++;
+        return lean::mk_local(name(*g_prefix2, idx), type);
     }
 
-    expr mk_local(expr const & type) {
-        return lean::mk_local(mk_fresh_name(), type);
+    bool is_internal_local(expr const & e) {
+        if (!is_local(e))
+            return false;
+        name const & n = mlocal_name(e);
+        return !n.is_atomic() && n.get_prefix() == *g_prefix2;
     }
 
     /** \brief If the constant \c e is a class, return its name */
@@ -443,6 +448,12 @@ struct cienv {
                     return true;
                 }
             }
+            if (is_meta(l1) || is_meta(l2)) {
+                // The unifier may invoke this module before universe metavariables in the class
+                // have been instantiated. So, we just ignore and assume they will be solved by
+                // the unifier.
+                return true; // we ignore
+            }
         }
         return false;
     }
@@ -644,7 +655,7 @@ struct cienv {
         expr const & m = get_app_args(ma, args);
         buffer<expr> locals;
         for (expr const & arg : args) {
-            if (!is_local(arg))
+            if (!is_internal_local(arg))
                 break; // is not local
             if (std::any_of(locals.begin(), locals.end(), [&](expr const & local) {
                         return mlocal_name(local) == mlocal_name(arg); }))
@@ -661,7 +672,7 @@ struct cienv {
         for_each(new_v, [&](expr const & e, unsigned) {
                 if (!ok)
                     return false; // stop search
-                if (is_local(e)) {
+                if (is_internal_local(e)) {
                     if (std::all_of(locals.begin(), locals.end(), [&](expr const & a) {
                                 return mlocal_name(a) != mlocal_name(e); })) {
                         ok = false; // failed 1
@@ -1039,6 +1050,7 @@ struct cienv {
         m_main_mvar = mk_mvar(type);
         m_state.m_stack = cons(m_main_mvar, m_state.m_stack);
         m_displayed_trace_header = false;
+        m_choices.clear();
     }
 
     optional<expr> ensure_no_meta(optional<expr> r) {

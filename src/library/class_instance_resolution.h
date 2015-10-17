@@ -30,8 +30,8 @@ public:
     ~ci_type_inference_factory_scope();
 };
 
-optional<expr> mk_class_instance(environment const & env, io_state const & ios, list<expr> const & ctx, expr const & e);
-optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx, expr const & e);
+optional<expr> mk_class_instance(environment const & env, io_state const & ios, list<expr> const & ctx, expr const & e, pos_info_provider const * pip = nullptr);
+optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx, expr const & e, pos_info_provider const * pip = nullptr);
 void initialize_class_instance_resolution();
 void finalize_class_instance_resolution();
 }

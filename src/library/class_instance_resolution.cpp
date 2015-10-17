@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/replace_visitor.h"
 #include "library/constants.h"
+#include "library/pp_options.h"
 #include "library/class_instance_resolution.h"
 
 #ifndef LEAN_DEFAULT_CLASS_TRACE_INSTANCES
@@ -108,9 +109,9 @@ struct cienv {
     unsigned                  m_next_mvar_idx;
 
     struct state {
-        list<expr>   m_stack; // stack of meta-variables that need to be synthesized;
-        uassignment  m_uassignment;
-        eassignment  m_eassignment;
+        list<pair<unsigned, expr>> m_stack; // stack of meta-variables that need to be synthesized;
+        uassignment                m_uassignment;
+        eassignment                m_eassignment;
     };
 
     state                     m_state; // active state
@@ -130,6 +131,7 @@ struct cienv {
     bool                      m_displayed_trace_header;
 
     // configuration
+    options                   m_options; // it is used for pretty printing
     unsigned                  m_max_depth;
     bool                      m_trans_instances;
     bool                      m_trace_instances;
@@ -171,6 +173,11 @@ struct cienv {
     }
 
     void set_options(options const & o) {
+        m_options = o;
+        if (m_trace_instances) {
+            m_options = m_options.update_if_undef(get_pp_purify_metavars_name(), false);
+            m_options = m_options.update_if_undef(get_pp_implicit_name(), true);
+        }
         unsigned max_depth    = get_class_instance_max_depth(o);
         bool trans_instances  = get_class_trans_instances(o);
         bool trace_instances  = get_class_trace_instances(o);
@@ -843,12 +850,17 @@ struct cienv {
         }
     }
 
-    void trace(expr const & mvar, expr const & r) {
+    io_state_stream diagnostic() {
+        io_state ios(*g_ios);
+        ios.set_options(m_options);
+        return lean::diagnostic(m_env, ios);
+    }
+
+    void trace(unsigned depth, expr const & mvar, expr const & r) {
         if (!m_trace_instances)
             return;
-        auto out = diagnostic(m_env, *g_ios);
-        unsigned depth = m_choices.size();
-        if (!m_displayed_trace_header && depth == 1) {
+        auto out = diagnostic();
+        if (!m_displayed_trace_header && m_choices.size() == 1) {
             if (m_pip) {
                 if (auto fname = m_pip->get_file_name()) {
                     out << fname << ":";
@@ -861,12 +873,12 @@ struct cienv {
         }
         for (unsigned i = 0; i < depth; i++)
             out << " ";
-        if (depth > 1)
+        if (depth > 0)
             out << "[" << depth << "] ";
-        out << mvar << " : " << mlocal_type(mvar) << " := " << r << endl;
+        out << mvar << " : " << instantiate_uvars_mvars(mlocal_type(mvar)) << " := " << r << endl;
     }
 
-    bool try_instance(expr const & mvar, expr const & inst, expr const & inst_type) {
+    bool try_instance(unsigned depth, expr const & mvar, expr const & inst, expr const & inst_type) {
         try {
             buffer<expr> locals;
             expr mvar_type = mlocal_type(mvar);
@@ -892,7 +904,7 @@ struct cienv {
                 r    = mk_app(r, new_mvar);
                 type = instantiate(binding_body(type), new_mvar);
             }
-            trace(mvar, r);
+            trace(depth, mvar, r);
             if (!is_def_eq(mvar_type, type))
                 return false;
             r = Fun(locals, r);
@@ -901,7 +913,7 @@ struct cienv {
             unsigned i = new_inst_mvars.size();
             while (i > 0) {
                 --i;
-                m_state.m_stack = cons(new_inst_mvars[i], m_state.m_stack);
+                m_state.m_stack = cons(mk_pair(depth+1, new_inst_mvars[i]), m_state.m_stack);
             }
             return true;
         } catch (exception &) {
@@ -909,7 +921,7 @@ struct cienv {
         }
     }
 
-    bool try_instance(expr const & mvar, name const & inst_name) {
+    bool try_instance(unsigned depth, expr const & mvar, name const & inst_name) {
         if (auto decl = m_env.find(inst_name)) {
             buffer<level> ls_buffer;
             unsigned num_univ_ps = decl->get_num_univ_params();
@@ -918,7 +930,7 @@ struct cienv {
             levels ls = to_list(ls_buffer.begin(), ls_buffer.end());
             expr inst_cnst = mk_constant(inst_name, ls);
             expr inst_type = instantiate_type_univ_params(*decl, ls);
-            return try_instance(mvar, inst_cnst, inst_type);
+            return try_instance(depth, mvar, inst_cnst, inst_type);
         } else {
             return false;
         }
@@ -965,46 +977,47 @@ struct cienv {
         return true;
     }
 
-    bool process_next_alt_core(expr const & mvar, list<expr> & insts) {
+    bool process_next_alt_core(unsigned depth, expr const & mvar, list<expr> & insts) {
         while (!empty(insts)) {
             expr inst       = head(insts);
             insts           = tail(insts);
             expr inst_type  = infer_type(inst);
-            if (try_instance(mvar, inst, inst_type))
+            if (try_instance(depth, mvar, inst, inst_type))
                 return true;
         }
         return false;
     }
 
-    bool process_next_alt_core(expr const & mvar, list<name> & inst_names) {
+    bool process_next_alt_core(unsigned depth, expr const & mvar, list<name> & inst_names) {
         while (!empty(inst_names)) {
             name inst_name    = head(inst_names);
             inst_names        = tail(inst_names);
-            if (try_instance(mvar, inst_name))
+            if (try_instance(depth, mvar, inst_name))
                 return true;
         }
         return false;
     }
 
-    bool process_next_alt(expr const & mvar) {
+    bool process_next_alt(unsigned depth, expr const & mvar) {
         lean_assert(!m_choices.empty());
         choice & c = m_choices.back();
-        if (process_next_alt_core(mvar, c.m_local_instances))
+        if (process_next_alt_core(depth, mvar, c.m_local_instances))
             return true;
-        if (process_next_alt_core(mvar, c.m_trans_instances))
+        if (process_next_alt_core(depth, mvar, c.m_trans_instances))
             return true;
-        if (process_next_alt_core(mvar, c.m_instances))
+        if (process_next_alt_core(depth, mvar, c.m_instances))
             return true;
         return false;
     }
 
     bool process_next_mvar() {
         lean_assert(!is_done());
-        expr mvar       = head(m_state.m_stack);
+        unsigned depth  = head(m_state.m_stack).first;
+        expr mvar       = head(m_state.m_stack).second;
         if (!mk_choice_point(mvar))
             return false;
         m_state.m_stack = tail(m_state.m_stack);
-        return process_next_alt(mvar);
+        return process_next_alt(depth, mvar);
     }
 
     bool backtrack() {
@@ -1014,9 +1027,10 @@ struct cienv {
             if (m_choices.empty())
                 return false;
             m_state         = m_choices.back().m_state;
-            expr mvar       = head(m_state.m_stack);
+            unsigned depth  = head(m_state.m_stack).first;
+            expr mvar       = head(m_state.m_stack).second;
             m_state.m_stack = tail(m_state.m_stack);
-            if (process_next_alt(mvar))
+            if (process_next_alt(depth, mvar))
                 return true;
         }
     }
@@ -1035,9 +1049,10 @@ struct cienv {
         if (m_choices.empty())
             return none_expr();
         m_state         = m_choices.back().m_state;
-        expr mvar       = head(m_state.m_stack);
+        unsigned depth  = head(m_state.m_stack).first;
+        expr mvar       = head(m_state.m_stack).second;
         m_state.m_stack = tail(m_state.m_stack);
-        if (process_next_alt(mvar))
+        if (process_next_alt(depth, mvar))
             return search();
         else if (backtrack())
             return search();
@@ -1048,7 +1063,7 @@ struct cienv {
     void init_search(expr const & type) {
         m_state     = state();
         m_main_mvar = mk_mvar(type);
-        m_state.m_stack = cons(m_main_mvar, m_state.m_stack);
+        m_state.m_stack = cons(mk_pair(0u, m_main_mvar), m_state.m_stack);
         m_displayed_trace_header = false;
         m_choices.clear();
     }
@@ -1073,7 +1088,7 @@ struct cienv {
 
         if (auto r = check_cache(type)) {
             if (m_trace_instances) {
-                auto out = diagnostic(m_env, *g_ios);
+                auto out = diagnostic();
                 out << "cached instance for " << type << "\n" << *r << "\n";
             }
             return r;

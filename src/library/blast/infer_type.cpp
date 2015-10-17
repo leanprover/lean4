@@ -368,7 +368,7 @@ static bool assign_mref_core(expr const & ma, expr const & v) {
         s.assign_mref(m, new_v);
         return true;
     } else if (args.size() == locals.size()) {
-        s.assign_mref(m, Fun(locals, v));
+        s.assign_mref(m, Fun(locals, new_v));
         return true;
     } else {
         // This case is imprecise since it is not a higher order pattern.
@@ -386,7 +386,7 @@ static bool assign_mref_core(expr const & ma, expr const & v) {
             m_type = instantiate(binding_body(m_type), locals[i]);
         }
         lean_assert(locals.size() == args.size());
-        s.assign_mref(m, Fun(locals, v));
+        s.assign_mref(m, Fun(locals, new_v));
         return true;
     }
 }

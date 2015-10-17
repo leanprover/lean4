@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/constants.h"
 #include "library/reducible.h"
-#include "library/class_instance_synth.h"
+#include "library/class_instance_resolution.h"
 #include "library/tactic/util.h"
 #include "library/tactic/intros_tactic.h"
 #include "library/tactic/subst_tactic.h"

@@ -37,13 +37,14 @@ Author: Leonardo de Moura
 #include "library/abbreviation.h"
 #include "library/relation_manager.h"
 #include "library/user_recursors.h"
-#include "library/class_instance_synth.h"
+#include "library/class_instance_resolution.h"
 #include "library/composition_manager.h"
 #include "library/noncomputable.h"
 #include "library/aux_recursors.h"
 #include "library/decl_stats.h"
 #include "library/meng_paulson.h"
 #include "library/norm_num.h"
+#include "library/class_instance_resolution.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -80,22 +81,23 @@ void initialize_library_module() {
     initialize_abbreviation();
     initialize_relation_manager();
     initialize_user_recursors();
-    initialize_class_instance_elaborator();
     initialize_composition_manager();
     initialize_noncomputable();
     initialize_aux_recursors();
     initialize_decl_stats();
     initialize_meng_paulson();
     initialize_norm_num();
+    initialize_class_instance_resolution();
 }
 
 void finalize_library_module() {
+    finalize_class_instance_resolution();
+    finalize_norm_num();
     finalize_meng_paulson();
     finalize_decl_stats();
     finalize_aux_recursors();
     finalize_noncomputable();
     finalize_composition_manager();
-    finalize_class_instance_elaborator();
     finalize_user_recursors();
     finalize_relation_manager();
     finalize_abbreviation();
@@ -129,6 +131,5 @@ void finalize_library_module() {
     finalize_print();
     finalize_fingerprint();
     finalize_constants();
-    finalize_norm_num();
 }
 }

@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/constants.h"
 #include "library/reducible.h"
-#include "library/class_instance_synth.h"
+#include "library/class_instance_resolution.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/inversion_tactic.h"

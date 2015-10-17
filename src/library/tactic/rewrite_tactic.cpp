@@ -32,7 +32,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/unfold_macros.h"
 #include "library/generic_exception.h"
-#include "library/class_instance_synth.h"
+#include "library/class_instance_resolution.h"
 #include "library/num.h"
 #include "library/tactic/clear_tactic.h"
 #include "library/tactic/trace_tactic.h"
@@ -1040,13 +1040,11 @@ class rewrite_fn {
     }
 
     pair<expr, constraint> mk_class_instance_elaborator(expr const & type) {
-        unifier_config cfg;
-        cfg.m_kind               = unifier_kind::VeryConservative;
         bool use_local_instances = true;
         bool is_strict           = false;
         return ::lean::mk_class_instance_elaborator(m_env, m_ios, m_ctx, m_ngen.next(), optional<name>(),
                                                     use_local_instances, is_strict,
-                                                    some_expr(type), m_expr_loc.get_tag(), cfg, nullptr);
+                                                    some_expr(type), m_expr_loc.get_tag(), nullptr);
     }
 
     // target, new_target, H  : represents the rewrite (H : target = new_target) for hypothesis

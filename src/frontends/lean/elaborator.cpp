@@ -39,7 +39,7 @@ Author: Leonardo de Moura
 #include "library/choice_iterator.h"
 #include "library/projection.h"
 #include "library/pp_options.h"
-#include "library/class_instance_synth.h"
+#include "library/class_instance_resolution.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/error_handling/error_handling.h"
 #include "library/definitional/equations.h"
@@ -293,7 +293,7 @@ expr elaborator::mk_placeholder_meta(optional<name> const & suffix, optional<exp
     if (is_inst_implicit && !m_ctx.m_ignore_instances) {
         auto ec = mk_class_instance_elaborator(
             env(), ios(), m_context, m_ngen.next(), suffix,
-            use_local_instances(), is_strict, type, g, m_unifier_config, m_ctx.m_pos_provider);
+            use_local_instances(), is_strict, type, g, m_ctx.m_pos_provider);
         register_meta(ec.first);
         cs += ec.second;
         return ec.first;

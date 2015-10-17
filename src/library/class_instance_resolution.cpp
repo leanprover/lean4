@@ -8,19 +8,18 @@ Author: Leonardo de Moura
 #include "util/interrupt.h"
 #include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
+#include "kernel/metavar.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
 #include "library/normalize.h"
 #include "library/reducible.h"
 #include "library/class.h"
+#include "library/local_context.h"
 #include "library/generic_exception.h"
 #include "library/io_state_stream.h"
 #include "library/replace_visitor.h"
+#include "library/constants.h"
 #include "library/class_instance_resolution.h"
-
-#ifndef LEAN_DEFAULT_CLASS_UNIQUE_CLASS_INSTANCES
-#define LEAN_DEFAULT_CLASS_UNIQUE_CLASS_INSTANCES false
-#endif
 
 #ifndef LEAN_DEFAULT_CLASS_TRACE_INSTANCES
 #define LEAN_DEFAULT_CLASS_TRACE_INSTANCES false
@@ -40,7 +39,6 @@ namespace lean {
 
 typedef std::shared_ptr<ci_type_inference> ci_type_inference_ptr;
 
-static name * g_class_unique_class_instances = nullptr;
 static name * g_class_trace_instances        = nullptr;
 static name * g_class_instance_max_depth     = nullptr;
 static name * g_class_trans_instances        = nullptr;
@@ -51,10 +49,6 @@ static ci_type_inference_factory * g_default_factory = nullptr;
 
 LEAN_THREAD_PTR(ci_type_inference_factory, g_factory);
 LEAN_THREAD_PTR(io_state,                  g_ios);
-
-bool get_class_unique_class_instances(options const & o) {
-    return o.get_bool(*g_class_unique_class_instances, LEAN_DEFAULT_CLASS_UNIQUE_CLASS_INSTANCES);
-}
 
 bool get_class_trace_instances(options const & o) {
     return o.get_bool(*g_class_trace_instances, LEAN_DEFAULT_CLASS_TRACE_INSTANCES);
@@ -85,6 +79,8 @@ public:
     }
 };
 
+ci_type_inference_factory::~ci_type_inference_factory() {}
+
 std::shared_ptr<ci_type_inference> ci_type_inference_factory::operator()(environment const & env) const {
     return std::shared_ptr<ci_type_inference>(new default_ci_type_inference(env));
 }
@@ -108,8 +104,8 @@ struct cienv {
     list<expr>                m_ctx;
     buffer<pair<name, expr>>  m_local_instances;
 
-    unsigned                  m_next_uvar;
-    unsigned                  m_next_mvar;
+    unsigned                  m_next_uvar_idx;
+    unsigned                  m_next_mvar_idx;
 
     struct state {
         list<expr>   m_stack; // stack of meta-variables that need to be synthesized;
@@ -134,15 +130,14 @@ struct cienv {
     bool                      m_displayed_trace_header;
 
     // configuration
-    bool                      m_unique_instances;
     unsigned                  m_max_depth;
     bool                      m_trans_instances;
     bool                      m_trace_instances;
 
     cienv(bool multiple_instances = false):
         m_ngen(*g_prefix2),
-        m_next_uvar(0),
-        m_next_mvar(0),
+        m_next_uvar_idx(0),
+        m_next_mvar_idx(0),
         m_multiple_instances(multiple_instances) {}
 
     bool is_not_reducible(name const & n) const {
@@ -176,18 +171,15 @@ struct cienv {
     }
 
     void set_options(options const & o) {
-        bool unique_instances = get_class_unique_class_instances(o);
         unsigned max_depth    = get_class_instance_max_depth(o);
         bool trans_instances  = get_class_trans_instances(o);
         bool trace_instances  = get_class_trace_instances(o);
 
-        if (m_unique_instances != unique_instances ||
-            m_max_depth        != max_depth        ||
+        if (m_max_depth        != max_depth        ||
             m_trans_instances  != trans_instances  ||
             m_trace_instances  != trace_instances) {
             reset_cache();
         }
-        m_unique_instances = unique_instances;
         m_max_depth        = max_depth;
         m_trans_instances  = trans_instances;
         m_trace_instances  = trace_instances;
@@ -251,7 +243,7 @@ struct cienv {
             if (!is_constant(f))
                 return optional<name>();
             return constant_is_class(f);
-        }
+       }
     }
 
     /** \brief Partial/Quick test for is_class. Result
@@ -355,8 +347,8 @@ struct cienv {
 
     // Create an internal universal metavariable
     level mk_uvar() {
-        unsigned idx = m_next_uvar;
-        m_next_uvar++;
+        unsigned idx = m_next_uvar_idx;
+        m_next_uvar_idx++;
         return mk_meta_univ(name(*g_prefix2, idx));
     }
 
@@ -394,8 +386,8 @@ struct cienv {
 
     // Create an internal metavariable.
     expr mk_mvar(expr const & type) {
-        unsigned idx = m_next_mvar;
-        m_next_mvar++;
+        unsigned idx = m_next_mvar_idx;
+        m_next_mvar_idx++;
         return mk_metavar(name(*g_prefix2, idx), type);
     }
 
@@ -422,6 +414,7 @@ struct cienv {
 
     void update_assignment(expr const & m, expr const & v) {
         m_state.m_eassignment.insert(mvar_idx(m), v);
+        lean_assert(is_assigned(m));
     }
 
     // Assign \c v to the metavariable \c m.
@@ -625,7 +618,7 @@ struct cienv {
         }
 
         virtual expr visit(expr const & e) {
-            if (!has_expr_metavar(e) || !has_univ_metavar(e))
+            if (!has_expr_metavar(e) && !has_univ_metavar(e))
                 return e;
             else
                 return replace_visitor::visit(e);
@@ -933,11 +926,6 @@ struct cienv {
         return empty(m_state.m_stack);
     }
 
-    expr const & next_mvar() const {
-        lean_assert(!is_done());
-        return head(m_state.m_stack);
-    }
-
     bool mk_choice_point(expr const & mvar) {
         lean_assert(is_mvar(mvar));
         if (m_choices.size() > m_max_depth) {
@@ -966,45 +954,46 @@ struct cienv {
         return true;
     }
 
-    bool process_next_alt_core(list<expr> & insts) {
+    bool process_next_alt_core(expr const & mvar, list<expr> & insts) {
         while (!empty(insts)) {
             expr inst       = head(insts);
             insts           = tail(insts);
             expr inst_type  = infer_type(inst);
-            if (try_instance(next_mvar(), inst, inst_type))
+            if (try_instance(mvar, inst, inst_type))
                 return true;
         }
         return false;
     }
 
-    bool process_next_alt_core(list<name> & inst_names) {
+    bool process_next_alt_core(expr const & mvar, list<name> & inst_names) {
         while (!empty(inst_names)) {
             name inst_name    = head(inst_names);
             inst_names        = tail(inst_names);
-            if (try_instance(next_mvar(), inst_name))
+            if (try_instance(mvar, inst_name))
                 return true;
         }
         return false;
     }
 
-    bool process_next_alt() {
+    bool process_next_alt(expr const & mvar) {
         lean_assert(!m_choices.empty());
         choice & c = m_choices.back();
-        if (process_next_alt_core(c.m_local_instances))
+        if (process_next_alt_core(mvar, c.m_local_instances))
             return true;
-        if (process_next_alt_core(c.m_trans_instances))
+        if (process_next_alt_core(mvar, c.m_trans_instances))
             return true;
-        if (process_next_alt_core(c.m_instances))
+        if (process_next_alt_core(mvar, c.m_instances))
             return true;
         return false;
     }
 
     bool process_next_mvar() {
         lean_assert(!is_done());
-        expr mvar = next_mvar();
+        expr mvar       = head(m_state.m_stack);
         if (!mk_choice_point(mvar))
             return false;
-        return process_next_alt();
+        m_state.m_stack = tail(m_state.m_stack);
+        return process_next_alt(mvar);
     }
 
     bool backtrack() {
@@ -1013,8 +1002,10 @@ struct cienv {
             m_choices.pop_back();
             if (m_choices.empty())
                 return false;
-            m_state = m_choices.back().m_state;
-            if (process_next_alt())
+            m_state         = m_choices.back().m_state;
+            expr mvar       = head(m_state.m_stack);
+            m_state.m_stack = tail(m_state.m_stack);
+            if (process_next_alt(mvar))
                 return true;
         }
     }
@@ -1029,11 +1020,37 @@ struct cienv {
         return some_expr(instantiate_uvars_mvars(m_main_mvar));
     }
 
+    optional<expr> next_solution() {
+        if (m_choices.empty())
+            return none_expr();
+        m_state         = m_choices.back().m_state;
+        expr mvar       = head(m_state.m_stack);
+        m_state.m_stack = tail(m_state.m_stack);
+        if (process_next_alt(mvar))
+            return search();
+        else if (backtrack())
+            return search();
+        else
+            return none_expr();
+    }
+
     void init_search(expr const & type) {
         m_state     = state();
         m_main_mvar = mk_mvar(type);
         m_state.m_stack = cons(m_main_mvar, m_state.m_stack);
         m_displayed_trace_header = false;
+    }
+
+    optional<expr> ensure_no_meta(optional<expr> r) {
+        while (true) {
+            if (!r)
+                return none_expr();
+            if (!has_expr_metavar_relaxed(*r)) {
+                cache_result(mlocal_type(m_main_mvar), *r);
+                return r;
+            }
+            r = next_solution();
+        }
     }
 
     optional<expr> operator()(environment const & env, options const & o, pos_info_provider const * pip, list<expr> const & ctx, expr const & type) {
@@ -1042,31 +1059,24 @@ struct cienv {
         set_ctx(ctx);
         set_pos_info(pip, type);
 
-        if (auto r = check_cache(type))
+        if (auto r = check_cache(type)) {
+            if (m_trace_instances) {
+                auto out = diagnostic(m_env, *g_ios);
+                out << "cached instance for " << type << "\n" << *r << "\n";
+            }
             return r;
+        }
 
         init_search(type);
-
-        if (auto r = search()) {
-            cache_result(type, *r);
-            return r;
-        } else {
-            return none_expr();
-        }
+        auto r = search();
+        return ensure_no_meta(r);
     }
 
     optional<expr> next() {
         if (!m_multiple_instances)
             return none_expr();
-        if (m_choices.empty())
-            return none_expr();
-        m_state = m_choices.back().m_state;
-        if (process_next_alt())
-            return search();
-        else if (backtrack())
-            return search();
-        else
-            return none_expr();
+        auto r = next_solution();
+        return ensure_no_meta(r);
     }
 };
 
@@ -1087,26 +1097,99 @@ ci_type_inference_factory_scope::~ci_type_inference_factory_scope() {
     g_factory = m_old;
 }
 
-optional<expr> mk_class_instance(environment const & env, io_state const & ios, list<expr> const & ctx, expr const & e, pos_info_provider * pip) {
+optional<expr> mk_class_instance(environment const & env, io_state const & ios, list<expr> const & ctx, expr const & e, pos_info_provider const * pip) {
     flet<io_state*> set_ios(g_ios, const_cast<io_state*>(&ios));
     return get_cienv()(env, ios.get_options(), pip, ctx, e);
 }
 
-optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx, expr const & e, pos_info_provider * pip) {
+optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx, expr const & e, pos_info_provider const * pip) {
     return mk_class_instance(env, get_dummy_ios(), ctx, e, pip);
+}
+
+static constraint mk_class_instance_root_cnstr(environment const & env, io_state const & ios, local_context const & _ctx, expr const & m, bool is_strict,
+                                               bool use_local_instances, pos_info_provider const * pip) {
+    justification j         = mk_failed_to_synthesize_jst(env, m);
+    auto choice_fn = [=](expr const & meta, expr const & meta_type, substitution const & s, name_generator &&) {
+        cienv & cenv = get_cienv();
+        cenv.set_env(env);
+        auto cls_name = cenv.is_class(meta_type);
+        if (!cls_name) {
+            // do nothing, since type is not a class.
+            return lazy_list<constraints>(constraints());
+        }
+        bool multiple_insts = try_multiple_instances(env, *cls_name);
+        local_context ctx;
+        if (use_local_instances)
+            ctx = _ctx.instantiate(substitution(s));
+        pair<expr, justification> mj = update_meta(meta, s);
+        expr new_meta                = mj.first;
+        justification new_j          = mj.second;
+        if (multiple_insts) {
+            // TODO(Leo)
+            return lazy_list<constraints>();
+        } else {
+            if (auto r = mk_class_instance(env, ios, ctx.get_data(), meta_type, pip)) {
+                constraint c = mk_eq_cnstr(new_meta, *r, new_j);
+                return lazy_list<constraints>(constraints(c));
+            } else if (is_strict) {
+                return lazy_list<constraints>();
+            } else {
+                return lazy_list<constraints>(constraints());
+            }
+        }
+    };
+    bool owner = false;
+    delay_factor factor;
+    return mk_choice_cnstr(m, choice_fn, factor, owner, j);
+}
+
+/** \brief Create a metavariable, and attach choice constraint for generating
+    solutions using class-instances
+*/
+pair<expr, constraint> mk_class_instance_elaborator(
+    environment const & env, io_state const & ios, local_context const & ctx,
+    name const & prefix, optional<name> const & suffix, bool use_local_instances,
+    bool is_strict, optional<expr> const & type, tag g, pos_info_provider const * pip) {
+    name_generator ngen(prefix);
+    expr m       = ctx.mk_meta(ngen, suffix, type, g);
+    constraint c = mk_class_instance_root_cnstr(env, ios, ctx, m, is_strict,
+                                                use_local_instances, pip);
+    return mk_pair(m, c);
+}
+
+optional<expr> mk_class_instance(environment const & env, io_state const & ios, local_context const & ctx, expr const & type, bool use_local_instances) {
+    if (use_local_instances)
+        return mk_class_instance(env, ios, ctx.get_data(), type, nullptr);
+    else
+        return mk_class_instance(env, ios, list<expr>(), type, nullptr);
+}
+
+optional<expr> mk_class_instance(environment const & env, local_context const & ctx, expr const & type) {
+    return mk_class_instance(env, ctx.get_data(), type, nullptr);
+}
+
+optional<expr> mk_hset_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type) {
+    level lvl        = sort_level(tc.ensure_type(type).first);
+    expr is_hset     = tc.whnf(mk_app(mk_constant(get_is_trunc_is_hset_name(), {lvl}), type)).first;
+    return mk_class_instance(tc.env(), ios, ctx, is_hset);
+}
+
+optional<expr> mk_subsingleton_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type) {
+    level lvl        = sort_level(tc.ensure_type(type).first);
+    expr subsingleton;
+    if (is_standard(tc.env()))
+        subsingleton = mk_app(mk_constant(get_subsingleton_name(), {lvl}), type);
+    else
+        subsingleton = tc.whnf(mk_app(mk_constant(get_is_trunc_is_hprop_name(), {lvl}), type)).first;
+    return mk_class_instance(tc.env(), ios, ctx, subsingleton);
 }
 
 void initialize_class_instance_resolution() {
     g_prefix1                      = new name(name::mk_internal_unique_name());
     g_prefix2                      = new name(name::mk_internal_unique_name());
-    g_class_unique_class_instances = new name{"class", "unique_instances"};
     g_class_trace_instances        = new name{"class", "trace_instances"};
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
     g_class_trans_instances        = new name{"class", "trans_instances"};
-
-    register_bool_option(*g_class_unique_class_instances,  LEAN_DEFAULT_CLASS_UNIQUE_CLASS_INSTANCES,
-                         "(class) generate an error if there is more than one solution "
-                         "for a class-instance resolution problem");
 
     register_bool_option(*g_class_trace_instances,  LEAN_DEFAULT_CLASS_TRACE_INSTANCES,
                          "(class) display messages showing the class-instances resolution execution trace");
@@ -1124,7 +1207,6 @@ void finalize_class_instance_resolution() {
     delete g_default_factory;
     delete g_prefix1;
     delete g_prefix2;
-    delete g_class_unique_class_instances;
     delete g_class_trace_instances;
     delete g_class_instance_max_depth;
     delete g_class_trans_instances;

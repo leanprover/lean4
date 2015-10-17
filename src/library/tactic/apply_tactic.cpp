@@ -22,7 +22,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/type_util.h"
 #include "library/local_context.h"
-#include "library/class_instance_synth.h"
+#include "library/class_instance_resolution.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/apply_tactic.h"
 
@@ -119,7 +119,7 @@ static proof_state_seq apply_tactic_core(environment const & env, io_state const
                 auto mc = mk_class_instance_elaborator(
                     env, ios, ctx, ngen.next(), optional<name>(),
                     use_local_insts, is_strict,
-                    some_expr(head_beta_reduce(binding_domain(e_t))), e.get_tag(), cfg, nullptr);
+                    some_expr(head_beta_reduce(binding_domain(e_t))), e.get_tag(), nullptr);
                 meta    = mc.first;
                 cs.push_back(mc.second);
             } else {

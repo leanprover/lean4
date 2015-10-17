@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/reducible.h"
 #include "library/locals.h"
-#include "library/class_instance_synth.h"
+#include "library/class_instance_resolution.h"
 #include "library/tactic/tactic.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/tactic/generalize_tactic.h"
@@ -66,11 +66,10 @@ class induction_tac {
         bool use_local_insts = true;
         bool is_strict       = false;
         local_context ctx    = g.to_local_context();
-        unifier_config cfg(m_ios.get_options());
         auto mc = mk_class_instance_elaborator(
             m_env, m_ios, ctx, m_ngen.next(), optional<name>(),
             use_local_insts, is_strict,
-            some_expr(type), m_ref.get_tag(), cfg, nullptr);
+            some_expr(type), m_ref.get_tag(), nullptr);
         m_cs += mc.second;
         return mc.first;
     }

@@ -973,8 +973,12 @@ struct cienv {
                                   mlocal_type(m_main_mvar));
         }
         expr mvar_type = instantiate_uvars_mvars(mlocal_type(mvar));
-        if (has_expr_metavar(mvar_type))
+        if (has_expr_metavar_relaxed(mvar_type)) {
+            // Remark: we use has_expr_metavar_relaxed instead of has_expr_metavar, because
+            // we want to ignore metavariables occurring in the type of local constants occurring in mvar_type.
+            // This can happen when type class resolution is invoked from the unifier.
             return false;
+        }
         auto cname = is_class(mvar_type);
         if (!cname)
             return false;

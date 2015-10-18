@@ -37,7 +37,6 @@ Author: Leonardo de Moura
 #include "library/abbreviation.h"
 #include "library/relation_manager.h"
 #include "library/user_recursors.h"
-#include "library/class_instance_resolution.h"
 #include "library/composition_manager.h"
 #include "library/noncomputable.h"
 #include "library/aux_recursors.h"

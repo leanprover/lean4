@@ -14,11 +14,6 @@ open eq.ops
 
 example (a b : Prop) (H : a ↔ b) (H1 : a) : b := mp H H1
 
-set_option class.conservative false
-
-example (a b c d e : Prop) (H1 : a ↔ b) (H2 : a ∨ c → ¬(d → a)) : b ∨ c → ¬(d → b) :=
-subst iff H1 H2
-
 /-
 exit
 example (a b c d e : Prop) (H1 : a ↔ b) (H2 : a ∨ c → ¬(d → a)) : b ∨ c → ¬(d → b) :=

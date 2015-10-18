@@ -1100,11 +1100,13 @@ struct cienv {
         }
     }
 
-    optional<expr> operator()(environment const & env, options const & o, pos_info_provider const * pip, list<expr> const & ctx, expr const & type) {
+    optional<expr> operator()(environment const & env, options const & o, pos_info_provider const * pip, list<expr> const & ctx, expr const & type,
+                              expr const & pos_ref) {
+        reset_cache_and_ctx();
         set_env(env);
         set_options(o);
         set_ctx(ctx);
-        set_pos_info(pip, type);
+        set_pos_info(pip, pos_ref);
 
         if (auto r = check_cache(type)) {
             if (m_trace_instances) {
@@ -1144,9 +1146,14 @@ ci_type_inference_factory_scope::~ci_type_inference_factory_scope() {
     g_factory = m_old;
 }
 
-optional<expr> mk_class_instance(environment const & env, io_state const & ios, list<expr> const & ctx, expr const & e, pos_info_provider const * pip) {
+static optional<expr> mk_class_instance(environment const & env, io_state const & ios, list<expr> const & ctx, expr const & e, pos_info_provider const * pip,
+                                        expr const & pos_ref) {
     flet<io_state*> set_ios(g_ios, const_cast<io_state*>(&ios));
-    return get_cienv()(env, ios.get_options(), pip, ctx, e);
+    return get_cienv()(env, ios.get_options(), pip, ctx, e, pos_ref);
+}
+
+optional<expr> mk_class_instance(environment const & env, io_state const & ios, list<expr> const & ctx, expr const & e, pos_info_provider const * pip) {
+    return mk_class_instance(env, ios, ctx, e, pip, e);
 }
 
 optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx, expr const & e, pos_info_provider const * pip) {
@@ -1162,7 +1169,7 @@ class class_multi_instance_iterator : public choice_iterator {
     optional<expr> m_first;
 public:
     class_multi_instance_iterator(environment const & env, io_state const & ios, list<expr> const & ctx,
-                                  expr const & e, pos_info_provider const * pip,
+                                  expr const & e, pos_info_provider const * pip, expr const & pos_ref,
                                   expr const & new_meta, justification const & new_j,
                                   bool is_strict):
         choice_iterator(!is_strict),
@@ -1171,7 +1178,7 @@ public:
         m_new_meta(new_meta),
         m_new_j(new_j) {
         flet<io_state*> set_ios(g_ios, const_cast<io_state*>(&m_ios));
-        m_first = m_cienv(env, ios.get_options(), pip, ctx, e);
+        m_first = m_cienv(env, ios.get_options(), pip, ctx, e, pos_ref);
     }
 
     virtual ~class_multi_instance_iterator() {}
@@ -1214,9 +1221,10 @@ static constraint mk_class_instance_root_cnstr(environment const & env, io_state
         justification new_j          = mj.second;
         if (multiple_insts) {
             return choose(std::shared_ptr<choice_iterator>(new class_multi_instance_iterator(env, ios, ctx.get_data(),
-                                                                                             meta_type, pip, new_meta, new_j, is_strict)));
+                                                                                             meta_type, pip, meta,
+                                                                                             new_meta, new_j, is_strict)));
         } else {
-            if (auto r = mk_class_instance(env, ios, ctx.get_data(), meta_type, pip)) {
+            if (auto r = mk_class_instance(env, ios, ctx.get_data(), meta_type, pip, meta)) {
                 constraint c = mk_eq_cnstr(new_meta, *r, new_j);
                 return lazy_list<constraints>(constraints(c));
             } else if (is_strict) {

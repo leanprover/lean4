@@ -92,6 +92,25 @@ static ci_type_inference_factory & get_ci_factory() {
     return g_factory ? *g_factory : *g_default_factory;
 }
 
+/** \brief The following global thread local constant is a big hack for mk_subsingleton_instance.
+    When g_subsingleton_hack is true, the following type-class resolution problem fails
+    Given (A : Type{?u}), where ?u is a universe meta-variable created by an external module,
+
+    ?Inst : subsingleton.{?u} A := subsingleton_prop ?M
+
+    This case generates the unification problem
+
+       subsingleton.{?u} A =?= subsingleton.{0} ?M
+
+    which can be solved by assigning (?u := 0) and (?M := A)
+    when the hack is enabled, the is_def_eq method in the type class module fails at the subproblem:
+                ?u =?= 0
+
+    That is, when the hack is on, type-class resolution cannot succeed by instantiating an external universe
+    meta-variable with 0.
+*/
+LEAN_THREAD_VALUE(bool, g_subsingleton_hack, false);
+
 struct cienv {
     typedef rb_map<unsigned, level, unsigned_cmp> uassignment;
     typedef rb_map<unsigned, expr,  unsigned_cmp> eassignment;
@@ -475,6 +494,10 @@ struct cienv {
             // The unifier may invoke this module before universe metavariables in the class
             // have been instantiated. So, we just ignore and assume they will be solved by
             // the unifier.
+
+            // See comment at g_subsingleton_hack declaration.
+            if (g_subsingleton_hack && (is_zero(l1) || is_zero(l2)))
+                return false;
             return true; // we ignore
         }
 
@@ -1303,6 +1326,7 @@ optional<expr> mk_hset_instance(type_checker & tc, io_state const & ios, list<ex
 }
 
 optional<expr> mk_subsingleton_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type) {
+    flet<bool> set(g_subsingleton_hack, true);
     level lvl        = sort_level(tc.ensure_type(type).first);
     expr subsingleton;
     if (is_standard(tc.env()))

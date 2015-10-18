@@ -600,15 +600,18 @@ struct cienv {
         }
 
         virtual expr visit_meta(expr const & m) {
-            lean_assert(is_mvar(m));
-            if (auto v1 = m_owner.get_assignment(m)) {
-                if (!has_expr_metavar(*v1)) {
-                    return *v1;
+            if (is_mvar(m)) {
+                if (auto v1 = m_owner.get_assignment(m)) {
+                    if (!has_expr_metavar(*v1)) {
+                        return *v1;
+                    } else {
+                        expr v2 = m_owner.instantiate_uvars_mvars(*v1);
+                        if (v2 != *v1)
+                            m_owner.update_assignment(m, v2);
+                        return v2;
+                    }
                 } else {
-                    expr v2 = m_owner.instantiate_uvars_mvars(*v1);
-                    if (v2 != *v1)
-                        m_owner.update_assignment(m, v2);
-                    return v2;
+                    return m;
                 }
             } else {
                 return m;
@@ -871,9 +874,8 @@ struct cienv {
         return lean::diagnostic(m_env, ios);
     }
 
-    void trace(unsigned depth, expr const & mvar, expr const & r) {
-        if (!m_trace_instances)
-            return;
+    void trace(unsigned depth, expr const & mvar, expr const & mvar_type, expr const & r) {
+        lean_assert(m_trace_instances);
         auto out = diagnostic();
         if (!m_displayed_trace_header && m_choices.size() == 1) {
             if (m_pip) {
@@ -890,7 +892,7 @@ struct cienv {
             out << " ";
         if (depth > 0)
             out << "[" << depth << "] ";
-        out << mvar << " : " << instantiate_uvars_mvars(mlocal_type(mvar)) << " := " << r << endl;
+        out << mvar << " : " << instantiate_uvars_mvars(mvar_type) << " := " << r << endl;
     }
 
     bool try_instance(unsigned depth, expr const & mvar, expr const & inst, expr const & inst_type) {
@@ -912,16 +914,20 @@ struct cienv {
                 type = whnf(type);
                 if (!is_pi(type))
                     break;
-                expr new_mvar = mk_mvar(binding_domain(type));
+                expr new_mvar = mk_mvar(Pi(locals, binding_domain(type)));
                 if (binding_info(type).is_inst_implicit()) {
                     new_inst_mvars.push_back(new_mvar);
                 }
-                r    = mk_app(r, new_mvar);
-                type = instantiate(binding_body(type), new_mvar);
+                expr new_arg = mk_app(new_mvar, locals);
+                r    = mk_app(r, new_arg);
+                type = instantiate(binding_body(type), new_arg);
             }
-            trace(depth, mvar, r);
-            if (!is_def_eq(mvar_type, type))
+            if (m_trace_instances) {
+                trace(depth, mk_app(mvar, locals), mvar_type, r);
+            }
+            if (!is_def_eq(mvar_type, type)) {
                 return false;
+            }
             r = Fun(locals, r);
             assign(mvar, r);
             // copy new_inst_mvars to stack

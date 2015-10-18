@@ -1036,7 +1036,8 @@ struct cienv {
     }
 
     bool backtrack() {
-        lean_assert(!m_choices.empty());
+        if (m_choices.empty())
+            return false;
         while (true) {
             m_choices.pop_back();
             if (m_choices.empty())

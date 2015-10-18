@@ -1027,6 +1027,8 @@ struct cienv {
                                   "(the class-instance resolution trace can be visualized by setting option 'class.trace_instances')",
                                   mlocal_type(m_main_mvar));
         }
+        m_choices.push_back(choice());
+        choice & r = m_choices.back();
         expr mvar_type = instantiate_uvars_mvars(mlocal_type(mvar));
         if (has_expr_metavar_relaxed(mvar_type)) {
             // Remark: we use has_expr_metavar_relaxed instead of has_expr_metavar, because
@@ -1037,7 +1039,6 @@ struct cienv {
         auto cname = is_class(mvar_type);
         if (!cname)
             return false;
-        choice r;
         r.m_local_instances = get_local_instances(*cname);
         if (m_trans_instances && m_choices.empty()) {
             // we only use transitive instances in the top-level
@@ -1047,7 +1048,6 @@ struct cienv {
         if (empty(r.m_local_instances) && empty(r.m_trans_instances) && empty(r.m_instances))
             return false;
         r.m_state = m_state;
-        m_choices.push_back(r);
         return true;
     }
 

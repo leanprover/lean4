@@ -453,31 +453,57 @@ struct cienv {
     bool is_def_eq(level const & l1, level const & l2) {
         if (is_equivalent(l1, l2)) {
             return true;
-        } else {
-            if (is_uvar(l1)) {
-                if (auto v = get_assignment(l1)) {
-                    return is_def_eq(*v, l2);
-                } else {
-                    assign(l1, l2);
-                    return true;
-                }
-            }
-            if (is_uvar(l2)) {
-                if (auto v = get_assignment(l2)) {
-                    return is_def_eq(l1, *v);
-                } else {
-                    assign(l2, l1);
-                    return true;
-                }
-            }
-            if (is_meta(l1) || is_meta(l2)) {
-                // The unifier may invoke this module before universe metavariables in the class
-                // have been instantiated. So, we just ignore and assume they will be solved by
-                // the unifier.
-                return true; // we ignore
+        }
+
+        if (is_uvar(l1)) {
+            if (auto v = get_assignment(l1)) {
+                return is_def_eq(*v, l2);
+            } else {
+                assign(l1, l2);
+                return true;
             }
         }
-        return false;
+        if (is_uvar(l2)) {
+            if (auto v = get_assignment(l2)) {
+                return is_def_eq(l1, *v);
+            } else {
+                assign(l2, l1);
+                return true;
+            }
+        }
+        if (is_meta(l1) || is_meta(l2)) {
+            // The unifier may invoke this module before universe metavariables in the class
+            // have been instantiated. So, we just ignore and assume they will be solved by
+            // the unifier.
+            return true; // we ignore
+        }
+
+        level new_l1 = normalize(l1);
+        level new_l2 = normalize(l2);
+        if (l1 != new_l1 || l2 != new_l2)
+            return is_def_eq(new_l1, new_l2);
+        if (l1.kind() != l2.kind())
+            return false;
+
+        switch (l1.kind()) {
+        case level_kind::Max:
+            return
+                is_def_eq(max_lhs(l1), max_lhs(l2)) &&
+                is_def_eq(max_rhs(l1), max_rhs(l2));
+        case level_kind::IMax:
+            return
+                is_def_eq(imax_lhs(l1), imax_lhs(l2)) &&
+                is_def_eq(imax_rhs(l1), imax_rhs(l2));
+        case level_kind::Succ:
+            return is_def_eq(succ_of(l1), succ_of(l2));
+        case level_kind::Param:
+        case level_kind::Global:
+            return false;
+        case level_kind::Zero:
+        case level_kind::Meta:
+            lean_unreachable();
+        }
+        lean_unreachable();
     }
 
     bool is_def_eq(levels const & ls1, levels const & ls2) {

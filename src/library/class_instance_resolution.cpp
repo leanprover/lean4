@@ -147,9 +147,14 @@ struct cienv {
     }
 
     void reset_cache() {
-        m_ctx = list<expr>();
         expr_struct_map<expr> fresh;
         fresh.swap(m_cache);
+    }
+
+    void reset_cache_and_ctx() {
+        m_ctx = list<expr>();
+        m_local_instances.clear();
+        reset_cache();
     }
 
     optional<expr> check_cache(expr const & type) const {
@@ -185,7 +190,7 @@ struct cienv {
         if (m_max_depth        != max_depth        ||
             m_trans_instances  != trans_instances  ||
             m_trace_instances  != trace_instances) {
-            reset_cache();
+            reset_cache_and_ctx();
         }
         m_max_depth        = max_depth;
         m_trans_instances  = trans_instances;
@@ -193,11 +198,14 @@ struct cienv {
     }
 
     void set_env(environment const & env) {
+        // Remark: We can implement the following potential refinement.
+        // If env is a descendant of m_env, and env does not add new global instances,
+        // then we don't need to reset the cache
         if (!m_env.is_descendant(m_env) || !m_env.is_descendant(env)) {
             m_env                = env;
             m_not_reducible_pred = mk_not_reducible_pred(m_env);
             m_tc_ptr             = nullptr;
-            reset_cache();
+            reset_cache_and_ctx();
         }
 
         if (!m_tc_ptr) {
@@ -348,6 +356,11 @@ struct cienv {
                 set_local_instance(i, *cname, e);
                 i++;
             }
+        }
+        if (i < m_local_instances.size()) {
+            // new ctx has fewer local instances than previous one
+            m_local_instances.resize(i);
+            reset_cache();
         }
     }
 
@@ -1109,18 +1122,18 @@ struct cienv {
 
 MK_THREAD_LOCAL_GET_DEF(cienv, get_cienv);
 
-static void reset_cache() {
-    get_cienv().reset_cache();
+static void reset_cache_and_ctx() {
+    get_cienv().reset_cache_and_ctx();
 }
 
 ci_type_inference_factory_scope::ci_type_inference_factory_scope(ci_type_inference_factory & factory):
     m_old(g_factory) {
     g_factory = &factory;
-    reset_cache();
+    reset_cache_and_ctx();
 }
 
 ci_type_inference_factory_scope::~ci_type_inference_factory_scope() {
-    reset_cache();
+    reset_cache_and_ctx();
     g_factory = m_old;
 }
 

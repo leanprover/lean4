@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/constants.h"
 #include "library/pp_options.h"
+#include "library/choice_iterator.h"
 #include "library/class_instance_resolution.h"
 
 #ifndef LEAN_DEFAULT_CLASS_TRACE_INSTANCES
@@ -1146,6 +1147,47 @@ optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx
     return mk_class_instance(env, get_dummy_ios(), ctx, e, pip);
 }
 
+// Auxiliary class for generating a lazy-stream of instances.
+class class_multi_instance_iterator : public choice_iterator {
+    io_state       m_ios;
+    cienv          m_cienv;
+    expr           m_new_meta;
+    justification  m_new_j;
+    optional<expr> m_first;
+public:
+    class_multi_instance_iterator(environment const & env, io_state const & ios, list<expr> const & ctx,
+                                  expr const & e, pos_info_provider const * pip,
+                                  expr const & new_meta, justification const & new_j,
+                                  bool is_strict):
+        choice_iterator(!is_strict),
+        m_ios(ios),
+        m_cienv(true),
+        m_new_meta(new_meta),
+        m_new_j(new_j) {
+        flet<io_state*> set_ios(g_ios, const_cast<io_state*>(&m_ios));
+        m_first = m_cienv(env, ios.get_options(), pip, ctx, e);
+    }
+
+    virtual ~class_multi_instance_iterator() {}
+
+    virtual optional<constraints> next() {
+        optional<expr> r;
+        if (m_first) {
+            r       = m_first;
+            m_first = none_expr();
+        } else {
+            flet<io_state*> set_ios(g_ios, const_cast<io_state*>(&m_ios));
+            r = m_cienv.next();
+        }
+        if (r) {
+            constraint c = mk_eq_cnstr(m_new_meta, *r, m_new_j);
+            return optional<constraints>(constraints(c));
+        } else {
+            return optional<constraints>();
+        }
+    }
+};
+
 static constraint mk_class_instance_root_cnstr(environment const & env, io_state const & ios, local_context const & _ctx, expr const & m, bool is_strict,
                                                bool use_local_instances, pos_info_provider const * pip) {
     justification j         = mk_failed_to_synthesize_jst(env, m);
@@ -1165,8 +1207,8 @@ static constraint mk_class_instance_root_cnstr(environment const & env, io_state
         expr new_meta                = mj.first;
         justification new_j          = mj.second;
         if (multiple_insts) {
-            // TODO(Leo)
-            return lazy_list<constraints>();
+            return choose(std::shared_ptr<choice_iterator>(new class_multi_instance_iterator(env, ios, ctx.get_data(),
+                                                                                             meta_type, pip, new_meta, new_j, is_strict)));
         } else {
             if (auto r = mk_class_instance(env, ios, ctx.get_data(), meta_type, pip)) {
                 constraint c = mk_eq_cnstr(new_meta, *r, new_j);

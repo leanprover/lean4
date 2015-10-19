@@ -173,6 +173,9 @@ struct cienv {
     }
 
     void reset_cache_and_ctx() {
+        m_next_local_idx = 0;
+        m_next_uvar_idx  = 0;
+        m_next_mvar_idx  = 0;
         m_ctx = list<expr>();
         m_local_instances.clear();
         reset_cache();

@@ -344,7 +344,6 @@ pair<expr, expr> norm_num_context::mk_norm_mul(expr const & lhs, expr const & rh
         rv = mk_app({rhs_head, type, typec, mtp.first});
         prf = mk_app({mk_const(*g_mul_bit0), type, mk_has_distrib(typec), lhs, args_rhs[2], mtp.first, mtp.second});
     } else if (is_bit1(rhs)) {
-      std::cout << "is_bit1 " << rhs << "\n";
         auto mtp = mk_norm_mul(lhs, args_rhs[3]);
         auto atp = mk_norm_add(mk_app({mk_const(*g_bit0), type, args_rhs[2], mtp.first}), lhs);
 	rv = atp.first;

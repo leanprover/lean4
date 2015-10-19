@@ -33,18 +33,17 @@ tactic norm_num_tactic() {
             g.get_hyps(hyps);
             local_context ctx(to_list(hyps));
             try {
-	        //bool bs = is_numeral(env, lhs);
                 pair<expr, expr> p = mk_norm_num(env, ctx, lhs);
                 expr new_lhs = p.first;
                 expr new_lhs_pr  = p.second;
 		pair<expr, expr> p2 = mk_norm_num(env, ctx, rhs);
 		expr new_rhs = p2.first;
 		expr new_rhs_pr = p2.second;
-                //if (new_lhs != new_rhs) {
-		//    std::cout << "lhs: " << new_lhs << ", rhs: " << new_rhs << "\n";
-		//    throw_tactic_exception_if_enabled(s, "norm_num tactic failed, lhs normal form doesn't match rhs");
-		    //    return none_proof_state();
-		    //}
+                /*if (new_lhs != new_rhs) {
+		    std::cout << "lhs: " << new_lhs << ", rhs: " << new_rhs << "\n";
+		    throw_tactic_exception_if_enabled(s, "norm_num tactic failed, lhs normal form doesn't match rhs");
+		    return none_proof_state();
+		}*/
 		type_checker tc(env);
 		expr g_prf = mk_trans(tc, new_lhs_pr, mk_symm(tc, new_rhs_pr));
                 substitution new_subst = s.get_subst();

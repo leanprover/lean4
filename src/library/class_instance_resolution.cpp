@@ -978,7 +978,15 @@ struct cienv {
                 return false;
             }
             r = Fun(locals, r);
-            assign(mvar, r);
+            if (is_assigned(mvar)) {
+                // Remark: if the metavariable is already assigned, we should check whether
+                // the previous assignment (obtained by solving unification constraints) and the
+                // synthesized one are definitionally equal. We don't do that for performance reasons.
+                // Moreover, the is_def_eq defined here is not complete (e.g., it only unfolds reducible constants).
+                update_assignment(mvar, r);
+            } else {
+                assign(mvar, r);
+            }
             // copy new_inst_mvars to stack
             unsigned i = new_inst_mvars.size();
             while (i > 0) {
@@ -1088,13 +1096,6 @@ struct cienv {
         lean_assert(!is_done());
         unsigned depth  = head(m_state.m_stack).first;
         expr mvar       = head(m_state.m_stack).second;
-        if (is_assigned(mvar)) {
-            // Remark: if the metavariable is already assigned, another alternative is to
-            // execute type class resolution and ensure the synthesized answer is equal to the
-            // one assigned by solving unification constraints.
-            m_state.m_stack = tail(m_state.m_stack);
-            return true; // metavariable was assigned by solving unification constraints
-        }
         if (!mk_choice_point(mvar))
             return false;
         m_state.m_stack = tail(m_state.m_stack);

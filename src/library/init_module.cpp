@@ -43,6 +43,7 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/decl_stats.h"
 #include "library/meng_paulson.h"
+#include "library/norm_num.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -85,6 +86,7 @@ void initialize_library_module() {
     initialize_aux_recursors();
     initialize_decl_stats();
     initialize_meng_paulson();
+    initialize_norm_num();
 }
 
 void finalize_library_module() {
@@ -127,5 +129,6 @@ void finalize_library_module() {
     finalize_print();
     finalize_fingerprint();
     finalize_constants();
+    finalize_norm_num();
 }
 }

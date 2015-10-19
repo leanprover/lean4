@@ -1165,7 +1165,6 @@ struct cienv {
 
     optional<expr> operator()(environment const & env, options const & o, pos_info_provider const * pip, list<expr> const & ctx, expr const & type,
                               expr const & pos_ref) {
-        reset_cache_and_ctx();
         set_env(env);
         set_options(o);
         set_ctx(ctx);

@@ -27,16 +27,28 @@
 (defconst lean-keywords1-regexp
   (eval `(rx word-start (or ,@lean-keywords1) word-end)))
 (defconst lean-keywords2
-  '("by+")
+  '("by+" "begin+")
   "lean keywords ending with 'symbol'")
 (defconst lean-keywords2-regexp
   (eval `(rx word-start (or ,@lean-keywords2) symbol-end)))
 (defconst lean-constants
-  '("#" "@" "->" "∼" "↔" "/" "==" "=" ":=" "<->" "/\\" "\\/" "∧" "∨"
+  '("#" "@" "!" "->" "∼" "↔" "/" "==" "=" ":=" "<->" "/\\" "\\/" "∧" "∨"
     "≠" "<" ">" "≤" "≥" "¬" "<=" ">=" "⁻¹" "⬝" "▸" "+" "*" "-" "/" "λ"
-    "→" "∃" "∀")
+    "→" "∃" "∀" "∘" "×" "Σ" "Π" "~" "||" "&&" "≃" "≡" "≅"
+    "ℕ" "ℤ" "ℚ" "ℝ" "ℂ" "𝔸"
+    ;; HoTT notation
+    "Ω" "∥" "map₊" "₊" "π₁" "S¹" "⇒" "⟹" "⟶"
+    "⁻¹ᵉ" "⁻¹ᶠ" "⁻¹ᵍ" "⁻¹ʰ" "⁻¹ⁱ" "⁻¹ᵐ" "⁻¹ᵒ" "⁻¹ᵖ" "⁻¹ʳ" "⁻¹ᵛ" "⁻¹ˢ" "⁻²" "⁻²ᵒ"
+    "⬝e" "⬝i" "⬝o" "⬝op" "⬝po" "⬝h" "⬝v" "⬝hp" "⬝vp" "⬝ph" "⬝pv" "⬝r" "◾" "◾o"
+    "∘n" "∘f" "∘fi" "∘nf" "∘fn" "∘n1f" "∘1nf" "∘f1n" "∘fn1"
+    "^c" "≃c" "≅c")
   "lean constants")
 (defconst lean-constants-regexp (regexp-opt lean-constants))
+(defconst lean-numerals-regexp
+  (eval `(rx word-start
+	     (one-or-more digit) (optional (and "." (zero-or-more digit)))
+	     word-end)))
+
 (defconst lean-modifiers
   (--map (s-concat "[" it "]")
          '("persistent" "notation" "visible" "instance" "trans_instance"
@@ -46,12 +58,30 @@
            "coercions" "classes" "symm" "subst" "refl" "trans" "simp" "congr"
            "notations" "abbreviations" "begin_end_hints" "tactic_hints"
            "reduce_hints" "unfold_hints" "aliases" "eqv"
-           "localrefinfo"))
+           "localrefinfo" "recursor"))
   "lean modifiers")
 (defconst lean-modifiers-regexp
   (regexp-opt lean-modifiers))
+
+
+(defconst lean-tactics
+  '("\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "eassumption" "rapply"
+    "apply" "fapply" "eapply" "rename" "intro" "intros" "all_goals" "fold" "focus" "focus_at"
+    "generalize" "generalizes" "clear" "clears" "revert" "reverts" "back" "beta" "done" "exact" "rexact"
+    "refine" "repeat" "whnf" "rotate" "rotate_left" "rotate_right" "inversion" "cases" "rewrite"
+    "xrewrite" "krewrite" "blast" "simp" "esimp" "unfold" "change" "check_expr" "contradiction"
+    "exfalso" "split" "existsi" "constructor" "fconstructor" "left" "right" "injection" "congruence" "reflexivity"
+    "symmetry" "transitivity" "state" "induction" "induction_using" "fail" "append"
+    "substvars" "now" "with_options")
+  "lean tactics")
+(defconst lean-tactics-regexp
+  (eval `(rx word-start (or ,@lean-tactics) word-end)))
+
+
 (defconst lean-warnings '("sorry" "exit") "lean warnings")
-(defconst lean-warnings-regexp (eval `(rx word-start (or ,@lean-warnings) word-end)))
+(defconst lean-warnings-regexp
+  (eval `(rx word-start (or ,@lean-warnings) word-end)))
+
 
 (defconst lean-syntax-table
   (let ((st (make-syntax-table)))
@@ -113,10 +143,11 @@
                  ?⅋ ?⅌ ?⅍ ?ⅎ ?⅏))
     (modify-syntax-entry ?' "w" st)
     (modify-syntax-entry ?_ "w" st)
+    (modify-syntax-entry ?\. "w" st)
 
     ;; Lean operator chars
     (mapc #'(lambda (ch) (modify-syntax-entry ch "_" st))
-          "!#$%&*+.<=>@^|~:")
+          "!#$%&*+<=>@^|~:")
 
     ;; Whitespace is whitespace
     (modify-syntax-entry ?\  " " st)
@@ -130,14 +161,24 @@
 (defconst lean-font-lock-defaults
   `((;; modifiers
      (,lean-modifiers-regexp . 'font-lock-doc-face)
+     (,(rx "\[priority " (one-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
+     (,(rx "\[recursor " (one-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
+     (,(rx "\[unfold " (one-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
+     ;; Constants which have a keyword as subterm
+     (,(rx (or "∘if")) . 'font-lock-constant-face)
      ;; Keywords
      ("\\(set_option\\)[ \t]*\\([^ \t\n]*\\)" (2 'font-lock-constant-face))
      (,lean-keywords2-regexp . 'font-lock-keyword-face)
      (,lean-keywords1-regexp . 'font-lock-keyword-face)
+     (,(rx (or "∎")) . 'font-lock-keyword-face)
+     ;; Types
+     (,(rx word-start (or "Prop" "Type" "Type'" "Type₊" "Type₀" "Type₁" "Type₂" "Type₃" "Type*") symbol-end) . 'font-lock-type-face)
+     (,(rx word-start (group "Type") ".") (1 'font-lock-type-face))
      ;; String
      ("\"[^\"]*\"" . 'font-lock-string-face)
      ;; ;; Constants
      (,lean-constants-regexp . 'font-lock-constant-face)
+     (,lean-numerals-regexp . 'font-lock-constant-face)
      ;; universe/inductive/theorem... "names"
      (,(rx word-start
            (group (or "inductive" "structure" "record" "theorem" "axiom" "axioms" "lemma" "proposition" "corollary" "hypothesis" "definition" "constant" "abbreviation"))
@@ -147,30 +188,11 @@
       (2 'font-lock-function-name-face))
      ;; place holder
      (,(rx symbol-start "_" symbol-end) . 'font-lock-preprocessor-face)
-     (,(rx "\[priority" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
-     (,(rx "\[recursor" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
-     (,(rx "\[unfold" (zero-or-more (not (any "\]"))) "\]") . font-lock-doc-face)
      ;; tactics
      ("cases[ \t\n]+[^ \t\n]+[ \t\n]+\\(with\\)" (1 'font-lock-constant-face))
-     (,(rx (not (any "\.")) word-start
-           (group
-            (or "\\b.*_tac" "Cond" "or_else" "then" "try" "when" "assumption" "eassumption" "rapply"
-                "apply" "fapply" "eapply" "rename" "intro" "intros" "all_goals" "fold" "focus" "focus_at"
-                "generalize" "generalizes" "clear" "clears" "revert" "reverts" "back" "beta" "done" "exact" "rexact"
-                "refine" "repeat" "whnf" "rotate" "rotate_left" "rotate_right" "inversion" "cases" "rewrite"
-                "xrewrite" "krewrite" "blast" "simp" "esimp" "unfold" "change" "check_expr" "contradiction"
-                "exfalso" "split" "existsi" "constructor" "fconstructor" "left" "right" "injection" "congruence" "reflexivity"
-                "symmetry" "transitivity" "state" "induction" "induction_using" "fail" "append"
-                "substvars" "now" "with_options"))
-           word-end)
-      (1 'font-lock-constant-face))
-     ;; Types
-     (,(rx word-start (or "Prop" "Type" "Type'" "Type₊" "Type₀" "Type₁" "Type₂" "Type₃") symbol-end) . 'font-lock-type-face)
-     (,(rx word-start (group "Type") ".") (1 'font-lock-type-face))
+     (,lean-tactics-regexp . 'font-lock-constant-face)
      ;; warnings
      (,lean-warnings-regexp . 'font-lock-warning-face)
-     ;; extra-keywords
-     (,(rx (or "∎")) . 'font-lock-keyword-face)
      )))
 
 ;; Syntax Highlighting for Lean Info Mode

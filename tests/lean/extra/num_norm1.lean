@@ -25,7 +25,6 @@ example : (7 : A) = 1 + 6 := by norm_num
 example : (7 : A) = 6 + 1 := by norm_num
 example : 33 = 5 + (28 : A) := by norm_num
 
-
 example : (12 : A) = 0 + (2 + 3) + 7 := by norm_num
 example : (105 : A) = 70 + (33 + 2) := by norm_num
 example : (45000000000 : A) = 23000000000 + 22000000000 := by norm_num

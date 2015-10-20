@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include "kernel/environment.h"
+#include "kernel/pos_info_provider.h"
 #include "library/io_state.h"
 #include "library/local_context.h"
 

@@ -7,7 +7,7 @@ Author: Robert Y. Lewis
 #include "kernel/environment.h"
 #include "library/local_context.h"
 #include "library/num.h"
-#include "library/class_instance_synth.h"
+#include "library/class_instance_resolution.h"
 
 namespace lean {
 class norm_num_context {

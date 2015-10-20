@@ -6,7 +6,7 @@ Author: Floris van Doorn
 Squares in a type
 -/
 import types.eq
-open eq equiv is_equiv
+open eq equiv is_equiv sigma
 
 namespace eq
 
@@ -262,7 +262,8 @@ namespace eq
     hdeg_square and vdeg_square, respectively.
     See example below the definition
   -/
-  definition hdeg_square_equiv [constructor] (p q : a = a') : square idp idp p q ≃ p = q :=
+  definition hdeg_square_equiv [constructor] (p q : a = a') :
+    square idp idp p q ≃ p = q :=
   begin
     fapply equiv_change_fun,
     { fapply equiv_change_inv, apply hdeg_square_equiv', exact hdeg_square,
@@ -271,7 +272,8 @@ namespace eq
     { reflexivity}
   end
 
-  definition vdeg_square_equiv [constructor] (p q : a = a') : square p q idp idp ≃ p = q :=
+  definition vdeg_square_equiv [constructor] (p q : a = a') :
+    square p q idp idp ≃ p = q :=
   begin
     fapply equiv_change_fun,
     { fapply equiv_change_inv, apply vdeg_square_equiv',exact vdeg_square,
@@ -480,5 +482,21 @@ namespace eq
   --   (s : square (con_inv_eq_idp t) (con_inv_eq_idp b) (l ◾ r⁻²) idp)
   --     : square t b l r :=
   -- sorry --by induction s
+
+  /- Square fillers -/
+  -- TODO replace by "more algebraic" fillers?
+
+  variables (p₁₀ p₁₂ p₀₁ p₂₁)
+  definition square_fill_t : Σ (p : a₀₀ = a₂₀), square p p₁₂ p₀₁ p₂₁ :=
+  by induction p₀₁; induction p₂₁; exact ⟨_, !vrefl⟩
+
+  definition square_fill_b : Σ (p : a₀₂ = a₂₂), square p₁₀ p p₀₁ p₂₁ :=
+  by induction p₀₁; induction p₂₁; exact ⟨_, !vrefl⟩
+
+  definition square_fill_l : Σ (p : a₀₀ = a₀₂), square p₁₀ p₁₂ p p₂₁ :=
+  by induction p₁₀; induction p₁₂; exact ⟨_, !hrefl⟩
+
+  definition square_fill_r : Σ (p : a₂₀ = a₂₂) , square p₁₀ p₁₂ p₀₁ p :=
+  by induction p₁₀; induction p₁₂; exact ⟨_, !hrefl⟩
 
 end eq

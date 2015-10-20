@@ -5,7 +5,7 @@ Author: Robert Y. Lewis
 */
 
 #include "library/norm_num.h"
-#include "library/constants.cpp"
+#include "library/constants.h"
 namespace lean {
   static name * g_add           = nullptr,
               * g_add1          = nullptr,
@@ -43,7 +43,7 @@ namespace lean {
               * g_mul_zero_class= nullptr,
               * g_distrib       = nullptr,
               * g_semiring      = nullptr;
- 
+
 
 static bool is_numeral_aux(expr const & e, bool is_first) {
     buffer<expr> args;
@@ -51,11 +51,11 @@ static bool is_numeral_aux(expr const & e, bool is_first) {
     if (!is_constant(f)) {
       return false;
     }
-    if (const_name(f) == *g_one) {
+    if (const_name(f) == get_one_name()) {
         return args.size() == 2;
-    } else if (const_name(f) == *g_zero) {
+    } else if (const_name(f) == get_zero_name()) {
         return is_first && args.size() == 2;
-    } else if (const_name(f) == *g_bit1 || const_name(f) == *g_bit0) {
+    } else if (const_name(f) == get_bit1_name() || const_name(f) == get_bit0_name()) {
         return args.size() == 3 && is_numeral_aux(args[2], false);
     }
     return false;
@@ -71,7 +71,7 @@ Takes e : instance A, and tries to synthesize has_add A.
 expr norm_num_context::mk_has_add(expr const & e) {
     buffer<expr> args;
     expr f = get_app_args(e, args);
-    expr t = mk_app(mk_constant(*g_has_add, const_levels(f)), args[0]);
+    expr t = mk_app(mk_constant(get_has_add_name(), const_levels(f)), args[0]);
     optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
     if (inst) {
         return *inst;
@@ -95,7 +95,7 @@ expr norm_num_context::mk_has_mul(expr const & e) {
 expr norm_num_context::mk_has_one(expr const & e) {
     buffer<expr> args;
     expr f = get_app_args(e, args);
-    expr t = mk_app(mk_constant(*g_has_one, const_levels(f)), args[0]);
+    expr t = mk_app(mk_constant(get_has_one_name(), const_levels(f)), args[0]);
     optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
     if (inst) {
         return *inst;
@@ -131,7 +131,7 @@ expr norm_num_context::mk_monoid(expr const & e) {
 expr norm_num_context::mk_add_comm(expr const & e) {
     buffer<expr> args;
     expr f = get_app_args(e, args);
-    expr t = mk_app(mk_constant(*g_add_comm, const_levels(f)), args[0]); 
+    expr t = mk_app(mk_constant(*g_add_comm, const_levels(f)), args[0]);
     optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
     if (inst) {
         return *inst;
@@ -193,29 +193,29 @@ pair<expr, expr> norm_num_context::mk_norm(expr const & e) {
     m_lvls = const_levels(f);
     if (const_name(f) == *g_add && args.size() == 4) {
         auto lhs_p = mk_norm(args[2]);
-	auto rhs_p = mk_norm(args[3]);
+        auto rhs_p = mk_norm(args[3]);
         auto add_p = mk_norm_add(lhs_p.first, rhs_p.first);
-	expr prf = mk_app({mk_const(*g_subst_sum), args[0], mk_has_add(args[1]), args[2], args[3], 
-	                  lhs_p.first, rhs_p.first, add_p.first, lhs_p.second, rhs_p.second, add_p.second});
-	return pair<expr, expr>(add_p.first, prf);
+        expr prf = mk_app({mk_const(*g_subst_sum), args[0], mk_has_add(args[1]), args[2], args[3],
+                          lhs_p.first, rhs_p.first, add_p.first, lhs_p.second, rhs_p.second, add_p.second});
+        return pair<expr, expr>(add_p.first, prf);
     } else if (const_name(f) == *g_mul && args.size() == 4) {
         auto lhs_p = mk_norm(args[2]);
-	auto rhs_p = mk_norm(args[3]);
+        auto rhs_p = mk_norm(args[3]);
         auto mul_p = mk_norm_mul(lhs_p.first, rhs_p.first);
-	expr prf = mk_app({mk_const(*g_subst_prod), args[0], mk_has_mul(args[1]), args[2], args[3], 
-	                  lhs_p.first, rhs_p.first, mul_p.first, lhs_p.second, rhs_p.second, mul_p.second});
-	return pair<expr, expr>(mul_p.first, prf);
-    } else if (const_name(f) == *g_bit0  && args.size() == 3) {
+        expr prf = mk_app({mk_const(*g_subst_prod), args[0], mk_has_mul(args[1]), args[2], args[3],
+                          lhs_p.first, rhs_p.first, mul_p.first, lhs_p.second, rhs_p.second, mul_p.second});
+        return pair<expr, expr>(mul_p.first, prf);
+    } else if (const_name(f) == get_bit0_name()  && args.size() == 3) {
         auto arg = mk_norm(args[2]);
-	expr rv = mk_app({f, args[0], args[1], arg.first});
-	expr prf = mk_cong(mk_app({f, args[0], args[1]}), args[0], args[2], arg.first, arg.second);
-	return pair<expr, expr>(rv, prf);
-    } else if (const_name(f) == *g_bit1 && args.size() == 4) {
+        expr rv = mk_app({f, args[0], args[1], arg.first});
+        expr prf = mk_cong(mk_app({f, args[0], args[1]}), args[0], args[2], arg.first, arg.second);
+        return pair<expr, expr>(rv, prf);
+    } else if (const_name(f) == get_bit1_name() && args.size() == 4) {
         auto arg = mk_norm(args[3]);
-	expr rv = mk_app({f, args[0], args[1], args[2], arg.first});
-	expr prf = mk_cong(mk_app({f, args[0], args[1], args[2]}), args[0], args[3], arg.first, arg.second);
-	return pair<expr, expr>(rv, prf);
-    } else if ((const_name(f) == *g_zero || const_name(f) == *g_one) && args.size() == 2) {
+        expr rv = mk_app({f, args[0], args[1], args[2], arg.first});
+        expr prf = mk_cong(mk_app({f, args[0], args[1], args[2]}), args[0], args[3], arg.first, arg.second);
+        return pair<expr, expr>(rv, prf);
+    } else if ((const_name(f) == get_zero_name() || const_name(f) == get_one_name()) && args.size() == 2) {
         return pair<expr, expr>(e, mk_app({mk_const(*g_mk_eq), args[0], e}));
     } else {
         std::cout << "error with name " << const_name(f) << " and size " << args.size() << ".\n";
@@ -239,41 +239,41 @@ pair<expr, expr> norm_num_context::mk_norm_add(expr const & lhs, expr const & rh
     expr prf;
     if (is_bit0(lhs) && is_bit0(rhs)) { // typec is has_add
         auto p = mk_norm_add(args_lhs[2], args_rhs[2]);
-	rv = mk_app(lhs_head, type, typec, p.first);
-	prf = mk_app({mk_const(*g_bit0_add_bit0), type, mk_add_comm(typec), args_lhs[2], args_rhs[2], p.first, p.second});
+        rv = mk_app(lhs_head, type, typec, p.first);
+        prf = mk_app({mk_const(*g_bit0_add_bit0), type, mk_add_comm(typec), args_lhs[2], args_rhs[2], p.first, p.second});
     } else if (is_bit0(lhs) && is_bit1(rhs)) {
         auto p = mk_norm_add(args_lhs[2], args_rhs[3]);
-	rv = mk_app({rhs_head, type, args_rhs[1], args_rhs[2], p.first});
-	prf = mk_app({mk_const(*g_bit0_add_bit1), type, mk_add_comm(typec), args_rhs[1], args_lhs[2], args_rhs[3], p.first, p.second});
+        rv = mk_app({rhs_head, type, args_rhs[1], args_rhs[2], p.first});
+        prf = mk_app({mk_const(*g_bit0_add_bit1), type, mk_add_comm(typec), args_rhs[1], args_lhs[2], args_rhs[3], p.first, p.second});
     } else if (is_bit0(lhs) && is_one(rhs)) {
-        rv = mk_app({mk_const(*g_bit1), type, args_rhs[1], args_lhs[1], args_lhs[2]});
+        rv = mk_app({mk_const(get_bit1_name()), type, args_rhs[1], args_lhs[1], args_lhs[2]});
         prf = mk_app({mk_const(*g_bit0_add_1), type, typec, args_rhs[1], args_lhs[2]});
     } else if (is_bit1(lhs) && is_bit0(rhs)) { // typec is has_one
         auto p = mk_norm_add(args_lhs[3], args_rhs[2]);
-	rv = mk_app(lhs_head, type, typec, args_lhs[2], p.first);
-	prf = mk_app({mk_const(*g_bit1_add_bit0), type, mk_add_comm(typec), typec, args_lhs[3], args_rhs[2], p.first, p.second});
+        rv = mk_app(lhs_head, type, typec, args_lhs[2], p.first);
+        prf = mk_app({mk_const(*g_bit1_add_bit0), type, mk_add_comm(typec), typec, args_lhs[3], args_rhs[2], p.first, p.second});
     } else if (is_bit1(lhs) && is_bit1(rhs)) { // typec is has_one
-	auto add_ts = mk_norm_add(args_lhs[3], args_rhs[3]);
+        auto add_ts = mk_norm_add(args_lhs[3], args_rhs[3]);
         expr add1 = mk_app({mk_const(*g_add1), type, args_lhs[2], typec, add_ts.first});
-	auto p = mk_norm_add1(add1);
-        rv = mk_app({mk_const(*g_bit0), type, args_lhs[2], p.first});
-	prf = mk_app({mk_const(*g_bit1_add_bit1), type, mk_add_comm(typec), typec, args_lhs[3], args_rhs[3], add_ts.first, p.first, add_ts.second, p.second});
+        auto p = mk_norm_add1(add1);
+        rv = mk_app({mk_const(get_bit0_name()), type, args_lhs[2], p.first});
+        prf = mk_app({mk_const(*g_bit1_add_bit1), type, mk_add_comm(typec), typec, args_lhs[3], args_rhs[3], add_ts.first, p.first, add_ts.second, p.second});
     } else if (is_bit1(lhs) && is_one(rhs)) { // typec is has_one
         expr add1 = mk_app({mk_const(*g_add1), type, args_lhs[2], typec, lhs});
-	auto p = mk_norm_add1(add1);
-	rv = p.first;
-	prf = mk_app({mk_const(*g_bit1_add_1), type, args_lhs[2], typec, args_lhs[3], p.first, p.second});
+        auto p = mk_norm_add1(add1);
+        rv = p.first;
+        prf = mk_app({mk_const(*g_bit1_add_1), type, args_lhs[2], typec, args_lhs[3], p.first, p.second});
     } else if (is_one(lhs) && is_bit0(rhs)) { // typec is has_one
-        rv = mk_app({mk_const(*g_bit1), type, typec, args_rhs[1], args_rhs[2]});
+        rv = mk_app({mk_const(get_bit1_name()), type, typec, args_rhs[1], args_rhs[2]});
         prf = mk_app({mk_const(*g_1_add_bit0), type, mk_add_comm(typec), typec, args_rhs[2]});
     } else if (is_one(lhs) && is_bit1(rhs)) { // typec is has_one
         expr add1 = mk_app({mk_const(*g_add1), type, args_rhs[2], args_rhs[1], rhs});
-	auto p = mk_norm_add1(add1);
-	rv = p.first;
-	prf = mk_app({mk_const(*g_1_add_bit1), type, mk_add_comm(typec), typec, args_rhs[3], p.first, p.second});
+        auto p = mk_norm_add1(add1);
+        rv = p.first;
+        prf = mk_app({mk_const(*g_1_add_bit1), type, mk_add_comm(typec), typec, args_rhs[3], p.first, p.second});
     } else if (is_one(lhs) && is_one(rhs)) {
-      rv = mk_app({mk_const(*g_bit0), type, mk_has_add(typec), lhs});
-	prf = mk_app({mk_const(*g_one_add_one), type, mk_has_add(typec), typec});
+      rv = mk_app({mk_const(get_bit0_name()), type, mk_has_add(typec), lhs});
+        prf = mk_app({mk_const(*g_one_add_one), type, mk_has_add(typec), typec});
     } else if (is_zero(lhs)) {
         rv = rhs;
         prf = mk_app({mk_const(*g_bin_0_add), type, mk_add_monoid(typec), rhs});
@@ -299,18 +299,18 @@ pair<expr, expr> norm_num_context::mk_norm_add1(expr const & e) {
     // args[1] = has_add, args[2] = has_one
     if (is_bit0(p)) {
         auto has_one = args[2];
-        rv = mk_app({mk_const(*g_bit1), args[0], args[2], args[1], ne_args[2]});
-	prf = mk_app({mk_const(*g_add1_bit0), args[0], args[1], args[2], ne_args[2]});
+        rv = mk_app({mk_const(get_bit1_name()), args[0], args[2], args[1], ne_args[2]});
+        prf = mk_app({mk_const(*g_add1_bit0), args[0], args[1], args[2], ne_args[2]});
     } else if (is_bit1(p)) { // ne_args : has_one, has_add
         auto np = mk_norm_add1(mk_app({mk_const(*g_add1), args[0], args[1], args[2], ne_args[3]}));
-	rv = mk_app({mk_const(*g_bit0), args[0], args[1], np.first});
-	prf = mk_app({mk_const(*g_add1_bit1), args[0], mk_add_comm(args[1]), args[2], ne_args[3], np.first, np.second});
+        rv = mk_app({mk_const(get_bit0_name()), args[0], args[1], np.first});
+        prf = mk_app({mk_const(*g_add1_bit1), args[0], mk_add_comm(args[1]), args[2], ne_args[3], np.first, np.second});
     } else if (is_zero(p)) {
-        rv = mk_app({mk_const(*g_one), args[0], args[2]});
-	prf = mk_app({mk_const(*g_add1_zero), args[0], mk_add_monoid(args[1]), args[2]});
+        rv = mk_app({mk_const(get_one_name()), args[0], args[2]});
+        prf = mk_app({mk_const(*g_add1_zero), args[0], mk_add_monoid(args[1]), args[2]});
     } else if (is_one(p)) {
-        rv = mk_app({mk_const(*g_bit0), args[0], args[1], mk_app({mk_const(*g_one), args[0], args[2]})});
-	prf = mk_app({mk_const(*g_add1_one), args[0], args[1], args[2]});
+        rv = mk_app({mk_const(get_bit0_name()), args[0], args[1], mk_app({mk_const(get_one_name()), args[0], args[2]})});
+        prf = mk_app({mk_const(*g_add1_one), args[0], args[1], args[2]});
     } else {
         std::cout << "malformed add1: " << ne << "\n";
         throw exception("malformed add1");
@@ -335,7 +335,7 @@ pair<expr, expr> norm_num_context::mk_norm_mul(expr const & lhs, expr const & rh
         prf = mk_app({mk_const(*g_mul_zero), type, mk_mul_zero_class(typec), lhs});
     } else if (is_zero(lhs)) {
         rv = lhs;
-	prf = mk_app({mk_const(*g_zero_mul), type, mk_mul_zero_class(typec), rhs});
+        prf = mk_app({mk_const(*g_zero_mul), type, mk_mul_zero_class(typec), rhs});
     } else if (is_one(rhs)) {
         rv = lhs;
         prf = mk_app({mk_const(*g_mul_one), type, mk_monoid(typec), lhs});
@@ -345,10 +345,10 @@ pair<expr, expr> norm_num_context::mk_norm_mul(expr const & lhs, expr const & rh
         prf = mk_app({mk_const(*g_mul_bit0), type, mk_has_distrib(typec), lhs, args_rhs[2], mtp.first, mtp.second});
     } else if (is_bit1(rhs)) {
         auto mtp = mk_norm_mul(lhs, args_rhs[3]);
-        auto atp = mk_norm_add(mk_app({mk_const(*g_bit0), type, args_rhs[2], mtp.first}), lhs);
-	rv = atp.first;
-	prf = mk_app({mk_const(*g_mul_bit1), type, mk_semiring(typec), lhs, args_rhs[3],
-	      mtp.first, atp.first, mtp.second, atp.second});
+        auto atp = mk_norm_add(mk_app({mk_const(get_bit0_name()), type, args_rhs[2], mtp.first}), lhs);
+        rv = atp.first;
+        prf = mk_app({mk_const(*g_mul_bit1), type, mk_semiring(typec), lhs, args_rhs[3],
+              mtp.first, atp.first, mtp.second, atp.second});
     } else {
       std::cout << "bad args to mk_norm_mul: " << rhs << "\n";
       throw exception("mk_norm_mul got malformed args");
@@ -367,7 +367,7 @@ pair<expr, expr> norm_num_context::mk_norm_sub(expr const &, expr const &) {
 }
 
 void initialize_norm_num() {
-  g_add     = new name("add"); 
+  g_add     = new name("add");
   g_add1    = new name("add1");
   g_mul     = new name("mul");
   g_sub     = new name("sub");

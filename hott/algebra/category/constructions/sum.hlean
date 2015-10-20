@@ -6,7 +6,7 @@ Authors: Floris van Doorn, Jakob von Raumer
 Sum precategory and (TODO) category
 -/
 
-import ..category ..functor types.sum
+import ..category ..functor.functor types.sum
 
 open eq sum is_trunc functor lift
 

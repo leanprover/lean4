@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Definition of currying and uncurrying of functors
 -/
 
-import .constructions.functor .constructions.product
+import ..constructions.functor ..constructions.product
 
 open category prod nat_trans eq prod.ops iso equiv
 

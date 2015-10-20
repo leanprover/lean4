@@ -6,7 +6,7 @@ Authors: Floris van Doorn, Jakob von Raumer
 Product precategory and (TODO) category
 -/
 
-import ..category ..functor hit.trunc
+import ..category ..functor.functor hit.trunc
 
 open eq prod is_trunc functor sigma trunc
 

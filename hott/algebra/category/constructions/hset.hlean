@@ -6,7 +6,7 @@ Authors: Floris van Doorn, Jakob von Raumer
 Category of hsets
 -/
 
-import ..category types.equiv ..functor types.lift ..limits ..colimits hit.set_quotient hit.trunc
+import ..category types.equiv types.lift ..colimits hit.set_quotient
 
 open eq category equiv iso is_equiv is_trunc function sigma set_quotient trunc
 

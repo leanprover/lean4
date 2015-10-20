@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Floris van Doorn, Jakob von Raumer
 -/
 
-import .iso types.pi
+import ..iso types.pi
 
 open function category eq prod prod.ops equiv is_equiv sigma sigma.ops is_trunc funext iso
 open pi

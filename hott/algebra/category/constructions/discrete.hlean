@@ -7,7 +7,7 @@ Authors: Floris van Doorn
 Discrete category
 -/
 
-import ..groupoid types.bool ..functor
+import ..groupoid types.bool ..functor.functor
 
 open eq is_trunc iso bool functor
 

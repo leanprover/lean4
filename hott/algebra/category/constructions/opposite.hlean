@@ -6,7 +6,7 @@ Authors: Floris van Doorn, Jakob von Raumer
 Opposite precategory and (TODO) category
 -/
 
-import ..functor ..category
+import ..functor.functor ..category
 
 open eq functor iso equiv is_equiv
 

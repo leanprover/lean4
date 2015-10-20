@@ -7,7 +7,7 @@ Authors: Floris van Doorn
 Comma category
 -/
 
-import ..functor ..strict ..category
+import ..functor.functor ..strict ..category
 
 open eq functor equiv sigma sigma.ops is_trunc iso is_equiv
 

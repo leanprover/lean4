@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Yoneda embedding and Yoneda lemma
 -/
 
-import .curry .constructions.hset .constructions.opposite .adjoint
+import .functor.curry .constructions.hset .constructions.opposite .functor.attributes
 
 open category eq functor prod.ops is_trunc iso is_equiv equiv category.set nat_trans lift
 

@@ -3,7 +3,8 @@ Copyright (c) 2015 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Floris van Doorn, Jakob von Raumer
 -/
-import .functor .iso
+
+import .functor.functor
 open eq category functor is_trunc equiv sigma.ops sigma is_equiv function pi funext iso
 
 structure nat_trans {C : Precategory} {D : Precategory} (F G : C ⇒ D)

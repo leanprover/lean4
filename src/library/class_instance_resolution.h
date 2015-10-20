@@ -12,24 +12,27 @@ Author: Leonardo de Moura
 #include "library/local_context.h"
 
 namespace lean {
-class ci_type_inference {
+/** Auxiliary object used to customize type class resolution.
+    It allows us to specify how the types of local constants and metavariables are retrieved.
+
+    \remark We need this object because modules such as blast store
+    the types of some local constants (e.g., hypotheses) in a
+    different data-structure.
+ */
+class ci_local_metavar_types {
 public:
-    virtual ~ci_type_inference() {}
-    virtual expr whnf(expr const & e) = 0;
-    virtual expr infer_type(expr const & e) = 0;
+    virtual ~ci_local_metavar_types() {}
+    virtual expr infer_local(expr const & e) = 0;
+    virtual expr infer_metavar(expr const & e) = 0;
 };
 
-class ci_type_inference_factory {
+/** \brief Auxiliary object for changing the thread local storage that stores the auxiliary object
+    ci_local_metavar_types used by type class resolution. */
+class ci_local_metavar_types_scope {
+    ci_local_metavar_types * m_old;
 public:
-    virtual ~ci_type_inference_factory();
-    virtual std::shared_ptr<ci_type_inference> operator()(environment const & env) const;
-};
-
-class ci_type_inference_factory_scope {
-    ci_type_inference_factory * m_old;
-public:
-    ci_type_inference_factory_scope(ci_type_inference_factory & factory);
-    ~ci_type_inference_factory_scope();
+    ci_local_metavar_types_scope(ci_local_metavar_types & t);
+    ~ci_local_metavar_types_scope();
 };
 
 optional<expr> mk_class_instance(environment const & env, io_state const & ios, list<expr> const & ctx, expr const & e, pos_info_provider const * pip = nullptr);

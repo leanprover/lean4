@@ -16,4 +16,4 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   relation_manager.cpp export.cpp user_recursors.cpp idx_metavar.cpp
   composition_manager.cpp tc_multigraph.cpp noncomputable.cpp
   aux_recursors.cpp norm_num.cpp decl_stats.cpp meng_paulson.cpp
-  norm_num.cpp class_instance_resolution.cpp)
+  norm_num.cpp class_instance_resolution.cpp type_inference.cpp)

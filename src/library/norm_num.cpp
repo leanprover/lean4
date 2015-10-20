@@ -7,43 +7,42 @@ Author: Robert Y. Lewis
 #include "library/norm_num.h"
 #include "library/constants.h"
 namespace lean {
-  static name * g_add           = nullptr,
-              * g_add1          = nullptr,
-              * g_mul           = nullptr,
-              * g_sub           = nullptr,
-              * g_bit0_add_bit0 = nullptr,
-              * g_bit1_add_bit0 = nullptr,
-              * g_bit0_add_bit1 = nullptr,
-              * g_bit1_add_bit1 = nullptr,
-              * g_bin_add_0     = nullptr,
-              * g_bin_0_add     = nullptr,
-              * g_bin_add_1     = nullptr,
-              * g_1_add_bit0    = nullptr,
-              * g_bit0_add_1    = nullptr,
-              * g_bit1_add_1    = nullptr,
-              * g_1_add_bit1    = nullptr,
-              * g_one_add_one   = nullptr,
-              * g_add1_bit0     = nullptr,
-              * g_add1_bit1     = nullptr,
-              * g_add1_zero     = nullptr,
-              * g_add1_one      = nullptr,
-              * g_subst_sum     = nullptr,
-              * g_subst_prod    = nullptr,
-              * g_mk_cong       = nullptr,
-              * g_mk_eq         = nullptr,
-              * g_mul_zero      = nullptr,
-              * g_zero_mul      = nullptr,
-              * g_mul_one       = nullptr,
-              * g_mul_bit0      = nullptr,
-              * g_mul_bit1      = nullptr,
-              * g_has_mul       = nullptr,
-              * g_add_monoid    = nullptr,
-              * g_monoid        = nullptr,
-              * g_add_comm      = nullptr,
-              * g_mul_zero_class= nullptr,
-              * g_distrib       = nullptr,
-              * g_semiring      = nullptr;
-
+static name * g_add           = nullptr,
+    * g_add1          = nullptr,
+    * g_mul           = nullptr,
+    * g_sub           = nullptr,
+    * g_bit0_add_bit0 = nullptr,
+    * g_bit1_add_bit0 = nullptr,
+    * g_bit0_add_bit1 = nullptr,
+    * g_bit1_add_bit1 = nullptr,
+    * g_bin_add_0     = nullptr,
+    * g_bin_0_add     = nullptr,
+    * g_bin_add_1     = nullptr,
+    * g_1_add_bit0    = nullptr,
+    * g_bit0_add_1    = nullptr,
+    * g_bit1_add_1    = nullptr,
+    * g_1_add_bit1    = nullptr,
+    * g_one_add_one   = nullptr,
+    * g_add1_bit0     = nullptr,
+    * g_add1_bit1     = nullptr,
+    * g_add1_zero     = nullptr,
+    * g_add1_one      = nullptr,
+    * g_subst_sum     = nullptr,
+    * g_subst_prod    = nullptr,
+    * g_mk_cong       = nullptr,
+    * g_mk_eq         = nullptr,
+    * g_mul_zero      = nullptr,
+    * g_zero_mul      = nullptr,
+    * g_mul_one       = nullptr,
+    * g_mul_bit0      = nullptr,
+    * g_mul_bit1      = nullptr,
+    * g_has_mul       = nullptr,
+    * g_add_monoid    = nullptr,
+    * g_monoid        = nullptr,
+    * g_add_comm      = nullptr,
+    * g_mul_zero_class = nullptr,
+    * g_distrib       = nullptr,
+    * g_semiring      = nullptr;
 
 static bool is_numeral_aux(expr const & e, bool is_first) {
     buffer<expr> args;
@@ -280,8 +279,7 @@ pair<expr, expr> norm_num_context::mk_norm_add(expr const & lhs, expr const & rh
     } else if (is_zero(rhs)) {
         rv = lhs;
         prf = mk_app({mk_const(*g_bin_add_0), type, mk_add_monoid(typec), lhs});
-    }
-    else {
+    } else {
       std::cout << "\n\n bad args: " << lhs_head << ", " << rhs_head << "\n";
       throw exception("mk_norm_add got malformed args");
     }
@@ -367,80 +365,80 @@ pair<expr, expr> norm_num_context::mk_norm_sub(expr const &, expr const &) {
 }
 
 void initialize_norm_num() {
-  g_add     = new name("add");
-  g_add1    = new name("add1");
-  g_mul     = new name("mul");
-  g_sub     = new name("sub");
-  g_bit0_add_bit0 = new name("bit0_add_bit0_helper");
-  g_bit1_add_bit0 = new name("bit1_add_bit0_helper");
-  g_bit0_add_bit1 = new name("bit0_add_bit1_helper");
-  g_bit1_add_bit1 = new name("bit1_add_bit1_helper");
-  g_bin_add_0     = new name("bin_add_zero");
-  g_bin_0_add     = new name("bin_zero_add");
-  g_bin_add_1     = new name("bin_add_one");
-  g_1_add_bit0    = new name("one_add_bit0");
-  g_bit0_add_1    = new name("bit0_add_one");
-  g_bit1_add_1    = new name("bit1_add_one_helper");
-  g_1_add_bit1    = new name("one_add_bit1_helper");
-  g_one_add_one   = new name("one_add_one");
-  g_add1_bit0     = new name("add1_bit0");
-  g_add1_bit1     = new name("add1_bit1_helper");
-  g_add1_zero     = new name("add1_zero");
-  g_add1_one      = new name("add1_one");
-  g_subst_sum     = new name("subst_into_sum");
-  g_subst_prod    = new name("subst_into_prod");
-  g_mk_cong       = new name("mk_cong");
-  g_mk_eq         = new name("mk_eq");
-  g_zero_mul      = new name("zero_mul");
-  g_mul_zero      = new name("mul_zero");
-  g_mul_one       = new name("mul_one");
-  g_mul_bit0      = new name("mul_bit0_helper");
-  g_mul_bit1      = new name("mul_bit1_helper");
-  g_has_mul       = new name("has_mul");
-  g_add_monoid        = new name("algebra", "add_monoid");
-  g_monoid        = new name("algebra", "monoid");
-  g_add_comm      = new name("algebra", "add_comm_semigroup");
-  g_mul_zero_class      = new name("algebra", "mul_zero_class");
-  g_distrib       = new name("algebra", "distrib");
-  g_semiring      = new name("algebra", "semiring");
+    g_add     = new name("add");
+    g_add1    = new name("add1");
+    g_mul     = new name("mul");
+    g_sub     = new name("sub");
+    g_bit0_add_bit0 = new name("bit0_add_bit0_helper");
+    g_bit1_add_bit0 = new name("bit1_add_bit0_helper");
+    g_bit0_add_bit1 = new name("bit0_add_bit1_helper");
+    g_bit1_add_bit1 = new name("bit1_add_bit1_helper");
+    g_bin_add_0     = new name("bin_add_zero");
+    g_bin_0_add     = new name("bin_zero_add");
+    g_bin_add_1     = new name("bin_add_one");
+    g_1_add_bit0    = new name("one_add_bit0");
+    g_bit0_add_1    = new name("bit0_add_one");
+    g_bit1_add_1    = new name("bit1_add_one_helper");
+    g_1_add_bit1    = new name("one_add_bit1_helper");
+    g_one_add_one   = new name("one_add_one");
+    g_add1_bit0     = new name("add1_bit0");
+    g_add1_bit1     = new name("add1_bit1_helper");
+    g_add1_zero     = new name("add1_zero");
+    g_add1_one      = new name("add1_one");
+    g_subst_sum     = new name("subst_into_sum");
+    g_subst_prod    = new name("subst_into_prod");
+    g_mk_cong       = new name("mk_cong");
+    g_mk_eq         = new name("mk_eq");
+    g_zero_mul      = new name("zero_mul");
+    g_mul_zero      = new name("mul_zero");
+    g_mul_one       = new name("mul_one");
+    g_mul_bit0      = new name("mul_bit0_helper");
+    g_mul_bit1      = new name("mul_bit1_helper");
+    g_has_mul       = new name("has_mul");
+    g_add_monoid        = new name("algebra", "add_monoid");
+    g_monoid        = new name("algebra", "monoid");
+    g_add_comm      = new name("algebra", "add_comm_semigroup");
+    g_mul_zero_class      = new name("algebra", "mul_zero_class");
+    g_distrib       = new name("algebra", "distrib");
+    g_semiring      = new name("algebra", "semiring");
 }
 
 void finalize_norm_num() {
-  delete g_add;
-  delete g_add1;
-  delete g_mul;
-  delete g_sub;
-  delete g_bit0_add_bit0;
-  delete g_bit1_add_bit0;
-  delete g_bit0_add_bit1;
-  delete g_bit1_add_bit1;
-  delete g_bin_add_0;
-  delete g_bin_0_add;
-  delete g_bin_add_1;
-  delete g_1_add_bit0;
-  delete g_bit0_add_1;
-  delete g_bit1_add_1;
-  delete g_1_add_bit1;
-  delete g_one_add_one;
-  delete g_add1_bit0;
-  delete g_add1_bit1;
-  delete g_add1_zero;
-  delete g_add1_one;
-  delete g_subst_sum;
-  delete g_subst_prod;
-  delete g_mk_cong;
-  delete g_mk_eq;
-  delete g_mul_zero;
-  delete g_zero_mul;
-  delete g_mul_one;
-  delete g_mul_bit0;
-  delete g_mul_bit1;
-  delete g_has_mul;
-  delete g_add_monoid;
-  delete g_monoid;
-  delete g_add_comm;
-  delete g_mul_zero_class;
-  delete g_distrib;
-  delete g_semiring;
+    delete g_add;
+    delete g_add1;
+    delete g_mul;
+    delete g_sub;
+    delete g_bit0_add_bit0;
+    delete g_bit1_add_bit0;
+    delete g_bit0_add_bit1;
+    delete g_bit1_add_bit1;
+    delete g_bin_add_0;
+    delete g_bin_0_add;
+    delete g_bin_add_1;
+    delete g_1_add_bit0;
+    delete g_bit0_add_1;
+    delete g_bit1_add_1;
+    delete g_1_add_bit1;
+    delete g_one_add_one;
+    delete g_add1_bit0;
+    delete g_add1_bit1;
+    delete g_add1_zero;
+    delete g_add1_one;
+    delete g_subst_sum;
+    delete g_subst_prod;
+    delete g_mk_cong;
+    delete g_mk_eq;
+    delete g_mul_zero;
+    delete g_zero_mul;
+    delete g_mul_one;
+    delete g_mul_bit0;
+    delete g_mul_bit1;
+    delete g_has_mul;
+    delete g_add_monoid;
+    delete g_monoid;
+    delete g_add_comm;
+    delete g_mul_zero_class;
+    delete g_distrib;
+    delete g_semiring;
 }
 }

@@ -17,8 +17,8 @@ class norm_num_context {
     pair<expr, expr> mk_norm_add(expr const &, expr const &);
     pair<expr, expr> mk_norm_add1(expr const &);
     pair<expr, expr> mk_norm_mul(expr const &, expr const &);
-    pair<expr, expr> mk_norm_div(expr const &, expr const &);    
-    pair<expr, expr> mk_norm_sub(expr const &, expr const &);  
+    pair<expr, expr> mk_norm_div(expr const &, expr const &);
+    pair<expr, expr> mk_norm_sub(expr const &, expr const &);
     expr mk_const(name const & n);
     expr mk_cong(expr const &, expr const &, expr const &, expr const &, expr const &);
     expr mk_has_add(expr const &);

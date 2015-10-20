@@ -25,9 +25,9 @@ tactic norm_num_tactic() {
                 throw_tactic_exception_if_enabled(s, "norm_num tactic failed, conclusion is not an equality");
                 return none_proof_state();
             }
-	    type_checker_ptr rtc = mk_type_checker(env, UnfoldReducible);
-	    lhs = normalize(*rtc, lhs);
-	    rhs = normalize(*rtc, rhs);
+            type_checker_ptr rtc = mk_type_checker(env, UnfoldReducible);
+            lhs = normalize(*rtc, lhs);
+            rhs = normalize(*rtc, rhs);
 
             buffer<expr> hyps;
             g.get_hyps(hyps);
@@ -36,26 +36,26 @@ tactic norm_num_tactic() {
                 pair<expr, expr> p = mk_norm_num(env, ctx, lhs);
                 expr new_lhs = p.first;
                 expr new_lhs_pr  = p.second;
-		pair<expr, expr> p2 = mk_norm_num(env, ctx, rhs);
-		expr new_rhs = p2.first;
-		expr new_rhs_pr = p2.second;
-		auto v_lhs = to_num(new_lhs), v_rhs = to_num(new_rhs);
-		if (v_lhs && v_rhs) {
-		  if ( *v_lhs == *v_rhs) {
-		    type_checker tc(env);
-		    expr g_prf = mk_trans(tc, new_lhs_pr, mk_symm(tc, new_rhs_pr));
-		    substitution new_subst = s.get_subst();
-		    assign(new_subst, g, g_prf);
-		    return some_proof_state(proof_state(s, tail(gs), new_subst));
-		  } else {
-		    std::cout << "lhs: " << new_lhs << ", rhs: " << new_rhs << "\n";
-		    throw_tactic_exception_if_enabled(s, "norm_num tactic failed, lhs doesn't match rhs");
-		    return none_proof_state();
-		  }
-		} else {
-		  throw_tactic_exception_if_enabled(s, "norm_num tactic failed, one side is not a numeral");
-		  return none_proof_state();
-		}
+                pair<expr, expr> p2 = mk_norm_num(env, ctx, rhs);
+                expr new_rhs = p2.first;
+                expr new_rhs_pr = p2.second;
+                auto v_lhs = to_num(new_lhs), v_rhs = to_num(new_rhs);
+                if (v_lhs && v_rhs) {
+                    if (*v_lhs == *v_rhs) {
+                        type_checker tc(env);
+                        expr g_prf = mk_trans(tc, new_lhs_pr, mk_symm(tc, new_rhs_pr));
+                        substitution new_subst = s.get_subst();
+                        assign(new_subst, g, g_prf);
+                        return some_proof_state(proof_state(s, tail(gs), new_subst));
+                    } else {
+                        std::cout << "lhs: " << new_lhs << ", rhs: " << new_rhs << "\n";
+                        throw_tactic_exception_if_enabled(s, "norm_num tactic failed, lhs doesn't match rhs");
+                        return none_proof_state();
+                    }
+                } else {
+                    throw_tactic_exception_if_enabled(s, "norm_num tactic failed, one side is not a numeral");
+                    return none_proof_state();
+                }
             } catch (exception & ex) {
                 throw_tactic_exception_if_enabled(s, ex.what());
                 return none_proof_state();

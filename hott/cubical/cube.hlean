@@ -113,6 +113,21 @@ namespace eq
     cube s₁₁₀ s₁₁₂ s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁' :=
   by induction p; exact c
 
+  /- Each equality between squares leads to a cube which is degenerate in one
+     dimension. -/
+
+  definition deg1_cube {s₁₁₀' : square p₀₁₀ p₂₁₀ p₁₀₀ p₁₂₀} (p : s₁₁₀ = s₁₁₀') :
+    cube s₁₁₀ s₁₁₀' vrfl vrfl vrfl vrfl :=
+  by induction p; exact rfl1
+
+  definition deg2_cube {s₁₁₀' : square p₀₁₀ p₂₁₀ p₁₀₀ p₁₂₀} (p : s₁₁₀ = s₁₁₀') :
+    cube vrfl vrfl s₁₁₀ s₁₁₀' hrfl hrfl :=
+  by induction p; exact rfl2
+
+  definition deg3_cube {s₁₁₀' : square p₀₁₀ p₂₁₀ p₁₀₀ p₁₂₀} (p : s₁₁₀ = s₁₁₀') :
+    cube hrfl hrfl hrfl hrfl s₁₁₀ s₁₁₀' :=
+  by induction p; exact rfl3
+
   /- For each square of parralel equations, there are cubes where the square's
      sides appear in a degenerated way and two opposite sides are ids's -/
 

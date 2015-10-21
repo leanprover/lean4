@@ -42,7 +42,7 @@ class type_inference {
 
     lbool quick_is_def_eq(expr const & e1, expr const & e2);
     bool is_def_eq_core(expr const & e1, expr const & e2);
-    bool is_def_eq_args(expr t, expr s);
+    bool is_def_eq_args(expr const & e1, expr const & e2);
     bool is_def_eq_binding(expr e1, expr e2);
     bool is_def_eq_eta(expr const & e1, expr const & e2);
     bool is_def_eq_proof_irrel(expr const & e1, expr const & e2);
@@ -140,6 +140,11 @@ public:
     virtual void pop() = 0;
     /** \brief Keep the changes since last push */
     virtual void commit() = 0;
+
+    /** \brief This method is invoked before failure.
+        The "customer" may try to assign unassigned mvars in the given expression.
+        The result is true to indicate that some metavariable has been assigned. */
+    virtual bool on_is_def_eq_failure(expr const &, expr const &) { return false; }
 
     bool is_assigned(level const & u) const { return get_assignment(u) != nullptr; }
     bool is_assigned(expr const & m) const { return get_assignment(m) != nullptr; }

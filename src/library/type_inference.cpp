@@ -498,14 +498,18 @@ bool type_inference::is_def_eq_binding(expr e1, expr e2) {
                           instantiate_rev(e2, subst.size(), subst.data()));
 }
 
-bool type_inference::is_def_eq_args(expr t, expr s) {
-    while (is_app(t) && is_app(s)) {
-        if (!is_def_eq_core(app_arg(t), app_arg(s)))
+bool type_inference::is_def_eq_args(expr const & e1, expr const & e2) {
+    lean_assert(is_app(e1) && is_app(e2));
+    buffer<expr> args1, args2;
+    get_app_args(e1, args1);
+    get_app_args(e2, args2);
+    if (args1.size() != args2.size())
+        return false;
+    for (unsigned i = 0; i < args1.size(); i++) {
+        if (!is_def_eq_core(args1[i], args2[i]))
             return false;
-        t = app_fn(t);
-        s = app_fn(s);
     }
-    return !is_app(t) && !is_app(s);
+    return true;
 }
 
 bool type_inference::is_def_eq_eta(expr const & e1, expr const & e2) {
@@ -745,7 +749,10 @@ bool type_inference::is_def_eq_core(expr const & t, expr const & s) {
     if (is_def_eq_proof_irrel(t_n, s_n))
         return true;
 
-    return false;
+    if (on_is_def_eq_failure(t_n, s_n))
+        return is_def_eq_core(t_n, s_n);
+    else
+        return false;
 }
 
 bool type_inference::is_def_eq(expr const & e1, expr const & e2) {

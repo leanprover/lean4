@@ -160,6 +160,67 @@ struct cienv {
         virtual void pop() { m_cienv.m_state = m_stack.back(); m_stack.pop_back(); }
         virtual void commit() { m_stack.pop_back(); }
 
+        static bool has_meta_arg(expr e) {
+            while (is_app(e)) {
+                if (is_meta(app_arg(e)))
+                    return true;
+                e = app_fn(e);
+            }
+            return false;
+        }
+
+        /** IF \c e is of the form (f ... (?m t_1 ... t_n) ...) where ?m is an unassigned
+            metavariable whose type is a type class, and (?m t_1 ... t_n) must be synthesized
+            by type class resolution, then we return ?m.
+            Otherwise, we return none */
+        optional<expr> find_unsynth_metavar(expr const & e) {
+            if (!has_meta_arg(e))
+                return none_expr();
+            buffer<expr> args;
+            expr const & fn = get_app_args(e, args);
+            expr type       = m_cienv.infer_type(fn);
+            unsigned i      = 0;
+            while (i < args.size()) {
+                type = m_cienv.whnf(type);
+                if (!is_pi(type))
+                    return none_expr();
+                expr const & arg = args[i];
+                if (binding_info(type).is_inst_implicit() && is_meta(arg)) {
+                    expr const & m = get_app_fn(arg);
+                    if (is_mvar(m)) {
+                        expr m_type = instantiate_uvars_mvars(infer_metavar(m));
+                        if (!has_expr_metavar_relaxed(m_type)) {
+                            return some_expr(m);
+                        }
+                    }
+                }
+                type = instantiate(binding_body(type), arg);
+                i++;
+            }
+            return none_expr();
+        }
+
+        bool mk_instance(expr const & m) {
+            lean_assert(m);
+            std::cout << "\n\nFOUND CANDIDATE: " << m << "\n\n";
+            // TODO(Leo)
+            return false;
+        }
+
+        virtual bool on_is_def_eq_failure(expr const & e1, expr const & e2) {
+            if (is_app(e1) && is_app(e2)) {
+                if (auto m1 = find_unsynth_metavar(e1)) {
+                    if (mk_instance(*m1))
+                        return true;
+                }
+                if (auto m2 = find_unsynth_metavar(e2)) {
+                    if (mk_instance(*m2))
+                        return true;
+                }
+            }
+            return false;
+        }
+
         virtual bool ignore_universe_def_eq(level const & l1, level const & l2) const {
             if (is_meta(l1) || is_meta(l2)) {
                 // The unifier may invoke this module before universe metavariables in the class

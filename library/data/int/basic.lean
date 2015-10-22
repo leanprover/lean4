@@ -95,6 +95,18 @@ definition int_has_add [reducible] [instance] [priority int.prio] : has_add int 
 definition int_has_neg [reducible] [instance] [priority int.prio] : has_neg int := has_neg.mk int.neg
 definition int_has_mul [reducible] [instance] [priority int.prio] : has_mul int := has_mul.mk int.mul
 
+lemma mul_of_nat_of_nat   (m n : nat) : of_nat m * of_nat n = of_nat (m * n) :=
+rfl
+
+lemma mul_of_nat_neg_succ_of_nat (m n : nat) : of_nat m * -[1+ n] = neg_of_nat (m * succ n) :=
+rfl
+
+lemma mul_neg_succ_of_nat_of_nat (m n : nat) : -[1+ m] * of_nat n = neg_of_nat (succ m * n) :=
+rfl
+
+lemma mul_neg_succ_of_nat_neg_succ_of_nat (m n : nat) : -[1+ m] * -[1+ n] = succ m * succ n :=
+rfl
+
 /- some basic functions and properties -/
 
 theorem of_nat.inj {m n : ℕ} (H : of_nat m = of_nat n) : m = n :=
@@ -412,12 +424,15 @@ calc
               ... = pabs (repr a) + nat_abs b     : nat_abs_eq_pabs_repr
               ... = nat_abs a + nat_abs b         : nat_abs_eq_pabs_repr
 
+theorem nat_abs_neg_of_nat (n : nat) : nat_abs (neg_of_nat n) = n :=
+begin cases n, reflexivity, reflexivity end
+
 section
 local attribute nat_abs [reducible]
 theorem nat_abs_mul : Π (a b : ℤ), nat_abs (a * b) = (nat_abs a) * (nat_abs b)
 | (of_nat m) (of_nat n) := rfl
-| (of_nat m) -[1+ n]    := !nat_abs_neg ▸ rfl
-| -[1+ m]    (of_nat n) := !nat_abs_neg ▸ rfl
+| (of_nat m) -[1+ n]    := by rewrite [mul_of_nat_neg_succ_of_nat, nat_abs_neg_of_nat]
+| -[1+ m]    (of_nat n) := by rewrite [mul_neg_succ_of_nat_of_nat, nat_abs_neg_of_nat]
 | -[1+ m]    -[1+ n]    := rfl
 end
 

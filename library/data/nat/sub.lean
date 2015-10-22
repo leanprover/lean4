@@ -417,7 +417,7 @@ calc
                    ... = (n - m) + (m - n)               : add_sub_add_right
 
 theorem dist_add_add_left (k n m : ℕ) : dist (k + n) (k + m) = dist n m :=
-!add.comm ▸ !add.comm ▸ !dist_add_add_right
+begin rewrite [add.comm k n, add.comm k m]; apply dist_add_add_right end
 
 theorem dist_add_eq_of_ge {n m : ℕ} (H : n ≥ m) : dist n m + m = n :=
 calc
@@ -452,9 +452,9 @@ begin rewrite [add.comm (k - m) (m - n),
 this ▸ add_le_add !sub_lt_sub_add_sub !sub_lt_sub_add_sub
 
 theorem dist_add_add_le_add_dist_dist (n m k l : ℕ) : dist (n + m) (k + l) ≤ dist n k + dist m l :=
-have H : dist (n + m) (k + m) + dist (k + m) (k + l) = dist n k + dist m l, from
-  !dist_add_add_left ▸ !dist_add_add_right ▸ rfl,
-H ▸ !dist.triangle_inequality
+assert H : dist (n + m) (k + m) + dist (k + m) (k + l) = dist n k + dist m l,
+  by rewrite [dist_add_add_left, dist_add_add_right],
+by rewrite -H; apply dist.triangle_inequality
 
 theorem dist_mul_right (n k m : ℕ) : dist (n * k) (m * k) = dist n m * k :=
 assert ∀ n m, dist n m = n - m + (m - n), from take n m, rfl,

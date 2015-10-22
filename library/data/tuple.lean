@@ -34,7 +34,7 @@ namespace tuple
   | (succ n) := inhabited.mk (inhabited.value h :: inhabited.value (is_inhabited n))
 
   protected definition has_decidable_eq [instance] [h : decidable_eq A] : ∀ (n : nat), decidable_eq (tuple A n) :=
-  _
+  λ n, subtype.has_decidable_eq
 
   definition head {n : nat} : tuple A (succ n) → A
   | (tag []     h) := by contradiction

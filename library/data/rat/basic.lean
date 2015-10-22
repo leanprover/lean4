@@ -242,7 +242,8 @@ have H : smul (denom a) (mul a (add b c)) (denom_pos a) =
   have T : ∀ {x y z w : ℤ}, x*y*z*w=y*z*x*w, from
     λx y z w, (!int.mul.assoc ⬝ !int.mul.comm) ▸ rfl,
   exact !congr_arg2 T T,
-  exact !mul.left_comm ▸ !int.mul.assoc⁻¹
+  rewrite [mul.left_comm (denom a) (denom b) (denom c)],
+  rewrite int.mul.assoc
 end,
 equiv.symm (H ▸ smul_equiv (denom_pos a))
 

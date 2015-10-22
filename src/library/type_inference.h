@@ -144,7 +144,7 @@ public:
     /** \brief This method is invoked before failure.
         The "customer" may try to assign unassigned mvars in the given expression.
         The result is true to indicate that some metavariable has been assigned. */
-    virtual bool on_is_def_eq_failure(expr const &, expr const &) { return false; }
+    virtual bool on_is_def_eq_failure(expr &, expr &) { return false; }
 
     bool is_assigned(level const & u) const { return get_assignment(u) != nullptr; }
     bool is_assigned(expr const & m) const { return get_assignment(m) != nullptr; }

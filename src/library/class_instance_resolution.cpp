@@ -173,9 +173,9 @@ struct cienv {
             metavariable whose type is a type class, and (?m t_1 ... t_n) must be synthesized
             by type class resolution, then we return ?m.
             Otherwise, we return none */
-        optional<expr> find_unsynth_metavar(expr const & e) {
+        optional<pair<expr, expr>> find_unsynth_metavar(expr const & e) {
             if (!has_meta_arg(e))
-                return none_expr();
+                return optional<pair<expr, expr>>();
             buffer<expr> args;
             expr const & fn = get_app_args(e, args);
             expr type       = m_cienv.infer_type(fn);
@@ -183,39 +183,46 @@ struct cienv {
             while (i < args.size()) {
                 type = m_cienv.whnf(type);
                 if (!is_pi(type))
-                    return none_expr();
+                    return optional<pair<expr, expr>>();
                 expr const & arg = args[i];
                 if (binding_info(type).is_inst_implicit() && is_meta(arg)) {
                     expr const & m = get_app_fn(arg);
                     if (is_mvar(m)) {
                         expr m_type = instantiate_uvars_mvars(infer_metavar(m));
                         if (!has_expr_metavar_relaxed(m_type)) {
-                            return some_expr(m);
+                            return some(mk_pair(m, m_type));
                         }
                     }
                 }
                 type = instantiate(binding_body(type), arg);
                 i++;
             }
-            return none_expr();
+            return optional<pair<expr, expr>>();
         }
 
-        bool mk_instance(expr const & m) {
+        bool mk_instance(expr const & m, expr const & m_type) {
             lean_assert(m);
-            std::cout << "\n\nFOUND CANDIDATE: " << m << "\n\n";
-            // TODO(Leo)
-            return false;
+            if (auto r = m_cienv.mk_nested_instance(m_type)) {
+                m_cienv.update_assignment(m, *r);
+                return true;
+            } else {
+                return false;
+            }
         }
 
-        virtual bool on_is_def_eq_failure(expr const & e1, expr const & e2) {
+        virtual bool on_is_def_eq_failure(expr & e1, expr & e2) {
             if (is_app(e1) && is_app(e2)) {
-                if (auto m1 = find_unsynth_metavar(e1)) {
-                    if (mk_instance(*m1))
+                if (auto p1 = find_unsynth_metavar(e1)) {
+                    if (mk_instance(p1->first, p1->second)) {
+                        e1 = m_cienv.instantiate_uvars_mvars(e1);
                         return true;
+                    }
                 }
-                if (auto m2 = find_unsynth_metavar(e2)) {
-                    if (mk_instance(*m2))
+                if (auto p2 = find_unsynth_metavar(e2)) {
+                    if (mk_instance(p2->first, p2->second)) {
+                        e2 = m_cienv.instantiate_uvars_mvars(e2);
                         return true;
+                    }
                 }
             }
             return false;
@@ -497,10 +504,10 @@ struct cienv {
         }
     }
 
-    void set_pos_info(pos_info_provider const * pip, expr const & type) {
+    void set_pos_info(pos_info_provider const * pip, expr const & pos_ref) {
         m_pip = pip;
         if (m_pip)
-            m_pos = m_pip->get_pos_info(type);
+            m_pos = m_pip->get_pos_info(pos_ref);
     }
 
     // Create an internal universal metavariable
@@ -803,10 +810,9 @@ struct cienv {
     }
 
     void init_search(expr const & type) {
-        m_state     = state();
-        m_main_mvar = mk_mvar(type);
+        m_state         = state();
+        m_main_mvar     = mk_mvar(type);
         m_state.m_stack = cons(mk_pair(0u, m_main_mvar), m_state.m_stack);
-        m_displayed_trace_header = false;
         m_choices.clear();
     }
 
@@ -822,13 +828,7 @@ struct cienv {
         }
     }
 
-    optional<expr> operator()(environment const & env, options const & o, pos_info_provider const * pip, list<expr> const & ctx, expr const & type,
-                              expr const & pos_ref) {
-        set_env(env);
-        set_options(o);
-        set_ctx(ctx);
-        set_pos_info(pip, pos_ref);
-
+    optional<expr> mk_instance_core(expr const & type) {
         if (auto r = check_cache(type)) {
             if (m_trace_instances) {
                 auto out = diagnostic();
@@ -842,11 +842,32 @@ struct cienv {
         return ensure_no_meta(r);
     }
 
+    optional<expr> operator()(environment const & env, options const & o, pos_info_provider const * pip, list<expr> const & ctx, expr const & type,
+                              expr const & pos_ref) {
+        set_env(env);
+        set_options(o);
+        set_ctx(ctx);
+        set_pos_info(pip, pos_ref);
+        m_displayed_trace_header = false;
+
+        return mk_instance_core(type);
+    }
+
     optional<expr> next() {
         if (!m_multiple_instances)
             return none_expr();
         auto r = next_solution();
         return ensure_no_meta(r);
+    }
+
+    optional<expr> mk_nested_instance(expr const & type) {
+        std::vector<choice> choices;
+        m_choices.swap(choices); // save choice stack
+        flet<state> save_state(m_state, state());
+        flet<expr>  save_main_mvar(m_main_mvar, expr());
+        auto r = mk_instance_core(type);
+        m_choices.swap(choices); // restore choice stack
+        return r;
     }
 };
 

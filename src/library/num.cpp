@@ -18,7 +18,7 @@ bool has_num_decls(environment const & env) {
         env.find(get_bit1_name());
 }
 
-static bool is_const_app(expr const & e, name const & n, unsigned nargs) {
+bool is_const_app(expr const & e, name const & n, unsigned nargs) {
     expr const & f = get_app_fn(e);
     return is_constant(f) && const_name(f) == n && get_app_num_args(e) == nargs;
 }
@@ -39,6 +39,12 @@ optional<expr> is_bit0(expr const & e) {
 
 optional<expr> is_bit1(expr const & e) {
     if (!is_const_app(e, get_bit1_name(), 4))
+        return none_expr();
+    return some_expr(app_arg(e));
+}
+
+optional<expr> is_neg(expr const & e) {
+    if (!is_const_app(e, *new name("neg"), 3))
         return none_expr();
     return some_expr(app_arg(e));
 }
@@ -83,6 +89,9 @@ static optional<mpz> to_num(expr const & e, bool first) {
     } else if (auto a = is_bit1(e)) {
         if (auto r = to_num(*a, false))
             return some(2*(*r)+1);
+    } else if (auto a = is_neg(e)) {
+        if (auto r = to_num(*a, false))
+            return some(neg(*r));
     }
     return optional<mpz>();
 }

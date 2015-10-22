@@ -12,6 +12,8 @@ namespace lean {
     zero, one, bit0, bit1 */
 bool has_num_decls(environment const & env);
 
+bool is_const_app(expr const &, name const &, unsigned);
+
 /** \brief Return true iff the given expression encodes a numeral. */
 bool is_num(expr const & e);
 

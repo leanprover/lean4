@@ -136,3 +136,43 @@ theorem mk_cong (op : A → A) (a b : A) (H : a = b) : op a = op b :=
   by congruence; exact H
 
 theorem mk_eq (a : A) : a = a := rfl
+
+theorem neg_add_neg_eq_of_add_add_eq_zero [s : add_comm_group A] (a b c : A) (H : c + a + b = 0) : -a + -b = c :=
+  begin apply add_neg_eq_of_eq_add, apply neg_eq_of_add_eq_zero, rewrite [add.comm, add.assoc, add.comm b, -add.assoc, H]  end
+
+/-theorem neg_add_neg_helper [s : add_comm_group A] (t₁ t₂ e w₁ w₂ : A) (H₁ : t₁ = -w₁)
+        (H₂ : t₂ = -w₂) (H : e + w₁ + w₂ = 0) : t₁ + t₂ = e :=
+  by rewrite [H₁, H₂, neg_add_neg_eq_of_add_add_eq_zero _ _ _ H]-/
+
+theorem neg_add_neg_helper [s : add_comm_group A] (a b c : A) (H : a + b = c) : -a + -b = -c :=
+  begin apply iff.mp !neg_eq_neg_iff_eq, rewrite [neg_add, *neg_neg, H] end
+
+theorem neg_add_pos_eq_of_eq_add [s : add_comm_group A] (a b c : A) (H : b = c + a) : -a + b = c :=
+  begin apply neg_add_eq_of_eq_add, rewrite add.comm, exact H end
+
+/-theorem neg_add_pos_helper [s : add_comm_group A] (t₁ t₂ e v w₁ w₂ : A) (H₁ : t₁ = -w₁)
+        (H₂ : t₂ = w₂) (Hv : w₂ = v) (H : e + w₁ = v) : t₁ + t₂ = e :=
+  begin rewrite [H₁, H₂, Hv, -H, add.comm, add_neg_cancel_right] end-/
+
+theorem neg_add_pos_helper1 [s : add_comm_group A] (a b c : A) (H : b + c = a) : -a + b = -c :=
+  begin apply neg_add_eq_of_eq_add, apply eq_add_neg_of_add_eq H end
+
+theorem neg_add_pos_helper2 [s : add_comm_group A] (a b c : A) (H : a + c = b) : -a + b = c :=
+  begin apply neg_add_eq_of_eq_add, rewrite H end
+
+theorem pos_add_neg_helper [s : add_comm_group A] (a b c : A) (H : b + a = c) : a + b = c :=
+  by rewrite [add.comm, H]
+
+theorem sub_eq_add_neg_helper [s : add_comm_group A] (t₁ t₂ e w₁ w₂: A) (H₁ : t₁ = w₁) (H₂ : t₂ = w₂)
+        (H : w₁ + -w₂ = e) : t₁ - t₂ = e :=
+  by rewrite [sub_eq_add_neg, H₁, H₂, H]
+
+theorem pos_add_pos_helper [s : add_comm_group A] (a b c h₁ h₂ : A) (H₁ : a = h₁) (H₂ : b = h₂)
+        (H : h₁ + h₂ = c) : a + b = c :=
+  by rewrite [H₁, H₂, H]
+
+theorem subst_into_subtr [s : add_group A] (l r t : A) (prt : l + -r = t) : l - r = t :=
+   by rewrite [sub_eq_add_neg, prt]
+
+theorem neg_neg_helper [s : add_group A] (a b : A) (H : a = -b) : -a = b :=
+  by rewrite [H, neg_neg]

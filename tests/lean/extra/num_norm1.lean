@@ -1,4 +1,4 @@
-import algebra.numeral algebra.field
+import algebra.numeral algebra.field data.nat
 open algebra
 
 variable {A : Type}
@@ -28,6 +28,10 @@ example : 33 = 5 + (28 : A) := by norm_num
 example : (12 : A) = 0 + (2 + 3) + 7 := by norm_num
 example : (105 : A) = 70 + (33 + 2) := by norm_num
 example : (45000000000 : A) = 23000000000 + 22000000000 := by norm_num
+
+example : (12 : A) - 4 - (5 + -2) = 5 := by norm_num
+example : (12 : A) - 4 - (5 + -2) - 20 = -15 := by norm_num
+exit
 
 example : (0 : A) * 0 = 0 := by norm_num
 example : (0 : A) * 1 = 0 := by norm_num

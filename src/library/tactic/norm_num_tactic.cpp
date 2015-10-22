@@ -28,10 +28,10 @@ tactic norm_num_tactic() {
             type_checker_ptr rtc = mk_type_checker(env, UnfoldReducible);
             lhs = normalize(*rtc, lhs);
             rhs = normalize(*rtc, rhs);
-
             buffer<expr> hyps;
             g.get_hyps(hyps);
             local_context ctx(to_list(hyps));
+//            std::cout << "num of lhs: " << num_of_expr(env, ctx, lhs) << "\n";
             try {
                 pair<expr, expr> p = mk_norm_num(env, ctx, lhs);
                 expr new_lhs = p.first;
@@ -53,6 +53,7 @@ tactic norm_num_tactic() {
                         return none_proof_state();
                     }
                 } else {
+                    std::cout << "lhs: " << new_lhs << ", rhs: " << new_rhs << "\n";
                     throw_tactic_exception_if_enabled(s, "norm_num tactic failed, one side is not a numeral");
                     return none_proof_state();
                 }

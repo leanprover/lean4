@@ -185,8 +185,7 @@ eq_zero_of_add_eq_zero_right (!nat.add_comm ⬝ H)
 theorem eq_zero_and_eq_zero_of_add_eq_zero {n m : ℕ} (H : n + m = 0) : n = 0 ∧ m = 0 :=
 and.intro (eq_zero_of_add_eq_zero_right H) (eq_zero_of_add_eq_zero_left H)
 
-theorem add_one [simp] (n : ℕ) : n + 1 = succ n :=
-!nat.add_zero ▸ !add_succ
+theorem add_one [simp] (n : ℕ) : n + 1 = succ n := rfl
 
 theorem one_add (n : ℕ) : 1 + n = succ n :=
 !nat.zero_add ▸ !succ_add

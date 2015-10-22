@@ -97,7 +97,7 @@ begin
     {cases m with m, exact absurd rfl m_ne_0,
     cases m with m, exact absurd rfl m_ne_1, exact succ_le_succ (succ_le_succ (zero_le _))},
     {have m_le_n : m ≤ n, from le_of_dvd (pos_of_ne_zero `n ≠ 0`) m_dvd_n,
-     exact lt_of_le_and_ne m_le_n m_ne_n}
+     exact lt_of_le_of_ne m_le_n m_ne_n}
 end
 
 theorem exists_dvd_of_not_prime2 {n : nat} : n ≥ 2 → ¬ prime n → ∃ m, m ∣ n ∧ m ≥ 2 ∧ m < n :=
@@ -132,13 +132,13 @@ have p ≥ n, from by_contradiction
   (suppose ¬ p ≥ n,
     have p < n,     from lt_of_not_ge this,
     have p ≤ n + 1, from le_of_lt (lt.step this),
-    have p ∣ m,      from dvd_fact `p > 0` this,
-    have p ∣ 1,      from dvd_of_dvd_add_right (!add.comm ▸ `p ∣ m + 1`) this,
+    have p ∣ m,     from dvd_fact `p > 0` this,
+    have p ∣ 1,     from dvd_of_dvd_add_right (!add.comm ▸ `p ∣ m + 1`) this,
     have p ≤ 1,     from le_of_dvd zero_lt_one this,
-    absurd (le.trans `2 ≤ p` `p ≤ 1`) dec_trivial),
+    show false,     from absurd (le.trans `2 ≤ p` `p ≤ 1`) dec_trivial),
 subtype.tag p (and.intro this `prime p`)
 
-lemma ex_infinite_primes (n : nat) : ∃ p, p ≥ n ∧ prime p :=
+lemma exists_infinite_primes (n : nat) : ∃ p, p ≥ n ∧ prime p :=
 ex_of_sub (infinite_primes n)
 
 lemma odd_of_prime {p : nat} : prime p → p > 2 → odd p :=

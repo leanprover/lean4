@@ -51,6 +51,6 @@ begin
       {transitivity (fact n),
         exact ih (le_of_lt_succ h₂),
         rewrite [fact_succ, -one_mul at {1}],
-        exact mul_le_mul (succ_le_succ (zero_le n)) !le.refl}}
+        exact nat.mul_le_mul (succ_le_succ (zero_le n)) !le.refl}}
 end
 end nat

@@ -11,7 +11,7 @@ choose      {p : nat → Prop} [d : decidable_pred p] : (∃ x, p x) → nat
 choose_spec {p : nat → Prop} [d : decidable_pred p] (ex : ∃ x, p x) : p (choose ex)
 -/
 import data.nat.basic data.nat.order
-open nat subtype decidable well_founded
+open nat subtype decidable well_founded algebra
 
 namespace nat
 section find_x
@@ -46,7 +46,7 @@ acc.intro x (λ (y : nat) (l : y ≺ x),
      (suppose y = succ x, by substvars; assumption)
      (suppose y ≠ succ x,
         have x < y,      from and.elim_left l,
-        have succ x < y, from lt_of_le_and_ne this (ne.symm `y ≠ succ x`),
+        have succ x < y, from lt_of_le_of_ne this (ne.symm `y ≠ succ x`),
         acc.inv h (and.intro this (and.elim_right l))))
 
 private lemma acc_of_px_of_gt {x y : nat} : p x → y > x → acc gtb y :=
@@ -61,7 +61,7 @@ private lemma acc_of_acc_of_lt : ∀ {x y : nat}, acc gtb x → y < x → acc gt
   assert acc gtb x, from acc_of_acc_succ asx,
   by_cases
      (suppose y = x, by substvars; assumption)
-     (suppose y ≠ x, acc_of_acc_of_lt `acc gtb x` (lt_of_le_and_ne (le_of_lt_succ yltsx) this))
+     (suppose y ≠ x, acc_of_acc_of_lt `acc gtb x` (lt_of_le_of_ne (le_of_lt_succ yltsx) this))
 
 parameter (ex : ∃ a, p a)
 parameter [dp : decidable_pred p]

@@ -332,6 +332,12 @@ section
     (assume H : a ≤ b, by rewrite [↑max, if_pos H]; apply H₂)
     (assume H : ¬ a ≤ b, by rewrite [↑max, if_neg H]; apply H₁)
 
+  theorem le_max_left_iff_true [simp] (a b : A) : a ≤ max a b ↔ true :=
+  iff_true_intro (le_max_left a b)
+
+  theorem le_max_right_iff_true [simp] (a b : A) : b ≤ max a b ↔ true :=
+  iff_true_intro (le_max_right a b)
+
   /- these are also proved for lattices, but with inf and sup in place of min and max -/
 
   theorem eq_min {a b c : A} (H₁ : c ≤ a) (H₂ : c ≤ b) (H₃ : ∀{d}, d ≤ a → d ≤ b → d ≤ c) :

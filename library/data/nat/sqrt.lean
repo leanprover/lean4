@@ -67,7 +67,7 @@ private theorem le_squared : ∀ (n : nat), n ≤ n*n
 | 0        := !le.refl
 | (succ n) :=
   have   aux₁ : 1 ≤ succ n, from succ_le_succ !zero_le,
-  assert aux₂ : 1 * succ n ≤ succ n * succ n, from mul_le_mul aux₁ !le.refl,
+  assert aux₂ : 1 * succ n ≤ succ n * succ n, from nat.mul_le_mul aux₁ !le.refl,
   by rewrite [one_mul at aux₂]; exact aux₂
 
 private theorem lt_squared : ∀ {n : nat}, n > 1 → n < n * n
@@ -139,7 +139,7 @@ theorem sqrt_aux_offset_eq {n k : nat} (h₁ : k ≤ n + n) : ∀ {s}, s ≥ n �
      have ssnesn  : succ s ≠ succ n, from
        assume sseqsn : succ s = succ n,
          by rewrite [sseqsn at l₄]; exact (absurd l₄ !lt.irrefl),
-     have   sslen : s < n, from lt_of_succ_lt_succ (lt_of_le_and_ne sslesn ssnesn),
+     have   sslen : s < n, from lt_of_succ_lt_succ (lt_of_le_of_ne sslesn ssnesn),
      assert sseqn : succ s = n, from le.antisymm sslen h₂,
      by rewrite [sqrt_aux_succ_of_pos hl]; exact sseqn)
   (λ hg : ¬ (succ s)*(succ s) ≤ n*n + k,

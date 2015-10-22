@@ -153,7 +153,7 @@ or.elim (nat.lt_or_ge m (nat.succ n))
 theorem gpow_add (a : A) : ∀i j : int, gpow a (i + j) = gpow a i * gpow a j
 | (of_nat m) (of_nat n) := !pow_add
 | (of_nat m) -[1+n]     := !gpow_add_aux
-| -[1+m]     (of_nat n) := by rewrite [int.add.comm, gpow_add_aux, ↑gpow, -*inv_pow, pow_inv_comm]
+| -[1+m]     (of_nat n) := by rewrite [add.comm, gpow_add_aux, ↑gpow, -*inv_pow, pow_inv_comm]
 | -[1+m]     -[1+n]     :=
   calc
     gpow a (-[1+m] + -[1+n]) = (a^(#nat nat.succ m + nat.succ n))⁻¹ : rfl
@@ -161,7 +161,7 @@ theorem gpow_add (a : A) : ∀i j : int, gpow a (i + j) = gpow a i * gpow a j
       ... = gpow a (-[1+m]) * gpow a (-[1+n])       : rfl
 
 theorem gpow_comm (a : A) (i j : ℤ) : gpow a i * gpow a j = gpow a j * gpow a i :=
-by rewrite [-*gpow_add, int.add.comm]
+by rewrite [-*gpow_add, add.comm]
 end group
 
 section ordered_ring

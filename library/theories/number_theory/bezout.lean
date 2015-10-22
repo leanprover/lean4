@@ -66,7 +66,7 @@ gcd.induction x y
       rewrite [-of_nat_mod],
       rewrite [int.modulo.def],
       rewrite [+algebra.mul_sub_right_distrib],
-      rewrite [+algebra.mul_sub_left_distrib, *mul.left_distrib],
+      rewrite [+algebra.mul_sub_left_distrib, *left_distrib],
       rewrite [*sub_eq_add_neg, {pr₂ (egcd n (m mod n)) * of_nat m + - _}algebra.add.comm, -algebra.add.assoc],
       rewrite [algebra.mul.assoc]
     end)
@@ -79,7 +79,7 @@ obtain a' b' (H : a' * nat_abs x + b' * nat_abs y = gcd x y), from !Bezout_aux,
 begin
   existsi (a' * sign x),
   existsi (b' * sign y),
-  rewrite [*int.mul.assoc, -*abs_eq_sign_mul, -*of_nat_nat_abs],
+  rewrite [*mul.assoc, -*abs_eq_sign_mul, -*of_nat_nat_abs],
   apply H
 end
 end Bezout
@@ -99,7 +99,7 @@ decidable.by_cases
     have cpx : coprime p x, from coprime_of_prime_of_not_dvd pp this,
     obtain (a b : ℤ) (Hab : a * p + b * x = gcd p x), from Bezout_aux p x,
     assert a * p * y + b * x * y = y,
-      by rewrite [-int.mul.right_distrib, Hab, ↑coprime at cpx, cpx, int.one_mul],
+      by rewrite [-right_distrib, Hab, ↑coprime at cpx, cpx, int.one_mul],
     have p ∣ y,
       begin
         apply dvd_of_of_nat_dvd_of_nat,
@@ -108,7 +108,7 @@ decidable.by_cases
           {apply dvd_mul_of_dvd_left,
             apply dvd_mul_of_dvd_right,
             apply dvd.refl},
-          {rewrite int.mul.assoc,
+          {rewrite mul.assoc,
             apply dvd_mul_of_dvd_right,
             apply of_nat_dvd_of_nat_of_dvd H}
       end,

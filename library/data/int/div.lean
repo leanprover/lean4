@@ -167,7 +167,7 @@ or.elim (nat.lt_or_ge m (n * k))
         ... = of_nat (n - m div k - 1)         :
                 nat.mul_sub_div_of_lt (!nat.mul_comm ▸ m_lt_nk)
         ... = -[1+m] div k + n :
-                by rewrite [nat.sub_sub, of_nat_sub H4, add.comm, sub_eq_add_neg,
+                by rewrite [nat.sub_sub, of_nat_sub H4, int.add_comm, sub_eq_add_neg,
                             !neg_succ_of_nat_div (of_nat_lt_of_nat_of_lt H2),
                             of_nat_add, of_nat_div],
     Hm⁻¹ ▸ this)
@@ -259,7 +259,7 @@ calc
   -[1+m] mod b = -(m + 1) - -[1+m] div b * b : rfl
     ... = -(m + 1) - -(m div b + 1) * b        : neg_succ_of_nat_div _ bpos
     ... = -m + -1 + (b + m div b * b)          :
-              by rewrite [neg_add, -neg_mul_eq_neg_mul, sub_neg_eq_add, mul.right_distrib,
+              by rewrite [neg_add, -neg_mul_eq_neg_mul, sub_neg_eq_add, right_distrib,
                                  one_mul, (add.comm b)]
     ... = b + -1 + (-m + m div b * b)           :
               by rewrite [-*add.assoc, add.comm (-m), add.right_comm (-1), (add.comm b)]
@@ -341,7 +341,7 @@ have H2 : a mod (abs b) < abs b, from
 theorem add_mul_mod_self {a b c : ℤ} : (a + b * c) mod c = a mod c :=
 decidable.by_cases
   (assume cz : c = 0, by rewrite [cz, mul_zero, add_zero])
-  (assume cnz, by rewrite [(modulo.def), !add_mul_div_self cnz, mul.right_distrib,
+  (assume cnz, by rewrite [(modulo.def), !add_mul_div_self cnz, right_distrib,
                             sub_add_eq_sub_sub_swap, add_sub_cancel])
 
 theorem add_mul_mod_self_left (a b c : ℤ) : (a + b * c) mod b = a mod b :=
@@ -405,7 +405,7 @@ calc
   a * b div (a * c) = a * (b div c * c + b mod c) div (a * c) : eq_div_mul_add_mod
 
     ... = (a * (b mod c) + a * c * (b div c)) div (a * c)     :
-              by rewrite [!add.comm, mul.left_distrib, mul.comm _ c, -!mul.assoc]
+              by rewrite [!add.comm, int.mul_left_distrib, mul.comm _ c, -!mul.assoc]
     ... = a * (b mod c) div (a * c) + b div c                 : !add_mul_div_self_left H3
     ... = 0 + b div c                                         : {!div_eq_zero_of_lt H5 H4}
     ... = b div c                                             : zero_add
@@ -438,7 +438,7 @@ theorem lt_div_add_one_mul_self (a : ℤ) {b : ℤ} (H : b > 0) : a < (a div b +
 have H : a - a div b * b < b, from !mod_lt_of_pos H,
 calc
       a < a div b * b + b    : iff.mpr !lt_add_iff_sub_lt_left H
-    ... = (a div b + 1) * b  : by rewrite [mul.right_distrib, one_mul]
+    ... = (a div b + 1) * b  : by rewrite [right_distrib, one_mul]
 
 theorem div_le_of_nonneg_of_nonneg {a b : ℤ} (Ha : a ≥ 0) (Hb : b ≥ 0) : a div b ≤ a :=
 obtain (m : ℕ) (Hm : a = m), from exists_eq_of_nat Ha,
@@ -647,7 +647,7 @@ have H3 : a * c < (b div c + 1) * c, from
     a * c ≤ b                          : H2
       ... = b div c * c + b mod c      : eq_div_mul_add_mod
       ... < b div c * c + c            : add_lt_add_left (!mod_lt_of_pos H1)
-      ... = (b div c + 1) * c          : by rewrite [mul.right_distrib, one_mul],
+      ... = (b div c + 1) * c          : by rewrite [right_distrib, one_mul],
 le_of_lt_add_one (lt_of_mul_lt_mul_right H3 (le_of_lt H1))
 
 theorem le_div_iff_mul_le {a b c : ℤ} (H : c > 0) : a ≤ b div c ↔ a * c ≤ b :=
@@ -668,7 +668,7 @@ lt_of_mul_lt_mul_right
 theorem lt_mul_of_div_lt {a b c : ℤ} (H1 : c > 0) (H2 : a div c < b) : a < b * c :=
 assert H3 : (a div c + 1) * c ≤ b * c,
   from !mul_le_mul_of_nonneg_right (add_one_le_of_lt H2) (le_of_lt H1),
-have H4 : a div c * c + c ≤ b * c, by rewrite [mul.right_distrib at H3, one_mul at H3]; apply H3,
+have H4 : a div c * c + c ≤ b * c, by rewrite [right_distrib at H3, one_mul at H3]; apply H3,
 calc
   a     = a div c * c + a mod c : eq_div_mul_add_mod
     ... < a div c * c + c       : add_lt_add_left (!mod_lt_of_pos H1)

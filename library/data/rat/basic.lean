@@ -158,12 +158,12 @@ theorem add_equiv_add {a1 b1 a2 b2 : prerat} (eqv1 : a1 ≡ a2) (eqv2 : b1 ≡ b
 calc
   (num a1 * denom b1 + num b1 * denom a1) * (denom a2 * denom b2)
       = num a1 * denom a2 * denom b1 * denom b2 + num b1 * denom b2 * denom a1 * denom a2 :
-          by rewrite [mul.right_distrib, *mul.assoc, mul.left_comm (denom b1),
+          by rewrite [right_distrib, *mul.assoc, mul.left_comm (denom b1),
                       mul.comm (denom b2), *mul.assoc]
   ... = num a2 * denom a1 * denom b1 * denom b2 + num b2 * denom b1 * denom a1 * denom a2 :
           by rewrite [↑equiv at *, eqv1, eqv2]
   ... = (num a2 * denom b2 + num b2 * denom a2) * (denom a1 * denom b1) :
-          by rewrite [mul.right_distrib, *mul.assoc, *mul.left_comm (denom b2),
+          by rewrite [right_distrib, *mul.assoc, *mul.left_comm (denom b2),
                       *mul.comm (denom b1), *mul.assoc, mul.left_comm (denom a2)]
 
 theorem mul_equiv_mul {a1 b1 a2 b2 : prerat} (eqv1 : a1 ≡ a2) (eqv2 : b1 ≡ b2) :
@@ -215,8 +215,8 @@ theorem add.comm (a b : prerat) : add a b ≡ add b a :=
 by rewrite [↑add, ↑equiv, ▸*, add.comm, mul.comm (denom a)]
 
 theorem add.assoc (a b c : prerat) : add (add a b) c ≡ add a (add b c) :=
-by rewrite [↑add, ↑equiv, ▸*, *(mul.comm (num c)), *(λy, mul.comm y (denom a)), *mul.left_distrib,
-            *mul.right_distrib, *mul.assoc, *add.assoc]
+by rewrite [↑add, ↑equiv, ▸*, *(mul.comm (num c)), *(λy, mul.comm y (denom a)), *left_distrib,
+            *right_distrib, *mul.assoc, *add.assoc]
 
 theorem add_zero (a : prerat) : add a zero ≡ a :=
 by rewrite [↑add, ↑equiv, ↑zero, ↑of_int, ▸*, *mul_one, zero_mul, add_zero]
@@ -238,12 +238,12 @@ have H : smul (denom a) (mul a (add b c)) (denom_pos a) =
    add (mul a b) (mul a c), from begin
   rewrite[↑smul, ↑mul, ↑add],
   congruence,
-  rewrite[*mul.left_distrib, *mul.right_distrib, -*int.mul.assoc],
+  rewrite[*left_distrib, *right_distrib, -+(int.mul_assoc)],
   have T : ∀ {x y z w : ℤ}, x*y*z*w=y*z*x*w, from
-    λx y z w, (!int.mul.assoc ⬝ !int.mul.comm) ▸ rfl,
+    λx y z w, (!int.mul_assoc ⬝ !int.mul_comm) ▸ rfl,
   exact !congr_arg2 T T,
   rewrite [mul.left_comm (denom a) (denom b) (denom c)],
-  rewrite int.mul.assoc
+  rewrite int.mul_assoc
 end,
 equiv.symm (H ▸ smul_equiv (denom_pos a))
 
@@ -258,7 +258,7 @@ theorem mul_inv_cancel : ∀{a : prerat}, ¬ a ≡ zero → mul a (inv a) ≡ on
         mul a (inv a) ≡ mul a ia : mul_equiv_mul !equiv.refl (inv_of_neg an_neg adp)
                   ... ≡ one      : begin
                                      esimp [equiv, num, denom, one, mul, of_int],
-                                     rewrite [*int.mul_one, *int.one_mul, int.mul.comm,
+                                     rewrite [*int.mul_one, *int.one_mul, algebra.mul.comm,
                                               neg_mul_comm]
                                    end)
     (assume an_zero : an = 0, absurd (equiv_zero_of_num_eq_zero an_zero) H)
@@ -268,7 +268,7 @@ theorem mul_inv_cancel : ∀{a : prerat}, ¬ a ≡ zero → mul a (inv a) ≡ on
         mul a (inv a) ≡ mul a ia : mul_equiv_mul !equiv.refl (inv_of_pos an_pos adp)
                   ... ≡ one      : begin
                                      esimp [equiv, num, denom, one, mul, of_int],
-                                     rewrite [*int.mul_one, *int.one_mul, int.mul.comm]
+                                     rewrite [*int.mul_one, *int.one_mul, algebra.mul.comm]
                                    end)
 
 theorem zero_not_equiv_one : ¬ zero ≡ one :=
@@ -306,8 +306,8 @@ theorem reduce_equiv : ∀ a : prerat, reduce a ≡ a
       (assume anz : an = 0,
         begin rewrite [↑reduce, if_pos anz, ↑equiv, anz], krewrite zero_mul end)
       (assume annz : an ≠ 0,
-        by rewrite [↑reduce, if_neg annz, ↑equiv, int.mul.comm, -!mul_div_assoc !gcd_dvd_left,
-                    -!mul_div_assoc !gcd_dvd_right, int.mul.comm])
+        by rewrite [↑reduce, if_neg annz, ↑equiv, algebra.mul.comm, -!mul_div_assoc !gcd_dvd_left,
+                    -!mul_div_assoc !gcd_dvd_right, algebra.mul.comm])
 
 theorem reduce_eq_reduce : ∀{a b : prerat}, a ≡ b → reduce a = reduce b
 | (mk an ad adpos) (mk bn bd bdpos) :=
@@ -331,7 +331,7 @@ theorem reduce_eq_reduce : ∀{a b : prerat}, a ≡ b → reduce a = reduce b
           {apply div_gcd_eq_div_gcd H adpos bdpos},
           {esimp, rewrite [gcd.comm, gcd.comm bn],
             apply div_gcd_eq_div_gcd_of_nonneg,
-              rewrite [int.mul.comm, -H, int.mul.comm],
+              rewrite [algebra.mul.comm, -H, algebra.mul.comm],
               apply annz,
               apply bnnz,
               apply le_of_lt adpos,

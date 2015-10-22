@@ -341,11 +341,11 @@ calc (pr1 p + pr1 q + pr1 r, pr2 p + pr2 q + pr2 r)
         = (pr1 p + (pr1 q + pr1 r), pr2 p + pr2 q + pr2 r)   : by rewrite add.assoc
     ... = (pr1 p + (pr1 q + pr1 r), pr2 p + (pr2 q + pr2 r)) : by rewrite add.assoc
 
-theorem add.comm (a b : ℤ) : a + b = b + a :=
+protected theorem add_comm (a b : ℤ) : a + b = b + a :=
 eq_of_repr_equiv_repr (equiv.trans !repr_add
    (equiv.symm (!padd_comm ▸ !repr_add)))
 
-theorem add.assoc (a b c : ℤ) : a + b + c = a + (b + c) :=
+protected theorem add_assoc (a b c : ℤ) : a + b + c = a + (b + c) :=
 eq_of_repr_equiv_repr (calc
          repr (a + b + c)
        ≡ padd (repr (a + b)) (repr c)           : repr_add
@@ -354,9 +354,9 @@ eq_of_repr_equiv_repr (calc
   ...  ≡ padd (repr a) (repr (b + c))           : padd_congr !equiv.refl !repr_add
   ...  ≡ repr (a + (b + c))                     : repr_add)
 
-theorem add_zero : Π (a : ℤ), a + 0 = a := int.rec (λm, rfl) (λm, rfl)
+protected theorem add_zero : Π (a : ℤ), a + 0 = a := int.rec (λm, rfl) (λm, rfl)
 
-theorem zero_add (a : ℤ) : 0 + a = a := !add.comm ▸ !add_zero
+protected theorem zero_add (a : ℤ) : 0 + a = a := !int.add_comm ▸ !int.add_zero
 
 /- negation -/
 
@@ -393,7 +393,7 @@ calc      pr1 p + pr1 q + pr2 q + pr2 p
     ... = pr1 p + (pr2 p + pr2 q + pr1 q) : algebra.add.comm
     ... = pr2 p + pr2 q + pr1 q + pr1 p   : algebra.add.comm
 
-theorem add.left_inv (a : ℤ) : -a + a = 0 :=
+protected theorem add_left_inv (a : ℤ) : -a + a = 0 :=
 have H : repr (-a + a) ≡ repr 0, from
   calc
     repr (-a + a) ≡ padd (repr (neg a)) (repr a) : repr_add
@@ -485,7 +485,7 @@ begin
     { rewrite algebra.add.comm, congruence, repeat rewrite mul.comm }
 end
 
-theorem mul.comm (a b : ℤ) : a * b = b * a :=
+protected theorem mul_comm (a b : ℤ) : a * b = b * a :=
 eq_of_repr_equiv_repr
   ((calc
     repr (a * b) = pmul (repr a) (repr b) : repr_mul
@@ -503,7 +503,7 @@ end
 
 theorem pmul_assoc (p q r: ℕ × ℕ) : pmul (pmul p q) r = pmul p (pmul q r) := pmul_assoc_prep
 
-theorem mul.assoc (a b c : ℤ) : (a * b) * c = a * (b * c) :=
+protected theorem mul_assoc (a b c : ℤ) : (a * b) * c = a * (b * c) :=
 eq_of_repr_equiv_repr
   ((calc
     repr (a * b * c) = pmul (repr (a * b)) (repr c) : repr_mul
@@ -512,13 +512,12 @@ eq_of_repr_equiv_repr
       ... = pmul (repr a) (repr (b * c)) : repr_mul
       ... = repr (a * (b * c)) : repr_mul) ▸ !equiv.refl)
 
-theorem mul_one : Π (a : ℤ), a * 1 = a
-| (of_nat m) := !zero_add -- zero_add happens to be def. = to this thm
+protected theorem mul_one : Π (a : ℤ), a * 1 = a
+| (of_nat m) := !int.zero_add -- zero_add happens to be def. = to this thm
 | -[1+ m]    := !nat.zero_add ▸ rfl
 
-
-theorem one_mul (a : ℤ) : 1 * a = a :=
-mul.comm a 1 ▸ mul_one a
+protected theorem one_mul (a : ℤ) : 1 * a = a :=
+int.mul_comm a 1 ▸ int.mul_one a
 
 private theorem mul_distrib_prep {a1 a2 b1 b2 c1 c2 : ℕ} :
  ((a1+b1)*c1+(a2+b2)*c2,     (a1+b1)*c2+(a2+b2)*c1) =
@@ -529,7 +528,7 @@ begin
     {rewrite add.comm4}
 end
 
-theorem mul.right_distrib (a b c : ℤ) : (a + b) * c = a * c + b * c :=
+protected theorem mul_right_distrib (a b c : ℤ) : (a + b) * c = a * c + b * c :=
 eq_of_repr_equiv_repr
   (calc
     repr ((a + b) * c) = pmul (repr (a + b)) (repr c) : repr_mul
@@ -539,40 +538,40 @@ eq_of_repr_equiv_repr
       ... = padd (repr (a * c)) (repr (b * c))                     : repr_mul
       ... ≡ repr (a * c + b * c)                                   : repr_add)
 
-theorem mul.left_distrib (a b c : ℤ) : a * (b + c) = a * b + a * c :=
+protected theorem mul_left_distrib (a b c : ℤ) : a * (b + c) = a * b + a * c :=
 calc
-  a * (b + c) = (b + c) * a : mul.comm
-    ... = b * a + c * a : mul.right_distrib
-    ... = a * b + c * a : mul.comm
-    ... = a * b + a * c : mul.comm
+  a * (b + c) = (b + c) * a : int.mul_comm
+    ... = b * a + c * a : int.mul_right_distrib
+    ... = a * b + c * a : int.mul_comm
+    ... = a * b + a * c : int.mul_comm
 
-theorem zero_ne_one : (0 : int) ≠ 1 :=
+protected theorem zero_ne_one : (0 : int) ≠ 1 :=
 assume H : 0 = 1, !succ_ne_zero (of_nat.inj H)⁻¹
 
-theorem eq_zero_or_eq_zero_of_mul_eq_zero {a b : ℤ} (H : a * b = 0) : a = 0 ∨ b = 0 :=
+protected theorem eq_zero_or_eq_zero_of_mul_eq_zero {a b : ℤ} (H : a * b = 0) : a = 0 ∨ b = 0 :=
 or.imp eq_zero_of_nat_abs_eq_zero eq_zero_of_nat_abs_eq_zero
   (eq_zero_or_eq_zero_of_mul_eq_zero (by rewrite [-nat_abs_mul, H]))
 
 protected definition integral_domain [reducible] [trans_instance] : algebra.integral_domain int :=
 ⦃algebra.integral_domain,
   add            := int.add,
-  add_assoc      := add.assoc,
+  add_assoc      := int.add_assoc,
   zero           := 0,
-  zero_add       := zero_add,
-  add_zero       := add_zero,
+  zero_add       := int.zero_add,
+  add_zero       := int.add_zero,
   neg            := int.neg,
-  add_left_inv   := add.left_inv,
-  add_comm       := add.comm,
+  add_left_inv   := int.add_left_inv,
+  add_comm       := int.add_comm,
   mul            := int.mul,
-  mul_assoc      := mul.assoc,
+  mul_assoc      := int.mul_assoc,
   one            := 1,
-  one_mul        := one_mul,
-  mul_one        := mul_one,
-  left_distrib   := mul.left_distrib,
-  right_distrib  := mul.right_distrib,
-  mul_comm       := mul.comm,
-  zero_ne_one    := zero_ne_one,
-  eq_zero_or_eq_zero_of_mul_eq_zero := @eq_zero_or_eq_zero_of_mul_eq_zero⦄
+  one_mul        := int.one_mul,
+  mul_one        := int.mul_one,
+  left_distrib   := int.mul_left_distrib,
+  right_distrib  := int.mul_right_distrib,
+  mul_comm       := int.mul_comm,
+  zero_ne_one    := int.zero_ne_one,
+  eq_zero_or_eq_zero_of_mul_eq_zero := @int.eq_zero_or_eq_zero_of_mul_eq_zero⦄
 
 definition int_has_sub [reducible] [instance] [priority int.prio] : has_sub int :=
 has_sub.mk has_sub.sub

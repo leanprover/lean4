@@ -54,6 +54,9 @@ section
   theorem lt.irrefl (a : A) : ¬ a < a := !strict_order.lt_irrefl
   theorem not_lt_self (a : A) : ¬ a < a := !lt.irrefl   -- alternate syntax
 
+  theorem lt_self_iff_false [simp] (a : A) : a < a ↔ false :=
+  iff_false_intro (lt.irrefl a)
+
   theorem lt.trans [trans] {a b c : A} : a < b → b < c → a < c := !strict_order.lt_trans
 
   theorem gt.trans [trans] {a b c : A} (H1 : a > b) (H2: b > c) : a > c := lt.trans H2 H1

@@ -251,7 +251,7 @@ have H2 : k - n + n = m + n, from
     k - n + n = k     : sub_add_cancel (le.intro H)
           ... = n + m : H⁻¹
           ... = m + n : !add.comm,
-add.cancel_right H2
+add.right_cancel H2
 
 theorem eq_sub_of_add_eq {a b c : ℕ} (H : a + c = b) : a = b - c :=
 (sub_eq_of_add_eq (!add.comm ▸ H))⁻¹
@@ -287,7 +287,7 @@ sub.cases
                ... = m + m'       : Hl
                ... = k            : Hm
                ... = k - n + n    : sub_add_cancel H3,
-    le.intro (add.cancel_right H4))
+    le.intro (add.right_cancel H4))
 
 open algebra
 

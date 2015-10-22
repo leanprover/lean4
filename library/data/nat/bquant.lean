@@ -54,7 +54,7 @@ namespace nat
 
   theorem not_bex_succ {P : nat → Prop} {n : nat} (H₁ : ¬ bex n P) (H₂ : ¬ P n) : ¬ bex (succ n) P :=
   λ H, obtain (w : nat) (Hw : w < succ n ∧ P w), from H,
-    and.rec_on Hw (λ hltsn hp, or.rec_on (eq_or_lt_of_le (le_of_succ_le_succ hltsn))
+    and.rec_on Hw (λ hltsn hp, or.rec_on (nat.eq_or_lt_of_le (le_of_succ_le_succ hltsn))
       (λ heq : w = n, absurd (eq.rec_on heq hp) H₂)
       (λ hltn : w < n, absurd (exists.intro w (and.intro hltn hp)) H₁))
 
@@ -68,7 +68,7 @@ namespace nat
   λ x Hlt, H x (lt.step Hlt)
 
   theorem ball_succ_of_ball {n : nat} {P : nat → Prop} (H₁ : ball n P) (H₂ : P n) : ball (succ n) P :=
-  λ (x : nat) (Hlt : x < succ n), or.elim (eq_or_lt_of_le (le_of_succ_le_succ Hlt))
+  λ (x : nat) (Hlt : x < succ n), or.elim (nat.eq_or_lt_of_le (le_of_succ_le_succ Hlt))
     (λ heq : x = n, eq.rec_on (eq.rec_on heq rfl) H₂)
     (λ hlt : x < n, H₁ x hlt)
 

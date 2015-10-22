@@ -178,7 +178,7 @@ calc
     ... = pr2 q + pr1 p         : by rewrite add.comm
 
 protected theorem equiv.trans [trans] {p q r : ℕ × ℕ} (H1 : p ≡ q) (H2 : q ≡ r) : p ≡ r :=
-add.cancel_right (calc
+add.right_cancel (calc
    pr1 p + pr2 r + pr2 q = pr1 p + pr2 q + pr2 r : by rewrite add.right_comm
     ... = pr2 p + pr1 q + pr2 r                  : {H1}
     ... = pr2 p + (pr1 q + pr2 r)                : by rewrite add.assoc
@@ -221,7 +221,7 @@ theorem abstr_repr : Π (a : ℤ), abstr (repr a) = a
 | -[1+ m]    := rfl
 
 theorem repr_sub_nat_nat (m n : ℕ) : repr (sub_nat_nat m n) ≡ (m, n) :=
-lt_ge_by_cases
+nat.lt_ge_by_cases
   (take H : m < n,
     have H1 : repr (sub_nat_nat m n) = (0, n - m), by
       rewrite [sub_nat_nat_of_lt H, -(succ_pred_of_pos (sub_pos_of_lt H))],
@@ -271,7 +271,7 @@ section
 local attribute abstr [reducible]
 local attribute dist [reducible]
 theorem nat_abs_abstr : Π (p : ℕ × ℕ), nat_abs (abstr p) = dist (pr1 p) (pr2 p)
-| (m, n) := lt_ge_by_cases
+| (m, n) := nat.lt_ge_by_cases
   (assume H : m < n,
     calc
       nat_abs (abstr (m, n)) = nat_abs (-[1+ pred (n - m)]) : int.abstr_of_lt H
@@ -462,7 +462,7 @@ theorem repr_mul : Π (a b : ℤ), repr (a * b) = pmul (repr a) (repr b)
 theorem equiv_mul_prep {xa ya xb yb xn yn xm ym : ℕ}
   (H1 : xa + yb = ya + xb) (H2 : xn + ym = yn + xm)
 : xa*xn+ya*yn+(xb*ym+yb*xm) = xa*yn+ya*xn+(xb*xm+yb*ym) :=
-nat.add.cancel_right (calc
+nat.add.right_cancel (calc
             xa*xn+ya*yn + (xb*ym+yb*xm) + (yb*xn+xb*yn + (xb*xn+yb*yn))
           = xa*xn+ya*yn + (yb*xn+xb*yn) + (xb*ym+yb*xm + (xb*xn+yb*yn)) : by rewrite add.comm4
       ... = xa*xn+ya*yn + (yb*xn+xb*yn) + (xb*xn+yb*yn + (xb*ym+yb*xm)) : by rewrite {xb*ym+yb*xm +_}nat.add_comm

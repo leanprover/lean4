@@ -151,7 +151,7 @@ left_comm nat.add_comm nat.add_assoc
 protected theorem add.right_comm : Π (n m k : ℕ), n + m + k = n + k + m :=
 right_comm nat.add_comm nat.add_assoc
 
-theorem add.cancel_left {n m k : ℕ} : n + m = n + k → m = k :=
+protected theorem add.left_cancel {n m k : ℕ} : n + m = n + k → m = k :=
 nat.induction_on n
   (take H : 0 + m = 0 + k,
     !nat.zero_add⁻¹ ⬝ H ⬝ !nat.zero_add)
@@ -164,9 +164,9 @@ nat.induction_on n
     have n + m = n + k, from succ.inj this,
     IH this)
 
-theorem add.cancel_right {n m k : ℕ} (H : n + m = k + m) : n = k :=
+protected theorem add.right_cancel {n m k : ℕ} (H : n + m = k + m) : n = k :=
 have H2 : m + n = m + k, from !nat.add_comm ⬝ H ⬝ !nat.add_comm,
-  add.cancel_left H2
+  add.left_cancel H2
 
 theorem eq_zero_of_add_eq_zero_right {n m : ℕ} : n + m = 0 → n = 0 :=
 nat.induction_on n

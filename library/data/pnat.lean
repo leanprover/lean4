@@ -88,7 +88,7 @@ theorem max_eq_left {a b : ℕ+} (H : ¬ a < b) : max a b = a :=
 begin rewrite lt.def at H, exact pnat.eq (max_eq_left (le_of_not_gt H)) end
 
 theorem le_of_lt {a b : ℕ+} : a < b → a ≤ b :=
-begin rewrite [lt.def, le.def], apply le_of_lt end
+begin rewrite [lt.def, le.def], apply nat.le_of_lt end
 
 theorem not_lt_of_ge {a b : ℕ+} : a ≤ b → ¬ (b < a) :=
 begin rewrite [lt.def, le.def], apply not_lt_of_ge end

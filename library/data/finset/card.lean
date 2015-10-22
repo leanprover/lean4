@@ -131,7 +131,7 @@ finset.induction_on s
         (assume Hnfa : f a ∉ image f s',
            have H2 : card (image f s') + 1 = card s' + 1,
              by rewrite [card_insert_of_not_mem Hnfa at H1]; assumption,
-           have H3 : card (image f s') = card s', from add.cancel_right H2,
+           have H3 : card (image f s') = card s', from add.right_cancel H2,
            have injf : inj_on f (ts s'), from IH H3,
            show inj_on f (set.insert a (ts s')), from
              take x1 x2,

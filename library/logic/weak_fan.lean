@@ -50,7 +50,7 @@ private lemma Y_unique : ∀ {P l₁ l₂}, length l₁ = length l₂ → Y P l�
 | P []       (a₂::l₂) h₁ h₂ h₃ := by contradiction
 | P (a₁::l₁) []       h₁ h₂ h₃ := by contradiction
 | P (a₁::l₁) (a₂::l₂) h₁ h₂ h₃ :=
-  have n₁ : length l₁ = length l₂, by rewrite [*length_cons at h₁]; apply add.cancel_right h₁,
+  have n₁ : length l₁ = length l₂, by rewrite [*length_cons at h₁]; apply add.right_cancel h₁,
   have n₂ : Y P l₁,  from and.elim_left h₂,
   have n₃ : Y P l₂,  from and.elim_left h₃,
   assert ih : l₁ = l₂, from Y_unique n₁ n₂ n₃,

@@ -351,7 +351,7 @@ quot.lift_on₂ s₁ s₂
   (λ l₁ l₂,
     to_finset_of_nodup (product (elt_of l₁) (elt_of l₂))
                        (nodup_product (has_property l₁) (has_property l₂)))
-  (λ v₁ v₂ w₁ w₂ p₁ p₂, quot.sound (perm_product p₁ p₂))
+  (λ v₁ v₂ w₁ w₂ p₁ p₂, begin apply @quot.sound, apply perm_product p₁ p₂ end)
 
 infix [priority finset.prio] * := product
 

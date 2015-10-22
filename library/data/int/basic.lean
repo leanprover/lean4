@@ -48,10 +48,12 @@ attribute int.of_nat [coercion]
 
 notation `-[1+ ` n `]` := int.neg_succ_of_nat n    -- for pretty-printing output
 
-definition int_has_zero [reducible] [instance] : has_zero int :=
+protected definition prio : num := num.pred nat.prio
+
+definition int_has_zero [reducible] [instance] [priority int.prio] : has_zero int :=
 has_zero.mk (of_nat 0)
 
-definition int_has_one [reducible] [instance] : has_one int :=
+definition int_has_one [reducible] [instance] [priority int.prio] : has_one int :=
 has_one.mk (of_nat 1)
 
 theorem of_nat_zero : of_nat (0:nat) = (0:int) :=
@@ -88,8 +90,6 @@ protected definition mul : ℤ → ℤ → ℤ
 | -[1+ m]    -[1+ n]    := succ m * succ n
 
 /- notation -/
-
-protected definition prio : num := num.pred nat.prio
 
 definition int_has_add [reducible] [instance] [priority int.prio] : has_add int := has_add.mk int.add
 definition int_has_neg [reducible] [instance] [priority int.prio] : has_neg int := has_neg.mk int.neg

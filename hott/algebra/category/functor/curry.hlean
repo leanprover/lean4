@@ -12,7 +12,7 @@ open category prod nat_trans eq prod.ops iso equiv
 
 namespace functor
 
-  variables {C D E : Precategory} (F : C ×c D ⇒ E) (G : C ⇒ E ^c D)
+  variables {C D E : Precategory} (F F' : C ×c D ⇒ E) (G G' : C ⇒ E ^c D)
   definition functor_curry_ob [reducible] [constructor] (c : C) : E ^c D :=
   functor.mk (λd, F (c,d))
              (λd d' g, F (id, g))
@@ -22,11 +22,10 @@ namespace functor
                  ... = F ((id,g') ∘ (id, g))        : by esimp
                  ... = F (id,g') ∘ F (id, g)        : by rewrite respect_comp)
 
-  local abbreviation Fob := @functor_curry_ob
-
-  definition functor_curry_hom [constructor] ⦃c c' : C⦄ (f : c ⟶ c') : Fob F c ⟹ Fob F c' :=
+  definition functor_curry_hom [constructor] ⦃c c' : C⦄ (f : c ⟶ c')
+    : functor_curry_ob F c ⟹ functor_curry_ob F c' :=
   begin
-    fapply @nat_trans.mk,
+    fapply nat_trans.mk,
       {intro d, exact F (f, id)},
       {intro d d' g, calc
         F (id, g) ∘ F (f, id) = F (id ∘ f, g ∘ id) : respect_comp F
@@ -37,7 +36,7 @@ namespace functor
                    ... = F (f, id) ∘ F (id, g) : (respect_comp F (f, id) (id, g))⁻¹ᵖ
         }
   end
-  local abbreviation Fhom := @functor_curry_hom
+  local abbreviation Fhom [constructor] := @functor_curry_hom
 
   theorem functor_curry_hom_def ⦃c c' : C⦄ (f : c ⟶ c') (d : D) :
     (Fhom F f) d = to_fun_hom F (f, id) := idp
@@ -65,9 +64,9 @@ namespace functor
 
   definition functor_uncurry_ob [reducible] (p : C ×c D) : E :=
   to_fun_ob (G p.1) p.2
-  local abbreviation Gob := @functor_uncurry_ob
 
-  definition functor_uncurry_hom ⦃p p' : C ×c D⦄ (f : hom p p') : Gob G p ⟶ Gob G p'  :=
+  definition functor_uncurry_hom ⦃p p' : C ×c D⦄ (f : hom p p')
+    : functor_uncurry_ob G p ⟶ functor_uncurry_ob G p'  :=
   to_fun_hom (to_fun_ob G p'.1) f.2 ∘ natural_map (to_fun_hom G f.1) p.2
   local abbreviation Ghom := @functor_uncurry_hom
 
@@ -119,16 +118,9 @@ namespace functor
     : functor_curry (functor_uncurry G) c = G c :=
   begin
   fapply functor_eq,
-   {intro d, reflexivity},
-   {intro d d' g,
-     apply concat, apply id_leftright,
-      show to_fun_hom (functor_curry (functor_uncurry G) c) g = to_fun_hom (G c) g,
-      from calc
-        to_fun_hom (functor_curry (functor_uncurry G) c) g
-            = to_fun_hom (G c) g ∘ natural_map (to_fun_hom G (ID c)) d : by esimp
-        ... = to_fun_hom (G c) g ∘ natural_map (ID (G c)) d            : by rewrite respect_id
-        ... = to_fun_hom (G c) g ∘ id                                  : by reflexivity
-        ... = to_fun_hom (G c) g                                       : by rewrite id_right}
+   { intro d, reflexivity},
+   { intro d d' g, refine !id_leftright ⬝ _, esimp,
+     rewrite [▸*, ↑functor_uncurry_hom, respect_id, ▸*, id_right]}
   end
 
   theorem functor_curry_functor_uncurry : functor_curry (functor_uncurry G) = G :=
@@ -156,18 +148,30 @@ namespace functor
            functor_curry_functor_uncurry
            functor_uncurry_functor_curry
 
-
-  definition functor_prod_flip [constructor] (C D : Precategory) : C ×c D ⇒ D ×c C :=
-  functor.mk (λp, (p.2, p.1))
-             (λp p' h, (h.2, h.1))
-             (λp, idp)
-             (λp p' p'' h' h, idp)
-
-  definition functor_prod_flip_functor_prod_flip (C D : Precategory)
-    : functor_prod_flip D C ∘f (functor_prod_flip C D) = functor.id :=
+  variables {F F' G G'}
+  definition nat_trans_curry_nat [constructor] (η : F ⟹ F') (c : C)
+    : functor_curry_ob F c ⟹ functor_curry_ob F' c :=
   begin
-  fapply functor_eq, {intro p, apply prod.eta},
-  intro p p' h, cases p with c d, cases p' with c' d',
-  apply id_leftright,
+    fapply nat_trans.mk: esimp,
+    { intro d, exact η (c, d)},
+    { intro d d' f, apply naturality}
   end
+
+  definition nat_trans_curry [constructor] (η : F ⟹ F')
+    : functor_curry F ⟹ functor_curry F' :=
+  begin
+    fapply nat_trans.mk: esimp,
+    { exact nat_trans_curry_nat η},
+    { intro c c' f, apply nat_trans_eq, intro d, esimp, apply naturality}
+  end
+
+  definition nat_trans_uncurry [constructor] (η : G ⟹ G')
+    : functor_uncurry G ⟹ functor_uncurry G' :=
+  begin
+    fapply nat_trans.mk: esimp,
+    { intro v, unfold functor_uncurry_ob, exact (η v.1) v.2},
+    { intro v w f, unfold functor_uncurry_hom,
+      rewrite [-assoc, ap010 natural_map (naturality η f.1) v.2, assoc, naturality, -assoc]}
+  end
+
 end functor

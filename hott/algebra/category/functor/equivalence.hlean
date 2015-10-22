@@ -32,10 +32,12 @@ namespace category
   structure isomorphism (C D : Precategory) :=
     (to_functor : C ⇒ D)
     (struct : is_isomorphism to_functor)
-  --   infix `⊣`:55 := adjoint
 
   infix ` ≃c `:25 := equivalence
   infix ` ≅c `:25 := isomorphism
+
+  attribute equivalence.struct isomorphism.struct [instance] [priority 1500]
+  attribute equivalence.to_functor isomorphism.to_functor [coercion]
 
   definition is_iso_unit [instance] (F : C ⇒ D) [H : is_equivalence F] : is_iso (unit F) :=
   !is_equivalence.is_iso_unit
@@ -43,14 +45,14 @@ namespace category
   definition is_iso_counit [instance] (F : C ⇒ D) [H : is_equivalence F] : is_iso (counit F) :=
   !is_equivalence.is_iso_counit
 
-  definition iso_unit (F : C ⇒ D) [H : is_equivalence F] : F ⁻¹ᴱ ∘f F ≅ 1 :=
+  definition iso_unit (F : C ⇒ D) [H : is_equivalence F] : F⁻¹ᴱ ∘f F ≅ 1 :=
   (@(iso.mk _) !is_iso_unit)⁻¹ⁱ
 
-  definition iso_counit (F : C ⇒ D) [H : is_equivalence F] : F ∘f F ⁻¹ᴱ ≅ 1 :=
+  definition iso_counit (F : C ⇒ D) [H : is_equivalence F] : F ∘f F⁻¹ᴱ ≅ 1 :=
   @(iso.mk _) !is_iso_counit
 
-  definition split_essentially_surjective_of_is_equivalence (F : C ⇒ D) [H : is_equivalence F]
-    : split_essentially_surjective F :=
+  definition split_essentially_surjective_of_is_equivalence (F : C ⇒ D)
+    [H : is_equivalence F] : split_essentially_surjective F :=
   begin
    intro d, fconstructor,
    { exact F⁻¹ d},
@@ -154,8 +156,8 @@ namespace category
       apply naturality (unit F)},
   end
 
-  definition is_isomorphism.mk {F : C ⇒ D} (G : D ⇒ C) (p : G ∘f F = 1) (q : F ∘f G = 1)
-    : is_isomorphism F :=
+  definition is_isomorphism.mk [constructor] {F : C ⇒ D} (G : D ⇒ C)
+    (p : G ∘f F = 1) (q : F ∘f G = 1) : is_isomorphism F :=
   begin
     constructor,
     { apply fully_faithful_of_is_equivalence, fapply is_equivalence.mk,
@@ -168,15 +170,17 @@ namespace category
       { exact ap010 to_fun_ob p}}
   end
 
-  definition is_equiv_of_is_isomorphism (F : C ⇒ D) [H : is_isomorphism F]
-    : is_equiv (to_fun_ob F) :=
+  definition isomorphism.MK [constructor] (F : C ⇒ D) (G : D ⇒ C)
+    (p : G ∘f F = 1) (q : F ∘f G = 1) : C ≅c D :=
+  isomorphism.mk F (is_isomorphism.mk G p q)
+
+  definition is_equiv_ob_of_is_isomorphism [instance] [unfold 4] (F : C ⇒ D)
+    [H : is_isomorphism F] : is_equiv (to_fun_ob F) :=
   pr2 H
 
-  definition is_fully_faithful_of_is_isomorphism (F : C ⇒ D) [H : is_isomorphism F]
-    : fully_faithful F :=
+  definition is_fully_faithful_of_is_isomorphism [instance] [unfold 4] (F : C ⇒ D)
+    [H : is_isomorphism F] : fully_faithful F :=
   pr1 H
-
-  local attribute is_fully_faithful_of_is_isomorphism is_equiv_of_is_isomorphism [instance]
 
   definition strict_inverse [constructor] (F : C ⇒ D) [H : is_isomorphism F] : D ⇒ C :=
   begin
@@ -185,7 +189,7 @@ namespace category
     { intro d d' g, exact (to_fun_hom F)⁻¹ᶠ (inv_of_eq !right_inv ∘ g ∘ hom_of_eq !right_inv)},
     { intro d, apply inv_eq_of_eq, rewrite [respect_id,id_left], apply left_inverse},
     { intro d₁ d₂ d₃ g₂ g₁, apply inv_eq_of_eq, rewrite [respect_comp F,+right_inv (to_fun_hom F)],
-      rewrite [+assoc], esimp, /-apply ap (λx, _ ∘ x), FAILS-/ refine ap (λx, (x ∘ _) ∘ _) _,
+      rewrite [+assoc], esimp, /-apply ap (λx, (x ∘ _) ∘ _), FAILS-/ refine ap (λx, (x ∘ _) ∘ _) _,
       refine !id_right⁻¹ ⬝ _, rewrite [▸*,-+assoc], refine ap (λx, _ ∘ _ ∘ x) _,
       exact !right_inverse⁻¹},
   end
@@ -212,7 +216,7 @@ namespace category
       { rewrite [adj,▸*,respect_hom_of_eq F]}},
   end
 
-  definition is_equivalence_of_is_isomorphism [instance] (F : C ⇒ D) [H : is_isomorphism F]
+  definition is_equivalence_of_is_isomorphism [instance] [constructor] (F : C ⇒ D) [H : is_isomorphism F]
     : is_equivalence F :=
   begin
     fapply is_equivalence.mk,
@@ -221,7 +225,11 @@ namespace category
     { apply iso_of_eq !strict_right_inverse},
   end
 
-  theorem is_hprop_is_equivalence [instance] {C : Category} {D : Precategory} (F : C ⇒ D) : is_hprop (is_equivalence F) :=
+  definition equivalence_of_isomorphism [constructor] (F : C ≅c D) : C ≃c D :=
+  equivalence.mk F _
+
+  theorem is_hprop_is_equivalence [instance] {C : Category} {D : Precategory} (F : C ⇒ D)
+    : is_hprop (is_equivalence F) :=
   begin
     assert f : is_equivalence F ≃ Σ(H : is_left_adjoint F), is_iso (unit F) × is_iso (counit F),
     { fapply equiv.MK,
@@ -238,14 +246,15 @@ namespace category
 
   /- closure properties -/
 
-  definition is_isomorphism_id [instance] (C : Precategory) : is_isomorphism (1 : C ⇒ C) :=
+  definition is_isomorphism_id [instance] [constructor] (C : Precategory)
+    : is_isomorphism (1 : C ⇒ C) :=
   is_isomorphism.mk 1 !functor.id_right !functor.id_right
 
-  definition is_isomorphism_strict_inverse (F : C ⇒ D) [K : is_isomorphism F]
+  definition is_isomorphism_strict_inverse [constructor] (F : C ⇒ D) [K : is_isomorphism F]
     : is_isomorphism F⁻¹ˢ :=
   is_isomorphism.mk F !strict_right_inverse !strict_left_inverse
 
-  definition is_isomorphism_compose (G : D ⇒ E) (F : C ⇒ D)
+  definition is_isomorphism_compose [constructor] (G : D ⇒ E) (F : C ⇒ D)
     [H : is_isomorphism G] [K : is_isomorphism F] : is_isomorphism (G ∘f F) :=
   is_isomorphism.mk
     (F⁻¹ˢ ∘f G⁻¹ˢ)
@@ -258,58 +267,150 @@ namespace category
                strict_right_inverse]
     end end
 
-  definition is_equivalence_id (C : Precategory) : is_equivalence (1 : C ⇒ C) := _
+  definition is_equivalence_id [constructor] (C : Precategory) : is_equivalence (1 : C ⇒ C) := _
 
-  definition is_equivalence_strict_inverse (F : C ⇒ D) [K : is_equivalence F]
-    : is_equivalence F ⁻¹ᴱ :=
+  definition is_equivalence_inverse [constructor] (F : C ⇒ D) [K : is_equivalence F]
+    : is_equivalence F⁻¹ᴱ :=
   is_equivalence.mk F (iso_counit F) (iso_unit F)
 
-/-
-  definition is_equivalence_compose (G : D ⇒ E) (F : C ⇒ D)
+  definition is_equivalence_compose [constructor] (G : D ⇒ E) (F : C ⇒ D)
     [H : is_equivalence G] [K : is_equivalence F] : is_equivalence (G ∘f F) :=
   is_equivalence.mk
-    (F ⁻¹ᴱ ∘f G ⁻¹ᴱ)
+    (F⁻¹ᴱ ∘f G⁻¹ᴱ)
     abstract begin
-      rewrite [functor.assoc,-functor.assoc F ⁻¹ᴱ],
---      refine ((_ ∘fi _) ∘if _) ⬝i _,
+      rewrite [functor.assoc,-functor.assoc F⁻¹ᴱ],
+      refine ((_ ∘fi !iso_unit) ∘if _) ⬝i _,
+      refine (iso_of_eq !functor.id_right ∘if _) ⬝i _,
+      apply iso_unit
     end end
     abstract begin
-      rewrite [functor.assoc,-functor.assoc G,strict_right_inverse,functor.id_right,
-               strict_right_inverse]
+      rewrite [functor.assoc,-functor.assoc G],
+      refine ((_ ∘fi !iso_counit) ∘if _) ⬝i _,
+      refine (iso_of_eq !functor.id_right ∘if _) ⬝i _,
+      apply iso_counit
     end end
 
-  definition is_equivalence_equiv (F : C ⇒ D)
+  variable (C)
+  definition equivalence.refl [refl] [constructor] : C ≃c C :=
+  equivalence.mk _ !is_equivalence_id
+
+  definition isomorphism.refl [refl] [constructor] : C ≅c C :=
+  isomorphism.mk _ !is_isomorphism_id
+
+  variable {C}
+
+  definition equivalence.symm [symm] [constructor] (H : C ≃c D) : D ≃c C :=
+  equivalence.mk _ (is_equivalence_inverse H)
+
+  definition isomorphism.symm [symm] [constructor] (H : C ≅c D) : D ≅c C :=
+  isomorphism.mk _ (is_isomorphism_strict_inverse H)
+
+  definition equivalence.trans [trans] [constructor] (H : C ≃c D) (K : D ≃c E) : C ≃c E :=
+  equivalence.mk _ (is_equivalence_compose K H)
+
+  definition isomorphism.trans [trans] [constructor] (H : C ≅c D) (K : D ≅c E) : C ≅c E :=
+  isomorphism.mk _ (is_isomorphism_compose K H)
+
+  definition equivalence.to_strict_inverse [unfold 3] (H : C ≃c D) : D ⇒ C :=
+  H⁻¹ᴱ
+
+  definition isomorphism.to_strict_inverse [unfold 3] (H : C ≅c D) : D ⇒ C :=
+  H⁻¹ˢ
+
+  definition is_isomorphism_of_is_equivalence [constructor] {C D : Category} (F : C ⇒ D)
+    [H : is_equivalence F] : is_isomorphism F :=
+  begin
+    fapply is_isomorphism.mk,
+    { exact F⁻¹ᴱ},
+    { apply eq_of_iso, apply iso_unit},
+    { apply eq_of_iso, apply iso_counit},
+  end
+
+  definition isomorphism_of_equivalence [constructor] {C D : Category} (F : C ≃c D) : C ≅c D :=
+  isomorphism.mk F !is_isomorphism_of_is_equivalence
+
+  definition equivalence_eq {C : Category} {D : Precategory} {F F' : C ≃c D}
+    (p : equivalence.to_functor F = equivalence.to_functor F') : F = F' :=
+  begin
+    induction F, induction F', exact apd011 equivalence.mk p !is_hprop.elim
+  end
+
+  definition isomorphism_eq {F F' : C ≅c D}
+    (p : isomorphism.to_functor F = isomorphism.to_functor F') : F = F' :=
+  begin
+    induction F, induction F', exact apd011 isomorphism.mk p !is_hprop.elim
+  end
+
+  definition is_equiv_isomorphism_of_equivalence [constructor] (C D : Category)
+    : is_equiv (@equivalence_of_isomorphism C D) :=
+  begin
+    fapply adjointify,
+    { exact isomorphism_of_equivalence},
+    { intro F, apply equivalence_eq, reflexivity},
+    { intro F, apply isomorphism_eq, reflexivity},
+  end
+
+  definition isomorphism_equiv_equivalence [constructor] (C D : Category)
+    : (C ≅c D) ≃ (C ≃c D) :=
+  equiv.mk _ !is_equiv_isomorphism_of_equivalence
+
+  definition isomorphism_of_eq [constructor] {C D : Precategory} (p : C = D) : C ≅c D :=
+  isomorphism.MK (functor_of_eq p)
+                 (functor_of_eq p⁻¹)
+                 (by induction p; reflexivity)
+                 (by induction p; reflexivity)
+
+  definition equiv_ob_of_isomorphism [constructor] {C D : Precategory} (H : C ≅c D) : C ≃ D :=
+  equiv.mk H _
+
+  definition equiv_hom_of_isomorphism [constructor] {C D : Precategory} (H : C ≅c D) (c c' : C)
+    : c ⟶ c' ≃ H c ⟶ H c' :=
+  equiv.mk (to_fun_hom (isomorphism.to_functor H)) _
+
+  definition is_equiv_isomorphism_of_eq [constructor] (C D : Precategory)
+    : is_equiv (@isomorphism_of_eq C D) :=
+  begin
+    fapply adjointify,
+    { intro H, fapply Precategory_eq_of_equiv,
+      { apply equiv_ob_of_isomorphism H},
+      { exact equiv_hom_of_isomorphism H},
+      { /-exact sorry FAILS-/ intros, esimp, apply respect_comp}},
+    { intro H, apply isomorphism_eq, esimp, fapply functor_eq: esimp,
+      { intro c, exact sorry},
+      { exact sorry}},
+    { intro p, induction p, esimp, exact sorry},
+  end
+
+  definition eq_equiv_isomorphism [constructor] (C D : Precategory)
+    : (C = D) ≃ (C ≅c D) :=
+  equiv.mk _ !is_equiv_isomorphism_of_eq
+
+  definition equivalence_of_eq [unfold 3] [reducible] {C D : Precategory} (p : C = D) : C ≃c D :=
+  equivalence_of_isomorphism (isomorphism_of_eq p)
+
+  definition eq_equiv_equivalence [constructor] (C D : Category) : (C = D) ≃ (C ≃c D) :=
+  !eq_equiv_isomorphism ⬝e !isomorphism_equiv_equivalence
+
+  /- TODO
+  definition is_equivalence_equiv [constructor] (F : C ⇒ D)
     : is_equivalence F ≃ (fully_faithful F × split_essentially_surjective F) :=
   sorry
 
+  definition is_equivalence_equiv_is_weak_equivalence [constructor] {C D : Category}
+    (F : C ⇒ D) : is_equivalence F ≃ is_weak_equivalence F :=
+  sorry
+  -/
+
+
+/- TODO?
   definition is_isomorphism_equiv1 (F : C ⇒ D) : is_equivalence F
     ≃ Σ(G : D ⇒ C) (η : 1 = G ∘f F) (ε : F ∘f G = 1),
-        sorry ▸ ap (λ(H : C ⇒ C), F ∘f H) η = ap (λ(H : D ⇒ D), H ∘f F) ε⁻¹ :=
+        sorry ⬝ ap (λ(H : C ⇒ C), F ∘f H) η ⬝ sorry = ap (λ(H : D ⇒ D), H ∘f F) ε⁻¹ :=
   sorry
 
   definition is_isomorphism_equiv2 (F : C ⇒ D) : is_equivalence F
     ≃ ∃(G : D ⇒ C), 1 = G ∘f F × F ∘f G = 1 :=
   sorry
-
-  definition isomorphism_of_eq {C D : Precategory} (p : C = D) : C ≅c D :=
-  sorry
-
-  definition is_equiv_isomorphism_of_eq (C D : Precategory) : is_equiv (@isomorphism_of_eq C D) :=
-  sorry
-
-  definition equivalence_of_eq {C D : Precategory} (p : C = D) : C ≃c D :=
-  sorry
-
-  definition is_isomorphism_of_is_equivalence {C D : Category} {F : C ⇒ D} (H : is_equivalence F)
-    : is_isomorphism F :=
-  sorry
-
-  definition is_equivalence_equiv_is_weak_equivalence {C D : Category} (F : C ⇒ D)
-    : is_equivalence F ≃ is_weak_equivalence F :=
-  sorry
-
-  definition is_equiv_equivalence_of_eq (C D : Category) : is_equiv (@equivalence_of_eq C D) :=
-  sorry
-
 -/
+
 end category

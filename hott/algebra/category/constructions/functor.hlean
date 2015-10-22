@@ -24,7 +24,7 @@ namespace functor
   definition Precategory_functor [reducible] [constructor] (D C : Precategory) : Precategory :=
   precategory.Mk (precategory_functor D C)
 
-  infixr ` ^c `:35 := Precategory_functor
+  infixr ` ^c `:80 := Precategory_functor
 
   section
   /- we prove that if a natural transformation is pointwise an iso, then it is an iso -/
@@ -59,7 +59,7 @@ namespace functor
   end
 
   definition is_iso_nat_trans [constructor] [instance] : is_iso η :=
-  is_iso.mk (nat_trans_left_inverse η) (nat_trans_right_inverse η)
+  is_iso.mk _ (nat_trans_left_inverse η) (nat_trans_right_inverse η)
 
   variable (iso)
   definition functor_iso [constructor] : F ≅ G :=
@@ -189,6 +189,62 @@ namespace functor
 
   end
 
+  section
+  variables {C D E : Precategory} {G G' : D ⇒ E} {F F' : C ⇒ D} {J : D ⇒ D}
+
+  definition is_iso_nf_compose [constructor] (G : D ⇒ E) (η : F ⟹ F') [H : is_iso η]
+    : is_iso (G ∘fn η) :=
+  is_iso.mk
+    (G ∘fn @inverse (C ⇒ D) _ _ _ η _)
+    abstract !fn_n_distrib⁻¹ ⬝ ap (λx, G ∘fn x) (@left_inverse  (C ⇒ D) _ _ _ η _)  ⬝ !fn_id end
+    abstract !fn_n_distrib⁻¹ ⬝ ap (λx, G ∘fn x) (@right_inverse (C ⇒ D) _ _ _ η _) ⬝ !fn_id end
+
+  definition is_iso_fn_compose [constructor] (η : G ⟹ G') (F : C ⇒ D) [H : is_iso η]
+    : is_iso (η ∘nf F) :=
+  is_iso.mk
+    (@inverse (D ⇒ E) _ _ _ η _ ∘nf F)
+    abstract !n_nf_distrib⁻¹ ⬝ ap (λx, x ∘nf F) (@left_inverse  (D ⇒ E) _ _ _ η _)  ⬝ !id_nf end
+    abstract !n_nf_distrib⁻¹ ⬝ ap (λx, x ∘nf F) (@right_inverse (D ⇒ E) _ _ _ η _)  ⬝ !id_nf end
+
+  definition functor_iso_compose [constructor] (G : D ⇒ E) (η : F ≅ F') : G ∘f F ≅ G ∘f F' :=
+  @(iso.mk _) (is_iso_nf_compose G (to_hom η))
+
+  definition iso_functor_compose [constructor] (η : G ≅ G') (F : C ⇒ D) : G ∘f F ≅ G' ∘f F :=
+  @(iso.mk _) (is_iso_fn_compose (to_hom η) F)
+
+  infixr ` ∘fi ` :62 := functor_iso_compose
+  infixr ` ∘if ` :62 := iso_functor_compose
+
+
+/- TODO: also needs n_nf_distrib and id_nf for these compositions
+  definition nidf_compose [constructor] (η : J ⟹ 1) (F : C ⇒ D) [H : is_iso η]
+    : is_iso (η ∘n1f F) :=
+  is_iso.mk
+   (@inverse (D ⇒ D) _ _ _ η _ ∘1nf F)
+   abstract _ end
+            _
+
+  definition idnf_compose [constructor] (η : 1 ⟹ J) (F : C ⇒ D) [H : is_iso η]
+    : is_iso (η ∘1nf F) :=
+  is_iso.mk _
+            _
+            _
+
+  definition fnid_compose [constructor] (F : D ⇒ E) (η : J ⟹ 1) [H : is_iso η]
+    : is_iso (F ∘fn1 η) :=
+  is_iso.mk _
+            _
+            _
+
+  definition fidn_compose [constructor] (F : D ⇒ E) (η : 1 ⟹ J) [H : is_iso η]
+    : is_iso (F ∘f1n η) :=
+  is_iso.mk _
+            _
+            _
+-/
+
+  end
+
   namespace functor
 
     variables {C : Precategory} {D : Category} {F G : D ^c C}
@@ -271,6 +327,11 @@ namespace functor
 
   end functor
 
+  /-
+    functors involving only the functor category
+    (see ..functor.curry for some other functors involving also products)
+  -/
+
   variables {C D I : Precategory}
   definition constant2_functor [constructor] (F : I ⇒ D ^c C) (c : C) : I ⇒ D :=
   functor.mk (λi, to_fun_ob (F i) c)
@@ -288,6 +349,38 @@ namespace functor
              @(constant2_functor_natural F)
              abstract begin intros, apply nat_trans_eq, intro i, esimp, apply respect_id end end
              abstract begin intros, apply nat_trans_eq, intro i, esimp, apply respect_comp end end
+
+  /- evaluation functor -/
+
+  definition eval_functor [constructor] (C D : Precategory) (d : D) : C ^c D ⇒ C :=
+  begin
+    fapply functor.mk: esimp,
+    { intro F, exact F d},
+    { intro G F η, exact η d},
+    { intro F, reflexivity},
+    { intro H G F η θ, reflexivity},
+  end
+
+  definition precomposition_functor [constructor] {C D} (E) (F : C ⇒ D)
+    : E ^c D ⇒ E ^c C :=
+  begin
+    fapply functor.mk: esimp,
+    { intro G, exact G ∘f F},
+    { intro G H η, exact η ∘nf F},
+    { intro G, reflexivity},
+    { intro G H I η θ, reflexivity},
+  end
+
+  definition postcomposition_functor [constructor] {C D} (E) (F : C ⇒ D)
+    : C ^c E ⇒ D ^c E :=
+  begin
+    fapply functor.mk: esimp,
+    { intro G, exact F ∘f G},
+    { intro G H η, exact F ∘fn η},
+    { intro G, apply fn_id},
+    { intro G H I η θ, apply fn_n_distrib},
+  end
+
 
 
 end functor

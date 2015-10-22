@@ -38,7 +38,7 @@ namespace functor
       G (F (g ∘ f)) = G (F g ∘ F f)     : by rewrite respect_comp
                 ... = G (F g) ∘ G (F f) : by rewrite respect_comp end)
 
-  infixr ` ∘f `:60 := functor.compose
+  infixr ` ∘f `:75 := functor.compose
 
   protected definition id [reducible] [constructor] {C : Precategory} : functor C C :=
   mk (λa, a) (λ a b f, f) (λ a, idp) (λ a b c f g, idp)
@@ -52,6 +52,7 @@ namespace functor
              (λc, idp)
              (λa b c g f, !id_id⁻¹)
 
+  /- introduction rule for equalities between functors -/
   definition functor_mk_eq' {F₁ F₂ : C → D} {H₁ : Π(a b : C), hom a b → hom (F₁ a) (F₁ b)}
     {H₂ : Π(a b : C), hom a b → hom (F₂ a) (F₂ b)} (id₁ id₂ comp₁ comp₂)
     (pF : F₁ = F₂) (pH : pF ▸ H₁ = H₂)
@@ -149,7 +150,12 @@ namespace functor
   protected definition comp_id_eq_id_comp (F : C ⇒ D) : F ∘f 1 = 1 ∘f F :=
   !functor.id_right ⬝ !functor.id_left⁻¹
 
-  -- "functor C D" is equivalent to a certain sigma type
+  definition functor_of_eq [constructor] {C D : Precategory} (p : C = D :> Precategory) : C ⇒ D :=
+  functor.mk (transport carrier p)
+             (λa b f, by induction p; exact f)
+             (by intro c; induction p; reflexivity)
+             (by intros; induction p; reflexivity)
+
   protected definition sigma_char :
     (Σ (to_fun_ob : C → D)
     (to_fun_hom : Π ⦃a b : C⦄, hom a b → hom (to_fun_ob a) (to_fun_ob b)),
@@ -173,10 +179,11 @@ namespace functor
     by apply is_trunc_equiv_closed; apply functor.sigma_char
   end
 
+  /- higher equalities in the functor type -/
   definition functor_mk_eq'_idp (F : C → D) (H : Π(a b : C), hom a b → hom (F a) (F b))
     (id comp) : functor_mk_eq' id id comp comp (idpath F) (idpath H) = idp :=
   begin
-    fapply (apd011 (apd01111 functor.mk idp idp)),
+    fapply apd011 (apd01111 functor.mk idp idp),
     apply is_hset.elim,
     apply is_hset.elim
   end
@@ -188,7 +195,7 @@ namespace functor
       : functor_eq' (ap to_fun_ob p) (!tr_compose⁻¹ ⬝ apd to_fun_hom p) = p :=
   begin
     cases p, cases F₁,
-    apply concat, rotate_left 1, apply functor_eq'_idp,
+    refine _ ⬝ !functor_eq'_idp,
     esimp
   end
 

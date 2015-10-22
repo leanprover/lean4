@@ -6,9 +6,12 @@ Authors: Floris van Doorn
 Theorems about the unit type
 -/
 
-open equiv option
+open equiv option eq
 
 namespace unit
+
+  protected definition eta : Π(u : unit), ⋆ = u
+  | eta ⋆ := idp
 
   definition unit_equiv_option_empty : unit ≃ option empty :=
   begin

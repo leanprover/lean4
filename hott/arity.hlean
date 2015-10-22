@@ -48,8 +48,8 @@ namespace eq
   definition homotopy4 [reducible] (f g : Πa b c d, E a b c d) : Type :=
   Πa b c d, f a b c d = g a b c d
 
-  notation f `~2`:50 g := homotopy2 f g
-  notation f `~3`:50 g := homotopy3 f g
+  infix ` ~2 `:50 := homotopy2
+  infix ` ~3 `:50 := homotopy3
 
   definition ap011 (f : U → V → W) (Hu : u = u') (Hv : v = v') : f u v = f u' v' :=
   by cases Hu; congruence; repeat assumption
@@ -58,7 +58,8 @@ namespace eq
       : f u v w = f u' v' w' :=
   by cases Hu; congruence; repeat assumption
 
-  definition ap01111 (f : U → V → W → X → Y) (Hu : u = u') (Hv : v = v') (Hw : w = w') (Hx : x = x')
+  definition ap01111 (f : U → V → W → X → Y)
+    (Hu : u = u') (Hv : v = v') (Hw : w = w') (Hx : x = x')
       : f u v w x = f u' v' w' x' :=
   by cases Hu; congruence; repeat assumption
 
@@ -181,9 +182,10 @@ namespace eq
 
 end eq
 
-open eq is_equiv
+open eq equiv is_equiv
 namespace funext
-  definition is_equiv_apd100 [instance] (f g : Πa b, C a b) : is_equiv (@apd100 A B C f g) :=
+  definition is_equiv_apd100 [instance] (f g : Πa b, C a b)
+    : is_equiv (@apd100 A B C f g) :=
   adjointify _
              eq_of_homotopy2
              begin
@@ -213,6 +215,8 @@ namespace funext
              end
 end funext
 
+attribute funext.is_equiv_apd100 funext.is_equiv_apd1000 [constructor]
+
 namespace eq
   open funext
   local attribute funext.is_equiv_apd100 [instance]
@@ -223,6 +227,12 @@ namespace eq
   protected definition homotopy3.rec_on {f g : Πa b c, D a b c} {P : (f ~3 g) → Type}
     (p : f ~3 g) (H : Π(q : f = g), P (apd1000 q)) : P p :=
   right_inv apd1000 p ▸ H (eq_of_homotopy3 p)
+
+  definition eq_equiv_homotopy2 [constructor] (f g : Πa b, C a b) : (f = g) ≃ (f ~2 g) :=
+  equiv.mk apd100 _
+
+  definition eq_equiv_homotopy3 [constructor] (f g : Πa b c, D a b c) : (f = g) ≃ (f ~3 g) :=
+  equiv.mk apd1000 _
 
   definition apd10_ap (f : X → Πa, B a) (p : x = x')
     : apd10 (ap f p) = ap010 f p :=

@@ -6,9 +6,9 @@ Authors: Floris van Doorn, Jakob von Raumer
 Sum precategory and (TODO) category
 -/
 
-import ..category ..functor.functor types.sum
+import ..category ..nat_trans types.sum
 
-open eq sum is_trunc functor lift
+open eq sum is_trunc functor lift nat_trans
 
 namespace category
 
@@ -26,8 +26,8 @@ namespace category
 
   local attribute is_hset_sum_hom [instance]
 
-  definition precategory_sum [constructor] {obC obD : Type}
-    (C : precategory obC) (D : precategory obD) : precategory (obC + obD) :=
+  definition precategory_sum [constructor] [instance] (obC obD : Type)
+    [C : precategory obC] [D : precategory obD] : precategory (obC + obD) :=
   precategory.mk (sum_hom C D)
                   (λ a b c g f, begin induction a: induction b: induction c: esimp at *;
                     induction f with f; induction g with g; (contradiction | exact up (g ∘ f)) end)
@@ -44,18 +44,69 @@ namespace category
   definition Precategory_sum [constructor] (C D : Precategory) : Precategory :=
   precategory.Mk (precategory_sum C D)
 
-  infixr `+c`:27 := Precategory_sum
+  infixr ` +c `:65 := Precategory_sum
+  variables {C C' D D' : Precategory}
 
-  definition sum_functor [constructor] {C C' D D' : Precategory}
-    (F : C ⇒ D) (G : C' ⇒ D') : C +c C' ⇒ D +c D' :=
-  functor.mk (λ a, by induction a: (exact inl (F a)|exact inr (G a)))
-             (λ a b f, begin induction a: induction b: esimp at *;
-                induction f with f; esimp; try contradiction: (exact up (F f)|exact up (G f)) end)
-             (λ a, abstract by induction a: esimp; exact ap up !respect_id end)
-             (λ a b c g f, abstract begin induction a: induction b: induction c: esimp at *;
+  definition inl_functor [constructor] : C ⇒ C +c D :=
+  functor.mk inl
+             (λa b, up)
+             (λa, idp)
+             (λa b c g f, idp)
+
+  definition inr_functor [constructor] : D ⇒ C +c D :=
+  functor.mk inr
+             (λa b, up)
+             (λa, idp)
+             (λa b c g f, idp)
+
+  definition sum_functor [constructor] (F : C ⇒ D) (G : C' ⇒ D) : C +c C' ⇒ D :=
+  begin
+    fapply functor.mk: esimp,
+    { intro a, induction a, exact F a, exact G a},
+    { intro a b f, induction a: induction b: esimp at *;
+     induction f with f; esimp; try contradiction: (exact F f|exact G f)},
+    { exact abstract begin intro a, induction a: esimp; apply respect_id end end},
+    { intros a b c g f, induction a: induction b: induction c: esimp at *;
                 induction f with f; induction g with g; try contradiction:
-                esimp; exact ap up !respect_comp end end)
+                esimp; apply respect_comp}, -- REPORT: abstracting this argument fails
+  end
 
-  infixr `+f`:27 := sum_functor
+  infixr ` +f `:65 := sum_functor
+
+  definition sum_functor_eta (F : C +c C' ⇒ D) : F ∘f inl_functor +f F ∘f inr_functor = F :=
+  begin
+  fapply functor_eq: esimp,
+  { intro a, induction a: reflexivity},
+  { exact abstract begin esimp, intro a b f,
+    induction a: induction b: esimp at *; induction f with f; esimp;
+    try contradiction: apply id_leftright end end}
+  end
+
+  definition sum_functor_inl (F : C ⇒ D) (G : C' ⇒ D) : (F +f G) ∘f inl_functor = F :=
+  begin
+  fapply functor_eq,
+    reflexivity,
+    esimp, intros, apply id_leftright
+  end
+
+  definition sum_functor_inr (F : C ⇒ D) (G : C' ⇒ D) : (F +f G) ∘f inr_functor = G :=
+  begin
+  fapply functor_eq,
+    reflexivity,
+    esimp, intros, apply id_leftright
+  end
+
+  definition sum_functor_sum [constructor] (F : C ⇒ D) (G : C' ⇒ D') : C +c C' ⇒ D +c D' :=
+  (inl_functor ∘f F) +f (inr_functor ∘f G)
+
+  definition sum_nat_trans [constructor] {F F' : C ⇒ D} {G G' : C' ⇒ D} (η : F ⟹ F') (θ : G ⟹ G')
+    : F +f G ⟹ F' +f G' :=
+  begin
+    fapply nat_trans.mk,
+    { intro a, induction a: esimp, exact η a, exact θ a},
+    { intro a b f, induction a: induction b: esimp at *; induction f with f; esimp;
+      try contradiction: apply naturality}
+  end
+
 
 end category

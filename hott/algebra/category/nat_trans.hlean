@@ -182,5 +182,5 @@ namespace nat_trans
 
 end nat_trans
 
-attribute nat_trans.compose_rev [trans] -- TODO: this doesn't work
+attribute nat_trans.compose_rev [trans]
 attribute nat_trans.id [refl]

@@ -6,7 +6,7 @@ Author: Jakob von Raumer
 
 import .iso
 
-open iso is_equiv equiv eq is_trunc
+open iso is_equiv equiv eq is_trunc sigma equiv.ops
 
 /-
   A category is a precategory extended by a witness
@@ -89,5 +89,42 @@ namespace category
 
   definition Category.eta (C : Category) : Category.mk C C = C :=
   Category.rec (λob c, idp) C
+
+  protected definition category.sigma_char.{u v} [constructor] (ob : Type)
+    : category.{u v} ob ≃ Σ(C : precategory.{u v} ob), is_univalent C :=
+  begin
+  fapply equiv.MK,
+    { intro x, induction x, constructor, assumption},
+    { intro y, induction y with y1 y2, induction y1, constructor, assumption},
+    { intro y, induction y with y1 y2, induction y1, reflexivity},
+    { intro x, induction x, reflexivity}
+  end
+
+
+  definition category_eq {ob : Type}
+    {C D : category ob}
+    (p : Π{a b}, @hom ob C a b = @hom ob D a b)
+    (q : Πa b c g f, cast p (@comp ob C a b c g f) = @comp ob D a b c (cast p g) (cast p f))
+      : C = D :=
+  begin
+    apply eq_of_fn_eq_fn !category.sigma_char,
+    fapply sigma_eq,
+    { induction C, induction D, esimp, exact precategory_eq @p q},
+    { unfold is_univalent, apply is_hprop.elimo},
+  end
+
+  definition category_eq_of_equiv {ob : Type}
+    {C D : category ob}
+    (p : Π⦃a b⦄, @hom ob C a b ≃ @hom ob D a b)
+    (q : Π{a b c} g f, p (@comp ob C a b c g f) = @comp ob D a b c (p g) (p f))
+      : C = D :=
+  begin
+    fapply category_eq,
+    { intro a b, exact ua !@p},
+    { intros, refine !cast_ua ⬝ !q ⬝ _, unfold [category.to_precategory],
+      apply ap011 !@category.comp !cast_ua⁻¹ᵖ !cast_ua⁻¹ᵖ},
+  end
+
+-- TODO: Category_eq[']
 
 end category

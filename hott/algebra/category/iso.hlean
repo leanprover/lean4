@@ -16,7 +16,7 @@ namespace iso
     {section_of : b ⟶ a}
     (comp_section : f ∘ section_of = id)
   structure is_iso [class] {ob : Type} [C : precategory ob] {a b : ob} (f : a ⟶ b) :=
-    {inverse : b ⟶ a}
+    (inverse : b ⟶ a)
     (left_inverse  : inverse ∘ f = id)
     (right_inverse : f ∘ inverse = id)
 
@@ -39,81 +39,82 @@ namespace iso
   variables {a b c : ob} {g : b ⟶ c} {f : a ⟶ b} {h : b ⟶ a}
   include C
 
-  definition split_mono_of_is_iso [instance] [priority 300] [reducible]
+  definition split_mono_of_is_iso [constructor] [instance] [priority 300] [reducible]
     (f : a ⟶ b) [H : is_iso f] : split_mono f :=
   split_mono.mk !left_inverse
 
-  definition split_epi_of_is_iso [instance] [priority 300] [reducible]
+  definition split_epi_of_is_iso [constructor] [instance] [priority 300] [reducible]
     (f : a ⟶ b) [H : is_iso f] : split_epi f :=
   split_epi.mk !right_inverse
 
-  definition is_iso_id [instance] [priority 500] (a : ob) : is_iso (ID a) :=
-  is_iso.mk !id_id !id_id
+  definition is_iso_id [constructor] [instance] [priority 500] (a : ob) : is_iso (ID a) :=
+  is_iso.mk _ !id_id !id_id
 
-  definition is_iso_inverse [instance] [priority 200] (f : a ⟶ b) {H : is_iso f} : is_iso f⁻¹ :=
-  is_iso.mk !right_inverse !left_inverse
+  definition is_iso_inverse [constructor] [instance] [priority 200] (f : a ⟶ b) {H : is_iso f}
+    : is_iso f⁻¹ :=
+  is_iso.mk _ !right_inverse !left_inverse
 
-  definition left_inverse_eq_right_inverse {f : a ⟶ b} {g g' : hom b a}
+  theorem left_inverse_eq_right_inverse {f : a ⟶ b} {g g' : hom b a}
       (Hl : g ∘ f = id) (Hr : f ∘ g' = id) : g = g' :=
   by rewrite [-(id_right g), -Hr, assoc, Hl, id_left]
 
-  definition retraction_eq [H : split_mono f] (H2 : f ∘ h = id) : retraction_of f = h :=
+  theorem retraction_eq [H : split_mono f] (H2 : f ∘ h = id) : retraction_of f = h :=
   left_inverse_eq_right_inverse !retraction_comp H2
 
-  definition section_eq [H : split_epi f] (H2 : h ∘ f = id) : section_of f = h :=
+  theorem section_eq [H : split_epi f] (H2 : h ∘ f = id) : section_of f = h :=
   (left_inverse_eq_right_inverse H2 !comp_section)⁻¹
 
-  definition inverse_eq_right [H : is_iso f] (H2 : f ∘ h = id) : f⁻¹ = h :=
+  theorem inverse_eq_right [H : is_iso f] (H2 : f ∘ h = id) : f⁻¹ = h :=
   left_inverse_eq_right_inverse !left_inverse H2
 
-  definition inverse_eq_left [H : is_iso f] (H2 : h ∘ f = id) : f⁻¹ = h :=
+  theorem inverse_eq_left [H : is_iso f] (H2 : h ∘ f = id) : f⁻¹ = h :=
   (left_inverse_eq_right_inverse H2 !right_inverse)⁻¹
 
-  definition retraction_eq_section (f : a ⟶ b) [Hl : split_mono f] [Hr : split_epi f] :
+  theorem retraction_eq_section (f : a ⟶ b) [Hl : split_mono f] [Hr : split_epi f] :
       retraction_of f = section_of f :=
   retraction_eq !comp_section
 
-  definition is_iso_of_split_epi_of_split_mono (f : a ⟶ b) [Hl : split_mono f] [Hr : split_epi f]
-    : is_iso f :=
-  is_iso.mk ((retraction_eq_section f) ▸ (retraction_comp f)) (comp_section f)
+  definition is_iso_of_split_epi_of_split_mono [constructor] (f : a ⟶ b)
+    [Hl : split_mono f] [Hr : split_epi f] : is_iso f :=
+  is_iso.mk _ ((retraction_eq_section f) ▸ (retraction_comp f)) (comp_section f)
 
-  definition inverse_unique (H H' : is_iso f) : @inverse _ _ _ _ f H = @inverse _ _ _ _ f H' :=
+  theorem inverse_unique (H H' : is_iso f) : @inverse _ _ _ _ f H = @inverse _ _ _ _ f H' :=
   inverse_eq_left !left_inverse
 
-  definition inverse_involutive (f : a ⟶ b) [H : is_iso f] [H : is_iso (f⁻¹)]
+  theorem inverse_involutive (f : a ⟶ b) [H : is_iso f] [H : is_iso (f⁻¹)]
     : (f⁻¹)⁻¹ = f :=
   inverse_eq_right !left_inverse
 
-  definition inverse_eq_inverse {f g : a ⟶ b} [H : is_iso f] [H : is_iso g] (p : f = g)
+  theorem inverse_eq_inverse {f g : a ⟶ b} [H : is_iso f] [H : is_iso g] (p : f = g)
     : f⁻¹ = g⁻¹ :=
   by cases p;apply inverse_unique
 
-  definition retraction_id (a : ob) : retraction_of (ID a) = id :=
+  theorem retraction_id (a : ob) : retraction_of (ID a) = id :=
   retraction_eq !id_id
 
-  definition section_id (a : ob) : section_of (ID a) = id :=
+  theorem section_id (a : ob) : section_of (ID a) = id :=
   section_eq !id_id
 
-  definition id_inverse (a : ob) [H : is_iso (ID a)] : (ID a)⁻¹ = id :=
+  theorem id_inverse (a : ob) [H : is_iso (ID a)] : (ID a)⁻¹ = id :=
   inverse_eq_left !id_id
 
-  definition split_mono_comp [instance] [priority 150] (g : b ⟶ c) (f : a ⟶ b)
+  definition split_mono_comp [constructor] [instance] [priority 150] (g : b ⟶ c) (f : a ⟶ b)
     [Hf : split_mono f] [Hg : split_mono g] : split_mono (g ∘ f) :=
   split_mono.mk
     (show (retraction_of f ∘ retraction_of g) ∘ g ∘ f = id,
      by rewrite [-assoc, assoc _ g f, retraction_comp, id_left, retraction_comp])
 
-  definition split_epi_comp [instance] [priority 150] (g : b ⟶ c) (f : a ⟶ b)
+  definition split_epi_comp [constructor] [instance] [priority 150] (g : b ⟶ c) (f : a ⟶ b)
     [Hf : split_epi f] [Hg : split_epi g] : split_epi (g ∘ f) :=
   split_epi.mk
     (show (g ∘ f) ∘ section_of f ∘ section_of g = id,
      by rewrite [-assoc, {f ∘ _}assoc, comp_section, id_left, comp_section])
 
-  definition is_iso_comp [instance] [priority 150] (g : b ⟶ c) (f : a ⟶ b)
+  definition is_iso_comp [constructor] [instance] [priority 150] (g : b ⟶ c) (f : a ⟶ b)
     [Hf : is_iso f] [Hg : is_iso g] : is_iso (g ∘ f) :=
   !is_iso_of_split_epi_of_split_mono
 
-  definition is_hprop_is_iso [instance] (f : hom a b) : is_hprop (is_iso f) :=
+  theorem is_hprop_is_iso [instance] (f : hom a b) : is_hprop (is_iso f) :=
   begin
     apply is_hprop.mk, intro H H',
     cases H with g li ri, cases H' with g' li' ri',
@@ -132,6 +133,7 @@ structure iso {ob : Type} [C : precategory ob] (a b : ob) :=
   [struct : is_iso to_hom]
 
   infix ` ≅ `:50 := iso
+  notation c ` ≅[`:50 C:0 `] `:0 c':50 := @iso C _ c c'
   attribute iso.struct [instance] [priority 2000]
 
 namespace iso
@@ -143,7 +145,7 @@ namespace iso
 
   protected definition MK [constructor] (f : a ⟶ b) (g : b ⟶ a)
     (H1 : g ∘ f = id) (H2 : f ∘ g = id) :=
-  @(mk f) (is_iso.mk H1 H2)
+  @(mk f) (is_iso.mk _ H1 H2)
 
   variable {C}
   definition to_inv [reducible] [unfold 5] (f : a ≅ b) : b ⟶ a := (to_hom f)⁻¹
@@ -165,10 +167,10 @@ namespace iso
   infixl ` ⬝i `:75 := iso.trans
   postfix [parsing_only] `⁻¹ⁱ`:(max + 1) := iso.symm
 
-  definition change_hom (H : a ≅ b) (f : a ⟶ b) (p : to_hom H = f) : a ≅ b :=
+  definition change_hom [constructor] (H : a ≅ b) (f : a ⟶ b) (p : to_hom H = f) : a ≅ b :=
   iso.MK f (to_inv H) (p ▸ to_left_inverse H) (p ▸ to_right_inverse H)
 
-  definition change_inv (H : a ≅ b) (g : b ⟶ a) (p : to_inv H = g) : a ≅ b :=
+  definition change_inv [constructor] (H : a ≅ b) (g : b ⟶ a) (p : to_inv H = g) : a ≅ b :=
   iso.MK (to_hom H) g (p ▸ to_left_inverse H) (p ▸ to_right_inverse H)
 
   definition iso_mk_eq {f f' : a ⟶ b} [H : is_iso f] [H' : is_iso f'] (p : f = f')
@@ -208,6 +210,12 @@ namespace iso
   iso.to_inv (iso_of_eq p)
 
   definition iso_of_eq_inv (p : a = b) : iso_of_eq p⁻¹ = iso.symm (iso_of_eq p) :=
+  eq.rec_on p idp
+
+  theorem hom_of_eq_inv (p : a = b) : hom_of_eq p⁻¹ = inv_of_eq p :=
+  eq.rec_on p idp
+
+  theorem inv_of_eq_inv (p : a = b) : inv_of_eq p⁻¹ = hom_of_eq p :=
   eq.rec_on p idp
 
   definition iso_of_eq_con (p : a = b) (q : b = c)

@@ -17,6 +17,8 @@ namespace category
   --   (G : D ⇒ C) -- G
   --   (is_adjoint : adjoint F G)
 
+  --   infix `⊣`:55 := adjoint
+
   structure is_left_adjoint [class] {C D : Precategory} (F : C ⇒ D) :=
     (G : D ⇒ C)
     (η : 1 ⟹ G ∘f F)

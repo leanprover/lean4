@@ -5,7 +5,7 @@ Authors: Floris van Doorn
 -/
 import types.trunc types.pi arity
 
-open eq is_trunc pi
+open eq is_trunc pi equiv equiv.ops
 
 namespace category
 
@@ -37,7 +37,7 @@ namespace category
   -- input ⟶ using \--> (this is a different arrow than \-> (→))
   infixl [parsing_only] ` ⟶ `:25 := precategory.hom
   namespace hom
-    infixl ` ⟶ `:25 := precategory.hom -- if you open this namespace, hom a b is printed as a ⟶ b
+    infixl ` ⟶ `:60 := precategory.hom -- if you open this namespace, hom a b is printed as a ⟶ b
   end hom
 
   abbreviation hom         [unfold 2] := @precategory.hom
@@ -143,7 +143,7 @@ namespace category
   definition precategory.MK [reducible] [constructor] (a b c d e f g h) : Precategory :=
   Precategory.mk a (@precategory.mk a b c d e f g h)
 
-  abbreviation carrier := @Precategory.carrier
+  abbreviation carrier [unfold 1] := @Precategory.carrier
 
   attribute Precategory.carrier [coercion]
   attribute Precategory.struct [instance] [priority 10000] [coercion]
@@ -157,93 +157,123 @@ namespace category
   Precategory.rec (λob c, idp) C
 
   /-Characterization of paths between precategories-/
+  -- introduction tule for paths between precategories
 
-  definition precategory_mk'_eq (ob : Type)
-    (hom1 : ob → ob → Type)
-    (hom2 : ob → ob → Type)
-    (homH1 : Π(a b : ob), is_hset (hom1 a b))
-    (homH2 : Π(a b : ob), is_hset (hom2 a b))
-    (comp1 : Π⦃a b c : ob⦄, hom1 b c → hom1 a b → hom1 a c)
-    (comp2 : Π⦃a b c : ob⦄, hom2 b c → hom2 a b → hom2 a c)
-    (ID1 : Π (a : ob), hom1 a a)
-    (ID2 : Π (a : ob), hom2 a a)
-    (assoc1 : Π ⦃a b c d : ob⦄ (h : hom1 c d) (g : hom1 b c) (f : hom1 a b),
-       comp1 h (comp1 g f) = comp1 (comp1 h g) f)
-    (assoc2 : Π ⦃a b c d : ob⦄ (h : hom2 c d) (g : hom2 b c) (f : hom2 a b),
-       comp2 h (comp2 g f) = comp2 (comp2 h g) f)
-    (assoc1' : Π ⦃a b c d : ob⦄ (h : hom1 c d) (g : hom1 b c) (f : hom1 a b),
-       comp1 (comp1 h g) f = comp1 h (comp1 g f))
-    (assoc2' : Π ⦃a b c d : ob⦄ (h : hom2 c d) (g : hom2 b c) (f : hom2 a b),
-       comp2 (comp2 h g) f = comp2 h (comp2 g f))
-    (id_left1 : Π ⦃a b : ob⦄ (f : hom1 a b), comp1 !ID1 f = f)
-    (id_left2 : Π ⦃a b : ob⦄ (f : hom2 a b), comp2 !ID2 f = f)
-    (id_right1 : Π ⦃a b : ob⦄ (f : hom1 a b), comp1 f !ID1 = f)
-    (id_right2 : Π ⦃a b : ob⦄ (f : hom2 a b), comp2 f !ID2 = f)
-    (id_id1 : Π (a : ob), comp1 !ID1 !ID1 = ID1 a)
-    (id_id2 : Π (a : ob), comp2 !ID2 !ID2 = ID2 a)
-    (p : hom1 = hom2)
-    (q : p ▸ comp1 = comp2)
-    (r : p ▸ ID1 = ID2) :
-    precategory.mk' hom1 comp1 ID1 assoc1 assoc1' id_left1 id_right1 id_id1 homH1
-    = precategory.mk' hom2 comp2 ID2 assoc2 assoc2' id_left2 id_right2 id_id2 homH2 :=
+  definition precategory_eq {ob : Type}
+    {C D : precategory ob}
+    (p : Π{a b}, @hom ob C a b = @hom ob D a b)
+    (q : Πa b c g f, cast p (@comp ob C a b c g f) = @comp ob D a b c (cast p g) (cast p f))
+      : C = D :=
   begin
-    cases p, cases q, cases r,
-    apply (ap0111111 (precategory.mk' hom2 comp2 ID2)),
-    repeat (apply is_hprop.elim),
+    induction C with hom1 comp1 ID1 a b il ir, induction D with hom2 comp2 ID2 a' b' il' ir',
+    esimp at *,
+    revert q, eapply homotopy2.rec_on @p, esimp, clear p, intro p q, induction p,
+    esimp at *,
+    assert H : comp1 = comp2,
+    { apply eq_of_homotopy3, intros, apply eq_of_homotopy2, intros, apply q},
+    induction H,
+    assert K : ID1 = ID2,
+    { apply eq_of_homotopy, intro a, exact !ir'⁻¹ ⬝ !il},
+    induction K,
+    apply ap0111111 (precategory.mk' hom1 comp1 ID1): apply is_hprop.elim
   end
 
-  definition precategory_eq (ob : Type)
-    (C D : precategory ob)
-    (p : @hom ob C = @hom ob D)
-    (q : transport (λ x, Πa b c, x b c → x a b → x a c) p
-           (@comp ob C) = @comp ob D)
-    (r : transport (λ x, Πa, x a a) p (@ID ob C) = @ID ob D) : C = D :=
-  begin
-    cases C, cases D,
-    apply precategory_mk'_eq, apply q, apply r,
-  end
 
-  definition precategory_mk_eq (ob : Type)
-    (hom1 : ob → ob → Type)
-    (hom2 : ob → ob → Type)
-    (homH1 : Π(a b : ob), is_hset (hom1 a b))
-    (homH2 : Π(a b : ob), is_hset (hom2 a b))
-    (comp1 : Π⦃a b c : ob⦄, hom1 b c → hom1 a b → hom1 a c)
-    (comp2 : Π⦃a b c : ob⦄, hom2 b c → hom2 a b → hom2 a c)
-    (ID1 : Π (a : ob), hom1 a a)
-    (ID2 : Π (a : ob), hom2 a a)
-    (assoc1 : Π ⦃a b c d : ob⦄ (h : hom1 c d) (g : hom1 b c) (f : hom1 a b),
-       comp1 h (comp1 g f) = comp1 (comp1 h g) f)
-    (assoc2 : Π ⦃a b c d : ob⦄ (h : hom2 c d) (g : hom2 b c) (f : hom2 a b),
-       comp2 h (comp2 g f) = comp2 (comp2 h g) f)
-    (id_left1 : Π ⦃a b : ob⦄ (f : hom1 a b), comp1 !ID1 f = f)
-    (id_left2 : Π ⦃a b : ob⦄ (f : hom2 a b), comp2 !ID2 f = f)
-    (id_right1 : Π ⦃a b : ob⦄ (f : hom1 a b), comp1 f !ID1 = f)
-    (id_right2 : Π ⦃a b : ob⦄ (f : hom2 a b), comp2 f !ID2 = f)
-    (p : Π (a b : ob), hom1 a b = hom2 a b)
-    (q : transport (λ x, Π a b c, x b c → x a b → x a c)
-      (eq_of_homotopy (λ a, eq_of_homotopy (λ b, p a b))) @comp1 = @comp2)
-    (r : transport (λ x, Π a, x a a)
-      (eq_of_homotopy (λ (x : ob), eq_of_homotopy (λ (x_1 : ob), p x x_1)))
-         ID1 = ID2) :
-    precategory.mk hom1 comp1 ID1 assoc1 id_left1 id_right1
-    = precategory.mk hom2 comp2 ID2 assoc2 id_left2 id_right2 :=
+  definition precategory_eq_of_equiv {ob : Type}
+    {C D : precategory ob}
+    (p : Π⦃a b⦄, @hom ob C a b ≃ @hom ob D a b)
+    (q : Π{a b c} g f, p (@comp ob C a b c g f) = @comp ob D a b c (p g) (p f))
+      : C = D :=
   begin
     fapply precategory_eq,
-        apply eq_of_homotopy, intros,
-        apply eq_of_homotopy, intros,
-        exact (p _ _),
-      exact q,
-    exact r,
+    { intro a b, exact ua !@p},
+    { intros, refine !cast_ua ⬝ !q ⬝ _, apply ap011 !@comp !cast_ua⁻¹ !cast_ua⁻¹},
   end
 
-  definition Precategory_eq (C D : Precategory)
-    (p : carrier C = carrier D)
-    (q : p ▸ (Precategory.struct C) = Precategory.struct D) : C = D :=
+/- if we need to prove properties about precategory_eq, it might be easier with the following proof:
   begin
-    cases C, cases D,
-    cases p, cases q,
-    apply idp,
+    induction C with hom1 comp1 ID1, induction D with hom2 comp2 ID2, esimp at *,
+    assert H : Σ(s : hom1 = hom2), (λa b, equiv_of_eq (apd100 s a b)) = p,
+    { fconstructor,
+      { apply eq_of_homotopy2, intros, apply ua, apply p},
+      { apply eq_of_homotopy2, intros, rewrite [to_right_inv !eq_equiv_homotopy2, equiv_of_eq_ua]}},
+    induction H with H1 H2, induction H1, esimp at H2,
+    assert K : (λa b, equiv.refl) = p,
+    { refine _ ⬝ H2, apply eq_of_homotopy2, intros, exact !equiv_of_eq_refl⁻¹},
+    induction K, clear H2,
+    esimp at *,
+    assert H : comp1 = comp2,
+    { apply eq_of_homotopy3, intros, apply eq_of_homotopy2, intros, apply q},
+    assert K : ID1 = ID2,
+    { apply eq_of_homotopy, intros, apply r},
+    induction H, induction K,
+    apply ap0111111 (precategory.mk' hom1 comp1 ID1): apply is_hprop.elim
   end
+-/
+
+  definition Precategory_eq {C D : Precategory}
+    (p : carrier C = carrier D)
+    (q : Π{a b : C}, a ⟶ b = cast p a ⟶ cast p b)
+    (r : Π{a b c : C} (g : b ⟶ c) (f : a ⟶ b), cast q (g ∘ f) = cast q g ∘ cast q f)
+       : C = D :=
+  begin
+    induction C with X C, induction D with Y D, esimp at *, induction p,
+    esimp at *,
+    apply ap (Precategory.mk X),
+    apply precategory_eq @q @r
+  end
+
+  definition Precategory_eq_of_equiv {C D : Precategory}
+    (p : carrier C ≃ carrier D)
+    (q : Π⦃a b : C⦄, a ⟶ b ≃ p a ⟶ p b)
+    (r : Π{a b c : C} (g : b ⟶ c) (f : a ⟶ b), q (g ∘ f) = q g ∘ q f)
+       : C = D :=
+  begin
+    induction C with X C, induction D with Y D, esimp at *,
+    revert q r, eapply equiv.rec_on_ua p, clear p, intro p, induction p, esimp,
+    intros,
+    apply ap (Precategory.mk X),
+    apply precategory_eq_of_equiv @q @r
+  end
+
+  -- elimination rules for paths between precategories.
+  -- The first elimination rule is "ap carrier"
+
+  definition Precategory_eq_hom [unfold 3] {C D : Precategory} (p : C = D) (a b : C)
+    : hom a b = hom (cast (ap carrier p) a) (cast (ap carrier p) b) :=
+  by induction p; reflexivity
+  --(ap10 (ap10 (apd (λx, @hom (carrier x) (Precategory.struct x)) p⁻¹ᵖ) a) b)⁻¹ᵖ ⬝ _
+
+
+  -- beta/eta rules
+  definition ap_Precategory_eq' {C D : Precategory}
+    (p : carrier C = carrier D)
+    (q : Π{a b : C}, a ⟶ b = cast p a ⟶ cast p b)
+    (r : Π{a b c : C} (g : b ⟶ c) (f : a ⟶ b), cast q (g ∘ f) = cast q g ∘ cast q f)
+    (s : Πa, cast q (ID a) = ID (cast p a)) : ap carrier (Precategory_eq p @q @r) = p :=
+  begin
+    induction C with X C, induction D with Y D, esimp at *, induction p,
+    rewrite [↑Precategory_eq, -ap_compose,↑function.compose,ap_constant]
+  end
+
+  theorem Precategory_eq'_eta {C D : Precategory} (p : C = D) :
+    Precategory_eq
+      (ap carrier p)
+      (Precategory_eq_hom p)
+      (by induction p; intros; reflexivity) = p :=
+  begin
+    induction p, induction C with X C, unfold Precategory_eq,
+    induction C, unfold precategory_eq, exact sorry
+  end
+
+/-
+  theorem Precategory_eq2 {C D : Precategory} (p q : C = D)
+    (r : ap carrier p = ap carrier q)
+    (s : Precategory_eq_hom p =[r] Precategory_eq_hom q)
+      : p = q :=
+  begin
+
+  end
+-/
 
 end category

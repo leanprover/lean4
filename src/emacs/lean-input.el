@@ -348,6 +348,7 @@ order for the change to take effect."
   ("-1p"       . ("⁻¹ᵖ"))
   ("-1s"       . ("⁻¹ˢ"))
   ("-1v"       . ("⁻¹ᵛ"))
+  ("-1E"       . ("⁻¹ᴱ"))
   ("-2"        . ("⁻²"))
   ("-2o"       . ("⁻²ᵒ"))
   ("-3"        . ("⁻³"))
@@ -669,7 +670,7 @@ order for the change to take effect."
   ("Ge"  . ("ε"))  ("GE"  . ("Ε"))  ("eps" . ("ε"))
   ("Gz"  . ("ζ"))  ("GZ"  . ("Ζ"))
   ;; \eta \Eta
-  ("Gth" . ("θ"))  ("GTH" . ("Θ"))
+  ("Gth" . ("θ"))  ("GTH" . ("Θ"))  ("th"  . ("θ"))
   ("Gi"  . ("ι"))  ("GI"  . ("Ι"))
   ("Gk"  . ("κ"))  ("GK"  . ("Κ"))
   ("Gl"  . ("λ"))  ("GL"  . ("Λ"))  ("Gl-" . ("ƛ"))
@@ -679,7 +680,7 @@ order for the change to take effect."
   ;; \omicron \Omicron
   ;; \pi \Pi
   ("Gr"  . ("ρ"))  ("GR"  . ("Ρ"))
-  ("Gs"  . ("σ"))  ("GS"  . ("Σ")) 
+  ("Gs"  . ("σ"))  ("GS"  . ("Σ"))
   ("Gt"  . ("τ"))  ("GT"  . ("Τ"))
   ("Gu"  . ("υ"))  ("GU"  . ("Υ"))
   ("Gf"  . ("φ"))  ("GF"  . ("Φ"))
@@ -687,7 +688,7 @@ order for the change to take effect."
   ("Gp"  . ("ψ"))  ("GP"  . ("Ψ"))
   ("Go"  . ("ω"))  ("GO"  . ("Ω"))
   ;; even shorter versions for central type constructors
-  ("S"   . ("Σ"))  ("P"   . ("Π")) 
+  ("S"   . ("Σ"))  ("P"   . ("Π"))
 
   ;; Mathematical characters
 

@@ -42,7 +42,7 @@ namespace category
   definition terminal_functor_comp {C D : Precategory} (F : C ⇒ D)
     : (terminal_functor D) ∘f F = terminal_functor C := idp
 
-  definition point (C : Precategory) (c : C) : 1 ⇒ C :=
+  definition point [constructor] (C : Precategory) (c : C) : 1 ⇒ C :=
   functor.mk (λx, c)
              (λx y f, id)
              (λx, idp)

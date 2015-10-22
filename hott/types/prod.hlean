@@ -16,7 +16,7 @@ namespace prod
 
   /- Paths in a product space -/
 
-  protected definition eta (u : A × B) : (pr₁ u, pr₂ u) = u :=
+  protected definition eta [unfold 3] (u : A × B) : (pr₁ u, pr₂ u) = u :=
   by cases u; apply idp
 
   definition pair_eq [unfold 7 8] (pa : a = a') (pb : b = b') : (a, b) = (a', b') :=
@@ -25,10 +25,10 @@ namespace prod
   definition prod_eq [unfold 3 4 5 6] (H₁ : u.1 = v.1) (H₂ : u.2 = v.2) : u = v :=
   by cases u; cases v; exact pair_eq H₁ H₂
 
-  definition eq_pr1 (p : u = v) : u.1 = v.1 :=
+  definition eq_pr1 [unfold 5] (p : u = v) : u.1 = v.1 :=
   ap pr1 p
 
-  definition eq_pr2 (p : u = v) : u.2 = v.2 :=
+  definition eq_pr2 [unfold 5] (p : u = v) : u.2 = v.2 :=
   ap pr2 p
 
   namespace ops
@@ -39,7 +39,7 @@ namespace prod
 
   definition pair_prod_eq (p : u.1 = v.1) (q : u.2 = v.2)
     : ((prod_eq p q)..1, (prod_eq p q)..2) = (p, q) :=
-  by induction u; induction v;esimp at *;induction p;induction q;reflexivity
+  by induction u; induction v; esimp at *; induction p; induction q; reflexivity
 
   definition prod_eq_pr1 (p : u.1 = v.1) (q : u.2 = v.2) : (prod_eq p q)..1 = p :=
   (pair_prod_eq p q)..1

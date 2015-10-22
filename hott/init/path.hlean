@@ -190,7 +190,7 @@ namespace eq
   eq.rec_on p u
 
   -- This idiom makes the operation right associative.
-  infixr `▸` := transport _
+  infixr ` ▸ ` := transport _
 
   definition cast [reducible] [unfold 3] {A B : Type} (p : A = B) (a : A) : B :=
   p ▸ a

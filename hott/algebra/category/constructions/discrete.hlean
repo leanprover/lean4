@@ -23,7 +23,7 @@ namespace category
 
   definition groupoid_of_1_type [constructor] (A : Type) [H : is_trunc 1 A] : groupoid A :=
   groupoid.mk !precategory_of_1_type
-              (λ (a b : A) (p : a = b), is_iso.mk !con.right_inv !con.left_inv)
+              (λ (a b : A) (p : a = b), is_iso.mk _ !con.right_inv !con.left_inv)
 
   definition Precategory_of_1_type [constructor] (A : Type) [H : is_trunc 1 A] : Precategory :=
   precategory.Mk (precategory_of_1_type A)

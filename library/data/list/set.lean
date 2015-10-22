@@ -473,7 +473,7 @@ theorem nodup_upto : ∀ n, nodup (upto n)
 | (n+1) :=
   have d : nodup (upto n), from nodup_upto n,
   have n : n ∉ upto n, from
-    assume i : n ∈ upto n, absurd (of_mem_of_all i (upto_less n)) (lt.irrefl n),
+    assume i : n ∈ upto n, absurd (of_mem_of_all i (upto_less n)) (nat.lt_irrefl n),
   nodup_cons n d
 
 theorem lt_of_mem_upto {n i : nat} : i ∈ upto n → i < n :=

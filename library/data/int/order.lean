@@ -396,7 +396,7 @@ theorem exists_least_of_bdd {P : ℤ → Prop} [HP : decidable_pred P]
     let Hk' := algebra.not_le_of_gt Hk,
     rewrite Hzbk,
     apply λ p, mt (ge_least_of_lt _ p) Hk',
-    apply nat.lt.trans Hk,
+    apply nat.lt_trans Hk,
     apply least_lt _ !lt_succ_self H'
   end
 
@@ -434,7 +434,7 @@ theorem exists_greatest_of_bdd {P : ℤ → Prop} [HP : decidable_pred P]
     let Hk' := algebra.not_le_of_gt Hk,
     rewrite Hzbk,
     apply λ p, mt (ge_least_of_lt _ p) Hk',
-    apply nat.lt.trans Hk,
+    apply nat.lt_trans Hk,
     apply least_lt _ !lt_succ_self H'
   end
 

@@ -462,7 +462,7 @@ theorem repr_mul : Π (a b : ℤ), repr (a * b) = pmul (repr a) (repr b)
 theorem equiv_mul_prep {xa ya xb yb xn yn xm ym : ℕ}
   (H1 : xa + yb = ya + xb) (H2 : xn + ym = yn + xm)
 : xa*xn+ya*yn+(xb*ym+yb*xm) = xa*yn+ya*xn+(xb*xm+yb*ym) :=
-nat.add.right_cancel (calc
+nat.add_right_cancel (calc
             xa*xn+ya*yn + (xb*ym+yb*xm) + (yb*xn+xb*yn + (xb*xn+yb*yn))
           = xa*xn+ya*yn + (yb*xn+xb*yn) + (xb*ym+yb*xm + (xb*xn+yb*yn)) : by rewrite add.comm4
       ... = xa*xn+ya*yn + (yb*xn+xb*yn) + (xb*xn+yb*yn + (xb*ym+yb*xm)) : by rewrite {xb*ym+yb*xm +_}nat.add_comm

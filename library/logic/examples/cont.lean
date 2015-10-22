@@ -34,7 +34,7 @@ lemma znkω_succ (n : nat) (k : nat) : znkω (n+1) k 0 = 0 :=
 rfl
 
 lemma znkω_bound (n : nat) (k : nat) : znkω n k n = k :=
-if_neg !lt.irrefl
+if_neg !nat.lt_irrefl
 
 lemma zω_eq_znkω (n : nat) (k : nat) : zω =[n] znkω n k :=
 λ a altn, begin esimp [zω, znkω], rewrite [if_pos altn] end

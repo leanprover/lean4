@@ -218,7 +218,7 @@ private lemma enle.trans (a b c : A) : enle a b → enle b c → enle a c :=
 assume h₁ h₂, le.trans h₁ h₂
 
 private lemma enle.total (a b : A) : enle a b ∨ enle b a :=
-le.total
+!le.total
 
 private lemma enle.antisymm (a b : A) : enle a b → enle b a → a = b :=
 assume h₁ h₂,

@@ -121,7 +121,7 @@ theorem pow_gt_one {x : A} {i : ℕ} (xgt1 : x > 1) (ipos : i > 0) : x^i > 1 :=
 assert xpos : x > 0, from lt.trans zero_lt_one xgt1,
 begin
   induction i with [i, ih],
-    {exfalso, exact !nat.lt.irrefl ipos},
+    {exfalso, exact !lt.irrefl ipos},
   have xige1 : x^i ≥ 1, from pow_ge_one _ (le_of_lt xgt1),
   rewrite [pow_succ, -mul_one 1],
   apply mul_lt_mul xgt1 xige1 zero_lt_one,

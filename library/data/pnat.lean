@@ -70,7 +70,7 @@ definition pnat_lt_decidable [instance] {p q : ℕ+} : decidable (p < q) :=
 begin rewrite lt.def, exact nat.decidable_lt p~ q~ end
 
 theorem le.trans {p q r : ℕ+} : p ≤ q → q ≤ r → p ≤ r :=
-begin rewrite +le.def, apply le.trans end
+begin rewrite +le.def, apply nat.le_trans end
 
 definition max (p q : ℕ+) : ℕ+ :=
 tag (max p~ q~) (lt_of_lt_of_le (!pnat_pos) (!le_max_right))
@@ -189,7 +189,7 @@ theorem mul_lt_mul_left {a b c : ℕ+} (H : a < b) : a * c < b * c :=
 begin rewrite [lt.def at *], exact mul_lt_mul_of_pos_right H !pnat_pos end
 
 theorem one_lt_two : pone < 2 :=
-!nat.le.refl
+!nat.le_refl
 
 theorem inv_two_mul_lt_inv (n : ℕ+) : (2 * n)⁻¹ < n⁻¹ :=
 begin

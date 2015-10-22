@@ -313,8 +313,8 @@ let N := max N₁ N₂ in
 exists.intro N
   (take n,
     suppose n ≥ N,
-    have ngtN₁ : n ≥ N₁, from nat.le.trans !le_max_left `n ≥ N`,
-    have ngtN₂ : n ≥ N₂, from nat.le.trans !le_max_right `n ≥ N`,
+    have ngtN₁ : n ≥ N₁, from nat.le_trans !le_max_left `n ≥ N`,
+    have ngtN₂ : n ≥ N₂, from nat.le_trans !le_max_right `n ≥ N`,
     show abs ((X n + Y n) - (x + y)) < ε, from calc
       abs ((X n + Y n) - (x + y))
             = abs ((X n - x) + (Y n - y))   : by rewrite [sub_add_eq_sub_sub, *sub_eq_add_neg,

@@ -61,11 +61,11 @@ theorem pow_cancel_left : ∀ {a b c : nat}, a > 1 → a^b = a^c → b = c
 | a (succ b) 0        h₁ h₂ :=
   assert a = 1, by rewrite [pow_succ at h₂, pow_zero at h₂]; exact (eq_one_of_mul_eq_one_right h₂),
   assert 1 < 1, by rewrite [this at h₁]; exact h₁,
-  absurd `1 < 1` !lt.irrefl
+  absurd `1 <[nat] 1` !lt.irrefl
 | a 0        (succ c) h₁ h₂ :=
   assert a = 1, by rewrite [pow_succ at h₂, pow_zero at h₂]; exact (eq_one_of_mul_eq_one_right (eq.symm h₂)),
   assert 1 < 1, by rewrite [this at h₁]; exact h₁,
-  absurd `1 < 1` !lt.irrefl
+  absurd `1 <[nat] 1` !lt.irrefl
 | a (succ b) (succ c) h₁ h₂ :=
   assert a ≠ 0, from assume aeq0, by rewrite [aeq0 at h₁]; exact (absurd h₁ dec_trivial),
   assert a^b = a^c, by rewrite [*pow_succ at h₂]; exact (eq_of_mul_eq_mul_left (pos_of_ne_zero this) h₂),

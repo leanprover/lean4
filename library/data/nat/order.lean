@@ -26,11 +26,11 @@ or_resolve_right (nat.eq_or_lt_of_le H1)
 
 protected theorem lt_iff_le_and_ne (m n : ℕ) : m < n ↔ m ≤ n ∧ m ≠ n :=
 iff.intro
-  (take H, and.intro (nat.le_of_lt H) (take H1, !lt.irrefl (H1 ▸ H)))
+  (take H, and.intro (nat.le_of_lt H) (take H1, !nat.lt_irrefl (H1 ▸ H)))
   (and.rec nat.lt_of_le_and_ne)
 
 theorem le_add_right (n k : ℕ) : n ≤ n + k :=
-nat.rec !le.refl (λ k, le_succ_of_le) k
+nat.rec !nat.le_refl (λ k, le_succ_of_le) k
 
 theorem le_add_left (n m : ℕ): n ≤ m + n :=
 !add.comm ▸ !le_add_right
@@ -42,7 +42,7 @@ theorem le.elim {n m : ℕ} : n ≤ m → ∃ k, n + k = m :=
 le.rec (exists.intro 0 rfl) (λm h, Exists.rec
   (λ k H, exists.intro (succ k) (H ▸ rfl)))
 
-protected theorem le.total {m n : ℕ} : m ≤ n ∨ n ≤ m :=
+protected theorem le_total {m n : ℕ} : m ≤ n ∨ n ≤ m :=
 or.imp_left nat.le_of_lt !nat.lt_or_ge
 
 /- addition -/
@@ -54,11 +54,11 @@ protected theorem add_le_add_right {n m : ℕ} (H : n ≤ m) (k : ℕ) : n + k �
 !add.comm ▸ !add.comm ▸ nat.add_le_add_left H k
 
 protected theorem le_of_add_le_add_left {k n m : ℕ} (H : k + n ≤ k + m) : n ≤ m :=
-obtain l Hl, from le.elim H, le.intro (add.left_cancel (!add.assoc⁻¹ ⬝ Hl))
+obtain l Hl, from le.elim H, le.intro (nat.add_left_cancel (!add.assoc⁻¹ ⬝ Hl))
 
 protected theorem lt_of_add_lt_add_left {k n m : ℕ} (H : k + n < k + m) : n < m :=
 let H' := nat.le_of_lt H in
-nat.lt_of_le_and_ne (nat.le_of_add_le_add_left H') (assume Heq, !lt.irrefl (Heq ▸ H))
+nat.lt_of_le_and_ne (nat.le_of_add_le_add_left H') (assume Heq, !nat.lt_irrefl (Heq ▸ H))
 
 protected theorem add_lt_add_left {n m : ℕ} (H : n < m) (k : ℕ) : k + n < k + m :=
 lt_of_succ_le (!add_succ ▸ nat.add_le_add_left (succ_le_of_lt H) k)
@@ -80,7 +80,7 @@ theorem mul_le_mul_right {n m : ℕ} (k : ℕ) (H : n ≤ m) : n * k ≤ m * k :
 !mul.comm ▸ !mul.comm ▸ !mul_le_mul_left H
 
 protected theorem mul_le_mul {n m k l : ℕ} (H1 : n ≤ k) (H2 : m ≤ l) : n * m ≤ k * l :=
-le.trans (!nat.mul_le_mul_right H1) (!nat.mul_le_mul_left H2)
+nat.le_trans (!nat.mul_le_mul_right H1) (!nat.mul_le_mul_left H2)
 
 protected theorem mul_lt_mul_of_pos_left {n m k : ℕ} (H : n < m) (Hk : k > 0) : k * n < k * m :=
 nat.lt_of_lt_of_le (nat.lt_add_of_pos_right Hk) (!mul_succ ▸ nat.mul_le_mul_left k (succ_le_of_lt H))
@@ -95,17 +95,17 @@ open algebra
 protected definition decidable_linear_ordered_semiring [reducible] [trans_instance] :
 algebra.decidable_linear_ordered_semiring nat :=
 ⦃ algebra.decidable_linear_ordered_semiring, nat.comm_semiring,
-  add_left_cancel            := @nat.add.left_cancel,
-  add_right_cancel           := @nat.add.right_cancel,
+  add_left_cancel            := @nat.add_left_cancel,
+  add_right_cancel           := @nat.add_right_cancel,
   lt                         := nat.lt,
   le                         := nat.le,
-  le_refl                    := nat.le.refl,
-  le_trans                   := @nat.le.trans,
-  le_antisymm                := @nat.le.antisymm,
-  le_total                   := @nat.le.total,
+  le_refl                    := nat.le_refl,
+  le_trans                   := @nat.le_trans,
+  le_antisymm                := @nat.le_antisymm,
+  le_total                   := @nat.le_total,
   le_iff_lt_or_eq            := @nat.le_iff_lt_or_eq,
   le_of_lt                   := @nat.le_of_lt,
-  lt_irrefl                  := @nat.lt.irrefl,
+  lt_irrefl                  := @nat.lt_irrefl,
   lt_of_lt_of_le             := @nat.lt_of_lt_of_le,
   lt_of_le_of_lt             := @nat.lt_of_le_of_lt,
   lt_of_add_lt_add_left      := @nat.lt_of_add_lt_add_left,
@@ -118,7 +118,6 @@ algebra.decidable_linear_ordered_semiring nat :=
   mul_lt_mul_of_pos_left     := @nat.mul_lt_mul_of_pos_left,
   mul_lt_mul_of_pos_right    := @nat.mul_lt_mul_of_pos_right,
   decidable_lt               := nat.decidable_lt ⦄
-
 
 definition nat_has_dvd [reducible] [instance] [priority nat.prio] : has_dvd nat :=
 has_dvd.mk has_dvd.dvd

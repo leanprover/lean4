@@ -114,7 +114,7 @@ begin
   rewrite [-Pig, -Pjh, -pow_add, pow_mod Pe],
   apply mem_sep_of_mem !mem_univ,
   existsi ((i + j) mod (succ n)), apply and.intro,
-    apply nat.lt.trans (mod_lt (i+j) !zero_lt_succ) (succ_lt_succ Plt),
+    apply nat.lt_trans (mod_lt (i+j) !zero_lt_succ) (succ_lt_succ Plt),
     apply rfl
 end
 
@@ -129,7 +129,7 @@ begin
   rewrite [inv_eq_of_mul_eq_one Pinv],
   apply mem_sep_of_mem !mem_univ,
   existsi ni, apply and.intro,
-    apply nat.lt.trans (is_lt ni) (succ_lt_succ Plt),
+    apply nat.lt_trans (is_lt ni) (succ_lt_succ Plt),
     apply rfl
 end
 

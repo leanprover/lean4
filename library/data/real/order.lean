@@ -271,8 +271,8 @@ theorem equiv_cancel_middle {s t u : seq} (Hs : regular s) (Ht : regular t)
     repeat (apply reg_add_reg | apply reg_neg_reg | assumption)
   end
 
-theorem add_le_add_of_le_right {s t : seq} (Hs : regular s) (Ht : regular t) (Lst : s_le s t) :
-        ∀ u : seq, regular u → s_le (sadd u s) (sadd u t) :=
+protected theorem add_le_add_of_le_right {s t : seq} (Hs : regular s) (Ht : regular t) 
+          (Lst : s_le s t) : ∀ u : seq, regular u → s_le (sadd u s) (sadd u t) :=
   begin
     intro u Hu,
     rewrite [↑s_le at *],
@@ -294,7 +294,8 @@ theorem s_add_lt_add_left {s t : seq} (Hs : regular s) (Ht : regular t) (Hst : s
     repeat (apply reg_add_reg | apply reg_neg_reg | assumption)
   end
 
-theorem add_nonneg_of_nonneg {s t : seq} (Hs : nonneg s) (Ht : nonneg t) : nonneg (sadd s t) :=
+protected theorem add_nonneg_of_nonneg {s t : seq} (Hs : nonneg s) (Ht : nonneg t) : 
+          nonneg (sadd s t) :=
   begin
     intros,
     rewrite [-pnat.add_halves, neg_add],
@@ -303,13 +304,13 @@ theorem add_nonneg_of_nonneg {s t : seq} (Hs : nonneg s) (Ht : nonneg t) : nonne
     apply Ht
   end
 
-protected theorem le_trans {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u) (Lst : s_le s t)
-        (Ltu : s_le t u) : s_le s u :=
+protected theorem le_trans {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u) 
+          (Lst : s_le s t) (Ltu : s_le t u) : s_le s u :=
   begin
     rewrite ↑s_le at *,
     let Rz := zero_is_reg,
     have Hsum : nonneg (sadd (sadd u (sneg t)) (sadd t (sneg s))),
-                from add_nonneg_of_nonneg Ltu Lst,
+                from rat_seq.add_nonneg_of_nonneg Ltu Lst,
     have H' : nonneg (sadd (sadd u (sadd (sneg t) t)) (sneg s)), begin
       apply nonneg_of_nonneg_equiv,
       rotate 2,
@@ -610,7 +611,7 @@ theorem s_mul_nonneg_of_nonneg {s t : seq} (Hs : regular s) (Ht : regular t)
       rotate 1,
       rewrite -neg_mul_eq_mul_neg,
       apply neg_le_neg,
-      rewrite [*pnat.mul_assoc, pnat.inv_mul_eq_mul_inv, -mul.assoc, pnat.inv_cancel_left, rat.one_mul],
+      rewrite [*pnat.mul_assoc, pnat.inv_mul_eq_mul_inv, -mul.assoc, pnat.inv_cancel_left, one_mul],
       apply inv_ge_of_le,
       apply pnat.mul_le_mul_left,
      intro Hsn,
@@ -633,11 +634,12 @@ theorem s_mul_nonneg_of_nonneg {s t : seq} (Hs : regular s) (Ht : regular t)
      rotate 1,
      rewrite -neg_mul_eq_neg_mul,
      apply neg_le_neg,
-     rewrite [+pnat.mul_assoc, pnat.inv_mul_eq_mul_inv, mul.comm, -mul.assoc, pnat.inv_cancel_left, one_mul],
+     rewrite [+pnat.mul_assoc, pnat.inv_mul_eq_mul_inv, mul.comm, -mul.assoc, pnat.inv_cancel_left,
+             one_mul],
      apply inv_ge_of_le,
      apply pnat.mul_le_mul_left,
     intro Htn,
-    apply rat.le_trans,
+    apply le.trans,
     rotate 1,
     apply mul_nonneg_of_nonpos_of_nonpos,
     apply Hsn,
@@ -659,7 +661,7 @@ theorem s_mul_ge_zero_of_ge_zero {s t : seq} (Hs : regular s) (Ht : regular t)
     apply reg_mul_reg Hs Ht
   end
 
-theorem not_lt_self (s : seq) : ¬ s_lt s s :=
+protected theorem not_lt_self (s : seq) : ¬ s_lt s s :=
   begin
     intro Hlt,
     rewrite [↑s_lt at Hlt, ↑pos at Hlt],
@@ -674,7 +676,7 @@ theorem not_sep_self (s : seq) : ¬ s ≢ s :=
     intro Hsep,
     rewrite ↑sep at Hsep,
     let Hsep' := (iff.mp !or_self) Hsep,
-    apply absurd Hsep' (!not_lt_self)
+    apply absurd Hsep' (!rat_seq.not_lt_self)
   end
 
 theorem le_well_defined {s t u v : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
@@ -951,7 +953,7 @@ theorem r_lt_iff_le_and_sep (s t : reg_seq) : r_lt s t ↔ r_le s t ∧ r_sep s 
 
 theorem r_add_le_add_of_le_right {s t : reg_seq} (H : r_le s t) (u : reg_seq) :
         r_le (u + s) (u + t) :=
-  add_le_add_of_le_right (reg_seq.is_reg s) (reg_seq.is_reg t) H
+  rat_seq.add_le_add_of_le_right (reg_seq.is_reg s) (reg_seq.is_reg t) H
                                         (reg_seq.sq u) (reg_seq.is_reg u)
 
 theorem r_add_le_add_of_le_right_var (s t u : reg_seq) (H : r_le s t) :
@@ -966,7 +968,7 @@ theorem r_mul_nonneg_of_nonneg {s t : reg_seq} (Hs : r_le r_zero s) (Ht : r_le r
   s_mul_ge_zero_of_ge_zero (reg_seq.is_reg s) (reg_seq.is_reg t) Hs Ht
 
 theorem r_not_lt_self (s : reg_seq) : ¬ r_lt s s :=
-  not_lt_self (reg_seq.sq s)
+  rat_seq.not_lt_self (reg_seq.sq s)
 
 theorem r_not_sep_self (s : reg_seq) : ¬ r_sep s s :=
   not_sep_self (reg_seq.sq s)
@@ -1006,7 +1008,8 @@ theorem r_lt_of_const_lt_const {a b : ℚ} (H : r_lt (r_const a) (r_const b)) : 
 theorem r_le_of_le_reprs (s t : reg_seq) (Hle : ∀ n : ℕ+, r_le s (r_const (reg_seq.sq t n))) : r_le s t :=
   le_of_le_reprs (reg_seq.is_reg s) (reg_seq.is_reg t) Hle
 
-theorem r_le_of_reprs_le (s t : reg_seq) (Hle : ∀ n : ℕ+, r_le (r_const (reg_seq.sq t n)) s) : r_le t s :=
+theorem r_le_of_reprs_le (s t : reg_seq) (Hle : ∀ n : ℕ+, r_le (r_const (reg_seq.sq t n)) s) : 
+        r_le t s :=
   le_of_reprs_le (reg_seq.is_reg s) (reg_seq.is_reg t) Hle
 
 end rat_seq
@@ -1015,8 +1018,10 @@ open real
 open [classes] rat_seq
 namespace real
 
-protected definition lt (x y : ℝ) := quot.lift_on₂ x y (λ a b, rat_seq.r_lt a b) rat_seq.r_lt_well_defined
-protected definition le (x y : ℝ) := quot.lift_on₂ x y (λ a b, rat_seq.r_le a b) rat_seq.r_le_well_defined
+protected definition lt (x y : ℝ) := 
+  quot.lift_on₂ x y (λ a b, rat_seq.r_lt a b) rat_seq.r_lt_well_defined
+protected definition le (x y : ℝ) := 
+  quot.lift_on₂ x y (λ a b, rat_seq.r_le a b) rat_seq.r_le_well_defined
 
 definition real_has_lt [reducible] [instance] [priority real.prio] : has_lt ℝ :=
 has_lt.mk real.lt
@@ -1027,54 +1032,54 @@ has_le.mk real.le
 definition sep (x y : ℝ) := quot.lift_on₂ x y (λ a b, rat_seq.r_sep a b) rat_seq.r_sep_well_defined
 infix `≢` : 50 := sep
 
-theorem le.refl (x : ℝ) : x ≤ x :=
+protected theorem le_refl (x : ℝ) : x ≤ x :=
   quot.induction_on x (λ t, rat_seq.r_le.refl t)
 
-theorem le.trans {x y z : ℝ} : x ≤ y → y ≤ z → x ≤ z :=
+protected theorem le_trans {x y z : ℝ} : x ≤ y → y ≤ z → x ≤ z :=
   quot.induction_on₃ x y z (λ s t u, rat_seq.r_le.trans)
 
-theorem eq_of_le_of_ge {x y : ℝ} : x ≤ y → y ≤ x → x = y :=
+protected theorem eq_of_le_of_ge {x y : ℝ} : x ≤ y → y ≤ x → x = y :=
   quot.induction_on₂ x y (λ s t Hst Hts, quot.sound (rat_seq.r_equiv_of_le_of_ge Hst Hts))
 
 theorem lt_iff_le_and_sep (x y : ℝ) : x < y ↔ x ≤ y ∧ x ≢ y :=
   quot.induction_on₂ x y (λ s t, rat_seq.r_lt_iff_le_and_sep s t)
 
-theorem add_le_add_of_le_right_var (x y z : ℝ) : x ≤ y → z + x ≤ z + y :=
+protected theorem add_le_add_left' (x y z : ℝ) : x ≤ y → z + x ≤ z + y :=
   quot.induction_on₃ x y z (λ s t u, rat_seq.r_add_le_add_of_le_right_var s t u)
 
-theorem add_le_add_of_le_right (x y : ℝ) : x ≤ y → ∀ z : ℝ, z + x ≤ z + y :=
-  take H z, add_le_add_of_le_right_var x y z H
+protected theorem add_le_add_left (x y : ℝ) : x ≤ y → ∀ z : ℝ, z + x ≤ z + y :=
+  take H z, real.add_le_add_left' x y z H
 
-theorem mul_gt_zero_of_gt_zero (x y : ℝ) : 0 < x → 0 < y → 0 < x * y :=
+protected theorem mul_pos (x y : ℝ) : 0 < x → 0 < y → 0 < x * y :=
   quot.induction_on₂ x y (λ s t, rat_seq.r_mul_pos_of_pos)
 
-theorem mul_ge_zero_of_ge_zero (x y : ℝ) : 0 ≤ x → 0 ≤ y → 0 ≤ x * y :=
+protected theorem mul_nonneg (x y : ℝ) : 0 ≤ x → 0 ≤ y → 0 ≤ x * y :=
   quot.induction_on₂ x y (λ s t, rat_seq.r_mul_nonneg_of_nonneg)
 
 theorem not_sep_self (x : ℝ) : ¬ x ≢ x :=
   quot.induction_on x (λ s, rat_seq.r_not_sep_self s)
 
-theorem not_lt_self (x : ℝ) : ¬ x < x :=
+protected theorem lt_irrefl (x : ℝ) : ¬ x < x :=
   quot.induction_on x (λ s, rat_seq.r_not_lt_self s)
 
-theorem le_of_lt {x y : ℝ} : x < y → x ≤ y :=
+protected theorem le_of_lt {x y : ℝ} : x < y → x ≤ y :=
   quot.induction_on₂ x y (λ s t H', rat_seq.r_le_of_lt H')
 
-theorem lt_of_le_of_lt {x y z : ℝ} : x ≤ y → y < z → x < z :=
+protected theorem lt_of_le_of_lt {x y z : ℝ} : x ≤ y → y < z → x < z :=
   quot.induction_on₃ x y z (λ s t u H H', rat_seq.r_lt_of_le_of_lt H H')
 
-theorem lt_of_lt_of_le {x y z : ℝ} : x < y → y ≤ z → x < z :=
+protected theorem lt_of_lt_of_le {x y z : ℝ} : x < y → y ≤ z → x < z :=
   quot.induction_on₃ x y z (λ s t u H H', rat_seq.r_lt_of_lt_of_le H H')
 
-theorem add_lt_add_left_var (x y z : ℝ) : x < y → z + x < z + y :=
+protected theorem add_lt_add_left' (x y z : ℝ) : x < y → z + x < z + y :=
   quot.induction_on₃ x y z (λ s t u, rat_seq.r_add_lt_add_left_var s t u)
 
-theorem add_lt_add_left (x y : ℝ) : x < y → ∀ z : ℝ, z + x < z + y :=
-  take H z, add_lt_add_left_var x y z H
+protected theorem add_lt_add_left (x y : ℝ) : x < y → ∀ z : ℝ, z + x < z + y :=
+  take H z, real.add_lt_add_left' x y z H
 
-theorem zero_lt_one : (0 : ℝ) < (1 : ℝ) := rat_seq.r_zero_lt_one
+protected theorem zero_lt_one : (0 : ℝ) < (1 : ℝ) := rat_seq.r_zero_lt_one
 
-theorem le_of_lt_or_eq (x y : ℝ) : x < y ∨ x = y → x ≤ y :=
+protected theorem le_of_lt_or_eq (x y : ℝ) : x < y ∨ x = y → x ≤ y :=
     (quot.induction_on₂ x y (λ s t H, or.elim H (take H', begin
         apply rat_seq.r_le_of_lt_or_eq,
         apply or.inl H'
@@ -1086,18 +1091,18 @@ theorem le_of_lt_or_eq (x y : ℝ) : x < y ∨ x = y → x ≤ y :=
 
 definition ordered_ring [reducible] [instance] : algebra.ordered_ring ℝ :=
 ⦃ algebra.ordered_ring, real.comm_ring,
-  le_refl := le.refl,
-  le_trans := @le.trans,
-  mul_pos := mul_gt_zero_of_gt_zero,
-  mul_nonneg := mul_ge_zero_of_ge_zero,
-  zero_ne_one := zero_ne_one,
-  add_le_add_left := add_le_add_of_le_right,
-  le_antisymm := @eq_of_le_of_ge,
-  lt_irrefl := not_lt_self,
-  lt_of_le_of_lt := @lt_of_le_of_lt,
-  lt_of_lt_of_le := @lt_of_lt_of_le,
-  le_of_lt := @le_of_lt,
-  add_lt_add_left := add_lt_add_left
+  le_refl := real.le_refl,
+  le_trans := @real.le_trans,
+  mul_pos := real.mul_pos,
+  mul_nonneg := real.mul_nonneg,
+  zero_ne_one := real.zero_ne_one,
+  add_le_add_left := real.add_le_add_left,
+  le_antisymm := @real.eq_of_le_of_ge,
+  lt_irrefl := real.lt_irrefl,
+  lt_of_le_of_lt := @real.lt_of_le_of_lt,
+  lt_of_lt_of_le := @real.lt_of_lt_of_le,
+  le_of_lt := @real.le_of_lt,
+  add_lt_add_left := real.add_lt_add_left
 ⦄
 
 open int

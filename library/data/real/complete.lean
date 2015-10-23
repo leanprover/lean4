@@ -16,7 +16,7 @@ are independent of each other.
 -/
 
 import data.real.basic data.real.order data.real.division data.rat data.nat data.pnat
-open rat algebra -- nat
+open rat algebra
 local postfix ⁻¹ := pnat.inv
 open eq.ops pnat classical
 
@@ -110,7 +110,7 @@ theorem equiv_abs_of_ge_zero {s : seq} (Hs : regular s) (Hz : s_le zero s) : s_a
     apply le.trans,
     apply add_le_add,
     repeat (apply neg_le_neg; apply Hz'),
-    rewrite algebra.neg_neg,
+    rewrite neg_neg,
     apply le.trans,
     apply add_le_add,
     repeat (apply inv_ge_of_le; apply Hn),
@@ -174,7 +174,8 @@ private theorem rewrite_helper10 (a b c d : ℝ) : c - d = (c - a) + (a - b) + (
 noncomputable definition rep (x : ℝ) : rat_seq.reg_seq := some (quot.exists_rep x)
 
 definition re_abs (x : ℝ) : ℝ :=
-  quot.lift_on x (λ a, quot.mk (rat_seq.r_abs a)) (take a b Hab, quot.sound (rat_seq.r_abs_well_defined Hab))
+  quot.lift_on x (λ a, quot.mk (rat_seq.r_abs a)) 
+    (take a b Hab, quot.sound (rat_seq.r_abs_well_defined Hab))
 
 theorem r_abs_nonneg {x : ℝ} : zero ≤ x → re_abs x = x :=
   quot.induction_on x (λ a Ha, quot.sound  (rat_seq.r_equiv_abs_of_ge_zero Ha))
@@ -182,7 +183,8 @@ theorem r_abs_nonneg {x : ℝ} : zero ≤ x → re_abs x = x :=
 theorem r_abs_nonpos {x : ℝ} : x ≤ zero → re_abs x = -x :=
   quot.induction_on x (λ a Ha, quot.sound (rat_seq.r_equiv_neg_abs_of_le_zero Ha))
 
-private theorem abs_const' (a : ℚ) : of_rat (abs a) = re_abs (of_rat a) := quot.sound (rat_seq.r_abs_const a)
+private theorem abs_const' (a : ℚ) : of_rat (abs a) = re_abs (of_rat a) := 
+  quot.sound (rat_seq.r_abs_const a)
 
 private theorem re_abs_is_abs : re_abs = abs := funext
   (begin

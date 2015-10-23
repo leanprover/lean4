@@ -238,8 +238,8 @@ bool type_inference::is_def_eq(level const & l1, level const & l2) {
         }
     }
 
-    level new_l1 = normalize(l1);
-    level new_l2 = normalize(l2);
+    level new_l1 = normalize(instantiate_uvars(l1));
+    level new_l2 = normalize(instantiate_uvars(l2));
 
     if (ignore_universe_def_eq(new_l1, new_l2))
         return true;
@@ -644,8 +644,8 @@ auto type_inference::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reduct
         if (is_app(t_n) && is_app(s_n) && is_eqp(*d_t, *d_s)) {
             if (!is_opaque(*d_t)) {
                 scope s(*this);
-                if (is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n))) &&
-                    is_def_eq_args(t_n, s_n)) {
+                if (is_def_eq_args(t_n, s_n) &&
+                    is_def_eq(const_levels(get_app_fn(t_n)), const_levels(get_app_fn(s_n)))) {
                     s.commit();
                     return reduction_status::DefEqual;
                 }
@@ -736,8 +736,8 @@ bool type_inference::is_def_eq_core(expr const & t, expr const & s) {
 
     if (is_app(t_n) && is_app(s_n)) {
         scope s(*this);
-        if (is_def_eq_core(get_app_fn(t_n), get_app_fn(s_n)) &&
-            is_def_eq_args(t_n, s_n)) {
+        if (is_def_eq_args(t_n, s_n) &&
+            is_def_eq_core(get_app_fn(t_n), get_app_fn(s_n))) {
             s.commit();
             return true;
         }

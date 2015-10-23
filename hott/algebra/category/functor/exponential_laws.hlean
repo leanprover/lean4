@@ -6,11 +6,11 @@ Authors: Floris van Doorn, Jakob von Raumer
 Exponential laws
 -/
 
-import .functor.equivalence .functor.curry
-       .constructions.terminal .constructions.initial .constructions.product .constructions.sum
+import .equivalence .curry
+       ..constructions.terminal ..constructions.initial ..constructions.product ..constructions.sum
+       ..constructions.discrete
 
-open eq category functor is_trunc nat_trans iso unit prod sum prod.ops
-
+open eq category functor is_trunc nat_trans iso unit prod sum prod.ops bool
 
 namespace category
 
@@ -53,7 +53,6 @@ namespace category
       { apply empty.elim}},
   end
 
-
   /- C ^ 1 ≅ C -/
 
   definition functor_one_iso [constructor] (C : Precategory) : C ^c 1 ≅c C :=
@@ -89,6 +88,87 @@ namespace category
       { intro u v f, apply unit.eta}},
   end
 
+  /- C ^ 2 ≅ C × C -/
+
+  definition functor_two_right [constructor] (C : Precategory)
+    : C ^c c2 ⇒ C ×c C :=
+  begin
+    fapply functor.mk: esimp,
+    { intro F, exact (F ff, F tt)},
+    { intro F G η, esimp, exact (η ff, η tt)},
+    { intro F, reflexivity},
+    { intro F G H η θ, reflexivity}
+  end
+
+  definition functor_two_left [constructor] (C : Precategory)
+    : C ×c C ⇒ C ^c c2 :=
+  begin
+    fapply functor.mk: esimp,
+    { intro v, exact c2_functor C v.1 v.2},
+    { intro v w f, exact c2_nat_trans f.1 f.2},
+    { intro v, apply nat_trans_eq, esimp, intro b, induction b: reflexivity},
+    { intro u v w g f, apply nat_trans_eq, esimp, intro b, induction b: reflexivity}
+  end
+
+  definition functor_two_iso [constructor] (C : Precategory)
+    : C ^c c2 ≅c C ×c C :=
+  begin
+    fapply isomorphism.MK: esimp,
+    { apply functor_two_right},
+    { apply functor_two_left},
+    { fapply functor_eq: esimp,
+      { intro F, apply c2_functor_eta},
+      { intro F G η, fapply nat_trans_eq, intro b, esimp,
+        rewrite [@natural_map_hom_of_eq _ _ _ G, @natural_map_inv_of_eq _ _ _ F,
+          ↑c2_functor_eta, +@ap010_functor_eq c2 C, ▸*],
+        induction b: esimp; apply id_leftright}},
+    { fapply functor_eq: esimp,
+      { intro v, apply prod.eta},
+      { intro v w f, induction v, induction w, esimp, apply prod_eq: apply id_leftright}},
+  end
+
+  /- Cᵒᵖ ^ Dᵒᵖ ≅ (C ^ D)ᵒᵖ -/
+
+  definition opposite_functor_opposite_right [constructor] (C D : Precategory)
+    : Cᵒᵖ ^c Dᵒᵖ ⇒ (C ^c D)ᵒᵖ :=
+  begin
+    fapply functor.mk: esimp,
+    { exact opposite_functor_rev},
+    { apply @opposite_rev_nat_trans},
+    { intro F, apply nat_trans_eq, intro d, reflexivity},
+    { intro F G H η θ, apply nat_trans_eq, intro d, reflexivity}
+  end
+
+  definition opposite_functor_opposite_left [constructor] (C D : Precategory)
+    : (C ^c D)ᵒᵖ ⇒ Cᵒᵖ ^c Dᵒᵖ :=
+  begin
+    fapply functor.mk: esimp,
+    { exact opposite_functor},
+    { intro F G, exact opposite_nat_trans},
+    { intro F, apply nat_trans_eq, reflexivity},
+    { intro u v w g f, apply nat_trans_eq, reflexivity}
+  end
+
+  definition opposite_functor_opposite_iso [constructor] (C D : Precategory)
+    : Cᵒᵖ ^c Dᵒᵖ ≅c (C ^c D)ᵒᵖ :=
+  begin
+    fapply isomorphism.MK: esimp,
+    { apply opposite_functor_opposite_right},
+    { apply opposite_functor_opposite_left},
+    { fapply functor_eq: esimp,
+      { exact opposite_rev_opposite_functor},
+      { intro F G η, fapply nat_trans_eq, esimp, intro d,
+        rewrite [@natural_map_hom_of_eq _ _ _ G, @natural_map_inv_of_eq _ _ _ F,
+          ↑opposite_rev_opposite_functor, +@ap010_functor_eq Dᵒᵖ Cᵒᵖ, ▸*],
+        exact !id_right ⬝ !id_left}},
+    { fapply functor_eq: esimp,
+      { exact opposite_opposite_rev_functor},
+      { intro F G η, fapply nat_trans_eq, esimp, intro d,
+        rewrite [opposite_hom_of_eq, opposite_inv_of_eq, @natural_map_hom_of_eq _ _ _ F,
+          @natural_map_inv_of_eq _ _ _ G, ↑opposite_opposite_rev_functor, +@ap010_functor_eq, ▸*],
+        exact !id_right ⬝ !id_left}},
+  end
+
   /- C ^ (D + E) ≅ C ^ D × C ^ E -/
 
   definition functor_sum_right [constructor] (C D E : Precategory)
@@ -110,7 +190,6 @@ namespace category
       -- REPORT: cannot abstract
   end
 
-  /- TODO: optimize -/
   definition functor_sum_iso [constructor] (C D E : Precategory)
     : C ^c (D +c E) ≅c C ^c D ×c C ^c E :=
   begin
@@ -172,7 +251,7 @@ namespace category
       { intro V, apply prod_eq: esimp, apply pr1_functor_prod, apply pr2_functor_prod},
       { intro V W ν, rewrite [@pr1_hom_of_eq (C ^c E) (D ^c E), @pr2_hom_of_eq (C ^c E) (D ^c E),
           @pr1_inv_of_eq (C ^c E) (D ^c E), @pr2_inv_of_eq (C ^c E) (D ^c E)],
-        apply prod_eq: apply nat_trans_eq: intro v: esimp,
+        apply prod_eq: apply nat_trans_eq; intro v: esimp,
         { rewrite [@natural_map_hom_of_eq _ _ _ W.1, @natural_map_inv_of_eq _ _ _ V.1, ▸*,
             ↑pr1_functor_prod,+ap010_functor_eq, ▸*, id_leftright]},
         { rewrite [@natural_map_hom_of_eq _ _ _ W.2, @natural_map_inv_of_eq _ _ _ V.2, ▸*,
@@ -221,6 +300,5 @@ namespace category
         rewrite [@natural_map_hom_of_eq _ _ _ G, @natural_map_inv_of_eq _ _ _ F,
           ↑functor_uncurry_functor_curry, +@ap010_functor_eq, ▸*], apply id_leftright}},
   end
-
 
 end category

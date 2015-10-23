@@ -5,7 +5,7 @@ Common categories and constructions on categories. The following files are in th
 
 * [functor](functor.hlean) : Functor category
 * [opposite](opposite.hlean) : Opposite category
-* [hset](hset.hlean) : Category of sets. Prove that it is complete and cocomplete
+* [hset](hset.hlean) : Category of sets. Includes proof that it is complete and cocomplete
 * [sum](sum.hlean) : Sum category
 * [product](product.hlean) : Product category
 * [comma](comma.hlean) : Comma category

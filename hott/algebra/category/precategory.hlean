@@ -50,6 +50,10 @@ namespace category
   abbreviation id_id       [unfold 2] := @precategory.id_id
   abbreviation is_hset_hom [unfold 2] := @precategory.is_hset_hom
 
+  definition is_hprop_hom_eq {ob : Type} [C : precategory ob] {x y : ob} (f g : x ⟶ y)
+    : is_hprop (f = g) :=
+  _
+
   -- the constructor you want to use in practice
   protected definition precategory.mk [constructor] {ob : Type} (hom : ob → ob → Type)
     [hset : Π (a b : ob), is_hset (hom a b)]
@@ -256,6 +260,7 @@ namespace category
     rewrite [↑Precategory_eq, -ap_compose,↑function.compose,ap_constant]
   end
 
+  /-
   theorem Precategory_eq'_eta {C D : Precategory} (p : C = D) :
     Precategory_eq
       (ap carrier p)
@@ -265,6 +270,7 @@ namespace category
     induction p, induction C with X C, unfold Precategory_eq,
     induction C, unfold precategory_eq, exact sorry
   end
+  -/
 
 /-
   theorem Precategory_eq2 {C D : Precategory} (p q : C = D)

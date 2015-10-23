@@ -37,7 +37,7 @@ namespace category
               end
 
   definition initial_functor_op (C : Precategory)
-    : (initial_functor C)ᵒᵖ = initial_functor Cᵒᵖ :=
+    : (initial_functor C)ᵒᵖᶠ = initial_functor Cᵒᵖ :=
   by apply @is_hprop.elim (0 ⇒ Cᵒᵖ)
 
   definition initial_functor_comp {C D : Precategory} (F : C ⇒ D)

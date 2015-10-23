@@ -33,10 +33,6 @@ namespace category
   cone_hom.mk (cone_hom.f g ∘ cone_hom.f f)
               abstract λi, by rewrite [assoc, +cone_hom.p] end
 
-  definition is_hprop_hom_eq [instance] [priority 1001] {ob : Type} [C : precategory ob] {x y : ob} (f g : x ⟶ y)
-    : is_hprop (f = g) :=
-  _
-
   definition cone_obj_eq (p : cone_obj.c x = cone_obj.c y)
     (q : Πi, cone_obj.η x i = cone_obj.η y i ∘ hom_of_eq p) : x = y :=
   begin

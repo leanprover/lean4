@@ -19,9 +19,11 @@ namespace category
 
   definition is_initial [reducible] (c : ob) := @is_terminal _ (opposite C) c
 
-  definition is_contr_of_is_initial [instance] (c d : ob) [H : is_initial d]
+  definition is_contr_of_is_initial (c d : ob) [H : is_initial d]
     : is_contr (d ⟶ c) :=
   H c
+
+  local attribute is_contr_of_is_initial [instance]
 
   definition initial_morphism (c c' : ob) [H : is_initial c'] : c' ⟶ c :=
   !center
@@ -85,67 +87,67 @@ namespace category
   variables {D I} (F : I ⇒ D) [H : has_colimits_of_shape D I] {i j : I}
   include H
 
-  abbreviation cocone := (cone Fᵒᵖ)ᵒᵖ
+  abbreviation cocone := (cone Fᵒᵖᶠ)ᵒᵖ
 
   definition has_initial_object_cocone [H : has_colimits_of_shape D I]
     (F : I ⇒ D) : has_initial_object (cocone F) :=
   begin
     unfold [has_colimits_of_shape,has_limits_of_shape] at H,
-    exact H Fᵒᵖ
+    exact H Fᵒᵖᶠ
   end
   local attribute has_initial_object_cocone [instance]
 
-  definition colimit_cocone : cocone F := limit_cone Fᵒᵖ
+  definition colimit_cocone : cocone F := limit_cone Fᵒᵖᶠ
 
   definition is_initial_colimit_cocone [instance] : is_initial (colimit_cocone F) :=
-  is_terminal_limit_cone Fᵒᵖ
+  is_terminal_limit_cone Fᵒᵖᶠ
 
   definition colimit_object : D :=
-  limit_object Fᵒᵖ
+  limit_object Fᵒᵖᶠ
 
-  definition colimit_nat_trans : constant_functor Iᵒᵖ (colimit_object F) ⟹ Fᵒᵖ :=
-  limit_nat_trans Fᵒᵖ
+  definition colimit_nat_trans : constant_functor Iᵒᵖ (colimit_object F) ⟹ Fᵒᵖᶠ :=
+  limit_nat_trans Fᵒᵖᶠ
 
   definition colimit_morphism (i : I) : F i ⟶ colimit_object F :=
-  limit_morphism Fᵒᵖ i
+  limit_morphism Fᵒᵖᶠ i
 
   variable {H}
   theorem colimit_commute {i j : I} (f : i ⟶ j)
     : colimit_morphism F j ∘ to_fun_hom F f = colimit_morphism F i :=
-  by rexact limit_commute Fᵒᵖ f
+  by rexact limit_commute Fᵒᵖᶠ f
 
   variable [H]
   definition colimit_cone_obj [constructor] {d : D} {η : Πi, F i ⟶ d}
-    (p : Π⦃j i : I⦄ (f : i ⟶ j), η j ∘ to_fun_hom F f = η i) : cone_obj Fᵒᵖ :=
-  limit_cone_obj Fᵒᵖ proof p qed
+    (p : Π⦃j i : I⦄ (f : i ⟶ j), η j ∘ to_fun_hom F f = η i) : cone_obj Fᵒᵖᶠ :=
+  limit_cone_obj Fᵒᵖᶠ proof p qed
 
   variable {H}
   definition colimit_hom {d : D} (η : Πi, F i ⟶ d)
     (p : Π⦃j i : I⦄ (f : i ⟶ j), η j ∘ to_fun_hom F f = η i) : colimit_object F ⟶ d :=
-  hom_limit Fᵒᵖ η proof p qed
+  hom_limit Fᵒᵖᶠ η proof p qed
 
   theorem colimit_hom_commute {d : D} (η : Πi, F i ⟶ d)
     (p : Π⦃j i : I⦄ (f : i ⟶ j), η j ∘ to_fun_hom F f = η i) (i : I)
     : colimit_hom F η p ∘ colimit_morphism F i = η i :=
-  by rexact hom_limit_commute Fᵒᵖ η proof p qed i
+  by rexact hom_limit_commute Fᵒᵖᶠ η proof p qed i
 
   definition colimit_cone_hom [constructor] {d : D} {η : Πi, F i ⟶ d}
     (p : Π⦃j i : I⦄ (f : i ⟶ j), η j ∘ to_fun_hom F f = η i) {h : colimit_object F ⟶ d}
     (q : Πi, h ∘ colimit_morphism F i = η i)
     : cone_hom (colimit_cone_obj F p) (colimit_cocone F) :=
-  by rexact limit_cone_hom Fᵒᵖ proof p qed proof q qed
+  by rexact limit_cone_hom Fᵒᵖᶠ proof p qed proof q qed
 
   variable {F}
   theorem eq_colimit_hom {d : D} {η : Πi, F i ⟶ d}
     (p : Π⦃j i : I⦄ (f : i ⟶ j), η j ∘ to_fun_hom F f = η i) {h : colimit_object F ⟶ d}
     (q : Πi, h ∘ colimit_morphism F i = η i) : h = colimit_hom F η p :=
-  by rexact @eq_hom_limit _ _ Fᵒᵖ _ _ _ proof p qed _ proof q qed
+  by rexact @eq_hom_limit _ _ Fᵒᵖᶠ _ _ _ proof p qed _ proof q qed
 
   theorem colimit_cocone_unique {d : D} {η : Πi, F i ⟶ d}
     (p : Π⦃j i : I⦄ (f : i ⟶ j), η j ∘ to_fun_hom F f = η i)
     {h₁ : colimit_object F ⟶ d} (q₁ : Πi, h₁ ∘ colimit_morphism F i = η i)
     {h₂ : colimit_object F ⟶ d} (q₂ : Πi, h₂ ∘ colimit_morphism F i = η i) : h₁ = h₂ :=
-  @limit_cone_unique _ _ Fᵒᵖ _ _ _ proof p qed _ proof q₁ qed _ proof q₂ qed
+  @limit_cone_unique _ _ Fᵒᵖᶠ _ _ _ proof p qed _ proof q₁ qed _ proof q₂ qed
 
   definition colimit_hom_colimit [reducible] {F G : I ⇒ D} (η : F ⟹ G)
     : colimit_object F ⟶ colimit_object G :=
@@ -157,7 +159,19 @@ namespace category
   variable (F)
   definition colimit_object_iso_colimit_object [constructor] (H₁ H₂ : has_colimits_of_shape D I) :
     @(colimit_object F) H₁ ≅ @(colimit_object F) H₂ :=
-  iso_of_opposite_iso (limit_object_iso_limit_object Fᵒᵖ H₁ H₂)
+  iso_of_opposite_iso (limit_object_iso_limit_object Fᵒᵖᶠ H₁ H₂)
+
+  definition colimit_functor [constructor] (D I : Precategory) [H : has_colimits_of_shape D I]
+    : D ^c I ⇒ D :=
+  begin
+    fapply functor.mk: esimp,
+    { intro F, exact colimit_object F},
+    { apply @colimit_hom_colimit},
+    { intro F, unfold colimit_hom_colimit, refine (eq_colimit_hom _ _)⁻¹, intro i,
+      apply id_comp_eq_comp_id},
+    { intro F G H η θ, unfold colimit_hom_colimit, refine (eq_colimit_hom _ _)⁻¹, intro i,
+      rewrite [-assoc, colimit_hom_commute, assoc, colimit_hom_commute, -assoc]}
+  end
 
   section bin_coproducts
   open bool prod.ops
@@ -198,6 +212,7 @@ namespace category
   eq_coproduct_hom p₁ q₁ ⬝ (eq_coproduct_hom p₂ q₂)⁻¹
 
   variable (D)
+  -- TODO: define this in terms of colimit_functor and functor_two_left (in exponential_laws)
   definition coproduct_functor [constructor] : D ×c D ⇒ D :=
   functor.mk
     (λx, coproduct_object x.1 x.2)

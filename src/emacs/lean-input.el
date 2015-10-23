@@ -371,6 +371,7 @@ order for the change to take effect."
   ("inf"       . ("∞"))
   ("&"         . ("⅋"))
   ("op"        . ("ᵒᵖ"))
+  ("opf"       . ("ᵒᵖᶠ"))
 
   ;; Circled operators.
 

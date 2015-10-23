@@ -15,7 +15,7 @@ namespace category
   -- preservation of limits
   variables {D C I : Precategory}
 
-  definition limit_functor [constructor]
+  definition functor_limit_object [constructor]
     [H : has_limits_of_shape D I] (F : I ⇒ D ^c C) : C ⇒ D :=
   begin
   assert lem : Π(c d : carrier C) (f : hom c d) ⦃i j : carrier I⦄ (k : i ⟶ j),
@@ -34,11 +34,11 @@ namespace category
      rewrite [respect_comp,assoc,hom_limit_commute,-assoc,hom_limit_commute,assoc]}
   end
 
-  definition limit_functor_cone [constructor]
+  definition functor_limit_cone [constructor]
     [H : has_limits_of_shape D I] (F : I ⇒ D ^c C) : cone_obj F :=
   begin
   fapply cone_obj.mk,
-  { exact limit_functor F},
+  { exact functor_limit_object F},
   { fapply nat_trans.mk,
     { intro i, esimp, fapply nat_trans.mk,
       { intro c, esimp, apply limit_morphism},
@@ -52,7 +52,7 @@ namespace category
     : has_limits_of_shape (D ^c C) I :=
   begin
     intro F, fapply has_terminal_object.mk,
-    { exact limit_functor_cone F},
+    { exact functor_limit_cone F},
     { intro c, esimp at *, induction c with G η, induction η with η p, esimp at *,
       fapply is_contr.mk,
       { fapply cone_hom.mk,
@@ -87,7 +87,7 @@ namespace category
   --            abstract (λi j k g f, ap010 natural_map !respect_comp c) end
   -- qed
 
-  definition colimit_functor [constructor]
+  definition functor_colimit_object [constructor]
     [H : has_colimits_of_shape D I] (F : Iᵒᵖ ⇒ (D ^c C)ᵒᵖ) : C ⇒ D :=
   begin
   fapply functor.mk,
@@ -99,11 +99,11 @@ namespace category
      rewrite [▸*,respect_comp,-assoc,colimit_hom_commute,assoc,colimit_hom_commute,-assoc]}
   end
 
-  definition colimit_functor_cone [constructor]
+  definition functor_colimit_cone [constructor]
     [H : has_colimits_of_shape D I] (F : Iᵒᵖ ⇒ (D ^c C)ᵒᵖ) : cone_obj F :=
   begin
   fapply cone_obj.mk,
-  { exact colimit_functor F},
+  { exact functor_colimit_object F},
   { fapply nat_trans.mk,
     { intro i, esimp, fapply nat_trans.mk,
       { intro c, esimp, apply colimit_morphism},
@@ -117,7 +117,7 @@ namespace category
     : has_colimits_of_shape (D ^c C) I :=
   begin
     intro F, fapply has_terminal_object.mk,
-    { exact colimit_functor_cone F},
+    { exact functor_colimit_cone F},
     { intro c, esimp at *, induction c with G η, induction η with η p, esimp at *,
       fapply is_contr.mk,
       { fapply cone_hom.mk,
@@ -141,7 +141,8 @@ namespace category
 
   local attribute has_limits_of_shape_op_op [instance] [priority 1]
   universe variables u v
-  definition is_cocomplete_functor [instance] [H : is_cocomplete.{_ _ u v} D] : is_cocomplete.{_ _ u v} (D ^c C) :=
+  definition is_cocomplete_functor [instance] [H : is_cocomplete.{_ _ u v} D]
+    : is_cocomplete.{_ _ u v} (D ^c C) :=
   λI, _
 
 end category

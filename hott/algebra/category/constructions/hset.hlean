@@ -167,32 +167,7 @@ namespace category
       exact exists.intro f idp}}
   end
 
--- giving the following step explicitly slightly reduces the elaboration time of the next proof
-
---   definition is_cocomplete_set_cone_hom.{u v w} [constructor]
---     (I : Precategory.{v w}) (F : I ⇒ Opposite set.{max u v w})
--- (X : hset.{max u v w})
--- (η : Π (i : carrier I), trunctype.carrier (to_fun_ob F i) → trunctype.carrier X)
--- (p : Π {i j : carrier I} (f : hom i j), (λ (x : trunctype.carrier (to_fun_ob F j)), η i (to_fun_hom F f x)) = η j)
-
--- : --cone_hom (cone_obj.mk X (nat_trans.mk η @p)) (is_cocomplete_set_cone.{u v w} I F)
---   @cone_hom I setᵒᵖ F
---     (@cone_obj.mk I setᵒᵖ F X
---       (@nat_trans.mk I (Opposite set) (@constant_functor I (Opposite set) X) F η @p))
---     (is_cocomplete_set_cone.{u v w} I F)
--- :=
---   begin
---   fapply cone_hom.mk,
---     { refine set_quotient.elim _ _,
---       { intro v, induction v with i x, exact η i x},
---       { intro v w r, induction v with i x, induction w with j y, esimp at *,
---         refine trunc.elim_on r _, clear r,
---         intro u, induction u with f q,
---         exact ap (η i) q⁻¹ ⬝ ap10 (p f) y}},
---     { intro i, reflexivity}
---   end
-
-  -- TODO: rewrite after induction tactic for trunc/set_quotient is implemented
+  -- TODO: change this after induction tactic for trunc/set_quotient is implemented
   definition is_cocomplete_set.{u v w} [instance]
     : is_cocomplete.{(max u v w)+1 (max u v w) v w} set :=
   begin

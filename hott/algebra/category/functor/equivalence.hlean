@@ -8,7 +8,7 @@ Functors which are equivalences or isomorphisms
 
 import .adjoint
 
-open category functor nat_trans eq is_trunc iso equiv prod trunc function pi is_equiv
+open eq functor iso prod nat_trans is_equiv equiv is_trunc
 
 namespace category
   variables {C D : Precategory} {F : C ⇒ D} {G : D ⇒ C}

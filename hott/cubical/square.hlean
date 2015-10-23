@@ -76,12 +76,12 @@ namespace eq
     square p₁₀ p₁₂ p₀₁ p :=
   by induction r; exact s₁₁
 
-  infix `⬝h`:75 := hconcat
-  infix `⬝v`:75 := vconcat
-  infix `⬝hp`:75 := hconcat_eq
-  infix `⬝vp`:75 := vconcat_eq
-  infix `⬝ph`:75 := eq_hconcat
-  infix `⬝pv`:75 := eq_vconcat
+  infix ` ⬝h `:75 := hconcat
+  infix ` ⬝v `:75 := vconcat
+  infix ` ⬝hp `:75 := hconcat_eq
+  infix ` ⬝vp `:75 := vconcat_eq
+  infix ` ⬝ph `:75 := eq_hconcat
+  infix ` ⬝pv `:75 := eq_vconcat
   postfix `⁻¹ʰ`:(max+1) := hinverse
   postfix `⁻¹ᵛ`:(max+1) := vinverse
 
@@ -260,7 +260,7 @@ namespace eq
   /-
     the following two equivalences have as underlying inverse function the functions
     hdeg_square and vdeg_square, respectively.
-    See examples below the definition
+    See example below the definition
   -/
   definition hdeg_square_equiv [constructor] (p q : a = a') : square idp idp p q ≃ p = q :=
   begin

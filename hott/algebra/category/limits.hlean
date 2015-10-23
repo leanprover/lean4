@@ -17,9 +17,11 @@ namespace category
   include C
 
   definition is_terminal [class] (c : ob) := Πd, is_contr (d ⟶ c)
-  definition is_contr_of_is_terminal [instance] (c d : ob) [H : is_terminal d]
+  definition is_contr_of_is_terminal (c d : ob) [H : is_terminal d]
     : is_contr (c ⟶ d) :=
   H c
+
+  local attribute is_contr_of_is_terminal [instance]
 
   definition terminal_morphism (c c' : ob) [H : is_terminal c'] : c ⟶ c' :=
   !center
@@ -171,6 +173,18 @@ namespace category
       { intro i, apply id_right} end end}
   end
 
+  definition limit_functor [constructor] (D I : Precategory) [H : has_limits_of_shape D I]
+    : D ^c I ⇒ D :=
+  begin
+    fapply functor.mk: esimp,
+    { intro F, exact limit_object F},
+    { apply @limit_hom_limit},
+    { intro F, unfold limit_hom_limit, refine (eq_hom_limit _ _)⁻¹, intro i,
+      apply comp_id_eq_id_comp},
+    { intro F G H η θ, unfold limit_hom_limit, refine (eq_hom_limit _ _)⁻¹, intro i,
+      rewrite [assoc, hom_limit_commute, -assoc, hom_limit_commute, assoc]}
+  end
+
   section bin_products
   open bool prod.ops
   definition has_binary_products [reducible] (D : Precategory) := has_limits_of_shape D c2
@@ -180,17 +194,16 @@ namespace category
   definition product_object : D :=
   limit_object (c2_functor D d d')
 
-  infixr `×l`:30 := product_object
-  local infixr × := product_object
+  infixr ` ×l `:75 := product_object
 
-  definition pr1 : d × d' ⟶ d :=
+  definition pr1 : d ×l d' ⟶ d :=
   limit_morphism (c2_functor D d d') ff
 
-  definition pr2 : d × d' ⟶ d' :=
+  definition pr2 : d ×l d' ⟶ d' :=
   limit_morphism (c2_functor D d d') tt
 
   variables {d d'}
-  definition hom_product {x : D} (f : x ⟶ d) (g : x ⟶ d') : x ⟶ d × d' :=
+  definition hom_product {x : D} (f : x ⟶ d) (g : x ⟶ d') : x ⟶ d ×l d' :=
   hom_limit (c2_functor D d d') (bool.rec f g)
     (by intro b₁ b₂ f; induction b₁: induction b₂: esimp at *; try contradiction: apply id_left)
 
@@ -200,16 +213,17 @@ namespace category
   theorem pr2_hom_product {x : D} (f : x ⟶ d) (g : x ⟶ d') : !pr2 ∘ hom_product f g = g :=
   hom_limit_commute (c2_functor D d d') (bool.rec f g) _ tt
 
-  theorem eq_hom_product {x : D} {f : x ⟶ d} {g : x ⟶ d'} {h : x ⟶ d × d'}
+  theorem eq_hom_product {x : D} {f : x ⟶ d} {g : x ⟶ d'} {h : x ⟶ d ×l d'}
     (p : !pr1 ∘ h = f) (q : !pr2 ∘ h = g) : h = hom_product f g :=
   eq_hom_limit _ (bool.rec p q)
 
   theorem product_cone_unique {x : D} {f : x ⟶ d} {g : x ⟶ d'}
-    {h₁ : x ⟶ d × d'} (p₁ : !pr1 ∘ h₁ = f) (q₁ : !pr2 ∘ h₁ = g)
-    {h₂ : x ⟶ d × d'} (p₂ : !pr1 ∘ h₂ = f) (q₂ : !pr2 ∘ h₂ = g) : h₁ = h₂ :=
+    {h₁ : x ⟶ d ×l d'} (p₁ : !pr1 ∘ h₁ = f) (q₁ : !pr2 ∘ h₁ = g)
+    {h₂ : x ⟶ d ×l d'} (p₂ : !pr1 ∘ h₂ = f) (q₂ : !pr2 ∘ h₂ = g) : h₁ = h₂ :=
   eq_hom_product p₁ q₁ ⬝ (eq_hom_product p₂ q₂)⁻¹
 
   variable (D)
+  -- TODO: define this in terms of limit_functor and functor_two_left (in exponential_laws)
   definition product_functor [constructor] : D ×c D ⇒ D :=
   functor.mk
     (λx, product_object x.1 x.2)
@@ -342,7 +356,7 @@ namespace category
   end pullbacks
 
   namespace ops
-  infixr × := product_object
+  infixr ×l := product_object
   end ops
 
 end category

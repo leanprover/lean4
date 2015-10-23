@@ -173,8 +173,8 @@ namespace eq
     (b : B' (f a)) (b₂ : B' (f a₂)) : b =[p] b₂ ≃ b =[ap f p] b₂ :=
   begin
     fapply equiv.MK,
-    { apply pathover_ap},
-    { apply pathover_of_pathover_ap},
+    { exact pathover_ap B' f},
+    { exact pathover_of_pathover_ap B' f},
     { intro q, cases p, esimp, apply (idp_rec_on q), apply idp},
     { intro q, cases q, reflexivity},
   end
@@ -261,7 +261,7 @@ namespace eq
   by induction q;constructor
 
   definition change_path [unfold 9] (q : p = p') (r : b =[p] b₂) : b =[p'] b₂ :=
-  by induction q;exact r
+  q ▸ r
 
   definition change_path_equiv (f : Π{a}, B a ≃ B' a) (r : b =[p] b₂) : f b =[p] f b₂ :=
   by induction r;constructor

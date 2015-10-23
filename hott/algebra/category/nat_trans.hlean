@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Floris van Doorn, Jakob von Raumer
 -/
 
-import .functor.functor
+import .functor.basic
 open eq category functor is_trunc equiv sigma.ops sigma is_equiv function pi funext iso
 
 structure nat_trans {C : Precategory} {D : Precategory} (F G : C ⇒ D)
@@ -42,6 +42,10 @@ namespace nat_trans
   (@nat_trans.id C D F)
 
   notation 1 := nat_trans.id
+
+  definition constant_nat_trans [constructor] (C : Precategory) {D : Precategory} {d d' : D}
+    (g : d ⟶ d') : constant_functor C d ⟹ constant_functor C d' :=
+  mk (λc, g) (λc c' f, !id_comp_eq_comp_id)
 
   definition nat_trans_mk_eq {η₁ η₂ : Π (a : C), hom (F a) (G a)}
     (nat₁ : Π (a b : C) (f : hom a b), G f ∘ η₁ a = η₁ b ∘ F f)

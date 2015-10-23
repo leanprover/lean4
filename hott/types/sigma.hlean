@@ -40,7 +40,7 @@ namespace sigma
 
   postfix `..1`:(max+1) := eq_pr1
 
-  definition eq_pr2 (p : u = v) : u.2 =[p..1] v.2 :=
+  definition eq_pr2 [unfold 5] (p : u = v) : u.2 =[p..1] v.2 :=
   by induction p; exact idpo
 
   postfix `..2`:(max+1) := eq_pr2
@@ -58,6 +58,12 @@ namespace sigma
 
   definition sigma_eq_eta (p : u = v) : sigma_eq (p..1) (p..2) = p :=
   by induction p; induction u; reflexivity
+
+  definition eq2_pr1 {p q : u = v} (r : p = q) : p..1 = q..1 :=
+  ap eq_pr1 r
+
+  definition eq2_pr2 {p q : u = v} (r : p = q) : p..2 =[eq2_pr1 r] q..2 :=
+  !pathover_ap (apdo eq_pr2 r)
 
   definition tr_pr1_sigma_eq {B' : A → Type} (p : u.1 = v.1) (q : u.2 =[p] v.2)
     : transport (λx, B' x.1) (sigma_eq p q) = transport B' p :=

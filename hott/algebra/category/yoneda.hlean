@@ -21,14 +21,14 @@ namespace yoneda
       ... = f1 ∘ ((f2 ∘ f3) ∘ f4) ∘ f5 : by rewrite -(assoc (f2 ∘ f3) _ _)
       ... = _                          : by rewrite (assoc f2 f3 f4)
 
-  definition hom_functor.{u v} [constructor] (C : Precategory.{u v}) : Cᵒᵖ ×c C ⇒ cset.{v} :=
+  definition hom_functor.{u v} [constructor] (C : Precategory.{u v}) : Cᵒᵖ ×c C ⇒ set.{v} :=
   functor.mk
     (λ (x : Cᵒᵖ ×c C), @homset (Cᵒᵖ) C x.1 x.2)
-    (λ (x y : Cᵒᵖ ×c C) (f : @category.precategory.hom (Cᵒᵖ ×c C) (Cᵒᵖ ×c C) x y) (h : @homset (Cᵒᵖ) C x.1 x.2),
-       f.2 ∘[C] (h ∘[C] f.1))
-    (λ x, @eq_of_homotopy _ _ _ (ID (@homset Cᵒᵖ C x.1 x.2)) (λ h, concat (by apply @id_left) (by apply @id_right)))
-    (λ x y z g f,
-       eq_of_homotopy (by intros; apply @representable_functor_assoc))
+    (λ (x y : Cᵒᵖ ×c C) (f : @category.precategory.hom (Cᵒᵖ ×c C) (Cᵒᵖ ×c C) x y)
+       (h : @homset (Cᵒᵖ) C x.1 x.2), f.2 ∘[C] (h ∘[C] f.1))
+    (λ x, abstract @eq_of_homotopy _ _ _ (ID (@homset Cᵒᵖ C x.1 x.2))
+            (λ h, concat (by apply @id_left) (by apply @id_right)) end)
+    (λ x y z g f, abstract eq_of_homotopy (by intros; apply @representable_functor_assoc) end)
 
   /-
     These attributes make sure that the fields of the category "set" reduce to the right things
@@ -42,7 +42,7 @@ namespace yoneda
   functor_curry !hom_functor
 
   definition yoneda_embedding (C : Precategory) : C ⇒ cset ^c Cᵒᵖ :=
-  functor_curry (!hom_functor ∘f !functor_prod_flip)
+  functor_curry (!hom_functor ∘f !prod_flip_functor)
 
   notation `ɏ` := yoneda_embedding _
 
@@ -132,7 +132,7 @@ namespace yoneda
   begin
     intro c c', fapply is_equiv_of_equiv_of_homotopy,
     { exact !eq_equiv_iso ⬝e !iso_equiv_F_iso_F ⬝e !eq_equiv_iso⁻¹ᵉ},
-    { intro p, induction p, esimp [equiv.trans, equiv.symm],
+    { intro p, induction p, esimp [equiv.trans, equiv.symm, to_fun_iso], -- to_fun_iso not unfolded
       esimp [to_fun_iso],
       rewrite -eq_of_iso_refl,
       apply ap eq_of_iso, apply iso_eq, esimp,
@@ -143,15 +143,17 @@ namespace yoneda
 
   definition is_representable {C : Precategory} (F : Cᵒᵖ ⇒ cset) := Σ(c : C), ɏ c ≅ F
 
-  set_option unifier.max_steps 25000 -- TODO: fix this
-  definition is_hprop_representable {C : Category} (F : Cᵒᵖ ⇒ cset)
-    : is_hprop (is_representable F) :=
-  begin
-    fapply is_trunc_equiv_closed,
-    { transitivity (Σc, ɏ c = F),
-      { exact fiber.sigma_char ɏ F},
-      { apply sigma.sigma_equiv_sigma_id, intro c, apply eq_equiv_iso}},
-    { apply function.is_hprop_fiber_of_is_embedding, apply is_embedding_yoneda_embedding}
+  section
+    set_option apply.class_instance false
+    definition is_hprop_representable {C : Category} (F : Cᵒᵖ ⇒ cset)
+      : is_hprop (is_representable F) :=
+    begin
+      fapply is_trunc_equiv_closed,
+      { exact proof fiber.sigma_char ɏ F qed ⬝e sigma.sigma_equiv_sigma_id (λc, !eq_equiv_iso)},
+      { apply function.is_hprop_fiber_of_is_embedding, apply is_embedding_yoneda_embedding}
+    end
   end
+
+
 
 end yoneda

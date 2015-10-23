@@ -7,9 +7,9 @@ Authors: Floris van Doorn
 Discrete category
 -/
 
-import ..groupoid types.bool ..functor.functor
+import ..groupoid types.bool ..nat_trans
 
-open eq is_trunc iso bool functor
+open eq is_trunc iso bool functor nat_trans
 
 namespace category
 
@@ -44,7 +44,6 @@ namespace category
   groupoid.Mk _ (discrete_groupoid A)
 
   definition c2 [constructor] : Precategory := Discrete_precategory bool
-  definition c1 [constructor] : Precategory := Discrete_precategory unit
 
   definition c2_functor [constructor] (C : Precategory) (x y : C) : c2 ⇒ C :=
   functor.mk (bool.rec x y)
@@ -53,5 +52,23 @@ namespace category
              abstract (bool.rec idp idp) end
              abstract begin intro b₁ b₂ b₃ g f, induction b₁: induction b₂: induction b₃:
                             esimp at *: try contradiction: exact !id_id⁻¹ end end
+
+  definition c2_functor_eta {C : Precategory} (F : c2 ⇒ C) :
+    c2_functor C (to_fun_ob F ff) (to_fun_ob F tt) = F :=
+  begin
+  fapply functor_eq: esimp,
+  { intro b, induction b: reflexivity},
+  { intro b₁ b₂ p, induction p, induction b₁: esimp; rewrite [id_leftright]; exact !respect_id⁻¹}
+  end
+
+  definition c2_nat_trans [constructor] {C : Precategory} {x y u v : C} (f : x ⟶ u) (g : y ⟶ v) :
+    c2_functor C x y ⟹ c2_functor C u v :=
+  begin
+  fapply nat_trans.mk: esimp,
+  { intro b, induction b, exact f, exact g},
+  { intro b₁ b₂ p, induction p, induction b₁: esimp: apply id_comp_eq_comp_id},
+  end
+
+
 
 end category

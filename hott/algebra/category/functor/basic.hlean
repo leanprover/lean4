@@ -6,8 +6,7 @@ Authors: Floris van Doorn, Jakob von Raumer
 
 import ..iso types.pi
 
-open function category eq prod prod.ops equiv is_equiv sigma sigma.ops is_trunc funext iso
-open pi
+open function category eq prod prod.ops equiv is_equiv sigma sigma.ops is_trunc funext iso pi
 
 structure functor (C D : Precategory) : Type :=
   (to_fun_ob : C → D)
@@ -18,7 +17,7 @@ structure functor (C D : Precategory) : Type :=
 
 namespace functor
 
-  infixl ` ⇒ `:25 := functor
+  infixl ` ⇒ `:55 := functor
   variables {A B C D E : Precategory}
 
   attribute to_fun_ob [coercion]
@@ -109,7 +108,7 @@ namespace functor
   attribute preserve_is_iso [instance] [priority 100]
 
   definition to_fun_iso [constructor] (F : C ⇒ D) {a b : C} (f : a ≅ b) : F a ≅ F b :=
-  iso.mk (F f)
+  iso.mk (F f) _
 
   theorem respect_inv' (F : C ⇒ D) {a b : C} (f : hom a b) {H : is_iso f} : F (f⁻¹) = (F f)⁻¹ :=
   respect_inv F f

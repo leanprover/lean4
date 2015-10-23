@@ -23,7 +23,7 @@ The rows indicate the chapters, the columns the sections.
 | Ch 6  | . | + | + | + | + | ½ | ½ | + | ¾ | ¼  | ¾  | -  | .  |    |    |
 | Ch 7  | + | + | + | - | ½ | - | - |   |   |    |    |    |    |    |    |
 | Ch 8  | ¾ | - | - | - | - | - | - | - | - | -  |    |    |    |    |    |
-| Ch 9  | ¾ | + | + | ¼ | ¾ | ½ | - | - | - |    |    |    |    |    |    |
+| Ch 9  | ¾ | + | + | ½ | ¾ | ½ | - | - | - |    |    |    |    |    |    |
 | Ch 10 | - | - | - | - | - |   |   |   |   |    |    |    |    |    |    |
 | Ch 11 | - | - | - | - | - | - |   |   |   |    |    |    |    |    |    |
 
@@ -79,7 +79,7 @@ Chapter 3: Sets and logic
 - 3.8 (The axiom of choice): not formalized
 - 3.9 (The principle of unique choice): Lemma 9.3.1 in [hit.trunc](hit/trunc.hlean), Lemma 9.3.2 in [types.trunc](types/trunc.hlean)
 - 3.10 (When are propositions truncated?): no formalizable content
-- 3.11 (Contractibility): [init.trunc](init/trunc.hlean) (mostly), [types.pi](types/pi.hlean) (Lemma 3.11.6), [types.trunc](types/trunc.hlean) (Lemma 3.11.7), [types.sigma](types/sigma.hlean) (Lemma 3.11.9) 
+- 3.11 (Contractibility): [init.trunc](init/trunc.hlean) (mostly), [types.pi](types/pi.hlean) (Lemma 3.11.6), [types.trunc](types/trunc.hlean) (Lemma 3.11.7), [types.sigma](types/sigma.hlean) (Lemma 3.11.9)
 
 Chapter 4: Equivalences
 ---------
@@ -131,7 +131,7 @@ Chapter 7: Homotopy n-types
 - 7.3 (Truncations): [init.hit](init/hit.hlean), [hit.trunc](hit/trunc.hlean) and [types.trunc](types/trunc.hlean)
 - 7.4 (Colimits of n-types): not formalized
 - 7.5 (Connectedness): [homotopy.connectedness](homotopy/connectedness.hlean) (just the beginning so far)
-- 7.6 (Orthogonal factorization): not formalized 
+- 7.6 (Orthogonal factorization): not formalized
 - 7.7 (Modalities): not formalized, and may be unformalizable in general because it's unclear how to define modalities
 
 Chapter 8: Homotopy theory
@@ -142,13 +142,13 @@ Unless otherwise noted, the files are in the folder [homotopy](homotopy/homotopy
 - 8.1 (π_1(S^1)): [homotopy.circle](homotopy/circle.hlean) (only one of the proofs)
 - 8.2 (Connectedness of suspensions): not formalized
 - 8.3 (πk≤n of an n-connected space and π_{k<n}(S^n)): not formalized
-- 8.4 (Fiber sequences and the long exact sequence): not formalized 
-- 8.5 (The Hopf fibration): not formalized 
-- 8.6 (The Freudenthal suspension theorem): not formalized 
-- 8.7 (The van Kampen theorem): not formalized 
-- 8.8 (Whitehead’s theorem and Whitehead’s principle): not formalized 
-- 8.9 (A general statement of the encode-decode method): not formalized 
-- 8.10 (Additional Results): not formalized 
+- 8.4 (Fiber sequences and the long exact sequence): not formalized
+- 8.5 (The Hopf fibration): not formalized
+- 8.6 (The Freudenthal suspension theorem): not formalized
+- 8.7 (The van Kampen theorem): not formalized
+- 8.8 (Whitehead’s theorem and Whitehead’s principle): not formalized
+- 8.9 (A general statement of the encode-decode method): not formalized
+- 8.10 (Additional Results): not formalized
 
 Chapter 9: Category theory
 ---------
@@ -156,9 +156,9 @@ Chapter 9: Category theory
 Every file is in the folder [algebra.category](algebra/category/category.md)
 
 - 9.1 (Categories and precategories): [precategory](algebra/category/precategory.hlean), [iso](algebra/category/iso.hlean), [category](algebra/category/category.hlean), [groupoid](algebra/category/groupoid.hlean) (mostly)
-- 9.2 (Functors and transformations): [functor](algebra/category/functor.hlean), [nat_trans](algebra/category/nat_trans.hlean), [constructions.functor](algebra/category/constructions/functor.hlean)
-- 9.3 (Adjunctions): [adjoint](algebra/category/adjoint.hlean)
-- 9.4 (Equivalences): [adjoint](algebra/category/adjoint.hlean) (only definitions)
+- 9.2 (Functors and transformations): [functor.basic](algebra/category/functor/basic.hlean), [nat_trans](algebra/category/nat_trans.hlean), [constructions.functor](algebra/category/constructions/functor.hlean)
+- 9.3 (Adjunctions): [functor.adjoint](algebra/category/functor/adjoint.hlean)
+- 9.4 (Equivalences): [functor.equivalence](algebra/category/functor/equivalence.hlean) and [functor.attributes](algebra/category/functor/attributes.hlean) (partially)
 - 9.5 (The Yoneda lemma): [constructions.opposite](algebra/category/constructions/opposite.hlean), [constructions.product](algebra/category/constructions/product.hlean), [yoneda](algebra/category/yoneda.hlean) (up to Theorem 9.5.9)
 - 9.6 (Strict categories): [strict](algebra/category/strict.hlean) (only definition)
 - 9.7 (†-categories): not formalized

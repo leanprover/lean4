@@ -7,7 +7,7 @@ Authors: Floris van Doorn
 Comma category
 -/
 
-import ..functor.functor ..strict ..category
+import ..functor.basic ..strict ..category
 
 open eq functor equiv sigma sigma.ops is_trunc iso is_equiv
 
@@ -46,21 +46,17 @@ namespace category
   end
 
   --TODO: remove. This is a different version where Hq is not in square brackets
-  axiom eq_comp_inverse_of_comp_eq' {ob : Type} {C : precategory ob} {d c b : ob} {r : hom c d}
-    {q : hom b c} {x : hom b d} {Hq : is_iso q} (p : r ∘ q = x) : r = x ∘ q⁻¹ʰ
+  -- definition eq_comp_inverse_of_comp_eq' {ob : Type} {C : precategory ob} {d c b : ob} {r : hom c d}
+  --   {q : hom b c} {x : hom b d} {Hq : is_iso q} (p : r ∘ q = x) : r = x ∘ q⁻¹ʰ :=
+  -- sorry
   -- := sorry --eq_inverse_comp_of_comp_eq p
 
   definition comma_object_eq {x y : comma_object S T} (p : ob1 x = ob1 y) (q : ob2 x = ob2 y)
     (r : T (hom_of_eq q) ∘ mor x ∘ S (inv_of_eq p) = mor y) : x = y :=
   begin
     cases x with a b f, cases y with a' b' f', cases p, cases q,
-    have r' : f = f',
-    begin
-      rewrite [▸* at r, -r, respect_id, id_left, respect_inv'],
-      apply eq_comp_inverse_of_comp_eq',
-      rewrite [respect_id,id_right]
-    end,
-    rewrite r'
+    apply ap (comma_object.mk a' b'),
+    rewrite [▸* at r, -r, +respect_id, id_leftright]
   end
 
   definition ap_ob1_comma_object_eq' (x y : comma_object S T) (p : ob1 x = ob1 y) (q : ob2 x = ob2 y)

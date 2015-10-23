@@ -130,7 +130,7 @@ end iso open iso
 /- isomorphic objects -/
 structure iso {ob : Type} [C : precategory ob] (a b : ob) :=
   (to_hom : hom a b)
-  [struct : is_iso to_hom]
+  (struct : is_iso to_hom)
 
   infix ` ≅ `:50 := iso
   notation c ` ≅[`:50 C:0 `] `:0 c':50 := @iso C _ c c'
@@ -156,13 +156,13 @@ namespace iso
 
   variable [C]
   protected definition refl [constructor] (a : ob) : a ≅ a :=
-  mk (ID a)
+  mk (ID a) _
 
   protected definition symm [constructor] ⦃a b : ob⦄ (H : a ≅ b) : b ≅ a :=
-  mk (to_hom H)⁻¹
+  mk (to_hom H)⁻¹ _
 
   protected definition trans [constructor] ⦃a b c : ob⦄ (H1 : a ≅ b) (H2 : b ≅ c) : a ≅ c :=
-  mk (to_hom H2 ∘ to_hom H1)
+  mk (to_hom H2 ∘ to_hom H1) _
 
   infixl ` ⬝i `:75 := iso.trans
   postfix [parsing_only] `⁻¹ⁱ`:(max + 1) := iso.symm
@@ -174,7 +174,7 @@ namespace iso
   iso.MK (to_hom H) g (p ▸ to_left_inverse H) (p ▸ to_right_inverse H)
 
   definition iso_mk_eq {f f' : a ⟶ b} [H : is_iso f] [H' : is_iso f'] (p : f = f')
-      : iso.mk f = iso.mk f' :=
+      : iso.mk f _ = iso.mk f' _ :=
   apd011 iso.mk p !is_hprop.elim
 
   variable {C}

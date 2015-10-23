@@ -10,7 +10,7 @@ Adjoint functors, isomorphisms and equivalences have their own file
 
 import ..constructions.functor function arity
 
-open category functor nat_trans eq is_trunc iso equiv prod trunc function pi is_equiv
+open eq functor trunc prod is_equiv iso equiv function is_trunc
 
 namespace category
   variables {C D E : Precategory} {F : C ⇒ D} {G : D ⇒ C}

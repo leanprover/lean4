@@ -7,7 +7,7 @@ Authors: Floris van Doorn
 Some finite categories which are neither discrete nor indiscrete
 -/
 
-import ..functor.functor types.sum
+import ..functor.basic types.sum
 
 open bool unit is_trunc sum eq functor equiv
 

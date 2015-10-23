@@ -138,5 +138,4 @@ namespace category
     apply id_leftright}
   end
 
-
 end category

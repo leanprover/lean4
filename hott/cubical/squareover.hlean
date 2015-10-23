@@ -58,13 +58,15 @@ namespace eq
   definition hrflo : squareover B hrfl idpo idpo q₁₀ q₁₀ :=
   by induction q₁₀; exact idso
 
-  definition vdeg_squareover {q₁₀' : b₀₀ =[p₁₀] b₂₀} (r : q₁₀ = q₁₀')
-    : squareover B vrfl q₁₀ q₁₀' idpo idpo :=
-  by induction r; exact vrflo
+  definition vdeg_squareover {p₁₀'} {s : p₁₀ = p₁₀'} {q₁₀' : b₀₀ =[p₁₀'] b₂₀}
+    (r : change_path s q₁₀ = q₁₀')
+    : squareover B (vdeg_square s) q₁₀ q₁₀' idpo idpo :=
+  by induction s; esimp at *; induction r; exact vrflo
 
-  definition hdeg_squareover {q₀₁' : b₀₀ =[p₀₁] b₀₂} (r : q₀₁ = q₀₁')
-    : squareover B hrfl idpo idpo q₀₁ q₀₁' :=
-  by induction r; exact hrflo
+  definition hdeg_squareover {p₀₁'} {s : p₀₁ = p₀₁'} {q₀₁' : b₀₀ =[p₀₁'] b₀₂}
+    (r : change_path s q₀₁ = q₀₁')
+    : squareover B (hdeg_square s) idpo idpo q₀₁ q₀₁' :=
+  by induction s; esimp at *; induction r; exact hrflo
 
   definition hconcato
     (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁) (t₃₁ : squareover B s₃₁ q₃₀ q₃₂ q₂₁ q₄₁)
@@ -207,6 +209,10 @@ namespace eq
   definition eq_top_of_squareover (r : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁)
     : change_path (eq_top_of_square s₁₁) q₁₀ = q₀₁ ⬝o q₁₂ ⬝o q₂₁⁻¹ᵒ :=
   by induction r; reflexivity
+
+  definition change_square {s₁₁'} (p : s₁₁ = s₁₁') (r : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁)
+    : squareover B s₁₁' q₁₀ q₁₂ q₀₁ q₂₁ :=
+  p ▸ r
 
   /-
   definition squareover_equiv_pathover (q₁₀ : b₀₀ =[p₁₀] b₂₀) (q₁₂ : b₀₂ =[p₁₂] b₂₂)

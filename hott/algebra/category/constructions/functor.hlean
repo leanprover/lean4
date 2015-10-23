@@ -58,16 +58,16 @@ namespace functor
     apply is_hset.elim
   end
 
-  definition is_iso_nat_trans [constructor] [instance] : is_iso η :=
+  definition is_natural_iso [constructor] : is_iso η :=
   is_iso.mk _ (nat_trans_left_inverse η) (nat_trans_right_inverse η)
 
   variable (iso)
-  definition functor_iso [constructor] : F ≅ G :=
-  @(iso.mk η) !is_iso_nat_trans
+  definition natural_iso.mk [constructor] : F ≅ G :=
+  iso.mk _ (is_natural_iso η)
 
   omit iso
-  variables (F G)
 
+  variables (F G)
   definition is_natural_inverse (η : Πc, F c ≅ G c)
     (nat : Π⦃a b : C⦄ (f : hom a b), G f ∘ to_hom (η a) = to_hom (η b) ∘ F f)
     {a b : C} (f : hom a b) : F f ∘ to_inv (η a) = to_inv (η b) ∘ G f :=
@@ -78,8 +78,13 @@ namespace functor
     {a b : C} (f : hom a b) : F f ∘ to_inv (η₁ a) = to_inv (η₁ b) ∘ G f :=
   is_natural_inverse F G η₁ abstract λa b g, (p a)⁻¹ ▸ (p b)⁻¹ ▸ naturality η₂ g end f
 
-  end
+  variables {F G}
+  definition natural_iso.MK [constructor]
+    (η : Πc, F c ⟶ G c) (p : Π(c c' : C) (f : c ⟶ c'), G f ∘ η c = η c' ∘ F f)
+    (θ : Πc, G c ⟶ F c) (r : Πc, θ c ∘ η c = id) (q : Πc, η c ∘ θ c = id) : F ≅ G :=
+  iso.mk (nat_trans.mk η p) (@(is_natural_iso _) (λc, is_iso.mk (θ c) (r c) (q c)))
 
+  end
 
   section
   /- and conversely, if a natural transformation is an iso, it is componentwise an iso -/
@@ -109,8 +114,8 @@ namespace functor
   omit isoη
 
   definition componentwise_iso (η : F ≅ G) (c : C) : F c ≅ G c :=
-  @iso.mk _ _ _ _ (natural_map (to_hom η) c)
-                  (@componentwise_is_iso _ _ _ _ (to_hom η) (struct η) c)
+  iso.mk (natural_map (to_hom η) c)
+         (@componentwise_is_iso _ _ _ _ (to_hom η) (struct η) c)
 
   definition componentwise_iso_id (c : C) : componentwise_iso (iso.refl F) c = iso.refl (F c) :=
   iso_eq (idpath (ID (F c)))
@@ -207,10 +212,10 @@ namespace functor
     abstract !n_nf_distrib⁻¹ ⬝ ap (λx, x ∘nf F) (@right_inverse (D ⇒ E) _ _ _ η _)  ⬝ !id_nf end
 
   definition functor_iso_compose [constructor] (G : D ⇒ E) (η : F ≅ F') : G ∘f F ≅ G ∘f F' :=
-  @(iso.mk _) (is_iso_nf_compose G (to_hom η))
+  iso.mk _ (is_iso_nf_compose G (to_hom η))
 
   definition iso_functor_compose [constructor] (η : G ≅ G') (F : C ⇒ D) : G ∘f F ≅ G' ∘f F :=
-  @(iso.mk _) (is_iso_fn_compose (to_hom η) F)
+  iso.mk _ (is_iso_fn_compose (to_hom η) F)
 
   infixr ` ∘fi ` :62 := functor_iso_compose
   infixr ` ∘if ` :62 := iso_functor_compose
@@ -311,10 +316,10 @@ namespace functor
     variables {C : Precategory} {D : Category} {F G : D ^c C}
 
     definition eq_of_pointwise_iso (η : F ⟹ G) (iso : Π(a : C), is_iso (η a)) : F = G :=
-    eq_of_iso (functor_iso η iso)
+    eq_of_iso (natural_iso.mk η iso)
 
    definition iso_of_eq_eq_of_pointwise_iso (η : F ⟹ G) (iso : Π(c : C), is_iso (η c))
-      : iso_of_eq (eq_of_pointwise_iso η iso) = functor_iso η iso :=
+      : iso_of_eq (eq_of_pointwise_iso η iso) = natural_iso.mk η iso :=
    !iso_of_eq_eq_of_iso
 
    definition hom_of_eq_eq_of_pointwise_iso (η : F ⟹ G) (iso : Π(c : C), is_iso (η c))
@@ -350,8 +355,6 @@ namespace functor
              abstract begin intros, apply nat_trans_eq, intro i, esimp, apply respect_id end end
              abstract begin intros, apply nat_trans_eq, intro i, esimp, apply respect_comp end end
 
-  /- evaluation functor -/
-
   definition eval_functor [constructor] (C D : Precategory) (d : D) : C ^c D ⇒ C :=
   begin
     fapply functor.mk: esimp,
@@ -379,6 +382,15 @@ namespace functor
     { intro G H η, exact F ∘fn η},
     { intro G, apply fn_id},
     { intro G H I η θ, apply fn_n_distrib},
+  end
+
+  definition constant_diagram [constructor] (C D) : C ⇒ C ^c D :=
+  begin
+    fapply functor.mk: esimp,
+    { intro c, exact constant_functor D c},
+    { intro c d f, exact constant_nat_trans D f},
+    { intro c, fapply nat_trans_eq, reflexivity},
+    { intro c d e g f, fapply nat_trans_eq, reflexivity},
   end
 
 

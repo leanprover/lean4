@@ -8,16 +8,22 @@ Adjoint functors
 
 import .attributes
 
-open category functor nat_trans eq is_trunc iso equiv prod trunc function pi is_equiv
+open functor nat_trans is_trunc eq iso
 
 namespace category
 
-  -- TODO(?): define a structure "adjoint" and then define
+  structure adjoint [class] {C D : Precategory} (F : C ⇒ D) (G : D ⇒ C) :=
+    (η : 1 ⟹ G ∘f F)
+    (ε : F ∘f G ⟹ 1)
+    (H : Π(c : C), ε (F c) ∘ F (η c) = ID (F c))
+    (K : Π(d : D), G (ε d) ∘ η (G d) = ID (G d))
+
+  -- TODO(?): define is_left_adjoint in terms of adjoint
   -- structure is_left_adjoint (F : C ⇒ D) :=
   --   (G : D ⇒ C) -- G
   --   (is_adjoint : adjoint F G)
 
-  --   infix `⊣`:55 := adjoint
+  infix ` ⊣ `:55 := adjoint
 
   structure is_left_adjoint [class] {C D : Precategory} (F : C ⇒ D) :=
     (G : D ⇒ C)

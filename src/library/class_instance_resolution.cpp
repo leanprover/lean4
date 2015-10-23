@@ -175,66 +175,16 @@ struct cienv {
         virtual void pop() { m_cienv.m_state = m_stack.back(); m_stack.pop_back(); }
         virtual void commit() { m_stack.pop_back(); }
 
-        static bool has_meta_arg(expr e) {
-            while (is_app(e)) {
-                if (is_meta(app_arg(e)))
-                    return true;
-                e = app_fn(e);
-            }
-            return false;
-        }
-
-        /** IF \c e is of the form (f ... (?m t_1 ... t_n) ...) where ?m is an unassigned
-            metavariable whose type is a type class, and (?m t_1 ... t_n) must be synthesized
-            by type class resolution, then we return ?m.
-            Otherwise, we return none */
-        optional<pair<expr, expr>> find_unsynth_metavar(expr const & e) {
-            if (!has_meta_arg(e))
-                return optional<pair<expr, expr>>();
-            buffer<expr> args;
-            expr const & fn = get_app_args(e, args);
-            expr type       = m_cienv.infer_type(fn);
-            unsigned i      = 0;
-            while (i < args.size()) {
-                type = m_cienv.whnf(type);
-                if (!is_pi(type))
-                    return optional<pair<expr, expr>>();
-                expr const & arg = args[i];
-                if (binding_info(type).is_inst_implicit() && is_meta(arg)) {
-                    expr const & m = get_app_fn(arg);
-                    if (is_mvar(m)) {
-                        expr m_type = instantiate_uvars_mvars(infer_metavar(m));
-                        if (!has_expr_metavar_relaxed(m_type)) {
-                            return some(mk_pair(m, m_type));
-                        }
-                    }
-                }
-                type = instantiate(binding_body(type), arg);
-                i++;
-            }
-            return optional<pair<expr, expr>>();
-        }
-
-        bool mk_instance(expr const & m, expr const & m_type) {
-            lean_assert(m);
-            if (auto r = m_cienv.mk_nested_instance(m_type)) {
-                m_cienv.update_assignment(m, *r);
-                return true;
-            } else {
-                return false;
-            }
-        }
-
         virtual bool on_is_def_eq_failure(expr & e1, expr & e2) {
             if (is_app(e1) && is_app(e2)) {
-                if (auto p1 = find_unsynth_metavar(e1)) {
-                    if (mk_instance(p1->first, p1->second)) {
+                if (auto p1 = m_cienv.find_unsynth_metavar(e1)) {
+                    if (m_cienv.mk_nested_instance(p1->first, p1->second)) {
                         e1 = m_cienv.instantiate_uvars_mvars(e1);
                         return true;
                     }
                 }
-                if (auto p2 = find_unsynth_metavar(e2)) {
-                    if (mk_instance(p2->first, p2->second)) {
+                if (auto p2 = m_cienv.find_unsynth_metavar(e2)) {
+                    if (m_cienv.mk_nested_instance(p2->first, p2->second)) {
                         e2 = m_cienv.instantiate_uvars_mvars(e2);
                         return true;
                     }
@@ -397,6 +347,47 @@ struct cienv {
             return false;
         name const & n = mlocal_name(e);
         return !n.is_atomic() && n.get_prefix() == *g_prefix;
+    }
+
+    // Helper function for find_unsynth_metavar
+    static bool has_meta_arg(expr e) {
+        while (is_app(e)) {
+            if (is_meta(app_arg(e)))
+                return true;
+            e = app_fn(e);
+        }
+        return false;
+    }
+
+    /** IF \c e is of the form (f ... (?m t_1 ... t_n) ...) where ?m is an unassigned
+        metavariable whose type is a type class, and (?m t_1 ... t_n) must be synthesized
+        by type class resolution, then we return ?m.
+        Otherwise, we return none */
+    optional<pair<expr, expr>> find_unsynth_metavar(expr const & e) {
+        if (!has_meta_arg(e))
+            return optional<pair<expr, expr>>();
+        buffer<expr> args;
+        expr const & fn = get_app_args(e, args);
+        expr type       = infer_type(fn);
+        unsigned i      = 0;
+        while (i < args.size()) {
+            type = whnf(type);
+            if (!is_pi(type))
+                return optional<pair<expr, expr>>();
+            expr const & arg = args[i];
+           if (binding_info(type).is_inst_implicit() && is_meta(arg)) {
+                expr const & m = get_app_fn(arg);
+                if (is_mvar(m)) {
+                    expr m_type = instantiate_uvars_mvars(infer_type(m));
+                    if (!has_expr_metavar_relaxed(m_type)) {
+                        return some(mk_pair(m, m_type));
+                    }
+                }
+            }
+            type = instantiate(binding_body(type), arg);
+            i++;
+        }
+        return optional<pair<expr, expr>>();
     }
 
     /** \brief If the constant \c e is a class, return its name */
@@ -710,6 +701,25 @@ struct cienv {
         return empty(m_state.m_stack);
     }
 
+    /** \brief Try to make sure \c type does not contain meta-variables. It tries to:
+        - Instantiate assigned meta-variables
+        - Recursively invoke type class resolution.
+          This is needed when a type class has a parameter that is an instance. */
+    bool check_metavars_in_type(expr & type) {
+        type = instantiate_uvars_mvars(type);
+        // Remark: we use has_expr_metavar_relaxed instead of has_expr_metavar, because
+        // we want to ignore metavariables occurring in the type of local constants occurring in mvar_type.
+        // This can happen when type class resolution is invoked from the unifier.
+
+        if (!has_expr_metavar_relaxed(type))
+            return true;
+        if (auto p = find_unsynth_metavar(type)) {
+            if (mk_nested_instance(p->first, p->second))
+                return check_metavars_in_type(type);
+        }
+        return false;
+    }
+
     bool mk_choice_point(expr const & mvar) {
         lean_assert(is_mvar(mvar));
         if (m_choices.size() > m_max_depth) {
@@ -718,16 +728,13 @@ struct cienv {
                                   "(the class-instance resolution trace can be visualized by setting option 'class.trace_instances')",
                                   mlocal_type(m_main_mvar));
         }
+        expr mvar_type = mlocal_type(mvar);
+        if (!check_metavars_in_type(mvar_type)) {
+            return false;
+        }
         bool toplevel_choice = m_choices.empty();
         m_choices.push_back(choice());
         choice & r = m_choices.back();
-        expr mvar_type = instantiate_uvars_mvars(mlocal_type(mvar));
-        if (has_expr_metavar_relaxed(mvar_type)) {
-            // Remark: we use has_expr_metavar_relaxed instead of has_expr_metavar, because
-            // we want to ignore metavariables occurring in the type of local constants occurring in mvar_type.
-            // This can happen when type class resolution is invoked from the unifier.
-            return false;
-        }
         auto cname = is_class(mvar_type);
         if (!cname)
             return false;
@@ -878,6 +885,8 @@ struct cienv {
         return ensure_no_meta(r);
     }
 
+    /** \brief Create a nested type class instance of the given type
+        \remark This method is used to resolve nested type class resolution problems. */
     optional<expr> mk_nested_instance(expr const & type) {
         std::vector<choice> choices;
         m_choices.swap(choices); // save choice stack
@@ -886,6 +895,19 @@ struct cienv {
         auto r = mk_instance_core(type);
         m_choices.swap(choices); // restore choice stack
         return r;
+    }
+
+    /** \brief Create a nested type class instance of the given type, and assign it to metavariable \c m.
+        Return true iff the instance was successfully created.
+        \remark This method is used to resolve nested type class resolution problems. */
+    bool mk_nested_instance(expr const & m, expr const & m_type) {
+        lean_assert(is_mvar(m));
+        if (auto r = mk_nested_instance(m_type)) {
+            update_assignment(m, *r);
+            return true;
+        } else {
+            return false;
+        }
     }
 };
 

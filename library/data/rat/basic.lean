@@ -444,6 +444,9 @@ prerat.of_int.inj (quot.exact H)
 theorem eq_of_of_int_eq_of_int {a b : ℤ} (H : of_int a = of_int b) : a = b :=
 of_int.inj H
 
+theorem of_int_eq_of_int_iff (a b : ℤ) : of_int a = of_int b ↔ a = b :=
+iff.intro eq_of_of_int_eq_of_int !congr_arg
+
 theorem of_nat_eq (a : ℕ) : of_nat a = of_int (int.of_nat a) :=
 rfl
 
@@ -471,47 +474,47 @@ of_nat.inj H
 theorem of_nat_eq_of_nat_iff (a b : ℕ) : of_nat a = of_nat b ↔ a = b :=
 iff.intro of_nat.inj !congr_arg
 
-theorem add.comm (a b : ℚ) : a + b = b + a :=
+protected theorem add_comm (a b : ℚ) : a + b = b + a :=
 quot.induction_on₂ a b (take u v, quot.sound !prerat.add.comm)
 
-theorem add.assoc (a b c : ℚ) : a + b + c = a + (b + c) :=
+protected theorem add_assoc (a b c : ℚ) : a + b + c = a + (b + c) :=
 quot.induction_on₃ a b c (take u v w, quot.sound !prerat.add.assoc)
 
-theorem add_zero (a : ℚ) : a + 0 = a :=
+protected theorem add_zero (a : ℚ) : a + 0 = a :=
 quot.induction_on a (take u, quot.sound !prerat.add_zero)
 
-theorem zero_add (a : ℚ) : 0 + a = a := !add.comm ▸ !add_zero
+protected theorem zero_add (a : ℚ) : 0 + a = a := !rat.add_comm ▸ !rat.add_zero
 
-theorem add.left_inv (a : ℚ) : -a + a = 0 :=
+protected theorem add_left_inv (a : ℚ) : -a + a = 0 :=
 quot.induction_on a (take u, quot.sound !prerat.add.left_inv)
 
-theorem mul.comm (a b : ℚ) : a * b = b * a :=
+protected theorem mul_comm (a b : ℚ) : a * b = b * a :=
 quot.induction_on₂ a b (take u v, quot.sound !prerat.mul.comm)
 
-theorem mul.assoc (a b c : ℚ) : a * b * c = a * (b * c) :=
+protected theorem mul_assoc (a b c : ℚ) : a * b * c = a * (b * c) :=
 quot.induction_on₃ a b c (take u v w, quot.sound !prerat.mul.assoc)
 
-theorem mul_one (a : ℚ) : a * 1 = a :=
+protected theorem mul_one (a : ℚ) : a * 1 = a :=
 quot.induction_on a (take u, quot.sound !prerat.mul_one)
 
-theorem one_mul (a : ℚ) : 1 * a = a := !mul.comm ▸ !mul_one
+protected theorem one_mul (a : ℚ) : 1 * a = a := !rat.mul_comm ▸ !rat.mul_one
 
-theorem mul.left_distrib (a b c : ℚ) : a * (b + c) = a * b + a * c :=
+protected theorem left_distrib (a b c : ℚ) : a * (b + c) = a * b + a * c :=
 quot.induction_on₃ a b c (take u v w, quot.sound !prerat.mul.left_distrib)
 
-theorem mul.right_distrib (a b c : ℚ) : (a + b) * c = a * c + b * c :=
-by rewrite [mul.comm, mul.left_distrib, *mul.comm c]
+protected theorem right_distrib (a b c : ℚ) : (a + b) * c = a * c + b * c :=
+by rewrite [rat.mul_comm, rat.left_distrib, *rat.mul_comm c]
 
-theorem mul_inv_cancel {a : ℚ} : a ≠ 0 → a * a⁻¹ = 1 :=
+protected theorem mul_inv_cancel {a : ℚ} : a ≠ 0 → a * a⁻¹ = 1 :=
 quot.induction_on a
   (take u,
     assume H,
     quot.sound (!prerat.mul_inv_cancel (assume H1, H (quot.sound H1))))
 
-theorem inv_mul_cancel {a : ℚ} (H : a ≠ 0) : a⁻¹ * a = 1 :=
-!mul.comm ▸ mul_inv_cancel H
+protected theorem inv_mul_cancel {a : ℚ} (H : a ≠ 0) : a⁻¹ * a = 1 :=
+!rat.mul_comm ▸ rat.mul_inv_cancel H
 
-theorem zero_ne_one : (0 : ℚ) ≠ 1 :=
+protected theorem zero_ne_one : (0 : ℚ) ≠ 1 :=
 assume H, prerat.zero_not_equiv_one (quot.exact H)
 
 definition has_decidable_eq [instance] : decidable_eq ℚ :=
@@ -521,7 +524,7 @@ take a b, quot.rec_on_subsingleton₂ a b
        then decidable.inl (quot.sound H)
        else decidable.inr (assume H1, H (quot.exact H1)))
 
-theorem inv_zero : inv 0 = (0 : ℚ) :=
+protected theorem inv_zero : inv 0 = (0 : ℚ) :=
 quot.sound (prerat.inv_zero' ▸ !prerat.equiv.refl)
 
 theorem quot_reduce (a : ℚ) : ⟦reduce a⟧ = a :=
@@ -551,25 +554,25 @@ decidable.by_cases
 protected definition discrete_field [reducible] [trans_instance] : algebra.discrete_field rat :=
 ⦃algebra.discrete_field,
  add              := rat.add,
- add_assoc        := add.assoc,
+ add_assoc        := rat.add_assoc,
  zero             := 0,
- zero_add         := zero_add,
- add_zero         := add_zero,
+ zero_add         := rat.zero_add,
+ add_zero         := rat.add_zero,
  neg              := rat.neg,
- add_left_inv     := add.left_inv,
- add_comm         := add.comm,
+ add_left_inv     := rat.add_left_inv,
+ add_comm         := rat.add_comm,
  mul              := rat.mul,
- mul_assoc        := mul.assoc,
+ mul_assoc        := rat.mul_assoc,
  one              := 1,
- one_mul          := one_mul,
- mul_one          := mul_one,
- left_distrib     := mul.left_distrib,
- right_distrib    := mul.right_distrib,
- mul_comm         := mul.comm,
- mul_inv_cancel   := @mul_inv_cancel,
- inv_mul_cancel   := @inv_mul_cancel,
- zero_ne_one      := zero_ne_one,
- inv_zero         := inv_zero,
+ one_mul          := rat.one_mul,
+ mul_one          := rat.mul_one,
+ left_distrib     := rat.left_distrib,
+ right_distrib    := rat.right_distrib,
+ mul_comm         := rat.mul_comm,
+ mul_inv_cancel   := @rat.mul_inv_cancel,
+ inv_mul_cancel   := @rat.inv_mul_cancel,
+ zero_ne_one      := rat.zero_ne_one,
+ inv_zero         := rat.inv_zero,
  has_decidable_eq := has_decidable_eq⦄
 
 definition rat_has_division [instance] [reducible] [priority rat.prio] : has_division rat :=

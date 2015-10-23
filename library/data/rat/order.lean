@@ -149,10 +149,10 @@ has_lt.mk rat.lt
 definition rat_has_le [reducible] [instance] [priority rat.prio] : has_le rat :=
 has_le.mk rat.le
 
-lemma lt.def (a b : ℚ) : (a < b) = pos (b - a) :=
+protected lemma lt_def (a b : ℚ) : (a < b) = pos (b - a) :=
 rfl
 
-lemma le.def (a b : ℚ) : (a ≤ b) = nonneg (b - a) :=
+protected lemma le_def (a b : ℚ) : (a ≤ b) = nonneg (b - a) :=
 rfl
 
 theorem of_int_lt_of_int_iff (a b : ℤ) : of_int a < of_int b ↔ a < b :=
@@ -202,10 +202,10 @@ iff.mp !of_nat_le_of_nat_iff H
 theorem of_nat_nonneg (a : ℕ) : (of_nat a ≥ 0) :=
 of_nat_le_of_nat_of_le !nat.zero_le
 
-theorem le.refl (a : ℚ) : a ≤ a :=
-by rewrite [le.def, sub_self]; apply nonneg_zero
+protected theorem le_refl (a : ℚ) : a ≤ a :=
+by rewrite [rat.le_def, sub_self]; apply nonneg_zero
 
-theorem le.trans (H1 : a ≤ b) (H2 : b ≤ c) : a ≤ c :=
+protected theorem le_trans (H1 : a ≤ b) (H2 : b ≤ c) : a ≤ c :=
 assert H3 : nonneg (c - b + (b - a)), from nonneg_add H2 H1,
 begin
   revert H3,
@@ -213,20 +213,20 @@ begin
   intro H3, apply H3
 end
 
-theorem le.antisymm (H1 : a ≤ b) (H2 : b ≤ a) : a = b :=
+protected theorem le_antisymm (H1 : a ≤ b) (H2 : b ≤ a) : a = b :=
 have H3 : nonneg (-(a - b)), from !neg_sub⁻¹ ▸ H1,
 have H4 : a - b = 0, from nonneg_antisymm H2 H3,
 eq_of_sub_eq_zero H4
 
-theorem le.total (a b : ℚ) : a ≤ b ∨ b ≤ a :=
+protected theorem le_total (a b : ℚ) : a ≤ b ∨ b ≤ a :=
 or.elim (nonneg_total (b - a))
   (assume H, or.inl H)
   (assume H, or.inr begin rewrite neg_sub at H, exact H end)
 
-theorem le.by_cases {P : Prop} (a b : ℚ) (H : a ≤ b → P) (H2 : b ≤ a → P) : P :=
-  or.elim (!rat.le.total) H H2
+protected theorem le_by_cases {P : Prop} (a b : ℚ) (H : a ≤ b → P) (H2 : b ≤ a → P) : P :=
+  or.elim (!rat.le_total) H H2
 
-theorem lt_iff_le_and_ne (a b : ℚ) : a < b ↔ a ≤ b ∧ a ≠ b :=
+protected theorem lt_iff_le_and_ne (a b : ℚ) : a < b ↔ a ≤ b ∧ a ≠ b :=
 iff.intro
   (assume H : a < b,
     have b - a ≠ 0, from ne_zero_of_pos H,
@@ -237,90 +237,90 @@ iff.intro
     have b - a ≠ 0, from (assume H', aneb (eq_of_sub_eq_zero H')⁻¹),
     pos_of_nonneg_of_ne_zero aleb this)
 
-theorem le_iff_lt_or_eq (a b : ℚ) : a ≤ b ↔ a < b ∨ a = b :=
+protected theorem le_iff_lt_or_eq (a b : ℚ) : a ≤ b ↔ a < b ∨ a = b :=
 iff.intro
   (assume h : a ≤ b,
     decidable.by_cases
       (suppose a = b, or.inr this)
-      (suppose a ≠ b, or.inl (iff.mpr !lt_iff_le_and_ne (and.intro h this))))
+      (suppose a ≠ b, or.inl (iff.mpr !rat.lt_iff_le_and_ne (and.intro h this))))
   (suppose a < b ∨ a = b,
     or.elim this
-      (suppose a < b, and.left (iff.mp !lt_iff_le_and_ne this))
-      (suppose a = b, this ▸ !le.refl))
+      (suppose a < b, and.left (iff.mp !rat.lt_iff_le_and_ne this))
+      (suppose a = b, this ▸ !rat.le_refl))
 
 private theorem to_nonneg : a ≥ 0 → nonneg a :=
 by intros; rewrite -sub_zero; eassumption
 
-theorem add_le_add_left (H : a ≤ b) (c : ℚ) : c + a ≤ c + b :=
+protected theorem add_le_add_left (H : a ≤ b) (c : ℚ) : c + a ≤ c + b :=
 have c + b - (c + a) = b - a,
   by rewrite [sub.def, neg_add, -add.assoc, add.comm c, add_neg_cancel_right],
 show nonneg (c + b - (c + a)), from this⁻¹ ▸ H
 
-theorem mul_nonneg (H1 : a ≥ (0 : ℚ)) (H2 : b ≥ (0 : ℚ)) : a * b ≥ (0 : ℚ) :=
+protected theorem mul_nonneg (H1 : a ≥ (0 : ℚ)) (H2 : b ≥ (0 : ℚ)) : a * b ≥ (0 : ℚ) :=
 assert nonneg (a * b), from nonneg_mul (to_nonneg H1) (to_nonneg H2),
 begin rewrite -sub_zero at this, exact this end
 
 private theorem to_pos : a > 0 → pos a :=
 by intros; rewrite -sub_zero; eassumption
 
-theorem mul_pos (H1 : a > (0 : ℚ)) (H2 : b > (0 : ℚ)) : a * b > (0 : ℚ) :=
+protected theorem mul_pos (H1 : a > (0 : ℚ)) (H2 : b > (0 : ℚ)) : a * b > (0 : ℚ) :=
 assert pos (a * b), from pos_mul (to_pos H1) (to_pos H2),
 begin rewrite -sub_zero at this, exact this end
 
 definition decidable_lt [instance] : decidable_rel rat.lt :=
 take a b, decidable_pos (b - a)
 
-theorem le_of_lt  (H : a < b) : a ≤ b := iff.mpr !le_iff_lt_or_eq (or.inl H)
+protected theorem le_of_lt  (H : a < b) : a ≤ b := iff.mpr !rat.le_iff_lt_or_eq (or.inl H)
 
-theorem lt_irrefl (a : ℚ) : ¬ a < a :=
+protected theorem lt_irrefl (a : ℚ) : ¬ a < a :=
 take Ha,
-  let Hand := (iff.mp !lt_iff_le_and_ne) Ha in
+  let Hand := (iff.mp !rat.lt_iff_le_and_ne) Ha in
   (and.right Hand) rfl
 
-theorem not_le_of_gt (H : a < b) : ¬ b ≤ a :=
+protected theorem not_le_of_gt (H : a < b) : ¬ b ≤ a :=
 assume Hba,
-  let Heq := le.antisymm (le_of_lt H) Hba in
-  !lt_irrefl (Heq ▸ H)
+  let Heq := rat.le_antisymm (rat.le_of_lt H) Hba in
+  !rat.lt_irrefl (Heq ▸ H)
 
-theorem lt_of_lt_of_le  (Hab : a < b) (Hbc : b ≤ c) : a < c :=
-let Hab' := le_of_lt Hab in
-let Hac := le.trans Hab' Hbc in
-  (iff.mpr !lt_iff_le_and_ne) (and.intro Hac
-    (assume Heq, not_le_of_gt (Heq ▸ Hab) Hbc))
+protected theorem lt_of_lt_of_le  (Hab : a < b) (Hbc : b ≤ c) : a < c :=
+let Hab' := rat.le_of_lt Hab in
+let Hac := rat.le_trans Hab' Hbc in
+  (iff.mpr !rat.lt_iff_le_and_ne) (and.intro Hac
+    (assume Heq, rat.not_le_of_gt (Heq ▸ Hab) Hbc))
 
-theorem lt_of_le_of_lt  (Hab : a ≤ b) (Hbc : b < c) : a < c :=
-let Hbc' := le_of_lt Hbc in
-let Hac := le.trans Hab Hbc' in
-  (iff.mpr !lt_iff_le_and_ne) (and.intro Hac
-    (assume Heq, not_le_of_gt (Heq⁻¹ ▸ Hbc) Hab))
+protected theorem lt_of_le_of_lt  (Hab : a ≤ b) (Hbc : b < c) : a < c :=
+let Hbc' := rat.le_of_lt Hbc in
+let Hac := rat.le_trans Hab Hbc' in
+  (iff.mpr !rat.lt_iff_le_and_ne) (and.intro Hac
+    (assume Heq, rat.not_le_of_gt (Heq⁻¹ ▸ Hbc) Hab))
 
-theorem zero_lt_one : (0 : ℚ) < 1 := trivial
+protected theorem zero_lt_one : (0 : ℚ) < 1 := trivial
 
-theorem add_lt_add_left (H : a < b) (c : ℚ) : c + a < c + b :=
-let H' := le_of_lt H in
-(iff.mpr (lt_iff_le_and_ne _ _)) (and.intro (add_le_add_left H' _)
+protected theorem add_lt_add_left (H : a < b) (c : ℚ) : c + a < c + b :=
+let H' := rat.le_of_lt H in
+(iff.mpr (rat.lt_iff_le_and_ne _ _)) (and.intro (rat.add_le_add_left H' _)
                                   (take Heq, let Heq' := add_left_cancel Heq in
-                                   !lt_irrefl (Heq' ▸ H)))
+                                   !rat.lt_irrefl (Heq' ▸ H)))
 
 protected definition discrete_linear_ordered_field [reducible] [trans_instance] :
     algebra.discrete_linear_ordered_field rat :=
 ⦃algebra.discrete_linear_ordered_field,
  rat.discrete_field,
- le_refl          := le.refl,
- le_trans         := @le.trans,
- le_antisymm      := @le.antisymm,
- le_total         := @le.total,
- le_of_lt         := @le_of_lt,
- lt_irrefl        := lt_irrefl,
- lt_of_lt_of_le   := @lt_of_lt_of_le,
- lt_of_le_of_lt   := @lt_of_le_of_lt,
- le_iff_lt_or_eq  := @le_iff_lt_or_eq,
- add_le_add_left  := @add_le_add_left,
- mul_nonneg       := @mul_nonneg,
- mul_pos          := @mul_pos,
+ le_refl          := rat.le_refl,
+ le_trans         := @rat.le_trans,
+ le_antisymm      := @rat.le_antisymm,
+ le_total         := @rat.le_total,
+ le_of_lt         := @rat.le_of_lt,
+ lt_irrefl        := rat.lt_irrefl,
+ lt_of_lt_of_le   := @rat.lt_of_lt_of_le,
+ lt_of_le_of_lt   := @rat.lt_of_le_of_lt,
+ le_iff_lt_or_eq  := @rat.le_iff_lt_or_eq,
+ add_le_add_left  := @rat.add_le_add_left,
+ mul_nonneg       := @rat.mul_nonneg,
+ mul_pos          := @rat.mul_pos,
  decidable_lt     := @decidable_lt,
- zero_lt_one      := zero_lt_one,
- add_lt_add_left  := @add_lt_add_left⦄
+ zero_lt_one      := rat.zero_lt_one,
+ add_lt_add_left  := @rat.add_lt_add_left⦄
 
 theorem of_nat_abs (a : ℤ) : abs (of_int a) = of_nat (int.nat_abs a) :=
 assert ∀ n : ℕ, of_int (int.neg_succ_of_nat n) = - of_nat (nat.succ n), from λ n, rfl,
@@ -364,7 +364,7 @@ section
   have of_int (num q) ≥ of_int 0,
     begin
       rewrite [-mul_denom],
-      apply mul_nonneg H,
+      apply rat.mul_nonneg H,
       rewrite [-of_int_zero, of_int_le_of_int_iff],
       exact int.le_of_lt !denom_pos
     end,
@@ -374,7 +374,7 @@ section
   have of_int (num q) > of_int 0,
     begin
       rewrite [-mul_denom],
-      apply mul_pos H,
+      apply rat.mul_pos H,
       rewrite [-of_int_zero, of_int_lt_of_int_iff],
       exact !denom_pos
     end,

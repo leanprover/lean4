@@ -29,7 +29,7 @@ theorem rat_approx {s : seq} (H : regular s) :
     existsi (s (2 * n)),
     existsi 2 * n,
     intro m Hm,
-    apply rat.le.trans,
+    apply le.trans,
     apply H,
     rewrite -(add_halves n),
     apply algebra.add_le_add_right,
@@ -51,19 +51,19 @@ theorem rat_approx_seq {s : seq} (H : regular s) :
     existsi N,
     intro p Hp,
     rewrite ↑[sadd, sneg, s_abs, const],
-    apply rat.le.trans,
+    apply le.trans,
     rotate 1,
     rewrite -sub_eq_add_neg,
     apply algebra.sub_le_sub_left,
     apply HN,
-    apply pnat.le.trans,
+    apply pnat.le_trans,
     apply Hp,
-    rewrite -*pnat.mul.assoc,
+    rewrite -*pnat.mul_assoc,
     apply pnat.mul_le_mul_left,
     rewrite [algebra.sub_self, -neg_zero],
     apply neg_le_neg,
     apply rat.le_of_lt,
-    apply inv_pos
+    apply pnat.inv_pos
   end
 
 theorem r_rat_approx (s : reg_seq) :
@@ -77,10 +77,10 @@ theorem const_bound {s : seq} (Hs : regular s) (n : ℕ+) :
     intro m,
     rewrite -sub_eq_add_neg,
     apply iff.mp !le_add_iff_neg_le_sub_left,
-    apply rat.le.trans,
+    apply le.trans,
     apply Hs,
     apply algebra.add_le_add_right,
-    rewrite -*pnat.mul.assoc,
+    rewrite -*pnat.mul_assoc,
     apply inv_ge_of_le,
     apply pnat.mul_le_mul_left
   end
@@ -103,19 +103,19 @@ theorem equiv_abs_of_ge_zero {s : seq} (Hs : regular s) (Hz : s_le zero s) : s_a
     cases em (s n ≥ 0) with [Hpos, Hneg],
     rewrite [abs_of_nonneg Hpos, algebra.sub_self, abs_zero],
     apply rat.le_of_lt,
-    apply inv_pos,
+    apply pnat.inv_pos,
     let Hneg' := lt_of_not_ge Hneg,
     have Hsn : -s n - s n > 0, from add_pos (neg_pos_of_neg Hneg') (neg_pos_of_neg Hneg'),
     rewrite [abs_of_neg Hneg', abs_of_pos Hsn],
-    apply rat.le.trans,
+    apply le.trans,
     apply add_le_add,
     repeat (apply neg_le_neg; apply Hz'),
     rewrite algebra.neg_neg,
-    apply rat.le.trans,
+    apply le.trans,
     apply add_le_add,
     repeat (apply inv_ge_of_le; apply Hn),
     krewrite pnat.add_halves,
-    apply rat.le.refl
+    apply le.refl
   end
 
 theorem equiv_neg_abs_of_le_zero {s : seq} (Hs : regular s) (Hz : s_le s zero) : s_abs s ≡ sneg s :=
@@ -139,19 +139,19 @@ theorem equiv_neg_abs_of_le_zero {s : seq} (Hs : regular s) (Hz : s_le s zero) :
     have Hsn : s n + s n ≥ 0, from add_nonneg Hpos Hpos,
     rewrite [abs_of_nonneg Hpos, ↑sneg, sub_neg_eq_add, abs_of_nonneg Hsn],
     rewrite [↑nonneg at Hz', ↑sneg at Hz'],
-    apply rat.le.trans,
+    apply le.trans,
     apply add_le_add,
     repeat apply (le_of_neg_le_neg !Hz'),
-    apply rat.le.trans,
+    apply le.trans,
     apply add_le_add,
     repeat (apply inv_ge_of_le; apply Hn),
     krewrite pnat.add_halves,
-    apply rat.le.refl,
+    apply le.refl,
     let Hneg' := lt_of_not_ge Hneg,
     rewrite [abs_of_neg Hneg', ↑sneg, sub_neg_eq_add, neg_add_eq_sub, algebra.sub_self,
                 abs_zero],
     apply rat.le_of_lt,
-    apply inv_pos
+    apply pnat.inv_pos
   end
 
 theorem r_equiv_abs_of_ge_zero {s : reg_seq} (Hz : r_le r_zero s) : requiv (r_abs s) s :=
@@ -237,14 +237,14 @@ theorem cauchy_with_rate_of_converges_to_with_rate {X : r_seq} {a : ℝ} {N : �
     xrewrite -of_rat_add,
     apply of_rat_le_of_rat_of_le,
     krewrite pnat.add_halves,
-    apply rat.le.refl
+    apply rat.le_refl
   end
 
 private definition Nb (M : ℕ+ → ℕ+) := λ k, pnat.max (3 * k) (M (2 * k))
 
-private theorem Nb_spec_right (M : ℕ+ → ℕ+) (k : ℕ+) : M (2 * k) ≤ Nb M k := !max_right
+private theorem Nb_spec_right (M : ℕ+ → ℕ+) (k : ℕ+) : M (2 * k) ≤ Nb M k := !pnat.max_right
 
-private theorem Nb_spec_left (M : ℕ+ → ℕ+) (k : ℕ+) : 3 * k ≤ Nb M k := !max_left
+private theorem Nb_spec_left (M : ℕ+ → ℕ+) (k : ℕ+) : 3 * k ≤ Nb M k := !pnat.max_left
 
 section lim_seq
 parameter {X : r_seq}
@@ -269,7 +269,7 @@ private theorem lim_seq_reg_helper {m n : ℕ+} (Hmn : M (2 * n) ≤M (2 * m)) :
     rotate 1,
     apply Nb_spec_right,
     rotate 1,
-    apply pnat.le.trans,
+    apply pnat.le_trans,
     apply Hmn,
     apply Nb_spec_right,
     krewrite [-+of_rat_add],
@@ -294,7 +294,7 @@ theorem lim_seq_reg : rat_seq.regular lim_seq :=
     apply lim_seq_reg_helper Hor1,
     let Hor2' := pnat.le_of_lt (pnat.lt_of_not_le Hor2),
     krewrite [abs_sub (X (Nb M n)), abs_sub (X (Nb M m)), abs_sub,
-             rat.add.comm, add_comm_three],
+             rat.add_comm, add_comm_three],
     apply lim_seq_reg_helper Hor2'
   end
 
@@ -334,18 +334,18 @@ theorem converges_to_with_rate_of_cauchy_with_rate : converges_to_with_rate X li
     apply algebra.le.trans,
     apply add_le_add_three,
     apply Hc,
-    apply pnat.le.trans,
+    apply pnat.le_trans,
     rotate 1,
     apply Hn,
     rotate_right 1,
     apply Nb_spec_right,
     have HMk : M (2 * k) ≤ Nb M n, begin
-      apply pnat.le.trans,
+      apply pnat.le_trans,
       apply Nb_spec_right,
-      apply pnat.le.trans,
+      apply pnat.le_trans,
       apply Hn,
-      apply pnat.le.trans,
-      apply mul_le_mul_left 3,
+      apply pnat.le_trans,
+      apply pnat.mul_le_mul_left 3,
       apply Nb_spec_left
     end,
     apply HMk,
@@ -357,23 +357,23 @@ theorem converges_to_with_rate_of_cauchy_with_rate : converges_to_with_rate X li
     apply of_rat_le_of_rat_of_le,
     apply algebra.le.trans,
     apply add_le_add_three,
-    apply rat.le.refl,
+    apply rat.le_refl,
     apply inv_ge_of_le,
     apply pnat_mul_le_mul_left',
-    apply pnat.le.trans,
+    apply pnat.le_trans,
     rotate 1,
     apply Hn,
     rotate_right 1,
     apply Nb_spec_left,
     apply inv_ge_of_le,
-    apply pnat.le.trans,
+    apply pnat.le_trans,
     rotate 1,
     apply Hn,
     rotate_right 1,
     apply Nb_spec_left,
-    rewrite -*pnat.mul.assoc,
+    rewrite -*pnat.mul_assoc,
     krewrite pnat.p_add_fractions,
-    apply rat.le.refl
+    apply rat.le_refl
   end
 
 end lim_seq
@@ -394,7 +394,7 @@ theorem archimedean_upper (x : ℝ) : ∃ z : ℤ, x ≤ of_int z :=
       apply rat_seq.s_le_of_le_pointwise (rat_seq.reg_seq.is_reg s),
       apply rat_seq.const_reg,
       intro n,
-      apply rat.le.trans,
+      apply rat.le_trans,
       apply Hb,
       apply ubound_ge
     end,
@@ -602,7 +602,7 @@ private noncomputable definition over_seq := λ n : ℕ, pr2 (iterate bisect n (
 private noncomputable definition avg_seq := λ n : ℕ, avg (over_seq n) (under_seq n) -- C
 
 private theorem avg_symm (n : ℕ) : avg_seq n = avg (under_seq n) (over_seq n) :=
-  by rewrite [↑avg_seq, ↑avg, rat.add.comm]
+  by rewrite [↑avg_seq, ↑avg, add.comm]
 
 private theorem over_0 : over_seq 0 = over := rfl
 
@@ -758,7 +758,7 @@ private theorem under_seq'_lt_over_seq'_single : ∀ n : ℕ, under_seq' n < ove
 
 private theorem under_seq_mono_helper (i k : ℕ) : under_seq i ≤ under_seq (i + k) :=
   (nat.induction_on k
-    (by rewrite nat.add_zero; apply rat.le.refl)
+    (by rewrite nat.add_zero; apply rat.le_refl)
     (begin
       intros a Ha,
       rewrite [add_succ, under_succ],
@@ -766,7 +766,7 @@ private theorem under_seq_mono_helper (i k : ℕ) : under_seq i ≤ under_seq (i
       rewrite (if_pos Havg),
       apply Ha,
       rewrite [if_neg Havg, ↑avg_seq, ↑avg],
-      apply rat.le.trans,
+      apply rat.le_trans,
       apply Ha,
       rewrite -add_halves at {1},
       apply add_le_add_right,
@@ -785,13 +785,13 @@ private theorem under_seq_mono (i j : ℕ) (H : i ≤ j) : under_seq i ≤ under
 
 private theorem over_seq_mono_helper (i k : ℕ) : over_seq (i + k) ≤ over_seq i :=
   nat.induction_on k
-    (by rewrite nat.add_zero; apply rat.le.refl)
+    (by rewrite nat.add_zero; apply rat.le_refl)
     (begin
       intros a Ha,
       rewrite [add_succ, over_succ],
       cases em (ub (avg_seq (i + a))) with [Havg, Havg],
       rewrite [if_pos Havg, ↑avg_seq, ↑avg],
-      apply rat.le.trans,
+      apply rat.le_trans,
       rotate 1,
       apply Ha,
       rotate 1,
@@ -821,18 +821,18 @@ private theorem regular_lemma_helper {s : seq} {m n : ℕ+} (Hm : m ≤ n)
         abs (s m - s n) ≤ m⁻¹ + n⁻¹ :=
   begin
     cases H m n Hm with [T1under, T1over],
-    cases H m m (!pnat.le.refl) with [T2under, T2over],
-    apply rat.le.trans,
+    cases H m m (!pnat.le_refl) with [T2under, T2over],
+    apply rat.le_trans,
     apply dist_bdd_within_interval,
     apply under_seq'_lt_over_seq'_single,
     rotate 1,
     repeat assumption,
-    apply rat.le.trans,
+    apply rat.le_trans,
     apply width',
-    apply rat.le.trans,
+    apply rat.le_trans,
     apply rat_power_two_inv_ge,
     apply le_add_of_nonneg_right,
-    apply rat.le_of_lt (!inv_pos)
+    apply rat.le_of_lt (!pnat.inv_pos)
   end
 
 private theorem regular_lemma (s : seq) (H : ∀ n i : ℕ+, i ≥ n → under_seq' n~ ≤ s i ∧ s i ≤ over_seq' n~) :
@@ -843,7 +843,7 @@ private theorem regular_lemma (s : seq) (H : ∀ n i : ℕ+, i ≥ n → under_s
     cases em (m ≤ n) with [Hm, Hn],
     apply regular_lemma_helper Hm H,
     let T := regular_lemma_helper (pnat.le_of_lt (pnat.lt_of_not_le Hn)) H,
-    rewrite [abs_sub at T, {n⁻¹ + _}rat.add.comm at T],
+    rewrite [abs_sub at T, {n⁻¹ + _}add.comm at T],
     exact T
   end
 
@@ -906,14 +906,14 @@ private theorem under_lowest_bound : ∀ y : ℝ, ub y → sup_under ≤ y :=
 private theorem under_over_equiv : p_under_seq ≡ p_over_seq :=
   begin
     intros,
-    apply rat.le.trans,
+    apply rat.le_trans,
     have H : p_under_seq n < p_over_seq n, from !under_seq_lt_over_seq,
     rewrite [abs_of_neg (iff.mpr !sub_neg_iff_lt H), neg_sub],
     apply width',
-    apply rat.le.trans,
+    apply rat.le_trans,
     apply rat_power_two_inv_ge,
     apply le_add_of_nonneg_left,
-    apply rat.le_of_lt !inv_pos
+    apply rat.le_of_lt !pnat.inv_pos
   end
 
 private theorem under_over_eq : sup_under = sup_over := quot.sound under_over_equiv

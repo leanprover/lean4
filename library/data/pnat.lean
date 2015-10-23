@@ -51,56 +51,56 @@ has_lt.mk pnat.lt
 definition pnat_has_one [instance] [reducible] : has_one pnat :=
 has_one.mk (pos (1:nat) dec_trivial)
 
-lemma mul.def (p q : ℕ+) : p * q = tag (p~ * q~) (mul_pos (pnat_pos p) (pnat_pos q)) :=
+protected lemma mul_def (p q : ℕ+) : p * q = tag (p~ * q~) (mul_pos (pnat_pos p) (pnat_pos q)) :=
 rfl
 
-lemma le.def (p q : ℕ+) : (p ≤ q) = (p~ ≤ q~) :=
+protected lemma le_def (p q : ℕ+) : (p ≤ q) = (p~ ≤ q~) :=
 rfl
 
-lemma lt.def (p q : ℕ+) : (p < q) = (p~ < q~) :=
+protected lemma lt_def (p q : ℕ+) : (p < q) = (p~ < q~) :=
 rfl
 
 protected theorem pnat.eq {p q : ℕ+} : p~ = q~ → p = q :=
 subtype.eq
 
 definition pnat_le_decidable [instance] (p q : ℕ+) : decidable (p ≤ q) :=
-begin rewrite le.def, exact nat.decidable_le p~ q~ end
+begin rewrite pnat.le_def, exact nat.decidable_le p~ q~ end
 
 definition pnat_lt_decidable [instance] {p q : ℕ+} : decidable (p < q) :=
-begin rewrite lt.def, exact nat.decidable_lt p~ q~ end
+begin rewrite pnat.lt_def, exact nat.decidable_lt p~ q~ end
 
-theorem le.trans {p q r : ℕ+} : p ≤ q → q ≤ r → p ≤ r :=
-begin rewrite +le.def, apply nat.le_trans end
+protected theorem le_trans {p q r : ℕ+} : p ≤ q → q ≤ r → p ≤ r :=
+begin rewrite *pnat.le_def, apply nat.le_trans end
 
 definition max (p q : ℕ+) : ℕ+ :=
 tag (max p~ q~) (lt_of_lt_of_le (!pnat_pos) (!le_max_right))
 
-theorem max_right (a b : ℕ+) : max a b ≥ b :=
-begin change b ≤ max a b, rewrite le.def, apply le_max_right end
+protected theorem max_right (a b : ℕ+) : max a b ≥ b :=
+begin change b ≤ max a b, rewrite pnat.le_def, apply le_max_right end
 
-theorem max_left (a b : ℕ+) : max a b ≥ a :=
-begin change a ≤ max a b, rewrite le.def, apply le_max_left end
+protected theorem max_left (a b : ℕ+) : max a b ≥ a :=
+begin change a ≤ max a b, rewrite pnat.le_def, apply le_max_left end
 
-theorem max_eq_right {a b : ℕ+} (H : a < b) : max a b = b :=
-begin rewrite lt.def at H, exact pnat.eq (max_eq_right_of_lt H) end
+protected theorem max_eq_right {a b : ℕ+} (H : a < b) : max a b = b :=
+begin rewrite pnat.lt_def at H, exact pnat.eq (max_eq_right_of_lt H) end
 
-theorem max_eq_left {a b : ℕ+} (H : ¬ a < b) : max a b = a :=
-begin rewrite lt.def at H, exact pnat.eq (max_eq_left (le_of_not_gt H)) end
+protected theorem max_eq_left {a b : ℕ+} (H : ¬ a < b) : max a b = a :=
+begin rewrite pnat.lt_def at H, exact pnat.eq (max_eq_left (le_of_not_gt H)) end
 
-theorem le_of_lt {a b : ℕ+} : a < b → a ≤ b :=
-begin rewrite [lt.def, le.def], apply nat.le_of_lt end
+protected theorem le_of_lt {a b : ℕ+} : a < b → a ≤ b :=
+begin rewrite [pnat.lt_def, pnat.le_def], apply nat.le_of_lt end
 
-theorem not_lt_of_ge {a b : ℕ+} : a ≤ b → ¬ (b < a) :=
-begin rewrite [lt.def, le.def], apply not_lt_of_ge end
+protected theorem not_lt_of_ge {a b : ℕ+} : a ≤ b → ¬ (b < a) :=
+begin rewrite [pnat.lt_def, pnat.le_def], apply not_lt_of_ge end
 
-theorem le_of_not_gt {a b : ℕ+} : ¬ a < b → b ≤ a :=
-begin rewrite [lt.def, le.def], apply le_of_not_gt end
+protected theorem le_of_not_gt {a b : ℕ+} : ¬ a < b → b ≤ a :=
+begin rewrite [pnat.lt_def, pnat.le_def], apply le_of_not_gt end
 
-theorem eq_of_le_of_ge {a b : ℕ+} : a ≤ b → b ≤ a → a = b :=
-begin rewrite [+le.def], intros H1 H2, exact pnat.eq (eq_of_le_of_ge H1 H2) end
+protected theorem eq_of_le_of_ge {a b : ℕ+} : a ≤ b → b ≤ a → a = b :=
+begin rewrite [+pnat.le_def], intros H1 H2, exact pnat.eq (eq_of_le_of_ge H1 H2) end
 
-theorem le.refl (a : ℕ+) : a ≤ a :=
-begin rewrite le.def end
+protected theorem le_refl (a : ℕ+) : a ≤ a :=
+begin rewrite pnat.le_def end
 
 notation 2 := (tag 2 dec_trivial : ℕ+)
 notation 3 := (tag 3 dec_trivial : ℕ+)
@@ -130,20 +130,20 @@ theorem of_nat_lt_of_nat_of_lt {m n : ℕ} (H : m < n) : of_nat m < of_nat n :=
 of_nat_lt_of_nat_of_lt H
 
 theorem rat_of_pnat_le_of_pnat_le {m n : ℕ+} (H : m ≤ n) : rat_of_pnat m ≤ rat_of_pnat n :=
-begin rewrite le.def at H, exact of_nat_le_of_nat_of_le H end
+begin rewrite pnat.le_def at H, exact of_nat_le_of_nat_of_le H end
 
 theorem rat_of_pnat_lt_of_pnat_lt {m n : ℕ+} (H : m < n) : rat_of_pnat m < rat_of_pnat n :=
-begin rewrite lt.def at H, exact of_nat_lt_of_nat_of_lt H end
+begin rewrite pnat.lt_def at H, exact of_nat_lt_of_nat_of_lt H end
 
 theorem pnat_le_of_rat_of_pnat_le {m n : ℕ+} (H : rat_of_pnat m ≤ rat_of_pnat n) : m ≤ n :=
-begin rewrite le.def, exact le_of_of_nat_le_of_nat H end
+begin rewrite pnat.le_def, exact le_of_of_nat_le_of_nat H end
 
 definition inv (n : ℕ+) : ℚ :=
 (1 : ℚ) / rat_of_pnat n
 
 local postfix `⁻¹` := inv
 
-theorem inv_pos (n : ℕ+) : n⁻¹ > 0 := one_div_pos_of_pos !rat_of_pnat_is_pos
+protected theorem inv_pos (n : ℕ+) : n⁻¹ > 0 := one_div_pos_of_pos !rat_of_pnat_is_pos
 
 theorem inv_le_one (n : ℕ+) : n⁻¹ ≤ (1 : ℚ) :=
 begin
@@ -168,25 +168,25 @@ theorem pone_inv : pone⁻¹ = 1 := rfl
 
 theorem add_invs_nonneg (m n : ℕ+) : 0 ≤ m⁻¹ + n⁻¹ :=
 begin
-  apply rat.le_of_lt,
+  apply le_of_lt,
   apply add_pos,
-  repeat apply inv_pos
+  repeat apply pnat.inv_pos
 end
 
-theorem one_mul (n : ℕ+) : pone * n = n :=
+protected theorem one_mul (n : ℕ+) : pone * n = n :=
 begin
   apply pnat.eq,
   unfold pone,
-  rewrite [mul.def, ↑nat_of_pnat, algebra.one_mul]
+  rewrite [pnat.mul_def, ↑nat_of_pnat, algebra.one_mul]
 end
 
 theorem pone_le (n : ℕ+) : pone ≤ n :=
-begin rewrite le.def, exact succ_le_of_lt (pnat_pos n) end
+begin rewrite pnat.le_def, exact succ_le_of_lt (pnat_pos n) end
 
 theorem pnat_to_rat_mul (a b : ℕ+) : rat_of_pnat (a * b) = rat_of_pnat a * rat_of_pnat b := rfl
 
 theorem mul_lt_mul_left {a b c : ℕ+} (H : a < b) : a * c < b * c :=
-begin rewrite [lt.def at *], exact mul_lt_mul_of_pos_right H !pnat_pos end
+begin rewrite [pnat.lt_def at *], exact mul_lt_mul_of_pos_right H !pnat_pos end
 
 theorem one_lt_two : pone < 2 :=
 !nat.le_refl
@@ -197,8 +197,8 @@ begin
   apply one_div_lt_one_div_of_lt,
   apply rat_of_pnat_is_pos,
   have H : n~ < (2 * n)~, begin
-    rewrite -one_mul at {1},
-    rewrite -lt.def,
+    rewrite -pnat.one_mul at {1},
+    rewrite -pnat.lt_def,
     apply mul_lt_mul_left,
     apply one_lt_two
   end,
@@ -223,65 +223,65 @@ by rewrite pnat_to_rat_mul
 theorem add_halves (p : ℕ+) : (2 * p)⁻¹ + (2 * p)⁻¹ = p⁻¹ :=
 begin
   rewrite [↑inv, -(add_halves (1 / (rat_of_pnat p))), algebra.div_div_eq_div_mul],
-  have H : rat_of_pnat (2 * p) = rat_of_pnat p * (1 + 1), by rewrite [rat.mul.comm, two_mul],
+  have H : rat_of_pnat (2 * p) = rat_of_pnat p * (1 + 1), by rewrite [rat.mul_comm, two_mul],
   rewrite *H
 end
 
 theorem add_halves_double (m n : ℕ+) :
         m⁻¹ + n⁻¹ = ((2 * m)⁻¹ + (2 * n)⁻¹) + ((2 * m)⁻¹ + (2 * n)⁻¹) :=
 have hsimp [visible] : ∀ a b : ℚ, (a + a) + (b + b) = (a + b) + (a + b),
-  by intros; rewrite [rat.add.assoc, -(rat.add.assoc a b b), {_+b}rat.add.comm, -*rat.add.assoc],
+  by intros; rewrite [rat.add_assoc, -(rat.add_assoc a b b), {_+b}rat.add_comm, -*rat.add_assoc],
 by rewrite [-add_halves m, -add_halves n, hsimp]
 
-theorem inv_mul_eq_mul_inv {p q : ℕ+} : (p * q)⁻¹ = p⁻¹ * q⁻¹ :=
+protected theorem inv_mul_eq_mul_inv {p q : ℕ+} : (p * q)⁻¹ = p⁻¹ * q⁻¹ :=
 begin rewrite [↑inv, pnat_to_rat_mul, algebra.one_div_mul_one_div] end
 
-theorem inv_mul_le_inv (p q : ℕ+) : (p * q)⁻¹ ≤ q⁻¹ :=
+protected theorem inv_mul_le_inv (p q : ℕ+) : (p * q)⁻¹ ≤ q⁻¹ :=
 begin
-  rewrite [inv_mul_eq_mul_inv, -{q⁻¹}rat.one_mul at {2}],
+  rewrite [pnat.inv_mul_eq_mul_inv, -{q⁻¹}rat.one_mul at {2}],
   apply algebra.mul_le_mul,
   apply inv_le_one,
-  apply rat.le.refl,
-  apply rat.le_of_lt,
-  apply inv_pos,
+  apply le.refl,
+  apply le_of_lt,
+  apply pnat.inv_pos,
   apply rat.le_of_lt rat.zero_lt_one
 end
 
 theorem pnat_mul_le_mul_left' (a b c : ℕ+) : a ≤ b → c * a ≤ c * b :=
 begin
-  rewrite +le.def, intro H,
+  rewrite +pnat.le_def, intro H,
   apply mul_le_mul_of_nonneg_left H,
   apply algebra.le_of_lt,
   apply pnat_pos
 end
 
-theorem mul.assoc (a b c : ℕ+) : a * b * c = a * (b * c) :=
+protected theorem mul_assoc (a b c : ℕ+) : a * b * c = a * (b * c) :=
 pnat.eq !mul.assoc
 
-theorem mul.comm (a b : ℕ+) : a * b = b * a :=
+protected theorem mul_comm (a b : ℕ+) : a * b = b * a :=
 pnat.eq !mul.comm
 
-theorem add.assoc (a b c : ℕ+) : a + b + c = a + (b + c) :=
+protected theorem add_assoc (a b c : ℕ+) : a + b + c = a + (b + c) :=
 pnat.eq !add.assoc
 
-theorem mul_le_mul_left (p q : ℕ+) : q ≤ p * q :=
+protected theorem mul_le_mul_left (p q : ℕ+) : q ≤ p * q :=
 begin
-  rewrite [-one_mul at {1}, mul.comm, mul.comm p],
+  rewrite [-pnat.one_mul at {1}, pnat.mul_comm, pnat.mul_comm p],
   apply pnat_mul_le_mul_left',
   apply pone_le
 end
 
-theorem mul_le_mul_right (p q : ℕ+) : p ≤ p * q :=
-by rewrite mul.comm; apply mul_le_mul_left
+protected theorem mul_le_mul_right (p q : ℕ+) : p ≤ p * q :=
+by rewrite pnat.mul_comm; apply pnat.mul_le_mul_left
 
 theorem pnat.lt_of_not_le {p q : ℕ+} : ¬ p ≤ q → q < p :=
-begin rewrite [le.def, lt.def], apply lt_of_not_ge end
+begin rewrite [pnat.le_def, pnat.lt_def], apply lt_of_not_ge end
 
-theorem inv_cancel_left (p : ℕ+) : rat_of_pnat p * p⁻¹ = (1 : ℚ) :=
+protected theorem inv_cancel_left (p : ℕ+) : rat_of_pnat p * p⁻¹ = (1 : ℚ) :=
 mul_one_div_cancel (ne.symm (ne_of_lt !rat_of_pnat_is_pos))
 
-theorem inv_cancel_right (p : ℕ+) : p⁻¹ * rat_of_pnat p = (1 : ℚ) :=
-by rewrite rat.mul.comm; apply inv_cancel_left
+protected theorem inv_cancel_right (p : ℕ+) : p⁻¹ * rat_of_pnat p = (1 : ℚ) :=
+by rewrite rat.mul_comm; apply pnat.inv_cancel_left
 
 theorem lt_add_left (p q : ℕ+) : p < p + q :=
 begin
@@ -300,7 +300,7 @@ theorem div_le_pnat (q : ℚ) (n : ℕ+) (H : q ≥ n⁻¹) : 1 / q ≤ rat_of_p
 begin
   apply algebra.div_le_of_le_mul,
   apply algebra.lt_of_lt_of_le,
-  apply inv_pos,
+  apply pnat.inv_pos,
   rotate 1,
   apply H,
   apply le_mul_of_div_le,
@@ -312,10 +312,10 @@ theorem pnat_cancel' (n m : ℕ+) : (n * n * m)⁻¹ * (rat_of_pnat n * rat_of_p
 assert hsimp : ∀ a b c : ℚ, (a * a * (b * b * c)) = (a * b) * (a * b) * c,
   begin
     intro a b c,
-    rewrite[-*rat.mul.assoc],
+    rewrite[-*rat.mul_assoc],
     exact (!mul.right_comm ▸ rfl),
   end,
-by rewrite [rat.mul.comm, *inv_mul_eq_mul_inv, hsimp, *inv_cancel_left, *rat.one_mul]
+by rewrite [rat.mul_comm, *pnat.inv_mul_eq_mul_inv, hsimp, *pnat.inv_cancel_left, *rat.one_mul]
 
 definition pceil (a : ℚ) : ℕ+ := tag (ubound a) !ubound_pos
 
@@ -350,7 +350,7 @@ begin
   apply algebra.lt.trans,
   rotate 1,
   apply and.left Hc,
-  rewrite rat.add.assoc,
+  rewrite rat.add_assoc,
   apply rat.add_lt_add_left,
   rewrite -(algebra.add_halves c) at {3},
   apply add_lt_add,
@@ -383,13 +383,13 @@ begin
   existsi (pceil (1 / ε)),
   rewrite -(one_div_one_div ε) at {2},
   apply pceil_helper,
-  apply le.refl,
+  apply pnat.le_refl,
   apply one_div_pos_of_pos Hε
 end
 
 theorem p_add_fractions (n : ℕ+) : (2 * n)⁻¹ + (2 * 3 * n)⁻¹ + (3 * n)⁻¹ = n⁻¹ :=
 assert T : 2⁻¹ + 2⁻¹ * 3⁻¹ + 3⁻¹ = 1, from dec_trivial,
-by rewrite[*inv_mul_eq_mul_inv,-*right_distrib,T,rat.one_mul]
+by rewrite[*pnat.inv_mul_eq_mul_inv,-*right_distrib,T,rat.one_mul]
 
 theorem rat_power_two_le (k : ℕ+) : rat_of_pnat k ≤ 2^k~ :=
 !binary_nat_bound

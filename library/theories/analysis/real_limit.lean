@@ -123,7 +123,7 @@ section
     ∀ k : ℕ+, ∃ N : ℕ+, ∀ m n : ℕ+,
       m ≥ N → n ≥ N → abs (X (elt_of m) - X (elt_of n)) ≤ of_rat k⁻¹ :=
   take k : ℕ+,
-  have H1 : (k⁻¹ > (rat.of_num 0)), from !inv_pos,
+  have H1 : (k⁻¹ > (rat.of_num 0)), from !pnat.inv_pos,
   have H2 : (of_rat k⁻¹ > of_rat (rat.of_num 0)), from !of_rat_lt_of_rat_of_lt H1,
   obtain (N : ℕ) (H : ∀ m n, m ≥ N → n ≥ N → abs (X m - X n) < of_rat k⁻¹), from H _ H2,
   exists.intro (pnat.succ N)

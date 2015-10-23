@@ -36,7 +36,7 @@ theorem bdd_away_of_pos {s : seq} (Hs : regular s) (H : pos s) :
         rewrite [sub_neg_eq_add, add.comm, -add.assoc],
         apply le_of_lt HN
       end,
-    rewrite rat.add.comm at Habs',
+    rewrite add.comm at Habs',
     have Hin : s m ≥ N⁻¹, from calc
       s m ≥ s n - abs (s m - s n) : (iff.mp (le_add_iff_sub_left_le _ _ _)) Habs'
       ... ≥ s n - (m⁻¹ + n⁻¹) : algebra.sub_le_sub_left !Hs
@@ -91,11 +91,11 @@ theorem nonneg_of_bdd_within {s : seq} (Hs : regular s)
     rotate 1,
     apply add_le_add,
     rotate 1,
-    apply HN (max (pceil ((2)/ε)) N) !max_right,
+    apply HN (max (pceil ((2)/ε)) N) !pnat.max_right,
     rotate_right 1,
     apply neg_le_neg,
     apply inv_ge_of_le,
-    apply max_left,
+    apply pnat.max_left,
     rewrite -neg_add,
     apply neg_le_neg,
     apply le.trans,
@@ -105,7 +105,7 @@ theorem nonneg_of_bdd_within {s : seq} (Hs : regular s)
     repeat apply zero_lt_one;
     exact Hε),
     rewrite [algebra.add_halves],
-    apply le.refl
+    apply rat.le_refl
   end
 
 theorem pos_of_pos_equiv {s t : seq} (Hs : regular s) (Heq : s ≡ t) (Hp : pos s) : pos t :=
@@ -116,13 +116,13 @@ theorem pos_of_pos_equiv {s t : seq} (Hs : regular s) (Heq : s ≡ t) (Hp : pos 
     rotate 1,
     apply sub_le_of_abs_sub_le_right,
     apply Heq,
-    have Hs4 : N⁻¹ ≤ s (2 * 2 * N), from HN _ (!mul_le_mul_left),
+    have Hs4 : N⁻¹ ≤ s (2 * 2 * N), from HN _ (!pnat.mul_le_mul_left),
     apply lt_of_lt_of_le,
     rotate 1,
     rewrite sub_eq_add_neg,
     apply iff.mpr !add_le_add_right_iff,
     apply Hs4,
-    rewrite [*pnat.mul.assoc, pnat.add_halves, -(add_halves N), -sub_eq_add_neg, algebra.add_sub_cancel],
+    rewrite [*pnat.mul_assoc, pnat.add_halves, -(add_halves N), -sub_eq_add_neg, algebra.add_sub_cancel],
     apply inv_two_mul_lt_inv
   end
 
@@ -143,24 +143,24 @@ theorem nonneg_of_nonneg_equiv {s t : seq} (Hs : regular s) (Ht : regular t) (He
     rotate 1,
     apply algebra.sub_le_sub_right,
     apply HNs,
-    apply pnat.le.trans,
+    apply pnat.le_trans,
     rotate 1,
     apply Hm,
     rotate_right 1,
-    apply max_left,
+    apply pnat.max_left,
     have Hms : m⁻¹ ≤ (2 * 2 * n)⁻¹, begin
          apply inv_ge_of_le,
-         apply pnat.le.trans,
+         apply pnat.le_trans,
          rotate 1,
          apply Hm;
-         apply max_right
+         apply pnat.max_right
       end,
     have Hms' : m⁻¹ + m⁻¹ ≤ (2 * 2 * n)⁻¹ + (2 * 2 * n)⁻¹, from add_le_add Hms Hms,
     apply le.trans,
     rotate 1,
     apply algebra.sub_le_sub_left,
     apply Hms',
-    rewrite [*pnat.mul.assoc, pnat.add_halves, -neg_sub, -add_halves n, sub_neg_eq_add],
+    rewrite [*pnat.mul_assoc, pnat.add_halves, -neg_sub, -add_halves n, sub_neg_eq_add],
     apply neg_le_neg,
     apply algebra.add_le_add_left,
     apply inv_two_mul_le_inv
@@ -173,8 +173,8 @@ theorem zero_nonneg : nonneg zero :=
   begin
     intros,
     apply neg_nonpos_of_nonneg,
-    apply le_of_lt,
-    apply inv_pos
+    apply rat.le_of_lt,
+    apply pnat.inv_pos
   end
 
 theorem s_zero_lt_one : s_lt zero one :=
@@ -185,7 +185,7 @@ theorem s_zero_lt_one : s_lt zero one :=
     apply one_lt_two
   end
 
-theorem le.refl {s : seq} (Hs : regular s) : s_le s s :=
+protected theorem le_refl {s : seq} (Hs : regular s) : s_le s s :=
   begin
     apply nonneg_of_nonneg_equiv,
     rotate 2,
@@ -210,12 +210,12 @@ theorem s_nonneg_of_pos {s : seq} (Hs : regular s) (H : pos s) : nonneg s :=
     apply Hm,
     apply le.trans,
     rotate 1,
-    apply le_of_lt,
-    apply inv_pos,
+    apply rat.le_of_lt,
+    apply pnat.inv_pos,
     rewrite -neg_zero,
     apply neg_le_neg,
-    apply le_of_lt,
-    apply inv_pos
+    apply rat.le_of_lt,
+    apply pnat.inv_pos
   end
 
 theorem s_le_of_s_lt {s t : seq} (Hs : regular s) (Ht : regular t) (H : s_lt s t) : s_le s t :=
@@ -303,7 +303,7 @@ theorem add_nonneg_of_nonneg {s t : seq} (Hs : nonneg s) (Ht : nonneg t) : nonne
     apply Ht
   end
 
-theorem le.trans {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u) (Lst : s_le s t)
+protected theorem le_trans {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u) (Lst : s_le s t)
         (Ltu : s_le t u) : s_le s u :=
   begin
     rewrite ↑s_le at *,
@@ -358,16 +358,16 @@ theorem equiv_of_le_of_ge {s t : seq} (Hs : regular s) (Ht : regular t) (Lst : s
     apply abs_le_of_le_of_neg_le,
     apply le_of_neg_le_neg,
     rewrite [2 neg_add, neg_neg],
-    apply rat.le.trans,
+    apply rat.le_trans,
     apply algebra.neg_add_neg_le_neg_of_pos,
-    apply inv_pos,
+    apply pnat.inv_pos,
     rewrite add.comm,
     apply Lst,
     apply le_of_neg_le_neg,
     rewrite [neg_add, neg_neg],
-    apply rat.le.trans,
+    apply rat.le_trans,
     apply algebra.neg_add_neg_le_neg_of_pos,
-    apply inv_pos,
+    apply pnat.inv_pos,
     apply Lts,
     repeat assumption
   end
@@ -389,7 +389,7 @@ theorem le_and_sep_of_lt {s t : seq} (Hs : regular s) (Ht : regular t) (Lst : s_
       sadd t (sneg s) n ≥ sadd t (sneg s) N -  N⁻¹ - n⁻¹ : Habs
       ... ≥ 0 - n⁻¹: begin
                        apply algebra.sub_le_sub_right,
-                       apply le_of_lt,
+                       apply rat.le_of_lt,
                        apply (iff.mpr (sub_pos_iff_lt _ _)),
                        apply HN
                      end
@@ -488,38 +488,38 @@ theorem s_mul_pos_of_pos {s t : seq} (Hs : regular s) (Ht : regular t) (Hps : po
     rotate 1,
     apply algebra.mul_le_mul,
     apply HNs,
-    apply pnat.le.trans,
-    apply max_left Ns Nt,
-    rewrite -pnat.mul.assoc,
+    apply pnat.le_trans,
+    apply pnat.max_left Ns Nt,
+    rewrite -pnat.mul_assoc,
     apply pnat.mul_le_mul_left,
     apply HNt,
-    apply pnat.le.trans,
-    apply max_right Ns Nt,
-    rewrite -pnat.mul.assoc,
+    apply pnat.le_trans,
+    apply pnat.max_right Ns Nt,
+    rewrite -pnat.mul_assoc,
     apply pnat.mul_le_mul_left,
-    apply le_of_lt,
-    apply inv_pos,
-    apply rat.le.trans,
+    apply rat.le_of_lt,
+    apply pnat.inv_pos,
+    apply rat.le_trans,
     rotate 1,
     apply HNs,
-    apply pnat.le.trans,
-    apply max_left Ns Nt,
-    rewrite -pnat.mul.assoc,
+    apply pnat.le_trans,
+    apply pnat.max_left Ns Nt,
+    rewrite -pnat.mul_assoc,
     apply pnat.mul_le_mul_left,
-    rewrite inv_mul_eq_mul_inv,
+    rewrite pnat.inv_mul_eq_mul_inv,
     apply algebra.mul_lt_mul,
-    rewrite [inv_mul_eq_mul_inv, -one_mul Ns⁻¹],
+    rewrite [pnat.inv_mul_eq_mul_inv, -one_mul Ns⁻¹],
     apply algebra.mul_lt_mul,
     apply inv_lt_one_of_gt,
     apply dec_trivial,
     apply inv_ge_of_le,
-    apply max_left,
-    apply inv_pos,
-    apply le_of_lt zero_lt_one,
+    apply pnat.max_left,
+    apply pnat.inv_pos,
+    apply rat.le_of_lt zero_lt_one,
     apply inv_ge_of_le,
-    apply max_right,
-    apply inv_pos,
-    repeat (apply le_of_lt; apply inv_pos)
+    apply pnat.max_right,
+    apply pnat.inv_pos,
+    repeat (apply le_of_lt; apply pnat.inv_pos)
   end
 
 theorem s_mul_gt_zero_of_gt_zero {s t : seq} (Hs : regular s) (Ht : regular t)
@@ -560,7 +560,7 @@ theorem s_zero_mul {s : seq} : smul s zero ≡ zero :=
   end
 
 theorem s_mul_nonneg_of_pos_of_zero {s t : seq} (Hs : regular s) (Ht : regular t)
-        (Hps : pos s) (Hpt : zero ≡ t) : nonneg (smul s t) :=
+       (Hps : pos s) (Hpt : zero ≡ t) : nonneg (smul s t) :=
   begin
     apply nonneg_of_nonneg_equiv,
     rotate 2,
@@ -581,27 +581,27 @@ theorem s_mul_nonneg_of_nonneg {s t : seq} (Hs : regular s) (Ht : regular t)
   begin
     intro n,
     rewrite ↑smul,
-    apply rat.le.by_cases 0 (s (((K₂ s t) * 2) * n)),
+    apply rat.le_by_cases 0 (s (((K₂ s t) * 2) * n)),
     intro Hsp,
-    apply rat.le.by_cases 0 (t (((K₂ s t) * 2) * n)),
+    apply rat.le_by_cases 0 (t (((K₂ s t) * 2) * n)),
     intro Htp,
-    apply rat.le.trans,
+    apply rat.le_trans,
     rotate 1,
     apply rat.mul_nonneg Hsp Htp,
     rotate_right 1,
     apply le_of_lt,
     apply neg_neg_of_pos,
-    apply inv_pos,
+    apply pnat.inv_pos,
       intro Htn,
-      apply rat.le.trans,
+      apply rat.le_trans,
       rotate 1,
       apply algebra.mul_le_mul_of_nonpos_right,
-      apply rat.le.trans,
+      apply rat.le_trans,
       apply le_abs_self,
       apply canon_2_bound_left s t Hs,
       apply Htn,
       rotate_right 1,
-      apply rat.le.trans,
+      apply rat.le_trans,
       rotate 1,
       apply mul_le_mul_of_nonneg_left,
       apply Hpt,
@@ -610,21 +610,21 @@ theorem s_mul_nonneg_of_nonneg {s t : seq} (Hs : regular s) (Ht : regular t)
       rotate 1,
       rewrite -neg_mul_eq_mul_neg,
       apply neg_le_neg,
-      rewrite [*pnat.mul.assoc, inv_mul_eq_mul_inv, -mul.assoc, inv_cancel_left, one_mul],
+      rewrite [*pnat.mul_assoc, pnat.inv_mul_eq_mul_inv, -mul.assoc, pnat.inv_cancel_left, rat.one_mul],
       apply inv_ge_of_le,
       apply pnat.mul_le_mul_left,
      intro Hsn,
-     apply rat.le.by_cases 0 (t (((K₂ s t) * 2) * n)),
+     apply rat.le_by_cases 0 (t (((K₂ s t) * 2) * n)),
      intro Htp,
-     apply rat.le.trans,
+     apply rat.le_trans,
      rotate 1,
      apply mul_le_mul_of_nonpos_left,
-     apply rat.le.trans,
+     apply rat.le_trans,
      apply le_abs_self,
      apply canon_2_bound_right s t Ht,
      apply Hsn,
      rotate_right 1,
-     apply rat.le.trans,
+     apply rat.le_trans,
      rotate 1,
      apply mul_le_mul_of_nonneg_right,
      apply Hps,
@@ -633,18 +633,18 @@ theorem s_mul_nonneg_of_nonneg {s t : seq} (Hs : regular s) (Ht : regular t)
      rotate 1,
      rewrite -neg_mul_eq_neg_mul,
      apply neg_le_neg,
-     rewrite [*pnat.mul.assoc, inv_mul_eq_mul_inv, mul.comm, -mul.assoc, inv_cancel_left, one_mul],
+     rewrite [+pnat.mul_assoc, pnat.inv_mul_eq_mul_inv, mul.comm, -mul.assoc, pnat.inv_cancel_left, one_mul],
      apply inv_ge_of_le,
      apply pnat.mul_le_mul_left,
     intro Htn,
-    apply rat.le.trans,
+    apply rat.le_trans,
     rotate 1,
     apply mul_nonneg_of_nonpos_of_nonpos,
     apply Hsn,
     apply Htn,
     apply le_of_lt,
     apply neg_neg_of_pos,
-    apply inv_pos
+    apply pnat.inv_pos
   end
 
 theorem s_mul_ge_zero_of_ge_zero {s t : seq} (Hs : regular s) (Ht : regular t)
@@ -666,7 +666,7 @@ theorem not_lt_self (s : seq) : ¬ s_lt s s :=
     apply exists.elim Hlt,
     intro n Hn, esimp at Hn,
     rewrite [↑sadd at Hn,↑sneg at Hn, -sub_eq_add_neg at Hn, algebra.sub_self at Hn],
-    apply absurd Hn (algebra.not_lt_of_ge (rat.le_of_lt !inv_pos))
+    apply absurd Hn (algebra.not_lt_of_ge (rat.le_of_lt !pnat.inv_pos))
   end
 
 theorem not_sep_self (s : seq) : ¬ s ≢ s :=
@@ -780,26 +780,26 @@ theorem s_lt_of_lt_of_le {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : r
     existsi max (2 * Nt) Nu,
     intro n Hn,
     rewrite Hcan,
-    apply rat.le.trans,
+    apply rat.le_trans,
     rotate 1,
     apply algebra.add_le_add,
     apply HNt,
-    apply pnat.le.trans,
+    apply pnat.le_trans,
     apply pnat.mul_le_mul_left 2,
-    apply pnat.le.trans,
+    apply pnat.le_trans,
     rotate 1,
     apply Hn,
     rotate_right 1,
-    apply max_left,
+    apply pnat.max_left,
     apply HNu,
-    apply pnat.le.trans,
+    apply pnat.le_trans,
     rotate 1,
     apply Hn,
     rotate_right 1,
-    apply max_right,
+    apply pnat.max_right,
     rewrite [-add_halves Nt, -sub_eq_add_neg, algebra.add_sub_cancel],
     apply inv_ge_of_le,
-    apply max_left
+    apply pnat.max_left
   end
 
 theorem s_lt_of_le_of_lt {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : regular u)
@@ -818,26 +818,26 @@ theorem s_lt_of_le_of_lt {s t u : seq} (Hs : regular s) (Ht : regular t) (Hu : r
     existsi max (2 * Nu) Nt,
     intro n Hn,
     rewrite Hcan,
-    apply rat.le.trans,
+    apply rat.le_trans,
     rotate 1,
     apply algebra.add_le_add,
     apply HNt,
-    apply pnat.le.trans,
+    apply pnat.le_trans,
     rotate 1,
     apply Hn,
     rotate_right 1,
-    apply max_right,
+    apply pnat.max_right,
     apply HNu,
-    apply pnat.le.trans,
+    apply pnat.le_trans,
     apply pnat.mul_le_mul_left 2,
-    apply pnat.le.trans,
+    apply pnat.le_trans,
     rotate 1,
     apply Hn,
     rotate_right 1,
-    apply max_left,
+    apply pnat.max_left,
     rewrite [-add_halves Nu, neg_add_cancel_left],
     apply inv_ge_of_le,
-    apply max_left
+    apply pnat.max_left
   end
 
 theorem le_of_le_reprs {s t : seq} (Hs : regular s) (Ht : regular t)
@@ -856,10 +856,10 @@ theorem const_le_const_of_le {a b : ℚ} (H : a ≤ b) : s_le (const a) (const b
     rewrite [↑s_le, ↑nonneg],
     intro n,
     rewrite [↑sadd, ↑sneg, ↑const],
-    apply rat.le.trans,
+    apply algebra.le.trans,
     apply neg_nonpos_of_nonneg,
     apply rat.le_of_lt,
-    apply inv_pos,
+    apply pnat.inv_pos,
     apply iff.mpr !sub_nonneg_iff_le,
     apply H
   end
@@ -879,7 +879,7 @@ theorem nat_inv_lt_rat {a : ℚ} (H : a > 0) : ∃ n : ℕ+, n⁻¹ < a :=
     apply div_two_lt_of_pos H,
     rewrite -(one_div_one_div (a / (1 + 1))),
     apply pceil_helper,
-    apply pnat.le.refl,
+    apply pnat.le_refl,
     apply one_div_pos_of_pos,
     apply div_pos_of_pos_of_pos H dec_trivial
   end
@@ -908,10 +908,10 @@ theorem s_le_of_le_pointwise {s t : seq} (Hs : regular s) (Ht : regular t)
   begin
     rewrite [↑s_le, ↑nonneg, ↑sadd, ↑sneg],
     intros,
-    apply rat.le.trans,
+    apply algebra.le.trans,
     apply iff.mpr !neg_nonpos_iff_nonneg,
     apply le_of_lt,
-    apply inv_pos,
+    apply pnat.inv_pos,
     apply iff.mpr !sub_nonneg_iff_le,
     apply H
   end
@@ -937,10 +937,10 @@ theorem r_sep_well_defined (s t u v : reg_seq) (Hsu : requiv s u) (Htv : requiv 
   propext (sep_well_defined (reg_seq.is_reg s) (reg_seq.is_reg t) (reg_seq.is_reg u)
                   (reg_seq.is_reg v) Hsu Htv)
 
-theorem r_le.refl (s : reg_seq) : r_le s s := le.refl (reg_seq.is_reg s)
+theorem r_le.refl (s : reg_seq) : r_le s s := rat_seq.le_refl (reg_seq.is_reg s)
 
 theorem r_le.trans {s t u : reg_seq} (Hst : r_le s t) (Htu : r_le t u) : r_le s u :=
-  le.trans (reg_seq.is_reg s) (reg_seq.is_reg t) (reg_seq.is_reg u) Hst Htu
+  rat_seq.le_trans (reg_seq.is_reg s) (reg_seq.is_reg t) (reg_seq.is_reg u) Hst Htu
 
 theorem r_equiv_of_le_of_ge {s t : reg_seq} (Hs : r_le s t) (Hu : r_le t s) :
         requiv s t :=

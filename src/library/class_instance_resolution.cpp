@@ -701,25 +701,6 @@ struct cienv {
         return empty(m_state.m_stack);
     }
 
-    /** \brief Try to make sure \c type does not contain meta-variables. It tries to:
-        - Instantiate assigned meta-variables
-        - Recursively invoke type class resolution.
-          This is needed when a type class has a parameter that is an instance. */
-    bool check_metavars_in_type(expr & type) {
-        type = instantiate_uvars_mvars(type);
-        // Remark: we use has_expr_metavar_relaxed instead of has_expr_metavar, because
-        // we want to ignore metavariables occurring in the type of local constants occurring in mvar_type.
-        // This can happen when type class resolution is invoked from the unifier.
-
-        if (!has_expr_metavar_relaxed(type))
-            return true;
-        if (auto p = find_unsynth_metavar(type)) {
-            if (mk_nested_instance(p->first, p->second))
-                return check_metavars_in_type(type);
-        }
-        return false;
-    }
-
     bool mk_choice_point(expr const & mvar) {
         lean_assert(is_mvar(mvar));
         if (m_choices.size() > m_max_depth) {
@@ -728,10 +709,14 @@ struct cienv {
                                   "(the class-instance resolution trace can be visualized by setting option 'class.trace_instances')",
                                   mlocal_type(m_main_mvar));
         }
-        expr mvar_type = mlocal_type(mvar);
-        if (!check_metavars_in_type(mvar_type)) {
-            return false;
-        }
+        // Remark: we initially tried to reject branches where mvar_type contained unassigned metavariables.
+        // The idea was to make the procedure easier to understand.
+        // However, it turns out this is too restrictive. The group_theory folder contains the following instance.
+        //     nsubg_setoid : Π {A : Type} [s : group A] (N : set A) [is_nsubg : @is_normal_subgroup A s N], setoid A
+        // When it is used, it creates a subproblem for
+        //    is_nsubg : @is_normal_subgroup A s ?N
+        // where ?N is not known. Actually, we can only find the value for ?N by constructing the instance is_nsubg.
+        expr mvar_type = instantiate_uvars_mvars(mlocal_type(mvar));
         bool toplevel_choice = m_choices.empty();
         m_choices.push_back(choice());
         choice & r = m_choices.back();

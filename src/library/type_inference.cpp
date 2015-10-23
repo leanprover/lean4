@@ -287,7 +287,7 @@ bool type_inference::is_def_eq(levels const & ls1, levels const & ls2) {
     ?m is an assigned mvar, substitute \c ?m with its assignment. */
 expr type_inference::subst_mvar(expr const & e) {
     buffer<expr> args;
-    expr const & m   = get_app_args(e, args);
+    expr const & m   = get_app_rev_args(e, args);
     lean_assert(is_mvar(m));
     expr const * v = get_assignment(m);
     lean_assert(v);

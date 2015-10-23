@@ -257,7 +257,7 @@ by apply eq_of_veq; rewrite [*val_madd, mod_add_mod, add_mod_mod, add.assoc (val
 
 lemma madd_left_inv : ∀ i : fin (succ n), madd (minv i) i = fin.zero n
 | (mk iv ilt) := eq_of_veq (by
-  rewrite [val_madd, ↑minv, ↑fin.zero, mod_add_mod, sub_add_cancel (le_of_lt ilt), mod_self])
+  rewrite [val_madd, ↑minv, ↑fin.zero, mod_add_mod, nat.sub_add_cancel (le_of_lt ilt), mod_self])
 
 open algebra
 
@@ -420,7 +420,7 @@ assert aux₁ : ∀ {v}, v < m → (v + n) < (n + m), from
     end,
   inv_fun := λ f : fin (n + m),
     match f with
-    | mk v hlt := if h : v < n then sum.inl (mk v h) else sum.inr (mk (v-n) (sub_lt_of_lt_add hlt (le_of_not_gt h)))
+    | mk v hlt := if h : v < n then sum.inl (mk v h) else sum.inr (mk (v-n) (nat.sub_lt_of_lt_add hlt (le_of_not_gt h)))
     end,
   left_inv := begin
     intro s, cases s with f₁ f₂,
@@ -428,15 +428,15 @@ assert aux₁ : ∀ {v}, v < m → (v + n) < (n + m), from
     { cases f₂ with v hlt, esimp,
       have ¬ v + n < n, from
         suppose v + n < n,
-        assert v < n - n, from lt_sub_of_add_lt this !le.refl,
-        have v < 0, by rewrite [sub_self at this]; exact this,
+        assert v < n - n, from nat.lt_sub_of_add_lt this !le.refl,
+        have v < 0, by rewrite [nat.sub_self at this]; exact this,
         absurd this !not_lt_zero,
-      rewrite [dif_neg this], congruence, congruence, rewrite [add_sub_cancel] }
+      rewrite [dif_neg this], congruence, congruence, rewrite [nat.add_sub_cancel] }
   end,
   right_inv := begin
     intro f, cases f with v hlt, esimp, apply @by_cases (v < n),
     { intro h₁, rewrite [dif_pos h₁] },
-    { intro h₁, rewrite [dif_neg h₁], esimp, congruence, rewrite [sub_add_cancel (le_of_not_gt h₁)] }
+    { intro h₁, rewrite [dif_neg h₁], esimp, congruence, rewrite [nat.sub_add_cancel (le_of_not_gt h₁)] }
   end
 ⦄
 
@@ -453,7 +453,7 @@ assert aux₁ : ∀ {v₁ v₂}, v₁ < n → v₂ < m → v₁ + v₂ * n < n*m
 assert aux₂ : ∀ v, v mod n < n, from
   take v, mod_lt _ `n > 0`,
 assert aux₃ : ∀ {v}, v < n * m → v div n < m, from
-  take v, assume h, by rewrite mul.comm at h; exact div_lt_of_lt_mul h,
+  take v, assume h, by rewrite mul.comm at h; exact nat.div_lt_of_lt_mul h,
 ⦃ equiv,
   to_fun   := λ p : (fin n × fin m), match p with (mk v₁ hlt₁, mk v₂ hlt₂) := mk (v₁ + v₂ * n) (aux₁ hlt₁ hlt₂) end,
   inv_fun  := λ f : fin (n*m), match f with (mk v hlt) := (mk (v mod n) (aux₂ v), mk (v div n) (aux₃ hlt)) end,

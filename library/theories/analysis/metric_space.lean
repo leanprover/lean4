@@ -119,7 +119,7 @@ take ε, suppose ε > 0,
 obtain N HN, from H `ε > 0`,
 exists.intro (N + k)
   (take n : ℕ, assume nge : n ≥ N + k,
-    have n - k ≥ N, from le_sub_of_add_le nge,
+    have n - k ≥ N, from nat.le_sub_of_add_le nge,
     have dist (X (n - k + k)) y < ε, from HN (n - k) this,
     show dist (X n) y < ε, using this,
       by rewrite [(nat.sub_add_cancel (le.trans !le_add_left nge)) at this]; exact this)

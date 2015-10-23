@@ -72,8 +72,8 @@ theorem pow_cancel_left : ∀ {a b c : nat}, a > 1 → a^b = a^c → b = c
   by rewrite [pow_cancel_left h₁ this]
 
 theorem pow_div_cancel : ∀ {a b : nat}, a ≠ 0 → (a ^ succ b) div a = a ^ b
-| a 0        h := by rewrite [pow_succ, pow_zero, mul_one, div_self (pos_of_ne_zero h)]
-| a (succ b) h := by rewrite [pow_succ, mul_div_cancel_left _ (pos_of_ne_zero h)]
+| a 0        h := by rewrite [pow_succ, pow_zero, mul_one, nat.div_self (pos_of_ne_zero h)]
+| a (succ b) h := by rewrite [pow_succ, nat.mul_div_cancel_left _ (pos_of_ne_zero h)]
 
 lemma dvd_pow : ∀ (i : nat) {n : nat}, n > 0 → i ∣ i^n
 | i 0        h := absurd h !lt.irrefl
@@ -88,12 +88,13 @@ iff.mp !dvd_iff_mod_eq_zero (dvd_pow i h)
 
 lemma pow_dvd_of_pow_succ_dvd {p i n : nat} : p^(succ i) ∣ n → p^i ∣ n :=
 suppose p^(succ i) ∣ n,
-assert p^i ∣ p^(succ i), from by rewrite [pow_succ']; apply dvd_of_eq_mul; apply rfl,
+assert p^i ∣ p^(succ i), 
+  by rewrite [pow_succ']; apply nat.dvd_of_eq_mul; apply rfl, 
 dvd.trans `p^i ∣ p^(succ i)` `p^(succ i) ∣ n`
 
 lemma dvd_of_pow_succ_dvd_mul_pow {p i n : nat} (Ppos : p > 0) :
   p^(succ i) ∣ (n * p^i) → p ∣ n :=
-by rewrite [pow_succ]; apply dvd_of_mul_dvd_mul_right; apply pow_pos_of_pos _ Ppos
+by rewrite [pow_succ]; apply nat.dvd_of_mul_dvd_mul_right; apply pow_pos_of_pos _ Ppos
 
 lemma coprime_pow_right {a b} : ∀ n, coprime b a → coprime b (a^n)
 | 0        h := !comprime_one_right

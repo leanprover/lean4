@@ -67,7 +67,7 @@ end
 theorem card_union (s₁ s₂ : set A) [fins₁ : finite s₁] [fins₂ : finite s₂] :
   card (s₁ ∪ s₂) = card s₁ + card s₂ - card (s₁ ∩ s₂) :=
 calc
-  card (s₁ ∪ s₂) = card (s₁ ∪ s₂) + card (s₁ ∩ s₂) - card (s₁ ∩ s₂) : add_sub_cancel
+  card (s₁ ∪ s₂) = card (s₁ ∪ s₂) + card (s₁ ∩ s₂) - card (s₁ ∩ s₂) : nat.add_sub_cancel
              ... = card s₁ + card s₂ - card (s₁ ∩ s₂)               : card_add_card s₁ s₂
 
 theorem card_union_of_disjoint {s₁ s₂ : set A} [fins₁ : finite s₁] [fins₂ : finite s₂] (H : s₁ ∩ s₂ = ∅) :

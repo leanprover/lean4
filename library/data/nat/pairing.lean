@@ -30,21 +30,22 @@ by_cases
   (suppose h₁ : ¬ n - s*s < s,
     have   s ≤ n - s*s,                  from le_of_not_gt h₁,
     assert s + s*s ≤ n - s*s + s*s,      from add_le_add_right this (s*s),
-    assert s*s + s ≤ n,                  by rewrite [sub_add_cancel (sqrt_lower n) at this, add.comm at this]; assumption,
+    assert s*s + s ≤ n,                  by rewrite [nat.sub_add_cancel (sqrt_lower n) at this, 
+                                              add.comm at this]; assumption,
     have   n ≤ s*s + s + s,              from sqrt_upper n,
     have   n - s*s ≤ s + s,              from calc
-        n - s*s ≤ (s*s + s + s) - s*s    : sub_le_sub_right this (s*s)
+        n - s*s ≤ (s*s + s + s) - s*s    : nat.sub_le_sub_right this (s*s)
             ... = (s*s + (s+s)) - s*s    : by rewrite add.assoc
-            ... = s + s                  : by rewrite add_sub_cancel_left,
+            ... = s + s                  : by rewrite nat.add_sub_cancel_left,
     have   n - s*s - s ≤ s,              from calc
-        n - s*s - s ≤ (s + s) - s        : sub_le_sub_right this s
-                ... = s                  : by rewrite add_sub_cancel_left,
+        n - s*s - s ≤ (s + s) - s        : nat.sub_le_sub_right this s
+                ... = s                  : by rewrite nat.add_sub_cancel_left,
     assert h₂ : ¬ s < n - s*s - s,       from not_lt_of_ge this,
     begin
       esimp [unpair],
       rewrite [if_neg h₁], esimp,
       esimp [mkpair],
-      rewrite [if_neg h₂, sub_sub, add_sub_of_le `s*s + s ≤ n`],
+      rewrite [if_neg h₂, nat.sub_sub, add_sub_of_le `s*s + s ≤ n`],
     end)
 
 theorem unpair_mkpair (a b : nat) : unpair (mkpair a b) = (a, b) :=
@@ -57,7 +58,7 @@ by_cases
     esimp [mkpair],
     rewrite [if_pos `a < b`],
     esimp [unpair],
-    rewrite [sqrt_offset_eq `a ≤ b + b`, add_sub_cancel_left, if_pos `a < b`]
+    rewrite [sqrt_offset_eq `a ≤ b + b`, nat.add_sub_cancel_left, if_pos `a < b`]
   end)
  (suppose ¬ a < b,
   have   b ≤ a,           from le_of_not_gt this,
@@ -68,7 +69,8 @@ by_cases
     esimp [mkpair],
     rewrite [if_neg `¬ a < b`],
     esimp [unpair],
-    rewrite [add.assoc (a * a) a b, sqrt_offset_eq `a + b ≤ a + a`, *add_sub_cancel_left, if_neg `¬ a + b < a`]
+    rewrite [add.assoc (a * a) a b, sqrt_offset_eq `a + b ≤ a + a`, *nat.add_sub_cancel_left, 
+             if_neg `¬ a + b < a`]
   end)
 
 open prod.ops

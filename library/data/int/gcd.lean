@@ -118,17 +118,17 @@ theorem gcd_div {a b c : ℤ} (H1 : c ∣ a) (H2 : c ∣ b) :
 decidable.by_cases
   (suppose c = 0,
     calc
-      gcd (a div c) (b div c) = gcd 0 0             : by subst c; rewrite *div_zero
+      gcd (a div c) (b div c) = gcd 0 0             : by subst c; rewrite *int.div_zero
                           ... = 0                   : gcd_zero_left
-                          ... = gcd a b div 0       : div_zero
+                          ... = gcd a b div 0       : int.div_zero
                           ... = gcd a b div (abs c) : by subst c)
   (suppose c ≠ 0,
     have abs c ≠ 0, from assume H', this (eq_zero_of_abs_eq_zero H'),
-    eq.symm (div_eq_of_eq_mul_left this
+    eq.symm (int.div_eq_of_eq_mul_left this
       (eq.symm (calc
         gcd (a div c) (b div c) * abs c = gcd (a div c * c) (b div c * c) : gcd_mul_right
-                                ... = gcd a (b div c * c)                 : div_mul_cancel H1
-                                ... = gcd a b                             : div_mul_cancel H2))))
+                               ... = gcd a (b div c * c)                 : int.div_mul_cancel H1
+                               ... = gcd a b                             : int.div_mul_cancel H2))))
 
 theorem gcd_dvd_gcd_mul_left (a b c : ℤ) : gcd a b ∣ gcd (c * a) b :=
 dvd_gcd (dvd.trans !gcd_dvd_left !dvd_mul_left) !gcd_dvd_right
@@ -287,7 +287,7 @@ theorem coprime_div_gcd_div_gcd {a b : ℤ} (H : gcd a b ≠ 0) :
 calc
   gcd (a div gcd a b) (b div gcd a b)
          = gcd a b div abs (gcd a b)  : gcd_div !gcd_dvd_left !gcd_dvd_right
-     ... = 1                          : by rewrite [abs_of_nonneg !gcd_nonneg, div_self H]
+     ... = 1                          : by rewrite [abs_of_nonneg !gcd_nonneg, int.div_self H]
 
 theorem not_coprime_of_dvd_of_dvd {m n d : ℤ} (dgt1 : d > 1) (Hm : d ∣ m) (Hn : d ∣ n) :
   ¬ coprime m n :=
@@ -299,8 +299,8 @@ show false, from not_lt_of_ge `d ≤ 1` `d > 1`
 
 theorem exists_coprime {a b : ℤ} (H : gcd a b ≠ 0) :
   exists a' b', coprime a' b' ∧ a = a' * gcd a b ∧ b = b' * gcd a b :=
-have H1 : a = (a div gcd a b) * gcd a b, from (div_mul_cancel !gcd_dvd_left)⁻¹,
-have H2 : b = (b div gcd a b) * gcd a b, from (div_mul_cancel !gcd_dvd_right)⁻¹,
+have H1 : a = (a div gcd a b) * gcd a b, from (int.div_mul_cancel !gcd_dvd_left)⁻¹,
+have H2 : b = (b div gcd a b) * gcd a b, from (int.div_mul_cancel !gcd_dvd_right)⁻¹,
 exists.intro _ (exists.intro _ (and.intro (coprime_div_gcd_div_gcd H) (and.intro H1 H2)))
 
 theorem coprime_mul {a b c : ℤ} (H1 : coprime a c) (H2 : coprime b c) : coprime (a * b) c :=
@@ -340,12 +340,12 @@ decidable.by_cases
     have H4 : (a * b) div gcd c a = (a div gcd c a) * b, from
       calc
         a * b div gcd c a = b * a div gcd c a   : mul.comm
-                      ... = b * (a div gcd c a) : !mul_div_assoc !gcd_dvd_right
+                      ... = b * (a div gcd c a) : !int.mul_div_assoc !gcd_dvd_right
                       ... = a div gcd c a * b   : mul.comm,
     have H5 : c div gcd c a ∣ (a div gcd c a) * b, from H4 ▸ H3,
     have H6 : coprime (c div gcd c a) (a div gcd c a), from coprime_div_gcd_div_gcd `gcd c a ≠ 0`,
     have H7 : c div gcd c a ∣ b, from dvd_of_coprime_of_dvd_mul_left H6 H5,
-    have H8 : c = gcd c a * (c div gcd c a), from (mul_div_cancel' `gcd c a ∣ c`)⁻¹,
+    have H8 : c = gcd c a * (c div gcd c a), from (int.mul_div_cancel' `gcd c a ∣ c`)⁻¹,
     exists.intro _ (exists.intro _ (and.intro H8 (and.intro !gcd_dvd_right H7))))
 
 end int

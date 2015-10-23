@@ -268,7 +268,7 @@ assume h₁ h₂,
       obtain w₂ (hw₂ : m = 2*w₂), from exists_of_even `even m`,
       begin
         substvars, rewrite [mul.comm 2 w₁ at h₁, mul.comm 2 w₂ at h₁,
-                            *mul_div_cancel _ (dec_trivial : 2 > 0) at h₁, h₁]
+                            *nat.mul_div_cancel _ (dec_trivial : 2 > 0) at h₁, h₁]
       end)
      (suppose odd m,  absurd `odd m` (not_odd_of_even (iff.mp h₂ `even n`))))
    (suppose odd n,  or.elim (em (even m))

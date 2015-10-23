@@ -145,7 +145,7 @@ show sub_nat_nat m n = nat.cases_on 0 (m -[nat] n) _, from (sub_eq_zero_of_le H)
 section
 local attribute sub_nat_nat [reducible]
 theorem sub_nat_nat_of_lt {m n : ℕ} (H : m < n) : sub_nat_nat m n = -[1+ pred (n - m)] :=
-have H1 : n - m = succ (pred (n - m)), from eq.symm (succ_pred_of_pos (sub_pos_of_lt H)),
+have H1 : n - m = succ (pred (n - m)), from eq.symm (succ_pred_of_pos (nat.sub_pos_of_lt H)),
 show sub_nat_nat m n = nat.cases_on (succ (nat.pred (n - m))) (m -[nat] n) _, from H1 ▸ rfl
 end
 
@@ -224,11 +224,11 @@ theorem repr_sub_nat_nat (m n : ℕ) : repr (sub_nat_nat m n) ≡ (m, n) :=
 nat.lt_ge_by_cases
   (take H : m < n,
     have H1 : repr (sub_nat_nat m n) = (0, n - m), by
-      rewrite [sub_nat_nat_of_lt H, -(succ_pred_of_pos (sub_pos_of_lt H))],
-    H1⁻¹ ▸ (!zero_add ⬝ (sub_add_cancel (le_of_lt H))⁻¹))
+      rewrite [sub_nat_nat_of_lt H, -(succ_pred_of_pos (nat.sub_pos_of_lt H))],
+    H1⁻¹ ▸ (!zero_add ⬝ (nat.sub_add_cancel (le_of_lt H))⁻¹))
   (take H : m ≥ n,
     have H1 : repr (sub_nat_nat m n) = (m - n, 0), from sub_nat_nat_of_ge H ▸ rfl,
-    H1⁻¹ ▸ ((sub_add_cancel H) ⬝ !zero_add⁻¹))
+    H1⁻¹ ▸ ((nat.sub_add_cancel H) ⬝ !zero_add⁻¹))
 
 theorem repr_abstr (p : ℕ × ℕ) : repr (abstr p) ≡ p :=
 !prod.eta ▸ !repr_sub_nat_nat
@@ -238,20 +238,20 @@ or.elim (int.equiv_cases Hequiv)
   (and.rec (assume (Hp : pr1 p ≥ pr2 p) (Hq : pr1 q ≥ pr2 q),
     have H : pr1 p - pr2 p = pr1 q - pr2 q, from
       calc pr1 p - pr2 p
-           = pr1 p + pr2 q - pr2 q - pr2 p   : by rewrite add_sub_cancel
+           = pr1 p + pr2 q - pr2 q - pr2 p   : by rewrite nat.add_sub_cancel
        ... = pr2 p + pr1 q - pr2 q - pr2 p   : Hequiv
-       ... = pr2 p + (pr1 q - pr2 q) - pr2 p : add_sub_assoc Hq
+       ... = pr2 p + (pr1 q - pr2 q) - pr2 p : nat.add_sub_assoc Hq
        ... = pr1 q - pr2 q + pr2 p - pr2 p   : by rewrite add.comm
-       ... = pr1 q - pr2 q                   : by rewrite add_sub_cancel,
+       ... = pr1 q - pr2 q                   : by rewrite nat.add_sub_cancel,
     abstr_of_ge Hp ⬝ (H ▸ rfl) ⬝ (abstr_of_ge Hq)⁻¹))
   (and.rec (assume (Hp : pr1 p < pr2 p) (Hq : pr1 q < pr2 q),
     have H : pr2 p - pr1 p = pr2 q - pr1 q, from
       calc pr2 p - pr1 p
-           = pr2 p + pr1 q - pr1 q - pr1 p   : by rewrite add_sub_cancel
+           = pr2 p + pr1 q - pr1 q - pr1 p   : by rewrite nat.add_sub_cancel
        ... = pr1 p + pr2 q - pr1 q - pr1 p   : Hequiv
-       ... = pr1 p + (pr2 q - pr1 q) - pr1 p : add_sub_assoc (le_of_lt Hq)
+       ... = pr1 p + (pr2 q - pr1 q) - pr1 p : nat.add_sub_assoc (le_of_lt Hq)
        ... = pr2 q - pr1 q + pr1 p - pr1 p   : by rewrite add.comm
-       ... = pr2 q - pr1 q                   : by rewrite add_sub_cancel,
+       ... = pr2 q - pr1 q                   : by rewrite nat.add_sub_cancel,
     abstr_of_lt Hp ⬝ (H ▸ rfl) ⬝ (abstr_of_lt Hq)⁻¹))
 
 theorem equiv_iff (p q : ℕ × ℕ) : (p ≡ q) ↔ (abstr p = abstr q) :=
@@ -275,7 +275,7 @@ theorem nat_abs_abstr : Π (p : ℕ × ℕ), nat_abs (abstr p) = dist (pr1 p) (p
   (assume H : m < n,
     calc
       nat_abs (abstr (m, n)) = nat_abs (-[1+ pred (n - m)]) : int.abstr_of_lt H
-        ... = n - m               : succ_pred_of_pos (sub_pos_of_lt H)
+        ... = n - m               : succ_pred_of_pos (nat.sub_pos_of_lt H)
         ... = dist m n            : dist_eq_sub_of_le (le_of_lt H))
   (assume H : m ≥ n, (abstr_of_ge H)⁻¹ ▸ (dist_eq_sub_of_ge H)⁻¹)
 end

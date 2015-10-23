@@ -66,7 +66,7 @@ calc
      ... = -[1+(m div (nat_abs b))]       : by rewrite [sign_of_pos H, one_mul]
      ... = -(m div b + 1)                 : by rewrite [of_nat_div_eq, sign_of_pos H, one_mul]
 
-theorem div_neg (a b : ℤ) : a div -b = -(a div b) :=
+protected theorem div_neg (a b : ℤ) : a div -b = -(a div b) :=
 begin
   induction a,
     rewrite [*of_nat_div_eq,      sign_neg, neg_mul_eq_neg_mul, nat_abs_neg],
@@ -80,32 +80,32 @@ calc
       ... = -((-a -1) div b + 1) : by rewrite [H1, neg_succ_of_nat_eq', neg_sub, sub_neg_eq_add,
                                                add.comm 1, add_sub_cancel]
 
-theorem div_nonneg {a b : ℤ} (Ha : a ≥ 0) (Hb : b ≥ 0) : a div b ≥ 0 :=
+protected theorem div_nonneg {a b : ℤ} (Ha : a ≥ 0) (Hb : b ≥ 0) : a div b ≥ 0 :=
 obtain (m : ℕ) (Hm : a = m), from exists_eq_of_nat Ha,
 obtain (n : ℕ) (Hn : b = n), from exists_eq_of_nat Hb,
 calc
   a div b = m div n : by rewrite [Hm, Hn]
       ... ≥ 0       : by rewrite -of_nat_div; apply trivial
 
-theorem div_nonpos {a b : ℤ} (Ha : a ≥ 0) (Hb : b ≤ 0) : a div b ≤ 0 :=
+protected theorem div_nonpos {a b : ℤ} (Ha : a ≥ 0) (Hb : b ≤ 0) : a div b ≤ 0 :=
 calc
-  a div b = -(a div -b) : by rewrite [div_neg, neg_neg]
-      ... ≤ 0           : neg_nonpos_of_nonneg (div_nonneg Ha (neg_nonneg_of_nonpos Hb))
+  a div b = -(a div -b) : by rewrite [int.div_neg, neg_neg]
+      ... ≤ 0           : neg_nonpos_of_nonneg (int.div_nonneg Ha (neg_nonneg_of_nonpos Hb))
 
 theorem div_neg' {a b : ℤ} (Ha : a < 0) (Hb : b > 0) : a div b < 0 :=
 have -a - 1 ≥ 0, from le_sub_one_of_lt (neg_pos_of_neg Ha),
-have (-a - 1) div b + 1 > 0, from lt_add_one_of_le (div_nonneg this (le_of_lt Hb)),
+have (-a - 1) div b + 1 > 0, from lt_add_one_of_le (int.div_nonneg this (le_of_lt Hb)),
 calc
   a div b = -((-a - 1) div b + 1) : div_of_neg_of_pos Ha Hb
       ... < 0                     : neg_neg_of_pos this
 
-theorem zero_div (b : ℤ) : 0 div b = 0 :=
+protected theorem zero_div (b : ℤ) : 0 div b = 0 :=
 by rewrite [of_nat_div_eq, nat.zero_div, of_nat_zero, mul_zero]
 
-theorem div_zero (a : ℤ) : a div 0 = 0 :=
+protected theorem div_zero (a : ℤ) : a div 0 = 0 :=
 by rewrite [divide.def, sign_zero, zero_mul]
 
-theorem div_one (a : ℤ) : a div 1 = a :=
+protected theorem div_one (a : ℤ) : a div 1 = a :=
 assert (1 : int) > 0, from dec_trivial,
 int.cases_on a
   (take m : nat, by rewrite [-of_nat_one, -of_nat_div, nat.div_one])
@@ -136,9 +136,9 @@ lt.by_cases
   (suppose b < 0,
     assert a < -b, from abs_of_neg this ▸ H2,
     calc
-      a div b = - (a div -b) : by rewrite [div_neg, neg_neg]
+      a div b = - (a div -b) : by rewrite [int.div_neg, neg_neg]
           ... = 0            : by rewrite [div_eq_zero_of_lt H1 this, neg_zero])
-  (suppose b = 0, this⁻¹ ▸ !div_zero)
+  (suppose b = 0, this⁻¹ ▸ !int.div_zero)
   (suppose b > 0,
     have a < b, from abs_of_pos this ▸ H2,
     div_eq_zero_of_lt H1 this)
@@ -214,32 +214,33 @@ or.elim (le.total 0 b)
                         add_mul_div_self_aux3 _ (neg_nonneg_of_nonpos H1) H
               ... = (a + b * c) div c : neg_add_cancel_right))
 
-theorem add_mul_div_self (a b : ℤ) {c : ℤ} (H : c ≠ 0) : (a + b * c) div c = a div c + b :=
+protected theorem add_mul_div_self (a b : ℤ) {c : ℤ} (H : c ≠ 0) : 
+  (a + b * c) div c = a div c + b :=
 lt.by_cases
   (assume H1 : 0 < c, !add_mul_div_self_aux4 H1)
   (assume H1 : 0 = c, absurd H1⁻¹ H)
   (assume H1 : 0 > c,
     have H2 : -c > 0, from neg_pos_of_neg H1,
     calc
-      (a + b * c) div c = - ((a + -b * -c) div -c) : by rewrite [div_neg, neg_mul_neg, neg_neg]
+      (a + b * c) div c = - ((a + -b * -c) div -c) : by rewrite [int.div_neg, neg_mul_neg, neg_neg]
                     ... = -(a div -c + -b)         : !add_mul_div_self_aux4 H2
-                    ... = a div c + b              : by rewrite [div_neg, neg_add, *neg_neg])
+                    ... = a div c + b              : by rewrite [int.div_neg, neg_add, *neg_neg])
 
-theorem add_mul_div_self_left (a : ℤ) {b : ℤ} (c : ℤ) (H : b ≠ 0) :
+protected theorem add_mul_div_self_left (a : ℤ) {b : ℤ} (c : ℤ) (H : b ≠ 0) :
     (a + b * c) div b = a div b + c :=
-!mul.comm ▸ !add_mul_div_self H
+!mul.comm ▸ !int.add_mul_div_self H
 
-theorem mul_div_cancel (a : ℤ) {b : ℤ} (H : b ≠ 0) : a * b div b = a :=
+protected theorem mul_div_cancel (a : ℤ) {b : ℤ} (H : b ≠ 0) : a * b div b = a :=
 calc
-  a * b div b = (0 + a * b) div b : algebra.zero_add
-          ... = 0 div b + a       : !add_mul_div_self H
-          ... = a                 : by rewrite [zero_div, zero_add]
+  a * b div b = (0 + a * b) div b : zero_add
+          ... = 0 div b + a       : !int.add_mul_div_self H
+          ... = a                 : by rewrite [int.zero_div, zero_add]
 
-theorem mul_div_cancel_left {a : ℤ} (b : ℤ) (H : a ≠ 0) : a * b div a = b :=
-!mul.comm ▸ mul_div_cancel b H
+protected theorem mul_div_cancel_left {a : ℤ} (b : ℤ) (H : a ≠ 0) : a * b div a = b :=
+!mul.comm ▸ int.mul_div_cancel b H
 
-theorem div_self {a : ℤ} (H : a ≠ 0) : a div a = 1 :=
-!mul_one ▸ !mul_div_cancel_left H
+protected theorem div_self {a : ℤ} (H : a ≠ 0) : a div a = 1 :=
+!mul_one ▸ !int.mul_div_cancel_left H
 
 /- mod -/
 
@@ -269,7 +270,7 @@ calc
 theorem mod_neg (a b : ℤ) : a mod -b = a mod b :=
 calc
   a mod -b = a - (a div -b) * -b : rfl
-       ... = a - -(a div b) * -b : div_neg
+       ... = a - -(a div b) * -b : int.div_neg
        ... = a - a div b * b     : neg_mul_neg
        ... = a mod b             : rfl
 
@@ -277,7 +278,7 @@ theorem mod_abs (a b : ℤ) : a mod (abs b) = a mod b :=
 abs.by_cases rfl !mod_neg
 
 theorem zero_mod (b : ℤ) : 0 mod b = 0 :=
-by rewrite [(modulo.def), zero_div, zero_mul, sub_zero]
+by rewrite [(modulo.def), int.zero_div, zero_mul, sub_zero]
 
 theorem mod_zero (a : ℤ) : a mod 0 = a :=
 by rewrite [(modulo.def), mul_zero, sub_zero]
@@ -285,7 +286,7 @@ by rewrite [(modulo.def), mul_zero, sub_zero]
 theorem mod_one (a : ℤ) : a mod 1 = 0 :=
 calc
   a mod 1 = a - a div 1 * 1 : rfl
-      ... = 0 : by rewrite [mul_one, div_one, sub_self]
+      ... = 0 : by rewrite [mul_one, int.div_one, sub_self]
 
 private lemma of_nat_mod_abs (m : ℕ) (b : ℤ) : m mod (abs b) = of_nat (m mod (nat_abs b)) :=
 calc
@@ -341,7 +342,7 @@ have H2 : a mod (abs b) < abs b, from
 theorem add_mul_mod_self {a b c : ℤ} : (a + b * c) mod c = a mod c :=
 decidable.by_cases
   (assume cz : c = 0, by rewrite [cz, mul_zero, add_zero])
-  (assume cnz, by rewrite [(modulo.def), !add_mul_div_self cnz, right_distrib,
+  (assume cnz, by rewrite [(modulo.def), !int.add_mul_div_self cnz, right_distrib,
                             sub_add_eq_sub_sub_swap, add_sub_cancel])
 
 theorem add_mul_mod_self_left (a b c : ℤ) : (a + b * c) mod b = a mod b :=
@@ -389,7 +390,7 @@ decidable.by_cases
   (assume H : a ≠ 0,
     calc
       a mod a = a - a div a * a : rfl
-          ... = 0 : by rewrite [!div_self H, one_mul, sub_self])
+          ... = 0 : by rewrite [!int.div_self H, one_mul, sub_self])
 
 theorem mod_lt_of_pos (a : ℤ) {b : ℤ} (H : b > 0) : a mod b < b :=
 !abs_of_pos H ▸ !mod_lt (ne.symm (ne_of_lt H))
@@ -406,7 +407,7 @@ calc
 
     ... = (a * (b mod c) + a * c * (b div c)) div (a * c)     :
               by rewrite [!add.comm, int.mul_left_distrib, mul.comm _ c, -!mul.assoc]
-    ... = a * (b mod c) div (a * c) + b div c                 : !add_mul_div_self_left H3
+    ... = a * (b mod c) div (a * c) + b div c                 : !int.add_mul_div_self_left H3
     ... = 0 + b div c                                         : {!div_eq_zero_of_lt H5 H4}
     ... = b div c                                             : zero_add
 
@@ -416,13 +417,13 @@ lt.by_cases
     have H2 : -c > 0, from neg_pos_of_neg H1,
     calc
       a * b div (a * c) = - (a * b div (a * -c)) :
-                              by rewrite [-neg_mul_eq_mul_neg, div_neg, neg_neg]
+                              by rewrite [-neg_mul_eq_mul_neg, int.div_neg, neg_neg]
                     ... = - (b div -c)           : mul_div_mul_of_pos_aux _ H H2
-                    ... = b div c : by rewrite [div_neg, neg_neg])
+                    ... = b div c : by rewrite [int.div_neg, neg_neg])
   (assume H1 : c = 0,
     calc
-      a * b div (a * c) = 0       : by rewrite [H1, mul_zero, div_zero]
-                    ... = b div c : by rewrite [H1, div_zero])
+      a * b div (a * c) = 0       : by rewrite [H1, mul_zero, int.div_zero]
+                    ... = b div c : by rewrite [H1, int.div_zero])
   (assume H1 : c > 0,
     mul_div_mul_of_pos_aux _ H H1)
 
@@ -456,13 +457,13 @@ have H : ∀a b, b > 0 → abs (a div b) ≤ abs a, from
     (assume H2 : 0 ≤ a,
       have H3 : 0 ≤ b, from le_of_lt H1,
       calc
-        abs (a div b) = a div b : abs_of_nonneg (div_nonneg H2 H3)
+        abs (a div b) = a div b : abs_of_nonneg (int.div_nonneg H2 H3)
                   ... ≤ a       : div_le_of_nonneg_of_nonneg H2 H3
                   ... = abs a   : abs_of_nonneg H2)
     (assume H2 : a < 0,
       have H3 : -a - 1 ≥ 0, from le_sub_one_of_lt (neg_pos_of_neg H2),
       have H4 : (-a - 1) div b + 1 ≥ 0,
-        from add_nonneg (div_nonneg H3 (le_of_lt H1)) (of_nat_le_of_nat_of_le !nat.zero_le),
+        from add_nonneg (int.div_nonneg H3 (le_of_lt H1)) (of_nat_le_of_nat_of_le !nat.zero_le),
       have H5 : (-a - 1) div b ≤ -a - 1, from div_le_of_nonneg_of_nonneg H3 (le_of_lt H1),
       calc
         abs (a div b) = abs ((-a - 1) div b + 1) : by rewrite [div_of_neg_of_pos H2 H1, abs_neg]
@@ -472,11 +473,11 @@ have H : ∀a b, b > 0 → abs (a div b) ≤ abs a, from
 lt.by_cases
   (assume H1 : b < 0,
     calc
-      abs (a div b) = abs (a div -b) : by rewrite [div_neg, abs_neg]
+      abs (a div b) = abs (a div -b) : by rewrite [int.div_neg, abs_neg]
                 ... ≤ abs a          : H _ _ (neg_pos_of_neg H1))
   (assume H1 : b = 0,
     calc
-      abs (a div b) = 0 : by rewrite [H1, div_zero, abs_zero]
+      abs (a div b) = 0 : by rewrite [H1, int.div_zero, abs_zero]
                 ... ≤ abs a : abs_nonneg)
   (assume H1 : b > 0, H _ _ H1)
 
@@ -530,74 +531,74 @@ iff.intro mod_eq_zero_of_dvd dvd_of_mod_eq_zero
 definition dvd.decidable_rel [instance] : decidable_rel dvd :=
 take a n, decidable_of_decidable_of_iff _ (iff.symm !dvd_iff_mod_eq_zero)
 
-theorem div_mul_cancel {a b : ℤ} (H : b ∣ a) : a div b * b = a :=
+protected theorem div_mul_cancel {a b : ℤ} (H : b ∣ a) : a div b * b = a :=
 div_mul_cancel_of_mod_eq_zero (mod_eq_zero_of_dvd H)
 
-theorem mul_div_cancel' {a b : ℤ} (H : a ∣ b) : a * (b div a) = b :=
-!mul.comm ▸ !div_mul_cancel H
+protected theorem mul_div_cancel' {a b : ℤ} (H : a ∣ b) : a * (b div a) = b :=
+!mul.comm ▸ !int.div_mul_cancel H
 
-theorem mul_div_assoc (a : ℤ) {b c : ℤ} (H : c ∣ b) : (a * b) div c = a * (b div c) :=
+protected theorem mul_div_assoc (a : ℤ) {b c : ℤ} (H : c ∣ b) : (a * b) div c = a * (b div c) :=
 decidable.by_cases
-  (assume cz : c = 0, by rewrite [cz, *div_zero, mul_zero])
+  (assume cz : c = 0, by rewrite [cz, *int.div_zero, mul_zero])
   (assume cnz : c ≠ 0,
     obtain d (H' : b = d * c), from exists_eq_mul_left_of_dvd H,
-    by rewrite [H', -mul.assoc, *(!mul_div_cancel cnz)])
+    by rewrite [H', -mul.assoc, *(!int.mul_div_cancel cnz)])
 
 theorem div_dvd_div {a b c : ℤ} (H1 : a ∣ b) (H2 : b ∣ c) : b div a ∣ c div a :=
-have H3 : b = b div a * a, from (div_mul_cancel H1)⁻¹,
-have H4 : c = c div a * a, from (div_mul_cancel (dvd.trans H1 H2))⁻¹,
+have H3 : b = b div a * a, from (int.div_mul_cancel H1)⁻¹,
+have H4 : c = c div a * a, from (int.div_mul_cancel (dvd.trans H1 H2))⁻¹,
 decidable.by_cases
   (assume H5 : a = 0,
-    have H6: c div a = 0, from (congr_arg _ H5 ⬝ !div_zero),
+    have H6: c div a = 0, from (congr_arg _ H5 ⬝ !int.div_zero),
       H6⁻¹ ▸ !dvd_zero)
   (assume H5 : a ≠ 0,
     dvd_of_mul_dvd_mul_right H5 (H3 ▸ H4 ▸ H2))
 
-theorem div_eq_iff_eq_mul_right {a b : ℤ} (c : ℤ) (H : b ≠ 0) (H' : b ∣ a) :
+protected theorem div_eq_iff_eq_mul_right {a b : ℤ} (c : ℤ) (H : b ≠ 0) (H' : b ∣ a) :
   a div b = c ↔ a = b * c :=
 iff.intro
-  (assume H1, by rewrite [-H1, mul_div_cancel' H'])
-  (assume H1, by rewrite [H1, !mul_div_cancel_left H])
+  (assume H1, by rewrite [-H1, int.mul_div_cancel' H'])
+  (assume H1, by rewrite [H1, !int.mul_div_cancel_left H])
 
-theorem div_eq_iff_eq_mul_left {a b : ℤ} (c : ℤ) (H : b ≠ 0) (H' : b ∣ a) :
+protected theorem div_eq_iff_eq_mul_left {a b : ℤ} (c : ℤ) (H : b ≠ 0) (H' : b ∣ a) :
   a div b = c ↔ a = c * b :=
-!mul.comm ▸ !div_eq_iff_eq_mul_right H H'
+!mul.comm ▸ !int.div_eq_iff_eq_mul_right H H'
 
-theorem eq_mul_of_div_eq_right {a b c : ℤ} (H1 : b ∣ a) (H2 : a div b = c) :
+protected theorem eq_mul_of_div_eq_right {a b c : ℤ} (H1 : b ∣ a) (H2 : a div b = c) :
   a = b * c :=
 calc
-  a     = b * (a div b) : mul_div_cancel' H1
+  a     = b * (a div b) : int.mul_div_cancel' H1
     ... = b * c         : H2
 
-theorem div_eq_of_eq_mul_right {a b c : ℤ} (H1 : b ≠ 0) (H2 : a = b * c) :
+protected theorem div_eq_of_eq_mul_right {a b c : ℤ} (H1 : b ≠ 0) (H2 : a = b * c) :
   a div b = c :=
 calc
   a div b = b * c div b : H2
-      ... = c           : !mul_div_cancel_left H1
+      ... = c           : !int.mul_div_cancel_left H1
 
-theorem eq_mul_of_div_eq_left {a b c : ℤ} (H1 : b ∣ a) (H2 : a div b = c) :
+protected theorem eq_mul_of_div_eq_left {a b c : ℤ} (H1 : b ∣ a) (H2 : a div b = c) :
   a = c * b :=
-!mul.comm ▸ !eq_mul_of_div_eq_right H1 H2
+!mul.comm ▸ !int.eq_mul_of_div_eq_right H1 H2
 
-theorem div_eq_of_eq_mul_left {a b c : ℤ} (H1 : b ≠ 0) (H2 : a = c * b) :
+protected theorem div_eq_of_eq_mul_left {a b c : ℤ} (H1 : b ≠ 0) (H2 : a = c * b) :
   a div b = c :=
-div_eq_of_eq_mul_right H1 (!mul.comm ▸ H2)
+int.div_eq_of_eq_mul_right H1 (!mul.comm ▸ H2)
 
 theorem neg_div_of_dvd {a b : ℤ} (H : b ∣ a) : -a div b = -(a div b) :=
 decidable.by_cases
-  (assume H1 : b = 0, by rewrite [H1, *div_zero, neg_zero])
+  (assume H1 : b = 0, by rewrite [H1, *int.div_zero, neg_zero])
   (assume H1 : b ≠ 0,
     dvd.elim H
       (take c, assume H' : a = b * c,
-        by rewrite [H', neg_mul_eq_mul_neg, *!mul_div_cancel_left H1]))
+        by rewrite [H', neg_mul_eq_mul_neg, *!int.mul_div_cancel_left H1]))
 
-theorem sign_eq_div_abs (a : ℤ) : sign a = a div (abs a) :=
+protected theorem sign_eq_div_abs (a : ℤ) : sign a = a div (abs a) :=
 decidable.by_cases
   (suppose a = 0, by subst a)
   (suppose a ≠ 0,
     have abs a ≠ 0, from assume H, this (eq_zero_of_abs_eq_zero H),
     have abs a ∣ a, from abs_dvd_of_dvd !dvd.refl,
-    eq.symm (iff.mpr (!div_eq_iff_eq_mul_left `abs a ≠ 0` this) !eq_sign_mul_abs))
+    eq.symm (iff.mpr (!int.div_eq_iff_eq_mul_left `abs a ≠ 0` this) !eq_sign_mul_abs))
 
 theorem le_of_dvd {a b : ℤ} (bpos : b > 0) (H : a ∣ b) : a ≤ b :=
 or.elim !le_or_gt
@@ -613,35 +614,35 @@ or.elim !le_or_gt
 
 /- div and ordering -/
 
-theorem div_mul_le (a : ℤ) {b : ℤ} (H : b ≠ 0) : a div b * b ≤ a :=
+protected theorem div_mul_le (a : ℤ) {b : ℤ} (H : b ≠ 0) : a div b * b ≤ a :=
 calc
   a = a div b * b + a mod b : eq_div_mul_add_mod
     ... ≥ a div b * b       : le_add_of_nonneg_right (!mod_nonneg H)
 
-theorem div_le_of_le_mul {a b c : ℤ} (H : c > 0) (H' : a ≤ b * c) : a div c ≤ b :=
+protected theorem div_le_of_le_mul {a b c : ℤ} (H : c > 0) (H' : a ≤ b * c) : a div c ≤ b :=
 le_of_mul_le_mul_right (calc
   a div c * c = a div c * c + 0             : add_zero
           ... ≤ a div c * c + a mod c       : add_le_add_left (!mod_nonneg (ne_of_gt H))
           ... = a                           : eq_div_mul_add_mod
           ... ≤ b * c                       : H') H
 
-theorem div_le_self (a : ℤ) {b : ℤ} (H1 : a ≥ 0) (H2 : b ≥ 0) : a div b ≤ a :=
+protected theorem div_le_self (a : ℤ) {b : ℤ} (H1 : a ≥ 0) (H2 : b ≥ 0) : a div b ≤ a :=
 or.elim (lt_or_eq_of_le H2)
   (assume H3 : b > 0,
     have H4 : b ≥ 1, from add_one_le_of_lt H3,
     have H5 : a ≤ a * b, from calc
       a    = a * 1 : mul_one
        ... ≤ a * b : !mul_le_mul_of_nonneg_left H4 H1,
-    div_le_of_le_mul H3 H5)
+    int.div_le_of_le_mul H3 H5)
   (assume H3 : 0 = b,
-    by rewrite [-H3, div_zero]; apply H1)
+    by rewrite [-H3, int.div_zero]; apply H1)
 
-theorem mul_le_of_le_div {a b c : ℤ} (H1 : c > 0) (H2 : a ≤ b div c) : a * c ≤ b :=
+protected theorem mul_le_of_le_div {a b c : ℤ} (H1 : c > 0) (H2 : a ≤ b div c) : a * c ≤ b :=
 calc
   a * c ≤ b div c * c : !mul_le_mul_of_nonneg_right H2 (le_of_lt H1)
-    ... ≤ b           : !div_mul_le (ne_of_gt H1)
+    ... ≤ b           : !int.div_mul_le (ne_of_gt H1)
 
-theorem le_div_of_mul_le {a b c : ℤ} (H1 : c > 0) (H2 : a * c ≤ b) : a ≤ b div c :=
+protected theorem le_div_of_mul_le {a b c : ℤ} (H1 : c > 0) (H2 : a * c ≤ b) : a ≤ b div c :=
 have H3 : a * c < (b div c + 1) * c, from
   calc
     a * c ≤ b                          : H2
@@ -650,13 +651,13 @@ have H3 : a * c < (b div c + 1) * c, from
       ... = (b div c + 1) * c          : by rewrite [right_distrib, one_mul],
 le_of_lt_add_one (lt_of_mul_lt_mul_right H3 (le_of_lt H1))
 
-theorem le_div_iff_mul_le {a b c : ℤ} (H : c > 0) : a ≤ b div c ↔ a * c ≤ b :=
-iff.intro (!mul_le_of_le_div H) (!le_div_of_mul_le H)
+protected theorem le_div_iff_mul_le {a b c : ℤ} (H : c > 0) : a ≤ b div c ↔ a * c ≤ b :=
+iff.intro (!int.mul_le_of_le_div H) (!int.le_div_of_mul_le H)
 
-theorem div_le_div {a b c : ℤ} (H : c > 0) (H' : a ≤ b) : a div c ≤ b div c :=
-le_div_of_mul_le H (le.trans (!div_mul_le (ne_of_gt H)) H')
+protected theorem div_le_div {a b c : ℤ} (H : c > 0) (H' : a ≤ b) : a div c ≤ b div c :=
+int.le_div_of_mul_le H (le.trans (!int.div_mul_le (ne_of_gt H)) H')
 
-theorem div_lt_of_lt_mul {a b c : ℤ} (H : c > 0) (H' : a < b * c) : a div c < b :=
+protected theorem div_lt_of_lt_mul {a b c : ℤ} (H : c > 0) (H' : a < b * c) : a div c < b :=
 lt_of_mul_lt_mul_right
   (calc
     a div c * c = a div c * c + 0       : add_zero
@@ -665,7 +666,7 @@ lt_of_mul_lt_mul_right
             ... < b * c                 : H')
  (le_of_lt H)
 
-theorem lt_mul_of_div_lt {a b c : ℤ} (H1 : c > 0) (H2 : a div c < b) : a < b * c :=
+protected theorem lt_mul_of_div_lt {a b c : ℤ} (H1 : c > 0) (H2 : a div c < b) : a < b * c :=
 assert H3 : (a div c + 1) * c ≤ b * c,
   from !mul_le_mul_of_nonneg_right (add_one_le_of_lt H2) (le_of_lt H1),
 have H4 : a div c * c + c ≤ b * c, by rewrite [right_distrib at H3, one_mul at H3]; apply H3,
@@ -674,33 +675,33 @@ calc
     ... < a div c * c + c       : add_lt_add_left (!mod_lt_of_pos H1)
     ... ≤ b * c                 : H4
 
-theorem div_lt_iff_lt_mul {a b c : ℤ} (H : c > 0) : a div c < b ↔ a < b * c :=
-iff.intro (!lt_mul_of_div_lt H) (!div_lt_of_lt_mul H)
+protected theorem div_lt_iff_lt_mul {a b c : ℤ} (H : c > 0) : a div c < b ↔ a < b * c :=
+iff.intro (!int.lt_mul_of_div_lt H) (!int.div_lt_of_lt_mul H)
 
-theorem div_le_iff_le_mul_of_div {a b : ℤ} (c : ℤ) (H : b > 0) (H' : b ∣ a) :
+protected theorem div_le_iff_le_mul_of_div {a b : ℤ} (c : ℤ) (H : b > 0) (H' : b ∣ a) :
   a div b ≤ c ↔ a ≤ c * b :=
-by rewrite [propext (!le_iff_mul_le_mul_right H), !div_mul_cancel H']
+by rewrite [propext (!le_iff_mul_le_mul_right H), !int.div_mul_cancel H']
 
-theorem le_mul_of_div_le_of_div {a b c : ℤ} (H1 : b > 0) (H2 : b ∣ a) (H3 : a div b ≤ c) :
+protected theorem le_mul_of_div_le_of_div {a b c : ℤ} (H1 : b > 0) (H2 : b ∣ a) (H3 : a div b ≤ c) :
   a ≤ c * b :=
-iff.mp (!div_le_iff_le_mul_of_div H1 H2) H3
+iff.mp (!int.div_le_iff_le_mul_of_div H1 H2) H3
 
 theorem div_pos_of_pos_of_dvd {a b : ℤ} (H1 : a > 0) (H2 : b ≥ 0) (H3 : b ∣ a) : a div b > 0 :=
 have H4 : b ≠ 0, from
   (assume H5 : b = 0,
     have H6 : a = 0, from eq_zero_of_zero_dvd (H5 ▸ H3),
     ne_of_gt H1 H6),
-have H6 : (a div b) * b > 0, by rewrite (div_mul_cancel H3); apply H1,
+have H6 : (a div b) * b > 0, by rewrite (int.div_mul_cancel H3); apply H1,
 pos_of_mul_pos_right H6 H2
 
 theorem div_eq_div_of_dvd_of_dvd {a b c d : ℤ} (H1 : b ∣ a) (H2 : d ∣ c) (H3 : b ≠ 0)
     (H4 : d ≠ 0) (H5 : a * d = b * c) :
   a div b = c div d :=
 begin
-  apply div_eq_of_eq_mul_right H3,
-  rewrite [-!mul_div_assoc H2],
+  apply int.div_eq_of_eq_mul_right H3,
+  rewrite [-!int.mul_div_assoc H2],
   apply eq.symm,
-  apply div_eq_of_eq_mul_left H4,
+  apply int.div_eq_of_eq_mul_left H4,
   apply eq.symm H5
 end
 

@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author : Haitao Zhang
 -/
 
-import theories.number_theory.primes data algebra.group algebra.group_power algebra.group_bigops .cyclic  .finsubg .hom .perm .action
+import theories.number_theory.primes data algebra.group algebra.group_power algebra.group_bigops 
+import .cyclic .finsubg .hom .perm .action
 
 open nat fin list algebra function subtype
 

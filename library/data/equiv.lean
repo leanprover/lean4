@@ -267,18 +267,20 @@ mk (λ s, match s with inl n := 2*n | inr n := 2*n+1 end)
    (λ s, begin
            have two_gt_0 : 2 > zero, from dec_trivial,
            cases s,
-             {esimp, rewrite [if_pos (even_two_mul _), mul_div_cancel_left _ two_gt_0]},
-             {esimp, rewrite [if_neg (not_even_two_mul_plus_one _), add_sub_cancel, mul_div_cancel_left _ two_gt_0]}
+             {esimp, rewrite [if_pos (even_two_mul _), nat.mul_div_cancel_left _ two_gt_0]},
+             {esimp, rewrite [if_neg (not_even_two_mul_plus_one _), nat.add_sub_cancel, 
+                              nat.mul_div_cancel_left _ two_gt_0]}
          end)
    (λ n, by_cases
-          (λ h : even n, begin rewrite [if_pos h], esimp, rewrite [mul_div_cancel' (dvd_of_even h)]  end)
+          (λ h : even n, 
+            by rewrite [if_pos h]; esimp; rewrite [nat.mul_div_cancel' (dvd_of_even h)])
           (λ h : ¬ even n,
             begin
               rewrite [if_neg h], esimp,
               cases n,
                 {exact absurd even_zero h},
-                {rewrite [-(add_one a), add_sub_cancel,
-                          mul_div_cancel' (dvd_of_even (even_of_odd_succ (odd_of_not_even h)))]}
+                {rewrite [-(add_one a), nat.add_sub_cancel,
+                          nat.mul_div_cancel' (dvd_of_even (even_of_odd_succ (odd_of_not_even h)))]}
             end))
 
 definition prod_equiv_of_equiv_nat {A : Type} : A ≃ nat → (A × A) ≃ A :=

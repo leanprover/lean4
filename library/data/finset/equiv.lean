@@ -49,16 +49,16 @@ private lemma succ_mem_of_nat (n : nat) (s : nat) : succ n ∈ of_nat s ↔ n �
 iff.intro
   (suppose succ n ∈ of_nat s,
    assert odd (s div 2^(succ n)),    from odd_of_mem_of_nat this,
-   have odd ((s div 2) div (2 ^ n)), by rewrite [pow_succ' at this, div_div_eq_div_mul, mul.comm]; assumption,
+   have odd ((s div 2) div (2 ^ n)), by rewrite [pow_succ' at this, nat.div_div_eq_div_mul, mul.comm]; assumption,
    show n ∈ of_nat (s div 2),        from mem_of_nat_of_odd this)
   (suppose n ∈ of_nat (s div 2),
    assert odd ((s div 2) div (2 ^ n)), from odd_of_mem_of_nat this,
-   assert odd (s div 2^(succ n)),      by rewrite [pow_succ', mul.comm, -div_div_eq_div_mul]; assumption,
+   assert odd (s div 2^(succ n)),      by rewrite [pow_succ', mul.comm, -nat.div_div_eq_div_mul]; assumption,
    show succ n ∈ of_nat s,             from mem_of_nat_of_odd this)
 
 private lemma odd_of_zero_mem (s : nat) : 0 ∈ of_nat s ↔ odd s :=
 begin
-  unfold of_nat, rewrite [mem_sep_eq, pow_zero, div_one, mem_upto_eq],
+  unfold of_nat, rewrite [mem_sep_eq, pow_zero, nat.div_one, mem_upto_eq],
   show 0 < succ s ∧ odd s ↔ odd s, from
   iff.intro
     (assume h, and.right h)
@@ -127,7 +127,7 @@ begin
        assert aux : _, from calc
          succ m ∈ of_nat (2 * w + 1) ↔ m ∈ of_nat ((2*w+1) div 2) : succ_mem_of_nat
                   ...                ↔ m ∈ of_nat w               : by rewrite [add.comm, add_mul_div_self_left _ _ (dec_trivial : 2 > 0), d₁, zero_add]
-                  ...                ↔ m ∈ of_nat (2*w div 2)     : by rewrite [mul.comm, mul_div_cancel _ (dec_trivial : 2 > 0)]
+                  ...                ↔ m ∈ of_nat (2*w div 2)     : by rewrite [mul.comm, nat.mul_div_cancel _ (dec_trivial : 2 > 0)]
                   ...                ↔ succ m ∈ of_nat (2*w)      : succ_mem_of_nat,
        iff.intro
          (λ hl, finset.mem_insert_of_mem _ (iff.mp aux hl))
@@ -256,7 +256,7 @@ begin
        have d₁ : 1 div 2 = (0:nat),          from dec_trivial,
        show 2 * w div 2 = (1 + 2 * w) div 2, by
          rewrite [add_mul_div_self_left _ _ (dec_trivial : 2 > 0), mul.comm,
-                  mul_div_cancel _ (dec_trivial : 2 > 0), d₁, zero_add]
+                  nat.mul_div_cancel _ (dec_trivial : 2 > 0), d₁, zero_add]
      end },
    { have a ∉ predimage s, from suppose a ∈ predimage s, absurd (succ_mem_of_mem_predimage this) nains,
      rewrite [predimage_insert_succ, to_nat_insert nains, pow_succ', add.comm,

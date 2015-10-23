@@ -306,8 +306,8 @@ theorem reduce_equiv : ∀ a : prerat, reduce a ≡ a
       (assume anz : an = 0,
         begin rewrite [↑reduce, if_pos anz, ↑equiv, anz], krewrite zero_mul end)
       (assume annz : an ≠ 0,
-        by rewrite [↑reduce, if_neg annz, ↑equiv, algebra.mul.comm, -!mul_div_assoc !gcd_dvd_left,
-                    -!mul_div_assoc !gcd_dvd_right, algebra.mul.comm])
+        by rewrite [↑reduce, if_neg annz, ↑equiv, algebra.mul.comm, -!int.mul_div_assoc 
+                    !gcd_dvd_left, -!int.mul_div_assoc !gcd_dvd_right, algebra.mul.comm])
 
 theorem reduce_eq_reduce : ∀{a b : prerat}, a ≡ b → reduce a = reduce b
 | (mk an ad adpos) (mk bn bd bdpos) :=
@@ -588,7 +588,7 @@ iff.mpr (!eq_div_iff_mul_eq H) (mul_denom a)
 theorem of_int_div {a b : ℤ} (H : b ∣ a) : of_int (a div b) = of_int a / of_int b :=
 decidable.by_cases
   (assume bz : b = 0,
-    by rewrite [bz, div_zero, of_int_zero, algebra.div_zero])
+    by rewrite [bz, int.div_zero, of_int_zero, algebra.div_zero])
   (assume bnz : b ≠ 0,
     have bnz' : of_int b ≠ 0, from assume oibz, bnz (of_int.inj oibz),
     have H' : of_int (a div b) * of_int b = of_int a, from

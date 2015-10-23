@@ -25,7 +25,7 @@ theorem height_lt.node_right {A : Type} (t₁ t₂ : tree A) : height_lt t₂ (n
 lt_succ_of_le (le_max_right (height t₁) (height t₂))
 
 theorem height_lt.trans {A : Type} : transitive (@height_lt A) :=
-inv_image.trans lt height @lt.trans
+inv_image.trans lt height @nat.lt_trans
 
 example : height_lt (leaf (2:nat)) (node (leaf 1) (leaf 2)) :=
 !height_lt.node_right

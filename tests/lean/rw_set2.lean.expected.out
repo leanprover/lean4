@@ -7,7 +7,6 @@ simplification rules for iff
 #2, ?M_1 - ?M_2 < succ ?M_1 ↦ true
 #1, ?M_1 < 0 ↦ false
 #1, ?M_1 < succ ?M_1 ↦ true
-#1, ?M_1 < ?M_1 ↦ false
 #1, 0 < succ ?M_1 ↦ true
 simplification rules for eq
 #1, g ?M_1 ↦ f ?M_1 + 1

@@ -528,7 +528,7 @@ begin
     {rewrite add.comm4}
 end
 
-protected theorem mul_right_distrib (a b c : ℤ) : (a + b) * c = a * c + b * c :=
+protected theorem right_distrib (a b c : ℤ) : (a + b) * c = a * c + b * c :=
 eq_of_repr_equiv_repr
   (calc
     repr ((a + b) * c) = pmul (repr (a + b)) (repr c) : repr_mul
@@ -538,10 +538,10 @@ eq_of_repr_equiv_repr
       ... = padd (repr (a * c)) (repr (b * c))                     : repr_mul
       ... ≡ repr (a * c + b * c)                                   : repr_add)
 
-protected theorem mul_left_distrib (a b c : ℤ) : a * (b + c) = a * b + a * c :=
+protected theorem left_distrib (a b c : ℤ) : a * (b + c) = a * b + a * c :=
 calc
   a * (b + c) = (b + c) * a : int.mul_comm
-    ... = b * a + c * a : int.mul_right_distrib
+    ... = b * a + c * a : int.right_distrib
     ... = a * b + c * a : int.mul_comm
     ... = a * b + a * c : int.mul_comm
 
@@ -567,8 +567,8 @@ protected definition integral_domain [reducible] [trans_instance] : algebra.inte
   one            := 1,
   one_mul        := int.one_mul,
   mul_one        := int.mul_one,
-  left_distrib   := int.mul_left_distrib,
-  right_distrib  := int.mul_right_distrib,
+  left_distrib   := int.left_distrib,
+  right_distrib  := int.right_distrib,
   mul_comm       := int.mul_comm,
   zero_ne_one    := int.zero_ne_one,
   eq_zero_or_eq_zero_of_mul_eq_zero := @int.eq_zero_or_eq_zero_of_mul_eq_zero⦄

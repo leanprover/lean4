@@ -5,13 +5,13 @@ open nat prod sigma
 --   g (succ x) := g (g x)
 definition g.F (x : nat) : (Π y, y < x → Σ r : nat, r ≤ y) → Σ r : nat, r ≤ x :=
 nat.cases_on x
-  (λ f, ⟨zero, le.refl zero⟩)
+  (λ f, ⟨zero, nat.le_refl zero⟩)
   (λ x₁ (f : Π y, y < succ x₁ → Σ r : nat, r ≤ y),
      let p₁    := f x₁ (lt.base x₁) in
      let gx₁   := pr₁ p₁ in
-     let p₂    := f gx₁ (lt_of_le_of_lt (pr₂ p₁) (lt.base x₁)) in
+     let p₂    := f gx₁ (nat.lt_of_le_of_lt (pr₂ p₁) (lt.base x₁)) in
      let ggx₁  := pr₁ p₂ in
-     ⟨ggx₁, le_succ_of_le (le.trans (pr₂ p₂) (pr₂ p₁))⟩)
+     ⟨ggx₁, le_succ_of_le (nat.le_trans (pr₂ p₂) (pr₂ p₁))⟩)
 
 definition g (x : nat) : nat :=
 pr₁ (well_founded.fix g.F x)

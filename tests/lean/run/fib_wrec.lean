@@ -8,7 +8,7 @@ nat.cases_on n
     (λ (f : Π (m : nat), m < (succ zero) → nat), succ zero)
     (λ (n₂ : nat) (f : Π (m : nat), m < (succ (succ n₂)) → nat),
        have l₁ : succ n₂ < succ (succ n₂), from lt.base (succ n₂),
-       have l₂ : n₂ < succ (succ n₂), from lt.trans (lt.base n₂) l₁,
+       have l₂ : n₂ < succ (succ n₂), from nat.lt_trans (lt.base n₂) l₁,
          f (succ n₂) l₁ + f n₂ l₂))
 
 definition fib (n : nat) :=

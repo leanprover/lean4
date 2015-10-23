@@ -9,7 +9,6 @@ false.rec_on|Π (C : Type), false → C
 false.cases_on|Π (C : Type), false → C
 false.induction_on|∀ (C : Prop), false → C
 true_ne_false|¬true = false
-nat.lt_self_iff_false|∀ (n : ℕ), n < n ↔ false
 not_of_is_false|is_false ?c → ¬?c
 not_of_iff_false|(?a ↔ false) → ¬?a
 is_false|Π (c : Prop) [H : decidable c], Prop

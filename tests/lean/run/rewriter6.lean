@@ -10,4 +10,4 @@ by rewrite ^sub -- unfold sub
 definition double (x : int) := x + x
 
 theorem double_zero (x : int) : double (0 + x) = (1 + 1)*x :=
-by rewrite [↑double, zero_add, mul.right_distrib, one_mul]
+by rewrite [↑double, int.zero_add, int.right_distrib, int.one_mul]

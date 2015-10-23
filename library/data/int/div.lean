@@ -406,7 +406,7 @@ calc
   a * b div (a * c) = a * (b div c * c + b mod c) div (a * c) : eq_div_mul_add_mod
 
     ... = (a * (b mod c) + a * c * (b div c)) div (a * c)     :
-              by rewrite [!add.comm, int.mul_left_distrib, mul.comm _ c, -!mul.assoc]
+              by rewrite [!add.comm, int.left_distrib, mul.comm _ c, -!mul.assoc]
     ... = a * (b mod c) div (a * c) + b div c                 : !int.add_mul_div_self_left H3
     ... = 0 + b div c                                         : {!div_eq_zero_of_lt H5 H4}
     ... = b div c                                             : zero_add

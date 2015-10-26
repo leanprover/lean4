@@ -29,10 +29,10 @@ namespace sigma
   definition eta3 : Π (u : Σa b c, D a b c), ⟨u.1, u.2.1, u.2.2.1, u.2.2.2⟩ = u
   | eta3 ⟨u₁, u₂, u₃, u₄⟩ := idp
 
-  definition dpair_eq_dpair (p : a = a') (q : b =[p] b') : ⟨a, b⟩ = ⟨a', b'⟩ :=
-  by induction q; reflexivity
+  definition dpair_eq_dpair [unfold 8] (p : a = a') (q : b =[p] b') : ⟨a, b⟩ = ⟨a', b'⟩ :=
+  apo011 sigma.mk p q
 
-  definition sigma_eq (p : u.1 = v.1) (q : u.2 =[p] v.2) : u = v :=
+  definition sigma_eq [unfold 3 4] (p : u.1 = v.1) (q : u.2 =[p] v.2) : u = v :=
   by induction u; induction v; exact (dpair_eq_dpair p q)
 
   definition eq_pr1 [unfold 5] (p : u = v) : u.1 = v.1 :=
@@ -156,6 +156,10 @@ namespace sigma
 
   definition sigma_eq2_unc {p q : u = v} (rs : Σ(r : p..1 = q..1), p..2 =[r] q..2) : p = q :=
   destruct rs sigma_eq2
+
+  definition ap_dpair_eq_dpair (f : Πa, B a → A') (p : a = a') (q : b =[p] b')
+    : ap (sigma.rec f) (dpair_eq_dpair p q) = apo011 f p q :=
+  by induction q; reflexivity
 
   /- Transport -/
 

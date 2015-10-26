@@ -13,8 +13,8 @@ open eq equiv is_equiv funext pi equiv.ops is_trunc unit
 
 namespace pi
 
-  variables {A A' : Type} {B B' : Type} {C : A → B → Type}
-            {a a' a'' : A} {b b' b'' : B} {f g : A → B}
+  variables {A A' : Type} {B B' : Type} {C : A → B → Type} {D : A → Type}
+            {a a' a'' : A} {b b' b'' : B} {f g : A → B} {d : D a} {d' : D a'}
 
   -- all lemmas here are special cases of the ones for pi-types
 
@@ -94,7 +94,7 @@ namespace pi
   definition arrow_pathover_left {B C : A → Type} {f : B a → C a} {g : B a' → C a'} {p : a = a'}
     (r : Π(b : B a), f b =[p] g (p ▸ b)) : f =[p] g :=
   begin
-    cases p, apply pathover_idp_of_eq,
+    induction p, apply pathover_idp_of_eq,
     apply eq_of_homotopy, intro b,
     exact eq_of_pathover_idp (r b),
   end
@@ -111,9 +111,27 @@ namespace pi
     {p : a = a'} (r : Π(b : B), f b =[p] g b) : f =[p] g :=
   pi_pathover_constant r
 
-  definition arrow_pathover_constant_right {B : A → Type} {C : Type} {f : B a → C} {g : B a' → C}
-    {p : a = a'} (r : Π(b : B a), f b = g (p ▸ b)) : f =[p] g :=
+  definition arrow_pathover_constant_right' {B : A → Type} {C : Type}
+    {f : B a → C} {g : B a' → C} {p : a = a'}
+    (r : Π⦃b : B a⦄ ⦃b' : B a'⦄ (q : b =[p] b'), f b = g b') : f =[p] g :=
+  arrow_pathover (λb b' q, pathover_of_eq (r q))
+
+  definition arrow_pathover_constant_right {B : A → Type} {C : Type} {f : B a → C}
+    {g : B a' → C} {p : a = a'} (r : Π(b : B a), f b = g (p ▸ b)) : f =[p] g :=
   arrow_pathover_left (λb, pathover_of_eq (r b))
+
+  /- a lemma used for the flattening lemma -/
+  definition apo011_arrow_pathover_constant_right {f : D a → A'} {g : D a' → A'} {p : a = a'}
+    {q : d =[p] d'} (r : Π(d : D a), f d = g (p ▸ d))
+    : eq_of_pathover (apo11 (arrow_pathover_constant_right r) q) = r d ⬝ ap g (tr_eq_of_pathover q)
+      :=
+  begin
+    induction q, esimp at r,
+    eapply homotopy.rec_on r, clear r, esimp, intro r, induction r, esimp,
+    esimp [arrow_pathover_constant_right, arrow_pathover_left],
+    rewrite [eq_of_homotopy_idp]
+  end
+
 
   /-
      The fact that the arrow type preserves truncation level is a direct consequence

@@ -280,8 +280,12 @@ namespace eq
     { reflexivity}
   end
 
-  -- example (p q : a = a') : to_inv (hdeg_square_equiv' p q) = hdeg_square := idp -- this fails
   example (p q : a = a') : to_inv (hdeg_square_equiv p q) = hdeg_square := idp
+
+  /-
+    characterization of pathovers in a equality type. The type B of the equality is fixed here.
+    A version where B may also varies over the path p is given in the file squareover
+  -/
 
   definition eq_pathover [unfold 7] {f g : A → B} {p : a = a'} {q : f a = g a} {r : f a' = g a'}
     (s : square q r (ap f p) (ap g p)) : q =[p] r :=

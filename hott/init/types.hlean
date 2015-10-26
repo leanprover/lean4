@@ -33,7 +33,7 @@ end unit
 -- ----------
 
 notation `Σ` binders `, ` r:(scoped P, sigma P) := r
-
+abbreviation dpair [constructor] := @sigma.mk
 namespace sigma
   notation `⟨`:max t:(foldr `, ` (e r, mk e r)) `⟩`:0 := t --input ⟨ ⟩ as \< \>
 

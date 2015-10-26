@@ -20,7 +20,7 @@ The rows indicate the chapters, the columns the sections.
 | Ch 3  | + | + | + | + | ½ | + | + | - | + | .  | +  |    |    |    |    |
 | Ch 4  | - | + | + | + | . | + | ½ | + | + |    |    |    |    |    |    |
 | Ch 5  | - | . | ½ | - | - | . | . | ½ |   |    |    |    |    |    |    |
-| Ch 6  | . | + | + | + | + | ½ | ½ | + | ¾ | ¼  | ¾  | -  | .  |    |    |
+| Ch 6  | . | + | + | + | + | ½ | ½ | + | ¾ | ¼  | ¾  | +  | .  |    |    |
 | Ch 7  | + | + | + | - | ½ | - | - |   |   |    |    |    |    |    |    |
 | Ch 8  | ¾ | - | - | - | - | - | - | - | - | -  |    |    |    |    |    |
 | Ch 9  | ¾ | + | + | ½ | ¾ | ½ | - | - | - |    |    |    |    |    |    |
@@ -120,7 +120,7 @@ Chapter 6: Higher inductive types
 - 6.9 (Truncations): [hit.trunc](hit/trunc.hlean) (except Lemma 6.9.3)
 - 6.10 (Quotients): [hit.set_quotient](hit/set_quotient.hlean) (up to 6.10.3). We define integers differently, to make them compute, in the folder [types.int](types/int/int.md). 6.10.13 is in [types.int.hott](types/int/hott.hlean)
 - 6.11 (Algebra): [algebra.group](algebra/group.hlean), [algebra.fundamental_group](algebra/fundamental_group.hlean) (no homotopy groups yet)
-- 6.12 (The flattening lemma): not formalized yet
+- 6.12 (The flattening lemma): [hit.quotient](hit/quotient.hlean) (for quotients instead of homotopy coequalizers, but these are practically the same)
 - 6.13 (The general syntax of higher inductive definitions): no formalizable content
 
 Chapter 7: Homotopy n-types

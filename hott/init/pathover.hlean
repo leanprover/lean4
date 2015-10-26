@@ -12,7 +12,7 @@ import .path .equiv
 open equiv is_equiv equiv.ops function
 
 variables {A A' : Type} {B B' : A → Type} {B'' : A' → Type} {C : Π⦃a⦄, B a → Type}
-          {a a₂ a₃ a₄ : A} {p p' : a = a₂} {p₂ : a₂ = a₃} {p₃ : a₃ = a₄}
+          {a a₂ a₃ a₄ : A} {p p' : a = a₂} {p₂ : a₂ = a₃} {p₃ : a₃ = a₄} {p₁₃ : a = a₃}
           {b b' : B a} {b₂ b₂' : B a₂} {b₃ : B a₃} {b₄ : B a₄}
           {c : C b} {c₂ : C b₂}
 
@@ -79,12 +79,27 @@ namespace eq
   definition eq_concato [unfold 9] (q : b = b') (r : b' =[p] b₂) : b =[p] b₂ :=
   by induction q;exact r
 
-  -- infix `⬝` := concato
-  infix `⬝o`:75 := concato
-  infix `⬝op`:75 := concato_eq
-  infix `⬝po`:75 := eq_concato
+  definition change_path [unfold 9] (q : p = p') (r : b =[p] b₂) : b =[p'] b₂ :=
+  q ▸ r
+
+  -- infix ` ⬝ ` := concato
+  infix ` ⬝o `:72 := concato
+  infix ` ⬝op `:73 := concato_eq
+  infix ` ⬝po `:73 := eq_concato
   -- postfix `⁻¹` := inverseo
   postfix `⁻¹ᵒ`:(max+10) := inverseo
+
+  definition pathover_cancel_right (q : b =[p ⬝ p₂] b₃) (r : b₃ =[p₂⁻¹] b₂) : b =[p] b₂ :=
+  change_path !con_inv_cancel_right (q ⬝o r)
+
+  definition pathover_cancel_right' (q : b =[p₁₃ ⬝ p₂⁻¹] b₂) (r : b₂ =[p₂] b₃) : b =[p₁₃] b₃ :=
+  change_path !inv_con_cancel_right (q ⬝o r)
+
+  definition pathover_cancel_left (q : b₂ =[p⁻¹] b) (r : b =[p ⬝ p₂] b₃) : b₂ =[p₂] b₃ :=
+  change_path !inv_con_cancel_left (q ⬝o r)
+
+  definition pathover_cancel_left' (q : b =[p] b₂) (r : b₂ =[p⁻¹ ⬝ p₁₃] b₃) : b =[p₁₃] b₃ :=
+  change_path !con_inv_cancel_left (q ⬝o r)
 
   /- Some of the theorems analogous to theorems for = in init.path -/
 
@@ -111,7 +126,7 @@ namespace eq
   definition eq_of_pathover {a' a₂' : A'} (q : a' =[p] a₂') : a' = a₂' :=
   by cases q;reflexivity
 
-  definition pathover_of_eq {a' a₂' : A'} (q : a' = a₂') : a' =[p] a₂' :=
+  definition pathover_of_eq [unfold 5 8] {a' a₂' : A'} (q : a' = a₂') : a' =[p] a₂' :=
   by cases p;cases q;constructor
 
   definition pathover_constant [constructor] (p : a = a₂) (a' a₂' : A') : a' =[p] a₂' ≃ a' = a₂' :=
@@ -191,10 +206,16 @@ namespace eq
   eq.rec_on p idp
 
   definition pathover_of_pathover_tr (q : b =[p ⬝ p₂] p₂ ▸ b₂) : b =[p] b₂ :=
-  by cases p₂;exact q
+  pathover_cancel_right q !pathover_tr⁻¹ᵒ
 
-  definition pathover_tr_of_pathover {p : a = a₃} (q : b =[p ⬝ p₂⁻¹] b₂) : b =[p] p₂ ▸ b₂ :=
-  by cases p₂;exact q
+  definition pathover_tr_of_pathover (q : b =[p₁₃ ⬝ p₂⁻¹] b₂) : b =[p₁₃] p₂ ▸ b₂ :=
+  pathover_cancel_right' q !pathover_tr
+
+  definition pathover_of_tr_pathover (q : p ▸ b =[p⁻¹ ⬝ p₁₃] b₃) : b =[p₁₃] b₃ :=
+  pathover_cancel_left' !pathover_tr q
+
+  definition tr_pathover_of_pathover (q : b =[p ⬝ p₂] b₃) : p ▸ b =[p₂] b₃ :=
+  pathover_cancel_left !pathover_tr⁻¹ᵒ q
 
   definition pathover_tr_of_eq (q : b = b') : b =[p] p ▸ b' :=
   by cases q;apply pathover_tr
@@ -216,7 +237,7 @@ namespace eq
     (q : b =[p] b₂) : g a b =[p] g a₂ b₂ :=
   by induction q; constructor
 
-  definition apo011 (f : Πa, B a → A') (Ha : a = a₂) (Hb : b =[Ha] b₂)
+  definition apo011 [unfold 10] (f : Πa, B a → A') (Ha : a = a₂) (Hb : b =[Ha] b₂)
       : f a b = f a₂ b₂ :=
   by cases Hb; reflexivity
 
@@ -224,7 +245,7 @@ namespace eq
     (Hc : c =[apo011 C Ha Hb] c₂) : f a b c = f a₂ b₂ c₂ :=
   by cases Hb; apply (idp_rec_on Hc); apply idp
 
-  definition apo11 {f : Πb, C b} {g : Πb₂, C b₂} (r : f =[p] g)
+  definition apod11 {f : Πb, C b} {g : Πb₂, C b₂} (r : f =[p] g)
     {b : B a} {b₂ : B a₂} (q : b =[p] b₂) : f b =[apo011 C p q] g b₂ :=
   by cases r; apply (idp_rec_on q); constructor
 
@@ -235,6 +256,10 @@ namespace eq
   definition apo10 {f : B a → B' a} {g : B a₂ → B' a₂} (r : f =[p] g)
     (b : B a) : f b =[p] g (p ▸ b) :=
   by cases r; constructor
+
+  definition apo11 {f : B a → B' a} {g : B a₂ → B' a₂} (r : f =[p] g)
+    (q : b =[p] b₂) : f b =[p] g b₂ :=
+  by induction q; exact apo10 r b
 
   definition apdo_compose1 (g : Πa, B a → B' a) (f : Πa, B a) (p : a = a₂)
     : apdo (g ∘' f) p = apo g (apdo f p) :=
@@ -259,9 +284,6 @@ namespace eq
   definition cono.left_inv_eq' (q : b = b')
     : eq_concato q⁻¹ (pathover_idp_of_eq q) = (idpo : b' =[refl a] b') :=
   by induction q;constructor
-
-  definition change_path [unfold 9] (q : p = p') (r : b =[p] b₂) : b =[p'] b₂ :=
-  q ▸ r
 
   definition change_path_equiv (f : Π{a}, B a ≃ B' a) (r : b =[p] b₂) : f b =[p] f b₂ :=
   by induction r;constructor

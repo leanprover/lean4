@@ -215,14 +215,61 @@ expr type_inference::whnf(expr const & e) {
     }
 }
 
-bool type_inference::is_def_eq(level const & l1, level const & l2) {
+static bool is_max_like(level const & l) {
+    return is_max(l) || is_imax(l);
+}
+
+lbool type_inference::quick_is_def_eq(level const & l1, level const & l2) {
+    if (is_equivalent(l1, l2)) {
+        return l_true;
+    }
+
+    if (is_uvar(l1)) {
+        if (auto v = get_assignment(l1)) {
+            return quick_is_def_eq(*v, l2);
+        } else {
+            update_assignment(l1, l2);
+            return l_true;
+        }
+    }
+
+    if (is_uvar(l2)) {
+        if (auto v = get_assignment(l2)) {
+            return quick_is_def_eq(l1, *v);
+        } else {
+            update_assignment(l2, l1);
+            return l_true;
+        }
+    }
+
+    // postpone constraint if l1 or l2 is max, imax or meta.
+    if (is_max_like(l1) || is_max_like(l2) || is_meta(l1) || is_meta(l2))
+        return l_undef;
+
+    if (l1.kind() == l2.kind()) {
+        switch (l1.kind()) {
+        case level_kind::Succ:
+            return quick_is_def_eq(succ_of(l1), succ_of(l2));
+        case level_kind::Param: case level_kind::Global:
+            return l_false;
+        case level_kind::Max:   case level_kind::IMax:
+        case level_kind::Zero:  case level_kind::Meta:
+            lean_unreachable();
+        }
+        lean_unreachable();
+    } else {
+        return l_false;
+    }
+}
+
+bool type_inference::full_is_def_eq(level const & l1, level const & l2) {
     if (is_equivalent(l1, l2)) {
         return true;
     }
 
     if (is_uvar(l1)) {
         if (auto v = get_assignment(l1)) {
-            return is_def_eq(*v, l2);
+            return full_is_def_eq(*v, l2);
         } else {
             update_assignment(l1, l2);
             return true;
@@ -231,7 +278,7 @@ bool type_inference::is_def_eq(level const & l1, level const & l2) {
 
     if (is_uvar(l2)) {
         if (auto v = get_assignment(l2)) {
-            return is_def_eq(l1, *v);
+            return full_is_def_eq(l1, *v);
         } else {
             update_assignment(l2, l1);
             return true;
@@ -245,7 +292,7 @@ bool type_inference::is_def_eq(level const & l1, level const & l2) {
         return true;
 
     if (l1 != new_l1 || l2 != new_l2)
-        return is_def_eq(new_l1, new_l2);
+        return full_is_def_eq(new_l1, new_l2);
 
     if (l1.kind() != l2.kind())
         return false;
@@ -253,14 +300,14 @@ bool type_inference::is_def_eq(level const & l1, level const & l2) {
     switch (l1.kind()) {
     case level_kind::Max:
         return
-            is_def_eq(max_lhs(l1), max_lhs(l2)) &&
-            is_def_eq(max_rhs(l1), max_rhs(l2));
+            full_is_def_eq(max_lhs(l1), max_lhs(l2)) &&
+            full_is_def_eq(max_rhs(l1), max_rhs(l2));
     case level_kind::IMax:
         return
-            is_def_eq(imax_lhs(l1), imax_lhs(l2)) &&
-            is_def_eq(imax_rhs(l1), imax_rhs(l2));
+            full_is_def_eq(imax_lhs(l1), imax_lhs(l2)) &&
+            full_is_def_eq(imax_rhs(l1), imax_rhs(l2));
     case level_kind::Succ:
-        return is_def_eq(succ_of(l1), succ_of(l2));
+        return full_is_def_eq(succ_of(l1), succ_of(l2));
     case level_kind::Param:
     case level_kind::Global:
         return false;
@@ -269,6 +316,16 @@ bool type_inference::is_def_eq(level const & l1, level const & l2) {
         lean_unreachable();
     }
     lean_unreachable();
+}
+
+bool type_inference::is_def_eq(level const & l1, level const & l2) {
+    auto r = quick_is_def_eq(l1, l2);
+    if (r == l_undef) {
+        m_postponed.emplace_back(l1, l2);
+        return true;
+    } else {
+        return r == l_true;
+    }
 }
 
 bool type_inference::is_def_eq(levels const & ls1, levels const & ls2) {
@@ -755,9 +812,54 @@ bool type_inference::is_def_eq_core(expr const & t, expr const & s) {
         return false;
 }
 
+bool type_inference::process_postponed(unsigned old_sz) {
+    if (m_postponed.size() == old_sz)
+        return true; // no new universe constraints.
+    lean_assert(m_postponed.size() > old_sz);
+    buffer<pair<level, level>> b1, b2;
+    b1.append(m_postponed.size() - old_sz, m_postponed.data() + old_sz);
+    buffer<pair<level, level>> * curr, * next;
+    curr = &b1;
+    next = &b2;
+    while (true) {
+        for (auto p : *curr) {
+            auto r = quick_is_def_eq(p.first, p.second);
+            if (r == l_undef) {
+                next->push_back(p);
+            } else if (r == l_false) {
+                return false;
+            }
+        }
+        if (next->empty()) {
+            return true; // all constraints have been processed
+        } else if (next->size() < curr->size()) {
+            // easy constraints have been processed in this iteration
+            curr->clear();
+            std::swap(next, curr);
+            lean_assert(next->empty());
+        } else {
+            // use full (and approximate) is_def_eq to process the first constraint
+            // in next.
+            auto p = (*next)[0];
+            if (!full_is_def_eq(p.first, p.second))
+                return false;
+            if (next->size() == 1)
+                return true; // the last constraint has been solved.
+            curr->clear();
+            curr->append(next->size() - 1, next->data() + 1);
+            next->clear();
+        }
+    }
+}
+
 bool type_inference::is_def_eq(expr const & e1, expr const & e2) {
     scope s(*this);
-    if (is_def_eq_core(e1, e2)) {
+    unsigned psz = m_postponed.size();
+    if (!is_def_eq_core(e1, e2)) {
+        return false;
+    }
+    if (process_postponed(psz)) {
+        m_postponed.resize(psz);
         s.commit();
         return true;
     }

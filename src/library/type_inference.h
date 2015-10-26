@@ -22,10 +22,12 @@ namespace lean {
 class type_inference {
     struct ext_ctx;
     friend struct ext_ctx;
-    environment               m_env;
-    name_generator            m_ngen;
-    std::unique_ptr<ext_ctx>  m_ext_ctx;
-    name_map<projection_info> m_proj_info;
+    environment                     m_env;
+    name_generator                  m_ngen;
+    std::unique_ptr<ext_ctx>        m_ext_ctx;
+    // postponed universe constraints
+    std::vector<pair<level, level>> m_postponed;
+    name_map<projection_info>       m_proj_info;
 
     bool is_opaque(declaration const & d) const;
     optional<expr> expand_macro(expr const & m);
@@ -37,6 +39,8 @@ class type_inference {
     optional<declaration> is_delta(expr const & e) const;
     expr whnf_core(expr e, unsigned h);
 
+    lbool quick_is_def_eq(level const & l1, level const & l2);
+    bool full_is_def_eq(level const & l1, level const & l2);
     bool is_def_eq(level const & l1, level const & l2);
     bool is_def_eq(levels const & ls1, levels const & ls2);
 
@@ -55,6 +59,8 @@ class type_inference {
     reduction_status ext_reduction_step(expr & t_n, expr & s_n);
     lbool reduce_def_eq(expr & t_n, expr & s_n);
 
+    bool process_postponed(unsigned old_sz);
+
     expr infer_constant(expr const & e);
     expr infer_macro(expr const & e);
     expr infer_lambda(expr e);
@@ -66,9 +72,10 @@ class type_inference {
     struct scope {
         type_inference & m_owner;
         bool             m_keep;
-        scope(type_inference & o):m_owner(o), m_keep(false) { m_owner.push(); }
-        ~scope() { if (!m_keep) m_owner.pop(); }
-        void commit() { m_owner.commit(); m_keep = true; }
+        unsigned         m_postponed_sz;
+        scope(type_inference & o):m_owner(o), m_keep(false), m_postponed_sz(o.m_postponed.size()) { m_owner.push(); }
+        ~scope() { m_owner.m_postponed.resize(m_postponed_sz); if (!m_keep) m_owner.pop(); }
+        void commit() { m_postponed_sz = m_owner.m_postponed.size(); m_owner.commit(); m_keep = true; }
     };
 
 public:

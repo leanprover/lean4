@@ -244,7 +244,10 @@ struct cienv {
         m_next_local_idx(0),
         m_next_uvar_idx(0),
         m_next_mvar_idx(0),
-        m_multiple_instances(multiple_instances) {}
+        m_multiple_instances(multiple_instances),
+        m_max_depth(LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH),
+        m_trans_instances(LEAN_DEFAULT_CLASS_TRANS_INSTANCES),
+        m_trace_instances(LEAN_DEFAULT_CLASS_TRACE_INSTANCES) {}
 
     bool is_not_reducible(name const & n) const {
         return m_not_reducible_pred(n);
@@ -288,14 +291,13 @@ struct cienv {
 
     void set_options(options const & o) {
         m_options = o;
-        if (m_trace_instances) {
-            m_options = m_options.update_if_undef(get_pp_purify_metavars_name(), false);
-            m_options = m_options.update_if_undef(get_pp_implicit_name(), true);
-        }
         unsigned max_depth    = get_class_instance_max_depth(o);
         bool trans_instances  = get_class_trans_instances(o);
         bool trace_instances  = get_class_trace_instances(o);
-
+        if (trace_instances) {
+            m_options = m_options.update_if_undef(get_pp_purify_metavars_name(), false);
+            m_options = m_options.update_if_undef(get_pp_implicit_name(), true);
+        }
         if (m_max_depth        != max_depth        ||
             m_trans_instances  != trans_instances  ||
             m_trace_instances  != trace_instances) {

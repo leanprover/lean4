@@ -6,29 +6,11 @@ Authors: Floris van Doorn
 Yoneda embedding and Yoneda lemma
 -/
 
-import .functor.curry .constructions.hset .constructions.opposite .functor.attributes
+import .examples .attributes
 
 open category eq functor prod.ops is_trunc iso is_equiv equiv category.set nat_trans lift
 
 namespace yoneda
-
-  definition representable_functor_assoc [C : Precategory] {a1 a2 a3 a4 a5 a6 : C}
-    (f1 : hom a5 a6) (f2 : hom a4 a5) (f3 : hom a3 a4) (f4 : hom a2 a3) (f5 : hom a1 a2)
-      : (f1 ∘ f2) ∘ f3 ∘ (f4 ∘ f5) = f1 ∘ (f2 ∘ f3 ∘ f4) ∘ f5 :=
-  calc
-        _ = f1 ∘ f2 ∘ f3 ∘ f4 ∘ f5     : by rewrite -assoc
-      ... = f1 ∘ (f2 ∘ f3) ∘ f4 ∘ f5   : by rewrite -assoc
-      ... = f1 ∘ ((f2 ∘ f3) ∘ f4) ∘ f5 : by rewrite -(assoc (f2 ∘ f3) _ _)
-      ... = _                          : by rewrite (assoc f2 f3 f4)
-
-  definition hom_functor.{u v} [constructor] (C : Precategory.{u v}) : Cᵒᵖ ×c C ⇒ set.{v} :=
-  functor.mk
-    (λ (x : Cᵒᵖ ×c C), @homset (Cᵒᵖ) C x.1 x.2)
-    (λ (x y : Cᵒᵖ ×c C) (f : @category.precategory.hom (Cᵒᵖ ×c C) (Cᵒᵖ ×c C) x y)
-       (h : @homset (Cᵒᵖ) C x.1 x.2), f.2 ∘[C] (h ∘[C] f.1))
-    (λ x, abstract @eq_of_homotopy _ _ _ (ID (@homset Cᵒᵖ C x.1 x.2))
-            (λ h, concat (by apply @id_left) (by apply @id_right)) end)
-    (λ x y z g f, abstract eq_of_homotopy (by intros; apply @representable_functor_assoc) end)
 
   /-
     These attributes make sure that the fields of the category "set" reduce to the right things
@@ -44,6 +26,7 @@ namespace yoneda
 
   definition yoneda_embedding [constructor] (C : Precategory) : C ⇒ cset ^c Cᵒᵖ :=
   functor_curry (!hom_functor ∘f !prod_flip_functor)
+
 
   notation `ɏ` := yoneda_embedding _
 

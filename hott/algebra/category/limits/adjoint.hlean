@@ -6,9 +6,9 @@ Authors: Floris van Doorn
 colimit_functor ⊣ Δ ⊣ limit_functor
 -/
 
-import ..colimits ..functor.adjoint2
+import .colimits ..functor.adjoint2
 
-open functor category is_trunc prod yoneda --remove
+open functor category is_trunc prod
 
 namespace category
 

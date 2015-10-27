@@ -6,8 +6,8 @@ Authors: Floris van Doorn
 Limits in a category
 -/
 
-import .constructions.cone .constructions.discrete .constructions.product
-       .constructions.finite_cats .category .constructions.functor
+import ..constructions.cone ..constructions.discrete ..constructions.product
+       ..constructions.finite_cats ..category ..constructions.functor
 
 open is_trunc functor nat_trans eq
 

@@ -6,7 +6,7 @@ Authors: Floris van Doorn, Jakob von Raumer
 Exponential laws
 -/
 
-import .equivalence .curry
+import .equivalence .examples
        ..constructions.terminal ..constructions.initial ..constructions.product ..constructions.sum
        ..constructions.discrete
 

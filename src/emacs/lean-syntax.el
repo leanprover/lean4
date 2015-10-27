@@ -41,7 +41,7 @@
     "⁻¹ᵉ" "⁻¹ᶠ" "⁻¹ᵍ" "⁻¹ʰ" "⁻¹ⁱ" "⁻¹ᵐ" "⁻¹ᵒ" "⁻¹ᵖ" "⁻¹ʳ" "⁻¹ᵛ" "⁻¹ˢ" "⁻²" "⁻²ᵒ"
     "⬝e" "⬝i" "⬝o" "⬝op" "⬝po" "⬝h" "⬝v" "⬝hp" "⬝vp" "⬝ph" "⬝pv" "⬝r" "◾" "◾o"
     "∘n" "∘f" "∘fi" "∘nf" "∘fn" "∘n1f" "∘1nf" "∘f1n" "∘fn1"
-    "^c" "≃c" "≅c" "×c" "×f" "+c" "+f")
+    "^c" "≃c" "≅c" "×c" "×f" "×n" "+c" "+f" "+n")
   "lean constants")
 (defconst lean-constants-regexp (regexp-opt lean-constants))
 (defconst lean-numerals-regexp

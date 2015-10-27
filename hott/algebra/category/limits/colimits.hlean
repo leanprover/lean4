@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Colimits in a category
 -/
 
-import .limits .constructions.opposite
+import .limits ..constructions.opposite
 
 open is_trunc functor nat_trans eq
 

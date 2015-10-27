@@ -123,6 +123,8 @@ namespace category
     { intro c c' f, apply prod_eq: esimp:apply naturality}
   end
 
+  infixr ` ×n `:70 := prod_nat_trans
+
   definition prod_flip_functor [constructor] (C D : Precategory) : C ×c D ⇒ D ×c C :=
   functor.mk (λp, (p.2, p.1))
              (λp p' h, (h.2, h.1))

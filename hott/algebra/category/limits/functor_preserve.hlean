@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Functors preserving limits
 -/
 
-import ..colimits ..yoneda
+import .colimits ..functor.yoneda
 
 open functor yoneda is_trunc nat_trans
 

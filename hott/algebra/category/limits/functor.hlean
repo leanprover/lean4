@@ -6,7 +6,7 @@ Authors: Floris van Doorn, Jakob von Raumer
 Functor category has (co)limits if the codomain has them
 -/
 
-import ..colimits
+import .colimits
 
 open functor nat_trans eq is_trunc
 

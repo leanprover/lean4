@@ -107,6 +107,6 @@ namespace category
     { intro a b f, induction a: induction b: esimp at *; induction f with f; esimp;
       try contradiction: apply naturality}
   end
-
+  infixr ` +n `:65 := sum_nat_trans
 
 end category

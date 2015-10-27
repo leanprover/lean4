@@ -29,7 +29,9 @@ The rows indicate the chapters, the columns the sections.
 
 Theorems and definitions in the library which are not in the book:
 
-* One major difference is that in this library we heavily use pathovers, so we need less theorems about transports, but instead corresponding theorems about pathovers. These are in [init.pathover](init/pathover.hlean). For higher paths there are [squares](cubical/square.hlean), [squareovers](cubical/squareover.hlean), and the rudiments of [cubes](cubical/cube.hlean) and [cubeovers](cubical/cubeover.hlean).
+* A major difference is that in this library we heavily use pathovers [D. Licata, G. Brunerie. A Cubical Approach to Synthetic Homotopy Theory]. This means that we need less theorems about transports, but instead corresponding theorems about pathovers. These are in [init.pathover](init/pathover.hlean). For higher paths there are [squares](cubical/square.hlean), [squareovers](cubical/squareover.hlean), and the rudiments of [cubes](cubical/cube.hlean) and [cubeovers](cubical/cubeover.hlean).
+
+* The category theory library is more extensive than what is presented in the book. For example, we have [limits](algebra/category/limits/limits.md).
 
 Chapter 1: Type theory
 ---------
@@ -159,7 +161,7 @@ Every file is in the folder [algebra.category](algebra/category/category.md)
 - 9.2 (Functors and transformations): [functor.basic](algebra/category/functor/basic.hlean), [nat_trans](algebra/category/nat_trans.hlean), [constructions.functor](algebra/category/constructions/functor.hlean)
 - 9.3 (Adjunctions): [functor.adjoint](algebra/category/functor/adjoint.hlean)
 - 9.4 (Equivalences): [functor.equivalence](algebra/category/functor/equivalence.hlean) and [functor.attributes](algebra/category/functor/attributes.hlean) (partially)
-- 9.5 (The Yoneda lemma): [constructions.opposite](algebra/category/constructions/opposite.hlean), [constructions.product](algebra/category/constructions/product.hlean), [yoneda](algebra/category/yoneda.hlean) (up to Theorem 9.5.9)
+- 9.5 (The Yoneda lemma): [constructions.opposite](algebra/category/constructions/opposite.hlean), [constructions.product](algebra/category/constructions/product.hlean), [functor.yoneda](algebra/category/functor/yoneda.hlean) (up to Theorem 9.5.9)
 - 9.6 (Strict categories): [strict](algebra/category/strict.hlean) (only definition)
 - 9.7 (†-categories): not formalized
 - 9.8 (The structure identity principle): not formalized

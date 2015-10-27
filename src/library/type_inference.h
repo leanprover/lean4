@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
+#include <vector>
 #include "kernel/environment.h"
 #include "library/projection.h"
 

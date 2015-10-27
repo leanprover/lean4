@@ -49,6 +49,8 @@ type_inference::type_inference(environment const & env):
     m_ngen(*g_prefix),
     m_ext_ctx(new ext_ctx(*this)),
     m_proj_info(get_projection_info_map(env)) {
+    m_ignore_external_mvars = false;
+    m_check_types           = true;
 }
 
 type_inference::~type_inference() {
@@ -599,7 +601,7 @@ bool type_inference::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
 
 /** \brief Given \c ma of the form <tt>?m t_1 ... t_n</tt>, (try to) assign
     ?m to (an abstraction of) v. Return true if success and false otherwise. */
-bool type_inference::assign_mvar(expr const & ma, expr const & v) {
+bool type_inference::process_assignment(expr const & ma, expr const & v) {
     buffer<expr> args;
     expr const & m = get_app_args(ma, args);
     buffer<expr> locals;
@@ -616,6 +618,23 @@ bool type_inference::assign_mvar(expr const & ma, expr const & v) {
 
     if (!validate_assignment(m, locals, v))
         return false;
+
+    if (m_check_types) {
+        try {
+            scope s(*this);
+            expr t1 = infer(ma);
+            expr t2 = infer(v);
+            flet<bool> ignore_ext_mvar(m_ignore_external_mvars, true);
+            if (!is_def_eq_core(t1, t2))
+                return false;
+            s.commit();
+        } catch (exception &) {
+            // We may fail to infer the type of ma or v because the type may contain meta-variables.
+            // Example: ma may be of the form (?m a), and the type of ?m may be ?M where ?M is a
+            // (external) metavariable created by the unifier.
+            // We believe this only happens when we are interacting with the elaborator.
+        }
+    }
 
     if (args.empty()) {
         // easy case
@@ -655,7 +674,7 @@ lbool type_inference::quick_is_def_eq(expr const & e1, expr const & e2) {
         if (is_assigned(f1)) {
             return to_lbool(is_def_eq_core(subst_mvar(e1), e2));
         } else {
-            return to_lbool(assign_mvar(e1, e2));
+            return to_lbool(process_assignment(e1, e2));
         }
     }
 
@@ -664,9 +683,12 @@ lbool type_inference::quick_is_def_eq(expr const & e1, expr const & e2) {
         if (is_assigned(f2)) {
             return to_lbool(is_def_eq_core(e1, subst_mvar(e2)));
         } else {
-            return to_lbool(assign_mvar(e2, e1));
+            return to_lbool(process_assignment(e2, e1));
         }
     }
+
+    if (m_ignore_external_mvars && (is_meta(e1) || is_meta(e2)))
+        return l_true;
 
     if (e1.kind() == e2.kind()) {
         switch (e1.kind()) {

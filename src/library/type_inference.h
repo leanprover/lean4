@@ -29,6 +29,44 @@ class type_inference {
     std::vector<pair<level, level>> m_postponed;
     name_map<projection_info>       m_proj_info;
 
+    // Internal (configuration) options for customers
+
+    /** If m_ignore_external_mvars is true, then we treat (external) expression meta-variables
+        as wildcards. That is, (?M t_1 ... t_n) matches any term T. We say a meta-variable is
+        external when is_mvar returns false for it, and this module can't assign it. */
+    bool                            m_ignore_external_mvars;
+
+    /** If m_check_types is true, then whenever we assign a meta-variable,
+        we check whether the type of the value matches the type of the meta-variable.
+        When this option is enabled, we turn on m_ignore_external_mvars while checking types.
+
+        At this point, this option is useful only for helping us solve universe unification constraints.
+        For example, consider the following unification problem
+        Given:
+             p   : Type.{l1}
+             q   : Type.{l2}
+             ?m1 : Type.{?u1}
+             ?m2 : Type.{?u2}
+
+             decidable.{max ?u1 u2} (?m1 -> ?m2)  =?=  decidable.{max l1 l2} (q -> p)
+
+        If m_check_types is turned off, the is_def_eq implemented here produces the incorrect solution
+
+             ?u1 := l1
+             ?u2 := l2
+             ?m1 := q
+             ?m2 := p
+
+        This solution is type incorrect.
+
+             ?m1 : Type.{l1}     q  : Type.{l2}
+             ?m2 : Type.{l2}     p  : Type.{l1}
+
+        TODO(Leo,Daniel): checking types is extra overhead, and it seems unnecessary most of the time.
+        We should investigate how often this kind of constraint occurs in blast.
+    */
+    bool                            m_check_types;
+
     bool is_opaque(declaration const & d) const;
     optional<expr> expand_macro(expr const & m);
     optional<expr> reduce_projection(expr const & e);
@@ -52,7 +90,7 @@ class type_inference {
     bool is_def_eq_proof_irrel(expr const & e1, expr const & e2);
 
     expr subst_mvar(expr const & e);
-    bool assign_mvar(expr const & ma, expr const & v);
+    bool process_assignment(expr const & ma, expr const & v);
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
     reduction_status lazy_delta_reduction_step(expr & t_n, expr & s_n);
     lbool lazy_delta_reduction(expr & t_n, expr & s_n);

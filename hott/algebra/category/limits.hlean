@@ -17,8 +17,7 @@ namespace category
   include C
 
   definition is_terminal [class] (c : ob) := Πd, is_contr (d ⟶ c)
-  definition is_contr_of_is_terminal (c d : ob) [H : is_terminal d]
-    : is_contr (c ⟶ d) :=
+  definition is_contr_of_is_terminal (c d : ob) [H : is_terminal d] : is_contr (c ⟶ d) :=
   H c
 
   local attribute is_contr_of_is_terminal [instance]
@@ -32,7 +31,8 @@ namespace category
   definition eq_terminal_morphism [H : is_terminal c'] (f : c ⟶ c') : f = terminal_morphism c c' :=
   !is_hprop.elim
 
-  definition terminal_iso_terminal {c c' : ob} (H : is_terminal c) (K : is_terminal c') : c ≅ c' :=
+  definition terminal_iso_terminal (c c' : ob) [H : is_terminal c] [K : is_terminal c']
+    : c ≅ c' :=
   iso.MK !terminal_morphism !terminal_morphism !hom_terminal_eq !hom_terminal_eq
 
   local attribute is_terminal [reducible]
@@ -51,15 +51,14 @@ namespace category
   variable {D}
   definition terminal_object_iso_terminal_object (H₁ H₂ : has_terminal_object D)
     : @terminal_object D H₁ ≅ @terminal_object D H₂ :=
-  terminal_iso_terminal (@has_terminal_object.is_terminal D H₁)
-                        (@has_terminal_object.is_terminal D H₂)
+  !terminal_iso_terminal
 
   theorem is_hprop_has_terminal_object [instance] (D : Category)
     : is_hprop (has_terminal_object D) :=
   begin
     apply is_hprop.mk, intro t₁ t₂, induction t₁ with d₁ H₁, induction t₂ with d₂ H₂,
     assert p : d₁ = d₂,
-    { apply eq_of_iso, apply terminal_iso_terminal H₁ H₂},
+    { apply eq_of_iso, apply terminal_iso_terminal},
     induction p, exact ap _ !is_hprop.elim
   end
 
@@ -101,11 +100,73 @@ namespace category
   definition is_terminal_limit_cone [instance] : is_terminal (limit_cone F) :=
   has_terminal_object.is_terminal _
 
+  section specific_limit
+  omit H
+  variable {F}
+  variables (x : cone_obj F) [K : is_terminal x]
+  include K
+
+  definition to_limit_object : D :=
+  cone_to_obj x
+
+  definition to_limit_nat_trans : constant_functor I (to_limit_object x) ⟹ F :=
+  cone_to_nat x
+
+  definition to_limit_morphism (i : I) : to_limit_object x ⟶ F i :=
+  to_limit_nat_trans x i
+
+  theorem to_limit_commute {i j : I} (f : i ⟶ j)
+    : to_fun_hom F f ∘ to_limit_morphism x i = to_limit_morphism x j :=
+  naturality (to_limit_nat_trans x) f ⬝ !id_right
+
+  definition to_limit_cone_obj [constructor] {d : D} {η : Πi, d ⟶ F i}
+    (p : Π⦃i j : I⦄ (f : i ⟶ j), to_fun_hom F f ∘ η i = η j) : cone_obj F :=
+  cone_obj.mk d (nat_trans.mk η (λa b f, p f ⬝ !id_right⁻¹))
+
+  definition to_hom_limit {d : D} (η : Πi, d ⟶ F i)
+    (p : Π⦃i j : I⦄ (f : i ⟶ j), to_fun_hom F f ∘ η i = η j) : d ⟶ to_limit_object x :=
+  cone_to_hom (terminal_morphism (to_limit_cone_obj x p) x)
+
+  theorem to_hom_limit_commute {d : D} (η : Πi, d ⟶ F i)
+    (p : Π⦃i j : I⦄ (f : i ⟶ j), to_fun_hom F f ∘ η i = η j) (i : I)
+    : to_limit_morphism x i ∘ to_hom_limit x η p = η i :=
+  cone_to_eq (terminal_morphism (to_limit_cone_obj x p) x) i
+
+  definition to_limit_cone_hom [constructor] {d : D} {η : Πi, d ⟶ F i}
+    (p : Π⦃i j : I⦄ (f : i ⟶ j), to_fun_hom F f ∘ η i = η j) {h : d ⟶ to_limit_object x}
+    (q : Πi, to_limit_morphism x i ∘ h = η i)
+    : cone_hom (to_limit_cone_obj x p) x :=
+  cone_hom.mk h q
+
+  variable {x}
+  theorem to_eq_hom_limit {d : D} {η : Πi, d ⟶ F i}
+    (p : Π⦃i j : I⦄ (f : i ⟶ j), to_fun_hom F f ∘ η i = η j) {h : d ⟶ to_limit_object x}
+    (q : Πi, to_limit_morphism x i ∘ h = η i) : h = to_hom_limit x η p :=
+  ap cone_to_hom (eq_terminal_morphism (to_limit_cone_hom x p q))
+
+  theorem to_limit_cone_unique {d : D} {η : Πi, d ⟶ F i}
+    (p : Π⦃i j : I⦄ (f : i ⟶ j), to_fun_hom F f ∘ η i = η j)
+    {h₁ : d ⟶ to_limit_object x} (q₁ : Πi, to_limit_morphism x i ∘ h₁ = η i)
+    {h₂ : d ⟶ to_limit_object x} (q₂ : Πi, to_limit_morphism x i ∘ h₂ = η i): h₁ = h₂ :=
+  to_eq_hom_limit p q₁ ⬝ (to_eq_hom_limit p q₂)⁻¹
+
+  omit K
+  definition to_limit_object_iso_to_limit_object [constructor] (x y : cone_obj F)
+    [K : is_terminal x] [L : is_terminal y] : to_limit_object x ≅ to_limit_object y :=
+  cone_iso_pr1 !terminal_iso_terminal
+
+  end specific_limit
+
+  /-
+    TODO: relate below definitions to above definitions.
+    However, type class resolution seems to fail...
+  -/
+
   definition limit_object : D :=
-  cone_obj.c (limit_cone F)
+  cone_to_obj (limit_cone F)
 
   definition limit_nat_trans : constant_functor I (limit_object F) ⟹ F :=
-  cone_obj.η (limit_cone F)
+  cone_to_nat (limit_cone F)
 
   definition limit_morphism (i : I) : limit_object F ⟶ F i :=
   limit_nat_trans F i
@@ -123,12 +184,12 @@ namespace category
   variable {H}
   definition hom_limit {d : D} (η : Πi, d ⟶ F i)
     (p : Π⦃i j : I⦄ (f : i ⟶ j), to_fun_hom F f ∘ η i = η j) : d ⟶ limit_object F :=
-  cone_hom.f (@(terminal_morphism (limit_cone_obj F p) _) (is_terminal_limit_cone _))
+  cone_to_hom (@(terminal_morphism (limit_cone_obj F p) _) (is_terminal_limit_cone _))
 
   theorem hom_limit_commute {d : D} (η : Πi, d ⟶ F i)
     (p : Π⦃i j : I⦄ (f : i ⟶ j), to_fun_hom F f ∘ η i = η j) (i : I)
     : limit_morphism F i ∘ hom_limit F η p = η i :=
-  cone_hom.p (@(terminal_morphism (limit_cone_obj F p) _) (is_terminal_limit_cone _)) i
+  cone_to_eq (@(terminal_morphism (limit_cone_obj F p) _) (is_terminal_limit_cone _)) i
 
   definition limit_cone_hom [constructor] {d : D} {η : Πi, d ⟶ F i}
     (p : Π⦃i j : I⦄ (f : i ⟶ j), to_fun_hom F f ∘ η i = η j) {h : d ⟶ limit_object F}
@@ -139,7 +200,7 @@ namespace category
   theorem eq_hom_limit {d : D} {η : Πi, d ⟶ F i}
     (p : Π⦃i j : I⦄ (f : i ⟶ j), to_fun_hom F f ∘ η i = η j) {h : d ⟶ limit_object F}
     (q : Πi, limit_morphism F i ∘ h = η i) : h = hom_limit F η p :=
-  ap cone_hom.f (@eq_terminal_morphism _ _ _ _ (is_terminal_limit_cone _) (limit_cone_hom F p q))
+  ap cone_to_hom (@eq_terminal_morphism _ _ _ _ (is_terminal_limit_cone _) (limit_cone_hom F p q))
 
   theorem limit_cone_unique {d : D} {η : Πi, d ⟶ F i}
     (p : Π⦃i j : I⦄ (f : i ⟶ j), to_fun_hom F f ∘ η i = η j)
@@ -153,25 +214,10 @@ namespace category
 
   omit H
 
--- notation `noinstances` t:max := by+ with_options [elaborator.ignore_instances true] (exact t)
--- definition noinstance (t : tactic) : tactic := with_options [elaborator.ignore_instances true] t
-
   variable (F)
   definition limit_object_iso_limit_object [constructor] (H₁ H₂ : has_limits_of_shape D I) :
     @(limit_object F) H₁ ≅ @(limit_object F) H₂ :=
-  begin
-    fapply iso.MK,
-    { apply hom_limit, apply @(limit_commute F) H₁},
-    { apply @(hom_limit F) H₁, apply limit_commute},
-    { exact abstract begin fapply limit_cone_unique,
-      { apply limit_commute},
-      { intro i, rewrite [assoc, hom_limit_commute], apply hom_limit_commute},
-      { intro i, apply id_right} end end},
-    { exact abstract begin fapply limit_cone_unique,
-      { apply limit_commute},
-      { intro i, rewrite [assoc, hom_limit_commute], apply hom_limit_commute},
-      { intro i, apply id_right} end end}
-  end
+  cone_iso_pr1 !terminal_object_iso_terminal_object
 
   definition limit_functor [constructor] (D I : Precategory) [H : has_limits_of_shape D I]
     : D ^c I ⇒ D :=

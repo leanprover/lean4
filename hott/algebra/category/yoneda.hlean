@@ -38,10 +38,11 @@ namespace yoneda
   local attribute Category.to.precategory category.to_precategory [constructor]
 
   -- should this be defined as "yoneda_embedding Cᵒᵖ"?
-  definition contravariant_yoneda_embedding [reducible] (C : Precategory) : Cᵒᵖ ⇒ cset ^c C :=
+  definition contravariant_yoneda_embedding [constructor] [reducible]
+    (C : Precategory) : Cᵒᵖ ⇒ cset ^c C :=
   functor_curry !hom_functor
 
-  definition yoneda_embedding (C : Precategory) : C ⇒ cset ^c Cᵒᵖ :=
+  definition yoneda_embedding [constructor] (C : Precategory) : C ⇒ cset ^c Cᵒᵖ :=
   functor_curry (!hom_functor ∘f !prod_flip_functor)
 
   notation `ɏ` := yoneda_embedding _
@@ -66,7 +67,7 @@ namespace yoneda
       exact ap10 !respect_id x end end},
     { exact abstract begin intro η, esimp, apply nat_trans_eq,
       intro c', esimp, apply eq_of_homotopy,
-      intro f, esimp [yoneda_embedding] at f,
+      intro f,
       transitivity (F f ∘ η c) id, reflexivity,
       rewrite naturality, esimp [yoneda_embedding], rewrite [id_left], apply ap _ !id_left end end},
   end
@@ -137,8 +138,8 @@ namespace yoneda
       rewrite -eq_of_iso_refl,
       apply ap eq_of_iso, apply iso_eq, esimp,
       apply nat_trans_eq, intro c',
-      apply eq_of_homotopy, esimp [yoneda_embedding], intro f,
-      rewrite [category.category.id_left], apply id_right}
+      apply eq_of_homotopy, intro f,
+      rewrite [▸*, category.category.id_left], apply id_right}
   end
 
   definition is_representable {C : Precategory} (F : Cᵒᵖ ⇒ cset) := Σ(c : C), ɏ c ≅ F

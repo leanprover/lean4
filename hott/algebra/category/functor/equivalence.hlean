@@ -123,7 +123,7 @@ namespace category
       { exact εn},
       { exact adjointify_adjH},
       { exact adjointify_adjK},
-      { exact @(is_iso_nat_trans _) (λc, !is_iso_inverse)},
+      { exact @(is_natural_iso _) (λc, !is_iso_inverse)},
       { unfold εn, apply iso.struct, },
     end
 

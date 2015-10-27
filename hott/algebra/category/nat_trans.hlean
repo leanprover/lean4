@@ -178,7 +178,7 @@ namespace nat_trans
   definition nf_id (η : G ⟹ H) (c : C) : (η ∘nf 1) c = η c :=
   idp
 
-  definition nat_trans_of_eq [reducible] (p : F = G) : F ⟹ G :=
+  definition nat_trans_of_eq [reducible] [constructor] (p : F = G) : F ⟹ G :=
   nat_trans.mk (λc, hom_of_eq (ap010 to_fun_ob p c))
                (λa b f, eq.rec_on p (!id_right ⬝ !id_left⁻¹))
 

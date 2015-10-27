@@ -71,12 +71,25 @@ public:
     virtual expr infer_metavar(expr const & e) { return mlocal_type(e); }
 };
 
+static void finalize_lm_types(void * p) {
+    delete reinterpret_cast<ci_local_metavar_types*>(p);
+    g_lm_types = nullptr;
+}
+
+static ci_local_metavar_types & get_lm_types() {
+    if (!g_lm_types) {
+        g_lm_types = new default_ci_local_metavar_types();
+        register_thread_finalizer(finalize_lm_types, g_lm_types);
+    }
+    return *g_lm_types;
+}
+
 static expr ci_infer_local(expr const & e) {
-    return g_lm_types->infer_local(e);
+    return get_lm_types().infer_local(e);
 }
 
 static expr ci_infer_metavar(expr const & e) {
-    return g_lm_types->infer_metavar(e);
+    return get_lm_types().infer_metavar(e);
 }
 
 /** \brief The following global thread local constant is a big hack for mk_subsingleton_instance.
@@ -326,18 +339,22 @@ struct cienv {
     }
 
     expr whnf(expr const & e) {
+        lean_assert(m_ti_ptr);
         return m_ti_ptr->whnf(e);
     }
 
     expr infer_type(expr const & e) {
+        lean_assert(m_ti_ptr);
         return m_ti_ptr->infer(e);
     }
 
     bool is_def_eq(expr const & e1, expr const & e2) {
+        lean_assert(m_ti_ptr);
         return m_ti_ptr->is_def_eq(e1, e2);
     }
 
     expr instantiate_uvars_mvars(expr const & e) {
+        lean_assert(m_ti_ptr);
         return m_ti_ptr->instantiate_uvars_mvars(e);
     }
 
@@ -1069,11 +1086,9 @@ void initialize_class_instance_resolution() {
     register_bool_option(*g_class_trans_instances,  LEAN_DEFAULT_CLASS_TRANS_INSTANCES,
                          "(class) use automatically derived instances from the transitive closure of "
                          "the structure instance graph");
-    g_lm_types = new default_ci_local_metavar_types();
 }
 
 void finalize_class_instance_resolution() {
-    delete g_lm_types;
     delete g_prefix;
     delete g_class_trace_instances;
     delete g_class_instance_max_depth;

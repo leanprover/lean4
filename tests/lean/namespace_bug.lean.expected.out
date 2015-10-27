@@ -1,8 +1,1 @@
-namespace_bug.lean:3:6: error: type mismatch at application
-  @bit0 ?A
-term
-  ?A
-has type
-  Type.{l_2}
-but is expected to have type
-  Type.{l_3}
+2 + 3 : ?A

@@ -178,7 +178,6 @@ section
     { intro a, induction a with q p, induction q, esimp at *, induction p, reflexivity}
   end
 
-  set_option class.conservative false
   theorem nondep_funext_from_ua {A : Type} {B : Type}
       : Π {f g : A → B}, f ~ g → f = g :=
     (λ (f g : A → B) (p : f ~ g),

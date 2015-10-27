@@ -41,7 +41,7 @@ namespace is_equiv
   protected abbreviation mk [constructor] := @is_equiv.mk' A B f
 
   -- The identity function is an equivalence.
-  definition is_equiv_id (A : Type) : (is_equiv (id : A → A)) :=
+  definition is_equiv_id [instance] (A : Type) : (is_equiv (id : A → A)) :=
   is_equiv.mk id id (λa, idp) (λa, idp) (λa, idp)
 
   -- The composition of two equivalences is, again, an equivalence.
@@ -218,7 +218,7 @@ namespace is_equiv
   end
 
   --Transporting is an equivalence
-  definition is_equiv_tr [instance] [constructor] {A : Type} (P : A → Type) {x y : A}
+  definition is_equiv_tr [constructor] {A : Type} (P : A → Type) {x y : A}
     (p : x = y) : (is_equiv (transport P p)) :=
   is_equiv.mk _ (transport P p⁻¹) (tr_inv_tr p) (inv_tr_tr p) (tr_inv_tr_lemma p)
 
@@ -245,6 +245,8 @@ end is_equiv
 open is_equiv
 
 namespace eq
+  local attribute is_equiv_tr [instance]
+
   definition tr_inv_fn {A : Type} {B : A → Type} {a a' : A} (p : a = a') :
     transport B p⁻¹ = (transport B p)⁻¹ := idp
   definition tr_inv {A : Type} {B : A → Type} {a a' : A} (p : a = a') (b : B a') :

@@ -391,18 +391,18 @@ variable [finB : fintype B]
 include finB
 
 lemma surj_of_inj_eq_card : card A = card B → ∀ {f : A → B}, injective f → surjective f :=
-      assume Peqcard, take f, assume Pinj,
-      decidable.rec_on decidable_forall_finite
-      (assume P : surjective f, P)
-      (assume Pnsurj : ¬surjective f, obtain b Pne, from exists_not_of_not_forall Pnsurj,
-      assert Pall : ∀ a, f a ≠ b, from forall_not_of_not_exists Pne,
-      assert Pbnin : b ∉ image f univ, from λ Pin,
-        obtain a Pa, from exists_of_mem_image Pin, absurd (and.right Pa) (Pall a),
-      assert Puniv : finset.card (image f univ) = card A,
-        from card_eq_card_image_of_inj Pinj,
-      assert Punivb : finset.card (image f univ) = card B, from eq.trans Puniv Peqcard,
-      assert P : image f univ = univ, from univ_of_card_eq_univ Punivb,
-      absurd (P⁻¹▸ mem_univ b) Pbnin)
+assume Peqcard, take f, assume Pinj,
+decidable.rec_on decidable_forall_finite
+  (assume P : surjective f, P)
+  (assume Pnsurj : ¬surjective f,
+   obtain b Pne, from exists_not_of_not_forall Pnsurj,
+   assert Pall : ∀ a, f a ≠ b, from forall_not_of_not_exists Pne,
+   assert Pbnin : b ∉ image f univ, from λ Pin,
+   obtain a Pa, from exists_of_mem_image Pin, absurd (and.right Pa) (Pall a),
+   assert Puniv : finset.card (image f univ) = card A, from card_eq_card_image_of_inj Pinj,
+   assert Punivb : finset.card (image f univ) = card B, from eq.trans Puniv Peqcard,
+   assert P : image f univ = univ, from univ_of_card_eq_univ Punivb,
+   absurd (P⁻¹▸ mem_univ b) Pbnin)
 
 end inj
 

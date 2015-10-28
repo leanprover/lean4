@@ -48,6 +48,7 @@ namespace lean {
 static name * g_class_trace_instances        = nullptr;
 static name * g_class_instance_max_depth     = nullptr;
 static name * g_class_trans_instances        = nullptr;
+static name * g_class_force_new              = nullptr;
 static name * g_prefix                       = nullptr;
 
 LEAN_THREAD_PTR(ci_local_metavar_types, g_lm_types);
@@ -63,6 +64,10 @@ unsigned get_class_instance_max_depth(options const & o) {
 
 bool get_class_trans_instances(options const & o) {
     return o.get_bool(*g_class_trans_instances, LEAN_DEFAULT_CLASS_TRANS_INSTANCES);
+}
+
+bool get_class_force_new(options const & o) {
+    return o.get_bool(*g_class_force_new, false);
 }
 
 class default_ci_local_metavar_types : public ci_local_metavar_types {
@@ -1076,6 +1081,7 @@ void initialize_class_instance_resolution() {
     g_class_trace_instances        = new name{"class", "trace_instances"};
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
     g_class_trans_instances        = new name{"class", "trans_instances"};
+    g_class_force_new              = new name{"class", "force_new"};
 
     register_bool_option(*g_class_trace_instances,  LEAN_DEFAULT_CLASS_TRACE_INSTANCES,
                          "(class) display messages showing the class-instances resolution execution trace");
@@ -1086,6 +1092,9 @@ void initialize_class_instance_resolution() {
     register_bool_option(*g_class_trans_instances,  LEAN_DEFAULT_CLASS_TRANS_INSTANCES,
                          "(class) use automatically derived instances from the transitive closure of "
                          "the structure instance graph");
+
+    register_bool_option(*g_class_force_new,  false,
+                         "(class) force new type class resolution procedure to be used even in HoTT mode (THIS IS TEMPORARY OPTION)");
 }
 
 void finalize_class_instance_resolution() {
@@ -1093,6 +1102,7 @@ void finalize_class_instance_resolution() {
     delete g_class_trace_instances;
     delete g_class_instance_max_depth;
     delete g_class_trans_instances;
+    delete g_class_force_new;
 }
 
 /*
@@ -1452,7 +1462,7 @@ pair<expr, constraint> mk_class_instance_elaborator(
     name const & prefix, optional<name> const & suffix, bool use_local_instances,
     bool is_strict, optional<expr> const & type, tag g,
     pos_info_provider const * pip) {
-    if (is_standard(env)) {
+    if (is_standard(env) || get_class_force_new(ios.get_options())) {
         return mk_new_class_instance_elaborator(env, ios, ctx, prefix, suffix, use_local_instances,
                                                 is_strict, type, g, pip);
     } else {

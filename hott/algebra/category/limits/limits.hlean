@@ -212,6 +212,15 @@ namespace category
   hom_limit _ (λi, η i ∘ limit_morphism F i)
               abstract by intro i j f; rewrite [assoc,naturality,-assoc,limit_commute] end
 
+  theorem limit_hom_limit_commute {F G : I ⇒ D} (η : F ⟹ G)
+    : limit_morphism G i ∘ limit_hom_limit η = η i ∘ limit_morphism F i :=
+  !hom_limit_commute
+
+  -- theorem hom_limit_commute {d : D} (η : Πi, d ⟶ F i)
+  --   (p : Π⦃i j : I⦄ (f : i ⟶ j), to_fun_hom F f ∘ η i = η j) (i : I)
+  --   : limit_morphism F i ∘ hom_limit F η p = η i :=
+  -- cone_to_eq (@(terminal_morphism (limit_cone_obj F p) _) (is_terminal_limit_cone _)) i
+
   omit H
 
   variable (F)

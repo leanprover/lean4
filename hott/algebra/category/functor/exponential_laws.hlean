@@ -35,9 +35,9 @@ namespace category
   begin
     fapply functor.mk: esimp,
     { intro F, exact F c},
-    { intro F, apply empty.elim (F c)},
-    { intro F, apply empty.elim (F c)},
-    { intro F, apply empty.elim (F c)},
+    { intro F, eapply empty.elim (F c)},
+    { intro F, eapply empty.elim (F c)},
+    { intro F, eapply empty.elim (F c)},
   end
 
   definition zero_functor_iso_zero [constructor] (C : Precategory) (c : C) : 0 ^c C ≅c 0 :=
@@ -66,9 +66,9 @@ namespace category
         { intro u v f, induction u, induction v, induction f, esimp, rewrite [+id_id,-respect_id]}},
       { intro F G η, apply nat_trans_eq, intro u, esimp,
         rewrite [natural_map_hom_of_eq _ u, natural_map_inv_of_eq _ u,▸*,+ap010_functor_eq _ _ u],
-        induction u, rewrite [▸*, id_leftright], }},
+        induction u, rewrite [▸*, id_leftright]}},
     { fapply functor_eq: esimp,
-      { intro c d f, rewrite [▸*, id_leftright] }},
+      { intro c d f, rewrite [▸*, id_leftright]}},
   end
 
   /- 1 ^ C ≅ 1 -/

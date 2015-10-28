@@ -26,13 +26,13 @@ namespace functor
 
   local abbreviation Fhom [constructor] := @functor_curry_hom
 
-  theorem functor_curry_id (c : C) : Fhom F (ID c) = nat_trans.id :=
-  nat_trans_eq (λd, respect_id F _)
+  theorem functor_curry_id (c : C) : Fhom F (ID c) = 1 :=
+  nat_trans_eq (λd, respect_id F (c, d))
 
   theorem functor_curry_comp ⦃c c' c'' : C⦄ (f' : c' ⟶ c'') (f : c ⟶ c')
     : Fhom F (f' ∘ f) = Fhom F f' ∘n Fhom F f :=
   begin
-    apply @nat_trans_eq,
+    apply nat_trans_eq,
     intro d, calc
     natural_map (Fhom F (f' ∘ f)) d = F (f' ∘ f, id) : by esimp
       ... = F (f' ∘ f, id ∘ id)                      : by rewrite id_id
@@ -41,11 +41,35 @@ namespace functor
       ... = natural_map ((Fhom F f') ∘ (Fhom F f)) d : by esimp
   end
 
-  definition functor_curry [reducible] [constructor] : C ⇒ E ^c D :=
+  definition functor_curry [constructor] : C ⇒ E ^c D :=
   functor.mk (functor_curry_ob F)
              (functor_curry_hom F)
              (functor_curry_id F)
              (functor_curry_comp F)
+
+  /- currying a functor, flipping the arguments -/
+  definition functor_curry_rev_ob [reducible] [constructor] (d : D) : C ⇒ E :=
+  F ∘f (1 ×f constant_functor C d)
+
+  definition functor_curry_rev_hom [constructor] ⦃d d' : D⦄ (g : d ⟶ d')
+    : functor_curry_rev_ob F d ⟹ functor_curry_rev_ob F d' :=
+  F ∘fn (1 ×n constant_nat_trans C g)
+
+  local abbreviation Fhomr [constructor] := @functor_curry_rev_hom
+  theorem functor_curry_rev_id (d : D) : Fhomr F (ID d) = nat_trans.id :=
+  nat_trans_eq (λc, respect_id F (c, d))
+
+  theorem functor_curry_rev_comp ⦃d d' d'' : D⦄ (g' : d' ⟶ d'') (g : d ⟶ d')
+    : Fhomr F (g' ∘ g) = Fhomr F g' ∘n Fhomr F g :=
+  begin
+    apply nat_trans_eq, esimp, intro c, rewrite [-id_id at {1}], apply respect_comp F
+  end
+
+  definition functor_curry_rev [constructor] : D ⇒ E ^c C :=
+  functor.mk (functor_curry_rev_ob F)
+             (functor_curry_rev_hom F)
+             (functor_curry_rev_id F)
+             (functor_curry_rev_comp F)
 
   /- uncurrying a functor -/
 
@@ -80,7 +104,7 @@ namespace functor
                   by rewrite [square_prepostcompose (!naturality⁻¹ᵖ) _ _]
       ... = Ghom G f' ∘ Ghom G f : by esimp
 
-  definition functor_uncurry [reducible] [constructor] : C ×c D ⇒ E :=
+  definition functor_uncurry [constructor] : C ×c D ⇒ E :=
   functor.mk (functor_uncurry_ob G)
              (functor_uncurry_hom G)
              (functor_uncurry_id G)
@@ -191,16 +215,20 @@ namespace functor
     (λ x y z g f, abstract eq_of_homotopy (by intros; apply @hom_functor_assoc) end)
 
   -- the functor hom(-, c)
-  definition hom_functor_left.{u v} [constructor] (C : Precategory.{u v}) (c : C)
+  definition hom_functor_left.{u v} [constructor] {C : Precategory.{u v}} (c : C)
     : Cᵒᵖ ⇒ set.{v} :=
-  hom_functor C ∘f (1 ×f constant_functor Cᵒᵖ c)
+  functor_curry_rev_ob !hom_functor c
 
   -- the functor hom(c, -)
-  definition hom_functor_right.{u v} [constructor] (C : Precategory.{u v}) (c : C)
+  definition hom_functor_right.{u v} [constructor] {C : Precategory.{u v}} (c : C)
     : C ⇒ set.{v} :=
-  hom_functor C ∘f (constant_functor C c ×f 1)
+  functor_curry_ob !hom_functor c
 
+  definition nat_trans_hom_functor_left [constructor] {C : Precategory}
+    ⦃c c' : C⦄ (f : c ⟶ c') : hom_functor_left c ⟹ hom_functor_left c' :=
+  functor_curry_rev_hom !hom_functor f
 
+  -- the yoneda embedding itself is defined in [yoneda].
   end
 
 

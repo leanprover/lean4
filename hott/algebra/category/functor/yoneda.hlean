@@ -24,9 +24,18 @@ namespace yoneda
     (C : Precategory) : Cᵒᵖ ⇒ cset ^c C :=
   functor_curry !hom_functor
 
+  /-
+    we use (change_fun) to make sure that (to_fun_ob (yoneda_embedding C) c) will reduce to
+    (hom_functor_left c) instead of (functor_curry_rev_ob (hom_functor C) c)
+  -/
   definition yoneda_embedding [constructor] (C : Precategory) : C ⇒ cset ^c Cᵒᵖ :=
-  functor_curry (!hom_functor ∘f !prod_flip_functor)
-
+--(functor_curry_rev !hom_functor)
+  change_fun
+    (functor_curry_rev !hom_functor)
+    hom_functor_left
+    nat_trans_hom_functor_left
+    idp
+    idpo
 
   notation `ɏ` := yoneda_embedding _
 

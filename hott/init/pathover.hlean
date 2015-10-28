@@ -226,7 +226,7 @@ namespace eq
   variable (C)
   definition transporto (r : b =[p] b₂) (c : C b) : C b₂ :=
   by induction r;exact c
-  infix `▸o`:75 := transporto _
+  infix ` ▸o `:75 := transporto _
 
   definition fn_tro_eq_tro_fn (C' : Π ⦃a : A⦄, B a → Type) (q : b =[p] b₂)
     (f : Π(b : B a), C b → C' b) (c : C b) : f b (q ▸o c) = (q ▸o (f b c)) :=
@@ -316,7 +316,7 @@ namespace eq
     (s : r = r') (s₂ : r₂ = r₂') : r ⬝o r₂ = r' ⬝o r₂' :=
   by induction s; induction s₂; reflexivity
 
-  infixl `◾o`:75 := concato2
+  infixl ` ◾o `:75 := concato2
   postfix [parsing_only] `⁻²ᵒ`:(max+10) := inverseo2 --this notation is abusive, should we use it?
 
 end eq

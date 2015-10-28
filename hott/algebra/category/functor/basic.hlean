@@ -170,6 +170,16 @@ namespace functor
       {intro S, induction S with d1 S2, induction S2 with d2 P1, induction P1, reflexivity},
   end
 
+  definition change_fun [constructor] (F : C ⇒ D) (Fob : C → D)
+    (Fhom : Π⦃c c' : C⦄ (f : c ⟶ c'), Fob c ⟶ Fob c') (p : F = Fob) (q : F =[p] Fhom) : C ⇒ D :=
+  functor.mk
+    Fob
+    Fhom
+    proof abstract λa, transporto (λFo (Fh : Π⦃c c'⦄, _), Fh (ID a) = ID (Fo a))
+      q (respect_id F a) end qed
+    proof abstract λa b c g f, transporto (λFo (Fh : Π⦃c c'⦄, _), Fh (g ∘ f) = Fh g ∘ Fh f)
+      q (respect_comp F g f) end qed
+
   section
     local attribute precategory.is_hset_hom [priority 1001]
     local attribute trunctype.struct [priority 1] -- remove after #842 is closed

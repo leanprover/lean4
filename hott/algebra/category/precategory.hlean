@@ -35,7 +35,7 @@ namespace category
 
   infixr ∘ := precategory.comp
   -- input ⟶ using \--> (this is a different arrow than \-> (→))
-  infixl [parsing_only] ` ⟶ `:25 := precategory.hom
+  infixl [parsing_only] ` ⟶ `:60 := precategory.hom
   namespace hom
     infixl ` ⟶ `:60 := precategory.hom -- if you open this namespace, hom a b is printed as a ⟶ b
   end hom

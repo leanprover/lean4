@@ -367,6 +367,7 @@ namespace category
     : c ⟶ c' ≃ H c ⟶ H c' :=
   equiv.mk (to_fun_hom (isomorphism.to_functor H)) _
 
+  /- TODO
   definition is_equiv_isomorphism_of_eq [constructor] (C D : Precategory)
     : is_equiv (@isomorphism_of_eq C D) :=
   begin
@@ -391,7 +392,6 @@ namespace category
   definition eq_equiv_equivalence [constructor] (C D : Category) : (C = D) ≃ (C ≃c D) :=
   !eq_equiv_isomorphism ⬝e !isomorphism_equiv_equivalence
 
-  /- TODO
   definition is_equivalence_equiv [constructor] (F : C ⇒ D)
     : is_equivalence F ≃ (fully_faithful F × split_essentially_surjective F) :=
   sorry

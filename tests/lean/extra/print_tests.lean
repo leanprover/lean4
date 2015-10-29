@@ -4,4 +4,4 @@ print notation ∧ ∨
 
 print notation if
 
-print notation mod
+print notation %

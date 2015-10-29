@@ -20,7 +20,6 @@ name const & get_char_mk_name();
 name const & get_congr_name();
 name const & get_dite_name();
 name const & get_div_name();
-name const & get_division_name();
 name const & get_empty_name();
 name const & get_empty_rec_name();
 name const & get_eq_name();

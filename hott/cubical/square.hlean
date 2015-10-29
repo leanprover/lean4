@@ -76,14 +76,14 @@ namespace eq
     square p₁₀ p₁₂ p₀₁ p :=
   by induction r; exact s₁₁
 
-  infix ` ⬝h `:75 := hconcat
-  infix ` ⬝v `:75 := vconcat
-  infix ` ⬝hp `:75 := hconcat_eq
-  infix ` ⬝vp `:75 := vconcat_eq
-  infix ` ⬝ph `:75 := eq_hconcat
-  infix ` ⬝pv `:75 := eq_vconcat
-  postfix `⁻¹ʰ`:(max+1) := hinverse
-  postfix `⁻¹ᵛ`:(max+1) := vinverse
+  infix `⬝h`:75 := hconcat --type using \tr
+  infix `⬝v`:75 := vconcat --type using \tr
+  infix `⬝hp`:75 := hconcat_eq --type using \tr
+  infix `⬝vp`:75 := vconcat_eq --type using \tr
+  infix `⬝ph`:75 := eq_hconcat --type using \tr
+  infix `⬝pv`:75 := eq_vconcat --type using \tr
+  postfix `⁻¹ʰ`:(max+1) := hinverse --type using \-1h
+  postfix `⁻¹ᵛ`:(max+1) := vinverse --type using \-1v
 
   definition transpose [unfold 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) : square p₀₁ p₂₁ p₁₀ p₁₂ :=
   by induction s₁₁;exact ids
@@ -498,5 +498,10 @@ namespace eq
 
   definition square_fill_r : Σ (p : a₂₀ = a₂₂) , square p₁₀ p₁₂ p₀₁ p :=
   by induction p₁₀; induction p₁₂; exact ⟨_, !hrefl⟩
+
+  --TODO find better names
+  definition square_Fl_Fl_ap_idp {A B : Type} {b : B} {f : A → B} (p : Π a, f a = b)
+    {a₀ a₁ : A} (q : a₀ = a₁) : square (p a₀) (p a₁) (ap f q) idp  :=
+  by induction q; apply vrfl
 
 end eq

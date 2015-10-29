@@ -157,7 +157,7 @@ namespace eq
   section cube_fillers
   variables (s₁₁₀ s₁₁₂ s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁)
 
-  definition cube_fil110 : Σ lid, cube lid s₁₁₂ s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ :=
+  definition cube_fill110 : Σ lid, cube lid s₁₁₂ s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ :=
   begin
     induction s₀₁₁, induction s₂₁₁,
     let fillsq := square_fill_l (eq_of_vdeg_square s₁₀₁) 

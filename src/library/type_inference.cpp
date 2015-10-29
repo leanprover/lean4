@@ -606,9 +606,15 @@ bool type_inference::process_assignment(expr const & ma, expr const & v) {
     buffer<expr> args;
     expr const & m = get_app_args(ma, args);
     buffer<expr> locals;
-    for (expr const & arg : args) {
-        if (!is_tmp_local(arg))
-            break; // is not local
+    for (expr & arg : args) {
+        expr new_arg = arg;
+        // try to instantiate
+        if (is_meta(new_arg))
+            new_arg = instantiate_uvars_mvars(arg);
+        if (!is_local(new_arg))
+            break; // it is not local
+        arg = new_arg;
+        lean_assert(is_local(arg));
         if (std::any_of(locals.begin(), locals.end(), [&](expr const & local) {
                     return mlocal_name(local) == mlocal_name(arg); }))
             break; // duplicate local

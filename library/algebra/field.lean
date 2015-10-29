@@ -14,20 +14,18 @@ namespace algebra
 
 variable {A : Type}
 
--- in division rings, 1 / 0 = 0
 structure division_ring [class] (A : Type) extends ring A, has_inv A, zero_ne_one_class A :=
   (mul_inv_cancel : ∀{a}, a ≠ zero → mul a (inv a) = one)
   (inv_mul_cancel : ∀{a}, a ≠ zero → mul (inv a) a = one)
-  --(inv_zero : inv zero = zero)
 
 section division_ring
   variables [s : division_ring A] {a b c : A}
   include s
 
-  protected definition division (a b : A) : A := a * b⁻¹
+  protected definition div (a b : A) : A := a * b⁻¹
 
-  definition division_ring_has_division [reducible] [instance] : has_division A :=
-  has_division.mk algebra.division
+  definition division_ring_has_div [reducible] [instance] : has_div A :=
+  has_div.mk algebra.div
 
   lemma division.def (a b : A) : a / b = a * b⁻¹ :=
   rfl

@@ -274,7 +274,7 @@ theorem s_inv_ne_zero {s : seq} (Hs : regular s) (Hsep : sep s zero) (n : ℕ+) 
       apply pnat.mul_le_mul_left
     end)
 
-protected theorem mul_inv {s : seq} (Hs : regular s) (Hsep : sep s zero) : 
+protected theorem mul_inv {s : seq} (Hs : regular s) (Hsep : sep s zero) :
           smul s (s_inv Hs) ≡ one :=
   begin
     let Rsi := reg_inv_reg Hs Hsep,
@@ -330,7 +330,7 @@ protected theorem mul_inv {s : seq} (Hs : regular s) (Hsep : sep s zero) :
     apply pnat.mul_le_mul_right
    end
 
-protected theorem inv_mul {s : seq} (Hs : regular s) (Hsep : sep s zero) : 
+protected theorem inv_mul {s : seq} (Hs : regular s) (Hsep : sep s zero) :
           smul (s_inv Hs) s ≡ one :=
   begin
     apply equiv.trans,
@@ -545,7 +545,7 @@ theorem s_le_of_equiv_le_right {s t u : seq} (Hs : regular s) (Ht : regular t) (
 
 noncomputable definition r_inv (s : reg_seq) : reg_seq := reg_seq.mk (s_inv (reg_seq.is_reg s))
   (if H : sep (reg_seq.sq s) zero then reg_inv_reg (reg_seq.is_reg s) H else
-    assert Hz : s_inv (reg_seq.is_reg s) = zero, from funext (λ n, dif_neg H), 
+    assert Hz : s_inv (reg_seq.is_reg s) = zero, from funext (λ n, dif_neg H),
     by rewrite Hz; apply zero_is_reg)
 
 theorem r_inv_zero : requiv (r_inv r_zero) r_zero :=
@@ -583,19 +583,18 @@ end rat_seq
 namespace real
 open [classes] rat_seq
 
-noncomputable protected definition inv (x : ℝ) : ℝ := 
+noncomputable protected definition inv (x : ℝ) : ℝ :=
   quot.lift_on x (λ a, quot.mk (rat_seq.r_inv a))
            (λ a b H, quot.sound (rat_seq.r_inv_well_defined H))
 
 noncomputable definition real_has_inv [instance] [reducible] [priority real.prio] : has_inv real :=
   has_inv.mk real.inv
 
-noncomputable protected definition division (x y : ℝ) : ℝ :=
+noncomputable protected definition div (x y : ℝ) : ℝ :=
   x * y⁻¹
 
-noncomputable definition real_has_division [instance] [reducible] [priority real.prio] : 
-                         has_division real :=
-has_division.mk real.division
+noncomputable definition real_has_div [instance] [reducible] [priority real.prio] : has_div real :=
+  has_div.mk real.div
 
 protected theorem le_total (x y : ℝ) : x ≤ y ∨ y ≤ x :=
   quot.induction_on₂ x y (λ s t, rat_seq.r_le_total s t)
@@ -615,10 +614,10 @@ theorem sep_of_neq {x y : ℝ} : ¬ x = y → x ≢ y :=
 theorem sep_is_neq (x y : ℝ) : (x ≢ y) = (¬ x = y) :=
   propext (iff.intro neq_of_sep sep_of_neq)
 
-protected theorem mul_inv_cancel (x : ℝ) : x ≠ 0 → x * x⁻¹ = 1 := 
+protected theorem mul_inv_cancel (x : ℝ) : x ≠ 0 → x * x⁻¹ = 1 :=
   !sep_is_neq ▸ !real.mul_inv_cancel'
 
-protected theorem inv_mul_cancel (x : ℝ) : x ≠ 0 → x⁻¹ * x = 1 := 
+protected theorem inv_mul_cancel (x : ℝ) : x ≠ 0 → x⁻¹ * x = 1 :=
   !sep_is_neq ▸ !real.inv_mul_cancel'
 
 protected theorem inv_zero : (0 : ℝ)⁻¹ = 0 := quot.sound (rat_seq.r_inv_zero)
@@ -663,10 +662,10 @@ by_cases
 
 open int
 
-theorem of_int_div (x y : ℤ) (H : (#int y ∣ x)) : of_int ((x div y)) = of_int x / of_int y :=
+theorem of_int_div (x y : ℤ) (H : y ∣ x) : of_int (x / y) = of_int x / of_int y :=
 by rewrite [of_int_eq, rat.of_int_div H, of_rat_divide]
 
-theorem of_nat_div (x y : ℕ) (H : (#nat y ∣ x)) : of_nat (x div y) = of_nat x / of_nat y :=
+theorem of_nat_div (x y : ℕ) (H : y ∣ x) : of_nat (x / y) = of_nat x / of_nat y :=
 by rewrite [of_nat_eq, rat.of_nat_div H, of_rat_divide]
 
 /- useful for proving equalities -/

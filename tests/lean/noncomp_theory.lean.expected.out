@@ -1,5 +1,5 @@
-noncomp_theory.lean:4:0: error: definition 'f' is noncomputable, it depends on 'real.real_has_division'
+noncomp_theory.lean:4:0: error: definition 'f' is noncomputable, it depends on 'real.real_has_div'
 noncomputable definition g : ℝ → ℝ → ℝ :=
-λ (a : ℝ), division (a + a)
+λ (a : ℝ), div (a + a)
 definition r : ℕ → ℕ :=
 λ (a : ℕ), a

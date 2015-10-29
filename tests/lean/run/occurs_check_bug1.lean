@@ -4,7 +4,7 @@ open nat prod
 open decidable
 
 constant modulo1 (x : ℕ) (y : ℕ) : ℕ
-infixl `mod` := modulo1
+infixl `mod`:70 := modulo1
 
 constant gcd_aux : ℕ × ℕ → ℕ
 

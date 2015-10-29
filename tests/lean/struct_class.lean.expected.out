@@ -1,12 +1,11 @@
 decidable : Prop → Type₁
 has_add : Type → Type
-has_divide : Type → Type
-has_division : Type → Type
+has_div : Type → Type
 has_dvd : Type → Type
 has_inv : Type → Type
 has_le : Type → Type
 has_lt : Type → Type
-has_modulo : Type → Type
+has_mod : Type → Type
 has_mul : Type → Type
 has_neg : Type → Type
 has_one : Type → Type
@@ -21,13 +20,12 @@ subsingleton : Type → Prop
 well_founded : Π {A : Type}, (A → A → Prop) → Prop
 decidable : Prop → Type₁
 has_add : Type → Type
-has_divide : Type → Type
-has_division : Type → Type
+has_div : Type → Type
 has_dvd : Type → Type
 has_inv : Type → Type
 has_le : Type → Type
 has_lt : Type → Type
-has_modulo : Type → Type
+has_mod : Type → Type
 has_mul : Type → Type
 has_neg : Type → Type
 has_one : Type → Type

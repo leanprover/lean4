@@ -112,7 +112,7 @@ begin
   end
 end
 
-theorem choose_def_alt {n k : ℕ} (H : k ≤ n) : choose n k = fact n div (fact k * fact (n -k)) :=
+theorem choose_def_alt {n k : ℕ} (H : k ≤ n) : choose n k = fact n / (fact k * fact (n -k)) :=
 eq.symm (nat.div_eq_of_eq_mul_left (mul_pos !fact_pos !fact_pos)
     (by rewrite [-mul.assoc, choose_mul_fact_mul_fact H]))
 

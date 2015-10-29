@@ -95,7 +95,7 @@ has_zero.mk (fin.zero n)
 theorem val_zero (n : nat) : val (0 : fin (succ n)) = 0 := rfl
 
 definition mk_mod [reducible] (n i : nat) : fin (succ n) :=
-mk (i mod (succ n)) (mod_lt _ !zero_lt_succ)
+mk (i % (succ n)) (mod_lt _ !zero_lt_succ)
 
 theorem mk_mod_zero_eq (n : nat) : mk_mod n 0 = 0 :=
 rfl
@@ -218,12 +218,12 @@ end lift_lower
 section madd
 
 definition madd (i j : fin (succ n)) : fin (succ n) :=
-mk ((i + j) mod (succ n)) (mod_lt _ !zero_lt_succ)
+mk ((i + j) % (succ n)) (mod_lt _ !zero_lt_succ)
 
 definition minv : ∀ i : fin (succ n), fin (succ n)
-| (mk iv ilt) := mk ((succ n - iv) mod succ n) (mod_lt _ !zero_lt_succ)
+| (mk iv ilt) := mk ((succ n - iv) % succ n) (mod_lt _ !zero_lt_succ)
 
-lemma val_madd : ∀ i j : fin (succ n), val (madd i j) = (i + j) mod (succ n)
+lemma val_madd : ∀ i j : fin (succ n), val (madd i j) = (i + j) % (succ n)
 | (mk iv ilt) (mk jv jlt) := by esimp
 
 lemma madd_inj : ∀ {i : fin (succ n)}, injective (madd i)
@@ -238,7 +238,7 @@ end))
 lemma madd_mk_mod {i j : nat} : madd (mk_mod n i) (mk_mod n j) = mk_mod n (i+j) :=
 eq_of_veq begin esimp [madd, mk_mod], rewrite [ mod_add_mod, add_mod_mod ] end
 
-lemma val_mod : ∀ i : fin (succ n), (val i) mod (succ n) = val i
+lemma val_mod : ∀ i : fin (succ n), (val i) % (succ n) = val i
 | (mk iv ilt) := by esimp; rewrite [(mod_eq_of_lt ilt)]
 
 lemma madd_comm (i j : fin (succ n)) : madd i j = madd j i :=
@@ -450,13 +450,13 @@ assert aux₁ : ∀ {v₁ v₂}, v₁ < n → v₂ < m → v₁ + v₂ * n < n*m
     assert v₁ + (v₂ * n + n) < n + n * m, from add_lt_add_of_lt_of_le h₁ this,
     have   v₁ + v₂ * n + n < n * m + n,   by rewrite [add.assoc, add.comm (n*m) n]; exact this,
     lt_of_add_lt_add_right this,
-assert aux₂ : ∀ v, v mod n < n, from
+assert aux₂ : ∀ v, v % n < n, from
   take v, mod_lt _ `n > 0`,
-assert aux₃ : ∀ {v}, v < n * m → v div n < m, from
+assert aux₃ : ∀ {v}, v < n * m → v / n < m, from
   take v, assume h, by rewrite mul.comm at h; exact nat.div_lt_of_lt_mul h,
 ⦃ equiv,
   to_fun   := λ p : (fin n × fin m), match p with (mk v₁ hlt₁, mk v₂ hlt₂) := mk (v₁ + v₂ * n) (aux₁ hlt₁ hlt₂) end,
-  inv_fun  := λ f : fin (n*m), match f with (mk v hlt) := (mk (v mod n) (aux₂ v), mk (v div n) (aux₃ hlt)) end,
+  inv_fun  := λ f : fin (n*m), match f with (mk v hlt) := (mk (v % n) (aux₂ v), mk (v / n) (aux₃ hlt)) end,
   left_inv := begin
     intro p, cases p with f₁ f₂, cases f₁ with v₁ hlt₁, cases f₂ with v₂ hlt₂, esimp,
     congruence,

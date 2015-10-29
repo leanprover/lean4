@@ -3,7 +3,7 @@ Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 
-Parity
+Parity.
 -/
 import data.nat.power logic.identities
 
@@ -11,7 +11,7 @@ namespace nat
 open decidable
 open algebra
 
-definition even (n : nat) := n mod 2 = 0
+definition even (n : nat) := n % 2 = 0
 
 definition decidable_even [instance] : ∀ n, decidable (even n) :=
 take n, !nat.has_decidable_eq
@@ -77,22 +77,22 @@ lemma eq_1_of_ne_0_lt_2 : ∀ {n : nat}, n ≠ 0 → n < 2 → n = 1
 | 1     h₁ h₂ := rfl
 | (n+2) h₁ h₂ := absurd (lt_of_succ_lt_succ (lt_of_succ_lt_succ h₂)) !not_lt_zero
 
-lemma mod_eq_of_odd {n} : odd n → n mod 2 = 1 :=
+lemma mod_eq_of_odd {n} : odd n → n % 2 = 1 :=
 suppose odd n,
-  have ¬ n mod 2 = 0, from this,
-  have n mod 2 < 2,   from mod_lt n dec_trivial,
-  eq_1_of_ne_0_lt_2 `¬ n mod 2 = 0` `n mod 2 < 2`
+  have ¬ n % 2 = 0, from this,
+  have n % 2 < 2,   from mod_lt n dec_trivial,
+  eq_1_of_ne_0_lt_2 `¬ n % 2 = 0` `n % 2 < 2`
 
-lemma odd_of_mod_eq {n} : n mod 2 = 1 → odd n :=
-suppose n mod 2 = 1,
+lemma odd_of_mod_eq {n} : n % 2 = 1 → odd n :=
+suppose n % 2 = 1,
 by_contradiction (suppose ¬ odd n,
-  assert n mod 2 = 0, from even_of_not_odd this,
+  assert n % 2 = 0, from even_of_not_odd this,
   by rewrite this at *; contradiction)
 
 lemma even_succ_of_odd {n} : odd n → even (succ n) :=
 suppose odd n,
-  assert n mod 2 = 1 mod 2,     from mod_eq_of_odd this,
-  assert (n+1) mod 2 = 2 mod 2, from add_mod_eq_add_mod_right 1 this,
+  assert n % 2 = 1 % 2,     from mod_eq_of_odd this,
+  assert (n+1) % 2 = 2 % 2, from add_mod_eq_add_mod_right 1 this,
   by rewrite mod_self at this; exact this
 
 lemma odd_succ_succ_of_odd {n} : odd n → odd (succ (succ n)) :=
@@ -175,7 +175,7 @@ assume h, by_contradiction (λ hn,
   have ∃ k, n = 2 * k, from exists_of_even this,
   obtain k₁ (hk₁ : n = 2 * k₁ + 1), from h,
   obtain k₂ (hk₂ : n = 2 * k₂), from this,
-  assert (2 * k₁ + 1) mod 2 = (2 * k₂) mod 2, by rewrite [-hk₁, -hk₂],
+  assert (2 * k₁ + 1) % 2 = (2 * k₂) % 2, by rewrite [-hk₁, -hk₂],
   begin
     rewrite [mul_mod_right at this, add.comm at this, add_mul_mod_self_left at this],
     contradiction
@@ -189,7 +189,8 @@ even_of_exists (exists.intro (k₁+k₂) (by rewrite [hk₁, hk₂, left_distrib
 
 lemma even_add_of_odd_of_odd {n m} : odd n → odd m → even (n+m) :=
 suppose odd n, suppose odd m,
-assert even (succ n + succ m),    from even_add_of_even_of_even (even_succ_of_odd `odd n`) (even_succ_of_odd `odd m`),
+assert even (succ n + succ m),
+  from even_add_of_even_of_even (even_succ_of_odd `odd n`) (even_succ_of_odd `odd m`),
 have   even(succ (succ (n + m))), by rewrite [add_succ at this, succ_add at this]; exact this,
 even_of_even_succ_succ this
 
@@ -259,7 +260,7 @@ by_contradiction
     have odd (n^m), from odd_pow this,
     show false, from this `even (n^m)`)
 
-lemma eq_of_div2_of_even {n m : nat} : n div 2 = m div 2 → (even n ↔ even m) → n = m :=
+lemma eq_of_div2_of_even {n m : nat} : n / 2 = m / 2 → (even n ↔ even m) → n = m :=
 assume h₁ h₂,
  or.elim (em (even n))
    (suppose even n, or.elim (em (even m))
@@ -274,13 +275,15 @@ assume h₁ h₂,
    (suppose odd n,  or.elim (em (even m))
      (suppose even m, absurd `odd n` (not_odd_of_even (iff.mpr h₂ `even m`)))
      (suppose odd m,
-      assert d : 1 div 2 = (0:nat),   from dec_trivial,
+      assert d : 1 / 2 = (0:nat),   from dec_trivial,
       obtain w₁ (hw₁ : n = 2*w₁ + 1), from exists_of_odd `odd n`,
       obtain w₂ (hw₂ : m = 2*w₂ + 1), from exists_of_odd `odd m`,
       begin
         substvars,
-        rewrite [add.comm at h₁, add_mul_div_self_left _ _ (dec_trivial : 2 > 0) at h₁, d at h₁, zero_add at h₁],
-        rewrite [add.comm at h₁, add_mul_div_self_left _ _ (dec_trivial : 2 > 0) at h₁, d at h₁, zero_add at h₁],
+        rewrite [add.comm at h₁, add_mul_div_self_left _ _ (dec_trivial : 2 > 0) at h₁, d at h₁,
+                 zero_add at h₁],
+        rewrite [add.comm at h₁, add_mul_div_self_left _ _ (dec_trivial : 2 > 0) at h₁, d at h₁,
+                 zero_add at h₁],
         rewrite h₁
       end))
 end nat

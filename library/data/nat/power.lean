@@ -56,7 +56,7 @@ theorem mul_self_eq_pow_2 (a : nat) : a * a = a ^ 2 :=
 show a * a = a ^ (succ (succ zero)), from
 by rewrite [*pow_succ, *pow_zero, mul_one]
 
-theorem pow_cancel_left : ∀ {a b c : nat}, a > 1 → a^b = a^c → b = c
+theorem pow_cancel_left : ∀ {a b c : nat}, a > 1 → a ^ b = a ^ c → b = c
 | a 0        0        h₁ h₂ := rfl
 | a (succ b) 0        h₁ h₂ :=
   assert a = 1, by rewrite [pow_succ at h₂, pow_zero at h₂]; exact (eq_one_of_mul_eq_one_right h₂),
@@ -71,7 +71,7 @@ theorem pow_cancel_left : ∀ {a b c : nat}, a > 1 → a^b = a^c → b = c
   assert a^b = a^c, by rewrite [*pow_succ at h₂]; exact (eq_of_mul_eq_mul_left (pos_of_ne_zero this) h₂),
   by rewrite [pow_cancel_left h₁ this]
 
-theorem pow_div_cancel : ∀ {a b : nat}, a ≠ 0 → (a ^ succ b) div a = a ^ b
+theorem pow_div_cancel : ∀ {a b : nat}, a ≠ 0 → (a ^ succ b) / a = a ^ b
 | a 0        h := by rewrite [pow_succ, pow_zero, mul_one, nat.div_self (pos_of_ne_zero h)]
 | a (succ b) h := by rewrite [pow_succ, nat.mul_div_cancel_left _ (pos_of_ne_zero h)]
 
@@ -83,13 +83,13 @@ lemma dvd_pow_of_dvd_of_pos : ∀ {i j n : nat}, i ∣ j → n > 0 → i ∣ j^n
 | i j 0        h₁ h₂ := absurd h₂ !lt.irrefl
 | i j (succ n) h₁ h₂ := by rewrite [pow_succ']; apply dvd_mul_of_dvd_right h₁
 
-lemma pow_mod_eq_zero (i : nat) {n : nat} (h : n > 0) : (i^n) mod i = 0 :=
+lemma pow_mod_eq_zero (i : nat) {n : nat} (h : n > 0) : (i ^ n) % i = 0 :=
 iff.mp !dvd_iff_mod_eq_zero (dvd_pow i h)
 
 lemma pow_dvd_of_pow_succ_dvd {p i n : nat} : p^(succ i) ∣ n → p^i ∣ n :=
 suppose p^(succ i) ∣ n,
-assert p^i ∣ p^(succ i), 
-  by rewrite [pow_succ']; apply nat.dvd_of_eq_mul; apply rfl, 
+assert p^i ∣ p^(succ i),
+  by rewrite [pow_succ']; apply nat.dvd_of_eq_mul; apply rfl,
 dvd.trans `p^i ∣ p^(succ i)` `p^(succ i) ∣ n`
 
 lemma dvd_of_pow_succ_dvd_mul_pow {p i n : nat} (Ppos : p > 0) :

@@ -263,16 +263,16 @@ calc (nat + bool) ≃ (nat + (unit + unit)) : sum_congr !equiv.refl bool_equiv_u
 open decidable
 definition nat_sum_nat_equiv_nat [simp] : (nat + nat) ≃ nat :=
 mk (λ s, match s with inl n := 2*n | inr n := 2*n+1 end)
-   (λ n, if even n then inl (n div 2) else inr ((n - 1) div 2))
+   (λ n, if even n then inl (n / 2) else inr ((n - 1) / 2))
    (λ s, begin
            have two_gt_0 : 2 > zero, from dec_trivial,
            cases s,
              {esimp, rewrite [if_pos (even_two_mul _), nat.mul_div_cancel_left _ two_gt_0]},
-             {esimp, rewrite [if_neg (not_even_two_mul_plus_one _), nat.add_sub_cancel, 
+             {esimp, rewrite [if_neg (not_even_two_mul_plus_one _), nat.add_sub_cancel,
                               nat.mul_div_cancel_left _ two_gt_0]}
          end)
    (λ n, by_cases
-          (λ h : even n, 
+          (λ h : even n,
             by rewrite [if_pos h]; esimp; rewrite [nat.mul_div_cancel' (dvd_of_even h)])
           (λ h : ¬ even n,
             begin

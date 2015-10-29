@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 Type class for encodable types.
 Note that every encodable type is countable.
 -/
-import data.fintype data.list data.list.sort data.sum data.nat.div data.countable data.equiv 
+import data.fintype data.list data.list.sort data.sum data.nat.div data.countable data.equiv
 import data.finset
 open option list nat function algebra
 
@@ -23,7 +23,7 @@ have injective encode, from
     by rewrite [*encodek at this]; injection this; assumption,
 exists.intro encode this
 
-definition encodable_fintype [instance] {A : Type} [h₁ : fintype A] [h₂ : decidable_eq A] : 
+definition encodable_fintype [instance] {A : Type} [h₁ : fintype A] [h₂ : decidable_eq A] :
   encodable A :=
 encodable.mk
   (λ a, find a (elements_of A))
@@ -57,13 +57,13 @@ private definition encode_sum : sum A B → nat
 | (sum.inr b) := 2 * encode b + 1
 
 private definition decode_sum (n : nat) : option (sum A B) :=
-if n mod 2 = 0 then
-   match decode A (n div 2) with
+if n % 2 = 0 then
+   match decode A (n / 2) with
    | some a := some (sum.inl a)
    | none   := none
    end
 else
-   match decode B ((n - 1) div 2) with
+   match decode B ((n - 1) / 2) with
    | some b := some (sum.inr b)
    | none   := none
    end
@@ -74,12 +74,12 @@ private theorem decode_encode_sum : ∀ s : sum A B, decode_sum (encode_sum s) =
   assert aux : 2 > (0:nat), from dec_trivial,
   begin
     esimp [encode_sum, decode_sum],
-    rewrite [mul_mod_right, if_pos (eq.refl (0 : nat)), nat.mul_div_cancel_left _ aux, 
+    rewrite [mul_mod_right, if_pos (eq.refl (0 : nat)), nat.mul_div_cancel_left _ aux,
              encodable.encodek]
   end
 | (sum.inr b) :=
   assert aux₁ : 2 > (0:nat),       from dec_trivial,
-  assert aux₂ : 1 mod 2 = (1:nat), by rewrite [nat.modulo_def],
+  assert aux₂ : 1 % 2 = (1:nat), by rewrite [nat.mod_def],
   assert aux₃ : 1 ≠ (0:nat),       from dec_trivial,
   begin
     esimp [encode_sum, decode_sum],

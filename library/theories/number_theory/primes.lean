@@ -63,7 +63,7 @@ assume h, succ_pred_of_pos (pos_of_prime h)
 lemma eq_one_or_eq_self_of_prime_of_dvd {p m : nat} : prime p → m ∣ p → m = 1 ∨ m = p :=
 assume h d, obtain h₁ h₂, from h, h₂ m d
 
-lemma gt_one_of_pos_of_prime_dvd {i p : nat} : prime p → 0 < i → i mod p = 0 → 1 < i :=
+lemma gt_one_of_pos_of_prime_dvd {i p : nat} : prime p → 0 < i → i % p = 0 → 1 < i :=
 assume ipp pos h,
 have p ≥ 2,  from ge_two_of_prime ipp,
 have p ∣ i,  from dvd_of_mod_eq_zero h,

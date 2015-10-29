@@ -3,8 +3,7 @@ Copyright (c) 2015 Haitao Zhang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author : Haitao Zhang
 -/
-
-import theories.number_theory.primes data algebra.group algebra.group_power algebra.group_bigops 
+import theories.number_theory.primes data algebra.group algebra.group_power algebra.group_bigops
 import .cyclic .finsubg .hom .perm .action
 
 open nat fin list algebra function subtype
@@ -29,7 +28,7 @@ include Hom
 open finset.partition
 
 lemma card_mod_eq_of_action_by_psubg {p : nat} :
-  ∀ {m : nat}, psubg H p m → (card S) mod p = (card (fixed_points hom H)) mod p
+  ∀ {m : nat}, psubg H p m → (card S) % p = (card (fixed_points hom H)) % p
 | 0        := by rewrite [↑psubg, pow_zero]; intro Psubg;
   rewrite [finsubg_eq_singleton_one_of_card_one (and.right Psubg), fixed_points_of_one]
 | (succ m) := take Ppsubg, begin
@@ -64,7 +63,7 @@ variables {H : finset G} [finsubgH : is_finsubg H]
 include finsubgH
 
 lemma card_psubg_cosets_mod_eq {p : nat} {m : nat} :
-  psubg H p m → (card (lcoset_type univ H)) mod p = card (lcoset_type (normalizer H) H) mod p :=
+  psubg H p m → (card (lcoset_type univ H)) % p = card (lcoset_type (normalizer H) H) % p :=
 assume Psubg, by rewrite [-card_aol_fixed_points_eq_card_cosets]; exact card_mod_eq_of_action_by_psubg Psubg
 
 end psubg_cosets
@@ -258,7 +257,7 @@ lemma rotl_peo_seq_compose {n i j : nat} :
   (rotl_peo_seq A n i) ∘ (rotl_peo_seq A n j) = rotl_peo_seq A n (j + i) :=
 funext take s, subtype.eq begin rewrite [↑rotl_peo_seq, ↑rotl_perm, ↑rotl_fun, compose.assoc, rotl_compose] end
 
-lemma rotl_peo_seq_mod {n i : nat} : rotl_peo_seq A n i = rotl_peo_seq A n (i mod succ n) :=
+lemma rotl_peo_seq_mod {n i : nat} : rotl_peo_seq A n i = rotl_peo_seq A n (i % succ n) :=
 funext take s, subtype.eq begin rewrite [↑rotl_peo_seq, rotl_perm_mod] end
 
 lemma rotl_peo_seq_inj {n m : nat} : injective (rotl_peo_seq A n m) :=
@@ -323,11 +322,11 @@ let pp := nat.pred p, spp := nat.succ pp in
 assert Peq : spp = p, from succ_pred_prime Pprime,
 assert Ppsubg : psubg (@univ (fin spp) _) spp 1,
   from and.intro (eq.symm Peq ▸ Pprime) (by rewrite [Peq, card_fin, pow_one]),
-have (pow_nat (card A) pp) mod spp = (card (fixed_points (rotl_perm_ps A pp) univ)) mod spp,
+have (pow_nat (card A) pp) % spp = (card (fixed_points (rotl_perm_ps A pp) univ)) % spp,
   by rewrite -card_peo_seq; apply card_mod_eq_of_action_by_psubg Ppsubg,
-have Pcardmod : (pow_nat (card A) pp) mod p = (card (fixed_points (rotl_perm_ps A pp) univ)) mod p,
+have Pcardmod : (pow_nat (card A) pp) % p = (card (fixed_points (rotl_perm_ps A pp) univ)) % p,
   from Peq ▸ this,
-have Pfpcardmod : (card (fixed_points (rotl_perm_ps A pp) univ)) mod p = 0,
+have Pfpcardmod : (card (fixed_points (rotl_perm_ps A pp) univ)) % p = 0,
   from eq.trans (eq.symm Pcardmod) (mod_eq_zero_of_dvd (dvd_pow_of_dvd_of_pos Pdvd (pred_prime_pos Pprime))),
 have Pfpcardpos : card (fixed_points (rotl_perm_ps A pp) univ) > 0,
   from card_pos_of_mem peo_seq_one_mem_fixed_points,

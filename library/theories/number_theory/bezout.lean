@@ -20,7 +20,7 @@ private definition pair_nat.lt.wf : well_founded pair_nat.lt := intro_k (measure
 local attribute pair_nat.lt.wf [instance]
 local infixl `≺`:50 := pair_nat.lt
 
-private definition gcd.lt.dec (x y₁ : ℕ) : (succ y₁, x mod succ y₁) ≺ (x, succ y₁) :=
+private definition gcd.lt.dec (x y₁ : ℕ) : (succ y₁, x % succ y₁) ≺ (x, succ y₁) :=
 !nat.mod_lt (succ_pos y₁)
 
 private definition egcd_rec_f (z : ℤ) : ℤ → ℤ → ℤ × ℤ := λ s t, (t, s - t * z)
@@ -29,8 +29,8 @@ definition egcd.F : Π (p₁ : ℕ × ℕ), (Π p₂ : ℕ × ℕ, p₂ ≺ p₁
 | (x, y) := nat.cases_on y
               (λ f, (1, 0) )
               (λ y₁ (f : Π p₂, p₂ ≺ (x, succ y₁) → ℤ × ℤ),
-                let bz := f (succ y₁, x mod succ y₁) !gcd.lt.dec in
-                prod.cases_on bz (egcd_rec_f (x div succ y₁)))
+                let bz := f (succ y₁, x % succ y₁) !gcd.lt.dec in
+                prod.cases_on bz (egcd_rec_f (x / succ y₁)))
 
 definition egcd (x y : ℕ) := fix egcd.F (pair x y)
 
@@ -38,12 +38,12 @@ theorem egcd_zero (x : ℕ) : egcd x 0 = (1, 0) :=
 well_founded.fix_eq egcd.F (x, 0)
 
 theorem egcd_succ (x y : ℕ) :
-  egcd x (succ y) = prod.cases_on (egcd (succ y) (x mod succ y)) (egcd_rec_f (x div succ y)) :=
+  egcd x (succ y) = prod.cases_on (egcd (succ y) (x % succ y)) (egcd_rec_f (x / succ y)) :=
 well_founded.fix_eq egcd.F (x, succ y)
 
 theorem egcd_of_pos (x : ℕ) {y : ℕ} (ypos : y > 0) :
-  let erec := egcd y (x mod y), u := pr₁ erec, v := pr₂ erec in
-    egcd x y = (v, u - v * (x div y)) :=
+  let erec := egcd y (x % y), u := pr₁ erec, v := pr₂ erec in
+    egcd x y = (v, u - v * (x / y)) :=
 obtain (y' : nat) (yeq : y = succ y'), from exists_eq_succ_of_pos ypos,
 begin
   rewrite [yeq, egcd_succ, -prod.eta (egcd _ _)],
@@ -64,11 +64,11 @@ gcd.induction x y
       rewrite [gcd_rec, -IH],
       rewrite [algebra.add.comm],
       rewrite [-of_nat_mod],
-      rewrite [int.modulo.def],
+      rewrite [int.mod_def],
       rewrite [+algebra.mul_sub_right_distrib],
       rewrite [+algebra.mul_sub_left_distrib, *left_distrib],
-      rewrite [*sub_eq_add_neg, {pr₂ (egcd n (m mod n)) * of_nat m + - _}algebra.add.comm, -algebra.add.assoc],
-      rewrite [algebra.mul.assoc]
+      rewrite [*sub_eq_add_neg, {pr₂ (egcd n (m % n)) * of_nat m + - _}algebra.add.comm],
+      rewrite [-algebra.add.assoc ,algebra.mul.assoc]
     end)
 
 theorem Bezout_aux (x y : ℕ) : ∃ a b : ℤ, a * x + b * y = gcd x y :=

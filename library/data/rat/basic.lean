@@ -286,9 +286,9 @@ by esimp [mul, of_int, equiv]; rewrite [*int.mul_one]
 
 definition reduce : prerat → prerat
 | (mk an ad adpos) :=
-    have pos : ad div gcd an ad > 0, from div_pos_of_pos_of_dvd adpos !gcd_nonneg !gcd_dvd_right,
+    have pos : ad / gcd an ad > 0, from div_pos_of_pos_of_dvd adpos !gcd_nonneg !gcd_dvd_right,
     if an = 0 then prerat.zero
-              else mk (an div gcd an ad) (ad div gcd an ad) pos
+              else mk (an / gcd an ad) (ad / gcd an ad) pos
 
 protected theorem eq {a b : prerat} (Hn : num a = num b) (Hd : denom a = denom b) : a = b :=
 begin
@@ -306,10 +306,10 @@ theorem reduce_equiv : ∀ a : prerat, reduce a ≡ a
       (assume anz : an = 0,
         begin rewrite [↑reduce, if_pos anz, ↑equiv, anz], krewrite zero_mul end)
       (assume annz : an ≠ 0,
-        by rewrite [↑reduce, if_neg annz, ↑equiv, algebra.mul.comm, -!int.mul_div_assoc 
+        by rewrite [↑reduce, if_neg annz, ↑equiv, algebra.mul.comm, -!int.mul_div_assoc
                     !gcd_dvd_left, -!int.mul_div_assoc !gcd_dvd_right, algebra.mul.comm])
 
-theorem reduce_eq_reduce : ∀{a b : prerat}, a ≡ b → reduce a = reduce b
+theorem reduce_eq_reduce : ∀ {a b : prerat}, a ≡ b → reduce a = reduce b
 | (mk an ad adpos) (mk bn bd bdpos) :=
   assume H : an * bd = bn * ad,
   decidable.by_cases
@@ -575,8 +575,8 @@ protected definition discrete_field [reducible] [trans_instance] : algebra.discr
  inv_zero         := rat.inv_zero,
  has_decidable_eq := has_decidable_eq⦄
 
-definition rat_has_division [instance] [reducible] [priority rat.prio] : has_division rat :=
-has_division.mk has_division.division
+definition rat_has_div [instance] [reducible] [priority rat.prio] : has_div rat :=
+has_div.mk has_div.div
 
 definition rat_has_pow_nat [instance] [reducible] [priority rat.prio] : has_pow_nat rat :=
 has_pow_nat.mk has_pow_nat.pow_nat
@@ -585,19 +585,19 @@ theorem eq_num_div_denom (a : ℚ) : a = num a / denom a :=
 have H : of_int (denom a) ≠ 0, from assume H', ne_of_gt (denom_pos a) (of_int.inj H'),
 iff.mpr (!eq_div_iff_mul_eq H) (mul_denom a)
 
-theorem of_int_div {a b : ℤ} (H : b ∣ a) : of_int (a div b) = of_int a / of_int b :=
+theorem of_int_div {a b : ℤ} (H : b ∣ a) : of_int (a / b) = of_int a / of_int b :=
 decidable.by_cases
   (assume bz : b = 0,
     by rewrite [bz, int.div_zero, of_int_zero, algebra.div_zero])
   (assume bnz : b ≠ 0,
     have bnz' : of_int b ≠ 0, from assume oibz, bnz (of_int.inj oibz),
-    have H' : of_int (a div b) * of_int b = of_int a, from
+    have H' : of_int (a / b) * of_int b = of_int a, from
       dvd.elim H
         (take c, assume Hc : a = b * c,
           by rewrite [Hc, !int.mul_div_cancel_left bnz, mul.comm]),
     iff.mpr (!eq_div_iff_mul_eq bnz') H')
 
-theorem of_nat_div {a b : ℕ} (H : b ∣ a) : of_nat (a div b) = of_nat a / of_nat b :=
+theorem of_nat_div {a b : ℕ} (H : b ∣ a) : of_nat (a / b) = of_nat a / of_nat b :=
 have H' : (int.of_nat b ∣ int.of_nat a), by rewrite [int.of_nat_dvd_of_nat_iff]; exact H,
 by+ rewrite [of_nat_eq, int.of_nat_div, of_int_div H']
 

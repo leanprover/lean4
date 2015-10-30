@@ -9,32 +9,10 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/pos_info_provider.h"
 #include "library/io_state.h"
+#include "library/type_inference.h"
 #include "library/local_context.h"
 
 namespace lean {
-/** Auxiliary object used to customize type class resolution.
-    It allows us to specify how the types of local constants and metavariables are retrieved.
-
-    \remark We need this object because modules such as blast store
-    the types of some local constants (e.g., hypotheses) in a
-    different data-structure.
- */
-class ci_local_metavar_types {
-public:
-    virtual ~ci_local_metavar_types() {}
-    virtual expr infer_local(expr const & e) = 0;
-    virtual expr infer_metavar(expr const & e) = 0;
-};
-
-/** \brief Auxiliary object for changing the thread local storage that stores the auxiliary object
-    ci_local_metavar_types used by type class resolution. */
-class ci_local_metavar_types_scope {
-    ci_local_metavar_types * m_old;
-public:
-    ci_local_metavar_types_scope(ci_local_metavar_types & t);
-    ~ci_local_metavar_types_scope();
-};
-
 optional<expr> mk_class_instance(environment const & env, io_state const & ios, list<expr> const & ctx, expr const & e, pos_info_provider const * pip = nullptr);
 optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx, expr const & e, pos_info_provider const * pip = nullptr);
 

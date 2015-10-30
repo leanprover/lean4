@@ -97,7 +97,7 @@ namespace join
 
   variables {A B C : Type}
 
-  private definition switch_left : join A B → join (join C B) A :=
+  private definition switch_left [reducible] : join A B → join (join C B) A :=
   begin
     intro x, induction x with a b, exact inr a, exact inl (inr b), apply !jglue⁻¹,
   end
@@ -112,10 +112,10 @@ namespace join
   begin
     induction ab with a b, apply !jglue⁻¹, apply ap inl !jglue⁻¹, induction x with a b,
     apply eq_pathover, refine _ ⬝hp !ap_constant⁻¹, refine _ ⬝vp !ap_inv⁻¹,
-    apply (switch_coh_fill _ _ _).1,
+    apply !switch_coh_fill.1,
   end
 
-  protected definition switch : join (join A B) C → join (join C B) A :=
+  protected definition switch [reducible] : join (join A B) C → join (join C B) A :=
   begin
     intro x, induction x with ab c, exact switch_left ab, exact inl (inl c),
     induction x with ab c, exact switch_coh ab c,
@@ -136,7 +136,43 @@ namespace join
     square idp idp (ap !(@join.switch C B) (switch_coh (inl a) c)) (jglue (inl a) c) :=
   begin
     refine hrfl ⬝h _,
-    refine 
+    refine aps join.switch hrfl ⬝h _, esimp[switch_coh],
+    refine hdeg_square !ap_inv ⬝h _,
+    refine hrfl⁻¹ʰ⁻¹ᵛ ⬝h _, esimp[join.switch,switch_left],
+    refine (hdeg_square !elim_glue)⁻¹ᵛ ⬝h _,
+    refine hrfl⁻¹ᵛ ⬝h _, apply hdeg_square !inv_inv,
+  end
+
+  private definition switch_inv_coh_right (c : C) (b : B) :
+    square idp idp (ap !(@join.switch _ _ A) (switch_coh (inr b) c)) (jglue (inr b) c) :=
+  begin
+    refine hrfl ⬝h _,
+    refine aps join.switch hrfl ⬝h _, esimp[switch_coh],
+    refine aps join.switch (hdeg_square !ap_inv) ⬝h _,
+    refine hdeg_square !ap_inv ⬝h _,
+    refine (hdeg_square !ap_compose)⁻¹ᵛ⁻¹ʰ ⬝h _,
+    refine hrfl⁻¹ᵛ ⬝h _, esimp[join.switch,switch_left],
+    refine (hdeg_square !elim_glue)⁻¹ᵛ ⬝h _, apply hdeg_square !inv_inv,
+  end
+
+  private definition switch_inv_left (ab : join A B) :
+    !(@join.switch C) (join.switch (inl ab)) = inl ab :=
+  begin
+    induction ab with a b, do 2 reflexivity,
+    induction x with a b, apply eq_pathover, exact !switch_inv_left_square,
+  end
+
+  section
+  variables (a : A) (b : B) (c : C)
+  check cube ids (switch_inv_left_square a b)
+
+  private definition switch_inv_cube (a : A) (b : B) (c : C) :
+    cube ids (switch_inv_left_square a b)
+      (square_Fl_Fl_ap_idp _ _) (square_Fl_Fl_ap_idp _ _)
+      --(switch_inv_coh_left c a) (switch_inv_coh_right c b)
+      :=
+  begin
+
   end
 
 

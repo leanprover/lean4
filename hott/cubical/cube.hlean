@@ -12,8 +12,7 @@ open equiv equiv.ops is_equiv sigma sigma.ops
 
 namespace eq
 
-  inductive cube {A : Type} {a₀₀₀ : A}
-    : Π{a₂₀₀ a₀₂₀ a₂₂₀ a₀₀₂ a₂₀₂ a₀₂₂ a₂₂₂ : A}
+  inductive cube {A : Type} {a₀₀₀ : A} : Π{a₂₀₀ a₀₂₀ a₂₂₀ a₀₀₂ a₂₀₂ a₀₂₂ a₂₂₂ : A}
        {p₁₀₀ : a₀₀₀ = a₂₀₀} {p₀₁₀ : a₀₀₀ = a₀₂₀} {p₀₀₁ : a₀₀₀ = a₀₀₂}
        {p₁₂₀ : a₀₂₀ = a₂₂₀} {p₂₁₀ : a₂₀₀ = a₂₂₀} {p₂₀₁ : a₂₀₀ = a₂₀₂}
        {p₁₀₂ : a₀₀₂ = a₂₀₂} {p₀₁₂ : a₀₀₂ = a₀₂₂} {p₀₂₁ : a₀₂₀ = a₀₂₂}
@@ -60,12 +59,32 @@ namespace eq
 
   definition rfl3 : cube hrfl hrfl hrfl hrfl s₁₀₁ s₁₀₁ := !refl3
 
+  -- Variables for composition
+  variables {a₄₀₀ a₄₀₂ a₄₂₀ a₄₂₂ : A}
+    {p₃₀₀ : a₂₀₀ = a₄₀₀} {p₃₀₂ : a₂₀₂ = a₄₀₂} {p₃₂₀ : a₂₂₀ = a₄₂₀} {p₃₂₂ : a₂₂₂ = a₄₂₂}
+    {p₄₀₁ : a₄₀₀ = a₄₀₂} {p₄₁₀ : a₄₀₀ = a₄₂₀} {p₄₁₂ : a₄₀₂ = a₄₂₂} {p₄₂₁ : a₄₂₀ = a₄₂₂}
+    {s₃₀₁ : square p₃₀₀ p₃₀₂ p₂₀₁ p₄₀₁}
+    {s₃₁₀ : square p₂₁₀ p₄₁₀ p₃₀₀ p₃₂₀}
+    {s₃₁₂ : square p₂₁₂ p₄₁₂ p₃₀₂ p₃₂₂}
+    {s₃₂₁ : square p₃₂₀ p₃₂₂ p₂₂₁ p₄₂₁}
+    {s₄₁₁ : square p₄₁₀ p₄₁₂ p₄₀₁ p₄₂₁}
+    (d : cube s₃₁₀ s₃₁₂ s₂₁₁ s₄₁₁ s₃₀₁ s₃₂₁)
+
+  /- Composition of Cubes -/
+
+  include c d
+  definition concat1 : cube (s₁₁₀ ⬝h s₃₁₀) _ s₀₁₁ s₄₁₁ _ _ :=
+  begin
+
+  end
+
+  omit c d
+
   definition eq_of_cube (c : cube s₁₁₀ s₁₁₂ s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁) :
     transpose s₁₀₁⁻¹ᵛ ⬝h s₁₁₀ ⬝h transpose s₁₂₁ =
       whisker_square (eq_bot_of_square s₀₁₁) (eq_bot_of_square s₂₁₁) idp idp s₁₁₂ :=
   by induction c; reflexivity
 
-  --set_option pp.implicit true
   definition eq_of_vdeg_cube {s s' : square p₀₁₀ p₂₁₀ p₁₀₀ p₁₂₀}
     (c : cube s s' vrfl vrfl vrfl vrfl) : s = s' :=
   begin

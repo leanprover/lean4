@@ -23,6 +23,10 @@ environment add_trans_instance(environment const & env, name const & n, unsigned
 bool is_class(environment const & env, name const & c);
 /** \brief Return true iff \c i was declared with \c add_instance. */
 bool is_instance(environment const & env, name const & i);
+/** \brief Return the set of active classes (as a predicate) for the given environment */
+name_predicate mk_class_pred(environment const & env);
+/** \brief Return the set of active instances (as a predicate) for the given environment */
+name_predicate mk_instance_pred(environment const & env);
 /** \brief Return true iff \c i is a derived transitive instance. */
 bool is_derived_trans_instance(environment const & env, name const & i);
 /** \brief Return the instances of the given class. */

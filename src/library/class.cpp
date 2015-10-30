@@ -346,6 +346,19 @@ bool is_instance(environment const & env, name const & i) {
     return s.is_instance(i);
 }
 
+name_predicate mk_class_pred(environment const & env) {
+    class_state const & s = class_ext::get_state(env);
+    class_state::class_instances cs = s.m_instances;
+    return [=](name const & n) { return cs.contains(n); }; // NOLINT
+}
+
+name_predicate mk_instance_pred(environment const & env) {
+    class_state const & s = class_ext::get_state(env);
+    class_state::instance_priorities insts = s.m_priorities;
+    name_set der_insts = s.m_derived_trans_instance_set;
+    return [=](name const & n) { return insts.contains(n) || der_insts.contains(n); }; // NOLINT
+}
+
 bool is_derived_trans_instance(environment const & env, name const & i) {
     class_state const & s = class_ext::get_state(env);
     return s.is_derived_trans_instance(i);

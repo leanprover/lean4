@@ -26,6 +26,9 @@ bool is_partial_explicit(expr const & e) { return is_annotation(e, *g_partial_ex
 bool is_nested_partial_explicit(expr const & e) { return is_nested_annotation(e, *g_partial_explicit_name); }
 expr const & get_partial_explicit_arg(expr const & e) { lean_assert(is_partial_explicit(e)); return get_annotation_arg(e); }
 
+bool is_explicit_or_partial_explicit(expr const & e) { return is_explicit(e) || is_partial_explicit(e); }
+expr get_explicit_or_partial_explicit_arg(expr const & e) { lean_assert(is_explicit_or_partial_explicit(e)); return get_annotation_arg(e); }
+
 expr mk_as_is(expr const & e) { return mk_annotation(*g_as_is_name, e); }
 bool is_as_is(expr const & e) { return is_annotation(e, *g_as_is_name); }
 expr const & get_as_is_arg(expr const & e) { lean_assert(is_as_is(e)); return get_annotation_arg(e); }

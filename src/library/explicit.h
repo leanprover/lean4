@@ -35,6 +35,8 @@ bool is_nested_partial_explicit(expr const & e);
 */
 expr const & get_partial_explicit_arg(expr const & e);
 
+bool is_explicit_or_partial_explicit(expr const & e);
+expr get_explicit_or_partial_explicit_arg(expr const & e);
 
 /** \brief Create an explicit expression that is accepted as is
     by the elaborator.

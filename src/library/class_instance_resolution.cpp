@@ -29,39 +29,12 @@ Author: Leonardo de Moura
 #include "library/unifier.h"
 #include "library/metavar_closure.h"
 
-#ifndef LEAN_DEFAULT_CLASS_TRACE_INSTANCES
-#define LEAN_DEFAULT_CLASS_TRACE_INSTANCES false
-#endif
-
-#ifndef LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH
-#define LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH 32
-#endif
-
-#ifndef LEAN_DEFAULT_CLASS_TRANS_INSTANCES
-#define LEAN_DEFAULT_CLASS_TRANS_INSTANCES true
-#endif
-
 namespace lean {
 [[ noreturn ]] void throw_class_exception(char const * msg, expr const & m) { throw_generic_exception(msg, m); }
 [[ noreturn ]] void throw_class_exception(expr const & m, pp_fn const & fn) { throw_generic_exception(m, fn); }
 
-static name * g_class_trace_instances        = nullptr;
-static name * g_class_instance_max_depth     = nullptr;
-static name * g_class_trans_instances        = nullptr;
 static name * g_class_force_new              = nullptr;
 static name * g_prefix                       = nullptr;
-
-bool get_class_trace_instances(options const & o) {
-    return o.get_bool(*g_class_trace_instances, LEAN_DEFAULT_CLASS_TRACE_INSTANCES);
-}
-
-unsigned get_class_instance_max_depth(options const & o) {
-    return o.get_unsigned(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH);
-}
-
-bool get_class_trans_instances(options const & o) {
-    return o.get_bool(*g_class_trans_instances, LEAN_DEFAULT_CLASS_TRANS_INSTANCES);
-}
 
 bool get_class_force_new(options const & o) {
     return o.get_bool(*g_class_force_new, false);
@@ -237,20 +210,7 @@ optional<expr> mk_subsingleton_instance(type_checker & tc, io_state const & ios,
 
 void initialize_class_instance_resolution() {
     g_prefix                       = new name(name::mk_internal_unique_name());
-    g_class_trace_instances        = new name{"class", "trace_instances"};
-    g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
-    g_class_trans_instances        = new name{"class", "trans_instances"};
     g_class_force_new              = new name{"class", "force_new"};
-
-    register_bool_option(*g_class_trace_instances,  LEAN_DEFAULT_CLASS_TRACE_INSTANCES,
-                         "(class) display messages showing the class-instances resolution execution trace");
-
-    register_unsigned_option(*g_class_instance_max_depth, LEAN_DEFAULT_CLASS_INSTANCE_MAX_DEPTH,
-                             "(class) max allowed depth in class-instance resolution");
-
-    register_bool_option(*g_class_trans_instances,  LEAN_DEFAULT_CLASS_TRANS_INSTANCES,
-                         "(class) use automatically derived instances from the transitive closure of "
-                         "the structure instance graph");
 
     register_bool_option(*g_class_force_new,  false,
                          "(class) force new type class resolution procedure to be used even in HoTT mode (THIS IS TEMPORARY OPTION)");
@@ -258,9 +218,6 @@ void initialize_class_instance_resolution() {
 
 void finalize_class_instance_resolution() {
     delete g_prefix;
-    delete g_class_trace_instances;
-    delete g_class_instance_max_depth;
-    delete g_class_trans_instances;
     delete g_class_force_new;
 }
 

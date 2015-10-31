@@ -13,6 +13,10 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 
 namespace lean {
+bool get_class_trace_instances(options const & o);
+unsigned get_class_instance_max_depth(options const & o);
+bool get_class_trans_instances(options const & o);
+
 /** \brief Light-weight type inference, normalization and definitional equality.
     It is simpler and more efficient version of the kernel type checker.
     It does not generate unification constraints.

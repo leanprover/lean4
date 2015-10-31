@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <memory>
 #include "kernel/environment.h"
 #include "library/io_state.h"
 #include "library/blast/state.h"
@@ -48,18 +49,32 @@ optional<expr> mk_class_instance(expr const & e);
 
 /** \brief Display the current state of the blast tactic in the diagnostic channel. */
 void display_curr_state();
+/** \brief Display the given expression in the diagnostic channel. */
+void display_expr(expr const & e);
 /** \brief Display message in the blast tactic diagnostic channel. */
 void display(char const * msg);
 void display(sstream const & msg);
 /**
     \brief Create a local scope for saving the assignment and
     metavariable declarations at curr_state() */
-class scope {
+class scope_assignment {
     bool m_keep;
 public:
-    scope();
-    ~scope();
+    scope_assignment();
+    ~scope_assignment();
     void commit();
+};
+
+/** \brief Auxiliary object for setting thread local storage associated with blast tactic.
+
+    This is for debugging purposes only. It allow us to debug/test procedures that can
+    only be invoked from blast. */
+class scope_debug {
+    struct imp;
+    std::unique_ptr<imp> m_imp;
+public:
+    scope_debug(environment const & env, io_state const & ios);
+    ~scope_debug();
 };
 }
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,

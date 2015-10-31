@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/normalize.h"
 #include "library/class.h"
+#include "library/util.h"
 #include "library/type_inference.h"
 #include "library/projection.h"
 #include "library/tactic/goal.h"
@@ -26,7 +27,7 @@ namespace blast {
 static name * g_prefix = nullptr;
 
 class blastenv {
-    friend class scope;
+    friend class scope_assignment;
     environment                m_env;
     io_state                   m_ios;
     name_generator             m_ngen;
@@ -365,10 +366,14 @@ public:
         m_ti(*this) {
     }
 
-    optional<expr> operator()(goal const & g) {
+    void init_state(goal const & g) {
         m_curr_state = to_state(g);
 
         // TODO(Leo): set local context for type class resolution at ti
+    }
+
+    optional<expr> operator()(goal const & g) {
+        init_state(g);
 
         // TODO(Leo): blast main loop
         display("Blast tactic initial state\n");
@@ -478,6 +483,10 @@ void display_curr_state() {
     display("\n");
 }
 
+void display_expr(expr const & e) {
+    ios().get_diagnostic_channel() << e << "\n";
+}
+
 void display(char const * msg) {
     ios().get_diagnostic_channel() << msg;
 }
@@ -486,21 +495,40 @@ void display(sstream const & msg) {
     ios().get_diagnostic_channel() << msg.str();
 }
 
-scope::scope():m_keep(false) {
+scope_assignment::scope_assignment():m_keep(false) {
     lean_assert(g_blastenv);
     g_blastenv->m_ti.push();
 }
 
-scope::~scope() {
+scope_assignment::~scope_assignment() {
     if (m_keep)
         g_blastenv->m_ti.commit();
     else
         g_blastenv->m_ti.pop();
 }
 
-void scope::commit() {
+void scope_assignment::commit() {
     m_keep = true;
 }
+
+struct scope_debug::imp {
+    scope_hash_consing m_scope1;
+    blastenv           m_benv;
+    scope_blastenv     m_scope2;
+    imp(environment const & env, io_state const & ios):
+        m_benv(env, ios, list<name>(), list<name>()),
+        m_scope2(m_benv) {
+        expr aux_mvar = mk_metavar("dummy_mvar", mk_true());
+        goal aux_g(aux_mvar, mlocal_type(aux_mvar));
+        m_benv.init_state(aux_g);
+    }
+};
+
+scope_debug::scope_debug(environment const & env, io_state const & ios):
+    m_imp(new imp(env, ios)) {
+}
+
+scope_debug::~scope_debug() {}
 }
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
                           goal const & g) {

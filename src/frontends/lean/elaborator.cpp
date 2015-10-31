@@ -684,7 +684,7 @@ expr elaborator::visit_app(expr const & e, constraint_seq & cs) {
                binding_info(f_type).is_inst_implicit()) {
             lean_assert(binding_info(f_type).is_strict_implicit() || !first);
             expr const & d_type = binding_domain(f_type);
-            if (partial_expl || is_pi(whnf(d_type).first))
+            if (partial_expl && is_pi(whnf(d_type).first))
                 break;
             tag g          = f.get_tag();
             bool is_strict = true;

@@ -46,6 +46,7 @@ void initialize_explicit() {
     g_consume_args_name = new name("!");
 
     register_annotation(*g_explicit_name);
+    register_annotation(*g_partial_explicit_name);    
     register_annotation(*g_as_atomic_name);
     register_annotation(*g_as_is_name);
     register_annotation(*g_consume_args_name);

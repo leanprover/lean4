@@ -691,7 +691,15 @@ static expr parse_explicit_expr(parser & p, unsigned, expr const *, pos_info con
 }
 
 static expr parse_partial_explicit_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
-    throw parser_error("partial explicit expressions (@) not supported yet", p.pos());
+    expr e = p.parse_expr(get_Max_prec());
+    if (is_choice(e)) {
+        buffer<expr> new_choices;
+        for (unsigned i = 0; i < get_num_choices(e); i++)
+            new_choices.push_back(p.save_pos(mk_partial_explicit(get_choice(e, i)), pos));
+        return p.save_pos(mk_choice(new_choices.size(), new_choices.data()), pos);
+    } else {
+        return p.save_pos(mk_partial_explicit(e), pos);
+    }    
 }
 
 static expr parse_consume_args_expr(parser & p, unsigned, expr const *, pos_info const & pos) {

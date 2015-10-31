@@ -699,7 +699,7 @@ static expr parse_partial_explicit_expr(parser & p, unsigned, expr const *, pos_
         return p.save_pos(mk_choice(new_choices.size(), new_choices.data()), pos);
     } else {
         return p.save_pos(mk_partial_explicit(e), pos);
-    }    
+    }
 }
 
 static expr parse_consume_args_expr(parser & p, unsigned, expr const *, pos_info const & pos) {

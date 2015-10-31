@@ -153,7 +153,7 @@ void finalize_pp() {
     delete g_from_fmt;
     delete g_visible_fmt;
     delete g_show_fmt;
-    delete g_partial_explicit_fmt;    
+    delete g_partial_explicit_fmt;
     delete g_explicit_fmt;
     delete g_tmp_prefix;
 }

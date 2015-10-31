@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 
 namespace lean {
-/** \brief Create an explicit expression '@ f'.
+/** \brief Create an explicit expression '@@ f'.
     This only affects the elaborator behavior.
 */
 expr mk_explicit(expr const & e);
@@ -21,6 +21,20 @@ bool is_nested_explicit(expr const & e);
     \pre is_explicit(e)
 */
 expr const & get_explicit_arg(expr const & e);
+
+/** \brief Create an partial explicit expression '@ f'.
+    This only affects the elaborator behavior.
+*/
+expr mk_partial_explicit(expr const & e);
+/** \brief Return true iff \c e is a partial explicit expression. */
+bool is_partial_explicit(expr const & e);
+/** \brief See #is_nested_annotation */
+bool is_nested_partial_explicit(expr const & e);
+/** \brief Return the argument of a partial explicit expression.
+    \pre is_partial_explicit(e)
+*/
+expr const & get_partial_explicit_arg(expr const & e);
+
 
 /** \brief Create an explicit expression that is accepted as is
     by the elaborator.

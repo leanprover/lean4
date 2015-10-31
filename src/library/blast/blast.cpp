@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/normalize.h"
 #include "library/class.h"
-#include "library/util.h"
 #include "library/type_inference.h"
 #include "library/projection.h"
 #include "library/tactic/goal.h"

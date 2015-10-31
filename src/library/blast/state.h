@@ -75,7 +75,6 @@ public:
 
     // u := l
     void assign_uref(level const & u, level const & l) {
-        lean_assert(!is_uref_assigned(u));
         m_uassignment.insert(uref_index(u), l);
     }
 
@@ -116,7 +115,6 @@ public:
 
     // m := e
     void assign_mref(expr const & m, expr const & e) {
-        lean_assert(!is_mref_assigned(m));
         m_eassignment.insert(mref_index(m), e);
     }
 

@@ -4,18 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <vector>
+#include "util/sstream.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/type_checker.h"
 #include "library/replace_visitor.h"
 #include "library/util.h"
 #include "library/reducible.h"
 #include "library/normalize.h"
+#include "library/class.h"
+#include "library/type_inference.h"
 #include "library/projection.h"
+#include "library/tactic/goal.h"
 #include "library/blast/expr.h"
 #include "library/blast/state.h"
-#include "library/blast/infer_type.h"
 #include "library/blast/blast.h"
-#include "library/blast/blast_context.h"
 #include "library/blast/blast_exception.h"
 
 namespace lean {
@@ -23,15 +26,147 @@ namespace blast {
 static name * g_prefix = nullptr;
 
 class blastenv {
+    friend class scope;
     environment                m_env;
     io_state                   m_ios;
+    name_generator             m_ngen;
     name_set                   m_lemma_hints;
     name_set                   m_unfold_hints;
     name_map<level>            m_uvar2uref;    // map global universe metavariables to blast uref's
     name_map<pair<expr, expr>> m_mvar2meta_mref; // map global metavariables to blast mref's
     name_predicate             m_not_reducible_pred;
+    name_predicate             m_class_pred;
+    name_predicate             m_instance_pred;
     name_map<projection_info>  m_projection_info;
     state                      m_curr_state;   // current state
+
+    class ti : public type_inference {
+        blastenv &         m_benv;
+        std::vector<state> m_stack;
+    public:
+        ti(blastenv & benv):
+            type_inference(benv.m_env, benv.m_ios),
+            m_benv(benv) {}
+
+        virtual bool is_extra_opaque(name const & n) const {
+            // TODO(Leo): class and instances
+            return m_benv.m_not_reducible_pred(n) || m_benv.m_projection_info.contains(n);
+        }
+
+        virtual expr mk_tmp_local(expr const & type, binder_info const & bi) {
+            name n = m_benv.m_ngen.next();
+            return blast::mk_local(n, n, type, bi);
+        }
+
+        virtual bool is_tmp_local(expr const & e) const {
+            return blast::is_local(e);
+        }
+
+        virtual bool is_uvar(level const & l) const {
+            return blast::is_uref(l);
+        }
+
+        virtual bool is_mvar(expr const & e) const {
+            return blast::is_mref(e);
+        }
+
+        virtual level const * get_assignment(level const & u) const {
+            return m_benv.m_curr_state.get_uref_assignment(u);
+        }
+
+        virtual expr const * get_assignment(expr const & m) const {
+            return m_benv.m_curr_state.get_mref_assignment(m);
+        }
+
+        virtual void update_assignment(level const & u, level const & v) {
+            m_benv.m_curr_state.assign_uref(u, v);
+        }
+
+        virtual void update_assignment(expr const & m, expr const & v) {
+            m_benv.m_curr_state.assign_mref(m, v);
+        }
+
+        virtual bool validate_assignment(expr const & m, buffer<expr> const & locals, expr const & v) {
+            // We must check
+            //   1. All href in new_v are in the context of m.
+            //   2. The context of any (unassigned) mref in new_v must be a subset of the context of m.
+            //      If it is not we force it to be.
+            //   3. Any local constant occurring in new_v occurs in locals
+            //   4. m does not occur in new_v
+            state & s = m_benv.m_curr_state;
+            metavar_decl const * d = s.get_metavar_decl(m);
+            lean_assert(d);
+            bool ok = true;
+            for_each(v, [&](expr const & e, unsigned) {
+                    if (!ok)
+                        return false; // stop search
+                    if (is_href(e)) {
+                        if (!d->contains_href(e)) {
+                            ok = false; // failed 1
+                            return false;
+                        }
+                    } else if (blast::is_local(e)) {
+                        if (std::all_of(locals.begin(), locals.end(), [&](expr const & a) {
+                                    return local_index(a) != local_index(e); })) {
+                            ok = false; // failed 3
+                            return false;
+                        }
+                    } else if (is_mref(e)) {
+                        if (m == e) {
+                            ok = false; // failed 4
+                            return false;
+                        }
+                        s.restrict_mref_context_using(e, m); // enforce 2
+                        return false;
+                    }
+                    return true;
+                });
+            return ok;
+        }
+
+        /** \brief Return the type of a local constant (local or not).
+            \remark This method allows the customer to store the type of local constants
+            in a different place. */
+        virtual expr infer_local(expr const & e) const {
+            if (is_href(e)) {
+                branch const & b = m_benv.m_curr_state.get_main_branch();
+                hypothesis const * h = b.get(e);
+                lean_assert(h);
+                return h->get_type();
+            } else {
+                return mlocal_type(e);
+            }
+        }
+
+        virtual expr infer_metavar(expr const & m) const {
+            state const & s = m_benv.m_curr_state;
+            metavar_decl const * d = s.get_metavar_decl(m);
+            lean_assert(d);
+            return d->get_type();
+        }
+
+        virtual level mk_uvar() {
+            return m_benv.m_curr_state.mk_uref();
+        }
+
+        virtual expr mk_mvar(expr const & type) {
+            return m_benv.m_curr_state.mk_metavar(type);
+        }
+
+        virtual void push() {
+            // TODO(Leo): we only need to save the assignment and metavar_decls.
+            m_stack.push_back(m_benv.m_curr_state);
+        }
+
+        virtual void pop() {
+            m_benv.m_curr_state = m_stack.back();
+            m_stack.pop_back();
+        }
+
+        virtual void commit() {
+            m_stack.pop_back();
+        }
+    };
 
     class to_blast_expr_fn : public replace_visitor {
         type_checker                 m_tc;
@@ -219,14 +354,21 @@ class blastenv {
         return s;
     }
 
+    ti m_ti;
+
 public:
     blastenv(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds):
-        m_env(env), m_ios(ios), m_lemma_hints(to_name_set(ls)), m_unfold_hints(to_name_set(ds)),
-        m_not_reducible_pred(mk_not_reducible_pred(env)) {
+        m_env(env), m_ios(ios), m_ngen(*g_prefix), m_lemma_hints(to_name_set(ls)), m_unfold_hints(to_name_set(ds)),
+        m_not_reducible_pred(mk_not_reducible_pred(env)),
+        m_class_pred(mk_class_pred(env)),
+        m_instance_pred(mk_instance_pred(env)),
+        m_ti(*this) {
     }
 
     optional<expr> operator()(goal const & g) {
         m_curr_state = to_state(g);
+
+        // TODO(Leo): set local context for type class resolution at ti
 
         // TODO(Leo): blast main loop
         display("Blast tactic initial state\n");
@@ -250,6 +392,17 @@ public:
     projection_info const * get_projection_info(name const & n) const {
         return m_projection_info.find(n);
     }
+
+    name mk_fresh_local_name() { return m_ngen.next(); }
+    expr mk_fresh_local(expr const & type, binder_info const & bi) {
+        name n = m_ngen.next();
+        return blast::mk_local(n, n, type, bi);
+    }
+    expr whnf(expr const & e) { return m_ti.whnf(e); }
+    expr infer_type(expr const & e) { return m_ti.infer(e); }
+    bool is_prop(expr const & e) { return m_ti.is_prop(e); }
+    bool is_def_eq(expr const & e1, expr const & e2) { return m_ti.is_def_eq(e1, e2); }
+    optional<expr> mk_class_instance(expr const & e) { return m_ti.mk_class_instance(e); }
 };
 
 LEAN_THREAD_PTR(blastenv, g_blastenv);
@@ -285,6 +438,41 @@ projection_info const * get_projection_info(name const & n) {
     return g_blastenv->get_projection_info(n);
 }
 
+expr whnf(expr const & e) {
+    lean_assert(g_blastenv);
+    return g_blastenv->whnf(e);
+}
+
+expr infer_type(expr const & e) {
+    lean_assert(g_blastenv);
+    return g_blastenv->infer_type(e);
+}
+
+bool is_prop(expr const & e) {
+    lean_assert(g_blastenv);
+    return g_blastenv->is_prop(e);
+}
+
+bool is_def_eq(expr const & e1, expr const & e2) {
+    lean_assert(g_blastenv);
+    return g_blastenv->is_def_eq(e1, e2);
+}
+
+optional<expr> mk_class_instance(expr const & e) {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_class_instance(e);
+}
+
+name mk_fresh_local_name() {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_fresh_local_name();
+}
+
+expr mk_fresh_local(expr const & type, binder_info const & bi) {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_fresh_local(type, bi);
+}
+
 void display_curr_state() {
     curr_state().display(env(), ios());
     display("\n");
@@ -298,58 +486,27 @@ void display(sstream const & msg) {
     ios().get_diagnostic_channel() << msg.str();
 }
 
-/** \brief Auxiliary object to interface blast state with existing kernel extensions */
-class ext_context : public extension_context {
-    name_generator m_ngen;
-public:
-    virtual environment const & env() const { return env(); }
-
-    virtual pair<expr, constraint_seq> whnf(expr const & e) {
-        return mk_pair(blast::whnf(e), constraint_seq());
-    }
-
-    virtual pair<bool, constraint_seq> is_def_eq(expr const & e1, expr const & e2, delayed_justification &) {
-        return mk_pair(blast::is_def_eq(e1, e2), constraint_seq());
-    }
-
-    virtual pair<expr, constraint_seq> check_type(expr const & e, bool) {
-        return mk_pair(blast::infer_type(e), constraint_seq());
-    }
-
-    virtual name mk_fresh_name() {
-        return m_ngen.next();
-    }
-
-    virtual optional<expr> is_stuck(expr const &) {
-        return none_expr();
-    }
-};
-
-LEAN_THREAD_PTR(ext_context, g_ext_context);
-struct scope_ext_context {
-    ext_context * m_prev_context;
-public:
-    scope_ext_context(ext_context & c):m_prev_context(g_ext_context) { g_ext_context = &c; }
-    ~scope_ext_context() { g_ext_context = m_prev_context; }
-};
-
-extension_context & ext_ctx() {
-    lean_assert(g_ext_context);
-    return *g_ext_context;
+scope::scope():m_keep(false) {
+    lean_assert(g_blastenv);
+    g_blastenv->m_ti.push();
 }
 
-name mk_fresh_local_name() {
-    lean_assert(g_ext_context);
-    return g_ext_context->mk_fresh_name();
+scope::~scope() {
+    if (m_keep)
+        g_blastenv->m_ti.commit();
+    else
+        g_blastenv->m_ti.pop();
+}
+
+void scope::commit() {
+    m_keep = true;
 }
 }
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
                           goal const & g) {
     blast::scope_hash_consing scope1;
     blast::blastenv b(env, ios, ls, ds);
-    blast::ext_context x;
     blast::scope_blastenv    scope2(b);
-    blast::scope_ext_context scope3(x);
     return b(g);
 }
 void initialize_blast() {

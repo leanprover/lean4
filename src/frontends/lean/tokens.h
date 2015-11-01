@@ -40,6 +40,7 @@ name const & get_plus_tk();
 name const & get_star_tk();
 name const & get_turnstile_tk();
 name const & get_explicit_tk();
+name const & get_partial_explicit_tk();
 name const & get_max_tk();
 name const & get_imax_tk();
 name const & get_cup_tk();

@@ -62,6 +62,7 @@ static format * g_from_fmt        = nullptr;
 static format * g_visible_fmt     = nullptr;
 static format * g_show_fmt        = nullptr;
 static format * g_explicit_fmt    = nullptr;
+static format * g_partial_explicit_fmt    = nullptr;
 static name   * g_tmp_prefix      = nullptr;
 
 class nat_numeral_pp {
@@ -126,6 +127,7 @@ void initialize_pp() {
     g_visible_fmt     = new format(highlight_keyword(format("[visible]")));
     g_show_fmt        = new format(highlight_keyword(format("show")));
     g_explicit_fmt    = new format(highlight_keyword(format("@")));
+    g_partial_explicit_fmt    = new format(highlight_keyword(format("@@")));
     g_tmp_prefix      = new name(name::mk_internal_unique_name());
     g_nat_numeral_pp  = new nat_numeral_pp();
 }

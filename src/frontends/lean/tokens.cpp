@@ -38,6 +38,7 @@ static name const * g_plus_tk = nullptr;
 static name const * g_star_tk = nullptr;
 static name const * g_turnstile_tk = nullptr;
 static name const * g_explicit_tk = nullptr;
+static name const * g_partial_explicit_tk = nullptr;
 static name const * g_max_tk = nullptr;
 static name const * g_imax_tk = nullptr;
 static name const * g_cup_tk = nullptr;
@@ -191,6 +192,7 @@ void initialize_tokens() {
     g_star_tk = new name{"*"};
     g_turnstile_tk = new name{"⊢"};
     g_explicit_tk = new name{"@"};
+    g_partial_explicit_tk = new name{"@@"};
     g_max_tk = new name{"max"};
     g_imax_tk = new name{"imax"};
     g_cup_tk = new name{"\u2294"};
@@ -345,6 +347,7 @@ void finalize_tokens() {
     delete g_star_tk;
     delete g_turnstile_tk;
     delete g_explicit_tk;
+    delete g_partial_explicit_tk;
     delete g_max_tk;
     delete g_imax_tk;
     delete g_cup_tk;
@@ -498,6 +501,7 @@ name const & get_plus_tk() { return *g_plus_tk; }
 name const & get_star_tk() { return *g_star_tk; }
 name const & get_turnstile_tk() { return *g_turnstile_tk; }
 name const & get_explicit_tk() { return *g_explicit_tk; }
+name const & get_partial_explicit_tk() { return *g_partial_explicit_tk; }
 name const & get_max_tk() { return *g_max_tk; }
 name const & get_imax_tk() { return *g_imax_tk; }
 name const & get_cup_tk() { return *g_cup_tk; }

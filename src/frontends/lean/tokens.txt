@@ -33,6 +33,7 @@ plus         +
 star         *
 turnstile    ⊢
 explicit     @
+partial_explicit @@
 max          max
 imax         imax
 cup          \u2294

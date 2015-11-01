@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "library/io_state.h"
 #include "library/reducible.h"
+#include "library/tmp_type_context.h"
 
 namespace lean {
 /** \brief Helper for creating simple applications where some arguments are inferred using
@@ -31,6 +32,7 @@ class app_builder {
 public:
     app_builder(environment const & env, io_state const & ios, reducible_behavior b = UnfoldReducible);
     app_builder(environment const & env, reducible_behavior b = UnfoldReducible);
+    app_builder(std::unique_ptr<tmp_type_context> && ctx);
     ~app_builder();
     /** \brief Create an application (d.{_ ... _} _ ... _ args[0] ... args[nargs-1]).
         The missing arguments and universes levels are inferred using type inference.

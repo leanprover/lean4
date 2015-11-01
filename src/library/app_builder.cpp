@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct app_builder::imp {
-    tmp_type_context m_ctx;
+    std::unique_ptr<tmp_type_context> m_ctx;
 
     struct entry {
         unsigned             m_num_umeta;
@@ -97,26 +97,30 @@ struct app_builder::imp {
     map m_map;
 
     imp(environment const & env, io_state const & ios, reducible_behavior b):
-        m_ctx(env, ios, b) {
+        m_ctx(new tmp_type_context(env, ios, b)) {
+    }
+
+    imp(std::unique_ptr<tmp_type_context> && ctx):
+        m_ctx(std::move(ctx)) {
     }
 
     levels mk_metavars(declaration const & d, buffer<expr> & mvars, buffer<optional<expr>> & inst_args) {
-        m_ctx.clear();
+        m_ctx->clear();
         unsigned num_univ = d.get_num_univ_params();
         buffer<level> lvls_buffer;
         for (unsigned i = 0; i < num_univ; i++) {
-            lvls_buffer.push_back(m_ctx.mk_uvar());
+            lvls_buffer.push_back(m_ctx->mk_uvar());
         }
         levels lvls = to_list(lvls_buffer);
-        expr type   = m_ctx.whnf(instantiate_type_univ_params(d, lvls));
+        expr type   = m_ctx->whnf(instantiate_type_univ_params(d, lvls));
         while (is_pi(type)) {
-            expr mvar = m_ctx.mk_mvar(binding_domain(type));
+            expr mvar = m_ctx->mk_mvar(binding_domain(type));
             if (binding_info(type).is_inst_implicit())
                 inst_args.push_back(some_expr(mvar));
             else
                 inst_args.push_back(none_expr());
             mvars.push_back(mvar);
-            type = m_ctx.whnf(instantiate(binding_body(type), mvar));
+            type = m_ctx->whnf(instantiate(binding_body(type), mvar));
         }
         return lvls;
     }
@@ -126,7 +130,7 @@ struct app_builder::imp {
         lean_assert(k.check_invariant());
         auto it = m_map.find(k);
         if (it == m_map.end()) {
-            if (auto d = m_ctx.env().find(c)) {
+            if (auto d = m_ctx->env().find(c)) {
                 buffer<expr> mvars;
                 buffer<optional<expr>> inst_args;
                 levels lvls = mk_metavars(*d, mvars, inst_args);
@@ -158,19 +162,19 @@ struct app_builder::imp {
             lean_assert(i > 0);
             --i;
             if (inst_arg) {
-                expr type = m_ctx.instantiate_uvars_mvars(mlocal_type(*inst_arg));
-                if (auto v = m_ctx.mk_class_instance(type)) {
-                    if (!m_ctx.force_assign(*inst_arg, *v))
+                expr type = m_ctx->instantiate_uvars_mvars(mlocal_type(*inst_arg));
+                if (auto v = m_ctx->mk_class_instance(type)) {
+                    if (!m_ctx->force_assign(*inst_arg, *v))
                         return false;
                 } else {
                     return false;
                 }
             }
-            if (!m_ctx.is_mvar_assigned(i))
+            if (!m_ctx->is_mvar_assigned(i))
                 return false;
         }
         for (unsigned i = 0; i < e.m_num_umeta; i++) {
-            if (!m_ctx.is_uvar_assigned(i))
+            if (!m_ctx->is_uvar_assigned(i))
                 return false;
         }
         return true;
@@ -180,20 +184,20 @@ struct app_builder::imp {
         optional<entry> e = get_entry(c, nargs);
         if (!e)
             return none_expr();
-        m_ctx.clear();
-        m_ctx.set_next_uvar_idx(e->m_num_umeta);
-        m_ctx.set_next_mvar_idx(e->m_num_emeta);
+        m_ctx->clear();
+        m_ctx->set_next_uvar_idx(e->m_num_umeta);
+        m_ctx->set_next_mvar_idx(e->m_num_emeta);
         unsigned i = nargs;
         for (auto m : e->m_expl_args) {
             if (i == 0)
                 return none_expr();
             --i;
-            if (!m_ctx.assign(m, args[i]))
+            if (!m_ctx->assign(m, args[i]))
                 return none_expr();
         }
         if (!check_all_assigned(*e))
             return none_expr();
-        return some_expr(m_ctx.instantiate_uvars_mvars(e->m_app));
+        return some_expr(m_ctx->instantiate_uvars_mvars(e->m_app));
     }
 
     optional<expr> mk_app(name const & /* c */, unsigned /* mask_sz */, bool const * /* mask */, expr const * /* args */) {
@@ -207,6 +211,10 @@ app_builder::app_builder(environment const & env, io_state const & ios, reducibl
 
 app_builder::app_builder(environment const & env, reducible_behavior b):
     app_builder(env, get_dummy_ios(), b) {
+}
+
+app_builder::app_builder(std::unique_ptr<tmp_type_context> && ctx):
+    m_ptr(new imp(std::move(ctx))) {
 }
 
 app_builder::~app_builder() {}

@@ -38,6 +38,7 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/private.h"
 #include "library/decl_stats.h"
+#include "library/app_builder.h"
 #include "library/meng_paulson.h"
 #include "library/definitional/projection.h"
 #include "library/simplifier/simp_rule_set.h"
@@ -1138,6 +1139,28 @@ static environment relevant_thms_cmd(parser & p) {
     return env;
 }
 
+static environment app_builder_cmd(parser & p) {
+    environment const & env = p.env();
+    type_checker tc(env);
+    app_builder b(tc);
+    name c = p.check_constant_next("invalid #app_builder command, constant expected");
+    p.check_token_next(get_lparen_tk(), "invalid #app_builder command, '(' expected");
+    buffer<expr> args;
+    while (true) {
+        args.push_back(p.parse_expr());
+        if (!p.curr_is_token(get_comma_tk()))
+            break;
+        p.next();
+    }
+    p.check_token_next(get_rparen_tk(), "invalid #app_builder command, ')' expected");
+    if (auto r = b.mk_app(c, args.size(), args.data())) {
+        p.regular_stream() << *r << "\n";
+    } else {
+        p.regular_stream() << "<failed>\n";
+    }
+    return env;
+}
+
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",           "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -1161,6 +1184,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#erase_cache",   "erase cached definition (for debugging purposes)", erase_cache_cmd));
     add_cmd(r, cmd_info("#projections",   "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
     add_cmd(r, cmd_info("#telescope_eq",  "(for debugging purposes)", telescope_eq_cmd));
+    add_cmd(r, cmd_info("#app_builder",   "(for debugging purposes)", app_builder_cmd));
     add_cmd(r, cmd_info("#compile",       "(for debugging purposes)", compile_cmd));
     add_cmd(r, cmd_info("#accessible",    "(for debugging purposes) display number of accessible declarations for blast tactic", accessible_cmd));
     add_cmd(r, cmd_info("#decl_stats",    "(for debugging purposes) display declaration statistics", decl_stats_cmd));

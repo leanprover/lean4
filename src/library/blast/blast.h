@@ -8,11 +8,13 @@ Author: Leonardo de Moura
 #include <memory>
 #include "kernel/environment.h"
 #include "library/io_state.h"
+#include "library/tmp_type_context.h"
 #include "library/blast/state.h"
 
 namespace lean {
 struct projection_info;
 class goal;
+typedef std::unique_ptr<tmp_type_context> tmp_type_context_ptr;
 namespace blast {
 /** \brief Return the thread local environment being used by the blast tactic. */
 environment const & env();
@@ -76,6 +78,11 @@ public:
     scope_debug(environment const & env, io_state const & ios);
     ~scope_debug();
 };
+
+/** \brief Create a temporary type_context that is compatible with blast.
+    This temporary type context can acces the type of blast hypotheses
+    and meta-variables. */
+tmp_type_context_ptr mk_tmp_type_context();
 }
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
                           goal const & g);

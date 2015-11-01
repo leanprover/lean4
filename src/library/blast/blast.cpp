@@ -534,6 +534,42 @@ scope_debug::scope_debug(environment const & env, io_state const & ios):
 }
 
 scope_debug::~scope_debug() {}
+
+/** \brief We need to redefine infer_local and infer_metavar, because the types of hypotheses
+    and blast meta-variables are stored in the blast state */
+class tmp_tctx : public tmp_type_context {
+public:
+    tmp_tctx(environment const & env, io_state const & ios):
+        tmp_type_context(env, ios) {}
+
+    /** \brief Return the type of a local constant (local or not).
+        \remark This method allows the customer to store the type of local constants
+        in a different place. */
+    virtual expr infer_local(expr const & e) const {
+        state const & s = curr_state();
+        if (is_href(e)) {
+            branch const & b = s.get_main_branch();
+            hypothesis const * h = b.get(e);
+            lean_assert(h);
+            return h->get_type();
+        } else {
+            return mlocal_type(e);
+        }
+    }
+
+    virtual expr infer_metavar(expr const & m) const {
+        state const & s = curr_state();
+        metavar_decl const * d = s.get_metavar_decl(m);
+        lean_assert(d);
+        return d->get_type();
+    }
+};
+
+tmp_type_context_ptr mk_tmp_type_context() {
+    tmp_type_context_ptr r(new tmp_tctx(env(), ios()));
+    // TODO(Leo): set local context
+    return r;
+}
 }
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
                           goal const & g) {

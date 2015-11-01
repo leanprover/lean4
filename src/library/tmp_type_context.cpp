@@ -152,4 +152,12 @@ void tmp_type_context::commit() {
     lean_assert(!m_scopes.empty());
     m_scopes.pop_back();
 }
+
+void initialize_tmp_type_context() {
+    g_prefix = new name(name::mk_internal_unique_name());
+}
+
+void finalize_tmp_type_context() {
+    delete g_prefix;
+}
 }

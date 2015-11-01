@@ -80,5 +80,18 @@ public:
     virtual void push();
     virtual void pop();
     virtual void commit();
+
+    bool is_uvar_assigned(unsigned idx) const {
+        lean_assert(idx < m_uassignment.size());
+        return static_cast<bool>(m_uassignment[idx]);
+    }
+
+    bool is_mvar_assigned(unsigned idx) const {
+        lean_assert(idx < m_eassignment.size());
+        return static_cast<bool>(m_eassignment[idx]);
+    }
 };
+
+void initialize_tmp_type_context();
+void finalize_tmp_type_context();
 }

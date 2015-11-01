@@ -45,6 +45,7 @@ Author: Leonardo de Moura
 #include "library/norm_num.h"
 #include "library/class_instance_resolution.h"
 #include "library/type_context.h"
+#include "library/tmp_type_context.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -89,9 +90,11 @@ void initialize_library_module() {
     initialize_norm_num();
     initialize_class_instance_resolution();
     initialize_type_context();
+    initialize_tmp_type_context();
 }
 
 void finalize_library_module() {
+    finalize_tmp_type_context();
     finalize_type_context();
     finalize_class_instance_resolution();
     finalize_norm_num();

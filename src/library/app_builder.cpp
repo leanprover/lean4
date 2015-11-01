@@ -226,4 +226,8 @@ optional<expr> app_builder::mk_app(name const & c, unsigned nargs, expr const * 
 optional<expr> app_builder::mk_app(name const & c, unsigned mask_sz, bool const * mask, expr const * args) {
     return m_ptr->mk_app(c, mask_sz, mask, args);
 }
+
+void app_builder::set_context(list<expr> const & ctx) {
+    m_ptr->m_ctx->set_context(ctx);
+}
 }

@@ -62,5 +62,12 @@ public:
     }
 
     optional<expr> mk_app(name const & c, unsigned mask_sz, bool const * mask, expr const * args);
+
+    /** \brief Set the local context. This method is relevant when we want to expose local class instances
+        to the app_builder.
+
+        \remark When the constructor app_builder(std::unique_ptr<tmp_type_context> && ctx) is used
+        the initialization can be performed outside. */
+    void set_context(list<expr> const & ctx);
 };
 }

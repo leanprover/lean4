@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/normalize.h"
 #include "library/class.h"
-#include "library/type_inference.h"
+#include "library/type_context.h"
 #include "library/projection.h"
 #include "library/tactic/goal.h"
 #include "library/blast/expr.h"
@@ -40,12 +40,12 @@ class blastenv {
     name_map<projection_info>  m_projection_info;
     state                      m_curr_state;   // current state
 
-    class ti : public type_inference {
+    class tctx : public type_context {
         blastenv &         m_benv;
         std::vector<state> m_stack;
     public:
-        ti(blastenv & benv):
-            type_inference(benv.m_env, benv.m_ios),
+        tctx(blastenv & benv):
+            type_context(benv.m_env, benv.m_ios),
             m_benv(benv) {}
 
         virtual bool is_extra_opaque(name const & n) const {
@@ -354,7 +354,7 @@ class blastenv {
         return s;
     }
 
-    ti m_ti;
+    tctx m_tctx;
 
 public:
     blastenv(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds):
@@ -362,13 +362,13 @@ public:
         m_not_reducible_pred(mk_not_reducible_pred(env)),
         m_class_pred(mk_class_pred(env)),
         m_instance_pred(mk_instance_pred(env)),
-        m_ti(*this) {
+        m_tctx(*this) {
     }
 
     void init_state(goal const & g) {
         m_curr_state = to_state(g);
 
-        // TODO(Leo): set local context for type class resolution at ti
+        // TODO(Leo): set local context for type class resolution at tctx
     }
 
     optional<expr> operator()(goal const & g) {
@@ -402,11 +402,11 @@ public:
         name n = m_ngen.next();
         return blast::mk_local(n, n, type, bi);
     }
-    expr whnf(expr const & e) { return m_ti.whnf(e); }
-    expr infer_type(expr const & e) { return m_ti.infer(e); }
-    bool is_prop(expr const & e) { return m_ti.is_prop(e); }
-    bool is_def_eq(expr const & e1, expr const & e2) { return m_ti.is_def_eq(e1, e2); }
-    optional<expr> mk_class_instance(expr const & e) { return m_ti.mk_class_instance(e); }
+    expr whnf(expr const & e) { return m_tctx.whnf(e); }
+    expr infer_type(expr const & e) { return m_tctx.infer(e); }
+    bool is_prop(expr const & e) { return m_tctx.is_prop(e); }
+    bool is_def_eq(expr const & e1, expr const & e2) { return m_tctx.is_def_eq(e1, e2); }
+    optional<expr> mk_class_instance(expr const & e) { return m_tctx.mk_class_instance(e); }
 };
 
 LEAN_THREAD_PTR(blastenv, g_blastenv);
@@ -496,14 +496,14 @@ void display(sstream const & msg) {
 
 scope_assignment::scope_assignment():m_keep(false) {
     lean_assert(g_blastenv);
-    g_blastenv->m_ti.push();
+    g_blastenv->m_tctx.push();
 }
 
 scope_assignment::~scope_assignment() {
     if (m_keep)
-        g_blastenv->m_ti.commit();
+        g_blastenv->m_tctx.commit();
     else
-        g_blastenv->m_ti.pop();
+        g_blastenv->m_tctx.pop();
 }
 
 void scope_assignment::commit() {

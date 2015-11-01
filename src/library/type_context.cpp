@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/normalize.h"
 #include "library/replace_visitor.h"
-#include "library/type_inference.h"
+#include "library/type_context.h"
 #include "library/pp_options.h"
 #include "library/reducible.h"
 #include "library/generic_exception.h"
@@ -50,10 +50,10 @@ bool get_class_trans_instances(options const & o) {
     return o.get_bool(*g_class_trans_instances, LEAN_DEFAULT_CLASS_TRANS_INSTANCES);
 }
 
-struct type_inference::ext_ctx : public extension_context {
-    type_inference & m_owner;
+struct type_context::ext_ctx : public extension_context {
+    type_context & m_owner;
 
-    ext_ctx(type_inference & o):m_owner(o) {}
+    ext_ctx(type_context & o):m_owner(o) {}
 
     virtual environment const & env() const { return m_owner.m_env; }
 
@@ -78,7 +78,7 @@ struct type_inference::ext_ctx : public extension_context {
     }
 };
 
-type_inference::type_inference(environment const & env, io_state const & ios, bool multiple_instances):
+type_context::type_context(environment const & env, io_state const & ios, bool multiple_instances):
     m_env(env),
     m_ios(ios),
     m_ngen(*g_prefix),
@@ -95,10 +95,10 @@ type_inference::type_inference(environment const & env, io_state const & ios, bo
     update_options(ios.get_options());
 }
 
-type_inference::~type_inference() {
+type_context::~type_context() {
 }
 
-void type_inference::set_context(list<expr> const & ctx) {
+void type_context::set_context(list<expr> const & ctx) {
     clear_cache();
     m_ci_local_instances.clear();
     for (expr const & e : ctx) {
@@ -108,19 +108,19 @@ void type_inference::set_context(list<expr> const & ctx) {
     }
 }
 
-bool type_inference::is_opaque(declaration const & d) const {
+bool type_context::is_opaque(declaration const & d) const {
     if (d.is_theorem())
         return true;
     name const & n = d.get_name();
     return m_proj_info.contains(n) || is_extra_opaque(n);
 }
 
-optional<expr> type_inference::expand_macro(expr const & m) {
+optional<expr> type_context::expand_macro(expr const & m) {
     lean_assert(is_macro(m));
     return macro_def(m).expand(m, *m_ext_ctx);
 }
 
-optional<expr> type_inference::reduce_projection(expr const & e) {
+optional<expr> type_context::reduce_projection(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
         return none_expr();
@@ -147,7 +147,7 @@ optional<expr> type_inference::reduce_projection(expr const & e) {
     return some_expr(r);
 }
 
-optional<expr> type_inference::norm_ext(expr const & e) {
+optional<expr> type_context::norm_ext(expr const & e) {
     if (auto r = reduce_projection(e)) {
         return r;
     } else if (auto r = m_env.norm_ext()(e, *m_ext_ctx)) {
@@ -157,7 +157,7 @@ optional<expr> type_inference::norm_ext(expr const & e) {
     }
 }
 
-expr type_inference::whnf_core(expr const & e) {
+expr type_context::whnf_core(expr const & e) {
     check_system("whnf");
     switch (e.kind()) {
     case expr_kind::Var: case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local:
@@ -191,7 +191,7 @@ expr type_inference::whnf_core(expr const & e) {
 }
 
 /** \brief Expand \c e if it is non-opaque constant with height >= h */
-expr type_inference::unfold_name_core(expr e, unsigned h) {
+expr type_context::unfold_name_core(expr e, unsigned h) {
     if (is_constant(e)) {
         if (auto d = m_env.find(const_name(e))) {
             if (d->is_definition() && !is_opaque(*d) && d->get_height() >= h &&
@@ -205,7 +205,7 @@ expr type_inference::unfold_name_core(expr e, unsigned h) {
 /** \brief Expand constants and application where the function is a constant.
     The unfolding is only performend if the constant corresponds to
     a non-opaque definition with height >= h */
-expr type_inference::unfold_names(expr const & e, unsigned h) {
+expr type_context::unfold_names(expr const & e, unsigned h) {
     if (is_app(e)) {
         expr f0 = get_app_fn(e);
         expr f  = unfold_name_core(f0, h);
@@ -223,7 +223,7 @@ expr type_inference::unfold_names(expr const & e, unsigned h) {
 
 /** \brief Return some definition \c d iff \c e is a target for delta-reduction,
     and the given definition is the one to be expanded. */
-optional<declaration> type_inference::is_delta(expr const & e) const {
+optional<declaration> type_context::is_delta(expr const & e) const {
     expr const & f = get_app_fn(e);
     if (is_constant(f)) {
         if (auto d = m_env.find(const_name(f)))
@@ -239,7 +239,7 @@ optional<declaration> type_inference::is_delta(expr const & e) const {
     This method is based on <tt>whnf_core(expr const &)</tt> and \c unfold_names.
     \remark This method does not use normalization extensions attached in the environment.
 */
-expr type_inference::whnf_core(expr e, unsigned h) {
+expr type_context::whnf_core(expr e, unsigned h) {
     while (true) {
         expr new_e = unfold_names(whnf_core(e), h);
         if (is_eqp(e, new_e))
@@ -249,7 +249,7 @@ expr type_inference::whnf_core(expr e, unsigned h) {
 }
 
 /** \brief Put expression \c t in weak head normal form */
-expr type_inference::whnf(expr const & e) {
+expr type_context::whnf(expr const & e) {
     // Do not cache easy cases
     switch (e.kind()) {
     case expr_kind::Var: case expr_kind::Sort: case expr_kind::Meta: case expr_kind::Local: case expr_kind::Pi:
@@ -273,7 +273,7 @@ static bool is_max_like(level const & l) {
     return is_max(l) || is_imax(l);
 }
 
-lbool type_inference::quick_is_def_eq(level const & l1, level const & l2) {
+lbool type_context::quick_is_def_eq(level const & l1, level const & l2) {
     if (is_equivalent(l1, l2)) {
         return l_true;
     }
@@ -316,7 +316,7 @@ lbool type_inference::quick_is_def_eq(level const & l1, level const & l2) {
     }
 }
 
-bool type_inference::full_is_def_eq(level const & l1, level const & l2) {
+bool type_context::full_is_def_eq(level const & l1, level const & l2) {
     if (is_equivalent(l1, l2)) {
         return true;
     }
@@ -372,7 +372,7 @@ bool type_inference::full_is_def_eq(level const & l1, level const & l2) {
     lean_unreachable();
 }
 
-bool type_inference::is_def_eq(level const & l1, level const & l2) {
+bool type_context::is_def_eq(level const & l1, level const & l2) {
     auto r = quick_is_def_eq(l1, l2);
     if (r == l_undef) {
         m_postponed.emplace_back(l1, l2);
@@ -382,7 +382,7 @@ bool type_inference::is_def_eq(level const & l1, level const & l2) {
     }
 }
 
-bool type_inference::is_def_eq(levels const & ls1, levels const & ls2) {
+bool type_context::is_def_eq(levels const & ls1, levels const & ls2) {
     if (is_nil(ls1) && is_nil(ls2)) {
         return true;
     } else if (!is_nil(ls1) && !is_nil(ls2)) {
@@ -396,7 +396,7 @@ bool type_inference::is_def_eq(levels const & ls1, levels const & ls2) {
 
 /** \brief Given \c e of the form <tt>?m t_1 ... t_n</tt>, where
     ?m is an assigned mvar, substitute \c ?m with its assignment. */
-expr type_inference::subst_mvar(expr const & e) {
+expr type_context::subst_mvar(expr const & e) {
     buffer<expr> args;
     expr const & m   = get_app_rev_args(e, args);
     lean_assert(is_mvar(m));
@@ -405,7 +405,7 @@ expr type_inference::subst_mvar(expr const & e) {
     return apply_beta(*v, args.size(), args.data());
 }
 
-bool type_inference::has_assigned_uvar(level const & l) const {
+bool type_context::has_assigned_uvar(level const & l) const {
     if (!has_meta(l))
         return false;
     bool found = false;
@@ -423,7 +423,7 @@ bool type_inference::has_assigned_uvar(level const & l) const {
     return found;
 }
 
-bool type_inference::has_assigned_uvar(levels const & ls) const {
+bool type_context::has_assigned_uvar(levels const & ls) const {
     for (level const & l : ls) {
         if (has_assigned_uvar(l))
             return true;
@@ -431,7 +431,7 @@ bool type_inference::has_assigned_uvar(levels const & ls) const {
     return false;
 }
 
-bool type_inference::has_assigned_uvar_mvar(expr const & e) const {
+bool type_context::has_assigned_uvar_mvar(expr const & e) const {
     if (!has_expr_metavar(e) && !has_univ_metavar(e))
         return false;
     bool found = false;
@@ -451,7 +451,7 @@ bool type_inference::has_assigned_uvar_mvar(expr const & e) const {
     return found;
 }
 
-level type_inference::instantiate_uvars(level const & l) {
+level type_context::instantiate_uvars(level const & l) {
     if (!has_assigned_uvar(l))
         return l;
     return replace(l, [&](level const & l) {
@@ -473,7 +473,7 @@ level type_inference::instantiate_uvars(level const & l) {
 }
 
 struct instantiate_uvars_mvars_fn : public replace_visitor {
-    type_inference & m_owner;
+    type_context & m_owner;
 
     level visit_level(level const & l) {
         return m_owner.instantiate_uvars(l);
@@ -559,19 +559,19 @@ struct instantiate_uvars_mvars_fn : public replace_visitor {
     }
 
 public:
-    instantiate_uvars_mvars_fn(type_inference & o):m_owner(o) {}
+    instantiate_uvars_mvars_fn(type_context & o):m_owner(o) {}
 
     expr operator()(expr const & e) { return visit(e); }
 };
 
-expr type_inference::instantiate_uvars_mvars(expr const & e) {
+expr type_context::instantiate_uvars_mvars(expr const & e) {
     if (!has_assigned_uvar_mvar(e))
         return e;
     else
         return instantiate_uvars_mvars_fn(*this)(e);
 }
 
-bool type_inference::is_prop(expr const & e) {
+bool type_context::is_prop(expr const & e) {
     if (m_env.impredicative()) {
         expr t   = whnf(infer(e));
         return t == mk_Prop();
@@ -580,7 +580,7 @@ bool type_inference::is_prop(expr const & e) {
     }
 }
 
-bool type_inference::is_def_eq_binding(expr e1, expr e2) {
+bool type_context::is_def_eq_binding(expr e1, expr e2) {
     lean_assert(e1.kind() == e2.kind());
     lean_assert(is_binding(e1));
     expr_kind k = e1.kind();
@@ -609,7 +609,7 @@ bool type_inference::is_def_eq_binding(expr e1, expr e2) {
                           instantiate_rev(e2, subst.size(), subst.data()));
 }
 
-bool type_inference::is_def_eq_args(expr const & e1, expr const & e2) {
+bool type_context::is_def_eq_args(expr const & e1, expr const & e2) {
     lean_assert(is_app(e1) && is_app(e2));
     buffer<expr> args1, args2;
     get_app_args(e1, args1);
@@ -623,7 +623,7 @@ bool type_inference::is_def_eq_args(expr const & e1, expr const & e2) {
     return true;
 }
 
-bool type_inference::is_def_eq_eta(expr const & e1, expr const & e2) {
+bool type_context::is_def_eq_eta(expr const & e1, expr const & e2) {
     expr new_e1 = try_eta(e1);
     expr new_e2 = try_eta(e2);
     if (e1 != new_e1 || e2 != new_e2) {
@@ -636,7 +636,7 @@ bool type_inference::is_def_eq_eta(expr const & e1, expr const & e2) {
     return false;
 }
 
-bool type_inference::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
+bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
     if (!m_env.prop_proof_irrel())
         return false;
     expr e1_type = infer(e1);
@@ -653,7 +653,7 @@ bool type_inference::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
 
 /** \brief Given \c ma of the form <tt>?m t_1 ... t_n</tt>, (try to) assign
     ?m to (an abstraction of) v. Return true if success and false otherwise. */
-bool type_inference::process_assignment(expr const & ma, expr const & v) {
+bool type_context::process_assignment(expr const & ma, expr const & v) {
     buffer<expr> args;
     expr const & m = get_app_args(ma, args);
     buffer<expr> locals;
@@ -723,7 +723,7 @@ bool type_inference::process_assignment(expr const & ma, expr const & v) {
 }
 
 /** \brief This is an auxiliary method for is_def_eq. It handles the "easy cases". */
-lbool type_inference::quick_is_def_eq(expr const & e1, expr const & e2) {
+lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
     if (e1 == e2)
         return l_true;
 
@@ -764,7 +764,7 @@ lbool type_inference::quick_is_def_eq(expr const & e1, expr const & e2) {
     return l_undef; // This is not an "easy case"
 }
 
-auto type_inference::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reduction_status {
+auto type_context::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reduction_status {
     auto d_t = is_delta(t_n);
     auto d_s = is_delta(s_n);
     if (!d_t && !d_s) {
@@ -799,7 +799,7 @@ auto type_inference::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reduct
     lean_unreachable();
 }
 
-lbool type_inference::lazy_delta_reduction(expr & t_n, expr & s_n) {
+lbool type_context::lazy_delta_reduction(expr & t_n, expr & s_n) {
     while (true) {
         switch (lazy_delta_reduction_step(t_n, s_n)) {
         case reduction_status::Continue:   break;
@@ -810,7 +810,7 @@ lbool type_inference::lazy_delta_reduction(expr & t_n, expr & s_n) {
     }
 }
 
-auto type_inference::ext_reduction_step(expr & t_n, expr & s_n) -> reduction_status {
+auto type_context::ext_reduction_step(expr & t_n, expr & s_n) -> reduction_status {
     auto new_t_n = norm_ext(t_n);
     auto new_s_n = norm_ext(s_n);
     if (!new_t_n && !new_s_n)
@@ -828,7 +828,7 @@ auto type_inference::ext_reduction_step(expr & t_n, expr & s_n) -> reduction_sta
 }
 
 // Apply lazy delta-reduction and then normalizer extensions
-lbool type_inference::reduce_def_eq(expr & t_n, expr & s_n) {
+lbool type_context::reduce_def_eq(expr & t_n, expr & s_n) {
     while (true) {
         // first, keep applying lazy delta-reduction while applicable
         lbool r = lazy_delta_reduction(t_n, s_n);
@@ -844,7 +844,7 @@ lbool type_inference::reduce_def_eq(expr & t_n, expr & s_n) {
     }
 }
 
-bool type_inference::is_def_eq_core(expr const & t, expr const & s) {
+bool type_context::is_def_eq_core(expr const & t, expr const & s) {
     check_system("is_definitionally_equal");
     lbool r = quick_is_def_eq(t, s);
     if (r != l_undef) return r == l_true;
@@ -892,7 +892,7 @@ bool type_inference::is_def_eq_core(expr const & t, expr const & s) {
         return false;
 }
 
-bool type_inference::process_postponed(unsigned old_sz) {
+bool type_context::process_postponed(unsigned old_sz) {
     if (m_postponed.size() == old_sz)
         return true; // no new universe constraints.
     lean_assert(m_postponed.size() > old_sz);
@@ -932,7 +932,7 @@ bool type_inference::process_postponed(unsigned old_sz) {
     }
 }
 
-bool type_inference::is_def_eq(expr const & e1, expr const & e2) {
+bool type_context::is_def_eq(expr const & e1, expr const & e2) {
     scope s(*this);
     unsigned psz = m_postponed.size();
     if (!is_def_eq_core(e1, e2)) {
@@ -946,7 +946,7 @@ bool type_inference::is_def_eq(expr const & e1, expr const & e2) {
     return false;
 }
 
-expr type_inference::infer_constant(expr const & e) {
+expr type_context::infer_constant(expr const & e) {
     declaration d    = m_env.get(const_name(e));
     auto const & ps = d.get_univ_params();
     auto const & ls = const_levels(e);
@@ -955,14 +955,14 @@ expr type_inference::infer_constant(expr const & e) {
     return instantiate_type_univ_params(d, ls);
 }
 
-expr type_inference::infer_macro(expr const & e) {
+expr type_context::infer_macro(expr const & e) {
     auto def = macro_def(e);
     bool infer_only = true;
     // Remark: we are ignoring constraints generated by the macro definition.
     return def.check_type(e, *m_ext_ctx, infer_only).first;
 }
 
-expr type_inference::infer_lambda(expr e) {
+expr type_context::infer_lambda(expr e) {
     buffer<expr> es, ds, ls;
     while (is_lambda(e)) {
         es.push_back(e);
@@ -983,13 +983,13 @@ expr type_inference::infer_lambda(expr e) {
 }
 
 /** \brief Make sure \c e is a sort, if it is not throw an exception using \c ref as a reference */
-void type_inference::ensure_sort(expr const & e, expr const & /* ref */) {
+void type_context::ensure_sort(expr const & e, expr const & /* ref */) {
     // Remark: for simplicity reasons, we just fail if \c e is not a sort.
     if (!is_sort(e))
         throw exception("infer type failed, sort expected");
 }
 
-expr type_inference::infer_pi(expr const & e0) {
+expr type_context::infer_pi(expr const & e0) {
     buffer<expr>  ls;
     buffer<level> us;
     expr e = e0;
@@ -1016,7 +1016,7 @@ expr type_inference::infer_pi(expr const & e0) {
 }
 
 /** \brief Make sure \c e is a Pi-expression, if it is not throw an exception using \c ref as a reference */
-void type_inference::ensure_pi(expr const & e, expr const & /* ref */) {
+void type_context::ensure_pi(expr const & e, expr const & /* ref */) {
     // Remark: for simplicity reasons, we just fail if \c e is not a Pi.
     if (!is_pi(e))
         throw exception("infer type failed, Pi expected");
@@ -1024,7 +1024,7 @@ void type_inference::ensure_pi(expr const & e, expr const & /* ref */) {
     // So, whnf does not reduce it, and we fail to detect that e is can be reduced to a Pi-expression.
 }
 
-expr type_inference::infer_app(expr const & e) {
+expr type_context::infer_app(expr const & e) {
     buffer<expr> args;
     expr const & f = get_app_args(e, args);
     expr f_type = infer(f);
@@ -1043,7 +1043,7 @@ expr type_inference::infer_app(expr const & e) {
     return instantiate_rev(f_type, nargs-j, args.data()+j);
 }
 
-expr type_inference::infer(expr const & e) {
+expr type_context::infer(expr const & e) {
     lean_assert(!is_var(e));
     lean_assert(closed(e));
     check_system("infer_type");
@@ -1081,12 +1081,12 @@ expr type_inference::infer(expr const & e) {
     return r;
 }
 
-void type_inference::clear_cache() {
+void type_context::clear_cache() {
     m_ci_cache.clear();
 }
 
 /** \brief If the constant \c e is a class, return its name */
-optional<name> type_inference::constant_is_class(expr const & e) {
+optional<name> type_context::constant_is_class(expr const & e) {
     name const & cls_name = const_name(e);
     if (lean::is_class(m_env, cls_name)) {
         return optional<name>(cls_name);
@@ -1095,7 +1095,7 @@ optional<name> type_inference::constant_is_class(expr const & e) {
     }
 }
 
-optional<name> type_inference::is_full_class(expr type) {
+optional<name> type_context::is_full_class(expr type) {
     type = whnf(type);
     if (is_pi(type)) {
         return is_full_class(instantiate(binding_body(type), mk_tmp_local(binding_domain(type))));
@@ -1112,7 +1112,7 @@ optional<name> type_inference::is_full_class(expr type) {
     l_false:  \c type is not a class.
     l_undef:  procedure did not establish whether \c type is a class or not.
 */
-lbool type_inference::is_quick_class(expr const & type, name & result) {
+lbool type_context::is_quick_class(expr const & type, name & result) {
     expr const * it         = &type;
     while (true) {
         switch (it->kind()) {
@@ -1155,7 +1155,7 @@ lbool type_inference::is_quick_class(expr const & type, name & result) {
 }
 
 /** \brief Return true iff \c type is a class or Pi that produces a class. */
-optional<name> type_inference::is_class(expr const & type) {
+optional<name> type_context::is_class(expr const & type) {
     name result;
     switch (is_quick_class(type, result)) {
     case l_true:  return optional<name>(result);
@@ -1165,7 +1165,7 @@ optional<name> type_inference::is_class(expr const & type) {
     return is_full_class(type);
 }
 
-bool type_inference::compatible_local_instances(list<expr> const & ctx) {
+bool type_context::compatible_local_instances(list<expr> const & ctx) {
     unsigned i = 0;
     for (expr const & e : ctx) {
         // Remark: we use infer_type(e) instead of mlocal_type because we want to allow
@@ -1196,7 +1196,7 @@ static bool has_meta_arg(expr e) {
     metavariable whose type is a type class, and (?m t_1 ... t_n) must be synthesized
     by type class resolution, then we return ?m.
     Otherwise, we return none */
-optional<pair<expr, expr>> type_inference::find_unsynth_metavar(expr const & e) {
+optional<pair<expr, expr>> type_context::find_unsynth_metavar(expr const & e) {
     if (!has_meta_arg(e))
         return optional<pair<expr, expr>>();
     buffer<expr> args;
@@ -1223,7 +1223,7 @@ optional<pair<expr, expr>> type_inference::find_unsynth_metavar(expr const & e) 
     return optional<pair<expr, expr>>();
 }
 
-bool type_inference::on_is_def_eq_failure(expr & e1, expr & e2) {
+bool type_context::on_is_def_eq_failure(expr & e1, expr & e2) {
     if (is_app(e1) && is_app(e2)) {
         if (auto p1 = find_unsynth_metavar(e1)) {
             if (mk_nested_instance(p1->first, p1->second)) {
@@ -1241,7 +1241,7 @@ bool type_inference::on_is_def_eq_failure(expr & e1, expr & e2) {
     return false;
 }
 
-bool type_inference::validate_assignment(expr const & m, buffer<expr> const & locals, expr const & v) {
+bool type_context::validate_assignment(expr const & m, buffer<expr> const & locals, expr const & v) {
     // We must check
     //   1. Any (internal) local constant occurring in v occurs in locals
     //   2. m does not occur in v
@@ -1267,7 +1267,7 @@ bool type_inference::validate_assignment(expr const & m, buffer<expr> const & lo
     return ok;
 }
 
-bool type_inference::update_options(options const & opts) {
+bool type_context::update_options(options const & opts) {
     options o = opts;
     unsigned max_depth    = get_class_instance_max_depth(o);
     bool trans_instances  = get_class_trans_instances(o);
@@ -1292,11 +1292,11 @@ bool type_inference::update_options(options const & opts) {
 [[ noreturn ]] static void throw_class_exception(char const * msg, expr const & m) { throw_generic_exception(msg, m); }
 [[ noreturn ]] static void throw_class_exception(expr const & m, pp_fn const & fn) { throw_generic_exception(m, fn); }
 
-io_state_stream type_inference::diagnostic() {
+io_state_stream type_context::diagnostic() {
     return lean::diagnostic(m_env, m_ios);
 }
 
-void type_inference::trace(unsigned depth, expr const & mvar, expr const & mvar_type, expr const & r) {
+void type_context::trace(unsigned depth, expr const & mvar, expr const & mvar_type, expr const & r) {
     lean_assert(m_ci_trace_instances);
     auto out = diagnostic();
     if (!m_ci_displayed_trace_header && m_ci_choices.size() == m_ci_choices_ini_sz + 1) {
@@ -1319,7 +1319,7 @@ void type_inference::trace(unsigned depth, expr const & mvar, expr const & mvar_
 
 // Try to synthesize e.m_mvar using instance inst : inst_type.
 // trans_inst is true if inst is a transitive instance.
-bool type_inference::try_instance(ci_stack_entry const & e, expr const & inst, expr const & inst_type, bool trans_inst) {
+bool type_context::try_instance(ci_stack_entry const & e, expr const & inst, expr const & inst_type, bool trans_inst) {
     try {
         buffer<expr> locals;
         expr const & mvar = e.m_mvar;
@@ -1371,7 +1371,7 @@ bool type_inference::try_instance(ci_stack_entry const & e, expr const & inst, e
     }
 }
 
-bool type_inference::try_instance(ci_stack_entry const & e, name const & inst_name, bool trans_inst) {
+bool type_context::try_instance(ci_stack_entry const & e, name const & inst_name, bool trans_inst) {
     if (auto decl = m_env.find(inst_name)) {
         buffer<level> ls_buffer;
         unsigned num_univ_ps = decl->get_num_univ_params();
@@ -1386,7 +1386,7 @@ bool type_inference::try_instance(ci_stack_entry const & e, name const & inst_na
     }
 }
 
-list<expr> type_inference::get_local_instances(name const & cname) {
+list<expr> type_context::get_local_instances(name const & cname) {
     buffer<expr> selected;
     for (pair<name, expr> const & p : m_ci_local_instances) {
         if (p.first == cname)
@@ -1395,11 +1395,11 @@ list<expr> type_inference::get_local_instances(name const & cname) {
     return to_list(selected);
 }
 
-bool type_inference::is_ci_done() const {
+bool type_context::is_ci_done() const {
     return empty(m_ci_state.m_stack);
 }
 
-bool type_inference::mk_choice_point(expr const & mvar) {
+bool type_context::mk_choice_point(expr const & mvar) {
     lean_assert(is_mvar(mvar));
     if (m_ci_choices.size() > m_ci_choices_ini_sz + m_ci_max_depth) {
         throw_class_exception("maximum class-instance resolution depth has been reached "
@@ -1435,7 +1435,7 @@ bool type_inference::mk_choice_point(expr const & mvar) {
     return true;
 }
 
-bool type_inference::process_next_alt_core(ci_stack_entry const & e, list<expr> & insts) {
+bool type_context::process_next_alt_core(ci_stack_entry const & e, list<expr> & insts) {
     while (!empty(insts)) {
         expr inst       = head(insts);
         insts           = tail(insts);
@@ -1447,7 +1447,7 @@ bool type_inference::process_next_alt_core(ci_stack_entry const & e, list<expr> 
     return false;
 }
 
-bool type_inference::process_next_alt_core(ci_stack_entry const & e, list<name> & inst_names, bool trans_inst) {
+bool type_context::process_next_alt_core(ci_stack_entry const & e, list<name> & inst_names, bool trans_inst) {
     while (!empty(inst_names)) {
         name inst_name    = head(inst_names);
         inst_names        = tail(inst_names);
@@ -1457,7 +1457,7 @@ bool type_inference::process_next_alt_core(ci_stack_entry const & e, list<name> 
     return false;
 }
 
-bool type_inference::process_next_alt(ci_stack_entry const & e) {
+bool type_context::process_next_alt(ci_stack_entry const & e) {
     lean_assert(m_ci_choices.size() > m_ci_choices_ini_sz);
     lean_assert(!m_ci_choices.empty());
     std::vector<ci_choice> & cs = m_ci_choices;
@@ -1484,7 +1484,7 @@ bool type_inference::process_next_alt(ci_stack_entry const & e) {
     return false;
 }
 
-bool type_inference::process_next_mvar() {
+bool type_context::process_next_mvar() {
     lean_assert(!is_ci_done());
     ci_stack_entry e = head(m_ci_state.m_stack);
     if (!mk_choice_point(e.m_mvar))
@@ -1493,7 +1493,7 @@ bool type_inference::process_next_mvar() {
     return process_next_alt(e);
 }
 
-bool type_inference::backtrack() {
+bool type_context::backtrack() {
     if (m_ci_choices.size() == m_ci_choices_ini_sz)
         return false;
     lean_assert(!m_ci_choices.empty());
@@ -1510,7 +1510,7 @@ bool type_inference::backtrack() {
     }
 }
 
-optional<expr> type_inference::search() {
+optional<expr> type_context::search() {
     while (!is_ci_done()) {
         if (!process_next_mvar()) {
             if (!backtrack())
@@ -1520,7 +1520,7 @@ optional<expr> type_inference::search() {
     return some_expr(instantiate_uvars_mvars(m_ci_main_mvar));
 }
 
-optional<expr> type_inference::next_solution() {
+optional<expr> type_context::next_solution() {
     if (m_ci_choices.size() == m_ci_choices_ini_sz)
         return none_expr();
     pop(); push(); // restore assignment
@@ -1535,14 +1535,14 @@ optional<expr> type_inference::next_solution() {
         return none_expr();
 }
 
-void type_inference::init_search(expr const & type) {
+void type_context::init_search(expr const & type) {
     m_ci_state          = ci_state();
     m_ci_main_mvar      = mk_mvar(type);
     m_ci_state.m_stack  = to_list(ci_stack_entry(m_ci_main_mvar, 0));
     m_ci_choices_ini_sz = m_ci_choices.size();
 }
 
-optional<expr> type_inference::check_ci_cache(expr const & type) const {
+optional<expr> type_context::check_ci_cache(expr const & type) const {
     if (m_ci_multiple_instances) {
         // We do not cache results when multiple instances have to be generated.
         return none_expr();
@@ -1554,7 +1554,7 @@ optional<expr> type_inference::check_ci_cache(expr const & type) const {
         return none_expr();
 }
 
-void type_inference::cache_ci_result(expr const & type, expr const & inst) {
+void type_context::cache_ci_result(expr const & type, expr const & inst) {
     if (m_ci_multiple_instances) {
         // We do not cache results when multiple instances have to be generated.
         return;
@@ -1562,7 +1562,7 @@ void type_inference::cache_ci_result(expr const & type, expr const & inst) {
     m_ci_cache.insert(mk_pair(type, inst));
 }
 
-optional<expr> type_inference::ensure_no_meta(optional<expr> r) {
+optional<expr> type_context::ensure_no_meta(optional<expr> r) {
     while (true) {
         if (!r)
             return none_expr();
@@ -1574,7 +1574,7 @@ optional<expr> type_inference::ensure_no_meta(optional<expr> r) {
     }
 }
 
-optional<expr> type_inference::mk_class_instance_core(expr const & type) {
+optional<expr> type_context::mk_class_instance_core(expr const & type) {
     if (auto r = check_ci_cache(type)) {
         if (m_ci_trace_instances) {
             diagnostic() << "cached instance for " << type << "\n" << *r << "\n";
@@ -1586,7 +1586,7 @@ optional<expr> type_inference::mk_class_instance_core(expr const & type) {
     return ensure_no_meta(r);
 }
 
-void type_inference::restore_choices(unsigned old_sz) {
+void type_context::restore_choices(unsigned old_sz) {
     lean_assert(old_sz <= m_ci_choices.size());
     while (m_ci_choices.size() > old_sz) {
         m_ci_choices.pop_back();
@@ -1595,7 +1595,7 @@ void type_inference::restore_choices(unsigned old_sz) {
     lean_assert(m_ci_choices.size() == old_sz);
 }
 
-optional<expr> type_inference::mk_class_instance(expr const & type) {
+optional<expr> type_context::mk_class_instance(expr const & type) {
     m_ci_choices.clear();
     ci_choices_scope scope(*this);
     m_ci_displayed_trace_header = false;
@@ -1605,7 +1605,7 @@ optional<expr> type_inference::mk_class_instance(expr const & type) {
     return r;
 }
 
-optional<expr> type_inference::next_class_instance() {
+optional<expr> type_context::next_class_instance() {
     if (!m_ci_multiple_instances)
         return none_expr();
     auto r = next_solution();
@@ -1614,7 +1614,7 @@ optional<expr> type_inference::next_class_instance() {
 
 /** \brief Create a nested type class instance of the given type
     \remark This method is used to resolve nested type class resolution problems. */
-optional<expr> type_inference::mk_nested_instance(expr const & type) {
+optional<expr> type_context::mk_nested_instance(expr const & type) {
     ci_choices_scope scope(*this);
     flet<unsigned> save_choice_sz(m_ci_choices_ini_sz, m_ci_choices_ini_sz);
     flet<ci_state> save_state(m_ci_state, ci_state());
@@ -1630,7 +1630,7 @@ optional<expr> type_inference::mk_nested_instance(expr const & type) {
 /** \brief Create a nested type class instance of the given type, and assign it to metavariable \c m.
     Return true iff the instance was successfully created.
     \remark This method is used to resolve nested type class resolution problems. */
-bool type_inference::mk_nested_instance(expr const & m, expr const & m_type) {
+bool type_context::mk_nested_instance(expr const & m, expr const & m_type) {
     lean_assert(is_mvar(m));
     if (auto r = mk_nested_instance(m_type)) {
         update_assignment(m, *r);
@@ -1640,7 +1640,7 @@ bool type_inference::mk_nested_instance(expr const & m, expr const & m_type) {
     }
 }
 
-type_inference::scope_pos_info::scope_pos_info(type_inference & o, pos_info_provider const * pip, expr const & pos_ref):
+type_context::scope_pos_info::scope_pos_info(type_context & o, pos_info_provider const * pip, expr const & pos_ref):
     m_owner(o),
     m_old_pip(m_owner.m_pip),
     m_old_pos(m_owner.m_ci_pos) {
@@ -1649,14 +1649,14 @@ type_inference::scope_pos_info::scope_pos_info(type_inference & o, pos_info_prov
         m_owner.m_ci_pos = pip->get_pos_info(pos_ref);
 }
 
-type_inference::scope_pos_info::~scope_pos_info() {
+type_context::scope_pos_info::~scope_pos_info() {
     m_owner.m_pip    = m_old_pip;
     m_owner.m_ci_pos = m_old_pos;
 }
 
-default_type_inference::default_type_inference(environment const & env, io_state const & ios,
+default_type_context::default_type_context(environment const & env, io_state const & ios,
                                                list<expr> const & ctx, bool multiple_instances):
-    type_inference(env, ios, multiple_instances),
+    type_context(env, ios, multiple_instances),
     m_not_reducible_pred(mk_not_reducible_pred(env)) {
     m_ignore_if_zero = false;
     m_next_local_idx = 0;
@@ -1665,75 +1665,75 @@ default_type_inference::default_type_inference(environment const & env, io_state
     set_context(ctx);
 }
 
-default_type_inference::~default_type_inference() {}
+default_type_context::~default_type_context() {}
 
-expr default_type_inference::mk_tmp_local(expr const & type, binder_info const & bi) {
+expr default_type_context::mk_tmp_local(expr const & type, binder_info const & bi) {
     unsigned idx = m_next_local_idx;
     m_next_local_idx++;
     name n(*g_prefix, idx);
     return lean::mk_local(n, n, type, bi);
 }
 
-bool default_type_inference::is_tmp_local(expr const & e) const {
+bool default_type_context::is_tmp_local(expr const & e) const {
     if (!is_local(e))
         return false;
     name const & n = mlocal_name(e);
     return !n.is_atomic() && n.get_prefix() == *g_prefix;
 }
 
-bool default_type_inference::is_uvar(level const & l) const {
+bool default_type_context::is_uvar(level const & l) const {
     if (!is_meta(l))
         return false;
     name const & n = meta_id(l);
     return !n.is_atomic() && n.get_prefix() == *g_prefix;
 }
 
-bool default_type_inference::is_mvar(expr const & e) const {
+bool default_type_context::is_mvar(expr const & e) const {
     if (!is_metavar(e))
         return false;
     name const & n = mlocal_name(e);
     return !n.is_atomic() && n.get_prefix() == *g_prefix;
 }
 
-unsigned default_type_inference::uvar_idx(level const & l) const {
+unsigned default_type_context::uvar_idx(level const & l) const {
     lean_assert(is_uvar(l));
     return meta_id(l).get_numeral();
 }
 
-unsigned default_type_inference::mvar_idx(expr const & m) const {
+unsigned default_type_context::mvar_idx(expr const & m) const {
     lean_assert(is_mvar(m));
     return mlocal_name(m).get_numeral();
 }
 
-level const * default_type_inference::get_assignment(level const & u) const {
+level const * default_type_context::get_assignment(level const & u) const {
     return m_assignment.m_uassignment.find(uvar_idx(u));
 }
 
-expr const * default_type_inference::get_assignment(expr const & m) const {
+expr const * default_type_context::get_assignment(expr const & m) const {
     return m_assignment.m_eassignment.find(mvar_idx(m));
 }
 
-void default_type_inference::update_assignment(level const & u, level const & v) {
+void default_type_context::update_assignment(level const & u, level const & v) {
     m_assignment.m_uassignment.insert(uvar_idx(u), v);
 }
 
-void default_type_inference::update_assignment(expr const & m, expr const & v) {
+void default_type_context::update_assignment(expr const & m, expr const & v) {
     m_assignment.m_eassignment.insert(mvar_idx(m), v);
 }
 
-level default_type_inference::mk_uvar() {
+level default_type_context::mk_uvar() {
     unsigned idx = m_next_uvar_idx;
     m_next_uvar_idx++;
     return mk_meta_univ(name(*g_prefix, idx));
 }
 
-expr default_type_inference::mk_mvar(expr const & type) {
+expr default_type_context::mk_mvar(expr const & type) {
     unsigned idx = m_next_mvar_idx;
     m_next_mvar_idx++;
     return mk_metavar(name(*g_prefix, idx), type);
 }
 
-bool default_type_inference::ignore_universe_def_eq(level const & l1, level const & l2) const {
+bool default_type_context::ignore_universe_def_eq(level const & l1, level const & l2) const {
     if (is_meta(l1) || is_meta(l2)) {
         // The unifier may invoke this module before universe metavariables in the class
         // have been instantiated. So, we just ignore and assume they will be solved by
@@ -1748,7 +1748,7 @@ bool default_type_inference::ignore_universe_def_eq(level const & l1, level cons
     }
 }
 
-void initialize_type_inference() {
+void initialize_type_context() {
     g_prefix = new name(name::mk_internal_unique_name());
     g_class_trace_instances        = new name{"class", "trace_instances"};
     g_class_instance_max_depth     = new name{"class", "instance_max_depth"};
@@ -1764,7 +1764,7 @@ void initialize_type_inference() {
                          "the structure instance graph");
 }
 
-void finalize_type_inference() {
+void finalize_type_context() {
     delete g_prefix;
     delete g_class_trace_instances;
     delete g_class_instance_max_depth;

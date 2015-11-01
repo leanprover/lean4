@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/pos_info_provider.h"
 #include "library/io_state.h"
-#include "library/type_inference.h"
 #include "library/local_context.h"
 
 namespace lean {

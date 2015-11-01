@@ -44,7 +44,7 @@ Author: Leonardo de Moura
 #include "library/meng_paulson.h"
 #include "library/norm_num.h"
 #include "library/class_instance_resolution.h"
-#include "library/type_inference.h"
+#include "library/type_context.h"
 
 namespace lean {
 void initialize_library_module() {
@@ -88,11 +88,11 @@ void initialize_library_module() {
     initialize_meng_paulson();
     initialize_norm_num();
     initialize_class_instance_resolution();
-    initialize_type_inference();
+    initialize_type_context();
 }
 
 void finalize_library_module() {
-    finalize_type_inference();
+    finalize_type_context();
     finalize_class_instance_resolution();
     finalize_norm_num();
     finalize_meng_paulson();

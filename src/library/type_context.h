@@ -28,7 +28,7 @@ bool get_class_trans_instances(options const & o);
 
     This class also implements type class resolution
 */
-class type_inference {
+class type_context {
     struct ext_ctx;
     friend struct ext_ctx;
     environment                     m_env;
@@ -118,10 +118,10 @@ class type_inference {
     void ensure_pi(expr const & e, expr const & ref);
 
     struct scope {
-        type_inference & m_owner;
-        bool             m_keep;
-        unsigned         m_postponed_sz;
-        scope(type_inference & o):m_owner(o), m_keep(false), m_postponed_sz(o.m_postponed.size()) { m_owner.push(); }
+        type_context & m_owner;
+        bool           m_keep;
+        unsigned       m_postponed_sz;
+        scope(type_context & o):m_owner(o), m_keep(false), m_postponed_sz(o.m_postponed.size()) { m_owner.push(); }
         ~scope() { m_owner.m_postponed.resize(m_postponed_sz); if (!m_keep) m_owner.pop(); }
         void commit() { m_postponed_sz = m_owner.m_postponed.size(); m_owner.commit(); m_keep = true; }
     };
@@ -154,10 +154,10 @@ class type_inference {
     };
 
     struct ci_choices_scope {
-        type_inference & m_owner;
-        unsigned         m_ci_choices_sz;
-        bool             m_keep{false};
-        ci_choices_scope(type_inference & o):m_owner(o), m_ci_choices_sz(o.m_ci_choices.size()) {}
+        type_context & m_owner;
+        unsigned       m_ci_choices_sz;
+        bool           m_keep{false};
+        ci_choices_scope(type_context & o):m_owner(o), m_ci_choices_sz(o.m_ci_choices.size()) {}
         ~ci_choices_scope() { if (!m_keep) m_owner.restore_choices(m_ci_choices_sz); }
         void commit() { m_keep = true; }
     };
@@ -207,8 +207,8 @@ class type_inference {
     optional<expr> check_ci_cache(expr const & type) const;
     void cache_ci_result(expr const & type, expr const & inst);
 public:
-    type_inference(environment const & env, io_state const & ios, bool multiple_instances = false);
-    virtual ~type_inference();
+    type_context(environment const & env, io_state const & ios, bool multiple_instances = false);
+    virtual ~type_context();
 
     void set_context(list<expr> const & ctx);
 
@@ -349,20 +349,20 @@ public:
 
     /** \brief Auxiliary object used to set position information for the type class resolution trace. */
     class scope_pos_info {
-        type_inference &          m_owner;
+        type_context &            m_owner;
         pos_info_provider const * m_old_pip;
         optional<pos_info>        m_old_pos;
     public:
-        scope_pos_info(type_inference & o, pos_info_provider const * pip, expr const & pos_ref);
+        scope_pos_info(type_context & o, pos_info_provider const * pip, expr const & pos_ref);
         ~scope_pos_info();
     };
 };
 
-/** \brief Default implementation for the generic type_inference class.
+/** \brief Default implementation for the generic type_context class.
     It implements a simple meta-variable assignment.
 
     We use this class to implement the interface with the elaborator. */
-class default_type_inference : public type_inference {
+class default_type_context : public type_context {
     typedef rb_map<unsigned, level, unsigned_cmp> uassignment;
     typedef rb_map<unsigned, expr,  unsigned_cmp> eassignment;
     name_predicate            m_not_reducible_pred;
@@ -400,9 +400,9 @@ class default_type_inference : public type_inference {
     unsigned mvar_idx(expr const & m) const;
 
 public:
-    default_type_inference(environment const & env, io_state const & ios,
+    default_type_context(environment const & env, io_state const & ios,
                            list<expr> const & ctx = list<expr>(), bool multiple_instances = false);
-    virtual ~default_type_inference();
+    virtual ~default_type_context();
     virtual bool is_extra_opaque(name const & n) const { return m_not_reducible_pred(n); }
     virtual bool ignore_universe_def_eq(level const & l1, level const & l2) const;
     virtual expr mk_tmp_local(expr const & type, binder_info const & bi);
@@ -423,6 +423,6 @@ public:
     bool & get_ignore_if_zero() { return m_ignore_if_zero; }
 };
 
-void initialize_type_inference();
-void finalize_type_inference();
+void initialize_type_context();
+void finalize_type_context();
 }

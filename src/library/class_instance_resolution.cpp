@@ -22,7 +22,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/pp_options.h"
 #include "library/choice_iterator.h"
-#include "library/type_inference.h"
+#include "library/type_context.h"
 #include "library/class_instance_resolution.h"
 // The following include files are need by the old type class resolution procedure
 #include "util/lazy_list_fn.h"
@@ -41,11 +41,11 @@ bool get_class_force_new(options const & o) {
 }
 
 struct cienv {
-    typedef std::unique_ptr<default_type_inference> ti_ptr;
+    typedef std::unique_ptr<default_type_context> ti_ptr;
     ti_ptr m_ti_ptr;
 
     void reset(environment const & env, io_state const & ios, list<expr> const & ctx) {
-        m_ti_ptr.reset(new default_type_inference(env, ios, ctx));
+        m_ti_ptr.reset(new default_type_context(env, ios, ctx));
     }
 
     bool compatible_env(environment const & env) {
@@ -64,7 +64,7 @@ struct cienv {
                               pos_info_provider const * pip, list<expr> const & ctx, expr const & type,
                               expr const & pos_ref) {
         ensure_compatible(env, ios, ctx);
-        type_inference::scope_pos_info scope(*m_ti_ptr, pip, pos_ref);
+        type_context::scope_pos_info scope(*m_ti_ptr, pip, pos_ref);
         return m_ti_ptr->mk_class_instance(type);
     }
 };
@@ -87,12 +87,12 @@ optional<expr> mk_class_instance(environment const & env, list<expr> const & ctx
 
 // Auxiliary class for generating a lazy-stream of instances.
 class class_multi_instance_iterator : public choice_iterator {
-    io_state                       m_ios;
-    default_type_inference         m_ti;
-    type_inference::scope_pos_info m_scope_pos_info;
-    expr                           m_new_meta;
-    justification                  m_new_j;
-    optional<expr>                 m_first;
+    io_state                     m_ios;
+    default_type_context         m_ti;
+    type_context::scope_pos_info m_scope_pos_info;
+    expr                         m_new_meta;
+    justification                m_new_j;
+    optional<expr>               m_first;
 public:
     class_multi_instance_iterator(environment const & env, io_state const & ios, list<expr> const & ctx,
                                   expr const & e, pos_info_provider const * pip, expr const & pos_ref,

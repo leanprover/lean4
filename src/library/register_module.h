@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/match.h"
 #include "library/reducible.h"
-#include "library/app_builder.h"
 
 namespace lean {
 inline void open_core_module(lua_State * L) {
@@ -32,7 +31,6 @@ inline void open_core_module(lua_State * L) {
     open_explicit(L);
     open_match(L);
     open_reducible(L);
-    open_app_builder(L);
 }
 inline void register_core_module() {
     script_state::register_module(open_core_module);

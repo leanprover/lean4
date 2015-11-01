@@ -6,7 +6,9 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <memory>
-#include "kernel/type_checker.h"
+#include "kernel/environment.h"
+#include "library/io_state.h"
+#include "library/reducible.h"
 
 namespace lean {
 /** \brief Helper for creating simple applications where some arguments are inferred using
@@ -27,7 +29,8 @@ class app_builder {
     struct imp;
     std::unique_ptr<imp> m_ptr;
 public:
-    app_builder(type_checker & tc);
+    app_builder(environment const & env, io_state const & ios, reducible_behavior b = UnfoldReducible);
+    app_builder(environment const & env, reducible_behavior b = UnfoldReducible);
     ~app_builder();
     /** \brief Create an application (d.{_ ... _} _ ... _ args[0] ... args[nargs-1]).
         The missing arguments and universes levels are inferred using type inference.
@@ -38,21 +41,24 @@ public:
 
         \remark This methods uses just higher-order pattern matching.
     */
-    optional<expr> mk_app(declaration const & d, unsigned nargs, expr const * args, bool use_cache = true);
-    optional<expr> mk_app(name const & n, unsigned nargs, expr const * args, bool use_cache = true);
-    optional<expr> mk_app(name const & n, std::initializer_list<expr> const & args, bool use_cache = true);
-    optional<expr> mk_app(name const & n, expr const & a1, bool use_cache = true);
-    optional<expr> mk_app(name const & n, expr const & a1, expr const & a2, bool use_cache = true);
-    optional<expr> mk_app(name const & n, expr const & a1, expr const & a2, expr const & a3, bool use_cache = true);
-    /** \brief Create a backtracking point for cached information.
-        \remark This method does not invoke tc->push()
-    */
-    void push();
-    /** \brief Restore backtracking point, values cached between this push and the corresponding pop
-        are removed from the cache.
+    optional<expr> mk_app(name const & c, unsigned nargs, expr const * args);
 
-        \remark This method does not invoke tc->pop()
-    */
-    void pop();
+    optional<expr> mk_app(name const & c, std::initializer_list<expr> const & args) {
+        return mk_app(c, args.size(), args.begin());
+    }
+
+    optional<expr> mk_app(name const & c, expr const & a1) {
+        return mk_app(c, {a1});
+    }
+
+    optional<expr> mk_app(name const & c, expr const & a1, expr const & a2) {
+        return mk_app(c, {a1, a2});
+    }
+
+    optional<expr> mk_app(name const & c, expr const & a1, expr const & a2, expr const & a3) {
+        return mk_app(c, {a1, a2, a3});
+    }
+
+    optional<expr> mk_app(name const & c, unsigned mask_sz, bool const * mask, expr const * args);
 };
 }

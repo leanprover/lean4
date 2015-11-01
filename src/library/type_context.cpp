@@ -722,6 +722,19 @@ bool type_context::process_assignment(expr const & ma, expr const & v) {
     }
 }
 
+bool type_context::assign(expr const & ma, expr const & v) {
+    expr const & f = get_app_fn(ma);
+    if (is_assigned(f)) {
+        return is_def_eq(ma, v);
+    } else {
+        return process_assignment(ma, v);
+    }
+}
+
+bool type_context::force_assign(expr const & ma, expr const & v) {
+    return process_assignment(ma, v);
+}
+
 /** \brief This is an auxiliary method for is_def_eq. It handles the "easy cases". */
 lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
     if (e1 == e2)

@@ -1141,22 +1141,26 @@ static environment relevant_thms_cmd(parser & p) {
 
 static environment app_builder_cmd(parser & p) {
     environment const & env = p.env();
-    type_checker tc(env);
-    app_builder b(tc);
+    auto pos = p.pos();
+    app_builder b(env);
     name c = p.check_constant_next("invalid #app_builder command, constant expected");
     p.check_token_next(get_lparen_tk(), "invalid #app_builder command, '(' expected");
     buffer<expr> args;
     while (true) {
-        args.push_back(p.parse_expr());
+        expr e; level_param_names ls;
+        std::tie(e, ls) = parse_local_expr(p);
+        args.push_back(e);
         if (!p.curr_is_token(get_comma_tk()))
             break;
         p.next();
     }
     p.check_token_next(get_rparen_tk(), "invalid #app_builder command, ')' expected");
     if (auto r = b.mk_app(c, args.size(), args.data())) {
-        p.regular_stream() << *r << "\n";
+        type_checker tc(env);
+        expr t = tc.check_ignore_undefined_universes(*r).first;
+        p.regular_stream() << *r << " : " << t << "\n";
     } else {
-        p.regular_stream() << "<failed>\n";
+        throw parser_error(sstream() << "failed to build application for '" << c << "'", pos);
     }
     return env;
 }

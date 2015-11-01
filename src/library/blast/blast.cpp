@@ -70,12 +70,18 @@ class blastenv {
             return blast::is_mref(e);
         }
 
-        virtual level const * get_assignment(level const & u) const {
-            return m_benv.m_curr_state.get_uref_assignment(u);
+        virtual optional<level> get_assignment(level const & u) const {
+            if (auto v = m_benv.m_curr_state.get_uref_assignment(u))
+                return some_level(*v);
+            else
+                return none_level();
         }
 
-        virtual expr const * get_assignment(expr const & m) const {
-            return m_benv.m_curr_state.get_mref_assignment(m);
+        virtual optional<expr> get_assignment(expr const & m) const {
+            if (auto v = m_benv.m_curr_state.get_mref_assignment(m))
+                return some_expr(*v);
+            else
+                return none_expr();
         }
 
         virtual void update_assignment(level const & u, level const & v) {

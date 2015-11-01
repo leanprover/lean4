@@ -243,14 +243,14 @@ public:
     virtual bool is_mvar(expr const & e) const = 0;
 
     /** \brief Return the assignment for universe unification variable
-        \c u, and nullptr if it is not assigned.
+        \c u, and none if it is not assigned.
         \pre is_uvar(u) */
-    virtual level const * get_assignment(level const & u) const = 0;
+    virtual optional<level> get_assignment(level const & u) const = 0;
 
     /** \brief Return the assignment for unification variable
-        \c m, and nullptr if it is not assigned.
+        \c m, and none if it is not assigned.
         \pre is_mvar(u) */
-    virtual expr const * get_assignment(expr const & m) const = 0;
+    virtual optional<expr> get_assignment(expr const & m) const = 0;
 
     /** \brief Update the assignment for \c u.
         \pre is_uvar(u) */
@@ -297,8 +297,8 @@ public:
         assign unassigned metavariables in the given terms. */
     virtual bool on_is_def_eq_failure(expr &, expr &);
 
-    bool is_assigned(level const & u) const { return get_assignment(u) != nullptr; }
-    bool is_assigned(expr const & m) const { return get_assignment(m) != nullptr; }
+    bool is_assigned(level const & u) const { return static_cast<bool>(get_assignment(u)); }
+    bool is_assigned(expr const & m) const { return static_cast<bool>(get_assignment(m)); }
 
     bool has_assigned_uvar(level const & l) const;
     bool has_assigned_uvar(levels const & ls) const;
@@ -409,8 +409,8 @@ public:
     virtual bool is_tmp_local(expr const & e) const;
     virtual bool is_uvar(level const & l) const;
     virtual bool is_mvar(expr const & e) const;
-    virtual level const * get_assignment(level const & u) const;
-    virtual expr const * get_assignment(expr const & m) const;
+    virtual optional<level> get_assignment(level const & u) const;
+    virtual optional<expr> get_assignment(expr const & m) const;
     virtual void update_assignment(level const & u, level const & v);
     virtual void update_assignment(expr const & m, expr const & v);
     virtual level mk_uvar();

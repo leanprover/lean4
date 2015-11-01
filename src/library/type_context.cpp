@@ -400,7 +400,7 @@ expr type_context::subst_mvar(expr const & e) {
     buffer<expr> args;
     expr const & m   = get_app_rev_args(e, args);
     lean_assert(is_mvar(m));
-    expr const * v = get_assignment(m);
+    optional<expr> v = get_assignment(m);
     lean_assert(v);
     return apply_beta(*v, args.size(), args.data());
 }
@@ -1705,12 +1705,18 @@ unsigned default_type_context::mvar_idx(expr const & m) const {
     return mlocal_name(m).get_numeral();
 }
 
-level const * default_type_context::get_assignment(level const & u) const {
-    return m_assignment.m_uassignment.find(uvar_idx(u));
+optional<level> default_type_context::get_assignment(level const & u) const {
+    if (auto v = m_assignment.m_uassignment.find(uvar_idx(u)))
+        return some_level(*v);
+    else
+        return none_level();
 }
 
-expr const * default_type_context::get_assignment(expr const & m) const {
-    return m_assignment.m_eassignment.find(mvar_idx(m));
+optional<expr> default_type_context::get_assignment(expr const & m) const {
+    if (auto v = m_assignment.m_eassignment.find(mvar_idx(m)))
+        return some_expr(*v);
+    else
+        return none_expr();
 }
 
 void default_type_context::update_assignment(level const & u, level const & v) {

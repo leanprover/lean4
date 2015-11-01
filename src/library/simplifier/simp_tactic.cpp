@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/constants.h"
 #include "library/util.h"
-#include "library/app_builder.h"
 #include "library/relation_manager.h"
 #include "library/tactic/expr_to_tactic.h"
 #include "library/simplifier/ceqv.h"
@@ -126,6 +125,7 @@ expr mk_simp_tactic_expr(buffer<expr> const & ls, buffer<name> const & ns,
     return r;
 }
 
+#if 0
 class simp_tactic_fn {
 public:
     enum res_kind { Simplified, Solved, DidNothing };
@@ -315,10 +315,14 @@ public:
         }
     }
 };
+#endif
 
-tactic mk_simp_tactic(elaborate_fn const & elab, buffer<expr> const & ls, buffer<name> const & ns,
-                      buffer<name> const & ex, optional<tactic> tac, location const & loc) {
-    return tactic01([=](environment const & env, io_state const & ios, proof_state const & s) {
+tactic mk_simp_tactic(elaborate_fn const & /* elab */, buffer<expr> const & /* ls */, buffer<name> const & /* ns */,
+                      buffer<name> const & /* ex */, optional<tactic> /* tac */, location const & /* loc */) {
+    return tactic01([=](environment const & /* env */, io_state const & /* ios */, proof_state const & /* s */) {
+            // TODO(Leo): we should delete this file... it is subsumed by blast
+            return none_proof_state();
+#if 0
             goals const & gs = s.get_goals();
             if (empty(gs)) {
                 throw_no_goal_if_enabled(s);
@@ -341,7 +345,7 @@ tactic mk_simp_tactic(elaborate_fn const & elab, buffer<expr> const & ls, buffer
             case simp_tactic_fn::DidNothing:
                 return none_proof_state();
             }
-            lean_unreachable();
+#endif
         });
 }
 

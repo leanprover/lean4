@@ -44,6 +44,8 @@ name const * g_heq_refl = nullptr;
 name const * g_heq_to_eq = nullptr;
 name const * g_iff = nullptr;
 name const * g_iff_refl = nullptr;
+name const * g_iff_symm = nullptr;
+name const * g_iff_trans = nullptr;
 name const * g_iff_false_intro = nullptr;
 name const * g_iff_true_intro = nullptr;
 name const * g_implies = nullptr;
@@ -198,6 +200,8 @@ void initialize_constants() {
     g_heq_to_eq = new name{"heq", "to_eq"};
     g_iff = new name{"iff"};
     g_iff_refl = new name{"iff", "refl"};
+    g_iff_symm = new name{"iff", "symm"};
+    g_iff_trans = new name{"iff", "trans"};
     g_iff_false_intro = new name{"iff_false_intro"};
     g_iff_true_intro = new name{"iff_true_intro"};
     g_implies = new name{"implies"};
@@ -353,6 +357,8 @@ void finalize_constants() {
     delete g_heq_to_eq;
     delete g_iff;
     delete g_iff_refl;
+    delete g_iff_symm;
+    delete g_iff_trans;
     delete g_iff_false_intro;
     delete g_iff_true_intro;
     delete g_implies;
@@ -507,6 +513,8 @@ name const & get_heq_refl_name() { return *g_heq_refl; }
 name const & get_heq_to_eq_name() { return *g_heq_to_eq; }
 name const & get_iff_name() { return *g_iff; }
 name const & get_iff_refl_name() { return *g_iff_refl; }
+name const & get_iff_symm_name() { return *g_iff_symm; }
+name const & get_iff_trans_name() { return *g_iff_trans; }
 name const & get_iff_false_intro_name() { return *g_iff_false_intro; }
 name const & get_iff_true_intro_name() { return *g_iff_true_intro; }
 name const & get_implies_name() { return *g_implies; }

@@ -46,6 +46,8 @@ name const & get_heq_refl_name();
 name const & get_heq_to_eq_name();
 name const & get_iff_name();
 name const & get_iff_refl_name();
+name const & get_iff_symm_name();
+name const & get_iff_trans_name();
 name const & get_iff_false_intro_name();
 name const & get_iff_true_intro_name();
 name const & get_implies_name();

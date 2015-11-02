@@ -71,6 +71,14 @@ optional<name> get_refl_info(environment const & env, name const & op);
 optional<name> get_symm_info(environment const & env, name const & op);
 optional<name> get_trans_info(environment const & env, name const & op);
 
+typedef std::function<optional<refl_info>(name const &)>  refl_info_getter;
+typedef std::function<optional<trans_info>(name const &, name const &)> trans_info_getter;
+typedef std::function<optional<symm_info>(name const &)>  symm_info_getter;
+
+refl_info_getter mk_refl_info_getter(environment const & env);
+trans_info_getter mk_trans_info_getter(environment const & env);
+symm_info_getter mk_symm_info_getter(environment const & env);
+
 bool is_subst_relation(environment const & env, name const & op);
 inline bool is_trans_relation(environment const & env, name const & op) { return static_cast<bool>(get_trans_info(env, op)); }
 inline bool is_symm_relation(environment const & env, name const & op) { return static_cast<bool>(get_symm_info(env, op)); }

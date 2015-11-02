@@ -486,6 +486,13 @@ bool is_iff(expr const & e) {
     expr const & fn = get_app_fn(e);
     return is_constant(fn) && const_name(fn) == get_iff_name();
 }
+bool is_iff(expr const & e, expr & lhs, expr & rhs) {
+    if (!is_iff(e) || !is_app(app_fn(e)))
+        return false;
+    lhs = app_arg(app_fn(e));
+    rhs = app_arg(e);
+    return true;
+}
 expr mk_iff(expr const & lhs, expr const & rhs) {
     return mk_app(mk_constant(get_iff_name()), lhs, rhs);
 }

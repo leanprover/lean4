@@ -173,6 +173,7 @@ bool is_heq(expr const & e, expr & A, expr & lhs, expr & B, expr & rhs);
 bool is_ite(expr const & e, expr & c, expr & H, expr & A, expr & t, expr & f);
 
 bool is_iff(expr const & e);
+bool is_iff(expr const & e, expr & lhs, expr & rhs);
 expr mk_iff(expr const & lhs, expr const & rhs);
 expr mk_iff_refl(expr const & a);
 /** \brief Given <tt>iff_pr : iff_term</tt>, where \c iff_term is of the form <tt>l <-> r</tt>,

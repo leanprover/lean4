@@ -256,6 +256,27 @@ optional<name> get_trans_info(environment const & env, name const & op) {
         return optional<name>();
 }
 
+refl_info_getter mk_refl_info_getter(environment const & env) {
+    auto t = rel_ext::get_state(env).m_refl_table;
+    return [=](name const & n) { return get_info(t, n); };
+}
+
+trans_info_getter mk_trans_info_getter(environment const & env) {
+    auto t = rel_ext::get_state(env).m_trans_table;
+    return [=](name const & op1, name const & op2) {
+        if (auto it = t.find(mk_pair(op1, op2))) {
+            return optional<trans_info>(*it);
+        } else {
+            return optional<trans_info>();
+        }
+    };
+}
+
+symm_info_getter mk_symm_info_getter(environment const & env) {
+    auto t = rel_ext::get_state(env).m_symm_table;
+    return [=](name const & n) { return get_info(t, n); };
+}
+
 bool is_equivalence(environment const & env, name const & rop) {
     return rel_ext::get_state(env).is_equivalence(rop);
 }

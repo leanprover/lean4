@@ -63,6 +63,26 @@ public:
 
     optional<expr> mk_app(name const & c, unsigned mask_sz, bool const * mask, expr const * args);
 
+    /** \brief Similar to mk_app(n, lhs, rhs), but handles eq and iff more efficiently. */
+    optional<expr> mk_rel(name const & n, expr const & lhs, expr const & rhs);
+    optional<expr> mk_eq(expr const & lhs, expr const & rhs);
+    optional<expr> mk_iff(expr const & lhs, expr const & rhs);
+
+    /** \brief Similar a reflexivity proof for the given relation */
+    optional<expr> mk_refl(name const & relname, expr const & a);
+    optional<expr> mk_eq_refl(expr const & a);
+    optional<expr> mk_iff_refl(expr const & a);
+
+    /** \brief Similar a symmetry proof for the given relation */
+    optional<expr> mk_symm(name const & relname, expr const & H);
+    optional<expr> mk_eq_symm(expr const & H);
+    optional<expr> mk_iff_symm(expr const & H);
+
+    /** \brief Similar a transitivity proof for the given relation */
+    optional<expr> mk_trans(name const & relname, expr const & H1, expr const & H2);
+    optional<expr> mk_eq_trans(expr const & H1, expr const & H2);
+    optional<expr> mk_iff_trans(expr const & H1, expr const & H2);
+
     /** \brief Set the local context. This method is relevant when we want to expose local class instances
         to the app_builder.
 

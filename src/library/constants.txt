@@ -39,6 +39,8 @@ heq.refl
 heq.to_eq
 iff
 iff.refl
+iff.symm
+iff.trans
 iff_false_intro
 iff_true_intro
 implies

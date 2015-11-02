@@ -145,6 +145,8 @@ class blastenv {
         }
 
         virtual expr infer_metavar(expr const & m) const {
+            // Remark: we do not tolerate external meta-variables here.
+            lean_assert(is_mref(m));
             state const & s = m_benv.m_curr_state;
             metavar_decl const * d = s.get_metavar_decl(m);
             lean_assert(d);
@@ -558,10 +560,17 @@ public:
     }
 
     virtual expr infer_metavar(expr const & m) const {
-        state const & s = curr_state();
-        metavar_decl const * d = s.get_metavar_decl(m);
-        lean_assert(d);
-        return d->get_type();
+        if (is_mref(m)) {
+            state const & s = curr_state();
+            metavar_decl const * d = s.get_metavar_decl(m);
+            lean_assert(d);
+            return d->get_type();
+        } else {
+            // The type of external meta-variables is encoded in the usual way.
+            // In temporary type_context objects, we may have temporary meta-variables
+            // created by external modules (e.g., simplifier and app_builder).
+            return mlocal_type(m);
+        }
     }
 };
 

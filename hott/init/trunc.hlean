@@ -154,15 +154,15 @@ namespace is_trunc
                        (λn IH Hn, is_trunc_of_imp_is_trunc)
                        Hn H
 
-  -- the following cannot be instances in their current form, because they are looping
-  theorem is_trunc_of_is_contr (A : Type) (n : trunc_index) [H : is_contr A] : is_trunc n A :=
+  -- these must be definitions, because we need them to compute sometimes
+  definition is_trunc_of_is_contr (A : Type) (n : trunc_index) [H : is_contr A] : is_trunc n A :=
   trunc_index.rec_on n H _
 
-  theorem is_trunc_succ_of_is_hprop (A : Type) (n : trunc_index) [H : is_hprop A]
+  definition is_trunc_succ_of_is_hprop (A : Type) (n : trunc_index) [H : is_hprop A]
       : is_trunc (n.+1) A :=
   is_trunc_of_leq A (show -1 ≤ n.+1, from star)
 
-  theorem is_trunc_succ_succ_of_is_hset (A : Type) (n : trunc_index) [H : is_hset A]
+  definition is_trunc_succ_succ_of_is_hset (A : Type) (n : trunc_index) [H : is_hset A]
       : is_trunc (n.+2) A :=
   is_trunc_of_leq A (show 0 ≤ n.+2, from star)
 

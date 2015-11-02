@@ -110,7 +110,7 @@ namespace functor
              (functor_uncurry_id G)
              (functor_uncurry_comp G)
 
-  theorem functor_uncurry_functor_curry : functor_uncurry (functor_curry F) = F :=
+  definition functor_uncurry_functor_curry : functor_uncurry (functor_curry F) = F :=
   functor_eq (λp, ap (to_fun_ob F) !prod.eta)
   begin
     intro cd cd' fg,
@@ -134,7 +134,7 @@ namespace functor
        rewrite [▸*, ↑functor_uncurry_hom, respect_id, ▸*, id_right]}
   end
 
-  theorem functor_curry_functor_uncurry : functor_curry (functor_uncurry G) = G :=
+  definition functor_curry_functor_uncurry : functor_curry (functor_uncurry G) = G :=
   begin
     fapply functor_eq, exact (functor_curry_functor_uncurry_ob G),
     intro c c' f,

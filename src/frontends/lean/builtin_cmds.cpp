@@ -1154,7 +1154,7 @@ static environment app_builder_cmd(parser & p) {
     name c = p.check_constant_next("invalid #app_builder command, constant expected");
     bool has_mask = false;
     buffer<bool> mask;
-    if (p.curr_is_token(get_lparen_tk())) {
+    if (p.curr_is_token(get_lbracket_tk())) {
         p.next();
         has_mask = true;
         while (true) {
@@ -1164,7 +1164,7 @@ static environment app_builder_cmd(parser & p) {
                 break;
             p.next();
         }
-        p.check_token_next(get_rparen_tk(), "invalid #app_builder command, ')' expected");
+        p.check_token_next(get_rbracket_tk(), "invalid #app_builder command, ']' expected");
     }
 
     buffer<expr> args;

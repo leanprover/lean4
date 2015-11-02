@@ -43,9 +43,11 @@ struct app_builder::imp {
         // If nonnil, then the mask is NOT of the form [false*, true*]
         list<bool> m_mask;
 
-        static bool is_simple(list<bool> const & mask) {
+        template<typename It>
+        static bool is_simple(It const & begin, It const & end) {
             bool found_true = false;
-            for (bool b : mask) {
+            for (auto it = begin; it != end; ++it) {
+                auto b = *it;
                 if (b) {
                     found_true = true;
                 } else if (found_true) {
@@ -54,6 +56,10 @@ struct app_builder::imp {
                 }
             }
             return true;
+        }
+
+        static bool is_simple(list<bool> const & mask) {
+            return is_simple(mask.begin(), mask.end());
         }
 
         key(name const & c, unsigned n):
@@ -157,6 +163,36 @@ struct app_builder::imp {
         }
     }
 
+    optional<entry> get_entry(name const & c, unsigned mask_sz, bool const * mask) {
+        key k(c, to_list(mask, mask+mask_sz));
+        lean_assert(k.check_invariant());
+        auto it = m_map.find(k);
+        if (it == m_map.end()) {
+            if (auto d = m_ctx->env().find(c)) {
+                buffer<expr> mvars;
+                buffer<optional<expr>> inst_args;
+                levels lvls = mk_metavars(*d, mvars, inst_args);
+                entry e;
+                e.m_num_umeta = d->get_num_univ_params();
+                e.m_num_emeta = mvars.size();
+                e.m_app       = ::lean::mk_app(mk_constant(c, lvls), mvars);
+                e.m_inst_args = reverse_to_list(inst_args.begin(), inst_args.end());
+                list<expr> expl_args;
+                for (unsigned i = 0; i < mask_sz; i++) {
+                    if (mask[i])
+                        expl_args = cons(mvars[i], expl_args);
+                }
+                e.m_expl_args = expl_args;
+                m_map.insert(mk_pair(k, e));
+                return optional<entry>(e);
+            } else {
+                return optional<entry>(); // unknown decl
+            }
+        } else {
+            return optional<entry>(it->second);
+        }
+    }
+
     bool check_all_assigned(entry const & e) {
         lean_assert(e.m_num_emeta == length(e.m_inst_args));
         // recall that the flags at e.m_inst_args are stored in reverse order.
@@ -185,13 +221,17 @@ struct app_builder::imp {
         return true;
     }
 
+    void init_ctx_for(entry const & e) {
+        m_ctx->clear();
+        m_ctx->set_next_uvar_idx(e.m_num_umeta);
+        m_ctx->set_next_mvar_idx(e.m_num_emeta);
+    }
+
     optional<expr> mk_app(name const & c, unsigned nargs, expr const * args) {
         optional<entry> e = get_entry(c, nargs);
         if (!e)
             return none_expr();
-        m_ctx->clear();
-        m_ctx->set_next_uvar_idx(e->m_num_umeta);
-        m_ctx->set_next_mvar_idx(e->m_num_emeta);
+        init_ctx_for(*e);
         unsigned i = nargs;
         for (auto m : e->m_expl_args) {
             if (i == 0)
@@ -205,8 +245,41 @@ struct app_builder::imp {
         return some_expr(m_ctx->instantiate_uvars_mvars(e->m_app));
     }
 
-    optional<expr> mk_app(name const & /* c */, unsigned /* mask_sz */, bool const * /* mask */, expr const * /* args */) {
-        return none_expr();
+    static unsigned get_nargs(unsigned mask_sz, bool const * mask) {
+        unsigned nargs = 0;
+        for (unsigned i = 0; i < mask_sz; i++) {
+            if (mask[i])
+                nargs++;
+        }
+        return nargs;
+    }
+
+    optional<expr> mk_app(name const & c, unsigned mask_sz, bool const * mask, expr const * args) {
+        unsigned nargs = get_nargs(mask_sz, mask);
+        if (key::is_simple(mask, mask + mask_sz)) {
+            return mk_app(c, nargs, args);
+        } else {
+            optional<entry> e = get_entry(c, mask_sz, mask);
+            if (!e)
+                return none_expr();
+            init_ctx_for(*e);
+            unsigned i    = mask_sz;
+            unsigned j    = nargs;
+            list<expr> it = e->m_expl_args;
+            while (i > 0) {
+                --i;
+                if (mask[i]) {
+                    --j;
+                    expr const & m = head(it);
+                    if (!m_ctx->assign(m, args[j]))
+                        return none_expr();
+                    it = tail(it);
+                }
+            }
+            if (!check_all_assigned(*e))
+                return none_expr();
+            return some_expr(m_ctx->instantiate_uvars_mvars(e->m_app));
+        }
     }
 
     optional<level> get_level(expr const & A) {

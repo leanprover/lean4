@@ -104,15 +104,18 @@ struct app_builder::imp {
 
     map               m_map;
     refl_info_getter  m_refl_getter;
-    trans_info_getter m_trans_getter;
     symm_info_getter  m_symm_getter;
-
-    imp(environment const & env, io_state const & ios, reducible_behavior b):
-        m_ctx(new tmp_type_context(env, ios, b)) {
-    }
+    trans_info_getter m_trans_getter;
 
     imp(std::unique_ptr<tmp_type_context> && ctx):
-        m_ctx(std::move(ctx)) {
+        m_ctx(std::move(ctx)),
+        m_refl_getter(mk_refl_info_getter(m_ctx->env())),
+        m_symm_getter(mk_symm_info_getter(m_ctx->env())),
+        m_trans_getter(mk_trans_info_getter(m_ctx->env())) {
+    }
+
+    imp(environment const & env, io_state const & ios, reducible_behavior b):
+        imp(std::unique_ptr<tmp_type_context>(new tmp_type_context(env, ios, b))) {
     }
 
     levels mk_metavars(declaration const & d, buffer<expr> & mvars, buffer<optional<expr>> & inst_args) {

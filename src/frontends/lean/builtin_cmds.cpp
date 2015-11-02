@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/protected.h"
 #include "library/locals.h"
 #include "library/coercion.h"
+#include "library/constants.h"
 #include "library/reducible.h"
 #include "library/normalize.h"
 #include "library/print.h"
@@ -1139,12 +1140,33 @@ static environment relevant_thms_cmd(parser & p) {
     return env;
 }
 
+static void check_expr_and_print(parser & p, expr const & e) {
+    environment const & env = p.env();
+    type_checker tc(env);
+    expr t = tc.check_ignore_undefined_universes(e).first;
+    p.regular_stream() << e << " : " << t << "\n";
+}
+
 static environment app_builder_cmd(parser & p) {
     environment const & env = p.env();
     auto pos = p.pos();
     app_builder b(env);
     name c = p.check_constant_next("invalid #app_builder command, constant expected");
-    p.check_token_next(get_lparen_tk(), "invalid #app_builder command, '(' expected");
+    bool has_mask = false;
+    buffer<bool> mask;
+    if (p.curr_is_token(get_lparen_tk())) {
+        p.next();
+        has_mask = true;
+        while (true) {
+            name flag = p.check_constant_next("invalid #app_builder command, constant (true, false) expected");
+            mask.push_back(flag == get_true_name());
+            if (!p.curr_is_token(get_comma_tk()))
+                break;
+            p.next();
+        }
+        p.check_token_next(get_rparen_tk(), "invalid #app_builder command, ')' expected");
+    }
+
     buffer<expr> args;
     while (true) {
         expr e; level_param_names ls;
@@ -1154,45 +1176,103 @@ static environment app_builder_cmd(parser & p) {
             break;
         p.next();
     }
-    p.check_token_next(get_rparen_tk(), "invalid #app_builder command, ')' expected");
-    if (auto r = b.mk_app(c, args.size(), args.data())) {
-        type_checker tc(env);
-        expr t = tc.check_ignore_undefined_universes(*r).first;
-        p.regular_stream() << *r << " : " << t << "\n";
+
+    if (has_mask && args.size() > mask.size())
+        throw parser_error(sstream() << "invalid #app_builder command, too many arguments", pos);
+
+    optional<expr> r;
+    if (has_mask)
+        r = b.mk_app(c, mask.size(), mask.data(), args.data());
+    else
+        r = b.mk_app(c, args.size(), args.data());
+
+    if (r) {
+        check_expr_and_print(p, *r);
     } else {
         throw parser_error(sstream() << "failed to build application for '" << c << "'", pos);
+    }
+
+    return env;
+}
+
+static environment refl_cmd(parser & p) {
+    environment const & env = p.env();
+    auto pos = p.pos();
+    app_builder b(env);
+    name relname = p.check_constant_next("invalid #refl command, constant expected");
+    expr e; level_param_names ls;
+    std::tie(e, ls) = parse_local_expr(p);
+    if (auto r = b.mk_refl(relname, e)) {
+        check_expr_and_print(p, *r);
+    } else {
+        throw parser_error(sstream() << "failed to build refl proof", pos);
+    }
+    return env;
+}
+
+static environment symm_cmd(parser & p) {
+    environment const & env = p.env();
+    auto pos = p.pos();
+    app_builder b(env);
+    name relname = p.check_constant_next("invalid #symm command, constant expected");
+    expr e; level_param_names ls;
+    std::tie(e, ls) = parse_local_expr(p);
+    if (auto r = b.mk_symm(relname, e)) {
+        check_expr_and_print(p, *r);
+    } else {
+        throw parser_error(sstream() << "failed to build symm proof", pos);
+    }
+    return env;
+}
+
+static environment trans_cmd(parser & p) {
+    environment const & env = p.env();
+    auto pos = p.pos();
+    app_builder b(env);
+    name relname = p.check_constant_next("invalid #trans command, constant expected");
+    expr H1, H2; level_param_names ls;
+    std::tie(H1, ls) = parse_local_expr(p);
+    p.check_token_next(get_comma_tk(), "invalid #trans command, ',' expected");
+    std::tie(H2, ls) = parse_local_expr(p);
+    if (auto r = b.mk_trans(relname, H1, H2)) {
+        check_expr_and_print(p, *r);
+    } else {
+        throw parser_error(sstream() << "failed to build trans proof", pos);
     }
     return env;
 }
 
 void init_cmd_table(cmd_table & r) {
-    add_cmd(r, cmd_info("open",           "create aliases for declarations, and use objects defined in other namespaces",
+    add_cmd(r, cmd_info("open",              "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
-    add_cmd(r, cmd_info("export",         "create abbreviations for declarations, "
+    add_cmd(r, cmd_info("export",            "create abbreviations for declarations, "
                         "and export objects defined in other namespaces", export_cmd));
-    add_cmd(r, cmd_info("override",       "override notation declarations using the ones defined in the given namespace",
+    add_cmd(r, cmd_info("override",          "override notation declarations using the ones defined in the given namespace",
                         override_cmd));
-    add_cmd(r, cmd_info("set_option",     "set configuration option", set_option_cmd));
-    add_cmd(r, cmd_info("exit",           "exit", exit_cmd));
-    add_cmd(r, cmd_info("print",          "print a string", print_cmd));
-    add_cmd(r, cmd_info("section",        "open a new section", section_cmd));
-    add_cmd(r, cmd_info("namespace",      "open a new namespace", namespace_cmd));
-    add_cmd(r, cmd_info("end",            "close the current namespace/section", end_scoped_cmd));
-    add_cmd(r, cmd_info("check",          "type check given expression, and display its type", check_cmd));
-    add_cmd(r, cmd_info("eval",           "evaluate given expression", eval_cmd));
-    add_cmd(r, cmd_info("find_decl",      "find definitions and/or theorems", find_cmd));
-    add_cmd(r, cmd_info("local",          "define local attributes or notation", local_cmd));
-    add_cmd(r, cmd_info("help",           "brief description of available commands and options", help_cmd));
-    add_cmd(r, cmd_info("init_quotient",  "initialize quotient type computational rules", init_quotient_cmd));
-    add_cmd(r, cmd_info("init_hits",      "initialize builtin HITs", init_hits_cmd));
-    add_cmd(r, cmd_info("#erase_cache",   "erase cached definition (for debugging purposes)", erase_cache_cmd));
-    add_cmd(r, cmd_info("#projections",   "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
-    add_cmd(r, cmd_info("#telescope_eq",  "(for debugging purposes)", telescope_eq_cmd));
-    add_cmd(r, cmd_info("#app_builder",   "(for debugging purposes)", app_builder_cmd));
-    add_cmd(r, cmd_info("#compile",       "(for debugging purposes)", compile_cmd));
-    add_cmd(r, cmd_info("#accessible",    "(for debugging purposes) display number of accessible declarations for blast tactic", accessible_cmd));
-    add_cmd(r, cmd_info("#decl_stats",    "(for debugging purposes) display declaration statistics", decl_stats_cmd));
-    add_cmd(r, cmd_info("#relevant_thms", "(for debugging purposes) select relevant theorems using Meng&Paulson heuristic", relevant_thms_cmd));
+    add_cmd(r, cmd_info("set_option",        "set configuration option", set_option_cmd));
+    add_cmd(r, cmd_info("exit",              "exit", exit_cmd));
+    add_cmd(r, cmd_info("print",             "print a string", print_cmd));
+    add_cmd(r, cmd_info("section",           "open a new section", section_cmd));
+    add_cmd(r, cmd_info("namespace",         "open a new namespace", namespace_cmd));
+    add_cmd(r, cmd_info("end",               "close the current namespace/section", end_scoped_cmd));
+    add_cmd(r, cmd_info("check",             "type check given expression, and display its type", check_cmd));
+    add_cmd(r, cmd_info("eval",              "evaluate given expression", eval_cmd));
+    add_cmd(r, cmd_info("find_decl",         "find definitions and/or theorems", find_cmd));
+    add_cmd(r, cmd_info("local",             "define local attributes or notation", local_cmd));
+    add_cmd(r, cmd_info("help",              "brief description of available commands and options", help_cmd));
+    add_cmd(r, cmd_info("init_quotient",     "initialize quotient type computational rules", init_quotient_cmd));
+    add_cmd(r, cmd_info("init_hits",         "initialize builtin HITs", init_hits_cmd));
+    add_cmd(r, cmd_info("#erase_cache",      "erase cached definition (for debugging purposes)", erase_cache_cmd));
+    add_cmd(r, cmd_info("#projections",      "generate projections for inductive datatype (for debugging purposes)", projections_cmd));
+    add_cmd(r, cmd_info("#telescope_eq",     "(for debugging purposes)", telescope_eq_cmd));
+    add_cmd(r, cmd_info("#app_builder",      "(for debugging purposes)", app_builder_cmd));
+    add_cmd(r, cmd_info("#refl",             "(for debugging purposes)", refl_cmd));
+    add_cmd(r, cmd_info("#trans",            "(for debugging purposes)", trans_cmd));
+    add_cmd(r, cmd_info("#symm",             "(for debugging purposes)", symm_cmd));
+    add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
+    add_cmd(r, cmd_info("#accessible",       "(for debugging purposes) display number of accessible declarations for blast tactic", accessible_cmd));
+    add_cmd(r, cmd_info("#decl_stats",       "(for debugging purposes) display declaration statistics", decl_stats_cmd));
+    add_cmd(r, cmd_info("#relevant_thms",    "(for debugging purposes) select relevant theorems using Meng&Paulson heuristic", relevant_thms_cmd));
 
     register_decl_cmds(r);
     register_inductive_cmd(r);

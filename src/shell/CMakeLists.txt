@@ -1,6 +1,6 @@
 if(${EMSCRIPTEN})
-  add_executable(lean.js lean.cpp emscripten.cpp)
-  target_link_libraries(lean.js leanstatic ${EXTRA_LIBS} "--embed-file library --memory-init-file 0")
+  add_executable(lean.js lean.cpp emscripten.cpp ${LEAN_OBJS})
+  target_link_libraries(lean.js ${EXTRA_LIBS} "--embed-file library --memory-init-file 0")
 else()
   add_executable(lean lean.cpp emscripten.cpp)
   target_link_libraries(lean leanstatic ${EXTRA_LIBS})

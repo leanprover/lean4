@@ -58,6 +58,10 @@ namespace eq
   end ops
 end eq
 
+-- Auxiliary definition used by automation. It has the same type of eq.rec in the standard library
+definition eq.nrec.{l₁ l₂} {A : Type.{l₂}} {a : A} {C : A → Type.{l₁}} (H₁ : C a) (b : A) (H₂ : a = b) : C b :=
+eq.rec H₁ H₂
+
 definition congr {A B : Type} {f₁ f₂ : A → B} {a₁ a₂ : A} (H₁ : f₁ = f₂) (H₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ :=
 eq.subst H₁ (eq.subst H₂ rfl)
 

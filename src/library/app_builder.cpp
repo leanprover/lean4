@@ -405,6 +405,36 @@ struct app_builder::imp {
             return none_expr();
         }
     }
+
+    optional<expr> mk_eq_rec(expr const & motive, expr const & H1, expr const & H2) {
+        expr p       = m_ctx->whnf(m_ctx->infer(H2));
+        expr lhs, rhs;
+        if (!is_eq(p, lhs, rhs))
+            return none_expr();
+        expr A      = m_ctx->infer(lhs);
+        auto A_lvl  = get_level(A);
+        expr mtype  = m_ctx->whnf(m_ctx->infer(motive));
+        if (!is_pi(mtype) || !is_sort(binding_body(mtype)))
+            return none_expr();
+        level l_1    = sort_level(binding_body(mtype));
+        name const & eqrec = is_standard(m_ctx->env()) ? get_eq_rec_name() : get_eq_nrec_name();
+        return some_expr(::lean::mk_app({mk_constant(eqrec, {l_1, *A_lvl}), A, lhs, motive, H1, rhs, H2}));
+    }
+
+    optional<expr> mk_eq_drec(expr const & motive, expr const & H1, expr const & H2) {
+        expr p       = m_ctx->whnf(m_ctx->infer(H2));
+        expr lhs, rhs;
+        if (!is_eq(p, lhs, rhs))
+            return none_expr();
+        expr A      = m_ctx->infer(lhs);
+        auto A_lvl  = get_level(A);
+        expr mtype  = m_ctx->whnf(m_ctx->infer(H1));
+        if (!is_pi(mtype) || !is_pi(binding_body(mtype)) || !is_sort(binding_body(binding_body(mtype))))
+            return none_expr();
+        level l_1    = sort_level(binding_body(binding_body(mtype)));
+        name const & eqrec = is_standard(m_ctx->env()) ? get_eq_drec_name() : get_eq_rec_name();
+        return some_expr(::lean::mk_app({mk_constant(eqrec, {l_1, *A_lvl}), A, lhs, motive, H1, rhs, H2}));
+    }
 };
 
 app_builder::app_builder(environment const & env, io_state const & ios, reducible_behavior b):
@@ -475,6 +505,14 @@ optional<expr> app_builder::mk_eq_trans(expr const & H1, expr const & H2) {
 
 optional<expr> app_builder::mk_iff_trans(expr const & H1, expr const & H2) {
     return m_ptr->mk_iff_trans(H1, H2);
+}
+
+optional<expr> app_builder::mk_eq_rec(expr const & C, expr const & H1, expr const & H2) {
+    return m_ptr->mk_eq_rec(C, H1, H2);
+}
+
+optional<expr> app_builder::mk_eq_drec(expr const & C, expr const & H1, expr const & H2) {
+    return m_ptr->mk_eq_drec(C, H1, H2);
 }
 
 void app_builder::set_context(list<expr> const & ctx) {

@@ -20,6 +20,7 @@ eq.elim_inv_inv
 eq.intro
 eq.rec
 eq.drec
+eq.nrec
 eq_rec_eq
 eq.refl
 eq.symm

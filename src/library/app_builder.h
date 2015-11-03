@@ -83,6 +83,28 @@ public:
     optional<expr> mk_eq_trans(expr const & H1, expr const & H2);
     optional<expr> mk_iff_trans(expr const & H1, expr const & H2);
 
+    /** \brief Create a (non-dependent) eq.rec application.
+        C is the motive. The expected types for C, H1 and H2 are
+             C : A -> Type
+             H1 : C a
+             H2 : a = b
+        The resultant application is
+             @eq.rec A a C H1 b H2
+        In the HoTT library, we actually create an eq.nrec application
+        since eq.rec is a dependent eliminator in HoTT. */
+    optional<expr> mk_eq_rec(expr const & C, expr const & H1, expr const & H2);
+
+    /** \brief Create a (dependent) eq.drec application.
+        C is the motive. The expected types for C, H1 and H2 are
+             C : Pi (x : A), a = x -> Type
+             H1 : C a (eq.refl a)
+             H2 : a = b
+        The resultant application is
+             @eq.drec A a C H1 b H2
+        In the HoTT library, we actually create an eq.rec application
+        because eq.rec is a dependent eliminator in HoTT. */
+    optional<expr> mk_eq_drec(expr const & C, expr const & H1, expr const & H2);
+
     /** \brief Set the local context. This method is relevant when we want to expose local class instances
         to the app_builder.
 

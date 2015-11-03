@@ -223,6 +223,15 @@ public:
     /** \brief Create a temporary local constant */
     virtual expr mk_tmp_local(expr const & type, binder_info const & bi = binder_info()) = 0;
 
+    /** \brief Create a temporary local constant using the given pretty print name.
+        The pretty printing name has not semantic significance. */
+    virtual expr mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) = 0;
+
+    /** \brief Create a temporary local constant based on the domain of the given binding (lambda/Pi) expression */
+    expr mk_tmp_local_from_binding(expr const & b) {
+        return mk_tmp_local(binding_name(b), binding_domain(b), binding_info(b));
+    }
+
     /** \brief Return true if \c e was created using \c mk_tmp_local */
     virtual bool is_tmp_local(expr const & e) const = 0;
 
@@ -419,7 +428,8 @@ public:
     virtual ~default_type_context();
     virtual bool is_extra_opaque(name const & n) const { return m_not_reducible_pred(n); }
     virtual bool ignore_universe_def_eq(level const & l1, level const & l2) const;
-    virtual expr mk_tmp_local(expr const & type, binder_info const & bi);
+    virtual expr mk_tmp_local(expr const & type, binder_info const & bi = binder_info());
+    virtual expr mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info());
     virtual bool is_tmp_local(expr const & e) const;
     virtual bool is_uvar(level const & l) const;
     virtual bool is_mvar(expr const & e) const;

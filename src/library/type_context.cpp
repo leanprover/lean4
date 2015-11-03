@@ -597,7 +597,7 @@ bool type_context::is_def_eq_binding(expr e1, expr e2) {
             // local is used inside t or s
             if (!var_e1_type)
                 var_e1_type = instantiate_rev(binding_domain(e1), subst.size(), subst.data());
-            subst.push_back(mk_tmp_local(*var_e1_type));
+            subst.push_back(mk_tmp_local(binding_name(e1), *var_e1_type));
         } else {
             expr const & dont_care = mk_Prop();
             subst.push_back(dont_care);
@@ -712,7 +712,7 @@ bool type_context::process_assignment(expr const & ma, expr const & v) {
                 return false;
             lean_assert(i <= locals.size());
             if (i == locals.size())
-                locals.push_back(mk_tmp_local(binding_domain(m_type)));
+                locals.push_back(mk_tmp_local_from_binding(m_type));
             lean_assert(i < locals.size());
             m_type = instantiate(binding_body(m_type), locals[i]);
         }
@@ -981,7 +981,7 @@ expr type_context::infer_lambda(expr e) {
         es.push_back(e);
         ds.push_back(binding_domain(e));
         expr d = instantiate_rev(binding_domain(e), ls.size(), ls.data());
-        expr l = mk_tmp_local(d, binding_info(e));
+        expr l = mk_tmp_local(binding_name(e), d, binding_info(e));
         ls.push_back(l);
         e = binding_body(e);
     }
@@ -1111,7 +1111,7 @@ optional<name> type_context::constant_is_class(expr const & e) {
 optional<name> type_context::is_full_class(expr type) {
     type = whnf(type);
     if (is_pi(type)) {
-        return is_full_class(instantiate(binding_body(type), mk_tmp_local(binding_domain(type))));
+        return is_full_class(instantiate(binding_body(type), mk_tmp_local_from_binding(type)));
     } else {
         expr f = get_app_fn(type);
         if (!is_constant(f))
@@ -1341,7 +1341,7 @@ bool type_context::try_instance(ci_stack_entry const & e, expr const & inst, exp
             mvar_type = whnf(mvar_type);
             if (!is_pi(mvar_type))
                 break;
-            expr local  = mk_tmp_local(binding_domain(mvar_type));
+            expr local  = mk_tmp_local_from_binding(mvar_type);
             locals.push_back(local);
             mvar_type = instantiate(binding_body(mvar_type), local);
         }
@@ -1685,6 +1685,13 @@ expr default_type_context::mk_tmp_local(expr const & type, binder_info const & b
     m_next_local_idx++;
     name n(*g_prefix, idx);
     return lean::mk_local(n, n, type, bi);
+}
+
+expr default_type_context::mk_tmp_local(name const & pp_n, expr const & type, binder_info const & bi) {
+    unsigned idx = m_next_local_idx;
+    m_next_local_idx++;
+    name n(*g_prefix, idx);
+    return lean::mk_local(n, pp_n, type, bi);
 }
 
 bool default_type_context::is_tmp_local(expr const & e) const {

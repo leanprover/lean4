@@ -63,6 +63,7 @@ public:
 
     virtual bool is_extra_opaque(name const & n) const { return m_opaque_pred(n); }
     virtual expr mk_tmp_local(expr const & type, binder_info const & bi = binder_info());
+    virtual expr mk_tmp_local(name const & pp_n, expr const & type, binder_info const & bi = binder_info());
     virtual bool is_tmp_local(expr const & e) const;
     virtual bool is_uvar(level const & l) const;
     virtual bool is_mvar(expr const & e) const;

@@ -58,6 +58,11 @@ class blastenv {
             return blast::mk_local(n, n, type, bi);
         }
 
+        virtual expr mk_tmp_local(name const & pp_n, expr const & type, binder_info const & bi) {
+            name n = m_benv.m_ngen.next();
+            return blast::mk_local(n, pp_n, type, bi);
+        }
+
         virtual bool is_tmp_local(expr const & e) const {
             return blast::is_local(e);
         }

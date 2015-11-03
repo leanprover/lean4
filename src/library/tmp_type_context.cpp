@@ -50,6 +50,13 @@ expr tmp_type_context::mk_tmp_local(expr const & type, binder_info const & bi) {
     return lean::mk_local(n, n, type, bi);
 }
 
+expr tmp_type_context::mk_tmp_local(name const & pp_n, expr const & type, binder_info const & bi) {
+    unsigned idx = m_next_local_idx;
+    m_next_local_idx++;
+    name n(*g_prefix, idx);
+    return lean::mk_local(n, pp_n, type, bi);
+}
+
 bool tmp_type_context::is_tmp_local(expr const & e) const {
     if (!is_local(e))
         return false;

@@ -22,12 +22,12 @@ l' : list A,
 IH : ∀ (x : @nodup A l'), P (@quot.mk (nodup_list A) (nodup_list_setoid A) (@subtype.tag (list A) (@nodup A) l' x)),
 nodup_al' : @nodup A (@cons A a l'),
 anl' : not (@list.mem A a l'),
-H3 : @eq (list A) (@list.insert A (λ (x x_1 : A), h x x_1) a l') (@cons A a l'),
+H3 : @eq (list A) (@list.insert A (λ (a b : A), h a b) a l') (@cons A a l'),
 nodup_l' : @nodup A l',
 P_l' : P (@quot.mk (nodup_list A) (nodup_list_setoid A) (@subtype.tag (list A) (@nodup A) l' nodup_l')),
 H4 :
   P
-    (@insert A (λ (x x_1 : A), h x x_1) a
+    (@insert A (λ (a b : A), h a b) a
        (@quot.mk (nodup_list A) (nodup_list_setoid A) (@subtype.tag (list A) (@nodup A) l' nodup_l')))
 ⊢ P (@quot.mk (nodup_list A) (nodup_list_setoid A) (@subtype.tag (list A) (@nodup A) (@cons A a l') nodup_al'))
 finset_induction_bug.lean:30:45: error: don't know how to synthesize placeholder
@@ -44,12 +44,12 @@ l' : list A,
 IH : ∀ (x : @nodup A l'), P (@quot.mk (nodup_list A) (nodup_list_setoid A) (@subtype.tag (list A) (@nodup A) l' x)),
 nodup_al' : @nodup A (@cons A a l'),
 anl' : not (@list.mem A a l'),
-H3 : @eq (list A) (@list.insert A (λ (x x_1 : A), h x x_1) a l') (@cons A a l'),
+H3 : @eq (list A) (@list.insert A (λ (a b : A), h a b) a l') (@cons A a l'),
 nodup_l' : @nodup A l',
 P_l' : P (@quot.mk (nodup_list A) (nodup_list_setoid A) (@subtype.tag (list A) (@nodup A) l' nodup_l')),
 H4 :
   P
-    (@insert A (λ (x x_1 : A), h x x_1) a
+    (@insert A (λ (a b : A), h a b) a
        (@quot.mk (nodup_list A) (nodup_list_setoid A) (@subtype.tag (list A) (@nodup A) l' nodup_l')))
 ⊢ P (@quot.mk (nodup_list A) (nodup_list_setoid A) (@subtype.tag (list A) (@nodup A) (@cons A a l') nodup_al'))
 finset_induction_bug.lean:16:5: error: failed to add declaration 'finset.induction₂' to environment, value has metavariables

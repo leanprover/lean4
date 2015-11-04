@@ -443,6 +443,8 @@ public:
     tmp_type_context * mk_tmp_type_context();
 
     void recycle_tmp_type_context(tmp_type_context * ctx) {
+        lean_assert(ctx);
+        ctx->clear();
         m_tmp_ctx_pool.push_back(ctx);
     }
 };

@@ -79,10 +79,21 @@ public:
     ~scope_debug();
 };
 
+
 /** \brief Create a temporary type_context that is compatible with blast.
     This temporary type context can acces the type of blast hypotheses
     and meta-variables. */
-tmp_type_context_ptr mk_tmp_type_context();
+class blast_tmp_type_context {
+    tmp_type_context * m_ctx;
+public:
+    blast_tmp_type_context();
+    ~blast_tmp_type_context();
+
+    tmp_type_context const * operator->() const { return m_ctx; }
+    tmp_type_context * operator->() { return m_ctx; }
+    tmp_type_context const & operator*() const { return *m_ctx; }
+    tmp_type_context & operator*() { return *m_ctx; }
+};
 }
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
                           goal const & g);

@@ -28,6 +28,8 @@ static name * g_tmp_prefix = nullptr;
 
 class blastenv {
     friend class scope_assignment;
+    typedef std::vector<tmp_type_context *> tmp_type_context_pool;
+
     environment                m_env;
     io_state                   m_ios;
     name_generator             m_ngen;
@@ -40,6 +42,7 @@ class blastenv {
     name_predicate             m_instance_pred;
     name_map<projection_info>  m_projection_info;
     state                      m_curr_state;   // current state
+    tmp_type_context_pool      m_tmp_ctx_pool;
 
     class tctx : public type_context {
         blastenv &         m_benv;
@@ -389,6 +392,11 @@ public:
         m_tctx(*this) {
     }
 
+    ~blastenv() {
+        for (auto ctx : m_tmp_ctx_pool)
+            delete ctx;
+    }
+
     void init_state(goal const & g) {
         m_curr_state = to_state(g);
 
@@ -431,6 +439,12 @@ public:
     bool is_prop(expr const & e) { return m_tctx.is_prop(e); }
     bool is_def_eq(expr const & e1, expr const & e2) { return m_tctx.is_def_eq(e1, e2); }
     optional<expr> mk_class_instance(expr const & e) { return m_tctx.mk_class_instance(e); }
+
+    tmp_type_context * mk_tmp_type_context();
+
+    void recycle_tmp_type_context(tmp_type_context * ctx) {
+        m_tmp_ctx_pool.push_back(ctx);
+    }
 };
 
 LEAN_THREAD_PTR(blastenv, g_blastenv);
@@ -590,10 +604,25 @@ public:
     }
 };
 
-tmp_type_context_ptr mk_tmp_type_context() {
-    tmp_type_context_ptr r(new tmp_tctx(env(), ios()));
+tmp_type_context * blastenv::mk_tmp_type_context() {
+    tmp_type_context * r;
+    if (m_tmp_ctx_pool.empty()) {
+        r = new tmp_tctx(m_env, m_ios);
+    } else {
+        r = m_tmp_ctx_pool.back();
+        m_tmp_ctx_pool.pop_back();
+    }
     // TODO(Leo): set local context
     return r;
+}
+
+blast_tmp_type_context::blast_tmp_type_context() {
+    lean_assert(g_blastenv);
+    m_ctx = g_blastenv->mk_tmp_type_context();
+}
+
+blast_tmp_type_context::~blast_tmp_type_context() {
+    g_blastenv->recycle_tmp_type_context(m_ctx);
 }
 }
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,

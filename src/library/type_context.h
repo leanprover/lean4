@@ -26,7 +26,76 @@ bool get_class_trans_instances(options const & o);
     This is a generic class containing several virtual methods that must
     be implemeneted by "customers" (e.g., blast tactic).
 
-    This class also implements type class resolution
+    This class also implements type class resolution.
+
+    Here are some notes on managing meta-variables and implementing validate_assignment.
+    One issue in the elaborator and automated procedures is that we may create a meta-variable ?M
+    in one context, and a unification constraint containing ?M in a different context.
+    Here are two basic examples:
+
+    1) forall (x : _) (A : Type) (y : A), x = y
+       The "_" becomes a fresh meta-variable ?m, and the equality "x = y" produces the
+       following unification constraint
+
+                 ?m  =?=  A
+
+       It is incorrect to solve this constraint by assigning ?m := A.
+       The problem is that the term "A" is not available in the context where ?m was created.
+
+
+    2) Consider the two following unification constraints
+
+           (fun x, ?m) a =?= a
+           (fun x, ?m) b =?= b
+
+       If we apply beta-reduction to them, we get
+
+           ?m  =?=  a
+           ?m  =?=  b
+
+       These simultaneous unification problem cannot be solved.
+
+    In the elaborator, we address the issues above by making sure that
+    only *closed terms* (terms not containing local constants)
+    can be assigned to metavariables. So a metavariable that occurs in a
+    context records the parameters it depends on. For example, we
+    encode a "_" in the context (x : nat) (y : bool) as ?m x y,
+    where ?m is a fresh metavariable.
+
+    So, example 1) would not be solved because we cannot assign "A"
+    (which is local constant aka free variable) to ?m.
+    In example 2), we encode it as
+
+           (fun x, ?m x) a =?= a
+           (fun x, ?m x) b =?= b
+
+    After applying beta-reduction to them, we get
+
+           ?m a =?=  a
+           ?m b =?=  b
+
+    Which has the solution ?m := fun x, x
+
+    The solution used in the elaborator is correct, but it may produce performance problems
+    for procedures that have to create many meta-variables and the context is not small.
+    For example, if the context contains N declarations, then the type of each meta-variable
+    created will have N-nested Pi's.
+    This is the case of the blast tactic, the simplifier and the type class resolution procedure.
+
+    In the simplifier and type class resolution procedures we create many
+    "temporary" meta variables and unification constraints that should be solved in the
+    **same** context. So, the problems described above do not occur, and
+    the solution used in the elaborator is an over-kill.
+
+    So, type_context provides a more liberal approach. It allows "customers" of this
+    class to provide their own validation mechanism for meta-variable assignments.
+    In the simplifier and type class resolution, we use very basic validation,
+    where we just check whether ?m occurs in the value being assigned to it.
+
+    In blast, we have our own mechanism for tracking hypotheses (i.e., the representation
+    of local constants in the blast search branches). This is a more efficient
+    representation that doesn't require us to create N-nested Pi expressions
+    whenever we want to create a meta-variable in a branch that has N hypotheses.
 */
 class type_context {
     struct ext_ctx;

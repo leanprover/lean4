@@ -1254,21 +1254,13 @@ bool type_context::on_is_def_eq_failure(expr & e1, expr & e2) {
     return false;
 }
 
-bool type_context::validate_assignment(expr const & m, buffer<expr> const & locals, expr const & v) {
-    // We must check
-    //   1. Any (internal) local constant occurring in v occurs in locals
-    //   2. m does not occur in v
+bool type_context::validate_assignment(expr const & m, buffer<expr> const & /* locals */, expr const & v) {
+    // Basic check: m does not occur in v
     bool ok = true;
     for_each(v, [&](expr const & e, unsigned) {
             if (!ok)
                 return false; // stop search
-            if (is_tmp_local(e)) {
-                if (std::all_of(locals.begin(), locals.end(), [&](expr const & a) {
-                            return mlocal_name(a) != mlocal_name(e); })) {
-                    ok = false; // failed 1
-                    return false;
-                }
-            } else if (is_mvar(e)) {
+            if (is_mvar(e)) {
                 if (m == e) {
                     ok = false; // failed 2
                     return false;

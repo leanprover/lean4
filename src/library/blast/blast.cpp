@@ -23,7 +23,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-static name * g_prefix = nullptr;
+static name * g_prefix     = nullptr;
+static name * g_tmp_prefix = nullptr;
 
 class blastenv {
     friend class scope_assignment;
@@ -42,29 +43,39 @@ class blastenv {
 
     class tctx : public type_context {
         blastenv &         m_benv;
+        unsigned           m_next_local_idx;
         std::vector<state> m_stack;
     public:
         tctx(blastenv & benv):
             type_context(benv.m_env, benv.m_ios),
-            m_benv(benv) {}
+            m_benv(benv), m_next_local_idx(0) {}
 
         virtual bool is_extra_opaque(name const & n) const {
             // TODO(Leo): class and instances
             return m_benv.m_not_reducible_pred(n) || m_benv.m_projection_info.contains(n);
         }
 
+        name mk_tmp_name() {
+            unsigned idx = m_next_local_idx;
+            m_next_local_idx++;
+            return name(*g_tmp_prefix, idx);
+        }
+
         virtual expr mk_tmp_local(expr const & type, binder_info const & bi) {
-            name n = m_benv.m_ngen.next();
+            name n = mk_tmp_name();
             return blast::mk_local(n, n, type, bi);
         }
 
         virtual expr mk_tmp_local(name const & pp_n, expr const & type, binder_info const & bi) {
-            name n = m_benv.m_ngen.next();
+            name n = mk_tmp_name();
             return blast::mk_local(n, pp_n, type, bi);
         }
 
         virtual bool is_tmp_local(expr const & e) const {
-            return blast::is_local(e);
+            if (!is_local(e))
+                return false;
+            name const & n = mlocal_name(e);
+            return !n.is_atomic() && n.get_prefix() == *g_tmp_prefix;
         }
 
         virtual bool is_uvar(level const & l) const {
@@ -102,7 +113,7 @@ class blastenv {
             //   1. All href in new_v are in the context of m.
             //   2. The context of any (unassigned) mref in new_v must be a subset of the context of m.
             //      If it is not we force it to be.
-            //   3. Any local constant occurring in new_v occurs in locals
+            //   3. Any (non tmp) local constant occurring in new_v occurs in locals
             //   4. m does not occur in new_v
             state & s = m_benv.m_curr_state;
             metavar_decl const * d = s.get_metavar_decl(m);
@@ -116,7 +127,7 @@ class blastenv {
                             ok = false; // failed 1
                             return false;
                         }
-                    } else if (blast::is_local(e)) {
+                    } else if (is_local(e) && !is_tmp_local(e)) {
                         if (std::all_of(locals.begin(), locals.end(), [&](expr const & a) {
                                     return local_index(a) != local_index(e); })) {
                             ok = false; // failed 3
@@ -593,9 +604,11 @@ optional<expr> blast_goal(environment const & env, io_state const & ios, list<na
     return b(g);
 }
 void initialize_blast() {
-    blast::g_prefix = new name(name::mk_internal_unique_name());
+    blast::g_prefix     = new name(name::mk_internal_unique_name());
+    blast::g_tmp_prefix = new name(name::mk_internal_unique_name());
 }
 void finalize_blast() {
     delete blast::g_prefix;
+    delete blast::g_tmp_prefix;
 }
 }

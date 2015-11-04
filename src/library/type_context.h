@@ -267,16 +267,12 @@ public:
     /** \brief Update the assignment for \c m.
         \pre is_mvar(m) */
     virtual void update_assignment(expr const & m, expr const & v) = 0;
+
     /** \brief Given a metavariable m that takes locals as arguments, this method
         should return true if m can be assigned to an abstraction of \c v.
 
-        \remark This method should check at least if m does not occur in v,
-        and if all tmp locals in v are in locals.
-
-        The default implementation checks the following things:
-         1. Any (internal) local constant occurring in v occurs in locals
-         2. m does not occur in v
-    */
+        \remark This method should check at least if m does not occur in v.
+        The default implementation only checks that. */
     virtual bool validate_assignment(expr const & m, buffer<expr> const & locals, expr const & v);
 
     /** \brief Return the type of a local constant (local or not).

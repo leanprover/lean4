@@ -62,7 +62,4 @@ theorem subst_iff {T : Type} {R : T → T → Prop} {P : T → Prop} [C : congru
 -- iff_mp_left (congruence.rec id C a b H) H1
 iff.elim_left (@congr_app _ _ R iff P C a b H) H1
 
-theorem test2 (a b c d e : Prop) (H1 : a ↔ b) (H2 : a ∨ c → ¬(d → a)) : b ∨ c → ¬(d → b) :=
-subst_iff H1 H2
-
 end congruence

@@ -94,6 +94,13 @@ public:
     tmp_type_context const & operator*() const { return *m_ctx; }
     tmp_type_context & operator*() { return *m_ctx; }
 };
+
+/**
+    \brief Convert an external expression into a blast expression
+    It converts meta-variables to blast meta-variables, and ensures the expressions
+    are maximally shared.
+    \remark This procedure should only be used for **debugging purposes**. */
+expr internalize(expr const & e);
 }
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
                           goal const & g);

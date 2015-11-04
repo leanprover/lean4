@@ -447,6 +447,15 @@ public:
         ctx->clear();
         m_tmp_ctx_pool.push_back(ctx);
     }
+
+    /** \brief Convert an external expression into a blast expression
+        It converts meta-variables to blast meta-variables, and ensures the expressions
+        are maximally shared.
+        \remark This procedure should only be used for debugging purposes. */
+    expr internalize(expr const & e) {
+        name_map<expr> local2href;
+        return to_blast_expr_fn(m_env, m_curr_state, m_uvar2uref, m_mvar2meta_mref, local2href)(e);
+    }
 };
 
 LEAN_THREAD_PTR(blastenv, g_blastenv);
@@ -625,6 +634,11 @@ blast_tmp_type_context::blast_tmp_type_context() {
 
 blast_tmp_type_context::~blast_tmp_type_context() {
     g_blastenv->recycle_tmp_type_context(m_ctx);
+}
+
+expr internalize(expr const & e) {
+    lean_assert(g_blastenv);
+    return g_blastenv->internalize(e);
 }
 }
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,

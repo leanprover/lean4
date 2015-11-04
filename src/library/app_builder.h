@@ -105,11 +105,11 @@ public:
         because eq.rec is a dependent eliminator in HoTT. */
     optional<expr> mk_eq_drec(expr const & C, expr const & H1, expr const & H2);
 
-    /** \brief Set the local context. This method is relevant when we want to expose local class instances
+    /** \brief Set the local instances. This method is relevant when we want to expose local class instances
         to the app_builder.
 
         \remark When the constructor app_builder(std::unique_ptr<tmp_type_context> && ctx) is used
         the initialization can be performed outside. */
-    void set_context(list<expr> const & ctx);
+    void set_local_instances(list<expr> const & insts);
 };
 }

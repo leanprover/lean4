@@ -210,7 +210,7 @@ public:
     type_context(environment const & env, io_state const & ios, bool multiple_instances = false);
     virtual ~type_context();
 
-    void set_context(list<expr> const & ctx);
+    void set_local_instances(list<expr> const & insts);
 
     environment const & env() const { return m_env; }
 
@@ -361,10 +361,10 @@ public:
         \remark We assume pretty-printing options are irrelevant. */
     bool update_options(options const & opts);
 
-    /** \brief Return true if the local instances at \c ctx are compatible with the ones
+    /** \brief Return true if the local instances at \c insts are compatible with the ones
         in the type inference object. This method is used to decide whether a type inference
         object can be reused by the elaborator. */
-    bool compatible_local_instances(list<expr> const & ctx);
+    bool compatible_local_instances(list<expr> const & insts);
 
     /** \brief Auxiliary object used to set position information for the type class resolution trace. */
     class scope_pos_info {
@@ -420,7 +420,7 @@ class default_type_context : public type_context {
 
 public:
     default_type_context(environment const & env, io_state const & ios,
-                           list<expr> const & ctx = list<expr>(), bool multiple_instances = false);
+                           list<expr> const & insts = list<expr>(), bool multiple_instances = false);
     virtual ~default_type_context();
     virtual bool is_extra_opaque(name const & n) const { return m_not_reducible_pred(n); }
     virtual bool ignore_universe_def_eq(level const & l1, level const & l2) const;

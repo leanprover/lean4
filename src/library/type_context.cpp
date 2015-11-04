@@ -98,10 +98,10 @@ type_context::type_context(environment const & env, io_state const & ios, bool m
 type_context::~type_context() {
 }
 
-void type_context::set_context(list<expr> const & ctx) {
+void type_context::set_local_instances(list<expr> const & insts) {
     clear_cache();
     m_ci_local_instances.clear();
-    for (expr const & e : ctx) {
+    for (expr const & e : insts) {
         if (auto cname = is_class(infer(e))) {
             m_ci_local_instances.push_back(mk_pair(*cname, e));
         }
@@ -1660,14 +1660,14 @@ type_context::scope_pos_info::~scope_pos_info() {
 }
 
 default_type_context::default_type_context(environment const & env, io_state const & ios,
-                                               list<expr> const & ctx, bool multiple_instances):
+                                           list<expr> const & insts, bool multiple_instances):
     type_context(env, ios, multiple_instances),
     m_not_reducible_pred(mk_not_reducible_pred(env)) {
     m_ignore_if_zero = false;
     m_next_local_idx = 0;
     m_next_uvar_idx  = 0;
     m_next_mvar_idx  = 0;
-    set_context(ctx);
+    set_local_instances(insts);
 }
 
 default_type_context::~default_type_context() {}

@@ -392,7 +392,7 @@ public:
     void init_state(goal const & g) {
         m_curr_state = to_state(g);
 
-        // TODO(Leo): set local context for type class resolution at tctx
+        // TODO(Leo): set local instances for type class resolution at tctx
     }
 
     optional<expr> operator()(goal const & g) {

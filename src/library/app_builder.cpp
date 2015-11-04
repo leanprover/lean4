@@ -515,7 +515,7 @@ optional<expr> app_builder::mk_eq_drec(expr const & C, expr const & H1, expr con
     return m_ptr->mk_eq_drec(C, H1, H2);
 }
 
-void app_builder::set_context(list<expr> const & ctx) {
-    m_ptr->m_ctx->set_context(ctx);
+void app_builder::set_local_instances(list<expr> const & insts) {
+    m_ptr->m_ctx->set_local_instances(insts);
 }
 }

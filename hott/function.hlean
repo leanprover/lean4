@@ -61,6 +61,10 @@ namespace function
     : is_equiv (ap f : a = a' → f a = f a') :=
   H a a'
 
+  definition ap_inv_idp {a : A} {H : is_equiv (ap f : a = a → f a = f a)}
+    : (ap f)⁻¹ᶠ idp = idp :> a = a :=
+  !left_inv
+
   variable {f}
   definition is_injective_of_is_embedding [reducible] [H : is_embedding f] {a a' : A}
     : f a = f a' → a = a' :=
@@ -99,6 +103,17 @@ namespace function
     fapply fiber_eq,
     { esimp, apply is_injective_of_is_embedding p},
     { esimp [is_injective_of_is_embedding], symmetry, apply right_inv}
+  end
+
+  definition is_hprop_fun_of_is_embedding [H : is_embedding f] : is_trunc_fun -1 f :=
+  is_hprop_fiber_of_is_embedding f
+
+  definition is_embedding_of_is_hprop_fun [constructor] [H : is_trunc_fun -1 f] : is_embedding f :=
+  begin
+    intro a a', fapply adjointify,
+    { intro p, exact ap point (@is_hprop.elim (fiber f (f a')) _ (fiber.mk a p) (fiber.mk a' idp))},
+    { intro p, rewrite [-ap_compose], esimp, apply ap_con_eq (@point_eq _ _ f (f a'))},
+    { intro p, induction p, apply ap (ap point), apply is_hprop_elim_self}
   end
 
   variable {f}

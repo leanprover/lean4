@@ -146,9 +146,7 @@ namespace sigma
   definition sigma_eq2 {p q : u = v} (r : p..1 = q..1) (s : p..2 =[r] q..2)
     : p = q :=
   begin
-    revert q r s,
     induction p, induction u with u1 u2,
-    intro q r s,
     transitivity sigma_eq q..1 q..2,
       apply sigma_eq_eq_sigma_eq r s,
       apply sigma_eq_eta,

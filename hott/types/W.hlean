@@ -32,19 +32,19 @@ namespace Wtype
   end ops
   open ops
 
-  protected definition eta (w : W a, B a) : ⟨w.1 , w.2⟩ = w :=
+  protected definition eta [unfold 3] (w : W a, B a) : ⟨w.1 , w.2⟩ = w :=
   by cases w; exact idp
 
-  definition sup_eq_sup (p : a = a') (q : f =[p] f') : ⟨a, f⟩ = ⟨a', f'⟩ :=
+  definition sup_eq_sup [unfold 8] (p : a = a') (q : f =[p] f') : ⟨a, f⟩ = ⟨a', f'⟩ :=
   by cases q; exact idp
 
-  definition Wtype_eq (p : w.1 = w'.1) (q : w.2 =[p] w'.2) : w = w' :=
+  definition Wtype_eq [unfold 3 4] (p : w.1 = w'.1) (q : w.2 =[p] w'.2) : w = w' :=
   by cases w; cases w';exact (sup_eq_sup p q)
 
-  definition Wtype_eq_pr1 (p : w = w') : w.1 = w'.1 :=
+  definition Wtype_eq_pr1 [unfold 5] (p : w = w') : w.1 = w'.1 :=
   by cases p;exact idp
 
-  definition Wtype_eq_pr2 (p : w = w') : w.2 =[Wtype_eq_pr1 p] w'.2 :=
+  definition Wtype_eq_pr2 [unfold 5] (p : w = w') : w.2 =[Wtype_eq_pr1 p] w'.2 :=
   by cases p;exact idpo
 
   namespace ops
@@ -116,7 +116,7 @@ namespace Wtype
 
   /- truncatedness -/
   open is_trunc pi
-  definition trunc_W [instance] (n : trunc_index)
+  definition is_trunc_W [instance] (n : trunc_index)
     [HA : is_trunc (n.+1) A] : is_trunc (n.+1) (W a, B a) :=
   begin
   fapply is_trunc_succ_intro, intro w w',

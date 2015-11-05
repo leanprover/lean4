@@ -66,6 +66,10 @@ namespace fiber
   definition pointed_fiber [constructor] (f : A → B) (a : A) : Type* :=
   Pointed.mk (fiber.mk a (idpath (f a)))
 
+  definition is_trunc_fun [reducible] (n : trunc_index) (f : A → B) :=
+  Π(b : B), is_trunc n (fiber f b)
+  definition is_contr_fun [reducible] (f : A → B) := is_trunc_fun -2 f
+
 end fiber
 
 open unit is_trunc
@@ -98,11 +102,10 @@ namespace fiber
   variables {A : Type} {P Q : A → Type}
   variable (f : Πa, P a → Q a)
 
-  /- Note that the map on total spaces/sigmas is just sigma_functor id -/
   definition fiber_total_equiv {a : A} (q : Q a)
-    : fiber (sigma_functor id f) ⟨a , q⟩ ≃ fiber (f a) q :=
+    : fiber (total f) ⟨a , q⟩ ≃ fiber (f a) q :=
   calc
-    fiber (sigma_functor id f) ⟨a , q⟩
+    fiber (total f) ⟨a , q⟩
           ≃ Σ(w : Σx, P x), ⟨w.1 , f w.1 w.2 ⟩ = ⟨a , q⟩
             : fiber.sigma_char
       ... ≃ Σ(x : A), Σ(p : P x), ⟨x , f x p⟩ = ⟨a , q⟩

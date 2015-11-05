@@ -84,8 +84,6 @@ namespace is_equiv
   apd011 inv p !is_hprop.elim
 
   /- contractible fibers -/
-  definition is_contr_fun [reducible] (f : A → B) := Π(b : B), is_contr (fiber f b)
-
   definition is_contr_fun_of_is_equiv [H : is_equiv f] : is_contr_fun f :=
   is_contr_fiber_of_is_equiv f
 
@@ -115,7 +113,7 @@ namespace is_equiv
   definition is_equiv_total_of_is_fiberwise_equiv [H : is_fiberwise_equiv f] : is_equiv (total f) :=
   is_equiv_sigma_functor id f
 
-  definition is_fiberwise_equiv_of_is_equiv_total [H : is_equiv (sigma_functor id f)]
+  definition is_fiberwise_equiv_of_is_equiv_total [H : is_equiv (total f)]
     : is_fiberwise_equiv f :=
   begin
     intro a,

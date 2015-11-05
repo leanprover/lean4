@@ -253,8 +253,16 @@ namespace eq
     (b : B a) : f b =[apo011 C p !pathover_tr] g (p ▸ b) :=
   by cases r; constructor
 
-  definition apo10 {f : B a → B' a} {g : B a₂ → B' a₂} (r : f =[p] g)
+  definition apo10 [unfold 9] {f : B a → B' a} {g : B a₂ → B' a₂} (r : f =[p] g)
     (b : B a) : f b =[p] g (p ▸ b) :=
+  by cases r; constructor
+
+  definition apo10_constant_right [unfold 9] {f : B a → A'} {g : B a₂ → A'} (r : f =[p] g)
+    (b : B a) : f b = g (p ▸ b) :=
+  by cases r; constructor
+
+  definition apo10_constant_left [unfold 9] {f : A' → B a} {g : A' → B a₂} (r : f =[p] g)
+    (a' : A') : f a' =[p] g a' :=
   by cases r; constructor
 
   definition apo11 {f : B a → B' a} {g : B a₂ → B' a₂} (r : f =[p] g)

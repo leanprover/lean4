@@ -1,0 +1,4 @@
+<refl>
+f x a = g y b
+f x a = h z c
+f x = g x

@@ -1,0 +1,10 @@
+0 ≤ 0 ↔ true
+0 ≤ 1 ↔ true
+0 ≤ 2 ↔ true
+0 < 0 ↔ false
+0 < succ 0 ↔ true
+1 < succ 1 ↔ true
+0 < succ (succ 0) ↔ true
+0 ≤ 0 ↔ 0 ≤ 0 ↔ true
+0 ≤ 0 ↔ 0 ≤ 1 ↔ true
+0 ≤ 0 ↔ 0 < 0 ↔ false

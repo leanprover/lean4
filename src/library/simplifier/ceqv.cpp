@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "kernel/type_checker.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
@@ -15,7 +14,7 @@ Author: Leonardo de Moura
 #include "library/simplifier/ceqv.h"
 
 namespace lean {
-bool is_ceqv(type_checker & tc, expr e);
+bool is_ceqv(tmp_type_context & tctx, expr e);
 
 bool is_simp_relation(environment const & env, name const & n) {
     return is_trans_relation(env, n) && is_refl_relation(env, n);
@@ -24,14 +23,14 @@ bool is_simp_relation(environment const & env, name const & n) {
 /** \brief Auxiliary functional object for creating "conditional equations" */
 class to_ceqvs_fn {
     environment const &   m_env;
-    type_checker &        m_tc;
+    tmp_type_context &        m_tctx;
 
     static list<expr_pair> mk_singleton(expr const & e, expr const & H) {
         return list<expr_pair>(mk_pair(e, H));
     }
 
     bool is_type(expr const & e) {
-        return is_sort(m_tc.whnf(m_tc.infer(e).first).first);
+        return is_sort(m_tctx.whnf(m_tctx.infer(e)));
     }
 
     bool is_relation(expr const & e) {
@@ -48,8 +47,7 @@ class to_ceqvs_fn {
     }
 
     bool is_prop(expr const & e) {
-        constraint_seq cs;
-        return m_tc.is_prop(e, cs) && !cs;
+        return m_tctx.is_prop(e);
     }
 
     // If restricted is true, we don't use (e <-> true) rewrite
@@ -69,7 +67,8 @@ class to_ceqvs_fn {
             auto r2 = apply(arg2, H2, restrited);
             return append(r1, r2);
         } else if (is_pi(e)) {
-            expr local = mk_local(m_tc.mk_fresh_name(), binding_name(e), binding_domain(e), binding_info(e));
+            // TODO(dhs): keep name?
+            expr local = m_tctx.mk_tmp_local(binding_domain(e), binding_info(e));
             expr new_e = instantiate(binding_body(e), local);
             expr new_H = mk_app(H, local);
             auto r = apply(new_e, new_H, restrited);
@@ -83,9 +82,9 @@ class to_ceqvs_fn {
             }
         } else if (is_standard(m_env) && is_ite(e, c, Hdec, A, arg1, arg2) && is_prop(e)) {
             // TODO(Leo): support HoTT mode if users request
-            expr not_c = mk_not(m_tc, c);
-            expr Hc    = mk_local(m_tc.mk_fresh_name(), c);
-            expr Hnc   = mk_local(m_tc.mk_fresh_name(), not_c);
+            expr not_c = mk_app(mk_constant(get_not_name()), c);
+            expr Hc    = m_tctx.mk_tmp_local(c);
+            expr Hnc   = m_tctx.mk_tmp_local(not_c);
             expr H1    = mk_app({mk_constant(get_implies_of_if_pos_name()),
                                  c, arg1, arg2, Hdec, e, Hc});
             expr H2    = mk_app({mk_constant(get_implies_of_if_neg_name()),
@@ -94,9 +93,8 @@ class to_ceqvs_fn {
             auto r2    = lift(Hnc, apply(arg2, H2, restrited));
             return append(r1, r2);
         } else if (!restrited) {
-            constraint_seq cs;
-            expr new_e = m_tc.whnf(e, cs);
-            if (new_e != e && !cs) {
+            expr new_e = m_tctx.whnf(e);
+            if (new_e != e) {
                 if (auto r = apply(new_e, H, true))
                     return r;
             }
@@ -112,17 +110,17 @@ class to_ceqvs_fn {
         }
     }
 public:
-    to_ceqvs_fn(type_checker & tc):m_env(tc.env()), m_tc(tc) {}
+    to_ceqvs_fn(tmp_type_context & tctx):m_env(tctx.env()), m_tctx(tctx) {}
 
     list<expr_pair> operator()(expr const & e, expr const & H) {
         bool restrited = false;
         list<expr_pair> lst = apply(e, H, restrited);
-        return filter(lst, [&](expr_pair const & p) { return is_ceqv(m_tc, p.first); });
+        return filter(lst, [&](expr_pair const & p) { return is_ceqv(m_tctx, p.first); });
     }
 };
 
-list<expr_pair> to_ceqvs(type_checker & tc, expr const & e, expr const & H) {
-    return to_ceqvs_fn(tc)(e, H);
+list<expr_pair> to_ceqvs(tmp_type_context & tctx, expr const & e, expr const & H) {
+    return to_ceqvs_fn(tctx)(e, H);
 }
 
 bool is_simp_relation(environment const & env, expr const & e, expr & rel, expr & lhs, expr & rhs) {
@@ -143,7 +141,7 @@ bool is_simp_relation(environment const & env, expr const & e, expr & lhs, expr 
     return is_simp_relation(env, e, rel, lhs, rhs);
 }
 
-bool is_ceqv(type_checker & tc, expr e) {
+bool is_ceqv(tmp_type_context & tctx, expr e) {
     if (has_expr_metavar(e))
         return false;
     name_set to_find;
@@ -158,7 +156,7 @@ bool is_ceqv(type_checker & tc, expr e) {
             return true;
         }
     };
-    environment const & env = tc.env();
+    environment const & env = tctx.env();
     bool is_std = is_standard(env);
     buffer<expr> hypotheses; // arguments that are propositions
     while (is_pi(e)) {
@@ -168,11 +166,11 @@ bool is_ceqv(type_checker & tc, expr e) {
             // by matching the type.
             for_each(binding_domain(e), visitor_fn);
         }
-        expr local = mk_local(tc.mk_fresh_name(), binding_domain(e));
+        expr local = tctx.mk_tmp_local(binding_domain(e));
         if (binding_info(e).is_inst_implicit()) {
             // If the argument can be instantiated by type class resolution, then
             // we don't need to find it in the lhs
-        } else if (is_std && tc.is_prop(binding_domain(e)).first) {
+        } else if (is_std && tctx.is_prop(binding_domain(e))) {
             // If the argument is a proposition, we store it in hypotheses.
             // We check whether the lhs occurs in hypotheses or not.
             hypotheses.push_back(binding_domain(e));

@@ -1,0 +1,4 @@
+H1
+congr_imp H1 H2
+congr_imp H1 (congr_imp H2 H3)
+congr_forall (λ (x : T), H x)

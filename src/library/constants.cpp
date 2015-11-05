@@ -178,6 +178,8 @@ void initialize_constants() {
     g_congr = new name{"congr"};
     g_congr_arg = new name{"congr_arg"};
     g_congr_fun = new name{"congr_fun"};
+    g_congr_fun = new name{"congr_fun"};
+    g_congr_arg = new name{"congr_arg"};
     g_dite = new name{"dite"};
     g_div = new name{"div"};
     g_empty = new name{"empty"};
@@ -336,9 +338,9 @@ void finalize_constants() {
     delete g_bool_tt;
     delete g_char;
     delete g_char_mk;
-    delete g_congr;
     delete g_congr_arg;
     delete g_congr_fun;
+    delete g_congr;
     delete g_dite;
     delete g_div;
     delete g_empty;

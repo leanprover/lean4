@@ -17,6 +17,23 @@ bool get_class_trace_instances(options const & o);
 unsigned get_class_instance_max_depth(options const & o);
 bool get_class_trans_instances(options const & o);
 
+class tmp_local_generator {
+    unsigned m_next_local_idx;
+    name mk_fresh_name();
+public:
+    tmp_local_generator();
+
+    /** \brief Create a temporary local constant */
+    virtual expr mk_tmp_local(expr const & type, binder_info const & bi);
+
+    /** \brief Create a temporary local constant using the given pretty print name.
+        The pretty printing name has not semantic significance. */
+    virtual expr mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi);
+
+    /** \brief Return true if \c e was created using \c mk_tmp_local */
+    virtual bool is_tmp_local(expr const & e) const;
+};
+
 /** \brief Light-weight type inference, normalization and definitional equality.
     It is simpler and more efficient version of the kernel type checker.
     It does not generate unification constraints.
@@ -104,6 +121,8 @@ class type_context {
     io_state                        m_ios;
     name_generator                  m_ngen;
     std::unique_ptr<ext_ctx>        m_ext_ctx;
+    tmp_local_generator *           m_local_gen;
+    bool                            m_local_gen_owner;
     // postponed universe constraints
     std::vector<pair<level, level>> m_postponed;
     name_map<projection_info>       m_proj_info;
@@ -274,8 +293,14 @@ class type_context {
     optional<expr> mk_class_instance_core(expr const & type);
     optional<expr> check_ci_cache(expr const & type) const;
     void cache_ci_result(expr const & type, expr const & inst);
+    type_context(environment const & env, io_state const & ios, tmp_local_generator * gen,
+                 bool gen_owner, bool multiple_instances);
 public:
-    type_context(environment const & env, io_state const & ios, bool multiple_instances = false);
+    type_context(environment const & env, io_state const & ios, bool multiple_instances = false):
+        type_context(env, ios, new tmp_local_generator(), true, multiple_instances) {}
+    type_context(environment const & env, io_state const & ios, tmp_local_generator & gen,
+                 bool multiple_instances = false):
+        type_context(env, ios, &gen, false, multiple_instances) {}
     virtual ~type_context();
 
     void set_local_instances(list<expr> const & insts);
@@ -289,11 +314,15 @@ public:
     virtual bool is_extra_opaque(name const & n) const = 0;
 
     /** \brief Create a temporary local constant */
-    virtual expr mk_tmp_local(expr const & type, binder_info const & bi = binder_info()) = 0;
+    expr mk_tmp_local(expr const & type, binder_info const & bi = binder_info()) {
+        return m_local_gen->mk_tmp_local(type, bi);
+    }
 
     /** \brief Create a temporary local constant using the given pretty print name.
         The pretty printing name has not semantic significance. */
-    virtual expr mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) = 0;
+    expr mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info()) {
+        return m_local_gen->mk_tmp_local(pp_name, type, bi);
+    }
 
     /** \brief Create a temporary local constant based on the domain of the given binding (lambda/Pi) expression */
     expr mk_tmp_local_from_binding(expr const & b) {
@@ -301,7 +330,9 @@ public:
     }
 
     /** \brief Return true if \c e was created using \c mk_tmp_local */
-    virtual bool is_tmp_local(expr const & e) const = 0;
+    bool is_tmp_local(expr const & e) const {
+        return m_local_gen->is_tmp_local(e);
+    }
 
     /** \brief Return true if \c l represents a universe unification variable.
         \remark This is supposed to be a subset of is_meta(l).
@@ -467,7 +498,6 @@ class default_type_context : public type_context {
     };
     assignment                m_assignment;
     std::vector<assignment>   m_trail;
-    unsigned                  m_next_local_idx;
     unsigned                  m_next_uvar_idx;
     unsigned                  m_next_mvar_idx;
 
@@ -499,9 +529,6 @@ public:
     virtual ~default_type_context();
     virtual bool is_extra_opaque(name const & n) const { return m_not_reducible_pred(n); }
     virtual bool ignore_universe_def_eq(level const & l1, level const & l2) const;
-    virtual expr mk_tmp_local(expr const & type, binder_info const & bi = binder_info());
-    virtual expr mk_tmp_local(name const & pp_name, expr const & type, binder_info const & bi = binder_info());
-    virtual bool is_tmp_local(expr const & e) const;
     virtual bool is_uvar(level const & l) const;
     virtual bool is_mvar(expr const & e) const;
     virtual optional<level> get_assignment(level const & u) const;

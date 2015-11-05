@@ -29,7 +29,6 @@ namespace lean {
     \remark The local context is set using the method set_context from type_context.
 */
 class tmp_type_context : public type_context {
-    unsigned                          m_next_local_idx;
     name_predicate                    m_opaque_pred;
     std::vector<optional<level>>      m_uassignment;
     std::vector<optional<expr>>       m_eassignment;
@@ -42,8 +41,10 @@ class tmp_type_context : public type_context {
         unsigned m_trail_sz;
     };
     std::vector<scope>                m_scopes;
+    void init(environment const & env, reducible_behavior b);
 public:
     tmp_type_context(environment const & env, io_state const & ios, reducible_behavior b = UnfoldReducible);
+    tmp_type_context(environment const & env, io_state const & ios, tmp_local_generator & gen, reducible_behavior b = UnfoldReducible);
     virtual ~tmp_type_context();
 
     /** \brief Reset the state: backtracking stack, indices and assignment. */
@@ -62,9 +63,6 @@ public:
     void set_next_mvar_idx(unsigned next_idx);
 
     virtual bool is_extra_opaque(name const & n) const { return m_opaque_pred(n); }
-    virtual expr mk_tmp_local(expr const & type, binder_info const & bi = binder_info());
-    virtual expr mk_tmp_local(name const & pp_n, expr const & type, binder_info const & bi = binder_info());
-    virtual bool is_tmp_local(expr const & e) const;
     virtual bool is_uvar(level const & l) const;
     virtual bool is_mvar(expr const & e) const;
     virtual optional<level> get_assignment(level const & u) const;
@@ -92,7 +90,4 @@ public:
         return static_cast<bool>(m_eassignment[idx]);
     }
 };
-
-void initialize_tmp_type_context();
-void finalize_tmp_type_context();
 }

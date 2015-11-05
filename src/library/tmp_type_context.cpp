@@ -8,23 +8,28 @@ Author: Leonardo de Moura
 #include "library/idx_metavar.h"
 
 namespace lean {
-static name * g_prefix = nullptr;
-
-tmp_type_context::tmp_type_context(environment const & env, io_state const & ios, reducible_behavior b):
-    type_context(env, ios) {
+void tmp_type_context::init(environment const & env, reducible_behavior b) {
     switch (b) {
     case UnfoldReducible:      m_opaque_pred = mk_not_reducible_pred(env);      break;
     case UnfoldQuasireducible: m_opaque_pred = mk_not_quasireducible_pred(env); break;
     case UnfoldSemireducible:  m_opaque_pred = mk_irreducible_pred(env);        break;
     }
-    m_next_local_idx = 0;
+}
+
+tmp_type_context::tmp_type_context(environment const & env, io_state const & ios, reducible_behavior b):
+    type_context(env, ios) {
+    init(env, b);
+}
+
+tmp_type_context::tmp_type_context(environment const & env, io_state const & ios, tmp_local_generator & gen, reducible_behavior b):
+    type_context(env, ios, gen) {
+    init(env, b);
 }
 
 tmp_type_context::~tmp_type_context() {
 }
 
 void tmp_type_context::clear() {
-    m_next_local_idx = 0;
     m_uassignment.clear();
     m_eassignment.clear();
     m_trail.clear();
@@ -41,27 +46,6 @@ void tmp_type_context::set_next_mvar_idx(unsigned next_idx) {
     lean_assert(m_eassignment.empty());
     lean_assert(m_scopes.empty());
     m_eassignment.resize(next_idx);
-}
-
-expr tmp_type_context::mk_tmp_local(expr const & type, binder_info const & bi) {
-    unsigned idx = m_next_local_idx;
-    m_next_local_idx++;
-    name n(*g_prefix, idx);
-    return lean::mk_local(n, n, type, bi);
-}
-
-expr tmp_type_context::mk_tmp_local(name const & pp_n, expr const & type, binder_info const & bi) {
-    unsigned idx = m_next_local_idx;
-    m_next_local_idx++;
-    name n(*g_prefix, idx);
-    return lean::mk_local(n, pp_n, type, bi);
-}
-
-bool tmp_type_context::is_tmp_local(expr const & e) const {
-    if (!is_local(e))
-        return false;
-    name const & n = mlocal_name(e);
-    return !n.is_atomic() && n.get_prefix() == *g_prefix;
 }
 
 bool tmp_type_context::is_uvar(level const & l) const {
@@ -129,7 +113,6 @@ expr tmp_type_context::mk_mvar(expr const & type) {
 void tmp_type_context::push() {
     m_scopes.push_back(scope());
     scope & s = m_scopes.back();
-    s.m_old_next_local_idx = m_next_local_idx;
     s.m_uassignment_sz     = m_uassignment.size();
     s.m_eassignment_sz     = m_eassignment.size();
     s.m_trail_sz           = m_trail.size();
@@ -138,7 +121,6 @@ void tmp_type_context::push() {
 void tmp_type_context::pop() {
     lean_assert(!m_scopes.empty());
     scope const & s  = m_scopes.back();
-    m_next_local_idx = s.m_old_next_local_idx;
     unsigned old_sz  = s.m_trail_sz;
     unsigned i = m_trail.size();
     while (i > old_sz) {
@@ -158,13 +140,5 @@ void tmp_type_context::pop() {
 void tmp_type_context::commit() {
     lean_assert(!m_scopes.empty());
     m_scopes.pop_back();
-}
-
-void initialize_tmp_type_context() {
-    g_prefix = new name(name::mk_internal_unique_name());
-}
-
-void finalize_tmp_type_context() {
-    delete g_prefix;
 }
 }

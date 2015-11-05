@@ -51,6 +51,32 @@ bool get_class_trans_instances(options const & o) {
     return o.get_bool(*g_class_trans_instances, LEAN_DEFAULT_CLASS_TRANS_INSTANCES);
 }
 
+tmp_local_generator::tmp_local_generator():
+    m_next_local_idx(0) {}
+
+name tmp_local_generator::mk_fresh_name() {
+    unsigned idx = m_next_local_idx;
+    m_next_local_idx++;
+    return name(*g_prefix, idx);
+}
+
+expr tmp_local_generator::mk_tmp_local(expr const & type, binder_info const & bi) {
+    name n = mk_fresh_name();
+    return lean::mk_local(n, n, type, bi);
+}
+
+expr tmp_local_generator::mk_tmp_local(name const & pp_n, expr const & type, binder_info const & bi) {
+    name n = mk_fresh_name();
+    return lean::mk_local(n, pp_n, type, bi);
+}
+
+bool tmp_local_generator::is_tmp_local(expr const & e) const {
+    if (!is_local(e))
+        return false;
+    name const & n = mlocal_name(e);
+    return !n.is_atomic() && n.get_prefix() == *g_prefix;
+}
+
 struct type_context::ext_ctx : public extension_context {
     type_context & m_owner;
 
@@ -79,11 +105,14 @@ struct type_context::ext_ctx : public extension_context {
     }
 };
 
-type_context::type_context(environment const & env, io_state const & ios, bool multiple_instances):
+type_context::type_context(environment const & env, io_state const & ios, tmp_local_generator * gen,
+                           bool gen_owner, bool multiple_instances):
     m_env(env),
     m_ios(ios),
     m_ngen(*g_prefix),
     m_ext_ctx(new ext_ctx(*this)),
+    m_local_gen(gen),
+    m_local_gen_owner(gen_owner),
     m_proj_info(get_projection_info_map(env)) {
     m_pip                   = nullptr;
     m_ci_multiple_instances = multiple_instances;
@@ -97,6 +126,8 @@ type_context::type_context(environment const & env, io_state const & ios, bool m
 }
 
 type_context::~type_context() {
+    if (m_local_gen_owner)
+        delete m_local_gen;
 }
 
 void type_context::set_local_instances(list<expr> const & insts) {
@@ -1678,34 +1709,12 @@ default_type_context::default_type_context(environment const & env, io_state con
     type_context(env, ios, multiple_instances),
     m_not_reducible_pred(mk_not_reducible_pred(env)) {
     m_ignore_if_zero = false;
-    m_next_local_idx = 0;
     m_next_uvar_idx  = 0;
     m_next_mvar_idx  = 0;
     set_local_instances(insts);
 }
 
 default_type_context::~default_type_context() {}
-
-expr default_type_context::mk_tmp_local(expr const & type, binder_info const & bi) {
-    unsigned idx = m_next_local_idx;
-    m_next_local_idx++;
-    name n(*g_prefix, idx);
-    return lean::mk_local(n, n, type, bi);
-}
-
-expr default_type_context::mk_tmp_local(name const & pp_n, expr const & type, binder_info const & bi) {
-    unsigned idx = m_next_local_idx;
-    m_next_local_idx++;
-    name n(*g_prefix, idx);
-    return lean::mk_local(n, pp_n, type, bi);
-}
-
-bool default_type_context::is_tmp_local(expr const & e) const {
-    if (!is_local(e))
-        return false;
-    name const & n = mlocal_name(e);
-    return !n.is_atomic() && n.get_prefix() == *g_prefix;
-}
 
 bool default_type_context::is_uvar(level const & l) const {
     if (!is_meta(l))

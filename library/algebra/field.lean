@@ -305,6 +305,13 @@ section field
   theorem field.div_mul_eq_div_mul_one_div (a : A) {b c : A} (Hb : b ≠ 0) (Hc : c ≠ 0) :
       a / (b * c) = (a / b) * (1 / c) :=
     by rewrite [-!field.div_div_eq_div_mul Hb Hc, -div_eq_mul_one_div]
+
+  theorem eq_of_mul_eq_mul_of_nonzero_left {a b c : A} (H : a ≠ 0) (H2 : a * b = a * c) : b = c :=
+    by rewrite [-one_mul b, -div_self H, div_mul_eq_mul_div, H2, mul_div_cancel_left H]
+
+  theorem eq_of_mul_eq_mul_of_nonzero_right {a b c : A} (H : c ≠ 0) (H2 : a * c = b * c) : a = b :=
+    by rewrite [-mul_one a, -div_self H, -mul_div_assoc, H2, mul_div_cancel _ H]
+
 end field
 
 structure discrete_field [class] (A : Type) extends field A :=
@@ -459,6 +466,7 @@ section discrete_field
   variable (a)
   theorem div_mul_eq_div_mul_one_div : a / (b * c) = (a / b) * (1 / c) :=
     by rewrite [-div_div_eq_div_mul, -div_eq_mul_one_div]
+
 end discrete_field
 
 end algebra

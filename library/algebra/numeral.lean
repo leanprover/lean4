@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Robert Y. Lewis
 -/
 
-import algebra.ring
+import algebra.ordered_field
 open algebra
 
 variable {A : Type}
@@ -140,19 +140,11 @@ theorem mk_eq (a : A) : a = a := rfl
 theorem neg_add_neg_eq_of_add_add_eq_zero [s : add_comm_group A] (a b c : A) (H : c + a + b = 0) : -a + -b = c :=
   begin apply add_neg_eq_of_eq_add, apply neg_eq_of_add_eq_zero, rewrite [add.comm, add.assoc, add.comm b, -add.assoc, H]  end
 
-/-theorem neg_add_neg_helper [s : add_comm_group A] (t₁ t₂ e w₁ w₂ : A) (H₁ : t₁ = -w₁)
-        (H₂ : t₂ = -w₂) (H : e + w₁ + w₂ = 0) : t₁ + t₂ = e :=
-  by rewrite [H₁, H₂, neg_add_neg_eq_of_add_add_eq_zero _ _ _ H]-/
-
 theorem neg_add_neg_helper [s : add_comm_group A] (a b c : A) (H : a + b = c) : -a + -b = -c :=
   begin apply iff.mp !neg_eq_neg_iff_eq, rewrite [neg_add, *neg_neg, H] end
 
 theorem neg_add_pos_eq_of_eq_add [s : add_comm_group A] (a b c : A) (H : b = c + a) : -a + b = c :=
   begin apply neg_add_eq_of_eq_add, rewrite add.comm, exact H end
-
-/-theorem neg_add_pos_helper [s : add_comm_group A] (t₁ t₂ e v w₁ w₂ : A) (H₁ : t₁ = -w₁)
-        (H₂ : t₂ = w₂) (Hv : w₂ = v) (H : e + w₁ = v) : t₁ + t₂ = e :=
-  begin rewrite [H₁, H₂, Hv, -H, add.comm, add_neg_cancel_right] end-/
 
 theorem neg_add_pos_helper1 [s : add_comm_group A] (a b c : A) (H : b + c = a) : -a + b = -c :=
   begin apply neg_add_eq_of_eq_add, apply eq_add_neg_of_add_eq H end
@@ -176,3 +168,68 @@ theorem subst_into_subtr [s : add_group A] (l r t : A) (prt : l + -r = t) : l - 
 
 theorem neg_neg_helper [s : add_group A] (a b : A) (H : a = -b) : -a = b :=
   by rewrite [H, neg_neg]
+
+theorem neg_mul_neg_helper [s : ring A] (a b c : A) (H : a * b = c) : (-a) * (-b) = c :=
+  begin rewrite [neg_mul_neg, H] end
+
+theorem neg_mul_pos_helper [s : ring A] (a b c : A) (H : a * b = c) : (-a) * b = -c :=
+  begin rewrite [-neg_mul_eq_neg_mul, H] end
+
+theorem pos_mul_neg_helper [s : ring A] (a b c : A) (H : a * b = c) : a * (-b) = -c :=
+  begin rewrite [-neg_mul_comm, -neg_mul_eq_neg_mul, H] end
+
+theorem pos_bit0_helper [s : linear_ordered_semiring A] (a : A) (H : a > 0) : bit0 a > 0 :=
+  by rewrite ↑bit0; apply add_pos H H
+
+theorem nonneg_bit0_helper [s : linear_ordered_semiring A] (a : A) (H : a ≥ 0) : bit0 a ≥ 0 :=
+  by rewrite ↑bit0; apply add_nonneg H H
+
+theorem pos_bit1_helper [s : linear_ordered_semiring A] (a : A) (H : a ≥ 0) : bit1 a > 0 :=
+  begin rewrite ↑bit1, apply add_pos_of_nonneg_of_pos, apply nonneg_bit0_helper _ H, apply zero_lt_one end
+
+theorem nonneg_bit1_helper [s : linear_ordered_semiring A] (a : A) (H : a ≥ 0) : bit1 a ≥ 0 :=
+  by apply le_of_lt; apply pos_bit1_helper _ H
+
+theorem div_add_helper [s : field A] (n d b c val : A) (Hd : d ≠ 0) (H : n + b * d = val) (H2 : c * d = val) :
+        n / d + b = c :=
+  begin
+    apply eq_of_mul_eq_mul_of_nonzero_right Hd,
+    rewrite [H2, -H, right_distrib, div_mul_cancel _ Hd]
+ end
+
+theorem add_div_helper [s : field A] (n d b c val : A) (Hd : d ≠ 0) (H : d * b + n = val) (H2 : d * c = val) :
+        b + n / d = c :=
+  begin
+    apply eq_of_mul_eq_mul_of_nonzero_left Hd,
+    rewrite [H2, -H, left_distrib, mul_div_cancel' Hd]
+ end
+
+theorem div_mul_helper [s : field A] (n d c v : A) (Hd : d ≠ 0) (H : (n * c) / d = v) : (n / d) * c = v :=
+  begin rewrite [-H, field.div_mul_eq_mul_div_comm _ _ Hd, mul_div_assoc] end
+
+theorem mul_div_helper [s : field A] (a n d v : A) (Hd : d ≠ 0) (H : (a * n) / d = v) : a * (n / d) = v :=
+  begin rewrite [-H, mul_div_assoc] end
+
+theorem nonzero_of_pos_helper [s : linear_ordered_semiring A] (a : A) (H : a > 0) : a ≠ 0 :=
+  ne_of_gt H
+
+theorem nonzero_of_neg_helper [s : linear_ordered_ring A] (a : A) (H : a > 0) : -a ≠ 0 :=
+  begin apply ne_of_lt, apply neg_neg_of_pos H end
+
+theorem nonzero_of_div_helper [s : field A] (a b : A) (Ha : a ≠ 0) (Hb : b ≠ 0) : a / b ≠ 0 :=
+  begin
+    intro Hab,
+    have Habb : (a / b) * b = 0, by rewrite [Hab, zero_mul],
+    rewrite [div_mul_cancel _ Hb at Habb],
+    exact Ha Habb
+  end
+
+theorem div_helper [s : field A] (n d v : A) (Hd : d ≠ 0) (H : v * d = n) : n / d = v :=
+  begin apply eq_of_mul_eq_mul_of_nonzero_right Hd, rewrite (div_mul_cancel _ Hd), exact eq.symm H end
+
+theorem div_eq_div_helper [s : field A] (a b c d v : A) (H1 : a * d = v) (H2 : c * b = v)
+        (Hb : b ≠ 0) (Hd : d ≠ 0) : a / b = c / d :=
+  begin apply eq_div_of_mul_eq, exact Hd, rewrite div_mul_eq_mul_div, apply eq.symm, apply eq_div_of_mul_eq, exact Hb, rewrite [H1, H2]  end
+
+theorem subst_into_div [s : has_division A] (a₁ b₁ a₂ b₂ v : A) (H : a₁ / b₁ = v) (H1 : a₂ = a₁) (H2 : b₂ = b₁) :
+        a₂ / b₂ = v := by rewrite [H1, H2, H]

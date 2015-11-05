@@ -82,6 +82,13 @@ namespace fiber
       rewrite [is_hset.elim H (refl star)] }
   end
 
+  definition fiber_const_equiv (A : Type) (a₀ : A) (a : A)
+    : fiber (λz : unit, a₀) a ≃ a₀ = a :=
+  calc
+    fiber (λz : unit, a₀) a
+      ≃ Σz : unit, a₀ = a : fiber.sigma_char
+  ... ≃ a₀ = a : sigma_unit_left
+
 end fiber
 
 open function is_equiv

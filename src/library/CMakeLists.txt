@@ -17,4 +17,4 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   composition_manager.cpp tc_multigraph.cpp noncomputable.cpp
   aux_recursors.cpp norm_num.cpp decl_stats.cpp meng_paulson.cpp
   norm_num.cpp class_instance_resolution.cpp type_context.cpp
-  tmp_type_context.cpp)
+  tmp_type_context.cpp fun_info_manager.cpp)

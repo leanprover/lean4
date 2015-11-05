@@ -32,8 +32,9 @@ class app_builder {
 public:
     app_builder(environment const & env, io_state const & ios, reducible_behavior b = UnfoldReducible);
     app_builder(environment const & env, reducible_behavior b = UnfoldReducible);
-    app_builder(std::unique_ptr<tmp_type_context> && ctx);
+    app_builder(tmp_type_context & ctx);
     ~app_builder();
+
     /** \brief Create an application (d.{_ ... _} _ ... _ args[0] ... args[nargs-1]).
         The missing arguments and universes levels are inferred using type inference.
 
@@ -108,7 +109,7 @@ public:
     /** \brief Set the local instances. This method is relevant when we want to expose local class instances
         to the app_builder.
 
-        \remark When the constructor app_builder(std::unique_ptr<tmp_type_context> && ctx) is used
+        \remark When the constructor app_builder(tmp_type_context & ctx) is used
         the initialization can be performed outside. */
     void set_local_instances(list<expr> const & insts);
 };

@@ -16,7 +16,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 struct app_builder::imp {
-    std::unique_ptr<tmp_type_context> m_ctx;
+    tmp_type_context * m_ctx;
+    bool               m_ctx_owner;
 
     struct entry {
         unsigned             m_num_umeta;
@@ -107,15 +108,26 @@ struct app_builder::imp {
     symm_info_getter  m_symm_getter;
     trans_info_getter m_trans_getter;
 
-    imp(std::unique_ptr<tmp_type_context> && ctx):
-        m_ctx(std::move(ctx)),
+    imp(tmp_type_context & ctx, bool owner):
+        m_ctx(&ctx),
+        m_ctx_owner(owner),
         m_refl_getter(mk_refl_info_getter(m_ctx->env())),
         m_symm_getter(mk_symm_info_getter(m_ctx->env())),
         m_trans_getter(mk_trans_info_getter(m_ctx->env())) {
     }
 
     imp(environment const & env, io_state const & ios, reducible_behavior b):
-        imp(std::unique_ptr<tmp_type_context>(new tmp_type_context(env, ios, b))) {
+        imp(*new tmp_type_context(env, ios, b), true) {
+    }
+
+    imp(tmp_type_context & ctx):
+        imp(ctx, false) {
+    }
+
+    ~imp() {
+        lean_assert(m_ctx);
+        if (m_ctx_owner)
+            delete m_ctx;
     }
 
     levels mk_metavars(declaration const & d, buffer<expr> & mvars, buffer<optional<expr>> & inst_args) {
@@ -445,8 +457,8 @@ app_builder::app_builder(environment const & env, reducible_behavior b):
     app_builder(env, get_dummy_ios(), b) {
 }
 
-app_builder::app_builder(std::unique_ptr<tmp_type_context> && ctx):
-    m_ptr(new imp(std::move(ctx))) {
+app_builder::app_builder(tmp_type_context & ctx):
+    m_ptr(new imp(ctx)) {
 }
 
 app_builder::~app_builder() {}

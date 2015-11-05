@@ -50,7 +50,7 @@ optional<expr> mk_congr_subsingleton_thm(type_checker & tc, io_state const & ios
         if (prop.back()) {
             ss.push_back(true);
         } else {
-            ss.push_back(static_cast<bool>(mk_subsingleton_instance(tc, ios, ctx, mlocal_type(d))));
+            ss.push_back(static_cast<bool>(mk_subsingleton_instance(tc.env(), ios, ctx, mlocal_type(d))));
         }
         codomain_deps_on.push_back(depends_on(codomain, d));
         ctx = cons(d, ctx);
@@ -145,7 +145,7 @@ optional<expr> mk_congr_subsingleton_thm(type_checker & tc, io_state const & ios
                 return none_expr();
             buffer<expr> hyps;
             g.get_hyps(hyps);
-            auto spr = mk_subsingleton_instance(tc, ios, to_list(hyps), mlocal_type(new_lhs));
+            auto spr = mk_subsingleton_instance(tc.env(), ios, to_list(hyps), mlocal_type(new_lhs));
             if (!spr)
                 return none_expr();
             expr new_eq    = mk_local(get_unused_name(name(h, eqidx), hyps), mk_eq(tc, new_rhs, new_lhs));

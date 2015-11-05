@@ -409,6 +409,10 @@ public:
     /** \brief Try to synthesize an instance of the type class \c type */
     optional<expr> mk_class_instance(expr const & type);
     optional<expr> next_class_instance();
+    /** \brief Try to synthesize an instance of (subsingleton type)
+        \remark This method is virtual because we need a refinement
+        at default_type_context to workaround an integration problem with the elaborator. */
+    virtual optional<expr> mk_subsingleton_instance(expr const & type);
 
     /** \brief Given \c ma of the form <tt>?m t_1 ... t_n</tt>, (try to) assign
         ?m to (an abstraction of) v. Return true if success and false otherwise.
@@ -511,6 +515,8 @@ public:
     virtual void push() { m_trail.push_back(m_assignment); }
     virtual void pop() { lean_assert(!m_trail.empty()); m_assignment = m_trail.back(); m_trail.pop_back(); }
     virtual void commit() { lean_assert(!m_trail.empty()); m_trail.pop_back(); }
+    virtual optional<expr> mk_subsingleton_instance(expr const & type);
+    // TODO(REMOVE)
     bool & get_ignore_if_zero() { return m_ignore_if_zero; }
 };
 

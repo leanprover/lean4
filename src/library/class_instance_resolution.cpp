@@ -195,17 +195,10 @@ optional<expr> mk_hset_instance(type_checker & tc, io_state const & ios, list<ex
     return mk_class_instance(tc.env(), ios, ctx, is_hset);
 }
 
-optional<expr> mk_subsingleton_instance(type_checker & tc, io_state const & ios, list<expr> const & ctx, expr const & type) {
+optional<expr> mk_subsingleton_instance(environment const & env, io_state const & ios, list<expr> const & ctx, expr const & type) {
     cienv & cenv = get_cienv();
-    cenv.ensure_compatible(tc.env(), ios, ctx);
-    flet<bool> set(cenv.m_ti_ptr->get_ignore_if_zero(), true);
-    level lvl    = sort_level(tc.ensure_type(type).first);
-    expr subsingleton;
-    if (is_standard(tc.env()))
-        subsingleton = mk_app(mk_constant(get_subsingleton_name(), {lvl}), type);
-    else
-        subsingleton = tc.whnf(mk_app(mk_constant(get_is_trunc_is_hprop_name(), {lvl}), type)).first;
-    return cenv.m_ti_ptr->mk_class_instance(subsingleton);
+    cenv.ensure_compatible(env, ios, ctx);
+    return cenv.m_ti_ptr->mk_subsingleton_instance(type);
 }
 
 void initialize_class_instance_resolution() {

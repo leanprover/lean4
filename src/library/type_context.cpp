@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/generic_exception.h"
 #include "library/class.h"
+#include "library/constants.h"
 
 #ifndef LEAN_DEFAULT_CLASS_TRACE_INSTANCES
 #define LEAN_DEFAULT_CLASS_TRACE_INSTANCES false
@@ -1610,6 +1611,19 @@ optional<expr> type_context::mk_class_instance(expr const & type) {
     return r;
 }
 
+optional<expr> type_context::mk_subsingleton_instance(expr const & type) {
+    expr Type  = whnf(infer(type));
+    if (!is_sort(Type))
+        return none_expr();
+    level lvl    = sort_level(Type);
+    expr subsingleton;
+    if (is_standard(m_env))
+        subsingleton = mk_app(mk_constant(get_subsingleton_name(), {lvl}), type);
+    else
+        subsingleton = whnf(mk_app(mk_constant(get_is_trunc_is_hprop_name(), {lvl}), type));
+    return mk_class_instance(subsingleton);
+}
+
 optional<expr> type_context::next_class_instance() {
     if (!m_ci_multiple_instances)
         return none_expr();
@@ -1749,6 +1763,11 @@ expr default_type_context::mk_mvar(expr const & type) {
     unsigned idx = m_next_mvar_idx;
     m_next_mvar_idx++;
     return mk_metavar(name(*g_prefix, idx), type);
+}
+
+optional<expr> default_type_context::mk_subsingleton_instance(expr const & type) {
+    flet<bool> set(m_ignore_if_zero, true);
+    return type_context::mk_subsingleton_instance(type);
 }
 
 bool default_type_context::ignore_universe_def_eq(level const & l1, level const & l2) const {

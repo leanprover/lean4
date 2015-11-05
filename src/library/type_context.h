@@ -147,7 +147,6 @@ class type_context {
     bool                            m_check_types;
 
     bool is_opaque(declaration const & d) const;
-    optional<expr> expand_macro(expr const & m);
     optional<expr> reduce_projection(expr const & e);
     optional<expr> norm_ext(expr const & e);
     expr whnf_core(expr const & e);
@@ -377,6 +376,9 @@ public:
     bool has_assigned_uvar(level const & l) const;
     bool has_assigned_uvar(levels const & ls) const;
     bool has_assigned_uvar_mvar(expr const & e) const;
+
+    /** \brief Expand macro using extension context */
+    optional<expr> expand_macro(expr const & m);
 
     /** \brief Instantiate assigned universe unification variables occurring in \c l */
     level instantiate_uvars(level const & l);

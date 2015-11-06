@@ -40,6 +40,6 @@ public:
     expr const & get_value() const { return m_value; }
     /** \brief Return true iff this hypothesis depends on \c h. */
     bool depends_on(expr const & h) const { return m_deps.contains(href_index(h)); }
-    bool is_assumption() const { return blast::is_local(m_value); }
+    bool is_assumption() const { return is_local_non_href(m_value); }
 };
 }}

@@ -22,8 +22,7 @@ environment const & env();
 io_state const & ios();
 /** \brief Return the thread local current state begin processed by the blast tactic. */
 state & curr_state();
-/** \brief Return a thread local fresh name meant to be used to name local constants. */
-name mk_fresh_local_name();
+/** \brief Return a thread local fresh local constant. */
 expr mk_fresh_local(expr const & type, binder_info const & bi = binder_info());
 /** \brief Return true iff the given constant name is marked as reducible in env() */
 bool is_reducible(name const & n);

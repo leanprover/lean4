@@ -69,7 +69,7 @@ void branch::add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user) {
 
 void branch::add_deps(hypothesis & h_user, unsigned hidx_user) {
     add_deps(h_user.m_type, h_user, hidx_user);
-    if (!blast::is_local(h_user.m_value)) {
+    if (!is_local_non_href(h_user.m_value)) {
         add_deps(h_user.m_value, h_user, hidx_user);
     }
 }

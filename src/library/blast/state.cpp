@@ -233,19 +233,18 @@ struct instantiate_urefs_mrefs_fn : public replace_visitor {
     }
 
     virtual expr visit_sort(expr const & s) {
-        return blast::update_sort(s, visit_level(sort_level(s)));
+        return update_sort(s, visit_level(sort_level(s)));
     }
 
     virtual expr visit_constant(expr const & c) {
-        return blast::update_constant(c, visit_levels(const_levels(c)));
+        return update_constant(c, visit_levels(const_levels(c)));
     }
 
     virtual expr visit_local(expr const & e) {
-        if (blast::is_local(e)) {
-            return blast::update_local(e, visit(mlocal_type(e)));
-        } else {
-            lean_assert(is_href(e));
+        if (is_href(e)) {
             return e;
+        } else {
+            return update_mlocal(e, visit(mlocal_type(e)));
         }
     }
 
@@ -297,7 +296,7 @@ struct instantiate_urefs_mrefs_fn : public replace_visitor {
         buffer<expr> new_args;
         for (unsigned i = 0; i < macro_num_args(e); i++)
             new_args.push_back(visit(macro_arg(e, i)));
-        return blast::update_macro(e, new_args.size(), new_args.data());
+        return update_macro(e, new_args.size(), new_args.data());
     }
 
     virtual expr visit(expr const & e) {

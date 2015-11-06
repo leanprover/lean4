@@ -21,8 +21,8 @@ The rows indicate the chapters, the columns the sections.
 | Ch 4  | - | + | + | + | . | + | ½ | + | + |    |    |    |    |    |    |
 | Ch 5  | - | . | ½ | - | - | . | . | ½ |   |    |    |    |    |    |    |
 | Ch 6  | . | + | + | + | + | ½ | ½ | + | ¾ | ¼  | ¾  | +  | .  |    |    |
-| Ch 7  | + | + | + | - | ½ | - | - |   |   |    |    |    |    |    |    |
-| Ch 8  | ¾ | - | - | - | - | - | - | - | - | -  |    |    |    |    |    |
+| Ch 7  | + | + | + | - | ¾ | - | - |   |   |    |    |    |    |    |    |
+| Ch 8  | ¾ | ¾ | - | - | - | - | - | - | - | -  |    |    |    |    |    |
 | Ch 9  | ¾ | + | + | ½ | ¾ | ½ | - | - | - |    |    |    |    |    |    |
 | Ch 10 | - | - | - | - | - |   |   |   |   |    |    |    |    |    |    |
 | Ch 11 | - | - | - | - | - | - |   |   |   |    |    |    |    |    |    |
@@ -132,7 +132,7 @@ Chapter 7: Homotopy n-types
 - 7.2 (Uniqueness of identity proofs and Hedberg’s theorem): [init.hedberg](init/hedberg.hlean) and [types.trunc](types/trunc.hlean)
 - 7.3 (Truncations): [init.hit](init/hit.hlean), [hit.trunc](hit/trunc.hlean) and [types.trunc](types/trunc.hlean)
 - 7.4 (Colimits of n-types): not formalized
-- 7.5 (Connectedness): [homotopy.connectedness](homotopy/connectedness.hlean) (just the beginning so far)
+- 7.5 (Connectedness): [homotopy.connectedness](homotopy/connectedness.hlean) (the main "induction principle" Lemma 7.5.7)
 - 7.6 (Orthogonal factorization): not formalized
 - 7.7 (Modalities): not formalized, and may be unformalizable in general because it's unclear how to define modalities
 
@@ -142,7 +142,7 @@ Chapter 8: Homotopy theory
 Unless otherwise noted, the files are in the folder [homotopy](homotopy/homotopy.md)
 
 - 8.1 (π_1(S^1)): [homotopy.circle](homotopy/circle.hlean) (only one of the proofs)
-- 8.2 (Connectedness of suspensions): not formalized
+- 8.2 (Connectedness of suspensions): [homotopy.connectedness](homotopy/connectedness.hlean) (different proof)
 - 8.3 (πk≤n of an n-connected space and π_{k<n}(S^n)): not formalized
 - 8.4 (Fiber sequences and the long exact sequence): not formalized
 - 8.5 (The Hopf fibration): not formalized

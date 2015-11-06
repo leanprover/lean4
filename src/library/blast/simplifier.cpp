@@ -21,6 +21,7 @@ Author: Daniel Selsam
 #include "util/pair.h"
 #include "util/sexpr/option_declarations.h"
 #include <array>
+#include <map>
 #include <iostream> // TODO just for occasional debugging
 
 #ifndef LEAN_DEFAULT_SIMPLIFY_MAX_STEPS
@@ -112,10 +113,11 @@ class simplifier {
     bool                                         m_trace{get_simplify_trace()};
     
     /* Cache */
-    expr_bi_struct_map<result>                   m_simplify_cache{};
+    typedef expr_bi_struct_map<result>           simplify_cache;
+    std::map<name,simplify_cache,name_quick_cmp> m_simplify_cache;
 
-    /* Masks for building applications */
-    std::array<bool,6> eq_rec_all_mask{{true,true,true,true,true,true}};
+    optional<result> cache_lookup(expr const & e);
+    void cache_save(expr const & e, result const & r);
 
     /* Basic helpers */
     bool using_eq() { return m_rel == get_eq_name(); }
@@ -163,6 +165,19 @@ public:
 
 simplifier::simplifier(branch const & b, name const & rel):
     m_app_builder(*m_tmp_tctx), m_branch(b), m_rel(rel) { }
+
+/* Cache */
+optional<result> simplifier::cache_lookup(expr const & e) {
+    simplify_cache & cache = m_simplify_cache[m_rel];
+    auto it = cache.find(e);
+    if (it != cache.end()) return optional<result>(it->second);
+    return optional<result>();
+}
+void simplifier::cache_save(expr const & e, result const & r) {
+    simplify_cache & cache = m_simplify_cache[m_rel];
+    cache.insert(mk_pair(e,r));
+}
+
 
 /* Results */
 
@@ -215,7 +230,6 @@ result simplifier::finalize(result const & r) {
         throw blast_exception("failed on [refl] matching",r.get_new());
 }
 
-
 /* Simplification */
 
 result simplifier::simplify(expr const & e) {
@@ -230,9 +244,9 @@ result simplifier::simplify(expr const & e) {
         throw blast_exception("simplifier failed, maximum number of steps exceeded", e);
 
     if (m_memoize) {
-        auto it = m_simplify_cache.find(e);
-        if (it != m_simplify_cache.end()) return it->second;
+        if (auto it = cache_lookup(e)) return *it;
     }
+    
     result r(e);
 
     if (m_top_down) r = join(r, rewrite(whnf(r.get_new())));
@@ -278,7 +292,7 @@ result simplifier::simplify(expr const & e) {
 
     if (m_exhaustive && r.get_new() != e) r = join(r,simplify(r.get_new()));
 
-    if (m_memoize) m_simplify_cache.insert(mk_pair(e, r));
+    if (m_memoize) cache_save(e,r);
 
     return r;
 }

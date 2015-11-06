@@ -22,6 +22,7 @@ class tmp_local_generator {
     name mk_fresh_name();
 public:
     tmp_local_generator();
+    virtual ~tmp_local_generator() {}
 
     /** \brief Create a temporary local constant */
     virtual expr mk_tmp_local(expr const & type, binder_info const & bi);

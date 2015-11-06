@@ -322,7 +322,6 @@ expr state::instantiate_urefs_mrefs(expr const & e) {
 bool state::check_hypothesis(expr const & e, branch const & b, unsigned hidx, hypothesis const & h) const {
     lean_assert(closed(e));
     for_each(e, [&](expr const & n, unsigned) {
-            lean_assert(!blast::is_local(n));
             if (is_href(n)) {
                 lean_assert(h.depends_on(n));
                 lean_assert(b.hidx_depends_on(hidx, href_index(n)));
@@ -344,7 +343,6 @@ bool state::check_hypothesis(branch const & b, unsigned hidx, hypothesis const &
 bool state::check_target(branch const & b) const {
     lean_assert(closed(b.get_target()));
     for_each(b.get_target(), [&](expr const & n, unsigned) {
-            lean_assert(!blast::is_local(n));
             if (is_href(n)) {
                 lean_assert(b.target_depends_on(n));
             } else if (is_mref(n)) {

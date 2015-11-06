@@ -370,8 +370,18 @@ result simplifier::rewrite(expr const & e) {
 
     list<simp_rule> const * srs = sr->find_simp(e);
     if (!srs) return r;
-    
-    for_each(*srs,[&](simp_rule const & sr) { r = join(r,rewrite(r.get_new(),sr)); });
+
+    bool modified = true;
+    while (modified) {
+        modified = false;
+        for_each(*srs,[&](simp_rule const & sr) {
+                result r_rew = rewrite(r.get_new(),sr);
+                if (r_rew.is_none()) return;
+                r = join(r,r_rew);
+                modified = true;
+            }
+            );
+    }
     
     return r;
 }

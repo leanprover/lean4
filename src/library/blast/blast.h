@@ -86,6 +86,7 @@ public:
 class blast_tmp_type_context {
     tmp_type_context * m_ctx;
 public:
+    blast_tmp_type_context(unsigned num_umeta, unsigned num_emeta);
     blast_tmp_type_context();
     ~blast_tmp_type_context();
 

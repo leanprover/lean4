@@ -604,6 +604,14 @@ tmp_type_context * blastenv::mk_tmp_type_context() {
     return r;
 }
 
+blast_tmp_type_context::blast_tmp_type_context(unsigned num_umeta, unsigned num_emeta) {
+    lean_assert(g_blastenv);
+    m_ctx = g_blastenv->mk_tmp_type_context();
+    m_ctx->clear();
+    m_ctx->set_next_uvar_idx(num_umeta);
+    m_ctx->set_next_mvar_idx(num_emeta);
+}
+
 blast_tmp_type_context::blast_tmp_type_context() {
     lean_assert(g_blastenv);
     m_ctx = g_blastenv->mk_tmp_type_context();

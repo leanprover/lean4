@@ -377,12 +377,7 @@ result simplifier::rewrite(expr const & e) {
 }
 
 result simplifier::rewrite(expr const & e, simp_rule const & sr) {
-    // TODO restore
-//    blast_tmp_type_context tmp_tctx(sr.get_num_umeta(),sr.get_num_emeta());
-    blast_tmp_type_context tmp_tctx;
-    tmp_tctx->clear();
-    tmp_tctx->set_next_uvar_idx(sr.get_num_umeta());
-    tmp_tctx->set_next_mvar_idx(sr.get_num_emeta());
+    blast_tmp_type_context tmp_tctx(sr.get_num_umeta(),sr.get_num_emeta());
 
     if (!tmp_tctx->is_def_eq(e,sr.get_lhs())) return result(e);
 
@@ -486,12 +481,7 @@ result simplifier::try_congrs(expr const & e) {
 }
 
 result simplifier::try_congr(expr const & e, congr_rule const & cr) {
-    // TODO restore
-//    blast_tmp_type_context tmp_tctx(cr.get_num_umeta(),cr.get_num_emeta());
-    blast_tmp_type_context tmp_tctx;
-    tmp_tctx->clear();
-    tmp_tctx->set_next_uvar_idx(cr.get_num_umeta());
-    tmp_tctx->set_next_mvar_idx(cr.get_num_emeta());
+    blast_tmp_type_context tmp_tctx(cr.get_num_umeta(),cr.get_num_emeta());
 
     if (!tmp_tctx->is_def_eq(e,cr.get_lhs())) return result(e);
     

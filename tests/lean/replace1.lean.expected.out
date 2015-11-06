@@ -1,0 +1,10 @@
+@f.{1} nat b b
+@f.{1} nat (@f.{1} nat b a) a
+replace1.lean:15:9: error: #replace commad failed
+@f.{1} nat x x
+@f.{1} bool x x
+replace1.lean:29:9: error: #replace commad failed
+@eq.rec.{0 1} nat a (λ (x : nat), p x) H1 b (@eq.refl.{1} nat a)
+@eq.rec.{0 1} nat a (λ (x : nat), p x) H1 a (@eq.refl.{1} nat a)
+replace1.lean:40:9: error: #replace commad failed
+λ (v₁ v₂ : bv 11), @eq.{1} (bv 11) v₁ v₂

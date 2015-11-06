@@ -41,6 +41,7 @@ Author: Leonardo de Moura
 #include "library/decl_stats.h"
 #include "library/app_builder.h"
 #include "library/meng_paulson.h"
+#include "library/fun_info_manager.h"
 #include "library/definitional/projection.h"
 #include "library/simplifier/simp_rule_set.h"
 #include "compiler/preprocess_rec.h"
@@ -1242,6 +1243,42 @@ static environment trans_cmd(parser & p) {
     return env;
 }
 
+static void parse_expr_vector(parser & p, buffer<expr> & r) {
+    p.check_token_next(get_lbracket_tk(), "invalid command, '[' expected");
+    while (true) {
+        expr e; level_param_names ls;
+        std::tie(e, ls) = parse_local_expr(p);
+        r.push_back(e);
+        if (!p.curr_is_token(get_comma_tk()))
+            break;
+        p.next();
+    }
+    p.check_token_next(get_rbracket_tk(), "invalid command, ']' expected");
+}
+
+static environment replace_cmd(parser & p) {
+    environment const & env = p.env();
+    auto pos = p.pos();
+    app_builder b(env);
+    expr e; level_param_names ls;
+    buffer<expr> from;
+    buffer<expr> to;
+    std::tie(e, ls) =  parse_local_expr(p);
+    p.check_token_next(get_comma_tk(), "invalid #replace command, ',' expected");
+    parse_expr_vector(p, from);
+    p.check_token_next(get_comma_tk(), "invalid #replace command, ',' expected");
+    parse_expr_vector(p, to);
+    if (from.size() != to.size())
+        throw parser_error("invalid #replace command, from/to vectors have different size", pos);
+    tmp_type_context ctx(env, p.ios());
+    fun_info_manager infom(ctx);
+    auto r = replace(infom, e, from, to);
+    if (!r)
+        throw parser_error("#replace commad failed", pos);
+    p.regular_stream() << *r << "\n";
+    return env;
+}
+
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",              "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -1270,6 +1307,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#trans",            "(for debugging purposes)", trans_cmd));
     add_cmd(r, cmd_info("#symm",             "(for debugging purposes)", symm_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
+    add_cmd(r, cmd_info("#replace",          "(for debugging purposes)", replace_cmd));
     add_cmd(r, cmd_info("#accessible",       "(for debugging purposes) display number of accessible declarations for blast tactic", accessible_cmd));
     add_cmd(r, cmd_info("#decl_stats",       "(for debugging purposes) display declaration statistics", decl_stats_cmd));
     add_cmd(r, cmd_info("#relevant_thms",    "(for debugging purposes) select relevant theorems using Meng&Paulson heuristic", relevant_thms_cmd));

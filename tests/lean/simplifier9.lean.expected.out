@@ -1,0 +1,13 @@
+x = y → y = y
+T → x = y → y = y
+∀ (x_1 : T), x = x_1 → x_1 = y
+∀ (x_1 : T), x_1 = x → x = x
+T → T → x = y → y = y
+T → T → x = y → P y
+(∀ (x : T), P x ↔ Q x) → Q x
+Prop → (∀ (x : T), P x ↔ Q x) → Prop → Q x
+∀ (x_1 : Prop), (∀ (x : T), P x ↔ Q x) → x_1 ∨ Q x
+(∀ (x : T), P x ↔ Q x) → Q x
+(∀ (x : T), P x ↔ Q x) → Q x
+∀ (x : T), T → (∀ (x : T), P x ↔ Q x) → Q x
+∀ (x x_1 : T), x = x_1 → (∀ (w : T), P w ↔ Q w) → Q x_1

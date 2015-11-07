@@ -100,7 +100,7 @@ class to_ceqvs_fn {
             }
             if (is_standard(m_env) && is_prop(e)) {
                 expr new_e = mk_iff(e, mk_true());
-                expr new_H = mk_app(mk_constant(get_iff_true_intro_name()), arg1, H);
+                expr new_H = mk_app(mk_constant(get_iff_true_intro_name()), e, H);
                 return mk_singleton(new_e, new_H);
             } else {
                 return list<expr_pair>();

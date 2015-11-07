@@ -1335,6 +1335,7 @@ static environment simplify_cmd(parser & p) {
     }
     else {
         auto tc = mk_type_checker(p.env(), p.mk_ngen());
+        
         expr pf_type = tc->check(r.get_proof(), ls).first;
 
         if (o == 0) p.regular_stream() << r.get_new() << endl;

@@ -162,6 +162,12 @@ expr mk_subsingleton_elim(type_checker & tc, expr const & h, expr const & x, exp
 
 /** \brief Return true iff \c e is a term of the form (eq.rec ....) */
 bool is_eq_rec_core(expr const & e);
+/** \brief Return true iff \c e is a term of the form (eq.rec ....) in the standard library,
+    and (eq.nrec ...) in the HoTT library. */
+bool is_eq_rec(environment const & env, expr const & e);
+/** \brief Return true iff \c e is a term of the form (eq.drec ....) in the standard library,
+    and (eq.rec ...) in the HoTT library. */
+bool is_eq_drec(environment const & env, expr const & e);
 
 bool is_eq(expr const & e);
 bool is_eq(expr const & e, expr & lhs, expr & rhs);

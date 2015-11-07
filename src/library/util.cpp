@@ -580,6 +580,20 @@ bool is_eq_rec_core(expr const & e) {
     return is_constant(fn) && const_name(fn) == get_eq_rec_name();
 }
 
+bool is_eq_rec(environment const & env, expr const & e) {
+    expr const & fn = get_app_fn(e);
+    if (!is_constant(fn))
+        return false;
+    return is_standard(env) ? const_name(fn) == get_eq_rec_name() : const_name(fn) == get_eq_nrec_name();
+}
+
+bool is_eq_drec(environment const & env, expr const & e) {
+    expr const & fn = get_app_fn(e);
+    if (!is_constant(fn))
+        return false;
+    return is_standard(env) ? const_name(fn) == get_eq_drec_name() : const_name(fn) == get_eq_rec_name();
+}
+
 bool is_eq(expr const & e) {
     expr const & fn = get_app_fn(e);
     return is_constant(fn) && const_name(fn) == get_eq_name();

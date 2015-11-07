@@ -1316,13 +1316,13 @@ static environment congr_lemma_cmd(parser & p) {
 static environment simplify_cmd(parser & p) {
     name rel = p.check_constant_next("invalid #simplify command, constant expected");
     unsigned o = p.parse_small_nat();
-    
+
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
 
-    blast::scope_debug scope(p.env(),p.ios());
+    blast::scope_debug scope(p.env(), p.ios());
     blast::branch b;
-    blast::simp::result r = blast::simplify(b,rel,e);
+    blast::simp::result r = blast::simplify(b, rel, e);
 
     flycheck_information info(p.regular_stream());
     if (info.enabled()) {
@@ -1332,10 +1332,9 @@ static environment simplify_cmd(parser & p) {
 
     if (r.is_none()) {
         p.regular_stream() << "<refl>" << endl;
-    }
-    else {
+    } else {
         auto tc = mk_type_checker(p.env(), p.mk_ngen());
-        
+
         expr pf_type = tc->check(r.get_proof(), ls).first;
 
         if (o == 0) p.regular_stream() << r.get_new() << endl;
@@ -1379,7 +1378,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#accessible",       "(for debugging purposes) display number of accessible declarations for blast tactic", accessible_cmd));
     add_cmd(r, cmd_info("#decl_stats",       "(for debugging purposes) display declaration statistics", decl_stats_cmd));
     add_cmd(r, cmd_info("#relevant_thms",    "(for debugging purposes) select relevant theorems using Meng&Paulson heuristic", relevant_thms_cmd));
-    add_cmd(r, cmd_info("#simplify",         "(for debugging purposes) simplify given expression", simplify_cmd));    
+    add_cmd(r, cmd_info("#simplify",         "(for debugging purposes) simplify given expression", simplify_cmd));
 
     register_decl_cmds(r);
     register_inductive_cmd(r);

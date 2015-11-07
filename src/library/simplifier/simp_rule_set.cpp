@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/relation_manager.h"
 #include "library/simplifier/ceqv.h"
 #include "library/simplifier/simp_rule_set.h"
+#include <vector>
 
 namespace lean {
 simp_rule_core::simp_rule_core(name const & id, levels const & umetas, std::vector<expr> const & emetas,
@@ -44,7 +45,7 @@ format simp_rule::pp(formatter const & fmt) const {
 congr_rule::congr_rule(name const & id, levels const & umetas, std::vector<expr> const & emetas,
                        std::vector<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof,
                        list<expr> const & congr_hyps):
-    simp_rule_core(id, umetas, emetas, instances, lhs, rhs, proof),    
+    simp_rule_core(id, umetas, emetas, instances, lhs, rhs, proof),
     m_congr_hyps(congr_hyps) {}
 
 bool operator==(congr_rule const & r1, congr_rule const & r2) {
@@ -265,13 +266,13 @@ simp_rule_sets add_core(tmp_type_context & tctx, simp_rule_sets const & s,
         expr proof = tctx.whnf(p.second);
         bool is_perm = is_permutation_ceqv(env, rule);
         std::vector<expr> emetas;
-        std::vector<bool> instances;        
+        std::vector<bool> instances;
         while (is_pi(rule)) {
             expr mvar = tctx.mk_mvar(binding_domain(rule));
             emetas.push_back(mvar);
             instances.push_back(binding_info(rule).is_inst_implicit());
             rule = tctx.whnf(instantiate(binding_body(rule), mvar));
-            proof = mk_app(proof,mvar);
+            proof = mk_app(proof, mvar);
         }
         expr rel, lhs, rhs;
         if (is_simp_relation(env, rule, rel, lhs, rhs) && is_constant(rel)) {
@@ -365,15 +366,15 @@ void add_congr_core(tmp_type_context & tctx, simp_rule_sets & s, name const & n)
     expr proof   = mk_constant(n, ls);
 
     std::vector<expr> emetas;
-    std::vector<bool> instances, explicits;        
-    
+    std::vector<bool> instances, explicits;
+
     while (is_pi(rule)) {
         expr mvar = tctx.mk_mvar(binding_domain(rule));
         emetas.push_back(mvar);
         explicits.push_back(is_explicit(binding_info(rule)));
         instances.push_back(binding_info(rule).is_inst_implicit());
         rule = tctx.whnf(instantiate(binding_body(rule), mvar));
-        proof = mk_app(proof,mvar);
+        proof = mk_app(proof, mvar);
     }
     expr rel, lhs, rhs;
     if (!is_simp_relation(tctx.env(), rule, rel, lhs, rhs) || !is_constant(rel)) {
@@ -455,7 +456,6 @@ void add_congr_core(tmp_type_context & tctx, simp_rule_sets & s, name const & n)
             congr_hyps.push_back(mvar);
         }
     }
-    
     s.insert(const_name(rel), congr_rule(n, ls, emetas, instances, lhs, rhs, proof, to_list(congr_hyps)));
 }
 
@@ -465,14 +465,14 @@ struct rrs_state {
     name_set                 m_congr_names;
 
     void add_simp(environment const & env, io_state const & ios, name const & cname) {
-        tmp_type_context tctx{env,ios};
+        tmp_type_context tctx{env, ios};
         m_sets = add_core(tctx, m_sets, cname);
         m_simp_names.insert(cname);
     }
 
     void add_congr(environment const & env, io_state const & ios, name const & n) {
-        tmp_type_context tctx{env,ios};        
-        add_congr_core(tctx,m_sets, n);
+        tmp_type_context tctx{env, ios};
+        add_congr_core(tctx, m_sets, n);
         m_congr_names.insert(n);
     }
 };
@@ -530,7 +530,7 @@ simp_rule_sets get_simp_rule_sets(environment const & env, io_state const & ios,
     simp_rule_sets set;
     list<pair<bool, name>> const * cnames = rrs_ext::get_entries(env, ns);
     if (cnames) {
-        tmp_type_context tctx(env,ios);
+        tmp_type_context tctx(env, ios);
         for (pair<bool, name> const & p : *cnames) {
             set = add_core(tctx, set, p.second);
         }

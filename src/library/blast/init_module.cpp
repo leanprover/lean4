@@ -20,7 +20,7 @@ void initialize_blast_module() {
 }
 void finalize_blast_module() {
     finalize_blast_tactic();
-    blast::finalize_simplifier();    
+    blast::finalize_simplifier();
     finalize_blast();
     blast::finalize_branch();
     blast::finalize_expr();

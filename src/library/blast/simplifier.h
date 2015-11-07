@@ -29,7 +29,6 @@ public:
 
     /* The following assumes that [e] and [m_new] are definitionally equal */
     void update(expr const & e) { m_new = e; }
-        
 };
 
 }

@@ -19,7 +19,7 @@ protected:
     levels              m_umetas;
     std::vector<expr>   m_emetas;
     std::vector<bool>   m_instances;
-    
+
     expr                m_lhs;
     expr                m_rhs;
     expr                m_proof;
@@ -32,7 +32,7 @@ public:
 
     expr const & get_emeta(unsigned i) const { return m_emetas[i]; }
     bool is_instance(unsigned i) const { return m_instances[i]; }
-    
+
     expr const & get_lhs() const { return m_lhs; }
     expr const & get_rhs() const { return m_rhs; }
     expr const & get_proof() const { return m_proof; }
@@ -59,7 +59,7 @@ class congr_rule : public simp_rule_core {
                std::vector<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof,
                list<expr> const & congr_hyps);
     friend void add_congr_core(tmp_type_context & tctx, simp_rule_sets & s, name const & n);
-public:    
+public:
     friend bool operator==(congr_rule const & r1, congr_rule const & r2);
     list<expr> const & get_congr_hyps() const { return m_congr_hyps; }
     format pp(formatter const & fmt) const;

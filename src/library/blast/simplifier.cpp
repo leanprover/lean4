@@ -237,7 +237,7 @@ result simplifier::simplify(expr const & e) {
     flet<unsigned> inc_depth(m_depth, m_depth+1);
 
     if (m_trace) {
-        ios().get_diagnostic_channel() << m_num_steps << "." << m_depth << "." << m_rel << ": " << e << "\n";
+        ios().get_diagnostic_channel() << m_depth << "." << m_rel << ": " << e << "\n";
     }
 
     if (m_num_steps > m_max_steps)
@@ -405,6 +405,11 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
 
     if (!tmp_tctx->is_def_eq(e,sr.get_lhs())) return result(e);
 
+    if (m_trace) {
+        ios().get_diagnostic_channel() << "[" << sr.get_id() << "]\n";
+    }
+    
+
     /* Traverse metavariables backwards */
     for (int i = sr.get_num_emeta() - 1; i >= 0; --i) {
         expr const & m = sr.get_emeta(i);
@@ -508,6 +513,10 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
     blast_tmp_type_context tmp_tctx(cr.get_num_umeta(),cr.get_num_emeta());
 
     if (!tmp_tctx->is_def_eq(e,cr.get_lhs())) return result(e);
+
+    if (m_trace) {
+        ios().get_diagnostic_channel() << "<" << cr.get_id() << ">\n";
+    }
     
     /* First, iterate over the congruence hypotheses */
     bool failed = false;

@@ -1291,7 +1291,19 @@ static environment congr_lemma_cmd(parser & p) {
     auto r = cm.mk_congr_simp(e);
     if (!r)
         throw parser_error("failed to generated congruence lemma", pos);
-    p.regular_stream() << r->get_proof() << "\n:\n" << r->get_type() << "\n";;
+    auto out = p.regular_stream();
+    out << "[";
+    bool first = true;
+    for (auto k : r->get_arg_kinds()) {
+        if (!first) out << ", "; else first = false;
+        switch (k) {
+        case congr_lemma_manager::congr_arg_kind::Fixed: out << "fixed"; break;
+        case congr_lemma_manager::congr_arg_kind::Eq:    out << "eq";    break;
+        case congr_lemma_manager::congr_arg_kind::Cast:  out << "cast";  break;
+        }
+    }
+    out << "]\n";
+    out << r->get_proof() << "\n:\n" << r->get_type() << "\n";;
     type_checker tc(env);
     expr type = tc.check(r->get_proof(), ls).first;
     if (!tc.is_def_eq(type, r->get_type()).first)

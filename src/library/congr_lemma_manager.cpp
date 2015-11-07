@@ -95,10 +95,6 @@ class congr_lemma_manager::imp {
     }
 
     optional<result> mk_congr_simp(expr const & fn, buffer<param_info> const & pinfos, buffer<congr_arg_kind> const & kinds) {
-        for (unsigned i = 0; i < kinds.size(); i++)
-            std::cout << (unsigned)kinds[i] << " ";
-        std::cout << "\n";
-
         expr fn_type = whnf(infer(fn));
         name e_name("e");
         buffer<expr> lhss;
@@ -142,8 +138,6 @@ class congr_lemma_manager::imp {
                 eqs.push_back(none_expr());
                 break;
             }}
-            // std::cout << lhss.back() << "\n";
-            // std::cout << rhss.back() << "\n\n";
             fn_type  = whnf(instantiate(binding_body(fn_type), lhs));
         }
         expr lhs = mk_app(fn, lhss);

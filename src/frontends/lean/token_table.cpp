@@ -106,7 +106,8 @@ void init_token_table(token_table & t) {
     char const * commands[] =
         {"theorem", "axiom", "axioms", "variable", "protected", "private", "reveal",
          "definition", "example", "coercion", "abbreviation", "noncomputable",
-         "variables", "parameter", "parameters", "constant", "constants", "[persistent]", "[visible]", "[instance]", "[trans_instance]",
+         "variables", "parameter", "parameters", "constant", "constants",
+         "[persistent]", "[visible]", "[instance]", "[trans_instance]",
          "[none]", "[class]", "[coercion]", "[reducible]", "[irreducible]", "[semireducible]", "[quasireducible]",
          "[simp]", "[congr]", "[parsing_only]", "[multiple_instances]", "[symm]", "[trans]", "[refl]", "[subst]", "[recursor",
          "evaluate", "check", "eval", "[wf]", "[whnf]", "[priority", "[unfold_full]", "[unfold_hints]",
@@ -119,7 +120,8 @@ void init_token_table(token_table & t) {
          "add_begin_end_tactic", "set_begin_end_tactic", "instance", "class",
          "multiple_instances", "find_decl", "attribute", "persistent",
          "include", "omit", "migrate", "init_quotient", "init_hits", "#erase_cache", "#projections", "#telescope_eq",
-         "#compile", "#accessible", "#decl_stats", "#relevant_thms", "#app_builder", "#refl", "#symm", "#trans", "#replace", nullptr};
+         "#compile", "#accessible", "#decl_stats", "#relevant_thms", "#app_builder", "#refl", "#symm",
+         "#trans", "#replace", "#congr", nullptr};
 
     pair<char const *, char const *> aliases[] =
         {{g_lambda_unicode, "fun"}, {"forall", "Pi"}, {g_forall_unicode, "Pi"}, {g_pi_unicode, "Pi"},

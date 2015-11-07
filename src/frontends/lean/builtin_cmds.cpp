@@ -42,6 +42,7 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/meng_paulson.h"
 #include "library/fun_info_manager.h"
+#include "library/congr_lemma_manager.h"
 #include "library/definitional/projection.h"
 #include "library/simplifier/simp_rule_set.h"
 #include "compiler/preprocess_rec.h"
@@ -1259,7 +1260,6 @@ static void parse_expr_vector(parser & p, buffer<expr> & r) {
 static environment replace_cmd(parser & p) {
     environment const & env = p.env();
     auto pos = p.pos();
-    app_builder b(env);
     expr e; level_param_names ls;
     buffer<expr> from;
     buffer<expr> to;
@@ -1276,6 +1276,25 @@ static environment replace_cmd(parser & p) {
     if (!r)
         throw parser_error("#replace commad failed", pos);
     p.regular_stream() << *r << "\n";
+    return env;
+}
+
+static environment congr_lemma_cmd(parser & p) {
+    environment const & env = p.env();
+    auto pos = p.pos();
+    expr e; level_param_names ls;
+    std::tie(e, ls) = parse_local_expr(p);
+    tmp_type_context    ctx(env, p.ios());
+    app_builder         b(ctx);
+    fun_info_manager    infom(ctx);
+    congr_lemma_manager cm(b, infom);
+    auto r = cm.mk_congr_simp(e);
+    if (!r)
+        throw parser_error("failed to generated congruence lemma", pos);
+    p.regular_stream() << r->first << "\n";;
+    type_checker tc(env);
+    expr type = tc.check(r->first, ls).first;
+    p.regular_stream() << type << "\n";
     return env;
 }
 
@@ -1308,6 +1327,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#symm",             "(for debugging purposes)", symm_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
     add_cmd(r, cmd_info("#replace",          "(for debugging purposes)", replace_cmd));
+    add_cmd(r, cmd_info("#congr",            "(for debugging purposes)", congr_lemma_cmd));
     add_cmd(r, cmd_info("#accessible",       "(for debugging purposes) display number of accessible declarations for blast tactic", accessible_cmd));
     add_cmd(r, cmd_info("#decl_stats",       "(for debugging purposes) display declaration statistics", decl_stats_cmd));
     add_cmd(r, cmd_info("#relevant_thms",    "(for debugging purposes) select relevant theorems using Meng&Paulson heuristic", relevant_thms_cmd));

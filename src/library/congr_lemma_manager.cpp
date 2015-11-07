@@ -148,12 +148,15 @@ public:
         if (r != m_cache.end())
             return optional<result>(r->second);
         fun_info finfo = m_fmanager.get(fn);
+        list<unsigned> const & result_deps = finfo.get_dependencies();
         buffer<congr_arg_kind> kinds;
         buffer<param_info>     pinfos;
         to_buffer(finfo.get_params_info(), pinfos);
         kinds.resize(pinfos.size(), congr_arg_kind::Eq);
         for (unsigned i = 0; i < pinfos.size(); i++) {
-            if (pinfos[i].is_subsingleton()) {
+            if (std::find(result_deps.begin(), result_deps.end(), i) != result_deps.end()) {
+                kinds[i] = congr_arg_kind::Fixed;
+            } else if (pinfos[i].is_subsingleton()) {
                 if (empty(pinfos[i].get_dependencies()))
                     kinds[i] = congr_arg_kind::Fixed;
                 else

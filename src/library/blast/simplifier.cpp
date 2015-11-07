@@ -113,8 +113,9 @@ class simplifier {
     bool                                         m_trace{get_simplify_trace()};
     
     /* Cache */
-    typedef expr_bi_struct_map<result>           simplify_cache;
-    std::map<name,simplify_cache,name_quick_cmp> m_simplify_cache;
+    typedef expr_bi_struct_map<result>                   simplify_cache;
+    typedef std::map<name,simplify_cache,name_quick_cmp> simplify_caches;
+    simplify_caches                                      m_simplify_caches;
 
     optional<result> cache_lookup(expr const & e);
     void cache_save(expr const & e, result const & r);
@@ -168,13 +169,13 @@ simplifier::simplifier(branch const & b, name const & rel):
 
 /* Cache */
 optional<result> simplifier::cache_lookup(expr const & e) {
-    simplify_cache & cache = m_simplify_cache[m_rel];
+    simplify_cache & cache = m_simplify_caches[m_rel];
     auto it = cache.find(e);
     if (it != cache.end()) return optional<result>(it->second);
     return optional<result>();
 }
 void simplifier::cache_save(expr const & e, result const & r) {
-    simplify_cache & cache = m_simplify_cache[m_rel];
+    simplify_cache & cache = m_simplify_caches[m_rel];
     cache.insert(mk_pair(e,r));
 }
 
@@ -237,7 +238,7 @@ result simplifier::simplify(expr const & e) {
     flet<unsigned> inc_depth(m_depth, m_depth+1);
 
     if (m_trace) {
-        ios().get_diagnostic_channel() << m_depth << "." << m_rel << ": " << e << "\n";
+        ios().get_diagnostic_channel() << m_depth << "." << m_rel << "." << m_local_ctx << " " << e << "\n";
     }
 
     if (m_num_steps > m_max_steps)
@@ -530,7 +531,7 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
         while (is_pi(m_type)) {
             expr d = instantiate_rev(binding_domain(m_type), ls.size(), ls.data());
             expr l = tmp_tctx->mk_tmp_local(d,binding_info(e));
-            ls.push_back(l);
+            ls.push_back(tmp_tctx->instantiate_uvars_mvars(l));
             m_type = instantiate(binding_body(m_type),l);
         }
 
@@ -539,7 +540,10 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
         lean_assert(valid);
         {
             flet<name> set_name(m_rel,const_name(h_rel));
-            flet<list<expr>> set_local_ctx(m_local_ctx,to_list(ls));
+            flet<list<expr> > set_local_ctx(m_local_ctx,append(m_local_ctx,to_list(ls)));
+            simplify_caches fresh_caches;
+            flet<simplify_caches> set_simplify_caches(m_simplify_caches,fresh_caches);
+            
             h_lhs = tmp_tctx->instantiate_uvars_mvars(h_lhs);
             result r_congr_hyp = simplify(h_lhs);
             expr hyp;

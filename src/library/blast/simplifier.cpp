@@ -276,11 +276,9 @@ result simplifier::simplify(expr const & e) {
     case expr_kind::Var:
         lean_unreachable();
     case expr_kind::Macro:
-        /* TODO
         if (m_expand_macros) {
-            if (auto m = blast::expand_macro(e)) r = join(r,simplify(whnf(*m)));
+            if (auto m = m_tmp_tctx->expand_macro(e)) r = join(r,simplify(whnf(*m)));
         }
-        */
         break;
     case expr_kind::Lambda:
         if (using_eq()) r = join(r,simplify_lambda(r.get_new()));

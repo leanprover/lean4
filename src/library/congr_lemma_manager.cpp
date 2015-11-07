@@ -255,7 +255,7 @@ public:
         if (new_r) {
             m_cache.insert(mk_pair(key(fn, nargs), *new_r));
             return new_r;
-        } if (has_cast(kinds)) {
+        } else if (has_cast(kinds)) {
             // remove casts and try again
             for (unsigned i = 0; i < kinds.size(); i++) {
                 if (kinds[i] == congr_arg_kind::Cast)

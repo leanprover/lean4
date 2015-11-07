@@ -11,6 +11,8 @@ bool.tt
 char
 char.mk
 congr
+congr_arg
+congr_fun
 dite
 div
 empty

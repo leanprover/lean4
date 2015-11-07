@@ -16,6 +16,7 @@ class congr_lemma_manager::imp {
     app_builder &      m_builder;
     fun_info_manager & m_fmanager;
     type_context &     m_ctx;
+    bool               m_ignore_inst_implicit;
     struct key {
         expr const & m_fn;
         unsigned     m_nargs;
@@ -94,6 +95,37 @@ class congr_lemma_manager::imp {
         }
     }
 
+    bool has_cast(buffer<congr_arg_kind> const & kinds) {
+        return std::find(kinds.begin(), kinds.end(), congr_arg_kind::Cast) != kinds.end();
+    }
+
+    optional<expr> mk_simple_congr_proof(expr const & fn, buffer<expr> const & lhss,
+                                         buffer<optional<expr>> const & eqs, buffer<congr_arg_kind> const & kinds) {
+        unsigned i = 0;
+        for (; i < kinds.size(); i++) {
+            if (kinds[i] != congr_arg_kind::Fixed)
+                break;
+        }
+        expr g = mk_app(fn, i, lhss.data());
+        if (i == kinds.size())
+            return m_builder.mk_eq_refl(g);
+        lean_assert(kinds[i] == congr_arg_kind::Eq);
+        lean_assert(eqs[i]);
+        optional<expr> pr = m_builder.mk_congr_arg(g, *eqs[i]);
+        if (!pr) return none_expr();
+        i++;
+        for (; i < kinds.size(); i++) {
+            if (kinds[i] == congr_arg_kind::Eq) {
+                pr = m_builder.mk_congr(*pr, *eqs[i]);
+            } else {
+                lean_assert(kinds[i] == congr_arg_kind::Fixed);
+                pr = m_builder.mk_congr_fun(*pr, lhss[i]);
+            }
+            if (!pr) return none_expr();
+        }
+        return pr;
+    }
+
     optional<result> mk_congr_simp(expr const & fn, buffer<param_info> const & pinfos, buffer<congr_arg_kind> const & kinds) {
         expr fn_type = whnf(infer(fn));
         name e_name("e");
@@ -146,15 +178,21 @@ class congr_lemma_manager::imp {
         if (!eq)
             return optional<result>();
         expr congr_type  = Pi(hyps, *eq);
-        auto congr_proof = m_builder.mk_sorry(congr_type);
-        if (!congr_proof)
-            return optional<result>();
+        optional<expr> congr_proof;
+        if (has_cast(kinds)) {
+            // TODO(Leo):
+            congr_proof = m_builder.mk_sorry(congr_type);
+        } else {
+            congr_proof = mk_simple_congr_proof(fn, lhss, eqs, kinds);
+        }
+        if (!congr_proof) return optional<result>();
+        congr_proof = Fun(hyps, *congr_proof);
         return optional<result>(congr_type, *congr_proof, to_list(kinds));
     }
 
 public:
-    imp(app_builder & b, fun_info_manager & fm):
-        m_builder(b), m_fmanager(fm), m_ctx(fm.ctx()) {}
+    imp(app_builder & b, fun_info_manager & fm, bool ignore_inst_implicit):
+        m_builder(b), m_fmanager(fm), m_ctx(fm.ctx()), m_ignore_inst_implicit(ignore_inst_implicit) {}
 
     optional<result> mk_congr_simp(expr const & fn) {
         fun_info finfo = m_fmanager.get(fn);
@@ -179,6 +217,9 @@ public:
                     kinds[i] = congr_arg_kind::Fixed;
                 else
                     kinds[i] = congr_arg_kind::Cast;
+            } else if (pinfos[i].is_inst_implicit()) {
+                lean_assert(!pinfos[i].is_subsingleton());
+                kinds[i] = congr_arg_kind::Fixed;
             }
         }
         for (unsigned i = 0; i < pinfos.size(); i++) {
@@ -206,8 +247,8 @@ public:
     }
 };
 
-congr_lemma_manager::congr_lemma_manager(app_builder & b, fun_info_manager & fm):
-    m_ptr(new imp(b, fm)) {
+congr_lemma_manager::congr_lemma_manager(app_builder & b, fun_info_manager & fm, bool ignore_inst_implicit):
+    m_ptr(new imp(b, fm, ignore_inst_implicit)) {
 }
 
 congr_lemma_manager::~congr_lemma_manager() {

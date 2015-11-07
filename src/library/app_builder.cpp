@@ -260,6 +260,10 @@ struct app_builder::imp {
         return some_expr(m_ctx->instantiate_uvars_mvars(e->m_app));
     }
 
+    optional<expr> mk_app(name const & c, std::initializer_list<expr> const & it) {
+        return mk_app(c, it.size(), it.begin());
+    }
+
     static unsigned get_nargs(unsigned mask_sz, bool const * mask) {
         unsigned nargs = 0;
         for (unsigned i = 0; i < mask_sz; i++) {
@@ -447,6 +451,22 @@ struct app_builder::imp {
         name const & eqrec = is_standard(m_ctx->env()) ? get_eq_drec_name() : get_eq_rec_name();
         return some_expr(::lean::mk_app({mk_constant(eqrec, {l_1, *A_lvl}), A, lhs, motive, H1, rhs, H2}));
     }
+
+    optional<expr> mk_congr_arg(expr const & f, expr const & H) {
+        // TODO(Leo): efficient version
+
+        return mk_app(get_congr_arg_name(), {f, H});
+    }
+
+    optional<expr> mk_congr_fun(expr const & H, expr const & a) {
+        // TODO(Leo): efficient version
+        return mk_app(get_congr_fun_name(), {H, a});
+    }
+
+    optional<expr> mk_congr(expr const & H1, expr const & H2) {
+        // TODO(Leo): efficient version
+        return mk_app(get_congr_name(), {H1, H2});
+    }
 };
 
 app_builder::app_builder(environment const & env, io_state const & ios, reducible_behavior b):
@@ -525,6 +545,18 @@ optional<expr> app_builder::mk_eq_rec(expr const & C, expr const & H1, expr cons
 
 optional<expr> app_builder::mk_eq_drec(expr const & C, expr const & H1, expr const & H2) {
     return m_ptr->mk_eq_drec(C, H1, H2);
+}
+
+optional<expr> app_builder::mk_congr_arg(expr const & f, expr const & H) {
+    return m_ptr->mk_congr_arg(f, H);
+}
+
+optional<expr> app_builder::mk_congr_fun(expr const & H, expr const & a) {
+    return m_ptr->mk_congr_fun(H, a);
+}
+
+optional<expr> app_builder::mk_congr(expr const & H1, expr const & H2) {
+    return m_ptr->mk_congr(H1, H2);
 }
 
 optional<expr> app_builder::mk_sorry(expr const & type) {

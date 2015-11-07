@@ -2,7 +2,17 @@ section
 variables p : nat → Prop
 variables q : nat → nat → Prop
 variables f : Π (x y : nat), p x → q x y → nat
+example : (0:nat) = 0 := sorry
+
+#congr @add
+
+#congr p
+
+#congr iff
+
 end
+
+exit
 
 
 section

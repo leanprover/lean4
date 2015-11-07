@@ -14,7 +14,14 @@ class congr_lemma_manager {
     struct imp;
     std::unique_ptr<imp> m_ptr;
 public:
-    congr_lemma_manager(app_builder & b, fun_info_manager & fm);
+    /** \brief When ignore_inst_implicit is set to true, then
+        for type class instance implicit arguments that are *not* subsingletons,
+        the mananger will create congruence lemmas where these arguments remain fixed.
+        This is the behavior we want most of the time. For example, when creating a
+        congruence for
+             add : Pi {A : Type} [s : has_add A], A -> A -> A
+        we want the argumet s to remain fixed. */
+    congr_lemma_manager(app_builder & b, fun_info_manager & fm, bool ignore_inst_implicit = true);
     ~congr_lemma_manager();
 
     enum class congr_arg_kind { Fixed, Eq, Cast };

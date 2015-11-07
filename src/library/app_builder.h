@@ -106,6 +106,10 @@ public:
         because eq.rec is a dependent eliminator in HoTT. */
     optional<expr> mk_eq_drec(expr const & C, expr const & H1, expr const & H2);
 
+    optional<expr> mk_congr_arg(expr const & f, expr const & H);
+    optional<expr> mk_congr_fun(expr const & H, expr const & a);
+    optional<expr> mk_congr(expr const & H1, expr const & H2);
+
     /** \brief Create (@sorry type) */
     optional<expr> mk_sorry(expr const & type);
 

@@ -70,18 +70,18 @@ class congr_lemma_manager::imp {
                 use_drec  = true;
                 motive    = Fun(rhs, Fun(*major, type));
                 // We compute new_type by replacing rhs with lhs and *major with eq.refl(lhs) in type.
-                new_type  = instantiate(abstract(type, rhs), lhs);
+                new_type  = instantiate(abstract_local(type, rhs), lhs);
                 auto refl = m_builder.mk_eq_refl(lhs);
                 if (!refl)
                     return none_expr();
-                new_type  = instantiate(abstract(new_type, *major), *refl);
+                new_type  = instantiate(abstract_local(new_type, *major), *refl);
             } else {
                 // type does not depend on the *major.
                 // So, the motive is just (fun rhs, type), and
                 // new_type just replaces rhs with lhs.
                 use_drec = false;
                 motive   = Fun(rhs, type);
-                new_type = instantiate(abstract(type, rhs), lhs);
+                new_type = instantiate(abstract_local(type, rhs), lhs);
             }
             auto minor = cast(e, new_type, tail(deps), eqs);
             if (!minor)

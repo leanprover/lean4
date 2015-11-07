@@ -16,9 +16,9 @@ fun_info_manager::fun_info_manager(type_context & ctx):
     m_ctx(ctx) {
 }
 
-list<unsigned> fun_info_manager::collect_deps(expr const & e, buffer<expr> const & locals) {
+list<unsigned> fun_info_manager::collect_deps(expr const & type, buffer<expr> const & locals) {
     buffer<unsigned> deps;
-    for_each(e, [&](expr const & e, unsigned) {
+    for_each(type, [&](expr const & e, unsigned) {
             if (m_ctx.is_tmp_local(e)) {
                 unsigned idx;
                 for (idx = 0; idx < locals.size(); idx++)
@@ -42,16 +42,18 @@ auto fun_info_manager::get(expr const & e) -> fun_info {
     while (is_pi(type)) {
         expr local      = m_ctx.mk_tmp_local_from_binding(type);
         expr local_type = m_ctx.infer(local);
+        expr new_type   = m_ctx.whnf(instantiate(binding_body(type), local));
         bool is_prop    = m_ctx.is_prop(local_type);
-        // TODO(Leo): check if the following line is a performance bottleneck.
         bool is_sub     = is_prop;
         bool is_dep     = !closed(binding_body(type));
-        expr new_type   = m_ctx.whnf(instantiate(binding_body(type), local));
-        if (!is_sub)
+        if (!is_sub) {
+            // TODO(Leo): check if the following line is a performance bottleneck.
             is_sub = static_cast<bool>(m_ctx.mk_subsingleton_instance(local_type));
+        }
         info.emplace_back(binding_info(type).is_implicit(),
                           binding_info(type).is_inst_implicit(),
                           is_prop, is_sub, is_dep, collect_deps(local_type, locals));
+        locals.push_back(local);
         type = new_type;
     }
     fun_info r(info.size(), to_list(info), collect_deps(type, locals));

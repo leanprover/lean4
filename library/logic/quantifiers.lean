@@ -126,17 +126,14 @@ end
 section
   variables {A : Type} {p₁ p₂ : A → Prop} (H : ∀ x, p₁ x ↔ p₂ x)
 
-  theorem congr_forall [congr] : (∀ x, p₁ x) ↔ (∀ x, p₂ x) :=
+  theorem congr_forall : (∀ x, p₁ x) ↔ (∀ x, p₂ x) :=
   forall_congr H
 
-  theorem congr_exists [congr] : (∃ x, p₁ x) ↔ (∃ x, p₂ x) :=
+  theorem congr_exists : (∃ x, p₁ x) ↔ (∃ x, p₂ x) :=
   exists_congr H
 
   include H
-  theorem congr_exists_unique [congr] : (∃! x, p₁ x) ↔ (∃! x, p₂ x) :=
+  theorem congr_exists_unique : (∃! x, p₁ x) ↔ (∃! x, p₂ x) :=
    congr_exists (λx, congr_and (H x) (congr_forall
      (λy, congr_imp (H y) iff.rfl)))
 end
-
-/- We add this attribute again here so that the simplifier finds it before [congr_forall] -/
-attribute congr_imp [congr]

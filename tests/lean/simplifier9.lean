@@ -1,6 +1,9 @@
 -- Rewriting with (tmp)-local hypotheses
 import logic.quantifiers
 
+attribute congr_forall [congr]
+attribute congr_imp [congr]
+
 universe l
 constants (T : Type.{l}) (P Q : T → Prop) 
 

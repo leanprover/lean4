@@ -1,6 +1,9 @@
 /- Basic pi congruence -/
 import logic.connectives logic.quantifiers
 
+attribute congr_forall [congr]
+attribute congr_imp [congr]
+
 namespace pi_congr1
 constants (p1 q1 p2 q2 p3 q3 : Prop) (H1 : p1 ↔ q1) (H2 : p2 ↔ q2) (H3 : p3 ↔ q3)
 local attribute H1 [simp]

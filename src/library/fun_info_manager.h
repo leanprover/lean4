@@ -49,6 +49,9 @@ public:
     fun_info_manager(type_context & ctx);
     type_context & ctx() { return m_ctx; }
     fun_info get(expr const & e);
+    /** \brief Return information assuming the function has only nargs.
+        \pre nargs <= get(e).get_arity() */
+    fun_info get(expr const & e, unsigned nargs);
 };
 
 

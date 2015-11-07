@@ -61,6 +61,27 @@ auto fun_info_manager::get(expr const & e) -> fun_info {
     return r;
 }
 
+auto fun_info_manager::get(expr const & e, unsigned nargs) -> fun_info {
+    auto r = get(e);
+    lean_assert(nargs <= r.get_arity());
+    if (nargs == r.get_arity()) {
+        return r;
+    } else {
+        buffer<param_info> pinfos;
+        to_buffer(r.get_params_info(), pinfos);
+        buffer<unsigned> rdeps;
+        to_buffer(r.get_dependencies(), rdeps);
+        for (unsigned i = nargs; i < pinfos.size(); i++) {
+            for (auto d : pinfos[i].get_dependencies()) {
+                if (std::find(rdeps.begin(), rdeps.end(), d) == rdeps.end())
+                    rdeps.push_back(d);
+            }
+        }
+        pinfos.shrink(nargs);
+        return fun_info(nargs, to_list(pinfos), to_list(rdeps));
+    }
+}
+
 struct replace_fn : public replace_visitor {
     fun_info_manager & m_infom;
     type_context &     m_ctx;

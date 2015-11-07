@@ -661,7 +661,7 @@ unsigned hash_bi(expr const & e) {
 }
 
 void initialize_expr() {
-    g_dummy        = new expr(mk_var(0));
+    g_dummy        = new expr(mk_constant("__expr_for_default_constructor__"));
     g_default_name = new name("a");
     g_Type1        = new expr(mk_sort(mk_level_one()));
     g_Prop         = new expr(mk_sort(mk_level_zero()));

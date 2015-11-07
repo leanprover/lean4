@@ -1291,10 +1291,11 @@ static environment congr_lemma_cmd(parser & p) {
     auto r = cm.mk_congr_simp(e);
     if (!r)
         throw parser_error("failed to generated congruence lemma", pos);
-    p.regular_stream() << r->first << "\n";;
+    p.regular_stream() << r->get_proof() << "\n:\n" << r->get_type() << "\n";;
     type_checker tc(env);
-    expr type = tc.check(r->first, ls).first;
-    p.regular_stream() << type << "\n";
+    expr type = tc.check(r->get_proof(), ls).first;
+    if (!tc.is_def_eq(type, r->get_type()).first)
+        throw parser_error("congruence lemma reported type does not match given type", pos);
     return env;
 }
 

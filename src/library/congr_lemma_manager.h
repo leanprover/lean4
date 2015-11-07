@@ -19,7 +19,19 @@ public:
 
     enum class congr_arg_kind { Fixed, Eq, Cast };
 
-    typedef pair<expr, list<congr_arg_kind>> result;
+    class result {
+        expr                 m_type;
+        expr                 m_proof;
+        list<congr_arg_kind> m_arg_kinds;
+    public:
+        result(expr const & type, expr const & proof, list<congr_arg_kind> const & ks):
+            m_type(type), m_proof(proof), m_arg_kinds(ks) {}
+        expr const & get_type() const { return m_type; }
+        expr const & get_proof() const { return m_proof; }
+        list<congr_arg_kind> const & get_arg_kinds() const { return m_arg_kinds; }
+    };
+
     optional<result> mk_congr_simp(expr const & fn);
+    optional<result> mk_congr_simp(expr const & fn, unsigned nargs);
 };
 }

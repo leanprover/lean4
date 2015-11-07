@@ -16,7 +16,25 @@ class congr_lemma_manager::imp {
     app_builder &      m_builder;
     fun_info_manager & m_fmanager;
     type_context &     m_ctx;
-    expr_map<result>   m_cache;
+    struct key {
+        expr const & m_fn;
+        unsigned     m_nargs;
+        unsigned     m_hash;
+        key(expr const & fn, unsigned nargs):
+            m_fn(fn), m_nargs(nargs), m_hash(hash(m_fn.hash(), m_nargs)) {}
+    };
+
+    struct key_hash_fn {
+        unsigned operator()(key const & k) const { return k.m_hash; }
+    };
+
+    struct key_eq_fn {
+        bool operator()(key const & k1, key const & k2) const {
+            return k1.m_fn == k2.m_fn && k1.m_nargs == k2.m_nargs;
+        }
+    };
+
+    std::unordered_map<key, result, key_hash_fn, key_eq_fn> m_cache;
 
     struct failure {
         unsigned m_arg_idx;
@@ -133,10 +151,11 @@ class congr_lemma_manager::imp {
         auto eq  = m_builder.mk_eq(lhs, rhs);
         if (!eq)
             return optional<result>();
-        expr congr_type = Pi(hyps, *eq);
-        std::cout << congr_type << "\n";
-        // TODO(Leo): create proof
-        lean_unreachable();
+        expr congr_type  = Pi(hyps, *eq);
+        auto congr_proof = m_builder.mk_sorry(congr_type);
+        if (!congr_proof)
+            return optional<result>();
+        return optional<result>(congr_type, *congr_proof, to_list(kinds));
     }
 
 public:
@@ -144,10 +163,15 @@ public:
         m_builder(b), m_fmanager(fm), m_ctx(fm.ctx()) {}
 
     optional<result> mk_congr_simp(expr const & fn) {
-        auto r = m_cache.find(fn);
+        fun_info finfo = m_fmanager.get(fn);
+        return mk_congr_simp(fn, finfo.get_arity());
+    }
+
+    optional<result> mk_congr_simp(expr const & fn, unsigned nargs) {
+        auto r = m_cache.find(key(fn, nargs));
         if (r != m_cache.end())
             return optional<result>(r->second);
-        fun_info finfo = m_fmanager.get(fn);
+        fun_info finfo = m_fmanager.get(fn, nargs);
         list<unsigned> const & result_deps = finfo.get_dependencies();
         buffer<congr_arg_kind> kinds;
         buffer<param_info>     pinfos;
@@ -179,7 +203,7 @@ public:
             try {
                 auto new_r = mk_congr_simp(fn, pinfos, kinds);
                 if (new_r)
-                    m_cache.insert(mk_pair(fn, *new_r));
+                    m_cache.insert(mk_pair(key(fn, nargs), *new_r));
                 return new_r;
             } catch (failure & ex) {
                 kinds[ex.m_arg_idx] = congr_arg_kind::Fixed;
@@ -197,5 +221,8 @@ congr_lemma_manager::~congr_lemma_manager() {
 
 auto congr_lemma_manager::mk_congr_simp(expr const & fn) -> optional<result> {
     return m_ptr->mk_congr_simp(fn);
+}
+auto congr_lemma_manager::mk_congr_simp(expr const & fn, unsigned nargs) -> optional<result> {
+    return m_ptr->mk_congr_simp(fn, nargs);
 }
 }

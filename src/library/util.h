@@ -159,7 +159,10 @@ expr mk_subst(type_checker & tc, expr const & motive, expr const & x, expr const
 expr mk_subst(type_checker & tc, expr const & motive, expr const & xeqy, expr const & h);
 /** \brief Create an proof for x = y using subsingleton.elim (in standard mode) and is_trunc.is_hprop.elim (in HoTT mode) */
 expr mk_subsingleton_elim(type_checker & tc, expr const & h, expr const & x, expr const & y);
-bool is_eq_rec(expr const & e);
+
+/** \brief Return true iff \c e is a term of the form (eq.rec ....) */
+bool is_eq_rec_core(expr const & e);
+
 bool is_eq(expr const & e);
 bool is_eq(expr const & e, expr & lhs, expr & rhs);
 /** \brief Return true iff \c e is of the form (eq A a a) */

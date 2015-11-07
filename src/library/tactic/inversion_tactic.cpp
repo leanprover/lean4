@@ -552,7 +552,7 @@ class inversion_tac {
         expr const & eq  = binding_domain(type);
         expr const & lhs = app_arg(app_fn(eq));
         expr const & rhs = app_arg(eq);
-        lean_assert(is_eq_rec(lhs));
+        lean_assert(is_eq_rec_core(lhs));
         // lhs is of the form  (eq.rec A s C a s p)
         // aux_eq is a term of type ((eq.rec A s C a s p) = a)
         auto aux_eq = apply_eq_rec_eq(m_tc, m_ios, to_list(hyps), lhs);
@@ -656,7 +656,7 @@ class inversion_tac {
                 eq   = mk_app(app_fn(app_fn(eq)), new_lhs, new_rhs);
                 type = update_binding(type, eq, binding_body(type));
             }
-            if (!m_proof_irrel && is_eq_rec(new_lhs)) {
+            if (!m_proof_irrel && is_eq_rec_core(new_lhs)) {
                 return intro_next_eq_rec(g, type);
             } else {
                 return intro_next_eq_simple(g, type);

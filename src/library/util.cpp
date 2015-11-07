@@ -575,7 +575,7 @@ expr mk_heq(type_checker & tc, expr const & lhs, expr const & rhs) {
     return mk_app(mk_constant(get_heq_name(), {lvl}), A, lhs, B, rhs);
 }
 
-bool is_eq_rec(expr const & e) {
+bool is_eq_rec_core(expr const & e) {
     expr const & fn = get_app_fn(e);
     return is_constant(fn) && const_name(fn) == get_eq_rec_name();
 }

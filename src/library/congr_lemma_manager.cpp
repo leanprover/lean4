@@ -37,11 +37,6 @@ class congr_lemma_manager::imp {
 
     std::unordered_map<key, result, key_hash_fn, key_eq_fn> m_cache;
 
-    struct failure {
-        unsigned m_arg_idx;
-        failure(unsigned i):m_arg_idx(i) {}
-    };
-
     expr infer(expr const & e) { return m_ctx.infer(e); }
     expr whnf(expr const & e) { return m_ctx.whnf(e); }
 
@@ -256,15 +251,25 @@ public:
                 }
             }
         }
-        while (true) {
-            try {
-                auto new_r = mk_congr_simp(fn, pinfos, kinds);
-                if (new_r)
-                    m_cache.insert(mk_pair(key(fn, nargs), *new_r));
-                return new_r;
-            } catch (failure & ex) {
-                kinds[ex.m_arg_idx] = congr_arg_kind::Fixed;
+        auto new_r = mk_congr_simp(fn, pinfos, kinds);
+        if (new_r) {
+            m_cache.insert(mk_pair(key(fn, nargs), *new_r));
+            return new_r;
+        } if (has_cast(kinds)) {
+            // remove casts and try again
+            for (unsigned i = 0; i < kinds.size(); i++) {
+                if (kinds[i] == congr_arg_kind::Cast)
+                    kinds[i] = congr_arg_kind::Fixed;
             }
+            auto new_r = mk_congr_simp(fn, pinfos, kinds);
+            if (new_r) {
+                m_cache.insert(mk_pair(key(fn, nargs), *new_r));
+                return new_r;
+            } else {
+                return new_r;
+            }
+        } else {
+            return new_r;
         }
     }
 };

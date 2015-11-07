@@ -7,17 +7,12 @@ constant T : Type.{l}
 constants (x y z : T → T) (f g h : (T →  T) → (T →  T)) (a b c : T)
 constants (Hfxgy : f x = g y) (Hgyhz : g y = h z) (Hab : a = b) (Hbc : b = c)
 
-#simplify eq 2 (f x a) -- f x a
 
 attribute Hfxgy [simp]
 attribute Hgyhz [simp]
 attribute Hab [simp]
 attribute Hbc [simp]
 
-set_option simplify.exhaustive false
-#simplify eq 2 (f x a) -- g y b
-
-set_option simplify.exhaustive true
 #simplify eq 2 (f x a) -- h z c
 
 end test_congr

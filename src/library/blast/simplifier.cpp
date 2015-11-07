@@ -98,6 +98,7 @@ class simplifier {
     name                                         m_rel;
 
     list<expr>                                   m_local_ctx;
+    simp_rule_sets                               m_ctx_srss;
 
     /* Logging */
     unsigned                                     m_num_steps{0};
@@ -129,6 +130,17 @@ class simplifier {
         return has_free_vars(binding_body(f_type));
     }
 
+    simp_rule_sets add_to_srss(simp_rule_sets const & _srss, buffer<expr> & ls) {
+        simp_rule_sets srss = _srss;
+        for (unsigned i = 0; i < ls.size(); i++) {
+            // TODO assert no metas?
+            expr & l = ls[i];
+            tmp_type_context tctx(env(),ios());
+            srss = add(tctx,srss,mlocal_name(l),tctx.infer(l),l);
+        }
+        return srss;
+    }
+
     /* Results */
     result lift_from_eq(expr const & x, result const & r);
     result join(result const & r1, result const & r2);        
@@ -143,9 +155,9 @@ class simplifier {
     result simplify_fun(expr const & e);
     
     /* Rewriting */
-    result rewrite(expr const & e);    
+    result rewrite(expr const & e);
+    result rewrite(expr const & e, simp_rule_sets const & srss);        
     result rewrite(expr const & e, simp_rule const & sr);
-    void init_tmp_tctx_for(simp_rule_core const & sr);
 
     /* Congruence */
     result congr(result const & r_f, result const & r_arg);        
@@ -168,6 +180,7 @@ simplifier::simplifier(branch const & b, name const & rel):
     m_app_builder(*m_tmp_tctx), m_branch(b), m_rel(rel) { }
 
 /* Cache */
+
 optional<result> simplifier::cache_lookup(expr const & e) {
     simplify_cache & cache = m_simplify_caches[m_rel];
     auto it = cache.find(e);
@@ -178,7 +191,6 @@ void simplifier::cache_save(expr const & e, result const & r) {
     simplify_cache & cache = m_simplify_caches[m_rel];
     cache.insert(mk_pair(e,r));
 }
-
 
 /* Results */
 
@@ -375,29 +387,29 @@ result simplifier::simplify_fun(expr const & e) {
 
 result simplifier::rewrite(expr const & e) {
     result r(e);
+    while (true) {
+        result r_ctx = rewrite(r.get_new(),m_ctx_srss);
+        result r_new = rewrite(r_ctx.get_new(),get_simp_rule_sets(env()));
+        if (r_ctx.is_none() && r_new.is_none()) break;
+        r = join(join(r,r_ctx),r_new);
+    }
+    return r;
+}
 
-    /* First, we rewrite with local hypotheses */
-    //TODO
-
-    /* Next, we rewrite with the [simp_rule_set] */
-    simp_rule_set const * sr = get_simp_rule_sets(env()).find(m_rel);
+result simplifier::rewrite(expr const & e, simp_rule_sets const & srss) {
+    result r(e);
+    
+    simp_rule_set const * sr = srss.find(m_rel);
     if (!sr) return r;
 
     list<simp_rule> const * srs = sr->find_simp(e);
     if (!srs) return r;
 
-    bool modified = true;
-    while (modified) {
-        modified = false;
-        for_each(*srs,[&](simp_rule const & sr) {
-                result r_rew = rewrite(r.get_new(),sr);
-                if (r_rew.is_none()) return;
-                r = join(r,r_rew);
-                modified = true;
-            }
-            );
-    }
-    
+    for_each(*srs,[&](simp_rule const & sr) {
+            result r_new = rewrite(r.get_new(),sr);
+            if (r_new.is_none()) return;
+            r = join(r,r_new);
+        });
     return r;
 }
 
@@ -407,9 +419,11 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
     if (!tmp_tctx->is_def_eq(e,sr.get_lhs())) return result(e);
 
     if (m_trace) {
-        ios().get_diagnostic_channel() << "[" << sr.get_id() << "]\n";
+        expr new_lhs = tmp_tctx->instantiate_uvars_mvars(sr.get_lhs());
+        expr new_rhs = tmp_tctx->instantiate_uvars_mvars(sr.get_rhs());
+        ios().get_diagnostic_channel() << "[" << sr.get_lhs() << " =?= " << sr.get_rhs() << "] ==> ";        
+        ios().get_diagnostic_channel() << "[" << new_lhs << " =?= " << new_rhs << "]\n";
     }
-    
 
     /* Traverse metavariables backwards */
     for (int i = sr.get_num_emeta() - 1; i >= 0; --i) {
@@ -428,9 +442,16 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
 
         if (tmp_tctx->is_mvar_assigned(i)) continue;
 
+        // TODO REMOVE DEBUG
+        expr m_assigned = tmp_tctx->instantiate_uvars_mvars(m);
+
         if (tmp_tctx->is_prop(tmp_tctx->infer(m))) {
             // TODO try to prove
             return result(e);
+        }
+
+        if (m_trace) {
+            ios().get_diagnostic_channel() << "failed to assign: " << m << "\n";
         }
 
         /* We fail if there is a meta variable that we still cannot assign */
@@ -516,7 +537,8 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
     if (!tmp_tctx->is_def_eq(e,cr.get_lhs())) return result(e);
 
     if (m_trace) {
-        ios().get_diagnostic_channel() << "<" << cr.get_id() << ">\n";
+        ios().get_diagnostic_channel() << "<" << cr.get_id() << "> " 
+                                       << e << " === " << cr.get_lhs() << "\n";
     }
     
     /* First, iterate over the congruence hypotheses */
@@ -531,7 +553,7 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
         while (is_pi(m_type)) {
             expr d = instantiate_rev(binding_domain(m_type), ls.size(), ls.data());
             expr l = tmp_tctx->mk_tmp_local(d,binding_info(e));
-            ls.push_back(tmp_tctx->instantiate_uvars_mvars(l));
+            ls.push_back(l);
             m_type = instantiate(binding_body(m_type),l);
         }
 
@@ -539,10 +561,14 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
         bool valid = is_simp_relation(env(), m_type, h_rel, h_lhs, h_rhs) && is_constant(h_rel);
         lean_assert(valid);
         {
+            simplify_caches fresh_caches;            
+            flet<simplify_caches> set_simplify_caches(m_simplify_caches,fresh_caches);            
             flet<name> set_name(m_rel,const_name(h_rel));
-            flet<list<expr> > set_local_ctx(m_local_ctx,append(m_local_ctx,to_list(ls)));
-            simplify_caches fresh_caches;
-            flet<simplify_caches> set_simplify_caches(m_simplify_caches,fresh_caches);
+            
+            buffer<expr> ls_instantiated;
+            for (unsigned i = 0; i < ls.size(); i++) ls_instantiated.push_back(tmp_tctx->instantiate_uvars_mvars(ls[i]));
+            
+            flet<simp_rule_sets> set_ctx_srss(m_ctx_srss,add_to_srss(m_ctx_srss,ls_instantiated));
             
             h_lhs = tmp_tctx->instantiate_uvars_mvars(h_lhs);
             result r_congr_hyp = simplify(h_lhs);
@@ -554,11 +580,14 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
                 hyp = r_congr_hyp.get_proof();
                 simplified = true;
             }
-            hyp = Fun(ls,hyp);
+
+            hyp = Fun(ls_instantiated,hyp);
             if (!tmp_tctx->is_def_eq(m,hyp)) failed = true;
         }
         });
+    
     if (failed || !simplified) return result(e);
+    
     /* Traverse metavariables backwards, proving or synthesizing the rest */
     for (int i = cr.get_num_emeta() - 1; i >= 0; --i) {
         expr const & m = cr.get_emeta(i);
@@ -579,6 +608,11 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
         if (tmp_tctx->is_prop(tmp_tctx->infer(m))) {
             // TODO try to prove
             return result(e);
+        }
+
+        if (m_trace) {
+            ios().get_diagnostic_channel() << "failed to assign: " << tmp_tctx->instantiate_uvars_mvars(m) << " : "
+                                           << tmp_tctx->instantiate_uvars_mvars(tmp_tctx->infer(m)) << "\n";
         }
 
         /* We fail if there is a meta variable that we still cannot assign */

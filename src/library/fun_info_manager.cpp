@@ -16,6 +16,23 @@ fun_info_manager::fun_info_manager(type_context & ctx):
     m_ctx(ctx) {
 }
 
+list<unsigned> fun_info_manager::collect_deps(expr const & e, buffer<expr> const & locals) {
+    buffer<unsigned> deps;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (m_ctx.is_tmp_local(e)) {
+                unsigned idx;
+                for (idx = 0; idx < locals.size(); idx++)
+                    if (locals[idx] == e)
+                        break;
+                if (idx < locals.size() && std::find(deps.begin(), deps.end(), idx) == deps.end())
+                    deps.push_back(idx);
+            }
+            return has_local(e); // continue the search only if e has locals
+        });
+    std::sort(deps.begin(), deps.end());
+    return to_list(deps);
+}
+
 auto fun_info_manager::get(expr const & e) -> fun_info {
     if (auto r = m_fun_info.find(e))
         return *r;
@@ -28,28 +45,16 @@ auto fun_info_manager::get(expr const & e) -> fun_info {
         bool is_prop    = m_ctx.is_prop(local_type);
         // TODO(Leo): check if the following line is a performance bottleneck.
         bool is_sub     = is_prop;
+        bool is_dep     = !closed(binding_body(type));
+        expr new_type   = m_ctx.whnf(instantiate(binding_body(type), local));
         if (!is_sub)
             is_sub = static_cast<bool>(m_ctx.mk_subsingleton_instance(local_type));
-        buffer<unsigned> deps;
-        for_each(local_type, [&](expr const & e, unsigned) {
-                if (m_ctx.is_tmp_local(e)) {
-                    unsigned idx;
-                    for (idx = 0; idx < locals.size(); idx++)
-                        if (locals[idx] == e)
-                            break;
-                    if (idx < locals.size() && std::find(deps.begin(), deps.end(), idx) == deps.end())
-                        deps.push_back(idx);
-                }
-                return has_local(e); // continue the search only if e has locals
-            });
-        std::sort(deps.begin(), deps.end());
-        locals.push_back(local);
         info.emplace_back(binding_info(type).is_implicit(),
                           binding_info(type).is_inst_implicit(),
-                          is_prop, is_sub, to_list(deps));
-        type = m_ctx.whnf(instantiate(binding_body(type), local));
+                          is_prop, is_sub, is_dep, collect_deps(local_type, locals));
+        type = new_type;
     }
-    fun_info r(info.size(), to_list(info));
+    fun_info r(info.size(), to_list(info), collect_deps(type, locals));
     m_fun_info.insert(e, r);
     return r;
 }

@@ -440,7 +440,7 @@ struct app_builder::imp {
             return none_expr();
         expr A      = m_ctx->infer(lhs);
         auto A_lvl  = get_level(A);
-        expr mtype  = m_ctx->whnf(m_ctx->infer(H1));
+        expr mtype  = m_ctx->whnf(m_ctx->infer(motive));
         if (!is_pi(mtype) || !is_pi(binding_body(mtype)) || !is_sort(binding_body(binding_body(mtype))))
             return none_expr();
         level l_1    = sort_level(binding_body(binding_body(mtype)));

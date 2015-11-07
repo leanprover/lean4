@@ -10,7 +10,7 @@ simplification rules for iff
 #1, 0 < succ ?M_1 ↦ true
 simplification rules for eq
 #1, g ?M_1 ↦ f ?M_1 + 1
-#2, g ?M_1 ↦ 1
+#2, g ?M_3 ↦ 1
 #2, f ?M_1 ↦ 0
 #4, ite ?M_1 ?M_4 ?M_4 ↦ ?M_4
 #1, 0 - ?M_1 ↦ 0

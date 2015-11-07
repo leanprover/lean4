@@ -60,8 +60,6 @@ class congr_lemma_manager::imp {
             lean_verify(is_eq(mlocal_type(*major), lhs, rhs));
             lean_assert(is_local(lhs));
             lean_assert(is_local(rhs));
-            // We compute the motive by replacing rhs with the fresh local x,
-            // and major with fresh local H.
             // We compute the new type by replacing rhs with lhs, and major with (refl lhs).
             expr motive, new_type;
             bool use_drec;
@@ -126,6 +124,31 @@ class congr_lemma_manager::imp {
         return pr;
     }
 
+    optional<expr> mk_congr_proof(unsigned i, expr const & lhs, expr const & rhs, buffer<optional<expr>> const & eqs) {
+        if (i == eqs.size()) {
+            return m_builder.mk_eq_refl(rhs);
+        } else if (!eqs[i]) {
+            return mk_congr_proof(i+1, lhs, rhs, eqs);
+        } else {
+            expr major = *eqs[i];
+            expr x_1, x_2;
+            lean_verify(is_eq(mlocal_type(major), x_1, x_2));
+            lean_assert(is_local(x_1));
+            lean_assert(is_local(x_2));
+            auto motive_eq = m_builder.mk_eq(lhs, rhs);
+            if (!motive_eq) return none_expr();
+            expr motive  = Fun(x_2, Fun(major, *motive_eq));
+            // We compute the new_rhs by replacing x_2 with x_1 and major with (eq.refl x_1) in rhs.
+            expr new_rhs = instantiate(abstract_local(rhs, x_2), x_1);
+            auto x1_refl = m_builder.mk_eq_refl(x_1);
+            if (!x1_refl) return none_expr();
+            new_rhs      = instantiate(abstract_local(new_rhs, major), *x1_refl);
+            auto minor   = mk_congr_proof(i+1, lhs, new_rhs, eqs);
+            if (!minor) return none_expr();
+            return m_builder.mk_eq_drec(motive, *minor, major);
+        }
+    }
+
     optional<result> mk_congr_simp(expr const & fn, buffer<param_info> const & pinfos, buffer<congr_arg_kind> const & kinds) {
         expr fn_type = whnf(infer(fn));
         name e_name("e");
@@ -180,8 +203,7 @@ class congr_lemma_manager::imp {
         expr congr_type  = Pi(hyps, *eq);
         optional<expr> congr_proof;
         if (has_cast(kinds)) {
-            // TODO(Leo):
-            congr_proof = m_builder.mk_sorry(congr_type);
+            congr_proof = mk_congr_proof(0, lhs, rhs, eqs);
         } else {
             congr_proof = mk_simple_congr_proof(fn, lhss, eqs, kinds);
         }

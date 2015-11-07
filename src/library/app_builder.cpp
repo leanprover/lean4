@@ -527,6 +527,10 @@ optional<expr> app_builder::mk_eq_drec(expr const & C, expr const & H1, expr con
     return m_ptr->mk_eq_drec(C, H1, H2);
 }
 
+optional<expr> app_builder::mk_sorry(expr const & type) {
+    return mk_app(get_sorry_name(), type);
+}
+
 void app_builder::set_local_instances(list<expr> const & insts) {
     m_ptr->m_ctx->set_local_instances(insts);
 }

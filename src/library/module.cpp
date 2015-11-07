@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/noncomputable.h"
 #include "library/sorry.h"
+#include "library/constants.h"
 #include "library/kernel_serializer.h"
 #include "library/unfold_macros.h"
 #include "library/decl_stats.h"

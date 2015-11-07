@@ -106,6 +106,9 @@ public:
         because eq.rec is a dependent eliminator in HoTT. */
     optional<expr> mk_eq_drec(expr const & C, expr const & H1, expr const & H2);
 
+    /** \brief Create (@sorry type) */
+    optional<expr> mk_sorry(expr const & type);
+
     /** \brief Set the local instances. This method is relevant when we want to expose local class instances
         to the app_builder.
 

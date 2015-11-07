@@ -88,6 +88,7 @@ name const * g_rat_divide = nullptr;
 name const * g_rat_of_num = nullptr;
 name const * g_sigma = nullptr;
 name const * g_sigma_mk = nullptr;
+name const * g_sorry = nullptr;
 name const * g_string = nullptr;
 name const * g_string_empty = nullptr;
 name const * g_string_str = nullptr;
@@ -245,6 +246,7 @@ void initialize_constants() {
     g_rat_of_num = new name{"rat", "of_num"};
     g_sigma = new name{"sigma"};
     g_sigma_mk = new name{"sigma", "mk"};
+    g_sorry = new name{"sorry"};
     g_string = new name{"string"};
     g_string_empty = new name{"string", "empty"};
     g_string_str = new name{"string", "str"};
@@ -403,6 +405,7 @@ void finalize_constants() {
     delete g_rat_of_num;
     delete g_sigma;
     delete g_sigma_mk;
+    delete g_sorry;
     delete g_string;
     delete g_string_empty;
     delete g_string_str;
@@ -560,6 +563,7 @@ name const & get_rat_divide_name() { return *g_rat_divide; }
 name const & get_rat_of_num_name() { return *g_rat_of_num; }
 name const & get_sigma_name() { return *g_sigma; }
 name const & get_sigma_mk_name() { return *g_sigma_mk; }
+name const & get_sorry_name() { return *g_sorry; }
 name const & get_string_name() { return *g_string; }
 name const & get_string_empty_name() { return *g_string_empty; }
 name const & get_string_str_name() { return *g_string_str; }

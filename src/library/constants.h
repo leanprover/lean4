@@ -90,6 +90,7 @@ name const & get_rat_divide_name();
 name const & get_rat_of_num_name();
 name const & get_sigma_name();
 name const & get_sigma_mk_name();
+name const & get_sorry_name();
 name const & get_string_name();
 name const & get_string_empty_name();
 name const & get_string_str_name();

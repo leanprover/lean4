@@ -131,7 +131,6 @@ class simplifier {
     simp_rule_sets add_to_srss(simp_rule_sets const & _srss, buffer<expr> & ls) {
         simp_rule_sets srss = _srss;
         for (unsigned i = 0; i < ls.size(); i++) {
-            // TODO(dhs): assert no metas
             expr & l = ls[i];
             tmp_type_context tctx(env(), ios());
             srss = add(tctx, srss, mlocal_name(l), tctx.infer(l), l);
@@ -408,7 +407,7 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
     blast_tmp_type_context tmp_tctx(sr.get_num_umeta(), sr.get_num_emeta());
 
     if (!tmp_tctx->is_def_eq(e, sr.get_lhs())) return result(e);
-
+    
     if (m_trace) {
         expr new_lhs = tmp_tctx->instantiate_uvars_mvars(sr.get_lhs());
         expr new_rhs = tmp_tctx->instantiate_uvars_mvars(sr.get_rhs());
@@ -422,8 +421,10 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
         expr const & m = sr.get_emeta(i);
         bool is_instance = sr.is_instance(i);
 
+        expr m_type = tmp_tctx->instantiate_uvars_mvars(tmp_tctx->infer(m));
+        lean_assert(!has_metavar(m_type));
+        
         if (is_instance) {
-            expr m_type = tmp_tctx->instantiate_uvars_mvars(tmp_tctx->infer(m));
             if (auto v = tmp_tctx->mk_class_instance(m_type)) {
                 if (!tmp_tctx->force_assign(m, *v)) {
                     if (m_trace) {
@@ -441,7 +442,6 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
 
         if (tmp_tctx->is_mvar_assigned(i)) continue;
 
-        expr m_type = tmp_tctx->instantiate_uvars_mvars(tmp_tctx->infer(m));
         if (tmp_tctx->is_prop(m_type)) {
             flet<name> set_name(m_rel, get_iff_name());
             result r_cond = simplify(m_type);
@@ -563,6 +563,7 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
         while (is_pi(m_type)) {
             expr d = instantiate_rev(binding_domain(m_type), ls.size(), ls.data());
             expr l = tmp_tctx->mk_tmp_local(d, binding_info(m_type));
+            lean_assert(!has_metavar(l));
             ls.push_back(l);
             m_type = instantiate(binding_body(m_type), l);
         }
@@ -578,6 +579,8 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
             flet<simp_rule_sets> set_ctx_srss(m_ctx_srss, add_to_srss(m_ctx_srss, ls));
 
             h_lhs = tmp_tctx->instantiate_uvars_mvars(h_lhs);
+            lean_assert(!has_metavar(h_lhs));
+
             result r_congr_hyp = simplify(h_lhs);
             expr hyp;
             if (r_congr_hyp.is_none()) {

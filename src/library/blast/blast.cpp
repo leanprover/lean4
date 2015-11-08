@@ -36,6 +36,7 @@ class blastenv {
     io_state                   m_ios;
     name_generator             m_ngen;
     tmp_local_generator        m_tmp_local_generator;
+    list<expr>                 m_initial_context; // for setting type_context local instances
     name_set                   m_lemma_hints;
     name_set                   m_unfold_hints;
     name_map<level>            m_uvar2uref;    // map global universe metavariables to blast uref's
@@ -366,6 +367,17 @@ class blastenv {
 
     tctx m_tctx;
 
+    void save_initial_context() {
+        branch const & b = m_curr_state.get_main_branch();
+        hypothesis_idx_buffer hidxs;
+        b.get_sorted_hypotheses(hidxs);
+        buffer<expr> ctx;
+        for (unsigned hidx : hidxs) {
+            ctx.push_back(mk_href(hidx));
+        }
+        m_initial_context = to_list(ctx);
+    }
+
 public:
     blastenv(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds):
         m_env(env), m_ios(ios), m_ngen(*g_prefix), m_lemma_hints(to_name_set(ls)), m_unfold_hints(to_name_set(ds)),
@@ -386,8 +398,9 @@ public:
 
     void init_state(goal const & g) {
         m_curr_state = to_state(g);
-
-        // TODO(Leo): set local instances for type class resolution at tctx
+        save_initial_context();
+        m_tctx.set_local_instances(m_initial_context);
+        m_tmp_ctx->set_local_instances(m_initial_context);
     }
 
     optional<expr> operator()(goal const & g) {
@@ -648,7 +661,7 @@ tmp_type_context * blastenv::mk_tmp_type_context() {
         r = m_tmp_ctx_pool.back();
         m_tmp_ctx_pool.pop_back();
     }
-    // TODO(Leo): set local context
+    r->set_local_instances(m_initial_context);
     return r;
 }
 

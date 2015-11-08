@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/class.h"
 #include "library/type_context.h"
+#include "library/congr_lemma_manager.h"
 #include "library/projection.h"
 #include "library/tactic/goal.h"
 #include "library/blast/expr.h"
@@ -29,6 +30,7 @@ static name * g_tmp_prefix = nullptr;
 class blastenv {
     friend class scope_assignment;
     typedef std::vector<tmp_type_context *> tmp_type_context_pool;
+    typedef std::unique_ptr<tmp_type_context> tmp_type_context_ptr;
 
     environment                m_env;
     io_state                   m_ios;
@@ -44,6 +46,10 @@ class blastenv {
     name_map<projection_info>  m_projection_info;
     state                      m_curr_state;   // current state
     tmp_type_context_pool      m_tmp_ctx_pool;
+    tmp_type_context_ptr       m_tmp_ctx; // for app_builder and congr_lemma_manager
+    app_builder                m_app_builder;
+    fun_info_manager           m_fun_info_manager;
+    congr_lemma_manager        m_congr_lemma_manager;
 
     class tctx : public type_context {
         blastenv &         m_benv;
@@ -366,6 +372,10 @@ public:
         m_not_reducible_pred(mk_not_reducible_pred(env)),
         m_class_pred(mk_class_pred(env)),
         m_instance_pred(mk_instance_pred(env)),
+        m_tmp_ctx(mk_tmp_type_context()),
+        m_app_builder(*m_tmp_ctx),
+        m_fun_info_manager(*m_tmp_ctx),
+        m_congr_lemma_manager(m_app_builder, m_fun_info_manager),
         m_tctx(*this) {
     }
 
@@ -421,6 +431,22 @@ public:
         lean_assert(ctx);
         ctx->clear();
         m_tmp_ctx_pool.push_back(ctx);
+    }
+
+    optional<congr_lemma> mk_congr_lemma_for_simp(expr const & fn, unsigned num_args) {
+        return m_congr_lemma_manager.mk_congr_simp(fn, num_args);
+    }
+
+    optional<congr_lemma> mk_congr_lemma_for_simp(expr const & fn) {
+        return m_congr_lemma_manager.mk_congr_simp(fn);
+    }
+
+    fun_info get_fun_info(expr const & fn) {
+        return m_fun_info_manager.get(fn);
+    }
+
+    fun_info get_fun_info(expr const & fn, unsigned nargs) {
+        return m_fun_info_manager.get(fn, nargs);
     }
 
     /** \brief Convert an external expression into a blast expression
@@ -494,6 +520,26 @@ optional<expr> mk_class_instance(expr const & e) {
 expr mk_fresh_local(expr const & type, binder_info const & bi) {
     lean_assert(g_blastenv);
     return g_blastenv->mk_fresh_local(type, bi);
+}
+
+optional<congr_lemma> mk_congr_lemma_for_simp(expr const & fn, unsigned num_args) {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_congr_lemma_for_simp(fn, num_args);
+}
+
+optional<congr_lemma> mk_congr_lemma_for_simp(expr const & fn) {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_congr_lemma_for_simp(fn);
+}
+
+fun_info get_fun_info(expr const & fn) {
+    lean_assert(g_blastenv);
+    return g_blastenv->get_fun_info(fn);
+}
+
+fun_info get_fun_info(expr const & fn, unsigned nargs) {
+    lean_assert(g_blastenv);
+    return g_blastenv->get_fun_info(fn, nargs);
 }
 
 void display_curr_state() {

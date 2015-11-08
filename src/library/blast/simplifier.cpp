@@ -407,7 +407,7 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
     blast_tmp_type_context tmp_tctx(sr.get_num_umeta(), sr.get_num_emeta());
 
     if (!tmp_tctx->is_def_eq(e, sr.get_lhs())) return result(e);
-    
+
     if (m_trace) {
         expr new_lhs = tmp_tctx->instantiate_uvars_mvars(sr.get_lhs());
         expr new_rhs = tmp_tctx->instantiate_uvars_mvars(sr.get_rhs());
@@ -423,7 +423,7 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
 
         expr m_type = tmp_tctx->instantiate_uvars_mvars(tmp_tctx->infer(m));
         lean_assert(!has_metavar(m_type));
-        
+
         if (is_instance) {
             if (auto v = tmp_tctx->mk_class_instance(m_type)) {
                 if (!tmp_tctx->force_assign(m, *v)) {

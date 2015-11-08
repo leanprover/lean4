@@ -22,6 +22,8 @@ namespace blast {
 environment const & env();
 /** \brief Return the thread local io_state being used by the blast tactic. */
 io_state const & ios();
+/** \brief Return reference to blast thread local app_builder */
+app_builder & get_app_builder();
 /** \brief Return the thread local current state begin processed by the blast tactic. */
 state & curr_state();
 /** \brief Return a thread local fresh local constant. */

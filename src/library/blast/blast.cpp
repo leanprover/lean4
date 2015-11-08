@@ -457,6 +457,10 @@ public:
         name_map<expr> local2href;
         return to_blast_expr_fn(m_env, m_curr_state, m_uvar2uref, m_mvar2meta_mref, local2href)(e);
     }
+
+    app_builder & get_app_builder() {
+        return m_app_builder;
+    }
 };
 
 LEAN_THREAD_PTR(blastenv, g_blastenv);
@@ -475,6 +479,11 @@ environment const & env() {
 io_state const & ios() {
     lean_assert(g_blastenv);
     return g_blastenv->get_ios();
+}
+
+app_builder & get_app_builder() {
+    lean_assert(g_blastenv);
+    return g_blastenv->get_app_builder();
 }
 
 state & curr_state() {

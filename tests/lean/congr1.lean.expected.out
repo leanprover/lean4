@@ -1,0 +1,39 @@
+[fixed, fixed, eq, eq]
+λ (A : Type) (c : has_add A) (a a_1 : A) (e_3 : a = a_1) (a_2 a_3 : A) (e_4 : a_2 = a_3), congr (congr_arg add e_3) e_4
+:
+∀ (A : Type) (c : has_add A) (a a_1 : A), a = a_1 → (∀ (a_2 a_3 : A), a_2 = a_3 → a + a_2 = a_1 + a_3)
+[eq, cast, fixed, eq, eq]
+λ (c c_1 : Prop) (e_1 : c = c_1) (H : decidable c) (A : Type) (t t_1 : A) (e_4 : t = t_1) (e e_2 : A) (e_5 : e = e_2),
+  eq.drec (eq.drec (eq.drec (eq.refl (ite c t e)) e_5) e_4) e_1
+:
+∀ (c c_1 : Prop) (e_1 : c = c_1) (H : decidable c) (A : Type) (t t_1 : A),
+  t = t_1 → (∀ (e e_2 : A), e = e_2 → ite c t e = ite c_1 t_1 e_2)
+[fixed, eq, eq]
+λ (A : Type) (a a_1 : list A) (e_2 : a = a_1) (a_2 a_3 : list A) (e_3 : a_2 = a_3), congr (congr_arg perm e_2) e_3
+:
+∀ (A : Type) (a a_1 : list A), a = a_1 → (∀ (a_2 a_3 : list A), a_2 = a_3 → perm a a_2 = perm a_1 a_3)
+[eq, eq, cast, cast]
+λ (x x_1 : ℕ) (e_1 : x = x_1) (y y_1 : ℕ) (e_2 : y = y_1) (a : p x) (a_1 : q x y),
+  eq.drec (eq.drec (eq.refl (f x y (eq.rec a (eq.refl x)) (eq.rec (eq.rec a_1 (eq.refl y)) (eq.refl x)))) e_2) e_1
+:
+∀ (x x_1 : ℕ) (e_1 : x = x_1) (y y_1 : ℕ) (e_2 : y = y_1) (a : p x) (a_1 : q x y),
+  f x y a a_1 = f x_1 y_1 (eq.rec a e_1) (eq.rec (eq.rec a_1 e_2) e_1)
+[fixed, eq, eq, cast, cast, cast, cast, cast, cast]
+λ (A : Type) (n n_1 : A) (e_2 : n = n_1) (m m_1 : A) (e_3 : m = m_1) (H₁ : p n) (H₂ : p m) (H₃ : q n n H₁ H₁)
+(H₄ : q n m H₁ H₂) (H₅ : r n m H₁ H₂ H₄) (H₆ : r n n H₁ H₁ H₃),
+  eq.drec
+    (eq.drec
+       (eq.refl
+          (h A n m (eq.rec H₁ (eq.refl n)) (eq.rec H₂ (eq.refl m)) (eq.drec H₃ (eq.refl n))
+             (eq.drec (eq.drec H₄ (eq.refl m)) (eq.refl n))
+             (eq.drec (eq.drec H₅ (eq.refl m)) (eq.refl n))
+             (eq.drec H₆ (eq.refl n))))
+       e_3)
+    e_2
+:
+∀ (A : Type) (n n_1 : A) (e_2 : n = n_1) (m m_1 : A) (e_3 : m = m_1) (H₁ : p n) (H₂ : p m)
+(H₃ : q n n H₁ H₁) (H₄ : q n m H₁ H₂) (H₅ : r n m H₁ H₂ H₄) (H₆ : r n n H₁ H₁ H₃),
+  h A n m H₁ H₂ H₃ H₄ H₅ H₆ = h A n_1 m_1 (eq.rec H₁ e_2) (eq.rec H₂ e_3) (eq.drec H₃ e_2)
+    (eq.drec (eq.drec H₄ e_3) e_2)
+    (eq.drec (eq.drec H₅ e_3) e_2)
+    (eq.drec H₆ e_2)

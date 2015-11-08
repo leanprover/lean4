@@ -15,9 +15,14 @@ attribute right_distrib [simp]
 attribute mul.comm [simp]
 attribute mul.assoc [simp]
 
+attribute zero_add [simp]
+attribute add_zero [simp]
+attribute one_mul [simp]
+attribute mul_one [simp]
+
 theorem add.o2 [simp] {A : Type} [s : add_comm_semigroup A] (a b c : A) :
   a + (b + c) = b + (a + c) := sorry
 
-#simplify eq 0 x2 + (g x1 + (f x3 * 3 * (x2 + g x1 * 7) * x2)) + 5 * (x4 + f x1)
+#simplify eq 0 x2 + (1 * g x1 + 0 + (f x3 * 3 * 1 * (x2 + 0 + g x1 * 7) * x2 * 1)) + 5 * (x4 + f x1)
 
 

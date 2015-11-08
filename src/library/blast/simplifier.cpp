@@ -467,8 +467,7 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
             result r_cond = simplify(m_type);
             if (is_constant(r_cond.get_new()) && const_name(r_cond.get_new()) == get_true_name()) {
                 expr pf = m_app_builder.mk_app(name("iff", "elim_right"), finalize(r_cond).get_proof(), mk_constant(get_true_intro_name()));
-                bool success = tmp_tctx->is_def_eq(m, pf);
-                lean_assert(success);
+                lean_verify(tmp_tctx->is_def_eq(m, pf));
                 continue;
             }
         }
@@ -580,8 +579,7 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
         }
 
         expr h_rel, h_lhs, h_rhs;
-        bool valid = is_simp_relation(env(), m_type, h_rel, h_lhs, h_rhs) && is_constant(h_rel);
-        lean_assert(valid);
+        lean_verify(is_simp_relation(env(), m_type, h_rel, h_lhs, h_rhs) && is_constant(h_rel));
         {
             simplify_caches fresh_caches;
             flet<simplify_caches> set_simplify_caches(m_simplify_caches, fresh_caches);

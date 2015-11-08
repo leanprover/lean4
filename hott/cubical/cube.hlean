@@ -65,14 +65,20 @@ namespace eq
     {p₄₀₁ : a₄₀₀ = a₄₀₂} {p₄₁₀ : a₄₀₀ = a₄₂₀} {p₄₁₂ : a₄₀₂ = a₄₂₂} {p₄₂₁ : a₄₂₀ = a₄₂₂}
     {p₀₃₀ : a₀₂₀ = a₀₄₀} {p₀₃₂ : a₀₂₂ = a₀₄₂} {p₂₃₀ : a₂₂₀ = a₂₄₀} {p₂₃₂ : a₂₂₂ = a₂₄₂}
     {p₀₄₁ : a₀₄₀ = a₀₄₂} {p₁₄₀ : a₀₄₀ = a₂₄₀} {p₁₄₂ : a₀₄₂ = a₂₄₂} {p₂₄₁ : a₂₄₀ = a₂₄₂}
+    {p₀₀₃ : a₀₀₂ = a₀₀₄} {p₀₂₃ : a₀₂₂ = a₀₂₄} {p₂₀₃ : a₂₀₂ = a₂₀₄} {p₂₂₃ : a₂₂₂ = a₂₂₄}
+    {p₀₁₄ : a₀₀₄ = a₀₂₄} {p₁₀₄ : a₀₀₄ = a₂₀₄} {p₁₂₄ : a₀₂₄ = a₂₂₄} {p₂₁₄ : a₂₀₄ = a₂₂₄}
     {s₃₀₁ : square p₃₀₀ p₃₀₂ p₂₀₁ p₄₀₁} {s₃₁₀ : square p₂₁₀ p₄₁₀ p₃₀₀ p₃₂₀}
     {s₃₁₂ : square p₂₁₂ p₄₁₂ p₃₀₂ p₃₂₂} {s₃₂₁ : square p₃₂₀ p₃₂₂ p₂₂₁ p₄₂₁}
     {s₄₁₁ : square p₄₁₀ p₄₁₂ p₄₀₁ p₄₂₁}
     {s₀₃₁ : square p₀₃₀ p₀₃₂ p₀₂₁ p₀₄₁} {s₁₃₀ : square p₀₃₀ p₂₃₀ p₁₂₀ p₁₄₀}
     {s₁₃₂ : square p₀₃₂ p₂₃₂ p₁₂₂ p₁₄₂} {s₂₃₁ : square p₂₃₀ p₂₃₂ p₂₂₁ p₂₄₁}
     {s₁₄₁ : square p₁₄₀ p₁₄₂ p₀₄₁ p₂₄₁}
+    {s₀₁₃ : square p₀₁₂ p₀₁₄ p₀₀₃ p₀₂₃} {s₁₀₃ : square p₁₀₂ p₁₀₄ p₀₀₃ p₂₀₃}
+    {s₁₂₃ : square p₁₂₂ p₁₂₄ p₀₂₃ p₂₂₃} {s₂₁₃ : square p₂₁₂ p₂₁₄ p₂₀₃ p₂₂₃}
+    {s₁₁₄ : square p₀₁₄ p₂₁₄ p₁₀₄ p₁₂₄}
     (d : cube s₂₁₁ s₄₁₁ s₃₀₁ s₃₂₁ s₃₁₀ s₃₁₂)
     (e : cube s₀₃₁ s₂₃₁ s₁₂₁ s₁₄₁ s₁₃₀ s₁₃₂)
+    (f : cube s₀₁₃ s₂₁₃ s₁₀₃ s₁₂₃ s₁₁₂ s₁₁₄)
 
   /- Composition of Cubes -/
 
@@ -84,7 +90,12 @@ namespace eq
   include e
   definition cube_concat2 : cube (s₀₁₁ ⬝h s₀₃₁) (s₂₁₁ ⬝h s₂₃₁) s₁₀₁ s₁₄₁ (s₁₁₀ ⬝h s₁₃₀) (s₁₁₂ ⬝h s₁₃₂) :=
   by induction e; exact c
-  omit c e
+  omit e
+
+  include f
+  definition cube_concat3 : cube (s₀₁₁ ⬝v s₀₁₃) (s₂₁₁ ⬝v s₂₁₃) (s₁₀₁ ⬝v s₁₀₃) (s₁₂₁ ⬝v s₁₂₃) s₁₁₀ s₁₁₄ :=
+  by induction f; exact c
+  omit f c
 
   definition eq_of_cube (c : cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) :
     transpose s₁₀₁⁻¹ᵛ ⬝h s₁₁₀ ⬝h transpose s₁₂₁ =

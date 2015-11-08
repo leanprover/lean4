@@ -1299,9 +1299,9 @@ static environment congr_lemma_cmd(parser & p) {
     for (auto k : r->get_arg_kinds()) {
         if (!first) out << ", "; else first = false;
         switch (k) {
-        case congr_lemma_manager::congr_arg_kind::Fixed: out << "fixed"; break;
-        case congr_lemma_manager::congr_arg_kind::Eq:    out << "eq";    break;
-        case congr_lemma_manager::congr_arg_kind::Cast:  out << "cast";  break;
+        case congr_arg_kind::Fixed: out << "fixed"; break;
+        case congr_arg_kind::Eq:    out << "eq";    break;
+        case congr_arg_kind::Cast:  out << "cast";  break;
         }
     }
     out << "]\n";

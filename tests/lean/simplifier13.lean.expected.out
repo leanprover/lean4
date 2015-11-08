@@ -1,0 +1,1 @@
+c (g x) (g y) (g z) (eq.rec px (Hfg x)) (eq.rec py (Hfg y)) (eq.rec pz (eq.refl (g z)))

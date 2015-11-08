@@ -24,7 +24,7 @@ Author: Daniel Selsam
 #include <map>
 
 #ifndef LEAN_DEFAULT_SIMPLIFY_MAX_STEPS
-#define LEAN_DEFAULT_SIMPLIFY_MAX_STEPS 100
+#define LEAN_DEFAULT_SIMPLIFY_MAX_STEPS 1000
 #endif
 #ifndef LEAN_DEFAULT_SIMPLIFY_TOP_DOWN
 #define LEAN_DEFAULT_SIMPLIFY_TOP_DOWN false
@@ -339,7 +339,38 @@ result simplifier::simplify_app(expr const & e) {
 
     /* (2) Synthesize congruence lemma */
     if (using_eq()) {
-        // TODO(dhs): synthesize congruence lemma
+        buffer<expr> args;
+        expr fn = get_app_args(e, args);
+        if (auto congr_lemma = mk_congr_lemma_for_simp(fn, args.size())) {
+            expr proof = congr_lemma->get_proof();
+            expr type = congr_lemma->get_type();
+            unsigned i = 0;
+            bool simplified = false;
+            buffer<expr> locals;
+            for_each(congr_lemma->get_arg_kinds(), [&](congr_arg_kind const & ckind) {
+                    proof = mk_app(proof, args[i]);
+                    type = instantiate(binding_body(type), args[i]);
+
+                    if (ckind == congr_arg_kind::Eq) {
+                        result r_arg = simplify(args[i]);
+                        if (!r_arg.is_none()) simplified = true;
+                        r_arg = finalize(r_arg);
+                        proof = mk_app(proof, r_arg.get_new(), r_arg.get_proof());
+                        type = instantiate(binding_body(type), r_arg.get_new());
+                        type = instantiate(binding_body(type), r_arg.get_proof());
+                    }
+                    i++;
+                });
+            if (simplified) {
+                lean_assert(is_eq(type));
+                buffer<expr> type_args;
+                get_app_args(type, type_args);
+                expr & new_e = type_args[2];
+                return join(result(new_e, proof), simplify_fun(new_e));
+            } else {
+                return simplify_fun(e);
+            }
+        }
     }
 
     /* (3) Fall back on generic binary congruence */

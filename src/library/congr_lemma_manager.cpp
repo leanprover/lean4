@@ -18,7 +18,7 @@ class congr_lemma_manager::imp {
     type_context &     m_ctx;
     bool               m_ignore_inst_implicit;
     struct key {
-        expr const & m_fn;
+        expr         m_fn;
         unsigned     m_nargs;
         unsigned     m_hash;
         key(expr const & fn, unsigned nargs):

@@ -13,7 +13,7 @@ attribute Hgyhz [simp]
 attribute Hab [simp]
 attribute Hbc [simp]
 
-#simplify eq 2 (f x a) -- h z c
+#simplify eq 2 (f x a)
 
 end test_congr
 

@@ -65,6 +65,9 @@ eq.rec H₁ H₂
 definition congr {A B : Type} {f₁ f₂ : A → B} {a₁ a₂ : A} (H₁ : f₁ = f₂) (H₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂ :=
 eq.subst H₁ (eq.subst H₂ rfl)
 
+theorem congr_fun {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a :=
+eq.subst H (eq.refl (f a))
+
 theorem congr_arg {A B : Type} (a a' : A) (f : A → B) (Ha : a = a') : f a = f a' :=
 eq.subst Ha rfl
 

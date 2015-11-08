@@ -192,17 +192,11 @@ void simplifier::cache_save(expr const & e, result const & r) {
 
 result simplifier::lift_from_eq(expr const & x, result const & r) {
     lean_assert(!r.is_none());
-
     expr l = m_tmp_tctx->mk_tmp_local(m_tmp_tctx->infer(x));
-    auto motive_local = m_app_builder.mk_app(m_rel, x, l);
-    lean_assert(motive_local);
-
-    expr motive = Fun(l, *motive_local);
-
-    auto Rxx = m_app_builder.mk_refl(m_rel, x);
-    lean_assert(Rxx);
-
-    auto pf = m_app_builder.mk_eq_rec(motive, *Rxx, r.get_proof());
+    expr motive_local = m_app_builder.mk_app(m_rel, x, l);
+    expr motive = Fun(l, motive_local);
+    expr Rxx = m_app_builder.mk_refl(m_rel, x);
+    expr pf = m_app_builder.mk_eq_rec(motive, Rxx, r.get_proof());
     return result(r.get_new(), pf);
 }
 
@@ -213,28 +207,23 @@ result simplifier::join(result const & r1, result const & r2) {
     } else if (r2.is_none()) {
         return r1;
     } else {
-        auto trans = m_app_builder.mk_trans(m_rel, r1.get_proof(), r2.get_proof());
-        lean_assert(trans);
-        return result(r2.get_new(), *trans);
+        expr trans = m_app_builder.mk_trans(m_rel, r1.get_proof(), r2.get_proof());
+        return result(r2.get_new(), trans);
     }
 }
 
 result simplifier::funext(result const & r, expr const & l) {
     // theorem funext {f₁ f₂ : Πx : A, B x} : (∀x, f₁ x = f₂ x) → f₁ = f₂ :=
     lean_assert(!r.is_none());
-    expr e = Fun(l, r.get_new());
-    if (auto pf = m_app_builder.mk_app(get_funext_name(), Fun(l, r.get_proof())))
-        return result(e, *pf);
-    else
-        throw blast_exception("failed on [funext] matching", e);
+    expr e  = Fun(l, r.get_new());
+    expr pf = m_app_builder.mk_app(get_funext_name(), Fun(l, r.get_proof()));
+    return result(e, pf);
 }
 
 result simplifier::finalize(result const & r) {
     if (!r.is_none()) return r;
-    if (auto pf = m_app_builder.mk_refl(m_rel, r.get_new()))
-        return result(r.get_new(), *pf);
-    else
-        throw blast_exception("failed on [refl] matching", r.get_new());
+    expr pf = m_app_builder.mk_refl(m_rel, r.get_new());
+    return result(r.get_new(), pf);
 }
 
 /* Simplification */
@@ -477,9 +466,8 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
             flet<name> set_name(m_rel, get_iff_name());
             result r_cond = simplify(m_type);
             if (is_constant(r_cond.get_new()) && const_name(r_cond.get_new()) == get_true_name()) {
-                auto pf = m_app_builder.mk_app(name("iff", "elim_right"), finalize(r_cond).get_proof(), mk_constant(get_true_intro_name()));
-                lean_assert(pf);
-                bool success = tmp_tctx->is_def_eq(m, *pf);
+                expr pf = m_app_builder.mk_app(name("iff", "elim_right"), finalize(r_cond).get_proof(), mk_constant(get_true_intro_name()));
+                bool success = tmp_tctx->is_def_eq(m, pf);
                 lean_assert(success);
                 continue;
             }
@@ -516,31 +504,25 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
 result simplifier::congr(result const & r_f, result const & r_arg) {
     lean_assert(!r_f.is_none() && !r_arg.is_none());
     // theorem congr {A B : Type} {f₁ f₂ : A → B} {a₁ a₂ : A} (H₁ : f₁ = f₂) (H₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂
-    expr e = mk_app(r_f.get_new(), r_arg.get_new());
-    if (auto pf = m_app_builder.mk_app(get_congr_name(), r_f.get_proof(), r_arg.get_proof()))
-        return result(e, *pf);
-    else
-        throw blast_exception("failed on [congr] matching", e);
+    expr e  = mk_app(r_f.get_new(), r_arg.get_new());
+    expr pf = m_app_builder.mk_app(get_congr_name(), r_f.get_proof(), r_arg.get_proof());
+    return result(e, pf);
 }
 
 result simplifier::congr_fun(result const & r_f, expr const & arg) {
     lean_assert(!r_f.is_none());
     // theorem congr_fun {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a
-    expr e = mk_app(r_f.get_new(), arg);
-    if (auto pf = m_app_builder.mk_app(get_congr_fun_name(), r_f.get_proof(), arg))
-        return result(e, *pf);
-    else
-        throw blast_exception("failed on [congr_fun] matching", e);
+    expr e  = mk_app(r_f.get_new(), arg);
+    expr pf = m_app_builder.mk_app(get_congr_fun_name(), r_f.get_proof(), arg);
+    return result(e, pf);
 }
 
 result simplifier::congr_arg(expr const & f, result const & r_arg) {
     lean_assert(!r_arg.is_none());
     // theorem congr_arg {A B : Type} {a₁ a₂ : A} (f : A → B) : a₁ = a₂ → f a₁ = f a₂
-    expr e = mk_app(f, r_arg.get_new());
-    if (auto pf = m_app_builder.mk_app(get_congr_arg_name(), f, r_arg.get_proof()))
-        return result(e, *pf);
-    else
-        throw blast_exception("failed on [congr_arg] matching", e);
+    expr e  = mk_app(f, r_arg.get_new());
+    expr pf = m_app_builder.mk_app(get_congr_arg_name(), f, r_arg.get_proof());
+    return result(e, pf);
 }
 
 result simplifier::congr_funs(result const & r_f, buffer<expr> const & args) {
@@ -549,10 +531,8 @@ result simplifier::congr_funs(result const & r_f, buffer<expr> const & args) {
     expr e = r_f.get_new();
     expr pf = r_f.get_proof();
     for (unsigned i = 0; i < args.size(); ++i) {
-        e = mk_app(e, args[i]);
-        auto p = m_app_builder.mk_app(get_congr_fun_name(), pf, args[i]);
-        if (p) pf = *p;
-        else throw blast_exception("failed on [congr_fun] matching", e);
+        e  = mk_app(e, args[i]);
+        pf = m_app_builder.mk_app(get_congr_fun_name(), pf, args[i]);
     }
     return result(e, pf);
 }

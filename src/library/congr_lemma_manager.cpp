@@ -43,9 +43,9 @@ class congr_lemma_manager::imp {
     /** \brief (Try to) cast expression \c e to the given type using the equations \c eqs.
         \c deps contains the indices of the relevant equalities.
         \remark deps is sorted. */
-    optional<expr> cast(expr const & e, expr const & type, list<unsigned> const & deps, buffer<optional<expr>> const & eqs) {
+    expr cast(expr const & e, expr const & type, list<unsigned> const & deps, buffer<optional<expr>> const & eqs) {
         if (!deps)
-            return some_expr(e);
+            return e;
         unsigned d = head(deps);
         auto major = eqs[d];
         if (!major) {
@@ -65,10 +65,8 @@ class congr_lemma_manager::imp {
                 motive    = Fun(rhs, Fun(*major, type));
                 // We compute new_type by replacing rhs with lhs and *major with eq.refl(lhs) in type.
                 new_type  = instantiate(abstract_local(type, rhs), lhs);
-                auto refl = m_builder.mk_eq_refl(lhs);
-                if (!refl)
-                    return none_expr();
-                new_type  = instantiate(abstract_local(new_type, *major), *refl);
+                expr refl = m_builder.mk_eq_refl(lhs);
+                new_type  = instantiate(abstract_local(new_type, *major), refl);
             } else {
                 // type does not depend on the *major.
                 // So, the motive is just (fun rhs, type), and
@@ -77,13 +75,11 @@ class congr_lemma_manager::imp {
                 motive   = Fun(rhs, type);
                 new_type = instantiate(abstract_local(type, rhs), lhs);
             }
-            auto minor = cast(e, new_type, tail(deps), eqs);
-            if (!minor)
-                return none_expr();
+            expr minor = cast(e, new_type, tail(deps), eqs);
             if (use_drec) {
-                return m_builder.mk_eq_drec(motive, *minor, *major);
+                return m_builder.mk_eq_drec(motive, minor, *major);
             } else {
-                return m_builder.mk_eq_rec(motive, *minor, *major);
+                return m_builder.mk_eq_rec(motive, minor, *major);
             }
         }
     }
@@ -92,8 +88,8 @@ class congr_lemma_manager::imp {
         return std::find(kinds.begin(), kinds.end(), congr_arg_kind::Cast) != kinds.end();
     }
 
-    optional<expr> mk_simple_congr_proof(expr const & fn, buffer<expr> const & lhss,
-                                         buffer<optional<expr>> const & eqs, buffer<congr_arg_kind> const & kinds) {
+    expr mk_simple_congr_proof(expr const & fn, buffer<expr> const & lhss,
+                               buffer<optional<expr>> const & eqs, buffer<congr_arg_kind> const & kinds) {
         unsigned i = 0;
         for (; i < kinds.size(); i++) {
             if (kinds[i] != congr_arg_kind::Fixed)
@@ -104,22 +100,20 @@ class congr_lemma_manager::imp {
             return m_builder.mk_eq_refl(g);
         lean_assert(kinds[i] == congr_arg_kind::Eq);
         lean_assert(eqs[i]);
-        optional<expr> pr = m_builder.mk_congr_arg(g, *eqs[i]);
-        if (!pr) return none_expr();
+        expr pr = m_builder.mk_congr_arg(g, *eqs[i]);
         i++;
         for (; i < kinds.size(); i++) {
             if (kinds[i] == congr_arg_kind::Eq) {
-                pr = m_builder.mk_congr(*pr, *eqs[i]);
+                pr = m_builder.mk_congr(pr, *eqs[i]);
             } else {
                 lean_assert(kinds[i] == congr_arg_kind::Fixed);
-                pr = m_builder.mk_congr_fun(*pr, lhss[i]);
+                pr = m_builder.mk_congr_fun(pr, lhss[i]);
             }
-            if (!pr) return none_expr();
         }
         return pr;
     }
 
-    optional<expr> mk_congr_proof(unsigned i, expr const & lhs, expr const & rhs, buffer<optional<expr>> const & eqs) {
+    expr mk_congr_proof(unsigned i, expr const & lhs, expr const & rhs, buffer<optional<expr>> const & eqs) {
         if (i == eqs.size()) {
             return m_builder.mk_eq_refl(rhs);
         } else if (!eqs[i]) {
@@ -130,81 +124,72 @@ class congr_lemma_manager::imp {
             lean_verify(is_eq(mlocal_type(major), x_1, x_2));
             lean_assert(is_local(x_1));
             lean_assert(is_local(x_2));
-            auto motive_eq = m_builder.mk_eq(lhs, rhs);
-            if (!motive_eq) return none_expr();
-            expr motive  = Fun(x_2, Fun(major, *motive_eq));
+            expr motive_eq = m_builder.mk_eq(lhs, rhs);
+            expr motive    = Fun(x_2, Fun(major, motive_eq));
             // We compute the new_rhs by replacing x_2 with x_1 and major with (eq.refl x_1) in rhs.
             expr new_rhs = instantiate(abstract_local(rhs, x_2), x_1);
-            auto x1_refl = m_builder.mk_eq_refl(x_1);
-            if (!x1_refl) return none_expr();
-            new_rhs      = instantiate(abstract_local(new_rhs, major), *x1_refl);
-            auto minor   = mk_congr_proof(i+1, lhs, new_rhs, eqs);
-            if (!minor) return none_expr();
-            return m_builder.mk_eq_drec(motive, *minor, major);
+            expr x1_refl = m_builder.mk_eq_refl(x_1);
+            new_rhs      = instantiate(abstract_local(new_rhs, major), x1_refl);
+            expr minor   = mk_congr_proof(i+1, lhs, new_rhs, eqs);
+            return m_builder.mk_eq_drec(motive, minor, major);
         }
     }
 
     optional<result> mk_congr_simp(expr const & fn, buffer<param_info> const & pinfos, buffer<congr_arg_kind> const & kinds) {
-        expr fn_type = whnf(infer(fn));
-        name e_name("e");
-        buffer<expr> lhss;
-        buffer<expr> rhss;          // it contains the right-hand-side argument
-        buffer<optional<expr>> eqs; // for Eq args, it contains the equality
-        buffer<expr> hyps;          // contains lhss + rhss + eqs
-        for (unsigned i = 0; i < pinfos.size(); i++) {
-            if (!is_pi(fn_type)) {
-                return optional<result>();
-            }
-            expr lhs = m_ctx.mk_tmp_local(binding_name(fn_type), binding_domain(fn_type));
-            lhss.push_back(lhs);
-            hyps.push_back(lhs);
-            switch (kinds[i]) {
-            case congr_arg_kind::Eq: {
-                expr rhs = m_ctx.mk_tmp_local(binding_name(fn_type), binding_domain(fn_type));
-                expr eq_type;
-                if (auto it = m_builder.mk_eq(lhs, rhs))
-                    eq_type = *it;
-                else
-                    return optional<result>();
-                rhss.push_back(rhs);
-                expr eq = m_ctx.mk_tmp_local(e_name.append_after(eqs.size()+1), eq_type);
-                eqs.push_back(some_expr(eq));
-                hyps.push_back(rhs);
-                hyps.push_back(eq);
-                break;
-            }
-            case congr_arg_kind::Fixed:
-                rhss.push_back(lhs);
-                eqs.push_back(none_expr());
-                break;
-            case congr_arg_kind::Cast: {
-                expr rhs_type = mlocal_type(lhs);
-                rhs_type = instantiate_rev(abstract_locals(rhs_type, lhss.size()-1, lhss.data()), rhss.size(), rhss.data());
-                auto rhs = cast(lhs, rhs_type, pinfos[i].get_dependencies(), eqs);
-                if (!rhs) {
+        try {
+            expr fn_type = whnf(infer(fn));
+            name e_name("e");
+            buffer<expr> lhss;
+            buffer<expr> rhss;          // it contains the right-hand-side argument
+            buffer<optional<expr>> eqs; // for Eq args, it contains the equality
+            buffer<expr> hyps;          // contains lhss + rhss + eqs
+            for (unsigned i = 0; i < pinfos.size(); i++) {
+                if (!is_pi(fn_type)) {
                     return optional<result>();
                 }
-                rhss.push_back(*rhs);
-                eqs.push_back(none_expr());
-                break;
-            }}
-            fn_type  = whnf(instantiate(binding_body(fn_type), lhs));
-        }
-        expr lhs = mk_app(fn, lhss);
-        expr rhs = mk_app(fn, rhss);
-        auto eq  = m_builder.mk_eq(lhs, rhs);
-        if (!eq)
+                expr lhs = m_ctx.mk_tmp_local(binding_name(fn_type), binding_domain(fn_type));
+                lhss.push_back(lhs);
+                hyps.push_back(lhs);
+                switch (kinds[i]) {
+                case congr_arg_kind::Eq: {
+                    expr rhs     = m_ctx.mk_tmp_local(binding_name(fn_type), binding_domain(fn_type));
+                    expr eq_type = m_builder.mk_eq(lhs, rhs);
+                    rhss.push_back(rhs);
+                    expr eq = m_ctx.mk_tmp_local(e_name.append_after(eqs.size()+1), eq_type);
+                    eqs.push_back(some_expr(eq));
+                    hyps.push_back(rhs);
+                    hyps.push_back(eq);
+                    break;
+                }
+                case congr_arg_kind::Fixed:
+                    rhss.push_back(lhs);
+                    eqs.push_back(none_expr());
+                    break;
+                case congr_arg_kind::Cast: {
+                    expr rhs_type = mlocal_type(lhs);
+                    rhs_type = instantiate_rev(abstract_locals(rhs_type, lhss.size()-1, lhss.data()), rhss.size(), rhss.data());
+                    expr rhs = cast(lhs, rhs_type, pinfos[i].get_dependencies(), eqs);
+                    rhss.push_back(rhs);
+                    eqs.push_back(none_expr());
+                    break;
+                }}
+                fn_type  = whnf(instantiate(binding_body(fn_type), lhs));
+            }
+            expr lhs = mk_app(fn, lhss);
+            expr rhs = mk_app(fn, rhss);
+            expr eq  = m_builder.mk_eq(lhs, rhs);
+            expr congr_type  = Pi(hyps, eq);
+            expr congr_proof;
+            if (has_cast(kinds)) {
+                congr_proof = mk_congr_proof(0, lhs, rhs, eqs);
+            } else {
+                congr_proof = mk_simple_congr_proof(fn, lhss, eqs, kinds);
+            }
+            congr_proof = Fun(hyps, congr_proof);
+            return optional<result>(congr_type, congr_proof, to_list(kinds));
+        } catch (app_builder_exception &) {
             return optional<result>();
-        expr congr_type  = Pi(hyps, *eq);
-        optional<expr> congr_proof;
-        if (has_cast(kinds)) {
-            congr_proof = mk_congr_proof(0, lhs, rhs, eqs);
-        } else {
-            congr_proof = mk_simple_congr_proof(fn, lhss, eqs, kinds);
         }
-        if (!congr_proof) return optional<result>();
-        congr_proof = Fun(hyps, *congr_proof);
-        return optional<result>(congr_type, *congr_proof, to_list(kinds));
     }
 
 public:

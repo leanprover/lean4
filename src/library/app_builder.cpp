@@ -242,25 +242,25 @@ struct app_builder::imp {
         m_ctx->set_next_mvar_idx(e.m_num_emeta);
     }
 
-    optional<expr> mk_app(name const & c, unsigned nargs, expr const * args) {
+    expr mk_app(name const & c, unsigned nargs, expr const * args) {
         optional<entry> e = get_entry(c, nargs);
         if (!e)
-            return none_expr();
+            throw app_builder_exception();
         init_ctx_for(*e);
         unsigned i = nargs;
         for (auto m : e->m_expl_args) {
             if (i == 0)
-                return none_expr();
+                throw app_builder_exception();
             --i;
             if (!m_ctx->assign(m, args[i]))
-                return none_expr();
+                throw app_builder_exception();
         }
         if (!check_all_assigned(*e))
-            return none_expr();
-        return some_expr(m_ctx->instantiate_uvars_mvars(e->m_app));
+            throw app_builder_exception();
+        return m_ctx->instantiate_uvars_mvars(e->m_app);
     }
 
-    optional<expr> mk_app(name const & c, std::initializer_list<expr> const & it) {
+    expr mk_app(name const & c, std::initializer_list<expr> const & it) {
         return mk_app(c, it.size(), it.begin());
     }
 
@@ -273,14 +273,14 @@ struct app_builder::imp {
         return nargs;
     }
 
-    optional<expr> mk_app(name const & c, unsigned mask_sz, bool const * mask, expr const * args) {
+    expr mk_app(name const & c, unsigned mask_sz, bool const * mask, expr const * args) {
         unsigned nargs = get_nargs(mask_sz, mask);
         if (key::is_simple(mask, mask + mask_sz)) {
             return mk_app(c, nargs, args);
         } else {
             optional<entry> e = get_entry(c, mask_sz, mask);
             if (!e)
-                return none_expr();
+                throw app_builder_exception();
             init_ctx_for(*e);
             unsigned i    = mask_sz;
             unsigned j    = nargs;
@@ -291,13 +291,13 @@ struct app_builder::imp {
                     --j;
                     expr const & m = head(it);
                     if (!m_ctx->assign(m, args[j]))
-                        return none_expr();
+                        throw app_builder_exception();
                     it = tail(it);
                 }
             }
             if (!check_all_assigned(*e))
-                return none_expr();
-            return some_expr(m_ctx->instantiate_uvars_mvars(e->m_app));
+                throw app_builder_exception();
+            return m_ctx->instantiate_uvars_mvars(e->m_app);
         }
     }
 
@@ -308,73 +308,73 @@ struct app_builder::imp {
         return some_level(sort_level(Type));
     }
 
-    optional<expr> mk_eq(expr const & a, expr const & b) {
+    expr mk_eq(expr const & a, expr const & b) {
         expr A    = m_ctx->infer(a);
         auto lvl  = get_level(A);
         if (!lvl)
-            return none_expr();
-        return some_expr(::lean::mk_app(mk_constant(get_eq_name(), {*lvl}), A, a, b));
+            throw app_builder_exception();
+        return ::lean::mk_app(mk_constant(get_eq_name(), {*lvl}), A, a, b);
     }
 
-    optional<expr> mk_iff(expr const & a, expr const & b) {
-        return some_expr(::lean::mk_app(mk_constant(get_iff_name()), a, b));
+    expr mk_iff(expr const & a, expr const & b) {
+        return ::lean::mk_app(mk_constant(get_iff_name()), a, b);
     }
 
-    optional<expr> mk_eq_refl(expr const & a) {
+    expr mk_eq_refl(expr const & a) {
         expr A    = m_ctx->infer(a);
         auto lvl  = get_level(A);
         if (!lvl)
-            return none_expr();
-        return some_expr(::lean::mk_app(mk_constant(get_eq_refl_name(), {*lvl}), A, a));
+            throw app_builder_exception();
+        return ::lean::mk_app(mk_constant(get_eq_refl_name(), {*lvl}), A, a);
     }
 
-    optional<expr> mk_iff_refl(expr const & a) {
-        return some_expr(::lean::mk_app(mk_constant(get_iff_refl_name()), a));
+    expr mk_iff_refl(expr const & a) {
+        return ::lean::mk_app(mk_constant(get_iff_refl_name()), a);
     }
 
-    optional<expr> mk_eq_symm(expr const & H) {
+    expr mk_eq_symm(expr const & H) {
         expr p    = m_ctx->whnf(m_ctx->infer(H));
         expr lhs, rhs;
         if (!is_eq(p, lhs, rhs))
-            return none_expr();
+            throw app_builder_exception();
         expr A    = m_ctx->infer(lhs);
         auto lvl  = get_level(A);
         if (!lvl)
-            return none_expr();
-        return some_expr(::lean::mk_app(mk_constant(get_eq_symm_name(), {*lvl}), A, lhs, rhs, H));
+            throw app_builder_exception();
+        return ::lean::mk_app(mk_constant(get_eq_symm_name(), {*lvl}), A, lhs, rhs, H);
     }
 
-    optional<expr> mk_iff_symm(expr const & H) {
+    expr mk_iff_symm(expr const & H) {
         expr p    = m_ctx->whnf(m_ctx->infer(H));
         expr lhs, rhs;
         if (!is_iff(p, lhs, rhs))
-            return none_expr();
-        return some_expr(::lean::mk_app(mk_constant(get_iff_symm_name()), lhs, rhs, H));
+            throw app_builder_exception();
+        return ::lean::mk_app(mk_constant(get_iff_symm_name()), lhs, rhs, H);
     }
 
-    optional<expr> mk_eq_trans(expr const & H1, expr const & H2) {
+    expr mk_eq_trans(expr const & H1, expr const & H2) {
         expr p1    = m_ctx->whnf(m_ctx->infer(H1));
         expr p2    = m_ctx->whnf(m_ctx->infer(H2));
         expr lhs1, rhs1, lhs2, rhs2;
         if (!is_eq(p1, lhs1, rhs1) || !is_eq(p2, lhs2, rhs2))
-            return none_expr();
+            throw app_builder_exception();
         expr A     = m_ctx->infer(lhs1);
         auto lvl  = get_level(A);
         if (!lvl)
-            return none_expr();
-        return some_expr(::lean::mk_app({mk_constant(get_eq_trans_name(), {*lvl}), A, lhs1, rhs1, rhs2, H1, H2}));
+            throw app_builder_exception();
+        return ::lean::mk_app({mk_constant(get_eq_trans_name(), {*lvl}), A, lhs1, rhs1, rhs2, H1, H2});
     }
 
-    optional<expr> mk_iff_trans(expr const & H1, expr const & H2) {
+    expr mk_iff_trans(expr const & H1, expr const & H2) {
         expr p1    = m_ctx->whnf(m_ctx->infer(H1));
         expr p2    = m_ctx->whnf(m_ctx->infer(H2));
         expr lhs1, rhs1, lhs2, rhs2;
         if (!is_iff(p1, lhs1, rhs1) || !is_iff(p2, lhs2, rhs2))
-            return none_expr();
-        return some_expr(::lean::mk_app({mk_constant(get_iff_trans_name()), lhs1, rhs1, rhs2, H1, H2}));
+            throw app_builder_exception();
+        return ::lean::mk_app({mk_constant(get_iff_trans_name()), lhs1, rhs1, rhs2, H1, H2});
     }
 
-    optional<expr> mk_rel(name const & n, expr const & lhs, expr const & rhs) {
+    expr mk_rel(name const & n, expr const & lhs, expr const & rhs) {
         if (n == get_eq_name()) {
             return mk_eq(lhs, rhs);
         } else if (n == get_iff_name()) {
@@ -385,7 +385,7 @@ struct app_builder::imp {
         }
     }
 
-    optional<expr> mk_refl(name const & relname, expr const & a) {
+    expr mk_refl(name const & relname, expr const & a) {
         if (relname == get_eq_name()) {
             return mk_eq_refl(a);
         } else if (relname == get_iff_name()) {
@@ -393,11 +393,11 @@ struct app_builder::imp {
         } else if (auto info = m_refl_getter(relname)) {
             return mk_app(info->m_name, 1, &a);
         } else {
-            return none_expr();
+            throw app_builder_exception();
         }
     }
 
-    optional<expr> mk_symm(name const & relname, expr const & H) {
+    expr mk_symm(name const & relname, expr const & H) {
         if (relname == get_eq_name()) {
             return mk_eq_symm(H);
         } else if (relname == get_iff_name()) {
@@ -405,11 +405,11 @@ struct app_builder::imp {
         } else if (auto info = m_symm_getter(relname)) {
             return mk_app(info->m_name, 1, &H);
         } else {
-            return none_expr();
+            throw app_builder_exception();
         }
     }
 
-    optional<expr> mk_trans(name const & relname, expr const & H1, expr const & H2) {
+    expr mk_trans(name const & relname, expr const & H1, expr const & H2) {
         if (relname == get_eq_name()) {
             return mk_eq_trans(H1, H2);
         } else if (relname == get_iff_name()) {
@@ -418,52 +418,52 @@ struct app_builder::imp {
             expr args[2] = {H1, H2};
             return mk_app(info->m_name, 2, args);
         } else {
-            return none_expr();
+            throw app_builder_exception();
         }
     }
 
-    optional<expr> mk_eq_rec(expr const & motive, expr const & H1, expr const & H2) {
+    expr mk_eq_rec(expr const & motive, expr const & H1, expr const & H2) {
         expr p       = m_ctx->whnf(m_ctx->infer(H2));
         expr lhs, rhs;
         if (!is_eq(p, lhs, rhs))
-            return none_expr();
+            throw app_builder_exception();
         expr A      = m_ctx->infer(lhs);
         auto A_lvl  = get_level(A);
         expr mtype  = m_ctx->whnf(m_ctx->infer(motive));
         if (!is_pi(mtype) || !is_sort(binding_body(mtype)))
-            return none_expr();
+            throw app_builder_exception();
         level l_1    = sort_level(binding_body(mtype));
         name const & eqrec = is_standard(m_ctx->env()) ? get_eq_rec_name() : get_eq_nrec_name();
-        return some_expr(::lean::mk_app({mk_constant(eqrec, {l_1, *A_lvl}), A, lhs, motive, H1, rhs, H2}));
+        return ::lean::mk_app({mk_constant(eqrec, {l_1, *A_lvl}), A, lhs, motive, H1, rhs, H2});
     }
 
-    optional<expr> mk_eq_drec(expr const & motive, expr const & H1, expr const & H2) {
+    expr mk_eq_drec(expr const & motive, expr const & H1, expr const & H2) {
         expr p       = m_ctx->whnf(m_ctx->infer(H2));
         expr lhs, rhs;
         if (!is_eq(p, lhs, rhs))
-            return none_expr();
+            throw app_builder_exception();
         expr A      = m_ctx->infer(lhs);
         auto A_lvl  = get_level(A);
         expr mtype  = m_ctx->whnf(m_ctx->infer(motive));
         if (!is_pi(mtype) || !is_pi(binding_body(mtype)) || !is_sort(binding_body(binding_body(mtype))))
-            return none_expr();
+            throw app_builder_exception();
         level l_1    = sort_level(binding_body(binding_body(mtype)));
         name const & eqrec = is_standard(m_ctx->env()) ? get_eq_drec_name() : get_eq_rec_name();
-        return some_expr(::lean::mk_app({mk_constant(eqrec, {l_1, *A_lvl}), A, lhs, motive, H1, rhs, H2}));
+        return ::lean::mk_app({mk_constant(eqrec, {l_1, *A_lvl}), A, lhs, motive, H1, rhs, H2});
     }
 
-    optional<expr> mk_congr_arg(expr const & f, expr const & H) {
+    expr mk_congr_arg(expr const & f, expr const & H) {
         // TODO(Leo): efficient version
 
         return mk_app(get_congr_arg_name(), {f, H});
     }
 
-    optional<expr> mk_congr_fun(expr const & H, expr const & a) {
+    expr mk_congr_fun(expr const & H, expr const & a) {
         // TODO(Leo): efficient version
         return mk_app(get_congr_fun_name(), {H, a});
     }
 
-    optional<expr> mk_congr(expr const & H1, expr const & H2) {
+    expr mk_congr(expr const & H1, expr const & H2) {
         // TODO(Leo): efficient version
         return mk_app(get_congr_name(), {H1, H2});
     }
@@ -483,83 +483,83 @@ app_builder::app_builder(tmp_type_context & ctx):
 
 app_builder::~app_builder() {}
 
-optional<expr> app_builder::mk_app(name const & c, unsigned nargs, expr const * args) {
+expr app_builder::mk_app(name const & c, unsigned nargs, expr const * args) {
     return m_ptr->mk_app(c, nargs, args);
 }
 
-optional<expr> app_builder::mk_app(name const & c, unsigned mask_sz, bool const * mask, expr const * args) {
+expr app_builder::mk_app(name const & c, unsigned mask_sz, bool const * mask, expr const * args) {
     return m_ptr->mk_app(c, mask_sz, mask, args);
 }
 
-optional<expr> app_builder::mk_rel(name const & n, expr const & lhs, expr const & rhs) {
+expr app_builder::mk_rel(name const & n, expr const & lhs, expr const & rhs) {
     return m_ptr->mk_rel(n, lhs, rhs);
 }
 
-optional<expr> app_builder::mk_eq(expr const & lhs, expr const & rhs) {
+expr app_builder::mk_eq(expr const & lhs, expr const & rhs) {
     return m_ptr->mk_eq(lhs, rhs);
 }
 
-optional<expr> app_builder::mk_iff(expr const & lhs, expr const & rhs) {
+expr app_builder::mk_iff(expr const & lhs, expr const & rhs) {
     return m_ptr->mk_iff(lhs, rhs);
 }
 
-optional<expr> app_builder::mk_refl(name const & relname, expr const & a) {
+expr app_builder::mk_refl(name const & relname, expr const & a) {
     return m_ptr->mk_refl(relname, a);
 }
 
-optional<expr> app_builder::mk_eq_refl(expr const & a) {
+expr app_builder::mk_eq_refl(expr const & a) {
     return m_ptr->mk_eq_refl(a);
 }
 
-optional<expr> app_builder::mk_iff_refl(expr const & a) {
+expr app_builder::mk_iff_refl(expr const & a) {
     return m_ptr->mk_iff_refl(a);
 }
 
-optional<expr> app_builder::mk_symm(name const & relname, expr const & H) {
+expr app_builder::mk_symm(name const & relname, expr const & H) {
     return m_ptr->mk_symm(relname, H);
 }
 
-optional<expr> app_builder::mk_eq_symm(expr const & H) {
+expr app_builder::mk_eq_symm(expr const & H) {
     return m_ptr->mk_eq_symm(H);
 }
 
-optional<expr> app_builder::mk_iff_symm(expr const & H) {
+expr app_builder::mk_iff_symm(expr const & H) {
     return m_ptr->mk_iff_symm(H);
 }
 
-optional<expr> app_builder::mk_trans(name const & relname, expr const & H1, expr const & H2) {
+expr app_builder::mk_trans(name const & relname, expr const & H1, expr const & H2) {
     return m_ptr->mk_trans(relname, H1, H2);
 }
 
-optional<expr> app_builder::mk_eq_trans(expr const & H1, expr const & H2) {
+expr app_builder::mk_eq_trans(expr const & H1, expr const & H2) {
     return m_ptr->mk_eq_trans(H1, H2);
 }
 
-optional<expr> app_builder::mk_iff_trans(expr const & H1, expr const & H2) {
+expr app_builder::mk_iff_trans(expr const & H1, expr const & H2) {
     return m_ptr->mk_iff_trans(H1, H2);
 }
 
-optional<expr> app_builder::mk_eq_rec(expr const & C, expr const & H1, expr const & H2) {
+expr app_builder::mk_eq_rec(expr const & C, expr const & H1, expr const & H2) {
     return m_ptr->mk_eq_rec(C, H1, H2);
 }
 
-optional<expr> app_builder::mk_eq_drec(expr const & C, expr const & H1, expr const & H2) {
+expr app_builder::mk_eq_drec(expr const & C, expr const & H1, expr const & H2) {
     return m_ptr->mk_eq_drec(C, H1, H2);
 }
 
-optional<expr> app_builder::mk_congr_arg(expr const & f, expr const & H) {
+expr app_builder::mk_congr_arg(expr const & f, expr const & H) {
     return m_ptr->mk_congr_arg(f, H);
 }
 
-optional<expr> app_builder::mk_congr_fun(expr const & H, expr const & a) {
+expr app_builder::mk_congr_fun(expr const & H, expr const & a) {
     return m_ptr->mk_congr_fun(H, a);
 }
 
-optional<expr> app_builder::mk_congr(expr const & H1, expr const & H2) {
+expr app_builder::mk_congr(expr const & H1, expr const & H2) {
     return m_ptr->mk_congr(H1, H2);
 }
 
-optional<expr> app_builder::mk_sorry(expr const & type) {
+expr app_builder::mk_sorry(expr const & type) {
     return mk_app(get_sorry_name(), type);
 }
 

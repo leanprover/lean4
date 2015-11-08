@@ -1206,9 +1206,10 @@ static environment refl_cmd(parser & p) {
     name relname = p.check_constant_next("invalid #refl command, constant expected");
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
-    if (auto r = b.mk_refl(relname, e)) {
-        check_expr_and_print(p, *r);
-    } else {
+    try {
+        expr r = b.mk_refl(relname, e);
+        check_expr_and_print(p, r);
+    } catch (app_builder_exception &) {
         throw parser_error(sstream() << "failed to build refl proof", pos);
     }
     return env;
@@ -1221,9 +1222,10 @@ static environment symm_cmd(parser & p) {
     name relname = p.check_constant_next("invalid #symm command, constant expected");
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
-    if (auto r = b.mk_symm(relname, e)) {
-        check_expr_and_print(p, *r);
-    } else {
+    try {
+        expr r = b.mk_symm(relname, e);
+        check_expr_and_print(p, r);
+    } catch (app_builder_exception &) {
         throw parser_error(sstream() << "failed to build symm proof", pos);
     }
     return env;
@@ -1238,9 +1240,10 @@ static environment trans_cmd(parser & p) {
     std::tie(H1, ls) = parse_local_expr(p);
     p.check_token_next(get_comma_tk(), "invalid #trans command, ',' expected");
     std::tie(H2, ls) = parse_local_expr(p);
-    if (auto r = b.mk_trans(relname, H1, H2)) {
-        check_expr_and_print(p, *r);
-    } else {
+    try {
+        expr r = b.mk_trans(relname, H1, H2);
+        check_expr_and_print(p, r);
+    } catch (app_builder_exception &) {
         throw parser_error(sstream() << "failed to build trans proof", pos);
     }
     return env;

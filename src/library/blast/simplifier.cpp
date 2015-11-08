@@ -504,7 +504,7 @@ result simplifier::congr(result const & r_f, result const & r_arg) {
     lean_assert(!r_f.is_none() && !r_arg.is_none());
     // theorem congr {A B : Type} {f₁ f₂ : A → B} {a₁ a₂ : A} (H₁ : f₁ = f₂) (H₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂
     expr e  = mk_app(r_f.get_new(), r_arg.get_new());
-    expr pf = m_app_builder.mk_app(get_congr_name(), r_f.get_proof(), r_arg.get_proof());
+    expr pf = m_app_builder.mk_congr(r_f.get_proof(), r_arg.get_proof());
     return result(e, pf);
 }
 
@@ -512,7 +512,7 @@ result simplifier::congr_fun(result const & r_f, expr const & arg) {
     lean_assert(!r_f.is_none());
     // theorem congr_fun {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a
     expr e  = mk_app(r_f.get_new(), arg);
-    expr pf = m_app_builder.mk_app(get_congr_fun_name(), r_f.get_proof(), arg);
+    expr pf = m_app_builder.mk_congr_fun(r_f.get_proof(), arg);
     return result(e, pf);
 }
 
@@ -520,7 +520,7 @@ result simplifier::congr_arg(expr const & f, result const & r_arg) {
     lean_assert(!r_arg.is_none());
     // theorem congr_arg {A B : Type} {a₁ a₂ : A} (f : A → B) : a₁ = a₂ → f a₁ = f a₂
     expr e  = mk_app(f, r_arg.get_new());
-    expr pf = m_app_builder.mk_app(get_congr_arg_name(), f, r_arg.get_proof());
+    expr pf = m_app_builder.mk_congr_arg(f, r_arg.get_proof());
     return result(e, pf);
 }
 

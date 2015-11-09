@@ -74,6 +74,11 @@ void branch::add_deps(hypothesis & h_user, unsigned hidx_user) {
     }
 }
 
+double branch::compute_weight(unsigned hidx, expr const & /* type */) {
+    // TODO(Leo): use heuristics and machine learning for computing the weight of a new hypothesis
+    return 1.0 / (static_cast<double>(hidx) + 1.0);
+}
+
 expr branch::add_hypothesis(name const & n, expr const & type, expr const & value) {
     hypothesis new_h;
     new_h.m_name          = n;
@@ -85,7 +90,8 @@ expr branch::add_hypothesis(name const & n, expr const & type, expr const & valu
     m_context.insert(new_hidx, new_h);
     if (new_h.is_assumption())
         m_assumption.insert(new_hidx);
-    m_todo.insert(new_hidx);
+    double w = compute_weight(new_hidx, type);
+    m_todo_queue.insert(w, new_hidx);
     return blast::mk_href(new_hidx);
 }
 
@@ -93,6 +99,22 @@ static name * g_prefix = nullptr;
 
 expr branch::add_hypothesis(expr const & type, expr const & value) {
     return add_hypothesis(name(*g_prefix, m_next), type, value);
+}
+
+void branch::update_indices(unsigned /* hidx */) {
+    // TODO(Leo): we need to update the indexing data-structures and send
+    // the hypothesis if to the congruence closure module after it is implemented.
+}
+
+optional<unsigned> branch::activate_hypothesis() {
+    if (m_todo_queue.empty()) {
+        return optional<unsigned>();
+    } else {
+        unsigned hidx = m_todo_queue.erase_min();
+        m_active.insert(hidx);
+        update_indices(hidx);
+        return optional<unsigned>(hidx);
+    }
 }
 
 bool branch::hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const {

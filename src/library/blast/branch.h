@@ -19,6 +19,7 @@ using metavar_idx_map = typename lean::rb_map<unsigned, T, unsigned_cmp>;
 
 class branch {
     typedef hypothesis_idx_map<hypothesis_idx_set> forward_deps;
+    typedef rb_map<double, unsigned, double_cmp>   todo_queue;
     friend class state;
     unsigned           m_next;
     context            m_context;
@@ -38,7 +39,7 @@ class branch {
     // We say a hypothesis is in the to-do set when the blast haven't process it yet.
     hypothesis_idx_set m_assumption;
     hypothesis_idx_set m_active;
-    hypothesis_idx_set m_todo;
+    todo_queue         m_todo_queue;
 
     forward_deps       m_forward_deps; // given an entry (h -> {h_1, ..., h_n}), we have that each h_i uses h.
     expr               m_target;
@@ -48,6 +49,16 @@ class branch {
     void add_forward_dep(unsigned hidx_user, unsigned hidx_provider);
     void add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user);
     void add_deps(hypothesis & h_user, unsigned hidx_user);
+
+    /** \brief Compute the weight of a hypothesis with the given type
+        We use this weight to update the todo_queue. */
+    double compute_weight(unsigned hidx, expr const & type);
+
+    /** \brief This method is invoked when a hypothesis move from todo to active.
+
+        We will update indices and data-structures (e.g., congruence closure). */
+    void update_indices(unsigned hidx);
+
 public:
     branch():m_next(0) {}
 
@@ -64,6 +75,9 @@ public:
         return get(href_index(h));
     }
     void for_each_hypothesis(std::function<void(unsigned, hypothesis const &)> const & fn) const { m_context.for_each(fn); }
+    /** \brief Activate the next hypothesis in the TODO queue, return none if the TODO queue is empty. */
+    optional<unsigned> activate_hypothesis();
+
     /** \brief Store in \c r the hypotheses in this branch sorted by depth */
     void get_sorted_hypotheses(hypothesis_idx_buffer & r) const;
 

@@ -32,11 +32,41 @@ public:
     hypothesis_idx_set get_assumptions() const { return m_assumptions; }
 };
 
+class proof_step_cell {
+    MK_LEAN_RC(); // Declare m_rc counter
+    void dealloc() { delete this; }
+public:
+    virtual ~proof_step_cell() {}
+    /** \brief Every proof-step must provide a resolve method.
+        When the branch created by the proof-step is closed,
+        a proof pr is provided, and the proof-step can perform two operations
+        1- setup the next branch and return none_expr
+        2- finish and return a new proof */
+    virtual optional<expr> resolve(state & s, expr const & pr) = 0;
+};
+
+class proof_step {
+    proof_step_cell * m_ptr;
+public:
+    proof_step():m_ptr(nullptr) {}
+    proof_step(proof_step const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
+    proof_step(proof_step && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
+    ~proof_step() { if (m_ptr) m_ptr->dec_ref(); }
+    proof_step & operator=(proof_step const & s) { LEAN_COPY_REF(s); }
+    proof_step & operator=(proof_step && s) { LEAN_MOVE_REF(s); }
+
+    optional<expr> resolve(state & s, expr const & pr) {
+        lean_assert(m_ptr);
+        return m_ptr->resolve(s, pr);
+    }
+};
+
 class state {
     typedef metavar_idx_map<metavar_decl>       metavar_decls;
     typedef metavar_idx_map<expr>               eassignment;
     typedef metavar_idx_map<level>              uassignment;
     typedef hypothesis_idx_map<metavar_idx_set> fixed_by;
+    typedef list<proof_step>                    proof_steps;
     unsigned       m_next_uref_index; // index of the next universe metavariable
     uassignment    m_uassignment;
     unsigned       m_next_mref_index; // index of the next metavariable
@@ -51,7 +81,9 @@ class state {
     // `B` contains an over-approximation of all meta-variables occuring in it (i.e., m_mvar_idxs).
     // If this check fails, then we should replace any assigned `m_i` with its value, if the intersection is still
     // non-empty, then we cannot clear `h`.
-    fixed_by      m_fixed_by;
+    fixed_by       m_fixed_by;
+    unsigned       m_depth{0};
+    proof_steps    m_proof_steps;
 
     void add_fixed_by(unsigned hidx, unsigned midx);
     unsigned add_metavar_decl(metavar_decl const & decl);
@@ -91,7 +123,7 @@ public:
         \pre ctx must be a subset of the hypotheses in the main branch. */
     expr mk_metavar(hypothesis_idx_buffer const & ctx, expr const & type);
     expr mk_metavar(hypothesis_idx_set const & ctx, expr const & type);
-/** \brief Create a new metavariable using the given type.
+    /** \brief Create a new metavariable using the given type.
         The context of this metavariable will be all assumption hypotheses occurring in the main branch. */
     expr mk_metavar(expr const & type);
 
@@ -170,6 +202,27 @@ public:
             m_state.m_eassignment = m_old_eassignment;
         }
     };
+
+    void push_proof_step(proof_step const & ps) {
+        m_depth++;
+        m_proof_steps = cons(ps, m_proof_steps);
+    }
+
+    bool has_proof_steps() const {
+        return static_cast<bool>(m_proof_steps);
+    }
+
+    proof_step top_proof_step() const {
+        return head(m_proof_steps);
+    }
+
+    void pop_proof_step() {
+        lean_assert(m_proof_steps);
+        m_depth--;
+        m_proof_steps = tail(m_proof_steps);
+    }
+
+    unsigned get_depth() const { return m_depth; }
 
     #ifdef LEAN_DEBUG
     bool check_invariant() const;

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include "util/sstream.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/type_checker.h"
 #include "library/replace_visitor.h"
@@ -22,10 +23,35 @@ Author: Leonardo de Moura
 #include "library/blast/blast.h"
 #include "library/blast/blast_exception.h"
 
+#ifndef LEAN_DEFAULT_BLAST_MAX_DEPTH
+#define LEAN_DEFAULT_BLAST_MAX_DEPTH 128
+#endif
+#ifndef LEAN_DEFAULT_BLAST_INIT_DEPTH
+#define LEAN_DEFAULT_BLAST_INIT_DEPTH 1
+#endif
+#ifndef LEAN_DEFAULT_BLAST_INC_DEPTH
+#define LEAN_DEFAULT_BLAST_INC_DEPTH 5
+#endif
+
 namespace lean {
 namespace blast {
 static name * g_prefix     = nullptr;
 static name * g_tmp_prefix = nullptr;
+
+/* Options */
+static name * g_blast_max_depth    = nullptr;
+static name * g_blast_init_depth   = nullptr;
+static name * g_blast_inc_depth    = nullptr;
+
+unsigned get_blast_max_depth(options const & o) {
+    return o.get_unsigned(*g_blast_max_depth, LEAN_DEFAULT_BLAST_MAX_DEPTH);
+}
+unsigned get_blast_init_depth(options const & o) {
+    return o.get_unsigned(*g_blast_init_depth, LEAN_DEFAULT_BLAST_INIT_DEPTH);
+}
+unsigned get_blast_inc_depth(options const & o) {
+    return o.get_unsigned(*g_blast_inc_depth, LEAN_DEFAULT_BLAST_INC_DEPTH);
+}
 
 class blastenv {
     friend class scope_assignment;
@@ -46,11 +72,17 @@ class blastenv {
     name_predicate             m_instance_pred;
     name_map<projection_info>  m_projection_info;
     state                      m_curr_state;   // current state
+    std::vector<state>         m_choice_points;
     tmp_type_context_pool      m_tmp_ctx_pool;
     tmp_type_context_ptr       m_tmp_ctx; // for app_builder and congr_lemma_manager
     app_builder                m_app_builder;
     fun_info_manager           m_fun_info_manager;
     congr_lemma_manager        m_congr_lemma_manager;
+
+    /* options */
+    unsigned                   m_max_depth;
+    unsigned                   m_init_depth;
+    unsigned                   m_inc_depth;
 
     class tctx : public type_context {
         blastenv &         m_benv;
@@ -378,6 +410,97 @@ class blastenv {
         m_initial_context = to_list(ctx);
     }
 
+    void set_options(options const & o) {
+        m_max_depth  = get_blast_max_depth(o);
+        m_init_depth = get_blast_init_depth(o);
+        m_inc_depth  = get_blast_inc_depth(o);
+    }
+
+    bool next_choice_point() {
+        if (m_choice_points.empty())
+            return false;
+        m_curr_state = m_choice_points.back();
+        m_choice_points.pop_back();
+        return true;
+    }
+
+    enum status { NoAction, ClosedBranch, Continue };
+
+    optional<unsigned> activate_hypothesis() {
+        return m_curr_state.get_main_branch().activate_hypothesis();
+    }
+
+    pair<status, expr> next_action() {
+        if (activate_hypothesis()) {
+            // TODO(Leo): we should probably eagerly simplify the activated hypothesis.
+            return mk_pair(Continue, expr());
+        } else {
+            // TODO(Leo): add more actions...
+            return mk_pair(NoAction, expr());
+        }
+    }
+
+    optional<expr> resolve(expr pr) {
+        while (m_curr_state.has_proof_steps()) {
+            proof_step s = m_curr_state.top_proof_step();
+            if (auto new_pr = s.resolve(m_curr_state, pr)) {
+                pr = *new_pr;
+                m_curr_state.pop_proof_step();
+            } else {
+                return none_expr(); // continue the search
+            }
+        }
+        return some_expr(pr); // closed all branches
+    }
+
+    optional<expr> search_upto(unsigned depth) {
+        while (true) {
+            if (m_curr_state.get_depth() > depth) {
+                // maximum depth reached
+                if (!next_choice_point()) {
+                    return none_expr();
+                }
+            }
+            auto s = next_action();
+            switch (s.first) {
+            case NoAction:
+                if (!next_choice_point())
+                    return none_expr();
+                break;
+            case ClosedBranch:
+                if (auto pr = resolve(s.second))
+                    return pr;
+                break;
+            case Continue:
+                break;
+            }
+        }
+    }
+
+    optional<expr> search() {
+        state s    = m_curr_state;
+        unsigned d = m_init_depth;
+        while (d <= m_max_depth) {
+            if (auto r = search_upto(d))
+                return r;
+            d += m_inc_depth;
+            m_curr_state = s;
+            m_choice_points.clear();
+        }
+        return none_expr();
+    }
+
+    expr to_tactic_proof(expr const & pr) {
+        // TODO(Leo): when a proof is found we must
+        // 1- remove all occurrences of href's from pr
+        // 2- replace mrefs with their assignments,
+        //    and convert unassigned meta-variables back into
+        //    tactic meta-variables.
+        // 3- The external tactic meta-variables that have been instantiated
+        //    by blast must also be communicated back to the tactic framework.
+        return pr;
+    }
+
 public:
     blastenv(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds):
         m_env(env), m_ios(ios), m_ngen(*g_prefix), m_lemma_hints(to_name_set(ls)), m_unfold_hints(to_name_set(ds)),
@@ -389,6 +512,7 @@ public:
         m_fun_info_manager(*m_tmp_ctx),
         m_congr_lemma_manager(m_app_builder, m_fun_info_manager),
         m_tctx(*this) {
+        set_options(m_ios.get_options());
     }
 
     ~blastenv() {
@@ -405,12 +529,11 @@ public:
 
     optional<expr> operator()(goal const & g) {
         init_state(g);
-
-        // TODO(Leo): blast main loop
-        display("Blast tactic initial state\n");
-        display_curr_state();
-
-        return none_expr();
+        if (auto r = search()) {
+            return some_expr(to_tactic_proof(*r));
+        } else {
+            return none_expr();
+        }
     }
 
     environment const & get_env() const { return m_env; }
@@ -695,8 +818,18 @@ optional<expr> blast_goal(environment const & env, io_state const & ios, list<na
     return b(g);
 }
 void initialize_blast() {
-    blast::g_prefix     = new name(name::mk_internal_unique_name());
-    blast::g_tmp_prefix = new name(name::mk_internal_unique_name());
+    blast::g_prefix           = new name(name::mk_internal_unique_name());
+    blast::g_tmp_prefix       = new name(name::mk_internal_unique_name());
+    blast::g_blast_max_depth  = new name{"blast", "max_depth"};
+    blast::g_blast_init_depth = new name{"blast", "init_depth"};
+    blast::g_blast_inc_depth  = new name{"blast", "inc_depth"};
+
+    register_unsigned_option(*blast::g_blast_max_depth, LEAN_DEFAULT_BLAST_MAX_DEPTH,
+                             "(blast) max search depth for blast");
+    register_unsigned_option(*blast::g_blast_init_depth, LEAN_DEFAULT_BLAST_INIT_DEPTH,
+                             "(blast) initial search depth for blast (remark: blast uses iteration deepening)");
+    register_unsigned_option(*blast::g_blast_inc_depth, LEAN_DEFAULT_BLAST_INC_DEPTH,
+                             "(blast) search depth increment for blast (remark: blast uses iteration deepening)");
 }
 void finalize_blast() {
     delete blast::g_prefix;

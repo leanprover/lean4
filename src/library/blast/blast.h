@@ -26,8 +26,6 @@ io_state const & ios();
 app_builder & get_app_builder();
 /** \brief Return the thread local current state being processed by the blast tactic. */
 state & curr_state();
-/** brief Return the main branch of the current state being processed by the blast tactic. */
-inline branch & main_branch() {  return curr_state().get_main_branch(); }
 /** \brief Return a thread local fresh local constant. */
 expr mk_fresh_local(expr const & type, binder_info const & bi = binder_info());
 /** \brief Return true iff the given constant name is marked as reducible in env() */

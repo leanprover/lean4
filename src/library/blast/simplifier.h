@@ -5,7 +5,7 @@ Author: Daniel Selsam
 */
 #pragma once
 #include "kernel/expr_pair.h"
-#include "library/blast/branch.h"
+#include "library/blast/state.h"
 
 namespace lean {
 namespace blast {
@@ -33,7 +33,7 @@ public:
 
 }
 
-simp::result simplify(branch const & b, name const & rel, expr const & e);
+simp::result simplify(name const & rel, expr const & e);
 
 void initialize_simplifier();
 void finalize_simplifier();

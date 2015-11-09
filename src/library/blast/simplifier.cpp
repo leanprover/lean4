@@ -93,7 +93,6 @@ bool get_simplify_trace() {
 class simplifier {
     blast_tmp_type_context                       m_tmp_tctx;
     app_builder                                  m_app_builder;
-    branch                                       m_branch;
     name                                         m_rel;
 
     simp_rule_sets                               m_ctx_srss;
@@ -166,14 +165,14 @@ class simplifier {
     result try_congr(expr const & e, congr_rule const & cr);
 
 public:
-    simplifier(branch const & b, name const & rel);
+    simplifier(name const & rel);
     result operator()(expr const & e) { return simplify(e); }
 };
 
 /* Constructor */
 
-simplifier::simplifier(branch const & b, name const & rel):
-    m_app_builder(*m_tmp_tctx), m_branch(b), m_rel(rel) { }
+simplifier::simplifier(name const & rel):
+    m_app_builder(*m_tmp_tctx), m_rel(rel) { }
 
 /* Cache */
 
@@ -684,8 +683,8 @@ void finalize_simplifier() {
 
 /* Entry point */
 
-result simplify(branch const & b, name const & rel, expr const & e) {
-    return simplifier(b, rel)(e);
+result simplify(name const & rel, expr const & e) {
+    return simplifier(rel)(e);
 }
 
 }}

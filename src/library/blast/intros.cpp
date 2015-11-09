@@ -21,28 +21,27 @@ public:
     virtual optional<expr> resolve(state & s, expr const & pr) {
         buffer<expr> locals;
         to_buffer(m_new_locals, locals);
-        expr new_pr = Fun(locals, s.get_main_branch().expand_hrefs(pr, m_new_hs));
+        expr new_pr = Fun(locals, s.expand_hrefs(pr, m_new_hs));
         return some_expr(new_pr);
     }
 };
 
 bool intros_action() {
     state &  s  = curr_state();
-    branch & b  = s.get_main_branch();
-    expr target = whnf(b.get_target());
+    expr target = whnf(s.get_target());
     if (!is_pi(target))
         return false;
     buffer<expr> new_hs;
     buffer<expr> new_locals;
     while (is_pi(target)) {
         expr local = mk_fresh_local(binding_domain(target));
-        expr href  = b.add_hypothesis(binding_name(target), binding_domain(target), local);
+        expr href  = s.add_hypothesis(binding_name(target), binding_domain(target), local);
         new_hs.push_back(href);
         new_locals.push_back(local);
         target     = whnf(instantiate(binding_body(target), href));
     }
     s.push_proof_step(proof_step(new intros_proof_step_cell(to_list(new_hs), to_list(new_locals))));
-    b.set_target(target);
+    s.set_target(target);
     return true;
 }
 }}

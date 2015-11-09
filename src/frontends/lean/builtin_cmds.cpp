@@ -1324,8 +1324,7 @@ static environment simplify_cmd(parser & p) {
     std::tie(e, ls) = parse_local_expr(p);
 
     blast::scope_debug scope(p.env(), p.ios());
-    blast::branch b;
-    blast::simp::result r = blast::simplify(b, rel, e);
+    blast::simp::result r = blast::simplify(rel, e);
 
     flycheck_information info(p.regular_stream());
     if (info.enabled()) {

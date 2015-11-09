@@ -11,13 +11,13 @@ namespace blast {
 optional<expr> assumption_action() {
     // TODO(Leo): this is a very naive implementation that just traverses the set of
     // active hypothesis
-    branch const & b    = main_branch();
-    expr const & target = b.get_target();
-    auto hidx = b.find_active_hypothesis([&](unsigned, hypothesis const & h) {
+    state const & s     = curr_state();
+    expr const & target = s.get_target();
+    auto hidx = s.find_active_hypothesis([&](unsigned, hypothesis const & h) {
             return is_def_eq(h.get_type(), target);
         });
     if (!hidx)
         return none_expr();
-    return some_expr(b.get(*hidx)->get_value());
+    return some_expr(s.get(*hidx)->get_value());
 }
 }}

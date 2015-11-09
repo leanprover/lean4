@@ -9,10 +9,15 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "library/tactic/goal.h"
 #include "library/blast/hypothesis.h"
-#include "library/blast/branch.h"
 
 namespace lean {
 namespace blast {
+typedef rb_tree<unsigned, unsigned_cmp> metavar_idx_set;
+typedef hypothesis_idx_map<hypothesis> context;
+
+template<typename T>
+using metavar_idx_map = typename lean::rb_map<unsigned, T, unsigned_cmp>;
+
 class metavar_decl {
     // A metavariable can be assigned to a value that contains references only to the assumptions
     // that were available when the metavariable was defined.
@@ -63,15 +68,16 @@ public:
 };
 
 class state {
-    typedef metavar_idx_map<metavar_decl>       metavar_decls;
-    typedef metavar_idx_map<expr>               eassignment;
-    typedef metavar_idx_map<level>              uassignment;
-    typedef hypothesis_idx_map<metavar_idx_set> fixed_by;
-    typedef list<proof_step>                    proof_steps;
-    uassignment    m_uassignment;
-    metavar_decls  m_metavar_decls;
-    eassignment    m_eassignment;
-    branch         m_main;
+    typedef hypothesis_idx_map<hypothesis_idx_set> forward_deps;
+    typedef rb_map<double, unsigned, double_cmp>   todo_queue;
+    typedef metavar_idx_map<metavar_decl>          metavar_decls;
+    typedef metavar_idx_map<expr>                  eassignment;
+    typedef metavar_idx_map<level>                 uassignment;
+    typedef hypothesis_idx_map<metavar_idx_set>    fixed_by;
+    typedef list<proof_step>                       proof_steps;
+    uassignment        m_uassignment;
+    metavar_decls      m_metavar_decls;
+    eassignment        m_eassignment;
     // In the following mapping, each entry (h -> {m_1 ... m_n}) means that hypothesis `h` cannot be cleared
     // in any branch where the metavariables m_1 ... m_n have not been replaced with the values assigned to them.
     // That is, to be able to clear `h` in a branch `B`, we first need to check whether it
@@ -80,19 +86,57 @@ class state {
     // `B` contains an over-approximation of all meta-variables occuring in it (i.e., m_mvar_idxs).
     // If this check fails, then we should replace any assigned `m_i` with its value, if the intersection is still
     // non-empty, then we cannot clear `h`.
-    fixed_by       m_fixed_by;
-    unsigned       m_depth{0};
-    proof_steps    m_proof_steps;
+    fixed_by           m_fixed_by;
+    unsigned           m_depth{0};
+    proof_steps        m_proof_steps;
+    // Hypothesis/facts in the current state
+    context            m_context;
+    // We break the set of hypotheses in m_context in 3 sets that are not necessarily disjoint:
+    //   - assumption
+    //   - active
+    //   - todo
+    //
+    // The sets active and todo are disjoint.
+    //
+    // A hypothesis is an "assumption" if it comes from the input goal,
+    // "intros" proof step, or an assumption obtained when applying an elimination step.
+    //
+    // A hypothesis is derived when it is obtained by forward chaining.
+    // A derived hypothesis can be in the to-do or active sets.
+    //
+    // We say a hypothesis is in the to-do set when the blast haven't process it yet.
+    hypothesis_idx_set m_assumption;
+    hypothesis_idx_set m_active;
+    todo_queue         m_todo_queue;
+    forward_deps       m_forward_deps; // given an entry (h -> {h_1, ..., h_n}), we have that each h_i uses h.
+    expr               m_target;
+    hypothesis_idx_set m_target_deps;
+    metavar_idx_set    m_mvar_idxs;
+
+    void add_forward_dep(unsigned hidx_user, unsigned hidx_provider);
+    void add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user);
+    void add_deps(hypothesis & h_user, unsigned hidx_user);
+
+    /** \brief Compute the weight of a hypothesis with the given type
+        We use this weight to update the todo_queue. */
+    double compute_weight(unsigned hidx, expr const & type);
+
+    /** \brief This method is invoked when a hypothesis move from todo to active.
+
+        We will update indices and data-structures (e.g., congruence closure). */
+    void update_indices(unsigned hidx);
+
+    expr add_hypothesis(unsigned new_hidx, name const & n, expr const & type, expr const & value);
+
 
     void add_fixed_by(unsigned hidx, unsigned midx);
     unsigned add_metavar_decl(metavar_decl const & decl);
     goal to_goal(branch const &) const;
 
     #ifdef LEAN_DEBUG
-    bool check_hypothesis(expr const & e, branch const & b, unsigned hidx, hypothesis const & h) const;
-    bool check_hypothesis(branch const & b, unsigned hidx, hypothesis const & h) const;
-    bool check_target(branch const & b) const;
-    bool check_invariant(branch const &) const;
+    bool check_hypothesis(expr const & e, unsigned hidx, hypothesis const & h) const;
+    bool check_hypothesis(unsigned hidx, hypothesis const & h) const;
+    bool check_target() const;
     #endif
 public:
     state();
@@ -154,29 +198,48 @@ public:
         \remark This is not a const method because it may normalize the assignment. */
     expr instantiate_urefs_mrefs(expr const & e);
 
-    /** \brief Add a new hypothesis to the main branch */
-    expr add_hypothesis(name const & n, expr const & type, expr const & value) {
-        return m_main.add_hypothesis(n, type, value);
+    expr add_hypothesis(name const & n, expr const & type, expr const & value);
+    expr add_hypothesis(expr const & type, expr const & value);
+
+    /** \brief Return true iff the hypothesis with index \c hidx_user depends on the hypothesis with index
+        \c hidx_provider. */
+    bool hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const;
+
+    hypothesis const * get(unsigned hidx) const { return m_context.find(hidx); }
+    hypothesis const * get(expr const & h) const {
+        lean_assert(is_href(h));
+        return get(href_index(h));
+    }
+    void for_each_hypothesis(std::function<void(unsigned, hypothesis const &)> const & fn) const { m_context.for_each(fn); }
+    optional<unsigned> find_active_hypothesis(std::function<bool(unsigned, hypothesis const &)> const & fn) const { // NOLINT
+        return m_active.find_if([&](unsigned hidx) {
+                return fn(hidx, *get(hidx));
+            });
     }
 
-    branch & get_main_branch() { return m_main; }
-    branch const & get_main_branch() const { return m_main; }
+    /** \brief Activate the next hypothesis in the TODO queue, return none if the TODO queue is empty. */
+    optional<unsigned> activate_hypothesis();
 
-    /** \brief Add a new hypothesis to the main branch */
-    expr add_hypothesis(expr const & type, expr const & value) {
-        return m_main.add_hypothesis(type, value);
-    }
+    /** \brief Store in \c r the hypotheses in this branch sorted by depth */
+    void get_sorted_hypotheses(hypothesis_idx_buffer & r) const;
 
-    /** \brief Set target (aka conclusion, aka type of the goal, aka type of the term that must be synthesize in this branch)
-        of the main branch */
-    void set_target(expr const & type) {
-        return m_main.set_target(type);
-    }
+    /** \brief Set target (aka conclusion, aka type of the goal, aka type of the term that
+        must be synthesize in the current branch) */
+    void set_target(expr const & t);
+    expr const & get_target() const { return m_target; }
+    /** \brief Return true iff the target depends on the given hypothesis */
+    bool target_depends_on(expr const & h) const { return m_target_deps.contains(href_index(h)); }
+
+    bool has_mvar(expr const & e) const { return m_mvar_idxs.contains(mref_index(e)); }
+
+    expr expand_hrefs(expr const & e, list<expr> const & hrefs) const;
+
+    hypothesis_idx_set get_assumptions() const { return m_assumption; }
 
     metavar_decl const * get_metavar_decl(unsigned idx) const { return m_metavar_decls.find(idx); }
     metavar_decl const * get_metavar_decl(expr const & e) const { return get_metavar_decl(mref_index(e)); }
 
-    /** \brief Convert main branch to a goal.
+    /** \brief Convert current branch into a goal.
         This is mainly used for pretty printing. However, in the future, we may use this capability
         to invoke the tactic framework from the blast tactic. */
     goal to_goal() const;
@@ -225,4 +288,6 @@ public:
     bool check_invariant() const;
     #endif
 };
+void initialize_state();
+void finalize_state();
 }}

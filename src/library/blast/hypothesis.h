@@ -22,7 +22,7 @@ template<typename T>
 using hypothesis_idx_map = typename lean::rb_map<unsigned, T, unsigned_cmp>;
 
 class hypothesis {
-    friend class branch;
+    friend class state;
     name               m_name;     // for pretty printing
     unsigned           m_active:1;
     unsigned           m_depth;

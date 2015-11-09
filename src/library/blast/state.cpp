@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
@@ -13,6 +14,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
+static name * g_prefix = nullptr;
+
 bool metavar_decl::restrict_context_using(metavar_decl const & other) {
     buffer<unsigned> to_erase;
     m_assumptions.for_each([&](unsigned hidx) {
@@ -66,7 +69,7 @@ expr state::mk_metavar(hypothesis_idx_buffer const & b, expr const & type) {
 }
 
 expr state::mk_metavar(expr const & type) {
-    return state::mk_metavar(m_main.get_assumptions(), type);
+    return state::mk_metavar(get_assumptions(), type);
 }
 
 void state::restrict_mref_context_using(expr const & mref1, expr const & mref2) {
@@ -79,7 +82,7 @@ void state::restrict_mref_context_using(expr const & mref1, expr const & mref2) 
         m_metavar_decls.insert(mref_index(mref1), new_d1);
 }
 
-goal state::to_goal(branch const & b) const {
+goal state::to_goal() const {
     hypothesis_idx_map<expr> hidx2local;
     metavar_idx_map<expr>    midx2meta;
     name M("M");
@@ -114,25 +117,21 @@ goal state::to_goal(branch const & b) const {
     };
     name H("H");
     hypothesis_idx_buffer hidxs;
-    b.get_sorted_hypotheses(hidxs);
+    get_sorted_hypotheses(hidxs);
     buffer<expr> hyps;
     for (unsigned hidx : hidxs) {
-        hypothesis const * h = b.get(hidx);
+        hypothesis const * h = get(hidx);
         lean_assert(h);
         // after we add support for let-decls in goals, we must convert back h->get_value() if it is available
         expr new_h = lean::mk_local(name(H, hidx), h->get_name(), convert(h->get_type()), binder_info());
         hidx2local.insert(hidx, new_h);
         hyps.push_back(new_h);
     }
-    expr new_target    = convert(b.get_target());
+    expr new_target    = convert(get_target());
     expr new_mvar_type = Pi(hyps, new_target);
     expr new_mvar      = lean::mk_metavar(M, new_mvar_type);
     expr new_meta      = mk_app(new_mvar, hyps);
     return goal(new_meta, new_target);
-}
-
-goal state::to_goal() const {
-    return to_goal(m_main);
 }
 
 void state::display(environment const & env, io_state const & ios) const {
@@ -312,51 +311,211 @@ expr state::instantiate_urefs_mrefs(expr const & e) {
 }
 
 #ifdef LEAN_DEBUG
-bool state::check_hypothesis(expr const & e, branch const & b, unsigned hidx, hypothesis const & h) const {
+bool state::check_hypothesis(expr const & e, unsigned hidx, hypothesis const & h) const {
     lean_assert(closed(e));
     for_each(e, [&](expr const & n, unsigned) {
             if (is_href(n)) {
                 lean_assert(h.depends_on(n));
-                lean_assert(b.hidx_depends_on(hidx, href_index(n)));
+                lean_assert(hidx_depends_on(hidx, href_index(n)));
             } else if (is_mref(n)) {
                 // metavariable is in the set of used metavariables
-                lean_assert(b.has_mvar(n));
+                lean_assert(has_mvar(n));
             }
             return true;
         });
     return true;
 }
 
-bool state::check_hypothesis(branch const & b, unsigned hidx, hypothesis const & h) const {
-    lean_assert(check_hypothesis(h.get_type(), b, hidx, h));
-    lean_assert(h.is_assumption() || check_hypothesis(h.get_value(), b, hidx, h));
+bool state::check_hypothesis(unsigned hidx, hypothesis const & h) const {
+    lean_assert(check_hypothesis(h.get_type(), hidx, h));
+    lean_assert(h.is_assumption() || check_hypothesis(h.get_value(), hidx, h));
     return true;
 }
 
-bool state::check_target(branch const & b) const {
-    lean_assert(closed(b.get_target()));
-    for_each(b.get_target(), [&](expr const & n, unsigned) {
+bool state::check_target() const {
+    lean_assert(closed(get_target()));
+    for_each(get_target(), [&](expr const & n, unsigned) {
             if (is_href(n)) {
-                lean_assert(b.target_depends_on(n));
+                lean_assert(target_depends_on(n));
             } else if (is_mref(n)) {
                 // metavariable is in the set of used metavariables
-                lean_assert(b.has_mvar(n));
+                lean_assert(has_mvar(n));
             }
             return true;
         });
-    return true;
-}
-
-bool state::check_invariant(branch const & b) const {
-    b.for_each_hypothesis([&](unsigned hidx, hypothesis const & h) {
-            lean_assert(check_hypothesis(b, hidx, h));
-        });
-    lean_assert(check_target(b));
     return true;
 }
 
 bool state::check_invariant() const {
-    return check_invariant(m_main);
+    for_each_hypothesis([&](unsigned hidx, hypothesis const & h) {
+            lean_assert(check_hypothesis(b, hidx, h));
+        });
+    lean_assert(check_target());
+    return true;
 }
 #endif
+
+struct hypothesis_depth_lt {
+    state const & m_state;
+    hypothesis_depth_lt(state const & s): m_state(s) {}
+    bool operator()(unsigned hidx1, unsigned hidx2) const {
+        hypothesis const * h1 = m_state.get(hidx1);
+        hypothesis const * h2 = m_state.get(hidx2);
+        return h1 && h2 && h1->get_depth() < h2->get_depth() && (h1->get_depth() == h2->get_depth() && hidx1 < hidx2);
+    }
+};
+
+void state::get_sorted_hypotheses(hypothesis_idx_buffer & r) const {
+    m_context.for_each([&](unsigned hidx, hypothesis const &) {
+            r.push_back(hidx);
+        });
+    std::sort(r.begin(), r.end(), hypothesis_depth_lt(*this));
+}
+
+void state::add_forward_dep(unsigned hidx_user, unsigned hidx_provider) {
+    if (auto s = m_forward_deps.find(hidx_provider)) {
+        if (!s->contains(hidx_user)) {
+            hypothesis_idx_set new_s(*s);
+            new_s.insert(hidx_user);
+            m_forward_deps.insert(hidx_provider, new_s);
+        }
+    } else {
+        hypothesis_idx_set new_s;
+        new_s.insert(hidx_user);
+        m_forward_deps.insert(hidx_provider, new_s);
+    }
+}
+
+void state::add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user) {
+    if (!has_href(e) && !has_mref(e))
+        return; // nothing to be done
+    for_each(e, [&](expr const & l, unsigned) {
+            if (!has_href(l) && !has_mref(l)) {
+                return false;
+            } else if (is_href(l)) {
+                unsigned hidx_provider = href_index(l);
+                hypothesis const * h_provider = get(hidx_provider);
+                lean_assert(h_provider);
+                if (h_user.m_depth <= h_provider->m_depth)
+                    h_user.m_depth = h_provider->m_depth + 1;
+                if (!h_user.m_deps.contains(hidx_provider)) {
+                    h_user.m_deps.insert(hidx_provider);
+                    add_forward_dep(hidx_user, hidx_provider);
+                }
+                return false;
+            } else if (is_mref(l)) {
+                m_mvar_idxs.insert(mref_index(l));
+                return false;
+            } else {
+                return true;
+            }
+        });
+}
+
+void state::add_deps(hypothesis & h_user, unsigned hidx_user) {
+    add_deps(h_user.m_type, h_user, hidx_user);
+    if (!is_local_non_href(h_user.m_value)) {
+        add_deps(h_user.m_value, h_user, hidx_user);
+    }
+}
+
+double state::compute_weight(unsigned hidx, expr const & /* type */) {
+    // TODO(Leo): use heuristics and machine learning for computing the weight of a new hypothesis
+    return 1.0 / (static_cast<double>(hidx) + 1.0);
+}
+
+expr state::add_hypothesis(unsigned new_hidx, name const & n, expr const & type, expr const & value) {
+    hypothesis new_h;
+    new_h.m_name          = n;
+    new_h.m_type          = type;
+    new_h.m_value         = value;
+    add_deps(new_h, new_hidx);
+    m_context.insert(new_hidx, new_h);
+    if (new_h.is_assumption())
+        m_assumption.insert(new_hidx);
+    double w = compute_weight(new_hidx, type);
+    m_todo_queue.insert(w, new_hidx);
+    return blast::mk_href(new_hidx);
+}
+
+expr state::add_hypothesis(name const & n, expr const & type, expr const & value) {
+    return add_hypothesis(mk_href_idx(), n, type, value);
+}
+
+expr state::add_hypothesis(expr const & type, expr const & value) {
+    unsigned hidx = mk_href_idx();
+    return add_hypothesis(hidx, name(*g_prefix, hidx), type, value);
+}
+
+void state::update_indices(unsigned /* hidx */) {
+    // TODO(Leo): we need to update the indexing data-structures and send
+    // the hypothesis if to the congruence closure module after it is implemented.
+}
+
+optional<unsigned> state::activate_hypothesis() {
+    if (m_todo_queue.empty()) {
+        return optional<unsigned>();
+    } else {
+        unsigned hidx = m_todo_queue.erase_min();
+        m_active.insert(hidx);
+        update_indices(hidx);
+        return optional<unsigned>(hidx);
+    }
+}
+
+bool state::hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const {
+    if (auto s = m_forward_deps.find(hidx_provider)) {
+        return s->contains(hidx_user);
+    } else {
+        return false;
+    }
+}
+
+void state::set_target(expr const & t) {
+    m_target = t;
+    m_target_deps.clear();
+    if (has_href(t) || has_mref(t)) {
+        for_each(t, [&](expr const & e, unsigned) {
+                if (!has_href(e) && !has_mref(e)) {
+                    return false;
+                } else if (is_href(e)) {
+                    m_target_deps.insert(href_index(e));
+                    return false;
+                } else if (is_mref(e)) {
+                    m_mvar_idxs.insert(mref_index(e));
+                    return false;
+                } else {
+                    return true;
+                }
+            });
+    }
+}
+
+struct expand_hrefs_fn : public replace_visitor {
+    state const &      m_state;
+    list<expr> const & m_hrefs;
+
+    expand_hrefs_fn(state const & s, list<expr> const & hrefs):
+        m_state(s), m_hrefs(hrefs) {}
+
+    virtual expr visit_local(expr const & e) {
+        if (is_href(e) && std::find(m_hrefs.begin(), m_hrefs.end(), e) != m_hrefs.end()) {
+            return visit(m_state.get(e)->get_value());
+        } else {
+            return replace_visitor::visit_local(e);
+        }
+    }
+};
+
+expr state::expand_hrefs(expr const & e, list<expr> const & hrefs) const {
+    return expand_hrefs_fn(*this, hrefs)(e);
+}
+
+void initialize_state() {
+    g_prefix     = new name(name::mk_internal_unique_name());
+}
+
+void finalize_state() {
+    delete g_prefix;
+}
 }}

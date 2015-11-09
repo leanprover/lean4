@@ -172,8 +172,8 @@ class blastenv {
             in a different place. */
         virtual expr infer_local(expr const & e) const {
             if (is_href(e)) {
-                branch const & b = m_benv.m_curr_state.get_main_branch();
-                hypothesis const * h = b.get(e);
+                state const & s = m_benv.m_curr_state;
+                hypothesis const * h = s.get(e);
                 lean_assert(h);
                 return h->get_type();
             } else {
@@ -402,9 +402,8 @@ class blastenv {
     tctx m_tctx;
 
     void save_initial_context() {
-        branch const & b = m_curr_state.get_main_branch();
         hypothesis_idx_buffer hidxs;
-        b.get_sorted_hypotheses(hidxs);
+        m_curr_state.get_sorted_hypotheses(hidxs);
         buffer<expr> ctx;
         for (unsigned hidx : hidxs) {
             ctx.push_back(mk_href(hidx));
@@ -429,7 +428,7 @@ class blastenv {
     enum status { NoAction, ClosedBranch, Continue };
 
     optional<unsigned> activate_hypothesis() {
-        return m_curr_state.get_main_branch().activate_hypothesis();
+        return m_curr_state.activate_hypothesis();
     }
 
     pair<status, expr> next_action() {
@@ -498,11 +497,10 @@ class blastenv {
 
     struct to_tactic_proof_fn : public replace_visitor {
         state &  m_state;
-        branch & m_branch;
 
         virtual expr visit_local(expr const & e) {
             if (is_href(e)) {
-                hypothesis const * h = m_branch.get(e);
+                hypothesis const * h = m_state.get(e);
                 lean_assert(h);
                 expr v = h->get_value();
                 return visit(v);
@@ -522,7 +520,7 @@ class blastenv {
         }
 
         to_tactic_proof_fn(state & s):
-            m_state(s), m_branch(s.get_main_branch()) {}
+            m_state(s) {}
     };
 
     expr to_tactic_proof(expr const & pr) {
@@ -789,8 +787,7 @@ public:
     virtual expr infer_local(expr const & e) const {
         state const & s = curr_state();
         if (is_href(e)) {
-            branch const & b = s.get_main_branch();
-            hypothesis const * h = b.get(e);
+            hypothesis const * h = s.get(e);
             lean_assert(h);
             return h->get_type();
         } else {

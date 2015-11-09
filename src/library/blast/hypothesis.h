@@ -28,7 +28,7 @@ class hypothesis {
     unsigned           m_dep_depth; // dependency depth
     hypothesis_idx_set m_deps;      // hypotheses used by the type and/or value of this hypothesis.
     expr               m_type;
-    expr               m_value;     // justification for this object.
+    optional<expr>     m_value;     // justification for this object.
     // Remark: if blast::is_local(m_value) is true, then the hypothesis is an assumption
 public:
     hypothesis():m_active(false), m_dep_depth(0) {}
@@ -37,9 +37,9 @@ public:
     unsigned get_dep_depth() const { return m_dep_depth; }
     hypothesis_idx_set const & get_backward_deps() const { return m_deps; }
     expr const & get_type() const { return m_type; }
-    expr const & get_value() const { return m_value; }
+    optional<expr> const & get_value() const { return m_value; }
     /** \brief Return true iff this hypothesis depends on \c h. */
     bool depends_on(expr const & h) const { return m_deps.contains(href_index(h)); }
-    bool is_assumption() const { return is_local_non_href(m_value); }
+    bool is_assumption() const { return !m_value || is_local_non_href(*m_value); }
 };
 }}

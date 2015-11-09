@@ -328,7 +328,7 @@ bool state::check_hypothesis(expr const & e, unsigned hidx, hypothesis const & h
 
 bool state::check_hypothesis(unsigned hidx, hypothesis const & h) const {
     lean_assert(check_hypothesis(h.get_type(), hidx, h));
-    lean_assert(h.is_assumption() || check_hypothesis(h.get_value(), hidx, h));
+    lean_assert(h.is_assumption() || check_hypothesis(*h.get_value(), hidx, h));
     return true;
 }
 
@@ -417,8 +417,8 @@ void state::add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user) {
 
 void state::add_deps(hypothesis & h_user, unsigned hidx_user) {
     add_deps(h_user.m_type, h_user, hidx_user);
-    if (!is_local_non_href(h_user.m_value)) {
-        add_deps(h_user.m_value, h_user, hidx_user);
+    if (!h_user.is_assumption()) {
+        add_deps(*h_user.m_value, h_user, hidx_user);
     }
 }
 
@@ -427,7 +427,7 @@ double state::compute_weight(unsigned hidx, expr const & /* type */) {
     return 1.0 / (static_cast<double>(hidx) + 1.0);
 }
 
-expr state::add_hypothesis(unsigned new_hidx, name const & n, expr const & type, expr const & value) {
+expr state::add_hypothesis(unsigned new_hidx, name const & n, expr const & type, optional<expr> const & value) {
     hypothesis new_h;
     new_h.m_name          = n;
     new_h.m_type          = type;
@@ -442,12 +442,21 @@ expr state::add_hypothesis(unsigned new_hidx, name const & n, expr const & type,
 }
 
 expr state::add_hypothesis(name const & n, expr const & type, expr const & value) {
-    return add_hypothesis(mk_href_idx(), n, type, value);
+    return add_hypothesis(mk_href_idx(), n, type, some_expr(value));
 }
 
 expr state::add_hypothesis(expr const & type, expr const & value) {
     unsigned hidx = mk_href_idx();
-    return add_hypothesis(hidx, name(*g_prefix, hidx), type, value);
+    return add_hypothesis(hidx, name(*g_prefix, hidx), type, some_expr(value));
+}
+
+expr state::add_hypothesis(name const & n, expr const & type) {
+    return add_hypothesis(mk_href_idx(), n, type, none_expr());
+}
+
+expr state::add_hypothesis(expr const & type) {
+    unsigned hidx = mk_href_idx();
+    return add_hypothesis(hidx, name(*g_prefix, hidx), type, none_expr());
 }
 
 void state::update_indices(unsigned /* hidx */) {
@@ -503,10 +512,12 @@ struct expand_hrefs_fn : public replace_visitor {
 
     virtual expr visit_local(expr const & e) {
         if (is_href(e) && std::find(m_hrefs.begin(), m_hrefs.end(), e) != m_hrefs.end()) {
-            return visit(m_state.get(e)->get_value());
-        } else {
-            return replace_visitor::visit_local(e);
+            hypothesis const * h = m_state.get(e);
+            if (h->get_value()) {
+                return visit(*h->get_value());
+            }
         }
+        return replace_visitor::visit_local(e);
     }
 };
 

@@ -126,8 +126,7 @@ class state {
         We will update indices and data-structures (e.g., congruence closure). */
     void update_indices(unsigned hidx);
 
-    expr add_hypothesis(unsigned new_hidx, name const & n, expr const & type, expr const & value);
-
+    expr add_hypothesis(unsigned new_hidx, name const & n, expr const & type, optional<expr> const & value);
 
     void add_fixed_by(unsigned hidx, unsigned midx);
     unsigned add_metavar_decl(metavar_decl const & decl);
@@ -202,6 +201,8 @@ public:
 
     expr add_hypothesis(name const & n, expr const & type, expr const & value);
     expr add_hypothesis(expr const & type, expr const & value);
+    expr add_hypothesis(name const & n, expr const & type);
+    expr add_hypothesis(expr const & type);
 
     /** \brief Return true iff the hypothesis with index \c hidx_user depends on the hypothesis with index
         \c hidx_provider. */
@@ -283,7 +284,7 @@ public:
     unsigned get_depth() const { return m_depth; }
 
     expr mk_lambda(unsigned num, expr const * hrefs, expr const & b) const {
-        return mk_binding(false, num, hrefs, b);
+        return mk_binding(true, num, hrefs, b);
     }
     expr mk_pi(unsigned num, expr const * hrefs, expr const & b) const {
         return mk_binding(false, num, hrefs, b);

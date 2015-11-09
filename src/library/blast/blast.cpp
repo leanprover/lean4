@@ -498,14 +498,14 @@ class blastenv {
         state &  m_state;
 
         virtual expr visit_local(expr const & e) {
+            // TODO(Leo): cleanup
             if (is_href(e)) {
                 hypothesis const * h = m_state.get(e);
-                lean_assert(h);
-                expr v = h->get_value();
-                return visit(v);
-            } else {
-                return replace_visitor::visit_local(e);
+                if (auto r = h->get_value()) {
+                    return visit(*r);
+                }
             }
+            return replace_visitor::visit_local(e);
         }
 
         virtual expr visit_meta(expr const & e) {

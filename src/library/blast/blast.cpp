@@ -756,10 +756,11 @@ void scope_assignment::commit() {
 }
 
 struct scope_debug::imp {
-    scope_hash_consing m_scope1;
-    blastenv           m_benv;
-    scope_blastenv     m_scope2;
+    scoped_expr_caching m_scope1;
+    blastenv            m_benv;
+    scope_blastenv      m_scope2;
     imp(environment const & env, io_state const & ios):
+        m_scope1(true),
         m_benv(env, ios, list<name>(), list<name>()),
         m_scope2(m_benv) {
         expr aux_mvar = mk_metavar("dummy_mvar", mk_true());
@@ -847,7 +848,7 @@ expr internalize(expr const & e) {
 }
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
                           goal const & g) {
-    blast::scope_hash_consing scope1;
+    scoped_expr_caching      scope1(true);
     blast::blastenv b(env, ios, ls, ds);
     blast::scope_blastenv    scope2(b);
     return b(g);

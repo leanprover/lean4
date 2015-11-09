@@ -10,22 +10,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-// API for creating maximally shared terms used by the blast tactic.
-// The API assumes there is a single blast tactic using theses terms.
-// The expression hash-consing tables are thread local and implemented
-// in the kernel
-
-// Remark: All procedures assume the children levels and expressions are maximally shared.
-// That is, it assumes they have been created using the APIs provided by this module.
-
-// Auxiliary object for resetting the the thread local hash-consing tables.
-// It also uses an assertion to make sure it is not being used in a recursion.
-class scope_hash_consing : public scoped_expr_caching {
-public:
-    scope_hash_consing();
-    ~scope_hash_consing();
-};
-
 level mk_uref(unsigned idx);
 
 bool is_uref(level const & l);
@@ -45,9 +29,7 @@ bool has_href(expr const & e);
 /** \brief Return true iff \c e contain mref's */
 bool has_mref(expr const & e);
 
-inline bool is_local_non_href(expr const & e) {
-    return is_local(e) && !is_href(e);
-}
+inline bool is_local_non_href(expr const & e) { return is_local(e) && !is_href(e); }
 
 void initialize_expr();
 void finalize_expr();

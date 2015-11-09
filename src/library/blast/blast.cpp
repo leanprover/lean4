@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/blast/state.h"
 #include "library/blast/blast.h"
 #include "library/blast/assumption.h"
+#include "library/blast/intros.h"
 #include "library/blast/blast_exception.h"
 
 #ifndef LEAN_DEFAULT_BLAST_MAX_DEPTH
@@ -432,7 +433,9 @@ class blastenv {
     }
 
     pair<status, expr> next_action() {
-        if (activate_hypothesis()) {
+        if (intros_action()) {
+            return mk_pair(Continue, expr());
+        } else if (activate_hypothesis()) {
             // TODO(Leo): we should probably eagerly simplify the activated hypothesis.
             return mk_pair(Continue, expr());
         } else if (auto pr = assumption_action()) {
@@ -493,15 +496,44 @@ class blastenv {
         return none_expr();
     }
 
+    struct to_tactic_proof_fn : public replace_visitor {
+        state &  m_state;
+        branch & m_branch;
+
+        virtual expr visit_local(expr const & e) {
+            if (is_href(e)) {
+                hypothesis const * h = m_branch.get(e);
+                lean_assert(h);
+                expr v = h->get_value();
+                return visit(v);
+            } else {
+                return replace_visitor::visit_local(e);
+            }
+        }
+
+        virtual expr visit_meta(expr const & e) {
+            lean_assert(is_mref(e));
+            expr v = m_state.instantiate_urefs_mrefs(e);
+            if (v == e) {
+                return v;
+            } else {
+                return replace_visitor::visit_meta(v);
+            }
+        }
+
+        to_tactic_proof_fn(state & s):
+            m_state(s), m_branch(s.get_main_branch()) {}
+    };
+
     expr to_tactic_proof(expr const & pr) {
         // TODO(Leo): when a proof is found we must
-        // 1- remove all occurrences of href's from pr
-        // 2- replace mrefs with their assignments,
+        // 1- (done) remove all occurrences of href's from pr
+        // 2- (done) replace mrefs with their assignments,
         //    and convert unassigned meta-variables back into
         //    tactic meta-variables.
         // 3- The external tactic meta-variables that have been instantiated
         //    by blast must also be communicated back to the tactic framework.
-        return pr;
+        return to_tactic_proof_fn(m_curr_state)(pr);
     }
 
 public:

@@ -94,6 +94,8 @@ public:
 
     bool has_mvar(expr const & e) const { return m_mvar_idxs.contains(mref_index(e)); }
 
+    expr expand_hrefs(expr const & e, list<expr> const & hrefs) const;
+
     hypothesis_idx_set get_assumptions() const { return m_assumption; }
 };
 

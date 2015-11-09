@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "kernel/for_each_fn.h"
+#include "library/replace_visitor.h"
 #include "library/blast/branch.h"
 
 namespace lean {
@@ -143,6 +144,26 @@ void branch::set_target(expr const & t) {
                 }
             });
     }
+}
+
+struct expand_hrefs_fn : public replace_visitor {
+    branch const &     m_branch;
+    list<expr> const & m_hrefs;
+
+    expand_hrefs_fn(branch const & b, list<expr> const & hrefs):
+        m_branch(b), m_hrefs(hrefs) {}
+
+    virtual expr visit_local(expr const & e) {
+        if (is_href(e) && std::find(m_hrefs.begin(), m_hrefs.end(), e) != m_hrefs.end()) {
+            return visit(m_branch.get(e)->get_value());
+        } else {
+            return replace_visitor::visit_local(e);
+        }
+    }
+};
+
+expr branch::expand_hrefs(expr const & e, list<expr> const & hrefs) const {
+    return expand_hrefs_fn(*this, hrefs)(e);
 }
 
 void initialize_branch() {

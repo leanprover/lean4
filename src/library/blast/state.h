@@ -49,6 +49,7 @@ class proof_step {
     proof_step_cell * m_ptr;
 public:
     proof_step():m_ptr(nullptr) {}
+    proof_step(proof_step_cell * c):m_ptr(c) { m_ptr->inc_ref(); }
     proof_step(proof_step const & s):m_ptr(s.m_ptr) { if (m_ptr) m_ptr->inc_ref(); }
     proof_step(proof_step && s):m_ptr(s.m_ptr) { s.m_ptr = nullptr; }
     ~proof_step() { if (m_ptr) m_ptr->dec_ref(); }

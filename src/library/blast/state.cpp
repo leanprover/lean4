@@ -120,7 +120,7 @@ goal state::to_goal() const {
     get_sorted_hypotheses(hidxs);
     buffer<expr> hyps;
     for (unsigned hidx : hidxs) {
-        hypothesis const * h = get(hidx);
+        hypothesis const * h = get_hypothesis_decl(hidx);
         lean_assert(h);
         // after we add support for let-decls in goals, we must convert back h->get_value() if it is available
         expr new_h = lean::mk_local(name(H, hidx), h->get_name(), convert(h->get_type()), binder_info());
@@ -360,8 +360,8 @@ struct hypothesis_dep_depth_lt {
 
     hypothesis_dep_depth_lt(state const & s): m_state(s) {}
     bool operator()(unsigned hidx1, unsigned hidx2) const {
-        hypothesis const * h1 = m_state.get(hidx1);
-        hypothesis const * h2 = m_state.get(hidx2);
+        hypothesis const * h1 = m_state.get_hypothesis_decl(hidx1);
+        hypothesis const * h2 = m_state.get_hypothesis_decl(hidx2);
         return
             h1 && h2 && h1->get_dep_depth() < h2->get_dep_depth() &&
             (h1->get_dep_depth() == h2->get_dep_depth() && hidx1 < hidx2);
@@ -397,7 +397,7 @@ void state::add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user) {
                 return false;
             } else if (is_href(l)) {
                 unsigned hidx_provider = href_index(l);
-                hypothesis const * h_provider = get(hidx_provider);
+                hypothesis const * h_provider = get_hypothesis_decl(hidx_provider);
                 lean_assert(h_provider);
                 if (h_user.m_dep_depth <= h_provider->m_dep_depth)
                     h_user.m_dep_depth = h_provider->m_dep_depth + 1;
@@ -512,7 +512,7 @@ struct expand_hrefs_fn : public replace_visitor {
 
     virtual expr visit_local(expr const & e) {
         if (is_href(e) && std::find(m_hrefs.begin(), m_hrefs.end(), e) != m_hrefs.end()) {
-            hypothesis const * h = m_state.get(e);
+            hypothesis const * h = m_state.get_hypothesis_decl(e);
             if (h->get_value()) {
                 return visit(*h->get_value());
             }
@@ -542,7 +542,7 @@ expr state::mk_binding(bool is_lambda, unsigned num, expr const * hrefs, expr co
         --i;
         expr const & h = hrefs[i];
         lean_assert(is_href(h));
-        hypothesis const * hdecl = get(h);
+        hypothesis const * hdecl = get_hypothesis_decl(h);
         lean_assert(hdecl);
         expr t = abstract_locals(hdecl->get_type(), i, hrefs);
         if (is_lambda)

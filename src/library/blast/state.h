@@ -143,7 +143,6 @@ public:
     state();
 
     bool is_uref_assigned(level const & l) const {
-        lean_assert(is_uref(l));
         return m_uassignment.contains(uref_index(l));
     }
 
@@ -162,11 +161,12 @@ public:
     level instantiate_urefs(level const & l);
 
     /** \brief Create a new metavariable using the given type and context.
-        \pre ctx must be a subset of the hypotheses in the main branch. */
+        \pre ctx must be a subset of the hypotheses in the current branch. */
     expr mk_metavar(hypothesis_idx_buffer const & ctx, expr const & type);
     expr mk_metavar(hypothesis_idx_set const & ctx, expr const & type);
     /** \brief Create a new metavariable using the given type.
-        The context of this metavariable will be all assumption hypotheses occurring in the main branch. */
+        The context of this metavariable will be all assumption hypotheses occurring
+        in the current branch. */
     expr mk_metavar(expr const & type);
 
     /** \brief Make sure the metavariable declaration context of mref1 is a
@@ -208,15 +208,13 @@ public:
         \c hidx_provider. */
     bool hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const;
 
-    hypothesis const * get(unsigned hidx) const { return m_context.find(hidx); }
-    hypothesis const * get(expr const & h) const {
-        lean_assert(is_href(h));
-        return get(href_index(h));
-    }
+    hypothesis const * get_hypothesis_decl(unsigned hidx) const { return m_context.find(hidx); }
+    hypothesis const * get_hypothesis_decl(expr const & h) const { return get_hypothesis_decl(href_index(h)); }
+
     void for_each_hypothesis(std::function<void(unsigned, hypothesis const &)> const & fn) const { m_context.for_each(fn); }
     optional<unsigned> find_active_hypothesis(std::function<bool(unsigned, hypothesis const &)> const & fn) const { // NOLINT
         return m_active.find_if([&](unsigned hidx) {
-                return fn(hidx, *get(hidx));
+                return fn(hidx, *get_hypothesis_decl(hidx));
             });
     }
 

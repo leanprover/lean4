@@ -19,7 +19,7 @@ optional<expr> assumption_action() {
     if (!hidx)
         return none_expr();
     // TODO(Leo): cleanup
-    hypothesis const * h = s.get(*hidx);
+    hypothesis const * h = s.get_hypothesis_decl(*hidx);
     if (h->get_value()) {
         return some_expr(*h->get_value());
     } else {

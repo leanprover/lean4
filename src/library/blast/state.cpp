@@ -24,7 +24,7 @@ bool metavar_decl::restrict_context_using(metavar_decl const & other) {
     return !to_erase.empty();
 }
 
-state::state():m_next_uref_index(0), m_next_mref_index(0) {}
+state::state() {}
 
 /** \brief Mark that hypothesis h with index hidx is fixed by the meta-variable midx.
     That is, `h` occurs in the type of `midx`. */
@@ -42,14 +42,8 @@ void state::add_fixed_by(unsigned hidx, unsigned midx) {
     }
 }
 
-level state::mk_uref() {
-    unsigned idx = m_next_mref_index;
-    m_next_mref_index++;
-    return blast::mk_uref(idx);
-}
-
 expr state::mk_metavar(hypothesis_idx_set const & c, expr const & type) {
-    unsigned midx = m_next_mref_index;
+    unsigned midx = mk_mref_idx();
     for_each(type, [&](expr const & e, unsigned) {
             if (!has_href(e))
                 return false;
@@ -60,7 +54,6 @@ expr state::mk_metavar(hypothesis_idx_set const & c, expr const & type) {
             }
             return true; // continue search
         });
-    m_next_mref_index++;
     m_metavar_decls.insert(midx, metavar_decl(c, type));
     return blast::mk_mref(midx);
 }

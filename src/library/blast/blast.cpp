@@ -191,7 +191,7 @@ class blastenv {
         }
 
         virtual level mk_uvar() {
-            return m_benv.m_curr_state.mk_uref();
+            return mk_fresh_uref();
         }
 
         virtual expr mk_mvar(expr const & type) {
@@ -238,7 +238,7 @@ class blastenv {
                 if (auto r = m_uvar2uref.find(meta_id(l))) {
                     return *r;
                 } else {
-                    level uref = m_state.mk_uref();
+                    level uref = mk_fresh_uref();
                     m_uvar2uref.insert(meta_id(l), uref);
                     return uref;
                 }
@@ -547,6 +547,7 @@ public:
         m_fun_info_manager(*m_tmp_ctx),
         m_congr_lemma_manager(m_app_builder, m_fun_info_manager),
         m_tctx(*this) {
+        init_uref_mref_href_idxs();
         set_options(m_ios.get_options());
     }
 

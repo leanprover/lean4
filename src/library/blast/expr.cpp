@@ -65,6 +65,34 @@ bool has_mref(expr const & e) {
     return lean::has_expr_metavar(e);
 }
 
+LEAN_THREAD_VALUE(unsigned, m_next_uref_idx, 0);
+LEAN_THREAD_VALUE(unsigned, m_next_mref_idx, 0);
+LEAN_THREAD_VALUE(unsigned, m_next_href_idx, 0);
+
+unsigned mk_uref_idx() {
+    unsigned r = m_next_uref_idx;
+    m_next_uref_idx++;
+    return r;
+}
+
+unsigned mk_mref_idx() {
+    unsigned r = m_next_mref_idx;
+    m_next_mref_idx++;
+    return r;
+}
+
+unsigned mk_href_idx() {
+    unsigned r = m_next_href_idx;
+    m_next_href_idx++;
+    return r;
+}
+
+void init_uref_mref_href_idxs() {
+    m_next_uref_idx = 0;
+    m_next_mref_idx = 0;
+    m_next_href_idx = 0;
+}
+
 void initialize_expr() {
     g_prefix     = new name(name::mk_internal_unique_name());
     g_dummy_type = new expr(mk_constant(*g_prefix));

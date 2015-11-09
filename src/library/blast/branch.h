@@ -21,7 +21,6 @@ class branch {
     typedef hypothesis_idx_map<hypothesis_idx_set> forward_deps;
     typedef rb_map<double, unsigned, double_cmp>   todo_queue;
     friend class state;
-    unsigned           m_next{0};
     context            m_context;
     // We break the set of hypotheses in m_context in 3 sets that are not necessarily disjoint:
     //   - assumption
@@ -58,6 +57,8 @@ class branch {
 
         We will update indices and data-structures (e.g., congruence closure). */
     void update_indices(unsigned hidx);
+
+    expr add_hypothesis(unsigned new_hidx, name const & n, expr const & type, expr const & value);
 
 public:
     branch() {}

@@ -80,13 +80,11 @@ double branch::compute_weight(unsigned hidx, expr const & /* type */) {
     return 1.0 / (static_cast<double>(hidx) + 1.0);
 }
 
-expr branch::add_hypothesis(name const & n, expr const & type, expr const & value) {
+expr branch::add_hypothesis(unsigned new_hidx, name const & n, expr const & type, expr const & value) {
     hypothesis new_h;
     new_h.m_name          = n;
     new_h.m_type          = type;
     new_h.m_value         = value;
-    unsigned new_hidx = m_next;
-    m_next++;
     add_deps(new_h, new_hidx);
     m_context.insert(new_hidx, new_h);
     if (new_h.is_assumption())
@@ -98,8 +96,13 @@ expr branch::add_hypothesis(name const & n, expr const & type, expr const & valu
 
 static name * g_prefix = nullptr;
 
+expr branch::add_hypothesis(name const & n, expr const & type, expr const & value) {
+    return add_hypothesis(mk_href_idx(), n, type, value);
+}
+
 expr branch::add_hypothesis(expr const & type, expr const & value) {
-    return add_hypothesis(name(*g_prefix, m_next), type, value);
+    unsigned hidx = mk_href_idx();
+    return add_hypothesis(hidx, name(*g_prefix, hidx), type, value);
 }
 
 void branch::update_indices(unsigned /* hidx */) {

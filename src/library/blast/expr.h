@@ -31,6 +31,16 @@ bool has_mref(expr const & e);
 
 inline bool is_local_non_href(expr const & e) { return is_local(e) && !is_href(e); }
 
+/** \brief Return the a fresh index for uref/mref/href.
+    \remark It is implemented using thread local storage. */
+unsigned mk_uref_idx();
+unsigned mk_mref_idx();
+unsigned mk_href_idx();
+/** \brief Reset thread local counters */
+void init_uref_mref_href_idxs();
+
+inline level mk_fresh_uref() { return mk_uref(mk_uref_idx()); }
+
 void initialize_expr();
 void finalize_expr();
 }

@@ -68,9 +68,7 @@ class state {
     typedef metavar_idx_map<level>              uassignment;
     typedef hypothesis_idx_map<metavar_idx_set> fixed_by;
     typedef list<proof_step>                    proof_steps;
-    unsigned       m_next_uref_index; // index of the next universe metavariable
     uassignment    m_uassignment;
-    unsigned       m_next_mref_index; // index of the next metavariable
     metavar_decls  m_metavar_decls;
     eassignment    m_eassignment;
     branch         m_main;
@@ -98,8 +96,6 @@ class state {
     #endif
 public:
     state();
-
-    level mk_uref();
 
     bool is_uref_assigned(level const & l) const {
         lean_assert(is_uref(l));

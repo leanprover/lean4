@@ -213,4 +213,10 @@ template<typename It> list<typename std::iterator_traits<It>::value_type> revers
         r = cons(*it, r);
     return r;
 }
+
+template<typename T>
+list<T> reverse_to_list(buffer<T> const & b) {
+    return reverse_to_list(b.begin(), b.end());
+}
+
 }

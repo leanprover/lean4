@@ -164,6 +164,9 @@ class simplifier {
     result try_congrs(expr const & e);
     result try_congr(expr const & e, congr_rule const & cr);
 
+    bool instantiate_emetas(blast_tmp_type_context & tmp_tctx, unsigned num_emeta,
+                            list<expr> const & emetas, list<bool> const & instances);
+
 public:
     simplifier(name const & rel);
     result operator()(expr const & e) { return simplify(e); }
@@ -435,49 +438,7 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
             << "[" << new_lhs << " =?= " << new_rhs << "]\n";
     }
 
-    /* Traverse metavariables backwards */
-    for (int i = sr.get_num_emeta() - 1; i >= 0; --i) {
-        expr const & m = sr.get_emeta(i);
-        bool is_instance = sr.is_instance(i);
-
-        expr m_type = tmp_tctx->instantiate_uvars_mvars(tmp_tctx->infer(m));
-        lean_assert(!has_metavar(m_type));
-
-        if (is_instance) {
-            if (auto v = tmp_tctx->mk_class_instance(m_type)) {
-                if (!tmp_tctx->force_assign(m, *v)) {
-                    if (m_trace) {
-                        ios().get_diagnostic_channel() << "unable to assign instance for: " << m_type << "\n";
-                    }
-                    return result(e);
-                }
-            } else {
-                if (m_trace) {
-                    ios().get_diagnostic_channel() << "unable to synthesize instance for: " << m_type << "\n";
-                }
-                return result(e);
-            }
-        }
-
-        if (tmp_tctx->is_mvar_assigned(i)) continue;
-
-        if (tmp_tctx->is_prop(m_type)) {
-            flet<name> set_name(m_rel, get_iff_name());
-            result r_cond = simplify(m_type);
-            if (is_constant(r_cond.get_new()) && const_name(r_cond.get_new()) == get_true_name()) {
-                expr pf = m_app_builder.mk_app(name("iff", "elim_right"), finalize(r_cond).get_proof(), mk_constant(get_true_intro_name()));
-                lean_verify(tmp_tctx->is_def_eq(m, pf));
-                continue;
-            }
-        }
-
-        if (m_trace) {
-            ios().get_diagnostic_channel() << "failed to assign: " << m << " : " << m_type << "\n";
-        }
-
-        /* We fail if there is a meta variable that we still cannot assign */
-        return result(e);
-    }
+    if (!instantiate_emetas(tmp_tctx, sr.get_num_emeta(), sr.get_emetas(), sr.get_instances())) return result(e);
 
     for (unsigned i = 0; i < sr.get_num_umeta(); i++) {
         if (!tmp_tctx->is_uvar_assigned(i)) return result(e);
@@ -494,8 +455,6 @@ result simplifier::rewrite(expr const & e, simp_rule const & sr) {
     expr pf = tmp_tctx->instantiate_uvars_mvars(sr.get_proof());
     return result(result(new_rhs, pf));
 }
-
-
 
 /* Congruence */
 
@@ -604,36 +563,7 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
 
     if (failed || !simplified) return result(e);
 
-    /* Traverse metavariables backwards, proving or synthesizing the rest */
-    for (int i = cr.get_num_emeta() - 1; i >= 0; --i) {
-        expr const & m = cr.get_emeta(i);
-        bool is_instance = cr.is_instance(i);
-
-        if (is_instance) {
-            expr type = tmp_tctx->instantiate_uvars_mvars(tmp_tctx->infer(m));
-            if (auto v = tmp_tctx->mk_class_instance(type)) {
-                if (!tmp_tctx->force_assign(m, *v))
-                    return result(e);
-            } else {
-                return result(e);
-            }
-        }
-
-        if (tmp_tctx->is_mvar_assigned(i)) continue;
-
-        if (tmp_tctx->is_prop(tmp_tctx->infer(m))) {
-            // TODO(dhs): should I try to prove?
-            return result(e);
-        }
-
-        if (m_trace) {
-            ios().get_diagnostic_channel() << "failed to assign: " << tmp_tctx->instantiate_uvars_mvars(m) << " : "
-                                           << tmp_tctx->instantiate_uvars_mvars(tmp_tctx->infer(m)) << "\n";
-        }
-
-        /* We fail if there is a meta variable that we still cannot assign */
-        return result(e);
-    }
+    if (!instantiate_emetas(tmp_tctx, cr.get_num_emeta(), cr.get_emetas(), cr.get_instances())) return result(e);
 
     for (unsigned i = 0; i < cr.get_num_umeta(); i++) {
         if (!tmp_tctx->is_uvar_assigned(i)) return result(e);
@@ -642,6 +572,57 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
     expr e_s = tmp_tctx->instantiate_uvars_mvars(cr.get_rhs());
     expr pf = tmp_tctx->instantiate_uvars_mvars(cr.get_proof());
     return result(e_s, pf);
+}
+
+bool simplifier::instantiate_emetas(blast_tmp_type_context & tmp_tctx, unsigned num_emeta, list<expr> const & emetas,
+                                    list<bool> const & instances) {
+    bool failed = false;
+    unsigned i = num_emeta;
+    for_each2(emetas, instances, [&](expr const & m, bool const & is_instance) {
+            i--;
+            if (failed) return;
+            expr m_type = tmp_tctx->instantiate_uvars_mvars(tmp_tctx->infer(m));
+            lean_assert(!has_metavar(m_type));
+
+            if (is_instance) {
+                if (auto v = tmp_tctx->mk_class_instance(m_type)) {
+                    if (!tmp_tctx->force_assign(m, *v)) {
+                        if (m_trace) {
+                            ios().get_diagnostic_channel() << "unable to assign instance for: " << m_type << "\n";
+                        }
+                        failed = true;
+                        return;
+                    }
+                } else {
+                    if (m_trace) {
+                        ios().get_diagnostic_channel() << "unable to synthesize instance for: " << m_type << "\n";
+                    }
+                    failed = true;
+                    return;
+                }
+            }
+
+            if (tmp_tctx->is_mvar_assigned(i)) return;
+
+            if (tmp_tctx->is_prop(m_type)) {
+                flet<name> set_name(m_rel, get_iff_name());
+                result r_cond = simplify(m_type);
+                if (is_constant(r_cond.get_new()) && const_name(r_cond.get_new()) == get_true_name()) {
+                    expr pf = m_app_builder.mk_app(name("iff", "elim_right"), finalize(r_cond).get_proof(), mk_constant(get_true_intro_name()));
+                    lean_verify(tmp_tctx->is_def_eq(m, pf));
+                    return;
+                }
+            }
+
+            if (m_trace) {
+                ios().get_diagnostic_channel() << "failed to assign: " << m << " : " << m_type << "\n";
+            }
+
+            failed = true;
+            return;
+        });
+
+    return !failed;
 }
 
 /* Setup and teardown */

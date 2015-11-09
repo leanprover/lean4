@@ -17,13 +17,13 @@ Author: Leonardo de Moura
 #include <vector>
 
 namespace lean {
-simp_rule_core::simp_rule_core(name const & id, levels const & umetas, std::vector<expr> const & emetas,
-                               std::vector<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof):
+simp_rule_core::simp_rule_core(name const & id, levels const & umetas, list<expr> const & emetas,
+                               list<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof):
     m_id(id), m_umetas(umetas), m_emetas(emetas), m_instances(instances),
     m_lhs(lhs), m_rhs(rhs), m_proof(proof) {}
 
-simp_rule::simp_rule(name const & id, levels const & umetas, std::vector<expr> const & emetas,
-                     std::vector<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof, bool is_perm):
+simp_rule::simp_rule(name const & id, levels const & umetas, list<expr> const & emetas,
+                     list<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof, bool is_perm):
     simp_rule_core(id, umetas, emetas, instances, lhs, rhs, proof),
     m_is_permutation(is_perm) {}
 
@@ -42,8 +42,8 @@ format simp_rule::pp(formatter const & fmt) const {
     return r;
 }
 
-congr_rule::congr_rule(name const & id, levels const & umetas, std::vector<expr> const & emetas,
-                       std::vector<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof,
+congr_rule::congr_rule(name const & id, levels const & umetas, list<expr> const & emetas,
+                       list<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof,
                        list<expr> const & congr_hyps):
     simp_rule_core(id, umetas, emetas, instances, lhs, rhs, proof),
     m_congr_hyps(congr_hyps) {}
@@ -265,8 +265,8 @@ simp_rule_sets add_core(tmp_type_context & tctx, simp_rule_sets const & s,
         expr rule = tctx.whnf(p.first);
         expr proof = tctx.whnf(p.second);
         bool is_perm = is_permutation_ceqv(env, rule);
-        std::vector<expr> emetas;
-        std::vector<bool> instances;
+        buffer<expr> emetas;
+        buffer<bool> instances;
         while (is_pi(rule)) {
             expr mvar = tctx.mk_mvar(binding_domain(rule));
             emetas.push_back(mvar);
@@ -276,7 +276,8 @@ simp_rule_sets add_core(tmp_type_context & tctx, simp_rule_sets const & s,
         }
         expr rel, lhs, rhs;
         if (is_simp_relation(env, rule, rel, lhs, rhs) && is_constant(rel)) {
-            new_s.insert(const_name(rel), simp_rule(id, univ_metas, emetas, instances, lhs, rhs, proof, is_perm));
+            new_s.insert(const_name(rel), simp_rule(id, univ_metas, reverse_to_list(emetas),
+                                                    reverse_to_list(instances), lhs, rhs, proof, is_perm));
         }
     }
     return new_s;
@@ -365,8 +366,8 @@ void add_congr_core(tmp_type_context & tctx, simp_rule_sets & s, name const & n)
     expr rule    = instantiate_type_univ_params(d, ls);
     expr proof   = mk_constant(n, ls);
 
-    std::vector<expr> emetas;
-    std::vector<bool> instances, explicits;
+    buffer<expr> emetas;
+    buffer<bool> instances, explicits;
 
     while (is_pi(rule)) {
         expr mvar = tctx.mk_mvar(binding_domain(rule));
@@ -456,7 +457,8 @@ void add_congr_core(tmp_type_context & tctx, simp_rule_sets & s, name const & n)
             congr_hyps.push_back(mvar);
         }
     }
-    s.insert(const_name(rel), congr_rule(n, ls, emetas, instances, lhs, rhs, proof, to_list(congr_hyps)));
+    s.insert(const_name(rel), congr_rule(n, ls, reverse_to_list(emetas),
+                                         reverse_to_list(instances), lhs, rhs, proof, to_list(congr_hyps)));
 }
 
 struct rrs_state {

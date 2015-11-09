@@ -17,21 +17,25 @@ class simp_rule_core {
 protected:
     name                m_id;
     levels              m_umetas;
-    std::vector<expr>   m_emetas;
-    std::vector<bool>   m_instances;
+    list<expr>          m_emetas;
+    list<bool>          m_instances;
 
     expr                m_lhs;
     expr                m_rhs;
     expr                m_proof;
-    simp_rule_core(name const & id, levels const & umetas, std::vector<expr> const & emetas,
-                   std::vector<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof);
+    simp_rule_core(name const & id, levels const & umetas, list<expr> const & emetas,
+                   list<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof);
 public:
     name const & get_id() const { return m_id; }
     unsigned get_num_umeta() const { return length(m_umetas); }
-    unsigned get_num_emeta() const { return m_emetas.size(); }
+    unsigned get_num_emeta() const { return length(m_emetas); }
 
-    expr const & get_emeta(unsigned i) const { return m_emetas[i]; }
-    bool is_instance(unsigned i) const { return m_instances[i]; }
+    /** \brief Return a list containing the expression metavariables in reverse order. */
+    list<expr> const & get_emetas() const { return m_emetas; }
+
+    /** \brief Return a list of bools indicating whether or not each expression metavariable 
+        in <tt>get_emetas()</tt> is an instance. */
+    list<bool> const & get_instances() const { return m_instances; }
 
     expr const & get_lhs() const { return m_lhs; }
     expr const & get_rhs() const { return m_rhs; }
@@ -40,8 +44,8 @@ public:
 
 class simp_rule : public simp_rule_core {
     bool           m_is_permutation;
-    simp_rule(name const & id, levels const & umetas, std::vector<expr> const & emetas,
-              std::vector<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof, bool is_perm);
+    simp_rule(name const & id, levels const & umetas, list<expr> const & emetas,
+              list<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof, bool is_perm);
     friend simp_rule_sets add_core(tmp_type_context & tctx, simp_rule_sets const & s, name const & id,
                                    levels const & univ_metas, expr const & e, expr const & h);
 public:
@@ -55,8 +59,8 @@ inline bool operator!=(simp_rule const & r1, simp_rule const & r2) { return !ope
 
 class congr_rule : public simp_rule_core {
     list<expr>  m_congr_hyps;
-    congr_rule(name const & id, levels const & umetas, std::vector<expr> const & emetas,
-               std::vector<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof,
+    congr_rule(name const & id, levels const & umetas, list<expr> const & emetas,
+               list<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof,
                list<expr> const & congr_hyps);
     friend void add_congr_core(tmp_type_context & tctx, simp_rule_sets & s, name const & n);
 public:

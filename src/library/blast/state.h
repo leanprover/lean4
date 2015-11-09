@@ -133,6 +133,8 @@ class state {
     unsigned add_metavar_decl(metavar_decl const & decl);
     goal to_goal(branch const &) const;
 
+    expr mk_binding(bool is_lambda, unsigned num, expr const * hrefs, expr const & b) const;
+
     #ifdef LEAN_DEBUG
     bool check_hypothesis(expr const & e, unsigned hidx, hypothesis const & h) const;
     bool check_hypothesis(unsigned hidx, hypothesis const & h) const;
@@ -279,6 +281,21 @@ public:
     }
 
     unsigned get_depth() const { return m_depth; }
+
+    expr mk_lambda(unsigned num, expr const * hrefs, expr const & b) const {
+        return mk_binding(false, num, hrefs, b);
+    }
+    expr mk_pi(unsigned num, expr const * hrefs, expr const & b) const {
+        return mk_binding(false, num, hrefs, b);
+    }
+    expr mk_lambda(buffer<expr> const & hrefs, expr const & b) const {
+        return mk_lambda(hrefs.size(), hrefs.data(), b);
+    }
+    expr mk_pi(buffer<expr> const & hrefs, expr const & b) const {
+        return mk_pi(hrefs.size(), hrefs.data(), b);
+    }
+    expr mk_lambda(list<expr> const & hrefs, expr const & b) const;
+    expr mk_pi(list<expr> const & hrefs, expr const & b) const;
 
     #ifdef LEAN_DEBUG
     bool check_invariant() const;

@@ -524,6 +524,36 @@ void state::restore_assignment(assignment_snapshot const & s) {
     m_eassignment   = s.m_eassignment;
 }
 
+expr state::mk_binding(bool is_lambda, unsigned num, expr const * hrefs, expr const & b) const {
+    expr r     = abstract_locals(b, num, hrefs);
+    unsigned i = num;
+    while (i > 0) {
+        --i;
+        expr const & h = hrefs[i];
+        lean_assert(is_href(h));
+        hypothesis const * hdecl = get(h);
+        lean_assert(hdecl);
+        expr t = abstract_locals(hdecl->get_type(), i, hrefs);
+        if (is_lambda)
+            r = ::lean::mk_lambda(hdecl->get_name(), t, r);
+        else
+            r = ::lean::mk_pi(hdecl->get_name(), t, r);
+    }
+    return r;
+}
+
+expr state::mk_lambda(list<expr> const & hrefs, expr const & b) const {
+    buffer<expr> tmp;
+    to_buffer(hrefs, tmp);
+    return mk_lambda(tmp, b);
+}
+
+expr state::mk_pi(list<expr> const & hrefs, expr const & b) const {
+    buffer<expr> tmp;
+    to_buffer(hrefs, tmp);
+    return mk_pi(tmp, b);
+}
+
 void initialize_state() {
     g_prefix     = new name(name::mk_internal_unique_name());
 }

@@ -415,4 +415,7 @@ struct unsigned_cmp {
 struct int_cmp {
     int operator()(int i1, int i2) const { return i1 < i2 ? -1 : (i1 == i2 ? 0 : 1); }
 };
+struct double_cmp {
+    int operator()(double i1, double i2) const { return i1 < i2 ? -1 : (i1 > i2 ? 1 : 0); }
+};
 }

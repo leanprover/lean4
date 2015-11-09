@@ -38,6 +38,13 @@ public:
 
     unsigned get_rc() const { return m_map.get_rc(); }
 
+    T erase_min() {
+        lean_assert(!empty());
+        T r = m_map.min()->second;
+        m_map.erase_min();
+        return r;
+    }
+
     class ref {
         rb_map & m_map;
         K const &   m_key;

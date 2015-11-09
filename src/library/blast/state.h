@@ -246,22 +246,18 @@ public:
 
     void display(environment const & env, io_state const & ios) const;
 
-    /** Auxiliary object for creating snapshots of the metavariable assignments.
-        \remark The snapshots are created (and restored) in constant time */
     class assignment_snapshot {
-        state &     m_state;
-        uassignment m_old_uassignment;
-        eassignment m_old_eassignment;
+        friend class state;
+        uassignment        m_uassignment;
+        metavar_decls      m_metavar_decls;
+        eassignment        m_eassignment;
+        assignment_snapshot(uassignment const & u, metavar_decls const & decls, eassignment const & e):
+            m_uassignment(u), m_metavar_decls(decls), m_eassignment(e) {}
     public:
-        assignment_snapshot(state & s):
-            m_state(s),
-            m_old_uassignment(s.m_uassignment),
-            m_old_eassignment(s.m_eassignment) {}
-        void restore() {
-            m_state.m_uassignment = m_old_uassignment;
-            m_state.m_eassignment = m_old_eassignment;
-        }
     };
+
+    assignment_snapshot save_assignment();
+    void restore_assignment(assignment_snapshot const & s);
 
     void push_proof_step(proof_step const & ps) {
         m_depth++;

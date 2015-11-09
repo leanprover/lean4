@@ -87,8 +87,8 @@ class blastenv {
     unsigned                   m_inc_depth;
 
     class tctx : public type_context {
-        blastenv &         m_benv;
-        std::vector<state> m_stack;
+        blastenv &                              m_benv;
+        std::vector<state::assignment_snapshot> m_stack;
     public:
         tctx(blastenv & benv):
             type_context(benv.m_env, benv.m_ios, benv.m_tmp_local_generator),
@@ -199,12 +199,11 @@ class blastenv {
         }
 
         virtual void push() {
-            // TODO(Leo): we only need to save the assignment and metavar_decls.
-            m_stack.push_back(m_benv.m_curr_state);
+            m_stack.push_back(m_benv.m_curr_state.save_assignment());
         }
 
         virtual void pop() {
-            m_benv.m_curr_state = m_stack.back();
+            m_benv.m_curr_state.restore_assignment(m_stack.back());
             m_stack.pop_back();
         }
 

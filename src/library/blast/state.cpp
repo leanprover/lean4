@@ -514,6 +514,16 @@ expr state::expand_hrefs(expr const & e, list<expr> const & hrefs) const {
     return expand_hrefs_fn(*this, hrefs)(e);
 }
 
+auto state::save_assignment() -> assignment_snapshot {
+    return assignment_snapshot(m_uassignment, m_metavar_decls, m_eassignment);
+}
+
+void state::restore_assignment(assignment_snapshot const & s) {
+    m_uassignment   = s.m_uassignment;
+    m_metavar_decls = s.m_metavar_decls;
+    m_eassignment   = s.m_eassignment;
+}
+
 void initialize_state() {
     g_prefix     = new name(name::mk_internal_unique_name());
 }

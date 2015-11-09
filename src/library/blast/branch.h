@@ -21,7 +21,7 @@ class branch {
     typedef hypothesis_idx_map<hypothesis_idx_set> forward_deps;
     typedef rb_map<double, unsigned, double_cmp>   todo_queue;
     friend class state;
-    unsigned           m_next;
+    unsigned           m_next{0};
     context            m_context;
     // We break the set of hypotheses in m_context in 3 sets that are not necessarily disjoint:
     //   - assumption
@@ -60,7 +60,7 @@ class branch {
     void update_indices(unsigned hidx);
 
 public:
-    branch():m_next(0) {}
+    branch() {}
 
     expr add_hypothesis(name const & n, expr const & type, expr const & value);
     expr add_hypothesis(expr const & type, expr const & value);
@@ -75,6 +75,12 @@ public:
         return get(href_index(h));
     }
     void for_each_hypothesis(std::function<void(unsigned, hypothesis const &)> const & fn) const { m_context.for_each(fn); }
+    optional<unsigned> find_active_hypothesis(std::function<bool(unsigned, hypothesis const &)> const & fn) const { // NOLINT
+        return m_active.find_if([&](unsigned hidx) {
+                return fn(hidx, *get(hidx));
+            });
+    }
+
     /** \brief Activate the next hypothesis in the TODO queue, return none if the TODO queue is empty. */
     optional<unsigned> activate_hypothesis();
 

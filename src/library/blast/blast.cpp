@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/blast/expr.h"
 #include "library/blast/state.h"
 #include "library/blast/blast.h"
+#include "library/blast/assumption.h"
 #include "library/blast/blast_exception.h"
 
 #ifndef LEAN_DEFAULT_BLAST_MAX_DEPTH
@@ -434,6 +435,8 @@ class blastenv {
         if (activate_hypothesis()) {
             // TODO(Leo): we should probably eagerly simplify the activated hypothesis.
             return mk_pair(Continue, expr());
+        } else if (auto pr = assumption_action()) {
+            return mk_pair(ClosedBranch, *pr);
         } else {
             // TODO(Leo): add more actions...
             return mk_pair(NoAction, expr());

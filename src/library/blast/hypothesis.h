@@ -23,18 +23,18 @@ using hypothesis_idx_map = typename lean::rb_map<unsigned, T, unsigned_cmp>;
 
 class hypothesis {
     friend class state;
-    name               m_name;     // for pretty printing
+    name               m_name;      // for pretty printing
     unsigned           m_active:1;
-    unsigned           m_depth;
-    hypothesis_idx_set m_deps;     // hypotheses used by the type and/or value of this hypothesis.
+    unsigned           m_dep_depth; // dependency depth
+    hypothesis_idx_set m_deps;      // hypotheses used by the type and/or value of this hypothesis.
     expr               m_type;
-    expr               m_value;    // justification for this object.
+    expr               m_value;     // justification for this object.
     // Remark: if blast::is_local(m_value) is true, then the hypothesis is an assumption
 public:
-    hypothesis():m_active(false), m_depth(0) {}
+    hypothesis():m_active(false), m_dep_depth(0) {}
     name const & get_name() const { return m_name; }
     bool is_active() const { return m_active; }
-    unsigned get_depth() const { return m_depth; }
+    unsigned get_dep_depth() const { return m_dep_depth; }
     hypothesis_idx_set const & get_backward_deps() const { return m_deps; }
     expr const & get_type() const { return m_type; }
     expr const & get_value() const { return m_value; }

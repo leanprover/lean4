@@ -355,13 +355,16 @@ bool state::check_invariant() const {
 }
 #endif
 
-struct hypothesis_depth_lt {
+struct hypothesis_dep_depth_lt {
     state const & m_state;
-    hypothesis_depth_lt(state const & s): m_state(s) {}
+
+    hypothesis_dep_depth_lt(state const & s): m_state(s) {}
     bool operator()(unsigned hidx1, unsigned hidx2) const {
         hypothesis const * h1 = m_state.get(hidx1);
         hypothesis const * h2 = m_state.get(hidx2);
-        return h1 && h2 && h1->get_depth() < h2->get_depth() && (h1->get_depth() == h2->get_depth() && hidx1 < hidx2);
+        return
+            h1 && h2 && h1->get_dep_depth() < h2->get_dep_depth() &&
+            (h1->get_dep_depth() == h2->get_dep_depth() && hidx1 < hidx2);
     }
 };
 
@@ -369,7 +372,7 @@ void state::get_sorted_hypotheses(hypothesis_idx_buffer & r) const {
     m_context.for_each([&](unsigned hidx, hypothesis const &) {
             r.push_back(hidx);
         });
-    std::sort(r.begin(), r.end(), hypothesis_depth_lt(*this));
+    std::sort(r.begin(), r.end(), hypothesis_dep_depth_lt(*this));
 }
 
 void state::add_forward_dep(unsigned hidx_user, unsigned hidx_provider) {
@@ -396,8 +399,8 @@ void state::add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user) {
                 unsigned hidx_provider = href_index(l);
                 hypothesis const * h_provider = get(hidx_provider);
                 lean_assert(h_provider);
-                if (h_user.m_depth <= h_provider->m_depth)
-                    h_user.m_depth = h_provider->m_depth + 1;
+                if (h_user.m_dep_depth <= h_provider->m_dep_depth)
+                    h_user.m_dep_depth = h_provider->m_dep_depth + 1;
                 if (!h_user.m_deps.contains(hidx_provider)) {
                     h_user.m_deps.insert(hidx_provider);
                     add_forward_dep(hidx_user, hidx_provider);

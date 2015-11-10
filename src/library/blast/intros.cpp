@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "library/blast/blast.h"
+#include "library/blast/proof_expr.h"
 
 namespace lean {
 namespace blast {
@@ -14,7 +15,7 @@ struct intros_proof_step_cell : public proof_step_cell {
     list<expr> m_new_hs;
     virtual ~intros_proof_step_cell() {}
     virtual optional<expr> resolve(state & s, expr const & pr) const {
-        expr new_pr = s.mk_lambda(m_new_hs, pr);
+        expr new_pr = mk_proof_lambda(s, m_new_hs, unfold_hypotheses_ge(s, pr));
         return some_expr(new_pr);
     }
 };

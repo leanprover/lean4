@@ -429,9 +429,11 @@ double state::compute_weight(unsigned hidx, expr const & /* type */) {
 
 expr state::mk_hypothesis(unsigned new_hidx, name const & n, expr const & type, optional<expr> const & value) {
     hypothesis new_h;
+    expr r                = mk_href(new_hidx);
     new_h.m_name          = n;
     new_h.m_type          = type;
     new_h.m_value         = value;
+    new_h.m_self          = r;
     new_h.m_proof_depth   = m_proof_depth;
     add_deps(new_h, new_hidx);
     m_hyp_decls.insert(new_hidx, new_h);
@@ -439,7 +441,7 @@ expr state::mk_hypothesis(unsigned new_hidx, name const & n, expr const & type, 
         m_assumption.insert(new_hidx);
     double w = compute_weight(new_hidx, type);
     m_todo_queue.insert(w, new_hidx);
-    return blast::mk_href(new_hidx);
+    return r;
 }
 
 expr state::mk_hypothesis(name const & n, expr const & type, expr const & value) {

@@ -18,12 +18,7 @@ optional<expr> assumption_action() {
         });
     if (!hidx)
         return none_expr();
-    // TODO(Leo): cleanup
     hypothesis const * h = s.get_hypothesis_decl(*hidx);
-    if (h->get_value()) {
-        return some_expr(*h->get_value());
-    } else {
-        return some_expr(mk_href(*hidx));
-    }
+    return some_expr(h->get_self());
 }
 }}

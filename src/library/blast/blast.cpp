@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/blast/blast.h"
 #include "library/blast/assumption.h"
 #include "library/blast/intros.h"
+#include "library/blast/proof_expr.h"
 #include "library/blast/blast_exception.h"
 
 #ifndef LEAN_DEFAULT_BLAST_MAX_DEPTH
@@ -494,43 +495,18 @@ class blastenv {
         return none_expr();
     }
 
-    struct to_tactic_proof_fn : public replace_visitor {
-        state &  m_state;
-
-        virtual expr visit_local(expr const & e) {
-            // TODO(Leo): cleanup
-            if (is_href(e)) {
-                hypothesis const * h = m_state.get_hypothesis_decl(e);
-                if (auto r = h->get_value()) {
-                    return visit(*r);
-                }
-            }
-            return replace_visitor::visit_local(e);
-        }
-
-        virtual expr visit_meta(expr const & e) {
-            lean_assert(is_mref(e));
-            expr v = m_state.instantiate_urefs_mrefs(e);
-            if (v == e) {
-                return v;
-            } else {
-                return replace_visitor::visit_meta(v);
-            }
-        }
-
-        to_tactic_proof_fn(state & s):
-            m_state(s) {}
-    };
-
     expr to_tactic_proof(expr const & pr) {
-        // TODO(Leo): when a proof is found we must
-        // 1- (done) remove all occurrences of href's from pr
-        // 2- (done) replace mrefs with their assignments,
+        // When a proof is found we must
+        // 1- Remove all occurrences of href's from pr
+        expr pr1 = unfold_hypotheses_ge(m_curr_state, pr, 0);
+        // 2- Replace mrefs with their assignments,
         //    and convert unassigned meta-variables back into
         //    tactic meta-variables.
+        expr pr2 = m_curr_state.instantiate_urefs_mrefs(pr1);
+        // TODO(Leo):
         // 3- The external tactic meta-variables that have been instantiated
         //    by blast must also be communicated back to the tactic framework.
-        return to_tactic_proof_fn(m_curr_state)(pr);
+        return pr2;
     }
 
 public:

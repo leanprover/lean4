@@ -28,6 +28,7 @@ class hypothesis {
     unsigned           m_dep_depth;    // dependency depth
     unsigned           m_proof_depth;  // proof depth when the hypothesis was created
     hypothesis_idx_set m_deps;         // hypotheses used by the type and/or value of this hypothesis.
+    expr               m_self;
     expr               m_type;
     optional<expr>     m_value;        // justification for this object.
     // Remark: if blast::is_local(m_value) is true, then the hypothesis is an assumption
@@ -38,6 +39,7 @@ public:
     unsigned get_dep_depth() const { return m_dep_depth; }
     unsigned get_proof_depth() const { return m_proof_depth; }
     hypothesis_idx_set const & get_backward_deps() const { return m_deps; }
+    expr const & get_self() const { return m_self; }
     expr const & get_type() const { return m_type; }
     optional<expr> const & get_value() const { return m_value; }
     /** \brief Return true iff this hypothesis depends on \c h. */

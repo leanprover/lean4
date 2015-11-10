@@ -10,13 +10,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-class intros_proof_step_cell : public proof_step_cell {
+struct intros_proof_step_cell : public proof_step_cell {
     list<expr> m_new_hs;
-public:
-    intros_proof_step_cell(list<expr> const & new_hs):
-        m_new_hs(new_hs) {}
     virtual ~intros_proof_step_cell() {}
-
     virtual optional<expr> resolve(state & s, expr const & pr) const {
         expr new_pr = s.mk_lambda(m_new_hs, pr);
         return some_expr(new_pr);
@@ -28,13 +24,15 @@ bool intros_action() {
     expr target = whnf(s.get_target());
     if (!is_pi(target))
         return false;
+    auto pcell = new intros_proof_step_cell();
+    s.push_proof_step(proof_step(pcell));
     buffer<expr> new_hs;
     while (is_pi(target)) {
         expr href  = s.mk_hypothesis(binding_name(target), binding_domain(target));
         new_hs.push_back(href);
         target     = whnf(instantiate(binding_body(target), href));
     }
-    s.push_proof_step(proof_step(new intros_proof_step_cell(to_list(new_hs))));
+    pcell->m_new_hs = to_list(new_hs);
     s.set_target(target);
     return true;
 }

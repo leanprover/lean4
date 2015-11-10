@@ -94,7 +94,7 @@ class state {
     // If this check fails, then we should replace any assigned `m_i` with its value, if the intersection is still
     // non-empty, then we cannot clear `h`.
     fixed_by           m_fixed_by;
-    unsigned           m_depth{0};
+    unsigned           m_proof_depth{0};
     proof_steps        m_proof_steps;
     // Hypothesis/facts in the current state
     hypothesis_decls   m_hyp_decls;
@@ -192,7 +192,7 @@ public:
     /** \brief Activate the next hypothesis in the TODO queue, return none if the TODO queue is empty. */
     optional<unsigned> activate_hypothesis();
 
-    /** \brief Store in \c r the hypotheses in this branch sorted by depth */
+    /** \brief Store in \c r the hypotheses in this branch sorted by dependency depth */
     void get_sorted_hypotheses(hypothesis_idx_buffer & r) const;
 
     expr expand_hrefs(expr const & e, list<expr> const & hrefs) const;
@@ -235,7 +235,7 @@ public:
     *************************/
 
     void push_proof_step(proof_step const & ps) {
-        m_depth++;
+        m_proof_depth++;
         m_proof_steps = cons(ps, m_proof_steps);
     }
 
@@ -249,12 +249,12 @@ public:
 
     void pop_proof_step() {
         lean_assert(m_proof_steps);
-        m_depth--;
+        m_proof_depth--;
         m_proof_steps = tail(m_proof_steps);
     }
 
-    unsigned get_depth() const {
-        return m_depth;
+    unsigned get_proof_depth() const {
+        return m_proof_depth;
     }
 
 

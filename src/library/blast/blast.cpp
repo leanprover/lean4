@@ -459,7 +459,7 @@ class blastenv {
 
     optional<expr> search_upto(unsigned depth) {
         while (true) {
-            if (m_curr_state.get_depth() > depth) {
+            if (m_curr_state.get_proof_depth() > depth) {
                 // maximum depth reached
                 if (!next_choice_point()) {
                     return none_expr();

@@ -432,6 +432,7 @@ expr state::mk_hypothesis(unsigned new_hidx, name const & n, expr const & type, 
     new_h.m_name          = n;
     new_h.m_type          = type;
     new_h.m_value         = value;
+    new_h.m_proof_depth   = m_proof_depth;
     add_deps(new_h, new_hidx);
     m_hyp_decls.insert(new_hidx, new_h);
     if (new_h.is_assumption())

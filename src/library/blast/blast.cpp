@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include "util/sstream.h"
-#include "util/sexpr/option_declarations.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/type_checker.h"
 #include "library/replace_visitor.h"
@@ -24,37 +23,13 @@ Author: Leonardo de Moura
 #include "library/blast/assumption.h"
 #include "library/blast/intros.h"
 #include "library/blast/proof_expr.h"
+#include "library/blast/options.h"
 #include "library/blast/blast_exception.h"
-
-#ifndef LEAN_DEFAULT_BLAST_MAX_DEPTH
-#define LEAN_DEFAULT_BLAST_MAX_DEPTH 128
-#endif
-#ifndef LEAN_DEFAULT_BLAST_INIT_DEPTH
-#define LEAN_DEFAULT_BLAST_INIT_DEPTH 1
-#endif
-#ifndef LEAN_DEFAULT_BLAST_INC_DEPTH
-#define LEAN_DEFAULT_BLAST_INC_DEPTH 5
-#endif
 
 namespace lean {
 namespace blast {
 static name * g_prefix     = nullptr;
 static name * g_tmp_prefix = nullptr;
-
-/* Options */
-static name * g_blast_max_depth    = nullptr;
-static name * g_blast_init_depth   = nullptr;
-static name * g_blast_inc_depth    = nullptr;
-
-unsigned get_blast_max_depth(options const & o) {
-    return o.get_unsigned(*g_blast_max_depth, LEAN_DEFAULT_BLAST_MAX_DEPTH);
-}
-unsigned get_blast_init_depth(options const & o) {
-    return o.get_unsigned(*g_blast_init_depth, LEAN_DEFAULT_BLAST_INIT_DEPTH);
-}
-unsigned get_blast_inc_depth(options const & o) {
-    return o.get_unsigned(*g_blast_inc_depth, LEAN_DEFAULT_BLAST_INC_DEPTH);
-}
 
 class blastenv {
     friend class scope_assignment;
@@ -829,16 +804,6 @@ optional<expr> blast_goal(environment const & env, io_state const & ios, list<na
 void initialize_blast() {
     blast::g_prefix           = new name(name::mk_internal_unique_name());
     blast::g_tmp_prefix       = new name(name::mk_internal_unique_name());
-    blast::g_blast_max_depth  = new name{"blast", "max_depth"};
-    blast::g_blast_init_depth = new name{"blast", "init_depth"};
-    blast::g_blast_inc_depth  = new name{"blast", "inc_depth"};
-
-    register_unsigned_option(*blast::g_blast_max_depth, LEAN_DEFAULT_BLAST_MAX_DEPTH,
-                             "(blast) max search depth for blast");
-    register_unsigned_option(*blast::g_blast_init_depth, LEAN_DEFAULT_BLAST_INIT_DEPTH,
-                             "(blast) initial search depth for blast (remark: blast uses iteration deepening)");
-    register_unsigned_option(*blast::g_blast_inc_depth, LEAN_DEFAULT_BLAST_INC_DEPTH,
-                             "(blast) search depth increment for blast (remark: blast uses iteration deepening)");
 }
 void finalize_blast() {
     delete blast::g_prefix;

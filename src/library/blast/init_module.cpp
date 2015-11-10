@@ -9,9 +9,11 @@ Author: Leonardo de Moura
 #include "library/blast/blast.h"
 #include "library/blast/blast_tactic.h"
 #include "library/blast/simplifier.h"
+#include "library/blast/options.h"
 
 namespace lean {
 void initialize_blast_module() {
+    blast::initialize_options();
     blast::initialize_expr();
     blast::initialize_state();
     initialize_blast();
@@ -24,5 +26,6 @@ void finalize_blast_module() {
     finalize_blast();
     blast::finalize_state();
     blast::finalize_expr();
+    blast::finalize_options();
 }
 }

@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/blast/intros.h"
 #include "library/blast/proof_expr.h"
 #include "library/blast/options.h"
+#include "library/blast/choice_point.h"
 #include "library/blast/blast_exception.h"
 
 namespace lean {
@@ -50,7 +51,6 @@ class blastenv {
     name_predicate             m_instance_pred;
     name_map<projection_info>  m_projection_info;
     state                      m_curr_state;   // current state
-    std::vector<state>         m_choice_points;
     tmp_type_context_pool      m_tmp_ctx_pool;
     tmp_type_context_ptr       m_tmp_ctx; // for app_builder and congr_lemma_manager
     app_builder                m_app_builder;
@@ -392,14 +392,6 @@ class blastenv {
         m_inc_depth  = get_blast_inc_depth(o);
     }
 
-    bool next_choice_point() {
-        if (m_choice_points.empty())
-            return false;
-        m_curr_state = m_choice_points.back();
-        m_choice_points.pop_back();
-        return true;
-    }
-
     enum status { NoAction, ClosedBranch, Continue };
 
     optional<unsigned> activate_hypothesis() {
@@ -465,7 +457,7 @@ class blastenv {
                 return r;
             d += m_inc_depth;
             m_curr_state = s;
-            m_choice_points.clear();
+            clear_choice_points();
         }
         return none_expr();
     }

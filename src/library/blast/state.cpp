@@ -369,7 +369,7 @@ struct hypothesis_dep_depth_lt {
 };
 
 void state::get_sorted_hypotheses(hypothesis_idx_buffer & r) const {
-    m_context.for_each([&](unsigned hidx, hypothesis const &) {
+    m_hyp_decls.for_each([&](unsigned hidx, hypothesis const &) {
             r.push_back(hidx);
         });
     std::sort(r.begin(), r.end(), hypothesis_dep_depth_lt(*this));
@@ -427,13 +427,13 @@ double state::compute_weight(unsigned hidx, expr const & /* type */) {
     return 1.0 / (static_cast<double>(hidx) + 1.0);
 }
 
-expr state::add_hypothesis(unsigned new_hidx, name const & n, expr const & type, optional<expr> const & value) {
+expr state::mk_hypothesis(unsigned new_hidx, name const & n, expr const & type, optional<expr> const & value) {
     hypothesis new_h;
     new_h.m_name          = n;
     new_h.m_type          = type;
     new_h.m_value         = value;
     add_deps(new_h, new_hidx);
-    m_context.insert(new_hidx, new_h);
+    m_hyp_decls.insert(new_hidx, new_h);
     if (new_h.is_assumption())
         m_assumption.insert(new_hidx);
     double w = compute_weight(new_hidx, type);
@@ -441,22 +441,22 @@ expr state::add_hypothesis(unsigned new_hidx, name const & n, expr const & type,
     return blast::mk_href(new_hidx);
 }
 
-expr state::add_hypothesis(name const & n, expr const & type, expr const & value) {
-    return add_hypothesis(mk_href_idx(), n, type, some_expr(value));
+expr state::mk_hypothesis(name const & n, expr const & type, expr const & value) {
+    return mk_hypothesis(mk_href_idx(), n, type, some_expr(value));
 }
 
-expr state::add_hypothesis(expr const & type, expr const & value) {
+expr state::mk_hypothesis(expr const & type, expr const & value) {
     unsigned hidx = mk_href_idx();
-    return add_hypothesis(hidx, name(*g_prefix, hidx), type, some_expr(value));
+    return mk_hypothesis(hidx, name(*g_prefix, hidx), type, some_expr(value));
 }
 
-expr state::add_hypothesis(name const & n, expr const & type) {
-    return add_hypothesis(mk_href_idx(), n, type, none_expr());
+expr state::mk_hypothesis(name const & n, expr const & type) {
+    return mk_hypothesis(mk_href_idx(), n, type, none_expr());
 }
 
-expr state::add_hypothesis(expr const & type) {
+expr state::mk_hypothesis(expr const & type) {
     unsigned hidx = mk_href_idx();
-    return add_hypothesis(hidx, name(*g_prefix, hidx), type, none_expr());
+    return mk_hypothesis(hidx, name(*g_prefix, hidx), type, none_expr());
 }
 
 void state::update_indices(unsigned /* hidx */) {
@@ -530,9 +530,7 @@ auto state::save_assignment() -> assignment_snapshot {
 }
 
 void state::restore_assignment(assignment_snapshot const & s) {
-    m_uassignment   = s.m_uassignment;
-    m_metavar_decls = s.m_metavar_decls;
-    m_eassignment   = s.m_eassignment;
+    std::tie(m_uassignment, m_metavar_decls, m_eassignment) = s;
 }
 
 expr state::mk_binding(bool is_lambda, unsigned num, expr const * hrefs, expr const & b) const {

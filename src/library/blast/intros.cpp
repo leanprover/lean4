@@ -17,7 +17,7 @@ public:
         m_new_hs(new_hs) {}
     virtual ~intros_proof_step_cell() {}
 
-    virtual optional<expr> resolve(state & s, expr const & pr) {
+    virtual optional<expr> resolve(state & s, expr const & pr) const {
         expr new_pr = s.mk_lambda(m_new_hs, pr);
         return some_expr(new_pr);
     }
@@ -30,7 +30,7 @@ bool intros_action() {
         return false;
     buffer<expr> new_hs;
     while (is_pi(target)) {
-        expr href  = s.add_hypothesis(binding_name(target), binding_domain(target));
+        expr href  = s.mk_hypothesis(binding_name(target), binding_domain(target));
         new_hs.push_back(href);
         target     = whnf(instantiate(binding_body(target), href));
     }

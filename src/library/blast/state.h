@@ -13,11 +13,11 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 typedef rb_tree<unsigned, unsigned_cmp> metavar_idx_set;
-typedef hypothesis_idx_map<hypothesis> context;
+typedef hypothesis_idx_map<hypothesis> hypothesis_decls;
+template<typename T> using metavar_idx_map = typename lean::rb_map<unsigned, T, unsigned_cmp>;
 
-template<typename T>
-using metavar_idx_map = typename lean::rb_map<unsigned, T, unsigned_cmp>;
-
+/** \brief Metavariable declaration in the blast proof state.
+    Each declaration contains a type and the assumptions it depends on. */
 class metavar_decl {
     // A metavariable can be assigned to a value that contains references only to the assumptions
     // that were available when the metavariable was defined.
@@ -46,10 +46,16 @@ public:
         When the branch created by the proof-step is closed,
         a proof pr is provided, and the proof-step can perform two operations
         1- setup the next branch and return none_expr
-        2- finish and return a new proof */
-    virtual optional<expr> resolve(state & s, expr const & pr) = 0;
+        2- finish and return a new proof
+
+        \remark Proof steps may be shared, i.e., they may ocurren the
+        proof-step stack of different proof state objects.
+        So, resolve must not perform destructive updates.
+        This is why we marked it as const. */
+    virtual optional<expr> resolve(state & s, expr const & pr) const = 0;
 };
 
+/** \brief Smart pointer for proof steps */
 class proof_step {
     proof_step_cell * m_ptr;
 public:
@@ -61,12 +67,13 @@ public:
     proof_step & operator=(proof_step const & s) { LEAN_COPY_REF(s); }
     proof_step & operator=(proof_step && s) { LEAN_MOVE_REF(s); }
 
-    optional<expr> resolve(state & s, expr const & pr) {
+    optional<expr> resolve(state & s, expr const & pr) const {
         lean_assert(m_ptr);
         return m_ptr->resolve(s, pr);
     }
 };
 
+/** \brief Proof state for the blast tactic */
 class state {
     typedef hypothesis_idx_map<hypothesis_idx_set> forward_deps;
     typedef rb_map<double, unsigned, double_cmp>   todo_queue;
@@ -90,7 +97,7 @@ class state {
     unsigned           m_depth{0};
     proof_steps        m_proof_steps;
     // Hypothesis/facts in the current state
-    context            m_context;
+    hypothesis_decls   m_hyp_decls;
     // We break the set of hypotheses in m_context in 3 sets that are not necessarily disjoint:
     //   - assumption
     //   - active
@@ -126,7 +133,7 @@ class state {
         We will update indices and data-structures (e.g., congruence closure). */
     void update_indices(unsigned hidx);
 
-    expr add_hypothesis(unsigned new_hidx, name const & n, expr const & type, optional<expr> const & value);
+    expr mk_hypothesis(unsigned new_hidx, name const & n, expr const & type, optional<expr> const & value);
 
     void add_fixed_by(unsigned hidx, unsigned midx);
     unsigned add_metavar_decl(metavar_decl const & decl);
@@ -142,23 +149,9 @@ class state {
 public:
     state();
 
-    bool is_uref_assigned(level const & l) const {
-        return m_uassignment.contains(uref_index(l));
-    }
-
-    // u := l
-    void assign_uref(level const & u, level const & l) {
-        m_uassignment.insert(uref_index(u), l);
-    }
-
-    level const * get_uref_assignment(level const & l) const {
-        lean_assert(is_uref_assigned(l));
-        return m_uassignment.find(uref_index(l));
-    }
-
-    /** \brief Instantiate any assigned uref in \c l with its assignment.
-        \remark This is not a const method because it may normalize the assignment. */
-    level instantiate_urefs(level const & l);
+    /************************
+       Metavariables
+    *************************/
 
     /** \brief Create a new metavariable using the given type and context.
         \pre ctx must be a subset of the hypotheses in the current branch. */
@@ -168,50 +161,28 @@ public:
         The context of this metavariable will be all assumption hypotheses occurring
         in the current branch. */
     expr mk_metavar(expr const & type);
+    metavar_decl const * get_metavar_decl(unsigned idx) const { return m_metavar_decls.find(idx); }
+    metavar_decl const * get_metavar_decl(expr const & e) const { return get_metavar_decl(mref_index(e)); }
 
-    /** \brief Make sure the metavariable declaration context of mref1 is a
-        subset of the metavariable declaration context of mref2. */
-    void restrict_mref_context_using(expr const & mref1, expr const & mref2);
+    bool has_mvar(expr const & e) const { return m_mvar_idxs.contains(mref_index(e)); }
 
-    bool is_mref_assigned(expr const & e) const {
-        lean_assert(is_mref(e));
-        return m_eassignment.contains(mref_index(e));
-    }
+    /************************
+       Hypotheses
+    *************************/
 
-    /** \brief Return true iff \c l contains an assigned uref */
-    bool has_assigned_uref(level const & l) const;
-    bool has_assigned_uref(levels const & ls) const;
-
-    expr const * get_mref_assignment(expr const & e) const {
-        lean_assert(is_mref(e));
-        return m_eassignment.find(mref_index(e));
-    }
-
-    // m := e
-    void assign_mref(expr const & m, expr const & e) {
-        m_eassignment.insert(mref_index(m), e);
-    }
-
-    /** \brief Return true if \c e contains an assigned mref or uref */
-    bool has_assigned_uref_mref(expr const & e) const;
-
-    /** \brief Instantiate any assigned mref in \c e with its assignment.
-        \remark This is not a const method because it may normalize the assignment. */
-    expr instantiate_urefs_mrefs(expr const & e);
-
-    expr add_hypothesis(name const & n, expr const & type, expr const & value);
-    expr add_hypothesis(expr const & type, expr const & value);
-    expr add_hypothesis(name const & n, expr const & type);
-    expr add_hypothesis(expr const & type);
+    expr mk_hypothesis(name const & n, expr const & type, expr const & value);
+    expr mk_hypothesis(expr const & type, expr const & value);
+    expr mk_hypothesis(name const & n, expr const & type);
+    expr mk_hypothesis(expr const & type);
 
     /** \brief Return true iff the hypothesis with index \c hidx_user depends on the hypothesis with index
         \c hidx_provider. */
     bool hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const;
 
-    hypothesis const * get_hypothesis_decl(unsigned hidx) const { return m_context.find(hidx); }
+    hypothesis const * get_hypothesis_decl(unsigned hidx) const { return m_hyp_decls.find(hidx); }
     hypothesis const * get_hypothesis_decl(expr const & h) const { return get_hypothesis_decl(href_index(h)); }
 
-    void for_each_hypothesis(std::function<void(unsigned, hypothesis const &)> const & fn) const { m_context.for_each(fn); }
+    void for_each_hypothesis(std::function<void(unsigned, hypothesis const &)> const & fn) const { m_hyp_decls.for_each(fn); }
     optional<unsigned> find_active_hypothesis(std::function<bool(unsigned, hypothesis const &)> const & fn) const { // NOLINT
         return m_active.find_if([&](unsigned hidx) {
                 return fn(hidx, *get_hypothesis_decl(hidx));
@@ -224,6 +195,34 @@ public:
     /** \brief Store in \c r the hypotheses in this branch sorted by depth */
     void get_sorted_hypotheses(hypothesis_idx_buffer & r) const;
 
+    expr expand_hrefs(expr const & e, list<expr> const & hrefs) const;
+
+    hypothesis_idx_set get_assumptions() const { return m_assumption; }
+
+    /************************
+       Abstracting hypotheses
+    *************************/
+
+    expr mk_lambda(unsigned num, expr const * hrefs, expr const & b) const {
+        return mk_binding(true, num, hrefs, b);
+    }
+    expr mk_pi(unsigned num, expr const * hrefs, expr const & b) const {
+        return mk_binding(false, num, hrefs, b);
+    }
+    expr mk_lambda(buffer<expr> const & hrefs, expr const & b) const {
+        return mk_lambda(hrefs.size(), hrefs.data(), b);
+    }
+    expr mk_pi(buffer<expr> const & hrefs, expr const & b) const {
+        return mk_pi(hrefs.size(), hrefs.data(), b);
+    }
+    expr mk_lambda(list<expr> const & hrefs, expr const & b) const;
+    expr mk_pi(list<expr> const & hrefs, expr const & b) const;
+
+
+    /************************
+       Target (aka what needs to be synthesized)
+    *************************/
+
     /** \brief Set target (aka conclusion, aka type of the goal, aka type of the term that
         must be synthesize in the current branch) */
     void set_target(expr const & t);
@@ -231,34 +230,9 @@ public:
     /** \brief Return true iff the target depends on the given hypothesis */
     bool target_depends_on(expr const & h) const { return m_target_deps.contains(href_index(h)); }
 
-    bool has_mvar(expr const & e) const { return m_mvar_idxs.contains(mref_index(e)); }
-
-    expr expand_hrefs(expr const & e, list<expr> const & hrefs) const;
-
-    hypothesis_idx_set get_assumptions() const { return m_assumption; }
-
-    metavar_decl const * get_metavar_decl(unsigned idx) const { return m_metavar_decls.find(idx); }
-    metavar_decl const * get_metavar_decl(expr const & e) const { return get_metavar_decl(mref_index(e)); }
-
-    /** \brief Convert current branch into a goal.
-        This is mainly used for pretty printing. However, in the future, we may use this capability
-        to invoke the tactic framework from the blast tactic. */
-    goal to_goal() const;
-
-    void display(environment const & env, io_state const & ios) const;
-
-    class assignment_snapshot {
-        friend class state;
-        uassignment        m_uassignment;
-        metavar_decls      m_metavar_decls;
-        eassignment        m_eassignment;
-        assignment_snapshot(uassignment const & u, metavar_decls const & decls, eassignment const & e):
-            m_uassignment(u), m_metavar_decls(decls), m_eassignment(e) {}
-    public:
-    };
-
-    assignment_snapshot save_assignment();
-    void restore_assignment(assignment_snapshot const & s);
+    /************************
+       Proof steps
+    *************************/
 
     void push_proof_step(proof_step const & ps) {
         m_depth++;
@@ -279,22 +253,77 @@ public:
         m_proof_steps = tail(m_proof_steps);
     }
 
-    unsigned get_depth() const { return m_depth; }
+    unsigned get_depth() const {
+        return m_depth;
+    }
 
-    expr mk_lambda(unsigned num, expr const * hrefs, expr const & b) const {
-        return mk_binding(true, num, hrefs, b);
+
+    /************************
+       Assignment management
+    *************************/
+
+    bool is_uref_assigned(level const & l) const {
+        return m_uassignment.contains(uref_index(l));
     }
-    expr mk_pi(unsigned num, expr const * hrefs, expr const & b) const {
-        return mk_binding(false, num, hrefs, b);
+
+    /* u := l */
+    void assign_uref(level const & u, level const & l) {
+        m_uassignment.insert(uref_index(u), l);
     }
-    expr mk_lambda(buffer<expr> const & hrefs, expr const & b) const {
-        return mk_lambda(hrefs.size(), hrefs.data(), b);
+
+    level const * get_uref_assignment(level const & l) const {
+        lean_assert(is_uref_assigned(l));
+        return m_uassignment.find(uref_index(l));
     }
-    expr mk_pi(buffer<expr> const & hrefs, expr const & b) const {
-        return mk_pi(hrefs.size(), hrefs.data(), b);
+
+    /** \brief Make sure the metavariable declaration context of mref1 is a
+        subset of the metavariable declaration context of mref2. */
+    void restrict_mref_context_using(expr const & mref1, expr const & mref2);
+
+    bool is_mref_assigned(expr const & e) const {
+        lean_assert(is_mref(e));
+        return m_eassignment.contains(mref_index(e));
     }
-    expr mk_lambda(list<expr> const & hrefs, expr const & b) const;
-    expr mk_pi(list<expr> const & hrefs, expr const & b) const;
+
+    /** \brief Return true iff \c l contains an assigned uref */
+    bool has_assigned_uref(level const & l) const;
+    bool has_assigned_uref(levels const & ls) const;
+
+    expr const * get_mref_assignment(expr const & e) const {
+        lean_assert(is_mref(e));
+        return m_eassignment.find(mref_index(e));
+    }
+
+    /* m := e */
+    void assign_mref(expr const & m, expr const & e) {
+        m_eassignment.insert(mref_index(m), e);
+    }
+
+    /** \brief Return true if \c e contains an assigned mref or uref */
+    bool has_assigned_uref_mref(expr const & e) const;
+
+    /** \brief Instantiate any assigned uref in \c l with its assignment.
+        \remark This is not a const method because it may normalize the assignment. */
+    level instantiate_urefs(level const & l);
+
+    /** \brief Instantiate any assigned mref in \c e with its assignment.
+        \remark This is not a const method because it may normalize the assignment. */
+    expr instantiate_urefs_mrefs(expr const & e);
+
+    typedef std::tuple<uassignment, metavar_decls, eassignment> assignment_snapshot;
+    assignment_snapshot save_assignment();
+    void restore_assignment(assignment_snapshot const & s);
+
+    /************************
+       Debugging support
+    *************************/
+
+    /** \brief Convert current branch into a goal.
+        This is mainly used for pretty printing. However, in the future, we may use this capability
+        to invoke the tactic framework from the blast tactic. */
+    goal to_goal() const;
+
+    void display(environment const & env, io_state const & ios) const;
 
     #ifdef LEAN_DEBUG
     bool check_invariant() const;

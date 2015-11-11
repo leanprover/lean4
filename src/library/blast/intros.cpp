@@ -14,9 +14,9 @@ namespace blast {
 struct intros_proof_step_cell : public proof_step_cell {
     list<expr> m_new_hs;
     virtual ~intros_proof_step_cell() {}
-    virtual optional<expr> resolve(state & s, expr const & pr) const {
-        expr new_pr = mk_proof_lambda(s, m_new_hs, unfold_hypotheses_ge(s, pr));
-        return some_expr(new_pr);
+    virtual action_result resolve(expr const & pr) const {
+        expr new_pr = mk_proof_lambda(curr_state(), m_new_hs, unfold_hypotheses_ge(curr_state(), pr));
+        return action_result::solved(new_pr);
     }
 };
 
@@ -26,7 +26,7 @@ bool intros_action() {
     if (!is_pi(target))
         return false;
     auto pcell = new intros_proof_step_cell();
-    s.push_proof_step(proof_step(pcell));
+    s.push_proof_step(pcell);
     buffer<expr> new_hs;
     while (is_pi(target)) {
         expr href  = s.mk_hypothesis(binding_name(target), binding_domain(target));

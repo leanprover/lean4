@@ -20,15 +20,14 @@ void push_choice_point(choice_point const & c) {
     get_choice_points().push_back(c);
 }
 
-bool next_choice_point() {
+action_result next_choice_point() {
     auto & cs = get_choice_points();
     while (true) {
         if (cs.empty())
-            return false;
-        if (auto r = cs.back().next()) {
-            curr_state() = *r;
-            return true;
-        }
+            return action_result::failed();
+        action_result r = cs.back().next();
+        if (!failed(r))
+            return r;
         cs.pop_back();
     }
 }

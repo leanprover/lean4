@@ -20,11 +20,11 @@ class choice_point_cell {
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc() { delete this; }
 public:
-    virtual ~choice_point_cell();
-    /** \brief Return the next proof state. This method may
+    virtual ~choice_point_cell() {}
+    /** \brief Update next proof state. This method may
         perform destructive updates, choice points are not shared
         objects. */
-    virtual optional<state> next() = 0;
+    virtual action_result next() = 0;
 };
 
 /** \brief Smart pointer for choice points */
@@ -39,7 +39,7 @@ public:
     choice_point & operator=(choice_point const & s) { LEAN_COPY_REF(s); }
     choice_point & operator=(choice_point && s) { LEAN_MOVE_REF(s); }
 
-    optional<state> next() {
+    action_result next() {
         lean_assert(m_ptr);
         return m_ptr->next();
     }
@@ -49,9 +49,11 @@ public:
 void init_choice_points();
 /** \brief Add choice point to the top of the stack */
 void push_choice_point(choice_point const & c);
-/** \brief If there is another choice point, then update the current state and return true.
-    Otherwise, return false. */
-bool next_choice_point();
+inline void push_choice_point(choice_point_cell * cell) {
+    push_choice_point(choice_point(cell));
+}
+/** \brief Keep executing choice points until one of them doesn't fail. */
+action_result next_choice_point();
 /** \brief Return size of the choice point stack */
 unsigned get_num_choice_points();
 /** \brief Shrink the size of the choice point stack.

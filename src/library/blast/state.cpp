@@ -369,23 +369,23 @@ struct hypothesis_dep_depth_lt {
 };
 
 void state::get_sorted_hypotheses(hypothesis_idx_buffer & r) const {
-    m_hyp_decls.for_each([&](unsigned hidx, hypothesis const &) {
+    m_branch.m_hyp_decls.for_each([&](unsigned hidx, hypothesis const &) {
             r.push_back(hidx);
         });
     std::sort(r.begin(), r.end(), hypothesis_dep_depth_lt(*this));
 }
 
 void state::add_forward_dep(unsigned hidx_user, unsigned hidx_provider) {
-    if (auto s = m_forward_deps.find(hidx_provider)) {
+    if (auto s = m_branch.m_forward_deps.find(hidx_provider)) {
         if (!s->contains(hidx_user)) {
             hypothesis_idx_set new_s(*s);
             new_s.insert(hidx_user);
-            m_forward_deps.insert(hidx_provider, new_s);
+            m_branch.m_forward_deps.insert(hidx_provider, new_s);
         }
     } else {
         hypothesis_idx_set new_s;
         new_s.insert(hidx_user);
-        m_forward_deps.insert(hidx_provider, new_s);
+        m_branch.m_forward_deps.insert(hidx_provider, new_s);
     }
 }
 
@@ -407,7 +407,7 @@ void state::add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user) {
                 }
                 return false;
             } else if (is_mref(l)) {
-                m_mvar_idxs.insert(mref_index(l));
+                m_branch.m_mvar_idxs.insert(mref_index(l));
                 return false;
             } else {
                 return true;
@@ -436,11 +436,11 @@ expr state::mk_hypothesis(unsigned new_hidx, name const & n, expr const & type, 
     new_h.m_self          = r;
     new_h.m_proof_depth   = m_proof_depth;
     add_deps(new_h, new_hidx);
-    m_hyp_decls.insert(new_hidx, new_h);
+    m_branch.m_hyp_decls.insert(new_hidx, new_h);
     if (new_h.is_assumption())
-        m_assumption.insert(new_hidx);
+        m_branch.m_assumption.insert(new_hidx);
     double w = compute_weight(new_hidx, type);
-    m_todo_queue.insert(w, new_hidx);
+    m_branch.m_todo_queue.insert(w, new_hidx);
     return r;
 }
 
@@ -468,18 +468,18 @@ void state::update_indices(unsigned /* hidx */) {
 }
 
 optional<unsigned> state::activate_hypothesis() {
-    if (m_todo_queue.empty()) {
+    if (m_branch.m_todo_queue.empty()) {
         return optional<unsigned>();
     } else {
-        unsigned hidx = m_todo_queue.erase_min();
-        m_active.insert(hidx);
+        unsigned hidx = m_branch.m_todo_queue.erase_min();
+        m_branch.m_active.insert(hidx);
         update_indices(hidx);
         return optional<unsigned>(hidx);
     }
 }
 
 bool state::hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const {
-    if (auto s = m_forward_deps.find(hidx_provider)) {
+    if (auto s = m_branch.m_forward_deps.find(hidx_provider)) {
         return s->contains(hidx_user);
     } else {
         return false;
@@ -487,17 +487,17 @@ bool state::hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const {
 }
 
 void state::set_target(expr const & t) {
-    m_target = t;
-    m_target_deps.clear();
+    m_branch.m_target = t;
+    m_branch.m_target_deps.clear();
     if (has_href(t) || has_mref(t)) {
         for_each(t, [&](expr const & e, unsigned) {
                 if (!has_href(e) && !has_mref(e)) {
                     return false;
                 } else if (is_href(e)) {
-                    m_target_deps.insert(href_index(e));
+                    m_branch.m_target_deps.insert(href_index(e));
                     return false;
                 } else if (is_mref(e)) {
-                    m_mvar_idxs.insert(mref_index(e));
+                    m_branch.m_mvar_idxs.insert(mref_index(e));
                     return false;
                 } else {
                     return true;

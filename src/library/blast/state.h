@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/rb_map.h"
 #include "kernel/expr.h"
 #include "library/tactic/goal.h"
+#include "library/blast/action_result.h"
 #include "library/blast/hypothesis.h"
 
 namespace lean {
@@ -44,15 +45,16 @@ public:
     virtual ~proof_step_cell() {}
     /** \brief Every proof-step must provide a resolve method.
         When the branch created by the proof-step is closed,
-        a proof pr is provided, and the proof-step can perform two operations
-        1- setup the next branch and return none_expr
-        2- finish and return a new proof
+        a proof pr is provided, and the proof-step can:
+        1- setup the next branch, or
+        2- fail, or
+        3- finish and return a new proof
 
         \remark Proof steps may be shared, i.e., they may ocurren the
         proof-step stack of different proof state objects.
         So, resolve must not perform destructive updates.
         This is why we marked it as const. */
-    virtual optional<expr> resolve(state & s, expr const & pr) const = 0;
+    virtual action_result resolve(expr const & pr) const = 0;
 };
 
 /** \brief Smart pointer for proof steps */
@@ -67,35 +69,18 @@ public:
     proof_step & operator=(proof_step const & s) { LEAN_COPY_REF(s); }
     proof_step & operator=(proof_step && s) { LEAN_MOVE_REF(s); }
 
-    optional<expr> resolve(state & s, expr const & pr) const {
+    action_result resolve(expr const & pr) const {
         lean_assert(m_ptr);
-        return m_ptr->resolve(s, pr);
+        return m_ptr->resolve(pr);
     }
 };
 
-/** \brief Proof state for the blast tactic */
-class state {
+/** \brief Information associated with the current branch of the proof state.
+    This is essentially a mechanism for creating snapshots of the current branch. */
+class branch {
+    friend class state;
     typedef hypothesis_idx_map<hypothesis_idx_set> forward_deps;
     typedef rb_map<double, unsigned, double_cmp>   todo_queue;
-    typedef metavar_idx_map<metavar_decl>          metavar_decls;
-    typedef metavar_idx_map<expr>                  eassignment;
-    typedef metavar_idx_map<level>                 uassignment;
-    typedef hypothesis_idx_map<metavar_idx_set>    fixed_by;
-    typedef list<proof_step>                       proof_steps;
-    uassignment        m_uassignment;
-    metavar_decls      m_metavar_decls;
-    eassignment        m_eassignment;
-    // In the following mapping, each entry (h -> {m_1 ... m_n}) means that hypothesis `h` cannot be cleared
-    // in any branch where the metavariables m_1 ... m_n have not been replaced with the values assigned to them.
-    // That is, to be able to clear `h` in a branch `B`, we first need to check whether it
-    // is contained in this mapping or not. If it is, we should check whether any of the
-    // metavariables `m_1` ... `m_n` occur in `B` (this is a relatively quick check since
-    // `B` contains an over-approximation of all meta-variables occuring in it (i.e., m_mvar_idxs).
-    // If this check fails, then we should replace any assigned `m_i` with its value, if the intersection is still
-    // non-empty, then we cannot clear `h`.
-    fixed_by           m_fixed_by;
-    unsigned           m_proof_depth{0};
-    proof_steps        m_proof_steps;
     // Hypothesis/facts in the current state
     hypothesis_decls   m_hyp_decls;
     // We break the set of hypotheses in m_context in 3 sets that are not necessarily disjoint:
@@ -119,6 +104,30 @@ class state {
     expr               m_target;
     hypothesis_idx_set m_target_deps;
     metavar_idx_set    m_mvar_idxs;
+};
+
+/** \brief Proof state for the blast tactic */
+class state {
+    typedef metavar_idx_map<metavar_decl>          metavar_decls;
+    typedef metavar_idx_map<expr>                  eassignment;
+    typedef metavar_idx_map<level>                 uassignment;
+    typedef hypothesis_idx_map<metavar_idx_set>    fixed_by;
+    typedef list<proof_step>                       proof_steps;
+    uassignment        m_uassignment;
+    metavar_decls      m_metavar_decls;
+    eassignment        m_eassignment;
+    // In the following mapping, each entry (h -> {m_1 ... m_n}) means that hypothesis `h` cannot be cleared
+    // in any branch where the metavariables m_1 ... m_n have not been replaced with the values assigned to them.
+    // That is, to be able to clear `h` in a branch `B`, we first need to check whether it
+    // is contained in this mapping or not. If it is, we should check whether any of the
+    // metavariables `m_1` ... `m_n` occur in `B` (this is a relatively quick check since
+    // `B` contains an over-approximation of all meta-variables occuring in it (i.e., m_mvar_idxs).
+    // If this check fails, then we should replace any assigned `m_i` with its value, if the intersection is still
+    // non-empty, then we cannot clear `h`.
+    fixed_by           m_fixed_by;
+    unsigned           m_proof_depth{0};
+    proof_steps        m_proof_steps;
+    branch             m_branch;
 
     void add_forward_dep(unsigned hidx_user, unsigned hidx_provider);
     void add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user);
@@ -164,7 +173,13 @@ public:
     metavar_decl const * get_metavar_decl(unsigned idx) const { return m_metavar_decls.find(idx); }
     metavar_decl const * get_metavar_decl(expr const & e) const { return get_metavar_decl(mref_index(e)); }
 
-    bool has_mvar(expr const & e) const { return m_mvar_idxs.contains(mref_index(e)); }
+    bool has_mvar(expr const & e) const { return m_branch.m_mvar_idxs.contains(mref_index(e)); }
+
+    /************************
+       Save/Restore branch
+    *************************/
+    branch const & get_branch() const { return m_branch; }
+    void set_branch(branch const & b) { m_branch = b; }
 
     /************************
        Hypotheses
@@ -179,12 +194,12 @@ public:
         \c hidx_provider. */
     bool hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const;
 
-    hypothesis const * get_hypothesis_decl(unsigned hidx) const { return m_hyp_decls.find(hidx); }
+    hypothesis const * get_hypothesis_decl(unsigned hidx) const { return m_branch.m_hyp_decls.find(hidx); }
     hypothesis const * get_hypothesis_decl(expr const & h) const { return get_hypothesis_decl(href_index(h)); }
 
-    void for_each_hypothesis(std::function<void(unsigned, hypothesis const &)> const & fn) const { m_hyp_decls.for_each(fn); }
+    void for_each_hypothesis(std::function<void(unsigned, hypothesis const &)> const & fn) const { m_branch.m_hyp_decls.for_each(fn); }
     optional<unsigned> find_active_hypothesis(std::function<bool(unsigned, hypothesis const &)> const & fn) const { // NOLINT
-        return m_active.find_if([&](unsigned hidx) {
+        return m_branch.m_active.find_if([&](unsigned hidx) {
                 return fn(hidx, *get_hypothesis_decl(hidx));
             });
     }
@@ -197,7 +212,7 @@ public:
 
     expr expand_hrefs(expr const & e, list<expr> const & hrefs) const;
 
-    hypothesis_idx_set get_assumptions() const { return m_assumption; }
+    hypothesis_idx_set get_assumptions() const { return m_branch.m_assumption; }
 
     /************************
        Abstracting hypotheses
@@ -226,9 +241,9 @@ public:
     /** \brief Set target (aka conclusion, aka type of the goal, aka type of the term that
         must be synthesize in the current branch) */
     void set_target(expr const & t);
-    expr const & get_target() const { return m_target; }
+    expr const & get_target() const { return m_branch.m_target; }
     /** \brief Return true iff the target depends on the given hypothesis */
-    bool target_depends_on(expr const & h) const { return m_target_deps.contains(href_index(h)); }
+    bool target_depends_on(expr const & h) const { return m_branch.m_target_deps.contains(href_index(h)); }
 
     /************************
        Proof steps
@@ -237,6 +252,10 @@ public:
     void push_proof_step(proof_step const & ps) {
         m_proof_depth++;
         m_proof_steps = cons(ps, m_proof_steps);
+    }
+
+    void push_proof_step(proof_step_cell * cell) {
+        push_proof_step(proof_step(cell));
     }
 
     bool has_proof_steps() const {

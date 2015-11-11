@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/blast/choice_point.h"
 #include "library/blast/assumption.h"
 #include "library/blast/intros.h"
+#include "library/blast/backward.h"
 
 namespace lean {
 namespace blast {
@@ -25,52 +26,66 @@ class simple_strategy {
         return curr_state().activate_hypothesis();
     }
 
-    pair<status, expr> next_action() {
-        if (intros_action()) {
-            return mk_pair(Continue, expr());
-        } else if (activate_hypothesis()) {
+    action_result next_action() {
+        if (intros_action())
+            return action_result::new_branch();
+
+        if (activate_hypothesis()) {
             // TODO(Leo): we should probably eagerly simplify the activated hypothesis.
-            return mk_pair(Continue, expr());
-        } else if (auto pr = assumption_action()) {
-            return mk_pair(ClosedBranch, *pr);
-        } else {
-            // TODO(Leo): add more actions...
-            return mk_pair(NoAction, expr());
+            return action_result::new_branch();
         }
+
+        if (auto pr = assumption_action()) {
+            return action_result::solved(*pr);
+        }
+
+        action_result r = constructor_action();
+        if (!failed(r)) return r;
+
+        // TODO(Leo): add more actions...
+        return action_result::failed();
     }
 
-    optional<expr> resolve(expr pr) {
+    action_result next_branch(expr pr) {
         while (curr_state().has_proof_steps()) {
-            proof_step s = curr_state().top_proof_step();
-            if (auto new_pr = s.resolve(curr_state(), pr)) {
-                pr = *new_pr;
+            proof_step s     = curr_state().top_proof_step();
+            action_result r = s.resolve(pr);
+            switch (r.get_kind()) {
+            case action_result::Failed:
+                return r;
+            case action_result::Solved:
+                pr = r.get_proof();
                 curr_state().pop_proof_step();
-            } else {
-                return none_expr(); // continue the search
+                break;
+            case action_result::NewBranch:
+                return action_result::new_branch();
             }
         }
-        return some_expr(pr); // closed all branches
+        return action_result::solved(pr);
     }
 
     optional<expr> search_upto(unsigned depth) {
+        action_result r = next_action();
         while (true) {
-            if (curr_state().get_proof_depth() > depth) {
-                // maximum depth reached
-                if (!next_choice_point()) {
+            if (curr_state().get_proof_depth() > depth)
+                r = action_result::failed();
+            switch (r.get_kind()) {
+            case action_result::Failed:
+                r = next_choice_point();
+                if (failed(r)) {
+                    // all choice points failed...
                     return none_expr();
                 }
-            }
-            auto s = next_action();
-            switch (s.first) {
-            case NoAction:
-                if (!next_choice_point())
-                    return none_expr();
                 break;
-            case ClosedBranch:
-                if (auto pr = resolve(s.second))
-                    return pr;
+            case action_result::Solved:
+                r = next_branch(r.get_proof());
+                if (r.get_kind() == action_result::Solved) {
+                    // all branches have been solved
+                    return some_expr(r.get_proof());
+                }
                 break;
-            case Continue:
+            case action_result::NewBranch:
+                r = next_action();
                 break;
             }
         }
@@ -79,14 +94,17 @@ class simple_strategy {
     optional<expr> search() {
         state s    = curr_state();
         unsigned d = m_init_depth;
-        while (d <= m_max_depth) {
+        while (true) {
             if (auto r = search_upto(d))
                 return r;
             d += m_inc_depth;
+            if (d > m_max_depth) {
+                display_curr_state();
+                return none_expr();
+            }
             curr_state() = s;
             clear_choice_points();
         }
-        return none_expr();
     }
 
 public:

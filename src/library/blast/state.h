@@ -43,17 +43,27 @@ class proof_step_cell {
     void dealloc() { delete this; }
 public:
     virtual ~proof_step_cell() {}
-    /** \brief Every proof-step must provide a resolve method.
-        When the branch created by the proof-step is closed,
-        a proof pr is provided, and the proof-step can:
-        1- setup the next branch, or
-        2- fail, or
-        3- finish and return a new proof
+    /** \brief When an action updates the main branch of the proof state,
+        it adds a proof_step object to the proof step stack.
+        The proof_step object is responsible for converting a proof for
+        the new branch into a proof for the original branch.
 
-        \remark Proof steps may be shared, i.e., they may ocurren the
+        If the action requires multiple branches to be solved,
+        the proof-step object is reponsible for creating the next branch.
+
+        The resolve method result can be:
+        1- Failed
+        2- NewBranch: the current state has been updated with the next branch to
+           be solved.
+        3- Solved(pr): all branches have been processed and pr is the
+           proof for the original branch.
+
+        \remark Proof steps may be shared, i.e., they may occur in the
         proof-step stack of different proof state objects.
         So, resolve must not perform destructive updates.
-        This is why we marked it as const. */
+        We enforce that by marking this method const.
+
+        Proof-steps are usually not used when implementing forward chaining. */
     virtual action_result resolve(expr const & pr) const = 0;
 };
 

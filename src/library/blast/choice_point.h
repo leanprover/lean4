@@ -23,7 +23,15 @@ public:
     virtual ~choice_point_cell() {}
     /** \brief Update next proof state. This method may
         perform destructive updates, choice points are not shared
-        objects. */
+        objects.
+
+        The next method result can be:
+        1- Failed:    failure
+        2- NewBranch: the current state has been updated, and it contains
+           a new branch to be solved.
+        3- Solved(pr): the current state has been updated, and its current
+           branch has been closed by the next choice.
+    */
     virtual action_result next() = 0;
 };
 

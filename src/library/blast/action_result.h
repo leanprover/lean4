@@ -9,9 +9,15 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
+/**
+   \brief Result produced by actions, proof-steps and choice-point next method.
+   There are 3 possible results
+   1- Failed:     action/step/next failed.
+   2- NewBranch:  a new branch has been created (or updated) in the current state.
+   3- Solved(pr): the current branch has been closed with proof pr. */
 class action_result {
 public:
-    enum kind { Failed, Solved, NewBranch };
+    enum kind { Failed, NewBranch, Solved };
 private:
     kind m_kind;
     expr m_proof;

@@ -1,0 +1,12 @@
+f (int.of_nat a) : int
+λ (x : bv a), @g a x : bv a → bv a
+coe2.lean:19:6: error: type mismatch at application
+  f a
+term
+  a
+has type
+  nat
+but is expected to have type
+  int
+coe2.lean:20:14: error: type expected at
+  a

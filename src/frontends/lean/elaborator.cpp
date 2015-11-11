@@ -467,9 +467,12 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
             erase_coercion_info(f);
         } else {
             cs     = saved_cs;
-            f_type = m_coercion_from_tc->whnf(saved_f_type, cs);
-            // try coercion to function-class
-            list<expr> coes  = get_coercions_to_fun(env(), f_type);
+            list<expr> coes;
+            // try coercion to function-class IF coercions are enabled
+            if (m_ctx.m_coercions) {
+                f_type = m_coercion_from_tc->whnf(saved_f_type, cs);
+                coes  = get_coercions_to_fun(env(), f_type);
+            }
             if (is_nil(coes)) {
                 throw_kernel_exception(env(), f, [=](formatter const & fmt) { return pp_function_expected(fmt, f); });
             } else if (is_nil(tail(coes))) {
@@ -513,6 +516,8 @@ pair<expr, expr> elaborator::ensure_fun(expr f, constraint_seq & cs) {
 }
 
 bool elaborator::has_coercions_from(expr const & a_type, bool & lifted_coe) {
+    if (!m_ctx.m_coercions)
+        return false;
     try {
         expr a_cls  = get_app_fn(m_coercion_from_tc->whnf(a_type).first);
         if (m_ctx.m_lift_coercions) {
@@ -529,6 +534,8 @@ bool elaborator::has_coercions_from(expr const & a_type, bool & lifted_coe) {
 }
 
 bool elaborator::has_coercions_to(expr d_type) {
+    if (!m_ctx.m_coercions)
+        return false;
     try {
         d_type = m_coercion_to_tc->whnf(d_type).first;
         expr const & fn = get_app_fn(d_type);
@@ -546,10 +553,15 @@ bool elaborator::has_coercions_to(expr d_type) {
 }
 
 pair<expr, constraint_seq> elaborator::apply_coercion(expr const & a, expr a_type, expr d_type, justification const & j) {
+    if (!m_ctx.m_coercions) {
+        erase_coercion_info(a);
+        return to_ecs(a);
+    }
     a_type = m_coercion_from_tc->whnf(a_type).first;
     d_type = m_coercion_to_tc->whnf(d_type).first;
     constraint_seq aux_cs;
-    list<expr> coes = get_coercions_from_to(*m_coercion_from_tc, *m_coercion_to_tc, a_type, d_type, aux_cs, m_ctx.m_lift_coercions);
+    list<expr> coes = get_coercions_from_to(*m_coercion_from_tc, *m_coercion_to_tc, a_type,
+                                            d_type, aux_cs, m_ctx.m_lift_coercions);
     if (is_nil(coes)) {
         erase_coercion_info(a);
         return to_ecs(a);
@@ -604,41 +616,45 @@ pair<expr, constraint_seq> elaborator::mk_delayed_coercion(
 pair<expr, constraint_seq> elaborator::ensure_has_type_core(
     expr const & a, expr const & a_type, expr const & expected_type, bool use_expensive_coercions, justification const & j) {
     bool lifted_coe = false;
-    if (use_expensive_coercions &&
-        has_coercions_from(a_type, lifted_coe) && ((!lifted_coe && is_meta(expected_type)) || (lifted_coe && is_pi_meta(expected_type)))) {
-        return mk_delayed_coercion(a, a_type, expected_type, j);
-    } else if (use_expensive_coercions && !m_in_equation_lhs && is_meta(a_type) && has_coercions_to(expected_type)) {
-        return mk_delayed_coercion(a, a_type, expected_type, j);
-    } else {
-        pair<bool, constraint_seq> dcs;
-        try {
-            dcs = m_tc->is_def_eq(a_type, expected_type, j);
-        } catch (exception&) {
-            dcs.first = false;
+    if (m_ctx.m_coercions) {
+        if (use_expensive_coercions &&
+            has_coercions_from(a_type, lifted_coe) && ((!lifted_coe && is_meta(expected_type)) || (lifted_coe && is_pi_meta(expected_type)))) {
+            return mk_delayed_coercion(a, a_type, expected_type, j);
+        } else if (use_expensive_coercions && !m_in_equation_lhs && is_meta(a_type) && has_coercions_to(expected_type)) {
+            return mk_delayed_coercion(a, a_type, expected_type, j);
         }
-        if (dcs.first) {
-            return to_ecs(a, dcs.second);
+    }
+
+    pair<bool, constraint_seq> dcs;
+    try {
+        dcs = m_tc->is_def_eq(a_type, expected_type, j);
+    } catch (exception&) {
+        dcs.first = false;
+    }
+    if (dcs.first) {
+        return to_ecs(a, dcs.second);
+    } else {
+        if (!m_ctx.m_coercions)
+            throw unifier_exception(j, substitution());
+        auto new_a_cs = apply_coercion(a, a_type, expected_type, j);
+        expr new_a    = new_a_cs.first;
+        constraint_seq cs = new_a_cs.second;
+        bool coercion_worked = false;
+        if (!is_eqp(a, new_a)) {
+            expr new_a_type = infer_type(new_a, cs);
+            try {
+                coercion_worked = m_tc->is_def_eq(new_a_type, expected_type, j, cs);
+            } catch (exception&) {
+                coercion_worked = false;
+            }
+        }
+        if (coercion_worked) {
+            return to_ecs(new_a, cs);
+        } else if (has_metavar(a_type) || has_metavar(expected_type)) {
+            // rely on unification hints to solve this constraint
+            return to_ecs(a, mk_eq_cnstr(a_type, expected_type, j));
         } else {
-            auto new_a_cs = apply_coercion(a, a_type, expected_type, j);
-            expr new_a    = new_a_cs.first;
-            constraint_seq cs = new_a_cs.second;
-            bool coercion_worked = false;
-            if (!is_eqp(a, new_a)) {
-                expr new_a_type = infer_type(new_a, cs);
-                try {
-                    coercion_worked = m_tc->is_def_eq(new_a_type, expected_type, j, cs);
-                } catch (exception&) {
-                    coercion_worked = false;
-                }
-            }
-            if (coercion_worked) {
-                return to_ecs(new_a, cs);
-            } else if (has_metavar(a_type) || has_metavar(expected_type)) {
-                // rely on unification hints to solve this constraint
-                return to_ecs(a, mk_eq_cnstr(a_type, expected_type, j));
-            } else {
-                throw unifier_exception(j, substitution());
-            }
+            throw unifier_exception(j, substitution());
         }
     }
 }
@@ -819,8 +835,11 @@ expr elaborator::ensure_type(expr const & e, constraint_seq & cs) {
         }
     }
     cs = saved_cs;
-    t  = m_coercion_from_tc->whnf(saved_t, cs);
-    list<expr> coes = get_coercions_to_sort(env(), t);
+    list<expr> coes;
+    if (m_ctx.m_coercions) {
+        t  = m_coercion_from_tc->whnf(saved_t, cs);
+        coes = get_coercions_to_sort(env(), t);
+    }
     if (is_nil(coes)) {
         throw_kernel_exception(env(), e, [=](formatter const & fmt) { return pp_type_expected(fmt, e); });
     } else {

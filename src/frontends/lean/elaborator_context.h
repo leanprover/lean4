@@ -27,6 +27,7 @@ class elaborator_context {
     bool                      m_flycheck_goals;
     bool                      m_fail_missing_field;
     bool                      m_lift_coercions;
+    bool                      m_coercions;
     friend class elaborator;
 
     bool     m_show_goal_at;

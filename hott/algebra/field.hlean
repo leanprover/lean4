@@ -328,7 +328,7 @@ section discrete_field
     (assume H1 : x ≠ 0,
       sum.inr (by rewrite [-one_mul, -(inv_mul_cancel H1), mul.assoc, H, mul_zero]))
 
-  definition discrete_field.to_integral_domain [instance] [reducible] [coercion] :
+  definition discrete_field.to_integral_domain [instance] [reducible] :
     integral_domain A :=
   ⦃ integral_domain, s,
     eq_zero_or_eq_zero_of_mul_eq_zero := discrete_field.eq_zero_or_eq_zero_of_mul_eq_zero⦄

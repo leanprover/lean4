@@ -107,7 +107,7 @@ namespace finset
   include cmB
 
   theorem mulf_rcomm (f : A → B) : right_commutative (mulf f) :=
-  right_commutative_compose_right (@has_mul.mul B cmB) f (@mul.right_comm B cmB)
+  right_commutative_compose_right (@has_mul.mul B _) f (@mul.right_comm B _)
 
   theorem Prodl_eq_Prodl_of_perm (f : A → B) {l₁ l₂ : list A} :
     perm l₁ l₂ → Prodl l₁ f = Prodl l₂ f :=

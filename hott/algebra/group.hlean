@@ -53,10 +53,10 @@ theorem mul.comm [s : comm_semigroup A] (a b : A) : a * b = b * a :=
 !comm_semigroup.mul_comm
 
 theorem mul.left_comm [s : comm_semigroup A] (a b c : A) : a * (b * c) = b * (a * c) :=
-binary.left_comm (@mul.comm A s) (@mul.assoc A s) a b c
+binary.left_comm (@mul.comm A _) (@mul.assoc A _) a b c
 
 theorem mul.right_comm [s : comm_semigroup A] (a b c : A) : (a * b) * c = (a * c) * b :=
-binary.right_comm (@mul.comm A s) (@mul.assoc A s) a b c
+binary.right_comm (@mul.comm A _) (@mul.assoc A _) a b c
 
 structure left_cancel_semigroup [class] (A : Type) extends semigroup A :=
 (mul_left_cancel : ∀a b c, mul a b = mul a c → b = c)
@@ -95,10 +95,10 @@ theorem add.comm [s : add_comm_semigroup A] (a b : A) : a + b = b + a :=
 
 theorem add.left_comm [s : add_comm_semigroup A] (a b c : A) :
   a + (b + c) = b + (a + c) :=
-binary.left_comm (@add.comm A s) (@add.assoc A s) a b c
+binary.left_comm (@add.comm A _) (@add.assoc A _) a b c
 
 theorem add.right_comm [s : add_comm_semigroup A] (a b c : A) : (a + b) + c = (a + c) + b :=
-binary.right_comm (@add.comm A s) (@add.assoc A s) a b c
+binary.right_comm (@add.comm A _) (@add.assoc A _) a b c
 
 structure add_left_cancel_semigroup [class] (A : Type) extends add_semigroup A :=
 (add_left_cancel : ∀a b c, add a b = add a c → b = c)
@@ -248,11 +248,11 @@ section group
   theorem mul_right_cancel {a b c : A} (H : a * b = c * b) : a = c :=
   by rewrite [-mul_inv_cancel_right a b, H, mul_inv_cancel_right]
 
-  definition group.to_left_cancel_semigroup [instance] [coercion] [reducible] : left_cancel_semigroup A :=
+  definition group.to_left_cancel_semigroup [instance] [reducible] : left_cancel_semigroup A :=
   ⦃ left_cancel_semigroup, s,
     mul_left_cancel := @mul_left_cancel A s ⦄
 
-  definition group.to_right_cancel_semigroup [instance] [coercion] [reducible] : right_cancel_semigroup A :=
+  definition group.to_right_cancel_semigroup [instance] [reducible] : right_cancel_semigroup A :=
   ⦃ right_cancel_semigroup, s,
     mul_right_cancel := @mul_right_cancel A s ⦄
 
@@ -363,12 +363,12 @@ section add_group
      ... = (c + b) + -b : H
      ... = c : add_neg_cancel_right
 
-  definition add_group.to_left_cancel_semigroup [instance] [coercion] [reducible] :
+  definition add_group.to_left_cancel_semigroup [instance] [reducible] :
     add_left_cancel_semigroup A :=
   ⦃ add_left_cancel_semigroup, s,
     add_left_cancel := @add_left_cancel A s ⦄
 
-  definition add_group.to_add_right_cancel_semigroup [instance] [coercion] [reducible] :
+  definition add_group.to_add_right_cancel_semigroup [instance][reducible] :
     add_right_cancel_semigroup A :=
   ⦃ add_right_cancel_semigroup, s,
     add_right_cancel := @add_right_cancel A s ⦄

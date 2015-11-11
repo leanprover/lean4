@@ -65,7 +65,7 @@ namespace category
   attribute Groupoid.struct [instance] [coercion]
 
   definition Groupoid.to_Precategory [coercion] [reducible] (C : Groupoid) : Precategory :=
-  Precategory.mk (Groupoid.carrier C) C
+  Precategory.mk (Groupoid.carrier C) _
 
   definition groupoid.Mk [reducible] := Groupoid.mk
   definition groupoid.MK [reducible] (C : Precategory) (H : Π (a b : C) (f : a ⟶ b), is_iso f)

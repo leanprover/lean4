@@ -142,7 +142,7 @@ section
       ne_ab eq_ab,
   show a < c, from lt_of_le_of_ne le_ac ne_ac
 
-  definition order_pair.to_strict_order [instance] [coercion] [reducible] : strict_order A :=
+  definition order_pair.to_strict_order [instance] [reducible] : strict_order A :=
   ⦃ strict_order, s, lt_irrefl := lt_irrefl s, lt_trans := lt_trans s ⦄
 
   definition lt_of_lt_of_le [trans] : a < b → b ≤ c → a < c :=
@@ -228,7 +228,7 @@ iff.intro
       iff.mp !strict_order_with_le.le_iff_lt_or_eq (pr1 H),
     show a < b, from sum_resolve_left H1 (pr2 H))
 
-definition strict_order_with_le.to_order_pair [instance] [coercion] [reducible] [s : strict_order_with_le A] :
+definition strict_order_with_le.to_order_pair [instance] [reducible] [s : strict_order_with_le A] :
   strong_order_pair A :=
 ⦃ strong_order_pair, s,
   le_refl          := le_refl s,
@@ -263,7 +263,7 @@ section
     (assume H, H1 H)
     (assume H, sum.rec_on H (assume H', H2 H') (assume H', H3 H'))
 
-  definition linear_strong_order_pair.to_linear_order_pair [instance] [coercion] [reducible]
+  definition linear_strong_order_pair.to_linear_order_pair [instance] [reducible]
      : linear_order_pair A :=
   ⦃ linear_order_pair, s ⦄
 

@@ -13,6 +13,14 @@ open equiv eq equiv.ops is_trunc
 namespace algebra
   open Group has_mul has_inv
   -- we prove under which conditions two groups are equal
+
+  -- group and has_mul are classes. So, lean does not automatically generate
+  -- coercions between them anymore.
+  -- So, an application such as (@mul A G g h) in the following definition
+  -- is type incorrect if the coercion is not added (explicitly or implicitly).
+  local attribute group.to.has_mul [coercion]
+  local attribute group.to_has_inv [coercion]
+
   universe variable l
   variables {A B : Type.{l}}
   definition group_eq {G H : group A} (same_mul' : Π(g h : A), @mul A G g h = @mul A H g h)

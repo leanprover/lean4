@@ -26,7 +26,7 @@ namespace category
 
   definition Strict_precategory.to_Precategory [coercion] [reducible]
     (C : Strict_precategory) : Precategory :=
-  Precategory.mk (Strict_precategory.carrier C) C
+  Precategory.mk (Strict_precategory.carrier C) _
 
   open functor
 

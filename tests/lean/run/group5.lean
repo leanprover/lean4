@@ -139,8 +139,4 @@ calc
   a * 1 * b * c = a * b * c   : {!mul_right_id}
             ... = a * (b * c) : !mul_assoc
 
-theorem test6 {M : CommMonoid} (a b c : M) : a * 1 * b * c = a * (b * c) :=
-calc
-  a * 1 * b * c = a * b * c   : {!mul_right_id}
-            ... = a * (b * c) : !mul_assoc
 end examples

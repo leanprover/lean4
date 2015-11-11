@@ -213,12 +213,12 @@ definition ordered_comm_group.le_of_add_le_add_left [s : ordered_comm_group A] {
 assert H' : -a + (a + b) ≤ -a + (a + c), from ordered_comm_group.add_le_add_left _ _ H _,
 by rewrite *neg_add_cancel_left at H'; exact H'
 
-definition ordered_comm_group.to_ordered_cancel_comm_monoid [instance] [coercion] [reducible]
+definition ordered_comm_group.to_ordered_cancel_comm_monoid [instance] [reducible]
     [s : ordered_comm_group A] : ordered_cancel_comm_monoid A :=
 ⦃ ordered_cancel_comm_monoid, s,
-  add_left_cancel       := @add.left_cancel A s,
-  add_right_cancel      := @add.right_cancel A s,
-  le_of_add_le_add_left := @ordered_comm_group.le_of_add_le_add_left A s ⦄
+  add_left_cancel       := @add.left_cancel A _,
+  add_right_cancel      := @add.right_cancel A _,
+  le_of_add_le_add_left := @ordered_comm_group.le_of_add_le_add_left A _ ⦄
 
 section
   variables [s : ordered_comm_group A] (a b c d e : A)

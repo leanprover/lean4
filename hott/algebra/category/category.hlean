@@ -28,6 +28,12 @@ namespace category
   structure category [class] (ob : Type) extends parent : precategory ob :=
   mk' :: (iso_of_path_equiv : is_univalent parent)
 
+  -- Remark: category and precategory are classes. So, the structure command
+  -- does not create a coercion between them automatically.
+  -- This coercion is needed for definitions such as category_eq_of_equiv
+  -- without it, we would have to explicitly use category.to_precategory
+  attribute category.to_precategory [coercion]
+
   attribute category [multiple_instances]
 
   abbreviation iso_of_path_equiv := @category.iso_of_path_equiv
@@ -81,7 +87,7 @@ namespace category
 
   definition Category.to_Precategory [constructor] [coercion] [reducible] (C : Category)
     : Precategory :=
-  Precategory.mk (Category.carrier C) C
+  Precategory.mk (Category.carrier C) _
 
   definition category.Mk [constructor] [reducible] := Category.mk
   definition category.MK [constructor] [reducible] (C : Precategory)

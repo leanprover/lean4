@@ -163,7 +163,7 @@ have H : 0 * a + 0 = 0 * a + 0 * a, from calc
         ... = 0 * a + 0 * a : by rewrite {_*a}ring.right_distrib,
 show 0 * a = 0, from  (add.left_cancel H)⁻¹
 
-definition ring.to_semiring [instance] [coercion] [reducible] [s : ring A] : semiring A :=
+definition ring.to_semiring [instance] [reducible] [s : ring A] : semiring A :=
 ⦃ semiring, s,
   mul_zero := ring.mul_zero,
   zero_mul := ring.zero_mul ⦄
@@ -242,7 +242,7 @@ end
 
 structure comm_ring [class] (A : Type) extends ring A, comm_semigroup A
 
-definition comm_ring.to_comm_semiring [instance] [coercion] [reducible] [s : comm_ring A] : comm_semiring A :=
+definition comm_ring.to_comm_semiring [instance] [reducible] [s : comm_ring A] : comm_semiring A :=
 ⦃ comm_semiring, s,
   mul_zero := mul_zero,
   zero_mul := zero_mul ⦄

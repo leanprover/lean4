@@ -50,7 +50,7 @@ namespace yoneda
   end
 
   definition yoneda_lemma_equiv [constructor] {C : Precategory} (c : C)
-    (F : Cᵒᵖ ⇒ cset) : hom (ɏ c) F ≃ lift (F c) :=
+    (F : Cᵒᵖ ⇒ cset) : hom (ɏ c) F ≃ lift (trunctype.carrier (to_fun_ob F c)) :=
   begin
     fapply equiv.MK,
     { intro η, exact up (η c id)},

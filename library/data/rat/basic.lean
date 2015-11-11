@@ -360,10 +360,10 @@ definition of_num [coercion] [reducible] (n : num) : ℚ := num.to.rat n
 protected definition prio := num.pred int.prio
 
 definition rat_has_zero [reducible] [instance] [priority rat.prio] : has_zero rat :=
-has_zero.mk (0:int)
+has_zero.mk (of_int 0)
 
 definition rat_has_one [reducible] [instance] [priority rat.prio] : has_one rat :=
-has_one.mk (1:int)
+has_one.mk (of_int 1)
 
 theorem of_int_zero : of_int (0:int) = (0:rat) :=
 rfl

@@ -616,7 +616,7 @@ pair<expr, constraint_seq> elaborator::mk_delayed_coercion(
 pair<expr, constraint_seq> elaborator::ensure_has_type_core(
     expr const & a, expr const & a_type, expr const & expected_type, bool use_expensive_coercions, justification const & j) {
     bool lifted_coe = false;
-    if (m_ctx.m_coercions) {
+    if (m_ctx.m_coercions && !is_meta(a)) {
         if (use_expensive_coercions &&
             has_coercions_from(a_type, lifted_coe) && ((!lifted_coe && is_meta(expected_type)) || (lifted_coe && is_pi_meta(expected_type)))) {
             return mk_delayed_coercion(a, a_type, expected_type, j);

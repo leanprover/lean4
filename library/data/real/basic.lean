@@ -33,7 +33,7 @@ private theorem s_mul_assoc_lemma_3 (a b n : ℕ+) (p : ℚ) :
         p * ((a * n)⁻¹ + (b * n)⁻¹) = p * (a⁻¹ + b⁻¹) * n⁻¹ :=
 by rewrite [rat.mul_assoc, right_distrib, *pnat.inv_mul_eq_mul_inv]
 
-private theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0) 
+private theorem s_mul_assoc_lemma_4 {n : ℕ+} {ε q : ℚ} (Hε : ε > 0) (Hq : q > 0)
   (H : n ≥ pceil (q / ε)) :
         q * n⁻¹ ≤ ε :=
 begin
@@ -188,7 +188,7 @@ theorem eq_of_bdd {s t : seq} (Hs : regular s) (Ht : regular t)
     have Hj : (∀ j : ℕ+, abs (s n - t n) ≤ n⁻¹ + n⁻¹ + j⁻¹ + j⁻¹ + j⁻¹), begin
       intros,
       cases H j with [Nj, HNj],
-      rewrite [-(sub_add_cancel (s n) (s (max j Nj))), +sub_eq_add_neg, 
+      rewrite [-(sub_add_cancel (s n) (s (max j Nj))), +sub_eq_add_neg,
                add.assoc (s n + -s (max j Nj)), ↑regular at *],
       apply rat.le_trans,
       apply abs_add_le_abs_add_abs,
@@ -207,7 +207,7 @@ theorem eq_of_bdd {s t : seq} (Hs : regular s) (Ht : regular t)
            n⁻¹ + m⁻¹ + (j⁻¹ + (m⁻¹ + n⁻¹)) = n⁻¹ + (j⁻¹ + (m⁻¹ + n⁻¹)) + m⁻¹ : add.right_comm
                                        ... = n⁻¹ + (j⁻¹ + m⁻¹ + n⁻¹) + m⁻¹   : add.assoc
                                        ... = n⁻¹ + (n⁻¹ + (j⁻¹ + m⁻¹)) + m⁻¹ : add.comm
-                                       ... = n⁻¹ + n⁻¹ + j⁻¹ + (m⁻¹ + m⁻¹)   : 
+                                       ... = n⁻¹ + n⁻¹ + j⁻¹ + (m⁻¹ + m⁻¹)   :
                                                  by rewrite[-*add.assoc],
       rewrite hsimp,
       have Hms : (max j Nj)⁻¹ + (max j Nj)⁻¹ ≤ j⁻¹ + j⁻¹, begin
@@ -482,7 +482,7 @@ private theorem s_mul_assoc_lemma_5 {s t u : seq} (Hs : regular s) (Ht : regular
     apply Kq_bound_nonneg Hu,
   end
 
-private theorem s_mul_assoc_lemma_2 {s t u : seq} (Hs : regular s) (Ht : regular t) 
+private theorem s_mul_assoc_lemma_2 {s t u : seq} (Hs : regular s) (Ht : regular t)
       (Hu : regular u) (a b c d : ℕ+) :
      abs (t a) * abs (u b) * abs (s a - s c) + abs (s c) * abs (t a) * abs (u b - u d)
                + abs (s c) * abs (u d) * abs (t a - t d) ≤
@@ -614,7 +614,7 @@ theorem add_well_defined {s t u v : seq} (Hs : regular s) (Ht : regular t) (Hu :
   end
 
 set_option tactic.goal_names false
-private theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : ℕ+) 
+private theorem mul_bound_helper {s t : seq} (Hs : regular s) (Ht : regular t) (a b c : ℕ+)
   (j : ℕ+) :
     ∃ N : ℕ+, ∀ n : ℕ+, n ≥ N → abs (s (a * n) * t (b * n) - s (c * n) * t (c * n)) ≤ j⁻¹ :=
   begin
@@ -815,7 +815,7 @@ theorem diff_equiv_zero_of_equiv {s t : seq} (Hs : regular s) (Ht : regular t) (
     repeat (assumption | apply reg_add_reg | apply reg_neg_reg)
   end
 
-private theorem mul_well_defined_half1 {s t u : seq} (Hs : regular s) (Ht : regular t) 
+private theorem mul_well_defined_half1 {s t u : seq} (Hs : regular s) (Ht : regular t)
     (Hu : regular u) (Etu : t ≡ u) : smul s t ≡ smul s u :=
   begin
     apply equiv_of_diff_equiv_zero,
@@ -839,7 +839,7 @@ private theorem mul_well_defined_half1 {s t u : seq} (Hs : regular s) (Ht : regu
             apply zero_is_reg)
   end
 
-private theorem mul_well_defined_half2 {s t u : seq} (Hs : regular s) (Ht : regular t) 
+private theorem mul_well_defined_half2 {s t u : seq} (Hs : regular s) (Ht : regular t)
     (Hu : regular u) (Est : s ≡ t) : smul s u ≡ smul t u :=
   begin
     apply equiv.trans,
@@ -1098,10 +1098,10 @@ definition of_nat [coercion] (n : ℕ) : ℝ := nat.to.real n
 definition of_num [coercion] [reducible] (n : num) : ℝ := of_rat (rat.of_num n)
 
 definition real_has_zero [reducible] [instance] [priority real.prio] : has_zero real :=
-has_zero.mk (0:rat)
+has_zero.mk (of_rat 0)
 
 definition real_has_one [reducible] [instance] [priority real.prio] : has_one real :=
-has_one.mk (1:rat)
+has_one.mk (of_rat 1)
 
 theorem real_zero_eq_rat_zero : (0:real) = of_rat (0:rat) :=
 rfl

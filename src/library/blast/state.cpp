@@ -29,34 +29,8 @@ bool metavar_decl::restrict_context_using(metavar_decl const & other) {
 
 state::state() {}
 
-/** \brief Mark that hypothesis h with index hidx is fixed by the meta-variable midx.
-    That is, `h` occurs in the type of `midx`. */
-void state::add_fixed_by(unsigned hidx, unsigned midx) {
-    if (auto s = m_fixed_by.find(hidx)) {
-        if (!s->contains(midx)) {
-            metavar_idx_set new_s(*s);
-            new_s.insert(midx);
-            m_fixed_by.insert(hidx, new_s);
-        }
-    } else {
-        metavar_idx_set new_s;
-        new_s.insert(midx);
-        m_fixed_by.insert(hidx, new_s);
-    }
-}
-
 expr state::mk_metavar(hypothesis_idx_set const & c, expr const & type) {
     unsigned midx = mk_mref_idx();
-    for_each(type, [&](expr const & e, unsigned) {
-            if (!has_href(e))
-                return false;
-            if (is_href(e)) {
-                lean_assert(c.contains(href_index(e)));
-                add_fixed_by(href_index(e), midx);
-                return false;
-            }
-            return true; // continue search
-        });
     m_metavar_decls.insert(midx, metavar_decl(c, type));
     return blast::mk_mref(midx);
 }
@@ -406,9 +380,6 @@ void state::add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user) {
                     add_forward_dep(hidx_user, hidx_provider);
                 }
                 return false;
-            } else if (is_mref(l)) {
-                m_branch.m_mvar_idxs.insert(mref_index(l));
-                return false;
             } else {
                 return true;
             }
@@ -495,9 +466,6 @@ void state::set_target(expr const & t) {
                     return false;
                 } else if (is_href(e)) {
                     m_branch.m_target_deps.insert(href_index(e));
-                    return false;
-                } else if (is_mref(e)) {
-                    m_branch.m_mvar_idxs.insert(mref_index(e));
                     return false;
                 } else {
                     return true;

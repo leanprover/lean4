@@ -103,7 +103,6 @@ class branch {
     forward_deps       m_forward_deps; // given an entry (h -> {h_1, ..., h_n}), we have that each h_i uses h.
     expr               m_target;
     hypothesis_idx_set m_target_deps;
-    metavar_idx_set    m_mvar_idxs;
 };
 
 /** \brief Proof state for the blast tactic */
@@ -111,20 +110,10 @@ class state {
     typedef metavar_idx_map<metavar_decl>          metavar_decls;
     typedef metavar_idx_map<expr>                  eassignment;
     typedef metavar_idx_map<level>                 uassignment;
-    typedef hypothesis_idx_map<metavar_idx_set>    fixed_by;
     typedef list<proof_step>                       proof_steps;
     uassignment        m_uassignment;
     metavar_decls      m_metavar_decls;
     eassignment        m_eassignment;
-    // In the following mapping, each entry (h -> {m_1 ... m_n}) means that hypothesis `h` cannot be cleared
-    // in any branch where the metavariables m_1 ... m_n have not been replaced with the values assigned to them.
-    // That is, to be able to clear `h` in a branch `B`, we first need to check whether it
-    // is contained in this mapping or not. If it is, we should check whether any of the
-    // metavariables `m_1` ... `m_n` occur in `B` (this is a relatively quick check since
-    // `B` contains an over-approximation of all meta-variables occuring in it (i.e., m_mvar_idxs).
-    // If this check fails, then we should replace any assigned `m_i` with its value, if the intersection is still
-    // non-empty, then we cannot clear `h`.
-    fixed_by           m_fixed_by;
     unsigned           m_proof_depth{0};
     proof_steps        m_proof_steps;
     branch             m_branch;
@@ -144,7 +133,6 @@ class state {
 
     expr mk_hypothesis(unsigned new_hidx, name const & n, expr const & type, optional<expr> const & value);
 
-    void add_fixed_by(unsigned hidx, unsigned midx);
     unsigned add_metavar_decl(metavar_decl const & decl);
     goal to_goal(branch const &) const;
 
@@ -172,8 +160,6 @@ public:
     expr mk_metavar(expr const & type);
     metavar_decl const * get_metavar_decl(unsigned idx) const { return m_metavar_decls.find(idx); }
     metavar_decl const * get_metavar_decl(expr const & e) const { return get_metavar_decl(mref_index(e)); }
-
-    bool has_mvar(expr const & e) const { return m_branch.m_mvar_idxs.contains(mref_index(e)); }
 
     /************************
        Save/Restore branch

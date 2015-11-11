@@ -12,9 +12,9 @@ Author: Leonardo de Moura
 namespace lean {
 struct head_index {
     expr_kind m_kind;
-    name      m_const_name;
+    name      m_name;
     explicit head_index(expr_kind k = expr_kind::Var):m_kind(k) {}
-    explicit head_index(name const & c):m_kind(expr_kind::Constant), m_const_name(c) {}
+    explicit head_index(name const & c):m_kind(expr_kind::Constant), m_name(c) {}
     head_index(expr const & e);
 
     struct cmp {

@@ -22,13 +22,15 @@ head_index::head_index(expr const & e) {
     }
     m_kind = f.kind();
     if (is_constant(f))
-        m_const_name = const_name(f);
+        m_name = const_name(f);
+    else if (is_local(f))
+        m_name = mlocal_name(f);
 }
 
 int head_index::cmp::operator()(head_index const & i1, head_index const & i2) const {
-    if (i1.m_kind != i2.m_kind || i1.m_kind != expr_kind::Constant)
+    if (i1.m_kind != i2.m_kind || (i1.m_kind != expr_kind::Constant && i1.m_kind != expr_kind::Local))
         return static_cast<int>(i1.m_kind) - static_cast<int>(i2.m_kind);
     else
-        return quick_cmp(i1.m_const_name, i2.m_const_name);
+        return quick_cmp(i1.m_name, i2.m_name);
 }
 }

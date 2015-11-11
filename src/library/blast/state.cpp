@@ -292,7 +292,7 @@ struct instantiate_urefs_mrefs_fn : public replace_visitor {
     }
 
     virtual expr visit(expr const & e) {
-        if (!has_mref(e) || !has_univ_metavar(e))
+        if (!has_mref(e) && !has_univ_metavar(e))
             return e;
         else
             return replace_visitor::visit(e);

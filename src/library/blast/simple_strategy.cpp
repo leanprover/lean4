@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "library/blast/blast.h"
 #include "library/blast/options.h"
 #include "library/blast/choice_point.h"
-#include "library/blast/assumption.h"
+#include "library/blast/simple_actions.h"
 #include "library/blast/intros.h"
 #include "library/blast/backward.h"
 
@@ -22,7 +22,7 @@ class simple_strategy {
 
     enum status { NoAction, ClosedBranch, Continue };
 
-    optional<unsigned> activate_hypothesis() {
+    optional<hypothesis_idx> activate_hypothesis() {
         return curr_state().activate_hypothesis();
     }
 
@@ -30,12 +30,15 @@ class simple_strategy {
         if (intros_action())
             return action_result::new_branch();
 
-        if (activate_hypothesis()) {
-            // TODO(Leo): we should probably eagerly simplify the activated hypothesis.
+        if (auto hidx = activate_hypothesis()) {
+            if (auto pr = assumption_contradiction_actions(*hidx))
+                return action_result::solved(*pr);
             return action_result::new_branch();
         }
 
         if (auto pr = assumption_action()) {
+            // Remark: this action is only relevant
+            // when the target has been modified.
             return action_result::solved(*pr);
         }
 

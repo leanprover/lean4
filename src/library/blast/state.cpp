@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
 #include "library/replace_visitor.h"
+#include "library/blast/util.h"
 #include "library/blast/state.h"
 
 namespace lean {
@@ -433,9 +434,50 @@ expr state::mk_hypothesis(expr const & type) {
     return mk_hypothesis(hidx, name(*g_prefix, hidx), type, none_expr());
 }
 
-void state::update_indices(unsigned /* hidx */) {
-    // TODO(Leo): we need to update the indexing data-structures and send
-    // the hypothesis if to the congruence closure module after it is implemented.
+static optional<head_index> to_head_index(expr type) {
+    is_not(type, type);
+    expr const & f = get_app_fn(type);
+    if (is_constant(f) || is_local(f))
+        return optional<head_index>(head_index(f));
+    else
+        return optional<head_index>();
+}
+
+static optional<head_index> to_head_index(hypothesis const & h) {
+    return to_head_index(h.get_type());
+}
+
+list<hypothesis_idx> state::get_occurrences_of(head_index const & h) const {
+    if (auto r = m_branch.m_head_to_hyps.find(h))
+        return *r;
+    else
+        return list<hypothesis_idx>();
+}
+
+list<hypothesis_idx> state::get_head_related(hypothesis_idx hidx) const {
+    hypothesis const * h = get_hypothesis_decl(hidx);
+    lean_assert(h);
+    /* update m_head_to_hyps */
+    if (auto i = to_head_index(*h))
+        return get_occurrences_of(*i);
+    else
+        return list<hypothesis_idx>();
+}
+
+list<hypothesis_idx> state::get_head_related() const {
+    if (auto i = to_head_index(m_branch.m_target))
+        return get_occurrences_of(*i);
+    else
+        return list<hypothesis_idx>();
+}
+
+void state::update_indices(hypothesis_idx hidx) {
+    hypothesis const * h = get_hypothesis_decl(hidx);
+    lean_assert(h);
+    /* update m_head_to_hyps */
+    if (auto i = to_head_index(*h))
+        m_branch.m_head_to_hyps.insert(*i, hidx);
+    /* TODO(Leo): update congruence closure indices */
 }
 
 optional<unsigned> state::activate_hypothesis() {

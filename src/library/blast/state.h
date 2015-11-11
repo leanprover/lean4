@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "util/rb_map.h"
 #include "kernel/expr.h"
+#include "library/head_map.h"
 #include "library/tactic/goal.h"
 #include "library/blast/action_result.h"
 #include "library/blast/hypothesis.h"
@@ -90,7 +91,7 @@ public:
 class branch {
     friend class state;
     typedef hypothesis_idx_map<hypothesis_idx_set> forward_deps;
-    typedef rb_map<double, unsigned, double_cmp>   todo_queue;
+    typedef rb_map<double, hypothesis_idx, double_cmp>   todo_queue;
     // Hypothesis/facts in the current state
     hypothesis_decls   m_hyp_decls;
     // We break the set of hypotheses in m_context in 3 sets that are not necessarily disjoint:
@@ -107,12 +108,13 @@ class branch {
     // A derived hypothesis can be in the to-do or active sets.
     //
     // We say a hypothesis is in the to-do set when the blast haven't process it yet.
-    hypothesis_idx_set m_assumption;
-    hypothesis_idx_set m_active;
-    todo_queue         m_todo_queue;
-    forward_deps       m_forward_deps; // given an entry (h -> {h_1, ..., h_n}), we have that each h_i uses h.
-    expr               m_target;
-    hypothesis_idx_set m_target_deps;
+    hypothesis_idx_set       m_assumption;
+    hypothesis_idx_set       m_active;
+    todo_queue               m_todo_queue;
+    head_map<hypothesis_idx> m_head_to_hyps;
+    forward_deps             m_forward_deps; // given an entry (h -> {h_1, ..., h_n}), we have that each h_i uses h.
+    expr                     m_target;
+    hypothesis_idx_set       m_target_deps;
 };
 
 /** \brief Proof state for the blast tactic */
@@ -128,20 +130,20 @@ class state {
     proof_steps        m_proof_steps;
     branch             m_branch;
 
-    void add_forward_dep(unsigned hidx_user, unsigned hidx_provider);
-    void add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user);
-    void add_deps(hypothesis & h_user, unsigned hidx_user);
+    void add_forward_dep(hypothesis_idx hidx_user, hypothesis_idx hidx_provider);
+    void add_deps(expr const & e, hypothesis & h_user, hypothesis_idx hidx_user);
+    void add_deps(hypothesis & h_user, hypothesis_idx hidx_user);
 
     /** \brief Compute the weight of a hypothesis with the given type
         We use this weight to update the todo_queue. */
-    double compute_weight(unsigned hidx, expr const & type);
+    double compute_weight(hypothesis_idx hidx, expr const & type);
 
     /** \brief This method is invoked when a hypothesis move from todo to active.
 
         We will update indices and data-structures (e.g., congruence closure). */
-    void update_indices(unsigned hidx);
+    void update_indices(hypothesis_idx hidx);
 
-    expr mk_hypothesis(unsigned new_hidx, name const & n, expr const & type, optional<expr> const & value);
+    expr mk_hypothesis(hypothesis_idx new_hidx, name const & n, expr const & type, optional<expr> const & value);
 
     unsigned add_metavar_decl(metavar_decl const & decl);
     goal to_goal(branch const &) const;
@@ -149,8 +151,8 @@ class state {
     expr mk_binding(bool is_lambda, unsigned num, expr const * hrefs, expr const & b) const;
 
     #ifdef LEAN_DEBUG
-    bool check_hypothesis(expr const & e, unsigned hidx, hypothesis const & h) const;
-    bool check_hypothesis(unsigned hidx, hypothesis const & h) const;
+    bool check_hypothesis(expr const & e, hypothesis_idx hidx, hypothesis const & h) const;
+    bool check_hypothesis(hypothesis_idx hidx, hypothesis const & h) const;
     bool check_target() const;
     #endif
 public:
@@ -168,7 +170,7 @@ public:
         The context of this metavariable will be all assumption hypotheses occurring
         in the current branch. */
     expr mk_metavar(expr const & type);
-    metavar_decl const * get_metavar_decl(unsigned idx) const { return m_metavar_decls.find(idx); }
+    metavar_decl const * get_metavar_decl(hypothesis_idx idx) const { return m_metavar_decls.find(idx); }
     metavar_decl const * get_metavar_decl(expr const & e) const { return get_metavar_decl(mref_index(e)); }
 
     /************************
@@ -188,20 +190,20 @@ public:
 
     /** \brief Return true iff the hypothesis with index \c hidx_user depends on the hypothesis with index
         \c hidx_provider. */
-    bool hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const;
+    bool hidx_depends_on(hypothesis_idx hidx_user, hypothesis_idx hidx_provider) const;
 
-    hypothesis const * get_hypothesis_decl(unsigned hidx) const { return m_branch.m_hyp_decls.find(hidx); }
+    hypothesis const * get_hypothesis_decl(hypothesis_idx hidx) const { return m_branch.m_hyp_decls.find(hidx); }
     hypothesis const * get_hypothesis_decl(expr const & h) const { return get_hypothesis_decl(href_index(h)); }
 
-    void for_each_hypothesis(std::function<void(unsigned, hypothesis const &)> const & fn) const { m_branch.m_hyp_decls.for_each(fn); }
-    optional<unsigned> find_active_hypothesis(std::function<bool(unsigned, hypothesis const &)> const & fn) const { // NOLINT
-        return m_branch.m_active.find_if([&](unsigned hidx) {
+    void for_each_hypothesis(std::function<void(hypothesis_idx, hypothesis const &)> const & fn) const { m_branch.m_hyp_decls.for_each(fn); }
+    optional<unsigned> find_active_hypothesis(std::function<bool(hypothesis_idx, hypothesis const &)> const & fn) const { // NOLINT
+        return m_branch.m_active.find_if([&](hypothesis_idx hidx) {
                 return fn(hidx, *get_hypothesis_decl(hidx));
             });
     }
 
     /** \brief Activate the next hypothesis in the TODO queue, return none if the TODO queue is empty. */
-    optional<unsigned> activate_hypothesis();
+    optional<hypothesis_idx> activate_hypothesis();
 
     /** \brief Store in \c r the hypotheses in this branch sorted by dependency depth */
     void get_sorted_hypotheses(hypothesis_idx_buffer & r) const;
@@ -209,6 +211,15 @@ public:
     expr expand_hrefs(expr const & e, list<expr> const & hrefs) const;
 
     hypothesis_idx_set get_assumptions() const { return m_branch.m_assumption; }
+
+    /** \brief Return (active) hypotheses whose head symbol is h or (not h) */
+    list<hypothesis_idx> get_occurrences_of(head_index const & h) const;
+
+    /** \brief Return (active) hypotheses whose head symbol is equal to the of hidx or it is the negation of */
+    list<hypothesis_idx> get_head_related(hypothesis_idx hidx) const;
+
+    /** \brief Return (active) hypotheses whose head symbol is equal to target or it is the negation of */
+    list<hypothesis_idx> get_head_related() const;
 
     /************************
        Abstracting hypotheses

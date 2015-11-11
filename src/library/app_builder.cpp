@@ -301,19 +301,17 @@ struct app_builder::imp {
         }
     }
 
-    optional<level> get_level(expr const & A) {
+    level get_level(expr const & A) {
         expr Type = m_ctx->whnf(m_ctx->infer(A));
         if (!is_sort(Type))
-            return none_level();
-        return some_level(sort_level(Type));
+            throw app_builder_exception();
+        return sort_level(Type);
     }
 
     expr mk_eq(expr const & a, expr const & b) {
         expr A    = m_ctx->infer(a);
-        auto lvl  = get_level(A);
-        if (!lvl)
-            throw app_builder_exception();
-        return ::lean::mk_app(mk_constant(get_eq_name(), {*lvl}), A, a, b);
+        level lvl = get_level(A);
+        return ::lean::mk_app(mk_constant(get_eq_name(), {lvl}), A, a, b);
     }
 
     expr mk_iff(expr const & a, expr const & b) {
@@ -321,11 +319,9 @@ struct app_builder::imp {
     }
 
     expr mk_eq_refl(expr const & a) {
-        expr A    = m_ctx->infer(a);
-        auto lvl  = get_level(A);
-        if (!lvl)
-            throw app_builder_exception();
-        return ::lean::mk_app(mk_constant(get_eq_refl_name(), {*lvl}), A, a);
+        expr A     = m_ctx->infer(a);
+        level lvl  = get_level(A);
+        return ::lean::mk_app(mk_constant(get_eq_refl_name(), {lvl}), A, a);
     }
 
     expr mk_iff_refl(expr const & a) {
@@ -338,10 +334,8 @@ struct app_builder::imp {
         if (!is_eq(p, lhs, rhs))
             throw app_builder_exception();
         expr A    = m_ctx->infer(lhs);
-        auto lvl  = get_level(A);
-        if (!lvl)
-            throw app_builder_exception();
-        return ::lean::mk_app(mk_constant(get_eq_symm_name(), {*lvl}), A, lhs, rhs, H);
+        level lvl = get_level(A);
+        return ::lean::mk_app(mk_constant(get_eq_symm_name(), {lvl}), A, lhs, rhs, H);
     }
 
     expr mk_iff_symm(expr const & H) {
@@ -359,10 +353,8 @@ struct app_builder::imp {
         if (!is_eq(p1, lhs1, rhs1) || !is_eq(p2, lhs2, rhs2))
             throw app_builder_exception();
         expr A     = m_ctx->infer(lhs1);
-        auto lvl  = get_level(A);
-        if (!lvl)
-            throw app_builder_exception();
-        return ::lean::mk_app({mk_constant(get_eq_trans_name(), {*lvl}), A, lhs1, rhs1, rhs2, H1, H2});
+        level lvl  = get_level(A);
+        return ::lean::mk_app({mk_constant(get_eq_trans_name(), {lvl}), A, lhs1, rhs1, rhs2, H1, H2});
     }
 
     expr mk_iff_trans(expr const & H1, expr const & H2) {
@@ -428,13 +420,13 @@ struct app_builder::imp {
         if (!is_eq(p, lhs, rhs))
             throw app_builder_exception();
         expr A      = m_ctx->infer(lhs);
-        auto A_lvl  = get_level(A);
+        level A_lvl = get_level(A);
         expr mtype  = m_ctx->whnf(m_ctx->infer(motive));
         if (!is_pi(mtype) || !is_sort(binding_body(mtype)))
             throw app_builder_exception();
         level l_1    = sort_level(binding_body(mtype));
         name const & eqrec = is_standard(m_ctx->env()) ? get_eq_rec_name() : get_eq_nrec_name();
-        return ::lean::mk_app({mk_constant(eqrec, {l_1, *A_lvl}), A, lhs, motive, H1, rhs, H2});
+        return ::lean::mk_app({mk_constant(eqrec, {l_1, A_lvl}), A, lhs, motive, H1, rhs, H2});
     }
 
     expr mk_eq_drec(expr const & motive, expr const & H1, expr const & H2) {
@@ -443,18 +435,17 @@ struct app_builder::imp {
         if (!is_eq(p, lhs, rhs))
             throw app_builder_exception();
         expr A      = m_ctx->infer(lhs);
-        auto A_lvl  = get_level(A);
+        level A_lvl = get_level(A);
         expr mtype  = m_ctx->whnf(m_ctx->infer(motive));
         if (!is_pi(mtype) || !is_pi(binding_body(mtype)) || !is_sort(binding_body(binding_body(mtype))))
             throw app_builder_exception();
         level l_1    = sort_level(binding_body(binding_body(mtype)));
         name const & eqrec = is_standard(m_ctx->env()) ? get_eq_drec_name() : get_eq_rec_name();
-        return ::lean::mk_app({mk_constant(eqrec, {l_1, *A_lvl}), A, lhs, motive, H1, rhs, H2});
+        return ::lean::mk_app({mk_constant(eqrec, {l_1, A_lvl}), A, lhs, motive, H1, rhs, H2});
     }
 
     expr mk_congr_arg(expr const & f, expr const & H) {
         // TODO(Leo): efficient version
-
         return mk_app(get_congr_arg_name(), {f, H});
     }
 
@@ -466,6 +457,16 @@ struct app_builder::imp {
     expr mk_congr(expr const & H1, expr const & H2) {
         // TODO(Leo): efficient version
         return mk_app(get_congr_name(), {H1, H2});
+    }
+
+    expr mk_false_rec(expr const & c, expr const & H) {
+        level c_lvl = get_level(c);
+        if (is_standard(m_ctx->env())) {
+            return ::lean::mk_app(mk_constant(get_false_rec_name(), {c_lvl}), c, H);
+        } else {
+            expr H_type = m_ctx->infer(H);
+            return ::lean::mk_app(mk_constant(get_empty_rec_name(), {c_lvl}), mk_lambda("e", H_type, c), H);
+        }
     }
 };
 
@@ -561,6 +562,10 @@ expr app_builder::mk_congr(expr const & H1, expr const & H2) {
 
 expr app_builder::mk_sorry(expr const & type) {
     return mk_app(get_sorry_name(), type);
+}
+
+expr app_builder::mk_false_rec(expr const & c, expr const & H) {
+    return m_ptr->mk_false_rec(c, H);
 }
 
 void app_builder::set_local_instances(list<expr> const & insts) {

@@ -9,4 +9,7 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 optional<expr> assumption_action();
+/** \brief Apply assumption and contradiction actions using the given hypothesis.
+    \remark This action is supposed to be applied when a hypothesis is activated. */
+optional<expr> assumption_contradiction_actions(hypothesis_idx hidx);
 }}

@@ -119,6 +119,9 @@ public:
     /** \brief Create (@sorry type) */
     expr mk_sorry(expr const & type);
 
+    /** \brief False elimination */
+    expr mk_false_rec(expr const & c, expr const & H);
+
     /** \brief Set the local instances. This method is relevant when we want to expose local class instances
         to the app_builder.
 

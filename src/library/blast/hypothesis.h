@@ -15,6 +15,7 @@ class hypothesis;
 class branch;
 class state;
 
+typedef unsigned                        hypothesis_idx;
 typedef rb_tree<unsigned, unsigned_cmp> hypothesis_idx_set;
 typedef list<unsigned>                  hypothesis_idx_list;
 typedef buffer<unsigned>                hypothesis_idx_buffer;

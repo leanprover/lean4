@@ -489,6 +489,10 @@ public:
     app_builder & get_app_builder() {
         return m_app_builder;
     }
+
+    type_context & get_type_context() {
+        return m_tctx;
+    }
 };
 
 LEAN_THREAD_PTR(blastenv, g_blastenv);
@@ -507,6 +511,11 @@ environment const & env() {
 io_state const & ios() {
     lean_assert(g_blastenv);
     return g_blastenv->get_ios();
+}
+
+type_context & get_type_context() {
+    lean_assert(g_blastenv);
+    return g_blastenv->get_type_context();
 }
 
 app_builder & get_app_builder() {

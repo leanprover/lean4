@@ -6,9 +6,10 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "library/blast/action_result.h"
+#include "library/blast/gexpr.h"
 
 namespace lean {
 namespace blast {
-action_result backward_action(list<name> const & fnames, bool prop_only_branches = true);
+action_result backward_action(list<gexpr> const & lemmas, bool prop_only_branches = true);
 action_result constructor_action(bool prop_only_branches = true);
 }}

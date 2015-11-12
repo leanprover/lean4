@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/blast/blast.h"
 #include "library/blast/proof_expr.h"
 #include "library/blast/choice_point.h"
+#include "library/blast/gexpr.h"
 
 namespace lean {
 namespace blast {
@@ -46,16 +47,10 @@ struct backward_proof_step_cell : public proof_step_cell {
     }
 };
 
-static action_result try_lemma(name const & fname, bool prop_only_branches) {
+static action_result try_lemma(gexpr const & e, bool prop_only_branches) {
     state & s = curr_state();
-    declaration const & fdecl = env().get(fname);
-    buffer<level> ls_buffer;
-    unsigned num_univ_ps = fdecl.get_num_univ_params();
-    for (unsigned i = 0; i < num_univ_ps; i++)
-        ls_buffer.push_back(mk_fresh_uref());
-    levels ls = to_list(ls_buffer.begin(), ls_buffer.end());
-    expr f    = mk_constant(fname, ls);
-    expr type = instantiate_type_univ_params(fdecl, ls);
+    expr f    = e.to_expr();
+    expr type = infer_type(f);
     expr pr   = f;
     buffer<expr> mvars;
     while (true) {
@@ -99,19 +94,19 @@ static action_result try_lemma(name const & fname, bool prop_only_branches) {
 }
 
 class backward_choice_point_cell : public choice_point_cell {
-    state      m_state;
-    list<name> m_fnames;
-    bool       m_prop_only;
+    state       m_state;
+    list<gexpr> m_lemmas;
+    bool        m_prop_only;
 public:
-    backward_choice_point_cell(state const & s, list<name> const & fnames, bool prop_only):
-        m_state(s), m_fnames(fnames), m_prop_only(prop_only) {}
+    backward_choice_point_cell(state const & s, list<gexpr> const & lemmas, bool prop_only):
+        m_state(s), m_lemmas(lemmas), m_prop_only(prop_only) {}
 
     virtual action_result next() {
-        while (!empty(m_fnames)) {
-            curr_state() = m_state;
-            name fname   = head(m_fnames);
-            m_fnames     = tail(m_fnames);
-            action_result r = try_lemma(fname, m_prop_only);
+        while (!empty(m_lemmas)) {
+            curr_state()    = m_state;
+            gexpr lemma     = head(m_lemmas);
+            m_lemmas        = tail(m_lemmas);
+            action_result r = try_lemma(lemma, m_prop_only);
             if (!failed(r))
                 return r;
         }
@@ -119,9 +114,9 @@ public:
     }
 };
 
-action_result backward_action(list<name> const & fnames, bool prop_only_branches) {
+action_result backward_action(list<gexpr> const & lemmas, bool prop_only_branches) {
     state  s = curr_state();
-    auto it  = fnames;
+    auto it  = lemmas;
     while (!empty(it)) {
         action_result r = try_lemma(head(it), prop_only_branches);
         it              = tail(it);
@@ -143,6 +138,9 @@ action_result constructor_action(bool prop_only_branches) {
         return action_result::failed();
     buffer<name> c_names;
     get_intro_rule_names(env(), const_name(I), c_names);
-    return backward_action(to_list(c_names), prop_only_branches);
+    buffer<gexpr> lemmas;
+    for (name c_name : c_names)
+        lemmas.push_back(gexpr(c_name));
+    return backward_action(to_list(lemmas), prop_only_branches);
 }
 }}

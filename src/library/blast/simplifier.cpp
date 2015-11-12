@@ -95,6 +95,7 @@ class simplifier {
     app_builder                                  m_app_builder;
     name                                         m_rel;
 
+    simp_rule_sets                               m_srss;
     simp_rule_sets                               m_ctx_srss;
 
     /* Logging */
@@ -168,14 +169,14 @@ class simplifier {
                             list<expr> const & emetas, list<bool> const & instances);
 
 public:
-    simplifier(name const & rel);
+    simplifier(name const & rel, simp_rule_sets const & srss);
     result operator()(expr const & e) { return simplify(e); }
 };
 
 /* Constructor */
 
-simplifier::simplifier(name const & rel):
-    m_app_builder(*m_tmp_tctx), m_rel(rel) { }
+simplifier::simplifier(name const & rel, simp_rule_sets const & srss):
+    m_app_builder(*m_tmp_tctx), m_rel(rel), m_srss(srss) { }
 
 /* Cache */
 
@@ -401,7 +402,7 @@ result simplifier::rewrite(expr const & e) {
     result r(e);
     while (true) {
         result r_ctx = rewrite(r.get_new(), m_ctx_srss);
-        result r_new = rewrite(r_ctx.get_new(), get_simp_rule_sets(env()));
+        result r_new = rewrite(r_ctx.get_new(), m_srss);
         if (r_ctx.is_none() && r_new.is_none()) break;
         r = join(join(r, r_ctx), r_new);
     }
@@ -663,9 +664,8 @@ void finalize_simplifier() {
 }
 
 /* Entry point */
-
-result simplify(name const & rel, expr const & e) {
-    return simplifier(rel)(e);
+result simplify(name const & rel, expr const & e, simp_rule_sets const & srss) {
+    return simplifier(rel, srss)(e);    
 }
 
 }}

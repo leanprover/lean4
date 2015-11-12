@@ -6,6 +6,7 @@ Author: Daniel Selsam
 #pragma once
 #include "kernel/expr_pair.h"
 #include "library/blast/state.h"
+#include "library/simplifier/simp_rule_set.h"
 
 namespace lean {
 namespace blast {
@@ -33,7 +34,7 @@ public:
 
 }
 
-simp::result simplify(name const & rel, expr const & e);
+simp::result simplify(name const & rel, expr const & e, simp_rule_sets const & srss);
 
 void initialize_simplifier();
 void finalize_simplifier();

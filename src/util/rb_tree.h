@@ -313,6 +313,10 @@ public:
     rb_tree(CMP const & cmp = CMP()):CMP(cmp) {}
     rb_tree(rb_tree const & s):CMP(s), m_root(s.m_root) {}
     rb_tree(rb_tree && s):CMP(s), m_root(s.m_root) {}
+    rb_tree(buffer<T> const & s) {
+        for (auto const & v : s)
+            insert(v);
+    }
 
     rb_tree & operator=(rb_tree const & s) { m_root = s.m_root; return *this; }
     rb_tree & operator=(rb_tree && s) { m_root = s.m_root; return *this; }

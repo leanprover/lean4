@@ -1,44 +1,10 @@
-import algebra.numeral algebra.field
+import algebra.simplifier
+open simplifier.numeral
 open algebra
 
-namespace aux namespace norm_num
-universe l
-constants (A : Type.{l}) (A_comm_ring : comm_ring A)
+set_option simplify.max_steps 500000
+constants (A : Type.{1}) (A_comm_ring : algebra.comm_ring A)
 attribute A_comm_ring [instance]
-
-set_option simplify.max_steps 5000000
-set_option simplify.top_down false
-
-lemma bit0_add_bit0_helper [simp] (a b : A) : bit0 a + bit0 b = bit0 (a + b) := norm_num.bit0_add_bit0_helper a b (a+b) rfl
-lemma add1_bit1_helper [simp] (a : A) : (bit1 a) + 1 = bit0 (a + 1) := norm_num.add1_bit1_helper a (norm_num.add1 a) rfl
-lemma bit1_add_one_helper [simp] (a : A) : bit1 a + 1 = (bit1 a) + 1 := norm_num.bit1_add_one_helper a (norm_num.add1 (bit1 a)) rfl
-
-lemma bit1_add_bit0_helper [simp] (a b : A) : bit1 a + bit0 b = bit1 (a + b) := norm_num.bit1_add_bit0_helper a b (a + b) rfl
-lemma bit1_add_bit1_helper [simp] (a b : A) : bit1 a + bit1 b = bit0 (a + b + 1) := norm_num.bit1_add_bit1_helper a b (a + b) (a + b + 1) rfl rfl
-lemma bit0_add_bit1_helper [simp] (a b : A) : bit0 a + bit1 b = bit1 (a + b) := norm_num.bit0_add_bit1_helper a b (a + b) rfl
-lemma one_add_bit1_helper [simp] (a : A) : 1 + bit1 a = bit1 a + 1 := norm_num.one_add_bit1_helper a (bit1 a + 1) rfl
-
-lemma bin_zero_add [simp] (a : A) : 0 + a = a := norm_num.bin_zero_add a
-lemma bin_add_zero [simp] (a : A) : a + 0 = a := norm_num.bin_add_zero a
-lemma one_add_one [simp] : (1:A) + 1 = 2 := norm_num.one_add_one
-lemma one_add_bit0 [simp] (a : A) : 1 + bit0 a = bit1 a := norm_num.one_add_bit0 a
-lemma bit0_add_one [simp] (a : A) : bit0 a + 1 = bit1 a := norm_num.bit0_add_one a
-
-lemma mul_bit0_helper0 [simp] (a b : A) : bit0 a * bit0 b = bit0 (bit0 a * b) := norm_num.mul_bit0_helper (bit0 a) b (bit0 a * b) rfl
-lemma mul_bit0_helper1 [simp] (a b : A) : bit1 a * bit0 b = bit0 (bit1 a * b) := norm_num.mul_bit0_helper (bit1 a) b (bit1 a * b) rfl
-
-lemma mul_bit1_helper0 [simp] (a b : A) : bit0 a * bit1 b = bit0 (bit0 a * b) + bit0 a := norm_num.mul_bit1_helper (bit0 a) b (bit0 a * b) (bit0 (bit0 a * b) + bit0 a) rfl rfl
-lemma mul_bit1_helper1 [simp] (a b : A) : bit1 a * bit1 b = bit0 (bit1 a * b) + bit1 a := norm_num.mul_bit1_helper (bit1 a) b (bit1 a * b) (bit0 (bit1 a * b) + bit1 a) rfl rfl
-
-lemma mul_zero [simp] (a : A) : a * 0 = 0 := mul_zero a
-lemma zero_mul [simp] (a : A) : 0 * a = 0 := zero_mul a
-lemma mul_one [simp] (a : A) : a * 1 = a := mul_one a
-lemma one_mul [simp] (a : A) : 1 * a = a := one_mul a
-
-end norm_num
-end aux
-
-open aux.norm_num
 
 #simplify eq 0 (0:A) + 1
 #simplify eq 0 (1:A) + 0

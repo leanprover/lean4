@@ -103,12 +103,13 @@ class branch {
     typedef rb_map<double, hypothesis_idx, double_cmp>   todo_queue;
     // Hypothesis/facts in the current state
     hypothesis_decls   m_hyp_decls;
-    // We break the set of hypotheses in m_context in 3 sets that are not necessarily disjoint:
+    // We break the set of hypotheses in m_hyp_decls in 4 sets that are not necessarily disjoint:
     //   - assumption
     //   - active
     //   - todo
+    //   - dead
     //
-    // The sets active and todo are disjoint.
+    // The sets active and todo are disjoint. The set dead is also disjoint from the other sets.
     //
     // A hypothesis is an "assumption" if it comes from the input goal,
     // "intros" proof step, or an assumption obtained when applying an elimination step.
@@ -142,15 +143,7 @@ class state {
     void add_forward_dep(hypothesis_idx hidx_user, hypothesis_idx hidx_provider);
     void add_deps(expr const & e, hypothesis & h_user, hypothesis_idx hidx_user);
     void add_deps(hypothesis & h_user, hypothesis_idx hidx_user);
-
-    /** \brief Compute the weight of a hypothesis with the given type
-        We use this weight to update the todo_queue. */
-    double compute_weight(hypothesis_idx hidx, expr const & type);
-
-    /** \brief This method is invoked when a hypothesis move from todo to active.
-
-        We will update indices and data-structures (e.g., congruence closure). */
-    void update_indices(hypothesis_idx hidx);
+    void del_forward_dep(unsigned hidx_user, unsigned hidx_provider);
 
     expr mk_hypothesis(hypothesis_idx new_hidx, name const & n, expr const & type, optional<expr> const & value);
 
@@ -158,6 +151,21 @@ class state {
     goal to_goal(branch const &) const;
 
     expr mk_binding(bool is_lambda, unsigned num, expr const * hrefs, expr const & b) const;
+
+    /** \brief Compute the weight of a hypothesis with the given type
+        We use this weight to update the todo_queue. */
+    double compute_weight(hypothesis_idx hidx, expr const & type);
+
+    /** \brief This method is invoked when a hypothesis move from todo to active.
+        We will update indices and data-structures (e.g., congruence closure). */
+    void update_indices(hypothesis_idx hidx);
+
+    /** \brief Remove the given hypothesis from indexing data-structures */
+    void remove_from_indices(hypothesis const & h, hypothesis_idx hidx);
+
+    void del_hypotheses(buffer<hypothesis_idx> const & to_delete, hypothesis_idx_set const & to_delete_set);
+    void collect_forward_deps(hypothesis_idx hidx, buffer<hypothesis_idx> & result, hypothesis_idx_set & already_found);
+    bool safe_to_delete(buffer<hypothesis_idx> const & to_delete);
 
     #ifdef LEAN_DEBUG
     bool check_hypothesis(expr const & e, hypothesis_idx hidx, hypothesis const & h) const;
@@ -191,11 +199,23 @@ public:
     /************************
        Hypotheses
     *************************/
-
     expr mk_hypothesis(name const & n, expr const & type, expr const & value);
     expr mk_hypothesis(expr const & type, expr const & value);
     expr mk_hypothesis(name const & n, expr const & type);
     expr mk_hypothesis(expr const & type);
+
+    /** \brief Delete the given hypothesis and any other hypothesis that depends on it.
+        The procedure is only performed if the target does not depend on the given hypothesis.
+        Return true if success, and failure otherwise (target depends on hidx).
+
+        The hypothesese objects are not really deleted, we keep them at m_hyp_decls,
+        but they are removed from all indexing data-structures.
+    */
+    bool del_hypothesis(hypothesis_idx hidx);
+    bool del_hypotheses(buffer<hypothesis_idx> const & hs);
+
+    /** \brief Collect all hypothesis in \c result that depend directly or indirectly on hidx */
+    void collect_forward_deps(hypothesis_idx hidx, buffer<hypothesis_idx> & result);
 
     /** \brief Return true iff the hypothesis with index \c hidx_user depends on the hypothesis with index
         \c hidx_provider. */
@@ -229,6 +249,9 @@ public:
 
     /** \brief Return (active) hypotheses whose head symbol is equal to target or it is the negation of */
     list<hypothesis_idx> get_head_related() const;
+
+    /** \brief Return the set of hypotheses that (directly) depend on the given one */
+    hypothesis_idx_set get_forward_deps(hypothesis_idx hidx) const;
 
     /************************
        Abstracting hypotheses

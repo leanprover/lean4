@@ -299,7 +299,9 @@ bool state::check_hypothesis(expr const & e, unsigned hidx, hypothesis const & h
 }
 
 bool state::check_hypothesis(unsigned hidx, hypothesis const & h) const {
-    lean_assert(check_hypothesis(h.get_type(), hidx, h));
+    if (!h.is_dead()) {
+        lean_assert(check_hypothesis(h.get_type(), hidx, h));
+    }
     return true;
 }
 
@@ -337,8 +339,9 @@ struct hypothesis_dep_depth_lt {
 };
 
 void state::get_sorted_hypotheses(hypothesis_idx_buffer & r) const {
-    m_branch.m_hyp_decls.for_each([&](unsigned hidx, hypothesis const &) {
-            r.push_back(hidx);
+    m_branch.m_hyp_decls.for_each([&](unsigned hidx, hypothesis const & h) {
+            if (!h.is_dead())
+                r.push_back(hidx);
         });
     std::sort(r.begin(), r.end(), hypothesis_dep_depth_lt(*this));
 }
@@ -357,7 +360,17 @@ void state::add_forward_dep(unsigned hidx_user, unsigned hidx_provider) {
     }
 }
 
+void state::del_forward_dep(unsigned hidx_user, unsigned hidx_provider) {
+    auto s = m_branch.m_forward_deps.find(hidx_provider);
+    lean_assert(s);
+    lean_assert(s->contains(hidx_user));
+    hypothesis_idx_set new_s(*s);
+    new_s.erase(hidx_user);
+    m_branch.m_forward_deps.insert(hidx_provider, new_s);
+}
+
 void state::add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user) {
+    lean_assert(!h_user.is_dead());
     if (!has_href(e) && !has_mref(e))
         return; // nothing to be done
     for_each(e, [&](expr const & l, unsigned) {
@@ -424,6 +437,99 @@ expr state::mk_hypothesis(expr const & type) {
     return mk_hypothesis(hidx, name(*g_prefix, hidx), type, none_expr());
 }
 
+void state::del_hypotheses(buffer<hypothesis_idx> const & to_delete, hypothesis_idx_set const & to_delete_set) {
+    for (hypothesis_idx h : to_delete) {
+        hypothesis h_decl = *get_hypothesis_decl(h);
+        if (m_branch.m_active.contains(h)) {
+            m_branch.m_active.erase(h);
+            remove_from_indices(h_decl, h);
+        }
+        m_branch.m_assumption.erase(h);
+        m_branch.m_forward_deps.erase(h);
+        h_decl.m_deps.for_each([&](hypothesis_idx h_dep) {
+                if (to_delete_set.contains(h_dep)) {
+                    // we don't need to update forward deps for h_dep since
+                    // it will also be deleted.
+                    return;
+                }
+                del_forward_dep(h, h_dep);
+            });
+        h_decl.m_deps      = hypothesis_idx_set();
+        h_decl.m_dead      = true;
+        m_branch.m_hyp_decls.insert(h, h_decl);
+        // Remark: we don't remove h from m_todo_queue. It is too expensive.
+        // So, the method activate_hypothesis MUST check whether the candidate
+        // hypothesis is dead or not.
+    }
+}
+
+void state::collect_forward_deps(hypothesis_idx hidx, buffer<hypothesis_idx> & result, hypothesis_idx_set & already_found) {
+    unsigned qhead = result.size();
+    while (true) {
+        hypothesis_idx_set s = get_forward_deps(hidx);
+        s.for_each([&](hypothesis_idx h_dep) {
+                if (already_found.contains(h_dep))
+                    return;
+                already_found.insert(h_dep);
+                result.push_back(h_dep);
+            });
+        if (qhead == result.size())
+            return;
+        hidx = result[qhead];
+        qhead++;
+    }
+}
+
+/* Return true iff the target type does not depend on any of the hypotheses in to_delete */
+bool state::safe_to_delete(buffer<hypothesis_idx> const & to_delete) {
+    for (hypothesis_idx h : to_delete) {
+        if (m_branch.m_target_deps.contains(h)) {
+            // h cannot be deleted since the target type
+            // depends on it.
+            return false;
+        }
+    }
+    return true;
+}
+
+void state::collect_forward_deps(hypothesis_idx hidx, buffer<hypothesis_idx> & result) {
+    hypothesis_idx_set found;
+    collect_forward_deps(hidx, result, found);
+}
+
+bool state::del_hypotheses(buffer<hypothesis_idx> const & hs) {
+    hypothesis_idx_set     found;
+    buffer<hypothesis_idx> to_delete;
+    for (hypothesis_idx hidx : hs) {
+        to_delete.push_back(hidx);
+        found.insert(hidx);
+        collect_forward_deps(hidx, to_delete, found);
+    }
+    if (!safe_to_delete(to_delete))
+        return false;
+    del_hypotheses(to_delete, found);
+    return true;
+}
+
+bool state::del_hypothesis(hypothesis_idx hidx) {
+    hypothesis_idx_set found;
+    buffer<hypothesis_idx> to_delete;
+    to_delete.push_back(hidx);
+    found.insert(hidx);
+    collect_forward_deps(hidx, to_delete, found);
+    if (!safe_to_delete(to_delete))
+        return false;
+    del_hypotheses(to_delete, found);
+    return true;
+}
+
+hypothesis_idx_set state::get_forward_deps(hypothesis_idx hidx) const {
+    if (auto r = m_branch.m_forward_deps.find(hidx))
+        return *r;
+    else
+        return hypothesis_idx_set();
+}
+
 static optional<head_index> to_head_index(expr type) {
     is_not(type, type);
     expr const & f = get_app_fn(type);
@@ -470,14 +576,22 @@ void state::update_indices(hypothesis_idx hidx) {
     /* TODO(Leo): update congruence closure indices */
 }
 
+void state::remove_from_indices(hypothesis const & h, hypothesis_idx hidx) {
+    if (auto i = to_head_index(h))
+        m_branch.m_head_to_hyps.erase(*i, hidx);
+}
+
 optional<unsigned> state::activate_hypothesis() {
-    if (m_branch.m_todo_queue.empty()) {
-        return optional<unsigned>();
-    } else {
-        unsigned hidx = m_branch.m_todo_queue.erase_min();
-        m_branch.m_active.insert(hidx);
-        update_indices(hidx);
-        return optional<unsigned>(hidx);
+    while (true) {
+        if (m_branch.m_todo_queue.empty())
+            return optional<unsigned>();
+        unsigned hidx             = m_branch.m_todo_queue.erase_min();
+        hypothesis const * h_decl = get_hypothesis_decl(hidx);
+        if (!h_decl->is_dead()) {
+            m_branch.m_active.insert(hidx);
+            update_indices(hidx);
+            return optional<unsigned>(hidx);
+        }
     }
 }
 

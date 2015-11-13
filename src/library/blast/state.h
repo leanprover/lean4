@@ -298,7 +298,6 @@ public:
     }
 
     level const * get_uref_assignment(level const & l) const {
-        lean_assert(is_uref_assigned(l));
         return m_uassignment.find(uref_index(l));
     }
 
@@ -316,7 +315,6 @@ public:
     bool has_assigned_uref(levels const & ls) const;
 
     expr const * get_mref_assignment(expr const & e) const {
-        lean_assert(is_mref(e));
         return m_eassignment.find(mref_index(e));
     }
 

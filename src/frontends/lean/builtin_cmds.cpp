@@ -1377,31 +1377,18 @@ static environment abstract_expr_cmd(parser & p) {
 
     expr e, a, b;
     level_param_names ls, ls1, ls2;
-    switch (o) {
-    case 0: // weight
-        if (info.enabled()) p.regular_stream() << "abstract weight: " << endl;
-        std::tie(e, ls) = parse_local_expr(p);
-        p.regular_stream() << ae_manager.get_weight(e) << endl;
-        break;
-    case 1: // hash
+    if (o == 0) {
+        // hash
         if (info.enabled()) p.regular_stream() << "abstract hash: " << endl;
         std::tie(e, ls) = parse_local_expr(p);
         p.regular_stream() << ae_manager.hash(e) << endl;
-        break;
-    case 2: // is_equal
+    } else {
+        // is_equal
         if (info.enabled()) p.regular_stream() << "abstract is_equal: " << endl;
         std::tie(a, ls1) = parse_local_expr(p);
         p.check_token_next(get_comma_tk(), "invalid #abstract_expr command, ',' expected");
         std::tie(b, ls2) = parse_local_expr(p);
         p.regular_stream() << ae_manager.is_equal(a, b) << endl;
-        break;
-    case 3: // is_lt
-        if (info.enabled()) p.regular_stream() << "abstract is_equal: " << endl;
-        std::tie(a, ls1) = parse_local_expr(p);
-        p.check_token_next(get_comma_tk(), "invalid #abstract_expr command, ',' expected");
-        std::tie(b, ls2) = parse_local_expr(p);
-        p.regular_stream() << ae_manager.is_lt(a, b) << endl;
-        break;
     }
     return p.env();
 }

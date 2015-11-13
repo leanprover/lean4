@@ -12,25 +12,8 @@ constants (f : Π (x1 x2 : X), P x1 → P x2 → Prop)
 #abstract_expr 0 f x1 x2 px1a px2a
 #abstract_expr 0 f x1 x2 px1a px2b
 
-#abstract_expr 1 f
-#abstract_expr 1 f x1
-#abstract_expr 1 f x1 x2
-#abstract_expr 1 f x1 x2 px1a
-#abstract_expr 1 f x1 x2 px1b
-#abstract_expr 1 f x1 x2 px1a px2a
-#abstract_expr 1 f x1 x2 px1a px2b
-
-#abstract_expr 2 f x1 x2, f x2 x1
-#abstract_expr 2 f x1 x2, f x1 x2 px1a
-#abstract_expr 2 f x1 x2 px1a, f x1 x2 px1b
-#abstract_expr 2 f x1 x2 px1a px2a, f x1 x2 px1b
-#abstract_expr 2 f x1 x2 px1a px2a, f x1 x2 px1b px2b
-
-#abstract_expr 3 f x1, f x1
-#abstract_expr 3 f x1 x2, f x2 x1
-#abstract_expr 3 f x2 x1, f x1 x2
-#abstract_expr 3 f x1 x2, f x1 x2 px1a
-#abstract_expr 3 f x1 x2 px1a, f x1 x2 px1b
-#abstract_expr 3 f x1 x2 px1a px2a, f x1 x2 px1b
-#abstract_expr 3 f x1 x2 px1a, f x1 x2 px1b px2b
-#abstract_expr 3 f x1 x2 px1a px2a, f x1 x2 px1b px2b
+#abstract_expr 1 f x1 x2, f x2 x1
+#abstract_expr 1 f x1 x2, f x1 x2 px1a
+#abstract_expr 1 f x1 x2 px1a, f x1 x2 px1b
+#abstract_expr 1 f x1 x2 px1a px2a, f x1 x2 px1b
+#abstract_expr 1 f x1 x2 px1a px2a, f x1 x2 px1b px2b

@@ -18,10 +18,8 @@ public:
     abstract_expr_manager(fun_info_manager & f_info_manager):
         m_fun_info_manager(f_info_manager) { }
 
-    unsigned get_weight(expr const & e);
     unsigned hash(expr const & e);
     bool is_equal(expr const & a, expr const & b);
-    bool is_lt(expr const & a, expr const & b);
 };
 
 }

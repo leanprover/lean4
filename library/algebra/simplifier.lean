@@ -22,6 +22,19 @@ attribute algebra.right_distrib [simp]
 
 end sum_of_monomials
 
+namespace units
+
+attribute algebra.zero_add [simp]
+attribute algebra.add_zero [simp]
+
+attribute algebra.zero_mul [simp]
+attribute algebra.mul_zero [simp]
+
+attribute algebra.one_mul [simp]
+attribute algebra.mul_one [simp]
+
+end units
+
 -- TODO(dhs): remove `add1` from the original lemmas and delete this
 namespace numeral_helper
 open algebra

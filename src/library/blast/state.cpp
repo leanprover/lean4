@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 static name * g_prefix = nullptr;
+static name * g_H      = nullptr;
 
 bool metavar_decl::restrict_context_using(metavar_decl const & other) {
     buffer<unsigned> to_erase;
@@ -437,7 +438,7 @@ expr state::mk_hypothesis(name const & n, expr const & type, expr const & value)
 
 expr state::mk_hypothesis(expr const & type, expr const & value) {
     unsigned hidx = mk_href_idx();
-    return mk_hypothesis(hidx, name(*g_prefix, hidx), type, some_expr(value));
+    return mk_hypothesis(hidx, name(*g_H, hidx), type, some_expr(value));
 }
 
 expr state::mk_hypothesis(name const & n, expr const & type) {
@@ -446,7 +447,7 @@ expr state::mk_hypothesis(name const & n, expr const & type) {
 
 expr state::mk_hypothesis(expr const & type) {
     unsigned hidx = mk_href_idx();
-    return mk_hypothesis(hidx, name(*g_prefix, hidx), type, none_expr());
+    return mk_hypothesis(hidx, name(*g_H, hidx), type, none_expr());
 }
 
 void state::del_hypotheses(buffer<hypothesis_idx> const & to_delete, hypothesis_idx_set const & to_delete_set) {
@@ -694,9 +695,11 @@ expr state::mk_pi(list<expr> const & hrefs, expr const & b) const {
 
 void initialize_state() {
     g_prefix     = new name(name::mk_internal_unique_name());
+    g_H          = new name("H");
 }
 
 void finalize_state() {
     delete g_prefix;
+    delete g_H;
 }
 }}

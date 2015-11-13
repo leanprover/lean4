@@ -34,7 +34,12 @@ bool intros_action(unsigned max) {
     for (unsigned i = 0; i < max; i++) {
         if (!is_pi(target))
             break;
-        expr href  = s.mk_hypothesis(binding_name(target), binding_domain(target));
+        expr href;
+        if (is_default_var_name(binding_name(target)) && closed(binding_body(target))) {
+            href  = s.mk_hypothesis(binding_domain(target));
+        } else {
+            href  = s.mk_hypothesis(binding_name(target), binding_domain(target));
+        }
         new_hs.push_back(href);
         target     = whnf(instantiate(binding_body(target), href));
     }

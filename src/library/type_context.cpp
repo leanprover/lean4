@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/inductive/inductive.h"
 #include "library/projection.h"
 #include "library/normalize.h"
 #include "library/replace_visitor.h"
@@ -1816,6 +1817,99 @@ bool default_type_context::ignore_universe_def_eq(level const & l1, level const 
     } else {
         return false;
     }
+}
+
+expr normalizer::normalize_binding(expr const & e) {
+    expr d = normalize(binding_domain(e));
+    expr l = m_ctx.mk_tmp_local(binding_name(e), d, binding_info(e));
+    expr b = abstract(normalize(instantiate(binding_body(e), l)), l);
+    return update_binding(e, d, b);
+}
+
+optional<expr> normalizer::unfold_recursor_core(expr const & f, unsigned i,
+                                                buffer<unsigned> const & idxs, buffer<expr> & args, bool is_rec) {
+    if (i == idxs.size()) {
+        expr new_app = mk_rev_app(f, args);
+        if (is_rec)
+            return some_expr(normalize(new_app));
+        else if (optional<expr> r = unfold_app(env(), new_app))
+            return some_expr(normalize(*r));
+        else
+            return none_expr();
+    } else {
+        unsigned idx = idxs[i];
+        if (idx >= args.size())
+            return none_expr();
+        expr & arg = args[args.size() - idx - 1];
+        if (!is_constructor_app(env(), arg))
+            return none_expr();
+        return unfold_recursor_core(f, i+1, idxs, args, is_rec);
+    }
+}
+
+optional<expr> normalizer::unfold_recursor_major(expr const & f, unsigned idx, buffer<expr> & args) {
+    buffer<unsigned> idxs;
+    idxs.push_back(idx);
+    return unfold_recursor_core(f, 0, idxs, args, true);
+}
+
+expr normalizer::normalize_app(expr const & e) {
+    buffer<expr> args;
+    bool modified = false;
+    expr f = get_app_rev_args(e, args);
+    for (expr & a : args) {
+        expr new_a = a;
+        if (m_eval_nested_prop || !m_ctx.is_prop(m_ctx.infer(a)))
+            new_a = normalize(a);
+        if (new_a != a)
+            modified = true;
+        a = new_a;
+    }
+
+    if (is_constant(f)) {
+        if (auto idx = inductive::get_elim_major_idx(env(), const_name(f))) {
+            if (auto r = unfold_recursor_major(f, *idx, args))
+                return *r;
+        }
+    }
+    if (!modified)
+        return e;
+    expr r = mk_rev_app(f, args);
+    if (is_constant(f) && env().is_recursor(const_name(f))) {
+        return normalize(r);
+    } else {
+        return r;
+    }
+}
+
+expr normalizer::normalize(expr e) {
+    check_system("normalize");
+    if (!should_normalize(e))
+        return e;
+    e = m_ctx.whnf(e);
+    switch (e.kind()) {
+    case expr_kind::Var:  case expr_kind::Constant: case expr_kind::Sort:
+    case expr_kind::Meta: case expr_kind::Local: case expr_kind::Macro:
+        return e;
+    case expr_kind::Lambda: {
+        e = normalize_binding(e);
+        if (m_use_eta)
+            return try_eta(e);
+        else
+            return e;
+    }
+    case expr_kind::Pi:
+        return normalize_binding(e);
+    case expr_kind::App:
+        return normalize_app(e);
+    }
+    lean_unreachable(); // LCOV_EXCL_LINE
+}
+
+normalizer::normalizer(type_context & ctx, bool eta, bool nested_prop):
+    m_ctx(ctx), m_use_eta(eta), m_eval_nested_prop(nested_prop) {
+    if (!is_standard(env()))
+        nested_prop = true;
 }
 
 void initialize_type_context() {

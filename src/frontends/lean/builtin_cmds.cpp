@@ -1355,6 +1355,16 @@ static environment simplify_cmd(parser & p) {
     return p.env();
 }
 
+static environment normalizer_cmd(parser & p) {
+    environment const & env = p.env();
+    expr e; level_param_names ls;
+    std::tie(e, ls) = parse_local_expr(p);
+    tmp_type_context ctx(env, p.ios());
+    expr r = normalizer(ctx)(e);
+    p.regular_stream() << r << endl;
+    return env;
+}
+
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",              "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -1386,6 +1396,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#replace",          "(for debugging purposes)", replace_cmd));
     add_cmd(r, cmd_info("#congr",            "(for debugging purposes)", congr_cmd));
     add_cmd(r, cmd_info("#congr_simp",       "(for debugging purposes)", congr_simp_cmd));
+    add_cmd(r, cmd_info("#normalizer",       "(for debugging purposes)", normalizer_cmd));
     add_cmd(r, cmd_info("#accessible",       "(for debugging purposes) display number of accessible declarations for blast tactic", accessible_cmd));
     add_cmd(r, cmd_info("#decl_stats",       "(for debugging purposes) display declaration statistics", decl_stats_cmd));
     add_cmd(r, cmd_info("#relevant_thms",    "(for debugging purposes) select relevant theorems using Meng&Paulson heuristic", relevant_thms_cmd));

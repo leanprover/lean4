@@ -556,6 +556,37 @@ public:
     bool & get_ignore_if_zero() { return m_ignore_if_zero; }
 };
 
+/** \brief Simple normalizer */
+class normalizer {
+    type_context  &                   m_ctx;
+    bool                              m_use_eta;
+    bool                              m_eval_nested_prop;
+
+    expr normalize_binding(expr const & e);
+    optional<expr> unfold_recursor_core(expr const & f, unsigned i,
+                                        buffer<unsigned> const & idxs, buffer<expr> & args, bool is_rec);
+    optional<expr> unfold_recursor_major(expr const & f, unsigned idx, buffer<expr> & args);
+    expr normalize_app(expr const & e);
+    expr normalize(expr e);
+
+public:
+    /*
+      eta == true         : enable eta reduction
+      nested_prop == true : nested propositions are simplified (ignored if HoTT library)
+    */
+    normalizer(type_context & ctx, bool eta = true, bool nested_prop = false);
+    virtual ~normalizer() {}
+
+    /** \brief Auxiliary predicate for controlling which subterms will be normalized. */
+    virtual bool should_normalize(expr const &) const { return true; }
+
+    environment const & env() const { return m_ctx.env(); }
+
+    expr operator()(expr const & e) {
+        return normalize(e);
+    }
+};
+
 void initialize_type_context();
 void finalize_type_context();
 }

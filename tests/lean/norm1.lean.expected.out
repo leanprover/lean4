@@ -1,0 +1,15 @@
+@add nat (@has_add.mk nat nat.add) a b
+@add nat (@has_add.mk nat nat.add) (@mul nat (@has_mul.mk nat nat.mul) (@add nat (@has_add.mk nat nat.add) a b) c)
+  (@one nat (@has_one.mk nat (succ zero)))
+@add int (@has_add.mk int int.add) (@add int (@has_add.mk int int.add) (of_nat a) i)
+  (@bit1 int (@has_one.mk int (@one int (@has_one.mk int (of_nat (@one nat (@has_one.mk nat (succ zero)))))))
+     (@has_add.mk int int.add)
+     (@bit1 int (@has_one.mk int (@one int (@has_one.mk int (of_nat (@one nat (@has_one.mk nat (succ zero)))))))
+        (@has_add.mk int int.add)
+        (@bit1 int (@has_one.mk int (@one int (@has_one.mk int (of_nat (@one nat (@has_one.mk nat (succ zero)))))))
+           (@has_add.mk int int.add)
+           (@one int
+              (@has_one.mk int (@one int (@has_one.mk int (of_nat (@one nat (@has_one.mk nat (succ zero)))))))))))
+@add A (@has_add.mk A (@ring.add A s)) x (@mul A (@has_mul.mk A (@ring.mul A s)) y x)
+@add A (@has_add.mk A (@ring.add A s)) x
+  (@bit1 A (@has_one.mk A (@ring.one A s)) (@has_add.mk A (@ring.add A s)) (@one A (@has_one.mk A (@ring.one A s))))

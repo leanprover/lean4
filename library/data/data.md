@@ -15,7 +15,8 @@ Basic types:
 * [int](int/int.md) : the integers
 * [rat](rat/rat.md) : the rationals
 * [pnat](pnat.lean) : the positive natural numbers
-* [real](real.lean) : the real numbers 
+* [real](real/real.md) : the real numbers
+* [complex](complex.lean) : the complex numbers
 
 Constructors:
 

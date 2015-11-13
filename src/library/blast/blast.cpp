@@ -354,19 +354,22 @@ class blastenv {
         g.get_hyps(hs);
         for (expr const & h : hs) {
             lean_assert(is_local(h));
-            expr type     = normalize(*norm_tc, mlocal_type(h));
+            // TODO(Leo): cleanup this stuff... we don't have to use this normalizer anymore...
+            expr type     = ::lean::normalize(*norm_tc, mlocal_type(h));
             expr new_type = to_blast_expr(type);
             expr href     = s.mk_hypothesis(local_pp_name(h), new_type, h);
             local2href.insert(mlocal_name(h), href);
         }
-        expr target     = normalize(*norm_tc, g.get_type());
+        expr target     = ::lean::normalize(*norm_tc, g.get_type());
         expr new_target = to_blast_expr(target);
         s.set_target(new_target);
         lean_assert(s.check_invariant());
         return s;
     }
 
-    tctx m_tctx;
+    tctx                       m_tctx;
+    normalizer                 m_normalizer;
+    expr_map<expr>             m_norm_cache; // normalization cache
 
     void save_initial_context() {
         hypothesis_idx_buffer hidxs;
@@ -403,7 +406,8 @@ public:
         m_app_builder(*m_tmp_ctx),
         m_fun_info_manager(*m_tmp_ctx),
         m_congr_lemma_manager(m_app_builder, m_fun_info_manager),
-        m_tctx(*this) {
+        m_tctx(*this),
+        m_normalizer(m_tctx) {
         init_uref_mref_href_idxs();
     }
 
@@ -493,6 +497,15 @@ public:
     type_context & get_type_context() {
         return m_tctx;
     }
+
+    expr normalize(expr const & e) {
+        auto it = m_norm_cache.find(e);
+        if (it != m_norm_cache.end())
+            return it->second;
+        expr r = m_normalizer(e);
+        m_norm_cache.insert(mk_pair(e, r));
+        return r;
+    }
 };
 
 LEAN_THREAD_PTR(blastenv, g_blastenv);
@@ -546,6 +559,11 @@ expr whnf(expr const & e) {
 expr infer_type(expr const & e) {
     lean_assert(g_blastenv);
     return g_blastenv->infer_type(e);
+}
+
+expr normalize(expr const & e) {
+    lean_assert(g_blastenv);
+    return g_blastenv->normalize(e);
 }
 
 bool is_prop(expr const & e) {

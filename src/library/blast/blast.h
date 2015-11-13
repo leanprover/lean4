@@ -37,6 +37,11 @@ projection_info const * get_projection_info(name const & n);
 /** \brief Put the given expression in weak-head-normal-form with respect to the
     current state being processed by the blast tactic. */
 expr whnf(expr const & e);
+/** \brief Normalize the given expression using the blast type context.
+    This procedure caches results.
+    \remark This procedure is intended for normalizing instances that are not subsingletons. */
+expr normalize(expr const & e);
+
 /** \brief Return the type of the given expression with respect to the current state being
     processed by the blast tactic.
 

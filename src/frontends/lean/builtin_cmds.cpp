@@ -1359,8 +1359,8 @@ static environment normalizer_cmd(parser & p) {
     environment const & env = p.env();
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
-    tmp_type_context ctx(env, p.ios());
-    expr r = normalizer(ctx)(e);
+    blast::scope_debug scope(p.env(), p.ios());
+    expr r = blast::normalize(e);
     p.regular_stream() << r << endl;
     return env;
 }

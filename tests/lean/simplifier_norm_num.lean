@@ -1,9 +1,11 @@
 import algebra.simplifier
-open simplifier.numeral
 open algebra
 
-set_option simplify.max_steps 500000
-constants (A : Type.{1}) (A_comm_ring : algebra.comm_ring A)
+open simplifier.numeral
+
+set_option simplify.max_steps 5000000
+universe l
+constants (A : Type.{l}) (A_comm_ring : comm_ring A)
 attribute A_comm_ring [instance]
 
 #simplify eq 0 (0:A) + 1
@@ -27,6 +29,7 @@ attribute A_comm_ring [instance]
 #simplify eq 0 (5:A) + 28
 #simplify eq 0 (0 : A) + (2 + 3) + 7
 #simplify eq 0 (70 : A) + (33 + 2)
+
 #simplify eq 0 (23000000000 : A) + 22000000000
 
 #simplify eq 0 (0 : A) * 0

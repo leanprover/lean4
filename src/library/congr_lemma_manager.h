@@ -41,5 +41,8 @@ public:
 
     optional<result> mk_congr_simp(expr const & fn);
     optional<result> mk_congr_simp(expr const & fn, unsigned nargs);
+
+    optional<result> mk_congr(expr const & fn);
+    optional<result> mk_congr(expr const & fn, unsigned nargs);
 };
 }

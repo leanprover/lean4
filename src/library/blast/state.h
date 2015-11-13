@@ -66,6 +66,10 @@ public:
 
         Proof-steps are usually not used when implementing forward chaining. */
     virtual action_result resolve(expr const & pr) const = 0;
+
+    /** \brief We say a proof step is "silent" if it doesn't contribute to the
+        proof depth. */
+    virtual bool is_silent() const { return false; }
 };
 
 /** \brief Smart pointer for proof steps */
@@ -83,6 +87,11 @@ public:
     action_result resolve(expr const & pr) const {
         lean_assert(m_ptr);
         return m_ptr->resolve(pr);
+    }
+
+    bool is_silent() const {
+        lean_assert(m_ptr);
+        return m_ptr->is_silent();
     }
 };
 
@@ -257,7 +266,8 @@ public:
     *************************/
 
     void push_proof_step(proof_step const & ps) {
-        m_proof_depth++;
+        if (!ps.is_silent())
+            m_proof_depth++;
         m_proof_steps = cons(ps, m_proof_steps);
     }
 
@@ -275,14 +285,16 @@ public:
 
     void pop_proof_step() {
         lean_assert(m_proof_steps);
-        m_proof_depth--;
-        m_proof_steps = tail(m_proof_steps);
+        if (!head(m_proof_steps).is_silent()) {
+            lean_assert(m_proof_depth > 0);
+            m_proof_depth--;
+        }
+        m_proof_steps    = tail(m_proof_steps);
     }
 
     unsigned get_proof_depth() const {
         return m_proof_depth;
     }
-
 
     /************************
        Assignment management

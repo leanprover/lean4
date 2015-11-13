@@ -37,7 +37,7 @@ end units
 
 -- TODO(dhs): remove `add1` from the original lemmas and delete this
 namespace numeral_helper
-open algebra
+open algebra norm_num
 
 theorem bit1_add_bit1 {A : Type} [s : algebra.add_comm_semigroup A]
   [s' : has_one A] (a b : A) : bit1 a + bit1 b = bit0 ((a + b) + 1)
@@ -53,23 +53,23 @@ end numeral_helper
 
 namespace numeral
 
-attribute one_add_bit0 [simp]
-attribute bit0_add_one [simp]
+attribute norm_num.one_add_bit0 [simp]
+attribute norm_num.bit0_add_one [simp]
 attribute numeral_helper.one_add_bit1 [simp]
 attribute numeral_helper.bit1_add_one [simp]
-attribute one_add_one [simp]
+attribute norm_num.one_add_one [simp]
 
-attribute bit0_add_bit0 [simp]
-attribute bit0_add_bit1 [simp]
-attribute bit1_add_bit0 [simp]
+attribute norm_num.bit0_add_bit0 [simp]
+attribute norm_num.bit0_add_bit1 [simp]
+attribute norm_num.bit1_add_bit0 [simp]
 
 attribute numeral_helper.bit1_add_bit1 [simp]
 
 attribute algebra.one_mul [simp]
 attribute algebra.mul_one [simp]
 
-attribute mul_bit0 [simp]
-attribute mul_bit1 [simp]
+attribute norm_num.mul_bit0 [simp]
+attribute norm_num.mul_bit1 [simp]
 
 attribute algebra.zero_add [simp]
 attribute algebra.add_zero [simp]

@@ -438,6 +438,7 @@ inline expr mk_app(buffer<expr> const & args, tag g = nulltag) { return mk_app(a
 inline expr mk_app(expr const & f, buffer<expr> const & args, tag g = nulltag) {
     return mk_app(f, args.size(), args.data(), g);
 }
+expr mk_app(expr const & f, list<expr> const & args, tag g = nulltag);
 expr mk_rev_app(expr const & f, unsigned num_args, expr const * args, tag g = nulltag);
 expr mk_rev_app(unsigned num_args, expr const * args, tag g = nulltag);
 inline expr mk_rev_app(buffer<expr> const & args, tag g = nulltag) { return mk_rev_app(args.size(), args.data(), g); }

@@ -406,6 +406,12 @@ expr mk_app(unsigned num_args, expr const * args, tag g) {
     return mk_app(mk_app(args[0], args[1], g), num_args - 2, args+2, g);
 }
 
+expr mk_app(expr const & f, list<expr> const & args, tag g) {
+    buffer<expr> _args;
+    to_buffer(args, _args);
+    return mk_app(f, _args, g);
+}
+
 expr mk_rev_app(expr const & f, unsigned num_args, expr const * args, tag g) {
     expr r = f;
     unsigned i = num_args;

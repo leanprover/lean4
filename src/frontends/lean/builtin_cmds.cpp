@@ -43,6 +43,7 @@ Author: Leonardo de Moura
 #include "library/meng_paulson.h"
 #include "library/fun_info_manager.h"
 #include "library/congr_lemma_manager.h"
+#include "library/abstract_expr_manager.h"
 #include "library/definitional/projection.h"
 #include "library/simplifier/simp_rule_set.h"
 #include "library/blast/blast.h"
@@ -1365,6 +1366,46 @@ static environment normalizer_cmd(parser & p) {
     return env;
 }
 
+static environment abstract_expr_cmd(parser & p) {
+    unsigned o = p.parse_small_nat();
+    default_type_context ctx(p.env(), p.ios());
+    fun_info_manager fun_info(ctx);
+    abstract_expr_manager ae_manager(fun_info);
+
+    flycheck_information info(p.regular_stream());
+    if (info.enabled()) p.display_information_pos(p.cmd_pos());
+
+    expr e, a, b;
+    level_param_names ls, ls1, ls2;
+    switch (o) {
+    case 0: // weight
+        if (info.enabled()) p.regular_stream() << "abstract weight: " << endl;
+        std::tie(e, ls) = parse_local_expr(p);
+        p.regular_stream() << ae_manager.get_weight(e) << endl;
+        break;
+    case 1: // hash
+        if (info.enabled()) p.regular_stream() << "abstract hash: " << endl;
+        std::tie(e, ls) = parse_local_expr(p);
+        p.regular_stream() << ae_manager.hash(e) << endl;
+        break;
+    case 2: // is_equal
+        if (info.enabled()) p.regular_stream() << "abstract is_equal: " << endl;
+        std::tie(a, ls1) = parse_local_expr(p);
+        p.check_token_next(get_comma_tk(), "invalid #abstract_expr command, ',' expected");
+        std::tie(b, ls2) = parse_local_expr(p);
+        p.regular_stream() << ae_manager.is_equal(a, b) << endl;
+        break;
+    case 3: // is_lt
+        if (info.enabled()) p.regular_stream() << "abstract is_equal: " << endl;
+        std::tie(a, ls1) = parse_local_expr(p);
+        p.check_token_next(get_comma_tk(), "invalid #abstract_expr command, ',' expected");
+        std::tie(b, ls2) = parse_local_expr(p);
+        p.regular_stream() << ae_manager.is_lt(a, b) << endl;
+        break;
+    }
+    return p.env();
+}
+
 void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("open",              "create aliases for declarations, and use objects defined in other namespaces",
                         open_cmd));
@@ -1401,6 +1442,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#decl_stats",       "(for debugging purposes) display declaration statistics", decl_stats_cmd));
     add_cmd(r, cmd_info("#relevant_thms",    "(for debugging purposes) select relevant theorems using Meng&Paulson heuristic", relevant_thms_cmd));
     add_cmd(r, cmd_info("#simplify",         "(for debugging purposes) simplify given expression", simplify_cmd));
+    add_cmd(r, cmd_info("#abstract_expr",    "(for debugging purposes) call abstract expr methods", abstract_expr_cmd));
 
     register_decl_cmds(r);
     register_inductive_cmd(r);

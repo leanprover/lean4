@@ -188,6 +188,7 @@ class type_context {
     bool is_def_eq_proof_irrel(expr const & e1, expr const & e2);
 
     expr subst_mvar(expr const & e);
+    bool process_assignment_core(expr const & ma, expr const & v);
     bool process_assignment(expr const & ma, expr const & v);
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
     reduction_status lazy_delta_reduction_step(expr & t_n, expr & s_n);

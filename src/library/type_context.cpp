@@ -685,7 +685,7 @@ bool type_context::is_def_eq_proof_irrel(expr const & e1, expr const & e2) {
 
 /** \brief Given \c ma of the form <tt>?m t_1 ... t_n</tt>, (try to) assign
     ?m to (an abstraction of) v. Return true if success and false otherwise. */
-bool type_context::process_assignment(expr const & ma, expr const & v) {
+bool type_context::process_assignment_core(expr const & ma, expr const & v) {
     buffer<expr> args;
     expr const & m = get_app_args(ma, args);
     buffer<expr> locals;
@@ -754,6 +754,20 @@ bool type_context::process_assignment(expr const & ma, expr const & v) {
     }
 }
 
+bool type_context::process_assignment(expr const & ma, expr const & v) {
+    scope s(*this);
+    unsigned psz = m_postponed.size();
+    if (!process_assignment_core(ma, v)) {
+        return false;
+    }
+    if (process_postponed(psz)) {
+        m_postponed.resize(psz);
+        s.commit();
+        return true;
+    }
+    return false;
+}
+
 bool type_context::assign(expr const & ma, expr const & v) {
     expr const & f = get_app_fn(ma);
     if (is_assigned(f)) {
@@ -777,7 +791,7 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
         if (is_assigned(f1)) {
             return to_lbool(is_def_eq_core(subst_mvar(e1), e2));
         } else {
-            return to_lbool(process_assignment(e1, e2));
+            return to_lbool(process_assignment_core(e1, e2));
         }
     }
 
@@ -786,7 +800,7 @@ lbool type_context::quick_is_def_eq(expr const & e1, expr const & e2) {
         if (is_assigned(f2)) {
             return to_lbool(is_def_eq_core(e1, subst_mvar(e2)));
         } else {
-            return to_lbool(process_assignment(e2, e1));
+            return to_lbool(process_assignment_core(e2, e1));
         }
     }
 

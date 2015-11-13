@@ -43,6 +43,9 @@ Author: Daniel Selsam
 #ifndef LEAN_DEFAULT_SIMPLIFY_TRACE
 #define LEAN_DEFAULT_SIMPLIFY_TRACE false
 #endif
+#ifndef LEAN_DEFAULT_SIMPLIFY_FUSE
+#define LEAN_DEFAULT_SIMPLIFY_FUSE false
+#endif
 
 namespace lean {
 namespace blast {
@@ -58,6 +61,7 @@ static name * g_simplify_memoize       = nullptr;
 static name * g_simplify_contextual    = nullptr;
 static name * g_simplify_expand_macros = nullptr;
 static name * g_simplify_trace         = nullptr;
+static name * g_simplify_fuse          = nullptr;
 
 unsigned get_simplify_max_steps() {
     return ios().get_options().get_unsigned(*g_simplify_max_steps, LEAN_DEFAULT_SIMPLIFY_MAX_STEPS);
@@ -87,6 +91,10 @@ bool get_simplify_trace() {
     return ios().get_options().get_bool(*g_simplify_trace, LEAN_DEFAULT_SIMPLIFY_TRACE);
 }
 
+bool get_simplify_fuse() {
+    return ios().get_options().get_bool(*g_simplify_fuse, LEAN_DEFAULT_SIMPLIFY_FUSE);
+}
+
 /* Main simplifier class */
 
 class simplifier {
@@ -109,6 +117,7 @@ class simplifier {
     bool                                         m_contextual{get_simplify_contextual()};
     bool                                         m_expand_macros{get_simplify_expand_macros()};
     bool                                         m_trace{get_simplify_trace()};
+    bool                                         m_fuse{get_simplify_fuse()};
 
     /* Cache */
     static std::hash<simp_rule_set*> m_srss_hash;
@@ -654,6 +663,7 @@ void initialize_simplifier() {
     g_simplify_contextual    = new name{"simplify", "contextual"};
     g_simplify_expand_macros = new name{"simplify", "expand_macros"};
     g_simplify_trace         = new name{"simplify", "trace"};
+    g_simplify_fuse          = new name{"simplify", "fuse"};
 
     register_unsigned_option(*g_simplify_max_steps, LEAN_DEFAULT_SIMPLIFY_MAX_STEPS,
                              "(simplify) max allowed steps in simplification");
@@ -669,9 +679,12 @@ void initialize_simplifier() {
                          "(simplify) expand macros");
     register_bool_option(*g_simplify_trace, LEAN_DEFAULT_SIMPLIFY_TRACE,
                          "(simplify) trace");
+    register_bool_option(*g_simplify_fuse, LEAN_DEFAULT_SIMPLIFY_FUSE,
+                         "(simplify) fuse addition in distrib structures");
 }
 
 void finalize_simplifier() {
+    delete g_simplify_fuse;
     delete g_simplify_trace;
     delete g_simplify_expand_macros;
     delete g_simplify_contextual;

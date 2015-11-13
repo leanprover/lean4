@@ -24,6 +24,8 @@ struct intros_proof_step_cell : public proof_step_cell {
 };
 
 bool intros_action(unsigned max) {
+    if (max == 0)
+        return true;
     state &  s  = curr_state();
     expr target = whnf(s.get_target());
     if (!is_pi(target))

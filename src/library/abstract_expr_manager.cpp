@@ -5,6 +5,7 @@ Author: Daniel Selsam
 */
 #include "library/abstract_expr_manager.h"
 #include "util/safe_arith.h"
+#include "util/list_fn.h"
 
 namespace lean {
 
@@ -15,11 +16,11 @@ unsigned abstract_expr_manager::get_weight(expr const & e) {
     case expr_kind::Meta:
     case expr_kind::Sort:
     case expr_kind::Var:
-    case expr_kind::Macro:        
+    case expr_kind::Macro:
         return ::lean::get_weight(e);
     case expr_kind::Lambda:
-    case expr_kind::Pi:        
-        return safe_add(1,safe_add(get_weight(binding_domain(e)), get_weight(binding_body(e))));
+    case expr_kind::Pi:
+        return safe_add(1, safe_add(get_weight(binding_domain(e)), get_weight(binding_body(e))));
     case expr_kind::App:
         buffer<expr> args;
         expr f = get_app_args(e, args);
@@ -45,10 +46,10 @@ unsigned abstract_expr_manager::hash(expr const & e) {
     case expr_kind::Meta:
     case expr_kind::Sort:
     case expr_kind::Var:
-    case expr_kind::Macro:        
+    case expr_kind::Macro:
         return e.hash();
     case expr_kind::Lambda:
-    case expr_kind::Pi:        
+    case expr_kind::Pi:
         return ::lean::hash(hash(binding_domain(e)), hash(binding_body(e)));
     case expr_kind::App:
         buffer<expr> args;
@@ -114,7 +115,7 @@ bool abstract_expr_manager::is_lt(expr const & a, expr const & b) {
     if (wa < wb)                         return true;
     if (wa > wb)                         return false;
     if (a.kind() != b.kind())            return a.kind() < b.kind();
-    if (is_equal(a,b))                   return false;
+    if (is_equal(a, b))                  return false;
     switch (a.kind()) {
     case expr_kind::Var:
     case expr_kind::Constant:

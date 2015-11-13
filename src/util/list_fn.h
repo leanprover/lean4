@@ -281,7 +281,7 @@ void for_each(list<T> const & l, F && f) {
     }
 }
 
-/** \brief Given lists <tt>(a_0, ..., a_k)</tt> and <tt>(b_0, ..., b_k)</tt>, 
+/** \brief Given lists <tt>(a_0, ..., a_k)</tt> and <tt>(b_0, ..., b_k)</tt>,
     exec f(a_0, b_0); f(a_1, b_1); ... f(a_k, b_k)</tt>. */
 template<typename T1, typename T2, typename F>
 void for_each2(list<T1> const & l1, list<T2> const & l2, F && f) {
@@ -298,24 +298,24 @@ void for_each2(list<T1> const & l1, list<T2> const & l2, F && f) {
     }
 }
 
-/** \brief Given lists <tt>(a_0, ..., a_k)</tt>, <tt>(b_0, ..., b_k)</tt>, 
-    and <tt>(c_0, ..., c_k)</tt>, 
+/** \brief Given lists <tt>(a_0, ..., a_k)</tt>, <tt>(b_0, ..., b_k)</tt>,
+    and <tt>(c_0, ..., c_k)</tt>,
     exec f(a_0, b_0, c_0); f(a_1, b_1, c_1); ... f(a_k, b_k, c_k)</tt>. */
 template<typename T1, typename T2, typename T3, typename F>
-void for_each2(list<T1> const & l1, list<T2> const & l2, list<T3> const & l3, F && f) {
+void for_each3(list<T1> const & l1, list<T2> const & l2, list<T3> const & l3, F && f) {
     static_assert(std::is_same<typename std::result_of<F(T1 const &, T2 const &, T3 const &)>::type, void>::value,
                   "for_each2: return type of f is not void");
     typedef typename list<T1>::cell cell1;
     typedef typename list<T2>::cell cell2;
-    typedef typename list<T3>::cell cell3;    
+    typedef typename list<T3>::cell cell3;
     cell1 * it1 = l1.raw();
     cell2 * it2 = l2.raw();
-    cell3 * it3 = l3.raw();    
+    cell3 * it3 = l3.raw();
     while (it1 && it2 && it3) {
         f(it1->head(), it2->head(), it3->head());
         it1 = it1->tail().raw();
         it2 = it2->tail().raw();
-        it3 = it3->tail().raw();        
+        it3 = it3->tail().raw();
     }
 }
 

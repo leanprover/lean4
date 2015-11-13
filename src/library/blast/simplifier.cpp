@@ -665,7 +665,7 @@ void finalize_simplifier() {
 
 /* Entry point */
 result simplify(name const & rel, expr const & e, simp_rule_sets const & srss) {
-    return simplifier(rel, srss)(e);    
+    return simplifier(rel, srss)(e);
 }
 
 }}

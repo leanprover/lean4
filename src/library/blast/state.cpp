@@ -300,7 +300,6 @@ bool state::check_hypothesis(expr const & e, unsigned hidx, hypothesis const & h
 
 bool state::check_hypothesis(unsigned hidx, hypothesis const & h) const {
     lean_assert(check_hypothesis(h.get_type(), hidx, h));
-    lean_assert(h.is_assumption() || check_hypothesis(*h.get_value(), hidx, h));
     return true;
 }
 
@@ -383,9 +382,6 @@ void state::add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user) {
 
 void state::add_deps(hypothesis & h_user, unsigned hidx_user) {
     add_deps(h_user.m_type, h_user, hidx_user);
-    if (!h_user.is_assumption()) {
-        add_deps(*h_user.m_value, h_user, hidx_user);
-    }
 }
 
 double state::compute_weight(unsigned hidx, expr const & /* type */) {

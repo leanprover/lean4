@@ -70,6 +70,7 @@ class simple_strategy {
     optional<expr> search_upto(unsigned depth) {
         action_result r = next_action();
         while (true) {
+            lean_assert(curr_state().check_invariant());
             if (curr_state().get_proof_depth() > depth)
                 r = action_result::failed();
             switch (r.get_kind()) {

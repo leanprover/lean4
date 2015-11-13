@@ -356,7 +356,16 @@ void state::get_sorted_hypotheses(hypothesis_idx_buffer & r) const {
             if (!h.is_dead())
                 r.push_back(hidx);
         });
+    sort_hypotheses(r);
+}
+
+void state::sort_hypotheses(hypothesis_idx_buffer & r) const {
     std::sort(r.begin(), r.end(), hypothesis_dep_depth_lt(*this));
+}
+
+void state::to_hrefs(hypothesis_idx_buffer const & hidxs, buffer<expr> & r) const {
+    for (hypothesis_idx hidx : hidxs)
+        r.push_back(get_hypothesis_decl(hidx)->get_self());
 }
 
 void state::add_forward_dep(unsigned hidx_user, unsigned hidx_provider) {

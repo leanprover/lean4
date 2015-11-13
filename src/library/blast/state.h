@@ -168,7 +168,6 @@ class state {
     void remove_from_indices(hypothesis const & h, hypothesis_idx hidx);
 
     void del_hypotheses(buffer<hypothesis_idx> const & to_delete, hypothesis_idx_set const & to_delete_set);
-    void collect_forward_deps(hypothesis_idx hidx, buffer<hypothesis_idx> & result, hypothesis_idx_set & already_found);
     bool safe_to_delete(buffer<hypothesis_idx> const & to_delete);
 
     void display_active(output_channel & out) const;
@@ -222,6 +221,7 @@ public:
 
     /** \brief Collect all hypothesis in \c result that depend directly or indirectly on hidx */
     void collect_forward_deps(hypothesis_idx hidx, buffer<hypothesis_idx> & result);
+    void collect_forward_deps(hypothesis_idx hidx, buffer<hypothesis_idx> & result, hypothesis_idx_set & already_found);
 
     /** \brief Return true iff the hypothesis with index \c hidx_user depends on the hypothesis with index
         \c hidx_provider. */
@@ -242,6 +242,11 @@ public:
 
     /** \brief Store in \c r the hypotheses in this branch sorted by dependency depth */
     void get_sorted_hypotheses(hypothesis_idx_buffer & r) const;
+    /** \brief Sort hypotheses in r */
+    void sort_hypotheses(hypothesis_idx_buffer & r) const;
+
+    /** \brief Convert hypotheses indices into hrefs */
+    void to_hrefs(hypothesis_idx_buffer const & hidxs, buffer<expr> & r) const;
 
     expr expand_hrefs(expr const & e, list<expr> const & hrefs) const;
 

@@ -292,9 +292,6 @@ bool state::check_hypothesis(expr const & e, unsigned hidx, hypothesis const & h
             if (is_href(n)) {
                 lean_assert(h.depends_on(n));
                 lean_assert(hidx_depends_on(hidx, href_index(n)));
-            } else if (is_mref(n)) {
-                // metavariable is in the set of used metavariables
-                lean_assert(has_mvar(n));
             }
             return true;
         });
@@ -312,9 +309,6 @@ bool state::check_target() const {
     for_each(get_target(), [&](expr const & n, unsigned) {
             if (is_href(n)) {
                 lean_assert(target_depends_on(n));
-            } else if (is_mref(n)) {
-                // metavariable is in the set of used metavariables
-                lean_assert(has_mvar(n));
             }
             return true;
         });
@@ -323,7 +317,7 @@ bool state::check_target() const {
 
 bool state::check_invariant() const {
     for_each_hypothesis([&](unsigned hidx, hypothesis const & h) {
-            lean_assert(check_hypothesis(b, hidx, h));
+            lean_assert(check_hypothesis(hidx, h));
         });
     lean_assert(check_target());
     return true;

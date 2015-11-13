@@ -49,6 +49,7 @@ namespace is_trunc
   definition succ_le_succ {n m : trunc_index} (H : n ≤ m) : n.+1 ≤ m.+1 := H
   definition le_of_succ_le_succ {n m : trunc_index} (H : n.+1 ≤ m.+1) : n ≤ m := H
   definition minus_two_le (n : trunc_index) : -2 ≤ n := star
+  definition le.refl (n : trunc_index) : n ≤ n := by induction n with n IH; exact star; exact IH
   definition empty_of_succ_le_minus_two {n : trunc_index} (H : n .+1 ≤ -2) : empty := H
   end trunc_index
   definition trunc_index.of_nat [coercion] [reducible] (n : nat) : trunc_index :=

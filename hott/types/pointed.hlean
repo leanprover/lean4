@@ -6,7 +6,7 @@ Authors: Jakob von Raumer, Floris van Doorn
 Ported from Coq HoTT
 -/
 
-import arity .eq .bool .unit .sigma
+import arity .eq .bool .unit .sigma .nat.basic
 open is_trunc eq prod sigma nat equiv option is_equiv bool unit
 
 structure pointed [class] (A : Type) :=
@@ -66,12 +66,9 @@ namespace pointed
   definition Loop_space [reducible] [constructor] (A : Type*) : Type* :=
   pointed.mk' (point A = point A)
 
-  -- definition Iterated_loop_space : Type* → ℕ → Type*
-  -- | Iterated_loop_space A 0 := A
-  -- | Iterated_loop_space A (n+1) := Iterated_loop_space (Loop_space A) n
-
-  definition Iterated_loop_space [unfold 1] [reducible] (n : ℕ) (A : Type*) : Type* :=
-  nat.rec_on n (λA, A) (λn IH A, IH (Loop_space A)) A
+  definition Iterated_loop_space [unfold 1] [reducible] : ℕ → Type* → Type*
+  | Iterated_loop_space  0    X := X
+  | Iterated_loop_space (n+1) X := Loop_space (Iterated_loop_space n X)
 
   prefix `Ω`:(max+5) := Loop_space
   notation `Ω[`:95 n:0 `] `:0 A:95 := Iterated_loop_space n A
@@ -183,12 +180,6 @@ namespace pointed
       { esimp, exact !con.left_inv⁻¹}},
   end
 
-  -- definition Loop_space_functor (f : A →* B) : Ω A →* Ω B :=
-  -- begin
-  --   fapply pmap.mk,
-  --   { intro p, exact ap f p},
-  -- end
-
   -- set_option pp.notation false
   -- definition pmap_equiv_right (A : Type*) (B : Type)
   --   : (Σ(b : B), map₊ A (pointed.Mk b)) ≃ (A → B) :=
@@ -217,17 +208,59 @@ namespace pointed
       { esimp, exact !con.left_inv⁻¹}},
   end
 
-  definition apn [unfold 3] (n : ℕ) (f : map₊ A B) : Ω[n] A →* Ω[n] B :=
+  definition ap1 [constructor] (f : A →* B) : Ω A →* Ω B :=
   begin
-  revert A B f, induction n with n IH,
-  { intros A B f, exact f},
-  { intros A B f, esimp, apply IH (Ω A),
-    { esimp, fconstructor,
-        intro q, refine !respect_pt⁻¹ ⬝ ap f q ⬝ !respect_pt,
-        esimp, apply con.left_inv}}
+    fconstructor,
+    { intro p, exact !respect_pt⁻¹ ⬝ ap f p ⬝ !respect_pt},
+    { esimp, apply con.left_inv}
   end
 
-  definition ap1 [constructor] (f : A →* B) : Ω A →* Ω B := apn (succ 0) f
+  definition apn [unfold 3] (n : ℕ) (f : map₊ A B) : Ω[n] A →* Ω[n] B :=
+  begin
+  induction n with n IH,
+  { exact f},
+  { esimp [Iterated_loop_space], exact ap1 IH}
+  end
+
+  variable (A)
+  definition loop_space_succ_eq_in (n : ℕ) : Ω[succ n] A = Ω[n] (Ω A) :=
+  begin
+    induction n with n IH,
+    { reflexivity},
+    { exact ap Loop_space IH}
+  end
+
+  definition loop_space_add (n m : ℕ) : Ω[n] (Ω[m] A) = Ω[m+n] (A) :=
+  begin
+    induction n with n IH,
+    { reflexivity},
+    { exact ap Loop_space IH}
+  end
+
+  definition loop_space_succ_eq_out (n : ℕ) : Ω[succ n] A = Ω(Ω[n] A)  :=
+  idp
+
+  variable {A}
+  definition loop_space_loop_irrel (p : point A = point A) : Ω(Pointed.mk p) = Ω[2] A :=
+  begin
+    intros, fapply Pointed_eq,
+    { esimp, transitivity _,
+      apply eq_equiv_fn_eq_of_equiv (equiv_eq_closed_right _ p⁻¹),
+      esimp, apply eq_equiv_eq_closed, apply con.right_inv, apply con.right_inv},
+    { esimp, apply con.left_inv}
+  end
+
+  definition iterated_loop_space_loop_irrel (n : ℕ) (p : point A = point A)
+    : Ω[succ n](Pointed.mk p) = Ω[succ (succ n)] A :> Pointed :=
+  calc
+    Ω[succ n](Pointed.mk p) = Ω[n](Ω (Pointed.mk p)) : loop_space_succ_eq_in
+      ... = Ω[n] (Ω[2] A)                            : loop_space_loop_irrel
+      ... = Ω[2+n] A                                 : loop_space_add
+      ... = Ω[n+2] A                                 : add.comm
+
+  -- TODO:
+  -- definition apn_compose (n : ℕ) (g : B →* C) (f : A →* B) : apn n (g ∘* f) ~* apn n g ∘* apn n f :=
+  -- _
 
   definition ap1_compose (g : B →* C) (f : A →* B) : ap1 (g ∘* f) ~* ap1 g ∘* ap1 f :=
   begin

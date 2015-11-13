@@ -98,8 +98,10 @@ namespace sphere
   pmap.mk (λa, merid a ⬝ (merid base)⁻¹) !con.right_inv
 
   definition surf {n : ℕ} : Ω[n] S. n :=
-  nat.rec_on n (by esimp [Iterated_loop_space]; exact base)
-               (by intro n s;exact apn n (equator n) s)
+  nat.rec_on n (proof base qed)
+               (begin intro m s, refine cast _ (apn m (equator m) s),
+                      exact ap Pointed.carrier !loop_space_succ_eq_in⁻¹ end)
+
 
   definition bool_of_sphere : S 0 → bool :=
   susp.rec ff tt (λx, empty.elim x)
@@ -120,12 +122,20 @@ namespace sphere
   definition sphere_eq_bool_pointed : S. 0 = Bool :=
   Pointed_eq sphere_equiv_bool idp
 
+  -- TODO: the commented-out part makes the forward function below "apn _ surf"
   definition pmap_sphere (A : Pointed) (n : ℕ) : map₊ (S. n) A ≃ Ω[n] A :=
   begin
-    revert A, induction n with n IH,
-    { intro A, rewrite [sphere_eq_bool_pointed], apply pmap_bool_equiv},
-    { intro A, transitivity _, apply susp_adjoint_loop (S. n) A, apply IH}
-  end -- can we prove this in such a way that the function from left to right is apn _ surf?
+    -- fapply equiv_change_fun,
+    -- {
+      revert A, induction n with n IH: intro A,
+      { rewrite [sphere_eq_bool_pointed], apply pmap_bool_equiv},
+      { refine susp_adjoint_loop (S. n) A ⬝e !IH ⬝e _, rewrite [loop_space_succ_eq_in]}
+    -- },
+    -- { intro f, exact apn n f surf},
+    -- { revert A, induction n with n IH: intro A f,
+    --   { exact sorry},
+    --   { exact sorry}}
+  end
 
   protected definition elim {n : ℕ} {P : Pointed} (p : Ω[n] P) : map₊ (S. n) P :=
   to_inv !pmap_sphere p

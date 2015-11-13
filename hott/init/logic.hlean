@@ -181,6 +181,9 @@ namespace iff
   definition rfl {a : Type} : a ↔ a :=
   refl a
 
+  definition iff_of_eq (a b : Type) (p : a = b) : a ↔ b :=
+  eq.rec rfl p
+
   definition trans (H₁ : a ↔ b) (H₂ : b ↔ c) : a ↔ c :=
   intro
     (assume Ha, elim_left H₂ (elim_left H₁ Ha))

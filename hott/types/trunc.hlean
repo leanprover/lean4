@@ -138,31 +138,27 @@ namespace is_trunc
     induction p, apply Hp
   end
 
+  theorem is_hprop_iff_is_contr {A : Type} (a : A) :
+    is_hprop A ↔ is_contr A :=
+  iff.intro (λH, is_contr.mk a (is_hprop.elim a)) _
+
   theorem is_trunc_succ_iff_is_trunc_loop (A : Type) (Hn : -1 ≤ n) :
     is_trunc (n.+1) A ↔ Π(a : A), is_trunc n (a = a) :=
   iff.intro _ (is_trunc_succ_of_is_trunc_loop Hn)
-
+--set_option pp.all true
   theorem is_trunc_iff_is_contr_loop_succ (n : ℕ) (A : Type)
     : is_trunc n A ↔ Π(a : A), is_contr (Ω[succ n](Pointed.mk a)) :=
   begin
     revert A, induction n with n IH,
-      { intros, esimp [Iterated_loop_space], apply iff.intro,
-        { intros H a, apply is_contr.mk idp, apply is_hprop.elim},
-        { intro H, apply is_hset_of_axiom_K, intros, apply is_hprop.elim}},
-      { intros, transitivity _, apply @is_trunc_succ_iff_is_trunc_loop n, constructor,
-        apply iff.pi_iff_pi, intros,
-        transitivity _, apply IH,
-        assert H : Πp : a = a, Ω(Pointed.mk p) = Ω(Pointed.mk (idpath a)),
-        { intros, fapply Pointed_eq,
-          { esimp, transitivity _,
-            apply eq_equiv_fn_eq_of_equiv (equiv_eq_closed_right _ p⁻¹),
-            esimp, apply eq_equiv_eq_closed, apply con.right_inv, apply con.right_inv},
-          { esimp, apply con.left_inv}},
-        transitivity _,
-          apply iff.pi_iff_pi, intro p,
-          rewrite [↑Iterated_loop_space,H],
-          apply iff.refl,
-        apply iff.imp_iff, reflexivity}
+    { intro A, esimp [Iterated_loop_space], transitivity _,
+      { apply is_trunc_succ_iff_is_trunc_loop, apply le.refl},
+      { apply iff.pi_iff_pi, intro a, esimp, apply is_hprop_iff_is_contr, reflexivity}},
+    { intro A, esimp [Iterated_loop_space],
+      transitivity _, apply @is_trunc_succ_iff_is_trunc_loop @n, esimp, constructor,
+      apply iff.pi_iff_pi, intro a, transitivity _, apply IH,
+      transitivity _, apply iff.pi_iff_pi, intro p,
+      rewrite [iterated_loop_space_loop_irrel n p], apply iff.refl, esimp,
+      apply iff.imp_iff, reflexivity}
   end
 
   theorem is_trunc_iff_is_contr_loop (n : ℕ) (A : Type)

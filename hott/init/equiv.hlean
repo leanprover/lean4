@@ -287,7 +287,7 @@ namespace equiv
   protected definition trans [trans] (f : A ≃ B) (g : B ≃ C) : A ≃ C :=
   equiv.mk (g ∘ f) !is_equiv_compose
 
-  infixl `⬝e`:75 := equiv.trans
+  infixl ` ⬝e `:75 := equiv.trans
   postfix [parsing_only] `⁻¹ᵉ`:(max + 1) := equiv.symm
     -- notation for inverse which is not overloaded
   abbreviation erfl [constructor] := @equiv.refl

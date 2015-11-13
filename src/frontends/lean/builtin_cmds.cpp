@@ -1284,7 +1284,7 @@ static environment replace_cmd(parser & p) {
     return env;
 }
 
-static environment congr_lemma_cmd(parser & p) {
+static environment congr_cmd_core(parser & p, bool simp) {
     environment const & env = p.env();
     auto pos = p.pos();
     expr e; level_param_names ls;
@@ -1293,7 +1293,7 @@ static environment congr_lemma_cmd(parser & p) {
     app_builder         b(ctx);
     fun_info_manager    infom(ctx);
     congr_lemma_manager cm(b, infom);
-    auto r = cm.mk_congr_simp(e);
+    auto r = simp ? cm.mk_congr_simp(e) : cm.mk_congr(e);
     if (!r)
         throw parser_error("failed to generated congruence lemma", pos);
     auto out = p.regular_stream();
@@ -1314,6 +1314,14 @@ static environment congr_lemma_cmd(parser & p) {
     if (!tc.is_def_eq(type, r->get_type()).first)
         throw parser_error("congruence lemma reported type does not match given type", pos);
     return env;
+}
+
+static environment congr_simp_cmd(parser & p) {
+    return congr_cmd_core(p, true);
+}
+
+static environment congr_cmd(parser & p) {
+    return congr_cmd_core(p, false);
 }
 
 static environment simplify_cmd(parser & p) {
@@ -1376,7 +1384,8 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#symm",             "(for debugging purposes)", symm_cmd));
     add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
     add_cmd(r, cmd_info("#replace",          "(for debugging purposes)", replace_cmd));
-    add_cmd(r, cmd_info("#congr",            "(for debugging purposes)", congr_lemma_cmd));
+    add_cmd(r, cmd_info("#congr",            "(for debugging purposes)", congr_cmd));
+    add_cmd(r, cmd_info("#congr_simp",       "(for debugging purposes)", congr_simp_cmd));
     add_cmd(r, cmd_info("#accessible",       "(for debugging purposes) display number of accessible declarations for blast tactic", accessible_cmd));
     add_cmd(r, cmd_info("#decl_stats",       "(for debugging purposes) display declaration statistics", decl_stats_cmd));
     add_cmd(r, cmd_info("#relevant_thms",    "(for debugging purposes) select relevant theorems using Meng&Paulson heuristic", relevant_thms_cmd));

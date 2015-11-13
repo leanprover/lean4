@@ -23,7 +23,7 @@ struct revert_proof_step_cell : public proof_step_cell {
     virtual bool is_silent() const override { return true; }
 };
 
-unsigned revert(buffer<hypothesis_idx> & hidxs, hypothesis_idx_set & hidxs_set) {
+unsigned revert_action(buffer<hypothesis_idx> & hidxs, hypothesis_idx_set & hidxs_set) {
     lean_assert(hidxs.size() == hidxs_set.size());
     state & s = curr_state();
     unsigned hidxs_size = hidxs.size();
@@ -41,8 +41,8 @@ unsigned revert(buffer<hypothesis_idx> & hidxs, hypothesis_idx_set & hidxs_set) 
     return hidxs.size();
 }
 
-unsigned revert(buffer<hypothesis_idx> & hidxs) {
+unsigned revert_action(buffer<hypothesis_idx> & hidxs) {
     hypothesis_idx_set hidxs_set(hidxs);
-    return revert(hidxs, hidxs_set);
+    return revert_action(hidxs, hidxs_set);
 }
 }}

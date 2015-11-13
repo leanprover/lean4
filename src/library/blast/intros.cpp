@@ -16,7 +16,7 @@ struct intros_proof_step_cell : public proof_step_cell {
     list<expr> m_new_hs;
     virtual ~intros_proof_step_cell() {}
     virtual action_result resolve(expr const & pr) const {
-        expr new_pr = mk_proof_lambda(curr_state(), m_new_hs, unfold_hypotheses_ge(curr_state(), pr));
+        expr new_pr = mk_proof_lambda(curr_state(), m_new_hs, pr);
         return action_result::solved(new_pr);
     }
 

@@ -8,7 +8,9 @@ Author: Leonardo de Moura
 #include "library/blast/options.h"
 #include "library/blast/choice_point.h"
 #include "library/blast/simple_actions.h"
+#include "library/blast/proof_expr.h"
 #include "library/blast/intros.h"
+#include "library/blast/subst.h"
 #include "library/blast/backward.h"
 
 namespace lean {
@@ -59,6 +61,9 @@ class simple_strategy {
                 display_action("assumption-contradiction");
                 return action_result::solved(*pr);
             }
+            if (subst_action(*hidx)) {
+                display_action("subst");
+            }
             return action_result::new_branch();
         }
 
@@ -84,7 +89,7 @@ class simple_strategy {
     action_result next_branch(expr pr) {
         while (curr_state().has_proof_steps()) {
             proof_step s     = curr_state().top_proof_step();
-            action_result r  = s.resolve(pr);
+            action_result r  = s.resolve(unfold_hypotheses_ge(curr_state(), pr));
             switch (r.get_kind()) {
             case action_result::Failed:
                 display_msg(">>> next-branch FAILED <<<");

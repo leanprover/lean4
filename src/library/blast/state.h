@@ -263,6 +263,10 @@ public:
 
     /** \brief Return the set of hypotheses that (directly) depend on the given one */
     hypothesis_idx_set get_forward_deps(hypothesis_idx hidx) const;
+    template<typename F>
+    void for_each_forward_dep(hypothesis_idx hidx, F && f) const {
+        get_forward_deps(hidx).for_each(f);
+    }
 
     /************************
        Abstracting hypotheses

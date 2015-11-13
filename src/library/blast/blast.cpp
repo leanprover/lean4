@@ -699,11 +699,16 @@ tmp_type_context * blastenv::mk_tmp_type_context() {
     tmp_type_context * r;
     if (m_tmp_ctx_pool.empty()) {
         r = new tmp_tctx(m_env, m_ios, m_tmp_local_generator);
+        // Design decision: in the blast tactic, we only consider the instances that were
+        // available in initial goal provided to the blast tactic.
+        // So, we only need to setup the local instances when we create a new (temporary) type context.
+        // This is important since whenever we set the local instances the cache in at type context is
+        // invalidated.
+        r->set_local_instances(m_initial_context);
     } else {
         r = m_tmp_ctx_pool.back();
         m_tmp_ctx_pool.pop_back();
     }
-    r->set_local_instances(m_initial_context);
     return r;
 }
 

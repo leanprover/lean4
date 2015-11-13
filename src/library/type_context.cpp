@@ -118,6 +118,7 @@ type_context::type_context(environment const & env, io_state const & ios, tmp_lo
     m_ci_multiple_instances = multiple_instances;
     m_ignore_external_mvars = false;
     m_check_types           = true;
+    m_relax_is_opaque       = false;
     // TODO(Leo): use compilation options for setting config
     m_ci_max_depth       = 32;
     m_ci_trans_instances = true;
@@ -144,7 +145,11 @@ bool type_context::is_opaque(declaration const & d) const {
     if (d.is_theorem())
         return true;
     name const & n = d.get_name();
-    return m_proj_info.contains(n) || is_extra_opaque(n);
+    if (m_proj_info.contains(n))
+        return true;
+    if (m_relax_is_opaque)
+        return false;
+    return is_extra_opaque(n);
 }
 
 optional<expr> type_context::expand_macro(expr const & m) {
@@ -299,6 +304,11 @@ expr type_context::whnf(expr const & e) {
             return t1;
         }
     }
+}
+
+expr type_context::relaxed_whnf(expr const & e) {
+    flet<bool> relax(m_relax_is_opaque, true);
+    return whnf(e);
 }
 
 static bool is_max_like(level const & l) {
@@ -1054,7 +1064,7 @@ expr type_context::infer_pi(expr const & e0) {
     expr e = e0;
     while (is_pi(e)) {
         expr d      = instantiate_rev(binding_domain(e), ls.size(), ls.data());
-        expr d_type = whnf(infer(d));
+        expr d_type = relaxed_whnf(infer(d));
         ensure_sort(d_type, e0);
         us.push_back(sort_level(d_type));
         expr l  = mk_tmp_local(d, binding_info(e));
@@ -1062,7 +1072,7 @@ expr type_context::infer_pi(expr const & e0) {
         e = binding_body(e);
     }
     e = instantiate_rev(e, ls.size(), ls.data());
-    expr e_type = whnf(infer(e));
+    expr e_type = relaxed_whnf(infer(e));
     ensure_sort(e_type, e0);
     level r = sort_level(e_type);
     unsigned i = ls.size();
@@ -1086,14 +1096,14 @@ void type_context::ensure_pi(expr const & e, expr const & /* ref */) {
 expr type_context::infer_app(expr const & e) {
     buffer<expr> args;
     expr const & f = get_app_args(e, args);
-    expr f_type = infer(f);
+    expr f_type    = infer(f);
     unsigned j        = 0;
     unsigned nargs    = args.size();
     for (unsigned i = 0; i < nargs; i++) {
         if (is_pi(f_type)) {
             f_type = binding_body(f_type);
         } else {
-            f_type = whnf(instantiate_rev(f_type, i-j, args.data()+j));
+            f_type = relaxed_whnf(instantiate_rev(f_type, i-j, args.data()+j));
             ensure_pi(f_type, e);
             f_type = binding_body(f_type);
             j = i;

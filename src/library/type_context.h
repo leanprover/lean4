@@ -166,6 +166,10 @@ class type_context {
     */
     bool                            m_check_types;
 
+    /** Temporary flag to override/ignore the is_extra_opaque predicate.
+        We use it when inferring types and we want to be sure a type is Pi-type. */
+    bool                            m_relax_is_opaque;
+
     bool is_opaque(declaration const & d) const;
     optional<expr> reduce_projection(expr const & e);
     optional<expr> norm_ext(expr const & e);
@@ -421,6 +425,9 @@ public:
 
     /** \brief Put the given term in weak-head-normal-form (modulo is_opaque predicate) */
     expr whnf(expr const & e);
+
+    /** \brief Similar to previous method but ignores the is_extra_opaque predicate. */
+    expr relaxed_whnf(expr const & e);
 
     /** \brief Return true if \c e is a proposition */
     bool is_prop(expr const & e);

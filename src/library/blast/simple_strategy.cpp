@@ -23,7 +23,9 @@ class simple_strategy {
     enum status { NoAction, ClosedBranch, Continue };
 
     void display_msg(char const * msg) {
-        ios().get_diagnostic_channel() << msg << "\n\n";
+        if (m_config.m_trace) {
+            ios().get_diagnostic_channel() << msg << "\n\n";
+        }
     }
 
     void display_action(char const * name) {

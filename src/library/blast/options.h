@@ -9,9 +9,14 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-unsigned get_blast_max_depth(options const & o);
-unsigned get_blast_init_depth(options const & o);
-unsigned get_blast_inc_depth(options const & o);
+/** \brief Blast configuration object. */
+struct config {
+    unsigned                   m_max_depth;
+    unsigned                   m_init_depth;
+    unsigned                   m_inc_depth;
+    bool                       m_trace;
+    config(options const & o);
+};
 void initialize_options();
 void finalize_options();
 }}

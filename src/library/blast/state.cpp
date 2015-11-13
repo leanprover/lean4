@@ -109,9 +109,21 @@ goal state::to_goal() const {
     return goal(new_meta, new_target);
 }
 
+void state::display_active(output_channel & out) const {
+    out << "active := {";
+    bool first = true;
+    m_branch.m_active.for_each([&](hypothesis_idx hidx) {
+            if (first) first = false; else out << ", ";
+            out << get_hypothesis_decl(hidx)->get_name();
+        });
+    out << "}\n";
+}
+
 void state::display(environment const & env, io_state const & ios) const {
     formatter fmt = ios.get_formatter_factory()(env, ios.get_options());
-    ios.get_diagnostic_channel() << mk_pair(to_goal().pp(fmt), ios.get_options());
+    auto & out = ios.get_diagnostic_channel();
+    out << mk_pair(to_goal().pp(fmt), ios.get_options()) << "\n";
+    display_active(out);
 }
 
 bool state::has_assigned_uref(level const & l) const {

@@ -100,7 +100,11 @@ public:
 class branch {
     friend class state;
     typedef hypothesis_idx_map<hypothesis_idx_set> forward_deps;
-    typedef rb_map<double, hypothesis_idx, double_cmp>   todo_queue;
+    /* trick to make sure the rb_map::erase_min removes the hypothesis with biggest weight */
+    struct inv_double_cmp {
+        int operator()(double const & d1, double const & d2) const { return d1 > d2 ? -1 : (d1 < d2 ? 1 : 0); }
+    };
+    typedef rb_map<double, hypothesis_idx, inv_double_cmp>   todo_queue;
     // Hypothesis/facts in the current state
     hypothesis_decls   m_hyp_decls;
     // We break the set of hypotheses in m_hyp_decls in 4 sets that are not necessarily disjoint:
@@ -166,6 +170,8 @@ class state {
     void del_hypotheses(buffer<hypothesis_idx> const & to_delete, hypothesis_idx_set const & to_delete_set);
     void collect_forward_deps(hypothesis_idx hidx, buffer<hypothesis_idx> & result, hypothesis_idx_set & already_found);
     bool safe_to_delete(buffer<hypothesis_idx> const & to_delete);
+
+    void display_active(output_channel & out) const;
 
     #ifdef LEAN_DEBUG
     bool check_hypothesis(expr const & e, hypothesis_idx hidx, hypothesis const & h) const;

@@ -20,8 +20,7 @@ Author: Daniel Selsam
 #include "util/flet.h"
 #include "util/pair.h"
 #include "util/sexpr/option_declarations.h"
-#include <array>
-#include <map>
+#include <functional>
 
 #ifndef LEAN_DEFAULT_SIMPLIFY_MAX_STEPS
 #define LEAN_DEFAULT_SIMPLIFY_MAX_STEPS 1000
@@ -112,9 +111,29 @@ class simplifier {
     bool                                         m_trace{get_simplify_trace()};
 
     /* Cache */
-    typedef expr_bi_struct_map<result>                     simplify_cache;
-    typedef std::map<name, simplify_cache, name_quick_cmp> simplify_caches;
-    simplify_caches                                        m_simplify_caches;
+    static std::hash<simp_rule_set*> m_srss_hash;
+
+    struct key {
+        name              m_rel;
+        expr              m_e;
+        unsigned          m_hash;
+
+        key(name const & rel, expr const & e):
+            m_rel(rel), m_e(e), m_hash(hash(rel.hash(), e.hash())) { }
+    };
+
+    struct key_hash_fn {
+        unsigned operator()(key const & k) const { return k.m_hash; }
+    };
+
+    struct key_eq_fn {
+        bool operator()(key const & k1, key const & k2) const {
+            return k1.m_rel == k2.m_rel && k1.m_e == k2.m_e;
+        }
+    };
+
+    typedef std::unordered_map<key, result, key_hash_fn, key_eq_fn> simplify_cache;
+    simplify_cache m_cache;
 
     optional<result> cache_lookup(expr const & e);
     void cache_save(expr const & e, result const & r);
@@ -181,14 +200,12 @@ simplifier::simplifier(name const & rel, simp_rule_sets const & srss):
 /* Cache */
 
 optional<result> simplifier::cache_lookup(expr const & e) {
-    simplify_cache & cache = m_simplify_caches[m_rel];
-    auto it = cache.find(e);
-    if (it != cache.end()) return optional<result>(it->second);
+    auto it = m_cache.find(key(m_rel, e));
+    if (it != m_cache.end()) return optional<result>(it->second);
     return optional<result>();
 }
 void simplifier::cache_save(expr const & e, result const & r) {
-    simplify_cache & cache = m_simplify_caches[m_rel];
-    cache.insert(mk_pair(e, r));
+    m_cache.insert(mk_pair(key(m_rel, e), r));
 }
 
 /* Results */
@@ -540,11 +557,12 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
         expr h_rel, h_lhs, h_rhs;
         lean_verify(is_simp_relation(env(), m_type, h_rel, h_lhs, h_rhs) && is_constant(h_rel));
         {
-            simplify_caches fresh_caches;
-            flet<simplify_caches> set_simplify_caches(m_simplify_caches, fresh_caches);
             flet<name> set_name(m_rel, const_name(h_rel));
-
             flet<simp_rule_sets> set_ctx_srss(m_ctx_srss, add_to_srss(m_ctx_srss, ls));
+
+            /* We need a new cache when we add to the context */
+            simplify_cache fresh_cache;
+            flet<simplify_cache> set_simplify_cache(m_cache, fresh_cache);
 
             h_lhs = tmp_tctx->instantiate_uvars_mvars(h_lhs);
             lean_assert(!has_metavar(h_lhs));

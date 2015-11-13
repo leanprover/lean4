@@ -224,8 +224,6 @@ class simplifier {
     optional<result> synth_congr(expr const & e, F && simp);
 
     /* Fusion */
-    std::array<bool, 1> tc_mask1{{true}};
-    std::array<bool, 2> tc_mask2{{true, false}};
     result maybe_fuse(expr const & e, bool is_root);
     result fuse(expr const & e);
     expr_pair split_summand(expr const & e, expr const & f_mul, expr const & one);
@@ -349,6 +347,8 @@ result simplifier::simplify(expr const & e, bool is_root) {
     }
 
     if (m_exhaustive && r.get_new() != e) r = join(r, simplify(r.get_new(), is_root));
+
+    if (m_fuse && using_eq()) r = join(r, maybe_fuse(r.get_new(), is_root));
 
     if (m_memoize) cache_save(e, r);
 
@@ -711,6 +711,28 @@ optional<result> simplifier::synth_congr(expr const & e, F && simp) {
         return optional<result>(result(e));
     }
 }
+
+/* Fusion */
+
+result simplifier::maybe_fuse(expr const & e, bool is_root) {
+    if (!is_app(e)) return result(e);
+    if (is_root && is_add_app(e)) return fuse(e);
+    if (!is_root && is_add_app(e)) return result(e);
+    /* At this point we know we are an application of something other than + */
+    optional<result> r = synth_congr(e, [&](expr const & arg) {
+            if (is_add_app(arg)) return fuse(arg);
+            else return result(arg);
+        });
+    if (r) return *r;
+    else return result(e);
+}
+
+result simplifier::fuse(expr const & e) {
+    lean_assert(is_add_app(e));
+    // TODO(dhs): implement fusion
+    return result(e);
+}
+
 
 /* Setup and teardown */
 

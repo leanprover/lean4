@@ -4,6 +4,7 @@
 #include "util/name.h"
 namespace lean{
 name const * g_absurd = nullptr;
+name const * g_add = nullptr;
 name const * g_and = nullptr;
 name const * g_and_elim_left = nullptr;
 name const * g_and_elim_right = nullptr;
@@ -53,6 +54,8 @@ name const * g_iff_symm = nullptr;
 name const * g_iff_trans = nullptr;
 name const * g_iff_mp = nullptr;
 name const * g_iff_mpr = nullptr;
+name const * g_iff_elim_left = nullptr;
+name const * g_iff_elim_right = nullptr;
 name const * g_iff_false_intro = nullptr;
 name const * g_iff_true_intro = nullptr;
 name const * g_implies = nullptr;
@@ -63,10 +66,12 @@ name const * g_ite = nullptr;
 name const * g_lift = nullptr;
 name const * g_lift_down = nullptr;
 name const * g_lift_up = nullptr;
+name const * g_mul = nullptr;
 name const * g_nat = nullptr;
 name const * g_nat_of_num = nullptr;
 name const * g_nat_succ = nullptr;
 name const * g_nat_zero = nullptr;
+name const * g_neg = nullptr;
 name const * g_not = nullptr;
 name const * g_num = nullptr;
 name const * g_num_zero = nullptr;
@@ -168,6 +173,7 @@ name const * g_well_founded = nullptr;
 name const * g_zero = nullptr;
 void initialize_constants() {
     g_absurd = new name{"absurd"};
+    g_add = new name{"add"};
     g_and = new name{"and"};
     g_and_elim_left = new name{"and", "elim_left"};
     g_and_elim_right = new name{"and", "elim_right"};
@@ -217,6 +223,8 @@ void initialize_constants() {
     g_iff_trans = new name{"iff", "trans"};
     g_iff_mp = new name{"iff", "mp"};
     g_iff_mpr = new name{"iff", "mpr"};
+    g_iff_elim_left = new name{"iff", "elim_left"};
+    g_iff_elim_right = new name{"iff", "elim_right"};
     g_iff_false_intro = new name{"iff_false_intro"};
     g_iff_true_intro = new name{"iff_true_intro"};
     g_implies = new name{"implies"};
@@ -227,10 +235,12 @@ void initialize_constants() {
     g_lift = new name{"lift"};
     g_lift_down = new name{"lift", "down"};
     g_lift_up = new name{"lift", "up"};
+    g_mul = new name{"mul"};
     g_nat = new name{"nat"};
     g_nat_of_num = new name{"nat", "of_num"};
     g_nat_succ = new name{"nat", "succ"};
     g_nat_zero = new name{"nat", "zero"};
+    g_neg = new name{"neg"};
     g_not = new name{"not"};
     g_num = new name{"num"};
     g_num_zero = new name{"num", "zero"};
@@ -333,6 +343,7 @@ void initialize_constants() {
 }
 void finalize_constants() {
     delete g_absurd;
+    delete g_add;
     delete g_and;
     delete g_and_elim_left;
     delete g_and_elim_right;
@@ -382,6 +393,8 @@ void finalize_constants() {
     delete g_iff_trans;
     delete g_iff_mp;
     delete g_iff_mpr;
+    delete g_iff_elim_left;
+    delete g_iff_elim_right;
     delete g_iff_false_intro;
     delete g_iff_true_intro;
     delete g_implies;
@@ -392,10 +405,12 @@ void finalize_constants() {
     delete g_lift;
     delete g_lift_down;
     delete g_lift_up;
+    delete g_mul;
     delete g_nat;
     delete g_nat_of_num;
     delete g_nat_succ;
     delete g_nat_zero;
+    delete g_neg;
     delete g_not;
     delete g_num;
     delete g_num_zero;
@@ -497,6 +512,7 @@ void finalize_constants() {
     delete g_zero;
 }
 name const & get_absurd_name() { return *g_absurd; }
+name const & get_add_name() { return *g_add; }
 name const & get_and_name() { return *g_and; }
 name const & get_and_elim_left_name() { return *g_and_elim_left; }
 name const & get_and_elim_right_name() { return *g_and_elim_right; }
@@ -546,6 +562,8 @@ name const & get_iff_symm_name() { return *g_iff_symm; }
 name const & get_iff_trans_name() { return *g_iff_trans; }
 name const & get_iff_mp_name() { return *g_iff_mp; }
 name const & get_iff_mpr_name() { return *g_iff_mpr; }
+name const & get_iff_elim_left_name() { return *g_iff_elim_left; }
+name const & get_iff_elim_right_name() { return *g_iff_elim_right; }
 name const & get_iff_false_intro_name() { return *g_iff_false_intro; }
 name const & get_iff_true_intro_name() { return *g_iff_true_intro; }
 name const & get_implies_name() { return *g_implies; }
@@ -556,10 +574,12 @@ name const & get_ite_name() { return *g_ite; }
 name const & get_lift_name() { return *g_lift; }
 name const & get_lift_down_name() { return *g_lift_down; }
 name const & get_lift_up_name() { return *g_lift_up; }
+name const & get_mul_name() { return *g_mul; }
 name const & get_nat_name() { return *g_nat; }
 name const & get_nat_of_num_name() { return *g_nat_of_num; }
 name const & get_nat_succ_name() { return *g_nat_succ; }
 name const & get_nat_zero_name() { return *g_nat_zero; }
+name const & get_neg_name() { return *g_neg; }
 name const & get_not_name() { return *g_not; }
 name const & get_num_name() { return *g_num; }
 name const & get_num_zero_name() { return *g_num_zero; }

@@ -1,4 +1,5 @@
 absurd
+add
 and
 and.elim_left
 and.elim_right
@@ -48,6 +49,8 @@ iff.symm
 iff.trans
 iff.mp
 iff.mpr
+iff.elim_left
+iff.elim_right
 iff_false_intro
 iff_true_intro
 implies
@@ -58,10 +61,12 @@ ite
 lift
 lift.down
 lift.up
+mul
 nat
 nat.of_num
 nat.succ
 nat.zero
+neg
 not
 num
 num.zero

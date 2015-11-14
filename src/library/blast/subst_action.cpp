@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
-#include "library/blast/revert.h"
-#include "library/blast/intros.h"
+#include "library/blast/revert_action.h"
+#include "library/blast/intros_action.h"
 #include "library/blast/blast.h"
 
 namespace lean {

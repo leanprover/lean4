@@ -9,10 +9,10 @@ Author: Leonardo de Moura
 #include "library/blast/choice_point.h"
 #include "library/blast/simple_actions.h"
 #include "library/blast/proof_expr.h"
-#include "library/blast/intros.h"
-#include "library/blast/subst.h"
-#include "library/blast/backward.h"
-#include "library/blast/no_confusion.h"
+#include "library/blast/intros_action.h"
+#include "library/blast/subst_action.h"
+#include "library/blast/backward_action.h"
+#include "library/blast/no_confusion_action.h"
 
 namespace lean {
 namespace blast {

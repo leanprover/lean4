@@ -34,6 +34,15 @@ bool is_equivalence(environment const & env, name const & rop);
 relation_info const * get_relation_info(environment const & env, name const & rop);
 inline bool is_relation(environment const & env, name const & rop) { return get_relation_info(env, rop) != nullptr; }
 
+typedef std::function<optional<relation_info>(name const &)>  relation_info_getter;
+relation_info_getter mk_relation_info_getter(environment const & env);
+
+/** \brief Return true iff \c e is of the form (lhs rop rhs) where rop is a registered relation. */
+bool is_relation(environment const & env, expr const & e, name & rop, expr & lhs, expr & rhs);
+typedef std::function<bool(expr const &, name &, expr &, expr &)> is_relation_pred;
+/** \brief Construct an \c is_relation predicate for the given environment. */
+is_relation_pred mk_is_relation_pred(environment const & env);
+
 /** \brief Declare a new binary relation named \c n */
 environment add_relation(environment const & env, name const & n, bool persistent = true);
 

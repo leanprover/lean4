@@ -285,6 +285,46 @@ relation_info const * get_relation_info(environment const & env, name const & ro
     return rel_ext::get_state(env).m_rop_table.find(rop);
 }
 
+relation_info_getter mk_relation_info_getter(environment const & env) {
+    auto table = rel_ext::get_state(env).m_rop_table;
+    return [=](name const & rop) {
+        if (auto r = table.find(rop))
+            return optional<relation_info>(*r);
+        else
+            optional<relation_info>();
+    };
+}
+
+bool is_relation(name_map<relation_info> const & table, expr const & e, name & rop, expr & lhs, expr & rhs) {
+    if (!is_app(e))
+        return false;
+    expr const & f = get_app_fn(e);
+    if (!is_constant(f))
+        return false;
+    auto r = table.find(const_name(f));
+    if (!r)
+        return false;
+    buffer<expr> args;
+    get_app_args(e, args);
+    if (r->get_arity() != args.size())
+        return false;
+    rop = const_name(f);
+    lhs = args[r->get_lhs_pos()];
+    rhs = args[r->get_rhs_pos()];
+    return true;
+}
+
+bool is_relation(environment const & env, expr const & e, name & rop, expr & lhs, expr & rhs) {
+    return is_relation(rel_ext::get_state(env).m_rop_table, e, rop, lhs, rhs);
+}
+
+is_relation_pred mk_is_relation_pred(environment const & env) {
+    name_map<relation_info> table = rel_ext::get_state(env).m_rop_table;
+    return [=](expr const & e, name & rop, expr & lhs, expr & rhs) {
+        return is_relation(table, e, rop, lhs, rhs);
+    };
+}
+
 void initialize_relation_manager() {
     g_rel_name = new name("rel");
     g_key       = new std::string("rel");

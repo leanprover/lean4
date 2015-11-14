@@ -27,6 +27,8 @@ name const * g_eq_elim_inv_inv = nullptr;
 name const * g_eq_intro = nullptr;
 name const * g_eq_rec = nullptr;
 name const * g_eq_drec = nullptr;
+name const * g_eq_mp = nullptr;
+name const * g_eq_mpr = nullptr;
 name const * g_eq_nrec = nullptr;
 name const * g_eq_rec_eq = nullptr;
 name const * g_eq_refl = nullptr;
@@ -49,6 +51,8 @@ name const * g_iff = nullptr;
 name const * g_iff_refl = nullptr;
 name const * g_iff_symm = nullptr;
 name const * g_iff_trans = nullptr;
+name const * g_iff_mp = nullptr;
+name const * g_iff_mpr = nullptr;
 name const * g_iff_false_intro = nullptr;
 name const * g_iff_true_intro = nullptr;
 name const * g_implies = nullptr;
@@ -187,6 +191,8 @@ void initialize_constants() {
     g_eq_intro = new name{"eq", "intro"};
     g_eq_rec = new name{"eq", "rec"};
     g_eq_drec = new name{"eq", "drec"};
+    g_eq_mp = new name{"eq", "mp"};
+    g_eq_mpr = new name{"eq", "mpr"};
     g_eq_nrec = new name{"eq", "nrec"};
     g_eq_rec_eq = new name{"eq_rec_eq"};
     g_eq_refl = new name{"eq", "refl"};
@@ -209,6 +215,8 @@ void initialize_constants() {
     g_iff_refl = new name{"iff", "refl"};
     g_iff_symm = new name{"iff", "symm"};
     g_iff_trans = new name{"iff", "trans"};
+    g_iff_mp = new name{"iff", "mp"};
+    g_iff_mpr = new name{"iff", "mpr"};
     g_iff_false_intro = new name{"iff_false_intro"};
     g_iff_true_intro = new name{"iff_true_intro"};
     g_implies = new name{"implies"};
@@ -348,6 +356,8 @@ void finalize_constants() {
     delete g_eq_intro;
     delete g_eq_rec;
     delete g_eq_drec;
+    delete g_eq_mp;
+    delete g_eq_mpr;
     delete g_eq_nrec;
     delete g_eq_rec_eq;
     delete g_eq_refl;
@@ -370,6 +380,8 @@ void finalize_constants() {
     delete g_iff_refl;
     delete g_iff_symm;
     delete g_iff_trans;
+    delete g_iff_mp;
+    delete g_iff_mpr;
     delete g_iff_false_intro;
     delete g_iff_true_intro;
     delete g_implies;
@@ -508,6 +520,8 @@ name const & get_eq_elim_inv_inv_name() { return *g_eq_elim_inv_inv; }
 name const & get_eq_intro_name() { return *g_eq_intro; }
 name const & get_eq_rec_name() { return *g_eq_rec; }
 name const & get_eq_drec_name() { return *g_eq_drec; }
+name const & get_eq_mp_name() { return *g_eq_mp; }
+name const & get_eq_mpr_name() { return *g_eq_mpr; }
 name const & get_eq_nrec_name() { return *g_eq_nrec; }
 name const & get_eq_rec_eq_name() { return *g_eq_rec_eq; }
 name const & get_eq_refl_name() { return *g_eq_refl; }
@@ -530,6 +544,8 @@ name const & get_iff_name() { return *g_iff; }
 name const & get_iff_refl_name() { return *g_iff_refl; }
 name const & get_iff_symm_name() { return *g_iff_symm; }
 name const & get_iff_trans_name() { return *g_iff_trans; }
+name const & get_iff_mp_name() { return *g_iff_mp; }
+name const & get_iff_mpr_name() { return *g_iff_mpr; }
 name const & get_iff_false_intro_name() { return *g_iff_false_intro; }
 name const & get_iff_true_intro_name() { return *g_iff_true_intro; }
 name const & get_implies_name() { return *g_implies; }

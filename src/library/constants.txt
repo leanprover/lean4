@@ -22,6 +22,8 @@ eq.elim_inv_inv
 eq.intro
 eq.rec
 eq.drec
+eq.mp
+eq.mpr
 eq.nrec
 eq_rec_eq
 eq.refl
@@ -44,6 +46,8 @@ iff
 iff.refl
 iff.symm
 iff.trans
+iff.mp
+iff.mpr
 iff_false_intro
 iff_true_intro
 implies

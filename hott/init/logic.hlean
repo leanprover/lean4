@@ -51,6 +51,12 @@ namespace eq
   definition symm [unfold 4] (H : a = b) : b = a :=
   subst H (refl a)
 
+  theorem mp {a b : Type} : (a = b) → a → b :=
+  eq.rec_on
+
+  theorem mpr {a b : Type} : (a = b) → b → a :=
+  assume H₁ H₂, eq.rec_on (eq.symm H₁) H₂
+
   namespace ops
     postfix ⁻¹ := symm --input with \sy or \-1 or \inv
     infixl ⬝ := trans

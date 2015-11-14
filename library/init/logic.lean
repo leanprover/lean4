@@ -72,6 +72,12 @@ namespace eq
   theorem substr {P : A → Prop} (H₁ : b = a) : P a → P b :=
   subst (symm H₁)
 
+  theorem mp {a b : Type} : (a = b) → a → b :=
+  eq.rec_on
+
+  theorem mpr {a b : Type} : (a = b) → b → a :=
+  assume H₁ H₂, eq.rec_on (eq.symm H₁) H₂
+
   namespace ops
     notation H `⁻¹` := symm H --input with \sy or \-1 or \inv
     notation H1 ⬝ H2 := trans H1 H2

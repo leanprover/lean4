@@ -76,6 +76,11 @@ class simple_strategy {
             return action_result::new_branch();
         }
 
+        if (auto pr = trivial_action()) {
+            display_action("trivial");
+            return action_result::solved(*pr);
+        }
+
         if (auto pr = assumption_action()) {
             // Remark: this action is only relevant
             // when the target has been modified.

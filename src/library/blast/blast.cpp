@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/normalize.h"
 #include "library/class.h"
 #include "library/type_context.h"
+#include "library/relation_manager.h"
 #include "library/congr_lemma_manager.h"
 #include "library/projection.h"
 #include "library/tactic/goal.h"
@@ -47,6 +48,7 @@ class blastenv {
     name_predicate             m_class_pred;
     name_predicate             m_instance_pred;
     name_map<projection_info>  m_projection_info;
+    is_relation_pred           m_is_relation_pred;
     state                      m_curr_state;   // current state
     tmp_type_context_pool      m_tmp_ctx_pool;
     tmp_type_context_ptr       m_tmp_ctx; // for app_builder and congr_lemma_manager
@@ -402,6 +404,7 @@ public:
         m_not_reducible_pred(mk_not_reducible_pred(env)),
         m_class_pred(mk_class_pred(env)),
         m_instance_pred(mk_instance_pred(env)),
+        m_is_relation_pred(mk_is_relation_pred(env)),
         m_tmp_ctx(mk_tmp_type_context()),
         m_app_builder(*m_tmp_ctx),
         m_fun_info_manager(*m_tmp_ctx),
@@ -506,6 +509,10 @@ public:
         m_norm_cache.insert(mk_pair(e, r));
         return r;
     }
+
+    bool is_relation(expr const & e, name & rop, expr & lhs, expr & rhs) {
+        return m_is_relation_pred(e, rop, lhs, rhs);
+    }
 };
 
 LEAN_THREAD_PTR(blastenv, g_blastenv);
@@ -549,6 +556,11 @@ bool is_reducible(name const & n) {
 projection_info const * get_projection_info(name const & n) {
     lean_assert(g_blastenv);
     return g_blastenv->get_projection_info(n);
+}
+
+bool is_relation(expr const & e, name & rop, expr & lhs, expr & rhs) {
+    lean_assert(g_blastenv);
+    return g_blastenv->is_relation(e, rop, lhs, rhs);
 }
 
 expr whnf(expr const & e) {

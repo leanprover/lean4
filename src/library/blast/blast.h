@@ -34,6 +34,9 @@ expr mk_fresh_local(expr const & type, binder_info const & bi = binder_info());
 bool is_reducible(name const & n);
 /** \brief Return a nonnull projection_info object if \c n is the name of a projection in env() */
 projection_info const * get_projection_info(name const & n);
+/** \brief Return true iff \c e is a relation application,
+    and store the relation name, lhs and rhs in the output arguments. */
+bool is_relation(expr const & e, name & rop, expr & lhs, expr & rhs);
 /** \brief Put the given expression in weak-head-normal-form with respect to the
     current state being processed by the blast tactic. */
 expr whnf(expr const & e);

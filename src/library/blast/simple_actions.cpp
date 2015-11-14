@@ -55,4 +55,29 @@ optional<expr> assumption_contradiction_actions(hypothesis_idx hidx) {
     }
     return none_expr();
 }
+
+optional<expr> trivial_action() {
+    try {
+        state s = curr_state();
+        expr target = s.get_target();
+        /* ignore if target contains meta-variables */
+        if (has_expr_metavar(target))
+            return none_expr();
+
+        /* true */
+        if (target == mk_true()) {
+            return some_expr(mk_true_intro());
+        }
+
+        /* a ~ a */
+        name rop; expr lhs, rhs;
+        if (is_relation(target, rop, lhs, rhs) && is_def_eq(lhs, rhs)) {
+            return some_expr(get_app_builder().mk_refl(rop, lhs));
+        }
+
+        return none_expr();
+    } catch (app_builder_exception &) {
+        return none_expr();
+    }
+}
 }}

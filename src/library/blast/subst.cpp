@@ -61,12 +61,20 @@ bool subst_core(hypothesis_idx hidx) {
         expr target  = s.get_target();
         expr new_target = abstract(target, h->get_self());
         bool dep        = !closed(new_target);
-        if (dep)
+        bool skip       = to_revert.empty();
+        if (dep) {
+            skip       = false;
             new_target = instantiate(new_target, b.mk_eq_refl(lhs));
-        new_target = instantiate(abstract(new_target, rhs), lhs);
-        s.push_proof_step(new subst_proof_step_cell(target, h->get_self(), rhs, dep));
-        s.set_target(new_target);
-        lean_verify(intros_action(num));
+        }
+        new_target = abstract(new_target, rhs);
+        if (!closed(new_target))
+            skip       = false;
+        if (!skip) {
+            new_target = instantiate(new_target, lhs);
+            s.push_proof_step(new subst_proof_step_cell(target, h->get_self(), rhs, dep));
+            s.set_target(new_target);
+            lean_verify(intros_action(num));
+        }
         lean_verify(s.del_hypothesis(hidx));
         lean_verify(s.del_hypothesis(href_index(rhs)));
         return true;

@@ -65,6 +65,8 @@ public:
             m_buffer.push_back(h);
         }
     }
+    unsigned size() const { return m_buffer.size(); }
+    bool empty() const { return m_buffer.empty(); }
     hypothesis_idx_buffer const & as_buffer() const {
         return m_buffer;
     }

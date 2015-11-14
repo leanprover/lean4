@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/blast/subst_action.h"
 #include "library/blast/backward_action.h"
 #include "library/blast/no_confusion_action.h"
+#include "library/blast/simplify_actions.h"
 
 namespace lean {
 namespace blast {
@@ -50,6 +51,45 @@ class simple_strategy {
 
     optional<hypothesis_idx> activate_hypothesis() {
         return curr_state().activate_hypothesis();
+    }
+
+    /* \brief Preprocess state
+       It keeps applying intros, activating and finally simplify target.
+       Return an expression if the goal has been proved during preprocessing step. */
+    optional<expr> preprocess_core() {
+        display_msg("* Preprocess");
+        while (true) {
+            if (intros_action())
+                continue;
+            if (auto hidx = activate_hypothesis()) {
+                if (auto pr = assumption_contradiction_actions(*hidx)) {
+                    return pr;
+                }
+                if (subst_action(*hidx))
+                    continue;
+                action_result r = no_confusion_action(*hidx);
+                if (solved(r))
+                    return r.to_opt_expr();
+                continue;
+            }
+            break;
+        }
+        if (auto pr = assumption_action())
+            return pr;
+        return simplify_target_action().to_opt_expr();
+    }
+
+    optional<expr> preprocess() {
+        if (auto pr = preprocess_core()) {
+            auto r = next_branch(*pr);
+            if (!solved(r)) {
+                throw exception("invalid blast preprocessing action, preprocessing actions should not create branches");
+            } else {
+                return r.to_opt_expr();
+            }
+        } else {
+            return none_expr();
+        }
     }
 
     action_result next_action() {
@@ -160,7 +200,12 @@ class simple_strategy {
     }
 
     optional<expr> search() {
+        clear_choice_points();
         curr_state().set_simp_rule_sets(get_simp_rule_sets(env()));
+        if (auto pr = preprocess())
+            return pr;
+        if (get_num_choice_points() > 0)
+            throw exception("invalid blast preprocessing action, preprocessing actions should not create choice points");
         state s    = curr_state();
         unsigned d = m_config.m_init_depth;
         while (true) {

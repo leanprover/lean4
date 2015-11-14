@@ -29,7 +29,9 @@ public:
     static action_result failed() { return action_result(false); }
     static action_result new_branch() { return action_result(true); }
     static action_result solved(expr const & pr) { return action_result(pr); }
+    optional<expr> to_opt_expr() const { return m_kind == Solved ? some_expr(m_proof) : none_expr(); }
 };
 
 inline bool failed(action_result const & r) { return r.get_kind() == action_result::Failed; }
+inline bool solved(action_result const & r) { return r.get_kind() == action_result::Solved; }
 }}

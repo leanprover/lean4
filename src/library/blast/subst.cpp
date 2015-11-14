@@ -96,7 +96,7 @@ bool subst_action(hypothesis_idx hidx) {
     if (is_href(rhs)) {
         return subst_core(hidx);
     } else if (is_href(lhs)) {
-        if (!s.get_direct_forward_deps(href_index(lhs)).empty()) {
+        if (s.has_forward_deps(href_index(lhs))) {
             // TODO(Leo): we don't handle this case yet.
             // Other hypotheses depend on this equality.
             return false;

@@ -221,6 +221,11 @@ public:
 
     /** \brief Return the set of hypotheses that (directly) depend on the given one */
     hypothesis_idx_set get_direct_forward_deps(hypothesis_idx hidx) const;
+    bool has_forward_deps(hypothesis_idx hidx) const { return !get_direct_forward_deps(hidx).empty(); }
+    /** \brief Return true iff other hypotheses or the target type depends on hidx. */
+    bool has_target_forward_deps(hypothesis_idx hidx) const {
+        return has_forward_deps(hidx) || m_branch.m_target_deps.contains(hidx);
+    }
     /** \brief Collect in \c result the hypotheses that (directly) depend on \c hidx and satisfy \c pred. */
     template<typename P>
     void collect_direct_forward_deps(hypothesis_idx hidx, hypothesis_idx_buffer_set & result, P && pred) {

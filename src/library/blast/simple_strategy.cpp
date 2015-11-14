@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/blast/intros.h"
 #include "library/blast/subst.h"
 #include "library/blast/backward.h"
+#include "library/blast/no_confusion.h"
 
 namespace lean {
 namespace blast {
@@ -65,6 +66,12 @@ class simple_strategy {
             }
             if (subst_action(*hidx)) {
                 display_action("subst");
+                return action_result::new_branch();
+            }
+            action_result r = no_confusion_action(*hidx);
+            if (!failed(r)) {
+                display_action("no_confusion");
+                return r;
             }
             return action_result::new_branch();
         }

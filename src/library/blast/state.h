@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "library/head_map.h"
 #include "library/tactic/goal.h"
+#include "library/simplifier/simp_rule_set.h"
 #include "library/blast/action_result.h"
 #include "library/blast/hypothesis.h"
 
@@ -129,6 +130,7 @@ class branch {
     forward_deps             m_forward_deps; // given an entry (h -> {h_1, ..., h_n}), we have that each h_i uses h.
     expr                     m_target;
     hypothesis_idx_set       m_target_deps;
+    simp_rule_sets           m_simp_rule_sets;
 };
 
 /** \brief Proof state for the blast tactic */
@@ -399,6 +401,16 @@ public:
     typedef std::tuple<uassignment, metavar_decls, eassignment> assignment_snapshot;
     assignment_snapshot save_assignment();
     void restore_assignment(assignment_snapshot const & s);
+
+    /************************
+       Simplification rules
+    *************************/
+    void set_simp_rule_sets(simp_rule_sets const & s) {
+        m_branch.m_simp_rule_sets = s;
+    }
+    simp_rule_sets get_simp_rule_sets() const {
+        return m_branch.m_simp_rule_sets;
+    }
 
     /************************
        Debugging support

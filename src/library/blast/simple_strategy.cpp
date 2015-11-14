@@ -155,6 +155,7 @@ class simple_strategy {
     }
 
     optional<expr> search() {
+        curr_state().set_simp_rule_sets(get_simp_rule_sets(env()));
         state s    = curr_state();
         unsigned d = m_config.m_init_depth;
         while (true) {

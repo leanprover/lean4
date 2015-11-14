@@ -47,4 +47,29 @@ public:
     bool depends_on(expr const & h) const { return m_deps.contains(href_index(h)); }
     bool is_assumption() const { return !m_value || is_local_non_href(*m_value); }
 };
+
+class hypothesis_idx_buffer_set {
+    friend class state;
+    hypothesis_idx_buffer m_buffer;
+    hypothesis_idx_set    m_set;
+public:
+    hypothesis_idx_buffer_set() {}
+    hypothesis_idx_buffer_set(hypothesis_idx_buffer const & b) {
+        for (auto hidx : b)
+            insert(hidx);
+    }
+
+    void insert(hypothesis_idx h) {
+        if (!m_set.contains(h)) {
+            m_set.insert(h);
+            m_buffer.push_back(h);
+        }
+    }
+    hypothesis_idx_buffer const & as_buffer() const {
+        return m_buffer;
+    }
+    hypothesis_idx_set const & as_set() const {
+        return m_set;
+    }
+};
 }}

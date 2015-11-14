@@ -52,13 +52,11 @@ bool subst_core(hypothesis_idx hidx) {
     lean_verify(is_eq(type, lhs, rhs));
     lean_assert(is_href(rhs));
     try {
-        hypothesis_idx_buffer to_revert;
-        s.for_each_forward_dep(href_index(rhs),
-                               [&](hypothesis_idx d) {
-                                   if (d != hidx) to_revert.push_back(d);
-                               });
-        s.for_each_forward_dep(hidx,
-                               [&](hypothesis_idx d) { to_revert.push_back(d); });
+        hypothesis_idx_buffer_set to_revert;
+        s.collect_direct_forward_deps(href_index(rhs),
+                                      to_revert,
+                                      [&](hypothesis_idx d) { return d != hidx; });
+        s.collect_direct_forward_deps(hidx, to_revert);
         unsigned num = revert_action(to_revert);
         expr target  = s.get_target();
         expr new_target = abstract(target, h->get_self());
@@ -90,7 +88,7 @@ bool subst_action(hypothesis_idx hidx) {
     if (is_href(rhs)) {
         return subst_core(hidx);
     } else if (is_href(lhs)) {
-        if (!s.get_forward_deps(href_index(lhs)).empty()) {
+        if (!s.get_direct_forward_deps(href_index(lhs)).empty()) {
             // TODO(Leo): we don't handle this case yet.
             // Other hypotheses depend on this equality.
             return false;

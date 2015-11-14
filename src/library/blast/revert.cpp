@@ -23,26 +23,25 @@ struct revert_proof_step_cell : public proof_step_cell {
     virtual bool is_silent() const override { return true; }
 };
 
-unsigned revert_action(buffer<hypothesis_idx> & hidxs, hypothesis_idx_set & hidxs_set) {
-    lean_assert(hidxs.size() == hidxs_set.size());
+unsigned revert_action(hypothesis_idx_buffer_set & hidxs) {
     state & s = curr_state();
-    unsigned hidxs_size = hidxs.size();
+    unsigned hidxs_size = hidxs.as_buffer().size();
     for (unsigned i = 0; i < hidxs_size; i++) {
-        s.collect_forward_deps(hidxs[i], hidxs, hidxs_set);
+        s.collect_forward_deps(hidxs.as_buffer()[i], hidxs);
     }
     s.sort_hypotheses(hidxs);
     buffer<expr> hs;
-    s.to_hrefs(hidxs, hs);
+    s.to_hrefs(hidxs.as_buffer(), hs);
     expr target     = s.get_target();
     expr new_target = s.mk_pi(hs, target);
     s.set_target(new_target);
     s.push_proof_step(new revert_proof_step_cell(to_list(hs)));
-    lean_verify(s.del_hypotheses(hidxs));
-    return hidxs.size();
+    lean_verify(s.del_hypotheses(hidxs.as_buffer()));
+    return hidxs.as_buffer().size();
 }
 
 unsigned revert_action(buffer<hypothesis_idx> & hidxs) {
-    hypothesis_idx_set hidxs_set(hidxs);
-    return revert_action(hidxs, hidxs_set);
+    hypothesis_idx_buffer_set _hidxs(hidxs);
+    return revert_action(_hidxs);
 }
 }}

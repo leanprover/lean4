@@ -219,9 +219,22 @@ public:
     bool del_hypothesis(hypothesis_idx hidx);
     bool del_hypotheses(buffer<hypothesis_idx> const & hs);
 
+    /** \brief Return the set of hypotheses that (directly) depend on the given one */
+    hypothesis_idx_set get_direct_forward_deps(hypothesis_idx hidx) const;
+    /** \brief Collect in \c result the hypotheses that (directly) depend on \c hidx and satisfy \c pred. */
+    template<typename P>
+    void collect_direct_forward_deps(hypothesis_idx hidx, hypothesis_idx_buffer_set & result, P && pred) {
+        get_direct_forward_deps(hidx).for_each([&](hypothesis_idx d) {
+                if (pred(d)) result.insert(d);
+            });
+    }
+    /** \brief Collect in \c result the hypotheses that (directly) depend on \c hidx and satisfy \c pred. */
+    void collect_direct_forward_deps(hypothesis_idx hidx, hypothesis_idx_buffer_set & result) {
+        return collect_direct_forward_deps(hidx, result, [](hypothesis_idx) { return true; });
+    }
+
     /** \brief Collect all hypothesis in \c result that depend directly or indirectly on hidx */
-    void collect_forward_deps(hypothesis_idx hidx, buffer<hypothesis_idx> & result);
-    void collect_forward_deps(hypothesis_idx hidx, buffer<hypothesis_idx> & result, hypothesis_idx_set & already_found);
+    void collect_forward_deps(hypothesis_idx hidx, hypothesis_idx_buffer_set & result);
 
     /** \brief Return true iff the hypothesis with index \c hidx_user depends on the hypothesis with index
         \c hidx_provider. */
@@ -244,6 +257,7 @@ public:
     void get_sorted_hypotheses(hypothesis_idx_buffer & r) const;
     /** \brief Sort hypotheses in r */
     void sort_hypotheses(hypothesis_idx_buffer & r) const;
+    void sort_hypotheses(hypothesis_idx_buffer_set & r) const;
 
     /** \brief Convert hypotheses indices into hrefs */
     void to_hrefs(hypothesis_idx_buffer const & hidxs, buffer<expr> & r) const;
@@ -260,13 +274,6 @@ public:
 
     /** \brief Return (active) hypotheses whose head symbol is equal to target or it is the negation of */
     list<hypothesis_idx> get_head_related() const;
-
-    /** \brief Return the set of hypotheses that (directly) depend on the given one */
-    hypothesis_idx_set get_forward_deps(hypothesis_idx hidx) const;
-    template<typename F>
-    void for_each_forward_dep(hypothesis_idx hidx, F && f) const {
-        get_forward_deps(hidx).for_each(f);
-    }
 
     /************************
        Abstracting hypotheses

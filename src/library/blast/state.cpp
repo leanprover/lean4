@@ -363,6 +363,10 @@ void state::sort_hypotheses(hypothesis_idx_buffer & r) const {
     std::sort(r.begin(), r.end(), hypothesis_dep_depth_lt(*this));
 }
 
+void state::sort_hypotheses(hypothesis_idx_buffer_set & r) const {
+    std::sort(r.m_buffer.begin(), r.m_buffer.end(), hypothesis_dep_depth_lt(*this));
+}
+
 void state::to_hrefs(hypothesis_idx_buffer const & hidxs, buffer<expr> & r) const {
     for (hypothesis_idx hidx : hidxs)
         r.push_back(get_hypothesis_decl(hidx)->get_self());
@@ -485,19 +489,15 @@ void state::del_hypotheses(buffer<hypothesis_idx> const & to_delete, hypothesis_
     }
 }
 
-void state::collect_forward_deps(hypothesis_idx hidx, buffer<hypothesis_idx> & result, hypothesis_idx_set & already_found) {
-    unsigned qhead = result.size();
+void state::collect_forward_deps(hypothesis_idx hidx, hypothesis_idx_buffer_set & result) {
+    hypothesis_idx_buffer const & b = result.as_buffer();
+    unsigned qhead = b.size();
     while (true) {
-        hypothesis_idx_set s = get_forward_deps(hidx);
-        s.for_each([&](hypothesis_idx h_dep) {
-                if (already_found.contains(h_dep))
-                    return;
-                already_found.insert(h_dep);
-                result.push_back(h_dep);
-            });
-        if (qhead == result.size())
+        hypothesis_idx_set s = get_direct_forward_deps(hidx);
+        s.for_each([&](hypothesis_idx h_dep) { result.insert(h_dep); });
+        if (qhead == b.size())
             return;
-        hidx = result[qhead];
+        hidx = b[qhead];
         qhead++;
     }
 }
@@ -514,38 +514,29 @@ bool state::safe_to_delete(buffer<hypothesis_idx> const & to_delete) {
     return true;
 }
 
-void state::collect_forward_deps(hypothesis_idx hidx, buffer<hypothesis_idx> & result) {
-    hypothesis_idx_set found;
-    collect_forward_deps(hidx, result, found);
-}
-
 bool state::del_hypotheses(buffer<hypothesis_idx> const & hs) {
-    hypothesis_idx_set     found;
-    buffer<hypothesis_idx> to_delete;
+    hypothesis_idx_buffer_set to_delete;
     for (hypothesis_idx hidx : hs) {
-        to_delete.push_back(hidx);
-        found.insert(hidx);
-        collect_forward_deps(hidx, to_delete, found);
+        to_delete.insert(hidx);
+        collect_forward_deps(hidx, to_delete);
     }
-    if (!safe_to_delete(to_delete))
+    if (!safe_to_delete(to_delete.as_buffer()))
         return false;
-    del_hypotheses(to_delete, found);
+    del_hypotheses(to_delete.as_buffer(), to_delete.as_set());
     return true;
 }
 
 bool state::del_hypothesis(hypothesis_idx hidx) {
-    hypothesis_idx_set found;
-    buffer<hypothesis_idx> to_delete;
-    to_delete.push_back(hidx);
-    found.insert(hidx);
-    collect_forward_deps(hidx, to_delete, found);
-    if (!safe_to_delete(to_delete))
+    hypothesis_idx_buffer_set to_delete;
+    to_delete.insert(hidx);
+    collect_forward_deps(hidx, to_delete);
+    if (!safe_to_delete(to_delete.as_buffer()))
         return false;
-    del_hypotheses(to_delete, found);
+    del_hypotheses(to_delete.as_buffer(), to_delete.as_set());
     return true;
 }
 
-hypothesis_idx_set state::get_forward_deps(hypothesis_idx hidx) const {
+hypothesis_idx_set state::get_direct_forward_deps(hypothesis_idx hidx) const {
     if (auto r = m_branch.m_forward_deps.find(hidx))
         return *r;
     else

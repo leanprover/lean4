@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/expr.h"
+#include "library/blast/hypothesis.h"
 namespace lean {
 namespace blast {
 optional<expr> assumption_action();

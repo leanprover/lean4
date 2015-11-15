@@ -22,7 +22,6 @@ namespace blast {
 /** \brief Implement a simple proof strategy for blast.
     We use it mainly for testing new actions and the whole blast infra-structure. */
 class simple_strategy : public strategy {
-
     action_result activate_hypothesis(bool preprocess) {
         auto hidx = curr_state().activate_hypothesis();
         if (!hidx) return action_result::failed();

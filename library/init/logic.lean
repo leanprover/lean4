@@ -124,7 +124,7 @@ attribute eq.symm [symm]
 
 /- ne -/
 
-definition ne {A : Type} (a b : A) := ¬(a = b)
+definition ne [reducible] {A : Type} (a b : A) := ¬(a = b)
 notation a ≠ b := ne a b
 
 namespace ne

@@ -311,7 +311,7 @@ section linear_ordered_field
 
   theorem add_self_div_two (a : A) : (a + a) / 2 = a :=
   symm (iff.mpr (!eq_div_iff_mul_eq (ne_of_gt (add_pos zero_lt_one zero_lt_one)))
-       (by rewrite [left_distrib, *mul_one]))
+       (by krewrite [left_distrib, *mul_one]))
 
   theorem two_ge_one : (2:A) ≥ 1 :=
   calc (2:A) = 1+1 : one_add_one_eq_two

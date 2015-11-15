@@ -9,3 +9,6 @@ by blast
 
 example (A : Type) (p : Prop) (a b c : A) : a = b → ¬ b = a → p :=
 by blast
+
+example (A : Type) (p : Prop) (a b c : A) : a = b → b ≠ a → p :=
+by blast

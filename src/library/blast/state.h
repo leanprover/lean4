@@ -251,7 +251,7 @@ public:
     hypothesis const * get_hypothesis_decl(expr const & h) const { return get_hypothesis_decl(href_index(h)); }
 
     void for_each_hypothesis(std::function<void(hypothesis_idx, hypothesis const &)> const & fn) const { m_branch.m_hyp_decls.for_each(fn); }
-    optional<unsigned> find_active_hypothesis(std::function<bool(hypothesis_idx, hypothesis const &)> const & fn) const { // NOLINT
+    optional<hypothesis_idx> find_active_hypothesis(std::function<bool(hypothesis_idx, hypothesis const &)> const & fn) const { // NOLINT
         return m_branch.m_active.find_if([&](hypothesis_idx hidx) {
                 return fn(hidx, *get_hypothesis_decl(hidx));
             });

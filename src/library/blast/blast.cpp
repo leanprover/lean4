@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/blast/proof_expr.h"
 #include "library/blast/blast_exception.h"
 #include "library/blast/simple_strategy.h"
+#include "library/blast/choice_point.h"
 
 namespace lean {
 namespace blast {
@@ -412,6 +413,7 @@ public:
         m_tctx(*this),
         m_normalizer(m_tctx) {
         init_uref_mref_href_idxs();
+        clear_choice_points();
     }
 
     ~blastenv() {

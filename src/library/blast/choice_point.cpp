@@ -20,10 +20,10 @@ void push_choice_point(choice_point const & c) {
     get_choice_points().push_back(c);
 }
 
-action_result next_choice_point() {
+action_result next_choice_point(unsigned base) {
     auto & cs = get_choice_points();
     while (true) {
-        if (cs.empty())
+        if (cs.size() == base)
             return action_result::failed();
         action_result r = cs.back().next();
         if (!failed(r))

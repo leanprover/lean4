@@ -61,7 +61,7 @@ inline void push_choice_point(choice_point_cell * cell) {
     push_choice_point(choice_point(cell));
 }
 /** \brief Keep executing choice points until one of them doesn't fail. */
-action_result next_choice_point();
+action_result next_choice_point(unsigned base = 0);
 /** \brief Return size of the choice point stack */
 unsigned get_num_choice_points();
 /** \brief Shrink the size of the choice point stack.
@@ -69,4 +69,11 @@ unsigned get_num_choice_points();
 void shrink_choice_points(unsigned n);
 /** \brief Clear/remove all choice points */
 void clear_choice_points();
+
+class scope_choice_points {
+    unsigned m_num_choices;
+public:
+    scope_choice_points():m_num_choices(get_num_choice_points()) {}
+    ~scope_choice_points() { shrink_choice_points(m_num_choices); }
+};
 }}

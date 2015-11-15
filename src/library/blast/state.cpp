@@ -425,6 +425,7 @@ void state::add_deps(hypothesis & h_user, unsigned hidx_user) {
 
 double state::compute_weight(unsigned hidx, expr const & /* type */) {
     // TODO(Leo): use heuristics and machine learning for computing the weight of a new hypothesis
+    // This method should not be here.
     return 1.0 / (static_cast<double>(hidx) + 1.0);
 }
 
@@ -606,6 +607,21 @@ optional<unsigned> state::activate_hypothesis() {
             return optional<unsigned>(hidx);
         }
     }
+}
+
+optional<unsigned> state::select_rec_hypothesis() {
+    while (true) {
+        if (m_branch.m_rec_queue.empty())
+            return optional<unsigned>();
+        unsigned hidx             = m_branch.m_rec_queue.erase_min();
+        hypothesis const * h_decl = get_hypothesis_decl(hidx);
+        if (!h_decl->is_dead())
+            return optional<unsigned>(hidx);
+    }
+}
+
+void state::add_to_rec_queue(hypothesis_idx hidx, double w) {
+    m_branch.m_rec_queue.insert(w, hidx);
 }
 
 bool state::hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const {

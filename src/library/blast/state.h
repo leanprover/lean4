@@ -105,7 +105,9 @@ class branch {
     struct inv_double_cmp {
         int operator()(double const & d1, double const & d2) const { return d1 > d2 ? -1 : (d1 < d2 ? 1 : 0); }
     };
-    typedef rb_map<double, hypothesis_idx, inv_double_cmp>   todo_queue;
+    typedef rb_map<double, hypothesis_idx, inv_double_cmp>   priority_queue;
+    typedef priority_queue                                   todo_queue;
+    typedef priority_queue                                   rec_queue;
     // Hypothesis/facts in the current state
     hypothesis_decls   m_hyp_decls;
     // We break the set of hypotheses in m_hyp_decls in 4 sets that are not necessarily disjoint:
@@ -126,6 +128,7 @@ class branch {
     hypothesis_idx_set       m_assumption;
     hypothesis_idx_set       m_active;
     todo_queue               m_todo_queue;
+    rec_queue                m_rec_queue;    // priority queue for hypothesis we want to eliminate/recurse
     head_map<hypothesis_idx> m_head_to_hyps;
     forward_deps             m_forward_deps; // given an entry (h -> {h_1, ..., h_n}), we have that each h_i uses h.
     expr                     m_target;
@@ -259,6 +262,10 @@ public:
 
     /** \brief Activate the next hypothesis in the TODO queue, return none if the TODO queue is empty. */
     optional<hypothesis_idx> activate_hypothesis();
+
+    /** \brief Pick next hypothesis from the rec queue */
+    optional<hypothesis_idx> select_rec_hypothesis();
+    void add_to_rec_queue(hypothesis_idx hidx, double w);
 
     /** \brief Store in \c r the hypotheses in this branch sorted by dependency depth */
     void get_sorted_hypotheses(hypothesis_idx_buffer & r) const;

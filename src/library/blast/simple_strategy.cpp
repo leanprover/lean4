@@ -22,8 +22,30 @@ namespace blast {
 /** \brief Implement a simple proof strategy for blast.
     We use it mainly for testing new actions and the whole blast infra-structure. */
 class simple_strategy : public strategy {
-    optional<hypothesis_idx> activate_hypothesis() {
-        return curr_state().activate_hypothesis();
+
+    action_result activate_hypothesis(bool preprocess) {
+        auto hidx = curr_state().activate_hypothesis();
+        if (!hidx) return action_result::failed();
+
+        if (!preprocess) display_action("activate");
+
+        if (auto pr = assumption_contradiction_actions(*hidx)) {
+            if (!preprocess) display_action("assumption-contradiction");
+            return action_result::solved(*pr);
+        }
+
+        if (subst_action(*hidx)) {
+            if (!preprocess) display_action("subst");
+            return action_result::new_branch();
+        }
+
+        action_result r = no_confusion_action(*hidx);
+        if (!failed(r)) {
+            if (!preprocess) display_action("no_confusion");
+            return r;
+        }
+
+        return action_result::new_branch();
     }
 
     /* \brief Preprocess state
@@ -34,18 +56,9 @@ class simple_strategy : public strategy {
         while (true) {
             if (intros_action())
                 continue;
-            if (auto hidx = activate_hypothesis()) {
-                if (auto pr = assumption_contradiction_actions(*hidx)) {
-                    return pr;
-                }
-                if (subst_action(*hidx))
-                    continue;
-                action_result r = no_confusion_action(*hidx);
-                if (solved(r))
-                    return r.to_opt_expr();
-                continue;
-            }
-            break;
+            auto r = activate_hypothesis(true);
+            if (solved(r)) return r.to_opt_expr();
+            if (failed(r)) break;
         }
         if (auto pr = assumption_action())
             return pr;
@@ -58,23 +71,8 @@ class simple_strategy : public strategy {
             return action_result::new_branch();
         }
 
-        if (auto hidx = activate_hypothesis()) {
-            display_action("activate");
-            if (auto pr = assumption_contradiction_actions(*hidx)) {
-                display_action("assumption-contradiction");
-                return action_result::solved(*pr);
-            }
-            if (subst_action(*hidx)) {
-                display_action("subst");
-                return action_result::new_branch();
-            }
-            action_result r = no_confusion_action(*hidx);
-            if (!failed(r)) {
-                display_action("no_confusion");
-                return r;
-            }
-            return action_result::new_branch();
-        }
+        action_result r = activate_hypothesis(false);
+        if (!failed(r)) return r;
 
         if (auto pr = trivial_action()) {
             display_action("trivial");
@@ -88,7 +86,7 @@ class simple_strategy : public strategy {
             return action_result::solved(*pr);
         }
 
-        action_result r = constructor_action();
+        r = constructor_action();
         if (!failed(r)) {
             display_action("constructor");
             return r;

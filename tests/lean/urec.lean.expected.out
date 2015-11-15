@@ -7,6 +7,8 @@ myrec.{l_1 l_2} :
 recursor information
   num. parameters:          1
   num. indices:             0
+  num. minors:              3
+  recursive:                0
   universe param pos.:      0 [motive univ]
   motive pos.:              2
   major premise pos.:       3
@@ -15,6 +17,8 @@ recursor information
 recursor information
   num. parameters:          0
   num. indices:             0
+  num. minors:              2
+  recursive:                1
   universe param pos.:     
   motive pos.:              1
   major premise pos.:       2
@@ -27,6 +31,8 @@ vector.induction_on.{l_1} :
 recursor information
   num. parameters:          1
   num. indices:             1
+  num. minors:              2
+  recursive:                1
   universe param pos.:      0
   motive pos.:              2
   major premise pos.:       4
@@ -39,6 +45,8 @@ Exists.rec.{l_1} :
 recursor information
   num. parameters:          2
   num. indices:             0
+  num. minors:              1
+  recursive:                0
   universe param pos.:      0
   motive pos.:              3
   major premise pos.:       5

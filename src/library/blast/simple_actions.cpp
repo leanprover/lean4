@@ -23,6 +23,22 @@ optional<expr> assumption_action() {
     return none_expr();
 }
 
+/* Close branch IF h is of the form (H : a ~ a) where ~ is a reflexive relation */
+static optional<expr> try_not_refl_relation(hypothesis const & h) {
+    expr p;
+    if (!is_not(h.get_type(), p))
+        return none_expr();
+    name rop; expr lhs, rhs;
+    if (is_relation(p, rop, lhs, rhs) && is_def_eq(lhs, rhs)) {
+        try {
+            app_builder & b = get_app_builder();
+            expr rfl = b.mk_refl(rop, lhs);
+            return some_expr(b.mk_app(get_absurd_name(), curr_state().get_target(), rfl, h.get_self()));
+        } catch (app_builder_exception &) {}
+    }
+    return none_expr();
+}
+
 optional<expr> assumption_contradiction_actions(hypothesis_idx hidx) {
     state const & s      = curr_state();
     app_builder & b      = get_app_builder();
@@ -35,8 +51,11 @@ optional<expr> assumption_contradiction_actions(hypothesis_idx hidx) {
     if (is_def_eq(type, s.get_target())) {
         return some_expr(h->get_self());
     }
+    if (auto pr = try_not_refl_relation(*h))
+        return pr;
     expr p1 = type;
     bool is_neg1 = is_not(type, p1);
+    /* try to find complement */
     for (hypothesis_idx hidx2 : s.get_head_related(hidx)) {
         hypothesis const * h2 = s.get_hypothesis_decl(hidx2);
         expr type2 = h2->get_type();

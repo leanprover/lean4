@@ -24,8 +24,8 @@ bool recursor_info::is_minor(unsigned pos) const {
 
 unsigned recursor_info::get_num_minors() const {
     unsigned r = m_num_args;
-    lean_assert(r >= get_motive_pos());
-    r -= get_motive_pos();
+    lean_assert(r >= get_motive_pos() + 1);
+    r -= (get_motive_pos() + 1);
     lean_assert(m_major_pos >= get_first_index_pos());
     lean_assert(r >= m_major_pos - get_first_index_pos() + 1);
     r -= (m_major_pos - get_first_index_pos() + 1);

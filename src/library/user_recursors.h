@@ -42,13 +42,13 @@ public:
     unsigned get_motive_pos() const { return get_num_params(); }
     unsigned get_first_index_pos() const { return m_major_pos - get_num_indices(); }
     unsigned get_major_pos() const { return m_major_pos; }
-    /** \brief Return position of the recursor parameters in the major premise. */
     list<optional<unsigned>> const & get_params_pos() const { return m_params_pos; }
     /** \brief Return position of the recursor indices in the major premise. */
     list<unsigned> const & get_indices_pos() const { return m_indices_pos; }
     list<bool> const & get_produce_motive() const { return m_produce_motive; }
     bool has_dep_elim() const { return m_dep_elim; }
     bool is_minor(unsigned pos) const;
+    unsigned get_num_minors() const;
 
     void write(serializer & s) const;
     static recursor_info read(deserializer & d);

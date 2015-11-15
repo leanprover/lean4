@@ -291,7 +291,7 @@ relation_info_getter mk_relation_info_getter(environment const & env) {
         if (auto r = table.find(rop))
             return optional<relation_info>(*r);
         else
-            optional<relation_info>();
+            return optional<relation_info>();
     };
 }
 

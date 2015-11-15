@@ -287,7 +287,7 @@ relation_info const * get_relation_info(environment const & env, name const & ro
 
 relation_info_getter mk_relation_info_getter(environment const & env) {
     auto table = rel_ext::get_state(env).m_rop_table;
-    return [=](name const & rop) {
+    return [=](name const & rop) { // NOLINT
         if (auto r = table.find(rop))
             return optional<relation_info>(*r);
         else
@@ -320,7 +320,7 @@ bool is_relation(environment const & env, expr const & e, name & rop, expr & lhs
 
 is_relation_pred mk_is_relation_pred(environment const & env) {
     name_map<relation_info> table = rel_ext::get_state(env).m_rop_table;
-    return [=](expr const & e, name & rop, expr & lhs, expr & rhs) {
+    return [=](expr const & e, name & rop, expr & lhs, expr & rhs) { // NOLINT
         return is_relation(table, e, rop, lhs, rhs);
     };
 }

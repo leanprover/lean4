@@ -39,7 +39,7 @@ relation_info_getter mk_relation_info_getter(environment const & env);
 
 /** \brief Return true iff \c e is of the form (lhs rop rhs) where rop is a registered relation. */
 bool is_relation(environment const & env, expr const & e, name & rop, expr & lhs, expr & rhs);
-typedef std::function<bool(expr const &, name &, expr &, expr &)> is_relation_pred;
+typedef std::function<bool(expr const &, name &, expr &, expr &)> is_relation_pred; // NOLINT
 /** \brief Construct an \c is_relation predicate for the given environment. */
 is_relation_pred mk_is_relation_pred(environment const & env);
 

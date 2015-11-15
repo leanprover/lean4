@@ -13,6 +13,7 @@ class recursor_info {
     name                     m_type_name;
     list<unsigned>           m_universe_pos; // position of the recursor universe level parameters.
     bool                     m_dep_elim;
+    bool                     m_recursive;
     unsigned                 m_num_args; // total number of arguments
     unsigned                 m_major_pos;
     // if param is <none>, then it should be resolved by type class resolution
@@ -23,7 +24,7 @@ class recursor_info {
 
 public:
     recursor_info(name const & r, name const & I, list<unsigned> const & univ_pos,
-                  bool dep_elim, unsigned num_args, unsigned major_pos,
+                  bool dep_elim, bool is_rec, unsigned num_args, unsigned major_pos,
                   list<optional<unsigned>> const & params_pos, list<unsigned> const & indices_pos,
                   list<bool> const & produce_motive);
     recursor_info();
@@ -47,6 +48,7 @@ public:
     list<unsigned> const & get_indices_pos() const { return m_indices_pos; }
     list<bool> const & get_produce_motive() const { return m_produce_motive; }
     bool has_dep_elim() const { return m_dep_elim; }
+    bool is_recursive() const { return m_recursive; }
     bool is_minor(unsigned pos) const;
     unsigned get_num_minors() const;
 

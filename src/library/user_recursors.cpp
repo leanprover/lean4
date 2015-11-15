@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include "util/sstream.h"
+#include "kernel/find_fn.h"
 #include "kernel/inductive/inductive.h"
 #include "library/scoped_ext.h"
 #include "library/util.h"
@@ -33,16 +34,16 @@ unsigned recursor_info::get_num_minors() const {
 }
 
 recursor_info::recursor_info(name const & r, name const & I, list<unsigned> const & univ_pos,
-                             bool dep_elim, unsigned num_args, unsigned major_pos,
+                             bool dep_elim, bool is_rec, unsigned num_args, unsigned major_pos,
                              list<optional<unsigned>> const & params_pos, list<unsigned> const & indices_pos,
                              list<bool> const & produce_motive):
-    m_recursor(r), m_type_name(I), m_universe_pos(univ_pos), m_dep_elim(dep_elim),
+    m_recursor(r), m_type_name(I), m_universe_pos(univ_pos), m_dep_elim(dep_elim), m_recursive(is_rec),
     m_num_args(num_args), m_major_pos(major_pos), m_params_pos(params_pos), m_indices_pos(indices_pos),
     m_produce_motive(produce_motive) {}
 recursor_info::recursor_info() {}
 
 void recursor_info::write(serializer & s) const {
-    s << m_recursor << m_type_name << m_dep_elim << m_num_args << m_major_pos;
+    s << m_recursor << m_type_name << m_dep_elim << m_recursive << m_num_args << m_major_pos;
     write_list(s, m_universe_pos);
     write_list(s, m_params_pos);
     write_list(s, m_indices_pos);
@@ -51,7 +52,7 @@ void recursor_info::write(serializer & s) const {
 
 recursor_info recursor_info::read(deserializer & d) {
     recursor_info info;
-    d >> info.m_recursor >> info.m_type_name >> info.m_dep_elim
+    d >> info.m_recursor >> info.m_type_name >> info.m_dep_elim >> info.m_recursive
       >> info.m_num_args >> info.m_major_pos;
     info.m_universe_pos   = read_list<unsigned>(d);
     info.m_params_pos     = read_list<optional<unsigned>>(d);
@@ -76,6 +77,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         list<unsigned> universe_pos = mk_list_range(0, num_univ_params);
         if (env.get(name(*I, "rec")).get_num_univ_params() != num_univ_params)
             universe_pos = cons(recursor_info::get_motive_univ_idx(), universe_pos);
+        bool is_rec                = is_recursive_datatype(env, *I);
         unsigned major_pos         = *inductive::get_elim_major_idx(env, r);
         unsigned num_indices       = *inductive::get_num_indices(env, *I);
         unsigned num_params        = *inductive::get_num_params(env, *I);
@@ -87,7 +89,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         list<optional<unsigned>> params_pos = map2<optional<unsigned>>(mk_list_range(0, num_params),
                                                                        [](unsigned i) { return optional<unsigned>(i); });
         list<unsigned> indices_pos = mk_list_range(num_params, num_params + num_indices);
-        return recursor_info(r, *I, universe_pos, inductive::has_dep_elim(env, *I),
+        return recursor_info(r, *I, universe_pos, inductive::has_dep_elim(env, *I), is_rec,
                              num_args, major_pos, params_pos, indices_pos, produce_motive);
     }
     declaration d = env.get(r);
@@ -237,11 +239,23 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
     buffer<bool> produce_motive;
     unsigned nparams  = params_pos.size();
     unsigned nindices = indices_pos.size();
+    bool is_rec       = false;
     for (unsigned i = nparams+1; i < tele.size(); i++) {
         if (i < major_pos - nindices || i > major_pos) {
             // i is a minor premise
-            buffer<expr> tmp;
-            expr res = get_app_fn(to_telescope(tc, mlocal_type(tele[i]), tmp));
+            buffer<expr> minor_args;
+            expr res = get_app_fn(to_telescope(tc, mlocal_type(tele[i]), minor_args));
+            if (!is_rec) {
+                for (expr const & minor_arg : minor_args) {
+                    lean_assert(is_local(minor_arg));
+                    if (find(mlocal_type(minor_arg), [&](expr const & e, unsigned) {
+                                return is_local(e) && mlocal_name(C) == mlocal_name(e);
+                            })) {
+                        is_rec = true;
+                        break;
+                    }
+                }
+            }
             if (is_local(res) && mlocal_name(C) == mlocal_name(res)) {
                 produce_motive.push_back(true);
             } else {
@@ -250,7 +264,7 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         }
     }
 
-    return recursor_info(r, const_name(I), to_list(univ_param_pos), dep_elim, tele.size(), major_pos,
+    return recursor_info(r, const_name(I), to_list(univ_param_pos), dep_elim, is_rec, tele.size(), major_pos,
                          to_list(params_pos), to_list(indices_pos), to_list(produce_motive));
 }
 

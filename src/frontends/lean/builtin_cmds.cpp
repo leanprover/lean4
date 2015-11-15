@@ -301,6 +301,8 @@ static void print_recursor_info(parser & p) {
     out << "recursor information\n"
         << "  num. parameters:          " << info.get_num_params() << "\n"
         << "  num. indices:             " << info.get_num_indices() << "\n"
+        << "  num. minors:              " << info.get_num_minors() << "\n"
+        << "  recursive:                " << info.is_recursive() << "\n"
         << "  universe param pos.:     ";
     for (unsigned idx : info.get_universe_pos()) {
         if (idx == recursor_info::get_motive_univ_idx()) {

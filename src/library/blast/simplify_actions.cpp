@@ -43,7 +43,7 @@ action_result simplify_target_action() {
     bool iff    = use_iff(target);
     name rname  = iff ? get_iff_name() : get_eq_name();
     auto r = simplify(rname, target, s.get_simp_rule_sets());
-    if (r.is_none())
+    if (!r.has_proof())
         return action_result::failed(); // did nothing
     s.push_proof_step(new simplify_target_proof_step_cell(iff, r.get_proof()));
     s.set_target(r.get_new());

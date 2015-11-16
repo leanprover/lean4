@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Functors preserving limits
 -/
 
-import .colimits ..functor.yoneda
+import .colimits ..functor.yoneda ..functor.adjoint
 
 open eq functor yoneda is_trunc nat_trans
 
@@ -90,5 +90,34 @@ namespace category
       intro i, refine !id_right⁻¹ ⬝ !assoc⁻¹ ⬝ _,
       exact ap0100 natural_map (cone_to_eq v i) c x}
   end
+
+  /- left adjoint functors preserve limits -/
+
+/-  definition preserves_existing_limits_left_adjoint_lemma {C D : Precategory} (F : C ⇒ D)
+    [H : is_left_adjoint F] {I : Precategory} {G : I ⇒ C} (y : cone_obj G) [K : is_terminal y]
+    {d : carrier D} (η : constant_functor I d ⟹ F ∘f G) : d ⟶ to_fun_ob F (cone_to_obj y) :=
+  begin
+    let η := unit F, let θ := counit F, exact sorry
+  end
+
+  theorem preserves_existing_limits_left_adjoint {C D : Precategory} (F : C ⇒ D)
+    [H : is_left_adjoint F] : preserves_existing_limits F :=
+  begin
+    intro I G K dη, induction K with y K, induction dη with d η, esimp at *,
+    -- assert lem : Π (i : carrier I),
+    -- nat_trans_hom_functor_left (natural_map (cone_to_nat y) i)
+    --   ∘n preserves_existing_limits_yoneda_embedding_lemma y η = natural_map η i,
+    -- { intro i, apply nat_trans_eq, intro c, apply eq_of_homotopy, intro x,
+    --     esimp, refine !assoc ⬝ !id_right ⬝ !to_hom_limit_commute},
+    fapply is_contr.mk,
+    { fapply cone_hom.mk,
+      { esimp, exact sorry},
+      { exact lem}},
+    { intro v, apply cone_hom_eq, esimp, apply nat_trans_eq, esimp, intro c,
+      apply eq_of_homotopy, intro x, refine (to_eq_hom_limit _ _)⁻¹,
+      intro i, refine !id_right⁻¹ ⬝ !assoc⁻¹ ⬝ _,
+      exact ap0100 natural_map (cone_to_eq v i) c x}
+  end-/
+
 
 end category

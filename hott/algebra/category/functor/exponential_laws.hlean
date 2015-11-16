@@ -129,26 +129,6 @@ namespace category
 
   /- Cᵒᵖ ^ Dᵒᵖ ≅ (C ^ D)ᵒᵖ -/
 
-  definition opposite_functor_opposite_right [constructor] (C D : Precategory)
-    : Cᵒᵖ ^c Dᵒᵖ ⇒ (C ^c D)ᵒᵖ :=
-  begin
-    fapply functor.mk: esimp,
-    { exact opposite_functor_rev},
-    { apply @opposite_rev_nat_trans},
-    { intro F, apply nat_trans_eq, intro d, reflexivity},
-    { intro F G H η θ, apply nat_trans_eq, intro d, reflexivity}
-  end
-
-  definition opposite_functor_opposite_left [constructor] (C D : Precategory)
-    : (C ^c D)ᵒᵖ ⇒ Cᵒᵖ ^c Dᵒᵖ :=
-  begin
-    fapply functor.mk: esimp,
-    { exact opposite_functor},
-    { intro F G, exact opposite_nat_trans},
-    { intro F, apply nat_trans_eq, reflexivity},
-    { intro u v w g f, apply nat_trans_eq, reflexivity}
-  end
-
   definition opposite_functor_opposite_iso [constructor] (C D : Precategory)
     : Cᵒᵖ ^c Dᵒᵖ ≅c (C ^c D)ᵒᵖ :=
   begin

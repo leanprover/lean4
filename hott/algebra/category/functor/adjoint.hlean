@@ -12,13 +12,18 @@ open functor nat_trans is_trunc eq iso prod
 
 namespace category
 
-  structure adjoint [class] {C D : Precategory} (F : C ⇒ D) (G : D ⇒ C) :=
+  structure adjoint {C D : Precategory} (F : C ⇒ D) (G : D ⇒ C) :=
     (η : 1 ⟹ G ∘f F)
     (ε : F ∘f G ⟹ 1)
     (H : Π(c : C), ε (F c) ∘ F (η c) = ID (F c))
     (K : Π(d : D), G (ε d) ∘ η (G d) = ID (G d))
 
-  -- TODO(?): define is_left_adjoint in terms of adjoint
+  abbreviation to_unit           [unfold 5] := @adjoint.η
+  abbreviation to_counit         [unfold 5] := @adjoint.ε
+  abbreviation to_counit_unit_eq [unfold 5] := @adjoint.H
+  abbreviation to_unit_counit_eq [unfold 5] := @adjoint.K
+
+  -- TODO: define is_left_adjoint in terms of adjoint:
   -- structure is_left_adjoint (F : C ⇒ D) :=
   --   (G : D ⇒ C) -- G
   --   (is_adjoint : adjoint F G)
@@ -109,11 +114,10 @@ namespace category
    end
 
   section
-  universe variables u v
-  parameters {C D : Precategory.{u v}} {F : C ⇒ D} {G : D ⇒ C}
+  universe variables u v w
+  parameters {C : Precategory.{u v}} {D : Precategory.{w v}} {F : C ⇒ D} {G : D ⇒ C}
           (θ : hom_functor D ∘f prod_functor_prod Fᵒᵖᶠ 1 ≅ hom_functor C ∘f prod_functor_prod 1 G)
   include θ
-  /- θ : _ ⟹[Cᵒᵖ × D ⇒ set] _-/
 
   definition adj_unit [constructor] : 1 ⟹ G ∘f F :=
   begin
@@ -173,6 +177,92 @@ namespace category
   end
 
   end
+/- TODO (below): generalize above definitions to arbitrary categories
+  section
+  universe variables u₁ u₂ v₁ v₂
+  parameters {C : Precategory.{u₁ v₁}} {D : Precategory.{u₂ v₂}} {F : C ⇒ D} {G : D ⇒ C}
+          (θ : functor_lift.{v₂ v₁} ∘f hom_functor D ∘f prod_functor_prod Fᵒᵖᶠ 1 ≅
+               functor_lift.{v₁ v₂} ∘f hom_functor C ∘f prod_functor_prod 1 G)
+  include θ
+  open lift
+  definition adj_unit [constructor] : 1 ⟹ G ∘f F :=
+  begin
+    fapply nat_trans.mk: esimp,
+    { intro c, exact down (natural_map (to_hom θ) (c, F c) (up id))},
+    { intro c c' f,
+      let H := naturality (to_hom θ) (ID c, F f),
+      let K := ap10 H (up id),
+      rewrite [▸* at K, id_right at K, ▸*, K, respect_id, +id_right],
+      clear H K,
+      let H := naturality (to_hom θ) (f, ID (F c')),
+      let K := ap10 H id,
+      rewrite [▸* at K, respect_id at K,+id_left at K, K]}
+  end
 
+  definition adj_counit [constructor] : F ∘f G ⟹ 1 :=
+  begin
+    fapply nat_trans.mk: esimp,
+    { intro d, exact natural_map (to_inv θ) (G d, d) id, },
+    { intro d d' g,
+      let H := naturality (to_inv θ) (Gᵒᵖᶠ g, ID d'),
+      let K := ap10 H id,
+      rewrite [▸* at K, id_left at K, ▸*, K, respect_id, +id_left],
+      clear H K,
+      let H := naturality (to_inv θ) (ID (G d), g),
+      let K := ap10 H id,
+      rewrite [▸* at K, respect_id at K,+id_right at K, K]}
+  end
+
+  theorem adj_eq_unit (c : C) (d : D) (f : F c ⟶ d)
+    : natural_map (to_hom θ) (c, d) (up f) = G f ∘ adj_unit c :=
+  begin
+    esimp,
+    let H := naturality (to_hom θ) (ID c, f),
+    let K := ap10 H id,
+    rewrite [▸* at K, id_right at K, K, respect_id, +id_right],
+  end
+
+  theorem adj_eq_counit (c : C) (d : D) (g : c ⟶ G d)
+    : natural_map (to_inv θ) (c, d) (up g) = adj_counit d ∘ F g :=
+  begin
+    esimp,
+    let H := naturality (to_inv θ) (g, ID d),
+    let K := ap10 H id,
+    rewrite [▸* at K, id_left at K, K, respect_id, +id_left],
+  end
+
+  definition adjoint.mk' [constructor] : F ⊣ G :=
+  begin
+    fapply adjoint.mk,
+    { exact adj_unit},
+    { exact adj_counit},
+    { intro c, esimp, refine (adj_eq_counit c (F c) (adj_unit c))⁻¹ ⬝ _,
+      apply ap10 (to_left_inverse (componentwise_iso θ (c, F c)))},
+    { intro d, esimp, refine (adj_eq_unit (G d) d (adj_counit d))⁻¹ ⬝ _,
+      apply ap10 (to_right_inverse (componentwise_iso θ (G d, d)))},
+  end
+
+  end
+-/
+
+  variables {C D : Precategory} {F : C ⇒ D} {G : D ⇒ C}
+
+  definition adjoint_opposite [constructor] (H : F ⊣ G) : Gᵒᵖᶠ ⊣ Fᵒᵖᶠ :=
+  begin
+    fconstructor,
+    { rexact opposite_nat_trans (to_counit H)},
+    { rexact opposite_nat_trans (to_unit H)},
+    { rexact to_unit_counit_eq H},
+    { rexact to_counit_unit_eq H}
+  end
+
+  definition adjoint_of_opposite [constructor] (H : Fᵒᵖᶠ ⊣ Gᵒᵖᶠ) : G ⊣ F :=
+  begin
+    fconstructor,
+    { rexact opposite_rev_nat_trans (to_counit H)},
+    { rexact opposite_rev_nat_trans (to_unit H)},
+    { rexact to_unit_counit_eq H},
+    { rexact to_counit_unit_eq H}
+  end
 
 end category

@@ -91,13 +91,11 @@ namespace category
   abbreviation cset [constructor] := Category_hset
 
   open functor lift
-  definition lift_functor.{u v} [constructor] : set.{u} ⇒ set.{max u v} :=
+  definition functor_lift.{u v} [constructor] : set.{u} ⇒ set.{max u v} :=
   functor.mk tlift
              (λa b, lift_functor)
              (λa, eq_of_homotopy (λx, by induction x; reflexivity))
              (λa b c g f, eq_of_homotopy (λx, by induction x; reflexivity))
-
-  open pi sigma.ops
 
 
 end category

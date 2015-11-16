@@ -34,5 +34,11 @@ namespace category
       symmetry, apply eq_hom_limit, intro i, reflexivity}
   end
 
+/-
+  definition adjoint_colimit_functor [constructor] (D I : Precategory)
+    [H : has_colimits_of_shape D I] : colimit_functor D I ⊣ constant_diagram D I :=
+  have H : colimit_functor D I ⊣ (constant_diagram Dᵒᵖ Iᵒᵖ)ᵒᵖ', from _,
+  _
+-/
 
 end category

@@ -29,7 +29,7 @@ namespace category
   infixr `∘op`:60 := @comp _ (opposite _) _ _ _
   postfix `ᵒᵖ`:(max+2) := Opposite
 
-  variables {C D : Precategory} {a b c : C}
+  variables {C D E : Precategory} {a b c : C}
 
   definition compose_op {f : hom a b} {g : hom b c} : f ∘op g = g ∘ f :=
   by reflexivity
@@ -65,6 +65,9 @@ namespace category
   postfix `ᵒᵖᶠ`:(max+2) := opposite_functor
   postfix `ᵒᵖ'`:(max+2) := opposite_functor_rev
 
+  definition functor_id_op (C : Precategory) : (1 : C ⇒ C)ᵒᵖᶠ = 1 :=
+  idp
+
   definition opposite_rev_opposite_functor (F : Cᵒᵖ ⇒ Dᵒᵖ) : Fᵒᵖ' ᵒᵖᶠ = F :=
   begin
   fapply functor_eq: esimp,
@@ -76,6 +79,9 @@ namespace category
   fapply functor_eq: esimp,
   { intro c c' f, esimp, exact !id_leftright}
   end
+
+  definition opposite_compose (G : D ⇒ E) (F : C ⇒ D) : (G ∘f F)ᵒᵖᶠ = Gᵒᵖᶠ ∘f Fᵒᵖᶠ :=
+  idp
 
   definition opposite_nat_trans [constructor] {F G : C ⇒ D} (η : F ⟹ G) : Gᵒᵖᶠ ⟹ Fᵒᵖᶠ :=
   begin

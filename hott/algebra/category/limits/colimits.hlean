@@ -163,15 +163,7 @@ namespace category
 
   definition colimit_functor [constructor] (D I : Precategory) [H : has_colimits_of_shape D I]
     : D ^c I ⇒ D :=
-  begin
-    fapply functor.mk: esimp,
-    { intro F, exact colimit_object F},
-    { apply @colimit_hom_colimit},
-    { intro F, unfold colimit_hom_colimit, refine (eq_colimit_hom _ _)⁻¹, intro i,
-      apply id_comp_eq_comp_id},
-    { intro F G H η θ, unfold colimit_hom_colimit, refine (eq_colimit_hom _ _)⁻¹, intro i,
-      rewrite [-assoc, colimit_hom_commute, assoc, colimit_hom_commute, -assoc]}
-  end
+  (limit_functor Dᵒᵖ Iᵒᵖ ∘f opposite_functor_opposite_left D I)ᵒᵖ'
 
   section bin_coproducts
   open bool prod.ops

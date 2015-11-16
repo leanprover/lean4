@@ -65,14 +65,14 @@ namespace yoneda
   end
 
   definition yoneda_lemma {C : Precategory} (c : C) (F : Cᵒᵖ ⇒ cset) :
-    homset (ɏ c) F ≅ lift_functor (F c) :=
+    homset (ɏ c) F ≅ functor_lift (F c) :=
   begin
     apply iso_of_equiv, esimp, apply yoneda_lemma_equiv,
   end
 
   theorem yoneda_lemma_natural_ob {C : Precategory} (F : Cᵒᵖ ⇒ cset) {c c' : C} (f : c' ⟶ c)
     (η : ɏ c ⟹ F) :
-     to_fun_hom (lift_functor ∘f F) f (to_hom (yoneda_lemma c F) η) =
+     to_fun_hom (functor_lift ∘f F) f (to_hom (yoneda_lemma c F) η) =
      to_hom (yoneda_lemma c' F) (η ∘n to_fun_hom ɏ f) :=
   begin
     esimp [yoneda_lemma,yoneda_embedding], apply ap up,
@@ -86,12 +86,12 @@ namespace yoneda
 
   -- TODO: Investigate what is the bottleneck to type check the next theorem
 
-  -- attribute yoneda_lemma lift_functor Precategory_hset precategory_hset homset
+  -- attribute yoneda_lemma functor_lift Precategory_hset precategory_hset homset
   --   yoneda_embedding nat_trans.compose functor_nat_trans_compose [reducible]
   -- attribute tlift functor.compose [reducible]
   theorem yoneda_lemma_natural_functor.{u v} {C : Precategory.{u v}} (c : C) (F F' : Cᵒᵖ ⇒ cset)
     (θ : F ⟹ F') (η : to_fun_ob ɏ c ⟹ F) :
-     (lift_functor.{v u} ∘fn θ) c (to_hom (yoneda_lemma c F) η) =
+     (functor_lift.{v u} ∘fn θ) c (to_hom (yoneda_lemma c F) η) =
      proof to_hom (yoneda_lemma c F') (θ ∘n η) qed :=
   by reflexivity
 
@@ -103,7 +103,7 @@ namespace yoneda
 
   -- theorem yy.{u v} {C : Precategory.{u v}} (c : C) (F F' : Cᵒᵖ ⇒ set)
   --   (θ : F ⟹ F') (η : to_fun_ob ɏ c ⟹ F) :
-  --    (lift_functor.{v u} ∘fn θ) c (to_hom (yoneda_lemma c F) η) =
+  --    (functor_lift.{v u} ∘fn θ) c (to_hom (yoneda_lemma c F) η) =
   --    proof _ qed :=
   -- by reflexivity
 

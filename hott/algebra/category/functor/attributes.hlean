@@ -23,7 +23,6 @@ namespace category
   definition is_weak_equivalence [class] (F : C ⇒ D) :=
   fully_faithful F × essentially_surjective F
 
-
   definition is_equiv_of_fully_faithful [instance] [reducible] (F : C ⇒ D)
     [H : fully_faithful F] (c c' : C) : is_equiv (@(to_fun_hom F) c c') :=
   !H

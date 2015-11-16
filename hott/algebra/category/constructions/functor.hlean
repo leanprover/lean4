@@ -6,7 +6,7 @@ Authors: Floris van Doorn, Jakob von Raumer
 Functor precategory and category
 -/
 
-import ..nat_trans ..category
+import ..nat_trans ..category .opposite
 
 open eq category is_trunc nat_trans iso is_equiv category.hom
 
@@ -393,6 +393,34 @@ namespace functor
     { intro c d e g f, fapply nat_trans_eq, reflexivity},
   end
 
+  definition opposite_functor_opposite_left [constructor] (C D : Precategory)
+    : (C ^c D)ᵒᵖ ⇒ Cᵒᵖ ^c Dᵒᵖ :=
+  begin
+    fapply functor.mk: esimp,
+    { exact opposite_functor},
+    { intro F G, exact opposite_nat_trans},
+    { intro F, apply nat_trans_eq, reflexivity},
+    { intro u v w g f, apply nat_trans_eq, reflexivity}
+  end
+
+  definition opposite_functor_opposite_right [constructor] (C D : Precategory)
+    : Cᵒᵖ ^c Dᵒᵖ ⇒ (C ^c D)ᵒᵖ :=
+  begin
+    fapply functor.mk: esimp,
+    { exact opposite_functor_rev},
+    { apply @opposite_rev_nat_trans},
+    { intro F, apply nat_trans_eq, intro d, reflexivity},
+    { intro F G H η θ, apply nat_trans_eq, intro d, reflexivity}
+  end
+
+  definition constant_diagram_opposite [constructor] (C D)
+    : (constant_diagram C D)ᵒᵖᶠ = opposite_functor_opposite_right C D ∘f constant_diagram Cᵒᵖ Dᵒᵖ :=
+  begin
+    fapply functor_eq,
+    { reflexivity},
+    { intro c c' f, esimp at *, refine !nat_trans.id_right ⬝ !nat_trans.id_left ⬝ _,
+      apply nat_trans_eq, intro d, reflexivity}
+  end
 
 
 end functor

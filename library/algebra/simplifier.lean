@@ -7,23 +7,30 @@ import algebra.ring algebra.numeral
 
 namespace simplifier
 
-namespace sum_of_monomials
+-- TODO(dhs): refactor this once we fix `export` command
+-- TODO(dhs): make these [simp] rules in the global namespace
+namespace neg_helper
+    open algebra
+    variables {A : Type} [s : ring A] (a b : A)
+    include s
+    lemma neg_mul1 : (- a) * b = - (a * b) := eq.symm !algebra.neg_mul_eq_neg_mul
+    lemma neg_mul2 : a * (- b) = - (a * b) := eq.symm !algebra.neg_mul_eq_mul_neg
+    lemma sub_def : a - b = a + (- b) := rfl
+    lemma
+end neg_helper
 
-attribute algebra.add.assoc [simp]
-attribute algebra.add.comm [simp]
-attribute algebra.add.left_comm [simp]
+namespace ac
 
-attribute algebra.mul.left_comm [simp]
-attribute algebra.mul.comm [simp]
-attribute algebra.mul.assoc [simp]
+-- iff
+lemma eq_iff_true [simp] {A : Type} (a : A) : a = a ↔ true := sorry
 
-attribute algebra.left_distrib [simp]
-attribute algebra.right_distrib [simp]
+-- neg
+attribute neg_helper.neg_mul1 [simp]
+attribute neg_helper.neg_mul2 [simp]
+attribute neg_helper.sub_def [simp]
+attribute algebra.neg_neg [simp]
 
-end sum_of_monomials
-
-namespace units
-
+-- unit
 attribute algebra.zero_add [simp]
 attribute algebra.add_zero [simp]
 
@@ -33,7 +40,54 @@ attribute algebra.mul_zero [simp]
 attribute algebra.one_mul [simp]
 attribute algebra.mul_one [simp]
 
-end units
+-- ac
+attribute algebra.add.assoc [simp]
+attribute algebra.add.comm [simp]
+attribute algebra.add.left_comm [simp]
+
+attribute algebra.mul.left_comm [simp]
+attribute algebra.mul.comm [simp]
+attribute algebra.mul.assoc [simp]
+
+end ac
+
+namespace som
+
+-- iff
+lemma eq_iff_true [simp] {A : Type} (a : A) : a = a ↔ true := sorry
+
+-- neg
+attribute neg_helper.neg_mul1 [simp]
+attribute neg_helper.neg_mul2 [simp]
+attribute neg_helper.sub_def [simp]
+attribute algebra.neg_neg [simp]
+
+-- unit
+attribute algebra.zero_add [simp]
+attribute algebra.add_zero [simp]
+
+attribute algebra.zero_mul [simp]
+attribute algebra.mul_zero [simp]
+
+attribute algebra.one_mul [simp]
+attribute algebra.mul_one [simp]
+
+-- ac
+attribute algebra.add.assoc [simp]
+attribute algebra.add.comm [simp]
+attribute algebra.add.left_comm [simp]
+
+attribute algebra.mul.left_comm [simp]
+attribute algebra.mul.comm [simp]
+attribute algebra.mul.assoc [simp]
+
+-- distrib
+attribute algebra.left_distrib [simp]
+attribute algebra.right_distrib [simp]
+
+end som
+
+namespace numeral
 
 -- TODO(dhs): remove `add1` from the original lemmas and delete this
 namespace numeral_helper
@@ -69,17 +123,38 @@ lemma mul_bit1_helper1 [simp] {A : Type} [s : comm_ring A] (a b : A)
 
 end numeral_helper
 
-namespace numeral
+-- neg
+attribute neg_helper.neg_mul1 [simp]
+attribute neg_helper.neg_mul2 [simp]
+attribute neg_helper.sub_def [simp]
+attribute algebra.neg_neg [simp]
 
+-- unit
+attribute algebra.zero_add [simp]
+attribute algebra.add_zero [simp]
+
+attribute algebra.zero_mul [simp]
+attribute algebra.mul_zero [simp]
+
+attribute algebra.one_mul [simp]
+attribute algebra.mul_one [simp]
+
+-- ac
+attribute algebra.add.assoc [simp]
+attribute algebra.add.comm [simp]
+attribute algebra.add.left_comm [simp]
+
+attribute algebra.mul.left_comm [simp]
+attribute algebra.mul.comm [simp]
+attribute algebra.mul.assoc [simp]
+
+-- numerals
 attribute norm_num.bit0_add_bit0 [simp]
 attribute numeral_helper.bit1_add_one [simp]
 attribute norm_num.bit1_add_bit0 [simp]
 attribute numeral_helper.bit1_add_bit1 [simp]
 attribute norm_num.bit0_add_bit1 [simp]
 attribute numeral_helper.one_add_bit1 [simp]
-
-attribute algebra.zero_add [simp]
-attribute algebra.add_zero [simp]
 
 attribute norm_num.one_add_one [simp]
 attribute numeral_helper.one_add_bit0 [simp]
@@ -89,11 +164,6 @@ attribute numeral_helper.mul_bit0_helper0 [simp]
 attribute numeral_helper.mul_bit0_helper1 [simp]
 attribute numeral_helper.mul_bit1_helper0 [simp]
 attribute numeral_helper.mul_bit1_helper1 [simp]
-
-attribute algebra.zero_mul [simp]
-attribute algebra.mul_zero [simp]
-attribute algebra.one_mul [simp]
-attribute algebra.mul_one [simp]
 
 end numeral
 

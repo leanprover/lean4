@@ -1,5 +1,5 @@
 import algebra.simplifier
-open algebra simplifier.sum_of_monomials simplifier.units
+open algebra simplifier.som
 
 set_option simplify.max_steps 1000
 universe l

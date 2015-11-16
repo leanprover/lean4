@@ -532,8 +532,8 @@ simp_rule_sets get_simp_rule_sets(environment const & env, io_state const & ios,
     simp_rule_sets set;
     list<pair<bool, name>> const * cnames = rrs_ext::get_entries(env, ns);
     if (cnames) {
-        tmp_type_context tctx(env, ios);
         for (pair<bool, name> const & p : *cnames) {
+            tmp_type_context tctx(env, ios);
             set = add_core(tctx, set, p.second);
         }
     }

@@ -1,4 +1,7 @@
 absurd
+algebra.distrib
+algebra.left_distrib
+algebra.right_distrib
 add
 and
 and.elim_left
@@ -40,6 +43,7 @@ has_one
 has_zero.zero
 has_one.one
 has_add
+has_mul
 heq
 heq.refl
 heq.to_eq

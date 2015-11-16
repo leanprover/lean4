@@ -1329,13 +1329,19 @@ static environment congr_cmd(parser & p) {
 
 static environment simplify_cmd(parser & p) {
     name rel = p.check_constant_next("invalid #simplify command, constant expected");
+    name ns = p.check_id_next("invalid #simplify command, id expected");
     unsigned o = p.parse_small_nat();
 
     expr e; level_param_names ls;
     std::tie(e, ls) = parse_local_expr(p);
 
     blast::scope_debug scope(p.env(), p.ios());
-    blast::simp::result r = blast::simplify(rel, e, get_simp_rule_sets(p.env()));
+    simp_rule_sets srss;
+    if (ns == name("null")) { }
+    if (ns == name("env")) { srss = get_simp_rule_sets(p.env()); }
+    else { srss = get_simp_rule_sets(p.env(), p.ios(), ns); }
+
+    blast::simp::result r = blast::simplify(rel, e, srss);
 
     flycheck_information info(p.regular_stream());
     if (info.enabled()) {
@@ -1343,8 +1349,8 @@ static environment simplify_cmd(parser & p) {
         p.regular_stream() << "simplify result:\n";
     }
 
-    if (r.is_none()) {
-        p.regular_stream() << "<refl>" << endl;
+    if (!r.has_proof()) {
+        p.regular_stream() << "(refl): " << r.get_new() << endl;
     } else {
         auto tc = mk_type_checker(p.env(), p.mk_ngen());
 

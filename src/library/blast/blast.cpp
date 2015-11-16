@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/relation_manager.h"
 #include "library/congr_lemma_manager.h"
+#include "library/abstract_expr_manager.h"
 #include "library/projection.h"
 #include "library/tactic/goal.h"
 #include "library/blast/expr.h"
@@ -56,6 +57,7 @@ class blastenv {
     app_builder                m_app_builder;
     fun_info_manager           m_fun_info_manager;
     congr_lemma_manager        m_congr_lemma_manager;
+    abstract_expr_manager      m_abstract_expr_manager;
 
     class tctx : public type_context {
         blastenv &                              m_benv;
@@ -410,6 +412,7 @@ public:
         m_app_builder(*m_tmp_ctx),
         m_fun_info_manager(*m_tmp_ctx),
         m_congr_lemma_manager(m_app_builder, m_fun_info_manager),
+        m_abstract_expr_manager(m_fun_info_manager),
         m_tctx(*this),
         m_normalizer(m_tctx) {
         init_uref_mref_href_idxs();
@@ -482,12 +485,28 @@ public:
         return m_congr_lemma_manager.mk_congr_simp(fn);
     }
 
+    optional<congr_lemma> mk_congr_lemma(expr const & fn, unsigned num_args) {
+        return m_congr_lemma_manager.mk_congr(fn, num_args);
+    }
+
+    optional<congr_lemma> mk_congr_lemma(expr const & fn) {
+        return m_congr_lemma_manager.mk_congr(fn);
+    }
+
     fun_info get_fun_info(expr const & fn) {
         return m_fun_info_manager.get(fn);
     }
 
     fun_info get_fun_info(expr const & fn, unsigned nargs) {
         return m_fun_info_manager.get(fn, nargs);
+    }
+
+    unsigned abstract_hash(expr const & e) {
+        return m_abstract_expr_manager.hash(e);
+    }
+
+    bool abstract_is_equal(expr const & e1, expr const & e2) {
+        return m_abstract_expr_manager.is_equal(e1, e2);
     }
 
     /** \brief Convert an external expression into a blast expression
@@ -629,6 +648,16 @@ optional<congr_lemma> mk_congr_lemma_for_simp(expr const & fn) {
     return g_blastenv->mk_congr_lemma_for_simp(fn);
 }
 
+optional<congr_lemma> mk_congr_lemma(expr const & fn, unsigned num_args) {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_congr_lemma(fn, num_args);
+}
+
+optional<congr_lemma> mk_congr_lemma(expr const & fn) {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_congr_lemma(fn);
+}
+
 fun_info get_fun_info(expr const & fn) {
     lean_assert(g_blastenv);
     return g_blastenv->get_fun_info(fn);
@@ -637,6 +666,16 @@ fun_info get_fun_info(expr const & fn) {
 fun_info get_fun_info(expr const & fn, unsigned nargs) {
     lean_assert(g_blastenv);
     return g_blastenv->get_fun_info(fn, nargs);
+}
+
+unsigned abstract_hash(expr const & e) {
+    lean_assert(g_blastenv);
+    return g_blastenv->abstract_hash(e);
+}
+
+bool abstract_is_equal(expr const & e1, expr const & e2) {
+    lean_assert(g_blastenv);
+    return g_blastenv->abstract_is_equal(e1, e2);
 }
 
 void display_curr_state() {

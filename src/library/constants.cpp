@@ -4,6 +4,9 @@
 #include "util/name.h"
 namespace lean{
 name const * g_absurd = nullptr;
+name const * g_algebra_distrib = nullptr;
+name const * g_algebra_left_distrib = nullptr;
+name const * g_algebra_right_distrib = nullptr;
 name const * g_add = nullptr;
 name const * g_and = nullptr;
 name const * g_and_elim_left = nullptr;
@@ -45,6 +48,7 @@ name const * g_has_one = nullptr;
 name const * g_has_zero_zero = nullptr;
 name const * g_has_one_one = nullptr;
 name const * g_has_add = nullptr;
+name const * g_has_mul = nullptr;
 name const * g_heq = nullptr;
 name const * g_heq_refl = nullptr;
 name const * g_heq_to_eq = nullptr;
@@ -173,6 +177,9 @@ name const * g_well_founded = nullptr;
 name const * g_zero = nullptr;
 void initialize_constants() {
     g_absurd = new name{"absurd"};
+    g_algebra_distrib = new name{"algebra", "distrib"};
+    g_algebra_left_distrib = new name{"algebra", "left_distrib"};
+    g_algebra_right_distrib = new name{"algebra", "right_distrib"};
     g_add = new name{"add"};
     g_and = new name{"and"};
     g_and_elim_left = new name{"and", "elim_left"};
@@ -214,6 +221,7 @@ void initialize_constants() {
     g_has_zero_zero = new name{"has_zero", "zero"};
     g_has_one_one = new name{"has_one", "one"};
     g_has_add = new name{"has_add"};
+    g_has_mul = new name{"has_mul"};
     g_heq = new name{"heq"};
     g_heq_refl = new name{"heq", "refl"};
     g_heq_to_eq = new name{"heq", "to_eq"};
@@ -343,6 +351,9 @@ void initialize_constants() {
 }
 void finalize_constants() {
     delete g_absurd;
+    delete g_algebra_distrib;
+    delete g_algebra_left_distrib;
+    delete g_algebra_right_distrib;
     delete g_add;
     delete g_and;
     delete g_and_elim_left;
@@ -384,6 +395,7 @@ void finalize_constants() {
     delete g_has_zero_zero;
     delete g_has_one_one;
     delete g_has_add;
+    delete g_has_mul;
     delete g_heq;
     delete g_heq_refl;
     delete g_heq_to_eq;
@@ -512,6 +524,9 @@ void finalize_constants() {
     delete g_zero;
 }
 name const & get_absurd_name() { return *g_absurd; }
+name const & get_algebra_distrib_name() { return *g_algebra_distrib; }
+name const & get_algebra_left_distrib_name() { return *g_algebra_left_distrib; }
+name const & get_algebra_right_distrib_name() { return *g_algebra_right_distrib; }
 name const & get_add_name() { return *g_add; }
 name const & get_and_name() { return *g_and; }
 name const & get_and_elim_left_name() { return *g_and_elim_left; }
@@ -553,6 +568,7 @@ name const & get_has_one_name() { return *g_has_one; }
 name const & get_has_zero_zero_name() { return *g_has_zero_zero; }
 name const & get_has_one_one_name() { return *g_has_one_one; }
 name const & get_has_add_name() { return *g_has_add; }
+name const & get_has_mul_name() { return *g_has_mul; }
 name const & get_heq_name() { return *g_heq; }
 name const & get_heq_refl_name() { return *g_heq_refl; }
 name const & get_heq_to_eq_name() { return *g_heq_to_eq; }

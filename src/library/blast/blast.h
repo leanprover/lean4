@@ -79,11 +79,29 @@ optional<congr_lemma> mk_congr_lemma_for_simp(expr const & fn, unsigned num_args
 /** \brief Similar to previous procedure, but num_args == arith of fn */
 optional<congr_lemma> mk_congr_lemma_for_simp(expr const & fn);
 
+/** \brief Create a congruence lemma for the given function.
+    \pre num_args <= arity of fn
+    \remark The procedure may fail when app_builder used by it fails.
+    Example: it fail to infer the type of fn.
+
+    \remark The generated lemma is useful for proving that two terms
+    that are definitionally equal upto subsingletons are propositionally
+    equal.
+
+    \remark The type \c congr_lemma is defined at library/congr_lemma_manager.h */
+optional<congr_lemma> mk_congr_lemma(expr const & fn, unsigned num_args);
+/** \brief Similar to previous procedure, but num_args == arith of fn */
+optional<congr_lemma> mk_congr_lemma(expr const & fn);
+
 /** \brief Retrieve information for the given function. */
 fun_info get_fun_info(expr const & fn);
 /** \brief Retrieve information for the given function.
     \pre nargs <= arity fn. */
 fun_info get_fun_info(expr const & fn, unsigned nargs);
+
+/** \brief Hash and equality test for abstract expressions */
+unsigned abstract_hash(expr const & e);
+bool abstract_is_equal(expr const & e1, expr const & e2);
 
 /** \brief Display the current state of the blast tactic in the diagnostic channel. */
 void display_curr_state();

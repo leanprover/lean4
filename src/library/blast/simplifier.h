@@ -16,22 +16,27 @@ namespace simp {
 /* Struct to store results of simplification */
 struct result {
     /* Invariant [m_pf : m_orig <rel> m_new] */
+    /* Note: we only keep [m_old] to make the code easier to understand.
+       It could be optimized away in the future. */
     expr m_new;
+
+    /* If proof is not provided, it is assumed to be reflexivity */
     optional<expr> m_proof;
 
 public:
+    result() {}
     result(expr const & e): m_new(e) {}
-    result(expr const & e, expr const & pf): m_new(e), m_proof(pf) {}
-    result(expr const & e, optional<expr> const & pf): m_new(e), m_proof(pf) {}
+    result(expr const & e, expr const & proof): m_new(e), m_proof(proof) {}
+    result(expr const & e, optional<expr> const & proof): m_new(e), m_proof(proof) {}
 
-    bool is_none() const { return !static_cast<bool>(m_proof); }
+    bool has_proof() const { return static_cast<bool>(m_proof); }
+
     expr get_new() const { return m_new; }
     expr get_proof() const { lean_assert(m_proof); return *m_proof; }
 
     /* The following assumes that [e] and [m_new] are definitionally equal */
     void update(expr const & e) { m_new = e; }
 };
-
 }
 
 simp::result simplify(name const & rel, expr const & e, simp_rule_sets const & srss);

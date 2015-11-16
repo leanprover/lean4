@@ -459,6 +459,48 @@ struct app_builder::imp {
         return mk_app(get_congr_name(), {H1, H2});
     }
 
+    expr mk_partial_add(expr const & A) {
+        level lvl = get_level(A);
+        auto A_has_add = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_has_add_name(), {lvl}), A));
+        if (!A_has_add) throw app_builder_exception();
+        return ::lean::mk_app(mk_constant(get_add_name(), {lvl}), A, *A_has_add);
+    }
+
+    expr mk_partial_mul(expr const & A) {
+        level lvl = get_level(A);
+        auto A_has_mul = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_has_mul_name(), {lvl}), A));
+        if (!A_has_mul) throw app_builder_exception();
+        return ::lean::mk_app(mk_constant(get_mul_name(), {lvl}), A, *A_has_mul);
+    }
+
+    expr mk_zero(expr const & A) {
+        level lvl = get_level(A);
+        auto A_has_zero = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_has_zero_name(), {lvl}), A));
+        if (!A_has_zero) throw app_builder_exception();
+        return ::lean::mk_app(mk_constant(get_zero_name(), {lvl}), A, *A_has_zero);
+    }
+
+    expr mk_one(expr const & A) {
+        level lvl = get_level(A);
+        auto A_has_one = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_has_one_name(), {lvl}), A));
+        if (!A_has_one) throw app_builder_exception();
+        return ::lean::mk_app(mk_constant(get_one_name(), {lvl}), A, *A_has_one);
+    }
+
+    expr mk_partial_left_distrib(expr const & A) {
+        level lvl = get_level(A);
+        auto A_distrib = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_algebra_distrib_name(), {lvl}), A));
+        if (!A_distrib) throw app_builder_exception();
+        return ::lean::mk_app(mk_constant(get_algebra_left_distrib_name(), {lvl}), A, *A_distrib);
+    }
+
+    expr mk_partial_right_distrib(expr const & A) {
+        level lvl = get_level(A);
+        auto A_distrib = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_algebra_distrib_name(), {lvl}), A));
+        if (!A_distrib) throw app_builder_exception();
+        return ::lean::mk_app(mk_constant(get_algebra_right_distrib_name(), {lvl}), A, *A_distrib);
+    }
+
     expr mk_false_rec(expr const & c, expr const & H) {
         level c_lvl = get_level(c);
         if (is_standard(m_ctx->env())) {
@@ -558,6 +600,30 @@ expr app_builder::mk_congr_fun(expr const & H, expr const & a) {
 
 expr app_builder::mk_congr(expr const & H1, expr const & H2) {
     return m_ptr->mk_congr(H1, H2);
+}
+
+expr app_builder::mk_partial_add(expr const & A) {
+    return m_ptr->mk_partial_add(A);
+}
+
+expr app_builder::mk_partial_mul(expr const & A) {
+    return m_ptr->mk_partial_mul(A);
+}
+
+expr app_builder::mk_zero(expr const & A) {
+    return m_ptr->mk_zero(A);
+}
+
+expr app_builder::mk_one(expr const & A) {
+    return m_ptr->mk_one(A);
+}
+
+expr app_builder::mk_partial_left_distrib(expr const & A) {
+    return m_ptr->mk_partial_left_distrib(A);
+}
+
+expr app_builder::mk_partial_right_distrib(expr const & A) {
+    return m_ptr->mk_partial_right_distrib(A);
 }
 
 expr app_builder::mk_sorry(expr const & type) {

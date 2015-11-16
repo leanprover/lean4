@@ -116,6 +116,13 @@ public:
     expr mk_congr_fun(expr const & H, expr const & a);
     expr mk_congr(expr const & H1, expr const & H2);
 
+    expr mk_partial_add(expr const & A);
+    expr mk_partial_mul(expr const & A);
+    expr mk_zero(expr const & A);
+    expr mk_one(expr const & A);
+    expr mk_partial_left_distrib(expr const & A);
+    expr mk_partial_right_distrib(expr const & A);
+
     /** \brief Create (@sorry type) */
     expr mk_sorry(expr const & type);
 

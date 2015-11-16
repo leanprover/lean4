@@ -6,6 +6,9 @@ namespace lean {
 void initialize_constants();
 void finalize_constants();
 name const & get_absurd_name();
+name const & get_algebra_distrib_name();
+name const & get_algebra_left_distrib_name();
+name const & get_algebra_right_distrib_name();
 name const & get_add_name();
 name const & get_and_name();
 name const & get_and_elim_left_name();
@@ -47,6 +50,7 @@ name const & get_has_one_name();
 name const & get_has_zero_zero_name();
 name const & get_has_one_one_name();
 name const & get_has_add_name();
+name const & get_has_mul_name();
 name const & get_heq_name();
 name const & get_heq_refl_name();
 name const & get_heq_to_eq_name();

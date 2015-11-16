@@ -8,7 +8,7 @@ Declaration of the circle
 
 import .sphere
 import types.bool types.int.hott types.equiv
-import algebra.fundamental_group algebra.hott
+import algebra.homotopy_group algebra.hott
 
 open eq susp bool sphere_index is_equiv equiv equiv.ops is_trunc pi
 
@@ -161,6 +161,9 @@ namespace circle
   definition pointed_circle [instance] [constructor] : pointed circle :=
   pointed.mk base
 
+  definition Circle [constructor] : Type* := pointed.mk' circle
+  notation `S¹.` := Circle
+
   definition loop_neq_idp : loop ≠ idp :=
   assume H : loop = idp,
   have H2 : Π{A : Type₁} {a : A} {p : a = a}, p = idp,
@@ -244,13 +247,13 @@ namespace circle
 
   --the carrier of π₁(S¹) is the set-truncation of base = base.
   open core algebra trunc equiv.ops
-  definition fg_carrier_equiv_int : π₁(S¹) ≃ ℤ :=
+  definition fg_carrier_equiv_int : π[1](S¹.) ≃ ℤ :=
   trunc_equiv_trunc 0 base_eq_base_equiv ⬝e !trunc_equiv
 
   definition con_comm_base (p q : base = base) : p ⬝ q = q ⬝ p :=
   eq_of_fn_eq_fn base_eq_base_equiv (by esimp;rewrite [+encode_con,add.comm])
 
-  definition fundamental_group_of_circle : π₁(S¹) = group_integers :=
+  definition fundamental_group_of_circle : π₁(S¹.) = group_integers :=
   begin
     apply (Group_eq fg_carrier_equiv_int),
     intros g h,

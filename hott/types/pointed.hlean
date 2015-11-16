@@ -73,7 +73,9 @@ namespace pointed
   prefix `Ω`:(max+5) := Loop_space
   notation `Ω[`:95 n:0 `] `:0 A:95 := Iterated_loop_space n A
 
-  definition refln [constructor] {A : Type*} {n : ℕ} : Ω[n] A := pt
+  definition rfln  [constructor] [reducible] {A : Type*} {n : ℕ} : Ω[n] A := pt
+  definition refln [constructor] [reducible] (A : Type*) (n : ℕ) : Ω[n] A := pt
+  definition refln_eq_refl (A : Type*) (n : ℕ) : rfln = rfl :> Ω[succ n] A := rfl
 
   definition iterated_loop_space [unfold 3] (A : Type) [H : pointed A] (n : ℕ) : Type :=
   Ω[n] (pointed.mk' A)

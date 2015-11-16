@@ -6,8 +6,10 @@ constants (f_comm : ∀ x y, f x y = f y x)
           (f_l : ∀ x y z, f (f x y) z = f x (f y z))
           (f_r : ∀ x y z, f x (f y z) = f y (f x z))
 
+namespace tst
 attribute f_comm [simp]
 attribute f_l [simp]
 attribute f_r [simp]
+end tst
 
-#simplify eq 0 (f (f x2 x4) (f x5 (f x3 (f x1 x6))))
+#simplify eq tst 0 (f (f x2 x4) (f x5 (f x3 (f x1 x6))))

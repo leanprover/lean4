@@ -154,6 +154,9 @@ namespace nat
 
   protected theorem lt_irrefl (n : ℕ) : ¬n < n := not_succ_le_self
 
+  theorem lt_self_iff_false (n : ℕ) : n < n ↔ false :=
+  iff_false_intro (λ H, absurd H (nat.lt_irrefl n))
+
   theorem self_lt_succ (n : ℕ) : n < succ n := !nat.le_refl
 
   theorem self_lt_succ_iff_true [simp] (n : ℕ) : n < succ n ↔ true :=

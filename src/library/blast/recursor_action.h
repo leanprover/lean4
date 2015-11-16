@@ -14,6 +14,7 @@ optional<name> is_recursor_action_target(hypothesis_idx hidx);
 
 /** \brief Return the number of minor premises of the given recursor */
 unsigned get_num_minor_premises(name const & R);
+bool is_recursive_recursor(name const & R);
 
 action_result recursor_action(hypothesis_idx hidx, name const & R);
 action_result recursor_action(hypothesis_idx hidx);

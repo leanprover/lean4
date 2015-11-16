@@ -30,6 +30,7 @@ type_context & get_type_context();
 state & curr_state();
 /** \brief Return a thread local fresh local constant. */
 expr mk_fresh_local(expr const & type, binder_info const & bi = binder_info());
+bool is_fresh_local(expr const & e);
 /** \brief Return true iff the given constant name is marked as reducible in env() */
 bool is_reducible(name const & n);
 /** \brief Return a nonnull projection_info object if \c n is the name of a projection in env() */

@@ -45,11 +45,24 @@ class simple_strategy : public strategy {
         }
 
         if (optional<name> R = is_recursor_action_target(*hidx)) {
-            if (get_num_minor_premises(*R) == 1) {
+            unsigned num_minor = get_num_minor_premises(*R);
+            if (num_minor == 1) {
                 action_result r = recursor_action(*hidx, *R);
                 if (!failed(r)) {
                     if (!preprocess) display_action("recursor");
                     return r;
+                }
+            } else {
+                // If the hypothesis recursor has more than 1 minor premise, we
+                // put it in a priority queue.
+                // TODO(Leo): refine
+
+                // TODO(Leo): the following weight computation is too simple...
+                double w = 1.0 / (static_cast<double>(*hidx) + 1.0);
+                if (!is_recursive_recursor(*R)) {
+                    // TODO(Leo): we need a better strategy for handling recursive recursors...
+                    w += static_cast<double>(num_minor);
+                    curr_state().add_to_rec_queue(*hidx, w);
                 }
             }
         }
@@ -93,6 +106,16 @@ class simple_strategy : public strategy {
             // when the target has been modified.
             display_action("assumption");
             return action_result::solved(*pr);
+        }
+
+        while (auto hidx = curr_state().select_rec_hypothesis()) {
+            if (optional<name> R = is_recursor_action_target(*hidx)) {
+                r = recursor_action(*hidx, *R);
+                if (!failed(r)) {
+                    display_action("recursor");
+                    return r;
+                }
+            }
         }
 
         r = constructor_action();

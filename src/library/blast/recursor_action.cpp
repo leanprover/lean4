@@ -94,20 +94,19 @@ struct recursor_proof_step_cell : public proof_step_cell {
         list<expr> new_prs   = cons(pr, m_goal_proofs);
         if (empty(new_goals)) {
             buffer<expr> proof_args;
-            buffer<expr> gs;
-            to_buffer(m_goals, gs);
             expr const & rec = get_app_args(m_proof, proof_args);
             // update proof_args that are goals with their proofs
             unsigned i = proof_args.size();
             while (i > 0) {
                 --i;
-                if (!gs.empty() && proof_args[i] == gs.back()) {
+                if (is_fresh_local(proof_args[i])) {
                     lean_assert(new_prs);
                     proof_args[i] = head(new_prs);
                     new_prs       = tail(new_prs);
                 }
             }
-            return action_result::solved(mk_app(rec, proof_args));
+            expr result = mk_app(rec, proof_args);
+            return action_result::solved(result);
         } else {
             s.pop_proof_step();
             s.push_proof_step(new recursor_proof_step_cell(m_dep, m_branch, m_proof, new_goals, new_prs));

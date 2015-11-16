@@ -456,6 +456,9 @@ public:
     expr mk_fresh_local(expr const & type, binder_info const & bi) {
         return m_tmp_local_generator.mk_tmp_local(type, bi);
     }
+    bool is_fresh_local(expr const & e) const {
+        return m_tmp_local_generator.is_tmp_local(e);
+    }
     expr whnf(expr const & e) { return m_tctx.whnf(e); }
     expr relaxed_whnf(expr const & e) { return m_tctx.relaxed_whnf(e); }
     expr infer_type(expr const & e) { return m_tctx.infer(e); }
@@ -609,6 +612,11 @@ optional<expr> mk_class_instance(expr const & e) {
 expr mk_fresh_local(expr const & type, binder_info const & bi) {
     lean_assert(g_blastenv);
     return g_blastenv->mk_fresh_local(type, bi);
+}
+
+bool is_fresh_local(expr const & e) {
+    lean_assert(g_blastenv);
+    return g_blastenv->is_fresh_local(e);
 }
 
 optional<congr_lemma> mk_congr_lemma_for_simp(expr const & fn, unsigned num_args) {

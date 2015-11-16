@@ -5,7 +5,7 @@ Author: Robert Y. Lewis
 */
 #pragma once
 #include "kernel/environment.h"
-#include "library/local_context.h"
+#include "library/type_context.h"
 #include "library/num.h"
 #include "library/class_instance_resolution.h"
 #include "util/numerics/mpq.h"
@@ -21,9 +21,8 @@ struct hash_name {
 };
 
 class norm_num_context {
-    environment   m_env;
-    local_context m_ctx;
-    levels        m_lvls;
+    type_context & m_type_ctx;
+    levels m_lvls;
     pair<expr, expr> mk_norm_add(expr const &, expr const &);
     pair<expr, expr> mk_norm_add1(expr const &);
     pair<expr, expr> mk_norm_mul(expr const &, expr const &);
@@ -72,7 +71,7 @@ class norm_num_context {
     std::unordered_map<name, expr, hash_name> instances;
 
 public:
-    norm_num_context(environment const & env, local_context const & ctx):m_env(env), m_ctx(ctx) {}
+    norm_num_context(type_context & type_ctx): m_type_ctx(type_ctx) {}
 
     bool is_numeral(expr const & e) const;
     bool is_neg_app(expr const &) const;
@@ -89,20 +88,20 @@ public:
 
 inline bool is_neg(expr const & e);
 
-inline bool is_numeral(environment const & env, expr const & e) {
-    return norm_num_context(env, local_context()).is_numeral(e);
+inline bool is_numeral(type_context & type_ctx, expr const & e) {
+    return norm_num_context(type_ctx).is_numeral(e);
 }
 
-inline pair<expr, expr> mk_norm_num(environment const & env, local_context const & ctx, expr const & e) {
-    return norm_num_context(env, ctx).mk_norm(e);
+inline pair<expr, expr> mk_norm_num(type_context & type_ctx, expr const & e) {
+    return norm_num_context(type_ctx).mk_norm(e);
 }
 
-inline mpz num_of_expr(environment const & env, local_context const & ctx, expr const & e) {
-    return norm_num_context(env, ctx).num_of_expr(e);
+inline mpz num_of_expr(type_context & type_ctx, expr const & e) {
+    return norm_num_context(type_ctx).num_of_expr(e);
 }
 
-inline mpq mpq_of_expr(environment const & env, local_context const & ctx, expr const & e) {
-    return norm_num_context(env, ctx).mpq_of_expr(e);
+inline mpq mpq_of_expr(type_context & type_ctx, expr const & e) {
+    return norm_num_context(type_ctx).mpq_of_expr(e);
 }
 
 void initialize_norm_num();

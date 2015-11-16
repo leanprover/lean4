@@ -6,5 +6,4 @@ expr_to_tactic.cpp location.cpp rewrite_tactic.cpp util.cpp
 init_module.cpp change_tactic.cpp check_expr_tactic.cpp let_tactic.cpp
 contradiction_tactic.cpp exfalso_tactic.cpp constructor_tactic.cpp
 injection_tactic.cpp congruence_tactic.cpp relation_tactics.cpp
-induction_tactic.cpp subst_tactic.cpp unfold_rec.cpp with_options_tactic.cpp
-norm_num_tactic.cpp)
+induction_tactic.cpp subst_tactic.cpp unfold_rec.cpp with_options_tactic.cpp)

@@ -126,7 +126,7 @@ expr norm_num_context::mk_has_add(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -141,7 +141,7 @@ expr norm_num_context::mk_has_mul(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -156,7 +156,7 @@ expr norm_num_context::mk_has_one(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -171,7 +171,7 @@ expr norm_num_context::mk_has_zero(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -186,7 +186,7 @@ expr norm_num_context::mk_add_monoid(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -201,7 +201,7 @@ expr norm_num_context::mk_monoid(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -212,7 +212,7 @@ expr norm_num_context::mk_monoid(expr const & e) {
 
 expr norm_num_context::mk_field(expr const & e) {
     expr t = mk_app(mk_constant(*g_field, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         return *inst;
     } else {
@@ -226,7 +226,7 @@ expr norm_num_context::mk_add_comm(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -241,7 +241,7 @@ expr norm_num_context::mk_add_group(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -256,7 +256,7 @@ expr norm_num_context::mk_has_distrib(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -271,7 +271,7 @@ expr norm_num_context::mk_mul_zero_class(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -286,7 +286,7 @@ expr norm_num_context::mk_semiring(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -301,7 +301,7 @@ expr norm_num_context::mk_has_neg(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -316,7 +316,7 @@ expr norm_num_context::mk_has_sub(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -331,7 +331,7 @@ expr norm_num_context::mk_has_div(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -346,7 +346,7 @@ expr norm_num_context::mk_add_comm_group(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -361,7 +361,7 @@ expr norm_num_context::mk_ring(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -376,7 +376,7 @@ expr norm_num_context::mk_lin_ord_ring(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -391,7 +391,7 @@ expr norm_num_context::mk_lin_ord_semiring(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;
@@ -406,7 +406,7 @@ expr norm_num_context::mk_wk_order(expr const & e) {
         return instances[l_name];
     }
     expr t = mk_app(mk_constant(l_name, m_lvls), e);
-    optional<expr> inst = mk_class_instance(m_env, m_ctx, t);
+    optional<expr> inst = m_type_ctx.mk_class_instance(t);
     if (inst) {
         instances[l_name] = *inst;
         return *inst;

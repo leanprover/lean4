@@ -18,6 +18,7 @@
 #include "library/simplifier/ceqv.h"
 #include "library/app_builder.h"
 #include "library/num.h"
+#include "library/norm_num.h"
 #include "util/flet.h"
 #include "util/pair.h"
 #include "util/sexpr/option_declarations.h"
@@ -48,6 +49,9 @@
 #ifndef LEAN_DEFAULT_SIMPLIFY_FUSE
 #define LEAN_DEFAULT_SIMPLIFY_FUSE false
 #endif
+#ifndef LEAN_DEFAULT_SIMPLIFY_NUMERALS
+#define LEAN_DEFAULT_SIMPLIFY_NUMERALS true
+#endif
 
 namespace lean {
 namespace blast {
@@ -71,6 +75,7 @@ static name * g_simplify_contextual    = nullptr;
 static name * g_simplify_expand_macros = nullptr;
 static name * g_simplify_trace         = nullptr;
 static name * g_simplify_fuse          = nullptr;
+static name * g_simplify_numerals      = nullptr;
 
 unsigned get_simplify_max_steps() {
     return ios().get_options().get_unsigned(*g_simplify_max_steps, LEAN_DEFAULT_SIMPLIFY_MAX_STEPS);
@@ -102,6 +107,10 @@ bool get_simplify_trace() {
 
 bool get_simplify_fuse() {
     return ios().get_options().get_bool(*g_simplify_fuse, LEAN_DEFAULT_SIMPLIFY_FUSE);
+}
+
+bool get_simplify_numerals() {
+    return ios().get_options().get_bool(*g_simplify_numerals, LEAN_DEFAULT_SIMPLIFY_NUMERALS);
 }
 
 /* Miscellaneous helpers */
@@ -141,6 +150,7 @@ class simplifier {
     bool                                         m_expand_macros{get_simplify_expand_macros()};
     bool                                         m_trace{get_simplify_trace()};
     bool                                         m_fuse{get_simplify_fuse()};
+    bool                                         m_numerals{get_simplify_numerals()};
 
     /* Cache */
     struct key {
@@ -205,6 +215,7 @@ class simplifier {
     result simplify_pi(expr const & e);
     result simplify_app(expr const & e);
     result simplify_fun(expr const & e);
+    optional<result> simplify_numeral(expr const & e);
 
     /* Proving */
     optional<expr> prove(expr const & thm);
@@ -364,6 +375,11 @@ result simplifier::simplify(expr const & e, bool is_root) {
         if (auto it = cache_lookup(e)) return *it;
     }
 
+    if (m_numerals) {
+        // TODO(dhs): cache these?
+        if (auto r = simplify_numeral(e)) return *r;
+    }
+
     result r(e);
 
     if (m_top_down) r = join(r, rewrite(whnf(r.get_new())));
@@ -499,6 +515,22 @@ result simplifier::simplify_fun(expr const & e) {
     expr const & f = get_app_args(e, args);
     result r_f = simplify(f, true);
     return congr_funs(r_f, args);
+}
+
+optional<result> simplifier::simplify_numeral(expr const & e) {
+    if (is_num(e)) {
+        return optional<result>(result(e));
+    }
+    else if (is_add_app(e) || is_mul_app(e)) {
+        buffer<expr> args;
+        get_app_args(e, args);
+        if (is_num(args[2]) && is_num(args[3])){
+            expr_pair r = mk_norm_num(*m_tmp_tctx, e);
+            return optional<result>(result(r.first, r.second));
+        }
+    }
+    // TODO(dhs): simplify division and substraction as well
+    return optional<result>();
 }
 
 /* Proving */
@@ -984,6 +1016,7 @@ void initialize_simplifier() {
     g_simplify_expand_macros = new name{"simplify", "expand_macros"};
     g_simplify_trace         = new name{"simplify", "trace"};
     g_simplify_fuse          = new name{"simplify", "fuse"};
+    g_simplify_numerals      = new name{"simplify", "numerals"};
 
     register_unsigned_option(*g_simplify_max_steps, LEAN_DEFAULT_SIMPLIFY_MAX_STEPS,
                              "(simplify) max allowed steps in simplification");
@@ -1001,9 +1034,12 @@ void initialize_simplifier() {
                          "(simplify) trace");
     register_bool_option(*g_simplify_fuse, LEAN_DEFAULT_SIMPLIFY_FUSE,
                          "(simplify) fuse addition in distrib structures");
+    register_bool_option(*g_simplify_numerals, LEAN_DEFAULT_SIMPLIFY_NUMERALS,
+                         "(simplify) simplify (+, *, -, /) over numerals");
 }
 
 void finalize_simplifier() {
+    delete g_simplify_numerals;
     delete g_simplify_fuse;
     delete g_simplify_trace;
     delete g_simplify_expand_macros;

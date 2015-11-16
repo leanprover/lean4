@@ -39,6 +39,7 @@ projection_info const * get_projection_info(name const & n);
     and store the relation name, lhs and rhs in the output arguments. */
 bool is_relation(expr const & e, name & rop, expr & lhs, expr & rhs);
 bool is_relation(expr const & e);
+bool is_reflexive(name const & rop);
 /** \brief Put the given expression in weak-head-normal-form with respect to the
     current state being processed by the blast tactic. */
 expr whnf(expr const & e);

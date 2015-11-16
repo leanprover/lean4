@@ -99,4 +99,34 @@ optional<expr> trivial_action() {
         return none_expr();
     }
 }
+
+bool discard(hypothesis_idx hidx) {
+    state s = curr_state();
+    hypothesis const * h = s.get_hypothesis_decl(hidx);
+    lean_assert(h);
+    expr type            = h->get_type();
+    // We only discard a hypothesis if it doesn't have dependencies.
+    if (s.has_target_forward_deps(hidx))
+        return false;
+    // We only discard propositions
+    if (!is_prop(type))
+        return false;
+    // 1- (H : true)
+    if (is_constant(type, get_true_name()))
+        return true;
+    // 2- (H : a ~ a)
+    name rop; expr lhs, rhs;
+    if (is_relation(type, rop, lhs, rhs) && is_def_eq(lhs, rhs) && is_reflexive(rop))
+        return true;
+    // 3- We already have an equivalent hypothesis
+    for (hypothesis_idx hidx2 : s.get_head_related(hidx)) {
+        if (hidx == hidx2)
+            continue;
+        hypothesis const * h2 = s.get_hypothesis_decl(hidx2);
+        expr type2 = h2->get_type();
+        if (is_def_eq(type, type2))
+            return true;
+    }
+    return false;
+}
 }}

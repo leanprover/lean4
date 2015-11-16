@@ -58,6 +58,7 @@ class blastenv {
     fun_info_manager           m_fun_info_manager;
     congr_lemma_manager        m_congr_lemma_manager;
     abstract_expr_manager      m_abstract_expr_manager;
+    refl_info_getter           m_refl_getter;
 
     class tctx : public type_context {
         blastenv &                              m_benv;
@@ -413,6 +414,7 @@ public:
         m_fun_info_manager(*m_tmp_ctx),
         m_congr_lemma_manager(m_app_builder, m_fun_info_manager),
         m_abstract_expr_manager(m_fun_info_manager),
+        m_refl_getter(mk_refl_info_getter(env)),
         m_tctx(*this),
         m_normalizer(m_tctx) {
         init_uref_mref_href_idxs();
@@ -538,6 +540,10 @@ public:
     bool is_relation(expr const & e, name & rop, expr & lhs, expr & rhs) {
         return m_is_relation_pred(e, rop, lhs, rhs);
     }
+
+    bool is_reflexive(name const & rop) const {
+        return static_cast<bool>(m_refl_getter(rop));
+    }
 };
 
 LEAN_THREAD_PTR(blastenv, g_blastenv);
@@ -591,6 +597,11 @@ bool is_relation(expr const & e, name & rop, expr & lhs, expr & rhs) {
 bool is_relation(expr const & e) {
     name rop; expr lhs, rhs;
     return is_relation(e, rop, lhs, rhs);
+}
+
+bool is_reflexive(name const & rop) {
+    lean_assert(g_blastenv);
+    return g_blastenv->is_reflexive(rop);
 }
 
 expr whnf(expr const & e) {

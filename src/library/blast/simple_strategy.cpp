@@ -44,6 +44,12 @@ class simple_strategy : public strategy {
             return r;
         }
 
+        if (discard(*hidx)) {
+            if (!preprocess) display_action("discard redudant hypothesis");
+            curr_state().del_hypothesis(*hidx);
+            return action_result::new_branch();
+        }
+
         if (optional<name> R = is_recursor_action_target(*hidx)) {
             unsigned num_minor = get_num_minor_premises(*R);
             if (num_minor == 1) {

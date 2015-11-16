@@ -23,6 +23,11 @@ optional<name> is_recursor_action_target(hypothesis_idx hidx) {
         return optional<name>(); // we don't apply recursors to equivalence relations: =, ~, <->, etc.
     if (!h->is_assumption())
         return optional<name>(); // we only consider assumptions
+    if (get_type_context().is_class(type)) {
+        // we don't eliminate type classes instances
+        // TODO(Leo): we may revise that in the future... some type classes instances may be worth eliminating (e.g., decidable).
+        return optional<name>();
+    }
     // TODO(Leo): more restrictions?
     // TODO(Leo): consider user-provided hints
     expr const & I    = get_app_fn(type);

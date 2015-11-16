@@ -102,23 +102,3 @@ theorem exists_of_not_forall_not {A : Type} {p : A → Prop} [D : ∀x, decidabl
     [D' : decidable (∃x, p x)] (H : ¬∀x, ¬ p x) :
   ∃x, p x :=
 by_contradiction (imp.syl H forall_not_of_not_exists)
-
-theorem ne_self_iff_false {A : Type} (a : A) : (a ≠ a) ↔ false :=
-iff.intro false.of_ne false.elim
-
-theorem eq_self_iff_true [simp] {A : Type} (a : A) : (a = a) ↔ true :=
-iff_true_intro rfl
-
-theorem heq_self_iff_true [simp] {A : Type} (a : A) : (a == a) ↔ true :=
-iff_true_intro (heq.refl a)
-
-theorem iff_not_self [simp] (a : Prop) : (a ↔ ¬a) ↔ false :=
-iff_false_intro (λH,
-   have H' : ¬a, from (λHa, (mp H Ha) Ha),
-   H' (iff.mpr H H'))
-
-theorem true_iff_false [simp] : (true ↔ false) ↔ false :=
-not_true ▸ (iff_not_self true)
-
-theorem false_iff_true [simp] : (false ↔ true) ↔ false :=
-not_false_iff ▸ (iff_not_self false)

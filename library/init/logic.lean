@@ -142,7 +142,7 @@ namespace ne
   assume (H₁ : b = a), H (H₁⁻¹)
 end ne
 
-theorem false.of_ne {A : Type} {a : A} : a ≠ a → false := ne.irrefl
+theorem false_of_ne {A : Type} {a : A} : a ≠ a → false := ne.irrefl
 
 section
   open eq.ops
@@ -321,6 +321,35 @@ iff.intro
 attribute iff.refl [refl]
 attribute iff.symm [symm]
 attribute iff.trans [trans]
+
+theorem not_not_intro (Ha : a) : ¬¬a :=
+assume Hna : ¬a, Hna Ha
+
+theorem not_true : (¬ true) ↔ false :=
+iff_false_intro (not_not_intro trivial)
+
+theorem not_false_iff : (¬ false) ↔ true :=
+iff_true_intro not_false
+
+theorem ne_self_iff_false {A : Type} (a : A) : (a ≠ a) ↔ false :=
+iff.intro false_of_ne false.elim
+
+theorem eq_self_iff_true {A : Type} (a : A) : (a = a) ↔ true :=
+iff_true_intro rfl
+
+theorem heq_self_iff_true {A : Type} (a : A) : (a == a) ↔ true :=
+iff_true_intro (heq.refl a)
+
+theorem iff_not_self (a : Prop) : (a ↔ ¬a) ↔ false :=
+iff_false_intro (λ H,
+   have H' : ¬a, from (λ Ha, (iff.mp H Ha) Ha),
+   H' (iff.mpr H H'))
+
+theorem true_iff_false : (true ↔ false) ↔ false :=
+iff_false_intro (λ H, iff.mp H trivial)
+
+theorem false_iff_true : (false ↔ true) ↔ false :=
+iff_false_intro (λ H, iff.mpr H trivial)
 
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 intro : ∀ (a : A), P a → Exists P

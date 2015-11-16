@@ -16,13 +16,12 @@ namespace neg_helper
     lemma neg_mul1 : (- a) * b = - (a * b) := eq.symm !algebra.neg_mul_eq_neg_mul
     lemma neg_mul2 : a * (- b) = - (a * b) := eq.symm !algebra.neg_mul_eq_mul_neg
     lemma sub_def : a - b = a + (- b) := rfl
-    lemma
 end neg_helper
 
 namespace ac
 
 -- iff
-lemma eq_iff_true [simp] {A : Type} (a : A) : a = a ↔ true := sorry
+attribute eq_self_iff_true [simp]
 
 -- neg
 attribute neg_helper.neg_mul1 [simp]
@@ -54,7 +53,7 @@ end ac
 namespace som
 
 -- iff
-lemma eq_iff_true [simp] {A : Type} (a : A) : a = a ↔ true := sorry
+attribute eq_self_iff_true [simp]
 
 -- neg
 attribute neg_helper.neg_mul1 [simp]

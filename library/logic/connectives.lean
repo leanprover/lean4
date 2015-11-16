@@ -48,9 +48,6 @@ theorem not.elim {A : Type} (H1 : ¬a) (H2 : a) : A := absurd H2 H1
 
 theorem not.intro (H : a → false) : ¬a := H
 
-theorem not_not_intro (Ha : a) : ¬¬a :=
-assume Hna : ¬a, Hna Ha
-
 theorem not.mto {a b : Prop} : (a → b) → ¬b → ¬a := imp.left
 
 theorem not_imp_not_of_imp {a b : Prop} : (a → b) → ¬b → ¬a := not.mto
@@ -65,15 +62,8 @@ theorem not_not_em : ¬¬(a ∨ ¬a) :=
 assume not_em : ¬(a ∨ ¬a),
 not_em (or.inr (not.mto or.inl not_em))
 
-theorem not_true [simp] : ¬ true ↔ false :=
-iff_false_intro (not_not_intro trivial)
-
-theorem not_false_iff [simp] : ¬ false ↔ true :=
-iff_true_intro not_false
-
 theorem not_iff_not (H : a ↔ b) : ¬a ↔ ¬b :=
 iff.intro (not.mto (iff.mpr H)) (not.mto (iff.mp H))
-
 
 /- and -/
 

@@ -37,10 +37,11 @@ bool intros_action(unsigned max) {
         if (!is_pi(target))
             break;
         expr href;
+        expr htype = head_beta_reduce(binding_domain(target));
         if (is_default_var_name(binding_name(target)) && closed(binding_body(target))) {
-            href  = s.mk_hypothesis(binding_domain(target));
+            href  = s.mk_hypothesis(htype);
         } else {
-            href  = s.mk_hypothesis(binding_name(target), binding_domain(target));
+            href  = s.mk_hypothesis(binding_name(target), htype);
         }
         new_hs.push_back(href);
         target     = whnf(instantiate(binding_body(target), href));

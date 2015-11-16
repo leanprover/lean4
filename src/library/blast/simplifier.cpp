@@ -836,7 +836,7 @@ result simplifier::fuse(expr const & e) {
 
     /* Construct useful expressions */
     buffer<expr> args;
-    get_app_args(e,args);
+    get_app_args(e, args);
     expr T = args[0];
     expr f_add, f_mul, zero, one;
     try {
@@ -856,7 +856,7 @@ result simplifier::fuse(expr const & e) {
     expr s = e;
     while (is_add_app(s)) {
         buffer<expr> args;
-        expr f = get_app_args(s,args);
+        expr f = get_app_args(s, args);
         auto n_v = split_summand(args[2], f_mul, one);
         numerals.push_back(n_v.first);
         variables.push_back(n_v.second);
@@ -872,7 +872,7 @@ result simplifier::fuse(expr const & e) {
     for (unsigned i = 0; i < numerals.size(); i++) {
         auto it = variable_to_numerals.find(variables[i]);
         if (it != variable_to_numerals.end()) it->second = cons(numerals[i], it->second);
-        else variable_to_numerals.insert({variables[i],list<expr>(numerals[i])});
+        else variable_to_numerals.insert({variables[i], list<expr>(numerals[i])});
     }
 
     expr e_grp = zero;
@@ -942,23 +942,25 @@ expr_pair simplifier::split_summand(expr const & e, expr const & f_mul, expr con
     expr variable = one;
     if (is_neg_app(s)) {
         buffer<expr> args;
-        get_app_args(s,args);
+        get_app_args(s, args);
         numeral = m_app_builder.mk_app(get_neg_name(), one);
         s = args[2];
     }
     while (is_mul_app(s)) {
         buffer<expr> args;
-        get_app_args(s,args);
+        get_app_args(s, args);
         expr const & multiplicand = args[2];
-        if (is_num(multiplicand)) numeral = mk_app(f_mul, multiplicand, numeral);
-        else {
+        if (is_num(multiplicand)) {
+            numeral = mk_app(f_mul, multiplicand, numeral);
+        } else {
             if (variable == one) variable = multiplicand;
             else variable = mk_app(f_mul, multiplicand, variable);
         }
         s = args[3];
     }
-    if (is_num(s)) numeral = mk_app(f_mul, s, numeral);
-    else {
+    if (is_num(s)) {
+        numeral = mk_app(f_mul, s, numeral);
+    } else {
         if (variable == one) variable = s;
         else variable = mk_app(f_mul, s, variable);
     }
@@ -968,11 +970,10 @@ expr_pair simplifier::split_summand(expr const & e, expr const & f_mul, expr con
 /* Setup and teardown */
 
 void initialize_simplifier() {
-    g_simplify_unit_namespace      = new name{"simplifier","unit"};
-    g_simplify_ac_namespace        = new name{"simplifier","ac"};
-    g_simplify_som_namespace       = new name{"simplifier","som"};
-    g_simplify_numeral_namespace   = new name{"simplifier","numeral"};
-
+    g_simplify_unit_namespace      = new name{"simplifier", "unit"};
+    g_simplify_ac_namespace        = new name{"simplifier", "ac"};
+    g_simplify_som_namespace       = new name{"simplifier", "som"};
+    g_simplify_numeral_namespace   = new name{"simplifier", "numeral"};
 
     g_simplify_max_steps     = new name{"simplify", "max_steps"};
     g_simplify_top_down      = new name{"simplify", "top_down"};

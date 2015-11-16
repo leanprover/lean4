@@ -318,7 +318,8 @@ public:
     void set_target(expr const & t);
     expr const & get_target() const { return m_branch.m_target; }
     /** \brief Return true iff the target depends on the given hypothesis */
-    bool target_depends_on(expr const & h) const { return m_branch.m_target_deps.contains(href_index(h)); }
+    bool target_depends_on(hypothesis_idx hidx) const { return m_branch.m_target_deps.contains(hidx); }
+    bool target_depends_on(expr const & h) const { return target_depends_on(href_index(h)); }
 
     /************************
        Proof steps

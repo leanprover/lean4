@@ -44,6 +44,16 @@ class simple_strategy : public strategy {
             return r;
         }
 
+        if (optional<name> R = is_recursor_action_target(*hidx)) {
+            if (get_num_minor_premises(*R) == 1) {
+                action_result r = recursor_action(*hidx, *R);
+                if (!failed(r)) {
+                    if (!preprocess) display_action("recursor");
+                    return r;
+                }
+            }
+        }
+
         return action_result::new_branch();
     }
 

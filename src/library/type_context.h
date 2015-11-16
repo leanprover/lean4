@@ -443,6 +443,11 @@ public:
      */
     bool is_def_eq(expr const & e1, expr const & e2);
 
+    /** \brief Return the universe level for type A. If A is not a type return none. */
+    optional<level> get_level_core(expr const & A);
+    /** \brief Similar to previous method, but throws exception instead */
+    level get_level(expr const & A);
+
     /** \brief If \c type is a type class, return its name */
     optional<name> is_class(expr const & type);
 

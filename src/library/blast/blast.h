@@ -37,9 +37,11 @@ projection_info const * get_projection_info(name const & n);
 /** \brief Return true iff \c e is a relation application,
     and store the relation name, lhs and rhs in the output arguments. */
 bool is_relation(expr const & e, name & rop, expr & lhs, expr & rhs);
+bool is_relation(expr const & e);
 /** \brief Put the given expression in weak-head-normal-form with respect to the
     current state being processed by the blast tactic. */
 expr whnf(expr const & e);
+expr relaxed_whnf(expr const & e);
 /** \brief Normalize the given expression using the blast type context.
     This procedure caches results.
     \remark This procedure is intended for normalizing instances that are not subsingletons. */
@@ -127,6 +129,15 @@ public:
     tmp_type_context * operator->() { return m_ctx; }
     tmp_type_context const & operator*() const { return *m_ctx; }
     tmp_type_context & operator*() { return *m_ctx; }
+};
+
+class scope_curr_state {
+    state m_saved;
+    bool  m_keep;
+public:
+    scope_curr_state():m_saved(curr_state()), m_keep(false) {}
+    ~scope_curr_state() { if (!m_keep) curr_state() = m_saved; }
+    void commit() { m_keep = true; }
 };
 
 /**

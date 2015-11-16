@@ -1052,10 +1052,18 @@ expr type_context::infer_lambda(expr e) {
     return r;
 }
 
-/** \brief Make sure \c e is a sort, if it is not throw an exception using \c ref as a reference */
-void type_context::ensure_sort(expr const & e, expr const & /* ref */) {
-    // Remark: for simplicity reasons, we just fail if \c e is not a sort.
-    if (!is_sort(e))
+optional<level> type_context::get_level_core(expr const & A) {
+    expr A_type = relaxed_whnf(infer(A));
+    if (is_sort(A_type))
+        return some_level(sort_level(A_type));
+    else
+        return none_level();
+}
+
+level type_context::get_level(expr const & A) {
+    if (auto r = get_level_core(A))
+        return *r;
+    else
         throw exception("infer type failed, sort expected");
 }
 
@@ -1065,17 +1073,13 @@ expr type_context::infer_pi(expr const & e0) {
     expr e = e0;
     while (is_pi(e)) {
         expr d      = instantiate_rev(binding_domain(e), ls.size(), ls.data());
-        expr d_type = relaxed_whnf(infer(d));
-        ensure_sort(d_type, e0);
-        us.push_back(sort_level(d_type));
+        us.push_back(get_level(d));
         expr l  = mk_tmp_local(d, binding_info(e));
         ls.push_back(l);
         e = binding_body(e);
     }
     e = instantiate_rev(e, ls.size(), ls.data());
-    expr e_type = relaxed_whnf(infer(e));
-    ensure_sort(e_type, e0);
-    level r = sort_level(e_type);
+    level r = get_level(e);
     unsigned i = ls.size();
     bool imp = m_env.impredicative();
     while (i > 0) {

@@ -457,6 +457,7 @@ public:
         return m_tmp_local_generator.mk_tmp_local(type, bi);
     }
     expr whnf(expr const & e) { return m_tctx.whnf(e); }
+    expr relaxed_whnf(expr const & e) { return m_tctx.relaxed_whnf(e); }
     expr infer_type(expr const & e) { return m_tctx.infer(e); }
     bool is_prop(expr const & e) { return m_tctx.is_prop(e); }
     bool is_def_eq(expr const & e1, expr const & e2) { return m_tctx.is_def_eq(e1, e2); }
@@ -565,9 +566,19 @@ bool is_relation(expr const & e, name & rop, expr & lhs, expr & rhs) {
     return g_blastenv->is_relation(e, rop, lhs, rhs);
 }
 
+bool is_relation(expr const & e) {
+    name rop; expr lhs, rhs;
+    return is_relation(e, rop, lhs, rhs);
+}
+
 expr whnf(expr const & e) {
     lean_assert(g_blastenv);
     return g_blastenv->whnf(e);
+}
+
+expr relaxed_whnf(expr const & e) {
+    lean_assert(g_blastenv);
+    return g_blastenv->relaxed_whnf(e);
 }
 
 expr infer_type(expr const & e) {

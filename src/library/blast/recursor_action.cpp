@@ -63,7 +63,7 @@ struct recursor_proof_step_cell : public proof_step_cell {
 
     virtual ~recursor_proof_step_cell() {}
 
-    virtual action_result resolve(expr const & pr) const {
+    virtual action_result resolve(expr const & pr) const override {
         state & s = curr_state();
         s.set_branch(m_branch);
         if (!m_dep) {

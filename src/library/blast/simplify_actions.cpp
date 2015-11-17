@@ -24,7 +24,7 @@ public:
 
     virtual ~simplify_target_proof_step_cell() {}
 
-    virtual action_result resolve(expr const & pr) const {
+    virtual action_result resolve(expr const & pr) const override {
         try {
             app_builder & b = get_app_builder();
             if (m_iff)

@@ -21,7 +21,7 @@ struct subst_proof_step_cell : public proof_step_cell {
         m_target(t), m_eq_href(e), m_rhs(r), m_dep(d) {}
     virtual ~subst_proof_step_cell() {}
 
-    virtual action_result resolve(expr const & pr) const {
+    virtual action_result resolve(expr const & pr) const override {
         try {
             state & s = curr_state();
             app_builder & b = get_app_builder();

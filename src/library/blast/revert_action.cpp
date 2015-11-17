@@ -15,7 +15,7 @@ struct revert_proof_step_cell : public proof_step_cell {
 
     virtual ~revert_proof_step_cell() {}
 
-    virtual action_result resolve(expr const & pr) const {
+    virtual action_result resolve(expr const & pr) const override {
         expr new_pr = mk_app(pr, m_hs);
         return action_result::solved(new_pr);
     }

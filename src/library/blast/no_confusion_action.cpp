@@ -18,7 +18,7 @@ struct no_confusion_proof_step_cell : public proof_step_cell {
         m_I_name(I_name), m_target(t), m_eq_href(e), m_num_new_eqs(n) {}
     virtual ~no_confusion_proof_step_cell() {}
 
-    virtual action_result resolve(expr const & pr) const {
+    virtual action_result resolve(expr const & pr) const override {
         try {
             expr it   = pr;
             bool skip = true;

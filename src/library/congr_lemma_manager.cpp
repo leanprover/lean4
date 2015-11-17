@@ -13,11 +13,10 @@ Author: Leonardo de Moura
 #include "library/congr_lemma_manager.h"
 
 namespace lean {
-class congr_lemma_manager::imp {
+struct congr_lemma_manager::imp {
     app_builder &      m_builder;
     fun_info_manager & m_fmanager;
     type_context &     m_ctx;
-    bool               m_ignore_inst_implicit;
     struct key {
         expr         m_fn;
         unsigned     m_nargs;
@@ -289,8 +288,8 @@ class congr_lemma_manager::imp {
     }
 
 public:
-    imp(app_builder & b, fun_info_manager & fm, bool ignore_inst_implicit):
-        m_builder(b), m_fmanager(fm), m_ctx(fm.ctx()), m_ignore_inst_implicit(ignore_inst_implicit) {}
+    imp(app_builder & b, fun_info_manager & fm):
+        m_builder(b), m_fmanager(fm), m_ctx(fm.ctx()) {}
 
     optional<result> mk_congr_simp(expr const & fn) {
         fun_info finfo = m_fmanager.get(fn);
@@ -396,8 +395,8 @@ public:
     }
 };
 
-congr_lemma_manager::congr_lemma_manager(app_builder & b, fun_info_manager & fm, bool ignore_inst_implicit):
-    m_ptr(new imp(b, fm, ignore_inst_implicit)) {
+congr_lemma_manager::congr_lemma_manager(app_builder & b, fun_info_manager & fm):
+    m_ptr(new imp(b, fm)) {
 }
 
 congr_lemma_manager::~congr_lemma_manager() {

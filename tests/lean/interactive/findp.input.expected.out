@@ -4,11 +4,15 @@
 false|Prop
 false.rec|Π (C : Type), false → C
 false.elim|false → ?c
-false.of_ne|?a ≠ ?a → false
+false_of_ne|?a ≠ ?a → false
 false.rec_on|Π (C : Type), false → C
+false_iff_true|false ↔ true ↔ false
 false.cases_on|Π (C : Type), false → C
 false.induction_on|∀ (C : Prop), false → C
 true_ne_false|¬true = false
+nat.lt_self_iff_false|∀ (n : ℕ), n < n ↔ false
+true_iff_false|true ↔ false ↔ false
+ne_self_iff_false|∀ (a : ?A), a ≠ a ↔ false
 not_of_is_false|is_false ?c → ¬?c
 not_of_iff_false|(?a ↔ false) → ¬?a
 is_false|Π (c : Prop) [H : decidable c], Prop
@@ -20,6 +24,7 @@ nat.succ_le_self_iff_false|∀ (n : ℕ), nat.succ n ≤ n ↔ false
 decidable.rec_on_false|Π (H3 : ¬?p), ?H2 H3 → decidable.rec_on ?H ?H1 ?H2
 not_false|¬false
 decidable_false|decidable false
+not_false_iff|¬false ↔ true
 of_not_is_false|¬is_false ?c → ?c
 classical.cases_true_false|∀ (P : Prop → Prop), P true → P false → (∀ (a : Prop), P a)
 iff_false_intro|¬?a → (?a ↔ false)

@@ -29,7 +29,7 @@ static name * g_tmp_prefix = nullptr;
 
 class preprocess_rec_fn {
     environment    m_env;
-    buffer<name> & m_aux_decls;
+    // buffer<name> & m_aux_decls; // TODO(Leo):
 
     bool check(declaration const & d, expr const & v) {
         type_checker tc(m_env);
@@ -40,7 +40,7 @@ class preprocess_rec_fn {
     }
 
 public:
-    preprocess_rec_fn(environment const & env, buffer<name> & aux_decls): m_env(env), m_aux_decls(aux_decls) {}
+    preprocess_rec_fn(environment const & env, buffer<name> & /* aux_decls */): m_env(env) {} // , m_aux_decls(aux_decls) {}
 
     environment operator()(declaration const & d) {
         expr v = d.get_value();

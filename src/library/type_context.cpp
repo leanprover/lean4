@@ -1356,7 +1356,6 @@ bool type_context::update_options(options const & opts) {
 }
 
 [[ noreturn ]] static void throw_class_exception(char const * msg, expr const & m) { throw_generic_exception(msg, m); }
-[[ noreturn ]] static void throw_class_exception(expr const & m, pp_fn const & fn) { throw_generic_exception(m, fn); }
 
 io_state_stream type_context::diagnostic() {
     return lean::diagnostic(m_env, m_ios);

@@ -322,9 +322,9 @@ inline expr cache(expr const & e) {
     return e;
 }
 bool enable_expr_caching(bool f) {
-    bool r1 = enable_level_caching(f);
+    DEBUG_CODE(bool r1 =) enable_level_caching(f);
     bool r2 = g_expr_cache_enabled;
-    lean_verify(r1 == r2);
+    lean_assert(r1 == r2);
     expr_cache new_cache;
     get_expr_cache().swap(new_cache);
     if (f) {

@@ -10,7 +10,10 @@ namespace simplifier
 namespace empty
 end empty
 
--- TODO(dhs): refactor this once we fix `export` command
+namespace iff
+attribute eq_self_iff_true [simp]
+end iff
+
 -- TODO(dhs): make these [simp] rules in the global namespace
 namespace neg_helper
     open algebra
@@ -20,6 +23,13 @@ namespace neg_helper
     lemma neg_mul2 : a * (- b) = - (a * b) := eq.symm !algebra.neg_mul_eq_mul_neg
     lemma sub_def : a - b = a + (- b) := rfl
 end neg_helper
+
+namespace neg
+attribute neg_helper.neg_mul1 [simp]
+attribute neg_helper.neg_mul2 [simp]
+attribute neg_helper.sub_def [simp]
+attribute algebra.neg_neg [simp]
+end neg
 
 namespace unit
 attribute algebra.zero_add [simp]
@@ -33,27 +43,8 @@ attribute algebra.mul_one [simp]
 end unit
 
 namespace ac
+export simplifier.iff simplifier.neg simplifier.unit
 
--- iff
-attribute eq_self_iff_true [simp]
-
--- neg
-attribute neg_helper.neg_mul1 [simp]
-attribute neg_helper.neg_mul2 [simp]
-attribute neg_helper.sub_def [simp]
-attribute algebra.neg_neg [simp]
-
--- unit
-attribute algebra.zero_add [simp]
-attribute algebra.add_zero [simp]
-
-attribute algebra.zero_mul [simp]
-attribute algebra.mul_zero [simp]
-
-attribute algebra.one_mul [simp]
-attribute algebra.mul_one [simp]
-
--- ac
 attribute algebra.add.assoc [simp]
 attribute algebra.add.comm [simp]
 attribute algebra.add.left_comm [simp]
@@ -64,40 +55,13 @@ attribute algebra.mul.assoc [simp]
 
 end ac
 
-namespace som
-
--- iff
-attribute eq_self_iff_true [simp]
-
--- neg
-attribute neg_helper.neg_mul1 [simp]
-attribute neg_helper.neg_mul2 [simp]
-attribute neg_helper.sub_def [simp]
-attribute algebra.neg_neg [simp]
-
--- unit
-attribute algebra.zero_add [simp]
-attribute algebra.add_zero [simp]
-
-attribute algebra.zero_mul [simp]
-attribute algebra.mul_zero [simp]
-
-attribute algebra.one_mul [simp]
-attribute algebra.mul_one [simp]
-
--- ac
-attribute algebra.add.assoc [simp]
-attribute algebra.add.comm [simp]
-attribute algebra.add.left_comm [simp]
-
-attribute algebra.mul.left_comm [simp]
-attribute algebra.mul.comm [simp]
-attribute algebra.mul.assoc [simp]
-
--- distrib
+namespace distrib
 attribute algebra.left_distrib [simp]
 attribute algebra.right_distrib [simp]
+end distrib
 
+namespace som
+export simplifier.ac simplifier.distrib
 end som
 
 namespace numeral
@@ -136,32 +100,8 @@ lemma mul_bit1_helper1 [simp] {A : Type} [s : comm_ring A] (a b : A)
 
 end numeral_helper
 
--- neg
-attribute neg_helper.neg_mul1 [simp]
-attribute neg_helper.neg_mul2 [simp]
-attribute neg_helper.sub_def [simp]
-attribute algebra.neg_neg [simp]
+export simplifier.ac
 
--- unit
-attribute algebra.zero_add [simp]
-attribute algebra.add_zero [simp]
-
-attribute algebra.zero_mul [simp]
-attribute algebra.mul_zero [simp]
-
-attribute algebra.one_mul [simp]
-attribute algebra.mul_one [simp]
-
--- ac
-attribute algebra.add.assoc [simp]
-attribute algebra.add.comm [simp]
-attribute algebra.add.left_comm [simp]
-
-attribute algebra.mul.left_comm [simp]
-attribute algebra.mul.comm [simp]
-attribute algebra.mul.assoc [simp]
-
--- numerals
 attribute norm_num.bit0_add_bit0 [simp]
 attribute numeral_helper.bit1_add_one [simp]
 attribute norm_num.bit1_add_bit0 [simp]

@@ -1337,9 +1337,12 @@ static environment simplify_cmd(parser & p) {
 
     blast::scope_debug scope(p.env(), p.ios());
     simp_rule_sets srss;
-    if (ns == name("null")) { }
-    else if (ns == name("env")) { srss = get_simp_rule_sets(p.env()); }
-    else { srss = get_simp_rule_sets(p.env(), p.ios(), ns); }
+    if (ns == name("null")) {
+    } else if (ns == name("env")) {
+        srss = get_simp_rule_sets(p.env());
+    } else {
+        srss = get_simp_rule_sets(p.env(), p.ios(), ns);
+    }
 
     blast::simp::result r = blast::simplify(rel, e, srss);
 

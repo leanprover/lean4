@@ -253,7 +253,8 @@ optional<result> simplifier::cache_lookup(expr const & e) {
     lean_assert(is_app(e_old));
     buffer<expr> new_args, old_args;
     expr const & f_new = get_app_args(e, new_args);
-    lean_verify(f_new == get_app_args(e_old, old_args));
+    DEBUG_CODE(expr const & f_old =) get_app_args(e_old, old_args);
+    lean_assert(f_new == f_old);
     auto congr_lemma = mk_congr_lemma(f_new, new_args.size());
     if (!congr_lemma) return optional<result>();
     expr proof = congr_lemma->get_proof();

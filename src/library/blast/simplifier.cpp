@@ -524,8 +524,7 @@ result simplifier::simplify_fun(expr const & e) {
 optional<result> simplifier::simplify_numeral(expr const & e) {
     if (is_num(e)) {
         return optional<result>(result(e));
-    }
-    else if (is_add_app(e) || is_mul_app(e)) {
+    } else if (is_add_app(e) || is_mul_app(e)) {
         buffer<expr> args;
         get_app_args(e, args);
         if (is_num(args[2]) && is_num(args[3])){

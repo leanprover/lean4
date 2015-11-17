@@ -671,7 +671,7 @@ expr norm_num_context::mk_norm_eq_pos_add_neg(expr & s_lhs, expr & s_rhs, expr &
 }
 
 // returns a proof that s_lhs + s_rhs = rhs, where all are nonneg normalized numerals
-expr norm_num_context::mk_norm_eq_pos_add_pos(expr & s_lhs, expr & s_rhs, expr & rhs) {
+expr norm_num_context::mk_norm_eq_pos_add_pos(expr & s_lhs, expr & s_rhs, expr & DEBUG_CODE(rhs)) {
     lean_assert(!is_neg_app(s_lhs));
     lean_assert(!is_neg_app(s_rhs));
     lean_assert(!is_neg_app(rhs));
@@ -718,7 +718,7 @@ expr norm_num_context::mk_norm_eq_pos_mul_neg(expr & s_lhs, expr & s_rhs, expr &
 }
 
 // returns a proof that s_lhs + s_rhs = rhs, where all are nonneg normalized numerals
-expr norm_num_context::mk_norm_eq_pos_mul_pos(expr & s_lhs, expr & s_rhs, expr & rhs) {
+expr norm_num_context::mk_norm_eq_pos_mul_pos(expr & s_lhs, expr & s_rhs, expr & DEBUG_CODE(rhs)) {
     lean_assert(!is_neg_app(s_lhs));
     lean_assert(!is_neg_app(s_rhs));
     lean_assert(!is_neg_app(rhs));

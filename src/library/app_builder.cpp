@@ -104,13 +104,15 @@ struct app_builder::imp {
     typedef std::unordered_map<key, entry, key_hash_fn> map;
 
     map               m_map;
-    refl_info_getter  m_refl_getter;
-    symm_info_getter  m_symm_getter;
-    trans_info_getter m_trans_getter;
+    relation_info_getter m_rel_getter;
+    refl_info_getter     m_refl_getter;
+    symm_info_getter     m_symm_getter;
+    trans_info_getter    m_trans_getter;
 
     imp(tmp_type_context & ctx, bool owner):
         m_ctx(&ctx),
         m_ctx_owner(owner),
+        m_rel_getter(mk_relation_info_getter(m_ctx->env())),
         m_refl_getter(mk_refl_info_getter(m_ctx->env())),
         m_symm_getter(mk_symm_info_getter(m_ctx->env())),
         m_trans_getter(mk_trans_info_getter(m_ctx->env())) {
@@ -371,9 +373,15 @@ struct app_builder::imp {
             return mk_eq(lhs, rhs);
         } else if (n == get_iff_name()) {
             return mk_iff(lhs, rhs);
+        } else if (auto info = m_rel_getter(n)) {
+            buffer<bool> mask;
+            for (unsigned i = 0; i < info->get_arity(); i++) {
+                mask.push_back(i == info->get_lhs_pos() || i == info->get_rhs_pos());
+            }
+            expr args[2] = {lhs, rhs};
+            return mk_app(n, info->get_arity(), mask.data(), args);
         } else {
-            // TODO(Leo): for some relations (e.g., heq), the lhs and rhs are not necessarily
-            // the last two arguments.
+            // for unregistered relations assume lhs and rhs are the last two arguments.
             expr args[2] = {lhs, rhs};
             return mk_app(n, 2, args);
         }

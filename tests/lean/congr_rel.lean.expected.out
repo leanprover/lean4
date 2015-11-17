@@ -1,0 +1,24 @@
+[fixed, eq, eq]
+λ (A : Type) (a a_1 : A) (H1 : a = a_1) (a_2 a_3 : A) (H2 : a_2 = a_3),
+  iff.intro (λ (x : a = a_2), eq.trans (eq.symm H1) (eq.trans x H2))
+    (λ (x : a_1 = a_3), eq.trans H1 (eq.trans x (eq.symm H2)))
+:
+∀ (A : Type) (a a_1 : A), a = a_1 → (∀ (a_2 a_3 : A), a_2 = a_3 → (a = a_2 ↔ a_1 = a_3))
+[eq, eq]
+λ (a a_1 : Prop) (H1 : a ↔ a_1) (b b_1 : Prop) (H2 : b ↔ b_1),
+  iff.intro (λ (x : a ↔ b), iff.trans (iff.symm H1) (iff.trans x H2))
+    (λ (x : a_1 ↔ b_1), iff.trans H1 (iff.trans x (iff.symm H2)))
+:
+∀ (a a_1 : Prop), (a ↔ a_1) → (∀ (b b_1 : Prop), (b ↔ b_1) → (a ↔ b ↔ (a_1 ↔ b_1)))
+[fixed, eq, eq]
+λ (A : Type) (a a_1 : list A) (H1 : a ~ a_1) (a_2 a_3 : list A) (H2 : a_2 ~ a_3),
+  iff.intro (λ (x : a ~ a_2), trans (perm.symm H1) (trans x H2))
+    (λ (x : a_1 ~ a_3), trans H1 (trans x (perm.symm H2)))
+:
+∀ (A : Type) (a a_1 : list A), a ~ a_1 → (∀ (a_2 a_3 : list A), a_2 ~ a_3 → (a ~ a_2 ↔ a_1 ~ a_3))
+[fixed, eq, fixed, eq]
+λ (A : Type) (a a_1 : A) (H1 : a == a_1) (B : Type) (a_2 a_3 : B) (H2 : a_2 == a_3),
+  iff.intro (λ (x : a == a_2), heq.trans (heq.symm H1) (heq.trans x H2))
+    (λ (x : a_1 == a_3), heq.trans H1 (heq.trans x (heq.symm H2)))
+:
+∀ (A : Type) (a a_1 : A), a == a_1 → (∀ (B : Type) (a_2 a_3 : B), a_2 == a_3 → (a == a_2 ↔ a_1 == a_3))

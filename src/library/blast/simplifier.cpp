@@ -958,9 +958,14 @@ result simplifier::fuse(expr const & e) {
     buffer<expr> locals;
     variables.clear();
     for (auto v_ns : variable_to_numerals) {
-        expr local = m_tmp_tctx->mk_tmp_local(T);
-        locals.push_back(local);
-        variables.push_back(v_ns.first);
+        expr local;
+        if (!is_one(v_ns.first)) {
+            local = m_tmp_tctx->mk_tmp_local(T);
+            locals.push_back(local);
+            variables.push_back(v_ns.first);
+        } else {
+            local = v_ns.first;
+        }
 
         expr term = zero;
         expr term_ls = zero;

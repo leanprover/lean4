@@ -17,7 +17,11 @@ set_option simplify.fuse true
 #simplify eq simplifier.som 0 2 * x2 - 8 * x2 * 4 * x1
 #simplify eq simplifier.som 0 x2 * x1 + 3 * x1 + (2 * x2 - 8 * x2 * 4 * x1) + x1 * x2
 #simplify eq simplifier.som 0 (x1 * x3 + x1 * 2 + x2 * 3 * x3 + x1 * x2) - 2* x2 * x1 + 1 * x2 * x1 - 3 * x1 * x3
-#simplify eq simplifier.som 0 200 * x2 * 200
-#simplify eq simplifier.som 0 x1 * 200 * x2 * 200
-#simplify eq simplifier.som 0 x1 * 200 * x2 * x3 * 200
-#simplify eq simplifier.som 0 x1 * 200 * x2 * x3 * x4 * 200
+#simplify eq simplifier.som 0 2 * 2 + x1
+#simplify eq simplifier.som 0 x2 * (2 * 2) + x1
+#simplify eq simplifier.som 0 2 * 2 * x2 + x1
+#simplify eq simplifier.som 0 2 * x2 * 2 + x1
+#simplify eq simplifier.som 0 200 * x2 * 200 + x1
+#simplify eq simplifier.som 0 x1 * 200 * x2 * 200 + x1
+#simplify eq simplifier.som 0 x1 * 200 * x2 * x3 * 200 + x1
+#simplify eq simplifier.som 0 x1 * 200 * x2 * x3 * x4 * 200 + x1

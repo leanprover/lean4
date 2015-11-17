@@ -259,6 +259,7 @@ static name * g_prefix = nullptr;
 simp_rule_sets add_core(tmp_type_context & tctx, simp_rule_sets const & s,
                         name const & id, levels const & univ_metas, expr const & e, expr const & h) {
     list<expr_pair> ceqvs   = to_ceqvs(tctx, e, h);
+    if (is_nil(ceqvs)) throw exception("[simp] rule invalid");
     environment const & env = tctx.env();
     simp_rule_sets new_s = s;
     for (expr_pair const & p : ceqvs) {

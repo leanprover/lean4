@@ -60,6 +60,7 @@ using simp::result;
 
 /* Names */
 
+static name * g_simplify_empty_namespace     = nullptr;
 static name * g_simplify_unit_namespace      = nullptr;
 static name * g_simplify_ac_namespace        = nullptr;
 static name * g_simplify_som_namespace       = nullptr;
@@ -195,7 +196,10 @@ class simplifier {
                 ios().get_diagnostic_channel() << "Local: " << l << " : " << mlocal_type(l) << "\n";
             }
             tmp_type_context tctx(env(), ios());
-            srss = add(tctx, srss, mlocal_name(l), tctx.infer(l), l);
+            try {
+                srss = add(tctx, srss, mlocal_name(l), tctx.infer(l), l);
+            } catch (exception e) {
+            }
         }
         return srss;
     }
@@ -990,7 +994,7 @@ result simplifier::fuse(expr const & e) {
 
     /* Prove (5) == (6) using simplify with [numeral] */
     flet<bool> simplify_numerals(m_numerals, true);
-    result r_simp_ls = simplify(e_fused_ls, get_simp_rule_sets(env(), ios(), *g_simplify_unit_namespace));
+    result r_simp_ls = simplify(e_fused_ls, get_simp_rule_sets(env(), ios(), *g_simplify_ac_namespace));
 
     /* Prove (4) == (6) by transitivity of proofs (2) and (3) */
     expr pf_4_6;
@@ -1043,6 +1047,7 @@ expr_pair simplifier::split_summand(expr const & e, expr const & f_mul, expr con
 /* Setup and teardown */
 
 void initialize_simplifier() {
+    g_simplify_empty_namespace     = new name{"simplifier", "empty"};
     g_simplify_unit_namespace      = new name{"simplifier", "unit"};
     g_simplify_ac_namespace        = new name{"simplifier", "ac"};
     g_simplify_som_namespace       = new name{"simplifier", "som"};
@@ -1093,6 +1098,7 @@ void finalize_simplifier() {
     delete g_simplify_som_namespace;
     delete g_simplify_ac_namespace;
     delete g_simplify_unit_namespace;
+    delete g_simplify_empty_namespace;
 }
 
 /* Entry point */

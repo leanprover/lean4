@@ -7,6 +7,9 @@ import algebra.ring algebra.numeral
 
 namespace simplifier
 
+namespace empty
+end empty
+
 -- TODO(dhs): refactor this once we fix `export` command
 -- TODO(dhs): make these [simp] rules in the global namespace
 namespace neg_helper

@@ -53,6 +53,7 @@ iff.symm
 iff.trans
 iff.mp
 iff.mpr
+iff.intro
 iff.elim_left
 iff.elim_right
 iff_false_intro

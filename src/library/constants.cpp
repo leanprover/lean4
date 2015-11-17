@@ -58,6 +58,7 @@ name const * g_iff_symm = nullptr;
 name const * g_iff_trans = nullptr;
 name const * g_iff_mp = nullptr;
 name const * g_iff_mpr = nullptr;
+name const * g_iff_intro = nullptr;
 name const * g_iff_elim_left = nullptr;
 name const * g_iff_elim_right = nullptr;
 name const * g_iff_false_intro = nullptr;
@@ -231,6 +232,7 @@ void initialize_constants() {
     g_iff_trans = new name{"iff", "trans"};
     g_iff_mp = new name{"iff", "mp"};
     g_iff_mpr = new name{"iff", "mpr"};
+    g_iff_intro = new name{"iff", "intro"};
     g_iff_elim_left = new name{"iff", "elim_left"};
     g_iff_elim_right = new name{"iff", "elim_right"};
     g_iff_false_intro = new name{"iff_false_intro"};
@@ -405,6 +407,7 @@ void finalize_constants() {
     delete g_iff_trans;
     delete g_iff_mp;
     delete g_iff_mpr;
+    delete g_iff_intro;
     delete g_iff_elim_left;
     delete g_iff_elim_right;
     delete g_iff_false_intro;
@@ -578,6 +581,7 @@ name const & get_iff_symm_name() { return *g_iff_symm; }
 name const & get_iff_trans_name() { return *g_iff_trans; }
 name const & get_iff_mp_name() { return *g_iff_mp; }
 name const & get_iff_mpr_name() { return *g_iff_mpr; }
+name const & get_iff_intro_name() { return *g_iff_intro; }
 name const & get_iff_elim_left_name() { return *g_iff_elim_left; }
 name const & get_iff_elim_right_name() { return *g_iff_elim_right; }
 name const & get_iff_false_intro_name() { return *g_iff_false_intro; }

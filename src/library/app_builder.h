@@ -40,7 +40,6 @@ public:
     app_builder(environment const & env, reducible_behavior b = UnfoldReducible);
     app_builder(tmp_type_context & ctx);
     ~app_builder();
-
     /** \brief Create an application (d.{_ ... _} _ ... _ args[0] ... args[nargs-1]).
         The missing arguments and universes levels are inferred using type inference.
 

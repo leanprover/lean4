@@ -10,9 +10,15 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/constants.h"
 #include "library/replace_visitor.h"
+#include "library/relation_manager.h"
 #include "library/congr_lemma_manager.h"
 
 namespace lean {
+bool congr_lemma::all_eq_kind() const {
+    return std::all_of(m_arg_kinds.begin(), m_arg_kinds.end(),
+                       [](congr_arg_kind k) { return k == congr_arg_kind::Eq; });
+}
+
 struct congr_lemma_manager::imp {
     app_builder &      m_builder;
     fun_info_manager & m_fmanager;
@@ -37,9 +43,12 @@ struct congr_lemma_manager::imp {
 
     std::unordered_map<key, result, key_hash_fn, key_eq_fn> m_simp_cache;
     std::unordered_map<key, result, key_hash_fn, key_eq_fn> m_cache;
+    std::unordered_map<key, result, key_hash_fn, key_eq_fn> m_rel_cache[2];
+    relation_info_getter                                    m_relation_info_getter;
 
     expr infer(expr const & e) { return m_ctx.infer(e); }
     expr whnf(expr const & e) { return m_ctx.whnf(e); }
+    expr relaxed_whnf(expr const & e) { return m_ctx.relaxed_whnf(e); }
 
     /** \brief (Try to) cast expression \c e to the given type using the equations \c eqs.
         \c deps contains the indices of the relevant equalities.
@@ -289,7 +298,8 @@ struct congr_lemma_manager::imp {
 
 public:
     imp(app_builder & b, fun_info_manager & fm):
-        m_builder(b), m_fmanager(fm), m_ctx(fm.ctx()) {}
+        m_builder(b), m_fmanager(fm), m_ctx(fm.ctx()),
+        m_relation_info_getter(mk_relation_info_getter(fm.ctx().env())) {}
 
     optional<result> mk_congr_simp(expr const & fn) {
         fun_info finfo = m_fmanager.get(fn);
@@ -393,6 +403,86 @@ public:
             m_cache.insert(mk_pair(key(fn, nargs), *new_r));
         return new_r;
     }
+
+    optional<result> mk_rel_congr(expr const & R, bool is_iff) {
+        try {
+            if (!is_constant(R))
+                return optional<result>();
+            name const & R_name = const_name(R);
+            auto info = m_relation_info_getter(R_name);
+            if (!info)
+                return optional<result>();
+            unsigned arity = info->get_arity();
+            key k(R, arity);
+            auto r = m_rel_cache[is_iff].find(k);
+            if (r != m_rel_cache[is_iff].end())
+                return optional<result>(r->second);
+            buffer<expr> hyps;
+            buffer<congr_arg_kind> kinds;
+            expr a1, b1, a2, b2;
+            expr H1, H2;
+            expr R_type = infer(R);
+            for (unsigned i = 0; i < arity; i++) {
+                R_type = relaxed_whnf(R_type);
+                if (!is_pi(R_type))
+                    return optional<result>();
+                expr h = m_ctx.mk_tmp_local(binding_name(R_type), binding_domain(R_type));
+                if (i == info->get_lhs_pos()) {
+                    a1 = h;
+                    a2 = m_ctx.mk_tmp_local(binding_name(R_type), binding_domain(R_type));
+                    H1 = m_ctx.mk_tmp_local("H1", m_builder.mk_rel(R_name, a1, a2));
+                    hyps.push_back(a1);
+                    hyps.push_back(a2);
+                    hyps.push_back(H1);
+                    kinds.push_back(congr_arg_kind::Eq);
+                } else if (i == info->get_rhs_pos()) {
+                    b1 = h;
+                    b2 = m_ctx.mk_tmp_local(binding_name(R_type), binding_domain(R_type));
+                    H2 = m_ctx.mk_tmp_local("H2", m_builder.mk_rel(R_name, b1, b2));
+                    hyps.push_back(b1);
+                    hyps.push_back(b2);
+                    hyps.push_back(H2);
+                    kinds.push_back(congr_arg_kind::Eq);
+                } else {
+                    hyps.push_back(h);
+                    kinds.push_back(congr_arg_kind::Fixed);
+                }
+                R_type = instantiate(binding_body(R_type), h);
+            }
+            expr lhs  = m_builder.mk_rel(R_name, a1, b1);
+            expr rhs  = m_builder.mk_rel(R_name, a2, b2);
+            //  (H1 : R a1 a2) -> (H2 : R b1 b2) -> (R a1 b1 <-> R a2 b2)
+            expr type = is_iff ? m_builder.mk_iff(lhs, rhs) : m_builder.mk_eq(lhs, rhs);
+            type = Pi(hyps, type);
+            /* Proof:
+               iff.intro
+               (λ H : R a1 b1, trans (symm H1) (trans H H2))
+               (λ H : R a2 b2, trans H1 (trans H (symm H2)))
+            */
+            expr H;
+            H = m_ctx.mk_tmp_local(lhs);
+            expr p1 = Fun(H, m_builder.mk_trans(R_name, m_builder.mk_symm(R_name, H1), m_builder.mk_trans(R_name, H, H2)));
+            H = m_ctx.mk_tmp_local(rhs);
+            expr p2 = Fun(H, m_builder.mk_trans(R_name, H1, m_builder.mk_trans(R_name, H, m_builder.mk_symm(R_name, H2))));
+            expr pr = m_builder.mk_app(get_iff_intro_name(), p1, p2);
+            if (!is_iff)
+                pr = m_builder.mk_app(get_propext_name(), pr);
+            pr = Fun(hyps, pr);
+            result res(type, pr, to_list(kinds));
+            m_rel_cache[is_iff].insert(mk_pair(k, res));
+            return optional<result>(res);
+        } catch (app_builder_exception &) {
+            return optional<result>();
+        }
+    }
+
+    optional<result> mk_rel_iff_congr(expr const & R) {
+        return mk_rel_congr(R, true);
+    }
+
+    optional<result> mk_rel_eq_congr(expr const & R) {
+        return mk_rel_congr(R, false);
+    }
 };
 
 congr_lemma_manager::congr_lemma_manager(app_builder & b, fun_info_manager & fm):
@@ -413,5 +503,13 @@ auto congr_lemma_manager::mk_congr(expr const & fn) -> optional<result> {
 }
 auto congr_lemma_manager::mk_congr(expr const & fn, unsigned nargs) -> optional<result> {
     return m_ptr->mk_congr(fn, nargs);
+}
+
+auto congr_lemma_manager::mk_rel_iff_congr(expr const & R) -> optional<result> {
+    return m_ptr->mk_rel_iff_congr(R);
+}
+
+auto congr_lemma_manager::mk_rel_eq_congr(expr const & R) -> optional<result> {
+    return m_ptr->mk_rel_eq_congr(R);
 }
 }

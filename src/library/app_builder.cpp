@@ -372,6 +372,8 @@ struct app_builder::imp {
         } else if (n == get_iff_name()) {
             return mk_iff(lhs, rhs);
         } else {
+            // TODO(Leo): for some relations (e.g., heq), the lhs and rhs are not necessarily
+            // the last two arguments.
             expr args[2] = {lhs, rhs};
             return mk_app(n, 2, args);
         }

@@ -22,6 +22,7 @@ public:
     expr const & get_type() const { return m_type; }
     expr const & get_proof() const { return m_proof; }
     list<congr_arg_kind> const & get_arg_kinds() const { return m_arg_kinds; }
+    bool all_eq_kind() const;
 };
 
 class congr_lemma_manager {
@@ -37,5 +38,16 @@ public:
 
     optional<result> mk_congr(expr const & fn);
     optional<result> mk_congr(expr const & fn, unsigned nargs);
+
+    /** \brief If R is an equivalence relation, construct the congruence lemma
+
+          R a1 a2 -> R b1 b2 -> (R a1 b1) <-> (R a2 b2) */
+    optional<result> mk_rel_iff_congr(expr const & R);
+
+    /** \brief Similar to previous one.
+        It returns none if propext is not available.
+
+          R a1 a2 -> R b1 b2 -> (R a1 b1) = (R a2 b2) */
+    optional<result> mk_rel_eq_congr(expr const & R);
 };
 }

@@ -191,6 +191,9 @@ class simplifier {
         simp_rule_sets srss = _srss;
         for (unsigned i = 0; i < ls.size(); i++) {
             expr & l = ls[i];
+            if (m_trace) {
+                ios().get_diagnostic_channel() << "Local: " << l << " : " << mlocal_type(l) << "\n";
+            }
             tmp_type_context tctx(env(), ios());
             srss = add(tctx, srss, mlocal_name(l), tctx.infer(l), l);
         }
@@ -592,6 +595,14 @@ result simplifier::rewrite(expr const & e, simp_rule_sets const & srss) {
 
 result simplifier::rewrite(expr const & e, simp_rule const & sr) {
     blast_tmp_type_context tmp_tctx(sr.get_num_umeta(), sr.get_num_emeta());
+
+    if (m_trace) {
+        expr new_lhs = tmp_tctx->instantiate_uvars_mvars(sr.get_lhs());
+        expr new_rhs = tmp_tctx->instantiate_uvars_mvars(sr.get_rhs());
+        ios().get_diagnostic_channel()
+            << "TRYREW(" << sr.get_id() << ") "
+            << "[" << new_lhs << " =?= " << new_rhs << "]\n";
+    }
 
     if (!tmp_tctx->is_def_eq(e, sr.get_lhs())) return result(e);
 

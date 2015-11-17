@@ -1,6 +1,10 @@
 -- Conditional congruence
 import logic.connectives logic.quantifiers
 
+-- TODO(dhs): either add this to the library or add a `ceqv` rule for
+-- ¬ c ==> (¬ c ↔ true) in addition to (c ↔ false)
+lemma not_workaround [simp] : ∀ (P : Prop), (P ↔ false) → (¬ P ↔ true) := sorry
+
 namespace if_congr
 constants {A : Type} {b c : Prop} (dec_b : decidable b) (dec_c : decidable c)
           {x y u v : A} (h_c : b ↔ c) (h_t : x = u) (h_e : y = v)

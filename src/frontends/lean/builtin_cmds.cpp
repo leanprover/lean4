@@ -1287,7 +1287,9 @@ static environment replace_cmd(parser & p) {
     return env;
 }
 
-static environment congr_cmd_core(parser & p, bool simp) {
+enum class congr_kind { Simp, Default, Rel };
+
+static environment congr_cmd_core(parser & p, congr_kind kind) {
     environment const & env = p.env();
     auto pos = p.pos();
     expr e; level_param_names ls;
@@ -1296,7 +1298,12 @@ static environment congr_cmd_core(parser & p, bool simp) {
     app_builder         b(ctx);
     fun_info_manager    infom(ctx);
     congr_lemma_manager cm(b, infom);
-    auto r = simp ? cm.mk_congr_simp(e) : cm.mk_congr(e);
+    optional<congr_lemma> r;
+    switch (kind) {
+    case congr_kind::Simp:    r = cm.mk_congr_simp(e); break;
+    case congr_kind::Default: r = cm.mk_congr(e); break;
+    case congr_kind::Rel:     r = cm.mk_rel_iff_congr(e); break;
+    }
     if (!r)
         throw parser_error("failed to generated congruence lemma", pos);
     auto out = p.regular_stream();
@@ -1320,11 +1327,15 @@ static environment congr_cmd_core(parser & p, bool simp) {
 }
 
 static environment congr_simp_cmd(parser & p) {
-    return congr_cmd_core(p, true);
+    return congr_cmd_core(p, congr_kind::Simp);
 }
 
 static environment congr_cmd(parser & p) {
-    return congr_cmd_core(p, false);
+    return congr_cmd_core(p, congr_kind::Default);
+}
+
+static environment congr_rel_cmd(parser & p) {
+    return congr_cmd_core(p, congr_kind::Rel);
 }
 
 static environment simplify_cmd(parser & p) {
@@ -1435,6 +1446,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#replace",          "(for debugging purposes)", replace_cmd));
     add_cmd(r, cmd_info("#congr",            "(for debugging purposes)", congr_cmd));
     add_cmd(r, cmd_info("#congr_simp",       "(for debugging purposes)", congr_simp_cmd));
+    add_cmd(r, cmd_info("#congr_rel",        "(for debugging purposes)", congr_rel_cmd));
     add_cmd(r, cmd_info("#normalizer",       "(for debugging purposes)", normalizer_cmd));
     add_cmd(r, cmd_info("#accessible",       "(for debugging purposes) display number of accessible declarations for blast tactic", accessible_cmd));
     add_cmd(r, cmd_info("#decl_stats",       "(for debugging purposes) display declaration statistics", decl_stats_cmd));

@@ -43,7 +43,7 @@ decl_attributes::decl_attributes(bool is_abbrev, bool persistent):
     m_congr                  = false;
 }
 
-void decl_attributes::parse(buffer<name> const & ns, parser & p) {
+void decl_attributes::parse(parser & p) {
     while (true) {
         auto pos = p.pos();
         if (p.curr_is_token(get_instance_tk())) {
@@ -87,17 +87,8 @@ void decl_attributes::parse(buffer<name> const & ns, parser & p) {
             p.next();
         } else if (auto it = parse_priority(p)) {
             m_priority = *it;
-            if (!m_is_instance) {
-                if (ns.empty()) {
-                    throw parser_error("invalid '[priority]' attribute, declaration must be marked as an '[instance]'", pos);
-                } else {
-                    for (name const & n : ns) {
-                        if (!is_instance(p.env(), n))
-                            throw parser_error(sstream() << "invalid '[priority]' attribute, declaration '" << n
-                                               << "' must be marked as an '[instance]'", pos);
-                    }
-                    m_is_instance = true;
-                }
+            if (!m_is_instance && !m_simp && !m_congr) {
+                throw parser_error("invalid '[priority]' attribute, declaration must be marked as an '[instance]', '[simp]' or '[congr]'", pos);
             }
         } else if (p.curr_is_token(get_parsing_only_tk())) {
             if (!m_is_abbrev)
@@ -158,17 +149,6 @@ void decl_attributes::parse(buffer<name> const & ns, parser & p) {
     }
 }
 
-void decl_attributes::parse(name const & n, parser & p) {
-    buffer<name> ns;
-    ns.push_back(n);
-    parse(ns, p);
-}
-
-void decl_attributes::parse(parser & p) {
-    buffer<name> ns;
-    parse(ns, p);
-}
-
 environment decl_attributes::apply(environment env, io_state const & ios, name const & d) const {
     if (m_is_instance) {
         if (m_priority) {
@@ -221,10 +201,18 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
         env = add_user_recursor(env, d, m_recursor_major_pos, m_persistent);
     if (m_is_class)
         env = add_class(env, d, m_persistent);
-    if (m_simp)
-        env = add_simp_rule(env, d, m_persistent);
-    if (m_congr)
-        env = add_congr_rule(env, d, m_persistent);
+    if (m_simp) {
+        if (m_priority)
+            env = add_simp_rule(env, d, *m_priority, m_persistent);
+        else
+            env = add_simp_rule(env, d, LEAN_SIMP_DEFAULT_PRIORITY, m_persistent);
+    }
+    if (m_congr) {
+        if (m_priority)
+            env = add_congr_rule(env, d, *m_priority, m_persistent);
+        else
+            env = add_congr_rule(env, d, LEAN_SIMP_DEFAULT_PRIORITY, m_persistent);
+    }
     if (m_has_multiple_instances)
         env = mark_multiple_instances(env, d, m_persistent);
     return env;

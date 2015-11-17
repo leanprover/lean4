@@ -18,13 +18,15 @@ Author: Leonardo de Moura
 
 namespace lean {
 simp_rule_core::simp_rule_core(name const & id, levels const & umetas, list<expr> const & emetas,
-                               list<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof):
+                               list<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof,
+                               unsigned priority):
     m_id(id), m_umetas(umetas), m_emetas(emetas), m_instances(instances),
-    m_lhs(lhs), m_rhs(rhs), m_proof(proof) {}
+    m_lhs(lhs), m_rhs(rhs), m_proof(proof), m_priority(priority) {}
 
 simp_rule::simp_rule(name const & id, levels const & umetas, list<expr> const & emetas,
-                     list<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof, bool is_perm):
-    simp_rule_core(id, umetas, emetas, instances, lhs, rhs, proof),
+                     list<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof,
+                     bool is_perm, unsigned priority):
+    simp_rule_core(id, umetas, emetas, instances, lhs, rhs, proof, priority),
     m_is_permutation(is_perm) {}
 
 bool operator==(simp_rule const & r1, simp_rule const & r2) {
@@ -34,6 +36,8 @@ bool operator==(simp_rule const & r1, simp_rule const & r2) {
 format simp_rule::pp(formatter const & fmt) const {
     format r;
     r += format("#") + format(get_num_emeta());
+    if (m_priority != LEAN_SIMP_DEFAULT_PRIORITY)
+        r += space() + paren(format(m_priority));
     if (m_is_permutation)
         r += space() + format("perm");
     format r1 = comma() + space() + fmt(get_lhs());
@@ -44,8 +48,8 @@ format simp_rule::pp(formatter const & fmt) const {
 
 congr_rule::congr_rule(name const & id, levels const & umetas, list<expr> const & emetas,
                        list<bool> const & instances, expr const & lhs, expr const & rhs, expr const & proof,
-                       list<expr> const & congr_hyps):
-    simp_rule_core(id, umetas, emetas, instances, lhs, rhs, proof),
+                       list<expr> const & congr_hyps, unsigned priority):
+    simp_rule_core(id, umetas, emetas, instances, lhs, rhs, proof, priority),
     m_congr_hyps(congr_hyps) {}
 
 bool operator==(congr_rule const & r1, congr_rule const & r2) {
@@ -55,6 +59,8 @@ bool operator==(congr_rule const & r1, congr_rule const & r2) {
 format congr_rule::pp(formatter const & fmt) const {
     format r;
     r += format("#") + format(get_num_emeta());
+    if (m_priority != LEAN_SIMP_DEFAULT_PRIORITY)
+        r += space() + paren(format(m_priority));
     format r1;
     for (expr const & h : m_congr_hyps) {
         r1 += space() + paren(fmt(mlocal_type(h)));
@@ -257,7 +263,8 @@ format simp_rule_sets::pp(formatter const & fmt) const {
 static name * g_prefix = nullptr;
 
 simp_rule_sets add_core(tmp_type_context & tctx, simp_rule_sets const & s,
-                        name const & id, levels const & univ_metas, expr const & e, expr const & h) {
+                        name const & id, levels const & univ_metas, expr const & e, expr const & h,
+                        unsigned priority) {
     list<expr_pair> ceqvs   = to_ceqvs(tctx, e, h);
     if (is_nil(ceqvs)) throw exception("[simp] rule invalid");
     environment const & env = tctx.env();
@@ -278,14 +285,14 @@ simp_rule_sets add_core(tmp_type_context & tctx, simp_rule_sets const & s,
         expr rel, lhs, rhs;
         if (is_simp_relation(env, rule, rel, lhs, rhs) && is_constant(rel)) {
             new_s.insert(const_name(rel), simp_rule(id, univ_metas, reverse_to_list(emetas),
-                                                    reverse_to_list(instances), lhs, rhs, proof, is_perm));
+                                                    reverse_to_list(instances), lhs, rhs, proof, is_perm, priority));
         }
     }
     return new_s;
 }
 
-simp_rule_sets add(tmp_type_context & tctx, simp_rule_sets const & s, name const & id, expr const & e, expr const & h) {
-    return add_core(tctx, s, id, list<level>(), e, h);
+simp_rule_sets add(tmp_type_context & tctx, simp_rule_sets const & s, name const & id, expr const & e, expr const & h, unsigned priority) {
+    return add_core(tctx, s, id, list<level>(), e, h, priority);
 }
 
 simp_rule_sets join(simp_rule_sets const & s1, simp_rule_sets const & s2) {
@@ -299,7 +306,7 @@ simp_rule_sets join(simp_rule_sets const & s1, simp_rule_sets const & s2) {
 static name * g_class_name = nullptr;
 static std::string * g_key = nullptr;
 
-static simp_rule_sets add_core(tmp_type_context & tctx, simp_rule_sets const & s, name const & cname) {
+static simp_rule_sets add_core(tmp_type_context & tctx, simp_rule_sets const & s, name const & cname, unsigned priority) {
     declaration const & d = tctx.env().get(cname);
     buffer<level> us;
     unsigned num_univs = d.get_num_univ_params();
@@ -309,7 +316,7 @@ static simp_rule_sets add_core(tmp_type_context & tctx, simp_rule_sets const & s
     levels ls = to_list(us);
     expr e    = tctx.whnf(instantiate_type_univ_params(d, ls));
     expr h    = mk_constant(cname, ls);
-    return add_core(tctx, s, cname, ls, e, h);
+    return add_core(tctx, s, cname, ls, e, h, priority);
 }
 
 
@@ -356,7 +363,7 @@ static bool is_valid_congr_hyp_rhs(expr const & rhs, name_set & found_mvars) {
     return true;
 }
 
-void add_congr_core(tmp_type_context & tctx, simp_rule_sets & s, name const & n) {
+void add_congr_core(tmp_type_context & tctx, simp_rule_sets & s, name const & n, unsigned prio) {
     declaration const & d = tctx.env().get(n);
     buffer<level> us;
     unsigned num_univs = d.get_num_univ_params();
@@ -459,7 +466,7 @@ void add_congr_core(tmp_type_context & tctx, simp_rule_sets & s, name const & n)
         }
     }
     s.insert(const_name(rel), congr_rule(n, ls, reverse_to_list(emetas),
-                                         reverse_to_list(instances), lhs, rhs, proof, to_list(congr_hyps)));
+                                         reverse_to_list(instances), lhs, rhs, proof, to_list(congr_hyps), prio));
 }
 
 struct rrs_state {
@@ -467,27 +474,35 @@ struct rrs_state {
     name_set                 m_simp_names;
     name_set                 m_congr_names;
 
-    void add_simp(environment const & env, io_state const & ios, name const & cname) {
+    void add_simp(environment const & env, io_state const & ios, name const & cname, unsigned prio) {
         tmp_type_context tctx{env, ios};
-        m_sets = add_core(tctx, m_sets, cname);
+        m_sets = add_core(tctx, m_sets, cname, prio);
         m_simp_names.insert(cname);
     }
 
-    void add_congr(environment const & env, io_state const & ios, name const & n) {
+    void add_congr(environment const & env, io_state const & ios, name const & n, unsigned prio) {
         tmp_type_context tctx{env, ios};
-        add_congr_core(tctx, m_sets, n);
+        add_congr_core(tctx, m_sets, n, prio);
         m_congr_names.insert(n);
     }
 };
 
+struct rrs_entry {
+    bool     m_is_simp;
+    name     m_name;
+    unsigned m_priority;
+    rrs_entry() {}
+    rrs_entry(bool is_simp, name const & n, unsigned prio):m_is_simp(is_simp), m_name(n), m_priority(prio) {}
+};
+
 struct rrs_config {
-    typedef pair<bool, name> entry;
-    typedef rrs_state        state;
+    typedef rrs_entry  entry;
+    typedef rrs_state  state;
     static void add_entry(environment const & env, io_state const & ios, state & s, entry const & e) {
-        if (e.first)
-            s.add_simp(env, ios, e.second);
+        if (e.m_is_simp)
+            s.add_simp(env, ios, e.m_name, e.m_priority);
         else
-            s.add_congr(env, ios, e.second);
+            s.add_congr(env, ios, e.m_name, e.m_priority);
     }
     static name const & get_class_name() {
         return *g_class_name;
@@ -496,25 +511,25 @@ struct rrs_config {
         return *g_key;
     }
     static void  write_entry(serializer & s, entry const & e) {
-        s << e.first << e.second;
+        s << e.m_is_simp << e.m_name << e.m_priority;
     }
     static entry read_entry(deserializer & d) {
-        entry e; d >> e.first >> e.second; return e;
+        entry e; d >> e.m_is_simp >> e.m_name >> e.m_priority; return e;
     }
     static optional<unsigned> get_fingerprint(entry const & e) {
-        return some(hash(e.first ? 17 : 31, e.second.hash()));
+        return some(hash(e.m_is_simp ? 17 : 31, e.m_name.hash()));
     }
 };
 
 template class scoped_ext<rrs_config>;
 typedef scoped_ext<rrs_config> rrs_ext;
 
-environment add_simp_rule(environment const & env, name const & n, bool persistent) {
-    return rrs_ext::add_entry(env, get_dummy_ios(), mk_pair(true, n), persistent);
+environment add_simp_rule(environment const & env, name const & n, unsigned prio, bool persistent) {
+    return rrs_ext::add_entry(env, get_dummy_ios(), rrs_entry(true, n, prio), persistent);
 }
 
-environment add_congr_rule(environment const & env, name const & n, bool persistent) {
-    return rrs_ext::add_entry(env, get_dummy_ios(), mk_pair(false, n), persistent);
+environment add_congr_rule(environment const & env, name const & n, unsigned prio, bool persistent) {
+    return rrs_ext::add_entry(env, get_dummy_ios(), rrs_entry(false, n, prio), persistent);
 }
 
 bool is_simp_rule(environment const & env, name const & n) {
@@ -531,11 +546,11 @@ simp_rule_sets get_simp_rule_sets(environment const & env) {
 
 simp_rule_sets get_simp_rule_sets(environment const & env, io_state const & ios, name const & ns) {
     simp_rule_sets set;
-    list<pair<bool, name>> const * cnames = rrs_ext::get_entries(env, ns);
-    if (cnames) {
-        for (pair<bool, name> const & p : *cnames) {
+    list<rrs_entry> const * entries = rrs_ext::get_entries(env, ns);
+    if (entries) {
+        for (auto const & e : *entries) {
             tmp_type_context tctx(env, ios);
-            set = add_core(tctx, set, p.second);
+            set = add_core(tctx, set, e.m_name, e.m_priority);
         }
     }
     return set;

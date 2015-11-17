@@ -27,12 +27,12 @@ foo.mk 4 4
 example : foo.a = 3 :=
 rfl
 
-attribute i4 [priority std.priority.default+2]
+attribute i4 [instance] [priority std.priority.default+2]
 
 example : foo.a = 4 :=
 rfl
 
-attribute i1 [priority std.priority.default+3]
+attribute i1 [instance] [priority std.priority.default+3]
 
 example : foo.a = 1 :=
 rfl

@@ -197,7 +197,8 @@ class simplifier {
             }
             tmp_type_context tctx(env(), ios());
             try {
-                srss = add(tctx, srss, mlocal_name(l), tctx.infer(l), l);
+                // TODO(Leo,Daniel): should we allow the user to set the priority of local lemmas
+                srss = add(tctx, srss, mlocal_name(l), tctx.infer(l), l, LEAN_SIMP_DEFAULT_PRIORITY);
             } catch (exception e) {
             }
         }

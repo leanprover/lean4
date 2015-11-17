@@ -34,11 +34,8 @@ class decl_attributes {
     optional<unsigned> m_recursor_major_pos;
     optional<unsigned> m_priority;
     list<unsigned>     m_unfold_hint;
-
-    void parse(name const & n, parser & p);
 public:
     decl_attributes(bool is_abbrev = false, bool persistent = true);
-    void parse(buffer<name> const & ns, parser & p);
     void parse(parser & p);
     environment apply(environment env, io_state const & ios, name const & d) const;
     bool is_parsing_only() const { return m_is_parsing_only; }

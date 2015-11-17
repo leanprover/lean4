@@ -1259,7 +1259,7 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
     }
     bool abbrev     = false;
     decl_attributes attributes(abbrev, persistent);
-    attributes.parse(ds, p);
+    attributes.parse(p);
     environment env = p.env();
     for (name const & d : ds)
         env = attributes.apply(env, p.ios(), d);

@@ -30,10 +30,24 @@ struct head_index {
 
     This index is very naive, but it is effective for many applications.
 */
-template<typename V>
-class head_map {
+template<typename V, typename GetPrio>
+class head_map_prio : private GetPrio {
     rb_map<head_index, list<V>, head_index::cmp> m_map;
+
+    unsigned get_priority(V const & v) const { return GetPrio::operator()(v); }
+
+    list<V> insert_prio(V const & v, list<V> const & vs) {
+        if (!vs)
+            return to_list(v);
+        else if (get_priority(v) >= get_priority(head(vs)))
+            return cons(v, vs);
+        else
+            return cons(head(vs), insert_prio(v, tail(vs)));
+    }
+
 public:
+    head_map_prio() {}
+    head_map_prio(GetPrio const & g):GetPrio(g) {}
     bool empty() const { return m_map.empty(); }
     bool contains(head_index const & h) const { return m_map.contains(h); }
     list<V> const * find(head_index const & h) const { return m_map.find(h); }
@@ -52,7 +66,7 @@ public:
     }
     void insert(head_index const & h, V const & v) {
         if (auto it = m_map.find(h))
-            m_map.insert(h, cons(v, ::lean::filter(*it, [&](V const & v2) { return v != v2; })));
+            m_map.insert(h, insert_prio(v, ::lean::filter(*it, [&](V const & v2) { return v != v2; })));
         else
             m_map.insert(h, to_list(v));
     }
@@ -63,5 +77,14 @@ public:
                     f(h, v);
             });
     }
+};
+
+template<typename V>
+struct constant_priority_fn { unsigned operator()(V const &) const { return 0; } };
+
+template<typename V>
+class head_map : public head_map_prio<V, constant_priority_fn<V>> {
+public:
+    head_map() {}
 };
 }

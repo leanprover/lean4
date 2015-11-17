@@ -50,7 +50,7 @@
 #define LEAN_DEFAULT_SIMPLIFY_FUSE false
 #endif
 #ifndef LEAN_DEFAULT_SIMPLIFY_NUMERALS
-#define LEAN_DEFAULT_SIMPLIFY_NUMERALS true
+#define LEAN_DEFAULT_SIMPLIFY_NUMERALS false
 #endif
 
 namespace lean {
@@ -198,6 +198,7 @@ class simplifier {
     }
 
     expr unfold_reducible_instances(expr const & e);
+    expr remove_unnecessary_casts(expr const & e);
 
     bool instantiate_emetas(blast_tmp_type_context & tmp_tctx, unsigned num_emeta,
                             list<expr> const & emetas, list<bool> const & instances);
@@ -801,27 +802,59 @@ optional<result> simplifier::synth_congr(expr const & e, F && simp) {
     expr proof = congr_lemma->get_proof();
     expr type = congr_lemma->get_type();
     unsigned i = 0;
-    bool simplified = false;
+    bool has_proof = false;
+    bool has_cast = false;
     buffer<expr> locals;
     for_each(congr_lemma->get_arg_kinds(), [&](congr_arg_kind const & ckind) {
             proof = mk_app(proof, args[i]);
             type = instantiate(binding_body(type), args[i]);
             if (ckind == congr_arg_kind::Eq) {
                 result r_arg = simp(args[i]);
-                if (r_arg.has_proof()) simplified = true;
+                if (r_arg.has_proof()) has_proof = true;
                 r_arg = finalize(r_arg);
                 proof = mk_app(proof, r_arg.get_new(), r_arg.get_proof());
                 type = instantiate(binding_body(type), r_arg.get_new());
                 type = instantiate(binding_body(type), r_arg.get_proof());
+            } else if (ckind == congr_arg_kind::Cast) {
+                has_cast = true;
             }
             i++;
         });
     lean_assert(is_eq(type));
     buffer<expr> type_args;
     get_app_args(type, type_args);
-    expr & new_e = type_args[2];
-    if (simplified) return optional<result>(result(new_e, proof));
-    else return optional<result>(result(new_e));
+    expr e_new = remove_unnecessary_casts(type_args[2]);
+    if (has_proof) return optional<result>(result(e_new, proof));
+    else return optional<result>(result(e_new));
+}
+
+expr simplifier::remove_unnecessary_casts(expr const & e) {
+    buffer<expr> args;
+    expr f = get_app_args(e, args);
+    fun_info f_info = get_fun_info(f, args.size());
+    int i = -1;
+    for_each(f_info.get_params_info(), [&](param_info const & p_info) {
+            i++;
+            if (p_info.is_subsingleton()) {
+                while (is_constant(get_app_fn(args[i]))) {
+                    buffer<expr> cast_args;
+                    expr f_cast = get_app_args(args[i], cast_args);
+                    name n_f = const_name(f_cast);
+                    if (n_f == get_eq_rec_name() || n_f == get_eq_drec_name() || n_f == get_eq_nrec_name()) {
+                        lean_assert(cast_args.size() == 6);
+                        expr major_premise = cast_args[5];
+                        expr f_major_premise = get_app_fn(major_premise);
+                        if (is_constant(f_major_premise) && const_name(f_major_premise) == get_eq_refl_name())
+                            args[i] = cast_args[3];
+                        else
+                            return;
+                    } else {
+                        return;
+                    }
+                }
+            }
+        });
+    return mk_app(f, args);
 }
 
 /* Fusion */

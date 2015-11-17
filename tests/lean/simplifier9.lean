@@ -1,8 +1,8 @@
 -- Rewriting with (tmp)-local hypotheses
 import logic.quantifiers
 
-attribute congr_forall [congr]
 attribute congr_imp [congr]
+attribute congr_forall [congr]
 
 universe l
 constants (T : Type.{l}) (P Q : T → Prop)
@@ -22,7 +22,8 @@ constants (x y : T)
 
 #simplify iff env 0 ∀ (p : Prop) (H : ∀ x, P x ↔ Q x), p ∨ P x
 #simplify iff env 0 (∀ (x : T), P x ↔ Q x) →  P x
-#simplify iff env 0 (∀ (x : T), P x ↔ Q x) →  P x
 #simplify iff env 0 ∀ (x y : T), (∀ (x : T), P x ↔ Q x) →  P x
 
+#simplify iff env 0 ∀ (x z : T), x = z → P x
+#simplify iff env 0 ∀ (x y z : T), x = y → y = z → P x
 #simplify iff env 0 ∀ (x z : T), x = z → (∀ (w : T), P w ↔ Q w) →  P x

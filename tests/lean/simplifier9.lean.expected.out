@@ -8,6 +8,7 @@ T → T → x = y → P y
 Prop → (∀ (x : T), P x ↔ Q x) → Prop → Q x
 ∀ (x_1 : Prop), (∀ (x : T), P x ↔ Q x) → x_1 ∨ Q x
 (∀ (x : T), P x ↔ Q x) → Q x
-(∀ (x : T), P x ↔ Q x) → Q x
 ∀ (x : T), T → (∀ (x : T), P x ↔ Q x) → Q x
+∀ (x x_1 : T), x = x_1 → P x_1
+∀ (x x_1 x_2 : T), x = x_1 → x_1 = x_2 → P x_2
 ∀ (x x_1 : T), x = x_1 → (∀ (w : T), P w ↔ Q w) → Q x_1

@@ -20,6 +20,7 @@
 #include "library/num.h"
 #include "library/norm_num.h"
 #include "util/flet.h"
+#include "util/freset.h"
 #include "util/pair.h"
 #include "util/sexpr/option_declarations.h"
 #include <functional>
@@ -364,8 +365,7 @@ result simplifier::finalize(result const & r) {
 
 result simplifier::simplify(expr const & e, simp_rule_sets const & srss) {
     flet<simp_rule_sets> set_srss(m_srss, srss);
-    simplify_cache fresh_cache;
-    flet<simplify_cache> set_simplify_cache(m_cache, fresh_cache);
+    freset<simplify_cache> reset(m_cache);
     return simplify(e, true);
 }
 
@@ -384,9 +384,10 @@ result simplifier::simplify(expr const & e, bool is_root) {
         if (auto it = cache_lookup(e)) return *it;
     }
 
-    if (m_numerals) {
-        // TODO(dhs): cache these?
-        if (auto r = simplify_numeral(e)) return *r;
+    if (m_numerals && using_eq()) {
+        if (auto r = simplify_numeral(e)) {
+            return *r;
+        }
     }
 
     result r(e);
@@ -470,8 +471,6 @@ expr simplifier::unfold_reducible_instances(expr const & e) {
     for_each(f_info.get_params_info(), [&](param_info const & p_info) {
             i++;
             if (p_info.is_inst_implicit() && !p_info.is_subsingleton()) {
-//                ios().get_diagnostic_channel() << "normalize: "
-//                                               << args[i] << "\n==>\n" << blast::normalize(args[i]) << "\n";
                 args[i] = blast::normalize(args[i]);
             }
         });
@@ -596,14 +595,6 @@ result simplifier::rewrite(expr const & e, simp_rule_sets const & srss) {
 result simplifier::rewrite(expr const & e, simp_rule const & sr) {
     blast_tmp_type_context tmp_tctx(sr.get_num_umeta(), sr.get_num_emeta());
 
-    if (m_trace) {
-        expr new_lhs = tmp_tctx->instantiate_uvars_mvars(sr.get_lhs());
-        expr new_rhs = tmp_tctx->instantiate_uvars_mvars(sr.get_rhs());
-        ios().get_diagnostic_channel()
-            << "TRYREW(" << sr.get_id() << ") "
-            << "[" << new_lhs << " =?= " << new_rhs << "]\n";
-    }
-
     if (!tmp_tctx->is_def_eq(e, sr.get_lhs())) return result(e);
 
     if (m_trace) {
@@ -701,8 +692,11 @@ result simplifier::try_congr(expr const & e, congr_rule const & cr) {
     if (!tmp_tctx->is_def_eq(e, cr.get_lhs())) return result(e);
 
     if (m_trace) {
-        ios().get_diagnostic_channel() << "<" << cr.get_id() << "> "
-                                       << e << " === " << cr.get_lhs() << "\n";
+        expr new_lhs = tmp_tctx->instantiate_uvars_mvars(cr.get_lhs());
+        expr new_rhs = tmp_tctx->instantiate_uvars_mvars(cr.get_rhs());
+        ios().get_diagnostic_channel()
+            << "CONGR(" << cr.get_id() << ") "
+            << "[" << new_lhs << " =?= " << new_rhs << "]\n";
     }
 
     /* First, iterate over the congruence hypotheses */
@@ -871,14 +865,12 @@ expr simplifier::remove_unnecessary_casts(expr const & e) {
 /* Fusion */
 
 result simplifier::maybe_fuse(expr const & e, bool is_root) {
-//    ios().get_diagnostic_channel() << "maybe_fuse(" << e << ", " << is_root << ")\n";
     if (!is_app(e)) return result(e);
     if (is_root && is_add_app(e)) return fuse(e);
     if (!is_root && is_add_app(e)) return result(e);
     lean_assert(!is_add_app(e));
     /* At this point we know we are an application of something other than + */
     optional<result> r = synth_congr(e, [&](expr const & arg) {
-//            ios().get_diagnostic_channel() << "synth_fuse: " << arg << "\n";
             if (is_add_app(arg)) return fuse(arg);
             else return result(arg);
         });

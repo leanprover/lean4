@@ -522,18 +522,14 @@ result simplifier::simplify_fun(expr const & e) {
 }
 
 optional<result> simplifier::simplify_numeral(expr const & e) {
-    if (is_num(e)) {
-        return optional<result>(result(e));
-    } else if (is_add_app(e) || is_mul_app(e)) {
-        buffer<expr> args;
-        get_app_args(e, args);
-        if (is_num(args[2]) && is_num(args[3])){
-            expr_pair r = mk_norm_num(*m_tmp_tctx, e);
-            return optional<result>(result(r.first, r.second));
-        }
+    if (is_num(e)) { return optional<result>(result(e)); }
+
+    try {
+        expr_pair r = mk_norm_num(*m_tmp_tctx, e);
+        return optional<result>(result(r.first, r.second));
+    } catch (exception e) {
+        return optional<result>();
     }
-    // TODO(dhs): simplify division and substraction as well
-    return optional<result>();
 }
 
 /* Proving */
@@ -976,6 +972,7 @@ result simplifier::fuse(expr const & e) {
     }
 
     /* Prove (1) == (3) using simplify with [ac] */
+    flet<bool> no_simplify_numerals(m_numerals, false);
     auto pf_1_3 = prove(m_app_builder.mk_eq(e, e_grp),
                         get_simp_rule_sets(env(), ios(), *g_simplify_ac_namespace));
     if (!pf_1_3) {
@@ -992,8 +989,8 @@ result simplifier::fuse(expr const & e) {
     }
 
     /* Prove (5) == (6) using simplify with [numeral] */
-    result r_simp_ls = simplify(e_fused_ls,
-                                get_simp_rule_sets(env(), ios(), *g_simplify_numeral_namespace));
+    flet<bool> simplify_numerals(m_numerals, true);
+    result r_simp_ls = simplify(e_fused_ls, get_simp_rule_sets(env(), ios(), *g_simplify_unit_namespace));
 
     /* Prove (4) == (6) by transitivity of proofs (2) and (3) */
     expr pf_4_6;

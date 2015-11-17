@@ -18,6 +18,17 @@ namespace neg_helper
     lemma sub_def : a - b = a + (- b) := rfl
 end neg_helper
 
+namespace unit
+attribute algebra.zero_add [simp]
+attribute algebra.add_zero [simp]
+
+attribute algebra.zero_mul [simp]
+attribute algebra.mul_zero [simp]
+
+attribute algebra.one_mul [simp]
+attribute algebra.mul_one [simp]
+end unit
+
 namespace ac
 
 -- iff

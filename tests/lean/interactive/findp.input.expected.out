@@ -9,6 +9,7 @@ false.rec_on|Π (C : Type), false → C
 false_iff_true|false ↔ true ↔ false
 false.cases_on|Π (C : Type), false → C
 false.induction_on|∀ (C : Prop), false → C
+false_of_true_iff_false|(true ↔ false) → false
 true_ne_false|¬true = false
 nat.lt_self_iff_false|∀ (n : ℕ), n < n ↔ false
 true_iff_false|true ↔ false ↔ false

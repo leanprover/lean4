@@ -192,8 +192,7 @@ namespace circle
   definition transport_code_loop (a : ℤ) : transport circle.code loop a = succ a :=
   ap10 !elim_type_loop a
 
-  definition transport_code_loop_inv (a : ℤ)
-    : transport circle.code loop⁻¹ a = pred a :=
+  definition transport_code_loop_inv (a : ℤ) : transport circle.code loop⁻¹ a = pred a :=
   ap10 !elim_type_loop_inv a
 
   protected definition encode [unfold 2] {x : circle} (p : base = x) : circle.code x :=
@@ -228,15 +227,14 @@ namespace circle
   definition base_eq_base_equiv [constructor] : base = base ≃ ℤ :=
   circle_eq_equiv base
 
-  definition decode_add (a b : ℤ) :
-    base_eq_base_equiv⁻¹ a ⬝ base_eq_base_equiv⁻¹ b = base_eq_base_equiv⁻¹ (a + b) :=
+  definition decode_add (a b : ℤ) : circle.decode a ⬝ circle.decode b = circle.decode (a + b) :=
   !power_con_power
 
   definition encode_con (p q : base = base) : circle.encode (p ⬝ q) = circle.encode p + circle.encode q :=
   preserve_binary_of_inv_preserve base_eq_base_equiv concat add decode_add p q
 
   --the carrier of π₁(S¹) is the set-truncation of base = base.
-  open core algebra trunc equiv.ops
+  open algebra trunc equiv.ops
   definition fg_carrier_equiv_int : π[1](S¹.) ≃ ℤ :=
   trunc_equiv_trunc 0 base_eq_base_equiv ⬝e !trunc_equiv
 
@@ -249,6 +247,13 @@ namespace circle
     intros g h,
     induction g with g', induction h with h',
     apply encode_con,
+  end
+
+  open nat
+  definition homotopy_group_of_circle (n : ℕ) : πG[n+1 +1] S¹. = G0 :=
+  begin
+    refine @trivial_homotopy_of_is_hset_loop_space S¹. 1 n _,
+    apply is_trunc_equiv_closed_rev, apply base_eq_base_equiv
   end
 
   definition eq_equiv_Z (x : S¹) : x = x ≃ ℤ :=

@@ -6,6 +6,8 @@ Authors: Floris van Doorn
 Theorems about the unit type
 -/
 
+import algebra.group
+
 open equiv option eq
 
 namespace unit
@@ -32,3 +34,17 @@ namespace unit
   end
 
 end unit
+
+open unit is_trunc
+
+namespace algebra
+
+  definition trivial_group [constructor] : group unit :=
+  group.mk (λx y, star) _ (λx y z, idp) star (unit.rec idp) (unit.rec idp) (λx, star) (λx, idp)
+
+  definition Trivial_group [constructor] : Group :=
+  Group.mk _ trivial_group
+
+  notation `G0` := Trivial_group
+
+end algebra

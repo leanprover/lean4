@@ -83,7 +83,7 @@ definition mul (a b : ℤ) : ℤ :=
 
 /- notation -/
 
-notation `-[` n `+1]` := int.neg_succ_of_nat n    -- for pretty-printing output
+notation `-[`:95 n:0 `+1]`:0 := int.neg_succ_of_nat n    -- for pretty-printing output
 prefix - := int.neg
 infix +  := int.add
 infix *  := int.mul

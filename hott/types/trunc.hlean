@@ -145,7 +145,7 @@ namespace is_trunc
   theorem is_trunc_succ_iff_is_trunc_loop (A : Type) (Hn : -1 ≤ n) :
     is_trunc (n.+1) A ↔ Π(a : A), is_trunc n (a = a) :=
   iff.intro _ (is_trunc_succ_of_is_trunc_loop Hn)
---set_option pp.all true
+
   theorem is_trunc_iff_is_contr_loop_succ (n : ℕ) (A : Type)
     : is_trunc n A ↔ Π(a : A), is_contr (Ω[succ n](Pointed.mk a)) :=
   begin
@@ -170,6 +170,11 @@ namespace is_trunc
         intro H, apply is_hprop_of_imp_is_contr, exact H},
     { apply is_trunc_iff_is_contr_loop_succ},
   end
+
+  theorem is_contr_loop_of_is_trunc (n : ℕ) (A : Type*) [H : is_trunc (n.-2.+1) A] :
+    is_contr (Ω[n] A) :=
+  by induction A; exact iff.mp !is_trunc_iff_is_contr_loop _ _
+
 
 end is_trunc open is_trunc
 
@@ -231,6 +236,10 @@ namespace trunc
     : P a :=
   !trunc_equiv (f a)
 
+  /- transport over a truncated family -/
+  definition trunc_transport {a a' : A} {P : A → Type} (p : a = a') (n : trunc_index) (x : P a)
+    : transport (λa, trunc n (P a)) p (tr x) = tr (p ▸ x) :=
+  by induction p; reflexivity
 
 end trunc open trunc
 

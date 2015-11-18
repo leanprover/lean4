@@ -98,6 +98,7 @@ static optional<ext_congr_lemma> mk_ext_congr_lemma_core(name const & R, expr co
         if (crs) {
             for (congr_rule const & r : *crs) {
                 // TODO(Leo):
+                std::cout << r.get_id() << "\n";
             }
         }
     }
@@ -145,10 +146,12 @@ static optional<ext_congr_lemma> mk_ext_congr_lemma(name const & R, expr const &
 
 void congruence_closure::add_occurrence(name const & Rp, expr const & parent, name const & Rc, expr const & child) {
     // TODO(Leo):
+    std::cout << Rp << parent << Rc << child << "\n";
 }
 
 void congruence_closure::add_congruence_table(ext_congr_lemma const & lemma, expr const & e) {
     // TODO(Leo):
+    std::cout << lemma.m_R << e << "\n";
 }
 
 void congruence_closure::internalize(name const & R, expr const & e) {
@@ -273,6 +276,7 @@ bool congruence_closure::is_eqv(name const & R, expr const & e1, expr const & e2
 
 optional<expr> congruence_closure::get_eqv_proof(name const & R, expr const & e1, expr const & e2) const {
     // TODO(Leo):
+    std::cout << R << e1 << e2 << "\n";
     return none_expr();
 }
 

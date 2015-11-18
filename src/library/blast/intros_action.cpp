@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/blast/blast.h"
 #include "library/blast/proof_expr.h"
+#include "library/blast/trace.h"
 
 namespace lean {
 namespace blast {
@@ -48,6 +49,7 @@ action_result intros_action(unsigned max) {
     }
     pcell->m_new_hs = to_list(new_hs);
     s.set_target(target);
+    trace_action("intros");
     return action_result::new_branch();
 }
 

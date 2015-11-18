@@ -24,11 +24,6 @@ protected:
     virtual optional<expr> preprocess() = 0;
     virtual action_result next_action() = 0;
 
-    void display_msg(char const * msg);
-    void display_action(char const * name);
-    void display();
-    void display_if(action_result r);
-
     action_result next_branch(expr pr);
     optional<expr> search_upto(unsigned depth);
     optional<expr> search();

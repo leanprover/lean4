@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "library/blast/simple_strategy.h"
 #include "library/blast/choice_point.h"
 #include "library/blast/congruence_closure.h"
+#include "library/blast/trace.h"
 
 namespace lean {
 namespace blast {
@@ -757,10 +758,12 @@ struct scope_debug::imp {
     blastenv                 m_benv;
     scope_blastenv           m_scope2;
     scope_congruence_closure m_scope3;
+    scope_trace              m_scope4;
     imp(environment const & env, io_state const & ios):
         m_scope1(true),
         m_benv(env, ios, list<name>(), list<name>()),
-        m_scope2(m_benv) {
+        m_scope2(m_benv),
+        m_scope4(ios.get_options()) {
         expr aux_mvar = mk_metavar("dummy_mvar", mk_true());
         goal aux_g(aux_mvar, mlocal_type(aux_mvar));
         m_benv.init_state(aux_g);
@@ -854,6 +857,7 @@ optional<expr> blast_goal(environment const & env, io_state const & ios, list<na
     blast::blastenv                 b(env, ios, ls, ds);
     blast::scope_blastenv           scope2(b);
     blast::scope_congruence_closure scope3;
+    blast::scope_trace              scope4(ios.get_options());
     return b(g);
 }
 void initialize_blast() {

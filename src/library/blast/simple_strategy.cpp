@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/blast/simplify_actions.h"
 #include "library/blast/recursor_action.h"
 #include "library/blast/strategy.h"
+#include "library/blast/trace.h"
 
 namespace lean {
 namespace blast {
@@ -23,9 +24,11 @@ namespace blast {
     We use it mainly for testing new actions and the whole blast infra-structure. */
 class simple_strategy : public strategy {
     action_result activate_hypothesis(bool preprocess) {
+        scope_trace scope(!preprocess);
+
         auto hidx = curr_state().activate_hypothesis();
         if (!hidx) return action_result::failed();
-        if (!preprocess) display_action("activate");
+        trace_action("activate");
 
         Try(assumption_contradiction_actions(*hidx));
         Try(subst_action(*hidx));
@@ -39,7 +42,7 @@ class simple_strategy : public strategy {
        It keeps applying intros, activating and finally simplify target.
        Return an expression if the goal has been proved during preprocessing step. */
     virtual optional<expr> preprocess() {
-        display_msg("* Preprocess");
+        trace("* Preprocess");
         while (true) {
             if (!failed(intros_action()))
                 continue;

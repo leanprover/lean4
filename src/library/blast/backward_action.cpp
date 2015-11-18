@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/blast/proof_expr.h"
 #include "library/blast/choice_point.h"
 #include "library/blast/gexpr.h"
+#include "library/blast/trace.h"
 
 namespace lean {
 namespace blast {
@@ -114,7 +115,7 @@ public:
     }
 };
 
-action_result backward_action(list<gexpr> const & lemmas, bool prop_only_branches) {
+action_result backward_action(list<gexpr> const & lemmas, bool prop_only_branches, char const * action_name) {
     state  s = curr_state();
     auto it  = lemmas;
     while (!empty(it)) {
@@ -124,11 +125,16 @@ action_result backward_action(list<gexpr> const & lemmas, bool prop_only_branche
             // create choice point
             if (!empty(it))
                 push_choice_point(choice_point(new backward_choice_point_cell(s, it, prop_only_branches)));
+            trace_action(action_name);
             return r;
         }
         curr_state() = s;
     }
     return action_result::failed();
+}
+
+action_result backward_action(list<gexpr> const & lemmas, bool prop_only_branches) {
+    return backward_action(lemmas, prop_only_branches, "backward");
 }
 
 action_result constructor_action(bool prop_only_branches) {
@@ -141,6 +147,6 @@ action_result constructor_action(bool prop_only_branches) {
     buffer<gexpr> lemmas;
     for (name c_name : c_names)
         lemmas.push_back(gexpr(c_name));
-    return backward_action(to_list(lemmas), prop_only_branches);
+    return backward_action(to_list(lemmas), prop_only_branches, "constructor");
 }
 }}

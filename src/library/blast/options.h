@@ -17,6 +17,7 @@ struct config {
     bool                       m_trace;
     config(options const & o);
 };
+bool get_blast_trace(options const & o);
 void initialize_options();
 void finalize_options();
 }}

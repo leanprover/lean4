@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/blast/simple_actions.h"
 #include "library/blast/blast.h"
 #include "library/blast/simplifier.h"
+#include "library/blast/trace.h"
 
 namespace lean {
 namespace blast {
@@ -47,6 +48,7 @@ action_result simplify_target_action() {
         return action_result::failed(); // did nothing
     s.push_proof_step(new simplify_target_proof_step_cell(iff, r.get_proof()));
     s.set_target(r.get_new());
+    trace_action("simplify");
     return action_result::new_branch();
 }
 }}

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/blast/revert.h"
 #include "library/blast/intros_action.h"
 #include "library/blast/blast.h"
+#include "library/blast/trace.h"
 
 namespace lean {
 namespace blast {
@@ -77,6 +78,7 @@ bool subst_core(hypothesis_idx hidx) {
         }
         lean_verify(s.del_hypothesis(hidx));
         lean_verify(s.del_hypothesis(href_index(rhs)));
+        trace_action("subst");
         return true;
     } catch (app_builder_exception &) {
         s = saved;

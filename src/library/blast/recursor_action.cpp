@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/user_recursors.h"
 #include "library/blast/revert.h"
 #include "library/blast/blast.h"
+#include "library/blast/trace.h"
 
 namespace lean {
 namespace blast {
@@ -265,9 +266,10 @@ action_result recursor_action(hypothesis_idx hidx, name const & R) {
         return action_result::failed(); // ill-formed recursor
 
     save_state.commit();
-
-    if (new_goals.empty())
+    trace_action("recursor");
+    if (new_goals.empty()) {
         return action_result::solved(rec);
+    }
     s.del_hypothesis(hidx);
     s.push_proof_step(new recursor_proof_step_cell(rec_info.has_dep_elim(), s.get_branch(), rec, to_list(new_goals), list<expr>()));
     s.set_target(mlocal_type(new_goals[0]));

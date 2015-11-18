@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/blast/util.h"
 #include "library/blast/blast.h"
+#include "library/blast/trace.h"
 
 namespace lean {
 namespace blast {
@@ -17,8 +18,10 @@ action_result assumption_action() {
     for (hypothesis_idx hidx : s.get_head_related()) {
         hypothesis const * h = s.get_hypothesis_decl(hidx);
         lean_assert(h);
-        if (is_def_eq(h->get_type(), target))
+        if (is_def_eq(h->get_type(), target)) {
+            trace_action("assumption");
             return action_result(h->get_self());
+        }
     }
     return action_result::failed();
 }
@@ -46,13 +49,17 @@ action_result assumption_contradiction_actions(hypothesis_idx hidx) {
     lean_assert(h);
     expr const & type    = h->get_type();
     if (blast::is_false(type)) {
+        trace_action("contradiction");
         return action_result(b.mk_false_rec(s.get_target(), h->get_self()));
     }
     if (is_def_eq(type, s.get_target())) {
+        trace_action("assumption");
         return action_result(h->get_self());
     }
-    if (auto pr = try_not_refl_relation(*h))
+    if (auto pr = try_not_refl_relation(*h)) {
+        trace_action("contradiction");
         return action_result(*pr);
+    }
     expr p1 = type;
     bool is_neg1 = is_not(type, p1);
     /* try to find complement */
@@ -63,6 +70,7 @@ action_result assumption_contradiction_actions(hypothesis_idx hidx) {
         bool is_neg2 = is_not(type2, p2);
         if (is_neg1 != is_neg2) {
             if (is_def_eq(p1, p2)) {
+                trace_action("contradiction");
                 if (is_neg1) {
                     return action_result(b.mk_app(get_absurd_name(), {s.get_target(), h2->get_self(), h->get_self()}));
                 } else {
@@ -85,12 +93,14 @@ action_result trivial_action() {
 
         /* true */
         if (target == mk_true()) {
+            trace_action("trivial");
             return action_result(mk_true_intro());
         }
 
         /* a ~ a */
         name rop; expr lhs, rhs;
         if (is_relation_app(target, rop, lhs, rhs) && is_def_eq(lhs, rhs)) {
+            trace_action("trivial");
             return action_result(get_app_builder().mk_refl(rop, lhs));
         }
 
@@ -133,6 +143,7 @@ bool discard(hypothesis_idx hidx) {
 action_result discard_action(hypothesis_idx hidx) {
     if (discard(hidx)) {
         curr_state().del_hypothesis(hidx);
+        trace_action("discard");
         return action_result::new_branch();
     } else {
         return action_result::failed();

@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/inductive/inductive.h"
 #include "library/blast/blast.h"
+#include "library/blast/trace.h"
 
 namespace lean {
 namespace blast {
@@ -92,10 +93,12 @@ action_result no_confusion_action(hypothesis_idx hidx) {
             s.push_proof_step(new no_confusion_proof_step_cell(const_name(I), target, h->get_self(), num_new_eqs));
             s.set_target(binding_domain(nct));
             s.del_hypothesis(hidx);
+            trace_action("no_confusion");
             return action_result::new_branch();
         } else {
             name nc_name(const_name(I), "no_confusion");
             expr pr = b.mk_app(nc_name, {target, lhs, rhs, h->get_self()});
+            trace_action("no_confusion");
             return action_result::solved(pr);
         }
     } catch (app_builder_exception &) {

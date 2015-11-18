@@ -356,6 +356,11 @@ public:
         return m_proof_depth;
     }
 
+    void clear_proof_steps() {
+        m_proof_steps = list<proof_step>();
+        m_proof_depth = 0;
+    }
+
     /************************
        Assignment management
     *************************/

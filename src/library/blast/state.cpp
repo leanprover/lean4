@@ -64,6 +64,10 @@ static extension_manager & get_extension_manager() {
     return *g_extension_manager;
 }
 
+unsigned register_branch_extension(branch_extension * initial) {
+    return get_extension_manager().register_extension(initial);
+}
+
 branch::branch() {
     unsigned n = get_extension_manager().get_num_extensions();
     m_extensions = new branch_extension*[n];
@@ -85,7 +89,6 @@ branch::branch(branch const & b):
     m_assumption(b.m_assumption),
     m_active(b.m_active),
     m_todo_queue(b.m_todo_queue),
-    m_rec_queue(b.m_rec_queue),
     m_head_to_hyps(b.m_head_to_hyps),
     m_forward_deps(b.m_forward_deps),
     m_target(b.m_target),
@@ -105,7 +108,6 @@ branch::branch(branch && b):
     m_assumption(std::move(b.m_assumption)),
     m_active(std::move(b.m_active)),
     m_todo_queue(std::move(b.m_todo_queue)),
-    m_rec_queue(std::move(b.m_rec_queue)),
     m_head_to_hyps(std::move(b.m_head_to_hyps)),
     m_forward_deps(std::move(b.m_forward_deps)),
     m_target(std::move(b.m_target)),
@@ -124,7 +126,6 @@ void branch::swap(branch & b) {
     std::swap(m_assumption, b.m_assumption);
     std::swap(m_active, b.m_active);
     std::swap(m_todo_queue, b.m_todo_queue);
-    std::swap(m_rec_queue, b.m_rec_queue);
     std::swap(m_head_to_hyps, b.m_head_to_hyps);
     std::swap(m_forward_deps, b.m_forward_deps);
     std::swap(m_target, b.m_target);
@@ -759,21 +760,6 @@ optional<unsigned> state::activate_hypothesis() {
             return optional<unsigned>(hidx);
         }
     }
-}
-
-optional<unsigned> state::select_rec_hypothesis() {
-    while (true) {
-        if (m_branch.m_rec_queue.empty())
-            return optional<unsigned>();
-        unsigned hidx             = m_branch.m_rec_queue.erase_min();
-        hypothesis const * h_decl = get_hypothesis_decl(hidx);
-        if (!h_decl->is_dead())
-            return optional<unsigned>(hidx);
-    }
-}
-
-void state::add_to_rec_queue(hypothesis_idx hidx, double w) {
-    m_branch.m_rec_queue.insert(w, hidx);
 }
 
 bool state::hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const {

@@ -13,6 +13,28 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
+static unsigned g_ext_id = 0;
+struct recursor_branch_extension : public branch_extension {
+    hypothesis_priority_queue m_rec_queue;
+    recursor_branch_extension() {}
+    recursor_branch_extension(recursor_branch_extension const & b):m_rec_queue(b.m_rec_queue) {}
+    virtual ~recursor_branch_extension() {}
+    virtual branch_extension * clone() { return new recursor_branch_extension(*this); }
+    virtual void hypothesis_activated(hypothesis const &, hypothesis_idx) {}
+    virtual void hypothesis_deleted(hypothesis const &, hypothesis_idx) {}
+};
+
+void initialize_recursor_action() {
+    g_ext_id = register_branch_extension(new recursor_branch_extension());
+}
+
+void finalize_recursor_action() {
+}
+
+static recursor_branch_extension & get_extension() {
+    return static_cast<recursor_branch_extension&>(curr_state().get_extension(g_ext_id));
+}
+
 optional<name> is_recursor_action_target(hypothesis_idx hidx) {
     state & s = curr_state();
     hypothesis const * h = s.get_hypothesis_decl(hidx);
@@ -312,7 +334,8 @@ action_result recursor_preprocess_action(hypothesis_idx hidx) {
             if (!is_recursive_recursor(*R)) {
                 // TODO(Leo): we need a better strategy for handling recursive recursors...
                 w += static_cast<double>(num_minor);
-                curr_state().add_to_rec_queue(hidx, w);
+                recursor_branch_extension & ext = get_extension();
+                ext.m_rec_queue.insert(w, hidx);
                 return action_result::new_branch();
             }
         }
@@ -321,11 +344,17 @@ action_result recursor_preprocess_action(hypothesis_idx hidx) {
 }
 
 action_result recursor_action() {
-    while (auto hidx = curr_state().select_rec_hypothesis()) {
-        if (optional<name> R = is_recursor_action_target(*hidx)) {
-            Try(recursor_action(*hidx, *R));
+    recursor_branch_extension & ext = get_extension();
+    while (true) {
+        if (ext.m_rec_queue.empty())
+            return action_result::failed();
+        unsigned hidx             = ext.m_rec_queue.erase_min();
+        hypothesis const * h_decl = curr_state().get_hypothesis_decl(hidx);
+        if (h_decl->is_dead())
+            continue;
+        if (optional<name> R = is_recursor_action_target(hidx)) {
+            Try(recursor_action(hidx, *R));
         }
     }
-    return action_result::failed();
 }
 }}

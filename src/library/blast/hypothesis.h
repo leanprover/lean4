@@ -22,6 +22,13 @@ typedef buffer<unsigned>                hypothesis_idx_buffer;
 template<typename T>
 using hypothesis_idx_map = typename lean::rb_map<unsigned, T, unsigned_cmp>;
 
+/* trick to make sure the rb_map::erase_min removes the hypothesis with biggest weight */
+struct inv_double_cmp {
+    int operator()(double const & d1, double const & d2) const { return d1 > d2 ? -1 : (d1 < d2 ? 1 : 0); }
+};
+
+typedef rb_map<double, hypothesis_idx, inv_double_cmp>   hypothesis_priority_queue;
+
 class hypothesis {
     friend class state;
     name               m_name;         // for pretty printing

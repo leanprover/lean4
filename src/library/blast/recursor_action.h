@@ -11,4 +11,7 @@ namespace lean {
 namespace blast {
 action_result recursor_preprocess_action(hypothesis_idx hidx);
 action_result recursor_action();
+
+void initialize_recursor_action();
+void finalize_recursor_action();
 }}

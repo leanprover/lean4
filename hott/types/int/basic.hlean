@@ -804,6 +804,7 @@ by rewrite [neg_succ_of_nat_eq, -of_nat_add_of_nat, neg_add]
 
 definition succ (a : ℤ) := a + (nat.succ zero)
 definition pred (a : ℤ) := a - (nat.succ zero)
+definition nat_succ_eq_int_succ (n : ℕ) : nat.succ n = int.succ n := idp
 definition pred_succ (a : ℤ) : pred (succ a) = a := !sub_add_cancel
 definition succ_pred (a : ℤ) : succ (pred a) = a := !add_sub_cancel
 definition neg_succ (a : ℤ) : -succ a = pred (-a) :=

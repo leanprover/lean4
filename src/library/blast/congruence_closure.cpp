@@ -264,11 +264,14 @@ void congruence_closure::add(hypothesis_idx hidx) {
 }
 
 bool congruence_closure::is_eqv(name const & R, expr const & e1, expr const & e2) const {
-    // TODO(Leo):
-    return false;
+    auto n1 = m_entries.find(eqc_key(R, e1));
+    if (!n1) return false;
+    auto n2 = m_entries.find(eqc_key(R, e2));
+    if (!n2) return false;
+    return n1->m_root == n2->m_root;
 }
 
-optional<expr> congruence_closure::get_eqv_proof(name const & rel_name, expr const & e1, expr const & e2) const {
+optional<expr> congruence_closure::get_eqv_proof(name const & R, expr const & e1, expr const & e2) const {
     // TODO(Leo):
     return none_expr();
 }

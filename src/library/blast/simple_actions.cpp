@@ -11,16 +11,16 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 // TODO(Leo): we should create choice points when there are meta-variables
-optional<expr> assumption_action() {
+action_result assumption_action() {
     state const & s     = curr_state();
     expr const & target = s.get_target();
     for (hypothesis_idx hidx : s.get_head_related()) {
         hypothesis const * h = s.get_hypothesis_decl(hidx);
         lean_assert(h);
         if (is_def_eq(h->get_type(), target))
-            return some_expr(h->get_self());
+            return action_result(h->get_self());
     }
-    return none_expr();
+    return action_result::failed();
 }
 
 /* Close branch IF h is of the form (H : a ~ a) where ~ is a reflexive relation */
@@ -39,20 +39,20 @@ static optional<expr> try_not_refl_relation(hypothesis const & h) {
     return none_expr();
 }
 
-optional<expr> assumption_contradiction_actions(hypothesis_idx hidx) {
+action_result assumption_contradiction_actions(hypothesis_idx hidx) {
     state const & s      = curr_state();
     app_builder & b      = get_app_builder();
     hypothesis const * h = s.get_hypothesis_decl(hidx);
     lean_assert(h);
     expr const & type    = h->get_type();
     if (blast::is_false(type)) {
-        return some_expr(b.mk_false_rec(s.get_target(), h->get_self()));
+        return action_result(b.mk_false_rec(s.get_target(), h->get_self()));
     }
     if (is_def_eq(type, s.get_target())) {
-        return some_expr(h->get_self());
+        return action_result(h->get_self());
     }
     if (auto pr = try_not_refl_relation(*h))
-        return pr;
+        return action_result(*pr);
     expr p1 = type;
     bool is_neg1 = is_not(type, p1);
     /* try to find complement */
@@ -64,39 +64,39 @@ optional<expr> assumption_contradiction_actions(hypothesis_idx hidx) {
         if (is_neg1 != is_neg2) {
             if (is_def_eq(p1, p2)) {
                 if (is_neg1) {
-                    return some_expr(b.mk_app(get_absurd_name(), {s.get_target(), h2->get_self(), h->get_self()}));
+                    return action_result(b.mk_app(get_absurd_name(), {s.get_target(), h2->get_self(), h->get_self()}));
                 } else {
                     lean_assert(is_neg2);
-                    return some_expr(b.mk_app(get_absurd_name(), {s.get_target(), h->get_self(), h2->get_self()}));
+                    return action_result(b.mk_app(get_absurd_name(), {s.get_target(), h->get_self(), h2->get_self()}));
                 }
             }
         }
     }
-    return none_expr();
+    return action_result::failed();
 }
 
-optional<expr> trivial_action() {
+action_result trivial_action() {
     try {
         state s = curr_state();
         expr target = s.get_target();
         /* ignore if target contains meta-variables */
         if (has_expr_metavar(target))
-            return none_expr();
+            return action_result::failed();
 
         /* true */
         if (target == mk_true()) {
-            return some_expr(mk_true_intro());
+            return action_result(mk_true_intro());
         }
 
         /* a ~ a */
         name rop; expr lhs, rhs;
         if (is_relation_app(target, rop, lhs, rhs) && is_def_eq(lhs, rhs)) {
-            return some_expr(get_app_builder().mk_refl(rop, lhs));
+            return action_result(get_app_builder().mk_refl(rop, lhs));
         }
 
-        return none_expr();
+        return action_result::failed();
     } catch (app_builder_exception &) {
-        return none_expr();
+        return action_result::failed();
     }
 }
 
@@ -128,5 +128,14 @@ bool discard(hypothesis_idx hidx) {
             return true;
     }
     return false;
+}
+
+action_result discard_action(hypothesis_idx hidx) {
+    if (discard(hidx)) {
+        curr_state().del_hypothesis(hidx);
+        return action_result::new_branch();
+    } else {
+        return action_result::failed();
+    }
 }
 }}

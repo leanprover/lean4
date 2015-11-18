@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/inductive/inductive.h"
 #include "library/user_recursors.h"
-#include "library/blast/revert_action.h"
+#include "library/blast/revert.h"
 #include "library/blast/blast.h"
 
 namespace lean {
@@ -174,7 +174,7 @@ action_result recursor_action(hypothesis_idx hidx, name const & R) {
     s.collect_direct_forward_deps(hidx, to_revert);
     for (auto i : indices)
         s.collect_direct_forward_deps(href_index(i), to_revert);
-    revert_action(to_revert);
+    revert(to_revert);
 
     expr target       = s.get_target();
     auto target_level = get_type_context().get_level_core(target);
@@ -287,6 +287,42 @@ action_result recursor_action(hypothesis_idx hidx) {
         auto r = recursor_action(hidx, R);
         if (!failed(r))
             return r;
+    }
+    return action_result::failed();
+}
+
+action_result recursor_preprocess_action(hypothesis_idx hidx) {
+    if (optional<name> R = is_recursor_action_target(hidx)) {
+        unsigned num_minor = get_num_minor_premises(*R);
+        if (num_minor == 1) {
+            action_result r = recursor_action(hidx, *R);
+            if (!failed(r)) {
+                // if (!preprocess) display_action("recursor");
+                return r;
+            }
+        } else {
+            // If the hypothesis recursor has more than 1 minor premise, we
+            // put it in a priority queue.
+            // TODO(Leo): refine
+
+            // TODO(Leo): the following weight computation is too simple...
+            double w = 1.0 / (static_cast<double>(hidx) + 1.0);
+            if (!is_recursive_recursor(*R)) {
+                // TODO(Leo): we need a better strategy for handling recursive recursors...
+                w += static_cast<double>(num_minor);
+                curr_state().add_to_rec_queue(hidx, w);
+                return action_result::new_branch();
+            }
+        }
+    }
+    return action_result::failed();
+}
+
+action_result recursor_action() {
+    while (auto hidx = curr_state().select_rec_hypothesis()) {
+        if (optional<name> R = is_recursor_action_target(*hidx)) {
+            Try(recursor_action(*hidx, *R));
+        }
     }
     return action_result::failed();
 }

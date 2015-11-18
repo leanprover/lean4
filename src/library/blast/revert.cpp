@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "library/blast/revert_action.h"
+#include "library/blast/revert.h"
 #include "library/blast/blast.h"
 
 namespace lean {
@@ -23,7 +23,7 @@ struct revert_proof_step_cell : public proof_step_cell {
     virtual bool is_silent() const override { return true; }
 };
 
-unsigned revert_action(hypothesis_idx_buffer_set & hidxs) {
+unsigned revert(hypothesis_idx_buffer_set & hidxs) {
     state & s = curr_state();
     unsigned hidxs_size = hidxs.as_buffer().size();
     for (unsigned i = 0; i < hidxs_size; i++) {
@@ -40,8 +40,8 @@ unsigned revert_action(hypothesis_idx_buffer_set & hidxs) {
     return hidxs.as_buffer().size();
 }
 
-unsigned revert_action(buffer<hypothesis_idx> & hidxs) {
+unsigned revert(buffer<hypothesis_idx> & hidxs) {
     hypothesis_idx_buffer_set _hidxs(hidxs);
-    return revert_action(_hidxs);
+    return revert(_hidxs);
 }
 }}

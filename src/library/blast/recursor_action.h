@@ -9,13 +9,6 @@ Author: Leonardo de Moura
 #include "library/blast/hypothesis.h"
 namespace lean {
 namespace blast {
-/** \brief Return the name of the recursor that can be used with the given hypothesis */
-optional<name> is_recursor_action_target(hypothesis_idx hidx);
-
-/** \brief Return the number of minor premises of the given recursor */
-unsigned get_num_minor_premises(name const & R);
-bool is_recursive_recursor(name const & R);
-
-action_result recursor_action(hypothesis_idx hidx, name const & R);
-action_result recursor_action(hypothesis_idx hidx);
+action_result recursor_preprocess_action(hypothesis_idx hidx);
+action_result recursor_action();
 }}

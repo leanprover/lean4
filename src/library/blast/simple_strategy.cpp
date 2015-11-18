@@ -25,54 +25,13 @@ class simple_strategy : public strategy {
     action_result activate_hypothesis(bool preprocess) {
         auto hidx = curr_state().activate_hypothesis();
         if (!hidx) return action_result::failed();
-
         if (!preprocess) display_action("activate");
 
-        if (auto pr = assumption_contradiction_actions(*hidx)) {
-            if (!preprocess) display_action("assumption-contradiction");
-            return action_result::solved(*pr);
-        }
-
-        if (subst_action(*hidx)) {
-            if (!preprocess) display_action("subst");
-            return action_result::new_branch();
-        }
-
-        action_result r = no_confusion_action(*hidx);
-        if (!failed(r)) {
-            if (!preprocess) display_action("no_confusion");
-            return r;
-        }
-
-        if (discard(*hidx)) {
-            if (!preprocess) display_action("discard redudant hypothesis");
-            curr_state().del_hypothesis(*hidx);
-            return action_result::new_branch();
-        }
-
-        if (optional<name> R = is_recursor_action_target(*hidx)) {
-            unsigned num_minor = get_num_minor_premises(*R);
-            if (num_minor == 1) {
-                action_result r = recursor_action(*hidx, *R);
-                if (!failed(r)) {
-                    if (!preprocess) display_action("recursor");
-                    return r;
-                }
-            } else {
-                // If the hypothesis recursor has more than 1 minor premise, we
-                // put it in a priority queue.
-                // TODO(Leo): refine
-
-                // TODO(Leo): the following weight computation is too simple...
-                double w = 1.0 / (static_cast<double>(*hidx) + 1.0);
-                if (!is_recursive_recursor(*R)) {
-                    // TODO(Leo): we need a better strategy for handling recursive recursors...
-                    w += static_cast<double>(num_minor);
-                    curr_state().add_to_rec_queue(*hidx, w);
-                }
-            }
-        }
-
+        Try(assumption_contradiction_actions(*hidx));
+        Try(subst_action(*hidx));
+        Try(no_confusion_action(*hidx));
+        Try(discard_action(*hidx));
+        Try(recursor_preprocess_action(*hidx));
         return action_result::new_branch();
     }
 
@@ -82,57 +41,24 @@ class simple_strategy : public strategy {
     virtual optional<expr> preprocess() {
         display_msg("* Preprocess");
         while (true) {
-            if (intros_action())
+            if (!failed(intros_action()))
                 continue;
             auto r = activate_hypothesis(true);
             if (solved(r)) return r.to_opt_expr();
             if (failed(r)) break;
         }
-        if (auto pr = assumption_action())
-            return pr;
-        return simplify_target_action().to_opt_expr();
+        TrySolve(assumption_action());
+        TrySolve(simplify_target_action());
+        return none_expr();
     }
 
     virtual action_result next_action() {
-        if (intros_action()) {
-            display_action("intros");
-            return action_result::new_branch();
-        }
-
-        action_result r = activate_hypothesis(false);
-        if (!failed(r)) return r;
-
-        if (auto pr = trivial_action()) {
-            display_action("trivial");
-            return action_result::solved(*pr);
-        }
-
-        if (auto pr = assumption_action()) {
-            // Remark: this action is only relevant
-            // when the target has been modified.
-            display_action("assumption");
-            return action_result::solved(*pr);
-        }
-
-        while (auto hidx = curr_state().select_rec_hypothesis()) {
-            if (optional<name> R = is_recursor_action_target(*hidx)) {
-                r = recursor_action(*hidx, *R);
-                if (!failed(r)) {
-                    display_action("recursor");
-                    return r;
-                }
-            }
-        }
-
-        r = constructor_action();
-        if (!failed(r)) {
-            display_action("constructor");
-            return r;
-        }
-
-        // TODO(Leo): add more actions...
-
-        display_msg(">>> FAILED <<<");
+        Try(intros_action());
+        Try(activate_hypothesis(false));
+        Try(trivial_action());
+        Try(assumption_action());
+        Try(recursor_action());
+        Try(constructor_action());
         return action_result::failed();
     }
 };

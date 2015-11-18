@@ -23,13 +23,13 @@ struct intros_proof_step_cell : public proof_step_cell {
     virtual bool is_silent() const override { return true; }
 };
 
-bool intros_action(unsigned max) {
+action_result intros_action(unsigned max) {
     if (max == 0)
-        return true;
+        return action_result::new_branch();
     state &  s  = curr_state();
     expr target = whnf(s.get_target());
     if (!is_pi(target))
-        return false;
+        return action_result::failed();
     auto pcell = new intros_proof_step_cell();
     s.push_proof_step(pcell);
     buffer<expr> new_hs;
@@ -48,10 +48,10 @@ bool intros_action(unsigned max) {
     }
     pcell->m_new_hs = to_list(new_hs);
     s.set_target(target);
-    return true;
+    return action_result::new_branch();
 }
 
-bool intros_action() {
+action_result intros_action() {
     return intros_action(std::numeric_limits<unsigned>::max());
 }
 }}

@@ -9,6 +9,6 @@ Author: Leonardo de Moura
 namespace lean {
 namespace blast {
 /** \brief If the given hypothesis is of the form (H : t = x) or (H : x = s), then
-    eliminate x (and H). Return true if success. */
-bool subst_action(hypothesis_idx hidx);
+    eliminate x (and H). */
+action_result subst_action(hypothesis_idx hidx);
 }}

@@ -21,9 +21,9 @@ public:
 private:
     kind m_kind;
     expr m_proof;
+public:
     action_result(bool b = true):m_kind(b ? NewBranch : Failed) {}
     action_result(expr const & pr):m_kind(Solved), m_proof(pr) {}
-public:
     kind get_kind() const { return m_kind; }
     expr get_proof() const { lean_assert(m_kind == Solved); return m_proof; }
     static action_result failed() { return action_result(false); }
@@ -34,4 +34,7 @@ public:
 
 inline bool failed(action_result const & r) { return r.get_kind() == action_result::Failed; }
 inline bool solved(action_result const & r) { return r.get_kind() == action_result::Solved; }
+
+#define Try(Code) { action_result r = Code; if (!failed(r)) return r; }
+#define TrySolve(Code) { action_result r = Code; if (solved(r)) return r.to_opt_expr(); }
 }}

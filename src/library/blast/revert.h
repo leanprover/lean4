@@ -11,6 +11,6 @@ namespace lean {
 namespace blast {
 /** \brief Revert the given hypotheses and their dependencies.
     Return the total number of hypotheses reverted. */
-unsigned revert_action(buffer<hypothesis_idx> & hidxs);
-unsigned revert_action(hypothesis_idx_buffer_set & hidxs);
+unsigned revert(buffer<hypothesis_idx> & hidxs);
+unsigned revert(hypothesis_idx_buffer_set & hidxs);
 }}

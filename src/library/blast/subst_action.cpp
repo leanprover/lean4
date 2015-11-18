@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
-#include "library/blast/revert_action.h"
+#include "library/blast/revert.h"
 #include "library/blast/intros_action.h"
 #include "library/blast/blast.h"
 
@@ -57,7 +57,7 @@ bool subst_core(hypothesis_idx hidx) {
                                       to_revert,
                                       [&](hypothesis_idx d) { return d != hidx; });
         s.collect_direct_forward_deps(hidx, to_revert);
-        unsigned num = revert_action(to_revert);
+        unsigned num = revert(to_revert);
         expr target  = s.get_target();
         expr new_target = abstract(target, h->get_self());
         bool dep        = !closed(new_target);
@@ -84,7 +84,7 @@ bool subst_core(hypothesis_idx hidx) {
     }
 }
 
-bool subst_action(hypothesis_idx hidx) {
+action_result subst_action(hypothesis_idx hidx) {
     state & s       = curr_state();
     app_builder & b = get_app_builder();
     hypothesis const * h = s.get_hypothesis_decl(hidx);
@@ -92,14 +92,14 @@ bool subst_action(hypothesis_idx hidx) {
     expr type = h->get_type();
     expr lhs, rhs;
     if (!is_eq(type, lhs, rhs))
-        return false;
+        return action_result::failed();
     if (is_href(rhs)) {
-        return subst_core(hidx);
+        return action_result(subst_core(hidx));
     } else if (is_href(lhs)) {
         if (s.has_forward_deps(href_index(lhs))) {
             // TODO(Leo): we don't handle this case yet.
             // Other hypotheses depend on this equality.
-            return false;
+            return action_result::failed();
         }
         state saved   = s;
         try {
@@ -107,17 +107,17 @@ bool subst_action(hypothesis_idx hidx) {
             expr new_pr   = b.mk_eq_symm(h->get_self());
             expr new_href = s.mk_hypothesis(new_eq, new_pr);
             if (subst_core(href_index(new_href))) {
-                return true;
+                return action_result::new_branch();
             } else {
                 s = saved;
-                return false;
+                return action_result::failed();
             }
         } catch (app_builder_exception &) {
             s = saved;
-            return false;
+            return action_result::failed();
         }
     } else {
-        return false;
+        return action_result::failed();
     }
 }
 }}

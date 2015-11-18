@@ -7,14 +7,15 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr.h"
 #include "library/blast/hypothesis.h"
+#include "library/blast/action_result.h"
 namespace lean {
 namespace blast {
-optional<expr> assumption_action();
+action_result assumption_action();
 /** \brief Apply assumption and contradiction actions using the given hypothesis.
     \remark This action is supposed to be applied when a hypothesis is activated. */
-optional<expr> assumption_contradiction_actions(hypothesis_idx hidx);
+action_result assumption_contradiction_actions(hypothesis_idx hidx);
 /** \brief Solve trivial targets (e.g., true, a = a, a <-> a, etc). */
-optional<expr> trivial_action();
+action_result trivial_action();
 
 /** \brief Return true if the given hypothesis is "redundant". We consider a hypothesis
     redundant if it is a proposition, no other hypothesis type depends on it,
@@ -30,5 +31,5 @@ optional<expr> trivial_action();
     (well, it may be useful for the HoTT library).
 
     TODO(Leo): subsumption. 3 is just a very simple case of subsumption. */
-bool discard(hypothesis_idx hidx);
+action_result discard_action(hypothesis_idx hidx);
 }}

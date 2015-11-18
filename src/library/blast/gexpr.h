@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr.h"
 #include "library/type_context.h"
+#include "library/io_state_stream.h"
 
 namespace lean {
 namespace blast {
@@ -25,6 +26,8 @@ struct gexpr {
 public:
     gexpr(name const & n):m_univ_poly(true), m_expr(mk_constant(n)) {}
     gexpr(expr const & e):m_univ_poly(false), m_expr(e) {}
+    gexpr(environment const & env, name const & n):
+        m_univ_poly(env.get(n).get_univ_params()), m_expr(mk_constant(n)) {}
 
     bool is_universe_polymorphic() const {
         return m_univ_poly;
@@ -38,5 +41,13 @@ public:
     /** \brief Similar to previous method, but uses \c mk_fresh_uref to
         create fresh universe meta-variables */
     expr to_expr() const;
+
+    friend bool operator==(gexpr const & ge1, gexpr const & ge2);
+    friend std::ostream const & operator<<(std::ostream const & out, gexpr const & ge);
 };
+
+bool operator==(gexpr const & ge1, gexpr const & ge2);
+inline bool operator!=(gexpr const & ge1, gexpr const & ge2) { return !operator==(ge1, ge2); }
+std::ostream & operator<<(std::ostream & out, gexpr const & ge);
+
 }}

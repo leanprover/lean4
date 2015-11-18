@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/user_recursors.h"
 #include "library/coercion.h"
 #include "library/simplifier/simp_rule_set.h"
+#include "library/blast/backward/backward_rule_set.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
@@ -41,6 +42,7 @@ decl_attributes::decl_attributes(bool is_abbrev, bool persistent):
     m_recursor               = false;
     m_simp                   = false;
     m_congr                  = false;
+    m_backward               = false;
 }
 
 void decl_attributes::parse(parser & p) {
@@ -87,8 +89,8 @@ void decl_attributes::parse(parser & p) {
             p.next();
         } else if (auto it = parse_priority(p)) {
             m_priority = *it;
-            if (!m_is_instance && !m_simp && !m_congr) {
-                throw parser_error("invalid '[priority]' attribute, declaration must be marked as an '[instance]', '[simp]' or '[congr]'", pos);
+            if (!m_is_instance && !m_simp && !m_congr && !m_backward) {
+                throw parser_error("invalid '[priority]' attribute, declaration must be marked as an '[instance]', '[simp]', '[congr], or [backward]'", pos);
             }
         } else if (p.curr_is_token(get_parsing_only_tk())) {
             if (!m_is_abbrev)
@@ -133,6 +135,9 @@ void decl_attributes::parse(parser & p) {
         } else if (p.curr_is_token(get_congr_attr_tk())) {
             p.next();
             m_congr = true;
+        } else if (p.curr_is_token(get_backward_attr_tk())) {
+            p.next();
+            m_backward = true;
         } else if (p.curr_is_token(get_recursor_tk())) {
             p.next();
             if (!p.curr_is_token(get_rbracket_tk())) {
@@ -212,6 +217,12 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
             env = add_congr_rule(env, d, *m_priority, m_persistent);
         else
             env = add_congr_rule(env, d, LEAN_SIMP_DEFAULT_PRIORITY, m_persistent);
+    }
+    if (m_backward) {
+        if (m_priority)
+            env = add_backward_rule(env, d, *m_priority, m_persistent);
+        else
+            env = add_backward_rule(env, d, LEAN_BACKWARD_DEFAULT_PRIORITY, m_persistent);
     }
     if (m_has_multiple_instances)
         env = mark_multiple_instances(env, d, m_persistent);

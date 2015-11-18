@@ -120,6 +120,7 @@ static name const * g_refl_tk = nullptr;
 static name const * g_subst_tk = nullptr;
 static name const * g_simp_attr_tk = nullptr;
 static name const * g_congr_attr_tk = nullptr;
+static name const * g_backward_attr_tk = nullptr;
 static name const * g_recursor_tk = nullptr;
 static name const * g_attribute_tk = nullptr;
 static name const * g_with_tk = nullptr;
@@ -274,6 +275,7 @@ void initialize_tokens() {
     g_subst_tk = new name{"[subst]"};
     g_simp_attr_tk = new name{"[simp]"};
     g_congr_attr_tk = new name{"[congr]"};
+    g_backward_attr_tk = new name{"[backward]"};
     g_recursor_tk = new name{"[recursor"};
     g_attribute_tk = new name{"attribute"};
     g_with_tk = new name{"with"};
@@ -429,6 +431,7 @@ void finalize_tokens() {
     delete g_subst_tk;
     delete g_simp_attr_tk;
     delete g_congr_attr_tk;
+    delete g_backward_attr_tk;
     delete g_recursor_tk;
     delete g_attribute_tk;
     delete g_with_tk;
@@ -583,6 +586,7 @@ name const & get_refl_tk() { return *g_refl_tk; }
 name const & get_subst_tk() { return *g_subst_tk; }
 name const & get_simp_attr_tk() { return *g_simp_attr_tk; }
 name const & get_congr_attr_tk() { return *g_congr_attr_tk; }
+name const & get_backward_attr_tk() { return *g_backward_attr_tk; }
 name const & get_recursor_tk() { return *g_recursor_tk; }
 name const & get_attribute_tk() { return *g_attribute_tk; }
 name const & get_with_tk() { return *g_with_tk; }

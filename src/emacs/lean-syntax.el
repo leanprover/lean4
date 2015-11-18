@@ -46,8 +46,8 @@
 (defconst lean-constants-regexp (regexp-opt lean-constants))
 (defconst lean-numerals-regexp
   (eval `(rx word-start
-	     (one-or-more digit) (optional (and "." (zero-or-more digit)))
-	     word-end)))
+             (one-or-more digit) (optional (and "." (zero-or-more digit)))
+             word-end)))
 
 (defconst lean-modifiers
   (--map (s-concat "[" it "]")
@@ -55,7 +55,7 @@
            "class" "parsing_only" "coercion" "unfold_full" "constructor"
            "reducible" "irreducible" "semireducible" "quasireducible" "wf"
            "whnf" "multiple_instances" "none" "decls" "declarations"
-           "coercions" "classes" "symm" "subst" "refl" "trans" "simp" "congr"
+           "coercions" "classes" "symm" "subst" "refl" "trans" "simp" "congr" "backward"
            "notations" "abbreviations" "begin_end_hints" "tactic_hints"
            "reduce_hints" "unfold_hints" "aliases" "eqv"
            "localrefinfo" "recursor"))

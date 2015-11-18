@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/head_map.h"
 #include "library/tactic/goal.h"
 #include "library/simplifier/simp_rule_set.h"
+#include "library/blast/backward/backward_rule_set.h"
 #include "library/blast/action_result.h"
 #include "library/blast/hypothesis.h"
 

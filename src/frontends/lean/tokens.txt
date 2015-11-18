@@ -115,6 +115,7 @@ refl         [refl]
 subst        [subst]
 simp_attr    [simp]
 congr_attr   [congr]
+backward_attr [backward]
 recursor     [recursor
 attribute    attribute
 with         with

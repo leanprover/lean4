@@ -7,6 +7,8 @@ Author: Leonardo de Moura
 #pragma once
 #include "library/blast/action_result.h"
 #include "library/blast/options.h"
+#include "library/blast/blast.h"
+#include "util/flet.h"
 
 namespace lean {
 namespace blast {
@@ -31,4 +33,10 @@ public:
     strategy();
     optional<expr> operator()() { return search(); }
 };
+
+#define TryStrategy(Code) {\
+        flet<state> save_state(curr_state(), curr_state());\
+        curr_state().clear_proof_steps();\
+        if (optional<expr> pf = Code) { return action_result::solved(*pf); }\
+    }
 }}

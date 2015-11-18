@@ -26,4 +26,13 @@ expr gexpr::to_expr(type_context & ctx) const {
 expr gexpr::to_expr() const {
     return to_expr(get_type_context());
 }
+
+bool operator==(gexpr const & ge1, gexpr const & ge2) { return ge1.m_expr == ge2.m_expr; }
+
+std::ostream & operator<<(std::ostream & out, gexpr const & ge) {
+    out << ge.m_expr;
+    if (ge.is_universe_polymorphic()) out << " (poly)";
+    return out;
+}
+
 }}

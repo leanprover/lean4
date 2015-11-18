@@ -33,4 +33,12 @@ int head_index::cmp::operator()(head_index const & i1, head_index const & i2) co
     else
         return quick_cmp(i1.m_name, i2.m_name);
 }
+
+std::ostream & operator<<(std::ostream & out, head_index const & head_idx) {
+    if (head_idx.m_kind == expr_kind::Constant || head_idx.m_kind == expr_kind::Local)
+        out << head_idx.m_name;
+    else
+        out << head_idx.m_kind;
+    return out;
+}
 }

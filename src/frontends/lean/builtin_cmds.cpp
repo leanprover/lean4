@@ -48,6 +48,7 @@ Author: Leonardo de Moura
 #include "library/simplifier/simp_rule_set.h"
 #include "library/blast/blast.h"
 #include "library/blast/simplifier.h"
+#include "library/blast/backward/backward_rule_set.h"
 #include "compiler/preprocess_rec.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
@@ -257,6 +258,8 @@ static void print_attributes(parser const & p, name const & n) {
         out << " [simp]";
     if (is_congr_rule(env, n))
         out << " [congr]";
+    if (is_backward_rule(env, n))
+        out << " [backward]";
     switch (get_reducible_status(env, n)) {
     case reducible_status::Reducible:      out << " [reducible]"; break;
     case reducible_status::Irreducible:    out << " [irreducible]"; break;
@@ -496,6 +499,12 @@ static void print_congr_rules(parser & p) {
     out << s.pp_congr(out.get_formatter());
 }
 
+static void print_backward_rules(parser & p) {
+    io_state_stream out = p.regular_stream();
+    blast::backward_rule_set brs = get_backward_rule_set(p.env());
+    out << brs;
+}
+
 environment print_cmd(parser & p) {
     flycheck_information info(p.regular_stream());
     if (info.enabled()) {
@@ -609,6 +618,9 @@ environment print_cmd(parser & p) {
     } else if (p.curr_is_token(get_congr_attr_tk())) {
         p.next();
         print_congr_rules(p);
+    } else if (p.curr_is_token(get_backward_attr_tk())) {
+        p.next();
+        print_backward_rules(p);
     } else if (print_polymorphic(p)) {
     } else {
         throw parser_error("invalid print command", p.pos());

@@ -666,6 +666,21 @@ unsigned hash_bi(expr const & e) {
     return h;
 }
 
+std::ostream & operator<<(std::ostream & out, expr_kind const & k) {
+    switch (k) {
+    case expr_kind::Var:      out << "Var"; break;
+    case expr_kind::Sort:     out << "Sort"; break;
+    case expr_kind::Constant: out << "Constant"; break;
+    case expr_kind::Meta:     out << "Meta"; break;
+    case expr_kind::Local:    out << "Local"; break;
+    case expr_kind::App:      out << "App"; break;
+    case expr_kind::Lambda:   out << "Lambda"; break;
+    case expr_kind::Pi:       out << "Pi"; break;
+    case expr_kind::Macro:    out << "Macro"; break;
+    }
+    return out;
+}
+
 void initialize_expr() {
     g_dummy        = new expr(mk_constant("__expr_for_default_constructor__"));
     g_default_name = new name("a");

@@ -617,6 +617,7 @@ expr infer_implicit(expr const & t, unsigned num_params, bool strict);
 expr infer_implicit(expr const & t, bool strict);
 // =======================================
 
+std::ostream & operator<<(std::ostream & out, expr_kind const & k);
 std::ostream & operator<<(std::ostream & out, expr const & e);
 
 void initialize_expr();

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/blast/simplifier.h"
 #include "library/blast/options.h"
 #include "library/blast/recursor_action.h"
+#include "library/blast/backward/init_module.h"
 
 namespace lean {
 void initialize_blast_module() {
@@ -19,12 +20,14 @@ void initialize_blast_module() {
     blast::initialize_state();
     initialize_blast();
     blast::initialize_simplifier();
+    blast::initialize_backward_module();
     initialize_blast_tactic();
     blast::initialize_recursor_action();
 }
 void finalize_blast_module() {
     blast::finalize_recursor_action();
     finalize_blast_tactic();
+    blast::finalize_backward_module();
     blast::finalize_simplifier();
     finalize_blast();
     blast::finalize_state();

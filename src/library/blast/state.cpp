@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "library/replace_visitor.h"
 #include "library/blast/util.h"
+#include "library/blast/blast.h"
 #include "library/blast/state.h"
 
 namespace lean {

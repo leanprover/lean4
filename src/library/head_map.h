@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/rb_map.h"
 #include "util/list.h"
 #include "kernel/expr.h"
+#include "library/io_state_stream.h"
 
 namespace lean {
 struct head_index {
@@ -20,6 +21,8 @@ struct head_index {
     struct cmp {
         int operator()(head_index const & i1, head_index const & i2) const;
     };
+
+    friend std::ostream & operator<<(std::ostream & out, head_index const & head_idx);
 };
 
 /**

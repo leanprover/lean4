@@ -246,7 +246,7 @@ void congruence_closure::add(hypothesis_idx hidx) {
         if (is_relation_app(p, R, lhs, rhs)) {
             if (is_neg) {
                 internalize(get_iff_name(), p);
-                add_eqv(get_iff_name(), p, mk_false(), b.mk_app(get_iff_false_intro_name(), h->get_self()));
+                add_eqv(get_iff_name(), p, mk_false(), b.mk_iff_false_intro(h->get_self()));
             } else {
                 internalize(R, lhs);
                 internalize(R, rhs);
@@ -255,9 +255,9 @@ void congruence_closure::add(hypothesis_idx hidx) {
         } else if (is_prop(p)) {
             internalize(get_iff_name(), p);
             if (is_neg) {
-                add_eqv(get_iff_name(), p, mk_false(), b.mk_app(get_iff_false_intro_name(), h->get_self()));
+                add_eqv(get_iff_name(), p, mk_false(), b.mk_iff_false_intro(h->get_self()));
             } else {
-                add_eqv(get_iff_name(), p, mk_true(), b.mk_app(get_iff_true_intro_name(), h->get_self()));
+                add_eqv(get_iff_name(), p, mk_true(), b.mk_iff_true_intro(h->get_self()));
             }
         }
     } catch (app_builder_exception &) {}
@@ -294,7 +294,7 @@ optional<expr> congruence_closure::get_uneqv_proof(name const & R, expr const & 
         // TODO(Leo): check if this is a bootleneck
         expr tmp = b.mk_rel(R, e1, e2);
         if (auto p = get_eqv_proof(get_iff_name(), tmp, mk_false())) {
-            return some_expr(b.mk_app(get_not_of_iff_false_name(), *p));
+            return some_expr(b.mk_not_of_iff_false(*p));
         } else {
             return none_expr();
         }
@@ -311,7 +311,7 @@ optional<expr> congruence_closure::get_inconsistency_proof() const {
     try {
         app_builder & b = get_app_builder();
         if (auto p = get_eqv_proof(get_iff_name(), mk_true(), mk_false())) {
-            return some_expr(b.mk_app(get_false_of_true_iff_false_name(), *p));
+            return some_expr(b.mk_false_of_true_iff_false(*p));
         } else {
             return none_expr();
         }

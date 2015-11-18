@@ -115,6 +115,17 @@ public:
     expr mk_congr_fun(expr const & H, expr const & a);
     expr mk_congr(expr const & H1, expr const & H2);
 
+    /** \brief not p -> (p <-> false) */
+    expr mk_iff_false_intro(expr const & H);
+    /** \brief p -> (p <-> true) */
+    expr mk_iff_true_intro(expr const & H);
+    /** \brief (p <-> false) -> not p */
+    expr mk_not_of_iff_false(expr const & H);
+    /** \brief (p <-> true) -> p */
+    expr mk_of_iff_true(expr const & H);
+    /** \brief (true <-> false) -> false */
+    expr mk_false_of_true_iff_false(expr const & H);
+
     expr mk_partial_add(expr const & A);
     expr mk_partial_mul(expr const & A);
     expr mk_zero(expr const & A);

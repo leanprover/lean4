@@ -469,6 +469,31 @@ struct app_builder::imp {
         return mk_app(get_congr_name(), {H1, H2});
     }
 
+    expr mk_iff_false_intro(expr const & H) {
+        // TODO(Leo): implement custom version if bottleneck.
+        return mk_app(get_iff_false_intro_name(), {H});
+    }
+
+    expr mk_iff_true_intro(expr const & H) {
+        // TODO(Leo): implement custom version if bottleneck.
+        return mk_app(get_iff_true_intro_name(), {H});
+    }
+
+    expr mk_not_of_iff_false(expr const & H) {
+        // TODO(Leo): implement custom version if bottleneck.
+        return mk_app(get_not_of_iff_false_name(), {H});
+    }
+
+    expr mk_of_iff_true(expr const & H) {
+        // TODO(Leo): implement custom version if bottleneck.
+        return mk_app(get_of_iff_true_name(), {H});
+    }
+
+    expr mk_false_of_true_iff_false(expr const & H) {
+        // TODO(Leo): implement custom version if bottleneck.
+        return mk_app(get_false_of_true_iff_false_name(), {H});
+    }
+
     expr mk_partial_add(expr const & A) {
         level lvl = get_level(A);
         auto A_has_add = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_has_add_name(), {lvl}), A));
@@ -610,6 +635,25 @@ expr app_builder::mk_congr_fun(expr const & H, expr const & a) {
 
 expr app_builder::mk_congr(expr const & H1, expr const & H2) {
     return m_ptr->mk_congr(H1, H2);
+}
+
+expr app_builder::mk_iff_false_intro(expr const & H) {
+    return m_ptr->mk_iff_false_intro(H);
+}
+
+expr app_builder::mk_iff_true_intro(expr const & H) {
+    return m_ptr->mk_iff_true_intro(H);
+}
+expr app_builder::mk_not_of_iff_false(expr const & H) {
+    return m_ptr->mk_not_of_iff_false(H);
+}
+
+expr app_builder::mk_of_iff_true(expr const & H) {
+    return m_ptr->mk_of_iff_true(H);
+}
+
+expr app_builder::mk_false_of_true_iff_false(expr const & H) {
+    return m_ptr->mk_false_of_true_iff_false(H);
 }
 
 expr app_builder::mk_partial_add(expr const & A) {

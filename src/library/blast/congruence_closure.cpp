@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <vector>
 #include "library/constants.h"
 #include "library/simplifier/simp_rule_set.h"
 #include "library/blast/congruence_closure.h"

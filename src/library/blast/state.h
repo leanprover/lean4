@@ -96,10 +96,25 @@ public:
     }
 };
 
+/** \brief Actions that require additional indexing data-structures may store them
+    at a branch_extension */
+class branch_extension {
+    MK_LEAN_RC();
+    void dealloc() { delete this; }
+public:
+    virtual ~branch_extension() {}
+    virtual branch_extension * clone() = 0;
+    virtual void hypothesis_activated(hypothesis const & h, hypothesis_idx hidx) = 0;
+    virtual void hypothesis_deleted(hypothesis const & h, hypothesis_idx hidx) = 0;
+};
+
+unsigned register_branch_extension(branch_extension * initial);
+
 /** \brief Information associated with the current branch of the proof state.
     This is essentially a mechanism for creating snapshots of the current branch. */
 class branch {
     friend class state;
+
     typedef hypothesis_idx_map<hypothesis_idx_set> forward_deps;
     /* trick to make sure the rb_map::erase_min removes the hypothesis with biggest weight */
     struct inv_double_cmp {
@@ -108,6 +123,7 @@ class branch {
     typedef rb_map<double, hypothesis_idx, inv_double_cmp>   priority_queue;
     typedef priority_queue                                   todo_queue;
     typedef priority_queue                                   rec_queue;
+
     // Hypothesis/facts in the current state
     hypothesis_decls   m_hyp_decls;
     // We break the set of hypotheses in m_hyp_decls in 4 sets that are not necessarily disjoint:
@@ -134,6 +150,14 @@ class branch {
     expr                     m_target;
     hypothesis_idx_set       m_target_deps;
     simp_rule_sets           m_simp_rule_sets;
+    branch_extension **      m_extensions;
+public:
+    branch();
+    branch(branch const & b);
+    branch(branch && b);
+    ~branch();
+    void swap(branch & b);
+    branch & operator=(branch s);
 };
 
 /** \brief Proof state for the blast tactic */
@@ -176,6 +200,8 @@ class state {
     bool safe_to_delete(buffer<hypothesis_idx> const & to_delete);
 
     void display_active(output_channel & out) const;
+
+    branch_extension * get_extension_core(unsigned i);
 
     #ifdef LEAN_DEBUG
     bool check_hypothesis(expr const & e, hypothesis_idx hidx, hypothesis const & h) const;
@@ -424,6 +450,12 @@ public:
     simp_rule_sets get_simp_rule_sets() const {
         return m_branch.m_simp_rule_sets;
     }
+
+    /************************
+       Branch extensions
+    *************************/
+
+    branch_extension & get_extension(unsigned extid);
 
     /************************
        Debugging support

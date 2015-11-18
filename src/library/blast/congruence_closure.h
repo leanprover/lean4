@@ -139,6 +139,14 @@ public:
     bool is_uneqv(name const & R, expr const & e1, expr const & e2) const;
     optional<expr> get_uneqv_proof(name const & R, expr const & e1, expr const & e2) const;
 
+    /** \brief Return true iff \c e has been proved by this module. That is, the proposition \c e is inhabited */
+    bool prove(expr const & e) const;
+    optional<expr> get_proof(expr const & e) const;
+
+    /** \brief Return true iff \c (not e) has been proved by this module. That is, the proposition \c (not e) is inhabited */
+    bool disproved(expr const & e) const;
+    optional<expr> get_disproof(expr const & e) const;
+
     bool is_congr_root(name const & R, expr const & e) const;
     bool is_root(name const & R, expr const & e) const { return get_root(R, e) == e; }
     expr get_root(name const & R, expr const & e) const;

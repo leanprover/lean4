@@ -320,6 +320,40 @@ optional<expr> congruence_closure::get_inconsistency_proof() const {
     }
 }
 
+bool congruence_closure::prove(expr const & e) const {
+    return is_eqv(get_iff_name(), e, mk_true());
+}
+
+optional<expr> congruence_closure::get_proof(expr const & e) const {
+    try {
+        app_builder & b = get_app_builder();
+        if (auto p = get_eqv_proof(get_iff_name(), e, mk_true())) {
+            return some_expr(b.mk_of_iff_true(*p));
+        } else {
+            return none_expr();
+        }
+    } catch (app_builder_exception &) {
+        return none_expr();
+    }
+}
+
+bool congruence_closure::disproved(expr const & e) const {
+    return is_eqv(get_iff_name(), e, mk_false());
+}
+
+optional<expr> congruence_closure::get_disproof(expr const & e) const {
+    try {
+        app_builder & b = get_app_builder();
+        if (auto p = get_eqv_proof(get_iff_name(), e, mk_false())) {
+            return some_expr(b.mk_not_of_iff_false(*p));
+        } else {
+            return none_expr();
+        }
+    } catch (app_builder_exception &) {
+        return none_expr();
+    }
+}
+
 bool congruence_closure::is_congr_root(name const & R, expr const & e) const {
     if (auto n = m_entries.find(eqc_key(R, e))) {
         return n->m_cg_root;

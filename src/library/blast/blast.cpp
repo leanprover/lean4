@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/blast/blast_exception.h"
 #include "library/blast/simple_strategy.h"
 #include "library/blast/choice_point.h"
+#include "library/blast/congruence_closure.h"
 
 namespace lean {
 namespace blast {
@@ -58,6 +59,7 @@ class blastenv {
     fun_info_manager           m_fun_info_manager;
     congr_lemma_manager        m_congr_lemma_manager;
     abstract_expr_manager      m_abstract_expr_manager;
+    relation_info_getter       m_rel_getter;
     refl_info_getter           m_refl_getter;
 
     class tctx : public type_context {
@@ -414,6 +416,7 @@ public:
         m_fun_info_manager(*m_tmp_ctx),
         m_congr_lemma_manager(m_app_builder, m_fun_info_manager),
         m_abstract_expr_manager(m_fun_info_manager),
+        m_rel_getter(mk_relation_info_getter(env)),
         m_refl_getter(mk_refl_info_getter(env)),
         m_tctx(*this),
         m_normalizer(m_tctx) {
@@ -495,6 +498,14 @@ public:
         return m_congr_lemma_manager.mk_congr(fn);
     }
 
+    optional<congr_lemma> mk_rel_iff_congr(expr const & fn) {
+        return m_congr_lemma_manager.mk_rel_iff_congr(fn);
+    }
+
+    optional<congr_lemma> mk_rel_eq_congr(expr const & fn) {
+        return m_congr_lemma_manager.mk_rel_eq_congr(fn);
+    }
+
     fun_info get_fun_info(expr const & fn) {
         return m_fun_info_manager.get(fn);
     }
@@ -537,12 +548,16 @@ public:
         return r;
     }
 
-    bool is_relation(expr const & e, name & rop, expr & lhs, expr & rhs) {
+    bool is_relation_app(expr const & e, name & rop, expr & lhs, expr & rhs) {
         return m_is_relation_pred(e, rop, lhs, rhs);
     }
 
     bool is_reflexive(name const & rop) const {
         return static_cast<bool>(m_refl_getter(rop));
+    }
+
+    optional<relation_info> get_relation_info(name const & rop) const {
+        return m_rel_getter(rop);
     }
 };
 
@@ -589,19 +604,24 @@ projection_info const * get_projection_info(name const & n) {
     return g_blastenv->get_projection_info(n);
 }
 
-bool is_relation(expr const & e, name & rop, expr & lhs, expr & rhs) {
+bool is_relation_app(expr const & e, name & rop, expr & lhs, expr & rhs) {
     lean_assert(g_blastenv);
-    return g_blastenv->is_relation(e, rop, lhs, rhs);
+    return g_blastenv->is_relation_app(e, rop, lhs, rhs);
 }
 
-bool is_relation(expr const & e) {
+bool is_relation_app(expr const & e) {
     name rop; expr lhs, rhs;
-    return is_relation(e, rop, lhs, rhs);
+    return is_relation_app(e, rop, lhs, rhs);
 }
 
 bool is_reflexive(name const & rop) {
     lean_assert(g_blastenv);
     return g_blastenv->is_reflexive(rop);
+}
+
+optional<relation_info> get_relation_info(name const & rop) {
+    lean_assert(g_blastenv);
+    return g_blastenv->get_relation_info(rop);
 }
 
 expr whnf(expr const & e) {
@@ -669,6 +689,16 @@ optional<congr_lemma> mk_congr_lemma(expr const & fn) {
     return g_blastenv->mk_congr_lemma(fn);
 }
 
+optional<congr_lemma> mk_rel_iff_congr(expr const & fn) {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_rel_iff_congr(fn);
+}
+
+optional<congr_lemma> mk_rel_eq_congr(expr const & fn) {
+    lean_assert(g_blastenv);
+    return g_blastenv->mk_rel_eq_congr(fn);
+}
+
 fun_info get_fun_info(expr const & fn) {
     lean_assert(g_blastenv);
     return g_blastenv->get_fun_info(fn);
@@ -723,9 +753,10 @@ void scope_assignment::commit() {
 }
 
 struct scope_debug::imp {
-    scoped_expr_caching m_scope1;
-    blastenv            m_benv;
-    scope_blastenv      m_scope2;
+    scoped_expr_caching      m_scope1;
+    blastenv                 m_benv;
+    scope_blastenv           m_scope2;
+    scope_congruence_closure m_scope3;
     imp(environment const & env, io_state const & ios):
         m_scope1(true),
         m_benv(env, ios, list<name>(), list<name>()),
@@ -819,9 +850,10 @@ expr internalize(expr const & e) {
 }
 optional<expr> blast_goal(environment const & env, io_state const & ios, list<name> const & ls, list<name> const & ds,
                           goal const & g) {
-    scoped_expr_caching      scope1(true);
-    blast::blastenv b(env, ios, ls, ds);
-    blast::scope_blastenv    scope2(b);
+    scoped_expr_caching             scope1(true);
+    blast::blastenv                 b(env, ios, ls, ds);
+    blast::scope_blastenv           scope2(b);
+    blast::scope_congruence_closure scope3;
     return b(g);
 }
 void initialize_blast() {

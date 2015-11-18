@@ -42,6 +42,7 @@ name const * g_eq_subst = nullptr;
 name const * g_exists_elim = nullptr;
 name const * g_false = nullptr;
 name const * g_false_rec = nullptr;
+name const * g_false_of_true_iff_false = nullptr;
 name const * g_funext = nullptr;
 name const * g_has_zero = nullptr;
 name const * g_has_one = nullptr;
@@ -78,9 +79,11 @@ name const * g_nat_succ = nullptr;
 name const * g_nat_zero = nullptr;
 name const * g_neg = nullptr;
 name const * g_not = nullptr;
+name const * g_not_of_iff_false = nullptr;
 name const * g_num = nullptr;
 name const * g_num_zero = nullptr;
 name const * g_num_pos = nullptr;
+name const * g_of_iff_true = nullptr;
 name const * g_one = nullptr;
 name const * g_option = nullptr;
 name const * g_option_some = nullptr;
@@ -216,6 +219,7 @@ void initialize_constants() {
     g_exists_elim = new name{"exists", "elim"};
     g_false = new name{"false"};
     g_false_rec = new name{"false", "rec"};
+    g_false_of_true_iff_false = new name{"false_of_true_iff_false"};
     g_funext = new name{"funext"};
     g_has_zero = new name{"has_zero"};
     g_has_one = new name{"has_one"};
@@ -252,9 +256,11 @@ void initialize_constants() {
     g_nat_zero = new name{"nat", "zero"};
     g_neg = new name{"neg"};
     g_not = new name{"not"};
+    g_not_of_iff_false = new name{"not_of_iff_false"};
     g_num = new name{"num"};
     g_num_zero = new name{"num", "zero"};
     g_num_pos = new name{"num", "pos"};
+    g_of_iff_true = new name{"of_iff_true"};
     g_one = new name{"one"};
     g_option = new name{"option"};
     g_option_some = new name{"option", "some"};
@@ -391,6 +397,7 @@ void finalize_constants() {
     delete g_exists_elim;
     delete g_false;
     delete g_false_rec;
+    delete g_false_of_true_iff_false;
     delete g_funext;
     delete g_has_zero;
     delete g_has_one;
@@ -427,9 +434,11 @@ void finalize_constants() {
     delete g_nat_zero;
     delete g_neg;
     delete g_not;
+    delete g_not_of_iff_false;
     delete g_num;
     delete g_num_zero;
     delete g_num_pos;
+    delete g_of_iff_true;
     delete g_one;
     delete g_option;
     delete g_option_some;
@@ -565,6 +574,7 @@ name const & get_eq_subst_name() { return *g_eq_subst; }
 name const & get_exists_elim_name() { return *g_exists_elim; }
 name const & get_false_name() { return *g_false; }
 name const & get_false_rec_name() { return *g_false_rec; }
+name const & get_false_of_true_iff_false_name() { return *g_false_of_true_iff_false; }
 name const & get_funext_name() { return *g_funext; }
 name const & get_has_zero_name() { return *g_has_zero; }
 name const & get_has_one_name() { return *g_has_one; }
@@ -601,9 +611,11 @@ name const & get_nat_succ_name() { return *g_nat_succ; }
 name const & get_nat_zero_name() { return *g_nat_zero; }
 name const & get_neg_name() { return *g_neg; }
 name const & get_not_name() { return *g_not; }
+name const & get_not_of_iff_false_name() { return *g_not_of_iff_false; }
 name const & get_num_name() { return *g_num; }
 name const & get_num_zero_name() { return *g_num_zero; }
 name const & get_num_pos_name() { return *g_num_pos; }
+name const & get_of_iff_true_name() { return *g_of_iff_true; }
 name const & get_one_name() { return *g_one; }
 name const & get_option_name() { return *g_option; }
 name const & get_option_some_name() { return *g_option_some; }

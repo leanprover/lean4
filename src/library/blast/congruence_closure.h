@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
+struct ext_congr_lemma;
 class congruence_closure {
     /*
       We maintain several equivalence relations.
@@ -43,9 +44,6 @@ class congruence_closure {
         optional<expr> m_target;
         optional<expr> m_proof;
         unsigned       m_rank;        // rank of the equivalence class, it is meaningless if 'e' != m_root
-        /* Each equivalence class may contain at most one "interpreted" element. The interpreted element will
-           always be the root. For example, we tag 'true' and 'false' as interpreted. */
-        bool           m_interpreted;
     };
 
     /* Key (R, e) for the mapping (R, e) -> entry */
@@ -57,7 +55,7 @@ class congruence_closure {
     };
 
     struct eqc_key_cmp {
-        int operator()(eqc_key const & k1, eqc_key const & k2) {
+        int operator()(eqc_key const & k1, eqc_key const & k2) const {
             int r = quick_cmp(k1.m_R, k2.m_R);
             if (r != 0) return r;
             else return is_lt(k1.m_expr, k2.m_expr, true);
@@ -68,15 +66,16 @@ class congruence_closure {
     struct congr_key {
         name     m_R;
         expr     m_expr;
+        unsigned m_hash;
         /* We track unequivalences using congruence table.
            The idea is to store (not a = b) by putting (a = b) in the equivalence class of false.
            So, we want (a = b) and (b = a) to be the "same" key in the congruence table.
            eq and iff are ubiquitous. So, we have special treatment for them.
 
            \remark: the trick can be used with commutative operators, but we currently don't do it. */
-        unsigned m_eq:1;     // true if m_expr is an equality
-        unsigned m_iff:1;    // true if m_expr is an iff
-        unsigned m_symm_rel; // true if m_expr is another symmetric relation.
+        unsigned m_eq:1;       // true if m_expr is an equality
+        unsigned m_iff:1;      // true if m_expr is an iff
+        unsigned m_symm_rel:1; // true if m_expr is another symmetric relation.
     };
 
     struct congr_key_cmp {
@@ -85,12 +84,18 @@ class congruence_closure {
 
     typedef rb_tree<expr, expr_quick_cmp>           expr_set;
     typedef rb_map<eqc_key, entry, eqc_key_cmp>     entries;
+    // TODO(Leo): fix and take relation into account
     typedef rb_map<expr, expr_set, expr_quick_cmp>  parents;
     typedef rb_tree<congr_key, congr_key_cmp>       congruences;
 
     entries     m_entries;
     parents     m_parents;
     congruences m_congruences;
+
+    void mk_entry_for(name const & R, expr const & e);
+    void add_occurrence(name const & Rp, expr const & parent, name const & Rc, expr const & child);
+    void add_congruence_table(ext_congr_lemma const & lemma, expr const & e);
+    void add_eqv(name const & R, expr const & lhs, expr const & rhs, expr const & pr);
 
 public:
     /** \brief Register expression \c e in this data-structure.
@@ -104,7 +109,9 @@ public:
        3- (A -> B) is not inserted into the data-structures, but their arguments are visited
           if they are propositions.
        4- Terms containing meta-variables.
-       5- The subterms of lambda-expressions. */
+       5- The subterms of lambda-expressions.
+       6- Sorts (Type and Prop). */
+    void internalize(name const & R, expr const & e);
     void internalize(expr const & e);
 
     /** \brief Given a hypothesis H, this method will do the following based on the type of H
@@ -125,19 +132,28 @@ public:
     optional<expr> get_inconsistency_proof() const;
 
     /** \brief Return true iff 'e1' and 'e2' are in the same equivalence class for relation \c rel_name. */
-    bool is_eqv(name const & rel_name, expr const & e1, expr const & e2) const;
+    bool is_eqv(name const & R, expr const & e1, expr const & e2) const;
     optional<expr> get_eqv_proof(name const & rel_name, expr const & e1, expr const & e2) const;
 
     /** \brief Return true iff `e1 ~ e2` is in the equivalence class of false for iff. */
-    bool is_uneqv(name const & rel_name, expr const & e1, expr const & e2) const;
-    optional<expr> get_uneqv_proof(name const & rel_name, expr const & e1, expr const & e2) const;
+    bool is_uneqv(name const & R, expr const & e1, expr const & e2) const;
+    optional<expr> get_uneqv_proof(name const & R, expr const & e1, expr const & e2) const;
 
-    bool is_congr_root(expr const & e) const;
-    bool is_root(expr const & e) const;
-    expr get_root(expr const & e) const;
-    expr get_next(expr const & e) const;
+    bool is_congr_root(name const & R, expr const & e) const;
+    bool is_root(name const & R, expr const & e) const { return get_root(R, e) == e; }
+    expr get_root(name const & R, expr const & e) const;
+    expr get_next(name const & R, expr const & e) const;
 
     /** \brief dump for debugging purposes. */
     void display() const;
+    bool check_invariant() const;
+};
+
+/** \brief Auxiliary class for initializing thread-local caches */
+class scope_congruence_closure {
+    void * m_old_cache;
+public:
+    scope_congruence_closure();
+    ~scope_congruence_closure();
 };
 }}

@@ -19,7 +19,7 @@ optional<name> is_recursor_action_target(hypothesis_idx hidx) {
     expr const & type = h->get_type();
     if (!is_app(type) && !is_constant(type))
         return optional<name>();
-    if (is_relation(type))
+    if (is_relation_app(type))
         return optional<name>(); // we don't apply recursors to equivalence relations: =, ~, <->, etc.
     if (!h->is_assumption())
         return optional<name>(); // we only consider assumptions

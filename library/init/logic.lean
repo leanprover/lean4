@@ -351,6 +351,9 @@ iff_false_intro (λ H, iff.mp H trivial)
 theorem false_iff_true : (false ↔ true) ↔ false :=
 iff_false_intro (λ H, iff.mpr H trivial)
 
+theorem false_of_true_iff_false : (true ↔ false) → false :=
+assume H, iff.mp H trivial
+
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 intro : ∀ (a : A), P a → Exists P
 

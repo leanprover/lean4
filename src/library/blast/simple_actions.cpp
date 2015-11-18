@@ -29,7 +29,7 @@ static optional<expr> try_not_refl_relation(hypothesis const & h) {
     if (!is_not(h.get_type(), p))
         return none_expr();
     name rop; expr lhs, rhs;
-    if (is_relation(p, rop, lhs, rhs) && is_def_eq(lhs, rhs)) {
+    if (is_relation_app(p, rop, lhs, rhs) && is_def_eq(lhs, rhs)) {
         try {
             app_builder & b = get_app_builder();
             expr rfl = b.mk_refl(rop, lhs);
@@ -90,7 +90,7 @@ optional<expr> trivial_action() {
 
         /* a ~ a */
         name rop; expr lhs, rhs;
-        if (is_relation(target, rop, lhs, rhs) && is_def_eq(lhs, rhs)) {
+        if (is_relation_app(target, rop, lhs, rhs) && is_def_eq(lhs, rhs)) {
             return some_expr(get_app_builder().mk_refl(rop, lhs));
         }
 
@@ -116,7 +116,7 @@ bool discard(hypothesis_idx hidx) {
         return true;
     // 2- (H : a ~ a)
     name rop; expr lhs, rhs;
-    if (is_relation(type, rop, lhs, rhs) && is_def_eq(lhs, rhs) && is_reflexive(rop))
+    if (is_relation_app(type, rop, lhs, rhs) && is_def_eq(lhs, rhs) && is_reflexive(rop))
         return true;
     // 3- We already have an equivalent hypothesis
     for (hypothesis_idx hidx2 : s.get_head_related(hidx)) {

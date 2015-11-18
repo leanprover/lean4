@@ -37,6 +37,7 @@ eq.subst
 exists.elim
 false
 false.rec
+false_of_true_iff_false
 funext
 has_zero
 has_one
@@ -73,9 +74,11 @@ nat.succ
 nat.zero
 neg
 not
+not_of_iff_false
 num
 num.zero
 num.pos
+of_iff_true
 one
 option
 option.some

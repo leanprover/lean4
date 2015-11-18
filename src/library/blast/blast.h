@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "library/io_state.h"
 #include "library/tmp_type_context.h"
+#include "library/relation_manager.h"
 #include "library/congr_lemma_manager.h"
 #include "library/fun_info_manager.h"
 #include "library/blast/state.h"
@@ -37,9 +38,14 @@ bool is_reducible(name const & n);
 projection_info const * get_projection_info(name const & n);
 /** \brief Return true iff \c e is a relation application,
     and store the relation name, lhs and rhs in the output arguments. */
-bool is_relation(expr const & e, name & rop, expr & lhs, expr & rhs);
-bool is_relation(expr const & e);
+bool is_relation_app(expr const & e, name & rop, expr & lhs, expr & rhs);
+bool is_relation_app(expr const & e);
+optional<relation_info> get_relation_info(name const & rop);
+inline optional<relation_info> is_relation(expr const & R) {
+    return is_constant(R) ? get_relation_info(const_name(R)) : optional<relation_info>();
+}
 bool is_reflexive(name const & rop);
+
 /** \brief Put the given expression in weak-head-normal-form with respect to the
     current state being processed by the blast tactic. */
 expr whnf(expr const & e);
@@ -93,6 +99,8 @@ optional<congr_lemma> mk_congr_lemma_for_simp(expr const & fn);
 optional<congr_lemma> mk_congr_lemma(expr const & fn, unsigned num_args);
 /** \brief Similar to previous procedure, but num_args == arith of fn */
 optional<congr_lemma> mk_congr_lemma(expr const & fn);
+optional<congr_lemma> mk_rel_iff_congr(expr const & fn);
+optional<congr_lemma> mk_rel_eq_congr(expr const & fn);
 
 /** \brief Retrieve information for the given function. */
 fun_info get_fun_info(expr const & fn);

@@ -20,6 +20,7 @@ class choice_point_cell {
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc() { delete this; }
 public:
+    choice_point_cell():m_rc(0) {}
     virtual ~choice_point_cell() {}
     /** \brief Update next proof state. This method may
         perform destructive updates, choice points are not shared

@@ -45,6 +45,7 @@ class proof_step_cell {
     MK_LEAN_RC(); // Declare m_rc counter
     void dealloc() { delete this; }
 public:
+    proof_step_cell():m_rc(0) {}
     virtual ~proof_step_cell() {}
     /** \brief When an action updates the main branch of the proof state,
         it adds a proof_step object to the proof step stack.
@@ -103,6 +104,7 @@ class branch_extension {
     MK_LEAN_RC();
     void dealloc() { delete this; }
 public:
+    branch_extension():m_rc(0) {}
     virtual ~branch_extension() {}
     /** \brief Return a copy of this object */
     virtual branch_extension * clone() = 0;

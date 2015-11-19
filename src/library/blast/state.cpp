@@ -706,7 +706,7 @@ branch_extension & state::get_extension(unsigned extid) {
     lean_assert(extid < get_extension_manager().get_num_extensions());
     if (!m_branch.m_extensions[extid]) {
         /* lazy initialization */
-        branch_extension * ext = get_extension_manager().get_initial(extid)->clone();;
+        branch_extension * ext = get_extension_manager().get_initial(extid)->clone();
         ext->inc_ref();
         m_branch.m_extensions[extid] = ext;
         lean_assert(ext->get_rc() == 1);

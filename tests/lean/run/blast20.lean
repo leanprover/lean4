@@ -31,9 +31,8 @@ by blast
 example : ∀ (F F' : Prop), F ∨ F' → F' ∨ F :=
 by blast
 
--- We should get the following one with forward propositional
--- example : ∀ (F1 F2 F3 : Prop), ((¬F1 ∧ F3) ∨ (F2 ∧ ¬F3)) → (F2 → F1) → (F2 → F3) →  ¬F2 :=
--- by blast
+example : ∀ (F1 F2 F3 : Prop), ((¬F1 ∧ F3) ∨ (F2 ∧ ¬F3)) → (F2 → F1) → (F2 → F3) →  ¬F2 :=
+by blast
 
 example : ∀ (f : nat→Prop), f 2 → ∃x, f x :=
 by blast

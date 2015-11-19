@@ -16,8 +16,6 @@ namespace simp {
 /* Struct to store results of simplification */
 struct result {
     /* Invariant [m_pf : m_orig <rel> m_new] */
-    /* Note: we only keep [m_old] to make the code easier to understand.
-       It could be optimized away in the future. */
     expr m_new;
 
     /* If proof is not provided, it is assumed to be reflexivity */

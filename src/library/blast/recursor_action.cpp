@@ -20,8 +20,6 @@ struct recursor_branch_extension : public branch_extension {
     recursor_branch_extension(recursor_branch_extension const & b):m_rec_queue(b.m_rec_queue) {}
     virtual ~recursor_branch_extension() {}
     virtual branch_extension * clone() { return new recursor_branch_extension(*this); }
-    virtual void hypothesis_activated(hypothesis const &, hypothesis_idx) {}
-    virtual void hypothesis_deleted(hypothesis const &, hypothesis_idx) {}
 };
 
 void initialize_recursor_action() {

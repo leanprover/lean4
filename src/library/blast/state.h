@@ -104,8 +104,9 @@ class branch_extension {
 public:
     virtual ~branch_extension() {}
     virtual branch_extension * clone() = 0;
-    virtual void hypothesis_activated(hypothesis const & h, hypothesis_idx hidx) = 0;
-    virtual void hypothesis_deleted(hypothesis const & h, hypothesis_idx hidx) = 0;
+    virtual void initialized() {}
+    virtual void hypothesis_activated(hypothesis const &, hypothesis_idx) {}
+    virtual void hypothesis_deleted(hypothesis const &, hypothesis_idx) {}
 };
 
 unsigned register_branch_extension(branch_extension * initial);

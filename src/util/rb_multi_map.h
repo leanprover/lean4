@@ -6,8 +6,6 @@ Author: Daniel Selsam
 #pragma once
 #include "util/rb_map.h"
 #include "util/list.h"
-#include "kernel/expr.h"
-#include "library/io_state_stream.h"
 
 namespace lean {
 

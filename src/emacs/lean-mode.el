@@ -154,6 +154,8 @@ will be flushed everytime it's executed."
                                  ,process-buffer-name
                                  ,(lean-get-executable lean-executable-name)
                                  ,lean-mode-option
+                                 "--dir"
+                                 ,(f-dirname (buffer-file-name))
                                  "--line"
                                  ,(int-to-string (line-number-at-pos))
                                  "--col"

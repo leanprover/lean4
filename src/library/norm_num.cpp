@@ -1198,5 +1198,11 @@ void finalize_norm_num() {
     delete g_mul_div;
     delete g_nonzero_div;
     delete g_neg_zero;
+    delete g_lin_ord_ring;
+    delete g_lin_ord_semiring;
+    delete g_field;
+    delete g_nonzero_neg;
+    delete g_subst_div;
+    delete g_nonzero_pos;
 }
 }

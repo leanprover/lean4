@@ -17,7 +17,7 @@ bool is_trace_enabled() {
     return g_trace;
 }
 
-void trace_curre_state() {
+void trace_curr_state() {
     if (g_trace) {
         auto out = diagnostic(env(), ios());
         out << "state [" << curr_state().get_proof_depth() << "], #choice: " << get_num_choice_points() << "\n";
@@ -37,9 +37,9 @@ void trace_action(char const * a) {
     }
 }
 
-void trace_curre_state_if(action_result r) {
+void trace_curr_state_if(action_result r) {
     if (g_trace && !failed(r))
-        trace_curre_state();
+        trace_curr_state();
 }
 
 scope_trace::scope_trace(bool enable):

@@ -39,9 +39,9 @@ optional<expr> strategy::search_upto(unsigned depth) {
     if (is_trace_enabled()) {
         ios().get_diagnostic_channel() << "* Search upto depth " << depth << "\n\n";
     }
-    trace_curre_state();
+    trace_curr_state();
     action_result r = next_action();
-    trace_curre_state_if(r);
+    trace_curr_state_if(r);
     while (true) {
         lean_assert(curr_state().check_invariant());
         if (curr_state().get_proof_depth() > depth) {
@@ -71,7 +71,7 @@ optional<expr> strategy::search_upto(unsigned depth) {
             r = next_action();
             break;
         }
-        trace_curre_state_if(r);
+        trace_curr_state_if(r);
     }
 }
 
@@ -103,7 +103,7 @@ optional<expr> strategy::search() {
             return r;
         d += m_config.m_inc_depth;
         if (d > m_config.m_max_depth) {
-            display_curr_state();
+            trace_curr_state();
             return none_expr();
         }
         curr_state() = s;

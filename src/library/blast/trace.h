@@ -8,10 +8,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-void trace_curre_state();
+void trace_curr_state();
 void trace(char const * msg);
 void trace_action(char const * a);
-void trace_curre_state_if(action_result r);
+void trace_curr_state_if(action_result r);
 bool is_trace_enabled();
 class scope_trace {
     bool m_old;

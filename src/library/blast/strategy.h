@@ -32,6 +32,7 @@ protected:
 public:
     strategy();
     optional<expr> operator()() { return search(); }
+    config cfg() const { return m_config; }
 };
 
 #define TryStrategy(Code) {\

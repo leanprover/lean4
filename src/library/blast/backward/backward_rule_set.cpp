@@ -87,7 +87,6 @@ backward_rule_set get_backward_rule_sets(environment const & env, io_state const
 }
 
 io_state_stream const & operator<<(io_state_stream const & out, backward_rule_set const & brs) {
-    options const & opts = out.get_options();
     out << "backward rules\n";
     brs.for_each([&](head_index const & head_idx, backward_rule const & r) {
             out << head_idx << " ==> " << r.get_proof() << "\n";

@@ -150,9 +150,8 @@ class blastenv {
         virtual expr infer_local(expr const & e) const {
             if (is_href(e)) {
                 state const & s = m_benv.m_curr_state;
-                hypothesis const * h = s.get_hypothesis_decl(e);
-                lean_assert(h);
-                return h->get_type();
+                hypothesis const & h = s.get_hypothesis_decl(e);
+                return h.get_type();
             } else {
                 return mlocal_type(e);
             }
@@ -789,9 +788,8 @@ public:
     virtual expr infer_local(expr const & e) const {
         state const & s = curr_state();
         if (is_href(e)) {
-            hypothesis const * h = s.get_hypothesis_decl(e);
-            lean_assert(h);
-            return h->get_type();
+            hypothesis const & h = s.get_hypothesis_decl(e);
+            return h.get_type();
         } else {
             return mlocal_type(e);
         }

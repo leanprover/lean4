@@ -46,9 +46,8 @@ bool subst_core(hypothesis_idx hidx) {
     state & s       = curr_state();
     state saved     = s;
     app_builder & b = get_app_builder();
-    hypothesis const * h = s.get_hypothesis_decl(hidx);
-    lean_assert(h);
-    expr type = h->get_type();
+    hypothesis const & h = s.get_hypothesis_decl(hidx);
+    expr type = h.get_type();
     expr lhs, rhs;
     lean_verify(is_eq(type, lhs, rhs));
     lean_assert(is_href(rhs));
@@ -60,7 +59,7 @@ bool subst_core(hypothesis_idx hidx) {
         s.collect_direct_forward_deps(hidx, to_revert);
         unsigned num = revert(to_revert);
         expr target  = s.get_target();
-        expr new_target = abstract(target, h->get_self());
+        expr new_target = abstract(target, h.get_self());
         bool dep        = !closed(new_target);
         bool skip       = to_revert.empty();
         if (dep) {
@@ -72,7 +71,7 @@ bool subst_core(hypothesis_idx hidx) {
             skip       = false;
         if (!skip) {
             new_target = instantiate(new_target, lhs);
-            s.push_proof_step(new subst_proof_step_cell(target, h->get_self(), rhs, dep));
+            s.push_proof_step(new subst_proof_step_cell(target, h.get_self(), rhs, dep));
             s.set_target(new_target);
             intros_action(num);
         }
@@ -89,9 +88,8 @@ bool subst_core(hypothesis_idx hidx) {
 action_result subst_action(hypothesis_idx hidx) {
     state & s       = curr_state();
     app_builder & b = get_app_builder();
-    hypothesis const * h = s.get_hypothesis_decl(hidx);
-    lean_assert(h);
-    expr type = h->get_type();
+    hypothesis const & h = s.get_hypothesis_decl(hidx);
+    expr type = h.get_type();
     expr lhs, rhs;
     if (!is_eq(type, lhs, rhs))
         return action_result::failed();
@@ -106,7 +104,7 @@ action_result subst_action(hypothesis_idx hidx) {
         state saved   = s;
         try {
             expr new_eq   = b.mk_eq(rhs, lhs);
-            expr new_pr   = b.mk_eq_symm(h->get_self());
+            expr new_pr   = b.mk_eq_symm(h.get_self());
             expr new_href = s.mk_hypothesis(new_eq, new_pr);
             if (subst_core(href_index(new_href))) {
                 return action_result::new_branch();

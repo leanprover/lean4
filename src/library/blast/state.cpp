@@ -208,10 +208,9 @@ goal state::to_goal() const {
     get_sorted_hypotheses(hidxs);
     buffer<expr> hyps;
     for (unsigned hidx : hidxs) {
-        hypothesis const * h = get_hypothesis_decl(hidx);
-        lean_assert(h);
+        hypothesis const & h = get_hypothesis_decl(hidx);
         // after we add support for let-decls in goals, we must convert back h->get_value() if it is available
-        expr new_h = lean::mk_local(name(H, hidx), h->get_name(), convert(h->get_type()), binder_info());
+        expr new_h = lean::mk_local(name(H, hidx), h.get_name(), convert(h.get_type()), binder_info());
         hidx2local.insert(hidx, new_h);
         hyps.push_back(new_h);
     }
@@ -227,7 +226,7 @@ void state::display_active(output_channel & out) const {
     bool first = true;
     m_branch.m_active.for_each([&](hypothesis_idx hidx) {
             if (first) first = false; else out << ", ";
-            out << get_hypothesis_decl(hidx)->get_name();
+            out << get_hypothesis_decl(hidx).get_name();
         });
     out << "}\n";
 }
@@ -455,11 +454,11 @@ struct hypothesis_dep_depth_lt {
 
     hypothesis_dep_depth_lt(state const & s): m_state(s) {}
     bool operator()(unsigned hidx1, unsigned hidx2) const {
-        hypothesis const * h1 = m_state.get_hypothesis_decl(hidx1);
-        hypothesis const * h2 = m_state.get_hypothesis_decl(hidx2);
+        hypothesis const & h1 = m_state.get_hypothesis_decl(hidx1);
+        hypothesis const & h2 = m_state.get_hypothesis_decl(hidx2);
         return
-            h1 && h2 && h1->get_dep_depth() < h2->get_dep_depth() &&
-            (h1->get_dep_depth() == h2->get_dep_depth() && hidx1 < hidx2);
+            h1.get_dep_depth() < h2.get_dep_depth() &&
+            (h1.get_dep_depth() == h2.get_dep_depth() && hidx1 < hidx2);
     }
 };
 
@@ -481,7 +480,7 @@ void state::sort_hypotheses(hypothesis_idx_buffer_set & r) const {
 
 void state::to_hrefs(hypothesis_idx_buffer const & hidxs, buffer<expr> & r) const {
     for (hypothesis_idx hidx : hidxs)
-        r.push_back(get_hypothesis_decl(hidx)->get_self());
+        r.push_back(get_hypothesis_decl(hidx).get_self());
 }
 
 void state::add_forward_dep(unsigned hidx_user, unsigned hidx_provider) {
@@ -516,10 +515,9 @@ void state::add_deps(expr const & e, hypothesis & h_user, unsigned hidx_user) {
                 return false;
             } else if (is_href(l)) {
                 unsigned hidx_provider = href_index(l);
-                hypothesis const * h_provider = get_hypothesis_decl(hidx_provider);
-                lean_assert(h_provider);
-                if (h_user.m_dep_depth <= h_provider->m_dep_depth)
-                    h_user.m_dep_depth = h_provider->m_dep_depth + 1;
+                hypothesis const & h_provider = get_hypothesis_decl(hidx_provider);
+                if (h_user.m_dep_depth <= h_provider.m_dep_depth)
+                    h_user.m_dep_depth = h_provider.m_dep_depth + 1;
                 if (!h_user.m_deps.contains(hidx_provider)) {
                     h_user.m_deps.insert(hidx_provider);
                     add_forward_dep(hidx_user, hidx_provider);
@@ -578,7 +576,7 @@ expr state::mk_hypothesis(expr const & type) {
 
 void state::del_hypotheses(buffer<hypothesis_idx> const & to_delete, hypothesis_idx_set const & to_delete_set) {
     for (hypothesis_idx h : to_delete) {
-        hypothesis h_decl = *get_hypothesis_decl(h);
+        hypothesis h_decl = get_hypothesis_decl(h);
         if (m_branch.m_active.contains(h)) {
             m_branch.m_active.erase(h);
             remove_from_indices(h_decl, h);
@@ -677,10 +675,9 @@ list<hypothesis_idx> state::get_occurrences_of(head_index const & h) const {
 }
 
 list<hypothesis_idx> state::get_head_related(hypothesis_idx hidx) const {
-    hypothesis const * h = get_hypothesis_decl(hidx);
-    lean_assert(h);
+    hypothesis const & h = get_hypothesis_decl(hidx);
     /* update m_head_to_hyps */
-    if (auto i = to_head_index(*h))
+    if (auto i = to_head_index(h))
         return get_occurrences_of(*i);
     else
         return list<hypothesis_idx>();
@@ -715,9 +712,8 @@ branch_extension & state::get_extension(unsigned extid) {
         lean_assert(ext->get_rc() == 1);
         ext->initialized();
         m_branch.m_active.for_each([&](hypothesis_idx hidx) {
-                hypothesis const * h = get_hypothesis_decl(hidx);
-                lean_assert(h);
-                ext->hypothesis_activated(*h, hidx);
+                hypothesis const & h = get_hypothesis_decl(hidx);
+                ext->hypothesis_activated(h, hidx);
             });
         return *ext;
     } else {
@@ -728,15 +724,14 @@ branch_extension & state::get_extension(unsigned extid) {
 }
 
 void state::update_indices(hypothesis_idx hidx) {
-    hypothesis const * h = get_hypothesis_decl(hidx);
-    lean_assert(h);
+    hypothesis const & h = get_hypothesis_decl(hidx);
     /* update m_head_to_hyps */
-    if (auto i = to_head_index(*h))
+    if (auto i = to_head_index(h))
         m_branch.m_head_to_hyps.insert(*i, hidx);
     unsigned n = get_extension_manager().get_num_extensions();
     for (unsigned i = 0; i < n; i++) {
         branch_extension * ext = get_extension_core(i);
-        if (ext) ext->hypothesis_activated(*h, hidx);
+        if (ext) ext->hypothesis_activated(h, hidx);
     }
     /* TODO(Leo): update congruence closure indices */
 }
@@ -756,8 +751,8 @@ optional<unsigned> state::activate_hypothesis() {
         if (m_branch.m_todo_queue.empty())
             return optional<unsigned>();
         unsigned hidx             = m_branch.m_todo_queue.erase_min();
-        hypothesis const * h_decl = get_hypothesis_decl(hidx);
-        if (!h_decl->is_dead()) {
+        hypothesis const & h_decl = get_hypothesis_decl(hidx);
+        if (!h_decl.is_dead()) {
             m_branch.m_active.insert(hidx);
             update_indices(hidx);
             return optional<unsigned>(hidx);
@@ -799,9 +794,9 @@ struct expand_hrefs_fn : public replace_visitor {
 
     virtual expr visit_local(expr const & e) {
         if (is_href(e) && std::find(m_hrefs.begin(), m_hrefs.end(), e) != m_hrefs.end()) {
-            hypothesis const * h = m_state.get_hypothesis_decl(e);
-            if (h->get_value()) {
-                return visit(*h->get_value());
+            hypothesis const & h = m_state.get_hypothesis_decl(e);
+            if (h.get_value()) {
+                return visit(*h.get_value());
             }
         }
         return replace_visitor::visit_local(e);
@@ -827,13 +822,12 @@ expr state::mk_binding(bool is_lambda, unsigned num, expr const * hrefs, expr co
         --i;
         expr const & h = hrefs[i];
         lean_assert(is_href(h));
-        hypothesis const * hdecl = get_hypothesis_decl(h);
-        lean_assert(hdecl);
-        expr t = abstract_locals(hdecl->get_type(), i, hrefs);
+        hypothesis const & hdecl = get_hypothesis_decl(h);
+        expr t = abstract_locals(hdecl.get_type(), i, hrefs);
         if (is_lambda)
-            r = ::lean::mk_lambda(hdecl->get_name(), t, r);
+            r = ::lean::mk_lambda(hdecl.get_name(), t, r);
         else
-            r = ::lean::mk_pi(hdecl->get_name(), t, r);
+            r = ::lean::mk_pi(hdecl.get_name(), t, r);
     }
     return r;
 }

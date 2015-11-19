@@ -16,11 +16,10 @@ action_result assumption_action() {
     state const & s     = curr_state();
     expr const & target = s.get_target();
     for (hypothesis_idx hidx : s.get_head_related()) {
-        hypothesis const * h = s.get_hypothesis_decl(hidx);
-        lean_assert(h);
-        if (is_def_eq(h->get_type(), target)) {
+        hypothesis const & h = s.get_hypothesis_decl(hidx);
+        if (is_def_eq(h.get_type(), target)) {
             trace_action("assumption");
-            return action_result(h->get_self());
+            return action_result(h.get_self());
         }
     }
     return action_result::failed();
@@ -45,18 +44,17 @@ static optional<expr> try_not_refl_relation(hypothesis const & h) {
 action_result assumption_contradiction_actions(hypothesis_idx hidx) {
     state const & s      = curr_state();
     app_builder & b      = get_app_builder();
-    hypothesis const * h = s.get_hypothesis_decl(hidx);
-    lean_assert(h);
-    expr const & type    = h->get_type();
+    hypothesis const & h = s.get_hypothesis_decl(hidx);
+    expr const & type    = h.get_type();
     if (blast::is_false(type)) {
         trace_action("contradiction");
-        return action_result(b.mk_false_rec(s.get_target(), h->get_self()));
+        return action_result(b.mk_false_rec(s.get_target(), h.get_self()));
     }
     if (is_def_eq(type, s.get_target())) {
         trace_action("assumption");
-        return action_result(h->get_self());
+        return action_result(h.get_self());
     }
-    if (auto pr = try_not_refl_relation(*h)) {
+    if (auto pr = try_not_refl_relation(h)) {
         trace_action("contradiction");
         return action_result(*pr);
     }
@@ -64,18 +62,18 @@ action_result assumption_contradiction_actions(hypothesis_idx hidx) {
     bool is_neg1 = is_not(type, p1);
     /* try to find complement */
     for (hypothesis_idx hidx2 : s.get_head_related(hidx)) {
-        hypothesis const * h2 = s.get_hypothesis_decl(hidx2);
-        expr type2 = h2->get_type();
+        hypothesis const & h2 = s.get_hypothesis_decl(hidx2);
+        expr type2 = h2.get_type();
         expr p2    = type2;
         bool is_neg2 = is_not(type2, p2);
         if (is_neg1 != is_neg2) {
             if (is_def_eq(p1, p2)) {
                 trace_action("contradiction");
                 if (is_neg1) {
-                    return action_result(b.mk_app(get_absurd_name(), {s.get_target(), h2->get_self(), h->get_self()}));
+                    return action_result(b.mk_app(get_absurd_name(), {s.get_target(), h2.get_self(), h.get_self()}));
                 } else {
                     lean_assert(is_neg2);
-                    return action_result(b.mk_app(get_absurd_name(), {s.get_target(), h->get_self(), h2->get_self()}));
+                    return action_result(b.mk_app(get_absurd_name(), {s.get_target(), h.get_self(), h2.get_self()}));
                 }
             }
         }
@@ -112,9 +110,8 @@ action_result trivial_action() {
 
 bool discard(hypothesis_idx hidx) {
     state s = curr_state();
-    hypothesis const * h = s.get_hypothesis_decl(hidx);
-    lean_assert(h);
-    expr type            = h->get_type();
+    hypothesis const & h = s.get_hypothesis_decl(hidx);
+    expr type            = h.get_type();
     // We only discard a hypothesis if it doesn't have dependencies.
     if (s.has_target_forward_deps(hidx))
         return false;
@@ -132,8 +129,8 @@ bool discard(hypothesis_idx hidx) {
     for (hypothesis_idx hidx2 : s.get_head_related(hidx)) {
         if (hidx == hidx2)
             continue;
-        hypothesis const * h2 = s.get_hypothesis_decl(hidx2);
-        expr type2 = h2->get_type();
+        hypothesis const & h2 = s.get_hypothesis_decl(hidx2);
+        expr type2 = h2.get_type();
         if (is_def_eq(type, type2))
             return true;
     }

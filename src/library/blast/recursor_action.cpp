@@ -35,14 +35,13 @@ static recursor_branch_extension & get_extension() {
 
 optional<name> is_recursor_action_target(hypothesis_idx hidx) {
     state & s = curr_state();
-    hypothesis const * h = s.get_hypothesis_decl(hidx);
-    lean_assert(h);
-    expr const & type = h->get_type();
+    hypothesis const & h = s.get_hypothesis_decl(hidx);
+    expr const & type = h.get_type();
     if (!is_app(type) && !is_constant(type))
         return optional<name>();
     if (is_relation_app(type))
         return optional<name>(); // we don't apply recursors to equivalence relations: =, ~, <->, etc.
-    if (!h->is_assumption())
+    if (!h.is_assumption())
         return optional<name>(); // we only consider assumptions
     if (get_type_context().is_class(type)) {
         // we don't eliminate type classes instances
@@ -139,9 +138,8 @@ struct recursor_proof_step_cell : public proof_step_cell {
 
 action_result recursor_action(hypothesis_idx hidx, name const & R) {
     state & s = curr_state();
-    hypothesis const * h = s.get_hypothesis_decl(hidx);
-    lean_assert(h);
-    expr const & type = h->get_type();
+    hypothesis const & h = s.get_hypothesis_decl(hidx);
+    expr const & type    = h.get_type();
     lean_assert(is_constant(get_app_fn(type)));
 
     recursor_info rec_info = get_recursor_info(env(), R);
@@ -242,7 +240,7 @@ action_result recursor_action(hypothesis_idx hidx, name const & R) {
 
     expr motive = target;
     if (rec_info.has_dep_elim())
-        motive  = s.mk_lambda(h->get_self(), motive);
+        motive  = s.mk_lambda(h.get_self(), motive);
     motive = s.mk_lambda(indices, motive);
     rec      = mk_app(rec, motive);
 
@@ -261,8 +259,8 @@ action_result recursor_action(hypothesis_idx hidx, name const & R) {
                     return action_result::failed(); // ill-formed type
                 curr_pos++;
             }
-            rec      = mk_app(rec, h->get_self());
-            rec_type = relaxed_whnf(instantiate(binding_body(rec_type), h->get_self()));
+            rec      = mk_app(rec, h.get_self());
+            rec_type = relaxed_whnf(instantiate(binding_body(rec_type), h.get_self()));
             consumed_major = true;
             curr_pos++;
         } else {
@@ -298,9 +296,8 @@ action_result recursor_action(hypothesis_idx hidx, name const & R) {
 
 action_result recursor_action(hypothesis_idx hidx) {
     state & s = curr_state();
-    hypothesis const * h = s.get_hypothesis_decl(hidx);
-    lean_assert(h);
-    expr const & type = h->get_type();
+    hypothesis const & h = s.get_hypothesis_decl(hidx);
+    expr const & type = h.get_type();
     expr const & I    = get_app_fn(type);
     if (!is_constant(I))
         return action_result::failed();
@@ -347,8 +344,8 @@ action_result recursor_action() {
         if (ext.m_rec_queue.empty())
             return action_result::failed();
         unsigned hidx             = ext.m_rec_queue.erase_min();
-        hypothesis const * h_decl = curr_state().get_hypothesis_decl(hidx);
-        if (h_decl->is_dead())
+        hypothesis const & h_decl = curr_state().get_hypothesis_decl(hidx);
+        if (h_decl.is_dead())
             continue;
         if (optional<name> R = is_recursor_action_target(hidx)) {
             Try(recursor_action(hidx, *R));

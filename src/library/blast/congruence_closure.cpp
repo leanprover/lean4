@@ -238,10 +238,9 @@ void congruence_closure::add(hypothesis_idx hidx) {
     clear_todo();
     state & s       = curr_state();
     app_builder & b = get_app_builder();
-    hypothesis const * h = s.get_hypothesis_decl(hidx);
-    lean_assert(h);
+    hypothesis const & h = s.get_hypothesis_decl(hidx);
     try {
-        expr const & type = h->get_type();
+        expr const & type = h.get_type();
         expr p;
         bool is_neg = is_not(type, p);
         if (is_neg && !is_standard(env()))
@@ -250,18 +249,18 @@ void congruence_closure::add(hypothesis_idx hidx) {
         if (is_relation_app(p, R, lhs, rhs)) {
             if (is_neg) {
                 internalize(get_iff_name(), p);
-                add_eqv(get_iff_name(), p, mk_false(), b.mk_iff_false_intro(h->get_self()));
+                add_eqv(get_iff_name(), p, mk_false(), b.mk_iff_false_intro(h.get_self()));
             } else {
                 internalize(R, lhs);
                 internalize(R, rhs);
-                add_eqv(R, lhs, rhs, h->get_self());
+                add_eqv(R, lhs, rhs, h.get_self());
             }
         } else if (is_prop(p)) {
             internalize(get_iff_name(), p);
             if (is_neg) {
-                add_eqv(get_iff_name(), p, mk_false(), b.mk_iff_false_intro(h->get_self()));
+                add_eqv(get_iff_name(), p, mk_false(), b.mk_iff_false_intro(h.get_self()));
             } else {
-                add_eqv(get_iff_name(), p, mk_true(), b.mk_iff_true_intro(h->get_self()));
+                add_eqv(get_iff_name(), p, mk_true(), b.mk_iff_true_intro(h.get_self()));
             }
         }
     } catch (app_builder_exception &) {}

@@ -712,7 +712,7 @@ branch_extension & state::get_extension(unsigned extid) {
         branch_extension * ext = get_extension_manager().get_initial(extid)->clone();;
         ext->inc_ref();
         m_branch.m_extensions[extid] = ext;
-        lean_assert(ext.get_rc() == 1);
+        lean_assert(ext->get_rc() == 1);
         ext->initialized();
         m_branch.m_active.for_each([&](hypothesis_idx hidx) {
                 hypothesis const * h = get_hypothesis_decl(hidx);

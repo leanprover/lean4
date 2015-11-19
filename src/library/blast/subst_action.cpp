@@ -74,7 +74,7 @@ bool subst_core(hypothesis_idx hidx) {
             new_target = instantiate(new_target, lhs);
             s.push_proof_step(new subst_proof_step_cell(target, h->get_self(), rhs, dep));
             s.set_target(new_target);
-            lean_verify(intros_action(num));
+            intros_action(num);
         }
         lean_verify(s.del_hypothesis(hidx));
         lean_verify(s.del_hypothesis(href_index(rhs)));

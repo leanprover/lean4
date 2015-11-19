@@ -133,7 +133,6 @@ static bool is_neg_app(expr const & e) {
 
 class simplifier {
     blast_tmp_type_context                       m_tmp_tctx;
-    app_builder                                  m_app_builder;
     name                                         m_rel;
 
     simp_rule_sets                               m_srss;
@@ -256,7 +255,7 @@ class simplifier {
 
 
 public:
-    simplifier(name const & rel): m_app_builder(*m_tmp_tctx), m_rel(rel) { }
+    simplifier(name const & rel): m_rel(rel) { }
     result operator()(expr const & e, simp_rule_sets const & srss)  { return simplify(e, srss); }
 };
 
@@ -293,7 +292,7 @@ optional<result> simplifier::cache_lookup(expr const & e) {
             case congr_arg_kind::Fixed:
                 break;
             case congr_arg_kind::Eq:
-                rfl = m_app_builder.mk_eq_refl(old_args[i]);
+                rfl = get_app_builder().mk_eq_refl(old_args[i]);
                 proof = mk_app(proof, old_args[i], rfl);
                 type = instantiate(binding_body(type), old_args[i]);
                 type = instantiate(binding_body(type), rfl);
@@ -323,12 +322,12 @@ result simplifier::lift_from_eq(expr const & e_old, result const & r_eq) {
     /* r_eq.get_proof() : e_old = r_eq.get_new() */
     /* goal : e_old <m_rel> r_eq.get_new() */
     expr l = m_tmp_tctx->mk_tmp_local(m_tmp_tctx->infer(e_old));
-    expr motive_local = m_app_builder.mk_app(m_rel, e_old, l);
+    expr motive_local = get_app_builder().mk_app(m_rel, e_old, l);
     /* motive = fun y, e_old <m_rel> y */
     expr motive = Fun(l, motive_local);
     /* Rxx = x <m_rel> x */
-    expr Rxx = m_app_builder.mk_refl(m_rel, e_old);
-    expr pf = m_app_builder.mk_eq_rec(motive, Rxx, r_eq.get_proof());
+    expr Rxx = get_app_builder().mk_refl(m_rel, e_old);
+    expr pf = get_app_builder().mk_eq_rec(motive, Rxx, r_eq.get_proof());
     return result(r_eq.get_new(), pf);
 }
 
@@ -342,7 +341,7 @@ result simplifier::join(result const & r1, result const & r2) {
     } else {
         /* If they both have proofs, we need to glue them together with transitivity. */
         lean_assert(r1.has_proof() && r2.has_proof());
-        expr trans = m_app_builder.mk_trans(m_rel, r1.get_proof(), r2.get_proof());
+        expr trans = get_app_builder().mk_trans(m_rel, r1.get_proof(), r2.get_proof());
         return result(r2.get_new(), trans);
     }
 }
@@ -351,13 +350,13 @@ result simplifier::funext(result const & r, expr const & l) {
     // theorem funext {f₁ f₂ : Πx : A, B x} : (∀x, f₁ x = f₂ x) → f₁ = f₂ :=
     expr e  = Fun(l, r.get_new());
     if (!r.has_proof()) return result(e);
-    expr pf = m_app_builder.mk_app(get_funext_name(), Fun(l, r.get_proof()));
+    expr pf = get_app_builder().mk_app(get_funext_name(), Fun(l, r.get_proof()));
     return result(e, pf);
 }
 
 result simplifier::finalize(result const & r) {
     if (r.has_proof()) return r;
-    expr pf = m_app_builder.mk_refl(m_rel, r.get_new());
+    expr pf = get_app_builder().mk_refl(m_rel, r.get_new());
     return result(r.get_new(), pf);
 }
 
@@ -542,7 +541,7 @@ optional<expr> simplifier::prove(expr const & thm) {
     flet<name> set_name(m_rel, get_iff_name());
     result r_cond = simplify(thm, true);
     if (is_constant(r_cond.get_new()) && const_name(r_cond.get_new()) == get_true_name()) {
-        expr pf = m_app_builder.mk_app(get_iff_elim_right_name(),
+        expr pf = get_app_builder().mk_app(get_iff_elim_right_name(),
                                        finalize(r_cond).get_proof(),
                                        mk_constant(get_true_intro_name()));
         return some_expr(pf);
@@ -554,7 +553,7 @@ optional<expr> simplifier::prove(expr const & thm, simp_rule_sets const & srss) 
     flet<name> set_name(m_rel, get_iff_name());
     result r_cond = simplify(thm, srss);
     if (is_constant(r_cond.get_new()) && const_name(r_cond.get_new()) == get_true_name()) {
-        expr pf = m_app_builder.mk_app(get_iff_elim_right_name(),
+        expr pf = get_app_builder().mk_app(get_iff_elim_right_name(),
                                        finalize(r_cond).get_proof(),
                                        mk_constant(get_true_intro_name()));
         return some_expr(pf);
@@ -636,7 +635,7 @@ result simplifier::congr(result const & r_f, result const & r_arg) {
     lean_assert(r_f.has_proof() && r_arg.has_proof());
     // theorem congr {A B : Type} {f₁ f₂ : A → B} {a₁ a₂ : A} (H₁ : f₁ = f₂) (H₂ : a₁ = a₂) : f₁ a₁ = f₂ a₂
     expr e  = mk_app(r_f.get_new(), r_arg.get_new());
-    expr pf = m_app_builder.mk_congr(r_f.get_proof(), r_arg.get_proof());
+    expr pf = get_app_builder().mk_congr(r_f.get_proof(), r_arg.get_proof());
     return result(e, pf);
 }
 
@@ -644,7 +643,7 @@ result simplifier::congr_fun(result const & r_f, expr const & arg) {
     lean_assert(r_f.has_proof());
     // theorem congr_fun {A : Type} {B : A → Type} {f g : Π x, B x} (H : f = g) (a : A) : f a = g a
     expr e  = mk_app(r_f.get_new(), arg);
-    expr pf = m_app_builder.mk_congr_fun(r_f.get_proof(), arg);
+    expr pf = get_app_builder().mk_congr_fun(r_f.get_proof(), arg);
     return result(e, pf);
 }
 
@@ -652,7 +651,7 @@ result simplifier::congr_arg(expr const & f, result const & r_arg) {
     lean_assert(r_arg.has_proof());
     // theorem congr_arg {A B : Type} {a₁ a₂ : A} (f : A → B) : a₁ = a₂ → f a₁ = f a₂
     expr e  = mk_app(f, r_arg.get_new());
-    expr pf = m_app_builder.mk_congr_arg(f, r_arg.get_proof());
+    expr pf = get_app_builder().mk_congr_arg(f, r_arg.get_proof());
     return result(e, pf);
 }
 
@@ -666,7 +665,7 @@ result simplifier::congr_funs(result const & r_f, buffer<expr> const & args) {
     if (!r_f.has_proof()) return result(e);
     expr pf = r_f.get_proof();
     for (unsigned i = 0; i < args.size(); ++i) {
-        pf = m_app_builder.mk_app(get_congr_fun_name(), pf, args[i]);
+        pf = get_app_builder().mk_app(get_congr_fun_name(), pf, args[i]);
     }
     return result(e, pf);
 }
@@ -909,11 +908,11 @@ result simplifier::fuse(expr const & e) {
     expr T = args[0];
     expr f_add, f_mul, zero, one;
     try {
-        f_add = m_app_builder.mk_partial_add(T);
-        f_mul = m_app_builder.mk_partial_mul(T);
-        zero = m_app_builder.mk_zero(T);
-        one = m_app_builder.mk_one(T);
-        expr left_distrib = m_app_builder.mk_partial_left_distrib(T);
+        f_add = get_app_builder().mk_partial_add(T);
+        f_mul = get_app_builder().mk_partial_mul(T);
+        zero = get_app_builder().mk_zero(T);
+        one = get_app_builder().mk_one(T);
+        expr left_distrib = get_app_builder().mk_partial_left_distrib(T);
     } catch (app_builder_exception & ex) {
         ios().get_diagnostic_channel() << "Cannot synthesize necessary instances\n";
         return result(e);
@@ -975,7 +974,7 @@ result simplifier::fuse(expr const & e) {
 
     /* Prove (1) == (3) using simplify with [ac] */
     flet<bool> no_simplify_numerals(m_numerals, false);
-    auto pf_1_3 = prove(m_app_builder.mk_eq(e, e_grp),
+    auto pf_1_3 = prove(get_app_builder().mk_eq(e, e_grp),
                         get_simp_rule_sets(env(), ios(), *g_simplify_ac_namespace));
     if (!pf_1_3) {
         diagnostic(env(), ios()) << e << "\n\n =?=\n\n" << e_grp << "\n";
@@ -983,7 +982,7 @@ result simplifier::fuse(expr const & e) {
     }
 
     /* Prove (4) == (5) using simplify with [som] */
-    auto pf_4_5 = prove(m_app_builder.mk_eq(e_grp_ls, e_fused_ls),
+    auto pf_4_5 = prove(get_app_builder().mk_eq(e_grp_ls, e_fused_ls),
                         get_simp_rule_sets(env(), ios(), *g_simplify_som_namespace));
     if (!pf_4_5) {
         diagnostic(env(), ios()) << e_grp_ls << "\n\n =?=\n\n" << e_fused_ls << "\n";
@@ -997,13 +996,13 @@ result simplifier::fuse(expr const & e) {
     /* Prove (4) == (6) by transitivity of proofs (2) and (3) */
     expr pf_4_6;
     if (!r_simp_ls.has_proof()) pf_4_6 = *pf_4_5;
-    else pf_4_6 = m_app_builder.mk_eq_trans(*pf_4_5, r_simp_ls.get_proof());
+    else pf_4_6 = get_app_builder().mk_eq_trans(*pf_4_5, r_simp_ls.get_proof());
 
     /* Prove (3) == (7) by instantiating proof (4) */
     expr pf_3_7 = mk_app(Fun(locals, pf_4_6), variables);
 
     /* Prove (1) == (7) by transitivity of proofs (1) and (5) */
-    expr pf_1_7 = m_app_builder.mk_eq_trans(*pf_1_3, pf_3_7);
+    expr pf_1_7 = get_app_builder().mk_eq_trans(*pf_1_3, pf_3_7);
 
     return result(mk_app(Fun(locals, r_simp_ls.get_new()), variables), pf_1_7);
 }
@@ -1018,7 +1017,7 @@ expr_pair simplifier::split_summand(expr const & e, expr const & f_mul, expr con
     if (is_neg_app(s)) {
         buffer<expr> args;
         get_app_args(s, args);
-        numeral = m_app_builder.mk_app(get_neg_name(), one);
+        numeral = get_app_builder().mk_app(get_neg_name(), one);
         s = args[2];
     }
     while (is_mul_app(s)) {

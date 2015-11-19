@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/blast/simplifier.h"
 #include "library/blast/options.h"
 #include "library/blast/recursor_action.h"
+#include "library/blast/assert_cc_action.h"
 #include "library/blast/backward/init_module.h"
 #include "library/blast/forward/init_module.h"
 
@@ -25,8 +26,10 @@ void initialize_blast_module() {
     blast::initialize_forward_module();
     initialize_blast_tactic();
     blast::initialize_recursor_action();
+    blast::initialize_assert_cc_action();
 }
 void finalize_blast_module() {
+    blast::finalize_assert_cc_action();
     blast::finalize_recursor_action();
     finalize_blast_tactic();
     blast::finalize_forward_module();

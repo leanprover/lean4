@@ -327,7 +327,7 @@ optional<expr> congruence_closure::get_inconsistency_proof() const {
     }
 }
 
-bool congruence_closure::prove(expr const & e) const {
+bool congruence_closure::proved(expr const & e) const {
     return is_eqv(get_iff_name(), e, mk_true());
 }
 

@@ -36,5 +36,6 @@ inline bool failed(action_result const & r) { return r.get_kind() == action_resu
 inline bool solved(action_result const & r) { return r.get_kind() == action_result::Solved; }
 
 #define Try(Code) { action_result r = Code; if (!failed(r)) return r; }
-#define TrySolve(Code) { action_result r = Code; if (solved(r)) return r.to_opt_expr(); }
+#define TrySolve(Code) { action_result r = Code; if (solved(r)) return r; }
+#define TrySolveToOptExpr(Code) { action_result r = Code; if (solved(r)) return r.to_opt_expr(); }
 }}

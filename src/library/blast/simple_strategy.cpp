@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/blast/no_confusion_action.h"
 #include "library/blast/simplify_actions.h"
 #include "library/blast/recursor_action.h"
+#include "library/blast/assert_cc_action.h"
 #include "library/blast/strategy.h"
 #include "library/blast/trace.h"
 
@@ -38,6 +39,7 @@ class simple_strategy : public strategy {
         Try(discard_action(*hidx));
         Try(forward_action(*hidx));
         Try(recursor_preprocess_action(*hidx));
+        TrySolve(assert_cc_action(*hidx));
         return action_result::new_branch();
     }
 
@@ -57,8 +59,8 @@ class simple_strategy : public strategy {
             if (solved(r)) return r.to_opt_expr();
             if (failed(r)) break;
         }
-        TrySolve(assumption_action());
-        TrySolve(simplify_target_action());
+        TrySolveToOptExpr(assumption_action());
+        TrySolveToOptExpr(simplify_target_action());
         return none_expr();
     }
 

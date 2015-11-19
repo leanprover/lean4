@@ -71,7 +71,6 @@ class backward_strategy : public strategy {
         Try(assumption_action());
         list<gexpr> backward_rules = get_extension().get_backward_rule_set().find(head_index(curr_state().get_target()));
         Try(backward_action(backward_rules, true));
-        Try(constructor_action());
         return action_result::failed();
     }
 };

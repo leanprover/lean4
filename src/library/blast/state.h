@@ -103,12 +103,21 @@ class branch_extension {
     void dealloc() { delete this; }
 public:
     virtual ~branch_extension() {}
+    /** \brief Return a copy of this object */
     virtual branch_extension * clone() = 0;
+    /** \brief This method is invoked the first time an extension is used in a branch
+        The system guarantees this object is not shared, and destructive updates are allowed. */
     virtual void initialized() {}
+    /** \brief This method is invoked when the given hypothesis is initialized in the current branch.
+        The system guarantees this object is not shared, and destructive updates are allowed. */
     virtual void hypothesis_activated(hypothesis const &, hypothesis_idx) {}
+    /** \brief This method is invoked when the given hypothesis is deleted from the current branch.
+        The system guarantees this object is not shared, and destructive updates are allowed. */
     virtual void hypothesis_deleted(hypothesis const &, hypothesis_idx) {}
 };
 
+/** \brief This procedure must be invoke at Lean initialization time for each branch extension.
+    The unique id returned should be used to retrieve the branch extension associated with the current state */
 unsigned register_branch_extension(branch_extension * initial);
 
 /** \brief Information associated with the current branch of the proof state.

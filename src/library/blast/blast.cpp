@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "util/sstream.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/find_fn.h"
 #include "kernel/type_checker.h"
 #include "library/replace_visitor.h"
 #include "library/util.h"
@@ -106,6 +107,29 @@ class blastenv {
             m_benv.m_curr_state.assign_mref(m, v);
         }
 
+        bool check_href_core(metavar_decl const & d, expr const & h, hypothesis_idx_set & visited) {
+            lean_assert(is_href(h));
+            lean_assert(!d.contains_href(h));
+            if (visited.contains(href_index(h)))
+                return true;
+            visited.insert(href_index(h));
+            state & s = m_benv.m_curr_state;
+            hypothesis const & h_decl = s.get_hypothesis_decl(h);
+            if (h_decl.is_assumption())
+                return false;
+            return !find(*h_decl.get_value(), [&](expr const & e, unsigned) {
+                    return is_href(e) && !d.contains_href(e) && !check_href_core(d, e, visited);
+                });
+        }
+
+        bool check_href(metavar_decl const & d, expr const & h) {
+            lean_assert(is_href(h));
+            if (d.contains_href(h))
+                return true;
+            hypothesis_idx_set visited;
+            return check_href_core(d, h, visited);
+        }
+
         virtual bool validate_assignment(expr const & m, buffer<expr> const & locals, expr const & v) {
             // We must check
             //   1. All href in new_v are in the context of m.
@@ -121,7 +145,7 @@ class blastenv {
                     if (!ok)
                         return false; // stop search
                     if (is_href(e)) {
-                        if (!d->contains_href(e)) {
+                        if (!check_href(*d, e)) {
                             ok = false; // failed 1
                             return false;
                         }

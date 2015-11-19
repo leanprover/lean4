@@ -209,6 +209,8 @@ class state {
 
     branch_extension * get_extension_core(unsigned i);
 
+    expr to_kernel_expr(expr const & e, hypothesis_idx_map<expr> & hidx2local, metavar_idx_map<expr> & midx2meta) const;
+
     #ifdef LEAN_DEBUG
     bool check_hypothesis(expr const & e, hypothesis_idx hidx, hypothesis const & h) const;
     bool check_hypothesis(hypothesis_idx hidx, hypothesis const & h) const;
@@ -467,6 +469,10 @@ public:
         This is mainly used for pretty printing. However, in the future, we may use this capability
         to invoke the tactic framework from the blast tactic. */
     goal to_goal() const;
+
+    /** \brief Convert expression into a kernel expression that can be pretty printed using better names,
+        and types can be inferred by pretty printer. */
+    expr to_kernel_expr(expr const & e) const;
 
     void display(environment const & env, io_state const & ios) const;
 

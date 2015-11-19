@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "library/io_state_stream.h"
 #include "library/blast/blast.h"
 #include "library/blast/choice_point.h"
 #include "library/blast/trace.h"
@@ -53,5 +54,11 @@ scope_trace::scope_trace(options const & o):
 
 scope_trace::~scope_trace() {
     g_trace = m_old;
+}
+
+io_state_stream & operator<<(io_state_stream & out, ppb const & e) {
+    expr tmp = curr_state().to_kernel_expr(e.m_expr);
+    out << tmp;
+    return out;
 }
 }}

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "library/blast/action_result.h"
+#include "library/io_state_stream.h"
 
 namespace lean {
 namespace blast {
@@ -20,4 +21,14 @@ public:
     scope_trace(bool enable);
     ~scope_trace();
 };
+
+/** \brief Helper class for pretty printing blast expressions.
+    It uses state::to_kernel_expr to export a blast expression
+    into an expression that can be processed by the pretty printer */
+struct ppb {
+    expr m_expr;
+    explicit ppb(expr const & e):m_expr(e) {}
+};
+
+io_state_stream & operator<<(io_state_stream & out, ppb const & e);
 }}

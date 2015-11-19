@@ -170,53 +170,74 @@ void state::restrict_mref_context_using(expr const & mref1, expr const & mref2) 
         m_metavar_decls.insert(mref_index(mref1), new_d1);
 }
 
+expr state::to_kernel_expr(expr const & e, hypothesis_idx_map<expr> & hidx2local, metavar_idx_map<expr> & midx2meta) const {
+    return lean::replace(e, [&](expr const & e) {
+            if (is_href(e)) {
+                unsigned hidx = href_index(e);
+                if (auto r = hidx2local.find(hidx)) {
+                    return some_expr(*r);
+                } else {
+                    hypothesis const & h = get_hypothesis_decl(hidx);
+                    // after we add support for let-decls in goals, we must convert back h->get_value() if it is available
+                    expr new_h = lean::mk_local(name(name("H"), hidx),
+                                                h.get_name(),
+                                                to_kernel_expr(h.get_type(), hidx2local, midx2meta),
+                                                binder_info());
+                    hidx2local.insert(hidx, new_h);
+                    return some_expr(new_h);
+                }
+            } else if (is_mref(e)) {
+                unsigned midx = mref_index(e);
+                if (auto r = midx2meta.find(midx)) {
+                    return some_expr(*r);
+                } else {
+                    metavar_decl const * decl = m_metavar_decls.find(midx);
+                    lean_assert(decl);
+                    buffer<expr> ctx;
+                    decl->get_assumptions().for_each([&](unsigned hidx) {
+                            if (auto h = hidx2local.find(hidx))
+                                ctx.push_back(*h);
+                            else
+                                ctx.push_back(to_kernel_expr(mk_href(hidx), hidx2local, midx2meta));
+                        });
+                    expr type     = to_kernel_expr(decl->get_type(), hidx2local, midx2meta);
+                    expr new_type = Pi(ctx, type);
+                    expr new_mvar = lean::mk_metavar(name(name("M"), mref_index(e)), new_type);
+                    expr new_meta = mk_app(new_mvar, ctx);
+                    midx2meta.insert(mref_index(e), new_meta);
+                    return some_expr(new_meta);
+                }
+            } else {
+                return none_expr();
+            }
+        });
+}
+
+expr state::to_kernel_expr(expr const & e) const {
+    hypothesis_idx_map<expr> hidx2local;
+    metavar_idx_map<expr>    midx2meta;
+    return to_kernel_expr(e, hidx2local, midx2meta);
+}
+
 goal state::to_goal() const {
     hypothesis_idx_map<expr> hidx2local;
     metavar_idx_map<expr>    midx2meta;
-    name M("M");
-    std::function<expr(expr const &)> convert = [&](expr const & e) {
-        return lean::replace(e, [&](expr const & e) {
-                if (is_href(e)) {
-                    auto r = hidx2local.find(href_index(e));
-                    lean_assert(r);
-                    return some_expr(*r);
-                } else if (is_mref(e)) {
-                    auto r = midx2meta.find(mref_index(e));
-                    if (r) {
-                        return some_expr(*r);
-                    } else {
-                        metavar_decl const * decl = m_metavar_decls.find(mref_index(e));
-                        lean_assert(decl);
-                        buffer<expr> ctx;
-                        decl->get_assumptions().for_each([&](unsigned hidx) {
-                                ctx.push_back(*hidx2local.find(hidx));
-                            });
-                        expr type     = convert(decl->get_type());
-                        expr new_type = Pi(ctx, type);
-                        expr new_mvar = lean::mk_metavar(name(M, mref_index(e)), new_type);
-                        expr new_meta = mk_app(new_mvar, ctx);
-                        midx2meta.insert(mref_index(e), new_meta);
-                        return some_expr(new_meta);
-                    }
-                } else {
-                    return none_expr();
-                }
-            });
-    };
-    name H("H");
     hypothesis_idx_buffer hidxs;
     get_sorted_hypotheses(hidxs);
     buffer<expr> hyps;
     for (unsigned hidx : hidxs) {
         hypothesis const & h = get_hypothesis_decl(hidx);
         // after we add support for let-decls in goals, we must convert back h->get_value() if it is available
-        expr new_h = lean::mk_local(name(H, hidx), h.get_name(), convert(h.get_type()), binder_info());
+        expr new_h = lean::mk_local(name(name("H"), hidx),
+                                    h.get_name(),
+                                    to_kernel_expr(h.get_type(), hidx2local, midx2meta),
+                                    binder_info());
         hidx2local.insert(hidx, new_h);
         hyps.push_back(new_h);
     }
-    expr new_target    = convert(get_target());
+    expr new_target    = to_kernel_expr(get_target(), hidx2local, midx2meta);
     expr new_mvar_type = Pi(hyps, new_target);
-    expr new_mvar      = lean::mk_metavar(M, new_mvar_type);
+    expr new_mvar      = lean::mk_metavar(name("M"), new_mvar_type);
     expr new_meta      = mk_app(new_mvar, hyps);
     return goal(new_meta, new_target);
 }

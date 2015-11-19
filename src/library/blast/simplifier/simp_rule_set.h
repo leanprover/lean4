@@ -149,6 +149,6 @@ simp_rule_sets get_simp_rule_sets(environment const & env, io_state const & ios,
 
 io_state_stream const & operator<<(io_state_stream const & out, simp_rule_sets const & s);
 
-void initialize_simp_rule_set();
-void finalize_simp_rule_set();
+void initialize_simplifier_rule_set();
+void finalize_simplifier_rule_set();
 }

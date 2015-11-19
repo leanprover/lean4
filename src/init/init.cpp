@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "kernel/quotient/quotient.h"
 #include "kernel/hits/hits.h"
 #include "library/init_module.h"
-#include "library/simplifier/init_module.h"
 #include "library/blast/init_module.h"
 #include "library/tactic/init_module.h"
 #include "library/definitional/init_module.h"
@@ -37,7 +36,6 @@ void initialize() {
     init_default_print_fn();
     initialize_library_module();
     initialize_tactic_module();
-    initialize_simplifier_module();
     initialize_blast_module();
     initialize_definitional_module();
     initialize_compiler_module();
@@ -50,7 +48,6 @@ void finalize() {
     finalize_compiler_module();
     finalize_definitional_module();
     finalize_blast_module();
-    finalize_simplifier_module();
     finalize_tactic_module();
     finalize_library_module();
     finalize_hits_module();

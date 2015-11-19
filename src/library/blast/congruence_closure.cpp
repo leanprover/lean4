@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include "library/constants.h"
-#include "library/simplifier/simp_rule_set.h"
+#include "library/blast/simplifier/simp_rule_set.h"
 #include "library/blast/congruence_closure.h"
 #include "library/blast/util.h"
 #include "library/blast/blast.h"

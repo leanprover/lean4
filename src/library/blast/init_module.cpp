@@ -8,11 +8,11 @@ Author: Leonardo de Moura
 #include "library/blast/state.h"
 #include "library/blast/blast.h"
 #include "library/blast/blast_tactic.h"
-#include "library/blast/simplifier.h"
 #include "library/blast/options.h"
 #include "library/blast/congruence_closure.h"
 #include "library/blast/recursor_action.h"
 #include "library/blast/assert_cc_action.h"
+#include "library/blast/simplifier/init_module.h"
 #include "library/blast/backward/init_module.h"
 #include "library/blast/forward/init_module.h"
 
@@ -22,7 +22,7 @@ void initialize_blast_module() {
     blast::initialize_expr();
     blast::initialize_state();
     initialize_blast();
-    blast::initialize_simplifier();
+    blast::initialize_simplifier_module();
     blast::initialize_backward_module();
     blast::initialize_forward_module();
     initialize_blast_tactic();
@@ -37,7 +37,7 @@ void finalize_blast_module() {
     finalize_blast_tactic();
     blast::finalize_forward_module();
     blast::finalize_backward_module();
-    blast::finalize_simplifier();
+    blast::finalize_simplifier_module();
     finalize_blast();
     blast::finalize_state();
     blast::finalize_expr();

@@ -94,8 +94,7 @@ branch::branch(branch const & b):
     m_head_to_hyps(b.m_head_to_hyps),
     m_forward_deps(b.m_forward_deps),
     m_target(b.m_target),
-    m_target_deps(b.m_target_deps),
-    m_simp_rule_sets(b.m_simp_rule_sets) {
+    m_target_deps(b.m_target_deps) {
     unsigned n = get_extension_manager().get_num_extensions();
     m_extensions = new branch_extension*[n];
     for (unsigned i = 0; i < n; i++) {
@@ -113,8 +112,7 @@ branch::branch(branch && b):
     m_head_to_hyps(std::move(b.m_head_to_hyps)),
     m_forward_deps(std::move(b.m_forward_deps)),
     m_target(std::move(b.m_target)),
-    m_target_deps(std::move(b.m_target_deps)),
-    m_simp_rule_sets(std::move(b.m_simp_rule_sets)) {
+    m_target_deps(std::move(b.m_target_deps)) {
     unsigned n = get_extension_manager().get_num_extensions();
     m_extensions = new branch_extension*[n];
     for (unsigned i = 0; i < n; i++) {
@@ -132,7 +130,6 @@ void branch::swap(branch & b) {
     std::swap(m_forward_deps, b.m_forward_deps);
     std::swap(m_target, b.m_target);
     std::swap(m_target_deps, b.m_target_deps);
-    std::swap(m_simp_rule_sets, b.m_simp_rule_sets);
     std::swap(m_extensions, b.m_extensions);
 }
 

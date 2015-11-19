@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "library/blast/backward/backward_strategy.h"
 #include "library/blast/forward/forward_action.h"
 #include "library/blast/no_confusion_action.h"
-#include "library/blast/simplify_actions.h"
+#include "library/blast/simplifier/simplifier_actions.h"
 #include "library/blast/recursor_action.h"
 #include "library/blast/assert_cc_action.h"
 #include "library/blast/strategy.h"
@@ -48,10 +48,6 @@ class simple_strategy : public strategy {
        Return an expression if the goal has been proved during preprocessing step. */
     virtual optional<expr> preprocess() {
         trace("* Preprocess");
-
-        // TODO(dhs): make a branch extension
-        curr_state().set_simp_rule_sets(get_simp_rule_sets(env()));
-
         while (true) {
             if (!failed(intros_action()))
                 continue;

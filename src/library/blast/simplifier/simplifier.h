@@ -6,7 +6,7 @@ Author: Daniel Selsam
 #pragma once
 #include "kernel/expr_pair.h"
 #include "library/blast/state.h"
-#include "library/simplifier/simp_rule_set.h"
+#include "library/blast/simplifier/simp_rule_set.h"
 
 namespace lean {
 namespace blast {

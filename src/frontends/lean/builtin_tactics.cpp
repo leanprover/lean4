@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser.h"
 #include "frontends/lean/parse_rewrite_tactic.h"
 #include "frontends/lean/parse_with_options_tactic.h"
-#include "frontends/lean/parse_simp_tactic.h"
 
 namespace lean {
 namespace notation {
@@ -53,10 +52,6 @@ static expr parse_with_options_tactic_expr(parser & p, unsigned, expr const *, p
     return p.save_pos(parse_with_options_tactic(p), pos);
 }
 
-static expr parse_simp_tactic_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
-    return p.save_pos(parse_simp_tactic(p), pos);
-}
-
 static expr parse_generalize_tactic(parser & p, unsigned, expr const *, pos_info const & pos) {
     expr e = p.parse_tactic_expr_arg();
     name id;
@@ -88,7 +83,6 @@ parse_table init_tactic_nud_table() {
     r = r.add({transition("fold",         mk_ext_action(parse_fold_tactic_expr))}, x0);
     r = r.add({transition("let",          mk_ext_action(parse_let_tactic))}, x0);
     r = r.add({transition("with_options", mk_ext_action(parse_with_options_tactic_expr))}, x0);
-    r = r.add({transition("simp",         mk_ext_action(parse_simp_tactic_expr))}, x0);
     return r;
 }
 

@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/relation_manager.h"
 #include "library/occurs.h"
-#include "library/simplifier/ceqv.h"
+#include "library/blast/simplifier/ceqv.h"
 
 namespace lean {
 bool is_ceqv(tmp_type_context & tctx, expr e);

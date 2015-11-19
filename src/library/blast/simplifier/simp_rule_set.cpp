@@ -12,8 +12,8 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/expr_pair.h"
 #include "library/relation_manager.h"
-#include "library/simplifier/ceqv.h"
-#include "library/simplifier/simp_rule_set.h"
+#include "library/blast/simplifier/ceqv.h"
+#include "library/blast/simplifier/simp_rule_set.h"
 #include <vector>
 
 namespace lean {
@@ -562,14 +562,14 @@ io_state_stream const & operator<<(io_state_stream const & out, simp_rule_sets c
     return out;
 }
 
-void initialize_simp_rule_set() {
+void initialize_simplifier_rule_set() {
     g_prefix     = new name(name::mk_internal_unique_name());
     g_class_name = new name("rrs");
     g_key        = new std::string("rrs");
     rrs_ext::initialize();
 }
 
-void finalize_simp_rule_set() {
+void finalize_simplifier_rule_set() {
     rrs_ext::finalize();
     delete g_key;
     delete g_class_name;

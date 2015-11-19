@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/relation_manager.h"
 #include "library/user_recursors.h"
 #include "library/coercion.h"
-#include "library/simplifier/simp_rule_set.h"
+#include "library/blast/simplifier/simp_rule_set.h"
 #include "library/blast/backward/backward_rule_set.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/parser.h"

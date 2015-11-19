@@ -43,7 +43,7 @@ class congruence_closure {
         // store 'target' at 'm_target', and 'H' at 'm_proof'. Both fields are none if 'e' == m_root
         optional<expr> m_target;
         optional<expr> m_proof;
-        unsigned       m_rank;        // rank of the equivalence class, it is meaningless if 'e' != m_root
+        unsigned       m_size;        // number of elements in the equivalence class, it is meaningless if 'e' != m_root
     };
 
     /* Key (R, e) for the mapping (R, e) -> entry */
@@ -58,7 +58,7 @@ class congruence_closure {
         int operator()(eqc_key const & k1, eqc_key const & k2) const {
             int r = quick_cmp(k1.m_R, k2.m_R);
             if (r != 0) return r;
-            else return is_lt(k1.m_expr, k2.m_expr, true);
+            else return expr_quick_cmp()(k1.m_expr, k2.m_expr);
         }
     };
 
@@ -95,8 +95,14 @@ class congruence_closure {
     void mk_entry_for(name const & R, expr const & e);
     void add_occurrence(name const & Rp, expr const & parent, name const & Rc, expr const & child);
     void add_congruence_table(ext_congr_lemma const & lemma, expr const & e);
-    void add_eqv(name const & R, expr const & lhs, expr const & rhs, expr const & pr);
+    void invert_trans(name const & R, expr const & e, optional<expr> new_target, optional<expr> new_proof);
+    void invert_trans(name const & R, expr const & e);
+    void remove_parents(name const & R, expr const & e);
+    void insert_parents(name const & R, expr const & e);
+    void add_eqv_step(name const & R, expr e1, expr e2, expr const & H);
+    void add_eqv(name const & R, expr const & lhs, expr const & rhs, expr const & H);
 
+    void display_eqc(name const & R, expr const & e) const;
 public:
     /** \brief Register expression \c e in this data-structure.
        It creates entries for each sub-expression in \c e.
@@ -154,6 +160,7 @@ public:
 
     /** \brief dump for debugging purposes. */
     void display() const;
+    bool check_eqc(name const & R, expr const & e) const;
     bool check_invariant() const;
 };
 

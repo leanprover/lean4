@@ -389,7 +389,6 @@ add_subdirectory(tests/util/numerics)
 add_subdirectory(tests/util/interval)
 add_subdirectory(tests/kernel)
 add_subdirectory(tests/library)
-add_subdirectory(tests/library/blast)
 add_subdirectory(tests/frontends/lean)
 add_subdirectory(tests/shell)
 # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).

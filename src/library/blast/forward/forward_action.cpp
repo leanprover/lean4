@@ -50,12 +50,14 @@ struct forward_branch_extension : public branch_extension {
     }
 
     virtual void hypothesis_deleted(hypothesis const & , hypothesis_idx ) override {
-        // TODO(dhs): discard once the extensions no longer see duplicates
+        /* We discard opportunistically when we encounter a hypothesis that is dead. */
     }
 
 public:
     list<hypothesis_idx> const * find_lemmas(expr const & e) { return m_lemma_map.find(e); }
+    template<typename P> void filter_lemmas(expr const & e, P && p) { return m_lemma_map.filter(e, p); }
     hypothesis_idx const * find_fact(expr const & e) { return m_fact_map.find(e); }
+    void erase_fact(expr const & e) { return m_fact_map.erase(e); }
 };
 
 void initialize_forward_action() {
@@ -68,19 +70,6 @@ static forward_branch_extension & get_extension() {
     return static_cast<forward_branch_extension&>(curr_state().get_extension(g_ext_id));
 }
 
-action_result forward_fact(expr const & type) {
-    forward_branch_extension & ext = get_extension();
-    list<hypothesis_idx> const * lemmas = ext.find_lemmas(type);
-    if (!lemmas) return action_result::failed();
-    bool success = false;
-    for_each(*lemmas, [&](hypothesis_idx const & hidx) {
-            action_result r = forward_action(hidx);
-            success = success || (r.get_kind() == action_result::NewBranch);
-        });
-    if (success) return action_result::new_branch();
-    else return action_result::failed();
-}
-
 action_result forward_pi(expr const & _type, expr const & proof) {
     forward_branch_extension & ext = get_extension();
     bool missing_argument = false;
@@ -88,13 +77,21 @@ action_result forward_pi(expr const & _type, expr const & proof) {
     expr type = _type;
     expr new_hypothesis = proof;
     expr local;
+
     while (is_pi(type) && is_prop(binding_domain(type)) && closed(binding_body(type))) {
         has_antecedent = true;
+        bool current_fact_found = false;
         hypothesis_idx const * fact_hidx = ext.find_fact(binding_domain(type));
         if (fact_hidx) {
             hypothesis const & fact_h = curr_state().get_hypothesis_decl(*fact_hidx);
-            new_hypothesis = mk_app(new_hypothesis, fact_h.get_self());
-        } else {
+            if (fact_h.is_dead()) {
+                ext.erase_fact(binding_domain(type));
+            } else {
+                new_hypothesis = mk_app(new_hypothesis, fact_h.get_self());
+                current_fact_found = true;
+            }
+        }
+        if (!current_fact_found) {
             if (missing_argument) return action_result::failed();
             local = mk_fresh_local(binding_domain(type));
             new_hypothesis = mk_app(new_hypothesis, local);
@@ -114,22 +111,52 @@ action_result forward_pi(expr const & _type, expr const & proof) {
             hypothesis_idx const * fact_hidx = ext.find_fact(not_type);
             if (!fact_hidx) return action_result::failed();
             hypothesis const & fact_h = curr_state().get_hypothesis_decl(*fact_hidx);
-            // TODO(dhs): if classical, use double negation elimination
-            curr_state().mk_hypothesis(get_app_builder().mk_not(infer_type(local)),
-                                       Fun(local, mk_app(new_hypothesis, fact_h.get_self())));
-            return action_result::new_branch();
+            if (fact_h.is_dead()) {
+                ext.erase_fact(not_type);
+                return action_result::failed();
+            } else {
+                // TODO(dhs): if classical, use double negation elimination
+                curr_state().mk_hypothesis(get_app_builder().mk_not(infer_type(local)),
+                                           Fun(local, mk_app(new_hypothesis, fact_h.get_self())));
+                return action_result::new_branch();
+            }
         } else {
-            hypothesis_idx const * fact_hidx = ext.find_fact(get_app_builder().mk_not(type));
+            not_type = get_app_builder().mk_not(type);
+            hypothesis_idx const * fact_hidx = ext.find_fact(not_type);
             if (!fact_hidx) return action_result::failed();
             hypothesis const & fact_h = curr_state().get_hypothesis_decl(*fact_hidx);
-            curr_state().mk_hypothesis(get_app_builder().mk_not(infer_type(local)),
-                                       Fun(local, mk_app(fact_h.get_self(), new_hypothesis)));
-            return action_result::new_branch();
+            if (fact_h.is_dead()) {
+                ext.erase_fact(not_type);
+                return action_result::failed();
+            } else {
+                curr_state().mk_hypothesis(get_app_builder().mk_not(infer_type(local)),
+                                           Fun(local, mk_app(fact_h.get_self(), new_hypothesis)));
+                return action_result::new_branch();
+            }
         }
     } else {
         return action_result::failed();
     }
     lean_unreachable();
+}
+
+action_result forward_fact(expr const & type) {
+    forward_branch_extension & ext = get_extension();
+    list<hypothesis_idx> const * lemmas = ext.find_lemmas(type);
+    if (!lemmas) return action_result::failed();
+    bool success = false;
+    ext.filter_lemmas(type, [&](hypothesis_idx const & hidx) {
+            hypothesis const & h = curr_state().get_hypothesis_decl(hidx);
+            if (h.is_dead()) {
+                return false;
+            } else {
+                action_result r = forward_pi(whnf(h.get_type()), h.get_self());
+                success = success || (r.get_kind() == action_result::NewBranch);
+                return true;
+            }
+        });
+    if (success) return action_result::new_branch();
+    else return action_result::failed();
 }
 
 action_result forward_action(unsigned _hidx) {

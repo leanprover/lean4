@@ -43,18 +43,20 @@ class server {
     typedef std::shared_ptr<file>                     file_ptr;
     typedef std::unordered_map<std::string, file_ptr> file_map;
     class worker {
-        snapshot             m_empty_snapshot;
-        definition_cache &   m_cache;
-        file_ptr             m_todo_file;
-        unsigned             m_todo_line_num;
-        options              m_todo_options;
-        mutex                m_todo_mutex;
-        condition_variable   m_todo_cv;
-        file_ptr             m_last_file;
-        atomic_bool          m_terminate;
-        interruptible_thread m_thread;
+        snapshot              m_empty_snapshot;
+        definition_cache &    m_cache;
+        file_ptr              m_todo_file;
+        optional<std::string> m_base_dir;
+        unsigned              m_todo_line_num;
+        options               m_todo_options;
+        mutex                 m_todo_mutex;
+        condition_variable    m_todo_cv;
+        file_ptr              m_last_file;
+        atomic_bool           m_terminate;
+        interruptible_thread  m_thread;
     public:
-        worker(environment const & env, io_state const & ios, definition_cache & cache);
+        worker(environment const & env, io_state const & ios, definition_cache & cache,
+               optional<std::string> const & base_dir);
         ~worker();
         void set_todo(file_ptr const & f, unsigned line_num, options const & o);
         void request_interrupt();
@@ -66,6 +68,7 @@ class server {
     environment               m_env;
     io_state                  m_ios;
     std::ostream &            m_out;
+    optional<std::string>     m_base_dir;
     unsigned                  m_num_threads;
     snapshot                  m_empty_snapshot;
     definition_cache          m_cache;
@@ -101,12 +104,12 @@ class server {
     void find_goal_matches(unsigned line_num, unsigned col_num, std::string const & filters);
 
 public:
-    server(environment const & env, io_state const & ios, unsigned num_threads = 1);
+    server(environment const & env, io_state const & ios, optional<std::string> const & base_dir, unsigned num_threads = 1);
     ~server();
     bool operator()(std::istream & in);
 };
 
-bool parse_server_trace(environment const & env, io_state const & ios, char const * fname);
+bool parse_server_trace(environment const & env, io_state const & ios, char const * fname, optional<std::string> const & base_dir);
 
 void initialize_server();
 void finalize_server();

@@ -100,6 +100,7 @@ class parser {
     unsigned                m_num_threads;
     scanner                 m_scanner;
     scanner::token_kind     m_curr;
+    optional<std::string>   m_base_dir;
     local_level_decls       m_local_level_decls;
     local_expr_decls        m_local_decls;
     bool                    m_has_params; // true context context contains parameters
@@ -270,7 +271,7 @@ class parser {
 
 public:
     parser(environment const & env, io_state const & ios,
-           std::istream & strm, char const * str_name,
+           std::istream & strm, char const * str_name, optional<std::string> const & base_dir,
            bool use_exceptions = false, unsigned num_threads = 1,
            snapshot const * s = nullptr, snapshot_vector * sv = nullptr,
            info_manager * im = nullptr, keep_theorem_mode tmode = keep_theorem_mode::All);
@@ -550,10 +551,11 @@ public:
     };
 };
 
-bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name,
+bool parse_commands(environment & env, io_state & ios, std::istream & in, char const * strm_name, optional<std::string> const & base_dir,
                     bool use_exceptions, unsigned num_threads, definition_cache * cache = nullptr,
                     declaration_index * index = nullptr, keep_theorem_mode tmode = keep_theorem_mode::All);
-bool parse_commands(environment & env, io_state & ios, char const * fname, bool use_exceptions, unsigned num_threads,
+bool parse_commands(environment & env, io_state & ios, char const * fname, optional<std::string> const & base,
+                    bool use_exceptions, unsigned num_threads,
                     definition_cache * cache = nullptr, declaration_index * index = nullptr,
                     keep_theorem_mode tmode = keep_theorem_mode::All);
 

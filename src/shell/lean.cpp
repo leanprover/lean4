@@ -126,6 +126,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --tstack=num -s   thread stack size in Kb\n";
 #endif
     std::cout << "  -D name=value     set a configuration option (see set_option command)\n";
+    std::cout << "  --dir=directory   display information about identifier or token in the given posivition\n";
     std::cout << "Frontend query interface:\n";
     std::cout << "  --line=value      line number for query\n";
     std::cout << "  --col=value       column number for query\n";
@@ -186,10 +187,11 @@ static struct option g_long_options[] = {
     {"goal",         no_argument,       0, 'G'},
     {"hole",         no_argument,       0, 'Z'},
     {"info",         no_argument,       0, 'I'},
+    {"dir",          required_argument, 0, 'T'},
     {0, 0, 0, 0}
 };
 
-#define OPT_STR "PHRXFdD:qrlupgvhk:012t:012o:E:c:i:L:012O:012GZAI"
+#define OPT_STR "PHRXFdD:qrlupgvhk:012t:012o:E:c:i:L:012O:012GZAIT:"
 
 #if defined(LEAN_TRACK_MEMORY)
 #define OPT_STR2 OPT_STR "M:012"
@@ -267,6 +269,7 @@ int main(int argc, char ** argv) {
     optional<unsigned> column;
     optional<std::string> export_txt;
     optional<std::string> export_all_txt;
+    optional<std::string> base_dir;
     bool show_goal = false;
     bool show_hole = false;
     bool show_info = false;
@@ -381,6 +384,9 @@ int main(int argc, char ** argv) {
         case 'A':
             export_all_txt = std::string(optarg);
             break;
+        case 'T':
+            base_dir = std::string(optarg);
+            break;
         default:
             std::cerr << "Unknown command line option\n";
             display_help(std::cerr);
@@ -488,7 +494,7 @@ int main(int argc, char ** argv) {
                     if (only_deps) {
                         if (!display_deps(env, std::cout, std::cerr, argv[i]))
                             ok = false;
-                    } else if (!parse_commands(env, ios, argv[i], false, num_threads,
+                    } else if (!parse_commands(env, ios, argv[i], base_dir, false, num_threads,
                                                cache_ptr, index_ptr, tmode)) {
                         ok = false;
                     }
@@ -497,7 +503,7 @@ int main(int argc, char ** argv) {
                     lean::system_import(argv[i]);
                     break;
                 case input_kind::Trace:
-                    ok = lean::parse_server_trace(env, ios, argv[i]);
+                    ok = lean::parse_server_trace(env, ios, argv[i], base_dir);
                     break;
                 default:
                     lean_unreachable();
@@ -512,7 +518,7 @@ int main(int argc, char ** argv) {
         if (ok && server && (default_k == input_kind::Lean || default_k == input_kind::HLean)) {
             signal(SIGINT, on_ctrl_c);
             ios.set_option(lean::name("pp", "beta"), true);
-            lean::server Sv(env, ios, num_threads);
+            lean::server Sv(env, ios, base_dir, num_threads);
             if (!Sv(std::cin))
                 ok = false;
         }

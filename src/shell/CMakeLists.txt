@@ -61,6 +61,9 @@ add_test(NAME "show_goal_bag"
 add_test(NAME "print_info"
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
          COMMAND bash "./print_info.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
+add_test(NAME "dir_option"
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/extra"
+         COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" "--dir=${LEAN_SOURCE_DIR}/../library/data/nat" "dir_option.lean")
 if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   # The following test cannot be executed on Windows because of the
   # bash script timeout.sh

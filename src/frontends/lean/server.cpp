@@ -161,9 +161,10 @@ unsigned server::file::copy_to(std::string & block, unsigned starting_from) {
     return num_lines;
 }
 
-server::worker::worker(environment const & env, io_state const & ios, definition_cache & cache):
+server::worker::worker(environment const & env, io_state const & ios, definition_cache & cache, optional<std::string> const & base_dir):
     m_empty_snapshot(env, ios.get_options()),
     m_cache(cache),
+    m_base_dir(base_dir),
     m_todo_line_num(0),
     m_todo_options(ios.get_options()),
     m_terminate(false),
@@ -223,8 +224,9 @@ server::worker::worker(environment const & env, io_state const & ios, definition
                     tmp_ios.set_options(join(s.m_options, _ios.get_options()));
                     bool use_exceptions  = false;
                     unsigned num_threads = 1;
-                    parser p(s.m_env, tmp_ios, strm, todo_file->m_fname.c_str(), use_exceptions, num_threads,
-                             &s, &todo_file->m_snapshots, &todo_file->m_info);
+                    parser p(s.m_env, tmp_ios, strm, todo_file->m_fname.c_str(), m_base_dir,
+                        use_exceptions, num_threads,
+                        &s, &todo_file->m_snapshots, &todo_file->m_info);
                     p.set_cache(&m_cache);
                     p();
                 } catch (interrupted &) {
@@ -282,10 +284,12 @@ void server::worker::set_todo(file_ptr const & f, unsigned line_num, options con
     m_todo_cv.notify_all();
 }
 
-server::server(environment const & env, io_state const & ios, unsigned num_threads):
+server::server(environment const & env, io_state const & ios, optional<std::string> const & base_dir,
+               unsigned num_threads):
     m_env(env), m_ios(ios), m_out(ios.get_regular_channel().get_stream()),
+    m_base_dir(base_dir),
     m_num_threads(num_threads), m_empty_snapshot(m_env, m_ios.get_options()),
-    m_worker(env, ios, m_cache) {
+    m_worker(env, ios, m_cache, m_base_dir) {
 #if !defined(LEAN_MULTI_THREAD)
     lean_unreachable();
 #endif
@@ -490,7 +494,7 @@ void server::set_option(std::string const & line) {
     std::istringstream strm(cmd);
     m_out << "-- BEGINSET" << std::endl;
     try {
-        parser p(m_env, m_ios, strm, "SET_command", true);
+        parser p(m_env, m_ios, strm, "SET_command", m_base_dir, true);
         p();
         m_ios.set_options(p.ios().get_options());
     } catch (exception & ex) {
@@ -516,7 +520,7 @@ void server::eval_core(environment const & env, options const & o, std::string c
     io_state ios(m_ios, o);
     m_out << "-- BEGINEVAL" << std::endl;
     try {
-        parser p(env, ios, strm, "EVAL_command", true);
+        parser p(env, ios, strm, "EVAL_command", m_base_dir, true);
         p();
     } catch (exception & ex) {
         m_out << ex.what() << std::endl;
@@ -920,8 +924,8 @@ bool server::operator()(std::istream & in) {
     return true;
 }
 
-bool parse_server_trace(environment const & env, io_state const & ios, char const * fname) {
-    lean::server Sv(env, ios);
+bool parse_server_trace(environment const & env, io_state const & ios, char const * fname, optional<std::string> const & base_dir) {
+    lean::server Sv(env, ios, base_dir);
     std::ifstream in(fname);
     if (in.bad() || in.fail())
         throw exception(sstream() << "failed to open file '" << fname << "'");

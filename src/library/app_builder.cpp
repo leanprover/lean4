@@ -494,6 +494,11 @@ struct app_builder::imp {
         return mk_app(get_false_of_true_iff_false_name(), {H});
     }
 
+    expr mk_not(expr const & H) {
+        // TODO(dhs): implement custom version if bottleneck.
+        return mk_app(get_not_name(), {H});
+    }
+
     expr mk_partial_add(expr const & A) {
         level lvl = get_level(A);
         auto A_has_add = m_ctx->mk_class_instance(::lean::mk_app(mk_constant(get_has_add_name(), {lvl}), A));
@@ -654,6 +659,10 @@ expr app_builder::mk_of_iff_true(expr const & H) {
 
 expr app_builder::mk_false_of_true_iff_false(expr const & H) {
     return m_ptr->mk_false_of_true_iff_false(H);
+}
+
+expr app_builder::mk_not(expr const & H) {
+    return m_ptr->mk_not(H);
 }
 
 expr app_builder::mk_partial_add(expr const & A) {

@@ -126,6 +126,8 @@ public:
     /** \brief (true <-> false) -> false */
     expr mk_false_of_true_iff_false(expr const & H);
 
+    expr mk_not(expr const & H);
+
     expr mk_partial_add(expr const & A);
     expr mk_partial_mul(expr const & A);
     expr mk_zero(expr const & A);

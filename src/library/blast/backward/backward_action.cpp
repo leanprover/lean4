@@ -29,8 +29,7 @@ struct backward_proof_step_cell : public proof_step_cell {
         state & s = curr_state();
         s.set_branch(m_branch);
         expr mvar = head(m_mvars);
-        if (!is_def_eq(mvar, pr))
-            return action_result::failed();
+        if (!is_def_eq(mvar, pr)) return action_result::failed();
         list<expr> new_mvars = tail(m_mvars);
         if (empty(new_mvars)) {
             // solved all branches

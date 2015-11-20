@@ -30,5 +30,5 @@ struct ppb {
     explicit ppb(expr const & e):m_expr(e) {}
 };
 
-io_state_stream & operator<<(io_state_stream & out, ppb const & e);
+io_state_stream const & operator<<(io_state_stream const & out, ppb const & e);
 }}

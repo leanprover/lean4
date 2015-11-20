@@ -56,7 +56,7 @@ scope_trace::~scope_trace() {
     g_trace = m_old;
 }
 
-io_state_stream & operator<<(io_state_stream & out, ppb const & e) {
+io_state_stream const & operator<<(io_state_stream const & out, ppb const & e) {
     expr tmp = curr_state().to_kernel_expr(e.m_expr);
     out << tmp;
     return out;

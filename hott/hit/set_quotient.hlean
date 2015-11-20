@@ -63,6 +63,14 @@ section
     rewrite [▸*,-apdo_eq_pathover_of_eq_ap,↑elim,rec_eq_of_rel],
   end
 
+  protected definition rec_hprop {P : set_quotient → Type} [Pt : Πaa, is_hprop (P aa)]
+    (Pc : Π(a : A), P (class_of a)) (x : set_quotient) : P x :=
+  rec Pc (λa a' H, !is_hprop.elimo) x
+
+  protected definition elim_hprop {P : Type} [Pt : is_hprop P] (Pc : A → P) (x : set_quotient)
+    : P :=
+  elim Pc (λa a' H, !is_hprop.elim) x
+
   /-
     there are no theorems to eliminate to the universe here,
     because the universe is generally not a set
@@ -98,7 +106,8 @@ namespace set_quotient
         intro a a' r, apply eq_pathover, apply hdeg_square, apply elim_eq_of_rel}
   end
 
-  definition code [unfold 4] (a : A) (x : set_quotient R) [H : is_equivalence R] : hprop :=
+  protected definition code [unfold 4] (a : A) (x : set_quotient R) [H : is_equivalence R]
+    : hprop :=
   set_quotient.elim_on x (R a)
     begin
       intros a' a'' H1,
@@ -109,22 +118,22 @@ namespace set_quotient
       { intro H2, apply is_transitive.trans R H2, exact is_symmetric.symm R H1}
     end
 
-  definition encode {a : A} {x : set_quotient R} (p : class_of a = x)
-    [H : is_equivalence R] : code R a x :=
+  protected definition encode {a : A} {x : set_quotient R} (p : class_of a = x)
+    [H : is_equivalence R] : set_quotient.code R a x :=
   begin
     induction p, esimp, apply is_reflexive.refl R
   end
 
   definition rel_of_eq {a a' : A} (p : class_of a = class_of a' :> set_quotient R)
     [H : is_equivalence R] : R a a' :=
-  encode R p
+  set_quotient.encode R p
 
   variables {R S T}
-  definition quotient_unary_map (f : A → B) (H : Π{a a'} (r : R a a'), S (f a) (f a')) :
+  definition quotient_unary_map [unfold 7] (f : A → B) (H : Π{a a'} (r : R a a'), S (f a) (f a')) :
     set_quotient R → set_quotient S :=
   set_quotient.elim (class_of ∘ f) (λa a' r, eq_of_rel (H r))
 
-  definition quotient_binary_map (f : A → B → C)
+  definition quotient_binary_map [unfold 10 11] (f : A → B → C)
     (H : Π{a a'} (r : R a a') {b b'} (s : S b b'), T (f a b) (f a' b'))
     [HR : is_reflexive R] [HS : is_reflexive S] :
     set_quotient R → set_quotient S → set_quotient T :=
@@ -137,6 +146,5 @@ namespace set_quotient
       { intro b, esimp, apply eq_of_rel, apply H, exact r, apply is_reflexive.refl S},
       { intro b b' s, apply eq_pathover, esimp, apply is_hset.elims}}
   end
-
 
 end set_quotient

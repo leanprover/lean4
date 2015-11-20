@@ -41,7 +41,7 @@ namespace algebra
   local postfix ⁻¹ := trunc_inv
   local infix * := trunc_mul
 
-  definition trunc_mul_assoc [unfold 9 10 11] (g₁ g₂ g₃ : G) : g₁ * g₂ * g₃ = g₁ * (g₂ * g₃) :=
+  theorem trunc_mul_assoc (g₁ g₂ g₃ : G) : g₁ * g₂ * g₃ = g₁ * (g₂ * g₃) :=
   begin
     apply trunc.rec_on g₁, intro p₁,
     apply trunc.rec_on g₂, intro p₂,
@@ -49,25 +49,25 @@ namespace algebra
     exact ap tr !mul_assoc,
   end
 
-  definition trunc_one_mul [unfold 9] (g : G) : 1 * g = g :=
+  theorem trunc_one_mul (g : G) : 1 * g = g :=
   begin
     apply trunc.rec_on g, intro p,
     exact ap tr !one_mul
   end
 
-  definition trunc_mul_one [unfold 9] (g : G) : g * 1 = g :=
+  theorem trunc_mul_one (g : G) : g * 1 = g :=
   begin
     apply trunc.rec_on g, intro p,
     exact ap tr !mul_one
   end
 
-  definition trunc_mul_left_inv [unfold 9] (g : G) : g⁻¹ * g = 1 :=
+  theorem trunc_mul_left_inv (g : G) : g⁻¹ * g = 1 :=
   begin
     apply trunc.rec_on g, intro p,
     exact ap tr !mul_left_inv
   end
 
-  definition trunc_mul_comm [unfold 10 11] (mul_comm : ∀a b, mul a b = mul b a) (g h : G)
+  theorem trunc_mul_comm (mul_comm : ∀a b, mul a b = mul b a) (g h : G)
     : g * h = h * g :=
   begin
     apply trunc.rec_on g, intro p,

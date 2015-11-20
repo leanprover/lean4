@@ -16,7 +16,7 @@ See also .set_quotient
 
 import arity cubical.squareover types.arrow cubical.pathover2
 
-open eq equiv sigma sigma.ops equiv.ops pi
+open eq equiv sigma sigma.ops equiv.ops pi is_trunc
 
 namespace quotient
 
@@ -37,6 +37,13 @@ namespace quotient
     apply eq_of_fn_eq_fn_inv !(pathover_constant (eq_of_rel R H)),
     rewrite [▸*,-apdo_eq_pathover_of_eq_ap,↑quotient.elim,rec_eq_of_rel],
   end
+
+  protected definition rec_hprop {A : Type} {R : A → A → Type} {P : quotient R → Type}
+    [H : Πx, is_hprop (P x)] (Pc : Π(a : A), P (class_of R a)) (x : quotient R) : P x :=
+  quotient.rec Pc (λa a' H, !is_hprop.elimo) x
+
+  protected definition elim_hprop {P : Type} [H : is_hprop P] (Pc : A → P) (x : quotient R) : P :=
+  quotient.elim Pc (λa a' H, !is_hprop.elim) x
 
   protected definition elim_type (Pc : A → Type)
     (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a ≃ Pc a') : quotient R → Type :=

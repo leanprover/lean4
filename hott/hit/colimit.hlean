@@ -7,7 +7,7 @@ Definition of general colimits and sequential colimits.
 -/
 
 /- definition of a general colimit -/
-open eq nat quotient sigma equiv equiv.ops
+open eq nat quotient sigma equiv equiv.ops is_trunc
 
 namespace colimit
 section
@@ -84,6 +84,14 @@ section
     (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) ≃ Pincl x)
       {j : J} (x : A (dom j)) : transport (elim_type Pincl Pglue) (cglue j x) = Pglue j x :=
   by rewrite [tr_eq_cast_ap_fn,↑elim_type,elim_cglue];apply cast_ua_fn
+
+  protected definition rec_hprop {P : colimit → Type} [H : Πx, is_hprop (P x)]
+    (Pincl : Π⦃i : I⦄ (x : A i), P (ι x)) (y : colimit) : P y :=
+  rec Pincl (λa b, !is_hprop.elimo) y
+
+  protected definition elim_hprop {P : Type} [H : is_hprop P] (Pincl : Π⦃i : I⦄ (x : A i), P)
+    (y : colimit) : P :=
+  elim Pincl (λa b, !is_hprop.elim) y
 
 end
 end colimit
@@ -166,6 +174,15 @@ section
     (Pglue : Π⦃n : ℕ⦄ (a : A n), Pincl (f a) ≃ Pincl a) {n : ℕ} (a : A n)
       : transport (elim_type Pincl Pglue) (glue a) = Pglue a :=
   by rewrite [tr_eq_cast_ap_fn,↑elim_type,elim_glue];apply cast_ua_fn
+
+  protected definition rec_hprop {P : seq_colim → Type} [H : Πx, is_hprop (P x)]
+    (Pincl : Π⦃n : ℕ⦄ (a : A n), P (sι a)) (aa : seq_colim) : P aa :=
+  rec Pincl (λa b, !is_hprop.elimo) aa
+
+  protected definition elim_hprop {P : Type} [H : is_hprop P] (Pincl : Π⦃n : ℕ⦄ (a : A n), P)
+    : seq_colim → P :=
+  elim Pincl (λa b, !is_hprop.elim)
+
 
 end
 end seq_colim

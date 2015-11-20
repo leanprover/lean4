@@ -8,7 +8,7 @@ Declaration of the coequalizer
 
 import .quotient
 
-open quotient eq equiv equiv.ops
+open quotient eq equiv equiv.ops is_trunc
 
 namespace coeq
 section
@@ -73,6 +73,13 @@ parameters {A B : Type.{u}} (f g : A → B)
   theorem elim_type_cp (P_i : B → Type) (Pcp : Π(x : A), P_i (f x) ≃ P_i (g x))
     (x : A) : transport (elim_type P_i Pcp) (cp x) = Pcp x :=
   by rewrite [tr_eq_cast_ap_fn,↑elim_type,elim_cp];apply cast_ua_fn
+
+  protected definition rec_hprop {P : coeq → Type} [H : Πx, is_hprop (P x)]
+    (P_i : Π(x : B), P (coeq_i x)) (y : coeq) : P y :=
+  rec P_i (λa, !is_hprop.elimo) y
+
+  protected definition elim_hprop {P : Type} [H : is_hprop P] (P_i : B → P) (y : coeq) : P :=
+  elim P_i (λa, !is_hprop.elim) y
 
 end
 

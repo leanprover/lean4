@@ -45,6 +45,7 @@ inline optional<relation_info> is_relation(expr const & R) {
     return is_constant(R) ? get_relation_info(const_name(R)) : optional<relation_info>();
 }
 bool is_reflexive(name const & rop);
+bool is_symmetric(name const & rop);
 
 /** \brief Put the given expression in weak-head-normal-form with respect to the
     current state being processed by the blast tactic. */

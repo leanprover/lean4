@@ -34,12 +34,12 @@ class simple_strategy : public strategy {
         trace_action("activate");
 
         Try(assumption_contradiction_actions(*hidx));
+        TrySolve(assert_cc_action(*hidx));
         Try(subst_action(*hidx));
         Try(no_confusion_action(*hidx));
         Try(discard_action(*hidx));
         Try(forward_action(*hidx));
         Try(recursor_preprocess_action(*hidx));
-        TrySolve(assert_cc_action(*hidx));
         return action_result::new_branch();
     }
 

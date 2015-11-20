@@ -63,6 +63,7 @@ class blastenv {
     abstract_expr_manager      m_abstract_expr_manager;
     relation_info_getter       m_rel_getter;
     refl_info_getter           m_refl_getter;
+    symm_info_getter           m_symm_getter;
 
     class tctx : public type_context {
         blastenv &                              m_benv;
@@ -442,6 +443,7 @@ public:
         m_abstract_expr_manager(m_fun_info_manager),
         m_rel_getter(mk_relation_info_getter(env)),
         m_refl_getter(mk_refl_info_getter(env)),
+        m_symm_getter(mk_symm_info_getter(env)),
         m_tctx(*this),
         m_normalizer(m_tctx) {
         init_uref_mref_href_idxs();
@@ -580,6 +582,10 @@ public:
         return static_cast<bool>(m_refl_getter(rop));
     }
 
+    bool is_symmetric(name const & rop) const {
+        return static_cast<bool>(m_symm_getter(rop));
+    }
+
     optional<relation_info> get_relation_info(name const & rop) const {
         return m_rel_getter(rop);
     }
@@ -641,6 +647,11 @@ bool is_relation_app(expr const & e) {
 bool is_reflexive(name const & rop) {
     lean_assert(g_blastenv);
     return g_blastenv->is_reflexive(rop);
+}
+
+bool is_symmetric(name const & rop) {
+    lean_assert(g_blastenv);
+    return g_blastenv->is_symmetric(rop);
 }
 
 optional<relation_info> get_relation_info(name const & rop) {

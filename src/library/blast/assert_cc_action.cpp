@@ -17,7 +17,8 @@ struct cc_branch_extension : public branch_extension {
     cc_branch_extension() {}
     cc_branch_extension(cc_branch_extension const & o):m_cc(o.m_cc) {}
     virtual ~cc_branch_extension() {}
-    virtual branch_extension * clone() { return new cc_branch_extension(*this); }
+    virtual branch_extension * clone() override { return new cc_branch_extension(*this); }
+    virtual void initialized() override { m_cc.initialize(); }
 };
 
 void initialize_assert_cc_action() {
@@ -33,6 +34,9 @@ static congruence_closure & get_cc() {
 action_result assert_cc_action(hypothesis_idx hidx) {
     congruence_closure & cc = get_cc();
     cc.add(hidx);
+    // TODO(Leo): remove the following line
+    return action_result::new_branch();
+    cc.display();
     if (cc.is_inconsistent()) {
         try {
             app_builder & b  = get_app_builder();

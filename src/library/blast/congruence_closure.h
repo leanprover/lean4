@@ -76,21 +76,32 @@ class congruence_closure {
         unsigned m_eq:1;       // true if m_expr is an equality
         unsigned m_iff:1;      // true if m_expr is an iff
         unsigned m_symm_rel:1; // true if m_expr is another symmetric relation.
+        congr_key() { m_eq = 0; m_iff = 0; m_symm_rel = 0; }
     };
 
     struct congr_key_cmp {
-        int operator()(congr_key const & k1, congr_key const & k2);
+        int operator()(congr_key const & k1, congr_key const & k2) const;
     };
 
-    typedef rb_tree<expr, expr_quick_cmp>           expr_set;
-    typedef rb_map<eqc_key, entry, eqc_key_cmp>     entries;
-    // TODO(Leo): fix and take relation into account
-    typedef rb_map<expr, expr_set, expr_quick_cmp>  parents;
-    typedef rb_tree<congr_key, congr_key_cmp>       congruences;
+    typedef rb_tree<expr, expr_quick_cmp>                    expr_set;
+    typedef rb_map<eqc_key, entry, eqc_key_cmp>              entries;
+    typedef eqc_key     child_key;
+    typedef eqc_key_cmp child_key_cmp;
+    typedef eqc_key     parent_occ;
+    typedef eqc_key_cmp parent_occ_cmp;
+    typedef rb_tree<parent_occ, parent_occ_cmp>              parent_occ_set;
+    typedef rb_map<child_key, parent_occ_set, child_key_cmp> parents;
+    typedef rb_tree<congr_key, congr_key_cmp>                congruences;
 
     entries     m_entries;
     parents     m_parents;
     congruences m_congruences;
+
+    int compare_symm(name const & R, expr lhs1, expr rhs1, expr lhs2, expr rhs2) const;
+    int compare_root(name const & R, expr e1, expr e2) const;
+    unsigned symm_hash(name const & R, expr const & lhs, expr const & rhs) const;
+    congr_key mk_congr_key(ext_congr_lemma const & lemma, expr const & e) const;
+    void check_iff_true(congr_key const & k);
 
     void mk_entry_for(name const & R, expr const & e);
     void add_occurrence(name const & Rp, expr const & parent, name const & Rc, expr const & child);
@@ -98,12 +109,14 @@ class congruence_closure {
     void invert_trans(name const & R, expr const & e, optional<expr> new_target, optional<expr> new_proof);
     void invert_trans(name const & R, expr const & e);
     void remove_parents(name const & R, expr const & e);
-    void insert_parents(name const & R, expr const & e);
+    void reinsert_parents(name const & R, expr const & e);
     void add_eqv_step(name const & R, expr e1, expr e2, expr const & H);
     void add_eqv(name const & R, expr const & lhs, expr const & rhs, expr const & H);
 
     void display_eqc(name const & R, expr const & e) const;
 public:
+    void initialize();
+
     /** \brief Register expression \c e in this data-structure.
        It creates entries for each sub-expression in \c e.
        It also updates the m_parents mapping.
@@ -160,6 +173,8 @@ public:
 
     /** \brief dump for debugging purposes. */
     void display() const;
+    void display_eqcs() const;
+    void display_parents() const;
     bool check_eqc(name const & R, expr const & e) const;
     bool check_invariant() const;
 };
@@ -171,4 +186,7 @@ public:
     scope_congruence_closure();
     ~scope_congruence_closure();
 };
+
+void initialize_congruence_closure();
+void finalize_congruence_closure();
 }}

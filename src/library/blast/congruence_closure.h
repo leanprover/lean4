@@ -98,6 +98,9 @@ class congruence_closure {
     entries     m_entries;
     parents     m_parents;
     congruences m_congruences;
+    list<name>  m_non_eq_relations;
+
+    void update_non_eq_relations(name const & R);
 
     void internalize_core(name const & R, expr const & e);
     void process_todo();
@@ -108,7 +111,8 @@ class congruence_closure {
     congr_key mk_congr_key(ext_congr_lemma const & lemma, expr const & e) const;
     void check_iff_true(congr_key const & k);
 
-    void mk_entry_for(name const & R, expr const & e);
+    void mk_entry_core(name const & R, expr const & e);
+    void mk_entry(name const & R, expr const & e);
     void add_occurrence(name const & Rp, expr const & parent, name const & Rc, expr const & child);
     void add_congruence_table(ext_congr_lemma const & lemma, expr const & e);
     void invert_trans(name const & R, expr const & e, optional<expr> new_target, optional<expr> new_proof);
@@ -157,9 +161,9 @@ public:
     /** \brief Return the proof of inconsistency */
     optional<expr> get_inconsistency_proof() const;
 
-    /** \brief Return true iff 'e1' and 'e2' are in the same equivalence class for relation \c rel_name. */
+    /** \brief Return true iff 'e1' and 'e2' are in the same equivalence class for relation \c R. */
     bool is_eqv(name const & R, expr const & e1, expr const & e2) const;
-    optional<expr> get_eqv_proof(name const & rel_name, expr const & e1, expr const & e2) const;
+    optional<expr> get_eqv_proof(name const & R, expr const & e1, expr const & e2) const;
 
     /** \brief Return true iff `e1 ~ e2` is in the equivalence class of false for iff. */
     bool is_uneqv(name const & R, expr const & e1, expr const & e2) const;

@@ -17,3 +17,6 @@ open perm
 
 example (a b c d : list nat) : a ~ b → c ~ b → d ~ c → a ~ d :=
 by blast
+
+example (a b c d : list nat) : a ~ b → c ~ b → d = c → a ~ d :=
+by blast

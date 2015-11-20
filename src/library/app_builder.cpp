@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/scoped_map.h"
 #include "util/name_map.h"
 #include "kernel/instantiate.h"
+#include "kernel/abstract.h"
 #include "library/match.h"
 #include "library/constants.h"
 #include "library/app_builder.h"
@@ -424,6 +425,21 @@ struct app_builder::imp {
         }
     }
 
+    expr lift_from_eq(name const & R, expr const & H) {
+        if (R == get_eq_name())
+            return H;
+        expr H_type = m_ctx->relaxed_whnf(m_ctx->infer(H));
+        // H_type : @eq A a b
+        expr const & a = app_arg(app_fn(H_type));
+        expr const & A = app_arg(app_fn(app_fn(H_type)));
+        expr x         = m_ctx->mk_tmp_local(A);
+        // motive := fun x : A, a ~ x
+        expr motive    = Fun(x, mk_rel(R, a, x));
+        // minor : a ~ a
+        expr minor     = mk_refl(R, a);
+        return mk_eq_rec(motive, minor, H);
+    }
+
     expr mk_eq_rec(expr const & motive, expr const & H1, expr const & H2) {
         expr p       = m_ctx->whnf(m_ctx->infer(H2));
         expr lhs, rhs;
@@ -640,6 +656,10 @@ expr app_builder::mk_congr_fun(expr const & H, expr const & a) {
 
 expr app_builder::mk_congr(expr const & H1, expr const & H2) {
     return m_ptr->mk_congr(H1, H2);
+}
+
+expr app_builder::lift_from_eq(name const & R, expr const & H) {
+    return m_ptr->lift_from_eq(R, H);
 }
 
 expr app_builder::mk_iff_false_intro(expr const & H) {

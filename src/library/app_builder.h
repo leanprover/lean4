@@ -115,6 +115,10 @@ public:
     expr mk_congr_fun(expr const & H, expr const & a);
     expr mk_congr(expr const & H1, expr const & H2);
 
+    /** \brief Given a reflexive relation R, and a proof H : a = b,
+        build a proof for (R a b) */
+    expr lift_from_eq(name const & R, expr const & H);
+
     /** \brief not p -> (p <-> false) */
     expr mk_iff_false_intro(expr const & H);
     /** \brief p -> (p <-> true) */

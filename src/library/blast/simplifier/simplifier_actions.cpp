@@ -21,8 +21,8 @@ struct simplifier_branch_extension : public branch_extension {
     virtual ~simplifier_branch_extension() {}
     virtual branch_extension * clone() override { return new simplifier_branch_extension(*this); }
     virtual void initialized() override { m_srss = ::lean::get_simp_rule_sets(env()); }
-    virtual void hypothesis_activated(hypothesis const & h, hypothesis_idx hidx) override { }
-    virtual void hypothesis_deleted(hypothesis const & h, hypothesis_idx) override { }
+    virtual void hypothesis_activated(hypothesis const &, hypothesis_idx) override { }
+    virtual void hypothesis_deleted(hypothesis const &, hypothesis_idx) override { }
     simp_rule_sets const & get_simp_rule_sets() const { return m_srss; }
 };
 

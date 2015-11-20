@@ -43,7 +43,9 @@ class congruence_closure {
         // store 'target' at 'm_target', and 'H' at 'm_proof'. Both fields are none if 'e' == m_root
         optional<expr> m_target;
         optional<expr> m_proof;
+        bool           m_flipped;     // proof has been flipped
         unsigned       m_size;        // number of elements in the equivalence class, it is meaningless if 'e' != m_root
+
     };
 
     /* Key (R, e) for the mapping (R, e) -> entry */
@@ -97,6 +99,9 @@ class congruence_closure {
     parents     m_parents;
     congruences m_congruences;
 
+    void internalize_core(name const & R, expr const & e);
+    void process_todo();
+
     int compare_symm(name const & R, expr lhs1, expr rhs1, expr lhs2, expr rhs2) const;
     int compare_root(name const & R, expr e1, expr e2) const;
     unsigned symm_hash(name const & R, expr const & lhs, expr const & rhs) const;
@@ -112,6 +117,8 @@ class congruence_closure {
     void reinsert_parents(name const & R, expr const & e);
     void add_eqv_step(name const & R, expr e1, expr e2, expr const & H);
     void add_eqv(name const & R, expr const & lhs, expr const & rhs, expr const & H);
+
+    expr mk_proof(name const & R, expr const & lhs, expr const & rhs, expr const & H) const;
 
     void display_eqc(name const & R, expr const & e) const;
 public:

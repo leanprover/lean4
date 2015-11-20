@@ -33,10 +33,10 @@ static congruence_closure & get_cc() {
 
 action_result assert_cc_action(hypothesis_idx hidx) {
     congruence_closure & cc = get_cc();
+    // TODO(Leo): consider a target_changed event for branch_extension.
+    cc.internalize(curr_state().get_target());
     cc.add(hidx);
-    // TODO(Leo): remove the following line
-    return action_result::new_branch();
-    cc.display();
+    // cc.display();
     if (cc.is_inconsistent()) {
         try {
             app_builder & b  = get_app_builder();

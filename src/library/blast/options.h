@@ -15,6 +15,7 @@ struct config {
     unsigned                   m_init_depth;
     unsigned                   m_inc_depth;
     bool                       m_trace;
+    bool                       m_subst;
     config(options const & o);
 };
 

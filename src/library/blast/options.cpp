@@ -19,6 +19,9 @@ Author: Leonardo de Moura
 #ifndef LEAN_DEFAULT_BLAST_TRACE
 #define LEAN_DEFAULT_BLAST_TRACE false
 #endif
+#ifndef LEAN_DEFAULT_BLAST_SUBST
+#define LEAN_DEFAULT_BLAST_SUBST true
+#endif
 
 namespace lean {
 namespace blast {
@@ -27,6 +30,7 @@ static name * g_blast_max_depth    = nullptr;
 static name * g_blast_init_depth   = nullptr;
 static name * g_blast_inc_depth    = nullptr;
 static name * g_blast_trace        = nullptr;
+static name * g_blast_subst        = nullptr;
 
 unsigned get_blast_max_depth(options const & o) {
     return o.get_unsigned(*g_blast_max_depth, LEAN_DEFAULT_BLAST_MAX_DEPTH);
@@ -40,12 +44,16 @@ unsigned get_blast_inc_depth(options const & o) {
 bool get_blast_trace(options const & o) {
     return o.get_bool(*g_blast_trace, LEAN_DEFAULT_BLAST_TRACE);
 }
+bool get_blast_subst(options const & o) {
+    return o.get_bool(*g_blast_subst, LEAN_DEFAULT_BLAST_SUBST);
+}
 
 config::config(options const & o) {
     m_max_depth  = get_blast_max_depth(o);
     m_init_depth = get_blast_init_depth(o);
     m_inc_depth  = get_blast_inc_depth(o);
     m_trace      = get_blast_trace(o);
+    m_subst      = get_blast_subst(o);
 }
 
 LEAN_THREAD_PTR(config, g_config);
@@ -70,6 +78,7 @@ void initialize_options() {
     g_blast_init_depth = new name{"blast", "init_depth"};
     g_blast_inc_depth  = new name{"blast", "inc_depth"};
     g_blast_trace      = new name{"blast", "trace"};
+    g_blast_subst      = new name{"blast", "subst"};
 
     register_unsigned_option(*blast::g_blast_max_depth, LEAN_DEFAULT_BLAST_MAX_DEPTH,
                              "(blast) max search depth for blast");
@@ -79,11 +88,14 @@ void initialize_options() {
                              "(blast) search depth increment for blast (remark: blast uses iteration deepening)");
     register_bool_option(*blast::g_blast_trace, LEAN_DEFAULT_BLAST_TRACE,
                          "(blast) trace");
+    register_bool_option(*blast::g_blast_subst, LEAN_DEFAULT_BLAST_SUBST,
+                         "(blast) enable subst action");
 }
 void finalize_options() {
     delete g_blast_max_depth;
     delete g_blast_init_depth;
     delete g_blast_inc_depth;
     delete g_blast_trace;
+    delete g_blast_subst;
 }
 }}

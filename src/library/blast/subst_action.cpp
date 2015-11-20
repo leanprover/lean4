@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/blast/intros_action.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"
+#include "library/blast/options.h"
 
 namespace lean {
 namespace blast {
@@ -86,6 +87,8 @@ bool subst_core(hypothesis_idx hidx) {
 }
 
 action_result subst_action(hypothesis_idx hidx) {
+    if (!get_config().m_subst)
+        return action_result::failed();
     state & s       = curr_state();
     app_builder & b = get_app_builder();
     hypothesis const & h = s.get_hypothesis_decl(hidx);

@@ -27,7 +27,7 @@ namespace blast {
     We use it mainly for testing new actions and the whole blast infra-structure. */
 class simple_strategy : public strategy {
     action_result activate_hypothesis(bool preprocess) {
-        scope_trace scope(!preprocess && cfg().m_trace);
+        scope_trace scope(!preprocess && get_config().m_trace);
 
         auto hidx = curr_state().activate_hypothesis();
         if (!hidx) return action_result::failed();

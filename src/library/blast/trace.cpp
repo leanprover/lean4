@@ -48,8 +48,8 @@ scope_trace::scope_trace(bool enable):
     g_trace = enable;
 }
 
-scope_trace::scope_trace(options const & o):
-    scope_trace(get_blast_trace(o)) {
+scope_trace::scope_trace():
+    scope_trace(get_config().m_trace) {
 }
 
 scope_trace::~scope_trace() {

@@ -17,7 +17,17 @@ struct config {
     bool                       m_trace;
     config(options const & o);
 };
-bool get_blast_trace(options const & o);
+
+struct scope_config {
+    config * m_old;
+    config m_config;
+public:
+    scope_config(options const & o);
+    ~scope_config();
+};
+
+config const & get_config();
+
 void initialize_options();
 void finalize_options();
 }}

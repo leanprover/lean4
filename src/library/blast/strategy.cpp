@@ -12,9 +12,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-strategy::strategy():
-    m_config(ios().get_options()) {
-}
+strategy::strategy() {}
 
 action_result strategy::next_branch(expr pr) {
     while (curr_state().has_proof_steps()) {
@@ -97,12 +95,12 @@ optional<expr> strategy::search() {
     if (get_num_choice_points() > m_init_num_choices)
         throw exception("invalid blast preprocessing action, preprocessing actions should not create choice points");
     state s    = curr_state();
-    unsigned d = m_config.m_init_depth;
+    unsigned d = get_config().m_init_depth;
     while (true) {
         if (auto r = search_upto(d))
             return r;
-        d += m_config.m_inc_depth;
-        if (d > m_config.m_max_depth) {
+        d += get_config().m_inc_depth;
+        if (d > get_config().m_max_depth) {
             trace_curr_state();
             return none_expr();
         }

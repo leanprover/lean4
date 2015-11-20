@@ -19,7 +19,6 @@ namespace blast {
     2- Next action to be performed (next_action method)
  */
 class strategy {
-    config   m_config;
     unsigned m_init_num_choices;
     optional<expr> invoke_preprocess();
 protected:
@@ -32,7 +31,6 @@ protected:
 public:
     strategy();
     optional<expr> operator()() { return search(); }
-    config cfg() const { return m_config; }
 };
 
 #define TryStrategy(Code) {\

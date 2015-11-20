@@ -48,6 +48,23 @@ config::config(options const & o) {
     m_trace      = get_blast_trace(o);
 }
 
+LEAN_THREAD_PTR(config, g_config);
+
+scope_config::scope_config(options const & o):
+    m_old(g_config),
+    m_config(o) {
+    g_config = &m_config;
+}
+
+scope_config::~scope_config() {
+    g_config = m_old;
+}
+
+config const & get_config() {
+    lean_assert(g_config);
+    return *g_config;
+}
+
 void initialize_options() {
     g_blast_max_depth  = new name{"blast", "max_depth"};
     g_blast_init_depth = new name{"blast", "init_depth"};

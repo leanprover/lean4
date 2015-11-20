@@ -14,10 +14,11 @@ void trace(char const * msg);
 void trace_action(char const * a);
 void trace_curr_state_if(action_result r);
 bool is_trace_enabled();
+
 class scope_trace {
     bool m_old;
 public:
-    scope_trace(options const & o);
+    scope_trace();
     scope_trace(bool enable);
     ~scope_trace();
 };

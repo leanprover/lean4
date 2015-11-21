@@ -15,6 +15,7 @@ Types (not necessarily HoTT-related):
 * [arrow_2](arrow_2.hlean): alternative development of properties of arrows
 * [W](W.hlean): W-types (not loaded by default)
 * [lift](lift.hlean)
+* [list](list.hlean)
 
 HoTT types
 

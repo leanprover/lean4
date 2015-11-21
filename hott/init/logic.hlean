@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 
 prelude
 import init.reserved_notation
+open unit
 
 /- not -/
 
@@ -131,7 +132,7 @@ section
   open eq.ops
   variables {A : Type} {a b c : A}
 
-  definition false.of_ne : a ≠ a → empty :=
+  definition empty.of_ne : a ≠ a → empty :=
   assume H, H rfl
 
   definition ne.of_eq_of_ne : a = b → b ≠ c → a ≠ c :=
@@ -147,9 +148,9 @@ definition iff (a b : Type) := prod (a → b) (b → a)
 
 infix <-> := iff
 infix ↔ := iff
+  variables {a b c : Type}
 
 namespace iff
-  variables {a b c : Type}
 
   definition def : (a ↔ b) = (prod (a → b) (b → a)) :=
   rfl
@@ -168,7 +169,7 @@ namespace iff
   definition elim_right (H : a ↔ b) : b → a :=
   elim (assume H₁ H₂, H₂) H
 
-  definition mp' := @elim_right
+  definition mpr := @elim_right
 
   definition flip_sign (H₁ : a ↔ b) : ¬a ↔ ¬b :=
   intro
@@ -194,10 +195,10 @@ namespace iff
     (assume Hb, elim_right H Hb)
     (assume Ha, elim_left H Ha)
 
-  definition true_elim (H : a ↔ unit) : a :=
+  definition unit_elim (H : a ↔ unit) : a :=
   mp (symm H) unit.star
 
-  definition false_elim (H : a ↔ empty) : ¬a :=
+  definition empty_elim (H : a ↔ empty) : ¬a :=
   assume Ha : a, mp H Ha
 
   open eq.ops
@@ -211,6 +212,29 @@ namespace iff
   iff.intro (λf, f p) (λq p, q)
 
 end iff
+
+theorem not_iff_not_of_iff (H₁ : a ↔ b) : ¬a ↔ ¬b :=
+iff.intro
+ (assume (Hna : ¬ a) (Hb : b), Hna (iff.elim_right H₁ Hb))
+ (assume (Hnb : ¬ b) (Ha : a), Hnb (iff.elim_left H₁ Ha))
+
+theorem of_iff_unit (H : a ↔ unit) : a :=
+iff.mp (iff.symm H) star
+
+theorem not_of_iff_empty : (a ↔ empty) → ¬a := iff.mp
+
+theorem iff_unit_intro (H : a) : a ↔ unit :=
+iff.intro
+  (λ Hl, star)
+  (λ Hr, H)
+
+theorem iff_empty_intro (H : ¬a) : a ↔ empty :=
+iff.intro H (empty.rec _)
+
+theorem not_non_contradictory_iff_absurd (a : Type) : ¬¬¬a ↔ ¬a :=
+iff.intro
+  (λ (Hl : ¬¬¬a) (Ha : a), Hl (λf, f Ha))
+  absurd
 
 attribute iff.refl [refl]
 attribute iff.trans [trans]

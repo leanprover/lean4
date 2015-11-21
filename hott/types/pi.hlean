@@ -305,6 +305,8 @@ namespace pi
     _)
 
   theorem is_hprop_neg (A : Type) : is_hprop (¬A) := _
+  local attribute ne [reducible]
+  theorem is_hprop_ne [instance] {A : Type} (a b : A) : is_hprop (a ≠ b) := _
 
   /- Symmetry of Π -/
   definition is_equiv_flip [instance] {P : A → A' → Type}

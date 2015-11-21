@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn, Jakob von Raumer
 
 prelude
 import init.num init.wf
+open iff
 
 -- Empty type
 -- ----------
@@ -286,3 +287,46 @@ definition sum_self (a : Type) : a ⊎ a ↔ a :=
 iff.intro
   (assume H, sum.rec_on H (assume H1, H1) (assume H1, H1))
   (assume H, sum.inl H)
+
+/- TODO
+theorem sum.right_comm (a b c : Type) : (a + b) + c ↔ (a + c) + b :=
+calc
+  (a + b) + c ↔ a + (b + c) : sum.assoc
+     ... ↔ a + (c + b)      : {sum.comm}
+     ... ↔ (a + c) + b      : iff.symm sum.assoc
+
+theorem sum.left_comm (a b c : Type) : a + (b + c) ↔ b + (a + c) :=
+calc
+  a + (b + c) ↔ (a + b) + c : iff.symm sum.assoc
+    ... ↔ (b + a) + c       : {sum.comm}
+     ... ↔ b + (a + c)      : sum.assoc
+
+theorem prod.right_comm (a b c : Type) : (a × b) × c ↔ (a × c) × b :=
+calc
+  (a × b) × c ↔ a × (b × c) : prod.assoc
+     ... ↔ a × (c × b)      : _
+     ... ↔ (a × c) × b      : iff.symm prod.assoc
+
+theorem prod_not_self_iff {a : Type} : a × ¬ a ↔ false :=
+iff.intro (assume H, (prod.right H) (prod.left H)) (assume H, false.elim H)
+
+theorem not_prod_self_iff {a : Type} : ¬ a × a ↔ false :=
+!prod.comm ▸ !prod_not_self_iff
+
+theorem prod.left_comm [simp] (a b c : Type) : a × (b × c) ↔ b × (a × c) :=
+calc
+  a × (b × c) ↔ (a × b) × c : iff.symm prod.assoc
+    ... ↔ (b × a) × c       : {prod.comm}
+     ... ↔ b × (a × c)      : prod.assoc
+-/
+
+theorem imp.syl (H : a → b) (H₂ : c → a) (Hc : c) : b :=
+H (H₂ Hc)
+
+theorem sum.imp_distrib : ((a + b) → c) ↔ ((a → c) × (b → c)) :=
+iff.intro
+  (λH, prod.mk (imp.syl H sum.inl) (imp.syl H sum.inr))
+  (prod.rec sum.rec)
+
+theorem not_sum_iff_not_prod_not {a b : Type} : ¬(a + b) ↔ ¬a × ¬b :=
+sum.imp_distrib

@@ -528,7 +528,7 @@ section
       (assume H2 : 0 ≤ a + b, aux2 H2)
       (assume H2 : a + b ≤ 0,
         assert H3 : -a + -b = -(a + b), by rewrite neg_add,
-        assert H4 : -(a + b) ≥ 0, from iff.mp' (neg_nonneg_iff_nonpos (a+b)) H2,
+        assert H4 : -(a + b) ≥ 0, from iff.mpr (neg_nonneg_iff_nonpos (a+b)) H2,
         have H5   : -a + -b ≥ 0, begin rewrite -H3 at H4, exact H4 end,
         calc
           abs (a + b) = abs (-a + -b)   : by rewrite [-abs_neg, neg_add]

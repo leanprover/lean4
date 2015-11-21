@@ -207,7 +207,7 @@ section
   include s
 
   definition mul_le_mul_of_nonpos_left (H : b ≤ a) (Hc : c ≤ 0) : c * a ≤ c * b :=
-  have Hc' : -c ≥ 0, from iff.mp' !neg_nonneg_iff_nonpos Hc,
+  have Hc' : -c ≥ 0, from iff.mpr !neg_nonneg_iff_nonpos Hc,
   assert H1 : -c * b ≤ -c * a, from mul_le_mul_of_nonneg_left H Hc',
   have H2 : -(c * b) ≤ -(c * a),
     begin
@@ -217,7 +217,7 @@ section
   iff.mp !neg_le_neg_iff_le H2
 
   definition mul_le_mul_of_nonpos_right (H : b ≤ a) (Hc : c ≤ 0) : a * c ≤ b * c :=
-  have Hc' : -c ≥ 0, from iff.mp' !neg_nonneg_iff_nonpos Hc,
+  have Hc' : -c ≥ 0, from iff.mpr !neg_nonneg_iff_nonpos Hc,
   assert H1 : b * -c ≤ a * -c, from mul_le_mul_of_nonneg_right H Hc',
   have H2 : -(b * c) ≤ -(a * c),
     begin
@@ -234,7 +234,7 @@ section
   end
 
   definition mul_lt_mul_of_neg_left (H : b < a) (Hc : c < 0) : c * a < c * b :=
-  have Hc' : -c > 0, from iff.mp' !neg_pos_iff_neg Hc,
+  have Hc' : -c > 0, from iff.mpr !neg_pos_iff_neg Hc,
   assert H1 : -c * b < -c * a, from mul_lt_mul_of_pos_left H Hc',
   have H2 : -(c * b) < -(c * a),
     begin
@@ -244,7 +244,7 @@ section
   iff.mp !neg_lt_neg_iff_lt H2
 
   definition mul_lt_mul_of_neg_right (H : b < a) (Hc : c < 0) : a * c < b * c :=
-  have Hc' : -c > 0, from iff.mp' !neg_pos_iff_neg Hc,
+  have Hc' : -c > 0, from iff.mpr !neg_pos_iff_neg Hc,
   assert H1 : b * -c < a * -c, from mul_lt_mul_of_pos_right H Hc',
   have H2 : -(b * c) < -(a * c),
     begin
@@ -371,7 +371,7 @@ section
 
   definition gt_of_mul_lt_mul_neg_left {a b c : A} (H : c * a < c * b) (Hc : c ≤ 0) : a > b :=
     have nhc : -c ≥ 0, from neg_nonneg_of_nonpos Hc,
-    have H2 : -(c * b) < -(c * a), from iff.mp' (neg_lt_neg_iff_lt _ _) H,
+    have H2 : -(c * b) < -(c * a), from iff.mpr (neg_lt_neg_iff_lt _ _) H,
     have H3 : (-c) * b < (-c) * a, from calc
       (-c) * b = - (c * b)    : neg_mul_eq_neg_mul
            ... < -(c * a)     : H2

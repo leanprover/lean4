@@ -152,4 +152,4 @@ reserve infix ` ⊇ `:50
 
 reserve infix ` ∣ `:50
 reserve infixl ` ++ `:65
-reserve infixr ` :: `:65
+reserve infixr ` :: `:67

@@ -869,6 +869,7 @@ theorem filter_append {p : A → Type} [h : decidable_pred p] : Π (l₁ l₂ : 
   (suppose p a, by rewrite [append_cons, *filter_cons_of_pos _ this, filter_append])
   (suppose ¬ p a, by rewrite [append_cons, *filter_cons_of_neg _ this, filter_append])
 -/
+
 /- foldl & foldr -/
 definition foldl (f : A → B → A) : A → list B → A
 | a []       := a

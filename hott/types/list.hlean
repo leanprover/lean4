@@ -113,6 +113,14 @@ theorem length_concat (a : T) : ∀ (l : list T), length (concat a l) = length l
 | []      := rfl
 | (x::xs) := by rewrite [concat_cons, *length_cons, length_concat]
 
+theorem concat_append (a : T) : ∀ (l₁ l₂ : list T), concat a l₁ ++ l₂ = l₁ ++ a :: l₂
+| []      := λl₂, rfl
+| (x::xs) := λl₂, begin rewrite [concat_cons,append_cons, concat_append] end
+
+theorem append_concat (a : T)  : ∀(l₁ l₂ : list T), l₁ ++ concat a l₂ = concat a (l₁ ++ l₂)
+| []      := λl₂, rfl
+| (x::xs) := λl₂, begin rewrite [+append_cons, concat_cons, append_concat] end
+
 /- last -/
 
 definition last : Π l : list T, l ≠ [] → T
@@ -746,9 +754,17 @@ theorem map_nil (f : A → B) : map f [] = [] := idp
 
 theorem map_cons (f : A → B) (a : A) (l : list A) : map f (a :: l) = f a :: map f l := idp
 
+lemma map_concat (f : A → B) (a : A) : Πl, map f (concat a l) = concat (f a) (map f l)
+| nil    := rfl
+| (b::l) := begin rewrite [concat_cons, +map_cons, concat_cons, map_concat] end
+
 lemma map_append (f : A → B) : Π l₁ l₂, map f (l₁++l₂) = (map f l₁)++(map f l₂)
 | nil    := take l, rfl
 | (a::l) := take l', begin rewrite [append_cons, *map_cons, append_cons, map_append] end
+
+lemma map_reverse (f : A → B) : Πl, map f (reverse l) = reverse (map f l)
+| nil    := rfl
+| (b::l) := begin rewrite [reverse_cons, +map_cons, reverse_cons, map_concat, map_reverse] end
 
 lemma map_singleton (f : A → B) (a : A) : map f [a] = [f a] := rfl
 

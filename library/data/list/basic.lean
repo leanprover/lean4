@@ -112,6 +112,14 @@ theorem length_concat [simp] (a : T) : ∀ (l : list T), length (concat a l) = l
 | []      := rfl
 | (x::xs) := by rewrite [concat_cons, *length_cons, length_concat]
 
+theorem concat_append (a : T) : ∀ (l₁ l₂ : list T), concat a l₁ ++ l₂ = l₁ ++ a :: l₂
+| []      := λl₂, rfl
+| (x::xs) := λl₂, begin rewrite [concat_cons,append_cons, concat_append] end
+
+theorem append_concat (a : T)  : ∀(l₁ l₂ : list T), l₁ ++ concat a l₂ = concat a (l₁ ++ l₂)
+| []      := λl₂, rfl
+| (x::xs) := λl₂, begin rewrite [+append_cons, concat_cons, append_concat] end
+
 /- last -/
 
 definition last : Π l : list T, l ≠ [] → T

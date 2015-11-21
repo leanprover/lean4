@@ -104,13 +104,13 @@ namespace trunc
   /- Propositional truncation -/
 
   -- should this live in hprop?
-  definition merely [reducible] (A : Type) : hprop := trunctype.mk (trunc -1 A) _
+  definition merely [reducible] [constructor] (A : Type) : hprop := trunctype.mk (trunc -1 A) _
 
   notation `||`:max A `||`:0 := merely A
   notation `∥`:max A `∥`:0   := merely A
 
-  definition Exists [reducible] (P : X → Type) : hprop := ∥ sigma P ∥
-  definition or [reducible] (A B : Type) : hprop := ∥ A ⊎ B ∥
+  definition Exists [reducible] [constructor] (P : X → Type) : hprop := ∥ sigma P ∥
+  definition or [reducible] [constructor] (A B : Type) : hprop := ∥ A ⊎ B ∥
 
   notation `exists` binders `,` r:(scoped P, Exists P) := r
   notation `∃` binders `,` r:(scoped P, Exists P) := r

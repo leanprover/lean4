@@ -22,6 +22,9 @@ Author: Leonardo de Moura
 #ifndef LEAN_DEFAULT_BLAST_SUBST
 #define LEAN_DEFAULT_BLAST_SUBST true
 #endif
+#ifndef LEAN_DEFAULT_BLAST_SIMP
+#define LEAN_DEFAULT_BLAST_SIMP true
+#endif
 
 namespace lean {
 namespace blast {
@@ -31,6 +34,7 @@ static name * g_blast_init_depth   = nullptr;
 static name * g_blast_inc_depth    = nullptr;
 static name * g_blast_trace        = nullptr;
 static name * g_blast_subst        = nullptr;
+static name * g_blast_simp         = nullptr;
 
 unsigned get_blast_max_depth(options const & o) {
     return o.get_unsigned(*g_blast_max_depth, LEAN_DEFAULT_BLAST_MAX_DEPTH);
@@ -47,6 +51,9 @@ bool get_blast_trace(options const & o) {
 bool get_blast_subst(options const & o) {
     return o.get_bool(*g_blast_subst, LEAN_DEFAULT_BLAST_SUBST);
 }
+bool get_blast_simp(options const & o) {
+    return o.get_bool(*g_blast_simp, LEAN_DEFAULT_BLAST_SIMP);
+}
 
 config::config(options const & o) {
     m_max_depth  = get_blast_max_depth(o);
@@ -54,6 +61,7 @@ config::config(options const & o) {
     m_inc_depth  = get_blast_inc_depth(o);
     m_trace      = get_blast_trace(o);
     m_subst      = get_blast_subst(o);
+    m_simp       = get_blast_simp(o);
 }
 
 LEAN_THREAD_PTR(config, g_config);
@@ -79,6 +87,7 @@ void initialize_options() {
     g_blast_inc_depth  = new name{"blast", "inc_depth"};
     g_blast_trace      = new name{"blast", "trace"};
     g_blast_subst      = new name{"blast", "subst"};
+    g_blast_simp       = new name{"blast", "simp"};
 
     register_unsigned_option(*blast::g_blast_max_depth, LEAN_DEFAULT_BLAST_MAX_DEPTH,
                              "(blast) max search depth for blast");
@@ -90,6 +99,8 @@ void initialize_options() {
                          "(blast) trace");
     register_bool_option(*blast::g_blast_subst, LEAN_DEFAULT_BLAST_SUBST,
                          "(blast) enable subst action");
+    register_bool_option(*blast::g_blast_simp, LEAN_DEFAULT_BLAST_SIMP,
+                         "(blast) enable simplier actions");
 }
 void finalize_options() {
     delete g_blast_max_depth;
@@ -97,5 +108,6 @@ void finalize_options() {
     delete g_blast_inc_depth;
     delete g_blast_trace;
     delete g_blast_subst;
+    delete g_blast_simp;
 }
 }}

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/blast/simple_actions.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"
+#include "library/blast/options.h"
 #include "library/blast/simplifier/simplifier.h"
 
 namespace lean {
@@ -64,6 +65,8 @@ public:
 };
 
 action_result simplify_target_action() {
+    if (!get_config().m_simp)
+        return action_result::failed();
     state & s   = curr_state();
     expr target = s.get_target();
     bool iff    = use_iff(target);

@@ -16,6 +16,7 @@ struct config {
     unsigned                   m_inc_depth;
     bool                       m_trace;
     bool                       m_subst;
+    bool                       m_simp;
     config(options const & o);
 };
 

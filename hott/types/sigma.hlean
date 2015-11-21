@@ -413,11 +413,11 @@ namespace sigma
   notation [parsing_only] `{` binder `|` r:(scoped:1 P, subtype P) `}` := r
 
   /- To prove equality in a subtype, we only need equality of the first component. -/
-  definition subtype_eq [H : Πa, is_hprop (B a)] (u v : {a | B a}) : u.1 = v.1 → u = v :=
+  definition subtype_eq [H : Πa, is_hprop (B a)] {u v : {a | B a}} : u.1 = v.1 → u = v :=
   sigma_eq_unc ∘ inv pr1
 
   definition is_equiv_subtype_eq [H : Πa, is_hprop (B a)] (u v : {a | B a})
-      : is_equiv (subtype_eq u v) :=
+      : is_equiv (subtype_eq : u.1 = v.1 → u = v) :=
   !is_equiv_compose
   local attribute is_equiv_subtype_eq [instance]
 
@@ -426,13 +426,12 @@ namespace sigma
 
   definition subtype_eq_inv {A : Type} {B : A → Type} [H : Πa, is_hprop (B a)] (u v : Σa, B a)
     : u = v → u.1 = v.1 :=
-  (subtype_eq u v)⁻¹ᶠ
+  subtype_eq⁻¹ᶠ
 
   local attribute subtype_eq_inv [reducible]
   definition is_equiv_subtype_eq_inv {A : Type} {B : A → Type} [H : Πa, is_hprop (B a)]
     (u v : Σa, B a) : is_equiv (subtype_eq_inv u v) :=
   _
-
 
   /- truncatedness -/
   theorem is_trunc_sigma (B : A → Type) (n : trunc_index)
@@ -447,6 +446,11 @@ namespace sigma
       exact IH _ _ _ _}
   end
 
+  theorem is_trunc_subtype (B : A → hprop) (n : trunc_index)
+      [HA : is_trunc (n.+1) A] : is_trunc (n.+1) (Σa, B a) :=
+  @(is_trunc_sigma B (n.+1)) _ (λa, !is_trunc_succ_of_is_hprop)
+
 end sigma
 
 attribute sigma.is_trunc_sigma [instance] [priority 1490]
+attribute sigma.is_trunc_subtype [instance] [priority 1200]

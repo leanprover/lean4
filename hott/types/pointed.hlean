@@ -352,4 +352,8 @@ namespace pointed
   definition equiv_of_pequiv [constructor] (f : A ≃* B) : A ≃ B :=
   equiv.mk f _
 
+  definition pua {A B : Type*} (f : A ≃* B) : A = B :=
+  Pointed_eq (equiv_of_pequiv f) !respect_pt
+
+
 end pointed

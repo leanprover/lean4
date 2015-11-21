@@ -241,6 +241,8 @@ namespace trunc
     : transport (λa, trunc n (P a)) p (tr x) = tr (p ▸ x) :=
   by induction p; reflexivity
 
+  definition image {A B : Type} (f : A → B) (b : B) : hprop := ∃(a : A), f a = b
+
 end trunc open trunc
 
 namespace function

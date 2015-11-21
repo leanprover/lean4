@@ -1,6 +1,6 @@
 import logic data.nat.sub algebra.relation data.prod
 
-open nat relation relation.iff_ops prod
+open nat relation prod
 open decidable
 open eq.ops
 

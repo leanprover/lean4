@@ -21,10 +21,9 @@ check g (functor.to_fun f) 0
 
 check g f 0
 
-definition id (A : Type) (a : A) := a
 
 constant S : struct
 constant a : S
 
-check id (struct.to_sort S) a
-check id S a
+check @id (struct.to_sort S) a
+check @id S a

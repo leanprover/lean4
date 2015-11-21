@@ -1,7 +1,5 @@
 variable {A : Type}
 
-definition id (a : A) := a
-
 check @id
 
 inductive list :=

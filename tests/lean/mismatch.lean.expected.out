@@ -1,5 +1,5 @@
 mismatch.lean:4:7: error: type mismatch at application
-  @id ℕ o
+  id o
 term
   o
 has type

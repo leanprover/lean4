@@ -13,7 +13,7 @@ my_id2 : Π {A : Type}, A → A
 -- BEGINWAIT
 -- ENDWAIT
 -- BEGINEVAL
-EVAL_command:1:7: error: unknown identifier 'my_id'
+my_id : Π {A : Type}, A → A
 -- ENDEVAL
 -- BEGINEVAL
 my_id2 : Π {A : Type}, A → A

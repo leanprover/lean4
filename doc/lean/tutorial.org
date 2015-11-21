@@ -267,9 +267,9 @@ explicitly.
 #+BEGIN_SRC lean
   import logic
 
-  definition id.{l} {A : Type.{l}} (a : A) : A := a
+  definition identity.{l} {A : Type.{l}} (a : A) : A := a
 
-  check id true
+  check identity true
 #+END_SRC
 
 The universes can be explicitly provided for each constant and =Type=

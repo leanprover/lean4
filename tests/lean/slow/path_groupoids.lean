@@ -2,7 +2,7 @@
 -- Released under Apache 2.0 license as described in the file LICENSE.
 -- Author: Jeremy Avigad
 -- Ported from Coq HoTT
-definition id {A : Type} (a : A) := a
+-- definition id {A : Type} (a : A) := a
 definition compose {A : Type} {B : Type} {C : Type} (g : B → C) (f : A → B) := λ x, g (f x)
 infixr ∘ := compose
 

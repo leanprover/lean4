@@ -3,7 +3,7 @@ section
 
   parameter A
 
-  definition id (a : A) := a
+  -- definition id (a : A) := a
 
   parameter {A}
 

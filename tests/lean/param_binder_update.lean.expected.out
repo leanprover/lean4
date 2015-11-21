@@ -1,4 +1,4 @@
-id : Π (A : Type), A → A
+id : Π {A : Type}, A → A
 id₂ : Π {A : Type}, A → A
 foo1 : A → B → A
 foo2 : A → B → A

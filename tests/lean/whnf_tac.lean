@@ -1,6 +1,6 @@
 import logic
 
-definition id {A : Type} (a : A) := a
+-- definition id {A : Type} (a : A) := a
 
 theorem tst (a : Prop) : a → id a :=
 begin

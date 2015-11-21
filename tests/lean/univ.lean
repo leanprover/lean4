@@ -1,19 +1,19 @@
 import data.num
 
-definition id (A : Type) (a : A) := a
+definition id2 (A : Type) (a : A) := a
 
-check id Type num
+check id2 Type num
 
-check id Type' num
+check id2 Type' num
 
-check id Type.{1} num
+check id2 Type.{1} num
 
-check id _ num
+check id2 _ num
 
-check id Type.{_+1} num
+check id2 Type.{_+1} num
 
-check id Type.{0+1} num
+check id2 Type.{0+1} num
 
-check id Type Type.{1}
+check id2 Type Type.{1}
 
-check id Type' Type.{1}
+check id2 Type' Type.{1}

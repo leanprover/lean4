@@ -5,7 +5,7 @@
 The command =definition= declares a new constant/function. The identity function is defined as
 
 #+BEGIN_SRC lean
-  definition id {A : Type} (a : A) : A := a
+  definition identity {A : Type} (a : A) : A := a
 #+END_SRC
 
 We say definitions are "transparent", because the type checker can
@@ -21,13 +21,13 @@ _definitionally equal_.
   check λ (v : tuple nat (2+3)) (w : tuple nat 5), v = w
 #+END_SRC
 
-Similarly, the following definition only type checks because =id= is transparent, and the type checker can establish that
+Similarly, the following definition only type checks because =identity= is transparent, and the type checker can establish that
 =nat= and =id nat= are definitionally equal, that is, they are the "same".
 
 #+BEGIN_SRC lean
   import data.nat
-  definition id {A : Type} (a : A) : A := a
-  check λ (x : nat) (y : id nat), x = y
+  definition identity {A : Type} (a : A) : A := a
+  check λ (x : nat) (y : identity nat), x = y
 #+END_SRC
 
 ** Theorems
@@ -38,7 +38,7 @@ really care about the actual proof, only about its existence.  As
 described in previous sections, =Prop= (the type of all propositions)
 is _proof irrelevant_.  If we had defined =id= using a theorem the
 previous example would produce a typing error because the type checker
-would be unable to unfold =id= and establish that =nat= and =id nat=
+would be unable to unfold =identity= and establish that =nat= and =identity nat=
 are definitionally equal.
 
 ** Private definitions and theorems

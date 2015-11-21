@@ -1,4 +1,4 @@
 H1
-congr_imp H1 H2
-congr_imp H1 (congr_imp H2 H3)
-congr_forall (λ (x : T), H x)
+imp_congr H1 H2
+imp_congr H1 (imp_congr H2 H3)
+forall_congr (λ (x : T), H x)

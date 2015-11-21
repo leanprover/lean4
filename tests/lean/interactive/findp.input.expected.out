@@ -2,7 +2,10 @@
 -- ENDWAIT
 -- BEGINFINDP STALE
 false|Prop
+false_or|∀ (a : Prop), false ∨ a ↔ a
 false.rec|Π (C : Type), false → C
+false_iff|∀ (a : Prop), false ↔ a ↔ ¬a
+false_and|∀ (a : Prop), false ∧ a ↔ false
 false.elim|false → ?c
 false_of_ne|?a ≠ ?a → false
 false.rec_on|Π (C : Type), false → C
@@ -12,9 +15,11 @@ false.induction_on|∀ (C : Prop), false → C
 false_of_true_iff_false|(true ↔ false) → false
 true_ne_false|¬true = false
 nat.lt_self_iff_false|∀ (n : ℕ), n < n ↔ false
+iff_false|∀ (a : Prop), a ↔ false ↔ ¬a
 true_iff_false|true ↔ false ↔ false
 ne_self_iff_false|∀ (a : ?A), a ≠ a ↔ false
 not_of_is_false|is_false ?c → ¬?c
+or_false|∀ (a : Prop), a ∨ false ↔ a
 not_of_iff_false|(?a ↔ false) → ¬?a
 is_false|Π (c : Prop) [H : decidable c], Prop
 classical.eq_true_or_eq_false|∀ (a : Prop), a = true ∨ a = false
@@ -29,6 +34,8 @@ not_false_iff|¬false ↔ true
 of_not_is_false|¬is_false ?c → ?c
 classical.cases_true_false|∀ (P : Prop → Prop), P true → P false → (∀ (a : Prop), P a)
 iff_false_intro|¬?a → (?a ↔ false)
+and_false|∀ (a : Prop), a ∧ false ↔ false
+if_false|∀ (t e : ?A), ite false t e = e
 ne_false_of_self|?p → ?p ≠ false
 nat.succ_le_zero_iff_false|∀ (n : ℕ), nat.succ n ≤ 0 ↔ false
 tactic.exfalso|tactic

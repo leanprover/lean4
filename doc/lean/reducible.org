@@ -64,13 +64,13 @@ the =attribute= command. The modification is saved in the
 produced .olean file.
 
 #+BEGIN_SRC lean
-  definition id (A : Type) (a : A) : A := a
+  definition identity (A : Type) (a : A) : A := a
   definition pr2 (A : Type) (a b : A) : A := b
   -- mark pr2 as reducible
   attribute pr2 [reducible]
   -- ...
   -- mark id and pr2 as irreducible
-  attribute id [irreducible]
+  attribute identity [irreducible]
   attribute pr2 [irreducible]
 #+END_SRC
 

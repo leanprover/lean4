@@ -3,36 +3,32 @@
 term
   linv
 has type
-  finv ∘ func = function.id
+  finv ∘ func = id
 but is expected to have type
-  x = function.id
+  x = id
 rewrite step failed using pattern
   finv_1 ∘ func_1
 proof state:
 A : Type,
 f : bijection A,
 func finv : A → A,
-linv : finv ∘ func = function.id,
-rinv : func ∘ finv = function.id
+linv : finv ∘ func = id,
+rinv : func ∘ finv = id
 ⊢ mk (finv ∘ func) (finv ∘ func)
     (eq.rec
-       (eq.rec
-          (eq.rec (eq.rec (eq.rec (eq.refl function.id) (eq.symm linv)) (eq.symm (compose.left_id func)))
-             (eq.symm rinv))
+       (eq.rec (eq.rec (eq.rec (eq.rec (eq.refl id) (eq.symm linv)) (eq.symm (compose.left_id func))) (eq.symm rinv))
           (function.compose.assoc func finv func))
        (eq.symm (function.compose.assoc finv func (finv ∘ func))))
     (eq.rec
-       (eq.rec
-          (eq.rec (eq.rec (eq.rec (eq.refl function.id) (eq.symm linv)) (eq.symm (compose.right_id finv)))
-             (eq.symm rinv))
+       (eq.rec (eq.rec (eq.rec (eq.rec (eq.refl id) (eq.symm linv)) (eq.symm (compose.right_id finv))) (eq.symm rinv))
           (eq.symm (function.compose.assoc finv func finv)))
        (function.compose.assoc (finv ∘ func) finv func)) = id
 550.lean:43:44: error: don't know how to synthesize placeholder
 A : Type,
 f : bijection A,
 func finv : A → A,
-linv : finv ∘ func = function.id,
-rinv : func ∘ finv = function.id
+linv : finv ∘ func = id,
+rinv : func ∘ finv = id
 ⊢ inv (mk func finv linv rinv) ∘b mk func finv linv rinv = id
 550.lean:43:2: error: failed to add declaration 'bijection.inv.linv' to environment, value has metavariables
 remark: set 'formatter.hide_full_terms' to false to see the complete term

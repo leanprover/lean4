@@ -1,6 +1,6 @@
 open nat
 
-definition id [unfold_full] {A : Type} (a : A) := a
+-- definition id [unfold_full] {A : Type} (a : A) := a
 definition compose {A B C : Type} (g : B → C) (f : A → B) (a : A) := g (f a)
 notation g ∘ f := compose g f
 

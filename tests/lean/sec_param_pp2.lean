@@ -6,12 +6,12 @@ section
 
    variable f : A → B → A
 
-   definition id := f a b
+   definition id2 := f a b
 
-   check id
+   check id2
    set_option pp.universes true
-   check id
+   check id2
  end
- check id
+ check id2
 end
-check id
+check id2

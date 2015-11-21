@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "library/blast/subst_action.h"
 #include "library/blast/backward/backward_action.h"
 #include "library/blast/backward/backward_strategy.h"
-#include "library/blast/forward/forward_action.h"
+#include "library/blast/unit/unit_action.h"
 #include "library/blast/no_confusion_action.h"
 #include "library/blast/simplifier/simplifier_actions.h"
 #include "library/blast/recursor_action.h"
@@ -37,7 +37,7 @@ class simple_strategy : public strategy {
     }
 
     action_result hypothesis_post_activation(hypothesis_idx hidx) override {
-        Try(forward_action(hidx));
+        Try(unit_action(hidx));
         Try(recursor_preprocess_action(hidx));
         return action_result::new_branch();
     }

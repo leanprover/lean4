@@ -8,7 +8,7 @@ Author: Daniel Selsam
 #include "kernel/inductive/inductive.h"
 #include "library/blast/blast.h"
 #include "library/blast/action_result.h"
-#include "library/blast/forward/forward_action.h"
+#include "library/blast/unit/unit_action.h"
 #include "library/blast/proof_expr.h"
 #include "library/blast/choice_point.h"
 #include "library/blast/hypothesis.h"
@@ -20,15 +20,15 @@ namespace lean {
 namespace blast {
 
 static unsigned g_ext_id = 0;
-struct forward_branch_extension : public branch_extension {
+struct unit_branch_extension : public branch_extension {
     rb_multi_map<expr, hypothesis_idx, expr_quick_cmp> m_lemma_map;
     rb_map<expr, hypothesis_idx, expr_quick_cmp> m_fact_map;
 
-    forward_branch_extension() {}
-    forward_branch_extension(forward_branch_extension const & b):
+    unit_branch_extension() {}
+    unit_branch_extension(unit_branch_extension const & b):
         m_lemma_map(b.m_lemma_map), m_fact_map(b.m_fact_map) {}
-    virtual ~forward_branch_extension() {}
-    virtual branch_extension * clone() override { return new forward_branch_extension(*this); }
+    virtual ~unit_branch_extension() {}
+    virtual branch_extension * clone() override { return new unit_branch_extension(*this); }
 
     virtual void hypothesis_activated(hypothesis const & h, hypothesis_idx hidx) override {
         expr type = whnf(h.get_type());
@@ -60,18 +60,18 @@ public:
     void erase_fact(expr const & e) { return m_fact_map.erase(e); }
 };
 
-void initialize_forward_action() {
-    g_ext_id = register_branch_extension(new forward_branch_extension());
+void initialize_unit_action() {
+    g_ext_id = register_branch_extension(new unit_branch_extension());
 }
 
-void finalize_forward_action() { }
+void finalize_unit_action() { }
 
-static forward_branch_extension & get_extension() {
-    return static_cast<forward_branch_extension&>(curr_state().get_extension(g_ext_id));
+static unit_branch_extension & get_extension() {
+    return static_cast<unit_branch_extension&>(curr_state().get_extension(g_ext_id));
 }
 
-action_result forward_pi(expr const & _type, expr const & proof) {
-    forward_branch_extension & ext = get_extension();
+action_result unit_pi(expr const & _type, expr const & proof) {
+    unit_branch_extension & ext = get_extension();
     bool missing_argument = false;
     bool has_antecedent = false;
     expr type = _type;
@@ -140,8 +140,8 @@ action_result forward_pi(expr const & _type, expr const & proof) {
     lean_unreachable();
 }
 
-action_result forward_fact(expr const & type) {
-    forward_branch_extension & ext = get_extension();
+action_result unit_fact(expr const & type) {
+    unit_branch_extension & ext = get_extension();
     list<hypothesis_idx> const * lemmas = ext.find_lemmas(type);
     if (!lemmas) return action_result::failed();
     bool success = false;
@@ -150,7 +150,7 @@ action_result forward_fact(expr const & type) {
             if (h.is_dead()) {
                 return false;
             } else {
-                action_result r = forward_pi(whnf(h.get_type()), h.get_self());
+                action_result r = unit_pi(whnf(h.get_type()), h.get_self());
                 success = success || (r.get_kind() == action_result::NewBranch);
                 return true;
             }
@@ -159,11 +159,11 @@ action_result forward_fact(expr const & type) {
     else return action_result::failed();
 }
 
-action_result forward_action(unsigned _hidx) {
+action_result unit_action(unsigned _hidx) {
     hypothesis const & h = curr_state().get_hypothesis_decl(_hidx);
     expr type = whnf(h.get_type());
-    if (is_pi(type)) return forward_pi(type, h.get_self());
-    else if (is_prop(type)) return forward_fact(type);
+    if (is_pi(type)) return unit_pi(type, h.get_self());
+    else if (is_prop(type)) return unit_fact(type);
     else return action_result::failed();
 }
 }}

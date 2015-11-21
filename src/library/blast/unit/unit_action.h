@@ -4,10 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Daniel Selsam
 */
 #pragma once
+#include "library/blast/action_result.h"
 
 namespace lean {
 namespace blast {
-void initialize_forward_module();
-void finalize_forward_module();
-}
-}
+action_result unit_action(unsigned hidx);
+
+void initialize_unit_action();
+void finalize_unit_action();
+}}

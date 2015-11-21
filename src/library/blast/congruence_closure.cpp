@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <vector>
+#include "kernel/abstract.h"
 #include "library/constants.h"
 #include "library/blast/simplifier/simp_rule_set.h"
 #include "library/blast/congruence_closure.h"
@@ -142,14 +143,143 @@ void congruence_closure::mk_entry(name const & R, expr const & e) {
     mk_entry_core(R, e);
 }
 
+static bool all_distinct(buffer<expr> const & es) {
+    for (unsigned i = 0; i < es.size(); i++)
+        for (unsigned j = i+1; j < es.size(); j++)
+            if (es[i] == es[j])
+                return false;
+    return true;
+}
+
+/* Try to convert user-defined congruence rule into an ext_congr_lemma */
+static optional<ext_congr_lemma> to_ext_congr_lemma(name const & R, expr const & fn, unsigned nargs, congr_rule const & r) {
+    buffer<expr> lhs_args, rhs_args;
+    expr const & lhs_fn = get_app_args(r.get_lhs(), lhs_args);
+    expr const & rhs_fn = get_app_args(r.get_rhs(), rhs_args);
+    if (nargs != lhs_args.size() || nargs != rhs_args.size()) {
+        return optional<ext_congr_lemma>();
+    }
+    if (!all_distinct(lhs_args) || !all_distinct(rhs_args)) {
+        return optional<ext_congr_lemma>();
+    }
+    blast_tmp_type_context ctx(r.get_num_umeta(), r.get_num_emeta());
+    if (!ctx->is_def_eq(fn, lhs_fn) || !ctx->is_def_eq(fn, rhs_fn)) {
+        return optional<ext_congr_lemma>();
+    }
+    for (unsigned i = 0; i < lhs_args.size(); i++) {
+        if (has_expr_metavar(lhs_args[i])) {
+            if (!ctx->is_mvar(lhs_args[i]) || !ctx->is_mvar(rhs_args[i])) {
+                return optional<ext_congr_lemma>();
+            }
+        } else {
+            // It is is not a simple meta-variable, then lhs and rhs must be the same
+            if (lhs_args[i] != rhs_args[i]) {
+                return optional<ext_congr_lemma>();
+            }
+        }
+    }
+    buffer<congr_arg_kind> kinds;
+    buffer<optional<name>> Rcs;
+    buffer<optional<expr>> r_hyps;
+    kinds.resize(lhs_args.size(), congr_arg_kind::Cast);
+    Rcs.resize(lhs_args.size(), optional<name>());
+    r_hyps.resize(lhs_args.size(), none_expr());
+    // Set Fixed args
+    for (unsigned i = 0; i < lhs_args.size(); i++) {
+        if (lhs_args[i] == rhs_args[i])
+            kinds[i] = congr_arg_kind::Fixed;
+    }
+    // Set Eq args and child relations
+    for (expr const & h : r.get_congr_hyps()) {
+        if (!ctx->is_mvar(h)) {
+            return optional<ext_congr_lemma>();
+        }
+        expr h_type = ctx->infer(h);
+        name h_R; expr h_lhs, h_rhs;
+        if (!is_relation_app(h_type, h_R, h_lhs, h_rhs)) {
+            return optional<ext_congr_lemma>();
+        }
+        bool found_lhs_rhs = false;
+        for (unsigned i = 0; i < lhs_args.size(); i++) {
+            if (kinds[i] == congr_arg_kind::Cast && // has not been marked yet
+                lhs_args[i] == h_lhs && rhs_args[i] == h_rhs) {
+                kinds[i]      = congr_arg_kind::Eq;
+                Rcs[i]        = h_R;
+                r_hyps[i]     = h;
+                found_lhs_rhs = true;
+                break;
+            }
+        }
+        if (!found_lhs_rhs) {
+            return optional<ext_congr_lemma>();
+        }
+    }
+    buffer<expr> lemma_hyps;
+    for (unsigned i = 0; i < lhs_args.size(); i++) {
+        expr type = ctx->instantiate_uvars_mvars(ctx->infer(lhs_args[i]));
+        if (has_expr_metavar(type)) {
+            return optional<ext_congr_lemma>();
+        }
+        expr new_lhs = ctx->mk_tmp_local(type);
+        lemma_hyps.push_back(new_lhs);
+        if (!ctx->is_mvar(lhs_args[i])) {
+            // This is a small hack... the argument is fixed, but we add an unnecessary hypothesis
+            // just to make the lemma have the same "shape" of the automatically generated
+            // congruence lemmas.
+            // TODO(Leo): mark this kind of argument in the ext_congr_lemma and avoid the unnecessary
+            // hypothesis. This option is also safer.
+            continue;
+        }
+        if (!ctx->is_def_eq(lhs_args[i], new_lhs)) {
+            return optional<ext_congr_lemma>();
+        }
+        switch (kinds[i]) {
+        case congr_arg_kind::Fixed:
+            break;
+        case congr_arg_kind::Eq: {
+            expr new_rhs = ctx->mk_tmp_local(type);
+            if (!ctx->is_def_eq(rhs_args[i], new_rhs)) {
+                return optional<ext_congr_lemma>();
+            }
+            lean_assert(r_hyps[i]);
+            expr new_hyp = ctx->mk_tmp_local(ctx->instantiate_uvars_mvars(ctx->infer(*r_hyps[i])));
+            if (!ctx->is_def_eq(*r_hyps[i], new_hyp)) {
+                return optional<ext_congr_lemma>();
+            }
+            lemma_hyps.push_back(new_rhs);
+            lemma_hyps.push_back(new_hyp);
+            break;
+        }
+        case congr_arg_kind::Cast: {
+            expr rhs_type = ctx->instantiate_uvars_mvars(ctx->infer(rhs_args[i]));
+            if (has_expr_metavar(rhs_type))
+                return optional<ext_congr_lemma>();
+            expr new_rhs = ctx->mk_tmp_local(rhs_type);
+            if (!ctx->is_def_eq(rhs_args[i], new_rhs))
+                return optional<ext_congr_lemma>();
+            lemma_hyps.push_back(new_rhs);
+            break;
+        }}
+    }
+    expr new_proof = ctx->instantiate_uvars_mvars(r.get_proof());
+    if (has_expr_metavar(new_proof)) {
+        return optional<ext_congr_lemma>();
+    }
+    new_proof = Fun(lemma_hyps, new_proof);
+    expr new_type  = ctx->infer(new_proof);
+    congr_lemma new_lemma(new_type, new_proof, to_list(kinds));
+    bool lift_needed = false;
+    return optional<ext_congr_lemma>(R, new_lemma, to_list(Rcs), lift_needed);
+}
+
 static optional<ext_congr_lemma> mk_ext_congr_lemma_core(name const & R, expr const & fn, unsigned nargs) {
     simp_rule_set const * sr = get_simp_rule_sets(env()).find(R);
     if (sr) {
         list<congr_rule> const * crs = sr->find_congr(fn);
         if (crs) {
             for (congr_rule const & r : *crs) {
-                // TODO(Leo):
-                std::cout << r.get_id() << "\n";
+                if (auto lemma = to_ext_congr_lemma(R, fn, nargs, r))
+                    return lemma;
             }
         }
     }
@@ -430,6 +560,7 @@ void congruence_closure::internalize_core(name const & R, expr const & e) {
         mk_entry_core(R, e);
         break;
     case expr_kind::Pi:
+        // TODO(Leo): should we support congruence for arrows?
         if (is_arrow(e) && is_prop(binding_domain(e)) && is_prop(binding_body(e))) {
             internalize_core(R, binding_domain(e));
             internalize_core(R, binding_body(e));

@@ -769,7 +769,7 @@ decidable.rec_on dec_b
          ...  = v         : h_e (iff.mp (not_iff_not_of_iff h_c) hn)
          ...  = ite c u v : if_neg (iff.mp (not_iff_not_of_iff h_c) hn))
 
-theorem if_congr {A : Type} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
+theorem if_congr [congr] {A : Type} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
                  {x y u v : A}
                  (h_c : b ↔ c) (h_t : x = u) (h_e : y = v) :
         ite b x y = ite c u v :=
@@ -791,7 +791,7 @@ if_pos trivial
 definition if_false [simp] {A : Type} (t e : A) : (if false then t else e) = e :=
 if_neg not_false
 
-theorem if_congr_prop {b c x y u v : Prop} [dec_b : decidable b] [dec_c : decidable c]
+theorem if_ctx_congr_prop {b c x y u v : Prop} [dec_b : decidable b] [dec_c : decidable c]
                       (h_c : b ↔ c) (h_t : c → (x ↔ u)) (h_e : ¬c → (y ↔ v)) :
         ite b x y ↔ ite c u v :=
 decidable.rec_on dec_b
@@ -804,10 +804,15 @@ decidable.rec_on dec_b
          ...  ↔ v         : h_e (iff.mp (not_iff_not_of_iff h_c) hn)
          ...  ↔ ite c u v : iff.of_eq (if_neg (iff.mp (not_iff_not_of_iff h_c) hn)))
 
+theorem if_congr_prop [congr] {b c x y u v : Prop} [dec_b : decidable b] [dec_c : decidable c]
+                      (h_c : b ↔ c) (h_t : x ↔ u) (h_e : y ↔ v) :
+        ite b x y ↔ ite c u v :=
+if_ctx_congr_prop h_c (λ h, h_t) (λ h, h_e)
+
 theorem if_ctx_simp_congr_prop {b c x y u v : Prop} [dec_b : decidable b]
                                (h_c : b ↔ c) (h_t : c → (x ↔ u)) (h_e : ¬c → (y ↔ v)) :
         ite b x y ↔ (@ite c (decidable_of_decidable_of_iff dec_b h_c) Prop u v) :=
-@if_congr_prop b c x y u v dec_b (decidable_of_decidable_of_iff dec_b h_c) h_c h_t h_e
+@if_ctx_congr_prop b c x y u v dec_b (decidable_of_decidable_of_iff dec_b h_c) h_c h_t h_e
 
 theorem if_simp_congr_prop [congr] {b c x y u v : Prop} [dec_b : decidable b]
                            (h_c : b ↔ c) (h_t : x ↔ u) (h_e : y ↔ v) :

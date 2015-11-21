@@ -45,7 +45,6 @@ class congruence_closure {
         optional<expr> m_proof;
         bool           m_flipped;     // proof has been flipped
         unsigned       m_size;        // number of elements in the equivalence class, it is meaningless if 'e' != m_root
-
     };
 
     /* Key (R, e) for the mapping (R, e) -> entry */

@@ -104,13 +104,13 @@ section
     : decidable (∃ x, x ≤ n ∧ P x) :=
   decidable_of_decidable_of_iff
     (decidable_bex (succ n) P)
-    (exists_congr (λn, and_iff_and !lt_succ_iff_le !iff.refl))
+    (exists_congr (λn, and_congr !lt_succ_iff_le !iff.refl))
 
   definition decidable_ball_le [instance] (n : nat) (P : nat → Prop) [H : decidable_pred P]
     : decidable (∀ x, x ≤ n → P x) :=
   decidable_of_decidable_of_iff
     (decidable_ball (succ n) P)
-    (forall_congr (λn, imp_iff_imp !lt_succ_iff_le !iff.refl))
+    (forall_congr (λ n, imp_congr !lt_succ_iff_le !iff.refl))
 end
 
 namespace nat

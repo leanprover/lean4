@@ -6,6 +6,9 @@ Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 prelude
 import init.datatypes init.reserved_notation
 
+definition id [reducible] [unfold_full] {A : Type} (a : A) : A :=
+a
+
 /- implication -/
 
 definition implies (a b : Prop) := a → b
@@ -237,6 +240,9 @@ variables {a b c d : Prop}
 theorem and.elim (H₁ : a ∧ b) (H₂ : a → b → c) : c :=
 and.rec H₂ H₁
 
+theorem and.swap : a ∧ b → b ∧ a :=
+and.rec (λHa Hb, and.intro Hb Ha)
+
 /- or -/
 
 notation a \/ b := or a b
@@ -252,6 +258,8 @@ assume not_em : ¬(a ∨ ¬a),
   have neg_a : ¬a, from
     assume pos_a : a, absurd (or.inl pos_a) not_em,
   absurd (or.inr neg_a) not_em
+
+theorem or.swap : a ∨ b → b ∨ a := or.rec or.inr or.inl
 
 /- iff -/
 
@@ -322,37 +330,145 @@ attribute iff.refl [refl]
 attribute iff.symm [symm]
 attribute iff.trans [trans]
 
+theorem imp_congr [congr] (H1 : a ↔ c) (H2 : b ↔ d) : (a → b) ↔ (c → d) :=
+iff.intro
+  (λHab Hc, iff.mp H2 (Hab (iff.mpr H1 Hc)))
+  (λHcd Ha, iff.mpr H2 (Hcd (iff.mp H1 Ha)))
+
 theorem not_not_intro (Ha : a) : ¬¬a :=
 assume Hna : ¬a, Hna Ha
 
-theorem not_true : (¬ true) ↔ false :=
+theorem not_true [simp] : (¬ true) ↔ false :=
 iff_false_intro (not_not_intro trivial)
 
-theorem not_false_iff : (¬ false) ↔ true :=
+theorem not_false_iff [simp] : (¬ false) ↔ true :=
 iff_true_intro not_false
+
+theorem not_congr [congr] (H : a ↔ b) : ¬a ↔ ¬b :=
+iff.intro (λ H₁ H₂, H₁ (iff.mpr H H₂)) (λ H₁ H₂, H₁ (iff.mp H H₂))
 
 theorem ne_self_iff_false {A : Type} (a : A) : (a ≠ a) ↔ false :=
 iff.intro false_of_ne false.elim
 
-theorem eq_self_iff_true {A : Type} (a : A) : (a = a) ↔ true :=
+theorem eq_self_iff_true [simp] {A : Type} (a : A) : (a = a) ↔ true :=
 iff_true_intro rfl
 
-theorem heq_self_iff_true {A : Type} (a : A) : (a == a) ↔ true :=
+theorem heq_self_iff_true [simp] {A : Type} (a : A) : (a == a) ↔ true :=
 iff_true_intro (heq.refl a)
 
-theorem iff_not_self (a : Prop) : (a ↔ ¬a) ↔ false :=
+theorem iff_not_self [simp] (a : Prop) : (a ↔ ¬a) ↔ false :=
 iff_false_intro (λ H,
    have H' : ¬a, from (λ Ha, (iff.mp H Ha) Ha),
    H' (iff.mpr H H'))
 
-theorem true_iff_false : (true ↔ false) ↔ false :=
+theorem true_iff_false [simp] : (true ↔ false) ↔ false :=
 iff_false_intro (λ H, iff.mp H trivial)
 
-theorem false_iff_true : (false ↔ true) ↔ false :=
+theorem false_iff_true [simp] : (false ↔ true) ↔ false :=
 iff_false_intro (λ H, iff.mpr H trivial)
 
 theorem false_of_true_iff_false : (true ↔ false) → false :=
 assume H, iff.mp H trivial
+
+/- and simp rules -/
+theorem and.imp (H₂ : a → c) (H₃ : b → d) : a ∧ b → c ∧ d :=
+and.rec (λHa Hb, and.intro (H₂ Ha) (H₃ Hb))
+
+theorem and_congr [congr] (H1 : a ↔ c) (H2 : b ↔ d) : (a ∧ b) ↔ (c ∧ d) :=
+iff.intro (and.imp (iff.mp H1) (iff.mp H2)) (and.imp (iff.mpr H1) (iff.mpr H2))
+
+theorem and.comm [simp] : a ∧ b ↔ b ∧ a :=
+iff.intro and.swap and.swap
+
+theorem and.assoc [simp] : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
+iff.intro
+  (and.rec (λ H' Hc, and.rec (λ Ha Hb, and.intro Ha (and.intro Hb Hc)) H'))
+  (and.rec (λ Ha, and.rec (λ Hb Hc, and.intro (and.intro Ha Hb) Hc)))
+
+theorem and.left_comm [simp] : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
+iff.trans (iff.symm !and.assoc) (iff.trans (and_congr !and.comm !iff.refl) !and.assoc)
+
+theorem and_iff_left {a b : Prop} (Hb : b) : (a ∧ b) ↔ a :=
+iff.intro and.left (λHa, and.intro Ha Hb)
+
+theorem and_iff_right {a b : Prop} (Ha : a) : (a ∧ b) ↔ b :=
+iff.intro and.right (and.intro Ha)
+
+theorem and_true [simp] (a : Prop) : a ∧ true ↔ a :=
+and_iff_left trivial
+
+theorem true_and [simp] (a : Prop) : true ∧ a ↔ a :=
+and_iff_right trivial
+
+theorem and_false [simp] (a : Prop) : a ∧ false ↔ false :=
+iff_false_intro and.right
+
+theorem false_and [simp] (a : Prop) : false ∧ a ↔ false :=
+iff_false_intro and.left
+
+theorem and_self [simp] (a : Prop) : a ∧ a ↔ a :=
+iff.intro and.left (assume H, and.intro H H)
+
+/- or simp rules -/
+
+theorem or.imp (H₂ : a → c) (H₃ : b → d) : a ∨ b → c ∨ d :=
+or.rec (λ H, or.inl (H₂ H)) (λ H, or.inr (H₃ H))
+
+theorem or.imp_left (H : a → b) : a ∨ c → b ∨ c :=
+or.imp H id
+
+theorem or.imp_right (H : a → b) : c ∨ a → c ∨ b :=
+or.imp id H
+
+theorem or_congr [congr] (H1 : a ↔ c) (H2 : b ↔ d) : (a ∨ b) ↔ (c ∨ d) :=
+iff.intro (or.imp (iff.mp H1) (iff.mp H2)) (or.imp (iff.mpr H1) (iff.mpr H2))
+
+theorem or.comm [simp] : a ∨ b ↔ b ∨ a := iff.intro or.swap or.swap
+
+theorem or.assoc [simp] : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
+iff.intro
+  (or.rec (or.imp_right or.inl) (λ H, or.inr (or.inr H)))
+  (or.rec (λ H, or.inl (or.inl H)) (or.imp_left or.inr))
+
+theorem or.left_comm [simp] : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c) :=
+iff.trans (iff.symm !or.assoc) (iff.trans (or_congr !or.comm !iff.refl) !or.assoc)
+
+theorem or_true [simp] (a : Prop) : a ∨ true ↔ true :=
+iff_true_intro (or.inr trivial)
+
+theorem true_or [simp] (a : Prop) : true ∨ a ↔ true :=
+iff_true_intro (or.inl trivial)
+
+theorem or_false [simp] (a : Prop) : a ∨ false ↔ a :=
+iff.intro (or.rec id false.elim) or.inl
+
+theorem false_or [simp] (a : Prop) : false ∨ a ↔ a :=
+iff.trans or.comm !or_false
+
+theorem or_self [simp] (a : Prop) : a ∨ a ↔ a :=
+iff.intro (or.rec id id) or.inl
+
+/- iff simp rules -/
+
+theorem iff_true [simp] (a : Prop) : (a ↔ true) ↔ a :=
+iff.intro (assume H, iff.mpr H trivial) iff_true_intro
+
+theorem true_iff [simp] (a : Prop) : (true ↔ a) ↔ a :=
+iff.trans iff.comm !iff_true
+
+theorem iff_false [simp] (a : Prop) : (a ↔ false) ↔ ¬ a :=
+iff.intro and.left iff_false_intro
+
+theorem false_iff [simp] (a : Prop) : (false ↔ a) ↔ ¬ a :=
+iff.trans iff.comm !iff_false
+
+theorem iff_self [simp] (a : Prop) : (a ↔ a) ↔ true :=
+iff_true_intro iff.rfl
+
+theorem iff_congr [congr] (H1 : a ↔ c) (H2 : b ↔ d) : (a ↔ b) ↔ (c ↔ d) :=
+and_congr (imp_congr H1 H2) (imp_congr H2 H1)
+
+/- exists -/
 
 inductive Exists {A : Type} (P : A → Prop) : Prop :=
 intro : ∀ (a : A), P a → Exists P
@@ -365,6 +481,54 @@ notation `∃` binders `, ` r:(scoped P, Exists P) := r
 theorem exists.elim {A : Type} {p : A → Prop} {B : Prop}
   (H1 : ∃x, p x) (H2 : ∀ (a : A), p a → B) : B :=
 Exists.rec H2 H1
+
+/- exists unique -/
+
+definition exists_unique {A : Type} (p : A → Prop) :=
+∃x, p x ∧ ∀y, p y → y = x
+
+notation `∃!` binders `, ` r:(scoped P, exists_unique P) := r
+
+theorem exists_unique.intro {A : Type} {p : A → Prop} (w : A) (H1 : p w) (H2 : ∀y, p y → y = w) :
+  ∃!x, p x :=
+exists.intro w (and.intro H1 H2)
+
+theorem exists_unique.elim {A : Type} {p : A → Prop} {b : Prop}
+    (H2 : ∃!x, p x) (H1 : ∀x, p x → (∀y, p y → y = x) → b) : b :=
+exists.elim H2 (λ w Hw, H1 w (and.left Hw) (and.right Hw))
+
+theorem exists_unique_of_exists_of_unique {A : Type} {p : A → Prop}
+    (Hex : ∃ x, p x) (Hunique : ∀ y₁ y₂, p y₁ → p y₂ → y₁ = y₂) :  ∃! x, p x :=
+exists.elim Hex (λ x px, exists_unique.intro x px (take y, suppose p y, Hunique y x this px))
+
+theorem exists_of_exists_unique {A : Type} {p : A → Prop} (H : ∃! x, p x) : ∃ x, p x :=
+exists.elim H (λ x Hx, exists.intro x (and.left Hx))
+
+theorem unique_of_exists_unique {A : Type} {p : A → Prop}
+    (H : ∃! x, p x) {y₁ y₂ : A} (py₁ : p y₁) (py₂ : p y₂) : y₁ = y₂ :=
+exists_unique.elim H
+  (take x, suppose p x,
+    assume unique : ∀ y, p y → y = x,
+    show y₁ = y₂, from eq.trans (unique _ py₁) (eq.symm (unique _ py₂)))
+
+/- exists, forall, exists unique congruences -/
+section
+variables {A : Type} {p₁ p₂ : A → Prop}
+
+theorem forall_congr [congr] {A : Type} {P Q : A → Prop} (H : ∀a, (P a ↔ Q a)) : (∀a, P a) ↔ ∀a, Q a :=
+iff.intro (λp a, iff.mp (H a) (p a)) (λq a, iff.mpr (H a) (q a))
+
+theorem exists_imp_exists {A : Type} {P Q : A → Prop} (H : ∀a, (P a → Q a)) (p : ∃a, P a) : ∃a, Q a :=
+exists.elim p (λa Hp, exists.intro a (H a Hp))
+
+theorem exists_congr [congr] {A : Type} {P Q : A → Prop} (H : ∀a, (P a ↔ Q a)) : (∃a, P a) ↔ ∃a, Q a :=
+iff.intro
+  (exists_imp_exists (λa, iff.mp (H a)))
+  (exists_imp_exists (λa, iff.mpr (H a)))
+
+theorem exists_unique_congr [congr] (H : ∀ x, p₁ x ↔ p₂ x) : (∃! x, p₁ x) ↔ (∃! x, p₂ x) :=
+exists_congr (λx, and_congr (H x) (forall_congr (λy, imp_congr (H y) iff.rfl)))
+end
 
 /- decidable -/
 
@@ -620,6 +784,12 @@ theorem if_simp_congr [congr] {A : Type} {b c : Prop} [dec_b : decidable b] {x y
                  (h_c : b ↔ c) (h_t : x = u) (h_e : y = v) :
         ite b x y = (@ite c (decidable_of_decidable_of_iff dec_b h_c) A u v) :=
 @if_ctx_simp_congr A b c dec_b x y u v h_c (λ h, h_t) (λ h, h_e)
+
+definition if_true [simp] {A : Type} (t e : A) : (if true then t else e) = t :=
+if_pos trivial
+
+definition if_false [simp] {A : Type} (t e : A) : (if false then t else e) = e :=
+if_neg not_false
 
 theorem if_congr_prop {b c x y u v : Prop} [dec_b : decidable b] [dec_c : decidable c]
                       (h_c : b ↔ c) (h_t : c → (x ↔ u)) (h_e : ¬c → (y ↔ v)) :

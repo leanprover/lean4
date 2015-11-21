@@ -48,7 +48,7 @@ namespace category
   definition type_category [reducible] : category Type :=
   mk (λa b, a → b)
      (λ a b c, function.compose)
-     (λ a, function.id)
+     (λ a, _root_.id)
      (λ a b c d h g f, symm (function.compose.assoc h g f))
      (λ a b f, function.compose.left_id f)
      (λ a b f, function.compose.right_id f)

@@ -113,7 +113,7 @@ section deceqA
     (assume H : a ∉ s, !Union_insert_of_not_mem H)
 
   lemma image_eq_Union_index_image (s : finset A) (f : A → finset B) :
-    Union s f = Union (image f s) function.id :=
+    Union s f = Union (image f s) id :=
       finset.induction_on s
         (by rewrite Union_empty)
         (take s1 a Pa IH, by rewrite [image_insert, *Union_insert, IH])

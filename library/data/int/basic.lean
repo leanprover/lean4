@@ -149,7 +149,7 @@ have H1 : n - m = succ (pred (n - m)), from eq.symm (succ_pred_of_pos (nat.sub_p
 show sub_nat_nat m n = nat.cases_on (succ (nat.pred (n - m))) (m -[nat] n) _, from H1 ▸ rfl
 end
 
-definition nat_abs (a : ℤ) : ℕ := int.cases_on a function.id succ
+definition nat_abs (a : ℤ) : ℕ := int.cases_on a id succ
 
 theorem nat_abs_of_nat (n : ℕ) : nat_abs n = n := rfl
 

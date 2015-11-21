@@ -6,20 +6,14 @@ Authors: Jeremy Avigad, Leonardo de Moura
 Useful logical identities. Since we are not using propositional extensionality, some of the
 calculations use the type class support provided by logic.instances.
 -/
-import logic.connectives logic.instances logic.quantifiers logic.cast
-open relation decidable relation.iff_ops
+import logic.connectives logic.quantifiers logic.cast
+open decidable
 
 theorem or.right_comm (a b c : Prop) : (a ∨ b) ∨ c ↔ (a ∨ c) ∨ b :=
 calc
   (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) : or.assoc
     ... ↔ a ∨ (c ∨ b)       : {or.comm}
      ... ↔ (a ∨ c) ∨ b      : iff.symm or.assoc
-
-theorem or.left_comm [simp] (a b c : Prop) : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c) :=
-calc
-  a ∨ (b ∨ c) ↔ (a ∨ b) ∨ c : iff.symm or.assoc
-    ... ↔ (b ∨ a) ∨ c       : {or.comm}
-     ... ↔ b ∨ (a ∨ c)      : or.assoc
 
 theorem and.right_comm (a b c : Prop) : (a ∧ b) ∧ c ↔ (a ∧ c) ∧ b :=
 calc
@@ -31,19 +25,13 @@ theorem or_not_self_iff {a : Prop} [D : decidable a] : a ∨ ¬ a ↔ true :=
 iff.intro (assume H, trivial) (assume H, em a)
 
 theorem not_or_self_iff {a : Prop} [D : decidable a] : ¬ a ∨ a ↔ true :=
-!or.comm ▸ !or_not_self_iff
+iff.intro (λ H, trivial) (λ H, or.swap (em a))
 
 theorem and_not_self_iff {a : Prop} : a ∧ ¬ a ↔ false :=
 iff.intro (assume H, (and.right H) (and.left H)) (assume H, false.elim H)
 
 theorem not_and_self_iff {a : Prop} : ¬ a ∧ a ↔ false :=
-!and.comm ▸ !and_not_self_iff
-
-theorem and.left_comm [simp] (a b c : Prop) : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
-calc
-  a ∧ (b ∧ c) ↔ (a ∧ b) ∧ c : iff.symm and.assoc
-    ... ↔ (b ∧ a) ∧ c       : {and.comm}
-     ... ↔ b ∧ (a ∧ c)      : and.assoc
+iff.intro (λ H, and.elim H (by contradiction)) (λ H, false.elim H)
 
 theorem not_not_iff {a : Prop} [D : decidable a] : (¬¬a) ↔ a :=
 iff.intro by_contradiction not_not_intro

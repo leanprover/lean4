@@ -26,7 +26,6 @@ Constructors:
 * [uprod](uprod.lean) : unordered pairs
 * [option](option.lean)
 * [subtype](subtype.lean)
-* [quotient](quotient/quotient.md)
 * [squash](squash.lean) : propositional truncation
 * [list](list/list.md)
 * [finset](finset/finset.md) : finite sets

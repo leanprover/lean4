@@ -105,18 +105,19 @@ scope_congruence_closure::~scope_congruence_closure() {
 }
 
 void congruence_closure::initialize() {
-    mk_entry_core(get_iff_name(), mk_true());
-    mk_entry_core(get_iff_name(), mk_false());
+    mk_entry_core(get_iff_name(), mk_true(), false);
+    mk_entry_core(get_iff_name(), mk_false(), false);
 }
 
-void congruence_closure::mk_entry_core(name const & R, expr const & e) {
+void congruence_closure::mk_entry_core(name const & R, expr const & e, bool to_propagate) {
     lean_assert(!m_entries.find(eqc_key(R, e)));
     entry n;
-    n.m_next    = e;
-    n.m_root    = e;
-    n.m_cg_root = e;
-    n.m_size    = 1;
-    n.m_flipped = false;
+    n.m_next         = e;
+    n.m_root         = e;
+    n.m_cg_root      = e;
+    n.m_size         = 1;
+    n.m_flipped      = false;
+    n.m_to_propagate = to_propagate;
     m_entries.insert(eqc_key(R, e), n);
     if (R != get_eq_name()) {
         // lift equalities to R
@@ -137,10 +138,18 @@ void congruence_closure::mk_entry_core(name const & R, expr const & e) {
     }
 }
 
-void congruence_closure::mk_entry(name const & R, expr const & e) {
-    if (m_entries.find(eqc_key(R, e)))
+void congruence_closure::mk_entry(name const & R, expr const & e, bool to_propagate) {
+    if (to_propagate && !is_prop(e))
+        to_propagate = false;
+    if (auto it = m_entries.find(eqc_key(R, e))) {
+        if (!it->m_to_propagate && to_propagate) {
+            entry new_it = *it;
+            new_it.m_to_propagate = to_propagate;
+            m_entries.insert(eqc_key(R, e), new_it);
+        }
         return;
-    mk_entry_core(R, e);
+    }
+    mk_entry_core(R, e, to_propagate);
 }
 
 static bool all_distinct(buffer<expr> const & es) {
@@ -539,7 +548,19 @@ void congruence_closure::add_congruence_table(ext_congr_lemma const & lemma, exp
     check_iff_true(k);
 }
 
-void congruence_closure::internalize_core(name const & R, expr const & e) {
+static bool is_logical_app(expr const & n) {
+    if (!is_app(n)) return false;
+    expr const & fn = get_app_fn(n);
+    return
+        is_constant(fn) &&
+        (const_name(fn) == get_or_name()  ||
+         const_name(fn) == get_and_name() ||
+         const_name(fn) == get_not_name() ||
+         const_name(fn) == get_iff_name() ||
+         (const_name(fn) == get_ite_name() && is_prop(n)));
+}
+
+void congruence_closure::internalize_core(name const & R, expr const & e, bool toplevel, bool to_propagate) {
     lean_assert(closed(e));
     if (has_expr_metavar(e))
         return;
@@ -552,40 +573,53 @@ void congruence_closure::internalize_core(name const & R, expr const & e) {
     case expr_kind::Sort:
         return;
     case expr_kind::Constant: case expr_kind::Local:
+        mk_entry_core(R, e, to_propagate);
+        return;
     case expr_kind::Lambda:
-        mk_entry_core(R, e);
+        mk_entry_core(R, e, false);
         return;
     case expr_kind::Macro:
         for (unsigned i = 0; i < macro_num_args(e); i++)
-            internalize_core(R, macro_arg(e, i));
-        mk_entry_core(R, e);
+            internalize_core(R, macro_arg(e, i), false, false);
+        mk_entry_core(R, e, to_propagate);
         break;
     case expr_kind::Pi:
         // TODO(Leo): should we support congruence for arrows?
         if (is_arrow(e) && is_prop(binding_domain(e)) && is_prop(binding_body(e))) {
-            internalize_core(R, binding_domain(e));
-            internalize_core(R, binding_body(e));
+            to_propagate = toplevel; // we must propagate children if arrow is top-level
+            internalize_core(R, binding_domain(e), toplevel, to_propagate);
+            internalize_core(R, binding_body(e), toplevel, to_propagate);
         }
         if (is_prop(e)) {
-            mk_entry_core(R, e);
+            mk_entry_core(R, e, false);
         }
         return;
     case expr_kind::App: {
-        mk_entry_core(R, e);
+        bool is_lapp = is_logical_app(e);
+        mk_entry_core(R, e, to_propagate && !is_lapp);
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
+        if (toplevel) {
+            if (is_lapp) {
+                to_propagate = true; // we must propagate the children of a top-level logical app (or, and, iff, ite)
+            } else {
+                toplevel = false;    // children of a non-logical application will not be marked as toplevel
+            }
+        } else {
+            to_propagate = false;
+        }
         if (auto lemma = mk_ext_congr_lemma(R, fn, args.size())) {
             list<optional<name>> const * it = &(lemma->m_rel_names);
             for (expr const & arg : args) {
                 lean_assert(*it);
                 if (auto R1 = head(*it)) {
-                    internalize_core(*R1, arg);
+                    internalize_core(*R1, arg, toplevel, to_propagate);
                     add_occurrence(R, e, *R1, arg);
                 }
                 it = &tail(*it);
             }
             if (!lemma->m_fixed_fun) {
-                internalize_core(get_eq_name(), fn);
+                internalize_core(get_eq_name(), fn, false, false);
                 add_occurrence(get_eq_name(), e, get_eq_name(), fn);
             }
             add_congruence_table(*lemma, e);
@@ -594,17 +628,18 @@ void congruence_closure::internalize_core(name const & R, expr const & e) {
     }}
 }
 
-void congruence_closure::internalize(name const & R, expr const & e) {
+void congruence_closure::internalize(name const & R, expr const & e, bool toplevel) {
     flet<congruence_closure *> set_cc(g_cc, this);
-    internalize_core(R, e);
+    bool to_propagate = false; // We don't need to mark units for propagation
+    internalize_core(R, e, toplevel, to_propagate);
     process_todo();
 }
 
 void congruence_closure::internalize(expr const & e) {
     if (is_prop(e))
-        internalize(get_iff_name(), e);
+        internalize(get_iff_name(), e, true);
     else
-        internalize(get_eq_name(), e);
+        internalize(get_eq_name(), e, false);
 }
 
 /*
@@ -663,6 +698,10 @@ void congruence_closure::reinsert_parents(name const & R, expr const & e) {
         });
 }
 
+static bool is_interpreted(expr const & e) {
+    return is_constant(e, get_true_name()) || is_constant(e, get_false_name());
+}
+
 void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr const & H) {
     auto n1 = m_entries.find(eqc_key(R, e1));
     auto n2 = m_entries.find(eqc_key(R, e2));
@@ -677,7 +716,15 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
 
     // We want r2 to be the root of the combined class.
 
-    if (r1->m_size > r2->m_size) {
+    // We swap (e1,n1,r1) with (e2,n2,r2) when
+    // 1- is_interpreted(n1->m_root) && !is_interpreted(n2->m_root).
+    //    Reason: to decide when to propagate we check whether the root of the equivalence class
+    //    is true/false. So, this condition is to make sure if true/false is an equivalence class,
+    //    then one of them is the root. If both are, it doesn't matter, since the state is inconsistent
+    //    anyway.
+    // 2- r1->m_size > r2->m_size
+    //    Reason: performance. Condition was has precedence
+    if ((r1->m_size > r2->m_size && !is_interpreted(n2->m_root)) || is_interpreted(n1->m_root)) {
         std::swap(e1, e2);
         std::swap(n1, n2);
         std::swap(r1, r2);
@@ -704,9 +751,13 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
     remove_parents(R, e1);
 
     // force all m_root fields in e1 equivalence class to point to e2_root
+    bool propagate = R == get_iff_name() && is_interpreted(e2_root);
+    buffer<expr> to_propagate;
     expr it = e1;
     do {
         auto it_n = m_entries.find(eqc_key(R, it));
+        if (propagate && it_n->m_to_propagate)
+            to_propagate.push_back(it);
         lean_assert(it_n);
         entry new_it_n   = *it_n;
         new_it_n.m_root = e2_root;
@@ -750,10 +801,29 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
         for (name const & R2 : m_non_eq_relations) {
             if (m_entries.find(eqc_key(R2, e1)) ||
                 m_entries.find(eqc_key(R2, e2))) {
-                mk_entry(R2, e1);
-                mk_entry(R2, e2);
+                mk_entry(R2, e1, false);
+                mk_entry(R2, e2, false);
                 push_todo(R2, e1, e2, *g_lift_mark);
             }
+        }
+    }
+
+    // propagate new hypotheses back to current state
+    if (!to_propagate.empty()) {
+        state & s       = curr_state();
+        app_builder & b = get_app_builder();
+        bool is_true    = e2_root == mk_true();
+        for (expr const & e : to_propagate) {
+            lean_assert(R == get_iff_name());
+            expr type = e;
+            expr pr   = *get_eqv_proof(R, e, e2_root);
+            if (is_true) {
+                pr = b.mk_of_iff_true(pr);
+            } else {
+                type = b.mk_not(e);
+                pr   = b.mk_not_of_iff_false(pr);
+            }
+            s.mk_hypothesis(type, pr);
         }
     }
 }
@@ -790,15 +860,18 @@ void congruence_closure::add(hypothesis_idx hidx) {
         name R; expr lhs, rhs;
         if (is_relation_app(p, R, lhs, rhs)) {
             if (is_neg) {
-                internalize_core(get_iff_name(), p);
+                bool toplevel = true; bool to_propagate = false;
+                internalize_core(get_iff_name(), p, toplevel, to_propagate);
                 add_eqv(get_iff_name(), p, mk_false(), b.mk_iff_false_intro(h.get_self()));
             } else {
-                internalize_core(R, lhs);
-                internalize_core(R, rhs);
+                bool toplevel = false; bool to_propagate = false;
+                internalize_core(R, lhs, toplevel, to_propagate);
+                internalize_core(R, rhs, toplevel, to_propagate);
                 add_eqv(R, lhs, rhs, h.get_self());
             }
         } else if (is_prop(p)) {
-            internalize_core(get_iff_name(), p);
+            bool toplevel = true; bool to_propagate = false;
+            internalize_core(get_iff_name(), p, toplevel, to_propagate);
             if (is_neg) {
                 add_eqv(get_iff_name(), p, mk_false(), b.mk_iff_false_intro(h.get_self()));
             } else {

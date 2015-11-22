@@ -43,8 +43,9 @@ class congruence_closure {
         // store 'target' at 'm_target', and 'H' at 'm_proof'. Both fields are none if 'e' == m_root
         optional<expr> m_target;
         optional<expr> m_proof;
-        bool           m_flipped;     // proof has been flipped
-        unsigned       m_size;        // number of elements in the equivalence class, it is meaningless if 'e' != m_root
+        unsigned       m_flipped:1;      // proof has been flipped
+        unsigned       m_to_propagate:1; // must be propagated back to state when in equivalence class containing true/false
+        unsigned       m_size;           // number of elements in the equivalence class, it is meaningless if 'e' != m_root
     };
 
     /* Key (R, e) for the mapping (R, e) -> entry */
@@ -101,7 +102,8 @@ class congruence_closure {
 
     void update_non_eq_relations(name const & R);
 
-    void internalize_core(name const & R, expr const & e);
+    void register_to_propagate(expr const & e);
+    void internalize_core(name const & R, expr const & e, bool toplevel, bool to_propagate);
     void process_todo();
 
     int compare_symm(name const & R, expr lhs1, expr rhs1, expr lhs2, expr rhs2) const;
@@ -110,8 +112,8 @@ class congruence_closure {
     congr_key mk_congr_key(ext_congr_lemma const & lemma, expr const & e) const;
     void check_iff_true(congr_key const & k);
 
-    void mk_entry_core(name const & R, expr const & e);
-    void mk_entry(name const & R, expr const & e);
+    void mk_entry_core(name const & R, expr const & e, bool to_propagate);
+    void mk_entry(name const & R, expr const & e, bool to_propagate);
     void add_occurrence(name const & Rp, expr const & parent, name const & Rc, expr const & child);
     void add_congruence_table(ext_congr_lemma const & lemma, expr const & e);
     void invert_trans(name const & R, expr const & e, optional<expr> new_target, optional<expr> new_proof);
@@ -142,7 +144,7 @@ public:
        4- Terms containing meta-variables.
        5- The subterms of lambda-expressions.
        6- Sorts (Type and Prop). */
-    void internalize(name const & R, expr const & e);
+    void internalize(name const & R, expr const & e, bool toplevel = false);
     void internalize(expr const & e);
 
     /** \brief Given a hypothesis H, this method will do the following based on the type of H

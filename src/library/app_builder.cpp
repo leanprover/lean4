@@ -500,11 +500,19 @@ struct app_builder::imp {
     }
 
     expr mk_not_of_iff_false(expr const & H) {
+        if (is_constant(get_app_fn(H), get_iff_false_intro_name())) {
+            // not_of_iff_false (iff_false_intro H) == H
+            return app_arg(H);
+        }
         // TODO(Leo): implement custom version if bottleneck.
         return mk_app(get_not_of_iff_false_name(), {H});
     }
 
     expr mk_of_iff_true(expr const & H) {
+        if (is_constant(get_app_fn(H), get_iff_true_intro_name())) {
+            // of_iff_true (iff_true_intro H) == H
+            return app_arg(H);
+        }
         // TODO(Leo): implement custom version if bottleneck.
         return mk_app(get_of_iff_true_name(), {H});
     }

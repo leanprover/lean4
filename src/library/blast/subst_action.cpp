@@ -51,6 +51,8 @@ bool subst_core(hypothesis_idx hidx) {
     expr type = h.get_type();
     expr lhs, rhs;
     lean_verify(is_eq(type, lhs, rhs));
+    if (is_def_eq(lhs, rhs))
+        return false;
     lean_assert(is_href(rhs));
     try {
         hypothesis_idx_buffer_set to_revert;

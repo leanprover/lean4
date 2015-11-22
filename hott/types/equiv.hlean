@@ -175,7 +175,7 @@ namespace equiv
     {B : A → Type} {C : A → Type} (f : B a ≃ C a) (g : B a' ≃ C a')
     (r : Π(b : B a) (b' : B a') (q : b =[p] b'), f b =[p] g b') : f =[p] g :=
   begin
-    fapply change_path_equiv',
+    fapply pathover_of_fn_pathover_fn,
     { intro a, apply equiv.sigma_char},
     { fapply sigma_pathover,
         esimp, apply arrow_pathover, exact r,

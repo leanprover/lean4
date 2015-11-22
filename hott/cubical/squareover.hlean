@@ -262,4 +262,19 @@ namespace eq
     induction p, esimp at s, apply pathover_idp_of_eq, apply eq_of_vdeg_squareover, exact s
   end
 
+  definition squareover_change_path_left {p₀₁' : a₀₀ = a₀₂} (r : p₀₁' = p₀₁)
+    {q₀₁ : b₀₀ =[p₀₁'] b₀₂} (t : squareover B (r ⬝ph s₁₁) q₁₀ q₁₂ q₀₁ q₂₁)
+  : squareover B s₁₁ q₁₀ q₁₂ (change_path r q₀₁) q₂₁ :=
+  by induction r; exact t
+
+  definition squareover_change_path_right {p₂₁' : a₂₀ = a₂₂} (r : p₂₁' = p₂₁)
+    {q₂₁ : b₂₀ =[p₂₁'] b₂₂} (t : squareover B (s₁₁ ⬝hp r⁻¹) q₁₀ q₁₂ q₀₁ q₂₁)
+  : squareover B s₁₁ q₁₀ q₁₂ q₀₁ (change_path r q₂₁) :=
+  by induction r; exact t
+
+  definition squareover_change_path_right' {p₂₁' : a₂₀ = a₂₂} (r : p₂₁ = p₂₁')
+    {q₂₁ : b₂₀ =[p₂₁'] b₂₂} (t : squareover B (s₁₁ ⬝hp r) q₁₀ q₁₂ q₀₁ q₂₁)
+  : squareover B s₁₁ q₁₀ q₁₂ q₀₁ (change_path r⁻¹ q₂₁) :=
+  by induction r; exact t
+
 end eq

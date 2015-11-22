@@ -5,9 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Floris van Doorn
 -/
 
-import homotopy.circle eq2 algebra.e_closure cubical.cube
+import homotopy.circle eq2 algebra.e_closure cubical.squareover cubical.cube cubical.square2
 
-open quotient eq circle sum sigma equiv function relation
+open quotient eq circle sum sigma equiv function relation e_closure
 
   /-
     This files defines a general class of nonrecursive HITs using just quotients.
@@ -21,7 +21,7 @@ open quotient eq circle sum sigma equiv function relation
     where p, p' are of the form
     - refl (f a), for some a : A;
     - e r, for some r : R a a';
-    - ap f q, where q : a = a';
+    - ap f q, where q : a = a' :> A;
     - inverses of such paths;
     - concatenations of such paths.
 
@@ -92,9 +92,15 @@ namespace simple_two_quotient
     : ap (pre_elim Pj Pa Pe) (et t) = e_closure.elim Pe t :=
   ap_e_closure_elim_h e (elim_e Pj Pa Pe) t
 
+  protected definition rec_et {P : C → Type}
+    (Pj : Πa, P (j a)) (Pa : Π⦃a : A⦄ ⦃r : T a a⦄ (q : Q r), P (pre_aux q))
+    (Pe : Π⦃a a' : A⦄ (s : R a a'), Pj a =[e s] Pj a') ⦃a a' : A⦄ (t : T a a')
+    : apdo (pre_rec Pj Pa Pe) (et t) = e_closure.elimo e Pe t :=
+  ap_e_closure_elimo_h e Pe (rec_e Pj Pa Pe) t
+
   inductive simple_two_quotient_rel : C → C → Type :=
   | Rmk {} : Π{a : A} {r : T a a} (q : Q r) (x : circle),
-               simple_two_quotient_rel (f q x) (pre_aux q)
+      simple_two_quotient_rel (f q x) (pre_aux q)
 
   open simple_two_quotient_rel
   definition simple_two_quotient := quotient simple_two_quotient_rel
@@ -104,6 +110,7 @@ namespace simple_two_quotient
   protected definition aux (q : Q r) : D := i (pre_aux q)
   definition incl1 (s : R a a') : incl0 a = incl0 a' := ap i (e s)
   definition inclt (t : T a a') : incl0 a = incl0 a' := e_closure.elim incl1 t
+
   -- "wrong" version inclt, which is ap i (p ⬝ q) instead of ap i p ⬝ ap i q
   -- it is used in the proof, because incltw is easier to work with
   protected definition incltw (t : T a a') : incl0 a = incl0 a' := ap i (et t)
@@ -125,6 +132,75 @@ namespace simple_two_quotient
 
   local attribute simple_two_quotient f i D incl0 aux incl1 incl2' inclt [reducible]
   local attribute i aux incl0 [constructor]
+
+  protected definition rec {P : D → Type} (P0 : Π(a : A), P (incl0 a))
+    (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a =[incl1 s] P0 a')
+    (P2 : Π⦃a : A⦄ ⦃r : T a a⦄ (q : Q r),
+      change_path (incl2 q) (e_closure.elimo incl1 P1 r) = idpo) (x : D) : P x :=
+  begin
+    induction x,
+    { refine (pre_rec _ _ _ a),
+      { exact P0},
+      { intro a r q, exact incl2' q base ▸ P0 a},
+      { intro a a' s, exact pathover_of_pathover_ap P i (P1 s)}},
+    { exact abstract [irreducible] begin induction H, induction x,
+      { esimp, exact pathover_tr (incl2' q base) (P0 a)},
+      { apply pathover_pathover,
+        esimp, fold [i, incl2' q],
+        refine eq_hconcato _ _, apply _,
+        { transitivity _,
+          { apply ap (pathover_ap _ _),
+            transitivity _, apply apdo_compose2 (pre_rec P0 _ _) (f q) loop,
+            apply ap (pathover_of_pathover_ap _ _),
+            transitivity _, apply apdo_change_path, exact !elim_loop⁻¹,
+            transitivity _,
+              apply ap (change_path _),
+              transitivity _, apply rec_et,
+              transitivity (pathover_of_pathover_ap P i (change_path (inclt_eq_incltw r)
+                (e_closure.elimo incl1 (λ (a a' : A) (s : R a a'), P1 s) r))),
+              apply e_closure_elimo_ap,
+              exact idp,
+            apply change_path_pathover_of_pathover_ap},
+          esimp, transitivity _, apply pathover_ap_pathover_of_pathover_ap P i (f q),
+          transitivity _, apply ap (change_path _), apply to_right_inv !pathover_compose,
+          do 2 (transitivity _; exact !change_path_con⁻¹),
+          transitivity _, apply ap (change_path _),
+            exact (to_left_inv (change_path_equiv _ _ (incl2 q)) _)⁻¹, esimp,
+          rewrite P2, transitivity _; exact !change_path_con⁻¹, apply ap (λx, change_path x _),
+          rewrite [↑incl2, con_inv], transitivity _, exact !con.assoc⁻¹,
+          rewrite [inv_con_cancel_right, ↑incl2w, ↑ap02, +con_inv, +ap_inv, +inv_inv, -+con.assoc,
+            +con_inv_cancel_right], reflexivity},
+        rewrite [change_path_con, apdo_constant],
+        apply squareover_change_path_left, apply squareover_change_path_right',
+        apply squareover_change_path_left,
+        refine change_square _ vrflo,
+        symmetry, apply inv_ph_eq_of_eq_ph, rewrite [ap_is_constant_natural_square],
+        apply whisker_bl_whisker_tl_eq} end end},
+  end
+
+  protected definition rec_on [reducible] {P : D → Type} (x : D) (P0 : Π(a : A), P (incl0 a))
+    (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a =[incl1 s] P0 a')
+    (P2 : Π⦃a : A⦄ ⦃r : T a a⦄ (q : Q r),
+      change_path (incl2 q) (e_closure.elimo incl1 P1 r) = idpo) : P x :=
+  rec P0 P1 P2 x
+
+  theorem rec_incl1 {P : D → Type} (P0 : Π(a : A), P (incl0 a))
+    (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a =[incl1 s] P0 a')
+    (P2 : Π⦃a : A⦄ ⦃r : T a a⦄ (q : Q r),
+      change_path (incl2 q) (e_closure.elimo incl1 P1 r) = idpo) ⦃a a' : A⦄ (s : R a a')
+    : apdo (rec P0 P1 P2) (incl1 s) = P1 s :=
+  begin
+    unfold [rec, incl1], refine !apdo_ap ⬝ _, esimp, rewrite rec_e,
+    apply to_right_inv !pathover_compose
+  end
+
+  theorem rec_inclt {P : D → Type} (P0 : Π(a : A), P (incl0 a))
+    (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a =[incl1 s] P0 a')
+    (P2 : Π⦃a : A⦄ ⦃r : T a a⦄ (q : Q r),
+      change_path (incl2 q) (e_closure.elimo incl1 P1 r) = idpo) ⦃a a' : A⦄ (t : T a a')
+    : apdo (rec P0 P1 P2) (inclt t) = e_closure.elimo incl1 P1 t :=
+  ap_e_closure_elimo_h incl1 P1 (rec_incl1 P0 P1 P2) t
+
   protected definition elim {P : Type} (P0 : A → P)
     (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a = P0 a')
     (P2 : Π⦃a : A⦄ ⦃r : T a a⦄ (q : Q r), e_closure.elim P1 r = idp)
@@ -142,8 +218,7 @@ namespace simple_two_quotient
               ap _ !elim_loop ⬝
               !elim_et ⬝
               P2 q ⬝
-              !ap_constant⁻¹ end
-} end end},
+              !ap_constant⁻¹ end} end end},
   end
   local attribute elim [unfold 8]
 
@@ -194,7 +269,6 @@ namespace simple_two_quotient
     ⦃a : A⦄ ⦃r : T a a⦄ (q : Q r) : ap (elim P0 P1 P2) (incl2' q base) = idpath (P0 a) :=
   !elim_eq_of_rel
 
-  -- set_option pp.implicit true
   protected theorem elim_incl2w {P : Type} (P0 : A → P)
     (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a = P0 a')
     (P2 : Π⦃a : A⦄ ⦃r : T a a⦄ (q : Q r), e_closure.elim P1 r = idp)
@@ -257,21 +331,20 @@ namespace simple_two_quotient
 end
 end simple_two_quotient
 
---attribute simple_two_quotient.j [constructor] --TODO
-attribute /-simple_two_quotient.rec-/ simple_two_quotient.elim [unfold 8] [recursor 8]
---attribute simple_two_quotient.elim_type [unfold 9]
-attribute /-simple_two_quotient.rec_on-/ simple_two_quotient.elim_on [unfold 5]
---attribute simple_two_quotient.elim_type_on [unfold 6]
+attribute simple_two_quotient.j [constructor]
+attribute simple_two_quotient.rec simple_two_quotient.elim [unfold 8] [recursor 8]
+--attribute simple_two_quotient.elim_type [unfold 9] -- TODO
+attribute simple_two_quotient.rec_on simple_two_quotient.elim_on [unfold 5]
+--attribute simple_two_quotient.elim_type_on [unfold 6] -- TODO
 
 namespace two_quotient
-  open e_closure simple_two_quotient
+  open simple_two_quotient
   section
   parameters {A : Type}
              (R : A → A → Type)
   local abbreviation T := e_closure R -- the (type-valued) equivalence closure of R
   parameter  (Q : Π⦃a a'⦄, T a a' → T a a' → Type)
   variables ⦃a a' : A⦄ {s : R a a'} {t t' : T a a'}
-
 
   inductive two_quotient_Q : Π⦃a : A⦄, e_closure R a a → Type :=
   | Qmk : Π⦃a a' : A⦄ ⦃t t' : T a a'⦄, Q t t' → two_quotient_Q (t ⬝r t'⁻¹ʳ)
@@ -285,6 +358,46 @@ namespace two_quotient
   definition incl2 (q : Q t t') : inclt t = inclt t' :=
   eq_of_con_inv_eq_idp (incl2 _ _ (Qmk R q))
 
+  protected definition rec {P : two_quotient → Type} (P0 : Π(a : A), P (incl0 a))
+    (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a =[incl1 s] P0 a')
+    (P2 : Π⦃a a' : A⦄ ⦃t t' : T a a'⦄ (q : Q t t'),
+      change_path (incl2 q) (e_closure.elimo incl1 P1 t) = e_closure.elimo incl1 P1 t')
+    (x : two_quotient) : P x :=
+  begin
+    induction x,
+    { exact P0 a},
+    { exact P1 s},
+    { induction q with a a' t t' q,
+      rewrite [elimo_con (simple_two_quotient.incl1 R Q2) P1,
+               elimo_inv (simple_two_quotient.incl1 R Q2) P1,
+               -whisker_right_eq_of_con_inv_eq_idp (simple_two_quotient.incl2 R Q2 (Qmk R q)),
+               change_path_con],
+      xrewrite [change_path_cono],
+      refine ap (λx, change_path _ (_ ⬝o x)) !change_path_invo ⬝ _, esimp,
+      apply cono_invo_eq_idpo, apply P2}
+  end
+
+  protected definition rec_on [reducible] {P : two_quotient → Type} (x : two_quotient)
+    (P0 : Π(a : A), P (incl0 a))
+    (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a =[incl1 s] P0 a')
+    (P2 : Π⦃a a' : A⦄ ⦃t t' : T a a'⦄ (q : Q t t'),
+      change_path (incl2 q) (e_closure.elimo incl1 P1 t) = e_closure.elimo incl1 P1 t') : P x :=
+  rec P0 P1 P2 x
+
+  theorem rec_incl1 {P : two_quotient → Type} (P0 : Π(a : A), P (incl0 a))
+    (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a =[incl1 s] P0 a')
+    (P2 : Π⦃a a' : A⦄ ⦃t t' : T a a'⦄ (q : Q t t'),
+      change_path (incl2 q) (e_closure.elimo incl1 P1 t) = e_closure.elimo incl1 P1 t')
+    ⦃a a' : A⦄ (s : R a a') : apdo (rec P0 P1 P2) (incl1 s) = P1 s :=
+  rec_incl1 _ _ _ _ _ s
+
+  theorem rec_inclt {P : two_quotient → Type} (P0 : Π(a : A), P (incl0 a))
+    (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a =[incl1 s] P0 a')
+    (P2 : Π⦃a a' : A⦄ ⦃t t' : T a a'⦄ (q : Q t t'),
+      change_path (incl2 q) (e_closure.elimo incl1 P1 t) = e_closure.elimo incl1 P1 t')
+    ⦃a a' : A⦄ (t : T a a') : apdo (rec P0 P1 P2) (inclt t) = e_closure.elimo incl1 P1 t :=
+  rec_inclt _ _ _ _ _ t
+
   protected definition elim {P : Type} (P0 : A → P)
     (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a = P0 a')
     (P2 : Π⦃a a' : A⦄ ⦃t t' : T a a'⦄ (q : Q t t'), e_closure.elim P1 t = e_closure.elim P1 t')
@@ -294,7 +407,7 @@ namespace two_quotient
     { exact P0 a},
     { exact P1 s},
     { exact abstract [unfold 10] begin induction q with a a' t t' q,
-      rewrite [↑e_closure.elim],
+      esimp [e_closure.elim],
       apply con_inv_eq_idp, exact P2 q end end},
   end
   local attribute elim [unfold 8]
@@ -315,7 +428,7 @@ namespace two_quotient
     {P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a = P0 a'}
     (P2 : Π⦃a a' : A⦄ ⦃t t' : T a a'⦄ (q : Q t t'), e_closure.elim P1 t = e_closure.elim P1 t')
     ⦃a a' : A⦄ (t : T a a') : ap (elim P0 P1 P2) (inclt t) = e_closure.elim P1 t :=
-  !elim_inclt --ap_e_closure_elim_h incl1 (elim_incl1 P2) t
+  !elim_inclt
 
   theorem elim_incl2 {P : Type} (P0 : A → P)
     (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a = P0 a')
@@ -325,7 +438,6 @@ namespace two_quotient
   begin
     rewrite [↑[incl2,elim],ap_eq_of_con_inv_eq_idp],
     xrewrite [eq_top_of_square (elim_incl2 R Q2 P0 P1 (elim_1 A R Q P P0 P1 P2) (Qmk R q))],
---    esimp, --doesn't fold elim_inclt back. The following tactic is just a "custom esimp"
     xrewrite [{simple_two_quotient.elim_inclt R Q2 (elim_1 A R Q P P0 P1 P2)
            (t ⬝r t'⁻¹ʳ)}
       idpath (ap_con (simple_two_quotient.elim R Q2 P0 P1 (elim_1 A R Q P P0 P1 P2))
@@ -344,8 +456,8 @@ namespace two_quotient
 end
 end two_quotient
 
---attribute two_quotient.j [constructor] --TODO
-attribute /-two_quotient.rec-/ two_quotient.elim [unfold 8] [recursor 8]
+attribute two_quotient.incl0 [constructor]
+attribute two_quotient.rec two_quotient.elim [unfold 8] [recursor 8]
 --attribute two_quotient.elim_type [unfold 9]
-attribute /-two_quotient.rec_on-/ two_quotient.elim_on [unfold 5]
+attribute two_quotient.rec_on two_quotient.elim_on [unfold 5]
 --attribute two_quotient.elim_type_on [unfold 6]

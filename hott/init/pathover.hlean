@@ -293,11 +293,8 @@ namespace eq
     : eq_concato q⁻¹ (pathover_idp_of_eq q) = (idpo : b' =[refl a] b') :=
   by induction q;constructor
 
-  definition change_path_equiv (f : Π{a}, B a ≃ B' a) (r : b =[p] b₂) : f b =[p] f b₂ :=
-  by induction r;constructor
-
-  definition change_path_equiv' (f : Π{a}, B a ≃ B' a) (r : f b =[p] f b₂) : b =[p] b₂ :=
-  (left_inv f b)⁻¹ ⬝po change_path_equiv (λa, f⁻¹ᵉ) r ⬝op left_inv f b₂
+  definition pathover_of_fn_pathover_fn (f : Π{a}, B a ≃ B' a) (r : f b =[p] f b₂) : b =[p] b₂ :=
+  (left_inv f b)⁻¹ ⬝po apo (λa, f⁻¹ᵉ) r ⬝op left_inv f b₂
 
   definition change_path_of_pathover (s : p = p') (r : b =[p] b₂) (r' : b =[p'] b₂)
     (q : r =[s] r') : change_path s r = r' :=

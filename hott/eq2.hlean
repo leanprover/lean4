@@ -90,6 +90,10 @@ namespace eq
            (ap_compose g f q) :=
   natural_square (ap_compose g f) r
 
+  theorem whisker_right_eq_of_con_inv_eq_idp {p q : a₁ = a₂} (r : p ⬝ q⁻¹ = idp) :
+    whisker_right (eq_of_con_inv_eq_idp r) q⁻¹ ⬝ con.right_inv q = r :=
+  by induction q; esimp at r; cases r; reflexivity
+
   theorem ap_eq_of_con_inv_eq_idp (f : A → B) {p q : a₁ = a₂} (r : p ⬝ q⁻¹ = idp)
   : ap02 f (eq_of_con_inv_eq_idp r) =
            eq_of_con_inv_eq_idp (whisker_left _ !ap_inv⁻¹ ⬝ !ap_con⁻¹ ⬝ ap02 f r)
@@ -100,12 +104,6 @@ namespace eq
     (t : p' ⬝ q'⁻¹ = idp)
   : eq_of_con_inv_eq_idp (r ◾ inverse2 s ⬝ t) = r ⬝ eq_of_con_inv_eq_idp t ⬝ s⁻¹ :=
   by induction s;induction r;induction q;reflexivity
-
--- definition naturality_apdo {A : Type} {B : A → Type} {a a₂ : A} {f g : Πa, B a}
---   (H : f ~ g) (p : a = a₂)
---   : squareover B vrfl (apdo f p) (apdo g p)
---                       (pathover_idp_of_eq (H a)) (pathover_idp_of_eq (H a₂)) :=
--- by induction p;esimp;exact hrflo
 
   definition naturality_apdo_eq {A : Type} {B : A → Type} {a a₂ : A} {f g : Πa, B a}
     (H : f ~ g) (p : a = a₂)

@@ -13,8 +13,8 @@ open eq is_trunc trunc quotient equiv
 namespace set_quotient
 section
   parameters {A : Type} (R : A → A → hprop)
-  -- set-quotients are just truncations of (type) quotients
-  definition set_quotient : Type := trunc 0 (quotient (λa a', trunctype.carrier (R a a')))
+  -- set-quotients are just set-truncations of (type) quotients
+  definition set_quotient : Type := trunc 0 (quotient R)
 
   parameter {R}
   definition class_of (a : A) : set_quotient :=
@@ -70,11 +70,6 @@ section
   protected definition elim_hprop {P : Type} [Pt : is_hprop P] (Pc : A → P) (x : set_quotient)
     : P :=
   elim Pc (λa a' H, !is_hprop.elim) x
-
-  /-
-    there are no theorems to eliminate to the universe here,
-    because the universe is generally not a set
-  -/
 
 end
 end set_quotient

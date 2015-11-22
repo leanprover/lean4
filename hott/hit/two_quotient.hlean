@@ -345,7 +345,7 @@ namespace two_quotient
              (R : A → A → Type)
   local abbreviation T := e_closure R -- the (type-valued) equivalence closure of R
   parameter  (Q : Π⦃a a'⦄, T a a' → T a a' → Type)
-  variables ⦃a a' : A⦄ {s : R a a'} {t t' : T a a'}
+  variables ⦃a a' a'' : A⦄ {s : R a a'} {t t' : T a a'}
 
   inductive two_quotient_Q : Π⦃a : A⦄, e_closure R a a → Type :=
   | Qmk : Π⦃a a' : A⦄ ⦃t t' : T a a'⦄, Q t t' → two_quotient_Q (t ⬝r t'⁻¹ʳ)
@@ -369,14 +369,14 @@ namespace two_quotient
     induction x,
     { exact P0 a},
     { exact P1 s},
-    { induction q with a a' t t' q,
+    { exact abstract [irreducible] begin induction q with a a' t t' q,
       rewrite [elimo_con (simple_two_quotient.incl1 R Q2) P1,
                elimo_inv (simple_two_quotient.incl1 R Q2) P1,
                -whisker_right_eq_of_con_inv_eq_idp (simple_two_quotient.incl2 R Q2 (Qmk R q)),
                change_path_con],
       xrewrite [change_path_cono],
       refine ap (λx, change_path _ (_ ⬝o x)) !change_path_invo ⬝ _, esimp,
-      apply cono_invo_eq_idpo, apply P2}
+      apply cono_invo_eq_idpo, apply P2 end end}
   end
 
   protected definition rec_on [reducible] {P : two_quotient → Type} (x : two_quotient)
@@ -455,6 +455,31 @@ namespace two_quotient
     apply top_deg_square
   end
 
+  definition elim_inclt_rel [unfold_full] {P : Type} {P0 : A → P}
+    {P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a = P0 a'}
+    (P2 : Π⦃a a' : A⦄ ⦃t t' : T a a'⦄ (q : Q t t'), e_closure.elim P1 t = e_closure.elim P1 t')
+    ⦃a a' : A⦄ (r : R a a') : elim_inclt P2 [r] = elim_incl1 P2 r :=
+  idp
+
+  definition elim_inclt_inv [unfold_full] {P : Type} {P0 : A → P}
+    {P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a = P0 a'}
+    (P2 : Π⦃a a' : A⦄ ⦃t t' : T a a'⦄ (q : Q t t'), e_closure.elim P1 t = e_closure.elim P1 t')
+    ⦃a a' : A⦄ (t : T a a')
+    : elim_inclt P2 t⁻¹ʳ = ap_inv (elim P0 P1 P2) (inclt t) ⬝ (elim_inclt P2 t)⁻² :=
+  idp
+
+  definition elim_inclt_con [unfold_full] {P : Type} {P0 : A → P}
+    {P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a = P0 a'}
+    (P2 : Π⦃a a' : A⦄ ⦃t t' : T a a'⦄ (q : Q t t'), e_closure.elim P1 t = e_closure.elim P1 t')
+    ⦃a a' a'' : A⦄ (t : T a a') (t': T a' a'')
+    : elim_inclt P2 (t ⬝r t') =
+        ap_con (elim P0 P1 P2) (inclt t) (inclt t') ⬝ (elim_inclt P2 t ◾ elim_inclt P2 t') :=
+  idp
+
+  definition inclt_rel [unfold_full] (r : R a a') : inclt [r] = incl1 r := idp
+  definition inclt_inv [unfold_full] (t : T a a') : inclt t⁻¹ʳ = (inclt t)⁻¹ := idp
+  definition inclt_con [unfold_full] (t : T a a') (t' : T a' a'')
+    : inclt (t ⬝r t') = inclt t ⬝ inclt t' := idp
 end
 end two_quotient
 

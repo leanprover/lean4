@@ -265,12 +265,12 @@ namespace eq
   -- functorial.
 
   -- Functions take identity paths to identity paths
-  definition ap_idp (x : A) (f : A → B) : ap f idp = idp :> (f x = f x) := idp
+  definition ap_idp [unfold_full] (x : A) (f : A → B) : ap f idp = idp :> (f x = f x) := idp
 
   -- Functions commute with concatenation.
-  definition ap_con (f : A → B) {x y z : A} (p : x = y) (q : y = z) :
+  definition ap_con [unfold 8] (f : A → B) {x y z : A} (p : x = y) (q : y = z) :
     ap f (p ⬝ q) = ap f p ⬝ ap f q :=
-  eq.rec_on q (eq.rec_on p idp)
+  eq.rec_on q idp
 
   definition con_ap_con_eq_con_ap_con_ap (f : A → B) {w x y z : A} (r : f w = f x)
     (p : x = y) (q : y = z) : r ⬝ ap f (p ⬝ q) = (r ⬝ ap f p) ⬝ ap f q :=
@@ -281,15 +281,15 @@ namespace eq
   eq.rec_on q (eq.rec_on p (take r, con.assoc _ _ _)) r
 
   -- Functions commute with path inverses.
-  definition ap_inv' (f : A → B) {x y : A} (p : x = y) : (ap f p)⁻¹ = ap f p⁻¹ :=
+  definition ap_inv' [unfold 6] (f : A → B) {x y : A} (p : x = y) : (ap f p)⁻¹ = ap f p⁻¹ :=
   eq.rec_on p idp
 
-  definition ap_inv {A B : Type} (f : A → B) {x y : A} (p : x = y) : ap f p⁻¹ = (ap f p)⁻¹ :=
+  definition ap_inv [unfold 6] (f : A → B) {x y : A} (p : x = y) : ap f p⁻¹ = (ap f p)⁻¹ :=
   eq.rec_on p idp
 
   -- [ap] itself is functorial in the first argument.
 
-  definition ap_id (p : x = y) : ap id p = p :=
+  definition ap_id [unfold 4] (p : x = y) : ap id p = p :=
   eq.rec_on p idp
 
   definition ap_compose [unfold 8] (g : B → C) (f : A → B) {x y : A} (p : x = y) :

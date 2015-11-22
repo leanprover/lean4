@@ -88,7 +88,7 @@ namespace eq
   definition transpose [unfold 10] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) : square p₀₁ p₂₁ p₁₀ p₁₂ :=
   by induction s₁₁;exact ids
 
-  definition aps {B : Type} (f : A → B) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
+  definition aps [unfold 12] {B : Type} (f : A → B) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
     : square (ap f p₁₀) (ap f p₁₂) (ap f p₀₁) (ap f p₂₁) :=
   by induction s₁₁;exact ids
 

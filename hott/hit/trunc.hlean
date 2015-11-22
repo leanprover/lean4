@@ -24,11 +24,6 @@ namespace trunc
     [Pt : is_trunc n P] (H : A → P) : P :=
   trunc.elim H aa
 
-  /-
-    there are no theorems to eliminate to the universe here,
-    because the universe is not a set
-  -/
-
 end trunc
 
 attribute trunc.elim_on [unfold 4]

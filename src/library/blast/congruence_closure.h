@@ -121,6 +121,8 @@ class congruence_closure {
     void add_eqv_step(name const & R, expr e1, expr e2, expr const & H);
     void add_eqv(name const & R, expr const & lhs, expr const & rhs, expr const & H);
 
+    expr mk_congr_proof_core(name const & R, expr const & lhs, expr const & rhs) const;
+    expr mk_congr_proof(name const & R, expr const & lhs, expr const & rhs) const;
     expr mk_proof(name const & R, expr const & lhs, expr const & rhs, expr const & H) const;
 
     void display_eqc(name const & R, expr const & e) const;

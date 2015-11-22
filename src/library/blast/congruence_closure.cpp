@@ -452,14 +452,15 @@ auto congruence_closure::mk_congr_key(ext_congr_lemma const & lemma, expr const 
     k.m_R    = lemma.m_R;
     k.m_expr = e;
     lean_assert(is_app(e));
+    bool std = is_standard(env());
     name R; expr lhs, rhs;
-    if (is_eq(e, lhs, rhs)) {
+    if (std && is_eq(e, lhs, rhs)) {
         k.m_eq   = true;
         k.m_hash = symm_hash(get_eq_name(), lhs, rhs);
-    } else if (is_iff(e, lhs, rhs)) {
+    } else if (std && is_iff(e, lhs, rhs)) {
         k.m_iff  = true;
         k.m_hash = symm_hash(get_iff_name(), lhs, rhs);
-    } else if (is_relation_app(e, R, lhs, rhs) && is_symmetric(R)) {
+    } else if (std && is_relation_app(e, R, lhs, rhs) && is_symmetric(R)) {
         k.m_symm_rel = true;
         k.m_hash = symm_hash(R, lhs, rhs);
     } else {
@@ -815,76 +816,108 @@ bool congruence_closure::is_eqv(name const & R, expr const & e1, expr const & e2
     return n1->m_root == n2->m_root;
 }
 
+expr congruence_closure::mk_congr_proof_core(name const & R, expr const & lhs, expr const & rhs) const {
+    app_builder & b = get_app_builder();
+    buffer<expr> lhs_args, rhs_args;
+    expr const & lhs_fn = get_app_args(lhs, lhs_args);
+    expr const & rhs_fn = get_app_args(rhs, rhs_args);
+    lean_assert(lhs_args.size() == rhs_args.size());
+    auto lemma = mk_ext_congr_lemma(R, lhs_fn, lhs_args.size());
+    lean_assert(lemma);
+    if (lemma->m_fixed_fun) {
+        list<optional<name>> const * it1 = &lemma->m_rel_names;
+        list<congr_arg_kind> const * it2 = &lemma->m_congr_lemma.get_arg_kinds();
+        buffer<expr> lemma_args;
+        for (unsigned i = 0; i < lhs_args.size(); i++) {
+            lean_assert(*it1 && *it2);
+            switch (head(*it2)) {
+            case congr_arg_kind::Eq:
+                lean_assert(head(*it1));
+                lemma_args.push_back(lhs_args[i]);
+                lemma_args.push_back(rhs_args[i]);
+                lemma_args.push_back(*get_eqv_proof(*head(*it1), lhs_args[i], rhs_args[i]));
+                break;
+            case congr_arg_kind::Fixed:
+                lemma_args.push_back(lhs_args[i]);
+                break;
+            case congr_arg_kind::Cast:
+                lemma_args.push_back(lhs_args[i]);
+                lemma_args.push_back(rhs_args[i]);
+                break;
+            }
+            it1 = &(tail(*it1));
+            it2 = &(tail(*it2));
+        }
+        expr r = mk_app(lemma->m_congr_lemma.get_proof(), lemma_args);
+        if (lemma->m_lift_needed)
+            r = b.lift_from_eq(R, r);
+        return r;
+    } else {
+        optional<expr> r;
+        unsigned i = 0;
+        if (!is_def_eq(lhs_fn, rhs_fn)) {
+            r = get_eqv_proof(get_eq_name(), lhs_fn, rhs_fn);
+        } else {
+            for (; i < lhs_args.size(); i++) {
+                if (!is_def_eq(lhs_args[i], rhs_args[i])) {
+                    expr g  = mk_app(lhs_fn, i, lhs_args.data());
+                    expr Hi = *get_eqv_proof(get_eq_name(), lhs_args[i], rhs_args[i]);
+                    r = b.mk_congr_arg(g, Hi);
+                    i++;
+                    break;
+                }
+            }
+            if (!r) {
+                // lhs and rhs are definitionally equal
+                r = b.mk_eq_refl(lhs);
+            }
+        }
+        lean_assert(r);
+        for (; i < lhs_args.size(); i++) {
+            if (is_def_eq(lhs_args[i], rhs_args[i])) {
+                r = b.mk_congr_fun(*r, lhs_args[i]);
+            } else {
+                expr Hi = *get_eqv_proof(get_eq_name(), lhs_args[i], rhs_args[i]);
+                r = b.mk_congr(*r, Hi);
+            }
+        }
+        if (lemma->m_lift_needed)
+            r = b.lift_from_eq(R, *r);
+        return *r;
+    }
+}
+
+expr congruence_closure::mk_congr_proof(name const & R, expr const & e1, expr const & e2) const {
+    name R1; expr lhs1, rhs1;
+    if (is_relation_app(e1, R1, lhs1, rhs1)) {
+        name R2; expr lhs2, rhs2;
+        if (is_relation_app(e2, R2, lhs2, rhs2) && R1 == R2) {
+            if (!is_eqv(R1, lhs1, lhs2)) {
+                lean_assert(is_eqv(R1, lhs1, rhs2));
+                // We must apply symmetry.
+                // The congruence table is implicitly using symmetry.
+                app_builder & b = get_app_builder();
+                expr new_e1 = b.mk_rel(R1, rhs1, lhs1);
+                expr h1  = mk_fresh_local(e1);
+                expr h2  = mk_fresh_local(new_e1);
+                expr e1_eqv_new_e1 = b.mk_app(get_iff_intro_name(),
+                                              Fun(h1, b.mk_symm(R1, h1)),
+                                              Fun(h2, b.mk_symm(R1, h2)));
+                if (R != get_iff_name()) {
+                    e1_eqv_new_e1 = b.mk_app(get_propext_name(), e1_eqv_new_e1);
+                    if (R != get_eq_name())
+                        e1_eqv_new_e1 = b.lift_from_eq(R, e1_eqv_new_e1);
+                }
+                return b.mk_trans(R, e1_eqv_new_e1, mk_congr_proof_core(R, new_e1, e2));
+            }
+        }
+    }
+    return mk_congr_proof_core(R, e1, e2);
+}
+
 expr congruence_closure::mk_proof(name const & R, expr const & lhs, expr const & rhs, expr const & H) const {
     if (H == *g_congr_mark) {
-        app_builder & b = get_app_builder();
-        buffer<expr> lhs_args, rhs_args;
-        expr const & lhs_fn = get_app_args(lhs, lhs_args);
-        expr const & rhs_fn = get_app_args(rhs, rhs_args);
-        lean_assert(lhs_args.size() == rhs_args.size());
-        auto lemma = mk_ext_congr_lemma(R, lhs_fn, lhs_args.size());
-        lean_assert(lemma);
-        if (lemma->m_fixed_fun) {
-            list<optional<name>> const * it1 = &lemma->m_rel_names;
-            list<congr_arg_kind> const * it2 = &lemma->m_congr_lemma.get_arg_kinds();
-            buffer<expr> lemma_args;
-            for (unsigned i = 0; i < lhs_args.size(); i++) {
-                lean_assert(*it1 && *it2);
-                switch (head(*it2)) {
-                case congr_arg_kind::Eq:
-                    lean_assert(head(*it1));
-                    lemma_args.push_back(lhs_args[i]);
-                    lemma_args.push_back(rhs_args[i]);
-                    lemma_args.push_back(*get_eqv_proof(*head(*it1), lhs_args[i], rhs_args[i]));
-                    break;
-                case congr_arg_kind::Fixed:
-                    lemma_args.push_back(lhs_args[i]);
-                    break;
-                case congr_arg_kind::Cast:
-                    lemma_args.push_back(lhs_args[i]);
-                    lemma_args.push_back(rhs_args[i]);
-                    break;
-                }
-                it1 = &(tail(*it1));
-                it2 = &(tail(*it2));
-            }
-            expr r = mk_app(lemma->m_congr_lemma.get_proof(), lemma_args);
-            if (lemma->m_lift_needed)
-                r = b.lift_from_eq(R, r);
-            return r;
-        } else {
-            optional<expr> r;
-            unsigned i = 0;
-            if (!is_def_eq(lhs_fn, rhs_fn)) {
-                r = get_eqv_proof(get_eq_name(), lhs_fn, rhs_fn);
-            } else {
-                for (; i < lhs_args.size(); i++) {
-                    if (!is_def_eq(lhs_args[i], rhs_args[i])) {
-                        expr g  = mk_app(lhs_fn, i, lhs_args.data());
-                        expr Hi = *get_eqv_proof(get_eq_name(), lhs_args[i], rhs_args[i]);
-                        r = b.mk_congr_arg(g, Hi);
-                        i++;
-                        break;
-                    }
-                }
-                if (!r) {
-                    // lhs and rhs are definitionally equal
-                    r = b.mk_eq_refl(lhs);
-                }
-            }
-            lean_assert(r);
-            for (; i < lhs_args.size(); i++) {
-                if (is_def_eq(lhs_args[i], rhs_args[i])) {
-                    r = b.mk_congr_fun(*r, lhs_args[i]);
-                } else {
-                    expr Hi = *get_eqv_proof(get_eq_name(), lhs_args[i], rhs_args[i]);
-                    r = b.mk_congr(*r, Hi);
-                }
-            }
-            if (lemma->m_lift_needed)
-                r = b.lift_from_eq(R, *r);
-            return *r;
-        }
+        return mk_congr_proof(R, lhs, rhs);
     } else if (H == *g_iff_true_mark) {
         bool flip;
         name R1; expr a, b;

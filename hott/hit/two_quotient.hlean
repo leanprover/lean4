@@ -133,6 +133,7 @@ namespace simple_two_quotient
   local attribute simple_two_quotient f i D incl0 aux incl1 incl2' inclt [reducible]
   local attribute i aux incl0 [constructor]
 
+  parameters {R Q}
   protected definition rec {P : D → Type} (P0 : Π(a : A), P (incl0 a))
     (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a =[incl1 s] P0 a')
     (P2 : Π⦃a : A⦄ ⦃r : T a a⦄ (q : Q r),
@@ -358,6 +359,7 @@ namespace two_quotient
   definition incl2 (q : Q t t') : inclt t = inclt t' :=
   eq_of_con_inv_eq_idp (incl2 _ _ (Qmk R q))
 
+  parameters {R Q}
   protected definition rec {P : two_quotient → Type} (P0 : Π(a : A), P (incl0 a))
     (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a =[incl1 s] P0 a')
     (P2 : Π⦃a a' : A⦄ ⦃t t' : T a a'⦄ (q : Q t t'),
@@ -389,14 +391,14 @@ namespace two_quotient
     (P2 : Π⦃a a' : A⦄ ⦃t t' : T a a'⦄ (q : Q t t'),
       change_path (incl2 q) (e_closure.elimo incl1 P1 t) = e_closure.elimo incl1 P1 t')
     ⦃a a' : A⦄ (s : R a a') : apdo (rec P0 P1 P2) (incl1 s) = P1 s :=
-  rec_incl1 _ _ _ _ _ s
+  rec_incl1 _ _ _ s
 
   theorem rec_inclt {P : two_quotient → Type} (P0 : Π(a : A), P (incl0 a))
     (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a =[incl1 s] P0 a')
     (P2 : Π⦃a a' : A⦄ ⦃t t' : T a a'⦄ (q : Q t t'),
       change_path (incl2 q) (e_closure.elimo incl1 P1 t) = e_closure.elimo incl1 P1 t')
     ⦃a a' : A⦄ (t : T a a') : apdo (rec P0 P1 P2) (inclt t) = e_closure.elimo incl1 P1 t :=
-  rec_inclt _ _ _ _ _ t
+  rec_inclt _ _ _ t
 
   protected definition elim {P : Type} (P0 : A → P)
     (P1 : Π⦃a a' : A⦄ (s : R a a'), P0 a = P0 a')
@@ -437,15 +439,15 @@ namespace two_quotient
     : square (ap02 (elim P0 P1 P2) (incl2 q)) (P2 q) (elim_inclt P2 t) (elim_inclt P2 t') :=
   begin
     rewrite [↑[incl2,elim],ap_eq_of_con_inv_eq_idp],
-    xrewrite [eq_top_of_square (elim_incl2 R Q2 P0 P1 (elim_1 A R Q P P0 P1 P2) (Qmk R q))],
-    xrewrite [{simple_two_quotient.elim_inclt R Q2 (elim_1 A R Q P P0 P1 P2)
+    xrewrite [eq_top_of_square (elim_incl2 P0 P1 (elim_1 A R Q P P0 P1 P2) (Qmk R q))],
+    xrewrite [{simple_two_quotient.elim_inclt (elim_1 A R Q P P0 P1 P2)
            (t ⬝r t'⁻¹ʳ)}
-      idpath (ap_con (simple_two_quotient.elim R Q2 P0 P1 (elim_1 A R Q P P0 P1 P2))
+      idpath (ap_con (simple_two_quotient.elim P0 P1 (elim_1 A R Q P P0 P1 P2))
                      (inclt t) (inclt t')⁻¹ ⬝
-             (simple_two_quotient.elim_inclt R Q2 (elim_1 A R Q P P0 P1 P2) t ◾
-             (ap_inv (simple_two_quotient.elim R Q2 P0 P1 (elim_1 A R Q P P0 P1 P2))
+             (simple_two_quotient.elim_inclt (elim_1 A R Q P P0 P1 P2) t ◾
+             (ap_inv (simple_two_quotient.elim P0 P1 (elim_1 A R Q P P0 P1 P2))
                      (inclt t') ⬝
-             inverse2 (simple_two_quotient.elim_inclt R Q2 (elim_1 A R Q P P0 P1 P2) t')))),▸*],
+             inverse2 (simple_two_quotient.elim_inclt (elim_1 A R Q P P0 P1 P2) t')))),▸*],
     rewrite [-con.assoc _ _ (con_inv_eq_idp _),-con.assoc _ _ (_ ◾ _),con.assoc _ _ (ap_con _ _ _),
              con.left_inv,↑whisker_left,con2_con_con2,-con.assoc (ap_inv _ _)⁻¹,
              con.left_inv,+idp_con,eq_of_con_inv_eq_idp_con2],

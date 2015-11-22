@@ -22,6 +22,7 @@ namespace e_closure
   infix ` ⬝r `:75 := e_closure.trans
   postfix `⁻¹ʳ`:(max+10) := e_closure.symm
   notation `[`:max a `]`:0 := e_closure.of_rel a
+  notation `<`:max p `>`:0 := e_closure.of_path _ p
   abbreviation rfl {A : Type} {R : A → A → Type} {a : A} := of_path R (idpath a)
 end e_closure
 open e_closure
@@ -56,21 +57,6 @@ section
       exact ap_inv g (e_closure.elim e r) ⬝ inverse2 IH,
       exact ap_con g (e_closure.elim e r) (e_closure.elim e r') ⬝ (IH₁ ◾ IH₂)
   end
-
-/-  definition ap_e_closure_elim_h_inv [unfold_full] {B C : Type} {f : A → B} {g : B → C}
-    (e : Π⦃a a' : A⦄, R a a' → f a = f a')
-    {e' : Π⦃a a' : A⦄, R a a' → g (f a) = g (f a')}
-    (p : Π⦃a a' : A⦄ (s : R a a'), ap g (e s) = e' s) (t : T a a')
-    : ap_e_closure_elim_h e p t⁻¹ʳ = ap_inv g (e_closure.elim e t) ⬝ (ap_e_closure_elim_h e p t)⁻² :=
-  by reflexivity
-
-  definition ap_e_closure_elim_h_con [unfold_full] {B C : Type} {f : A → B} {g : B → C}
-    (e : Π⦃a a' : A⦄, R a a' → f a = f a')
-    {e' : Π⦃a a' : A⦄, R a a' → g (f a) = g (f a')}
-    (p : Π⦃a a' : A⦄ (s : R a a'), ap g (e s) = e' s) (t : T a a') (t' : T a' a'')
-    : ap_e_closure_elim_h e p (t ⬝r t') = ap_con g (e_closure.elim e t) (e_closure.elim e t') ⬝
-        (ap_e_closure_elim_h e p t ◾ ap_e_closure_elim_h e p t') :=
-  by reflexivity-/
 
   definition ap_e_closure_elim [unfold 10] {B C : Type} {f : A → B} (g : B → C)
     (e : Π⦃a a' : A⦄, R a a' → f a = f a') (t : T a a')
@@ -141,6 +127,7 @@ section
       intro a a' a'' t t', exact t ⬝r t',
   end
 
+/-
   definition e_closure.transport_left {f : A → B} (e : Π⦃a a' : A⦄, R a a' → f a = f a')
     (t : e_closure R a a') (p : a = a'')
     : e_closure.elim e (p ▸ t) = (ap f p)⁻¹ ⬝ e_closure.elim e t :=
@@ -155,6 +142,7 @@ section
     (t : e_closure R a a) (p : a = a')
     : e_closure.elim e (p ▸ t) = (ap f p)⁻¹ ⬝ e_closure.elim e t ⬝ (ap f p) :=
   by induction p; esimp; exact !idp_con⁻¹
+-/
 
   /- dependent elimination -/
 

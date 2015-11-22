@@ -20,7 +20,7 @@ section
   open refl_quotient_Q
   local abbreviation Q := refl_quotient_Q
 
-  definition refl_quotient : Type := simple_two_quotient R Q -- TODO: define this in root namespace
+  definition refl_quotient : Type := simple_two_quotient R Q
 
   definition rclass_of (a : A) : refl_quotient := incl0 R Q a
   definition req_of_rel ⦃a a' : A⦄ (r : R a a') : rclass_of a = rclass_of a' :=
@@ -29,32 +29,26 @@ section
   definition pρ (a : A) : req_of_rel (ρ a) = idp :=
   incl2 R Q (Qmk a)
 
-  -- protected definition rec {P : refl_quotient → Type}
-  --   (Pc : Π(a : A), P (rclass_of a))
-  --   (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a =[req_of_rel H] Pc a')
-  --   (Pr : Π(a : A), Pp (ρ a) =[pρ a] idpo)
-  --   (x : refl_quotient) : P x :=
-  -- sorry
+  protected definition rec {P : refl_quotient → Type} (Pc : Π(a : A), P (rclass_of a))
+    (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a =[req_of_rel H] Pc a')
+    (Pr : Π(a : A), change_path (pρ a) (Pp (ρ a)) = idpo) (x : refl_quotient) : P x :=
+  begin
+    induction x,
+      exact Pc a,
+      exact Pp s,
+      induction q, apply Pr
+  end
 
-  -- protected definition rec_on [reducible] {P : refl_quotient → Type}
-  --   (Pc : Π(a : A), P (rclass_of a))
-  --   (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a =[req_of_rel H] Pc a')
-  --   (Pr : Π(a : A), Pp (ρ a) =[pρ a] idpo) : P y :=
-  -- rec Pinl Pinr Pglue y
+  protected definition rec_on [reducible] {P : refl_quotient → Type} (x : refl_quotient)
+    (Pc : Π(a : A), P (rclass_of a)) (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a =[req_of_rel H] Pc a')
+    (Pr : Π(a : A), change_path (pρ a) (Pp (ρ a)) = idpo) : P x :=
+  rec Pc Pp Pr x
 
-  -- definition rec_req_of_rel {P : Type} {P : refl_quotient → Type}
-  --   (Pc : Π(a : A), P (rclass_of a))
-  --   (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a =[req_of_rel H] Pc a')
-  --   (Pr : Π(a : A), Pp (ρ a) =[pρ a] idpo)
-  --   ⦃a a' : A⦄ (r : R a a') : apdo (rec Pc Pp Pr) (req_of_rel r) = Pp r :=
-  -- !rec_incl1
-
-  -- theorem rec_pρ {P : Type} {P : refl_quotient → Type}
-  --   (Pc : Π(a : A), P (rclass_of a))
-  --   (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a =[req_of_rel H] Pc a')
-  --   (Pr : Π(a : A), Pp (ρ a) =[pρ a] idpo) (a : A)
-  --    : square (ap02 (rec Pc Pp Pr) (pρ a)) (Pr a) (elim_req_of_rel Pr (ρ a)) idp :=
-  -- !rec_incl2
+  definition rec_req_of_rel {P : Type} {P : refl_quotient → Type} (Pc : Π(a : A), P (rclass_of a))
+    (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a =[req_of_rel H] Pc a')
+    (Pr : Π(a : A), change_path (pρ a) (Pp (ρ a)) = idpo) ⦃a a' : A⦄ (r : R a a')
+    : apdo (rec Pc Pp Pr) (req_of_rel r) = Pp r :=
+  !rec_incl1
 
   protected definition elim {P : Type} (Pc : Π(a : A), P)
     (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a = Pc a') (Pr : Π(a : A), Pp (ρ a) = idp)
@@ -84,7 +78,7 @@ end
 end refl_quotient
 
 attribute refl_quotient.rclass_of [constructor]
-attribute /-refl_quotient.rec-/ refl_quotient.elim [unfold 8] [recursor 8]
+attribute refl_quotient.rec refl_quotient.elim [unfold 8] [recursor 8]
 --attribute refl_quotient.elim_type [unfold 9]
-attribute /-refl_quotient.rec_on-/ refl_quotient.elim_on [unfold 5]
+attribute refl_quotient.rec_on refl_quotient.elim_on [unfold 5]
 --attribute refl_quotient.elim_type_on [unfold 6]

@@ -34,7 +34,7 @@ section
     { intro x', apply Pt},
     { intro y, fapply (quotient.rec_on y),
       { exact Pc},
-      { intros, apply equiv.to_inv !(pathover_compose _ tr), apply Pp}}
+      { intros, exact pathover_of_pathover_ap P tr (Pp H)}}
   end
 
   protected definition rec_on [reducible] {P : set_quotient → Type} (x : set_quotient)

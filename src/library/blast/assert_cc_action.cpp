@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "library/blast/congruence_closure.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"
+#include "library/blast/options.h"
 
 namespace lean {
 namespace blast {
@@ -32,6 +33,8 @@ static congruence_closure & get_cc() {
 }
 
 action_result assert_cc_action(hypothesis_idx hidx) {
+    if (!get_config().m_cc)
+        return action_result::failed();
     congruence_closure & cc = get_cc();
     // TODO(Leo): consider a target_changed event for branch_extension.
     cc.internalize(curr_state().get_target());

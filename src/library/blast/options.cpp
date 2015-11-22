@@ -25,6 +25,9 @@ Author: Leonardo de Moura
 #ifndef LEAN_DEFAULT_BLAST_SIMP
 #define LEAN_DEFAULT_BLAST_SIMP true
 #endif
+#ifndef LEAN_DEFAULT_BLAST_CC
+#define LEAN_DEFAULT_BLAST_CC true
+#endif
 
 namespace lean {
 namespace blast {
@@ -35,6 +38,7 @@ static name * g_blast_inc_depth    = nullptr;
 static name * g_blast_trace        = nullptr;
 static name * g_blast_subst        = nullptr;
 static name * g_blast_simp         = nullptr;
+static name * g_blast_cc           = nullptr;
 
 unsigned get_blast_max_depth(options const & o) {
     return o.get_unsigned(*g_blast_max_depth, LEAN_DEFAULT_BLAST_MAX_DEPTH);
@@ -54,6 +58,9 @@ bool get_blast_subst(options const & o) {
 bool get_blast_simp(options const & o) {
     return o.get_bool(*g_blast_simp, LEAN_DEFAULT_BLAST_SIMP);
 }
+bool get_blast_cc(options const & o) {
+    return o.get_bool(*g_blast_cc, LEAN_DEFAULT_BLAST_CC);
+}
 
 config::config(options const & o) {
     m_max_depth  = get_blast_max_depth(o);
@@ -62,6 +69,7 @@ config::config(options const & o) {
     m_trace      = get_blast_trace(o);
     m_subst      = get_blast_subst(o);
     m_simp       = get_blast_simp(o);
+    m_cc         = get_blast_cc(o);
 }
 
 LEAN_THREAD_PTR(config, g_config);
@@ -88,6 +96,7 @@ void initialize_options() {
     g_blast_trace      = new name{"blast", "trace"};
     g_blast_subst      = new name{"blast", "subst"};
     g_blast_simp       = new name{"blast", "simp"};
+    g_blast_cc         = new name{"blast", "cc"};
 
     register_unsigned_option(*blast::g_blast_max_depth, LEAN_DEFAULT_BLAST_MAX_DEPTH,
                              "(blast) max search depth for blast");
@@ -101,6 +110,8 @@ void initialize_options() {
                          "(blast) enable subst action");
     register_bool_option(*blast::g_blast_simp, LEAN_DEFAULT_BLAST_SIMP,
                          "(blast) enable simplier actions");
+    register_bool_option(*blast::g_blast_cc, LEAN_DEFAULT_BLAST_CC,
+                         "(blast) enable congruence closure");
 }
 void finalize_options() {
     delete g_blast_max_depth;
@@ -109,5 +120,6 @@ void finalize_options() {
     delete g_blast_trace;
     delete g_blast_subst;
     delete g_blast_simp;
+    delete g_blast_cc;
 }
 }}

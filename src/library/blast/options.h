@@ -17,6 +17,7 @@ struct config {
     bool                       m_trace;
     bool                       m_subst;
     bool                       m_simp;
+    bool                       m_cc;
     config(options const & o);
 };
 

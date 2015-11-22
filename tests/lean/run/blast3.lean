@@ -1,4 +1,5 @@
 set_option blast.init_depth 10
+set_option blast.cc false
 
 example (a b c : Prop) : b → c → b ∧ c :=
 by blast

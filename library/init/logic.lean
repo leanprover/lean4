@@ -347,7 +347,7 @@ iff_true_intro not_false
 theorem not_congr [congr] (H : a ↔ b) : ¬a ↔ ¬b :=
 iff.intro (λ H₁ H₂, H₁ (iff.mpr H H₂)) (λ H₁ H₂, H₁ (iff.mp H H₂))
 
-theorem ne_self_iff_false {A : Type} (a : A) : (a ≠ a) ↔ false :=
+theorem ne_self_iff_false [simp] {A : Type} (a : A) : (not (a = a)) ↔ false :=
 iff.intro false_of_ne false.elim
 
 theorem eq_self_iff_true [simp] {A : Type} (a : A) : (a = a) ↔ true :=

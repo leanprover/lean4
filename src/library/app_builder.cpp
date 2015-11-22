@@ -441,6 +441,8 @@ struct app_builder::imp {
     }
 
     expr mk_eq_rec(expr const & motive, expr const & H1, expr const & H2) {
+        if (is_constant(get_app_fn(H2), get_eq_refl_name()))
+            return H1;
         expr p       = m_ctx->whnf(m_ctx->infer(H2));
         expr lhs, rhs;
         if (!is_eq(p, lhs, rhs))
@@ -456,6 +458,8 @@ struct app_builder::imp {
     }
 
     expr mk_eq_drec(expr const & motive, expr const & H1, expr const & H2) {
+        if (is_constant(get_app_fn(H2), get_eq_refl_name()))
+            return H1;
         expr p       = m_ctx->whnf(m_ctx->infer(H2));
         expr lhs, rhs;
         if (!is_eq(p, lhs, rhs))

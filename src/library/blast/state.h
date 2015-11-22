@@ -109,6 +109,8 @@ public:
     /** \brief This method is invoked the first time an extension is used in a branch
         The system guarantees this object is not shared, and destructive updates are allowed. */
     virtual void initialized() {}
+    /** \brief This method is invoked whenever the target type in the current branch is updated. */
+    virtual void target_updated() {}
     /** \brief This method is invoked when the given hypothesis is initialized in the current branch.
         The system guarantees this object is not shared, and destructive updates are allowed. */
     virtual void hypothesis_activated(hypothesis const &, hypothesis_idx) {}

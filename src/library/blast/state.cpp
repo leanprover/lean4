@@ -733,6 +733,7 @@ branch_extension & state::get_extension(unsigned extid) {
                 hypothesis const & h = get_hypothesis_decl(hidx);
                 ext->hypothesis_activated(h, hidx);
             });
+        ext->target_updated();
         return *ext;
     } else {
         branch_extension * ext = get_extension_core(extid);
@@ -800,6 +801,11 @@ void state::set_target(expr const & t) {
                     return true;
                 }
             });
+    }
+    unsigned n = get_extension_manager().get_num_extensions();
+    for (unsigned i = 0; i < n; i++) {
+        branch_extension * ext = get_extension_core(i);
+        if (ext) ext->target_updated();
     }
 }
 

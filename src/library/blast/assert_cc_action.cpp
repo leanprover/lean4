@@ -20,6 +20,7 @@ struct cc_branch_extension : public branch_extension {
     virtual ~cc_branch_extension() {}
     virtual branch_extension * clone() override { return new cc_branch_extension(*this); }
     virtual void initialized() override { m_cc.initialize(); }
+    virtual void target_updated() override { m_cc.internalize(curr_state().get_target()); }
 };
 
 void initialize_assert_cc_action() {
@@ -36,8 +37,6 @@ action_result assert_cc_action(hypothesis_idx hidx) {
     if (!get_config().m_cc)
         return action_result::failed();
     congruence_closure & cc = get_cc();
-    // TODO(Leo): consider a target_changed event for branch_extension.
-    cc.internalize(curr_state().get_target());
     cc.add(hidx);
     // cc.display();
     if (cc.is_inconsistent()) {

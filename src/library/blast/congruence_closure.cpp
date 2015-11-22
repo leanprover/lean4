@@ -886,8 +886,19 @@ expr congruence_closure::mk_proof(name const & R, expr const & lhs, expr const &
             return *r;
         }
     } else if (H == *g_iff_true_mark) {
-        // TODO(Leo):
-        lean_unreachable();
+        bool flip;
+        name R1; expr a, b;
+        if (lhs == mk_true()) {
+            lean_verify(is_relation_app(rhs, R1, a, b));
+            flip = true;
+        } else {
+            lean_verify(is_relation_app(lhs, R1, a, b));
+            flip = false;
+        }
+        expr H1 = get_app_builder().mk_iff_true_intro(*get_eqv_proof(R1, a, b));
+        if (flip)
+            H1 = get_app_builder().mk_iff_symm(H1);
+        return H1;
     } else if (H == *g_lift_mark) {
         expr H1 = *get_eqv_proof(get_eq_name(), lhs, rhs);
         return get_app_builder().lift_from_eq(R, H1);

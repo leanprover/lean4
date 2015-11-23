@@ -45,6 +45,7 @@ class congruence_closure {
         optional<expr> m_proof;
         unsigned       m_flipped:1;      // proof has been flipped
         unsigned       m_to_propagate:1; // must be propagated back to state when in equivalence class containing true/false
+        unsigned       m_interpreted:1;  // true if the node should be viewed as an abstract value
         unsigned       m_size;           // number of elements in the equivalence class, it is meaningless if 'e' != m_root
     };
 
@@ -99,7 +100,12 @@ class congruence_closure {
     parents     m_parents;
     congruences m_congruences;
     list<name>  m_non_eq_relations;
-
+    /** The congruence closure module has a mode where the root of
+        each equivalence class is marked as an interpreted/abstract
+        value. Moreover, in this mode proof production is disabled.
+        This capability is useful for heuristic instantiation. */
+    bool        m_froze_partitions{false};
+    bool        m_inconsistent{false};
     void update_non_eq_relations(name const & R);
 
     void register_to_propagate(expr const & e);
@@ -112,7 +118,7 @@ class congruence_closure {
     congr_key mk_congr_key(ext_congr_lemma const & lemma, expr const & e) const;
     void check_iff_true(congr_key const & k);
 
-    void mk_entry_core(name const & R, expr const & e, bool to_propagate);
+    void mk_entry_core(name const & R, expr const & e, bool to_propagate, bool interpreted);
     void mk_entry(name const & R, expr const & e, bool to_propagate);
     void add_occurrence(name const & Rp, expr const & parent, name const & Rc, expr const & child);
     void add_congruence_table(ext_congr_lemma const & lemma, expr const & e);
@@ -121,7 +127,7 @@ class congruence_closure {
     void remove_parents(name const & R, expr const & e);
     void reinsert_parents(name const & R, expr const & e);
     void add_eqv_step(name const & R, expr e1, expr e2, expr const & H);
-    void add_eqv(name const & R, expr const & lhs, expr const & rhs, expr const & H);
+    void add_eqv_core(name const & R, expr const & lhs, expr const & rhs, expr const & H);
 
     expr mk_congr_proof_core(name const & R, expr const & lhs, expr const & rhs) const;
     expr mk_congr_proof(name const & R, expr const & lhs, expr const & rhs) const;
@@ -159,8 +165,12 @@ public:
         If H is none of the forms above, this method does nothing. */
     void add(hypothesis_idx hidx);
 
+    /** \brief Assert the equivalence (R a b) with proof H. */
+    void add_eqv(name const & R, expr const & a, expr const & b, expr const & H);
+
     /** \brief Return true if an inconsistency has been detected, i.e., true and false are in the same equivalence class */
     bool is_inconsistent() const;
+
     /** \brief Return the proof of inconsistency */
     optional<expr> get_inconsistency_proof() const;
 
@@ -184,6 +194,11 @@ public:
     bool is_root(name const & R, expr const & e) const { return get_root(R, e) == e; }
     expr get_root(name const & R, expr const & e) const;
     expr get_next(name const & R, expr const & e) const;
+
+    /** \brief Mark the root of each equivalence class as an "abstract value"
+        After this method is invoked, proof production is disabled. Moreover,
+        merging two different partitions will trigger an inconsistency. */
+    void freeze_partitions();
 
     /** \brief dump for debugging purposes. */
     void display() const;

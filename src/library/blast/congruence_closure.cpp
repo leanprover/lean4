@@ -105,11 +105,11 @@ scope_congruence_closure::~scope_congruence_closure() {
 }
 
 void congruence_closure::initialize() {
-    mk_entry_core(get_iff_name(), mk_true(), false);
-    mk_entry_core(get_iff_name(), mk_false(), false);
+    mk_entry_core(get_iff_name(), mk_true(), false, true);
+    mk_entry_core(get_iff_name(), mk_false(), false, true);
 }
 
-void congruence_closure::mk_entry_core(name const & R, expr const & e, bool to_propagate) {
+void congruence_closure::mk_entry_core(name const & R, expr const & e, bool to_propagate, bool interpreted) {
     lean_assert(!m_entries.find(eqc_key(R, e)));
     entry n;
     n.m_next         = e;
@@ -117,6 +117,7 @@ void congruence_closure::mk_entry_core(name const & R, expr const & e, bool to_p
     n.m_cg_root      = e;
     n.m_size         = 1;
     n.m_flipped      = false;
+    n.m_interpreted  = interpreted;
     n.m_to_propagate = to_propagate;
     m_entries.insert(eqc_key(R, e), n);
     if (R != get_eq_name()) {
@@ -149,7 +150,8 @@ void congruence_closure::mk_entry(name const & R, expr const & e, bool to_propag
         }
         return;
     }
-    mk_entry_core(R, e, to_propagate);
+    bool interpreted = false;
+    mk_entry_core(R, e, to_propagate, interpreted);
 }
 
 static bool all_distinct(buffer<expr> const & es) {
@@ -573,15 +575,15 @@ void congruence_closure::internalize_core(name const & R, expr const & e, bool t
     case expr_kind::Sort:
         return;
     case expr_kind::Constant: case expr_kind::Local:
-        mk_entry_core(R, e, to_propagate);
+        mk_entry_core(R, e, to_propagate, false);
         return;
     case expr_kind::Lambda:
-        mk_entry_core(R, e, false);
+        mk_entry_core(R, e, false, false);
         return;
     case expr_kind::Macro:
         for (unsigned i = 0; i < macro_num_args(e); i++)
             internalize_core(R, macro_arg(e, i), false, false);
-        mk_entry_core(R, e, to_propagate);
+        mk_entry_core(R, e, to_propagate, false);
         break;
     case expr_kind::Pi:
         // TODO(Leo): should we support congruence for arrows?
@@ -591,12 +593,12 @@ void congruence_closure::internalize_core(name const & R, expr const & e, bool t
             internalize_core(R, binding_body(e), toplevel, to_propagate);
         }
         if (is_prop(e)) {
-            mk_entry_core(R, e, false);
+            mk_entry_core(R, e, false, false);
         }
         return;
     case expr_kind::App: {
         bool is_lapp = is_logical_app(e);
-        mk_entry_core(R, e, to_propagate && !is_lapp);
+        mk_entry_core(R, e, to_propagate && !is_lapp, false);
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
         if (toplevel) {
@@ -698,7 +700,7 @@ void congruence_closure::reinsert_parents(name const & R, expr const & e) {
         });
 }
 
-static bool is_interpreted(expr const & e) {
+static bool is_true_or_false(expr const & e) {
     return is_constant(e, get_true_name()) || is_constant(e, get_false_name());
 }
 
@@ -724,13 +726,16 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
     //    anyway.
     // 2- r1->m_size > r2->m_size
     //    Reason: performance. Condition was has precedence
-    if ((r1->m_size > r2->m_size && !is_interpreted(n2->m_root)) || is_interpreted(n1->m_root)) {
+    if ((r1->m_size > r2->m_size && !r2->m_interpreted) || r1->m_interpreted) {
         std::swap(e1, e2);
         std::swap(n1, n2);
         std::swap(r1, r2);
         // Remark: we don't apply symmetry eagerly. So, we don't adjust H.
         flipped = true;
     }
+
+    if (r1->m_interpreted && r2->m_interpreted)
+        m_inconsistent = true;
 
     expr e1_root   = n1->m_root;
     expr e2_root   = n2->m_root;
@@ -751,7 +756,7 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
     remove_parents(R, e1);
 
     // force all m_root fields in e1 equivalence class to point to e2_root
-    bool propagate = R == get_iff_name() && is_interpreted(e2_root);
+    bool propagate = R == get_iff_name() && is_true_or_false(e2_root);
     buffer<expr> to_propagate;
     expr it = e1;
     do {
@@ -838,9 +843,20 @@ void congruence_closure::process_todo() {
     }
 }
 
-void congruence_closure::add_eqv(name const & R, expr const & lhs, expr const & rhs, expr const & H) {
+void congruence_closure::add_eqv_core(name const & R, expr const & lhs, expr const & rhs, expr const & H) {
     push_todo(R, lhs, rhs, H);
     process_todo();
+}
+
+void congruence_closure::add_eqv(name const & R, expr const & lhs, expr const & rhs, expr const & H) {
+    if (is_inconsistent())
+        return;
+    flet<congruence_closure *> set_cc(g_cc, this);
+    clear_todo();
+    bool toplevel = false; bool to_propagate = false;
+    internalize_core(R, lhs, toplevel, to_propagate);
+    internalize_core(R, rhs, toplevel, to_propagate);
+    add_eqv_core(R, lhs, rhs, H);
 }
 
 void congruence_closure::add(hypothesis_idx hidx) {
@@ -862,20 +878,20 @@ void congruence_closure::add(hypothesis_idx hidx) {
             if (is_neg) {
                 bool toplevel = true; bool to_propagate = false;
                 internalize_core(get_iff_name(), p, toplevel, to_propagate);
-                add_eqv(get_iff_name(), p, mk_false(), b.mk_iff_false_intro(h.get_self()));
+                add_eqv_core(get_iff_name(), p, mk_false(), b.mk_iff_false_intro(h.get_self()));
             } else {
                 bool toplevel = false; bool to_propagate = false;
                 internalize_core(R, lhs, toplevel, to_propagate);
                 internalize_core(R, rhs, toplevel, to_propagate);
-                add_eqv(R, lhs, rhs, h.get_self());
+                add_eqv_core(R, lhs, rhs, h.get_self());
             }
         } else if (is_prop(p)) {
             bool toplevel = true; bool to_propagate = false;
             internalize_core(get_iff_name(), p, toplevel, to_propagate);
             if (is_neg) {
-                add_eqv(get_iff_name(), p, mk_false(), b.mk_iff_false_intro(h.get_self()));
+                add_eqv_core(get_iff_name(), p, mk_false(), b.mk_iff_false_intro(h.get_self()));
             } else {
-                add_eqv(get_iff_name(), p, mk_true(), b.mk_iff_true_intro(h.get_self()));
+                add_eqv_core(get_iff_name(), p, mk_true(), b.mk_iff_true_intro(h.get_self()));
             }
         }
     } catch (app_builder_exception &) {}
@@ -1127,10 +1143,14 @@ optional<expr> congruence_closure::get_uneqv_proof(name const & R, expr const & 
 }
 
 bool congruence_closure::is_inconsistent() const {
-    return is_eqv(get_iff_name(), mk_true(), mk_false());
+    // If the m_inconsistent flag is true and partitions have not been frozen, then
+    // true and false must be in the same equivalence class.
+    lean_assert(!m_inconsistent || m_froze_partitions || is_eqv(get_iff_name(), mk_true(), mk_false()));
+    return m_inconsistent;
 }
 
 optional<expr> congruence_closure::get_inconsistency_proof() const {
+    lean_assert(!m_froze_partitions);
     try {
         app_builder & b = get_app_builder();
         if (auto p = get_eqv_proof(get_iff_name(), mk_true(), mk_false())) {
@@ -1148,6 +1168,7 @@ bool congruence_closure::proved(expr const & e) const {
 }
 
 optional<expr> congruence_closure::get_proof(expr const & e) const {
+    lean_assert(!m_froze_partitions);
     try {
         app_builder & b = get_app_builder();
         if (auto p = get_eqv_proof(get_iff_name(), e, mk_true())) {
@@ -1165,6 +1186,7 @@ bool congruence_closure::disproved(expr const & e) const {
 }
 
 optional<expr> congruence_closure::get_disproof(expr const & e) const {
+    lean_assert(!m_froze_partitions);
     try {
         app_builder & b = get_app_builder();
         if (auto p = get_eqv_proof(get_iff_name(), e, mk_false())) {
@@ -1199,6 +1221,17 @@ expr congruence_closure::get_next(name const & R, expr const & e) const {
     } else {
         return e;
     }
+}
+
+void congruence_closure::freeze_partitions() {
+    m_froze_partitions = true;
+    entries new_entries;
+    m_entries.for_each([&](eqc_key const & k, entry e) {
+            if (k.m_expr == e.m_root)
+                e.m_interpreted = true;
+            new_entries.insert(k, e);
+        });
+    m_entries = new_entries;
 }
 
 void congruence_closure::display_eqc(name const & R, expr const & e) const {

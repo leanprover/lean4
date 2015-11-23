@@ -1179,7 +1179,7 @@ optional<expr> congruence_closure::get_disproof(expr const & e) const {
 
 bool congruence_closure::is_congr_root(name const & R, expr const & e) const {
     if (auto n = m_entries.find(eqc_key(R, e))) {
-        return n->m_cg_root;
+        return e == n->m_cg_root;
     } else {
         return true;
     }

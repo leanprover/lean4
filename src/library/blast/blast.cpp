@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/util.h"
 #include "library/reducible.h"
-#include "library/normalize.h"
 #include "library/class.h"
 #include "library/type_context.h"
 #include "library/relation_manager.h"
@@ -379,26 +378,21 @@ class blastenv {
             m_tc(env), m_state(s), m_uvar2uref(uvar2uref), m_mvar2meta_mref(mvar2meta_mref), m_local2href(local2href) {}
     };
 
-    state to_state(goal const & g) {
-        state s;
-        type_checker_ptr norm_tc = mk_type_checker(m_env, name_generator(*g_prefix), UnfoldReducible);
+    void init_curr_state(goal const & g) {
+        state & s = curr_state();
         name_map<expr>             local2href;
         to_blast_expr_fn to_blast_expr(m_env, s, m_uvar2uref, m_mvar2meta_mref, local2href);
         buffer<expr> hs;
         g.get_hyps(hs);
         for (expr const & h : hs) {
             lean_assert(is_local(h));
-            // TODO(Leo): cleanup this stuff... we don't have to use this normalizer anymore...
-            expr type     = ::lean::normalize(*norm_tc, mlocal_type(h));
-            expr new_type = to_blast_expr(type);
+            expr new_type = normalize(to_blast_expr(mlocal_type(h)));
             expr href     = s.mk_hypothesis(local_pp_name(h), new_type, h);
             local2href.insert(mlocal_name(h), href);
         }
-        expr target     = ::lean::normalize(*norm_tc, g.get_type());
-        expr new_target = to_blast_expr(target);
+        expr new_target = normalize(to_blast_expr(g.get_type()));
         s.set_target(new_target);
         lean_assert(s.check_invariant());
-        return s;
     }
 
     tctx                       m_tctx;
@@ -457,7 +451,7 @@ public:
     }
 
     void init_state(goal const & g) {
-        m_curr_state = to_state(g);
+        init_curr_state(g);
         save_initial_context();
         m_tctx.set_local_instances(m_initial_context);
         m_tmp_ctx->set_local_instances(m_initial_context);

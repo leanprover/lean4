@@ -12,7 +12,4 @@ namespace lean {
 namespace blast {
 /** \brief Assert the given hypothesis into the congruence closure module */
 action_result assert_cc_action(hypothesis_idx hidx);
-
-void initialize_assert_cc_action();
-void finalize_assert_cc_action();
 }}

@@ -12,27 +12,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 namespace blast {
-static unsigned g_ext_id = 0;
-struct cc_branch_extension : public branch_extension {
-    congruence_closure m_cc;
-    cc_branch_extension() {}
-    cc_branch_extension(cc_branch_extension const & o):m_cc(o.m_cc) {}
-    virtual ~cc_branch_extension() {}
-    virtual branch_extension * clone() override { return new cc_branch_extension(*this); }
-    virtual void initialized() override { m_cc.initialize(); }
-    virtual void target_updated() override { m_cc.internalize(curr_state().get_target()); }
-};
-
-void initialize_assert_cc_action() {
-    g_ext_id = register_branch_extension(new cc_branch_extension());
-}
-
-void finalize_assert_cc_action() {}
-
-static congruence_closure & get_cc() {
-    return static_cast<cc_branch_extension&>(curr_state().get_extension(g_ext_id)).m_cc;
-}
-
 action_result assert_cc_action(hypothesis_idx hidx) {
     if (!get_config().m_cc)
         return action_result::failed();

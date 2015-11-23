@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "library/blast/options.h"
 #include "library/blast/congruence_closure.h"
 #include "library/blast/recursor_action.h"
-#include "library/blast/assert_cc_action.h"
 #include "library/blast/simplifier/init_module.h"
 #include "library/blast/backward/init_module.h"
 #include "library/blast/forward/init_module.h"
@@ -29,12 +28,10 @@ void initialize_blast_module() {
     blast::initialize_unit_module();
     initialize_blast_tactic();
     blast::initialize_recursor_action();
-    blast::initialize_assert_cc_action();
     blast::initialize_congruence_closure();
 }
 void finalize_blast_module() {
     blast::finalize_congruence_closure();
-    blast::finalize_assert_cc_action();
     blast::finalize_recursor_action();
     finalize_blast_tactic();
     blast::finalize_unit_module();

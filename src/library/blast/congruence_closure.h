@@ -216,6 +216,9 @@ public:
     ~scope_congruence_closure();
 };
 
+/** \brief Return the congruence closure object associated with the current state */
+congruence_closure & get_cc();
+
 void initialize_congruence_closure();
 void finalize_congruence_closure();
 }}

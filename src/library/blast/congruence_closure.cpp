@@ -1324,7 +1324,23 @@ bool congruence_closure::check_invariant() const {
     return true;
 }
 
+static unsigned g_ext_id = 0;
+struct cc_branch_extension : public branch_extension {
+    congruence_closure m_cc;
+    cc_branch_extension() {}
+    cc_branch_extension(cc_branch_extension const & o):m_cc(o.m_cc) {}
+    virtual ~cc_branch_extension() {}
+    virtual branch_extension * clone() override { return new cc_branch_extension(*this); }
+    virtual void initialized() override { m_cc.initialize(); }
+    virtual void target_updated() override { m_cc.internalize(curr_state().get_target()); }
+};
+
+congruence_closure & get_cc() {
+    return static_cast<cc_branch_extension&>(curr_state().get_extension(g_ext_id)).m_cc;
+}
+
 void initialize_congruence_closure() {
+    g_ext_id = register_branch_extension(new cc_branch_extension());
     name prefix = name::mk_internal_unique_name();
     g_congr_mark    = new expr(mk_constant(name(prefix, "[congruence]")));
     g_iff_true_mark = new expr(mk_constant(name(prefix, "[iff-true]")));

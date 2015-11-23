@@ -91,4 +91,34 @@ action_result simplify_target_action() {
     trace_action("simplify");
     return action_result::new_branch();
 }
+
+action_result simplify_hypothesis_action(hypothesis_idx hidx) {
+    if (!get_config().m_simp)
+        return action_result::failed();
+    state & s            = curr_state();
+    if (s.has_target_forward_deps(hidx)) {
+        // We currently do not try to simplify a hypothesis if other
+        // hypotheses or target depends on it.
+        return action_result::failed();
+    }
+    hypothesis const & h = s.get_hypothesis_decl(hidx);
+    if (!is_prop(h.get_type())) {
+        // We currently only simplify propositions.
+        return action_result::failed();
+    }
+    auto & ext           = get_extension();
+    auto r = simplify(get_iff_name(), h.get_type(), ext.get_simp_rule_sets());
+    if (r.get_new() == h.get_type())
+        return action_result::failed(); // did nothing
+    expr new_h_proof;
+    if (r.has_proof()) {
+        new_h_proof = get_app_builder().mk_app(get_iff_mp_name(), r.get_proof(), h.get_self());
+    } else {
+        // they are definitionally equal
+        new_h_proof = h.get_self();
+    }
+    s.mk_hypothesis(r.get_new(), new_h_proof);
+    s.del_hypothesis(hidx);
+    return action_result::new_branch();
+}
 }}

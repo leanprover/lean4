@@ -42,8 +42,8 @@ optional<name> is_recursor_action_target(hypothesis_idx hidx) {
         return optional<name>();
     if (is_relation_app(type))
         return optional<name>(); // we don't apply recursors to equivalence relations: =, ~, <->, etc.
-    if (!h.is_assumption())
-        return optional<name>(); // we only consider assumptions
+    if (!h.is_assumption() && !is_prop(type))
+        return optional<name>(); // we only consider assumptions or propositions
     if (get_type_context().is_class(type)) {
         // we don't eliminate type classes instances
         // TODO(Leo): we may revise that in the future... some type classes instances may be worth eliminating (e.g., decidable).

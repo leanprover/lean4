@@ -9,8 +9,7 @@ Author: Leonardo de Moura
 #include "library/blast/action_result.h"
 namespace lean {
 namespace blast {
-optional<hypothesis_idx> simplify_hypothesis_action(hypothesis_idx hidx);
-bool add_simp_rule_action(hypothesis_idx hidx);
+action_result simplify_hypothesis_action(hypothesis_idx hidx);
 action_result simplify_target_action();
 
 void initialize_simplifier_actions();

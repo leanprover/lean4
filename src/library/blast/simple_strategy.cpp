@@ -34,6 +34,7 @@ class simple_strategy : public strategy {
         trace_action("activate");
 
         Try(assumption_contradiction_actions(*hidx));
+        Try(simplify_hypothesis_action(*hidx));
         TrySolve(assert_cc_action(*hidx));
         Try(subst_action(*hidx));
         Try(no_confusion_action(*hidx));

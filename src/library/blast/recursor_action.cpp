@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/blast/revert.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"
+#include "library/blast/options.h"
 
 namespace lean {
 namespace blast {
@@ -311,6 +312,8 @@ action_result recursor_action(hypothesis_idx hidx) {
 }
 
 action_result recursor_preprocess_action(hypothesis_idx hidx) {
+    if (!get_config().m_recursor)
+        return action_result::failed();
     if (optional<name> R = is_recursor_action_target(hidx)) {
         unsigned num_minor = get_num_minor_premises(*R);
         if (num_minor == 1) {
@@ -339,6 +342,8 @@ action_result recursor_preprocess_action(hypothesis_idx hidx) {
 }
 
 action_result recursor_action() {
+    if (!get_config().m_recursor)
+        return action_result::failed();
     recursor_branch_extension & ext = get_extension();
     while (true) {
         if (ext.m_rec_queue.empty())

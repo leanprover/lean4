@@ -754,7 +754,7 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
     m_entries.insert(eqc_key(R, e1), new_n1);
 
     // The hash code for the parents is going to change
-    remove_parents(R, e1);
+    remove_parents(R, e1_root);
 
     // force all m_root fields in e1 equivalence class to point to e2_root
     bool propagate = R == get_iff_name() && is_true_or_false(e2_root);
@@ -771,7 +771,7 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
         it = new_it_n.m_next;
     } while (it != e1);
 
-    reinsert_parents(R, e1);
+    reinsert_parents(R, e1_root);
 
     // update next of e1_root and e2_root, and size of e2_root
     r1 = m_entries.find(eqc_key(R, e1_root));

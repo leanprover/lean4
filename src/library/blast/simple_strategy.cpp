@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/blast/subst_action.h"
 #include "library/blast/backward/backward_action.h"
 #include "library/blast/backward/backward_strategy.h"
+#include "library/blast/forward/forward_actions.h"
 #include "library/blast/unit/unit_action.h"
 #include "library/blast/no_confusion_action.h"
 #include "library/blast/simplifier/simplifier_actions.h"
@@ -68,6 +69,7 @@ class simple_strategy : public strategy {
         Try(constructor_action());
 
         TryStrategy(apply_backward_strategy());
+        Try(qfc_action(list<gexpr>()));
 
         // TODO(Leo): add more actions...
 

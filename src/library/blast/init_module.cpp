@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/blast/assert_cc_action.h"
 #include "library/blast/simplifier/init_module.h"
 #include "library/blast/backward/init_module.h"
+#include "library/blast/forward/init_module.h"
 #include "library/blast/unit/init_module.h"
 
 namespace lean {
@@ -24,6 +25,7 @@ void initialize_blast_module() {
     initialize_blast();
     blast::initialize_simplifier_module();
     blast::initialize_backward_module();
+    blast::initialize_forward_module();
     blast::initialize_unit_module();
     initialize_blast_tactic();
     blast::initialize_recursor_action();
@@ -36,6 +38,7 @@ void finalize_blast_module() {
     blast::finalize_recursor_action();
     finalize_blast_tactic();
     blast::finalize_unit_module();
+    blast::finalize_forward_module();
     blast::finalize_backward_module();
     blast::finalize_simplifier_module();
     finalize_blast();

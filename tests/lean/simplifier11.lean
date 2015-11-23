@@ -43,7 +43,7 @@ constants {b c x y u v : Prop} (dec_b : decidable b) (dec_c : decidable c)
  attribute h_t [simp]
  attribute h_e [simp]
 
-attribute if_congr_prop [congr]
+attribute if_ctx_congr_prop [congr]
 
 #simplify iff env 0 (ite b x y)
 end if_congr_prop

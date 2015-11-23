@@ -19,6 +19,9 @@ Author: Leonardo de Moura
 #ifndef LEAN_DEFAULT_BLAST_TRACE
 #define LEAN_DEFAULT_BLAST_TRACE false
 #endif
+#ifndef LEAN_DEFAULT_BLAST_SHOW_FAILURE
+#define LEAN_DEFAULT_BLAST_SHOW_FAILURE true
+#endif
 #ifndef LEAN_DEFAULT_BLAST_SUBST
 #define LEAN_DEFAULT_BLAST_SUBST true
 #endif
@@ -39,6 +42,7 @@ static name * g_blast_trace        = nullptr;
 static name * g_blast_subst        = nullptr;
 static name * g_blast_simp         = nullptr;
 static name * g_blast_cc           = nullptr;
+static name * g_blast_show_failure = nullptr;
 
 unsigned get_blast_max_depth(options const & o) {
     return o.get_unsigned(*g_blast_max_depth, LEAN_DEFAULT_BLAST_MAX_DEPTH);
@@ -61,15 +65,19 @@ bool get_blast_simp(options const & o) {
 bool get_blast_cc(options const & o) {
     return o.get_bool(*g_blast_cc, LEAN_DEFAULT_BLAST_CC);
 }
+bool get_blast_show_failure(options const & o) {
+    return o.get_bool(*g_blast_show_failure, LEAN_DEFAULT_BLAST_SHOW_FAILURE);
+}
 
 config::config(options const & o) {
-    m_max_depth  = get_blast_max_depth(o);
-    m_init_depth = get_blast_init_depth(o);
-    m_inc_depth  = get_blast_inc_depth(o);
-    m_trace      = get_blast_trace(o);
-    m_subst      = get_blast_subst(o);
-    m_simp       = get_blast_simp(o);
-    m_cc         = get_blast_cc(o);
+    m_max_depth    = get_blast_max_depth(o);
+    m_init_depth   = get_blast_init_depth(o);
+    m_inc_depth    = get_blast_inc_depth(o);
+    m_trace        = get_blast_trace(o);
+    m_subst        = get_blast_subst(o);
+    m_simp         = get_blast_simp(o);
+    m_cc           = get_blast_cc(o);
+    m_show_failure = get_blast_show_failure(o);
 }
 
 LEAN_THREAD_PTR(config, g_config);
@@ -84,19 +92,20 @@ scope_config::~scope_config() {
     g_config = m_old;
 }
 
-config const & get_config() {
+config & get_config() {
     lean_assert(g_config);
     return *g_config;
 }
 
 void initialize_options() {
-    g_blast_max_depth  = new name{"blast", "max_depth"};
-    g_blast_init_depth = new name{"blast", "init_depth"};
-    g_blast_inc_depth  = new name{"blast", "inc_depth"};
-    g_blast_trace      = new name{"blast", "trace"};
-    g_blast_subst      = new name{"blast", "subst"};
-    g_blast_simp       = new name{"blast", "simp"};
-    g_blast_cc         = new name{"blast", "cc"};
+    g_blast_max_depth    = new name{"blast", "max_depth"};
+    g_blast_init_depth   = new name{"blast", "init_depth"};
+    g_blast_inc_depth    = new name{"blast", "inc_depth"};
+    g_blast_trace        = new name{"blast", "trace"};
+    g_blast_subst        = new name{"blast", "subst"};
+    g_blast_simp         = new name{"blast", "simp"};
+    g_blast_cc           = new name{"blast", "cc"};
+    g_blast_show_failure = new name{"blast", "show_failure"};
 
     register_unsigned_option(*blast::g_blast_max_depth, LEAN_DEFAULT_BLAST_MAX_DEPTH,
                              "(blast) max search depth for blast");
@@ -112,6 +121,8 @@ void initialize_options() {
                          "(blast) enable simplier actions");
     register_bool_option(*blast::g_blast_cc, LEAN_DEFAULT_BLAST_CC,
                          "(blast) enable congruence closure");
+    register_bool_option(*blast::g_blast_cc, LEAN_DEFAULT_BLAST_SHOW_FAILURE,
+                         "(blast) show failure state");
 }
 void finalize_options() {
     delete g_blast_max_depth;
@@ -121,5 +132,6 @@ void finalize_options() {
     delete g_blast_subst;
     delete g_blast_simp;
     delete g_blast_cc;
+    delete g_blast_show_failure;
 }
 }}

@@ -101,7 +101,8 @@ optional<expr> strategy::search() {
             return r;
         d += get_config().m_inc_depth;
         if (d > get_config().m_max_depth) {
-            trace_curr_state();
+            if (get_config().m_show_failure)
+                display_curr_state();
             return none_expr();
         }
         curr_state() = s;

@@ -18,6 +18,7 @@ struct config {
     bool                       m_subst;
     bool                       m_simp;
     bool                       m_cc;
+    bool                       m_show_failure;
     config(options const & o);
 };
 
@@ -29,7 +30,7 @@ public:
     ~scope_config();
 };
 
-config const & get_config();
+config & get_config();
 
 void initialize_options();
 void finalize_options();

@@ -24,7 +24,10 @@ class strategy {
 protected:
     virtual optional<expr> preprocess() = 0;
     virtual action_result next_action() = 0;
+    virtual action_result hypothesis_pre_activation(hypothesis_idx hidx) = 0;
+    virtual action_result hypothesis_post_activation(hypothesis_idx hidx) = 0;
 
+    action_result activate_hypothesis(bool preprocess = false);
     action_result next_branch(expr pr);
     optional<expr> search_upto(unsigned depth);
     optional<expr> search();

@@ -765,18 +765,21 @@ void state::remove_from_indices(hypothesis const & h, hypothesis_idx hidx) {
         m_branch.m_head_to_hyps.erase(*i, hidx);
 }
 
-optional<unsigned> state::activate_hypothesis() {
+optional<unsigned> state::select_hypothesis_to_activate() {
     while (true) {
         if (m_branch.m_todo_queue.empty())
             return optional<unsigned>();
         unsigned hidx             = m_branch.m_todo_queue.erase_min();
         hypothesis const & h_decl = get_hypothesis_decl(hidx);
         if (!h_decl.is_dead()) {
-            m_branch.m_active.insert(hidx);
-            update_indices(hidx);
             return optional<unsigned>(hidx);
         }
     }
+}
+
+void state::activate_hypothesis(hypothesis_idx hidx) {
+    m_branch.m_active.insert(hidx);
+    update_indices(hidx);
 }
 
 bool state::hidx_depends_on(unsigned hidx_user, unsigned hidx_provider) const {

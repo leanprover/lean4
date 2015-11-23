@@ -293,8 +293,9 @@ public:
             });
     }
 
-    /** \brief Activate the next hypothesis in the TODO queue, return none if the TODO queue is empty. */
-    optional<hypothesis_idx> activate_hypothesis();
+    /** \brief Select next hypothesis in the TODO queue, return none if the TODO queue is empty. */
+    optional<hypothesis_idx> select_hypothesis_to_activate();
+    void activate_hypothesis(hypothesis_idx hidx);
 
     /** \brief Store in \c r the hypotheses in this branch sorted by dependency depth */
     void get_sorted_hypotheses(hypothesis_idx_buffer & r) const;

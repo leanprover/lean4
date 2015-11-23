@@ -14,6 +14,19 @@ namespace lean {
 namespace blast {
 strategy::strategy() {}
 
+action_result strategy::activate_hypothesis(bool preprocess) {
+    scope_trace scope(!preprocess && get_config().m_trace);
+    auto hidx = curr_state().select_hypothesis_to_activate();
+    if (!hidx) return action_result::failed();
+    auto r    = hypothesis_pre_activation(*hidx);
+    if (!solved(r) && !failed(r)) {
+        curr_state().activate_hypothesis(*hidx);
+        return hypothesis_post_activation(*hidx);
+    } else {
+        return r;
+    }
+}
+
 action_result strategy::next_branch(expr pr) {
     while (curr_state().has_proof_steps()) {
         proof_step s     = curr_state().top_proof_step();

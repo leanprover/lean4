@@ -26,28 +26,27 @@ namespace blast {
 /** \brief Implement a simple proof strategy for blast.
     We use it mainly for testing new actions and the whole blast infra-structure. */
 class simple_strategy : public strategy {
-    action_result activate_hypothesis(bool preprocess) {
-        scope_trace scope(!preprocess && get_config().m_trace);
 
-        auto hidx = curr_state().activate_hypothesis();
-        if (!hidx) return action_result::failed();
-        trace_action("activate");
+    action_result hypothesis_pre_activation(hypothesis_idx hidx) override {
+        Try(assumption_contradiction_actions(hidx));
+        Try(simplify_hypothesis_action(hidx));
+        Try(no_confusion_action(hidx));
+        TrySolve(assert_cc_action(hidx));
+        Try(discard_action(hidx));
+        Try(subst_action(hidx));
+        return action_result::new_branch();
+    }
 
-        Try(assumption_contradiction_actions(*hidx));
-        Try(simplify_hypothesis_action(*hidx));
-        TrySolve(assert_cc_action(*hidx));
-        Try(subst_action(*hidx));
-        Try(no_confusion_action(*hidx));
-        Try(discard_action(*hidx));
-        Try(forward_action(*hidx));
-        Try(recursor_preprocess_action(*hidx));
+    action_result hypothesis_post_activation(hypothesis_idx hidx) override {
+        Try(forward_action(hidx));
+        Try(recursor_preprocess_action(hidx));
         return action_result::new_branch();
     }
 
     /* \brief Preprocess state
        It keeps applying intros, activating and finally simplify target.
        Return an expression if the goal has been proved during preprocessing step. */
-    virtual optional<expr> preprocess() {
+    virtual optional<expr> preprocess() override {
         trace("* Preprocess");
         while (true) {
             if (!failed(intros_action()))
@@ -61,7 +60,7 @@ class simple_strategy : public strategy {
         return none_expr();
     }
 
-    virtual action_result next_action() {
+    virtual action_result next_action() override {
         Try(intros_action());
         Try(activate_hypothesis(false));
         Try(trivial_action());

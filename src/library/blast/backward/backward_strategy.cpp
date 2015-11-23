@@ -52,15 +52,15 @@ static backward_branch_extension & get_extension() {
 class backward_strategy : public strategy {
     virtual optional<expr> preprocess() override { return none_expr(); }
 
-    action_result activate_hypothesis() {
-        optional<hypothesis_idx> hidx = curr_state().activate_hypothesis();
-        if (!hidx) return action_result::failed();
-        trace_action("activate");
+    virtual action_result hypothesis_pre_activation(hypothesis_idx hidx) override {
+        Try(assumption_contradiction_actions(hidx));
+        Try(subst_action(hidx));
+        Try(no_confusion_action(hidx));
+        Try(discard_action(hidx));
+        return action_result::new_branch();
+    }
 
-        Try(assumption_contradiction_actions(*hidx));
-        Try(subst_action(*hidx));
-        Try(no_confusion_action(*hidx));
-        Try(discard_action(*hidx));
+    virtual action_result hypothesis_post_activation(hypothesis_idx hidx) override {
         return action_result::new_branch();
     }
 

@@ -690,8 +690,6 @@ void congruence_closure::remove_parents(name const & R, expr const & e) {
 void congruence_closure::reinsert_parents(name const & R, expr const & e) {
     auto ps = m_parents.find(child_key(R, e));
     if (!ps) return;
-    // TODO(Leo): consider the following optimization:
-    // 1- remove from ps any parent that is not a congruence root anymore
     ps->for_each([&](parent_occ const & p) {
             expr const & fn = get_app_fn(p.m_expr);
             unsigned nargs  = get_app_num_args(p.m_expr);
@@ -796,7 +794,8 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
         if (auto it = m_parents.find(k2))
             ps2 = *it;
         ps1->for_each([&](parent_occ const & p) {
-                ps2.insert(p);
+                if (is_congr_root(p.m_R, p.m_expr))
+                    ps2.insert(p);
             });
         m_parents.erase(k1);
         m_parents.insert(k2, ps2);

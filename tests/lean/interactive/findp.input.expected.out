@@ -17,7 +17,7 @@ true_ne_false|¬true = false
 nat.lt_self_iff_false|∀ (n : ℕ), n < n ↔ false
 iff_false|∀ (a : Prop), a ↔ false ↔ ¬a
 true_iff_false|true ↔ false ↔ false
-ne_self_iff_false|∀ (a : ?A), a ≠ a ↔ false
+ne_self_iff_false|∀ (a : ?A), ¬a = a ↔ false
 not_of_is_false|is_false ?c → ¬?c
 or_false|∀ (a : Prop), a ∨ false ↔ a
 not_of_iff_false|(?a ↔ false) → ¬?a

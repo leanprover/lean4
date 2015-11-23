@@ -6,6 +6,7 @@ simplification rules for iff
 #1, ?M_1 ↔ true ↦ ?M_1
 #0, false ↔ true ↦ false
 #0, true ↔ false ↦ false
+#1, ¬?M_1 ↔ ?M_1 ↦ false
 #1, ?M_1 ↔ ¬?M_1 ↦ false
 #2, ?M_1 - ?M_2 ≤ ?M_1 ↦ true
 #1, 0 ≤ ?M_1 ↦ true
@@ -13,6 +14,8 @@ simplification rules for iff
 #1, pred ?M_1 ≤ ?M_1 ↦ true
 #1, ?M_1 ≤ succ ?M_1 ↦ true
 #1, ?M_1 ∧ ?M_1 ↦ ?M_1
+#1, ?M_1 ∧ ¬?M_1 ↦ false
+#1, ¬?M_1 ∧ ?M_1 ↦ false
 #1, false ∧ ?M_1 ↦ false
 #1, ?M_1 ∧ false ↦ false
 #1, true ∧ ?M_1 ↦ ?M_1
@@ -34,6 +37,7 @@ simplification rules for iff
 #3, (?M_1 ∨ ?M_2) ∨ ?M_3 ↦ ?M_1 ∨ ?M_2 ∨ ?M_3
 #2 perm, ?M_1 ∨ ?M_2 ↦ ?M_2 ∨ ?M_1
 #2, ?M_2 = ?M_2 ↦ true
+#2, ¬?M_2 = ?M_2 ↦ false
 #0, ¬false ↦ true
 #0, ¬true ↦ false
 simplification rules for eq

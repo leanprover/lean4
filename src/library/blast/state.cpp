@@ -729,11 +729,11 @@ branch_extension & state::get_extension(unsigned extid) {
         m_branch.m_extensions[extid] = ext;
         lean_assert(ext->get_rc() == 1);
         ext->initialized();
+        ext->target_updated();
         m_branch.m_active.for_each([&](hypothesis_idx hidx) {
                 hypothesis const & h = get_hypothesis_decl(hidx);
                 ext->hypothesis_activated(h, hidx);
             });
-        ext->target_updated();
         return *ext;
     } else {
         branch_extension * ext = get_extension_core(extid);

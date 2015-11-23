@@ -60,7 +60,7 @@ class backward_strategy : public strategy {
         return action_result::new_branch();
     }
 
-    virtual action_result hypothesis_post_activation(hypothesis_idx hidx) override {
+    virtual action_result hypothesis_post_activation(hypothesis_idx) override {
         return action_result::new_branch();
     }
 

@@ -120,6 +120,7 @@ void congruence_closure::mk_entry_core(name const & R, expr const & e, bool to_p
     n.m_flipped      = false;
     n.m_interpreted  = interpreted;
     n.m_to_propagate = to_propagate;
+    n.m_mt           = m_gmt;
     m_entries.insert(eqc_key(R, e), n);
     if (R != get_eq_name()) {
         // lift equalities to R
@@ -699,6 +700,22 @@ void congruence_closure::reinsert_parents(name const & R, expr const & e) {
         });
 }
 
+void congruence_closure::update_mt(name const & R, expr const & e) {
+    expr r  = get_root(R, e);
+    auto ps = m_parents.find(child_key(R, r));
+    if (!ps) return;
+    ps->for_each([&](parent_occ const & p) {
+            auto it = m_entries.find(p);
+            lean_assert(it);
+            if (it->m_mt < m_gmt) {
+                auto new_it = *it;
+                new_it.m_mt = m_gmt;
+                m_entries.insert(p, new_it);
+                update_mt(p.m_R, p.m_expr);
+            }
+        });
+}
+
 static bool is_true_or_false(expr const & e) {
     return is_constant(e, get_true_name()) || is_constant(e, get_false_name());
 }
@@ -831,6 +848,8 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
             s.mk_hypothesis(type, pr);
         }
     }
+
+    update_mt(R, e2_root);
 
     if (get_config().m_trace_cc) {
         diagnostic(env(), ios()) << "added equivalence " << ppb(e1) << " [" << R << "] " << ppb(e2) << "\n";

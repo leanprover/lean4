@@ -47,6 +47,11 @@ class congruence_closure {
         unsigned       m_to_propagate:1; // must be propagated back to state when in equivalence class containing true/false
         unsigned       m_interpreted:1;  // true if the node should be viewed as an abstract value
         unsigned       m_size;           // number of elements in the equivalence class, it is meaningless if 'e' != m_root
+        unsigned       m_mt;
+        // The field m_mt is used to implement the mod-time optimization introduce by the Simplify theorem prover.
+        // The basic idea is to introduce a counter gmt that records the number of heuristic instantiation that have
+        // occurred in the current branch. It is incremented after each round of heuristic instantiation.
+        // The field m_mt records the last time any proper descendant of of thie entry was involved in a merge.
     };
 
     /* Key (R, e) for the mapping (R, e) -> entry */
@@ -104,8 +109,9 @@ class congruence_closure {
         each equivalence class is marked as an interpreted/abstract
         value. Moreover, in this mode proof production is disabled.
         This capability is useful for heuristic instantiation. */
-    bool        m_froze_partitions{false};
-    bool        m_inconsistent{false};
+    short       m_froze_partitions{false};
+    short       m_inconsistent{false};
+    unsigned    m_gmt{0};
     void update_non_eq_relations(name const & R);
 
     void register_to_propagate(expr const & e);
@@ -126,6 +132,7 @@ class congruence_closure {
     void invert_trans(name const & R, expr const & e);
     void remove_parents(name const & R, expr const & e);
     void reinsert_parents(name const & R, expr const & e);
+    void update_mt(name const & R, expr const & e);
     void add_eqv_step(name const & R, expr e1, expr e2, expr const & H);
     void add_eqv_core(name const & R, expr const & lhs, expr const & rhs, expr const & H);
 
@@ -199,6 +206,8 @@ public:
         After this method is invoked, proof production is disabled. Moreover,
         merging two different partitions will trigger an inconsistency. */
     void freeze_partitions();
+
+    void inc_gmt() { m_gmt++; }
 
     /** \brief dump for debugging purposes. */
     void display() const;

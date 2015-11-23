@@ -16,12 +16,14 @@ namespace blast {
 static unsigned g_ext_id = 0;
 struct simplifier_branch_extension : public branch_extension {
     simp_rule_sets m_srss;
+    bool           m_simp_target{false}; // true if target needs to be simplified again
     simplifier_branch_extension() {}
     simplifier_branch_extension(simplifier_branch_extension const & b):
         m_srss(b.m_srss) {}
     virtual ~simplifier_branch_extension() {}
     virtual branch_extension * clone() override { return new simplifier_branch_extension(*this); }
     virtual void initialized() override { m_srss = ::lean::get_simp_rule_sets(env()); }
+    virtual void target_updated() override { m_simp_target = true; }
     virtual void hypothesis_activated(hypothesis const &, hypothesis_idx) override { }
     virtual void hypothesis_deleted(hypothesis const &, hypothesis_idx) override { }
     simp_rule_sets const & get_simp_rule_sets() const { return m_srss; }
@@ -67,14 +69,24 @@ public:
 action_result simplify_target_action() {
     if (!get_config().m_simp)
         return action_result::failed();
-    state & s   = curr_state();
-    expr target = s.get_target();
-    bool iff    = use_iff(target);
-    name rname  = iff ? get_iff_name() : get_eq_name();
-    auto r = simplify(rname, target, get_extension().get_simp_rule_sets());
-    if (!r.has_proof())
+    auto & ext  = get_extension();
+    if (!ext.m_simp_target)
+        return action_result::failed(); // nothing to be done
+    ext.m_simp_target = false;
+    state & s         = curr_state();
+    expr target       = s.get_target();
+    bool iff          = use_iff(target);
+    name rname        = iff ? get_iff_name() : get_eq_name();
+    auto r = simplify(rname, target, ext.get_simp_rule_sets());
+    if (r.get_new() == target)
         return action_result::failed(); // did nothing
-    s.push_proof_step(new simplify_target_proof_step_cell(iff, r.get_proof()));
+    if (r.has_proof()) {
+        // Remark: we only need to create the proof step if a proof was generated.
+        // If a proof was not generated and the resulting expression is not
+        // structurally equal, then they are definitionally equal and no proof is
+        // needed
+        s.push_proof_step(new simplify_target_proof_step_cell(iff, r.get_proof()));
+    }
     s.set_target(r.get_new());
     trace_action("simplify");
     return action_result::new_branch();

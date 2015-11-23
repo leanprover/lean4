@@ -361,6 +361,11 @@ iff_false_intro (λ H,
    have H' : ¬a, from (λ Ha, (iff.mp H Ha) Ha),
    H' (iff.mpr H H'))
 
+theorem not_iff_self [simp] (a : Prop) : (¬a ↔ a) ↔ false :=
+iff_false_intro (λ H,
+   have H' : ¬a, from (λ Ha, (iff.mpr H Ha) Ha),
+   H' (iff.mp H H'))
+
 theorem true_iff_false [simp] : (true ↔ false) ↔ false :=
 iff_false_intro (λ H, iff.mp H trivial)
 
@@ -405,6 +410,12 @@ iff_false_intro and.right
 
 theorem false_and [simp] (a : Prop) : false ∧ a ↔ false :=
 iff_false_intro and.left
+
+theorem not_and_self [simp] (a : Prop) : (¬a ∧ a) ↔ false :=
+iff_false_intro (λ H, and.elim H (λ H₁ H₂, absurd H₂ H₁))
+
+theorem and_not_self [simp] (a : Prop) : (a ∧ ¬a) ↔ false :=
+iff_false_intro (λ H, and.elim H (λ H₁ H₂, absurd H₁ H₂))
 
 theorem and_self [simp] (a : Prop) : a ∧ a ↔ a :=
 iff.intro and.left (assume H, and.intro H H)

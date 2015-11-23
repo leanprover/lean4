@@ -884,41 +884,55 @@ void congruence_closure::add_eqv(name const & R, expr const & lhs, expr const & 
 }
 
 void congruence_closure::add(hypothesis_idx hidx) {
+    state & s            = curr_state();
+    hypothesis const & h = s.get_hypothesis_decl(hidx);
+    add(h.get_type(), h.get_self());
+}
+
+void congruence_closure::assume(expr const & type) {
+    lean_assert(m_froze_partitions);
+    expr dummy = mk_true_intro();
+    add(type, dummy);
+}
+
+expr congruence_closure::mk_iff_false_intro(expr const & proof) {
+    return m_froze_partitions ? proof : get_app_builder().mk_iff_false_intro(proof);
+}
+
+expr congruence_closure::mk_iff_true_intro(expr const & proof) {
+    return m_froze_partitions ? proof : get_app_builder().mk_iff_true_intro(proof);
+}
+
+void congruence_closure::add(expr const & type, expr const & proof) {
     if (is_inconsistent())
         return;
     flet<congruence_closure *> set_cc(g_cc, this);
     clear_todo();
-    state & s       = curr_state();
-    app_builder & b = get_app_builder();
-    hypothesis const & h = s.get_hypothesis_decl(hidx);
-    try {
-        expr const & type = h.get_type();
-        expr p      = type;
-        bool is_neg = is_not(type, p);
-        if (is_neg && !is_standard(env()))
-            return;
-        name R; expr lhs, rhs;
-        if (is_relation_app(p, R, lhs, rhs)) {
-            if (is_neg) {
-                bool toplevel = true; bool to_propagate = false;
-                internalize_core(get_iff_name(), p, toplevel, to_propagate);
-                add_eqv_core(get_iff_name(), p, mk_false(), b.mk_iff_false_intro(h.get_self()));
-            } else {
-                bool toplevel = false; bool to_propagate = false;
-                internalize_core(R, lhs, toplevel, to_propagate);
-                internalize_core(R, rhs, toplevel, to_propagate);
-                add_eqv_core(R, lhs, rhs, h.get_self());
-            }
-        } else if (is_prop(p)) {
+    expr p      = type;
+    bool is_neg = is_not(type, p);
+    if (is_neg && !is_standard(env()))
+        return;
+    name R; expr lhs, rhs;
+    if (is_relation_app(p, R, lhs, rhs)) {
+        if (is_neg) {
             bool toplevel = true; bool to_propagate = false;
             internalize_core(get_iff_name(), p, toplevel, to_propagate);
-            if (is_neg) {
-                add_eqv_core(get_iff_name(), p, mk_false(), b.mk_iff_false_intro(h.get_self()));
-            } else {
-                add_eqv_core(get_iff_name(), p, mk_true(), b.mk_iff_true_intro(h.get_self()));
-            }
+            add_eqv_core(get_iff_name(), p, mk_false(), mk_iff_false_intro(proof));
+        } else {
+            bool toplevel = false; bool to_propagate = false;
+            internalize_core(R, lhs, toplevel, to_propagate);
+            internalize_core(R, rhs, toplevel, to_propagate);
+            add_eqv_core(R, lhs, rhs, proof);
         }
-    } catch (app_builder_exception &) {}
+    } else if (is_prop(p)) {
+        bool toplevel = true; bool to_propagate = false;
+        internalize_core(get_iff_name(), p, toplevel, to_propagate);
+        if (is_neg) {
+            add_eqv_core(get_iff_name(), p, mk_false(), mk_iff_false_intro(proof));
+        } else {
+            add_eqv_core(get_iff_name(), p, mk_true(), mk_iff_true_intro(proof));
+        }
+    }
 }
 
 bool congruence_closure::is_eqv(name const & R, expr const & e1, expr const & e2) const {

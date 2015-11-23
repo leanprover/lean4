@@ -133,6 +133,8 @@ class congruence_closure {
     void remove_parents(name const & R, expr const & e);
     void reinsert_parents(name const & R, expr const & e);
     void update_mt(name const & R, expr const & e);
+    expr mk_iff_false_intro(expr const & proof);
+    expr mk_iff_true_intro(expr const & proof);
     void add_eqv_step(name const & R, expr e1, expr e2, expr const & H);
     void add_eqv_core(name const & R, expr const & lhs, expr const & rhs, expr const & H);
 
@@ -171,6 +173,10 @@ public:
 
         If H is none of the forms above, this method does nothing. */
     void add(hypothesis_idx hidx);
+    void add(expr const & type, expr const & proof);
+    /** \brief Similar to \c add but asserts the given type without proof
+        \pre It can only be used after \c freeze_partitions has been invoked (i.e., proof extraction has been disabled). */
+    void assume(expr const & type);
 
     /** \brief Assert the equivalence (R a b) with proof H. */
     void add_eqv(name const & R, expr const & a, expr const & b, expr const & H);

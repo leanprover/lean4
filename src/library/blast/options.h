@@ -19,6 +19,7 @@ struct config {
     bool                       m_simp;
     bool                       m_recursor;
     bool                       m_cc;
+    bool                       m_trace_cc;
     bool                       m_show_failure;
     config(options const & o);
 };

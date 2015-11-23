@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/blast/util.h"
 #include "library/blast/blast.h"
 #include "library/blast/trace.h"
+#include "library/blast/options.h"
 
 namespace lean {
 namespace blast {
@@ -831,6 +832,11 @@ void congruence_closure::add_eqv_step(name const & R, expr e1, expr e2, expr con
             s.mk_hypothesis(type, pr);
         }
     }
+
+    if (get_config().m_trace_cc) {
+        diagnostic(env(), ios()) << "added equivalence " << ppb(e1) << " [" << R << "] " << ppb(e2) << "\n";
+        display();
+    }
 }
 
 void congruence_closure::process_todo() {
@@ -1283,6 +1289,7 @@ void congruence_closure::display() const {
     diagnostic(env(), ios()) << "congruence closure state\n";
     display_eqcs();
     display_parents();
+    diagnostic(env(), ios()) << "\n";
 }
 
 bool congruence_closure::check_eqc(name const & R, expr const & e) const {

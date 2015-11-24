@@ -162,23 +162,29 @@ Known Issues and Possible Solutions
 Unicode
 -------
 
-If you experience a problem reading unicode characters on emacs,
-first consider using a unicode-friendly font such as `DejaVu Sans Mono`:
+If you experience a problem rendering unicode symbols on emacs,
+please download the following fonts and install them on your machine:
+
+ - [Quivira.ttf](http://www.quivira-font.com/files/Quivira.ttf)
+ - [Dejavu Fonts](http://sourceforge.net/projects/dejavu/files/dejavu/2.35/dejavu-fonts-ttf-2.35.tar.bz2)
+ - [NotoSans](https://github.com/googlei18n/noto-fonts/blob/master/hinted/NotoSans-Regular.ttc?raw=true)
+ - [NotoSansSymbols](https://github.com/googlei18n/noto-fonts/blob/master/unhinted/NotoSansSymbols-Regular.ttf?raw=true)
+
+Then, have the following lines in your emacs setup to use `DejaVu Sans Mono` font:
 
 ```elisp
 (when (member "DejaVu Sans Mono" (font-family-list))
   (set-face-attribute 'default nil :font "DejaVu Sans Mono-11"))
 ```
 
-If you still experience a rendering problem, consider trying
-[emacs-unicode-fonts](https://github.com/rolandwalker/unicode-fonts):
+You may also need to install [emacs-unicode-fonts](https://github.com/rolandwalker/unicode-fonts) package.
 
- - Install `unicode-fonts` package by running `M-x package-refresh-contents` and `M-x package-install`.
+ - Run `M-x package-refresh-contents`, `M-x package-install`, and type `unicode-fonts`.
  - Add the following lines in your emacs setup:
+
    ```lisp
 (require 'unicode-fonts)
 (unicode-fonts-setup)
-
    ```
 
 

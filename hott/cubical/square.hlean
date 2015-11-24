@@ -500,8 +500,12 @@ namespace eq
   by induction p₁₀; induction p₁₂; exact ⟨_, !hrefl⟩
 
   --TODO find better names
-  definition square_Flr_ap_idp {A B : Type} {b : B} {f : A → B} (p : Π a, f a = b)
+  definition square_Flr_ap_idp {A B : Type} {c : B} {f : A → B} (p : Π a, f a = c)
     {a b : A} (q : a = b) : square (p a) (p b) (ap f q) idp  :=
+  by induction q; apply vrfl
+
+  definition square_Flr_idp_ap {A B : Type} {c : B} {f : A → B} (p : Π a, c = f a)
+    {a b : A} (q : a = b) : square (p a) (p b) idp (ap f q) :=
   by induction q; apply vrfl
 
   definition square_ap_idp_Flr {A B : Type} {b : B} {f : A → B} (p : Π a, f a = b)

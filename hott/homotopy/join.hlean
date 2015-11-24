@@ -89,7 +89,7 @@ namespace join
 
   --This proves that the join operator is associative
   --The proof is more or less ported from Evan Cavallo's agda version
-  section switch_assoc
+  section join_switch
   private definition massage_sq {A : Type} {a₀₀ a₂₀ a₀₂ a₂₂ : A}
     {p₁₀ : a₀₀ = a₂₀} {p₁₂ :  a₀₂ = a₂₂} {p₀₁ : a₀₀ = a₀₂} {p₂₁ : a₂₀ = a₂₂}
     (sq : square p₁₀ p₁₂ p₀₁ p₂₁) : square p₁₀⁻¹ p₀₁⁻¹ (p₂₁ ⬝ p₁₂⁻¹) idp :=
@@ -103,15 +103,15 @@ namespace join
   end
 
   private definition switch_coh_fill (a : A) (b : B) (c : C) :
-    Σ sq : square (jglue (inl c) a)⁻¹ (ap inl (jglue c b))⁻¹ (ap switch_left (jglue a b)) idp,
-      cube hrfl hrfl (hdeg_square !elim_glue) ids 
-        sq (eq_hconcat !idp_con⁻¹ (massage_sq (square_Fl_Fl_ap_idp _ _))) :=
+    Σ sq : square (jglue (inl c) a)⁻¹ (ap inl (jglue c b)⁻¹) (ap switch_left (jglue a b)) idp,
+      cube (hdeg_square !elim_glue) ids sq
+        (!idp_con⁻¹ ⬝ph (massage_sq (square_Flr_ap_idp _ _)) ⬝vp !ap_inv⁻¹) hrfl hrfl :=
   by esimp; apply cube_fill101
 
   private definition switch_coh (ab : join A B) (c : C) : switch_left ab = inl (inl c) :=
   begin
     induction ab with a b, apply !jglue⁻¹, apply ap inl !jglue⁻¹, induction x with a b,
-    apply eq_pathover, refine _ ⬝hp !ap_constant⁻¹, refine _ ⬝vp !ap_inv⁻¹,
+    apply eq_pathover, refine _ ⬝hp !ap_constant⁻¹,
     apply !switch_coh_fill.1,
   end
 
@@ -164,19 +164,37 @@ namespace join
 
   section
   variables (a : A) (b : B) (c : C)
-  check cube ids (switch_inv_left_square a b)
 
-  private definition switch_inv_cube (a : A) (b : B) (c : C) :
-    cube ids (switch_inv_left_square a b)
-      (square_Fl_Fl_ap_idp _ _) (square_Fl_Fl_ap_idp _ _)
-      --(switch_inv_coh_left c a) (switch_inv_coh_right c b)
-      :=
+  private definition switch_inv_cube_aux1 {A B C : Type} {b : B} {f : A → B} (h : B → C)
+    (g : Π a, f a = b) {x y : A} (p : x = y) :
+    cube (hdeg_square (ap_compose h f p)) ids (square_Flr_ap_idp (λ a, ap h (g a)) p)
+    (aps h (square_Flr_ap_idp _ _)) hrfl hrfl :=
   begin
-
+    cases p, esimp[square_Flr_ap_idp], apply deg2_cube,
+    cases (g x), reflexivity,
   end
 
+  private definition switch_inv_cube_aux2 {A B C : Type} {b : B} {f : A → B}
+    (g : Π a, f a = b) {x y : A} (p : x = y) {sq : square (g x) (g y) (ap f p) idp}
+    (q : apdo g p = eq_pathover (sq ⬝hp !ap_constant⁻¹)) : square_Flr_ap_idp _ _ = sq :=
+  begin
+    cases p, esimp at *, exact sorry
+  end
 
-  end switch_assoc
+  private definition switch_inv_cube (a : A) (b : B) (c : C) :
+    cube (switch_inv_left_square a b) ids (square_Flr_ap_idp _ _)
+    (square_Flr_ap_idp _ _) (switch_inv_coh_left c a) (switch_inv_coh_right c b) :=
+  begin
+    esimp [switch_inv_coh_left, switch_inv_coh_right, switch_inv_left_square],
+    apply cube_concat2, apply switch_inv_cube_aux1,
+    apply cube_concat2, esimp, apply cube_transport101,
+      apply inverse, apply ap (λ x, aps join.switch x),
+      apply switch_inv_cube_aux2, esimp[switch_coh, jglue], apply rec_glue,
+      apply apc, apply (switch_coh_fill a b c).2,
+  end
+  check ap_constant
+
+  end join_switch 
 
 exit
 

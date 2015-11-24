@@ -176,11 +176,11 @@ namespace eq
     (hdeg_square s₂₁) (hdeg_square s₁₀) (hdeg_square s₁₂) ids ids :=
   by induction p₀₀; induction sq; apply idc
 
-  definition ids2_cube_of_square : cube ids ids
+  definition ids1_cube_of_square : cube ids ids
     (vdeg_square s₁₀) (vdeg_square s₁₂) (hdeg_square s₀₁) (hdeg_square s₂₁) :=
   by induction p₀₀; induction sq; apply idc
 
-  definition ids1_cube_of_square : cube (vdeg_square s₁₀) (vdeg_square s₁₂)
+  definition ids2_cube_of_square : cube (vdeg_square s₁₀) (vdeg_square s₁₂)
     ids ids (vdeg_square s₀₁) (vdeg_square s₂₁) :=
   by induction p₀₀; induction sq; apply idc
 
@@ -200,7 +200,7 @@ namespace eq
     apply cube_transport101 (left_inv (vdeg_square_equiv _ _) s₁₀₁),
     apply cube_transport112 (left_inv (hdeg_square_equiv _ _) s₁₁₂),
     apply cube_transport121 (left_inv (vdeg_square_equiv _ _) s₁₂₁),
-    apply ids2_cube_of_square, exact fillsq.2
+    apply ids1_cube_of_square, exact fillsq.2
   end
 
   definition cube_fill112 : Σ lid, cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ lid :=
@@ -212,7 +212,7 @@ namespace eq
     apply cube_transport101 (left_inv (vdeg_square_equiv _ _) s₁₀₁),
     apply cube_transport110 (left_inv (hdeg_square_equiv _ _) s₁₁₀),
     apply cube_transport121 (left_inv (vdeg_square_equiv _ _) s₁₂₁),
-    apply ids2_cube_of_square, exact fillsq.2,
+    apply ids1_cube_of_square, exact fillsq.2,
   end
 
   definition cube_fill011 : Σ lid, cube lid s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂ :=
@@ -224,7 +224,7 @@ namespace eq
     apply cube_transport110 (left_inv (vdeg_square_equiv _ _) s₁₁₀),
     apply cube_transport211 (left_inv (vdeg_square_equiv _ _) s₂₁₁),
     apply cube_transport112 (left_inv (vdeg_square_equiv _ _) s₁₁₂),
-    apply ids1_cube_of_square, exact fillsq.2,
+    apply ids2_cube_of_square, exact fillsq.2,
   end
 
   definition cube_fill211 : Σ lid, cube s₀₁₁ lid s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂ :=
@@ -236,7 +236,7 @@ namespace eq
     apply cube_transport011 (left_inv (vdeg_square_equiv _ _) s₀₁₁),
     apply cube_transport110 (left_inv (vdeg_square_equiv _ _) s₁₁₀),
     apply cube_transport112 (left_inv (vdeg_square_equiv _ _) s₁₁₂),
-    apply ids1_cube_of_square, exact fillsq.2,
+    apply ids2_cube_of_square, exact fillsq.2,
   end
 
   definition cube_fill101 : Σ lid, cube s₀₁₁ s₂₁₁ lid s₁₂₁ s₁₁₀ s₁₁₂ :=
@@ -264,5 +264,11 @@ namespace eq
   end
 
   end cube_fillers
+
+  include c
+  definition apc (f : A → B) :
+    cube (aps f s₀₁₁) (aps f s₂₁₁) (aps f s₁₀₁) (aps f s₁₂₁) (aps f s₁₁₀) (aps f s₁₁₂) :=
+  by cases c; exact idc
+  omit c
 
 end eq

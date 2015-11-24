@@ -187,16 +187,74 @@ namespace join
   begin
     esimp [switch_inv_coh_left, switch_inv_coh_right, switch_inv_left_square],
     apply cube_concat2, apply switch_inv_cube_aux1,
-    apply cube_concat2, esimp, apply cube_transport101,
+    apply cube_concat2, apply cube_transport101,
       apply inverse, apply ap (λ x, aps join.switch x),
-      apply switch_inv_cube_aux2, esimp[switch_coh, jglue], apply rec_glue,
+      apply switch_inv_cube_aux2, apply rec_glue,
       apply apc, apply (switch_coh_fill a b c).2,
+    apply cube_concat2, esimp, 
   end
-  check ap_constant
+
+  end
+
+  private definition pathover_of_triangle_cube {A B : Type} {b₀ b₁ : A → B}
+    {b : B} {p₀₁ : Π a, b₀ a = b₁ a} {p₀ : Π a, b₀ a = b} {p₁ : Π a, b₁ a = b}
+    {x y : A} {q : x = y} {sqx : square (p₀₁ x) idp (p₀ x) (p₁ x)}
+    {sqy : square (p₀₁ y) idp (p₀ y) (p₁ y)}
+    (c : cube (natural_square_tr _ _) ids (square_Flr_ap_idp p₀ q) (square_Flr_ap_idp p₁ q)
+       sqx sqy) :
+    sqx =[q] sqy :=
+  begin
+    cases q, esimp [square_Flr_ap_idp] at *,
+    apply pathover_of_eq_tr, esimp, apply eq_of_deg12_cube, exact c,
+  end
+
+  private definition pathover_of_ap_ap_square {A : Type} {x y : A} {p : x = y}
+    (g : B → A) (f : A → B) {u : g (f x) = x} {v : g (f y) = y}
+    (sq : square (ap g (ap f p)) p u v) : u =[p] v :=
+  by cases p; apply eq_pathover; apply transpose; exact sq
+
+
+  private definition hdeg_square_idp {A : Type} {a a' : A} {p : a = a'} :
+    hdeg_square (refl p) = hrfl :=
+  by cases p; reflexivity
+
+  private definition vdeg_square_idp {A : Type} {a a' : A} {p : a = a'} :
+    vdeg_square (refl p) = vrfl :=
+  by cases p; reflexivity
+
+  private definition natural_square_tr_beta {A B : Type} {f₁ f₂ : A → B}
+    (p : Π a, f₁ a = f₂ a) {x y : A} (q : x = y) {sq : square (p x) (p y) (ap f₁ q) (ap f₂ q)}
+    (e : apdo p q = eq_pathover sq) :
+    natural_square_tr p q = sq :=
+  begin
+    cases q, esimp at *,
+    apply concat, apply inverse, apply vdeg_square_idp,
+    assert H : refl (p y) = eq_of_vdeg_square sq,
+    { exact sorry },
+    apply concat, apply ap vdeg_square, exact H,
+    apply is_equiv.left_inv (equiv.to_fun !vdeg_square_equiv),
+  end
+
+  private definition switch_inv_coh (c : C) (k : join A B) :
+    square (switch_inv_left k) idp (ap join.switch (switch_coh k c)) (jglue k c) :=
+  begin
+    induction k, apply switch_inv_coh_left, apply switch_inv_coh_right,
+    refine pathover_of_triangle_cube _,
+    induction x with [a, b], esimp, apply cube_transport011,
+    apply inverse, rotate 1, apply switch_inv_cube,
+    apply natural_square_tr_beta, apply rec_glue,
+  end
+
+  protected definition switch_involutive (x : join (join A B) C) :
+    join.switch (join.switch x) = x :=
+  begin
+    induction x, apply switch_inv_left, reflexivity,
+    apply pathover_of_ap_ap_square join.switch join.switch,
+    induction x with [k, c], krewrite elim_glue, esimp,
+    apply transpose, exact !switch_inv_coh,
+  end
 
   end join_switch 
-
-exit
 
   protected definition switch_equiv (A B C : Type) :
     join (join A B) C ≃ join (join C B) A :=

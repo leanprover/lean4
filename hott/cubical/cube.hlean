@@ -102,7 +102,7 @@ namespace eq
       whisker_square (eq_bot_of_square s₀₁₁) (eq_bot_of_square s₂₁₁) idp idp s₁₁₂ :=
   by induction c; reflexivity
 
-  definition eq_of_vdeg_cube {s s' : square p₀₁₀ p₂₁₀ p₁₀₀ p₁₂₀}
+  definition eq_of_deg12_cube {s s' : square p₀₁₀ p₂₁₀ p₁₀₀ p₁₂₀}
     (c : cube vrfl vrfl vrfl vrfl s s') : s = s' :=
   by induction s; exact eq_of_cube c
 
@@ -113,7 +113,7 @@ namespace eq
     {r : square (f₁ a') (f₂ a') (f₃ a') (f₄ a')}
     (s : cube (vdeg_square (ap f₁ p)) (vdeg_square (ap f₂ p))
               (vdeg_square (ap f₃ p)) (vdeg_square (ap f₄ p)) q r) : q =[p] r :=
-  by induction p;apply pathover_idp_of_eq;exact eq_of_vdeg_cube s
+  by induction p;apply pathover_idp_of_eq;exact eq_of_deg12_cube s
 
   /- Transporting along a square -/
 

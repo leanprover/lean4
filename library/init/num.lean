@@ -3,13 +3,9 @@ Copyright (c) 2014 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-
 prelude
-import init.logic init.bool
+import init.bool
 open bool
-
-definition pos_num.is_inhabited [instance] : inhabited pos_num :=
-inhabited.mk pos_num.one
 
 namespace pos_num
   protected definition mul (a b : pos_num) : pos_num :=
@@ -40,9 +36,6 @@ end pos_num
 
 definition pos_num_has_mul [instance] [reducible] : has_mul pos_num :=
 has_mul.mk pos_num.mul
-
-definition num.is_inhabited [instance] : inhabited num :=
-inhabited.mk num.zero
 
 namespace num
   open pos_num

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Floris van Doorn
 -/
 prelude
-import init.datatypes init.reserved_notation
+import init.datatypes init.reserved_notation init.tactic
 
 definition id [reducible] [unfold_full] {A : Type} (a : A) : A :=
 a
@@ -698,6 +698,12 @@ inhabited.mk (λa, !default)
 protected definition bool.is_inhabited [instance] : inhabited bool :=
 inhabited.mk ff
 
+protected definition pos_num.is_inhabited [instance] : inhabited pos_num :=
+inhabited.mk pos_num.one
+
+protected definition num.is_inhabited [instance] : inhabited num :=
+inhabited.mk num.zero
+
 inductive nonempty [class] (A : Type) : Prop :=
 intro : A → nonempty A
 
@@ -891,6 +897,10 @@ if Hc : c then !false.rec (if_pos Hc ▸ H₂) else Hc
 
 theorem of_not_is_false {c : Prop} [H₁ : decidable c] (H₂ : ¬ is_false c) : c :=
 if Hc : c then Hc else absurd trivial (if_neg Hc ▸ H₂)
+
+-- The following symbols should not be considered in the pattern inference procedure used by
+-- heuristic instantiation.
+attribute and or not iff ite dite eq ne heq [no_pattern]
 
 -- namespace used to collect congruence rules for "contextual simplification"
 namespace contextual

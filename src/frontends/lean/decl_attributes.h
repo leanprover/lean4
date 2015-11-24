@@ -32,6 +32,7 @@ class decl_attributes {
     bool               m_simp;
     bool               m_congr;
     bool               m_backward;
+    bool               m_no_pattern;
     optional<unsigned> m_recursor_major_pos;
     optional<unsigned> m_priority;
     list<unsigned>     m_unfold_hint;

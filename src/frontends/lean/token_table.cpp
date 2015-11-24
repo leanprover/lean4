@@ -111,7 +111,7 @@ void init_token_table(token_table & t) {
          "[none]", "[class]", "[coercion]", "[reducible]", "[irreducible]", "[semireducible]", "[quasireducible]",
          "[simp]", "[congr]", "[parsing_only]", "[multiple_instances]", "[symm]", "[trans]", "[refl]", "[subst]", "[recursor",
          "evaluate", "check", "eval", "[wf]", "[whnf]", "[priority", "[unfold_full]", "[unfold_hints]", "[backward]",
-         "[constructor]", "[unfold", "print",
+         "[no_pattern]", "[constructor]", "[unfold", "print",
          "end", "namespace", "section", "prelude", "help",
          "import", "inductive", "record", "structure", "module", "universe", "universes", "local",
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation",

@@ -49,6 +49,7 @@ Author: Leonardo de Moura
 #include "library/blast/blast.h"
 #include "library/blast/simplifier/simplifier.h"
 #include "library/blast/backward/backward_rule_set.h"
+#include "library/blast/forward/pattern.h"
 #include "compiler/preprocess_rec.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
@@ -260,6 +261,8 @@ static void print_attributes(parser const & p, name const & n) {
         out << " [congr]";
     if (is_backward_rule(env, n))
         out << " [backward]";
+    if (is_no_pattern(env, n))
+        out << " [no_pattern]";
     switch (get_reducible_status(env, n)) {
     case reducible_status::Reducible:      out << " [reducible]"; break;
     case reducible_status::Irreducible:    out << " [irreducible]"; break;

@@ -5,7 +5,7 @@ Author: Daniel Selsam
 */
 #pragma once
 #include "util/rb_map.h"
-#include "util/list.h"
+#include "util/list_fn.h"
 
 namespace lean {
 

@@ -33,7 +33,7 @@ public:
     }
     void insert(T const & t, V const & v) {
         if (auto it = m_map.find(t))
-            m_map.insert(t, cons(v, *it));
+            m_map.insert(t, cons(v, ::lean::filter(*it, [&](V const & v2) { return v != v2; })));
         else
             m_map.insert(t, to_list(v));
     }

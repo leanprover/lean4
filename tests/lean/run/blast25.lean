@@ -1,6 +1,6 @@
 -- Basic (propositional) forward chaining with conjunctive conclusions
 constants (A B C D E : Prop)
-set_option pp.all true
+set_option blast.recursor false
 
 definition lemma1 : B → (A → (¬ B) ∧ C) → ¬ A := by blast
 definition lemma2 : ¬ B → (A → B ∧ C) → ¬ A := by blast

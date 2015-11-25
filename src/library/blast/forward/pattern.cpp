@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/tmp_type_context.h"
 #include "library/fun_info_manager.h"
 #include "library/annotation.h"
+#include "library/occurs.h"
 #include "library/scoped_ext.h"
 #include "library/idx_metavar.h"
 #include "library/blast/forward/pattern.h"
@@ -24,10 +25,8 @@ patterns used by heuristic instantiation.
 
 - We say an a_i that must occur in a pattern is "trackable".
 
-- Let Trackable be the set of "trackable" a_i's
-
-- for i := 1 to n
-  a) If there is j > i, type(a_j) depends on a_i,
+- The set of "trackable" a_i's is the least fix point of
+  a) If there is j > i, a_j is trackable, type(a_j) depends on a_i,
      and type(a_i) is not higher-order, then
      a_i is NOT trackable.
      Reason: we can infer a_i from a_j using type inference.
@@ -38,16 +37,17 @@ patterns used by heuristic instantiation.
   c) a_i is instance implicit -> a_i is NOT trackable.
      We should use type class resolution to infer a_i.
 
-  d) Otherwise, we add a_i into Trackable
-
 Remark: we say a (multi-)pattern for H is valid iff it contains all
 trackable a_i's.
 
-Remark: we say a_i is a "residue" hypothesis iff
-a_i is a proposition, is not instance-implicit, and (there is no j > i s.t. a_j is trackable
-and type(a_j) depends on a_i, and type(a_i) is not higher-order)
+We define the set of "residue" hypotheses a_i as the least fix point of
+  a) a_i is a proposition
+  b) a_i is not inst_implicit
+  c) a_i is not trackable
+  d) there is no j > i s.t. a_j is not residue
+     and type(a_j) depends on a_i, and type(a_i) is not higher-order
 
-That is, if a_i is a "residue" hypothesis, we cannot inferred it
+That is, if a_i is a "residue" hypothesis, we cannot infer it
 by using type inference or type class resolution.
 
 Residue hypotheses are the hypotheses for any instance of H produced by
@@ -169,6 +169,98 @@ name_set const & get_no_patterns(environment const & env) {
     return no_pattern_ext::get_state(env);
 }
 
+typedef rb_tree<unsigned, unsigned_cmp> idx_metavar_set;
+
+static bool is_higher_order(tmp_type_context & ctx, expr const & e) {
+    return is_pi(ctx.relaxed_whnf(ctx.infer(e)));
+}
+
+/** \brief Given type of the form (Pi (a_1 : A_1) ... (a_n : A_n), B) (or reducible to something of this form),
+    create n idx_metavars (one for each a_i), store the meta-variables in mvars,
+    and store in trackable and residue the subsets of these meta-variables as
+    described in the beginning of this file. Then returns B (instantiated with the new meta-variables) */
+expr extract_trackable(tmp_type_context & ctx, expr const & type,
+                       buffer<expr> & mvars, idx_metavar_set & trackable, idx_metavar_set & residue) {
+    // 1. Create mvars and initialize trackable and residue sets
+    expr it = type;
+    while (true) {
+        if (!is_pi(it)) {
+            expr new_it = ctx.relaxed_whnf(it);
+            if (!is_pi(new_it))
+                break; // consumed all arguments
+            it = new_it;
+        }
+        lean_assert(is_pi(it));
+        expr new_mvar = ctx.mk_mvar(binding_domain(it));
+        lean_assert(is_idx_metavar(new_mvar));
+        mvars.push_back(new_mvar);
+        bool is_inst_implicit = binding_info(it).is_inst_implicit();
+        bool is_prop          = ctx.is_prop(binding_domain(it));
+        if (!is_inst_implicit) {
+            unsigned midx = to_meta_idx(new_mvar);
+            if (is_prop)
+                residue.insert(midx);
+            else
+                trackable.insert(midx);
+        }
+        it = instantiate(binding_body(it), new_mvar);
+    }
+    expr     B = it;
+    unsigned n = mvars.size();
+    // 2. Compute trackable fixpoint
+    bool modified;
+    do {
+        modified = false;
+        for (unsigned i = 0; i < n; i++) {
+            unsigned midx = to_meta_idx(mvars[i]);
+            if (!trackable.contains(midx))
+                continue; // variable is not in the trackable set
+            // There is no j > i, mvars[j] is trackable, type(mvars[j]) depends on mvars[i],
+            // and type(mvars[i]) is not higher-order.
+            if (is_higher_order(ctx, mvars[i]))
+                continue;
+            unsigned j = i+1;
+            for (; j < n; j++) {
+                if (trackable.contains(to_meta_idx(mvars[j])) &&
+                    occurs(mvars[i], ctx.infer(mvars[j]))) {
+                    // we can infer mvars[i] using type inference
+                    break;
+                }
+            }
+            if (j == n)
+                continue;
+            trackable.erase(midx);
+            modified = true;
+        }
+    } while (modified);
+    // 3. Compute residue fixpoint
+    do {
+        modified = false;
+        for (unsigned i = 0; i < n; i++) {
+            unsigned midx = to_meta_idx(mvars[i]);
+            if (!residue.contains(midx))
+                continue; // variable is not in the residue set
+            // There is no j > i s.t. mvars[j] is not residue
+            // and type(mvars[j]) depends on mvars[i], and type(mvars[i]) is not higher-order
+            if (is_higher_order(ctx, mvars[i]))
+                continue;
+            unsigned j = i+1;
+            for (; j < n; j++) {
+                if (!residue.contains(to_meta_idx(mvars[j])) &&
+                    occurs(mvars[i], ctx.infer(mvars[j]))) {
+                    // we can infer mvars[i] using type inference
+                    break;
+                }
+            }
+            if (j == n)
+                continue;
+            residue.erase(midx);
+            modified = true;
+        }
+    } while (modified);
+    return B;
+}
+
 /** pattern_le */
 struct pattern_le_fn {
     tmp_type_context & m_ctx;
@@ -212,8 +304,6 @@ struct pattern_le_fn {
         return r;
     }
 };
-
-typedef rb_tree<unsigned, unsigned_cmp> idx_metavar_set;
 
 struct pattern_info {
     idx_metavar_set m_idx_mvar_set;

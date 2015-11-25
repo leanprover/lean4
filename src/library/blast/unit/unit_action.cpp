@@ -32,11 +32,20 @@ struct unit_branch_extension : public branch_extension {
     virtual ~unit_branch_extension() {}
     virtual branch_extension * clone() override { return new unit_branch_extension(*this); }
 
-    void insert_disjunction(expr const & e, hypothesis_idx hidx) {
+    void insert(expr const & e, hypothesis_idx hidx, bool neg) {
         expr A, B;
         if (is_or(e, A, B)) {
-            insert_disjunction(A, hidx);
-            insert_disjunction(B, hidx);
+            lean_assert(!neg);
+            insert(A, hidx, neg);
+            insert(B, hidx, neg);
+        } else if (is_and(e, A, B)) {
+            lean_assert(neg);
+            insert(A, hidx, neg);
+            insert(B, hidx, neg);
+        } else if (neg) {
+            expr not_e;
+            if (blast::is_not(e, not_e)) m_lemma_map.insert(not_e, hidx);
+            else m_lemma_map.insert(get_app_builder().mk_not(e), hidx);
         } else {
             m_lemma_map.insert(e, hidx);
         }
@@ -51,13 +60,11 @@ struct unit_branch_extension : public branch_extension {
         bool has_antecedent = false;
         while (is_pi(type) && is_prop(binding_domain(type)) && closed(binding_body(type))) {
             has_antecedent = true;
-            insert_disjunction(binding_domain(type), hidx);
+            insert(binding_domain(type), hidx, false);
             type = binding_body(type);
         }
         if (has_antecedent && is_prop(type)) {
-            expr not_type;
-            if (blast::is_not(type, not_type)) m_lemma_map.insert(not_type, hidx);
-            else m_lemma_map.insert(get_app_builder().mk_not(type), hidx);
+            insert(type, hidx, true);
         }
     }
 
@@ -71,6 +78,7 @@ public:
     hypothesis_idx const * find_fact(expr const & e) { return m_fact_map.find(e); }
     void erase_fact(expr const & e) { return m_fact_map.erase(e); }
 
+    /* Returns a proof of the disjunction [e] */
     optional<expr> find_live_fact_in_disjunction(expr const & e) {
         expr A, B;
         if (is_or(e, A, B)) {
@@ -90,6 +98,41 @@ public:
                     return none_expr();
                 } else {
                     return some_expr(fact_h.get_self());
+                }
+            } else {
+                return none_expr();
+            }
+        }
+    }
+
+    /* Returns a proof of [false], by either applying a projection of [proof] to a hypothesis or vice versa. */
+    optional<expr> find_live_disproof_of_conjunction(expr const & e, expr const & proof) {
+        expr A, B;
+        if (is_and(e, A, B)) {
+            if (auto A_false = find_live_disproof_of_conjunction(A, get_app_builder().mk_app(get_and_elim_left_name(), {A, B, proof}))) {
+                return some_expr(*A_false);
+            } else if (auto B_false = find_live_disproof_of_conjunction(B, get_app_builder().mk_app(get_and_elim_right_name(), {A, B, proof}))) {
+                return some_expr(*B_false);
+            } else {
+                return none_expr();
+            }
+        } else {
+            expr not_e;
+            bool not_e_is_not = false;
+            if (!blast::is_not(e, not_e)) {
+                not_e_is_not = true;
+                not_e = get_app_builder().mk_not(e);
+            }
+
+            hypothesis_idx const * fact_hidx = find_fact(not_e);
+            if (fact_hidx) {
+                hypothesis const & fact_h = curr_state().get_hypothesis_decl(*fact_hidx);
+                if (fact_h.is_dead()) {
+                    erase_fact(e);
+                    return none_expr();
+                } else {
+                    if (not_e_is_not) return some_expr(mk_app(fact_h.get_self(), proof));
+                    else return some_expr(mk_app(proof, fact_h.get_self()));
                 }
             } else {
                 return none_expr();
@@ -136,27 +179,13 @@ action_result unit_pi(expr const & _type, expr const & proof) {
         curr_state().mk_hypothesis(type, new_hypothesis);
         return action_result::new_branch();
     } else if (is_prop(type)) {
-        expr not_type;
-        if (blast::is_not(type, not_type)) {
-            optional<expr> fact = ext.find_live_fact_in_disjunction(not_type);
-            if (fact) {
-                // TODO(dhs): if classical, use double negation elimination
-                curr_state().mk_hypothesis(get_app_builder().mk_not(infer_type(local)),
-                                           Fun(local, mk_app(new_hypothesis, *fact)));
-                return action_result::new_branch();
-            } else {
-                return action_result::failed();
-            }
+        optional<expr> disproof = ext.find_live_disproof_of_conjunction(type, new_hypothesis);
+        if (disproof) {
+            curr_state().mk_hypothesis(get_app_builder().mk_not(infer_type(local)),
+                                       Fun(local, *disproof));
+            return action_result::new_branch();
         } else {
-            not_type = get_app_builder().mk_not(type);
-            optional<expr> fact = ext.find_live_fact_in_disjunction(not_type);
-            if (fact) {
-                curr_state().mk_hypothesis(get_app_builder().mk_not(infer_type(local)),
-                                           Fun(local, mk_app(*fact, new_hypothesis)));
-                return action_result::new_branch();
-            } else {
-                return action_result::failed();
-            }
+            return action_result::failed();
         }
     } else {
         return action_result::failed();

@@ -46,6 +46,12 @@ namespace eq
   definition vdeg_square [unfold 6] {p q : a = a'} (r : p = q) : square p q idp idp :=
   by induction r;apply vrefl
 
+  definition hdeg_square_idp (p : a = a') : hdeg_square (refl p) = hrfl :=
+  by cases p; reflexivity
+  
+  definition vdeg_square_idp (p : a = a') : vdeg_square (refl p) = vrfl :=
+  by cases p; reflexivity
+
   definition hconcat [unfold 16] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (s₃₁ : square p₃₀ p₃₂ p₂₁ p₄₁)
     : square (p₁₀ ⬝ p₃₀) (p₁₂ ⬝ p₃₂) p₀₁ p₄₁ :=
   by induction s₃₁; exact s₁₁

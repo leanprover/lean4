@@ -128,7 +128,7 @@ namespace join
     (c : cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) :
     cube s₁₁₂⁻¹ᵛ vrfl (massage_sq s₁₀₁) (massage_sq s₁₂₁) s₁₁₀⁻¹ᵛ s₀₁₁⁻¹ᵛ :=
   begin
-    unfold massage_sq, exact sorry
+    exact sorry,
   end
 
   private definition massage_massage {A : Type} {a₀₀ a₀₂ a₂₀ : A}
@@ -226,10 +226,11 @@ namespace join
     (g : Π a, f a = b) {x y : A} (p : x = y) {sq : square (g x) (g y) (ap f p) idp}
     (q : apdo g p = eq_pathover (sq ⬝hp !ap_constant⁻¹)) : square_Flr_ap_idp _ _ = sq :=
   begin
-    cases p, esimp at *, exact sorry
+    cases p, esimp at *, apply concat, apply inverse, apply vdeg_square_idp,
+    apply concat, apply ap vdeg_square, exact ap eq_of_pathover_idp q,
+    krewrite (is_equiv.right_inv (equiv.to_fun !pathover_idp)),
+    exact is_equiv.left_inv (equiv.to_fun (vdeg_square_equiv _ _)) sq,
   end
-
-  --set_option pp.implicit true
 
   private definition switch_inv_cube (a : A) (b : B) (c : C) :
     cube (switch_inv_left_square a b) ids (square_Flr_ap_idp _ _)
@@ -282,12 +283,10 @@ namespace join
     (e : apdo p q = eq_pathover sq) :
     natural_square_tr p q = sq :=
   begin
-    cases q, esimp at *,
-    apply concat, apply inverse, apply vdeg_square_idp,
-    assert H : refl (p y) = eq_of_vdeg_square sq,
-    { exact sorry },
-    apply concat, apply ap vdeg_square, exact H,
-    apply is_equiv.left_inv (equiv.to_fun !vdeg_square_equiv),
+    cases q, esimp at *, apply concat, apply inverse, apply vdeg_square_idp,
+    apply concat, apply ap vdeg_square, apply ap eq_of_pathover_idp e,
+    krewrite (is_equiv.right_inv (equiv.to_fun !pathover_idp)),
+    exact is_equiv.left_inv (equiv.to_fun (vdeg_square_equiv _ _)) sq,
   end
 
   private definition switch_inv_coh (c : C) (k : join A B) :

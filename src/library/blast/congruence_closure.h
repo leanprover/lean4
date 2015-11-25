@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr.h"
 #include "library/expr_lt.h"
+#include "library/congr_lemma_manager.h"
 #include "library/blast/hypothesis.h"
 
 namespace lean {
@@ -233,6 +234,33 @@ public:
 
 /** \brief Return the congruence closure object associated with the current state */
 congruence_closure & get_cc();
+
+struct ext_congr_lemma {
+    /* Relation this lemma is a congruence for */
+    name                 m_R;
+    /* The basic congr_lemma object defined at congr_lemma_manager */
+    congr_lemma          m_congr_lemma;
+    /* m_rel_names is the relation congruence to be used with each child, none means child is ignored by congruence closure.
+       An element is not none iff it corresponds to an Eq kind at m_congr_lemma.get_arg_kinds() */
+    list<optional<name>> m_rel_names;
+    /* If m_lift_needed is true, m_congr_lemma is for equality, and we need to lift to m_R. This is just a helper flag fo building
+       a proof from the equivalence argument proofs. */
+    unsigned             m_lift_needed:1;
+    /* If m_fixed_fun is false, then we build equivalences for functions, and use generic congr lemma, and ignore m_congr_lemma.
+       That is, even the function can be treated as an Eq argument. */
+    unsigned             m_fixed_fun:1;
+    ext_congr_lemma(congr_lemma const & H);
+    ext_congr_lemma(name const & R, congr_lemma const & H, bool lift_needed);
+    ext_congr_lemma(name const & R, congr_lemma const & H, list<optional<name>> const & rel_names, bool lift_needed);
+
+    name const & get_relation() const { return m_R; }
+    congr_lemma const & get_congr_lemma() const { return m_congr_lemma; }
+    list<optional<name>> const & get_arg_rel_names() const { return m_rel_names; }
+};
+
+/** \brief Build an extended congruence lemma for function \c fn with \c nargs expected arguments over relation \c R.
+    A subset of user-defined congruence lemmas is considered by this procedure. */
+optional<ext_congr_lemma> mk_ext_congr_lemma(name const & R, expr const & fn, unsigned nargs);
 
 void initialize_congruence_closure();
 void finalize_congruence_closure();

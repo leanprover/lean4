@@ -45,31 +45,24 @@ static list<optional<name>> rel_names_from_arg_kinds(list<congr_arg_kind> const 
         });
 }
 
-struct ext_congr_lemma {
-    name                 m_R;
-    congr_lemma          m_congr_lemma;    // actual lemma
-    list<optional<name>> m_rel_names;      // relation congruence to be used with each child, none means child is ignored by congruence closure.
-    unsigned             m_lift_needed:1;  // if true, m_congr_lemma is for equality, and we need to lift to m_R.
-    unsigned             m_fixed_fun:1;    // if true, we build equivalences for functions, and use generic congr lemma, and ignore m_congr_lemma
-    ext_congr_lemma(congr_lemma const & H):
-        m_R(get_eq_name()),
-        m_congr_lemma(H),
-        m_rel_names(rel_names_from_arg_kinds(H.get_arg_kinds(), get_eq_name())),
-        m_lift_needed(false),
-        m_fixed_fun(true) {}
-    ext_congr_lemma(name const & R, congr_lemma const & H, bool lift_needed):
-        m_R(R),
-        m_congr_lemma(H),
-        m_rel_names(rel_names_from_arg_kinds(H.get_arg_kinds(), get_eq_name())),
-        m_lift_needed(lift_needed),
-        m_fixed_fun(true) {}
-    ext_congr_lemma(name const & R, congr_lemma const & H, list<optional<name>> const & rel_names, bool lift_needed):
-        m_R(R),
-        m_congr_lemma(H),
-        m_rel_names(rel_names),
-        m_lift_needed(lift_needed),
-        m_fixed_fun(true) {}
-};
+ext_congr_lemma::ext_congr_lemma(congr_lemma const & H):
+    m_R(get_eq_name()),
+    m_congr_lemma(H),
+    m_rel_names(rel_names_from_arg_kinds(H.get_arg_kinds(), get_eq_name())),
+    m_lift_needed(false),
+    m_fixed_fun(true) {}
+ext_congr_lemma::ext_congr_lemma(name const & R, congr_lemma const & H, bool lift_needed):
+    m_R(R),
+    m_congr_lemma(H),
+    m_rel_names(rel_names_from_arg_kinds(H.get_arg_kinds(), get_eq_name())),
+    m_lift_needed(lift_needed),
+    m_fixed_fun(true) {}
+ext_congr_lemma::ext_congr_lemma(name const & R, congr_lemma const & H, list<optional<name>> const & rel_names, bool lift_needed):
+    m_R(R),
+    m_congr_lemma(H),
+    m_rel_names(rel_names),
+    m_lift_needed(lift_needed),
+    m_fixed_fun(true) {}
 
 /* We use the following cache for user-defined lemmas and automatically generated ones. */
 typedef std::unordered_map<congr_lemma_key, optional<ext_congr_lemma>, congr_lemma_key_hash_fn, congr_lemma_key_eq_fn> congr_cache;
@@ -328,7 +321,7 @@ static optional<ext_congr_lemma> mk_ext_congr_lemma_core(name const & R, expr co
     return optional<ext_congr_lemma>(R, *eq_congr, lift_needed);
 }
 
-static optional<ext_congr_lemma> mk_ext_congr_lemma(name const & R, expr const & fn, unsigned nargs) {
+optional<ext_congr_lemma> mk_ext_congr_lemma(name const & R, expr const & fn, unsigned nargs) {
     congr_lemma_key key(R, fn, nargs);
     auto it = g_congr_cache->find(key);
     if (it != g_congr_cache->end())

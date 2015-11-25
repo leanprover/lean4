@@ -566,17 +566,19 @@ static bool is_logical_app(expr const & n) {
 
 void congruence_closure::internalize_core(name const & R, expr const & e, bool toplevel, bool to_propagate) {
     lean_assert(closed(e));
-    if (has_expr_metavar(e))
+    // we allow metavariables after partitions have been frozen
+    if (has_expr_metavar(e) && !m_froze_partitions)
         return;
     if (m_entries.find(eqc_key(R, e)))
         return; // e has already been internalized
     update_non_eq_relations(R);
     switch (e.kind()) {
-    case expr_kind::Var: case expr_kind::Meta:
+    case expr_kind::Var:
         lean_unreachable();
     case expr_kind::Sort:
         return;
     case expr_kind::Constant: case expr_kind::Local:
+    case expr_kind::Meta:
         mk_entry_core(R, e, to_propagate, false);
         return;
     case expr_kind::Lambda:

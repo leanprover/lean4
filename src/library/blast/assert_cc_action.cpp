@@ -16,6 +16,8 @@ action_result assert_cc_action(hypothesis_idx hidx) {
     if (!get_config().m_cc)
         return action_result::failed();
     congruence_closure & cc = get_cc();
+    if (has_expr_metavar(curr_state().get_hypothesis_decl(hidx).get_type()))
+        return action_result::failed();
     cc.add(hidx);
     // cc.display();
     if (cc.is_inconsistent()) {

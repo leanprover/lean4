@@ -739,7 +739,7 @@ static expr parse_typed_expr(parser & p, unsigned, expr const * args, pos_info c
 }
 
 static expr parse_pattern(parser & p, unsigned, expr const * args, pos_info const & pos) {
-    return p.save_pos(mk_pattern(args[0]), pos);
+    return p.save_pos(mk_pattern_hint(args[0]), pos);
 }
 
 parse_table init_nud_table() {

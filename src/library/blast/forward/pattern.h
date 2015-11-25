@@ -8,14 +8,14 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-/** \brief Annotate \c e as a pattern */
-expr mk_pattern(expr const & e);
+/** \brief Annotate \c e as a pattern hint */
+expr mk_pattern_hint(expr const & e);
 /** \brief Return true iff \c e is an annotated pattern */
-bool is_pattern(expr const & e);
+bool is_pattern_hint(expr const & e);
 /** \brief Return the actual pattern */
-expr const & get_pattern_arg(expr const & e);
-/** \brief Return true iff \c e contains patterns */
-bool has_patterns(expr const & e);
+expr const & get_pattern_hint_arg(expr const & e);
+/** \brief Return true iff \c e contains pattern hints */
+bool has_pattern_hints(expr const & e);
 
 /** \brief Hint for the pattern inference procedure.
     It should not consider/infer patterns containing the constant \c n. */

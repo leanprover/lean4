@@ -15,13 +15,109 @@ Author: Leonardo de Moura
 #include "library/blast/forward/pattern.h"
 
 namespace lean {
-static name * g_pattern = nullptr;
+/*
+Step 1: Selecting which variables we should track.
 
-expr mk_pattern(expr const & e) { return mk_annotation(*g_pattern, e); }
-bool is_pattern(expr const & e) { return is_annotation(e, *g_pattern); }
-expr const & get_pattern_arg(expr const & e) { lean_assert(is_pattern(e)); return get_annotation_arg(e); }
-bool has_patterns(expr const & e) {
-    return static_cast<bool>(find(e, [](expr const & e, unsigned) { return is_pattern(e); }));
+Given (H : Pi (a_1 : A_1) ... (a_n : A_n), B) where B is not a Pi,
+we use the following procedure to decide which a_i's must be in
+patterns used by heuristic instantiation.
+
+- We say an a_i that must occur in a pattern is "trackable".
+
+- Let Trackable be the set of "trackable" a_i's
+
+- for i := 1 to n
+  a) If there is j > i, type(a_j) depends on a_i,
+     and type(a_i) is not higher-order, then
+     a_i is NOT trackable.
+     Reason: we can infer a_i from a_j using type inference.
+
+  b) a_i is a proposition -> a_i is NOT trackable.
+     Reason: we can leave a_i as hypothesis whenever we instantiate H.
+
+  c) a_i is instance implicit -> a_i is NOT trackable.
+     We should use type class resolution to infer a_i.
+
+  d) Otherwise, we add a_i into Trackable
+
+Remark: we say a (multi-)pattern for H is valid iff it contains all
+trackable a_i's.
+
+Remark: we say a_i is a "residue" hypothesis iff
+a_i is a proposition, is not instance-implicit, and (there is no j > i s.t. a_j is trackable
+and type(a_j) depends on a_i, and type(a_i) is not higher-order)
+
+That is, if a_i is a "residue" hypothesis, we cannot inferred it
+by using type inference or type class resolution.
+
+Residue hypotheses are the hypotheses for any instance of H produced by
+the heuristic instantiation module.
+
+Step 2a: H contains user-provided pattern hints
+The user may provide pattern hints by annotating subterms of H using
+the notation (:t:).
+
+Example: The term (g x y) is a pattern hint at (H : forall x y, f (:g x y:) = x).
+
+Let S be the set of patterns hints contained in H.
+Then, a multi-pattern P is any subset of S s.t.
+    a) P contains all trackable a_i's in H
+    b) There is no strict subset of P that contains all trackable a_i's in H
+
+If S is not empty, Lean will generate an error if there is no multi-pattern P for S.
+
+The option pattern.max is a threshold on the number of patterns that can be generated.
+Lean will generate an error if more than pattern.max can be generated using the
+set S.
+
+Step 2b: H does NOT contain user-provided pattern hints.
+
+When pattern hints are not provided, Lean uses a heuristic for selecting patterns.
+
+- Lean will only consider terms that do NOT contain constants marked with the hint attribute
+[no_pattern]. In the standard library, we use this attribute to mark constants such as
+'and', 'or', 'not', 'iff', 'eq', 'heq', etc.
+Whenever blast has builtin support for handling a symbol (e.g., blast has support for logical connectives),
+it is better to use it than using heuristic instantiation.
+
+- Lean will look for candidate patterns in B and residue hypotheses.
+Actually, it uses the following approach (TODO(Leo): should we provide options to control it?)
+   1) Lean tries to find multi-patterns in B (only). If it finds at least one, then it is done, otherwise
+   2) Lean tries to find multi-patterns in residue hypotheses only.
+      If it finds at leat one, then it is done, otherwise
+   3) Lean tries to find multi-patterns using residue hypotheses and B.
+      If it can't find at least one, it signs an error.
+
+- So, from now on, we will assume T is the set of terms where we will look for patterns.
+We use trackable(p) to denote the set of trackable variables in p.
+Lean will try to find "minimal" patterns and rank candidates in the following way
+     Given terms p and q where both do not contain [no_pattern] constants, we say
+     term p is "better" than q
+     IFF
+       1) trackable(p) is a strict superset of trackable(q) OR
+       2) trackable(p) == trackable(q), but p is as subterm of q.
+
+Given T, we collect a set of candidates C s.t., for each c_1 in C, there is no c_2 in C s.t. c_2 is better than c_1.
+
+If there is c in C s.t. c contains all trackable a_i's, then all such c in C is our set of patterns (done).
+
+To mimize the number of multi-patterns to be considered, we delete from C
+any candidate c_1 in C if there is a c_2 in C s.t.
+trackable(c_1) == trackable(c_2) and size(c_1) > size(c_2).
+
+We say a subset M of C is a multi-pattern if M contains all trackable variables.
+We say a multi-pattern M is minimal if no strict subset of M is a multi-pattern.
+
+If the set of minimal multi-patterns for C is bigger than `pattern.max`, then we generate an error.
+That is, the user should provide pattern-hints.
+*/
+static name * g_pattern_hint = nullptr;
+
+expr mk_pattern_hint(expr const & e) { return mk_annotation(*g_pattern_hint, e); }
+bool is_pattern_hint(expr const & e) { return is_annotation(e, *g_pattern_hint); }
+expr const & get_pattern_hint_arg(expr const & e) { lean_assert(is_pattern_hint(e)); return get_annotation_arg(e); }
+bool has_pattern_hints(expr const & e) {
+    return static_cast<bool>(find(e, [](expr const & e, unsigned) { return is_pattern_hint(e); }));
 }
 
 static name * g_no_pattern_name = nullptr;
@@ -205,13 +301,20 @@ struct pattern_size_lt {
         auto info2 = m_info.find(e2);
         lean_assert(info1 && info2);
         if (info1->m_num_mvars != info2->m_num_mvars)
-            return info1->m_num_mvars < info2->m_num_mvars;
+            return info1->m_num_mvars > info2->m_num_mvars;
         else
             return info1->m_size < info2->m_size;
     }
 };
 
 struct collect_pattern_candidates_fn {
+    tmp_type_context & m_ctx;
+    fun_info_manager & m_fm;
+    name_set const &   m_no_patterns;
+    typedef rb_tree<expr, expr_quick_cmp> candidates;
+
+    collect_pattern_candidates_fn(tmp_type_context & ctx, fun_info_manager & fm):
+        m_ctx(ctx), m_fm(fm), m_no_patterns(no_pattern_ext::get_state(ctx.env())) {}
     // TODO(Leo):
 };
 
@@ -219,14 +322,14 @@ void initialize_pattern() {
     g_no_pattern_name = new name("no_pattern");
     g_key             = new std::string("no_pattern");
     no_pattern_ext::initialize();
-    g_pattern = new name("pattern");
-    register_annotation(*g_pattern);
+    g_pattern_hint    = new name("pattern_hint");
+    register_annotation(*g_pattern_hint);
 }
 
 void finalize_pattern() {
     no_pattern_ext::finalize();
     delete g_no_pattern_name;
     delete g_key;
-    delete g_pattern;
+    delete g_pattern_hint;
 }
 }

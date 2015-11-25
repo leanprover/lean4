@@ -6,6 +6,8 @@ Author: Daniel Selsam
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/inductive/inductive.h"
+#include "library/constants.h"
+#include "library/util.h"
 #include "library/blast/blast.h"
 #include "library/blast/action_result.h"
 #include "library/blast/unit/unit_action.h"
@@ -30,6 +32,16 @@ struct unit_branch_extension : public branch_extension {
     virtual ~unit_branch_extension() {}
     virtual branch_extension * clone() override { return new unit_branch_extension(*this); }
 
+    void insert_disjunction(expr const & e, hypothesis_idx hidx) {
+        expr A, B;
+        if (is_or(e, A, B)) {
+            insert_disjunction(A, hidx);
+            insert_disjunction(B, hidx);
+        } else {
+            m_lemma_map.insert(e, hidx);
+        }
+    }
+
     virtual void hypothesis_activated(hypothesis const & h, hypothesis_idx hidx) override {
         expr type = whnf(h.get_type());
         if (!is_pi(type)) {
@@ -39,7 +51,7 @@ struct unit_branch_extension : public branch_extension {
         bool has_antecedent = false;
         while (is_pi(type) && is_prop(binding_domain(type)) && closed(binding_body(type))) {
             has_antecedent = true;
-            m_lemma_map.insert(binding_domain(type), hidx);
+            insert_disjunction(binding_domain(type), hidx);
             type = binding_body(type);
         }
         if (has_antecedent && is_prop(type)) {
@@ -58,6 +70,32 @@ public:
     template<typename P> void filter_lemmas(expr const & e, P && p) { return m_lemma_map.filter(e, p); }
     hypothesis_idx const * find_fact(expr const & e) { return m_fact_map.find(e); }
     void erase_fact(expr const & e) { return m_fact_map.erase(e); }
+
+    optional<expr> find_live_fact_in_disjunction(expr const & e) {
+        expr A, B;
+        if (is_or(e, A, B)) {
+            if (auto A_fact = find_live_fact_in_disjunction(A)) {
+                return some_expr(get_app_builder().mk_app(get_or_intro_left_name(), {A, B, *A_fact}));
+            } else if (auto B_fact = find_live_fact_in_disjunction(B)) {
+                return some_expr(get_app_builder().mk_app(get_or_intro_right_name(), {A, B, *B_fact}));
+            } else {
+                return none_expr();
+            }
+        } else {
+            hypothesis_idx const * fact_hidx = find_fact(e);
+            if (fact_hidx) {
+                hypothesis const & fact_h = curr_state().get_hypothesis_decl(*fact_hidx);
+                if (fact_h.is_dead()) {
+                    erase_fact(e);
+                    return none_expr();
+                } else {
+                    return some_expr(fact_h.get_self());
+                }
+            } else {
+                return none_expr();
+            }
+        }
+    }
 };
 
 void initialize_unit_action() {
@@ -80,18 +118,10 @@ action_result unit_pi(expr const & _type, expr const & proof) {
 
     while (is_pi(type) && is_prop(binding_domain(type)) && closed(binding_body(type))) {
         has_antecedent = true;
-        bool current_fact_found = false;
-        hypothesis_idx const * fact_hidx = ext.find_fact(binding_domain(type));
-        if (fact_hidx) {
-            hypothesis const & fact_h = curr_state().get_hypothesis_decl(*fact_hidx);
-            if (fact_h.is_dead()) {
-                ext.erase_fact(binding_domain(type));
-            } else {
-                new_hypothesis = mk_app(new_hypothesis, fact_h.get_self());
-                current_fact_found = true;
-            }
-        }
-        if (!current_fact_found) {
+        optional<expr> fact = ext.find_live_fact_in_disjunction(binding_domain(type));
+        if (fact) {
+            new_hypothesis = mk_app(new_hypothesis, *fact);
+        } else {
             if (missing_argument) return action_result::failed();
             local = mk_fresh_local(binding_domain(type));
             new_hypothesis = mk_app(new_hypothesis, local);
@@ -108,30 +138,24 @@ action_result unit_pi(expr const & _type, expr const & proof) {
     } else if (is_prop(type)) {
         expr not_type;
         if (blast::is_not(type, not_type)) {
-            hypothesis_idx const * fact_hidx = ext.find_fact(not_type);
-            if (!fact_hidx) return action_result::failed();
-            hypothesis const & fact_h = curr_state().get_hypothesis_decl(*fact_hidx);
-            if (fact_h.is_dead()) {
-                ext.erase_fact(not_type);
-                return action_result::failed();
-            } else {
+            optional<expr> fact = ext.find_live_fact_in_disjunction(not_type);
+            if (fact) {
                 // TODO(dhs): if classical, use double negation elimination
                 curr_state().mk_hypothesis(get_app_builder().mk_not(infer_type(local)),
-                                           Fun(local, mk_app(new_hypothesis, fact_h.get_self())));
+                                           Fun(local, mk_app(new_hypothesis, *fact)));
                 return action_result::new_branch();
+            } else {
+                return action_result::failed();
             }
         } else {
             not_type = get_app_builder().mk_not(type);
-            hypothesis_idx const * fact_hidx = ext.find_fact(not_type);
-            if (!fact_hidx) return action_result::failed();
-            hypothesis const & fact_h = curr_state().get_hypothesis_decl(*fact_hidx);
-            if (fact_h.is_dead()) {
-                ext.erase_fact(not_type);
-                return action_result::failed();
-            } else {
+            optional<expr> fact = ext.find_live_fact_in_disjunction(not_type);
+            if (fact) {
                 curr_state().mk_hypothesis(get_app_builder().mk_not(infer_type(local)),
-                                           Fun(local, mk_app(fact_h.get_self(), new_hypothesis)));
+                                           Fun(local, mk_app(*fact, new_hypothesis)));
                 return action_result::new_branch();
+            } else {
+                return action_result::failed();
             }
         }
     } else {

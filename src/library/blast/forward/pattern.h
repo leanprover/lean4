@@ -22,6 +22,8 @@ bool has_patterns(expr const & e);
 environment add_no_pattern(environment const & env, name const & n, bool persistent);
 /** \brief Return true if constant \c n is marked as [no_pattern] in the given environment. */
 bool is_no_pattern(environment const & env, name const & n);
+/** \brief Return the set of constants marked as no-patterns */
+name_set const & get_no_patterns(environment const & env);
 
 void initialize_pattern();
 void finalize_pattern();

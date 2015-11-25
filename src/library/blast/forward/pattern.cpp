@@ -69,6 +69,10 @@ environment add_no_pattern(environment const & env, name const & n, bool persist
     return no_pattern_ext::add_entry(env, get_dummy_ios(), n, persistent);
 }
 
+name_set const & get_no_patterns(environment const & env) {
+    return no_pattern_ext::get_state(env);
+}
+
 /** pattern_le */
 struct pattern_le_fn {
     tmp_type_context & m_ctx;

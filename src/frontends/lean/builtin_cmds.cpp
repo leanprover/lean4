@@ -508,6 +508,19 @@ static void print_backward_rules(parser & p) {
     out << brs;
 }
 
+static void print_no_patterns(parser & p) {
+    io_state_stream out = p.regular_stream();
+    auto s = get_no_patterns(p.env());
+    buffer<name> ns;
+    s.to_buffer(ns);
+    std::sort(ns.begin(), ns.end());
+    for (unsigned i = 0; i < ns.size(); i++) {
+        if (i > 0) out << ", ";
+        out << ns[i];
+    }
+    out << "\n";
+}
+
 environment print_cmd(parser & p) {
     flycheck_information info(p.regular_stream());
     if (info.enabled()) {
@@ -524,6 +537,9 @@ environment print_cmd(parser & p) {
         options opts = out.get_options();
         opts = opts.update(get_pp_notation_option_name(), false);
         out.update_options(opts) << e << endl;
+    } else if (p.curr_is_token_or_id(get_no_pattern_attr_tk())) {
+        p.next();
+        print_no_patterns(p);
     } else if (p.curr_is_token_or_id(get_reducible_tk())) {
         p.next();
         print_reducible_info(p, reducible_status::Reducible);

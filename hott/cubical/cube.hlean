@@ -265,10 +265,40 @@ namespace eq
 
   end cube_fillers
 
+  /- Apply a non-dependent function to an entire cube -/
+
   include c
   definition apc (f : A → B) :
     cube (aps f s₀₁₁) (aps f s₂₁₁) (aps f s₁₀₁) (aps f s₁₂₁) (aps f s₁₁₀) (aps f s₁₁₂) :=
   by cases c; exact idc
+  omit c
+
+  /- Transpose a cube (swap dimensions) -/
+
+  include c
+  definition transpose12 : cube s₁₀₁ s₁₂₁ s₀₁₁ s₂₁₁ (transpose s₁₁₀) (transpose s₁₁₂) :=
+  by cases c; exact idc
+
+  definition transpose13 : cube s₁₁₀ s₁₁₂ (transpose s₁₀₁) (transpose s₁₂₁) s₀₁₁ s₂₁₁ :=
+  by cases c; exact idc
+
+  definition transpose23 : cube (transpose s₀₁₁) (transpose s₂₁₁) (transpose s₁₁₀)
+    (transpose s₁₁₂) (transpose s₁₀₁) (transpose s₁₂₁) :=
+  by cases c; exact idc
+  omit c
+
+  /- Inverting a cube along one dimension -/
+
+  include c
+  definition cube_inverse1 : cube s₂₁₁ s₀₁₁ s₁₀₁⁻¹ʰ s₁₂₁⁻¹ʰ s₁₁₀⁻¹ᵛ s₁₁₂⁻¹ᵛ :=
+  by cases c; exact idc
+
+  definition cube_inverse2 : cube s₀₁₁⁻¹ʰ s₂₁₁⁻¹ʰ s₁₂₁ s₁₀₁ s₁₁₀⁻¹ʰ s₁₁₂⁻¹ʰ :=
+  by cases c; exact idc
+
+  definition cube_inverse3 : cube s₀₁₁⁻¹ᵛ s₂₁₁⁻¹ᵛ s₁₀₁⁻¹ᵛ s₁₂₁⁻¹ᵛ s₁₁₂ s₁₁₀ :=
+  by cases c; exact idc
+
   omit c
 
 end eq

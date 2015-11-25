@@ -90,10 +90,60 @@ namespace join
   --This proves that the join operator is associative
   --The proof is more or less ported from Evan Cavallo's agda version
   section join_switch
-  private definition massage_sq {A : Type} {a₀₀ a₂₀ a₀₂ a₂₂ : A}
+  private definition massage_sq' {A : Type} {a₀₀ a₂₀ a₀₂ a₂₂ : A}
     {p₁₀ : a₀₀ = a₂₀} {p₁₂ :  a₀₂ = a₂₂} {p₀₁ : a₀₀ = a₀₂} {p₂₁ : a₂₀ = a₂₂}
     (sq : square p₁₀ p₁₂ p₀₁ p₂₁) : square p₁₀⁻¹ p₀₁⁻¹ (p₂₁ ⬝ p₁₂⁻¹) idp :=
   by induction sq; exact ids
+
+  private definition massage_sq {A : Type} {a₀₀ a₂₀ a₀₂ : A}
+    {p₁₀ : a₀₀ = a₂₀} {p₁₂ :  a₀₂ = a₂₀} {p₀₁ : a₀₀ = a₀₂}
+    (sq : square p₁₀ p₁₂ p₀₁ idp) : square p₁₀⁻¹ p₀₁⁻¹ p₁₂⁻¹ idp :=
+  !idp_con⁻¹ ⬝ph (massage_sq' sq)
+
+  private definition ap_square_massage {A B : Type} (f : A → B) {a₀₀ a₀₂ a₂₀ : A}
+    {p₀₁ : a₀₀ = a₀₂} {p₁₀ : a₀₀ = a₂₀} {p₁₁ : a₂₀ = a₀₂} (sq : square p₀₁ p₁₁ p₁₀ idp) :
+    cube (hdeg_square (ap_inv f p₁₁)) ids
+         (aps f (massage_sq sq)) (massage_sq (aps f sq))
+         (hdeg_square !ap_inv) (hdeg_square !ap_inv) :=
+  by apply rec_on_r sq; apply idc
+
+  private definition massage_cube' {A : Type} {a₀₀₀ a₂₀₀ a₀₂₀ a₂₂₀ a₀₀₂ a₂₀₂ a₀₂₂ a₂₂₂ : A}
+    {p₁₀₀ : a₀₀₀ = a₂₀₀} {p₀₁₀ : a₀₀₀ = a₀₂₀} {p₀₀₁ : a₀₀₀ = a₀₀₂} {p₁₂₀ : a₀₂₀ = a₂₂₀}
+    {p₂₁₀ : a₂₀₀ = a₂₂₀} {p₂₀₁ : a₂₀₀ = a₂₀₂} {p₁₀₂ : a₀₀₂ = a₂₀₂} {p₀₁₂ : a₀₀₂ = a₀₂₂}
+    {p₀₂₁ : a₀₂₀ = a₀₂₂} {p₁₂₂ : a₀₂₂ = a₂₂₂} {p₂₁₂ : a₂₀₂ = a₂₂₂} {p₂₂₁ : a₂₂₀ = a₂₂₂}
+    {s₁₁₀ : square p₀₁₀ p₂₁₀ p₁₀₀ p₁₂₀} {s₁₁₂ : square p₀₁₂ p₂₁₂ p₁₀₂ p₁₂₂}
+    {s₀₁₁ : square p₀₁₀ p₀₁₂ p₀₀₁ p₀₂₁} {s₂₁₁ : square p₂₁₀ p₂₁₂ p₂₀₁ p₂₂₁}
+    {s₁₀₁ : square p₁₀₀ p₁₀₂ p₀₀₁ p₂₀₁} {s₁₂₁ : square p₁₂₀ p₁₂₂ p₀₂₁ p₂₂₁}
+    (c : cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) :
+    cube (s₂₁₁ ⬝v s₁₁₂⁻¹ᵛ) vrfl (massage_sq' s₁₀₁) (massage_sq' s₁₂₁) s₁₁₀⁻¹ᵛ s₀₁₁⁻¹ᵛ :=
+  by cases c; apply idc
+
+  private definition massage_cube {A : Type} {a₀₀₀ a₂₀₀ a₀₂₀ a₂₂₀ a₀₀₂ a₀₂₂ : A}
+    {p₁₀₀ : a₀₀₀ = a₂₀₀} {p₀₁₀ : a₀₀₀ = a₀₂₀} {p₀₀₁ : a₀₀₀ = a₀₀₂} {p₁₂₀ : a₀₂₀ = a₂₂₀}
+    {p₂₁₀ : a₂₀₀ = a₂₂₀} {p₁₀₂ : a₀₀₂ = a₂₀₀} {p₀₁₂ : a₀₀₂ = a₀₂₂}
+    {p₀₂₁ : a₀₂₀ = a₀₂₂} {p₁₂₂ : a₀₂₂ = a₂₂₀}
+    {s₁₁₀ : square p₀₁₀ _ _ _} {s₁₁₂ : square p₀₁₂ p₂₁₀ p₁₀₂ p₁₂₂}
+    {s₀₁₁ : square p₀₁₀ p₀₁₂ p₀₀₁ p₀₂₁} {s₂₁₁ : square p₂₁₀ p₂₁₀ idp idp}
+    {s₁₀₁ : square p₁₀₀ p₁₀₂ p₀₀₁ idp} {s₁₂₁ : square p₁₂₀ p₁₂₂ p₀₂₁ idp}
+    (c : cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) :
+    cube s₁₁₂⁻¹ᵛ vrfl (massage_sq s₁₀₁) (massage_sq s₁₂₁) s₁₁₀⁻¹ᵛ s₀₁₁⁻¹ᵛ :=
+  begin
+    unfold massage_sq, exact sorry
+  end
+
+  private definition massage_massage {A : Type} {a₀₀ a₀₂ a₂₀ : A}
+    {p₀₁ : a₀₀ = a₀₂} {p₁₀ : a₀₀ = a₂₀} {p₁₁ : a₂₀  = a₀₂} (sq : square p₀₁ p₁₁ p₁₀ idp) :
+    cube (hdeg_square !inv_inv) ids (massage_sq (massage_sq sq))
+      sq (hdeg_square !inv_inv) (hdeg_square !inv_inv) :=
+  by apply rec_on_r sq; apply idc
+
+  private definition square_Flr_ap_idp_cube {A B : Type} {b : B} {f : A → B}
+    {p₁ p₂ : Π a, f a = b} (α : Π a, p₁ a = p₂ a) {a₁ a₂ : A} (q : a₁ = a₂) :
+    cube hrfl hrfl (square_Flr_ap_idp p₁ q) (square_Flr_ap_idp p₂ q) 
+      (hdeg_square (α _)) (hdeg_square (α _)) :=
+  begin
+    cases q, esimp[square_Flr_ap_idp], apply deg3_cube, apply refl,
+  end
 
   variables {A B C : Type}
 
@@ -103,14 +153,13 @@ namespace join
   end
 
   private definition switch_coh_fill (a : A) (b : B) (c : C) :
-    Σ sq : square (jglue (inl c) a)⁻¹ (ap inl (jglue c b)⁻¹) (ap switch_left (jglue a b)) idp,
-      cube (hdeg_square !elim_glue) ids sq
-        (!idp_con⁻¹ ⬝ph (massage_sq (square_Flr_ap_idp _ _)) ⬝vp !ap_inv⁻¹) hrfl hrfl :=
+    Σ sq : square (jglue (inl c) a)⁻¹ (ap inl (jglue c b))⁻¹ (ap switch_left (jglue a b)) idp,
+      cube (hdeg_square !elim_glue) ids sq (massage_sq !square_Flr_ap_idp) hrfl hrfl :=
   by esimp; apply cube_fill101
 
   private definition switch_coh (ab : join A B) (c : C) : switch_left ab = inl (inl c) :=
   begin
-    induction ab with a b, apply !jglue⁻¹, apply ap inl !jglue⁻¹, induction x with a b,
+    induction ab with a b, apply !jglue⁻¹, apply (ap inl !jglue)⁻¹, induction x with a b,
     apply eq_pathover, refine _ ⬝hp !ap_constant⁻¹,
     apply !switch_coh_fill.1,
   end
@@ -129,7 +178,7 @@ namespace join
     refine hdeg_square !(ap_inv join.switch) ⬝h _,
     refine hrfl⁻¹ʰ⁻¹ᵛ ⬝h _, esimp[join.switch,switch_left,switch_coh],
     refine (hdeg_square !elim_glue)⁻¹ᵛ ⬝h _, esimp,
-    refine (hdeg_square !ap_inv)⁻¹ᵛ ⬝h _, apply hdeg_square !inv_inv,
+    refine hrfl⁻¹ᵛ ⬝h _, apply hdeg_square !inv_inv,
   end
 
   private definition switch_inv_coh_left (c : C) (a : A) :
@@ -148,9 +197,8 @@ namespace join
   begin
     refine hrfl ⬝h _,
     refine aps join.switch hrfl ⬝h _, esimp[switch_coh],
-    refine aps join.switch (hdeg_square !ap_inv) ⬝h _,
     refine hdeg_square !ap_inv ⬝h _,
-    refine (hdeg_square !ap_compose)⁻¹ᵛ⁻¹ʰ ⬝h _,
+    refine (hdeg_square !ap_compose)⁻¹ʰ⁻¹ᵛ ⬝h _,
     refine hrfl⁻¹ᵛ ⬝h _, esimp[join.switch,switch_left],
     refine (hdeg_square !elim_glue)⁻¹ᵛ ⬝h _, apply hdeg_square !inv_inv,
   end
@@ -174,12 +222,14 @@ namespace join
     cases (g x), reflexivity,
   end
 
-  private definition switch_inv_cube_aux2 {A B C : Type} {b : B} {f : A → B}
+  private definition switch_inv_cube_aux2 {A B : Type} {b : B} {f : A → B}
     (g : Π a, f a = b) {x y : A} (p : x = y) {sq : square (g x) (g y) (ap f p) idp}
     (q : apdo g p = eq_pathover (sq ⬝hp !ap_constant⁻¹)) : square_Flr_ap_idp _ _ = sq :=
   begin
     cases p, esimp at *, exact sorry
   end
+
+  --set_option pp.implicit true
 
   private definition switch_inv_cube (a : A) (b : B) (c : C) :
     cube (switch_inv_left_square a b) ids (square_Flr_ap_idp _ _)
@@ -187,11 +237,16 @@ namespace join
   begin
     esimp [switch_inv_coh_left, switch_inv_coh_right, switch_inv_left_square],
     apply cube_concat2, apply switch_inv_cube_aux1,
-    apply cube_concat2, apply cube_transport101,
-      apply inverse, apply ap (λ x, aps join.switch x),
-      apply switch_inv_cube_aux2, apply rec_glue,
+    apply cube_concat2, apply cube_transport101, apply inverse, 
+      apply ap (λ x, aps join.switch x), apply switch_inv_cube_aux2, apply rec_glue,
       apply apc, apply (switch_coh_fill a b c).2,
-    apply cube_concat2, esimp, 
+    apply cube_concat2, esimp, apply ap_square_massage,
+    apply cube_concat2, apply massage_cube, apply cube_inverse2, apply switch_inv_cube_aux1,
+    apply cube_concat2, apply massage_cube, apply square_Flr_ap_idp_cube,
+    apply cube_concat2, apply massage_cube, apply cube_transport101,
+      apply inverse, apply switch_inv_cube_aux2,
+      esimp[switch_coh], apply rec_glue, apply (switch_coh_fill c b a).2,
+    apply massage_massage,
   end
 
   end

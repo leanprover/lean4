@@ -313,9 +313,12 @@ public:
     rb_tree(CMP const & cmp = CMP()):CMP(cmp) {}
     rb_tree(rb_tree const & s):CMP(s), m_root(s.m_root) {}
     rb_tree(rb_tree && s):CMP(s), m_root(s.m_root) {}
-    rb_tree(buffer<T> const & s) {
+    explicit rb_tree(buffer<T> const & s) {
         for (auto const & v : s)
             insert(v);
+    }
+    explicit rb_tree(T const & v) {
+        insert(v);
     }
 
     rb_tree & operator=(rb_tree const & s) { m_root = s.m_root; return *this; }
@@ -400,7 +403,30 @@ public:
     void to_buffer(buffer<T> & r) const {
         to_buffer(m_root.m_ptr, r);
     }
+
+    void merge(rb_tree const & s) {
+        s.for_each([&](T const & v) { insert(v); });
+    }
+
+    bool is_superset(rb_tree const & s) const {
+        return !s.find_if([&](T const & v) { return !contains(v); });
+    }
+
+    bool is_strict_superset(rb_tree const & s) const {
+        if (!is_superset(s))
+            return false;
+        return !s.is_superset(*this);
+    }
+
+    void remove(rb_tree const & s) {
+        s.for_each([&](T const & v) { remove(v); });
+    }
 };
+
+template<typename T, typename CMP>
+bool operator==(rb_tree<T, CMP> const & s1, rb_tree<T, CMP> const & s2) {
+    return s1.is_superset(s2) && s2.is_superset(s1);
+}
 
 template<typename T, typename CMP>
 void rb_tree<T, CMP>::node_cell::dealloc() {

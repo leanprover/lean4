@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "util/sexpr/option_declarations.h"
 #include "library/blast/options.h"
+#include "library/blast/forward/pattern.h"
 
 #ifndef LEAN_DEFAULT_BLAST_MAX_DEPTH
 #define LEAN_DEFAULT_BLAST_MAX_DEPTH 128
@@ -85,16 +86,17 @@ bool get_blast_show_failure(options const & o) {
 }
 
 config::config(options const & o) {
-    m_max_depth    = get_blast_max_depth(o);
-    m_init_depth   = get_blast_init_depth(o);
-    m_inc_depth    = get_blast_inc_depth(o);
-    m_trace        = get_blast_trace(o);
-    m_subst        = get_blast_subst(o);
-    m_simp         = get_blast_simp(o);
-    m_cc           = get_blast_cc(o);
-    m_trace_cc     = get_blast_trace_cc(o);
-    m_recursor     = get_blast_recursor(o);
-    m_show_failure = get_blast_show_failure(o);
+    m_max_depth         = get_blast_max_depth(o);
+    m_init_depth        = get_blast_init_depth(o);
+    m_inc_depth         = get_blast_inc_depth(o);
+    m_trace             = get_blast_trace(o);
+    m_subst             = get_blast_subst(o);
+    m_simp              = get_blast_simp(o);
+    m_cc                = get_blast_cc(o);
+    m_trace_cc          = get_blast_trace_cc(o);
+    m_recursor          = get_blast_recursor(o);
+    m_show_failure      = get_blast_show_failure(o);
+    m_pattern_max_steps = get_pattern_max_steps(o);
 }
 
 LEAN_THREAD_PTR(config, g_config);

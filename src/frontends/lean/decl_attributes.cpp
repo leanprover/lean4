@@ -235,9 +235,9 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
     }
     if (m_forward) {
         if (m_priority)
-            env = add_hi_lemma(env, d, *m_priority, m_persistent);
+            env = add_hi_lemma(env, ios.get_options(), d, *m_priority, m_persistent);
         else
-            env = add_hi_lemma(env, d, LEAN_HI_LEMMA_DEFAULT_PRIORITY, m_persistent);
+            env = add_hi_lemma(env, ios.get_options(), d, LEAN_HI_LEMMA_DEFAULT_PRIORITY, m_persistent);
     }
     if (m_no_pattern) {
         env = add_no_pattern(env, d, m_persistent);

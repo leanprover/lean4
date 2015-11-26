@@ -5,20 +5,34 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include "util/rb_multi_map.h"
+#include "util/sstream.h"
+#include "util/sexpr/option_declarations.h"
+#include "library/expr_lt.h"
 #include "kernel/find_fn.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/replace_fn.h"
+#include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "library/kernel_serializer.h"
 #include "library/tmp_type_context.h"
-#include "library/fun_info_manager.h"
 #include "library/annotation.h"
 #include "library/occurs.h"
 #include "library/scoped_ext.h"
 #include "library/idx_metavar.h"
+#include "library/blast/options.h"
 #include "library/blast/forward/pattern.h"
 
+#ifndef LEAN_DEFAULT_PATTERN_MAX_STEPS
+#define LEAN_DEFAULT_PATTERN_MAX_STEPS 1024
+#endif
+
 namespace lean {
+static name * g_pattern_max_steps  = nullptr;
+
+unsigned get_pattern_max_steps(options const & o) {
+    return o.get_unsigned(*g_pattern_max_steps, LEAN_DEFAULT_PATTERN_MAX_STEPS);
+}
+
 /*
 Step 1: Selecting which variables we should track.
 
@@ -69,9 +83,8 @@ Then, a multi-pattern P is any subset of S s.t.
 
 If S is not empty, Lean will generate an error if there is no multi-pattern P for S.
 
-The option pattern.max is a threshold on the number of patterns that can be generated.
-Lean will generate an error if more than pattern.max can be generated using the
-set S.
+The option pattern.max_steps is a threshold on the number of steps performed
+Lean will generate an error if more than pattern.max_steps are performed while processing the set S.
 
 Step 2b: H does NOT contain user-provided pattern hints.
 
@@ -106,7 +119,7 @@ If there is c in C s.t. c contains all trackable a_i's, then all such c in C is 
 
 To mimize the number of multi-patterns to be considered, we delete from C
 any candidate c_1 in C if there is a c_2 in C s.t.
-trackable(c_1) == trackable(c_2) and size(c_1) > size(c_2).
+trackable(c_1) == trackable(c_2) and weight(c_1) > weight(c_2).
 
 We say a subset M of C is a multi-pattern if M contains all trackable variables.
 We say a multi-pattern M is minimal if no strict subset of M is a multi-pattern.
@@ -140,9 +153,9 @@ struct hi_entry {
 };
 
 struct hi_state {
-    name_set  m_no_patterns;
-    name_set  m_lemma_names;
-    hi_lemmas m_lemmas;
+    name_set           m_no_patterns;
+    name_map<hi_lemma> m_name_to_lemma;
+    hi_lemmas          m_lemmas;
 };
 
 serializer & operator<<(serializer & s, multi_pattern const & mp) {
@@ -174,12 +187,12 @@ struct hi_config {
             s.m_no_patterns.insert(*e.m_no_pattern);
         } else {
             if (auto n = get_hi_lemma_name(e.m_lemma.m_proof))
-                s.m_lemma_names.insert(*n);
+                s.m_name_to_lemma.insert(*n, e.m_lemma);
             for (multi_pattern const & mp : e.m_lemma.m_multi_patterns) {
                 for (expr const & p : mp) {
                     lean_assert(is_app(p));
                     lean_assert(is_constant(get_app_fn(p)));
-                    s.m_lemmas.insert(const_name(p), e.m_lemma);
+                    s.m_lemmas.insert(const_name(get_app_fn(p)), e.m_lemma);
                 }
             }
         }
@@ -325,199 +338,333 @@ expr extract_trackable(tmp_type_context & ctx, expr const & type,
     return B;
 }
 
-void collect_pattern_hints(expr const & e, buffer<expr> & hints) {
-    for_each(e, [&](expr const & e, unsigned) {
-            if (is_pattern_hint(e)) {
-                hints.push_back(get_pattern_hint_arg(e));
-                return false;
+struct mk_hi_lemma_fn {
+    tmp_type_context & m_ctx;
+    name_set const &   m_no_patterns;
+    expr               m_H;
+    unsigned           m_num_uvars;
+    unsigned           m_priority;
+    unsigned           m_max_steps;
+
+    buffer<expr>       m_mvars;
+    idx_metavar_set    m_trackable;
+    idx_metavar_set    m_residue;
+    unsigned           m_num_steps;
+
+    mk_hi_lemma_fn(tmp_type_context & ctx, expr const & H,
+                   unsigned num_uvars, unsigned prio, unsigned max_steps):
+        m_ctx(ctx), m_no_patterns(hi_ext::get_state(ctx.env()).m_no_patterns),
+        m_H(H), m_num_uvars(num_uvars), m_priority(prio), m_max_steps(max_steps) {}
+
+    struct candidate {
+        expr            m_expr;
+        idx_metavar_set m_mvars;
+        candidate() {}
+        candidate(expr const & e):
+            m_expr(e) {
+            for_each(e, [&](expr const & e, unsigned) {
+                    if (is_idx_metavar(e))
+                        m_mvars.insert(to_meta_idx(e));
+                    return true;
+                });
+        }
+        candidate(expr const & e, idx_metavar_set const & mvars):m_expr(e), m_mvars(mvars) {}
+    };
+
+    struct candidate_lt {
+        int operator()(candidate const & c1, candidate const & c2) const { return expr_quick_cmp()(c1.m_expr, c2.m_expr); }
+    };
+
+    typedef rb_tree<candidate, candidate_lt> candidate_set;
+
+    void collect_pattern_hints(expr const & e, candidate_set & s) {
+        for_each(e, [&](expr const & e, unsigned) {
+                if (is_pattern_hint(e)) {
+                    s.insert(candidate(get_pattern_hint_arg(e)));
+                    return false;
+                }
+                return true;
+            });
+    }
+
+    candidate_set collect_pattern_hints(buffer<expr> const & mvars, expr const & B) {
+        candidate_set s;
+        for (expr const & mvar : mvars)
+            collect_pattern_hints(m_ctx.infer(mvar), s);
+        collect_pattern_hints(B, s);
+        return s;
+    }
+
+    candidate_set m_candidates;
+
+    void save_candidates(candidate_set const & s) {
+        m_candidates.merge(s);
+    }
+
+    candidate_set collect_core(expr const & a) {
+        switch (a.kind()) {
+        case expr_kind::Var:
+            lean_unreachable();
+        case expr_kind::Sort:   case expr_kind::Constant:
+        case expr_kind::Meta:   case expr_kind::Local:
+        case expr_kind::Lambda: case expr_kind::Pi:
+            return candidate_set();
+        case expr_kind::Macro:
+            for (unsigned i = 0; i < macro_num_args(a); i++) {
+                candidate_set s = collect_core(macro_arg(a, i));
+                save_candidates(s);
             }
-            return true;
-        });
+            return candidate_set();
+        case expr_kind::App: {
+            buffer<expr> args;
+            expr const & fn = get_app_args(a, args);
+            buffer<candidate_set> arg_candidates;
+            bool forbidden = !is_local(fn) && (!is_constant(fn) || m_no_patterns.contains(const_name(fn)));
+            if (forbidden) {
+                for (expr const & arg : args) {
+                    candidate_set s = collect_core(arg);
+                    save_candidates(s);
+                }
+                return candidate_set();
+            } else {
+                candidate_set ss;
+                idx_metavar_set mvars;
+                for (expr const & arg : args) {
+                    if (is_idx_metavar(arg)) {
+                        if (m_trackable.contains(to_meta_idx(arg))) {
+                            mvars.insert(to_meta_idx(arg));
+                        }
+                    } else {
+                        candidate_set s = collect_core(arg);
+                        s.for_each([&](candidate const & c) {
+                                ss.insert(c);
+                                mvars.merge(c.m_mvars);
+                            });
+                    }
+                }
+                if (ss.find_if([&](candidate const & c) { return mvars == c.m_mvars; })) {
+                    return ss;
+                } else if (!mvars.empty()) {
+                    // a subsumes all children candidates
+                    return candidate_set(candidate(a, mvars));
+                }
+            }
+        }}
+        lean_unreachable();
+    }
+
+    candidate_set collect(expr const & a) {
+        m_candidates = candidate_set();
+        save_candidates(collect_core(a));
+        return m_candidates;
+    }
+
+    void mk_multi_patterns_core(unsigned i, buffer<candidate> const & s, buffer<expr> & mp, idx_metavar_set const & mvars, buffer<multi_pattern> & mps) {
+        m_num_steps++;
+        if (m_num_steps > m_max_steps)
+            throw exception(sstream() << "pattern inference failed for [forward] annotation, the maximum number (" << m_max_steps << ") of steps has been reached "
+                            "(possible solutions: provide pattern hints using the notation '(: t :)' for marking subterms; increase threshold using option pattern.max_steps)");
+        if (i == s.size())
+            return;
+        candidate const & c = s[i];
+        if (!mvars.is_strict_superset(c.m_mvars)) {
+            // candidate s[i] contributes with new variables
+            unsigned sz = mp.size();
+            mp.push_back(c.m_expr);
+            idx_metavar_set new_mvars = mvars;
+            new_mvars.merge(c.m_mvars);
+            if (new_mvars.is_superset(m_trackable)) {
+                // found multi-pattern
+                mps.push_back(to_list(mp));
+            } else {
+                // include s[i]
+                mk_multi_patterns_core(i+1, s, mp, new_mvars, mps);
+            }
+            mp.shrink(sz);
+        }
+        // do not include s[i];
+        mk_multi_patterns_core(i+1, s, mp, mvars, mps);
+    }
+
+    // If heuristic is true, then
+    //   1. Give preference to unary patterns
+    //   2. If there are no unary patterns, then
+    //      delet any candidate c_1 if there is a c_2 s.t.
+    //      trackable(c_1) == trackable(c_2) and weight(c_1) > weight(c_2).
+    list<multi_pattern> mk_multi_patterns_using(candidate_set s, bool heuristic) {
+        if (heuristic) {
+            buffer<multi_pattern> unit_patterns;
+            s.for_each([&](candidate const & c) {
+                    if (c.m_mvars.is_superset(m_trackable))
+                        unit_patterns.push_back(c.m_expr);
+                });
+            if (!unit_patterns.empty()) {
+                return to_list(unit_patterns);
+            }
+            buffer<candidate> to_delete;
+            s.for_each([&](candidate const & c1) {
+                    if (s.find_if([&](candidate const & c2) {
+                                return
+                                    c1.m_mvars == c2.m_mvars &&
+                                    get_weight(c1.m_expr) > get_weight(c2.m_expr);
+                            })) {
+                        to_delete.push_back(c1);
+                    }
+                });
+            for (candidate const & c : to_delete) {
+                s.erase(c);
+            }
+        }
+        buffer<candidate> s_buffer;
+        s.to_buffer(s_buffer);
+        buffer<multi_pattern> mps;
+        buffer<expr> mp;
+        m_num_steps = 0;
+        mk_multi_patterns_core(0, s_buffer, mp, idx_metavar_set(), mps);
+        return to_list(mps);
+    }
+
+    expr replace_mvars(expr const & e, buffer<expr> const & subst) {
+        return replace(e,
+                       [&](expr const & e) {
+                           if (!has_expr_metavar(e))
+                               return some_expr(e);
+                           if (is_idx_metavar(e))
+                               return some_expr(subst[to_meta_idx(e)]);
+                           else
+                               return none_expr();
+                       });
+    }
+
+    // Create proof by pushing all residue hypotheses to the "end".
+    // Residue hypotheses are converted into local constants.
+    // Remaining metavariables are "renamed" (i.e., renumbered to avoid gaps due to residue hypotheses moved to the end).
+    // Trackable set is updated.
+    // subst will contain the mvars renaming
+    expr mk_proof(buffer<expr> & new_residue, buffer<expr> & subst) {
+        unsigned j = 0;
+        bool found_residue     = false;
+        bool only_tail_residue = true;
+        for (unsigned i = 0; i < m_mvars.size(); i++) {
+            expr new_type = m_ctx.infer(m_mvars[i]);
+            if (i != j)
+                new_type = replace_mvars(new_type, subst);
+            if (m_residue.contains(to_meta_idx(m_mvars[i]))) {
+                found_residue = true;
+                expr res      = m_ctx.mk_tmp_local(new_type);
+                new_residue.push_back(res);
+                subst.push_back(res);
+            } else {
+                if (found_residue)
+                    only_tail_residue = false;
+                expr new_mvar;
+                if (j == i) {
+                    new_mvar = m_mvars[i];
+                } else {
+                    new_mvar = mk_idx_metavar(j, new_type);
+                    if (m_trackable.contains(i)) {
+                        m_trackable.erase(i);
+                        m_trackable.insert(j);
+                    }
+                    m_mvars[j] = new_mvar;
+                }
+                j++;
+                subst.push_back(new_mvar);
+            }
+        }
+        m_mvars.shrink(j);
+        if (only_tail_residue) {
+            return mk_app(m_H, m_mvars);
+        } else {
+            return Fun(new_residue, mk_app(m_H, subst));
+        }
+    }
+
+    hi_lemma operator()() {
+        expr H_type = m_ctx.infer(m_H);
+        expr B      = extract_trackable(m_ctx, H_type, m_mvars, m_trackable, m_residue);
+        buffer<expr> subst;
+        buffer<expr> residue_locals;
+        expr proof  = mk_proof(residue_locals, subst);
+        B           = replace_mvars(B, subst);
+        candidate_set hints = collect_pattern_hints(m_mvars, B);
+        list<multi_pattern> mps;
+        if (!hints.empty()) {
+            mps = mk_multi_patterns_using(hints, false);
+        } else {
+            buffer<expr> places;
+            candidate_set B_candidates = collect(B);
+            if (auto r1 = mk_multi_patterns_using(B_candidates, true)) {
+                mps = r1;
+            } else {
+                candidate_set residue_candidates;
+                for (expr const & r : residue_locals) {
+                    residue_candidates.merge(collect(m_ctx.infer(r)));
+                }
+                if (auto r2 = mk_multi_patterns_using(residue_candidates, true)) {
+                    mps = r2;
+                } else if (!residue_candidates.empty() && !B_candidates.empty()) {
+                    candidate_set all_candidates = B_candidates;
+                    all_candidates.merge(residue_candidates);
+                    mps = mk_multi_patterns_using(all_candidates, true);
+                }
+            }
+        }
+        if (!mps) {
+            throw exception(sstream() << "pattern inference failed for [forward] annotation, "
+                            "(solution: provide pattern hints using the notation '(: t :)' )");
+        }
+        hi_lemma r;
+        r.m_num_uvars      = m_num_uvars;
+        r.m_num_mvars      = m_mvars.size();
+        r.m_priority       = m_priority;
+        r.m_multi_patterns = mps;
+        r.m_prop           = m_ctx.infer(proof);
+        r.m_proof          = proof;
+        return r;
+    }
+};
+
+hi_lemma mk_hi_lemma_core(tmp_type_context & ctx, expr const & H, unsigned num_uvars,
+                          unsigned priority, unsigned max_steps) {
+    return mk_hi_lemma_fn(ctx, H, num_uvars, priority, max_steps)();
 }
 
-hi_lemma mk_hi_lemma_core(tmp_type_context & ctx, fun_info_manager & fm, expr const & H, unsigned num_uvars,
-                          unsigned priority) {
-    // TODO(Leo):
-    std::cout << H << "\n";
-    hi_lemma r;
-    r.m_proof = H; // fix
-    return r;
-}
+namespace blast {
+hi_lemma mk_hi_lemma(tmp_type_context & ctx, expr const & H) {
+    unsigned max_steps = get_config().m_pattern_max_steps;
+    ctx.clear();
+    return mk_hi_lemma_core(ctx, H, 0, LEAN_HI_LEMMA_DEFAULT_PRIORITY, max_steps);
+}}
 
-hi_lemma mk_hi_lemma(tmp_type_context & ctx, fun_info_manager & fm, expr const & H) {
-    return mk_hi_lemma_core(ctx, fm, H, 0, LEAN_HI_LEMMA_DEFAULT_PRIORITY);
-}
-
-environment add_hi_lemma(environment const & env, name const & c, unsigned priority, bool persistent) {
+environment add_hi_lemma(environment const & env, options const & o, name const & c, unsigned priority, bool persistent) {
     tmp_type_context ctx(env, get_dummy_ios());
-    fun_info_manager fm(ctx);
     declaration const & d = env.get(c);
     buffer<level> us;
     unsigned num_us = d.get_num_univ_params();
     for (unsigned i = 0; i < num_us; i++)
         us.push_back(ctx.mk_uvar());
-    expr H = mk_constant(c, to_list(us));
-    return hi_ext::add_entry(env, get_dummy_ios(), hi_entry(mk_hi_lemma_core(ctx, fm, H, num_us, priority)),
+    expr H             = mk_constant(c, to_list(us));
+    unsigned max_steps = get_pattern_max_steps(o);
+    return hi_ext::add_entry(env, get_dummy_ios(), hi_entry(mk_hi_lemma_core(ctx, H, num_us, priority, max_steps)),
                              persistent);
 }
 
-bool is_hi_lemma(environment const & env, name const & c) {
-    return hi_ext::get_state(env).m_lemma_names.contains(c);
+hi_lemma const * get_hi_lemma(environment const & env, name const & c) {
+    return hi_ext::get_state(env).m_name_to_lemma.find(c);
 }
-
-/** pattern_le */
-struct pattern_le_fn {
-    tmp_type_context & m_ctx;
-
-    bool is_le_app(expr const & e1, expr const & e2) {
-        if (is_app(e1) && is_app(e2)) {
-            buffer<expr> args1, args2;
-            expr const & f1 = get_app_args(e1, args1);
-            expr const & f2 = get_app_args(e2, args2);
-            if (!is_le(f1, f2) && args1.size() != args2.size())
-                return false;
-            for (unsigned i = 0; i > args1.size(); i++)
-                if (!is_le(args1[i], args2[i]))
-                    return false;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    bool is_le(expr const & e1, expr const & e2) {
-        if (is_idx_metavar(e1)) {
-            return m_ctx.is_def_eq(e1, e2);
-        } else if (is_idx_metavar(e2)) {
-            return false;
-        } else if (is_le_app(e1, e2)) {
-            return true;
-        } else if (!has_expr_metavar(e1) && !has_expr_metavar(e2)) {
-            return m_ctx.is_def_eq(e1, e2);
-        } else {
-            return false;
-        }
-    }
-
-    pattern_le_fn(tmp_type_context & ctx):m_ctx(ctx) {}
-
-    bool operator()(expr const & e1, expr const & e2) {
-        m_ctx.push();
-        bool r = is_le(e1, e2);
-        m_ctx.pop();
-        return r;
-    }
-};
-
-struct pattern_info {
-    idx_metavar_set m_idx_mvar_set;
-    unsigned        m_num_mvars;
-    unsigned        m_size;
-    pattern_info():m_num_mvars(0), m_size(0) {}
-    pattern_info(idx_metavar_set const & s, unsigned sz):
-        m_idx_mvar_set(s), m_num_mvars(s.size()), m_size(sz) {}
-};
-
-struct mk_pattern_info_fn {
-    tmp_type_context & m_ctx;
-    fun_info_manager & m_finfo;
-    idx_metavar_set    m_set;
-    unsigned           m_size;
-
-    void visit(expr const & e, bool inc_size) {
-        if (inc_size)
-            m_size++;
-        switch (e.kind()) {
-        case expr_kind::Var:
-            lean_unreachable();
-        case expr_kind::Sort:  case expr_kind::Constant:
-        case expr_kind::Local:
-            return;
-        case expr_kind::Meta:
-            if (is_idx_metavar(e))
-                m_set.insert(to_meta_idx(e));
-            return;
-        case expr_kind::Macro:
-            for (unsigned i = 0; i < macro_num_args(e); i++)
-                visit(macro_arg(e, i), inc_size);
-            return;
-        case expr_kind::Pi: case expr_kind::Lambda: {
-            visit(binding_domain(e), inc_size);
-            expr local = m_ctx.mk_tmp_local(binding_domain(e));
-            visit(instantiate(binding_body(e), local), inc_size);
-            return;
-        }
-        case expr_kind::App: {
-            buffer<expr> args;
-            expr const & fn = get_app_args(e, args);
-            visit(fn, inc_size);
-            if (inc_size) {
-                fun_info info = m_finfo.get(fn, args.size());
-                list<param_info> const * it = &info.get_params_info();
-                for (unsigned i = 0; i < args.size(); i++) {
-                    // inst-implicit arguments and subsingletons do not contribute
-                    // to the pattern-size
-                    param_info const & pinfo = head(*it);
-                    visit(args[i], !pinfo.is_inst_implicit() && !pinfo.is_subsingleton());
-                    it = &(tail(*it));
-                }
-            } else {
-                for (unsigned i = 0; i < args.size(); i++)
-                    visit(args[i], false);
-            }
-        }}
-    }
-
-    mk_pattern_info_fn(tmp_type_context & ctx, fun_info_manager & fm):
-        m_ctx(ctx), m_finfo(fm), m_size(0) {}
-
-    pattern_info operator()(expr const & e) {
-        visit(e, true);
-        return pattern_info(m_set, m_size);
-    }
-};
-
-pattern_info mk_pattern_info(tmp_type_context & ctx, fun_info_manager & fm, expr const & e) {
-    return mk_pattern_info_fn(ctx, fm)(e);
-}
-
-typedef rb_map<expr, pattern_info, expr_quick_cmp> pattern_info_map;
-
-/** \brief Compare candidates patterns based on the following heuristic
-    p1 << p2 (i.e., p1 is "better" than p2) if
-    - p1 has more free meta-variables than p2
-    - p1 and p2 has the same number of metavariable, and free variables,
-    and p1's pattern size is smaller than p2. */
-struct pattern_size_lt {
-    pattern_info_map const & m_info;
-    bool operator()(expr const & e1, expr const & e2) const {
-        auto info1 = m_info.find(e1);
-        auto info2 = m_info.find(e2);
-        lean_assert(info1 && info2);
-        if (info1->m_num_mvars != info2->m_num_mvars)
-            return info1->m_num_mvars > info2->m_num_mvars;
-        else
-            return info1->m_size < info2->m_size;
-    }
-};
-
-struct collect_pattern_candidates_fn {
-    tmp_type_context & m_ctx;
-    fun_info_manager & m_fm;
-    name_set const &   m_no_patterns;
-    typedef rb_tree<expr, expr_quick_cmp> candidates;
-
-    collect_pattern_candidates_fn(tmp_type_context & ctx, fun_info_manager & fm):
-        m_ctx(ctx), m_fm(fm), m_no_patterns(get_no_patterns(ctx.env())) {}
-    // TODO(Leo):
-};
 
 void initialize_pattern() {
-    g_hi_name         = new name("hi");
-    g_key             = new std::string("HI");
+    g_hi_name           = new name("hi");
+    g_key               = new std::string("HI");
     hi_ext::initialize();
-    g_pattern_hint    = new name("pattern_hint");
+    g_pattern_hint      = new name("pattern_hint");
     register_annotation(*g_pattern_hint);
+    g_pattern_max_steps = new name{"pattern", "max_steps"};
+    register_unsigned_option(*g_pattern_max_steps, LEAN_DEFAULT_PATTERN_MAX_STEPS,
+                             "(pattern) max number of steps performed by pattern inference procedure, "
+                             "we have this threshold because in the worst case this procedure may take "
+                             "an exponetial number of steps");
 }
 
 void finalize_pattern() {
@@ -525,5 +672,6 @@ void finalize_pattern() {
     delete g_hi_name;
     delete g_key;
     delete g_pattern_hint;
+    delete g_pattern_max_steps;
 }
 }

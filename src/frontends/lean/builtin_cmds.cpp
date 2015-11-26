@@ -244,6 +244,20 @@ static void print_definition(parser const & p, name const & n, pos_info const & 
     if (!d.is_definition())
         throw parser_error(sstream() << "invalid 'print definition', '" << n << "' is not a definition", pos);
     new_out << d.get_value() << endl;
+    if (auto lemma = get_hi_lemma(env, n)) {
+        if (lemma->m_multi_patterns) {
+            new_out << "(multi-)patterns:\n";
+            for (multi_pattern const & mp : lemma->m_multi_patterns) {
+                new_out << "{";
+                bool first = true;
+                for (expr const & p : mp) {
+                    if (first) first = false; else new_out << ", ";
+                    new_out << p;
+                }
+                new_out << "}\n";
+            }
+        }
+    }
 }
 
 static void print_attributes(parser const & p, name const & n) {
@@ -263,7 +277,7 @@ static void print_attributes(parser const & p, name const & n) {
         out << " [backward]";
     if (is_no_pattern(env, n))
         out << " [no_pattern]";
-    if (is_hi_lemma(env, n))
+    if (get_hi_lemma(env, n))
         out << " [forward]";
     switch (get_reducible_status(env, n)) {
     case reducible_status::Reducible:      out << " [reducible]"; break;

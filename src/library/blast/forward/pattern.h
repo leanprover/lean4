@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "util/rb_multi_map.h"
 #include "kernel/environment.h"
 #include "library/tmp_type_context.h"
-#include "library/fun_info_manager.h"
 
 #ifndef LEAN_HI_LEMMA_DEFAULT_PRIORITY
 #define LEAN_HI_LEMMA_DEFAULT_PRIORITY 1000
@@ -52,16 +51,23 @@ inline bool operator!=(hi_lemma const & l1, hi_lemma const & l2) { return l1.m_p
 typedef rb_multi_map<name, hi_lemma, name_quick_cmp> hi_lemmas;
 
 /** \brief Add the given theorem as a heuristic instantiation lemma in the current environment. */
-environment add_hi_lemma(environment const & env, name const & c, unsigned priority, bool persistent);
+environment add_hi_lemma(environment const & env, options const & o, name const & c, unsigned priority, bool persistent);
 
-/** \brief Return true iff \c c was added as a heuristic instantiation lemma */
-bool is_hi_lemma(environment const & env, name const & c);
+/** \brief Return the heuristic instantiation lemma data associated with constant \c c */
+hi_lemma const * get_hi_lemma(environment const & env, name const & c);
 
 /** \brief Retrieve the active set of heuristic instantiation lemmas. */
 hi_lemmas get_hi_lemma_index(environment const & env);
 
-/** \brief Create a (local) heuristic instantiation lemma for \c H. */
-hi_lemma mk_hi_lemma(tmp_type_context & ctx, fun_info_manager & fm, expr const & H);
+hi_lemma mk_hi_lemma(tmp_type_context & ctx, expr const & H, unsigned max_steps);
+
+unsigned get_pattern_max_steps(options const & o);
+
+namespace blast {
+/** \brief Create a (local) heuristic instantiation lemma for \c H.
+    The maximum number of steps is extracted from the blast config object. */
+hi_lemma mk_hi_lemma(tmp_type_context & ctx, expr const & H);
+}
 
 void initialize_pattern();
 void finalize_pattern();

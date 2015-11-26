@@ -447,6 +447,8 @@ struct mk_hi_lemma_fn {
                 } else if (!mvars.empty()) {
                     // a subsumes all children candidates
                     return candidate_set(candidate(a, mvars));
+                } else {
+                    return candidate_set();
                 }
             }
         }}

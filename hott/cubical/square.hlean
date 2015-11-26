@@ -82,12 +82,12 @@ namespace eq
     square p₁₀ p₁₂ p₀₁ p :=
   by induction r; exact s₁₁
 
-  infix `⬝h`:75 := hconcat --type using \tr
-  infix `⬝v`:75 := vconcat --type using \tr
-  infix `⬝hp`:75 := hconcat_eq --type using \tr
-  infix `⬝vp`:75 := vconcat_eq --type using \tr
-  infix `⬝ph`:75 := eq_hconcat --type using \tr
-  infix `⬝pv`:75 := eq_vconcat --type using \tr
+  infix ` ⬝h `:75 := hconcat --type using \tr
+  infix ` ⬝v `:75 := vconcat --type using \tr
+  infix ` ⬝hp `:75 := hconcat_eq --type using \tr
+  infix ` ⬝vp `:75 := vconcat_eq --type using \tr
+  infix ` ⬝ph `:75 := eq_hconcat --type using \tr
+  infix ` ⬝pv `:75 := eq_vconcat --type using \tr
   postfix `⁻¹ʰ`:(max+1) := hinverse --type using \-1h
   postfix `⁻¹ᵛ`:(max+1) := vinverse --type using \-1v
 

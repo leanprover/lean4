@@ -141,6 +141,7 @@ struct hi_entry {
 
 struct hi_state {
     name_set  m_no_patterns;
+    name_set  m_lemma_names;
     hi_lemmas m_lemmas;
 };
 
@@ -154,6 +155,16 @@ deserializer & operator>>(deserializer & d, multi_pattern & mp) {
     return d;
 }
 
+static optional<name> get_hi_lemma_name(expr const & H) {
+    if (is_lambda(H))
+        return get_hi_lemma_name(binding_body(H));
+    expr const & f = get_app_fn(H);
+    if (is_constant(f))
+        return optional<name>(const_name(f));
+    else
+        return optional<name>();
+}
+
 struct hi_config {
     typedef hi_entry entry;
     typedef hi_state state;
@@ -162,6 +173,8 @@ struct hi_config {
         if (e.m_no_pattern) {
             s.m_no_patterns.insert(*e.m_no_pattern);
         } else {
+            if (auto n = get_hi_lemma_name(e.m_lemma.m_proof))
+                s.m_lemma_names.insert(*n);
             for (multi_pattern const & mp : e.m_lemma.m_multi_patterns) {
                 for (expr const & p : mp) {
                     lean_assert(is_app(p));
@@ -326,7 +339,9 @@ hi_lemma mk_hi_lemma_core(tmp_type_context & ctx, fun_info_manager & fm, expr co
                           unsigned priority) {
     // TODO(Leo):
     std::cout << H << "\n";
-    return hi_lemma();
+    hi_lemma r;
+    r.m_proof = H; // fix
+    return r;
 }
 
 hi_lemma mk_hi_lemma(tmp_type_context & ctx, fun_info_manager & fm, expr const & H) {
@@ -344,6 +359,10 @@ environment add_hi_lemma(environment const & env, name const & c, unsigned prior
     expr H = mk_constant(c, to_list(us));
     return hi_ext::add_entry(env, get_dummy_ios(), hi_entry(mk_hi_lemma_core(ctx, fm, H, num_us, priority)),
                              persistent);
+}
+
+bool is_hi_lemma(environment const & env, name const & c) {
+    return hi_ext::get_state(env).m_lemma_names.contains(c);
 }
 
 /** pattern_le */

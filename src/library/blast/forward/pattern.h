@@ -54,6 +54,9 @@ typedef rb_multi_map<name, hi_lemma, name_quick_cmp> hi_lemmas;
 /** \brief Add the given theorem as a heuristic instantiation lemma in the current environment. */
 environment add_hi_lemma(environment const & env, name const & c, unsigned priority, bool persistent);
 
+/** \brief Return true iff \c c was added as a heuristic instantiation lemma */
+bool is_hi_lemma(environment const & env, name const & c);
+
 /** \brief Retrieve the active set of heuristic instantiation lemmas. */
 hi_lemmas get_hi_lemma_index(environment const & env);
 

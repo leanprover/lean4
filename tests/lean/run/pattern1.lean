@@ -5,11 +5,10 @@ sorry
 
 print lemma1
 
--- TODO(Leo): remove patterns that are permutations of of other patterns
 definition lemma2 [forward] {a b : nat} : f a b = f b a :=
 sorry
 
-definition lemma3 [forward] {a b : nat} : (:f a b:) = f b a :=
+definition lemma3 {a b : nat} : (:f a b:) = f b a :=
 sorry
 
 print lemma2

@@ -164,6 +164,12 @@ void decl_attributes::parse(parser & p) {
 }
 
 environment decl_attributes::apply(environment env, io_state const & ios, name const & d) const {
+    bool forward = m_forward;
+    if (has_pattern_hints(env.get(d).get_type())) {
+        // turn on [forward] if patterns hints have been used in the type.
+        forward = true;
+    }
+
     if (m_is_instance) {
         if (m_priority) {
             #if defined(__GNUC__) && !defined(__CLANG__)
@@ -233,7 +239,7 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
         else
             env = add_backward_rule(env, d, LEAN_BACKWARD_DEFAULT_PRIORITY, m_persistent);
     }
-    if (m_forward) {
+    if (forward) {
         if (m_priority)
             env = add_hi_lemma(env, ios.get_options(), d, *m_priority, m_persistent);
         else

@@ -44,6 +44,7 @@ decl_attributes::decl_attributes(bool is_abbrev, bool persistent):
     m_simp                   = false;
     m_congr                  = false;
     m_backward               = false;
+    m_forward                = false;
     m_no_pattern             = false;
 }
 
@@ -91,8 +92,8 @@ void decl_attributes::parse(parser & p) {
             p.next();
         } else if (auto it = parse_priority(p)) {
             m_priority = *it;
-            if (!m_is_instance && !m_simp && !m_congr && !m_backward) {
-                throw parser_error("invalid '[priority]' attribute, declaration must be marked as an '[instance]', '[simp]', '[congr], or [backward]'", pos);
+            if (!m_is_instance && !m_simp && !m_congr && !m_backward && !m_forward) {
+                throw parser_error("invalid '[priority]' attribute, declaration must be marked as an '[instance]', '[simp]', '[congr]', '[backward]' or '[forward]'", pos);
             }
         } else if (p.curr_is_token(get_parsing_only_tk())) {
             if (!m_is_abbrev)
@@ -140,6 +141,9 @@ void decl_attributes::parse(parser & p) {
         } else if (p.curr_is_token(get_backward_attr_tk())) {
             p.next();
             m_backward = true;
+        } else if (p.curr_is_token(get_forward_attr_tk())) {
+            p.next();
+            m_forward = true;
         } else if (p.curr_is_token(get_no_pattern_attr_tk())) {
             p.next();
             m_no_pattern = true;
@@ -229,6 +233,12 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
         else
             env = add_backward_rule(env, d, LEAN_BACKWARD_DEFAULT_PRIORITY, m_persistent);
     }
+    if (m_forward) {
+        if (m_priority)
+            env = add_hi_lemma(env, d, *m_priority, m_persistent);
+        else
+            env = add_hi_lemma(env, d, LEAN_HI_LEMMA_DEFAULT_PRIORITY, m_persistent);
+    }
     if (m_no_pattern) {
         env = add_no_pattern(env, d, m_persistent);
     }
@@ -242,7 +252,8 @@ void decl_attributes::write(serializer & s) const {
       << m_is_reducible << m_is_irreducible << m_is_semireducible << m_is_quasireducible
       << m_is_class << m_is_parsing_only << m_has_multiple_instances << m_unfold_full_hint
       << m_constructor_hint << m_symm << m_trans << m_refl << m_subst << m_recursor
-      << m_simp << m_congr << m_recursor_major_pos << m_priority << m_backward << m_no_pattern;
+      << m_simp << m_congr << m_recursor_major_pos << m_priority << m_backward
+      << m_forward << m_no_pattern;
     write_list(s, m_unfold_hint);
 }
 
@@ -251,7 +262,8 @@ void decl_attributes::read(deserializer & d) {
       >> m_is_reducible >> m_is_irreducible >> m_is_semireducible >> m_is_quasireducible
       >> m_is_class >> m_is_parsing_only >> m_has_multiple_instances >> m_unfold_full_hint
       >> m_constructor_hint >> m_symm >> m_trans >> m_refl >> m_subst >> m_recursor
-      >> m_simp >> m_congr >> m_recursor_major_pos >> m_priority >> m_backward >> m_no_pattern;
+      >> m_simp >> m_congr >> m_recursor_major_pos >> m_priority >> m_backward
+      >> m_forward >> m_no_pattern;
     m_unfold_hint = read_list<unsigned>(d);
 }
 }

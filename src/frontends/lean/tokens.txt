@@ -117,6 +117,7 @@ simp_attr    [simp]
 congr_attr   [congr]
 backward_attr [backward]
 no_pattern_attr [no_pattern]
+forward_attr [forward]
 recursor     [recursor
 attribute    attribute
 with         with

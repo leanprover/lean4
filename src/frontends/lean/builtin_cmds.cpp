@@ -231,6 +231,23 @@ static void print_metaclasses(parser const & p) {
         p.regular_stream() << "[" << n << "]" << endl;
 }
 
+static void print_patterns(io_state_stream const & out, environment const & env, name const & n) {
+    if (auto lemma = get_hi_lemma(env, n)) {
+        if (lemma->m_multi_patterns) {
+            out << "(multi-)patterns:\n";
+            for (multi_pattern const & mp : lemma->m_multi_patterns) {
+                out << "{";
+                bool first = true;
+                for (expr const & p : mp) {
+                    if (first) first = false; else out << ", ";
+                    out << p;
+                }
+                out << "}\n";
+            }
+        }
+    }
+}
+
 static void print_definition(parser const & p, name const & n, pos_info const & pos) {
     environment const & env = p.env();
     declaration d = env.get(n);
@@ -244,20 +261,6 @@ static void print_definition(parser const & p, name const & n, pos_info const & 
     if (!d.is_definition())
         throw parser_error(sstream() << "invalid 'print definition', '" << n << "' is not a definition", pos);
     new_out << d.get_value() << endl;
-    if (auto lemma = get_hi_lemma(env, n)) {
-        if (lemma->m_multi_patterns) {
-            new_out << "(multi-)patterns:\n";
-            for (multi_pattern const & mp : lemma->m_multi_patterns) {
-                new_out << "{";
-                bool first = true;
-                for (expr const & p : mp) {
-                    if (first) first = false; else new_out << ", ";
-                    new_out << p;
-                }
-                new_out << "}\n";
-            }
-        }
-    }
 }
 
 static void print_attributes(parser const & p, name const & n) {
@@ -414,6 +417,7 @@ bool print_id_info(parser const & p, name const & id, bool show_value, pos_info 
                     if (show_value)
                         print_definition(p, c, pos);
                 }
+                print_patterns(out, env, c);
             }
             return true;
         } catch (exception & ex) {}

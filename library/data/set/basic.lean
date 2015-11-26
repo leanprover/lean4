@@ -402,6 +402,26 @@ section
   suppose x ∈ Union b,
   obtain i (Hi : x ∈ b i), from this,
   show x ∈ c, from H i Hi
+  
+  theorem sUnion_insert (s : set (set X)) (a : set X) :  
+  sUnion (insert a s) = a ∪ sUnion s := 
+ext (take x, iff.intro
+  (suppose x ∈ sUnion (insert a s),
+    obtain c [(cias : c ∈ insert a s) (xc : x ∈ c)], from this,
+    or.elim cias
+      (suppose c = a,
+        show x ∈ a ∪ sUnion s, from or.inl (this ▸ xc))
+      (suppose c ∈ s,
+        show x ∈ a ∪ sUnion s, from or.inr (exists.intro c (and.intro this xc))))
+  (suppose x ∈ a ∪ sUnion s,
+    or.elim this
+      (suppose x ∈ a,
+        have a ∈ insert a s, from or.inl rfl,
+        show x ∈ sUnion (insert a s), from exists.intro a (and.intro this `x ∈ a`))
+      (suppose x ∈ sUnion s,
+        obtain c [(cs : c ∈ s) (xc : x ∈ c)], from this,
+        have c ∈ insert a s, from or.inr cs,
+        show x ∈ sUnion (insert a s), from exists.intro c (and.intro this `x ∈ c`))))
 end
 
 end set

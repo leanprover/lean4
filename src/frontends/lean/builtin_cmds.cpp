@@ -263,6 +263,8 @@ static void print_attributes(parser const & p, name const & n) {
         out << " [backward]";
     if (is_no_pattern(env, n))
         out << " [no_pattern]";
+    if (is_hi_lemma(env, n))
+        out << " [forward]";
     switch (get_reducible_status(env, n)) {
     case reducible_status::Reducible:      out << " [reducible]"; break;
     case reducible_status::Irreducible:    out << " [irreducible]"; break;
